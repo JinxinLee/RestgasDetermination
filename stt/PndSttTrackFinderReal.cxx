@@ -46,6 +46,7 @@ PndSttTrackFinderReal::PndSttTrackFinderReal()
 	istampa = 0;
 	doMcComparison = false;
 	YesSciTil = false ;
+	N_INTENDED = 0;
 
 	MINIMUMOUTERHITSPERTRACK=5;
 	Fimin=0.;     Fimax=2.*PI;
@@ -72,6 +73,7 @@ PndSttTrackFinderReal::PndSttTrackFinderReal(int verbose)
 	iplotta = false;
 	doMcComparison = false;
 	YesSciTil = false ;
+	N_INTENDED=0;
 
 	MINIMUMOUTERHITSPERTRACK=5;
 	Fimin=0.;     Fimax=2.*PI;
@@ -95,6 +97,7 @@ PndSttTrackFinderReal::PndSttTrackFinderReal(int istamp, bool iplott, bool imc)
 	iplotta = iplott;
 	doMcComparison = imc;
 	YesSciTil = false ;
+	N_INTENDED=0;
 
 	MINIMUMOUTERHITSPERTRACK=5;
 	Fimin=0.;     Fimax=2.*PI;
@@ -120,6 +123,7 @@ PndSttTrackFinderReal::PndSttTrackFinderReal(int istamp, bool iplott, bool imc, 
 	iplotta = iplott;
 	doMcComparison = imc;
 	YesSciTil = doSciTil ;
+	N_INTENDED=0;
 
 	MINIMUMOUTERHITSPERTRACK=5;
 	Fimin=0.;     Fimax=2.*PI;
@@ -171,7 +175,7 @@ void PndSttTrackFinderReal::WriteHistograms(){
 void PndSttTrackFinderReal::Init() 
 {
 
-   UShort_t i, j, k;
+   UShort_t i;
    Double_t    r1, r2, A ,
               tempRadiaConf[nRdivConformal];
 
@@ -213,7 +217,7 @@ if(istampa >=3 )   HANDLEXYZ = fopen("infoPndTrackFinderRealXYZ.txt","w");
 
    fHelixHitProduction = true;
 
-   IVOLTE=-1; ntimes = 0;
+   IVOLTE=-1;
 
 
   // Get and check FairRootManager
@@ -348,7 +352,7 @@ FairMCPoint* PndSttTrackFinderReal::GetPointFromCollections(Int_t hitCounter)
 
 // -------------------- end of PndSttTrackFinderReal::GetPointFromCollections
 
-Int_t PndSttTrackFinderReal::DoFind( TClonesArray* trackCandArray, TClonesArray* helixHitArray) {} // CHECK da cancellare
+Int_t PndSttTrackFinderReal::DoFind( TClonesArray* , TClonesArray* ) {return 0;} // CHECK da cancellare
 
 
 // -----------------   start of method DoFind
@@ -374,11 +378,9 @@ Int_t PndSttTrackFinderReal::DoFind(TClonesArray* trackCandArray, TClonesArray *
 	exitstatus,
 	inclination_type,
 	istep,
-	nSciTilHits,
 	nSciTilHitsinTrack[MAXTRACKSPEREVENT],
 	auxIndex[nmaxHits],
-	OLDinfoparal[nmaxHits],
-	ListSciTilHitsinTrack[MAXTRACKSPEREVENT][nmaxSciTilHitsInTrack];
+	OLDinfoparal[nmaxHits];
 
  Short_t
 	Charge[MAXTRACKSPEREVENT],
@@ -393,7 +395,6 @@ Int_t PndSttTrackFinderReal::DoFind(TClonesArray* trackCandArray, TClonesArray *
              lowlimit[MAXTRACKSPEREVENT],
              uplimit[MAXTRACKSPEREVENT],
              info[nmaxHits][7],
-//	posizSciTil[nmaxSciTilHits][3],
              WDX, WDY, WDZ,
              auxRvalues[nmaxHits],
              inclination[nmaxinclinationversors][3];
@@ -556,28 +557,31 @@ Int_t PndSttTrackFinderReal::DoFind(TClonesArray* trackCandArray, TClonesArray *
   if (fHitCollectionList.GetEntries() == 0)
   {
       cout << "-E- PndSttTrackFinderReal::DoFind: "
-	   << "No hit arrays present, call AddHitCollection() first (at least once), return! " << endl;
+	<< "No hit arrays present, call AddHitCollection() first (at least once), return -1! "
+		<< endl;
       return -1;
   }
 
   if (fPointCollectionList.GetEntries() == 0)
   {
       cout << "-E- PndSttTrackFinderReal::DoFind: "
-	   << "No point arrays present, call AddHitCollection() first (at least once), return! " << endl;
+	<< "No point arrays present, call AddHitCollection() first (at least once), return -1! "
+		<< endl;
       return -1;
   }
 
   if ( !trackCandArray ) 
     {
       cout << "-E- PndSttTrackFinderReal::DoFind: "
-	   << "Track array missing! " << endl;
+	   << "Track array missing, return -1!" << endl;
       return -1;
     }
 
 //       PndMCTrack*      pMCtr = NULL;     //  questo e' gia' definito in PndSttTrackFinderReal.h
    nMCTracks = fMCTrackArray->GetEntriesFast(); // num. tracce/evento
 	if (nMCTracks ==0){
-		cout<<"da PndSttTrackFinderReal  :  N. di MC truth tracks = 0, return!\n"<<endl;
+		cout<<"da PndSttTrackFinderReal  :  N. di MC truth tracks = 0, return -1!\n"
+		<<endl;
 		return -1;
 	} else if(nMCTracks> MAXMCTRACKS){
 		cout<<"da PndSttTrackFinderReal  :  N. di MC truth tracks = "<<nMCTracks
@@ -600,7 +604,7 @@ Int_t PndSttTrackFinderReal::DoFind(TClonesArray* trackCandArray, TClonesArray *
   if(Nhits <   MINIMUMHITSPERTRACK) {
     cout<<"from PndSttTrackFinderReal :  # Stt hits (|| + //) = "<<Nhits
     <<" and it is < MINIMUMHITSPERTRACK = "
-    <<MINIMUMHITSPERTRACK<<", return !"<<endl;
+    <<MINIMUMHITSPERTRACK<<", return -10!"<<endl;
     return  -10;
   }
 
@@ -663,6 +667,7 @@ Int_t PndSttTrackFinderReal::DoFind(TClonesArray* trackCandArray, TClonesArray *
 	    posizSciTil[iaccept][0]=posiz.X();
 	    posizSciTil[iaccept][1]=posiz.Y();
 	    posizSciTil[iaccept][2]=posiz.Z();
+	    InclusionListSciTil[iaccept]= true;
 	    iaccept++;
 	    finish: ;
 
@@ -730,7 +735,7 @@ if(istampa>0){
       pMhit = GetHitFromCollections(iHit);   // <== PndSttHit
       ListPointer_to_Hit[iHit]=pMhit;
       if (!pMhit){
-       cout<<"from PndSttTrackFinderReal :  # Stt hits pointer missing, return!\n";
+       cout<<"from PndSttTrackFinderReal :  # Stt hits pointer missing, skip this hit!\n";
        continue;
       }
       
@@ -887,12 +892,9 @@ cout<<"from PndSttTrackFinderReal...this hit must be noise (RefIndex = "<<ptInde
 
    if( Minclinations[0] <MINIMUMHITSPERTRACK   ) {
      cout<< "from PndSttTrackFinderReal :  # Stt || hits = "<< Minclinations[0]
-         <<" and it is < MINIMUMHITSPERTRACK = "<<MINIMUMHITSPERTRACK<<", return!"<<endl;
+         <<" and it is < MINIMUMHITSPERTRACK = "<<MINIMUMHITSPERTRACK<<", return 0!"<<endl;
 	  return 0;
    }
-
-
-
 
 
        for(i=0; i< Minclinations[0]; i++){
@@ -1007,7 +1009,6 @@ cout<<"from PndSttTrackFinderReal...this hit must be noise (RefIndex = "<<ptInde
 				 nHitsinTrack,
 				 ListHitsinTrack,
 				 nSciTilHitsinTrack,
-				 ListSciTilHitsinTrack,
 				 trajectory_vertex,
 				 infoparalConformal,
 				 posizSciTil[i][0],
@@ -1047,7 +1048,7 @@ if(istampa>0){
 	if( nTracksFoundSoFar >= MAXTRACKSPEREVENT ){
 cout<<"from PndSttTrackFinderReal :  # n. Tracks found so far = "<<nTracksFoundSoFar
 		 <<" and it is >= MAXTRACKSPEREVENT ( = "<<MAXTRACKSPEREVENT
-		 <<"; rejecting this event and returning !\n";
+		 <<"; rejecting this event and returning -15!\n";
 		return -15;
 	}
 
@@ -1088,7 +1089,6 @@ cout<<"from PndSttTrackFinderReal :  # n. Tracks found so far = "<<nTracksFoundS
 				 nHitsinTrack,
 				 ListHitsinTrack,
 				 nSciTilHitsinTrack,
-				 ListSciTilHitsinTrack,
 				 trajectory_vertex,
 				 infoparalConformal,
 				 1.,	// dummy value, there is no SciTil info in this case;
@@ -1125,7 +1125,7 @@ if(istampa>0){
  if( nTracksFoundSoFar >= MAXTRACKSPEREVENT ){
 	cout<<"from PndSttTrackFinderReal :  # n. Tracks found so far = "<<nTracksFoundSoFar
 	 <<" and it is >= MAXTRACKSPEREVENT ( = "<<MAXTRACKSPEREVENT
-	 <<"; rejecting this event and returning !\n";
+	 <<"; rejecting this event and returning -15!\n";
 	return -15;
    }
 
@@ -1185,16 +1185,14 @@ if(istampa>0){
  }
 
 // here there are 0 or 1 SciTil hits in track.
- for(j=0;j<nSciTilHitsinTrack[i];j++){
-//	tmpS[j]= atan2(posizSciTil[ ListSciTilHitsinTrack[i][j] ][1]-Oy[i],
-//			posizSciTil[ ListSciTilHitsinTrack[i][j] ][0]-Ox[i]);
+ if(nSciTilHitsinTrack[i]==1){
 
-	tmpS[j]= esse[i]; // this is already between 0 and 2PI.
-	tmpZ[j]=posizSciTil[ ListSciTilHitsinTrack[i][j] ][2],
-	tmpZDrift[j]=-1., // conventional, to signal that this is not a STT hit.
+	tmpS[0]= esse[i]; // this is already between 0 and 2PI.
+	tmpZ[0]=posizSciTil[ ListSciTilHitsinTrack[i] ][2],
+	tmpZDrift[0]=-1., // conventional, to signal that this is not a STT hit.
 	// error is intentionally overestimated for later use in SZ fit.
-//	tmpErrorZDrift[j] = DIMENSIONSCITIL/sqrt(12.);
-	tmpErrorZDrift[j] = DIMENSIONSCITIL/2.;
+//	tmpErrorZDrift[0] = DIMENSIONSCITIL/sqrt(12.);
+	tmpErrorZDrift[0] = DIMENSIONSCITIL/2.;
  }
  for(j=0;j<nSttSkewhitinTrack[i];j++){
 	ListSkewHitsinTrack[i][j]=TemporarySkewList[j][0];
@@ -1789,10 +1787,10 @@ if( istampa>=1 && nMCTracksaccettabili>0 ){
 		}
 
 		//  add the SciTil hit(s ??).
-		for(j=0; j< nSciTilHitsinTrack[i]; j++){
+		if(nSciTilHitsinTrack[i]==1){
 			pTrckCand->AddHit(
 			1001,	// mio numero, temporaneo, che segnala gli SciTil.
-			(Int_t) ListSciTilHitsinTrack[i][j] , nTotalHits[i]+j);
+			(Int_t) ListSciTilHitsinTrack[i] , nTotalHits[i]);
 		}
 
 
@@ -2236,8 +2234,6 @@ if(iplotta && IVOLTE <= nmassimo){
 		keepit,
                    Nhits, info, Nincl, Minclinations,
 		    inclination,
-		    nSciTilHits,
-//		    posizSciTil,
 		    nTracksFoundSoFar
                                                      );
 
@@ -2249,8 +2245,6 @@ if(iplotta && IVOLTE <= nmassimo){
 		keepit,
                    Nhits, info, Nincl, Minclinations,
 		    inclination,
-		nSciTilHits,
-//		posizSciTil,
 		    nTracksFoundSoFar
                                                      );
 }
@@ -2266,8 +2260,7 @@ if(iplotta && IVOLTE <= nmassimo){
 			i,
 			ii,
 			nSciTilHitsinTrack[i],
-			&ListSciTilHitsinTrack[i][0]
-//			posizSciTil
+			ListSciTilHitsinTrack[i]
 			);
 
   if(doMcComparison) {
@@ -2280,7 +2273,7 @@ if(iplotta && IVOLTE <= nmassimo){
                    i,
 		   ii,
 			nSciTilHitsinTrack[i],
-			&ListSciTilHitsinTrack[i][0],
+			ListSciTilHitsinTrack[i],
 		nParalCommon,
 		ParalCommonList,
 		nSpuriParinTrack,
@@ -2307,12 +2300,9 @@ for(i=0,ii=-1; i<nTracksFoundSoFar;i++){
     Double_t ESSE[nSciTilHitsinTrack[i]],
 		ZETA[nSciTilHitsinTrack[i]];
    // here nSciTilHitsinTrack[i] is 0 or 1.
-    for(j=0;j<nSciTilHitsinTrack[i];j++){
+    if(nSciTilHitsinTrack[i]==1){
 	ESSE[j]= esse[i];
-//	ESSE[j]= atan2( posizSciTil[ListSciTilHitsinTrack[i][j]][1]-Oy[i],
-//			posizSciTil[ListSciTilHitsinTrack[i][j]][0]-Ox[i]);
-//	if( ESSE[j]<0. ) ESSE[j]+= 2.*PI;
-	ZETA[j]= posizSciTil[ListSciTilHitsinTrack[i][j]][2];
+	ZETA[j]= posizSciTil[ListSciTilHitsinTrack[i]][2];
     }
 
 
@@ -2365,7 +2355,7 @@ for(i=0,ii=-1; i<nTracksFoundSoFar;i++){
 
 
 
-  return   nTracksFoundSoFar;
+  return   ((Int_t )nTracksFoundSoFar );
 
 
  }; //-------------------------------------------------  end of function  PndSttTrackFinderReal::DoFind
@@ -2589,421 +2579,6 @@ cout<<"fine printout iniziale\n";
 }
 
 //----------------------------------------------------   end of function  PndSttTrackFinderReal::PndSttTrkFindCircles
-
-
-//----------------------------------------------------   begin function  PndSttTrackFinderReal::PndSttTrkFindHelix
-
- CalculatedHelix PndSttTrackFinderReal::PndSttTrkFindHelix(
-      Double_t Ox, Double_t Oy, Double_t R,
-      Double_t Zcenter1,Double_t Zcenter2,Double_t Zcenter3,
-      Double_t semilengthStraight1, Double_t semilengthStraight2, Double_t semilengthStraight3,
-      Double_t C0x1, Double_t C0y1, Double_t C0z1, Double_t semilengthSkew1,
-      Double_t r1, Double_t vx1, Double_t vy1, Double_t vz1,
-      Double_t C0x2, Double_t C0y2, Double_t C0z2, Double_t semilengthSkew2,
-      Double_t r2, Double_t vx2, Double_t vy2, Double_t vz2,
-      Int_t *STATUS
-                                                         )
-{
-
-
-//-------------------------------------------
-
-
-
-/*
- INPUTS :
-
-  Ox, Oy        = abscissa and ordinate of the center of the circular trajectory of
-                  the particle;
-  R             = radius of such trajectory;
-  C0x, C0y, Coz = x, y, z coordinates of a point belonging to the axis of the
-                  skewed straw;
-  r  = radius of equidrift of such skewed straw;
-  vx, vy, vz    =  versor of the direction along which the skewed straw lies.
-
-
- OUTPUTS :
-
-  P1x, P1y, P1z  =  x, y, z coordinates of the point intersection between the
-                    particle trajectory circle and the equidrift cylinder of
-                    the skewed straw calculated as a function of theta (first
-                    solution);
-  P2x, P2y, P2z  =  x, y, z coordinates of the point intersection between the
-                    particle trajectory circle and the equidrift cylinder of
-                    the skewed straw calculated as a function of theta (second
-                    solution);
-
-*/
-
-  Int_t  Nsolutions, NTOTAL,  Msol, i, j, i1, i2, k1, k2,  enne, jtemp, nfile;
-
-  Double_t aaa, bbb, ccc, ddd, eee, fff,
-           bp, cp, bs, cs,
-           q1, q2pos, q2neg,
-           Rx, Ry, SkewInclWithRespectToS, Aellipsis1, Bellipsis1, Aellipsis2, Bellipsis2, LL,
-           alpha, beta, gamma, delta, epsilon,DELTA, A, B, C, D, cosalfa1, cosalfa2,
-           alpha1, beta1, gamma1,
-           x0, y0, fi1, fi2,
-           SSS1, SSS2,
-           xmin,xmax,ymin,ymax,
-           x1,x2,y1,y2,
-           POINTS1[6],POINTS2[6],distance1[2], distance2[2],
-           M[4], Temp[4], Tiltdirection1[2], Tiltdirection2[2] ;
-
-//  const Double_t PI = 3.141592654;
-
-  bool BAD1[2], BAD2[2] ;
-
-  char nome[300];
-
-  CalculatedHelix  Result;
-
-//--------------------------
-
-
-
-//       cout<<"Entra in PndSttTrkFindHelix.........\n";
-
-
-
- ntimes++;
-
-
- aaa = sqrt(vx1*vx1+vy1*vy1+vz1*vz1);
- vx1 /= aaa;
- vy1 /= aaa;
- vz1 /= aaa;
- aaa = sqrt(vx2*vx2+vy2*vy2+vz2*vz2);
- vx2 /= aaa;
- vy2 /= aaa;
- vz2 /= aaa;
-
-
- NTOTAL=0;
- Result.Nhelix[0] = Result.Nhelix[1] = Result.Nhelix[2] = 0;
-
-//  calculation of the intersection points between skew straw axis and trajectory cylinder ----------------------------
-
- calculateintersections(Ox,Oy,R,C0x1,C0y1,C0z1,r1,vx1,vy1,vz1, STATUS,POINTS1);
-
- if(*STATUS < 0 ) { return Result;}
-
- for( i=0; i<2; i++){
-  j=3*i;
-  distance1[i] = sqrt(
-                  (POINTS1[j]-C0x1)*(POINTS1[j]-C0x1) + 
-                  (POINTS1[1+j]-C0y1)*(POINTS1[1+j]-C0y1) + 
-                  (POINTS1[2+j]-C0z1)*(POINTS1[2+j]-C0z1) 
-                 );
-  if( distance1[i] >= semilengthSkew1 ){
-     BAD1[i] = true ;
-  } else {
-     BAD1[i]= false ;
-  }
- }
-
-//----------------
-
-  if ( BAD1[0]  && BAD1[1] ) {
-    *STATUS = -4;
-    return Result;
-  }
-
-//----------------
-
- calculateintersections(Ox,Oy,R,C0x2,C0y2,C0z2,r2,vx2,vy2,vz2, STATUS,POINTS2);
- if(*STATUS < 0 ) { return Result;}
-
-//-------------------------
- for( i=0; i<2; i++){
-  j=3*i;
-  distance2[i] = sqrt(
-                  (POINTS2[j]-C0x2)*(POINTS2[j]-C0x2) +
-                  (POINTS2[1+j]-C0y2)*(POINTS2[1+j]-C0y2) + 
-                  (POINTS2[2+j]-C0z2)*(POINTS2[2+j]-C0z2) 
-                 );
-
-  if( distance2[i] >= semilengthSkew2 ){
-     BAD2[i] = true ;
-  } else {
-     BAD2[i]= false ;
-  }
- }
-//-------------------------
-
-  if ( BAD2[0] && BAD2[1] ) {
-    *STATUS = -5;
-    return Result;
-  }
-
-//---------------------------------------------------------------------------------------------------------------------
-
-
-for(k1=0; k1<2;k1++){
-//              if( BAD1[k1] )  { cout<<"per k1 = "<<k1<<"  la intersezione e' BAD\n";}
- if( BAD1[k1] )  continue;
- i1 = 3*k1;
-
-//  calculation of the approximate axis length of the ellipses projection of the skew straw on the plane tangent to the trajectory cylinder.
-//  first skew straw
-
- Rx = POINTS1[i1]-Ox ;   //  x component Radial vector of cylinder of trajectory
- Ry = POINTS1[1+i1]-Oy ;   //  y direction Radial vector of cylinder of trajectory
-
- aaa = sqrt(Rx*Rx+Ry*Ry);
- SkewInclWithRespectToS = (-Ry*vx1 + Rx*vy1)/aaa ;
-  SkewInclWithRespectToS /= R;
- bbb = sqrt( SkewInclWithRespectToS*SkewInclWithRespectToS + vz1*vz1);
-//  the tilt direction of this ellipse is (1,0)  when major axis along Z direction
- if( bbb > 1.e-10){
-   Tiltdirection1[0] = vz1/bbb;
-   Tiltdirection1[1] = SkewInclWithRespectToS/bbb;
- } else {
-   Tiltdirection1[0] = 1.;
-   Tiltdirection1[1] = 0.;
- }
-
- LL = fabs(vx1*Rx + vy1*Ry);
- if( LL < 1.e-10) continue;
- Aellipsis1 = r1*aaa/LL;
-
- if(istampa >= 3 && IVOLTE<= nmassimo){
-   cout<<"Lunghezza asse maggiore ellisse1 = "<<Aellipsis1<<";  raggio drift1 = "<<r1<<";  Tdirz = "<<Tiltdirection1[0]
-       <<";  TdirFI = "<<Tiltdirection1[1]<<endl;
-   cout<<"cos angolo con la normale = "<<LL/aaa<<endl;
- }
-
-// checks that the projected ellipsis doesn't go out the boundaries of both the skew straw and the trajectory cylinder
-// under the safe assumption that the ellipse has the major axis in Z direction.
-
- if(
-    Aellipsis1 > semilengthStraight1-fabs(POINTS1[i1+2]-Zcenter1)   ||
-    Aellipsis1 > semilengthStraight2-fabs(POINTS1[i1+2]-Zcenter2)   ||
-    Aellipsis1 > semilengthStraight3-fabs(POINTS1[i1+2]-Zcenter3)   ||
-    distance1[k1] + Aellipsis1 > semilengthSkew1        //  the ellipsis goes out of the boundaries of the skew straw
-   )  continue;
-
-
-
-
-  fi1 = atan2(POINTS1[i1+1]-Oy, POINTS1[i1]-Ox) ;  // atan2 returns radians in (-pi and +pi]
-  if( fi1 < 0.) fi1 += 2.*PI;
-
-
- for(k2=0; k2<2;k2++){
-  if(  BAD2[k2] )  continue;
-
-  i2 = 3*k2;
-
-//  calculation of the approximate axis length of the ellipses projection of the skew straw on the plane tangent to the trajectory cylinder.
-//  first skew straw
-
-  Rx = POINTS2[i2]-Ox ;   //  x direction along R of cylinder of trajectory
-  Ry = POINTS2[1+i2]-Oy ;   //  y direction along R of cylinder of trajectory
-
-  aaa = sqrt(Rx*Rx+Ry*Ry);
-  SkewInclWithRespectToS = (-Ry*vx2 + Rx*vy2)/aaa ;
-  SkewInclWithRespectToS /= R;
-  bbb = sqrt( SkewInclWithRespectToS*SkewInclWithRespectToS + vz2*vz2);
-//  the tilt direction of this ellipse is (1,0)  when major axis along Z direction
- if( bbb > 1.e-10){
-   Tiltdirection2[0] = vz2/bbb;
-   Tiltdirection2[1] = SkewInclWithRespectToS/bbb;
- } else {
-   Tiltdirection2[0] = 1.;
-   Tiltdirection2[1] = 0.;
- }
- LL = fabs(vx2*Rx + vy2*Ry);
- if(LL < 1.e-10) continue;
- Aellipsis2 = r2*aaa/LL;
-// Bellipsis2 = r2;
-
-// checks that the projected ellipsis doesn't go out the boundaries of both the skew straw and the trajectory cylinder
-
-  if(
-    Aellipsis2 > semilengthStraight1-fabs(POINTS2[i2+2]-Zcenter1)   ||  // the ellipsis goes out of the boundaries of the straight straws
-    Aellipsis2 > semilengthStraight2-fabs(POINTS2[i2+2]-Zcenter2)   ||
-    Aellipsis2 > semilengthStraight3-fabs(POINTS2[i2+2]-Zcenter3)   ||
-    distance2[k2] + Aellipsis2 > semilengthSkew2        //  the ellipsis goes out of the boundaries of the skew straw
-    )  continue;
-
-
-//    end of boundaries checks, now find KAPPA and FI0
-
-
-
-
-
-     fi2 = atan2(POINTS2[i2+1]-Oy, POINTS2[i2]-Ox) ;  // atan2 returns radians in (-pi and +pi]
-     if ( fi2 < 0.)  fi2 += 2.*PI;
-
-
-
-
-
-//   translation with the new variables ( those of the lateral surface of the trajectory cylinder and with the first ellipsis
-//   positioned at 0,0
-
-
-  for ( enne = -1; enne<2; enne++) {    //  enne  is the order of the solution
-
-
-//   translation with the new variables ( those of the lateral surface of the trajectory cylinder and with the first ellipsis
-//   positioned at 0,0
-
-
-
-     Result.Nhelix[enne+1] = 4;
-
-  for(i=0; i<2; i++){
-   for(j=0; j<2; j++){
-
-     x1 =  POINTS1[i1+2] + (1 - 2*j)*Aellipsis1*Tiltdirection1[0];
-     y1 = fi1 + (1 - 2*j)*Aellipsis1*Tiltdirection1[1] ;
-     x2 =  POINTS2[i2+2] + (1 - 2*i)*Aellipsis2*Tiltdirection2[0];
-     y2 = fi2 + (1 - 2*i)*Aellipsis2*Tiltdirection2[1] + enne * 2. * PI  ;
-
-
-
-
-     Nsolutions = j + 2*i;
-
-     if ( x2-x1 != 0.){
-       Result.KAPPA[enne+1][Nsolutions] =  (y2-y1) / (x2-x1) ;
-       Result.FI0[enne+1][Nsolutions] = -Result.KAPPA[enne+1][Nsolutions] * x1 + y1;
-     } else {
-       Result.KAPPA[enne+1][Nsolutions] = 1.e14;
-       Result.FI0[enne+1][Nsolutions] = x1;
-     }
-
-    }
-   }      //  end of   for(i=0; i<2; i++)
-
-
-
-
-
-
-
-// --------------------- inizio stampe diagnostiche e macros diagnostiche
-
-
-
-// --------------------------------------------------------------------   stampa delle macro di controllo
-if(iplotta && IVOLTE <= nmassimo){
-
-  Bellipsis1 = r1/R;
-  Bellipsis2 = r2/R;
-
-  SSS1=atan2(POINTS1[i1+1]-Oy,POINTS1[i1]-Ox);
-  if( SSS1<0.) SSS1 +=2.*PI;
-  SSS2=atan2(POINTS2[i2+1]-Oy,POINTS2[i2]-Ox);
-  if( SSS2<0.) SSS2 +=2.*PI;
-  SSS2 += 2.*PI*enne;
-
-for(i=0,nfile=0; i<4; i++){
- if(ntimes < 3){
-  nfile++;
-
-  aaa = fabs(POINTS1[i1+2]-POINTS2[i2+2])*0.05;
-  bbb = fabs(SSS1-SSS2)*0.05;
-
-  if(POINTS1[i1+2]-Aellipsis1<POINTS2[i2+2]-Aellipsis2){xmin=POINTS1[i1+2]-Aellipsis1-aaa;} else
-{xmin=POINTS2[i2+2]-Aellipsis2-aaa;}
-  if(POINTS1[i1+2]+Aellipsis1>POINTS2[i2+2]+Aellipsis2){xmax=POINTS1[i1+2]+Aellipsis1+aaa;} else
-{xmax=POINTS2[i2+2]+Aellipsis2+aaa;}
-
-  if( SSS1-Bellipsis1 < SSS2-Bellipsis2){ ymin = SSS1-Bellipsis1-bbb; } else { ymin = SSS2-Bellipsis2-bbb; }
-  if( SSS1+Bellipsis1 > SSS2+Bellipsis2){ ymax = SSS1+Bellipsis1+bbb; } else { ymax = SSS2+Bellipsis2+bbb;}
-
-  if( enne < 0) {
-   sprintf(nome,"macro1_combination%d_ennemeno%d_kuno%d_kdue%dn%d.C",ntimes,-enne,k1,k2,nfile);
-  } else {
-   sprintf(nome,"macro1_combination%d_enne%d_kuno%d_kdue%dn%d.C",ntimes,enne,k1,k2,nfile);
-  }
-  FILE * MACRO = fopen(nome,"w");
-  if( enne < 0) {
-    fprintf(MACRO,"void macro1_combination%d_ennemeno%d_kuno%d_kdue%dn%d()\n{\n",ntimes,-enne,k1,k2,nfile);
-  } else {
-    fprintf(MACRO,"void macro1_combination%d_enne%d_kuno%d_kdue%dn%d()\n{\n",ntimes,enne,k1,k2,nfile);
-  }
-
-  Double_t rotation1 = 180.*atan2(Tiltdirection1[1],Tiltdirection1[0])/PI;
-  Double_t rotation2 = 180.*atan2(Tiltdirection2[1],Tiltdirection2[0])/PI;
-  fprintf(MACRO,"TCanvas* my= new TCanvas();\nmy->Range(%f,%f,%f,%f);\n",xmin,ymin,xmax,ymax);
-  fprintf(MACRO,"TEllipse* E1 = new TEllipse(%f,%f,%f,%f,0.,360.,%f);\n",POINTS1[i1+2],SSS1,Aellipsis1,Bellipsis1,rotation1);
-  fprintf(MACRO,"TEllipse * E2 = new TEllipse(%f,%f,%f,%f,0.,360.,%f);\n",POINTS2[i2+2],SSS2,Aellipsis2,Bellipsis2,rotation2);
-  fprintf(MACRO,"TLine* L = new TLine(%f,%f,%f,%f);\n",
-        xmin,
-        Result.KAPPA[enne+1][i]*xmin+Result.FI0[enne+1][i],
-        xmax,
-        Result.KAPPA[enne+1][i]*xmax+Result.FI0[enne+1][i]
-         );
-  fprintf(MACRO,"TGaxis *Assey = new  TGaxis(%f,%f,%f,%f,%f,%f,510);\n",xmin+(xmax-xmin)*0.1,
-                           ymin+(ymax-ymin)*0.1,xmin+(xmax-xmin)*0.1,ymax-(ymax-ymin)*0.1,
-                          ymin+(ymax-ymin)*0.1,ymax-(ymax-ymin)*0.1);
-  fprintf(MACRO,"Assey->Draw();\n");
-  fprintf(MACRO,"TGaxis *Assex = new  TGaxis(%f,%f,%f,%f,%f,%f,510);\n",xmin+(xmax-xmin)*0.1,
-                           ymin+(ymax-ymin)*0.1,xmax-(xmax-xmin)*0.1,ymin+(ymax-ymin)*0.1,
-                          xmin+(xmax-xmin)*0.1,xmax-(xmax-xmin)*0.1);
-  fprintf(MACRO,"Assex->Draw();\n");
-  if( ymin<2.*PI && ymax > 2.*PI) {
-    fprintf(MACRO,"TLine* TWOPI = new TLine(%f,%f,%f,%f);\nTWOPI->SetLineColor(2);\nTWOPI->Draw();\n",
-                 xmin,2.*PI,xmax,2.*PI);
-  }
-  if( ymin<0. && ymax > 0.) {
-    fprintf(MACRO,"TLine* BASE = new TLine(%f,%f,%f,%f);\nBASE->SetLineColor(2);\nBASE->Draw();\n",
-                 xmin,0.,xmax,0.);
-  }
-  if( ymin<-2.*PI && ymax > -2.*PI) {
-    fprintf(MACRO,"TLine* NEG = new TLine(%f,%f,%f,%f);\nNEG->SetLineColor(2);\nNEG->Draw();\n",
-                 xmin,-2.*PI,xmax,-2.*PI);
-  }
-  fprintf(MACRO,"TLine* Teorica = new TLine(%f,%f,%f,%f);\n",
-        xmin,
-        xmin/R + 3.*PI/2.,
-        xmax,
-        xmax/R + 3.*PI/2.
-         );
-  fprintf(MACRO,"Teorica->SetLineColor(4);\n");
-  fprintf(MACRO,"E1->Draw();\nE2->Draw();\nL->Draw();\nTeorica->Draw();\n}\n");
-  fclose(MACRO);
- }  //    end of   if(ntimes < 3)
-
-}   //    end   of   for(i=0; i<jtemp; i++)
-
-// -----------------------------------------------------------------  fine  stampa delle macro di controllo
-
-     }   //  end if(iplotta)
-// --------------------- fine stampe diagnostiche e macros diagnostiche
-
-
-
-
-   }  //   end  for(enne=0; enne<2; enne++)
-
-  }   // end  for(k2=0;
- }   // end  for(k1=0;
-
-  NTOTAL=4;
- *STATUS = NTOTAL;
- 
-//----------------------------------------------------------------------------------------------------------------------
-
-/*
-cout<<"ultima stampa, N totale soluzioni = "<<NTOTAL<<"; N a 0 giri = "<<
-     Result.Nhelix[1]<<"; N a 1 giro "<<Result.Nhelix[2]<<"; N ad un giro sotto "<<Result.Nhelix[0]<<endl;
-
-cout<<"Esce da PndSttTrkFindHelix.........\n";
-*/
-
-
-
- return Result;
-
-}
-//--------------------------------  end of function         PndSttTrackFinderReal::PndSttTrkFindHelix
-
 
 
 
@@ -3610,8 +3185,6 @@ void PndSttTrackFinderReal::clustering3 (
                    Int_t Nhits, Double_t info[][7],
 		   Int_t Nincl, Int_t Minclinations[],
 		   Double_t inclination[][3],
-		   UShort_t nSciTilHits,
-//		   Double_t posizSciTil[nmaxSciTilHits][3],
                    UShort_t nTracksFoundSoFar
                                                      )
 {
@@ -4147,8 +3720,6 @@ dopo:  ;
 		   Int_t Nincl,
 		    Int_t Minclinations[],
 		     Double_t inclination[][3],
-		   UShort_t nSciTilHits,
-//		   Double_t posizSciTil[nmaxSciTilHits][3],
                    UShort_t nTracksFoundSoFar
                                                      )
 {
@@ -4745,8 +4316,7 @@ fprintf(MACRO,"TEllipse* E%d = new TEllipse(%f,%f,%f,%f,0.,360.);\nE%d->SetLineW
 	UShort_t imaxima,
 	Int_t sequencial,
 	UShort_t nscitilhitsintrack,
-	UShort_t *listscitilhitsintrack
-//	Double_t posizSciTil[nmaxSciTilHits][3]
+	UShort_t listscitilhitsintrack
 			)
 {
 
@@ -4790,8 +4360,8 @@ fprintf(MACRO,"TEllipse* E%d = new TEllipse(%f,%f,%f,%f,0.,360.);\nE%d->SetLineW
       ymax=-1.e20;
 
 //---- Scitil hits.
-       for( ii=0; ii< nscitilhitsintrack; ii++) {
-            i = listscitilhitsintrack[ii] ;
+       if(nscitilhitsintrack==1) {
+            i = listscitilhitsintrack ;
             if (posizSciTil[i][0] < xmin)   xmin = posizSciTil[i][0];
             if (posizSciTil[i][0] > xmax)   xmax = posizSciTil[i][0];
             if (posizSciTil[i][1] < ymin)   ymin = posizSciTil[i][1];
@@ -4852,8 +4422,8 @@ fprintf(MACRO,"TEllipse* E%d = new TEllipse(%f,%f,%f,%f,0.,360.);\nE%d->SetLineW
 
 //---- disegna gli Scitil.
 
-	for( ii=0; ii< nscitilhitsintrack; ii++) {
-		i = listscitilhitsintrack[ii] ;
+	if(nscitilhitsintrack==1) {
+		i = listscitilhitsintrack ;
 		fprintf(MACRO,"TMarker* SciT%d = new TMarker(%f,%f,%d);\n",
 			i,posizSciTil[i][0],posizSciTil[i][1],30);
 		fprintf(MACRO,"SciT%d->SetMarkerSize(1.5);\n",i);
@@ -4898,8 +4468,7 @@ fprintf(MACRO,"TEllipse* E%d = new TEllipse(%f,%f,%f,%f,0.,360.);\nE%d->SetLineW
 	UShort_t ifoundtrack,
 	Int_t sequentialNTrack,
 	UShort_t nscitilhitsintrack,
-	UShort_t *listscitilhitsintrack,
-//	Double_t posizSciTil[nmaxSciTilHits][3],
+	UShort_t listscitilhitsintrack,
 		UShort_t nParalCommon[MAXTRACKSPEREVENT],
 		UShort_t ParalCommonList[MAXTRACKSPEREVENT][nmaxHits],
 		UShort_t nSpuriParinTrack[MAXTRACKSPEREVENT],
@@ -4945,8 +4514,8 @@ fprintf(MACRO,"TEllipse* E%d = new TEllipse(%f,%f,%f,%f,0.,360.);\nE%d->SetLineW
       ymax=-1.e20;
 
 //---- Scitil hits.
-       for( ii=0; ii< nscitilhitsintrack; ii++) {
-            i = listscitilhitsintrack[ii] ;
+       if(nscitilhitsintrack==1) {
+            i = listscitilhitsintrack ;
             if (posizSciTil[i][0] < xmin)   xmin = posizSciTil[i][0];
             if (posizSciTil[i][0] > xmax)   xmax = posizSciTil[i][0];
             if (posizSciTil[i][1] < ymin)   ymin = posizSciTil[i][1];
@@ -5027,8 +4596,8 @@ fprintf(MACRO,"TEllipse* E%d = new TEllipse(%f,%f,%f,%f,0.,360.);\nE%d->SetLineW
 
 //---- disegna gli Scitil.
 
-	for( ii=0; ii< nscitilhitsintrack; ii++) {
-		i = listscitilhitsintrack[ii] ;
+	if(nscitilhitsintrack==1) {
+		i = listscitilhitsintrack ;
 		fprintf(MACRO,"TMarker* SciT%d = new TMarker(%f,%f,%d);\n",
 			i,posizSciTil[i][0],posizSciTil[i][1],30);
 		fprintf(MACRO,"SciT%d->SetMarkerSize(1.5);\n",i);
@@ -5109,7 +4678,7 @@ carica0: ;
 	Int_t sequentialNTrack,
 	UShort_t nSttSkewhitinTrack,
 	UShort_t ListSkewHitsinTrack[MAXTRACKSPEREVENT][nmaxHitsInTrack],
-	UShort_t nSciTilHits,
+	UShort_t nscitilhits,
 	Double_t *ESSE,
 	Double_t *ZETA
                                                      )
@@ -5155,8 +4724,8 @@ carica0: ;
       Smax=zmax = -zmin;
       index=0;
 
-	// prima lo (gli) hits SciTil
- for(i=0;i<nSciTilHits;i++){
+	// prima lo  hits SciTil
+ for(i=0;i<nscitilhits;i++){
 		if( ESSE[i]>Smax ) Smax=ESSE[i];
 		if( ESSE[i]<Smin ) Smin=ESSE[i];
 		if( ZETA[i]>zmax ) zmax=ZETA[i];
@@ -5284,7 +4853,7 @@ fuori: ;
   }   //   end of  for( i=1; i< Nhits; i++)
 
 
-  if(index+nSciTilHits==0) goto nohits ;
+  if(index+nscitilhits==0) goto nohits ;
   if( zmax < zmin ) goto nohits ;
   if( Smax < Smin ) goto nohits;
   aaa = Smax-Smin;
@@ -5318,7 +4887,7 @@ fuori: ;
 
 //------------
 //  plot di eventuali hits  SciTil;
-	for(i=0;i<nSciTilHits;i++){
+	for(i=0;i<nscitilhits;i++){
 		fprintf(MACRO,"SciT%d->Draw();\n",i);
 	}
 //------------
@@ -5414,7 +4983,7 @@ nohits: ;
                    UShort_t daTrackFoundaTrackMC,
 		UShort_t nMCSkewAlone[MAXTRACKSPEREVENT],
 		UShort_t MCSkewAloneList[MAXTRACKSPEREVENT][nmaxHits],
-	UShort_t nSciTilHits,
+	UShort_t nscitilhits,
 	Double_t *ESSE,
 	Double_t *ZETA
                                                      )
@@ -5464,7 +5033,7 @@ nohits: ;
       index=0;
 
 // prima lo (gli) hits SciTil
- for(i=0;i<nSciTilHits;i++){
+ for(i=0;i<nscitilhits;i++){
 		if( ESSE[i]>Smax ) Smax=ESSE[i];
 		if( ESSE[i]<Smin ) Smin=ESSE[i];
 		if( ZETA[i]>zmax ) zmax=ZETA[i];
@@ -5680,7 +5249,7 @@ cout<<"the ellipsis goes out of the boundaries of the skew straw, hit n. "<<i<<e
 //-------------------------------
 //------ fine aggiunta in blu eventuali punti della traccia MC che sono non mecciati
 
-  if(index+nSciTilHits==0) goto nohits ;
+  if(index+nscitilhits==0) goto nohits ;
   if( zmax < zmin ) goto nohits ;
   if( Smax < Smin ) goto nohits;
   aaa = Smax-Smin;
@@ -5717,7 +5286,7 @@ cout<<"the ellipsis goes out of the boundaries of the skew straw, hit n. "<<i<<e
 
 //------------
 //  plot di eventuali hits  SciTil;
-	for(i=0;i<nSciTilHits;i++){
+	for(i=0;i<nscitilhits;i++){
 		fprintf(MACRO,"SciT%d->Draw();\n",i);
 	}
 //------------
@@ -13586,7 +13155,6 @@ c[] = {-2.*Ama/sqrt(3.),-Ama,	2.*Ama/sqrt(3.),-vgap/2.,2.*Ami/sqrt(3.),-Ami,	-2.
 		UShort_t *nHitsinTrack,
 		UShort_t ListHitsinTrack[MAXTRACKSPEREVENT][nmaxHitsInTrack],
 		UShort_t *nSciTilHitsinTrack,
-		UShort_t ListSciTilHitsinTrack[MAXTRACKSPEREVENT][nmaxSciTilHitsInTrack],
 		Double_t *trajectory_vertex,
 		Double_t infoparalConformal[nmaxHits][5],
 		Double_t posizSciTilx,
@@ -13876,10 +13444,10 @@ for(int iz=0;iz<nummm;iz++){
 
  // the following is because the circumference is supposed to come from (0,0);
  //   here the factor 0.9 is used in order to be conservative.
- if(aaa< 0.9*RadiusMinStrawDetector/2.) return false;
+ if(aaa< 0.9*RStrawDetectorMin/2.) return false;
 
 //   here the factor 0.9 is used in order to be conservative.
- if ( R[nTracksFoundSoFar] + aaa < RadiusMinStrawDetector *0.9 ) return false;
+ if ( R[nTracksFoundSoFar] + aaa < RStrawDetectorMin *0.9 ) return false;
 
 //---------------------------
 
@@ -13895,23 +13463,27 @@ for(int iz=0;iz<nummm;iz++){
 //  P1 =  [ x0- abs{(L/2)*y0/RR}; y0-SIGN*abs{(L/2)*x0/RR} ],
 //  P2 =  [ x0+abs{(L/2)*y0/RR}; y0+SIGN*abs{(L/2)*x0/RR} ].
 
- if(iHit<0){
-
+	bool intersect;
+	Short_t iSciT;
 	UShort_t Nint;
 	Double_t distance,
-		 RR = posizSciTilx*posizSciTilx+posizSciTily*posizSciTily,
-		 sqrtRR=sqrt(RR),
+		 QQ,
+		 sqrtRR,
 		 SIGN,
 		 XintersectionList[2],
 		 YintersectionList[2];
+ if(iHit<0){
+
+	QQ = posizSciTilx*posizSciTilx+posizSciTily*posizSciTily;
+	sqrtRR=sqrt(QQ);
 
 	if( -posizSciTilx*posizSciTily <0. )  SIGN=-1.;
 	else  SIGN=1.;
 
-	bool intersect = IntersectionCircle_Segment(
+	intersect = IntersectionCircle_Segment(
 			posizSciTilx,
 			posizSciTily,
-			-RR,
+			-QQ,
 			posizSciTilx-fabs(0.5*DIMENSIONSCITIL*posizSciTily/sqrtRR),
 			posizSciTilx+fabs(0.5*DIMENSIONSCITIL*posizSciTily/sqrtRR),
 			posizSciTily-SIGN*fabs(0.5*DIMENSIONSCITIL*posizSciTilx/sqrtRR),
@@ -13928,7 +13500,8 @@ for(int iz=0;iz<nummm;iz++){
 // reject case with no intersection of the SciTil with the circle trajectory.
 	if(intersect){
 		nSciTilHitsinTrack[nTracksFoundSoFar]=1;
-		ListSciTilHitsinTrack[nTracksFoundSoFar][0]= -iHit-1;
+		ListSciTilHitsinTrack[nTracksFoundSoFar]= -iHit-1;
+		InclusionListSciTil[ListSciTilHitsinTrack[nTracksFoundSoFar]]=false;
 
 	// calculate S on the lateral face of the Helix.
 	if ( Nint==1){	// the majority of the cases
@@ -13946,8 +13519,30 @@ for(int iz=0;iz<nummm;iz++){
 	} // end of  if(intersect).
 
  } else { // continuation of if (iHit<0)
-// the seed hit was a Stt hit; therefore no SciTil hits associated.
-	nSciTilHitsinTrack[nTracksFoundSoFar]=0;
+
+	// the seed hit was a Stt hit; therefore no SciTil hits associated
+	// yet; try if any SciTil hits are associated to this track cand.
+
+	if(YesSciTil) nSciTilHitsinTrack[nTracksFoundSoFar]=
+		iSciT = AssociateSciTilHit(
+			Ox[nTracksFoundSoFar],
+			Oy[nTracksFoundSoFar],
+			R[nTracksFoundSoFar],
+			S	// output; S on the lateral face of the Helix
+				// of the SciTil hit (if present).
+				);
+		if(iSciT>=0){
+		  nSciTilHitsinTrack[nTracksFoundSoFar]=1;
+		  ListSciTilHitsinTrack[nTracksFoundSoFar]=iSciT;
+		  InclusionListSciTil[ListSciTilHitsinTrack[nTracksFoundSoFar]]
+				=false;
+		}
+	else  nSciTilHitsinTrack[nTracksFoundSoFar]=0;
+
+
+
+	  nSciTilHitsinTrack[nTracksFoundSoFar]=0;
+
  } // end of  if (iHit<0).
 
 //---------------------  better association of the hits in the track candidate
@@ -14116,6 +13711,94 @@ if(iplotta && IVOLTE <= nmassimo){
 };
 
 //----------end of function PndSttTrackFinderReal::FindTrackInXYProjection
+
+
+
+
+
+
+//----------begin of function PndSttTrackFinderReal::AssociateSciTilHit
+
+	Short_t PndSttTrackFinderReal::AssociateSciTilHit(
+		Double_t Oxx,
+		Double_t Oyy,
+		Double_t Rr,
+		Double_t *esse
+				)
+{
+
+ bool intersect;
+
+ UShort_t
+	iScitHit,
+	Nint;
+ Short_t
+	igoodScit;
+
+ Double_t
+	distance,
+	olddist,
+	QQ,
+	sqrtRR,
+	SIGN,
+	XintersectionList[2],
+	YintersectionList[2];
+
+
+ olddist = 9999999999.;
+ igoodScit=-1;
+ for(iScitHit=0; iScitHit<nSciTilHits; iScitHit++){
+	if(!InclusionListSciTil[iScitHit]) continue;
+
+	QQ = posizSciTil[iScitHit][0]*posizSciTil[iScitHit][0]
+			+posizSciTil[iScitHit][1]*posizSciTil[iScitHit][1];
+	sqrtRR=sqrt(QQ);
+
+	if( -posizSciTil[iScitHit][0]*posizSciTil[iScitHit][1]<0.)  SIGN=-1.;
+	else  SIGN=1.;
+
+	intersect = IntersectionCircle_Segment(
+	  posizSciTil[iScitHit][0],
+	  posizSciTil[iScitHit][1],
+	  -QQ,
+	  posizSciTil[iScitHit][0]-fabs(0.5*DIMENSIONSCITIL*posizSciTil[iScitHit][1]/sqrtRR),
+	  posizSciTil[iScitHit][0]+fabs(0.5*DIMENSIONSCITIL*posizSciTil[iScitHit][1]/sqrtRR),
+	  posizSciTil[iScitHit][1]-SIGN*fabs(0.5*DIMENSIONSCITIL*posizSciTil[iScitHit][0]/sqrtRR),
+	  posizSciTil[iScitHit][1]+SIGN*fabs(0.5*DIMENSIONSCITIL*posizSciTil[iScitHit][0]/sqrtRR),
+	  Oxx,
+	  Oyy,
+	  Rr,
+	  &Nint,  // output
+	  XintersectionList,  // output
+	  YintersectionList,  // output
+	  &distance  // output
+						);
+	if(intersect && distance<olddist){
+		olddist=distance;
+		igoodScit=iScitHit;
+
+		// calculate S on the lateral face of the Helix.
+		if ( Nint==1){	// the majority of the cases
+			*esse = atan2(YintersectionList[0]-Oyy,
+				XintersectionList[0]-Oxx);
+		} else {  // in this case Nint=2 (it should be a very rare case).
+			// do an average of the two positions.
+			*esse = atan2( 0.5*(YintersectionList[0]+
+					YintersectionList[1])-Oyy,
+				0.5*(XintersectionList[0]+
+					XintersectionList[1])-Oxx);
+		} // end of  if ( Nint==1)
+		if ( *esse<0.) *esse += 2.*PI;
+
+	} // end of  if(intersect && distance<olddist)
+ }  // end of  for(iScitHit=0; iScitHit<nScitHits; iScitHit++)
+
+ return igoodScit;
+
+}
+
+//----------end of function PndSttTrackFinderReal::FAssociateSciTilHit
+
 
 ClassImp(PndSttTrackFinderReal)
 
