@@ -74,16 +74,6 @@ class PndSttMvdTracking : public FairTask
  private:
 
   UShort_t nMCTracks;
-#define dXPixel 0.03
-#define dYPixel 0.03
-#define dZPixel 0.03
-#define dXStrip 0.03
-#define dYStrip 0.03
-#define dZStrip 0.03
-#define errorsqPixel 1.01*(dXPixel*dXPixel/4.+dYPixel*dYPixel/4.+dZPixel*dZPixel/4.)
-#define errorsqStrip 1.01*(dXStrip*dXStrip/4.+dYStrip*dYStrip/4.+dZStrip*dZStrip/4.)
-#define ERRORPIXEL sqrt(errorsqPixel)
-#define ERRORSTRIP sqrt(errorsqStrip)
 
 #define DiameterStrawTube  1.
   int static const TIMEOUT= 60;
@@ -122,6 +112,10 @@ class PndSttMvdTracking : public FairTask
 		ApotemaMaxSkewStraw = 31.517569, // delimitation of the skew area
 		ApotemaMinOuterParStraw = 31.863369,
 	DIMENSIONSCITIL=2.85, // cm
+	ERRORPIXEL=0.02611,
+	ERRORSTRIP=0.02611,
+	errorsqPixel=0.00068175,
+	errorsqStrip=0.00068175,
 			  RStrawDetectorMax = 40.73, // maximum radius of the Stt detector in  cm
 		VERTICALGAP = 4.,  // in cm, the gap between Left and Right sections of the
 			  STTdriftVEL = 0.0025,	//   in cm/nsec
