@@ -218,6 +218,7 @@ fDaugList(0),
 nDaug(0),
 nCons(0)
 {
+  fMarker[0] = fMarker[1] = fMarker[2] = fMarker[3] = 0;
   // Set kinematics from MicroCandidate
   
   SetP4(a.GetLorentzVector());
@@ -234,7 +235,7 @@ nCons(0)
     if (cov!=0) for (i=0; i<15;i++) fCov[i] = cov[i];
   }
   
-  SetMarker(n);//what about UID??? 
+  SetUid(n);//what about UID??? 
 	
   SetPidInfo(0);
 	SetPidInfo(0,a.GetElectronPidLH());
