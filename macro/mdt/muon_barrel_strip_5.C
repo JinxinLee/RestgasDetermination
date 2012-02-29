@@ -739,7 +739,7 @@ void muon_barrel_strip_5()
 ///////  MdtEndcap00, MdtEndcap01 -> "zero" bi-layers.
 //////   MdtEndcap02-MdtEndcap06  -> layers inside the endcap. 
 
-/////////////// Layer#2 /////////////////////////////////////////// 
+/*
  float tube_len_en_l0[44]  = {109,126,143,160,177,194,211,228,245,262,102,102,102,102,102,102,102,102,102,102,102,102,
                               262,245,228,211,194,177,160,143,126,109,102,102,102,102,102,102,102,102,102,102,102,102};
 
@@ -767,16 +767,48 @@ void muon_barrel_strip_5()
                              142,212,203.5,192,183.5,175,166.5,158,149.5,141,132.5,124,115.5,107,98.5,90,81.5,73,
                              142,232,223.5,212,203.5,195,186.5,178,169.5,161,152.5,144,135.5,127,118.5,110,101.5,93,
                              142,232,223.5,212,203.5,195,186.5,178,169.5,161,152.5,144,135.5,127,118.5,110,101.5,93};
-                               
-   for(int i=0; i<44; i++) {
+*/
+
+ float tube_len_en_l0[36]  = {121.5,154.6,171.6,188.6,205.6,222.6,74.1,74.1,74.1,74.1,74.1,74.1,74.1,74.1,74.1,74.1,74.1,74.1,
+                              222.6,205.6,188.6,171.6,154.6,121.5,89.5,89.5,89.5,89.5,89.5,89.5,89.5,89.5,89.5,89.5,89.5,89.5};
+
+ float tube_len_en_l2[68] = {164.8,225,216.5,205,196.5,188,179.5,171,162.5,154,145.5,137,128.5,120,111.5,103,94.5,
+                             164.8,225,216.5,205,196.5,188,179.5,171,162.5,154,145.5,137,128.5,120,111.5,103,94.5,
+                             164.8,205,196.5,185,176.5,168,159.5,151,142.5,134,125.5,117,108.5,100,91.5,83,74.5,
+                             164.8,205,196.5,185,176.5,168,159.5,151,142.5,134,125.5,117,108.5,100,91.5,83,74.5};
+
+ float tube_len_en_l3[68] = {164.8,225,216.5,205,196.5,188,179.5,171,162.5,154,145.5,137,128.5,120,111.5,103,94.5,
+                             164.8,225,216.5,205,196.5,188,179.5,171,162.5,154,145.5,137,128.5,120,111.5,103,94.5,
+                             164.8,205,196.5,185,176.5,168,159.5,151,142.5,134,125.5,117,108.5,100,91.5,83,74.5,
+                             164.8,205,196.5,185,176.5,168,159.5,151,142.5,134,125.5,117,108.5,100,91.5,83,74.5};
+
+ float tube_len_en_l4[68] = {164.8,205,196.5,188,176.5,168,159.5,151,142.5,134,125.5,117,108.5,100,91.5,83,74.5,
+                             164.8,205,196.5,185,176.5,168,159.5,151,142.5,134,125.5,117,108.5,100,91.5,83,74.5,
+                             164.8,205,196.5,188,176.5,168,159.5,151,142.5,134,125.5,117,108.5,100,91.5,83,74.5,
+                             164.8,205,196.5,185,176.5,168,159.5,151,142.5,134,125.5,117,108.5,100,91.5,83,74.5};
+                              
+ float tube_len_en_l5[68] = {135,205,196.5,185,176.5,168,159.5,151,142.5,134,125.5,117,108.5,100,91.5,83,74.5,
+                             135,205,196.5,185,176.5,168,159.5,151,142.5,134,125.5,117,108.5,100,91.5,83,74.5,
+                             135,225,216.5,205,196.5,188,179.5,171,162.5,154,145.5,134,128.5,120,111.5,103,94.5,
+                             135,225,216.5,205,196.5,188,179.5,171,162.5,154,145.5,134,128.5,120,111.5,103,94.5};
+
+ float tube_len_en_l6[72] = {142,212,203.5,192,183.5,175,166.5,158,149.5,141,132.5,124,115.5,107,98.5,90,81.5,73,
+                             142,212,203.5,192,183.5,175,166.5,158,149.5,141,132.5,124,115.5,107,98.5,90,81.5,73,
+                             142,232,223.5,212,203.5,195,186.5,178,169.5,161,152.5,144,135.5,127,118.5,110,101.5,93,
+                             142,232,223.5,212,203.5,195,186.5,178,169.5,161,152.5,144,135.5,127,118.5,110,101.5,93};
+
+   for(int i=0; i<36; i++) {
      tube_en_l0[i][0] = geom->MakeBox(Form("BP%d",i), med5, MDT_width/2, MDT_thickness/2, tube_len_en_l0[i]/2); 
      tube_en_l0[i][1] = geom->MakeBox(Form("BA%d",i), med2, XSize/2,     YSize/2,         tube_len_en_l0[i]/2);
      for(int j = 0; j < 8; j++){
      float slotpos_x = (-3.5 + 1.*j);
        tube_en_l0[i][2] = geom->MakeBox(Form("MDT%ds%dl%db%dw%d",2,0,0,0,0), med4, XSize1/2, YSize1/2, tube_len_en_l0[i]/2);
        tube_en_l0[i][1]->AddNode(tube_en_l0[i][2], j, new TGeoTranslation(slotpos_x, slotpos_y, 0.));
+       tube_en_l0[i][1]->SetLineColor(kBlue);
+       tube_en_l0[i][2]->SetLineColor(kBlue);
      } 
      tube_en_l0[i][0]->AddNode(tube_en_l0[i][1],1); 
+     tube_en_l0[i][0]->SetLineColor(kBlue);
    }
 
    for(int i=0; i<68; i++) {
@@ -798,11 +830,25 @@ void muon_barrel_strip_5()
        tube_en_l4[i][1]->AddNode(tube_en_l4[i][2], j, new TGeoTranslation(slotpos_x, slotpos_y, 0.));
        tube_en_l5[i][2] = geom->MakeBox(Form("MDT%ds%dl%db%dw%d",2,0,0,0,0), med4, XSize1/2, YSize1/2, tube_len_en_l5[i]/2);
        tube_en_l5[i][1]->AddNode(tube_en_l5[i][2], j, new TGeoTranslation(slotpos_x, slotpos_y, 0.));
+
+       tube_en_l2[i][1]->SetLineColor(kBlue);
+       tube_en_l2[i][2]->SetLineColor(kBlue);
+       tube_en_l3[i][1]->SetLineColor(kBlue);
+       tube_en_l3[i][2]->SetLineColor(kBlue);
+       tube_en_l4[i][1]->SetLineColor(kBlue);
+       tube_en_l4[i][2]->SetLineColor(kBlue);
+       tube_en_l5[i][1]->SetLineColor(kBlue);
+       tube_en_l5[i][2]->SetLineColor(kBlue);
      } 
      tube_en_l2[i][0]->AddNode(tube_en_l2[i][1],1); 
      tube_en_l3[i][0]->AddNode(tube_en_l3[i][1],1); 
      tube_en_l4[i][0]->AddNode(tube_en_l4[i][1],1); 
      tube_en_l5[i][0]->AddNode(tube_en_l5[i][1],1); 
+     
+      tube_en_l2[i][0]->SetLineColor(kBlue);
+      tube_en_l3[i][0]->SetLineColor(kBlue);
+      tube_en_l4[i][0]->SetLineColor(kBlue);
+      tube_en_l5[i][0]->SetLineColor(kBlue);
    }
 
    for(int i=0; i<72; i++) {
@@ -842,14 +888,15 @@ void muon_barrel_strip_5()
      if(i>=26 && i<39)  { pos_y=(0.75+(i-26)*8.5);}
      if(i>=39)          { pos_y=(3.75+(i-26)*8.5);}
 
-     if(i<3)            { pos_x=(-1)**l*146.6;                      name(tube_en_l2[l*34][0],2,l,2,25-i,0);     TGeoTranslation *tr0 = new TGeoTranslation(pos_x, pos_y, pos_z);  mnk3[2]->AddNode(tube_en_l2[l*34][0],25-i,new TGeoCombiTrans(*tr0, *rrr0));}                    
-     if(i>=3 && i<11)   { pos_x=(-1)**l*(10*l+116.5);               name(tube_en_l2[1+l*34][0],2,l,2,25-i,0);   TGeoTranslation *tr0 = new TGeoTranslation(pos_x, pos_y, pos_z);  mnk3[2]->AddNode(tube_en_l2[1+l*34][0],25-i,new TGeoCombiTrans(*tr0, *rrr0));    }    
-     if(i==11 || i==12) { pos_x=(-1)**l*(10*l+112.25-(i-11)*8.5/2); name(tube_en_l2[i-9+l*34][0],2,l,2,25-i,0); TGeoTranslation *tr0 = new TGeoTranslation(pos_x, pos_y, pos_z);  mnk3[2]->AddNode(tube_en_l2[i-9+l*34][0],25-i,new TGeoCombiTrans(*tr0, *rrr0));  }  
-     if(i>=13 && i<26)  { pos_x=(-1)**l*(10*l+110.75-(i-11)*8.5/2); name(tube_en_l2[i-9+l*34][0],2,l,2,25-i,0); TGeoTranslation *tr0 = new TGeoTranslation(pos_x, pos_y, pos_z);  mnk3[2]->AddNode(tube_en_l2[i-9+l*34][0],25-i,new TGeoCombiTrans(*tr0, *rrr0));  }  
-     if(i>=26 && i<30)  { pos_x=(-1)**l*146.6;                      name(tube_en_l2[17+l*34][0],2,l,2,i,0);     TGeoTranslation *tr0 = new TGeoTranslation(pos_x, pos_y, pos_z);  mnk3[2]->AddNode(tube_en_l2[17+l*34][0],i,new TGeoCombiTrans(*tr0, *rrr0));      }   
-     if(i>=30 && i<=37) { pos_x=(-1)**l*(10*l+116.5);               name(tube_en_l2[18+l*34][0],2,l,2,i,0);     TGeoTranslation *tr0 = new TGeoTranslation(pos_x, pos_y, pos_z);  mnk3[2]->AddNode(tube_en_l2[18+l*34][0],i,new TGeoCombiTrans(*tr0, *rrr0));      }   
-     if(i==38)          { pos_x=(-1)**l*(10*l+112.25-(i-38)*8.5/2); name(tube_en_l2[19+l*34][0],2,l,2,i,0);     TGeoTranslation *tr0 = new TGeoTranslation(pos_x, pos_y, pos_z);  mnk3[2]->AddNode(tube_en_l2[19+l*34][0],i,new TGeoCombiTrans(*tr0, *rrr0));      }   
-     if(i>38)           { pos_x=(-1)**l*(10*l+110.75-(i-38)*8.5/2); name(tube_en_l2[i-19+l*34][0],2,l,2,i,0);   TGeoTranslation *tr0 = new TGeoTranslation(pos_x, pos_y, pos_z);  mnk3[2]->AddNode(tube_en_l2[i-19+l*34][0],i,new TGeoCombiTrans(*tr0, *rrr0));    }     
+     if(i<3)            { pos_x=(-1)**l*(146.6-1.5-3.5);                    name(tube_en_l2[l*34][0],2,l,2,25-i,0);     TGeoTranslation *tr0 = new TGeoTranslation(pos_x, pos_y, pos_z);  mnk3[2]->AddNode(tube_en_l2[l*34][0],25-i,new TGeoCombiTrans(*tr0, *rrr0));}                    
+     if(i>=3 && i<11)   { pos_x=(-1)**l*(10*l+116.5-1.5-3.5);               name(tube_en_l2[1+l*34][0],2,l,2,25-i,0);   TGeoTranslation *tr0 = new TGeoTranslation(pos_x, pos_y, pos_z);  mnk3[2]->AddNode(tube_en_l2[1+l*34][0],25-i,new TGeoCombiTrans(*tr0, *rrr0));    }    
+     if(i==11)          { pos_x=(-1)**l*(10*l+112.25-(i-11)*8.5/2-1.5-3.5); name(tube_en_l2[i-9+l*34][0],2,l,2,25-i,0); TGeoTranslation *tr0 = new TGeoTranslation(pos_x, pos_y, pos_z);  mnk3[2]->AddNode(tube_en_l2[i-9+l*34][0],25-i,new TGeoCombiTrans(*tr0, *rrr0));  }  
+     if(i>=12 && i<26)  { pos_x=(-1)**l*(10*l+110.75-(i-11)*8.5/2-1.5-3.5); name(tube_en_l2[i-9+l*34][0],2,l,2,25-i,0); TGeoTranslation *tr0 = new TGeoTranslation(pos_x, pos_y, pos_z);  mnk3[2]->AddNode(tube_en_l2[i-9+l*34][0],25-i,new TGeoCombiTrans(*tr0, *rrr0));  }  
+     if(i>=26 && i<30)  { pos_x=(-1)**l*(146.6-1.5-3.5);                    name(tube_en_l2[17+l*34][0],2,l,2,i,0);     TGeoTranslation *tr0 = new TGeoTranslation(pos_x, pos_y, pos_z);  mnk3[2]->AddNode(tube_en_l2[17+l*34][0],i,new TGeoCombiTrans(*tr0, *rrr0));      }   
+     if(i>=30 && i<=37) { pos_x=(-1)**l*(10*l+116.5-1.5-3.5);               name(tube_en_l2[18+l*34][0],2,l,2,i,0);     TGeoTranslation *tr0 = new TGeoTranslation(pos_x, pos_y, pos_z);  mnk3[2]->AddNode(tube_en_l2[18+l*34][0],i,new TGeoCombiTrans(*tr0, *rrr0));      }   
+     if(i==38)          { pos_x=(-1)**l*(10*l+112.25-(i-38)*8.5/2-1.5-3.5); name(tube_en_l2[19+l*34][0],2,l,2,i,0);     TGeoTranslation *tr0 = new TGeoTranslation(pos_x, pos_y, pos_z);  mnk3[2]->AddNode(tube_en_l2[19+l*34][0],i,new TGeoCombiTrans(*tr0, *rrr0));      }   
+     if(i>38)           { pos_x=(-1)**l*(10*l+110.75-(i-38)*8.5/2-1.5-3.5); name(tube_en_l2[i-19+l*34][0],2,l,2,i,0);   TGeoTranslation *tr0 = new TGeoTranslation(pos_x, pos_y, pos_z);  mnk3[2]->AddNode(tube_en_l2[i-19+l*34][0],i,new TGeoCombiTrans(*tr0, *rrr0));    }     
+   
    } 
   }
 
@@ -859,20 +906,21 @@ void muon_barrel_strip_5()
   pos_z = 255.215+9;
   for(int l = 0; l < 2; l++) {
    for(int i = 0; i < 53; i++) {
-
+ 
      if(i<=12)          { pos_y=(2.25-i*8.5);}
      if(i>=13 && i<27)  { pos_y=(-0.75-i*8.5.);}
      if(i>=27 && i<40)  { pos_y=(13.75+(i-27)*8.5);}
      if(i>=40)          { pos_y=(16.75+(i-27)*8.5);}
 
-     if(i<4)            { pos_x=(-1)**l*146.6;                      name(tube_en_l3[l*34][0],2,l,3,26-i,0);        TGeoTranslation *tr0 = new TGeoTranslation(pos_x, pos_y, pos_z); mnk3[3]->AddNode(tube_en_l3[l*34][0],26-i,new TGeoCombiTrans(*tr0, *rrr0)); }
-     if(i>=4 && i<12)   { pos_x=(-1)**l*(10*l+116.5);               name(tube_en_l3[1+l*34][0],2,l,3,26-i,0);      TGeoTranslation *tr0 = new TGeoTranslation(pos_x, pos_y, pos_z); mnk3[3]->AddNode(tube_en_l3[1+l*34][0],26-i,new TGeoCombiTrans(*tr0, *rrr0)); }
-     if(i==12 || i ==13){ pos_x=(-1)**l*(10*l+112.25-(i-12)*8.5/2); name(tube_en_l3[(i-10)+l*34][0],2,l,3,26-i,0); TGeoTranslation *tr0 = new TGeoTranslation(pos_x, pos_y, pos_z); mnk3[3]->AddNode(tube_en_l3[(i-10)+l*34][0],26-i,new TGeoCombiTrans(*tr0, *rrr0)); }
-     if(i>=14 && i<27)  { pos_x=(-1)**l*(10*l+110.75-(i-12)*8.5/2); name(tube_en_l3[(i-10)+l*34][0],2,l,3,26-i,0); TGeoTranslation *tr0 = new TGeoTranslation(pos_x, pos_y, pos_z); mnk3[3]->AddNode(tube_en_l3[(i-10)+l*34][0],26-i,new TGeoCombiTrans(*tr0, *rrr0)); }
-     if(i>=27 && i<30)  { pos_x=(-1)**l*146.6;                      name(tube_en_l3[17+l*34][0],2,l,3,i,0);        TGeoTranslation *tr0 = new TGeoTranslation(pos_x, pos_y, pos_z); mnk3[3]->AddNode(tube_en_l3[17+l*34][0],i,new TGeoCombiTrans(*tr0, *rrr0));    }
-     if(i>=30 && i<38)  { pos_x=(-1)**l*(10*l+116.5);               name(tube_en_l3[18+l*34][0],2,l,3,i,0);        TGeoTranslation *tr0 = new TGeoTranslation(pos_x, pos_y, pos_z); mnk3[3]->AddNode(tube_en_l3[18+l*34][0],i,new TGeoCombiTrans(*tr0, *rrr0));    }
-     if(i==38)          { pos_x=(-1)**l*(10*l+112.25-(i-38)*8.5/2); name(tube_en_l3[(i-19)+l*34][0],2,l,3,i,0);    TGeoTranslation *tr0 = new TGeoTranslation(pos_x, pos_y, pos_z); mnk3[3]->AddNode(tube_en_l3[(i-19)+l*34][0],i,new TGeoCombiTrans(*tr0, *rrr0));    }
-     if(i>=39 )         { pos_x=(-1)**l*(10*l+110.75-(i-38)*8.5/2); name(tube_en_l3[(i-19)+l*34][0],2,l,3,i,0);    TGeoTranslation *tr0 = new TGeoTranslation(pos_x, pos_y, pos_z); mnk3[3]->AddNode(tube_en_l3[(i-19)+l*34][0],i,new TGeoCombiTrans(*tr0, *rrr0));    }     
+     if(i<4)            { pos_x=(-1)**l*(146.6-1.5-3.5);                    name(tube_en_l3[l*34][0],2,l,3,26-i,0);        TGeoTranslation *tr0 = new TGeoTranslation(pos_x, pos_y, pos_z); mnk3[3]->AddNode(tube_en_l3[l*34][0],26-i,new TGeoCombiTrans(*tr0, *rrr0)); }
+     if(i>=4 && i<12)   { pos_x=(-1)**l*(10*l+116.5-1.5-3.5);               name(tube_en_l3[1+l*34][0],2,l,3,26-i,0);      TGeoTranslation *tr0 = new TGeoTranslation(pos_x, pos_y, pos_z); mnk3[3]->AddNode(tube_en_l3[1+l*34][0],26-i,new TGeoCombiTrans(*tr0, *rrr0)); }
+     if(i==12 || i ==13){ pos_x=(-1)**l*(10*l+112.25-(i-12)*8.5/2-1.5-3.5); name(tube_en_l3[(i-10)+l*34][0],2,l,3,26-i,0); TGeoTranslation *tr0 = new TGeoTranslation(pos_x, pos_y, pos_z); mnk3[3]->AddNode(tube_en_l3[(i-10)+l*34][0],26-i,new TGeoCombiTrans(*tr0, *rrr0)); }
+     if(i>=14 && i<27)  { pos_x=(-1)**l*(10*l+110.75-(i-12)*8.5/2-1.5-3.5); name(tube_en_l3[(i-10)+l*34][0],2,l,3,26-i,0); TGeoTranslation *tr0 = new TGeoTranslation(pos_x, pos_y, pos_z); mnk3[3]->AddNode(tube_en_l3[(i-10)+l*34][0],26-i,new TGeoCombiTrans(*tr0, *rrr0)); }
+     if(i>=27 && i<30)  { pos_x=(-1)**l*(146.6-1.5-3.5);                    name(tube_en_l3[17+l*34][0],2,l,3,i,0);        TGeoTranslation *tr0 = new TGeoTranslation(pos_x, pos_y, pos_z); mnk3[3]->AddNode(tube_en_l3[17+l*34][0],i,new TGeoCombiTrans(*tr0, *rrr0));    }
+     if(i>=30 && i<38)  { pos_x=(-1)**l*(10*l+116.5-1.5-3.5);               name(tube_en_l3[18+l*34][0],2,l,3,i,0);        TGeoTranslation *tr0 = new TGeoTranslation(pos_x, pos_y, pos_z); mnk3[3]->AddNode(tube_en_l3[18+l*34][0],i,new TGeoCombiTrans(*tr0, *rrr0));    }
+     if(i==38)          { pos_x=(-1)**l*(10*l+112.25-(i-38)*8.5/2-1.5-3.5); name(tube_en_l3[(i-19)+l*34][0],2,l,3,i,0);    TGeoTranslation *tr0 = new TGeoTranslation(pos_x, pos_y, pos_z); mnk3[3]->AddNode(tube_en_l3[(i-19)+l*34][0],i,new TGeoCombiTrans(*tr0, *rrr0));    }
+     if(i>=39 )         { pos_x=(-1)**l*(10*l+110.75-(i-38)*8.5/2-1.5-3.5); name(tube_en_l3[(i-19)+l*34][0],2,l,3,i,0);    TGeoTranslation *tr0 = new TGeoTranslation(pos_x, pos_y, pos_z); mnk3[3]->AddNode(tube_en_l3[(i-19)+l*34][0],i,new TGeoCombiTrans(*tr0, *rrr0));    }     
+   
    } 
   }
 
@@ -880,20 +928,21 @@ void muon_barrel_strip_5()
   pos_z = 255.215+18;
   for(int l = 0; l < 2; l++) {
    for(int i = 0; i < 53; i++) {
-
+   
      if(i<=12)          { pos_y=(-10.75-i*8.5);}
      if(i>=13 && i<26)  { pos_y=(-13.75-i*8.5.);}
      if(i>=26 && i<39)  { pos_y=(0.75+(i-26)*8.5);}
      if(i>= 39)         { pos_y=(3.75+(i-26)*8.5);}
 
-     if(i<3)            { pos_x=(-1)**l*146.6;                 name(tube_en_l4[34*l][0],2,l,4,25-i,0);       TGeoTranslation *tr0 = new TGeoTranslation(pos_x, pos_y, pos_z); mnk3[4]->AddNode(tube_en_l4[l*34][0],26-i,new TGeoCombiTrans(*tr0, *rrr0));}
-     if(i>=3 && i<11)   { pos_x=(-1)**l*126.5;                 name(tube_en_l4[1+34*l][0],2,l,4,25-i,0);     TGeoTranslation *tr0 = new TGeoTranslation(pos_x, pos_y, pos_z); mnk3[4]->AddNode(tube_en_l4[1+l*34][0],26-i,new TGeoCombiTrans(*tr0, *rrr0));}
-     if(i==11 || i==12) { pos_x=(-1)**l*(122.25-(i-11)*8.5/2); name(tube_en_l4[(i-9)+34*l][0],2,l,4,25-i,0); TGeoTranslation *tr0 = new TGeoTranslation(pos_x, pos_y, pos_z); mnk3[4]->AddNode(tube_en_l4[(i-9)+l*34][0],26-i,new TGeoCombiTrans(*tr0, *rrr0));}
-     if(i>=13 && i<26)  { pos_x=(-1)**l*(120.75-(i-11)*8.5/2); name(tube_en_l4[(i-9)+34*l][0],2,l,4,25-i,0); TGeoTranslation *tr0 = new TGeoTranslation(pos_x, pos_y, pos_z); mnk3[4]->AddNode(tube_en_l4[(i-9)+l*34][0],26-i,new TGeoCombiTrans(*tr0, *rrr0));}
-     if(i>=26 && i<30)  { pos_x=(-1)**l*146.6;                 name(tube_en_l4[17+34*l][0],2,l,4,i,0);       TGeoTranslation *tr0 = new TGeoTranslation(pos_x, pos_y, pos_z); mnk3[4]->AddNode(tube_en_l4[17+l*34][0],26-i,new TGeoCombiTrans(*tr0, *rrr0));}
-     if(i>=30 && i<38)  { pos_x=(-1)**l*126.5;                 name(tube_en_l4[18+34*l][0],2,l,4,i,0);       TGeoTranslation *tr0 = new TGeoTranslation(pos_x, pos_y, pos_z); mnk3[4]->AddNode(tube_en_l4[18+l*34][0],26-i,new TGeoCombiTrans(*tr0, *rrr0));}
-     if(i==38)          { pos_x=(-1)**l*(122.25-(i-38)*8.5/2); name(tube_en_l4[19+34*l][0],2,l,4,i,0);       TGeoTranslation *tr0 = new TGeoTranslation(pos_x, pos_y, pos_z); mnk3[4]->AddNode(tube_en_l4[19+l*34][0],26-i,new TGeoCombiTrans(*tr0, *rrr0));}
-     if(i>38)           { pos_x=(-1)**l*(120.75-(i-38)*8.5/2); name(tube_en_l4[(i-19)+34*l][0],2,l,4,i,0);   TGeoTranslation *tr0 = new TGeoTranslation(pos_x, pos_y, pos_z); mnk3[4]->AddNode(tube_en_l4[(i-19)+l*34][0],26-i,new TGeoCombiTrans(*tr0, *rrr0));}    
+     if(i<3)            { pos_x=(-1)**l*(146.6-1.5-3.5);               name(tube_en_l4[34*l][0],2,l,4,25-i,0);       TGeoTranslation *tr0 = new TGeoTranslation(pos_x, pos_y, pos_z); mnk3[4]->AddNode(tube_en_l4[l*34][0],26-i,new TGeoCombiTrans(*tr0, *rrr0));}
+     if(i>=3 && i<11)   { pos_x=(-1)**l*(126.5-1.5-3.5);               name(tube_en_l4[1+34*l][0],2,l,4,25-i,0);     TGeoTranslation *tr0 = new TGeoTranslation(pos_x, pos_y, pos_z); mnk3[4]->AddNode(tube_en_l4[1+l*34][0],26-i,new TGeoCombiTrans(*tr0, *rrr0));}
+     if(i==11 || i==12) { pos_x=(-1)**l*(122.25-(i-11)*8.5/2-1.5-3.5); name(tube_en_l4[(i-9)+34*l][0],2,l,4,25-i,0); TGeoTranslation *tr0 = new TGeoTranslation(pos_x, pos_y, pos_z); mnk3[4]->AddNode(tube_en_l4[(i-9)+l*34][0],26-i,new TGeoCombiTrans(*tr0, *rrr0));}
+     if(i>=13 && i<26)  { pos_x=(-1)**l*(120.75-(i-11)*8.5/2-1.5-3.5); name(tube_en_l4[(i-9)+34*l][0],2,l,4,25-i,0); TGeoTranslation *tr0 = new TGeoTranslation(pos_x, pos_y, pos_z); mnk3[4]->AddNode(tube_en_l4[(i-9)+l*34][0],26-i,new TGeoCombiTrans(*tr0, *rrr0));}
+     if(i>=26 && i<30)  { pos_x=(-1)**l*(146.6-1.5-3.5);               name(tube_en_l4[17+34*l][0],2,l,4,i,0);       TGeoTranslation *tr0 = new TGeoTranslation(pos_x, pos_y, pos_z); mnk3[4]->AddNode(tube_en_l4[17+l*34][0],26-i,new TGeoCombiTrans(*tr0, *rrr0));}
+     if(i>=30 && i<38)  { pos_x=(-1)**l*(126.5-1.5-3.5);               name(tube_en_l4[18+34*l][0],2,l,4,i,0);       TGeoTranslation *tr0 = new TGeoTranslation(pos_x, pos_y, pos_z); mnk3[4]->AddNode(tube_en_l4[18+l*34][0],26-i,new TGeoCombiTrans(*tr0, *rrr0));}
+     if(i==38)          { pos_x=(-1)**l*(122.25-(i-38)*8.5/2-1.5-3.5); name(tube_en_l4[19+34*l][0],2,l,4,i,0);       TGeoTranslation *tr0 = new TGeoTranslation(pos_x, pos_y, pos_z); mnk3[4]->AddNode(tube_en_l4[19+l*34][0],26-i,new TGeoCombiTrans(*tr0, *rrr0));}
+     if(i>38)           { pos_x=(-1)**l*(120.75-(i-38)*8.5/2-1.5-3.5); name(tube_en_l4[(i-19)+34*l][0],2,l,4,i,0);   TGeoTranslation *tr0 = new TGeoTranslation(pos_x, pos_y, pos_z); mnk3[4]->AddNode(tube_en_l4[(i-19)+l*34][0],26-i,new TGeoCombiTrans(*tr0, *rrr0));}    
+ 
    } 
   }
 
@@ -902,20 +951,21 @@ void muon_barrel_strip_5()
   pos_z = (255.215+27);
   for(int l = 0; l < 2; l++) {
    for(int i = 0; i < 53; i++) {
-
+ 
      if(i<=12)          { pos_y=(2.25-i*8.5);}
      if(i>=13 && i<27)  { pos_y=(-0.75-i*8.5.);}
      if(i>=27 && i<40)  { pos_y=(13.75+(i-27)*8.5);}
      if(i>=40)          { pos_y=(16.75+(i-27)*8.5);}
 
-     if(i<8)            { pos_x=(-1)**l*161.5;                       name(tube_en_l5[l*34][0],2,l,5,26-i,0);        TGeoTranslation *tr0 = new TGeoTranslation(pos_x, pos_y, pos_z); mnk3[5]->AddNode(tube_en_l5[l*34][0],26-i,new TGeoCombiTrans(*tr0, *rrr0));}
-     if(i>=8 && i<12)   { pos_x=(-1)**l*(-10*l+126.5);               name(tube_en_l5[1+l*34][0],2,l,5,26-i,0);      TGeoTranslation *tr0 = new TGeoTranslation(pos_x, pos_y, pos_z); mnk3[5]->AddNode(tube_en_l5[1+l*34][0],26-i,new TGeoCombiTrans(*tr0, *rrr0));}
-     if(i==12)          { pos_x=(-1)**l*(-10*l+122.25-(i-12)*8.5/2); name(tube_en_l5[2+l*34][0],2,l,5,26-i,0);      TGeoTranslation *tr0 = new TGeoTranslation(pos_x, pos_y, pos_z); mnk3[5]->AddNode(tube_en_l5[2+l*34][0],26-i,new TGeoCombiTrans(*tr0, *rrr0));}
-     if(i>=13 && i<27)  { pos_x=(-1)**l*(-10*l+120.75-(i-12)*8.5/2); name(tube_en_l5[(i-10)+l*34][0],2,l,5,26-i,0); TGeoTranslation *tr0 = new TGeoTranslation(pos_x, pos_y, pos_z); mnk3[5]->AddNode(tube_en_l5[(i-10)+l*34][0],26-i,new TGeoCombiTrans(*tr0, *rrr0));}
-     if(i>=27 && i<34)  { pos_x=(-1)**l*161.5;                       name(tube_en_l5[17+l*34][0],2,l,5,i,0);        TGeoTranslation *tr0 = new TGeoTranslation(pos_x, pos_y, pos_z); mnk3[5]->AddNode(tube_en_l5[17+l*34][0],26-i,new TGeoCombiTrans(*tr0, *rrr0));}
-     if(i>=34 && i<38)  { pos_x=(-1)**l*(-10*l+126.5);               name(tube_en_l5[18+l*34][0],2,l,5,i,0);        TGeoTranslation *tr0 = new TGeoTranslation(pos_x, pos_y, pos_z); mnk3[5]->AddNode(tube_en_l5[18+l*34][0],26-i,new TGeoCombiTrans(*tr0, *rrr0));}
-     if(i==38 || i==39) { pos_x=(-1)**l*(-10*l+122.25-(i-38)*8.5/2); name(tube_en_l5[(i-19)+l*34][0],2,l,5,i,0);    TGeoTranslation *tr0 = new TGeoTranslation(pos_x, pos_y, pos_z); mnk3[5]->AddNode(tube_en_l5[(i-19)+l*34][0],26-i,new TGeoCombiTrans(*tr0, *rrr0));}
-     if(i>=40)          { pos_x=(-1)**l*(-10*l+120.75-(i-38)*8.5/2); name(tube_en_l5[(i-19)+l*34][0],2,l,5,i,0);    TGeoTranslation *tr0 = new TGeoTranslation(pos_x, pos_y, pos_z); mnk3[5]->AddNode(tube_en_l5[(i-19)+l*34][0],26-i,new TGeoCombiTrans(*tr0, *rrr0));}    
+     if(i<8)            { pos_x=(-1)**l*(161.5-1.5-3.5);                     name(tube_en_l5[l*34][0],2,l,5,26-i,0);        TGeoTranslation *tr0 = new TGeoTranslation(pos_x, pos_y, pos_z); mnk3[5]->AddNode(tube_en_l5[l*34][0],26-i,new TGeoCombiTrans(*tr0, *rrr0));}
+     if(i>=8 && i<12)   { pos_x=(-1)**l*(-10*l+126.5-1.5-3.5);               name(tube_en_l5[1+l*34][0],2,l,5,26-i,0);      TGeoTranslation *tr0 = new TGeoTranslation(pos_x, pos_y, pos_z); mnk3[5]->AddNode(tube_en_l5[1+l*34][0],26-i,new TGeoCombiTrans(*tr0, *rrr0));}
+     if(i==12)          { pos_x=(-1)**l*(-10*l+122.25-(i-12)*8.5/2-1.5-3.5); name(tube_en_l5[2+l*34][0],2,l,5,26-i,0);      TGeoTranslation *tr0 = new TGeoTranslation(pos_x, pos_y, pos_z); mnk3[5]->AddNode(tube_en_l5[2+l*34][0],26-i,new TGeoCombiTrans(*tr0, *rrr0));}
+     if(i>=13 && i<27)  { pos_x=(-1)**l*(-10*l+120.75-(i-12)*8.5/2-1.5-3.5); name(tube_en_l5[(i-10)+l*34][0],2,l,5,26-i,0); TGeoTranslation *tr0 = new TGeoTranslation(pos_x, pos_y, pos_z); mnk3[5]->AddNode(tube_en_l5[(i-10)+l*34][0],26-i,new TGeoCombiTrans(*tr0, *rrr0));}
+     if(i>=27 && i<34)  { pos_x=(-1)**l*(161.5-1.5-3.5);                     name(tube_en_l5[17+l*34][0],2,l,5,i,0);        TGeoTranslation *tr0 = new TGeoTranslation(pos_x, pos_y, pos_z); mnk3[5]->AddNode(tube_en_l5[17+l*34][0],26-i,new TGeoCombiTrans(*tr0, *rrr0));}
+     if(i>=34 && i<38)  { pos_x=(-1)**l*(-10*l+126.5-1.5-3.5);               name(tube_en_l5[18+l*34][0],2,l,5,i,0);        TGeoTranslation *tr0 = new TGeoTranslation(pos_x, pos_y, pos_z); mnk3[5]->AddNode(tube_en_l5[18+l*34][0],26-i,new TGeoCombiTrans(*tr0, *rrr0));}
+     if(i==38)          { pos_x=(-1)**l*(-10*l+122.25-(i-38)*8.5/2-1.5-3.5); name(tube_en_l5[(i-19)+l*34][0],2,l,5,i,0);    TGeoTranslation *tr0 = new TGeoTranslation(pos_x, pos_y, pos_z); mnk3[5]->AddNode(tube_en_l5[(i-19)+l*34][0],26-i,new TGeoCombiTrans(*tr0, *rrr0));}
+     if(i>=39)          { pos_x=(-1)**l*(-10*l+120.75-(i-38)*8.5/2-1.5-3.5); name(tube_en_l5[(i-19)+l*34][0],2,l,5,i,0);    TGeoTranslation *tr0 = new TGeoTranslation(pos_x, pos_y, pos_z); mnk3[5]->AddNode(tube_en_l5[(i-19)+l*34][0],26-i,new TGeoCombiTrans(*tr0, *rrr0));}         
+     
    } 
   }
 
@@ -924,56 +974,69 @@ void muon_barrel_strip_5()
   pos_z = (255.215+36);
   for(int l = 0; l < 2; l++) {
    for(int i = 0; i < 53; i++) {
+ 
+     if(i<=12)         { pos_y=(-10.75-i*8.5); }
+     if(i>=13 && i<26) { pos_y=(-13.75-i*8.5.); } 
+     if(i>=26 && i<39) { pos_y=(0.75+(i-26)*8.5); }
+     if(i>=39)         { pos_y=(3.75+(i-26)*8.5); }
 
-     if(i<=12)         {pos_y=(-10.75-i*8.5);}
-     if(i>=13 && i<26) {pos_y=(-13.75-i*8.5.);}
-     if(i>=26 && i<39) {pos_y=(0.75+(i-26)*8.5);}
-     if(i>=39)         {pos_y=(3.75+(i-26)*8.5);}
+     if(i<8)            { pos_x=(-1)**l*(161.5-1.5-3.5);                     name(tube_en_l5[l*34][0],2,l,6,25-i,0);        TGeoTranslation *tr0 = new TGeoTranslation(pos_x, pos_y, pos_z); mnk3[6]->AddNode(tube_en_l5[l*34][0],26-i,new TGeoCombiTrans(*tr0, *rrr0));}
+     if(i>=8 && i<12)   { pos_x=(-1)**l*(-10*l+126.5-1.5-3.5);               name(tube_en_l5[1+l*34][0],2,l,6,25-i,0);      TGeoTranslation *tr0 = new TGeoTranslation(pos_x, pos_y, pos_z); mnk3[6]->AddNode(tube_en_l5[1+l*34][0],26-i,new TGeoCombiTrans(*tr0, *rrr0));}
+     if(i==12)          { pos_x=(-1)**l*(-10*l+122.25-(i-12)*8.5/2-1.5-3.5); name(tube_en_l5[2+l*34][0],2,l,6,25-i,0);      TGeoTranslation *tr0 = new TGeoTranslation(pos_x, pos_y, pos_z); mnk3[6]->AddNode(tube_en_l5[2+l*34][0],26-i,new TGeoCombiTrans(*tr0, *rrr0));}
+     if(i>=13 && i<26)  { pos_x=(-1)**l*(-10*l+120.75-(i-12)*8.5/2-1.5-3.5); name(tube_en_l5[(i-10)+l*34][0],2,l,6,25-i,0); TGeoTranslation *tr0 = new TGeoTranslation(pos_x, pos_y, pos_z); mnk3[6]->AddNode(tube_en_l5[(i-10)+l*34][0],26-i,new TGeoCombiTrans(*tr0, *rrr0));}
 
-     if(i<8)           { pos_x=(-1)**l*161.5;                       name(tube_en_l5[l*34][0],2,l,6,25-i,0);        TGeoTranslation *tr0 = new TGeoTranslation(pos_x, pos_y, pos_z); mnk3[6]->AddNode(tube_en_l5[l*34][0],26-i,new TGeoCombiTrans(*tr0, *rrr0));}
-     if(i>=8 && i<12)  { pos_x=(-1)**l*(-10*l+126.5);               name(tube_en_l5[1+l*34][0],2,l,6,25-i,0);      TGeoTranslation *tr0 = new TGeoTranslation(pos_x, pos_y, pos_z); mnk3[6]->AddNode(tube_en_l5[1+l*34][0],26-i,new TGeoCombiTrans(*tr0, *rrr0));}
-     if(i==12)         { pos_x=(-1)**l*(-10*l+122.25-(i-12)*8.5/2); name(tube_en_l5[2+l*34][0],2,l,6,25-i,0);      TGeoTranslation *tr0 = new TGeoTranslation(pos_x, pos_y, pos_z); mnk3[6]->AddNode(tube_en_l5[2+l*34][0],26-i,new TGeoCombiTrans(*tr0, *rrr0));}
-     if(i>=13 && i<26) { pos_x=(-1)**l*(-10*l+120.75-(i-12)*8.5/2); name(tube_en_l5[(i-10)+l*34][0],2,l,6,25-i,0); TGeoTranslation *tr0 = new TGeoTranslation(pos_x, pos_y, pos_z); mnk3[6]->AddNode(tube_en_l5[(i-10)+l*34][0],26-i,new TGeoCombiTrans(*tr0, *rrr0));}
-     if(i>=26 && i<34) { pos_x=(-1)**l*161.5;                       name(tube_en_l5[17+l*34][0],2,l,6,i,0);        TGeoTranslation *tr0 = new TGeoTranslation(pos_x, pos_y, pos_z); mnk3[6]->AddNode(tube_en_l5[17+l*34][0],26-i,new TGeoCombiTrans(*tr0, *rrr0));}
-     if(i>=34 && i<38) { pos_x=(-1)**l*(-10*l+126.5);               name(tube_en_l5[18+l*34][0],2,l,6,i,0);        TGeoTranslation *tr0 = new TGeoTranslation(pos_x, pos_y, pos_z); mnk3[6]->AddNode(tube_en_l5[18+l*34][0],26-i,new TGeoCombiTrans(*tr0, *rrr0));}
-     if(i==38 || i==39){ pos_x=(-1)**l*(-10*l+122.25-(i-38)*8.5/2); name(tube_en_l5[(i-19)+l*34][0],2,l,6,i,0);    TGeoTranslation *tr0 = new TGeoTranslation(pos_x, pos_y, pos_z); mnk3[6]->AddNode(tube_en_l5[(i-19)+l*34][0],26-i,new TGeoCombiTrans(*tr0, *rrr0));}
-     if(i>=40)         { pos_x=(-1)**l*(-10*l+120.75-(i-38)*8.5/2); name(tube_en_l5[(i-19)+l*34][0],2,l,6,i,0);    TGeoTranslation *tr0 = new TGeoTranslation(pos_x, pos_y, pos_z); mnk3[6]->AddNode(tube_en_l5[(i-19)+l*34][0],26-i,new TGeoCombiTrans(*tr0, *rrr0));}    
+     if(i>=26 && i<34)  { pos_x=(-1)**l*(161.5-1.5-3.5);                     name(tube_en_l5[17+l*34][0],2,l,6,i,0);        TGeoTranslation *tr0 = new TGeoTranslation(pos_x, pos_y, pos_z); mnk3[6]->AddNode(tube_en_l5[17+l*34][0],26-i,new TGeoCombiTrans(*tr0, *rrr0));}
+     if(i>=34 && i<=37) { pos_x=(-1)**l*(-10*l+126.5-1.5-3.5);               name(tube_en_l5[18+l*34][0],2,l,6,i,0);        TGeoTranslation *tr0 = new TGeoTranslation(pos_x, pos_y, pos_z); mnk3[6]->AddNode(tube_en_l5[18+l*34][0],26-i,new TGeoCombiTrans(*tr0, *rrr0));}
+     if(i==38)          { pos_x=(-1)**l*(-10*l+122.25-(i-38)*8.5/2-1.5-3.5); name(tube_en_l5[(i-19)+l*34][0],2,l,6,i,0);    TGeoTranslation *tr0 = new TGeoTranslation(pos_x, pos_y, pos_z); mnk3[6]->AddNode(tube_en_l5[(i-19)+l*34][0],26-i,new TGeoCombiTrans(*tr0, *rrr0));}
+     if(i>=39)          { pos_x=(-1)**l*(-10*l+120.75-(i-38)*8.5/2-1.5-3.5); name(tube_en_l5[(i-19)+l*34][0],2,l,6,i,0);    TGeoTranslation *tr0 = new TGeoTranslation(pos_x, pos_y, pos_z); mnk3[6]->AddNode(tube_en_l5[(i-19)+l*34][0],26-i,new TGeoCombiTrans(*tr0, *rrr0));}    
+
    } 
   }
 
 ///////////// Layer#0/1 "Zero" /////////////////////////////
-//  pos_z = 242;
 
-  for(int l = 0; l < 2; l++) {
-   for(int i = 0; i < 44; i++) {
-     pos_z =242+l*1.73; 
-     if(i<10)          { pos_x=(0.5*l+127.5-i*8.5);      pos_y=0;       name(tube_en_l0[i][0],2,0,l,i,0);}
-     if(i>=10 && i<22) { pos_x=(0.5*l+42.5-(i-10)*8.5);  pos_y=(80.5);  name(tube_en_l0[i][0],2,0,l,i,0);}
-     if(i>=22 && i<32) { pos_x=(0.5*l-51-(i-22)*8.5);    pos_y=0;       name(tube_en_l0[i][0],2,0,l,i,0);}
-     if(i>=32)         { pos_x=(0.5*l+42.5-(i-32)*8.5);  pos_y=(-80.5); name(tube_en_l0[i][0],2,0,l,i,0);}    
+   for(int l = 0; l < 2; l++) {
+    for(int i = 0; i < 36; i++) {
+     pos_z =243.5+MDT_thickness/2+3*l; 
+     if(i<1)           { pos_x=(-12*8.5 + 8.5/2 -0.25*(-1)**l);            pos_y=(-5+10);              name(tube_en_l0[i][0],2,0,l,i,0);}
+     if(i>=1 && i<6)   { pos_x=(-12*8.5 + 8.5/2 -0.25*(-1)**l+8.5*i);      pos_y=(-17.8/2+10/2);       name(tube_en_l0[i][0],2,0,l,i,0);}
+     if(i>=6 && i<18)  { pos_x=(-12*8.5 + 8.5/2 -0.25*(-1)**l+8.5*i);      pos_y=(26+6+74.1/2);        name(tube_en_l0[i][0],2,0,l,i,0);}
+     if(i>=18 && i<23) { pos_x=(-12*8.5 + 8.5/2 -0.25*(-1)**l+8.5*i);      pos_y=(-17.8/2+10/2);       name(tube_en_l0[i][0],2,0,l,i,0);}
+     if(i==23)         { pos_x=(-12*8.5 + 8.5/2 -0.25*(-1)**l+8.5*i);      pos_y=(-5+10);              name(tube_en_l0[i][0],2,0,l,i,0);}    
+     if(i>23 && i<36)  { pos_x=(-12*8.5 + 8.5/2 -0.25*(-1)**l+8.5*(i-18)); pos_y=(-26-6-(111.5-22)/2); name(tube_en_l0[i][0],2,0,l,i,0);}
    
     TGeoTranslation *tr0 = new TGeoTranslation(pos_x, pos_y, pos_z);
-    if(l==0) mnk3[0]->AddNode(tube_en_l0[i][0], i, new TGeoCombiTrans(*tr0, *rrr1));
-    if(l==1) mnk3[1]->AddNode(tube_en_l0[i][0], i, new TGeoCombiTrans(*tr0, *rrr2));
+    if(l==0) mnk3[0]->AddNode(tube_en_l0[i][0], i, new TGeoCombiTrans(*tr0, *rrr2));
+    if(l==1) mnk3[1]->AddNode(tube_en_l0[i][0], i, new TGeoCombiTrans(*tr0, *rrr1));
    } 
   }
 ////////////////////  End of "Zero" layer /////////////////////////////////////
 
 ////////////////////////////// Strips for Endcap ///////////////////////
-  float ttr[19][3] = {0,0,0, -9.8,0,0, 0,-5,0, 0,-118.5,0, 0,108.4,0, 0,5.4,0, 0,-108.1,0, 0,118.8,0, 0,3.7,0, 0,-109.8,0, 0,117.1,0, 10.1,0,0,
-                      0,-2,0, 0,4,0, 0,8,0, 0,122,0, 0,-106,0, 10.5,0,0, 0,121.2,0};
+  float ttr[22][3] = {0,0,0, -9.8,0,0, 0,-5,0, 0,-118.5,0, 0,108.4,0, 0,5.4,0, 0,-108.1,0, 0,118.8,0, 0,3.7,0, 0,-109.8,0, 0,117.1,0, 10.1,0,0,
+                      0,-2,0, 0,4,0, 0,8,0, 0,122,0, 0,-106,0, 10.5,0,0, 0,121.2,0, -122.6,0,0, 122.6,0,0, 0,120,0};
 
   TGeoRotation *rot = new TGeoRotation();
   rot->RotateZ(22.5);
   rot->SetName("rot");
   rot->RegisterYourself();
 
-  TGeoTranslation *trans[19];
-  for(int i=0; i<19; i++) {
+  TGeoTranslation *trans[22];
+  for(int i=0; i<22; i++) {
        trans[i] = new TGeoTranslation(ttr[i][0], ttr[i][1], ttr[i][2] );
        trans[i]->SetName(Form("trans%d",i));
        trans[i]->RegisterYourself();
   }
+
+  TGeoTranslation *trans_l0;
+  trans_l0 = new TGeoTranslation(0, -3.4, 0);
+  trans_l0->SetName(Form("trans_l%d",0));
+  trans_l0->RegisterYourself();
+
+  TGeoCombiTrans *combl0   = new TGeoCombiTrans(*trans_l0, *rot);
+  combl0->SetName("combl0");
+  combl0->RegisterYourself();
+
 
   TGeoCombiTrans *comb0   = new TGeoCombiTrans(*trans[0], *rot);
   comb0->SetName("comb0");
@@ -989,27 +1052,37 @@ void muon_barrel_strip_5()
   TGeoBBox* bar2 = new TGeoBBox("bar2", 231,  1.8, 0.175);    
   TGeoBBox* bar3 = new TGeoBBox("bar3", 219,  1.8, 0.175);    
   TGeoBBox* bar4 = new TGeoBBox("bar4", 20.5, 232, 0.175);    
+  TGeoBBox* bar5 = new TGeoBBox("bar5", 200., 10,  0.175);    
 
   TGeoPgon *ppgon_l0 = new TGeoPgon("ppg_l0", 0., 360., 8, 2);
-  ppgon_l0->DefineSection(0, 0, 0, 127.);
-  ppgon_l0->DefineSection(1, 0.15, 0, 127.);
+//  ppgon_l0->DefineSection(0, 0, 0, 127.);
+//  ppgon_l0->DefineSection(1, 0.15, 0, 127.);
+  ppgon_l0->DefineSection(0, 0, 0, 120.);
+  ppgon_l0->DefineSection(1, 0.15, 0, 120.);
   TGeoVolume *ppgon1_l0 = new TGeoVolume("ppgon1_l0", ppgon_l0, med7);
-  TGeoVolume *hhole_l0 = geom->MakeBox("hhole_l0", med1, 48, 30, 0.16);
+//  TGeoVolume *hhole_l0 = geom->MakeBox("hhole_l0", med1, 48, 30, 0.16);
+  TGeoVolume *hhole_l0 = geom->MakeBox("hhole_l0", med1, 51, 32, 0.16);
 
   TGeoPgon *ppgon_al_l0 = new TGeoPgon("ppg_al_l0", 0., 360., 8, 2);
-  ppgon_al_l0->DefineSection(0, 0, 0, 127.);
-  ppgon_al_l0->DefineSection(1, 0.035, 0, 127.);
+//  ppgon_al_l0->DefineSection(0, 0, 0, 127.);
+//  ppgon_al_l0->DefineSection(1, 0.035, 0, 127.);
+  ppgon_al_l0->DefineSection(0, 0, 0, 120.);
+  ppgon_al_l0->DefineSection(1, 0.035, 0, 120.);
   TGeoVolume *ppgon1_al_l0 = new TGeoVolume("ppgon1_al_l0", ppgon_al_l0, med2);
 
   TGeoPgon *ppgon_l2 = new TGeoPgon("ppg_l2", 0., 360., 8, 2);
-  ppgon_l2->DefineSection(0, 0, 0, 228.);
-  ppgon_l2->DefineSection(1, 0.15, 0, 228.);
+//  ppgon_l2->DefineSection(0, 0, 0, 228.);
+//  ppgon_l2->DefineSection(1, 0.15, 0, 228.);
+  ppgon_l2->DefineSection(0, 0, 0, 224.);
+  ppgon_l2->DefineSection(1, 0.15, 0, 224.);
   TGeoVolume *ppgon1_l2 = new TGeoVolume("ppgon1_l2", ppgon_l2, med7);
   TGeoVolume *hhole_l2 = geom->MakeBox("hhole_l2", med1, 60.75, 31.9, 0.16);
 
   TGeoPgon *ppgon_al_l2 = new TGeoPgon("ppg_al_l2", 0., 360., 8, 2);
-  ppgon_al_l2->DefineSection(0, 0, 0, 228.);
-  ppgon_al_l2->DefineSection(1, 0.035, 0, 228.);
+//  ppgon_al_l2->DefineSection(0, 0, 0, 228.);
+//  ppgon_al_l2->DefineSection(1, 0.035, 0, 228.);
+  ppgon_al_l2->DefineSection(0, 0, 0, 224.);
+  ppgon_al_l2->DefineSection(1, 0.035, 0, 224.);
   TGeoVolume *ppgon1_al_l2 = new TGeoVolume("ppgon1_al_l2", ppgon_al_l2, med2);
 
   TGeoVolume *hhole_l5 = geom->MakeBox("hhole_l5", med1, 90.5, 65.0, 0.16);
@@ -1021,12 +1094,16 @@ void muon_barrel_strip_5()
 
 ///////////// Strips for "Zero" Layer /////////////////////////////
 ///////////// Strip board + Double-sided strips////////////////
-  TGeoCompositeShape *L0_endcap = new TGeoCompositeShape("(ppg_l0:comb0 - hhole_l0:trans0)"); 
-  TGeoCompositeShape *L0_endcap_al = new TGeoCompositeShape("(ppg_al_l0:comb0 - hhole_l0:trans0)"); 
+//  TGeoCompositeShape *L0_endcap = new TGeoCompositeShape("(ppg_l0:comb0 - hhole_l0:trans0)"); 
+//  TGeoCompositeShape *L0_endcap_al = new TGeoCompositeShape("(ppg_al_l0:comb0 - hhole_l0:trans0)"); 
+  TGeoCompositeShape *L0_endcap = new TGeoCompositeShape("(ppg_l0:combl0 - hhole_l0:trans0 - bar4:trans19 - bar4:trans20 - bar5:trans21)"); 
+  TGeoCompositeShape *L0_endcap_al = new TGeoCompositeShape("(ppg_al_l0:combl0 - hhole_l0:trans0 - bar4:trans19 - bar4:trans20 - bar5:trans21)"); 
 
   G10_endcap[0] = new TGeoVolume("GP0_E", L0_endcap, med7);
   ST_endcap[0] = new TGeoVolume("ST0_E", L0_endcap_al, med2);
   ST_endcap[1] = new TGeoVolume("ST1_E", L0_endcap_al, med2);
+  
+  
 /////////////////////////////////////////////////////////
   char longbuffer[250];
   char longbuffer1[250];
@@ -1048,10 +1125,10 @@ void muon_barrel_strip_5()
     ST_endcap[i] = new TGeoVolume(Form("ST%d_E",i), MEndcap[i], med7);
   }
     for(int ii = 0; ii < 7; ii++){
-      if(ii == 1) { ST_endcap[ii]->SetLineColor(kBlue); } 
+      if(ii == 1) { ST_endcap[ii]->SetLineColor(kGreen); } 
       else {
        G10_endcap[ii]->SetLineColor(kRed);
-       ST_endcap[ii]->SetLineColor(kBlue);
+       ST_endcap[ii]->SetLineColor(kGreen);
       } 
      }    
 
@@ -1211,7 +1288,6 @@ void muon_barrel_strip_5()
    for (int i=0; i<16; i++) {
     yt=(i%4);
     if(yt==0) kk++;
-    cout << "i= " << i << " yt= " << yt << " kk= " << kk << endl;
     if(i<16) { 
      frot[i] = new TGeoTranslation(kk*1.45, 0, 873+9*i); 
      FeForward[i] = new TGeoVolume(Form("FeForwardLayer%d",i),csq,med6);
@@ -1221,7 +1297,7 @@ void muon_barrel_strip_5()
     frot[i]->RegisterYourself();
    }
 
-   for(int i=100; i<16; i++) pCombi3->AddNode(FeForward[i], i, frot[i]);     
+   for(int i=0; i<16; i++) pCombi3->AddNode(FeForward[i], i, frot[i]);     
 //////////////////////////////////////////////////////////////////
 
   float tube_len_fw[3] = { 350.5, 135.95, 169.55 };
@@ -1309,7 +1385,6 @@ void muon_barrel_strip_5()
 ////////////////////////////////////////////////////////////
 
 
-
 ///////////// Barrel ////////////////////////////
   pCombi->AddNode(MdtOct0, 0, new TGeoCombiTrans(0., 0., 0., rot0));
   pCombi->AddNode(MdtOct0, 1, new TGeoCombiTrans(0., 0., 0., rot1));
@@ -1334,10 +1409,10 @@ void muon_barrel_strip_5()
 //////////// Strips for Endcap: G10+Aluminium///////////
    for(int i = 0; i < 7; i++){
      if(i==0) {
-       pCombi1->AddNode(ST_endcap[i], i, new TGeoTranslation(0, 0, 242.757));     
-       pCombi1->AddNode(G10_endcap[i], i, new TGeoTranslation(0, 0, 242.795));     
+       pCombi1->AddNode(ST_endcap[i], i, new TGeoTranslation(0, 0, 245.657));     
+       pCombi1->AddNode(G10_endcap[i], i, new TGeoTranslation(0, 0, 245.695));     
      } 
-     if(i==1){pCombi1->AddNode(ST_endcap[i], 0, new TGeoTranslation(0, 0, 242.948)); }    
+     if(i==1){pCombi1->AddNode(ST_endcap[i], 0, new TGeoTranslation(0, 0, 245.848)); }    
      if(i>1){ 
        pCombi1->AddNode(G10_endcap[i], i, new TGeoTranslation(0, 0., (255.215 + 9*(i-2) +MDT_thickness/2+0.1)));     
        pCombi1->AddNode(ST_endcap[i], i, new TGeoTranslation(0, 0, (255.215 + 9*(i-2) + MDT_thickness/2+0.26)));          
@@ -1365,8 +1440,8 @@ void muon_barrel_strip_5()
 ////////////////////////////////////////////
 
 
-  top->AddNode(pCombi, 0);
-//  top->AddNode(pCombi1, 0);
+//  top->AddNode(pCombi, 0);
+  top->AddNode(pCombi1, 0);
 //  top->AddNode(pCombi2, 0);
 //  top->AddNode(pCombi3, 0);
 
@@ -1377,8 +1452,8 @@ void muon_barrel_strip_5()
   geom->SetVisOption(1);
   top->Draw();
   
-  gGeoManager->Export("muon_TS_barrel.root");
-//  gGeoManager->Export("muon_TS_endcap.root");
+//  gGeoManager->Export("muon_TS_barrel.root");
+  gGeoManager->Export("muon_TS_endcap.root");
 //  gGeoManager->Export("muon_MF.root");
 //  gGeoManager->Export("muon_FS.root");
 }   
