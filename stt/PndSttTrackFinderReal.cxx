@@ -42,15 +42,14 @@ using std::map;
 // -----   Default constructor   -------------------------------------------
 PndSttTrackFinderReal::PndSttTrackFinderReal()
 { 
-	iplotta = false;
-	istampa = 0;
 	doMcComparison = false;
-	YesSciTil = false ;
-	N_INTENDED = 0;
-
-	MINIMUMOUTERHITSPERTRACK=5;
 	Fimin=0.;     Fimax=2.*PI;
 	FI0min = 0.; FI0max = 2.*PI;
+	iplotta = false;
+	istampa = 0;
+	MINIMUMOUTERHITSPERTRACK=5;
+	N_INTENDED = 0;
+	nSciTilHits=0;
 	stepD=(Dmax-Dmin)/nbinD;
 	stepFi=(Fimax-Fimin)/nbinFi;
 	stepR=(Rmax-Rmin)/nbinR;
@@ -58,6 +57,9 @@ PndSttTrackFinderReal::PndSttTrackFinderReal()
 	stepFI0=(FI0max-FI0min)/nbinFI0;
 	stepfineKAPPA=2.*DELTA_KAPPA/nbinKAPPA;
 	stepfineFI0=2.*DELTA_FI0/nbinFI0;
+	YesSciTil = false ;
+
+
 	sprintf(fSttBranch,"STTHit");
 
 }
@@ -69,15 +71,15 @@ PndSttTrackFinderReal::PndSttTrackFinderReal()
 // -----   Standard constructor   ------------------------------------------
 PndSttTrackFinderReal::PndSttTrackFinderReal(int verbose)
 { 
-	istampa      = verbose;
-	iplotta = false;
-	doMcComparison = false;
-	YesSciTil = false ;
-	N_INTENDED=0;
 
-	MINIMUMOUTERHITSPERTRACK=5;
+	doMcComparison = false;
 	Fimin=0.;     Fimax=2.*PI;
 	FI0min = 0.; FI0max = 2.*PI;
+	iplotta = false;
+	istampa = verbose;
+	MINIMUMOUTERHITSPERTRACK=5;
+	N_INTENDED = 0;
+	nSciTilHits=0;
 	stepD=(Dmax-Dmin)/nbinD;
 	stepFi=(Fimax-Fimin)/nbinFi;
 	stepR=(Rmax-Rmin)/nbinR;
@@ -85,6 +87,7 @@ PndSttTrackFinderReal::PndSttTrackFinderReal(int verbose)
 	stepFI0=(FI0max-FI0min)/nbinFI0;
 	stepfineKAPPA=2.*DELTA_KAPPA/nbinKAPPA;
 	stepfineFI0=2.*DELTA_FI0/nbinFI0;
+	YesSciTil = false ;
 	sprintf(fSttBranch,"STTHit");
 }
 // -------------------------------------------------------------------------
@@ -93,15 +96,14 @@ PndSttTrackFinderReal::PndSttTrackFinderReal(int verbose)
 // -----   Second constructor   ------------------------------------------
 PndSttTrackFinderReal::PndSttTrackFinderReal(int istamp, bool iplott, bool imc) 
 { 
-	istampa= istamp;
-	iplotta = iplott;
 	doMcComparison = imc;
-	YesSciTil = false ;
-	N_INTENDED=0;
-
-	MINIMUMOUTERHITSPERTRACK=5;
 	Fimin=0.;     Fimax=2.*PI;
 	FI0min = 0.; FI0max = 2.*PI;
+	iplotta = iplott;
+	istampa= istamp;
+	MINIMUMOUTERHITSPERTRACK=5;
+	N_INTENDED = 0;
+	nSciTilHits=0;
 	stepD=(Dmax-Dmin)/nbinD;
 	stepFi=(Fimax-Fimin)/nbinFi;
 	stepR=(Rmax-Rmin)/nbinR;
@@ -109,8 +111,8 @@ PndSttTrackFinderReal::PndSttTrackFinderReal(int istamp, bool iplott, bool imc)
 	stepFI0=(FI0max-FI0min)/nbinFI0;
 	stepfineKAPPA=2.*DELTA_KAPPA/nbinKAPPA;
 	stepfineFI0=2.*DELTA_FI0/nbinFI0;
+	YesSciTil = false ;
 	sprintf(fSttBranch,"STTHit");
-
 }
 // -------------------------------------------------------------------------
 
@@ -119,15 +121,15 @@ PndSttTrackFinderReal::PndSttTrackFinderReal(int istamp, bool iplott, bool imc)
 // -----   Third constructor   ------------------------------------------
 PndSttTrackFinderReal::PndSttTrackFinderReal(int istamp, bool iplott, bool imc, bool doSciTil)
 {
-	istampa= istamp;
-	iplotta = iplott;
-	doMcComparison = imc;
-	YesSciTil = doSciTil ;
-	N_INTENDED=0;
 
-	MINIMUMOUTERHITSPERTRACK=5;
+	doMcComparison = imc;
 	Fimin=0.;     Fimax=2.*PI;
 	FI0min = 0.; FI0max = 2.*PI;
+	iplotta = iplott;
+	istampa= istamp;
+	MINIMUMOUTERHITSPERTRACK=5;
+	N_INTENDED = 0;
+	nSciTilHits=0;
 	stepD=(Dmax-Dmin)/nbinD;
 	stepFi=(Fimax-Fimin)/nbinFi;
 	stepR=(Rmax-Rmin)/nbinR;
@@ -135,8 +137,8 @@ PndSttTrackFinderReal::PndSttTrackFinderReal(int istamp, bool iplott, bool imc, 
 	stepFI0=(FI0max-FI0min)/nbinFI0;
 	stepfineKAPPA=2.*DELTA_KAPPA/nbinKAPPA;
 	stepfineFI0=2.*DELTA_FI0/nbinFI0;
+	YesSciTil = doSciTil ;
 	sprintf(fSttBranch,"STTHit");
-
 }
 // -------------------------------------------------------------------------
 
@@ -378,7 +380,7 @@ Int_t PndSttTrackFinderReal::DoFind(TClonesArray* trackCandArray, TClonesArray *
 	exitstatus,
 	inclination_type,
 	istep,
-	nSciTilHitsinTrack[MAXTRACKSPEREVENT],
+//	nSciTilHitsinTrack[MAXTRACKSPEREVENT],
 	auxIndex[nmaxHits],
 	OLDinfoparal[nmaxHits];
 
@@ -636,21 +638,25 @@ Int_t PndSttTrackFinderReal::DoFind(TClonesArray* trackCandArray, TClonesArray *
 	 // the first SciTil hit; this cannot be duplicate hit by definition.
 		pPndSciTHit = (PndSciTHit*) fSciTHitArray->At(0);
 		posiz = pPndSciTHit->GetPosition();
-		if(istampa>0)
-		cout<<"da PndSttTrackFinderReal SciTil non purgati, Xpos "<<posiz.X()<<", Ypos "<<
+
+if(istampa>0)cout<<"da PndSttTrackFinderReal, evt "<<IVOLTE<<
+	",  SciTil non purgati, Xpos "<<posiz.X()<<", Ypos "<<
 		posiz.Y()<<", Zpos "<<posiz.Z()<<endl;
+
 		posizSciTil[0][0]=posiz.X();
 		posizSciTil[0][1]=posiz.Y();
 		posizSciTil[0][2]=posiz.Z();
+		InclusionListSciTil[0]= true;
 		iaccept=1;
 	// the other SciTil hits; purge them if they are duplicate.
 	 for(j=1; j<nSciTilHits; j++){
 		pPndSciTHit = (PndSciTHit*) fSciTHitArray->At(j);
 		posiz = pPndSciTHit->GetPosition();
-		if(istampa>0)
-		cout<<"da PndSttTrackFinderReal SciTil non purgati, Xpos "
+
+if(istampa>0)cout<<"da PndSttTrackFinderReal, evt. "<<IVOLTE<<",  SciTil non purgati, Xpos "
 			<<posiz.X()<<", Ypos "<<
 		posiz.Y()<<", Zpos "<<posiz.Z()<<endl;
+
 		// purging the duplicate SciTil hits.
 		
 	    for(k=0; k<iaccept; k++){
@@ -680,10 +686,13 @@ Int_t PndSttTrackFinderReal::DoFind(TClonesArray* trackCandArray, TClonesArray *
 
 //-----------stampe.
 if(istampa>0){
-  cout<<"da PndSttTrackFinderReal, dopo purga di SciTil; n. hits = "<<nSciTilHits<<endl;
+  cout<<"da PndSttTrackFinderReal, dopo purga di SciTil; evt. "<<IVOLTE
+  <<", n. hits = "<<nSciTilHits<<endl;
   for(j=0; j<nSciTilHits; j++){
-	cout<<"da PndSttTrackFinderReal SciTil Xpos "<<posizSciTil[j][0]<<", Ypos "<<
-	posizSciTil[j][1]<<", Zpos "<<posizSciTil[j][2]<<endl;
+	cout<<"da PndSttTrackFinderReal, evt. "<<IVOLTE<<
+	", SciTil Xpos "<<posizSciTil[j][0]<<", Ypos "<<
+	posizSciTil[j][1]<<", Zpos "<<posizSciTil[j][2]<<", loro InclusionList [0=false] "
+	<<InclusionListSciTil[j]<<endl;
   }
 }
 //---------- fine stampe.
@@ -1008,7 +1017,7 @@ cout<<"from PndSttTrackFinderReal...this hit must be noise (RefIndex = "<<ptInde
 				 nTracksFoundSoFar,
 				 nHitsinTrack,
 				 ListHitsinTrack,
-				 nSciTilHitsinTrack,
+//				 nSciTilHitsinTrack,
 				 trajectory_vertex,
 				 infoparalConformal,
 				 posizSciTil[i][0],
@@ -1025,8 +1034,11 @@ cout<<"from PndSttTrackFinderReal...this hit must be noise (RefIndex = "<<ptInde
 				 U,
 				 V
 				);
-
-	if(!outcome)  continue;
+	if(!outcome){
+		//  make this SciTil hit available for other tracks.
+		InclusionListSciTil[i]=true;
+		continue;
+	}
 	for(j=0; j<nHitsinTrack[nTracksFoundSoFar]; j++){
 	  InclusionList[infoparal[ListHitsinTrack[nTracksFoundSoFar][j]]] = false;
 	}
@@ -1088,7 +1100,7 @@ cout<<"from PndSttTrackFinderReal :  # n. Tracks found so far = "<<nTracksFoundS
 				 nTracksFoundSoFar,
 				 nHitsinTrack,
 				 ListHitsinTrack,
-				 nSciTilHitsinTrack,
+//				 nSciTilHitsinTrack,
 				 trajectory_vertex,
 				 infoparalConformal,
 				 1.,	// dummy value, there is no SciTil info in this case;
@@ -1106,12 +1118,6 @@ cout<<"from PndSttTrackFinderReal :  # n. Tracks found so far = "<<nTracksFoundS
 				 V
 				);
 
-//---------stampe.
-if(istampa>0){
-	cout<<"senza SciTil, traccia n. "<<nTracksFoundSoFar<<", outcome "<<
-	outcome<<endl;
-}
-//-------fine stampe.
 	if(!outcome)  continue;
 
 // --------  here the track and its hits were found, filling the Inclusion list
@@ -1188,7 +1194,7 @@ if(istampa>0){
  if(nSciTilHitsinTrack[i]==1){
 
 	tmpS[0]= esse[i]; // this is already between 0 and 2PI.
-	tmpZ[0]=posizSciTil[ ListSciTilHitsinTrack[i] ][2],
+	tmpZ[0]=posizSciTil[ ListSciTilHitsinTrack[i][0] ][2],
 	tmpZDrift[0]=-1., // conventional, to signal that this is not a STT hit.
 	// error is intentionally overestimated for later use in SZ fit.
 //	tmpErrorZDrift[0] = DIMENSIONSCITIL/sqrt(12.);
@@ -1790,7 +1796,10 @@ if( istampa>=1 && nMCTracksaccettabili>0 ){
 		if(nSciTilHitsinTrack[i]==1){
 			pTrckCand->AddHit(
 			1001,	// mio numero, temporaneo, che segnala gli SciTil.
-			(Int_t) ListSciTilHitsinTrack[i] , nTotalHits[i]);
+			(Int_t) ListSciTilHitsinTrack[i][0] , nTotalHits[i]);
+cout<<"finderreal, cazzone,TrackCand loading, evt. "<<IVOLTE<<", cand "<<
+i<<", n scitilhit "<<nSciTilHitsinTrack[i]<<
+", scitil hit "<<ListSciTilHitsinTrack[i][0]<<endl;
 		}
 
 
@@ -1883,8 +1892,6 @@ if( istampa>=1 && nMCTracksaccettabili>0 ){
 				ddd = Ptras*sqrt(Ptras*Ptras+Pzini*Pzini);
 				FairTrackParP first( Position,  Momentum,
 					ErrPosition, ErrMomentum, Charge[i],
-//					Position, TVector3(1., 0., 0.), TVector3(0., 1., 0.)
-//						);
 					Position, TVector3(Py/Ptras, -Px/Ptras, 0.),
 					TVector3(Pzini*Px/ddd,Pzini*Py/ddd, -Ptras*Ptras/ddd)
 							);
@@ -2260,7 +2267,7 @@ if(iplotta && IVOLTE <= nmassimo){
 			i,
 			ii,
 			nSciTilHitsinTrack[i],
-			ListSciTilHitsinTrack[i]
+			ListSciTilHitsinTrack[i][0]
 			);
 
   if(doMcComparison) {
@@ -2273,7 +2280,7 @@ if(iplotta && IVOLTE <= nmassimo){
                    i,
 		   ii,
 			nSciTilHitsinTrack[i],
-			ListSciTilHitsinTrack[i],
+			ListSciTilHitsinTrack[i][0],
 		nParalCommon,
 		ParalCommonList,
 		nSpuriParinTrack,
@@ -2302,7 +2309,7 @@ for(i=0,ii=-1; i<nTracksFoundSoFar;i++){
    // here nSciTilHitsinTrack[i] is 0 or 1.
     if(nSciTilHitsinTrack[i]==1){
 	ESSE[j]= esse[i];
-	ZETA[j]= posizSciTil[ListSciTilHitsinTrack[i]][2];
+	ZETA[j]= posizSciTil[ListSciTilHitsinTrack[i][0]][2];
     }
 
 
@@ -13154,7 +13161,7 @@ c[] = {-2.*Ama/sqrt(3.),-Ama,	2.*Ama/sqrt(3.),-vgap/2.,2.*Ami/sqrt(3.),-Ami,	-2.
 		UShort_t nTracksFoundSoFar,
 		UShort_t *nHitsinTrack,
 		UShort_t ListHitsinTrack[MAXTRACKSPEREVENT][nmaxHitsInTrack],
-		UShort_t *nSciTilHitsinTrack,
+//		UShort_t *nSciTilHitsinTrack,
 		Double_t *trajectory_vertex,
 		Double_t infoparalConformal[nmaxHits][5],
 		Double_t posizSciTilx,
@@ -13464,8 +13471,9 @@ for(int iz=0;iz<nummm;iz++){
 //  P2 =  [ x0+abs{(L/2)*y0/RR}; y0+SIGN*abs{(L/2)*x0/RR} ].
 
 	bool intersect;
-	Short_t iSciT;
-	UShort_t Nint;
+	UShort_t
+		Nint,
+		nSciT;
 	Double_t distance,
 		 QQ,
 		 sqrtRR,
@@ -13474,47 +13482,35 @@ for(int iz=0;iz<nummm;iz++){
 		 YintersectionList[2];
  if(iHit<0){
 
-	QQ = posizSciTilx*posizSciTilx+posizSciTily*posizSciTily;
-	sqrtRR=sqrt(QQ);
+	IntersectionSciTil_Circle(
+	  posizSciTilx,
+	  posizSciTily,
+	  Ox[nTracksFoundSoFar],
+	  Oy[nTracksFoundSoFar],
+	  R[nTracksFoundSoFar],
+	  &Nint,  // output
+	  XintersectionList,  // output
+	  YintersectionList  // output
+	);
 
-	if( -posizSciTilx*posizSciTily <0. )  SIGN=-1.;
-	else  SIGN=1.;
-
-	intersect = IntersectionCircle_Segment(
-			posizSciTilx,
-			posizSciTily,
-			-QQ,
-			posizSciTilx-fabs(0.5*DIMENSIONSCITIL*posizSciTily/sqrtRR),
-			posizSciTilx+fabs(0.5*DIMENSIONSCITIL*posizSciTily/sqrtRR),
-			posizSciTily-SIGN*fabs(0.5*DIMENSIONSCITIL*posizSciTilx/sqrtRR),
-			posizSciTily+SIGN*fabs(0.5*DIMENSIONSCITIL*posizSciTilx/sqrtRR),
-			Ox[nTracksFoundSoFar],
-			Oy[nTracksFoundSoFar],
-			R[nTracksFoundSoFar],
-			&Nint,  // output
-			XintersectionList,  // output
-			YintersectionList,  // output
-			&distance  // output
-						);
 
 // reject case with no intersection of the SciTil with the circle trajectory.
 	if(intersect){
 		nSciTilHitsinTrack[nTracksFoundSoFar]=1;
-		ListSciTilHitsinTrack[nTracksFoundSoFar]= -iHit-1;
-		InclusionListSciTil[ListSciTilHitsinTrack[nTracksFoundSoFar]]=false;
+		ListSciTilHitsinTrack[nTracksFoundSoFar][0]= -iHit-1;
+		InclusionListSciTil[ListSciTilHitsinTrack[nTracksFoundSoFar][0]]=false;
 
-	// calculate S on the lateral face of the Helix.
-	if ( Nint==1){	// the majority of the cases
-		*S = atan2(YintersectionList[0]-Oy[i],XintersectionList[0]-Ox[i]);
-	} else {  // in this case Nint=2 (it should be a very rare case).
-		// do an average of the two positions.
-		*S = atan2( 0.5*(YintersectionList[0]+YintersectionList[1])-Oy[i],
+		// calculate S on the lateral face of the Helix.
+		if ( Nint==1){	// the majority of the cases
+			*S = atan2(YintersectionList[0]-Oy[i],XintersectionList[0]-Ox[i]);
+		} else {  // in this case Nint=2 (it should be a very rare case).
+			// do an average of the two positions.
+			*S = atan2( 0.5*(YintersectionList[0]+YintersectionList[1])-Oy[i],
 			0.5*(XintersectionList[0]+XintersectionList[1])-Ox[i]);
-	} // end of  if ( Nint==1)
-	if ( *S<0.) *S += 2.*PI;
+		} // end of  if ( Nint==1)
+		if ( *S<0.) *S += 2.*PI;
 
-	}  // continuation of if(intersect)
-	else {
+	} else {  // continuation of if(intersect)
 		nSciTilHitsinTrack[nTracksFoundSoFar]=0;
 	} // end of  if(intersect).
 
@@ -13523,25 +13519,28 @@ for(int iz=0;iz<nummm;iz++){
 	// the seed hit was a Stt hit; therefore no SciTil hits associated
 	// yet; try if any SciTil hits are associated to this track cand.
 
-	if(YesSciTil) nSciTilHitsinTrack[nTracksFoundSoFar]=
-		iSciT = AssociateSciTilHit(
+	if(YesSciTil){
+		// nScit is the n. of SciTil hit associated to this track.
+		nSciT = AssociateSciTilHit(
 			Ox[nTracksFoundSoFar],
 			Oy[nTracksFoundSoFar],
 			R[nTracksFoundSoFar],
+			&ListSciTilHitsinTrack[nTracksFoundSoFar][0],
 			S	// output; S on the lateral face of the Helix
 				// of the SciTil hit (if present).
 				);
-		if(iSciT>=0){
+		if(nSciT>0){
 		  nSciTilHitsinTrack[nTracksFoundSoFar]=1;
-		  ListSciTilHitsinTrack[nTracksFoundSoFar]=iSciT;
-		  InclusionListSciTil[ListSciTilHitsinTrack[nTracksFoundSoFar]]
+		  for(j=0;j<nSciTilHitsinTrack[nTracksFoundSoFar];j++){
+			InclusionListSciTil[ListSciTilHitsinTrack[nTracksFoundSoFar][0]]
 				=false;
+		  }
+		} else {
+			nSciTilHitsinTrack[nTracksFoundSoFar]=0;
 		}
-	else  nSciTilHitsinTrack[nTracksFoundSoFar]=0;
-
-
-
-	  nSciTilHitsinTrack[nTracksFoundSoFar]=0;
+	}else{
+		nSciTilHitsinTrack[nTracksFoundSoFar]=0;
+	} // end of if(YesSciTil)
 
  } // end of  if (iHit<0).
 
@@ -13719,25 +13718,24 @@ if(iplotta && IVOLTE <= nmassimo){
 
 //----------begin of function PndSttTrackFinderReal::AssociateSciTilHit
 
-	Short_t PndSttTrackFinderReal::AssociateSciTilHit(
+	UShort_t PndSttTrackFinderReal::AssociateSciTilHit(
 		Double_t Oxx,
 		Double_t Oyy,
 		Double_t Rr,
-		Double_t *esse
+		UShort_t *List,  // output
+		Double_t *esse  // output
 				)
 {
 
  bool intersect;
 
  UShort_t
+	igoodScit,
 	iScitHit,
 	Nint;
- Short_t
-	igoodScit;
 
  Double_t
 	distance,
-	olddist,
 	QQ,
 	sqrtRR,
 	SIGN,
@@ -13745,50 +13743,38 @@ if(iplotta && IVOLTE <= nmassimo){
 	YintersectionList[2];
 
 
- olddist = 9999999999.;
- igoodScit=-1;
+ igoodScit=0;
  for(iScitHit=0; iScitHit<nSciTilHits; iScitHit++){
 	if(!InclusionListSciTil[iScitHit]) continue;
 
-	QQ = posizSciTil[iScitHit][0]*posizSciTil[iScitHit][0]
-			+posizSciTil[iScitHit][1]*posizSciTil[iScitHit][1];
-	sqrtRR=sqrt(QQ);
-
-	if( -posizSciTil[iScitHit][0]*posizSciTil[iScitHit][1]<0.)  SIGN=-1.;
-	else  SIGN=1.;
-
-	intersect = IntersectionCircle_Segment(
+	IntersectionSciTil_Circle(
 	  posizSciTil[iScitHit][0],
 	  posizSciTil[iScitHit][1],
-	  -QQ,
-	  posizSciTil[iScitHit][0]-fabs(0.5*DIMENSIONSCITIL*posizSciTil[iScitHit][1]/sqrtRR),
-	  posizSciTil[iScitHit][0]+fabs(0.5*DIMENSIONSCITIL*posizSciTil[iScitHit][1]/sqrtRR),
-	  posizSciTil[iScitHit][1]-SIGN*fabs(0.5*DIMENSIONSCITIL*posizSciTil[iScitHit][0]/sqrtRR),
-	  posizSciTil[iScitHit][1]+SIGN*fabs(0.5*DIMENSIONSCITIL*posizSciTil[iScitHit][0]/sqrtRR),
 	  Oxx,
 	  Oyy,
 	  Rr,
 	  &Nint,  // output
 	  XintersectionList,  // output
-	  YintersectionList,  // output
-	  &distance  // output
-						);
-	if(intersect && distance<olddist){
-		olddist=distance;
-		igoodScit=iScitHit;
+	  YintersectionList  // output
+	);
+
+	if(intersect){
+		List[igoodScit] = iScitHit;
 
 		// calculate S on the lateral face of the Helix.
 		if ( Nint==1){	// the majority of the cases
-			*esse = atan2(YintersectionList[0]-Oyy,
+			esse[igoodScit] = atan2(YintersectionList[0]-Oyy,
 				XintersectionList[0]-Oxx);
 		} else {  // in this case Nint=2 (it should be a very rare case).
 			// do an average of the two positions.
-			*esse = atan2( 0.5*(YintersectionList[0]+
+			esse[igoodScit] = atan2( 0.5*(YintersectionList[0]+
 					YintersectionList[1])-Oyy,
 				0.5*(XintersectionList[0]+
 					XintersectionList[1])-Oxx);
 		} // end of  if ( Nint==1)
-		if ( *esse<0.) *esse += 2.*PI;
+		if ( esse[igoodScit]<0.) esse[igoodScit] += 2.*PI;
+		igoodScit++;
+		if( igoodScit == nmaxSciTilHitsinTrack) break;
 
 	} // end of  if(intersect && distance<olddist)
  }  // end of  for(iScitHit=0; iScitHit<nScitHits; iScitHit++)
@@ -13797,8 +13783,57 @@ if(iplotta && IVOLTE <= nmassimo){
 
 }
 
-//----------end of function PndSttTrackFinderReal::FAssociateSciTilHit
+//----------end of function PndSttTrackFinderReal::AssociateSciTilHit
 
+//----------begin of function PndSttTrackFinderReal::IntersectionSciTil_Circle
+	bool  PndSttTrackFinderReal::IntersectionSciTil_Circle(
+			Double_t posizSciTilx,
+			Double_t posizSciTily,
+			Double_t Oxx, // center of circle.
+			Double_t Oyy,
+			Double_t Rr, // Radius of circle.
+			UShort_t * Nintersections,
+			Double_t XintersectionList[2],
+			Double_t YintersectionList[2]
+							)
+{
+
+	bool intersect;
+
+	Double_t
+		distance,
+		QQ,
+		sqrtRR,
+		SIGN;
+
+
+	QQ = posizSciTilx*posizSciTilx+posizSciTily*posizSciTily;
+	sqrtRR=sqrt(QQ);
+
+	if( posizSciTily<0.)  SIGN=-1.;
+	else  SIGN=1.;
+
+
+	intersect = IntersectionCircle_Segment(
+	  posizSciTilx,
+	  posizSciTily,
+	  -QQ,
+	  posizSciTilx-fabs(0.5*DIMENSIONSCITIL*posizSciTily/sqrtRR),
+	  posizSciTilx+fabs(0.5*DIMENSIONSCITIL*posizSciTily/sqrtRR),
+	  posizSciTily-SIGN*posizSciTilx*fabs(0.5*DIMENSIONSCITIL/sqrtRR),
+	  posizSciTily+SIGN*posizSciTilx*fabs(0.5*DIMENSIONSCITIL/sqrtRR),
+	  Oxx,
+	  Oyy,
+	  Rr,
+	  Nintersections,  // output
+	  XintersectionList,  // output
+	  YintersectionList,  // output
+	  &distance  // output
+						);
+
+	return intersect;
+}
+//----------end of function PndSttTrackFinderReal::IntersectionSciTil_Circle
 
 ClassImp(PndSttTrackFinderReal)
 
