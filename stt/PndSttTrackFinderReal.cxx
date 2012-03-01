@@ -393,7 +393,6 @@ Int_t PndSttTrackFinderReal::DoFind(TClonesArray* trackCandArray, TClonesArray *
  Double_t aaa, ddd, delta, deltabis, deltaZ, mindis, distanza, fi_hit,
               ap1, ap2, ap3, carica, cross1, cross2, cross3,
 		dummy,
-//		S_SciTilHitsinTrack[MAXTRACKSPEREVENT][nmaxSciTilHits],
              lowlimit[MAXTRACKSPEREVENT],
              uplimit[MAXTRACKSPEREVENT],
              info[nmaxHits][7],
@@ -1043,8 +1042,16 @@ cout<<"from PndSttTrackFinderReal...this hit must be noise (RefIndex = "<<ptInde
 
 //---------stampe.
 if(istampa>0){
-	cout<<"con SciTil, traccia n. "<<nTracksFoundSoFar<<", SciTil hit n. "<<i
-	<<", stampa hit || :\n";
+	cout<<"PndTrackFinderReal, evt. "<<IVOLTE<<
+	", cand. "<<nTracksFoundSoFar<<
+	", partendo da SciTil, traccia n. "<<nTracksFoundSoFar<<",n SciTilhitsintrack  "<<
+	nSciTilHitsinTrack[nTracksFoundSoFar]<<" e loro stampa :\n";
+	for(j=0; j<nSciTilHitsinTrack[nTracksFoundSoFar]; j++){
+		cout<<"\t hit || n. "<<
+		ListSciTilHitsinTrack[nTracksFoundSoFar][j]
+		<<", S "<<S_SciTilHitsinTrack[nTracksFoundSoFar][j]<<endl;
+	}
+	cout<<"\t\tora stampa hit || :\n";
 	for(j=0; j<nHitsinTrack[nTracksFoundSoFar]; j++){
 		cout<<"\t hit || n. "<<
 	  infoparal[ListHitsinTrack[nTracksFoundSoFar][j]]<<endl;
@@ -1121,6 +1128,24 @@ cout<<"from PndSttTrackFinderReal :  # n. Tracks found so far = "<<nTracksFoundS
  for(j=0; j<nHitsinTrack[nTracksFoundSoFar]; j++){
    InclusionList[infoparal[ListHitsinTrack[nTracksFoundSoFar][j]]] = false;
  }
+//---------stampe.
+if(istampa>0){
+	cout<<"PndTrackFinderReal, evt. "<<IVOLTE<<
+	", cand. "<<nTracksFoundSoFar<<
+	", partendo da Stt || hits, traccia n. "<<nTracksFoundSoFar<<",n SciTilhitsintrack  "<<
+	nSciTilHitsinTrack[nTracksFoundSoFar]<<" e loro stampa :\n";
+	for(j=0; j<nSciTilHitsinTrack[nTracksFoundSoFar]; j++){
+		cout<<"\t hit || n. "<<
+		ListSciTilHitsinTrack[nTracksFoundSoFar][j]
+		<<", S "<<S_SciTilHitsinTrack[nTracksFoundSoFar][j]<<endl;
+	}
+	cout<<"\t\tora stampa hit || :\n";
+	for(j=0; j<nHitsinTrack[nTracksFoundSoFar]; j++){
+		cout<<"\t hit || n. "<<
+	  infoparal[ListHitsinTrack[nTracksFoundSoFar][j]]<<endl;
+	}
+}
+//-------fine stampe.
 
  nTracksFoundSoFar++;
 
@@ -1132,6 +1157,20 @@ cout<<"from PndSttTrackFinderReal :  # n. Tracks found so far = "<<nTracksFoundS
    }
 
   }      // end  of   for(iParHit=0; iParHit<Minclinations[0]+1-MINIMUMHITSPERTRACK; iParHit++)
+
+
+//------------ stampe.
+if(istampa>=2){
+    for(j=0;j<nTracksFoundSoFar;j++){
+	for(int jc=0;jc<nSciTilHitsinTrack[j];jc++){
+		cout<<"from PndTrackFinderReal evt "<<IVOLTE<<", cand "<<jc<<
+		", SciTil hit n. "<<ListSciTilHitsinTrack[j][jc]
+		<<", Z "<<posizSciTil[ ListSciTilHitsinTrack[j][jc] ][2]
+		<<", S  "<<S_SciTilHitsinTrack[j][jc]<<endl;
+	}
+    }
+}
+//---------------fine stampe.
 
 
 
@@ -1187,14 +1226,15 @@ cout<<"from PndSttTrackFinderReal :  # n. Tracks found so far = "<<nTracksFoundS
  }
 
 // here there are up to 2 SciTil hits in track.
- if(nSciTilHitsinTrack[i]==1){
-
-	tmpS[0]= S_SciTilHitsinTrack[i][0]; // this is already between 0 and 2PI.
-	tmpZ[0]=posizSciTil[ ListSciTilHitsinTrack[i][0] ][2],
-	tmpZDrift[0]=-1., // conventional, to signal that this is not a STT hit.
+ if(nSciTilHitsinTrack[i]>0){
+    for(j=0;j<nSciTilHitsinTrack[i];j++){
+	tmpS[j]= S_SciTilHitsinTrack[i][j]; // this is already between 0 and 2PI.
+	tmpZ[j]=posizSciTil[ ListSciTilHitsinTrack[i][j] ][2],
+	tmpZDrift[j]=-1., // conventional, to signal that this is not a STT hit.
 	// error is intentionally overestimated for later use in SZ fit.
-//	tmpErrorZDrift[0] = DIMENSIONSCITIL/sqrt(12.);
-	tmpErrorZDrift[0] = DIMENSIONSCITIL/2.;
+//	tmpErrorZDrift[j] = DIMENSIONSCITIL/sqrt(12.);
+	tmpErrorZDrift[j] = DIMENSIONSCITIL/2.;
+    }
  }
  for(j=0;j<nSttSkewhitinTrack[i];j++){
 	ListSkewHitsinTrack[i][j]=TemporarySkewList[j][0];
@@ -1408,11 +1448,19 @@ if(istampa>=2){cout<<"\tPndSttTrackFinderReal, fine di procedura, IVOLTE = "
 	for(int ic=0;ic<nHitsinTrack[i];ic++){
 		cout<<"\thit || (nativo) n. "<<infoparal[ ListHitsinTrack[i][ic] ]<<endl;
 	}
-	cout<<"\tlista degli hit SciTil :"<<endl;
+	cout<<"\tlista degli Stt // hits :"<<endl;
 	for(int ic=0;ic<nSciTilHitsinTrack[i];ic++){
-		cout<<"\thit SciTil n. "<<ListSciTilHitsinTrack[i][ic]<<endl;
+		cout<<"\thit // Stt (nativo) n. "<<infoskew[ ListSkewHitsinTrack[i][ic] ]
+		<<endl;
 	}
 
+	cout<<"\tlista degli hit SciTil :"<<endl;
+	for(int ic=0;ic<nSciTilHitsinTrack[i];ic++){
+		cout<<"\thit SciTil n. "<<ListSciTilHitsinTrack[i][ic]<<
+		", Z "<<posizSciTil[ ListSciTilHitsinTrack[i][ic] ][2]<<
+		", S "<<S_SciTilHitsinTrack[i][ic]<<
+		endl;
+	}
 }
 //-------------- fine stampe.
 
@@ -2304,10 +2352,13 @@ for(i=0,ii=-1; i<nTracksFoundSoFar;i++){
 //  if there are SciTil hits, calculate S.
     Double_t ESSE[nSciTilHitsinTrack[i]],
 		ZETA[nSciTilHitsinTrack[i]];
-   // here nSciTilHitsinTrack[i] is 0 or 1.
-    if(nSciTilHitsinTrack[i]==1){
-	ESSE[j]= S_SciTilHitsinTrack[i][0];
-	ZETA[j]= posizSciTil[ListSciTilHitsinTrack[i][0]][2];
+   // here nSciTilHitsinTrack[i] is up to 2.
+    if(nSciTilHitsinTrack[i]>0){
+      for(j=0;j<nSciTilHitsinTrack[i];j++){
+
+	ESSE[j]= S_SciTilHitsinTrack[i][j];
+	ZETA[j]= posizSciTil[ListSciTilHitsinTrack[i][j]][2];
+      }
     }
 
 
@@ -13497,20 +13548,21 @@ for(int iz=0;iz<nummm;iz++){
 			Oy[nTracksFoundSoFar],
 			R[nTracksFoundSoFar],
 			&ListSciTilHitsinTrack[nTracksFoundSoFar][0],
-			S	// output; S on the lateral face of the Helix
-				// of the SciTil hit (if present).
+			S// output; S on the lateral face of the Helix
+			// of the SciTil hit (if present).
 				);
 	if(nSciT>0){
-		  nSciTilHitsinTrack[nTracksFoundSoFar]=nSciT;
-		  for(j=0;j<nSciTilHitsinTrack[nTracksFoundSoFar];j++){
+		nSciTilHitsinTrack[nTracksFoundSoFar]=nSciT;
+		for(j=0;j<nSciTilHitsinTrack[nTracksFoundSoFar];j++){
 			InclusionListSciTil[ListSciTilHitsinTrack[nTracksFoundSoFar][0]]
 				=false;
-		  }
+			S_SciTilHitsinTrack[nTracksFoundSoFar][j]=S[j];
+		}
 	} else {
-			nSciTilHitsinTrack[nTracksFoundSoFar]=0;
+		nSciTilHitsinTrack[nTracksFoundSoFar]=0;
 	}
  }else{
-		nSciTilHitsinTrack[nTracksFoundSoFar]=0;
+	nSciTilHitsinTrack[nTracksFoundSoFar]=0;
  } // end of if(YesSciTil)
 
 
