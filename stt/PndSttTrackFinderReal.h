@@ -35,8 +35,6 @@ struct CalculatedHelix {
                  Double_t FI0[3][16];
                } ;
 
-#define            nmaxAmbiguities  10
-#define            nmaxAssociatedHits  200
 
 
 class PndSttTrackFinderReal : public PndSttTrackFinder
@@ -90,14 +88,13 @@ class PndSttTrackFinderReal : public PndSttTrackFinder
  private:
 
 
-#define maximumTracks 50
  static const UShort_t
 	nmaxHits = 1000, // max hits total.
 	nmaxHitsInTrack=60,
 	nmaxSciTilHits = 200, // max SciTil hits total.
-	nmaxSciTilHitsInTrack = 2, // max SciTil hits in one track.
+	nmaxSciTilHitsinTrack = 2, // max SciTil hits in one track.
 	MAXMCTRACKS=10000,
-	MAXTRACKSPEREVENT=maximumTracks,
+	MAXTRACKSPEREVENT=50,
 	MAXHITSINCELL=50,
 	nmaxinclinationversors=20,
 	nAdmittedRadia = 3,
@@ -116,10 +113,8 @@ class PndSttTrackFinderReal : public PndSttTrackFinder
 	NHITSINFIT=15,
 	DELTAnR = 2;   //  defines the range of nR in PndSttTrkAssociatedParallelHitsToHelixBis
 
-#define RadiusMinStrawDetector 16.119
-#define DiameterStrawTube  1.
     static const  Double_t PI = 3.141592654,
-                 RStrawDetectorMin = RadiusMinStrawDetector, // minimum radius of the Stt detector in  cm
+                 RStrawDetectorMin = 16.119, // minimum radius of the Stt detector in  cm
 		ApotemaMaxInnerParStraw = 23.246827,
 		ApotemaMinSkewStraw = 23.246827, // delimitation of the skew area
 		ApotemaMaxSkewStraw = 31.517569, // delimitation of the skew area
@@ -130,7 +125,7 @@ class PndSttTrackFinderReal : public PndSttTrackFinder
                  Rmin=20.,
                  Rmax=700.,
 		 PMAX=100.,
-                 STRAWRADIUS = DiameterStrawTube/2. ,
+                 STRAWRADIUS = 0.5 ,
                  StrawDriftError = 0.02,
 		 SKEWinclination_DEGREES = 3.,
                  CXmin=-150.,  CXmax=150.,
@@ -148,10 +143,10 @@ class PndSttTrackFinderReal : public PndSttTrackFinder
                BFIELD=2.,  // in Tesla
                CVEL = 2.99792;  //  velocity of light
 	static const bool YesClean = false;
-	bool YesSciTil ;
+ bool	YesSciTil,
+	InclusionListSciTil[nmaxSciTilHits];
 
-//               nFidivConformal = (UShort_t) (    PI*RStrawDetectorMax /StrawRadius   );
-       static const UShort_t  nFidivConformal = (UShort_t) (3.141592654 * 45./0.5)  ;
+ static const UShort_t  nFidivConformal = (UShort_t) (3.141592654 * 45./0.5)  ;
 
  static const int
 	nmassimo=50,
@@ -159,8 +154,9 @@ class PndSttTrackFinderReal : public PndSttTrackFinder
 
 
 
-      int IVOLTE, ntimes, INTERO,
-          N_INTENDED;
+ int
+	IVOLTE,
+	N_INTENDED;
 
  bool	iplotta,
 	doMcComparison,
@@ -188,11 +184,14 @@ class PndSttTrackFinderReal : public PndSttTrackFinder
 	MINIMUMHITSPERTRACK,
 	MINIMUMOUTERHITSPERTRACK,
 	nRdivConformalEffective,
+	nSciTilHits,
 	nSttSkewhit,
 	infoparal[nmaxHits],
 	infoskew[nmaxHits],
 	nHitsInMCTrack[MAXTRACKSPEREVENT],
-	nSttSkewhitInMCTrack[MAXTRACKSPEREVENT];
+	nSciTilHitsinTrack[MAXTRACKSPEREVENT],
+	nSttSkewhitInMCTrack[MAXTRACKSPEREVENT],
+	ListSciTilHitsinTrack[MAXTRACKSPEREVENT][nmaxSciTilHitsinTrack];
 
 
 
@@ -488,8 +487,7 @@ class PndSttTrackFinderReal : public PndSttTrackFinder
 	UShort_t imaxima,
 	Int_t sequencial,
 	UShort_t nscitilhitsintrack,
-	UShort_t *listscitilhitsintrack
-//	Double_t posizSciTil[nmaxSciTilHits][3]
+	UShort_t listscitilhitsintrack
 		);
 
  void WriteMacroParallelAssociatedHitswithMC(
@@ -503,8 +501,7 @@ class PndSttTrackFinderReal : public PndSttTrackFinder
 	UShort_t ifoundtrack,
 	Int_t sequentialNTrack,
 	UShort_t nscitilhitsintrack,
-	UShort_t *listscitilhitsintrack,
-//	Double_t posizSciTil[nmaxSciTilHits][3],
+	UShort_t listscitilhitsintrack,
 		UShort_t nParalCommon[MAXTRACKSPEREVENT],
 		UShort_t ParalCommonList[MAXTRACKSPEREVENT][nmaxHits],
 		UShort_t nSpuriParinTrack[MAXTRACKSPEREVENT],
@@ -518,8 +515,6 @@ class PndSttTrackFinderReal : public PndSttTrackFinder
 		    Int_t Nincl,
 		     Int_t Minclinations[],
 		     Double_t inclination[][3],
-		   UShort_t nSciTilHits,
-//		   Double_t posizSciTil[nmaxSciTilHits][3],
                    UShort_t nTracksFoundSoFar
                                                      );
 
@@ -529,8 +524,6 @@ class PndSttTrackFinderReal : public PndSttTrackFinder
 		   Int_t Nincl,
 		    Int_t Minclinations[],
 		     Double_t inclination[][3],
-		   UShort_t nSciTilHits,
-//		   Double_t posizSciTil[nmaxSciTilHits][3],
                    UShort_t nTracksFoundSoFar
                                                      );
 
@@ -561,7 +554,7 @@ class PndSttTrackFinderReal : public PndSttTrackFinder
 		   Int_t sequentialNTrack,
                    UShort_t nSttSkewhitinTrack,
 	UShort_t ListSkewHitsinTrack[MAXTRACKSPEREVENT][nmaxHitsInTrack],
-	UShort_t nSciTilHits,
+	UShort_t nscitilhits,
 	Double_t *ESSE,
 	Double_t *ZETA
                                                      );
@@ -587,7 +580,7 @@ class PndSttTrackFinderReal : public PndSttTrackFinder
                    UShort_t daTrackFoundaTrackMC,
 		UShort_t nMCSkewAlone[MAXTRACKSPEREVENT],
 		UShort_t MCSkewAloneList[MAXTRACKSPEREVENT][nmaxHits],
-	UShort_t nSciTilHits,
+	UShort_t nscitilhits,
 	Double_t *ESSE,
 	Double_t *ZETA
 
@@ -940,6 +933,17 @@ class PndSttTrackFinderReal : public PndSttTrackFinder
 			Double_t *distance
 								);
 
+	bool IntersectionSciTil_Circle(
+			Double_t posizSciTilx,
+			Double_t posizSciTily,
+			Double_t Oxx, // center of circle.
+			Double_t Oyy,
+			Double_t Rr, // Radius of circle.
+			UShort_t * Nintersections,
+			Double_t XintersectionList[2],
+			Double_t YintersectionList[2]
+								);
+
 	UShort_t IntersectionsWithGapSemicircle(
 			Double_t Oxx,
 			Double_t Oyy,
@@ -1159,8 +1163,7 @@ class PndSttTrackFinderReal : public PndSttTrackFinder
 		UShort_t nTracksFoundSoFar,
 		UShort_t *nHitsinTrack,
 		UShort_t ListHitsinTrack[MAXTRACKSPEREVENT][nmaxHitsInTrack],
-		UShort_t *nSciTilHitsinTrack,
-		UShort_t ListSciTilHitsinTrack[MAXTRACKSPEREVENT][nmaxSciTilHitsInTrack],
+//		UShort_t *nSciTilHitsinTrack,
 		Double_t *trajectory_vertex,
 		Double_t infoparalConformal[nmaxHits][5],
 		Double_t posizSciTilx,
@@ -1177,6 +1180,16 @@ class PndSttTrackFinderReal : public PndSttTrackFinder
 		Double_t U[MAXTRACKSPEREVENT][nmaxHits],
 		Double_t V[MAXTRACKSPEREVENT][nmaxHits]
 					);
+
+	UShort_t AssociateSciTilHit(
+		Double_t Oxx,
+		Double_t Oyy,
+		Double_t Rr,
+		UShort_t *List, // output, list of SciTil hits associated (max. 2);
+		Double_t *esse // output, list of  S of the SciTil hits associated. 
+				);
+
+
 
 
 //----------------------------------------------
