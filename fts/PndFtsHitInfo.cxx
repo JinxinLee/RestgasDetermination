@@ -9,26 +9,17 @@
 
 
 /** Constructor **/
-PndFtsHitInfo::PndFtsHitInfo() {
-  fFileNumber  = -1;
-  fEventNumber = -1;
-  fTrackID     = -1;
-  fPointID     = -1;
-  fNMerged     =  0;
-  fIsFake      = kFALSE;
+PndFtsHitInfo::PndFtsHitInfo():fFileNumber(-1), fEventNumber(-1), fTrackID(-1), fPointID(-1), fNMerged(0), fIsFake(kFALSE) 
+{
 }
 
 
 /** Constructor with all parameters **/
 PndFtsHitInfo::PndFtsHitInfo(Int_t fileNumber, Int_t eventNumber,
                              Int_t trackID, Int_t pointID,
-                             Int_t nMerged, Bool_t isFake) {
-  fFileNumber  = fileNumber;
-  fEventNumber = eventNumber;
-  fTrackID     = trackID;
-  fPointID     = pointID;
-  fNMerged     = nMerged;
-  fIsFake      = isFake;
+                             Int_t nMerged, Bool_t isFake): fFileNumber(fFileNumber), fEventNumber(eventNumber), fTrackID(trackID),
+                             fPointID(pointID), fNMerged(nMerged), fIsFake(isFake) 
+{
 }
 
 

@@ -22,13 +22,15 @@ PndFtsTube::PndFtsTube()
     fRotationMatrix[2][2] = -1.;
 }
 
-PndFtsTube::PndFtsTube(PndFtsTube &tube){
-  fCenPosition = tube.GetPosition();
+PndFtsTube::PndFtsTube(PndFtsTube &tube)
+  :fCenPosition(tube.GetPosition()),
+   fRotationMatrix(TMatrixT<double>(3,3)),
+   fRadIn(tube.GetRadIn()),
+   fRadOut(tube.GetRadOut()),
+   fHalfLength(tube.GetHalfLength())
+{
   fRotationMatrix.ResizeTo(3,3);
   fRotationMatrix = tube.GetRotationMatrix();
-  fRadIn = tube.GetRadIn();
-  fRadOut = tube.GetRadOut();
-  fHalfLength = tube.GetHalfLength();
 }
 
 PndFtsTube::PndFtsTube(Double_t x, Double_t y, Double_t z,

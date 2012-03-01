@@ -106,6 +106,7 @@ PndSttSingleStraw::PndSttSingleStraw() {
 
   CNumb=0;
   memset(CumClus,0,sizeof(CumClus));
+  memset(CH4Clus,0,sizeof(CH4Clus));
   memset(PolyaCum,0,sizeof(PolyaCum));
   memset(Xs,0,sizeof(Xs));
 
