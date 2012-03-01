@@ -393,7 +393,7 @@ Int_t PndSttTrackFinderReal::DoFind(TClonesArray* trackCandArray, TClonesArray *
  Double_t aaa, ddd, delta, deltabis, deltaZ, mindis, distanza, fi_hit,
               ap1, ap2, ap3, carica, cross1, cross2, cross3,
 		dummy,
-		esse[MAXTRACKSPEREVENT],
+//		S_SciTilHitsinTrack[MAXTRACKSPEREVENT][nmaxSciTilHits],
              lowlimit[MAXTRACKSPEREVENT],
              uplimit[MAXTRACKSPEREVENT],
              info[nmaxHits][7],
@@ -1021,7 +1021,7 @@ cout<<"from PndSttTrackFinderReal...this hit must be noise (RefIndex = "<<ptInde
 				 infoparalConformal,
 				 posizSciTil[i][0],
 				 posizSciTil[i][1],
-				 &esse[nTracksFoundSoFar],
+				 &S_SciTilHitsinTrack[nTracksFoundSoFar][0],
 				 Ox,
 				 Oy,
 				 R,
@@ -1034,8 +1034,6 @@ cout<<"from PndSttTrackFinderReal...this hit must be noise (RefIndex = "<<ptInde
 				 V
 				);
 	if(!outcome){
-		//  make this SciTil hit available for other tracks.
-		InclusionListSciTil[i]=true;
 		continue;
 	}
 	for(j=0; j<nHitsinTrack[nTracksFoundSoFar]; j++){
@@ -1145,7 +1143,7 @@ cout<<"from PndSttTrackFinderReal :  # n. Tracks found so far = "<<nTracksFoundS
 //-----------------------
 //-----------------------
 
-   bool keepit[nTracksFoundSoFar];
+  bool keepit[nTracksFoundSoFar];
 
   for(i=0; i<nTracksFoundSoFar;i++){
 
@@ -1188,10 +1186,10 @@ cout<<"from PndSttTrackFinderReal :  # n. Tracks found so far = "<<nTracksFoundS
 	else nSttSkewhitinTrack[i]=0;
  }
 
-// here there are 0 or 1 SciTil hits in track.
+// here there are up to 2 SciTil hits in track.
  if(nSciTilHitsinTrack[i]==1){
 
-	tmpS[0]= esse[i]; // this is already between 0 and 2PI.
+	tmpS[0]= S_SciTilHitsinTrack[i][0]; // this is already between 0 and 2PI.
 	tmpZ[0]=posizSciTil[ ListSciTilHitsinTrack[i][0] ][2],
 	tmpZDrift[0]=-1., // conventional, to signal that this is not a STT hit.
 	// error is intentionally overestimated for later use in SZ fit.
@@ -1410,6 +1408,11 @@ if(istampa>=2){cout<<"\tPndSttTrackFinderReal, fine di procedura, IVOLTE = "
 	for(int ic=0;ic<nHitsinTrack[i];ic++){
 		cout<<"\thit || (nativo) n. "<<infoparal[ ListHitsinTrack[i][ic] ]<<endl;
 	}
+	cout<<"\tlista degli hit SciTil :"<<endl;
+	for(int ic=0;ic<nSciTilHitsinTrack[i];ic++){
+		cout<<"\thit SciTil n. "<<ListSciTilHitsinTrack[i][ic]<<endl;
+	}
+
 }
 //-------------- fine stampe.
 
@@ -2262,7 +2265,7 @@ if(iplotta && IVOLTE <= nmassimo){
 			i,
 			ii,
 			nSciTilHitsinTrack[i],
-			ListSciTilHitsinTrack[i][0]
+			&ListSciTilHitsinTrack[i][0]
 			);
 
   if(doMcComparison) {
@@ -2275,7 +2278,7 @@ if(iplotta && IVOLTE <= nmassimo){
                    i,
 		   ii,
 			nSciTilHitsinTrack[i],
-			ListSciTilHitsinTrack[i][0],
+			&ListSciTilHitsinTrack[i][0],
 		nParalCommon,
 		ParalCommonList,
 		nSpuriParinTrack,
@@ -2303,7 +2306,7 @@ for(i=0,ii=-1; i<nTracksFoundSoFar;i++){
 		ZETA[nSciTilHitsinTrack[i]];
    // here nSciTilHitsinTrack[i] is 0 or 1.
     if(nSciTilHitsinTrack[i]==1){
-	ESSE[j]= esse[i];
+	ESSE[j]= S_SciTilHitsinTrack[i][0];
 	ZETA[j]= posizSciTil[ListSciTilHitsinTrack[i][0]][2];
     }
 
@@ -4318,7 +4321,7 @@ fprintf(MACRO,"TEllipse* E%d = new TEllipse(%f,%f,%f,%f,0.,360.);\nE%d->SetLineW
 	UShort_t imaxima,
 	Int_t sequencial,
 	UShort_t nscitilhitsintrack,
-	UShort_t listscitilhitsintrack
+	UShort_t *listscitilhitsintrack
 			)
 {
 
@@ -4362,12 +4365,14 @@ fprintf(MACRO,"TEllipse* E%d = new TEllipse(%f,%f,%f,%f,0.,360.);\nE%d->SetLineW
       ymax=-1.e20;
 
 //---- Scitil hits.
-       if(nscitilhitsintrack==1) {
-            i = listscitilhitsintrack ;
+       if(nscitilhitsintrack>0) {
+	for(j=0;j<nscitilhitsintrack;j++){
+            i = listscitilhitsintrack[j] ;
             if (posizSciTil[i][0] < xmin)   xmin = posizSciTil[i][0];
             if (posizSciTil[i][0] > xmax)   xmax = posizSciTil[i][0];
             if (posizSciTil[i][1] < ymin)   ymin = posizSciTil[i][1];
             if (posizSciTil[i][1] > ymax)   ymax = posizSciTil[i][1];
+	}
        }
 //-------------
 
@@ -4424,13 +4429,15 @@ fprintf(MACRO,"TEllipse* E%d = new TEllipse(%f,%f,%f,%f,0.,360.);\nE%d->SetLineW
 
 //---- disegna gli Scitil.
 
-	if(nscitilhitsintrack==1) {
-		i = listscitilhitsintrack ;
+	if(nscitilhitsintrack>0) {
+	  for(j=0;j<nscitilhitsintrack;j++){
+		i = listscitilhitsintrack[j] ;
 		fprintf(MACRO,"TMarker* SciT%d = new TMarker(%f,%f,%d);\n",
 			i,posizSciTil[i][0],posizSciTil[i][1],30);
 		fprintf(MACRO,"SciT%d->SetMarkerSize(1.5);\n",i);
 		fprintf(MACRO,"SciT%d->SetMarkerColor(1);\nSciT%d->Draw();\n"
 				,i,i);
+	  }
 	}
 //------------------------
 
@@ -4470,7 +4477,7 @@ fprintf(MACRO,"TEllipse* E%d = new TEllipse(%f,%f,%f,%f,0.,360.);\nE%d->SetLineW
 	UShort_t ifoundtrack,
 	Int_t sequentialNTrack,
 	UShort_t nscitilhitsintrack,
-	UShort_t listscitilhitsintrack,
+	UShort_t *listscitilhitsintrack,
 		UShort_t nParalCommon[MAXTRACKSPEREVENT],
 		UShort_t ParalCommonList[MAXTRACKSPEREVENT][nmaxHits],
 		UShort_t nSpuriParinTrack[MAXTRACKSPEREVENT],
@@ -4516,12 +4523,14 @@ fprintf(MACRO,"TEllipse* E%d = new TEllipse(%f,%f,%f,%f,0.,360.);\nE%d->SetLineW
       ymax=-1.e20;
 
 //---- Scitil hits.
-       if(nscitilhitsintrack==1) {
-            i = listscitilhitsintrack ;
+       if(nscitilhitsintrack>0) {
+	for(j=0;j<nscitilhitsintrack;j++){
+            i = listscitilhitsintrack[j] ;
             if (posizSciTil[i][0] < xmin)   xmin = posizSciTil[i][0];
             if (posizSciTil[i][0] > xmax)   xmax = posizSciTil[i][0];
             if (posizSciTil[i][1] < ymin)   ymin = posizSciTil[i][1];
             if (posizSciTil[i][1] > ymax)   ymax = posizSciTil[i][1];
+	}
        }
 //-------------
 
@@ -4598,13 +4607,15 @@ fprintf(MACRO,"TEllipse* E%d = new TEllipse(%f,%f,%f,%f,0.,360.);\nE%d->SetLineW
 
 //---- disegna gli Scitil.
 
-	if(nscitilhitsintrack==1) {
-		i = listscitilhitsintrack ;
+	if(nscitilhitsintrack>0) {
+	  for(j=0;j<nscitilhitsintrack;j++){
+		i = listscitilhitsintrack[j] ;
 		fprintf(MACRO,"TMarker* SciT%d = new TMarker(%f,%f,%d);\n",
 			i,posizSciTil[i][0],posizSciTil[i][1],30);
 		fprintf(MACRO,"SciT%d->SetMarkerSize(1.5);\n",i);
 		fprintf(MACRO,"SciT%d->SetMarkerColor(1);\nSciT%d->Draw();\n"
 				,i,i);
+	  }
 	}
 //------------------------
 
@@ -13464,58 +13475,24 @@ for(int iz=0;iz<nummm;iz++){
 //  P1 =  [ x0- abs{(L/2)*y0/RR}; y0-SIGN*abs{(L/2)*x0/RR} ],
 //  P2 =  [ x0+abs{(L/2)*y0/RR}; y0+SIGN*abs{(L/2)*x0/RR} ].
 
-	bool intersect;
-	UShort_t
-		Nint,
-		nSciT;
-	Double_t distance,
-		 QQ,
-		 sqrtRR,
-		 SIGN,
-		 XintersectionList[2],
-		 YintersectionList[2];
- if(iHit<0){
-
-	IntersectionSciTil_Circle(
-	  posizSciTilx,
-	  posizSciTily,
-	  Ox[nTracksFoundSoFar],
-	  Oy[nTracksFoundSoFar],
-	  R[nTracksFoundSoFar],
-	  &Nint,  // output
-	  XintersectionList,  // output
-	  YintersectionList  // output
-	);
+ bool intersect;
+ UShort_t
+	Nint,
+	nSciT;
+ Double_t distance,
+	QQ,
+	sqrtRR,
+	SIGN,
+	XintersectionList[2],
+	YintersectionList[2];
 
 
-// reject case with no intersection of the SciTil with the circle trajectory.
-	if(intersect){
-		nSciTilHitsinTrack[nTracksFoundSoFar]=1;
-		ListSciTilHitsinTrack[nTracksFoundSoFar][0]= -iHit-1;
-		InclusionListSciTil[ListSciTilHitsinTrack[nTracksFoundSoFar][0]]=false;
+ // whether or not the seed hit was a Stt hit try if any SciTil hits are
+ // associated to this track cand.
 
-		// calculate S on the lateral face of the Helix.
-		if ( Nint==1){	// the majority of the cases
-			*S = atan2(YintersectionList[0]-Oy[i],XintersectionList[0]-Ox[i]);
-		} else {  // in this case Nint=2 (it should be a very rare case).
-			// do an average of the two positions.
-			*S = atan2( 0.5*(YintersectionList[0]+YintersectionList[1])-Oy[i],
-			0.5*(XintersectionList[0]+XintersectionList[1])-Ox[i]);
-		} // end of  if ( Nint==1)
-		if ( *S<0.) *S += 2.*PI;
-
-	} else {  // continuation of if(intersect)
-		nSciTilHitsinTrack[nTracksFoundSoFar]=0;
-	} // end of  if(intersect).
-
- } else { // continuation of if (iHit<0)
-
-	// the seed hit was a Stt hit; therefore no SciTil hits associated
-	// yet; try if any SciTil hits are associated to this track cand.
-
-	if(YesSciTil){
-		// nScit is the n. of SciTil hit associated to this track.
-		nSciT = AssociateSciTilHit(
+ if(YesSciTil){
+	// nScit is the n. of SciTil hit associated to this track.
+	nSciT = AssociateSciTilHit(
 			Ox[nTracksFoundSoFar],
 			Oy[nTracksFoundSoFar],
 			R[nTracksFoundSoFar],
@@ -13523,20 +13500,19 @@ for(int iz=0;iz<nummm;iz++){
 			S	// output; S on the lateral face of the Helix
 				// of the SciTil hit (if present).
 				);
-		if(nSciT>0){
+	if(nSciT>0){
 		  nSciTilHitsinTrack[nTracksFoundSoFar]=nSciT;
 		  for(j=0;j<nSciTilHitsinTrack[nTracksFoundSoFar];j++){
 			InclusionListSciTil[ListSciTilHitsinTrack[nTracksFoundSoFar][0]]
 				=false;
 		  }
-		} else {
+	} else {
 			nSciTilHitsinTrack[nTracksFoundSoFar]=0;
-		}
-	}else{
+	}
+ }else{
 		nSciTilHitsinTrack[nTracksFoundSoFar]=0;
-	} // end of if(YesSciTil)
+ } // end of if(YesSciTil)
 
- } // end of  if (iHit<0).
 
 //---------------------  better association of the hits in the track candidate
 // treat differently the case in which the track has radius < RStrawDetectorMax/2
