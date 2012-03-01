@@ -1017,7 +1017,6 @@ cout<<"from PndSttTrackFinderReal...this hit must be noise (RefIndex = "<<ptInde
 				 nTracksFoundSoFar,
 				 nHitsinTrack,
 				 ListHitsinTrack,
-//				 nSciTilHitsinTrack,
 				 trajectory_vertex,
 				 infoparalConformal,
 				 posizSciTil[i][0],
@@ -1100,7 +1099,6 @@ cout<<"from PndSttTrackFinderReal :  # n. Tracks found so far = "<<nTracksFoundS
 				 nTracksFoundSoFar,
 				 nHitsinTrack,
 				 ListHitsinTrack,
-//				 nSciTilHitsinTrack,
 				 trajectory_vertex,
 				 infoparalConformal,
 				 1.,	// dummy value, there is no SciTil info in this case;
@@ -1797,9 +1795,6 @@ if( istampa>=1 && nMCTracksaccettabili>0 ){
 			pTrckCand->AddHit(
 			1001,	// mio numero, temporaneo, che segnala gli SciTil.
 			(Int_t) ListSciTilHitsinTrack[i][0] , nTotalHits[i]);
-cout<<"finderreal, cazzone,TrackCand loading, evt. "<<IVOLTE<<", cand "<<
-i<<", n scitilhit "<<nSciTilHitsinTrack[i]<<
-", scitil hit "<<ListSciTilHitsinTrack[i][0]<<endl;
 		}
 
 
@@ -13161,7 +13156,6 @@ c[] = {-2.*Ama/sqrt(3.),-Ama,	2.*Ama/sqrt(3.),-vgap/2.,2.*Ami/sqrt(3.),-Ami,	-2.
 		UShort_t nTracksFoundSoFar,
 		UShort_t *nHitsinTrack,
 		UShort_t ListHitsinTrack[MAXTRACKSPEREVENT][nmaxHitsInTrack],
-//		UShort_t *nSciTilHitsinTrack,
 		Double_t *trajectory_vertex,
 		Double_t infoparalConformal[nmaxHits][5],
 		Double_t posizSciTilx,
@@ -13530,7 +13524,7 @@ for(int iz=0;iz<nummm;iz++){
 				// of the SciTil hit (if present).
 				);
 		if(nSciT>0){
-		  nSciTilHitsinTrack[nTracksFoundSoFar]=1;
+		  nSciTilHitsinTrack[nTracksFoundSoFar]=nSciT;
 		  for(j=0;j<nSciTilHitsinTrack[nTracksFoundSoFar];j++){
 			InclusionListSciTil[ListSciTilHitsinTrack[nTracksFoundSoFar][0]]
 				=false;
