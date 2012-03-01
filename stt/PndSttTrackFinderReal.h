@@ -1163,7 +1163,6 @@ class PndSttTrackFinderReal : public PndSttTrackFinder
 		UShort_t nTracksFoundSoFar,
 		UShort_t *nHitsinTrack,
 		UShort_t ListHitsinTrack[MAXTRACKSPEREVENT][nmaxHitsInTrack],
-//		UShort_t *nSciTilHitsinTrack,
 		Double_t *trajectory_vertex,
 		Double_t infoparalConformal[nmaxHits][5],
 		Double_t posizSciTilx,
