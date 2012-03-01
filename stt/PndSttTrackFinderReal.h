@@ -193,6 +193,7 @@ class PndSttTrackFinderReal : public PndSttTrackFinder
 	nSttSkewhitInMCTrack[MAXTRACKSPEREVENT],
 	ListSciTilHitsinTrack[MAXTRACKSPEREVENT][nmaxSciTilHitsinTrack];
 
+ UShort_t nMCTracks;
 
 
  Double_t Fimin,
@@ -206,21 +207,17 @@ class PndSttTrackFinderReal : public PndSttTrackFinder
 	stepFI0,
 	stepfineKAPPA,
 	stepfineFI0,
+	SEMILENGTH_STRAIGHT,
+	ZCENTER_STRAIGHT,
 	ALFA[MAXTRACKSPEREVENT],
 	BETA[MAXTRACKSPEREVENT],
 	GAMMA[MAXTRACKSPEREVENT],
-	radiaConf[nRdivConformal];
-
-
-
-    UShort_t nMCTracks;
-
- Double_t SEMILENGTH_STRAIGHT,
-	ZCENTER_STRAIGHT,
+	radiaConf[nRdivConformal],
 	CxMC[MAXTRACKSPEREVENT],
 	CyMC[MAXTRACKSPEREVENT],
 	R_MC[MAXTRACKSPEREVENT],
-	posizSciTil[nmaxSciTilHits][3];
+	posizSciTil[nmaxSciTilHits][3],
+	S_SciTilHitsinTrack[MAXTRACKSPEREVENT][nmaxSciTilHits];
 
   TClonesArray	*fMCTrackArray,
 		*fSciTPointArray,
@@ -487,7 +484,7 @@ class PndSttTrackFinderReal : public PndSttTrackFinder
 	UShort_t imaxima,
 	Int_t sequencial,
 	UShort_t nscitilhitsintrack,
-	UShort_t listscitilhitsintrack
+	UShort_t *listscitilhitsintrack
 		);
 
  void WriteMacroParallelAssociatedHitswithMC(
@@ -501,7 +498,7 @@ class PndSttTrackFinderReal : public PndSttTrackFinder
 	UShort_t ifoundtrack,
 	Int_t sequentialNTrack,
 	UShort_t nscitilhitsintrack,
-	UShort_t listscitilhitsintrack,
+	UShort_t *listscitilhitsintrack,
 		UShort_t nParalCommon[MAXTRACKSPEREVENT],
 		UShort_t ParalCommonList[MAXTRACKSPEREVENT][nmaxHits],
 		UShort_t nSpuriParinTrack[MAXTRACKSPEREVENT],
