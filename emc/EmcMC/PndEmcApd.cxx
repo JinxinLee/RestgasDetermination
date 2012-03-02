@@ -45,19 +45,20 @@ using std::cout;
 using std::endl;
 
 // -----   Default constructor   -------------------------------------------
-PndEmcApd::PndEmcApd() {
+PndEmcApd::PndEmcApd(): 
+  FairDetector(),
+  fTrackID(0),fVolumeID(0),fEventID(-1),fPos(0,0,0,0),fMom(0,0,0,0),fTime(0),fLength(0),fELoss(0),fPosIndex(0),fApdCollection(new TClonesArray())
+{
   fApdCollection        = new TClonesArray("PndEmcApdPoint");
-  fPosIndex   = 0;
-  fEventID=-1;
- }
+}
 // -------------------------------------------------------------------------
 
 // -----   Standard constructor   ------------------------------------------
-PndEmcApd::PndEmcApd(const char* name, Bool_t active)
-  : FairDetector(name, active) {
-    fApdCollection        = new TClonesArray("PndEmcApdPoint");
-    fPosIndex   = 0;
-    fEventID=-1; 
+PndEmcApd::PndEmcApd(const char* name, Bool_t active):
+  FairDetector(name, active),
+  fTrackID(0),fVolumeID(0),fEventID(-1),fPos(0,0,0,0),fMom(0,0,0,0),fTime(0),fLength(0),fELoss(0),fPosIndex(0),fApdCollection(new TClonesArray()) 
+{
+  fApdCollection        = new TClonesArray("PndEmcApdPoint");
 }
 // -------------------------------------------------------------------------
 

@@ -23,7 +23,10 @@ using namespace std;
 
 PndEmcMapper* PndEmcMapper::_instance = 0;
 Int_t PndEmcMapper::fMapVersion = 0;
-    
+   
+PndEmcMapper::PndEmcMapper(): fIntTwoCoordMap()
+{
+} 
 void PndEmcMapper::Init(Int_t mapVersion)
 {
 	if (mapVersion==0)

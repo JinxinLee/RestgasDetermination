@@ -13,8 +13,8 @@ class DataG4
 {
 
 public:
-    DataG4(){}
-    ~DataG4(){}
+ DataG4():crystal(0),row(0),module(0),theta(0),phi(0),tau(0),posX(0),posY(0),posZ(0),pDz(0), pTheta(0), pPhi(0), pDy1(0), pDx1(0), pDx2(0), pAlp1(0), pDy2(0), pDx3(0), pDx4(0), pAlp2(0) {}
+  ~DataG4(){}
     
     int crystal, row, module;
     double theta, phi, tau;

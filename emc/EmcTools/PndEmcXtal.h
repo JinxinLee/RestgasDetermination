@@ -69,6 +69,9 @@ private:
   TVector3 fNormalToFrontFace;
   TVector3 fAxis;
 
+  PndEmcXtal(const  PndEmcXtal& L);
+  PndEmcXtal& operator= (const  PndEmcXtal&) {return *this;}
+  
   ClassDef(PndEmcXtal,1)
 };
 

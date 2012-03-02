@@ -16,20 +16,9 @@ using std::cout;
 using std::endl;
 
 // -----   Default constructor   -------------------------------------------
-PndEmcApdPoint::PndEmcApdPoint() : FairMCPoint() {
-  fTrackID    = -1;
-  fDetectorID = -1;
-  fEventID    = -1;
-  fX          = fY  = fZ =  0.;
-  fPx         = fPy = fPz = 0.;
-  fTime       =  0.;
-  fLength     =  0.;
-  fELoss      =  0.;
-  nModule     = -1;
-  nRow        = -1;
-  nCrystal    = -1;
-  nCopy       = -1;
-  fFlag       = -10;
+PndEmcApdPoint::PndEmcApdPoint() : FairMCPoint(),
+				   nModule(-1), nRow(-1),  nCrystal(-1), nCopy(-1), fFlag(-10)
+{
 }
 // -------------------------------------------------------------------------
 
@@ -38,27 +27,22 @@ PndEmcApdPoint::PndEmcApdPoint() : FairMCPoint() {
 // -----   Standard constructor   ------------------------------------------
 PndEmcApdPoint::PndEmcApdPoint(Int_t trackID, Int_t detID, Int_t evtID, TVector3 pos,
                         TVector3 mom, Double_t tof, Double_t length,
-			 Double_t eLoss, Short_t mod, Short_t row, Short_t crys, Short_t copy, Short_t flag) {
-  fTrackID    = trackID;
-  fDetectorID = detID; 
-  fEventID    = evtID;
-  fX          = pos.X();
-  fY          = pos.Y();
-  fZ          = pos.Z();
-  fPx         = mom.Px();
-  fPy         = mom.Py();
-  fPz         = mom.Pz();
-  fTime       = tof;
-  fLength     = length;
-  fELoss      = eLoss;
-  nModule     = mod;
-  nRow        = row;
-  nCrystal    = crys;
-  nCopy       = copy;
-  fFlag       = flag;
-}
+			 Double_t eLoss, Short_t mod, Short_t row, Short_t crys, Short_t copy, Short_t flag)  
+  : FairMCPoint(trackID, detID, pos, mom, tof, length, eLoss, evtID),
+    nModule(mod), nRow(row), nCrystal(crys), nCopy(copy), fFlag(flag)
+{  
+  SetLink(FairLink("MCTrack", trackID));
+}  
 
+// -----   Copy constructor   ------------------------------------------
+PndEmcApdPoint::PndEmcApdPoint(const PndEmcApdPoint& point)
+  :FairMCPoint(point.fTrackID, point.fDetectorID, TVector3(point.fX, point.fY, point.fZ), TVector3(point.fPx, point.fPy, point.fPz), 
+	       point.fTime, point.fLength, point.fELoss),
+   nModule(point.nModule), nRow(point.nRow), nCrystal(point.nCrystal), nCopy(point.nCopy), fFlag(point.fFlag)
 
+{ 
+  SetLinks(point.GetLinks());
+} 
 
 // -----   Destructor   ----------------------------------------------------
 PndEmcApdPoint::~PndEmcApdPoint() { }

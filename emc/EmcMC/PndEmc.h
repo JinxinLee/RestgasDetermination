@@ -165,6 +165,9 @@ class PndEmc : public FairDetector
   // reset all parameters   
   void ResetParameters();
 
+  PndEmc(const  PndEmc& L);
+  PndEmc& operator= (const  PndEmc&) {return *this;}
+  
   ClassDef(PndEmc,1)
 
 }; 

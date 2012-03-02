@@ -66,6 +66,9 @@ class PndEmcApdHitProducer : public FairTask
 	
 	PndEmcStructure *fEmcStr;
 
+	PndEmcApdHitProducer(const  PndEmcApdHitProducer& L);
+	PndEmcApdHitProducer& operator= (const  PndEmcApdHitProducer&) {return *this;}
+
   ClassDef(PndEmcApdHitProducer,1);
   
 };

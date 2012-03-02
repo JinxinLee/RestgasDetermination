@@ -91,6 +91,9 @@ class PndEmcHitProducer : public FairTask
   Bool_t fStoreHits; // Flag which specify whether hits are stored or not
   
   void cleansortmclist( std::vector <Int_t> &newlist,TClonesArray* mcTrackArray);
+ 
+  PndEmcHitProducer(const  PndEmcHitProducer& L);
+  PndEmcHitProducer& operator= (const  PndEmcHitProducer&) {return *this;}
   
   ClassDef(PndEmcHitProducer,1);
 };

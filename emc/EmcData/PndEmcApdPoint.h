@@ -37,7 +37,7 @@ class PndEmcApdPoint : public FairMCPoint
 	      Short_t mod, Short_t row, Short_t crys, Short_t copy, Short_t flag);
   
   /** Copy constructor **/
-  PndEmcApdPoint(const PndEmcApdPoint& point) { *this = point; };
+  PndEmcApdPoint(const PndEmcApdPoint& point);
   
 
   /** Destructor **/
@@ -45,7 +45,6 @@ class PndEmcApdPoint : public FairMCPoint
   
 
   /** Accessors **/
-  Int_t    GetEventID()    const { return fEventID; };
   Double_t GetTheta()      const { return fX == 0.0 && fY == 0.0 && fZ == 0.0 ? 0.0 : TMath::ATan2(sqrt(fX*fX+fY*fY),fZ)*TMath::RadToDeg() ;};
   Double_t GetPhi()        const { return fX == 0.0 && fY == 0.0 ? 0.0 : TMath::ATan2(fY,fX)*TMath::RadToDeg()  ;};
   Short_t    GetFlag()       const { return fFlag; }; 
@@ -60,7 +59,6 @@ class PndEmcApdPoint : public FairMCPoint
   Short_t GetCrystal()     const { return (fDetectorID%10000);};
   Short_t GetCopy()        const { return ((fDetectorID/10000)%100);};
   /** Modifiers **/
-  void SetEventID(Int_t id)          { fEventID    = id; };
   void SetModule(Short_t mod)        { nModule     = mod;};
   void SetRow(Short_t row)           { nRow        = row;};
   void SetCrystal(Short_t crys)      { nCrystal    = crys;};
@@ -71,9 +69,6 @@ class PndEmcApdPoint : public FairMCPoint
 
 
  protected:
-  Int_t fEventID;               // Event ID
-  TLorentzVector fPos;          //! position
-  TLorentzVector fMom;          //! momentum
   Short_t nModule;              // Module number
   Short_t nRow;                 // Row number
   Short_t nCrystal;             // Crystal number

@@ -60,26 +60,23 @@ int main()
  std::cout << "sign of " << b << " is " << getsign(b) << "\n";
 }
 // -----   Default constructor   -------------------------------------------
-PndEmc::PndEmc() {
+PndEmc::PndEmc():
+  fTrackID(0),fVolumeID(0),fEventID(-1),fPos(0,0,0,0),fMom(0,0,0,0),fTime(0),fLength(0),fELoss(0),fPosIndex(0),fEmcCollection(new TClonesArray()),
+  bIsFastFsc(kFALSE), fStoreData(kTRUE), fwendcap(kFALSE), bwendcap(kFALSE)
+{
   fEmcCollection        = new TClonesArray("PndEmcPoint");
-  fPosIndex   = 0;
-  fEventID=-1;
-  bIsFastFsc = kFALSE;
-  fStoreData = kTRUE;
+  
 }
 // -------------------------------------------------------------------------
 
 // -----   Standard constructor   ------------------------------------------
 
-PndEmc::PndEmc(const char* name, Bool_t active, Bool_t fast, Bool_t storepnts)
-  : FairDetector(name, active) {
+PndEmc::PndEmc(const char* name, Bool_t active, Bool_t fast, Bool_t storepnts):
+  FairDetector(name, active), 
+  fTrackID(0),fVolumeID(0),fEventID(-1),fPos(0,0,0,0),fMom(0,0,0,0),fTime(0),fLength(0),fELoss(0),fPosIndex(0),fEmcCollection(new TClonesArray()),
+  bIsFastFsc(fast), fStoreData(storepnts), fwendcap(kFALSE), bwendcap(kFALSE)
+{
     fEmcCollection        = new TClonesArray("PndEmcPoint");
-    fPosIndex   = 0;
-    fEventID=-1; 
-    bIsFastFsc = fast;
-    fwendcap = kFALSE;
-    bwendcap = kFALSE;
-    fStoreData = storepnts;
 }
 // -------------------------------------------------------------------------
 

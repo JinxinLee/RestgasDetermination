@@ -34,7 +34,7 @@ public:
 	PndEmcTwoCoordIndex* GetTCI(Int_t DetectorId);
 protected:
 	std::map<Int_t,PndEmcTwoCoordIndex* > fIntTwoCoordMap;
-	PndEmcMapper(){};  
+	PndEmcMapper();  
 private:
 	
 	static PndEmcMapper* _instance;

@@ -11,7 +11,7 @@ using namespace std;
 ClassImp(PndEmcGeoPar)
 
 PndEmcGeoPar::PndEmcGeoPar(const char* name,const char* title,const char* context)
-    : FairParGenericSet(name,title,context)
+: FairParGenericSet(name,title,context), fMapperVersion(0), fGeometryVersion(0)
 {
 }
 

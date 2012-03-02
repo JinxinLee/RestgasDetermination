@@ -15,55 +15,55 @@
 using namespace std;
 
 // -----   Default constructor   -------------------------------------------
-PndEmcHit::PndEmcHit() {}
+PndEmcHit::PndEmcHit()
+  :FairHit(), fTime(0), fEnergy(0), fMcList(0),  fPointList(0)
+{
+  fMcList.clear();
+  fPointList.clear();
+}
 // -------------------------------------------------------------------------
 
 // -----   Constructor           -------------------------------------------
 PndEmcHit::PndEmcHit(Int_t trackid, Int_t id, Float_t energy, Float_t time, Float_t X, Float_t Y, Float_t Z)
+  :FairHit(), fTime(time), fEnergy(energy), fMcList(0),  fPointList(0)
 {
-  fTime = time;
-  fEnergy = energy;
   fRefIndex = trackid;
   fDetectorID = id;
   fX = X;  fY = Y;  fZ = Z;
-  fDx = 0.;  fDy = 0.;  fDz = 0.;
-  
+  fDx = 0.;  fDy = 0.;  fDz = 0.; 
+  fMcList.clear();
+  fPointList.clear();
 }
 // -----   Constructor           -------------------------------------------
 PndEmcHit::PndEmcHit(Int_t trackid, Int_t id, Float_t energy, Float_t time, Float_t X, Float_t Y, Float_t Z, std::vector<Int_t> McList)
+  :FairHit(), fTime(time), fEnergy(energy), fMcList(McList),  fPointList(0)
 {
-  fTime = time;
-  fEnergy = energy;
   fRefIndex = trackid;
   fDetectorID = id;
   fX = X;  fY = Y;  fZ = Z;
   fDx = 0.;  fDy = 0.;  fDz = 0.;
-  fMcList = McList;
   SetLinks(FairMultiLinkedData("MCTrack", McList));
 }
 // -----   Constructor           -------------------------------------------
 PndEmcHit::PndEmcHit(Int_t trackid, Int_t id, Float_t energy, Float_t time, Float_t X, Float_t Y, Float_t Z, std::vector<PndEmcPoint*> PointList)
+  :FairHit(), fTime(time), fEnergy(energy), fMcList(0),  fPointList(PointList)
 {
-  fTime = time;
-  fEnergy = energy; 
   fRefIndex = trackid;
   fDetectorID = id;
   fX = X;  fY = Y;  fZ = Z;
   fDx = 0.;  fDy = 0.;  fDz = 0.;
-  fPointList = PointList;
 }
 
 //Copy
-PndEmcHit::PndEmcHit(const PndEmcHit &copy)
+PndEmcHit::PndEmcHit(const PndEmcHit &copy):
+  fEnergy(copy.fEnergy), fTime(copy.fTime), fMcList(0),  fPointList(0)
 {
-	fEnergy=copy.fEnergy;
-	fTime=copy.fTime;
-	fRefIndex=copy.fRefIndex;
-	fDetectorID=copy.fDetectorID;
-	fX=copy.fX;
-	fY=copy.fY;
-	fZ=copy.fZ;
-	// PointList and McList not copied...
+  fRefIndex=copy.fRefIndex;
+  fDetectorID=copy.fDetectorID;
+  fX=copy.fX;
+  fY=copy.fY;
+  fZ=copy.fZ;
+  // PointList and McList not copied...
 }
 // -----   Destructor   ----------------------------------------------------
 PndEmcHit::~PndEmcHit() {}
