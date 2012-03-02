@@ -85,6 +85,7 @@ class PndSttMvdTracking : public FairTask
 	doMcComparison,
 	YesSciTil ;
 
+
   int IVOLTE ;
 
 #define maxTracks 200
@@ -97,7 +98,7 @@ class PndSttMvdTracking : public FairTask
 	nmaxMvdStripHits=500,
 	nmaxMvdMCPoints = 2000,
 	nmaxSciTilHits = 200, // max SciTil hits total.
-	nmaxSciTilHitsInTrack = 2, // max SciTil hits in one track.
+	nmaxSciTilHitsinTrack = 2, // max SciTil hits in one track.
 	nmaxSttHitsInTrack=60,
 	nmaxMvdPixelHitsInTrack=30,
 	nmaxMvdStripHitsInTrack=30,
@@ -132,7 +133,6 @@ class PndSttMvdTracking : public FairTask
 
  UShort_t
 	nSciTilHits,
-	ListSciTilHitsinTrack[MAXTRACKSPEREVENT],// possible only 1 or no hits.
 	nTrackCandHit[MAXTRACKSPEREVENT],
 	nSciTilHitsinTrack[MAXTRACKSPEREVENT],
 	nSttParHitsinTrack[MAXTRACKSPEREVENT],
@@ -141,9 +141,10 @@ class PndSttMvdTracking : public FairTask
 	nMvdStripHitsinTrack[MAXTRACKSPEREVENT],
 	ListMvdPixelHitsinTrack[MAXTRACKSPEREVENT][nmaxMvdPixelHitsInTrack],
 	ListMvdStripHitsinTrack[MAXTRACKSPEREVENT][nmaxMvdStripHitsInTrack],
+	ListSciTilHitsinTrack[MAXTRACKSPEREVENT][nmaxSciTilHitsinTrack],// possible only 1 or 2 hits.
 	ListTrackCandHit[MAXTRACKSPEREVENT][nmaxSttHitsInTrack+
 				nmaxMvdPixelHitsInTrack+
-				nmaxMvdStripHitsInTrack+1],
+				nmaxMvdStripHitsInTrack+nmaxSciTilHitsinTrack],
 	ListSttParHitsinTrack[MAXTRACKSPEREVENT][nmaxSttHitsInTrack],
 	ListSttSkewHitsinTrack[MAXTRACKSPEREVENT][nmaxSttHitsInTrack],
 	ListSttSkewHitsinTrackSolution[MAXTRACKSPEREVENT][nmaxSttHitsInTrack]
@@ -168,7 +169,7 @@ class PndSttMvdTracking : public FairTask
 			ListMvdUSStripHitNotTrackCand[nmaxMvdStripHits],
 	ListTrackCandHitType[MAXTRACKSPEREVENT][nmaxSttHitsInTrack+  //  type = 0 --> Mvd Pixel
 				nmaxMvdPixelHitsInTrack+	//  type = 1 --> Mvd Strip
-				nmaxMvdStripHitsInTrack+1];	//  type = 2 --> Stt Parallel
+		nmaxMvdStripHitsInTrack+nmaxSciTilHitsinTrack];	//  type = 2 --> Stt Parallel
 								//  type = 3 --> Stt Straw
 								//  type 1001 --> SciTil
 								//  type -1 -->  noise
@@ -180,8 +181,7 @@ class PndSttMvdTracking : public FairTask
              R_MC[MAXMCTRACKS],
              MCtruthTrkInfo[15][MAXMCTRACKS],
 	     MCSkewAloneX[nmaxSttHits],
-	     MCSkewAloneY[nmaxSttHits];
-  Double_t
+	     MCSkewAloneY[nmaxSttHits],
            XMvdPixel[nmaxMvdPixelHits],
            YMvdPixel[nmaxMvdPixelHits],
            ZMvdPixel[nmaxMvdPixelHits],
@@ -199,7 +199,9 @@ class PndSttMvdTracking : public FairTask
 	ALFA[MAXTRACKSPEREVENT],
 	BETA[MAXTRACKSPEREVENT],
 	GAMMA[MAXTRACKSPEREVENT],
-	posizSciTil[nmaxSciTilHits][3];
+	posizSciTil[nmaxSciTilHits][3],
+	SciTilHitsXwithTrack[MAXTRACKSPEREVENT][nmaxSciTilHitsinTrack],
+	SciTilHitsYwithTrack[MAXTRACKSPEREVENT][nmaxSciTilHitsinTrack];
 
       FILE * HANDLE ;
       FILE * HANDLE2 ;
@@ -313,6 +315,14 @@ UShort_t ListSkewHitsinTrack[MAXTRACKSPEREVENT][nmaxSttHitsInTrack],
 			);
 
 
+ void stampetta(
+		UShort_t nCandidate,
+		bool *keepit
+		);
+
+
+
+
   void WriteMacroParallelHitsGeneral(
                    Int_t Nhits,
 		   Double_t info[][7],
@@ -378,7 +388,7 @@ UShort_t ListStrip[MAXTRACKSPEREVENT][nmaxMvdStripHitsInTrack], // output
 		UShort_t *MvdStripSpuriList,
 		UShort_t nMCMvdStripAlone,
 		UShort_t *MCMvdStripAloneList,
-		Double_t ESSE
+		Double_t *ESSE
 						);
 
 
@@ -393,10 +403,10 @@ UShort_t ListStrip[MAXTRACKSPEREVENT][nmaxMvdStripHitsInTrack], // output
 		UShort_t nTrackCandHit[MAXTRACKSPEREVENT],
 		UShort_t ListTrackCandHit[MAXTRACKSPEREVENT][nmaxSttHitsInTrack+
 	                           nmaxMvdPixelHitsInTrack+
-				   nmaxMvdStripHitsInTrack+1],
+				   nmaxMvdStripHitsInTrack+nmaxSciTilHitsinTrack],
 Short_t ListTrackCandHitType[MAXTRACKSPEREVENT][nmaxSttHitsInTrack+
 	                           nmaxMvdPixelHitsInTrack+
-				   nmaxMvdStripHitsInTrack+1]
+				   nmaxMvdStripHitsInTrack+nmaxSciTilHitsinTrack]
 					);
 
     void DrawBiHexagonInMacro(
@@ -1208,6 +1218,33 @@ UShort_t ListStrip[MAXTRACKSPEREVENT][nmaxMvdStripHitsInTrack],// input
 		Double_t *Y,
 		Short_t  * Charge
 				);
+
+
+
+	bool IntersectionSciTil_Circle(
+			Double_t posizSciTilx,
+			Double_t posizSciTily,
+			Double_t Oxx, // center of circle.
+			Double_t Oyy,
+			Double_t Rr, // Radius of circle.
+			UShort_t * Nintersections,
+			Double_t XintersectionList[2],
+			Double_t YintersectionList[2]
+								);
+
+
+	UShort_t AssociateSciTilHit(
+		Double_t Oxx,
+		Double_t Oyy,
+		Double_t Rr,
+		UShort_t *List, // output, list of SciTil hits associated (max. 2);
+		Double_t *esse // output, list of  S of the SciTil hits associated. 
+				);
+
+
+
+
+
 
 
   ClassDef(PndSttMvdTracking,1);
