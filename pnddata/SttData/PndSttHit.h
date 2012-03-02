@@ -87,8 +87,8 @@ class PndSttHit : public FairHit
 	}
 
 	virtual bool operator<(const PndSttHit& myDigi) const{
-		if (GetDetectorID() > myDigi.GetDetectorID()) 		return true;	else if(GetDetectorID() < myDigi.GetDetectorID()) return false;
-		if (fTubeID > myDigi.GetTubeID()) 		return true;	else if(fTubeID < myDigi.GetTubeID()) return false;
+		if (fTubeID < myDigi.GetTubeID()) 		return true;
+		else return false;
 	}
 
   friend std::ostream& operator<< (std::ostream& out, PndSttHit& digi){
