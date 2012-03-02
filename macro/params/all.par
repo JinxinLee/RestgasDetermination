@@ -368,29 +368,6 @@ TrackFinderOnHits_ParMat0:   Double_t \
 TrackFinderOnHits_ParMat1:   Double_t \
                                       -7.46844e-10,   -6.6696e-7,    0.000736672
 ###########################################################################################################################################################
-# Digitization parameters for analysis pid selection criteria
-# Format:
-# parameter_name:parameter_type parameter_value
-# PndAnaSelectorPar
-# Description of parameters:
-#################################################################
-
-[ANAPidSelectionsDefault]
-##                  e    mu   pi   K    p   ##
-VeryLoose:Double_t  0.   0.   0.   0.   0. 
-Loose:Double_t      0.2  0.2  0.2  0.2  0.2
-Tight:Double_t      0.5  0.5  0.5  0.5  0.5 
-VeryTight:Double_t  0.9  0.9  0.9  0.9  0.9
-
-
-[ANAPidSelectionsUser]
-##                  e    mu   pi   K    p   ##
-VeryLoose:Double_t  0.   0.   0.   0.   0. 
-Loose:Double_t      0.2  0.2  0.2  0.2  0.2
-Tight:Double_t      0.5  0.5  0.5  0.5  0.5 
-VeryTight:Double_t  0.9  0.9  0.9  0.9  0.9
-
-##################################################################################################################################
 # Correlation Parameter for PID 
 # Format:
 # parameter_name:parameter_type(i-integer, d-double) parameter_value
@@ -405,4 +382,19 @@ MdtRadius:Float_t 155.
 MdtCut:Float_t 2500.
 DrcRadius:Float_t 49.
 DrcCut:Float_t 1.
+#################################################################
+#################################################################
+# Digitization parameters for analysis pid selection criteria
+# Format:
+# parameter_name:parameter_type parameter_value
+# PndAnaSelectorPar
+# Description of parameters:
+#################################################################
+[ANAPidSelections]
+##                  e    mu   pi   K    p   ##
+VeryLoose:Double_t  0.   0.   0.   0.   0. 
+Loose:Double_t      0.2  0.2  0.2  0.2  0.2
+Tight:Double_t      0.5  0.5  0.5  0.5  0.5 
+VeryTight:Double_t  0.9  0.9  0.9  0.9  0.9
+Variable:Double_t   0.5  0.5  0.5  0.5  0.5
 #################################################################

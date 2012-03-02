@@ -172,11 +172,11 @@ Int_t PndAnalysis::GetEvent(Int_t n)
 FairMCEventHeader* PndAnalysis::GetEventHeader()
 {
   if (!fEventRead)
-    {
-      fRootManager->ReadEvent(fEvtCount-1);
-      fEventRead=kTRUE;
-    }
-
+  {
+    fRootManager->ReadEvent(fEvtCount-1);
+    fEventRead=kTRUE;
+  }
+  
   FairMCEventHeader*  evthead =  (FairMCEventHeader*)FairRootManager::Instance()->GetObject("MCEventHeader.");
   return evthead;
 }
@@ -186,7 +186,7 @@ Bool_t PndAnalysis::FillList(TCandList &l, TString listkey, TString pidTcaNames)
   // Reads the specified List for the current event
   UInt_t _uid=0;
 	l.Cleanup();
-	if(pidTcaNames!="") fPidCombiner->SetTcaNames(pidTcaNames);
+  
   
 	// when the first list is requested read in the event
 	if (!fEventRead) 
@@ -195,6 +195,7 @@ Bool_t PndAnalysis::FillList(TCandList &l, TString listkey, TString pidTcaNames)
 		fEventRead=kTRUE;
 	}
   
+  // Get or build Monte-Carlo truth list
 	if (listkey=="McTruth")
 	{
 		if (fMcCands) {
@@ -209,6 +210,9 @@ Bool_t PndAnalysis::FillList(TCandList &l, TString listkey, TString pidTcaNames)
 	
   if (allCands.GetLength() == 0) // do only when we didn't read something yet.
 	{ 	// removed now compatibility to TCandidate readin ... instead read PndPidCandidates
+      // Set which PID information should be used.
+    if(pidTcaNames!="") fPidCombiner->SetTcaNames(pidTcaNames);
+    
 		if (fNeutralCands && neutralCands.GetLength()==0)
     {
       for (Int_t i1=0; i1<fNeutralCands->GetEntriesFast(); i1++)
@@ -282,8 +286,8 @@ Bool_t PndAnalysis::FillList(TCandList &l, TString listkey, TString pidTcaNames)
   }
   
   if( listkey.Contains("Electron")||listkey.Contains("Muon")||listkey.Contains("Pion")
-      || listkey.Contains("Kaon")||listkey.Contains("Proton") 
-      || listkey.Contains("Plus")||listkey.Contains("Minus") ) 
+     || listkey.Contains("Kaon")||listkey.Contains("Proton") 
+     || listkey.Contains("Plus")||listkey.Contains("Minus") ) 
   {
     fPidSelector->Select(chargedCands,l);
     return kTRUE;
@@ -293,7 +297,7 @@ Bool_t PndAnalysis::FillList(TCandList &l, TString listkey, TString pidTcaNames)
   //return kTRUE;
   
   Error("FillList", "Unknown list key: %s",listkey.Data());
-  
+  return kFALSE;
 }
 
 Int_t PndAnalysis::GetEntries() 

@@ -39,44 +39,27 @@ TBuffer &operator>>(TBuffer &buf,PndAnaPidSelector  *&obj)
 }
 
 PndAnaPidSelector::PndAnaPidSelector(const char *name, const char *type, const char* paramid) : 
-VAbsPidSelector(name,type) 
+VAbsPidSelector(name,type) ,
+fChargeCrit(0.0),
+fPidSelect(99)   // some silly default number here
+
 {
-  fSelectorParameterList=new TList();
-  fChargeCrit=0;
-  fPidSelect=99;// some silly default number here
-  
+  // reading parameters from RTDB
   FairRun* ana = FairRun::Instance();
   FairRuntimeDb* rtdb=ana->GetRuntimeDb();
+  fSelectPar = (PndAnaSelectorPar*)(rtdb->getContainer("ANAPidSelections"));
+  if ( ! fSelectPar ) Fatal("PndAnaPidSelector","No ANAPidSelections* parameter found: %s","ANAPidSelections");
+  
+  //      PndAnaFluxPar* fFluxPar = (PndAnaFluxPar*)(rtdb->getContainer("ANAPidSelectionFlux"));
+  //      if ( ! fFluxPar ) Fatal("SetParContainers","No ANAPidFlux parameter found: %s",parsetname.Data());
+  //    }
+  
+  // Caution: The Parameter Set is not filled from the DB IO, yet. 
   Int_t runID = ana->GetRunId();
-  PndAnaContFact* theContfact = (PndAnaContFact*)rtdb->getContFactory("PndAnaContFact");
-  TList* theContNames = theContfact->GetParNames();
-  Info("PndAnaPidSelector()","The container names list contains %i entries",theContNames->GetEntries());
-  TIter cfIter(theContNames);
-  while (TObjString* contname = (TObjString*)cfIter()) {
-    TString parsetname = contname->String();
-    Info("PndAnaPidSelector()","Parset Name is: %s",parsetname.Data());
-    if(parsetname.BeginsWith("ANAPidSelections")){
-      PndAnaSelectorPar* selpar = (PndAnaSelectorPar*)(rtdb->getContainer(parsetname.Data()));
-      if ( ! selpar ) Fatal("PndAnaPidSelector","No ANAPidSelections* parameter found: %s",parsetname.Data());
-      fSelectorParameterList->Add(selpar);
-    }
-    //    if(parsetname.BeginsWith("ANAPidFlux")){
-    //      PndAnaFluxPar* fluxpar = (PndAnaFluxPar*)(rtdb->getContainer(parsetname.Data()));
-    //      if ( ! fluxpar ) Fatal("SetParContainers","No ANAPidFlux parameter found: %s",parsetname.Data());
-    //      fFluxParameterList->Add(fluxpar);
-    //    }
-  }//while
-   // Caution: The Parameter Set is not filled from the DB IO, yet. 
-  rtdb->initContainers(runID); // actually fill the containers. We might want to do that at another point, because multiple instnces will multiply call the RTDB init. That's bad in a loop!
-  
-  fVeryLoose=0.0;
-  fLoose=0.2;
-  fTight=0.5;
-  fVeryTight=0.9;
-
-  // Now we access the RTDB (can be called in case of updating)
-  LoadParams();
-  
+  // actually fill the containers. 
+  //We might want to do that at another point, because multiple
+  //instnces will multiply call the RTDB init. That's bad in a loop!
+  rtdb->initContainers(runID); 
 }
 
 Bool_t PndAnaPidSelector::SetSelection(TString &crit)
@@ -89,8 +72,11 @@ Bool_t PndAnaPidSelector::SetSelection(TString &crit)
   else if(crit.Contains("Loose")) VAbsPidSelector::SetCriterion(loose);     
   else if(crit.Contains("VeryTight")) VAbsPidSelector::SetCriterion(veryTight);     
   else if(crit.Contains("Tight")) VAbsPidSelector::SetCriterion(tight);
-  else if(crit.Contains("All")) VAbsPidSelector::SetCriterion(all);
+  else if(crit.Contains("Variable")) VAbsPidSelector::SetCriterion(variable);
   else if(crit.Contains("Best")) VAbsPidSelector::SetCriterion(best);
+  else if(crit.Contains("All")) VAbsPidSelector::SetCriterion(all); // well, that's default anyway
+  
+  //TODO: make a 2d array of the criterion numbers for faster access
   
   fTypePlus=0;fTypeMinus=0; 
   TDatabasePDG *pdg = TRho::Instance()->GetPDG();
@@ -118,18 +104,21 @@ Bool_t PndAnaPidSelector::SetSelection(TString &crit)
     fPidSelect=0;
   }
   if (fTypePlus!=0) fTypeMinus = CPConjugate(fTypePlus);
-
+  
   if (crit.Contains("Plus")) fChargeCrit=1.;
   else if (crit.Contains("Minus")) fChargeCrit=-1.;
   else fChargeCrit=0;
   
-           
   return kTRUE;
 }
 
 
 Bool_t PndAnaPidSelector::Accept(TCandidate& b) 
 { 
+  // Accept or reject one candidate based on it's PID hypothesis, the pid
+  // pdf values and the selection criterion. 
+  // This might be not performant, since each time we access an object to
+  // read the criterion value. Is a field of values faster?
   
   if (&b == 0) return kFALSE;
   
@@ -143,30 +132,32 @@ Bool_t PndAnaPidSelector::Accept(TCandidate& b)
   
   SetTypeAndMass(b);
   
-  double Le  = b.GetPidInfo(0);
-  double Lmu = b.GetPidInfo(1);
-  double Lpi = b.GetPidInfo(2);
-  double Lk  = b.GetPidInfo(3);
-  double Lp  = b.GetPidInfo(4);
   double Lcheck = b.GetPidInfo(fPidSelect);
   
-  
   if (fCriterion == veryLoose) {
-    if (Lcheck<fVeryLoose) return kFALSE;
+    if (Lcheck<fSelectPar->GetVeryLooseCrit(fPidSelect)) return kFALSE;
   }
   else if (fCriterion == loose) {
-    if (Lcheck<fLoose) return kFALSE;
+    if (Lcheck<fSelectPar->GetLooseCrit(fPidSelect)) return kFALSE;
   }
   else if (fCriterion == tight) {
-    if (Lcheck<fTight) return kFALSE; 
+    if (Lcheck<fSelectPar->GetTightCrit(fPidSelect)) return kFALSE;
   } 
   else if (fCriterion == veryTight) {
-    if (Lcheck<fVeryTight) return kFALSE;
+    if (Lcheck<fSelectPar->GetVeryTightCrit(fPidSelect)) return kFALSE;
   }
-  else if (fCriterion == variable || fCriterion == all  ) {
+  else if (fCriterion == variable ){
+    if (Lcheck<fSelectPar->GetVariableCrit(fPidSelect)) return kFALSE;
+  }
+  else if( fCriterion == all  ) {
     return kTRUE;
   }
   else if (fCriterion == best) {
+    double Le  = b.GetPidInfo(0);
+    double Lmu = b.GetPidInfo(1);
+    double Lpi = b.GetPidInfo(2);
+    double Lk  = b.GetPidInfo(3);
+    double Lp  = b.GetPidInfo(4);
     if (Lcheck<Le || Lcheck<Lmu || Lcheck<Lpi || Lcheck<Lk || Lcheck<Lp) return kFALSE;
   }
   
@@ -177,15 +168,6 @@ Bool_t PndAnaPidSelector::Accept(VAbsMicroCandidate& b)
 { 
   Warning("PndAnaPidSelector::Accept(VAbsMicroCandidate&)","No implementation for this. Please use PndAnaPidSelector::Accept(TCandidate&)");
   return kFALSE;
-}
-
-void PndAnaPidSelector::LoadParams()
-{
-  // reading parameters from RTDB
-  FairRun* ana = FairRun::Instance();
-  FairRuntimeDb* rtdb=ana->GetRuntimeDb();
-  fCurrentPar=(PndAnaSelectorPar*)rtdb->getContainer("");
-
 }
 
 

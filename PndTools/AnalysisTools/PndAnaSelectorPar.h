@@ -28,6 +28,7 @@ class PndAnaSelectorPar : public FairParGenericSet
     Double_t GetLooseCrit(Int_t ptype){return fLoose.At(ptype);};
     Double_t GetTightCrit(Int_t ptype){return fTight.At(ptype);};
     Double_t GetVeryTightCrit(Int_t ptype){return fVeryTight.At(ptype);};
+    Double_t GetVariableCrit(Int_t ptype){return fVariable.At(ptype);};
     
   private:
     // Strip Parameters
@@ -35,6 +36,7 @@ class PndAnaSelectorPar : public FairParGenericSet
     TArrayD fLoose;       // "Loose" pid selection criterion
     TArrayD fTight;       // "Tight" pid selection criterion
     TArrayD fVeryTight;   // "VeryTight" pid selection criterion
+    TArrayD fVariable;    // "Variable" pid user selection criterion
     
     ClassDef(PndAnaSelectorPar,1);
   };

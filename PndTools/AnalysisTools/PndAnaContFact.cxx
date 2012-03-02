@@ -25,16 +25,10 @@ PndAnaContFact::PndAnaContFact() {
   // Constructor (called when the library is loaded)
   fName="PndAnaContFact";
   fTitle="Factory for parameter containers in analysis tools";
-  fSelectParNames = new TList();
   setAllContainers();
   FairRuntimeDb::instance()->addContFactory(this);
 }
 PndAnaContFact::~PndAnaContFact(){
-  if(0!=fSelectParNames) 
-  {
-    fSelectParNames->Delete(); 
-    delete fSelectParNames;
-  }
 }
 
 
@@ -47,15 +41,9 @@ void PndAnaContFact::setAllContainers() {
 //  fSelectParNames->Add(new TObjString(p->GetName()));
 //  containers->Add(p);
   
-  FairContainer* p2 = new FairContainer("ANAPidSelectionsDefault","Default PID selctrion criteria parameters", "TestDefaultContext");
+  FairContainer* p2 = new FairContainer("ANAPidSelections","PID selctrion criteria parameters", "TestDefaultContext");
   p2->addContext("TestNonDefaultContext");
-  fSelectParNames->Add(new TObjString(p2->GetName()));
   containers->Add(p2);
-  
-  FairContainer* p3 = new FairContainer("ANAPidSelectionsUser","User PID selctrion criteria parameters", "TestDefaultContext");
-  p3->addContext("TestNonDefaultContext");
-  fSelectParNames->Add(new TObjString(p3->GetName()));
-  containers->Add(p3);
 
 }
 
@@ -70,13 +58,10 @@ FairParSet* PndAnaContFact::createContainer(FairContainer* c) {
 //	p=new PndAnaSelectorPar(c->getConcatName().Data(),c->GetTitle(),c->getContext());
 //  }
 
-  if (strcmp(name,"ANAPidSelectionsDefault")==0) {
+  if (strcmp(name,"ANAPidSelections")==0) {
   p=new PndAnaSelectorPar(c->getConcatName().Data(),c->GetTitle(),c->getContext());
   }
   
-  if (strcmp(name,"ANAPidSelectionsUser")==0) {
-    p=new PndAnaSelectorPar(c->getConcatName().Data(),c->GetTitle(),c->getContext());
-  }
 
   return p;
 }
