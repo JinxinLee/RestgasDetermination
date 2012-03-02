@@ -1,5 +1,5 @@
 C=========================== STRING ===========================
-C LAST DATE OF CHANGE 22.09.05 UZHINSKII
+C LAST DATE OF CHANGE 2.03.2012 A. galoyan
       SUBROUTINE STRING(PROJ,TAR,NHAD)
       DIMENSION PROJ(5),TAR(5)
       COMMON/MIDPAR/
@@ -577,7 +577,8 @@ C
       ESMAX=E-HMA
       PRMAX=EXP(-B3*ESMAX)
       OPRMAX=1.-PRMAX
-      IF(ESMAX.GT.0.05) GO TO 250
+!       IF(ESMAX.GT.0.05) GO TO 250          !aida
+      IF(ESMAX.GT.0.) GO TO 250              !aida
       HE=E
       ES=HE-HMA
       HPS=SQRT(ABS(E**2-HMA**2))
