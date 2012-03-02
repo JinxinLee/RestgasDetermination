@@ -1,14 +1,12 @@
-//
+//  edition 2.03.2012  A.Galoyan
 //  main.cc,v 1.18 2004/03/04 15:09:11 ritman Exp $
 //
 // C++ program to call DPM event generator for PBAP P interactions 
 // Original author:   A.Galoyan        
 // change to TParticle output format J.Ritman May 2003
-// change to last version of DPMGen: A.Galoyan Sept. 2003  
 /* ------------------------------------------------------- */
 
 #include <iostream>
-
 #include <stdio.h>
 #include <math.h>
 #include <time.h>
@@ -30,8 +28,8 @@ extern struct {
 // p[] - kinematical characteristics of particles
 
 extern "C" int init1_(float* Plab, double* seed, float* Elastic, 
-float* tetmin); // to install DPM generator
- extern "C" int dpm_gen__(float* Generator, double* seed); //to generate events
+float* tetmin);      // to install DPM generator
+extern "C" int dpm_gen_(float* Generator, double* seed);  //to generate events
 
  
  int main()
@@ -41,13 +39,13 @@ float* tetmin); // to install DPM generator
  int ntot, Ieven, npart, i;	
  double Px[1000],Py[1000],Pz[1000],E[1000],Pm[1000],Wh[1000];
  int Id[1000];
+
 //	Elastic=0.;	 // No elastic scattering, only inelastic
-	Elastic=1. ;       // Elastic and inelastic interactions
+	Elastic=1. ;     // Elastic and inelastic interactions
 //	Elastic=2.;	 // Only elastic scattering, no inelastic one
 
 
  //   Root initialization 
- //TROOT root("DPMGenerator","DPM background generator");
  TFile f1("Background-micro.root","RECREATE","ROOT_Tree"); 
 
  float Generator=0.;
@@ -79,11 +77,11 @@ float* tetmin); // to install DPM generator
 	"1. - Elastic and inelastic interactions" << "\n" <<     
 	"2. - Only elastic scattering, no inelastic one"<< "\n";   
  std::cin >> Elastic ;    
- if((Elastic==1.) || (Elastic==2.)) {  
-
- std::cout << " Teta_min (degree) ";   
- std::cin >> tetmin;    
- }
+ if((Elastic==1.) || (Elastic==2.)) 
+ {  
+    std::cout << " Teta_min (degree) ";   
+    std::cin >> tetmin;    
+  }
  else  {tetmin=0;}
  init1_(&Plab,&seed,&Elastic, &tetmin);  // installation of the DPM generator  
  
@@ -101,7 +99,7 @@ std::cout << " Enter  N_Events ";
    if( (Ieven%100) == 0 ) 
      std::cout << "Event number = " << Ieven << std::endl; 
 
-   dpm_gen__(&Generator, &seed);
+   dpm_gen_(&Generator, &seed);
    fEvt->Clear();
    Int_t cnt = 0;
 
@@ -117,7 +115,7 @@ std::cout << " Enter  N_Events ";
      
 // i - order number of particle
 // lujets_.k[i+1000] - identifier of i-th particle
-// lujets_.p[i-1]        - Px (GeV/c) of i-th particle
+// lujets_.p[i]       - Px (GeV/c) of i-th particle
 // lujets_.p[i+1000] - Py (GeV/c) of i-th particle
 // lujets_.p[i+2000] - Pz (GeV/c) of i-th particle
 // lujets_.p[i+3000] - Energy (GeV) of i-th particle
@@ -137,7 +135,7 @@ std::cout << " Enter  N_Events ";
 }
    activeCnt = cnt;
 
-   fTree->Fill();                     //!
+   fTree->Fill();                     
  } 
 
  timer.Stop(); 
@@ -148,10 +146,6 @@ std::cout << " Enter  N_Events ";
  std::cout << " ----- Speed:    "<<ntot/timer.CpuTime()<<"Hz"<<std::endl;
  std::cout << std::endl;
 
-//-----------------------------------------------------------------
-
   f1.Write();    
-// f1.Close();
-// delete fTree;
 
 }
