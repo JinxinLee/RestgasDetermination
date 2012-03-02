@@ -32,9 +32,9 @@ class PndSdsDigiPixel : public PndSdsDigi
       << ", from Point(s) ";
       std::vector<Int_t>indices = digi.GetIndices();
       for (unsigned int i = 0; i < indices.size(); i++){
-        std::cout << indices[i] << "  ";
+        out << indices[i] << "  ";
       }
-      std::cout << std::endl;
+      out << std::endl;
       
       return out;
     }
