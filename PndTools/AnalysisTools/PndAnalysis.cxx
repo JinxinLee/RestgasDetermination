@@ -210,8 +210,6 @@ Bool_t PndAnalysis::FillList(TCandList &l, TString listkey, TString pidTcaNames)
 	
   if (allCands.GetLength() == 0) // do only when we didn't read something yet.
 	{ 	// removed now compatibility to TCandidate readin ... instead read PndPidCandidates
-      // Set which PID information should be used.
-    if(pidTcaNames!="") fPidCombiner->SetTcaNames(pidTcaNames);
     
 		if (fNeutralCands && neutralCands.GetLength()==0)
     {
@@ -248,29 +246,34 @@ Bool_t PndAnalysis::FillList(TCandList &l, TString listkey, TString pidTcaNames)
         VAbsMicroCandidate *mic = (VAbsMicroCandidate *)fChargedCands->At(i2);
         TCandidate tc(*mic,_uid);
         tc.SetTrackNumber(i2);
-        // TODO: Check that no i+1 is requested !!!
-        fPidCombiner->Apply(tc);        
+        // TODO: Check that no i+1 is requested anymore elsewhere!!!
         chargedCands.Add(tc);
         allCands.Add(tc);
       }
     }
 	}
 	
+  // Set which PID information should be used.
+  if(pidTcaNames!="") fPidCombiner->SetTcaNames(pidTcaNames);
+
   // acceleration: just give the large lists directly
 	if (listkey=="All" )
 	{
+    fPidCombiner->Apply(allCands);
 		l=allCands;
 		return kTRUE;
 	}
   
 	if (listkey=="Neutral") 
 	{
+    fPidCombiner->Apply(neutralCands);
 		l=neutralCands;
 		return kTRUE;
 	}
 	
 	if (listkey=="Charged") 
 	{
+    fPidCombiner->Apply(chargedCands);
 		l=chargedCands;
 		return kTRUE;
 	}
@@ -281,6 +284,7 @@ Bool_t PndAnalysis::FillList(TCandList &l, TString listkey, TString pidTcaNames)
   
   if(listkey.Contains("Neutral")) 
   {
+    fPidCombiner->Apply(neutralCands);
     fPidSelector->Select(neutralCands,l);
     return kTRUE;
   }
@@ -289,12 +293,10 @@ Bool_t PndAnalysis::FillList(TCandList &l, TString listkey, TString pidTcaNames)
      || listkey.Contains("Kaon")||listkey.Contains("Proton") 
      || listkey.Contains("Plus")||listkey.Contains("Minus") ) 
   {
+    fPidCombiner->Apply(chargedCands);
     fPidSelector->Select(chargedCands,l);
     return kTRUE;
   }
-  
-  //fPidSelector->Select(allCands,l);
-  //return kTRUE;
   
   Error("FillList", "Unknown list key: %s",listkey.Data());
   return kFALSE;
