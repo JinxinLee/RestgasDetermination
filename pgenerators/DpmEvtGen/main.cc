@@ -29,7 +29,7 @@ extern struct {
 
 extern "C" int init1_(float* Plab, double* seed, float* Elastic, 
 float* tetmin);      // to install DPM generator
-extern "C" int dpm_gen_(float* Generator, double* seed);  //to generate events
+extern "C" int dpm_gen__(float* Generator, double* seed);  //to generate events
 
  
  int main()
@@ -99,7 +99,7 @@ std::cout << " Enter  N_Events ";
    if( (Ieven%100) == 0 ) 
      std::cout << "Event number = " << Ieven << std::endl; 
 
-   dpm_gen_(&Generator, &seed);
+   dpm_gen__(&Generator, &seed);
    fEvt->Clear();
    Int_t cnt = 0;
 
