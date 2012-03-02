@@ -1841,11 +1841,13 @@ if( istampa>=1 && nMCTracksaccettabili>0 ){
 			(Int_t) BigList[i][j] , j);
 		}
 
-		//  add the SciTil hit(s ??).
-		if(nSciTilHitsinTrack[i]==1){
-			pTrckCand->AddHit(
-			1001,	// mio numero, temporaneo, che segnala gli SciTil.
-			(Int_t) ListSciTilHitsinTrack[i][0] , nTotalHits[i]);
+		//  add the SciTil hit(s).
+		if(nSciTilHitsinTrack[i]>0){
+			for(j=0; j< nSciTilHitsinTrack[i]; j++){
+				pTrckCand->AddHit(
+				1001,// my personal hit type for SciTil.
+				(Int_t) ListSciTilHitsinTrack[i][j] , nTotalHits[i]+j);
+			}
 		}
 
 
@@ -13769,7 +13771,7 @@ if(iplotta && IVOLTE <= nmassimo){
  for(iScitHit=0; iScitHit<nSciTilHits; iScitHit++){
 	if(!InclusionListSciTil[iScitHit]) continue;
 
-	IntersectionSciTil_Circle(
+	intersect=IntersectionSciTil_Circle(
 	  posizSciTil[iScitHit][0],
 	  posizSciTil[iScitHit][1],
 	  Oxx,
@@ -13840,10 +13842,10 @@ if(iplotta && IVOLTE <= nmassimo){
 	  posizSciTilx,
 	  posizSciTily,
 	  -QQ,
-	  posizSciTilx-fabs(0.5*DIMENSIONSCITIL*posizSciTily/sqrtRR),
-	  posizSciTilx+fabs(0.5*DIMENSIONSCITIL*posizSciTily/sqrtRR),
-	  posizSciTily-SIGN*posizSciTilx*fabs(0.5*DIMENSIONSCITIL/sqrtRR),
-	  posizSciTily+SIGN*posizSciTilx*fabs(0.5*DIMENSIONSCITIL/sqrtRR),
+	  posizSciTilx-SIGN*0.5*DIMENSIONSCITIL*posizSciTily/sqrtRR,
+	  posizSciTilx+SIGN*0.5*DIMENSIONSCITIL*posizSciTily/sqrtRR,
+	  posizSciTily-SIGN*posizSciTilx*0.5*DIMENSIONSCITIL/sqrtRR,
+	  posizSciTily+SIGN*posizSciTilx*0.5*DIMENSIONSCITIL/sqrtRR,
 	  Oxx,
 	  Oyy,
 	  Rr,
