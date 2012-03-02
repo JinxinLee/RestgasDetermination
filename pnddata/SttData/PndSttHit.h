@@ -72,10 +72,30 @@ class PndSttHit : public FairHit
 
   // tube ID // CHECK added
   void SetTubeID(Int_t tubeid) { fTubeID = tubeid; }
-  Int_t GetTubeID() { return fTubeID; }
+  Int_t GetTubeID() const { return fTubeID; }
 
   // computation of dE/dx
   Double_t ComputedEdx(PndTrack *track, Double_t tuberadius);
+
+	virtual bool equal(FairTimeStamp* data){
+	  PndSttHit* myDigi = dynamic_cast <PndSttHit*> (data);
+	  if (myDigi != 0){
+	    if (fTubeID == myDigi->GetTubeID())
+						return true;
+	  }
+	  return false;
+	}
+
+	virtual bool operator<(const PndSttHit& myDigi) const{
+		if (GetDetectorID() > myDigi.GetDetectorID()) 		return true;	else if(GetDetectorID() < myDigi.GetDetectorID()) return false;
+		if (fTubeID > myDigi.GetTubeID()) 		return true;	else if(fTubeID < myDigi.GetTubeID()) return false;
+	}
+
+  friend std::ostream& operator<< (std::ostream& out, PndSttHit& digi){
+	  out << "PndSttHit in Tube: " << digi.GetTubeID() << " Isochrone: " << digi.GetIsochrone() << " +/- " << digi.GetIsochroneError()
+		  << " Charge: " << digi.GetDepCharge() << " Pulse: " << digi.GetPulse() << std::endl;
+	  return out;
+  }
 
  protected:
   

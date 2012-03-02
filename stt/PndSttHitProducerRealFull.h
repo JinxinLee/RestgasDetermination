@@ -16,6 +16,7 @@ class PndSttHit;
 class PndSttHitInfo;
 class TClonesArray;
 class TObjectArray;
+class PndSttHitWriteoutBuffer;
 
 class PndSttHitProducerRealFull : public FairTask
 {
@@ -48,13 +49,16 @@ class PndSttHitProducerRealFull : public FairTask
 
   void SetParContainers();
 
+  void RunTimeBased(){fTimeOrderedDigi = kTRUE;}
+
  private: 
 
   /** Input array of PndSttPoints **/
   TClonesArray* fPointArray;
 
   /** Output array of PndSttHits **/
-  TClonesArray* fHitArray;  
+  TClonesArray* fHitArray;
+  PndSttHitWriteoutBuffer* fDataBuffer;
 
   /** Output array of PndSttHitInfo **/
   TClonesArray* fHitInfoArray;
@@ -64,6 +68,7 @@ class PndSttHitProducerRealFull : public FairTask
 
   /** object persistence **/
   Bool_t  fPersistence; //!
+  Bool_t fTimeOrderedDigi;
 
   PndGeoSttPar *fSttParameters;  //  CHECK added
 

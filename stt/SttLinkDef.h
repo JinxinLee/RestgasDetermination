@@ -30,6 +30,10 @@
 #pragma link C++ class PndSttTube+;
 #pragma link C++ class PndSttSignalOverlap+;
 
+#pragma link C++ class PndSttHitWriteoutBuffer+;
+#pragma link C++ class PndSttHitRingSorter+;
+#pragma link C++ class PndSttHitSorterTask+;
+
 
 #endif
 

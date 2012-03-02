@@ -29,6 +29,8 @@ PndSttHit::PndSttHit(Int_t detID, Int_t tubeID, Int_t mcindex, TVector3& pos, TV
   fIsochroneError = isochroneError;
   fDepCharge = chDep;
 
+  SetTimeStamp(p);
+
   SetLink(FairLink("STTPoint", mcindex));
   
 }

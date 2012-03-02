@@ -1,0 +1,21 @@
+/*
+ * PndSttHitRingSorter.cxx
+ *
+ *  Created on: Sep 9, 2011
+ *      Author: stockman
+ */
+
+#include <PndSttHitRingSorter.h>
+#include "PndSttHit.h"
+
+
+ClassImp(PndSttHitRingSorter);
+
+
+PndSttHitRingSorter::~PndSttHitRingSorter() {
+	// TODO Auto-generated destructor stub
+}
+
+FairTimeStamp* PndSttHitRingSorter::CreateElement(FairTimeStamp* data) {
+	return new PndSttHit(*(PndSttHit*)data);
+}

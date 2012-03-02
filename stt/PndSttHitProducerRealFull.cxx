@@ -17,6 +17,8 @@
 #include "PndSttMapCreator.h"
 #include "PndSttTube.h"
 
+#include "PndSttHitWriteoutBuffer.h"
+
 #include "FairRootManager.h"
 #include "FairRunAna.h"
 #include "FairRuntimeDb.h"
@@ -66,8 +68,12 @@ InitStatus PndSttHitProducerRealFull::Init() {
   }
 
   // Create and register output array
-  fHitArray = new TClonesArray("PndSttHit");
-  ioman->Register("STTHit","STT",fHitArray, fPersistence);
+//  fHitArray = new TClonesArray("PndSttHit");
+//  ioman->Register("STTHit","STT",fHitArray, fPersistence);
+
+  fDataBuffer = new PndSttHitWriteoutBuffer("STTHit", "STT", fPersistence);
+  fDataBuffer = (PndSttHitWriteoutBuffer*)ioman->RegisterWriteoutBuffer("STTHit", fDataBuffer);
+  fDataBuffer->ActivateBuffering(fTimeOrderedDigi);
   
  // Create and register output array
   fHitInfoArray = new TClonesArray("PndSttHitInfo");
@@ -101,9 +107,9 @@ void PndSttHitProducerRealFull::Exec(Option_t* opt) {
   //  }
   
   // Reset output array
-  if ( ! fHitArray ) Fatal("Exec", "No HitArray");
-  
-  fHitArray->Delete();
+//  if ( ! fHitArray ) Fatal("Exec", "No HitArray");
+//
+//  fHitArray->Delete();
   fHitInfoArray->Delete();
 
   Int_t detID = 0;    // detectorID
@@ -111,6 +117,8 @@ void PndSttHitProducerRealFull::Exec(Option_t* opt) {
 
   // Declare some variables
   PndSttPoint* point  = NULL;
+
+  Double_t EventTime = FairRootManager::Instance()->GetEventTime();
    
   // Loop over SttPoints
   Int_t nPoints = fPointArray->GetEntriesFast();
@@ -155,7 +163,9 @@ void PndSttHitProducerRealFull::Exec(Option_t* opt) {
       
     // drift time calculation
     Double_t pulset = stt.PartToTime(point->GetMass()/GeV, momentum.Mag()/GeV, InOut);
-        
+//    std::cout << "pulset: " << pulset << " EventTime: " << EventTime;
+    pulset += EventTime;
+//    std::cout << " Sum: " << pulset << std::endl;
     // simulated radius (cm)
     double radius = stt.TimnsToDiscm(pulset);
     if(radius < 0.) radius = 0.; // CHECK
@@ -232,10 +242,9 @@ void PndSttHitProducerRealFull::FoldZPosWithResolution(Double_t &zpos, Double_t 
 PndSttHit* PndSttHitProducerRealFull::AddHit(Int_t detID, Int_t tubeID, Int_t iPoint, TVector3& pos, TVector3& dpos, Double_t p, Double_t rsim, Double_t closestDistanceError, Double_t depcharge)
 {
   // see PndSttHit for hit description
-  TClonesArray& clref = *fHitArray;
-  Int_t size = clref.GetEntriesFast();
 
-  PndSttHit *hitnew =  new(clref[size]) PndSttHit(detID, tubeID, iPoint, pos, dpos, p, rsim, closestDistanceError, depcharge);
+  PndSttHit *hitnew =  new PndSttHit(detID, tubeID, iPoint, pos, dpos, p, rsim, closestDistanceError, depcharge);
+  fDataBuffer->FillNewData(hitnew, p);
   return hitnew;
 
 }
