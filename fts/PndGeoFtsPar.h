@@ -14,7 +14,11 @@ private:
   TObjArray            *fGeoSensNodes; /** List of FairGeoNodes for sensitive volumes*/
   TObjArray            *fGeoPassNodes; /** List of FairGeoNodes for sensitive volumes*/
   Int_t fGeoType;       //modif
-  Double_t              fTubeInRad, fTubeOutRad; //modif
+  Double_t              fTubeInRad, fTubeOutRad; //modif 
+
+  PndGeoFtsPar(const  PndGeoFtsPar& L);
+  PndGeoFtsPar& operator= (const  PndGeoFtsPar&) {return *this;}
+
 public:
   PndGeoFtsPar(const char* name="PndGeoFtsPar",
 	       const char* title="Fts Geometry Parameters",

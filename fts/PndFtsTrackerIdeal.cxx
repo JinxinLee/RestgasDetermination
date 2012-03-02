@@ -24,19 +24,17 @@
 
 
 //________________________________________________________________
-PndFtsTrackerIdeal::PndFtsTrackerIdeal() : 
-FairTask("FTSTrackfinderIdeal")
+PndFtsTrackerIdeal::PndFtsTrackerIdeal():
+  FairTask("FTSTrackfinderIdeal"), fMCTracks(new TClonesArray()), fTrackCands(new TClonesArray()), fTracks(new TClonesArray()), 
+  fTrackIds(new TClonesArray()), fMomSigma(0,0,0), fDPoP(0.), fRelative (kFALSE), fVtxSigma(0,0,0), fEfficiency(1.), 
+  fTracksArrayName(""), pdg(0)  
 {
   //---
-  
   fTrackCands = new TClonesArray("PndTrackCand");
   fTracks = new TClonesArray("PndTrack");
   fVerbose = 0;
   fMomSigma.SetXYZ(0.,0.,0.);
-  fRelative=kFALSE;
-  fDPoP=0.0;
   fVtxSigma.SetXYZ(0.,0.,0.);
-  fEfficiency=1.;
   SetTrackOutput();
 }
 

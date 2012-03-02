@@ -55,7 +55,9 @@ PndFtsMapCreator();
   std::map<int, int> copy_map;
   static PndFtsMapCreator* fgMapperInstance;
 
-
+ PndFtsMapCreator(const  PndFtsMapCreator& L);
+ PndFtsMapCreator& operator= (const  PndFtsMapCreator&) {return *this;}
+ 
  protected:
 
   ClassDef(PndFtsMapCreator,1)

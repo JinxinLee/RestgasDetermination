@@ -100,18 +100,28 @@ using namespace std;
 
 
 // ============================================================
-PndFtsSingleStraw::PndFtsSingleStraw() {
+PndFtsSingleStraw::PndFtsSingleStraw()
+  :CDist(), CDistC(), CNele(), CNeleT(), TeleTime(), AmplSig(),Pulse(), PulseT(), WDist(),
+   Wi(0), ArPerc(0), CO2Perc(0), CH4Perc(0), ArWPerc(0), CO2WPerc(0), CH4WPerc(0), pSTP(0), Radius(0),
+   AAr(0), ZAr(0), RhoAr(0), NclAr(0), EmedAr(0), EminAr(0), EmpAr(0), CsiAr(0), IAr(0), WiAr(0), Ncl(0),
+   Ecl(0), Lcl(0), Ntote(0), GasGain(0), Cutoff(0), 
+   EmedCO2(0), EminCO2(0), EmpCO2(0), CsiCO2(0), ACO2(0), ZCO2(0), RhoCO2(0), ICO2(0), WiCO2(0), NclCO2(0), 
+   EmedCH4(0), EmpCH4(0), CsiCH4(0), EminCH4(0), ACH4(0), ZCH4(0), RhoCH4(0), ICH4(0), WiCH4(0), NclCH4(0), 
+   RhoMixCO2(0), RhoMixCH4(0), PZeta(0), piMass(0), PMass(0), PMom(0), Dx(0), eMass(0), prMass(0), Delta(0), 
+   CNumb(0), PEn(0), beta(0), gamma(0), Emed(0), Emin(0), Csi(0), Emax(0), Emp(0), NNClus(0),
+   Xin(0), Yin(0), Zin(0), Xout(0), Yout(0), Zout(0), Rpath(0), NPolya(0), Xmax(0), bPolya(0),
+   Calpha(0), Cbeta(0), Cgamma(0),
+   NUrban(0), SigUrb(0), Eup(0), AvUrb(0), Wx1(0), Wy1(0), Wz1(0), Wx2(0), Wy2(0), Wz2(0),   
+   Wp(0), Wq(0), Wr(0), PulseMax(0), PulseTime(0), Thresh1(0), Thresh2(0), Nchann(0), Out1(0), Out2(0), Out3(0)
+{ 
+  // class constructor 
 
-  CNumb=0;
+  // clear
   memset(CumClus,0,sizeof(CumClus));
   memset(CH4Clus,0,sizeof(CH4Clus));  
   memset(PolyaCum,0,sizeof(PolyaCum));
   memset(Xs,0,sizeof(Xs));
-
-  // class constructor
-
-  // clear
-  CNumb=0;
+  
   CDist.clear();  
   CDistC.clear();
   CNele.clear();
@@ -121,10 +131,6 @@ PndFtsSingleStraw::PndFtsSingleStraw() {
   Pulse.clear();
   PulseT.clear();
   WDist.clear();
-    
-    
-    
-    
 }
 
 // ----------------------------------------------------------------------

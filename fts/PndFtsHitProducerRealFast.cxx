@@ -39,9 +39,11 @@ using std::endl;
 using std::sqrt;
 
 // -----   Default constructor   -------------------------------------------
-PndFtsHitProducerRealFast::PndFtsHitProducerRealFast() :
-  FairTask("Ideal FTS Hit Producer") { 
-  fPersistence = kTRUE;
+PndFtsHitProducerRealFast::PndFtsHitProducerRealFast():
+  FairTask("Ideal FTS Hit Producer"), fPointArray(new TClonesArray),  fHitArray(new TClonesArray),
+  fVolumeArray(new TObjArray), fHitInfoArray(new TClonesArray), fevtn(0), fFtsParameters(new PndGeoFtsPar()), 
+  fPersistence(kTRUE)
+{ 
 }
 // -------------------------------------------------------------------------
 
@@ -68,7 +70,7 @@ InitStatus PndFtsHitProducerRealFast::Init() {
 	 << "RootManager not instantiated!" << endl;
     return kFATAL;
   }
-
+  
   // Get input array
   fPointArray = (TClonesArray*) ioman->GetObject("FTSPoint");
   if ( ! fPointArray ) {

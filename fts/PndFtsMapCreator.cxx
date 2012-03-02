@@ -38,7 +38,10 @@ PndFtsMapCreator* PndFtsMapCreator::Instance() {
   return fgMapperInstance;
 }
 
-PndFtsMapCreator::PndFtsMapCreator() {
+PndFtsMapCreator::PndFtsMapCreator()
+  : fGeoType(0), fFtsParameters(new PndGeoFtsPar()), fTubeInRad(0), fTubeOutRad(0), copy_map()
+{
+  copy_map.clear();
   // Geometry loading                                                                    
   FairRootManager* ioman = FairRootManager::Instance();
   TFile *infile = ioman->GetInFile();
@@ -50,22 +53,25 @@ PndFtsMapCreator::PndFtsMapCreator() {
 
 //PndFtsMapCreator::PndFtsMapCreator(){}
 	// to use in PndFts
-PndFtsMapCreator::PndFtsMapCreator(Int_t geoType){
-  fGeoType = geoType;
+PndFtsMapCreator::PndFtsMapCreator(Int_t geoType)
+  : fGeoType(geoType), fFtsParameters(new PndGeoFtsPar()), fTubeInRad(0), fTubeOutRad(0) , copy_map()
+{
+  copy_map.clear();
   if(fGeoType != 1) Info("PndFtsMapCreator","Geometry %i not supported by map", fGeoType); // CHECK
 }
 
 // crete geometry from parameters file
-PndFtsMapCreator::PndFtsMapCreator(PndGeoFtsPar *ftsPar)
+PndFtsMapCreator::PndFtsMapCreator(PndGeoFtsPar *ftsPar) 
+  : fGeoType(0), fFtsParameters(ftsPar), fTubeInRad(0), fTubeOutRad(0), copy_map() 
 {
-  fFtsParameters = ftsPar;
- // set general par
+  copy_map.clear();
+  // set general par
   SetGeneralParameters();
   // choose geometry type
   fGeoType = ftsPar->GetGeometryType(); // classic, optimized, average, detailed, CAD
-
+  
   if(fGeoType != 1) Info("PndFtsMapCreator","Geometry %i not supported by map", fGeoType); // CHECK
- }
+}
 
 PndFtsMapCreator::~PndFtsMapCreator(){}
 

@@ -162,6 +162,9 @@ class PndFts : public FairDetector
    **/
   float GetSquaredDistanceFromWire();
 
+  PndFts(const  PndFts& L);
+  PndFts& operator= (const  PndFts&) {return *this;}
+  
   ClassDef(PndFts,1) 
 
 };
@@ -182,6 +185,8 @@ inline void PndFts::ResetParameters() {
   fPosIn.SetXYZM(0.0, 0.0, 0.0, 0.0);
   fPosOut.SetXYZM(0.0, 0.0, 0.0, 0.0);
   fMass = 0;
+  fIsInitialized = kFALSE;
+  valid = kFALSE;
 }
 
 

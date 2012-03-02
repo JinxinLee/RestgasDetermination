@@ -34,8 +34,10 @@ using std::endl;
 
 // -----   Default constructor   -------------------------------------------
 PndFtsHitProducerRealFull::PndFtsHitProducerRealFull() :
-  FairTask("Ideal Fts Hit Producer") {
-  fPersistence = kTRUE;
+  FairTask("Ideal Fts Hit Producer"), fPointArray(new TClonesArray),  fHitArray(new TClonesArray),
+  fHitInfoArray(new TClonesArray), fFtsParameters(new PndGeoFtsPar()), 
+  fPersistence(kTRUE)
+{
 }
 // -------------------------------------------------------------------------
 

@@ -67,6 +67,9 @@ class PndFtsHitProducerRealFast : public FairTask
   /** object persistence **/
   Bool_t  fPersistence; //!
 
+  PndFtsHitProducerRealFast(const  PndFtsHitProducerRealFast& L);
+  PndFtsHitProducerRealFast& operator= (const  PndFtsHitProducerRealFast&) {return *this;}
+
  ClassDef(PndFtsHitProducerRealFast,1);
 
 };

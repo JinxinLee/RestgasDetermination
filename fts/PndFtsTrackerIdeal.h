@@ -67,6 +67,9 @@ protected:
   TString fTracksArrayName;     // Branch name where to store the Track candidates
   TDatabasePDG *pdg;            // Particle DB
   
+  PndFtsTrackerIdeal(const  PndFtsTrackerIdeal& L);
+  PndFtsTrackerIdeal& operator= (const  PndFtsTrackerIdeal&) {return *this;}
+  
   ClassDef(PndFtsTrackerIdeal,1);
   
 };

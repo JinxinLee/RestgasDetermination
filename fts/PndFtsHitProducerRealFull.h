@@ -61,6 +61,9 @@ class PndFtsHitProducerRealFull : public FairTask
 
   PndGeoFtsPar *fFtsParameters;  //  CHECK added
 
+  PndFtsHitProducerRealFull(const  PndFtsHitProducerRealFull& L);
+  PndFtsHitProducerRealFull& operator= (const  PndFtsHitProducerRealFull&) {return *this;}
+  
   ClassDef(PndFtsHitProducerRealFull,1);
 
 };

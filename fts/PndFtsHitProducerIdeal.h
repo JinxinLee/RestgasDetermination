@@ -85,7 +85,10 @@ class PndFtsHitProducerIdeal : public FairTask
 
   PndGeoFtsPar *fFtsParameters;  //  CHECK added
   PndFtsMapCreator *fMapper; 
- 
+  
+  PndFtsHitProducerIdeal(const  PndFtsHitProducerIdeal& L);
+  PndFtsHitProducerIdeal& operator= (const  PndFtsHitProducerIdeal&) {return *this;}
+  
   ClassDef(PndFtsHitProducerIdeal,1);
 
 };
