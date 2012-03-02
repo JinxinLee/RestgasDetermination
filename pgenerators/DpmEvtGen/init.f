@@ -1,5 +1,5 @@
 
-C-----------------ast edition 05.04.07 V.Uzhinsky-----
+C-----------------A. Galoyan last edition 2 March 2012 -----
        SUBROUTINE INIT1(Plab, seed, Elastic, tetmin)
 C-----------------------------------------------------------------------
        COMMON/UZHI/SqrtS,Ecms,Vcms,Gamma,Proc_Prob(7),P_5str,CS_in,
@@ -155,11 +155,39 @@ c   PDG parametrization of total and elastic Pbar+P X-sections
 c                 Phys. Rev. D54 (1996) 125.
 C-------------------------------------------------------------
       ALOGp=Alog(Plab)
-      Xtotal=38.4+77.6*Plab**(-0.64)+0.260*ALOGp**2-1.20*ALOGp
-!     Xtot=
-      Xelast=10.2+52.7*Plab**(-1.16)+0.125*ALOGp**2-1.28*ALOGp
-!     Xelast=
-      Welast=Xelast/Xtotal
+!      Xtotal=38.4+77.6*Plab**(-0.64)+0.260*ALOGp**2-1.20*ALOGp
+!      Xelast=10.2+52.7*Plab**(-1.16)+0.125*ALOGp**2-1.28*ALOGp
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+!    new parametrization for Xtotal and Xelast 27 Febr. 2012
+!     our parameters                 !aida
+       Mn=0.93827231
+       b0=11.92
+       b2=0.3036
+       SqrtS0=20.74
+       S0=33.0625
+       
+       B=b0 + b2*(ALOG(SqrtS/SqrtS0))**2
+       SigAss=36.04+0.304*(alog(S/S0))**2
+       R0=sqrt(0.40874044*SigAss - B)
+
+        C=13.55
+        d1=-4.47
+        d2=12.38
+        d3=-12.43
+        Xtotal = SigAss*(1.+1./sqrt(S-4.*Mn**2)/R0**3 *
+     *  C*(1.+D1/SqrtS+D2/SqrtS**2 + D3/SqrtS**3))
+
+        C=59.27
+        d1=-6.95
+        d2=23.54
+        d3=-25.34
+        SigAss = 4.5 +0.101*(alog(S/S0))**2
+        Xelast =  SigAss*(1.+1./sqrt(S-4.*Mn**2)/R0**3 *
+     *  C*(1.+D1/SqrtS+D2/SqrtS**2 + D3/SqrtS**3))
+
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+        Welast=Xelast/Xtotal
+
 
       if(Elastic.eq.0.) Welast=0.  ! Inelastic interactions only
       if(Elastic.eq.2.) Welast=1.  ! Elastic   interactions only
