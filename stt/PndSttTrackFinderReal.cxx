@@ -13970,7 +13970,7 @@ if(iplotta && IVOLTE <= nmassimo){
 	fprintf(MACRO,"TLine *Tile%d = new TLine(%f,%f,%f,%f);\n",ScitilHit,x1,y1,x2,y2);
 	fprintf(MACRO,"Tile%d->SetLineColor(1);\n",ScitilHit);
 	if(tipo==0){
-		fprintf(MACRO,"Tile%d->SetLineWidth(6);\n",ScitilHit);
+		fprintf(MACRO,"Tile%d->SetLineWidth(2);\n",ScitilHit);
 	} else {
 		fprintf(MACRO,"Tile%d->SetLineWidth(3);\n",ScitilHit);
 	}
