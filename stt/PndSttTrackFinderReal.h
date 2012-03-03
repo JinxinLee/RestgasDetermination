@@ -1198,6 +1198,13 @@ class PndSttTrackFinderReal : public PndSttTrackFinder
 
 
 
+	void disegnaAssiXY(
+			FILE * MACRO,
+			double xmin,
+			double xmax,
+			double ymin,
+			double ymax
+			);
 
 
 //----------------------------------------------
