@@ -1188,6 +1188,18 @@ class PndSttTrackFinderReal : public PndSttTrackFinder
 
 
 
+	void disegnaSciTilHit(
+			FILE * MACRO,
+			int ScitilHit,
+			double posx,
+			double posy,
+			int tipo
+			);
+
+
+
+
+
 //----------------------------------------------
 
   ClassDef(PndSttTrackFinderReal,1);
