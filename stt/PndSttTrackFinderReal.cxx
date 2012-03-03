@@ -3338,11 +3338,28 @@ void PndSttTrackFinderReal::clustering3 (
 //---- disegna gli Scitil.
 
 	for( i=0; i< nSciTilHits; i++) {
+
+
+		disegnaSciTilHit(
+			MACRO,
+			i,
+			posizSciTil[i][0],
+			posizSciTil[i][1],
+			0
+		);
+
+/*
 		fprintf(MACRO,"TMarker* SciT%d = new TMarker(%f,%f,%d);\n",
 			i,posizSciTil[i][0],posizSciTil[i][1],30);
 		fprintf(MACRO,"SciT%d->SetMarkerSize(1.5);\n",i);
 		fprintf(MACRO,"SciT%d->SetMarkerColor(1);\nSciT%d->Draw();\n"
 				,i,i);
+
+*/
+
+
+
+
 	}
 //------------------------
 
@@ -3485,11 +3502,21 @@ if(istampa>= 3 && IVOLTE <= nmassimo) {
 //---- disegna gli Scitil.
 
 	for( i=0; i< nSciTilHits; i++) {
+/*
 		fprintf(MACRO,"TMarker* SciT%d = new TMarker(%f,%f,%d);\n",
 			i,posizSciTil[i][0],posizSciTil[i][1],30);
 		fprintf(MACRO,"SciT%d->SetMarkerSize(1.5);\n",i);
 		fprintf(MACRO,"SciT%d->SetMarkerColor(1);\nSciT%d->Draw();\n"
 				,i,i);
+*/
+		disegnaSciTilHit(
+			MACRO,
+			i,
+			posizSciTil[i][0],
+			posizSciTil[i][1],
+			0
+		);
+
 	}
 //------------------------
 
@@ -4485,11 +4512,21 @@ fprintf(MACRO,"TEllipse* E%d = new TEllipse(%f,%f,%f,%f,0.,360.);\nE%d->SetLineW
 	if(nscitilhitsintrack>0) {
 	  for(j=0;j<nscitilhitsintrack;j++){
 		i = listscitilhitsintrack[j] ;
+/*
 		fprintf(MACRO,"TMarker* SciT%d = new TMarker(%f,%f,%d);\n",
 			i,posizSciTil[i][0],posizSciTil[i][1],30);
 		fprintf(MACRO,"SciT%d->SetMarkerSize(1.5);\n",i);
 		fprintf(MACRO,"SciT%d->SetMarkerColor(1);\nSciT%d->Draw();\n"
 				,i,i);
+*/
+		disegnaSciTilHit(
+			MACRO,
+			i,
+			posizSciTil[i][0],
+			posizSciTil[i][1],
+			0
+		);
+
 	  }
 	}
 //------------------------
@@ -4663,11 +4700,21 @@ fprintf(MACRO,"TEllipse* E%d = new TEllipse(%f,%f,%f,%f,0.,360.);\nE%d->SetLineW
 	if(nscitilhitsintrack>0) {
 	  for(j=0;j<nscitilhitsintrack;j++){
 		i = listscitilhitsintrack[j] ;
+/*
 		fprintf(MACRO,"TMarker* SciT%d = new TMarker(%f,%f,%d);\n",
 			i,posizSciTil[i][0],posizSciTil[i][1],30);
 		fprintf(MACRO,"SciT%d->SetMarkerSize(1.5);\n",i);
 		fprintf(MACRO,"SciT%d->SetMarkerColor(1);\nSciT%d->Draw();\n"
 				,i,i);
+*/
+		disegnaSciTilHit(
+			MACRO,
+			i,
+			posizSciTil[i][0],
+			posizSciTil[i][1],
+			0
+		);
+
 	  }
 	}
 //------------------------
@@ -4796,9 +4843,14 @@ carica0: ;
 		if( ESSE[i]<Smin ) Smin=ESSE[i];
 		if( ZETA[i]>zmax ) zmax=ZETA[i];
 		if( ZETA[i]<zmin ) zmin=ZETA[i];
+
+/*
  fprintf(MACRO,"TMarker* SciT%d = new TMarker(%f,%f,30);\n",i,ZETA[i],ESSE[i]);
  fprintf(MACRO,"SciT%d->SetMarkerSize(1.5);\n",i);
  fprintf(MACRO,"SciT%d->SetMarkerColor(1);\n",i);
+*/
+
+
 	}
 //-------------------------
 
@@ -4954,7 +5006,16 @@ fuori: ;
 //------------
 //  plot di eventuali hits  SciTil;
 	for(i=0;i<nscitilhits;i++){
-		fprintf(MACRO,"SciT%d->Draw();\n",i);
+//		fprintf(MACRO,"SciT%d->Draw();\n",i);
+
+		disegnaSciTilHit(
+			MACRO,
+			i,
+			ZETA[i],
+			ESSE[i],
+			1
+		);
+
 	}
 //------------
 
@@ -5104,9 +5165,14 @@ nohits: ;
 		if( ESSE[i]<Smin ) Smin=ESSE[i];
 		if( ZETA[i]>zmax ) zmax=ZETA[i];
 		if( ZETA[i]<zmin ) zmin=ZETA[i];
+
+/*
  fprintf(MACRO,"TMarker* SciT%d = new TMarker(%f,%f,30);\n",i,ZETA[i],ESSE[i]);
  fprintf(MACRO,"SciT%d->SetMarkerSize(1.5);\n",i);
  fprintf(MACRO,"SciT%d->SetMarkerColor(1);\n",i);
+
+
+*/
 	}
 //----------------------------
        for( iii=0; iii< nSttSkewhitinTrack; iii++) {
@@ -5353,7 +5419,16 @@ cout<<"the ellipsis goes out of the boundaries of the skew straw, hit n. "<<i<<e
 //------------
 //  plot di eventuali hits  SciTil;
 	for(i=0;i<nscitilhits;i++){
-		fprintf(MACRO,"SciT%d->Draw();\n",i);
+//		fprintf(MACRO,"SciT%d->Draw();\n",i);
+
+		disegnaSciTilHit(
+			MACRO,
+			i,
+			ZETA[i],
+			ESSE[i],
+			1
+		);
+
 	}
 //------------
 
@@ -13858,6 +13933,67 @@ if(iplotta && IVOLTE <= nmassimo){
 	return intersect;
 }
 //----------end of function PndSttTrackFinderReal::IntersectionSciTil_Circle
+
+
+
+
+
+//----------begin of function PndSttTrackFinderReal::disegnaSciTilHit
+
+  void PndSttTrackFinderReal::disegnaSciTilHit(
+			FILE * MACRO,
+			int ScitilHit,
+			double posx,
+			double posy,
+			int tipo  // 0 --> disegna in XY, altro --> disegna in SZ.
+			)
+{
+	double	x1,x2,y1,y2,L,R;
+
+
+	L=DIMENSIONSCITIL/2.;
+
+   if(tipo==0){	// SciTil disegnate in XY.
+	R = sqrt(posx*posx+posy*posy);
+	x1 = posx + posy*L/R;
+	x2 = posx - posy*L/R;
+	y1 = posy - posx*L/R;
+	y2 = posy + posx*L/R;
+   } else {	// SciTil disegnate in SZ.
+	x1 = posx + L;
+	x2 = posx - L;
+	y1 = posy;
+	y2 = posy;
+   }
+
+
+	fprintf(MACRO,"TLine *Tile%d = new TLine(%f,%f,%f,%f);\n",ScitilHit,x1,y1,x2,y2);
+	fprintf(MACRO,"Tile%d->SetLineColor(1);\n",ScitilHit);
+	if(tipo==0){
+		fprintf(MACRO,"Tile%d->SetLineWidth(6);\n",ScitilHit);
+	} else {
+		fprintf(MACRO,"Tile%d->SetLineWidth(3);\n",ScitilHit);
+	}
+	fprintf(MACRO,"Tile%d->Draw();\n",ScitilHit);
+/*
+	fprintf(MACRO,"TMarker* SciT%d = new TMarker(%f,%f,%d);\n",
+			ScitilHit,posx,posy,30);
+	fprintf(MACRO,"SciT%d->SetMarkerSize(1.5);\n",ScitilHit);
+	fprintf(MACRO,"SciT%d->SetMarkerColor(1);\nSciT%d->Draw();\n"
+				,ScitilHit,ScitilHit);
+*/
+}
+
+//----------end of function PndSttTrackFinderReal::disegnaSciTilHit
+
+
+
+
+
+
+
+
+
 
 ClassImp(PndSttTrackFinderReal)
 
