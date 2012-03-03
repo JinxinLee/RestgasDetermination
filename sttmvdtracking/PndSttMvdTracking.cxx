@@ -16008,7 +16008,7 @@ c[] = {-2.*Ama/sqrt(3.),-Ama,	2.*Ama/sqrt(3.),-vgap/2.,2.*Ami/sqrt(3.),-Ami,	-2.
 	fprintf(MACRO,"TLine *Tile%d = new TLine(%f,%f,%f,%f);\n",ScitilHit,x1,y1,x2,y2);
 	fprintf(MACRO,"Tile%d->SetLineColor(1);\n",ScitilHit);
 	if(tipo==0){
-		fprintf(MACRO,"Tile%d->SetLineWidth(6);\n",ScitilHit);
+		fprintf(MACRO,"Tile%d->SetLineWidth(2);\n",ScitilHit);
 	} else {
 		fprintf(MACRO,"Tile%d->SetLineWidth(3);\n",ScitilHit);
 	}
