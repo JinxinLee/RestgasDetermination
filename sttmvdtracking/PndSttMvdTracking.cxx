@@ -1159,14 +1159,10 @@ if(istampa>=2){
 
 
     if(pndtrackcandhit.GetDetId()==1001){// my SciTil detector ID.
-	if( nSciTilHitsinTrack[i]>0) {
-		cout<<"PndSttMvdTracking, more than 1 SciTilHit in this track,;"
-		<<" consider only the first!\n";
-	}else{
-		nSciTilHitsinTrack[i] ++;
-		ListSciTilHitsinTrack[i][0]=pndtrackcandhit.GetHitId();
-		InclusionListSciTil[ ListSciTilHitsinTrack[i][0] ] = false;
-	}
+	ListSciTilHitsinTrack[i][nSciTilHitsinTrack[i]]=pndtrackcandhit.GetHitId();
+	InclusionListSciTil[ ListSciTilHitsinTrack[i][nSciTilHitsinTrack[i]] ] = false;
+	nSciTilHitsinTrack[i] ++;
+
     } else {	// this is a Stt Det Id
 	if( pndtrackcandhit.GetHitId() >= nmaxSttHits ) continue;
 	igoodStt++;
@@ -1221,7 +1217,7 @@ if(istampa>=2){
 	   <<nSciTilHitsinTrack[i]<<"   e loro lista \n";
 	   for(j=0; j<nSciTilHitsinTrack[i];j++){
 	        cout<<"\t\tscitil Hit n. "<<
-		     ListSciTilHitsinTrack[i][0]<<endl;
+		     ListSciTilHitsinTrack[i][j]<<endl;
 	   }
 
  }
@@ -1883,8 +1879,8 @@ if(istampa>=2&& IVOLTE<20){
 	for(i=0, iaccept=0;i<nSciTilHitsinTrack[ncand];i++){
 
 		intersect=IntersectionSciTil_Circle(
-			posizSciTil[ListSciTilHitsinTrack[ncand][0]][0],
-			posizSciTil[ListSciTilHitsinTrack[ncand][0]][1],
+			posizSciTil[ListSciTilHitsinTrack[ncand][i]][0],
+			posizSciTil[ListSciTilHitsinTrack[ncand][i]][1],
 			Ox[ncand], // center of circle.
 			Oy[ncand],
 			R[ncand], // Radius of circle.
@@ -1915,7 +1911,6 @@ if(istampa>=2&& IVOLTE<20){
 	} // end of  for(i=0;i<nSciTilHitsinTrack[ncand];i++)
 
 	nSciTilHitsinTrack[ncand]=iaccept;
-
 
 // finding again the Charge of the track (the last fit may have changed the concavity of the track).
 
@@ -2083,7 +2078,8 @@ if(istampa>=2&& IVOLTE<20){
 //  Sbis, ZEDbis etc. contain Pixel+Strips+all Skew Stt hits.
 
 	//  nXYZhits = n. of Mvd hits + SciTil hits.
-	nXYZhits = nMvdPixelHitsinTrack[ncand]+nMvdStripHitsinTrack[ncand]+nSciTilHitsinTrack[ncand];
+	nXYZhits = nMvdPixelHitsinTrack[ncand]+nMvdStripHitsinTrack[ncand]+
+			nSciTilHitsinTrack[ncand];
 	// calculate if there is the need of using some skew hits in the subsequent SZ fit;
 	// put in  nhitsinfit  the number of hits used in the subsequent  SZ  fit.
 	if( nXYZhits <=2){
@@ -2131,10 +2127,11 @@ if(istampa>=2&& IVOLTE<20){
 
 
 	// the SciTil hits ( can be only up to 2).
-	for(j=0, i = nMvdPixelHitsinTrack[ncand]+nMvdStripHitsinTrack[ncand];
-			j<nSciTilHitsinTrack[ncand];j++){
+	for(j=0;j<nSciTilHitsinTrack[ncand];j++){
 		// calculate S on the lateral face of the Helix.
-		S[i] = atan2(YintersectionList[0]-Oy[ncand],XintersectionList[0]-Ox[ncand]);
+		i = nMvdPixelHitsinTrack[ncand]+nMvdStripHitsinTrack[ncand]+j;
+		S[i] = atan2(	SciTilHitsYwithTrack[ncand][j]-Oy[ncand],
+				SciTilHitsXwithTrack[ncand][j]-Ox[ncand]);
 
 		if ( S[i]<0.) S[i] += 2.*PI;
 
@@ -2202,7 +2199,14 @@ if(istampa>=2&& IVOLTE<20){
 
  if(istampa>=2){
 	cout<<"\n\nda PndSttMvdTracking, prima di FitSZspace :"<<endl;
+	cout<<"\tKAPPA = "<<KAPPA[ncand]<<endl;
+	cout<<"\tLista degli S :\n";
+	for(int iz=0;iz<nhitsinfit;iz++){
+		cout<<"\tS = "<<S[iz]<<", Z "<<ZED[iz]<<endl;
+	}
 		stampetta(nSttTrackCand,keepit);
+
+
  }
 		resultFitSZagain[ncand] = FitSZspace(
 					nhitsinfit,	// n. hits to be fitted
@@ -2218,9 +2222,6 @@ if(istampa>=2&& IVOLTE<20){
 
 		if( resultFitSZagain[ncand]==1){
 			KAPPA[ncand] = emme;
-			// in case it was a TrackCand from Stt alone, originally with no Skew
-			// hit and therefore without KAPPA information, signal that now the
-			// SZ fit worked (thanks to the Mvd hits) by setting SttSZfit[ncand]=true.
 			if( ncand<= nSttTrackCand ) SttSZfit[ncand]=true;
 		} else {
 			keepit[ncand]=false;
@@ -2229,6 +2230,7 @@ if(istampa>=2&& IVOLTE<20){
 
  if(istampa>=2){
 	cout<<"\n\nda PndSttMvdTracking, dopo FitSZspace :"<<endl;
+	cout<<"\tKAPPA = "<<KAPPA[ncand]<<endl;
 		stampetta(nSttTrackCand,keepit);
  }
 
@@ -4066,41 +4068,29 @@ for(l =0;l<nMvdPixelHitsinTrack[it]+nMvdStripHitsinTrack[it]
 
 	for(  i= 0; i< nTotalCandidates; i++){
 		for(j=0;j< nSciTilHitsinTrack[i];j++){
-			posx=posizSciTil[ListSciTilHitsinTrack[i][j]][0];
-			posy=posizSciTil[ListSciTilHitsinTrack[i][j]][1];
-			if( -posx*posy <0. )  SIGN=-1.;
-			else  SIGN=1.;
-			RR = posx*posx+posy*posy;
-			sqrtRR=sqrt(RR);
-			intersect = IntersectionCircle_Segment(
-			posx,
-			posy,
-			-RR,
-			posx-fabs(0.5*DIMENSIONSCITIL*posy/sqrtRR),
-			posx+fabs(0.5*DIMENSIONSCITIL*posy/sqrtRR),
-			posy-SIGN*fabs(0.5*DIMENSIONSCITIL*posx/sqrtRR),
-			posy+SIGN*fabs(0.5*DIMENSIONSCITIL*posx/sqrtRR),
-			Ox[i],
+
+		intersect=IntersectionSciTil_Circle(
+			posizSciTil[ListSciTilHitsinTrack[i][j]][0],
+			posizSciTil[ListSciTilHitsinTrack[i][j]][1],
+			Ox[i], // center of circle.
 			Oy[i],
-			R[i],
-			&Nint,  // output
-			XintersectionList,  // output
-			YintersectionList,  // output
-			&ddd  // output
+			R[i], // Radius of circle.
+			&Nint,
+			XintersectionList,
+			YintersectionList
 						);
 // reject case with no intersection of the SciTil with the circle trajectory.
 	if(intersect){
 	// calculate S on the lateral face of the Helix.
-	if ( Nint==1){	// the majority of the cases
-		esseSciTil[i][j] = atan2(YintersectionList[0]-Oy[i],XintersectionList[0]-Ox[i]);
-	} else {  // in this case Nint=2 (it should be a very rare case).
+		if ( Nint==1){	// the majority of the cases
+			esseSciTil[i][j] = atan2(YintersectionList[0]-Oy[i],
+					XintersectionList[0]-Ox[i]);
+		} else {  // in this case Nint=2 (it should be a very rare case).
 		// do an average of the two positions.
-		esseSciTil[i][j] = atan2( 0.5*(YintersectionList[0]+YintersectionList[1])-Oy[i],
-			0.5*(XintersectionList[0]+XintersectionList[1])-Ox[i]);
-	} // end of  if ( Nint==1)
-	if ( esseSciTil[i][j]<0.) esseSciTil[i][j] += 2.*PI;
-
-
+			esseSciTil[i][j] = atan2( 0.5*(YintersectionList[0]+YintersectionList[1])
+			-Oy[i],0.5*(XintersectionList[0]+XintersectionList[1])-Ox[i]);
+		} // end of  if ( Nint==1)
+		if ( esseSciTil[i][j]<0.) esseSciTil[i][j] += 2.*PI;
 
 	}  // continuation of if(intersect)
 
@@ -4690,11 +4680,14 @@ UShort_t ListSkewHitsinTrack[MAXTRACKSPEREVENT][nmaxSttHitsInTrack],
 
 	for( ii=0; ii< nSciTilHitsinTrack[iTrack]; ii++) {
 		i = ListSciTilHitsinTrack[iTrack][ii] ;
-		fprintf(MACRO,"TMarker* SciT%d = new TMarker(%f,%f,%d);\n",
-			i,posizSciTil[i][0],posizSciTil[i][1],30);
-		fprintf(MACRO,"SciT%d->SetMarkerSize(1.5);\n",i);
-		fprintf(MACRO,"SciT%d->SetMarkerColor(1);\nSciT%d->Draw();\n"
-				,i,i);
+		disegnaSciTilHit(
+				MACRO,
+				i,
+				posizSciTil[i][0],
+				posizSciTil[i][1],
+				0
+				);
+
 	}
 //------------------------
        fprintf(MACRO,"TEllipse* FoundTrack = new TEllipse(%f,%f,%f,%f,%f,%f);\n"
@@ -5081,11 +5074,13 @@ fprintf(MACRO,
 
 
 	for( i=0; i< nSciTilHits; i++) {
-		fprintf(MACRO,"TMarker* SciT%d = new TMarker(%f,%f,%d);\n",
-			i,posizSciTil[i][0],posizSciTil[i][1],30);
-		fprintf(MACRO,"SciT%d->SetMarkerSize(1.5);\n",i);
-		fprintf(MACRO,"SciT%d->SetMarkerColor(1);\nSciT%d->Draw();\n"
-				,i,i);
+		disegnaSciTilHit(
+				MACRO,
+				i,
+				posizSciTil[i][0],
+				posizSciTil[i][1],
+				0	//  0 --> disegna in XY.
+				);
 	}
 //------------------------
 
@@ -5203,11 +5198,13 @@ fprintf(MACRO,
 
 
 	for( i=0; i< nSciTilHits; i++) {
-		fprintf(MACRO,"TMarker* SciT%d = new TMarker(%f,%f,%d);\n",
-			i,posizSciTil[i][0],posizSciTil[i][1],30);
-		fprintf(MACRO,"SciT%d->SetMarkerSize(1.5);\n",i);
-		fprintf(MACRO,"SciT%d->SetMarkerColor(1);\nSciT%d->Draw();\n"
-				,i,i);
+		disegnaSciTilHit(
+				MACRO,
+				i,
+				posizSciTil[i][0],
+				posizSciTil[i][1],
+				0
+				);
 	}
 //------------------------
 
@@ -5659,11 +5656,11 @@ UShort_t ListStripHitsinTrack[MAXTRACKSPEREVENT][nmaxMvdStripHitsInTrack], // ou
 		if( ESSE[i]<Smin ) Smin=ESSE[i];
 		if( posizSciTil[iTrack][2]>zmax ) zmax=posizSciTil[iTrack][2];
 		if( posizSciTil[iTrack][2]<zmin ) zmin=posizSciTil[iTrack][2];
- fprintf(MACRO,"TMarker* SciT%d = new TMarker(%f,%f,30);\n",
-	i,posizSciTil[iTrack][2],ESSE[i]*R);
- fprintf(MACRO,"SciT%d->SetMarkerSize(1.5);\n",i);
- fprintf(MACRO,"SciT%d->SetMarkerColor(1);\n",i);
 	}
+
+
+
+
 //-------------------------
 
 
@@ -5918,7 +5915,13 @@ UShort_t ListStripHitsinTrack[MAXTRACKSPEREVENT][nmaxMvdStripHitsInTrack], // ou
 //------------
 //  plot di eventuali hits  SciTil;
 	for(i=0;i<nSciTilHitsinTrack[iTrack];i++){
-		fprintf(MACRO,"SciT%d->Draw();\n",i);
+		disegnaSciTilHit(
+				MACRO,
+				i,
+				posizSciTil[iTrack][2],
+				ESSE[i]*R,
+				1	// disegna in SZ.
+				);
 	}
 //------------
 // --------------------------------
@@ -15974,8 +15977,52 @@ c[] = {-2.*Ama/sqrt(3.),-Ama,	2.*Ama/sqrt(3.),-vgap/2.,2.*Ami/sqrt(3.),-Ami,	-2.
 
 //----------end of function PndSttMvdTracking::stampetta
 
+//----------begin of function PndSttMvdTracking::disegnaSciTilHit
+
+  void PndSttMvdTracking::disegnaSciTilHit(
+			FILE * MACRO,
+			int ScitilHit,
+			double posx,
+			double posy,
+			int tipo
+			)
+{
+	double	x1,x2,y1,y2,L,R;
 
 
+	L=DIMENSIONSCITIL/2.;
+
+   if(tipo==0){	// SciTil disegnate in XY.
+	R = sqrt(posx*posx+posy*posy);
+	x1 = posx + posy*L/R;
+	x2 = posx - posy*L/R;
+	y1 = posy - posx*L/R;
+	y2 = posy + posx*L/R;
+   } else {	// SciTil disegnate in SZ.
+	x1 = posx + L;
+	x2 = posx - L;
+	y1 = posy;
+	y2 = posy;
+   }
+
+	fprintf(MACRO,"TLine *Tile%d = new TLine(%f,%f,%f,%f);\n",ScitilHit,x1,y1,x2,y2);
+	fprintf(MACRO,"Tile%d->SetLineColor(1);\n",ScitilHit);
+	if(tipo==0){
+		fprintf(MACRO,"Tile%d->SetLineWidth(6);\n",ScitilHit);
+	} else {
+		fprintf(MACRO,"Tile%d->SetLineWidth(3);\n",ScitilHit);
+	}
+	fprintf(MACRO,"Tile%d->Draw();\n",ScitilHit);
+/*
+	fprintf(MACRO,"TMarker* SciT%d = new TMarker(%f,%f,%d);\n",
+			ScitilHit,posx,posy,30);
+	fprintf(MACRO,"SciT%d->SetMarkerSize(1.5);\n",ScitilHit);
+	fprintf(MACRO,"SciT%d->SetMarkerColor(1);\nSciT%d->Draw();\n"
+				,ScitilHit,ScitilHit);
+*/
+}
+
+//----------end of function PndSttMvdTracking::disegnaSciTilHit
 
 
 
