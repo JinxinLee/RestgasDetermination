@@ -1252,6 +1252,13 @@ UShort_t ListStrip[MAXTRACKSPEREVENT][nmaxMvdStripHitsInTrack],// input
 			);
 
 
+	void disegnaAssiXY(
+			FILE * MACRO,
+			double xmin,
+			double xmax,
+			double ymin,
+			double ymax
+			);
 
 
   ClassDef(PndSttMvdTracking,1);
