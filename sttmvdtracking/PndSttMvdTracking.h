@@ -1243,6 +1243,13 @@ UShort_t ListStrip[MAXTRACKSPEREVENT][nmaxMvdStripHitsInTrack],// input
 
 
 
+	void disegnaSciTilHit(
+			FILE * MACRO,
+			int ScitilHit,
+			double posx,
+			double posy,
+			int tipo
+			);
 
 
 
