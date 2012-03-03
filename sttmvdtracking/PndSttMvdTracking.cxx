@@ -4629,11 +4629,11 @@ UShort_t ListSkewHitsinTrack[MAXTRACKSPEREVENT][nmaxSttHitsInTrack],
          delta= deltay;
        }
 
-       xmax = xmax + delta*0.05;
-       xmin = xmin - delta*0.05;
+       xmax = xmax + delta*0.15;
+       xmin = xmin - delta*0.15;
 
-       ymax = ymax + delta*0.05;
-       ymin = ymin - delta*0.05;
+       ymax = ymax + delta*0.15;
+       ymin = ymin - delta*0.15;
 
 
        fprintf(MACRO,"TCanvas* my= new TCanvas();\nmy->Range(%f,%f,%f,%f);\n",xmin,ymin,xmax,ymax);
@@ -4696,12 +4696,8 @@ UShort_t ListSkewHitsinTrack[MAXTRACKSPEREVENT][nmaxSttHitsInTrack],
        fprintf(MACRO,
        "FoundTrack->SetLineColor(2);\nFoundTrack->SetFillStyle(0);\nFoundTrack->Draw(\"only\");\n");
 
-       fprintf(MACRO,"TGaxis *Assex = new  TGaxis(%f,%f,%f,%f,%f,%f,510);\n",xmin,0.,xmax,0.,xmin,xmax);
-       fprintf(MACRO,"Assex->Draw();\n");
-       fprintf(MACRO,"TGaxis *Assey = new  TGaxis(%f,%f,%f,%f,%f,%f,510);\n", 0.,ymin,0.,ymax,ymin,ymax);
-       fprintf(MACRO,"Assey->Draw();\n");
 
-
+	disegnaAssiXY(MACRO,xmin,xmax,ymin,ymax);
 //------------- hits paralleli in comune con traccia MC
        for( ii=0; ii< nParalCommon[iTrack]; ii++) {
             i = ParalCommonList[iTrack][ii] ;
@@ -4978,11 +4974,11 @@ fuori: ;
          delta= deltay;
        }
 
-       xmax = xmax + delta*0.05;
-       xmin = xmin - delta*0.05;
+       xmax = xmax + delta*0.15;
+       xmin = xmin - delta*0.15;
 
-       ymax = ymax + delta*0.05;
-       ymin = ymin - delta*0.05;
+       ymax = ymax + delta*0.15;
+       ymin = ymin - delta*0.15;
 
 
 	if( xmin>-1.05*RStrawDetectorMax) xmin=-1.05*RStrawDetectorMax;
@@ -4997,10 +4993,8 @@ fuori: ;
        fprintf(MACRO,"TCanvas* my= new TCanvas();\nmy->Range(%f,%f,%f,%f);\n",xmin,ymin,xmax,ymax);
 
 
-       fprintf(MACRO,"TGaxis *Assex = new  TGaxis(%f,%f,%f,%f,%f,%f,510);\n",xmin,0.,xmax,0.,xmin,xmax);
-       fprintf(MACRO,"Assex->Draw();\n");
-       fprintf(MACRO,"TGaxis *Assey = new  TGaxis(%f,%f,%f,%f,%f,%f,510);\n", 0.,ymin,0.,ymax,ymin,ymax);
-       fprintf(MACRO,"Assey->Draw();\n");
+
+	disegnaAssiXY(MACRO,xmin,xmax,ymin,ymax);
 
 //	disegna il BiHexagon destro e sinistro delle inner parallel straws.
 	char myname[100];
@@ -5122,10 +5116,7 @@ fprintf(MACRO,
        fprintf(MACRO,"TCanvas* my= new TCanvas();\nmy->Range(%f,%f,%f,%f);\n",xmin,ymin,xmax,ymax);
 
 
-       fprintf(MACRO,"TGaxis *Assex = new  TGaxis(%f,%f,%f,%f,%f,%f,510);\n",xmin,0.,xmax,0.,xmin,xmax);
-       fprintf(MACRO,"Assex->Draw();\n");
-       fprintf(MACRO,"TGaxis *Assey = new  TGaxis(%f,%f,%f,%f,%f,%f,510);\n", 0.,ymin,0.,ymax,ymin,ymax);
-       fprintf(MACRO,"Assey->Draw();\n");
+	disegnaAssiXY(MACRO,xmin,xmax,ymin,ymax);
 
 //	disegna il BiHexagon destro e sinistro delle inner parallel straws.
 	sprintf(myname,"InnerPar");
@@ -5479,11 +5470,7 @@ pippo:	;
 	}
        fprintf(MACRO,"pt->Draw();\n");
 
-       fprintf(MACRO,"TGaxis *Assex = new  TGaxis(%f,%f,%f,%f,%f,%f,510);\n",xmin,0.,xmax,0.,xmin,xmax);
-       fprintf(MACRO,"Assex->Draw();\n");
-       fprintf(MACRO,"TGaxis *Assey = new  TGaxis(%f,%f,%f,%f,%f,%f,510);\n", 0.,ymin,0.,ymax,ymin,ymax);
-       fprintf(MACRO,"Assey->Draw();\n");
-
+	disegnaAssiXY(MACRO,  xmin, xmax, ymin, ymax);
 
        for( i=0; i< Nhits; i++) {
 	 if( info[i][3]+dR >STRAWRADIUS || info[i][3]+dR <0.) continue;
@@ -6513,11 +6500,9 @@ nohits: ;
       FILE * MACRO = fopen(nome2,"w");
       fprintf(MACRO,"void %s()\n{\n",nome);
       fprintf(MACRO,"TCanvas* my= new TCanvas();\nmy->Range(%f,%f,%f,%f);\n",xmin,ymin,xmax,ymax);
-       fprintf(MACRO,"TGaxis *Assex = new  TGaxis(%f,%f,%f,%f,%f,%f,510);\n",xmin,0.,xmax,0.,xmin,xmax);
-       fprintf(MACRO,"Assex->Draw();\n");
-       fprintf(MACRO,"TGaxis *Assey = new  TGaxis(%f,%f,%f,%f,%f,%f,510);\n", 0.,ymin,0.,ymax,ymin,ymax);
-       fprintf(MACRO,"Assey->Draw();\n");
 
+
+	disegnaAssiXY(MACRO,xmin,xmax,ymin,ymax);
 
 //	disegna il BiHexagon destro e sinistro delle inner parallel straws.
 	char myname[100];
@@ -16024,6 +16009,29 @@ c[] = {-2.*Ama/sqrt(3.),-Ama,	2.*Ama/sqrt(3.),-vgap/2.,2.*Ami/sqrt(3.),-Ami,	-2.
 
 //----------end of function PndSttMvdTracking::disegnaSciTilHit
 
+//----------end of function PndSttMvdTracking::disegnaassiXY
+	void PndSttMvdTracking::disegnaAssiXY(
+			FILE * MACRO,
+			double xmin,
+			double xmax,
+			double ymin,
+			double ymax
+			)
+{
+
+       fprintf(MACRO,"TGaxis *Assex = new  TGaxis(%f,%f,%f,%f,%f,%f,510);\n",xmin,0.,xmax,0.,xmin,xmax);
+       fprintf(MACRO,"Assex->SetTitle(\"X\");\n");
+       fprintf(MACRO,"Assex->SetTitleOffset(1.5);\n");
+       fprintf(MACRO,"Assex->Draw();\n");
+       fprintf(MACRO,"TGaxis *Assey = new  TGaxis(%f,%f,%f,%f,%f,%f,510);\n", 0.,ymin,0.,ymax,ymin,ymax);
+       fprintf(MACRO,"Assey->SetTitle(\"Y\");\n");
+       fprintf(MACRO,"Assey->SetTitleOffset(1.5);\n");
+       fprintf(MACRO,"Assey->Draw();\n");
+
+}
+
+
+//----------end of function PndSttMvdTracking::disegnaassiXY
 
 
 ClassImp(PndSttMvdTracking)
