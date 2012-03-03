@@ -3654,11 +3654,11 @@ dopo:  ;
          delta= deltay;
        }
 
-       xmax = xmax + delta*0.05;
-       xmin = xmin - delta*0.05;
+       xmax = xmax + delta*0.15;
+       xmin = xmin - delta*0.15;
 
-       ymax = ymax + delta*0.05;
-       ymin = ymin - delta*0.05;
+       ymax = ymax + delta*0.15;
+       ymin = ymin - delta*0.15;
 
 
        fprintf(MACRO,"TCanvas* my= new TCanvas();\nmy->Range(%f,%f,%f,%f);\n",xmin,ymin,xmax,ymax);
@@ -3699,8 +3699,12 @@ dopo:  ;
 //---------------------
 
        fprintf(MACRO,"TGaxis *Assex = new  TGaxis(%f,%f,%f,%f,%f,%f,510);\n",xmin,0.,xmax,0.,xmin,xmax);
+       fprintf(MACRO,"Assex->SetTitle(\"U    \");\n");
+       fprintf(MACRO,"Assex->SetTitleOffset(1.5);\n");
        fprintf(MACRO,"Assex->Draw();\n");
        fprintf(MACRO,"TGaxis *Assey = new  TGaxis(%f,%f,%f,%f,%f,%f,510);\n", 0.,ymin,0.,ymax,ymin,ymax);
+       fprintf(MACRO,"Assey->SetTitle(\"V    \");\n");
+       fprintf(MACRO,"Assey->SetTitleOffset(1.5);\n");
        fprintf(MACRO,"Assey->Draw();\n");
 
 
@@ -3893,11 +3897,11 @@ dopo:  ;
          delta= deltay;
        }
 
-       xmax = xmax + delta*0.05;
-       xmin = xmin - delta*0.05;
+       xmax = xmax + delta*0.15;
+       xmin = xmin - delta*0.15;
 
-       ymax = ymax + delta*0.05;
-       ymin = ymin - delta*0.05;
+       ymax = ymax + delta*0.15;
+       ymin = ymin - delta*0.15;
 
 
        fprintf(MACRO,"TCanvas* my= new TCanvas();\nmy->Range(%f,%f,%f,%f);\n",xmin,ymin,xmax,ymax);
@@ -3938,8 +3942,12 @@ dopo:  ;
 //---------------------
 
        fprintf(MACRO,"TGaxis *Assex = new  TGaxis(%f,%f,%f,%f,%f,%f,510);\n",xmin,0.,xmax,0.,xmin,xmax);
+       fprintf(MACRO,"Assex->SetTitle(\"U    \");\n");
+       fprintf(MACRO,"Assex->SetTitleOffset(1.5);\n");
        fprintf(MACRO,"Assex->Draw();\n");
        fprintf(MACRO,"TGaxis *Assey = new  TGaxis(%f,%f,%f,%f,%f,%f,510);\n", 0.,ymin,0.,ymax,ymin,ymax);
+       fprintf(MACRO,"Assey->SetTitle(\"V    \");\n");
+       fprintf(MACRO,"Assey->SetTitleOffset(1.5);\n");
        fprintf(MACRO,"Assey->Draw();\n");
 
 // plot degli Hits Stt
