@@ -3319,21 +3319,18 @@ void PndSttTrackFinderReal::clustering3 (
          delta= deltay;
        }
 
-       xmax = xmax + delta*0.05;
-       xmin = xmin - delta*0.05;
+       xmax = xmax + delta*0.15;
+       xmin = xmin - delta*0.15;
 
-       ymax = ymax + delta*0.05;
-       ymin = ymin - delta*0.05;
+       ymax = ymax + delta*0.15;
+       ymin = ymin - delta*0.15;
 
 
        fprintf(MACRO,"TCanvas* my= new TCanvas();\nmy->Range(%f,%f,%f,%f);\n",xmin,ymin,xmax,ymax);
 
 
-       fprintf(MACRO,"TGaxis *Assex = new  TGaxis(%f,%f,%f,%f,%f,%f,510);\n",xmin,0.,xmax,0.,xmin,xmax);
-       fprintf(MACRO,"Assex->Draw();\n");
-       fprintf(MACRO,"TGaxis *Assey = new  TGaxis(%f,%f,%f,%f,%f,%f,510);\n", 0.,ymin,0.,ymax,ymin,ymax);
-       fprintf(MACRO,"Assey->Draw();\n");
 
+	disegnaAssiXY(MACRO,xmin,xmax,ymin,ymax);
 
 //---- disegna gli Scitil.
 
@@ -3347,15 +3344,6 @@ void PndSttTrackFinderReal::clustering3 (
 			posizSciTil[i][1],
 			0
 		);
-
-/*
-		fprintf(MACRO,"TMarker* SciT%d = new TMarker(%f,%f,%d);\n",
-			i,posizSciTil[i][0],posizSciTil[i][1],30);
-		fprintf(MACRO,"SciT%d->SetMarkerSize(1.5);\n",i);
-		fprintf(MACRO,"SciT%d->SetMarkerColor(1);\nSciT%d->Draw();\n"
-				,i,i);
-
-*/
 
 
 
@@ -3482,21 +3470,18 @@ if(istampa>= 3 && IVOLTE <= nmassimo) {
          delta= deltay;
        }
 
-       xmax = xmax + delta*0.05;
-       xmin = xmin - delta*0.05;
+       xmax = xmax + delta*0.15;
+       xmin = xmin - delta*0.15;
 
-       ymax = ymax + delta*0.05;
-       ymin = ymin - delta*0.05;
+       ymax = ymax + delta*0.15;
+       ymin = ymin - delta*0.15;
 
 
        fprintf(MACRO,"TCanvas* my= new TCanvas();\nmy->Range(%f,%f,%f,%f);\n",xmin,ymin,xmax,ymax);
 
 
-       fprintf(MACRO,"TGaxis *Assex = new  TGaxis(%f,%f,%f,%f,%f,%f,510);\n",xmin,0.,xmax,0.,xmin,xmax);
-       fprintf(MACRO,"Assex->Draw();\n");
-       fprintf(MACRO,"TGaxis *Assey = new  TGaxis(%f,%f,%f,%f,%f,%f,510);\n", 0.,ymin,0.,ymax,ymin,ymax);
-       fprintf(MACRO,"Assey->Draw();\n");
 
+	disegnaAssiXY(MACRO,xmin,xmax,ymin,ymax);
 
 
 //---- disegna gli Scitil.
@@ -4204,11 +4189,11 @@ fprintf(MACRO,"TEllipse* E%d = new TEllipse(%f,%f,%f,%f,0.,360.);\nE%d->SetLineW
          delta= deltay;
        }
 
-       xmax = xmax + delta*0.05;
-       xmin = xmin - delta*0.05;
+       xmax = xmax + delta*0.15;
+       xmin = xmin - delta*0.15;
 
-       ymax = ymax + delta*0.05;
-       ymin = ymin - delta*0.05;
+       ymax = ymax + delta*0.15;
+       ymin = ymin - delta*0.15;
 
 
        fprintf(MACRO,"TCanvas* my= new TCanvas();\nmy->Range(%f,%f,%f,%f);\n",xmin,ymin,xmax,ymax);
@@ -4490,11 +4475,11 @@ fprintf(MACRO,"TEllipse* E%d = new TEllipse(%f,%f,%f,%f,0.,360.);\nE%d->SetLineW
          delta= deltay;
        }
 
-       xmax = xmax + delta*0.05;
-       xmin = xmin - delta*0.05;
+       xmax = xmax + delta*0.15;
+       xmin = xmin - delta*0.15;
 
-       ymax = ymax + delta*0.05;
-       ymin = ymin - delta*0.05;
+       ymax = ymax + delta*0.15;
+       ymin = ymin - delta*0.15;
 
 
        fprintf(MACRO,"TCanvas* my= new TCanvas();\nmy->Range(%f,%f,%f,%f);\n",xmin,ymin,xmax,ymax);
@@ -4502,11 +4487,8 @@ fprintf(MACRO,"TEllipse* E%d = new TEllipse(%f,%f,%f,%f,0.,360.);\nE%d->SetLineW
        fprintf(MACRO,"TEllipse* TC = new TEllipse(%f,%f,%f,%f,0.,360.);\n",Ox,Oy,R,R);
        fprintf(MACRO,"TC->SetLineColor(2);\nTC->SetFillStyle(0);\nTC->Draw();\n");
 
-       fprintf(MACRO,"TGaxis *Assex = new  TGaxis(%f,%f,%f,%f,%f,%f,510);\n",xmin,0.,xmax,0.,xmin,xmax);
-       fprintf(MACRO,"Assex->Draw();\n");
-       fprintf(MACRO,"TGaxis *Assey = new  TGaxis(%f,%f,%f,%f,%f,%f,510);\n", 0.,ymin,0.,ymax,ymin,ymax);
-       fprintf(MACRO,"Assey->Draw();\n");
 
+	disegnaAssiXY(MACRO,xmin,xmax,ymin,ymax);
 
        for( ii=0; ii< Nhits; ii++) {
             i = infoparal[  ListHitsinTrack[imaxima][ii]  ] ;
@@ -4658,11 +4640,11 @@ fprintf(MACRO,"TEllipse* E%d = new TEllipse(%f,%f,%f,%f,0.,360.);\nE%d->SetLineW
          delta= deltay;
        }
 
-       xmax = xmax + delta*0.05;
-       xmin = xmin - delta*0.05;
+       xmax = xmax + delta*0.15;
+       xmin = xmin - delta*0.15;
 
-       ymax = ymax + delta*0.05;
-       ymin = ymin - delta*0.05;
+       ymax = ymax + delta*0.15;
+       ymin = ymin - delta*0.15;
 
 
        fprintf(MACRO,"TCanvas* my= new TCanvas();\nmy->Range(%f,%f,%f,%f);\n",xmin,ymin,xmax,ymax);
@@ -4670,11 +4652,7 @@ fprintf(MACRO,"TEllipse* E%d = new TEllipse(%f,%f,%f,%f,0.,360.);\nE%d->SetLineW
        fprintf(MACRO,"TEllipse* TC = new TEllipse(%f,%f,%f,%f,0.,360.);\n",Ox,Oy,R,R);
        fprintf(MACRO,"TC->SetLineColor(2);\nTC->SetFillStyle(0);\nTC->Draw();\n");
 
-       fprintf(MACRO,"TGaxis *Assex = new  TGaxis(%f,%f,%f,%f,%f,%f,510);\n",xmin,0.,xmax,0.,xmin,xmax);
-       fprintf(MACRO,"Assex->Draw();\n");
-       fprintf(MACRO,"TGaxis *Assey = new  TGaxis(%f,%f,%f,%f,%f,%f,510);\n", 0.,ymin,0.,ymax,ymin,ymax);
-       fprintf(MACRO,"Assey->Draw();\n");
-
+	disegnaAssiXY(MACRO,xmin,xmax,ymin,ymax);
 
        for( ii=0; ii< nParalCommon[ifoundtrack]; ii++) {
             i = ParalCommonList[ifoundtrack][ii] ;
@@ -10421,20 +10399,17 @@ printf("from main, end of final printout  con routines chiamate direttamente ---
          delta= deltay;
        }
 
-       xmax = xmax + delta*0.05;
-       xmin = xmin - delta*0.05;
+       xmax = xmax + delta*0.15;
+       xmin = xmin - delta*0.15;
 
-       ymax = ymax + delta*0.05;
-       ymin = ymin - delta*0.05;
+       ymax = ymax + delta*0.15;
+       ymin = ymin - delta*0.15;
 
 
        fprintf(MACRO,"TCanvas* my= new TCanvas();\nmy->Range(%f,%f,%f,%f);\n",xmin,ymin,xmax,ymax);
 
 
-       fprintf(MACRO,"TGaxis *Assex = new  TGaxis(%f,%f,%f,%f,%f,%f,510);\n",xmin,0.,xmax,0.,xmin,xmax);
-       fprintf(MACRO,"Assex->Draw();\n");
-       fprintf(MACRO,"TGaxis *Assey = new  TGaxis(%f,%f,%f,%f,%f,%f,510);\n", 0.,ymin,0.,ymax,ymin,ymax);
-       fprintf(MACRO,"Assey->Draw();\n");
+	disegnaAssiXY(MACRO,xmin,xmax,ymin,ymax);
 
 
        for( i=0; i< Nhits; i++) {
@@ -13997,6 +13972,30 @@ if(iplotta && IVOLTE <= nmassimo){
 
 
 
+
+//----------begin of function PndSttTrackFinderReal::disegnaassiXY
+	void PndSttTrackFinderReal::disegnaAssiXY(
+			FILE * MACRO,
+			double xmin,
+			double xmax,
+			double ymin,
+			double ymax
+			)
+{
+
+       fprintf(MACRO,"TGaxis *Assex = new  TGaxis(%f,%f,%f,%f,%f,%f,510);\n",xmin,0.,xmax,0.,xmin,xmax);
+       fprintf(MACRO,"Assex->SetTitle(\"X\");\n");
+       fprintf(MACRO,"Assex->SetTitleOffset(1.5);\n");
+       fprintf(MACRO,"Assex->Draw();\n");
+       fprintf(MACRO,"TGaxis *Assey = new  TGaxis(%f,%f,%f,%f,%f,%f,510);\n", 0.,ymin,0.,ymax,ymin,ymax);
+       fprintf(MACRO,"Assey->SetTitle(\"Y\");\n");
+       fprintf(MACRO,"Assey->SetTitleOffset(1.5);\n");
+       fprintf(MACRO,"Assey->Draw();\n");
+
+}
+
+
+//----------end of function PndSttTrackFinderReal::disegnaassiXY
 
 
 
