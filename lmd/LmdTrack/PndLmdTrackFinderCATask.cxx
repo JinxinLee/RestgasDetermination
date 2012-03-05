@@ -613,8 +613,8 @@ void PndLmdTrackFinderCATask::Exec(Option_t* opt)
   
   int connectSizeOld=connect.size(),connectSizeNew=1;
   while(connectSizeOld!=connectSizeNew && trk.size()!=0){
-    cout<<"%$#^^$^#^$%#^%#$$^%"<<endl;
-    cout<<"connect.size()="<<connect.size()<<" conn_flag.size() = "<<conn_flag.size()<<endl;
+    //    cout<<"%$#^^$^#^$%#^%#$$^%"<<endl;
+    //    cout<<"connect.size()="<<connect.size()<<" conn_flag.size() = "<<conn_flag.size()<<endl;
     connectSizeOld = connect.size();
     trk.erase(trk.begin(),trk.begin()+trk.size());
     bool addHit = false;
