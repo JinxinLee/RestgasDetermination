@@ -24,7 +24,7 @@ void PndBlackBoxTask::SetParContainers()
 
 InitStatus PndBlackBoxTask::ReInit()
 {
-  return kERROR;
+  return kSUCCESS;
 }
 
 // -------------------------------------------------------------------------
