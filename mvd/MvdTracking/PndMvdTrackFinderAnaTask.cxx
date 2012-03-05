@@ -41,7 +41,7 @@ void PndMvdTrackFinderAnaTask::SetParContainers()
 InitStatus PndMvdTrackFinderAnaTask::ReInit()
 {
 
-  InitStatus stat=kERROR;
+  InitStatus stat=kSUCCESS;
   return stat;
 }
 

@@ -34,7 +34,7 @@ void PndMvdRiemannTrackFinderTask::SetParContainers()
 
 InitStatus PndMvdRiemannTrackFinderTask::ReInit()
 {
-  InitStatus stat=kERROR;
+  InitStatus stat=kSUCCESS;
   return stat;
 }
 

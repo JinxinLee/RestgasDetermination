@@ -64,7 +64,7 @@ void PndSdsIdealClusterTask::SetParContainers()
 
 InitStatus PndSdsIdealClusterTask::ReInit()
 {
-  InitStatus stat=kERROR;
+  InitStatus stat=kSUCCESS; //kERROR;
   return stat;
 }
 

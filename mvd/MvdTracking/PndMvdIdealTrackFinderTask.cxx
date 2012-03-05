@@ -56,7 +56,7 @@ void PndMvdIdealTrackFinderTask::SetParContainers()
 InitStatus PndMvdIdealTrackFinderTask::ReInit()
 {
 
-  InitStatus stat=kERROR;
+  InitStatus stat=kSUCCESS; 
   return stat;
 
   /*

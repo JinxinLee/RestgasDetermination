@@ -61,7 +61,7 @@ void PndMvdRiemannVertexFinderTask::SetParContainers()
 InitStatus PndMvdRiemannVertexFinderTask::ReInit()
 {
 
-  InitStatus stat=kERROR;
+  InitStatus stat=kSUCCESS;
   return stat;
 
   /*

@@ -55,6 +55,8 @@ void PndMvdStripClusterTask::SetParContainers()
   FairRun* ana = FairRun::Instance();
   FairRuntimeDb* rtdb=ana->GetRuntimeDb();
   PndMvdContFact* themvdcontfact = (PndMvdContFact*)rtdb->getContFactory("PndMvdContFact");
+  fDigiParameterList->Clear();
+  fChargeDigiParameterList->Clear();
   TList* theContNames = themvdcontfact->GetDigiParNames();
   Info("SetParContainers()","The container names list contains %i entries",theContNames->GetEntries());
   TIter cfIter(theContNames);

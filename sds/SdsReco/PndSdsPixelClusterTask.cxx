@@ -68,8 +68,8 @@ void PndSdsPixelClusterTask::SetParContainers()
 InitStatus PndSdsPixelClusterTask::ReInit()
 {
   
-  InitStatus stat=kERROR;
-  return stat;
+//  InitStatus stat=kERROR;
+//  return stat;
   
   /*
    FairRun* ana = FairRun::Instance();
@@ -78,6 +78,8 @@ InitStatus PndSdsPixelClusterTask::ReInit()
    
    return kSUCCESS;
    */
+  
+  return kSUCCESS; // TODO: Fill in sense here...
 }
 
 // -----   Public method Init   --------------------------------------------
