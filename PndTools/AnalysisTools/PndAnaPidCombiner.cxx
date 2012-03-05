@@ -68,6 +68,7 @@ Bool_t PndAnaPidCombiner::Apply(TCandidate &tc)
   TClonesArray* aTca=0;
   PndPidProbability* aProb=0;
   Int_t trackIndex = tc.GetTrackNumber();
+  if(trackIndex<0) return kFALSE;
   for(std::map<TString,TClonesArray*>::iterator iter=fPidArrays.begin();
       iter!=fPidArrays.end();iter++)
   {

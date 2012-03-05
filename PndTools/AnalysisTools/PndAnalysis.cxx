@@ -255,7 +255,8 @@ Bool_t PndAnalysis::FillList(TCandList &l, TString listkey, TString pidTcaNames)
 	
   // Set which PID information should be used.
   if(pidTcaNames!="") fPidCombiner->SetTcaNames(pidTcaNames);
-
+  else fPidCombiner->SetDefaults();
+  
   // acceleration: just give the large lists directly
 	if (listkey=="All" )
 	{
