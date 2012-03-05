@@ -113,12 +113,9 @@ void PndSdsStripClusterTask::SetParContainers()
 //
 InitStatus PndSdsStripClusterTask::ReInit()
 {  
-  InitStatus stat=kERROR;
-  ClearCalculators();
   SetParContainers(); 
-  SetCalculators(); 
-  stat=kSUCCESS; 
-  return stat;
+  SetCalculators();
+  return kSUCCESS;
 }
 
 void PndSdsStripClusterTask::SetCalculators() 
@@ -636,11 +633,11 @@ Bool_t PndSdsStripClusterTask::Backmap( TVector2 meantopPoint, Double_t meantope
   
   // calculate the errors corresponding to a skewed system,
   // directions orthogonal to strip orientation
-  t = meantoperr*fCurrentDigiPar->GetTopPitch()*sin(fCurrentDigiPar->GetOrient());
-  b = meanboterr*fCurrentDigiPar->GetBotPitch()*sin(fCurrentDigiPar->GetOrient()+fCurrentDigiPar->GetSkew());
-  locCov[0][0]=t*t+b*b;
   t = meantoperr*fCurrentDigiPar->GetTopPitch()*cos(fCurrentDigiPar->GetOrient());
   b = meanboterr*fCurrentDigiPar->GetBotPitch()*cos(fCurrentDigiPar->GetOrient()+fCurrentDigiPar->GetSkew());
+  locCov[0][0]=t*t+b*b;
+  t = meantoperr*fCurrentDigiPar->GetTopPitch()*sin(fCurrentDigiPar->GetOrient());
+  b = meanboterr*fCurrentDigiPar->GetBotPitch()*sin(fCurrentDigiPar->GetOrient()+fCurrentDigiPar->GetSkew());
   locCov[1][1]=t*t+b*b;
   locCov[2][2]=errZ*errZ;
   
