@@ -27,7 +27,14 @@ public:
 	
 	std::vector<Double_t> fParams; // Parameters of the filter
 	PndEmcAbsPulseshape *fPulseshape;
+
+ private:
 	
+	PndEmcPSAMatchedDigiFilter(const  PndEmcPSAMatchedDigiFilter& L);
+	PndEmcPSAMatchedDigiFilter& operator= (const  PndEmcPSAMatchedDigiFilter&) {return *this;};
+
+	ClassDef(PndEmcPSAMatchedDigiFilter,1)
+
 };
 
 #endif

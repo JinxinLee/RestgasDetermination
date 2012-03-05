@@ -161,12 +161,12 @@ class PndEmc : public FairDetector
   Bool_t  bwendcap;         //!  Flag for the new BwEndCap geometry
 
   Int_t MapperVersion;
-  Int_t geomVersion;
+  
   // reset all parameters   
   void ResetParameters();
 
   PndEmc(const  PndEmc& L);
-  PndEmc& operator= (const  PndEmc&) {return *this;}
+  PndEmc& operator= (const  PndEmc&) {return *this;};
   
   ClassDef(PndEmc,1)
 

@@ -31,9 +31,11 @@ PndEmcFadcFilter::PndEmcFadcFilter():
     fType(arbitrary),
 	 fIntegerize(kFALSE),
 	 fNormFactor(1.),
-	 fShiftCount(0)
-
-{}
+    fShiftCount(0),
+    fCoeff()
+{
+  fCoeff.clear();
+}
 
 PndEmcFadcFilter::~PndEmcFadcFilter()
 {}

@@ -37,7 +37,7 @@
 using namespace std;
 
 // -----   Default constructor   -----------------------------------
-PndEmcDigi::PndEmcDigi()
+PndEmcDigi::PndEmcDigi():fEnergy(0),fTrackId(-1),fDetectorId(-1),fTime(0),fHitIndex(-1),fWhere(0,0,0), fThetaInd(0), fPhiInd(0),fTheta(0), fPhi(0)
 {
 }
 // -----------------------------------------------------------------
@@ -47,7 +47,7 @@ PndEmcDigi::PndEmcDigi()
 PndEmcDigi::~PndEmcDigi() {}
 // -----------------------------------------------------------------
   
-PndEmcDigi::PndEmcDigi(Int_t trackid, Int_t id, Float_t energy, Float_t time, Int_t hitIndex):fEnergy(energy),fTrackId(trackid),fDetectorId(id),fTime(time),fHitIndex(hitIndex),fWhere(0,0,0)
+PndEmcDigi::PndEmcDigi(Int_t trackid, Int_t id, Float_t energy, Float_t time, Int_t hitIndex):fEnergy(energy),fTrackId(trackid),fDetectorId(id),fTime(time),fHitIndex(hitIndex),fWhere(0,0,0), fThetaInd(0), fPhiInd(0),fTheta(0), fPhi(0)
 {
 	PndEmcMapper *emcMap=PndEmcMapper::Instance();
 	PndEmcTwoCoordIndex* tci=emcMap->GetTCI(id);
@@ -71,7 +71,8 @@ PndEmcDigi::PndEmcDigi( const PndEmcDigi& other )
   fTime( other.fTime ),
   fTrackId(other.fTrackId),
   fDetectorId( other.fDetectorId),
-  fHitIndex( other.fHitIndex)
+  fHitIndex( other.fHitIndex),
+  fThetaInd(0), fPhiInd(0),fTheta(0),fPhi(0), fWhere(0,0,0)
 {
 	PndEmcMapper *emcMap=PndEmcMapper::Instance();
 	PndEmcTwoCoordIndex* tci=emcMap->GetTCI(fDetectorId);

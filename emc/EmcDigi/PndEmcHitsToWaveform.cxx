@@ -44,10 +44,9 @@ using std::cout;
 using std::endl;
 using std::fstream;
 
-PndEmcHitsToWaveform::PndEmcHitsToWaveform(Int_t verbose, Bool_t storewaves)
+PndEmcHitsToWaveform::PndEmcHitsToWaveform(Int_t verbose, Bool_t storewaves):
+  fHitArray(new TClonesArray), fWaveformArray(new TClonesArray), fOneBitResolution(0), fOneBitResolutionBW(0), fOneBitResolutionPMT(0), fNBits(0), fDetectedPhotonsPerMeV(0), fDetectedPhotonsPerMeV_PMT(0), fNPhotoElectronsPerMeVAPDBarrel(0), fNPhotoElectronsPerMeVAPDBWD(0), fNPhotoElectronsPerMeVVPT(0), fNPhotoElectronsPerMeVPMT(0), fSensitiveAreaAPD(0), fSensitiveAreaVPT(0), fQuantumEfficiencyAPD(0), fQuantumEfficiencyVPT(0), fQuantumEfficiencyPMT(0), fExcessNoiseFactorAPD(0), fExcessNoiseFactorVPT(0), fExcessNoiseFactorPMT(0), fIncoherent_elec_noise_width_GeV_APD(0), fIncoherent_elec_noise_width_GeV_VPT(0), fEnergyRange(0), fEnergyRangeBW(0), fFirstSamplePhase(0), fNumber_of_samples_in_waveform(0), fNumber_of_samples_in_waveform_pmt(0), fASIC_Shaping_int_time(0), fPMT_Shaping_int_time(0), fPMT_Shaping_diff_time(0), fCrystal_time_constant(0), fShashlyk_time_constant(0), fShashlykSamplingFactor(0), fSampleRate(0), fSampleRate_PMT(0), fUse_shaped_noise(0), fUse_photon_statistic(0), fNoiseAllChannels(0), fMapVersion(0), fFirstADCBinTime(0), fGevPeakAnalogue(0), fGevPeakAnalogue_PMT(0), fDigiPar(new PndEmcDigiPar()), fGeoPar(new PndEmcGeoPar()), fVerbose(verbose), fStoreWaves(storewaves)
 {
-	fVerbose = verbose;
-	fStoreWaves = storewaves;
 }
 
 //--------------

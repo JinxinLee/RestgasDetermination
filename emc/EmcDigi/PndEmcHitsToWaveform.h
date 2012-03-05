@@ -120,6 +120,10 @@ private:
 
 	Bool_t fStoreWaves;
 
+	PndEmcHitsToWaveform(const  PndEmcHitsToWaveform& L);
+	PndEmcHitsToWaveform& operator= (const  PndEmcHitsToWaveform&) {return *this;}
+  
+
   ClassDef(PndEmcHitsToWaveform,2);
 };
 

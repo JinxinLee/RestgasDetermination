@@ -42,7 +42,14 @@ using std::endl;
 // Constructors --
 //----------------
 
-PndEmcWaveform::PndEmcWaveform(){}
+PndEmcWaveform::PndEmcWaveform():
+  fTrackId(-1),
+  fDetectorId(-1),
+  fWaveformLength(0),
+  fSignal(0,0.),
+  fHitIndex(-1)
+{
+}
 
 
 
@@ -53,17 +60,17 @@ PndEmcWaveform::PndEmcWaveform(int trackId, long detId, long waveform_length, In
 	fSignal(waveform_length,0.),
 	fHitIndex(hitIndex)
 {
-	SetLink(FairLink("EmcHit", hitIndex));
+  SetLink(FairLink("EmcHit", hitIndex));
 }
 
-PndEmcWaveform::PndEmcWaveform(const PndEmcWaveform& copy)
+PndEmcWaveform::PndEmcWaveform(const PndEmcWaveform& copy):
+  fTrackId(copy.fTrackId),
+  fDetectorId ( copy.fDetectorId),
+  fWaveformLength(copy.fWaveformLength),
+  fHitIndex(copy.fHitIndex),
+  fSignal(copy.fSignal)
 {
-		fTrackId=copy.fTrackId;
-		fDetectorId = copy.fDetectorId;
-		fWaveformLength=copy.fWaveformLength;
-		fHitIndex=copy.fHitIndex;
-		fSignal=copy.fSignal;
-		fHitIndex=copy.fHitIndex;
+  SetLink(FairLink("EmcHit", copy.fHitIndex));
 }
 
 PndEmcWaveform&
@@ -73,8 +80,8 @@ PndEmcWaveform::operator=(const PndEmcWaveform &copy){
 		fDetectorId = copy.fDetectorId;
 		fWaveformLength=copy.fWaveformLength;
 		fHitIndex=copy.fHitIndex;
-		fSignal=copy.fSignal;
-		fHitIndex=copy.fHitIndex;
+		fSignal=copy.fSignal;  
+		SetLink(FairLink("EmcHit", copy.fHitIndex));
   }
   return *this;
 }

@@ -100,6 +100,9 @@ private:
 	Double_t fWfNormalisation; // Waveform normalisation constant
 	Double_t fWfNormalisation_pmt;
 
+	PndEmcWaveformToDigi(const  PndEmcWaveformToDigi& L);
+	PndEmcWaveformToDigi& operator= (const  PndEmcWaveformToDigi&) {return *this;};
+
 	ClassDef(PndEmcWaveformToDigi,1);
 	
 	

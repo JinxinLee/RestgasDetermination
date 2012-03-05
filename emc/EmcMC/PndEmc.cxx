@@ -62,7 +62,7 @@ int main()
 // -----   Default constructor   -------------------------------------------
 PndEmc::PndEmc():
   fTrackID(0),fVolumeID(0),fEventID(-1),fPos(0,0,0,0),fMom(0,0,0,0),fTime(0),fLength(0),fELoss(0),fPosIndex(0),fEmcCollection(new TClonesArray()),
-  bIsFastFsc(kFALSE), fStoreData(kTRUE), fwendcap(kFALSE), bwendcap(kFALSE)
+  bIsFastFsc(kFALSE), fStoreData(kTRUE), fwendcap(kFALSE), bwendcap(kFALSE), fgeoName2(""), fgeoName3(""), fgeoName4(""), MapperVersion(0)
 {
   fEmcCollection        = new TClonesArray("PndEmcPoint");
   
@@ -74,7 +74,7 @@ PndEmc::PndEmc():
 PndEmc::PndEmc(const char* name, Bool_t active, Bool_t fast, Bool_t storepnts):
   FairDetector(name, active), 
   fTrackID(0),fVolumeID(0),fEventID(-1),fPos(0,0,0,0),fMom(0,0,0,0),fTime(0),fLength(0),fELoss(0),fPosIndex(0),fEmcCollection(new TClonesArray()),
-  bIsFastFsc(fast), fStoreData(storepnts), fwendcap(kFALSE), bwendcap(kFALSE)
+  bIsFastFsc(fast), fStoreData(storepnts), fwendcap(kFALSE), bwendcap(kFALSE), fgeoName2(""), fgeoName3(""), fgeoName4(""), MapperVersion(0)
 {
     fEmcCollection        = new TClonesArray("PndEmcPoint");
 }

@@ -23,7 +23,7 @@ class PndEmcAsicPulseshape  : public PndEmcAbsPulseshape
 public:
 
   // Constructors/Destructors ---------
-  PndEmcAsicPulseshape(){;}
+  PndEmcAsicPulseshape();
   PndEmcAsicPulseshape(double Tint, double Tsig);
   virtual ~PndEmcAsicPulseshape(){;}
 

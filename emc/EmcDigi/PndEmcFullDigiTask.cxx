@@ -30,11 +30,8 @@ using std::cout;
 // Constructors --
 //----------------
 PndEmcFullDigiTask::PndEmcFullDigiTask(Int_t verbose, Bool_t persistance):
-FairTask("EMC Full digitization Task")
+  FairTask("EMC Full digitization Task"), fVerbose(verbose), fPersistance(persistance)
 {
-  fVerbose=verbose; 
-  fPersistance=persistance;
-  
   this->Add(new PndEmcHitsToWaveform());
   this->Add(new PndEmcWaveformToDigi());
 

@@ -21,6 +21,10 @@
 
 
 // Class Member definitions -----------
+PndEmcAsicPulseshape::PndEmcAsicPulseshape() 
+  : fTint(0), fTsig(0)    
+{
+}
 
 PndEmcAsicPulseshape::PndEmcAsicPulseshape(double Tint, double Tsig) 
   : fTint(Tint), fTsig(Tsig)    
