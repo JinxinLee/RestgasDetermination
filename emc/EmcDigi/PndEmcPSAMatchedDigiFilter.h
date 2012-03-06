@@ -33,8 +33,6 @@ public:
 	PndEmcPSAMatchedDigiFilter(const  PndEmcPSAMatchedDigiFilter& L);
 	PndEmcPSAMatchedDigiFilter& operator= (const  PndEmcPSAMatchedDigiFilter&) {return *this;};
 
-	ClassDef(PndEmcPSAMatchedDigiFilter,1)
-
 };
 
 #endif
