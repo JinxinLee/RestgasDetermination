@@ -262,6 +262,9 @@ Cernlib/ddilog.F
 Cernlib/ranf.F
 )
 
+# Fix a problem with g++ on Mac OS X
+set_source_files_properties(EvtGenModels/EvtPythia.cc PROPERTIES COMPILE_FLAGS "-O0")
+
 ## not depending on the following files
 ## EvtGenModels/EvtJetSet.cc
 ## EvtGenModels/EvtJetSetInit.F
