@@ -37,12 +37,26 @@ using namespace std;
 //----------------
 // Constructors --
 //----------------
-
+PndEmcXtal::PndEmcXtal():
+       fTCIIndex(new PndEmcTwoCoordIndex()),
+       fTrap(TGeoTrap()),
+       fRotation(TGeoRotation()),
+       fCentre(0,0,0),
+       fLength(0),
+       fFrontCentre(0,0,0),
+       fNormalToFrontFace(0,0,0),
+       fAxis(0,0,0)       
+{
+}
 PndEmcXtal::PndEmcXtal(const PndEmcTwoCoordIndex *id, const TGeoTrap &trap, const TVector3 &pos, const TGeoRotation &rot):
        fTCIIndex(id),
        fTrap(trap),
        fRotation(rot),
-       fCentre(pos)
+       fCentre(pos),
+       fLength(0),
+       fFrontCentre(0,0,0),
+       fNormalToFrontFace(0,0,0),
+       fAxis(0,0,0)
 {
 	// calculate length of the crystal
 	fLength=trap.GetDz()*2;

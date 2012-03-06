@@ -39,6 +39,7 @@ class PndEmcXtal:public TObject
 public:
 
   // Constructors
+  PndEmcXtal();
   PndEmcXtal( const PndEmcTwoCoordIndex *id, const TGeoTrap &trap, const TVector3 &pos, const TGeoRotation &rot);
     
   // Destructor

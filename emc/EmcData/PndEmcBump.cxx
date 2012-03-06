@@ -54,7 +54,7 @@ PndEmcBump::PndEmcBump()
 }
 
 //Copy
-PndEmcBump::PndEmcBump(const PndEmcBump &copy)
+PndEmcBump::PndEmcBump(const PndEmcBump &copy): fClusterIndex(copy.fClusterIndex)
 {
 	fClusterIndex=copy.fClusterIndex;
 	fNbumps=copy.fNbumps;

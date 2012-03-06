@@ -14,41 +14,23 @@
 using namespace std;
 
 // -----   Default constructor   -------------------------------------------
-PndEmcHeader::PndEmcHeader() {
-  fPx = 0.;
-  fPy = 0.;
-  fPz = 0.;
-  fHitEnergy = 0.;
-  fCluEnergy = 0.;
-  nHitMult   = 0; 
-  nDigiMult  = 0;
-  nCluMult   = 0;
+PndEmcHeader::PndEmcHeader():
+fPx(0), fPy(0), fPz(0), fHitEnergy(0), fCluEnergy(0), nHitMult(0), nDigiMult(0), nCluMult(0)
+{
 }
 // -------------------------------------------------------------------------
 
 // -----   Default constructor   -------------------------------------------
-PndEmcHeader::PndEmcHeader(Double32_t ene_hit, Int_t mult_hit, Int_t mult_digi, Double32_t ene_clu, Int_t mult_clu, TVector3 p_clu) {
-  fPx = p_clu.X();
-  fPy = p_clu.Y();
-  fPz = p_clu.Z();
-  fHitEnergy = ene_hit;
-  fCluEnergy = ene_clu;
-  nHitMult   = mult_hit; 
-  nDigiMult  = mult_digi;
-  nCluMult   = mult_clu;
+PndEmcHeader::PndEmcHeader(Double32_t ene_hit, Int_t mult_hit, Int_t mult_digi, Double32_t ene_clu, Int_t mult_clu, TVector3 p_clu):
+fPx(p_clu.X()), fPy(p_clu.Y()), fPz(p_clu.Z()), fHitEnergy(ene_hit), fCluEnergy(ene_clu), nHitMult(mult_hit), nDigiMult(mult_digi), nCluMult(mult_clu)
+{
 }
 // -------------------------------------------------------------------------
 
 //Copy
-PndEmcHeader::PndEmcHeader(const PndEmcHeader &copy)
+PndEmcHeader::PndEmcHeader(const PndEmcHeader &copy):
+fPx(copy.fPx), fPy(copy.fPy), fPz(copy.fPz), fHitEnergy(copy.fHitEnergy), fCluEnergy(copy.fCluEnergy), nHitMult(copy.nHitMult), nCluMult(copy.nCluMult), nDigiMult(copy.nDigiMult)
 {
-	fPx = copy.fPx;
-	fPy = copy.fPy;
-	fPz = copy.fPz;
-	fHitEnergy=copy.fHitEnergy;
-	fCluEnergy=copy.fCluEnergy;
-	nHitMult=copy.nHitMult;
-	nCluMult=copy.nCluMult;	
 }
 // -----   Destructor   ----------------------------------------------------
 PndEmcHeader::~PndEmcHeader() {}

@@ -13,7 +13,7 @@ class PndEmcDigiNonuniParObject: public TObject
 		void SetNonuniformity(Int_t crystaltype, Double_t *pars);
 		void GetNonuniformity(Int_t crystaltype, Double_t *pars);
 		
-		PndEmcDigiNonuniParObject(){};
+		PndEmcDigiNonuniParObject():fNonUniPars(){fNonUniPars.clear();};
 		~PndEmcDigiNonuniParObject(){};
 	private:
 		std::map<Int_t,std::vector<Double_t> > fNonUniPars;
@@ -38,6 +38,10 @@ class PndEmcDigiNonuniformityPar : public FairParGenericSet
 	
 	private :
 		PndEmcDigiNonuniParObject *fParObject;
+
+                PndEmcDigiNonuniformityPar(const  PndEmcDigiNonuniformityPar& L);
+                PndEmcDigiNonuniformityPar& operator= (const  PndEmcDigiNonuniformityPar&) {return *this;};
+
 		ClassDef(PndEmcDigiNonuniformityPar,1);
 };
 

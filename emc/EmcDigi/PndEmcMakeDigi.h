@@ -91,6 +91,9 @@ private:
 	
 	Bool_t fStoreDigis;
 
+        PndEmcMakeDigi(const  PndEmcMakeDigi& L);
+        PndEmcMakeDigi& operator= (const  PndEmcMakeDigi&) {return *this;};
+
 	ClassDef(PndEmcMakeDigi,1);
 };
 

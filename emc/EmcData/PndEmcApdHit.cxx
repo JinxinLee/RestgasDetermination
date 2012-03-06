@@ -14,57 +14,54 @@
 using namespace std;
 
 // -----   Default constructor   -------------------------------------------
-PndEmcApdHit::PndEmcApdHit() {}
+PndEmcApdHit::PndEmcApdHit() 
+:FairHit(), fTime(0), fEnergy(0), fPointList(0), fNPoints(0)
+{
+  fPointList.clear();
+}
+
 // -------------------------------------------------------------------------
 
 // -----   Constructor           -------------------------------------------
 PndEmcApdHit::PndEmcApdHit(Int_t trackid, Int_t id, Float_t energy, Float_t time, Float_t X, Float_t Y, Float_t Z)
+:FairHit(), fTime(time), fEnergy(energy), fPointList(0), fNPoints(0)
 {
-  fTime = time;
-  fEnergy = energy;
   fRefIndex = trackid;
   fDetectorID = id;
   fX = X;  fY = Y;  fZ = Z;
   fDx = 0.;  fDy = 0.;  fDz = 0.;
-  fNPoints = 0;
   for (Int_t ii=0; ii<10; ii++) fPointIndex[ii] = -1;
 }
 // -----   Constructor           -------------------------------------------
 PndEmcApdHit::PndEmcApdHit(Int_t trackid, Int_t id, Float_t energy, Float_t time, Float_t X, Float_t Y, Float_t Z, Int_t points, Int_t pointIndex[10])
+:FairHit(), fTime(time), fEnergy(energy), fPointList(0), fNPoints(points)
 {
-  fTime = time;
-  fEnergy = energy;
   fRefIndex = trackid;
   fDetectorID = id;
   fX = X;  fY = Y;  fZ = Z;
   fDx = 0.;  fDy = 0.;  fDz = 0.;
-  fNPoints = points;
   for (Int_t ii=0; ii<10; ii++) fPointIndex[ii] = pointIndex[ii];
 }
 // -----   Constructor           -------------------------------------------
 PndEmcApdHit::PndEmcApdHit(Int_t trackid, Int_t id, Float_t energy, Float_t time, Float_t X, Float_t Y, Float_t Z, std::vector<PndEmcApdPoint*> PointList)
+:FairHit(), fTime(time), fEnergy(energy), fPointList(0), fNPoints(0)
 {
-  fTime = time;
-  fEnergy = energy; 
   fRefIndex = trackid;
   fDetectorID = id;
   fX = X;  fY = Y;  fZ = Z;
   fDx = 0.;  fDy = 0.;  fDz = 0.; 
-  fNPoints = 0;
   for (Int_t ii=0; ii<10; ii++) fPointIndex[ii] = -1;
 }
 
 //Copy
 PndEmcApdHit::PndEmcApdHit(const PndEmcApdHit &copy)
+:fEnergy(copy.fEnergy), fTime(copy.fTime), fNPoints(copy.fNPoints), fPointList(copy.fPointList)
 {
-	fEnergy=copy.fEnergy;
-	fTime=copy.fTime;
 	fRefIndex=copy.fRefIndex;
 	fDetectorID=copy.fDetectorID;
 	fX=copy.fX;
 	fY=copy.fY;
 	fZ=copy.fZ;
-	fNPoints=copy.fNPoints;
 	for (Int_t ii=0; ii<10; ii++) fPointIndex[ii] = copy.fPointIndex[ii];
 }
 // -----   Destructor   ----------------------------------------------------

@@ -114,7 +114,7 @@ private:
 	std::vector<PndEmcClEnergyDeposition>* fEnergyDistribution;
 	Int_t fClusterSize; 
 	Double_t (PndEmcXClMoments::*fFcn[12])( Double_t ) const;
-	Double_t (PndEmcXClMoments::*fFcn2)( Double_t );
+//	Double_t (PndEmcXClMoments::*fFcn2)( Double_t ); // STE: Is it needed??
 	
   	ClassDef(PndEmcXClMoments,1)
 };

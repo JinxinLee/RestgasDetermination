@@ -34,11 +34,9 @@ using std::setw;
 // Constructors --
 //----------------
 
-PndEmcRecoHit::PndEmcRecoHit()
+PndEmcRecoHit::PndEmcRecoHit():
+fEnergy(0), fEnergyCorrected(0), fPosition(0,0,0)
 {
-	fEnergy=0;
-	fEnergyCorrected=0;
-	fPosition=TVector3(0,0,0);
 }
 
 PndEmcRecoHit::PndEmcRecoHit(Double_t energy, TVector3 position):

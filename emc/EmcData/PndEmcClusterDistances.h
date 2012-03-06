@@ -53,6 +53,8 @@ public:
 
 private:
 
+  PndEmcClusterDistances& operator= (const  PndEmcClusterDistances&) {return *this;};
+
 	// Data members
 	TVector3 *fShowerMaxLocation;
 	TVector3 *fClusterLocation;

@@ -37,7 +37,7 @@ PndEmcSharedDigi::PndEmcSharedDigi( const PndEmcSharedDigi &theDigi )
 {
 }
 
-PndEmcSharedDigi::PndEmcSharedDigi()
+PndEmcSharedDigi::PndEmcSharedDigi(): fWeight(0)
 {}
 //--------------
 // Destructor --

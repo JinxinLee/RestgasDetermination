@@ -47,8 +47,20 @@ PndEmcCluster::PndEmcCluster()  :
 	fEnergyValid( false ),
 	fEnergy( 0 ),
 	fWhereValid( false ),
-	fWhere( TVector3(0,0,0) )
+	fWhere( TVector3(0,0,0) ),
+        fDigiList(),
+        fMcList(),
+        fMemberDigiMap(),
+        fLocalMaxMap(),
+        fNbumps(0),
+        fZ20(0),
+        fZ53(0),
+        fLatMom(0)
 {
+  fDigiList.clear();
+  fMcList.clear();
+  fMemberDigiMap.clear();
+  fLocalMaxMap.clear();
 }
 
 

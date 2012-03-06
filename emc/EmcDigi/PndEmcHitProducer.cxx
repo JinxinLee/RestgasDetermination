@@ -44,21 +44,20 @@ using std::map;
 
 // -----   Default constructor   -------------------------------------------
 PndEmcHitProducer::PndEmcHitProducer() :
-  FairTask("Ideal EMC hit Producer"){
-  fStoreHits=kTRUE;
+  FairTask("Ideal EMC hit Producer"),
+fUse_nonuniformity(0), fNonuniformityFile(""), fPointArray(new TClonesArray()), fMCTrackArray(new TClonesArray()), fDigiArray(new TClonesArray()), fVolumeArray(new TObjArray()), fMapVersion(0), emcX(), emcY(), emcZ(), fEmcStr(), fMapper(), fDigiPar(new PndEmcDigiPar()), fGeoPar(new PndEmcGeoPar()), fNonuniformityPar(new PndEmcDigiNonuniformityPar()), fStoreHits(kTRUE), fEnergyThreshold(0)
+{
   fNonuniformityFile=gSystem->Getenv("VMCWORKDIR");
   fNonuniformityFile+="/input/EmcDigiNoniformityPars.root";
- 
-  //eneThr = 0.001; // Energy threshold for emc pad (Now taken from DB)
 }
 // -------------------------------------------------------------------------
 
 PndEmcHitProducer::PndEmcHitProducer(Bool_t val) :
-  FairTask("Ideal EMC hit Producer") { 
-  fStoreHits=val;
+  FairTask("Ideal EMC hit Producer"),
+fUse_nonuniformity(0), fNonuniformityFile(""), fPointArray(new TClonesArray()), fMCTrackArray(new TClonesArray()), fDigiArray(new TClonesArray()), fVolumeArray(new TObjArray()), fMapVersion(0), emcX(), emcY(), emcZ(), fEmcStr(), fMapper(), fDigiPar(new PndEmcDigiPar()), fGeoPar(new PndEmcGeoPar()), fNonuniformityPar(new PndEmcDigiNonuniformityPar()), fStoreHits(val), fEnergyThreshold(0)
+ { 
   fNonuniformityFile=gSystem->Getenv("VMCWORKDIR");
   fNonuniformityFile+="/input/EmcDigiNoniformitypars.root";
-  //eneThr = 0.001; // Energy threshold for emc pad (Now taken from DB)
 }
 
 // -----   Destructor   ----------------------------------------------------

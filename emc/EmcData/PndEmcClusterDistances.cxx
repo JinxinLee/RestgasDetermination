@@ -27,7 +27,14 @@
 #include "assert.h"
 		
 PndEmcClusterDistances::PndEmcClusterDistances(const PndEmcCluster &toUse, const TClonesArray *digiArray):
-PndEmcAbsClusterProperty( toUse, digiArray )
+PndEmcAbsClusterProperty( toUse, digiArray ), 
+fShowerMaxLocation(new TVector3()), 
+fClusterLocation(new TVector3()), 
+fTheGeom(new PndEmcXtal()), 
+fTheNormalToFrontFace(new TVector3()), 
+fDistanceOfPlane(0), 
+fClusPhi(0), 
+fClusTheta(0)
 {
 	TVector3 clusLocation(toUse.where());
 	

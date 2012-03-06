@@ -17,7 +17,7 @@ class PndEmcExpPulseshape  : public PndEmcAbsPulseshape
 public:
 
   // Constructors/Destructors ---------
-  PndEmcExpPulseshape(){;}
+  PndEmcExpPulseshape():fTdif(0){;}
   PndEmcExpPulseshape(double Tdif);
   virtual ~PndEmcExpPulseshape(){;}
 

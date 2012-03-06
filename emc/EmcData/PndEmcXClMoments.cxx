@@ -36,13 +36,13 @@ using std::ostream;
 
 
 PndEmcXClMoments::PndEmcXClMoments(const PndEmcCluster &cluster, const TClonesArray *digiArray):
-	PndEmcAbsClusterProperty( cluster, digiArray )
+	PndEmcAbsClusterProperty( cluster, digiArray ), fEnergyDistribution(), fClusterSize(0)  
 {
 	Init();
 }
 
 PndEmcXClMoments::PndEmcXClMoments( const PndEmcXClMoments &other):
-	PndEmcAbsClusterProperty( other )
+	PndEmcAbsClusterProperty( other ), fEnergyDistribution(other.fEnergyDistribution), fClusterSize(other.fClusterSize)
 {
 	Init();
 }
