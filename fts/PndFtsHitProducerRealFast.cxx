@@ -104,9 +104,7 @@ InitStatus PndFtsHitProducerRealFast::Init() {
 void PndFtsHitProducerRealFast::SetParContainers() {
 
   FairRuntimeDb* rtdb = FairRunAna::Instance()->GetRuntimeDb();
-  std::cout<<"pndgeoftspar: prima"<<std::endl;
   fFtsParameters = (PndGeoFtsPar*) rtdb->getContainer("PndGeoFtsPar");
-  std::cout<<"dopo############"<<std::endl;
 }
 
 
