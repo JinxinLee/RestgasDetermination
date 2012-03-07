@@ -62,7 +62,7 @@ int main()
 // -----   Default constructor   -------------------------------------------
 PndEmc::PndEmc():
   fTrackID(0),fVolumeID(0),fEventID(-1),fPos(0,0,0,0),fMom(0,0,0,0),fTime(0),fLength(0),fELoss(0),fPosIndex(0),fEmcCollection(new TClonesArray()),
-  bIsFastFsc(kFALSE), fStoreData(kTRUE), fwendcap(kFALSE), bwendcap(kFALSE), fgeoName2(""), fgeoName3(""), fgeoName4(""), MapperVersion(0)
+  bIsFastFsc(kFALSE), fStoreData(kTRUE), fwendcap(kFALSE), bwendcap(kFALSE), fgeoName2(""), fgeoName3(""), fgeoName4(""), MapperVersion(0), fGeoNumber(0)
 {
   fEmcCollection        = new TClonesArray("PndEmcPoint");
   
@@ -74,7 +74,7 @@ PndEmc::PndEmc():
 PndEmc::PndEmc(const char* name, Bool_t active, Bool_t fast, Bool_t storepnts):
   FairDetector(name, active), 
   fTrackID(0),fVolumeID(0),fEventID(-1),fPos(0,0,0,0),fMom(0,0,0,0),fTime(0),fLength(0),fELoss(0),fPosIndex(0),fEmcCollection(new TClonesArray()),
-  bIsFastFsc(fast), fStoreData(storepnts), fwendcap(kFALSE), bwendcap(kFALSE), fgeoName2(""), fgeoName3(""), fgeoName4(""), MapperVersion(0)
+  bIsFastFsc(fast), fStoreData(storepnts), fwendcap(kFALSE), bwendcap(kFALSE), fgeoName2(""), fgeoName3(""), fgeoName4(""), MapperVersion(0), fGeoNumber(0)
 {
     fEmcCollection        = new TClonesArray("PndEmcPoint");
 }
@@ -101,7 +101,12 @@ void PndEmc::Initialize() {
   FairDetector::Initialize();
   FairRun* sim = FairRun::Instance();
   FairRuntimeDb* rtdb=sim->GetRuntimeDb();
+  PndEmcGeoPar* par=(PndEmcGeoPar*)(rtdb->getContainer("PndEmcGeoPar"));
 
+  par->SetMapperVersion(MapperVersion);
+  par->SetGeometryVersion(fGeoNumber);
+  par->setChanged();
+  par->setInputVersion(sim->GetRunId(),1);
 }
 // -------------------------------------------------------------------------
 void PndEmc::BeginEvent(){
@@ -937,7 +942,10 @@ void PndEmc::SetGeometryVersion(const Int_t GeoNumber) {
 	MapperVersion =1;
     break;
   }
+  fGeoNumber = GeoNumber;
 
+  // STE: Moved to Initialize()
+/*
   // store geo parameter
   FairRun *fRun = FairRun::Instance();
   FairRuntimeDb *rtdb= fRun->GetRuntimeDb();
@@ -945,9 +953,10 @@ void PndEmc::SetGeometryVersion(const Int_t GeoNumber) {
 
   par->SetMapperVersion(MapperVersion);
   par->SetGeometryVersion(GeoNumber);
-  
+ std::cout << "lkshdklhg: " << fRun->GetRunId() << std::endl; 
   par->setChanged();
   par->setInputVersion(fRun->GetRunId(),1);
+*/
 }
 
 void PndEmc::SetGeometryFileNameDouble(TString fname, TString fname2, Int_t fwbwchoice, TString geoVer)
@@ -988,7 +997,7 @@ void PndEmc::SetGeometryFileNameTriple(TString fname, TString fname2, TString fn
   fgeoName3=work+"/geometry/";
   fgeoName3+=fname3;
   
-  cout <<"fgeoName3 "<< fgeoName3<< endl;
+  //cout <<"fgeoName3 "<< fgeoName3<< endl;
 }
 
 void PndEmc::SetGeometryFileNameQuadruple(TString fname, TString fname2, TString fname3, TString fname4, TString geoVer)
@@ -1012,9 +1021,7 @@ void PndEmc::SetGeometryFileNameQuadruple(TString fname, TString fname2, TString
   fgeoName4=work+"/geometry/";
   fgeoName4+=fname4;
 
-
-
-  cout <<"fgeoName4 "<< fgeoName4<< endl;
+  //cout <<"fgeoName4 "<< fgeoName4<< endl;
 }
 
 

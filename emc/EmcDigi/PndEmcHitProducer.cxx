@@ -154,7 +154,12 @@ void PndEmcHitProducer::SetParContainers(){
   fDigiPar = (PndEmcDigiPar*) db->getContainer("PndEmcDigiPar");
 
   fNonuniformityPar = (PndEmcDigiNonuniformityPar*) db->getContainer("PndEmcDigiNonuniformityPar");
- 
+
+  fDigiPar->setChanged();
+  fDigiPar->setInputVersion(run->GetRunId(),1); 
+
+  fNonuniformityPar->setChanged();
+  fNonuniformityPar->setInputVersion(run->GetRunId(),1);
 }
 
 // -------------------------------------------------------------------------

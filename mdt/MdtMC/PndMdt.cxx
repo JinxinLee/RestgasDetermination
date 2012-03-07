@@ -231,9 +231,9 @@ void PndMdt::Initialize()
   FairDetector::Initialize();
   FairRun* sim = FairRun::Instance();
   FairRuntimeDb* rtdb=sim->GetRuntimeDb();
-  par=(PndGeoMdtPar*)(rtdb->getContainer("PndGeoMdtPar"));
+  //par=(PndGeoMdtPar*)(rtdb->getContainer("PndGeoMdtPar"));
   
-  TObjArray *fSensNodes = par->GetSensitiveNodes();
+  //TObjArray *fSensNodes = par->GetSensitiveNodes();
 }
 // -------------------------------------------------------------------------
 

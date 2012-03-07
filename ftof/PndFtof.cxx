@@ -95,9 +95,11 @@ void PndFtof::Initialize() {
   // Init function
   
   FairDetector::Initialize();
- FairRun* sim = FairRun::Instance();
- FairRuntimeDb* rtdb=sim->GetRuntimeDb();
- par=(PndGeoFtofPar*)(rtdb->getContainer("PndGeoFtofPar"));
+  FairRun* sim = FairRun::Instance();
+  FairRuntimeDb* rtdb=sim->GetRuntimeDb();
+  par=(PndGeoFtofPar*)(rtdb->getContainer("PndGeoFtofPar"));
+  par->setChanged();
+  par->setInputVersion(sim->GetRunId(),1);
 
   //TObjArray *fSensNodes = par->GetGeoSensitiveNodes();
   std::cout<<" -I- Initializing PndFtofDetector()"<<std::endl;

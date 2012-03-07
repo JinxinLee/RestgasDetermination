@@ -100,7 +100,9 @@ void PndSciT::Initialize() {
   FairRun* sim = FairRun::Instance();
   FairRuntimeDb* rtdb=sim->GetRuntimeDb();
   par=(PndGeoSciTPar*)(rtdb->getContainer("PndGeoSciTPar"));
-  
+  par->setChanged();
+  par->setInputVersion(sim->GetRunId(),1);
+ 
   TGeoMedium *pv= gGeoManager->GetMedium("polyvinyltoluene");
   pvId=  pv->GetId();
   
