@@ -14,21 +14,17 @@
 using namespace std;
 
 /** Default constructor **/
-PndSttHelixHit::PndSttHelixHit() 
+PndSttHelixHit::PndSttHelixHit():
+  FairHit(), fHitIndex(0), fdEdx(0), fIsochrone(0), fIsochroneError(0), fTubeID(0)
 {
     Clear();
 }
 
 PndSttHelixHit::PndSttHelixHit(Int_t detID, Int_t tubeID, Int_t hitindex, Int_t mcindex, TVector3& pos, TVector3& dpos, Double_t isochrone, Double_t isochroneError, Double_t dedx)
- : FairHit(detID, pos, dpos, mcindex) 
+ : FairHit(detID, pos, dpos, mcindex),
+  fHitIndex(hitindex), fdEdx(dedx), fIsochrone(isochrone), fIsochroneError(isochroneError), fTubeID(tubeID)
 {
-  fHitIndex = hitindex;
-  fdEdx = dedx;      
-  fIsochrone = isochrone;
-  fIsochroneError = isochroneError;
-  fTubeID = tubeID; // CHECK added
   SetLink(FairLink("STTHit", hitindex));
-
 }
 
 // DELETE THIS CHECK

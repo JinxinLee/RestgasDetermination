@@ -11,14 +11,15 @@
 #include <limits>
 using namespace std;
 // -----   Default constructor   -------------------------------------------
-PndMCTrack::PndMCTrack() {
-  fPdgCode = 0;
-  fMotherID = -1;
-  fSecondMotherID = -1;
-  fPoints = 0;
-  fStartX = fStartY  = fStartZ = fStartT = 0.;
-  fPx = fPy = fPz = fE = 0.;
-  fGeneratorFlags=0;
+PndMCTrack::PndMCTrack():
+  fPdgCode(0),
+  fMotherID(-1),
+  fSecondMotherID(-1),
+  fPoints(0),
+  fStartX(0), fStartY(0), fStartZ(0), fStartT(0),
+  fPx(0), fPy(0), fPz(0), fE(0),
+  fGeneratorFlags(0)
+{
 }
 // -------------------------------------------------------------------------
 
@@ -49,28 +50,36 @@ PndMCTrack::PndMCTrack(Int_t pdgCode, Int_t motherID, TVector3 startVertex,
 
 
 // -----   Copy constructor   ----------------------------------------------
-PndMCTrack::PndMCTrack(const PndMCTrack& track) { 
-  *this = track;
+PndMCTrack::PndMCTrack(const PndMCTrack& track) :
+  fPdgCode(track.fPdgCode),
+  fMotherID(track.fMotherID),
+  fSecondMotherID(track.fSecondMotherID),
+  fPoints(track.fPoints),
+  fStartX(track.fStartX), fStartY(track.fStartY), fStartZ(track.fStartZ), fStartT(track.fStartT),
+  fPx(track.fPx), fPy(track.fPy), fPz(track.fPz), fE(track.fE),
+  fGeneratorFlags(track.fGeneratorFlags)
+{
 }
 // -------------------------------------------------------------------------
 
 
 
 // -----   Constructor from TParticle   ------------------------------------
-PndMCTrack::PndMCTrack(TParticle* part) {
-  fPdgCode  = part->GetPdgCode();
-  fMotherID = part->GetMother(0);
-  fSecondMotherID = part->GetMother(1);
-  fStartX   = part->Vx();
-  fStartY   = part->Vy();
-  fStartZ   = part->Vz();
-  fStartT   = part->T()*1e09;
-  fPx       = part->Px();
-  fPy       = part->Py();
-  fPz       = part->Pz();
-  fE        = part->Energy();
-  fPoints   = 0;
-  fGeneratorFlags=0;
+PndMCTrack::PndMCTrack(TParticle* part) :
+  fPdgCode(part->GetPdgCode()),
+  fMotherID(part->GetMother(0)),
+  fSecondMotherID(part->GetMother(1)),
+  fStartX(part->Vx()),
+  fStartY(part->Vy()),
+  fStartZ(part->Vz()),
+  fStartT(part->T()*1e09),
+  fPx(part->Px()),
+  fPy(part->Py()),
+  fPz(part->Pz()),
+  fE(part->Energy()),
+  fPoints(0),
+  fGeneratorFlags(0)
+{
 }
 // -------------------------------------------------------------------------
 

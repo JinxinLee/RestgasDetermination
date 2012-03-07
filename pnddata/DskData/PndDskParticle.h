@@ -34,7 +34,7 @@ class PndDskParticle : public FairMCPoint
           Int_t motherTrackID, Int_t motherPdgCode, TString motherPdgName, Double_t mass, Double_t angIn, Double_t thetaC, Int_t nPhot);
 
   /** Copy constructor **/
-  PndDskParticle(const PndDskParticle& particle) { *this = particle; };
+  PndDskParticle(const PndDskParticle& particle);
 
   /** Destructor **/
   virtual ~PndDskParticle();

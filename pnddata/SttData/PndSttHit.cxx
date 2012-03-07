@@ -15,20 +15,16 @@
 using namespace std;
 
 /** Default constructor **/
-PndSttHit::PndSttHit() 
+PndSttHit::PndSttHit() :
+ FairHit(), fTubeID(0), fPulse(0), fIsochrone(0), fIsochroneError(0), fDepCharge(0)
 {
     Clear();
 }
 
 
-PndSttHit::PndSttHit(Int_t detID, Int_t tubeID, Int_t mcindex, TVector3& pos, TVector3& dpos, Double_t p, Double_t isochrone, Double_t isochroneError, Double_t chDep) : FairHit(detID, pos, dpos, mcindex)
+PndSttHit::PndSttHit(Int_t detID, Int_t tubeID, Int_t mcindex, TVector3& pos, TVector3& dpos, Double_t p, Double_t isochrone, Double_t isochroneError, Double_t chDep) : FairHit(detID, pos, dpos, mcindex),
+  fTubeID(tubeID), fPulse(p), fIsochrone(isochrone), fIsochroneError(isochroneError), fDepCharge(chDep)
 {
-  fTubeID = tubeID;
-  fPulse   = p;
-  fIsochrone = isochrone;
-  fIsochroneError = isochroneError;
-  fDepCharge = chDep;
-
   SetTimeStamp(p);
 
   SetLink(FairLink("STTPoint", mcindex));

@@ -17,40 +17,41 @@ void PndSttGeomPoint::Destroy()
 {
 }
 
-PndSttGeomPoint::PndSttGeomPoint(PndSttGeomPoint const &other)
+PndSttGeomPoint::PndSttGeomPoint(PndSttGeomPoint const &other):
+  fX(other.fX),
+  fY(other.fY),
+  fZ(other.fZ),
+  fErrorX(other.fErrorX),
+  fErrorY(other.fErrorY),
+  fErrorZ(other.fErrorZ)
 {
-  if (this != &other)
-    {
-      Destroy();
-      Copy(other);
-    }
 }
 
+/* ???
 void PndSttGeomPoint::operator=(PndSttGeomPoint const &other)
 {
-  Copy(other);
+  return *this;
 }  
+*/
 
-PndSttGeomPoint::PndSttGeomPoint()
+PndSttGeomPoint::PndSttGeomPoint():
+  fX(0),
+  fY(0),
+  fZ(0),
+  fErrorX(0),
+  fErrorY(0),
+  fErrorZ(0)
 {
-    fX = 0.;
-    fY = 0.;
-    fZ = 0.;
-
-    fErrorX = 0.;
-    fErrorY = 0.;
-    fErrorZ = 0.;
 }
 
-PndSttGeomPoint::PndSttGeomPoint(Double_t x, Double_t y, Double_t z, Double_t dx, Double_t dy, Double_t dz)
+PndSttGeomPoint::PndSttGeomPoint(Double_t x, Double_t y, Double_t z, Double_t dx, Double_t dy, Double_t dz):
+  fX(x),
+  fY(y),
+  fZ(z),
+  fErrorX(dx),
+  fErrorY(dy),
+  fErrorZ(dz)
 {
-    fX = x;
-    fY = y;
-    fZ = z;
-
-    fErrorX = dx;
-    fErrorY = dy;
-    fErrorZ = dz;
 }
 
 

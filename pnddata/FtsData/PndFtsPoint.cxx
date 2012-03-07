@@ -48,8 +48,7 @@ PndFtsPoint::~PndFtsPoint() { }
 
 // -----   Copy constructor   ------------------------------------------
 PndFtsPoint::PndFtsPoint(const PndFtsPoint& point):
-  FairMCPoint(point.fTrackID, point.fDetectorID, TVector3(point.fX, point.fY, point.fZ), TVector3(point.fPx, point.fPy, point.fPz), 
-	      point.fTime, point.fLength, point.fELoss),
+  FairMCPoint(point.fTrackID, point.fDetectorID, TVector3(point.fX, point.fY, point.fZ), TVector3(point.fPx, point.fPy, point.fPz), point.fTime, point.fLength, point.fELoss, point.fEventId),
   fX_in_local(point.fX_in_local), fY_in_local(point.fY_in_local), fZ_in_local(point.fZ_in_local),
   fX_out_local(point.fX_out_local), fY_out_local(point.fY_out_local), fZ_out_local(point.fZ_out_local),
   fPx_in(point.fPx_in), fPy_in(point.fPy_in), fPz_in(point.fPz_in),

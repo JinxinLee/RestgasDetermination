@@ -240,6 +240,8 @@ class PndStack : public FairGenericStack
   void SelectTracks();
   void SetGeneratorFlags(Int_t myid);
 
+  PndStack(const  PndStack& L);
+  PndStack& operator= (const  PndStack&) {return *this;};
 
   ClassDef(PndStack,1)
 

@@ -39,6 +39,26 @@ PndSttPoint::PndSttPoint(Int_t trackID, Int_t detID, TVector3 pos,
   fPz = (momIn.Pz() + momOut.Pz()) / 2.;
   SetLink(FairLink("MCTrack", trackID));
 }
+
+PndSttPoint::PndSttPoint(const PndSttPoint& point) :
+  FairMCPoint(point.fTrackID, point.fDetectorID, TVector3(point.fX, point.fY, point.fZ), TVector3(point.fPx, point.fPy, point.fPz), point.fTime, point.fLength, point.fELoss, point.fEventId),
+  fX_out_local(point.fX_out_local),
+  fY_out_local(point.fY_out_local),
+  fZ_out_local(point.fZ_out_local),
+  fX_in_local(point.fX_in_local),
+  fY_in_local(point.fY_in_local),
+  fZ_in_local(point.fZ_in_local),
+  fPx_in(point.fPx_in),
+  fPy_in(point.fPy_in),
+  fPz_in(point.fPz_in),
+  fPx_out(point.fPx_out),
+  fPy_out(point.fPy_out),
+  fPz_out(point.fPz_out),
+  fMass(point.fMass),
+  fTubeID(point.fTubeID)
+{
+  SetLink(FairLink("MCTrack", point.fTrackID));
+}
 // -------------------------------------------------------------------------
 
 Double_t PndSttPoint::GetTrueDistance() {

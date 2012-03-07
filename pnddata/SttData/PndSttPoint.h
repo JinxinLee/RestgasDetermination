@@ -36,7 +36,7 @@ class PndSttPoint : public FairMCPoint
 
 
   /** Copy constructor **/
-  PndSttPoint(const PndSttPoint& point) { *this = point; };
+  PndSttPoint(const PndSttPoint& point);
 
 
   /** Destructor **/

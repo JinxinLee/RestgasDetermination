@@ -33,7 +33,7 @@ class PndDskCerenkov : public FairMCPoint
           Int_t motherTrackID, Int_t motherPdgCode, TString motherPdgName);
 
   /** Copy constructor **/
-  PndDskCerenkov(const PndDskCerenkov& cerenkov) { *this = cerenkov; };
+  PndDskCerenkov(const PndDskCerenkov& cerenkov);
 
   /** Destructor **/
   virtual ~PndDskCerenkov();

@@ -17,7 +17,8 @@ PndDrcBarPoint::PndDrcBarPoint()
   fPdgCode(0),
   fAngIn(0.),
   fNBar(0.),
-  fMass(0.)
+  fMass(0.),
+  fThetaC(0.)
 {  
 }
 // -------------------------------------------------------------------------

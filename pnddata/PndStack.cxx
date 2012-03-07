@@ -23,16 +23,14 @@ using std::pair;
 
 
 // -----   Default constructor   -------------------------------------------
-PndStack::PndStack(Int_t size) {
+PndStack::PndStack(Int_t size):
+fStack(), fParticles(new TClonesArray()), fTracks(new TClonesArray()), fStoreMap(), fStoreIter(), fIndexMap(), fIndexIter(), fPointsMap(), fCurrentTrack(-1), fNPrimaries(0), fNParticles(0), fNTracks(0), fIndex(0), fStoreSecondaries(kTRUE), fMinPoints(1), fEnergyCut(0), fStoreMothers(kTRUE)
+{
+  fStoreMap.clear();
+  fIndexMap.clear();
+  fPointsMap.clear();
   fParticles = new TClonesArray("TParticle", size);
   fTracks    = new TClonesArray("PndMCTrack", size);
-  fCurrentTrack = -1;
-  fNPrimaries = fNParticles = fNTracks = 0;
-  fIndex = 0;
-  fStoreSecondaries = kTRUE;
-  fMinPoints        = 1;
-  fEnergyCut        = 0.;
-  fStoreMothers     = kTRUE;
 }
 
 // -------------------------------------------------------------------------

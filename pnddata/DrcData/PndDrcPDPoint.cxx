@@ -13,7 +13,7 @@ using std::endl;
 
 // -----   Default constructor   -------------------------------------------
 PndDrcPDPoint::PndDrcPDPoint() 
-:FairMCPoint() 
+:FairMCPoint(), fPdgCode(0)
 {
 }
 // -------------------------------------------------------------------------
@@ -24,7 +24,7 @@ PndDrcPDPoint::PndDrcPDPoint()
 PndDrcPDPoint::PndDrcPDPoint(Int_t trackID, Int_t detID, TVector3 pos, 
 			       TVector3 mom, Double_t tof, Double_t length, Int_t pdgCode, Int_t eventID)
   :FairMCPoint(trackID,detID,pos,mom, tof, length, 0.0, (UInt_t) eventID),
-  fPdgCode(pdgCode) 
+  fPdgCode(pdgCode)
  {
  
  }

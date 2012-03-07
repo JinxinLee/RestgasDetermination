@@ -57,7 +57,8 @@ class PndSttGeomPoint : public TObject
     //void Transform();  // not implemented
     void Draw(Double_t size = 0.5, Int_t color = 1) const;
 
-    void operator=(PndSttGeomPoint const &other);
+    //void operator=(PndSttGeomPoint const &other);
+    PndSttGeomPoint& operator= (const  PndSttGeomPoint&) {return *this;};
 
  private:
     Double_t fX;

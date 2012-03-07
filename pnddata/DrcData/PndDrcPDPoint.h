@@ -47,11 +47,9 @@ class PndDrcPDPoint : public FairMCPoint
 
 
   /** Accessors **/
-  Int_t    GetEventID()    const { return fEventID;};
   Int_t    GetPdgCode()    const { return fPdgCode;};
  
   /** Modifiers **/
-  void SetEventID(Int_t id)          { fEventID = id; }; 
   void SetPdgCode(Int_t id)          { fPdgCode = id; }; 
 
 
@@ -63,11 +61,10 @@ class PndDrcPDPoint : public FairMCPoint
  protected:
 
   Int_t fPdgCode;
-  Int_t fEventID;
 
 
 
-  ClassDef(PndDrcPDPoint,2)
+  ClassDef(PndDrcPDPoint,3)
 
 };
 

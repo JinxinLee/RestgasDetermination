@@ -58,7 +58,24 @@ PndDskParticle::PndDskParticle(Int_t trackID, Int_t detectorID,
 }
 // ----------------------------------------------------------------------------
 
-
+PndDskParticle::PndDskParticle(const PndDskParticle& particle) :
+    FairMCPoint(particle.fTrackID, particle.fDetectorID,  TVector3(particle.fX, particle.fY, particle.fZ), TVector3(particle.fPx, particle.fPy, particle.fPz), particle.fTime, particle.fLength, particle.fELoss, particle.fEventId),
+    fPdgCode(particle.fPdgCode),
+    fPdgName(particle.fPdgName),
+    fEnergy(particle.fEnergy),
+    fMotherTrackID(particle.fMotherTrackID),
+    fMotherPdgCode(particle.fMotherPdgCode),
+    fMotherPdgName(particle.fMotherPdgName),
+    fExitPosition(particle.fExitPosition),
+    fExitMomentum(particle.fExitMomentum),
+    fExitTime(particle.fExitTime),
+    fExitEnergy(particle.fExitEnergy),
+    fMass(particle.fMass),
+    fAngIn(particle.fAngIn),
+    fThetaC(particle.fThetaC),
+    fNPhot(particle.fNPhot)
+{
+}
 
 // -----   Destructor   -------------------------------------------------------
 PndDskParticle::~PndDskParticle()

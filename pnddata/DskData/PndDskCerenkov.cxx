@@ -64,7 +64,27 @@ PndDskCerenkov::PndDskCerenkov(Int_t trackID, Int_t detectorID,
 }
 // ----------------------------------------------------------------------------
 
+PndDskCerenkov::PndDskCerenkov(const PndDskCerenkov& cerenkov) :
+    FairMCPoint(cerenkov.fTrackID, cerenkov.fDetectorID,  TVector3(cerenkov.fX, cerenkov.fY, cerenkov.fZ), TVector3(cerenkov.fPx, cerenkov.fPy, cerenkov.fPz), cerenkov.fTime, cerenkov.fLength, cerenkov.fELoss, cerenkov.fEventId),
+    fEnergy(cerenkov.fEnergy),
+    fWavelength(cerenkov.fWavelength),
+    fMotherTrackID(cerenkov.fMotherTrackID),
+    fMotherPdgCode(cerenkov.fMotherPdgCode),
+    fMotherPdgName(cerenkov.fMotherPdgName),
+    fDetNumber(cerenkov.fDetNumber),
+    fDetType(cerenkov.fDetType),
+    fDetTime(cerenkov.fDetTime),
+    fDetMomentum(cerenkov.fDetMomentum),
+    fLastPos(cerenkov.fLastPos),
+    fNofReflections(cerenkov.fNofReflections),
+    f5RefPosition(cerenkov.f5RefPosition),
+    fTotalRefAngle(cerenkov.fTotalRefAngle),
+    fPWay(cerenkov.fPWay),
+    fPrimaryHitAngle(cerenkov.fPrimaryHitAngle),
+    fPrimaryAngleToCerenkov(cerenkov.fPrimaryAngleToCerenkov)
 
+{
+}
 
 // -----   Destructor   -------------------------------------------------------
 PndDskCerenkov::~PndDskCerenkov()

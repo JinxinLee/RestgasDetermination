@@ -30,8 +30,8 @@ DskData/PndDskParticle.cxx
 DskData/PndDskTrackPoint.cxx
 DskData/PndDskFLGHit.cxx
 
-DrpcData/PndDrpcPoint.cxx
-DrpcData/PndDrpcPointLite.cxx
+#DrpcData/PndDrpcPoint.cxx
+#DrpcData/PndDrpcPointLite.cxx
 
 DrcData/PndDrcPDPoint.cxx 
 DrcData/PndDrcBarPoint.cxx

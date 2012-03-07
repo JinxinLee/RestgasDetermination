@@ -38,7 +38,6 @@ class PndDrcBarPoint : public FairMCPoint
 
 
   /** Accessors **/
-  Int_t    GetEventID()    const { return fEventID;};
   Int_t    GetPdgCode()    const { return fPdgCode;};
   Double_t GetAngIn()      const { return fAngIn; };
   Double_t GetThetaC()     const { return fThetaC; };
@@ -50,7 +49,6 @@ class PndDrcBarPoint : public FairMCPoint
 
 
   /** Modifiers ** **/
-  void SetEventID(Int_t id)          { fEventID = id; }; 
   void SetPdgCode(Int_t id)          { fPdgCode = id; }; 
   void SetAngIn(Double_t ang)        { fAngIn= ang; }; 
   void SetThetaC(Double_t theta)     { fThetaC = theta; }; 
@@ -68,10 +66,9 @@ class PndDrcBarPoint : public FairMCPoint
   Double_t fAngIn;              // Incident Angle
   Double_t fThetaC;             // Cherenkov Angle
   Int_t fNBar;                  // Rod number
-  Int_t fEventID;               // Event ID
   Double_t fMass;               // Mass 
 
-  ClassDef(PndDrcBarPoint,2)
+  ClassDef(PndDrcBarPoint,3)
 
 };
 
