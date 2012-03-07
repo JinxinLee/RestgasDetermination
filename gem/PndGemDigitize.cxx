@@ -43,20 +43,24 @@ using std::fixed;
 using std::setprecision;
 using std::map;
 
-
-
 // -----   Default constructor   ------------------------------------------
-PndGemDigitize::PndGemDigitize() : FairTask("GEM Digitizer", 1) {
-  fDigiPar     = NULL;
-  fPoints      = NULL;
-  fDigis       = NULL;
-  fDigiMatches = NULL;
-  fSaveOutsideHits = kFALSE;
-
-  fTNofEvents = 0;
-  fTNofPoints = 0;
-  fTNofDigis  = 0;
-
+PndGemDigitize::PndGemDigitize() 
+  : FairTask("GEM Digitizer", 1),
+    fDigiPar(NULL),
+    fPoints(NULL),
+    fDigis(NULL),
+    fDigiMatches(NULL),
+    fNPoints(0),
+    fNFailed(0),
+    fNOutside(0),
+    fNMulti(0),
+    fNDigis(0),
+    fTNofEvents(0),
+    fTNofPoints(0),
+    fTNofDigis(0),
+    fHitOutsideArray(NULL),
+    fSaveOutsideHits(kFALSE)
+{
   Reset();
 }
 // -------------------------------------------------------------------------
@@ -65,17 +69,22 @@ PndGemDigitize::PndGemDigitize() : FairTask("GEM Digitizer", 1) {
 
 // -----   Standard constructor   ------------------------------------------
 PndGemDigitize::PndGemDigitize(Int_t iVerbose) 
-  : FairTask("GEM Digitizer", iVerbose) { 
-  fDigiPar     = NULL;
-  fPoints      = NULL;
-  fDigis       = NULL;
-  fDigiMatches = NULL;
-  fSaveOutsideHits = kFALSE;
-
-  fTNofEvents = 0;
-  fTNofPoints = 0;
-  fTNofDigis  = 0;
-
+  : FairTask("GEM Digitizer", iVerbose),
+    fDigiPar(NULL),
+    fPoints(NULL),
+    fDigis(NULL),
+    fDigiMatches(NULL),
+    fNPoints(0),
+    fNFailed(0),
+    fNOutside(0),
+    fNMulti(0),
+    fNDigis(0),
+    fTNofEvents(0),
+    fTNofPoints(0),
+    fTNofDigis(0),
+    fHitOutsideArray(NULL),
+    fSaveOutsideHits(kFALSE)
+{ 
   Reset();
 }
 // -------------------------------------------------------------------------
@@ -245,6 +254,9 @@ void PndGemDigitize::Exec(Option_t* opt) {
       ddigi->AddIndex(iPoint);
     }
   }
+
+  if ( fVerbose ) 
+    cout << "-I- PndGemDigitize::Exec() Created " << fNDigis << " digis from " << nofPoints << " points" << endl;
 }
 // -------------------------------------------------------------------------
 
@@ -296,14 +308,13 @@ InitStatus PndGemDigitize::Init() {
 
 // -----   Private method ReInit   -----------------------------------------
 InitStatus PndGemDigitize::ReInit() {
-
   // Clear digitisation scheme
   //  fDigiScheme->Clear();
 
   // Build new digitisation scheme
   //  if ( fDigiScheme->Init(fGeoPar, fDigiPar) ) return kSUCCESS;
 
-  return kERROR;
+  return kSUCCESS;
 
 }
 // -------------------------------------------------------------------------

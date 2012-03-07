@@ -39,6 +39,8 @@ PndGemTrackFinderIdeal::PndGemTrackFinderIdeal() {
   fMCTrackArray = NULL;
   fMCPointArray = NULL;
   fNofEvents    = 0;
+  fVerbose = 0;
+  fPrimary = 0;
 }
 
 // -----   Destructor   ----------------------------------------------------

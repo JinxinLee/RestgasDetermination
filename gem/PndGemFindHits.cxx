@@ -179,12 +179,15 @@ void PndGemFindHits::Exec(Option_t* opt) {
   }       // Station loop
 
   fTimer.Stop();  
+
   if ( fVerbose > 1 ) {
+    //    cout << "-I- PndGemFindHits::Exec() Created " << fHits->GetEntriesFast() << " hits from " 
+      //<< nDigisF << " front and " << nDigisB << " back digis" << endl;
     cout << endl;
     cout << "-I- " << fName << ":Event summary" << endl;
     cout << "    Active channels front side: " << nDigisF << endl;
     cout << "    Active channels back side : " << nDigisB << endl;
-    cout << "    Hits created              : " << nHits   << endl;
+    cout << "    Hits created              : " << fHits->GetEntriesFast()   << endl;
     cout << "    Real time                 : " << fTimer.RealTime() 
 	 << endl;
   }

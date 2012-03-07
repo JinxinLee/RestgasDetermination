@@ -41,6 +41,114 @@ PndGemTrackFinderQA::PndGemTrackFinderQA() : FairTask("GEM Track Finder QA", 1) 
   fGemHitArray   = NULL;
   fGemTrackArray = NULL;
   fNofEvents    = 0;
+
+  fNeededStationsToRecoTrack = -666;
+  fMinQuota = -666;
+  
+  fNofMCAll  = 0;
+  fNofMCAcc  = 0;
+  fNofMCPrim = 0;
+  fNofMCSec  = 0;
+  fNofMCRef  = 0;
+
+  fNofRecoAcc = 0;
+  fNofRecoPrim = 0;
+  fNofRecoSec = 0;
+  fNofRecoRef = 0;
+  fNofRecoGhosts = 0;
+  fNofRecoClones = 0;
+
+  fHistoList = NULL;
+  fhMCAllVsP = NULL;
+  fhMCAccVsP = NULL;
+  fhMCPrimVsP = NULL;
+  fhMCSecVsP = NULL;
+  fhMCRefVsP = NULL;
+  fhRecoAccVsP = NULL;
+  fhRecoPrimVsP = NULL;
+  fhRecoSecVsP = NULL;
+  fhRecoRefVsP = NULL;
+  fhEffAccVsP = NULL;
+  fhEffPrimVsP = NULL;
+  fhEffSecVsP = NULL;
+  fhEffRefVsP = NULL;
+
+  fhMCAllVsT = NULL;
+  fhMCAccVsT = NULL;
+  fhMCPrimVsT = NULL;
+  fhMCSecVsT = NULL;
+  fhMCRefVsT = NULL;
+  fhRecoAccVsT = NULL;
+  fhRecoPrimVsT = NULL;
+  fhRecoSecVsT = NULL;
+  fhRecoRefVsT = NULL;
+  fhEffAccVsT = NULL;
+  fhEffPrimVsT = NULL;
+  fhEffSecVsT = NULL;
+  fhEffRefVsT = NULL;
+
+  fhMCAllVsA = NULL;
+  fhMCAccVsA = NULL;
+  fhMCPrimVsA = NULL;
+  fhMCSecVsA = NULL;
+  fhMCRefVsA = NULL;
+  fhRecoAccVsA = NULL;
+  fhRecoPrimVsA = NULL;
+  fhRecoSecVsA = NULL;
+  fhRecoRefVsA = NULL;
+  fhEffAccVsA = NULL;
+  fhEffPrimVsA = NULL;
+  fhEffSecVsA = NULL;
+  fhEffRefVsA = NULL;
+
+  fhMCAllVsN = NULL;
+  fhMCAccVsN = NULL;
+  fhMCPrimVsN = NULL;
+  fhMCSecVsN = NULL;
+  fhMCRefVsN = NULL;
+  fhRecoAccVsN = NULL;
+  fhRecoPrimVsN = NULL;
+  fhRecoSecVsN = NULL;
+  fhRecoRefVsN = NULL;
+  fhEffAccVsN = NULL;
+  fhEffPrimVsN = NULL;
+  fhEffSecVsN = NULL;
+  fhEffRefVsN = NULL;
+
+  fhRecoAllP = NULL;
+  fhRecoPrimP = NULL;
+  fhRecoSecP = NULL;
+  fhRecoAllT = NULL;
+  fhRecoPrimT = NULL;
+  fhRecoSecT = NULL;
+  fhRecoAllA = NULL;
+  fhRecoPrimA = NULL;
+  fhRecoSecA = NULL;
+
+  fhMomResAccVsP = NULL;
+  fhMomResPrimVsP = NULL;
+  fhMomResSecVsP = NULL;
+  fhMomResRefVsP = NULL;
+  fhMomResAccVsT = NULL;
+  fhMomResPrimVsT = NULL;
+  fhMomResSecVsT = NULL;
+  fhMomResRefVsT = NULL;
+  fhMomResAccVsA = NULL;
+  fhMomResPrimVsA = NULL;
+  fhMomResSecVsA = NULL;
+  fhMomResRefVsA = NULL;
+
+  fhNofHitsPerTrack = NULL;
+  fhNofHitsPerRecoTrack = NULL;
+  fhNofHitsPerGhost = NULL;
+  fhNofHitsPerClone = NULL;
+
+  fhNofCorrHitsPerRecoTrack = NULL;
+  fhNofOthTHitsPerRecoTrack = NULL;
+  fhNofNoTrHitsPerRecoTrack = NULL;
+
+  fhNofMCTracksPerEvent = NULL;
+  fhNofRecoTracksPerEvent = NULL;
 }
 // -------------------------------------------------------------------------
 
@@ -55,6 +163,114 @@ PndGemTrackFinderQA::PndGemTrackFinderQA(Int_t iVerbose)
   fGemHitArray   = NULL;
   fGemTrackArray = NULL;
   fNofEvents    = 0;
+
+  fNeededStationsToRecoTrack = -666;
+  fMinQuota = -666;
+  
+  fNofMCAll  = 0;
+  fNofMCAcc  = 0;
+  fNofMCPrim = 0;
+  fNofMCSec  = 0;
+  fNofMCRef  = 0;
+
+  fNofRecoAcc = 0;
+  fNofRecoPrim = 0;
+  fNofRecoSec = 0;
+  fNofRecoRef = 0;
+  fNofRecoGhosts = 0;
+  fNofRecoClones = 0;
+
+  fHistoList = NULL;
+  fhMCAllVsP = NULL;
+  fhMCAccVsP = NULL;
+  fhMCPrimVsP = NULL;
+  fhMCSecVsP = NULL;
+  fhMCRefVsP = NULL;
+  fhRecoAccVsP = NULL;
+  fhRecoPrimVsP = NULL;
+  fhRecoSecVsP = NULL;
+  fhRecoRefVsP = NULL;
+  fhEffAccVsP = NULL;
+  fhEffPrimVsP = NULL;
+  fhEffSecVsP = NULL;
+  fhEffRefVsP = NULL;
+
+  fhMCAllVsT = NULL;
+  fhMCAccVsT = NULL;
+  fhMCPrimVsT = NULL;
+  fhMCSecVsT = NULL;
+  fhMCRefVsT = NULL;
+  fhRecoAccVsT = NULL;
+  fhRecoPrimVsT = NULL;
+  fhRecoSecVsT = NULL;
+  fhRecoRefVsT = NULL;
+  fhEffAccVsT = NULL;
+  fhEffPrimVsT = NULL;
+  fhEffSecVsT = NULL;
+  fhEffRefVsT = NULL;
+
+  fhMCAllVsA = NULL;
+  fhMCAccVsA = NULL;
+  fhMCPrimVsA = NULL;
+  fhMCSecVsA = NULL;
+  fhMCRefVsA = NULL;
+  fhRecoAccVsA = NULL;
+  fhRecoPrimVsA = NULL;
+  fhRecoSecVsA = NULL;
+  fhRecoRefVsA = NULL;
+  fhEffAccVsA = NULL;
+  fhEffPrimVsA = NULL;
+  fhEffSecVsA = NULL;
+  fhEffRefVsA = NULL;
+
+  fhMCAllVsN = NULL;
+  fhMCAccVsN = NULL;
+  fhMCPrimVsN = NULL;
+  fhMCSecVsN = NULL;
+  fhMCRefVsN = NULL;
+  fhRecoAccVsN = NULL;
+  fhRecoPrimVsN = NULL;
+  fhRecoSecVsN = NULL;
+  fhRecoRefVsN = NULL;
+  fhEffAccVsN = NULL;
+  fhEffPrimVsN = NULL;
+  fhEffSecVsN = NULL;
+  fhEffRefVsN = NULL;
+
+  fhRecoAllP = NULL;
+  fhRecoPrimP = NULL;
+  fhRecoSecP = NULL;
+  fhRecoAllT = NULL;
+  fhRecoPrimT = NULL;
+  fhRecoSecT = NULL;
+  fhRecoAllA = NULL;
+  fhRecoPrimA = NULL;
+  fhRecoSecA = NULL;
+
+  fhMomResAccVsP = NULL;
+  fhMomResPrimVsP = NULL;
+  fhMomResSecVsP = NULL;
+  fhMomResRefVsP = NULL;
+  fhMomResAccVsT = NULL;
+  fhMomResPrimVsT = NULL;
+  fhMomResSecVsT = NULL;
+  fhMomResRefVsT = NULL;
+  fhMomResAccVsA = NULL;
+  fhMomResPrimVsA = NULL;
+  fhMomResSecVsA = NULL;
+  fhMomResRefVsA = NULL;
+
+  fhNofHitsPerTrack = NULL;
+  fhNofHitsPerRecoTrack = NULL;
+  fhNofHitsPerGhost = NULL;
+  fhNofHitsPerClone = NULL;
+
+  fhNofCorrHitsPerRecoTrack = NULL;
+  fhNofOthTHitsPerRecoTrack = NULL;
+  fhNofNoTrHitsPerRecoTrack = NULL;
+
+  fhNofMCTracksPerEvent = NULL;
+  fhNofRecoTracksPerEvent = NULL;
 }
 // -------------------------------------------------------------------------
 
@@ -762,11 +978,20 @@ void PndGemTrackFinderQA::Finish() {
   fhEffSecVsN ->Scale(100.);
   fhEffRefVsN ->Scale(100.);
 
+
+  TFile* temp = gFile;
+  FairRootManager* ioman = FairRootManager::Instance();
+  gFile = ioman->GetOutFile();
+  gDirectory = (TDirectory*)gFile;
+
   gDirectory->mkdir("GemTrackFinderQA");
   gDirectory->cd("GemTrackFinderQA");
   TIter next(fHistoList);
   while ( TH1* histo = ((TH1*)next()) ) histo->Write();
   gDirectory->cd("..");
+
+  gFile = temp;
+
 }
 // ------------------------------------------------------------
  

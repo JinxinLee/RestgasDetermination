@@ -41,8 +41,79 @@ PndBarrelTrackFinderQA::PndBarrelTrackFinderQA() : FairTask("QA task for Barrel 
   for ( Int_t idet = 0 ; idet < 4 ; idet++ ) {
     fIncludeDet[idet] = kFALSE;
     fMCPointArray[idet] = NULL;
+    fDetName[idet] = "";
   }
-  fTNofEvents    = 0;
+
+  fTNofEvents = 0;
+  fHistoList = NULL;
+
+  fhMomMagCompAll2D = NULL;
+  fhMomPhiCompAll2D = NULL;
+  fhMomTheCompAll2D = NULL;
+  fhMomMagCompAll1D = NULL;
+  fhMomResCompAll1D = NULL;
+  fhMomPhiCompAll1D = NULL;
+  fhMomTheCompAll1D = NULL;
+  
+  fhMomMagSimAllHist = NULL;
+  fhMomMagRecAllHist = NULL;
+  fhMomMagEffAllHist = NULL;
+  fhMomPhiSimAllHist = NULL;
+  fhMomPhiRecAllHist = NULL;
+  fhMomPhiEffAllHist = NULL;
+  fhMomTheSimAllHist = NULL;
+  fhMomTheRecAllHist = NULL;
+  fhMomTheEffAllHist = NULL;
+  
+  fhMomMagSimHist = NULL;
+  fhMomMagRecHist = NULL;
+  fhMomMagEffHist = NULL;
+  fhMomPhiSimHist = NULL;
+  fhMomPhiRecHist = NULL;
+  fhMomPhiEffHist = NULL;
+  fhMomTheSimHist = NULL;
+  fhMomTheRecHist = NULL;
+  fhMomTheEffHist = NULL;
+  
+  fhMomMagAllRecoHist = NULL;
+  fhMomPhiAllRecoHist = NULL;
+  fhMomTheAllRecoHist = NULL;
+  
+  fhMomMagCloneHist = NULL;
+  fhMomPhiCloneHist = NULL;
+  fhMomTheCloneHist = NULL;
+  fhMomMagGhostHist = NULL;
+  fhMomPhiGhostHist = NULL;
+  fhMomTheGhostHist = NULL;
+  
+  fhRecoMomMag = NULL;
+  fhRecoMomPhi = NULL;
+  fhRecoMomThe = NULL;
+  
+  fhMomResVsMomMag = NULL;
+  fhMomResVsMomPhi = NULL;
+  fhMomResVsMomThe = NULL;
+  fhPhiResVsMomMag = NULL;
+  fhPhiResVsMomPhi = NULL;
+  fhPhiResVsMomThe = NULL;
+  fhTheResVsMomMag = NULL;
+  fhTheResVsMomPhi = NULL;
+  fhTheResVsMomThe = NULL;
+  
+  for ( Int_t idet = 0 ; idet < 4 ; idet++ ) {
+    fhNofDetPntsVsMagFoundHist[idet] = NULL;
+    fhNofDetPntsVsPhiFoundHist[idet] = NULL;
+    fhNofDetPntsVsTheFoundHist[idet] = NULL;
+    fhNofDetPntsVsMagNotFdHist[idet] = NULL;
+    fhNofDetPntsVsPhiNotFdHist[idet] = NULL;
+    fhNofDetPntsVsTheNotFdHist[idet] = NULL;
+  }
+
+  fhNofMvdPixsVsThetaHist = NULL;
+  fhNofMvdStrsVsThetaHist = NULL;
+  fhNofSttHitsVsThetaHist = NULL;
+  fhNofTpcHitsVsThetaHist = NULL;
+  fhNofGemHitsVsThetaHist = NULL;
 }
 // -------------------------------------------------------------------------
 
@@ -54,8 +125,79 @@ PndBarrelTrackFinderQA::PndBarrelTrackFinderQA(Int_t iVerbose)
   for ( Int_t idet = 0 ; idet < 4 ; idet++ ) {
     fIncludeDet[idet] = kFALSE;
     fMCPointArray[idet] = NULL;
+    fDetName[idet] = "";
   }
-  fTNofEvents    = 0;
+
+  fTNofEvents = 0;
+  fHistoList = NULL;
+
+  fhMomMagCompAll2D = NULL;
+  fhMomPhiCompAll2D = NULL;
+  fhMomTheCompAll2D = NULL;
+  fhMomMagCompAll1D = NULL;
+  fhMomResCompAll1D = NULL;
+  fhMomPhiCompAll1D = NULL;
+  fhMomTheCompAll1D = NULL;
+  
+  fhMomMagSimAllHist = NULL;
+  fhMomMagRecAllHist = NULL;
+  fhMomMagEffAllHist = NULL;
+  fhMomPhiSimAllHist = NULL;
+  fhMomPhiRecAllHist = NULL;
+  fhMomPhiEffAllHist = NULL;
+  fhMomTheSimAllHist = NULL;
+  fhMomTheRecAllHist = NULL;
+  fhMomTheEffAllHist = NULL;
+  
+  fhMomMagSimHist = NULL;
+  fhMomMagRecHist = NULL;
+  fhMomMagEffHist = NULL;
+  fhMomPhiSimHist = NULL;
+  fhMomPhiRecHist = NULL;
+  fhMomPhiEffHist = NULL;
+  fhMomTheSimHist = NULL;
+  fhMomTheRecHist = NULL;
+  fhMomTheEffHist = NULL;
+  
+  fhMomMagAllRecoHist = NULL;
+  fhMomPhiAllRecoHist = NULL;
+  fhMomTheAllRecoHist = NULL;
+  
+  fhMomMagCloneHist = NULL;
+  fhMomPhiCloneHist = NULL;
+  fhMomTheCloneHist = NULL;
+  fhMomMagGhostHist = NULL;
+  fhMomPhiGhostHist = NULL;
+  fhMomTheGhostHist = NULL;
+  
+  fhRecoMomMag = NULL;
+  fhRecoMomPhi = NULL;
+  fhRecoMomThe = NULL;
+  
+  fhMomResVsMomMag = NULL;
+  fhMomResVsMomPhi = NULL;
+  fhMomResVsMomThe = NULL;
+  fhPhiResVsMomMag = NULL;
+  fhPhiResVsMomPhi = NULL;
+  fhPhiResVsMomThe = NULL;
+  fhTheResVsMomMag = NULL;
+  fhTheResVsMomPhi = NULL;
+  fhTheResVsMomThe = NULL;
+  
+  for ( Int_t idet = 0 ; idet < 4 ; idet++ ) {
+    fhNofDetPntsVsMagFoundHist[idet] = NULL;
+    fhNofDetPntsVsPhiFoundHist[idet] = NULL;
+    fhNofDetPntsVsTheFoundHist[idet] = NULL;
+    fhNofDetPntsVsMagNotFdHist[idet] = NULL;
+    fhNofDetPntsVsPhiNotFdHist[idet] = NULL;
+    fhNofDetPntsVsTheNotFdHist[idet] = NULL;
+  }
+
+  fhNofMvdPixsVsThetaHist = NULL;
+  fhNofMvdStrsVsThetaHist = NULL;
+  fhNofSttHitsVsThetaHist = NULL;
+  fhNofTpcHitsVsThetaHist = NULL;
+  fhNofGemHitsVsThetaHist = NULL;
 }
 // -------------------------------------------------------------------------
 
@@ -534,11 +676,32 @@ void PndBarrelTrackFinderQA::Finish() {
   fhMomPhiEffAllHist->Scale(100.);
   fhMomTheEffAllHist->Scale(100.);
 
+  TFile* temp = gFile;
+  cout << "tempFile = \"" << temp->GetName() << "\"" << endl;
+
+  FairRootManager* ioman = FairRootManager::Instance();
+  if( !ioman ) {
+    cout << "-E- "<< GetName() <<"::Init: "
+	 << "RootManager not instantised!" << endl;
+    return;
+  }
+
+
+  gFile = ioman->GetOutFile();
+
+  cout << "gDirectory = \"" << gDirectory->GetName() << "\"" << endl;
+  cout << "gFile = \"" << gFile->GetName() << "\"" << endl;
+
+  gDirectory = (TDirectory*)gFile;
+
   gDirectory->mkdir("BarrelTrackFinderQA");
   gDirectory->cd("BarrelTrackFinderQA");
+
   TIter next(fHistoList);
   while ( TH1* histo = ((TH1*)next()) ) histo->Write();
   gDirectory->cd("..");
+
+  gFile = temp;
 
 }
 // ------------------------------------------------------------

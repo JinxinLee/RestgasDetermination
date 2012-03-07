@@ -590,11 +590,18 @@ void PndGlobalTrackMergerQA::Finish() {
   fhEffSecVsA ->Scale(100.);
   fhEffRefVsA ->Scale(100.);
 
+  TFile* temp = gFile;
+  FairRootManager* ioman = FairRootManager::Instance();
+  gFile = ioman->GetOutFile();
+  gDirectory = (TDirectory*)gFile;
+
   gDirectory->mkdir("GlobalTrackMergerQA");
   gDirectory->cd("GlobalTrackMergerQA");
   TIter next(fHistoList);
   while ( TH1* histo = ((TH1*)next()) ) histo->Write();
   gDirectory->cd("..");
+
+  gFile = temp;
 }
 // ------------------------------------------------------------
  

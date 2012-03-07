@@ -40,6 +40,31 @@ PndGemTrackFinderOnHits::PndGemTrackFinderOnHits() {
   fMCTrackArray = NULL;
   fMCPointArray = NULL;
   fNofEvents    = 0;
+
+  fVerbose = 0;
+  fPrimary = 0;
+  
+  // Parameters, taken from the digiPar file
+  fParThetaA = 0.;
+  fParThetaB = 0.;
+  
+  fParTheta0 = 0.;
+  fParTheta1 = 0.;
+  fParTheta2 = 0.;
+  fParTheta3 = 0.;
+  
+  fParRadPhi0 = 0.;
+  fParRadPhi2 = 0.;
+  
+  for ( Int_t ipar = 0 ; ipar < 3 ; ipar++ ) {  
+    fParMat0[ipar] = 0.;
+    fParMat1[ipar] = 0.;
+  }
+
+  fMCAvailable = -666;
+
+  fNofExpectedTrackSegments = 0;
+  fNofFoundTrackSegments = 0;
 }
 
 // -----   Destructor   ----------------------------------------------------

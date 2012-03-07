@@ -1575,7 +1575,7 @@ InitStatus PndBarrelTrackFinder::Init() {
 // -----   Private method ReInit   -----------------------------------------
 InitStatus PndBarrelTrackFinder::ReInit() {
 
-  return kERROR;
+  return kSUCCESS;
 
 }
 // -------------------------------------------------------------------------

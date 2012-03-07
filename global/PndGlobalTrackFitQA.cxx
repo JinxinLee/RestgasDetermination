@@ -411,11 +411,18 @@ void PndGlobalTrackFitQA::Finish() {
   cout << " Fit Tracks:    " << setw(10) << fNofFitTracks << endl;
   cout << "---------------------------------------------------------------------" << endl; 
 
+  TFile* temp = gFile;
+  FairRootManager* ioman = FairRootManager::Instance();
+  gFile = ioman->GetOutFile();
+  gDirectory = (TDirectory*)gFile;
+
   gDirectory->mkdir("GlobalTrackFitQA");
   gDirectory->cd("GlobalTrackFitQA");
   TIter next(fHistoFList);
   while ( TH1* histo = ((TH1*)next()) ) histo->Write();
   gDirectory->cd("..");
+
+  gFile = temp;
 }
 // ------------------------------------------------------------
  
