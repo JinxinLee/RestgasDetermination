@@ -45,6 +45,9 @@ class PndSttMapCreator : public TObject
   // fGeoType1
   std::map<int, int> copy_map;
 
+  PndSttMapCreator(const  PndSttMapCreator& L);
+  PndSttMapCreator& operator= (const  PndSttMapCreator&) {return *this;};
+
  protected:
 
   ClassDef(PndSttMapCreator,1) 

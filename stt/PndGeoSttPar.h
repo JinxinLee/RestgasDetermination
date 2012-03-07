@@ -30,6 +30,9 @@ class PndGeoSttPar : public FairParGenericSet
   Int_t                 GetGeometryType() { return (Int_t)    fGeoType;};
   Double_t              GetTubeInRad()    { return (Double_t) fTubeInRad;};
   Double_t              GetTubeOutRad()   { return (Double_t) fTubeOutRad;};
+
+  PndGeoSttPar(const  PndGeoSttPar& L);
+  PndGeoSttPar& operator= (const  PndGeoSttPar&) {return *this;};
   
   ClassDef(PndGeoSttPar,1)
 };

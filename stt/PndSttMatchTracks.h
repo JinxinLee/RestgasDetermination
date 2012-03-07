@@ -96,6 +96,9 @@ class PndSttMatchTracks : public FairTask
   /** object persistence **/
   Bool_t  fPersistence; //!
 
+  PndSttMatchTracks(const  PndSttMatchTracks& L);
+  PndSttMatchTracks& operator= (const  PndSttMatchTracks&) {return *this;};
+
   ClassDef(PndSttMatchTracks,1);
 };
 

@@ -172,6 +172,9 @@ class PndStt : public FairDetector
    **/
   float GetSquaredDistanceFromWire();
 
+  PndStt(const  PndStt& L);
+  PndStt& operator= (const  PndStt&) {return *this;};
+
   ClassDef(PndStt,3) 
 
 };
