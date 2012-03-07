@@ -18,9 +18,9 @@
 
 using namespace std;
 
-PndEmcReader::PndEmcReader(TString name)
+PndEmcReader::PndEmcReader(TString name): g4data(), sName(name)
 { 
-  sName = name;
+  g4data.clear();
   PndEmcReader::fill_vector();
 }
 

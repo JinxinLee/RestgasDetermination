@@ -63,6 +63,12 @@ class PndEmcClusterCalibrator
 		virtual ~PndEmcClusterCalibrator();
   
 		static PndEmcAbsClusterCalibrator *MakeEmcClusterCalibrator(Int_t method, Int_t version=1);
+
+        private:
+
+                PndEmcClusterCalibrator(const  PndEmcClusterCalibrator& L);
+                PndEmcClusterCalibrator& operator= (const  PndEmcClusterCalibrator&) {return *this;};
+
 };
 
 class PndEmcClusterHistCalibrator: public PndEmcAbsClusterCalibrator
@@ -87,6 +93,9 @@ class PndEmcClusterHistCalibrator: public PndEmcAbsClusterCalibrator
 // 	TH2F *fHThetaDiffBarrelElectron, *fHThetaDiffFwdElectron, *fHThetaDiffBwdElectron, *fHThetaDiffShashlykElectron;
 // 	TH2F *fHEnergyRatioBarrelPion, *fHEnergyRatioFwdPion, *fHEnergyRatioBwdPion, *fHEnergyRatioShashlykPion;
 // 	TH2F *fHThetaDiffBarrelPion, *fHThetaDiffFwdPion, *fHThetaDiffBwdPion, *fHThetaDiffShashlykPion;
+
+        PndEmcClusterHistCalibrator(const  PndEmcClusterHistCalibrator& L);
+        PndEmcClusterHistCalibrator& operator= (const  PndEmcClusterHistCalibrator&) {return *this;};
 };
 
 class PndEmcClusterSimpleCalibrator: public PndEmcAbsClusterCalibrator
@@ -103,5 +112,8 @@ class PndEmcClusterSimpleCalibrator: public PndEmcAbsClusterCalibrator
 	
 	private: 
 		PndEmcClusterCalibrationParObject *fParObject;
+
+                PndEmcClusterSimpleCalibrator(const  PndEmcClusterSimpleCalibrator& L);
+                PndEmcClusterSimpleCalibrator& operator= (const  PndEmcClusterSimpleCalibrator&) {return *this;};
 };
 #endif // PndEmcClusterCalibrator_HH

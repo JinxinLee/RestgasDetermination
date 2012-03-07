@@ -26,20 +26,16 @@ using namespace std;
 //----------------
 // Constructors --
 //----------------
-PndEmcTwoCoordIndex::PndEmcTwoCoordIndex()
+PndEmcTwoCoordIndex::PndEmcTwoCoordIndex(): fIndex(-1), fNeighbours(PndEmcCoordIndexSet())
 {
    fCoords[0]=-1;
    fCoords[1]=-1;
-
-   fIndex=-1;
 }
 
-PndEmcTwoCoordIndex::PndEmcTwoCoordIndex( long x, long y, long ind )
+PndEmcTwoCoordIndex::PndEmcTwoCoordIndex( long x, long y, long ind ): fIndex(ind), fNeighbours(PndEmcCoordIndexSet())
 {
    fCoords[0]=x;
    fCoords[1]=y;
-  
-   fIndex=ind;
 }
 
 //--------------

@@ -49,11 +49,9 @@ using std::endl;
 //----------------
 // Constructors --
 //----------------
-PndEmcMakeCorr::PndEmcMakeCorr(Int_t verbose, TString transportModel, TString clusterType)
+PndEmcMakeCorr::PndEmcMakeCorr(Int_t verbose, TString transportModel, TString clusterType):
+f(new TFile()), f0(new TFile()), f1(new TFile()), f2(new TFile()), f3(new TFile()), fClusterIndex(-1), fClusterArray(new TClonesArray()), fClusterArrayCorr(new TClonesArray()), fDigiPar(new PndEmcDigiPar()), fRecoPar(new PndEmcRecoPar()), fStoreClustersCorr(kTRUE), fModel(transportModel), fClusterType(clusterType), fVerbose(0)
 {
-  fStoreClustersCorr=kTRUE;  
-  fModel = transportModel;
-  fClusterType = clusterType;
   cout<<"PndEmcMakeCorr  constructor: "<<fClusterType<<endl;
 }
 

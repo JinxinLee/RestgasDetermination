@@ -46,9 +46,8 @@ using std::endl;
 // Constructors --
 //----------------
 
-PndEmc2DLocMaxFinder::PndEmc2DLocMaxFinder(Int_t verbose)
+PndEmc2DLocMaxFinder::PndEmc2DLocMaxFinder(Int_t verbose): fClusterArray(new TClonesArray()), fDigiArray(new TClonesArray()), fGeoPar(new PndEmcGeoPar()), fDigiPar(new PndEmcDigiPar()), fRecoPar(new PndEmcRecoPar()), fPersistance(kFALSE), fMaxECut(0), fNeighbourECut(0), fCutSlope(0), fCutOffset(0), fERatioCorr(0), fTheNeighbourLevel(0), fVerbose(verbose)
 {
-	fVerbose=verbose; 
 }
 
 //--------------

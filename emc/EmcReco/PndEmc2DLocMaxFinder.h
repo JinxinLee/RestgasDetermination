@@ -65,8 +65,6 @@ class PndEmc2DLocMaxFinder: public FairTask
   // all be crystals that actually were within the cluster.
   
  private:
-  // Copy Constructor
-  PndEmc2DLocMaxFinder( const PndEmc2DLocMaxFinder& other);
   // Methods
   void getNeighbourDigis( PndEmcCoordIndexSet &, PndEmcCoordIndexSet &, int,
 			  std::map<Int_t, Int_t>) const;
@@ -93,7 +91,10 @@ class PndEmc2DLocMaxFinder: public FairTask
   Int_t fTheNeighbourLevel;
   /** Verbosity level **/
   Int_t fVerbose;
-  
+ 
+  PndEmc2DLocMaxFinder(const  PndEmc2DLocMaxFinder& L);
+  PndEmc2DLocMaxFinder& operator= (const  PndEmc2DLocMaxFinder&) {return *this;};
+ 
   ClassDef(PndEmc2DLocMaxFinder,1);
 };
 #endif // PNDEMC2DLOCALMAXFINDER_HH

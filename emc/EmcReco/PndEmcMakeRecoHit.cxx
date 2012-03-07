@@ -35,10 +35,9 @@
 using std::cout;
 using std::endl;
 
-PndEmcMakeRecoHit::PndEmcMakeRecoHit(Int_t verbose, Bool_t storerecohits) 
+PndEmcMakeRecoHit::PndEmcMakeRecoHit(Int_t verbose, Bool_t storerecohits):
+fBumpArray(new TClonesArray()), fRecoHitArray(new TClonesArray()), fRecoPar(new PndEmcRecoPar()), fVerbose(verbose), fStoreRecoHits(storerecohits) 
 {
-	fVerbose=verbose;
-	fStoreRecoHits=storerecohits;
 }
 
 //--------------

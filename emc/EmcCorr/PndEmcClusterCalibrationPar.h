@@ -45,7 +45,7 @@ class PndEmcClusterCalibrationParObject: public TObject
 		void SetCalibrationPar(Int_t iParSet, Double_t *pars);
 		void GetCalibrationPar(Int_t iParSet, Double_t *pars);
 		
-		PndEmcClusterCalibrationParObject(){};
+		PndEmcClusterCalibrationParObject():fClusterCalibrationPars() { fClusterCalibrationPars.clear();};
 		~PndEmcClusterCalibrationParObject(){};
 	private:
 		std::map<Int_t,std::vector<Double_t> > fClusterCalibrationPars;
@@ -73,6 +73,8 @@ class PndEmcClusterCalibrationPar : public FairParGenericSet
 	
 	private :
 		PndEmcClusterCalibrationParObject *fParObject;
+                PndEmcClusterCalibrationPar(const  PndEmcClusterCalibrationPar& L);
+                PndEmcClusterCalibrationPar& operator= (const  PndEmcClusterCalibrationPar&) {return *this;};
 		ClassDef(PndEmcClusterCalibrationPar,1);
 };
 

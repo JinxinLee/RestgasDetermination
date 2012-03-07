@@ -46,10 +46,11 @@ using std::endl;
 
 Int_t PndEmcMakeCluster::fEventCounter=0;
 
-PndEmcMakeCluster::PndEmcMakeCluster(Int_t verbose, Bool_t storeclusters) 
+PndEmcMakeCluster::PndEmcMakeCluster(Int_t verbose, Bool_t storeclusters):
+fDigiArray(new TClonesArray()), fHitArray(new TClonesArray()), fMCTrackArray(new TClonesArray()), fClusterArray(new TClonesArray()), fClusterList(), fDigiEnergyTresholdBarrel(0), fDigiEnergyTresholdFWD(0), fDigiEnergyTresholdBWD(0), fDigiEnergyTresholdShashlyk(0), fClusterPosParam(), fMapVersion(0), fGeoPar(new PndEmcGeoPar()), fDigiPar(new PndEmcDigiPar()), fRecoPar(new PndEmcRecoPar()), fVerbose(verbose), fStoreClusters(storeclusters) 
 {
-	fVerbose=verbose;
-	fStoreClusters=storeclusters;
+	fClusterList.clear();
+	fClusterPosParam.clear();
 }
 
 //--------------

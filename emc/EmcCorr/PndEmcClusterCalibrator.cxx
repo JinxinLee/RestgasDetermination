@@ -75,9 +75,9 @@ PndEmcAbsClusterCalibrator *PndEmcClusterCalibrator::MakeEmcClusterCalibrator(In
 /////////////////////////////////////////////////////////////////
 //////////// PndEmcAbsClusterCalibrator /////////////////////////
 /////////////////////////////////////////////////////////////////
-PndEmcAbsClusterCalibrator::PndEmcAbsClusterCalibrator(Int_t version)
+PndEmcAbsClusterCalibrator::PndEmcAbsClusterCalibrator(Int_t version):
+fVersion(version), fPath("")
 {
-	fVersion = version; 
 }
 		
 PndEmcAbsClusterCalibrator::~PndEmcAbsClusterCalibrator()
@@ -89,7 +89,9 @@ PndEmcAbsClusterCalibrator::~PndEmcAbsClusterCalibrator()
 //////////// PndEmcClusterHistCalibrator ////////////////////////
 /////////////////////////////////////////////////////////////////
 
-PndEmcClusterHistCalibrator::PndEmcClusterHistCalibrator(Int_t version)
+PndEmcClusterHistCalibrator::PndEmcClusterHistCalibrator(Int_t version):
+fPhoton(new TFile()), fElectron(new TFile()), fPion(new TFile()),
+fHEnergyRatioBarrelPhoton(0), fHEnergyRatioFwdPhoton(0), fHEnergyRatioBwdPhoton(0), fHEnergyRatioShashlykPhoton(0), fHThetaDiffBarrelPhoton(0), fHThetaDiffFwdPhoton(0), fHThetaDiffBwdPhoton(0), fHThetaDiffShashlykPhoton(0)
 {
 	
 	fPath = getenv("VMCWORKDIR");
@@ -98,8 +100,6 @@ PndEmcClusterHistCalibrator::PndEmcClusterHistCalibrator(Int_t version)
 	TString fileNamePhoton;
 	fileNamePhoton.Form("emc_correction_hist_gamma_%i.root",version);
 	fileNamePhoton=fPath+fileNamePhoton;	
-	fHEnergyRatioBarrelPhoton=0; fHEnergyRatioFwdPhoton=0; fHEnergyRatioBwdPhoton=0; fHEnergyRatioShashlykPhoton=0;
-	fHThetaDiffBarrelPhoton=0; fHThetaDiffFwdPhoton=0; fHThetaDiffBwdPhoton=0; fHThetaDiffShashlykPhoton=0;
 	
 	fPhoton = new TFile(fileNamePhoton,"READ");
 	if (fPhoton->IsZombie())
@@ -462,7 +462,8 @@ PndEmcClusterHistCalibrator::GetValueInZ(TH2 *lookup_table, Float_t value_x, Flo
 /////////////////////////////////////////////////////////////////
 //////////// PndEmcClusterSimpleCalibrator //////////////////////
 /////////////////////////////////////////////////////////////////
-PndEmcClusterSimpleCalibrator::PndEmcClusterSimpleCalibrator(Int_t version)
+PndEmcClusterSimpleCalibrator::PndEmcClusterSimpleCalibrator(Int_t version):
+fParObject(new PndEmcClusterCalibrationParObject())
 {
 	fPath = getenv("VMCWORKDIR");
 	fPath += "/macro/params/";

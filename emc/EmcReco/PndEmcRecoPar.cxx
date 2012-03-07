@@ -13,7 +13,7 @@ ClassImp(PndEmcRecoPar)
 
 PndEmcRecoPar::PndEmcRecoPar(const char* name,const char* title,
 			     const char* context)
-    : FairParGenericSet(name,title,context) 
+    : FairParGenericSet(name,title,context), fEnergyThresholdBarrel(0), fEnergyThresholdFWD(0), fEnergyThresholdBWD(0), fEnergyThresholdShashlyk(0), fEmcClusterPosMethod(), fOffsetParmA(0), fOffsetParmB(0), fOffsetParmC(0), fEmcDigiPositionDepthPWO(0), fEmcDigiPositionDepthShashlyk(0), fMaxECut(0), fNeighbourECut(0), fCutSlope(0), fCutOffset(0), fERatioCorr(0), fTheNeighbourLevel(0), fMoliereRadius(0), fMoliereRadiusShashlyk(0), fExponentialConstant(0), fMaxIterations(0), fCentroidShift(0), fMaxBumps(0), fMinDigiEnergy(0) 
 {
 	clear();
 }

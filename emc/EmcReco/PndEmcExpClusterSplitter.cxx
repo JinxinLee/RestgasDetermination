@@ -68,10 +68,10 @@ using std::endl;
 // Constructors --
 //----------------
 
-PndEmcExpClusterSplitter::PndEmcExpClusterSplitter(Int_t verbose)
+PndEmcExpClusterSplitter::PndEmcExpClusterSplitter(Int_t verbose):
+fDigiArray(new TClonesArray()), fClusterArray(new TClonesArray()), fBumpArray(new TClonesArray()), fSharedDigiArray(new TClonesArray()), fGeoPar(new PndEmcGeoPar()), fDigiPar(new PndEmcDigiPar()), fRecoPar(new PndEmcRecoPar()), fPersistance(kTRUE), fMoliereRadius(0), fMoliereRadiusShashlyk(0), fExponentialConstant(0), fMaxIterations(0), fCentroidShift(0), fMaxBumps(0), fMinDigiEnergy(0), fClusterPosParam(), fVerbose(verbose)
 {
-  fVerbose=verbose;
-  fPersistance = kTRUE;
+  fClusterPosParam.clear();
 }
 
 //--------------

@@ -55,11 +55,8 @@ Int_t PndEmcMakeBump::fEventCounter=1;
 // Constructors --
 //----------------
 PndEmcMakeBump::PndEmcMakeBump(Int_t verbose, Bool_t persistance):
-FairTask("EMC Bump splitting Task")
+FairTask("EMC Bump splitting Task"), fVerbose(verbose), fPersistance(persistance)
 {
-  fVerbose=verbose; 
-  fPersistance=persistance;
-  
   this->Add(new PndEmc2DLocMaxFinder());
   this->Add(new PndEmcExpClusterSplitter());
 

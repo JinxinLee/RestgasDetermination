@@ -29,7 +29,7 @@ class PndEmcErrorMatrixParObject: public TObject
 		void SetErrorMatrix(Int_t detectorComponent, Double_t *pars);
 		void GetErrorMatrix(Int_t detectorComponent, Double_t *pars);
 		
-		PndEmcErrorMatrixParObject(){};
+		PndEmcErrorMatrixParObject():fErrorMatrixPars(){ fErrorMatrixPars.clear();};
 		~PndEmcErrorMatrixParObject(){};
 	private:
 		std::map<Int_t,std::vector<Double_t> > fErrorMatrixPars;
@@ -58,6 +58,10 @@ class PndEmcErrorMatrixPar : public FairParGenericSet
 	private :
 		PndEmcErrorMatrixParObject *fParObject;
 		ClassDef(PndEmcErrorMatrixPar,1);
+
+                PndEmcErrorMatrixPar(const  PndEmcErrorMatrixPar& L);
+                PndEmcErrorMatrixPar& operator= (const  PndEmcErrorMatrixPar&) {return *this;};
+
 };
 
 #endif

@@ -11,8 +11,10 @@
 #include "TSystem.h"
 #include <cmath>
 
-PndEmcErrorMatrix::PndEmcErrorMatrix()
-{}
+PndEmcErrorMatrix::PndEmcErrorMatrix():
+fErrorMatrixParObject(new PndEmcErrorMatrixParObject())
+{
+}
 
 void PndEmcErrorMatrix::Init(PndEmcErrorMatrixParObject *par)
 {

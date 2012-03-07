@@ -99,6 +99,9 @@ class PndEmcMakeCorr  : public FairTask
   TString corrFileName[4];
   TString fPartName[4];
 
-  ClassDef(PndEmcMakeCorr,1)
+  PndEmcMakeCorr(const  PndEmcMakeCorr& L);
+  PndEmcMakeCorr& operator= (const  PndEmcMakeCorr&) {return *this;};
+  
+ClassDef(PndEmcMakeCorr,1)
 };
 #endif // PNDEMCMAKECORR_HH

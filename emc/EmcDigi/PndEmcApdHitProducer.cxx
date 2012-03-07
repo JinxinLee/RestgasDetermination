@@ -24,9 +24,7 @@
 
 #include "TClonesArray.h"
 #include "TROOT.h"
-#include "TGeoManager.h"
 #include "TGeoVolume.h"
-#include "TGeoNode.h"
 #include "TGeoMatrix.h"
 #include "TVector3.h"
 
@@ -88,7 +86,7 @@ InitStatus PndEmcApdHitProducer::Init() {
 	
 	fMapVersion=1;
 	PndEmcMapper::Init(fMapVersion);
-	fEmcStr=PndEmcStructure::Instance(gGeoManager);
+	fEmcStr=PndEmcStructure::Instance();
   
 	emcX=fEmcStr->GetEmcX();
 	emcY=fEmcStr->GetEmcY();

@@ -78,7 +78,28 @@ PndEmcCorrection::PndEmcCorrection(Int_t chosenModule, Double_t EnCorPhoton, Dou
 {
 }
 
-PndEmcCorrection::PndEmcCorrection()
+PndEmcCorrection::PndEmcCorrection():
+  fChosenModule(0),
+
+  fEnergyCorrPhoton(0),
+  fEnergyCorrElectron(0),
+  fEnergyCorrPion(0),
+  fEnergyCorrOther(0),
+
+  fThetaCorrPhoton(0),
+  fThetaCorrElectron(0),
+  fThetaCorrPion(0),
+  fThetaCorrOther(0),
+
+  fEnCorrFactorPhoton(0),
+  fEnCorrFactorElectron(0),
+  fEnCorrFactorPion(0),
+  fEnCorrFactorOther(0),
+
+  fThCorrFactorPhoton(0),
+  fThCorrFactorElectron(0),
+  fThCorrFactorPion(0),
+  fThCorrFactorOther(0)
 {
 }
 

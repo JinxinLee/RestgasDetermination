@@ -30,7 +30,6 @@
 #include "TParticle.h"
 #include "TVirtualMC.h"
 #include "TGeoArb8.h"
-#include "TGeoVoxelFinder.h"
 #include "TGeoMatrix.h"
 
 #include "FairGeoMedia.h" 

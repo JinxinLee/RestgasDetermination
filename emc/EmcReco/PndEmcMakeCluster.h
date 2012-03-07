@@ -81,6 +81,9 @@ private:
 	Bool_t fStoreClusters;
 
 	void cleansortmclist( std::vector <Int_t> &newlist,TClonesArray* mcTrackArray);
+
+        PndEmcMakeCluster(const  PndEmcMakeCluster& L);
+        PndEmcMakeCluster& operator= (const  PndEmcMakeCluster&) {return *this;};
 	
 	ClassDef(PndEmcMakeCluster,1)
 };

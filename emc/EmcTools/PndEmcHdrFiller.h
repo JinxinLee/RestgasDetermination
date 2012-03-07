@@ -52,6 +52,8 @@ class PndEmcHdrFiller : public FairTask
   /** Output array of PndEmcHeader **/
   TClonesArray* fHdrArray;
   
+  PndEmcHdrFiller(const  PndEmcHdrFiller& L);
+  PndEmcHdrFiller& operator= (const  PndEmcHdrFiller&) {return *this;};
  
   ClassDef(PndEmcHdrFiller,1);
   

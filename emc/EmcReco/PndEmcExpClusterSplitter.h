@@ -104,6 +104,9 @@ class PndEmcExpClusterSplitter: public FairTask
 	
 	/** Verbosity level **/
 	Int_t fVerbose;
+
+        PndEmcExpClusterSplitter(const  PndEmcExpClusterSplitter& L);
+        PndEmcExpClusterSplitter& operator= (const  PndEmcExpClusterSplitter&) {return *this;};
 	
 	ClassDef(PndEmcExpClusterSplitter,1);
 };

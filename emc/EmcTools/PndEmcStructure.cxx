@@ -81,7 +81,7 @@ PndEmcStructure* PndEmcStructure::Instance ()
 	return _instance;
 }
 
-PndEmcStructure::PndEmcStructure(TGeoManager *geoMan)
+PndEmcStructure::PndEmcStructure(TGeoManager *geoMan): emcX(), emcY(), emcZ(), fTciXtalMap()
 {
   
 	// Instantiate mapper to convert from detId to TCI 

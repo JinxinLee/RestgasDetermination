@@ -66,7 +66,7 @@ ClassImp(PndEmcClusterCalibrationPar)
 
 PndEmcClusterCalibrationPar::PndEmcClusterCalibrationPar(const char* name,const char* title,
 			     const char* context)
-    : FairParGenericSet(name,title,context) 
+    : FairParGenericSet(name,title,context), fParObject(new PndEmcClusterCalibrationParObject()) 
 {
 	fParObject = NULL;
 }

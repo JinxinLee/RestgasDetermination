@@ -40,6 +40,9 @@ class PndEmcErrorMatrix
 	 
 	private:
 		PndEmcErrorMatrixParObject *fErrorMatrixParObject;
+
+        PndEmcErrorMatrix(const  PndEmcErrorMatrix& L);
+        PndEmcErrorMatrix& operator= (const  PndEmcErrorMatrix&) {return *this;};
 };
 
 // helper function to convert error matrix

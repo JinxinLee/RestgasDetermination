@@ -57,6 +57,9 @@ private:
 	Int_t fVerbose;
 
 	Bool_t fStoreRecoHits;
+
+        PndEmcMakeRecoHit(const  PndEmcMakeRecoHit& L);
+        PndEmcMakeRecoHit& operator= (const  PndEmcMakeRecoHit&) {return *this;};
 	
 	ClassDef(PndEmcMakeRecoHit,1)
 };

@@ -29,9 +29,7 @@
 
 #include "TClonesArray.h"
 #include "TROOT.h"
-#include "TGeoManager.h"
 #include "TGeoVolume.h"
-#include "TGeoNode.h"
 #include "TGeoMatrix.h"
 #include "TVector3.h"
 #include "TSystem.h"

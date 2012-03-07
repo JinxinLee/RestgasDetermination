@@ -43,7 +43,7 @@ ClassImp(PndEmcErrorMatrixPar)
 
 PndEmcErrorMatrixPar::PndEmcErrorMatrixPar(const char* name,const char* title,
 			     const char* context)
-    : FairParGenericSet(name,title,context) 
+    : FairParGenericSet(name,title,context), fParObject(new PndEmcErrorMatrixParObject()) 
 {
 	fParObject = NULL;
 }

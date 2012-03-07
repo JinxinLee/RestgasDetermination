@@ -10,12 +10,7 @@
 
 #include "PndEmcMapper.h"
 #include "PndEmcTwoCoordIndex.h"
-#include "FairBaseParSet.h"
-#include "TGeoManager.h"
-#include "TGeoVolume.h"
 		
-#include "TROOT.h"
-#include "TFile.h"
 #include <iostream>
 #include <fstream>		
 
