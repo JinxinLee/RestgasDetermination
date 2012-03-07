@@ -108,8 +108,8 @@ int main(int argc, char *argv[])
   const double pi=3.1415926535;
 
   //int iopt = 0;// only geometry
-  //int iopt = 1;// straight lines
-  int iopt = 2;// C-cone
+  int iopt = 1;// straight lines
+  //int iopt = 2;// C-cone
   //int iopt = 3;// ???
    
   int lens_opt = 1;  // two thin lenses no air gap
@@ -370,7 +370,7 @@ int main(int argc, char *argv[])
 
 
   PndDrcPhoton ph;
-  ph.SetReflectionLimit(200);
+  ph.SetReflectionLimit(20);
   
   list<PndDrcPhoton> list_photon; // get list
   
@@ -381,19 +381,21 @@ int main(int argc, char *argv[])
       TRandom ran;
       //for (double angle=20; angle<=20; angle+=5)
       for (double angle=5; angle<=50.5; angle+=5)
+	//double angle=10;
 	{
 	  double slab_width = q2.X()*1.9;
 	  double slab_height =q2.Y()*1.9;
 
 	  //cout<<" angle = "<<angle<<endl;
-	  for (double lambda1=630; lambda1>329; lambda1-=30)
+	  //for (double lambda1=630; lambda1>329; lambda1-=30)
+	  double lambda1 = 400;
 	    {
 	      //double lambda1=lambda;
 	      // go in x dir
 	      double y1 = tan(angle*pi/180);
 	      double x1 = y1;
-	      double scale = 3/angle;
-	      for (double y=-y1; y<= y1; y+= 2*y1/20*scale)
+	      double step = 0.3*y1/angle;
+	      for (double y=-y1; y<= y1; y+= step)
 		{
 		  double xx=ran.Uniform(-0.5*slab_width,0.5*slab_width);
 		  double yy=ran.Uniform(-0.5*slab_height,0.5*slab_height);
@@ -406,7 +408,7 @@ int main(int argc, char *argv[])
 		  ph.SetWavelength(lambda1);
 		  list_photon.push_back(ph);
 		}
-	      for (double x=-x1; x<= x1; x+= 2*y1/20*scale)
+	      for (double x=-x1; x<= x1; x+= step)
 		{
 		  double xx=ran.Uniform(-0.5*slab_width,0.5*slab_width);
 		  double yy=ran.Uniform(-0.5*slab_height,0.5*slab_height);
