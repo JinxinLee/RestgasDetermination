@@ -118,6 +118,8 @@ class PndEmc : public FairDetector
   // recursively add volumes to the geoManager
   void ExpandNode(TGeoVolume *fVol, TGeoVolume *Cave);
 
+//  virtual Bool_t CheckIfSensitive(std::string name);
+
   // general function for chosing the combination of EMC geometry
   virtual void  SetGeometryVersion(const Int_t GeoNumber);
   // 

@@ -111,6 +111,39 @@ void PndEmc::BeginEvent(){
 Bool_t PndEmc::ProcessHits(FairVolume* vol) {  
   
 
+  TString nam = gMC->CurrentVolName();
+ /* 
+  if(gMC->IsTrackEntering()||gMC->IsTrackExiting()){
+	  printf("\n###################\n");
+	  if(gMC->IsTrackEntering()){
+		  printf("track is entering volume %s\n",nam.Data());
+	  }
+	  if(gMC->IsTrackExiting()){
+		  printf("track is exiting volume %s\n",nam.Data());
+	  }
+	  if(gMC->IsTrackInside()){
+		  printf("track is inside volume %s\n",nam.Data());
+	  }
+	  TLorentzVector trackmomentum;
+	  TLorentzVector trackposition;
+	  gMC->TrackPosition(trackposition);
+	  gMC->TrackMomentum(trackmomentum);
+	  printf("Track is at x: %e, y: %e, z: %e, t: %e\n",trackposition.X(),trackposition.Y(),trackposition.Z(),trackposition.T());
+	  printf("Momentum is: px: %e, py: %e, pz: %e, E: %e\n",trackmomentum.Px(),trackmomentum.Py(),trackmomentum.Pz(),trackmomentum.E());
+	  printf("Steplength is: %e\n",gMC->TrackStep());
+	  printf("Deposited Energy: %e\n",gMC->Edep());
+	 //  CurrentBoundaryNormal is not implemented.
+	 // Double_t x,y,z;
+	 // if(gMC->CurrentBoundaryNormal(x,y,z)){
+	//	  printf("track is at boundary with normal x: %e, y: %e, z: %e\n",x,y,z);
+	//	  printf("track is at an angle of %e to normal\n",trackposition.Angle(TVector3(x,y,z))*TMath::RadToDeg());
+	//  }
+	
+	  printf("current Volume form gGeoManager is: %s\n",gGeoManager->GetCurrentVolume()->GetName());
+	  printf("step from gGeoManager is: %e\n",gGeoManager->GetStep());
+	  printf("###################\n");
+  }
+  */
   if (gMC->Edep()<=0){
 	  // skip all the points which have no energy loss (i.e. Entering)
 	  // problem for MC truth!
@@ -119,7 +152,6 @@ Bool_t PndEmc::ProcessHits(FairVolume* vol) {
 	  if ( gMC->IsNewTrack() || !gMC->IsTrackEntering()) return kTRUE;
   }
   
-  TString nam = gMC->CurrentVolName();
 
   // ---------------------------------------------------------------------------------
   // Getting parameters for the ROOT file with geometry for Forward End-Cap.
@@ -1027,7 +1059,7 @@ void PndEmc::ConstructGeometry() {
       std::cout<< " ====== EMC::  ConstructASCIIGeometry() ====== " <<std::endl;
       std::cout<< " ============================================= " <<std::endl;
       ConstructASCIIGeometry();
-    } else if(fileName.EndsWith("new.root") || fileName.EndsWith("proto60.root")) {
+    } else if(fileName.EndsWith("new.root") || fileName.EndsWith("proto60.root") || fileName.EndsWith("proto192.root")) {
       std::cout<< "                                              " <<std::endl;
       std::cout<< " ====== EMC::  ConstructROOTGeometry() m3 === " <<std::endl;
       std::cout<< " ============================================ " <<std::endl;
@@ -1106,9 +1138,17 @@ void PndEmc::ConstructRootGeometry() {
 		TransRotMatrix = new TGeoCombiTrans(0.,0.,0.,new TGeoRotation());
 	}else{
 		Volume=(TGeoVolume *)f->Get("Emc3");
-		TGeoRotation rotVolume;
-		rotVolume.RotateY(180.);
-		TransRotMatrix = new TGeoCombiTrans(0., 0., 215.2,new TGeoRotation(rotVolume));//distance of the FwEndCap module to the target point was obtained to be around 2152 mm.
+			TGeoRotation rotVolume;
+			rotVolume.RotateY(180.);
+		if(filename.Contains("proto")){
+			rotVolume.RotateY(-6.51324892093148211e0);
+			rotVolume.RotateX(5.15340666154607074e0);
+			TransRotMatrix = new TGeoCombiTrans(-3.66092554252584108e+01, -2.84174235113817986e+01, 1.02907349180644744e+02,new TGeoRotation(rotVolume));
+			//Moving Proto192 so that beam axis is on bottom right corner of row 49 crystal 21 (X4Y3-7)
+
+		}else{
+			TransRotMatrix = new TGeoCombiTrans(0., 0., 215.2,new TGeoRotation(rotVolume));//distance of the FwEndCap module to the target point was obtained to be around 2152 mm.}
+		}
 	}
 	if(Volume == NULL){
 		printf("Could not get geometry from file %s!.\nIs this the right file?\n",filename.Data());
