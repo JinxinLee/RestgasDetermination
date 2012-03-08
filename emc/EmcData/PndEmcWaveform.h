@@ -74,7 +74,7 @@ public:
 	int    GetTrackId() const                       {return fTrackId;}
 	Short_t GetModule()      const { return (fDetectorId/100000000);};
 	PndEmcTwoCoordIndex* GetTCI() const;
-	std::vector<double> GetSignal() const { return fSignal ;};
+	virtual	std::vector<double> GetSignal() const { return fSignal ;};
 	double GetScale(Double_t sampleRate, PndEmcAbsPulseshape *pulseshape) const;
 	double GetNormalisation(Double_t sampleRate, PndEmcAbsPulseshape *pulseshape) const;
    int    GetWaveformLength() const {return fWaveformLength;};
@@ -96,12 +96,14 @@ public:
   void AddShapedElecNoiseAndDigitise(Double_t noise_width,Double_t oneBitResolution, PndEmcAbsPulseshape *pulseshape, Double_t firstADCBinTime, Double_t sampleRate);
   // Add shaped noise and digitise.  
 
+  void SetWaveform(std::vector<Double_t>&signal,Int_t length){fSignal = signal; fWaveformLength=length;};
 	double Max();
   
-	void clearAndReset();
+	virtual void clearAndReset();
+	virtual void Clear(Option_t *option=""){fSignal.clear();};
 
-private:
-  
+//private:
+protected: 
 	Int_t fTrackId;	
 	Int_t fDetectorId;
 	Int_t fWaveformLength;
@@ -109,6 +111,6 @@ private:
 
 	std::vector<Double_t>  fSignal; // Signal after FADC
 
-ClassDef(PndEmcWaveform,4)
+ClassDef(PndEmcWaveform,5)
 };
 #endif

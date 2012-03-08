@@ -111,6 +111,8 @@ class PndEmcDigi : public FairMultiLinkedData
 private:
 
 	friend class PndEmcWaveformToDigi;
+	friend class PndEmcWaveformToCalibratedDigi;
+	friend class PndEmcMultiWaveformToCalibratedDigi;
 	friend class PndEmcTmpWaveformToDigi;
 	friend class PndEmcMakeDigi;
 
