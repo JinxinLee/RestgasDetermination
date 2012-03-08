@@ -3,9 +3,9 @@
 #pragma link off all globals;
 #pragma link off all classes;
 #pragma link off all functions;
-#pragma link C++ class PndGeoFtsPar+;           
-#pragma link C++ class PndGeoFts+;    
-#pragma link C++ class PndFtsDigiPar+;
+#pragma link C++ class PndGeoFtsPar;           
+#pragma link C++ class PndGeoFts;    
+#pragma link C++ class PndFtsDigiPar;
 #pragma link C++ class PndFtsHitInfo+;
 #pragma link C++ class PndFts+;
 #pragma link C++ class PndFtsContFact+;

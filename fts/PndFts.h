@@ -83,6 +83,7 @@ class PndFts : public FairDetector
    **/
   virtual void Reset();
 
+  void Initialize();
 
   /** Virtual method CopyClones
    **
@@ -121,7 +122,6 @@ class PndFts : public FairDetector
   Double_t     fELoss;             //!  energy loss
   Double_t     fMass;              //!  particle mass
   Bool_t         fIsInitialized;
- 
   
   Int_t fPosIndex;                   //!
   TClonesArray* fFtsCollection;      //! Hit collection

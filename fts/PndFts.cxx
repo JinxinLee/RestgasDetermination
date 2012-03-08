@@ -400,6 +400,12 @@ void PndFts::CopyClones(TClonesArray* cl1, TClonesArray* cl2, Int_t offset)
 }
 // -------------------------------------------------------------------------
 
+void PndFts::Initialize(){
+  cout << "-I----------------- PndFts:Initialize()---------------------- " <<endl;
+  FairDetector::Initialize();
+ 
+}
+
 
 
 // -----   Public method ConstructGeometry   -------------------------------

@@ -25,8 +25,14 @@ PndGeoFtsPar::~PndGeoFtsPar(void)
 
 void PndGeoFtsPar::clear(void) 
 {
-     if(fGeoSensNodes) delete fGeoSensNodes;
-     if(fGeoPassNodes) delete fGeoPassNodes;
+     if(fGeoSensNodes) {
+         fGeoSensNodes->Delete();
+        delete fGeoSensNodes;
+      }
+     if(fGeoPassNodes) {
+        fGeoPassNodes->Delete();
+        delete fGeoPassNodes;
+     }
 }
 
 void PndGeoFtsPar::putParams(FairParamList* l) 
