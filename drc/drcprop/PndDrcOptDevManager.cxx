@@ -682,34 +682,44 @@ void PndDrcOptDevManager::SetPhotonList(list<PndDrcPhoton>& photon_list,
                                         string vol_name, string sys_name,
                                         int ivol_copy, int isys_copy)
 {
-  fListPhoton = photon_list;
-
-  PndDrcOptDev* dev = 0;
-
   list<PndDrcPhoton>::iterator iph;
+  //for (iph = photon_list.begin(); iph != photon_list.end(); ++iph)
+  //{
+  //if ( (*iph).PositionXlist().size() != 1)
+  //{
+  //  cerr << "*** PndDrcOptDevManager::SetPhotonList: "
+  //       << " photons in list have position lists with more than one position. Abort."<<endl;
+  //  cerr << "    See documentation of PndDrcPhoton::SetPosition1()"<<endl;
+  //  
+  //  exit(EXIT_FAILURE);
+  //}
+  //}
+  
+  fListPhoton = photon_list;
+  
+  PndDrcOptDev* dev = 0;
+  
   for (iph = fListPhoton.begin(); iph != fListPhoton.end(); ++iph)
-  {
-    if( vol_name == "@@@")
-      dev = (*iph).Device();
-    else
     {
-      dev =Device(vol_name,sys_name,ivol_copy,isys_copy); // internal device pointer
-      (*iph).SetDevice(dev);
+      if( vol_name == "@@@")
+	dev = (*iph).Device();
+      else
+	{
+	  dev =Device(vol_name,sys_name,ivol_copy,isys_copy); // internal device pointer
+	  (*iph).SetDevice(dev);
+	}
+      
+      if( dev == 0 )
+	{
+	  cerr << "*** PndDrcOptDevManager::SetPhotonList: Photon device is not set" << endl;
+	  
+	  exit(EXIT_FAILURE);
+	}  
+      double x = (*iph).Direction().Dot(dev->DirectionX());
+      double y = (*iph).Direction().Dot(dev->DirectionY());
+      double z = (*iph).Direction().Dot(dev->DirectionZ());
+      (*iph).SetOriginDirection(XYZVector(x,y,z));     
     }
-
-    if( dev == 0 )
-    {
-      cerr << "*** PndDrcOptDevManager::SetPhotonList: Photon device is not set" << endl;
-
-      exit(EXIT_FAILURE);
-    }
-
-
-    double x = (*iph).Direction().Dot(dev->DirectionX());
-    double y = (*iph).Direction().Dot(dev->DirectionY());
-    double z = (*iph).Direction().Dot(dev->DirectionZ());
-    (*iph).SetOriginDirection(XYZVector(x,y,z));
-  }
 }
 //----------------------------------------------------------------------
 void PndDrcOptDevManager::Propagate()

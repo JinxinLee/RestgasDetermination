@@ -83,28 +83,35 @@ PndDrcPhoton& PndDrcPhoton::operator=(const PndDrcPhoton& ph)
 //----------------------------------------------------------------------
 void PndDrcPhoton::SetPosition(const XYZPoint& pos)
 {
-	if (fDev)
-  {
-    double n = (fDev->OptMaterial()).RefIndex(fLambda);
-    double dndl = (fDev->OptMaterial()).RefIndexDeriv(fLambda);
-    double len = sqrt((pos-fPosition).Mag2()); // mm
-//     double v_phase = 299.792/n; // mm/ns
-    double n_group = n - fLambda*dndl;
-    double v_group = 299.792/n_group;
-    double time = len/v_group;
-    fTime += time;          // pos in mm time in ns
-  }
-
-  if( fPrintFlag )
-  {
-    fPositionXlist.push_back(pos.X());
-    fPositionYlist.push_back(pos.Y());
-    fPositionZlist.push_back(pos.Z());
-  }
-
+  if (fDev)
+    {
+      double n = (fDev->OptMaterial()).RefIndex(fLambda);
+      double dndl = (fDev->OptMaterial()).RefIndexDeriv(fLambda);
+      double len = sqrt((pos-fPosition).Mag2()); // mm
+      //     double v_phase = 299.792/n; // mm/ns
+      double n_group = n - fLambda*dndl;
+      double v_group = 299.792/n_group;
+      double time = len/v_group;
+      fTime += time;          // pos in mm time in ns
+    }
+  
+  
   fPositionOld = fPosition;
   fPosition    = pos;
 };
+//----------------------------------------------------------------------
+void PndDrcPhoton::SetPosition1(const XYZPoint& pos)
+{
+  SetPosition(pos);
+  if( fPrintFlag )
+    {
+      fPositionXlist.push_back(pos.X());
+      fPositionYlist.push_back(pos.Y());
+      fPositionZlist.push_back(pos.Z());
+    }
+  
+}
+
 //----------------------------------------------------------------------
 bool PndDrcPhoton::Refract(XYZVector normal,
 			   double n1, double ex1,
@@ -210,7 +217,7 @@ bool PndDrcPhoton::Refract(XYZVector normal,
 	}
       dir2 = dir2.Unit();
       SetDirection(dir2);
-      SetPosition(Position() + 2*kEps*dir2); // bring it in new volume or outside.
+      SetPosition1(Position() + 2*kEps*dir2); // bring it in new volume or outside.
       if (Verbosity()>=4)
 	{
 	  cout<<"     refraction, brought it inside to "

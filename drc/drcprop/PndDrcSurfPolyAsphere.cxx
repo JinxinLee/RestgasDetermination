@@ -298,7 +298,7 @@ bool PndDrcSurfPolyAsphere::SurfaceHit(PndDrcPhoton& ph,
 			 ph.Direction().Dot(Normal(pos_new))))
 	    { 
 	      ph.SetFate(Drc::kPhotMeasured);
-	      if (fPixelCorr) ph.SetPosition(fPixelPoint);
+	      if (fPixelCorr) ph.SetPosition1(fPixelPoint);
 	    }
 	  else
 	    { 
@@ -370,7 +370,7 @@ bool PndDrcSurfPolyAsphere::SurfaceHit(PndDrcPhoton& ph,
 			 ph.Direction().Dot(Normal(pos_new))))
 	    { 
 	      ph.SetFate(Drc::kPhotMeasured);
-	      if (fPixelCorr) ph.SetPosition(fPixelPoint);
+	      if (fPixelCorr) ph.SetPosition1(fPixelPoint);
 	    }
 	  else
 	    { 
@@ -406,7 +406,7 @@ bool PndDrcSurfPolyAsphere::SurfaceHit(PndDrcPhoton& ph,
 			 ph.Direction().Dot(Normal(pos_new))))
 	    { 
 	      ph.SetFate(Drc::kPhotMeasured);
-	      if (fPixelCorr) ph.SetPosition(fPixelPoint);
+	      if (fPixelCorr) ph.SetPosition1(fPixelPoint);
 	    }
 	  else
 	    { 
@@ -438,7 +438,7 @@ bool PndDrcSurfPolyAsphere::SurfaceHit(PndDrcPhoton& ph,
 			 ph.Direction().Dot(Normal(pos_new))))
 	    { 
 	      ph.SetFate(Drc::kPhotMeasured);
-	      if (fPixelCorr) ph.SetPosition(fPixelPoint);
+	      if (fPixelCorr) ph.SetPosition1(fPixelPoint);
 	    }
 	  else
 	    { 
@@ -544,7 +544,7 @@ bool PndDrcSurfPolyAsphere::SurfaceHit(PndDrcPhoton& ph,
 			 ph.Direction().Dot(Normal(pos_new))))
 	    { 
 	      ph.SetFate(Drc::kPhotMeasured);
-	      if (fPixelCorr) ph.SetPosition(fPixelPoint);
+	      if (fPixelCorr) ph.SetPosition1(fPixelPoint);
 	    }
 	  else
 	    { 
@@ -575,7 +575,7 @@ bool PndDrcSurfPolyAsphere::SurfaceHit(PndDrcPhoton& ph,
 			 ph.Direction().Dot(Normal(pos_new))))
 	    { 
 	      ph.SetFate(Drc::kPhotMeasured);
-	      if (fPixelCorr) ph.SetPosition(fPixelPoint);
+	      if (fPixelCorr) ph.SetPosition1(fPixelPoint);
 	    }
 	  else
 	    { 
@@ -606,7 +606,7 @@ bool PndDrcSurfPolyAsphere::SurfaceHit(PndDrcPhoton& ph,
 			 ph.Direction().Dot(Normal(pos_new))))
 	    { 
 	      ph.SetFate(Drc::kPhotMeasured);
-	      if (fPixelCorr) ph.SetPosition(fPixelPoint);
+	      if (fPixelCorr) ph.SetPosition1(fPixelPoint);
 	    }
 	  else
 	    { 
@@ -680,7 +680,7 @@ bool PndDrcSurfPolyAsphere::SurfaceHit(PndDrcPhoton& ph,
 			 ph.Direction().Dot(Normal(pos_new))))
 	    { 
 	      ph.SetFate(Drc::kPhotMeasured);
-	      if (fPixelCorr) ph.SetPosition(fPixelPoint);
+	      if (fPixelCorr) ph.SetPosition1(fPixelPoint);
 	    }
 	  else
 	    { 

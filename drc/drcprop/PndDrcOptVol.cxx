@@ -221,7 +221,7 @@ void PndDrcOptVol::Propagate(PndDrcPhoton& ph)
               cout<<"     hit, set pos from "<<ph.Position()<<endl;
               cout<<"                  to   "<<pos_new<<endl;
             }
-	  ph.SetPosition(pos_new);
+	  ph.SetPosition1(pos_new);
 	  if (fPhotonTrace) ph.Print(*fPhotonTraceStream);
 	  if (Verbosity()>=4)
             {
@@ -343,7 +343,7 @@ void PndDrcOptVol::Propagate(PndDrcPhoton& ph)
 					  <<(*kDev_coupled)->CopyNumber()<<","
 					  <<(*kSurf_coupled)->Name()<<endl;
 		  PndDrcPhoton ph1(ph);
-		  ph1.SetPosition(ph.Position()-ph.Direction()*0.1);
+		  ph1.SetPosition1(ph.Position()-ph.Direction()*0.1);
 		  bool hit = (*kSurf_coupled)->SurfaceHit(ph1,pos_new,path_length);
 		  if (hit)
 		    {

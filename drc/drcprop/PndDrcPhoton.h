@@ -60,6 +60,10 @@ class PndDrcPhoton
   //! Destructor.
   virtual ~PndDrcPhoton(){};
 
+  
+
+
+
 
   /*! \brief Verbosity
 
@@ -136,11 +140,25 @@ class PndDrcPhoton
   */
   XYZPoint Position() const {return fPosition;};
 
+  /*! \brief Set position used by propagating routines.
+
+  The position is also set in a 
+  \sa  PositionXlist(),
+  \sa  PositionYlist(),
+  \sa  PositionZlist()
+
+  If you would like to set simply the postion of a photon use \sa SetPosition()
+  
+  \param pos Position.
+  */
+  void SetPosition1(const XYZPoint& pos);
+
+
   /*! \brief Set position
-    \param pos Position.
+     \param pos Position
   */
   void SetPosition(const XYZPoint& pos);
-
+  
   /*! \brief Position X list
     \return Position X list.
   */

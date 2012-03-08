@@ -118,13 +118,9 @@ int main(int argc, char *argv[])
 
  
   bool l_fresnel = true;
-  
-
-  double dist_plane=300;  
-
+  double dist_plane=300;
   double conical = 0;  
 
-  double thick_air0;
   double radius_lens1;
   double thick_lens1;
   double thick_air1;
@@ -138,7 +134,6 @@ int main(int argc, char *argv[])
   if (lens_opt==1)
     {
       l_air_gap     = false;
-      thick_air0    = 0.0;
       radius_lens1  = 30.836;
       thick_lens1   =   5;
       thick_air1    =   0.0;
@@ -150,7 +145,6 @@ int main(int argc, char *argv[])
   else if (lens_opt==2)
     {
       l_air_gap     = false;
-      thick_air0    = 0.0;
       radius_lens1  = 49.525;
       thick_lens1   =   5;
       thick_air1    =   0.0;
@@ -162,7 +156,6 @@ int main(int argc, char *argv[])
   else if (lens_opt==3)
     {
       l_air_gap     = true;
-      thick_air0    = 0.0;
       radius_lens1  = 152.9;
       thick_lens1   =   5;
       thick_air1    =   2;
@@ -178,14 +171,20 @@ int main(int argc, char *argv[])
   
   
 
+  double bar_half_w = 34/2;
+  double bar_half_h = 17/2;
+  double bar_half_l = 800/2;
+  
+
+  XYZPoint q0(-bar_half_w,-bar_half_h,0);
+  XYZPoint q1(+bar_half_w,-bar_half_h,0);
+  XYZPoint q2(+bar_half_w,+bar_half_h,0);
+  XYZPoint q3(-bar_half_w,+bar_half_h,0);
+
+  
 
 
-  XYZPoint q0(-34/2,-17.5/2,0);
-  XYZPoint q1(+34/2,-17.5/2,0);
-  XYZPoint q2(+34/2,+17.5/2,0);
-  XYZPoint q3(-34/2,+17.5/2,0);
-
-  PndDrcOptBrick bar(q1.X(),q2.Y(),400);
+  PndDrcOptBrick bar(bar_half_w,bar_half_h,bar_half_l);
   bar.SetOptMaterial(PndDrcOptMatLithotecQ0());
   bar.SetName("bar");
   bar.Surface("side6")->SetReflectivity(PndDrcOptReflSilver());
@@ -194,30 +193,11 @@ int main(int argc, char *argv[])
   opt_system.SetNameCopyNumber("optsys",0);
   opt_system.AddDevice(bar);
 
-  //PndDrcOptLens air0(q2.X(),q2.Y(),thick_air0/2,-radius_lens1,9999,
-  //	  conical,conical);
-  //  air0.SetName("air0");
-  //  air0.AddTransform(Transform3D(XYZVector(0,0,-400
-  //				      -thick_air0/2)));
-  //  air0.SetOptMaterial(PndDrcOptMatVacuum());
-  //  air0.Surface("side21")->SetReflectivity(PndDrcOptReflNone());
-  //  air0.Surface("side26")->SetReflectivity(PndDrcOptReflNone());
-  //  air0.Surface("side31")->SetReflectivity(PndDrcOptReflNone());
-  //  air0.Surface("side36")->SetReflectivity(PndDrcOptReflNone());
-  //  air0.Surface("side41")->SetReflectivity(PndDrcOptReflNone());
-  //  air0.Surface("side46")->SetReflectivity(PndDrcOptReflNone());
-  //  air0.Surface("side51")->SetReflectivity(PndDrcOptReflNone());
-  //  air0.Surface("side56")->SetReflectivity(PndDrcOptReflNone());
-  //  air0.SetPrintColor(2);
-  //  opt_system.AddDevice(air0);
-  //  opt_system.CoupleDevice("bar","air0","side1","side6");
-  
-
   PndDrcOptLens lens1(q2.X(),q2.Y(),thick_lens1/2,radius_lens1,9999,
 			  conical,conical);
   lens1.SetName("lens1");
   lens1.AddTransform(Transform3D(XYZVector(0,0,-400
-					   -thick_air0
+					   //-thick_air0
 					   -thick_lens1/2)));
   lens1.SetOptMaterial(PndDrcOptMatLithotecQ0());
   //lens1.SetOptMaterial(PndDrcOptMatNLAK33A());
@@ -242,7 +222,7 @@ int main(int argc, char *argv[])
       air1.SetName("air1");
       air1.AddTransform(Transform3D(XYZVector(0,0,
 					      -400
-					      -thick_air0
+					      //-thick_air0
 					      -thick_lens1
 					      -thick_air1/2)));
       air1.SetOptMaterial(PndDrcOptMatVacuum());
@@ -266,7 +246,7 @@ int main(int argc, char *argv[])
   lens2.SetName("lens2");
   lens2.AddTransform(Transform3D(XYZVector(0,0,
 					   -400
-					   -thick_air0
+					   //-thick_air0
 					   -thick_lens1
 					   -thick_air1
 					   -thick_lens2/2)));
@@ -290,7 +270,6 @@ int main(int argc, char *argv[])
   air2.SetName("air2");
   air2.AddTransform(Transform3D(XYZVector(0,0,
 					  -400
-					   -thick_air0
 					  -thick_lens1
 					  -thick_air1
 					  -thick_lens2
@@ -314,7 +293,6 @@ int main(int argc, char *argv[])
   
   box.AddTransform( Transform3D(XYZVector(0,0,
 					  -400
-					   -thick_air0
 					  -thick_lens1
 					  -thick_air1
 					  -thick_lens2
@@ -368,9 +346,8 @@ int main(int argc, char *argv[])
   // 
   if (iopt==0) manager->Print(geo);
 
-
   PndDrcPhoton ph;
-  ph.SetReflectionLimit(20);
+  ph.SetReflectionLimit(200);
   
   list<PndDrcPhoton> list_photon; // get list
   
@@ -380,18 +357,18 @@ int main(int argc, char *argv[])
       // straight lines.
       TRandom ran;
       //for (double angle=20; angle<=20; angle+=5)
-      for (double angle=5; angle<=50.5; angle+=5)
+      for (double angle=5; angle<=45.5; angle+=10)
 	//double angle=10;
 	{
 	  double slab_width = q2.X()*1.9;
 	  double slab_height =q2.Y()*1.9;
-
-	  //cout<<" angle = "<<angle<<endl;
-	  //for (double lambda1=630; lambda1>329; lambda1-=30)
-	  double lambda1 = 400;
+	  for (double lambda1=600; lambda1>399; lambda1-=100)
 	    {
 	      //double lambda1=lambda;
 	      // go in x dir
+
+
+
 	      double y1 = tan(angle*pi/180);
 	      double x1 = y1;
 	      double step = 0.3*y1/angle;
@@ -435,7 +412,6 @@ int main(int argc, char *argv[])
     }
   else if (iopt==3)
     {
-      ph.SetReflectionLimit(200);
       double angle=0;
       
       

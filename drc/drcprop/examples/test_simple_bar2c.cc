@@ -76,7 +76,7 @@ int main(int argc, char *argv[])
 
   OPTION opt;
   
-  opt = Squares2;
+  opt = Line;
   
   
     
