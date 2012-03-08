@@ -161,7 +161,6 @@ class PndEmc : public FairDetector
   Bool_t  bwendcap;         //!  Flag for the new BwEndCap geometry
 
   Int_t MapperVersion;
-  Int_t fGeoNumber;
   
   // reset all parameters   
   void ResetParameters();
