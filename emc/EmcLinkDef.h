@@ -21,10 +21,13 @@
 #pragma link C++ class  PndEmcMapper+;
 #pragma link C++ class  PndEmcStructure+;
 #pragma link C++ class  PndEmcWaveform+;
+#pragma link C++ class  PndEmcMultiWaveform+;
 #pragma link C++ class  PndEmcDigi+;
 #pragma link C++ class  PndEmcSharedDigi;
 #pragma link C++ class  PndEmcHitsToWaveform+;
 #pragma link C++ class  PndEmcWaveformToDigi+;
+#pragma link C++ class  PndEmcWaveformToCalibratedDigi+;
+#pragma link C++ class  PndEmcMultiWaveformToCalibratedDigi+;
 #pragma link C++ class  PndEmcFadcFilter+;
 #pragma link C++ class  PndEmcAsicPulseshape+;
 #pragma link C++ class  PndEmcAbsPulseshape+;
@@ -60,6 +63,16 @@
 #pragma link C++ class  PndEmcClusterSimpleCalibrator+;
 #pragma link C++ class  PndEmcClusterCalibrationPar+;
 #pragma link C++ class  PndEmcClusterCalibrationParObject+;
+
+#pragma link C++ class  ReadMainzProto60+;
+#pragma link C++ class  ReadMainzProto60v4+;
+#pragma link C++ class  ReadMainzProto60v6+;
+#pragma link C++ class  PndEmcReadProtoData+;
+
+#pragma link C++ class  PndEmcReadProto192Data+;
+#pragma link C++ class  TProtoUnpackEvent+;
+#pragma link C++ class  TGo4EventElement+;
+
 
 #pragma link C++ class  vector<PndEmcHit*>;
 #pragma link C++ class  vector<PndEmcPoint*>;

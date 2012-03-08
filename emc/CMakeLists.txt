@@ -7,6 +7,7 @@ ${ROOT_INCLUDE_DIR}
 ${CMAKE_SOURCE_DIR}/fairtools
 ${CMAKE_SOURCE_DIR}/geobase 
 ${CMAKE_SOURCE_DIR}/parbase 
+${CMAKE_SOURCE_DIR}/passive
 ${CMAKE_SOURCE_DIR}/base 
 ${CMAKE_SOURCE_DIR}/field 
 ${CMAKE_SOURCE_DIR}/pnddata 
@@ -15,6 +16,7 @@ ${CMAKE_SOURCE_DIR}/emc/EmcDigi
 ${CMAKE_SOURCE_DIR}/emc/EmcMC
 ${CMAKE_SOURCE_DIR}/emc/EmcReco
 ${CMAKE_SOURCE_DIR}/emc/EmcTools
+${CMAKE_SOURCE_DIR}/emc/EmcProtoTools
 ${CMAKE_SOURCE_DIR}/emc/EmcCorr
 ${CMAKE_SOURCE_DIR}/emc
 
@@ -34,6 +36,7 @@ EmcData/PndEmcApdPoint.cxx
 EmcData/PndEmcHit.cxx  
 EmcData/PndEmcApdHit.cxx
 EmcData/PndEmcWaveform.cxx 
+EmcData/PndEmcMultiWaveform.cxx 
 EmcData/PndEmcDigi.cxx 
 EmcData/PndEmcCluster.cxx 
 EmcData/PndEmcSharedDigi.cxx
@@ -55,11 +58,14 @@ EmcDigi/PndEmcAsicPulseshape.cxx
 EmcDigi/PndEmcHitsToWaveform.cxx
 #EmcDigi/PndEmcHitsToTmpWaveform.cxx 
 EmcDigi/PndEmcWaveformToDigi.cxx
+EmcDigi/PndEmcWaveformToCalibratedDigi.cxx
+EmcDigi/PndEmcMultiWaveformToCalibratedDigi.cxx
 #EmcDigi/PndEmcTmpWaveformToDigi.cxx 
 EmcDigi/PndEmcDigiPar.cxx 
 EmcDigi/PndEmcDigiNonuniformityPar.cxx 
 EmcDigi/PndEmcMakeDigi.cxx
 EmcDigi/PndEmcPSAParabolic.cxx
+EmcDigi/PndEmcPSAParabolicBaseline.cxx
 EmcDigi/PndEmcPSATrapDigiFilter.cxx
 EmcDigi/PndEmcPSAMatchedDigiFilter.cxx
 EmcDigi/PndEmcFadcFilter.cxx
@@ -75,6 +81,13 @@ EmcTools/PndEmcStructure.cxx
 EmcTools/PndEmcMapper.cxx 
 EmcTools/PndEmcXtal.cxx 
 EmcTools/PndEmcHdrFiller.cxx
+EmcProtoTools/ReadMainzProto60.cxx
+EmcProtoTools/ReadMainzProto60v4.cxx
+EmcProtoTools/ReadMainzProto60v6.cxx
+EmcProtoTools/PndEmcReadProtoData.cxx
+EmcProtoTools/PndEmcReadProto192Data.cxx
+EmcProtoTools/TProtoUnpackEvent.cxx
+EmcProtoTools/TGo4EventElement.cxx
 EmcReco/PndEmcMakeCluster.cxx 
 EmcReco/PndEmcRecoPar.cxx
 EmcReco/PndEmcMakeBump.cxx
