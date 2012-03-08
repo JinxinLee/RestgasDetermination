@@ -21,7 +21,9 @@ ${CMAKE_SOURCE_DIR}/pnddata/MdtData
 ${CMAKE_SOURCE_DIR}/pnddata/TrackData
 ${CMAKE_SOURCE_DIR}/pnddata/SdsData
 ${CMAKE_SOURCE_DIR}/pnddata/SttData
+${CMAKE_SOURCE_DIR}/pnddata/FtsData
 ${CMAKE_SOURCE_DIR}/stt
+${CMAKE_SOURCE_DIR}/fts
 ${CMAKE_SOURCE_DIR}/PndTools/generalTools
 ${CMAKE_SOURCE_DIR}/geane
 ${CMAKE_SOURCE_DIR}/GenfitTools/recohits
@@ -43,6 +45,8 @@ PndMdtRecoHit.cxx
 PndSdsRecoHit.cxx
 PndSttRecoHit.cxx
 PndSttRecoHitProducer.cxx
+PndFtsRecoHit.cxx
+PndFtsRecoHitProducer.cxx
 PndHitRecoHit.cxx
 )
 

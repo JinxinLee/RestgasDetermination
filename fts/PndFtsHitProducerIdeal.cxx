@@ -42,7 +42,7 @@ using std::sqrt;
 PndFtsHitProducerIdeal::PndFtsHitProducerIdeal() :
   FairTask("Ideal FTS Hit Producer"), fPointArray(new TClonesArray),  fHitArray(new TClonesArray),
   fTubeArray(new TClonesArray), fHitInfoArray(new TClonesArray), fFtsParameters(new PndGeoFtsPar()), 
-  fPersistence(kTRUE), fMapper(new PndFtsMapCreator())
+  fPersistence(kTRUE)
 { 
 }
 // -------------------------------------------------------------------------
@@ -87,7 +87,7 @@ InitStatus PndFtsHitProducerIdeal::Init()
   ioman->Register("FTSHitInfo", "FTS", fHitInfoArray, fPersistence);
 
   // CHECK added 
-  fMapper     = PndFtsMapCreator::Instance();
+  PndFtsMapCreator *fMapper     = new PndFtsMapCreator(fFtsParameters);
   cout << "-I- PndFtsHitProducerIdeal: Intialisation successfull" << endl;
 
   return kSUCCESS;
@@ -97,7 +97,7 @@ InitStatus PndFtsHitProducerIdeal::Init()
 // CHECK added 
 void PndFtsHitProducerIdeal::SetParContainers() {
   FairRuntimeDb* rtdb = FairRunAna::Instance()->GetRuntimeDb();
-  //fFtsParameters = (PndGeoFtsPar*) rtdb->getContainer("PndGeoFtsPar");
+  fFtsParameters = (PndGeoFtsPar*) rtdb->getContainer("PndGeoFtsPar");
 }
 
 // -----   Public method Exec   --------------------------------------------

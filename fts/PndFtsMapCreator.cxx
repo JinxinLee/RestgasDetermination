@@ -30,14 +30,6 @@
 
 using namespace std;
 
-PndFtsMapCreator* PndFtsMapCreator::fgMapperInstance = 0;
-
-PndFtsMapCreator* PndFtsMapCreator::Instance() {
-  if (0 == fgMapperInstance)
-    fgMapperInstance = new PndFtsMapCreator();
-  return fgMapperInstance;
-}
-
 PndFtsMapCreator::PndFtsMapCreator()
   : fGeoType(0), fFtsParameters(new PndGeoFtsPar()), fTubeInRad(0), fTubeOutRad(0), copy_map()
 {
@@ -45,8 +37,6 @@ PndFtsMapCreator::PndFtsMapCreator()
   // Geometry loading                                                                    
   FairRootManager* ioman = FairRootManager::Instance();
   TFile *infile = ioman->GetInFile();
-  //TGeoManager *geoMan = (TGeoManager*) infile->Get("FAIRGeom");             
-
 }
 
 
@@ -128,6 +118,11 @@ if(pathstring.Contains("fts06tube")){
     return 6;
   }
 
+}
+
+PndFtsTube * PndFtsMapCreator::GetTubeFromTubeID(Int_t tubeid) {
+  if(fGeoType == 1) return GetTubeFromTubeIDGeoType1(tubeid);
+  return NULL;
 }
 
 Int_t PndFtsMapCreator::GetTubeIDFromNameGeoType1(TString name){
@@ -428,8 +423,5 @@ TClonesArray* PndFtsMapCreator::FillTubeArrayGeoType1() {
 
   return tubeArray;
 }
-
-
-
 
 ClassImp(PndFtsMapCreator)

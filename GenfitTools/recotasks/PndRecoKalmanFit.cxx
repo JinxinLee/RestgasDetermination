@@ -38,10 +38,14 @@
 #include "PndSdsRecoHit.h"
 #include "PndGemRecoHit.h"
 #include "PndSttRecoHit.h"
+#include "PndFtsRecoHit.h"
 #include "PndMdtRecoHit.h"
 #include "PndSttRecoHitProducer.h"
+#include "PndFtsRecoHitProducer.h"
 #include "PndGeoSttPar.h"
+#include "PndGeoFtsPar.h"
 #include "PndSttMapCreator.h"
+#include "PndFtsMapCreator.h"
 #include "PndGenfitAdapters.h"
 #include "PndTrack.h"
 #include "PndTrackCand.h"
@@ -85,6 +89,14 @@ Bool_t PndRecoKalmanFit::Init()
     PndSttMapCreator *mapper = new PndSttMapCreator(sttParameters);
     tubeArray = mapper->FillTubeArray();
   }
+  // FTS map loading
+  PndGeoFtsPar *ftsParameters = (PndGeoFtsPar*) rtdb->getContainer("PndGeoFtsPar");
+  TClonesArray *ftsTubeArray = NULL;
+  if(ftsParameters->GetGeometryType() != -1) {
+    PndFtsMapCreator *ftsMapper = new PndFtsMapCreator(ftsParameters);
+    ftsTubeArray = ftsMapper->FillTubeArray();
+  }
+
 
   // Build hit factory -----------------------------
   fTheRecoHitFactory = new GFRecoHitFactory();
@@ -168,7 +180,14 @@ Bool_t PndRecoKalmanFit::Init()
       fTheRecoHitFactory->addProducer(FairRootManager::Instance()->GetBranchId("MdtHit"),new GFRecoHitProducer<PndMdtHit,PndMdtRecoHit>(mdtar));
       std::cout << "*** PndRecoKalmanFit::Init" << "\t" << "MdtHit array  found" << std::endl;
     }
-  
+
+  TClonesArray* ftsar=(TClonesArray*) ioman->GetObject("FTSHit");
+  if(ftsar!=0)
+    {
+      fTheRecoHitFactory->addProducer(FairRootManager::Instance()->GetBranchId("FTSHit"),new PndFtsRecoHitProducer<PndFtsHit,PndFtsRecoHit>(ftsar, ftsTubeArray));
+      std::cout << "*** PndRecoKalmanFit::Init" << "\t" << "FtsHit array  found" << std::endl;
+    }
+ 
   if (fUseGeane)
     {
       fPro = new FairGeanePro();

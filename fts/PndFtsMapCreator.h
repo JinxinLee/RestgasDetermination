@@ -12,13 +12,7 @@ class PndFtsMapCreator : public TObject
 {
  public:
 
-  /** Public method Instance()                                                               
-   ** for access to a singleton object                                                             
-   **/
-  static  PndFtsMapCreator* Instance();
-
-
-PndFtsMapCreator();
+  PndFtsMapCreator();
   PndFtsMapCreator(Int_t geoType);
   PndFtsMapCreator(PndGeoFtsPar *par);
  ~PndFtsMapCreator();
@@ -27,10 +21,11 @@ PndFtsMapCreator();
   void SetGeneralParameters();
 
 
-  TClonesArray * FillTubeArray();
   // general functions, to be specified depending on geo type
   Int_t GetTubeIDFromPath(TString path);
   //Int_t GetTubeIDFromName(TString name);
+  PndFtsTube * GetTubeFromTubeID(Int_t tubeid);
+  TClonesArray * FillTubeArray();
   Int_t GetChamberIDFromPath(TString path);
   Int_t GetLayerID(Int_t chamberid, Int_t tubeid, TString path);
   Int_t GetTubeIDTot(Int_t chamberid,Int_t layerid, Int_t tubeid, TString path);
@@ -46,17 +41,15 @@ PndFtsMapCreator();
   PndFtsTube * GetTubeFromTubeIDToFillGeoType1(Int_t tubeid);
   TClonesArray* FillTubeArrayGeoType1();
 
-
   Int_t fGeoType;
   PndGeoFtsPar *fFtsParameters;
   Double_t fTubeInRad, fTubeOutRad;
 
   // fGeoType1
   std::map<int, int> copy_map;
-  static PndFtsMapCreator* fgMapperInstance;
 
- PndFtsMapCreator(const  PndFtsMapCreator& L);
- PndFtsMapCreator& operator= (const  PndFtsMapCreator&) {return *this;}
+  PndFtsMapCreator(const  PndFtsMapCreator& L);
+  PndFtsMapCreator& operator= (const  PndFtsMapCreator&) {return *this;}
  
  protected:
 
