@@ -50,6 +50,7 @@ PndSttMvdTracking::PndSttMvdTracking() : FairTask("STT Stt-Mvd Tracking") {
  iplotta = false;
  doMcComparison = false;
  YesClean = false;
+ YesCleanMvd = true;
  YesSciTil = false ;
  MvdAloneTracking = true;
  sprintf(fSttBranch,"STTHit");
@@ -65,6 +66,7 @@ PndSttMvdTracking::PndSttMvdTracking(Int_t verbose) : FairTask("STT Stt-Mvd Trac
  iplotta = false;
  doMcComparison = false;
  YesClean = false;
+ YesCleanMvd = true;
  YesSciTil = false ;
  MvdAloneTracking = true;
 
@@ -81,6 +83,7 @@ PndSttMvdTracking::PndSttMvdTracking(int istamp, bool  iplot, bool imc)
  iplotta = iplot;
  doMcComparison = imc;
  YesClean = false;
+ YesCleanMvd = true;
  YesSciTil = false ;
  MvdAloneTracking = true;
  sprintf(fSttBranch,"STTHit");
@@ -99,6 +102,7 @@ PndSttMvdTracking::PndSttMvdTracking(int istamp, bool  iplot, bool imc, bool doS
  iplotta = iplot;
  doMcComparison = imc;
  YesClean = false;
+ YesCleanMvd = true;
  YesSciTil = doSciTil ;
  MvdAloneTracking = true;
  sprintf(fSttBranch,"STTHit");
@@ -347,7 +351,8 @@ void PndSttMvdTracking::WriteHistograms(){
 void PndSttMvdTracking::Exec(Option_t* opt) {
 
 
- bool	intersect,
+ bool	flag,
+	intersect,
 	Status,
 	keepit[MAXTRACKSPEREVENT],
 	status[MAXTRACKSPEREVENT],
@@ -726,7 +731,8 @@ posiz.Y()<<", Zpos "<<posiz.Z()<<endl;
 			<<posiz.X()<<", Ypos "<<
 		posiz.Y()<<", Zpos "<<posiz.Z()<<endl;
 		// purging the duplicate SciTil hits.
-		
+
+	    flag = true;
 	    for(k=0; k<iaccept; k++){
 		if(
 			(fabs(posiz.X() - posizSciTil[k][0])< 1.e-20)
@@ -735,14 +741,16 @@ posiz.Y()<<", Zpos "<<posiz.Z()<<endl;
 					&&
 			(fabs(posiz.Z() - posizSciTil[k][2])< 1.e-20)
 		  ){
-			goto finish ;
+			flag=false;
+			break;
 		}  // end of if((fabs(posiz.X() - old...
 	    } // end of for(k=0; k<iaccept; k++)
-	    posizSciTil[iaccept][0]=posiz.X();
-	    posizSciTil[iaccept][1]=posiz.Y();
-	    posizSciTil[iaccept][2]=posiz.Z();
-	    iaccept++;
-	    finish: ;
+	    if(flag){
+		posizSciTil[iaccept][0]=posiz.X();
+		posizSciTil[iaccept][1]=posiz.Y();
+		posizSciTil[iaccept][2]=posiz.Z();
+		iaccept++;
+	    }
 	 }  // end of for(j=0; j<nSciTilHits; j++)
 	 nSciTilHits=iaccept;
 	 for(j=0; j<nSciTilHits; j++){
@@ -1429,8 +1437,7 @@ if(istampa>=2){
 	//  now skip and go directly to the upload of the MC comparison and
 	//  the new (= to the old) PndTrackCand.
 	nTotalCandidates=nSttTrackCand;
-	goto skipping ;
- } // end of  if(nMvdPixelHit+nMvdStripHit)
+ } // end of  if(nMvdPixelHit+nMvdStripHit==0)
 
 //------------------ end treatment special pathological case when there are no Mvd hits at all.
 
@@ -1981,14 +1988,8 @@ if(istampa>=2&& IVOLTE<20){
 
 //--------------------- end of  refit the Helix in XY plane using Stt + Mvd associated hits
 
-//---------inizio stampe.
-if(istampa>=2&& IVOLTE<20){
-           cout<<"\n\nda PndSttMvdTracking, prima di MatchMvdHitsToSttTracksagain :\n";
-	stampetta(nSttTrackCand,keepit);
-}   //end of if(istampa>=0)
-//---------------------------------- fine stampe.
 
-
+  if(nMvdPixelHit+nMvdStripHit>0){
 //---------------------   here call to the function that matches Mvd hits with the new
 //  circular trajectory in XY found  for the second time, after first refit
 
@@ -2021,6 +2022,8 @@ if(istampa>=2&& IVOLTE<20){
 		stampetta(nSttTrackCand,keepit);
  }
 
+
+  } // end of  if(nMvdPixelHit+nMvdStripHit>0)
 //---------------------   %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 // use the risult just obtained from the fit in XY to redo the association of the Skew Straw hits
@@ -2028,7 +2031,23 @@ if(istampa>=2&& IVOLTE<20){
   for(ncand=0; ncand< nTotalCandidates; ncand++)
   {
 	if(!keepit[ncand]) continue;
-	if( ! Mvdhits[ncand]) continue;
+	if( ! Mvdhits[ncand])
+	{
+		if(YesCleanMvd){
+	// reject the candidate if it is NOT contained in the pipe and
+	// therefore it should have at least 1 Mvd hit but it has none.
+			if( (!IsInTargetPipe(	Ox[ncand],
+				Oy[ncand],
+				R[ncand],
+				FI0[ncand],
+				KAPPA[ncand],
+				CHARGE[ncand],
+				VERTICALGAP/2.) )
+				)   keepit[ncand]=false;
+		}  // end of  (YesCleanMvd)
+
+		continue;
+	}
 
 	if( statusflag[ncand] == -1 ) continue; // this is when the XY circle is contained in the
 						// the Mvd region completely; skip the association of
@@ -2305,6 +2324,7 @@ if(istampa>=2&& IVOLTE<20){
 //	First cleanup based on the absence of Mvd hits
 
 
+ if(YesCleanMvd){
 	// reject the candidate if it is NOT contained in the pipe and
 	// therefore it should have at least 1 Mvd hit but it has none.
 	if( (!IsInTargetPipe(	Ox[ncand],
@@ -2319,13 +2339,13 @@ if(istampa>=2&& IVOLTE<20){
 		{
 			keepit[ncand]=false;
 		}
- if(istampa>=2){
+	 if(istampa>=2){
 	cout<<"\n\nda PndSttMvdTracking, dopo isintargetpipe (Ox="<<Ox[ncand]
 	<<", Oy="<<Oy[ncand]<<", R= "<<R[ncand]<<" :"<<endl;
 		stampetta(nSttTrackCand,keepit);
 
- }
-
+	 }
+ }  // end of  (YesCleanMvd)
 
     }	//  end of for(ncand=0; ncand< nTotalCandidates; ncand++)
 
@@ -2333,6 +2353,7 @@ if(istampa>=2&& IVOLTE<20){
 
 
 //---  redo association of parallel Stt  straw  hits to this track, after better refit.
+  if(nMvdPixelHit+nMvdStripHit>0){
 
 //---------inizio stampe.
 if(istampa>=2&& IVOLTE<20){
@@ -2399,6 +2420,7 @@ if(istampa>=2&& IVOLTE<20){
 		}
 	}  // end of for(ncand=0; ncand< nTotalCandidates; ncand++)
 
+  }  // end of if(nMvdPixelHit+nMvdStripHit==0)
 
 //------------- cleanup section.
 
@@ -2473,11 +2495,9 @@ if(istampa>1) cout<<"PndSttMvdTracking, entra in TrackCleanup tracce normali, IV
 //   not associated to any Stt track.
 
 
-	if(!MvdAloneTracking) goto dontdoit ;
-//	if( nRemainingCandidates >= MAXTRACKSPEREVENT ) goto dontdoit ;
-								// if there are already
-								// too many candidates
-								// don't do anything.
+	if(MvdAloneTracking && nMvdPixelHit+nMvdStripHit>0) {
+
+
 
 
 //  load the UsedPixel and UsedStrip  vectors.
@@ -2714,7 +2734,6 @@ if(istampa>1) cout<<"PndSttMvdTracking, entra in TrackCleanup tracce normali, IV
 
 // -----------------  finding the charge of those track found starting from Mvd
 
-	bool flag;
 	int nMvdOnly;
 	Double_t Sini, Slast,
 		esse[nmaxMvdPixelHitsInTrack+nmaxMvdStripHitsInTrack+nmaxSttHitsInTrack];
@@ -3007,8 +3026,8 @@ if(istampa>1){ cout<<"\tPndSttMvdTracking, uscito da TrackCleanup tracce Mvd, ke
 
 
 
-dontdoit:  ;	//  this is the label where the computer jumps if there are already
-		//  MAXTRACKSPEREVENT candidates.
+	} // end of  if(MvdAloneTracking)
+
 
 
 // ----------------------------- end of finding Tracks starting with the Mvd tracks
@@ -3017,7 +3036,7 @@ dontdoit:  ;	//  this is the label where the computer jumps if there are already
 // -------------------------------------------------------------------------------------
 
 
-skipping: ;
+// skipping: ;
 
 //----------stampaggi
 if(istampa>=2){
@@ -3564,6 +3583,7 @@ cout<<"Total track trovate "<<nTotalCandidates<<endl;
 	if(ibene>0) fprintf(HANDLE,"\tn. volte almeno 1 traccia MC accettabile e' ricostruita %d\n"
 		,ibene);
 
+bool flaggo;
 int ii, ibuone=-1;
 Double_t HoughFiii;
 
@@ -3613,13 +3633,17 @@ for (ii=0; ii<nTotalCandidates  ;ii++){
 
 //   controllo che la traccia associata MC sia una delle tracce MC 'ragionevoli'.
 
+	flaggo = true;
 	for(int g=0; g<nMCTracksaccettabili;g++){
-		if( i==ListaMCTracksaccettabili[g]) goto difuori;
+		if( i==ListaMCTracksaccettabili[g])
+		{
+			flaggo=false;
+			break;
+		}
 	}
-	continue;
+	if(flaggo) continue;
 
 
-difuori: ;
 
     fprintf(HANDLE,
 "       TracciaMC %d ParHitsMC %d ParMecc %d ParMeccSpuri %d SkewHitsMC %d  SkewMecc %d SkewMeccSpuri %d\n",
@@ -4736,19 +4760,22 @@ UShort_t ListSkewHitsinTrack[MAXTRACKSPEREVENT][nmaxSttHitsInTrack],
 	    aaa=Ox+R*cos(SchosenSkew[ii]);
 	    bbb=Oy+R*sin(SchosenSkew[ii]);
 
+		bool flaggo = true;
 		for( int k=0; k<nSkewCommon[iTrack];k++){
 			if( SkewCommonList[iTrack][k]== ii){
 	fprintf(MACRO,"TMarker* CommonSkewHit%d = new TMarker(%f,%f,%d);\n",
 				ii,aaa,bbb,28);
 	fprintf(MACRO,"CommonSkewHit%d->SetMarkerColor(1);\nCommonSkewHit%d->Draw();\n"
 				,ii,ii);
-				goto punco ;
+				flaggo = false;
+				break;
 			}
 		}
+		if(flaggo){
 		fprintf(MACRO,"TMarker* SpurSkewHit%d = new TMarker(%f,%f,%d);\n",
 				ii,aaa,bbb,28);
 		fprintf(MACRO,"SpurSkewHit%d->SetMarkerColor(2);\nSpurSkewHit%d->Draw();\n",ii,ii);
-punco: ;
+		}
 
        }
 //------------- hits paralleli MC 'alone'
@@ -4768,19 +4795,23 @@ punco: ;
             y1= YMvdStrip[ii]-sigmaYMvdStrip[ii];
             y2= YMvdStrip[ii]+sigmaYMvdStrip[ii];
 
+		bool flaggo=true;
 		for( int k=0; k<nMvdStripCommon;k++){
 			if( MvdStripCommonList[k]== ii){
             fprintf(MACRO,"TMarker* CommonMvdStrip%d = new TMarker(%f,%f,%d);\n",
                     ii,XMvdStrip[ii],YMvdStrip[ii],25);
 		fprintf(MACRO,"CommonMvdStrip%d->SetMarkerColor(1);\nCommonMvdStrip%d->Draw();\n",
                     ii,ii);
-				goto pinco ;
+				flaggo=false;
+				break;
 			}
 		}
+		if(flaggo){
             fprintf(MACRO,"TMarker* SpurMvdStrip%d = new TMarker(%f,%f,%d);\n",
                     ii,XMvdStrip[ii],YMvdStrip[ii],25);
 		fprintf(MACRO,"SpurMvdStrip%d->SetMarkerColor(2);\nSpurMvdStrip%d->Draw();\n",ii,ii);
-pinco: ;
+		}
+
 
        }
 
@@ -4804,19 +4835,23 @@ pinco: ;
 //            fprintf(MACRO,"TBox* BP%d = new TBox(%f,%f,%f,%f);\nBP%d->SetFillColor(4);\nBP%d->Draw();\n",
 //                     ii,x1,y1,x2,y2,ii,ii);
 
+		bool flaggo=true;
 		for( int k=0; k<nMvdPixelCommon;k++){
 			if( MvdPixelCommonList[k]== ii){
             fprintf(MACRO,"TMarker* CommonMvdPixel%d = new TMarker(%f,%f,%d);\n",
                     ii,XMvdPixel[ii],YMvdPixel[ii],26);
  fprintf(MACRO,"CommonMvdPixel%d->SetMarkerColor(1);\nCommonMvdPixel%d->Draw();\n",
                     ii,ii);
-				goto panco ;
+				flaggo=false;
+				break;
 			}
 		}
+		if(flaggo){
             fprintf(MACRO,"TMarker* SpurMvdPixel%d = new TMarker(%f,%f,%d);\n",
                     ii,XMvdPixel[ii],YMvdPixel[ii],26);
  fprintf(MACRO,"SpurMvdPixel%d->SetMarkerColor(2);\nSpurMvdPixel%d->Draw();\n",ii,ii);
-panco: ;		
+		}
+
 
        }
 
@@ -4853,18 +4888,16 @@ panco: ;
          	TParticlePDG *fParticle= fdbPDG->GetParticle(icode);
        		if (icode>1000000000) carica = 1.;
        		else  carica = fParticle->Charge()/3. ;    //   charge of track
-       if (fabs(carica)<0.1 ) goto fuori ;
+	  if (fabs(carica)>=0.1 ){
            	Cx = Oxx + Py*1000./(BFIELD*CVEL*carica);
            	Cy = Oyy - Px*1000./(BFIELD*CVEL*carica);
             	fprintf(MACRO,
-//"TEllipse* MC%d = new TEllipse(%f,%f,%f,%f,%f,%f);\nMC%d->SetFillStyle(0);\nMC%d->SetLineColor(3);\nMC%d->Draw(\"only\");\n",
-//                     im,Cx,Cy,Rr,Rr,primoangolo,ultimoangolo,im,im,im);
 "TEllipse* MC%d = new TEllipse(%f,%f,%f,%f,%f,%f);\nMC%d->SetFillStyle(0);\nMC%d->SetLineColor(3);\nMC%d->Draw(\"only\");\n",
                      im,Cx,Cy,Rr,Rr,0.,360.,im,im,im);
-	}
-       };
+	  } // end of  if (fabs(carica)>=0.1 )
+	} // end if ( pMC )
+       };//  end of  if( daSttTrackaMCTrack>-1 
 //----------- fine parte del MC
-fuori: ;
       fprintf(MACRO,"}\n");
       fclose(MACRO);
 
@@ -5247,6 +5280,7 @@ fprintf(MACRO,
 
 	//  calcolo per plottare  solo la parte rilevante della traccia MC.
 		primo=alfa0 = atan2(Oyy-Cy, Oxx-Cx);
+		bool flaggo=true;
 		for(j=0;j<90;j++){
 			newalfa = alfa0 - carica*j*PI/45;
 			newx = Cx + Rr*cos(newalfa);
@@ -5254,12 +5288,14 @@ fprintf(MACRO,
 			if(newx > xmax || newx < xmin || newy>ymax||newy<ymin){
 				ultimo = newalfa;
 				if(primo > ultimo ) { primo = ultimo; ultimo = alfa0;};
-				goto pippo ;
+				flaggo=false;
+				break;
 			}
 		}
-	primo   = 0.;
-	ultimo = 2.*PI;
-pippo:	;
+	if(flaggo){
+		primo   = 0.;
+		ultimo = 2.*PI;
+	}
 
 			fprintf(MACRO,
 "TEllipse* MC%d = new TEllipse(%f,%f,%f,%f,%f,%f);\nMC%d->SetFillStyle(0);\nMC%d->SetLineColor(3);\nMC%d->Draw(\"only\");\n",
@@ -5737,7 +5773,6 @@ UShort_t ListStripHitsinTrack[MAXTRACKSPEREVENT][nmaxMvdStripHitsInTrack], // ou
 
 	  distance = dist[ii];
 
-//       for( ii=0; ii<2; ii++){
         j=3*ii;
         distance = sqrt(
                   (POINTS1[j]-C0x1)*(POINTS1[j]-C0x1) + 
@@ -5745,7 +5780,6 @@ UShort_t ListStripHitsinTrack[MAXTRACKSPEREVENT][nmaxMvdStripHitsInTrack], // ou
                   (POINTS1[2+j]-C0z1)*(POINTS1[2+j]-C0z1) 
                             );
 
-//        if( distance >= info[i][4]*1.2 ) continue;
 
 
         Rx = POINTS1[j]-Ox ;   //  x component Radial vector of cylinder of trajectory
@@ -5860,8 +5894,12 @@ UShort_t ListStripHitsinTrack[MAXTRACKSPEREVENT][nmaxMvdStripHitsInTrack], // ou
 
 
 
-  if( zmax < zmin ) goto nohits ;
-  if( Smax < Smin ) goto nohits;
+
+
+  if( zmax >= zmin  &&  Smax >= Smin ) {
+
+
+
   aaa = Smax-Smin;
   Smin -= aaa*0.2;
   Smax += aaa*0.2;
@@ -5873,8 +5911,6 @@ UShort_t ListStripHitsinTrack[MAXTRACKSPEREVENT][nmaxMvdStripHitsInTrack], // ou
   if(Smax > 2.*PI) Smax = 2.*PI;
   if( Smin < 0.) Smin = 0.;
 
-//  Smin -= 10.;
-//  Smax += 10.;
 
    deltaz = zmax-zmin;
    deltaS = Smax-Smin;
@@ -5985,15 +6021,16 @@ UShort_t ListStripHitsinTrack[MAXTRACKSPEREVENT][nmaxMvdStripHitsInTrack], // ou
 
 
 // ------ se lo hit e' spurio marcalo in rosso
+	bool flaggo=true;
         for( i1=0; i1<nSkewCommon; i1++){
           if ( SkewCommonList[   iTrack   ][i1] == i ){
 
-                goto fuori ;
+		flaggo=false;
+		break;
           }
 
         }
-        fprintf(MACRO,"Skew%d_%d->SetLineColor(2);\n",i,ii);
-fuori: ;
+	if(flaggo) fprintf(MACRO,"Skew%d_%d->SetLineColor(2);\n",i,ii);
         fprintf(MACRO,"Skew%d_%d->Draw();\n",i,ii);
 
 
@@ -6120,21 +6157,22 @@ fuori: ;
         if( Smax < esse ) Smax = esse;
  
 
+		bool flaggo=true;
 		for( int k=0; k<nMvdPixelCommon;k++){
 			if( MvdPixelCommonList[k]== ii){
 				fprintf(MACRO,
 		"TMarker* CommonPixel%d = new TMarker(%f,%f,%d);\nCommonPixel%d->SetMarkerColor(1);\n",
-//				ii,ZMvdPixel[ii],esse,26,ii);
 				ii,ZMvdPixel[ii],R*esse,26,ii);
 		fprintf(MACRO,"CommonPixel%d->Draw();\n",ii);
-				goto punco ;
+				flaggo=false;
+				break;
 			}
 		}
+		if(flaggo){
             fprintf(MACRO,"TMarker* SpuriousPixel%d = new TMarker(%f,%f,%d);\nSpuriousPixel%d->SetMarkerColor(2);\n",
-//                    ii,ZMvdPixel[ii],esse,26,ii);
                     ii,ZMvdPixel[ii],R*esse,26,ii);
 		fprintf(MACRO,"SpuriousPixel%d->Draw();\n",ii);
-punco: ;
+		}
   }
 //   poi le strip
 
@@ -6154,23 +6192,22 @@ punco: ;
         if( Smin > esse ) Smin = esse;
         if( Smax < esse ) Smax = esse;
  
+		bool flaggo=true;
 		for( int k=0; k<nMvdStripCommon;k++){
 			if( MvdStripCommonList[k]== ii){
             fprintf(MACRO,"TMarker* CommonStrip%d = new TMarker(%f,%f,%d);\nCommonStrip%d->SetMarkerColor(1);\n",
-//                    ii,ZMvdStrip[ii],esse,25,ii);
                     ii,ZMvdStrip[ii],R*esse,25,ii);
 		fprintf(MACRO,"CommonStrip%d->Draw();\n",ii);
-				goto ponco ;
+				flaggo=false;
+				break;
 			}
 		}
-
+		if(flaggo){
             fprintf(MACRO,"TMarker* SpuriousStrip%d = new TMarker(%f,%f,%d);\nSpuriousStrip%d->SetMarkerColor(2);\n",
-//                    ii,ZMvdStrip[ii],esse,25,ii);
                     ii,ZMvdStrip[ii],R*esse,25,ii);
 		fprintf(MACRO,"SpuriousStrip%d->Draw();\n",ii);
+		}
 
-
-ponco: ;
 
   }
 
@@ -6190,7 +6227,6 @@ ponco: ;
         if( Smin > esse ) Smin = esse;
         if( Smax < esse ) Smax = esse;
            fprintf(MACRO,"TMarker* AlonePixel%d = new TMarker(%f,%f,%d);\nAlonePixel%d->SetMarkerColor(4);\n",
-//                    ii,ZMvdPixel[ii],esse,26,ii);
                     ii,ZMvdPixel[ii],R*esse,26,ii);
 		fprintf(MACRO,"AlonePixel%d->Draw();\n",ii);
   }
@@ -6212,7 +6248,6 @@ ponco: ;
         if( Smax < esse ) Smax = esse;
  
             fprintf(MACRO,"TMarker* AloneStrip%d = new TMarker(%f,%f,%d);\nAloneStrip%d->SetMarkerColor(4);\n",
-//                    ii,ZMvdStrip[ii],esse,25,ii);
                     ii,ZMvdStrip[ii],R*esse,25,ii);
 		fprintf(MACRO,"AloneStrip%d->Draw();\n",ii);
 
@@ -6227,23 +6262,27 @@ ponco: ;
 	zmin2=zmin;
 	zmax2=zmax;
 
+	bool flaggo=true;
 	if( -KAPPA*charge>0.) {	// Pz>0.
 		if( zmax <0.) {
 			cout<<"da WriteMacroSkewAssociatedHitswithMC, questa traccia"
 			<<" e' inconsistente col proprio Pz, non plottata!\n";
-			goto dopp ;
+			flaggo=false;
+		} else {
+			zmin = 0.;
 		}
-		zmin = 0.;
 	} else {  // Pz<0.
 		if( zmin >0.) {
 			cout<<"da WriteMacroSkewAssociatedHitswithMC, questa traccia"
 			<<" e' inconsistente col proprio Pz, non plottata!\n";
-			goto dopp ;
+			flaggo=false;
+		} else{
+			zmax = 0.;
 		}
-		zmax = 0.;
 
 	}
 
+ if(flaggo){
 
   if ( KAPPA >= 0.) {
      fmin = KAPPA*zmin + FI0;
@@ -6265,19 +6304,20 @@ ponco: ;
    if(fabs(KAPPA)<1.e-10) {
    	cout<<"da WriteMacroSkewAssociatedHitswithMC, questa traccia Found da PR non plottata"
 	<<" perche' ha fabs(KAPPA)<1.e-10.\n";
-	goto dopp ;
-   }
-  for(i=Nmin; i<= Nmax;i++){
-   offset = 2.*PI*i;
-   z1 = (i*2.*PI-FI0)/KAPPA;
-   z2 = ((i+1)*2.*PI-FI0)/KAPPA;
-   fprintf(MACRO,"TLine* FOUND%d = new TLine(%f,%f,%f,%f);\nFOUND%d->SetLineColor(2);\nFOUND%d->Draw();\n",
-//                 i-Nmin,z1,0.,z2, 2.*PI,i-Nmin,i-Nmin);
-                 i-Nmin,z1,0.,z2, R*2.*PI,i-Nmin,i-Nmin);
+   } else {
+	for(i=Nmin; i<= Nmax;i++){
+		offset = 2.*PI*i;
+		z1 = (i*2.*PI-FI0)/KAPPA;
+		z2 = ((i+1)*2.*PI-FI0)/KAPPA;
+		fprintf(MACRO,
+"TLine* FOUND%d = new TLine(%f,%f,%f,%f);\nFOUND%d->SetLineColor(2);\nFOUND%d->Draw();\n",
+			i-Nmin,z1,0.,z2, R*2.*PI,i-Nmin,i-Nmin);
 
-  }   //  end of  for(i=Nmin; i<= Nmax;++)
+	}   //  end of  for(i=Nmin; i<= Nmax;++)
+  } // end of if(fabs(KAPPA)<1.e-10)
 
-dopp: ;
+ }  // end of if(flaggo)
+
 
 	zmin=zmin2;
 	zmax=zmax2;
@@ -6305,7 +6345,7 @@ dopp: ;
          	TParticlePDG *fParticle= fdbPDG->GetParticle(icode);
        		if (icode>1000000000) carica = 1.;
        		else  carica = fParticle->Charge()/3. ;    //   charge of track
-       if (fabs(carica)<0.1 ) goto pinco ;
+  if (fabs(carica)>=0.1 ){
            	Cx = Oxx + Py*1000./(BFIELD*CVEL*carica);
            	Cy = Oyy - Px*1000./(BFIELD*CVEL*carica);
 		Fifi = atan2(Cy, Cx);       // MC truth Fifi angle of circle of Helix trajectory
@@ -6337,20 +6377,16 @@ dopp: ;
    z1 = (i*2.*PI-FI0)/KAPPA;
    z2 = ((i+1)*2.*PI-FI0)/KAPPA;
    fprintf(MACRO,"TLine* MC%d_%d = new TLine(%f,%f,%f,%f);\nMC%d_%d->SetLineColor(3);\nMC%d_%d->Draw();\n",
-//                 imc,i-Nmin,z1,0.,z2, 2.*PI,imc,i-Nmin,imc,i-Nmin);
                  imc,i-Nmin,z1,0.,z2,R* 2.*PI,imc,i-Nmin,imc,i-Nmin);
   }   //  end of  for(i=Nmin; i<= Nmax;++)
+
+   }  // end of if (fabs(carica)>=0.1 )
 	}  // end of if ( pMC )
        }  // end of if( imc>-1 )
 
 
 
-
-
-
-
-pinco: ;
-nohits: ;
+  } // end of  if( zmax >= zmin  &&  Smax >= Smin )
 
       fprintf(MACRO,"}\n");
       fclose(MACRO);
@@ -6728,8 +6764,10 @@ nohits: ;
                                                         )
 {
 
-   bool	       inclusionMC[MAXTRACKSPEREVENT][nmaxSttHits],
-		inclusionExp[MAXTRACKSPEREVENT];
+ bool
+	flaggo,
+	inclusionMC[MAXTRACKSPEREVENT][nmaxSttHits],
+	inclusionExp[MAXTRACKSPEREVENT];
 
    UShort_t	ntoMCtrack[MAXTRACKSPEREVENT],
 		toMCtracklist[MAXTRACKSPEREVENT][nmaxSttHits],
@@ -6763,16 +6801,19 @@ nohits: ;
 // prima  gli hits paralleli ---------------------
 	for(i=1; i<nHitsinTrack[jexp]; i++){
 		enne = (Int_t)( info[  ListHitsinTrack[jexp][i] ][6]+0.01 );
+		flaggo=true;
 		for(j=0; j<ntoMCtrack[jexp]; j++){
 			if( enne == toMCtracklist[jexp][j] ) {
 				toMCtrackfrequency[jexp][j]++;
-				goto out1 ;
+				flaggo=false;
+				break;
 			}
 		}
-		toMCtracklist[jexp][ ntoMCtrack[jexp] ] = enne;
-		toMCtrackfrequency[jexp][ ntoMCtrack[jexp] ] = 1;
-		ntoMCtrack[jexp]++;
-out1:  ;
+		if(flaggo){
+			toMCtracklist[jexp][ ntoMCtrack[jexp] ] = enne;
+			toMCtrackfrequency[jexp][ ntoMCtrack[jexp] ] = 1;
+			ntoMCtrack[jexp]++;
+		}
 	}   //  end of for(i=0; i<nHitsinTrack[jexp]; i++)
 
 
@@ -6780,16 +6821,19 @@ out1:  ;
 // poi  gli hits skew ---------------------
 	for(i=0; i<nSkewHitsinTrack[jexp]; i++){
 		enne = (Int_t)( info[ ListSkewHitsinTrack[jexp][i]  ][6]+0.01 );
+		flaggo=true;
 		for(j=0; j<ntoMCtrack[jexp]; j++){
 			if( enne == toMCtracklist[jexp][j] ) {
 				toMCtrackfrequency[jexp][j]++;
-				goto out2 ;
+				flaggo=false;
+				break;
 			}
 		}
-		toMCtracklist[jexp][ ntoMCtrack[jexp] ] = enne;
-		toMCtrackfrequency[jexp][ ntoMCtrack[jexp] ] = 1;
-		ntoMCtrack[jexp]++;
-out2:  ;
+		if(flaggo){
+			toMCtracklist[jexp][ ntoMCtrack[jexp] ] = enne;
+			toMCtrackfrequency[jexp][ ntoMCtrack[jexp] ] = 1;
+			ntoMCtrack[jexp]++;
+		}
 	}   //  end of for(i=0; j<nHitsinTrack[jexp]; i++)
 
 
@@ -6858,8 +6902,10 @@ out2:  ;
                                                         )
 {
 
-   bool	       inclusionMC[MAXTRACKSPEREVENT][nmaxSttHits],
-		inclusionExp[MAXTRACKSPEREVENT];
+ bool
+	flaggo,	
+	inclusionMC[MAXTRACKSPEREVENT][nmaxSttHits],
+	inclusionExp[MAXTRACKSPEREVENT];
 
    UShort_t	ntoMCtrack[MAXTRACKSPEREVENT],
 		toMCtracklist[MAXTRACKSPEREVENT][nmaxSttHits],
@@ -6892,36 +6938,22 @@ out2:  ;
 // prima  gli hits paralleli ---------------------
 	for(i=1; i<nHitsinTrack[jexp]; i++){
 		enne = (UShort_t)( info[  ListHitsinTrack[jexp][i] ][6]+0.01 );
+		flaggo=true;
 		for(j=0; j<ntoMCtrack[jexp]; j++){
 			if( enne == toMCtracklist[jexp][j] ) {
 				toMCtrackfrequency[jexp][j]++;
-				goto out1 ;
+				flaggo=false;
+				break;
 			}
 		}
-		toMCtracklist[jexp][ ntoMCtrack[jexp] ] = enne;
-		toMCtrackfrequency[jexp][ ntoMCtrack[jexp] ] = 1;
-		ntoMCtrack[jexp]++;
-out1:  ;
+		if(flaggo){
+			toMCtracklist[jexp][ ntoMCtrack[jexp] ] = enne;
+			toMCtrackfrequency[jexp][ ntoMCtrack[jexp] ] = 1;
+			ntoMCtrack[jexp]++;
+		}
 	}   //  end of for(i=0; i<nHitsinTrack[jexp]; i++)
 
 
-/*
-// poi  gli hits skew ---------------------
-	for(i=0; i<nSkewHitsinTrack[jexp]; i++){
-		enne = (UShort_t)( info[ ListSkewHitsinTrack[jexp][i]  ][6]+0.01 );
-		for(j=0; j<ntoMCtrack[jexp]; j++){
-			if( enne == toMCtracklist[jexp][j] ) {
-				toMCtrackfrequency[jexp][j]++;
-				goto out2 ;
-			}
-		}
-		toMCtracklist[jexp][ ntoMCtrack[jexp] ] = enne;
-		toMCtrackfrequency[jexp][ ntoMCtrack[jexp] ] = 1;
-		ntoMCtrack[jexp]++;
-out2:  ;
-	}   //  end of for(i=0; j<nHitsinTrack[jexp]; i++)
-
-*/
 
      }  // end of  for(jexp=0; jexp< nTracksFoundSoFar ;jexp++)
 
@@ -6986,7 +7018,9 @@ out2:  ;
                                                         )
 {
 
-   bool	firstime,
+ bool
+	firstime,
+	flaggo,
 	inclusionMC[MAXTRACKSPEREVENT][nmaxSttHits],
 		inclusionExp[MAXTRACKSPEREVENT];
 
@@ -7096,26 +7130,31 @@ int nevento=4;
 
 		} else {	// continuation of  if(firstime)
 
+			flaggo=true;
 			for(j=0; j<ntoMCtrack[jexp]; j++){
 				if( enne == toMCtracklist[jexp][j] ) {
 					toMCtrackfrequency[jexp][j]++;
-					goto out1 ;
+					flaggo=false;
+					break;
 				}
 			}
-			toMCtracklist[jexp][ ntoMCtrack[jexp] ] = enne;
-			toMCtrackfrequency[jexp][ ntoMCtrack[jexp] ] = 1;
-			getMCInfo( enne, &Cx, &Cy, &Rr);
-			if( Rr<0.) {
-				toMCtrackdistance[jexp][ntoMCtrack[jexp]]=-1.;
-			} else {
-				alfa = -2.*Cx;
-				beta = -2.*Cy;
-				gamma = Cx*Cx+Cy*Cy-Rr*Rr;
-				toMCtrackdistance[jexp][ntoMCtrack[jexp]]= FindDistance(Ox[jexp],Oy[jexp],
-					R[jexp],tanlow[jexp],tanmid[jexp],tanup[jexp],alfa,beta,gamma);
-			}
-			ntoMCtrack[jexp]++;
-out1:  ;
+			if(flaggo){
+				toMCtracklist[jexp][ ntoMCtrack[jexp] ] = enne;
+				toMCtrackfrequency[jexp][ ntoMCtrack[jexp] ] = 1;
+				getMCInfo( enne, &Cx, &Cy, &Rr);
+				if( Rr<0.) {
+					toMCtrackdistance[jexp][ntoMCtrack[jexp]]=-1.;
+				} else {
+					alfa = -2.*Cx;
+					beta = -2.*Cy;
+					gamma = Cx*Cx+Cy*Cy-Rr*Rr;
+					toMCtrackdistance[jexp][ntoMCtrack[jexp]]=
+						FindDistance(Ox[jexp],Oy[jexp],R[jexp],
+						tanlow[jexp],tanmid[jexp],tanup[jexp],
+						alfa,beta,gamma);
+				}
+				ntoMCtrack[jexp]++;
+			}  // end of if(flaggo)
 		}
 
 	}   //  end of for(i=0; i<nHitsinTrack[jexp]; i++)
@@ -7203,14 +7242,12 @@ UShort_t ListStripHitsinTrack[MAXTRACKSPEREVENT][nmaxMvdStripHitsInTrack],
 						)
 {
 
-   bool	firstime,
+ bool
+	firstime,
+	flaggo,
  inclusionMC[nTracksFoundSoFar][nmaxSttHitsInTrack+nmaxMvdPixelHitsInTrack+nmaxMvdStripHitsInTrack],
 		inclusionExp[nTracksFoundSoFar];
-//	inclusionMC[MAXTRACKSPEREVENT][nmaxSttHits+nmaxMvdPixelHits+nmaxMvdStripHits],
-//		inclusionExp[MAXTRACKSPEREVENT];
 
-//   UShort_t	ntoMCtrack[MAXTRACKSPEREVENT],
-//		toMCtrackfrequency[MAXTRACKSPEREVENT][nmaxSttHits];
    UShort_t	ntoMCtrack[nTracksFoundSoFar],
 		toMCtrackfrequency[nTracksFoundSoFar][nmaxSttHitsInTrack];
 
@@ -7218,7 +7255,6 @@ UShort_t ListStripHitsinTrack[MAXTRACKSPEREVENT][nmaxMvdStripHitsInTrack],
 
    Short_t  itemp, massimo,
 		toMCtracklist[nTracksFoundSoFar][nmaxSttHitsInTrack];
-//		toMCtracklist[MAXTRACKSPEREVENT][nmaxSttHits];
 
    Int_t enne;
 
@@ -7354,26 +7390,31 @@ UShort_t ListStripHitsinTrack[MAXTRACKSPEREVENT][nmaxMvdStripHitsInTrack],
 
 		} else {	// continuation of  if(firstime)
 
+			flaggo=true;
 			for(j=0; j<ntoMCtrack[jexp]; j++){
 				if( enne == toMCtracklist[jexp][j] ) {
 					toMCtrackfrequency[jexp][j]++;
-					goto out1 ;
+					flaggo=false;
+					break;
 				}
 			}
-			toMCtracklist[jexp][ ntoMCtrack[jexp] ] = enne;
-			toMCtrackfrequency[jexp][ ntoMCtrack[jexp] ] = 1;
-			getMCInfo( enne, &Cx, &Cy, &Rr);
-			if( Rr<0.) {
-				toMCtrackdistance[jexp][ntoMCtrack[jexp]]=-1.;
-			} else {
-				alfa = -2.*Cx;
-				beta = -2.*Cy;
-				gamma = Cx*Cx+Cy*Cy-Rr*Rr;
-				toMCtrackdistance[jexp][ntoMCtrack[jexp]]= FindDistance(Ox[jexp],Oy[jexp],
-				R[jexp],tanlow[jexp],tanmid[jexp],tanup[jexp],alfa,beta,gamma);
-			}
-			ntoMCtrack[jexp]++;
-out1:  ;
+			if(flaggo){
+				toMCtracklist[jexp][ ntoMCtrack[jexp] ] = enne;
+				toMCtrackfrequency[jexp][ ntoMCtrack[jexp] ] = 1;
+				getMCInfo( enne, &Cx, &Cy, &Rr);
+				if( Rr<0.) {
+					toMCtrackdistance[jexp][ntoMCtrack[jexp]]=-1.;
+				} else {
+					alfa = -2.*Cx;
+					beta = -2.*Cy;
+					gamma = Cx*Cx+Cy*Cy-Rr*Rr;
+					toMCtrackdistance[jexp][ntoMCtrack[jexp]]=
+						FindDistance(Ox[jexp],Oy[jexp],R[jexp],
+						tanlow[jexp],tanmid[jexp],tanup[jexp],
+						alfa,beta,gamma);
+				}
+				ntoMCtrack[jexp]++;
+			}  // end of if(flaggo)
 		}
 
 	}   //  end of for(i=0; i<nHitsinTrack[jexp]; i++)
@@ -7405,12 +7446,15 @@ out1:  ;
 
 		} else {	// continuation of  if(firstime)
 
+			flaggo=true;
 			for(j=0; j<ntoMCtrack[jexp]; j++){
 				if( enne == toMCtracklist[jexp][j] ) {
 					toMCtrackfrequency[jexp][j]++;
-					goto out2 ;
+					flaggo=false;
+					break;
 				}
 			}
+			if(flaggo){
 			toMCtracklist[jexp][ ntoMCtrack[jexp] ] = enne;
 			toMCtrackfrequency[jexp][ ntoMCtrack[jexp] ] = 1;
 			getMCInfo( enne, &Cx, &Cy, &Rr);
@@ -7424,7 +7468,7 @@ out1:  ;
 				R[jexp],tanlow[jexp],tanmid[jexp],tanup[jexp],alfa,beta,gamma);
 			}
 			ntoMCtrack[jexp]++;
-out2:  ;
+			}  // end of if(flaggo)
 		}
 
 	}   //  end of for(i=0; i<nHitsinTrack[jexp]; i++)
@@ -7455,26 +7499,31 @@ out2:  ;
 
 		} else {	// continuation of  if(firstime)
 
+			flaggo=true;
 			for(j=0; j<ntoMCtrack[jexp]; j++){
 				if( enne == toMCtracklist[jexp][j] ) {
 					toMCtrackfrequency[jexp][j]++;
-					goto out3 ;
+					flaggo=false;
+					break;
 				}
 			}
-			toMCtracklist[jexp][ ntoMCtrack[jexp] ] = enne;
-			toMCtrackfrequency[jexp][ ntoMCtrack[jexp] ] = 1;
-			getMCInfo( enne, &Cx, &Cy, &Rr);
-			if( Rr<0.) {
-				toMCtrackdistance[jexp][ntoMCtrack[jexp]]=-1.;
-			} else {
-				alfa = -2.*Cx;
-				beta = -2.*Cy;
-				gamma = Cx*Cx+Cy*Cy-Rr*Rr;
-				toMCtrackdistance[jexp][ntoMCtrack[jexp]]= FindDistance(Ox[jexp],Oy[jexp],
-				R[jexp],tanlow[jexp],tanmid[jexp],tanup[jexp],alfa,beta,gamma);
-			}
-			ntoMCtrack[jexp]++;
-out3:  ;
+			if(flaggo){
+				toMCtracklist[jexp][ ntoMCtrack[jexp] ] = enne;
+				toMCtrackfrequency[jexp][ ntoMCtrack[jexp] ] = 1;
+				getMCInfo( enne, &Cx, &Cy, &Rr);
+				if( Rr<0.) {
+					toMCtrackdistance[jexp][ntoMCtrack[jexp]]=-1.;
+				} else {
+					alfa = -2.*Cx;
+					beta = -2.*Cy;
+					gamma = Cx*Cx+Cy*Cy-Rr*Rr;
+					toMCtrackdistance[jexp][ntoMCtrack[jexp]]=
+						FindDistance(Ox[jexp],Oy[jexp],R[jexp],
+						tanlow[jexp],tanmid[jexp],tanup[jexp],
+						alfa,beta,gamma);
+				}
+				ntoMCtrack[jexp]++;
+			} // end of if(flaggo)
 		}
 
 	}   //  end of for(i=0; i<nHitsinTrack[jexp]; i++)
@@ -7564,8 +7613,8 @@ UShort_t ListSkewHitsinTrack[MAXTRACKSPEREVENT][nmaxSttHitsInTrack], // dal PR
 			Short_t  daTrackFoundaTrackMC[MAXTRACKSPEREVENT]
                                                )
 {
-
-    UShort_t	i, jexp, exphit, iHit,
+ bool flaggo;
+ UShort_t	i, jexp, exphit, iHit,
 		enne[MAXTRACKSPEREVENT][nmaxSttHits];
   Short_t	emme;
 
@@ -7599,12 +7648,17 @@ UShort_t ListSkewHitsinTrack[MAXTRACKSPEREVENT][nmaxSttHitsInTrack], // dal PR
 		// traccia MC
 		if( info[i][5] > 2. || (emme != daTrackFoundaTrackMC[jexp]) ) continue;
 		if( !InclusionListStt[i]) continue; // escludo gli hits con multiple hits
+			flaggo=true;
 			for(exphit=0; exphit<nHitsinTrack[jexp]; exphit++){
-				if(ListHitsinTrack[jexp][exphit] == i) goto pinco ;
+				if(ListHitsinTrack[jexp][exphit] == i){
+					flaggo=false;
+					break;
+				}
 			}
+			if(flaggo){
 			MCParalAloneList[jexp][ nMCParalAlone[jexp] ] = i;
 			nMCParalAlone[jexp]++;
-			pinco:  ;
+			} // end of  if(flaggo)
 	}  //  end of  for(i=0; i<ntotalHits; i++)
 
 	nHitsInMCTrack[jexp] = nMCParalAlone[jexp]+nParalCommon[jexp];
@@ -7630,12 +7684,17 @@ UShort_t ListSkewHitsinTrack[MAXTRACKSPEREVENT][nmaxSttHitsInTrack], // dal PR
 		//  non appartengono alla giusta traccia MC
 		if( info[i][5] < 98. || (emme != daTrackFoundaTrackMC[jexp]) ) continue;
 		if( !InclusionListStt[i]) continue; // escludo gli hits con multiple hits
+			flaggo=true;
 			for(exphit=0; exphit<nSkewHitsinTrack[jexp]; exphit++){
-				if(i == ListSkewHitsinTrack[jexp][exphit] ) goto pinco2 ;
+				if(i == ListSkewHitsinTrack[jexp][exphit] ){
+					flaggo=false;
+					break;
+				}
 			}
-			MCSkewAloneList[jexp][ nMCSkewAlone[jexp] ] = i;
-			nMCSkewAlone[jexp]++;
-			pinco2:  ;
+			if(flaggo){
+				MCSkewAloneList[jexp][ nMCSkewAlone[jexp] ] = i;
+				nMCSkewAlone[jexp]++;
+			}
 	}
 
 	nSkewHitsInMCTrack[jexp] = nMCSkewAlone[jexp]+nSkewCommon[jexp];
@@ -10326,8 +10385,8 @@ UShort_t ListStripHitsinTrack[MAXTRACKSPEREVENT][nmaxMvdStripHitsInTrack] // out
 					// in the Mvd region.
 		anglemax = 2.*PI;
 		anglemin = 0.;
-		goto pippo ;
-	}
+
+	} else { // continuation of if( Fifirst[i] < -99998. )
 
 
 	if(CHARGE[i]>0){	// track must rotate clockwise looking into the beam.
@@ -10338,10 +10397,9 @@ UShort_t ListStripHitsinTrack[MAXTRACKSPEREVENT][nmaxMvdStripHitsInTrack] // out
 		anglemax = Fifirst[i];
 	}
 	if(anglemax < anglemin) anglemax += 2.*PI;
-	if(anglemax < anglemin) anglemax==anglemin; // this is just to be super-sure.
+	if(anglemax < anglemin) anglemax=anglemin; // this is just to be super-sure.
 
-
-pippo: ;
+	} // end of if( Fifirst[i] < -99998. )
 
 
 //--------------------
@@ -10771,7 +10829,9 @@ UShort_t ListPixelHitsinTrack[MAXTRACKSPEREVENT][nmaxMvdPixelHitsInTrack], // ou
 UShort_t ListStripHitsinTrack[MAXTRACKSPEREVENT][nmaxMvdStripHitsInTrack] // output
                     )
 {
-	bool specialcase,
+	bool
+		flaggo,
+		specialcase,
 	     downstream,
 	     determined;
 
@@ -10808,8 +10868,7 @@ UShort_t ListStripHitsinTrack[MAXTRACKSPEREVENT][nmaxMvdStripHitsInTrack] // out
 					// in the Mvd region.
 		anglemax = 2.*PI;
 		anglemin = 0.;
-		goto zippo ;
-	}
+	} else {
 
 
 
@@ -10822,10 +10881,9 @@ UShort_t ListStripHitsinTrack[MAXTRACKSPEREVENT][nmaxMvdStripHitsInTrack] // out
 		anglemax = Fifirst[itrack];
 	}
 		if(anglemax < anglemin) anglemax += 2.*PI;
-		if(anglemax < anglemin) anglemax==anglemin; // this is just to be super-sure.
+		if(anglemax < anglemin) anglemax=anglemin; // this is just to be super-sure.
 
-
-zippo: ;
+	} // end of if( Fifirst[itrack] < -99998. )
 
 
 //  find if this track goes downstream or upstream
@@ -10851,12 +10909,14 @@ zippo: ;
 
 		naddpix=0;
 		for(ipix=0; ipix<nMvdPixelHit; ipix++){
+			flaggo=true;
 			for(j=0; j<nPixelHitsinTrack[itrack]; j++){
-			     if( ListPixelHitsinTrack[itrack][j]==ipix) goto out ;
+			     if( ListPixelHitsinTrack[itrack][j]==ipix){
+				flaggo=false;
+				break;
+			     }
 			}
-//				if (    (downstream && ZMvdPixel[ipix]>=0.) ||
-//					((!downstream) && ZMvdPixel[ipix]<0.)
-//				   ){
+			if(flaggo){
 					angle = atan2(YMvdPixel[ipix]-Oy[itrack],
 							XMvdPixel[ipix]-Ox[itrack]);
 					if(angle<0.) angle += 2.*PI;
@@ -10881,8 +10941,8 @@ zippo: ;
 							naddpix++;
 						}
 					}	// end of  if(angle > anglemin)
-//				}	// end of  if (    (downstream &&
-			out: ;
+			} // end of if(flaggo)
+
 		}	//  end of   for(ipix=0; ipix<nMvdPixelHit; ipix++)
 
 		if(naddpix>0){
@@ -10898,17 +10958,16 @@ zippo: ;
 
 		naddstr=0;
 		for(istr=0; istr<nMvdStripHit; istr++){
+			flaggo=true;
 			for(j=0; j<nStripHitsinTrack[itrack]; j++){
-			     if( ListStripHitsinTrack[itrack][j]==istr) goto out2 ;
+			     if( ListStripHitsinTrack[itrack][j]==istr){
+				flaggo=false;
+				break;
+			     }
 			}
-//				if (    (downstream && ZMvdStrip[istr]>=0.) ||
-//					( (!downstream) && ZMvdStrip[istr]<0.)
-//				   ){
+			if(flaggo){
 					angle = atan2(YMvdStrip[istr]-Oy[itrack],
 							XMvdStrip[istr]-Ox[itrack]);
-
-
-
 					if(angle<0.) angle += 2.*PI;
 					if( angle>anglemax){
 						angle -= 2.*PI;
@@ -10930,11 +10989,9 @@ zippo: ;
 						naddstr++;
 						}
 					}	//  end of  if(angle > anglemin)
-//				}	// end of    if (    (downstream &&
 
+			} // end of if(flaggo)
 
-
-			out2: ;
 		}	//  end of   for(istr=0; istr<nMvdStripHit; istr++)
 		if(naddstr>0){
 			for(j=0;j<naddstr;j++){
@@ -11625,7 +11682,7 @@ if(istampa>=3){
 
 	dis1 = fabs( R*S -R*KAPPA*ZED - R*FI0)/sqrt( 1.+KAPPA*KAPPA*R*R);
 	dis1 = fmod(dis1,dis_segments);
-	dis2 = dis_segments-dis1; if(dis2<0.)dis2==0.;
+	dis2 = dis_segments-dis1; if(dis2<0.)dis2=0.;
 
 
 	if( dis1 < dis2 )
@@ -12837,7 +12894,8 @@ if(istampa>1) cout<<"uscito da SttSkewCleanup true\n";
 //	3)  eliminates the tracks if the hit sequence is not continuous enough.
 
 
-//	bool ConsiderLastHit;
+	bool
+		flaggo;
 
 	Short_t flagInnerSttR,
 		flagOuterSttR,
@@ -12934,8 +12992,8 @@ if(istampa>1) {
 		nOuterHits=0;
 		nOuterHitsRight=0;
 		nOuterHitsLeft=0;
-		goto jumpa ; // don't discard track yet, see if it should have parallel hits.
-	}
+		// don't discard track yet, see if it should have parallel hits.
+	} else {
 
 //------------------
 //   separation of inner Parallel Stt hits from outer Parallel Stt hits.
@@ -12978,7 +13036,7 @@ if(istampa>1) {
 	// 0 -->  at least 1 intersection with polygon, therefore a possible entry and an exit;
 	// 1 -->  track contained completely between the two polygons;
 
-jumpa: ;
+	} // end of if(nHits==0)
 
 //	first of all, find possible intersection points with outer circle encompassing
 //	the Stt system.
@@ -13052,11 +13110,7 @@ if(istampa>1) {
 
 	// case when track is outside both Inner Stt Parallel sections.
 	if( flagInnerSttL == -1 && flagInnerSttR == -1 ){
-		//nInnerHits=0; // eliminate all the hits from hit list.
-		//nInnerHitsLeft=0;
-		//nInnerHitsRight=0;
-		goto outer ;
-	}
+	} else {
 
 
 
@@ -13154,54 +13208,54 @@ if(istampa>1) {
 		if( fabs(aux[0]-Xcross[0])<1.e-5&& fabs(aux[1]-Ycross[0])<1.e-5 ){
 			return true;
 		}
-		if( flagOutStt ==0){// 2 intersections with outer Stt circle.
+		flaggo=true;
+		if( flagOutStt ==0 // 2 intersections with outer Stt circle.
 		   // case when this track exits the Stt outer circle without
 		   // hitting the Stt parallel inner section (for instance the track
-		   if( (fabs(XcrossOut[0]-Xcross[0])<1.e-5
+		   &&  ((fabs(XcrossOut[0]-Xcross[0])<1.e-5
 				&&fabs(YcrossOut[0]-Ycross[0])<1.e-5 )
 					||
 				(fabs(XcrossOut[1]-Xcross[0])<1.e-5
 				&&fabs(YcrossOut[1]-Ycross[0])<1.e-5 )
+				)
 				){
-				goto outer ;
-		   }
-		} // end of  if( flagOutStt ==0)
+			flaggo=false ;
+		} else { // continuation of  if( flagOutStt ==0)
 
-		// most usual case when track crossed the Inner parallel Stt.
-		if (nnn == 0) return false;
+			// most usual case when track crossed the Inner parallel Stt.
+			if (nnn == 0) return false;
 
-		// if the exit point is actually given by FiLimitAdmissible, then allow
-		// an extra uncertainty in the # Stt hit that must be present;
-		// this is done because FiLimitAdmissible is not a very precise number.
-		if( fabs(aux[0]-Xcross[1])<1.e-5&& fabs(aux[1]-Ycross[1])<1.e-5 ){
-			islack = 3;
-		}
+			// if the exit point is actually given by FiLimitAdmissible, then allow
+			// an extra uncertainty in the # Stt hit that must be present;
+			// this is done because FiLimitAdmissible is not a very precise number.
+			if( fabs(aux[0]-Xcross[1])<1.e-5&& fabs(aux[1]-Ycross[1])<1.e-5 ){
+				islack = 3;
+			}
+		} //  end of  if( flagOutStt ==0)
 
 	} else { // continuation of  if(fabs(FiLimitAdmissible-FI0) < 2.*PI)
 		if( flagOutStt ==0){// 2 intersections with outer Stt circle.
 			   // case when this track exits the Stt outer circle without
 			   // hitting the Stt parallel inner section (for instance the track
+			   flaggo=true;
 			   if( (fabs(XcrossOut[0]-Xcross[0])<1.e-5
 				&&fabs(YcrossOut[0]-Ycross[0])<1.e-5 )
 					||
 				(fabs(XcrossOut[1]-Xcross[0])<1.e-5
 				&&fabs(YcrossOut[1]-Ycross[0])<1.e-5 )
 				){
-				//nInnerHits=0; // eliminate all the hits from hit list.
-				//nInnerHitsRight=0;
-				//nInnerHitsLeft=0;
-				goto outer ;
+				flaggo=false;
 			   }
-		} // end of  if( flagOutStt ==0)
+		} else { // continuation of  if( flagOutStt ==0)
 
-		// most usual case when track crossed the Inner parallel Stt.
-		if (nnn == 0) return false;
-
+			// most usual case when track crossed the Inner parallel Stt.
+			if (nnn == 0) return false;
+		}  // end of  if( flagOutStt ==0)
 	}  // end of  if(fabs(FiLimitAdmissible-FI0) < 2.*PI)
 
 
 
-
+	if(flaggo){
 
 //-------------  cleanup of the spurious tracks first using the inner parallel straws.
 
@@ -13234,8 +13288,9 @@ if(istampa>1) {
 if(istampa>1) cout<<"uscito da BadTrack_ParStt.\n";
 
 //-----------------------------------------------------
-
-outer: ;
+	}  // end of if(flaggo)
+	} // end of if( flagInnerSttL == -1 && flagInnerSttR == -1 )
+//outer: ;
 
 	islack=1;   // reset the extra uncertainty in the # Stt.
 
@@ -13663,8 +13718,8 @@ if(istampa>1&&IVOLTE<20)cout<<"in SttSkewCleanup : hit skew prima di purga = "
 	if(nHits==0){ // don't discard track yet, see if it should have
 				// skew hits or not.
 		nHitsRight=nHitsLeft=0;
-		goto jampa;
-	}
+//		goto jampa;
+	} else {
 
 
 
@@ -13684,7 +13739,8 @@ if(istampa>1&&IVOLTE<20)cout<<"in SttSkewCleanup : hit skew prima di purga = "
 if(istampa>1&&IVOLTE<20)cout<<"in SttSkewCleanup : n. hit skew Left = "
 <<nHitsLeft<<", right "<< nHitsRight  <<endl;
 
-jampa: ;
+	} // end of if(nHits==0)
+//jampa: ;
 //	first of all, find possible intersection points with outer circle encompassing
 //	the Stt system.
 
