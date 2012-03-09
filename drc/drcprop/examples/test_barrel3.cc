@@ -107,14 +107,18 @@ int main(int argc, char *argv[])
 {
   const double pi=3.1415926535;
 
-  //int iopt = 0;// only geometry
-  int iopt = 1;// straight lines
+
+  //int focus_opt = 0; // unfocussed
+  int focus_opt = 1; // focussed
+
+  int iopt = 0;// only geometry
+  //int iopt = 1;// straight lines
   //int iopt = 2;// C-cone
   //int iopt = 3;// ???
    
-  int lens_opt = 1;  // two thin lenses no air gap
+  //int lens_opt = 1;  // two thin lenses no air gap
   //int lens_opt = 2; // two lenses, no airgap, 2nd is thick
-  //int lens_opt = 3; // two lenses, with airgap
+  int lens_opt = 3; // two lenses, with airgap
 
  
   bool l_fresnel = true;
@@ -141,6 +145,12 @@ int main(int argc, char *argv[])
       radius_lens2a = -30.836;
       thick_lens2   = 11.6; 
       thick_air2    = 7; 
+      if (focus_opt==0)
+	{
+	  radius_lens1  = 9999.9;
+	  radius_lens2a = 9999.9;
+	  radius_lens2b = 9999.9;
+	}
     }
   else if (lens_opt==2)
     {
@@ -152,6 +162,12 @@ int main(int argc, char *argv[])
       radius_lens2a = -49.525;
       thick_lens2   = 18; 
       thick_air2    = 7; 
+      if (focus_opt==0)
+	{
+	  radius_lens1  = 9999.9;
+	  radius_lens2a = 9999.9;
+	  radius_lens2b = 9999.9;
+	}
     }
   else if (lens_opt==3)
     {
@@ -163,6 +179,12 @@ int main(int argc, char *argv[])
       radius_lens2a =  -31;
       thick_lens2   =    5; 
       thick_air2    =    8; 
+      if (focus_opt==0)
+	{
+	  radius_lens1  = 9999.9;
+	  radius_lens2a = 9999.9;
+	  radius_lens2b = 9999.9;
+	}
     }
   else
     {
@@ -362,7 +384,7 @@ int main(int argc, char *argv[])
 	{
 	  double slab_width = q2.X()*1.9;
 	  double slab_height =q2.Y()*1.9;
-	  for (double lambda1=600; lambda1>399; lambda1-=100)
+	  for (double lambda1=600; lambda1>349; lambda1-=50)
 	    {
 	      //double lambda1=lambda;
 	      // go in x dir
@@ -371,7 +393,7 @@ int main(int argc, char *argv[])
 
 	      double y1 = tan(angle*pi/180);
 	      double x1 = y1;
-	      double step = 0.3*y1/angle;
+	      double step = 0.03*y1/angle;
 	      for (double y=-y1; y<= y1; y+= step)
 		{
 		  double xx=ran.Uniform(-0.5*slab_width,0.5*slab_width);
@@ -474,9 +496,11 @@ int main(int argc, char *argv[])
   scr<<"{"<<endl;
   scr<<"    TCanvas *c1 = new TCanvas(\"c1\"); "<<endl;
   scr<<"    TH1F *hgr = new TH1F(\"hgr\",\"test_barrel3 ";
-  if (lens_opt == 1) scr<<" lopt=1 \"";
-  if (lens_opt == 2) scr<<" lopt=2 \"";
-  if (lens_opt == 3) scr<<" lopt=3 \"";
+  if (lens_opt == 1) scr<<" lopt=1 ";
+  if (lens_opt == 2) scr<<" lopt=2 ";
+  if (lens_opt == 3) scr<<" lopt=3 ";
+  if (focus_opt== 1) scr<<" focussed \"";
+  if (focus_opt== 0) scr<<" unfocussed \"";
   scr<<",500,-300,300);"<<endl;
   scr<<"    hgr->SetStats(0);"<<endl;
   scr<<"    hgr->SetMarkerStyle(20);"<<endl;
