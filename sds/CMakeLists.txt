@@ -60,7 +60,6 @@ SdsDigi/PndSdsStripHitProducer.cxx
 SdsDigi/PndSdsHitProducerIdeal.cxx
 #MvdDigi/PndMvdDigiTask.cxx
 SdsDigi/PndSdsNoiseProducer.cxx
-SdsDigi/PndSdsDigiPixelSorterTask.cxx
 
 SdsDigi/PndSdsChargeConversion.cxx
 SdsDigi/PndSdsIdealChargeConversion.cxx

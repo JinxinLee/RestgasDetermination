@@ -116,7 +116,7 @@ InitStatus PndSdsPixelClusterTask::Init()
   
   SetInBranchId();
 
-  fFunctor = new StopTime();
+  fFunctor = new TimeGap();
   fStartFunctor = new StopTime();
 //  fFEModel = new PndSdsFESimple();
 
@@ -144,7 +144,7 @@ void PndSdsPixelClusterTask::Exec(Option_t* opt)
    if(fVerbose>0) std::cout << "-I- PndSdsPixelClusterTask::Exec EventTime: " << EventTime << std::endl;
 
     if (FairRunAna::Instance()->IsTimeStamp()){
-    	fDigiArray = FairRootManager::Instance()->GetData(fInBranchName, fFunctor, EventTime + 10);
+    	fDigiArray = FairRootManager::Instance()->GetData(fInBranchName, fStartFunctor, EventTime + 10);
     }
 
   if ( ! fHitArray ) Fatal("Exec", "No HitArray");
@@ -155,7 +155,6 @@ void PndSdsPixelClusterTask::Exec(Option_t* opt)
   for (Int_t iPoint = 0; iPoint < nPoints; iPoint++){
     PndSdsDigiPixel myDigi = *(PndSdsDigiPixel*)(fDigiArray->At(iPoint));
     DigiPixelArray.push_back(myDigi);
-    //std::cout << iPoint << " " << myDigi << std::endl;
   }
   // Retrieve the calculated clusters with the chosen clusterfinder
   std::vector< std::vector< Int_t> > clusters = fClusterFinder->GetClusters(DigiPixelArray);
@@ -164,6 +163,7 @@ void PndSdsPixelClusterTask::Exec(Option_t* opt)
   for (UInt_t i = 0; i < clusters.size(); i++)
   {
     PndSdsClusterPixel* tempCluster = new((*fClusterArray)[i]) PndSdsClusterPixel(fInBranchId, clusters[i]);
+
     if (FairRunAna::Instance()->IsTimeStamp()){
 //		std::cout << "TempCluster: " << *tempCluster << std::endl;
 		tempCluster->Reset();

@@ -132,7 +132,8 @@ void PndMvdRiemannTrackFinderTask::Exec(Option_t* opt)
 
 
   for (int i = 0; i < trackFinder.NTracks(); i++){
-	  new ((*fTrackCandArray)[i])PndTrackCand(trackFinder.GetTrackCand(i));
+	  PndTrackCand* myCand = new ((*fTrackCandArray)[i])PndTrackCand(trackFinder.GetTrackCand(i));
+	  myCand->CalcTimeStamp();
 	  if (fVerbose > 0)trackFinder.GetTrack(i).Print();
 	  //PndRiemannTrack myTrack = trackFinder.GetTrack(i);
 

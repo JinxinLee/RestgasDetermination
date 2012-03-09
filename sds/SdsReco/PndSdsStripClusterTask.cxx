@@ -47,6 +47,7 @@ PndSdsTask("SDS Strip Clustertisation Task")
   fCurrentStripCalcTop=0;
   fCurrentStripCalcBot=0;
   fCurrentClusterfinder=0;
+  fVerbose = 0;
 }
 
 // -----   Named constructor   -------------------------------------------
@@ -65,6 +66,7 @@ PndSdsTask(name)
   fCurrentStripCalcTop=0;
   fCurrentStripCalcBot=0;
   fCurrentClusterfinder=0;
+  fVerbose = 0;
 }
 
 // -----   Destructor   ----------------------------------------------------

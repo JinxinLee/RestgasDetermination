@@ -12,10 +12,10 @@
 #include "PndTrackCand.h"
 #include "FairTrackParP.h"
 #include "PndDetectorList.h"
-#include "FairMultiLinkedData.h"
+#include "FairTimeStamp.h"
 
 
-class PndTrack : public FairMultiLinkedData{
+class PndTrack : public FairTimeStamp{
 public:
 	PndTrack();
 	PndTrack(const FairTrackParP& first, const FairTrackParP& last, const PndTrackCand& cand,
@@ -55,7 +55,7 @@ private:
         Int_t fRefIndex;
 
 public:
-	ClassDef(PndTrack,1)
+	ClassDef(PndTrack,2)
 
 };
 

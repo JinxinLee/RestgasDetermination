@@ -12,7 +12,7 @@
 
 #include<iostream>
 
-PndMvdAnaRadDam::PndMvdAnaRadDam()
+PndMvdAnaRadDam::PndMvdAnaRadDam():fCountGoodFiles(0)
 {
 	// TODO Auto-generated constructor stub
 
@@ -31,11 +31,12 @@ void PndMvdAnaRadDam::AnalyzeFiles()
 			TList* l = f->GetListOfKeys();
 			TIter iter(l);
 			TObject* ob;
+			fCountGoodFiles++;
 			while(ob = iter()){
 				if (TString(ob->GetName()).Contains("ocave_1oMvd-2.1")){
 					TString newName = ob->GetName();
 					newName.Append("_sum");
-					TH2D* histo = (TH2D*)(f->Get(ob->GetName()));
+					TProfile2D* histo = (TProfile2D*)(f->Get(ob->GetName()));
 					AddHisto(histo);
 				}
 			}
@@ -44,17 +45,25 @@ void PndMvdAnaRadDam::AnalyzeFiles()
 	}
 }
 
-void PndMvdAnaRadDam::AddHisto(TH2D* histo)
+void PndMvdAnaRadDam::AddHisto(TProfile2D* histo)
 {
-	if(fHistoMap[histo->GetName()] == 0)
-		fHistoMap[histo->GetName()] = new TH2D(*histo);
-	else fHistoMap[histo->GetName()]->Add(histo);
+	TString mapName = histo->GetName();
+	mapName.Append("_sum");
+	if(fHistoMap[mapName] == 0){
+		TProfile2D* newHisto = new TProfile2D(*histo);
+		newHisto->SetName(mapName);
+		fHistoMap[mapName] = newHisto;
+	}
+	else{
+		//std::cout << fHistoMap[histo->GetName()]->GetName() << " / " << histo->GetName() << std::endl;
+		fHistoMap[mapName]->Add(histo);
+	}
 	//std::cout << histo->GetName() << std::endl;
 }
 
 TH2* PndMvdAnaRadDam::GetHisto(int i)
 {
-	std::map<TString, TH2D*>::iterator iter = fHistoMap.begin();
+	std::map<TString, TProfile2D*>::iterator iter = fHistoMap.begin();
 	for (int j = 0; j < i; j++)iter++;
 	return iter->second;
 }
@@ -70,7 +79,7 @@ void PndMvdAnaRadDam::SaveHistos(TString fileName)
 	//f.Dump();
 //	f.Write();
 
-	for (std::map<TString, TH2D*>::const_iterator iter = fHistoMap.begin(); iter != fHistoMap.end(); iter++){
+	for (std::map<TString, TProfile2D*>::const_iterator iter = fHistoMap.begin(); iter != fHistoMap.end(); iter++){
 		if (iter->second != 0){
 			iter->second->Write();
 		}

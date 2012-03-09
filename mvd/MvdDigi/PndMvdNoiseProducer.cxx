@@ -428,7 +428,11 @@ void PndMvdNoiseProducer::AddDigiPixel(Int_t &noisies, Int_t iPoint, Int_t senso
 
 	  std::vector<Int_t> indices;
 	  indices.push_back(iPoint);
-	  PndSdsDigiPixel* tempPixel = new PndSdsDigiPixel(indices,detID,sensorID,fe,col,row,fPixChargeConv->ChargeToDigiValue(charge), FairRootManager::Instance()->GetEventTime()) ;
+	  PndSdsDigiPixel* tempPixel = new PndSdsDigiPixel(indices,detID,sensorID,fe,col,row,fPixChargeConv->ChargeToDigiValue(charge), fPixChargeConv->GetTimeStamp(0, charge,FairRootManager::Instance()->GetEventTime()));//FairRootManager::Instance()->GetEventTime()) ;
+	  if (fPixChargeConv->GetTimeWalk((Int_t)tempPixel->GetCharge()) < 1E5){
+	  		tempPixel->SetTimeStamp(tempPixel->GetTimeStamp() - fPixChargeConv->GetTimeWalk((Int_t)tempPixel->GetCharge()));
+	  		tempPixel->SetTimeStampError(fPixChargeConv->GetTimeStampErrorAfterCorrection());
+	  }
 	  fDigiPixelBuffer->FillNewData(tempPixel,fPixChargeConv->ChargeToDigiValue(charge)*6 + FairRootManager::Instance()->GetEventTime());
 	//  std::cout << "DataInBuffer: " << fDigiPixelBuffer->GetNData() << std::endl;
 }

@@ -20,7 +20,7 @@
 
 // Root Class Headers ----------------
 #include "PndTrackCandHit.h"
-#include "FairMultiLinkedData.h"
+#include "FairTimeStamp.h"
 
 #include "TObject.h"
 #include "TVector3.h"
@@ -34,7 +34,7 @@
 
 typedef std::multimap<Double_t, std::pair<Int_t, Int_t> >::const_iterator mapIter;
 
-class PndTrackCand : public FairMultiLinkedData {
+class PndTrackCand : public FairTimeStamp {
 public:
 
   // Constructors/Destructors ---------
@@ -68,12 +68,14 @@ public:
   void setTrackSeed(const TVector3& p,const TVector3& d,double qop){
     fPosSeed=p;fDirSeed=d;fQoverPseed=qop;
   }
+
+  void CalcTimeStamp();
+
   void Reset();
 
   void Print();
 
 private:
-
   // Private Data Members ------------
 	std::vector<PndTrackCandHit> fHitId;  ///< first index is detId, second index is hit Id
 	bool sorted;
@@ -81,8 +83,9 @@ private:
 	TVector3 fPosSeed;
 	TVector3 fDirSeed;
 	double fQoverPseed;
+	Int_t fVerbose;
 public:
-  ClassDef(PndTrackCand,1);
+  ClassDef(PndTrackCand,2);
 };
 
 #endif

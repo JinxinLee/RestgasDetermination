@@ -157,6 +157,7 @@ Double_t PndSdsTotChargeConversion::GetTimeWalk(Double_t Charge) { // [ns]
 	Q = Charge;
 	Qt = GetParameter("fth");
 	ftimewalk = (GetParameter("ftr")*Qt/Q);
+//	ftimewalk += ftimestep;
 	return ftimewalk;
 }
 

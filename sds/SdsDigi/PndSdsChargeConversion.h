@@ -25,7 +25,15 @@ class PndSdsChargeConversion : public TObject
     virtual Double_t GetRelativeError(Double_t Charge) = 0;
     virtual Double_t GetTimeStamp(Double_t tof, Double_t charge, Double_t MCEventTime) = 0;
     virtual Double_t GetTimeWalk(Double_t charge){return 0;};
+    virtual Double_t GetTimeWalk(Int_t tot){
+    	return GetTimeWalk(DigiValueToCharge(tot));
+    }
+    virtual Double_t GetTimeStampErrorAfterCorrection(){
+    	return 1;
+    }
     
+    virtual Double_t GetTimeStep(){return 0;};
+
     Double_t GetParameter(TString param){
       it=fParams.find(param);
       if (it == fParams.end()){

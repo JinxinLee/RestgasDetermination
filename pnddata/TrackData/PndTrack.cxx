@@ -23,6 +23,8 @@ PndTrack::PndTrack(const FairTrackParP& first, const FairTrackParP& last, const 
   fTrackParamFirst(first), fTrackParamLast(last), fTrackCand(cand), fPidHypo(pid), fFlag(flag), fChi2(chi2), fNDF(ndf), fRefIndex(id)
 {
 	SetLink(FairLink(type, id));
+	SetTimeStamp(cand.GetTimeStamp());
+	SetTimeStampError(cand.GetTimeStampError());
 }
 
 

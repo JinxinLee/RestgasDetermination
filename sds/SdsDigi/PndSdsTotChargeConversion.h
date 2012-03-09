@@ -50,6 +50,13 @@ public:
   virtual Int_t GetTimeStamp(Double_t time);
   virtual Double_t GetTimeStamp(Double_t tof, Double_t charge, Double_t MCEventTime);
   virtual Double_t GetTimeWalk(Double_t Charge);
+  virtual Double_t GetTimeStampErrorAfterCorrection(){
+  	return ftimestep/sqrt(12);
+  }
+
+  virtual Double_t GetTimeStep(){return ftimestep;}
+
+
   
   
 private:

@@ -19,13 +19,14 @@
 
 // This Class' Header ------------------
 #include "PndTrackCand.h"
+#include "FairRootManager.h"
 
 #include <algorithm>
-
+#include "math.h"
 
 ClassImp(PndTrackCand);
 
-PndTrackCand::PndTrackCand():sorted(false), fMcTrackId(-1),fQoverPseed(0.){}
+PndTrackCand::PndTrackCand():sorted(false), fMcTrackId(-1),fQoverPseed(0.),fVerbose(0){}
 
 PndTrackCand::~PndTrackCand(){}
 
@@ -35,6 +36,7 @@ PndTrackCand::AddHit(UInt_t detId, UInt_t hitId, Double_t rho)
 	fHitId.push_back(PndTrackCandHit(detId, hitId, rho));
 	sorted = false;
 	AddLink(FairLink(detId, hitId));
+//	CalcTimeStamp();
 }
 
 void PndTrackCand::AddHit(TString branchName, UInt_t hitId, Double_t rho)
@@ -82,6 +84,51 @@ std::vector<PndTrackCandHit> PndTrackCand::GetSortedHits()
 	if (sorted == false)
 		Sort();
 	return fHitId;
+}
+
+void PndTrackCand::CalcTimeStamp()
+{
+	Double_t timestamp = 0;
+	Double_t timestamperror = 0;
+	Int_t counts = 0;
+	for (int i = 0; i < GetNLinks(); i++){
+		FairLink myLink = GetLink(i);
+		Int_t type = myLink.GetType();
+		
+		if (fVerbose > 1){
+			std::cout << "Links: ";
+			myLink.Print();
+			std::cout << std::endl;
+			std::cout << "type: " << type << std::endl;
+		}
+		
+		if (type > -1){
+			TString branchName = FairRootManager::Instance()->GetBranchName(type);
+			//std::cout << "BranchName: " << branchName.Data() << std::endl;
+
+			TClonesArray* myArray = (TClonesArray*)FairRootManager::Instance()->GetObject(branchName);
+			if (myArray > 0){
+				FairTimeStamp* myData = (FairTimeStamp*)(myArray->At(myLink.GetIndex()));
+				//std::cout << "TimeStamp: " << myData->GetTimeStamp() << " / " << myData->GetTimeStampError() << std::endl;
+				if (myData > 0){
+					Double_t var = myData->GetTimeStampError() * myData->GetTimeStampError();
+					timestamp += myData->GetTimeStamp()/var;
+					timestamperror += 1/var;
+					counts++;
+				}
+				else {
+					std::cout << "Data not found: " << FairRootManager::Instance()->GetBranchName(myLink.GetType()) << "/" << myLink.GetIndex() << std::endl;
+				}
+			}
+			else {
+	//			std::cout << "Array not found: " << ioman->GetBranchName(myLink.GetType()) << std::endl;
+			}
+		}
+	}
+	if (timestamperror > 0){
+		SetTimeStamp(timestamp/timestamperror);
+		SetTimeStampError(sqrt(timestamperror/counts));
+	}
 }
 
 bool PndTrackCand::operator== (const PndTrackCand& rhs){

@@ -112,8 +112,6 @@ PndMvdKalmanTask::Init()
   }
 
 
-//      fTheRecoHitFactory->addProducer(2,new
-//        RecoHitProducer<PndTpcHit,PndTpcRecoHit>(ar));
 
   fPro = new FairGeanePro();
 
