@@ -335,7 +335,7 @@ void PndPidMvaAssociatorTask::DoPidMatch(PndPidCandidate& pidcand,
 	    << "\nTPC " << pidcand.GetTpcMeanDEDX()
 	    << "\nEMCZ20 " << pidcand.GetEmcClusterZ20()
 	    << "\nEMCZ53 " << pidcand.GetEmcClusterZ53()
-	    << "\nEMCLAT " << pidcand.GetClusterLat() << '\n';
+	    << "\nEMCLAT " << pidcand.GetEmcClusterLat() << '\n';
   printResult(out);
   std::cout << "====================================================\n";
 #endif
@@ -405,7 +405,7 @@ std::vector<float> const* PndPidMvaAssociatorTask::PrepareEvtVect(PndPidCandidat
     // Cluster Second lat. moment
     else if(fVarNames[i] == "lat")
     {
-      vect->push_back(pidcand.GetClusterLat());
+      vect->push_back(pidcand.GetEmcClusterLat());
     }
     // ==========================
     else if(fVarNames[i] == "stt")

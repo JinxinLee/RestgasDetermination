@@ -121,7 +121,10 @@ class PndPidCandidate : public VAbsMicroCandidate  //TObject
   // EMC Cluster properties.
   Double_t GetEmcClusterZ20() const { return fEmcZ20; }
   Double_t GetEmcClusterZ53() const { return fEmcZ53; }
-  Double_t GetClusterLat()    const { return fEmcLat; }
+  Double_t GetEmcClusterLat() const { return fEmcLat; }
+  Double_t GetEmcCluaterE1()  const { return fEmcE1;  }
+  Double_t GetEmcCluaterE9()  const { return fEmcE9;  }
+  Double_t GetEmcCluaterE25() const { return fEmcE25; }
   
   // MUO
   Int_t		GetMuoNumberOfLayers()const {return fMuoNumberOfLayers;}
@@ -235,7 +238,10 @@ class PndPidCandidate : public VAbsMicroCandidate  //TObject
 
   void  SetEmcClusterZ20(Double_t val)    { fEmcZ20 = val; }
   void  SetEmcClusterZ53(Double_t val)    { fEmcZ53 = val; }
-  void  SetEmcClusterLat(Double_t val)    { fEmcLat = val; };
+  void  SetEmcClusterLat(Double_t val)    { fEmcLat = val; }
+  void  SetEmcClusterE1(Double_t val)     { fEmcE1 = val;  }
+  void  SetEmcClusterE9(Double_t val)     { fEmcE9 = val;  }
+  void  SetEmcClusterE25(Double_t val)    { fEmcE25 = val; }
 
   // MUO
   void	SetMuoNumberOfLayers(Int_t val) { fMuoNumberOfLayers= val;}
@@ -342,9 +348,12 @@ class PndPidCandidate : public VAbsMicroCandidate  //TObject
   Int_t         fEmcModule;
   Int_t         fEmcIndex;
   
-  Double_t    fEmcZ20;
-  Double_t    fEmcZ53;
-  Double_t    fEmcLat;
+  Double_t      fEmcZ20;
+  Double_t      fEmcZ53;
+  Double_t      fEmcLat;
+  Double_t      fEmcE1;
+  Double_t      fEmcE9;
+  Double_t      fEmcE25;
   
   // MUO
   Int_t		fMuoNumberOfLayers;
@@ -361,7 +370,7 @@ class PndPidCandidate : public VAbsMicroCandidate  //TObject
   Float_t 	fChiSquared;
   
 
-  ClassDef(PndPidCandidate,1) // Abstract base class for MicroDST candidates
+  ClassDef(PndPidCandidate,2) // Abstract base class for MicroDST candidates
     };
 
 //std::ostream&  operator << (std::ostream& o, const VAbsMicroCandidate&);

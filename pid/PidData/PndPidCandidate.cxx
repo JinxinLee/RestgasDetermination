@@ -17,12 +17,14 @@
 //  ===== PndPidCandidate - Class definig the AOD interface           ====
 //  ========================================================================
 
-PndPidCandidate::PndPidCandidate()		
+PndPidCandidate::PndPidCandidate(): 
+fEmcLat(0), fEmcE1(0), fEmcE9(0), fEmcE25(0)		
 {	
   SetDefault();
 }
 
-PndPidCandidate::PndPidCandidate(Int_t charge, TVector3 &pos, TLorentzVector &p4, TMatrixD &cov7 )
+PndPidCandidate::PndPidCandidate(Int_t charge, TVector3 &pos, TLorentzVector &p4, TMatrixD &cov7 ) :
+fEmcLat(0), fEmcE1(0), fEmcE9(0), fEmcE25(0)
 {
   SetDefault();
   SetPosition(pos);
@@ -31,7 +33,8 @@ PndPidCandidate::PndPidCandidate(Int_t charge, TVector3 &pos, TLorentzVector &p4
   SetCharge(charge);
 }
 
-PndPidCandidate::PndPidCandidate(Int_t charge, TVector3 &pos, TLorentzVector &p4)
+PndPidCandidate::PndPidCandidate(Int_t charge, TVector3 &pos, TLorentzVector &p4) :
+fEmcLat(0), fEmcE1(0), fEmcE9(0), fEmcE25(0)
 {
   SetDefault();
   SetPosition(pos);
@@ -191,10 +194,12 @@ void PndPidCandidate::SetDefault()
   fEmcNumberOfBumps = 0;
   fEmcModule = -1; 
   fEmcIndex = -1;
-  
-  fEmcZ20 = 0.00;
-  fEmcZ53 = 0.00;
-  
+  fEmcZ20 = 0.;
+  fEmcZ53 = 0.;
+  fEmcLat = 0.;
+  fEmcE1  = 0.;
+  fEmcE9  = 0.;
+  fEmcE25 = 0.;
   fMuoNumberOfLayers = 0;
   fMuoProbability = 0.;
   fMuoQuality = -1.; 

@@ -135,7 +135,7 @@ void PndPidEmcBayesAssociatorTask::DoPidMatch(PndPidCandidate* pidcand, PndPidPr
    Float_t emc          = pidcand->GetEmcRawEnergy();
    Float_t z20          = pidcand->GetEmcClusterZ20();
    Float_t z53          = pidcand->GetEmcClusterZ53();
-   Float_t lat          = pidcand->GetClusterLat();
+   Float_t lat          = pidcand->GetEmcClusterLat();
    TLorentzVector pidTrack = pidcand->GetLorentzVector();
            Float_t pidx   = pidTrack.Px(); 
            Float_t pidy   = pidTrack.Py(); 
