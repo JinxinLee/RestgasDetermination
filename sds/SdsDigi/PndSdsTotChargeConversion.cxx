@@ -126,7 +126,7 @@ Double_t PndSdsTotChargeConversion::GetTimeStamp(Double_t time, Double_t Charge,
 
 Double_t PndSdsTotChargeConversion::DigitizeTime(Double_t time)
 {
-	Int_t temp = (time) / ftimestep;
+	Int_t temp = (Int_t)((time) / ftimestep);
 	time =  temp *ftimestep + ftimestep;
   
   if (fVerboseLevel>2) std::cout << "temp " << temp << " time " << time << std::endl;

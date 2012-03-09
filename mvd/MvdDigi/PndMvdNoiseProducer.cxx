@@ -356,7 +356,7 @@ Int_t PndMvdNoiseProducer::CalcChargeAboveThreshold(Double_t spread,Double_t thr
   temp = gRandom->Uniform(0.,temp);       // random value in y
   temp = -2.*spread*spread*log(temp);     // get x value (recalc charge)
   temp = sqrt(temp);
-  return ceil(temp);
+  return (Int_t)ceil(temp);
 }
 
 Double_t PndMvdNoiseProducer::CalcReadoutCycles(Double_t clock)

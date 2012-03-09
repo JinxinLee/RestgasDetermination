@@ -122,8 +122,8 @@ void PndMCTestPatternRecoQuality::Exec(Option_t* opt) {
 					}
 				}
 				else if (myResult.GetEntry(j).GetNLinks() == 2){						//test of spurious hits, if you have hits from two different MC Tracks in your reco track
-					int weight1 = myResult.GetEntry(j).GetLink(0).GetWeight();
-					int weight2 = myResult.GetEntry(j).GetLink(1).GetWeight();
+					Float_t weight1 = myResult.GetEntry(j).GetLink(0).GetWeight();
+					Float_t weight2 = myResult.GetEntry(j).GetLink(1).GetWeight();
 					if ((weight1 > 2 && weight2 == 1) || (weight1 == 1 && weight2 > 2)){		//if you have at least three hits from one MC track and only one hit from a different track
 						int mcIndex = -1;
 						if (weight1 > 2){

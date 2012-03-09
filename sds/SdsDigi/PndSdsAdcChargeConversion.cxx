@@ -10,14 +10,14 @@ fThreshold(threshold),
 fAdcStep(adcstep),
 fResolution(resolution)
 {
-  fMaxADC = pow(2,fResolution);
+  fMaxADC = (Int_t)pow(2,fResolution);
 }
 
 
 Double_t PndSdsAdcChargeConversion::ChargeToDigiValue(Double_t charge)
 {
   if(charge <= fThreshold) return 0.; //underflow
-  int ADC = floor(double(charge - fThreshold)/double(fAdcStep))+1;
+  Int_t ADC = (Int_t)floor(double(charge - fThreshold)/double(fAdcStep))+1;
   if(ADC>fMaxADC) return fMaxADC; //overflow
 	return ADC;  
 }
