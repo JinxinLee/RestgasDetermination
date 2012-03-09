@@ -361,7 +361,9 @@ Int_t PndSttTrackFinderReal::DoFind( TClonesArray* , TClonesArray* ) {return 0;}
 Int_t PndSttTrackFinderReal::DoFind(TClonesArray* trackCandArray, TClonesArray *trackArray, TClonesArray* helixHitArray) 
 {
 
- bool	outcome;
+ bool
+	flaggo,
+	outcome;
    Int_t  i, j, iaccept, ii,jj,k,kk,n1,n2,n3,
           i1,j1,k1,imaxima, jmaxima,
           iofmax, jofmax, kofmax,
@@ -658,6 +660,7 @@ if(istampa>0)cout<<"da PndSttTrackFinderReal, evt. "<<IVOLTE<<",  SciTil non pur
 
 		// purging the duplicate SciTil hits.
 		
+	    flaggo=true;
 	    for(k=0; k<iaccept; k++){
 		if(
 			(fabs(posiz.X() - posizSciTil[k][0])< 1.e-20)
@@ -666,15 +669,17 @@ if(istampa>0)cout<<"da PndSttTrackFinderReal, evt. "<<IVOLTE<<",  SciTil non pur
 					&&
 			(fabs(posiz.Z() - posizSciTil[k][2])< 1.e-20)
 		  ){
-			goto finish ;
+			flaggo=false;
+			break;
 		}  // end of if((fabs(posiz.X() - old...
 	    } // end of for(k=0; k<iaccept; k++)
-	    posizSciTil[iaccept][0]=posiz.X();
-	    posizSciTil[iaccept][1]=posiz.Y();
-	    posizSciTil[iaccept][2]=posiz.Z();
-	    InclusionListSciTil[iaccept]= true;
-	    iaccept++;
-	    finish: ;
+	    if(flaggo){
+		posizSciTil[iaccept][0]=posiz.X();
+		posizSciTil[iaccept][1]=posiz.Y();
+		posizSciTil[iaccept][2]=posiz.Z();
+		InclusionListSciTil[iaccept]= true;
+		iaccept++;
+	    }
 
 	 }  // end of for(j=0; j<nSciTilHits; j++)
 
@@ -799,6 +804,7 @@ if(istampa>0){
           ZCENTER_STRAIGHT = info[iHit][2];      //    this works because just few lines below there is the
           SEMILENGTH_STRAIGHT = info[iHit][4];   //    requirement that Minclinations[0] > 2 (= at least 3 parallel straws)
       } else {
+       flaggo=true;
        for (i=2; i<=Nincl;i++) {
         if (fabs( WDX-inclination[i-1][0] )< 0.00001
                                 &&
@@ -810,18 +816,20 @@ if(istampa>0){
           infoskew[Ninclinate]= iHit;
           Ninclinate++;
           Minclinations[i-1]++;
-          goto jumpout;
+	  flaggo=false;
+	  break;
         }
        }
-       Nincl++;
-       inclination[Nincl-1][0]=(Double_t) WDX;
-       inclination[Nincl-1][1]=(Double_t) WDY;
-       inclination[Nincl-1][2]=(Double_t) WDZ;
-       info[iHit][5]= Nincl;
-          infoskew[Ninclinate]= iHit;
-          Ninclinate++;
-       Minclinations[Nincl-1]++;
-jumpout: ;
+       if(flaggo){
+	Nincl++;
+	inclination[Nincl-1][0]=(Double_t) WDX;
+	inclination[Nincl-1][1]=(Double_t) WDY;
+	inclination[Nincl-1][2]=(Double_t) WDZ;
+	info[iHit][5]= Nincl;
+	infoskew[Ninclinate]= iHit;
+	Ninclinate++;
+	Minclinations[Nincl-1]++;
+       } // end if(flaggo)
       }
 
       nSttSkewhit = Ninclinate;
@@ -1520,12 +1528,17 @@ if(istampa>=2){cout<<"\tPndSttTrackFinderReal, fine di procedura, IVOLTE = "
 		if( !InclusionListbis[ infoparal[i] ] ) continue;
 		emme = (Short_t) ( info[ infoparal[i] ][6] + 0.01);
 		if( emme == daTrackFoundaTrackMC[jexp] ){
+			flaggo=true;
 			for(exphit=0; exphit<nHitsinTrack[jexp]; exphit++){
-				if(ListHitsinTrack[jexp][exphit] == i) goto pinco ;
+				if(ListHitsinTrack[jexp][exphit] == i){
+					flaggo=false;
+					break;
+				}
 			}
-			MCParalAloneList[jexp][ nMCParalAlone[jexp] ] = infoparal[i];
-			nMCParalAlone[jexp]++;
-			pinco:  ;
+			if(flaggo){
+			  MCParalAloneList[jexp][ nMCParalAlone[jexp] ] = infoparal[i];
+			  nMCParalAlone[jexp]++;
+			}
 		}
 	}  //  end of  for(i=0; i<Minclinations[0]; i++)
 
@@ -1550,12 +1563,17 @@ if(istampa>=2){cout<<"\tPndSttTrackFinderReal, fine di procedura, IVOLTE = "
 		if( !InclusionListSkewbis[ infoskew[i] ] ) continue;
 		emme = (Short_t) ( info[ infoskew[i] ][6] + 0.01);
 		if( emme ==   daTrackFoundaTrackMC[jexp] ){
+			flaggo=true;
 			for(exphit=0; exphit<nSttSkewhitinTrack[jexp]; exphit++){
-				if(i == ListSkewHitsinTrack[jexp][exphit]) goto pinco2 ;
+				if(i == ListSkewHitsinTrack[jexp][exphit]){
+					flaggo=false;
+					break;
+				}
 			}
-			MCSkewAloneList[jexp][ nMCSkewAlone[jexp] ] = infoskew[i];
-			nMCSkewAlone[jexp]++;
-			pinco2:  ;
+			if(flaggo){
+			  MCSkewAloneList[jexp][ nMCSkewAlone[jexp] ] = infoskew[i];
+			  nMCSkewAlone[jexp]++;
+			}
 		}
 	}
 
@@ -1699,13 +1717,15 @@ for (ii=0; ii<nTracksFoundSoFar && istampa>=1 ;ii++){
 
 //   controllo che la traccia associata MC sia una delle tracce MC 'ragionevoli'.
 
+	flaggo=true;
 	for(int g=0; g<nMCTracksaccettabili;g++){
-		if( i==ListaMCTracksaccettabili[g]) goto difuori;
+		if( i==ListaMCTracksaccettabili[g]){
+			flaggo=false;
+			break;
+		}
 	}
-	continue;
+	if(flaggo) continue;
 
-
-difuori: ;
 
     fprintf(HANDLE,
 "       TracciaMC %d ParHitsMC %d ParMecc %d ParMeccSpuri %d SkewHitsMC %d  SkewMecc %d SkewMeccSpuri %d\n",
@@ -3422,7 +3442,7 @@ if(istampa>= 3 && IVOLTE <= nmassimo) {
 
 
 
-	if(!doMcComparison) goto dopo ;
+	if(doMcComparison) {
 
 
       sprintf(nome,"MacroSttParallelHitswithMCEvent%d", IVOLTE);
@@ -3573,7 +3593,7 @@ if(istampa>= 3 && IVOLTE <= nmassimo) {
       fclose(MACRO);
        
 
-dopo:  ;
+	}  // end of  if(doMcComparison)
 //------------------------------------------------------------------------------------------------------------
 
 //   ora riplotto tutto nello spazio conforme usando la trasformazione u= x/(x**2+y**2) e   v = y/(x**2+y**2)
@@ -4730,18 +4750,18 @@ fprintf(MACRO,"TEllipse* E%d = new TEllipse(%f,%f,%f,%f,0.,360.);\nE%d->SetLineW
          TParticlePDG *fParticle= fdbPDG->GetParticle(icode);
        if (icode>1000000000) carica = 1.;
        else  carica = fParticle->Charge()/3. ;    //   charge of track
-	if( fabs(carica)<0.1) goto carica0 ;
+	if( fabs(carica)>=0.1){
            Cx = Oxx + Py*1000./(BFIELD*CVEL*carica);
            Cy = Oyy - Px*1000./(BFIELD*CVEL*carica);
             fprintf(MACRO,"TEllipse* MC%d = new TEllipse(%f,%f,%f,%f,0.,360.);\nMC%d->SetFillStyle(0);\nMC%d->SetLineColor(3);\nMC%d->Draw();\n",
                      im,Cx,Cy,Rr,Rr,im,im,im);
+	} // end of if( fabs(carica)>=0.1)
 		}   //  end of if ( pMC )
 
  }  //  end of if( TrackFoundaTrackMC > -1){
 
 //----------- fine parte del MC
 
-carica0: ;
 
 
       fprintf(MACRO,"}\n");
@@ -4830,11 +4850,6 @@ carica0: ;
 		if( ZETA[i]>zmax ) zmax=ZETA[i];
 		if( ZETA[i]<zmin ) zmin=ZETA[i];
 
-/*
- fprintf(MACRO,"TMarker* SciT%d = new TMarker(%f,%f,30);\n",i,ZETA[i],ESSE[i]);
- fprintf(MACRO,"SciT%d->SetMarkerSize(1.5);\n",i);
- fprintf(MACRO,"SciT%d->SetMarkerColor(1);\n",i);
-*/
 
 
 	}
@@ -4902,16 +4917,6 @@ carica0: ;
 
 // checks that the projected ellipsis doesn't go out the boundaries of both the skew straw and the trajectory cylinder
 
-/*
-        if(
-          fabs(POINTS1[j+2]-ZCENTER_STRAIGHT) > SEMILENGTH_STRAIGHT- Aellipsis1 ||
-          distance + bbb > info[i][4]        //  the ellipsis goes out of the boundaries of the skew straw
-          ) {
-cout<<"the ellipsis goes out of the boundaries of the skew straw, hit n. "<<i<<endl
-     <<"dis. from center "<<distance+bbb<<",  length of the straw "<<info[i][4]<<endl;
-           continue;
-          }
-*/
 //--------------------------
 
 
@@ -4934,18 +4939,6 @@ fprintf(MACRO,"TEllipse* E%d = new TEllipse(%f,%f,%f,%f,0.,360.,%f);\nE%d->SetFi
 
 
 // ------ se lo hit e' spurio marcalo in rosso
-/*
-        for( i1=0; i1<nSkewCommon; i1++){
-          if ( SkewCommonList[   imaxima   ][i1] == i ){
-
-                goto fuori ;
-          }
-
-        }
-        fprintf(MACRO,"E%d->SetLineColor(2);\n",index);
-fuori: ;
-
-*/
 
 
 
@@ -4957,9 +4950,7 @@ fuori: ;
   }   //   end of  for( i=1; i< Nhits; i++)
 
 
-  if(index+nscitilhits==0) goto nohits ;
-  if( zmax < zmin ) goto nohits ;
-  if( Smax < Smin ) goto nohits;
+  if(!(index+nscitilhits==0 || zmax < zmin  ||  Smax < Smin )) {
   aaa = Smax-Smin;
   Smin -= aaa*1.;
   Smax += aaa*1.;
@@ -5008,15 +4999,21 @@ fuori: ;
 // --------------------------------
 
 //  plot della traccia trovata dal finder
-	if(!goodskewfit)goto niente ;
-  if ( fabs(KAPPA) > 1.e-10 && fabs(KAPPA) < 1.e10  ) {
+	if(goodskewfit) {
+
+
+//  if ( fabs(KAPPA) > 1.e-10 && fabs(KAPPA) < 1.e10  ) {
+
+  if ( fabs(KAPPA) <= 1.e-10 || fabs(KAPPA) >= 1.e10  ) {
+	cout<<"PndSttTrackFinderReal::WriteMacroSkewAssociatedHits,"
+	<<" this track found by PR not plotted"
+	<<"\n\t because KAPPA = "<<KAPPA<<endl;
+  }  else {
+
      fmin = KAPPA*zmin + FI0;
      fmax = KAPPA*zmax + FI0;
-  }  else {
-  	cout<<"PndSttTrackFinderReal::WriteMacroSkewAssociatedHits, this track found by PR not plotted"
-	<<"\n\t because KAPPA = "<<KAPPA<<endl;
-	goto niente ;
-  }
+
+
   if ( KAPPA >= 0.) {
      fmin = KAPPA*zmin + FI0;
      fmax = KAPPA*zmax + FI0;
@@ -5044,9 +5041,9 @@ fprintf(MACRO,"TLine* FOUND%d = new TLine(%f,%f,%f,%f);\nFOUND%d->SetLineColor(2
 
   }   //  end of  for(i=Nmin; i<= Nmax;++)
 
-
-niente: ;
-nohits: ;
+		} // end of   if ( fabs(KAPPA) <= 1.e-10 || fabs(KAPPA) >= 1.e10  )
+	} // end of if(goodskewfit)
+  }  // end of  if(!(index+nscitilhits==0||zmax < zmin||Smax < Smin))
 
       fprintf(MACRO,"}\n");
       fclose(MACRO);
@@ -5103,7 +5100,7 @@ nohits: ;
  {
 
 
-
+	bool flaggo;
     Int_t i, j, i1, ii, iii, index, Kincl, nlow, nup, STATUS, imc, Nmin, Nmax;
 
 	UShort_t Lista[nmaxHits];
@@ -5243,16 +5240,15 @@ nohits: ;
 //                     index,POINTS1[j+2],fi1,Aellipsis1,Bellipsis1,rotation1,index);
 
 // ------ se lo hit e' spurio marcalo in rosso
+	flaggo=true;
         for( i1=0; i1<nSkewCommon; i1++){
           if ( SkewCommonList[   imaxima   ][i1] == i ){
-
-                goto fuori ;
+		flaggo=false;
+		break;
           }
 
         }
-        fprintf(MACRO,"E%d->SetLineColor(2);\n",i+ii*10000);
-//        fprintf(MACRO,"E%d->SetLineColor(2);\n",index);
-fuori: ;
+	if(flaggo) fprintf(MACRO,"E%d->SetLineColor(2);\n",i+ii*10000);
 
         index++;
 
@@ -5367,9 +5363,7 @@ cout<<"the ellipsis goes out of the boundaries of the skew straw, hit n. "<<i<<e
 //-------------------------------
 //------ fine aggiunta in blu eventuali punti della traccia MC che sono non mecciati
 
-  if(index+nscitilhits==0) goto nohits ;
-  if( zmax < zmin ) goto nohits ;
-  if( Smax < Smin ) goto nohits;
+  if( !(index+nscitilhits==0|| zmax < zmin || Smax < Smin ) ){
   aaa = Smax-Smin;
   Smin -= aaa*1.;
   Smax += aaa*1.;
@@ -5422,15 +5416,10 @@ cout<<"the ellipsis goes out of the boundaries of the skew straw, hit n. "<<i<<e
 
 //  plot della traccia trovata dal finder
 
-	if(!goodskewfit) goto nulla ;
+	if(goodskewfit) {
   if ( fabs(KAPPA) > 1.e-10 && fabs(KAPPA) < 1.e10) {
      fmin = KAPPA*zmin + FI0;
      fmax = KAPPA*zmax + FI0;
-  }  else {
-  cout<<"PndSttTrackFinderReal::WriteMacroSkewAssociatedHitswithMC, this track found by PR not plotted"
-	<<"\n\t because KAPPA = "<<KAPPA<<endl;
-	goto nulla ;
-  }
 
   if ( KAPPA >= 0.) {
      fmin = KAPPA*zmin + FI0;
@@ -5460,19 +5449,23 @@ cout<<"the ellipsis goes out of the boundaries of the skew straw, hit n. "<<i<<e
 
   }   //  end of  for(i=Nmin; i<= Nmax;++)
 
-nulla: ;
+	  }else{// continuation of if ( fabs(KAPPA) > 1.e-10 && fabs(KAPPA) < 1.e10)
+  cout<<"PndSttTrackFinderReal::WriteMacroSkewAssociatedHitswithMC,"
+  <<" this track found by PR not plotted"
+	<<"\n\t because KAPPA = "<<KAPPA<<endl;
+	  }
+
+	} // end of if(goodskewfit)
 //---------------------------------------------  qui ci aggiungo le traccie MC
 
 
-// for(imc=0; imc<nMCTracks ; imc++){
-//            if(imc !=    daTrackFoundaTrackMC[ imaxima ]) continue;
      imc=    daTrackFoundaTrackMC ;
 
 		Int_t icode;
         	Double_t Rr, Dd, Fifi, Oxx, Oyy, Cx, Cy, Px, Py, carica  ;
     		PndMCTrack* pMC;
 		pMC = (PndMCTrack*) fMCTrackArray->At(imc);
-		if ( ! pMC ) goto nohits ;
+		if ( pMC ) {
          	icode  = pMC->GetPdgCode() ;    //   PDG code of track
          	Oxx = pMC->GetStartVertex().X();    //   X of starting point track
          	Oyy = pMC->GetStartVertex().Y();    //   Y of starting point track
@@ -5484,7 +5477,7 @@ nulla: ;
 		fParticle= fdbPDG->GetParticle(icode);
        		if (icode>1000000000) carica = 1.;
        		else  carica = fParticle->Charge()/3. ;    //   charge of track
-		if( fabs(carica)<0.1) goto carica0 ;
+		if( fabs(carica)>=0.1) {
 
            	Cx = Oxx + Py*1000./(BFIELD*CVEL*carica);
            	Cy = Oyy - Px*1000./(BFIELD*CVEL*carica);
@@ -5500,11 +5493,6 @@ nulla: ;
   if ( fabs(KAPPA) > 1.e-10  && fabs(KAPPA) < 1.e10) {
      fmin = KAPPA*zmin + FI0;
      fmax = KAPPA*zmax + FI0;
-  }  else {
-cout<<"PndSttTrackFinderReal::WriteMacroSkewAssociatedHits, this track found by PR not plotted"
-	<<"\n\t because KAPPA = "<<KAPPA<<endl;
-	goto nix ;
-  }
   if( fmax>=0.) {
     Nmax = (int) (0.5*fmax/ PI);
   }  else  {
@@ -5530,13 +5518,16 @@ cout<<"PndSttTrackFinderReal::WriteMacroSkewAssociatedHits, this track found by 
 
 
 
-nix: ;
+  }  else { // end of  if ( fabs(KAPPA) > 1.e-10  && fabs(KAPPA) < 1.e10)
+cout<<"PndSttTrackFinderReal::WriteMacroSkewAssociatedHits, this track found by PR not plotted"
+	<<"\n\t because KAPPA = "<<KAPPA<<endl;
+  }
 
 
 
-carica0: ;
-nohits: ;
-
+			}  // end of if( fabs(carica)>=0.1)
+		}  // end of  if ( pMC )
+	} // end of  if( !(index+nscitilhits==0|| zmax < zmin || Smax < Smin ) )
       fprintf(MACRO,"}\n");
       fclose(MACRO);
 
@@ -5859,7 +5850,9 @@ void PndSttTrackFinderReal::Merge(UShort_t nl, Double_t *left, UShort_t *ind_lef
 		)
 {
 
-     bool TemporaryInclusionList[nmaxHits];
+ bool
+	status,
+	TemporaryInclusionList[nmaxHits];
 
  Short_t	i;
  UShort_t	j,
@@ -5907,7 +5900,8 @@ void PndSttTrackFinderReal::Merge(UShort_t nl, Double_t *left, UShort_t *ind_lef
 	i = -1;
  }
 
- while( nRemainingHits > 0 &&  i < nHitsinTrack) {
+ status=true;
+ while( nRemainingHits > 0 &&  i < nHitsinTrack && status) {
 
 
 	if (nRcell - NRCELLDISTANCE < 0 ) {
@@ -5924,8 +5918,8 @@ if(istampa>0) {cout<<"\tin FindTrackPatterninBoxConformal, nRmin = "<<nRmin
 	<<", nRmax = "<<nRmax<<endl;
 cout<<"\tin FindTrackPatterninBoxConformal, nFicell = "<<nFicell<<endl;
 }
-	for( iR= nRmin ; iR<= nRmax ; iR++){
-	 for(iFi2=nFicell-NFiCELLDISTANCE;iFi2<=nFicell+NFiCELLDISTANCE;iFi2++){
+    for( iR= nRmin ; iR<= nRmax && status ; iR++){
+      for(iFi2=nFicell-NFiCELLDISTANCE;iFi2<=nFicell+NFiCELLDISTANCE && status;iFi2++){
 		if ( iFi2 < 0 )  {
 			iFi = nFidivConformal + iFi2;
 		} else if ( iFi2 >= nFidivConformal) {
@@ -5940,7 +5934,11 @@ cout<<"\tin FindTrackPatterninBoxConformal, nFicell = "<<nFicell<<endl;
 			// hit number in the PARALLEL straws scheme
 			ListHitsinTrack[nHitsinTrack]=HitsinBoxConformal[j][iR][iFi] ;
 			nHitsinTrack++;
-		if( nHitsinTrack >= nmaxHitsInTrack) goto stopsearch ;  // finish the search.
+		if( nHitsinTrack >= nmaxHitsInTrack){
+		 // finish the search
+		 status=false; // finish all outer loops as well.
+		 break ;
+		}
 		TemporaryInclusionList[infoparal[HitsinBoxConformal[j][iR][iFi]]]= false;
 		nRemainingHits--;
 	    } // end of if( InclusionList[  infoparal[...
@@ -5956,8 +5954,6 @@ cout<<"\tin FindTrackPatterninBoxConformal, nFicell = "<<nFicell<<endl;
    }    //  end      while ( nRemainingHits > 0 && i < nHitsinTrack)
 
 
-
- stopsearch: ;
 
     return nHitsinTrack;
 
@@ -10660,9 +10656,7 @@ cout<<"the ellipsis goes out of the boundaries of the skew straw, hit n. "<<i<<e
   }   //   end of  for( i=1; i< Nhits; i++)
 
 
-  if(index==0) goto nohits ;
-  if( zmax < zmin ) goto nohits ;
-  if( Smax < Smin ) goto nohits;
+  if(index!=0 &&  zmax >= zmin && Smax >= Smin ){
   aaa = Smax-Smin;
   Smin -= aaa*1.;
   Smax += aaa*1.;
@@ -10795,9 +10789,8 @@ cout<<"the ellipsis goes out of the boundaries of the skew straw, hit n. "<<i<<e
 
 
 
+	} // end of   if(index!=0 &&  zmax >= zmin && Smax >= Smin )
 
-
-nohits: ;
 
       fprintf(MACRO,"}\n");
       fclose(MACRO);
@@ -10826,6 +10819,7 @@ nohits: ;
 {
 
    bool		firstime,
+		flaggo,
 		inclusionMC[nTracksFoundSoFar][nmaxHits],
 		inclusionExp[nTracksFoundSoFar];
 
@@ -10861,7 +10855,6 @@ nohits: ;
 
 // prima  gli hits paralleli ---------------------
 
-
 	for(i=0; i<nHitsinTrack[jexp]; i++){
 		enne = (Short_t)( info[ infoparal[ ListHitsinTrack[jexp][i] ] ][6]+0.01 );
 		if(enne<0) continue;   //  hit not associated to any MC track; noise hit.
@@ -10872,16 +10865,19 @@ nohits: ;
 			firstime = false;
 		} else {
 
+			flaggo=true;
 			for(j=0; j<ntoMCtrack[jexp]; j++){
 				if( enne == toMCtracklist[jexp][j] ) {
 					toMCtrackfrequency[jexp][j]++;
-					goto out1 ;
+					flaggo=false;
+					break;
 				}
 			}
-			toMCtracklist[jexp][ ntoMCtrack[jexp] ] = enne;
-			toMCtrackfrequency[jexp][ ntoMCtrack[jexp] ] = 1;
-			ntoMCtrack[jexp]++;
-out1:  ;
+			if(flaggo){
+				toMCtracklist[jexp][ ntoMCtrack[jexp] ] = enne;
+				toMCtrackfrequency[jexp][ ntoMCtrack[jexp] ] = 1;
+				ntoMCtrack[jexp]++;
+			}
 		}
 
 	}   //  end of for(i=0; i<nHitsinTrack[jexp]; i++)
@@ -10898,16 +10894,18 @@ out1:  ;
 			toMCtrackfrequency[jexp][0]=1;
 			firstime = false;
 		} else {
-			for(j=0; j<ntoMCtrack[jexp]; j++){
+			for(j=0, flaggo=true; j<ntoMCtrack[jexp]; j++){
 				if( enne == toMCtracklist[jexp][j] ) {
 					toMCtrackfrequency[jexp][j]++;
-					goto out2 ;
+					flaggo=false ;
+					break;
 				}
 			}
-			toMCtracklist[jexp][ ntoMCtrack[jexp] ] = enne;
-			toMCtrackfrequency[jexp][ ntoMCtrack[jexp] ] = 1;
-			ntoMCtrack[jexp]++;
-out2:  ;
+			if(flaggo){
+				toMCtracklist[jexp][ ntoMCtrack[jexp] ] = enne;
+				toMCtrackfrequency[jexp][ ntoMCtrack[jexp] ] = 1;
+				ntoMCtrack[jexp]++;
+			}
 		}
 	}   //  end of for(i=0; j<nHitsinTrack[jexp]; i++)
 
@@ -10979,6 +10977,7 @@ out2:  ;
 {
 
    bool	firstime,
+	flaggo,
 	inclusionMC[nTracksFoundSoFar][nmaxHits],
 		inclusionExp[nTracksFoundSoFar];
 
@@ -11026,16 +11025,18 @@ out2:  ;
 			toMCtrackfrequency[jexp][0]=1;
 			firstime = false;
 		} else {
-			for(j=0; j<ntoMCtrack[jexp]; j++){
+			for(j=0, flaggo=true; j<ntoMCtrack[jexp]; j++){
 				if( enne == toMCtracklist[jexp][j] ) {
 					toMCtrackfrequency[jexp][j]++;
-					goto out1 ;
+					flaggo=false ;
+					break;
 				}
 			}
-			toMCtracklist[jexp][ ntoMCtrack[jexp] ] = enne;
-			toMCtrackfrequency[jexp][ ntoMCtrack[jexp] ] = 1;
-			ntoMCtrack[jexp]++;
-out1:  ;
+			if(flaggo){
+				toMCtracklist[jexp][ ntoMCtrack[jexp] ] = enne;
+				toMCtrackfrequency[jexp][ ntoMCtrack[jexp] ] = 1;
+				ntoMCtrack[jexp]++;
+			}
 		}
 	}   //  end of for(i=0; i<nHitsinTrack[jexp]; i++)
 
