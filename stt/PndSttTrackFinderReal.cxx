@@ -3723,11 +3723,23 @@ if(istampa>= 3 && IVOLTE <= nmassimo) {
 
 // plot degli Hit SciTil
 	for( i=0; i< nSciTilHits; i++) {
+
+
+		disegnaSciTilHit(
+			MACRO,
+			i,
+			posizSciTil[i][0],
+			posizSciTil[i][1],
+			2 // 2--> disegno SciTil in conforme.
+			);
+/*
 		fprintf(MACRO,"TMarker* SciT%d = new TMarker(%f,%f,%d);\n",
 			i,USciTil[i],VSciTil[i],30);
 		fprintf(MACRO,"SciT%d->SetMarkerSize(1.1);\n",i);
 		fprintf(MACRO,"SciT%d->SetMarkerColor(1);\nSciT%d->Draw();\n"
 				,i,i);
+*/
+
 	}
 
 
@@ -3965,11 +3977,21 @@ fprintf(MACRO,"TEllipse* E%d = new TEllipse(%f,%f,%f,%f,0.,360.);\nE%d->SetLineW
 
 // plot degli Hit SciTil
 	for( i=0; i< nSciTilHits; i++) {
+
+		disegnaSciTilHit(
+			MACRO,
+			i,
+			posizSciTil[i][0],
+			posizSciTil[i][1],
+			2 // 2--> disegno SciTil in conforme.
+			);
+/*
 		fprintf(MACRO,"TMarker* SciT%d = new TMarker(%f,%f,%d);\n",
 			i,USciTil[i],VSciTil[i],30);
 		fprintf(MACRO,"SciT%d->SetMarkerSize(1.1);\n",i);
 		fprintf(MACRO,"SciT%d->SetMarkerColor(1);\nSciT%d->Draw();\n"
 				,i,i);
+*/
 	}
 
 //------------------   plotting all the tracks found
@@ -13776,6 +13798,7 @@ for(int iz=0;iz<nummm;iz++){
   }
 
 
+/*
 if(iplotta && IVOLTE <= nmassimo){
         WriteMacroParallelHitsConformalwithMCspecial(
                    nHitsinTrack[nTracksFoundSoFar],
@@ -13785,7 +13808,7 @@ if(iplotta && IVOLTE <= nmassimo){
 		   trajectory_vertex
                                                      );
 }
-
+*/
 
 //----------------------------------- end macro for display
 
@@ -13929,10 +13952,10 @@ if(iplotta && IVOLTE <= nmassimo){
 			int ScitilHit,
 			double posx,
 			double posy,
-			int tipo  // 0 --> disegna in XY, altro --> disegna in SZ.
+			int tipo  // 0 --> disegna in XY, 1 --> in SZ, altro --> in UV.
 			)
 {
-	double	x1,x2,y1,y2,L,R;
+	double	x1,x2,y1,y2,L,R,RR;
 
 
 	L=DIMENSIONSCITIL/2.;
@@ -13943,19 +13966,36 @@ if(iplotta && IVOLTE <= nmassimo){
 	x2 = posx - posy*L/R;
 	y1 = posy - posx*L/R;
 	y2 = posy + posx*L/R;
-   } else {	// SciTil disegnate in SZ.
+   } else if (tipo==1) {// SciTil disegnate in SZ.
 	x1 = posx + L;
 	x2 = posx - L;
 	y1 = posy;
 	y2 = posy;
+   } else {  // SciTil disegnate in UV.
+	RR = posx*posx+posy*posy;
+	R = sqrt(RR);
+	x1 = posx + posy*L/R;
+	x1 /= RR;
+	x2 = posx - posy*L/R;
+	x2 /= RR;
+	y1 = posy - posx*L/R;
+	y1 /= RR;
+	y2 = posy + posx*L/R;
+	y2 /= RR;
+
    }
 
 
 	fprintf(MACRO,"TLine *Tile%d = new TLine(%f,%f,%f,%f);\n",ScitilHit,x1,y1,x2,y2);
 	fprintf(MACRO,"Tile%d->SetLineColor(1);\n",ScitilHit);
 	if(tipo==0){
+		// disegna in XY.
 		fprintf(MACRO,"Tile%d->SetLineWidth(2);\n",ScitilHit);
+	} else if (tipo==1) {
+		// disegna in SZ.
+		fprintf(MACRO,"Tile%d->SetLineWidth(3);\n",ScitilHit);
 	} else {
+		// disegna in UV.
 		fprintf(MACRO,"Tile%d->SetLineWidth(3);\n",ScitilHit);
 	}
 	fprintf(MACRO,"Tile%d->Draw();\n",ScitilHit);
