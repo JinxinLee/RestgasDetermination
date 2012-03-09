@@ -111,14 +111,14 @@ int main(int argc, char *argv[])
   //int focus_opt = 0; // unfocussed
   int focus_opt = 1; // focussed
 
-  int iopt = 0;// only geometry
-  //int iopt = 1;// straight lines
+  //int iopt = 0;// only geometry
+  int iopt = 1;// straight lines
   //int iopt = 2;// C-cone
   //int iopt = 3;// ???
    
   //int lens_opt = 1;  // two thin lenses no air gap
-  //int lens_opt = 2; // two lenses, no airgap, 2nd is thick
-  int lens_opt = 3; // two lenses, with airgap
+  int lens_opt = 2; // two lenses, no airgap, 2nd is thick
+  //int lens_opt = 3; // two lenses, with airgap
 
  
   bool l_fresnel = true;
@@ -215,7 +215,7 @@ int main(int argc, char *argv[])
   opt_system.SetNameCopyNumber("optsys",0);
   opt_system.AddDevice(bar);
 
-  PndDrcOptLens lens1(q2.X(),q2.Y(),thick_lens1/2,radius_lens1,9999,
+  PndDrcOptLens lens1(bar_half_w,bar_half_h,thick_lens1/2,radius_lens1,9999,
 			  conical,conical);
   lens1.SetName("lens1");
   lens1.AddTransform(Transform3D(XYZVector(0,0,-400
@@ -236,7 +236,7 @@ int main(int argc, char *argv[])
   //opt_system.CoupleDevice("air0","lens1","side1","side6");
   opt_system.CoupleDevice("bar","lens1","side1","side6");
   
-  PndDrcOptLens air1(q2.X(),q2.Y(),
+  PndDrcOptLens air1(bar_half_w,bar_half_h,
   	     thick_air1/2,-radius_lens2a,-radius_lens1,
   		 conical,conical);
   if (l_air_gap)
@@ -254,7 +254,7 @@ int main(int argc, char *argv[])
     }
   
   
-  PndDrcOptLens lens2(q2.X(),q2.Y(),
+  PndDrcOptLens lens2(bar_half_w,bar_half_h,
 			     thick_lens2/2,radius_lens2b,radius_lens2a,
 			     conical,conical);
   lens2.Surface("side21")->SetReflectivity(PndDrcOptReflNone());
@@ -286,7 +286,7 @@ int main(int argc, char *argv[])
   
 
 
-  PndDrcOptLens air2(q2.X(),q2.Y(),
+  PndDrcOptLens air2(bar_half_w,bar_half_h,
 			 thick_air2/2,9999,-radius_lens2b,
 			 conical,conical);
   air2.SetName("air2");
@@ -382,8 +382,8 @@ int main(int argc, char *argv[])
       for (double angle=5; angle<=45.5; angle+=10)
 	//double angle=10;
 	{
-	  double slab_width = q2.X()*1.9;
-	  double slab_height =q2.Y()*1.9;
+	  double slab_width = bar_half_w*1.9;
+	  double slab_height =bar_half_h*1.9;
 	  for (double lambda1=600; lambda1>349; lambda1-=50)
 	    {
 	      //double lambda1=lambda;
