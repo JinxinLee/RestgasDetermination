@@ -3292,7 +3292,7 @@ void PndSttTrackFinderReal::clustering3 (
 
 
 //---------- parallel straws Macro now
-      sprintf(nome,"MacroSttParallelHitsEvent%d", IVOLTE);
+      sprintf(nome,"MacroSttParEvent%d", IVOLTE);
       sprintf(nome2,"%s.C",nome);
       FILE * MACRO = fopen(nome2,"w");
       fprintf(MACRO,"void %s()\n{\n",nome);
@@ -3445,7 +3445,7 @@ if(istampa>= 3 && IVOLTE <= nmassimo) {
 	if(doMcComparison) {
 
 
-      sprintf(nome,"MacroSttParallelHitswithMCEvent%d", IVOLTE);
+      sprintf(nome,"MacroSttParwithMCEvent%d", IVOLTE);
       sprintf(nome2,"%s.C",nome);
       MACRO = fopen(nome2,"w");
       fprintf(MACRO,"void %s()\n{\n",nome);
@@ -3600,7 +3600,7 @@ if(istampa>= 3 && IVOLTE <= nmassimo) {
 //
 //   aggiungo anche la grigliatura dello spazio conforme usata per la box del pattern recognition
 
-      sprintf(nome,"MacroSttParallelHitsConformeEvent%d", IVOLTE);
+      sprintf(nome,"MacroSttParConformeEvent%d", IVOLTE);
       sprintf(nome2,"%s.C",nome);
       MACRO = fopen(nome2,"w");
       fprintf(MACRO,"void %s()\n{\n",nome);
@@ -3847,7 +3847,7 @@ if(istampa>= 3 && IVOLTE <= nmassimo) {
 //
 //   aggiungo anche la grigliatura dello spazio conforme usata per la box del pattern recognition
 
-      sprintf(nome,"MacroSttParallelHitsConformewithMCEvent%d", IVOLTE);
+      sprintf(nome,"MacroSttParConformewithMCEvent%d", IVOLTE);
       sprintf(nome2,"%s.C",nome);
       MACRO = fopen(nome2,"w");
       fprintf(MACRO,"void %s()\n{\n",nome);
@@ -4171,7 +4171,7 @@ fprintf(MACRO,"TEllipse* E%d = new TEllipse(%f,%f,%f,%f,0.,360.);\nE%d->SetLineW
 //   ora riplotto tutto nello spazio conforme usando la trasformazione u= x/(x**2+y**2) e   v = y/(x**2+y**2)
 //
 
-      sprintf(nome,"MacroSttParallelHitsConformewithMCspecialEvent%dTrack%d", IVOLTE,nTracksFoundSoFar);
+      sprintf(nome,"MacroSttParConformewithMCspecialEvent%dTrack%d", IVOLTE,nTracksFoundSoFar);
       sprintf(nome2,"%s.C",nome);
       MACRO = fopen(nome2,"w");
       fprintf(MACRO,"void %s()\n{\n",nome);
