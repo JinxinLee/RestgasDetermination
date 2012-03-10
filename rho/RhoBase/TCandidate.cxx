@@ -235,7 +235,7 @@ nCons(0)
     if (cov!=0) for (i=0; i<15;i++) fCov[i] = cov[i];
   }
   
-  SetUid(n);//what about UID??? 
+  SetUid(n); 
 	
   SetPidInfo(0);
 	SetPidInfo(0,a.GetElectronPidLH());
@@ -881,7 +881,7 @@ TCandidate::SetType(const char* name)
 
 void TCandidate::PrintOn(std::ostream& o) const 
 {
-  o <<Uid()<< " (" << P4().X() << "," << P4().Y() << "," << P4().Z() << ";" << P4().T() <<  ") " << Charge() << " " << Mass() << " GeV/c2 ";
+  o <<"uid:"<<Uid()<<" trk:"<<GetTrackNumber()<< " (" << P4().X() << "," << P4().Y() << "," << P4().Z() << ";" << P4().T() <<  ") " << Charge() << " " << Mass() << " GeV/c2 ";
   o.setf(ios::hex | ios::showbase);
   o << " ("
 	<< GetMarker(3)

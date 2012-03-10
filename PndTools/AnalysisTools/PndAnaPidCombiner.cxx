@@ -29,7 +29,11 @@
 ClassImp(PndAnaPidCombiner)
 
 PndAnaPidCombiner::PndAnaPidCombiner(const char *name, TString tcanames) : 
-TNamed(name,"Panda PID Combiner") ,fInitialized(kFALSE)
+TNamed(name,"Panda PID Combiner") ,
+fRootManager(0),
+fPidArrays(),//FIXME: What should the initializing constructor contain here?
+fPidResult(0),
+fInitialized(kFALSE)
 {
   if(tcanames=="") SetDefaults();
   else SetTcaNames(tcanames);
@@ -44,8 +48,10 @@ void PndAnaPidCombiner::Init()
   for(std::map<TString,TClonesArray*>::iterator iter=fPidArrays.begin();
       iter!=fPidArrays.end();iter++)
   {
+    std::cout<<"PidCombiner:Init() Add array'"<<(iter->first).Data()<<"'"<<std::endl;
     iter->second = ReadTCA(iter->first);
   }
+  std::cout<<"PidCombiner initialized."<<std::endl;
   fInitialized=kTRUE;
 }
 
@@ -53,51 +59,71 @@ Bool_t PndAnaPidCombiner::Apply(TCandList &tcl)
 {
   if(!fInitialized) Init();
   Bool_t check;
-  for (int j=0;j<tcl.GetLength();++j){
-    check = check && Apply(tcl[j]);
+  Bool_t checkall=kFALSE;
+  for (int j=0;j<tcl.GetLength();j++){
+    check = Apply(tcl[j]);
+    checkall = checkall && check;
   }
-  return check;
+  return checkall;
 }
 
 Bool_t PndAnaPidCombiner::Apply(TCandidate &tc)
 {
+  // Apply the multiplied pdf's to the TCandidate
+  // If on of the pdf's is not available, it is skipped
+  
   if(!fInitialized) Init();
+  Bool_t check=kTRUE;
   //TODO: Merge PID info now.
   fPidResult->Reset();
   // combine algorithms
   TClonesArray* aTca=0;
   PndPidProbability* aProb=0;
   Int_t trackIndex = tc.GetTrackNumber();
-  if(trackIndex<0) return kFALSE;
+  std::cout<<"PidCombiner: Try TCandidate uid:"<<tc.Uid()<<" trknr:"<<trackIndex<<std::endl;
+  if(trackIndex<0)
+  {
+    ApplyFlat(tc);
+    return kFALSE;
+  }
   for(std::map<TString,TClonesArray*>::iterator iter=fPidArrays.begin();
       iter!=fPidArrays.end();iter++)
   {
     aTca=iter->second;
     if(0==aTca){
       Error("Apply", "PID Probability array not found, skip setting pid for candidate %i.",trackIndex);
-      return kFALSE;
+      check=kFALSE;
+      continue;
+    }
+    if(0==aTca->GetEntriesFast()){
+      Error("Apply", "PID Probability array '%s' at %p of size zero, skip setting pid for candidate %i.", aTca->GetName(), aTca, trackIndex);
+      continue;
+      check=kFALSE;
     }
     if(trackIndex>=aTca->GetEntriesFast()){
-      Error("Apply", "Index tout of array bounds, skip setting pid for candidate %i.",trackIndex);
-      return kFALSE;
+      Error("Apply", "Index out of '%s' array (%p) bounds, skip setting pid for candidate %i.",aTca->GetName(),aTca,trackIndex);
+      continue;
+      check=kFALSE;
     }
     aProb=(PndPidProbability*)aTca->At(trackIndex);
     if(aProb == 0) {
-      Error("Apply", "PID Probability object not found, skip setting pid for candidate %i.",trackIndex);
-      return kFALSE;
+      Error("Apply", "PID Probability object in array '%s' at %p not found, skip setting pid for candidate %i.",aTca->GetName(),aTca,trackIndex);
+      continue;
+      check=kFALSE;
     }
     if(trackIndex!=aProb->GetIndex()) { 
       Error("Apply", "PID Probability object index (%i) is not the track index (%i). Is that bad?",aProb->GetIndex(),trackIndex);
-      return kFALSE;// should we check the numbers?
+      continue;
+      check=kFALSE;
     }
     
+    // catch Zeros to avoid NAN from Div/Zero 
+    if(aProb->GetSumProb() == 0) continue;     
     //now multiply
-    
     *fPidResult *= *aProb;
-    
-    // renormalizing is done in the Pid object upon request
   }
   
+  // renormalizing is done in the Pid object upon request
   // numbering see PndPidListMaker 
   // No flux implemented! To come for each Detector!
   tc.SetPidInfo(0,fPidResult->GetElectronPidProb());
@@ -105,8 +131,20 @@ Bool_t PndAnaPidCombiner::Apply(TCandidate &tc)
   tc.SetPidInfo(2,fPidResult->GetPionPidProb());
   tc.SetPidInfo(3,fPidResult->GetKaonPidProb());
   tc.SetPidInfo(4,fPidResult->GetProtonPidProb());
-  return kTRUE;
+  
+  return check;
 }
+
+void PndAnaPidCombiner::ApplyFlat(TCandidate &tc)
+{
+  tc.SetPidInfo(0,0.2);
+  tc.SetPidInfo(1,0.2);
+  tc.SetPidInfo(2,0.2);
+  tc.SetPidInfo(3,0.2);
+  tc.SetPidInfo(4,0.2);
+  return;
+}
+
 
 void PndAnaPidCombiner::SetDefaults()
 {

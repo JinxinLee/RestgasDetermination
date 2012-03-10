@@ -166,7 +166,7 @@ void PndVtxPRG::Calculate(int niterations)
       COVi[2][0]=fPrgCov[3][0];// epsilon-Phi0
       COVi[2][1]=fPrgCov[3][1];// z0-Phi0
       COVi[2][2]=fPrgCov[3][3];// phi0-phi0
-      if(true||fVerbose) {std::cout<<" #$# Fit #$# COVi  "; COVi.Print();}      
+      if(fVerbose) {std::cout<<" #$# Fit #$# COVi  "; COVi.Print();}      
       
       //det(aA) = a^n det(A)
       TMatrixD Wi(COVi);

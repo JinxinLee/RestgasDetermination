@@ -86,7 +86,7 @@ void PndAnalysis::Init()
   fChargedCands = ReadTCA("PidChargedCand");  
   fChargedProbability = ReadTCA(fChargedPidName.Data());
   fNeutralCands = ReadTCA("PidNeutralCand");
-  fNeutralProbability = ReadTCA(fChargedPidName.Data());
+  fNeutralProbability = ReadTCA(fNeutralPidName.Data());
   // -- Barrel Part
   std::cout << "-I- PndAnalysis::Init(): Trying "<<fTracksName.Data()<<" now." << std::endl; 
   fTracks = ReadTCA(fTracksName);
@@ -218,7 +218,7 @@ Bool_t PndAnalysis::FillList(TCandList &l, TString listkey, TString pidTcaNames)
         VAbsMicroCandidate *mic = (VAbsMicroCandidate *)fNeutralCands->At(i1);		
         _uid++; // uid will start from 1
         TCandidate tc(*mic,_uid);
-        tc.SetTrackNumber(i1);
+        tc.SetTrackNumber(-1);//(i1);
         // TODO: Do we want to set something here? It is neutrals anyway.
         if(0!=fNeutralProbability && i1<fNeutralProbability->GetEntriesFast())
         {
@@ -242,7 +242,7 @@ Bool_t PndAnalysis::FillList(TCandList &l, TString listkey, TString pidTcaNames)
     {
       for (Int_t i2=0; i2<fChargedCands->GetEntriesFast(); i2++)
       {
-        _uid++; // uid will start from 1
+        _uid++; // uid will start from (n_neutrals + 1)
         VAbsMicroCandidate *mic = (VAbsMicroCandidate *)fChargedCands->At(i2);
         TCandidate tc(*mic,_uid);
         tc.SetTrackNumber(i2);
@@ -267,7 +267,7 @@ Bool_t PndAnalysis::FillList(TCandList &l, TString listkey, TString pidTcaNames)
   
 	if (listkey=="Neutral") 
 	{
-    fPidCombiner->Apply(neutralCands);
+    //fPidCombiner->Apply(neutralCands);
 		l=neutralCands;
 		return kTRUE;
 	}

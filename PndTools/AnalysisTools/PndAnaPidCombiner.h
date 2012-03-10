@@ -34,6 +34,7 @@ public:
   void Init();
   Bool_t Apply(TCandidate &tc);
   Bool_t Apply(TCandList &tcl);
+  void ApplyFlat(TCandidate &tc);
 
 private:
   TClonesArray* ReadTCA(const TString &tcaname);

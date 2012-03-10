@@ -99,7 +99,7 @@ void PndPidIdealFwdOnlyAssociatorTask::Exec(Option_t * option) {
   }
   for(Int_t i=0; i<fPidNeutralCand->GetEntriesFast(); i++){
     PndPidCandidate* pidcand = (PndPidCandidate*)fPidNeutralCand->At(i);
-    PndPidProbability* prob = new((*fPidNeutralProb)[i]) PndPidProbability(0.,0.,0.,0.,0.,i);// initializes with zeros
+    PndPidProbability* prob = new((*fPidNeutralProb)[i]) PndPidProbability(0.2,0.2,0.2,0.2,0.,i);// initializes with eqaual pdf (no preference)
     //DoPidMatch(pidcand,prob); //TODO match idealy neutral cands, esp. when we have pi0s 
   }
   

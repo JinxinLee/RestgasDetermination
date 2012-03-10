@@ -56,16 +56,14 @@ void PndPidMvdAssociatorTask::SetParContainers() {
 }
 //______________________________________________________
 void PndPidMvdAssociatorTask::Exec(Option_t * option) {
-  if (fPidChargedProb->GetEntriesFast() != 0) fPidChargedProb->Delete();
+  if (fPidChargedProb->GetEntriesFast() != 0) fPidChargedProb->Clear();
   if(fVerbose>1) std::cout << "-I- Start PndPidMvdAssociatorTask. "<<std::endl;
 
   // Get the Candidates
   for(Int_t i=0; i<fPidChargedCand->GetEntriesFast(); i++)
     {
       PndPidCandidate* pidcand = (PndPidCandidate*)fPidChargedCand->At(i);
-      TClonesArray& pidRef = *fPidChargedProb;
-      PndPidProbability* prob = new(pidRef[i]) PndPidProbability();// initializes with zeros
-      prob->SetIndex(i);
+      PndPidProbability* prob = new((*fPidChargedProb)[i]) PndPidProbability(0.2,0.2,0.2,0.2,0.2,i);// initializes with equal probability
       if (pidcand->GetMvdDEDX()==0) continue;
       DoPidMatch(pidcand,prob);
     }
