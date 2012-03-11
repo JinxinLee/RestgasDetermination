@@ -5,7 +5,7 @@
 // to run with different options:(e.g more events, different momentum, Geant4)
 // root  sim_complete_stt.C"(100, "TGeant4",2)"
 
-rad_complete_stt(Int_t nEvents = 1, TString  SimEngine ="TGeant4", Float_t mom = 7.24)
+rad_complete_stt(Int_t nEvents = 1, TString  SimEngine ="TGeant3", Float_t mom = 7.24)
 {
   //-----User Settings:-----------------------------------------------
   TString  OutputFile     ="rad_complete.root";
@@ -79,10 +79,10 @@ rad_complete_stt(Int_t nEvents = 1, TString  SimEngine ="TGeant4", Float_t mom =
   Emc->SetStorageOfData(kFALSE);
   fRun->AddModule(Emc);
  //-------------------------  TOF       -----------------  
-  FairDetector *Tof = new PndTof("TOF",kFALSE);
+ /* FairDetector *Tof = new PndTof("TOF",kFALSE);
   Tof->SetGeometryFileName("tofbarrel.geo");
   fRun->AddModule(Tof);
- //-------------------------  DRC       -----------------
+ *///-------------------------  DRC       -----------------
   PndDrc *Drc = new PndDrc("DIRC", kFALSE);
   Drc->SetGeometryFileName("dirc.geo"); 
   Drc->SetRunCherenkov(kFALSE);
@@ -96,10 +96,10 @@ rad_complete_stt(Int_t nEvents = 1, TString  SimEngine ="TGeant4", Float_t mom =
   Muo->SetMdtMFIron(kTRUE);
   fRun->AddModule(Muo);
    //-------------------------  DCH       -----------------
-  FairDetector *Dch = new PndDchDetector("DCH", kFALSE);
+  /*FairDetector *Dch = new PndDchDetector("DCH", kFALSE);
   Dch->SetGeometryFileName("dch.root"); 
   fRun->AddModule(Dch);
- 
+ */
    //-------------------------  GEM      -----------------
   FairDetector *Gem = new PndGemDetector("GEM", kFALSE);
   Gem->SetGeometryFileName("gem_3Stations.root");
