@@ -128,26 +128,26 @@ void PndPidEmcBayesAssociatorTask::Exec(Option_t * option) {
 
 void PndPidEmcBayesAssociatorTask::DoPidMatch(PndPidCandidate* pidcand, PndPidProbability* prob)
 {
-//   Float_t mom          = pidcand->GetMomentum().Mag(); 
-   Float_t radeg=57.29578;
+//   Double_t mom          = pidcand->GetMomentum().Mag(); 
+   Double_t radeg=57.29578;
 
    Int_t Charge         = pidcand-> GetCharge();
-   Float_t emc          = pidcand->GetEmcRawEnergy();
-   Float_t z20          = pidcand->GetEmcClusterZ20();
-   Float_t z53          = pidcand->GetEmcClusterZ53();
-   Float_t lat          = pidcand->GetEmcClusterLat();
+   Double_t emc          = pidcand->GetEmcRawEnergy();
+   Double_t z20          = pidcand->GetEmcClusterZ20();
+   Double_t z53          = pidcand->GetEmcClusterZ53();
+   Double_t lat          = pidcand->GetEmcClusterLat();
    TLorentzVector pidTrack = pidcand->GetLorentzVector();
-           Float_t pidx   = pidTrack.Px(); 
-           Float_t pidy   = pidTrack.Py(); 
-           Float_t pidz   = pidTrack.Pz(); 
-   Float_t pidth  = radeg*pidTrack.Theta(); 
-   Float_t pidph  = radeg*pidTrack.Phi(); 
+           Double_t pidx   = pidTrack.Px(); 
+           Double_t pidy   = pidTrack.Py(); 
+           Double_t pidz   = pidTrack.Pz(); 
+   Double_t pidth  = radeg*pidTrack.Theta(); 
+   Double_t pidph  = radeg*pidTrack.Phi(); 
     
-   Float_t pidp   = TMath::Sqrt(pidx*pidx+pidy*pidy+pidz*pidz);
-   Float_t EP     = emc/pidp;
+   Double_t pidp   = TMath::Sqrt(pidx*pidx+pidy*pidy+pidz*pidz);
+   Double_t EP     = emc/pidp;
 
 // Get the probabilities
-   Float_t proba[5];
+   Double_t proba[5];
    GetPdf(pidp,pidth,pidph,z20,z53,lat,EP,Charge,proba);
    if(fVerbose>1) {
          std::cout <<" proba in Pidmatch: " << proba[0] << " ";
@@ -182,24 +182,24 @@ void PndPidEmcBayesAssociatorTask::DoPidMatch(PndPidCandidate* pidcand, PndPidPr
   }
 }  
 
-void PndPidEmcBayesAssociatorTask::GetPdf(Float_t ppin, Float_t thin, Float_t phin, 
-                                          Float_t z20in, Float_t z53in, Float_t LATin, Float_t EPin,
-                                          Int_t charge, Float_t *proba)
+void PndPidEmcBayesAssociatorTask::GetPdf(Double_t ppin, Double_t thin, Double_t phin, 
+                                          Double_t z20in, Double_t z53in, Double_t LATin, Double_t EPin,
+                                          Int_t charge, Double_t *proba)
 {
 // variables: pp,th,ph, z20, z53, LAT, E/P
-   Float_t lRange[7]={0.2,  5,-180, 0, 0, 0, 0};
-   Float_t uRange[7]={10  ,140, 180, 4, 5, 6, 2};
+   Double_t lRange[7]={0.2,  5,-180, 0, 0, 0, 0};
+   Double_t uRange[7]={10  ,140, 180, 4, 5, 6, 2};
    Int_t nRange[7]  ={14 ,  7,   1, 1,   1,120};
-   Float_t rangePconst0= 4.2318;  // Two constants to ajust the momenta 
-   Float_t rangePconst1= 5.7682;  // calculated from the nominal range
+   Double_t rangePconst0= 4.2318;  // Two constants to ajust the momenta 
+   Double_t rangePconst1= 5.7682;  // calculated from the nominal range
     
-   Float_t pp  = ppin;
-   Float_t th  = thin;
-   Float_t ph  = phin;
-   Float_t Z20 = z20in;
-   Float_t Z53 = z53in;
-   Float_t LAT = LATin;
-   Float_t EP  = EPin;
+   Double_t pp  = ppin;
+   Double_t th  = thin;
+   Double_t ph  = phin;
+   Double_t Z20 = z20in;
+   Double_t Z53 = z53in;
+   Double_t LAT = LATin;
+   Double_t EP  = EPin;
    if(fVerbose>1) std::cout << "ppin: " << pp  << std::endl;
 
 // trafo that spreads out the parameters
@@ -215,7 +215,7 @@ void PndPidEmcBayesAssociatorTask::GetPdf(Float_t ppin, Float_t thin, Float_t ph
    if(fVerbose>1) std::cout << "pp: " << pp  << std::endl;
 
 // if the values are outside the range, get them back in
-       Float_t pplook=ppin;
+       Double_t pplook=ppin;
 
        if(pplook<lRange[0]) pplook=1.0001*lRange[0]; 
        if(pplook>uRange[0]) pplook=0.9999*uRange[0]; 
@@ -251,7 +251,7 @@ void PndPidEmcBayesAssociatorTask::GetPdf(Float_t ppin, Float_t thin, Float_t ph
        }
 
 
-       Float_t probasum=0; // used for normalisation
+       Double_t probasum=0; // used for normalisation
    
        for (Int_t k=0; k<5; k++){
          if(charge>0) {
@@ -278,7 +278,7 @@ void PndPidEmcBayesAssociatorTask::GetPdf(Float_t ppin, Float_t thin, Float_t ph
      if(probasum>0) {
        proba[k]=PBayesB[k]/(1+PBayesB[k]);
      } else {
-       proba[k]=0.2;
+       proba[k]=1.;
      }
    }
 }

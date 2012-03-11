@@ -30,10 +30,10 @@ class PndPidEmcBayesAssociatorTask : public FairTask {
 
   void DoPidMatch(PndPidCandidate* pidcand, PndPidProbability* prob);
 
-//  Float_t GetPdf(Float_t thetaC, Float_t mom, Float_t emc, Int_t charge);
-  void GetPdf(Float_t pp1, Float_t th1, Float_t ph1, 
-              Float_t z20, Float_t z53, Float_t LAT, Float_t EP1, 
-              Int_t charge, Float_t *proba);
+//  Double_t GetPdf(Double_t thetaC, Double_t mom, Double_t emc, Int_t charge);
+  void GetPdf(Double_t pp1, Double_t th1, Double_t ph1, 
+              Double_t z20, Double_t z53, Double_t LAT, Double_t EP1, 
+              Int_t charge, Double_t *proba);
 
 // variables used
   Int_t                 fNvar[6];      // nr of bins in p, th, ph, varx, vary, EP

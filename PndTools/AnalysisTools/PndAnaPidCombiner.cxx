@@ -118,7 +118,9 @@ Bool_t PndAnaPidCombiner::Apply(TCandidate &tc)
     }
     
     // catch Zeros to avoid NAN from Div/Zero 
-    if(aProb->GetSumProb() == 0) continue;     
+    if(aProb->GetSumProb() == 0) continue;   
+    // avoid numerics with low numbers 
+    aProb->NormalizeTo(1.); 
     //now multiply
     *fPidResult *= *aProb;
   }
@@ -137,11 +139,11 @@ Bool_t PndAnaPidCombiner::Apply(TCandidate &tc)
 
 void PndAnaPidCombiner::ApplyFlat(TCandidate &tc)
 {
-  tc.SetPidInfo(0,0.2);
-  tc.SetPidInfo(1,0.2);
-  tc.SetPidInfo(2,0.2);
-  tc.SetPidInfo(3,0.2);
-  tc.SetPidInfo(4,0.2);
+  tc.SetPidInfo(0,1.);
+  tc.SetPidInfo(1,1.);
+  tc.SetPidInfo(2,1.);
+  tc.SetPidInfo(3,1.);
+  tc.SetPidInfo(4,1.);
   return;
 }
 

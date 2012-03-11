@@ -60,7 +60,7 @@ void PndPidMdtHCAssociatorTask::Exec(Option_t * option) {
     {
       PndPidCandidate* pidcand = (PndPidCandidate*)fPidChargedCand->At(i);
       TClonesArray& pidRef = *fPidChargedProb;
-      PndPidProbability* prob = new(pidRef[i]) PndPidProbability();// initializes with zeros
+      PndPidProbability* prob = new(pidRef[i]) PndPidProbability();// initializes with flat probabilities
       prob->SetIndex(i);
       if (pidcand->GetMuoIndex()==-1) continue;
      
@@ -74,7 +74,7 @@ void PndPidMdtHCAssociatorTask::DoPidMatch(PndPidCandidate* pidcand, PndPidProba
 {
   if (pidcand->GetMuoIron()==0.) return;
   
-  Float_t iron_thr = 0, mom_min = 0, mom_max = 0;
+  Double_t iron_thr = 0, mom_min = 0, mom_max = 0;
   if ((pidcand->GetMuoModule()==-1) || (pidcand->GetMuoModule()==2) )
     {
       iron_thr = 60.;
@@ -98,6 +98,7 @@ void PndPidMdtHCAssociatorTask::DoPidMatch(PndPidCandidate* pidcand, PndPidProba
     {
       if (pidcand->GetMuoIron()>iron_thr)
 	{
+    // FIXME: Don't write zeros to that pdf!
 	  prob->SetElectronPdf(0);
 	  prob->SetMuonPdf(1);
 	  prob->SetPionPdf(0);
@@ -107,6 +108,7 @@ void PndPidMdtHCAssociatorTask::DoPidMatch(PndPidCandidate* pidcand, PndPidProba
 	}
       else
 	{
+    // FIXME: Don't write zeros to that pdf!
 	  prob->SetElectronPdf(1);
 	  prob->SetMuonPdf(0);
 	  prob->SetPionPdf(1);
@@ -119,6 +121,7 @@ void PndPidMdtHCAssociatorTask::DoPidMatch(PndPidCandidate* pidcand, PndPidProba
     {
       if (pidcand->GetMuoIron() > (pidcand->GetMuoMomentumIn()*iron_thr/(mom_max-mom_min) - iron_thr* mom_min/(mom_max-mom_min)) )
 	{
+    // FIXME: Don't write zeros to that pdf!
 	  prob->SetElectronPdf(0);
 	  prob->SetMuonPdf(1);
 	  prob->SetPionPdf(0);
@@ -128,6 +131,7 @@ void PndPidMdtHCAssociatorTask::DoPidMatch(PndPidCandidate* pidcand, PndPidProba
 	}
       else
 	{
+    // FIXME: Don't write zeros to that pdf!
 	  prob->SetElectronPdf(1);
 	  prob->SetMuonPdf(0);
 	  prob->SetPionPdf(1);

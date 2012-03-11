@@ -21,7 +21,7 @@ PndPidProbability::PndPidProbability()
   fIndex = -1;
 }
 
-PndPidProbability::PndPidProbability(Float_t e, Float_t mu, Float_t pi, Float_t k, Float_t p, Int_t idx)
+PndPidProbability::PndPidProbability(Double_t e, Double_t mu, Double_t pi, Double_t k, Double_t p, Int_t idx)
 {
   fElectronPdf = e;
   fMuonPdf = mu;
@@ -77,6 +77,18 @@ void PndPidProbability::Reset()
   fIndex = -1;
 }
 
+void PndPidProbability::NormalizeTo(Double_t N)
+{
+  Double_t scalefactor = GetSumProb();
+  if (scalefactor == 0) return;
+  scalefactor = N / scalefactor;
+  fElectronPdf*=scalefactor;
+  fMuonPdf*=scalefactor;
+  fPionPdf*=scalefactor;
+  fKaonPdf*=scalefactor;
+  fProtonPdf*=scalefactor;
+  return;
+}
 
 
 ClassImp(PndPidProbability)

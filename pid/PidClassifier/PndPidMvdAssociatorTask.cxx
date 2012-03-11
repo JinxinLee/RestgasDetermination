@@ -63,7 +63,7 @@ void PndPidMvdAssociatorTask::Exec(Option_t * option) {
   for(Int_t i=0; i<fPidChargedCand->GetEntriesFast(); i++)
     {
       PndPidCandidate* pidcand = (PndPidCandidate*)fPidChargedCand->At(i);
-      PndPidProbability* prob = new((*fPidChargedProb)[i]) PndPidProbability(0.2,0.2,0.2,0.2,0.2,i);// initializes with equal probability
+      PndPidProbability* prob = new((*fPidChargedProb)[i]) PndPidProbability(1.,1.,1.,1.,1.,i);// initializes with equal probability
       if (pidcand->GetMvdDEDX()==0) continue;
       DoPidMatch(pidcand,prob);
     }
@@ -72,7 +72,7 @@ void PndPidMvdAssociatorTask::Exec(Option_t * option) {
 
 void PndPidMvdAssociatorTask::DoPidMatch(PndPidCandidate* pidcand, PndPidProbability* prob)
 {
-  Float_t CanMpv, CanSigma;
+  Double_t CanMpv, CanSigma;
 
   //Electron
   CanMpv=mvdPara->GetElectronMpv(pidcand->GetMomentum().Mag());
@@ -103,9 +103,11 @@ void PndPidMvdAssociatorTask::DoPidMatch(PndPidCandidate* pidcand, PndPidProbabi
   CanSigma=mvdPara->GetKaonSigma(pidcand->GetMomentum().Mag());
   prob->SetKaonPdf(GetPdf(pidcand->GetMvdDEDX(), CanMpv, CanSigma));
   //cout << "kaon:\t" << pidcand->GetMomentum().Mag() << "\t" << pidcand->GetMvdDEDX() << "\t" << CanMpv << "\t" << CanSigma << "\t" << prob->GetKaonPdf() << endl;
+
+  prob->NormalizeTo(1.);
 }  
 
-Float_t PndPidMvdAssociatorTask::GetPdf(Float_t dedx, Float_t Mpv, Float_t Sigma)
+Double_t PndPidMvdAssociatorTask::GetPdf(Double_t dedx, Double_t Mpv, Double_t Sigma)
 {
   TF1 *landauPdf = new TF1("landauPdf","landaun",0,1);
   landauPdf->SetParameter(0,1);

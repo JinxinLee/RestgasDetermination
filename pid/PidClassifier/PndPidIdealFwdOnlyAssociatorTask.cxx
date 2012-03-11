@@ -92,14 +92,16 @@ void PndPidIdealFwdOnlyAssociatorTask::Exec(Option_t * option) {
   // Get the Candidates
   for(Int_t i=0; i<fPidChargedCand->GetEntriesFast(); i++){
     PndPidCandidate* pidcand = (PndPidCandidate*)fPidChargedCand->At(i);
-    PndPidProbability* prob = new((*fPidChargedProb)[i]) PndPidProbability(0.2,0.2,0.2,0.2,0.2,i);// initializes with equal probability
+    PndPidProbability* prob = new((*fPidChargedProb)[i]) PndPidProbability(1.,1.,1.,1.,1.,i);// initializes with equal probability
     if(fVerbose>1) std::cout<<"-I- PndPidIdealFwdOnlyAssociatorTask Charged BEFORE  "<< pidcand->GetLorentzVector().M()<<std::endl;;
-    if( IsForward(pidcand) ) DoPidMatch(pidcand,prob);
+    if(! IsForward(pidcand) ) continue;
+    DoPidMatch(pidcand,prob);
     if(fVerbose>1) std::cout<<"-I- PndPidIdealFwdOnlyAssociatorTask Charged AFTER   "<< pidcand->GetLorentzVector().M()<<std::endl;;
   }
   for(Int_t i=0; i<fPidNeutralCand->GetEntriesFast(); i++){
     PndPidCandidate* pidcand = (PndPidCandidate*)fPidNeutralCand->At(i);
-    PndPidProbability* prob = new((*fPidNeutralProb)[i]) PndPidProbability(0.2,0.2,0.2,0.2,0.,i);// initializes with eqaual pdf (no preference)
+    PndPidProbability* prob = new((*fPidNeutralProb)[i]) PndPidProbability(1.,1.,1.,1.,1.,i);
+    // initializes with eqaual pdf (no preference)
     //DoPidMatch(pidcand,prob); //TODO match idealy neutral cands, esp. when we have pi0s 
   }
   
@@ -168,11 +170,11 @@ void PndPidIdealFwdOnlyAssociatorTask::DoPidMatch(PndPidCandidate* pidcand, PndP
       break;
       
     default:
-      prob->SetProtonPdf(0.2);
-      prob->SetKaonPdf(0.2);
-      prob->SetPionPdf(0.2);
-      prob->SetMuonPdf(0.2);
-      prob->SetElectronPdf(0.2);
+      prob->SetProtonPdf(1.);
+      prob->SetKaonPdf(1.);
+      prob->SetPionPdf(1.);
+      prob->SetMuonPdf(1.);
+      prob->SetElectronPdf(1.);
       break;
   }
   

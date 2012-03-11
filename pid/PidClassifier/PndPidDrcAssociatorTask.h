@@ -27,7 +27,7 @@ class PndPidDrcAssociatorTask : public FairTask {
 
   void DoPidMatch(PndPidCandidate* pidcand, PndPidProbability* prob);
 
-  Float_t GetPdf(Float_t thetaC, Float_t mom, Float_t mass, Float_t sigma);
+  Double_t GetPdf(Double_t thetaC, Double_t mom, Double_t mass, Double_t sigma);
 
  public:
   

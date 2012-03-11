@@ -74,47 +74,47 @@ void PndPidDiscAssociatorTask::DoPidMatch(PndPidCandidate* pidcand, PndPidProbab
 
   // electron
   {
-    Float_t mass   = 0.0005;
-    Float_t sigma  = 0.006;
+    Double_t mass   = 0.0005;
+    Double_t sigma  = 0.006;
     prob->SetElectronPdf(GetPdf(pidcand->GetDiscThetaC(),pidcand->GetMomentum().Mag(),mass, sigma));
   }
 
   // muon
   {
-    Float_t mass   = 0.106;
-    Float_t sigma  = 0.006;
+    Double_t mass   = 0.106;
+    Double_t sigma  = 0.006;
     prob->SetMuonPdf(GetPdf(pidcand->GetDiscThetaC(),pidcand->GetMomentum().Mag(),mass, sigma));
   }
   
   // pion
   {
-    Float_t mass   = 0.140;
-    Float_t sigma  = 0.006;
+    Double_t mass   = 0.140;
+    Double_t sigma  = 0.006;
     prob->SetPionPdf(GetPdf(pidcand->GetDiscThetaC(),pidcand->GetMomentum().Mag(),mass, sigma));
   }
   
   // kaon
   {
-    Float_t mass   = 0.494;
-    Float_t sigma  = 0.005;
+    Double_t mass   = 0.494;
+    Double_t sigma  = 0.005;
     prob->SetKaonPdf(GetPdf(pidcand->GetDiscThetaC(),pidcand->GetMomentum().Mag(),mass, sigma));
   }
   
   // proton
   {
-    Float_t mass   = 0.938;
-    Float_t sigma  = 0.005;
+    Double_t mass   = 0.938;
+    Double_t sigma  = 0.005;
     prob->SetProtonPdf(GetPdf(pidcand->GetDiscThetaC(),pidcand->GetMomentum().Mag(),mass, sigma));
   }
 }  
 
-Float_t PndPidDiscAssociatorTask::GetPdf(Float_t thetaC, Float_t mom, Float_t mass, Float_t sigma)
+Double_t PndPidDiscAssociatorTask::GetPdf(Double_t thetaC, Double_t mom, Double_t mass, Double_t sigma)
 {
   
-  Float_t beta = mom / TMath::Sqrt(mom*mom + mass*mass);
+  Double_t beta = mom / TMath::Sqrt(mom*mom + mass*mass);
   if ( (beta>0.) && ((1./1.47/beta)<1.) )
     {
-      Float_t center = 1./1.47/beta;
+      Double_t center = 1./1.47/beta;
       TF1 *gausPdf = new TF1("gausPdf","gausn",0,1);
       gausPdf->SetParameter(0,1);
       gausPdf->SetParameter(1,center);
@@ -125,6 +125,7 @@ Float_t PndPidDiscAssociatorTask::GetPdf(Float_t thetaC, Float_t mom, Float_t ma
     }
   else
     {
+      // FIXME: Don't write zeros to that pdf!
       return 0.;
     }
 }

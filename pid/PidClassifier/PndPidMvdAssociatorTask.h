@@ -17,7 +17,7 @@ class PndPidMvdAssociatorTask : public FairTask {
 
   void DoPidMatch(PndPidCandidate* pidcand, PndPidProbability* prob); // cheating for each candidate
 
-  Float_t GetPdf(Float_t dedx, Float_t Mpv, Float_t Sigma);
+  Double_t GetPdf(Double_t dedx, Double_t Mpv, Double_t Sigma);
 
   
  public:

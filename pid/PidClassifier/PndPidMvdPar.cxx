@@ -16,52 +16,52 @@ PndPidMvdPar::PndPidMvdPar()
 
 
 
-Float_t PndPidMvdPar::GetElectronMpv(Float_t momentum)
+Double_t PndPidMvdPar::GetElectronMpv(Double_t momentum)
 {
   return (GetElectronMpvP0()/(momentum*momentum)*(GetElectronMpvP1()*TMath::Log(momentum*momentum)-momentum*momentum-GetElectronMpvP2()));
 }
 
-Float_t PndPidMvdPar::GetElectronSigma(Float_t momentum)
+Double_t PndPidMvdPar::GetElectronSigma(Double_t momentum)
 { 
   return (GetElectronSigmaP0()*momentum+GetElectronSigmaP1());
 }
 
-Float_t PndPidMvdPar::GetMuonMpv(Float_t momentum)
+Double_t PndPidMvdPar::GetMuonMpv(Double_t momentum)
 { 
   return (GetMuonMpvP0()/(momentum*momentum)*(GetMuonMpvP1()*TMath::Log(momentum*momentum)-momentum*momentum-GetMuonMpvP2()));
 }
 
-Float_t PndPidMvdPar::GetMuonSigma(Float_t momentum)
+Double_t PndPidMvdPar::GetMuonSigma(Double_t momentum)
 {
   return (GetMuonSigmaP0()*momentum+GetMuonSigmaP1());
 }
 
-Float_t PndPidMvdPar::GetKaonMpv(Float_t momentum)
+Double_t PndPidMvdPar::GetKaonMpv(Double_t momentum)
 {
   return (GetKaonSigmaP0()/(momentum*momentum)*(GetKaonSigmaP1()*TMath::Log(momentum*momentum)-momentum*momentum-GetKaonSigmaP2()));
 }
 
-Float_t PndPidMvdPar::GetKaonSigma(Float_t momentum)
+Double_t PndPidMvdPar::GetKaonSigma(Double_t momentum)
 { 
   return (GetKaonSigmaP0()/(momentum*momentum)*(GetKaonSigmaP1()*TMath::Log(momentum*momentum)-momentum*momentum-GetKaonSigmaP2()));
 }
 
-Float_t PndPidMvdPar::GetPionMpv(Float_t momentum)
+Double_t PndPidMvdPar::GetPionMpv(Double_t momentum)
 { 
   return (GetPionMpvP0()/(momentum*momentum)*(GetPionMpvP1()*TMath::Log(momentum*momentum)-momentum*momentum-GetPionMpvP2()));
 }
 
-Float_t PndPidMvdPar::GetPionSigma(Float_t momentum)
+Double_t PndPidMvdPar::GetPionSigma(Double_t momentum)
 {
   return (GetPionSigmaP0()/(momentum*momentum)*(GetPionSigmaP1()*TMath::Log(momentum*momentum)-momentum*momentum-GetPionSigmaP2()));
 }
 
-Float_t PndPidMvdPar::GetProtonMpv(Float_t momentum)
+Double_t PndPidMvdPar::GetProtonMpv(Double_t momentum)
 {
   return (GetProtonMpvP0()/(momentum*momentum)*(GetProtonMpvP1()*TMath::Log(momentum*momentum)-momentum*momentum-GetProtonMpvP2()));
 }
 
-Float_t PndPidMvdPar::GetProtonSigma(Float_t momentum)
+Double_t PndPidMvdPar::GetProtonSigma(Double_t momentum)
 {
   return (GetProtonSigmaP0()/(momentum*momentum)*(GetProtonSigmaP1()*TMath::Log(momentum*momentum)-momentum*momentum-GetProtonSigmaP2()));
 }

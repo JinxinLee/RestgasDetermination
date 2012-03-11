@@ -87,7 +87,7 @@ void PndPidSttAssociatorTask::Exec(Option_t * option) {
     {
       PndPidCandidate* pidCand = (PndPidCandidate*) fPidChargedCand->At(i);
       TClonesArray& pidRef = *fPidChargedProb;
-      PndPidProbability* prob = new(pidRef[i]) PndPidProbability();// initializes with zeros
+      PndPidProbability* prob = new(pidRef[i]) PndPidProbability();// initializes with flat probabilities
       prob->SetIndex(i);
 
       // cout << "i " << i << " dedx " << pidCand->GetSttMeanDEDX() << endl;
