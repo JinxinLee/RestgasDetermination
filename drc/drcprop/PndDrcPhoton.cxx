@@ -81,8 +81,10 @@ PndDrcPhoton& PndDrcPhoton::operator=(const PndDrcPhoton& ph)
 
 }
 //----------------------------------------------------------------------
-void PndDrcPhoton::SetPosition(const XYZPoint& pos)
+void PndDrcPhoton::SetPosition1(const XYZPoint& pos)
 {
+  fPositionOld = fPosition;
+
   if (fDev)
     {
       double n = (fDev->OptMaterial()).RefIndex(fLambda);
@@ -94,15 +96,9 @@ void PndDrcPhoton::SetPosition(const XYZPoint& pos)
       double time = len/v_group;
       fTime += time;          // pos in mm time in ns
     }
-  
-  
-  fPositionOld = fPosition;
-  fPosition    = pos;
-};
-//----------------------------------------------------------------------
-void PndDrcPhoton::SetPosition1(const XYZPoint& pos)
-{
+
   SetPosition(pos);
+
   if( fPrintFlag )
     {
       fPositionXlist.push_back(pos.X());

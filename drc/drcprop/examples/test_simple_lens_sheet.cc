@@ -83,26 +83,34 @@ int main(int argc, char *argv[])
 
   //int focus_option = 0; // nothing
   //int focus_option = 1; // lens
-  int focus_option = 2; // focussing downstream spherical mirror
+  //int focus_option = 2; // focussing downstream spherical mirror
+  int focus_option = 3; // focussing downstream cylindrical mirror
   
   
   int ioption = 1; // 1=cherenkov, 2=testbeam
 
-  //int coating = true;  
-  int coating = false;  
+  int top_option = 0; // 0 with expansion volume, 1 without expandsion volume
+  // top_option=1 writes times versus x into the Screen.C file.
 
+
+  //int coating = true;  
+  int coating = false;  // don't turn on...
+
+
+
+  double half_width  = 200.0  /2;   //mm
+  double half_thick  = 17.0   /2;    //mm
+  double half_length = 2500.0 /2;  //mm
 
   //---------------------------------------------------------
 
-  double half_width  = 200.0/2;   //mm
-  double half_thick  = 17.0/2;    //mm
-  double half_length = 2500.0/2;  //mm
 
-
-  // ex_box=300mm + 10mm air gap => for air filled box radius = 310mm = 1/(1.47-1) R
+  // ex_box=300mm + 10mm air gap => 
+  // for air filled box radius = 310mm = 1/(1.47-1) R
   // R = 310 * 0.47 = 145.7
   //
-  // the medium in the box enhances the focal length to 300mm *1.47 therefore use a focal length
+  // the medium in the box enhances the focal length to 300mm *1.47 
+  // therefore use a focal length
   // of 145.7/1.47 = 99.1
   // or more precise: R = (300/1.47 + 10) *0.47 = 100.6
 
@@ -116,7 +124,7 @@ int main(int argc, char *argv[])
   //double lens_radius = 99999.9;     // mm
   double lens_radius = 100.6;       // mm
   double mirror_radius = 5600;
-  
+  if (top_option==1) mirror_radius = 5000; // only radiator bar
   
 
   PndDrcOptDevSys opt_system;
@@ -127,7 +135,7 @@ int main(int argc, char *argv[])
   // move sheet such into positive z space such that end of sheet is at z=0
   sheet.AddTransform(Transform3D(XYZVector(0,0,half_length)));
   //sheet.SetVerbosity(5);
-  
+  if (top_option==1) sheet.Surface("side1")->SetPixel(); // time of propagation 
 
   // downstream mirror
   if (focus_option == 0 || focus_option == 1)
@@ -137,13 +145,25 @@ int main(int argc, char *argv[])
 
   opt_system.AddDevice(sheet);
 
-  if (focus_option == 2)
+  if (focus_option == 2) // spherical downstream mirror
     {
       PndDrcOptLens mirror(half_width,half_thick,10/2,9999,mirror_radius); // spherical mirror
       mirror.SetOptMaterial(PndDrcOptMatLithotecQ0());
       mirror.SetName("mirror");
       mirror.Surface("side6")->SetReflectivity(PndDrcOptReflSilver()); // the mirror
       mirror.AddTransform(Transform3D(XYZVector(0,0, 2*half_length+10/2)));
+      mirror.SetPrintColor(2);  
+      opt_system.AddDevice(mirror);
+      opt_system.CoupleDevice("mirror","sheet",         "side1","side6");
+    }
+  if (focus_option == 3) // cylindrical downstream mirror
+    { // x=thick y=width --> will be later rotated by pi/2
+      PndDrcOptCylLens mirror(half_thick,half_width,10/2,9999,mirror_radius);
+      mirror.SetOptMaterial(PndDrcOptMatLithotecQ0());
+      mirror.SetName("mirror");
+      mirror.Surface("side6")->SetReflectivity(PndDrcOptReflSilver()); // the mirror
+      mirror.AddTransform(Transform3D(XYZVector(0,0, 2*half_length+10/2)));
+      mirror.AddTransform(Transform3D(RotationZ(-kPi/2)));
       mirror.SetPrintColor(2);  
       opt_system.AddDevice(mirror);
       opt_system.CoupleDevice("mirror","sheet",         "side1","side6");
@@ -300,7 +320,7 @@ int main(int argc, char *argv[])
       PndDrcPhoton ph;
       ph.SetReflectionLimit(200);  
       list<PndDrcPhoton> list_photon;
-      int imax=3; // rays in one dimension
+      int imax=20; // rays in one dimension
       for (int ix=0; ix<imax; ix++)
 	//  int ix=0;
 	{
@@ -338,10 +358,19 @@ int main(int argc, char *argv[])
   geo<<"}"<<endl;     // here it is...
 
   fstream scr;
-  scr.open("Screen.C",std::ios::out);
+  scr.open("ScreenTOP3.C",std::ios::out);
   scr<<"{"<<endl;
   scr<<"    TCanvas *c1 = new TCanvas(\"c1\"); "<<endl;
-  scr<<"    TH1F *hgr = new TH1F(\"hgr\",\"test_simple_lens_sheet time vs x\",500,-500,500);"<<endl;
+  if (top_option==1)
+    {
+      scr<<"    TH1F *hgr = new TH1F(\"hgr\",\"test_simple_lens_sheet time vs x\""
+	 <<",500,-500,500);"<<endl;
+    }
+  else
+    {
+      scr<<"    TH1F *hgr = new TH1F(\"hgr\",\"test_simple_lens_sheet y vs x\""
+	 <<",500,-500,500);"<<endl;
+    }
   scr<<"    hgr->SetStats(0);"<<endl;
   scr<<"    hgr->SetMarkerStyle(20);"<<endl;
   scr<<"    hgr->SetMinimum(-500);"<<endl;
@@ -355,11 +384,11 @@ int main(int argc, char *argv[])
 
   list<PndDrcPhoton> list_photon = manager->PhotonList();  // get list
 
-  fstream out;
-  out.open("debug.dat",std::ios::out);
+  //fstream out;
+  //out.open("debug.dat",std::ios::out);
   
 
-  int icnt1=0;
+  //int icnt1=0;
   
   int icnt_measured = 0;
   int icnt_flying   = 0;
@@ -372,8 +401,15 @@ int main(int argc, char *argv[])
 	{
 	  icnt_measured++;
 	  double xx=(*iph).Position().X();
-	  //double yy=(*iph).Position().Y();
-	  double yy=(*iph).Time();
+	  double yy;
+	  if (top_option==1)
+	    {
+	      yy=(*iph).Time();
+	    }
+	  else
+	    {
+	      yy=(*iph).Position().Y();
+	    }
 	  scr<<"    TMarker* t = new TMarker("<<xx<<","<<yy<<",20);"<<endl;
 	  scr<<"    t->SetMarkerColor("
 		<<(*iph).ColorNumber((*iph).Wavelength())
@@ -385,16 +421,16 @@ int main(int argc, char *argv[])
       else if ((*iph).Fate()==Drc::kPhotAbsorbed) {icnt_absorbed++;}
       else 
 	{
-	  out<<(icnt1++)<<" "
-	     <<(*iph).Position().X()<<" "
-	     <<(*iph).Position().Y()<<" "
-	     <<(*iph).Position().Z()<<" "
-	     <<(*iph).Wavelength()<<endl;
+	  //out<<(icnt1++)<<" "
+	  // <<(*iph).Position().X()<<" "
+	  // <<(*iph).Position().Y()<<" "
+	  // <<(*iph).Position().Z()<<" "
+	  // <<(*iph).Wavelength()<<endl;
 	  icnt_lost++;
 	}
       
     }
-  out.close();
+  //out.close();
   
 
   scr<<"}"<<endl;

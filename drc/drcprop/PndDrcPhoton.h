@@ -157,7 +157,7 @@ class PndDrcPhoton
   /*! \brief Set position
      \param pos Position
   */
-  void SetPosition(const XYZPoint& pos);
+  void SetPosition(const XYZPoint& pos){fPosition=pos;};
   
   /*! \brief Position X list
     \return Position X list.

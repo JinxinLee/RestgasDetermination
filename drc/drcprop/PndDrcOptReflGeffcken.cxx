@@ -31,8 +31,9 @@ PndDrcOptReflGeffcken::PndDrcOptReflGeffcken()
 
   fLayerMaterialLow  = new PndDrcOptMatLithotecQ0();
   fLayerMaterialHigh = new PndDrcOptMatTiO2();
-
-  double quarterlambda = 400/4; // that is vaccuum wave length
+  //double ll;
+  //std::cin>>ll;
+  double quarterlambda = 450/4; // that is vaccuum wave length
   // normally one has to take the wavelength within the material.
   // This cancels later with h = n*d*cos(th)
   

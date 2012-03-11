@@ -23,8 +23,8 @@ OBJECTS = $(patsubst ../%.cxx,../%.o,$(wildcard ../*.cxx))
 DEBUG =
 #DEBUG = -g
 
-#CFLAGS = -O2 -Wall $(DEBUG)
-CFLAGS = -g -O0 -Wall
+CFLAGS = -O2 -Wall $(DEBUG)
+#CFLAGS = -g -O0 -Wall
 
 # shared library
 SOFLAGS = -shared -Wall $(DEBUG)
