@@ -77,11 +77,6 @@ class PndPidCandidate : public VAbsMicroCandidate  //TObject
   Int_t		        GetSttHits()     const { return fSttHits; }
   //const Int_t* GetSttHitIndexArray()  {return fSttHitIndexArray.GetArray();}
 	
-  // TPC
-  Float_t		GetTpcMeanDEDX() const { return fTpcMeanDEDX; }
-  Int_t		        GetTpcHits()     const { return fTpcHits;}
-  //const Int_t* GetTpcHitIndexArray() {return fTpcHitIndexArray.GetArray();}
-	
   // TOF
   Float_t		GetTofStopTime()    const { return fTofStopTime; }
   Float_t		GetTofM2()          const { return fTofM2; }
@@ -194,11 +189,6 @@ class PndPidCandidate : public VAbsMicroCandidate  //TObject
   void	SetSttHits(Int_t val)         { fSttHits = val; }
   //void	SetSttHitIndexArray(Int_t n, Int_t* arr)  { fSttHits=n; fSttHitIndexArray.Set(n,arr);}
 	
-  // TPC
-  void	SetTpcMeanDEDX(Double_t val) { fTpcMeanDEDX =(Float_t) val; }
-  void	SetTpcHits(Int_t val)        { fTpcHits = val; }
-  //void	SetTpcHitIndexArray(Int_t n, Int_t* arr) { fTpcHits=n; fTpcHitIndexArray.Set(n,arr);}
-	
   // TOF
   void	SetTofStopTime(Double_t val)    { fTofStopTime = (Float_t) val;}
   void	SetTofM2(Double_t val)          { fTofM2 = (Float_t) val;}
@@ -305,11 +295,6 @@ class PndPidCandidate : public VAbsMicroCandidate  //TObject
   Float_t 	fSttMeanDEDX;
   Int_t   	fSttHits;
   //TArrayI		fSttHitIndexArray;
-	
-  // TPC
-  Float_t 	fTpcMeanDEDX;
-  Int_t   	fTpcHits;
-  //TArrayI		fTpcHitIndexArray;
 	
   // TOF
   Float_t       fTofStopTime;

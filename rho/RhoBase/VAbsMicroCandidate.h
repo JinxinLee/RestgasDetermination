@@ -77,13 +77,6 @@ class VAbsMicroCandidate : public FairMultiLinkedData
 	virtual Int_t		GetSttHits() const=0;
 	//virtual const Int_t* GetSttHitIndexArray() =0;
 	
-	// TPC
-    //virtual Float_t		GetTpcMeanDEdx() const =0;
-	//virtual Float_t		GetTpcDEdxErr() const =0;
-    virtual Float_t		GetTpcMeanDEDX() const=0;
-	virtual Int_t		GetTpcHits() const=0;
-	//virtual const Int_t* GetTpcHitIndexArray() =0;
-	
 	// TOF
     virtual Float_t		GetTofStopTime() const =0;
     virtual Float_t		GetTofM2() const =0;

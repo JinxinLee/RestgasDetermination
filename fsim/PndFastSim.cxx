@@ -442,8 +442,6 @@ void PndFastSim::Exec(Option_t* opt)
       //micro->SetMvdDEdxErr( ft->detResponse()->MvddEdxErr() );
       micro->SetSttMeanDEDX( ft->detResponse()->SttdEdx() );
       //micro->SetSttDEdxErr( ft->detResponse()->SttdEdxErr() );
-      micro->SetTpcMeanDEDX( ft->detResponse()->TpcdEdx() );
-      //micro->SetTpcDEdxErr( ft->detResponse()->TpcdEdxErr() );
       micro->SetTofM2( ft->detResponse()->m2() );
       micro->SetTofM2Err( ft->detResponse()->m2Err() );
       micro->SetDrcThetaC( ft->detResponse()->DrcBarrelThtc() );
@@ -487,8 +485,6 @@ void PndFastSim::Exec(Option_t* opt)
       //pidCand->SetMvdDEdxErr( ft->detResponse()->MvddEdxErr() );
       pidCand->SetSttMeanDEDX( ft->detResponse()->SttdEdx() );
       //pidCand->SetSttDEdxErr( ft->detResponse()->SttdEdxErr() );
-      pidCand->SetTpcMeanDEDX( ft->detResponse()->TpcdEdx() );
-      //pidCand->SetTpcDEdxErr( ft->detResponse()->TpcdEdxErr() );
       pidCand->SetTofM2( ft->detResponse()->m2() );
       //pidCand->SetTofM2Err( ft->detResponse()->m2Err() );
       pidCand->SetDrcThetaC( ft->detResponse()->DrcBarrelThtc() );
@@ -540,7 +536,6 @@ void PndFastSim::Exec(Option_t* opt)
       tcand->SetPidInfo( 8, ft->detResponse()->m2());
       tcand->SetPidInfo( 9, ft->detResponse()->MvddEdx());
       tcand->SetPidInfo(10, ft->detResponse()->SttdEdx());
-      tcand->SetPidInfo(11, ft->detResponse()->TpcdEdx());
     
       tcand->SetPidInfo(12,  ft->detResponse()->DrcBarrelThtcErr());
       tcand->SetPidInfo(13, ft->detResponse()->DrcDiscThtcErr());
@@ -548,7 +543,6 @@ void PndFastSim::Exec(Option_t* opt)
       tcand->SetPidInfo(15, ft->detResponse()->m2Err());
       tcand->SetPidInfo(16, ft->detResponse()->MvddEdxErr());
       tcand->SetPidInfo(17, ft->detResponse()->SttdEdxErr());
-      tcand->SetPidInfo(18, ft->detResponse()->TpcdEdxErr());
       tcand->SetPidInfo(29, (double) ft->pdt());
       //cout<<"********************** PID="<<ft->pdt()<<endl;
       
@@ -720,7 +714,6 @@ PndFastSim::cutAndSmear(PndFsmTrack *t, PndFsmResponse *r)
   double dm     = r->dm();
   double m2     = r->m2();
   double MvddEdx =r->MvddEdx();
-  double TpcdEdx =r->TpcdEdx();
   double SttdEdx =r->SttdEdx();
   TVector3 dV   = r->dV();
 
@@ -770,7 +763,6 @@ PndFastSim::cutAndSmear(PndFsmTrack *t, PndFsmResponse *r)
   if (dm != 0.0)     smearM(t,dm);
   if( m2!=0.0)       smearM2(t,m2);           // mass^2 of track after tof
   if(MvddEdx!=0.0)   smearMvddEdx(t,MvddEdx); // dEdx of track after Mvd
-  if(TpcdEdx!=0.0)   smearTpcdEdx(t,TpcdEdx); // dEdx of track after Tpc
   if(SttdEdx!=0.0)   smearSttdEdx(t,SttdEdx); // dEdx of track after Stt
   return true;
 }
@@ -861,13 +853,6 @@ PndFastSim::smearMvddEdx(PndFsmTrack *t, double MvddEdx)
 }
 
 void
-PndFastSim::smearTpcdEdx(PndFsmTrack *t, double TpcdEdx)
-{
-
-  t->setTpcdEdX(TpcdEdx);
-}
-
-void
 PndFastSim::smearSttdEdx(PndFsmTrack *t, double SttdEdx)
 {
 
@@ -908,7 +893,6 @@ PndFastSim::sumResponse(FsmResponseList respList)
 
   double m2=0;
   double MvddEdx=0;
-  double TpcdEdx=0;
   double SttdEdx=0;
   double DrcDiscThtc=0;
   double DrcBarrelThtc=0;
@@ -916,7 +900,6 @@ PndFastSim::sumResponse(FsmResponseList respList)
 
   double m2Err=0;
   double MvddEdxErr=0;
-  double TpcdEdxErr=0;
   double SttdEdxErr=0;
   double DrcDiscThtcErr=0;
   double DrcBarrelThtcErr=0;
@@ -956,7 +939,6 @@ PndFastSim::sumResponse(FsmResponseList respList)
       if (fabs(val = resp->dm()) > 1e-8)     dm +=val;
       if (fabs (val = resp->m2()) > 1e-11)    m2+=val;
       if (fabs (val = resp->MvddEdx()) > 1e-11)    MvddEdx+=val;
-      if (fabs (val = resp->TpcdEdx()) > 1e-11)    TpcdEdx+=val;
       if (fabs (val = resp->SttdEdx()) > 1e-11)    SttdEdx+=val;
       if (fabs (val = resp->DrcDiscThtc()) > 1e-11)   DrcDiscThtc+=val;
       if (fabs (val = resp->DrcBarrelThtc()) > 1e-11)    DrcBarrelThtc+=val;
@@ -964,7 +946,6 @@ PndFastSim::sumResponse(FsmResponseList respList)
 
       if (fabs (val = resp->m2Err()) > 1e-11)    m2Err+=val;
       if (fabs (val = resp->MvddEdxErr()) > 1e-11)    MvddEdxErr+=val;
-      if (fabs (val = resp->TpcdEdxErr()) > 1e-11)    TpcdEdxErr+=val;
       if (fabs (val = resp->SttdEdxErr()) > 1e-11)    SttdEdxErr+=val;
       if (fabs (val = resp->DrcDiscThtcErr()) > 1e-11)   DrcDiscThtcErr+=val;
       if (fabs (val = resp->DrcBarrelThtcErr()) > 1e-11)    DrcBarrelThtcErr+=val;
@@ -1039,7 +1020,6 @@ PndFastSim::sumResponse(FsmResponseList respList)
 
   allResponse->setm2(m2, m2Err);
   allResponse->setMvddEdx(MvddEdx,MvddEdxErr);
-  allResponse->setTpcdEdx(TpcdEdx,TpcdEdxErr);
   allResponse->setSttdEdx(SttdEdx,SttdEdxErr);
   
   allResponse->setDrcDiscThtc(DrcDiscThtc,DrcDiscThtcErr);

@@ -37,7 +37,7 @@ void VAbsMicroCandidate::PrintOn(std::ostream &o) const
     if (GetCharge() != 0) {
 	o << " ======= Track Quality ======= " 
 	  << "\n Fit quality         : Ndof " << GetDegreesOfFreedom()<< " chi2 " << GetChiSquared() 
-	  << "\n number of hits      : MVD  " << GetMvdHits()<< " Stt " << GetSttHits() << " TPC "<<GetTpcHits() 
+	  << "\n number of hits      : MVD  " << GetMvdHits()<< " Stt " << GetSttHits()  
 	  << endl;//"\n track length        : " << GetTrackLength()<<endl; 
     }
     
@@ -55,7 +55,7 @@ void VAbsMicroCandidate::PrintOn(std::ostream &o) const
 			                  <<" Disc "<< GetDiscThetaC() << " +- " << GetDiscThetaCErr()
 			                  <<" RICH "<< GetRichThetaC() << " +- " << GetRichThetaCErr()<<endl; 
 	o << " dEdx                :  MVD " << GetMvdDEDX() 
-		                     << " STT " << GetSttMeanDEDX() << " TPC " << GetTpcMeanDEDX() << endl; 
+		                     << " STT " << GetSttMeanDEDX() << endl; 
    } 
 } 
 /*

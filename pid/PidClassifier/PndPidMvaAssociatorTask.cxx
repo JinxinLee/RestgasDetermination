@@ -332,7 +332,6 @@ void PndPidMvaAssociatorTask::DoPidMatch(PndPidCandidate& pidcand,
 	    << "\nSTT " << pidcand.GetSttMeanDEDX()
 	    << "\nMVD " << pidcand.GetMvdDEDX()
 	    << "\nDRC_TC " << pidcand.GetDrcThetaC()
-	    << "\nTPC " << pidcand.GetTpcMeanDEDX()
 	    << "\nEMCZ20 " << pidcand.GetEmcClusterZ20()
 	    << "\nEMCZ53 " << pidcand.GetEmcClusterZ53()
 	    << "\nEMCLAT " << pidcand.GetEmcClusterLat() << '\n';
@@ -416,10 +415,6 @@ std::vector<float> const* PndPidMvaAssociatorTask::PrepareEvtVect(PndPidCandidat
     {
       vect->push_back(pidcand.GetMvdDEDX());
     }    
-    else if(fVarNames[i] == "tpc")
-    {
-      vect->push_back(pidcand.GetTpcMeanDEDX());
-    }
     else if(fVarNames[i] == "thetaC")
     {
       vect->push_back(pidcand.GetDrcThetaC());
