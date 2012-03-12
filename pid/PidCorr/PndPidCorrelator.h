@@ -56,6 +56,7 @@ protected:
   TClonesArray* fTofPoint;          //! PndTofPoint TCA
   TClonesArray* fEmcCluster;        //! PndEmcCluster TCA 
   TClonesArray* fEmcBump;           //! PndEmcBump TCA
+  TClonesArray* fEmcDigi;           //! PndEmcDigi TCA
   TClonesArray* fMdtPoint;          //! PndMdtPoint TCA 
   TClonesArray* fMdtHit;            //! PndMdtHit TCA 
   TClonesArray* fMdtTrk;            //! PndMdtTrk TCA
@@ -85,6 +86,7 @@ protected:
   Int_t fMvdHitCount;               // Number of mvd hits
     
   map<Int_t, Bool_t> fClusterList;  // List of clusters correlated to tracks
+  map<Int_t, Double_t> fClusterQ;   // List of emc quaity correlated to clusters
   TString fTrackBranch;             //  options to choose PndTrack branches
   TString fTrackIDBranch;           //  options to choose PndTrackID branches
   TString fTrackBranch2;            //  options to choose 2nd PndTrack branches
@@ -135,7 +137,8 @@ public:
   virtual InitStatus Init();                        //
  
   void Register();
-  void Reset();
+  void Reset(); 
+  void ResetEmcQ();
    
   PndPidCorrelator(const char *name, const char *title="Pnd Task");
   PndPidCorrelator();

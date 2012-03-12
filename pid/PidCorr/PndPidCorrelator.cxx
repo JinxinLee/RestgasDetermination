@@ -13,6 +13,7 @@
 #include "PndEmcXtal.h"
 #include "PndEmcErrorMatrix.h"
 #include "PndEmcClusterCalibrator.h"
+#include "PndEmcClusterEnergySums.h"
 #include "PndMdtPoint.h"
 #include "PndMdtHit.h"
 #include "PndMdtTrk.h"
@@ -37,7 +38,8 @@
 // --- Interface with PidMaker and output ---
 
 //___________________________________________________________
-PndPidCorrelator::~PndPidCorrelator() {
+PndPidCorrelator::~PndPidCorrelator() 
+{
   //
   FairRootManager *fManager =FairRootManager::Instance();
   fManager->Write();
@@ -45,81 +47,96 @@ PndPidCorrelator::~PndPidCorrelator() {
 }
 
 //___________________________________________________________
-PndPidCorrelator::PndPidCorrelator() {
+PndPidCorrelator::PndPidCorrelator() : 
+  FairTask(), fMcTrack(new TClonesArray()), fTrack(new TClonesArray()), fTrackID(new TClonesArray()), fTrack2(new TClonesArray()), fTrackID2(new TClonesArray()), fPidChargedCand(new TClonesArray()), fPidNeutralCand(new TClonesArray()), fMdtTrack(new TClonesArray()), fMvdHitsStrip(new TClonesArray()), fMvdHitsPixel(new TClonesArray()), fTofHit(new TClonesArray()), fTofPoint(new TClonesArray()), fEmcCluster(new TClonesArray()), fEmcBump(new TClonesArray()), fEmcDigi(new TClonesArray()), fMdtPoint(new TClonesArray()), fMdtHit(new TClonesArray()), fMdtTrk(new TClonesArray()), fDrcPoint(new TClonesArray()), fDrcHit(new TClonesArray()), fDskParticle(new TClonesArray()), fSttHit(new TClonesArray()), 
+  fCorrPar(new PndPidCorrPar()), fEmcGeoPar(new PndEmcGeoPar()), fEmcErrorMatrixPar(new PndEmcErrorMatrixPar()), fEmcErrorMatrix(new PndEmcErrorMatrix()), fSttParameters(new PndGeoSttPar()), fEmcCalibrator(NULL), 
+  fDebugMode(kFALSE),
+  fGeanePro(kTRUE), 
+  fMdtRefit(kFALSE),
+  fMvdMode(-1),
+  fSttMode(-1),
+  fTofMode(-1),
+  fEmcMode(-1),
+  fMdtMode(-1), 
+  fDrcMode(-1),
+  fDskMode(-1),
+  fMixMode(kFALSE),
+  fPidHyp(0),
+  fIdealHyp(kFALSE), 
+  fFast(kFALSE),
+  fVerbose(kFALSE),
+  fSimulation(kFALSE),
+  fIdeal(kFALSE), 
+  fCorrErrorProp(kTRUE),
+  tofCorr(0),
+  emcCorr(0), 
+  drcCorr(0),
+  dskCorr(0),
+  fTrackBranch(""),
+  fTrackIDBranch(""),
+  fTrackBranch2(""),
+  fTrackIDBranch2(""),
+  fTrackOutBranch(""),
+  sDir(""),
+  sFile(""),
+  fGeoH(NULL),
+  fClusterList(), 
+  fClusterQ()
+{
   //---
   fPidChargedCand = new TClonesArray("PndPidCandidate");
   fPidNeutralCand = new TClonesArray("PndPidCandidate");
-  fDebugMode = kFALSE;
-  fGeanePro = kTRUE;
-  fMdtRefit = kFALSE;
-  fMvdMode = -1;
-  fSttMode = -1;
-  fTofMode = -1;
-  fEmcMode = -1;
-  fMdtMode = -1; 
-  fDrcMode = -1;
-  fDskMode = -1;
-  fMixMode = kFALSE;
-  fPidHyp = 0;
-  fIdealHyp = kFALSE; 
-  fFast = kFALSE;
-  fVerbose = kFALSE;
-  fSimulation = kFALSE;
-  fIdeal = kFALSE; 
-  fCorrErrorProp = kTRUE;
-  tofCorr = 0;
-  emcCorr = 0; 
-  drcCorr = 0;
-  dskCorr = 0;
-  fTrackBranch = "";
-  fTrackIDBranch = "";
-  fTrackBranch2 = "";
-  fTrackIDBranch2 = "";
-  fTrackOutBranch = "";
   sDir = "./";
   sFile = "./pidcorrelator.root";
-  fEmcErrorMatrix=new PndEmcErrorMatrix();
   fGeoH = PndGeoHandling::Instance();
   Reset();
 }
 
 //___________________________________________________________
-PndPidCorrelator::PndPidCorrelator(const char *name, const char *title)
-  :FairTask(name) {
+PndPidCorrelator::PndPidCorrelator(const char *name, const char *title) :
+  FairTask(name),
+  fMcTrack(new TClonesArray()), fTrack(new TClonesArray()), fTrackID(new TClonesArray()), fTrack2(new TClonesArray()), fTrackID2(new TClonesArray()), fPidChargedCand(new TClonesArray()), fPidNeutralCand(new TClonesArray()), fMdtTrack(new TClonesArray()), fMvdHitsStrip(new TClonesArray()), fMvdHitsPixel(new TClonesArray()), fTofHit(new TClonesArray()), fTofPoint(new TClonesArray()), fEmcCluster(new TClonesArray()), fEmcBump(new TClonesArray()), fEmcDigi(new TClonesArray()), fMdtPoint(new TClonesArray()), fMdtHit(new TClonesArray()), fMdtTrk(new TClonesArray()), fDrcPoint(new TClonesArray()), fDrcHit(new TClonesArray()), fDskParticle(new TClonesArray()), fSttHit(new TClonesArray()), 
+  fCorrPar(new PndPidCorrPar()), fEmcGeoPar(new PndEmcGeoPar()), fEmcErrorMatrixPar(new PndEmcErrorMatrixPar()), fEmcErrorMatrix(new PndEmcErrorMatrix()), fSttParameters(new PndGeoSttPar()), fEmcCalibrator(NULL), 
+  fDebugMode(kFALSE),
+  fGeanePro(kTRUE), 
+  fMdtRefit(kFALSE),
+  fMvdMode(-1),
+  fSttMode(-1),
+  fTofMode(-1),
+  fEmcMode(-1),
+  fMdtMode(-1), 
+  fDrcMode(-1),
+  fDskMode(-1),
+  fMixMode(kFALSE),
+  fPidHyp(0),
+  fIdealHyp(kFALSE), 
+  fFast(kFALSE),
+  fVerbose(kFALSE),
+  fSimulation(kFALSE),
+  fIdeal(kFALSE), 
+  fCorrErrorProp(kTRUE),
+  tofCorr(0),
+  emcCorr(0), 
+  drcCorr(0),
+  dskCorr(0),
+  fTrackBranch(""),
+  fTrackIDBranch(""),
+  fTrackBranch2(""),
+  fTrackIDBranch2(""),
+  fTrackOutBranch(""),
+  sDir(""),
+  sFile(""),
+  fGeoH(NULL),
+  fClusterList(), 
+  fClusterQ()
+{
   //---
-  fPidChargedCand = new TClonesArray("PndPidCandidate"); 
+  fPidChargedCand = new TClonesArray("PndPidCandidate");
   fPidNeutralCand = new TClonesArray("PndPidCandidate");
-  fDebugMode = kFALSE;
-  fGeanePro = kTRUE;
-  fMdtRefit = kFALSE;
-  fMvdMode = -1;  
-  fSttMode = -1; 
-  fTofMode = -1;
-  fEmcMode = -1;
-  fMdtMode = -1;
-  fDrcMode = -1;
-  fDskMode = -1; 
-  fMixMode = kFALSE;
-  fPidHyp = 0;
-  fIdealHyp = kFALSE;
-  fVerbose = kFALSE;
-  fSimulation = kFALSE;
-  fIdeal = kFALSE; 
-  fFast = kFALSE;
-  fCorrErrorProp = kTRUE;
-  tofCorr = 0;
-  emcCorr = 0;
-  drcCorr = 0;
-  dskCorr = 0;
-  fTrackBranch = "";
-  fTrackIDBranch = ""; 
-  fTrackBranch2 = "";
-  fTrackIDBranch2 = "";
-  fTrackOutBranch = "";
   sDir = "./";
   sFile = "./pidcorrelator.root";
-  fEmcErrorMatrix=new PndEmcErrorMatrix();
-  Reset(); 
+  fGeoH = PndGeoHandling::Instance(); 
+  Reset();
 }
 
 //___________________________________________________________
@@ -279,6 +296,12 @@ InitStatus PndPidCorrelator::Init() {
 	  cout << "-W- PndPidCorrelator::Init: No EmcBump array!" << endl;
 	}
       else fEmcMode = 3;
+
+      fEmcDigi = (TClonesArray*) fManager->GetObject("EmcDigi");
+      if ( ! fEmcDigi)
+        {
+          cout << "-W- PndPidCorrelator::Init: No EmcDigi array! No EMC E1/E9/E25 information is propagated!" << endl;
+        }
     }
   
   // *** DRC ***
@@ -521,6 +544,7 @@ void PndPidCorrelator::Exec(Option_t * option) {
   if (fEmcMode>0) cout << " - Number of EMC Cluster for pid " << fEmcCluster->GetEntriesFast();
   cout << endl;
   Reset();
+  ResetEmcQ();
   
   if (fTrack)     ConstructChargedCandidate();
   if ((fEmcMode>0) && (!fFast)) ConstructNeutralCandidate();
@@ -534,7 +558,7 @@ void PndPidCorrelator::ConstructChargedCandidate() {
   //Call Delete() only for too busy events to save Memory
   fPidChargedCand->Delete();
   if (fMdtRefit) fMdtTrack->Delete();
-  
+ 
   Int_t nTracks = fTrack->GetEntriesFast();
   for (Int_t i = 0; i < nTracks; i++) {
     PndTrack* track = (PndTrack*) fTrack->At(i);
@@ -680,7 +704,16 @@ void PndPidCorrelator::ConstructNeutralCandidate() {
       pidCand->SetEmcIndex(i);
       pidCand->SetEmcModule(bump->GetModule());
       pidCand->SetEmcNumberOfCrystals(bump->NumberOfDigis());
-    
+      pidCand->SetEmcQuality(fClusterQ[i]);
+
+      pidCand->SetEmcClusterZ20(bump->Z20());
+      pidCand->SetEmcClusterZ53(bump->Z53());
+      pidCand->SetEmcClusterLat(bump->LatMom()); 
+      PndEmcClusterEnergySums esum(*bump, fEmcDigi);
+      pidCand->SetEmcClusterE1(esum.E1());
+      pidCand->SetEmcClusterE9(esum.E9());
+      pidCand->SetEmcClusterE25(esum.E25());
+
       pidCand->SetLink(FairLink(emcType, i));
     
       std::vector<Int_t> mclist = clu->GetMcList();
@@ -769,6 +802,14 @@ Bool_t PndPidCorrelator::GetTofInfo(FairTrackParH* helix, PndPidCandidate* pidCa
   return kTRUE;
 }
 
+void PndPidCorrelator::ResetEmcQ()
+{
+  // Fuction to reset all the quality values for emc-track correlation to -1
+  fClusterQ.clear();
+  for (Int_t ii=0; ii<fEmcCluster->GetEntriesFast(); ii++)
+    fClusterQ[ii] = -1;
+}
+
 //_________________________________________________________________
 Bool_t PndPidCorrelator::GetEmcInfo(FairTrackParH* helix, PndPidCandidate* pidCand) { 
   if(! helix){
@@ -785,7 +826,7 @@ Bool_t PndPidCorrelator::GetEmcInfo(FairTrackParH* helix, PndPidCandidate* pidCa
   if (!fCorrErrorProp) fProEmc->PropagateOnlyParameters();
   //---
   Float_t trackTheta = helix->GetMomentum().Theta()*TMath::RadToDeg();
-  // PndEmcCluster *emcHit = NULL;
+  
   Int_t emcEntries = fEmcCluster->GetEntriesFast();
   Int_t emcIndex = -1, emcModuleCorr = -1, emcNCrystals = -1;
   Float_t emcEloss = 0., emcElossCorr = 0., emcGLength = -1000;
@@ -794,61 +835,76 @@ Bool_t PndPidCorrelator::GetEmcInfo(FairTrackParH* helix, PndPidCandidate* pidCa
   TVector3 vertex(0., 0., 0.); TVector3 emcPos(0., 0., 0.);// TVector3 momentum(0., 0., 0.);
   
   // Cluster zenike moments
-  double Z20 = 0.0; double Z53 = 0.0; double secLatM = 0.00;
+  Double_t Z20 = 0.0, Z53 = 0.0, secLatM = 0.00, E1 = 0., E9 = 0., E25 = 0.;
   
-  for (Int_t ee = 0; ee<emcEntries; ee++){
-    //emcHit = (PndEmcCluster*)fEmcCluster->At(ee);
-    PndEmcCluster *emcHit = (PndEmcCluster*)fEmcCluster->At(ee);
-    
-    if ( fIdeal ){
-      std::vector<Int_t> mclist = emcHit->GetMcList();
-      if (mclist.size()==0) continue;
-      if (mclist[0]!=pidCand->GetMcIndex()) continue;
-    }
-    
-    //if (emcHit->energy() < fCorrPar->GetEmc12Thr()) continue;
-    Int_t emcModule = emcHit->GetModule();
-    if (emcModule>4) continue;
-    
-    emcPos = emcHit->where();
-    if (fGeanePro){ // Overwrites vertex if Geane is used
-     
-      fProEmc->SetPoint(emcPos);
-      fProEmc->PropagateToPCA(1, 1);
-      vertex.SetXYZ(-10000, -10000, -10000); // reset vertex
-      FairTrackParH *fRes= new FairTrackParH();
-      Bool_t rc =  fProEmc->Propagate(helix, fRes, fPidHyp*pidCand->GetCharge()); // First propagation at module
-      if (!rc) continue;
+  for (Int_t ee = 0; ee<emcEntries; ee++)
+    {
+      PndEmcCluster *emcHit = (PndEmcCluster*)fEmcCluster->At(ee);
       
-      emcGLength = fProEmc->GetLengthAtPCA();
-      vertex.SetXYZ(fRes->GetX(), fRes->GetY(), fRes->GetZ());
-      //std::map<PndEmcTwoCoordIndex*, PndEmcXtal*> tciXtalMap=PndEmcStructure::Instance()->GetTciXtalMap();
-      //PndEmcDigi *lDigi= (PndEmcDigi*)emcHit->Maxima();
-      //PndEmcXtal* xtal = tciXtalMap[lDigi->GetTCI()];
-      //emcPos = xtal->frontCentre();
-    }
-    
-    Float_t dist = (emcPos-vertex).Mag2();
-    if ( emcQuality > dist ){
-      emcIndex = ee;
-      emcQuality = dist;
-      emcEloss = emcHit->energy();
-      emcElossCorr = fEmcCalibrator->Energy(emcHit);
-      emcModuleCorr = emcModule;
-      emcNCrystals = emcHit->NumberOfDigis();
-      Z20 = emcHit->Z20();// Z_{n = 2}^{m = 0}
-      Z53 = emcHit->Z53();// Z_{n = 5}^{m = 3}
-      secLatM = emcHit->LatMom();
-    }
-    
-    if (fDebugMode){
-      Float_t ntuple[] = {vertex.X(), vertex.Y(), vertex.Z(), vertex.Phi(),
-			  helix->GetMomentum().Mag(), helix->GetQ(), helix->GetMomentum().Theta(), helix->GetZ(),
-			  emcPos.X(), emcPos.Y(), emcPos.Z(), emcPos.Phi(),
-			  dist, vertex.DeltaPhi(emcPos), emcHit->energy(), emcGLength, emcModule};
-      emcCorr->Fill(ntuple);
-    }
-  }// End for(ee = 0;)
+      if ( fIdeal )
+	{
+	  std::vector<Int_t> mclist = emcHit->GetMcList();
+	  if (mclist.size()==0) continue;
+	  if (mclist[0]!=pidCand->GetMcIndex()) continue;
+	}
+      
+      //if (emcHit->energy() < fCorrPar->GetEmc12Thr()) continue;
+      Int_t emcModule = emcHit->GetModule();
+      if (emcModule>4) continue;
+      
+      emcPos = emcHit->where();
+      if (fGeanePro)
+	{ // Overwrites vertex if Geane is used
+	  fProEmc->SetPoint(emcPos);
+	  fProEmc->PropagateToPCA(1, 1);
+	  vertex.SetXYZ(-10000, -10000, -10000); // reset vertex
+	  FairTrackParH *fRes= new FairTrackParH();
+	  Bool_t rc =  fProEmc->Propagate(helix, fRes, fPidHyp*pidCand->GetCharge()); // First propagation at module
+	  if (!rc) continue;
+	  
+	  emcGLength = fProEmc->GetLengthAtPCA();
+	  vertex.SetXYZ(fRes->GetX(), fRes->GetY(), fRes->GetZ());
+	  //std::map<PndEmcTwoCoordIndex*, PndEmcXtal*> tciXtalMap=PndEmcStructure::Instance()->GetTciXtalMap();
+	  //PndEmcDigi *lDigi= (PndEmcDigi*)emcHit->Maxima();
+	  //PndEmcXtal* xtal = tciXtalMap[lDigi->GetTCI()];
+	  //emcPos = xtal->frontCentre();
+	}
+      
+      Float_t dist = (emcPos-vertex).Mag2();
+      if ( emcQuality > dist )
+	{
+	  emcIndex = ee;
+	  emcQuality = dist;
+	  emcEloss = emcHit->energy();
+	  emcElossCorr = fEmcCalibrator->Energy(emcHit);
+	  emcModuleCorr = emcModule;
+	  emcNCrystals = emcHit->NumberOfDigis();
+	  Z20 = emcHit->Z20();// Z_{n = 2}^{m = 0}
+	  Z53 = emcHit->Z53();// Z_{n = 5}^{m = 3}
+	  secLatM = emcHit->LatMom();
+	  if (fEmcDigi)
+	    {
+	      PndEmcClusterEnergySums esum(*emcHit, fEmcDigi);
+	      E1  = esum.E1(); 
+	      E9  = esum.E9();
+	      E25 = esum.E25();
+	    }
+	}
+      
+      if ( (fClusterQ[ee]<0) || (dist < fClusterQ[ee])) 
+	// If the track-emc distance is less than the previous stored value (or still not initialized)
+	{
+	  fClusterQ[ee] = dist; // update the param
+	}
+      
+      if (fDebugMode){
+	Float_t ntuple[] = {vertex.X(), vertex.Y(), vertex.Z(), vertex.Phi(),
+			    helix->GetMomentum().Mag(), helix->GetQ(), helix->GetMomentum().Theta(), helix->GetZ(),
+			    emcPos.X(), emcPos.Y(), emcPos.Z(), emcPos.Phi(),
+			    dist, vertex.DeltaPhi(emcPos), emcHit->energy(), emcGLength, emcModule};
+	emcCorr->Fill(ntuple);
+      }
+    }// End for(ee = 0;)
   
   if ( (emcQuality < fCorrPar->GetEmc12Cut()) || ( fIdeal && emcIndex!=-1) ){
     fClusterList[emcIndex] = kTRUE;
@@ -861,7 +917,10 @@ Bool_t PndPidCorrelator::GetEmcInfo(FairTrackParH* helix, PndPidCandidate* pidCa
     //======= 
     pidCand->SetEmcClusterZ20(Z20);
     pidCand->SetEmcClusterZ53(Z53);
-    pidCand->SetEmcClusterLat(secLatM);
+    pidCand->SetEmcClusterLat(secLatM); 
+    pidCand->SetEmcClusterE1(E1);
+    pidCand->SetEmcClusterE9(E9);
+    pidCand->SetEmcClusterE25(E25);
     //=====
   }
   
@@ -1165,6 +1224,7 @@ void PndPidCorrelator::Reset() {
   fMvdELoss = 0.;
   fMvdHitCount = 0;
   fClusterList.clear();
+  fClusterQ.clear();
 }
 
 //_________________________________________________________________
