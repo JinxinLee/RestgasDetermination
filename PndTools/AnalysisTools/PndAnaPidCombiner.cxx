@@ -120,7 +120,7 @@ Bool_t PndAnaPidCombiner::Apply(TCandidate &tc)
     // catch Zeros to avoid NAN from Div/Zero 
     if(aProb->GetSumProb() == 0) continue;   
     // avoid numerics with low numbers 
-    aProb->NormalizeTo(1.); 
+    //aProb->NormalizeTo(1.); 
     //now multiply
     *fPidResult *= *aProb;
   }

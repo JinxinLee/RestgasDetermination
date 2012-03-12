@@ -104,7 +104,7 @@ void PndPidMvdAssociatorTask::DoPidMatch(PndPidCandidate* pidcand, PndPidProbabi
   prob->SetKaonPdf(GetPdf(pidcand->GetMvdDEDX(), CanMpv, CanSigma));
   //cout << "kaon:\t" << pidcand->GetMomentum().Mag() << "\t" << pidcand->GetMvdDEDX() << "\t" << CanMpv << "\t" << CanSigma << "\t" << prob->GetKaonPdf() << endl;
 
-  prob->NormalizeTo(1.);
+  //prob->NormalizeTo(1.);
 }  
 
 Double_t PndPidMvdAssociatorTask::GetPdf(Double_t dedx, Double_t Mpv, Double_t Sigma)
