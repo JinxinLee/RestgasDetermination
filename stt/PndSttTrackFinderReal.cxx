@@ -13967,8 +13967,8 @@ if(iplotta && IVOLTE <= nmassimo){
 	y1 = posy - posx*L/R;
 	y2 = posy + posx*L/R;
    } else if (tipo==1) {// SciTil disegnate in SZ.
-	x1 = posx + L;
-	x2 = posx - L;
+	x1 = posx - L;
+	x2 = posx + L;
 	y1 = posy;
 	y2 = posy;
    } else {  // SciTil disegnate in UV.
