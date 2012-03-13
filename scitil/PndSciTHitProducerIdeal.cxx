@@ -69,8 +69,7 @@ InitStatus PndSciTHitProducerIdeal::Init()
  
 
   // Create and register output array
-  fHitArray = new TClonesArray("PndSciTHit");
-  ioman->Register("SciTHit", "SciT", fHitArray, kTRUE);
+  fHitArray = ioman->Register("SciTHit", "PndSciTHit", "SciT", kTRUE);
 
   std::cout << "-I- PndSciTHitProducerIdeal: Intialisation successfull" << std::endl;
   return kSUCCESS;
@@ -141,16 +140,17 @@ Double_t t1 = 0;
 			meanPos.getY(), 
 			meanPos.getZ());
      
-   
+//      std::cout<<" x "<<position.x()<<" y "<<position.y()<<" z "<<std::endl;
+      
       
       time = point->GetTime();
       
-      t1 = 0.10;//100 ps time resolution
-      smear(time,t1);
+      //t1 = fd;//100 ps time resolution
+      smear(time,fdt);
  
       // Create new hit
       new ((*fHitArray)[iPoint]) PndSciTHit(trackID, detID, 
-					   point->GetDetName(),time, t1, 
+					   point->GetDetName(),time, fdt, 
 					   position,dpos,iPoint, 
 					   point->GetEnergyLoss());
 
@@ -187,9 +187,11 @@ void PndSciTHitProducerIdeal::GetLocalHitPoints(PndSciTPoint* myPoint,
 					       FairGeoVector& myHitIn)
 {
  	 
-  if (fVerbose > 1)
+  if (fVerbose > 0)
     std::cout << "GetLocalHitPoints" << std::endl;
   TGeoHMatrix trans = GetTransformation(myPoint->GetDetName().Data());
+  std::cout<<" name "<<myPoint->GetDetName().Data()<<std::endl;
+  
   
   Double_t posIn[3];
   Double_t posOut[3];
@@ -200,12 +202,12 @@ void PndSciTHitProducerIdeal::GetLocalHitPoints(PndSciTPoint* myPoint,
       posIn[i] = 0.;
       posOut[i] = 0.;
 	}
-     if (fVerbose > 1) trans.Print("");
+     if (fVerbose > 0) trans.Print("");
   
   trans.LocalToMaster(posIn, posOut);
 
   
-  if (fVerbose > 1) {
+  if (fVerbose > 0) {
     for (Int_t i = 0; i < 3; i++){
       
       std::cout << "posOut "<< i << ": " << posOut[i] << std::endl;

@@ -147,9 +147,7 @@ Bool_t PndSciT::ProcessHits(FairVolume* vol)
 	fEventID = gMC->CurrentEvent();
 	fTime   = gMC->TrackTime() * 1.0e09;
 	fLength = gMC->TrackLength();
-	fmass   = gMC->TrackMass();   // mass (GeV)
-	fcharge = gMC->TrackCharge(); // charge?
-	fpdgCode = gMC->TrackPid(); 
+	
 	
 	gMC->TrackPosition(fPosIn);
 	gMC->TrackMomentum(fMomIn);
@@ -196,7 +194,7 @@ Bool_t PndSciT::ProcessHits(FairVolume* vol)
 		TVector3(fMomIn.Px(),  fMomIn.Py(),  fMomIn.Pz()),
 		TVector3(fPosOut.X(),  fPosOut.Y(),  fPosOut.Z()),
 		TVector3(fMomOut.Px(), fMomOut.Py(), fMomOut.Pz()),
-		fTime, fLength,fELoss,fcharge,fmass,fpdgCode);
+		fTime, fLength,fELoss);
 	 
 	 //PndStack* stack = (PndStack*) gMC->GetStack();
 	 
@@ -317,15 +315,12 @@ PndSciTPoint* PndSciT::AddHit(Int_t trackID, Int_t evtID, Int_t detID, TString d
 			    TVector3 momout,
 			   Double_t time,
 			    Double_t length, 
-			    Double_t eLoss,
-			    Double_t charge, Double_t mass,
-			    Int_t pdgCode) {
+			    Double_t eLoss) {
   TClonesArray& clref = *fSciTCollection;
   Int_t size = clref.GetEntriesFast();
   return new(clref[size]) PndSciTPoint(trackID, evtID,detID, detName,pos, mom, 
 				      posout, momout,
-				      time, length, eLoss,charge, 
-				      mass,pdgCode);
+				      time, length, eLoss);
  }
 
 

@@ -116,10 +116,7 @@ class PndSciT : public FairDetector
 		      TVector3 momout,
 		      Double_t tof, 
 		      Double_t length, 
-		      Double_t eLoss,
-		      Double_t charge, 
-		      Double_t mass, 
-		      Int_t pdgCode);
+		      Double_t eLoss);
 
  
 
@@ -145,19 +142,16 @@ class PndSciT : public FairDetector
   Double32_t     fLength;            //   length
   Double_t     fELoss;             //   energy loss
   Int_t fPosIndex;      // 
-  Int_t fpdgCode;      //  MC volume ID of MUO
+ 
   Int_t pvId;
-  
-  
-  Double_t fcharge;  
-  Double_t fmass;
+
   
   TClonesArray* fSciTCollection;        // Hit collection
 
   // reset all parameters   
   void ResetParameters();
 
-  ClassDef(PndSciT,2)
+  ClassDef(PndSciT,3)
 
 }; 
 
