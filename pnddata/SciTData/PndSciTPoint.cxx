@@ -27,9 +27,8 @@ PndSciTPoint::PndSciTPoint() : FairMCPoint() {
 
 
  
-  fcharge = 0.0;
-  fmass   = 0.0;
-  fVolumeID = fpdgCode = 0;
+ 
+  fVolumeID =  0;
 
  
 }
@@ -45,9 +44,7 @@ PndSciTPoint::PndSciTPoint(Int_t trackID, Int_t evtID,
 			 TVector3 posout, 
 			 TVector3 momout, 
 			 Double_t tof, Double_t length,
-			 Double_t eLoss,Double_t charge,
-                         Double_t mass, 
-			 Int_t pdgCode)
+			 Double_t eLoss)
  : FairMCPoint(trackID, detID, posin, momin, tof, length, eLoss) {
  
   fEventID    = evtID;
@@ -73,11 +70,7 @@ PndSciTPoint::PndSciTPoint(Int_t trackID, Int_t evtID,
  
   
   fDetName = detName;
-  fcharge = charge;
-  fmass   = mass;
   
-  fpdgCode = pdgCode;
- 
   
  
 }

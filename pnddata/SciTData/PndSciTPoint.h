@@ -43,10 +43,11 @@ class PndSciTPoint : public FairMCPoint
 	      TVector3 momout,
 	      Double_t tof, 
 	      Double_t length, 
-	      Double_t eLoss,
-	      Double_t charge, 
-	      Double_t mass, 
-	      Int_t pdgCode);
+	      Double_t eLoss
+	//      Double_t charge, 
+	  //    Double_t mass, 
+	    //  Int_t pdgCode
+);
   
   /** Copy constructor **/
   PndSciTPoint(const PndSciTPoint& point) { *this = point; };
@@ -76,7 +77,7 @@ class PndSciTPoint : public FairMCPoint
  
   
   TString GetDetName() const { return fDetName;};
-  Double_t GetMass() const { return fmass; };
+ // Double_t GetMass() const { return fmass; };
  
   
   void PositionIn(TVector3& pos)   { pos.SetXYZ(fXin, fYin, fZin); };
@@ -113,7 +114,7 @@ class PndSciTPoint : public FairMCPoint
  
  
   
-  Double_t fmass,fcharge;
+  //Double_t fmass,fcharge;
   
   Double_t  fXin, fYin, fZin;
   Double_t  fPxin,fPyin,fPzin;
@@ -122,10 +123,10 @@ class PndSciTPoint : public FairMCPoint
  
   TString fDetName;
   
-  Int_t fVolumeID,fpdgCode;
+  Int_t fVolumeID;
   
   
-  ClassDef(PndSciTPoint,2)
+  ClassDef(PndSciTPoint,3)
 
 };
 
