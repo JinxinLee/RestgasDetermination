@@ -635,7 +635,7 @@ if(istampa>1) {cout<<"from PndSttMvdTracking, IVOLTE = "<<IVOLTE<<", n. MC Track
 	nSttHit= nmaxSttHits;
  }
 
- if (istampa > 1  && IVOLTE<20) {
+ if (istampa >= 1  && IVOLTE<20) {
      cout<<"da PndSttMvdTracking  : evento (partendo da 0)  N. "<<
        IVOLTE<< "\n\tN. totale Hits in STT  : "<<nSttHit<<endl;
  }
@@ -829,7 +829,7 @@ if(istampa>0){
 
 
 //--------------- inizio stampaggi,  stampe di controllo
-  if (istampa >= 2) {
+  if (istampa >= 1) {
       cout <<"da PndSttMvdTracking, Stt iHit "<< i << " e n. punto MC ottenuto con RefIndex = "
       	<<ipunto<<endl;
       if(ipunto<0) {
@@ -1871,7 +1871,7 @@ if(istampa>=2&& IVOLTE<20){
 
 //---------inizio stampe.
 if(istampa>=2&& IVOLTE<20){
-	cout<<"da PndSttMvdTracking, dopo XY Rfit :\n";
+	cout<<"da PndSttMvdTracking, dopo XY Refit :\n";
 	stampetta(nSttTrackCand,keepit);
 }   //end of if(istampa>=0)
 //---------------------------------- fine stampe.
@@ -2281,7 +2281,6 @@ if(istampa>=2&& IVOLTE<20){
 	    } else {
 		MaxTurns=0;
 	    }
-
 
 	    EliminateSpuriousSZ(
 				MaxTurns,
@@ -3357,7 +3356,8 @@ if(istampa>=3){
 	nbuone++;
 //----------------- ora la traccia MC corrispondente a questa traccia Stt
 //		cout<<"\n\nda PndSttMvdTracking : la PndTrackCand n. "<<ncand;
-		cout<<"\n\nda PndSttMvdTracking : la PndTrackCand n. "<<nbuone;
+		cout<<"\n\nda PndSttMvdTracking, evt. "<<IVOLTE
+		<<": la PndTrackCand n. "<<nbuone;
        if(daTrackFoundaTrackMC[ncand] >-1 ) {
 
 		Int_t icode, im;
@@ -3477,6 +3477,7 @@ if(istampa>=3){
 			  MvdStripSpuriList[ncand][j]
 			  ]<<endl;
 		}
+
 		cout<<"  ... inoltre ci sono  "<<nMCMvdStripAlone[ncand]
 		<<"  Strip hits non inclusi, il cui elenco e' :\n";
 		if(nMCMvdStripAlone[ncand]==0) cout<<"\t-----------nessuna lista\n";
@@ -3489,8 +3490,112 @@ if(istampa>=3){
 			  ]<<endl;
 		}
 
+//------
+
+		cout<<"inoltre, sempre Track Cand n. "<<nbuone<<", associato a Traccia MC n. "<<
+		daTrackFoundaTrackMC[ncand]<<", ha "<<
+		nSttParHitsinTrack[ncand]<<
+		" Stt || Hits associati, di cui ecco la lista :\n";
+		if(nSttParHitsinTrack[ncand]==0) cout<<"\t-----------nessuna lista\n";
+		for(j=0;j<nSttParHitsinTrack[ncand];j++){
+			cout<<"\tHit n. "<<
+			ListSttParHitsinTrack[ncand][j]<<
+			" che fu associato a MC track "
+			<<info[
+			  ListSttParHitsinTrack[ncand][j]
+			  ][6]<<endl;
+		}
+		cout<<"dalla mia funzione risulta che ci sono "<<
+		nParalCommon[ncand]<<
+		" Stt || hits mecciati alla giusta traccia MC e la loro lista e' :\n";
+		if(nParalCommon[ncand]==0) cout<<"\t-----------nessuna lista\n";
+		for(j=0;j<nParalCommon[ncand];j++){
+			cout<<"\tHit n. "<<
+			ParalCommonList[ncand][j]<<
+			" che fu associato a MC track "
+			<<info[
+			  ParalCommonList[ncand][j]
+			  ][6]<<endl;
+		}
+		cout<<"  ... inoltre ci sono  "<<nSpuriParinTrack[ncand]
+		<<"  Stt || hits spuri, il cui elenco e' :\n";
+		if(nSpuriParinTrack[ncand]==0) cout<<"\t-----------nessuna lista\n";
+		for(j=0;j<nSpuriParinTrack[ncand];j++){
+			cout<<"\tHit n. "<<
+			ParSpuriList[ncand][j]<<
+			" che fu associato a MC track "
+			<<info[
+			  ParSpuriList[ncand][j]
+			  ][6]<<endl;
+		}
+
+		cout<<"  ... inoltre ci sono  "<<nMCParalAlone[ncand]
+		<<"  Stt || hits non inclusi, il cui elenco e' :\n";
+		if(nMCParalAlone[ncand]==0) cout<<"\t-----------nessuna lista\n";
+		for(j=0;j<nMCParalAlone[ncand];j++){
+			cout<<"\tHit n. "<<
+			MCParalAloneList[ncand][j]<<
+			" che fu associato a MC track "
+			<<info[
+			  MCParalAloneList[ncand][j]
+			  ][6]<<endl;
+		}
 
 
+//------
+
+
+		cout<<"inoltre, sempre Track Cand n. "<<nbuone<<", associato a Traccia MC n. "<<
+		daTrackFoundaTrackMC[ncand]<<", ha "<<
+		nSttSkewHitsinTrack[ncand]<<
+		" Stt skew Hits associati, di cui ecco la lista :\n";
+		if(nSttSkewHitsinTrack[ncand]==0) cout<<"\t-----------nessuna lista\n";
+		for(j=0;j<nSttSkewHitsinTrack[ncand];j++){
+			cout<<"\tHit n. "<<
+			ListSttSkewHitsinTrack[ncand][j]<<
+			" che fu associato a MC track "
+			<<info[
+			  ListSttSkewHitsinTrack[ncand][j]
+			  ][6]<<endl;
+		}
+		cout<<"dalla mia funzione risulta che ci sono "<<
+		nSkewCommon[ncand]<<
+		" Stt skew hits mecciati alla giusta traccia MC e la loro lista e' :\n";
+		if(nSkewCommon[ncand]==0) cout<<"\t-----------nessuna lista\n";
+		for(j=0;j<nSkewCommon[ncand];j++){
+			cout<<"\tHit n. "<<
+			SkewCommonList[ncand][j]<<
+			" che fu associato a MC track "
+			<<info[
+			  SkewCommonList[ncand][j]
+			  ][6]<<endl;
+		}
+		cout<<"  ... inoltre ci sono  "<<nSpuriSkewinTrack[ncand]
+		<<"  Stt skew hits spuri, il cui elenco e' :\n";
+		if(nSpuriSkewinTrack[ncand]==0) cout<<"\t-----------nessuna lista\n";
+		for(j=0;j<nSpuriSkewinTrack[ncand];j++){
+			cout<<"\tHit n. "<<
+			SkewSpuriList[ncand][j]<<
+			" che fu associato a MC track "
+			<<info[
+			  SkewSpuriList[ncand][j]
+			  ][6]<<endl;
+		}
+
+		cout<<"  ... inoltre ci sono  "<<nMCSkewAlone[ncand]
+		<<"  Stt skew hits non inclusi, il cui elenco e' :\n";
+		if(nMCSkewAlone[ncand]==0) cout<<"\t-----------nessuna lista\n";
+		for(j=0;j<nMCSkewAlone[ncand];j++){
+			cout<<"\tHit n. "<<
+			MCSkewAloneList[ncand][j]<<
+			" che fu associato a MC track "
+			<<info[
+			  MCSkewAloneList[ncand][j]
+			  ][6]<<endl;
+		}
+
+
+//------
 
 	}	// end of for(ncand=0; ncand< nSttTrackCand; ncand++)
 
@@ -5675,10 +5780,11 @@ UShort_t ListStripHitsinTrack[MAXTRACKSPEREVENT][nmaxMvdStripHitsInTrack], // ou
 //  quindi nSciTilHits[iTrack] puo' essere 0 o 1.
 
  for(i=0; i<nSciTilHitsinTrack[iTrack];i++){
+		j=ListSciTilHitsinTrack[iTrack][i];
 		if( ESSE[i]>Smax ) Smax=ESSE[i];
 		if( ESSE[i]<Smin ) Smin=ESSE[i];
-		if( posizSciTil[iTrack][2]>zmax ) zmax=posizSciTil[iTrack][2];
-		if( posizSciTil[iTrack][2]<zmin ) zmin=posizSciTil[iTrack][2];
+		if( posizSciTil[j][2]>zmax ) zmax=posizSciTil[j][2];
+		if( posizSciTil[j][2]<zmin ) zmin=posizSciTil[j][2];
 	}
 
 
@@ -5938,10 +6044,11 @@ UShort_t ListStripHitsinTrack[MAXTRACKSPEREVENT][nmaxMvdStripHitsInTrack], // ou
 //------------
 //  plot di eventuali hits  SciTil;
 	for(i=0;i<nSciTilHitsinTrack[iTrack];i++){
+		j=ListSciTilHitsinTrack[iTrack][i];
 		disegnaSciTilHit(
 				MACRO,
 				i,
-				posizSciTil[iTrack][2],
+				posizSciTil[j][2],
 				ESSE[i]*R,
 				1	// disegna in SZ.
 				);
@@ -11480,8 +11587,8 @@ int nevento=1;
 		 nchosen,
 		 Nround[4];
 
-//	const Double_t  MvdCut=0.8,
-	const Double_t  MvdCut=0.3,
+	const Double_t  MvdCut=0.8,
+//	const Double_t  MvdCut=0.3,
 //	const Double_t  MvdCut=0.1,
 			minimumSttDriftError = 1.;
 
@@ -11505,7 +11612,6 @@ int nevento=1;
 
 
 	for(i=0;i<*nPixelHitsinTrack;i++){
-
 		if( fabs(Dist_SZ(R,KAPPA,FI0,ZED[i],S[i],&nrounds0)) < MvdCut
 						&&
 					abs(nrounds0)<=MaxTurnofTracks){
@@ -16028,10 +16134,11 @@ c[] = {-2.*Ama/sqrt(3.),-Ama,	2.*Ama/sqrt(3.),-vgap/2.,2.*Ami/sqrt(3.),-Ami,	-2.
 			int tipo
 			)
 {
-	double	x1,x2,y1,y2,L,R;
+	double	x1,x2,y1,y2,L,R, RR;
 
 
 	L=DIMENSIONSCITIL/2.;
+
 
    if(tipo==0){	// SciTil disegnate in XY.
 	R = sqrt(posx*posx+posy*posy);
@@ -16039,20 +16146,40 @@ c[] = {-2.*Ama/sqrt(3.),-Ama,	2.*Ama/sqrt(3.),-vgap/2.,2.*Ami/sqrt(3.),-Ami,	-2.
 	x2 = posx - posy*L/R;
 	y1 = posy - posx*L/R;
 	y2 = posy + posx*L/R;
-   } else {	// SciTil disegnate in SZ.
-	x1 = posx + L;
-	x2 = posx - L;
+   } else if (tipo==1) {// SciTil disegnate in SZ.
+	x1 = posx - L;
+	x2 = posx + L;
 	y1 = posy;
 	y2 = posy;
-   }
+   } else {  // SciTil disegnate in UV.
+	RR = posx*posx+posy*posy;
+	R = sqrt(RR);
+	x1 = posx + posy*L/R;
+	x1 /= RR;
+	x2 = posx - posy*L/R;
+	x2 /= RR;
+	y1 = posy - posx*L/R;
+	y1 /= RR;
+	y2 = posy + posx*L/R;
+	y2 /= RR;
 
+   }
 	fprintf(MACRO,"TLine *Tile%d = new TLine(%f,%f,%f,%f);\n",ScitilHit,x1,y1,x2,y2);
 	fprintf(MACRO,"Tile%d->SetLineColor(1);\n",ScitilHit);
+
+
 	if(tipo==0){
+		// disegna in XY.
 		fprintf(MACRO,"Tile%d->SetLineWidth(2);\n",ScitilHit);
+	} else if (tipo==1) {
+		// disegna in SZ.
+		fprintf(MACRO,"Tile%d->SetLineWidth(3);\n",ScitilHit);
 	} else {
+		// disegna in UV.
 		fprintf(MACRO,"Tile%d->SetLineWidth(3);\n",ScitilHit);
 	}
+
+
 	fprintf(MACRO,"Tile%d->Draw();\n",ScitilHit);
 /*
 	fprintf(MACRO,"TMarker* SciT%d = new TMarker(%f,%f,%d);\n",
