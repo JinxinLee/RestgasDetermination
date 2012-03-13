@@ -24,7 +24,6 @@
 #include "TString.h"
 #include "PndRecoKalmanFit.h"
 #include "PndRecoDafFit.h"
-#include "PndGeoSttPar.h"
 
 // Collaborating Class Declarations --
 class TClonesArray;
@@ -89,7 +88,6 @@ private:
   Bool_t fIdealHyp;              //! Flag to use MC particle hypothesis
   Bool_t fDaf;                   //! Flag to use Deterministic Annealing
   Int_t fNumIt;                  //! Number of iterations
-  PndGeoSttPar *fSttParameters;  //! STT params
   Int_t fPDGHyp;                 //! Hypothesis
   Int_t fBusyCut;                 //! Skip too busy events with more tracks
   

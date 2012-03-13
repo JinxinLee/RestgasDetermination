@@ -122,6 +122,7 @@ PndRecoKalmanTask::Init()
 void PndRecoKalmanTask::SetParContainers() {
   FairRuntimeDb* rtdb = FairRunAna::Instance()->GetRuntimeDb();
   rtdb->getContainer("PndGeoSttPar");
+  rtdb->getContainer("PndGeoFtsPar");
 }
 
 void PndRecoKalmanTask::Exec(Option_t* opt)
