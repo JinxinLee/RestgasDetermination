@@ -226,8 +226,6 @@ class PndSttTrackFinderReal : public PndSttTrackFinder
   PndMCTrack* pMCtr;
 
 
-  /** Verbosity level **/
-  Int_t fVerbose;
 
 
 
@@ -243,6 +241,9 @@ class PndSttTrackFinderReal : public PndSttTrackFinder
 
   /**  Branch name to be used to fetch the hits of the backgound mixed events  **/
   char	fSttBranch[100];
+
+
+  void Initialization_ClassVariables();
 
 
   void PndSttFromXYtoConformal(Double_t trajectory_vertex[3],
