@@ -165,6 +165,7 @@ EvtGenModels/EvtBtoXsllUtil.cc
 EvtGenModels/EvtCBTo3piMPP.cc
 EvtGenModels/EvtCBTo3piP00.cc
 EvtGenModels/EvtDDalitz.cc
+EvtGenModels/EvtDeuteronSpectator.cc
 EvtGenModels/EvtElectronPositron.cc
 EvtGenModels/EvtEtaDalitz.cc
 EvtGenModels/EvtFlatQ2.cc

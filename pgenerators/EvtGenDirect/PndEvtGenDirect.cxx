@@ -105,18 +105,19 @@ PndEvtGenDirect::PndEvtGenDirect(TString particle,TString decfile,Double_t Mom, 
 
   PART=EvtPDL::getId(std::string(particle.Data()));
 
-  if (particle=="pbarpSystem" && Mom==0)
+  if ( particle.Contains("pbarp") && Mom==0)
     {
-      cerr <<"\033[5m\033[31m -E  ******  FATAL ERROR: <particle> is 'pbarpSystem'; MUST give pbar momentum or cms energy!\033[0m"<<endl;
+      cerr <<"\033[5m\033[31m -E  ******  FATAL ERROR: <particle> is '" << particle.Data() << "'; MUST give pbar momentum or cms energy!\033[0m"<<endl;
       exit(0);
     }
-
+ 
   double val=-3.0969;
   fMomentum = 0.0;
   fEnergy = 0.0;
   double mp=0.93827;
+  double md=1.875613;
 
-  if (particle=="pbarpSystem" && Mom!=0){
+  if ( particle.Contains("pbarp") && Mom!=0){
     val=Mom;
   }else{
     if(PART.getId()==-1){
@@ -129,7 +130,8 @@ PndEvtGenDirect::PndEvtGenDirect(TString particle,TString decfile,Double_t Mom, 
   // val is the momentum of the pbar beam
   if (val>0){  
     fMomentum = val;
-    fEnergy = mp+sqrt(fMomentum*fMomentum+mp*mp);
+    if ( particle.Contains("pbarpSystem") ) fEnergy = mp+sqrt(fMomentum*fMomentum+mp*mp);
+    if ( particle.Contains("pbardSystem") ) fEnergy = md+sqrt(fMomentum*fMomentum+md*md);
   }
   else  //val is -E_cm
     {
