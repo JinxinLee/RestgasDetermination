@@ -54,7 +54,7 @@ void Config()
    geant4->SetMaxNStep(10000);  // default is 30000
 
   Text_t buffer[50];
-  sprintf(buffer,"/random/SetSeeds %i  %i ",gRandom->GetSeed(), gRandom->GetSeed());
+  sprintf(buffer,"/random/setSeeds %i  %i ",gRandom->GetSeed(), gRandom->GetSeed());
   geant4->ProcessGeantCommand(buffer);
  
   geant4->ProcessGeantMacro(configm1.Data());
