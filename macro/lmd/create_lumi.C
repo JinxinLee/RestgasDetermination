@@ -88,6 +88,7 @@ void create_lumi(){
       // cout<<"tmpvol.X="<<actBox1->GetDX()<<" "<<"tmpvol.Y="<<actBox1->GetDY()<<" "<<"tmpvol.Z="<<actBox1->GetDZ()<<endl;
       Double_t dreh = -i*45.;
       if(j==1) {dreh += 22.5; angle-=TMath::Pi()/8.;}   //sort out ambiguities 
+      if(j==3) {dreh += 22.5; angle-=TMath::Pi()/8.;}   //sort out ambiguities 
       //TGeoRotation* rot = new TGeoRotation(rotname,dreh,-90,0);
       TGeoRotation* rot = new TGeoRotation(rotname,dreh,0,0);
       TGeoTranslation* trt = new TGeoTranslation(sin(angle)*move, cos(angle)*move, 1100+kPlaneZPosition[j]-kRotUmZ); 
