@@ -159,13 +159,13 @@ PndSttTrackFinderReal::~PndSttTrackFinderReal()
 {
 
 	// this is only for initializing the Class Variables.
+	char zero;
 	size_t len;
-
 // booleans :
 	len = sizeof(InclusionListSciTil);
-	memset (InclusionListSciTil,NULL,len);
+	memset (InclusionListSciTil,0,len);
 	len = sizeof(TypeConf);
-	memset (TypeConf,NULL,len);
+	memset (TypeConf,0,len);
 //  int  :
 	IVOLTE=-1;
 
@@ -176,17 +176,17 @@ PndSttTrackFinderReal::~PndSttTrackFinderReal()
 	nSttSkewhit=0;
 	nMCTracks=0;
 	len = sizeof(infoparal);
-	memset(infoparal,NULL,len);
+	memset(infoparal,0,len);
 	len = sizeof(infoskew);
-	memset(infoskew,NULL,len);
+	memset(infoskew,0,len);
 	len = sizeof(nHitsInMCTrack);
-	memset(nHitsInMCTrack,NULL,len);
+	memset(nHitsInMCTrack,0,len);
 	len = sizeof(nSciTilHitsinTrack);
-	memset(nSciTilHitsinTrack,NULL,len);
+	memset(nSciTilHitsinTrack,0,len);
 	len = sizeof(nSttSkewhitInMCTrack);
-	memset(nSttSkewhitInMCTrack,NULL,len);
+	memset(nSttSkewhitInMCTrack,0,len);
 	len = sizeof(ListSciTilHitsinTrack);
-	memset(ListSciTilHitsinTrack,NULL,len);
+	memset(ListSciTilHitsinTrack,0,len);
 //  Double_t :
 	Fimax=0.;
 	FI0min=0.;
@@ -201,26 +201,26 @@ PndSttTrackFinderReal::~PndSttTrackFinderReal()
 	SEMILENGTH_STRAIGHT=0.;
 	ZCENTER_STRAIGHT=0.;
 	len = sizeof(veritaMC);
-	memset (veritaMC,NULL,len);
+	memset (veritaMC,0,len);
 
 	len = sizeof(ALFA);
-	memset (ALFA,NULL,len);
+	memset (ALFA,0,len);
 	len = sizeof(BETA);
-	memset (BETA,NULL,len);
+	memset (BETA,0,len);
 	len = sizeof(GAMMA);
-	memset (GAMMA,NULL,len);
+	memset (GAMMA,0,len);
 	len = sizeof(radiaConf);
-	memset (radiaConf,NULL,len);
+	memset (radiaConf,0,len);
 	len = sizeof(CxMC);
-	memset (CxMC,NULL,len);
+	memset (CxMC,0,len);
 	len = sizeof(CyMC);
-	memset (CyMC,NULL,len);
+	memset (CyMC,0,len);
 	len = sizeof(R_MC);
-	memset (R_MC,NULL,len);
+	memset (R_MC,0,len);
 	len = sizeof(posizSciTil);
-	memset (posizSciTil,NULL,len);
+	memset (posizSciTil,0,len);
 	len = sizeof(S_SciTilHitsinTrack);
-	memset (S_SciTilHitsinTrack,NULL,len);
+	memset (S_SciTilHitsinTrack,0,len);
 
 // pointers :
 
@@ -1008,7 +1008,7 @@ cout<<"from PndSttTrackFinderReal...this hit must be noise (RefIndex = "<<ptInde
 
 //----------------------------
 
-   if( Minclinations[0] <MINIMUMHITSPERTRACK   ) {
+   if( Minclinations[0] < MINIMUMHITSPERTRACK   ) {
      cout<< "from PndSttTrackFinderReal :  # Stt || hits = "<< Minclinations[0]
          <<" and it is < MINIMUMHITSPERTRACK = "<<MINIMUMHITSPERTRACK<<", return 0!"<<endl;
 	  return 0;
