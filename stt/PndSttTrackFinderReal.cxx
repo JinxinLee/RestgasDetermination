@@ -59,7 +59,7 @@ PndSttTrackFinderReal::PndSttTrackFinderReal()
 	stepfineFI0=2.*DELTA_FI0/nbinFI0;
 	YesSciTil = false ;
 
-
+	Initialization_ClassVariables();
 	sprintf(fSttBranch,"STTHit");
 
 }
@@ -88,6 +88,7 @@ PndSttTrackFinderReal::PndSttTrackFinderReal(int verbose)
 	stepfineKAPPA=2.*DELTA_KAPPA/nbinKAPPA;
 	stepfineFI0=2.*DELTA_FI0/nbinFI0;
 	YesSciTil = false ;
+	Initialization_ClassVariables();
 	sprintf(fSttBranch,"STTHit");
 }
 // -------------------------------------------------------------------------
@@ -112,6 +113,7 @@ PndSttTrackFinderReal::PndSttTrackFinderReal(int istamp, bool iplott, bool imc)
 	stepfineKAPPA=2.*DELTA_KAPPA/nbinKAPPA;
 	stepfineFI0=2.*DELTA_FI0/nbinFI0;
 	YesSciTil = false ;
+	Initialization_ClassVariables();
 	sprintf(fSttBranch,"STTHit");
 }
 // -------------------------------------------------------------------------
@@ -138,6 +140,7 @@ PndSttTrackFinderReal::PndSttTrackFinderReal(int istamp, bool iplott, bool imc, 
 	stepfineKAPPA=2.*DELTA_KAPPA/nbinKAPPA;
 	stepfineFI0=2.*DELTA_FI0/nbinFI0;
 	YesSciTil = doSciTil ;
+	Initialization_ClassVariables();
 	sprintf(fSttBranch,"STTHit");
 }
 // -------------------------------------------------------------------------
@@ -149,6 +152,105 @@ PndSttTrackFinderReal::~PndSttTrackFinderReal()
 { 
 }
 // -------------------------------------------------------------------------
+
+// -------------------- begin PndSttTrackFinderReal::Initialization_ClassVariables
+
+ void PndSttTrackFinderReal::Initialization_ClassVariables()
+{
+
+	// this is only for initializing the Class Variables.
+	size_t len;
+
+// booleans :
+	len = sizeof(InclusionListSciTil);
+	memset (InclusionListSciTil,NULL,len);
+	len = sizeof(TypeConf);
+	memset (TypeConf,NULL,len);
+//  int  :
+	IVOLTE=-1;
+
+//  UShort_t :
+
+	nRdivConformalEffective=0;
+	nSciTilHits=0;
+	nSttSkewhit=0;
+	nMCTracks=0;
+	len = sizeof(infoparal);
+	memset(infoparal,NULL,len);
+	len = sizeof(infoskew);
+	memset(infoskew,NULL,len);
+	len = sizeof(nHitsInMCTrack);
+	memset(nHitsInMCTrack,NULL,len);
+	len = sizeof(nSciTilHitsinTrack);
+	memset(nSciTilHitsinTrack,NULL,len);
+	len = sizeof(nSttSkewhitInMCTrack);
+	memset(nSttSkewhitInMCTrack,NULL,len);
+	len = sizeof(ListSciTilHitsinTrack);
+	memset(ListSciTilHitsinTrack,NULL,len);
+//  Double_t :
+	Fimax=0.;
+	FI0min=0.;
+	FI0max=0.;
+	stepD=0.;
+	stepFi=0.;
+	stepR=0.;
+	stepKAPPA=0.;
+	stepFI0=0.;
+	stepfineKAPPA=0.;
+	stepfineFI0=0.;
+	SEMILENGTH_STRAIGHT=0.;
+	ZCENTER_STRAIGHT=0.;
+	len = sizeof(veritaMC);
+	memset (veritaMC,NULL,len);
+
+	len = sizeof(ALFA);
+	memset (ALFA,NULL,len);
+	len = sizeof(BETA);
+	memset (BETA,NULL,len);
+	len = sizeof(GAMMA);
+	memset (GAMMA,NULL,len);
+	len = sizeof(radiaConf);
+	memset (radiaConf,NULL,len);
+	len = sizeof(CxMC);
+	memset (CxMC,NULL,len);
+	len = sizeof(CyMC);
+	memset (CyMC,NULL,len);
+	len = sizeof(R_MC);
+	memset (R_MC,NULL,len);
+	len = sizeof(posizSciTil);
+	memset (posizSciTil,NULL,len);
+	len = sizeof(S_SciTilHitsinTrack);
+	memset (S_SciTilHitsinTrack,NULL,len);
+
+// pointers :
+
+	hdist=NULL;
+	hdistgoodlast=NULL,
+	hdistbadlast=NULL;
+	HANDLE=NULL;
+	HANDLE2=NULL;
+	HANDLEXYZ=NULL;
+	PHANDLEX=NULL;
+	PHANDLEY=NULL;
+	PHANDLEZ=NULL;
+	SHANDLEX=NULL;
+	SHANDLEY=NULL;
+	SHANDLEZ=NULL;
+
+
+	fMCTrackArray=NULL;
+	fSciTPointArray=NULL;
+	fSciTHitArray=NULL;
+
+	pMCtr=NULL;
+
+	fSttHitArray=NULL;
+
+
+ }
+
+// -------------------- end of PndSttTrackFinderReal::Initialization_ClassVariables
+
 
 //----------begin of function PndSttTrackFinderReal::WriteHistograms
 
@@ -219,7 +321,7 @@ if(istampa >=3 )   HANDLEXYZ = fopen("infoPndTrackFinderRealXYZ.txt","w");
 
    fHelixHitProduction = true;
 
-   IVOLTE=-1;
+//   IVOLTE=-1;
 
 
   // Get and check FairRootManager
