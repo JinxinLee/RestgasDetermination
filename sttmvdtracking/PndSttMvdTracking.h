@@ -58,7 +58,7 @@ class PndSttMvdTracking : public FairTask
   void SetInputBranchName(	char* string1,
 			char* string2,
 			char* string3
-		    )
+			)
   {
 	sprintf(fSttBranch,"%s", string1);
 	sprintf(fMvdPixelBranch,"%s", string2);
@@ -259,7 +259,7 @@ class PndSttMvdTracking : public FairTask
 
 
   /** object persistence **/
-  Bool_t  fPersistence; //!
+  Bool_t  fPersistence; //
 
   PndGeoSttPar *fSttParameters;  //  CHECK added
 
@@ -269,6 +269,9 @@ class PndSttMvdTracking : public FairTask
   char	fSttBranch[200],
 		fMvdPixelBranch[200],
 		fMvdStripBranch[200];
+
+
+  void Initialization_ClassVariables();
 
 
   void WriteMacroSttParallelAssociatedHitsandMvdwithMC(
