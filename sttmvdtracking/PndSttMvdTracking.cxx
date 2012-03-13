@@ -53,6 +53,7 @@ PndSttMvdTracking::PndSttMvdTracking() : FairTask("STT Stt-Mvd Tracking") {
  YesCleanMvd = true;
  YesSciTil = false ;
  MvdAloneTracking = true;
+ Initialization_ClassVariables();
  sprintf(fSttBranch,"STTHit");
  sprintf(fMvdPixelBranch,"MVDHitsPixel");
  sprintf(fMvdStripBranch,"MVDHitsStrip");
@@ -70,6 +71,7 @@ PndSttMvdTracking::PndSttMvdTracking(Int_t verbose) : FairTask("STT Stt-Mvd Trac
  YesSciTil = false ;
  MvdAloneTracking = true;
 
+ Initialization_ClassVariables();
  sprintf(fSttBranch,"STTHit");
  sprintf(fMvdPixelBranch,"MVDHitsPixel");
  sprintf(fMvdStripBranch,"MVDHitsStrip");
@@ -86,6 +88,7 @@ PndSttMvdTracking::PndSttMvdTracking(int istamp, bool  iplot, bool imc)
  YesCleanMvd = true;
  YesSciTil = false ;
  MvdAloneTracking = true;
+ Initialization_ClassVariables();
  sprintf(fSttBranch,"STTHit");
  sprintf(fMvdPixelBranch,"MVDHitsPixel");
 
@@ -105,6 +108,7 @@ PndSttMvdTracking::PndSttMvdTracking(int istamp, bool  iplot, bool imc, bool doS
  YesCleanMvd = true;
  YesSciTil = doSciTil ;
  MvdAloneTracking = true;
+ Initialization_ClassVariables();
  sprintf(fSttBranch,"STTHit");
  sprintf(fMvdPixelBranch,"MVDHitsPixel");
 
@@ -116,9 +120,229 @@ PndSttMvdTracking::~PndSttMvdTracking() {
 }
 // -------------------------------------------------------------------------
 
+//--------------- begin  PndSttMvdTracking::Initialization_ClassVariables
+
+  void PndSttMvdTracking::Initialization_ClassVariables()
+{
+// this is only for initializing the Class Variables.
+	size_t len;
+// booleans :
+	len = sizeof(InclusionListSciTil);
+	memset (InclusionListSciTil,0,len);
+	len = sizeof(InclusionListStt);
+	memset (InclusionListStt,0,len);
+
+
+// char :
+
+
+	len = sizeof(fSttBranch);
+	memset (fSttBranch,0,len);
+
+	len = sizeof(fMvdPixelBranch);
+	memset (fMvdPixelBranch,0,len);
+
+	len = sizeof(fMvdStripBranch);
+	memset (fMvdStripBranch,0,len);
+
+//  UShort_t :
+	nSciTilHits=0;
+
+	len = sizeof(nTrackCandHit);
+	memset (nTrackCandHit,0,len);
+
+	len = sizeof(nSciTilHitsinTrack);
+	memset (nSciTilHitsinTrack,0,len);
+
+	len = sizeof(nSttParHitsinTrack);
+	memset (nSttParHitsinTrack,0,len);
+
+	len = sizeof(nSttSkewHitsinTrack);
+	memset (nSttSkewHitsinTrack,0,len);
+
+	len = sizeof(nMvdPixelHitsinTrack);
+	memset (nMvdPixelHitsinTrack,0,len);
+
+	len = sizeof(nMvdStripHitsinTrack);
+	memset (nMvdStripHitsinTrack,0,len);
+
+	len = sizeof(ListMvdPixelHitsinTrack);
+	memset (ListMvdPixelHitsinTrack,0,len);
+
+	len = sizeof(ListMvdStripHitsinTrack);
+	memset (ListMvdStripHitsinTrack,0,len);
+
+	len = sizeof(ListSciTilHitsinTrack);
+	memset (ListSciTilHitsinTrack,0,len);
+
+	len = sizeof(ListTrackCandHit);
+	memset (ListTrackCandHit,0,len);
+
+	len = sizeof(ListSttParHitsinTrack);
+	memset (ListSttParHitsinTrack,0,len);
+
+	len = sizeof(ListSttSkewHitsinTrack);
+	memset (ListSttSkewHitsinTrack,0,len);
+
+	len = sizeof(ListSttSkewHitsinTrackSolution);
+	memset (ListSttSkewHitsinTrackSolution,0,len);
+
+//  Short_t :
+
+	nMvdPixelHit=0;
+	nMvdStripHit=0;
+	nMvdTrackCand=0;
+	nMvdDSPixelHitNotTrackCand=0;
+	nMvdUSPixelHitNotTrackCand=0;
+	nMvdDSStripHitNotTrackCand=0;
+	nMvdUSStripHitNotTrackCand=0;
+
+	len = sizeof(nHitMvdTrackCand);
+	memset (nHitMvdTrackCand,0,len);
+
+	len = sizeof(ListHitMvdTrackCand);
+	memset (ListHitMvdTrackCand,0,len);
+
+	len = sizeof(ListHitTypeMvdTrackCand);
+	memset (ListHitTypeMvdTrackCand,0,len);
+
+	len = sizeof(ListMvdDSPixelHitNotTrackCand);
+	memset (ListMvdDSPixelHitNotTrackCand,0,len);
+
+	len = sizeof(ListMvdUSPixelHitNotTrackCand);
+	memset (ListMvdUSPixelHitNotTrackCand,0,len);
+
+	len = sizeof(ListMvdDSStripHitNotTrackCand);
+	memset (ListMvdDSStripHitNotTrackCand,0,len);
+
+	len = sizeof(ListMvdUSStripHitNotTrackCand);
+	memset (ListMvdUSStripHitNotTrackCand,0,len);
+
+	len = sizeof(ListTrackCandHitType);
+	memset (ListTrackCandHitType,0,len);
+
+//  Double_t :
+
+	SEMILENGTH_STRAIGHT=0.;
+		ZCENTER_STRAIGHT=0.;
+
+	len = sizeof(CxMC);
+	memset (CxMC,0,len);
+
+	len = sizeof(CyMC);
+	memset (CyMC,0,len);
+
+	len = sizeof(R_MC);
+	memset (R_MC,0,len);
+
+	len = sizeof(MCtruthTrkInfo);
+	memset (MCtruthTrkInfo,0,len);
+
+	len = sizeof(MCSkewAloneX);
+	memset (MCSkewAloneX,0,len);
+
+	len = sizeof(MCSkewAloneY);
+	memset (MCSkewAloneY,0,len);
+
+	len = sizeof(XMvdPixel);
+	memset (XMvdPixel,0,len);
+
+	len = sizeof(YMvdPixel);
+	memset (YMvdPixel,0,len);
+
+	len = sizeof(ZMvdPixel);
+	memset (ZMvdPixel,0,len);
+
+	len = sizeof(sigmaXMvdPixel);
+	memset (sigmaXMvdPixel,0,len);
+
+	len = sizeof(sigmaYMvdPixel);
+	memset (sigmaYMvdPixel,0,len);
+
+	len = sizeof(sigmaZMvdPixel);
+	memset (sigmaZMvdPixel,0,len);
+
+	len = sizeof(refindexMvdPixel);
+	memset (refindexMvdPixel,0,len);
+
+	len = sizeof(XMvdStrip);
+	memset (XMvdStrip,0,len);
+
+	len = sizeof(YMvdStrip);
+	memset (YMvdStrip,0,len);
+
+	len = sizeof(ZMvdStrip);
+	memset (ZMvdStrip,0,len);
+
+	len = sizeof(sigmaXMvdStrip);
+	memset (sigmaXMvdStrip,0,len);
+
+	len = sizeof(sigmaYMvdStrip);
+	memset (sigmaYMvdStrip,0,len);
+
+	len = sizeof(sigmaZMvdStrip);
+	memset (sigmaZMvdStrip,0,len);
+
+	len = sizeof(refindexMvdStrip);
+	memset (refindexMvdStrip,0,len);
+
+	len = sizeof(ALFA);
+	memset (ALFA,0,len);
+
+	len = sizeof(BETA);
+	memset (BETA,0,len);
+
+	len = sizeof(GAMMA);
+	memset (GAMMA,0,len);
+
+	len = sizeof(posizSciTil);
+	memset (posizSciTil,0,len);
+
+	len = sizeof(SciTilHitsXwithTrack);
+	memset (SciTilHitsXwithTrack,0,len);
+
+	len = sizeof(SciTilHitsYwithTrack);
+	memset (SciTilHitsYwithTrack,0,len);
+
+
+//  puntatori :
+
+	HANDLE=NULL;
+	HANDLE2=NULL;
+	HANDLEXYZ=NULL;
+	PHANDLEX=NULL;
+	PHANDLEY=NULL;
+	PHANDLEZ=NULL;
+	SHANDLEX=NULL;
+	SHANDLEY=NULL;
+	SHANDLEZ=NULL;
+
+	hdeltaRPixel=NULL;
+	hdeltaRStrip=NULL;
+	hdeltaRPixel2=NULL;
+	hdeltaRStrip2=NULL;
+	fMCTrackArray=NULL;
+	fSttTubeArray=NULL;
+	fSttPointArray=NULL;
+	fSttHitArray=NULL;
+	fSttTrackArray=NULL;
+	fSttTrackCandArray=NULL;
+	fMvdPixelHitArray=NULL;
+	fMvdStripHitArray=NULL;
+	fMvdTrackCandArray=NULL;
+	fSciTHitArray=NULL;
+	fMvdMCPointArray=NULL;
+	fSttMvdPndTrackCandArray=NULL;
+	fSttMvdPndTrackArray=NULL;
+	fSttParameters=NULL;
+
+}
+
+//--------------- end  PndSttMvdTracking::Initialization_ClassVariables
 
 
 // -----   Public method Init   --------------------------------------------
+
 InitStatus PndSttMvdTracking::Init() {
 
 
