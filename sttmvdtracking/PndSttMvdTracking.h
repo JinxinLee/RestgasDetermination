@@ -15,8 +15,6 @@
 #include "TH1F.h"
 #include "TH2F.h"
 
-class TClonesArray;
-class TObjectArray;
 
 class PndSttMvdTracking : public FairTask
 {
