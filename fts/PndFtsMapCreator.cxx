@@ -89,7 +89,34 @@ Int_t PndFtsMapCreator::GetTubeIDFromPathGeoType1(TString path){
 }
 
 
-
+Int_t PndFtsMapCreator::GetChamberIDFromName(TString name){
+  TString pathstring=name;
+ if(pathstring.Contains("fts01")){
+   //std::cout<<"chamber 1"<<std::endl;
+   return 1;
+  }
+ if(pathstring.Contains("fts02")){
+   //std::cout<<"chamber 2"<<std::endl;
+   return 2;
+ }
+ if(pathstring.Contains("fts31")||pathstring.Contains("fts32")||pathstring.Contains("fts33")||pathstring.Contains("fts34")){
+   //std::cout<<"chamber 3"<<std::endl;
+   return 3;
+ }
+ if(pathstring.Contains("fts35")||pathstring.Contains("fts36")||pathstring.Contains("fts37")||pathstring.Contains("fts38")){
+   //std::cout<<"chamber 4"<<std::endl;
+   return 4;
+ }
+ if(pathstring.Contains("fts05tube")){
+   //std::cout<<"chamber 5"<<std::endl;
+   return 5;
+ }
+ if(pathstring.Contains("fts06tube")){
+   //std::cout<<"chamber 6"<<std::endl;
+   return 6;
+ }
+ 
+}
 
 Int_t PndFtsMapCreator::GetChamberIDFromPath(TString path){
   TString pathstring=path;
@@ -226,8 +253,8 @@ Int_t PndFtsMapCreator::GetLayerID(Int_t chamberid, Int_t tudeid,TString path ){
 
 }
 
-Int_t PndFtsMapCreator::GetTubeIDTot(Int_t chamberid, Int_t layerid, Int_t tubeid,TString path ){
-
+Int_t PndFtsMapCreator::GetTubeIDTot(Int_t chamberid, Int_t layerid, Int_t tubeid,TString path )
+{  
   Int_t chamber=chamberid;
   Int_t layer=layerid;
   Int_t tubeID=tubeid;
@@ -305,6 +332,94 @@ Int_t PndFtsMapCreator::GetTubeIDTot(Int_t chamberid, Int_t layerid, Int_t tubei
      }
      if(tmpstring.Contains("up")){
        if(tmpstring.Contains("up_1/fts")){tube=tube+287;}
+       totTubeID=tube+(12*32)+(18*(layer-33));
+     }
+     if(tube<=8607){totTubeID=tube+(12*32)+(18*8);}
+  }
+   
+ return totTubeID;  
+
+}
+
+Int_t PndFtsMapCreator::GetTubeIDTot2(Int_t chamberid, Int_t layerid, Int_t tubeid,TString name )
+{  
+  Int_t chamber=chamberid;
+  Int_t layer=layerid;
+  Int_t tubeID=tubeid;
+  TString tmpstring=name;
+  Int_t tube=0;
+  Int_t totTubeID=0;
+
+ if(chamberid==1){tube=tubeID;}
+ if(chamberid==2){tube=tubeID+1024;}
+ //if(chamberid==3){tube=tubeID+2240;} //2048
+ if(chamberid==3){
+   if(layer==17||layer==18){tube=tubeID+2240;}
+   if(layer==19||layer==20){tube=tubeID+2648;}
+   if(layer==21||layer==22){tube=tubeID+3056;}
+   if(layer==23||layer==24){tube=tubeID+3464;}
+ }
+ if(chamberid==4){
+   if(layer==25||layer==26){tube=tubeID+3872;}
+   if(layer==27||layer==28){tube=tubeID+4280;}
+   if(layer==29||layer==30){tube=tubeID+4688;}
+   if(layer==31||layer==32){tube=tubeID+5096;}
+ }
+ //if(chamberid==4){tube=tubeID+3584;}
+ if(chamberid==5){tube=tubeID+5120;}
+ if(chamberid==6){tube=tubeID+8320;}
+
+  //up e down hanno lo stesso id-> devo slittare il tutto per dare a ciascun tubo
+  //un suo numero identificativo
+  if(chamber==1 || chamberid==2){
+     if(tmpstring.Contains("down") || tube>70){
+       if(tmpstring.Contains("down")){tube=tube+58;}
+       totTubeID=tube+12*layer;
+     }
+     if(tmpstring.Contains("up")){
+       if(tmpstring.Contains("up")){tube=tube+58;}
+       totTubeID=tube+12*(layer-1);
+     }
+     if(tube<=58){totTubeID=tube;}
+  }
+  if(chamberid==3 || chamberid==4){
+    if(tmpstring.Contains("down")){totTubeID=tube+90+12;}
+    if(tmpstring.Contains("up")){totTubeID=tube+90;}
+    if(!tmpstring.Contains("down") && !tmpstring.Contains("up")){
+      if(layer%2==1 && tubeid<=90){totTubeID=tube;} //odd layer
+      if(layer%2==1 && tubeid>90){totTubeID=tube+12;}
+      if(layer%2!=1 && tubeid<=90){totTubeID=tube+12;}
+      if(layer%2!=1 && tubeid>90){totTubeID=tube+24;}
+    }
+    if(tmpstring.Contains("down")&& !tmpstring.Contains("down")){
+      if(layer%2==1){totTubeID=tube+12;} //odd layer
+      else{totTubeID=tube+24;}
+    }
+    if(tmpstring.Contains("up")&& !tmpstring.Contains("up")){
+      if(layer%2==1){totTubeID=tube;} //odd layer
+      else{totTubeID=tube+12;}
+    }
+  }
+
+  if(chamber==5){
+     if(tmpstring.Contains("down") || tube>5329){
+       if(tmpstring.Contains("down")){tube=tube+191;}
+       totTubeID=tube+(12*32)+(18*(layer-32));
+     }
+     if(tmpstring.Contains("up")){
+       if(tmpstring.Contains("up")){tube=tube+191;}
+       totTubeID=tube+(12*32)+(18*(layer-33));
+     }
+     if(tube<=5311){totTubeID=tube+(12*32);}
+  }
+
+ if(chamber==6){
+     if(tmpstring.Contains("down") || tube>8625){
+       if(tmpstring.Contains("down")){tube=tube+287;}
+       totTubeID=tube+(12*32)+(18*(layer-32));
+     }
+     if(tmpstring.Contains("up")){
+       if(tmpstring.Contains("up")){tube=tube+287;}
        totTubeID=tube+(12*32)+(18*(layer-33));
      }
      if(tube<=8607){totTubeID=tube+(12*32)+(18*8);}
@@ -397,30 +512,86 @@ PndFtsTube * PndFtsMapCreator::GetTubeFromTubeIDToFillGeoType1(Int_t tubeid) {
 			fTubeInRad, fTubeOutRad, halflength);
 }
 
+PndFtsTube * PndFtsMapCreator::GetTubeFromNameToFillGeoType1(TString tubename) {
+  
+  Int_t tubeid = GetTubeIDFromNameGeoType1(tubename);
+  
+  TObjArray *geoPassNodes = fFtsParameters->GetGeoPassiveNodes();
+  Bool_t isCopy = kTRUE;
+  // try as if it was a copy stt01tube#XXX
+
+  FairGeoNode *pnode = (FairGeoNode*) geoPassNodes->FindObject(tubename);
+  if(!pnode) { // try as if it was a solo stt01tubeXXX
+    isCopy = kFALSE;
+    //tubename = GetNameFromTubeIDGeoType1(tubeid, isCopy);
+    //pnode = (FairGeoNode*) geoPassNodes->FindObject(tubename);
+  }
+
+  if(!pnode) {
+    cout << "PndFtsMapCreator::GetTubeFromNameToFillGeoType1: tube " << tubename << " not found (nor as a copy)" << endl;
+    return NULL;
+  }
+
+  FairGeoTransform *lab = pnode->getLabTransform();
+  FairGeoVector     tra = lab->getTransVector();
+  FairGeoRotation   rot = lab->getRotMatrix();
+
+  // geometrical info
+  double x = tra.getX()/10.; // in cm
+  double y = tra.getY()/10.; // in cm
+  double z = tra.getZ()/10.; // in cm
+  double r[3][3];
+  for(int i = 0; i < 3; i++)for(int j = 0; j < 3; j++) r[i][j] = rot.getElement(i,j);
+
+  TGeoVolume* rootvol = pnode->getRootVolume();
+  TGeoTube *tube = (TGeoTube*) rootvol->GetShape();
+  Double_t halflength = tube->GetDz(); // in cm
+  // sets up the correspondence int (tubeID) <--> int (1 = copy/0 = solo)
+  //  copy_map[key] = alloc
+  copy_map[tubeid] = isCopy;
+
+  return new PndFtsTube((float)x,(float)y,(float)z,
+			r[0][0],r[0][1],r[0][2],
+			r[1][0],r[1][1],r[1][2],
+			r[2][0],r[2][1],r[2][2],
+			fTubeInRad, fTubeOutRad, halflength);
+}
 
 
 
 TClonesArray* PndFtsMapCreator::FillTubeArrayGeoType1() {
 
-  std::cout<<"FillTubeArrayGeoType1"<<std::endl;
   TObjArray *geoPassNodes = fFtsParameters->GetGeoPassiveNodes();
-  std::cout<<"after geoPassNodes"<<std::endl;
   TClonesArray *tubeArray = new TClonesArray("PndFtsTube");
   tubeArray->Delete();
+  //std::cout << "TA: entries: " <<  geoPassNodes->GetEntriesFast() << std::endl;
   for(int i = 0; i < geoPassNodes->GetEntriesFast(); i++) {
     FairGeoNode *pnode = (FairGeoNode*) geoPassNodes->At(i);
-    if(!pnode) continue;
+    if(!pnode)
+      {	
+	std::cout<<"PndFtsMapCreator::FillTubeArrayGeoType1 : tubename="<< pnode->GetName() << " not existing!!!" << std::endl;
+	continue;
+      }
     TString tubename = pnode->GetName();
 
 
-    std::cout<<"MAP: tubename="<<tubename<<std::endl;
-    //if(!tubename.Contains("stt01tube")) continue;
+    //std::cout<<"PndFtsMapCreator::FillTubeArrayGeoType1 : tubename="<<tubename<< std::endl;
+    if( (!tubename.Contains("tube")) || (!tubename.Contains("fts")) )
+      {
+	//std::cout<<""PndFtsMapCreator::FillTubeArrayGeoType1 : skipping tubename="<<tubename<<std::endl;
+	continue;
+      }
+    
+    Int_t tempChamber = GetChamberIDFromName(tubename);
     Int_t tubeID = GetTubeIDFromNameGeoType1(tubename);
-    PndFtsTube *ftstube = GetTubeFromTubeIDToFillGeoType1(tubeID);
-    new((*tubeArray)[tubeID]) PndFtsTube(*ftstube);
-
+    Int_t tempLayer = GetLayerID(tempChamber, tubeID, tubename);
+    Int_t totTubeID = GetTubeIDTot2(tempChamber, tempLayer, tubeID, tubename );
+    //PndFtsTube *ftstube = GetTubeFromTubeIDToFillGeoType1(tubeID);
+    PndFtsTube *ftstube = GetTubeFromNameToFillGeoType1(tubename);
+    new((*tubeArray)[totTubeID]) PndFtsTube(*ftstube);
+    
   }
-
+  //std:cout << "end: " << tubeArray->GetEntriesFast() << std::endl;
   return tubeArray;
 }
 
