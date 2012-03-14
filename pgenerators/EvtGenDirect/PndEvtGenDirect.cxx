@@ -131,7 +131,7 @@ PndEvtGenDirect::PndEvtGenDirect(TString particle,TString decfile,Double_t Mom, 
   if (val>0){  
     fMomentum = val;
     if ( particle.Contains("pbarpSystem") ) fEnergy = mp+sqrt(fMomentum*fMomentum+mp*mp);
-    if ( particle.Contains("pbardSystem") ) fEnergy = md+sqrt(fMomentum*fMomentum+md*md);
+    if ( particle.Contains("pbardSystem") ) fEnergy = md+sqrt(fMomentum*fMomentum+mp*mp);
   }
   else  //val is -E_cm
     {
