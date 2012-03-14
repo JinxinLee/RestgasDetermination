@@ -94,7 +94,7 @@ Bool_t PndRecoKalmanFit::Init()
   TClonesArray *ftsTubeArray = NULL;
   if(ftsParameters->GetGeometryType() != -1) {
     PndFtsMapCreator *ftsMapper = new PndFtsMapCreator(ftsParameters);
-    ftsTubeArray = ftsMapper->FillTubeArray();
+    //ftsTubeArray = ftsMapper->FillTubeArray();  // STE: STILL NOT WORKING!!!
   }
 
 
