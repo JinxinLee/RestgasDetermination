@@ -105,7 +105,7 @@ PndEvtGenDirect::PndEvtGenDirect(TString particle,TString decfile,Double_t Mom, 
 
   PART=EvtPDL::getId(std::string(particle.Data()));
 
-  if ( particle.Contains("pbarp") && Mom==0)
+  if ( (particle.Contains("pbarp") || particle.Contains("pbard")) && Mom==0)
     {
       cerr <<"\033[5m\033[31m -E  ******  FATAL ERROR: <particle> is '" << particle.Data() << "'; MUST give pbar momentum or cms energy!\033[0m"<<endl;
       exit(0);
@@ -117,7 +117,7 @@ PndEvtGenDirect::PndEvtGenDirect(TString particle,TString decfile,Double_t Mom, 
   double mp=0.93827;
   double md=1.875613;
 
-  if ( particle.Contains("pbarp") && Mom!=0){
+  if ( (particle.Contains("pbarp") || particle.Contains("pbard")) && Mom!=0){
     val=Mom;
   }else{
     if(PART.getId()==-1){
