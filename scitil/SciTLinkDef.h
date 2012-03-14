@@ -6,8 +6,8 @@
 
 #pragma link C++ class  PndSciT+;
 #pragma link C++ class  PndGeoSciT+;
-#pragma link C++ class  PndGeoSciTPar+;
-#pragma link C++ class  PndSciTContFact+;
+#pragma link C++ class  PndGeoSciTPar;
+#pragma link C++ class  PndSciTContFact;
 #pragma link C++ class  PndSciTHitProducerIdeal+;
 //#pragma link C++ class  PndSciTAnaIdeal+;
 //#pragma link C++ class  PndSciTMassTrig+;
