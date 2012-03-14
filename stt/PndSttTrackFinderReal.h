@@ -12,9 +12,6 @@
 
 
 
-
-class PndSttTrack;
-class PndSttHit;
 class FairMCPoint;
 
 
@@ -74,7 +71,6 @@ class PndSttTrackFinderReal : public PndSttTrackFinder
   virtual void AddHitCollection(TClonesArray* mHitArray, TClonesArray* mPointArray)
              {fHitCollectionList.Add(mHitArray); fPointCollectionList.Add(mPointArray);};
   
-  TClonesArray *fTubeArray;
   void SetTubeArray(TClonesArray *tubeArray) { fTubeArray = tubeArray; };
 
   
@@ -223,6 +219,7 @@ class PndSttTrackFinderReal : public PndSttTrackFinder
 		*fSciTPointArray,
 		*fSciTHitArray;
 
+  TClonesArray *fTubeArray;
   PndMCTrack* pMCtr;
 
 
