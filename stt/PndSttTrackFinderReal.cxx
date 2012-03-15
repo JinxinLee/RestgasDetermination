@@ -375,14 +375,6 @@ if(istampa >=3 )   HANDLEXYZ = fopen("infoPndTrackFinderRealXYZ.txt","w");
       }
     }
 
-
-
-//  now take into account the zone of the skew straws, which is 'empty' as far as the parallel straws is concerned
-
-      for(i = 1; i< nRdivConformal  ; i++){
-
-//        radiaConf[i] = tempRadiaConf[i];
-      }
       nRdivConformalEffective = nRdivConformal;
 
 //--------------------  end of method Init   --------------------------------------------
