@@ -368,7 +368,8 @@ if(istampa >=3 )   HANDLEXYZ = fopen("infoPndTrackFinderRealXYZ.txt","w");
     if ( nRdivConformal > 1 ) {
       for(i = 1; i< nRdivConformal ; i++){
         r2 = r1 + A;
-        tempRadiaConf[nRdivConformal-i] = 1./r2;
+//        tempRadiaConf[nRdivConformal-i] = 1./r2;
+        radiaConf[nRdivConformal-i] = 1./r2;
         r1=r2;
 
       }
@@ -380,7 +381,7 @@ if(istampa >=3 )   HANDLEXYZ = fopen("infoPndTrackFinderRealXYZ.txt","w");
 
       for(i = 1; i< nRdivConformal  ; i++){
 
-        radiaConf[i] = tempRadiaConf[i];
+//        radiaConf[i] = tempRadiaConf[i];
       }
       nRdivConformalEffective = nRdivConformal;
 
