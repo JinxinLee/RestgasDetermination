@@ -528,6 +528,7 @@ Int_t PndSttTrackFinderReal::DoFind(TClonesArray* trackCandArray, TClonesArray *
 
 
  Short_t iParHit,
+	nFicell,
 	nRcell;
 
  UShort_t
@@ -536,7 +537,6 @@ Int_t PndSttTrackFinderReal::DoFind(TClonesArray* trackCandArray, TClonesArray *
 	imc,
 	jexp,
 	mchit,
-	nFicell,
 	nTracksFoundSoFar,
 	NNN,
 	Nouter,
