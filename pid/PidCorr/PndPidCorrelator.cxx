@@ -709,11 +709,13 @@ void PndPidCorrelator::ConstructNeutralCandidate() {
       pidCand->SetEmcClusterZ20(bump->Z20());
       pidCand->SetEmcClusterZ53(bump->Z53());
       pidCand->SetEmcClusterLat(bump->LatMom()); 
-      PndEmcClusterEnergySums esum(*bump, fEmcDigi);
-      pidCand->SetEmcClusterE1(esum.E1());
-      pidCand->SetEmcClusterE9(esum.E9());
-      pidCand->SetEmcClusterE25(esum.E25());
-
+      if (fEmcDigi)
+	{
+	  PndEmcClusterEnergySums esum(*bump, fEmcDigi);
+	  pidCand->SetEmcClusterE1(esum.E1());
+	  pidCand->SetEmcClusterE9(esum.E9());
+	  pidCand->SetEmcClusterE25(esum.E25());
+	}
       pidCand->SetLink(FairLink(emcType, i));
     
       std::vector<Int_t> mclist = clu->GetMcList();
