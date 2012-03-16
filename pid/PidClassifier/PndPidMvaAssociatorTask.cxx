@@ -406,6 +406,19 @@ std::vector<float> const* PndPidMvaAssociatorTask::PrepareEvtVect(PndPidCandidat
     {
       vect->push_back(pidcand.GetEmcClusterLat());
     }
+    // Cluster Ex parameters.
+    else if(fVarNames[i] == "e1")
+    {
+      vect->push_back(pidcand.GetEmcClusterE1());
+    }
+    else if(fVarNames[i] == "e9")
+    {
+      vect->push_back(pidcand.GetEmcClusterE9());
+    }
+    else if(fVarNames[i] == "e25")
+    {
+      vect->push_back(pidcand.GetEmcClusterE25());
+    }
     // ==========================
     else if(fVarNames[i] == "stt")
     {

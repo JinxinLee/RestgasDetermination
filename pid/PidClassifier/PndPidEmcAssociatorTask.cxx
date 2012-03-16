@@ -58,6 +58,9 @@ std::vector<std::string> const* PndPidEmcAssociatorTask::SetEmcParNames() const
   VarNames->push_back("lat");
   VarNames->push_back("z20");
   VarNames->push_back("z53");
+  VarNames->push_back("e1");
+  VarNames->push_back("e9");
+  VarNames->push_back("e25");
   
   return VarNames;
 }
