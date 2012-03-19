@@ -607,8 +607,8 @@ Int_t PndSttTrackFinderReal::DoFind(TClonesArray* trackCandArray, TClonesArray *
                Posiz1[3],
                Posiz2[3],
 	       versor[3],
-	       U[MAXTRACKSPEREVENT][nmaxHits],
-	       V[MAXTRACKSPEREVENT][nmaxHits],
+//	       U[MAXTRACKSPEREVENT][nmaxHits],
+//	       V[MAXTRACKSPEREVENT][nmaxHits],
                Xpos_for_LHeTrack[nmaxHits],
                Ypos_for_LHeTrack[nmaxHits],
                Zpos_for_LHeTrack[nmaxHits],
@@ -973,7 +973,8 @@ cout<<"from PndSttTrackFinderReal...this hit must be noise (RefIndex = "<<ptInde
 //--------------- inizio stampaggi
 //  if (istampa >= 2  && IVOLTE<= nmassimo) {
   if (istampa >= 2  ) {
-      cout<<"Gianluigi : da PndSttTrackFinderReal::DoFind : Nhits totali ="<<Nhits<<",  n Hits ||  = "<<Minclinations[0]<<
+      cout<<"Gianluigi : da PndSttTrackFinderReal::DoFind : Nhits totali ="
+      <<Nhits<<",  n Hits ||  = "<<Minclinations[0]<<
           ",  n Hits  skew = "<<nSttSkewhit<<endl;
   }  //  end of   if(istampa >=
 //--------  fine stampaggi
@@ -1087,6 +1088,9 @@ cout<<"from PndSttTrackFinderReal...this hit must be noise (RefIndex = "<<ptInde
 
 //     start the track finding procedure
 
+ Double_t
+	U[MAXTRACKSPEREVENT][Minclinations[0]],
+	V[MAXTRACKSPEREVENT][Minclinations[0]];
   nTracksFoundSoFar=0;    // # tracks found
 
 
@@ -1132,8 +1136,8 @@ cout<<"from PndSttTrackFinderReal...this hit must be noise (RefIndex = "<<ptInde
 				 Fi_initial_helix_referenceframe,
 				 Fi_final_helix_referenceframe,
 				 Charge,
-				 U,
-				 V
+				 &U[nTracksFoundSoFar][0],
+				 &V[nTracksFoundSoFar][0]
 				);
 	if(!outcome){
 		continue;
@@ -1220,8 +1224,8 @@ cout<<"from PndSttTrackFinderReal :  # n. Tracks found so far = "<<nTracksFoundS
 				 Fi_initial_helix_referenceframe,
 				 Fi_final_helix_referenceframe,
 				 Charge,
-				 U,
-				 V
+				 &U[nTracksFoundSoFar][0],
+				 &V[nTracksFoundSoFar][0]
 				);
 
 	if(!outcome)  continue;
@@ -13409,8 +13413,8 @@ c[] = {-2.*Ama/sqrt(3.),-Ama,	2.*Ama/sqrt(3.),-vgap/2.,2.*Ami/sqrt(3.),-Ami,	-2.
 		Double_t *Fi_initial_helix_referenceframe,
 		Double_t *Fi_final_helix_referenceframe,
 		Short_t * Charge,
-		Double_t U[MAXTRACKSPEREVENT][nmaxHits],
-		Double_t V[MAXTRACKSPEREVENT][nmaxHits]
+		Double_t *U,
+		Double_t *V
 							)
 {
 
@@ -13855,8 +13859,8 @@ for(int iz=0;iz<nummm;iz++){
 		Charge[nTracksFoundSoFar],
 		&Fi_initial_helix_referenceframe[nTracksFoundSoFar],//output
 		&Fi_final_helix_referenceframe[nTracksFoundSoFar],// output
-		&U[nTracksFoundSoFar][0],
-		&V[nTracksFoundSoFar][0]
+		U,
+		V
 			);
 
 //   finding the FI angular range (in the laboratory frame) spanned by this parallel track
