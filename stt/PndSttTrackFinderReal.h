@@ -1171,8 +1171,8 @@ class PndSttTrackFinderReal : public PndSttTrackFinder
 		Double_t *Fi_initial_helix_referenceframe,
 		Double_t *Fi_final_helix_referenceframe,
 		Short_t * Charge,
-		Double_t U[MAXTRACKSPEREVENT][nmaxHits],
-		Double_t V[MAXTRACKSPEREVENT][nmaxHits]
+		Double_t *U,
+		Double_t *V
 					);
 
 	UShort_t AssociateSciTilHit(
