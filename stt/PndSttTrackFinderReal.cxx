@@ -6780,25 +6780,6 @@ if(istampa>=3) {
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 //----------begin of function PndSttTrackFinderReal::PndSttTrkAssociatedParallelHitsToHelix5
 
   UShort_t PndSttTrackFinderReal::PndSttTrkAssociatedParallelHitsToHelix5(
@@ -13388,7 +13369,7 @@ c[] = {-2.*Ama/sqrt(3.),-Ama,	2.*Ama/sqrt(3.),-vgap/2.,2.*Ami/sqrt(3.),-Ami,	-2.
 
 	bool PndSttTrackFinderReal::FindTrackInXYProjection(
 		Short_t iHit,    // seed hit; if it is negative it is a SciTil hit.
-		UShort_t nRcell,  // R cell of the seed hit;
+		Short_t nRcell,  // R cell of the seed hit; can be negative when SciTil hit.
 		UShort_t nFicell, // Fi cell of the seed hit;
 		Int_t *Minclinations,
 		Double_t info[nmaxHits][7],
