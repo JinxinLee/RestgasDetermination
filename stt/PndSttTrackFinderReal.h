@@ -1146,7 +1146,7 @@ class PndSttTrackFinderReal : public PndSttTrackFinder
 
 	bool FindTrackInXYProjection(
 		Short_t iHit,	// seed hit; it is negative for SciTil Hits.
-		UShort_t nRcell,  // R cell of the seed hit;
+		Short_t nRcell,//R cell of seed hit;negative for SciTil hits.
 		UShort_t nFicell, // Fi cell of the seed hit;
 		Int_t *Minclinations,
 		Double_t info[nmaxHits][7],
