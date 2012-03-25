@@ -558,6 +558,8 @@ bool PndDrcOptDevManager::Cerenkov(const string& vol_name, const string& sys_nam
 
   static double nu_mean,fn0;
 
+  fListPhoton.clear(); // clear photon list
+
 
   if (first)
   {
