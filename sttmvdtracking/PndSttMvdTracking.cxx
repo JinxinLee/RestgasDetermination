@@ -1749,7 +1749,8 @@ if(istampa>=2&& IVOLTE<20){
 
 	for(  ncand= 0; ncand< nSttTrackCand; ncand++){
 
-		if(nMvdPixelHitsinTrack[ncand]+nmaxMvdStripHitsInTrack==0){
+		if(nMvdPixelHitsinTrack[ncand]+
+			nMvdStripHitsinTrack[ncand]==0){
 
 		   Mvdhits[ncand]=false;
 		   ALFA[ncand]=-2.*Ox[ncand];
