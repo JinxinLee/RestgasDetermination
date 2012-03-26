@@ -81,10 +81,7 @@ class PndTracking : public FairTask
  private:
 
   static const UShort_t
-	MAXHITSINCELL=50,
-	MAXHITSINFIT=15,
 	MAXMCTRACKS=10000,
-	MAXMVDMCPOINTS = 2000,
 	MAXMVDPIXELHITS=500,
 	MAXMVDPIXELHITSINTRACK=30,
 	MAXMVDSTRIPHITS=500,
@@ -92,38 +89,43 @@ class PndTracking : public FairTask
 	MAXMVDTRACKSPEREVENT=400,
 	MAXSCITILHITS = 200, // max SciTil hits total.
 	MAXSCITILHITSINTRACK = 2, // max SciTil hits in one track.
-	MAXSTTHITS = 1050,
+	MAXSTTHITS= 1050,
 	MAXSTTHITSINTRACK=60,
 	MAXTRACKSPEREVENT=200,
-	MINIMUMHITSPERTRACK=3,
-	MINOUTERHITSPERTRACK=5,
-	NFIDIVCONFORMAL = (UShort_t) (3.141592654 * 45./0.5) ,
-	NRDIVCONFORMAL =10,
-	TIMEOUT= 60;
+	NFIDIVCONFORMAL = (UShort_t) (3.141592654 * 45./0.5),
+	NRDIVCONFORMAL =10;
+// the following will be fixed values used in the class (initialized in the constructors):
+  UShort_t
+	MAXHITSINCELL,
+	MAXHITSINFIT,
+	MAXMVDMCPOINTS,
+	MINIMUMHITSPERTRACK,
+	MINOUTERHITSPERTRACK,
+	TIMEOUT;
 
-  static const Double_t
-	APOTEMAMAXINNERPARSTRAW = 23.246827,
-	APOTEMAMAXSKEWSTRAW = 31.517569, // delimitation of the skew area
-	APOTEMAMINOUTERPARSTRAW = 31.863369,
-	APOTEMAMINSKEWSTRAW = 23.246827, // delimitation of the skew area
-	BFIELD=2.,  // in Tesla
-	CVEL = 2.99792,  //  velocity of light
-	DELTAnR=2,   //range of nR in TrkAssociatedParallelHitsToHelixquater
-	DIAMETERSTRAWTUBE=1,
-	DIMENSIONSCITIL=2.85, // cm
-	ERRORPIXEL=0.02611,
-	ERRORSTRIP=0.02611,
-	ERRORSQPIXEL=0.00068175,
-	ERRORSQSTRIP=0.00068175,
-	PI = 3.141592654,
-	PMAX=100.,
-	RSTRAWDETECTORMAX = 40.73, // maximum radius of the Stt detector in  cm
-	RSTRAWDETECTORMIN = 16.119, // minimum radius of the Stt detector in  cm
-	STRAWRADIUS = 0.5,
-	STRAWRESOLUTION= 0.015,
-	STRAW_SKEW_INCLINATION_DEGREES=3.,
-	STTDRIFTVEL = 0.0025,	//   in cm/nsec
-	VERTICALGAP = 4.; // (cm) gap between Left and Right sections of detector.
+  Double_t
+	APOTEMAMAXINNERPARSTRAW,
+	APOTEMAMAXSKEWSTRAW, // delimitation of the skew area
+	APOTEMAMINOUTERPARSTRAW,
+	APOTEMAMINSKEWSTRAW, // delimitation of the skew area
+	BFIELD,  // in Tesla
+	CVEL,  //  velocity of light
+	DELTAnR,   //range of nR in TrkAssociatedParallelHitsToHelixquater
+	DIAMETERSTRAWTUBE,
+	DIMENSIONSCITIL, // cm
+	ERRORPIXEL,
+	ERRORSTRIP,
+	ERRORSQPIXEL,
+	ERRORSQSTRIP,
+	PI,
+	PMAX,
+	RSTRAWDETECTORMAX, // maximum radius of the Stt detector in  cm
+	RSTRAWDETECTORMIN, // minimum radius of the Stt detector in  cm
+	STRAWRADIUS,
+	STRAWRESOLUTION,
+	STRAW_SKEW_INCLINATION_DEGREES,
+	STTDRIFTVEL,	//   in cm/nsec
+	VERTICALGAP; // (cm) gap between Left and Right sections of detector.
 
   bool
 	doMcComparison,
@@ -135,7 +137,7 @@ class PndTracking : public FairTask
 	InclusionListStt[MAXSTTHITS],
 	InclusionListSciTil[MAXSCITILHITS],
 	inMvdTrackCandPixel[MAXMVDPIXELHITS],
-	inMvdTrackCandStrip[MAXMVDSTRIPHITS],
+ 	inMvdTrackCandStrip[MAXMVDSTRIPHITS],
 	TypeConf[MAXTRACKSPEREVENT];
 
   /** object persistence **/
@@ -742,7 +744,7 @@ class PndTracking : public FairTask
 
   bool FindTrackInXYProjection(
 	Short_t iHit,	// seed hit; it is negative for SciTil Hits.
-	UShort_t nRcell,  // R cell of the seed hit;
+	Short_t nRcell,  // R cell of the seed hit;
 	UShort_t nFicell, // Fi cell of the seed hit;
 	UInt_t nsttparhit,
 	Double_t info[][7],
