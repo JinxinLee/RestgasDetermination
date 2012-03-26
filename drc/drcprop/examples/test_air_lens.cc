@@ -94,8 +94,8 @@ int main(int argc, char *argv[])
     PndDrcOptReflPerfect refl_perfect;
     PndDrcOptReflNone    refl_none;
   
-    double slab_width  = 17;
-    double slab_height = 35;
+    double slab_width  = 35;
+    double slab_height = 17;
 
 
     PndDrcOptMatLithotecQ0    quartz;
@@ -468,20 +468,20 @@ int main(int argc, char *argv[])
       // -900 close to far end (1000)
 
 
-        double inci = 57; // in degree  
+      //double inci = 57; // in degree  
         XYZPoint  pos(20,-7.5,-440); 
-        XYZVector dir(-1,0,tan(inci/180.*pi) );
-        beta = 0.9571;
+        XYZVector dir(0,0.5,1);
+        beta = 0.99;
       
 //       XYZPoint  pos(0,0,-800.01);
 //       XYZVector dir(0,0,1 );
 //       beta=0.7;
       
-        int photon_number = 5;
+        //int photon_number = 5;
 //       float     range = 799.99;
-        float     range = 100;
+        //float     range = 100;
 //       photons_exist = manager->Cerenkov(pos,dir,beta,photon_number,range,435,436); 
-        photons_exist = manager->Cerenkov(pos,dir,beta,photon_number,range,300,600); 
+        photons_exist = manager->Cerenkov(pos,dir,beta); 
 
 
       //--------------------------------

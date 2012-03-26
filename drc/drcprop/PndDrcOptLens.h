@@ -42,7 +42,7 @@ class PndDrcOptLens : public PndDrcOptVol
 
   PndDrcOptLens();                         //!< Empty constructor
 
-  /*! \brief Construct brick.
+  /*! \brief Construct lens.
     \param dx half-length of the box along the x-axis.
     \param dy half-length of the box along the y-axis.
     \param dz half-length of the box along the z-axis.

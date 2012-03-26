@@ -178,6 +178,17 @@ bool PndDrcSurfQuadFlatDiff::SurfaceHit(PndDrcPhoton& ph,
       exit(EXIT_FAILURE);
     }
 
+  if (Verbosity()>=5) 
+    {
+      cout<<"      PndDrcSurfQuadFlatDiff::surfaceHit: "<<endl;
+      cout<<"         fS1 is flat : "<<fS1->IsFlat()<<endl;
+      cout<<"         fS2 is flat : "<<fS2->IsFlat()<<endl;
+
+      cout<<"         fS1p1 = "<<fS1p1.X()<<" "<<fS1p1.Y()<<" "<<fS1p1.Z()<<" "<<endl;
+      cout<<"         fS1p2 = "<<fS1p2.X()<<" "<<fS1p2.Y()<<" "<<fS1p2.Z()<<" "<<endl;
+      cout<<"         fS2p1 = "<<fS2p1.X()<<" "<<fS2p1.Y()<<" "<<fS2p1.Z()<<" "<<endl;
+      cout<<"         fS2p2 = "<<fS2p2.X()<<" "<<fS2p2.Y()<<" "<<fS2p2.Z()<<" "<<endl;
+    }
 
 
   // find first point
@@ -258,8 +269,8 @@ bool PndDrcSurfQuadFlatDiff::SurfaceHit(PndDrcPhoton& ph,
 	}
     }
 	
-	
   bool in_between1 = false;
+
   if (!(fS1->IsFlat()))
     {
       // check if point between curve and line
@@ -383,7 +394,7 @@ bool PndDrcSurfQuadFlatDiff::SurfaceHit(PndDrcPhoton& ph,
       // exclude photons from concave parts
       if ( !(fS1->IsFlat()) && in_between1) return false;
       if ( !(fS2->IsFlat()) && in_between2) return false;
-      return true;
+      return true; // aux surf hit alone
     }
   else
     {

@@ -488,12 +488,12 @@ int main(int argc, char *argv[])
     {  
       geo<<"    TView *view = TView::CreateView(1);"<<endl;
     }
-  geo<<"    view->SetRange(-500,300,-1300,500,620,-500);"<<endl;
+  geo<<"    view->SetRange(-500,000,-1300,500,920,-500);"<<endl;
   //geo<<"    view->SetRange(-500,-300,-1300,500,700,1300);"<<endl;
   geo<<"    Int_t i;"<<endl;
   geo<<"    view->SetView(180,90,90,i);"<<endl;
-  geo<<"    view->Zoom();"<<endl;
-  geo<<"    view->Zoom();"<<endl;
+  //geo<<"    view->Zoom();"<<endl;
+  //geo<<"    view->Zoom();"<<endl;
   //geo<<"    view->Zoom();"<<endl;
   //geo<<"    view->Zoom();"<<endl;
   //geo<<"    view->Zoom();"<<endl;

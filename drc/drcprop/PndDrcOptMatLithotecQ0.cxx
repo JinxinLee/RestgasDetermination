@@ -132,10 +132,17 @@ bool PndDrcOptMatLithotecQ0::AbsorptionFlag(double lambda, double length) const
   static const double kClarity = 2100*1000; // BaBar: @ 633 nm in mm (2100 m) (=335m at 400nm)
 
   double trans = exp(-(length)/(kClarity*pow(lambda/633,4)));
-  double cmp   = gRandom->Uniform(1.0);
 
 
-  if (cmp>trans)
+  double cmp1   = gRandom->Uniform(1.0);
+
+
+  //cout<<" trans, cmp1 "<<trans<<" "<<cmp1<<endl;
+
+  //for (int i=0; i<10; i++)
+  //cout<<gRandom->Uniform(1.0)<<endl;
+
+  if (cmp1>trans)
     {
       return true; // absorbed
     }
