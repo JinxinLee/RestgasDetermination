@@ -123,6 +123,46 @@ void PndTracking::Initialization_ClassVariables()
 {
 // this is only for initializing the Class Variables.
 	size_t len;
+
+// first the various values used in the class.
+// the UShort_t values :
+
+	MAXHITSINCELL=50;
+	MAXHITSINFIT=15;
+	MAXMVDMCPOINTS = 2000;
+	MINIMUMHITSPERTRACK=3;
+	MINOUTERHITSPERTRACK=5;
+	TIMEOUT= 60;
+
+//  the Double_t values :
+
+	APOTEMAMAXINNERPARSTRAW = 23.246827;
+	APOTEMAMAXSKEWSTRAW = 31.517569; // delimitation of the skew area
+	APOTEMAMINOUTERPARSTRAW = 31.863369;
+	APOTEMAMINSKEWSTRAW = 23.246827; // delimitation of the skew area
+	BFIELD=2.;  // in Tesla
+	CVEL = 2.99792;  //  velocity of light
+	DELTAnR=2.;   //range of nR in TrkAssociatedParallelHitsToHelixquater
+	DIAMETERSTRAWTUBE=1.;
+	DIMENSIONSCITIL=2.85; // cm
+	ERRORPIXEL=0.02611;
+	ERRORSTRIP=0.02611;
+	ERRORSQPIXEL=0.00068175;
+	ERRORSQSTRIP=0.00068175;
+	PI = 3.141592654;
+	PMAX=100.;
+	RSTRAWDETECTORMAX = 40.73; // maximum radius of the Stt detector in  cm
+	RSTRAWDETECTORMIN = 16.119; // minimum radius of the Stt detector in  cm
+	STRAWRADIUS = 0.5;
+	STRAWRESOLUTION= 0.015;
+	STRAW_SKEW_INCLINATION_DEGREES=3.;
+	STTDRIFTVEL = 0.0025;	//   in cm/nsec
+	VERTICALGAP = 4.; // (cm) gap between Left and Right sections of detector.
+
+
+
+
+
 // booleans :
 	len = sizeof(InclusionListSciTil);
 	memset (InclusionListSciTil,true,len);
@@ -1197,10 +1237,10 @@ if(istampa>0){
 
  for(iParHit=0; iParHit<nSttParHit + 1 -  MINIMUMHITSPERTRACK ; iParHit++) {
 	if( nSttTrackCand > MAXTRACKSPEREVENT) continue;
-	if( ! InclusionListStt[iParHit] )  continue;
+	if( ! InclusionListStt[ListSttParHits[iParHit]] )  continue;
 
-	nRcell = RConformalIndex[iParHit];
-	nFicell = FiConformalIndex[iParHit];
+	nRcell = RConformalIndex[ListSttParHits[iParHit]];
+	nFicell = FiConformalIndex[ListSttParHits[iParHit]];
 
 	outcome = FindTrackInXYProjection(
 				iParHit,//seed hit; it is positive for STT Hits.
@@ -1286,7 +1326,6 @@ if(istampa>=2){
 //---------------fine stampe.
 
 
-
 //-----------------------
 //-----------------------
 //-----------------------
@@ -1294,6 +1333,8 @@ if(istampa>=2){
 //-----------------------
 //-----------------------
 //-----------------------
+
+/*    daquiparte
 
  bool
 	GoodSkewFit[MAXTRACKSPEREVENT],
@@ -3241,49 +3282,6 @@ cout<<"-------------------\n";
 		X1[i] = Ox[i] + R[i]*cos( FI0[i]);
 		Y1[i] = Oy[i] + R[i]*sin( FI0[i]);
 
-/*
-		//  the first hit
-		switch ( ListTrackCandHitType[i][0]){
-			case 0 :	// Pixel
-				X1[i] = XMvdPixel[ ListTrackCandHit[i][0] ] ;
-				Y1[i] = YMvdPixel[ ListTrackCandHit[i][0] ] ;
-			break;
-			case 1 :	// Strip
-				X1[i] = XMvdStrip[ ListTrackCandHit[i][0] ] ;
-				Y1[i] = YMvdStrip[ ListTrackCandHit[i][0] ] ;
-			break;
-			case 2 :	// Straw parallel
-				X1[i] = info[ ListTrackCandHit[i][0] ][0] ;
-				Y1[i] = info[ ListTrackCandHit[i][0] ][1] ;
-			break;
-			case 3 :	// Straw skew
-				X1[i] = info[ ListTrackCandHit[i][0] ][0] ;
-				Y1[i] = info[ ListTrackCandHit[i][0] ][1] ;
-			break;
-		};
-		//  the middle point hit
-		nn = nSttParHitsinTrack[i]+nMvdPixelHitsinTrack[i]+nMvdStripHitsinTrack[i];
-		nmid= (int) (nn/2) ;
-		switch ( ListTrackCandHitType[i][nmid-1]){
-			case 0 :	// Pixel
-				X2[i] = XMvdPixel[ ListTrackCandHit[i][nmid-1] ] ;
-				Y2[i] = YMvdPixel[ ListTrackCandHit[i][nmid-1] ] ;
-			break;
-			case 1 :	// Strip
-				X2[i] = XMvdStrip[ ListTrackCandHit[i][nmid-1] ] ;
-				Y2[i] = YMvdStrip[ ListTrackCandHit[i][nmid-1] ] ;
-			break;
-			case 2 :	// Straw parallel
-				X2[i] = info[ ListTrackCandHit[i][nmid-1] ][0] ;
-				Y2[i] = info[ ListTrackCandHit[i][nmid-1] ][1] ;
-			break;
-			case 3 :	// Straw skew
-				X2[i] = info[ ListTrackCandHit[i][nmid-1] ][0] ;
-				Y2[i] = info[ ListTrackCandHit[i][nmid-1] ][1] ;
-			break;
-		};
-
-*/
 
 		//  the third point on trajectory is given by the last hit
 
@@ -4286,7 +4284,7 @@ for(l =0;l<nMvdPixelHitsinTrack[it]+nMvdStripHitsinTrack[it]
 //------------------------------   plottamenti --------------------------------------------
 
 
- if(iplotta && IVOLTE<50){
+ if(iplotta){
 
 
 
@@ -4331,7 +4329,7 @@ for(l =0;l<nMvdPixelHitsinTrack[it]+nMvdStripHitsinTrack[it]
 
 
 	//-------stampe.
-if(istampa>=2&&IVOLTE<20){
+if(istampa>=2){
 		cout<<"\n\n---------------------------------------------\n";
 		cout<<" evt. n. "<<IVOLTE<<", candidato "<<i
 		<<", n hits || "<<nSttParHitsinTrack[i]<<" e loro lista :\n";
@@ -4516,23 +4514,6 @@ i=0;
 		   primoangolo
 					);
 
-/*
-	for(int kk=-200; kk<= 150; kk += 50){
-		float  time = (float) kk;
-		WriteMacroParallelHitsGeneralspecial(
-		   time,	// backgound time
-                   nSttHit, info,
-		   nTotalCandidates,
-		   Ox,Oy,R,
-		   FI0,
-		   ultimoangolo,
-		   primoangolo
-					);
-	}
-
-*/
-
-
 //     la seguente e' da modificare per includere eventuali hits SciTil mai usati.
         WriteMacroAllHitsRestanti(
 		nSttHit,
@@ -4551,7 +4532,7 @@ i=0;
 
 //---------------------  fine plottamenti --------------------------------------------
 
-
+quifinisce     */
 return;
 
 }
@@ -7946,7 +7927,7 @@ Short_t PndTracking::FindTrackStrictCollection(
 
 bool PndTracking::FindTrackInXYProjection(
 	Short_t iHit,    // seed hit; if it is negative it is a SciTil hit.
-	UShort_t nRcell,  // R cell of the seed hit;
+	Short_t nRcell,  // R cell of the seed hit, it is -1 for a SciTil hit;
 	UShort_t nFicell, // Fi cell of the seed hit;
 	UInt_t nsttparhit,
 	Double_t info[][7],
@@ -8202,7 +8183,6 @@ for(int iz=0;iz<nummm;iz++){
 
 }
 //--------------------
-
 
  status = FitHelixCylinder(
 		nFitPoints, // +1 comes from one SciTil hit.
@@ -11731,14 +11711,14 @@ void PndTracking::MakeInclusionListStt(
 //	multiple hits.
  for(int i=0; i< nSttHit-1; i++){
 	if( !InclusionListStt[ i ] ) continue;
-			for(int j=i+1; j< nSttHit; j++){
-				if(InclusionListStt[ j ] &&
-					fabs(info[i][0] - info[j][0])<1.e-20 &&
-					fabs(info[i][1] - info[j][1])<1.e-20  )
-				{
-					InclusionListStt[j]= false ;
-				}
-			} //  end of  for(j=i+1; j< Nhits;; j++)
+	for(int j=i+1; j< nSttHit; j++){
+		if(InclusionListStt[ j ] &&
+			fabs(info[i][0] - info[j][0])<1.e-20 &&
+			fabs(info[i][1] - info[j][1])<1.e-20  )
+		{
+			InclusionListStt[j]= false ;
+		}
+	} //  end of  for(j=i+1; j< Nhits;; j++)
 
 
  }   //   end of for(i=0; i< Nhits-1; i++)
