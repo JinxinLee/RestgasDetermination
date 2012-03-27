@@ -112,10 +112,11 @@ int main(int argc, char *argv[])
   int focus_opt = 1; // focussed
 
   //int iopt = 0;// only geometry
-  int iopt = 1;// straight lines
+  //int iopt = 1;// straight lines
   //int iopt = 2;// C-cone
   //int iopt = 3;// ???
-   
+  int iopt = 4; // debug
+
   //int lens_opt = 1;  // two thin lenses no air gap
   int lens_opt = 2; // two lenses, no airgap, 2nd is thick
   //int lens_opt = 3; // two lenses, with airgap
@@ -223,14 +224,14 @@ int main(int argc, char *argv[])
 					   -thick_lens1/2)));
   lens1.SetOptMaterial(PndDrcOptMatLithotecQ0());
   //lens1.SetOptMaterial(PndDrcOptMatNLAK33A());
-  lens1.Surface("side21")->SetReflectivity(PndDrcOptReflNone());
-  lens1.Surface("side26")->SetReflectivity(PndDrcOptReflNone());
-  lens1.Surface("side31")->SetReflectivity(PndDrcOptReflNone());
-  lens1.Surface("side36")->SetReflectivity(PndDrcOptReflNone());
-  lens1.Surface("side41")->SetReflectivity(PndDrcOptReflNone());
-  lens1.Surface("side46")->SetReflectivity(PndDrcOptReflNone());
-  lens1.Surface("side51")->SetReflectivity(PndDrcOptReflNone());
-  lens1.Surface("side56")->SetReflectivity(PndDrcOptReflNone());
+  //lens1.Surface("side21")->SetReflectivity(PndDrcOptReflNone());
+  //lens1.Surface("side26")->SetReflectivity(PndDrcOptReflNone());
+  //lens1.Surface("side31")->SetReflectivity(PndDrcOptReflNone());
+  //lens1.Surface("side36")->SetReflectivity(PndDrcOptReflNone());
+  //lens1.Surface("side41")->SetReflectivity(PndDrcOptReflNone());
+  //lens1.Surface("side46")->SetReflectivity(PndDrcOptReflNone());
+  //lens1.Surface("side51")->SetReflectivity(PndDrcOptReflNone());
+  //lens1.Surface("side56")->SetReflectivity(PndDrcOptReflNone());
   lens1.SetPrintColor(2);
   opt_system.AddDevice(lens1);
   //opt_system.CoupleDevice("air0","lens1","side1","side6");
@@ -247,7 +248,14 @@ int main(int argc, char *argv[])
 					      //-thick_air0
 					      -thick_lens1
 					      -thick_air1/2)));
-      air1.SetOptMaterial(PndDrcOptMatVacuum());
+      if (iopt==4)
+	{
+	  air1.SetOptMaterial(PndDrcOptMatLithotecQ0());
+	}
+      else
+	{
+	  air1.SetOptMaterial(PndDrcOptMatVacuum());
+	}
       air1.SetPrintColor(4);
       opt_system.AddDevice(air1);
       opt_system.CoupleDevice("lens1","air1","side1","side6");
@@ -257,14 +265,17 @@ int main(int argc, char *argv[])
   PndDrcOptLens lens2(bar_half_w,bar_half_h,
 			     thick_lens2/2,radius_lens2b,radius_lens2a,
 			     conical,conical);
-  lens2.Surface("side21")->SetReflectivity(PndDrcOptReflNone());
-  lens2.Surface("side26")->SetReflectivity(PndDrcOptReflNone());
-  lens2.Surface("side31")->SetReflectivity(PndDrcOptReflNone());
-  lens2.Surface("side36")->SetReflectivity(PndDrcOptReflNone());
-  lens2.Surface("side41")->SetReflectivity(PndDrcOptReflNone());
-  lens2.Surface("side46")->SetReflectivity(PndDrcOptReflNone());
-  lens2.Surface("side51")->SetReflectivity(PndDrcOptReflNone());
-  lens2.Surface("side56")->SetReflectivity(PndDrcOptReflNone());
+  if (iopt!=4)
+    {
+      lens2.Surface("side21")->SetReflectivity(PndDrcOptReflNone());
+      lens2.Surface("side26")->SetReflectivity(PndDrcOptReflNone());
+      lens2.Surface("side31")->SetReflectivity(PndDrcOptReflNone());
+      lens2.Surface("side36")->SetReflectivity(PndDrcOptReflNone());
+      lens2.Surface("side41")->SetReflectivity(PndDrcOptReflNone());
+      lens2.Surface("side46")->SetReflectivity(PndDrcOptReflNone());
+      lens2.Surface("side51")->SetReflectivity(PndDrcOptReflNone());
+      lens2.Surface("side56")->SetReflectivity(PndDrcOptReflNone());
+    }
   lens2.SetName("lens2");
   lens2.AddTransform(Transform3D(XYZVector(0,0,
 					   -400
@@ -272,7 +283,14 @@ int main(int argc, char *argv[])
 					   -thick_lens1
 					   -thick_air1
 					   -thick_lens2/2)));
-  lens2.SetOptMaterial(PndDrcOptMatNLAK33A());
+  if (iopt==4)
+    {
+      lens2.SetOptMaterial(PndDrcOptMatLithotecQ0());
+    }
+  else
+    {
+      lens2.SetOptMaterial(PndDrcOptMatNLAK33A());
+    }
   lens2.SetPrintColor(3);
   opt_system.AddDevice(lens2);
   if (l_air_gap)
@@ -296,22 +314,37 @@ int main(int argc, char *argv[])
 					  -thick_air1
 					  -thick_lens2
 					  -thick_air2/2)));
-  air2.SetOptMaterial(PndDrcOptMatVacuum());
+      if (iopt==4)
+	{
+	  air2.SetOptMaterial(PndDrcOptMatLithotecQ0());
+	}
+      else
+	{
+	  air2.SetOptMaterial(PndDrcOptMatVacuum());
+	}
   air2.SetPrintColor(1);
   opt_system.AddDevice(air2);
   opt_system.CoupleDevice("lens2","air2","side1","side6");
 
 
   PndDrcOptBrick box(dist_plane,dist_plane,dist_plane/2);
-  box.SetOptMaterial(PndDrcOptMatMarcol7());
+  if (iopt==4)
+    {
+      box.SetOptMaterial(PndDrcOptMatLithotecQ0());
+    }
+  else
+    {
+      box.SetOptMaterial(PndDrcOptMatMarcol7());
+    }
   box.SetName("box");
   box.Surface("side1")->SetPixel();
-  box.Surface("side1")->SetReflectivity(PndDrcOptReflNone());
-  box.Surface("side2")->SetReflectivity(PndDrcOptReflNone());
-  box.Surface("side3")->SetReflectivity(PndDrcOptReflNone());
-  box.Surface("side4")->SetReflectivity(PndDrcOptReflNone());
-  box.Surface("side5")->SetReflectivity(PndDrcOptReflNone());
-  
+  if (iopt!=4)
+    {
+      box.Surface("side2")->SetReflectivity(PndDrcOptReflNone());
+      box.Surface("side3")->SetReflectivity(PndDrcOptReflNone());
+      box.Surface("side4")->SetReflectivity(PndDrcOptReflNone());
+      box.Surface("side5")->SetReflectivity(PndDrcOptReflNone());
+    }
   
   box.AddTransform( Transform3D(XYZVector(0,0,
 					  -400
@@ -467,13 +500,20 @@ int main(int argc, char *argv[])
 	  list_photon.push_back(ph);
 	}
     }
+  else if (iopt==4)
+    {
+      XYZPoint  pos(0,-18,200);
+      XYZVector dir(0,sin(50*pi/180.),cos(50*pi/180.)); 
+      double   beta = 0.99;
+      manager->Cerenkov(pos,dir,beta); // generate photons
+    }
   
   
   // propagate writes to geo, that has finished, therefore, close geo
   
 
 
-  if (iopt!=2) 
+  if (iopt!=2 && iopt!=4) 
     {
       cout<<" list size = "<<list_photon.size()<<endl;
       manager->SetPhotonList(list_photon,"bar","optsys");
