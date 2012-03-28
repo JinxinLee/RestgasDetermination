@@ -5,6 +5,7 @@
 
 #include "PndTrackCandDraw.h"
 #include "FairHit.h"
+#include "FairBoxSet.h"
 //#include "TClonesArray.h"
 #include "TObjArray.h"
 #include "TEveManager.h"
@@ -64,7 +65,7 @@ InitStatus PndTrackCandDraw::Init()
 // -------------------------------------------------------------------------
 
 
-void PndTrackCandDraw::AddBoxes(TEveBoxSet* set, TObject* obj, Int_t i)
+void PndTrackCandDraw::AddBoxes(FairBoxSet* set, TObject* obj, Int_t i)
 {
 
 	if (0 == strcmp(obj->ClassName(), "GFTrackCand") || 0 == strcmp(obj->ClassName(), "PndLhePidTrack"))
@@ -74,7 +75,7 @@ void PndTrackCandDraw::AddBoxes(TEveBoxSet* set, TObject* obj, Int_t i)
 }
 
 
-void PndTrackCandDraw::AddBoxesTrackCand(TEveBoxSet* set, TObject* obj, Int_t i)
+void PndTrackCandDraw::AddBoxesTrackCand(FairBoxSet* set, TObject* obj, Int_t i)
 {
 	   GFTrackCand *tc;
 	   PndLhePidTrack *pidtc;
@@ -101,7 +102,7 @@ void PndTrackCandDraw::AddBoxesTrackCand(TEveBoxSet* set, TObject* obj, Int_t i)
 	      }
 }
 
-void PndTrackCandDraw::AddBoxesPndTrackCand(TEveBoxSet* set, TObject* obj, Int_t i)
+void PndTrackCandDraw::AddBoxesPndTrackCand(FairBoxSet* set, TObject* obj, Int_t i)
 {
 	PndTrackCand* pndtc = (PndTrackCand*)obj;
 	for (Int_t j = 0; j < pndtc->GetNHits(); j++){

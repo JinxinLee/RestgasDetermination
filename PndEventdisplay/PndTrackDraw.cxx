@@ -85,7 +85,7 @@ void PndTrackDraw::Exec(Option_t* option)
     Reset();
     fTrackCandDraw->Reset();
 
-    TEveBoxSet* myBoxSet = fTrackCandDraw->CreateBoxSet();
+    FairBoxSet* myBoxSet = fTrackCandDraw->CreateBoxSet();
 
     //fListOfTracks->DestroyElements();
     fListOfTracks = new TEveElementList("PndTracks","List of PndTracks");
@@ -157,7 +157,7 @@ void PndTrackDraw::Exec(Option_t* option)
         fListOfTracks->AddElement(arrowList);
 
     }
-    gEve->AddElement(myBoxSet, fEventManager);
+    gEve->AddElement((TEveBoxSet*)myBoxSet, fEventManager);
 
     for (Int_t i=0; i<fEveTrList->GetEntriesFast(); i++){
        TEveTrackList *TrListIn=( TEveTrackList *) fEveTrList->At(i);
