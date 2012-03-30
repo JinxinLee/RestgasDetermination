@@ -34,7 +34,7 @@
 
 // -----   Default constructor   -------------------------------------------
 PndSdsStripClusterTask::PndSdsStripClusterTask() :
-PndSdsTask("SDS Strip Clustertisation Task"), fEventNr(0)
+PndSdsTask("SDS Strip Clustertisation Task")
 {
   fChargeCut = 1.e8; // this reset dynamically
   fDigiParameterList = new TList();
@@ -52,7 +52,7 @@ PndSdsTask("SDS Strip Clustertisation Task"), fEventNr(0)
 
 // -----   Named constructor   -------------------------------------------
 PndSdsStripClusterTask::PndSdsStripClusterTask(const char* name) :
-PndSdsTask(name), fEventNr(0)
+PndSdsTask(name)
 {
   // TODO: fChargeCut in parameter database??
   fChargeCut = 1.e8; // this ist really large and shall have no effect
@@ -202,7 +202,6 @@ InitStatus PndSdsStripClusterTask::Init()
 // -----   Public method Exec   --------------------------------------------
 void PndSdsStripClusterTask::Exec(Option_t* opt)
 {
-	std::cout << "--------- Event " << fEventNr++ << " ----------" << std::endl;
   if (fVerbose > 2)
     std::cout<<" **Starting PndSdsStripClusterTask::Exec()**"<<std::endl;
   std::vector<PndSdsDigiStrip> digiStripArray;

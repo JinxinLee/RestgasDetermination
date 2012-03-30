@@ -88,7 +88,6 @@ class PndSdsStripClusterTask : public PndSdsTask
     
     TString fClustBranchName;
     Int_t fClusterType;
-    Int_t fEventNr;
     
     void Register();
     void Reset();
