@@ -71,6 +71,8 @@ class PndSdsStripClusterTask : public PndSdsTask
     
   protected:
     
+	TString fPath;
+
     Bool_t fPersistance; // switch to turn on/off storing the arrays to a file
     
     virtual void SetCalculators(); 
@@ -86,6 +88,7 @@ class PndSdsStripClusterTask : public PndSdsTask
     
     TString fClustBranchName;
     Int_t fClusterType;
+    Int_t fEventNr;
     
     void Register();
     void Reset();
@@ -124,6 +127,12 @@ class PndSdsStripClusterTask : public PndSdsTask
 
     ClassDef(PndSdsStripClusterTask,2);
     
+  private:
+
+    TH1F* eta_rect;
+    TH1F* eta_trap;
+    TFile* etahistofile;
+
   };
 
 #endif /* SDSCLUSTERTASK_H */
