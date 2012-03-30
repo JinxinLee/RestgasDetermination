@@ -38,6 +38,56 @@
 
 
 
+
+
+// definition of constants used in this class
+
+// integer constants
+
+#define MAXHITSINCELL		50
+#define MAXHITSINFIT		15
+#define MAXMVDMCPOINTS		2000
+#define MINIMUMHITSPERTRACK	3
+#define MINOUTERHITSPERTRACK	5
+#define TIMEOUT			60
+
+
+
+// floating point constants
+
+#define APOTEMAMAXINNERPARSTRAW	23.246827
+#define APOTEMAMAXSKEWSTRAW	31.517569 // delimitation of the skew area
+#define APOTEMAMINOUTERPARSTRAW	31.863369
+#define APOTEMAMINSKEWSTRAW	23.246827 // delimitation of the skew area
+#define BFIELD			2.  // in Tesla
+#define CVEL			2.99792  //  velocity of light
+#define DELTAnR			2.   //range of nR in TrkAssociatedParallelHitsToHelixquater
+#define DIAMETERSTRAWTUBE	1.
+#define DIMENSIONSCITIL		2.85 // cm
+#define ERRORPIXEL		0.02611
+#define ERRORSTRIP		0.02611
+#define ERRORSQPIXEL		0.00068175
+#define ERRORSQSTRIP		0.00068175
+#define PI			3.141592654
+#define PMAX			100.
+#define RSTRAWDETECTORMAX	40.73 // maximum radius of the Stt detector in  cm
+#define RSTRAWDETECTORMIN	16.119 // minimum radius of the Stt detector in  cm
+#define STRAWRADIUS		0.5
+#define STRAWRESOLUTION		0.015
+#define STRAW_SKEW_INCLINATION	3.
+#define STTDRIFTVEL		0.0025	//   in cm/nsec
+#define VERTICALGAP		4. // (cm) gap between Left and Right sections of detector.
+
+
+
+
+
+
+
+
+
+
+
 using namespace std;
 
 
@@ -122,45 +172,8 @@ PndTracking::~PndTracking() {
 void PndTracking::Initialization_ClassVariables()
 {
 // this is only for initializing the Class Variables.
+
 	size_t len;
-
-// first the various values used in the class.
-// the UShort_t values :
-
-	MAXHITSINCELL=50;
-	MAXHITSINFIT=15;
-	MAXMVDMCPOINTS = 2000;
-	MINIMUMHITSPERTRACK=3;
-	MINOUTERHITSPERTRACK=5;
-	TIMEOUT= 60;
-
-//  the Double_t values :
-
-	APOTEMAMAXINNERPARSTRAW = 23.246827;
-	APOTEMAMAXSKEWSTRAW = 31.517569; // delimitation of the skew area
-	APOTEMAMINOUTERPARSTRAW = 31.863369;
-	APOTEMAMINSKEWSTRAW = 23.246827; // delimitation of the skew area
-	BFIELD=2.;  // in Tesla
-	CVEL = 2.99792;  //  velocity of light
-	DELTAnR=2.;   //range of nR in TrkAssociatedParallelHitsToHelixquater
-	DIAMETERSTRAWTUBE=1.;
-	DIMENSIONSCITIL=2.85; // cm
-	ERRORPIXEL=0.02611;
-	ERRORSTRIP=0.02611;
-	ERRORSQPIXEL=0.00068175;
-	ERRORSQSTRIP=0.00068175;
-	PI = 3.141592654;
-	PMAX=100.;
-	RSTRAWDETECTORMAX = 40.73; // maximum radius of the Stt detector in  cm
-	RSTRAWDETECTORMIN = 16.119; // minimum radius of the Stt detector in  cm
-	STRAWRADIUS = 0.5;
-	STRAWRESOLUTION= 0.015;
-	STRAW_SKEW_INCLINATION_DEGREES=3.;
-	STTDRIFTVEL = 0.0025;	//   in cm/nsec
-	VERTICALGAP = 4.; // (cm) gap between Left and Right sections of detector.
-
-
-
 
 
 // booleans :
@@ -623,7 +636,6 @@ void PndTracking::Exec(Option_t* opt) {
 	nSkewHitsInMCTrack[MAXTRACKSPEREVENT],
 	nSpuriParinTrack[MAXTRACKSPEREVENT],
 	nSpuriSkewinTrack[MAXTRACKSPEREVENT],
-	nSttHitsinTrack[MAXTRACKSPEREVENT],
 	//  given a Hit number it gives its radial box number
 	RConformalIndex[MAXSTTHITS],
 	//  given a Hit number it gives its azimuthal box number
@@ -632,9 +644,6 @@ void PndTracking::Exec(Option_t* opt) {
 	tempore[MAXSTTHITS],
 	TemporarySkewList[2*MAXSTTHITS][2],
 	BigList[MAXTRACKSPEREVENT][MAXSTTHITSINTRACK],
-	ListHitsinTrack[MAXTRACKSPEREVENT][MAXSTTHITSINTRACK],
-	ListSttHitsinTrack[MAXTRACKSPEREVENT][MAXSTTHITSINTRACK],
-	ListSttHitsinTrackType[MAXTRACKSPEREVENT][MAXSTTHITSINTRACK],
 	MCParalAloneList[MAXTRACKSPEREVENT][MAXSTTHITSINTRACK],
 	MCSkewAloneList[MAXTRACKSPEREVENT][MAXSTTHITSINTRACK],
 	// nBoxConformal,  first index -> radial divisions,
@@ -665,7 +674,6 @@ void PndTracking::Exec(Option_t* opt) {
 
  UInt_t
 	iaccept,
-	nMvdMCPoint,
 	nSttHit,
 	nSttMCPoint,
 	nSttParHit,
@@ -718,8 +726,6 @@ void PndTracking::Exec(Option_t* opt) {
 	Oy[MAXTRACKSPEREVENT],
 	Posiz1[3],
 	primoangolo[MAXTRACKSPEREVENT],
-	Px[MAXTRACKSPEREVENT],
-	Py[MAXTRACKSPEREVENT],
 	R[MAXTRACKSPEREVENT],
 	s[2],
 	Sbis[2*MAXSTTHITSINTRACK+MAXMVDPIXELHITSINTRACK
@@ -802,26 +808,6 @@ void PndTracking::Exec(Option_t* opt) {
 
 //------------------------------------
 
-
-
-//----------   fetching the MC truth tracks
-	nMCTracks = fMCTrackArray->GetEntriesFast(); // num. tracce/evento
-	if (istampa > 1) {
-	     cout<<"da PndTracking  : evento (partendo da 0)  N. "<<
-	       IVOLTE<< "\n       N. di MC truth tracks  : "<<nMCTracks<<endl;
-	}
-	if (nMCTracks ==0){
-		cout<<"da PndTracking  :  N. di MC truth tracks = 0, return!\n"<<endl;
-		return;
-	} else if(nMCTracks> MAXMCTRACKS){
-		cout<<"da PndTracking  :  N. di MC truth tracks = "<<nMCTracks
-		<<" and it is > MAXMCTRACKS = "<<MAXMCTRACKS<<", setting it equal to MAXMCTRACKS.\n";
-		nMCTracks = MAXMCTRACKS;
-	}
-
-if(istampa>1) stampaMCTracks();
-
-
 // -------------------------------------  fetch info from MVD
 
  nMvdPixelHit = fMvdPixelHitArray->GetEntriesFast();
@@ -839,21 +825,6 @@ if(istampa>1) stampaMCTracks();
 	nMvdStripHit=MAXMVDSTRIPHITS;
  }
 
-// ---------------------------------------------  get MC Points of  MVD
-
-   nMvdMCPoint = fMvdMCPointArray->GetEntriesFast();
-   if(nMvdMCPoint>MAXMVDMCPOINTS) {
-	cout<<"from PndTracking, nMvdMCPoint = "<<nMvdMCPoint
-	<<" and it is > the maximum number allowed ("<<MAXMVDMCPOINTS<<
-	")"<<
-	", setting nMvdMCPoint to "<<MAXMVDMCPOINTS<<endl;
-	nMvdMCPoint=MAXMVDMCPOINTS;
-   }
-   if(istampa>2) cout<<"N. MC Points delle Mvd = "<<nMvdMCPoint<<endl;
-
-
-
-
 // ---------------------------------------------  extract info from HITS Pixel MVD
  for( i= 0; i< nMvdPixelHit; i++){
 	pMvdPixelHit = (PndSdsHit *) fMvdPixelHitArray->At(i);
@@ -866,8 +837,6 @@ if(istampa>1) stampaMCTracks();
 	sigmaZMvdPixel[i] = pMvdPixelHit->GetDz();
 	refindexMvdPixel[i] = pMvdPixelHit->GetRefIndex();
  }
-
-
 
 // -------------------------------------------  extract info from HITS Strip MVD
 
@@ -1071,6 +1040,10 @@ if(istampa>1) stampaMCTracks();
 	    }
 	 }  // end of for(j=0; j<nSciTilHits; j++)
 	 nSciTilHits=iaccept;
+
+	 //  set the inclusion list of the SciTils to true.
+	 memset(InclusionListSciTil,true,nSciTilHits);
+
 	}  // end of if( nSciTilHits>0){
 
 //-----------stampe.
@@ -1124,6 +1097,7 @@ if(istampa>0){
 	RConformalIndex,
 	FiConformalIndex
 			);
+
 
 //     start the track finding procedure
 
@@ -1255,7 +1229,7 @@ if(istampa>0){
 				HitsinBoxConformal,
 				nSttTrackCand,
 				nSttParHitsinTrack,
-				ListHitsinTrack,
+				ListSttParHitsinTrack,
 				trajectory_vertex,
 				infoparalConformal,
 				1.,	// dummy value, there is no SciTil info in this case;
@@ -1279,7 +1253,7 @@ if(istampa>0){
 // --------  here the track and its hits were found, filling the Inclusion list
 
  for(j=0; j<nSttParHitsinTrack[nSttTrackCand]; j++){
-   InclusionListStt[ListHitsinTrack[nSttTrackCand][j]] = false;
+   InclusionListStt[ListSttParHitsinTrack[nSttTrackCand][j]] = false;
  }
 //---------stampe.
 if(istampa>0){
@@ -1295,7 +1269,7 @@ if(istampa>0){
 	cout<<"\t\tora stampa hit || :\n";
 	for(j=0; j<nSttParHitsinTrack[nSttTrackCand]; j++){
 		cout<<"\t hit || n. "<<
-	  ListHitsinTrack[nSttTrackCand][j]<<endl;
+	  ListSttParHitsinTrack[nSttTrackCand][j]<<endl;
 	}
 }
 //-------fine stampe.
@@ -1334,12 +1308,11 @@ if(istampa>=2){
 //-----------------------
 //-----------------------
 
-/*    daquiparte
 
  bool
 	GoodSkewFit[MAXTRACKSPEREVENT],
-	keepit[nSttTrackCand];
-
+	keepit[MAXTRACKSPEREVENT];
+//	keepit[nSttTrackCand];
 
 
  for(i=0; i<nSttTrackCand;i++){
@@ -1545,6 +1518,7 @@ if(istampa>=2){
 //------------------------------------------------------  end of skew hits section
 
 
+
 // now the ordering the parallel and skew hits.
 
 
@@ -1568,7 +1542,6 @@ if(istampa>=2){
 				);
 
 
-//	if ( nSttSkewhitinTrack[i]==0) continue;
 
 
 if(istampa>=2) 
@@ -1590,6 +1563,10 @@ if(istampa>=2)
    }   //  end of     for(i=0; i<nSttTrackCand;i++)
 
 //-----------------------------------
+
+
+
+
 
 //--------------------- pezzo vecchio
 
@@ -1630,7 +1607,6 @@ if(istampa>=2)
 
 
 
-
 //---------------------   here call to the function that matches Mvd hits with Stt tracks
    delta=0.5; //  parameter of proximity for associating Mvd hits to Stt tracks
    highqualitycut=0.2; //  parameter of proximity for associating Mvd hits to Stt tracks
@@ -1657,153 +1633,24 @@ if(istampa>=2)
 
 //---------inizio stampe.
 if(istampa>=2&& IVOLTE<20){
-           cout<<"da PndTracking, dopo MatchMvd..2 :\n";
-	stampetta(nSttTrackCand,keepit);
+           cout<<"da PndTracking, dopo MatchMvd..2 : ";
+	stampetta(nTotalCandidates,keepit,Ox,Oy,R);
 }   //end of if(istampa>=0)
 //---------------------------------- fine stampe.
 
 //-----------------  end of section with match Mvd hits with Stt hits
 
-
 	for(  ncand= 0; ncand< nSttTrackCand; ncand++){
 
-		if(nMvdPixelHitsinTrack[ncand]+MAXMVDSTRIPHITSINTRACK==0){
+		if(nMvdPixelHitsinTrack[ncand]+
+			nMvdStripHitsinTrack[ncand]==0){
 
 		   Mvdhits[ncand]=false;
 		   ALFA[ncand]=-2.*Ox[ncand];
 		   BETA[ncand]=-2.*Oy[ncand];
 		   GAMMA[ncand]= Ox[ncand]*Ox[ncand]+Oy[ncand]*Oy[ncand]-R[ncand]*R[ncand];
-
-
-
-		   // just copy and go to the next track cand.
-		   int nbuoni, nparbuoni, nskewbuoni;
-		   for(j=0, nbuoni=0,nparbuoni=0, nskewbuoni=0;j<nSttHitsinTrack[ncand]; j++){
-			if(istampa>=2) cout<<"da PndTracking, IVOLTE = "<<
-					IVOLTE<<", ncand = "
-					<<ncand<<
-					" non rifittato perche' non ha Mvd hits associati;"
-					<<endl;
-
-			  if(ListSttHitsinTrackType[ncand][j]==3){ // skew stt.
-
-				k=ListSttHitsinTrack[ncand][j];
-				CalculateSandZ(
-					Ox[ncand],
-					Oy[ncand],
-					R[ncand],
-					k,
-					info,
-					WDX,
-					WDY,
-					WDZ,
-					s,
-					z,
-					zdrift,
-					zerror
-					);
-				if( z[0]<999998. && z[1]<999998.){
-
-					  dista0 = Dist_SZ(R[ncand],KAPPA[ncand],FI0[ncand],
-							z[0]+zdrift[0],s[0],&nrounds0);
-					  ddd = Dist_SZ(R[ncand],KAPPA[ncand],FI0[ncand],
-							z[0]-zdrift[0],s[0],&nrounds0);
-					  if( fabs(dista0)> fabs(ddd) ){
-					   dista0=ddd;
-					   zeta0 = z[0]-zdrift[0];
-					  } else {
-					   zeta0 = z[0]+zdrift[0];
-					  }
-
-					  dista1 = Dist_SZ(R[ncand],KAPPA[ncand],FI0[ncand],
-							z[1]+zdrift[1],s[1],&nrounds1);
-					  ddd = Dist_SZ(R[ncand],KAPPA[ncand],FI0[ncand],
-							z[1]-zdrift[1],s[1],&nrounds1);
-					  if( fabs(dista1)> fabs(ddd) ){
-					   dista1=ddd;
-					   zeta1 = z[1]-zdrift[1];
-					  } else {
-					   zeta1 = z[1]+zdrift[1];
-					  }
-					  if( fabs(dista1)<fabs(dista0)){
-						SchosenSkew[ncand][k]=s[1];
-						ZchosenSkew[ncand][k]=zeta1;
-					  }else{
-						SchosenSkew[ncand][k]=s[0];
-						ZchosenSkew[ncand][k]=zeta0;
-					  }
-					  ListTrackCandHit[ncand][nbuoni]=
-					  ListSttSkewHitsinTrack[ncand][nskewbuoni]=
-						ListSttHitsinTrack[ncand][j];
-					  ListTrackCandHitType[ncand][nbuoni]=
-						ListSttHitsinTrackType[ncand][j];
-					  
-					  nskewbuoni++;
-					  nbuoni++;
-
-				}else if( z[0]<999998.){
-
-					  dista = Dist_SZ(R[ncand],KAPPA[ncand],FI0[ncand],
-							z[0]+zdrift[0],s[0],&nrounds0);
-					  ddd = Dist_SZ(R[ncand],KAPPA[ncand],FI0[ncand],
-							z[0]-zdrift[0],s[0],&nrounds0);
-					  SchosenSkew[ncand][k]=s[0];
-					  if( fabs(dista)> fabs(ddd) ){
-					   ZchosenSkew[ncand][k]=z[0]-zdrift[0];
-					  } else {
-					   ZchosenSkew[ncand][k]=z[0]+zdrift[0];
-					  }
-					  ListTrackCandHit[ncand][nbuoni]=
-					  ListSttSkewHitsinTrack[ncand][nskewbuoni]=
-						ListSttHitsinTrack[ncand][j];
-					  ListTrackCandHitType[ncand][nbuoni]=
-						ListSttHitsinTrackType[ncand][j];
-					  nskewbuoni++;
-					  nbuoni++;
-				} else if( z[1]<999998.){
-
-					  dista = Dist_SZ(R[ncand],KAPPA[ncand],FI0[ncand]
-							,z[1]+zdrift[1],s[1],&nrounds0);
-					  ddd = Dist_SZ(R[ncand],KAPPA[ncand],FI0[ncand],
-							z[1]-zdrift[1],s[1],&nrounds1);
-					  SchosenSkew[ncand][k]=s[1];
-
-					  if( fabs(dista)> fabs(ddd) ){
-					   ZchosenSkew[ncand][k]=z[1]-zdrift[1];
-					  } else {
-					   ZchosenSkew[ncand][k]=z[1]+zdrift[1];
-					  }
-					  ListTrackCandHit[ncand][nbuoni]=
-					  ListSttSkewHitsinTrack[ncand][nskewbuoni]=
-						ListSttHitsinTrack[ncand][j];
-					  ListTrackCandHitType[ncand][nbuoni]=
-						ListSttHitsinTrackType[ncand][j];
-					  nskewbuoni++;
-					  nbuoni++;
-
-				} // end of  if( z[0]<999998. && z[1]<999998.)
-
-			  } else { // continuation of  if(ListSttHitsinTrackType[ncand][j]==3)
-				// so, here it must be a parallel hit.
-					  ListTrackCandHit[ncand][nbuoni]=
-					  ListSttParHitsinTrack[ncand][nparbuoni]=
-						ListSttHitsinTrack[ncand][j];
-					  ListTrackCandHitType[ncand][nbuoni]=
-						ListSttHitsinTrackType[ncand][j];
-					  nparbuoni++;
-					  nbuoni++;
-			  }  // end of  if(ListSttHitsinTrackType[ncand][j]==3)
-
-			} // end of  for(j=0; j<nSttHitsinTrack[i]; j++)
-			nSttHitsinTrack[ncand]=nbuoni;
-			nSttParHitsinTrack[ncand]=nparbuoni;
-			nSttSkewHitsinTrack[ncand]=nskewbuoni;
-			nTrackCandHit[ncand]=nbuoni;
-			nMvdPixelHitsinTrack[ncand]=0;
-			nMvdStripHitsinTrack[ncand]=0;
-
 		   continue;
-		} // end of if(nMvdPixelHitsinTrack[ncand]+....
+		} // end of  if(nMvdPixelHitsinTrack[ncand]+
 
 
 		if( nMvdPixelHitsinTrack[ncand] > MAXMVDPIXELHITSINTRACK){
@@ -1837,7 +1684,8 @@ if(istampa>=2&& IVOLTE<20){
 
 	// arrays used to store temporarily the info of Mvd hits to be ordered.
 
-		nTrackCandHit[ncand] =nSttHitsinTrack[ncand]+
+		nTrackCandHit[ncand] =nSttParHitsinTrack[ncand]+
+					nSttParHitsinTrack[ncand]+
 					nMvdPixelHitsinTrack[ncand]+
 					nMvdStripHitsinTrack[ncand];
 		// adding the Mvd hits (Pixel and Strips)
@@ -1883,20 +1731,31 @@ if(istampa>=2&& IVOLTE<20){
 			}  // end of  for(i=0; i< nMvdPixelHitsinTrack[ncand]+
 
 
-		for(i=0; i<nSttHitsinTrack[ncand]; i++){
+
+		for(i=0; i<nSttParHitsinTrack[ncand]+
+			nSttSkewHitsinTrack[ncand];i++){
 			ListTrackCandHit[ncand][i+
 				nMvdPixelHitsinTrack[ncand]+
 				nMvdStripHitsinTrack[ncand]
-					] = ListSttHitsinTrack[ncand][i];
-			ListTrackCandHitType[ncand][i+
+					] = BigList[ncand][i];
+			if( info[BigList[ncand][i]][5] < 2.){
+				// parallel Stt hit.
+				ListTrackCandHitType[ncand][i+
 				nMvdPixelHitsinTrack[ncand]+
 				nMvdStripHitsinTrack[ncand]
-					] = ListSttHitsinTrackType[ncand][i];
+					] = 2;
+			} else {
+				ListTrackCandHitType[ncand][i+
+				nMvdPixelHitsinTrack[ncand]+
+				nMvdStripHitsinTrack[ncand]
+					] = 3;
+			}
 		}
 
 
-
 	} //   end of  for(ncand=0; ncand< nTotalCandidates; ncand++)
+
+
 
 
 //-------------------- end of ordering
@@ -1904,7 +1763,7 @@ if(istampa>=2&& IVOLTE<20){
 //---------inizio stampe.
 if(istampa>=2&& IVOLTE<20){
            cout<<"da PndTracking, dopo riordinamento :\n";
-	stampetta(nSttTrackCand,keepit);
+	stampetta(nTotalCandidates,keepit,Ox,Oy,R);
 
 
 }   //end of if(istampa>=0)
@@ -1927,9 +1786,13 @@ if(istampa>=2&& IVOLTE<20){
 	if( !Mvdhits[ncand]) continue;
 
 
-	rotationangle= atan2( Py[ncand], Px[ncand]);	// Py/Px = m in
-								//  v = m*u + q formula
+	//   Py/Px = m in    v = m*u + q formula
+	rotationangle= atan2( Charge[ncand]*Ox[ncand],-Charge[ncand]*Oy[ncand]);	// Py/Px = m in
 	if( rotationangle<0. ) rotationangle += 2.*PI;
+
+cout<<"cazzo1, Oy[ncand] "<<Oy[ncand] <<", Ox[ncand] "<<Ox[ncand]
+<<", Charge "<<Charge[ncand]<<endl;
+cout<<"cazzo1,\t  rotationangle "<<rotationangle<<", nTrackCandHit[ncand] "<< nTrackCandHit[ncand]<<endl;
 
 //---------- translation of the reference system in the best Mvd hit position
 
@@ -1978,6 +1841,8 @@ if(istampa>=2&& IVOLTE<20){
 		iexcl=-1;
 	}
 
+cout<<"cazzo2, tv[0] "<< trajectory_vertex[0]<<", tvY "<<trajectory_vertex[1]<<endl;
+
 	RefitMvdStt(
 			nTrackCandHit[ncand], //this is  input
 			&ListTrackCandHit[ncand][0],//this is both input and output
@@ -2011,9 +1876,9 @@ if(istampa>=2&& IVOLTE<20){
 //--------------
 
 //---------inizio stampe.
-if(istampa>=2&& IVOLTE<20){
+if(istampa>=2){
 	cout<<"da PndTracking, dopo XY Refit :\n";
-	stampetta(nSttTrackCand,keepit);
+	stampetta(nTotalCandidates,keepit,Ox,Oy,R);
 }   //end of if(istampa>=0)
 //---------------------------------- fine stampe.
 
@@ -2025,7 +1890,12 @@ if(istampa>=2&& IVOLTE<20){
 //  XY refit.
 
 	for(i=0, iaccept=0;i<nSciTilHitsinTrack[ncand];i++){
-
+cout<<"cazzo, evt "<<IVOLTE<<", ncad "<<ncand<<", nSciTilHitsinTrack[]="<<
+	nSciTilHitsinTrack[ncand]<<", i="<<i<<", ListSciTilHitsinTrack[]["<<i<<"]="
+	<<ListSciTilHitsinTrack[ncand][i]<<"\nposizSciTilX="<<
+	posizSciTil[ListSciTilHitsinTrack[ncand][i]][0]<<", posizSciTilY="<<
+	posizSciTil[ListSciTilHitsinTrack[ncand][i]][1]<<", Ox[ncand] "<<
+	Ox[ncand]<<", Oy[ncand] "<<Oy[ncand]<<", R[ncand] "<<R[ncand]<<endl;
 		intersect=IntersectionSciTil_Circle(
 			posizSciTil[ListSciTilHitsinTrack[ncand][i]][0],
 			posizSciTil[ListSciTilHitsinTrack[ncand][i]][1],
@@ -2056,14 +1926,24 @@ if(istampa>=2&& IVOLTE<20){
 			iaccept++;
 		}   //  end of  if(intersect)
 
-	} // end of  for(i=0;i<nSciTilHitsinTrack[ncand];i++)
+	} // end of  for(i=0, iaccept=0;i<nSciTilHitsinTrack[ncand];i++)
+
+
+//---------inizio stampe.
+if(istampa>=2){
+	cout<<"da PndTracking, in mezzo;  Scitilintrack ora="
+	<< nSciTilHitsinTrack[ncand]<<", ma dopo sara' = "<<iaccept<<", :\n";
+	stampetta(nTotalCandidates,keepit,Ox,Oy,R);
+}   //end of if(istampa>=0)
+//---------------------------------- fine stampe.
 
 	nSciTilHitsinTrack[ncand]=iaccept;
+
+
 
 // finding again the Charge of the track (the last fit may have changed the concavity of the track).
 
 // first load again the (now ordered) X and Y position of the hits.
-
 
 	for(i=0;i<nMvdPixelHitsinTrack[ncand]+nMvdStripHitsinTrack[ncand];i++){
 		// these are not ordered, but for charge finding ordering is not
@@ -2083,6 +1963,12 @@ if(istampa>=2&& IVOLTE<20){
 		Y[j]=posizSciTil[ ListSciTilHitsinTrack[ncand][i] ][1];
 	}
 
+//---------inizio stampe.
+if(istampa>=2){
+	cout<<"da PndTracking, prima di FindCharge (again) :\n";
+	stampetta(nTotalCandidates,keepit,Ox,Oy,R);
+}   //end of if(istampa>=0)
+//---------------------------------- fine stampe.
 	FindCharge(
 		Ox[ncand],
 		Oy[ncand],
@@ -2095,6 +1981,12 @@ if(istampa>=2&& IVOLTE<20){
 
 //------------------------------
 
+//---------inizio stampe.
+if(istampa>=2){
+	cout<<"da PndTracking, dopo di FindCharge (again) :\n";
+	stampetta(nTotalCandidates,keepit,Ox,Oy,R);
+}   //end of if(istampa>=0)
+//---------------------------------- fine stampe.
 
 	//   finding the FI angular range (in the laboratory frame) spanned by this parallel track
 	//   taking into account the Rmax and Rmin of the straw detector. The track NOT NECESSARILY
@@ -2124,6 +2016,12 @@ if(istampa>=2&& IVOLTE<20){
 	if( statusflag[ncand] == -1 ) Fi_low_limit[ncand] = -99999.;
 	if( statusflag[ncand] == -2) keepit[ncand] = false;
 
+//---------inizio stampe.
+if(istampa>=2){
+	cout<<"da PndTracking, dopo di FindingParallelTrackAngularRange :\n";
+	stampetta(nTotalCandidates,keepit,Ox,Oy,R);
+}   //end of if(istampa>=0)
+//---------------------------------- fine stampe.
 
 	}	// end of for(ncand=0; ncand< nTotalCandidates; ncand++)
 
@@ -2138,6 +2036,10 @@ if(istampa>=2&& IVOLTE<20){
 //   highqualitycut=0.3; //  parameter of proximity for associating Mvd hits to Stt tracks
    highqualitycut=0.5; //  parameter of proximity for associating Mvd hits to Stt tracks
 
+ if(istampa>=2){
+	cout<<"\n\nda PndTracking, prima MatchMvdHitsToSttTracksagain :"<<endl;
+		stampetta(nTotalCandidates,keepit,Ox,Oy,R);
+ }
 
    MatchMvdHitsToSttTracksagain(
 			keepit,
@@ -2160,7 +2062,7 @@ if(istampa>=2&& IVOLTE<20){
 
  if(istampa>=2){
 	cout<<"\n\nda PndTracking, dopo MatchMvdHitsToSttTracksagain :"<<endl;
-		stampetta(nSttTrackCand,keepit);
+		stampetta(nTotalCandidates,keepit,Ox,Oy,R);
  }
 
 
@@ -2168,6 +2070,7 @@ if(istampa>=2&& IVOLTE<20){
 //---------------------   %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 // use the risult just obtained from the fit in XY to redo the association of the Skew Straw hits
+
 
   for(ncand=0; ncand< nTotalCandidates; ncand++)
   {
@@ -2222,7 +2125,7 @@ if(istampa>=2&& IVOLTE<20){
 
  if(istampa>=2){
 	cout<<"\n\nda PndTracking, dopo AssociateSkewHitsToXYTrack :"<<endl;
-		stampetta(nSttTrackCand,keepit);
+		stampetta(nTotalCandidates,keepit,Ox,Oy,R);
  }
 
 //-------------------------------------------  %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -2314,18 +2217,17 @@ if(istampa>=2&& IVOLTE<20){
 			nMvdStripHitsinTrack[ncand]+j;
 		i = nMvdPixelHitsinTrack[ncand]+nMvdStripHitsinTrack[ncand]+
 			nSciTilHitsinTrack[ncand] +j ;
-
-
 		// calculate the quantities used for the SZ fit only.
 		if(i<nhitsinfit){
 			S[i] = TemporaryS[j];
 			ZED[i]=TemporaryZ[j];
+			DriftRadius[i]=TemporaryZDrift[j];
 			ErrorDriftRadius[i]=2.*TemporaryZDrift[j];
 		}
 		//-----------
 		ZEDbis[kall]=TemporaryZ[j];
 		Sbis[kall]= TemporaryS[j];
-		DriftRadiusbis[kall]=DriftRadius[i]=TemporaryZDrift[j];
+		DriftRadiusbis[kall]=TemporaryZDrift[j];
 		// overestimate the error on the Drift Radius used in the SZ  fit.
 		if( fabs(TemporaryZDrift[j]) >1.e-10) {
 		   ErrorDriftRadiusbis[kall]=TemporaryZErrorafterTilt[j];
@@ -2364,7 +2266,7 @@ if(istampa>=2&& IVOLTE<20){
 	for(int iz=0;iz<nhitsinfit;iz++){
 		cout<<"\tS = "<<S[iz]<<", Z "<<ZED[iz]<<endl;
 	}
-		stampetta(nSttTrackCand,keepit);
+		stampetta(nTotalCandidates,keepit,Ox,Oy,R);
 
 
  }
@@ -2391,7 +2293,7 @@ if(istampa>=2&& IVOLTE<20){
  if(istampa>=2){
 	cout<<"\n\nda PndTracking, dopo FitSZspace :"<<endl;
 	cout<<"\tKAPPA = "<<KAPPA[ncand]<<endl;
-		stampetta(nSttTrackCand,keepit);
+		stampetta(nTotalCandidates,keepit,Ox,Oy,R);
  }
 
 
@@ -2457,7 +2359,7 @@ if(istampa>=2&& IVOLTE<20){
 
  if(istampa>=2){
 	cout<<"\n\nda PndTracking, dopo EliminatespuriousSZ :"<<endl;
-		stampetta(nSttTrackCand,keepit);
+		stampetta(nTotalCandidates,keepit,Ox,Oy,R);
  }
 
 
@@ -2482,7 +2384,7 @@ if(istampa>=2&& IVOLTE<20){
 	 if(istampa>=2){
 	cout<<"\n\nda PndTracking, dopo isintargetpipe (Ox="<<Ox[ncand]
 	<<", Oy="<<Oy[ncand]<<", R= "<<R[ncand]<<" :"<<endl;
-		stampetta(nSttTrackCand,keepit);
+		stampetta(nTotalCandidates,keepit,Ox,Oy,R);
 
 	 }
  }  // end of  (YesCleanMvd)
@@ -2498,7 +2400,7 @@ if(istampa>=2&& IVOLTE<20){
 //---------inizio stampe.
 if(istampa>=2&& IVOLTE<20){
            cout<<"da PndTracking, prima di CollectParSttHitsagain :\n";
-		stampetta(nSttTrackCand,keepit);
+		stampetta(nTotalCandidates,keepit,Ox,Oy,R);
 
 }   //end of if(istampa>=0)
 //---------------------------------- fine stampe.
@@ -2524,7 +2426,7 @@ if(istampa>=2&& IVOLTE<20){
 //---------inizio stampe.
 if(istampa>=2&& IVOLTE<20){
            cout<<"da PndTracking, dopo CollectParSttHitsagain :\n";
-		stampetta(nSttTrackCand,keepit);
+		stampetta(nTotalCandidates,keepit,Ox,Oy,R);
 
 }   //end of if(istampa>=0)
 //---------------------------------- fine stampe.
@@ -2550,6 +2452,8 @@ if(istampa>=2&& IVOLTE<20){
 
 	// adding at the end the SciTil hits (if present).
 
+
+
 	for(ncand=0; ncand< nTotalCandidates; ncand++){
 		i=nMvdPixelHitsinTrack[ncand]+nMvdStripHitsinTrack[ncand]+
 			nSttParHitsinTrack[ncand]+nSttSkewHitsinTrack[ncand];
@@ -2559,7 +2463,7 @@ if(istampa>=2&& IVOLTE<20){
 		}
 	}  // end of for(ncand=0; ncand< nTotalCandidates; ncand++)
 
-  }  // end of if(nMvdPixelHit+nMvdStripHit==0)
+  }  // end of if(nMvdPixelHit+nMvdStripHit>0)
 
 //------------- cleanup section.
 
@@ -2584,7 +2488,7 @@ if(istampa>=2&&IVOLTE<20){
 cout<<"\n------------------------------------------------\n"
 <<"\tIVOLTE = "<<IVOLTE<<", cand n. "<<ncand<<", prima di TrackCleanup :\n";
 
-	stampetta(nSttTrackCand,keepit);
+	stampetta(nTotalCandidates,keepit,Ox,Oy,R);
 }
 //-------------------------fine stampaggi.
 
@@ -2625,6 +2529,7 @@ if(istampa>1) cout<<"PndTracking, entra in TrackCleanup tracce normali, IVOLTE "
     }	//  end of for(ncand=0; ncand< nTotalCandidates; ncand++)
 
 //------------- end of cleanup section.
+
 
 
 //---------------------------------------------------------------------------------------
@@ -3153,18 +3058,19 @@ if(istampa>1){ cout<<"PndTracking, entra in TrackCleanup tracce Mvd, IVOLTE "<<I
 		keepit[ncand]=false;
 	}  // end of if ( !TrackCleanup
 
-     } // end of   for(ncand=nSttTrackCand; ncand< nTotalCandidates; ncand++)
-if(istampa>1){ cout<<"\tPndTracking, uscito da TrackCleanup tracce Mvd, keepit = ";
-	if(keepit[ncand]) cout<<" true!\n"; else  cout<<" false!\n";
+if(istampa>1){ cout<<"\tPndTracking, uscito da TrackCleanup tracce Mvd, keepit = "
+	<<keepit[ncand]<<endl;
 }
 
+
+     } // end of   for(ncand=nSttTrackCand; ncand< nTotalCandidates; ncand++)
   }  // end of if(YesClean)
 
 //-----------  end of cleanup of new tracks found.
 
 
 
-	} // end of  if(MvdAloneTracking)
+	} // end of  if(MvdAloneTracking && nMvdPixelHit+nMvdStripHit>0)
 
 
 
@@ -3173,787 +3079,15 @@ if(istampa>1){ cout<<"\tPndTracking, uscito da TrackCleanup tracce Mvd, keepit =
 // -------------------------------------------------------------------------------------
 // -------------------------------------------------------------------------------------
 
-
-// skipping: ;
-
 //----------stampaggi
 if(istampa>=2){
-cout<<"Evt. n. "<<IVOLTE<<",fine del trackfinding; n. Track Cand totali = "<<nTotalCandidates<<endl;
 
-for(int it=0; it<nTotalCandidates;it++){
-cout<<"-------------------\n";
-cout<<"Evt. n. "<<IVOLTE<<",  Track Cand n. "<<it<<", keepit = "<<keepit[it];
-cout<<"\n\t nMvdPixelHitsinTrack "<<nMvdPixelHitsinTrack[it]
-	<<" e loro elenco :\n"<<endl;
-for(l =0;l<nMvdPixelHitsinTrack[it];l++){
-	cout<<"\tMvd Pixel hit n. "<<ListMvdPixelHitsinTrack[it][l]<<endl;
-};
-cout<<"\n\t nMvdStripHitsinTrack "<<nMvdStripHitsinTrack[it]
-	<<" e loro elenco :\n"<<endl;
-for(l =0;l<nMvdStripHitsinTrack[it];l++){
-	cout<<"\tMvd Strip hit n. "<<ListMvdStripHitsinTrack[it][l]<<endl;
-};
-cout<<"\n\t nSttParHitsinTrack "<<nSttParHitsinTrack[it]<<" e loro elenco :\n"<<endl;
-for(l =0;l<nSttParHitsinTrack[it];l++){
-	cout<<"\tstt hit || n. "<<ListSttParHitsinTrack[it][l]<<endl;
-};
-cout<<"\n\t nSttSkewHitsinTrack "<<nSttSkewHitsinTrack[it]<<" e loro elenco :\n"<<endl;
-for(l =0;l<nSttSkewHitsinTrack[it];l++){
-	cout<<"\tstt hit skew n. "<<ListSttSkewHitsinTrack[it][l]<<endl;
-};
-cout<<"\n\t nSciTilHitsinTrack "<<nSciTilHitsinTrack[it]<<" e loro elenco :\n"<<endl;
-if(nSciTilHitsinTrack[it]>0){
-	cout<<"\tscitil hit n. "<<ListSciTilHitsinTrack[it][0]<<endl;
-};
-
-cout<<"\tand now the list of hits as it is in ListTrackCandHit :\n";
-for(l =0;l<nSttSkewHitsinTrack[it]+nSttParHitsinTrack[it]+nMvdStripHitsinTrack[it]
-	+nMvdPixelHitsinTrack[it]+nSciTilHitsinTrack[it];l++){
-	cout<<"\tstt hit n. "<<ListTrackCandHit[it][l]<<
-	", hit type = "<< ListTrackCandHitType[it][l]<<endl;
-};
-cout<<"-------------------\n";
-
-}
+	stampafinale(
+	nTotalCandidates,
+	keepit
+	);
 }
 //----- end stampaggi
-
-
-
-//------------ section with comparison MC Mvd hits - associated hits to a certain track
-
-//--------------------  comparison of the PndTrackCand from PR of the STT to the MC truth
-//    associate the tracks found with Pattern Recognition to the MC tracks
-
-
-
-//  the following method associates the Mvd hits to corresponding MC tracks
-
-   Int_t	FromPixeltoMCTrack[nMvdPixelHit],
-		FromStriptoMCTrack[nMvdStripHit];
-
-  if( doMcComparison){
-	MvdMatchtoMC(
-		nMvdMCPoint,
-		FromPixeltoMCTrack,	// output
-		FromStriptoMCTrack	// output
-		);
-  }
-
-//------------------------------------------------------------------------------------
-
-
-//  this section associates the found tracks  to the
-//  MC tracks, creating a bilinear correspondence between MC tracks and PR Found tracks
-
-	UShort_t	nMvdPixelCommon[nTotalCandidates],
-			MvdPixelCommonList[nTotalCandidates][nMvdPixelHit],
-			nMvdPixelSpuriinTrack[nTotalCandidates],
-			MvdPixelSpuriList[nTotalCandidates][nMvdPixelHit],
-			nMCMvdPixelAlone[nTotalCandidates],
-			MCMvdPixelAloneList[nTotalCandidates][nMvdPixelHit],
-
-			nMvdStripCommon[nTotalCandidates],
-			MvdStripCommonList[nTotalCandidates][nMvdStripHit],
-			nMvdStripSpuriinTrack[nTotalCandidates],
-			MvdStripSpuriList[nTotalCandidates][nMvdStripHit],
-			nMCMvdStripAlone[nTotalCandidates],
-			MCMvdStripAloneList[nTotalCandidates][nMvdStripHit];
-
-
-   if( nMCTracks >0 && nTotalCandidates > 0 && doMcComparison ){
-
-
-	int nmid,nn;
-
-	Double_t X1[MAXTRACKSPEREVENT],
-		 Y1[MAXTRACKSPEREVENT],
-		 X2[MAXTRACKSPEREVENT],
-		 Y2[MAXTRACKSPEREVENT],
-		 X3[MAXTRACKSPEREVENT],
-		 Y3[MAXTRACKSPEREVENT];
-	
-	for(i=0; i<nTotalCandidates;i++){
-		if(!keepit[i]) continue;
-
-		nn = nSttParHitsinTrack[i]+nSttSkewHitsinTrack[i]+
-			nMvdPixelHitsinTrack[i]+nMvdStripHitsinTrack[i];
-		// the first point on trajectory is point closest approach to (0,0)
-		X1[i] = Ox[i] + R[i]*cos( FI0[i]);
-		Y1[i] = Oy[i] + R[i]*sin( FI0[i]);
-
-
-		//  the third point on trajectory is given by the last hit
-
-			switch ( ListTrackCandHitType[i][nn-1]){
-			case 0 :	// Pixel
-				X3[i] = XMvdPixel[ ListTrackCandHit[i][nn-1] ] ;
-				Y3[i] = YMvdPixel[ ListTrackCandHit[i][nn-1] ] ;
-			break;
-			case 1 :	// Strip
-				X3[i] = XMvdStrip[ ListTrackCandHit[i][nn-1] ] ;
-				Y3[i] = YMvdStrip[ ListTrackCandHit[i][nn-1] ] ;
-			break;
-			case 2 :	// Straw parallel
-				X3[i] = info[ ListTrackCandHit[i][nn-1] ][0] ;
-				Y3[i] = info[ ListTrackCandHit[i][nn-1] ][1] ;
-			break;
-			case 3 :	// Straw skew
-				X3[i] = info[ ListTrackCandHit[i][nn-1] ][0] ;
-				Y3[i] = info[ ListTrackCandHit[i][nn-1] ][1] ;
-			break;
-			};
-
-
-		//  the 2nd point on the trajectory is given by the middle between
-		//  first and third point.
-
-		Double_t angle, middle;
-		angle = atan2(Y3[i]-Oy[i], X3[i]-Ox[i]);
-		if(angle <0.) angle+= 2.*PI;
-		if(angle <0.) angle = 0.;
-
-		if( Charge[i]>0 ){ //  clockwise.
-			if( FI0[i] < angle ) angle -= 2.*PI;
-			if( FI0[i] < angle ) angle =0.;
-		} else{  // counterclockwise.
-			if( FI0[i] > angle ) angle += 2.*PI;
-			if( FI0[i] > angle ) angle = FI0[i];
-		}
-			middle = (FI0[i]+angle)/2.;
-
-		X2[i] = Ox[i] + R[i]*cos( middle );
-		Y2[i] = Oy[i] + R[i]*sin( middle );
-
-
-	}	// end of  for(i=0; i<nTotalCandidates;i++)
-
-	AssociateFoundTrackstoMCquater(
-		keepit,
-		  info,
-		  Ox,
-		  Oy,
-		  R,
-		  X1,
-		  Y1,
-		  X2,
-		  Y2,
-		  X3,
-		  Y3,
-                  nTotalCandidates,
-                  nSttParHitsinTrack,
-                  ListSttParHitsinTrack,
-                  nSttSkewHitsinTrack,
-                  ListSttSkewHitsinTrack,
-
-		nMvdPixelHitsinTrack,
-		ListMvdPixelHitsinTrack,
-		FromPixeltoMCTrack,
-		nMvdStripHitsinTrack,
-		ListMvdStripHitsinTrack,
-		FromStriptoMCTrack,
-
-                  daTrackFoundaTrackMC
-                                   );
-
-
-
-if(istampa>=2){
-//	for(i=0;i<nSttTrackCand;i++){
-	for(i=0;i<nTotalCandidates;i++){
-		cout<<"from PndTracking : Track candidate n. "<<i;
-		if(keepit[i]){
-		  cout<<"  associated to MC Track n. "<<daTrackFoundaTrackMC[i]<<endl;
-		} else {
-		  cout<<"  has keepit  false!\n";
-		}
-	}
-}
-
-//  the following method counts the matched to MC and spurious hits for all STT  Found tracks and
-//  also the ghost tracks
-   SttMatchedSpurious(
-			keepit,
-			nSttHit,
-			info,
-			nTotalCandidates,
-			nSttParHitsinTrack, // n. hits paralleli, dal PR
-			ListSttParHitsinTrack, // dal PR
-			nSttSkewHitsinTrack, // n. hits skew, dal PR
-			ListSttSkewHitsinTrack, // dal PR
-
-			nParalCommon,
-                        ParalCommonList,
-                        nSpuriParinTrack,
-                        ParSpuriList,
-
-			nSkewCommon,
-                        SkewCommonList,
-                        nSpuriSkewinTrack,
-                        SkewSpuriList,
-
-                        nHitsInMCTrack,
-                        nSkewHitsInMCTrack,
-
-			nMCParalAlone,
-                        MCParalAloneList,
-			nMCSkewAlone,
-                        MCSkewAloneList,
-
-			daTrackFoundaTrackMC
-			);
-
-
-//--------------------  end comparison of the PndTrackCand from PR of the STT to the MC truth
-
-
-//	assumo che la traccia MC associata alla traccia trovata dal Pattern Recognition
-//	sia quella giusta e di
-//	conseguenza calcolo gli hits Mvd spuri e comuni
-
-
-   MvdMatchedSpurioustoTrackCand(
-			nTotalCandidates,		// input
-			keepit,				// input
-			&daTrackFoundaTrackMC[0],	// input
-
-			&FromPixeltoMCTrack[0],		// input
-			&FromStriptoMCTrack[0],		// input
-
-			&nMvdPixelHitsinTrack[0],	// input
-			ListMvdPixelHitsinTrack,	// input
-			&nMvdStripHitsinTrack[0],	// input
-			ListMvdStripHitsinTrack,	// input
-
-			&nMvdPixelCommon[0],		// output
-			&MvdPixelCommonList[0][0],	// output
-			&nMvdPixelSpuriinTrack[0],	// output
-			&MvdPixelSpuriList[0][0],	// output
-			&nMCMvdPixelAlone[0],		// output
-			&MCMvdPixelAloneList[0][0],	// output
-
-			&nMvdStripCommon[0],		// output
-			&MvdStripCommonList[0][0],	// output
-			&nMvdStripSpuriinTrack[0],	// output
-			&MvdStripSpuriList[0][0],	// output
-			&nMCMvdStripAlone[0],		// output
-			&MCMvdStripAloneList[0][0]	// output
-			);
-
-
-
-//---------- inizio stampaggi
-if(istampa>=3){
-
-//     for(ncand=0; ncand< nSttTrackCand; ncand++){
-	 int nbuone=-1;
-     for(ncand=0; ncand< nTotalCandidates; ncand++){
-	if(!keepit[ncand]) continue;
-	nbuone++;
-//----------------- ora la traccia MC corrispondente a questa traccia Stt
-//		cout<<"\n\nda PndTracking : la PndTrackCand n. "<<ncand;
-		cout<<"\n\nda PndTracking, evt. "<<IVOLTE
-		<<": la PndTrackCand n. "<<nbuone;
-       if(daTrackFoundaTrackMC[ncand] >-1 ) {
-
-		Int_t icode, im;
-		Double_t aaa,Rr, Dd, Fifi, Oxx, Oyy, Cx, Cy, Pxx, Pyy, carica  ;
-		PndMCTrack* pMC;
-		im=daTrackFoundaTrackMC[ncand];
-		pMC = (PndMCTrack*) fMCTrackArray->At(im);
-	   if ( pMC ) {
-         	icode  = pMC->GetPdgCode() ;    //   PDG code of track
-         	Oxx = pMC->GetStartVertex().X();    //   X of starting point track
-         	Oyy = pMC->GetStartVertex().Y();    //   Y of starting point track
-         	Pxx = pMC->GetMomentum().X();
-         	Pyy = pMC->GetMomentum().Y();
-         	aaa = sqrt( Pxx*Pxx + Pyy*Pyy);
-         	Rr =   aaa*1000./(BFIELD*CVEL);    //   R (cm) of Helix of track projected in XY plane; B = 2 Tesla
-         	TDatabasePDG *fdbPDG= TDatabasePDG::Instance();
-         	TParticlePDG *fParticle= fdbPDG->GetParticle(icode);
-       		if (icode>1000000000) carica = 1.;
-       		else  carica = fParticle->Charge()/3. ;    //   charge of track
-		if(fabs(carica)<1.e-5) {
-			cout<<"...associata ad una traccia neutra, assurdo!\n";
-			continue ;}
-           	Cx = Oxx + Pyy*1000./(BFIELD*CVEL*carica);
-           	Cy = Oyy - Pxx*1000./(BFIELD*CVEL*carica);
-		cout<<"  e' associata alla traccia MC n. "<<im<<" che ha :\n"
-		<<"\tR = "<<Rr<<" ed ha centro in Cx = "<<Cx<<" e Cy = "<<Cy<<endl;
-	  } else {
-		cout<<"  ha daTrackFoundaTrackMC[ncand] = "<<daTrackFoundaTrackMC[ncand]
-		<<"   pero' non ha puntatore alla sua classe PndMCTrack\n";
-	  }
-	}  else {
-		cout<<"  ha daTrackFoundaTrackMC[ncand] = "<<daTrackFoundaTrackMC[ncand]<<endl;
-	}
-		cout<<"Track Cand n. "<<nbuone<<", associato a Traccia MC n. "<<
-		daTrackFoundaTrackMC[ncand]<<", ha "<<
-		nMvdPixelHitsinTrack[ncand]<<
-		" Pixel Hits associati, di cui ecco la lista :\n";
-		for(j=0;j<nMvdPixelHitsinTrack[ncand];j++){
-			cout<<"\tHit n. "<<
-			ListMvdPixelHitsinTrack[ncand][j]<<
-			" che fu associato a MC track "
-			<<FromPixeltoMCTrack[
-			  ListMvdPixelHitsinTrack[ncand][j]
-			  ]<<endl;
-		}
-
-		cout<<"dalla mia funzione risulta che ci sono "<<
-		nMvdPixelCommon[ncand]<<
-		" Pixel hits mecciati alla giusta traccia MC e la loro lista e' :\n";
-		if( nMvdPixelCommon[ncand]==0) cout<<"\t-----------nessuna lista\n";
-		for(j=0;j<nMvdPixelCommon[ncand];j++){
-			cout<<"\tHit n. "<<
-			MvdPixelCommonList[ncand][j]<<
-			" che fu associato a MC track "
-			<<FromPixeltoMCTrack[
-			  MvdPixelCommonList[ncand][j]
-			  ]<<endl;
-		}
-
-		cout<<"  ... inoltre ci sono  "<<nMvdPixelSpuriinTrack[ncand]
-		<<"  Pixel hits spuri, elenco e' :\n";
-		if( nMvdPixelSpuriinTrack[ncand]==0) cout<<"\t-----------nessuna lista\n";
-		for(j=0;j<nMvdPixelSpuriinTrack[ncand];j++){
-			cout<<"\tHit n. "<<
-			MvdPixelSpuriList[ncand][j]<<
-			" che fu associato a MC track "
-			<<FromPixeltoMCTrack[
-			  MvdPixelSpuriList[ncand][j]
-			  ]<<endl;
-		}
-		cout<<"  ... inoltre ci sono  "<<nMCMvdPixelAlone[ncand]
-		<<"  Pixel hits non inclusi, il cui elenco e' :\n";
-		if( nMCMvdPixelAlone==0) cout<<"\t-----------nessuna lista\n";
-		for(j=0;j<nMCMvdPixelAlone[ncand];j++){
-			cout<<"\tHit n. "<<
-			MCMvdPixelAloneList[ncand][j]<<
-			" che fu associato a MC track "
-			<<FromPixeltoMCTrack[
-			  MCMvdPixelAloneList[ncand][j]
-			  ]<<endl;
-		}
-
-
-		cout<<"inoltre, sempre Track Cand n. "<<nbuone<<", associato a Traccia MC n. "<<
-		daTrackFoundaTrackMC[ncand]<<", ha "<<
-		nMvdStripHitsinTrack[ncand]<<
-		" Strip Hits associati, di cui ecco la lista :\n";
-		if(nMvdStripHitsinTrack[ncand]==0) cout<<"\t-----------nessuna lista\n";
-		for(j=0;j<nMvdStripHitsinTrack[ncand];j++){
-			cout<<"\tHit n. "<<
-			ListMvdStripHitsinTrack[ncand][j]<<
-			" che fu associato a MC track "
-			<<FromStriptoMCTrack[
-			  ListMvdStripHitsinTrack[ncand][j]
-			  ]<<endl;
-		}
-		cout<<"dalla mia funzione risulta che ci sono "<<
-		nMvdStripCommon[ncand]<<
-		" Strip hits mecciati alla giusta traccia MC e la loro lista e' :\n";
-		if(nMvdStripCommon[ncand]==0) cout<<"\t-----------nessuna lista\n";
-		for(j=0;j<nMvdStripCommon[ncand];j++){
-			cout<<"\tHit n. "<<
-			MvdStripCommonList[ncand][j]<<
-			" che fu associato a MC track "
-			<<FromStriptoMCTrack[
-			  MvdStripCommonList[ncand][j]
-			  ]<<endl;
-		}
-		cout<<"  ... inoltre ci sono  "<<nMvdStripSpuriinTrack[ncand]
-		<<"  Strip hits spuri, il cui elenco e' :\n";
-		if(nMvdStripSpuriinTrack[ncand]==0) cout<<"\t-----------nessuna lista\n";
-		for(j=0;j<nMvdStripSpuriinTrack[ncand];j++){
-			cout<<"\tHit n. "<<
-			MvdStripSpuriList[ncand][j]<<
-			" che fu associato a MC track "
-			<<FromStriptoMCTrack[
-			  MvdStripSpuriList[ncand][j]
-			  ]<<endl;
-		}
-
-		cout<<"  ... inoltre ci sono  "<<nMCMvdStripAlone[ncand]
-		<<"  Strip hits non inclusi, il cui elenco e' :\n";
-		if(nMCMvdStripAlone[ncand]==0) cout<<"\t-----------nessuna lista\n";
-		for(j=0;j<nMCMvdStripAlone[ncand];j++){
-			cout<<"\tHit n. "<<
-			MCMvdStripAloneList[ncand][j]<<
-			" che fu associato a MC track "
-			<<FromStriptoMCTrack[
-			  MCMvdStripAloneList[ncand][j]
-			  ]<<endl;
-		}
-
-//------
-
-		cout<<"inoltre, sempre Track Cand n. "<<nbuone<<", associato a Traccia MC n. "<<
-		daTrackFoundaTrackMC[ncand]<<", ha "<<
-		nSttParHitsinTrack[ncand]<<
-		" Stt || Hits associati, di cui ecco la lista :\n";
-		if(nSttParHitsinTrack[ncand]==0) cout<<"\t-----------nessuna lista\n";
-		for(j=0;j<nSttParHitsinTrack[ncand];j++){
-			cout<<"\tHit n. "<<
-			ListSttParHitsinTrack[ncand][j]<<
-			" che fu associato a MC track "
-			<<info[
-			  ListSttParHitsinTrack[ncand][j]
-			  ][6]<<endl;
-		}
-		cout<<"dalla mia funzione risulta che ci sono "<<
-		nParalCommon[ncand]<<
-		" Stt || hits mecciati alla giusta traccia MC e la loro lista e' :\n";
-		if(nParalCommon[ncand]==0) cout<<"\t-----------nessuna lista\n";
-		for(j=0;j<nParalCommon[ncand];j++){
-			cout<<"\tHit n. "<<
-			ParalCommonList[ncand][j]<<
-			" che fu associato a MC track "
-			<<info[
-			  ParalCommonList[ncand][j]
-			  ][6]<<endl;
-		}
-		cout<<"  ... inoltre ci sono  "<<nSpuriParinTrack[ncand]
-		<<"  Stt || hits spuri, il cui elenco e' :\n";
-		if(nSpuriParinTrack[ncand]==0) cout<<"\t-----------nessuna lista\n";
-		for(j=0;j<nSpuriParinTrack[ncand];j++){
-			cout<<"\tHit n. "<<
-			ParSpuriList[ncand][j]<<
-			" che fu associato a MC track "
-			<<info[
-			  ParSpuriList[ncand][j]
-			  ][6]<<endl;
-		}
-
-		cout<<"  ... inoltre ci sono  "<<nMCParalAlone[ncand]
-		<<"  Stt || hits non inclusi, il cui elenco e' :\n";
-		if(nMCParalAlone[ncand]==0) cout<<"\t-----------nessuna lista\n";
-		for(j=0;j<nMCParalAlone[ncand];j++){
-			cout<<"\tHit n. "<<
-			MCParalAloneList[ncand][j]<<
-			" che fu associato a MC track "
-			<<info[
-			  MCParalAloneList[ncand][j]
-			  ][6]<<endl;
-		}
-
-
-//------
-
-
-		cout<<"inoltre, sempre Track Cand n. "<<nbuone<<", associato a Traccia MC n. "<<
-		daTrackFoundaTrackMC[ncand]<<", ha "<<
-		nSttSkewHitsinTrack[ncand]<<
-		" Stt skew Hits associati, di cui ecco la lista :\n";
-		if(nSttSkewHitsinTrack[ncand]==0) cout<<"\t-----------nessuna lista\n";
-		for(j=0;j<nSttSkewHitsinTrack[ncand];j++){
-			cout<<"\tHit n. "<<
-			ListSttSkewHitsinTrack[ncand][j]<<
-			" che fu associato a MC track "
-			<<info[
-			  ListSttSkewHitsinTrack[ncand][j]
-			  ][6]<<endl;
-		}
-		cout<<"dalla mia funzione risulta che ci sono "<<
-		nSkewCommon[ncand]<<
-		" Stt skew hits mecciati alla giusta traccia MC e la loro lista e' :\n";
-		if(nSkewCommon[ncand]==0) cout<<"\t-----------nessuna lista\n";
-		for(j=0;j<nSkewCommon[ncand];j++){
-			cout<<"\tHit n. "<<
-			SkewCommonList[ncand][j]<<
-			" che fu associato a MC track "
-			<<info[
-			  SkewCommonList[ncand][j]
-			  ][6]<<endl;
-		}
-		cout<<"  ... inoltre ci sono  "<<nSpuriSkewinTrack[ncand]
-		<<"  Stt skew hits spuri, il cui elenco e' :\n";
-		if(nSpuriSkewinTrack[ncand]==0) cout<<"\t-----------nessuna lista\n";
-		for(j=0;j<nSpuriSkewinTrack[ncand];j++){
-			cout<<"\tHit n. "<<
-			SkewSpuriList[ncand][j]<<
-			" che fu associato a MC track "
-			<<info[
-			  SkewSpuriList[ncand][j]
-			  ][6]<<endl;
-		}
-
-		cout<<"  ... inoltre ci sono  "<<nMCSkewAlone[ncand]
-		<<"  Stt skew hits non inclusi, il cui elenco e' :\n";
-		if(nMCSkewAlone[ncand]==0) cout<<"\t-----------nessuna lista\n";
-		for(j=0;j<nMCSkewAlone[ncand];j++){
-			cout<<"\tHit n. "<<
-			MCSkewAloneList[ncand][j]<<
-			" che fu associato a MC track "
-			<<info[
-			  MCSkewAloneList[ncand][j]
-			  ][6]<<endl;
-		}
-
-
-//------
-
-	}	// end of for(ncand=0; ncand< nSttTrackCand; ncand++)
-
-}	// end of if(istampa>=2)
-//-------------fine stampaggi
-
-
-
-
-// ora il confronto per il meeting di  Groningen
-
-//---------- conteggio delle tracce MC accettabili!!
-int citata;
-int nMCTracksaccettabili=0;
-int ListaMCTracksaccettabili[nMCTracks];
-for (i=0;i<nMCTracks;i++){
-	citata=0;
-   	pMCtr = (PndMCTrack*) fMCTrackArray->At(i);
-   	if ( ! pMCtr ) continue;
-         Double_t aaa, carica, Rr, Dd, Fifi, Oxx, Oyy, Cx, Cy, Pxx, Pyy  ;
-         Int_t icode;
-         icode  = pMCtr->GetPdgCode() ;    //   PDG code of track
-         Oxx = pMCtr->GetStartVertex().X();    //   X of starting point track
-         Oyy = pMCtr->GetStartVertex().Y();    //   Y of starting point track
-         Pxx = pMCtr->GetMomentum().X();
-         Pyy = pMCtr->GetMomentum().Y();
-         aaa = sqrt( Pxx*Pxx + Pyy*Pyy);
-         Rr =   aaa*1000./(BFIELD*CVEL);    //   R (cm) of Helix of track projected in XY plane; B = 2 Tesla
-
-
-
-	if(istampa>2){
-		TDatabasePDG *fdbPDG= TDatabasePDG::Instance();
-		TParticlePDG *fParticle= fdbPDG->GetParticle(icode);
-		if (icode>1000000000) carica = 1.;
-		else  carica = fParticle->Charge()/3. ;    //   charge of track
-		if(fabs(carica)<1.e-5) continue;
-		Cx = Oxx + Pyy*1000./(BFIELD*CVEL*carica);
-		Cy = Oyy - Pxx*1000./(BFIELD*CVEL*carica);
-		cout<<"da PndTracking, evento (cominciando da 0) n. "<<IVOLTE<<
-		",  traccia MC n. "<<i<<",  R MC = "<<Rr<<", Centro X = "<<Cx
-		<<", Centro Y = "<<Cy<<endl;
-	}
-
-
-
-	for(int ic=0;ic<nSttHit;ic++){
-		if( ( (int) (info[ic][6]+0.1) ) == i   && info[ic][5]<2.){
-			citata++;
-		}
-	}
-	if( citata>2 && fabs(Oxx)<1. && fabs(Oyy) < 1. ) {
-		ListaMCTracksaccettabili[nMCTracksaccettabili]=i;
-		nMCTracksaccettabili++;
-	}
-
-
-}
-
-
-
-
-
-if(istampa>=1){cout<<"da PndTracking, MC comparison; evt. "<<IVOLTE<<", nMCTracks "<<nMCTracks
-<<", n. MC tracce accettabili "<<nMCTracksaccettabili
-<<" e loro lista :\n";
-	for(int g=0; g<nMCTracksaccettabili;g++){
-		cout<<"\ttraccia MC n. "<<ListaMCTracksaccettabili[g]<<endl;
-	}
-cout<<"Total track trovate "<<nTotalCandidates<<endl;
-}
-
-//----------- fine conteggio delle tracce MC accettabili
-
-//  if(istampa>=1 )  fprintf(HANDLE, "\n Evento %d  NTotaleTracceMC %d ------\n",IVOLTE, nMCTracks);
-  if(istampa>=1 ) {
-
-   fprintf(HANDLE, "\n Evento %d  NTotaleTracceMC %d ------\n",IVOLTE,
-  	nMCTracksaccettabili);
-	int ibene=0;
-	if(nMCTracksaccettabili>0){
-		for(int ii=0; ii<nTotalCandidates;ii++){
-			for(i=0;i<nMCTracksaccettabili;i++){
-				if( daTrackFoundaTrackMC[ii]==ListaMCTracksaccettabili[i]){
-					ibene++;
-				}
-			}
-		}
-	}
-	if(ibene>0) fprintf(HANDLE,"\tn. volte almeno 1 traccia MC accettabile e' ricostruita %d\n"
-		,ibene);
-
-bool flaggo;
-int ii, ibuone=-1;
-Double_t HoughFiii;
-
-
-
-for (ii=0; ii<nTotalCandidates  ;ii++){
-   if(!keepit[ii]) { if(istampa>1) {cout<<"\tevt. n "<<IVOLTE<<", cand. "<<ii<<" ha keepit false."<<
-   	endl;}; continue;}
-   ibuone++;
-   fprintf(HANDLE,"----------------------------------------------------------\n");
-   i=daTrackFoundaTrackMC[ii];
-
-
-
-   if( i <0  ) {
-    fprintf(HANDLE,
-"   No TracciaMC associated to found track n. %d in pattern recognition, with %d Hits ||, %d skew hits, %f Radius \n "
-         ,ibuone,nSttParHitsinTrack[ii], nSttSkewHitsinTrack[ii],  R[ii] );
-            continue;
-         }
-   if( ( !SttSZfit[ii] )&&(resultFitSZagain[ii] !=1 )) {
-    fprintf(HANDLE,
-"       TracciaMC %d; sua FoundTrack associata (n. %d) NONsoddisfaRequisitiMinimi perche' in Z-S e' fallito il fit \n"
-	,i,ibuone);
-            continue;
-         }
-   if(fabs(KAPPA[ii])<1.e-20 ){
-    fprintf(HANDLE,
-"       TracciaMC %d; sua FoundTrack associata (n. %d) NONsoddisfaRequisitiMinimi perche' KAPPA troppo piccolo; KAPPA = %g\n",
-          i,ibuone,KAPPA[ii]);
-           continue;
-   }
-   	dista=sqrt( Ox[ii]*Ox[ii]+Oy[ii]*Oy[ii] );
-   if(fabs(dista)<1.e-20 ){
-    fprintf(HANDLE,
-"       TracciaMC %d; sua FoundTrack associata (n. %d) NONsoddisfaRequisitiMinimi perche' centro Helix Cilinder trovato dista solo %g da (0,0)\n",
-           i,ibuone,dista);
-           continue;
-   }
-   pMCtr = (PndMCTrack*) fMCTrackArray->At(i);
-   if ( ! pMCtr ){
-		fprintf(HANDLE,
-		"       MC track n. %d doesn't have pointer to MC Track TClones Array\n",
-		i);
-	  continue;
-   }
-
-//   controllo che la traccia associata MC sia una delle tracce MC 'ragionevoli'.
-
-	flaggo = true;
-	for(int g=0; g<nMCTracksaccettabili;g++){
-		if( i==ListaMCTracksaccettabili[g])
-		{
-			flaggo=false;
-			break;
-		}
-	}
-	if(flaggo) continue;
-
-
-
-    fprintf(HANDLE,
-"       TracciaMC %d ParHitsMC %d ParMecc %d ParMeccSpuri %d SkewHitsMC %d  SkewMecc %d SkewMeccSpuri %d\n",
-             i,
-             nHitsInMCTrack[ii],
-             nParalCommon[ii],
-             nSpuriParinTrack[ii],
-             nSkewHitsInMCTrack[ii],
-             nSkewCommon[ii],
-             nSpuriSkewinTrack[ii]
-
-           )  ;
-    fprintf(HANDLE,
-"       e corrisponde a track found n. %d\n", ibuone );
-    fprintf(HANDLE,
-"       AVENDO %d hits paralleli e %d hits skew non mecciati dalla corrisponde track found\n"
-       , nMCParalAlone[ii],nMCSkewAlone[ii]  );
-
-    HoughFiii =  atan2(Oy[ii],Ox[ii]);
-    if(HoughFiii<0.)  HoughFiii += 2.*PI;
-
-         Double_t aaa, carica, Rr, Dd, Fifi, Oxx, Oyy, Cx, Cy, Pxx, Pyy  ;
-         Int_t icode;
-         icode  = pMCtr->GetPdgCode() ;    //   PDG code of track
-         Oxx = pMCtr->GetStartVertex().X();    //   X of starting point track
-         Oyy = pMCtr->GetStartVertex().Y();    //   Y of starting point track
-         Pxx = pMCtr->GetMomentum().X();
-         Pyy = pMCtr->GetMomentum().Y();
-         aaa = sqrt( Pxx*Pxx + Pyy*Pyy);
-         Rr =   aaa*1000./(BFIELD*CVEL);    //   R (cm) of Helix of track projected in XY plane; B = 2 Tesla
-         TDatabasePDG *fdbPDG= TDatabasePDG::Instance();
-         TParticlePDG *fParticle= fdbPDG->GetParticle(icode);
-         if (icode>1000000000) carica = 1.;
-         else  carica = fParticle->Charge()/3. ;    //   charge of track
-	 if(fabs(carica)<1.e-5) fprintf(HANDLE,"       MC track n. %d e' neutra, assurdo!\n",i);
-         Cx = Oxx + Pyy*1000./(BFIELD*CVEL*carica);
-         Cy = Oyy - Pxx*1000./(BFIELD*CVEL*carica);
-         Fifi = atan2(Cy, Cx);       // MC truth Fifi angle of circle of Helix trajectory
-         if(Fifi<0.)  Fifi += 2.*PI;
-         Double_t Kakka ;
-         if( fabs( pMCtr->GetMomentum().Z() )< 1.e-20) Kakka = 99999999.;
-         else  Kakka = -carica*0.001*BFIELD*CVEL/pMCtr->GetMomentum().Z();
-
-    fprintf(HANDLE,
-"       R_MC %g R %g Fi_MC %g Fi %g KAPPA_MC %g KAPPA %g FI0_MC %g FI0 %g\n",
-     Rr,
-     R[ ii ],
-     Fifi,
-     HoughFiii,
-     Kakka,
-     KAPPA[ ii ],
-     fmod(Fifi+ PI, 2.*PI),  //  FI0  da MC truth
-     FI0[ ii ]
-           );
-     
-//------------------------
-
-
-//    HoughFi = atan2(Oy[i],Ox[i]);
-//    if(HoughFi<0.)  HoughFi += 2.*PI;
-    fprintf(HANDLE2,"Evento n. %d Found track %d messa in PndTrackCand",IVOLTE, ii);
-    fprintf(HANDLE2,
-"       R_MC %g R %g Fi_MC %g Fi %g KAPPA_MC %g KAPPA %g FI0_MC %g FI0 %g\n",
-     Rr,
-     R[ ii ],
-     Fifi,
-     HoughFiii,
-     Kakka,
-     KAPPA[ ii ],
-     fmod(Fifi+ PI, 2.*PI),
-     FI0[ ii ]
-           );
-
-//----------------------------------
-
-
-  }   //   end of  for (ii=0; ii<nSttTrackCand  ;ii++)
-}  // end of if(istampa>=1)
-
-//--------------ghosts
-
-// fa il conto delle ghost solo sugli eventi che hanno almeno 1 traccia MC accettabile.
-int NParghost=0, NParhitsghost=0,icc,ibuone=-1;
-if( istampa>=1 && nMCTracksaccettabili>0){
-
-    for(icc=0; icc<nTotalCandidates;icc++){
-	if(!keepit[icc]) continue;
-	ibuone++;
-       if( daTrackFoundaTrackMC[icc] == -1){
-          NParghost++;
-          NParhitsghost += nSttParHitsinTrack[icc]+nSttSkewHitsinTrack[icc];
-
-          fprintf(HANDLE,"          tracce Trovata n. %d e' Ghost\n",ibuone);
-       }
-    }
-    fprintf(HANDLE,
-"          tracceGhostTrovate %d TotaleHitsGhost %d  ----\n",
-            NParghost,
-            NParhitsghost
-           );
-
-    fprintf(HANDLE,"----------------------------------------------------------\n");
-
-
-}  //   end of    if( istampa>=1)
-
-   }	// end of if( nMCTracks >0 && nSttTrackCand > 0  && doMcComparison )
-
-//------------------  end section with comparison MC Mvd hits - associated hits to a certain track
 
 
 
@@ -3961,578 +3095,65 @@ if( istampa>=1 && nMCTracksaccettabili>0){
 //-------  also load the new PndTrack ; each track has the STT and the Mvd hits associated
 
 
-	Double_t Oxx, Oyy;
-//	Int_t iflaggo;
-	int ipinco;
-	for(ncand=0, ipinco = 0; ncand< nTotalCandidates; ncand++){
-		if(!keepit[ncand]) continue;
-		// case in which there was no Skew hits and no KAPPA info and that
-		// candidate could not be associated to any Mvd hits --> no KAPPA information!
-		if(ncand<nSttTrackCand && ! SttSZfit[ncand]) continue;
-		Oxx = Ox[ncand];
-		Oyy = Oy[ncand];
-		dis=sqrt( Oxx*Oxx+Oyy*Oyy );
-		if( dis < 1.e-20)  continue;
-		Ptras = R[ncand]*0.003*BFIELD;
-		Pxini = -Charge[ncand]*Ptras*Oyy/dis;
-		Pyini = Charge[ncand]*Ptras*Oxx/dis;
 
-//   starting point not necessarily at x=0., y=0.
+ LoadPndTrack_TrackCand(
+	keepit,
+	SttSZfit,
+	nTotalCandidates,
+	Charge,
+	nSttTrackCand,
+	FI0,
+	KAPPA,
+	info,
+	Ox,
+	Oy,
+	R,
+	SchosenSkew,
+	ZchosenSkew
+	);
+
+//------------ section with comparison MC Mvd hits - associated hits to a certain track
+
+
+ ComparisonwithMC(
+	Charge,
+	daTrackFoundaTrackMC,
+	FI0,
+	info,
+	KAPPA,
+	keepit,
+	nHitsInMCTrack,
+	nMCParalAlone,
+	nMCSkewAlone,
+	nParalCommon,
+	nSkewCommon,
+	nSkewHitsInMCTrack,
+	nSpuriParinTrack,
+	nSpuriSkewinTrack,
+	nSttHit,
+	nTotalCandidates,
+	MCParalAloneList,
+	MCSkewAloneList,
+	Ox,
+	Oy,
+	ParalCommonList,
+	ParSpuriList,
+	pMCtr,
+	R,
+	resultFitSZagain,
+	SkewCommonList,
+	SkewSpuriList,
+	SttSZfit
+		);
+
+
+//----------
+
+ stampadopoTrackCand(
+	info,
+	nTotalCandidates
+		);
 
-		x= Ox[ncand] + R[ncand]*cos(FI0[ncand]);
-		y= Oy[ncand] + R[ncand]*sin(FI0[ncand]);
-
-
-		TVector3 posSeed(x,y,0.);  //  the starting point
-
-		if(fabs(KAPPA[ncand])>1.e-20  ){
-			Pzini = -Charge[ncand]*0.003*BFIELD/KAPPA[ncand];
-			if(fabs(Pzini) > PMAX)  continue;
-		} else {
-			continue;
-		}
-		// PndTrackCand Array loading
-		new((*fSttMvdPndTrackCandArray)[ipinco])  PndTrackCand;
-		PndTrackCand *pTrckCand = (PndTrackCand*) fSttMvdPndTrackCandArray->At(ipinco);
-		TVector3 dirSeed(Pxini,Pyini,Pzini); // momentum direction in starting point
-		qop = Charge[ncand]/dirSeed.Mag();
-		dirSeed.SetMag(1.);
-		pTrckCand->setTrackSeed(posSeed, dirSeed, qop);
-		if(doMcComparison){
-			pTrckCand->setMcTrackId(  daTrackFoundaTrackMC[ncand]   );
-		}else{
-			pTrckCand->setMcTrackId(-1);
-		}
-//		pTrckCand->sorted=true;
-
-
-		for(j=0; j< nTrackCandHit[ncand]; j++){
-		     switch (ListTrackCandHitType[ncand][j]){
-			case 0:
-pTrckCand->AddHit(FairRootManager::Instance()->GetBranchId(fMvdPixelBranch),
-		(Int_t)ListTrackCandHit[ncand][j],j);
-			break;
-			case 1:
-pTrckCand->AddHit(FairRootManager::Instance()->GetBranchId(fMvdStripBranch),
-		(Int_t)ListTrackCandHit[ncand][j],j);
-			break;
-			case 2:
-pTrckCand->AddHit(FairRootManager::Instance()->GetBranchId(fSttBranch),
-		(Int_t)ListTrackCandHit[ncand][j],j);
-			break;
-			case 3:
-pTrckCand->AddHit(FairRootManager::Instance()->GetBranchId(fSttBranch),
-		(Int_t)ListTrackCandHit[ncand][j],j);
-			break;
-		     }
-		}
-
-		// PndTrack Array loading
-		//  last = last hit in found track; first = first hit in found track;
-		//  pTrckCand =  pointer to the corresponding  PndTrackCand.
-
-		//  the first hit
-
-		if (ListTrackCandHitType[ncand][0] == 0){  //  Mvd Pixel
-			Posiz1[0] = XMvdPixel[ ListTrackCandHit[ncand][0] ];
-			Posiz1[1] = YMvdPixel[ ListTrackCandHit[ncand][0] ];
-			Posiz1[2] = ZMvdPixel[ ListTrackCandHit[ncand][0] ];
-			ErrPosition.SetX(sigmaXMvdPixel[ ListTrackCandHit[ncand][0] ]/sqrt(12.));
-			ErrPosition.SetY(sigmaXMvdPixel[ ListTrackCandHit[ncand][0] ]/sqrt(12.));
-			ErrPosition.SetZ(sigmaXMvdPixel[ ListTrackCandHit[ncand][0] ]/sqrt(12.));
-		} else if (ListTrackCandHitType[ncand][0] == 1){  //  Mvd Strip
-			Posiz1[0] = XMvdStrip[ ListTrackCandHit[ncand][0] ];
-			Posiz1[1] = YMvdStrip[ ListTrackCandHit[ncand][0] ];
-			Posiz1[2] = ZMvdStrip[ ListTrackCandHit[ncand][0] ];
-			ErrPosition.SetX(sigmaXMvdStrip[ ListTrackCandHit[ncand][0] ]/sqrt(12.));
-			ErrPosition.SetY(sigmaXMvdStrip[ ListTrackCandHit[ncand][0] ]/sqrt(12.));
-			ErrPosition.SetZ(sigmaXMvdStrip[ ListTrackCandHit[ncand][0] ]/sqrt(12.));
-		} else if( ListTrackCandHitType[ncand][0] == 2 ){  // it is a parallel straw hit
-			InfoXYZParal(
-				info,
-				ListTrackCandHit[ncand][0],
-				Ox[ncand],
-				Oy[ncand],
-				R[ncand],
-				KAPPA[ncand],
-				FI0[ncand],
-				Charge[ncand],
-				Posiz1
-				);
-
-			// cases in which the calculation of the position failed, see
-			// InfoXYZParal  method.
-			if(Posiz1[2]<-888888887. || Posiz1[0] < -999999998.)
-				continue;
-
-			ErrPosition.SetX(0.02);	// 200 microns
-			ErrPosition.SetY(0.02);	// 200 microns
-			ErrPosition.SetZ(1.);		// 1 cm
-
-
-	} else if ( ListTrackCandHitType[ncand][0] == 3 ){  // it is a skew straw hit
-
-		Posiz1[0] = Ox[ncand]+R[ncand]*cos(SchosenSkew[ncand][ ListTrackCandHit[ncand][0] ]);
-		Posiz1[1] = Oy[ncand]+R[ncand]*sin(SchosenSkew[ncand][ ListTrackCandHit[ncand][0] ]);
-		Posiz1[2] = ZchosenSkew[ncand][ ListTrackCandHit[ncand][0] ];
-		ErrPosition.SetX(0.02);	// 200 microns
-		ErrPosition.SetY(0.02);	// 200 microns
-		ErrPosition.SetZ(1.);		// 1 cm
-
-		}
-
-		Position.SetX( Posiz1[0] );
-		Position.SetY( Posiz1[1] );
-		Position.SetZ( Posiz1[2] );
-		versor[0] = Ox[ncand]-Posiz1[0];
-		versor[1] = Oy[ncand]-Posiz1[1];
-		Distance = sqrt(versor[0]*versor[0]+versor[1]*versor[1]);
-		versor[0] /= Distance;
-		versor[1] /= Distance;
-		px = -Charge[ncand]*Ptras*versor[1];
-		py = Charge[ncand]*Ptras*versor[0];
-		Momentum.SetX(px);
-		Momentum.SetY(py);
-		Momentum.SetZ(Pzini);
-		ErrMomentum.SetX(0.05*Ptras); //  set at 5% all the times.
-		ErrMomentum.SetY(0.05*Ptras); //  set at 5% all the times.
-		ErrMomentum.SetZ(0.05*Pzini); //  set at 5% all the times.
-		//  the plane of this FairTrackParP better is perpendicular to
-		//  the momentum direction
-		ddd = Ptras*sqrt(Ptras*Ptras+Pzini*Pzini);
-
-if(istampa>=3){ cout<<" evento = "<<IVOLTE<<", track cand n. "<<ncand<<endl<<
-	"\tfirst hit, tipo hit = "<<ListTrackCandHitType[ncand][0]<<", X = "<<Posiz1[0]
-	<<", Y = "<<Posiz1[1]<<", Z = "<<Posiz1[2]<<
-	"\n\tPx = "<<px<<", Py = "<<py<<", Pz = "<<Pzini<<", Ptras "<<Ptras<<endl
-	<<"\t ErrX = "<<ErrPosition[0]
-	<<", ErrY = "<<ErrPosition[1]<<", ErrZ = "<<ErrPosition[2]<<endl<<
-	"\tErrPx = "<<ErrMomentum.X()<<", ErrPy = "<<ErrMomentum.Y()<<", ErrPz = "
-	<<ErrMomentum.Z()<<endl;
-	if( ncand<nSttTrackCand ) {if(SttSZfit[ncand])cout<<"SttSZfit = true";
-		else cout<<"SttSZfit = false";};
-	cout<<",  KAPPA = "<<KAPPA[ncand]<<", FI0 = "<<FI0[ncand]<<", n. hit (original) = "<<
-	ListTrackCandHit[ncand][0]<<endl;
-
-}
-
-
-		FairTrackParP first( Position,  Momentum,
-		   ErrPosition, ErrMomentum, Charge[ncand],
-		   Position,
-		   TVector3(py/Ptras, -px/Ptras, 0.), //  first vector defining the plane
-		   TVector3(Pzini*px/ddd,Pzini*py/ddd,-Ptras*Ptras/ddd) //second vector defining the plane
-						);
-		//  the last hit
-
-		k = nTrackCandHit[ncand]-1;
-		if (ListTrackCandHitType[ncand][k] == 0){  //  Mvd Pixel
-			Posiz1[0] = XMvdPixel[ ListTrackCandHit[ncand][k] ];
-			Posiz1[1] = YMvdPixel[ ListTrackCandHit[ncand][k] ];
-			Posiz1[2] = ZMvdPixel[ ListTrackCandHit[ncand][k] ];
-			ErrPosition.SetX(sigmaXMvdPixel[ ListTrackCandHit[ncand][k] ]/sqrt(12.));
-			ErrPosition.SetY(sigmaXMvdPixel[ ListTrackCandHit[ncand][k] ]/sqrt(12.));
-			ErrPosition.SetZ(sigmaXMvdPixel[ ListTrackCandHit[ncand][k] ]/sqrt(12.));
-		} else if (ListTrackCandHitType[ncand][k] == 1){  //  Mvd Strip
-			Posiz1[0] = XMvdStrip[ ListTrackCandHit[ncand][k] ];
-			Posiz1[1] = YMvdStrip[ ListTrackCandHit[ncand][k] ];
-			Posiz1[2] = ZMvdStrip[ ListTrackCandHit[ncand][k] ];
-			ErrPosition.SetX(sigmaXMvdStrip[ ListTrackCandHit[ncand][k] ]/sqrt(12.));
-			ErrPosition.SetY(sigmaXMvdStrip[ ListTrackCandHit[ncand][k] ]/sqrt(12.));
-			ErrPosition.SetZ(sigmaXMvdStrip[ ListTrackCandHit[ncand][k] ]/sqrt(12.));
-		} else if( ListTrackCandHitType[ncand][k] == 2 ){  // it is a parallel straw hit
-			InfoXYZParal (
-				info,
-				ListTrackCandHit[ncand][k],
-				Ox[ncand],
-				Oy[ncand],
-				R[ncand],
-				KAPPA[ncand],
-				FI0[ncand],
-				Charge[ncand],
-				Posiz1
-				);
-			if(Posiz1[2]<-888888887. || Posiz1[0] < -999999998.)
-				continue;
-
-			ErrPosition.SetX(0.02);	// 200 microns
-			ErrPosition.SetY(0.02);	// 200 microns
-			ErrPosition.SetZ(1.);		// 1 cm
-
-		} else if ( ListTrackCandHitType[ncand][k] == 3 ){  // it is a skew straw hit
-
-			Posiz1[0] = Ox[ncand]+R[ncand]*cos(SchosenSkew[ncand][ ListTrackCandHit[ncand][k] ]);
-			Posiz1[1] = Oy[ncand]+R[ncand]*sin(SchosenSkew[ncand][ ListTrackCandHit[ncand][k] ]);
-			Posiz1[2] = ZchosenSkew[ncand][ ListTrackCandHit[ncand][k] ];
-			ErrPosition.SetX(0.02);	// 200 microns
-			ErrPosition.SetY(0.02);	// 200 microns
-			ErrPosition.SetZ(1.);		// 1 cm
-
-		}
-
-		Position.SetX( Posiz1[0] );
-		Position.SetY( Posiz1[1] );
-		Position.SetZ( Posiz1[2] );
-		versor[0] = Ox[ncand]-Posiz1[0];
-		versor[1] = Oy[ncand]-Posiz1[1];
-		Distance = sqrt(versor[0]*versor[0]+versor[1]*versor[1]);
-		versor[0] /= Distance;
-		versor[1] /= Distance;
-		px = -Charge[ncand]*Ptras*versor[1];
-		py = Charge[ncand]*Ptras*versor[0];
-		Momentum.SetX(px);
-		Momentum.SetY(py);
-		Momentum.SetZ(Pzini);
-		//  the plane of this FairTrackParP better is perpendicular to
-		//  the momentum direction
-		ddd = Ptras*sqrt(Ptras*Ptras+Pzini*Pzini);
-
-if(istampa>=3){ cout<<" evento = "<<IVOLTE<<", track cand n. "<<ncand<<endl<<
-	"\tlast hit, tipo hit = "<<ListTrackCandHitType[ncand][k]
-	<<", X = "<<Posiz1[0]
-	<<", Y = "<<Posiz1[1]<<", Z = "<<Posiz1[2]<<
-	"\n\tPx = "<<px<<", Py = "<<py<<", Pz = "<<Pzini<<", Ptras "<<Ptras<<endl
-	<<"\t ErrX = "<<ErrPosition[0]
-	<<", ErrY = "<<ErrPosition[1]<<", ErrZ = "<<ErrPosition[2]<<endl<<
-	"\tErrPx = "<<ErrMomentum.X()<<", ErrPy = "<<ErrMomentum.Y()<<", ErrPz = "<<ErrMomentum.Z()
-	<<endl;
-	if( ncand<nSttTrackCand ) {if(SttSZfit[ncand])cout<<"SttSZfit = true";
-		else cout<<"SttSZfit = false";};
-	cout<<", KAPPA = "<<KAPPA[ncand]<<", FI0 = "<<FI0[ncand]<<", n. hit (original) = "<<
-	ListTrackCandHit[ncand][k]<<endl;
-}
-
-
-		FairTrackParP last( Position,  Momentum,
-		   ErrPosition, ErrMomentum, Charge[ncand],
-		   Position,
-		   TVector3(py/Ptras, -px/Ptras, 0.), //  first vector defining the plane
-		   TVector3(Pzini*px/ddd,Pzini*py/ddd,-Ptras*Ptras/ddd) //second vector defining the plane
-						);
-
-
-
-		// loading actually the PndTrack
-		PndTrack *pTrck = new((*fSttMvdPndTrackArray)[ipinco]) PndTrack(first,last,*pTrckCand);
-//		PndTrack *pTrck = (PndTrack*) fSttMvdPndTrackArray->At(ipinco);
-		pTrck->SetRefIndex(ipinco);
-		pTrck->SetFlag(0);
-
-		ipinco++;
-	}	// end of     for(ncand=0, ipinco = 0; ncand< nTotalCandidates; ncand++)
-
-
-
-
-//--------------------- end of load the new PndTrackCand
-
-
-
-
-if(istampa>2){
-//for(int it=0; it<nSttTrackCand;it++){
-for(int it=0; it<nTotalCandidates;it++){
-cout<<"da PndTracking, IVOLTE = "<<IVOLTE<<", traccia n. "<<it<<", elenco ordinato degli hits :\n";
-for(l =0;l<nMvdPixelHitsinTrack[it]+nMvdStripHitsinTrack[it]
-	+nSttParHitsinTrack[it]+nSttSkewHitsinTrack[it];l++){
-
-	if( ListTrackCandHitType[it][l]==0){
-		cout<<"\t hit tipo Pixel, X = "<<
-			 XMvdPixel[ ListTrackCandHit[it][l] ]<<
-			 ", Y = "<<YMvdPixel[ ListTrackCandHit[it][l] ]<<
-			 ", dist = "<<sqrt(
-			 XMvdPixel[ ListTrackCandHit[it][l] ]*
-			 XMvdPixel[ ListTrackCandHit[it][l] ]+
-			 YMvdPixel[ ListTrackCandHit[it][l] ]*
-			 YMvdPixel[ ListTrackCandHit[it][l] ])<<endl;
-	}else if (ListTrackCandHitType[it][l]==1){
-		cout<<"\t hit tipo Strip , X = "<<
-			 XMvdStrip[ ListTrackCandHit[it][l] ]<<
-			 ", Y = "<<YMvdStrip[ ListTrackCandHit[it][l] ]<<
-			 ", dist = "<<sqrt(
-			 XMvdStrip[ ListTrackCandHit[it][l] ]*
-			 XMvdStrip[ ListTrackCandHit[it][l] ]+
-			 YMvdStrip[ ListTrackCandHit[it][l] ]*
-			 YMvdStrip[ ListTrackCandHit[it][l] ])<<endl;
-	}else if (ListTrackCandHitType[it][l]==2){
-		cout<<"\t hit tipo Parallelo , X = "<<
-			 info[ ListTrackCandHit[it][l] ][0]<<
-			 ", Y = "<<info[ ListTrackCandHit[it][l] ][1]<<
-			 ", dist = "<<sqrt(
-			 info[ ListTrackCandHit[it][l] ][0]*
-			 info[ ListTrackCandHit[it][l] ][0]+
-			 info[ ListTrackCandHit[it][l] ][1]*
-			 info[ ListTrackCandHit[it][l] ][1])<<endl;
-	}else if(ListTrackCandHitType[it][l]==3){
-		cout<<"\t hit tipo skew , X approssimato = "<<
-			 info[ ListTrackCandHit[it][l] ][0]<<
-			 ", Y approssimato = "<<info[ ListTrackCandHit[it][l] ][1]<<
-			 ", dist = "<<sqrt(
-			 info[ ListTrackCandHit[it][l] ][0]*
-			 info[ ListTrackCandHit[it][l] ][0]+
-			 info[ ListTrackCandHit[it][l] ][1]*
-			 info[ ListTrackCandHit[it][l] ][1])<<endl;
-	} else {
-		cout<<"\tHit di nessun tipo ????\n";
-	}
-     }
-  }
-}	// end of    if(istampa>=2)
-
-
-
-//------------------------------   plottamenti --------------------------------------------
-
-
- if(iplotta){
-
-
-
-// calcolo di S degli eventuali hits SciTil presenti nelle tracce trovate.
-
-	Double_t esseSciTil[MAXTRACKSPEREVENT][MAXSCITILHITS];
-
-	for(  i= 0; i< nTotalCandidates; i++){
-		for(j=0;j< nSciTilHitsinTrack[i];j++){
-
-		intersect=IntersectionSciTil_Circle(
-			posizSciTil[ListSciTilHitsinTrack[i][j]][0],
-			posizSciTil[ListSciTilHitsinTrack[i][j]][1],
-			Ox[i], // center of circle.
-			Oy[i],
-			R[i], // Radius of circle.
-			&Nint,
-			XintersectionList,
-			YintersectionList
-						);
-// reject case with no intersection of the SciTil with the circle trajectory.
-	if(intersect){
-	// calculate S on the lateral face of the Helix.
-		if ( Nint==1){	// the majority of the cases
-			esseSciTil[i][j] = atan2(YintersectionList[0]-Oy[i],
-					XintersectionList[0]-Ox[i]);
-		} else {  // in this case Nint=2 (it should be a very rare case).
-		// do an average of the two positions.
-			esseSciTil[i][j] = atan2( 0.5*(YintersectionList[0]+YintersectionList[1])
-			-Oy[i],0.5*(XintersectionList[0]+XintersectionList[1])-Ox[i]);
-		} // end of  if ( Nint==1)
-		if ( esseSciTil[i][j]<0.) esseSciTil[i][j] += 2.*PI;
-
-	}  // continuation of if(intersect)
-
-		} // end of for(j....
-	}  // end of  for(  i= 0; i< nTotalCandidates; i++)
-
-//------------------
-
-    for(  i= 0, k=-1; i< nTotalCandidates; i++){
-
-
-	//-------stampe.
-if(istampa>=2){
-		cout<<"\n\n---------------------------------------------\n";
-		cout<<" evt. n. "<<IVOLTE<<", candidato "<<i
-		<<", n hits || "<<nSttParHitsinTrack[i]<<" e loro lista :\n";
-		for(int iz=0;iz<nSttParHitsinTrack[i];iz++){
-			cout<<"\thit || n. "<<ListSttParHitsinTrack[i][iz]<<endl;
-		}
-		cout<<"\tn hits // "<<nSttSkewHitsinTrack[i]<<" e loro lista :\n";
-		for(int iz=0;iz<nSttSkewHitsinTrack[i];iz++){
-			cout<<"\thit || n. "<<ListSttSkewHitsinTrack[i][iz]<<endl;
-		}
-		if(keepit[i])cout<<"\tkeepit = true\n";
-		else cout<<"\tkeepit = false\n";
-		cout<<"---------------------------------------------\n";
-}
-	//--------fine stampe.
-
-	if(!keepit[i]) continue;
-	k++;
-	int npunti=-1+nSttParHitsinTrack[i]+nSttSkewHitsinTrack[i]+
-		nMvdPixelHitsinTrack[i]+nMvdStripHitsinTrack[i]+nSciTilHitsinTrack[i];
-
-		if (ListTrackCandHitType[i][npunti] == 0){  //  Mvd Pixel
-			ultimoangolo[i] = atan2( YMvdPixel[ ListTrackCandHit[i][npunti] ]-Oy[i],
-						 XMvdPixel[ ListTrackCandHit[i][npunti] ]-Ox[i]);
-		} else if (ListTrackCandHitType[i][npunti] == 1){  //  Mvd Strip
-			ultimoangolo[i] = atan2( YMvdStrip[ ListTrackCandHit[i][npunti] ]-Oy[i],
-						 XMvdStrip[ ListTrackCandHit[i][npunti] ]-Ox[i]);
-		} else if( ListTrackCandHitType[i][npunti] == 2 ){  // it is a parallel straw hit
-			InfoXYZParal (
-				info,
-				ListTrackCandHit[i][npunti],
-				Ox[i],
-				Oy[i],
-				R[i],
-				KAPPA[i],
-				FI0[i],
-				Charge[i],
-				Posiz1
-				);
-			ultimoangolo[i] = atan2( Posiz1[1]-Oy[i],Posiz1[0]-Ox[i]);
-		} else if ( ListTrackCandHitType[i][npunti] == 3 ){  // it is a skew straw hit
-
-			ultimoangolo[i] = SchosenSkew[i][ ListTrackCandHit[i][npunti] ];
-		} else  if ( ListTrackCandHitType[i][npunti] == 1001){  // SciTil hit.
-			ultimoangolo[i] =
-				atan2(posizSciTil[ListTrackCandHit[i][npunti]][1]-Oy[i],
-				posizSciTil[ListTrackCandHit[i][npunti]][0]-Ox[i]);
-		}
-		if( ultimoangolo[i]<0.) ultimoangolo[i]+= 2.*PI;
-
-
-
-	double primo;
-	primoangolo[i] = fmod(FI0[i],2.*PI);
-	if(Charge[i]>0.){
-		if( ultimoangolo[i]> primoangolo[i]) ultimoangolo[i]-=2.*PI;
-		primo=ultimoangolo[i]*180./PI;
-		ultimoangolo[i]=primoangolo[i]*180./PI;
-		primoangolo[i]=primo;
-		
-	}else{
-		if( ultimoangolo[i]<primoangolo[i]) ultimoangolo[i]+=2.*PI;
-		ultimoangolo[i]=ultimoangolo[i]*180./PI;
-		primoangolo[i]=primoangolo[i]*180./PI;
-	}
-
-
-	if( nSttParHitsinTrack[i]+nMvdPixelHitsinTrack[i]+
-		nMvdStripHitsinTrack[i]>0 &&  doMcComparison) {
-
-	   for( j=0;j<nMCSkewAlone[i];j++){
-		puntator  = (FairMCPoint*) fSttPointArray->At(MCSkewAloneList[i][j]);
-	   	MCSkewAloneX[ MCSkewAloneList[i][j] ]=puntator->GetX();
-	   	MCSkewAloneY[ MCSkewAloneList[i][j] ]=puntator->GetY();
-	   }
-
-
-if(istampa>1) cout<<"PndTracking, evt. "<<IVOLTE<<
-";\n\tprima di WriteMacro, n. vero della trackcand "
-	<<i<<", n. sequenziale per le macro = "<<k<<endl;
-		WriteMacroSttParallelAssociatedHitsandMvdwithMC(
-                   Ox[i], Oy[i], R[i],
-			primoangolo[i],ultimoangolo[i],
-                   nSttParHitsinTrack[i],
-		   ListSttParHitsinTrack,
-                   info,
-                   i,
-		k,	// questo si usa solo per il nome della Macro.
-		daTrackFoundaTrackMC[i],
-		nParalCommon,
-		ParalCommonList,
-		nSpuriParinTrack,
-		ParSpuriList,
-		nMCParalAlone,
-		MCParalAloneList,
-
-		nMvdPixelHitsinTrack[i],
-		ListMvdPixelHitsinTrack,
-		nMvdStripHitsinTrack[i],
-		ListMvdStripHitsinTrack,
-
-		nMvdPixelCommon[i],
-		&MvdPixelCommonList[i][0],
-		nMvdPixelSpuriinTrack[i],
-		&MvdPixelSpuriList[i][0],
-		nMCMvdPixelAlone[i],
-		&MCMvdPixelAloneList[i][0],
-
-		nMvdStripCommon[i],
-		&MvdStripCommonList[i][0],
-		nMvdStripSpuriinTrack[i],
-		&MvdStripSpuriList[i][0],
-		nMCMvdStripAlone[i],
-		&MCMvdStripAloneList[i][0],
-
-		nSttSkewHitsinTrack[i],
-		ListSttSkewHitsinTrack,
-		&SchosenSkew[i][0],
-		nSkewCommon,
-		SkewCommonList,
-		nMCSkewAlone,
-		MCSkewAloneList
-						);
-	}	// end of  if( nSttParHitsinTrack[i]+nMvdPixelHitsinTrack[i]+
-		//			nMvdStripHitsinTrack[i]>0 &&  doMcComparison)
-
-      if(  nSttSkewHitsinTrack[i]+nMvdPixelHitsinTrack[i]+
-      	nMvdStripHitsinTrack[i]>0 &&  doMcComparison){
-             WriteMacroSkewAssociatedHitswithMC(
-                   KAPPA[i],
-		   FI0[i],
-		    Ox[i],
-		     Oy[i],
-		      R[i],
-		   Charge[i],
-                   info,
-		   WDX,WDY,WDZ,
-                   i,
-		k,	// questo si usa solo per il nome della Macro.
-                   nSttSkewHitsinTrack[i],
-                   ListSttSkewHitsinTrack,
-                   nSkewCommon[i],
-                   SkewCommonList,
-                   daTrackFoundaTrackMC[i],
-                   nMCSkewAlone[i],
-                   MCSkewAloneList,
-		   nMvdPixelHitsinTrack,
-		   ListMvdPixelHitsinTrack,
-		   nMvdStripHitsinTrack,
-		   ListMvdStripHitsinTrack,
-
-
-		nMvdPixelCommon[i],
-		&MvdPixelCommonList[i][0],
-		nMvdPixelSpuriinTrack[i],
-		&MvdPixelSpuriList[i][0],
-		nMCMvdPixelAlone[i],
-		&MCMvdPixelAloneList[i][0],
-
-		nMvdStripCommon[i],
-		&MvdStripCommonList[i][0],
-		nMvdStripSpuriinTrack[i],
-		&MvdStripSpuriList[i][0],
-		nMCMvdStripAlone[i],
-		&MCMvdStripAloneList[i][0],
-		&esseSciTil[i][0]
-			);
-      }  //  end of	if(  nSttSkewHitsinTrack[i]+nMvdPixelHitsinTrack[i]+
-	//	nMvdStripHitsinTrack[i]>0 &&  doMcComparison)
-    }            //   end of   for(  i= 0; i< nSttTrackCand; i++)
-i=0;
-
-
-
-        WriteMacroParallelHitsGeneral(
-                   nSttHit, info,
-		   nTotalCandidates,
-		   keepit,
-		   Ox,Oy,R,
-		   FI0,
-		   ultimoangolo,
-		   primoangolo
-					);
-
-//     la seguente e' da modificare per includere eventuali hits SciTil mai usati.
-        WriteMacroAllHitsRestanti(
-		nSttHit,
-		nSttParHit,
-		nSttSkewHit,
-		info,
-		keepit,
-		nTotalCandidates,
-		nTrackCandHit,
-		ListTrackCandHit,
-		ListTrackCandHitType
-					);
-
-
-    }   //    end of   if(iplotta)
-
-//---------------------  fine plottamenti --------------------------------------------
-
-quifinisce     */
 return;
 
 }
@@ -4594,7 +3215,7 @@ bool  PndTracking::AcceptHitsConformal(
 		zdist1,
 		zdist2;
 
-    Double_t allowed_distance = 4.*STRAWRADIUS/sin(STRAW_SKEW_INCLINATION_DEGREES*PI/180.);
+    Double_t allowed_distance = 4.*STRAWRADIUS/sin(STRAW_SKEW_INCLINATION*PI/180.);
 
 
     if(fabs(KAPPA)<1.e-20) {
@@ -5893,7 +4514,7 @@ void PndTracking::BoxConformalFilling(
 			infoparalConformal[ListSttParHits[i]][1]*
 			infoparalConformal[ListSttParHits[i]][1]);
 
-	for(j=nRdivConformalEffective-1, iR=0; j>0; j--){
+	for(j=nRdivConformalEffective-1, iR=0; j>0; j--){ 
 		if( RRR> radiaConf[j] ){
 			iR = j;
 			break;
@@ -6397,6 +5018,810 @@ void PndTracking::ChooseEntranceExitbis(
 }
 
 //------------------------- end of function  PndTracking::CollectParSttHitsagain
+
+
+//-------------------------  begin function  PndTracking::ComparisonwithMC
+void PndTracking::ComparisonwithMC(
+	Short_t * Charge,
+	Short_t * daTrackFoundaTrackMC,
+	Double_t *FI0,
+	Double_t info[][7],
+	Double_t *KAPPA,
+	bool * keepit,
+	UShort_t *nHitsInMCTrack,
+	UShort_t *nMCParalAlone,
+	UShort_t *nMCSkewAlone,
+	UShort_t *nParalCommon,
+	UShort_t *nSkewCommon,
+	UShort_t *nSkewHitsInMCTrack,
+	UShort_t *nSpuriParinTrack,
+	UShort_t *nSpuriSkewinTrack,
+	UInt_t nSttHit,
+	UShort_t nTotalCandidates,
+	UShort_t MCParalAloneList[][MAXSTTHITSINTRACK],
+	UShort_t MCSkewAloneList[][MAXSTTHITSINTRACK],
+	Double_t * Ox,
+	Double_t * Oy,
+	UShort_t ParalCommonList[][MAXSTTHITSINTRACK],
+	UShort_t ParSpuriList[][MAXSTTHITSINTRACK],
+	PndMCTrack* pMCtr,
+	Double_t * R,
+	Short_t *resultFitSZagain,
+	UShort_t SkewCommonList[][MAXSTTHITSINTRACK],
+	UShort_t SkewSpuriList[][MAXSTTHITSINTRACK],
+	bool *SttSZfit
+					)
+{
+ UInt_t
+	i,
+	nMvdMCPoint
+	;
+
+ int
+	j,
+	ncand;
+
+ Double_t	dista;
+
+
+//----------   fetching the MC truth tracks
+	nMCTracks = fMCTrackArray->GetEntriesFast(); // num. tracce/evento
+	if (istampa >= 2) {
+	     cout<<"da PndTracking  : evento (partendo da 0)  N. "<<
+	       IVOLTE<< "\n       N. di MC truth tracks  : "<<nMCTracks<<endl;
+	}
+	if (nMCTracks ==0){
+		cout<<"da PndTracking  :  N. di MC truth tracks = 0, return!\n"<<endl;
+	} else if(nMCTracks> MAXMCTRACKS){
+		cout<<"da PndTracking  :  N. di MC truth tracks = "<<nMCTracks
+		<<" and it is > MAXMCTRACKS = "<<MAXMCTRACKS<<", setting it equal to MAXMCTRACKS.\n";
+		nMCTracks = MAXMCTRACKS;
+	}
+
+ if(istampa>=2) stampaMCTracks();
+
+
+// ---------------------------------------------  get MC Points of  MVD
+
+ nMvdMCPoint = fMvdMCPointArray->GetEntriesFast();
+  if(nMvdMCPoint>MAXMVDMCPOINTS) {
+	cout<<"from PndTracking, nMvdMCPoint = "<<nMvdMCPoint
+	<<" and it is > the maximum number allowed ("<<MAXMVDMCPOINTS<<
+	")"<<
+	", setting nMvdMCPoint to "<<MAXMVDMCPOINTS<<endl;
+	nMvdMCPoint=MAXMVDMCPOINTS;
+ }
+ if(istampa>=2) cout<<"N. MC Points delle Mvd = "<<nMvdMCPoint<<endl;
+
+
+
+//--------------------  comparison of the PndTrackCand from PR of the STT to the MC truth
+//    associate the tracks found with Pattern Recognition to the MC tracks
+
+
+//  the following method associates the Mvd hits to corresponding MC tracks
+
+   Int_t	FromPixeltoMCTrack[nMvdPixelHit],
+		FromStriptoMCTrack[nMvdStripHit];
+
+  if( doMcComparison){
+	MvdMatchtoMC(
+		nMvdMCPoint,
+		FromPixeltoMCTrack,	// output
+		FromStriptoMCTrack	// output
+		);
+  }
+
+
+//  this section associates the found tracks  to the
+//  MC tracks, creating a bilinear correspondence between MC tracks and PR Found tracks
+
+	UShort_t	nMvdPixelCommon[nTotalCandidates],
+			MvdPixelCommonList[nTotalCandidates][nMvdPixelHit],
+			nMvdPixelSpuriinTrack[nTotalCandidates],
+			MvdPixelSpuriList[nTotalCandidates][nMvdPixelHit],
+			nMCMvdPixelAlone[nTotalCandidates],
+			MCMvdPixelAloneList[nTotalCandidates][nMvdPixelHit],
+
+			nMvdStripCommon[nTotalCandidates],
+			MvdStripCommonList[nTotalCandidates][nMvdStripHit],
+			nMvdStripSpuriinTrack[nTotalCandidates],
+			MvdStripSpuriList[nTotalCandidates][nMvdStripHit],
+			nMCMvdStripAlone[nTotalCandidates],
+			MCMvdStripAloneList[nTotalCandidates][nMvdStripHit];
+
+
+
+ if( nMCTracks >0 && nTotalCandidates > 0 && doMcComparison ){
+
+
+	int nmid,nn;
+
+	Double_t X1[MAXTRACKSPEREVENT],
+		 Y1[MAXTRACKSPEREVENT],
+		 X2[MAXTRACKSPEREVENT],
+		 Y2[MAXTRACKSPEREVENT],
+		 X3[MAXTRACKSPEREVENT],
+		 Y3[MAXTRACKSPEREVENT];
+	
+	for(i=0; i<nTotalCandidates;i++){
+		if(!keepit[i]) continue;
+
+
+		nn = nSttParHitsinTrack[i]+nSttSkewHitsinTrack[i]+
+			nMvdPixelHitsinTrack[i]+nMvdStripHitsinTrack[i];
+		// the first point on trajectory is point closest approach to (0,0)
+		X1[i] = Ox[i] + R[i]*cos( FI0[i]);
+		Y1[i] = Oy[i] + R[i]*sin( FI0[i]);
+
+		//  the third point on trajectory is given by the last hit
+
+		switch ( ListTrackCandHitType[i][nn-1]){
+		case 0 :	// Pixel
+			X3[i] = XMvdPixel[ ListTrackCandHit[i][nn-1] ] ;
+			Y3[i] = YMvdPixel[ ListTrackCandHit[i][nn-1] ] ;
+		break;
+		case 1 :	// Strip
+			X3[i] = XMvdStrip[ ListTrackCandHit[i][nn-1] ] ;
+			Y3[i] = YMvdStrip[ ListTrackCandHit[i][nn-1] ] ;
+		break;
+		case 2 :	// Straw parallel
+			X3[i] = info[ ListTrackCandHit[i][nn-1] ][0] ;
+			Y3[i] = info[ ListTrackCandHit[i][nn-1] ][1] ;
+		break;
+		case 3 :	// Straw skew
+			X3[i] = info[ ListTrackCandHit[i][nn-1] ][0] ;
+			Y3[i] = info[ ListTrackCandHit[i][nn-1] ][1] ;
+		break;
+		};
+
+
+		//  the 2nd point on the trajectory is given by the middle between
+		//  first and third point.
+
+		Double_t angle, middle;
+		angle = atan2(Y3[i]-Oy[i], X3[i]-Ox[i]);
+		if(angle <0.) angle+= 2.*PI;
+		if(angle <0.) angle = 0.;
+
+		if( Charge[i]>0 ){ //  clockwise.
+			if( FI0[i] < angle ) angle -= 2.*PI;
+			if( FI0[i] < angle ) angle =0.;
+		} else{  // counterclockwise.
+			if( FI0[i] > angle ) angle += 2.*PI;
+			if( FI0[i] > angle ) angle = FI0[i];
+		}
+			middle = (FI0[i]+angle)/2.;
+
+		X2[i] = Ox[i] + R[i]*cos( middle );
+		Y2[i] = Oy[i] + R[i]*sin( middle );
+
+
+	}	// end of  for(i=0; i<nTotalCandidates;i++)
+
+	AssociateFoundTrackstoMCquater(
+		keepit,
+		info,
+		Ox,
+		Oy,
+		R,
+		X1,
+		Y1,
+		X2,
+		Y2,
+		X3,
+		Y3,
+		nTotalCandidates,
+		nSttParHitsinTrack,
+		ListSttParHitsinTrack,
+		nSttSkewHitsinTrack,
+		ListSttSkewHitsinTrack,
+
+		nMvdPixelHitsinTrack,
+		ListMvdPixelHitsinTrack,
+		FromPixeltoMCTrack,
+		nMvdStripHitsinTrack,
+		ListMvdStripHitsinTrack,
+		FromStriptoMCTrack,
+
+		daTrackFoundaTrackMC
+		);
+
+
+ if(istampa>=3){
+	for(i=0;i<nTotalCandidates;i++){
+		cout<<"from PndTracking : Track candidate n. "<<i;
+		if(keepit[i]){
+		  cout<<"  associated to MC Track n. "<<daTrackFoundaTrackMC[i]<<endl;
+		} else {
+		  cout<<"  has keepit  false!\n";
+		}
+	}
+ }
+
+
+
+//  the following method counts the matched to MC and spurious hits for all STT  Found tracks and
+//  also the ghost tracks
+ SttMatchedSpurious(
+	keepit,
+	nSttHit,
+	info,
+	nTotalCandidates,
+	nSttParHitsinTrack, // n. hits paralleli, dal PR
+	ListSttParHitsinTrack, // dal PR
+	nSttSkewHitsinTrack, // n. hits skew, dal PR
+	ListSttSkewHitsinTrack, // dal PR
+
+	nParalCommon,
+	ParalCommonList,
+	nSpuriParinTrack,
+	ParSpuriList,
+
+	nSkewCommon,
+	SkewCommonList,
+	nSpuriSkewinTrack,
+	SkewSpuriList,
+	nHitsInMCTrack,
+	nSkewHitsInMCTrack,
+
+	nMCParalAlone,
+	MCParalAloneList,
+	nMCSkewAlone,
+	MCSkewAloneList,
+
+	daTrackFoundaTrackMC
+	);
+//--------------------  end comparison of the PndTrackCand from PR of the STT to the MC truth
+
+//	assumo che la traccia MC associata alla traccia trovata dal Pattern Recognition
+//	sia quella giusta e di
+//	conseguenza calcolo gli hits Mvd spuri e comuni
+
+
+   MvdMatchedSpurioustoTrackCand(
+			nTotalCandidates,		// input
+			keepit,				// input
+			&daTrackFoundaTrackMC[0],	// input
+
+			&FromPixeltoMCTrack[0],		// input
+			&FromStriptoMCTrack[0],		// input
+
+			&nMvdPixelHitsinTrack[0],	// input
+			ListMvdPixelHitsinTrack,	// input
+			&nMvdStripHitsinTrack[0],	// input
+			ListMvdStripHitsinTrack,	// input
+
+			&nMvdPixelCommon[0],		// output
+			&MvdPixelCommonList[0][0],	// output
+			&nMvdPixelSpuriinTrack[0],	// output
+			&MvdPixelSpuriList[0][0],	// output
+			&nMCMvdPixelAlone[0],		// output
+			&MCMvdPixelAloneList[0][0],	// output
+
+			&nMvdStripCommon[0],		// output
+			&MvdStripCommonList[0][0],	// output
+			&nMvdStripSpuriinTrack[0],	// output
+			&MvdStripSpuriList[0][0],	// output
+			&nMCMvdStripAlone[0],		// output
+			&MCMvdStripAloneList[0][0]	// output
+			);
+
+
+
+
+
+
+//---------- inizio stampaggi
+if(istampa>=3){
+
+//     for(ncand=0; ncand< nSttTrackCand; ncand++){
+	 int nbuone=-1;
+     for(ncand=0; ncand< nTotalCandidates; ncand++){
+	if(!keepit[ncand]) continue;
+	nbuone++;
+//----------------- ora la traccia MC corrispondente a questa traccia Stt
+//		cout<<"\n\nda PndTracking : la PndTrackCand n. "<<ncand;
+		cout<<"\n\nda PndTracking, evt. "<<IVOLTE
+		<<": la PndTrackCand n. "<<nbuone;
+       if(daTrackFoundaTrackMC[ncand] >-1 ) {
+
+		Int_t icode, im;
+		Double_t aaa,Rr, Dd, Fifi, Oxx, Oyy, Cx, Cy, Pxx, Pyy, carica  ;
+		PndMCTrack* pMC;
+		im=daTrackFoundaTrackMC[ncand];
+		pMC = (PndMCTrack*) fMCTrackArray->At(im);
+	   if ( pMC ) {
+         	icode  = pMC->GetPdgCode() ;    //   PDG code of track
+         	Oxx = pMC->GetStartVertex().X();    //   X of starting point track
+         	Oyy = pMC->GetStartVertex().Y();    //   Y of starting point track
+         	Pxx = pMC->GetMomentum().X();
+         	Pyy = pMC->GetMomentum().Y();
+         	aaa = sqrt( Pxx*Pxx + Pyy*Pyy);
+         	Rr =   aaa*1000./(BFIELD*CVEL);    //   R (cm) of Helix of track projected in XY plane; B = 2 Tesla
+         	TDatabasePDG *fdbPDG= TDatabasePDG::Instance();
+         	TParticlePDG *fParticle= fdbPDG->GetParticle(icode);
+       		if (icode>1000000000) carica = 1.;
+       		else  carica = fParticle->Charge()/3. ;    //   charge of track
+		if(fabs(carica)<1.e-5) {
+			cout<<"...associata ad una traccia neutra, assurdo!\n";
+			continue ;}
+           	Cx = Oxx + Pyy*1000./(BFIELD*CVEL*carica);
+           	Cy = Oyy - Pxx*1000./(BFIELD*CVEL*carica);
+		cout<<"  e' associata alla traccia MC n. "<<im<<" che ha :\n"
+		<<"\tR = "<<Rr<<" ed ha centro in Cx = "<<Cx<<" e Cy = "<<Cy<<endl;
+	  } else {
+		cout<<"  ha daTrackFoundaTrackMC[ncand] = "<<daTrackFoundaTrackMC[ncand]
+		<<"   pero' non ha puntatore alla sua classe PndMCTrack\n";
+	  }
+	}  else {
+		cout<<"  ha daTrackFoundaTrackMC[ncand] = "<<daTrackFoundaTrackMC[ncand]<<endl;
+	}
+		cout<<"Track Cand n. "<<nbuone<<", associato a Traccia MC n. "<<
+		daTrackFoundaTrackMC[ncand]<<", ha "<<
+		nMvdPixelHitsinTrack[ncand]<<
+		" Pixel Hits associati, di cui ecco la lista :\n";
+		for(j=0;j<nMvdPixelHitsinTrack[ncand];j++){
+			cout<<"\tHit n. "<<
+			ListMvdPixelHitsinTrack[ncand][j]<<
+			" che fu associato a MC track "
+			<<FromPixeltoMCTrack[
+			  ListMvdPixelHitsinTrack[ncand][j]
+			  ]<<endl;
+		}
+
+		cout<<"dalla mia funzione risulta che ci sono "<<
+		nMvdPixelCommon[ncand]<<
+		" Pixel hits mecciati alla giusta traccia MC e la loro lista e' :\n";
+		if( nMvdPixelCommon[ncand]==0) cout<<"\t-----------nessuna lista\n";
+		for(j=0;j<nMvdPixelCommon[ncand];j++){
+			cout<<"\tHit n. "<<
+			MvdPixelCommonList[ncand][j]<<
+			" che fu associato a MC track "
+			<<FromPixeltoMCTrack[
+			  MvdPixelCommonList[ncand][j]
+			  ]<<endl;
+		}
+
+		cout<<"  ... inoltre ci sono  "<<nMvdPixelSpuriinTrack[ncand]
+		<<"  Pixel hits spuri, elenco e' :\n";
+		if( nMvdPixelSpuriinTrack[ncand]==0) cout<<"\t-----------nessuna lista\n";
+		for(j=0;j<nMvdPixelSpuriinTrack[ncand];j++){
+			cout<<"\tHit n. "<<
+			MvdPixelSpuriList[ncand][j]<<
+			" che fu associato a MC track "
+			<<FromPixeltoMCTrack[
+			  MvdPixelSpuriList[ncand][j]
+			  ]<<endl;
+		}
+		cout<<"  ... inoltre ci sono  "<<nMCMvdPixelAlone[ncand]
+		<<"  Pixel hits non inclusi, il cui elenco e' :\n";
+		if( nMCMvdPixelAlone==0) cout<<"\t-----------nessuna lista\n";
+		for(j=0;j<nMCMvdPixelAlone[ncand];j++){
+			cout<<"\tHit n. "<<
+			MCMvdPixelAloneList[ncand][j]<<
+			" che fu associato a MC track "
+			<<FromPixeltoMCTrack[
+			  MCMvdPixelAloneList[ncand][j]
+			  ]<<endl;
+		}
+
+
+		cout<<"inoltre, sempre Track Cand n. "<<nbuone<<", associato a Traccia MC n. "<<
+		daTrackFoundaTrackMC[ncand]<<", ha "<<
+		nMvdStripHitsinTrack[ncand]<<
+		" Strip Hits associati, di cui ecco la lista :\n";
+		if(nMvdStripHitsinTrack[ncand]==0) cout<<"\t-----------nessuna lista\n";
+		for(j=0;j<nMvdStripHitsinTrack[ncand];j++){
+			cout<<"\tHit n. "<<
+			ListMvdStripHitsinTrack[ncand][j]<<
+			" che fu associato a MC track "
+			<<FromStriptoMCTrack[
+			  ListMvdStripHitsinTrack[ncand][j]
+			  ]<<endl;
+		}
+		cout<<"dalla mia funzione risulta che ci sono "<<
+		nMvdStripCommon[ncand]<<
+		" Strip hits mecciati alla giusta traccia MC e la loro lista e' :\n";
+		if(nMvdStripCommon[ncand]==0) cout<<"\t-----------nessuna lista\n";
+		for(j=0;j<nMvdStripCommon[ncand];j++){
+			cout<<"\tHit n. "<<
+			MvdStripCommonList[ncand][j]<<
+			" che fu associato a MC track "
+			<<FromStriptoMCTrack[
+			  MvdStripCommonList[ncand][j]
+			  ]<<endl;
+		}
+		cout<<"  ... inoltre ci sono  "<<nMvdStripSpuriinTrack[ncand]
+		<<"  Strip hits spuri, il cui elenco e' :\n";
+		if(nMvdStripSpuriinTrack[ncand]==0) cout<<"\t-----------nessuna lista\n";
+		for(j=0;j<nMvdStripSpuriinTrack[ncand];j++){
+			cout<<"\tHit n. "<<
+			MvdStripSpuriList[ncand][j]<<
+			" che fu associato a MC track "
+			<<FromStriptoMCTrack[
+			  MvdStripSpuriList[ncand][j]
+			  ]<<endl;
+		}
+
+		cout<<"  ... inoltre ci sono  "<<nMCMvdStripAlone[ncand]
+		<<"  Strip hits non inclusi, il cui elenco e' :\n";
+		if(nMCMvdStripAlone[ncand]==0) cout<<"\t-----------nessuna lista\n";
+		for(j=0;j<nMCMvdStripAlone[ncand];j++){
+			cout<<"\tHit n. "<<
+			MCMvdStripAloneList[ncand][j]<<
+			" che fu associato a MC track "
+			<<FromStriptoMCTrack[
+			  MCMvdStripAloneList[ncand][j]
+			  ]<<endl;
+		}
+
+//------
+
+		cout<<"inoltre, sempre Track Cand n. "<<nbuone<<", associato a Traccia MC n. "<<
+		daTrackFoundaTrackMC[ncand]<<", ha "<<
+		nSttParHitsinTrack[ncand]<<
+		" Stt || Hits associati, di cui ecco la lista :\n";
+		if(nSttParHitsinTrack[ncand]==0) cout<<"\t-----------nessuna lista\n";
+		for(j=0;j<nSttParHitsinTrack[ncand];j++){
+			cout<<"\tHit n. "<<
+			ListSttParHitsinTrack[ncand][j]<<
+			" che fu associato a MC track "
+			<<info[
+			  ListSttParHitsinTrack[ncand][j]
+			  ][6]<<endl;
+		}
+		cout<<"dalla mia funzione risulta che ci sono "<<
+		nParalCommon[ncand]<<
+		" Stt || hits mecciati alla giusta traccia MC e la loro lista e' :\n";
+		if(nParalCommon[ncand]==0) cout<<"\t-----------nessuna lista\n";
+		for(j=0;j<nParalCommon[ncand];j++){
+			cout<<"\tHit n. "<<
+			ParalCommonList[ncand][j]<<
+			" che fu associato a MC track "
+			<<info[
+			  ParalCommonList[ncand][j]
+			  ][6]<<endl;
+		}
+		cout<<"  ... inoltre ci sono  "<<nSpuriParinTrack[ncand]
+		<<"  Stt || hits spuri, il cui elenco e' :\n";
+		if(nSpuriParinTrack[ncand]==0) cout<<"\t-----------nessuna lista\n";
+		for(j=0;j<nSpuriParinTrack[ncand];j++){
+			cout<<"\tHit n. "<<
+			ParSpuriList[ncand][j]<<
+			" che fu associato a MC track "
+			<<info[
+			  ParSpuriList[ncand][j]
+			  ][6]<<endl;
+		}
+
+		cout<<"  ... inoltre ci sono  "<<nMCParalAlone[ncand]
+		<<"  Stt || hits non inclusi, il cui elenco e' :\n";
+		if(nMCParalAlone[ncand]==0) cout<<"\t-----------nessuna lista\n";
+		for(j=0;j<nMCParalAlone[ncand];j++){
+			cout<<"\tHit n. "<<
+			MCParalAloneList[ncand][j]<<
+			" che fu associato a MC track "
+			<<info[
+			  MCParalAloneList[ncand][j]
+			  ][6]<<endl;
+		}
+
+
+//------
+
+
+		cout<<"inoltre, sempre Track Cand n. "<<nbuone<<", associato a Traccia MC n. "<<
+		daTrackFoundaTrackMC[ncand]<<", ha "<<
+		nSttSkewHitsinTrack[ncand]<<
+		" Stt skew Hits associati, di cui ecco la lista :\n";
+		if(nSttSkewHitsinTrack[ncand]==0) cout<<"\t-----------nessuna lista\n";
+		for(j=0;j<nSttSkewHitsinTrack[ncand];j++){
+			cout<<"\tHit n. "<<
+			ListSttSkewHitsinTrack[ncand][j]<<
+			" che fu associato a MC track "
+			<<info[
+			  ListSttSkewHitsinTrack[ncand][j]
+			  ][6]<<endl;
+		}
+		cout<<"dalla mia funzione risulta che ci sono "<<
+		nSkewCommon[ncand]<<
+		" Stt skew hits mecciati alla giusta traccia MC e la loro lista e' :\n";
+		if(nSkewCommon[ncand]==0) cout<<"\t-----------nessuna lista\n";
+		for(j=0;j<nSkewCommon[ncand];j++){
+			cout<<"\tHit n. "<<
+			SkewCommonList[ncand][j]<<
+			" che fu associato a MC track "
+			<<info[
+			  SkewCommonList[ncand][j]
+			  ][6]<<endl;
+		}
+		cout<<"  ... inoltre ci sono  "<<nSpuriSkewinTrack[ncand]
+		<<"  Stt skew hits spuri, il cui elenco e' :\n";
+		if(nSpuriSkewinTrack[ncand]==0) cout<<"\t-----------nessuna lista\n";
+		for(j=0;j<nSpuriSkewinTrack[ncand];j++){
+			cout<<"\tHit n. "<<
+			SkewSpuriList[ncand][j]<<
+			" che fu associato a MC track "
+			<<info[
+			  SkewSpuriList[ncand][j]
+			  ][6]<<endl;
+		}
+
+		cout<<"  ... inoltre ci sono  "<<nMCSkewAlone[ncand]
+		<<"  Stt skew hits non inclusi, il cui elenco e' :\n";
+		if(nMCSkewAlone[ncand]==0) cout<<"\t-----------nessuna lista\n";
+		for(j=0;j<nMCSkewAlone[ncand];j++){
+			cout<<"\tHit n. "<<
+			MCSkewAloneList[ncand][j]<<
+			" che fu associato a MC track "
+			<<info[
+			  MCSkewAloneList[ncand][j]
+			  ][6]<<endl;
+		}
+
+
+//------
+
+	}	// end of for(ncand=0; ncand< nSttTrackCand; ncand++)
+
+}	// end of if(istampa>=2)
+//-------------fine stampaggi
+
+// ora il confronto per il meeting di  Groningen
+
+//---------- conteggio delle tracce MC accettabili!!
+
+int citata;
+int nMCTracksaccettabili=0;
+int ListaMCTracksaccettabili[nMCTracks];
+
+for (i=0;i<nMCTracks;i++){
+	citata=0;
+   	pMCtr = (PndMCTrack*) fMCTrackArray->At(i);
+   	if ( ! pMCtr ) continue;
+         Double_t aaa, carica, Rr, Dd, Fifi, Oxx, Oyy, Cx, Cy, Pxx, Pyy  ;
+         Int_t icode;
+         icode  = pMCtr->GetPdgCode() ;    //   PDG code of track
+         Oxx = pMCtr->GetStartVertex().X();    //   X of starting point track
+         Oyy = pMCtr->GetStartVertex().Y();    //   Y of starting point track
+         Pxx = pMCtr->GetMomentum().X();
+         Pyy = pMCtr->GetMomentum().Y();
+         aaa = sqrt( Pxx*Pxx + Pyy*Pyy);
+         Rr =   aaa*1000./(BFIELD*CVEL);    //   R (cm) of Helix of track projected in XY plane; B = 2 Tesla
+
+
+
+	if(istampa>2){
+		TDatabasePDG *fdbPDG= TDatabasePDG::Instance();
+		TParticlePDG *fParticle= fdbPDG->GetParticle(icode);
+		if (icode>1000000000) carica = 1.;
+		else  carica = fParticle->Charge()/3. ;    //   charge of track
+		if(fabs(carica)<1.e-5) continue;
+		Cx = Oxx + Pyy*1000./(BFIELD*CVEL*carica);
+		Cy = Oyy - Pxx*1000./(BFIELD*CVEL*carica);
+		cout<<"da PndTracking, evento (cominciando da 0) n. "<<IVOLTE<<
+		",  traccia MC n. "<<i<<",  R MC = "<<Rr<<", Centro X = "<<Cx
+		<<", Centro Y = "<<Cy<<endl;
+	}
+
+
+
+	for(int ic=0;ic<nSttHit;ic++){
+		if( ( (int) (info[ic][6]+0.1) ) == i   && info[ic][5]<2.){
+			citata++;
+		}
+	}
+	if( citata>2 && fabs(Oxx)<1. && fabs(Oyy) < 1. ) {
+		ListaMCTracksaccettabili[nMCTracksaccettabili]=i;
+		nMCTracksaccettabili++;
+	}
+
+
+}
+
+if(istampa>=1){cout<<"da PndTracking, MC comparison; evt. "<<IVOLTE<<", nMCTracks "<<nMCTracks
+<<", n. MC tracce accettabili "<<nMCTracksaccettabili
+<<" e loro lista :\n";
+	for(int g=0; g<nMCTracksaccettabili;g++){
+		cout<<"\ttraccia MC n. "<<ListaMCTracksaccettabili[g]<<endl;
+	}
+cout<<"Total track trovate "<<nTotalCandidates<<endl;
+}
+
+//----------- fine conteggio delle tracce MC accettabili
+
+//  if(istampa>=1 )  fprintf(HANDLE, "\n Evento %d  NTotaleTracceMC %d ------\n",IVOLTE, nMCTracks);
+  if(istampa>=1 ) {
+
+   fprintf(HANDLE, "\n Evento %d  NTotaleTracceMC %d ------\n",IVOLTE,
+  	nMCTracksaccettabili);
+	int ibene=0;
+	if(nMCTracksaccettabili>0){
+		for(int ii=0; ii<nTotalCandidates;ii++){
+			for(i=0;i<nMCTracksaccettabili;i++){
+				if( daTrackFoundaTrackMC[ii]==ListaMCTracksaccettabili[i]){
+					ibene++;
+				}
+			}
+		}
+	}
+	if(ibene>0) fprintf(HANDLE,"\tn. volte almeno 1 traccia MC accettabile e' ricostruita %d\n"
+		,ibene);
+
+bool flaggo;
+int ii, ibuone=-1;
+Double_t HoughFiii;
+
+
+
+for (ii=0; ii<nTotalCandidates  ;ii++){
+   if(!keepit[ii]) { if(istampa>1) {cout<<"\tevt. n "<<IVOLTE<<", cand. "<<ii<<" ha keepit false."<<
+   	endl;}; continue;}
+   ibuone++;
+   fprintf(HANDLE,"----------------------------------------------------------\n");
+   i=daTrackFoundaTrackMC[ii];
+
+
+
+   if( i <0  ) {
+    fprintf(HANDLE,
+"   No TracciaMC associated to found track n. %d in pattern recognition, with %d Hits ||, %d skew hits, %f Radius \n "
+         ,ibuone,nSttParHitsinTrack[ii], nSttSkewHitsinTrack[ii],  R[ii] );
+            continue;
+         }
+   if( ( !SttSZfit[ii] )&&(resultFitSZagain[ii] !=1 )) {
+    fprintf(HANDLE,
+"       TracciaMC %d; sua FoundTrack associata (n. %d) NONsoddisfaRequisitiMinimi perche' in Z-S e' fallito il fit \n"
+	,i,ibuone);
+            continue;
+         }
+   if(fabs(KAPPA[ii])<1.e-20 ){
+    fprintf(HANDLE,
+"       TracciaMC %d; sua FoundTrack associata (n. %d) NONsoddisfaRequisitiMinimi perche' KAPPA troppo piccolo; KAPPA = %g\n",
+          i,ibuone,KAPPA[ii]);
+           continue;
+   }
+   	dista=sqrt( Ox[ii]*Ox[ii]+Oy[ii]*Oy[ii] );
+   if(fabs(dista)<1.e-20 ){
+    fprintf(HANDLE,
+"       TracciaMC %d; sua FoundTrack associata (n. %d) NONsoddisfaRequisitiMinimi perche' centro Helix Cilinder trovato dista solo %g da (0,0)\n",
+           i,ibuone,dista);
+           continue;
+   }
+   pMCtr = (PndMCTrack*) fMCTrackArray->At(i);
+   if ( ! pMCtr ){
+		fprintf(HANDLE,
+		"       MC track n. %d doesn't have pointer to MC Track TClones Array\n",
+		i);
+	  continue;
+   }
+
+//   controllo che la traccia associata MC sia una delle tracce MC 'ragionevoli'.
+
+	flaggo = true;
+	for(int g=0; g<nMCTracksaccettabili;g++){
+		if( i==ListaMCTracksaccettabili[g])
+		{
+			flaggo=false;
+			break;
+		}
+	}
+	if(flaggo) continue;
+
+
+
+    fprintf(HANDLE,
+"       TracciaMC %d ParHitsMC %d ParMecc %d ParMeccSpuri %d SkewHitsMC %d  SkewMecc %d SkewMeccSpuri %d\n",
+             i,
+             nHitsInMCTrack[ii],
+             nParalCommon[ii],
+             nSpuriParinTrack[ii],
+             nSkewHitsInMCTrack[ii],
+             nSkewCommon[ii],
+             nSpuriSkewinTrack[ii]
+
+           )  ;
+    fprintf(HANDLE,
+"       e corrisponde a track found n. %d\n", ibuone );
+    fprintf(HANDLE,
+"       AVENDO %d hits paralleli e %d hits skew non mecciati dalla corrisponde track found\n"
+       , nMCParalAlone[ii],nMCSkewAlone[ii]  );
+
+    HoughFiii =  atan2(Oy[ii],Ox[ii]);
+    if(HoughFiii<0.)  HoughFiii += 2.*PI;
+
+         Double_t aaa, carica, Rr, Dd, Fifi, Oxx, Oyy, Cx, Cy, Pxx, Pyy  ;
+         Int_t icode;
+         icode  = pMCtr->GetPdgCode() ;    //   PDG code of track
+         Oxx = pMCtr->GetStartVertex().X();    //   X of starting point track
+         Oyy = pMCtr->GetStartVertex().Y();    //   Y of starting point track
+         Pxx = pMCtr->GetMomentum().X();
+         Pyy = pMCtr->GetMomentum().Y();
+         aaa = sqrt( Pxx*Pxx + Pyy*Pyy);
+         Rr =   aaa*1000./(BFIELD*CVEL);    //   R (cm) of Helix of track projected in XY plane; B = 2 Tesla
+         TDatabasePDG *fdbPDG= TDatabasePDG::Instance();
+         TParticlePDG *fParticle= fdbPDG->GetParticle(icode);
+         if (icode>1000000000) carica = 1.;
+         else  carica = fParticle->Charge()/3. ;    //   charge of track
+	 if(fabs(carica)<1.e-5) fprintf(HANDLE,"       MC track n. %d e' neutra, assurdo!\n",i);
+         Cx = Oxx + Pyy*1000./(BFIELD*CVEL*carica);
+         Cy = Oyy - Pxx*1000./(BFIELD*CVEL*carica);
+         Fifi = atan2(Cy, Cx);       // MC truth Fifi angle of circle of Helix trajectory
+         if(Fifi<0.)  Fifi += 2.*PI;
+         Double_t Kakka ;
+         if( fabs( pMCtr->GetMomentum().Z() )< 1.e-20) Kakka = 99999999.;
+         else  Kakka = -carica*0.001*BFIELD*CVEL/pMCtr->GetMomentum().Z();
+
+    fprintf(HANDLE,
+"       R_MC %g R %g Fi_MC %g Fi %g KAPPA_MC %g KAPPA %g FI0_MC %g FI0 %g\n",
+     Rr,
+     R[ ii ],
+     Fifi,
+     HoughFiii,
+     Kakka,
+     KAPPA[ ii ],
+     fmod(Fifi+ PI, 2.*PI),  //  FI0  da MC truth
+     FI0[ ii ]
+           );
+     
+//------------------------
+
+
+    fprintf(HANDLE2,"Evento n. %d Found track %d messa in PndTrackCand",IVOLTE, ii);
+    fprintf(HANDLE2,
+"       R_MC %g R %g Fi_MC %g Fi %g KAPPA_MC %g KAPPA %g FI0_MC %g FI0 %g\n",
+     Rr,
+     R[ ii ],
+     Fifi,
+     HoughFiii,
+     Kakka,
+     KAPPA[ ii ],
+     fmod(Fifi+ PI, 2.*PI),
+     FI0[ ii ]
+           );
+
+//----------------------------------
+
+
+  }   //   end of  for (ii=0; ii<nSttTrackCand  ;ii++)
+}  // end of if(istampa>=1)
+
+//--------------ghosts
+
+// fa il conto delle ghost solo sugli eventi che hanno almeno 1 traccia MC accettabile.
+int NParghost=0, NParhitsghost=0,icc,ibuone=-1;
+if( istampa>=1 && nMCTracksaccettabili>0){
+
+    for(icc=0; icc<nTotalCandidates;icc++){
+	if(!keepit[icc]) continue;
+	ibuone++;
+       if( daTrackFoundaTrackMC[icc] == -1){
+          NParghost++;
+          NParhitsghost += nSttParHitsinTrack[icc]+nSttSkewHitsinTrack[icc];
+
+          fprintf(HANDLE,"          tracce Trovata n. %d e' Ghost\n",ibuone);
+       }
+    }
+    fprintf(HANDLE,
+"          tracceGhostTrovate %d TotaleHitsGhost %d  ----\n",
+            NParghost,
+            NParhitsghost
+           );
+
+    fprintf(HANDLE,"----------------------------------------------------------\n");
+
+
+}  //   end of    if( istampa>=1)
+
+
+
+
+ }  // end   if( nMCTracks >0 && nTotalCandidates > 0 && doMcComparison )
+
+}
+
+//-------------------------  end function  PndTracking::ComparisonwithMC
 
 
 //-------------------------  begin of function  PndTracking::Dist_SZ
@@ -10903,37 +10328,39 @@ bool PndTracking::IntersectionSciTil_Circle(
 	)
 {
 
-	bool intersect;
+ bool intersect;
 
-	Double_t
-		distance,
-		QQ,
-		sqrtRR,
-		SIGN;
-
-
-	QQ = posizSciTilx*posizSciTilx+posizSciTily*posizSciTily;
-	sqrtRR=sqrt(QQ);
-
-	if( posizSciTily<0.)  SIGN=-1.;
-	else  SIGN=1.;
+ Double_t
+	distance,
+	QQ,
+	sqrtRR,
+	SIGN;
 
 
-	intersect = IntersectionCircle_Segment(
-	  posizSciTilx,
-	  posizSciTily,
-	  -QQ,
-	  posizSciTilx-SIGN*0.5*DIMENSIONSCITIL*posizSciTily/sqrtRR,
-	  posizSciTilx+SIGN*0.5*DIMENSIONSCITIL*posizSciTily/sqrtRR,
-	  posizSciTily-SIGN*posizSciTilx*0.5*DIMENSIONSCITIL/sqrtRR,
-	  posizSciTily+SIGN*posizSciTilx*0.5*DIMENSIONSCITIL/sqrtRR,
-	  Oxx,
-	  Oyy,
-	  Rr,
-	  Nintersections,  // output
-	  XintersectionList,  // output
-	  YintersectionList,  // output
-	  &distance  // output
+ QQ = posizSciTilx*posizSciTilx+posizSciTily*posizSciTily;
+ sqrtRR=sqrt(QQ);
+
+ if( posizSciTily<0.)  SIGN=-1.;
+ else  SIGN=1.;
+
+
+cout<<"\tcazzocazzo, posizSciTilx "<<posizSciTilx
+	<<", posizSciTily "<<posizSciTily<<endl;
+ intersect = IntersectionCircle_Segment(
+	posizSciTilx,
+	posizSciTily,
+	-QQ,
+	posizSciTilx-SIGN*0.5*DIMENSIONSCITIL*posizSciTily/sqrtRR,
+	posizSciTilx+SIGN*0.5*DIMENSIONSCITIL*posizSciTily/sqrtRR,
+	posizSciTily-SIGN*posizSciTilx*0.5*DIMENSIONSCITIL/sqrtRR,
+	posizSciTily+SIGN*posizSciTilx*0.5*DIMENSIONSCITIL/sqrtRR,
+	Oxx,
+	Oyy,
+	Rr,
+	Nintersections,  // output
+	XintersectionList,  // output
+	YintersectionList,  // output
+	&distance  // output
 						);
 
 	return intersect;
@@ -11699,7 +11126,299 @@ bool PndTracking::IsInternal(
 }
 //----------end of function PndTracking::IsInternal
 
+//----------------------  begin function   PndTracking::LoadPndTrack_TrackCand
 
+void PndTracking::LoadPndTrack_TrackCand(
+	bool *keepit,
+	bool *SttSZfit,
+	UShort_t nTotalCandidates,
+	Short_t *Charge,
+	UInt_t nSttTrackCand,
+	Double_t *FI0,
+	Double_t *KAPPA,
+	Double_t info[][7],
+	Double_t *Ox,
+	Double_t *Oy,
+	Double_t *R,
+	Double_t SchosenSkew[][MAXSTTHITS],
+	Double_t ZchosenSkew[][MAXSTTHITS]
+			)
+{
+
+//-------  load the new PndTrackCand ; each track has the STT and the Mvd hits associated
+//-------  also load the new PndTrack ; each track has the STT and the Mvd hits associated
+
+ UInt_t
+	ipinco,
+	j,
+	k,
+	l,
+	ncand
+	;
+
+ Double_t
+	ddd,
+	dis,
+	Distance,
+	Oxx,
+	Oyy,
+	Ptras,
+	Pxini,
+	Pyini,
+	Pzini,
+	px,
+	py,
+	qop,
+	x,
+	y,
+	Posiz1[3],
+	versor[2]
+	;
+
+ TVector3
+	ErrMomentum,
+	ErrPosition,
+	Momentum,
+	Position
+	;
+
+
+ for(ncand=0, ipinco = 0; ncand< nTotalCandidates; ncand++){
+	if(!keepit[ncand]) continue;
+	// case in which there was no Skew hits and no KAPPA info and that
+	// candidate could not be associated to any Mvd hits --> no KAPPA information!
+	if(ncand<nSttTrackCand && ! SttSZfit[ncand]) continue;
+	Oxx = Ox[ncand];
+	Oyy = Oy[ncand];
+	dis=sqrt( Oxx*Oxx+Oyy*Oyy );
+	if( dis < 1.e-20)  continue;
+	Ptras = R[ncand]*0.003*BFIELD;
+	Pxini = -Charge[ncand]*Ptras*Oyy/dis;
+	Pyini = Charge[ncand]*Ptras*Oxx/dis;
+
+//   starting point not necessarily at x=0., y=0.
+
+	x= Ox[ncand] + R[ncand]*cos(FI0[ncand]);
+	y= Oy[ncand] + R[ncand]*sin(FI0[ncand]);
+	TVector3 posSeed(x,y,0.);  //  the starting point
+
+	if(fabs(KAPPA[ncand])>1.e-20  ){
+		Pzini = -Charge[ncand]*0.003*BFIELD/KAPPA[ncand];
+		if(fabs(Pzini) > PMAX)  continue;
+	} else {
+		continue;
+	}
+	// PndTrackCand Array loading
+	new((*fSttMvdPndTrackCandArray)[ipinco])  PndTrackCand;
+	PndTrackCand *pTrckCand = (PndTrackCand*) fSttMvdPndTrackCandArray->At(ipinco);
+	TVector3 dirSeed(Pxini,Pyini,Pzini); // momentum direction in starting point
+	qop = Charge[ncand]/dirSeed.Mag();
+	dirSeed.SetMag(1.);
+	pTrckCand->setTrackSeed(posSeed, dirSeed, qop);
+	pTrckCand->setMcTrackId(  -1   );
+
+	for(j=0; j< nTrackCandHit[ncand]; j++){
+	     switch (ListTrackCandHitType[ncand][j]){
+		case 0:
+			pTrckCand->AddHit(FairRootManager::Instance()->
+				GetBranchId(fMvdPixelBranch),
+				(Int_t)ListTrackCandHit[ncand][j],j);
+		break;
+		case 1:
+			pTrckCand->AddHit(FairRootManager::Instance()->
+				GetBranchId(fMvdStripBranch),
+				(Int_t)ListTrackCandHit[ncand][j],j);
+		break;
+		case 2:
+			pTrckCand->AddHit(FairRootManager::Instance()->
+				GetBranchId(fSttBranch),
+				(Int_t)ListTrackCandHit[ncand][j],j);
+		break;
+		case 3:
+			pTrckCand->AddHit(FairRootManager::Instance()->
+				GetBranchId(fSttBranch),
+				(Int_t)ListTrackCandHit[ncand][j],j);
+		break;
+	     }
+	}
+
+	// PndTrack Array loading
+	//  last = last hit in found track; first = first hit in found track;
+	//  pTrckCand =  pointer to the corresponding  PndTrackCand.
+
+	//  the first hit
+
+	if (ListTrackCandHitType[ncand][0] == 0){  //  Mvd Pixel
+		Posiz1[0] = XMvdPixel[ ListTrackCandHit[ncand][0] ];
+		Posiz1[1] = YMvdPixel[ ListTrackCandHit[ncand][0] ];
+		Posiz1[2] = ZMvdPixel[ ListTrackCandHit[ncand][0] ];
+		ErrPosition.SetX(sigmaXMvdPixel[ ListTrackCandHit[ncand][0] ]/sqrt(12.));
+		ErrPosition.SetY(sigmaXMvdPixel[ ListTrackCandHit[ncand][0] ]/sqrt(12.));
+		ErrPosition.SetZ(sigmaXMvdPixel[ ListTrackCandHit[ncand][0] ]/sqrt(12.));
+	} else if (ListTrackCandHitType[ncand][0] == 1){  //  Mvd Strip
+		Posiz1[0] = XMvdStrip[ ListTrackCandHit[ncand][0] ];
+		Posiz1[1] = YMvdStrip[ ListTrackCandHit[ncand][0] ];
+		Posiz1[2] = ZMvdStrip[ ListTrackCandHit[ncand][0] ];
+		ErrPosition.SetX(sigmaXMvdStrip[ ListTrackCandHit[ncand][0] ]/sqrt(12.));
+		ErrPosition.SetY(sigmaXMvdStrip[ ListTrackCandHit[ncand][0] ]/sqrt(12.));
+		ErrPosition.SetZ(sigmaXMvdStrip[ ListTrackCandHit[ncand][0] ]/sqrt(12.));
+	} else if( ListTrackCandHitType[ncand][0] == 2 ){  // it is a parallel straw hit
+		InfoXYZParal(
+			info,
+			ListTrackCandHit[ncand][0],
+			Ox[ncand],
+			Oy[ncand],
+			R[ncand],
+			KAPPA[ncand],
+			FI0[ncand],
+			Charge[ncand],
+			Posiz1
+			);
+
+		// cases in which the calculation of the position failed, see
+		// InfoXYZParal  method.
+		if(Posiz1[2]<-888888887. || Posiz1[0] < -999999998.)
+			continue;
+
+		ErrPosition.SetX(0.02);	// 200 microns
+		ErrPosition.SetY(0.02);	// 200 microns
+		ErrPosition.SetZ(1.);		// 1 cm
+
+
+	} else if ( ListTrackCandHitType[ncand][0] == 3 ){  // it is a skew straw hit
+
+		Posiz1[0] = Ox[ncand]+R[ncand]*cos(SchosenSkew[ncand][ ListTrackCandHit[ncand][0] ]);
+		Posiz1[1] = Oy[ncand]+R[ncand]*sin(SchosenSkew[ncand][ ListTrackCandHit[ncand][0] ]);
+		Posiz1[2] = ZchosenSkew[ncand][ ListTrackCandHit[ncand][0] ];
+		ErrPosition.SetX(0.02);	// 200 microns
+		ErrPosition.SetY(0.02);	// 200 microns
+		ErrPosition.SetZ(1.);		// 1 cm
+
+	}
+
+	Position.SetX( Posiz1[0] );
+	Position.SetY( Posiz1[1] );
+	Position.SetZ( Posiz1[2] );
+	versor[0] = Ox[ncand]-Posiz1[0];
+	versor[1] = Oy[ncand]-Posiz1[1];
+	Distance = sqrt(versor[0]*versor[0]+versor[1]*versor[1]);
+	versor[0] /= Distance;
+	versor[1] /= Distance;
+	px = -Charge[ncand]*Ptras*versor[1];
+	py = Charge[ncand]*Ptras*versor[0];
+	Momentum.SetX(px);
+	Momentum.SetY(py);
+	Momentum.SetZ(Pzini);
+	ErrMomentum.SetX(0.05*Ptras); //  set at 5% all the times.
+	ErrMomentum.SetY(0.05*Ptras); //  set at 5% all the times.
+	ErrMomentum.SetZ(0.05*Pzini); //  set at 5% all the times.
+	//  the plane of this FairTrackParP better is perpendicular to
+	//  the momentum direction
+	ddd = Ptras*sqrt(Ptras*Ptras+Pzini*Pzini);
+
+	FairTrackParP first( Position,  Momentum,
+	   ErrPosition, ErrMomentum, Charge[ncand],
+	   Position,
+	   TVector3(py/Ptras, -px/Ptras, 0.), //  first vector defining the plane
+	   TVector3(Pzini*px/ddd,Pzini*py/ddd,-Ptras*Ptras/ddd) //second vector defining the plane
+				);
+	//  the last hit
+
+	k = nTrackCandHit[ncand]-1;
+	if (ListTrackCandHitType[ncand][k] == 0){  //  Mvd Pixel
+		Posiz1[0] = XMvdPixel[ ListTrackCandHit[ncand][k] ];
+		Posiz1[1] = YMvdPixel[ ListTrackCandHit[ncand][k] ];
+		Posiz1[2] = ZMvdPixel[ ListTrackCandHit[ncand][k] ];
+		ErrPosition.SetX(sigmaXMvdPixel[ ListTrackCandHit[ncand][k] ]/sqrt(12.));
+		ErrPosition.SetY(sigmaXMvdPixel[ ListTrackCandHit[ncand][k] ]/sqrt(12.));
+		ErrPosition.SetZ(sigmaXMvdPixel[ ListTrackCandHit[ncand][k] ]/sqrt(12.));
+	} else if (ListTrackCandHitType[ncand][k] == 1){  //  Mvd Strip
+		Posiz1[0] = XMvdStrip[ ListTrackCandHit[ncand][k] ];
+		Posiz1[1] = YMvdStrip[ ListTrackCandHit[ncand][k] ];
+		Posiz1[2] = ZMvdStrip[ ListTrackCandHit[ncand][k] ];
+		ErrPosition.SetX(sigmaXMvdStrip[ ListTrackCandHit[ncand][k] ]/sqrt(12.));
+		ErrPosition.SetY(sigmaXMvdStrip[ ListTrackCandHit[ncand][k] ]/sqrt(12.));
+		ErrPosition.SetZ(sigmaXMvdStrip[ ListTrackCandHit[ncand][k] ]/sqrt(12.));
+	} else if( ListTrackCandHitType[ncand][k] == 2 ){  // it is a parallel straw hit
+		InfoXYZParal (
+			info,
+			ListTrackCandHit[ncand][k],
+			Ox[ncand],
+			Oy[ncand],
+			R[ncand],
+			KAPPA[ncand],
+			FI0[ncand],
+			Charge[ncand],
+			Posiz1
+			);
+		if(Posiz1[2]<-888888887. || Posiz1[0] < -999999998.)
+			continue;
+
+		ErrPosition.SetX(0.02);	// 200 microns
+		ErrPosition.SetY(0.02);	// 200 microns
+		ErrPosition.SetZ(1.);	// 1 cm
+
+	} else if ( ListTrackCandHitType[ncand][k] == 3 ){  // it is a skew straw hit
+
+		Posiz1[0] = Ox[ncand]+R[ncand]*cos(SchosenSkew[ncand][ ListTrackCandHit[ncand][k] ]);
+		Posiz1[1] = Oy[ncand]+R[ncand]*sin(SchosenSkew[ncand][ ListTrackCandHit[ncand][k] ]);
+		Posiz1[2] = ZchosenSkew[ncand][ ListTrackCandHit[ncand][k] ];
+		ErrPosition.SetX(0.02);	// 200 microns
+		ErrPosition.SetY(0.02);	// 200 microns
+		ErrPosition.SetZ(1.);	// 1 cm
+
+	}
+
+	Position.SetX( Posiz1[0] );
+	Position.SetY( Posiz1[1] );
+	Position.SetZ( Posiz1[2] );
+	versor[0] = Ox[ncand]-Posiz1[0];
+	versor[1] = Oy[ncand]-Posiz1[1];
+	Distance = sqrt(versor[0]*versor[0]+versor[1]*versor[1]);
+	versor[0] /= Distance;
+	versor[1] /= Distance;
+	px = -Charge[ncand]*Ptras*versor[1];
+	py = Charge[ncand]*Ptras*versor[0];
+	Momentum.SetX(px);
+	Momentum.SetY(py);
+	Momentum.SetZ(Pzini);
+	//  the plane of this FairTrackParP better is perpendicular to
+	//  the momentum direction
+	ddd = Ptras*sqrt(Ptras*Ptras+Pzini*Pzini);
+
+
+
+	FairTrackParP last( Position,  Momentum,
+	   ErrPosition, ErrMomentum, Charge[ncand],
+	   Position,
+	   TVector3(py/Ptras, -px/Ptras, 0.), //  first vector defining the plane
+	   TVector3(Pzini*px/ddd,Pzini*py/ddd,-Ptras*Ptras/ddd) //second vector defining the plane
+				);
+
+
+
+	// loading actually the PndTrack
+	PndTrack *pTrck = new((*fSttMvdPndTrackArray)[ipinco]) PndTrack(first,last,*pTrckCand);
+	pTrck->SetRefIndex(ipinco);
+	pTrck->SetFlag(0);
+
+	ipinco++;
+ }	// end of     for(ncand=0, ipinco = 0; ncand< nTotalCandidates; ncand++)
+
+
+}
+
+
+//----------end function PndTracking::LoadPndTrack_TrackCand
+
+
+
+
+
+
+
+
+//--------------------------------  begin function   PndTracking::MakeInclusionListStt
 
 
 void PndTracking::MakeInclusionListStt(
@@ -11709,6 +11428,10 @@ void PndTracking::MakeInclusionListStt(
 {
 //	fill the inclusion list for Stt, include only first hit for those straws with
 //	multiple hits.
+
+ size_t	len = sizeof(InclusionListStt);
+	memset (InclusionListStt,true,len);
+
  for(int i=0; i< nSttHit-1; i++){
 	if( !InclusionListStt[ i ] ) continue;
 	for(int j=i+1; j< nSttHit; j++){
@@ -14018,6 +13741,59 @@ void PndTracking::SeparateInnerOuterParallel(
 
 //----------end of function PndTracking::SeparateInnerOuterParallel
 
+//----------begin of function PndTracking::stampafinale
+void PndTracking::stampafinale(
+	UInt_t nTotalCandidates,
+	bool * keepit
+	)
+{
+
+ int l;
+
+ cout<<"Evt. n. "<<IVOLTE<<",fine del trackfinding; n. Track Cand totali = "
+	<<nTotalCandidates<<endl;
+
+ for(int it=0; it<nTotalCandidates;it++){
+	cout<<"-------------------\n";
+	cout<<"Evt. n. "<<IVOLTE<<",  Track Cand n. "<<it<<", keepit = "<<keepit[it];
+	cout<<"\n\t nMvdPixelHitsinTrack "<<nMvdPixelHitsinTrack[it]
+	<<" e loro elenco :\n"<<endl;
+   for(l =0;l<nMvdPixelHitsinTrack[it];l++){
+	cout<<"\tMvd Pixel hit n. "<<ListMvdPixelHitsinTrack[it][l]<<endl;
+   };
+	cout<<"\n\t nMvdStripHitsinTrack "<<nMvdStripHitsinTrack[it]
+	<<" e loro elenco :\n"<<endl;
+   for(l =0;l<nMvdStripHitsinTrack[it];l++){
+	cout<<"\tMvd Strip hit n. "<<ListMvdStripHitsinTrack[it][l]<<endl;
+   };
+	cout<<"\n\t nSttParHitsinTrack "<<nSttParHitsinTrack[it]<<" e loro elenco :\n"<<endl;
+   for(l =0;l<nSttParHitsinTrack[it];l++){
+	cout<<"\tstt hit || n. "<<ListSttParHitsinTrack[it][l]<<endl;
+   };
+	cout<<"\n\t nSttSkewHitsinTrack "<<nSttSkewHitsinTrack[it]<<" e loro elenco :\n"<<endl;
+   for(l =0;l<nSttSkewHitsinTrack[it];l++){
+	cout<<"\tstt hit skew n. "<<ListSttSkewHitsinTrack[it][l]<<endl;
+   };
+	cout<<"\n\t nSciTilHitsinTrack "<<nSciTilHitsinTrack[it]<<" e loro elenco :\n"<<endl;
+   if(nSciTilHitsinTrack[it]>0){
+	cout<<"\tscitil hit n. "<<ListSciTilHitsinTrack[it][0]<<endl;
+   };
+
+	cout<<"\tand now the list of hits as it is in ListTrackCandHit :\n";
+   for(l =0;l<nSttSkewHitsinTrack[it]+nSttParHitsinTrack[it]+nMvdStripHitsinTrack[it]
+	+nMvdPixelHitsinTrack[it]+nSciTilHitsinTrack[it];l++){
+	cout<<"\tstt hit n. "<<ListTrackCandHit[it][l]<<
+	", hit type = "<< ListTrackCandHitType[it][l]<<endl;
+   };
+   cout<<"-------------------\n";
+
+ } //  end for(int it=0; it<nTotalCandidates;it++)
+
+
+}
+
+//----------end function PndTracking::stampafinale
+
 
 
 //----------begin of function PndTracking::stampaMCSttPoints
@@ -14204,22 +13980,92 @@ void PndTracking::stampaSttHits(
 //----------end of function PndTracking::stampaSttHits
 
 
+//----------begin of function PndTracking::stampadopoTrackCand
+void PndTracking::stampadopoTrackCand(
+	Double_t info[][7],
+	UShort_t nTotalCandidates
+		)
+{
+
+ int l;
 
 
-//----------begin of function PndTracking::stampetta
+
+if(istampa>=2){
+//for(int it=0; it<nSttTrackCand;it++){
+for(int it=0; it<nTotalCandidates;it++){
+cout<<"da PndTracking, IVOLTE = "<<IVOLTE<<", traccia n. "<<it<<", elenco ordinato degli hits :\n";
+for(l =0;l<nMvdPixelHitsinTrack[it]+nMvdStripHitsinTrack[it]
+	+nSttParHitsinTrack[it]+nSttSkewHitsinTrack[it];l++){
+
+	if( ListTrackCandHitType[it][l]==0){
+		cout<<"\t hit tipo Pixel, X = "<<
+			 XMvdPixel[ ListTrackCandHit[it][l] ]<<
+			 ", Y = "<<YMvdPixel[ ListTrackCandHit[it][l] ]<<
+			 ", dist = "<<sqrt(
+			 XMvdPixel[ ListTrackCandHit[it][l] ]*
+			 XMvdPixel[ ListTrackCandHit[it][l] ]+
+			 YMvdPixel[ ListTrackCandHit[it][l] ]*
+			 YMvdPixel[ ListTrackCandHit[it][l] ])<<endl;
+	}else if (ListTrackCandHitType[it][l]==1){
+		cout<<"\t hit tipo Strip , X = "<<
+			 XMvdStrip[ ListTrackCandHit[it][l] ]<<
+			 ", Y = "<<YMvdStrip[ ListTrackCandHit[it][l] ]<<
+			 ", dist = "<<sqrt(
+			 XMvdStrip[ ListTrackCandHit[it][l] ]*
+			 XMvdStrip[ ListTrackCandHit[it][l] ]+
+			 YMvdStrip[ ListTrackCandHit[it][l] ]*
+			 YMvdStrip[ ListTrackCandHit[it][l] ])<<endl;
+	}else if (ListTrackCandHitType[it][l]==2){
+		cout<<"\t hit tipo Parallelo , X = "<<
+			 info[ ListTrackCandHit[it][l] ][0]<<
+			 ", Y = "<<info[ ListTrackCandHit[it][l] ][1]<<
+			 ", dist = "<<sqrt(
+			 info[ ListTrackCandHit[it][l] ][0]*
+			 info[ ListTrackCandHit[it][l] ][0]+
+			 info[ ListTrackCandHit[it][l] ][1]*
+			 info[ ListTrackCandHit[it][l] ][1])<<endl;
+	}else if(ListTrackCandHitType[it][l]==3){
+		cout<<"\t hit tipo skew , X approssimato = "<<
+			 info[ ListTrackCandHit[it][l] ][0]<<
+			 ", Y approssimato = "<<info[ ListTrackCandHit[it][l] ][1]<<
+			 ", dist = "<<sqrt(
+			 info[ ListTrackCandHit[it][l] ][0]*
+			 info[ ListTrackCandHit[it][l] ][0]+
+			 info[ ListTrackCandHit[it][l] ][1]*
+			 info[ ListTrackCandHit[it][l] ][1])<<endl;
+	} else {
+		cout<<"\tHit di nessun tipo ????\n";
+	}
+     }
+  }
+}	// end of    if(istampa>=2)
+
+
+
+}
+//----------end of function PndTracking::stampadopoTrackCand
+
+
+//----------begin of function PndTracking::
 
 void PndTracking::stampetta(
 	UShort_t nSttTrackCand,
-	bool *keepit
+	bool *keepit,
+	Double_t *Ox,
+	Double_t *Oy,
+	Double_t *R
 	)
 {
 	int i,j;
 
-           cout<<"da PndTracking, evt. "<<IVOLTE<<",  n. SttTrackCand totali = "
+
+	cout<<"da PndTracking, inizia stampetta ---------------------------\n";
+	   cout<<"da PndTracking, evt. "<<IVOLTE<<",  n. SttTrackCand totali = "
 	   <<nSttTrackCand<<endl;
       for(  i= 0; i< nSttTrackCand; i++){
-	   cout<<"\tcandidate n. "<<i<<", keepit = ";
-	   if(keepit[i]){ cout<<"true "; }else {cout<<"false ";}
+	   cout<<"\tcandidate n. "<<i<<", keepit = "<<keepit[i]<<", Ox "<<Ox[i]
+	   <<", Oy "<<Oy[i]<<", R "<<R[i]<<endl;
 	   cout<<"-----------------\n";
       	if(!keepit[i]) continue;
 	   cout<<"da PndTracking --------------------------------------\n"<<
@@ -14259,7 +14105,7 @@ void PndTracking::stampetta(
 	   }
       }// end of   for(  i= 0; i< nSttTrackCand; i++)
 
-	cout<<endl<<endl;
+	cout<<"---------------fine stampetta----------------------"<<endl<<endl;
 	return;
 
 }
