@@ -80,53 +80,22 @@ class PndTracking : public FairTask
 
  private:
 
+
   static const UShort_t
-	MAXMCTRACKS=10000,
-	MAXMVDPIXELHITS=500,
-	MAXMVDPIXELHITSINTRACK=30,
-	MAXMVDSTRIPHITS=500,
-	MAXMVDSTRIPHITSINTRACK=30,
-	MAXMVDTRACKSPEREVENT=400,
-	MAXSCITILHITS = 200, // max SciTil hits total.
-	MAXSCITILHITSINTRACK = 2, // max SciTil hits in one track.
-	MAXSTTHITS= 1050,
-	MAXSTTHITSINTRACK=60,
-	MAXTRACKSPEREVENT=200,
-	NFIDIVCONFORMAL = (UShort_t) (3.141592654 * 45./0.5),
-	NRDIVCONFORMAL =10;
-// the following will be fixed values used in the class (initialized in the constructors):
-  UShort_t
-	MAXHITSINCELL,
-	MAXHITSINFIT,
-	MAXMVDMCPOINTS,
-	MINIMUMHITSPERTRACK,
-	MINOUTERHITSPERTRACK,
-	TIMEOUT;
-
-  Double_t
-	APOTEMAMAXINNERPARSTRAW,
-	APOTEMAMAXSKEWSTRAW, // delimitation of the skew area
-	APOTEMAMINOUTERPARSTRAW,
-	APOTEMAMINSKEWSTRAW, // delimitation of the skew area
-	BFIELD,  // in Tesla
-	CVEL,  //  velocity of light
-	DELTAnR,   //range of nR in TrkAssociatedParallelHitsToHelixquater
-	DIAMETERSTRAWTUBE,
-	DIMENSIONSCITIL, // cm
-	ERRORPIXEL,
-	ERRORSTRIP,
-	ERRORSQPIXEL,
-	ERRORSQSTRIP,
-	PI,
-	PMAX,
-	RSTRAWDETECTORMAX, // maximum radius of the Stt detector in  cm
-	RSTRAWDETECTORMIN, // minimum radius of the Stt detector in  cm
-	STRAWRADIUS,
-	STRAWRESOLUTION,
-	STRAW_SKEW_INCLINATION_DEGREES,
-	STTDRIFTVEL,	//   in cm/nsec
-	VERTICALGAP; // (cm) gap between Left and Right sections of detector.
-
+	MAXMCTRACKS		= 10000,
+	MAXMVDPIXELHITS		= 500,
+	MAXMVDPIXELHITSINTRACK	= 30,
+	MAXMVDSTRIPHITS		= 500,
+	MAXMVDSTRIPHITSINTRACK	= 30,
+	MAXMVDTRACKSPEREVENT	= 400,
+	MAXSCITILHITS		= 200, // max SciTil hits total.
+	MAXSCITILHITSINTRACK	= 2,   // max SciTil hits in one track.
+	MAXSTTHITS		= 1050,
+	MAXSTTHITSINTRACK	= 60,
+	MAXTRACKSPEREVENT	= 200,
+	NFIDIVCONFORMAL		= 3.141592654 * 45./0.5,
+	NRDIVCONFORMAL		= 10
+	;
   bool
 	doMcComparison,
 	iplotta,
@@ -536,6 +505,37 @@ class PndTracking : public FairTask
 	UShort_t ListSttParHitsinTrack[][MAXSTTHITSINTRACK] // input/output
 	);
 
+
+  void ComparisonwithMC(
+	Short_t * Charge,
+	Short_t * daTrackFoundaTrackMC,
+	Double_t *FI0,
+	Double_t info[][7],
+	Double_t *KAPPA,
+	bool * keepit,
+	UShort_t *nHitsInMCTrack,
+	UShort_t *nMCParalAlone,
+	UShort_t *nMCSkewAlone,
+	UShort_t *nParalCommon,
+	UShort_t *nSkewCommon,
+	UShort_t *nSkewHitsInMCTrack,
+	UShort_t *nSpuriParinTrack,
+	UShort_t *nSpuriSkewinTrack,
+	UInt_t nSttHit,
+	UShort_t nTotalCandidates,
+	UShort_t MCParalAloneList[][MAXSTTHITSINTRACK],
+	UShort_t MCSkewAloneList[][MAXSTTHITSINTRACK],
+	Double_t * Ox,
+	Double_t * Oy,
+	UShort_t ParalCommonList[][MAXSTTHITSINTRACK],
+	UShort_t ParSpuriList[][MAXSTTHITSINTRACK],
+	PndMCTrack* pMCtr,
+	Double_t * R,
+	Short_t *resultFitSZagain,
+	UShort_t SkewCommonList[][MAXSTTHITSINTRACK],
+	UShort_t SkewSpuriList[][MAXSTTHITSINTRACK],
+	bool *SttSZfit
+	);
 
   Double_t Dist_SZ(
 	Double_t R,
@@ -1017,6 +1017,22 @@ class PndTracking : public FairTask
 	);
 
 
+  void LoadPndTrack_TrackCand(
+	bool *keepit,
+	bool *SttSZfit,
+	UShort_t nTotalCandidates,
+	Short_t *Charge,
+	UInt_t nSttTrackCand,
+	Double_t *FI0,
+	Double_t *KAPPA,
+	Double_t info[][7],
+	Double_t *Ox,
+	Double_t *Oy,
+	Double_t *R,
+	Double_t SchosenSkew[][MAXSTTHITS],
+	Double_t ZchosenSkew[][MAXSTTHITS]
+	);
+
 
 
   void MakeInclusionListStt(
@@ -1256,10 +1272,14 @@ class PndTracking : public FairTask
 	);
 
 
+  void stampafinale(
+	UInt_t nTotalCandidates,
+	bool * keepit
+	);
+
   void stampaMCSttPoints(
 	UInt_t nSttMCPoint
 	);
-
 
   void stampaMCTracks(
 	);
@@ -1281,9 +1301,17 @@ class PndTracking : public FairTask
 	PndSttTube * pSttTube
 	);
 
+  void stampadopoTrackCand(
+	Double_t info[][7],
+	UShort_t nTotalCandidates
+	);
+
   void stampetta(
 	UShort_t nCandidate,
-	bool *keepit
+	bool *keepit,
+	Double_t *Ox,
+	Double_t *Oy,
+	Double_t *R
 	);
 
 
