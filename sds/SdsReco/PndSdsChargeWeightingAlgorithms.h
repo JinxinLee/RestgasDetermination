@@ -3,6 +3,7 @@
 
 #include <vector>
 #include "TClonesArray.h"
+#include "TH2F.h"
 #include "PndSdsDigiStrip.h"
 #include "PndSdsChargeConversion.h"
 class PndSdsCluster;
@@ -65,7 +66,9 @@ public:
 	  	eta(cluster);
   	   @endcode
        */
-	std::pair<Double_t,Double_t> Eta(const PndSdsCluster* Cluster);
+	std::pair<Double_t,Double_t> Eta(const PndSdsCluster* Cluster, const TH1F* PosVsEta);
+
+	std::pair<Double_t,Double_t> EtaValue(const PndSdsCluster* Cluster, Double_t &stripno, Int_t &NmbOfStrips); // calculates the eta value for the given cluster.
 	         /**
 	 @fn std::pair<Double_t,Double_t> binary(const StripCluster& Cluster)
 
@@ -121,7 +124,7 @@ private:
 	PndSdsCalcStrip* fCalcStrip;
 	PndSdsChargeConversion* fChargeConverter;
   Int_t fVerbose;
-  
+
 	ClassDef(PndSdsChargeWeightingAlgorithms,1);
 };
 #endif

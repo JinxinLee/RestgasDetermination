@@ -10,6 +10,7 @@
 #include "PndSdsCluster.h"
 #include "PndSdsCalcStrip.h"
 
+#include "TArray.h"
 //using namespace std;
 ClassImp(PndSdsChargeWeightingAlgorithms);
 
@@ -74,13 +75,13 @@ std::pair<Double_t,Double_t> PndSdsChargeWeightingAlgorithms::CenterOfGravity(co
     xerror = sqrt(xerror)/(chargesum);
     
     if (xerror < 1e-15) 
-      Warning("center_of_gravity","Got bad error value: Cluster with %i digis. Position %f ± %f chn.",nrHits,x_g,xerror);
+      Warning("center_of_gravity","Got bad error value: Cluster with %i digis. Position %f ?? %f chn.",nrHits,x_g,xerror);
     result.second = xerror;
     
   }else{
     result=Binary(Cluster);
   }
-  if(fVerbose>1) Info("center_of_gravity","Got a cluster with %i digis. Position %f ± %f chn.",nrHits,result.first,result.second);
+  if(fVerbose>1) Info("center_of_gravity","Got a cluster with %i digis. Position %f ?? %f chn.",nrHits,result.first,result.second);
   return result;
 }
 
@@ -127,51 +128,152 @@ std::pair<Double_t,Double_t> PndSdsChargeWeightingAlgorithms::Binary(const PndSd
   }
   result.first=channel;
   result.second=1./sqrt(12.);
-  if(fVerbose>1) Info("binary","Got a cluster with %i digis. Position %f ± %f chn.",nrHits,result.first,result.second);
+  if(fVerbose>1) Info("binary","Got a cluster with %i digis. Position %f ?? %f chn.",nrHits,result.first,result.second);
   return result;
 }
 
-std::pair<Double_t,Double_t> PndSdsChargeWeightingAlgorithms::Eta(const PndSdsCluster* Cluster)
+//std::pair<Double_t,Double_t> PndSdsChargeWeightingAlgorithms::Eta(const PndSdsCluster* Cluster)
+//{
+//  //TODO: Make a good MVD eta-par file. Eta Algo needed at all?
+//  std::pair<Double_t,Double_t> result;				// first calc eta!
+//  Int_t nrHits = Cluster->GetClusterSize();
+//  if(nrHits>1)
+//  {
+//    Double_t ql=DigiCharge(Cluster->GetDigiIndex(0));
+//    Double_t qr=DigiCharge(Cluster->GetDigiIndex(nrHits-1));
+//
+//    Int_t f=1, o=nrHits-2;
+//    Double_t xl=DigiStripno(Cluster->GetDigiIndex(0))*1.;
+//
+//    Double_t p0,pe0,p1,pe1,p2,pe2,p3,pe3;				// f(eta) parameters calc before
+//    std::ifstream InPar("/home/student/Desktop/repository/calibPar/Eta_para.par");
+//    InPar >> p0>>pe0>>p1>>pe1>>p2>>pe2>>p3>>pe3;
+//    InPar.close();
+//    while(f<o)							// build groups nearly same charge value
+//    {
+//      if(ql<=qr) 						// who is smaller
+//      {
+//        ql=ql+DigiCharge(Cluster->GetDigiIndex(f));
+//        ++f;
+//      }
+//      if(qr<ql)
+//      {
+//        qr=qr+DigiCharge(Cluster->GetDigiIndex(o));
+//        //             xl=xl+Erfmod(sube, p0, p1, p2, p3);
+//        --o;
+//      }
+//    }
+//
+//    Double_t e = qr/(qr+ql);					// total eta
+//
+//    result.first=xl+f-1+Erfmod(e, p0, p1, p2, p3);				// reconstruct
+//  }else{
+//    return Binary(Cluster);
+//  }
+//  result.second=0.;
+//  return result;
+//}
+
+std::pair<Double_t,Double_t> PndSdsChargeWeightingAlgorithms::Eta(const PndSdsCluster* Cluster, const TH1F* PosVsEta)//, const TH1F* pitch3)
 {
-  //TODO: Make a good MVD eta-par file. Eta Algo needed at all?
-  std::pair<Double_t,Double_t> result;				// first calc eta!
-  Int_t nrHits = Cluster->GetClusterSize();
-  if(nrHits>1)
-  {
-    Double_t ql=DigiCharge(Cluster->GetDigiIndex(0));
-    Double_t qr=DigiCharge(Cluster->GetDigiIndex(nrHits-1));
-    
-    Int_t f=1, o=nrHits-2;
-    Double_t xl=DigiStripno(Cluster->GetDigiIndex(0))*1.;
-    
-    Double_t p0,pe0,p1,pe1,p2,pe2,p3,pe3;				// f(eta) parameters calc before
-    std::ifstream InPar("/home/student/Desktop/repository/calibPar/Eta_para.par");
-    InPar >> p0>>pe0>>p1>>pe1>>p2>>pe2>>p3>>pe3;
-    InPar.close();
-    while(f<o)							// build groups nearly same charge value
+	Int_t nrHits = Cluster->GetClusterSize();
+
+    if(nrHits < 2.){return Binary(Cluster);}
+    if(nrHits > 2.){return CenterOfGravity(Cluster);}
+
+    if(nrHits == 2. && DigiStripno(Cluster->GetDigiIndex(1))-DigiStripno(Cluster->GetDigiIndex(0))==1.)
     {
-      if(ql<=qr) 						// who is smaller
-      {
-        ql=ql+DigiCharge(Cluster->GetDigiIndex(f));
-        ++f;
-      }
-      if(qr<ql)
-      {
-        qr=qr+DigiCharge(Cluster->GetDigiIndex(o));
-        //             xl=xl+Erfmod(sube, p0, p1, p2, p3);
-        --o;
-      }
+
+            std::pair<Double_t,Double_t> result;
+
+        	std::pair<Double_t,Double_t> eta_value;
+        	Double_t stripno=0.;
+        	Int_t 	 NmbOfStrips=0;
+
+            eta_value = EtaValue(Cluster, stripno, NmbOfStrips);
+
+            result.first=PosVsEta->GetBinContent(ceil(eta_value.first * 200.));           //etadist histogram contains 200 bins.
+
+            result.second=(PosVsEta->GetBinContent(ceil((eta_value.first+eta_value.second) * 200.))
+            		        - PosVsEta->GetBinContent(ceil((eta_value.first-eta_value.second) * 200.)))/2.;
+
+            return result;
+
     }
-    
-    Double_t e = qr/(qr+ql);					// total eta
-    
-    result.first=xl+f-1+Erfmod(e, p0, p1, p2, p3);				// reconstruct
-  }else{
-    return Binary(Cluster);
-  }
-  result.second=0.;
-  return result;
 }
+
+std::pair<Double_t,Double_t> PndSdsChargeWeightingAlgorithms::EtaValue(const PndSdsCluster* Cluster, Double_t &stripno, Int_t &NmbOfStrips)
+{
+
+	Int_t nrHits = Cluster->GetClusterSize();
+    std::pair<Double_t,Double_t> result;
+
+	  if(nrHits==2. && DigiStripno(Cluster->GetDigiIndex(1)) - DigiStripno(Cluster->GetDigiIndex(0))==1.)							// 2 strips fired
+	  {
+	    NmbOfStrips=2;
+		Double_t ql=0., qr=0., noise=0., cherrl=0., cherrr=0.;
+	    noise = fCalcStrip->GetNoise();
+
+	      ql = DigiCharge(Cluster->GetDigiIndex(0));
+	      qr = DigiCharge(Cluster->GetDigiIndex(1));
+	    	  cherrr = DigiChargeError(Cluster->GetDigiIndex(1));
+	    	  cherrr = sqrt(noise*noise+cherrr*cherrr);
+
+	   		  cherrl = DigiChargeError(Cluster->GetDigiIndex(0));
+	   		  cherrl = sqrt(noise*noise+cherrl*cherrl);
+
+		      stripno = DigiStripno(Cluster->GetDigiIndex(0));
+
+	    result.first=qr/(qr+ql);
+	      PndSdsDigiStrip* digil = (PndSdsDigiStrip*)(fDigiArray->At(Cluster->GetDigiIndex(0)));
+	      PndSdsDigiStrip* digir = (PndSdsDigiStrip*)(fDigiArray->At(Cluster->GetDigiIndex(1)));
+
+	    result.second=sqrt(((ql/(qr+ql))*(1./(qr+ql))*(ql/(qr+ql))*(1./(qr+ql))*cherrr*cherrr)+((qr/(qr+ql))*(1./(qr+ql))*(qr/(qr+ql))*(1./(qr+ql))*cherrl*cherrl));
+	    return result;
+	  }
+
+	  if(nrHits==3 || (DigiStripno(Cluster->GetDigiIndex(1)) - DigiStripno(Cluster->GetDigiIndex(0))==2. && nrHits==2))		// 3 strips fired, sometimes middle strip is empty
+	  {
+
+		  Double_t ql=0., qr=0., qm=0., noise=0., cherrl=0., cherrr=0.;
+		  noise = fCalcStrip->GetNoise();
+		  NmbOfStrips=3;
+
+		  if(nrHits==3){
+			  ql = DigiCharge(Cluster->GetDigiIndex(0));
+			  qm = DigiCharge(Cluster->GetDigiIndex(1));
+			  qr = DigiCharge(Cluster->GetDigiIndex(2));
+		      cherrr = sqrt(TMath::Power(DigiChargeError(Cluster->GetDigiIndex(2)),2.)+TMath::Power((DigiChargeError(Cluster->GetDigiIndex(1))/2.),2.));
+		      cherrl = sqrt(TMath::Power(DigiChargeError(Cluster->GetDigiIndex(0)),2.)+TMath::Power((DigiChargeError(Cluster->GetDigiIndex(1))/2.),2.));
+
+		  }else{
+			  ql = DigiCharge(Cluster->GetDigiIndex(0));
+			  qr = DigiCharge(Cluster->GetDigiIndex(1));
+			  qm=3000.;
+			  cherrr = sqrt(TMath::Power(DigiChargeError(Cluster->GetDigiIndex(1)),2.)+TMath::Power((noise/2.),2.));
+		      cherrl = sqrt(TMath::Power(DigiChargeError(Cluster->GetDigiIndex(0)),2.)+TMath::Power((noise/2.),2.));
+		      PndSdsDigiStrip* digil = (PndSdsDigiStrip*)(fDigiArray->At(Cluster->GetDigiIndex(0)));
+		      PndSdsDigiStrip* digir = (PndSdsDigiStrip*)(fDigiArray->At(Cluster->GetDigiIndex(1)));
+		      std::cout<<"strip no charge: UNBL:   "<<DigiStripno(Cluster->GetDigiIndex(0))<<"  "<<digil->GetCharge()<<"  "<<DigiStripno(Cluster->GetDigiIndex(1))<<"  "<<digir->GetCharge()<<std::endl;
+
+		  }
+
+		  ql+=qm/2.;
+	      qr+=qm/2.;
+
+	      cherrr = sqrt(noise*noise+cherrr*cherrr);
+	      cherrl = sqrt(noise*noise+cherrr*cherrr);
+	      stripno = DigiStripno(Cluster->GetDigiIndex(0));
+	      result.first=qr/(qr+ql);
+	      result.second=sqrt(((ql/(qr+ql))*(1./(qr+ql))*(ql/(qr+ql))*(1./(qr+ql))*cherrr*cherrr)+((qr/(qr+ql))*(1./(qr+ql))*(qr/(qr+ql))*(1./(qr+ql))*cherrl*cherrl));
+	      return result;
+	  }
+
+result.first=-1.;
+result.second=-1.;
+return result;
+}
+
 
 std::pair<Double_t,Double_t> PndSdsChargeWeightingAlgorithms::AutoSelect(const PndSdsCluster* Cluster)
 {
