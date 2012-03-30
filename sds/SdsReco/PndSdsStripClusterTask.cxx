@@ -34,7 +34,7 @@
 
 // -----   Default constructor   -------------------------------------------
 PndSdsStripClusterTask::PndSdsStripClusterTask() :
-PndSdsTask("SDS Strip Clustertisation Task")
+PndSdsTask("SDS Strip Clustertisation Task"), fEventNr(0)
 {
   fChargeCut = 1.e8; // this reset dynamically
   fDigiParameterList = new TList();
@@ -52,7 +52,7 @@ PndSdsTask("SDS Strip Clustertisation Task")
 
 // -----   Named constructor   -------------------------------------------
 PndSdsStripClusterTask::PndSdsStripClusterTask(const char* name) :
-PndSdsTask(name)
+PndSdsTask(name), fEventNr(0)
 {
   // TODO: fChargeCut in parameter database??
   fChargeCut = 1.e8; // this ist really large and shall have no effect
@@ -187,6 +187,13 @@ InitStatus PndSdsStripClusterTask::Init()
   
   SetCalculators();
   
+	fPath = getenv("VMCWORKDIR");
+	fPath += "/macro/params/interstrippos_vs_eta_histos.root";
+
+	etahistofile = new TFile(fPath,"READ");
+	eta_rect = (TH1F*)etahistofile->Get("posvseta rect");
+	eta_trap = (TH1F*)etahistofile->Get("posvseta trap");
+
   Info("Init","Initialisation successfull");
   return kSUCCESS;
 }
@@ -195,6 +202,7 @@ InitStatus PndSdsStripClusterTask::Init()
 // -----   Public method Exec   --------------------------------------------
 void PndSdsStripClusterTask::Exec(Option_t* opt)
 {
+	std::cout << "--------- Event " << fEventNr++ << " ----------" << std::endl;
   if (fVerbose > 2)
     std::cout<<" **Starting PndSdsStripClusterTask::Exec()**"<<std::endl;
   std::vector<PndSdsDigiStrip> digiStripArray;
@@ -583,13 +591,24 @@ void PndSdsStripClusterTask::CalcMeanCharge(PndSdsClusterStrip* onecluster, Doub
     //    if(onecluster->GetSensorSide()==kTOP) fCurrentChargeAlgos->SetCalcStrip(fCurrentStripCalcTop);
     //    else fCurrentChargeAlgos->SetCalcStrip(fCurrentStripCalcBot);
     //    fChargeAlgos->SetChargeConverter(fCurrentChargeConverter); // done somewhere else
-    std::pair<Double_t,Double_t> result = fChargeAlgos->CenterOfGravity(onecluster);
+
+    std::pair<Double_t,Double_t> result;
+
+//    result = fChargeAlgos->CenterOfGravity(onecluster);					//Eta(onecluster, etadist2/3); CenterOfGravity(onecluster);
+
+    PndSdsDigiStrip* digi = (PndSdsDigiStrip*)(fDigiArray->At(onecluster->GetDigiIndex(0)));
+	if(fGeoH->GetPath(digi->GetSensorID()).Contains("Fwd"))
+	{result = fChargeAlgos->Eta(onecluster, eta_trap);}
+	else
+	{result = fChargeAlgos->Eta(onecluster, eta_rect);}
+
     meanstrip=result.first;
     meanerr=result.second;
+
     std::vector<Int_t> oneclusterlist = onecluster->GetClusterList();
     for (std::vector<Int_t>::iterator itDigi = oneclusterlist.begin();
          itDigi != oneclusterlist.end(); ++itDigi)
-    { 
+    {
       PndSdsDigiStrip* myDigi = (PndSdsDigiStrip*)fDigiArray->At(*itDigi);
       charge += fCurrentChargeConverter->DigiValueToCharge(*myDigi);
       Double_t var = myDigi->GetTimeStampError() * myDigi->GetTimeStampError();
@@ -604,7 +623,7 @@ void PndSdsStripClusterTask::CalcMeanCharge(PndSdsClusterStrip* onecluster, Doub
     return;
 	}
   return;
-  
+
 }
 
 
