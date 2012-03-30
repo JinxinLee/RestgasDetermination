@@ -38,7 +38,10 @@ void PndSdsStripClusterer::Reinit()
 
 void PndSdsStripClusterer::AddDigi(Int_t sensorID, SensorSide side, Int_t timestamp, Int_t strip, Int_t iDigi)
 {
-  fSortedDigis[sensorID][side][timestamp][strip] = iDigi;
+  fSortedDigis[sensorID][side][1][strip] = iDigi;
+  //[R.K.30.3.'12] Defunc timestamp binning as it comes in ns precision. 
+  //TODO: invent soemthing better with timestamp!
+  //  fSortedDigis[sensorID][side][timestamp][strip] = iDigi;
 }
 
 //------------------------------------------------------------------------------
