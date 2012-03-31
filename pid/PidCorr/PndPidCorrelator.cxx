@@ -850,7 +850,7 @@ Bool_t PndPidCorrelator::GetEmcInfo(FairTrackParH* helix, PndPidCandidate* pidCa
 	  if (mclist[0]!=pidCand->GetMcIndex()) continue;
 	}
       
-      //if (emcHit->energy() < fCorrPar->GetEmc12Thr()) continue;
+      if (emcHit->energy() < fCorrPar->GetEmc12Thr()) continue;
       Int_t emcModule = emcHit->GetModule();
       if (emcModule>4) continue;
       
