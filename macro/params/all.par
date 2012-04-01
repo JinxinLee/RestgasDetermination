@@ -28,7 +28,7 @@ sens_Type:Text_t Rect
 fe_Type:Text_t APV25
 fe_BusClock:Double_t 30
 cluster_mod:Int_t 0
-cluster_mean:Int_t 1
+cluster_mean:Int_t 0
 cluster_radchan:Int_t 2
 cluster_radtime:Int_t 0
 cluster_corrchargecut:Double_t 12000.
@@ -57,7 +57,7 @@ sens_Type:Text_t Trap
 fe_Type:Text_t APV25
 fe_BusClock:Double_t 30
 cluster_mod:Int_t 0
-cluster_mean:Int_t 1
+cluster_mean:Int_t 0
 cluster_radchan:Int_t 2
 cluster_radtime:Int_t 0
 cluster_corrchargecut:Double_t 12000.

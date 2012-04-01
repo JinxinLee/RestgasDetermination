@@ -17,6 +17,7 @@ ClassImp(PndSdsChargeWeightingAlgorithms);
 PndSdsChargeWeightingAlgorithms::PndSdsChargeWeightingAlgorithms(TClonesArray* arr)
 {
 	fDigiArray = arr;
+  fNoise=0.;
   fVerbose=0;
 }
 PndSdsChargeWeightingAlgorithms::~PndSdsChargeWeightingAlgorithms()
@@ -55,7 +56,7 @@ std::pair<Double_t,Double_t> PndSdsChargeWeightingAlgorithms::CenterOfGravity(co
       stripno = DigiStripno(Cluster->GetDigiIndex(l));
       chargesum+=charge;
       x_g += charge * stripno ;
-      if(fVerbose>2) Info("center_of_gravity","adding digi values (stripno,charge) = (%f,%f)",stripno,charge);
+      if(fVerbose>2) Info("CenterOfGravity","Adding digi values (stripno,charge) = (%f,%f)",stripno,charge);
     }
     x_g = x_g/chargesum;
     result.first=x_g;
@@ -75,13 +76,13 @@ std::pair<Double_t,Double_t> PndSdsChargeWeightingAlgorithms::CenterOfGravity(co
     xerror = sqrt(xerror)/(chargesum);
     
     if (xerror < 1e-15) 
-      Warning("center_of_gravity","Got bad error value: Cluster with %i digis. Position %f ?? %f chn.",nrHits,x_g,xerror);
+      Warning("CenterOfGravity","Got bad error value: Cluster with %i digis. Position %f +-%f chn.",nrHits,x_g,xerror);
     result.second = xerror;
     
   }else{
     result=Binary(Cluster);
   }
-  if(fVerbose>1) Info("center_of_gravity","Got a cluster with %i digis. Position %f ?? %f chn.",nrHits,result.first,result.second);
+  if(fVerbose>1) Info("CenterOfGravity","Got a cluster with %i digis. Position %f +- %f chn.",nrHits,result.first,result.second);
   return result;
 }
 
@@ -91,22 +92,40 @@ std::pair<Double_t,Double_t> PndSdsChargeWeightingAlgorithms::HeadTail(const Pnd
   // We assume that the digis in each cluster are sorted.
   std::pair<Double_t,Double_t> result;
   Int_t nrHits = Cluster->GetClusterSize();
-  if(nrHits>1)
-  {
-    Double_t q_inner=0.;
-    //       if(nrHits==2) q_inner=Cluster->GetChargeSum()/2.;
-    //       if(nrHits>2) q_inner=(Cluster->GetChargeSum()-Cluster->GetHit(0).GetCharge()-Cluster->GetHit(nrHits-1).GetCharge())*1./nrHits;
-    for(Int_t l=0;l<nrHits;++l) q_inner += DigiCharge(Cluster->GetDigiIndex(l));
-    q_inner = q_inner/nrHits;
-    
-    Double_t x_ht=(DigiStripno(Cluster->GetDigiIndex(0))+DigiStripno(Cluster->GetDigiIndex(nrHits-1)))/2.;
-    Double_t wert=(DigiCharge(Cluster->GetDigiIndex(0))-DigiCharge(Cluster->GetDigiIndex(nrHits-1)))/(2.*q_inner);
+  
+  if(nrHits<2) return Binary(Cluster);
+  
+  Double_t x_h=DigiStripno(Cluster->GetDigiIndex(0));
+  Double_t x_t=DigiStripno(Cluster->GetDigiIndex(nrHits-1));
+  Double_t q_h=DigiCharge(Cluster->GetDigiIndex(0));
+  Double_t q_t=DigiCharge(Cluster->GetDigiIndex(nrHits-1));
+  Double_t err=0;
+  Double_t temmperr=0;
+  
+  Double_t q_inner=0.;
+  if(nrHits==2) { // this will result in the same result as CoG for nrHits==2
+    Double_t xm=(q_h*x_h + q_t*x_t)/(q_h+q_t);
+    result.first=xm;
+    err = (x_h-xm)*(x_h-xm)+(x_t-xm)*(x_t-xm);
+    err=sqrt(err);
+    err*=fNoise/(q_h+q_t);
+    result.second=err;
+  } else {
+    for(Int_t l=1;l<(nrHits-1);l++) q_inner += DigiCharge(Cluster->GetDigiIndex(l));
+    q_inner = q_inner/(nrHits-2);
+    Double_t wert=(q_t-q_h)/(2.*q_inner);
     if(wert<0) wert=-wert;
-    result.first=(x_ht+wert);
-  }else{
-    return Binary(Cluster);
+    result.first=(0.5*(x_h+x_t)+wert);
+    
+    // error caclculation: dx^2 = noise^2*{n*w^2/Q^2+1/(2q^2)}
+    err=wert/(q_h+q_t+q_inner); err*=err; err*=nrHits;
+    temmperr=1/q_inner; temmperr*=temmperr; temmperr*=0.5;
+    err+=temmperr;  
+    err=sqrt(err);
+    err*=fNoise;
+    
+    result.second=err;
   }
-  result.second=0.;
   return result;
 }
 
@@ -128,7 +147,7 @@ std::pair<Double_t,Double_t> PndSdsChargeWeightingAlgorithms::Binary(const PndSd
   }
   result.first=channel;
   result.second=1./sqrt(12.);
-  if(fVerbose>1) Info("binary","Got a cluster with %i digis. Position %f ?? %f chn.",nrHits,result.first,result.second);
+  if(fVerbose>1) Info("Binary","Got a cluster with %i digis. Position %f +- %f chn.",nrHits,result.first,result.second);
   return result;
 }
 
@@ -177,101 +196,101 @@ std::pair<Double_t,Double_t> PndSdsChargeWeightingAlgorithms::Binary(const PndSd
 std::pair<Double_t,Double_t> PndSdsChargeWeightingAlgorithms::Eta(const PndSdsCluster* Cluster, const TH1F* PosVsEta)//, const TH1F* pitch3)
 {
 	Int_t nrHits = Cluster->GetClusterSize();
-
-    if(nrHits < 2.){return Binary(Cluster);}
-    if(nrHits > 2.){return CenterOfGravity(Cluster);}
-
-    if(nrHits == 2. && DigiStripno(Cluster->GetDigiIndex(1))-DigiStripno(Cluster->GetDigiIndex(0))==1.)
-    {
-
-            std::pair<Double_t,Double_t> result;
-
-        	std::pair<Double_t,Double_t> eta_value;
-        	Double_t stripno=0.;
-        	Int_t 	 NmbOfStrips=0;
-
-            eta_value = EtaValue(Cluster, stripno, NmbOfStrips);
-
-            result.first=PosVsEta->GetBinContent(ceil(eta_value.first * 200.));           //etadist histogram contains 200 bins.
-
-            result.second=(PosVsEta->GetBinContent(ceil((eta_value.first+eta_value.second) * 200.))
-            		        - PosVsEta->GetBinContent(ceil((eta_value.first-eta_value.second) * 200.)))/2.;
-
-            return result;
-
-    }
+  
+  if(nrHits < 2.){return Binary(Cluster);}
+  if(nrHits > 2.){return CenterOfGravity(Cluster);}
+  
+  if(nrHits == 2. && DigiStripno(Cluster->GetDigiIndex(1))-DigiStripno(Cluster->GetDigiIndex(0))==1.)
+  {
+    
+    std::pair<Double_t,Double_t> result;
+    
+    std::pair<Double_t,Double_t> eta_value;
+    Double_t stripno=0.;
+    Int_t 	 NmbOfStrips=0;
+    
+    eta_value = EtaValue(Cluster, stripno, NmbOfStrips);
+    
+    result.first=PosVsEta->GetBinContent(ceil(eta_value.first * 200.));           //etadist histogram contains 200 bins.
+    
+    result.second=(PosVsEta->GetBinContent(ceil((eta_value.first+eta_value.second) * 200.))
+                   - PosVsEta->GetBinContent(ceil((eta_value.first-eta_value.second) * 200.)))/2.;
+    
+    return result;
+    
+  }
 }
 
 std::pair<Double_t,Double_t> PndSdsChargeWeightingAlgorithms::EtaValue(const PndSdsCluster* Cluster, Double_t &stripno, Int_t &NmbOfStrips)
 {
-
+  
 	Int_t nrHits = Cluster->GetClusterSize();
-    std::pair<Double_t,Double_t> result;
-
-	  if(nrHits==2. && DigiStripno(Cluster->GetDigiIndex(1)) - DigiStripno(Cluster->GetDigiIndex(0))==1.)							// 2 strips fired
-	  {
-	    NmbOfStrips=2;
+  std::pair<Double_t,Double_t> result;
+  
+  if(nrHits==2. && DigiStripno(Cluster->GetDigiIndex(1)) - DigiStripno(Cluster->GetDigiIndex(0))==1.)							// 2 strips fired
+  {
+    NmbOfStrips=2;
 		Double_t ql=0., qr=0., noise=0., cherrl=0., cherrr=0.;
-	    noise = fCalcStrip->GetNoise();
-
-	      ql = DigiCharge(Cluster->GetDigiIndex(0));
-	      qr = DigiCharge(Cluster->GetDigiIndex(1));
-	    	  cherrr = DigiChargeError(Cluster->GetDigiIndex(1));
-	    	  cherrr = sqrt(noise*noise+cherrr*cherrr);
-
-	   		  cherrl = DigiChargeError(Cluster->GetDigiIndex(0));
-	   		  cherrl = sqrt(noise*noise+cherrl*cherrl);
-
-		      stripno = DigiStripno(Cluster->GetDigiIndex(0));
-
-	    result.first=qr/(qr+ql);
-	      PndSdsDigiStrip* digil = (PndSdsDigiStrip*)(fDigiArray->At(Cluster->GetDigiIndex(0)));
-	      PndSdsDigiStrip* digir = (PndSdsDigiStrip*)(fDigiArray->At(Cluster->GetDigiIndex(1)));
-
-	    result.second=sqrt(((ql/(qr+ql))*(1./(qr+ql))*(ql/(qr+ql))*(1./(qr+ql))*cherrr*cherrr)+((qr/(qr+ql))*(1./(qr+ql))*(qr/(qr+ql))*(1./(qr+ql))*cherrl*cherrl));
-	    return result;
-	  }
-
-	  if(nrHits==3 || (DigiStripno(Cluster->GetDigiIndex(1)) - DigiStripno(Cluster->GetDigiIndex(0))==2. && nrHits==2))		// 3 strips fired, sometimes middle strip is empty
-	  {
-
-		  Double_t ql=0., qr=0., qm=0., noise=0., cherrl=0., cherrr=0.;
-		  noise = fCalcStrip->GetNoise();
-		  NmbOfStrips=3;
-
-		  if(nrHits==3){
-			  ql = DigiCharge(Cluster->GetDigiIndex(0));
-			  qm = DigiCharge(Cluster->GetDigiIndex(1));
-			  qr = DigiCharge(Cluster->GetDigiIndex(2));
-		      cherrr = sqrt(TMath::Power(DigiChargeError(Cluster->GetDigiIndex(2)),2.)+TMath::Power((DigiChargeError(Cluster->GetDigiIndex(1))/2.),2.));
-		      cherrl = sqrt(TMath::Power(DigiChargeError(Cluster->GetDigiIndex(0)),2.)+TMath::Power((DigiChargeError(Cluster->GetDigiIndex(1))/2.),2.));
-
-		  }else{
-			  ql = DigiCharge(Cluster->GetDigiIndex(0));
-			  qr = DigiCharge(Cluster->GetDigiIndex(1));
-			  qm=3000.;
-			  cherrr = sqrt(TMath::Power(DigiChargeError(Cluster->GetDigiIndex(1)),2.)+TMath::Power((noise/2.),2.));
-		      cherrl = sqrt(TMath::Power(DigiChargeError(Cluster->GetDigiIndex(0)),2.)+TMath::Power((noise/2.),2.));
-		      PndSdsDigiStrip* digil = (PndSdsDigiStrip*)(fDigiArray->At(Cluster->GetDigiIndex(0)));
-		      PndSdsDigiStrip* digir = (PndSdsDigiStrip*)(fDigiArray->At(Cluster->GetDigiIndex(1)));
-		      std::cout<<"strip no charge: UNBL:   "<<DigiStripno(Cluster->GetDigiIndex(0))<<"  "<<digil->GetCharge()<<"  "<<DigiStripno(Cluster->GetDigiIndex(1))<<"  "<<digir->GetCharge()<<std::endl;
-
-		  }
-
-		  ql+=qm/2.;
-	      qr+=qm/2.;
-
-	      cherrr = sqrt(noise*noise+cherrr*cherrr);
-	      cherrl = sqrt(noise*noise+cherrr*cherrr);
-	      stripno = DigiStripno(Cluster->GetDigiIndex(0));
-	      result.first=qr/(qr+ql);
-	      result.second=sqrt(((ql/(qr+ql))*(1./(qr+ql))*(ql/(qr+ql))*(1./(qr+ql))*cherrr*cherrr)+((qr/(qr+ql))*(1./(qr+ql))*(qr/(qr+ql))*(1./(qr+ql))*cherrl*cherrl));
-	      return result;
-	  }
-
-result.first=-1.;
-result.second=-1.;
-return result;
+    noise = fCalcStrip->GetNoise();
+    
+    ql = DigiCharge(Cluster->GetDigiIndex(0));
+    qr = DigiCharge(Cluster->GetDigiIndex(1));
+    cherrr = DigiChargeError(Cluster->GetDigiIndex(1));
+    cherrr = sqrt(noise*noise+cherrr*cherrr);
+    
+    cherrl = DigiChargeError(Cluster->GetDigiIndex(0));
+    cherrl = sqrt(noise*noise+cherrl*cherrl);
+    
+    stripno = DigiStripno(Cluster->GetDigiIndex(0));
+    
+    result.first=qr/(qr+ql);
+    PndSdsDigiStrip* digil = (PndSdsDigiStrip*)(fDigiArray->At(Cluster->GetDigiIndex(0)));
+    PndSdsDigiStrip* digir = (PndSdsDigiStrip*)(fDigiArray->At(Cluster->GetDigiIndex(1)));
+    
+    result.second=sqrt(((ql/(qr+ql))*(1./(qr+ql))*(ql/(qr+ql))*(1./(qr+ql))*cherrr*cherrr)+((qr/(qr+ql))*(1./(qr+ql))*(qr/(qr+ql))*(1./(qr+ql))*cherrl*cherrl));
+    return result;
+  }
+  
+  if(nrHits==3 || (DigiStripno(Cluster->GetDigiIndex(1)) - DigiStripno(Cluster->GetDigiIndex(0))==2. && nrHits==2))		// 3 strips fired, sometimes middle strip is empty
+  {
+    
+    Double_t ql=0., qr=0., qm=0., noise=0., cherrl=0., cherrr=0.;
+    noise = fCalcStrip->GetNoise();
+    NmbOfStrips=3;
+    
+    if(nrHits==3){
+      ql = DigiCharge(Cluster->GetDigiIndex(0));
+      qm = DigiCharge(Cluster->GetDigiIndex(1));
+      qr = DigiCharge(Cluster->GetDigiIndex(2));
+      cherrr = sqrt(TMath::Power(DigiChargeError(Cluster->GetDigiIndex(2)),2.)+TMath::Power((DigiChargeError(Cluster->GetDigiIndex(1))/2.),2.));
+      cherrl = sqrt(TMath::Power(DigiChargeError(Cluster->GetDigiIndex(0)),2.)+TMath::Power((DigiChargeError(Cluster->GetDigiIndex(1))/2.),2.));
+      
+    }else{
+      ql = DigiCharge(Cluster->GetDigiIndex(0));
+      qr = DigiCharge(Cluster->GetDigiIndex(1));
+      qm=3000.;
+      cherrr = sqrt(TMath::Power(DigiChargeError(Cluster->GetDigiIndex(1)),2.)+TMath::Power((noise/2.),2.));
+      cherrl = sqrt(TMath::Power(DigiChargeError(Cluster->GetDigiIndex(0)),2.)+TMath::Power((noise/2.),2.));
+      PndSdsDigiStrip* digil = (PndSdsDigiStrip*)(fDigiArray->At(Cluster->GetDigiIndex(0)));
+      PndSdsDigiStrip* digir = (PndSdsDigiStrip*)(fDigiArray->At(Cluster->GetDigiIndex(1)));
+      std::cout<<"strip no charge: UNBL:   "<<DigiStripno(Cluster->GetDigiIndex(0))<<"  "<<digil->GetCharge()<<"  "<<DigiStripno(Cluster->GetDigiIndex(1))<<"  "<<digir->GetCharge()<<std::endl;
+      
+    }
+    
+    ql+=qm/2.;
+    qr+=qm/2.;
+    
+    cherrr = sqrt(noise*noise+cherrr*cherrr);
+    cherrl = sqrt(noise*noise+cherrr*cherrr);
+    stripno = DigiStripno(Cluster->GetDigiIndex(0));
+    result.first=qr/(qr+ql);
+    result.second=sqrt(((ql/(qr+ql))*(1./(qr+ql))*(ql/(qr+ql))*(1./(qr+ql))*cherrr*cherrr)+((qr/(qr+ql))*(1./(qr+ql))*(qr/(qr+ql))*(1./(qr+ql))*cherrl*cherrl));
+    return result;
+  }
+  
+  result.first=-1.;
+  result.second=-1.;
+  return result;
 }
 
 

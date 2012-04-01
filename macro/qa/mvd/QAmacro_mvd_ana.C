@@ -89,8 +89,10 @@
   cout<<" -I- Start Loop"<<endl;
   for (Int_t j=0; j<nEvents && j<t->GetEntriesFast(); j++)
   {
+    if(10==j) verbose=kFALSE;
     t->GetEntry(j);
-    if(verbose) cout<<"Event No "<<j<<endl;
+    //if(verbose) 
+    cout<<"Event No "<<j<<endl;
     else if (!(j%100)) cout <<"Event No "<<j<<endl;
     if(verbose) std::cout<<"Check sanity of the arrays:"<<std::endl;
     if(mc_array){

@@ -471,6 +471,7 @@ void PndSdsStripClusterTask::SetCurrentCalculators(PndSdsStripDigiPar* digipar)
   fCurrentDigiPar = digipar;
   fChargeAlgos->SetCalcStrip(fCurrentStripCalcTop);
   fChargeAlgos->SetChargeConverter(fCurrentChargeConverter);
+  fChargeAlgos->SetNoise(digipar->GetNoise());
   fChargeCut = digipar->GetChargeCut();
   fSingleStripChargeThreshold = digipar->GetSingleChargeCut();
   return;
@@ -600,6 +601,7 @@ void PndSdsStripClusterTask::CalcMeanCharge(PndSdsClusterStrip* onecluster, Doub
        itDigi != oneclusterlist.end(); ++itDigi)
   {
     tmpdigi = (PndSdsDigiStrip*)fDigiArray->At(*itDigi);
+    if(fVerbose>3) Info("CalcMeanCharge:","Added charge of digi %i in cluster is %f",nDigis,fCurrentChargeConverter->DigiValueToCharge(*tmpdigi));
     charge += fCurrentChargeConverter->DigiValueToCharge(*tmpdigi);
     Double_t var = tmpdigi->GetTimeStampError() * tmpdigi->GetTimeStampError();
     timestamp += tmpdigi->GetTimeStamp()/var;

@@ -106,10 +106,10 @@ PndSdsCalcStrip::GetStrips(Double_t inx, Double_t iny, Double_t inz,
   
   Double_t Q = ChargeFromEloss(eLoss);//*1E9/3.61; // 3.6 eV/Electron in Silicon
   if (fVerboseLevel > 1) std::cout<<" integral charge = "<<Q<<std::endl;
-  
+  if (fVerboseLevel > 1) std::cout<<"Charge cloud sigma="<<fCSigma<<std::endl;
   // Do charge distribution
-  if(fCSigma>0) return GetStripsNoDif(nuIn,nuOut,Q);
-  else          return GetStripsDif(nuIn,nuOut,Q);
+  if(fCSigma>0) return GetStripsDif(nuIn,nuOut,Q);
+  else          return GetStripsNoDif(nuIn,nuOut,Q);
   
 }
 
@@ -312,7 +312,7 @@ void PndSdsCalcStrip::InjectStripCharge(std::vector<PndSdsStrip>& array, Int_t i
   if(istrip>fNrStrips) {if(fVerboseLevel>2)Warning("InjectStripCharge","",istrip); return;}
   if(charge==0) return; // cut zero electron charge now, real threshold later
   Double_t smearedQ = SmearCharge(charge);
-  if(smearedQ < fThreshold) {if(fVerboseLevel>3)Info("InjectStripCharge","",istrip); return;}
+  if(smearedQ < fThreshold) {if(fVerboseLevel>3)Info("InjectStripCharge","Strip %i, charge %f below threshold %f",istrip,smearedQ,fThreshold); return;}
   if(fVerboseLevel>3) Info("InjectStripCharge","istrip=%i,charge=%f,smearedCharge=%f",istrip,charge,smearedQ);
   array.push_back( PndSdsStrip(Int_t(istrip),smearedQ) );
   return;
@@ -322,7 +322,7 @@ void PndSdsCalcStrip::InjectStripCharge(std::vector<PndSdsStrip>& array, Int_t i
 Double_t PndSdsCalcStrip::SmearCharge(Double_t charge)
 {
   Double_t smeared = gRandom->Gaus(charge,fNoise);
-  if (fVerboseLevel > 3) std::cout<<" charge = "<<charge<<", smeared = "<<smeared<<std::endl;
+  if (fVerboseLevel > 3) Info("SmearCharge:"," charge = %f, smeared = %f",charge,smeared);
   return smeared;
 }
 

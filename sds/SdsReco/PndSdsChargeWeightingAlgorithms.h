@@ -112,6 +112,7 @@ public:
 	void SetDigiArray(TClonesArray* darray){fDigiArray = darray;};
 	void SetCalcStrip(PndSdsCalcStrip* calc){fCalcStrip = calc;};
 	void SetChargeConverter(PndSdsChargeConversion* ChargeConverter){fChargeConverter = ChargeConverter;};
+  void SetNoise(Double_t n=0){fNoise=n;};
   void SetVerbose(Int_t level=0){fVerbose=level;};
 
 private:
@@ -123,6 +124,7 @@ private:
 	TClonesArray* fDigiArray;
 	PndSdsCalcStrip* fCalcStrip;
 	PndSdsChargeConversion* fChargeConverter;
+  Double_t fNoise;
   Int_t fVerbose;
 
 	ClassDef(PndSdsChargeWeightingAlgorithms,1);
