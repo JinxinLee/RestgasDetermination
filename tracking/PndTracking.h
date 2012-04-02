@@ -98,6 +98,7 @@ class PndTracking : public FairTask
 	;
   bool
 	doMcComparison,
+	SingleHitListStt[MAXSTTHITS],
 	iplotta,
 	MvdAloneTracking,
 	YesClean,
@@ -106,7 +107,7 @@ class PndTracking : public FairTask
 	InclusionListStt[MAXSTTHITS],
 	InclusionListSciTil[MAXSCITILHITS],
 	inMvdTrackCandPixel[MAXMVDPIXELHITS],
- 	inMvdTrackCandStrip[MAXMVDSTRIPHITS],
+	inMvdTrackCandStrip[MAXMVDSTRIPHITS],
 	TypeConf[MAXTRACKSPEREVENT];
 
   /** object persistence **/
@@ -178,37 +179,40 @@ class PndTracking : public FairTask
 
 
   Double_t
-	Fimin,
-	SEMILENGTH_STRAIGHT,
-	ZCENTER_STRAIGHT,
 	ALFA[MAXTRACKSPEREVENT],
 	BETA[MAXTRACKSPEREVENT],
 	CxMC[MAXMCTRACKS],
 	CyMC[MAXMCTRACKS],
+	Fimin,
 	GAMMA[MAXTRACKSPEREVENT],
 	MCSkewAloneX[MAXSTTHITS],
 	MCSkewAloneY[MAXSTTHITS],
+	MCtruthTrkInfo[15][MAXMCTRACKS],
+	Ox[MAXTRACKSPEREVENT],
+	Oy[MAXTRACKSPEREVENT],
+	posizSciTil[MAXSCITILHITS][3],
+	R[MAXTRACKSPEREVENT],
 	refindexMvdPixel[MAXMVDPIXELHITS],
 	refindexMvdStrip[MAXMVDPIXELHITS],
 	radiaConf[NRDIVCONFORMAL],
 	R_MC[MAXMCTRACKS],
+	SciTilHitsXwithTrack[MAXTRACKSPEREVENT][MAXSCITILHITSINTRACK],
+	SciTilHitsYwithTrack[MAXTRACKSPEREVENT][MAXSCITILHITSINTRACK],
+	SEMILENGTH_STRAIGHT,
 	sigmaXMvdPixel[MAXMVDPIXELHITS],
 	sigmaYMvdPixel[MAXMVDPIXELHITS],
 	sigmaZMvdPixel[MAXMVDPIXELHITS],
 	sigmaXMvdStrip[MAXMVDSTRIPHITS],
 	sigmaYMvdStrip[MAXMVDSTRIPHITS],
 	sigmaZMvdStrip[MAXMVDSTRIPHITS],
+	S_SciTilHitsinTrack[MAXTRACKSPEREVENT][MAXSCITILHITS],
 	XMvdPixel[MAXMVDPIXELHITS],
-	YMvdPixel[MAXMVDPIXELHITS],
-	ZMvdPixel[MAXMVDPIXELHITS],
 	XMvdStrip[MAXMVDSTRIPHITS],
+	YMvdPixel[MAXMVDPIXELHITS],
 	YMvdStrip[MAXMVDSTRIPHITS],
-	ZMvdStrip[MAXMVDSTRIPHITS],
-	MCtruthTrkInfo[15][MAXMCTRACKS],
-	posizSciTil[MAXSCITILHITS][3],
-	SciTilHitsXwithTrack[MAXTRACKSPEREVENT][MAXSCITILHITSINTRACK],
-	SciTilHitsYwithTrack[MAXTRACKSPEREVENT][MAXSCITILHITSINTRACK],
-	S_SciTilHitsinTrack[MAXTRACKSPEREVENT][MAXSCITILHITS];
+	ZCENTER_STRAIGHT,
+	ZMvdPixel[MAXMVDPIXELHITS],
+	ZMvdStrip[MAXMVDSTRIPHITS];
 
   FILE
 	* HANDLE,
@@ -314,9 +318,6 @@ class PndTracking : public FairTask
 
   void AssociateFoundTrackstoMCtris(
 	Double_t info[][7],
-	Double_t Ox[MAXTRACKSPEREVENT],
-	Double_t Oy[MAXTRACKSPEREVENT],
-	Double_t R[MAXTRACKSPEREVENT],
 	UShort_t nTracksFoundSoFar,
 	UShort_t nHitsinTrack[MAXTRACKSPEREVENT],
 	UShort_t  ListHitsinTrack[MAXTRACKSPEREVENT][MAXSTTHITS],
@@ -328,9 +329,6 @@ class PndTracking : public FairTask
   void AssociateFoundTrackstoMCquater(
 	bool *keepit,
 	Double_t info[][7],
-	Double_t Ox[MAXTRACKSPEREVENT],
-	Double_t Oy[MAXTRACKSPEREVENT],
-	Double_t R[MAXTRACKSPEREVENT],
 	Double_t X1[MAXTRACKSPEREVENT],
 	Double_t Y1[MAXTRACKSPEREVENT],
 	Double_t X2[MAXTRACKSPEREVENT],
@@ -367,9 +365,9 @@ class PndTracking : public FairTask
 	bool *InclusionListSkew,
 	UShort_t NSkewhits,
 	UShort_t *infoskew,
-	Double_t Ox,
-	Double_t Oy,
-	Double_t R,
+	Double_t Oxx,
+	Double_t Oyy,
+	Double_t Rr,
 	Double_t info[][7],
 	Double_t *WDX,
 	Double_t *WDY,
@@ -433,15 +431,15 @@ class PndTracking : public FairTask
 	Double_t y2,
 	Double_t x3,
 	Double_t y3,
-	Double_t *Ox,
-	Double_t *Oy,
-	Double_t *R
+	Double_t *o_x,
+	Double_t *o_y,
+	Double_t *r_r
 	);
 
   void calculateintersections(
-	Double_t Ox,
-	Double_t Oy,
-	Double_t R,
+	Double_t Oxx,
+	Double_t Oyy,
+	Double_t Rr,
 	Double_t C0x,
 	Double_t C0y,
 	Double_t C0z,
@@ -456,9 +454,9 @@ class PndTracking : public FairTask
 
 
   void CalculateSandZ(
-	Double_t Ox,
-	Double_t Oy,
-	Double_t R,
+	Double_t Oxx,
+	Double_t Oyy,
+	Double_t Rr,
 	Short_t skewnum,
 	Double_t info[][7],
 	Double_t *WDX,
@@ -494,9 +492,6 @@ class PndTracking : public FairTask
 	UShort_t nSttParHit,
 	UShort_t StartTrackCand,
 	UShort_t EndTrackCand,
-	Double_t *Ox,
-	Double_t *Oy,
-	Double_t *R,
 	Double_t *KAPPA,
 	Double_t *FI0,
 	Double_t *Fi_low_limit,
@@ -525,20 +520,33 @@ class PndTracking : public FairTask
 	UShort_t nTotalCandidates,
 	UShort_t MCParalAloneList[][MAXSTTHITSINTRACK],
 	UShort_t MCSkewAloneList[][MAXSTTHITSINTRACK],
-	Double_t * Ox,
-	Double_t * Oy,
 	UShort_t ParalCommonList[][MAXSTTHITSINTRACK],
 	UShort_t ParSpuriList[][MAXSTTHITSINTRACK],
 	PndMCTrack* pMCtr,
-	Double_t * R,
 	Short_t *resultFitSZagain,
 	UShort_t SkewCommonList[][MAXSTTHITSINTRACK],
 	UShort_t SkewSpuriList[][MAXSTTHITSINTRACK],
-	bool *SttSZfit
+	bool *SttSZfit,
+
+	UShort_t nMvdPixelCommon[],
+	UShort_t MvdPixelCommonList[][MAXMVDPIXELHITSINTRACK],
+	UShort_t nMvdPixelSpuriinTrack[],
+	UShort_t MvdPixelSpuriList[][MAXMVDPIXELHITSINTRACK],
+	UShort_t nMCMvdPixelAlone[],
+	UShort_t MCMvdPixelAloneList[][MAXMVDPIXELHITSINTRACK],
+
+	UShort_t nMvdStripCommon[],
+	UShort_t MvdStripCommonList[][MAXMVDSTRIPHITSINTRACK],
+	UShort_t nMvdStripSpuriinTrack[],
+	UShort_t MvdStripSpuriList[][MAXMVDSTRIPHITSINTRACK],
+	UShort_t nMCMvdStripAlone[],
+	UShort_t MCMvdStripAloneList[][MAXMVDSTRIPHITSINTRACK]
+
+
 	);
 
   Double_t Dist_SZ(
-	Double_t R,
+	Double_t Rr,
 	Double_t KAPPA,
 	Double_t FI0,
 	Double_t ZED,
@@ -610,7 +618,7 @@ class PndTracking : public FairTask
 	Double_t *ErrorchosenSkew,
 	Double_t KAPPA,
 	Double_t FI0,
-	Double_t R
+	Double_t Rr
 	);
 
 
@@ -632,9 +640,9 @@ class PndTracking : public FairTask
 
 
   Double_t FindDistance(
-	Double_t Ox,
-	Double_t Oy,
-	Double_t R,
+	Double_t Oxx,
+	Double_t Oyy,
+	Double_t Rr,
 	Double_t tanlow,
 	Double_t tanmid,
 	Double_t tanup,
@@ -649,7 +657,7 @@ class PndTracking : public FairTask
   void  FindingParallelTrackAngularRange(
 	Double_t oX,
 	Double_t oY,
-	Double_t R,
+	Double_t Rr,
 	Short_t  Charge,
 	Double_t *Fi_low_limit,	// Fi (in XY Helix frame) lower limit using
 		// the Stt detector minimum/maximum radius
@@ -761,9 +769,6 @@ class PndTracking : public FairTask
 	Double_t posizSciTilx,
 	Double_t posizSciTily,
 	Double_t *S,
-	Double_t *Ox,
-	Double_t *Oy,
-	Double_t *R,
 	Double_t *Fi_low_limit,
 	Double_t *Fi_up_limit,
 	Double_t *Fi_initial_helix_referenceframe,
@@ -869,9 +874,9 @@ class PndTracking : public FairTask
   void InfoXYZParal(
 	Double_t info[][7],
 	UShort_t infopar,
-	Double_t Ox,
-	Double_t Oy,
-	Double_t R,
+	Double_t Oxx,
+	Double_t Oyy,
+	Double_t Rr,
 	Double_t KAPPA,
 	Double_t FI0,
 	Short_t Charge,
@@ -888,9 +893,9 @@ class PndTracking : public FairTask
 	Double_t P2x, // point delimiting the segment.
 	Double_t P1y, // point delimiting the segment.
 	Double_t P2y, // point delimiting the segment.
-	Double_t Ox, // center of circle.
-	Double_t Oy,
-	Double_t R, // Radius of circle.
+	Double_t Oxx, // center of circle.
+	Double_t Oyy,
+	Double_t Rr, // Radius of circle.
 	UShort_t * Nintersections,
 	Double_t XintersectionList[2],
 	Double_t YintersectionList[2],
@@ -913,9 +918,9 @@ class PndTracking : public FairTask
 
   Short_t   IntersectionsWithClosedbiHexagonLeft(
 	Double_t vgap,
-	Double_t Ox,
-	Double_t Oy,
-	Double_t R,
+	Double_t Oxx,
+	Double_t Oyy,
+	Double_t Rr,
 	Double_t Ami,	// Apotema min of inner Hexagon;
 	Double_t Ama,	// Apotema max of outer Hexagon;
 
@@ -927,9 +932,9 @@ class PndTracking : public FairTask
 
   Short_t IntersectionsWithClosedbiHexagonRight(
 	Double_t vgap,
-	Double_t Ox,
-	Double_t Oy,
-	Double_t R,
+	Double_t Oxx,
+	Double_t Oyy,
+	Double_t Rr,
 	Double_t Ami,	// Apotema min of inner Hexagon;
 	Double_t Ama,	// Apotema max of outer Hexagon;
 
@@ -941,9 +946,9 @@ class PndTracking : public FairTask
 
 
   Short_t  IntersectionsWithClosedPolygon(
-	Double_t Ox,
-	Double_t Oy,
-	Double_t R,
+	Double_t Oxx,
+	Double_t Oyy,
+	Double_t Rr,
 	Double_t Rmi,	// Rmin of cylindrical volume intersected by track;
 	Double_t Rma,	// Rmax of cylindrical volume intersected by track;
 
@@ -971,9 +976,9 @@ class PndTracking : public FairTask
 
 
   UShort_t IntersectionsWithOpenPolygon(
-	Double_t Ox, // Track parameter
-	Double_t Oy, // Track parameter
-	Double_t R, // Track parameter
+	Double_t Oxx, // Track parameter
+	Double_t Oyy, // Track parameter
+	Double_t Rr, // Track parameter
 	UShort_t nSides, // input, n. of Sides of open Polygon.
 	Double_t *a, //  coefficient of formula :  aX + bY + c = 0 defining
 	Double_t *b, //  the Polygon sides.
@@ -1026,9 +1031,6 @@ class PndTracking : public FairTask
 	Double_t *FI0,
 	Double_t *KAPPA,
 	Double_t info[][7],
-	Double_t *Ox,
-	Double_t *Oy,
-	Double_t *R,
 	Double_t SchosenSkew[][MAXSTTHITS],
 	Double_t ZchosenSkew[][MAXSTTHITS]
 	);
@@ -1044,12 +1046,8 @@ class PndTracking : public FairTask
   void MatchMvdHitsToSttTracks(
 	Double_t delta,
 	UShort_t nSttTrackCand,
-	Double_t *Ox,
-	Double_t *Oy,
-	Double_t *R,
 	Double_t *FI0,
 	Double_t *Fifirst,
-	Short_t *CHARGE,
 
 	UShort_t *nPixelHitsinTrack, // output
 	UShort_t ListPixelHitsinTrack[][MAXMVDPIXELHITS], // output
@@ -1065,9 +1063,6 @@ class PndTracking : public FairTask
 	Double_t delta,
 	Double_t highqualitycut,
 	UShort_t nSttTrackCand,
-	Double_t *Ox,
-	Double_t *Oy,
-	Double_t *R,
 	Double_t *FI0,
 	Double_t *Fifirst,
 	Short_t *CHARGE,
@@ -1086,9 +1081,6 @@ class PndTracking : public FairTask
 	Double_t delta,
 	Double_t highqualitycut,
 	UShort_t nSttTrackCand,
-	Double_t *Ox,
-	Double_t *Oy,
-	Double_t *R,
 	Double_t *FI0,
 	Double_t *Fifirst,
 	Short_t *CHARGE,
@@ -1157,9 +1149,6 @@ class PndTracking : public FairTask
 	bool *keepit,
 	UShort_t ncand,
 	Double_t info[][7],
-	Double_t * Ox,
-	Double_t * Oy,
-	Double_t * Rr,
 	Double_t Trajectory_Start[][2],
 	Short_t *CHARGE,
 	Double_t SchosenSkew[][MAXSTTHITS]
@@ -1222,9 +1211,6 @@ class PndTracking : public FairTask
 	UShort_t FirstCandidate,
 	UShort_t LastCandidate,
 	Double_t info[][7],
-	Double_t * Ox,
-	Double_t * Oy,
-	Double_t * Rr,
 	Double_t Trajectory_Start[][2],
 	Short_t *CHARGE,
 	Double_t SchosenSkew[][MAXSTTHITS]
@@ -1308,12 +1294,20 @@ class PndTracking : public FairTask
 
   void stampetta(
 	UShort_t nCandidate,
-	bool *keepit,
-	Double_t *Ox,
-	Double_t *Oy,
-	Double_t *R
+	bool *keepit
 	);
 
+  void SttInfoXYZParal(
+	Double_t info[][7],
+	UShort_t infopar,
+	Double_t Oxx,
+	Double_t Oyy,
+	Double_t Rr,
+	Double_t KAPPA,
+	Double_t FI0,
+	Short_t Charge,
+	Double_t *Posiz
+	);
 
 
   void SttMatchedSpurious(
@@ -1419,9 +1413,9 @@ class PndTracking : public FairTask
 	UShort_t nHitsinTrack,
 	UShort_t *ListHitsinTrack,
 	UInt_t NhitsParallel,
-	Double_t Ox,
-	Double_t Oy,
-	Double_t R,
+	Double_t Oxx,
+	Double_t Oyy,
+	Double_t Rr,
 	Double_t info[][7],
 	Double_t infoparalConformal[][5],
 	UShort_t *RConformalIndex,
@@ -1436,16 +1430,55 @@ class PndTracking : public FairTask
   UShort_t TrkAssociatedParallelHitsToHelix5(
 	bool *ExclusionList,
 	UInt_t NhitsParallel,
-	Double_t Ox,
-	Double_t Oy,
-	Double_t R,
+	Double_t Oxx,
+	Double_t Oyy,
+	Double_t Rr,
 	Double_t info[][7],
 	Double_t Fi_low,
 	Double_t Fi_up,
 	UShort_t *auxListHitsinTrack
 	);
 
+  void WriteAllMacros(
+	Short_t *Charge,
+	Double_t *FI0,
+	Double_t info[][7],
+	Double_t *KAPPA,
+	bool* keepit,
+	UShort_t *nMCParalAlone,
+	UShort_t *nMCSkewAlone,
+	UShort_t * nParalCommon,
+	UShort_t * nSkewCommon,
+	UShort_t * nSpuriParinTrack,
+	UInt_t nSttHit,
+	UInt_t nSttParHit,
+	UInt_t nSttSkewHit,
+	UShort_t nTotalCandidates,
+	UShort_t MCParalAloneList[][MAXSTTHITSINTRACK],
+	UShort_t MCSkewAloneList[][MAXSTTHITSINTRACK],
+	UShort_t ParalCommonList[][MAXSTTHITSINTRACK],
+	UShort_t ParSpuriList[][MAXSTTHITSINTRACK],
+	Double_t SchosenSkew[][MAXSTTHITS],
+	UShort_t SkewCommonList[][MAXSTTHITSINTRACK],
+	Short_t * daTrackFoundaTrackMC,
+	Double_t * WDX,
+	Double_t * WDY,
+	Double_t * WDZ,
 
+	UShort_t nMvdPixelCommon[],
+	UShort_t MvdPixelCommonList[][MAXMVDPIXELHITSINTRACK],
+	UShort_t nMvdPixelSpuriinTrack[],
+	UShort_t MvdPixelSpuriList[][MAXMVDPIXELHITSINTRACK],
+	UShort_t nMCMvdPixelAlone[],
+	UShort_t MCMvdPixelAloneList[][MAXMVDPIXELHITSINTRACK],
+
+	UShort_t nMvdStripCommon[],
+	UShort_t MvdStripCommonList[][MAXMVDSTRIPHITSINTRACK],
+	UShort_t nMvdStripSpuriinTrack[],
+	UShort_t MvdStripSpuriList[][MAXMVDSTRIPHITSINTRACK],
+	UShort_t nMCMvdStripAlone[],
+	UShort_t MCMvdStripAloneList[][MAXMVDSTRIPHITSINTRACK]
+	);
 
 
   void WriteMacroAllHitsRestanti(
@@ -1469,36 +1502,19 @@ class PndTracking : public FairTask
 	Double_t info[][7],
 	UShort_t nTracksFoundSoFar,
 	bool *keepit,
-	Double_t *Ox,
-	Double_t *Oy,
-	Double_t *R,
 	Double_t *FI0,
 	Double_t *ultimoangolo,
 	Double_t *primoangolo
 	);
-
-  void WriteMacroParallelHitsGeneralspecial(
-	Double_t time,
-	Int_t Nhits,
-	Double_t info[][7],
-	UShort_t nTracksFoundSoFar,
-	Double_t *Ox,
-	Double_t *Oy,
-	Double_t *R,
-	Double_t *FI0,
-	Double_t *ultimoangolo,
-	Double_t *primoangolo
-	);
-
 
 
 
   void WriteMacroSkewAssociatedHitswithMC(
 	Double_t KAPPA,
 	Double_t FI0,
-	Double_t Ox,
-	Double_t Oy,
-	Double_t R,
+	Double_t Oxx,
+	Double_t Oyy,
+	Double_t Rr,
 	Short_t  charge,
 	Double_t info[][7],
 	Double_t WDX[MAXSTTHITS],
@@ -1537,9 +1553,9 @@ UShort_t ListStrip[MAXTRACKSPEREVENT][MAXMVDSTRIPHITSINTRACK], // output
 
 
   void WriteMacroSttParallelAssociatedHitsandMvdwithMC(
-	Double_t Ox,
-	Double_t Oy,
-	Double_t R,
+	Double_t Oxx,
+	Double_t Oyy,
+	Double_t Rr,
 	Double_t primoangolo,
 	Double_t ultimoangolo,
 	UShort_t Nhits,
@@ -1586,7 +1602,6 @@ UShort_t ListSkewHitsinTrack[MAXTRACKSPEREVENT][MAXSTTHITSINTRACK],
 
 
 
-//-------------- fine delle stampe.
 
   ClassDef(PndTracking,1);
 
