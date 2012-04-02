@@ -177,8 +177,12 @@ void PndTracking::Initialization_ClassVariables()
 
 
 // booleans :
+	len = sizeof(SingleHitListStt);
+	memset (SingleHitListStt,true,len);
+
 	len = sizeof(InclusionListSciTil);
 	memset (InclusionListSciTil,true,len);
+
 	len = sizeof(InclusionListStt);
 	memset (InclusionListStt,true,len);
 
@@ -317,6 +321,15 @@ void PndTracking::Initialization_ClassVariables()
 
 	len = sizeof(radiaConf);
 	memset (radiaConf,0,len);
+
+	len = sizeof(Ox);
+	memset (Ox,0,len);
+
+	len = sizeof(Oy);
+	memset (Oy,0,len);
+
+	len = sizeof(R);
+	memset (R,0,len);
 
 	len = sizeof(refindexMvdPixel);
 	memset (refindexMvdPixel,0,len);
@@ -722,11 +735,8 @@ void PndTracking::Exec(Option_t* opt) {
 	Fi_low_limit[MAXTRACKSPEREVENT],
 	Fi_up_limit[MAXTRACKSPEREVENT],
 	KAPPA[MAXTRACKSPEREVENT],
-	Ox[MAXTRACKSPEREVENT],
-	Oy[MAXTRACKSPEREVENT],
 	Posiz1[3],
 	primoangolo[MAXTRACKSPEREVENT],
-	R[MAXTRACKSPEREVENT],
 	s[2],
 	Sbis[2*MAXSTTHITSINTRACK+MAXMVDPIXELHITSINTRACK
 		+MAXMVDSTRIPHITSINTRACK+MAXSCITILHITSINTRACK], // multiplication by 2 in the
@@ -943,6 +953,12 @@ void PndTracking::Exec(Option_t* opt) {
 	info[i][2]= pSttTube->GetPosition().Z();
 	info[i][3]= dradius;
 	info[i][4]= pSttTube->GetHalfLength();
+
+// temporaneo!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+info[i][4]=75.;
+//-----------------------------------------
+
+
 	if(ipunto>=0) {
 		puntator = (FairMCPoint*) fSttPointArray->At(ipunto);
 		info[i][6]= puntator->GetTrackID();
@@ -1142,9 +1158,6 @@ if(istampa>0){
 			posizSciTil[i][0],
 			posizSciTil[i][1],
 			&S_SciTilHitsinTrack[nSttTrackCand][0],
-			Ox,
-			Oy,
-			R,
 			Fi_low_limit,
 			Fi_up_limit,
 			Fi_initial_helix_referenceframe,
@@ -1236,9 +1249,6 @@ if(istampa>0){
 				1.,	// dummy value, there is no SciTil info in this case
 				NULL,	// dummy pointer, there is no
 					// S_SciTilHitsinTrack[nSttTrackCand][0]  info.
-				Ox,
-				Oy,
-				R,
 				Fi_low_limit,
 				Fi_up_limit,
 				Fi_initial_helix_referenceframe,
@@ -1619,9 +1629,6 @@ if(istampa>=2)
 			delta,
 			highqualitycut,
 			nSttTrackCand,
-			Ox,
-			Oy,
-			R,
 			FI0,
 			Fi_low_limit,
 			Charge,
@@ -1634,7 +1641,7 @@ if(istampa>=2)
 //---------inizio stampe.
 if(istampa>=2&& IVOLTE<20){
            cout<<"da PndTracking, dopo MatchMvd..2 : ";
-	stampetta(nTotalCandidates,keepit,Ox,Oy,R);
+	stampetta(nTotalCandidates,keepit);
 }   //end of if(istampa>=0)
 //---------------------------------- fine stampe.
 
@@ -1763,7 +1770,7 @@ if(istampa>=2&& IVOLTE<20){
 //---------inizio stampe.
 if(istampa>=2&& IVOLTE<20){
            cout<<"da PndTracking, dopo riordinamento :\n";
-	stampetta(nTotalCandidates,keepit,Ox,Oy,R);
+	stampetta(nTotalCandidates,keepit);
 
 
 }   //end of if(istampa>=0)
@@ -1790,9 +1797,6 @@ if(istampa>=2&& IVOLTE<20){
 	rotationangle= atan2( Charge[ncand]*Ox[ncand],-Charge[ncand]*Oy[ncand]);	// Py/Px = m in
 	if( rotationangle<0. ) rotationangle += 2.*PI;
 
-cout<<"cazzo1, Oy[ncand] "<<Oy[ncand] <<", Ox[ncand] "<<Ox[ncand]
-<<", Charge "<<Charge[ncand]<<endl;
-cout<<"cazzo1,\t  rotationangle "<<rotationangle<<", nTrackCandHit[ncand] "<< nTrackCandHit[ncand]<<endl;
 
 //---------- translation of the reference system in the best Mvd hit position
 
@@ -1841,7 +1845,6 @@ cout<<"cazzo1,\t  rotationangle "<<rotationangle<<", nTrackCandHit[ncand] "<< nT
 		iexcl=-1;
 	}
 
-cout<<"cazzo2, tv[0] "<< trajectory_vertex[0]<<", tvY "<<trajectory_vertex[1]<<endl;
 
 	RefitMvdStt(
 			nTrackCandHit[ncand], //this is  input
@@ -1878,7 +1881,7 @@ cout<<"cazzo2, tv[0] "<< trajectory_vertex[0]<<", tvY "<<trajectory_vertex[1]<<e
 //---------inizio stampe.
 if(istampa>=2){
 	cout<<"da PndTracking, dopo XY Refit :\n";
-	stampetta(nTotalCandidates,keepit,Ox,Oy,R);
+	stampetta(nTotalCandidates,keepit);
 }   //end of if(istampa>=0)
 //---------------------------------- fine stampe.
 
@@ -1890,12 +1893,6 @@ if(istampa>=2){
 //  XY refit.
 
 	for(i=0, iaccept=0;i<nSciTilHitsinTrack[ncand];i++){
-cout<<"cazzo, evt "<<IVOLTE<<", ncad "<<ncand<<", nSciTilHitsinTrack[]="<<
-	nSciTilHitsinTrack[ncand]<<", i="<<i<<", ListSciTilHitsinTrack[]["<<i<<"]="
-	<<ListSciTilHitsinTrack[ncand][i]<<"\nposizSciTilX="<<
-	posizSciTil[ListSciTilHitsinTrack[ncand][i]][0]<<", posizSciTilY="<<
-	posizSciTil[ListSciTilHitsinTrack[ncand][i]][1]<<", Ox[ncand] "<<
-	Ox[ncand]<<", Oy[ncand] "<<Oy[ncand]<<", R[ncand] "<<R[ncand]<<endl;
 		intersect=IntersectionSciTil_Circle(
 			posizSciTil[ListSciTilHitsinTrack[ncand][i]][0],
 			posizSciTil[ListSciTilHitsinTrack[ncand][i]][1],
@@ -1933,7 +1930,7 @@ cout<<"cazzo, evt "<<IVOLTE<<", ncad "<<ncand<<", nSciTilHitsinTrack[]="<<
 if(istampa>=2){
 	cout<<"da PndTracking, in mezzo;  Scitilintrack ora="
 	<< nSciTilHitsinTrack[ncand]<<", ma dopo sara' = "<<iaccept<<", :\n";
-	stampetta(nTotalCandidates,keepit,Ox,Oy,R);
+	stampetta(nTotalCandidates,keepit);
 }   //end of if(istampa>=0)
 //---------------------------------- fine stampe.
 
@@ -1966,7 +1963,7 @@ if(istampa>=2){
 //---------inizio stampe.
 if(istampa>=2){
 	cout<<"da PndTracking, prima di FindCharge (again) :\n";
-	stampetta(nTotalCandidates,keepit,Ox,Oy,R);
+	stampetta(nTotalCandidates,keepit);
 }   //end of if(istampa>=0)
 //---------------------------------- fine stampe.
 	FindCharge(
@@ -1984,7 +1981,7 @@ if(istampa>=2){
 //---------inizio stampe.
 if(istampa>=2){
 	cout<<"da PndTracking, dopo di FindCharge (again) :\n";
-	stampetta(nTotalCandidates,keepit,Ox,Oy,R);
+	stampetta(nTotalCandidates,keepit);
 }   //end of if(istampa>=0)
 //---------------------------------- fine stampe.
 
@@ -2019,7 +2016,7 @@ if(istampa>=2){
 //---------inizio stampe.
 if(istampa>=2){
 	cout<<"da PndTracking, dopo di FindingParallelTrackAngularRange :\n";
-	stampetta(nTotalCandidates,keepit,Ox,Oy,R);
+	stampetta(nTotalCandidates,keepit);
 }   //end of if(istampa>=0)
 //---------------------------------- fine stampe.
 
@@ -2038,7 +2035,7 @@ if(istampa>=2){
 
  if(istampa>=2){
 	cout<<"\n\nda PndTracking, prima MatchMvdHitsToSttTracksagain :"<<endl;
-		stampetta(nTotalCandidates,keepit,Ox,Oy,R);
+		stampetta(nTotalCandidates,keepit);
  }
 
    MatchMvdHitsToSttTracksagain(
@@ -2047,9 +2044,6 @@ if(istampa>=2){
 			delta,
 			highqualitycut,
 			nSttTrackCand,
-			Ox,
-			Oy,
-			R,
 			FI0,
 			Fi_low_limit, // because here we deal with hits in Mvd region
 			Charge,
@@ -2062,7 +2056,7 @@ if(istampa>=2){
 
  if(istampa>=2){
 	cout<<"\n\nda PndTracking, dopo MatchMvdHitsToSttTracksagain :"<<endl;
-		stampetta(nTotalCandidates,keepit,Ox,Oy,R);
+		stampetta(nTotalCandidates,keepit);
  }
 
 
@@ -2125,7 +2119,7 @@ if(istampa>=2){
 
  if(istampa>=2){
 	cout<<"\n\nda PndTracking, dopo AssociateSkewHitsToXYTrack :"<<endl;
-		stampetta(nTotalCandidates,keepit,Ox,Oy,R);
+		stampetta(nTotalCandidates,keepit);
  }
 
 //-------------------------------------------  %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -2266,7 +2260,7 @@ if(istampa>=2){
 	for(int iz=0;iz<nhitsinfit;iz++){
 		cout<<"\tS = "<<S[iz]<<", Z "<<ZED[iz]<<endl;
 	}
-		stampetta(nTotalCandidates,keepit,Ox,Oy,R);
+		stampetta(nTotalCandidates,keepit);
 
 
  }
@@ -2293,7 +2287,7 @@ if(istampa>=2){
  if(istampa>=2){
 	cout<<"\n\nda PndTracking, dopo FitSZspace :"<<endl;
 	cout<<"\tKAPPA = "<<KAPPA[ncand]<<endl;
-		stampetta(nTotalCandidates,keepit,Ox,Oy,R);
+		stampetta(nTotalCandidates,keepit);
  }
 
 
@@ -2359,7 +2353,7 @@ if(istampa>=2){
 
  if(istampa>=2){
 	cout<<"\n\nda PndTracking, dopo EliminatespuriousSZ :"<<endl;
-		stampetta(nTotalCandidates,keepit,Ox,Oy,R);
+		stampetta(nTotalCandidates,keepit);
  }
 
 
@@ -2384,7 +2378,7 @@ if(istampa>=2){
 	 if(istampa>=2){
 	cout<<"\n\nda PndTracking, dopo isintargetpipe (Ox="<<Ox[ncand]
 	<<", Oy="<<Oy[ncand]<<", R= "<<R[ncand]<<" :"<<endl;
-		stampetta(nTotalCandidates,keepit,Ox,Oy,R);
+		stampetta(nTotalCandidates,keepit);
 
 	 }
  }  // end of  (YesCleanMvd)
@@ -2398,9 +2392,9 @@ if(istampa>=2){
   if(nMvdPixelHit+nMvdStripHit>0){
 
 //---------inizio stampe.
-if(istampa>=2&& IVOLTE<20){
+if(istampa>=2){
            cout<<"da PndTracking, prima di CollectParSttHitsagain :\n";
-		stampetta(nTotalCandidates,keepit,Ox,Oy,R);
+		stampetta(nTotalCandidates,keepit);
 
 }   //end of if(istampa>=0)
 //---------------------------------- fine stampe.
@@ -2412,9 +2406,6 @@ if(istampa>=2&& IVOLTE<20){
 			nSttParHit,
 			0,	// starting candidate n. (included).
 			nTotalCandidates, // ending candidate n. (excluded).
-			Ox,
-			Oy,
-			R,
 			KAPPA,
 			FI0,
 			Fi_low_limit,
@@ -2424,9 +2415,9 @@ if(istampa>=2&& IVOLTE<20){
 			);
 
 //---------inizio stampe.
-if(istampa>=2&& IVOLTE<20){
+if(istampa>=2){
            cout<<"da PndTracking, dopo CollectParSttHitsagain :\n";
-		stampetta(nTotalCandidates,keepit,Ox,Oy,R);
+		stampetta(nTotalCandidates,keepit);
 
 }   //end of if(istampa>=0)
 //---------------------------------- fine stampe.
@@ -2442,9 +2433,6 @@ if(istampa>=2&& IVOLTE<20){
 		0,
 		nTotalCandidates,
 		info,
-		Ox,
-		Oy,
-		R,
 		Trajectory_Start,
 		Charge,
 		SchosenSkew
@@ -2488,7 +2476,7 @@ if(istampa>=2&&IVOLTE<20){
 cout<<"\n------------------------------------------------\n"
 <<"\tIVOLTE = "<<IVOLTE<<", cand n. "<<ncand<<", prima di TrackCleanup :\n";
 
-	stampetta(nTotalCandidates,keepit,Ox,Oy,R);
+	stampetta(nTotalCandidates,keepit);
 }
 //-------------------------fine stampaggi.
 
@@ -2765,9 +2753,6 @@ if(istampa>1) cout<<"PndTracking, entra in TrackCleanup tracce normali, IVOLTE "
 		nSttTrackCand,
 		nTotalCandidates,
 		info,
-		Ox,
-		Oy,
-		R,
 		Trajectory_Start,
 		Charge,
 		SchosenSkew  // here this array is irrelevant since there are not yet
@@ -2927,9 +2912,6 @@ if(istampa>1) cout<<"PndTracking, entra in TrackCleanup tracce normali, IVOLTE "
 			nSttParHit,
 			nSttTrackCand,	// starting candidate n. (included).
 			nTotalCandidates, // ending candidate n. (excluded).
-			Ox,
-			Oy,
-			R,
 			KAPPA,
 			FI0,
 			Fi_low_limit,
@@ -3000,9 +2982,6 @@ if(istampa>=2){
 		nSttTrackCand,
 		nTotalCandidates,
 		info,
-		Ox,
-		Oy,
-		R,
 		Trajectory_Start,
 		Charge,
 		SchosenSkew
@@ -3105,14 +3084,26 @@ if(istampa>=2){
 	FI0,
 	KAPPA,
 	info,
-	Ox,
-	Oy,
-	R,
 	SchosenSkew,
 	ZchosenSkew
 	);
 
 //------------ section with comparison MC Mvd hits - associated hits to a certain track
+
+ UShort_t
+	nMvdPixelCommon[nTotalCandidates],
+	MvdPixelCommonList[nTotalCandidates][MAXMVDPIXELHITSINTRACK],
+	nMvdPixelSpuriinTrack[nTotalCandidates],
+	MvdPixelSpuriList[nTotalCandidates][MAXMVDPIXELHITSINTRACK],
+	nMCMvdPixelAlone[nTotalCandidates],
+	MCMvdPixelAloneList[nTotalCandidates][MAXMVDPIXELHITSINTRACK],
+
+	nMvdStripCommon[nTotalCandidates],
+	MvdStripCommonList[nTotalCandidates][MAXMVDSTRIPHITSINTRACK],
+	nMvdStripSpuriinTrack[nTotalCandidates],
+	MvdStripSpuriList[nTotalCandidates][MAXMVDSTRIPHITSINTRACK],
+	nMCMvdStripAlone[nTotalCandidates],
+	MCMvdStripAloneList[nTotalCandidates][MAXMVDSTRIPHITSINTRACK];
 
 
  ComparisonwithMC(
@@ -3134,16 +3125,26 @@ if(istampa>=2){
 	nTotalCandidates,
 	MCParalAloneList,
 	MCSkewAloneList,
-	Ox,
-	Oy,
 	ParalCommonList,
 	ParSpuriList,
 	pMCtr,
-	R,
 	resultFitSZagain,
 	SkewCommonList,
 	SkewSpuriList,
-	SttSZfit
+	SttSZfit,
+
+	nMvdPixelCommon,
+	MvdPixelCommonList,
+	nMvdPixelSpuriinTrack,
+	MvdPixelSpuriList,
+	nMCMvdPixelAlone,
+	MCMvdPixelAloneList,
+	nMvdStripCommon,
+	MvdStripCommonList,
+	nMvdStripSpuriinTrack,
+	MvdStripSpuriList,
+	nMCMvdStripAlone,
+	MCMvdStripAloneList
 		);
 
 
@@ -3154,7 +3155,47 @@ if(istampa>=2){
 	nTotalCandidates
 		);
 
-return;
+ if(iplotta)  WriteAllMacros(
+	Charge,
+	FI0,
+	info,
+	KAPPA,
+	keepit,
+	nMCParalAlone,
+	nMCSkewAlone,
+	nParalCommon,
+	nSkewCommon,
+	nSpuriParinTrack,
+	nSttHit,
+	nSttParHit,
+	nSttSkewHit,
+	nTotalCandidates,
+	MCParalAloneList,
+	MCSkewAloneList,
+	ParalCommonList,
+	ParSpuriList,
+	SchosenSkew,
+	SkewCommonList,
+	daTrackFoundaTrackMC,
+	WDX,
+	WDY,
+	WDZ,
+
+	nMvdPixelCommon,
+	MvdPixelCommonList,
+	nMvdPixelSpuriinTrack,
+	MvdPixelSpuriList,
+	nMCMvdPixelAlone,
+	MCMvdPixelAloneList,
+	nMvdStripCommon,
+	MvdStripCommonList,
+	nMvdStripSpuriinTrack,
+	MvdStripSpuriList,
+	nMCMvdStripAlone,
+	MCMvdStripAloneList
+				);
+
+ return;
 
 }
 
@@ -3524,9 +3565,6 @@ void PndTracking::AssociateFoundTrackstoMCbis(
 
     void PndTracking::AssociateFoundTrackstoMCtris(
 		Double_t info[][7],
-		Double_t Ox[MAXTRACKSPEREVENT],
-		Double_t Oy[MAXTRACKSPEREVENT],
-		Double_t R[MAXTRACKSPEREVENT],
                    UShort_t nTracksFoundSoFar,
                   UShort_t nHitsinTrack[MAXTRACKSPEREVENT],
                   UShort_t  ListHitsinTrack[MAXTRACKSPEREVENT][MAXSTTHITS],
@@ -3731,9 +3769,6 @@ int nevento=4;
     void PndTracking::AssociateFoundTrackstoMCquater(
 		bool *keepit,
 		Double_t info[][7],
-		Double_t Ox[MAXTRACKSPEREVENT],
-		Double_t Oy[MAXTRACKSPEREVENT],
-		Double_t R[MAXTRACKSPEREVENT],
 		Double_t X1[MAXTRACKSPEREVENT],
 		Double_t Y1[MAXTRACKSPEREVENT],
 		Double_t X2[MAXTRACKSPEREVENT],
@@ -4167,9 +4202,9 @@ UShort_t PndTracking::AssociateSkewHitsToXYTrack(
 	bool *InclusionListSkew,
 	UShort_t NSkewhits,
 	UShort_t *infoskew,  // from skew numbering to original Stt hit numbering;
-	Double_t Ox,
-	Double_t Oy,
-	Double_t R,
+	Double_t Oxx,
+	Double_t Oyy,
+	Double_t Rr,
 	Double_t info[][7],
 	Double_t *WDX,
 	Double_t *WDY,
@@ -4226,7 +4261,7 @@ UShort_t PndTracking::AssociateSkewHitsToXYTrack(
          C0y1 = info[i][1];
          C0z1 = info[i][2];
 
-       calculateintersections(Ox,Oy,R,C0x1,C0y1,C0z1,info[i][3],
+       calculateintersections(Oxx,Oyy,Rr,C0x1,C0y1,C0z1,info[i][3],
                               vx1,vy1,vz1,
                               &STATUS,POINTS1);
 
@@ -4243,12 +4278,12 @@ UShort_t PndTracking::AssociateSkewHitsToXYTrack(
                             );
 
 
-        Rx = POINTS1[j]-Ox ;   //  x component Radial vector of cylinder of trajectory
-        Ry = POINTS1[1+j]-Oy ;   //  y direction Radial vector of cylinder of trajectory
+        Rx = POINTS1[j]-Oxx ;   //  x component Radial vector of cylinder of trajectory
+        Ry = POINTS1[1+j]-Oyy ;   //  y direction Radial vector of cylinder of trajectory
 
         aaa = sqrt(Rx*Rx+Ry*Ry);
         SkewInclWithRespectToS = (-Ry*vx1 + Rx*vy1)/aaa ;
-        SkewInclWithRespectToS /= R;
+        SkewInclWithRespectToS /= Rr;
         bbb = sqrt( SkewInclWithRespectToS*SkewInclWithRespectToS + vz1*vz1);
         //  the tilt direction of this ellipse is (1,0)  when major axis along Z direction
         if( bbb > 1.e-10){
@@ -4264,7 +4299,7 @@ UShort_t PndTracking::AssociateSkewHitsToXYTrack(
 
         Aellipsis1 = info[i][3]*aaa/LL;
 
-        Bellipsis1 = info[i][3]/R;
+        Bellipsis1 = info[i][3]/Rr;
 
         if( distance >= info[i][4]+Aellipsis1 ){
 		 continue;
@@ -4273,7 +4308,7 @@ UShort_t PndTracking::AssociateSkewHitsToXYTrack(
 
 
 
-        S[NAssociated] = atan2(POINTS1[j+1]-Oy, POINTS1[j]-Ox) ;  // atan2 returns radians in (-pi and +pi]
+        S[NAssociated] = atan2(POINTS1[j+1]-Oyy, POINTS1[j]-Oxx) ;  // atan2 returns radians in (-pi and +pi]
         if( S[NAssociated] < 0.) S[NAssociated] += 2.*PI;
 
 
@@ -4587,9 +4622,9 @@ bool PndTracking::CalculateCircleThru3Points(
 	Double_t y2,
 	Double_t x3,
 	Double_t y3,
-	Double_t *Ox,
-	Double_t *Oy,
-	Double_t *R
+	Double_t *o_x,
+	Double_t *o_y,
+	Double_t *r_r
 	)
 {
 	// inspiration from  http://mathworld.wolfram.com/Circle.html
@@ -4613,9 +4648,9 @@ bool PndTracking::CalculateCircleThru3Points(
 
 	e = -(x1*q2 + q1*x3 + x2*q3 - x3*q2 - x2*q1 - x1*q3);
 
-	*Ox = -0.5*d/a;
-	*Oy = -0.5*e/a;
-	*R = sqrt( (x1-*Ox)*(x1-*Ox) + (y1-*Oy)*(y1-*Oy) );
+	*o_x = -0.5*d/a;
+	*o_y = -0.5*e/a;
+	*r_r = sqrt( (x1-*Ox)*(x1-*Ox) + (y1-*Oy)*(y1-*Oy) );
 
 
 	return true;
@@ -4629,9 +4664,9 @@ bool PndTracking::CalculateCircleThru3Points(
 //-------------------  begin of function   PndTracking::calculateintersections
 
 void PndTracking::calculateintersections(
-	Double_t Ox,
-	Double_t Oy,
-	Double_t R,
+	Double_t Oxx,
+	Double_t Oyy,
+	Double_t Rr,
 	Double_t C0x,
 	Double_t C0y,
 	Double_t C0z,
@@ -4657,9 +4692,9 @@ void PndTracking::calculateintersections(
 /*
  INPUTS :
 
-  Ox, Oy        = abscissa and ordinate of the center of the circular trajectory of
+  Oxx, Oyy        = abscissa and ordinate of the center of the circular trajectory of
                   the particle;
-  R             = radius of such trajectory;
+  Rr             = radius of such trajectory;
   C0x, C0y, Coz = x, y, z coordinates of a point belonging to the axis of the
                   skewed straw;
   r  = radius of equidrift of such skewed straw;
@@ -4691,9 +4726,9 @@ void PndTracking::calculateintersections(
 // from the resolving formula on page 23 of Gianluigi's notes, setting  r=0.
 
 
-  ax = C0x - Ox;
-  ay = C0y - Oy;
-  DELTA = R*R*(vx*vx+vy*vy) - (vx*ay - vy*ax)*(vx*ay - vy*ax);
+  ax = C0x - Oxx;
+  ay = C0y - Oyy;
+  DELTA = Rr*Rr*(vx*vx+vy*vy) - (vx*ay - vy*ax)*(vx*ay - vy*ax);
   AAA = vx*vx+vy*vy;
 
 
@@ -4731,9 +4766,9 @@ void PndTracking::calculateintersections(
 //------------------------- begin of function  PndTracking::CalculateSandZ
 
 void PndTracking::CalculateSandZ(
-	Double_t Ox,
-	Double_t Oy,
-	Double_t R,
+	Double_t Oxx,
+	Double_t Oyy,
+	Double_t Rr,
 	Short_t skewnum,
 	Double_t info[][7],
 	Double_t *WDX,
@@ -4783,7 +4818,7 @@ void PndTracking::CalculateSandZ(
          C0z1 = info[i][2];
 
 
-       calculateintersections(Ox,Oy,R,C0x1,C0y1,C0z1,info[i][3],
+       calculateintersections(Oxx,Oyy,Rr,C0x1,C0y1,C0z1,info[i][3],
                               vx1,vy1,vz1,
                               &STATUS,POINTS1);
 
@@ -4800,12 +4835,12 @@ void PndTracking::CalculateSandZ(
                             );
 
 
-        Rx = POINTS1[j]-Ox ;   //  x component Radial vector of cylinder of trajectory
-        Ry = POINTS1[1+j]-Oy ;   //  y direction Radial vector of cylinder of trajectory
+        Rx = POINTS1[j]-Oxx ;   //  x component Radial vector of cylinder of trajectory
+        Ry = POINTS1[1+j]-Oyy ;   //  y direction Radial vector of cylinder of trajectory
 
         aaa = sqrt(Rx*Rx+Ry*Ry);
         SkewInclWithRespectToS = (-Ry*vx1 + Rx*vy1)/aaa ;
-        SkewInclWithRespectToS /= R;
+        SkewInclWithRespectToS /= Rr;
         bbb = sqrt( SkewInclWithRespectToS*SkewInclWithRespectToS + vz1*vz1);
 
 
@@ -4818,11 +4853,11 @@ void PndTracking::CalculateSandZ(
         if( LL < 1.e-10) continue;
         Aellipsis1 = info[i][3]*aaa/LL;
 
-        Bellipsis1 = info[i][3]/R;
+        Bellipsis1 = info[i][3]/Rr;
         if( distance >= info[i][4]  + Aellipsis1) continue;
 
 //--------------------------
-        S[ii] = atan2(POINTS1[j+1]-Oy, POINTS1[j]-Ox) ;  // atan2 returns radians in (-pi and +pi]
+        S[ii] = atan2(POINTS1[j+1]-Oyy, POINTS1[j]-Oxx) ;  // atan2 returns radians in (-pi and +pi]
         if( S[ii] < 0.) S[ii] += 2.*PI;
 
 
@@ -4916,9 +4951,6 @@ void PndTracking::ChooseEntranceExitbis(
 	UShort_t StartTrackCand,
 	//  until candidate n. EndTrackCand-1 included.
 	UShort_t EndTrackCand,
-	Double_t *Ox,
-	Double_t *Oy,
-	Double_t *R,
 	Double_t *KAPPA,
 	Double_t *FI0,
 	Double_t *Fi_low_limit,
@@ -4928,91 +4960,91 @@ void PndTracking::ChooseEntranceExitbis(
 						)
 {
 
-	UShort_t i,
-		itrack,
-		ihit,
-		j,
-		k,
-		ntot,
-		nadd;
+ UShort_t i,
+	itrack,
+	ihit,
+	j,
+	k,
+	ntot,
+	nadd;
 
-	Double_t angle,
-		deltaZ,
-		dist,
-		dist1,
-		Zpos;
+ Double_t angle,
+	deltaZ,
+	dist,
+	dist1,
+	Zpos;
 
-	const Double_t NTIMES=0.4;
+ const Double_t NTIMES=0.4;
 //	const Double_t NTIMES=1.;
 
 
-	for(itrack=StartTrackCand; itrack<EndTrackCand; itrack++){
-		if( ! keepit[itrack] ) continue;
-		if( ! Mvdhits[itrack] ) continue;
-		if( Fi_low_limit[itrack] < -99998.) continue;  // case in which the track
-						// is completely inside the Mvd region.
-		nParHitsinTrack[itrack]=0;
+ for(itrack=StartTrackCand; itrack<EndTrackCand; itrack++){
+	if( ! keepit[itrack] ) continue;
+	if( ! Mvdhits[itrack] ) continue;
+	if( Fi_low_limit[itrack] < -99998.) continue;  // case in which
+		// the track is completely inside the Mvd region.
+	nParHitsinTrack[itrack]=0;
 
 //	loop over the STT parallel hits and try to attach to each candidate track; in this
 //	way in one shot I collect also the previously non collected hits and I remove the
 //	spurious hits.
 
-		nadd=0;
-		for(i=0; i<nSttParHit; i++){
-			ihit = ListSttParHits[i];
+	nadd=0;
+	for(i=0; i<nSttParHit; i++){
+		ihit = ListSttParHits[i];
+
+		if( !SingleHitListStt[ihit] ) continue;
+		angle = atan2(info[ihit][1]-Oy[itrack],info[ihit][0]-Ox[itrack]);
+		if(angle<0.) angle += 2.*PI;
 
 
-			if( !InclusionListStt[ihit] ) continue;
-			angle = atan2(info[ihit][1]-Oy[itrack],info[ihit][0]-Ox[itrack]);
-			if(angle<0.) angle += 2.*PI;
+		// selection on Zpos under assumption that for parallel STT
+		// makes 1 turn
+		if( fabs(KAPPA[itrack]) > 1.e-20){
+			deltaZ = 2.*PI/KAPPA[itrack];
+			Zpos = (angle - FI0[itrack])/KAPPA[itrack];
 
+			if(
+			    fabs(Zpos-info[ihit][2])>1.5*info[ihit][4] &&
+			    fabs(Zpos+deltaZ-info[ihit][2])>1.5*info[ihit][4] &&
+			    fabs(Zpos-deltaZ-info[ihit][2])>1.5*info[ihit][4]
+			  ) continue;
+		}
 
-			// selection on Zpos under assumption that for parallel STT
-			// makes 1 turn
-			if( fabs(KAPPA[itrack]) > 1.e-20){
-				deltaZ = 2.*PI/KAPPA[itrack];
-				Zpos = (angle - FI0[itrack])/KAPPA[itrack];
-				if(
-				    fabs(Zpos-info[ihit][2])>1.5*info[ihit][4] &&
-				    fabs(Zpos+deltaZ-info[ihit][2])>1.5*info[ihit][4] &&
-				    fabs(Zpos-deltaZ-info[ihit][2])>1.5*info[ihit][4]
-				  ) continue;
-			}
-
-			if( angle>Fi_up_limit[itrack]){
-				angle -= 2.*PI;
-				if(angle < Fi_low_limit[itrack]) continue;
-			} else if (angle < Fi_low_limit[itrack]){
-				angle += 2.*PI;
-				if(angle > Fi_up_limit[itrack]) continue;
-			}
-
-
-
-			dist1 = fabs(
-					sqrt(
-				(Ox[itrack]-info[ihit][0])*(Ox[itrack]-info[ihit][0])+
-				(Oy[itrack]-info[ihit][1])*(Oy[itrack]-info[ihit][1])
-					) - R[itrack]
-				);
-			dist = fabs( dist1 - info[ihit][3] );
-
-
-			// info[ihit][3] = drift radius; if  info[ihit][3]>dist then
-			// the drift circle of this straw crosses the trajectory.
-			if(dist<NTIMES*STRAWRADIUS || info[ihit][3]> dist ){
-				ListParHitsinTrack[itrack][ nParHitsinTrack[itrack] ]
-					=ihit;
-				nParHitsinTrack[itrack]++;
-			}
-
-
-		}	// end of     for(i=0; i<nSttParHit; i++)
+		if( angle>Fi_up_limit[itrack]){
+			angle -= 2.*PI;
+			if(angle < Fi_low_limit[itrack]) continue;
+		} else if (angle < Fi_low_limit[itrack]){
+			angle += 2.*PI;
+			if(angle > Fi_up_limit[itrack]) continue;
+		}
 
 
 
+		dist1 = fabs(
+				sqrt(
+			(Ox[itrack]-info[ihit][0])*(Ox[itrack]-info[ihit][0])+
+			(Oy[itrack]-info[ihit][1])*(Oy[itrack]-info[ihit][1])
+				) - R[itrack]
+			);
+		dist = fabs( dist1 - info[ihit][3] );
 
-	}	// end of for(itrack=StartTrackCand; itrack<EndTrackCand; itrack++)
+
+		// info[ihit][3] = drift radius; if  info[ihit][3]>dist then
+		// the drift circle of this straw crosses the trajectory.
+		if(dist<NTIMES*STRAWRADIUS || info[ihit][3]> dist ){
+			ListParHitsinTrack[itrack][ nParHitsinTrack[itrack] ]
+				=ihit;
+			nParHitsinTrack[itrack]++;
+		}
+
+
+	}	// end of     for(i=0; i<nSttParHit; i++)
+
+
+
+
+ }	// end of for(itrack=StartTrackCand; itrack<EndTrackCand; itrack++)
 
  return;
 }
@@ -5040,16 +5072,27 @@ void PndTracking::ComparisonwithMC(
 	UShort_t nTotalCandidates,
 	UShort_t MCParalAloneList[][MAXSTTHITSINTRACK],
 	UShort_t MCSkewAloneList[][MAXSTTHITSINTRACK],
-	Double_t * Ox,
-	Double_t * Oy,
 	UShort_t ParalCommonList[][MAXSTTHITSINTRACK],
 	UShort_t ParSpuriList[][MAXSTTHITSINTRACK],
 	PndMCTrack* pMCtr,
-	Double_t * R,
 	Short_t *resultFitSZagain,
 	UShort_t SkewCommonList[][MAXSTTHITSINTRACK],
 	UShort_t SkewSpuriList[][MAXSTTHITSINTRACK],
-	bool *SttSZfit
+	bool *SttSZfit,
+
+	UShort_t nMvdPixelCommon[],
+	UShort_t MvdPixelCommonList[][MAXMVDPIXELHITSINTRACK],
+	UShort_t nMvdPixelSpuriinTrack[],
+	UShort_t MvdPixelSpuriList[][MAXMVDPIXELHITSINTRACK],
+	UShort_t nMCMvdPixelAlone[],
+	UShort_t MCMvdPixelAloneList[][MAXMVDPIXELHITSINTRACK],
+
+	UShort_t nMvdStripCommon[],
+	UShort_t MvdStripCommonList[][MAXMVDSTRIPHITSINTRACK],
+	UShort_t nMvdStripSpuriinTrack[],
+	UShort_t MvdStripSpuriList[][MAXMVDSTRIPHITSINTRACK],
+	UShort_t nMCMvdStripAlone[],
+	UShort_t MCMvdStripAloneList[][MAXMVDSTRIPHITSINTRACK]
 					)
 {
  UInt_t
@@ -5116,19 +5159,6 @@ void PndTracking::ComparisonwithMC(
 //  this section associates the found tracks  to the
 //  MC tracks, creating a bilinear correspondence between MC tracks and PR Found tracks
 
-	UShort_t	nMvdPixelCommon[nTotalCandidates],
-			MvdPixelCommonList[nTotalCandidates][nMvdPixelHit],
-			nMvdPixelSpuriinTrack[nTotalCandidates],
-			MvdPixelSpuriList[nTotalCandidates][nMvdPixelHit],
-			nMCMvdPixelAlone[nTotalCandidates],
-			MCMvdPixelAloneList[nTotalCandidates][nMvdPixelHit],
-
-			nMvdStripCommon[nTotalCandidates],
-			MvdStripCommonList[nTotalCandidates][nMvdStripHit],
-			nMvdStripSpuriinTrack[nTotalCandidates],
-			MvdStripSpuriList[nTotalCandidates][nMvdStripHit],
-			nMCMvdStripAlone[nTotalCandidates],
-			MCMvdStripAloneList[nTotalCandidates][nMvdStripHit];
 
 
 
@@ -5202,9 +5232,9 @@ void PndTracking::ComparisonwithMC(
 	AssociateFoundTrackstoMCquater(
 		keepit,
 		info,
-		Ox,
-		Oy,
-		R,
+//		Ox,
+//		Oy,
+//		R,
 		X1,
 		Y1,
 		X2,
@@ -5827,7 +5857,7 @@ if( istampa>=1 && nMCTracksaccettabili>0){
 //-------------------------  begin of function  PndTracking::Dist_SZ
 
 Double_t PndTracking::Dist_SZ(
-	Double_t R,
+	Double_t Rr,
 	Double_t KAPPA,
 	Double_t FI0,
 	Double_t ZED,
@@ -5868,11 +5898,11 @@ Double_t PndTracking::Dist_SZ(
 		*nrounds = (Int_t) aaa;
 	}
 
-	dis_segments = 2.*PI*R/sqrt(1.+KAPPA*KAPPA*R*R); // distance between
+	dis_segments = 2.*PI*Rr/sqrt(1.+KAPPA*KAPPA*Rr*Rr); // distance between
 						// two consecutive segments
 						//  of trajectory.
 
-	dis1 = fabs( R*S -R*KAPPA*ZED - R*FI0)/sqrt( 1.+KAPPA*KAPPA*R*R);
+	dis1 = fabs( Rr*S -Rr*KAPPA*ZED - Rr*FI0)/sqrt( 1.+KAPPA*KAPPA*Rr*Rr);
 	dis1 = fmod(dis1,dis_segments);
 	dis2 = dis_segments-dis1; if(dis2<0.)dis2=0.;
 
@@ -5926,18 +5956,18 @@ void PndTracking::disegnaSciTilHit(
 	int tipo
 	)
 {
-	double	x1,x2,y1,y2,L,R, RR;
+	double	x1,x2,y1,y2,L,Rr, RR;
 
 
 	L=DIMENSIONSCITIL/2.;
 
 
    if(tipo==0){	// SciTil disegnate in XY.
-	R = sqrt(posx*posx+posy*posy);
-	x1 = posx + posy*L/R;
-	x2 = posx - posy*L/R;
-	y1 = posy - posx*L/R;
-	y2 = posy + posx*L/R;
+	Rr = sqrt(posx*posx+posy*posy);
+	x1 = posx + posy*L/Rr;
+	x2 = posx - posy*L/Rr;
+	y1 = posy - posx*L/Rr;
+	y2 = posy + posx*L/Rr;
    } else if (tipo==1) {// SciTil disegnate in SZ.
 	x1 = posx - L;
 	x2 = posx + L;
@@ -5945,14 +5975,14 @@ void PndTracking::disegnaSciTilHit(
 	y2 = posy;
    } else {  // SciTil disegnate in UV.
 	RR = posx*posx+posy*posy;
-	R = sqrt(RR);
-	x1 = posx + posy*L/R;
+	Rr = sqrt(RR);
+	x1 = posx + posy*L/Rr;
 	x1 /= RR;
-	x2 = posx - posy*L/R;
+	x2 = posx - posy*L/Rr;
 	x2 /= RR;
-	y1 = posy - posx*L/R;
+	y1 = posy - posx*L/Rr;
 	y1 /= RR;
-	y2 = posy + posx*L/R;
+	y2 = posy + posx*L/Rr;
 	y2 /= RR;
 
    }
@@ -5973,13 +6003,6 @@ void PndTracking::disegnaSciTilHit(
 
 
 	fprintf(MACRO,"Tile%d->Draw();\n",ScitilHit);
-/*
-	fprintf(MACRO,"TMarker* SciT%d = new TMarker(%f,%f,%d);\n",
-			ScitilHit,posx,posy,30);
-	fprintf(MACRO,"SciT%d->SetMarkerSize(1.5);\n",ScitilHit);
-	fprintf(MACRO,"SciT%d->SetMarkerColor(1);\nSciT%d->Draw();\n"
-				,ScitilHit,ScitilHit);
-*/
 }
 
 //----------end of function PndTracking::disegnaSciTilHit
@@ -6126,7 +6149,7 @@ void PndTracking::EliminateSpuriousSZ(
 	Double_t *ErrorchosenSkew,
 	Double_t KAPPA,
 	Double_t FI0,
-	Double_t R
+	Double_t Rr
 	)
 {
 
@@ -6172,7 +6195,7 @@ void PndTracking::EliminateSpuriousSZ(
 
 
 	for(i=0;i<*nPixelHitsinTrack;i++){
-		if( fabs(Dist_SZ(R,KAPPA,FI0,ZED[i],S[i],&nrounds0)) < MvdCut
+		if( fabs(Dist_SZ(Rr,KAPPA,FI0,ZED[i],S[i],&nrounds0)) < MvdCut
 						&&
 					abs(nrounds0)<=MaxTurnofTracks){
 			auxListMvdPixel[auxnMvdPixel]=ListPixelHitsinTrack[i];
@@ -6187,7 +6210,7 @@ void PndTracking::EliminateSpuriousSZ(
 	for(j=0;j<*nStripHitsinTrack;j++){
 		i=j+(*nPixelHitsinTrack);
 
-		if( fabs(Dist_SZ(R,KAPPA,FI0,ZED[i],S[i],&nrounds0)) < MvdCut
+		if( fabs(Dist_SZ(Rr,KAPPA,FI0,ZED[i],S[i],&nrounds0)) < MvdCut
 						&&
 					abs(nrounds0)<=MaxTurnofTracks){
 			auxListMvdStrip[auxnMvdStrip]=ListStripHitsinTrack[j];
@@ -6219,8 +6242,8 @@ if(istampa>1){
 }
 //--------------fine stampe.
 			dista =
-		fabs(Dist_SZ(R,KAPPA,FI0,ZED[i]+DriftRadius[i],S[i],&nrounds0));
-			ddd = fabs(Dist_SZ(R,KAPPA,FI0,ZED[i]-DriftRadius[i],S[i],&nr2));
+		fabs(Dist_SZ(Rr,KAPPA,FI0,ZED[i]+DriftRadius[i],S[i],&nrounds0));
+			ddd = fabs(Dist_SZ(Rr,KAPPA,FI0,ZED[i]-DriftRadius[i],S[i],&nr2));
 			if( abs(nrounds0) > MaxTurnofTracks &&
 				 abs(nr2)>MaxTurnofTracks)
 			{
@@ -6506,9 +6529,9 @@ void PndTracking::FindCharge(
 //------------------------- begin of function  PndTracking::FindDistance
 
 Double_t PndTracking::FindDistance(
-	Double_t Ox,	//  center from wich distance is calculated
-	Double_t Oy,	//  center from wich distance is calculated
-	Double_t R,
+	Double_t Oxx,	//  center from wich distance is calculated
+	Double_t Oyy,	//  center from wich distance is calculated
+	Double_t Rr,
 	Double_t tanlow,
 	Double_t tanmid,
 	Double_t tanup,
@@ -6554,7 +6577,7 @@ int nevento=1;
     for(i=0;i<3;i++){
 
 	if( tanlow<999998.) {
-		q = Oy-m[i]*Ox;
+		q = Oyy-m[i]*Oxx;
 		Delta = alfa*alfa + beta*beta*m[i]*m[i] - 4.*gamma*m[i]*m[i] - 4.*q*q + 4.*m[i]*q*alfa +
 			+ 2.*alfa*beta*m[i] - 4.*beta*q - 4.*gamma;
 		if( Delta < 0.){
@@ -6562,15 +6585,15 @@ int nevento=1;
 		} else if (Delta==0.){
 			x1 = 0.5*(-alfa - 2.*m[i]*q - beta*m[i] )/(1.+m[i]*m[i]);
 			y1 = m[i]*x1+q;
-			dist = fabs( sqrt( (Ox-x1)*(Ox-x1) + (Oy-y1)*(Oy-y1) ) - R);
+			dist = fabs( sqrt( (Oxx-x1)*(Oxx-x1) + (Oyy-y1)*(Oyy-y1) ) - Rr);
 		} else {
 			Delta = sqrt(Delta);
 			x1 = 0.5*(-alfa - 2.*m[i]*q - beta*m[i] - Delta)/(1.+m[i]*m[i]);
 			x2 = 0.5*(-alfa - 2.*m[i]*q - beta*m[i] + Delta)/(1.+m[i]*m[i]);
 			y1 = m[i]*x1+q;
 			y2 = m[i]*x2+q;
-			dist1 = fabs( sqrt( (Ox-x1)*(Ox-x1) + (Oy-y1)*(Oy-y1) ) - R);
-			dist2 = fabs( sqrt( (Ox-x2)*(Ox-x2) + (Oy-y2)*(Oy-y2) ) - R);
+			dist1 = fabs( sqrt( (Oxx-x1)*(Oxx-x1) + (Oyy-y1)*(Oyy-y1) ) - Rr);
+			dist2 = fabs( sqrt( (Oxx-x2)*(Oxx-x2) + (Oyy-y2)*(Oyy-y2) ) - Rr);
 			if(dist1<dist2){
 				dist = dist1;
 			} else{
@@ -6578,18 +6601,18 @@ int nevento=1;
 			}
 		}
 	} else {
-		Delta =  beta*beta - 4.*Ox*Ox - 4.*Ox*alfa - 4.*gamma;
+		Delta =  beta*beta - 4.*Oxx*Oxx - 4.*Oxx*alfa - 4.*gamma;
 
 		if( Delta < 0.){
 			dist = -1.;
 		} else if (Delta==0.){
-			dist = fabs( fabs(Oy+0.5*beta) - R);
+			dist = fabs( fabs(Oyy+0.5*beta) - Rr);
 		} else {
 			Delta = sqrt(Delta);
 			y1 = -0.5*beta + Delta/2.;
 			y2 = -0.5*beta - Delta/2.;
-			dist1 = fabs( fabs(Oy+0.5*beta + Delta/2.) - R);
-			dist2 = fabs( fabs(Oy+0.5*beta - Delta/2.) - R);
+			dist1 = fabs( fabs(Oyy+0.5*beta + Delta/2.) - Rr);
+			dist2 = fabs( fabs(Oyy+0.5*beta - Delta/2.) - Rr);
 			if(dist1<dist2) dist = dist1;
 			else  dist = dist2;
 		}
@@ -6623,7 +6646,7 @@ int nevento=1;
 void  PndTracking::FindingParallelTrackAngularRange(
 	Double_t oX,
 	Double_t oY,
-	Double_t R,
+	Double_t Rr,
 	Short_t  Charge,
 	Double_t *Fi_low_limit,
 	Double_t *Fi_up_limit,
@@ -6664,14 +6687,14 @@ void  PndTracking::FindingParallelTrackAngularRange(
 	a = sqrt(oX*oX+oY*oY);
 
 	//  preliminary condition
-	if(a + R <= Rmi )	// in this case there might be hits at radius < Rmi.
+	if(a + Rr <= Rmi )	// in this case there might be hits at radius < Rmi.
 		 { *status = -1 ;return;}
-	if( a >= R + Rma || R >= a + Rma)  // in this case there can be no hits with radius < Rma.
+	if( a >= Rr + Rma || Rr >= a + Rma)  // in this case there can be no hits with radius < Rma.
 		 { *status = -2;return;}
 
-	if( a - R >= Rmi ) intersection_inner = false; else intersection_inner = true;
+	if( a - Rr >= Rmi ) intersection_inner = false; else intersection_inner = true;
 
-	if( a + R <= Rma || a - R >= Rma  )
+	if( a + Rr <= Rma || a - Rr >= Rma  )
 		 intersection_outer = false; else intersection_outer = true;
 
 	if( (! intersection_inner) && (! intersection_outer) ){
@@ -6685,13 +6708,13 @@ void  PndTracking::FindingParallelTrackAngularRange(
 
 	FI0 = atan2(-oY,-oX);
 	if( intersection_outer ){
-		cosFi = (a*a + R*R - Rma*Rma)/(2.*R*a);
+		cosFi = (a*a + Rr*Rr - Rma*Rma)/(2.*Rr*a);
 		if(cosFi<-1.) cosFi=-1.; else if(cosFi>1.) cosFi=1.;
 		Fi = acos(cosFi);
 	}
 
 	if( intersection_inner ){
-		cosfi = (a*a + R*R - Rmi*Rmi)/(2.*R*a);
+		cosfi = (a*a + Rr*Rr - Rmi*Rmi)/(2.*Rr*a);
 		if(cosfi<-1.) cosfi=-1.; else if(cosfi>1.) cosfi=1.;
 		fi = acos(cosfi);
 	}
@@ -6767,7 +6790,7 @@ void  PndTracking::FindingParallelTrackAngularRange(
 Short_t PndTracking::FindIntersectionsOuterCircle(
 	Double_t oX,
 	Double_t oY,
-	Double_t R,
+	Double_t Rr,
 	Double_t Rma,
 	Double_t Xcross[2],
 	Double_t Ycross[2]
@@ -6784,18 +6807,18 @@ Short_t PndTracking::FindIntersectionsOuterCircle(
 	a = sqrt(oX*oX+oY*oY);
 
 	// case with no intersections.
-	if( a >= R + Rma || R >= a + Rma ||  a + R <= Rma) return -1;
+	if( a >= Rr + Rma || Rr >= a + Rma ||  a + Rr <= Rma) return -1;
 
 
 	FI0 = atan2(-oY,-oX);
-	cosFi = (a*a + R*R - Rma*Rma)/(2.*R*a);
+	cosFi = (a*a + Rr*Rr - Rma*Rma)/(2.*Rr*a);
 	if(cosFi<-1.) cosFi=-1.; else if(cosFi>1.) cosFi=1.;
 	Fi = acos(cosFi);
 
-	Xcross[0] = oX + R*cos(FI0+Fi);
-	Ycross[0] = oY + R*sin(FI0+Fi);
-	Xcross[1] = oX + R*cos(FI0-Fi);
-	Ycross[1] = oY + R*sin(FI0-Fi);
+	Xcross[0] = oX + Rr*cos(FI0+Fi);
+	Ycross[0] = oY + Rr*sin(FI0+Fi);
+	Xcross[1] = oX + Rr*cos(FI0-Fi);
+	Ycross[1] = oY + Rr*sin(FI0-Fi);
 
 	return 0;
 }
@@ -7369,9 +7392,6 @@ bool PndTracking::FindTrackInXYProjection(
 	Double_t posizSciTilx,
 	Double_t posizSciTily,
 	Double_t *S,
-	Double_t *Ox,
-	Double_t *Oy,
-	Double_t *R,
 	Double_t *Fi_low_limit,
 	Double_t *Fi_up_limit,
 	Double_t *Fi_initial_helix_referenceframe,
@@ -8136,9 +8156,6 @@ Short_t PndTracking::FitHelixCylinder(
    //    ROWS (for read_rows  function)
    //
    UShort_t  NpointsInFit = nHitsinTrack-NMAX <0 ?  nHitsinTrack :  NMAX;
-//   if (NpointsInFit>MAXSTTHITSINTRACK+MAXMVDPIXELHITSINTRACK+MAXMVDSTRIPHITSINTRACK)
-//	NpointsInFit=MAXSTTHITSINTRACK+MAXMVDPIXELHITSINTRACK+MAXMVDSTRIPHITSINTRACK;
-//   bool mvdhit[MAXSTTHITSINTRACK+MAXMVDPIXELHITSINTRACK+MAXMVDSTRIPHITSINTRACK];
    bool mvdhit[NpointsInFit];
 
 
@@ -8152,8 +8169,8 @@ Short_t PndTracking::FitHelixCylinder(
               angle,
               offsety,
               Delta[NpointsInFit],
-              Ox[NpointsInFit],
-              Oy[NpointsInFit];
+              Oxx[NpointsInFit],
+              Oyy[NpointsInFit];
 
      UShort_t  i, j, ii, iii, nSttHits, nMvdHits;
      Short_t Status;
@@ -8190,9 +8207,9 @@ if(istampa>=3){
 
 	nSttHits = nMvdHits = 0;
       for(i=0;i<NpointsInFit; i++){
-       Ox[i] = Xconformal[ i ] *cose +
+       Oxx[i] = Xconformal[ i ] *cose +
                Yconformal[ i ]*sine;
-       Oy[i] = -Xconformal[ i ] *sine +
+       Oyy[i] = -Xconformal[ i ] *sine +
                Yconformal[ i ]*cose;
           Delta[i] = 3.*ErrorDriftRadiusconformal[ i ];   //   3 times the Drift Radius
 
@@ -8211,8 +8228,8 @@ if(istampa>=3){
 	cout<<"from FitHelixCylinder, dopo rotazione, Evento "<<IVOLTE<<", nHitsinTrack = "<<nHitsinTrack
 	<<"\nfrom FitHelixCylinder, nPointsinFit = "<<NpointsInFit<<endl;
 	for(i=0 ; i< NpointsInFit ; i++) {
-		cout<<"  Ox["<<i<<"] = "<<Ox[ i ]<<
-		";   Oy["<<i<<"] = "<<Oy[ i ]<<",  Delta "<<
+		cout<<"  Ox["<<i<<"] = "<<Oxx[ i ]<<
+		";   Oy["<<i<<"] = "<<Oyy[ i ]<<",  Delta "<<
 		Delta[i]<<endl;
 	}
 }
@@ -8348,22 +8365,22 @@ if(istampa>=3){
 
 	if( mvdhit[i]){
 //---stampaggi
-//          fprintf(FMCS,"  m1 A%d   %g\n  m1 B%d  %g\n",i,Ox[i],i,-Ox[i]);
+//          fprintf(FMCS,"  m1 A%d   %g\n  m1 B%d  %g\n",i,Oxx[i],i,-Oxx[i]);
 //-----stampaggi, fine
 
-         Coefficients[ii]=    Ox[i];
-         Coefficients[ii+1]= -Ox[i];
+         Coefficients[ii]=    Oxx[i];
+         Coefficients[ii+1]= -Oxx[i];
 	 ii +=2;
 	} else {
 //---stampaggi
 //          fprintf(FMCS,"  m1 Ap%d  %g  Am%d  %g\n  m1 Bp%d  %g   Bm%d  %g\n",
-//                                  i,Ox[i],i,Ox[i],i,-Ox[i],i,-Ox[i]);
+//                                  i,Oxx[i],i,Oxx[i],i,-Oxx[i],i,-Oxx[i]);
 //-----stampaggi, fine
 
-         Coefficients[ii]=    Ox[i];
-         Coefficients[ii+1]=  Ox[i];
-         Coefficients[ii+2]= -Ox[i];
-         Coefficients[ii+3]= -Ox[i];
+         Coefficients[ii]=    Oxx[i];
+         Coefficients[ii+1]=  Oxx[i];
+         Coefficients[ii+2]= -Oxx[i];
+         Coefficients[ii+3]= -Oxx[i];
 	 ii += 4;
 	}
       }
@@ -8374,17 +8391,17 @@ if(istampa>=3){
       for(i=0, ii=0; i< NpointsInFit ; i++) {
 	if( mvdhit[i]){
 //          fprintf(FMCS,"  m2 A%d  %g\n  m2 B%d  %g\n",//---stampaggi
-//                                  i,-Ox[i],i,Ox[i]);//---stampaggi
-         Coefficients[NStructRowsMax+ii]=   -Ox[i];
-         Coefficients[NStructRowsMax+ii+1]= Ox[i];
+//                                  i,-Oxx[i],i,Oxx[i]);//---stampaggi
+         Coefficients[NStructRowsMax+ii]=   -Oxx[i];
+         Coefficients[NStructRowsMax+ii+1]= Oxx[i];
 	 ii += 2;
 	} else {
 //          fprintf(FMCS,"  m2 Ap%d  %g  Am%d  %g\n  m2 Bp%d  %g   Bm%d  %g\n",//---stampaggi
-//                                  i,-Ox[i],i,-Ox[i],i,Ox[i],i,Ox[i]);//---stampaggi
-         Coefficients[NStructRowsMax+ii]=   -Ox[i];
-         Coefficients[NStructRowsMax+ii+1]= -Ox[i];
-         Coefficients[NStructRowsMax+ii+2]= Ox[i];
-         Coefficients[NStructRowsMax+ii+3]= Ox[i];
+//                                  i,-Oxx[i],i,-Oxx[i],i,Oxx[i],i,Oxx[i]);//---stampaggi
+         Coefficients[NStructRowsMax+ii]=   -Oxx[i];
+         Coefficients[NStructRowsMax+ii+1]= -Oxx[i];
+         Coefficients[NStructRowsMax+ii+2]= Oxx[i];
+         Coefficients[NStructRowsMax+ii+3]= Oxx[i];
 	 ii += 4;
 	}
       }
@@ -8774,13 +8791,13 @@ if(istampa>=3){
 //---stampaggi
 /*
           fprintf(FMCS,"  BOUND  A%d  %g  B%d  %g\n  BOUND  C%d  %g  D%d  %g\n",
-              i, Oy[i]+2.*M,i,
-                -Oy[i]+2.*M,i,
+              i, Oyy[i]+2.*M,i,
+                -Oyy[i]+2.*M,i,
                  Delta[i]+2.*M,i,M-Delta[i]+2.*M);
 */
 //---fine stampaggi
-          ValueB[ii]  =  Oy[i]+2.*M;
-          ValueB[ii+1]= -Oy[i]+2.*M;
+          ValueB[ii]  =  Oyy[i]+2.*M;
+          ValueB[ii+1]= -Oyy[i]+2.*M;
           ValueB[ii+2]= Delta[i]+2.*M;
           ValueB[ii+3]= M-Delta[i]+2.*M;
 	  ii += 4;
@@ -8788,13 +8805,13 @@ if(istampa>=3){
 //---stampaggi
 /*
           fprintf(FMCS,"  BOUND  Ap%d  %g  Bp%d  %g\n  BOUND  Cp%d  %g  Dp%d  %g\n",
-              i, Oy[i]+DriftRadiusconformal[ i ]+2.*M,i,
-                -Oy[i]-DriftRadiusconformal[ i ]+2.*M,i,
+              i, Oyy[i]+DriftRadiusconformal[ i ]+2.*M,i,
+                -Oyy[i]-DriftRadiusconformal[ i ]+2.*M,i,
                  Delta[i]+2.*M,i,M-Delta[i]+2.*M);
 */
 //---fine stampaggi
-          ValueB[ii]  =  Oy[i]+DriftRadiusconformal[ i ]+2.*M;
-          ValueB[ii+1]= -Oy[i]-DriftRadiusconformal[ i ]+2.*M;
+          ValueB[ii]  =  Oyy[i]+DriftRadiusconformal[ i ]+2.*M;
+          ValueB[ii+1]= -Oyy[i]-DriftRadiusconformal[ i ]+2.*M;
           ValueB[ii+2]= Delta[i]+2.*M;
           ValueB[ii+3]= M-Delta[i]+2.*M;
 
@@ -8802,14 +8819,14 @@ if(istampa>=3){
 //---stampaggi
 /*
           fprintf(FMCS,"  BOUND  Am%d  %g  Bm%d  %g\n  BOUND  Cm%d  %g  Dm%d %g\n",
-              i, Oy[i]-DriftRadiusconformal[ i ]+2.*M,i,
-                -Oy[i]+DriftRadiusconformal[ i ]+2.*M,i,
+              i, Oyy[i]-DriftRadiusconformal[ i ]+2.*M,i,
+                -Oyy[i]+DriftRadiusconformal[ i ]+2.*M,i,
                  Delta[i]+2.*M,i,M-Delta[i]+2.*M);
           fprintf(FMCS,"  BOUND  LAMBDA%d   1.\n",i);
 */
 //---fine stampaggi
-          ValueB[ii+4]=  Oy[i]-DriftRadiusconformal[ i ]+2.*M;
-          ValueB[ii+5]= -Oy[i]+DriftRadiusconformal[ i ]+2.*M;
+          ValueB[ii+4]=  Oyy[i]-DriftRadiusconformal[ i ]+2.*M;
+          ValueB[ii+5]= -Oyy[i]+DriftRadiusconformal[ i ]+2.*M;
           ValueB[ii+6]= Delta[i]+2.*M;
           ValueB[ii+7]= M-Delta[i]+2.*M;
           ValueB[ii+8]= 1.;
@@ -9097,9 +9114,6 @@ Short_t PndTracking::FitSZspace(
 
    bool mvdhit[NpointsInFit];
 
-
-
-
    Double_t	ave,
 		avex,
 		avey,
@@ -9113,8 +9127,8 @@ Short_t PndTracking::FitSZspace(
 		angle,
 		offsety,
 		rotationangle,
-		Ox[NpointsInFit],
-		Oy[NpointsInFit],
+		Oxx[NpointsInFit],
+		Oyy[NpointsInFit],
 		Delta[NpointsInFit];
 
      UShort_t  i, j, ii, iii, n, nSttHits, nMvdHits;
@@ -9169,8 +9183,8 @@ Short_t PndTracking::FitSZspace(
 
       nSttHits = nMvdHits = 0;
  for(i=0;i<NpointsInFit; i++){
-	Ox[i] =   Z[i]*cose +(S[i] - FInot)*sine;
-	Oy[i] = -Z[i]*sine +(S[i] - FInot)*cose;
+	Oxx[i] =   Z[i]*cose +(S[i] - FInot)*sine;
+	Oyy[i] = -Z[i]*sine +(S[i] - FInot)*cose;
 	Delta[i] = ErrorDriftRadius[i];
 //          Delta[i] = 2.*DriftRadius[i];
 
@@ -9343,22 +9357,22 @@ Short_t PndTracking::FitSZspace(
 
 	if( mvdhit[i]){
 //---stampaggi
-//          fprintf(FMCS,"  m1 A%d   %g\n  m1 B%d  %g\n",i,Ox[i],i,-Ox[i]);
+//          fprintf(FMCS,"  m1 A%d   %g\n  m1 B%d  %g\n",i,Oxx[i],i,-Oxx[i]);
 //-----stampaggi, fine
 
-         Coefficients[ii]=    Ox[i];
-         Coefficients[ii+1]= -Ox[i];
+         Coefficients[ii]=    Oxx[i];
+         Coefficients[ii+1]= -Oxx[i];
 	 ii +=2;
 	} else {
 //---stampaggi
 //          fprintf(FMCS,"  m1 Ap%d  %g  Am%d  %g\n  m1 Bp%d  %g   Bm%d  %g\n",
-//                                  i,Ox[i],i,Ox[i],i,-Ox[i],i,-Ox[i]);
+//                                  i,Oxx[i],i,Oxx[i],i,-Oxx[i],i,-Oxx[i]);
 //-----stampaggi, fine
 
-         Coefficients[ii]=    Ox[i];
-         Coefficients[ii+1]=  Ox[i];
-         Coefficients[ii+2]= -Ox[i];
-         Coefficients[ii+3]= -Ox[i];
+         Coefficients[ii]=    Oxx[i];
+         Coefficients[ii+1]=  Oxx[i];
+         Coefficients[ii+2]= -Oxx[i];
+         Coefficients[ii+3]= -Oxx[i];
 	 ii += 4;
 	}
       }
@@ -9369,17 +9383,17 @@ Short_t PndTracking::FitSZspace(
       for(i=0, ii=0; i< NpointsInFit ; i++) {
 	if( mvdhit[i]){
 //          fprintf(FMCS,"  m2 A%d  %g\n  m2 B%d  %g\n",//---stampaggi
-//                                  i,-Ox[i],i,Ox[i]);//---stampaggi
-         Coefficients[NStructRowsMax+ii]=   -Ox[i];
-         Coefficients[NStructRowsMax+ii+1]= Ox[i];
+//                                  i,-Oxx[i],i,Oxx[i]);//---stampaggi
+         Coefficients[NStructRowsMax+ii]=   -Oxx[i];
+         Coefficients[NStructRowsMax+ii+1]= Oxx[i];
 	 ii += 2;
 	} else {
 //          fprintf(FMCS,"  m2 Ap%d  %g  Am%d  %g\n  m2 Bp%d  %g   Bm%d  %g\n",//---stampaggi
-//                                  i,-Ox[i],i,-Ox[i],i,Ox[i],i,Ox[i]);//---stampaggi
-         Coefficients[NStructRowsMax+ii]=   -Ox[i];
-         Coefficients[NStructRowsMax+ii+1]= -Ox[i];
-         Coefficients[NStructRowsMax+ii+2]= Ox[i];
-         Coefficients[NStructRowsMax+ii+3]= Ox[i];
+//                                  i,-Oxx[i],i,-Oxx[i],i,Oxx[i],i,Oxx[i]);//---stampaggi
+         Coefficients[NStructRowsMax+ii]=   -Oxx[i];
+         Coefficients[NStructRowsMax+ii+1]= -Oxx[i];
+         Coefficients[NStructRowsMax+ii+2]= Oxx[i];
+         Coefficients[NStructRowsMax+ii+3]= Oxx[i];
 	 ii += 4;
 	}
       }
@@ -9768,13 +9782,13 @@ Short_t PndTracking::FitSZspace(
 //---stampaggi
 /*
           fprintf(FMCS,"  BOUND  A%d  %g  B%d  %g\n  BOUND  C%d  %g  D%d  %g\n",
-              i, Oy[i]+2.*M,i,
-                -Oy[i]+2.*M,i,
+              i, Oyy[i]+2.*M,i,
+                -Oyy[i]+2.*M,i,
                  Delta[i]+2.*M,i,M-Delta[i]+2.*M);
 */
 //---fine stampaggi
-          ValueB[ii]  =  Oy[i]+2.*M;
-          ValueB[ii+1]= -Oy[i]+2.*M;
+          ValueB[ii]  =  Oyy[i]+2.*M;
+          ValueB[ii+1]= -Oyy[i]+2.*M;
           ValueB[ii+2]= Delta[i]+2.*M;
           ValueB[ii+3]= M-Delta[i]+2.*M;
 	  ii += 4;
@@ -9782,13 +9796,13 @@ Short_t PndTracking::FitSZspace(
 //---stampaggi
 /*
           fprintf(FMCS,"  BOUND  Ap%d  %g  Bp%d  %g\n  BOUND  Cp%d  %g  Dp%d  %g\n",
-              i, Oy[i]+DriftRadius[ i ]+2.*M,i,
-                -Oy[i]-DriftRadius[ i ]+2.*M,i,
+              i, Oyy[i]+DriftRadius[ i ]+2.*M,i,
+                -Oyy[i]-DriftRadius[ i ]+2.*M,i,
                  Delta[i]+2.*M,i,M-Delta[i]+2.*M);
 */
 //---fine stampaggi
-          ValueB[ii]  =  Oy[i]+DriftRadius[ i ]+2.*M;
-          ValueB[ii+1]= -Oy[i]-DriftRadius[ i ]+2.*M;
+          ValueB[ii]  =  Oyy[i]+DriftRadius[ i ]+2.*M;
+          ValueB[ii+1]= -Oyy[i]-DriftRadius[ i ]+2.*M;
           ValueB[ii+2]= Delta[i]+2.*M;
           ValueB[ii+3]= M-Delta[i]+2.*M;
 
@@ -9796,14 +9810,14 @@ Short_t PndTracking::FitSZspace(
 //---stampaggi
 /*
           fprintf(FMCS,"  BOUND  Am%d  %g  Bm%d  %g\n  BOUND  Cm%d  %g  Dm%d %g\n",
-              i, Oy[i]-DriftRadius[ i ]+2.*M,i,
-                -Oy[i]+DriftRadius[ i ]+2.*M,i,
+              i, Oyy[i]-DriftRadius[ i ]+2.*M,i,
+                -Oyy[i]+DriftRadius[ i ]+2.*M,i,
                  Delta[i]+2.*M,i,M-Delta[i]+2.*M);f
           fprintf(FMCS,"  BOUND  LAMBDA%d   1.\n",i);
 */
 //---fine stampaggi
-          ValueB[ii+4]=  Oy[i]-DriftRadius[ i ]+2.*M;
-          ValueB[ii+5]= -Oy[i]+DriftRadius[ i ]+2.*M;
+          ValueB[ii+4]=  Oyy[i]-DriftRadius[ i ]+2.*M;
+          ValueB[ii+5]= -Oyy[i]+DriftRadius[ i ]+2.*M;
           ValueB[ii+6]= Delta[i]+2.*M;
           ValueB[ii+7]= M-Delta[i]+2.*M;
           ValueB[ii+8]= 1.;
@@ -10151,9 +10165,9 @@ void PndTracking::getMCInfo(
 void PndTracking::InfoXYZParal(
 	Double_t info[][7],
 	UShort_t infopar,
-	Double_t Ox,
-	Double_t Oy,
-	Double_t R,
+	Double_t Oxx,
+	Double_t Oyy,
+	Double_t Rr,
 	Double_t KAPPA,
 	Double_t FI0,
 	Short_t Charge,
@@ -10163,8 +10177,8 @@ void PndTracking::InfoXYZParal(
 
    Double_t fi, norm, vers[2];
 
-   vers[0] = Ox - info[infopar][0];
-   vers[1] = Oy - info[infopar][1];
+   vers[0] = Oxx - info[infopar][0];
+   vers[1] = Oyy - info[infopar][1];
    norm = sqrt( vers[0]*vers[0] + vers[1]*vers[1] );
 
    if(norm < 1.e-20) {
@@ -10177,9 +10191,9 @@ void PndTracking::InfoXYZParal(
 
 
 
-   if( fabs( R - fabs( norm - info[infopar][3] ) ) // distance trajectory-drift radius
+   if( fabs( Rr - fabs( norm - info[infopar][3] ) ) // distance trajectory-drift radius
 				<
-		fabs( R - (norm + info[infopar][3]) )  ) {
+		fabs( Rr - (norm + info[infopar][3]) )  ) {
 
 	Posiz[0] = info[infopar][0] + info[infopar][3]*vers[0]/norm;
 	Posiz[1] = info[infopar][1] + info[infopar][3]*vers[1]/norm;
@@ -10189,7 +10203,7 @@ void PndTracking::InfoXYZParal(
 	Posiz[0] = info[infopar][0] - info[infopar][3]*vers[0]/norm;
 	Posiz[1] = info[infopar][1] - info[infopar][3]*vers[1]/norm;
 
-   }	// end of if ( fabs( R - fabs( Distance - info[infopar][3] ) ).....
+   }	// end of if ( fabs( Rr - fabs( Distance - info[infopar][3] ) ).....
 
 
 
@@ -10233,9 +10247,9 @@ bool PndTracking::IntersectionCircle_Segment(
 	Double_t P2x, // point delimiting the segment.
 	Double_t P1y, // point delimiting the segment.
 	Double_t P2y, // point delimiting the segment.
-	Double_t Ox, // center of circle.
-	Double_t Oy,
-	Double_t R, // Radius of circle.
+	Double_t Oxx, // center of circle.
+	Double_t Oyy,
+	Double_t Rr, // Radius of circle.
 	UShort_t * Nintersections,
 	Double_t XintersectionList[2],
 	Double_t YintersectionList[2],
@@ -10275,17 +10289,17 @@ bool PndTracking::IntersectionCircle_Segment(
 	//  find if intersection circle - segment is possible.
 
 	// check if there is an intersection (with the squares, it's the same!).
-	distq = ( a*Ox+ b*Oy + c )*( a*Ox+ b*Oy + c )/det;
+	distq = ( a*Oxx+ b*Oyy + c )*( a*Oxx+ b*Oyy + c )/det;
 	*distance = sqrt(distq);
-	Rq=R*R;
+	Rq=Rr*Rr;
 	length = Rq - distq;
 	if(length <= 0. ) return false; // no intersection between trajectory and this
 						// segment.
 	length = sqrt(length);
-	// coefficients of line perpendicular to input segment and passing for (Ox, Oy).
+	// coefficients of line perpendicular to input segment and passing for (Oxx, Oyy).
 	aperp = -b;
 	bperp = a;
-	cperp = - aperp*Ox - bperp*Oy;
+	cperp = - aperp*Oxx - bperp*Oyy;
 
 	// find intersection of segment with perpendicular : no need to check if
 	// det is different from 0.
@@ -10344,8 +10358,6 @@ bool PndTracking::IntersectionSciTil_Circle(
  else  SIGN=1.;
 
 
-cout<<"\tcazzocazzo, posizSciTilx "<<posizSciTilx
-	<<", posizSciTily "<<posizSciTily<<endl;
  intersect = IntersectionCircle_Segment(
 	posizSciTilx,
 	posizSciTily,
@@ -10375,9 +10387,9 @@ cout<<"\tcazzocazzo, posizSciTilx "<<posizSciTilx
 Short_t  PndTracking::IntersectionsWithClosedbiHexagonLeft(
 	//-------- inputs
 	Double_t vgap,
-	Double_t Ox,
-	Double_t Oy,
-	Double_t R,
+	Double_t Oxx,
+	Double_t Oyy,
+	Double_t Rr,
 	Double_t Ami,	// min Apotema of hexagonal  volume intersected by track;
 	Double_t Ama,	// max Apotema of hexagonal volume intersected by track;
 	//-------- outputs
@@ -10443,9 +10455,9 @@ c[] = {-2.*Ama/sqrt(3.),Ama,	2.*Ama/sqrt(3.),vgap/2.,2.*Ami/sqrt(3.),Ami,	-2.*Am
 		internal = true;
 		maxdistq=-9999.;
 		for(is=0; is<8; is++){
-			aaa = (side_x[is]-Ox)*(side_x[is]-Ox)+(side_y[is]-Oy)*(side_y[is]-Oy);
+			aaa = (side_x[is]-Oxx)*(side_x[is]-Oxx)+(side_y[is]-Oyy)*(side_y[is]-Oyy);
 			if(aaa>maxdistq) maxdistq=aaa;
-			aaa = (side_x[is+1]-Ox)*(side_x[is+1]-Ox)+(side_y[is+1]-Oy)*(side_y[is+1]-Oy);
+			aaa = (side_x[is+1]-Oxx)*(side_x[is+1]-Oxx)+(side_y[is+1]-Oyy)*(side_y[is+1]-Oyy);
 			if(aaa>maxdistq) maxdistq=aaa;
 			if ( IntersectionCircle_Segment(
 						a[is],
@@ -10455,13 +10467,13 @@ c[] = {-2.*Ama/sqrt(3.),Ama,	2.*Ama/sqrt(3.),vgap/2.,2.*Ami/sqrt(3.),Ami,	-2.*Am
 						side_x[is+1],
 						side_y[is],
 						side_y[is+1],
-						Ox,
-						Oy,
-						R,
+						Oxx,
+						Oyy,
+						Rr,
 						&Nintersections,
 						tempX,
 						tempY,
-						&distance // distance of (Ox,Oy) from line
+						&distance // distance of (Oxx,Oyy) from line
 							  // defined by  a*x+b*y+c=0.
 							)
 			   ){
@@ -10478,15 +10490,15 @@ c[] = {-2.*Ama/sqrt(3.),Ama,	2.*Ama/sqrt(3.),vgap/2.,2.*Ami/sqrt(3.),Ami,	-2.*Am
 			// stays at the same side of the origin (0,0) with respect to
 			// the given line of equation   a*x+b*y+c=0.
 			if(is<3) {
-				internal = internal && IsInternal(Ox,
-								Oy,
+				internal = internal && IsInternal(Oxx,
+								Oyy,
 								a[is],
 								b[is],
 								c[is]
 								);
 			} else {
-				internal = internal && (!IsInternal(Ox,
-								Oy,
+				internal = internal && (!IsInternal(Oxx,
+								Oyy,
 								a[is],
 								b[is],
 								c[is]
@@ -10498,7 +10510,7 @@ c[] = {-2.*Ama/sqrt(3.),Ama,	2.*Ama/sqrt(3.),vgap/2.,2.*Ami/sqrt(3.),Ami,	-2.*Am
 
 	if( !AtLeast1){
 	  if (!internal)  return -1;// trajectory outside polygon.
-	  if( maxdistq < R*R ) return -1;// trajectory outside polygon.
+	  if( maxdistq < Rr*Rr ) return -1;// trajectory outside polygon.
 	  return 1;	// trajectory completely contained inside this Polygon.
 	}
 	return 0;
@@ -10518,9 +10530,9 @@ c[] = {-2.*Ama/sqrt(3.),Ama,	2.*Ama/sqrt(3.),vgap/2.,2.*Ami/sqrt(3.),Ami,	-2.*Am
 Short_t  PndTracking::IntersectionsWithClosedbiHexagonRight(
 	//-------- inputs
 	Double_t vgap,
-	Double_t Ox,
-	Double_t Oy,
-	Double_t R,
+	Double_t Oxx,
+	Double_t Oyy,
+	Double_t Rr,
 	Double_t Ami,	// min Apotema of hexagonal  volume intersected by track;
 	Double_t Ama,	// max Apotema of hexagonal volume intersected by track;
 	//-------- outputs
@@ -10586,9 +10598,9 @@ c[] = {-2.*Ama/sqrt(3.),-Ama,	2.*Ama/sqrt(3.),-vgap/2.,2.*Ami/sqrt(3.),-Ami,	-2.
 		internal = true;
 		maxdistq=-9999.;
 		for(is=0; is<8; is++){
-			aaa = (side_x[is]-Ox)*(side_x[is]-Ox)+(side_y[is]-Oy)*(side_y[is]-Oy);
+			aaa = (side_x[is]-Oxx)*(side_x[is]-Oxx)+(side_y[is]-Oyy)*(side_y[is]-Oyy);
 			if(aaa>maxdistq) maxdistq=aaa;
-			aaa = (side_x[is+1]-Ox)*(side_x[is+1]-Ox)+(side_y[is+1]-Oy)*(side_y[is+1]-Oy);
+			aaa = (side_x[is+1]-Oxx)*(side_x[is+1]-Oxx)+(side_y[is+1]-Oyy)*(side_y[is+1]-Oyy);
 			if(aaa>maxdistq) maxdistq=aaa;
 			if ( IntersectionCircle_Segment(
 						a[is],
@@ -10598,13 +10610,13 @@ c[] = {-2.*Ama/sqrt(3.),-Ama,	2.*Ama/sqrt(3.),-vgap/2.,2.*Ami/sqrt(3.),-Ami,	-2.
 						side_x[is+1],
 						side_y[is],
 						side_y[is+1],
-						Ox,
-						Oy,
-						R,
+						Oxx,
+						Oyy,
+						Rr,
 						&Nintersections,
 						tempX,
 						tempY,
-						&distance // distance of (Ox,Oy) from line
+						&distance // distance of (Oxx,Oyy) from line
 							  // defined by  a*x+b*y+c=0.
 							)
 			   ){
@@ -10621,15 +10633,15 @@ c[] = {-2.*Ama/sqrt(3.),-Ama,	2.*Ama/sqrt(3.),-vgap/2.,2.*Ami/sqrt(3.),-Ami,	-2.
 			// stays at the same side of the origin (0,0) with respect to
 			// the given line of equation   a*x+b*y+c=0.
 			if(is<3) {
-				internal = internal && IsInternal(Ox,
-								Oy,
+				internal = internal && IsInternal(Oxx,
+								Oyy,
 								a[is],
 								b[is],
 								c[is]
 								);
 			} else {
-				internal = internal && (!IsInternal(Ox,
-								Oy,
+				internal = internal && (!IsInternal(Oxx,
+								Oyy,
 								a[is],
 								b[is],
 								c[is]
@@ -10641,7 +10653,7 @@ c[] = {-2.*Ama/sqrt(3.),-Ama,	2.*Ama/sqrt(3.),-vgap/2.,2.*Ami/sqrt(3.),-Ami,	-2.
 
 	if( !AtLeast1){
 	  if (!internal)  return -1;// trajectory outside polygon.
-	  if( maxdistq < R*R ) return -1;// trajectory outside polygon.
+	  if( maxdistq < Rr*Rr ) return -1;// trajectory outside polygon.
 	  return 1;	// trajectory completely contained inside this Polygon.
 	}
 	return 0;
@@ -10656,9 +10668,9 @@ c[] = {-2.*Ama/sqrt(3.),-Ama,	2.*Ama/sqrt(3.),-vgap/2.,2.*Ami/sqrt(3.),-Ami,	-2.
 
 Short_t  PndTracking::IntersectionsWithClosedPolygon(
 	//-------- inputs
-	Double_t Ox,
-	Double_t Oy,
-	Double_t R,
+	Double_t Oxx,
+	Double_t Oyy,
+	Double_t Rr,
 	Double_t Rmi,	// min Apotema of hexagonal  volume intersected by track;
 	Double_t Rma,	// max Apotema of hexagonal volume intersected by track;
 	//-------- outputs
@@ -10739,13 +10751,13 @@ Short_t  PndTracking::IntersectionsWithClosedPolygon(
 						hexagon_side_x[is+1]*Erre[i],
 						hexagon_side_y[is]*Erre[i],
 						hexagon_side_y[is+1]*Erre[i],
-						Ox,
-						Oy,
-						R,
+						Oxx,
+						Oyy,
+						Rr,
 						&Nintersections,
 						tempX,
 						tempY,
-						&distance // distance of (Ox,Oy) from line
+						&distance // distance of (Oxx,Oyy) from line
 							  // defined by  a*x+b*y+c=0.
 							)
 			   ){
@@ -10762,8 +10774,8 @@ Short_t  PndTracking::IntersectionsWithClosedPolygon(
 			// the definition of 'internal' here is when the given Point
 			// stays at the same side of the origin (0,0) with respect to
 			// the given line of equation   a*x+b*y+c=0.
-			 internal[i] = internal[i] && IsInternal(Ox,
-								Oy,
+			 internal[i] = internal[i] && IsInternal(Oxx,
+								Oyy,
 								a[is],
 								b[is],
 								c[is]*Erre[i]
@@ -10775,9 +10787,9 @@ Short_t  PndTracking::IntersectionsWithClosedPolygon(
 
 	if( (!AtLeast1[0]) && (!AtLeast1[1]) ){
 	  if (!internal[1])  return -2;	// trajectory outside outer Hexagon.
-	  if( R > mindist[1]) return -2;
+	  if( Rr > mindist[1]) return -2;
 	  if( !internal[0]) return 1; // trajectory contained between inner and outer Hexagon.
-	  if( mindist[0] >= R)  return -1; //  trajectory contained in inner Hexagon.
+	  if( mindist[0] >= Rr)  return -1; //  trajectory contained in inner Hexagon.
 	  return 1;	// trajectory contained between inner and outer Hexagon.
 	} else if (AtLeast1[0] && AtLeast1[1] ){ // continuation of  if( (!AtLeast1[0]) && ...
 	  return  0;
@@ -10893,9 +10905,9 @@ UShort_t PndTracking::IntersectionsWithGapSemicircle(
 
 UShort_t  PndTracking::IntersectionsWithOpenPolygon(
 	//-------- inputs
-	Double_t Ox, // Track parameter
-	Double_t Oy, // Track parameter
-	Double_t R, // Track parameter
+	Double_t Oxx, // Track parameter
+	Double_t Oyy, // Track parameter
+	Double_t Rr, // Track parameter
 	UShort_t nSides, // input, n. of Sides of open Polygon.
 	Double_t *a, //  coefficient of formula :  aX + bY + c = 0 defining
 	Double_t *b, //  the Polygon sides.
@@ -10942,13 +10954,13 @@ UShort_t  PndTracking::IntersectionsWithOpenPolygon(
 						Side_x[is+1],
 						Side_y[is],
 						Side_y[is+1],
-						Ox,
-						Oy,
-						R,
+						Oxx,
+						Oyy,
+						Rr,
 						&Nintersections,
 						tempX,
 						tempY,
-						&distance // distance of (Ox,Oy) from line
+						&distance // distance of (Oxx,Oyy) from line
 							  // defined by  a*x+b*y+c=0.
 							)
 			   ){
@@ -11137,9 +11149,6 @@ void PndTracking::LoadPndTrack_TrackCand(
 	Double_t *FI0,
 	Double_t *KAPPA,
 	Double_t info[][7],
-	Double_t *Ox,
-	Double_t *Oy,
-	Double_t *R,
 	Double_t SchosenSkew[][MAXSTTHITS],
 	Double_t ZchosenSkew[][MAXSTTHITS]
 			)
@@ -11431,6 +11440,8 @@ void PndTracking::MakeInclusionListStt(
 
  size_t	len = sizeof(InclusionListStt);
 	memset (InclusionListStt,true,len);
+ len = sizeof(SingleHitListStt);
+	memset (SingleHitListStt,true,len);
 
  for(int i=0; i< nSttHit-1; i++){
 	if( !InclusionListStt[ i ] ) continue;
@@ -11439,7 +11450,7 @@ void PndTracking::MakeInclusionListStt(
 			fabs(info[i][0] - info[j][0])<1.e-20 &&
 			fabs(info[i][1] - info[j][1])<1.e-20  )
 		{
-			InclusionListStt[j]= false ;
+			SingleHitListStt[j]=InclusionListStt[j]= false ;
 		}
 	} //  end of  for(j=i+1; j< Nhits;; j++)
 
@@ -11459,12 +11470,8 @@ void PndTracking::MakeInclusionListStt(
 void PndTracking::MatchMvdHitsToSttTracks(
 	Double_t delta,
 	UShort_t nSttTrackCand,
-	Double_t *Ox,
-	Double_t *Oy,
-	Double_t *R,
 	Double_t *FI0,
 	Double_t *Fifirst,
-	Short_t *CHARGE,
 
 	UShort_t *nPixelHitsinTrack, // output
 	UShort_t ListPixelHitsinTrack[][MAXMVDPIXELHITS], // output
@@ -11594,9 +11601,6 @@ void PndTracking::MatchMvdHitsToSttTracksagain(
 	Double_t delta,
 	Double_t highqualitycut,
 	UShort_t nSttTrackCand,
-	Double_t *Ox,
-	Double_t *Oy,
-	Double_t *R,
 	Double_t *FI0,
 	Double_t *Fifirst,
 	Short_t *CHARGE,
@@ -11807,9 +11811,6 @@ void PndTracking::MatchMvdHitsToSttTracks2(
 	Double_t delta,
 	Double_t highqualitycut,
 	UShort_t nSttTrackCand,
-	Double_t *Ox,
-	Double_t *Oy,
-	Double_t *R,
 	Double_t *FI0,
 	Double_t *Fifirst,
 	Short_t *CHARGE,
@@ -12676,9 +12677,6 @@ void PndTracking::OrderingConformal_Loading_ListTrackCandHit(
 	bool *keepit,
 	UShort_t ncand,
 	Double_t info[][7],
-	Double_t * Ox,
-	Double_t * Oy,
-	Double_t * Rr,
 	Double_t Trajectory_Start[][2],
 	Short_t *CHARGE,
 	Double_t SchosenSkew[][MAXSTTHITS]
@@ -12770,9 +12768,9 @@ void PndTracking::OrderingConformal_Loading_ListTrackCandHit(
 
 			for(i=0; i<nSttSkewHitsinTrack[ncand]; i++){
 			 j = i+nSttParHitsinTrack[ncand];
-			 XY2[j][0] = Ox[ncand]+Rr[ncand]*
+			 XY2[j][0] = Ox[ncand]+R[ncand]*
 				cos(SchosenSkew[ncand][ListSttSkewHitsinTrack[ncand][i]]);
-			 XY2[j][1] = Oy[ncand]+Rr[ncand]*
+			 XY2[j][1] = Oy[ncand]+R[ncand]*
 				sin(SchosenSkew[ncand][ListSttSkewHitsinTrack[ncand][i]]);
 			 ListHits2[j] = ListSttSkewHitsinTrack[ncand][i]+
 					MAXSTTHITS*10; // in order to distinguish
@@ -12791,10 +12789,6 @@ void PndTracking::OrderingConformal_Loading_ListTrackCandHit(
 			 CHARGE[ncand],  // input
 			 ListHits2  // output
 					);
-
-
-
-
 
 			for(j=0,ipar=0,iskew=0;
 				j< nSttParHitsinTrack[ncand]+nSttSkewHitsinTrack[ncand];j++){
@@ -13468,9 +13462,6 @@ void PndTracking::Ordering_Loading_ListTrackCandHit(
 	UShort_t FirstCandidate,
 	UShort_t LastCandidate,
 	Double_t info[][7],
-	Double_t * Ox,
-	Double_t * Oy,
-	Double_t * Rr,
 	Double_t Trajectory_Start[][2],
 	Short_t *CHARGE,
 	Double_t SchosenSkew[][MAXSTTHITS]
@@ -13480,14 +13471,11 @@ void PndTracking::Ordering_Loading_ListTrackCandHit(
 
 	for(ncand=FirstCandidate; ncand< LastCandidate; ncand++){
 		// for small radius trajectory better the ordering with conformal.
-		if( Rr[ncand]< RSTRAWDETECTORMAX/2.){
+		if( R[ncand]< RSTRAWDETECTORMAX/2.){
 			OrderingConformal_Loading_ListTrackCandHit(
 				keepit,
 				ncand,
 				info,
-				Ox,
-				Oy,
-				Rr,
 				Trajectory_Start,
 				CHARGE,
 				SchosenSkew
@@ -13991,8 +13979,6 @@ void PndTracking::stampadopoTrackCand(
 
 
 
-if(istampa>=2){
-//for(int it=0; it<nSttTrackCand;it++){
 for(int it=0; it<nTotalCandidates;it++){
 cout<<"da PndTracking, IVOLTE = "<<IVOLTE<<", traccia n. "<<it<<", elenco ordinato degli hits :\n";
 for(l =0;l<nMvdPixelHitsinTrack[it]+nMvdStripHitsinTrack[it]
@@ -14039,7 +14025,6 @@ for(l =0;l<nMvdPixelHitsinTrack[it]+nMvdStripHitsinTrack[it]
 	}
      }
   }
-}	// end of    if(istampa>=2)
 
 
 
@@ -14051,10 +14036,7 @@ for(l =0;l<nMvdPixelHitsinTrack[it]+nMvdStripHitsinTrack[it]
 
 void PndTracking::stampetta(
 	UShort_t nSttTrackCand,
-	bool *keepit,
-	Double_t *Ox,
-	Double_t *Oy,
-	Double_t *R
+	bool *keepit
 	)
 {
 	int i,j;
@@ -14111,6 +14093,82 @@ void PndTracking::stampetta(
 }
 //----------end of function PndTracking::stampetta
 
+
+
+
+//---------- begin of function PndTracking::SttInfoXYZParal
+
+
+    void PndTracking::SttInfoXYZParal(
+                             Double_t info[][7],
+                             UShort_t infopar,
+                             Double_t Oxx,
+                             Double_t Oyy,
+                             Double_t Rr,
+                             Double_t KAPPA,
+                             Double_t FI0,
+                             Short_t Charge,
+                             Double_t *Posiz
+                            )
+{
+
+   Double_t fi, norm, vers[2];
+
+   vers[0] = Oxx - info[infopar][0];
+   vers[1] = Oyy - info[infopar][1];
+   norm = sqrt( vers[0]*vers[0] + vers[1]*vers[1] );
+
+   if(norm < 1.e-20) {
+     Posiz[0] = -999999999.;
+     return;
+   }
+   
+
+
+
+
+
+   if( fabs( Rr - fabs( norm - info[infopar][3] ) ) // distance trajectory-drift radius
+				<
+		fabs( Rr - (norm + info[infopar][3]) )  ) {
+
+	Posiz[0] = info[infopar][0] + info[infopar][3]*vers[0]/norm;
+	Posiz[1] = info[infopar][1] + info[infopar][3]*vers[1]/norm;
+
+   } else {
+
+	Posiz[0] = info[infopar][0] - info[infopar][3]*vers[0]/norm;
+	Posiz[1] = info[infopar][1] - info[infopar][3]*vers[1]/norm;
+
+   }	// end of if ( fabs( Rr - fabs( Distance - info[infopar][3] ) ).....
+
+
+
+
+//   Posiz[0] = info[infopar][0] + info[infopar][3]*vers[0]/norm;
+//   Posiz[1] = info[infopar][1] + info[infopar][3]*vers[1]/norm;
+
+   if( fabs(KAPPA)<1.e-20 ){
+     Posiz[2] = -888888888.;
+     return;
+   }
+
+
+   fi = atan2(-vers[1],-vers[0]);
+   if(fi<0.)  fi += 2.*PI;
+
+   if ( Charge > 0){
+    if(fi > FI0 )  FI0 += 2.*PI;
+//    Posiz[2] = (FI0-fi)/KAPPA;
+   } else {
+    if(fi < FI0 )  fi += 2.*PI;
+   }
+    Posiz[2] = (fi-FI0)/KAPPA;
+
+   return;
+}
+
+//---------- end function PndTracking::SttInfoXYZParal
 
 
 
@@ -15620,9 +15678,9 @@ UShort_t PndTracking::TrkAssociatedParallelHitsToHelixQuater(
 	UShort_t nHitsinTrack,
 	UShort_t *ListHitsinTrack,
 	UInt_t NhitsParallel,
-	Double_t Ox,
-	Double_t Oy,
-	Double_t R,
+	Double_t Oxx,
+	Double_t Oyy,
+	Double_t Rr,
 	Double_t info[][7],
 	Double_t infoparalConformal[][5],
 	UShort_t *RConformalIndex,
@@ -15745,11 +15803,10 @@ if( FFimax - FFimin > NFIDIVCONFORMAL/2 ) {
                 nHit_original = (UShort_t) infoparalConformal[HitsinBoxConformal[k][l2][i]][3];
 		if( !InclusionListStt[ nHit_original ] ) continue;
 // check if the hit position is near the circle of the Helix found by the fit
-                dx = -Ox+info[ nHit_original ][0];
-                dy = -Oy+info[ nHit_original ][1];
+                dx = -Oxx+info[ nHit_original ][0];
+                dy = -Oyy+info[ nHit_original ][1];
                 distance = sqrt(dx*dx+dy*dy);
-//cout<<"nuov, R "<<R<<",  distance  "<<distance<<endl;
-                if ( fabs(R - distance ) > NTIMES*STRAWRADIUS )  continue;
+                if ( fabs(Rr - distance ) > NTIMES*STRAWRADIUS )  continue;
 
 //-------------------
                 xx=infoparalConformal[  HitsinBoxConformal[k][l2][i]  ][0];
@@ -15779,10 +15836,10 @@ if( FFimax - FFimin > NFIDIVCONFORMAL/2 ) {
                 nHit_original = (UShort_t) infoparalConformal[  HitsinBoxConformal[k][l3][i2]  ][3];
 		if( !InclusionListStt[ nHit_original ] ) continue;
 // check if the hit position is near the circle of the Helix found by the fit
-                dx = -Ox+info[ nHit_original ][0];
-                dy = -Oy+info[ nHit_original ][1];
+                dx = -Oxx+info[ nHit_original ][0];
+                dy = -Oyy+info[ nHit_original ][1];
                 distance = sqrt(dx*dx+dy*dy);
-                if ( fabs(R - distance ) > NTIMES*STRAWRADIUS )  continue;
+                if ( fabs(Rr - distance ) > NTIMES*STRAWRADIUS )  continue;
 
 //-------------------
                 xx=infoparalConformal[  HitsinBoxConformal[k][l3][i2]  ][0];
@@ -15813,10 +15870,10 @@ if( FFimax - FFimin > NFIDIVCONFORMAL/2 ) {
                 nHit_original = (UShort_t) infoparalConformal[  HitsinBoxConformal[k][l3][i2]  ][3];
 		if( !InclusionListStt[ nHit_original ] ) continue;
 // check if the hit position is near the circle of the Helix found by the fit
-                dx = -Ox+info[ nHit_original ][0];
-                dy = -Oy+info[ nHit_original ][1];
+                dx = -Oxx+info[ nHit_original ][0];
+                dy = -Oyy+info[ nHit_original ][1];
                 distance = sqrt(dx*dx+dy*dy);
-                if ( fabs(R - distance ) > NTIMES*STRAWRADIUS )  continue;
+                if ( fabs(Rr - distance ) > NTIMES*STRAWRADIUS )  continue;
 
 //-------------------
                 xx=infoparalConformal[  HitsinBoxConformal[k][l3][i2]  ][0];
@@ -15866,10 +15923,10 @@ if( FFimax - FFimin > NFIDIVCONFORMAL/2 ) {
                 nHit_original = (UShort_t) infoparalConformal[  HitsinBoxConformal[k][l][i]  ][3];
 		if( !InclusionListStt[ nHit_original ] ) continue;
 // check if the hit position is near the circle of the Helix found by the fit
-                dx = -Ox+info[ nHit_original ][0];
-                dy = -Oy+info[ nHit_original ][1];
+                dx = -Oxx+info[ nHit_original ][0];
+                dy = -Oyy+info[ nHit_original ][1];
                 distance = sqrt(dx*dx+dy*dy);
-                if ( fabs(R - distance ) >NTIMES*STRAWRADIUS )  continue;
+                if ( fabs(Rr - distance ) >NTIMES*STRAWRADIUS )  continue;
 
 //-------------------
                 xx=infoparalConformal[  HitsinBoxConformal[k][l][i]  ][0];
@@ -15957,7 +16014,8 @@ if( FFimax - FFimin > NFIDIVCONFORMAL/2 ) {
                 if( erre2< Rin &&  erre2> 0. ) {
 		 continue;
 		}
-              }   else if (erre1> Rout  &&  erre2 > Rout && !( fi1<= aaa && aaa<=fi2 && ddd<=Rout )
+              }   else if (erre1> Rout  &&  erre2 > Rout &&
+			!( fi1<= aaa && aaa<=fi2 && ddd<=Rout )
                 ) {
                    continue;
              }
@@ -15988,10 +16046,10 @@ if( FFimax - FFimin > NFIDIVCONFORMAL/2 ) {
                    nHit_original = (UShort_t) infoparalConformal[  HitsinBoxConformal[l3][k][l2]  ][3];
 		   if( !InclusionListStt[ nHit_original ] ) continue;
 // check if the hit position is near the circle of the Helix found by the fit
-                   dx = -Ox+info[ nHit_original ][0];
-                   dy = -Oy+info[ nHit_original ][1];
+                   dx = -Oxx+info[ nHit_original ][0];
+                   dy = -Oyy+info[ nHit_original ][1];
                    distance = sqrt(dx*dx+dy*dy);
-                   if ( fabs(R - distance ) > NTIMES*STRAWRADIUS )  continue;
+                   if ( fabs(Rr - distance ) > NTIMES*STRAWRADIUS )  continue;
 
 //-------------------
                    xx=infoparalConformal[  HitsinBoxConformal[l3][k][l2]  ][0];
@@ -16027,17 +16085,16 @@ if( FFimax - FFimin > NFIDIVCONFORMAL/2 ) {
           i += NFIDIVCONFORMAL;
          } else if (i>=NFIDIVCONFORMAL){
           i -=  NFIDIVCONFORMAL*( i/NFIDIVCONFORMAL );
-//          i -= NFIDIVCONFORMAL;
          }
         for(l=0; l<nRdivConformalEffective;l++){
               for( k=0;k<nBoxConformal[l][i];k++){
                 nHit_original = (UShort_t) infoparalConformal[  HitsinBoxConformal[k][l][i]  ][3];
 		if( !InclusionListStt[ nHit_original ] ) continue;
 // check if the hit position is near the circle of the Helix found by the fit
-                dx = -Ox+info[ nHit_original ][0];
-                dy = -Oy+info[ nHit_original ][1];
+                dx = -Oxx+info[ nHit_original ][0];
+                dy = -Oyy+info[ nHit_original ][1];
                 distance = sqrt(dx*dx+dy*dy);
-                if ( fabs(R - distance ) > NTIMES*STRAWRADIUS )  continue;
+                if ( fabs(Rr - distance ) > NTIMES*STRAWRADIUS )  continue;
 
 //-------------------
                 xx=infoparalConformal[  HitsinBoxConformal[k][l][i]  ][0];
@@ -16082,9 +16139,9 @@ if(istampa>=3) {
 UShort_t PndTracking::TrkAssociatedParallelHitsToHelix5(
 	bool *InclusionList,
 	UInt_t NhitsParallel,
-	Double_t Ox,
-	Double_t Oy,
-	Double_t R,
+	Double_t Oxx,
+	Double_t Oyy,
+	Double_t Rr,
 	Double_t info[][7],
 	Double_t Fi_low,
 	Double_t Fi_up,
@@ -16115,13 +16172,13 @@ UShort_t PndTracking::TrkAssociatedParallelHitsToHelix5(
 
 
 
-	dx = -Ox+info[ListSttParHits[i]][0];
-	dy = -Oy+info[ListSttParHits[i]][1];
+	dx = -Oxx+info[ListSttParHits[i]][0];
+	dy = -Oyy+info[ListSttParHits[i]][1];
 	angle=atan2(dy,dx);
 	if(angle<0.) angle += 2.*PI;
 	if(angle<0.) angle =0.;
 	distance = sqrt(dx*dx+dy*dy);
-	if ( fabs(R - distance ) > NTIMES*STRAWRADIUS )  continue;
+	if ( fabs(Rr - distance ) > NTIMES*STRAWRADIUS )  continue;
 	if(angle<Fi_low) angle += 2.*PI;
 	if(angle>Fi_up) continue;
 	auxListHitsinTrack[nAssociatedHits]= i;
@@ -16137,6 +16194,322 @@ UShort_t PndTracking::TrkAssociatedParallelHitsToHelix5(
 //----------end of function PndTracking::TrkAssociatedParallelHitsToHelix5
 
 
+
+//----------begin function PndTracking::WriteAllMacros
+void  PndTracking::WriteAllMacros(
+	Short_t *Charge,
+	Double_t *FI0,
+	Double_t info[][7],
+	Double_t *KAPPA,
+	bool* keepit,
+	UShort_t *nMCParalAlone,
+	UShort_t *nMCSkewAlone,
+	UShort_t * nParalCommon,
+	UShort_t * nSkewCommon,
+	UShort_t * nSpuriParinTrack,
+	UInt_t nSttHit,
+	UInt_t nSttParHit,
+	UInt_t nSttSkewHit,
+	UShort_t nTotalCandidates,
+	UShort_t MCParalAloneList[][MAXSTTHITSINTRACK],
+	UShort_t MCSkewAloneList[][MAXSTTHITSINTRACK],
+	UShort_t ParalCommonList[][MAXSTTHITSINTRACK],
+	UShort_t ParSpuriList[][MAXSTTHITSINTRACK],
+	Double_t SchosenSkew[][MAXSTTHITS],
+	UShort_t SkewCommonList[][MAXSTTHITSINTRACK],
+	Short_t * daTrackFoundaTrackMC,
+	Double_t * WDX,
+	Double_t * WDY,
+	Double_t * WDZ,
+
+	UShort_t nMvdPixelCommon[],
+	UShort_t MvdPixelCommonList[][MAXMVDPIXELHITSINTRACK],
+	UShort_t nMvdPixelSpuriinTrack[],
+	UShort_t MvdPixelSpuriList[][MAXMVDPIXELHITSINTRACK],
+	UShort_t nMCMvdPixelAlone[],
+	UShort_t MCMvdPixelAloneList[][MAXMVDPIXELHITSINTRACK],
+
+	UShort_t nMvdStripCommon[],
+	UShort_t MvdStripCommonList[][MAXMVDSTRIPHITSINTRACK],
+	UShort_t nMvdStripSpuriinTrack[],
+	UShort_t MvdStripSpuriList[][MAXMVDSTRIPHITSINTRACK],
+	UShort_t nMCMvdStripAlone[],
+	UShort_t MCMvdStripAloneList[][MAXMVDSTRIPHITSINTRACK]
+	)
+{
+
+ bool
+	intersect;
+
+ UShort_t
+	Nint
+	;
+
+ int
+	i,
+	j,
+	k
+	;
+
+ Double_t
+	Posiz1[3],
+	ultimoangolo[nTotalCandidates],
+	primoangolo[nTotalCandidates],
+	XintersectionList[2],
+	YintersectionList[2]
+	;
+
+ FairMCPoint *puntator;
+
+// calcolo di S degli eventuali hits SciTil presenti nelle tracce trovate.
+
+	Double_t esseSciTil[MAXTRACKSPEREVENT][MAXSCITILHITS];
+
+	for(  i= 0; i< nTotalCandidates; i++){
+		for(j=0;j< nSciTilHitsinTrack[i];j++){
+
+		intersect=IntersectionSciTil_Circle(
+			posizSciTil[ListSciTilHitsinTrack[i][j]][0],
+			posizSciTil[ListSciTilHitsinTrack[i][j]][1],
+			Ox[i], // center of circle.
+			Oy[i],
+			R[i], // Radius of circle.
+			&Nint,
+			XintersectionList,
+			YintersectionList
+						);
+// reject case with no intersection of the SciTil with the circle trajectory.
+	if(intersect){
+	// calculate S on the lateral face of the Helix.
+		if ( Nint==1){	// the majority of the cases
+			esseSciTil[i][j] = atan2(YintersectionList[0]-Oy[i],
+					XintersectionList[0]-Ox[i]);
+		} else {  // in this case Nint=2 (it should be a very rare case).
+		// do an average of the two positions.
+			esseSciTil[i][j] = atan2( 0.5*(YintersectionList[0]+YintersectionList[1])
+			-Oy[i],0.5*(XintersectionList[0]+XintersectionList[1])-Ox[i]);
+		} // end of  if ( Nint==1)
+		if ( esseSciTil[i][j]<0.) esseSciTil[i][j] += 2.*PI;
+
+	}  // continuation of if(intersect)
+
+		} // end of for(j....
+	}  // end of  for(  i= 0; i< nTotalCandidates; i++)
+
+//------------------
+
+    for(  i= 0, k=-1; i< nTotalCandidates; i++){
+
+
+	//-------stampe.
+if(istampa>=2){
+		cout<<"\n\n---------------------------------------------\n";
+		cout<<" evt. n. "<<IVOLTE<<", candidato "<<i
+		<<", n hits || "<<nSttParHitsinTrack[i]<<" e loro lista :\n";
+		for(int iz=0;iz<nSttParHitsinTrack[i];iz++){
+			cout<<"\thit || n. "<<ListSttParHitsinTrack[i][iz]<<endl;
+		}
+		cout<<"\tn hits // "<<nSttSkewHitsinTrack[i]<<" e loro lista :\n";
+		for(int iz=0;iz<nSttSkewHitsinTrack[i];iz++){
+			cout<<"\thit || n. "<<ListSttSkewHitsinTrack[i][iz]<<endl;
+		}
+		if(keepit[i])cout<<"\tkeepit = true\n";
+		else cout<<"\tkeepit = false\n";
+		cout<<"---------------------------------------------\n";
+}
+	//--------fine stampe.
+
+	if(!keepit[i]) continue;
+	k++;
+	int npunti=-1+nSttParHitsinTrack[i]+nSttSkewHitsinTrack[i]+
+		nMvdPixelHitsinTrack[i]+nMvdStripHitsinTrack[i]+nSciTilHitsinTrack[i];
+
+		if (ListTrackCandHitType[i][npunti] == 0){  //  Mvd Pixel
+			ultimoangolo[i] = atan2( YMvdPixel[ ListTrackCandHit[i][npunti] ]-Oy[i],
+						 XMvdPixel[ ListTrackCandHit[i][npunti] ]-Ox[i]);
+		} else if (ListTrackCandHitType[i][npunti] == 1){  //  Mvd Strip
+			ultimoangolo[i] = atan2( YMvdStrip[ ListTrackCandHit[i][npunti] ]-Oy[i],
+						 XMvdStrip[ ListTrackCandHit[i][npunti] ]-Ox[i]);
+		} else if( ListTrackCandHitType[i][npunti] == 2 ){  // it is a parallel straw hit
+			SttInfoXYZParal (
+				info,
+				ListTrackCandHit[i][npunti],
+				Ox[i],
+				Oy[i],
+				R[i],
+				KAPPA[i],
+				FI0[i],
+				Charge[i],
+				Posiz1
+				);
+			ultimoangolo[i] = atan2( Posiz1[1]-Oy[i],Posiz1[0]-Ox[i]);
+		} else if ( ListTrackCandHitType[i][npunti] == 3 ){  // it is a skew straw hit
+
+			ultimoangolo[i] = SchosenSkew[i][ ListTrackCandHit[i][npunti] ];
+		} else  if ( ListTrackCandHitType[i][npunti] == 1001){  // SciTil hit.
+			ultimoangolo[i] =
+				atan2(posizSciTil[ListTrackCandHit[i][npunti]][1]-Oy[i],
+				posizSciTil[ListTrackCandHit[i][npunti]][0]-Ox[i]);
+		}
+		if( ultimoangolo[i]<0.) ultimoangolo[i]+= 2.*PI;
+
+
+
+	double primo;
+	primoangolo[i] = fmod(FI0[i],2.*PI);
+	if(Charge[i]>0.){
+		if( ultimoangolo[i]> primoangolo[i]) ultimoangolo[i]-=2.*PI;
+		primo=ultimoangolo[i]*180./PI;
+		ultimoangolo[i]=primoangolo[i]*180./PI;
+		primoangolo[i]=primo;
+		
+	}else{
+		if( ultimoangolo[i]<primoangolo[i]) ultimoangolo[i]+=2.*PI;
+		ultimoangolo[i]=ultimoangolo[i]*180./PI;
+		primoangolo[i]=primoangolo[i]*180./PI;
+	}
+
+
+	if( nSttParHitsinTrack[i]+nMvdPixelHitsinTrack[i]+
+		nMvdStripHitsinTrack[i]>0 &&  doMcComparison) {
+
+	   for( j=0;j<nMCSkewAlone[i];j++){
+		puntator  = (FairMCPoint*) fSttPointArray->At(MCSkewAloneList[i][j]);
+	   	MCSkewAloneX[ MCSkewAloneList[i][j] ]=puntator->GetX();
+	   	MCSkewAloneY[ MCSkewAloneList[i][j] ]=puntator->GetY();
+	   }
+
+
+if(istampa>1) cout<<"PndSttMvdTracking, evt. "<<IVOLTE<<
+";\n\tprima di WriteMacro, n. vero della trackcand "
+	<<i<<", n. sequenziale per le macro = "<<k<<endl;
+		WriteMacroSttParallelAssociatedHitsandMvdwithMC(
+                   Ox[i], Oy[i], R[i],
+			primoangolo[i],ultimoangolo[i],
+                   nSttParHitsinTrack[i],
+		   ListSttParHitsinTrack,
+                   info,
+                   i,
+		k,	// questo si usa solo per il nome della Macro.
+		daTrackFoundaTrackMC[i],
+		nParalCommon,
+		ParalCommonList,
+		nSpuriParinTrack,
+		ParSpuriList,
+		nMCParalAlone,
+		MCParalAloneList,
+
+		nMvdPixelHitsinTrack[i],
+		ListMvdPixelHitsinTrack,
+		nMvdStripHitsinTrack[i],
+		ListMvdStripHitsinTrack,
+
+		nMvdPixelCommon[i],
+		&MvdPixelCommonList[i][0],
+		nMvdPixelSpuriinTrack[i],
+		&MvdPixelSpuriList[i][0],
+		nMCMvdPixelAlone[i],
+		&MCMvdPixelAloneList[i][0],
+
+		nMvdStripCommon[i],
+		&MvdStripCommonList[i][0],
+		nMvdStripSpuriinTrack[i],
+		&MvdStripSpuriList[i][0],
+		nMCMvdStripAlone[i],
+		&MCMvdStripAloneList[i][0],
+
+		nSttSkewHitsinTrack[i],
+		ListSttSkewHitsinTrack,
+		&SchosenSkew[i][0],
+		nSkewCommon,
+		SkewCommonList,
+		nMCSkewAlone,
+		MCSkewAloneList
+						);
+	}	// end of  if( nSttParHitsinTrack[i]+nMvdPixelHitsinTrack[i]+
+		//			nMvdStripHitsinTrack[i]>0 &&  doMcComparison)
+
+      if(  nSttSkewHitsinTrack[i]+nMvdPixelHitsinTrack[i]+
+      	nMvdStripHitsinTrack[i]>0 &&  doMcComparison){
+             WriteMacroSkewAssociatedHitswithMC(
+                   KAPPA[i],
+		   FI0[i],
+		    Ox[i],
+		     Oy[i],
+		      R[i],
+		   Charge[i],
+                   info,
+		   WDX,WDY,WDZ,
+                   i,
+		k,	// questo si usa solo per il nome della Macro.
+                   nSttSkewHitsinTrack[i],
+                   ListSttSkewHitsinTrack,
+                   nSkewCommon[i],
+                   SkewCommonList,
+                   daTrackFoundaTrackMC[i],
+                   nMCSkewAlone[i],
+                   MCSkewAloneList,
+		   nMvdPixelHitsinTrack,
+		   ListMvdPixelHitsinTrack,
+		   nMvdStripHitsinTrack,
+		   ListMvdStripHitsinTrack,
+
+
+		nMvdPixelCommon[i],
+		&MvdPixelCommonList[i][0],
+		nMvdPixelSpuriinTrack[i],
+		&MvdPixelSpuriList[i][0],
+		nMCMvdPixelAlone[i],
+		&MCMvdPixelAloneList[i][0],
+
+		nMvdStripCommon[i],
+		&MvdStripCommonList[i][0],
+		nMvdStripSpuriinTrack[i],
+		&MvdStripSpuriList[i][0],
+		nMCMvdStripAlone[i],
+		&MCMvdStripAloneList[i][0],
+		&esseSciTil[i][0]
+			);
+      }  //  end of	if(  nSttSkewHitsinTrack[i]+nMvdPixelHitsinTrack[i]+
+	//	nMvdStripHitsinTrack[i]>0 &&  doMcComparison)
+    }            //   end of   for(  i= 0; i< nSttTrackCand; i++)
+i=0;
+
+
+//	Int_t numm = ((Int_t ) nSttHit);
+
+        WriteMacroParallelHitsGeneral(
+                   nSttHit,
+		    info,
+		   nTotalCandidates,
+		   keepit,
+		   FI0,
+		   ultimoangolo,
+		   primoangolo
+					);
+
+
+//     la seguente e' da modificare per includere eventuali hits SciTil mai usati.
+        WriteMacroAllHitsRestanti(
+		nSttHit,
+		nSttParHit,
+		nSttSkewHit,
+		info,
+		keepit,
+		nTotalCandidates,
+		nTrackCandHit,
+		ListTrackCandHit,
+		ListTrackCandHitType
+					);
+
+
+
+//---------------------  fine plottamenti --------------------------------------------
+
+
+
+}
+//----------end function PndTracking::WriteAllMacros
 
 //----------begin of function PndTracking::WriteMacroAllHitsRestanti
 
@@ -16364,7 +16737,6 @@ void PndTracking::WriteMacroParallelHitsGeneral(
                    Int_t Nhits, Double_t info[][7],
                    UShort_t nTracksFoundSoFar,
 		bool *keepit,
-                   Double_t *Ox, Double_t *Oy, Double_t *Radius,
 		   Double_t *FI0,
 		   Double_t *ultimoangolo,
 		   Double_t *primoangolo
@@ -16566,7 +16938,7 @@ fprintf(MACRO,
 	ii++;
        aaa = Ox[i];
        bbb = Oy[i];
-       rrr = Radius[i];
+       rrr = R[i];
           fprintf(MACRO,
 //"TEllipse* ris%d=new TEllipse(%f,%f,%f,%f,0.,360.);\nris%d->SetFillStyle(0);\nris%d->SetLineColor(2);\nris%d->Draw();\n",
 //                     i,aaa,bbb,rrr,rrr,i,i,i);
@@ -16689,7 +17061,7 @@ fprintf(MACRO,
 	ii++;
        aaa = Ox[i];
        bbb = Oy[i];
-       rrr = Radius[i];
+       rrr = R[i];
           fprintf(MACRO,
 //"TEllipse* ris%d=new TEllipse(%f,%f,%f,%f,0.,360.);\nris%d->SetFillStyle(0);\nris%d->SetLineColor(2);\nris%d->Draw();\n",
 //                     i,aaa,bbb,rrr,rrr,i,i,i);
@@ -16832,176 +17204,6 @@ fprintf(MACRO,
 
 
 
-//----------start of function PndTracking::WriteMacroParallelHitsGeneralspecial
-
-void PndTracking::WriteMacroParallelHitsGeneralspecial(
-		   Double_t time,
-                   Int_t Nhits, Double_t info[][7],
-                   UShort_t nTracksFoundSoFar,
-                   Double_t *Ox, Double_t *Oy, Double_t *Radius,
-		   Double_t *FI0,
-		   Double_t *ultimoangolo,
-		   Double_t *primoangolo
-
-
-
-                                                      )
-{
-
-    Int_t i, j, i1, ii, index, Kincl, nlow, nup, STATUS;
-
-    Double_t xmin , xmax, ymin, ymax, xl, xu, yl, yu,
-           gamma,
-           dx, dy, diff, d1, d2,
-           delta, deltax, deltay, deltaz, deltaS,
-           factor,ff,
-           zmin, zmax, Smin, Smax, S1, S2,
-           z1, z2, y1, y2,x1,x2,
-           vx1, vy1, vz1, C0x1, C0y1, C0z1,
-           aaa, bbb, ccc, rrr, angle, minor, major,
-           distance, Rx, Ry, LL, dR,
-           Aellipsis1, Bellipsis1,fi1,
-           fmin, fmax, offset, step,
-           SkewInclWithRespectToS, zpos, zpos1, zpos2,
-           Tiltdirection1[2],
-           zl[200],zu[200],
-           POINTS1[6];
-
-      char nome[300], nome2[300];
-
-
-
-	dR = time*STTDRIFTVEL; // in cm.
-
-//---------- parallel straws Macro now
-	if( time>=0.){
-		i = (Int_t) time;
-		sprintf(nome,"MacroSttMvdAllHitsTime%dEvent%d",i, IVOLTE);
-	} else {
-		i = (Int_t) -time;
-		sprintf(nome,"MacroSttMvdAllHitsTime-%dEvent%d",i, IVOLTE);
-	}
-      sprintf(nome2,"%s.C",nome);
-      FILE * MACRO = fopen(nome2,"w");
-//      fprintf(MACRO,"void %s()\n{\n",nome);
-      fprintf(MACRO,"{\n");
-      xmin=1.e20;
-      xmax=-1.e20;
-      ymin=1.e20;
-      ymax=-1.e20;
-       for( i=0; i< Nhits; i++) {	// all straws, anche le skew
-            if (info[i][0]-info[i][3] < xmin)   xmin = info[i][0]-info[i][3];
-            if (info[i][0]+info[i][3] > xmax)   xmax = info[i][0]+info[i][3];
-            if (info[i][1]-info[i][3] < ymin)   ymin = info[i][1]-info[i][3];
-            if (info[i][1]+info[i][3] > ymax)   ymax = info[i][1]+info[i][3];
-       }
-       for( ii=0; ii< nMvdPixelHit; ii++) {
-            if (XMvdPixel[ii] < xmin)   xmin = XMvdPixel[ii];
-            if (XMvdPixel[ii] > xmax)   xmax = XMvdPixel[ii] ;
-            if (YMvdPixel[ii] < ymin)   ymin = YMvdPixel[ii];
-            if (YMvdPixel[ii] > ymax)   ymax = YMvdPixel[ii];
-       }
-
-       for( ii=0; ii< nMvdStripHit; ii++) {
-            if (XMvdStrip[ii] < xmin)   xmin = XMvdStrip[ii];
-            if (XMvdStrip[ii] > xmax)   xmax = XMvdStrip[ii] ;
-            if (YMvdStrip[ii] < ymin)   ymin = YMvdStrip[ii];
-            if (YMvdStrip[ii] > ymax)   ymax = YMvdStrip[ii];
-       }
-
-       if( xmin > 0. ) xmin = 0.;
-       if( xmax < 0.)  xmax = 0.;
-       if( ymin > 0. ) ymin = 0.;
-       if( ymax < 0.)  ymax = 0.;
-
-       deltax = xmax-xmin;
-       deltay = ymax - ymin;
-
-       if( deltax > deltay) {
-         ymin -=  0.5*(deltax-deltay);
-         ymax = ymin+ deltax;
-         delta = deltax;
-       }  else  {
-         xmin -=  0.5*(deltay-deltax);
-         xmax = xmin+ deltay;
-         delta= deltay;
-       }
-
-       xmax = xmax + delta*0.05;
-       xmin = xmin - delta*0.05;
-
-       ymax = ymax + delta*0.05;
-       ymin = ymin - delta*0.05;
-
-
-       fprintf(MACRO,"TCanvas* my= new TCanvas();\nmy->Range(%f,%f,%f,%f);\n",xmin,ymin,xmax,ymax);
-	if( time>=0.){
-		i = (Int_t) time;
-		fprintf(MACRO,"TPaveLabel* pt= new TPaveLabel(%f,%f,%f,%f,\"Bkg; Time shift = %d nsec\");\n",
-		xmin+delta*0.05,ymax-delta*0.15,xmin+delta*0.35,ymax- delta*0.05,i);
-	} else {
-		i = (Int_t) -time;
-		fprintf(MACRO,"TPaveLabel* pt= new TPaveLabel(%f,%f,%f,%f,\"Bkg; Time shift = -%d nsec\");\n",
-		xmin+delta*0.05,ymax-delta*0.15,xmin+delta*0.35,ymax- delta*0.05,i);
-	}
-       fprintf(MACRO,"pt->Draw();\n");
-
-	disegnaAssiXY(MACRO,  xmin, xmax, ymin, ymax);
-
-       for( i=0; i< Nhits; i++) {
-	 if( info[i][3]+dR >STRAWRADIUS || info[i][3]+dR <0.) continue;
-         if( info[i][5] == 1 ) {     // parallel straws
-fprintf(MACRO,
-"TEllipse* Paral%d = new TEllipse(%f,%f,%f,%f,0.,360.);\nParal%d->SetFillStyle(0);\nParal%d->Draw();\n",
-                     i,info[i][0],info[i][1],info[i][3]+dR,info[i][3]+dR,i,i);
-          }
-       }
-
-      if(fabs(time)<5.){
-       for( ii=0; ii< nMvdStripHit; ii++) {
-            x1= XMvdStrip[ii]-sigmaXMvdStrip[ii];
-            x2= XMvdStrip[ii]+sigmaXMvdStrip[ii];
-            y1= YMvdStrip[ii]-sigmaYMvdStrip[ii];
-            y2= YMvdStrip[ii]+sigmaYMvdStrip[ii];
-fprintf(MACRO,
-"TMarker* Strip%d = new TMarker(%f,%f,%d);\nStrip%d->SetMarkerColor(1);\nStrip%d->Draw();\n",
-                    ii,XMvdStrip[ii],YMvdStrip[ii],25,ii,ii,ii);
-
-
-       }
-       for( ii=0; ii< nMvdPixelHit; ii++) {
-            x1= XMvdPixel[ii]-sigmaXMvdPixel[ii];
-            x2= XMvdPixel[ii]+sigmaXMvdPixel[ii];
-            y1= YMvdPixel[ii]-sigmaYMvdPixel[ii];
-            y2= YMvdPixel[ii]+sigmaYMvdPixel[ii];
-            fprintf(MACRO,
-"TMarker* Pixel%d = new TMarker(%f,%f,%d);\nPixel%d->SetMarkerColor(1);\nPixel%d->Draw();\n",
-                    ii,XMvdPixel[ii],YMvdPixel[ii],26,ii,ii);
-       }
-
-      } // end of if(fabs(time)>5.)
-
-
-
-      fprintf(MACRO,"}\n");
-      fclose(MACRO);
-       
-//------------------------------------------------------------------------------------------------------------
-
-
-
-
-
-    return ;
-
-}
-
-
-//----------end of function PndTracking::WriteMacroParallelHitsGeneralspecial
-
-
-
-
 
 //----------start of function PndTracking::WriteMacroSkewAssociatedHitswithMC
 
@@ -17009,9 +17211,9 @@ fprintf(MACRO,
 void PndTracking::WriteMacroSkewAssociatedHitswithMC(
                    Double_t KAPPA,
                    Double_t FI0,
-                   Double_t Ox,
-                   Double_t Oy,
-                   Double_t R,
+                   Double_t Oxx,
+                   Double_t Oyy,
+                   Double_t Rr,
 		   Short_t charge,
                    Double_t info[][7],
 
@@ -17135,7 +17337,7 @@ UShort_t ListStripHitsinTrack[MAXTRACKSPEREVENT][MAXMVDSTRIPHITSINTRACK], // out
          C0y1 = info[i][1];
          C0z1 = info[i][2];
 
-       calculateintersections(Ox,Oy,R,C0x1,C0y1,C0z1,info[i][3],
+       calculateintersections(Oxx,Oyy,Rr,C0x1,C0y1,C0z1,info[i][3],
                               vx1,vy1,vz1,
                               &STATUS,POINTS1);
        if(STATUS < 0 ) continue ;
@@ -17146,12 +17348,12 @@ UShort_t ListStripHitsinTrack[MAXTRACKSPEREVENT][MAXMVDSTRIPHITSINTRACK], // out
                   (POINTS1[1+j]-C0y1)*(POINTS1[1+j]-C0y1) + 
                   (POINTS1[2+j]-C0z1)*(POINTS1[2+j]-C0z1) 
                             );
-        Rx = POINTS1[j]-Ox ;   //  x component Radial vector of cylinder of trajectory
-        Ry = POINTS1[1+j]-Oy ;   //  y direction Radial vector of cylinder of trajectory
+        Rx = POINTS1[j]-Oxx ;   //  x component Radial vector of cylinder of trajectory
+        Ry = POINTS1[1+j]-Oyy ;   //  y direction Radial vector of cylinder of trajectory
 
         aaa = sqrt(Rx*Rx+Ry*Ry);
         SkewInclWithRespectToS = (-Ry*vx1 + Rx*vy1)/aaa ;
-        SkewInclWithRespectToS /= R;
+        SkewInclWithRespectToS /= Rr;
         bbb = sqrt( SkewInclWithRespectToS*SkewInclWithRespectToS + vz1*vz1);
         //  the tilt direction of this ellipse is (1,0)  when major axis along Z direction
 
@@ -17159,7 +17361,7 @@ UShort_t ListStripHitsinTrack[MAXTRACKSPEREVENT][MAXMVDSTRIPHITSINTRACK], // out
         if( LL < 1.e-10) continue;
         Aellipsis1 = info[i][3]*aaa/LL;
 
-        Bellipsis1 = info[i][3]/R;
+        Bellipsis1 = info[i][3]/Rr;
 
 	if( distance >= info[i][4] + Aellipsis1) continue;
 
@@ -17167,7 +17369,7 @@ UShort_t ListStripHitsinTrack[MAXTRACKSPEREVENT][MAXMVDSTRIPHITSINTRACK], // out
 //--------------------------
 
 
-        fi1 = atan2(POINTS1[j+1]-Oy, POINTS1[j]-Ox) ;  // atan2 returns radians in (-pi and +pi]
+        fi1 = atan2(POINTS1[j+1]-Oyy, POINTS1[j]-Oxx) ;  // atan2 returns radians in (-pi and +pi]
         if( fi1 < 0.) fi1 += 2.*PI;
 
         if( zmin > POINTS1[j+2] - Aellipsis1 ) zmin = POINTS1[j+2] - Aellipsis1;
@@ -17193,7 +17395,7 @@ UShort_t ListStripHitsinTrack[MAXTRACKSPEREVENT][MAXMVDSTRIPHITSINTRACK], // out
          C0x1 = info[i][0];
          C0y1 = info[i][1];
          C0z1 = info[i][2];
-       calculateintersections(Ox,Oy,R,C0x1,C0y1,C0z1,info[i][3],
+       calculateintersections(Oxx,Oyy,Rr,C0x1,C0y1,C0z1,info[i][3],
                               vx1,vy1,vz1,
                               &STATUS,POINTS1);
 
@@ -17220,12 +17422,12 @@ UShort_t ListStripHitsinTrack[MAXTRACKSPEREVENT][MAXMVDSTRIPHITSINTRACK], // out
 
 
 
-        Rx = POINTS1[j]-Ox ;   //  x component Radial vector of cylinder of trajectory
-        Ry = POINTS1[1+j]-Oy ;   //  y direction Radial vector of cylinder of trajectory
+        Rx = POINTS1[j]-Oxx ;   //  x component Radial vector of cylinder of trajectory
+        Ry = POINTS1[1+j]-Oyy ;   //  y direction Radial vector of cylinder of trajectory
 
         aaa = sqrt(Rx*Rx+Ry*Ry);
         SkewInclWithRespectToS = (-Ry*vx1 + Rx*vy1)/aaa ;
-        SkewInclWithRespectToS /= R;
+        SkewInclWithRespectToS /= Rr;
         bbb = sqrt( SkewInclWithRespectToS*SkewInclWithRespectToS + vz1*vz1);
         //  the tilt direction of this ellipse is (1,0)  when major axis along Z direction
 
@@ -17233,9 +17435,9 @@ UShort_t ListStripHitsinTrack[MAXTRACKSPEREVENT][MAXMVDSTRIPHITSINTRACK], // out
         if( LL < 1.e-10) continue;
         Aellipsis1 = info[i][3]*aaa/LL;
 
-        Bellipsis1 = info[i][3]/R;
+        Bellipsis1 = info[i][3]/Rr;
 //--------------------------
-        fi1 = atan2(POINTS1[j+1]-Oy, POINTS1[j]-Ox) ;  // atan2 returns radians in (-pi and +pi]
+        fi1 = atan2(POINTS1[j+1]-Oyy, POINTS1[j]-Oxx) ;  // atan2 returns radians in (-pi and +pi]
         if( fi1 < 0.) fi1 += 2.*PI;
 
         if( zmin > POINTS1[j+2] - Aellipsis1 ) zmin = POINTS1[j+2] - Aellipsis1;
@@ -17264,8 +17466,8 @@ UShort_t ListStripHitsinTrack[MAXTRACKSPEREVENT][MAXMVDSTRIPHITSINTRACK], // out
         if( zmax <  ZMvdPixel[ii ] )
 	    zmax = ZMvdPixel[ii ];
 
-	esse = atan2( YMvdPixel[ ii ]-Oy,
-	              XMvdPixel[ ii ]-Ox);
+	esse = atan2( YMvdPixel[ ii ]-Oyy,
+	              XMvdPixel[ ii ]-Oxx);
 	if(esse<0.) esse +=2.*PI;
 
 
@@ -17283,8 +17485,8 @@ UShort_t ListStripHitsinTrack[MAXTRACKSPEREVENT][MAXMVDSTRIPHITSINTRACK], // out
         if( zmax <  ZMvdStrip[ii ] )
 	    zmax = ZMvdStrip[ii ];
 
-	esse = atan2( YMvdStrip[ ii ]-Oy,
-	              XMvdStrip[ ii ]-Ox);
+	esse = atan2( YMvdStrip[ ii ]-Oyy,
+	              XMvdStrip[ ii ]-Oxx);
 	if(esse<0.) esse +=2.*PI;
 
 
@@ -17303,8 +17505,8 @@ UShort_t ListStripHitsinTrack[MAXTRACKSPEREVENT][MAXMVDSTRIPHITSINTRACK], // out
         if( zmax <  ZMvdPixel[ii ] )
 	    zmax = ZMvdPixel[ii ];
 
-	esse = atan2( YMvdPixel[ ii ]-Oy,
-	              XMvdPixel[ ii ]-Ox);
+	esse = atan2( YMvdPixel[ ii ]-Oyy,
+	              XMvdPixel[ ii ]-Oxx);
 	if(esse<0.) esse +=2.*PI;
         if( Smin > esse ) Smin = esse;
         if( Smax < esse ) Smax = esse;
@@ -17320,18 +17522,12 @@ UShort_t ListStripHitsinTrack[MAXTRACKSPEREVENT][MAXMVDSTRIPHITSINTRACK], // out
         if( zmax <  ZMvdStrip[ii ] )
 	    zmax = ZMvdStrip[ii ];
 
-	esse = atan2( YMvdStrip[ ii ]-Oy,
-	              XMvdStrip[ ii ]-Ox);
+	esse = atan2( YMvdStrip[ ii ]-Oyy,
+	              XMvdStrip[ ii ]-Oxx);
 	if(esse<0.) esse +=2.*PI;
         if( Smin > esse ) Smin = esse;
         if( Smax < esse ) Smax = esse;
   }
-
-
-
-
-
-
 
 
   if( zmax >= zmin  &&  Smax >= Smin ) {
@@ -17355,20 +17551,18 @@ UShort_t ListStripHitsinTrack[MAXTRACKSPEREVENT][MAXMVDSTRIPHITSINTRACK], // out
 
 
   fprintf(MACRO,"TCanvas* my= new  TCanvas();\nmy->Range(%f,%f,%f,%f);\n",
-  	zmin-0.1*deltaz,R*(Smin-.1*deltaS),zmax+0.1*deltaz,R*(Smax+0.1*deltaS));
-//  fprintf(MACRO,"TCanvas* my= new TCanvas();\nmy->Range(%f,%f,%f,%f);\n",zmin,Smin,zmax,Smax);
+  	zmin-0.1*deltaz,Rr*(Smin-.1*deltaS),zmax+0.1*deltaz,Rr*(Smax+0.1*deltaS));
   for( ii=0; ii< index; ii++) {
        fprintf(MACRO,"E%d->Draw();\n",ii);
   }
    fprintf(MACRO,"TGaxis *Assex = new  TGaxis(%f,%f,%f,%f,%f,%f,510);\n",
-//        zmin+0.05*deltaz,Smin+0.05*deltaS,zmax-0.05*deltaz,Smin+0.05*deltaS,zmin+0.05*deltaz,zmax-0.05*deltaz);
-        zmin-0.01*deltaz,R*(Smin+0.05*deltaS),zmax+0.01*deltaz,R*(Smin+0.05*deltaS),
+        zmin-0.01*deltaz,Rr*(Smin+0.05*deltaS),zmax+0.01*deltaz,Rr*(Smin+0.05*deltaS),
 	zmin-0.01*deltaz,zmax+0.01*deltaz);
    fprintf(MACRO,"Assex->SetTitle(\"Z (cm)\");\n");
    fprintf(MACRO,"Assex->Draw();\n");
    fprintf(MACRO,"TGaxis *Assey = new  TGaxis(%f,%f,%f,%f,%f,%f,510);\n",
-       zmin+0.05*deltaz,R*(Smin-0.01*deltaS),zmin+0.05*deltaz,R*(Smax+0.01*deltaS),
-		R*(Smin-0.01*deltaS),R*(Smax+0.01*deltaS));
+       zmin+0.05*deltaz,Rr*(Smin-0.01*deltaS),zmin+0.05*deltaz,Rr*(Smax+0.01*deltaS),
+		Rr*(Smin-0.01*deltaS),Rr*(Smax+0.01*deltaS));
    fprintf(MACRO,"Assey->SetTitle(\"Helix crf (cm)\");\n");
    fprintf(MACRO,"Assey->Draw();\n");
 
@@ -17381,7 +17575,7 @@ UShort_t ListStripHitsinTrack[MAXTRACKSPEREVENT][MAXMVDSTRIPHITSINTRACK], // out
 				MACRO,
 				i,
 				posizSciTil[j][2],
-				ESSE[i]*R,
+				ESSE[i]*Rr,
 				1	// disegna in SZ.
 				);
 	}
@@ -17401,7 +17595,7 @@ UShort_t ListStripHitsinTrack[MAXTRACKSPEREVENT][MAXMVDSTRIPHITSINTRACK], // out
          C0y1 = info[i][1];
          C0z1 = info[i][2];
 
-       calculateintersections(Ox,Oy,R,C0x1,C0y1,C0z1,info[i][3],
+       calculateintersections(Oxx,Oyy,Rr,C0x1,C0y1,C0z1,info[i][3],
                               vx1,vy1,vz1,
                               &STATUS,POINTS1);
        if(STATUS < 0 ) continue ;
@@ -17412,12 +17606,12 @@ UShort_t ListStripHitsinTrack[MAXTRACKSPEREVENT][MAXMVDSTRIPHITSINTRACK], // out
                   (POINTS1[1+j]-C0y1)*(POINTS1[1+j]-C0y1) + 
                   (POINTS1[2+j]-C0z1)*(POINTS1[2+j]-C0z1) 
                             );
-        Rx = POINTS1[j]-Ox ;   //  x component Radial vector of cylinder of trajectory
-        Ry = POINTS1[1+j]-Oy ;   //  y direction Radial vector of cylinder of trajectory
+        Rx = POINTS1[j]-Oxx ;   //  x component Radial vector of cylinder of trajectory
+        Ry = POINTS1[1+j]-Oyy ;   //  y direction Radial vector of cylinder of trajectory
 
         aaa = sqrt(Rx*Rx+Ry*Ry);
         SkewInclWithRespectToS = (-Ry*vx1 + Rx*vy1)/aaa ;
-        SkewInclWithRespectToS /= R;
+        SkewInclWithRespectToS /= Rr;
         bbb = sqrt( SkewInclWithRespectToS*SkewInclWithRespectToS + vz1*vz1);
         //  the tilt direction of this ellipse is (1,0)  when major axis along Z direction
         if( bbb > 1.e-10){
@@ -17432,7 +17626,7 @@ UShort_t ListStripHitsinTrack[MAXTRACKSPEREVENT][MAXMVDSTRIPHITSINTRACK], // out
         if( LL < 1.e-10) continue;
         Aellipsis1 = info[i][3]*aaa/LL;
 
-        Bellipsis1 = info[i][3]/R;
+        Bellipsis1 = info[i][3]/Rr;
 
         if( distance >= info[i][4]  + Aellipsis1) continue;
 
@@ -17440,7 +17634,7 @@ UShort_t ListStripHitsinTrack[MAXTRACKSPEREVENT][MAXMVDSTRIPHITSINTRACK], // out
 //--------------------------
 
 
-        fi1 = atan2(POINTS1[j+1]-Oy, POINTS1[j]-Ox) ;  // atan2 returns radians in (-pi and +pi]
+        fi1 = atan2(POINTS1[j+1]-Oyy, POINTS1[j]-Oxx) ;  // atan2 returns radians in (-pi and +pi]
         if( fi1 < 0.) fi1 += 2.*PI;
 
         if( zmin > POINTS1[j+2] - Aellipsis1 ) zmin = POINTS1[j+2] - Aellipsis1;
@@ -17452,8 +17646,7 @@ UShort_t ListStripHitsinTrack[MAXTRACKSPEREVENT][MAXMVDSTRIPHITSINTRACK], // out
 
         Double_t rotation1 = 180.*atan2(Tiltdirection1[1],Tiltdirection1[0])/PI;
         fprintf(MACRO,"TEllipse* Skew%d_%d = new TEllipse(%f,%f,%f,%f,0.,360.,%f);\nSkew%d_%d->SetFillStyle(0);\n",
-//                    i,ii,POINTS1[j+2],fi1,Aellipsis1,Bellipsis1,rotation1,i,ii);
-                    i,ii,POINTS1[j+2],R*fi1,Aellipsis1,R*Bellipsis1,rotation1,i,ii);
+                    i,ii,POINTS1[j+2],Rr*fi1,Aellipsis1,Rr*Bellipsis1,rotation1,i,ii);
 
 
 
@@ -17471,11 +17664,6 @@ UShort_t ListStripHitsinTrack[MAXTRACKSPEREVENT][MAXMVDSTRIPHITSINTRACK], // out
         }
 	if(flaggo) fprintf(MACRO,"Skew%d_%d->SetLineColor(2);\n",i,ii);
         fprintf(MACRO,"Skew%d_%d->Draw();\n",i,ii);
-
-
-
-
-
 
         index++;
 
@@ -17503,7 +17691,7 @@ UShort_t ListStripHitsinTrack[MAXTRACKSPEREVENT][MAXMVDSTRIPHITSINTRACK], // out
          C0x1 = info[i][0];
          C0y1 = info[i][1];
          C0z1 = info[i][2];
-       calculateintersections(Ox,Oy,R,C0x1,C0y1,C0z1,info[i][3],
+       calculateintersections(Oxx,Oyy,Rr,C0x1,C0y1,C0z1,info[i][3],
                               vx1,vy1,vz1,
                               &STATUS,POINTS1);
 
@@ -17525,12 +17713,12 @@ UShort_t ListStripHitsinTrack[MAXTRACKSPEREVENT][MAXMVDSTRIPHITSINTRACK], // out
 
         j=3*ii;
 
-        Rx = POINTS1[j]-Ox ;   //  x component Radial vector of cylinder of trajectory
-        Ry = POINTS1[1+j]-Oy ;   //  y direction Radial vector of cylinder of trajectory
+        Rx = POINTS1[j]-Oxx ;   //  x component Radial vector of cylinder of trajectory
+        Ry = POINTS1[1+j]-Oyy ;   //  y direction Radial vector of cylinder of trajectory
 
         aaa = sqrt(Rx*Rx+Ry*Ry);
         SkewInclWithRespectToS = (-Ry*vx1 + Rx*vy1)/aaa ;
-        SkewInclWithRespectToS /= R;
+        SkewInclWithRespectToS /= Rr;
         bbb = sqrt( SkewInclWithRespectToS*SkewInclWithRespectToS + vz1*vz1);
         //  the tilt direction of this ellipse is (1,0)  when major axis along Z direction
         if( bbb > 1.e-10){
@@ -17545,9 +17733,9 @@ UShort_t ListStripHitsinTrack[MAXTRACKSPEREVENT][MAXMVDSTRIPHITSINTRACK], // out
         if( LL < 1.e-10) continue;
         Aellipsis1 = info[i][3]*aaa/LL;
 
-        Bellipsis1 = info[i][3]/R;
+        Bellipsis1 = info[i][3]/Rr;
 //--------------------------
-        fi1 = atan2(POINTS1[j+1]-Oy, POINTS1[j]-Ox) ;  // atan2 returns radians in (-pi and +pi]
+        fi1 = atan2(POINTS1[j+1]-Oyy, POINTS1[j]-Oxx) ;  // atan2 returns radians in (-pi and +pi]
         if( fi1 < 0.) fi1 += 2.*PI;
 
         if( zmin > POINTS1[j+2] - Aellipsis1 ) zmin = POINTS1[j+2] - Aellipsis1;
@@ -17560,7 +17748,7 @@ UShort_t ListStripHitsinTrack[MAXTRACKSPEREVENT][MAXMVDSTRIPHITSINTRACK], // out
         Double_t rotation1 = 180.*atan2(Tiltdirection1[1],Tiltdirection1[0])/PI;
         fprintf(MACRO,"TEllipse* AloneSkew%d_%d = new TEllipse(%f,%f,%f,%f,0.,360.,%f);\nAloneSkew%d_%d->SetFillStyle(0);\n",
 //                     i,ii,POINTS1[j+2],fi1,Aellipsis1,Bellipsis1,rotation1,i,ii);
-                     i,ii,POINTS1[j+2],R*fi1,Aellipsis1,R*Bellipsis1,rotation1,i,ii);
+                     i,ii,POINTS1[j+2],Rr*fi1,Aellipsis1,Rr*Bellipsis1,rotation1,i,ii);
 
 // ------  marca lo hit in blu
         fprintf(MACRO,"AloneSkew%d_%d->SetLineColor(4);\n",i,ii);
@@ -17586,8 +17774,8 @@ UShort_t ListStripHitsinTrack[MAXTRACKSPEREVENT][MAXMVDSTRIPHITSINTRACK], // out
         if( zmax <  ZMvdPixel[ii ] )
 	    zmax = ZMvdPixel[ii ];
 
-	esse = atan2( YMvdPixel[ ii ]-Oy,
-	              XMvdPixel[ ii ]-Ox);
+	esse = atan2( YMvdPixel[ ii ]-Oyy,
+	              XMvdPixel[ ii ]-Oxx);
 	if(esse<0.) esse +=2.*PI;
 
 
@@ -17601,7 +17789,7 @@ UShort_t ListStripHitsinTrack[MAXTRACKSPEREVENT][MAXMVDSTRIPHITSINTRACK], // out
 			if( MvdPixelCommonList[k]== ii){
 				fprintf(MACRO,
 		"TMarker* CommonPixel%d = new TMarker(%f,%f,%d);\nCommonPixel%d->SetMarkerColor(1);\n",
-				ii,ZMvdPixel[ii],R*esse,26,ii);
+				ii,ZMvdPixel[ii],Rr*esse,26,ii);
 		fprintf(MACRO,"CommonPixel%d->Draw();\n",ii);
 				flaggo=false;
 				break;
@@ -17609,7 +17797,7 @@ UShort_t ListStripHitsinTrack[MAXTRACKSPEREVENT][MAXMVDSTRIPHITSINTRACK], // out
 		}
 		if(flaggo){
             fprintf(MACRO,"TMarker* SpuriousPixel%d = new TMarker(%f,%f,%d);\nSpuriousPixel%d->SetMarkerColor(2);\n",
-                    ii,ZMvdPixel[ii],R*esse,26,ii);
+                    ii,ZMvdPixel[ii],Rr*esse,26,ii);
 		fprintf(MACRO,"SpuriousPixel%d->Draw();\n",ii);
 		}
   }
@@ -17622,8 +17810,8 @@ UShort_t ListStripHitsinTrack[MAXTRACKSPEREVENT][MAXMVDSTRIPHITSINTRACK], // out
         if( zmax <  ZMvdStrip[ii ] )
 	    zmax = ZMvdStrip[ii ];
 
-	esse = atan2( YMvdStrip[ ii ]-Oy,
-	              XMvdStrip[ ii ]-Ox);
+	esse = atan2( YMvdStrip[ ii ]-Oyy,
+	              XMvdStrip[ ii ]-Oxx);
 	if(esse<0.) esse +=2.*PI;
 
 
@@ -17635,7 +17823,7 @@ UShort_t ListStripHitsinTrack[MAXTRACKSPEREVENT][MAXMVDSTRIPHITSINTRACK], // out
 		for( int k=0; k<nMvdStripCommon;k++){
 			if( MvdStripCommonList[k]== ii){
             fprintf(MACRO,"TMarker* CommonStrip%d = new TMarker(%f,%f,%d);\nCommonStrip%d->SetMarkerColor(1);\n",
-                    ii,ZMvdStrip[ii],R*esse,25,ii);
+                    ii,ZMvdStrip[ii],Rr*esse,25,ii);
 		fprintf(MACRO,"CommonStrip%d->Draw();\n",ii);
 				flaggo=false;
 				break;
@@ -17643,7 +17831,7 @@ UShort_t ListStripHitsinTrack[MAXTRACKSPEREVENT][MAXMVDSTRIPHITSINTRACK], // out
 		}
 		if(flaggo){
             fprintf(MACRO,"TMarker* SpuriousStrip%d = new TMarker(%f,%f,%d);\nSpuriousStrip%d->SetMarkerColor(2);\n",
-                    ii,ZMvdStrip[ii],R*esse,25,ii);
+                    ii,ZMvdStrip[ii],Rr*esse,25,ii);
 		fprintf(MACRO,"SpuriousStrip%d->Draw();\n",ii);
 		}
 
@@ -17660,13 +17848,13 @@ UShort_t ListStripHitsinTrack[MAXTRACKSPEREVENT][MAXMVDSTRIPHITSINTRACK], // out
         if( zmax <  ZMvdPixel[ii ] )
 	    zmax = ZMvdPixel[ii ];
 
-	esse = atan2( YMvdPixel[ ii ]-Oy,
-	              XMvdPixel[ ii ]-Ox);
+	esse = atan2( YMvdPixel[ ii ]-Oyy,
+	              XMvdPixel[ ii ]-Oxx);
 	if(esse<0.) esse +=2.*PI;
         if( Smin > esse ) Smin = esse;
         if( Smax < esse ) Smax = esse;
            fprintf(MACRO,"TMarker* AlonePixel%d = new TMarker(%f,%f,%d);\nAlonePixel%d->SetMarkerColor(4);\n",
-                    ii,ZMvdPixel[ii],R*esse,26,ii);
+                    ii,ZMvdPixel[ii],Rr*esse,26,ii);
 		fprintf(MACRO,"AlonePixel%d->Draw();\n",ii);
   }
 
@@ -17680,14 +17868,14 @@ UShort_t ListStripHitsinTrack[MAXTRACKSPEREVENT][MAXMVDSTRIPHITSINTRACK], // out
         if( zmax <  ZMvdStrip[ii ] )
 	    zmax = ZMvdStrip[ii ];
 
-	esse = atan2( YMvdStrip[ ii ]-Oy,
-	              XMvdStrip[ ii ]-Ox);
+	esse = atan2( YMvdStrip[ ii ]-Oyy,
+	              XMvdStrip[ ii ]-Oxx);
 	if(esse<0.) esse +=2.*PI;
         if( Smin > esse ) Smin = esse;
         if( Smax < esse ) Smax = esse;
  
             fprintf(MACRO,"TMarker* AloneStrip%d = new TMarker(%f,%f,%d);\nAloneStrip%d->SetMarkerColor(4);\n",
-                    ii,ZMvdStrip[ii],R*esse,25,ii);
+                    ii,ZMvdStrip[ii],Rr*esse,25,ii);
 		fprintf(MACRO,"AloneStrip%d->Draw();\n",ii);
 
   }
@@ -17750,7 +17938,7 @@ UShort_t ListStripHitsinTrack[MAXTRACKSPEREVENT][MAXMVDSTRIPHITSINTRACK], // out
 		z2 = ((i+1)*2.*PI-FI0)/KAPPA;
 		fprintf(MACRO,
 "TLine* FOUND%d = new TLine(%f,%f,%f,%f);\nFOUND%d->SetLineColor(2);\nFOUND%d->Draw();\n",
-			i-Nmin,z1,0.,z2, R*2.*PI,i-Nmin,i-Nmin);
+			i-Nmin,z1,0.,z2, Rr*2.*PI,i-Nmin,i-Nmin);
 
 	}   //  end of  for(i=Nmin; i<= Nmax;++)
   } // end of if(fabs(KAPPA)<1.e-10)
@@ -17770,23 +17958,23 @@ UShort_t ListStripHitsinTrack[MAXTRACKSPEREVENT][MAXMVDSTRIPHITSINTRACK], // out
 
        if( imc>-1 ) {
 	Int_t icode ;
-         Double_t Rr, Dd, Fifi, Kakka, Oxx, Oyy, Cx, Cy, Px, Py, carica  ;
+         Double_t r_r, Dd, Fifi, Kakka, o_x, o_y, Cx, Cy, Px, Py, carica  ;
 		PndMCTrack* pMC;
 		pMC = (PndMCTrack*) fMCTrackArray->At(imc);
 	if ( pMC ) {
          	icode  = pMC->GetPdgCode() ;    //   PDG code of track
-         	Oxx = pMC->GetStartVertex().X();    //   X of starting point track
-         	Oyy = pMC->GetStartVertex().Y();    //   Y of starting point track
+         	o_x = pMC->GetStartVertex().X();    //   X of starting point track
+         	o_y = pMC->GetStartVertex().Y();    //   Y of starting point track
          	Px = pMC->GetMomentum().X();
          	Py = pMC->GetMomentum().Y();
          	aaa = sqrt( Px*Px + Py*Py);
-         	Rr =   aaa*1000./(BFIELD*CVEL);    //   R (cm) of Helix of track projected in XY plane; B = 2 Tesla
+         	r_r =   aaa*1000./(BFIELD*CVEL);    //   R (cm) of Helix of track projected in XY plane; B = 2 Tesla
          	TParticlePDG *fParticle= fdbPDG->GetParticle(icode);
        		if (icode>1000000000) carica = 1.;
        		else  carica = fParticle->Charge()/3. ;    //   charge of track
   if (fabs(carica)>=0.1 ){
-           	Cx = Oxx + Py*1000./(BFIELD*CVEL*carica);
-           	Cy = Oyy - Px*1000./(BFIELD*CVEL*carica);
+           	Cx = o_x + Py*1000./(BFIELD*CVEL*carica);
+           	Cy = o_y - Px*1000./(BFIELD*CVEL*carica);
 		Fifi = atan2(Cy, Cx);       // MC truth Fifi angle of circle of Helix trajectory
 		if(Fifi<0.)  Fifi += 2.*PI;
 		if( fabs( pMC->GetMomentum().Z() )< 1.e-20) Kakka = 99999999.;
@@ -17816,7 +18004,7 @@ UShort_t ListStripHitsinTrack[MAXTRACKSPEREVENT][MAXMVDSTRIPHITSINTRACK], // out
    z1 = (i*2.*PI-FI0)/KAPPA;
    z2 = ((i+1)*2.*PI-FI0)/KAPPA;
    fprintf(MACRO,"TLine* MC%d_%d = new TLine(%f,%f,%f,%f);\nMC%d_%d->SetLineColor(3);\nMC%d_%d->Draw();\n",
-                 imc,i-Nmin,z1,0.,z2,R* 2.*PI,imc,i-Nmin,imc,i-Nmin);
+                 imc,i-Nmin,z1,0.,z2,Rr* 2.*PI,imc,i-Nmin,imc,i-Nmin);
   }   //  end of  for(i=Nmin; i<= Nmax;++)
 
    }  // end of if (fabs(carica)>=0.1 )
@@ -17843,7 +18031,7 @@ UShort_t ListStripHitsinTrack[MAXTRACKSPEREVENT][MAXMVDSTRIPHITSINTRACK], // out
 //--start of function PndTracking::WriteMacroSttParallelAssociatedHitsandMvdwithMC
 
 void PndTracking::WriteMacroSttParallelAssociatedHitsandMvdwithMC(
-                   Double_t Ox,Double_t Oy,Double_t R,
+                   Double_t Oxx,Double_t Oyy,Double_t Rr,
 		   Double_t primoangolo,
 		   Double_t ultimoangolo,
                    UShort_t Nhits,
@@ -17912,7 +18100,6 @@ UShort_t ListSkewHitsinTrack[MAXTRACKSPEREVENT][MAXSTTHITSINTRACK],
       sprintf(nome,"MacroSttMvdXYwithMCEvent%dT%d", IVOLTE,iNome);
       sprintf(nome2,"%s.C",nome);
       FILE * MACRO = fopen(nome2,"w");
-//      fprintf(MACRO,"void %s()\n{\n",nome);
       fprintf(MACRO,"{\n");
       xmin=1.e20;
       xmax=-1.e20;
@@ -17939,8 +18126,8 @@ UShort_t ListSkewHitsinTrack[MAXTRACKSPEREVENT][MAXSTTHITSINTRACK],
        }
        for( i=0; i< nSkewHitsinTrack; i++) {
             ii = ListSkewHitsinTrack[iTrack][i] ;
-	    aaa=Ox+R*cos(SchosenSkew[ii]);
-	    bbb=Oy+R*sin(SchosenSkew[ii]);
+	    aaa=Oxx+Rr*cos(SchosenSkew[ii]);
+	    bbb=Oyy+Rr*sin(SchosenSkew[ii]);
             if (aaa < xmin)   xmin = aaa;
             if (aaa > xmax)   xmax = aaa;
             if (bbb < ymin)   ymin = bbb;
@@ -18078,7 +18265,7 @@ UShort_t ListSkewHitsinTrack[MAXTRACKSPEREVENT][MAXSTTHITSINTRACK],
 	}
 //------------------------
        fprintf(MACRO,"TEllipse* FoundTrack = new TEllipse(%f,%f,%f,%f,%f,%f);\n"
-			,Ox,Oy,R,R,primoangolo,ultimoangolo);
+			,Oxx,Oyy,Rr,Rr,primoangolo,ultimoangolo);
 
        fprintf(MACRO,
        "FoundTrack->SetLineColor(2);\nFoundTrack->SetFillStyle(0);\nFoundTrack->Draw(\"only\");\n");
@@ -18112,8 +18299,8 @@ UShort_t ListSkewHitsinTrack[MAXTRACKSPEREVENT][MAXSTTHITSINTRACK],
 
        for( i=0; i< nSkewHitsinTrack; i++) {
         ii = ListSkewHitsinTrack[iTrack][i];
-	    aaa=Ox+R*cos(SchosenSkew[ii]);
-	    bbb=Oy+R*sin(SchosenSkew[ii]);
+	    aaa=Oxx+Rr*cos(SchosenSkew[ii]);
+	    bbb=Oyy+Rr*sin(SchosenSkew[ii]);
 
 		bool flaggo = true;
 		for( int k=0; k<nSkewCommon[iTrack];k++){
@@ -18180,15 +18367,12 @@ UShort_t ListSkewHitsinTrack[MAXTRACKSPEREVENT][MAXSTTHITSINTRACK],
 //-------------
 
 
-//       for( ii=0; ii< nMvdPixelHit; ii++) {
        for( i=0; i< nMvdPixelHitsAssociatedToSttTra; i++) {
         ii = ListPixelHitsinTrack[iTrack][i];
             x1= XMvdPixel[ii]-sigmaXMvdPixel[ii];
             x2= XMvdPixel[ii]+sigmaXMvdPixel[ii];
             y1= YMvdPixel[ii]-sigmaYMvdPixel[ii];
             y2= YMvdPixel[ii]+sigmaYMvdPixel[ii];
-//            fprintf(MACRO,"TBox* BP%d = new TBox(%f,%f,%f,%f);\nBP%d->SetFillColor(4);\nBP%d->Draw();\n",
-//                     ii,x1,y1,x2,y2,ii,ii);
 
 		bool flaggo=true;
 		for( int k=0; k<nMvdPixelCommon;k++){
@@ -18227,28 +18411,28 @@ UShort_t ListSkewHitsinTrack[MAXTRACKSPEREVENT][MAXSTTHITSINTRACK],
 //----------------- ora la traccia MC corrispondente a questa traccia Stt
        if( daSttTrackaMCTrack>-1 ) {
 	Int_t icode, im;
-         Double_t Rr, Dd, Fifi, Oxx, Oyy, Cx, Cy, Px, Py, carica  ;
+         Double_t r_r, Dd, Fifi, o_x, o_y, Cx, Cy, Px, Py, carica  ;
 		PndMCTrack* pMC;
 		im=daSttTrackaMCTrack;
 		pMC = (PndMCTrack*) fMCTrackArray->At(im);
 	if ( pMC ) {
          	icode  = pMC->GetPdgCode() ;    //   PDG code of track
-         	Oxx = pMC->GetStartVertex().X();    //   X of starting point track
-         	Oyy = pMC->GetStartVertex().Y();    //   Y of starting point track
+         	o_x = pMC->GetStartVertex().X();    //   X of starting point track
+         	o_y = pMC->GetStartVertex().Y();    //   Y of starting point track
          	Px = pMC->GetMomentum().X();
          	Py = pMC->GetMomentum().Y();
          	aaa = sqrt( Px*Px + Py*Py);
-         	Rr =   aaa*1000./(BFIELD*CVEL);    //   R (cm) of Helix of track projected in XY plane; B = 2 Tesla
+         	r_r =   aaa*1000./(BFIELD*CVEL);    //   R (cm) of Helix of track projected in XY plane; B = 2 Tesla
          	TDatabasePDG *fdbPDG= TDatabasePDG::Instance();
          	TParticlePDG *fParticle= fdbPDG->GetParticle(icode);
        		if (icode>1000000000) carica = 1.;
        		else  carica = fParticle->Charge()/3. ;    //   charge of track
 	  if (fabs(carica)>=0.1 ){
-           	Cx = Oxx + Py*1000./(BFIELD*CVEL*carica);
-           	Cy = Oyy - Px*1000./(BFIELD*CVEL*carica);
+           	Cx = o_x + Py*1000./(BFIELD*CVEL*carica);
+           	Cy = o_y - Px*1000./(BFIELD*CVEL*carica);
             	fprintf(MACRO,
 "TEllipse* MC%d = new TEllipse(%f,%f,%f,%f,%f,%f);\nMC%d->SetFillStyle(0);\nMC%d->SetLineColor(3);\nMC%d->Draw(\"only\");\n",
-                     im,Cx,Cy,Rr,Rr,0.,360.,im,im,im);
+                     im,Cx,Cy,r_r,r_r,0.,360.,im,im,im);
 	  } // end of  if (fabs(carica)>=0.1 )
 	} // end if ( pMC )
        };//  end of  if( daSttTrackaMCTrack>-1 
