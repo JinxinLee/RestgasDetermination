@@ -238,6 +238,7 @@ Bool_t  PndFts::ProcessHits(FairVolume* vol)
 	  specialname = volPath2.substr(start,volPath2.find("_",start)-start);
 	    
 	  if(volumename.Contains("fts01")) basename = "fts01tube";
+	  if(volumename.Contains("fts02")) basename = "fts02tube";
 	  if(volumename.Contains("fts31")) basename = "fts31tube";
 	  if(volumename.Contains("fts32")) basename = "fts32tube";
 	  if(volumename.Contains("fts33")) basename = "fts33tube";
