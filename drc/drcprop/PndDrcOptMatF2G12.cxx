@@ -4,7 +4,7 @@
 //
 // created 2007
 //-----------------------------------------------------
-#include "PndDrcOptMatBK7.h"
+#include "PndDrcOptMatF2G12.h"
 #include <algorithm>
 //#include "PndDrcOptMatAbs.h"
 //
@@ -32,24 +32,24 @@ using std::endl;
 //using std::list;
 
 //----------------------------------------------------------------------
-PndDrcOptMatBK7::PndDrcOptMatBK7()
+PndDrcOptMatF2G12::PndDrcOptMatF2G12()
 {
-  fName = "BK7";
+  fName = "F2G12";
 
-  fB1 = 1.03961212;
-  fB2 = 0.231792344;
-  fB3 = 1.01046945;
-  fC1 = 0.00600069867;
-  fC2 = 0.0200179144;
-  fC3 = 103.560653;
+  fB1 = 1.34533359;
+  fB2 = 0.209073176;
+  fB3 = 0.937357162;
+  fC1 = 0.00997743871;
+  fC2 = 0.0470450767;
+  fC3 = 111.886764;
 }
 //----------------------------------------------------------------------
-PndDrcOptMatBK7* PndDrcOptMatBK7::Clone() const
+PndDrcOptMatF2G12* PndDrcOptMatF2G12::Clone() const
 {
-  return new PndDrcOptMatBK7(*this);
+  return new PndDrcOptMatF2G12(*this);
 }
 //----------------------------------------------------------------------
-void PndDrcOptMatBK7::Copy(const PndDrcOptMatBK7& mat)
+void PndDrcOptMatF2G12::Copy(const PndDrcOptMatF2G12& mat)
 {
   fB1  = mat.fB1;
   fC1  = mat.fC1;
@@ -58,19 +58,19 @@ void PndDrcOptMatBK7::Copy(const PndDrcOptMatBK7& mat)
   fB3  = mat.fB3;
   fC3  = mat.fC3;
 }//----------------------------------------------------------------------
-PndDrcOptMatBK7::PndDrcOptMatBK7(const PndDrcOptMatBK7& mat)
+PndDrcOptMatF2G12::PndDrcOptMatF2G12(const PndDrcOptMatF2G12& mat)
   : PndDrcOptMatAbs(mat)
 {
-  if (mat.fVerbosity>=1) cout<<"  PndDrcOptMatBK7::PndDrcOptMatBK7"
-			    <<"(const PndDrcOptMatBK7&) "
+  if (mat.fVerbosity>=1) cout<<"  PndDrcOptMatF2G12::PndDrcOptMatF2G12"
+			    <<"(const PndDrcOptMatF2G12&) "
 			    <<mat.fName<<endl;
   Copy(mat);
 }
 //----------------------------------------------------------------------
-PndDrcOptMatBK7& PndDrcOptMatBK7::operator=(const PndDrcOptMatBK7& mat)
+PndDrcOptMatF2G12& PndDrcOptMatF2G12::operator=(const PndDrcOptMatF2G12& mat)
 {
-  if (mat.fVerbosity>=1) cout<<"  PndDrcOptMatBK7::operator="
-			    <<"(const PndDrcOptMatBK7&) "
+  if (mat.fVerbosity>=1) cout<<"  PndDrcOptMatF2G12::operator="
+			    <<"(const PndDrcOptMatF2G12&) "
 			    <<mat.fName<<endl;
   if (&mat != this)
     {
@@ -80,10 +80,10 @@ PndDrcOptMatBK7& PndDrcOptMatBK7::operator=(const PndDrcOptMatBK7& mat)
   return *this;
 }
 //----------------------------------------------------------------------
-double PndDrcOptMatBK7::RefIndex(const double lambda) const
+double PndDrcOptMatF2G12::RefIndex(const double lambda) const
 {
 
-  if (lambda<0) return 1.54; // average value.
+  if (lambda<0) return 1.62; // average value.
 
   double lam2 = lambda/1000 * lambda/1000; // um2
 
@@ -93,7 +93,7 @@ double PndDrcOptMatBK7::RefIndex(const double lambda) const
 	      fB3*lam2/(lam2-fC3));
 }
 //----------------------------------------------------------------------
-double PndDrcOptMatBK7::RefIndexDeriv(const double lambda) const
+double PndDrcOptMatF2G12::RefIndexDeriv(const double lambda) const
 {
   double lam  = lambda/1000;
   double lam2 = lam*lam;
@@ -106,22 +106,21 @@ double PndDrcOptMatBK7::RefIndexDeriv(const double lambda) const
 
 }
 //----------------------------------------------------------------------
-bool PndDrcOptMatBK7::AbsorptionFlag(double lambda, double length) const
+bool PndDrcOptMatF2G12::AbsorptionFlag(double lambda, double length) const
 {
 
   // Rayleigh scattering.
-  // data from Schott data sheets of 10mm sample
+  // data from Schott data sheets of 10mm sample for F2 not F2G12
+  // normally the Cerium doping shifts the spectrum towards red
 
-  const static double kLam[21] = {1060,    700,   660,   620,   580,
-				 546,     500,   460,   436,   420,
-				 405,     400,   390,   380,   370,
-				 365,     350,   334,   320,   310,
-				 300};
-  const static double kC[21]   = {5000,   5000,  5000,  5000,  5000,
-				 5000,   5000,  3328,  3328,  3328,
-				 3328,   3328,  2495,  1424,  1106,
-				 828.3,  298.0, 100.2, 38.26, 18.01,
-				8.123};
+  const static double kLam[20] = {1060,    700,   660,   620,   580,
+				  546,     500,   460,   436,   420,
+				  405,     400,   390,   380,   370,
+				  365,     350,   334,   320,   310};
+  const static double kC[20]   = {9995,   9995,  4995,  9995,  9995,
+				  9995,   4995,  3328,  2495,  2495,
+				  1662,   1662,  1106, 661.7, 411.6,
+				  298,   106.1, 16.22,  4.53,  2.17};
   // C = -10mm /ln (t_i)
 
   double clarity;
@@ -130,7 +129,7 @@ bool PndDrcOptMatBK7::AbsorptionFlag(double lambda, double length) const
     {
       clarity=5000;
     }
-  else if (lambda<300)
+  else if (lambda<310)
     {
       return true; // cut off
     }
@@ -138,7 +137,7 @@ bool PndDrcOptMatBK7::AbsorptionFlag(double lambda, double length) const
     {
       // find right bin
       int ibin=-1;
-      for (int i=1; i<21; i++)
+      for (int i=1; i<20; i++)
 	{
 	  if (lambda<kLam[i-1] && lambda>=kLam[i])
 	    {
@@ -147,7 +146,7 @@ bool PndDrcOptMatBK7::AbsorptionFlag(double lambda, double length) const
 	}
       if (ibin==-1)
 	{
-	  cerr<<" *** PndDrcOptMatBK7::absorptionFlag: "
+	  cerr<<" *** PndDrcOptMatF2G12::absorptionFlag: "
 	      <<"this line should never been hit"<<endl;
 	  exit(EXIT_FAILURE);
 	}

@@ -40,7 +40,7 @@ all:			test_simple_bar test_simple_bar2 test_simple_bar2a test_simple_bar2b test
 			test_top test_air_lens test_hook test_barrel1 test_barrel1a test_barrel2  \
 			test_barrel3 test_lens mppc test_system prototype test_cyl_lens \
 			test_simple_lens_sheet lib_DetEffi.so lib_KBarAnalysis.so test_coating \
-			test_reco_simple
+			test_barrel3_noairgap test_reco_simple
 
 
 test_coating:		$(OBJECTS) test_coating.o
@@ -108,6 +108,9 @@ test_barrel2:		$(OBJECTS) test_barrel2.o
 
 test_barrel3:		$(OBJECTS) test_barrel3.o
 			g++ -o test_barrel3 test_barrel3.o $(OBJECTS) $(LDLIBS)
+
+test_barrel3_noairgap:	$(OBJECTS) test_barrel3_noairgap.o
+			g++ -o test_barrel3_noairgap test_barrel3_noairgap.o $(OBJECTS) $(LDLIBS)
 
 test_cyl_lens:		$(OBJECTS) test_cyl_lens.o
 			g++ -o test_cyl_lens test_cyl_lens.o $(OBJECTS) $(LDLIBS)
