@@ -93,17 +93,22 @@ PndGemDigitize::PndGemDigitize(Int_t iVerbose)
 
 // -----   Constructor with name   -----------------------------------------
 PndGemDigitize::PndGemDigitize(const char* name, Int_t iVerbose) 
-  : FairTask(name, iVerbose) { 
-  fDigiPar     = NULL;
-  fPoints      = NULL;
-  fDigis       = NULL;
-  fDigiMatches = NULL;
-  fSaveOutsideHits = kFALSE;
-
-  fTNofEvents = 0;
-  fTNofPoints = 0;
-  fTNofDigis  = 0;
-
+  : FairTask(name, iVerbose),
+    fDigiPar(NULL),
+    fPoints(NULL),
+    fDigis(NULL),
+    fDigiMatches(NULL),
+    fNPoints(0),
+    fNFailed(0),
+    fNOutside(0),
+    fNMulti(0),
+    fNDigis(0),
+    fTNofEvents(0),
+    fTNofPoints(0),
+    fTNofDigis(0),
+    fHitOutsideArray(NULL),
+    fSaveOutsideHits(kFALSE)
+{ 
   Reset();
 }
 // -------------------------------------------------------------------------
@@ -128,7 +133,6 @@ PndGemDigitize::~PndGemDigitize() {
 
 // -----   Public method Exec   --------------------------------------------
 void PndGemDigitize::Exec(Option_t* opt) {
-
   if ( fSaveOutsideHits ) {
     if ( ! fHitOutsideArray ) Fatal("Exec", "No fHitOutsideArray");
     fHitOutsideArray->Clear();
