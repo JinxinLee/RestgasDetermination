@@ -16,6 +16,7 @@
 #include "FairRuntimeDb.h"
 #include "FairHit.h"
 #include "FairLinkedData.h"
+#include "FairEventHeader.h"
 
 #include "PndMCTrack.h"
 #include "PndTrack.h"
@@ -25,7 +26,7 @@
 
 // -----   Default constructor   -------------------------------------------
 PndMCTestDataCrawler::PndMCTestDataCrawler() :
-	FairTask("Creates PndMC data crawler test"), fEventNr(0) {
+	FairTask("Creates PndMC data crawler test"), fEventNr(0), fStartBranch(""), fStopBranch(""), fStartVal(-20), fStopVal(40), fBins(601) {
 }
 // -------------------------------------------------------------------------
 
@@ -40,6 +41,7 @@ InitStatus PndMCTestDataCrawler::Init() {
 	//  fMCMatch->InitStage(kMCTrack, "", "MCTrack");
 
 	fCrawler = new PndMCDataCrawler();
+	fCrawler->Init();
 	FairRootManager* ioman = FairRootManager::Instance();
 	if (!ioman) {
 		std::cout << "-E- PndMCTestDataCrawler::Init: "
@@ -47,19 +49,14 @@ InitStatus PndMCTestDataCrawler::Init() {
 		return kFATAL;
 	}
 
-	fInputData = (TClonesArray*) ioman->GetObject("MVDHitsPixel");
-	ioman->GetObject("MVDPoint");
-	ioman->GetObject("MVDPixelDigis");
-	ioman->GetObject("MVDStripDigis");
-	ioman->GetObject("MVDSortedPixelDigis");
-	ioman->GetObject("MVDPixelClusterCand");
-	ioman->GetObject("MVDStripClusterCand");
-	ioman->GetObject("MVDHitsPixel");
-	ioman->GetObject("MVDHitsStrip");
-	ioman->GetObject("MVDRiemannTrackCand");
-	ioman->GetObject("MVDDigiCorr");
+	fInputData = (TClonesArray*) ioman->GetObject(fStartBranch.Data());
 
-	fTimeResHisto = new TH1D("fTimeResHisto", "fTimeResHisto", 601, -20, 40);
+
+	fTimeResHisto = new TH1D("fTimeResHisto", "fTimeResHisto", fBins, fStartVal, fStopVal);
+
+	TTree* dataTree = ioman->GetInTree();
+
+	fEventHeaderBranch = dataTree->GetBranch("EventHeader.");
 
 	std::cout
 			<< "-I- PndMCTestDataCrawler::Init: Initialization successfull"
@@ -80,26 +77,32 @@ void PndMCTestDataCrawler::SetParContainers() {
 void PndMCTestDataCrawler::Exec(Option_t* opt) {
 	std::cout << "PndMCTestDataCrawler::Exec eventNr: " << fEventNr << std::endl;
 	for (int i = 0; i < fInputData->GetEntriesFast(); i++){
-		PndSdsHit* hit = (PndSdsHit*)fInputData->At(i);
+		FairTimeStamp* hit = (FairTimeStamp*)fInputData->At(i);
 //		std::cout << "Hit MC EventTime: " << hit->GetTimeStamp() << std::endl;
 
 		FairMultiLinkedData* linkData = (FairMultiLinkedData*)hit; //fInputData->At(i);
-		FairMultiLinkedData result = fCrawler->GetInfo(FairMultiLinkedData(*linkData), "MVDPoint");
-//		std::cout << "SourceHit: " << *linkData << std::endl;
-//		std::cout << "result: " << result << std::endl;
+		FairMultiLinkedData result = fCrawler->GetInfo(FairMultiLinkedData(*linkData), fStopBranch.Data());
+
+		std::cout << "SourceHit: " << *linkData << std::endl;
+		std::cout << "result: " << result << std::endl;
 		for (int j = 0; j < result.GetNLinks(); j++){
 			if (fCrawler->GetEntry(result.GetLink(j)) != 0){
-				TString className = fCrawler->GetEntry(result.GetLink(j))->ClassName();
-				//std::cout << className.Data() << std::endl;
-				if (className == "PndSdsMCPoint"){
-					PndSdsMCPoint* myPoint = (PndSdsMCPoint*)fCrawler->GetEntry(result.GetLink(j));
-					//std::cout << j << " : " << myPoint->GetTimeStamp() << std::endl;
-					fTimeResHisto->Fill(hit->GetTimeStamp() - myPoint->GetTimeStamp());
-					if ((hit->GetTimeStamp() - myPoint->GetTimeStamp()) > 10){
-						std::cout << "Time Difference: " << (hit->GetTimeStamp() - myPoint->GetTimeStamp()) << std::endl;
-						std::cout << "MCPoint: " << *myPoint << std::endl;
-						std::cout << "MVDHit: " << *hit << std::endl;
-					}
+				std::cout << "BranchName of Result: " << FairRootManager::Instance()->GetBranchName(result.GetLink(j).GetType()) << std::endl;
+				if (result.GetLink(j).GetType() == FairRootManager::Instance()->GetBranchId(fStopBranch)){
+					Int_t entryNr = result.GetLink(j).GetEntry();
+					TObject* timeArray = (TClonesArray*)FairRootManager::Instance()->GetObject("EventHeader.");
+					fEventHeaderBranch->GetEntry(entryNr);
+					FairEventHeader* evtHeader = (FairEventHeader*)timeArray;
+
+//					PndSdsMCPoint* myPoint = (PndSdsMCPoint*)fCrawler->GetEntry(result.GetLink(j));
+//					//std::cout << j << " : " << myPoint->GetTimeStamp() << std::endl;
+					std::cout << "TimeDifference: " << hit->GetTimeStamp() << " - " << evtHeader->GetEventTime() << " = " << hit->GetTimeStamp() - evtHeader->GetEventTime() << std::endl;
+					fTimeResHisto->Fill(hit->GetTimeStamp() - evtHeader->GetEventTime());
+//					if ((hit->GetTimeStamp() - myPoint->GetTimeStamp()) > 10){
+//						std::cout << "Time Difference: " << (hit->GetTimeStamp() - myPoint->GetTimeStamp()) << std::endl;
+//						std::cout << "MCPoint: " << *myPoint << std::endl;
+//						std::cout << "MVDHit: " << *hit << std::endl;
+//					}
 				}
 			}
 		}

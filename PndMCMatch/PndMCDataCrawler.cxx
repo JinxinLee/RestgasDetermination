@@ -13,11 +13,72 @@
 
 ClassImp(PndMCDataCrawler);
 
-PndMCDataCrawler::PndMCDataCrawler(): fUltimateStage(0), fVerbose(0) {
+PndMCDataCrawler::PndMCDataCrawler(): fUltimateStage(0), fVerbose(2) {
 	fIoman = FairRootManager::Instance();
 }
 
 PndMCDataCrawler::~PndMCDataCrawler() {
+}
+
+void PndMCDataCrawler::Init() {
+	fIoman->GetObject("MVDPoint");
+	fIoman->GetObject("MVDStripDigis");
+	fIoman->GetObject("MVDPixelDigis");
+	fIoman->GetObject("MVDHitsPixel");
+	fIoman->GetObject("MVDHitsStrip");
+	fIoman->GetObject("MVDPixelClusterCand");
+	fIoman->GetObject("MVDStripClusterCand");
+	fIoman->GetObject("MVDSortedStripDigis");
+	fIoman->GetObject("MVDSortedPixelDigis");
+
+
+	fIoman->GetObject("EmcCluster");
+	fIoman->GetObject("EmcBump");
+	fIoman->GetObject("EmcDigi");
+	fIoman->GetObject("EmcHit");
+	fIoman->GetObject("EmcPoint");
+	fIoman->GetObject("EmcRecoHit");
+	fIoman->GetObject("EmcSharedDigi");
+	fIoman->GetObject("EmcWaveform");
+
+
+
+	fIoman->GetObject("STTPoint");
+	fIoman->GetObject("STTHit");
+	fIoman->GetObject("SttHelixHit");
+	fIoman->GetObject("STTTrack");
+	fIoman->GetObject("STTTrackCand");
+
+	fIoman->GetObject("PndTpcPoint");
+	fIoman->GetObject("PndTpcPrimaryCluster");
+	fIoman->GetObject("PndTpcDriftedElectron");
+	fIoman->GetObject("PndTpcAvalanche");
+	fIoman->GetObject("PndTpcSignal");
+	fIoman->GetObject("PndTpcDigi");
+	fIoman->GetObject("PndTpcCluster");
+
+
+	fIoman->GetObject("GEMPoint");
+	fIoman->GetObject("GEMDigi");
+	fIoman->GetObject("GEMHit");
+
+	fIoman->GetObject("PndDchPoint");
+	fIoman->GetObject("PndDchDigi");
+	fIoman->GetObject("PndDchCylinderHit");
+
+	fIoman->GetObject("MdtPoint");
+	fIoman->GetObject("MdtHit");
+	fIoman->GetObject("MdtTrk");
+
+	fIoman->GetObject("LheHit");
+	fIoman->GetObject("LheCandidate");
+	fIoman->GetObject("LheTrack");
+	fIoman->GetObject("MVDIdealTrackCand");
+	fIoman->GetObject("MVDRiemannTrackCand");
+	fIoman->GetObject("PndTrack");
+	fIoman->GetObject("LheGenTrack");
+	fIoman->GetObject("PidChargedCand");
+	fIoman->GetObject("PidNeutralCand");
 }
 
 FairMultiLinkedData PndMCDataCrawler::GetInfo(FairMultiLinkedData startLink, TString stopStage)
@@ -29,6 +90,7 @@ FairMultiLinkedData PndMCDataCrawler::GetInfo(FairMultiLinkedData startLink, Int
 {
 	fFinalStage.Reset();
 	if (fVerbose > 1)std::cout << "StartLink: " << startLink << std::endl;
+	if (fVerbose > 1)std::cout << "StopStageLink: " << fIoman->GetBranchName(stopStageId) << std::endl;
 	GetNextStage(startLink, stopStageId);
 	return fFinalStage;
 }
@@ -38,7 +100,7 @@ FairMultiLinkedData* PndMCDataCrawler::GetEntry(FairLink link){
 }
 
 FairMultiLinkedData* PndMCDataCrawler::GetEntry(Int_t fileId, Int_t eventNr, Int_t type, Int_t index){
-	if (fVerbose > 0)std::cout << "Requested Entry: " << fileId << " " << eventNr << " " << type << " " << index << std::endl;
+	if (fVerbose > 0) std::cout << "Requested Entry: " << fileId << " " << eventNr << " " << type << " " << index << std::endl;
 	if (index < 0) return 0;
 
 	TTree* dataTree;

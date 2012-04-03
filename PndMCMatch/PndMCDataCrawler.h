@@ -24,6 +24,8 @@ public:
 	FairMultiLinkedData* GetEntry(Int_t fileId, Int_t eventNr, Int_t type, Int_t index);
 	FairMultiLinkedData* GetEntry(FairLink link);
 
+	void Init();
+
 	void SetVerbose(Int_t val){fVerbose = val;};
 private:
 	FairRootManager* fIoman;
