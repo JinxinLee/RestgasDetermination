@@ -54,6 +54,7 @@
   sttFindTracks->AddHitCollectionName("STTHit", "STTPoint");
   fRun->AddTask(sttFindTracks);
 
+/**
   // trackmatching ....
   PndSttMatchTracks* sttTrackMatcher = new PndSttMatchTracks("Match tracks", "STT", iVerbose);
   sttTrackMatcher->AddHitCollectionName("STTHit", "STTPoint");
@@ -74,7 +75,7 @@
   fRun->AddTask(STTPR);
   PndSttKalmanTask2 *Kalman = new PndSttKalmanTask2();
   fRun->AddTask(Kalman); 
-
+**/
   // -----   Initialize and run   --------------------------------------------
   fRun->Init();
   fRun->Run();
