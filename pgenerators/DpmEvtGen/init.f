@@ -140,7 +140,7 @@ C-----------------------------------------------------------------
        IDSTAB(17)=1  ! \Lambda
        IDSTAB(18)=1  ! Anti_Lambda
        IDSTAB(19)=1  ! K^0_s
-       IDSTAB(23)=1  ! \pi^0
+       IDSTAB(23)=0  ! \pi^0
 C      IDSTAB(33)=1  ! \rho_0
 
       CALL DATAR3
