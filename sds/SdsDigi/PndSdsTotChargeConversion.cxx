@@ -3,10 +3,10 @@
 
 ///Default constructor
 PndSdsTotChargeConversion::PndSdsTotChargeConversion(Int_t VerboseLevel) : PndSdsChargeConversion(kToT){
-  SetParameter("ftr", 100.);
+  SetParameter("ftr", 100.); //todo take data from Database
   SetParameter("fa", 60.);
   SetParameter("fth", 3000.);
-  SetParameter("fclk", 50.);
+  SetParameter("fclk", 156.);
   ftimestep = 1. / GetParameter("fclk") * 1000.;
   fVerboseLevel = VerboseLevel;
   StartExecute();
@@ -45,7 +45,7 @@ Double_t PndSdsTotChargeConversion::ChargeToDigiValue(Double_t charge){ //return
 		SetParameter("fa",60.);
 	}
   
-	Q = charge;
+	Double_t Q = charge;
 	Qt = GetParameter("fth");
   //Error handling: if there is a parameter leading to a division by zero Q=Qt=1 is set to prevent this
   
@@ -81,7 +81,7 @@ Double_t PndSdsTotChargeConversion::GetRelativeError(Double_t Charge)
   //            2   f_clk    \    sqrt{ [2Qt - Qt*Qc/Q - Q]^2 + 4*Qc*Qt } /
   //
   
-	Q = Charge;
+	Double_t Q = Charge;
 	Qt = GetParameter("fth"); // threshold
   Double_t a = GetParameter("fa"); // const current
   Double_t tc = GetParameter("ftr");// time to load capacitor fully
@@ -92,12 +92,12 @@ Double_t PndSdsTotChargeConversion::GetRelativeError(Double_t Charge)
   return temp;
 }
 
-Int_t PndSdsTotChargeConversion::GetTimeStamp(Double_t time)
-{
-  Int_t temp = (Int_t)(time / ftimestep); // [clockcycles]
-  time = temp*ftimestep + ftimestep; //[ns] to the following clock tick
-  return (Int_t)TMath::Ceil(time); // [ns] with 1 ns number precision, casting cuts trailing digits, like floor()
-}
+//Int_t PndSdsTotChargeConversion::GetTimeStamp(Double_t time)
+//{
+//  Int_t temp = (Int_t)(time / ftimestep); // [clockcycles]
+//  time = temp*ftimestep + ftimestep; //[ns] to the following clock tick
+//  return (Int_t)TMath::Ceil(time); // [ns] with 1 ns number precision, casting cuts trailing digits, like floor()
+//}
 
 Double_t PndSdsTotChargeConversion::GetTimeStamp(Double_t time, Double_t Charge,Double_t MCEventTime)
 {
@@ -112,13 +112,16 @@ Double_t PndSdsTotChargeConversion::GetTimeStamp(Double_t time, Double_t Charge,
   
 	Double_t digitizedtime = DigitizeTime(totaltime);
   
-  if (fVerboseLevel>2){
-    std::cout<<"  +++charge: "<< Q <<" "<<std::endl;
+//  if (fVerboseLevel>2){
+    std::cout<<"  +++threshold: "<< Qt <<" "<<std::endl;
+    std::cout<<"  charge: "<< Charge <<" "<<std::endl;
     std::cout<<"  time since event: "<< time <<" "<<std::endl;
+    std::cout<<"  event time: "<< MCEventTime << std::endl;
     std::cout<<"  timewalk: "<< ftimewalk <<std::endl;
     std::cout<<"  total time: "<< totaltime <<std::endl;
+    std::cout<<"  time step: "<< ftimestep<<std::endl;
     std::cout<<"  digitized total time:"<< digitizedtime << "+++"<<std::endl;
-  }
+//  }
   return digitizedtime ; //digitalisiert
   //	 return totaltime; // nicht digitalisiert
 }
@@ -140,7 +143,9 @@ Double_t PndSdsTotChargeConversion::GetTimeWalk(Double_t Charge) { // [ns]
       Error("GetTimeWalk(Double_t charge)","const. current is less or equal zero -> now set to 60 e/ns");
     SetParameter("fa",60.);
   }
-  
+
+	Double_t Q = Charge;
+
 	if (Qt < 0){
 		if (fVerboseLevel>0)
       Error("GetTimeWalk(Double_t charge)","threshold is less than zero -> now set to 0 eV");
@@ -152,9 +157,11 @@ Double_t PndSdsTotChargeConversion::GetTimeWalk(Double_t Charge) { // [ns]
       Warning("GetTimeWalk(Double_t charge)","charge is equal or less than threshold -> zero TOT -> infinity TimeWalk");
 		Q = 1.;
 		Qt = 100000.;
+		ftimewalk = GetParameter("ftr");
+		return ftimewalk;
 	}
   
-	Q = Charge;
+
 	Qt = GetParameter("fth");
 	ftimewalk = (GetParameter("ftr")*Qt/Q);
 //	ftimewalk += ftimestep;

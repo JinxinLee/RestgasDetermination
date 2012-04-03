@@ -45,9 +45,9 @@ public:
   
 	virtual Double_t ChargeToDigiValue(Double_t charge);
 	virtual Double_t DigiValueToCharge(Double_t digivalue);
-	virtual Double_t GetPileUpTime(Double_t charge);		//returns the time the capacitor is loaded and therefore the time the hit MVD is blind for other events
+	virtual Double_t GetPileUpTime(Double_t charge);		///<returns the time the capacitor is loaded and therefore the time this MVD pixel/strip is blind for other events
 	virtual Double_t GetRelativeError(Double_t Charge);
-  virtual Int_t GetTimeStamp(Double_t time);
+ // virtual Int_t GetTimeStamp(Double_t time);
   virtual Double_t GetTimeStamp(Double_t tof, Double_t charge, Double_t MCEventTime);
   virtual Double_t GetTimeWalk(Double_t Charge);
   virtual Double_t GetTimeStampErrorAfterCorrection(){
@@ -61,7 +61,7 @@ public:
   
 private:
   Double_t fthreshold;		//[e]
-  Double_t Q, Qt;				//max charge, threshold charge [e]
+  Double_t Qt;				//threshold charge [e]
   Double_t t1e, t2e;			//exact time point when signal is over threshold/under threshold again [ns]
   Double_t ftimestep;			//one time step of the clock [ns]
   Double_t fstarttime;		//absolute point when TOT begins [ns]
@@ -70,7 +70,7 @@ private:
   Double_t ftimewalk;        //exact time point when signal is over threshold
   Int_t fVerboseLevel;
   Double_t GetTotWC();		//assumes a clock which results in a quantized TOT
-  Double_t DigitizeTime(Double_t time);
+  Double_t DigitizeTime(Double_t time);	///< returns the time in [ns] but binned to clock units
   TRandom2 fRand;
   
   ClassDef(PndSdsTotChargeConversion, 1);
