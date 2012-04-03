@@ -19,6 +19,7 @@
 #include "FairContFact.h"
 #include "FairGeoNode.h"
 #include "FairGeoVector.h"
+#include "FairEventHeader.h"
 //ROOT
 #include "TClonesArray.h"
 #include "TArrayD.h"
@@ -144,20 +145,7 @@ InitStatus PndSdsStripHitProducer::Init()
     return kERROR;
   }
   
-  
-  //  fMcEventHeader = (FairMCEventHeader*) ioman->GetObject("MCEventHeader.");
-  //  if(!fMcEventHeader)
-  //  {
-  //    std::cout << "-E- PndSdsStripHitProducer::Init: "
-  //    << "No MCEventHeader. array!" << std::endl;
-  //    return kERROR;
-  //  }
-  
-  // Create and register output array
-  // fStripArray = new TClonesArray("PndSdsDigiStrip");
-  //fStripArray = ioman->Register(fOutBranchName, "PndSdsDigiStrip", fFolderName, fPersistance);
-  //  fDataBuffer = new PndWriteoutBufferT<PndSdsDigiStrip>(fOutBranchName, "PndSdsDigiStrip");
-  
+
   fDataBuffer = new PndSdsDigiStripWriteoutBuffer(fOutBranchName, fFolderName, fPersistance);
   fDataBuffer = (PndSdsDigiStripWriteoutBuffer*)ioman->RegisterWriteoutBuffer(fOutBranchName, fDataBuffer);
 
@@ -186,6 +174,9 @@ void PndSdsStripHitProducer::Exec(Option_t* opt)
 {
   // Reset output array
   fGeoH->SetVerbose(fVerbose);
+
+ // std::cout << "EventTime: " << FairRootManager::Instance()->GetEventTime() << std::endl;
+
   for (std::map<const char*,PndSdsChargeConversion*>::iterator it = fChargeConverter.begin(); it != fChargeConverter.end(); it++){
 	  it->second->StartExecute();
   }
@@ -196,19 +187,13 @@ void PndSdsStripHitProducer::Exec(Option_t* opt)
   //     Int_t trackID = 0;     // Track index
   
   fStripArray = FairRootManager::Instance()->GetTClonesArray(fOutBranchName);
-  
-  //  if (fTimeOrderedDigi) {
-  //		fDataBuffer->WriteOutData(FairRootManager::Instance()->GetEventTime());
-  //	}
-  
-  
+
   // Loop over PndSdsMCPoints
   Int_t nPoints = fPointArray->GetEntriesFast();
   if (fVerbose > 0){
     std::cout<<" Nr of Points: "<<nPoints<<std::endl;
   }
-  //  if(!fMcEventHeader) Error("Exec", "No Fair MC event header found. Why?? %p",fMcEventHeader);
-  // std::cout << "MCEventHeader in StripHitProducer: " << fMcEventHeader->GetT() << std::endl;
+
   Double_t timestamp = 0;
   Double_t smearedCharge = 0;
   Int_t iStrip = 0;
@@ -217,6 +202,7 @@ void PndSdsStripHitProducer::Exec(Option_t* opt)
   for (Int_t iPoint = 0; iPoint < nPoints; iPoint++)
   {
     point = (PndSdsMCPoint*) fPointArray->At(iPoint);
+    std::cout << "Point " << iPoint << ": " << *point << std::endl;
     selected = SelectSensorParams(point->GetSensorID());
     if( !selected ) { continue; }
     
@@ -256,21 +242,13 @@ void PndSdsStripHitProducer::Exec(Option_t* opt)
       for(std::vector<PndSdsStrip>::const_iterator kit=topStrips.begin();
           kit!= topStrips.end(); ++kit)
       {   
-        //        if (fTimeOrderedDigi == kFALSE){
-        //    	  AddDigi(iStrip,iPoint,FairRootManager::Instance()->GetBranchId(fInBranchName),point->GetSensorID(),
-        //            		fCurrentStripCalcTop->CalcFEfromStrip(kit->GetIndex()),
-        //            		fCurrentStripCalcTop->CalcChannelfromStrip(kit->GetIndex()),kit->GetCharge());
-        //        }
-        //        else{
-        std::vector<Int_t>indices;
-        indices.push_back(iPoint);
-        PndSdsDigiStrip* tempStrip = new PndSdsDigiStrip(indices, FairRootManager::Instance()->GetBranchId(fInBranchName), point->GetSensorID(),
-                                                         fCurrentStripCalcTop->CalcFEfromStrip(kit->GetIndex()),
-                                                         fCurrentStripCalcTop->CalcChannelfromStrip(kit->GetIndex()), kit->GetCharge(), FairRootManager::Instance()->GetEventTime());
-        
-        fDataBuffer->FillNewData(tempStrip,	FairRootManager::Instance()->GetEventTime() + 100);
-        //        }
-        if (fVerbose > 1) std::cout << *kit << std::endl;
+
+    	  AddDigi(iStrip,iPoint,FairRootManager::Instance()->GetBranchId(fInBranchName),point->GetSensorID(),
+            		fCurrentStripCalcTop->CalcFEfromStrip(kit->GetIndex()),
+            		fCurrentStripCalcTop->CalcChannelfromStrip(kit->GetIndex()),kit->GetCharge());
+
+        if (fVerbose > 1); std::cout << *kit << std::endl;
+
       }
     }else if(fVerbose>2) std::cout<<"Top side empty"<<std::endl;
     
@@ -287,19 +265,12 @@ void PndSdsStripHitProducer::Exec(Option_t* opt)
           kit!= botStrips.end();
           ++kit)
       {
-        //    	  if (fTimeOrderedDigi == kFALSE) {
-        //    		  AddDigi(iStrip, iPoint, FairRootManager::Instance()->GetBranchId(fInBranchName),
-        //							point->GetSensorID(), fCurrentStripCalcBot->CalcFEfromStrip(kit->GetIndex())+ fCurrentDigiPar->GetNrTopFE(),
-        //							fCurrentStripCalcBot->CalcChannelfromStrip(kit->GetIndex()), kit->GetCharge());
-        //    	  } else{
-        std::vector<Int_t>indices;
-        indices.push_back(iPoint);
-        // FairMCEventHeader* MCevtHeader = (FairMCEventHeader*)FairRootManager::Instance()->GetObject("MCEventHeader.");
-        
-        PndSdsDigiStrip* tempStrip = new PndSdsDigiStrip(indices, FairRootManager::Instance()->GetBranchId(fInBranchName),
-                                                         point->GetSensorID(), fCurrentStripCalcBot->CalcFEfromStrip(kit->GetIndex())+ fCurrentDigiPar->GetNrTopFE(),
-                                                         fCurrentStripCalcBot->CalcChannelfromStrip(kit->GetIndex()), kit->GetCharge(), FairRootManager::Instance()->GetEventTime());
-			  fDataBuffer->FillNewData(tempStrip,	FairRootManager::Instance()->GetEventTime() + 100);
+
+    		  AddDigi(iStrip, iPoint, FairRootManager::Instance()->GetBranchId(fInBranchName),
+							point->GetSensorID(), fCurrentStripCalcBot->CalcFEfromStrip(kit->GetIndex())+ fCurrentDigiPar->GetNrTopFE(),
+							fCurrentStripCalcBot->CalcChannelfromStrip(kit->GetIndex()), kit->GetCharge());
+
+
         //    	  }
         if (fVerbose > 2) std::cout << *kit << std::endl;
       }
@@ -307,25 +278,6 @@ void PndSdsStripHitProducer::Exec(Option_t* opt)
     
   } // Loop over MCPoints
   
-  Int_t indexnum=0;
-  Double_t tempstamp=0;
-  // Loop over PndSdsDigis and convert charge to digi value
-  for (Int_t i = 0; i<fStripArray->GetEntriesFast(); i++){
-	  PndSdsDigiStrip* finDigi = (PndSdsDigiStrip*) fStripArray->At(i);
-	  SelectSensorParams(finDigi->GetSensorID());
-    smearedCharge = finDigi->GetCharge(); // Gaussian noise smearing done in PndCalcStrip
-                                          //FIXME: This is not elegant and error prone, for Tasks afterwards will not know how we digitized!
-	  finDigi->SetCharge(fCurrentChargeConverter->ChargeToDigiValue(smearedCharge));
-    if(fVerbose>4)Info("Exec","Loop over all digis to convert cahrge: Q=%f; D=%f",smearedCharge,finDigi->GetCharge());
-    //    indexnum = finDigi->GetNIndices();
-    //    for(Int_t ind=0;ind<indexnum;ind++)
-    //    {
-    //      point = (PndSdsMCPoint*) fPointArray->At(ind);
-    //      tempstamp = DigitizeTime(point->GetTime(),smearedCharge);
-    //      if(tempstamp < timestamp) timestamp = tempstamp;
-    //    }
-    //    finDigi->SetTimeStamp(timestamp); //todo check timestamp
-  }
   
   for (std::map<const char*,PndSdsChargeConversion*>::iterator it = fChargeConverter.begin(); it != fChargeConverter.end(); it++){
     it->second->EndExecute();
@@ -339,29 +291,44 @@ void PndSdsStripHitProducer::Exec(Option_t* opt)
 
 void PndSdsStripHitProducer::AddDigi(Int_t &iStrip, Int_t iPoint, Int_t detID, Int_t sensorID, Int_t fe, Int_t chan, Double_t charge)
 {
-  if(fVerbose>3)Info("AddDigi","called");
-  PndSdsDigiStrip* aDigi = 0;
-  for(Int_t kstr = 0; kstr < iStrip ; kstr++)
-  {
-    // search if that channel fired already
-    aDigi = (PndSdsDigiStrip*)fStripArray->At(kstr);
-    if ( aDigi->GetDetID() == detID &&
-        aDigi->GetSensorID() == sensorID &&
-        aDigi->GetFE() == fe &&
-        aDigi->GetChannel() == chan )
-    {
-      aDigi->AddCharge(charge);
-      aDigi->AddIndex(iPoint);
-      return;
-    }
-  }
-  // we're here when this channel didn't fire
-  std::vector<Int_t>indices;
-  indices.push_back(iPoint);
+
+	PndSdsMCPoint *point = (PndSdsMCPoint*)fPointArray->At(iPoint);
+	SelectSensorParams(point->GetSensorID());
+	Int_t smearedCharge = fCurrentChargeConverter->ChargeToDigiValue(charge);
+	Int_t timeStamp = DigitizeTime(point->GetTime(), charge);
+
+	Double_t smearedChargeInE = fCurrentChargeConverter->DigiValueToCharge(smearedCharge);
+	Double_t timewalk = fCurrentChargeConverter->GetTimeWalk(smearedChargeInE);
+
+	Double_t correctedTimeStamp = timeStamp - timewalk;
   
-  PndSdsDigiStrip* tempStrip = new ((*fStripArray)[iStrip]) PndSdsDigiStrip(indices,detID,sensorID,fe,chan,charge, FairRootManager::Instance()->GetEventTime());
-  tempStrip->SetEntryNr(FairLink(FairRootManager::Instance()->GetBranchId(fOutBranchName), iStrip));
+//	std::cout << " charge: " << charge << " smeared DigiCharge: " << smearedCharge << " smeared charge in e " << smearedChargeInE << std::endl;
+//	std::cout << "MCTime: " << point->GetTime() << " TimeStamp: " << timeStamp << " timewalk " << timewalk << " corrected TimeStamp: " << correctedTimeStamp << " charge: " << charge << " smearedCharge in e: " << smearedChargeInE << std::endl;
   
+	  std::vector<Int_t>indices;
+	  indices.push_back(iPoint);
+
+	  PndSdsDigiStrip* tempStrip = new PndSdsDigiStrip(indices, FairRootManager::Instance()->GetBranchId(fInBranchName),
+				sensorID, fe, chan, smearedCharge, correctedTimeStamp);
+
+	  if (fTimeOrderedDigi){
+	    tempStrip->Reset();
+	    FairEventHeader* evtHeader = (FairEventHeader*)FairRootManager::Instance()->GetObject("EventHeader.");
+	  //  for (int i = 0; i < indices.size(); i++)
+	      tempStrip->AddLink(FairLink(evtHeader->GetInputFileId(), evtHeader->GetMCEntryNumber(),  fInBranchId, iPoint));
+	  }
+	  fDataBuffer->FillNewData(tempStrip,	timeStamp + 100);
+
+//	  std::cout << "AddDigi called: " << *tempStrip << std::endl;
+
+
+//  // we're here when this channel didn't fire
+//  std::vector<Int_t>indices;
+//  indices.push_back(iPoint);
+//
+//  PndSdsDigiStrip* tempStrip = new ((*fStripArray)[iStrip]) PndSdsDigiStrip(indices,detID,sensorID,fe,chan,charge, FairRootManager::Instance()->GetEventTime());
+//  tempStrip->SetEntryNr(FairLink(FairRootManager::Instance()->GetBranchId(fOutBranchName), iStrip));
+//
   iStrip++;
   return;
 }
@@ -376,6 +343,7 @@ Bool_t PndSdsStripHitProducer::SelectSensorParams(Int_t sensorID)
   fCurrentChargeConverter = NULL;
   
   TString detpath = fGeoH->GetPath(sensorID);
+  std::cout << "Detector: " << detpath.Data() << std::endl;
   if( !(detpath.Contains("Strip")) )
   { // filter from pixel points
     return kFALSE;
@@ -394,10 +362,9 @@ Bool_t PndSdsStripHitProducer::SelectSensorParams(Int_t sensorID)
     }
   }
   // no suiting object found
-  //if (fVerbose > 1) 
+
   if(fVerbose>1) Info("SelectSensorParams()","No valid sensor parameters selected, skipping this point.");
   std::cout<<"detector name does not contain a valid parameter name."<<std::endl;
-  //if (fVerbose > 2)
   std::cout<<" DetName : "<<detpath<<std::endl;
   return kFALSE;
 }
@@ -421,15 +388,6 @@ void PndSdsStripHitProducer::FinishEvent()
 
 void PndSdsStripHitProducer::FinishTask()
 {
-  // called after all Tasks did their Exex() and the data is copied to the file
-  // fPixelArray->Delete();
-  // FinishEvents();
-  
-  //	if (fTimeOrderedDigi){
-  //		fDataBuffer->WriteOutAllData();
-  //	}
-  
-  
 }
 
 ClassImp(PndSdsStripHitProducer);
