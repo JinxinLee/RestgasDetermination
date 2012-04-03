@@ -105,7 +105,7 @@ InitStatus PndSdsPixelClusterTask::Init()
 //
   if ( ! fDigiArray )
   {
-    std::cout << "-W- PndSdsPixelClusterTask::Init: "
+    std::cout << "-E- PndSdsPixelClusterTask::Init: "
     << "No SDSDigi array!" << std::endl;
     return kERROR;
   }
@@ -208,15 +208,16 @@ void PndSdsPixelClusterTask::Exec(Option_t* opt)
     << " Sds Clusters and " << fHitArray->GetEntriesFast()<<" Hits calculated." << std::endl;
   }
   fEventNr++;
-
+  fHitArray->Sort();
   return;
   
 }
 
 void PndSdsPixelClusterTask::FinishEvent(){
-	fDigiArray->Delete();
-	fHitArray->Delete();
-	fClusterArray->Delete();
+
+	if (fDigiArray > 0) 	fDigiArray->Delete();
+	if (fHitArray > 0) 		fHitArray->Delete();
+	if (fClusterArray > 0) 	fClusterArray->Delete();
 }
 
 ClassImp(PndSdsPixelClusterTask);

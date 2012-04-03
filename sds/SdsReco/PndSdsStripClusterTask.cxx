@@ -161,11 +161,11 @@ InitStatus PndSdsStripClusterTask::Init()
     return kFATAL;
   }
   
-  fFunctor = new StopTime();
-  
+  fFunctor = new TimeGap();
+
   // Get input array
   fDigiArray = (TClonesArray*) ioman->GetObject(fInBranchName);
-  //
+//
   if ( ! fDigiArray )
   {
     std::cout << "-W- PndSdsPixelClusterTask::Init: "
@@ -174,11 +174,11 @@ InitStatus PndSdsStripClusterTask::Init()
   }
   // set output arrays
   
-  //  fClusterArray = new TClonesArray("PndSdsClusterStrip");
-  //  ioman->Register(fClustBranchName, fFolderName, fClusterArray, fPersistance);
-  
+//  fClusterArray = new TClonesArray("PndSdsClusterStrip");
+//  ioman->Register(fClustBranchName, fFolderName, fClusterArray, fPersistance);
+
   fClusterArray = ioman->Register(fClustBranchName, "PndSdsClusterStrip", fFolderName, fPersistance);
-  
+
   
   //fHitArray = new TClonesArray("PndSdsHit");
   fHitArray = ioman->Register(fOutBranchName, "PndSdsHit", fFolderName, fPersistance);
@@ -209,26 +209,27 @@ void PndSdsStripClusterTask::Exec(Option_t* opt)
   fClusterArray = FairRootManager::Instance()->GetTClonesArray(fClustBranchName);
   if ( ! fClusterArray ) Fatal("Exec", "No ClusterArray");
   fClusterArray->Delete();
-  
+
   fHitArray = FairRootManager::Instance()->GetTClonesArray(fOutBranchName);
   if ( ! fHitArray ) Fatal("Exec", "No HitArray");
   fHitArray->Delete();
-  
+
   // Get input array
-  
+
 	if (FairRunAna::Instance()->IsTimeStamp()){
 	  fDigiArray->Clear();
-	  fDigiArray = FairRootManager::Instance()->GetData(fInBranchName, fFunctor, FairRootManager::Instance()->GetEventTime() + 10); //FairRootManager::Instance()->GetEventTime() +
-	  if(fVerbose > 1) std::cout << "-I- PndSdsStripClusterTask::Exec Digis: " << fDigiArray->GetEntries() << std::endl;
+	  fDigiArray = FairRootManager::Instance()->GetData(fInBranchName, fFunctor, 10); //FairRootManager::Instance()->GetEventTime() +
+	  if(fVerbose > 1)
+		  std::cout << "-I- PndSdsStripClusterTask::Exec Digis: " << fDigiArray->GetEntries() << std::endl;
 	}
 	else
 	  fDigiArray = (TClonesArray*)FairRootManager::Instance()->GetObject(fInBranchName);
-  
-  //	std::cout << "Requested Time: " << FairRootManager::Instance()->GetEventTime() + 10 << std::endl;
-  //	for (int i = 0; i < fDigiArray->GetEntries(); i++){
-  //		std::cout << i << ": " << ((PndSdsDigiStrip*)fDigiArray->At(i))->GetTimeStamp() << std::endl;
-  //	}
-  
+
+//	std::cout << "Requested Time: " << FairRootManager::Instance()->GetEventTime() + 10 << std::endl;
+//	for (int i = 0; i < fDigiArray->GetEntries(); i++){
+//		std::cout << i << ": " << ((PndSdsDigiStrip*)fDigiArray->At(i))->GetTimeStamp() << std::endl;
+//	}
+
 	//std::cout << "-I- PndSdsStripClusterTask:: fDigiArray->Size(): " << fDigiArray->GetEntriesFast() << std::endl;
   //fDigiArray = (TClonesArray*) ioman->GetObject(fInBranchName);
   if ( ! fDigiArray )
@@ -237,7 +238,7 @@ void PndSdsStripClusterTask::Exec(Option_t* opt)
     << "No SDSDigi array!" << std::endl;
     return;
   }
-  
+
   // when we have no digis, we can end the event here.
   if (fDigiArray->GetEntriesFast() == 0) return;
   fGeoH->SetVerbose(fVerbose);
@@ -291,21 +292,22 @@ void PndSdsStripClusterTask::Exec(Option_t* opt)
     {
       clindex = fClusterArray->GetEntriesFast();
       PndSdsClusterStrip* myCluster = new((*fClusterArray)[clindex]) PndSdsClusterStrip(*(*clit));
-      
+
       if (FairRunAna::Instance()->IsTimeStamp()){
-        myCluster->Reset();
-        for(UInt_t i = 0; i < myCluster->GetClusterSize(); i++){
-          PndSdsDigiStrip* tempDigi = (PndSdsDigiStrip*)fDigiArray->At(myCluster->GetDigiIndex(i));
-          myCluster->AddLink(FairLink(tempDigi->GetEntryNr()));
-        }
+		  myCluster->Reset();
+		  for(UInt_t i = 0; i < myCluster->GetClusterSize(); i++){
+			  PndSdsDigiStrip* tempDigi = (PndSdsDigiStrip*)fDigiArray->At(myCluster->GetDigiIndex(i));
+			  myCluster->AddLink(FairLink(tempDigi->GetEntryNr()));
+		  }
       }
     }
     
-    // std::cout << "-I- PndSdsStripClusterTask:: fClusterArray size: " << fClusterArray->GetEntries() << std::endl;
-    
+   // std::cout << "-I- PndSdsStripClusterTask:: fClusterArray size: " << fClusterArray->GetEntries() << std::endl;
+
     //printout for checking
     if(fVerbose > 2) {
-      std::cout<<"Check.. Offset: "<<clusterOffset<<"Top Clusters: ";
+      std::cout << "Check.. Offset: " << clusterOffset << std::endl;
+      std::cout << "Top Clusters: ";
       for (std::vector< Int_t>::iterator itTop = topclusters.begin();
            itTop!=topclusters.end(); ++itTop) 
       {
@@ -431,7 +433,7 @@ void PndSdsStripClusterTask::Exec(Option_t* opt)
       }// loop bot clusters
     }// loop top clusters
   }//loop finders
-  
+  fHitArray->Sort();
   if (fVerbose > 1)
     std::cout << "-I- PndSdsStripClusterTask: " << fClusterArray->GetEntriesFast()
     << " Mvd Clusters and " << fHitArray->GetEntriesFast()<<" Hits calculated."
@@ -508,10 +510,11 @@ void PndSdsStripClusterTask::FillClusterFinders()
     sensorID = myDigi->GetSensorID();
     tester=SelectSensorParams(sensorID);
     if (kFALSE==tester) continue; // Invalid parameters, skip here.
-                                  //we use the top side as "first" side
+    //we use the top side as "first" side
     fCurrentStripCalcTop->CalcFeChToStrip(myDigi->GetFE(), myDigi->GetChannel(), strip, side); 
     // Time stamp measured in ns, cropped to integer for clusterfinding
-    fCurrentClusterfinder->AddDigi(sensorID,side,(Int_t)myDigi->GetTimeStamp(),strip,iDigi);
+    //fCurrentClusterfinder->AddDigi(sensorID,side,(Int_t)myDigi->GetTimeStamp(),strip,iDigi);
+    fCurrentClusterfinder->AddDigi(sensorID,side,1,strip,iDigi);
   } 
   // make sure the digi array is distributed well
   fChargeAlgos->SetDigiArray(fDigiArray);
@@ -556,6 +559,69 @@ void PndSdsStripClusterTask::CalcMeanCharge(PndSdsClusterStrip* onecluster, Doub
   timestamp=0;
   timestampError = 0;
   Int_t nDigis = 0;
+
+//	if (fCurrentDigiPar->GetClusterMean() == 0)
+//	{
+//  // Calculate mean position in position channels weighted by the charges
+//  Int_t strip;
+//  SensorSide side;
+//  Double_t tempcharge;
+//  std::vector<Int_t> oneclusterlist = onecluster->GetClusterList();
+//  for (std::vector<Int_t>::iterator itDigi = oneclusterlist.begin();
+//       itDigi != oneclusterlist.end(); ++itDigi)
+//  { // calculate the mean charge and stripnumber
+//    PndSdsDigiStrip* myDigi = (PndSdsDigiStrip*)fDigiArray->At(*itDigi);
+//    std::cout << "Digi: " << *myDigi << std::endl;
+//    fCurrentStripCalcTop->CalcFeChToStrip(myDigi->GetFE(), myDigi->GetChannel(), strip, side);
+//    tempcharge = fCurrentChargeConverter->DigiValueToCharge(*myDigi);
+//    std::cout << "TempCharge: " << tempcharge << std::endl;
+//    charge += tempcharge;
+//    meanstrip += tempcharge * strip;
+//    meanerr += tempcharge*tempcharge; // this is stupid, to be removed one day
+//    Double_t var = myDigi->GetTimeStampError() * myDigi->GetTimeStampError();
+//    timestamp += myDigi->GetTimeStamp()/var;
+//    timestampError += 1/var;
+//    nDigis++;
+//  }
+//  meanstrip = meanstrip/charge;
+//  std::cout << "Charge: " << charge << std::endl;
+//  // this error treatment is: dx = dpitch * sqrt(weigthsquares)
+//  meanerr = sqrt(meanerr/(charge*charge));
+//  if (nDigis > 0){
+//  	timestamp /= timestampError;
+//  	timestampError = sqrt(timestampError / nDigis);
+//  }
+//  return;
+//	} else {
+//  //	//TODO: Apply other clusterfinder mean & error algorithms
+//  //    if(onecluster->GetSensorSide()==kTOP) fCurrentChargeAlgos->SetCalcStrip(fCurrentStripCalcTop);
+//  //    else fCurrentChargeAlgos->SetCalcStrip(fCurrentStripCalcBot);
+//  //    fChargeAlgos->SetChargeConverter(fCurrentChargeConverter); // done somewhere else
+//  std::pair<Double_t,Double_t> result = fChargeAlgos->CenterOfGravity(onecluster);
+//  meanstrip=result.first;
+//  meanerr=result.second;
+//  std::vector<Int_t> oneclusterlist = onecluster->GetClusterList();
+//  for (std::vector<Int_t>::iterator itDigi = oneclusterlist.begin();
+//       itDigi != oneclusterlist.end(); ++itDigi)
+//  {
+//    PndSdsDigiStrip* myDigi = (PndSdsDigiStrip*)fDigiArray->At(*itDigi);
+//    std::cout << "Digi: " << * myDigi << std::endl;
+//    std::cout << "TempCharge: " << fCurrentChargeConverter->DigiValueToCharge(*myDigi) << std::endl;
+//    charge += fCurrentChargeConverter->DigiValueToCharge(*myDigi);
+//    Double_t var = myDigi->GetTimeStampError() * myDigi->GetTimeStampError();
+//    timestamp += myDigi->GetTimeStamp()/var;
+//    timestampError += 1/var;
+//    nDigis++;
+//  }
+//  if (nDigis > 0){
+//  	timestamp /= timestampError;
+//  	timestampError = sqrt(timestampError / nDigis);
+//  }
+//
+//  std::cout << "Charge: " << charge << std::endl;
+//  return;
+//	}
+
   Int_t centroidMod = fCurrentDigiPar->GetClusterMean();
   PndSdsDigiStrip* tmpdigi=0;
   
