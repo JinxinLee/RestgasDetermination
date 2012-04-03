@@ -22,6 +22,7 @@
 #include "FairRootManager.h"
 #include "FairRunAna.h"
 #include "FairRuntimeDb.h"
+#include "FairEventHeader.h"
 
 #include "TGeoManager.h"
 #include "TVector3.h"
@@ -244,6 +245,9 @@ PndSttHit* PndSttHitProducerRealFull::AddHit(Int_t detID, Int_t tubeID, Int_t iP
   // see PndSttHit for hit description
 
   PndSttHit *hitnew =  new PndSttHit(detID, tubeID, iPoint, pos, dpos, p, rsim, closestDistanceError, depcharge);
+  hitnew->Reset();
+  FairEventHeader* evtHeader = (FairEventHeader*)FairRootManager::Instance()->GetObject("EventHeader.");
+  hitnew->AddLink(FairLink(evtHeader->GetInputFileId(), evtHeader->GetMCEntryNumber(),  "STTPoint", iPoint));
   fDataBuffer->FillNewData(hitnew, p);
   return hitnew;
 
