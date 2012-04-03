@@ -141,15 +141,6 @@ InitStatus PndSdsHybridHitProducer::Init()
   fDataBuffer = (PndSdsDigiPixelWriteoutBuffer*)ioman->RegisterWriteoutBuffer(fOutBranchName, fDataBuffer);
   fDataBuffer->ActivateBuffering(fTimeOrderedDigi);
   
-  //  if(fDigiPixelMCInfo==kTRUE)
-  //  {
-  //
-  //
-  //    if(fVerbose>1) Info("Init","Registering this branch: %s/%s","PndMVD","MVDPixelDigisMCInfo");
-  //	fPixelMCArray =  ioman->Register("MVDPixelDigisMCInfo", "PndSdsDigiPixelMCInfo", "PndMVD", fPixelMCArray, fPersistance);
-  //
-  //    std::cout << "fPixelMCArray defined " << std::endl;
-  //  }
   
   if(fOverwriteParams==kTRUE){
     fDigiPar->SetXPitch(flx);
@@ -191,11 +182,6 @@ void PndSdsHybridHitProducer::Exec(Option_t* opt)
   if(fVerbose>0) std::cout << "-I- PndSdsHybridHitProducer::Exec EventTime: " << EventTime << std::endl;
   
   
-	if(fDigiPixelMCInfo==kTRUE)
-	{
-    if ( ! fPixelMCArray )
-			Fatal("Exec", "No PixelMCArray");
-	}
   fPixelList.clear();
   fGeoH->SetVerbose(fVerbose);  
   // Declare some variables
@@ -250,7 +236,7 @@ void PndSdsHybridHitProducer::Exec(Option_t* opt)
       std::vector<PndSdsPixel> myPixels;
       if(fqsigma>0){
         // Define sensor by pixelsizes threshold and noise from macro outside
-        PndSdsCalcPixelDif PixelCalc(flx, fly, fqsigma);
+        PndSdsCalcPixelDif PixelCalc(flx, fly, fqsigma, fthreshold, fnoise);
         // Calculate a cluster of Pixels fired (in sensor system)
         myPixels = PixelCalc.GetPixels (posInL.getX(), posInL.getY(),
                                         posOutL.getX(), posOutL.getY(), 
@@ -297,12 +283,8 @@ void PndSdsHybridHitProducer::Exec(Option_t* opt)
     if(fVerbose>1) std::cout << "fPixelList.size()" <<  fPixelList.size() << std::endl;
     point = (PndSdsMCPoint*) fPointArray->At(fPixelList[iPix].GetMCIndex()[0]);
     charge=fPixelList[iPix].GetCharge();
-    if(fDigiPixelMCInfo==kTRUE)
-    {
-      new ((*fPixelMCArray)[iFePixel]) PndSdsDigiPixelMCInfo(fPixelList[iPix].GetMCIndex(), fInBranchId, fPixelList[iPix].GetSensorID() ,fPixelList[iPix].GetFE(),
-                                                             fPixelList[iPix].GetCol(), fPixelList[iPix].GetRow(),
-                                                             fChargeConverter->ChargeToDigiValue(charge), fChargeConverter->GetTimeStamp(point->GetTime(), charge,EventTime),charge-fPixelList[iPix].GetAddNoise(),fPixelList[iPix].GetAddNoise(), fChargeConverter->GetTimeWalk(charge),0,point->GetTime(),charge  );
-    }
+    std::cout << fPixelList[iPix] << std::endl;
+
     if (fVerbose > 1)  std::cout << fPixelList[iPix] << std::endl;
     
     //	if (fFEModel > 0){
@@ -314,9 +296,25 @@ void PndSdsHybridHitProducer::Exec(Option_t* opt)
     //				std::cout << "BigDifference!" << std::endl;
     //			}
     //	}
-    PndSdsDigiPixel *tempPixel = new PndSdsDigiPixel( fPixelList[iPix].GetMCIndex(), fInBranchId, fPixelList[iPix].GetSensorID() ,fPixelList[iPix].GetFE(),
+
+    Int_t smearedCharge = fChargeConverter->ChargeToDigiValue(charge);
+	Double_t smearedChargeInE = fChargeConverter->DigiValueToCharge(smearedCharge);
+    Int_t timeStamp = fChargeConverter->GetTimeStamp(point->GetTime(),smearedChargeInE, EventTime);
+
+    if (smearedChargeInE < fthreshold)
+    	smearedChargeInE = fthreshold;
+   	Double_t timewalk = fChargeConverter->GetTimeWalk(smearedChargeInE);
+
+    	Double_t correctedTimeStamp = timeStamp - timewalk;
+
+ //   	if (fVerbose > 2){
+    		std::cout << "TimeStampCalc: EventTime: " << EventTime << " ToF " << point->GetTime() << " charge " << smearedChargeInE << " TW: " << timewalk << " CorrectedTS: " << correctedTimeStamp << std::endl;
+    		std::cout << "Diff TimeStamp - EventTime " << correctedTimeStamp - EventTime << std::endl;
+//   	}
+
+    	PndSdsDigiPixel *tempPixel = new PndSdsDigiPixel( fPixelList[iPix].GetMCIndex(), fInBranchId, fPixelList[iPix].GetSensorID() ,fPixelList[iPix].GetFE(),
                                                      fPixelList[iPix].GetCol(), fPixelList[iPix].GetRow(),
-                                                     fChargeConverter->ChargeToDigiValue(charge), EventTime); //fChargeConverter->GetTimeStamp(point->GetTime(), charge,fEventHeader->GetEventTime()) );
+                                                     smearedCharge, correctedTimeStamp); //fChargeConverter->GetTimeStamp(point->GetTime(), charge,fEventHeader->GetEventTime()) );
     
     tempPixel->Reset();
     std::vector<int> indices = fPixelList[iPix].GetMCIndex();
