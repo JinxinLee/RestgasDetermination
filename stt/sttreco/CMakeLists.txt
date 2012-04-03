@@ -33,10 +33,10 @@ ${ROOT_LIBRARY_DIR}
 link_directories( ${LINK_DIRECTORIES})
 
 set(STT_SRCS
-PndSttPatternRecoTask.cxx
-PndSttPatternRecoTask2.cxx
-PndSttKalmanTask.cxx
-PndSttKalmanTask2.cxx
+#PndSttPatternRecoTask.cxx
+#PndSttPatternRecoTask2.cxx
+#PndSttKalmanTask.cxx
+#PndSttKalmanTask2.cxx
 #WirepointHitPolicy.cxx
 )
 if(RULE_CHECKER_FOUND)
