@@ -76,7 +76,8 @@ void tracks_BARREL_1000sep(char* type="proof", Int_t nofFiles = 1, TString proof
   rtdb->setSecondInput(parIo1);
   // ------------------------------------------------------------------------
 
-  /*  // ##################################################################    MVD
+  /*
+  // ##################################################################    MVD
   // -----   MDV digi producer   ----------------------------------------
   PndMvdDigiTask* mvddigi = new PndMvdDigiTask();
   mvddigi->SetVerbose(iVerbose);
@@ -91,7 +92,8 @@ void tracks_BARREL_1000sep(char* type="proof", Int_t nofFiles = 1, TString proof
   PndSttHitProducerIdeal* sttHitProducer = new PndSttHitProducerIdeal();
   // PndSttHitProducerRealFast* sttHitProducer = new PndSttHitProducerRealFast();
   fRun->AddTask(sttHitProducer);
-  */
+  */  
+
   // ##################################################################   GEM
   // -----   GEM digi producer   --------------------------------------
   Int_t verboseLevel = 0;
@@ -123,7 +125,7 @@ void tracks_BARREL_1000sep(char* type="proof", Int_t nofFiles = 1, TString proof
   //  fRun->SetProofServerName(proofName);
   //  TString anaType = type;
   //  if ( anaType.Contains("local") ) 
-  fRun->Run(0,nEvents);
+  fRun->Run(0,0);//nEvents);
   //  else
   //    fRun->Run(type,0,nEvents);
 
