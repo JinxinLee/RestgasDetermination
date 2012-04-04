@@ -133,8 +133,8 @@ void PndStdKnnClassify::GetMvaValues(vector<float> eventData,
   // Normalize current Event
   NormalizeEvent(eventData);
 
-  // Now we need to compute distances to all available proto types and
-  // store the results.
+  // Now we need to compute distances to all available proto types
+  // (examples) and store the results.
 
   for(size_t evt = 0; evt < events.size(); evt++)
   {
@@ -148,27 +148,34 @@ void PndStdKnnClassify::GetMvaValues(vector<float> eventData,
     
   }//For evt
 
-  //All distances are determined
+  // All distances are determined. We need to sort the distances.
   sort(m_distances.begin(), m_distances.end());
-    
-  for(size_t id = 0; id < m_Knn; id++)
+
+  // Find the number of examples per class within first m_Knn
+  // examples.
+  for(size_t id = 0; id < m_Knn; ++id)
   {
-    string clas = (m_distances[id]).m_cls; //Find the Object class
-    // Increment the number of objects per class
+    string clas = (m_distances[id]).m_cls; //The Object class
+    // Determine (Increment) the number of objects per class
     result[clas] += 1.0;
   }
   
-  // Normalizing the results
-  float Psum = 0.0;
-  for(size_t cls = 0; cls < classes.size(); cls++)
+  // Normalizing the results (K_i/K)
+  for(size_t cls = 0; cls < classes.size(); ++cls)
   {
-    int num = classes[cls].NExamples;
-    result[classes[cls].Name] /= (static_cast<float>(num));
-    Psum += result[classes[cls].Name];
+    result[classes[cls].Name] /= m_Knn;
   }
+
+  // float Psum = 0.0;
+  // for(size_t cls = 0; cls < classes.size(); cls++)
+  // {
+  //   int num = classes[cls].NExamples;
+  //   result[classes[cls].Name] /= (static_cast<float>(num));
+  //   Psum += result[classes[cls].Name];
+  // }
   
-  for(size_t cls = 0; cls < classes.size(); cls++)
-  {
-    result[classes[cls].Name] /= Psum;
-  }
+  // for(size_t cls = 0; cls < classes.size(); cls++)
+  // {
+  //   result[classes[cls].Name] /= Psum;
+  // }
 }

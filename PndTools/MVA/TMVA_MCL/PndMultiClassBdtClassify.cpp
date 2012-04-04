@@ -23,7 +23,7 @@ void PndMultiClassBdtClassify::GetMvaValues( std::vector<float> EvtData,
 					     std::map<std::string, float>& result )
 {
   m_EventContainer = EvtData;
-  const std::vector<float>& outputs = m_reader->EvaluateMulticlass( "BDT method" );
+  std::vector<float> const& outputs = m_reader->EvaluateMulticlass( "BDT method" );
   
   std::vector<PndMvaClass> const& label = m_dataSets.GetClasses();
 
