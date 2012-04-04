@@ -46,6 +46,7 @@ class PndTrackCandDraw : public FairBoxSetDraw {
 protected:
 	  virtual TVector3 GetVector(TObject* obj){};
 	  virtual TVector3 GetVector(Int_t detId, Int_t hitId);
+	  virtual TVector3 GetVector(FairLink link);
 	  //virtual Int_t GetValue(TObject* obj,Int_t i);
 	  virtual void AddBoxes(FairBoxSet* set, TObject* obj, Int_t i = 0);
 

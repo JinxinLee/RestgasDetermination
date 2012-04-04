@@ -104,13 +104,26 @@ void PndTrackCandDraw::AddBoxesTrackCand(FairBoxSet* set, TObject* obj, Int_t i)
 
 void PndTrackCandDraw::AddBoxesPndTrackCand(FairBoxSet* set, TObject* obj, Int_t i)
 {
+
 	PndTrackCand* pndtc = (PndTrackCand*)obj;
+	std::cout << "Hits in TrackCand: " << std::endl;
+
+	((FairMultiLinkedData*)pndtc)->Print();
 	for (Int_t j = 0; j < pndtc->GetNHits(); j++){
-		PndTrackCandHit hit = pndtc->GetSortedHit(j);
-		TVector3 point = GetVector(hit.GetDetId(), hit.GetHitId());
+		TVector3 point = GetVector(pndtc->GetLink(j));
 		set->AddBox(point.X(), point.Y(), point.Z());
 		set->DigitValue(i);
 	}
+
+//	std::cout << "Hits inside: ";
+//	for (Int_t j = 0; j < pndtc->GetNHits(); j++){
+//		PndTrackCandHit hit = pndtc->GetSortedHit(j);
+//		std::cout << hit.GetDetId() << "/" << hit.GetHitId() << " ";
+//		TVector3 point = GetVector(hit.GetDetId(), hit.GetHitId());
+//		set->AddBox(point.X(), point.Y(), point.Z());
+//		set->DigitValue(i);
+//	}
+//	std::cout << std::endl;
 }
 
 TVector3 PndTrackCandDraw::GetVector(Int_t detId, Int_t hitId)
@@ -147,6 +160,27 @@ TVector3 PndTrackCandDraw::GetVector(Int_t detId, Int_t hitId)
 				<< "-E- PndTrackCandDraw::GetVector : Unknown Detector with ID: "
 				<< detId << std::endl;
 	return TVector3();
+}
+
+TVector3 PndTrackCandDraw::GetVector(FairLink link)
+{
+	FairHit *p;
+	FairRootManager* ioman = FairRootManager::Instance();
+	TString branchName = ioman->GetBranchName(link.GetType());
+	if (branchName == "MVDHitsStrip" ||
+		branchName == "MVDHitsPixel" ||
+		branchName == "SttHelixHit" ||
+		branchName == "GemHit")
+	{
+		p = (FairHit*)ioman->GetLinkData(link);
+		return (TVector3(p->GetX(), p->GetY(), p->GetZ()));
+	}
+	else
+		std::cout
+				<< "-E- PndTrackCandDraw::GetVector : Unknown Detector with ID: "
+				<< link << std::endl;
+	return TVector3();
+
 }
 
 // -----   Destructor   ----------------------------------------------------
