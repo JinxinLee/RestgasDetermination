@@ -35,7 +35,6 @@ rootlogon()
   if(isLibrary("libgenfitAdapters"))gSystem->Load("libgenfitAdapters");
   if(isLibrary("libriemann"))gSystem->Load("libriemann");
   if(isLibrary("libStt"))gSystem->Load("libStt");
-  if(isLibrary("libSttReco"))gSystem->Load("libSttReco");
   if(isLibrary("libSds"))gSystem->Load("libSds");
   if(isLibrary("libSdsReco"))gSystem->Load("libSdsReco");
   if(isLibrary("libMvd"))gSystem->Load("libMvd");
