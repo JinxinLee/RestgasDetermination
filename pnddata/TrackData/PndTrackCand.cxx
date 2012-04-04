@@ -20,6 +20,7 @@
 // This Class' Header ------------------
 #include "PndTrackCand.h"
 #include "FairRootManager.h"
+#include "FairEventHeader.h"
 
 #include <algorithm>
 #include "math.h"
@@ -44,6 +45,13 @@ void PndTrackCand::AddHit(TString branchName, UInt_t hitId, Double_t rho)
 	FairRootManager* ioman = FairRootManager::Instance();
 	UInt_t detId = ioman->GetBranchId(branchName);
 	AddHit(detId, hitId, rho);
+}
+
+void PndTrackCand::AddHit(FairLink link, Double_t rho)
+{
+	fHitId.push_back(PndTrackCandHit(link.GetType(), link.GetIndex(), rho));
+	sorted = false;
+	AddLink(link);
 }
 
 

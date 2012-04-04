@@ -62,6 +62,7 @@ public:
   // Modifiers -----------------------
   void AddHit(UInt_t detId, UInt_t hitId, Double_t rho);
   void AddHit(TString branchName, UInt_t hitId, Double_t rho);
+  void AddHit(FairLink link, Double_t rho);
   void DeleteHit(UInt_t detId, UInt_t hitId);
   Int_t HitInTrack(UInt_t detId, UInt_t hitId);
   void setMcTrackId(int i){fMcTrackId=i;}
