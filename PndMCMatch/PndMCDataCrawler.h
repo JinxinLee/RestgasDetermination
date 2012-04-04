@@ -24,6 +24,8 @@ public:
 	FairMultiLinkedData* GetEntry(Int_t fileId, Int_t eventNr, Int_t type, Int_t index);
 	FairMultiLinkedData* GetEntry(FairLink link);
 
+	void SetStoreIntermediate(Bool_t val = kTRUE){fStoreIntermediate = val;}
+
 	void Init();
 
 	void SetVerbose(Int_t val){fVerbose = val;};
@@ -33,6 +35,7 @@ private:
 	Int_t fUltimateStage; ///< last stage in link chain. Here all recursive operations must stop.
 
 	Int_t fVerbose;
+	Bool_t fStoreIntermediate; ///< true if non-stop-stage data is stored in results
 
 	void GetNextStage(FairMultiLinkedData& startEntry, Int_t stopStage);
 	void AddToFinalStage(FairLink link, Float_t mult);
