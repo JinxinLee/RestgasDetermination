@@ -45,7 +45,7 @@ void tracks_BARREL_1000sep(char* type="proof", Int_t nofFiles = 1, TString proof
   // -----   Digitization run   -------------------------------------------
   FairRunAna *fRun= new FairRunAna(type,proofName.Data());
   fRun->SetOutputFile(outFile.Data());
-  fRun->SetProofParName("$VMCWORKDIR/gconfig/libFairRoot3.par");
+  //  fRun->SetProofParName("$VMCWORKDIR/gconfig/libFairRoot3.par");
   
   fRun->SetInputFile(Form("file://%s/points_%dPart_n1000_f%d_sep.root",workDir.Data(),nparts,0));
   for ( Int_t ifile = 1 ; ifile < nofFiles ; ifile++ )
