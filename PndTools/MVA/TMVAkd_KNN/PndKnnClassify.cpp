@@ -1,11 +1,13 @@
-/* ************************************
- *  Author: M. Babai (M.Babai@rug.nl) *
- *                                    *
- *  pid classifier                    *
- *                                    *
- * Modified:                          *
- *                                    *
- * ************************************/
+/* ***********************************************
+ *  Author: M. Babai (M.Babai@rug.nl)            *
+ *                                               *
+ *  pid classifier                               *
+ *                                               *
+ * Modified:                                     *
+ *   Corrected by Qader Dorosti                  *
+ *    -Density estimation was wrongly normalized *
+ * q.dorosti.hasankiadeh@rug.nl                  *
+ * ***********************************************/
 #include "PndKnnClassify.h"
 
 using namespace std;
@@ -208,22 +210,17 @@ void PndKnnClassify::GetMvaValues(std::vector<float> eventData,
     countsPerClass[type] += 1;
   }
   
+  // Normalizing the results
+  float probSum = 0.0;
+  
   // Fill result map with per class counts
   for(size_t cls = 0; cls < classes.size(); cls++)
   {
     result[classes[cls].Name] = countsPerClass[cls];
+    probSum += countsPerClass[cls];
   }
-  
-  // Normalizing the results
-  float probSum = 0.0;
-  
-  for(size_t cls = 0; cls < classes.size(); cls++)
-  {
-    std::string const& clName = classes[cls].Name;
-    size_t num = classes[cls].NExamples;
-    result[clName] /= static_cast<float>(num);
-    probSum += result[clName];
-  }
+  // Now probSum = total number of events available in the current
+  // volume
   
   for(size_t cls = 0; cls < classes.size(); cls++)
   {
