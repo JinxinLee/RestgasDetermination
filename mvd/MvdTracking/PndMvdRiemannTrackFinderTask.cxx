@@ -111,8 +111,9 @@ void PndMvdRiemannTrackFinderTask::Exec(Option_t* opt)
  // std::cout << std::endl;
 //  std::cout << "------------- event " << fEventNr << "----------------" << std::endl;
 
-  for (int i = 0; i < (int)fHitBranch.size(); i++)
+  for (int i = 0; i < (int)fHitBranch.size(); i++){
 	  trackFinder.AddHits(fHitArray[i], ioman->GetBranchId(fHitBranch[i]));
+  }
   trackFinder.SetMaxSZChi2(fMaxSZChi2);
   trackFinder.SetMinPointDist(fMinPointDist);
   trackFinder.SetMaxPlaneDistance(fMaxDist);
@@ -150,6 +151,8 @@ void PndMvdRiemannTrackFinderTask::Exec(Option_t* opt)
 //		  newTrack->addHit(*myTrack.getHit(j));
 //	  }
   }
+  fTrackCandArray->Sort();
+  fTrackArray->Sort();
 }
 
 void PndMvdRiemannTrackFinderTask::FinishEvent()
