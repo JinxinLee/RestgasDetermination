@@ -32,7 +32,7 @@
 
 // -----   Default constructor   -------------------------------------------
 PndSdsStripHitProducer::PndSdsStripHitProducer() :
-PndSdsTask("SDS Strip Digi Producer(PndSdsStripHitProducer)"), fDataBuffer(0)
+PndSdsTask("SDS Strip Digi Producer(PndSdsStripHitProducer)"), fDataBuffer(0), fEventNr(0)
 {
   fOverrideParams = false;
   fDigiParameterList = new TList();
@@ -45,7 +45,7 @@ PndSdsTask("SDS Strip Digi Producer(PndSdsStripHitProducer)"), fDataBuffer(0)
 
 // -----   Default constructor   -------------------------------------------
 PndSdsStripHitProducer::PndSdsStripHitProducer(const char* name) :
-PndSdsTask(name), fDataBuffer(0)
+PndSdsTask(name), fDataBuffer(0), fEventNr(0)
 {
   fOverrideParams = false;
   fDigiParameterList = new TList();
@@ -284,8 +284,10 @@ void PndSdsStripHitProducer::Exec(Option_t* opt)
   }
   
   // Event summary
-  if(fVerbose > 1) std::cout << "-I- PndSdsStripHitProducer: " << nPoints << " PndSdsMCPoints, "
+  if(fVerbose > 1) std::cout << "-I- PndSdsStripHitProducer: EventNr " << fEventNr << " from " << nPoints << " PndSdsMCPoints, "
     << iStrip << " Digis created."<< std::endl;
+
+  fEventNr++;
 }
 // -------------------------------------------------------------------------
 
@@ -294,13 +296,13 @@ void PndSdsStripHitProducer::AddDigi(Int_t &iStrip, Int_t iPoint, Int_t detID, I
 
 	PndSdsMCPoint *point = (PndSdsMCPoint*)fPointArray->At(iPoint);
 	SelectSensorParams(point->GetSensorID());
-	Int_t smearedCharge = fCurrentChargeConverter->ChargeToDigiValue(charge);
+	Int_t smearedCharge = (Int_t)fCurrentChargeConverter->ChargeToDigiValue(charge);
 	Int_t timeStamp = DigitizeTime(point->GetTime(), charge);
 
 	Double_t smearedChargeInE = fCurrentChargeConverter->DigiValueToCharge(smearedCharge);
 	Double_t timewalk = fCurrentChargeConverter->GetTimeWalk(smearedChargeInE);
 
-	Double_t correctedTimeStamp = timeStamp - timewalk;
+	Double_t correctedTimeStamp = timeStamp - timewalk - fCurrentChargeConverter->GetTimeStep()/2;
   
 //	std::cout << " charge: " << charge << " smeared DigiCharge: " << smearedCharge << " smeared charge in e " << smearedChargeInE << std::endl;
 //	std::cout << "MCTime: " << point->GetTime() << " TimeStamp: " << timeStamp << " timewalk " << timewalk << " corrected TimeStamp: " << correctedTimeStamp << " charge: " << charge << " smearedCharge in e: " << smearedChargeInE << std::endl;
@@ -316,6 +318,7 @@ void PndSdsStripHitProducer::AddDigi(Int_t &iStrip, Int_t iPoint, Int_t detID, I
 	    FairEventHeader* evtHeader = (FairEventHeader*)FairRootManager::Instance()->GetObject("EventHeader.");
 	  //  for (int i = 0; i < indices.size(); i++)
 	      tempStrip->AddLink(FairLink(evtHeader->GetInputFileId(), evtHeader->GetMCEntryNumber(),  fInBranchId, iPoint));
+	      tempStrip->AddLink(FairLink(-1, fEventNr, "EventHeader.", -1));
 	  }
 	  fDataBuffer->FillNewData(tempStrip,	timeStamp + 100);
 

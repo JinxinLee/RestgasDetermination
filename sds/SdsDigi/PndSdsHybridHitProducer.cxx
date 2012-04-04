@@ -305,7 +305,7 @@ void PndSdsHybridHitProducer::Exec(Option_t* opt)
     	smearedChargeInE = fthreshold;
    	Double_t timewalk = fChargeConverter->GetTimeWalk(smearedChargeInE);
 
-    	Double_t correctedTimeStamp = timeStamp - timewalk;
+    	Double_t correctedTimeStamp = timeStamp - timewalk - fChargeConverter->GetTimeStep()/2;
 
  //   	if (fVerbose > 2){
     		std::cout << "TimeStampCalc: EventTime: " << EventTime << " ToF " << point->GetTime() << " charge " << smearedChargeInE << " TW: " << timewalk << " CorrectedTS: " << correctedTimeStamp << std::endl;
@@ -319,9 +319,10 @@ void PndSdsHybridHitProducer::Exec(Option_t* opt)
     tempPixel->Reset();
     std::vector<int> indices = fPixelList[iPix].GetMCIndex();
     FairEventHeader* evtHeader = (FairEventHeader*)FairRootManager::Instance()->GetObject("EventHeader.");
-    for (int i = 0; i < indices.size(); i++)
+    for (int i = 0; i < indices.size(); i++){
       tempPixel->AddLink(FairLink(evtHeader->GetInputFileId(), evtHeader->GetMCEntryNumber(),  fInBranchId, indices[i]));
-    
+    }
+    tempPixel->AddLink(FairLink(-1, fEventNr, "EventHeader.", -1));
     fDataBuffer->FillNewData(tempPixel, fChargeConverter->ChargeToDigiValue(fPixelList[iPix].GetCharge())*6 + EventTime);
     
     if (fVerbose > 0){

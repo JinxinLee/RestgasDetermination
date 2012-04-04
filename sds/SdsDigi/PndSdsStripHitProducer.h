@@ -149,6 +149,8 @@ class PndSdsStripHitProducer : public PndSdsTask
   Bool_t fOverrideParams;   ///< internal Flag that controls use of Parameter Invocations
   Bool_t fTimeOrderedDigi; ///< parameter to switch to time ordered simulation
 
+  Int_t fEventNr;			///< EventCounter
+
   ClassDef(PndSdsStripHitProducer,5);
 
 };
