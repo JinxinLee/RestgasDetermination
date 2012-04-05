@@ -2,41 +2,40 @@
   \brief Class for optical material representation.
 
   Radiation hard glass.
-  http://www.schott.com/advanced_optics/english/abbe_datasheets/schott_datasheetinquiryglass_f2g12.pdf
-  In this case the glass F2G12 (flint glass) from Schott.
-  Data from www.knightoptical.com/
-  
+
+  In this case the glass N-LaK9G15 (borosilicate glass) from Schott. See
+  http://www.schott.com/advanced_optics/english/abbe_datasheets/schott_datasheetinquiryglass_lak9g15.pdf
 
 */
 
 
-#ifndef PNDDRCOPTMATF2G12_H
-#define PNDDRCOPTMATF2G12_H
+#ifndef PNDDRCOPTMATLaK9G15_H
+#define PNDDRCOPTMATLaK9G15_H
 
 
 #include "PndDrcOptMatAbs.h"
 
 #include "TRandom3.h"
 
-class PndDrcOptMatF2G12 : public PndDrcOptMatAbs
+class PndDrcOptMatLaK9G15 : public PndDrcOptMatAbs
 {
  public:
 
   //!                                             Empty constructor.
-  PndDrcOptMatF2G12();
+  PndDrcOptMatLaK9G15();
 
   /*! Copy constructor.
     /param Object to copy.
   */
-  PndDrcOptMatF2G12(const PndDrcOptMatF2G12& mat);
+  PndDrcOptMatLaK9G15(const PndDrcOptMatLaK9G15& mat);
 
   /*! Assignment operator.
     /param Object to assign.
   */
-  PndDrcOptMatF2G12& operator=(const PndDrcOptMatF2G12& mat);
+  PndDrcOptMatLaK9G15& operator=(const PndDrcOptMatLaK9G15& mat);
 
   // Implementation of pure virtual functions from base class.
-  PndDrcOptMatF2G12* Clone() const;
+  PndDrcOptMatLaK9G15* Clone() const;
   double RefIndex(const double lambda) const;
   double RefIndexDeriv(const double lambda) const;
   double Extinction(const double lambda) const {return 0;};
@@ -56,7 +55,7 @@ class PndDrcOptMatF2G12 : public PndDrcOptMatAbs
   /*! \brief Auxiliary function for assignment operator and copy constructor..
     \param s The object to copy.
   */
-  void Copy(const PndDrcOptMatF2G12& s);
+  void Copy(const PndDrcOptMatLaK9G15& s);
 
 
 };

@@ -58,10 +58,13 @@ using ROOT::Math::Rotation3D;
 #include "PndDrcSurfQuadFlatDiff.h"
 #include "PndDrcSurfPolySphere.h"
 #include "PndDrcSurfPolyPara.h"
+#include "PndDrcOptReflPerfect.h"
 #include "PndDrcOptReflSilver.h"
 #include "PndDrcOptReflNone.h"
 #include "PndDrcOptMatLithotecQ0.h"
 #include "PndDrcOptMatF2G12.h"
+#include "PndDrcOptMatBK7G18.h"
+#include "PndDrcOptMatLF5G15.h"
 #include "PndDrcOptMatLLF1.h"
 #include "PndDrcOptMatVacuum.h"
 #include "PndDrcOptDevSys.h"
@@ -111,9 +114,9 @@ int main(int argc, char *argv[])
   int focus_opt = 1; // focussed
 
   //int iopt = 0;// only geometry
-  int iopt = 1;// straight lines
-  //int iopt = 2;// C-cone
-  //int iopt = 3;// ???
+  //int iopt = 1;// straight lines
+  int iopt = 2;// C-cone
+  //int iopt = 3;// debug
    
   int lens_opt = 1;  // two thin lenses no air gap at all (no between ex_box and lens)
 
@@ -130,10 +133,10 @@ int main(int argc, char *argv[])
   
   if (lens_opt==1)
     {
-      radius_lens1  = -51.145;
-      thick_lens1   =   5;
+      radius_lens1  = 30;
+      thick_lens1   =   1;
       radius_lens2 = -radius_lens1;
-      thick_lens2   = 4; 
+      thick_lens2   = 9; 
       if (focus_opt==0)
 	{
 	  radius_lens1  = 9999.9;
@@ -164,17 +167,23 @@ int main(int argc, char *argv[])
   bar.SetOptMaterial(PndDrcOptMatLithotecQ0());
   bar.SetName("bar");
   bar.Surface("side6")->SetReflectivity(PndDrcOptReflSilver());
+  //bar.Surface("side6")->SetReflectivity(PndDrcOptReflPerfect());
+
+  
 
   PndDrcOptDevSys opt_system;
+
   opt_system.SetNameCopyNumber("optsys",0);
   opt_system.AddDevice(bar);
+
+
 
   PndDrcOptLens lens1(bar_half_w,bar_half_h,thick_lens1/2,radius_lens1,9999,
 			  conical,conical);
   lens1.SetName("lens1");
   lens1.AddTransform(Transform3D(XYZVector(0,0,-bar_half_l
 					   -thick_lens1/2)));
-  lens1.SetOptMaterial(PndDrcOptMatLithotecQ0());
+  lens1.SetOptMaterial(PndDrcOptMatF2G12());
   lens1.Surface("side21")->SetReflectivity(PndDrcOptReflNone());
   lens1.Surface("side26")->SetReflectivity(PndDrcOptReflNone());
   lens1.Surface("side31")->SetReflectivity(PndDrcOptReflNone());
@@ -184,6 +193,7 @@ int main(int argc, char *argv[])
   lens1.Surface("side51")->SetReflectivity(PndDrcOptReflNone());
   lens1.Surface("side56")->SetReflectivity(PndDrcOptReflNone());
   lens1.SetPrintColor(2);
+
   opt_system.AddDevice(lens1);
   opt_system.CoupleDevice("bar","lens1","side1","side6");
   
@@ -205,8 +215,9 @@ int main(int argc, char *argv[])
 					   -bar_half_l
 					   -thick_lens1
 					   -thick_lens2/2)));
-  lens2.SetOptMaterial(PndDrcOptMatF2G12());
+  lens2.SetOptMaterial(PndDrcOptMatBK7G18());
   lens2.SetPrintColor(3);
+
   opt_system.AddDevice(lens2);
   opt_system.CoupleDevice("lens1","lens2","side1","side6");
   
@@ -238,6 +249,31 @@ int main(int argc, char *argv[])
 
   opt_system.SetFresnel(l_fresnel); // sets all surfaces
   
+
+
+  // debugging
+  PndDrcOptMatLithotecQ0 silica = PndDrcOptMatLithotecQ0();
+  PndDrcOptMatBK7G18     bk7g18 = PndDrcOptMatBK7G18();
+  PndDrcOptMatF2G12      f2g12  = PndDrcOptMatF2G12();
+  PndDrcOptMatLF5G15     lf5g15 = PndDrcOptMatLF5G15();
+
+  fstream out;
+  out.open("debug.dat",std::ios::out);
+  
+  for (double lam=370; lam<800; lam+=1)
+    {
+      out<<lam<<" "
+	 <<silica.RefIndex(lam)<<" "
+	 <<bk7g18.RefIndex(lam)<<" "
+	 <<f2g12.RefIndex(lam)<<" "
+	 <<lf5g15.RefIndex(lam)<<endl;
+    }
+  out.close();
+  
+
+
+
+
 
   // The manager must be created as pointer. It is created as singleton, that is only 
   // one manager can exist per application.
@@ -281,7 +317,7 @@ int main(int argc, char *argv[])
   
   list<PndDrcPhoton> list_photon; // get list
   
-  double lambda = 350;
+  double lambda = 400;
   
 
   if (iopt==1)  
@@ -304,17 +340,17 @@ int main(int argc, char *argv[])
 
 	      double y1 = tan(angle*pi/180);
 	      double x1 = y1;
-	      double step = 0.03*y1/angle;
+	      double step = 0.01*y1/angle;
 	      for (double y=-y1; y<= y1; y+= step)
 		{
 		  double xx=ran.Uniform(-0.5*slab_width,0.5*slab_width);
 		  double yy=ran.Uniform(-0.5*slab_height,0.5*slab_height);
 		  ph.SetPosition(XYZPoint(xx,yy,200));
 		  double x = x1;
-		  ph.SetDirection(XYZVector(x,y,-1).Unit());
+		  ph.SetDirection(XYZVector(x,y,+1).Unit());
 		  ph.SetWavelength(lambda1);
 		  list_photon.push_back(ph);
-		  ph.SetDirection(XYZVector(-x,y,-1).Unit());
+		  ph.SetDirection(XYZVector(-x,y,+1).Unit());
 		  ph.SetWavelength(lambda1);
 		  list_photon.push_back(ph);
 		}
@@ -324,10 +360,10 @@ int main(int argc, char *argv[])
 		  double yy=ran.Uniform(-0.5*slab_height,0.5*slab_height);
 		  ph.SetPosition(XYZPoint(xx,yy,200));
 		  double y = y1;
-		  ph.SetDirection(XYZVector(x,y,-1).Unit());
+		  ph.SetDirection(XYZVector(x,y,+1).Unit());
 		  ph.SetWavelength(lambda1);
 		  list_photon.push_back(ph);
-		  ph.SetDirection(XYZVector(x,-y,-1).Unit());
+		  ph.SetDirection(XYZVector(x,-y,+1).Unit());
 		  ph.SetWavelength(lambda1);
 		  list_photon.push_back(ph);
 		}
@@ -347,55 +383,51 @@ int main(int argc, char *argv[])
   else if (iopt==3)
     {
       double angle=0;
+      ph.SetWavelength(450);
       
       
-      for (int i=0; i<30; i++)
+      for (int i=0; i<10; i++)
 	{
 	  ph.SetDirection(XYZVector(sin(pi/180*angle),0,-cos(pi/180*angle)));
-	  ph.SetPosition(XYZPoint(q0.X()+(q1.X()-q0.X())*i/31.0,0,-399));
-	  ph.SetWavelength(630);
+	  ph.SetPosition(XYZPoint(q0.X()+(q1.X()-q0.X())*i/11.0,0,-395));
 	  list_photon.push_back(ph);
 	}
       
        angle=10;
       
       
-      for (int i=0; i<30; i++)
+      for (int i=0; i<10; i++)
 	{
 	  ph.SetDirection(XYZVector(sin(pi/180*angle),0,-cos(pi/180*angle)));
-	  ph.SetPosition(XYZPoint(q0.X()+(q1.X()-q0.X())*i/31.0,0,-399));
-	  ph.SetWavelength(630);
+	  ph.SetPosition(XYZPoint(q0.X()+(q1.X()-q0.X())*i/11.0,0,-395));
 	  list_photon.push_back(ph);
 	}
       angle=20;
       
       
-      for (int i=0; i<30; i++)
+      for (int i=0; i<10; i++)
 	{
 	  ph.SetDirection(XYZVector(sin(pi/180*angle),0,-cos(pi/180*angle)));
-	  ph.SetPosition(XYZPoint(q0.X()+(q1.X()-q0.X())*i/31.0,0,-399));
-	  ph.SetWavelength(630);
+	  ph.SetPosition(XYZPoint(q0.X()+(q1.X()-q0.X())*i/11.0,0,-395));
 	  list_photon.push_back(ph);
 	}
      angle=30;
       
       
-      for (int i=0; i<30; i++)
+      for (int i=0; i<10; i++)
 	{
 	  ph.SetDirection(XYZVector(sin(pi/180*angle),0,-cos(pi/180*angle)));
-	  ph.SetPosition(XYZPoint(q0.X()+(q1.X()-q0.X())*i/31.0,0,-399));
-	  ph.SetWavelength(630);
+	  ph.SetPosition(XYZPoint(q0.X()+(q1.X()-q0.X())*i/11.0,0,-395));
 	  list_photon.push_back(ph);
 	}
       
       angle=40;
       
       
-      for (int i=0; i<30; i++)
+      for (int i=0; i<10; i++)
 	{
 	  ph.SetDirection(XYZVector(sin(pi/180*angle),0,-cos(pi/180*angle)));
-	  ph.SetPosition(XYZPoint(q0.X()+(q1.X()-q0.X())*i/31.0,0,-399));
-	  ph.SetWavelength(630);
+	  ph.SetPosition(XYZPoint(q0.X()+(q1.X()-q0.X())*i/11.0,0,-395));
 	  list_photon.push_back(ph);
 	}
       
@@ -442,6 +474,13 @@ int main(int argc, char *argv[])
   scr<<"    hgr->Draw(\"POL\");"<<endl;
 
 
+  TFile* hfile = (TFile*)gROOT->FindObject("test_barrel3_noairgap.root"); 
+  if (hfile) hfile->Close();
+  hfile = new TFile("test_barrel3_noairgap.root","RECREATE","Spatial resolutions");
+  
+  //TH2D* hxy        = new TH2D("hxy",       "y vs x", 150,-300,300,100,-200,200);
+  TH2D* h2       = new TH2D("h2",      "plane",    801,-400,400,801,-400,400);
+  TH1D* h1       = new TH1D("h1",      "plane_x",    801,-400,400);
 
 
 
@@ -465,6 +504,9 @@ int main(int argc, char *argv[])
 	  
 	  double xx=(*iph).Position().X();
 	  double yy=(*iph).Position().Y();
+	  h2->Fill(xx,yy);
+	  if (fabs(yy)<20) h1->Fill(xx);
+	  
 	  scr<<"    TMarker* t = new TMarker("<<xx<<","<<yy<<",20);"<<endl;
 	  scr<<"    t->SetMarkerColor("
 	     <<(*iph).ColorNumber((*iph).Wavelength())
@@ -486,6 +528,11 @@ int main(int argc, char *argv[])
     
   scr<<"}"<<endl;
   scr.close();
+
+  hfile->Write();
+  
+  hfile->Close();
+  
 
   int icnt = icnt_measured+icnt_flying+icnt_lost+icnt_absorbed;
   cout<<" generated photons: "<<icnt<<endl;

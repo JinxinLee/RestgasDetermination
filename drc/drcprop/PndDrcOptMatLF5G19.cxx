@@ -2,9 +2,9 @@
 // This file belongs to the ray tracing framework
 // for the use with Cherenkov detectors
 //
-// created 2007
+// created 2012
 //-----------------------------------------------------
-#include "PndDrcOptMatF2G12.h"
+#include "PndDrcOptMatLF5G19.h"
 #include <algorithm>
 //#include "PndDrcOptMatAbs.h"
 //
@@ -32,24 +32,24 @@ using std::endl;
 //using std::list;
 
 //----------------------------------------------------------------------
-PndDrcOptMatF2G12::PndDrcOptMatF2G12()
+PndDrcOptMatLF5G19::PndDrcOptMatLF5G19()
 {
-  fName = "F2G12";
+  fName = "LF5G19";
 
-  fB1 = 1.34702224;
-  fB2 = 0.210037763;
-  fB3 = 19.5350768;
-  fC1 = 0.00980850553;
-  fC2 = 0.0471788018;
-  fC3 = 2279.1547;
+  fB1 = 1.34611327;
+  fB2 = 0.142428018;
+  fB3 = 0.900477176;
+  fC1 = 0.0097174385;
+  fC2 = 0.0501911619;
+  fC3 = 111.959703;
 }
 //----------------------------------------------------------------------
-PndDrcOptMatF2G12* PndDrcOptMatF2G12::Clone() const
+PndDrcOptMatLF5G19* PndDrcOptMatLF5G19::Clone() const
 {
-  return new PndDrcOptMatF2G12(*this);
+  return new PndDrcOptMatLF5G19(*this);
 }
 //----------------------------------------------------------------------
-void PndDrcOptMatF2G12::Copy(const PndDrcOptMatF2G12& mat)
+void PndDrcOptMatLF5G19::Copy(const PndDrcOptMatLF5G19& mat)
 {
   fB1  = mat.fB1;
   fC1  = mat.fC1;
@@ -58,19 +58,19 @@ void PndDrcOptMatF2G12::Copy(const PndDrcOptMatF2G12& mat)
   fB3  = mat.fB3;
   fC3  = mat.fC3;
 }//----------------------------------------------------------------------
-PndDrcOptMatF2G12::PndDrcOptMatF2G12(const PndDrcOptMatF2G12& mat)
+PndDrcOptMatLF5G19::PndDrcOptMatLF5G19(const PndDrcOptMatLF5G19& mat)
   : PndDrcOptMatAbs(mat)
 {
-  if (mat.fVerbosity>=1) cout<<"  PndDrcOptMatF2G12::PndDrcOptMatF2G12"
-			    <<"(const PndDrcOptMatF2G12&) "
+  if (mat.fVerbosity>=1) cout<<"  PndDrcOptMatLF5G19::PndDrcOptMatLF5G19"
+			    <<"(const PndDrcOptMatLF5G19&) "
 			    <<mat.fName<<endl;
   Copy(mat);
 }
 //----------------------------------------------------------------------
-PndDrcOptMatF2G12& PndDrcOptMatF2G12::operator=(const PndDrcOptMatF2G12& mat)
+PndDrcOptMatLF5G19& PndDrcOptMatLF5G19::operator=(const PndDrcOptMatLF5G19& mat)
 {
-  if (mat.fVerbosity>=1) cout<<"  PndDrcOptMatF2G12::operator="
-			    <<"(const PndDrcOptMatF2G12&) "
+  if (mat.fVerbosity>=1) cout<<"  PndDrcOptMatLF5G19::operator="
+			    <<"(const PndDrcOptMatLF5G19&) "
 			    <<mat.fName<<endl;
   if (&mat != this)
     {
@@ -80,10 +80,10 @@ PndDrcOptMatF2G12& PndDrcOptMatF2G12::operator=(const PndDrcOptMatF2G12& mat)
   return *this;
 }
 //----------------------------------------------------------------------
-double PndDrcOptMatF2G12::RefIndex(const double lambda) const
+double PndDrcOptMatLF5G19::RefIndex(const double lambda) const
 {
 
-  if (lambda<0) return 1.62; // average value.
+  if (lambda<0) return 1.60; // average value.
 
   double lam2 = lambda/1000 * lambda/1000; // um2
 
@@ -93,7 +93,7 @@ double PndDrcOptMatF2G12::RefIndex(const double lambda) const
 	      fB3*lam2/(lam2-fC3));
 }
 //----------------------------------------------------------------------
-double PndDrcOptMatF2G12::RefIndexDeriv(const double lambda) const
+double PndDrcOptMatLF5G19::RefIndexDeriv(const double lambda) const
 {
   double lam  = lambda/1000;
   double lam2 = lam*lam;
@@ -106,26 +106,25 @@ double PndDrcOptMatF2G12::RefIndexDeriv(const double lambda) const
 
 }
 //----------------------------------------------------------------------
-bool PndDrcOptMatF2G12::AbsorptionFlag(double lambda, double length) const
+bool PndDrcOptMatLF5G19::AbsorptionFlag(double lambda, double length) const
 {
 
   // Rayleigh scattering.
-  // data from Schott data sheets of 10mm sample for F2 not F2G12
-  // normally the Cerium doping shifts the spectrum towards red
+  // data from Schott data sheets of 10mm sample
 
   const static double kLam[14] = {1060,    700,   660,   620,   580,
 				  546,     500,   460,   436,   420,
 				  405,     400,   390,   380};
-  const static double kC[14]   = {9999,   1995,  1662,  1245,  904.1,
-				  661.7, 379.6, 153.7, 58.15, 27.27,
-				  11.78, 8.897,  4.79,  2.52};
+  const static double kC[14]   = { 9999,   3328,  1995,  1424,  1106,
+				   709.3,  365.3, 135.8, 51.02, 23.81,
+				  10.39,  7.768, 4.153, 2};
   // C = -10mm /ln (t_i)
 
   double clarity;
 
   if (lambda>1060)
     {
-      clarity=5000;
+      clarity=9999;
     }
   else if (lambda<380)
     {
@@ -144,7 +143,7 @@ bool PndDrcOptMatF2G12::AbsorptionFlag(double lambda, double length) const
 	}
       if (ibin==-1)
 	{
-	  cerr<<" *** PndDrcOptMatF2G12::absorptionFlag: "
+	  cerr<<" *** PndDrcOptMatLF5G19::absorptionFlag: "
 	      <<"this line should never been hit"<<endl;
 	  exit(EXIT_FAILURE);
 	}
