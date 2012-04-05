@@ -4,6 +4,7 @@
 #include<sstream>
 #include<iostream>
 #include<vector>
+#include<map>
 #include<TVectorT.h>
 #include<TCanvas.h>
 #include<TApplication.h>
@@ -26,6 +27,8 @@
 #include <algorithm>
 #include<fstream>
 #include<TStyle.h>
+#include<TGaxis.h>
+#include<TColor.h>
 
 
 using namespace std;
@@ -44,7 +47,7 @@ void DrawProgressBar(int len, double percent);
 Double_t function_beampipe(Double_t *x, Double_t *par);
 
 void Check_particle_path() {
-	cout << " analysis tool vers. 1.2 " << endl;
+	cout << " analysis tool vers. 1.3 " << endl;
 
 	gROOT->Macro("$VMCWORKDIR/gconfig/rootlogon.C");
 	gSystem->Load("libSds");
@@ -52,6 +55,36 @@ void Check_particle_path() {
 	gSystem->Load("libLmd");
 	gSystem->Load("libLmdReco");
 	gSystem->Load("libLmdTrk");
+
+	TPad foo; // never remove this line :-)))
+	if(1){
+		gROOT->SetStyle("Plain");
+		const Int_t NRGBs = 5;
+		const Int_t NCont = 255;
+		Double_t stops[NRGBs] = { 0.00, 0.34, 0.61, 0.84, 1.00 };
+		Double_t red[NRGBs]   = { 0.00, 0.00, 0.87, 1.00, 0.51 };
+		Double_t green[NRGBs] = { 0.00, 0.81, 1.00, 0.20, 0.00 };
+		Double_t blue[NRGBs]  = { 0.51, 1.00, 0.12, 0.00, 0.00 };
+		TColor::CreateGradientColorTable(NRGBs, stops, red, green, blue, NCont);
+		gStyle->SetNumberContours(NCont);
+		gStyle->SetTitleFont(10*13+2,"xyz");
+		gStyle->SetTitleSize(0.06, "xyz");
+		gStyle->SetTitleOffset(0.8,"y");
+		gStyle->SetTitleOffset(1.3,"z");
+		gStyle->SetLabelFont(10*13+2,"xyz");
+		gStyle->SetLabelSize(0.06,"xyz");
+		gStyle->SetLabelOffset(0.009,"xyz");
+		gStyle->SetPadBottomMargin(0.16);
+		gStyle->SetPadTopMargin(0.16);
+		gStyle->SetPadLeftMargin(0.10);
+		gStyle->SetPadRightMargin(0.10);
+		gStyle->SetOptTitle(1);
+		gStyle->SetOptStat(1);
+		gROOT->ForceStyle();
+		gStyle->SetFrameFillColor(0);
+	   	gStyle->SetFrameFillStyle(0);
+	   	TGaxis::SetMaxDigits(3);
+	}
 
 	// ------------------------------------------------------------------------
 
@@ -124,6 +157,7 @@ void Check_particle_path() {
 			1000, -5e-3, 5e-3);
 	TH2* hist_mom_z = new TH2F("hist_mom_z", "hist_mom_z", 150, 0, 150,
 				3000, -1.e-5, 1.e-5);
+	TH1* hist_n_events = new TH1F("hist_n_events", "hist_n_events", 150, 0, 150);
 
 	//TCanvas temp_canvas("temp_canvas", "canvas for initialization", 100, 100);
 	//temp_canvas.cd();
@@ -161,13 +195,18 @@ void Check_particle_path() {
 	// store the x and z measurements for a later fit of a graph
 	vector<double> pos_x;
 	vector<double> pos_z;
-
+	map<int,int> hits_z; // count the hits per plane
+	map<int,TH2*> hists_ang_acceptance; // angular acceptance as a function of z
+	map<int,TH2*>::iterator hists_ang_acceptance_it, hists_ang_acceptance_itnorm;
+	// create the histogram to normalize to.
+	hists_ang_acceptance[-1] = new TH2F("hists_ang_acceptance", "generated angular distribution",200, -10, 10, 200, -10, 10);//, 200, 2., 10., 150., -3.141, 3.141);
+	hists_ang_acceptance_itnorm = hists_ang_acceptance.find(-1);
 	// optionally read existing values in order to create a mean graph
 	// for several scenarios. If you want to combine values, put the
 	// x_z_values_out.dat into the next folder to analyze and name it
 	// there as x_z_values_in.dat
 	ifstream x_z_values_in("x_z_values_in.dat");
-	if (x_z_values_in.is_open()){
+	if (nEvents <= 1000 && x_z_values_in.is_open()){
 		cout << " ************ reading x_z_values_in.dat ************ " << endl;
 		double x, z;
 		int nlines(0);
@@ -183,7 +222,7 @@ void Check_particle_path() {
 		cout << " read " << nlines << " lines "<< endl;
 	}
 
-	for (Int_t j = 0; j < nEvents; j++) {
+	for (Int_t j = 0; j < nEvents ; j++) {
 		DrawProgressBar(50, (j + 1) / ((double) nEvents));
 		tMC.GetEntry(j);
 		tdigiHits.GetEntry(j);
@@ -197,7 +236,9 @@ void Check_particle_path() {
 			if (mctrk->IsGeneratorCreated()) {//mcID == -2212) {
 				npbar++;
 				//  if(nParticles!=4) cout<<"For event #"<<j<<" mcID="<<mcID<<endl;
-				TVector3 MomMC = mctrk->GetMomentum();
+				TVector3 momMC = mctrk->GetMomentum();
+				hists_ang_acceptance[-1]->Fill(momMC.X()/momMC.Z()*1e3, momMC.Y()/momMC.Z()*1e3);
+				//hists_ang_acceptance[-1]->Fill(MomMC.Theta()*1e3, MomMC.Phi());
 			}
 		}
 		if (0 && npbar != 1)
@@ -229,8 +270,20 @@ void Check_particle_path() {
 								<< " warning: calculated plane or sensor is wrong: plane "
 								<< plane << endl;
 					} else {
-						pos_x.push_back(_mcpoint.X());
-						pos_z.push_back(_mcpoint.Z());
+						// is it an unknown plane so far?
+						if (hists_ang_acceptance.find(plane) == hists_ang_acceptance.end()){
+							stringstream hist_name;
+							stringstream hist_title;
+							hist_name << "hists_ang_acceptance_plane_" << plane;
+							hist_title << "angular acceptance at z = " << plane*10. << " cm " << endl;
+							hists_ang_acceptance[plane] = new TH2F(hist_name.str().c_str(), hist_title.str().c_str(),
+									200, -10, 10, 200, -10, 10);//200, 2., 10., 150., -3.141, 3.141);
+						}
+						hists_ang_acceptance[plane]->Fill(momMC.X()/momMC.Z()*1e3, momMC.Y()/momMC.Z()*1e3);//(momMC.Theta()*1e3, momMC.Phi());
+						if (j < 1000){
+							pos_x.push_back(_mcpoint.X());
+							pos_z.push_back(_mcpoint.Z());
+						}
 						hist_xz->Fill(plane, _mcpoint.X());
 						hist_yz->Fill(plane, _mcpoint.Y());
 						hist_dxdz_z->Fill(plane, _mctrack.X() / _mctrack.Z());
@@ -238,6 +291,7 @@ void Check_particle_path() {
 						hist_mom_z->Fill(plane, (_mctrack.Mag()-momMC.Mag())/momMC.Mag());
 						//hist_xy [plane]        ->Fill(x_in,y_in);
 						//hist_theta_in [plane]        ->Fill(ptheta_in);
+						hits_z[plane]++;
 					}
 					nSdsHits++;
 				}
@@ -249,7 +303,7 @@ void Check_particle_path() {
 	}
 
 	ofstream x_z_values_out("x_z_values_out.dat");
-	if (x_z_values_out.is_open()){
+	if (nEvents <= 1000 && x_z_values_out.is_open()){
 		cout << " ************ writing x_z_values_out.dat ************ " << endl;
 		for (unsigned int iline = 0; iline < pos_x.size(); iline++){
 			x_z_values_out << pos_x[iline] << " " << pos_z[iline] << "\n";
@@ -320,7 +374,64 @@ void Check_particle_path() {
 	//canvas5->Divide(2,2);
 	canvas5->cd(0);
 	hist_mom_z->Draw("COLZ");
-	canvas5->Print("beampipe_results.ps)");
+	canvas5->Print("beampipe_results.ps(");
+	TCanvas* canvas7 = new TCanvas("canvas6", "canvas6", 1200, 400);
+	gPad->SetLeftMargin(0.1);
+	gPad->SetRightMargin(0.05);
+	canvas7->cd(0);
+	// check the acceptance of the beam pipe as a function of z
+	// normalize to the plane before
+	map<int, int>::iterator hits_z_it, hits_z_it_next;
+	for (hits_z_it = hits_z.begin(); hits_z_it != hits_z.end(); hits_z_it++){
+		hits_z_it_next = hits_z_it;
+		hits_z_it_next++;
+		if (hits_z_it_next == hits_z.end()) break;
+		if (hits_z_it->second == 0) continue;
+		if (hits_z_it_next->first != hits_z_it->first+1){
+			cout << " sorry, entries are not sorted! " << hits_z_it_next->first << " != " << hits_z_it->first << " +1 "<< endl;
+			continue;
+		}
+		hist_n_events->Fill(hits_z_it_next->first, ((double)hits_z_it_next->second)/((double)hits_z_it->second));
+	}
+	hist_n_events->GetXaxis()->SetTitle("z [dm]");
+	hist_n_events->GetYaxis()->SetTitle("relative acceptance");
+	hist_n_events->Draw("hist text");
+	canvas7->Print("beampipe_results.ps(");
+
+	TCanvas* canvas8 = new TCanvas("canvas8", "canvas8", 800, 400);
+	canvas8->Divide(2,1);
+	canvas8->cd(1);
+	gPad->SetLeftMargin(0.16);
+	gPad->SetRightMargin(0.16);
+	canvas8->cd(1);
+	hists_ang_acceptance_itnorm->second->GetXaxis()->SetTitle("dX/dZ x 10^{3}");
+	hists_ang_acceptance_itnorm->second->GetYaxis()->SetTitle("dY/dZ x 10^{3}");
+	hists_ang_acceptance_itnorm->second->Draw("COLZ");
+	canvas8->cd(2);
+	gPad->SetLeftMargin(0.16);
+	gPad->SetRightMargin(0.16);
+
+	// check the acceptance of the beam pipe as a function of z
+	// normalize to the plane -1
+	for (hists_ang_acceptance_it = hists_ang_acceptance.begin();
+			hists_ang_acceptance_it != hists_ang_acceptance.end();
+			hists_ang_acceptance_it++){\
+		if (hists_ang_acceptance_it == hists_ang_acceptance_itnorm){
+			continue;
+		}
+		canvas8->cd(2);
+		hists_ang_acceptance_it->second->Divide(hists_ang_acceptance_itnorm->second);
+		hists_ang_acceptance_it->second->SetMaximum(1.);
+		hists_ang_acceptance_it->second->GetXaxis()->SetTitle("dX/dZ x 10^{3}");
+		hists_ang_acceptance_it->second->GetYaxis()->SetTitle("dY/dZ x 10^{3}");
+		hists_ang_acceptance_it->second->Draw("COLZ");
+		canvas8->Update();
+		canvas8->Print("beampipe_results.ps(");
+		canvas8->Print("beampipe_acceptance.gif+");
+	}
+	canvas8->Clear();
+	canvas8->Print("beampipe_results.ps)");
+
 
 	// convert to pdf
 	cout << "converting to pdf " << system("ps2pdf beampipe_results.ps")
@@ -377,8 +488,8 @@ Double_t function_beampipe(Double_t *x, Double_t *par)
 }
 
 int main() {
-	TApplication myapp("myapp", 0, 0);
+	//TApplication myapp("myapp", 0, 0);
 	Check_particle_path();
-	myapp.Run();
+	//myapp.Run();
 	return 0;
 }
