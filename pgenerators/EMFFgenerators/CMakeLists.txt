@@ -5,7 +5,6 @@
 set(INCLUDE_DIRECTORIES
 ${ROOT_INCLUDE_DIR} 
 ${CMAKE_SOURCE_DIR}/base 
-${CMAKE_SOURCE_DIR}/pgenerators/mzdkgenerators
 ${CMAKE_SOURCE_DIR}/fairtools
 ${CMAKE_SOURCE_DIR}/pgenerators/EMFFgenerators
 
