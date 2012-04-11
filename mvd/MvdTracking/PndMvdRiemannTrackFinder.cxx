@@ -22,7 +22,12 @@ void PndMvdRiemannTrackFinder::AddHits(TClonesArray* hits, Int_t branchId)
 	for (int i = 0; i < hits->GetEntries(); i++){
 		FairHit* myHit = (FairHit*)(hits->At(i));
 		fHits.push_back(myHit);
-		std::pair<int,int> myID(branchId, i);
+		FairLink myID;
+		if (myHit->GetEntryNr().GetIndex() < 0){
+			myID = FairLink(branchId, i);
+		}
+		else
+			myID = myHit->GetEntryNr();
 		fMapHitToID[fHits.size()-1]=myID;
 		fMapIDtoHit[myID] = fHits.size()-1;
 		PndSdsHit* tempHit=(PndSdsHit*)(hits->At(i));
@@ -96,7 +101,7 @@ void PndMvdRiemannTrackFinder::AddHits(TClonesArray* hits, Int_t branchId)
 			std::cout << "-E- Unassigned Layer: " << geoPath << std::endl;
 		}
     
-		if (fVerbose > 1) std::cout << "fMapHitToId: " << fHits.size() -1 << " : " << myID.first << "/" << myID.second << " "
+		if (fVerbose > 1) std::cout << "fMapHitToId: " << fHits.size() -1 << " : " << myID << " "
       << tempHit->GetX() << "/" << tempHit->GetY() << "/" << tempHit->GetZ() << " Layer: " << Layer << std::endl;
 		fLayers[Layer].push_back(fHits.size()-1);  //putting hit in layers array
 	}
@@ -119,9 +124,8 @@ void PndMvdRiemannTrackFinder::FindTracks()
     
 		if (fVerbose > 1){
 			std::cout << "------------------------------------" << std::endl;
-			std::cout << "Start Plane from Points: " << fMapHitToID[StartTrack[0]].first << "/" << fMapHitToID[StartTrack[0]].second << " "
-      << fMapHitToID[StartTrack[1]].first << "/" << fMapHitToID[StartTrack[1]].second << " "
-      << fMapHitToID[StartTrack[2]].first << "/" << fMapHitToID[StartTrack[2]].second << std::endl;
+			std::cout << "Start Plane from Points: " << fMapHitToID[StartTrack[0]] << " "
+					  << fMapHitToID[StartTrack[1]] << " "  << fMapHitToID[StartTrack[2]] << std::endl;
 		}
 		if (TrackExists(StartTrack) == true){
 			if (fVerbose > 1) std::cout << "Track exists already!" << std::endl;
@@ -150,7 +154,7 @@ void PndMvdRiemannTrackFinder::FindTracks()
 				testHit=fLayers[Layer][testHitInLayer];
         
 				if (fVerbose > 2) std::cout << "Layer: " << Layer << " hitInLayer: " << testHitInLayer << " hitID " << testHit << " ";
-				if (fVerbose > 1) std::cout << "Point " << fMapHitToID[testHit].first << "/" << fMapHitToID[testHit].second << " ";
+				if (fVerbose > 1) std::cout << "Point " << fMapHitToID[testHit] << " ";
 				if (CheckHitInTrack(StartTrack, testHit)) continue;
 				if (CheckHitDistance(StartTrack[0], testHit)!=true) continue;
 				if (CheckHitDistance(StartTrack[1], testHit)!=true) continue;
@@ -183,7 +187,7 @@ void PndMvdRiemannTrackFinder::FindTracks()
 		{
 			std::vector<int> hits = fHitsTooClose[trackId];
 			for (unsigned int ind = 0; ind < hits.size(); ind++){
-				if (fVerbose > 1) std::cout << "Too Close Point " << hits[ind] << ": " << fMapHitToID[hits[ind]].first << "/" << fMapHitToID[hits[ind]].second ;
+				if (fVerbose > 1) std::cout << "Too Close Point " << hits[ind] << ": " << fMapHitToID[hits[ind]];
 				if (CheckHitInTrack(StartTrack, hits[ind])) continue;
 				PndRiemannHit actHit(fHits[hits[ind]]);
 				if (CheckRiemannHit(&actTrack, &actHit)!= true) continue;
@@ -211,7 +215,7 @@ void PndMvdRiemannTrackFinder::FindTracks()
 			for (unsigned int i = 0; i < StartTrack.size(); i++)
 			{
 				if (fVerbose > 0)
-					std::cout << " " << fMapHitToID[StartTrack[i]].first << "/" << fMapHitToID[StartTrack[i]].second;
+					std::cout << " " << fMapHitToID[StartTrack[i]];
 			}
 			if (fVerbose > 0) {
 				TVectorD myOrig = actTrack.orig();
@@ -232,7 +236,7 @@ void PndMvdRiemannTrackFinder::FindTracks()
     
 		for (unsigned int p = 0; p < TrackHits.size(); p++){
 			if (TrackHits[p].hitID() > -1){
-				myTrackCand.AddHit(fMapHitToID[TrackHits[p].hitID()].first, fMapHitToID[TrackHits[p].hitID()].second, TrackHits[p].s());
+				myTrackCand.AddHit(fMapHitToID[TrackHits[p].hitID()], TrackHits[p].s());
 			}
 		}
 		fTrackCand.push_back(myTrackCand);

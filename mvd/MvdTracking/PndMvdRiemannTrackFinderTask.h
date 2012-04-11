@@ -6,6 +6,8 @@
 #include "TH2F.h"
 #include "PndGeoHandling.h"
 
+#include "FairTSBufferFunctional.h"
+
 #include <vector>
 
 class PndMvdRiemannTrackFinderTask : public FairTask
@@ -40,6 +42,9 @@ public:
     void SetPersistence(Bool_t val){ fPersistence = val;};
   //  void SetGeoH(PndGeoHandling geoH){ fGeoH=geoH;};
 
+    void FillHitArray();
+    void InitHitArray(TString branchName);
+
 private:
 	std::vector<TString> fHitBranch;
     TString fTrackBranch;
@@ -65,6 +70,9 @@ private:
 
 	Bool_t fInitDone;
 	Bool_t fPersistence;
+
+	BinaryFunctor* fStopFunctor;
+	BinaryFunctor* fTimeGapFunctor;
 
 	//PndGeoHandling* fGeoH;
 

@@ -12,6 +12,7 @@
 #include "FairRootManager.h"
 #include "FairRun.h"
 #include "FairRuntimeDb.h"
+#include "FairRunAna.h"
 
 // PndMvd includes
 #include "PndTrackCand.h"
@@ -51,6 +52,12 @@ InitStatus PndMvdRiemannTrackFinderTask::Init()
     }
 
   // Get input array
+//  if (FairRunAna::Instance()->IsTimeStamp()){
+//	  if (fTimeBasedHitBranch.size() == 0){
+//		  std::cout << "-W- PndMvdRiemannTrackFinderTask::Init: " << "No Branch Names given with AddHitBranch(TString branchName)! Standard BranchNames taken!" << std::endl;
+//		  fTimeBasedHitBranch.push_back(FairTSBufferParameters("MVDHitsPixel", new TimeGap(), 10));
+//	  }
+//  }
   if (fHitBranch.size() == 0){
 	  std::cout << "-W- PndMvdRiemannTrackFinderTask::Init: " << "No Branch Names given with AddHitBranch(TString branchName)! Standard BranchNames taken!" << std::endl;
 	  fHitBranch.push_back("MVDHitsPixel");
@@ -58,12 +65,7 @@ InitStatus PndMvdRiemannTrackFinderTask::Init()
   }
 
   for (int i = 0; i < (int)fHitBranch.size(); i++){
-	  TClonesArray* tempArray = (TClonesArray*) ioman->GetObject(fHitBranch[i]);
-	  if (tempArray == 0){
-		  std::cout << "-W- PndMvdRiemannTrackFinderTask::Init: " << "No hitArray for BranchName " << fHitBranch[i].Data() << std::endl;
-		  return kERROR;
-	  }
-	  fHitArray.push_back(tempArray);
+	  InitHitArray(fHitBranch[i]);
   }
 
 
@@ -78,6 +80,9 @@ InitStatus PndMvdRiemannTrackFinderTask::Init()
 //  ioman->Register("MVDRiemannTrack", "MVD", fRiemannTrackArray, kTRUE);
 
 
+  fStopFunctor= new StopTime();
+  fTimeGapFunctor = new TimeGap();
+
   std::cout << "-I- PndMvdRiemannTrackFinderTask: Initialisation successfull" << std::endl;
   fInitDone = kTRUE;
   return kSUCCESS;
@@ -90,6 +95,14 @@ void PndMvdRiemannTrackFinderTask::AddHitBranch(TString branchName)
 	else
 		std::cout << "-W- AddHitBranch has to be called before the Init() of the task!" << std::endl;
 }
+
+//void PndMvdRiemannTrackFinderTask::AddHitBranch(FairTSBufferParameters param)
+//{
+//	if (fInitDone == kFALSE)
+//		fTimeBasedHitBranch.push_back(param);
+//	else
+//		std::cout << "-W- AddHitBranch has to be called before the Init() of the task!" << std::endl;
+//}
 
 // -----   Public method Exec   --------------------------------------------
 void PndMvdRiemannTrackFinderTask::Exec(Option_t* opt)
@@ -105,6 +118,8 @@ void PndMvdRiemannTrackFinderTask::Exec(Option_t* opt)
 
   PndMvdRiemannTrackFinder trackFinder;
   trackFinder.SetVerbose(fVerbose);
+
+  FillHitArray();
 
   FairRootManager *ioman = FairRootManager::Instance();
 
@@ -134,6 +149,7 @@ void PndMvdRiemannTrackFinderTask::Exec(Option_t* opt)
 
   for (int i = 0; i < trackFinder.NTracks(); i++){
 	  PndTrackCand* myCand = new ((*fTrackCandArray)[i])PndTrackCand(trackFinder.GetTrackCand(i));
+	  std::cout << "Track " << i << std::endl;
 	  myCand->CalcTimeStamp();
 	  if (fVerbose > 0)trackFinder.GetTrack(i).Print();
 	  //PndRiemannTrack myTrack = trackFinder.GetTrack(i);
@@ -160,6 +176,37 @@ void PndMvdRiemannTrackFinderTask::FinishEvent()
 	fTrackCandArray->Delete();
 	fTrackArray->Delete();
 //	fRiemannTrackArray->Delete();
+}
+
+void PndMvdRiemannTrackFinderTask::InitHitArray(TString branchName)
+{
+	  TClonesArray* tempArray = (TClonesArray*) FairRootManager::Instance()->GetObject(branchName);
+	  if (tempArray == 0){
+		  std::cout << "-W- PndMvdRiemannTrackFinderTask::Init: " << "No hitArray for BranchName " << branchName.Data() << std::endl;
+	  }
+	  fHitArray.push_back(tempArray);
+}
+
+void PndMvdRiemannTrackFinderTask::FillHitArray()
+{
+	Double_t eventTime = -1;
+	fHitArray[0]->Delete();
+	fHitArray[1]->Delete();
+	if (FairRunAna::Instance()->IsTimeStamp()){
+		  fHitArray[0] = FairRootManager::Instance()->GetData("MVDHitsPixel", fTimeGapFunctor, 10); //FairRootManager::Instance()->GetEventTime() +
+		  std::cout << "PixelHits: " << fHitArray[0]->GetEntriesFast() << std::endl;
+		  if (fHitArray[0]->GetEntriesFast() > 1){
+			  FairTimeStamp* data = (FairTimeStamp*)fHitArray[0]->At(1);
+			  eventTime = data->GetTimeStamp();
+			  std::cout << "EventTime: " << eventTime << std::endl;
+			  fHitArray[1] = FairRootManager::Instance()->GetData("MVDHitsStrip", fStopFunctor, eventTime - 10, fStopFunctor, eventTime + 10);
+			  std::cout << "StripHits: " << fHitArray[1]->GetEntriesFast() << std::endl;
+		  }
+		}
+		else{
+//		  fHitArray[0] = (TClonesArray*)FairRootManager::Instance()->GetObject(fHitBranch[0]);
+//		  fHitArray[1] = (TClonesArray*)FairRootManager::Instance()->GetObject(fHitBranch[1]);
+		}
 }
 
 ClassImp(PndMvdRiemannTrackFinderTask);
