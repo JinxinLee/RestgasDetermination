@@ -21,14 +21,16 @@
 // Root Class Headers ----------------
 #include "TObject.h"
 
+#include "FairLink.h"
+
 #include <iostream>
 #include <vector>
 #include <map>
 
-class PndTrackCandHit : public TObject{
+class PndTrackCandHit : public FairLink{
 public:
-  PndTrackCandHit():fHitId(-1), fDetId(-1), fRho(0){}
-  PndTrackCandHit(Int_t detId, Int_t hitId, Double_t rho):fHitId(hitId), fDetId(detId), fRho(rho){}
+  PndTrackCandHit():FairLink(), fRho(0){}
+  PndTrackCandHit(Int_t detId, Int_t hitId, Double_t rho):FairLink(detId, hitId), fRho(rho){}
   ~PndTrackCandHit() {}
   bool operator< (const PndTrackCandHit& rhs) const
   {return fRho<rhs.fRho;};
@@ -39,23 +41,21 @@ public:
   bool operator>= (const PndTrackCandHit& rhs) const
   {return fRho>=rhs.fRho;};
   bool operator== (const PndTrackCandHit& hit) const {
-    return (fHitId == hit.fHitId && fDetId == hit.fDetId);
+    return ( FairLink::operator==((FairLink)hit) && fRho == hit.fRho);
   }
   bool operator!= (const PndTrackCandHit& hit) const {
-    return (fHitId != hit.fHitId || fDetId != hit.fDetId);
+    return (!(FairLink::operator==(hit)));
   }
-  Int_t GetHitId()const {return fHitId;}
-  Int_t GetDetId()const {return fDetId;}
+  Int_t GetHitId()const {return GetIndex();}
+  Int_t GetDetId()const {return GetType();}
   Double_t GetRho()const {return fRho;}
   
   void Print();
   
   private :
-  Int_t fHitId;
-  Int_t fDetId;
   Double_t fRho;		///< sorting parameter
   
-  ClassDef(PndTrackCandHit,1);
+  ClassDef(PndTrackCandHit,2);
 };
 
 

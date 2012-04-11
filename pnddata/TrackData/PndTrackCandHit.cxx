@@ -2,8 +2,8 @@
 #include "PndTrackCandHit.h"
 
 void PndTrackCandHit::Print(){
-  std::cout << "hit " << fHitId << " | det " 
-	    << fDetId << " | rho " << fRho << std::endl;
+	FairLink::Print();
+	std::cout << " Rho: " << fRho << std::endl;
 }
 
 

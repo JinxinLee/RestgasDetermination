@@ -104,10 +104,7 @@ void PndTrackCand::CalcTimeStamp()
 		Int_t type = myLink.GetType();
 		
 		if (fVerbose > 1){
-			std::cout << "Links: ";
-			myLink.Print();
-			std::cout << std::endl;
-			std::cout << "type: " << type << std::endl;
+			std::cout << "Links: " << myLink << std::endl;
 		}
 		
 		if (type > -1){
@@ -116,8 +113,7 @@ void PndTrackCand::CalcTimeStamp()
 
 			TClonesArray* myArray = (TClonesArray*)FairRootManager::Instance()->GetObject(branchName);
 			if (myArray > 0){
-				FairTimeStamp* myData = (FairTimeStamp*)(myArray->At(myLink.GetIndex()));
-				//std::cout << "TimeStamp: " << myData->GetTimeStamp() << " / " << myData->GetTimeStampError() << std::endl;
+				FairTimeStamp* myData = (FairTimeStamp*)(FairRootManager::Instance()->GetLinkData(myLink));
 				if (myData > 0){
 					Double_t var = myData->GetTimeStampError() * myData->GetTimeStampError();
 					timestamp += myData->GetTimeStamp()/var;
@@ -134,6 +130,7 @@ void PndTrackCand::CalcTimeStamp()
 		}
 	}
 	if (timestamperror > 0){
+		//std::cout << "TrackTimeStamp: " << timestamp/timestamperror << " +/- " << sqrt(timestamperror/counts) << " counts " << counts << std::endl;
 		SetTimeStamp(timestamp/timestamperror);
 		SetTimeStampError(sqrt(timestamperror/counts));
 	}
