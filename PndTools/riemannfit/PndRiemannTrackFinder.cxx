@@ -13,7 +13,7 @@ fMinPointDist(1), fUseZeroPos(true), fCurvDiff(0.05), fDipDiff(0.05),fMinNumberO
 		TVector3 dpos(0.1,0.1,0.1);
 		FairHit* ZeroHit = new FairHit(-1, pos, dpos, -1);
 		fHits.push_back(ZeroHit);
-		std::pair<int,int> myID(-1, -1);
+		FairLink myID;
 		fMapHitToID[fHits.size()-1]=myID;
 		fMapIDtoHit[myID] = fHits.size()-1;
 	}
@@ -30,7 +30,13 @@ void PndRiemannTrackFinder::AddHits(std::vector<FairHit*> hits, Int_t branchId)
 	Int_t startSize = 0; //= fHits.size();
 	for (int i = 0; i < hits.size(); i++){
 		fHits.push_back(hits[i]);
-		std::pair<int,int> myID(branchId, startSize + i);
+		FairHit* myHit = fHits[i];
+		FairLink myID;
+		if (myHit->GetEntryNr().GetIndex() < 0){
+			myID = FairLink(branchId, startSize + i);
+		}
+		else
+			myID = myHit->GetEntryNr();
 		fMapHitToID[fHits.size()-1]=myID;
 		fMapIDtoHit[myID] = fHits.size()-1;
 	}
@@ -42,7 +48,12 @@ void PndRiemannTrackFinder::AddHits(TClonesArray* hits, Int_t branchId)
 	for (int i = 0; i < hits->GetEntries(); i++){
 		FairHit* myHit = (FairHit*)(hits->At(i));
 		fHits.push_back(myHit);
-		std::pair<int,int> myID(branchId, startSize + i);
+		FairLink myID;
+		if (myHit->GetEntryNr().GetIndex() < 0){
+			myID = FairLink(-1, -1, branchId, startSize + i, 1);
+		}
+		else
+			myID = myHit->GetEntryNr();
 		fMapHitToID[fHits.size()-1]=myID;
 		fMapIDtoHit[myID] = fHits.size()-1;
 	}
@@ -120,7 +131,7 @@ void PndRiemannTrackFinder::FindTracks()
 				std::cout << "Hits in Track: ";
 				for (int i = 0; i < StartTrack.size(); i++)
 				{
-					std::cout << " " << fMapHitToID[StartTrack[i]].first << "/" << fMapHitToID[StartTrack[i]].second;
+					std::cout << " " << fMapHitToID[StartTrack[i]];
 				}
 				TVectorD myOrig = actTrack.orig();
 				std::cout << " numHits: " << actTrack.getNumHits() << std::endl;
@@ -137,7 +148,7 @@ void PndRiemannTrackFinder::FindTracks()
 		std::vector<PndRiemannHit> TrackHits = fTracks[n].getHits();
 
 		for (unsigned int p = 0; p < TrackHits.size(); p++){
-			myTrackCand.AddHit(fMapHitToID[TrackHits[p].hitID()].first, fMapHitToID[TrackHits[p].hitID()].second, TrackHits[p].s());
+			myTrackCand.AddHit(fMapHitToID[TrackHits[p].hitID()], TrackHits[p].s());
 		}
 		fTrackCand.push_back(myTrackCand);
 
@@ -244,7 +255,7 @@ bool PndRiemannTrackFinder::CheckZeroPassing(std::vector<int> hitIds, int hit)
 {
 	int zeroPresent = -1;
 	for (int i = 0; i < hitIds.size(); i++){
-		if (fMapHitToID[hitIds[i]].first < 0){
+		if (fMapHitToID[hitIds[i]].GetIndex() < 0){
 			zeroPresent = i;
 		}
 	}

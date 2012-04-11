@@ -48,12 +48,12 @@ protected:
 	std::vector<FairHit*> fHits;											///< Vector of all FairHits used for track finding (fitting)
 	std::vector<PndRiemannTrack> fTracks;									///< Resulting Riemann Tracks
 	std::vector<std::vector<Int_t> > fHitsInTracks;							///< Vector of indizes which hits where used in which track
-	std::vector<PndTrackCand> fTrackCand;
+	std::vector<PndTrackCand> fTrackCand;									///< List of track candidates
 	std::vector< std::pair<double,double> > fCurvAndDipOfCand;  			///< Curvature and dip of fPndTrackCand
 	std::vector<PndTrackCand> fMergedTrackCand;
 	std::vector< std::vector<int> > fHitsTooClose;							///< matrix of TrackNr and hits which are too close to one of the three starting points
-	std::map<int, std::pair<int,int> > fMapHitToID;						///< map to convert the list of hits back into a detID and hitID
-	std::map<std::pair<unsigned int, unsigned int>, int > fMapIDtoHit; 	///<map to convert the list of detID/hitID hits into the list of hits for track finding
+	std::map<int, FairLink > fMapHitToID;									///< map to convert the list of hits back into a FairLink
+	std::map<FairLink, int > fMapIDtoHit; 									///<map to convert the list of detID/hitID hits into the list of hits for track finding
 	double fMaxPlaneDist;													///< Distance cut between new point and riemann plane
 	double fMaxSZDist;														///< Distance cut between s-z coordinate of a new point and the sz-fit of the hits in the track
 	double fMinPointDist;													///< Minimum distance between two points to use them as point for the base plane
