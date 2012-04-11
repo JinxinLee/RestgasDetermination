@@ -90,40 +90,47 @@ void PndMCTestDataCrawler::Exec(Option_t* opt) {
 	std::cout << "PndMCTestDataCrawler::Exec eventNr: " << fEventNr << std::endl;
 	for (int i = 0; i < fInputData->GetEntriesFast(); i++){
 		FairTimeStamp* hit = (FairTimeStamp*)fInputData->At(i);
-//		std::cout << "Hit MC EventTime: " << hit->GetTimeStamp() << std::endl;
+		std::cout << std::endl;
+		std::cout << "HitTime: " << hit->GetTimeStamp() << std::endl;
 
 		FairMultiLinkedData* linkData = (FairMultiLinkedData*)hit; //fInputData->At(i);
 		FairMultiLinkedData result = fCrawler->GetInfo(FairMultiLinkedData(*linkData), fStopBranch.Data());
 
-//		std::cout << "SourceHit: " << *linkData << std::endl;
-//		std::cout << "result: " << result << std::endl;
+		std::cout << "StartLinks: " << *linkData << std::endl;
+		std::cout << "result: " << result << std::endl;
 
 		FairEventHeader* evtHeader;
 
 		for (int j = 0; j < result.GetNLinks(); j++){
 //			std::cout << "BranchName of Result: " << FairRootManager::Instance()->GetBranchName(result.GetLink(j).GetType()) << std::endl;
+			if (result.GetNLinks() == 1){
+				TObject* data = fCrawler->GetEntry(result.GetLink(j));
+				if ( data != 0){
+					if (result.GetLink(j).GetType() == FairRootManager::Instance()->GetBranchId("EventHeader.")){
+						 evtHeader = (FairEventHeader*)data;
+					}
+					else {
+						Int_t entryNr = result.GetLink(j).GetEntry();
+						TObject* timeArray = (TClonesArray*)FairRootManager::Instance()->GetObject("EventHeader.");
+						fEventHeaderBranch->GetEntry(entryNr);
+						evtHeader = (FairEventHeader*)timeArray;
+					}
 
-			TObject* data = fCrawler->GetEntry(result.GetLink(j));
-			if ( data != 0){
-				if (result.GetLink(j).GetType() == FairRootManager::Instance()->GetBranchId("EventHeader.")){
-					 evtHeader = (FairEventHeader*)data;
+	//				PndSdsMCPoint* myPoint = (PndSdsMCPoint*)fCrawler->GetEntry(result.GetLink(j));
+	//				//std::cout << j << " : " << myPoint->GetTimeStamp() << std::endl;
+					fTimeResHisto->Fill(hit->GetTimeStamp() - evtHeader->GetEventTime());
+//					if ((hit->GetTimeStamp() - evtHeader->GetEventTime()) > 10){
+//						std::cout << "TimeDifference: " << hit->GetTimeStamp() << " - " << evtHeader->GetEventTime() << " = " << hit->GetTimeStamp() - evtHeader->GetEventTime() << std::endl;
+//						std::cout << *linkData << std::endl;
+//						for (int k = 0; k < linkData->GetNLinks(); k++){
+//							if (linkData->GetLink(k).GetType() != FairRootManager::Instance()->GetBranchId("EventHeader.")){
+//								PndSdsMCPoint* myTSData = (PndSdsMCPoint*)FairRootManager::Instance()->GetLinkData(linkData->GetLink(k));
+//								if (myTSData)
+//									std::cout << *myTSData << std::endl;
+//							}
+//						}
+//					}
 				}
-				else {
-					Int_t entryNr = result.GetLink(j).GetEntry();
-					TObject* timeArray = (TClonesArray*)FairRootManager::Instance()->GetObject("EventHeader.");
-					fEventHeaderBranch->GetEntry(entryNr);
-					evtHeader = (FairEventHeader*)timeArray;
-				}
-
-//				PndSdsMCPoint* myPoint = (PndSdsMCPoint*)fCrawler->GetEntry(result.GetLink(j));
-//				//std::cout << j << " : " << myPoint->GetTimeStamp() << std::endl;
-//				std::cout << "TimeDifference: " << hit->GetTimeStamp() << " - " << evtHeader->GetEventTime() << " = " << hit->GetTimeStamp() - evtHeader->GetEventTime() << std::endl;
-				fTimeResHisto->Fill(hit->GetTimeStamp() - evtHeader->GetEventTime());
-//				if ((hit->GetTimeStamp() - myPoint->GetTimeStamp()) > 10){
-//					std::cout << "Time Difference: " << (hit->GetTimeStamp() - myPoint->GetTimeStamp()) << std::endl;
-//					std::cout << "MCPoint: " << *myPoint << std::endl;
-//					std::cout << "MVDHit: " << *hit << std::endl;
-//				}
 			}
 		}
 
