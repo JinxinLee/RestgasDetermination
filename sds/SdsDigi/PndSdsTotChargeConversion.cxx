@@ -112,7 +112,7 @@ Double_t PndSdsTotChargeConversion::GetTimeStamp(Double_t time, Double_t Charge,
   
 	Double_t digitizedtime = DigitizeTime(totaltime);
   
-//  if (fVerboseLevel>2){
+  if (fVerboseLevel>2){
     std::cout<<"  +++threshold: "<< Qt <<" "<<std::endl;
     std::cout<<"  charge: "<< Charge <<" "<<std::endl;
     std::cout<<"  time since event: "<< time <<" "<<std::endl;
@@ -121,7 +121,7 @@ Double_t PndSdsTotChargeConversion::GetTimeStamp(Double_t time, Double_t Charge,
     std::cout<<"  total time: "<< totaltime <<std::endl;
     std::cout<<"  time step: "<< ftimestep<<std::endl;
     std::cout<<"  digitized total time:"<< digitizedtime << "+++"<<std::endl;
-//  }
+  }
   return digitizedtime ; //digitalisiert
   //	 return totaltime; // nicht digitalisiert
 }

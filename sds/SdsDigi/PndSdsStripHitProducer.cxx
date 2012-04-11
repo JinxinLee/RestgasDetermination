@@ -202,7 +202,7 @@ void PndSdsStripHitProducer::Exec(Option_t* opt)
   for (Int_t iPoint = 0; iPoint < nPoints; iPoint++)
   {
     point = (PndSdsMCPoint*) fPointArray->At(iPoint);
-    std::cout << "Point " << iPoint << ": " << *point << std::endl;
+    // std::cout << "Point " << iPoint << ": " << *point << std::endl;
     selected = SelectSensorParams(point->GetSensorID());
     if( !selected ) { continue; }
     
@@ -346,7 +346,7 @@ Bool_t PndSdsStripHitProducer::SelectSensorParams(Int_t sensorID)
   fCurrentChargeConverter = NULL;
   
   TString detpath = fGeoH->GetPath(sensorID);
-  std::cout << "Detector: " << detpath.Data() << std::endl;
+  // std::cout << "Detector: " << detpath.Data() << std::endl;
   if( !(detpath.Contains("Strip")) )
   { // filter from pixel points
     return kFALSE;
