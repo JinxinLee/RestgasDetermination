@@ -283,7 +283,7 @@ void PndSdsHybridHitProducer::Exec(Option_t* opt)
     if(fVerbose>1) std::cout << "fPixelList.size()" <<  fPixelList.size() << std::endl;
     point = (PndSdsMCPoint*) fPointArray->At(fPixelList[iPix].GetMCIndex()[0]);
     charge=fPixelList[iPix].GetCharge();
-    std::cout << fPixelList[iPix] << std::endl;
+    //std::cout << fPixelList[iPix] << std::endl;
 
     if (fVerbose > 1)  std::cout << fPixelList[iPix] << std::endl;
     
@@ -305,14 +305,14 @@ void PndSdsHybridHitProducer::Exec(Option_t* opt)
     	smearedChargeInE = fthreshold;
    	Double_t timewalk = fChargeConverter->GetTimeWalk(smearedChargeInE);
 
-    	Double_t correctedTimeStamp = timeStamp - timewalk - fChargeConverter->GetTimeStep()/2;
+    Double_t correctedTimeStamp = timeStamp - timewalk - fChargeConverter->GetTimeStep()/2;
 
- //   	if (fVerbose > 2){
-    		std::cout << "TimeStampCalc: EventTime: " << EventTime << " ToF " << point->GetTime() << " charge " << smearedChargeInE << " TW: " << timewalk << " CorrectedTS: " << correctedTimeStamp << std::endl;
-    		std::cout << "Diff TimeStamp - EventTime " << correctedTimeStamp - EventTime << std::endl;
-//   	}
+    if (fVerbose > 2){
+    	std::cout << "TimeStampCalc: EventTime: " << EventTime << " ToF " << point->GetTime() << " charge " << smearedChargeInE << " TW: " << timewalk << " CorrectedTS: " << correctedTimeStamp << std::endl;
+    	std::cout << "Diff TimeStamp - EventTime " << correctedTimeStamp - EventTime << std::endl;
+   	}
 
-    	PndSdsDigiPixel *tempPixel = new PndSdsDigiPixel( fPixelList[iPix].GetMCIndex(), fInBranchId, fPixelList[iPix].GetSensorID() ,fPixelList[iPix].GetFE(),
+    PndSdsDigiPixel *tempPixel = new PndSdsDigiPixel( fPixelList[iPix].GetMCIndex(), fInBranchId, fPixelList[iPix].GetSensorID() ,fPixelList[iPix].GetFE(),
                                                      fPixelList[iPix].GetCol(), fPixelList[iPix].GetRow(),
                                                      smearedCharge, correctedTimeStamp); //fChargeConverter->GetTimeStamp(point->GetTime(), charge,fEventHeader->GetEventTime()) );
     
