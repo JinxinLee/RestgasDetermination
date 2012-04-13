@@ -3106,7 +3106,7 @@ if(istampa>=2){
 	MCMvdStripAloneList[nTotalCandidates][MAXMVDSTRIPHITSINTRACK];
 
 
- ComparisonwithMC(
+ if( doMcComparison) ComparisonwithMC(
 	Charge,
 	daTrackFoundaTrackMC,
 	FI0,
@@ -3146,6 +3146,7 @@ if(istampa>=2){
 	nMCMvdStripAlone,
 	MCMvdStripAloneList
 		);
+
 
 
 //----------
@@ -4157,7 +4158,7 @@ UShort_t PndTracking::AssociateSciTilHit(
  for(iScitHit=0; iScitHit<nSciTilHits; iScitHit++){
 	if(!InclusionListSciTil[iScitHit]) continue;
 
-	IntersectionSciTil_Circle(
+	intersect=IntersectionSciTil_Circle(
 	  posizSciTil[iScitHit][0],
 	  posizSciTil[iScitHit][1],
 	  Oxx,
@@ -5147,13 +5148,11 @@ void PndTracking::ComparisonwithMC(
    Int_t	FromPixeltoMCTrack[nMvdPixelHit],
 		FromStriptoMCTrack[nMvdStripHit];
 
-  if( doMcComparison){
 	MvdMatchtoMC(
 		nMvdMCPoint,
 		FromPixeltoMCTrack,	// output
 		FromStriptoMCTrack	// output
 		);
-  }
 
 
 //  this section associates the found tracks  to the
@@ -5162,7 +5161,7 @@ void PndTracking::ComparisonwithMC(
 
 
 
- if( nMCTracks >0 && nTotalCandidates > 0 && doMcComparison ){
+ if( nMCTracks >0 && nTotalCandidates > 0){
 
 
 	int nmid,nn;
@@ -5232,9 +5231,6 @@ void PndTracking::ComparisonwithMC(
 	AssociateFoundTrackstoMCquater(
 		keepit,
 		info,
-//		Ox,
-//		Oy,
-//		R,
 		X1,
 		Y1,
 		X2,
@@ -5309,32 +5305,32 @@ void PndTracking::ComparisonwithMC(
 //	conseguenza calcolo gli hits Mvd spuri e comuni
 
 
-   MvdMatchedSpurioustoTrackCand(
-			nTotalCandidates,		// input
-			keepit,				// input
-			&daTrackFoundaTrackMC[0],	// input
+ MvdMatchedSpurioustoTrackCand(
+	nTotalCandidates,		// input
+	keepit,		// input
+	&daTrackFoundaTrackMC[0],	// input
 
-			&FromPixeltoMCTrack[0],		// input
-			&FromStriptoMCTrack[0],		// input
+	&FromPixeltoMCTrack[0],		// input
+	&FromStriptoMCTrack[0],		// input
 
-			&nMvdPixelHitsinTrack[0],	// input
-			ListMvdPixelHitsinTrack,	// input
-			&nMvdStripHitsinTrack[0],	// input
-			ListMvdStripHitsinTrack,	// input
+	&nMvdPixelHitsinTrack[0],	// input
+	ListMvdPixelHitsinTrack,	// input
+	&nMvdStripHitsinTrack[0],	// input
+	ListMvdStripHitsinTrack,	// input
 
-			&nMvdPixelCommon[0],		// output
-			&MvdPixelCommonList[0][0],	// output
-			&nMvdPixelSpuriinTrack[0],	// output
-			&MvdPixelSpuriList[0][0],	// output
-			&nMCMvdPixelAlone[0],		// output
-			&MCMvdPixelAloneList[0][0],	// output
+	&nMvdPixelCommon[0],		// output
+	&MvdPixelCommonList[0][0],	// output
+	&nMvdPixelSpuriinTrack[0],	// output
+	&MvdPixelSpuriList[0][0],	// output
+	&nMCMvdPixelAlone[0],		// output
+	&MCMvdPixelAloneList[0][0],	// output
 
-			&nMvdStripCommon[0],		// output
-			&MvdStripCommonList[0][0],	// output
-			&nMvdStripSpuriinTrack[0],	// output
-			&MvdStripSpuriList[0][0],	// output
-			&nMCMvdStripAlone[0],		// output
-			&MCMvdStripAloneList[0][0]	// output
+	&nMvdStripCommon[0],		// output
+	&MvdStripCommonList[0][0],	// output
+	&nMvdStripSpuriinTrack[0],	// output
+	&MvdStripSpuriList[0][0],	// output
+	&nMCMvdStripAlone[0],		// output
+	&MCMvdStripAloneList[0][0]	// output
 			);
 
 
