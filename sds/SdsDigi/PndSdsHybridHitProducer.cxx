@@ -297,9 +297,9 @@ void PndSdsHybridHitProducer::Exec(Option_t* opt)
     //			}
     //	}
 
-    Int_t smearedCharge = fChargeConverter->ChargeToDigiValue(charge);
+    Int_t smearedCharge = (Int_t)fChargeConverter->ChargeToDigiValue(charge);
 	Double_t smearedChargeInE = fChargeConverter->DigiValueToCharge(smearedCharge);
-    Int_t timeStamp = fChargeConverter->GetTimeStamp(point->GetTime(),smearedChargeInE, EventTime);
+    Int_t timeStamp = (Int_t)fChargeConverter->GetTimeStamp(point->GetTime(),smearedChargeInE, EventTime);
 
     if (smearedChargeInE < fthreshold)
     	smearedChargeInE = fthreshold;

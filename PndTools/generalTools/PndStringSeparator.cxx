@@ -3,11 +3,9 @@
 #include <sstream>
 
 
-PndStringSeparator::PndStringSeparator (std::string AInput, std::string ADelimiter): fStartPos(0), fFirstDel(false),fLastDel(false)
-{
-  SetInput (AInput);
-  SetDelimiter (ADelimiter);
-}
+PndStringSeparator::PndStringSeparator (std::string AInput, std::string ADelimiter)
+	:fStartPos(0), fStrings(), fInput(AInput), fDelimiter(ADelimiter), fOutput(), fFirstDel(false),fLastDel(false)
+{}
 
 
 std::string PndStringSeparator::GetString (void)

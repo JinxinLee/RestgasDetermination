@@ -40,6 +40,30 @@ public:
   PndRiemannHit(FairHit* cl, int hitID = -1);
   ~PndRiemannHit();
 
+  //Copy-/Assignment-Operator
+  PndRiemannHit(const PndRiemannHit& myHit): fX(myHit.fX), fSigmaX(myHit.fSigmaX),
+		fCovX(myHit.fCovX), fHit(myHit.fHit), fHitID(myHit.fHitID), fS(myHit.fS),
+  	    fZ(myHit.fZ), fDeltaZ(myHit.fDeltaZ), fAlpha(myHit.fAlpha), fVerbose(myHit.fVerbose)
+  {}
+
+  PndRiemannHit& operator=(const PndRiemannHit& myHit)
+  {
+	  if (this != &myHit){
+		  fX = myHit.fX;
+		  fSigmaX = myHit.fSigmaX;
+		  fCovX = myHit.fCovX;
+		  fHit = myHit.fHit;
+		  fHitID = myHit.fHitID;
+		  fS = myHit.fS;
+		  fZ = myHit.fZ;
+		  fDeltaZ = myHit.fDeltaZ;
+		  fAlpha = myHit.fAlpha;
+		  fVerbose = myHit.fVerbose;
+	  }
+	  return *this;
+  }
+
+
 
   // Accessors -----------------------
   void setXYZ(double x, double y, double z);
