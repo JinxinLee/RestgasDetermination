@@ -84,7 +84,7 @@ TOpMakeTree::CreateFromList( TCandListIterator& iterDau )
   //
   TCandList outGoing;
   TCandidate* dau=0;
-  while( dau = iterDau.Next() ) 
+  while( (dau = iterDau.Next()) ) 
     AddToVertexingList( *dau, outGoing );
   
   // create the vertex, using the vertexer

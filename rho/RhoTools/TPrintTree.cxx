@@ -314,7 +314,7 @@ TPrintTree::MakeLines(const TCandidate & cand, int lineNumber,
   int sisterNum = 0;
   
   if(cand.NDaughters()>0) {
-    while (daughter = iter.Next()){
+    while ( (daughter = iter.Next()) ){
 	    Bool_t nextLastDaughter = kFALSE;
 	    if (++sisterNum == cand.NDaughters()){
         nextLastDaughter = kTRUE;

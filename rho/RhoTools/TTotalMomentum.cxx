@@ -50,7 +50,7 @@ const TEventInfo& evtinfo) {
     TCandListIterator iter(list);
 
     // loop over all the TCandidates
-    while ( trkptr = iter.Next() ) {
+    while ( (trkptr = iter.Next()) ) {
       // Calculate total 4-momentum. More-sophisticated algorithms can
       // be substituted later.
       tot4mom += trkptr->P4();

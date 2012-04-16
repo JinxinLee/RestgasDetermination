@@ -57,13 +57,13 @@ TTreeNavigator::fillLists( const TCandidate& c )
     if( c.NDaughters()!=0)
     {
 	_unstableCands.Add( (TObject*)&c );
-	if (decayVtx=c.DecayVtx()) {
+	if ( (decayVtx=c.DecayVtx()) ) {
 	    if( !_vertices.Contains( (TObject*)decayVtx ) )
 		_vertices.Add( (TObject*)decayVtx );
 	}
 	TCandidate* dau=0;
 	TCandListIterator iterDau=c.DaughterIterator();
-	while( dau=iterDau.Next() )
+	while( (dau=iterDau.Next()) )
 	{
 	    fillLists( *dau );
 	}
@@ -91,7 +91,7 @@ TTreeNavigator::PrintCand( const TCandidate& c )
     
     cout << " mom UID: " << (c.TheMother() ? c.TheMother()->Uid() : 0 );
     const TParticlePDG* pdt;
-    if( pdt=c.PdtEntry() ) cout << " " << pdt->GetName();
+    if( (pdt=c.PdtEntry()) ) cout << " " << pdt->GetName();
     cout << endl;
     if( c.DecayVtx()!=0 ) {
 	cout << "    Decay ";
@@ -105,7 +105,7 @@ TTreeNavigator::PrintTree( const TCandidate& c )
     PrintCand( c );
     TCandidate* dau=0;
     TCandListIterator iterDau=c.DaughterIterator();
-    while( dau=iterDau.Next() )       
+    while( (dau=iterDau.Next()) )       
 	PrintTree( *dau );
 }
 
@@ -138,7 +138,7 @@ TTreeNavigator::PrintOn( std::ostream& o ) const
 	const TCandidate* c = (TCandidate*)_finalCands.At(i);
 	const TParticlePDG* pdt=0;
 	o << " | ";
-	if( pdt=c->PdtEntry() )
+	if( (pdt=c->PdtEntry()) )
 	    o << pdt->GetName();
 	else
 	    o << pdt->Mass();
@@ -150,7 +150,7 @@ TTreeNavigator::PrintOn( std::ostream& o ) const
 	const TCandidate* c = (TCandidate*)_unstableCands.At(i);
 	const TParticlePDG* pdt=0;
 	o << " | ";
-	if( pdt=c->PdtEntry() )
+	if( (pdt=c->PdtEntry()) )
 	    o << pdt->GetName();
 	else
 	    o << pdt->Mass();

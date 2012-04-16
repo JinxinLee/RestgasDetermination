@@ -66,7 +66,7 @@ TSphericity::TSphericity(TCandList& list,
   //double sxtot=0, sytot=0, sztot=0;
   
   // start a loop over the all tracks
-  while ( trkptr = iter.Next() ) {
+  while ( (trkptr = iter.Next()) ) {
     
     TLorentzVector cmList(trkptr->P4());
     TVector3 cms = evtinfo.CmFrame().BoostVector();
