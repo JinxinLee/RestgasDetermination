@@ -1,25 +1,28 @@
 // Macro to reconstruct the MVD data in pandaroot
 // Updated 30.11.2009
 // Ralf Kliemt
-runMvdReco(Int_t nEvents=50)
+anaMvdTimeData(Int_t nEvents=1000)
 {
   // ========================================================================
   // Verbosity level (0=quiet, 1=event level, 2=track level, 3=debug)
   Int_t iVerbose = 0;
-
   TString MCFile = "Mvd_Sim_Dpm_500.root";
   TString parFile = "Mvd_Sim_Dpm_500_params.root";
   // ----  Load libraries   -------------------------------------------------
-  gROOT->Macro("$VMCWORKDIR/gconfig/rootlogon.C");  
+  gROOT->Macro("$VMCWORKDIR/gconfig/rootlogon.C");
+  gSystem->Load("libMCMatchExamples");
   // ------------------------------------------------------------------------
   // Output file
   PndFileNameCreator creator(MCFile.Data());
   TString DigiFile = creator.GetDigiFileName(false).c_str();
-  TString outFile = creator.GetRecoFileName(false).c_str();
+  TString RecoFile = creator.GetRecoFileName(false).c_str();
+  TString TrackFFile = creator.GetTrackFindingFileName(false).c_str();
+  TString outFile = "Test.root";
   
   std::cout << "MCFile  : " << MCFile.Data()<< std::endl;
   std::cout << "DigiFile: " << DigiFile.Data()<< std::endl;
-  std::cout << "RecoFile: " << outFile.Data()<< std::endl;
+  std::cout << "RecoFile: " << RecoFile.Data()<< std::endl;
+  std::cout << "TrackFindingFile: " << TrackFFile.Data()<< std::endl;
   
   // -----   Timer   --------------------------------------------------------
   TStopwatch timer;
@@ -28,10 +31,12 @@ runMvdReco(Int_t nEvents=50)
 
   // -----   Reconstruction run   -------------------------------------------
   FairRunAna *fRun= new FairRunAna();
-  fRun->SetInputFile(MCFile);
-  fRun->AddFriend(DigiFile);
+  fRun->SetInputFile(DigiFile);
+  fRun->AddFriend(MCFile);
+  fRun->AddFriend(RecoFile);
+  fRun->AddFriend(TrackFFile);
   fRun->SetOutputFile(outFile);
-  fRun->RunWithTimeStamps();
+  //fRun->RunWithTimeStamps();
   // ------------------------------------------------------------------------
 
 
@@ -44,9 +49,12 @@ runMvdReco(Int_t nEvents=50)
 
   // -----    Default MVD hit producer   --------------------------------------------
 
-  PndMvdClusterTask* mvdmccls = new PndMvdClusterTask();
-  mvdmccls->SetVerbose(iVerbose);
-  fRun->AddTask(mvdmccls);
+  PndMCTestDataCrawler* crawler = new PndMCTestDataCrawler();
+  crawler->SetStartBranch("MVDRiemannTrackCand");
+  crawler->SetStopBranch("EventHeader.");
+  crawler->SetVerbose(2);
+  crawler->SetHistoRange(-20, 40, 601);
+  fRun->AddTask(crawler);
   
   // -----    OR separate tasks   ---------------------------------------------------
   //Double_t chargecut = 1.e5;

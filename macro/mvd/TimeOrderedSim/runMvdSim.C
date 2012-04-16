@@ -1,7 +1,7 @@
 // Macro to simulate the MVD in pandaroot
 // Updated 30.11.2009
 // Ralf Kliemt
-runMvdSim(Int_t nEvents=10)
+runMvdSim(Int_t nEvents=500)
 {
   TStopwatch timer;
   timer.Start();
@@ -9,8 +9,8 @@ runMvdSim(Int_t nEvents=10)
   int verboseLevel = 0;
 
   //FileNames
-  TString simOutput="Mvd_Test.root";
-  TString parOutput="Mvd_Params.root";
+  TString simOutput="Mvd_Sim_Dpm_500.root";
+  TString parOutput="Mvd_Sim_Dpm_500_params.root";
 
   // Load basic libraries
   gROOT->Macro("$VMCWORKDIR/gconfig/rootlogon.C");
@@ -48,38 +48,46 @@ runMvdSim(Int_t nEvents=10)
   FairModule *Pipe= new PndPipe("PIPE");
   //fRun->AddModule(Pipe);
   //-------------------------  STT       -----------------
-  FairDetector *Stt= new PndStt("STT", kFALSE);
-  Stt->SetGeometryFileName("straws_skewed_blocks_pipe_120cm.geo");
+  FairDetector *Stt= new PndStt("STT", kTRUE);
+  Stt->SetGeometryFileName("straws_skewed_blocks_35cm_pipe.geo");
   fRun->AddModule(Stt);
+
   FairDetector *Mvd = new PndMvdDetector("MVD", kTRUE);
   Mvd->SetGeometryFileName("Mvd-2.1_FullVersion.root"); // only sensors, update follows
   Mvd->SetVerboseLevel(verboseLevel);
   fRun->AddModule(Mvd);
-
+ //-------------------------  GEM       -----------------
+  FairDetector *Gem = new PndGemDetector("GEM", kTRUE);
+  Gem->SetGeometryFileName("gem_3Stations.root");
+  fRun->AddModule(Gem);
   //-------------------------  EMC       -----------------
-  PndEmc *Emc = new PndEmc("EMC",kFALSE);
-  Emc->SetGeometryVersion(15);
-  // See PndEmc::SetGeometryVersion() for available geometries and add there new one if necessary
+  PndEmc *Emc = new PndEmc("EMC",kTRUE);
+  Emc->SetGeometryVersion(2);
   Emc->SetStorageOfData(kFALSE);
   fRun->AddModule(Emc);
+  //-------------------------  DRC       -----------------
+  PndDrc *Drc = new PndDrc("DIRC", kTRUE);
+  Drc->SetGeometryFileName("dirc_l0_p0.root");
+  Drc->SetRunCherenkov(kFALSE);
+  fRun->AddModule(Drc);
+  //-------------------------  DISC      -----------------
+  PndDsk* Dsk = new PndDsk("DSK", kTRUE);
+  Dsk->SetGeometryFileName("dsk.root");
+  Dsk->SetStoreCerenkovs(kFALSE);
+  Dsk->SetStoreTrackPoints(kFALSE);
+  fRun->AddModule(Dsk);
   //-------------------------  MDT       -----------------
-  PndMdt *Muo = new PndMdt("MDT",kFALSE);
-  Muo->SetBarrel("torino");
-  Muo->SetEndcap("torino");
-  Muo->SetMuonFilter("torino");
+  PndMdt *Muo = new PndMdt("MDT",kTRUE);
+  Muo->SetBarrel("fast");
+  Muo->SetEndcap("fast");
+  Muo->SetMuonFilter("fast");
   Muo->SetMdtMagnet(kTRUE);
   Muo->SetMdtMFIron(kTRUE);
-  //fRun->AddModule(Muo);
-  //-------------------------  DCH       -----------------
-  FairDetector *Dch = new PndDchDetector("DCH", kFALSE);
-  Dch->SetGeometryFileName("dch.root"); 
-  //fRun->AddModule(Dch);
- 
-  //-------------------------  GEM      -----------------
-  FairDetector *Gem = new PndGemDetector("GEM", kFALSE);
-  Gem->SetGeometryFileName("gem_3Stations.root");
-  //fRun->AddModule(Gem);
-
+//  fRun->AddModule(Muo);
+  //-------------------------  FTS       -----------------
+  FairDetector *Fts= new PndFts("FTS", kTRUE);
+  Fts->SetGeometryFileName("fts.geo");
+  fRun->AddModule(Fts);
   FairPrimaryGenerator* primGen = new FairPrimaryGenerator();
   fRun->SetGenerator(primGen);
 
@@ -102,12 +110,12 @@ runMvdSim(Int_t nEvents=10)
 
   // Box Generator
   //Pions
- FairBoxGenerator *fBox = new FairBoxGenerator(211, 4);
-    fBox->SetPRange(0.1,2.5);
-    fBox->SetThetaRange(5,150);
-    fBox->SetPhiRange(0.,360.);
-    fBox->SetCosTheta();
-    primGen->AddGenerator(fBox);
+// FairBoxGenerator *fBox = new FairBoxGenerator(211, 4);
+//    fBox->SetPRange(2.5,2.5);
+//    fBox->SetThetaRange(10,40);
+//    fBox->SetPhiRange(350,360.);
+//    fBox->SetCosTheta();
+//    primGen->AddGenerator(fBox);
 
   //EvtGen Generator
 //    FairEvtGenGenerator* evtGen = new
@@ -125,6 +133,10 @@ runMvdSim(Int_t nEvents=10)
   // Field Map Definition
   // --------------------
   // 1- Reading the new field map in the old format
+
+  PndDpmDirect *dpmGen = new PndDpmDirect(15,1, gRandom->GetSeed());
+  primGen->AddGenerator(dpmGen);
+
 
 	fRun->SetBeamMom(15);
   //---------------------Create and Set the Field(s)---------- 
