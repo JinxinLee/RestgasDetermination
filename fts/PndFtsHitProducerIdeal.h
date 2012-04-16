@@ -69,21 +69,21 @@ class PndFtsHitProducerIdeal : public FairTask
   void SetParContainers();
   
   /** Input array of PndFtsPoints **/
-  TClonesArray* fPointArray;
+  TClonesArray* fPointArray;  //!
 
   /** Output array of PndFtsHits **/
-  TClonesArray* fHitArray;  
+  TClonesArray* fHitArray;    //!
   
   /** Output array of PndFtsHitInfo **/
-  TClonesArray* fHitInfoArray;
+  TClonesArray* fHitInfoArray;//!
 
   /** from parameters array of PndFtsTube **/  //  CHECK added
-  TClonesArray* fTubeArray;
+  TClonesArray* fTubeArray;   //!
   
   /** object persistence **/
   Bool_t  fPersistence; //!
 
-  PndGeoFtsPar *fFtsParameters;  //  CHECK added
+  PndGeoFtsPar *fFtsParameters;  //!  CHECK added
   
   PndFtsHitProducerIdeal(const  PndFtsHitProducerIdeal& L);
   PndFtsHitProducerIdeal& operator= (const  PndFtsHitProducerIdeal&) {return *this;}
