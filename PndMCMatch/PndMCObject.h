@@ -34,7 +34,7 @@ public:
 	void SetStageId(Int_t type){fStageId = type;}
 
 	void SetEntry(std::vector<Int_t> type, std::vector<Int_t> link, int index);
-	void SetEntry(FairLinkedData* data, int index);
+	void SetEntry(FairMultiLinkedData* data, int index);
 	void SetEntry(PndMCEntry link);
 
 	void SetStage(std::vector<PndMCEntry> stage){fStage = stage;}

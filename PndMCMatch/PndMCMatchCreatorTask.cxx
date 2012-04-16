@@ -15,7 +15,7 @@
 #include "FairRun.h"
 #include "FairRuntimeDb.h"
 #include "FairHit.h"
-#include "FairLinkedData.h"
+#include "FairMultiLinkedData.h"
 
 #include "PndDetectorList.h"
 #include "PndMCEntry.h"
@@ -174,7 +174,7 @@ void PndMCMatchCreatorTask::Exec(Option_t* opt)
 			//std::cout << "BranchName: " << fMCMatch->GetMCStage(i)->GetBranchName() << std::endl;
 			TClonesArray* clArray = fBranches[fMCMatch->GetMCStage(i)->GetBranchName()];
 			for (int j = 0; j < clArray->GetEntries(); j++){
-				FairLinkedData* myData = (FairLinkedData*)clArray->At(j);
+				FairMultiLinkedData* myData = (FairMultiLinkedData*)clArray->At(j);
 				fMCMatch->SetElements(fMCMatch->GetMCStage(i)->GetStageId(), j, myData);
 			}
 			if (fMCMatch->GetMCStage(i)->GetNEntries() > 0)

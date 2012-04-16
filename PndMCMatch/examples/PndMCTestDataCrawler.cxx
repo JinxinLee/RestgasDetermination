@@ -15,7 +15,7 @@
 #include "FairRun.h"
 #include "FairRuntimeDb.h"
 #include "FairHit.h"
-#include "FairLinkedData.h"
+#include "FairMultiLinkedData.h"
 #include "FairEventHeader.h"
 
 #include "PndMCTrack.h"

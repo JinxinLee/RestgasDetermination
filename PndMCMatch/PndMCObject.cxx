@@ -37,7 +37,7 @@ void PndMCObject::SetEntry(std::vector<Int_t> type, std::vector<Int_t> link, int
 	SetEntry(myEntry);
 }
 
-void PndMCObject::SetEntry(FairLinkedData* data, int index)
+void PndMCObject::SetEntry(FairMultiLinkedData* data, int index)
 {
 	AdoptSize(index);
 	fStage[index].SetLinks(data->GetLinks());

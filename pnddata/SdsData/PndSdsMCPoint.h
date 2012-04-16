@@ -34,7 +34,6 @@ class PndSdsMCPoint : public FairMCPoint
     out << "    Position out (" << point.GetXOut() << ", " << point.GetYOut() << ", " << point.GetZOut() << ") cm" << std::endl;
     out << "    Momentum (" << point.GetPx() << ", " << point.GetPy() << ", " << point.GetPz() << ") GeV" << std::endl;
     out << "    Time " << point.GetTime() << " ns,  Length " << point.GetLength() << " cm,  Energy loss " << point.GetEnergyLoss()*1.0e06 << " keV" << std::endl;
-    out << "    TimeStamp " << point.GetTimeStamp() << " ns" << std::endl;
     return out;
   }
 
