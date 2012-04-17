@@ -346,10 +346,6 @@ PndSttMvdTracking::~PndSttMvdTracking() {
 InitStatus PndSttMvdTracking::Init() {
 
 
- ZCENTER_STRAIGHT = 35.;
- SEMILENGTH_STRAIGHT = 75.;
-
-
  if(iplotta){
   hdeltaRPixel = new TH1F("hdeltaRPixel", "distance MC Pixel point from trajectory in XY plane", 100, -1, 1);
   hdeltaRStrip = new TH1F("hdeltaRStrip", "distance MC Strip point from trajectory in XY plane", 100, -1, 1);
@@ -1049,8 +1045,6 @@ if(istampa>0){
 	  ListAllSkewHits[nSttSkewHit]=i;
 	  nSttSkewHit++;
        }
-
-
 
 //--------------- inizio stampaggi,  stampe di controllo
   if (istampa >= 1) {
@@ -8474,7 +8468,8 @@ if(istampa>=3){
 
 
 
-      sprintf(&(auxnameRows[0][0]),"OBJECT",i);  nameRows[0]=&auxnameRows[0][0];
+      sprintf(&(auxnameRows[0][0]),"OBJECT");
+      nameRows[0]=&auxnameRows[0][0];
       typeRows[0]=GLP_FR;
       for(i=0 , ii=0 ; i< NpointsInFit ; i++) {
 
@@ -9132,7 +9127,7 @@ cout<<"cavolo, da sttmvdtracking : nRows = "<<nRows<<", NStructVar = "<<
 
 
 //--------stampaggi
-if(istampa>=3){
+if(istampa>=4){
 printf("from FitHelixCylinder  printout dopo glp_main -------------------------------\n");
 printf("      number of structural variables %d\n",NStructVar);
 int ica;
@@ -9473,7 +9468,8 @@ if(istampa>2) cout<<"Results : m1 = "<<m1_result<<", m2= "<<m2_result<<", q1 = "
 
 
 
-      sprintf(&(auxnameRows[0][0]),"OBJECT",i);  nameRows[0]=&auxnameRows[0][0];
+      sprintf(&(auxnameRows[0][0]),"OBJECT");
+      nameRows[0]=&auxnameRows[0][0];
       typeRows[0]=GLP_FR;
       for(i=0 , ii=0 ; i< NpointsInFit ; i++) {
 
@@ -11423,7 +11419,6 @@ UShort_t ListParHitsinTrack[MAXTRACKSPEREVENT][nmaxSttHitsInTrack] // input/outp
 			if( !InclusionListStt[ihit] ) continue;
 			angle = atan2(info[ihit][1]-Oy[itrack],info[ihit][0]-Ox[itrack]);
 			if(angle<0.) angle += 2.*PI;
-
 
 			// selection on Zpos under assumption that for parallel STT
 			// makes 1 turn
