@@ -48,7 +48,6 @@ PndSttTrackFinderReal::PndSttTrackFinderReal()
 	iplotta = false;
 	istampa = 0;
 	MINIMUMOUTERHITSPERTRACK=5;
-	N_INTENDED = 0;
 	nSciTilHits=0;
 	stepD=(Dmax-Dmin)/nbinD;
 	stepFi=(Fimax-Fimin)/nbinFi;
@@ -78,7 +77,6 @@ PndSttTrackFinderReal::PndSttTrackFinderReal(int verbose)
 	iplotta = false;
 	istampa = verbose;
 	MINIMUMOUTERHITSPERTRACK=5;
-	N_INTENDED = 0;
 	nSciTilHits=0;
 	stepD=(Dmax-Dmin)/nbinD;
 	stepFi=(Fimax-Fimin)/nbinFi;
@@ -103,7 +101,6 @@ PndSttTrackFinderReal::PndSttTrackFinderReal(int istamp, bool iplott, bool imc)
 	iplotta = iplott;
 	istampa= istamp;
 	MINIMUMOUTERHITSPERTRACK=5;
-	N_INTENDED = 0;
 	nSciTilHits=0;
 	stepD=(Dmax-Dmin)/nbinD;
 	stepFi=(Fimax-Fimin)/nbinFi;
@@ -130,7 +127,6 @@ PndSttTrackFinderReal::PndSttTrackFinderReal(int istamp, bool iplott, bool imc, 
 	iplotta = iplott;
 	istampa= istamp;
 	MINIMUMOUTERHITSPERTRACK=5;
-	N_INTENDED = 0;
 	nSciTilHits=0;
 	stepD=(Dmax-Dmin)/nbinD;
 	stepFi=(Fimax-Fimin)/nbinFi;
@@ -256,19 +252,19 @@ PndSttTrackFinderReal::~PndSttTrackFinderReal()
 
 void PndSttTrackFinderReal::WriteHistograms(){
 
-//     TFile* file = FairRootManager::Instance()->GetOutFile();
 	  TFile* file = FairRootManager::Instance()->GetOutFile();
 	  file->cd();
 	  file->mkdir("PndSttTrackFinderReal");
 	  file->cd("PndSttTrackFinderReal");
 
+ if(iplotta){
 	hdist->Write();
 	hdistgoodlast->Write();
 	hdistbadlast->Write();
 	delete hdist;
 	delete hdistgoodlast;
 	delete hdistbadlast;
-
+ }
 
 }
 
@@ -288,13 +284,7 @@ void PndSttTrackFinderReal::Init()
 
 //  --------------------------- opening files for special purposes
 
-N_INTENDED=0;
-
 if(istampa >=1 ){
-//---- fetch the n. of tracks MC that were intended to be generated
-   HANDLE = fopen("n_intended_tracks.txt","r");
-   fscanf(HANDLE,"%d",&N_INTENDED);
-   fclose(HANDLE);
 //---- apertura file con info su Found tracce su cui si fa Helix fit dopo
    HANDLE2 = fopen("info_da_PndTrackFinderReal.txt","w");
 
@@ -354,11 +344,12 @@ if(istampa >=3 )   HANDLEXYZ = fopen("infoPndTrackFinderRealXYZ.txt","w");
 //   -------------------------------------------------------------------
 
 
+ if(iplotta){
   hdist = new TH1F("hdist", "distance (cm)", 20, 0., 10.);
   hdistgoodlast = new TH1F("hDistanceTrulyInnerLast", "distance (cm)", 20, 0., 10.);
   hdistbadlast = new TH1F("hDistanceNonLastInner", "distance (cm)", 20, 0., 10.);
+ }
 
- 
 //   calculate the boundaries of the Box in Conformal Space, see Gianluigi logbook on pag. 210-211
 
 
