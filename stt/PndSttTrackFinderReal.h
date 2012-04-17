@@ -151,8 +151,7 @@ class PndSttTrackFinderReal : public PndSttTrackFinder
 
 
  int
-	IVOLTE,
-	N_INTENDED;
+	IVOLTE;
 
  bool	iplotta,
 	doMcComparison,
