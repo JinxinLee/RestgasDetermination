@@ -929,7 +929,6 @@ if(istampa>0){
 
       nSttSkewhit = Ninclinate;
 
-
 //   calcoli validi solo per il MC   -----------------------------
 
 	if (ptIndex >= 0) {
@@ -5270,14 +5269,7 @@ fprintf(MACRO,"TLine* FOUND%d = new TLine(%f,%f,%f,%f);\nFOUND%d->SetLineColor(2
 		if( ZETA[i]>zmax ) zmax=ZETA[i];
 		if( ZETA[i]<zmin ) zmin=ZETA[i];
 
-/*
- fprintf(MACRO,"TMarker* SciT%d = new TMarker(%f,%f,30);\n",i,ZETA[i],ESSE[i]);
- fprintf(MACRO,"SciT%d->SetMarkerSize(1.5);\n",i);
- fprintf(MACRO,"SciT%d->SetMarkerColor(1);\n",i);
-
-
-*/
-	}
+ }
 //----------------------------
        for( iii=0; iii< nSttSkewhitinTrack; iii++) {
          i = infoskew[ ListSkewHitsinTrack[imaxima][iii] ];
@@ -5285,7 +5277,8 @@ fprintf(MACRO,"TLine* FOUND%d = new TLine(%f,%f,%f,%f);\nFOUND%d->SetLineColor(2
          Kincl = (int) info[i][5] - 1;
 
 
-         aaa = sqrt(inclination[Kincl][0]*inclination[Kincl][0]+inclination[Kincl][1]*inclination[Kincl][1]+
+         aaa = sqrt(inclination[Kincl][0]*inclination[Kincl][0]+
+		inclination[Kincl][1]*inclination[Kincl][1]+
                   inclination[Kincl][2]*inclination[Kincl][2]);
          vx1 = inclination[Kincl][0]/aaa;
          vy1 = inclination[Kincl][1]/aaa;
@@ -5355,6 +5348,7 @@ fprintf(MACRO,"TLine* FOUND%d = new TLine(%f,%f,%f,%f);\nFOUND%d->SetLineColor(2
 
 	Lista[index] = i+ii*10000;  // do la possibilita' di plottare 2 hits skew che vengono dalla
 					// stessa skew straw.
+
         Double_t rotation1 = 180.*atan2(Tiltdirection1[1],Tiltdirection1[0])/PI;
         fprintf(MACRO,"TEllipse* E%d = new TEllipse(%f,%f,%f,%f,0.,360.,%f);\nE%d->SetFillStyle(0);\n",
                      i+ii*10000,POINTS1[j+2],fi1,Aellipsis1,Bellipsis1,rotation1,i+ii*10000);
@@ -5407,7 +5401,6 @@ fprintf(MACRO,"TLine* FOUND%d = new TLine(%f,%f,%f,%f);\nFOUND%d->SetLineColor(2
        if(STATUS < 0 ) continue ;
 
 
-
        for( ii=0; ii<2; ii++){
         j=3*ii;
         distance = sqrt(
@@ -5442,18 +5435,6 @@ fprintf(MACRO,"TLine* FOUND%d = new TLine(%f,%f,%f,%f);\nFOUND%d->SetLineColor(2
         if( distance >= info[i][4] + Aellipsis1) continue;
 
 
-// checks that the projected ellipsis doesn't go out the boundaries of both the skew straw and the trajectory cylinder
-
-/*
-        if(
-          fabs(POINTS1[j+2]-ZCENTER_STRAIGHT) > SEMILENGTH_STRAIGHT- Aellipsis1 ||
-          distance + bbb > info[i][4]        //  the ellipsis goes out of the boundaries of the skew straw
-          ) {
-cout<<"the ellipsis goes out of the boundaries of the skew straw, hit n. "<<i<<endl
-     <<"dis. from center "<<distance+bbb<<",  length of the straw "<<info[i][4]<<endl;
-           continue;
-          }
-*/
 //--------------------------
 
 
@@ -5470,11 +5451,11 @@ cout<<"the ellipsis goes out of the boundaries of the skew straw, hit n. "<<i<<e
         Double_t rotation1 = 180.*atan2(Tiltdirection1[1],Tiltdirection1[0])/PI;
         fprintf(MACRO,"TEllipse* E%d = new TEllipse(%f,%f,%f,%f,0.,360.,%f);\nE%d->SetFillStyle(0);\n",
                      i+ii*10000,POINTS1[j+2],fi1,Aellipsis1,Bellipsis1,rotation1,i+ii*10000);
-//                     index,POINTS1[j+2],fi1,Aellipsis1,Bellipsis1,rotation1,index);
 
 // ------  marca lo hit in blu
-        fprintf(MACRO,"E%d->SetLineColor(4);\n",index);
-
+        fprintf(MACRO,"E%d->SetLineColor(4);\n",i+ii*10000);
+	Lista[index] = i+ii*10000;  // do la possibilita' di plottare 2 hits skew che vengono dalla
+					// stessa skew straw.
         index++;
 
    }    //  end of    for( ii=0; ii<2; ii++)
@@ -5648,7 +5629,11 @@ cout<<"PndSttTrackFinderReal::WriteMacroSkewAssociatedHits, this track found by 
 
 			}  // end of if( fabs(carica)>=0.1)
 		}  // end of  if ( pMC )
-	} // end of  if( !(index+nscitilhits==0|| zmax < zmin || Smax < Smin ) )
+
+  } // end of  if( !(index+nscitilhits==0|| zmax < zmin || Smax < Smin ) )
+
+
+
       fprintf(MACRO,"}\n");
       fclose(MACRO);
 
@@ -7383,7 +7368,9 @@ if(istampa>=3){
 
 
 
-      sprintf(&(auxnameRows[0][0]),"OBJECT",i);  nameRows[0]=&auxnameRows[0][0];
+//      sprintf(&(auxnameRows[0][0]),"OBJECT",i);  nameRows[0]=&auxnameRows[0][0];
+      sprintf(&(auxnameRows[0][0]),"OBJECT");
+      nameRows[0]=&auxnameRows[0][0];
       typeRows[0]=GLP_FR;
       for(i=0 , ii=0 ; i< NpointsInFit ; i++) {
 
@@ -8361,7 +8348,8 @@ if(istampa>2) cout<<"Results : m1 = "<<m1_result<<", m2= "<<m2_result<<", q1 = "
 
 
 
-      sprintf(&(auxnameRows[0][0]),"OBJECT",i);  nameRows[0]=&auxnameRows[0][0];
+      sprintf(&(auxnameRows[0][0]),"OBJECT");
+      nameRows[0]=&auxnameRows[0][0];
       typeRows[0]=GLP_FR;
       for(i=0 , ii=0 ; i< NpointsInFit ; i++) {
 
