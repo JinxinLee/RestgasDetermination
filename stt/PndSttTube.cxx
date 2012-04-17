@@ -38,14 +38,14 @@ PndSttTube::PndSttTube(Double_t x, Double_t y, Double_t z,
 		       Double_t r21, Double_t r22, Double_t r23,
 		       Double_t r31, Double_t r32, Double_t r33,
 		       Double_t radin, Double_t radout, Double_t hl) 
- :fCenPosition(TVector3(0,0,0)),
+  :fCenPosition(TVector3(x,y,z)),
   fRotationMatrix(TMatrixT<double>(3,3)),
-  fRadIn(0),
-  fRadOut(0),
-  fHalfLength(0)
+  fRadIn(radin),
+  fRadOut(radout),
+  fHalfLength(hl)
 {
 
-  fCenPosition.SetXYZ(x,y,z);
+  //  fCenPosition.SetXYZ(x,y,z);
 
   fRotationMatrix.ResizeTo(3,3);
   fRotationMatrix[0][0] = r11;
