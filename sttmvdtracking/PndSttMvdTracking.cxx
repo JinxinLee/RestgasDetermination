@@ -363,13 +363,8 @@ InitStatus PndSttMvdTracking::Init() {
 
 //  --------------------------- opening files for special purposes
 
-int N_INTENDED=0;
 
 if(istampa >=1 ){
-//---- fetch the n. of tracks MC that were intended to be generated
-//   HANDLE = fopen("n_intended_tracks.txt","r");
-//   fscanf(HANDLE,"%d",&N_INTENDED);
-//   fclose(HANDLE);
 //---- apertura file con info su Found tracce su cui si fa Helix fit dopo
    HANDLE2 = fopen("info_da_PndTrackFinderReal.txt","w");
 
@@ -539,6 +534,8 @@ void PndSttMvdTracking::WriteHistograms(){
   hx->Write();
   delete hx;
 */
+
+ if(iplotta){
   TFile* file = FairRootManager::Instance()->GetOutFile();
   file->cd();
   file->mkdir("PndSttMvdTracking");
@@ -551,7 +548,7 @@ void PndSttMvdTracking::WriteHistograms(){
   delete hdeltaRStrip;
   delete hdeltaRPixel2;
   delete hdeltaRStrip2;
-
+ }
 }
 
 // -----   Public method Exec   --------------------------------------------
