@@ -2954,7 +2954,9 @@ void PndSttMvdGemTracking::ConsiderCombinatorialEffect(Int_t nhits) {
   TMatrixT<double> nhitsonsensor2(fNPositions, nhits); 
     
 //   cout << "gem n hits " << nhits << endl;
-  std::vector<int> mcpoints[fNPositions]; // CHECK
+//  std::vector<int> mcpoints[fNPositions]; // CHECK
+  std::vector< std::vector<int> > mcpoints; // CHECK
+
   for (Int_t ihit = 0; ihit < nhits; ihit++) {
     PndGemHit *hit = (PndGemHit*) fGemHitArray->At(ihit);
     if(!hit) continue;   
@@ -2992,8 +2994,13 @@ void PndSttMvdGemTracking::ConsiderCombinatorialEffect(Int_t nhits) {
   }
 
      
-  std::vector<int> accepted[fNPositions];
-
+  //  std::vector<int> accepted[fNPositions];
+  std::vector< std::vector<int> > accepted;
+  for(int ipos = 0; ipos < fNPositions; ipos++) {
+    std::vector<int> acc;
+    accepted.push_back(acc);
+  }
+ 
   //  nhitsonsensor2.Print();
 
 //   cout << "SENS I, STAT I   " << nhitsonsensor[0][0] << endl;
@@ -3033,22 +3040,27 @@ void PndSttMvdGemTracking::ConsiderCombinatorialEffect(Int_t nhits) {
 				    (y1 - y2) * (y1 - y2));
       
       if(distance < fCombiDistance) {
+	std::vector< int > acc1 =  accepted[first];
+	std::vector< int > acc2 =  accepted[second];
 	bool alreadythere1 = false, alreadythere2 = false;
-	for(int j = 0; j < accepted[first].size(); j++) {
-	  if(sensor[ihit][0] == accepted[first][j]) {
+	for(int j = 0; j < acc1.size(); j++) {
+	  if(sensor[ihit][0] == acc1[j]) {
 	    alreadythere1 = true;
 	    break;
 	  }
 	}
-	for(int j = 0; j < accepted[second].size(); j++) {
-	  if(sensor[jhit][0] == accepted[second][j]) {
+	for(int j = 0; j < acc2.size(); j++) {
+	  if(sensor[jhit][0] == acc2[j]) {
 	    alreadythere2 = true;
 	    break;
 	  }
 	}
 	
 	if(alreadythere1 == false) {
-	  accepted[first].push_back((int) sensor[ihit][0]);
+	  // accepted[first].push_back((int) sensor[ihit][0]);
+	  std::vector< int > acc1b =  accepted[first];
+	  acc1b.push_back((int) sensor[ihit][0]);
+	  replace(accepted.begin(), accepted.end(), acc1, acc1b);
 	  fCombiMap[ihit] = 0;
 	  
 	  // ^^^^^^^
@@ -3110,7 +3122,11 @@ void PndSttMvdGemTracking::ConsiderCombinatorialEffect(Int_t nhits) {
 	}
 
 	if(alreadythere2 == false) {
-	  accepted[second].push_back((int) sensor[jhit][0]);
+// 	  accepted[second].push_back((int) sensor[jhit][0]);
+	  std::vector<int> acc2b = accepted[second];
+  	  acc2b.push_back((int) sensor[jhit][0]);
+	  replace(accepted.begin(), accepted.end(), acc2, acc2b);
+
   	  fCombiMap[jhit] = 0;
 
 	  // ^^^^^^^
