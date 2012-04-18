@@ -4071,7 +4071,7 @@ if( istampa>=1 && nMCTracksaccettabili>0){
 
 }  //   end of    if( istampa>=1)
 
-   }	// end of if( nMCTracks >0 && nSttTrackCand > 0  && doMcComparison )
+   }	// end of if( nMCTracks >0 && nTotalCandidates > 0  && doMcComparison )
 
 //------------------  end section with comparison MC Mvd hits - associated hits to a certain track
 
@@ -4117,7 +4117,7 @@ if( istampa>=1 && nMCTracksaccettabili>0){
 		qop = CHARGE[ncand]/dirSeed.Mag();
 		dirSeed.SetMag(1.);
 		pTrckCand->setTrackSeed(posSeed, dirSeed, qop);
-		if(doMcComparison){
+		if(doMcComparison ){
 			pTrckCand->setMcTrackId(  daTrackFoundaTrackMC[ncand]   );
 		}else{
 			pTrckCand->setMcTrackId(-1);
@@ -4450,7 +4450,7 @@ for(l =0;l<nMvdPixelHitsinTrack[it]+nMvdStripHitsinTrack[it]
 	//-------stampe.
 if(istampa>=2&&IVOLTE<20){
 		cout<<"\n\n---------------------------------------------\n";
-		cout<<" evt. n. "<<IVOLTE<<", candidato "<<i
+		cout<<"PndSttMvdTracking, plottamenti, evt. n. "<<IVOLTE<<", candidato "<<i
 		<<", n hits || "<<nSttParHitsinTrack[i]<<" e loro lista :\n";
 		for(int iz=0;iz<nSttParHitsinTrack[i];iz++){
 			cout<<"\thit || n. "<<ListSttParHitsinTrack[i][iz]<<endl;
@@ -5461,6 +5461,10 @@ fprintf(MACRO,
 
 //---------- parallel straws Macro now con anche le tracce MC
 
+
+ if(doMcComparison){
+
+
       sprintf(nome,"MacroSttMvdAllHitswithMCEvent%d", IVOLTE);
       sprintf(nome2,"%s.C",nome);
       MACRO = fopen(nome2,"w");
@@ -5692,7 +5696,7 @@ fprintf(MACRO,
        
 //------------------------------------------------------------------------------------------------------------
 
-
+ }  // end of   if(doMcComparison)
 
 
     return ;
