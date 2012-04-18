@@ -3506,7 +3506,7 @@ Int_t PndSttMvdGemTracking::GetPdgFromMC(int trackid) {
 Int_t PndSttMvdGemTracking::GetChargeCorrectedPdgFromMC(int trackid, int charge) {
   int pdg = GetPdgFromMC(trackid);
   // is the reco track in accordance with the mc one?
-  int mccharge = TDatabasePDG::Instance()->GetParticle(pdg)->Charge()/3.;
+  double mccharge = TDatabasePDG::Instance()->GetParticle(pdg)->Charge()/3.;
   if((charge * mccharge) > 0.) return pdg;
   else return -pdg;
 }
