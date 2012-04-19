@@ -61,10 +61,8 @@ void tracks_BARREL_1000sep(char* type="proof", Int_t nofFiles = 1, TString proof
 
   TList* fnamelist = new TList();
 
-  fnamelist->Add(new TObjString(Form("%s/params_22Part_n1000_f0_sep.root",workDir.Data())));
-  fnamelist->Add(new TObjString(Form("%s/params_22Part_n1000_f1_sep.root",workDir.Data())));
-  fnamelist->Add(new TObjString(Form("%s/params_22Part_n1000_f2_sep.root",workDir.Data())));
-  fnamelist->Add(new TObjString(Form("%s/params_22Part_n1000_f3_sep.root",workDir.Data())));
+  for ( Int_t ifile = 0 ; ifile < nofFiles ; ifile++ )
+    fnamelist->Add(new TObjString(Form("%s/params_%dPart_n1000_f%d_sep.root",workDir.Data(),nparts,ifile)));
 
   //parInput1->open(parFile.Data());
   parInput1->open(fnamelist);       
