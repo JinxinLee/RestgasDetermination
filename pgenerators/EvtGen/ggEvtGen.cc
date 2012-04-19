@@ -19,11 +19,11 @@
 #ifndef __CINT__
 #include "CLHEP/Vector/LorentzVector.h"
 #include "CLHEP/Random/JamesRandom.h"
-using CLHEP::HepLorentzVector;
+using CLHEP::TLorentzVector;
 using CLHEP::HepJamesRandom;
 #endif
 #ifdef __CINT__
-class HepLorentzVector;
+class TLorentzVector;
 class HepJamesRandom;
 #endif
 

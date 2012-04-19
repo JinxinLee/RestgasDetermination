@@ -38,7 +38,7 @@
 #include "EvtGenBase/EvtRandom.hh"
 #include "EvtGenBase/EvtRandomEngine.hh"
 #include "EvtGenBase/EvtParticleFactory.hh"
-#include "CLHEP/Vector/LorentzVector.h"
+#include "TLorentzVector.h"
 #include "EvtGenModels/EvtModelReg.hh"
 #include "EvtGenBase/EvtStatus.hh"
 #include "EvtGenBase/EvtAbsRadCorr.hh"
@@ -215,7 +215,7 @@ void EvtGen::generateDecay(EvtParticle *p){
 
 
 
-void EvtGen::generateEvent(int stdhepid, HepLorentzVector P, HepLorentzVector D) {
+void EvtGen::generateEvent(int stdhepid, TLorentzVector P, TLorentzVector D) {
 
   EvtParticle *root_part;
   EvtVectorParticle *vector_part;
@@ -223,7 +223,7 @@ void EvtGen::generateEvent(int stdhepid, HepLorentzVector P, HepLorentzVector D)
   vector_part=new EvtVectorParticle;
   EvtVector4R p_init;
 
-  p_init.set(P.t(),P.x(),P.y(),P.z());
+  p_init.set(P.T(),P.X(),P.Y(),P.Z());
 
   vector_part->init(EvtPDL::evtIdFromStdHep(stdhepid),p_init);
   
@@ -237,7 +237,7 @@ void EvtGen::generateEvent(int stdhepid, HepLorentzVector P, HepLorentzVector D)
 
 }
 
-void EvtGen::generateEvent(EvtParticle *root_part, HepLorentzVector D){
+void EvtGen::generateEvent(EvtParticle *root_part, TLorentzVector D){
 
   int i;  
   
@@ -299,10 +299,10 @@ void EvtGen::generateEvent(EvtParticle *root_part, HepLorentzVector D){
     pz=p4.get(3);
     e=p4.get(0);
 	  
-    x=x4.get(1)+D.x();
-    y=x4.get(2)+D.y();
-    z=x4.get(3)+D.z();
-    t=x4.get(0)+D.t();
+    x=x4.get(1)+D.X();
+    y=x4.get(2)+D.Y();
+    z=x4.get(3)+D.Z();
+    t=x4.get(0)+D.T();
       
     m=p4.mass();
 

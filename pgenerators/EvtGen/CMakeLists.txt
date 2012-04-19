@@ -10,7 +10,6 @@ endif(COMMAND cmake_policy)
 
 set(INCLUDE_DIRECTORIES
 ${ROOT_INCLUDE_DIR} 
-${CLHEP_INCLUDE_DIR}
 ${CMAKE_SOURCE_DIR}/pgenerators/EvtGen
 ${CMAKE_SOURCE_DIR}/pgenerators/EvtGen/EvtGenBase
 ${CMAKE_SOURCE_DIR}/pgenerators/EvtGen/EvtGenModels
@@ -23,7 +22,6 @@ add_definitions("-DEVTSTANDALONE -DEVTGEN_NOHOWTO")
 set(LINK_DIRECTORIES
 ${ROOT_LIBRARY_DIR}
 ${PYTHIA6_LIBRARY_DIR}
-${CLHEP_LIBRARY_DIR}
 )
  
 link_directories( ${LINK_DIRECTORIES})
@@ -307,7 +305,7 @@ foreach(program ${ALLEvtGen_exe})
 	set_target_properties(EvtGen_exe_${program} PROPERTIES OUTPUT_NAME ${program})
 	set_target_properties(EvtGen_exe_${program} PROPERTIES LINK_FLAGS "-fPIC")
         set_target_properties(EvtGen_exe_${program} PROPERTIES LINKER_LANGUAGE "Fortran")
-	target_link_libraries(EvtGen_exe_${program} ${ROOT_LIBRARIES} EvtGen Pythia6 Photos ${Fortran_UseLib} CLHEP)
+	target_link_libraries(EvtGen_exe_${program} ${ROOT_LIBRARIES} EvtGen Pythia6 Photos ${Fortran_UseLib} )
 endforeach(program)
 
 ################ install ###################

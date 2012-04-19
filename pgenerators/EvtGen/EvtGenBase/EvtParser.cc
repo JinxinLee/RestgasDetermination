@@ -21,15 +21,15 @@
 #include "EvtGenBase/EvtPatches.hh"
 #include "EvtGenBase/EvtPatches.hh"
 #include <fstream>
-#include <strstream>
+#include <sstream>
 #include <string.h>
 #include "EvtGenBase/EvtParser.hh"
 #include "EvtGenBase/EvtReport.hh"
 using std::endl;
 using std::fstream;
 using std::ifstream;
-using std::istrstream;
-using std::strstream;
+using std::istringstream;
+using std::stringstream;
 
 #define MAXBUF 1024
 
@@ -106,7 +106,7 @@ int EvtParser::Read(const std::string filename){
     }while(buf[i-1]!=0);
 
     //read each token
-    istrstream ist(buf,strlen(buf));
+    istringstream ist(buf);
     while(ist>>buf2){
       i=0;
       int semicolon=0;

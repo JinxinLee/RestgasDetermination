@@ -29,13 +29,8 @@
 #define EVTGEN_HH
 
 #include "EvtGenBase/EvtPDL.hh"
-#ifndef __CINT__
-#include "CLHEP/Vector/LorentzVector.h"
-using CLHEP::HepLorentzVector;
-#endif
-#ifdef __CINT__
-class HepLorentzVector;
-#endif
+#include "TLorentzVector.h"
+
 class EvtParticle;
 class EvtRandomEngine;
 class TLorentzVector;
@@ -61,9 +56,9 @@ public:
 
   //These two methods are obsolete
 
-  void generateEvent(int stdhepid, HepLorentzVector P, HepLorentzVector D);
+  void generateEvent(int stdhepid, TLorentzVector P, TLorentzVector D);
 
-  void generateEvent(EvtParticle *root_part, HepLorentzVector D);
+  void generateEvent(EvtParticle *root_part, TLorentzVector D);
 
   
 private:

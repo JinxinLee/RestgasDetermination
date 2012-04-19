@@ -24,7 +24,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <sys/stat.h>
-#include <strstream>
+#include <sstream>
 #include "EvtGenBase/EvtParticle.hh"
 #include "EvtGenBase/EvtId.hh"
 #include "EvtGenBase/EvtPDL.hh"
@@ -41,7 +41,7 @@
 #include "EvtGenBase/EvtParticleFactory.hh"
 using std::endl;
 using std::fstream;
-using std::strstream;
+using std::stringstream;
 
 EvtParticle* EvtParticleFactory::particleFactory(EvtSpinType::spintype spinType){
 

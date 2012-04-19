@@ -54,11 +54,11 @@
 #ifndef __CINT__
 #include "CLHEP/Vector/LorentzVector.h"
 #include "CLHEP/Random/JamesRandom.h"
-using CLHEP::HepLorentzVector;
+using CLHEP::TLorentzVector;
 using CLHEP::HepJamesRandom;
 #endif
 #ifdef __CINT__
-class HepLorentzVector;
+class TLorentzVector;
 class HepJamesRandom;
 #endif
 
@@ -114,91 +114,91 @@ double EvtCLHEPRandomEngine::random(){
 
 
 
-void runFile(int nevent,char* fname,EvtGen& myGenerator,HepLorentzVector t_init);
-void runPrint(int nevent,char* fname,EvtGen& myGenerator,HepLorentzVector t_init);
-void runFileVpho(int nevent,char* fname,EvtGen& myGenerator,HepLorentzVector t_init);
-void runTest1(int nevent,EvtGen& myGenerator,HepLorentzVector t_init);
-void runTest2(int nevent,EvtGen& myGenerator,HepLorentzVector t_init);
-void runOmega(int nevent,EvtGen& myGenerator,HepLorentzVector t_init);
-void runChi1Kstar(int nevent,EvtGen& myGenerator,HepLorentzVector t_init);
-void runStdHep(int nevent,EvtGen& myGenerator, HepLorentzVector t_init);
-void runPi0Dalitz(int nevent,EvtGen& myGenerator,HepLorentzVector t_init);
-void runRandom(int nevent,EvtGen& myGenerator,HepLorentzVector t_init);
-void runUCLAII(int nevent,EvtGen& myGenerator,HepLorentzVector t_init);
-void runMix(int nevent,EvtGen& myGenerator,HepLorentzVector t_init);
-void runBMix(int nevent,EvtGen& myGenerator,HepLorentzVector t_init);
-void runDDalitz(int nevent,EvtGen& myGenerator,HepLorentzVector t_init);
-void runPiPiCPT(int nevent,EvtGen& myGenerator,HepLorentzVector t_init);
-void runPiPiPiPi(int nevent,EvtGen& myGenerator,HepLorentzVector t_init);
-void runD2Pi(int nevent,EvtGen& myGenerator,HepLorentzVector t_init);
-void runJetsetTab3(int nevent,EvtGen& myGenerator,HepLorentzVector t_init);
-void runHelAmp(int nevent,EvtGen& myGenerator,HepLorentzVector t_init);
-void runHelAmp2(int nevent,EvtGen& myGenerator,HepLorentzVector t_init);
-void runLambdab(int nevent,EvtGen& myGenerator,HepLorentzVector t_init);
-void runJpsiXgamma(int nevent,EvtGen& myGenerator,HepLorentzVector t_init);
-void runJpsif0gamma(int nevent,EvtGen& myGenerator,HepLorentzVector t_init);
-void runJpsiKs(int nevent,EvtGen& myGenerator,HepLorentzVector t_init);
-void runDump(int nevent,EvtGen& myGenerator,HepLorentzVector t_init);
-void runD1(int nevent,EvtGen& myGenerator,HepLorentzVector t_init);
-void runGenericCont(int nevent,EvtGen& myGenerator,HepLorentzVector t_init);
-void runPiPiPi(int nevent,EvtGen& myGenerator,HepLorentzVector t_init);
-void runBHadronic(int nevent,EvtGen& myGenerator,HepLorentzVector t_init);
-void runSingleB(int nevent,EvtGen& myGenerator,HepLorentzVector t_init);
-void runA2Pi(int nevent,EvtGen& myGenerator,HepLorentzVector t_init);
+void runFile(int nevent,char* fname,EvtGen& myGenerator,TLorentzVector t_init);
+void runPrint(int nevent,char* fname,EvtGen& myGenerator,TLorentzVector t_init);
+void runFileVpho(int nevent,char* fname,EvtGen& myGenerator,TLorentzVector t_init);
+void runTest1(int nevent,EvtGen& myGenerator,TLorentzVector t_init);
+void runTest2(int nevent,EvtGen& myGenerator,TLorentzVector t_init);
+void runOmega(int nevent,EvtGen& myGenerator,TLorentzVector t_init);
+void runChi1Kstar(int nevent,EvtGen& myGenerator,TLorentzVector t_init);
+void runStdHep(int nevent,EvtGen& myGenerator, TLorentzVector t_init);
+void runPi0Dalitz(int nevent,EvtGen& myGenerator,TLorentzVector t_init);
+void runRandom(int nevent,EvtGen& myGenerator,TLorentzVector t_init);
+void runUCLAII(int nevent,EvtGen& myGenerator,TLorentzVector t_init);
+void runMix(int nevent,EvtGen& myGenerator,TLorentzVector t_init);
+void runBMix(int nevent,EvtGen& myGenerator,TLorentzVector t_init);
+void runDDalitz(int nevent,EvtGen& myGenerator,TLorentzVector t_init);
+void runPiPiCPT(int nevent,EvtGen& myGenerator,TLorentzVector t_init);
+void runPiPiPiPi(int nevent,EvtGen& myGenerator,TLorentzVector t_init);
+void runD2Pi(int nevent,EvtGen& myGenerator,TLorentzVector t_init);
+void runJetsetTab3(int nevent,EvtGen& myGenerator,TLorentzVector t_init);
+void runHelAmp(int nevent,EvtGen& myGenerator,TLorentzVector t_init);
+void runHelAmp2(int nevent,EvtGen& myGenerator,TLorentzVector t_init);
+void runLambdab(int nevent,EvtGen& myGenerator,TLorentzVector t_init);
+void runJpsiXgamma(int nevent,EvtGen& myGenerator,TLorentzVector t_init);
+void runJpsif0gamma(int nevent,EvtGen& myGenerator,TLorentzVector t_init);
+void runJpsiKs(int nevent,EvtGen& myGenerator,TLorentzVector t_init);
+void runDump(int nevent,EvtGen& myGenerator,TLorentzVector t_init);
+void runD1(int nevent,EvtGen& myGenerator,TLorentzVector t_init);
+void runGenericCont(int nevent,EvtGen& myGenerator,TLorentzVector t_init);
+void runPiPiPi(int nevent,EvtGen& myGenerator,TLorentzVector t_init);
+void runBHadronic(int nevent,EvtGen& myGenerator,TLorentzVector t_init);
+void runSingleB(int nevent,EvtGen& myGenerator,TLorentzVector t_init);
+void runA2Pi(int nevent,EvtGen& myGenerator,TLorentzVector t_init);
 void runAlias();
 void runRepeat(int nevent);
-void runPhotos(int nevent,EvtGen& myGenerator,HepLorentzVector t_init);
-void runTrackMult(int nevent,EvtGen& myGenerator,HepLorentzVector t_init);
+void runPhotos(int nevent,EvtGen& myGenerator,TLorentzVector t_init);
+void runTrackMult(int nevent,EvtGen& myGenerator,TLorentzVector t_init);
 void runGeneric(int neventOrig,EvtGen& myGenerator,
-		HepLorentzVector t_init, std::string listfile);
+		TLorentzVector t_init, std::string listfile);
 void runFinalStates(int nevent,EvtGen& myGenerator,
-		HepLorentzVector t_init, int flag);
+		TLorentzVector t_init, int flag);
 std::vector<std::string> findFinalState(EvtParticle *p);
 std::vector<std::string> findFinalState2(EvtParticle *p);
-void runKstarnunu(int nevent,EvtGen& myGenerator,HepLorentzVector t_init);
-void runBsmix(int nevent,EvtGen& myGenerator,HepLorentzVector t_init);
-void runTauTauPiPi(int nevent,EvtGen& myGenerator,HepLorentzVector t_init);
-void runTauTauEE(int nevent,EvtGen& myGenerator,HepLorentzVector t_init);
-void runTauTau2Pi2Pi(int nevent,EvtGen& myGenerator,HepLorentzVector t_init);
-void runTauTau3Pi3Pi(int nevent,EvtGen& myGenerator,HepLorentzVector t_init);
-void runJPsiKstar(int nevent,EvtGen& myGenerator,HepLorentzVector t_init);
-void runSVVCPLH(int nevent,EvtGen& myGenerator,HepLorentzVector t_init);
-void runSVSCPLH(int nevent,EvtGen& myGenerator,HepLorentzVector t_init);
-void runSSDCP(int nevent,EvtGen& myGenerator,HepLorentzVector t_init);
-void runKstarstargamma(int nevent,EvtGen& myGenerator,HepLorentzVector t_init);
-void runDSTARPI(int nevent,EvtGen& myGenerator,HepLorentzVector t_init);
-void runETACPHIPHI(int nevent,EvtGen& myGenerator,HepLorentzVector t_init);
-void runVVPiPi(int nevent,EvtGen& myGenerator,HepLorentzVector t_init);
-void runSVVHelAmp(int nevent,EvtGen& myGenerator,HepLorentzVector t_init);
-void runSVVHelAmp2(int nevent,EvtGen& myGenerator,HepLorentzVector t_init);
-void runPartWave(int nevent,EvtGen& myGenerator,HepLorentzVector t_init);
-void runPartWave2(int nevent,EvtGen& myGenerator,HepLorentzVector t_init);
-void runTwoBody(int nevent,EvtGen& myGenerator,HepLorentzVector t_init,std::string decfile);
-void runPiPi(int nevent,EvtGen& myGenerator,HepLorentzVector t_init);
-void runA1Pi(int nevent,EvtGen& myGenerator,HepLorentzVector t_init);
-void runCPTest(int nevent,EvtGen& myGenerator,HepLorentzVector t_init);
-void runSemic(int nevent,EvtGen& myGenerator,HepLorentzVector t_init);
-void runKstarll(int nevent,EvtGen& myGenerator,HepLorentzVector t_init);
-void runKll(int nevent,EvtGen& myGenerator,HepLorentzVector t_init);
-void runHll(int nevent,EvtGen& myGenerator,HepLorentzVector t_init, char* mode);
-void runVectorIsr(int nevent,EvtGen& myGenerator,HepLorentzVector t_init);
-void runBsquark(int nevent,EvtGen& myGenerator,HepLorentzVector t_init);
-void runK3gamma(int nevent,EvtGen& myGenerator,HepLorentzVector t_init);
-void runLambda(int nevent,EvtGen& myGenerator,HepLorentzVector t_init);
-void runBtoXsgamma(int nevent,EvtGen& myGenerator,HepLorentzVector t_init);
-void runBtoK1273gamma(int nevent,EvtGen& myGenerator,HepLorentzVector t_init);
+void runKstarnunu(int nevent,EvtGen& myGenerator,TLorentzVector t_init);
+void runBsmix(int nevent,EvtGen& myGenerator,TLorentzVector t_init);
+void runTauTauPiPi(int nevent,EvtGen& myGenerator,TLorentzVector t_init);
+void runTauTauEE(int nevent,EvtGen& myGenerator,TLorentzVector t_init);
+void runTauTau2Pi2Pi(int nevent,EvtGen& myGenerator,TLorentzVector t_init);
+void runTauTau3Pi3Pi(int nevent,EvtGen& myGenerator,TLorentzVector t_init);
+void runJPsiKstar(int nevent,EvtGen& myGenerator,TLorentzVector t_init);
+void runSVVCPLH(int nevent,EvtGen& myGenerator,TLorentzVector t_init);
+void runSVSCPLH(int nevent,EvtGen& myGenerator,TLorentzVector t_init);
+void runSSDCP(int nevent,EvtGen& myGenerator,TLorentzVector t_init);
+void runKstarstargamma(int nevent,EvtGen& myGenerator,TLorentzVector t_init);
+void runDSTARPI(int nevent,EvtGen& myGenerator,TLorentzVector t_init);
+void runETACPHIPHI(int nevent,EvtGen& myGenerator,TLorentzVector t_init);
+void runVVPiPi(int nevent,EvtGen& myGenerator,TLorentzVector t_init);
+void runSVVHelAmp(int nevent,EvtGen& myGenerator,TLorentzVector t_init);
+void runSVVHelAmp2(int nevent,EvtGen& myGenerator,TLorentzVector t_init);
+void runPartWave(int nevent,EvtGen& myGenerator,TLorentzVector t_init);
+void runPartWave2(int nevent,EvtGen& myGenerator,TLorentzVector t_init);
+void runTwoBody(int nevent,EvtGen& myGenerator,TLorentzVector t_init,std::string decfile);
+void runPiPi(int nevent,EvtGen& myGenerator,TLorentzVector t_init);
+void runA1Pi(int nevent,EvtGen& myGenerator,TLorentzVector t_init);
+void runCPTest(int nevent,EvtGen& myGenerator,TLorentzVector t_init);
+void runSemic(int nevent,EvtGen& myGenerator,TLorentzVector t_init);
+void runKstarll(int nevent,EvtGen& myGenerator,TLorentzVector t_init);
+void runKll(int nevent,EvtGen& myGenerator,TLorentzVector t_init);
+void runHll(int nevent,EvtGen& myGenerator,TLorentzVector t_init, char* mode);
+void runVectorIsr(int nevent,EvtGen& myGenerator,TLorentzVector t_init);
+void runBsquark(int nevent,EvtGen& myGenerator,TLorentzVector t_init);
+void runK3gamma(int nevent,EvtGen& myGenerator,TLorentzVector t_init);
+void runLambda(int nevent,EvtGen& myGenerator,TLorentzVector t_init);
+void runBtoXsgamma(int nevent,EvtGen& myGenerator,TLorentzVector t_init);
+void runBtoK1273gamma(int nevent,EvtGen& myGenerator,TLorentzVector t_init);
 void runCheckRotBoost();
 void runMassCheck(int nevent, EvtGen& myGenerator, int partnum);                                                                  
-void runJpsiPolarization(int nevent, EvtGen& myGenerator, HepLorentzVector t_init);
-void runEtaPrK(int nevent, EvtGen &myGenerator, HepLorentzVector t_init);
-void runDDK(int nevent, EvtGen &myGenerator, HepLorentzVector t_init);
+void runJpsiPolarization(int nevent, EvtGen& myGenerator, TLorentzVector t_init);
+void runEtaPrK(int nevent, EvtGen &myGenerator, TLorentzVector t_init);
+void runDDK(int nevent, EvtGen &myGenerator, TLorentzVector t_init);
 
 int countInclusive(std::string name, EvtParticle *root,TH1F* mom=0,TH1F* mass=0 );
 int countInclusiveParent(std::string name, EvtParticle *root,EvtIdSet setIds,
 			 TH1F* mom=0);
 int countInclusiveSubTree(std::string name, EvtParticle *root,EvtIdSet setIds,
 			 TH1F* mom=0);
-void runBaryonic(int nEvent, EvtGen& myGenerator, HepLorentzVector t_init);
+void runBaryonic(int nEvent, EvtGen& myGenerator, TLorentzVector t_init);
 
 
 
@@ -227,7 +227,7 @@ int main(int argc, char* argv[]){
   }
 
   double xyzt(0.0);
-  HepLorentzVector t_init(xyzt,xyzt,xyzt,xyzt);
+  TLorentzVector t_init(xyzt,xyzt,xyzt,xyzt);
   
   EvtGen myGenerator("../DECAY.DEC","../evt.pdl",myRandomEngine);
 
@@ -630,7 +630,7 @@ int main(int argc, char* argv[]){
 
 
 void runFile(int nevent,char* fname, EvtGen &myGenerator, 
-	     HepLorentzVector t_init) {
+	     TLorentzVector t_init) {
 
   static EvtId UPS4=EvtPDL::getId(std::string("Upsilon(4S)"));
 
@@ -661,7 +661,7 @@ void runFile(int nevent,char* fname, EvtGen &myGenerator,
 }
 
 void runPrint(int nevent,char* fname, EvtGen &myGenerator, 
-	     HepLorentzVector t_init) {
+	     TLorentzVector t_init) {
 
   static EvtId UPS4=EvtPDL::getId(std::string("Upsilon(4S)"));
 
@@ -695,7 +695,7 @@ void runPrint(int nevent,char* fname, EvtGen &myGenerator,
 }
 
 void runFileVpho(int nevent,char* fname, EvtGen &myGenerator, 
-	     HepLorentzVector t_init) {
+	     TLorentzVector t_init) {
 
   static EvtId VPHO=EvtPDL::getId(std::string("vpho"));
   static EvtId UPS4=EvtPDL::getId(std::string("Upsilon(4S)"));
@@ -730,7 +730,7 @@ void runFileVpho(int nevent,char* fname, EvtGen &myGenerator,
 ///////////////
 
 void runJpsiPolarization(int nevent, EvtGen &myGenerator, 
-              HepLorentzVector t_init) {
+              TLorentzVector t_init) {
 
    static EvtId UPS4=EvtPDL::getId(std::string("Upsilon(4S)"));
    static EvtId JPSI=EvtPDL::getId(std::string("J/psi"));
@@ -800,7 +800,7 @@ void runJpsiPolarization(int nevent, EvtGen &myGenerator,
 
 ////////////////////////
 
-void runEtaPrK(int nevent, EvtGen &myGenerator, HepLorentzVector t_init) {
+void runEtaPrK(int nevent, EvtGen &myGenerator, TLorentzVector t_init) {
    static EvtId UPS4=EvtPDL::getId(std::string("Upsilon(4S)"));
    static EvtId ETAPR=EvtPDL::getId(std::string("eta'"));
    static EvtId KP=EvtPDL::getId(std::string("K+"));
@@ -847,7 +847,7 @@ void runEtaPrK(int nevent, EvtGen &myGenerator, HepLorentzVector t_init) {
  }
 
 void runPi0Dalitz(int nevent, EvtGen &myGenerator, 
-	     HepLorentzVector t_init) {
+	     TLorentzVector t_init) {
 
 
   static EvtId PI0=EvtPDL::getId(std::string("pi0"));
@@ -892,7 +892,7 @@ void runPi0Dalitz(int nevent, EvtGen &myGenerator,
 
 
 //*******************************************************************************
-void runTest1(int nevent, EvtGen &myGenerator, HepLorentzVector t_init) {
+void runTest1(int nevent, EvtGen &myGenerator, TLorentzVector t_init) {
   //  TFile *file=new TFile("test1.root", "RECREATE");
   static EvtId UPS4=EvtPDL::getId(std::string("Upsilon(4S)"));
   
@@ -972,7 +972,7 @@ void runTest1(int nevent, EvtGen &myGenerator, HepLorentzVector t_init) {
 }
 
 //*******************************************************************************
-void runDDK(int nevent, EvtGen &myGenerator, HepLorentzVector t_init) {
+void runDDK(int nevent, EvtGen &myGenerator, TLorentzVector t_init) {
   //  TFile *file=new TFile("test1.root", "RECREATE");
   static EvtId UPS4=EvtPDL::getId(std::string("Upsilon(4S)"));
   
@@ -1063,7 +1063,7 @@ void runDDK(int nevent, EvtGen &myGenerator, HepLorentzVector t_init) {
 
 //*******************************************************************************
 
-void runTest2(int nevent, EvtGen &myGenerator, HepLorentzVector t_init) {
+void runTest2(int nevent, EvtGen &myGenerator, TLorentzVector t_init) {
 
   TFile *file=new TFile("test2.root", "RECREATE");
   static EvtId UPS4=EvtPDL::getId(std::string("Upsilon(4S)"));
@@ -1208,7 +1208,7 @@ void runTest2(int nevent, EvtGen &myGenerator, HepLorentzVector t_init) {
 
 
 
-void runOmega(int nevent, EvtGen &myGenerator, HepLorentzVector t_init) {
+void runOmega(int nevent, EvtGen &myGenerator, TLorentzVector t_init) {
 
   TFile *file=new TFile("omega.root", "RECREATE");
   static EvtId OMEGA=EvtPDL::getId(std::string("omega"));
@@ -1248,7 +1248,7 @@ void runOmega(int nevent, EvtGen &myGenerator, HepLorentzVector t_init) {
 
 
 
-void runChi1Kstar(int nevent, EvtGen &myGenerator, HepLorentzVector t_init) {
+void runChi1Kstar(int nevent, EvtGen &myGenerator, TLorentzVector t_init) {
 
   TFile *file=new TFile("chi1kstar.root", "RECREATE");
   static EvtId B0=EvtPDL::getId(std::string("B0"));
@@ -1312,7 +1312,7 @@ void runChi1Kstar(int nevent, EvtGen &myGenerator, HepLorentzVector t_init) {
 
 
 
-void runStdHep(int nevent, EvtGen &myGenerator, HepLorentzVector t_init) {
+void runStdHep(int nevent, EvtGen &myGenerator, TLorentzVector t_init) {
   int count=1;
 
   static EvtId UPS4=EvtPDL::getId(std::string("Upsilon(4S)"));
@@ -1400,7 +1400,7 @@ void runRepeat(int nevent) {
 }
 
 
-void runPhotos(int nevent, EvtGen &myGenerator, HepLorentzVector t_init) {
+void runPhotos(int nevent, EvtGen &myGenerator, TLorentzVector t_init) {
 
   static EvtId PSI=EvtPDL::getId(std::string("J/psi"));
 
@@ -1440,7 +1440,7 @@ void runPhotos(int nevent, EvtGen &myGenerator, HepLorentzVector t_init) {
 }
 
 void runFinalStates(int nevent, EvtGen &myGenerator, 
-		    HepLorentzVector t_init, int flag) {
+		    TLorentzVector t_init, int flag) {
 
     //Parse the table of particles to find..
 
@@ -1650,7 +1650,7 @@ std::vector<std::string> findFinalState2( EvtParticle *tree){
 
 
 
-void runTrackMult(int nevent, EvtGen &myGenerator, HepLorentzVector t_init) {
+void runTrackMult(int nevent, EvtGen &myGenerator, TLorentzVector t_init) {
 
   TFile *file=new TFile("trackmult.root","RECREATE");
 
@@ -1754,7 +1754,7 @@ void runTrackMult(int nevent, EvtGen &myGenerator, HepLorentzVector t_init) {
 }
 
 
-void runGeneric(int neventOrig, EvtGen &myGenerator, HepLorentzVector t_init, 
+void runGeneric(int neventOrig, EvtGen &myGenerator, TLorentzVector t_init, 
 		std::string listfile) {
 
   int nevent=abs(neventOrig);
@@ -1988,7 +1988,7 @@ void runGeneric(int neventOrig, EvtGen &myGenerator, HepLorentzVector t_init,
 
 }
 
-void runKstarnunu(int nevent, EvtGen &myGenerator, HepLorentzVector t_init) {
+void runKstarnunu(int nevent, EvtGen &myGenerator, TLorentzVector t_init) {
 
   static EvtId B0=EvtPDL::getId(std::string("B0"));
   static EvtId B0B=EvtPDL::getId(std::string("anti-B0"));
@@ -2039,7 +2039,7 @@ void runKstarnunu(int nevent, EvtGen &myGenerator, HepLorentzVector t_init) {
   file->Write(); file->Close();
 }
 
-void runBsmix(int nevent, EvtGen &myGenerator, HepLorentzVector t_init) {
+void runBsmix(int nevent, EvtGen &myGenerator, TLorentzVector t_init) {
 
   static EvtId BS0=EvtPDL::getId(std::string("B_s0"));
   static EvtId BSB=EvtPDL::getId(std::string("anti-B_s0"));
@@ -2097,7 +2097,7 @@ void runBsmix(int nevent, EvtGen &myGenerator, HepLorentzVector t_init) {
   
 }
 
-void runSemic(int nevent, EvtGen &myGenerator, HepLorentzVector t_init) {
+void runSemic(int nevent, EvtGen &myGenerator, TLorentzVector t_init) {
 
   static EvtId UPS4=EvtPDL::getId(std::string("Upsilon(4S)"));
   static EvtId VPHO=EvtPDL::getId(std::string("vpho"));
@@ -2369,7 +2369,7 @@ void runSemic(int nevent, EvtGen &myGenerator, HepLorentzVector t_init) {
 }
 
 
-void runKstarll(int nevent, EvtGen &myGenerator, HepLorentzVector t_init) {
+void runKstarll(int nevent, EvtGen &myGenerator, TLorentzVector t_init) {
   TFile *file=new TFile("kstkmm.root", "RECREATE");
   
   TH2F* _dalitz  = new TH2F("h1","q^2! vs Elep",
@@ -2500,7 +2500,7 @@ void runKstarll(int nevent, EvtGen &myGenerator, HepLorentzVector t_init) {
   
 }
 
-void runKll(int nevent, EvtGen &myGenerator, HepLorentzVector t_init) {
+void runKll(int nevent, EvtGen &myGenerator, TLorentzVector t_init) {
   TFile *file=new TFile("ksem.root", "RECREATE");
   
   TH2F* _dalitz  = new TH2F("h1","q^2! vs Elep",
@@ -2631,7 +2631,7 @@ void runKll(int nevent, EvtGen &myGenerator, HepLorentzVector t_init) {
 }
 
 
-void runHll(int nevent, EvtGen &myGenerator, HepLorentzVector t_init, char* mode) {
+void runHll(int nevent, EvtGen &myGenerator, TLorentzVector t_init, char* mode) {
   TString modename = mode;
   TString filename;
   filename = modename;
@@ -2812,7 +2812,7 @@ void runHll(int nevent, EvtGen &myGenerator, HepLorentzVector t_init, char* mode
   file->Close();
 }
 
-void runVectorIsr(int nevent, EvtGen &myGenerator, HepLorentzVector t_init) {
+void runVectorIsr(int nevent, EvtGen &myGenerator, TLorentzVector t_init) {
   
   static EvtId UPS4=EvtPDL::getId(std::string("Upsilon(4S)"));
   static EvtId VPHO=EvtPDL::getId(std::string("vpho"));
@@ -2931,7 +2931,7 @@ void runVectorIsr(int nevent, EvtGen &myGenerator, HepLorentzVector t_init) {
 }
 
 
-void runBsquark(int nevent, EvtGen &myGenerator, HepLorentzVector t_init) {
+void runBsquark(int nevent, EvtGen &myGenerator, TLorentzVector t_init) {
   
   static EvtId VPHO=EvtPDL::getId(std::string("vpho"));
   static EvtId B0=EvtPDL::getId(std::string("B0"));
@@ -3020,7 +3020,7 @@ void runBsquark(int nevent, EvtGen &myGenerator, HepLorentzVector t_init) {
 }
 
 
-void runK3gamma(int nevent, EvtGen &myGenerator, HepLorentzVector t_init) {
+void runK3gamma(int nevent, EvtGen &myGenerator, TLorentzVector t_init) {
   
   static EvtId B0=EvtPDL::getId(std::string("B0"));
 
@@ -3062,7 +3062,7 @@ void runK3gamma(int nevent, EvtGen &myGenerator, HepLorentzVector t_init) {
 }
 
 
-void runLambda(int nevent, EvtGen &myGenerator, HepLorentzVector t_init) {
+void runLambda(int nevent, EvtGen &myGenerator, TLorentzVector t_init) {
   
   static EvtId LAMBDA=EvtPDL::getId(std::string("Lambda0"));
 
@@ -3111,7 +3111,7 @@ void runLambda(int nevent, EvtGen &myGenerator, HepLorentzVector t_init) {
 
 
 
-void runTauTauPiPi(int nevent, EvtGen &myGenerator, HepLorentzVector t_init) {
+void runTauTauPiPi(int nevent, EvtGen &myGenerator, TLorentzVector t_init) {
 
   static EvtId UPS4=EvtPDL::getId(std::string("Upsilon(4S)"));
   static EvtId VPHO=EvtPDL::getId(std::string("vpho"));
@@ -3163,7 +3163,7 @@ void runTauTauPiPi(int nevent, EvtGen &myGenerator, HepLorentzVector t_init) {
   
 }
 
-void runTauTauEE(int nevent, EvtGen &myGenerator, HepLorentzVector t_init) {
+void runTauTauEE(int nevent, EvtGen &myGenerator, TLorentzVector t_init) {
 
   static EvtId UPS4=EvtPDL::getId(std::string("Upsilon(4S)"));
   TFile *file=new TFile("tautauee.root", "RECREATE");
@@ -3202,7 +3202,7 @@ void runTauTauEE(int nevent, EvtGen &myGenerator, HepLorentzVector t_init) {
   
 }
 
-void runTauTau2Pi2Pi(int nevent, EvtGen &myGenerator, HepLorentzVector t_init) {
+void runTauTau2Pi2Pi(int nevent, EvtGen &myGenerator, TLorentzVector t_init) {
 
   static EvtId UPS4=EvtPDL::getId(std::string("Upsilon(4S)"));
   static EvtId VPHO=EvtPDL::getId(std::string("vpho"));
@@ -3253,7 +3253,7 @@ void runTauTau2Pi2Pi(int nevent, EvtGen &myGenerator, HepLorentzVector t_init) {
   
 }
 
-void runTauTau3Pi3Pi(int nevent, EvtGen &myGenerator, HepLorentzVector t_init) {
+void runTauTau3Pi3Pi(int nevent, EvtGen &myGenerator, TLorentzVector t_init) {
 
   static EvtId UPS4=EvtPDL::getId(std::string("Upsilon(4S)"));
   static EvtId VPHO=EvtPDL::getId(std::string("vpho"));
@@ -3300,7 +3300,7 @@ void runTauTau3Pi3Pi(int nevent, EvtGen &myGenerator, HepLorentzVector t_init) {
 }
 
 
-void runJPsiKstar(int nevent, EvtGen &myGenerator, HepLorentzVector t_init) {
+void runJPsiKstar(int nevent, EvtGen &myGenerator, TLorentzVector t_init) {
 
   ofstream outmix;
   outmix.open("jpsikstar.dat");
@@ -3390,7 +3390,7 @@ void runJPsiKstar(int nevent, EvtGen &myGenerator, HepLorentzVector t_init) {
 }
 
 
-void runSVVCPLH(int nevent, EvtGen &myGenerator, HepLorentzVector t_init) {
+void runSVVCPLH(int nevent, EvtGen &myGenerator, TLorentzVector t_init) {
 
   TFile *file=new TFile("svvcplh.root", "RECREATE");
   
@@ -3456,7 +3456,7 @@ void runSVVCPLH(int nevent, EvtGen &myGenerator, HepLorentzVector t_init) {
 }
 
 
-void runSVSCPLH(int nevent, EvtGen &myGenerator, HepLorentzVector t_init) {
+void runSVSCPLH(int nevent, EvtGen &myGenerator, TLorentzVector t_init) {
 
   TFile *file=new TFile("svscplh.root", "RECREATE");
   
@@ -3530,7 +3530,7 @@ void runSVSCPLH(int nevent, EvtGen &myGenerator, HepLorentzVector t_init) {
 }
 
 
-void runSSDCP(int nevent, EvtGen &myGenerator, HepLorentzVector t_init) {
+void runSSDCP(int nevent, EvtGen &myGenerator, TLorentzVector t_init) {
 
   TFile *file=new TFile("ssdcp.root", "RECREATE");
   
@@ -3627,7 +3627,7 @@ void runSSDCP(int nevent, EvtGen &myGenerator, HepLorentzVector t_init) {
 
 }
 
-void runKstarstargamma(int nevent, EvtGen &myGenerator, HepLorentzVector t_init) {
+void runKstarstargamma(int nevent, EvtGen &myGenerator, TLorentzVector t_init) {
 
   TFile *file=new TFile("kstarstargamma.root", "RECREATE");
   
@@ -3680,7 +3680,7 @@ void runKstarstargamma(int nevent, EvtGen &myGenerator, HepLorentzVector t_init)
 }
 
 
-void runDSTARPI(int nevent, EvtGen &myGenerator, HepLorentzVector t_init) {
+void runDSTARPI(int nevent, EvtGen &myGenerator, TLorentzVector t_init) {
 
   TFile *file=new TFile("dstarpi.root", "RECREATE");
   
@@ -3745,7 +3745,7 @@ void runDSTARPI(int nevent, EvtGen &myGenerator, HepLorentzVector t_init) {
 
 
 
-void runETACPHIPHI(int nevent, EvtGen &myGenerator, HepLorentzVector t_init) {
+void runETACPHIPHI(int nevent, EvtGen &myGenerator, TLorentzVector t_init) {
 
   TFile *file=new TFile("etacphiphi.root", "RECREATE");
   
@@ -3817,7 +3817,7 @@ void runETACPHIPHI(int nevent, EvtGen &myGenerator, HepLorentzVector t_init) {
 
 
 
-void runVVPiPi(int nevent, EvtGen &myGenerator, HepLorentzVector t_init) {
+void runVVPiPi(int nevent, EvtGen &myGenerator, TLorentzVector t_init) {
   TFile *file=new TFile("vvpipi.root", "RECREATE");
   
   TH1F* cospsi = new TH1F("h1","cos theta J/psi ",50,-1.0,1.0);
@@ -3885,7 +3885,7 @@ void runVVPiPi(int nevent, EvtGen &myGenerator, HepLorentzVector t_init) {
 }
 
 
-void runSVVHelAmp(int nevent, EvtGen &myGenerator, HepLorentzVector t_init) {
+void runSVVHelAmp(int nevent, EvtGen &myGenerator, TLorentzVector t_init) {
   TFile *file=new TFile("svvhelamp.root", "RECREATE");
   
   TH1F* cospip = new TH1F("h1","cos theta pi+",
@@ -3978,7 +3978,7 @@ void runSVVHelAmp(int nevent, EvtGen &myGenerator, HepLorentzVector t_init) {
 }
 
 
-void runPartWave(int nevent, EvtGen &myGenerator, HepLorentzVector t_init) {
+void runPartWave(int nevent, EvtGen &myGenerator, TLorentzVector t_init) {
 
   TFile *file=new TFile("partwave.root", "RECREATE");
   
@@ -4071,7 +4071,7 @@ void runPartWave(int nevent, EvtGen &myGenerator, HepLorentzVector t_init) {
   file->Write(); file->Close();
 }
 
-void runPartWave2(int nevent, EvtGen &myGenerator, HepLorentzVector t_init) {
+void runPartWave2(int nevent, EvtGen &myGenerator, TLorentzVector t_init) {
 
   TFile file("partwave2.root", "RECREATE");
   
@@ -4176,7 +4176,7 @@ void runPartWave2(int nevent, EvtGen &myGenerator, HepLorentzVector t_init) {
 
 }
 
-void runTwoBody(int nevent, EvtGen &myGenerator, HepLorentzVector t_init, std::string decFile) {
+void runTwoBody(int nevent, EvtGen &myGenerator, TLorentzVector t_init, std::string decFile) {
 
   TFile *file=new TFile("twobody.root", "RECREATE");
   
@@ -4278,7 +4278,7 @@ void runTwoBody(int nevent, EvtGen &myGenerator, HepLorentzVector t_init, std::s
 }
 
 
-void runPiPi(int nevent, EvtGen &myGenerator, HepLorentzVector t_init) {
+void runPiPi(int nevent, EvtGen &myGenerator, TLorentzVector t_init) {
   ofstream outmix;
   outmix.open("pipi.dat");
   
@@ -4351,7 +4351,7 @@ void runPiPi(int nevent, EvtGen &myGenerator, HepLorentzVector t_init) {
   file->Write(); file->Close();
 }
 
-void runA1Pi(int nevent, EvtGen &myGenerator, HepLorentzVector t_init) {
+void runA1Pi(int nevent, EvtGen &myGenerator, TLorentzVector t_init) {
 
   ofstream outmix;
   outmix.open("a1pi.dat");
@@ -4427,7 +4427,7 @@ void runA1Pi(int nevent, EvtGen &myGenerator, HepLorentzVector t_init) {
   outmix.close();
 }
 
-void runCPTest(int nevent, EvtGen &myGenerator, HepLorentzVector t_init) {
+void runCPTest(int nevent, EvtGen &myGenerator, TLorentzVector t_init) {
 
   ofstream outmix;
   outmix.open("cptest.dat");
@@ -4484,7 +4484,7 @@ void runCPTest(int nevent, EvtGen &myGenerator, HepLorentzVector t_init) {
 }
 
 
-void runBtoXsgamma(int nevent, EvtGen &myGenerator, HepLorentzVector t_init) {
+void runBtoXsgamma(int nevent, EvtGen &myGenerator, TLorentzVector t_init) {
 
   static EvtId UPS4 = EvtPDL::getId(std::string("Upsilon(4S)"));
   TFile *file=new TFile("BtoXsgamma.root", "RECREATE");
@@ -4667,7 +4667,7 @@ void runBtoXsgamma(int nevent, EvtGen &myGenerator, HepLorentzVector t_init) {
   
 }
 
-void runBtoK1273gamma(int nevent, EvtGen &myGenerator, HepLorentzVector t_init) {
+void runBtoK1273gamma(int nevent, EvtGen &myGenerator, TLorentzVector t_init) {
 
   static EvtId UPS4 = EvtPDL::getId(std::string("Upsilon(4S)"));
   TFile *file=new TFile("BtoK1273gamma.root", "RECREATE");
@@ -4972,7 +4972,7 @@ int countInclusiveParent(std::string name, EvtParticle *root_part,
 }
 
 
-void runBMix(int nevent, EvtGen &myGenerator, HepLorentzVector t_init) {
+void runBMix(int nevent, EvtGen &myGenerator, TLorentzVector t_init) {
 
     TFile *file=new TFile("bmix.root", "RECREATE");
 
@@ -5030,7 +5030,7 @@ void runBMix(int nevent, EvtGen &myGenerator, HepLorentzVector t_init) {
 
 
 
-void runDDalitz(int nevent, EvtGen &myGenerator, HepLorentzVector t_init) {
+void runDDalitz(int nevent, EvtGen &myGenerator, TLorentzVector t_init) {
 
     TFile *file=new TFile("ddalitz.root", "RECREATE");
 
@@ -5090,7 +5090,7 @@ void runDDalitz(int nevent, EvtGen &myGenerator, HepLorentzVector t_init) {
   }
 
 
-void runPiPiPi(int nevent, EvtGen &myGenerator, HepLorentzVector t_init) {
+void runPiPiPi(int nevent, EvtGen &myGenerator, TLorentzVector t_init) {
 
     ofstream outmix;
     outmix.open("pipipi.dat");
@@ -5133,7 +5133,7 @@ void runPiPiPi(int nevent, EvtGen &myGenerator, HepLorentzVector t_init) {
   }
 
 
-void runBHadronic(int nevent, EvtGen &myGenerator, HepLorentzVector t_init) {
+void runBHadronic(int nevent, EvtGen &myGenerator, TLorentzVector t_init) {
 
     ofstream outmix;
     outmix.open("bhadronic.dat");
@@ -5179,7 +5179,7 @@ void runBHadronic(int nevent, EvtGen &myGenerator, HepLorentzVector t_init) {
 
   }
 
-void runSingleB(int nevent, EvtGen &myGenerator, HepLorentzVector t_init) {
+void runSingleB(int nevent, EvtGen &myGenerator, TLorentzVector t_init) {
 
     int count;
 
@@ -5206,7 +5206,7 @@ void runSingleB(int nevent, EvtGen &myGenerator, HepLorentzVector t_init) {
 
 
 
-void runPiPiPiPi(int nevent, EvtGen &myGenerator, HepLorentzVector t_init) {
+void runPiPiPiPi(int nevent, EvtGen &myGenerator, TLorentzVector t_init) {
 
     ofstream outmix;
     outmix.open("pipipipi.dat");
@@ -5283,7 +5283,7 @@ void runPiPiPiPi(int nevent, EvtGen &myGenerator, HepLorentzVector t_init) {
     outmix.close();
   }
 
-void runA2Pi(int nevent, EvtGen &myGenerator, HepLorentzVector t_init) {
+void runA2Pi(int nevent, EvtGen &myGenerator, TLorentzVector t_init) {
 
     ofstream outmix;
     outmix.open("a2pi.dat");
@@ -5366,7 +5366,7 @@ void runA2Pi(int nevent, EvtGen &myGenerator, HepLorentzVector t_init) {
   }
 
 
-void runHelAmp(int nevent, EvtGen &myGenerator, HepLorentzVector t_init) {
+void runHelAmp(int nevent, EvtGen &myGenerator, TLorentzVector t_init) {
 
     TFile *file=new TFile("helamp.root", "RECREATE");
 
@@ -5414,7 +5414,7 @@ void runHelAmp(int nevent, EvtGen &myGenerator, HepLorentzVector t_init) {
 
   }
 
-void runHelAmp2(int nevent, EvtGen &myGenerator, HepLorentzVector t_init) {
+void runHelAmp2(int nevent, EvtGen &myGenerator, TLorentzVector t_init) {
 
     TFile *file=new TFile("helamp2.root", "RECREATE");
 
@@ -5459,7 +5459,7 @@ void runHelAmp2(int nevent, EvtGen &myGenerator, HepLorentzVector t_init) {
 
 
 
-void runLambdab(int nevent, EvtGen &myGenerator, HepLorentzVector t_init) {
+void runLambdab(int nevent, EvtGen &myGenerator, TLorentzVector t_init) {
 
     TFile *file=new TFile("lambdab.root", "RECREATE");
 
@@ -5516,7 +5516,7 @@ void runLambdab(int nevent, EvtGen &myGenerator, HepLorentzVector t_init) {
   }
 
 
-void runJpsiXgamma(int nevent, EvtGen &myGenerator, HepLorentzVector t_init) {
+void runJpsiXgamma(int nevent, EvtGen &myGenerator, TLorentzVector t_init) {
 
     TFile *file=new TFile("jpsixgamma.root", "RECREATE");
 
@@ -5564,7 +5564,7 @@ void runJpsiXgamma(int nevent, EvtGen &myGenerator, HepLorentzVector t_init) {
   }
 
 
-void runJpsif0gamma(int nevent, EvtGen &myGenerator, HepLorentzVector t_init) {
+void runJpsif0gamma(int nevent, EvtGen &myGenerator, TLorentzVector t_init) {
 
     TFile *file=new TFile("jpsif0gamma.root", "RECREATE");
 
@@ -5614,7 +5614,7 @@ void runJpsif0gamma(int nevent, EvtGen &myGenerator, HepLorentzVector t_init) {
 
 
 
-void runD2Pi(int nevent, EvtGen &myGenerator, HepLorentzVector t_init) {
+void runD2Pi(int nevent, EvtGen &myGenerator, TLorentzVector t_init) {
 
     TFile *file=new TFile("d2pi.root", "RECREATE");
 
@@ -5672,7 +5672,7 @@ void runD2Pi(int nevent, EvtGen &myGenerator, HepLorentzVector t_init) {
   }
 
 
-void runPiPiCPT(int nevent, EvtGen &myGenerator, HepLorentzVector t_init) {
+void runPiPiCPT(int nevent, EvtGen &myGenerator, TLorentzVector t_init) {
 
     ofstream outmix;
     outmix.open("pipicpt.dat");
@@ -5731,7 +5731,7 @@ void runPiPiCPT(int nevent, EvtGen &myGenerator, HepLorentzVector t_init) {
   }
 
 
-void runJpsiKs(int nevent, EvtGen &myGenerator, HepLorentzVector t_init) {
+void runJpsiKs(int nevent, EvtGen &myGenerator, TLorentzVector t_init) {
 
     ofstream outmix;
     outmix.open("jpsiks.dat");
@@ -5789,7 +5789,7 @@ void runJpsiKs(int nevent, EvtGen &myGenerator, HepLorentzVector t_init) {
 
 
 
-void runJetsetTab3(int nevent, EvtGen &myGenerator, HepLorentzVector t_init) {
+void runJetsetTab3(int nevent, EvtGen &myGenerator, TLorentzVector t_init) {
 
     int count;
 
@@ -5850,7 +5850,7 @@ void runJetsetTab3(int nevent, EvtGen &myGenerator, HepLorentzVector t_init) {
   }
 
 
-void runDump(int nevent, EvtGen &myGenerator, HepLorentzVector t_init) {
+void runDump(int nevent, EvtGen &myGenerator, TLorentzVector t_init) {
 
     int count;
 
@@ -5958,7 +5958,7 @@ void runDump(int nevent, EvtGen &myGenerator, HepLorentzVector t_init) {
   }
 
 
-void runRandom(int nevent, EvtGen &myGenerator, HepLorentzVector t_init) {
+void runRandom(int nevent, EvtGen &myGenerator, TLorentzVector t_init) {
 
     report(INFO,"EvtGen") << "The random test is broken!"<<endl;
 
@@ -6014,7 +6014,7 @@ void runRandom(int nevent, EvtGen &myGenerator, HepLorentzVector t_init) {
 
   }
 
-void runUCLAII(int nevent, EvtGen &myGenerator, HepLorentzVector t_init) {
+void runUCLAII(int nevent, EvtGen &myGenerator, TLorentzVector t_init) {
 
     int count;
 
@@ -6065,7 +6065,7 @@ void runUCLAII(int nevent, EvtGen &myGenerator, HepLorentzVector t_init) {
   }
 
 
-void runGenericCont(int nevent, EvtGen &myGenerator, HepLorentzVector t_init) {
+void runGenericCont(int nevent, EvtGen &myGenerator, TLorentzVector t_init) {
 
     int count;
 
@@ -6118,7 +6118,7 @@ void runGenericCont(int nevent, EvtGen &myGenerator, HepLorentzVector t_init) {
   }
 
 
-void runD1(int nevent, EvtGen &myGenerator, HepLorentzVector t_init) {
+void runD1(int nevent, EvtGen &myGenerator, TLorentzVector t_init) {
 
     ofstream outmix;
     outmix.open("d1.dat");
@@ -6181,7 +6181,7 @@ void runD1(int nevent, EvtGen &myGenerator, HepLorentzVector t_init) {
   }
 
 
-void runMix(int nevent, EvtGen &myGenerator, HepLorentzVector t_init) {
+void runMix(int nevent, EvtGen &myGenerator, TLorentzVector t_init) {
 
     ofstream outmix;
     outmix.open("mix.dat");
@@ -6215,7 +6215,7 @@ void runMix(int nevent, EvtGen &myGenerator, HepLorentzVector t_init) {
   }
 
 
-void runBaryonic(int nEvent, EvtGen& myGenerator, HepLorentzVector t_init)
+void runBaryonic(int nEvent, EvtGen& myGenerator, TLorentzVector t_init)
 {
     TFile* f = new TFile("baryonic.root", "RECREATE");
     TH1D* q2Hist = new TH1D("q2Hist", "q square", 50, 0.0, 25.00);

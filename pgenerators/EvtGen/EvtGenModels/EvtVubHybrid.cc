@@ -28,7 +28,6 @@
 #include "EvtGenBase/EvtVector4R.hh"
 #include "EvtGenModels/EvtPFermi.hh"
 #include "EvtGenModels/EvtVubdGamma.hh"
-#include "CLHEP/Random/RandGeneral.h"
 #include "EvtGenBase/EvtRandom.hh"
 
 #include <string>

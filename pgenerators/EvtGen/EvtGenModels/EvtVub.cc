@@ -27,10 +27,8 @@
 #include "EvtGenModels/EvtVub.hh"
 #include <string>
 #include "EvtGenBase/EvtVector4R.hh"
-//#include "EvtGenModels/EvtHepRandomEngine.hh"
 #include "EvtGenModels/EvtPFermi.hh"
 #include "EvtGenModels/EvtVubdGamma.hh"
-#include "CLHEP/Random/RandGeneral.h"
 #include "EvtGenBase/EvtRandom.hh"
 using std::endl;
 
