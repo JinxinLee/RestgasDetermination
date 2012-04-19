@@ -3058,9 +3058,8 @@ void PndSttMvdGemTracking::ConsiderCombinatorialEffect(Int_t nhits) {
 	
 	if(alreadythere1 == false) {
 	  // accepted[first].push_back((int) sensor[ihit][0]);
-	  std::vector< int > acc1b =  accepted[first];
-	  acc1b.push_back((int) sensor[ihit][0]);
-	  replace(accepted.begin(), accepted.end(), acc1, acc1b);
+	  acc1.push_back((int) sensor[ihit][0]);
+	  accepted[first]  = acc1;
 	  fCombiMap[ihit] = 0;
 	  
 	  // ^^^^^^^
@@ -3123,9 +3122,8 @@ void PndSttMvdGemTracking::ConsiderCombinatorialEffect(Int_t nhits) {
 
 	if(alreadythere2 == false) {
 // 	  accepted[second].push_back((int) sensor[jhit][0]);
-	  std::vector<int> acc2b = accepted[second];
-  	  acc2b.push_back((int) sensor[jhit][0]);
-	  replace(accepted.begin(), accepted.end(), acc2, acc2b);
+  	  acc2.push_back((int) sensor[jhit][0]);
+	  accepted[second] = acc2;
 
   	  fCombiMap[jhit] = 0;
 
