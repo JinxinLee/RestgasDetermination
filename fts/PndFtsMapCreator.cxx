@@ -632,10 +632,11 @@ TClonesArray* PndFtsMapCreator::FillTubeArrayGeoType1() {
 	continue;
       }
     
+
     Int_t tempChamber = GetChamberIDFromName(tubename);
     Int_t tubeID = GetTubeIDFromNameGeoType1(tubename);
     Int_t tempLayer = GetLayerID(tempChamber, tubeID, tubename);
-    Int_t totTubeID = GetTubeIDTot2(tempChamber, tempLayer, tubeID, tubename );
+    Int_t totTubeID = GetTubeIDTot(tempChamber, tempLayer, tubeID, tubename );
     //PndFtsTube *ftstube = GetTubeFromTubeIDToFillGeoType1(tubeID);
     PndFtsTube *ftstube = GetTubeFromNameToFillGeoType1(tubename);
     new((*tubeArray)[totTubeID]) PndFtsTube(*ftstube);
