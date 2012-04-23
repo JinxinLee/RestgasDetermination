@@ -101,11 +101,12 @@ $Xpos $Ypos $Zpos
 }
 
 ############short tube#########for the beam pipe hole#########bassi
+$i=59;
 $Xpos = $diametrostraw*( 128/2 + 0.5 - $i);
 $shortHalf = 117; #(640-172)/4
 $raggio = $diametrostraw/2.;
 print OUT "//*********************
-fts01tubedown#1
+fts01tubedown#$i
 fts01assembly#1
 TUBE
 mylar
@@ -119,8 +120,8 @@ $Xpos -203. $Zpos
 # all'interno un cilindro di argon
 $raggio = $raggio - $spessoremylar;
 print OUT "//*********************
-fts01gasdown#1
-fts01tubedown#1
+fts01gasdown#$i
+fts01tubedown#$i
 TUBE
 argon
 0. 0. -$shortHalf 
@@ -132,8 +133,8 @@ argon
 # ancora all'interno un filo di tungsteno
 $raggio = $diametrofilo/2.;
 print OUT "//*********************
-fts01wiredown#1
-fts01gasdown#1
+fts01wiredown#$i
+fts01gasdown#$i
 TUBE
 tungsten
 0. 0. -$shortHalf
@@ -157,7 +158,7 @@ $i=59;
 $Xpos = $diametrostraw*( 128/2 + 0.5 - $i);
 $raggio = $diametrostraw/2.;
 print OUT "//*********************
-fts01tubeup#1
+fts01tubeup#$i
 fts01assembly#1
 TUBE
 mylar
@@ -171,8 +172,8 @@ $Xpos 203. $Zpos
 # all'interno un cilindro di argon
 $raggio = $raggio - $spessoremylar;
 print OUT "//*********************
-fts01gasup#1
-fts01tubeup#1
+fts01gasup#$i
+fts01tubeup#$i
 TUBE
 argon
 0. 0. -$shortHalf 
@@ -183,8 +184,8 @@ argon
 ";
 $raggio = $diametrofilo/2.;
 print OUT "//*********************
-fts01wireup#1
-fts01gasup#1
+fts01wireup#$i
+fts01gasup#$i
 TUBE
 tungsten
 0. 0. -$shortHalf
@@ -480,15 +481,447 @@ $Xpos $Ypos $z2
 ##########################################################
 #################FTS2#####################################
 ##########################################################
+$Xpos = $diametrostraw*( $nstraws/2 -0.5);
+$Ypos = 0.;
 $Zpos = 3274.-$diametrostraw/2;
 print OUT "//*********************
-fts01assembly#2
+fts02assembly#1
 cave
 ASSEMBLY
 air
 0.  0.   $Zpos
 1.   0.   0.   0.   1.   0.   0.   0.   1.
 ";
+
+########################
+
+$Zpos=0.;
+
+#######################
+print OUT "//*********************
+fts02tube#1
+fts02assembly#1
+TUBE
+mylar
+0. 0. -$semilen 
+0. $raggio
+0. 0. $semilen  
+$Xpos $Ypos $Zpos
+1. 0. 0. 0. 0. 1. 0. 1. 0.
+";
+
+# all'interno un cilindro di argon
+$raggio = $raggio - $spessoremylar;
+print OUT "//*********************
+fts02gas#1
+fts02tube#1
+TUBE
+argon
+0. 0. -$semilen  
+0. $raggio
+0. 0. $semilen  
+0. 0. 0.
+1. 0. 0. 0. 1. 0. 0. 0. 1.
+";
+# ancora all'interno un filo di tungsteno
+$raggio = $diametrofilo/2.;
+print OUT "//*********************
+fts02wire#1
+fts02gas#1
+TUBE
+tungsten
+0. 0. -$semilen 
+0. $raggio
+0. 0. $semilen  
+0. 0. 0.
+1. 0. 0. 0. 1. 0. 0. 0. 1.
+";
+
+for($i=2; $i<59;$i++){
+$Xpos = $diametrostraw*( 128/2 + 0.5 - $i);
+
+print OUT "//*********************
+fts02tube#$i
+fts02assembly#1
+$Xpos $Ypos $Zpos
+1. 0. 0. 0. 0. 1. 0. 1. 0.\n"
+}
+
+############short tube#########for the beam pipe hole#########bassi
+$i=59;
+$Xpos = $diametrostraw*( 128/2 + 0.5 - $i);
+$shortHalf = 117; #(640-172)/4
+$raggio = $diametrostraw/2.;
+print OUT "//*********************
+fts02tubedown#$i
+fts02assembly#1
+TUBE
+mylar
+0. 0. -$shortHalf
+0. $raggio
+0. 0. $shortHalf
+$Xpos -203. $Zpos
+1. 0. 0. 0. 0. 1. 0. 1. 0.
+";
+
+# all'interno un cilindro di argon
+$raggio = $raggio - $spessoremylar;
+print OUT "//*********************
+fts02gasdown#$i
+fts02tubedown#$i
+TUBE
+argon
+0. 0. -$shortHalf 
+0. $raggio
+0. 0. $shortHalf 
+0. 0. 0.
+1. 0. 0. 0. 1. 0. 0. 0. 1.
+";
+# ancora all'interno un filo di tungsteno
+$raggio = $diametrofilo/2.;
+print OUT "//*********************
+fts02wiredown#$i
+fts02gasdown#$i
+TUBE
+tungsten
+0. 0. -$shortHalf
+0. $raggio
+0. 0. $shortHalf
+0. 0. 0.
+1. 0. 0. 0. 1. 0. 0. 0. 1.
+";
+#### tubi sotto la beam pipe
+for($i=60; $i<71;$i++){
+$Xpos = $diametrostraw*( 128/2 + 0.5 - $i);
+print OUT "//*********************
+fts02tubedown#$i
+fts02assembly#1
+$Xpos -203. $Zpos
+1. 0. 0. 0. 0. 1. 0. 1. 0.\n"
+}
+
+$i=59;
+####tubi sopra la beam pipe
+$Xpos = $diametrostraw*( 128/2 + 0.5 - $i);
+$raggio = $diametrostraw/2.;
+print OUT "//*********************
+fts02tubeup#$i
+fts02assembly#1
+TUBE
+mylar
+0. 0. -$shortHalf
+0. $raggio
+0. 0. $shortHalf
+$Xpos 203. $Zpos
+1. 0. 0. 0. 0. 1. 0. 1. 0.
+";
+
+# all'interno un cilindro di argon
+$raggio = $raggio - $spessoremylar;
+print OUT "//*********************
+fts02gasup#$i
+fts02tubeup#$i
+TUBE
+argon
+0. 0. -$shortHalf 
+0. $raggio
+0. 0. $shortHalf 
+0. 0. 0.
+1. 0. 0. 0. 1. 0. 0. 0. 1.
+";
+$raggio = $diametrofilo/2.;
+print OUT "//*********************
+fts02wireup#$i
+fts02gasup#$i
+TUBE
+tungsten
+0. 0. -$shortHalf
+0. $raggio
+0. 0. $shortHalf
+0. 0. 0.
+1. 0. 0. 0. 1. 0. 0. 0. 1.
+";
+
+####tubi sopra la beam pipe
+for($i=60; $i<71;$i++){
+$Xpos = $diametrostraw*( 128/2 + 0.5 - $i);
+print OUT "//*********************
+fts02tubeup#$i
+fts02assembly#1
+$Xpos 203. $Zpos
+1. 0. 0. 0. 0. 1. 0. 1. 0.\n"
+}
+
+for($i=71; $i<129;$i++){
+$Xpos = $diametrostraw*( 128/2 + 0.5 - $i);
+print OUT "//*********************
+fts02tube#$i
+fts02assembly#1
+$Xpos $Ypos $Zpos
+1. 0. 0. 0. 0. 1. 0. 1. 0.\n"
+}
+#############primo layer completto##################
+
+
+#  ora metto le altre 128 copie della seconda file di straws,                  
+# sono anche staggerate di mezzo posto verso sinistra                               
+$z2 = $Zpos + 0.5*sqrt(3.)*$diametrostraw;
+for($i=129; $i<187;$i++){
+$Xpos = $diametrostraw*( 128/2  - ($i - 129) );
+print OUT "//*********************                                                           
+fts02tube#$i
+fts02assembly#1
+$Xpos $Ypos $z2
+1. 0. 0. 0. 0. 1. 0. 1. 0.\n"
+}
+#### tubi sotto la beam pipe
+for($i=187; $i<199;$i++){
+$Xpos = $diametrostraw*( 128/2 - ($i - 129) );
+print OUT "//*********************
+fts02tubedown#$i
+fts02assembly#1
+$Xpos -203. $z2
+1. 0. 0. 0. 0. 1. 0. 1. 0.\n"
+}
+for($i=187; $i<199;$i++){
+$Xpos = $diametrostraw*( 128/2 -  ($i - 129) );
+print OUT "//*********************
+fts02tubeup#$i
+fts02assembly#1
+$Xpos 203. $z2
+1. 0. 0. 0. 0. 1. 0. 1. 0.\n"
+}
+for($i=199; $i<257;$i++){
+$Xpos = $diametrostraw*( 128/2  - ($i - 129) );
+print OUT "//*********************                                                           
+fts02tube#$i
+fts02assembly#1
+$Xpos $Ypos $z2 
+1. 0. 0. 0. 0. 1. 0. 1. 0.\n"
+}
+#########primo double layers completato#########
+########secondo double layers: inclinazione dei tubi di +5 gradi######### 
+$Zpos = 50-$diametrostraw/2;
+$Xpos = $diametrostraw*( $nstraws/2 -0.5);
+$raggio = $diametrostraw/2.;
+
+for($i=257; $i<315;$i++){
+$Xpos = (1/$cosangle)*$diametrostraw*( 128/2 + 0.5 - ($i - 257) );
+print OUT "//*********************                                                           
+fts02tube#$i
+fts02assembly#1
+$Xpos $Ypos $Zpos
+$cosangle 0. -$sinangle $sinangle 0. $cosangle 0. 1. 0.\n"
+}
+for($i=315; $i<327;$i++){
+$Xpos = (1/$cosangle)*$diametrostraw*( 128/2 + 0.5 - ($i - 257)+(203*$sinangle)/$diametrostraw );
+print OUT "//*********************                                                           
+fts02tubedown#$i
+fts02assembly#1
+$Xpos -203 $Zpos 
+$cosangle 0. -$sinangle $sinangle 0. $cosangle 0. 1. 0.\n"
+}
+for($i=315; $i<327;$i++){
+$Xpos = (1/$cosangle)*$diametrostraw*( 128/2 + 0.5 - ($i - 257)-(203*$sinangle)/$diametrostraw );
+print OUT "//*********************                                                           
+fts02tubeup#$i
+fts02assembly#1
+$Xpos 203 $Zpos 
+$cosangle 0. -$sinangle $sinangle 0. $cosangle 0. 1. 0.\n"
+}
+for($i=327; $i<385;$i++){
+$Xpos = (1/$cosangle)*$diametrostraw*( 128/2 + 0.5 - ($i - 257) );
+print OUT "//*********************                                                           
+fts02tube#$i
+fts02assembly#1
+$Xpos $Ypos $Zpos
+$cosangle 0. -$sinangle $sinangle 0. $cosangle 0. 1. 0.\n"
+}
+#####secondo strato########
+$z2 = $Zpos + 0.5*sqrt(3.)*$diametrostraw;
+$raggio = $diametrostraw/2.;
+
+for($i=385; $i<443;$i++){
+$Xpos = (1/$cosangle)*$diametrostraw*( 128/2 - ($i - 385) );
+print OUT "//*********************                                                           
+fts02tube#$i
+fts02assembly#1
+$Xpos $Ypos $z2
+$cosangle 0. -$sinangle $sinangle 0. $cosangle 0. 1. 0.\n"
+}
+for($i=443; $i<455;$i++){
+$Xpos = (1/$cosangle)*$diametrostraw*( 128/2 - ($i - 385)+(203*$sinangle)/$diametrostraw  );
+print OUT "//*********************                                                           
+fts02tubedown#$i
+fts02assembly#1
+$Xpos -203 $z2 
+$cosangle 0. -$sinangle $sinangle 0. $cosangle 0. 1. 0.\n"
+}
+for($i=443; $i<455;$i++){
+$Xpos = (1/$cosangle)*$diametrostraw*( 128/2 - ($i - 385)-(203*$sinangle)/$diametrostraw  );
+print OUT "//*********************                                                           
+fts02tubeup#$i
+fts02assembly#1
+$Xpos 203 $z2
+$cosangle 0. -$sinangle $sinangle 0. $cosangle 0. 1. 0.\n"
+}
+for($i=455; $i<513;$i++){
+$Xpos = (1/$cosangle)*$diametrostraw*( 128/2 - ($i - 385) );
+print OUT "//*********************                                                           
+fts02tube#$i
+fts02assembly#1
+$Xpos $Ypos $z2
+$cosangle 0. -$sinangle $sinangle 0. $cosangle 0. 1. 0.\n"
+}
+#########secondo double layers completato#########
+########terzo double layers: inclinazione dei tubi di -5 gradi#########
+$Zpos = 100-$diametrostraw/2;
+$Xpos = $diametrostraw*( $nstraws/2 -0.5);
+$raggio = $diametrostraw/2.;
+
+for($i=513; $i<571;$i++){
+$Xpos =  (1/$cosangle)*$diametrostraw*( 128/2 + 0.5  - ($i - 513) );
+print OUT "//*********************                                                           
+fts02tube#$i
+fts02assembly#1
+$Xpos $Ypos $Zpos
+$cosangle 0. $sinangle -$sinangle 0. $cosangle 0. 1. 0.\n"
+}
+for($i=571; $i<583;$i++){
+$Xpos =  (1/$cosangle)*$diametrostraw*( 128/2 + 0.5 - ($i - 513)-(203*$sinangle)/$diametrostraw );
+print OUT "//*********************                                                           
+fts02tubedown#$i
+fts02assembly#1
+$Xpos -203 $Zpos 
+$cosangle 0. $sinangle -$sinangle 0. $cosangle 0. 1. 0.\n"
+}
+for($i=571; $i<583;$i++){
+$Xpos = (1/$cosangle)*$diametrostraw*( 128/2 + 0.5 - ($i - 513)+(203*$sinangle)/$diametrostraw );
+print OUT "//*********************                                                           
+fts02tubeup#$i
+fts02assembly#1
+$Xpos 203 $Zpos 
+$cosangle 0. $sinangle -$sinangle 0. $cosangle 0. 1. 0.\n"
+}
+for($i=583; $i<641;$i++){
+$Xpos =  (1/$cosangle)*$diametrostraw*( 128/2 + 0.5 - ($i - 513) );
+print OUT "//*********************                                                           
+fts02tube#$i
+fts02assembly#1
+$Xpos $Ypos $Zpos
+$cosangle 0. $sinangle -$sinangle 0. $cosangle 0. 1. 0.\n"
+}
+#########secondo strato###############
+$z2 = $Zpos + 0.5*sqrt(3.)*$diametrostraw;
+$raggio = $diametrostraw/2.;
+
+for($i=641; $i<699;$i++){
+$Xpos =  (1/$cosangle)*$diametrostraw*( 128/2 - ($i - 641) );
+print OUT "//*********************                                                           
+fts02tube#$i
+fts02assembly#1
+$Xpos $Ypos $z2
+$cosangle 0. $sinangle -$sinangle 0. $cosangle 0. 1. 0.\n"
+}
+for($i=699; $i<711;$i++){
+$Xpos =  (1/$cosangle)*$diametrostraw*( 128/2 - ($i - 641)-(203*$sinangle)/$diametrostraw );
+print OUT "//*********************                                                           
+fts02tubedown#$i
+fts02assembly#1
+$Xpos -203 $z2 
+$cosangle 0. $sinangle -$sinangle 0. $cosangle 0. 1. 0.\n"
+}
+for($i=699; $i<711;$i++){
+$Xpos =  (1/$cosangle)*$diametrostraw*( 128/2 - ($i - 641)+(203*$sinangle)/$diametrostraw );
+print OUT "//*********************                                                           
+fts02tubeup#$i
+fts02assembly#1
+$Xpos 203 $z2
+$cosangle 0. $sinangle -$sinangle 0. $cosangle 0. 1. 0.\n"
+}
+for($i=711; $i<769;$i++){
+$Xpos =  (1/$cosangle)*$diametrostraw*( 128/2 - ($i - 641) );
+print OUT "//*********************                                                           
+fts02tube#$i
+fts02assembly#1
+$Xpos $Ypos $z2
+$cosangle 0. $sinangle -$sinangle 0. $cosangle 0. 1. 0.\n"
+}
+#########terzo double layers completato#########
+########quarto double layers: inclinazione dei tubi di 0 gradi#########
+$Zpos = 150-$diametrostraw/2;
+$Xpos = $diametrostraw*( $nstraws/2 -0.5);
+$raggio = $diametrostraw/2.;
+
+for($i=769; $i<827;$i++){
+$Xpos = $diametrostraw*( 128/2 + 0.5 - ($i - 769) );
+print OUT "//*********************                                                           
+fts02tube#$i
+fts02assembly#1
+$Xpos $Ypos $Zpos
+1. 0. 0. 0. 0. 1. 0. 1. 0.\n"
+}
+for($i=827; $i<839;$i++){
+$Xpos = $diametrostraw*( 128/2 + 0.5 - ($i - 769) );
+print OUT "//*********************                                                           
+fts02tubedown#$i
+fts02assembly#1
+$Xpos -203 $Zpos 
+1. 0. 0. 0. 0. 1. 0. 1. 0.\n"
+}
+for($i=827; $i<839;$i++){
+$Xpos = $diametrostraw*( 128/2 + 0.5 - ($i - 769) );
+print OUT "//*********************                                                           
+fts02tubeup#$i
+fts02assembly#1
+$Xpos 203 $Zpos 
+1. 0. 0. 0. 0. 1. 0. 1. 0.\n"
+}
+for($i=839; $i<897;$i++){
+$Xpos = $diametrostraw*( 128/2 + 0.5 - ($i - 769) );
+print OUT "//*********************                                                           
+fts02tube#$i
+fts02assembly#1
+$Xpos $Ypos $Zpos
+1. 0. 0. 0. 0. 1. 0. 1. 0.\n"
+}
+#########secondo strato###############
+$z2 = $Zpos + 0.5*sqrt(3.)*$diametrostraw;
+$raggio = $diametrostraw/2.;
+
+for($i=897; $i<955;$i++){
+$Xpos = $diametrostraw*( 128/2 - ($i - 897) );
+print OUT "//*********************                                                           
+fts02tube#$i
+fts02assembly#1
+$Xpos $Ypos $z2
+1. 0. 0. 0. 0. 1. 0. 1. 0.\n"
+}
+for($i=955; $i<967;$i++){
+$Xpos = $diametrostraw*( 128/2 - ($i - 897) );
+print OUT "//*********************                                                           
+fts02tubedown#$i
+fts02assembly#1
+$Xpos -203 $z2 
+1. 0. 0. 0. 0. 1. 0. 1. 0.\n"
+}
+for($i=955; $i<967;$i++){
+$Xpos = $diametrostraw*( 128/2 - ($i - 897) );
+print OUT "//*********************                                                           
+fts02tubeup#$i
+fts02assembly#1
+$Xpos 203 $z2
+1. 0. 0. 0. 0. 1. 0. 1. 0.\n"
+}
+for($i=967; $i<1025;$i++){
+$Xpos = $diametrostraw*( 128/2 - ($i - 897) );
+print OUT "//*********************                                                           
+fts02tube#$i
+fts02assembly#1
+$Xpos $Ypos $z2
+1. 0. 0. 0. 0. 1. 0. 1. 0.\n"
+}
+
 
 ##########################################################
 #################FTS3#####################################
@@ -560,11 +993,12 @@ $Xpos $Ypos $Zpos
 1. 0. 0. 0. 0. 1. 0. 1. 0.\n"
 }
 ############short tube#########for the beam pipe hole#########bassi
+$i=91;
 $Xpos = $diametrostraw*( 192/2 + 0.5 - $i);
 $shortHalf = 131.075; #(690.3-166)/4
 $raggio = $diametrostraw/2.;
 print OUT "//*********************
-fts31tubedown#1
+fts31tubedown#$i
 fts03assembly#1
 TUBE
 mylar
@@ -577,8 +1011,8 @@ $Xpos -214.075 $Zpos
 # all'interno un cilindro di argon
 $raggio = $raggio - $spessoremylar;
 print OUT "//*********************
-fts31gasdown#1
-fts31tubedown#1
+fts31gasdown#$i
+fts31tubedown#$i
 TUBE
 argon
 0. 0. -$shortHalf 
@@ -590,8 +1024,8 @@ argon
 # ancora all'interno un filo di tungsteno
 $raggio = $diametrofilo/2.;
 print OUT "//*********************
-fts31wiredown#1
-fts31gasdown#1
+fts31wiredown#$i
+fts31gasdown#$i
 TUBE
 tungsten
 0. 0. -$shortHalf
@@ -613,7 +1047,7 @@ $i=91;
 $Xpos = $diametrostraw*( 192/2 + 0.5 - $i);
 $raggio = $diametrostraw/2.;
 print OUT "//*********************
-fts31tubeup#1
+fts31tubeup#$i
 fts03assembly#1
 TUBE
 mylar
@@ -627,8 +1061,8 @@ $Xpos 214.075 $Zpos
 # all'interno un cilindro di argon
 $raggio = $raggio - $spessoremylar;
 print OUT "//*********************
-fts31gasup#1
-fts31tubeup#1
+fts31gasup#$i
+fts31tubeup#$i
 TUBE
 argon
 0. 0. -$shortHalf 
@@ -640,8 +1074,8 @@ argon
 # ancora all'interno un filo di tungsteno
 $raggio = $diametrofilo/2.;
 print OUT "//*********************
-fts31wireup#1
-fts31gasup#1
+fts31wireup#$i
+fts31gasup#$i
 TUBE
 tungsten
 0. 0. -$shortHalf
@@ -762,7 +1196,7 @@ $Xpos = (1/$cosangle)*$diametrostraw*( 192/2 + 0.5 - $i + (217.35*$sinangle)/$di
 $shortHalf = 134.35; #(703.4-166)/4
 $raggio = $diametrostraw/2.;
 print OUT "//*********************
-fts32tubedown#1
+fts32tubedown#$i
 fts03assembly#1
 TUBE
 mylar
@@ -775,8 +1209,8 @@ $cosangle 0. -$sinangle $sinangle 0. $cosangle 0. 1. 0.
 # all'interno un cilindro di argon
 $raggio = $raggio - $spessoremylar;
 print OUT "//*********************
-fts32gasdown#1
-fts32tubedown#1
+fts32gasdown#$i
+fts32tubedown#$i
 TUBE
 argon
 0. 0. -$shortHalf 
@@ -788,8 +1222,8 @@ argon
 # ancora all'interno un filo di tungsteno
 $raggio = $diametrofilo/2.;
 print OUT "//*********************
-fts32wiredown#1
-fts32gasdown#1
+fts32wiredown#$i
+fts32gasdown#$i
 TUBE
 tungsten
 0. 0. -$shortHalf
@@ -812,7 +1246,7 @@ $Xpos = (1/$cosangle)*$diametrostraw*( 192/2 + 0.5 - $i - (217.35*$sinangle)/$di
 $shortHalf = 134.35; #(703.4-166)/4
 $raggio = $diametrostraw/2.;
 print OUT "//*********************
-fts32tubeup#1
+fts32tubeup#$i
 fts03assembly#1
 TUBE
 mylar
@@ -825,8 +1259,8 @@ $cosangle 0. -$sinangle $sinangle 0. $cosangle 0. 1. 0.
 # all'interno un cilindro di argon
 $raggio = $raggio - $spessoremylar;
 print OUT "//*********************
-fts32gasup#1
-fts32tubeup#1
+fts32gasup#$i
+fts32tubeup#$i
 TUBE
 argon
 0. 0. -$shortHalf 
@@ -838,8 +1272,8 @@ argon
 # ancora all'interno un filo di tungsteno
 $raggio = $diametrofilo/2.;
 print OUT "//*********************
-fts32wireup#1
-fts32gasup#1
+fts32wireup#$i
+fts32gasup#$i
 TUBE
 tungsten
 0. 0. -$shortHalf
@@ -959,7 +1393,7 @@ $Xpos = (1/$cosangle)*$diametrostraw*( 192/2 + 0.5 - $i - (223.7*$sinangle)/$dia
 $shortHalf = 140.7; #(728.8-166)/4
 $raggio = $diametrostraw/2.;
 print OUT "//*********************
-fts33tubedown#1
+fts33tubedown#$i
 fts03assembly#1
 TUBE
 mylar
@@ -972,8 +1406,8 @@ $cosangle 0. $sinangle -$sinangle 0. $cosangle 0. 1. 0.
 # all'interno un cilindro di argon
 $raggio = $raggio - $spessoremylar;
 print OUT "//*********************
-fts33gasdown#1
-fts33tubedown#1
+fts33gasdown#$i
+fts33tubedown#$i
 TUBE
 argon
 0. 0. -$shortHalf 
@@ -985,8 +1419,8 @@ argon
 # ancora all'interno un filo di tungsteno
 $raggio = $diametrofilo/2.;
 print OUT "//*********************
-fts33wiredown#1
-fts33gasdown#1
+fts33wiredown#$i
+fts33gasdown#$i
 TUBE
 tungsten
 0. 0. -$shortHalf
@@ -1008,7 +1442,7 @@ $i=91;
 $Xpos = (1/$cosangle)*$diametrostraw*( 192/2 + 0.5 - $i + (223.7*$sinangle)/$diametrostraw);
 $raggio = $diametrostraw/2.;
 print OUT "//*********************
-fts33tubeup#1
+fts33tubeup#$i
 fts03assembly#1
 TUBE
 mylar
@@ -1021,8 +1455,8 @@ $cosangle 0. $sinangle -$sinangle 0. $cosangle 0. 1. 0.
 # all'interno un cilindro di argon
 $raggio = $raggio - $spessoremylar;
 print OUT "//*********************
-fts33gasup#1
-fts33tubeup#1
+fts33gasup#$i
+fts33tubeup#$i
 TUBE
 argon
 0. 0. -$shortHalf 
@@ -1034,8 +1468,8 @@ argon
 # ancora all'interno un filo di tungsteno
 $raggio = $diametrofilo/2.;
 print OUT "//*********************
-fts33wireup#1
-fts33gasup#1
+fts33wireup#$i
+fts33gasup#$i
 TUBE
 tungsten
 0. 0. -$shortHalf
@@ -1153,7 +1587,7 @@ $Xpos = $diametrostraw*( 192/2 + 0.5 - $i);
 $shortHalf = 143.975; #(741.9-166)/4
 $raggio = $diametrostraw/2.;
 print OUT "//*********************
-fts34tubedown#1
+fts34tubedown#$i
 fts03assembly#1
 TUBE
 mylar
@@ -1166,8 +1600,8 @@ $Xpos -227.25 $Zpos
 # all'interno un cilindro di argon
 $raggio = $raggio - $spessoremylar;
 print OUT "//*********************
-fts34gasdown#1
-fts34tubedown#1
+fts34gasdown#$i
+fts34tubedown#$i
 TUBE
 argon
 0. 0. -$shortHalf 
@@ -1179,8 +1613,8 @@ argon
 # ancora all'interno un filo di tungsteno
 $raggio = $diametrofilo/2.;
 print OUT "//*********************
-fts34wiredown#1
-fts34gasdown#1
+fts34wiredown#$i
+fts34gasdown#$i
 TUBE
 tungsten
 0. 0. -$shortHalf
@@ -1202,7 +1636,7 @@ $i=91;
 $Xpos = $diametrostraw*( 192/2 + 0.5 - $i);
 $raggio = $diametrostraw/2.;
 print OUT "//*********************
-fts34tubeup#1
+fts34tubeup#$i
 fts03assembly#1
 TUBE
 mylar
@@ -1215,8 +1649,8 @@ $Xpos 227.25 $Zpos
 # all'interno un cilindro di argon
 $raggio = $raggio - $spessoremylar;
 print OUT "//*********************
-fts34gasup#1
-fts34tubeup#1
+fts34gasup#$i
+fts34tubeup#$i
 TUBE
 argon
 0. 0. -$shortHalf 
@@ -1228,8 +1662,8 @@ argon
 # ancora all'interno un filo di tungsteno
 $raggio = $diametrofilo/2.;
 print OUT "//*********************
-fts34wireup#1
-fts34gasup#1
+fts34wireup#$i
+fts34gasup#$i
 TUBE
 tungsten
 0. 0. -$shortHalf
@@ -1355,7 +1789,7 @@ $Xpos = $diametrostraw*( 192/2 + 0.5 - $i);
 $shortHalf = 150.325; #(767.3-166)/4
 $raggio = $diametrostraw/2.;
 print OUT "//*********************
-fts35tubedown#1
+fts35tubedown#$i
 fts03assembly#1
 TUBE
 mylar
@@ -1368,8 +1802,8 @@ $Xpos -233.325 $Zpos
 # all'interno un cilindro di argon
 $raggio = $raggio - $spessoremylar;
 print OUT "//*********************
-fts35gasdown#1
-fts35tubedown#1
+fts35gasdown#$i
+fts35tubedown#$i
 TUBE
 argon
 0. 0. -$shortHalf 
@@ -1381,8 +1815,8 @@ argon
 # ancora all'interno un filo di tungsteno
 $raggio = $diametrofilo/2.;
 print OUT "//*********************
-fts35wiredown#1
-fts35gasdown#1
+fts35wiredown#$i
+fts35gasdown#$i
 TUBE
 tungsten
 0. 0. -$shortHalf
@@ -1404,7 +1838,7 @@ $i=91;
 $Xpos = $diametrostraw*( 192/2 + 0.5 - $i);
 $raggio = $diametrostraw/2.;
 print OUT "//*********************
-fts35tubeup#1
+fts35tubeup#$i
 fts03assembly#1
 TUBE
 mylar
@@ -1418,8 +1852,8 @@ $Xpos 233.325 $Zpos
 # all'interno un cilindro di argon
 $raggio = $raggio - $spessoremylar;
 print OUT "//*********************
-fts35gasup#1
-fts35tubeup#1
+fts35gasup#$i
+fts35tubeup#$i
 TUBE
 argon
 0. 0. -$shortHalf 
@@ -1431,8 +1865,8 @@ argon
 # ancora all'interno un filo di tungsteno
 $raggio = $diametrofilo/2.;
 print OUT "//*********************
-fts35wireup#1
-fts35gasup#1
+fts35wireup#$i
+fts35gasup#$i
 TUBE
 tungsten
 0. 0. -$shortHalf
@@ -1551,7 +1985,7 @@ $Xpos = (1/$cosangle)*$diametrostraw*( 192/2 + 0.5 - $i + (236.6*$sinangle)/$dia
 $shortHalf = 153.6; #(780.4-166)/4
 $raggio = $diametrostraw/2.;
 print OUT "//*********************
-fts36tubedown#1
+fts36tubedown#$i
 fts03assembly#1
 TUBE
 mylar
@@ -1564,8 +1998,8 @@ $cosangle 0. -$sinangle $sinangle 0. $cosangle 0. 1. 0.
 # all'interno un cilindro di argon
 $raggio = $raggio - $spessoremylar;
 print OUT "//*********************
-fts36gasdown#1
-fts36tubedown#1
+fts36gasdown#$i
+fts36tubedown#$i
 TUBE
 argon
 0. 0. -$shortHalf 
@@ -1577,8 +2011,8 @@ argon
 # ancora all'interno un filo di tungsteno
 $raggio = $diametrofilo/2.;
 print OUT "//*********************
-fts36wiredown#1
-fts36gasdown#1
+fts36wiredown#$i
+fts36gasdown#$i
 TUBE
 tungsten
 0. 0. -$shortHalf
@@ -1600,7 +2034,7 @@ $i=91;
 $Xpos = (1/$cosangle)*$diametrostraw*( 192/2 + 0.5 - $i - (236.6*$sinangle)/$diametrostraw);
 $raggio = $diametrostraw/2.;
 print OUT "//*********************
-fts36tubeup#1
+fts36tubeup#$i
 fts03assembly#1
 TUBE
 mylar
@@ -1613,8 +2047,8 @@ $cosangle 0. -$sinangle $sinangle 0. $cosangle 0. 1. 0.
 # all'interno un cilindro di argon
 $raggio = $raggio - $spessoremylar;
 print OUT "//*********************
-fts36gasup#1
-fts36tubeup#1
+fts36gasup#$i
+fts36tubeup#$i
 TUBE
 argon
 0. 0. -$shortHalf 
@@ -1626,8 +2060,8 @@ argon
 # ancora all'interno un filo di tungsteno
 $raggio = $diametrofilo/2.;
 print OUT "//*********************
-fts36wireup#1
-fts36gasup#1
+fts36wireup#$i
+fts36gasup#$i
 TUBE
 tungsten
 0. 0. -$shortHalf
@@ -1745,7 +2179,7 @@ $Xpos = (1/$cosangle)*$diametrostraw*( 192/2 + 0.5 - $i - (242.95*$sinangle)/$di
 $shortHalf = 159.95; #(805.8-166)/4
 $raggio = $diametrostraw/2.;
 print OUT "//*********************
-fts37tubedown#1
+fts37tubedown#$i
 fts03assembly#1
 TUBE
 mylar
@@ -1758,8 +2192,8 @@ $cosangle 0. $sinangle -$sinangle 0. $cosangle 0. 1. 0.
 # all'interno un cilindro di argon
 $raggio = $raggio - $spessoremylar;
 print OUT "//*********************
-fts37gasdown#1
-fts37tubedown#1
+fts37gasdown#$i
+fts37tubedown#$i
 TUBE
 argon
 0. 0. -$shortHalf 
@@ -1771,8 +2205,8 @@ argon
 # ancora all'interno un filo di tungsteno
 $raggio = $diametrofilo/2.;
 print OUT "//*********************
-fts37wiredown#1
-fts37gasdown#1
+fts37wiredown#$i
+fts37gasdown#$i
 TUBE
 tungsten
 0. 0. -$shortHalf
@@ -1794,7 +2228,7 @@ $i=91;
 $Xpos = (1/$cosangle)*$diametrostraw*( 192/2 + 0.5 - $i + (242.95*$sinangle)/$diametrostraw);
 $raggio = $diametrostraw/2.;
 print OUT "//*********************
-fts37tubeup#1
+fts37tubeup#$i
 fts03assembly#1
 TUBE
 mylar
@@ -1807,8 +2241,8 @@ $cosangle 0. $sinangle -$sinangle 0. $cosangle 0. 1. 0.
 # all'interno un cilindro di argon
 $raggio = $raggio - $spessoremylar;
 print OUT "//*********************
-fts37gasup#1
-fts37tubeup#1
+fts37gasup#$i
+fts37tubeup#$i
 TUBE
 argon
 0. 0. -$shortHalf 
@@ -1820,8 +2254,8 @@ argon
 # ancora all'interno un filo di tungsteno
 $raggio = $diametrofilo/2.;
 print OUT "//*********************
-fts37wireup#1
-fts37gasup#1
+fts37wireup#$i
+fts37gasup#$i
 TUBE
 tungsten
 0. 0. -$shortHalf
@@ -1939,7 +2373,7 @@ $Xpos = $diametrostraw*( 192/2 + 0.5 - $i);
 $shortHalf = 163.225; #(818.9-166)/4
 $raggio = $diametrostraw/2.;
 print OUT "//*********************
-fts38tubedown#1
+fts38tubedown#$i
 fts03assembly#1
 TUBE
 mylar
@@ -1952,8 +2386,8 @@ $Xpos -246.225 $Zpos
 # all'interno un cilindro di argon
 $raggio = $raggio - $spessoremylar;
 print OUT "//*********************
-fts38gasdown#1
-fts38tubedown#1
+fts38gasdown#$i
+fts38tubedown#$i
 TUBE
 argon
 0. 0. -$shortHalf 
@@ -1965,8 +2399,8 @@ argon
 # ancora all'interno un filo di tungsteno
 $raggio = $diametrofilo/2.;
 print OUT "//*********************
-fts38wiredown#1
-fts38gasdown#1
+fts38wiredown#$i
+fts38gasdown#$i
 TUBE
 tungsten
 0. 0. -$shortHalf
@@ -1988,7 +2422,7 @@ $i=91;
 $Xpos = $diametrostraw*( 192/2 + 0.5 - $i);
 $raggio = $diametrostraw/2.;
 print OUT "//*********************
-fts38tubeup#1
+fts38tubeup#$i
 fts03assembly#1
 TUBE
 mylar
@@ -2001,8 +2435,8 @@ $Xpos 246.225 $Zpos
 # all'interno un cilindro di argon
 $raggio = $raggio - $spessoremylar;
 print OUT "//*********************
-fts38gasup#1
-fts38tubeup#1
+fts38gasup#$i
+fts38tubeup#$i
 TUBE
 argon
 0. 0. -$shortHalf 
@@ -2014,8 +2448,8 @@ argon
 # ancora all'interno un filo di tungsteno
 $raggio = $diametrofilo/2.;
 print OUT "//*********************
-fts38wireup#1
-fts38gasup#1
+fts38wireup#$i
+fts38gasup#$i
 TUBE
 tungsten
 0. 0. -$shortHalf
@@ -2155,7 +2589,7 @@ $Xpos = $diametrostraw*( 400/2 + 0.5 - $i);
 $shortHalf = 235.5; #(1180-172)/4
 $raggio = $diametrostraw/2.;
 print OUT "//*********************
-fts05tubedown#192
+fts05tubedown#$i
 fts05assembly#1
 TUBE
 mylar
@@ -2169,8 +2603,8 @@ $Xpos -354.5 $Zpos
 # all'interno un cilindro di argon
 $raggio = $raggio - $spessoremylar;
 print OUT "//*********************
-fts05gasdown#192
-fts05tubedown#192
+fts05gasdown#$i
+fts05tubedown#$i
 TUBE
 argon
 0. 0. -$shortHalf 
@@ -2182,8 +2616,8 @@ argon
 # ancora all'interno un filo di tungsteno
 $raggio = $diametrofilo/2.;
 print OUT "//*********************
-fts05wiredown#192
-fts05gasdown#192
+fts05wiredown#$i
+fts05gasdown#$i
 TUBE
 tungsten
 0. 0. -$shortHalf
@@ -2207,7 +2641,7 @@ $i=192;
 $Xpos = $diametrostraw*( 400/2 + 0.5 - $i);
 $raggio = $diametrostraw/2.;
 print OUT "//*********************
-fts05tubeup#192
+fts05tubeup#$i
 fts05assembly#1
 TUBE
 mylar
@@ -2221,8 +2655,8 @@ $Xpos 354.5 $Zpos
 # all'interno un cilindro di argon
 $raggio = $raggio - $spessoremylar;
 print OUT "//*********************
-fts05gasup#192
-fts05tubeup#192
+fts05gasup#$i
+fts05tubeup#$i
 TUBE
 argon
 0. 0. -$shortHalf 
@@ -2233,8 +2667,8 @@ argon
 ";
 $raggio = $diametrofilo/2.;
 print OUT "//*********************
-fts05wireup#192
-fts05gasup#192
+fts05wireup#$i
+fts05gasup#$i
 TUBE
 tungsten
 0. 0. -$shortHalf
