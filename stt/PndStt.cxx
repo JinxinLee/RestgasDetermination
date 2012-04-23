@@ -231,27 +231,27 @@ Bool_t  PndStt::ProcessHits(FairVolume* vol)
 	    volPath2(gMC->CurrentVolPath());
 	  
 	  volumename = volPath;
-	  volName = GetStringPart(volPath, 2, '/');
+	  volName = GetStringPart(volPath, 3, '/');
 	  number = GetStringPart(volName, 1, '_');	
 	  
 	  Int_t start =volPath2.find("stt",0);
 	  specialname = volPath2.substr(start,volPath2.find("_",start)-start);
 	    
 	  if(volumename.Contains("stt01")) basename = "stt01tube";
-	  if(volumename.Contains("stt02")) basename = "stt02tube";
-	  if(volumename.Contains("stt03")) basename = "stt03tube";
-	  if(volumename.Contains("stt04")) basename = "stt04tube";
-	  if(volumename.Contains("stt05")) basename = "stt05tube";
-	  if(volumename.Contains("stt06")) basename = "stt06tube";
-	  if(volumename.Contains("stt07")) basename = "stt07tube";
-	  if(volumename.Contains("stt08")) basename = "stt08tube";
-	  if(volumename.Contains("stt09")) basename = "stt09tube";
-	  if(volumename.Contains("stt10")) basename = "stt10tube";
-	  if(volumename.Contains("stt11")) basename = "stt11tube";
-	  if(volumename.Contains("stt12")) basename = "stt12tube";
-	  if(volumename.Contains("stt13")) basename = "stt13tube";
-	  if(volumename.Contains("stt14")) basename = "stt14tube";
-	  if(volumename.Contains("stt15")) basename = "stt15tube";
+// 	  if(volumename.Contains("stt02")) basename = "stt02tube";
+// 	  if(volumename.Contains("stt03")) basename = "stt03tube";
+// 	  if(volumename.Contains("stt04")) basename = "stt04tube";
+// 	  if(volumename.Contains("stt05")) basename = "stt05tube";
+// 	  if(volumename.Contains("stt06")) basename = "stt06tube";
+// 	  if(volumename.Contains("stt07")) basename = "stt07tube";
+// 	  if(volumename.Contains("stt08")) basename = "stt08tube";
+// 	  if(volumename.Contains("stt09")) basename = "stt09tube";
+// 	  if(volumename.Contains("stt10")) basename = "stt10tube";
+// 	  if(volumename.Contains("stt11")) basename = "stt11tube";
+// 	  if(volumename.Contains("stt12")) basename = "stt12tube";
+// 	  if(volumename.Contains("stt13")) basename = "stt13tube";
+// 	  if(volumename.Contains("stt14")) basename = "stt14tube";
+// 	  if(volumename.Contains("stt15")) basename = "stt15tube";
 	  
 	  fullName = basename + hashmark + number;
 	  
@@ -259,7 +259,7 @@ Bool_t  PndStt::ProcessHits(FairVolume* vol)
 	  // 	    cout << "number: " << number << endl;
 	  //      cout << gMC->CurrentVolPath() << endl;
 	  // 	    cout << "fullname: " << fullName << endl;
- 	  
+ 	
 	  FairGeoNode 
 	    *volnode = dynamic_cast<FairGeoNode*> (fPassNodes->FindObject(fullName.c_str()));
 	    
