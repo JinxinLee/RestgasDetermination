@@ -234,9 +234,9 @@ Bool_t  PndStt::ProcessHits(FairVolume* vol)
 	  volName = GetStringPart(volPath, 3, '/');
 	  number = GetStringPart(volName, 1, '_');	
 	  
-	  Int_t start =volPath2.find("stt",0);
+	  Int_t start =volPath2.find("stt01tube",0);
 	  specialname = volPath2.substr(start,volPath2.find("_",start)-start);
-	    
+
 	  if(volumename.Contains("stt01")) basename = "stt01tube";
 // 	  if(volumename.Contains("stt02")) basename = "stt02tube";
 // 	  if(volumename.Contains("stt03")) basename = "stt03tube";
