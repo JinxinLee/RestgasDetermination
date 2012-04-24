@@ -190,23 +190,20 @@ void PndMvdRiemannTrackFinderTask::InitHitArray(TString branchName)
 void PndMvdRiemannTrackFinderTask::FillHitArray()
 {
 	Double_t eventTime = -1;
-	fHitArray[0]->Delete();
-	fHitArray[1]->Delete();
 	if (FairRunAna::Instance()->IsTimeStamp()){
-		  fHitArray[0] = FairRootManager::Instance()->GetData("MVDHitsPixel", fTimeGapFunctor, 10); //FairRootManager::Instance()->GetEventTime() +
-		  std::cout << "PixelHits: " << fHitArray[0]->GetEntriesFast() << std::endl;
-		  if (fHitArray[0]->GetEntriesFast() > 1){
-			  FairTimeStamp* data = (FairTimeStamp*)fHitArray[0]->At(1);
-			  eventTime = data->GetTimeStamp();
-			  std::cout << "EventTime: " << eventTime << std::endl;
-			  fHitArray[1] = FairRootManager::Instance()->GetData("MVDHitsStrip", fStopFunctor, eventTime - 10, fStopFunctor, eventTime + 10);
-			  std::cout << "StripHits: " << fHitArray[1]->GetEntriesFast() << std::endl;
-		  }
+		fHitArray[0]->Delete();
+		fHitArray[1]->Delete();
+
+		fHitArray[0] = FairRootManager::Instance()->GetData("MVDHitsPixel", fTimeGapFunctor, 10); //FairRootManager::Instance()->GetEventTime() +
+		std::cout << "PixelHits: " << fHitArray[0]->GetEntriesFast() << std::endl;
+		if (fHitArray[0]->GetEntriesFast() > 1){
+			FairTimeStamp* data = (FairTimeStamp*)fHitArray[0]->At(1);
+			eventTime = data->GetTimeStamp();
+			std::cout << "EventTime: " << eventTime << std::endl;
+			fHitArray[1] = FairRootManager::Instance()->GetData("MVDHitsStrip", fStopFunctor, eventTime - 10, fStopFunctor, eventTime + 10);
+			std::cout << "StripHits: " << fHitArray[1]->GetEntriesFast() << std::endl;
 		}
-		else{
-//		  fHitArray[0] = (TClonesArray*)FairRootManager::Instance()->GetObject(fHitBranch[0]);
-//		  fHitArray[1] = (TClonesArray*)FairRootManager::Instance()->GetObject(fHitBranch[1]);
-		}
+	}
 }
 
 ClassImp(PndMvdRiemannTrackFinderTask);
