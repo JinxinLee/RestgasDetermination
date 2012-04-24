@@ -472,8 +472,8 @@ void PndFieldMap::ReadAsciiFile(const char* fileName) {
 	  Double_t perc = TMath::Nint(100.*index/nTot);
 	  cout << "\b\b\b\b\b\b" << setw(3) << perc << " % " << flush;
 	}
-	mapFile >> xx>>yy>>zz>>  bx >> by >> bz ;
-	//mapFile >>  bx >> by >> bz ;
+	//mapFile >> xx>>yy>>zz>>  bx >> by >> bz ;
+	mapFile >>  bx >> by >> bz ;
 	//cout  << " x= " <<xx <<" y= " << yy<<" z= " << zz<<" bx= " <<  bx <<" by= " <<by <<" bz= " << bz<< endl;
 	fBx->AddAt(factor*bx, index);
 	fBy->AddAt(factor*by, index);
