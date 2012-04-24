@@ -39,7 +39,7 @@ PndPidMvaAssociatorTask::PndPidMvaAssociatorTask()
     fClassifier(0)
 {
   std::cout << "<INFO> Call Default task constructor. " 
-	    << "(PndPidAssociatorTask)\n";
+	    << "(PndPidMvaAssociatorTask)\n";
   // Init charged and neutral probab. containers.
   fPidChargedProb = new TClonesArray("PndPidProbability");
   fPidNeutralProb = new TClonesArray("PndPidProbability");
@@ -109,7 +109,7 @@ PndPidMvaAssociatorTask::~PndPidMvaAssociatorTask()
 //___________________________________________________________
 InitStatus PndPidMvaAssociatorTask::Init()
 {
-  std::cout << "InitStatus PndPidAssociatorTask::Init()\n";
+  std::cout << "<-I-> InitStatus PndPidMvaAssociatorTask::Init()\n";
   
   fManager = FairRootManager::Instance();
   
@@ -118,7 +118,7 @@ InitStatus PndPidMvaAssociatorTask::Init()
   
   if ( !fPidChargedCand)
   {
-    std::cerr << "-E- PndPidMvaAssociatorTask::Init: No PidChargedCand there!"
+    std::cerr << "<ERROR> PndPidMvaAssociatorTask::Init: No PidChargedCand there!"
 	      << std::endl;
     return kERROR;
   }
@@ -128,7 +128,7 @@ InitStatus PndPidMvaAssociatorTask::Init()
   
   if ( ! fPidNeutralCand)
   {
-    std::cerr << "-E- PndPidMvaAssociatorTask::Init: No PidNeutralCand there!"
+    std::cerr << "<ERROR> PndPidMvaAssociatorTask::Init: No PidNeutralCand there!"
 	      << std::endl;
     return kERROR;
   }
@@ -156,6 +156,7 @@ InitStatus PndPidMvaAssociatorTask::Init()
     
     //fClassifier = dynamic_cast<PndMultiClassMlpClassify*>(TmvaMlpCls);
     fClassifier = TmvaMlpCls;
+    std::cout << "<INFO> TMVA_MLP initialized using " << fWeightsFileName << '\n';
   }
   break;
   
@@ -173,6 +174,7 @@ InitStatus PndPidMvaAssociatorTask::Init()
     
     //fClassifier = dynamic_cast<PndMultiClassBdtClassify*>(TmvaBdtCls);
     fClassifier = TmvaBdtCls;
+    std::cout << "<INFO> TMVA_BDT initialized using " << fWeightsFileName << '\n';
   }
   break;
   
@@ -191,6 +193,7 @@ InitStatus PndPidMvaAssociatorTask::Init()
     
     //fClassifier = dynamic_cast<PndMvaClassifier*>(LvqCls);
     fClassifier = LvqCls;
+    std::cout << "<INFO> LVQ initialized using " << fWeightsFileName << '\n';
   }
   break;
   
@@ -213,11 +216,12 @@ InitStatus PndPidMvaAssociatorTask::Init()
     
     //fClassifier = dynamic_cast<PndMvaClassifier*>(KnnCls);
     fClassifier = KnnCls;
+    std::cout << "<INFO> KNN initialized using " << fWeightsFileName << '\n';
   }
   break;
   }// End of switch(fMethodType)
   
-  std::cout << "-I- PndPidMvaAssociatorTask::Init: Success!\n";
+  std::cout << "<INFO> PndPidMvaAssociatorTask::Init: Success!\n";
   return kSUCCESS;
 }
 
