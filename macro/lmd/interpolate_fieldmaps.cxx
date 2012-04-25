@@ -23,14 +23,26 @@
 #include<fstream>
 #include<iostream>
 #include<iomanip>
+#include<sstream>
+#include<TH1.h>
+#include<TCanvas.h>
 
 using namespace std;
+
+// for testing purposes the default
+// field map name is modified
+// Moreover in case of setting a string of
+// length > 0
+// files are stored in the $VMCWORKDIR/input/ folder
+const string name_modification = "_v1";
+
+vector<string> fieldmapnames;
 
 void interpolate_fieldmap(PndFieldMap* map_to_corr,
 		PndFieldMap* map_to_interpol, double weight, string fileName) {
 	// Open file
 	//fLogger->Info(MESSAGE_ORIGIN, "PndFieldMap: Writing field map to ASCII file %s ",fileName);
-	ofstream mapFile((fileName+".dat_").c_str());
+	ofstream mapFile((fileName+".dat").c_str());
 	if (!mapFile.is_open()) {
 		cout << "WriteAsciiFile: Could not open file! " << endl;
 		return;
@@ -128,11 +140,55 @@ void interpolate_fieldmap(PndFieldMap* map_to_corr,
 	if (map_to_corr->GetType() == 4) fieldmap_converted = new PndTransMap (fileName.c_str(), "A");
 	if (fieldmap_converted){
 		fieldmap_converted->Init();
-		fieldmap_converted->WriteRootFile((fileName+".root").c_str(),fileName.c_str());
+		stringstream _filename;
+		_filename << fileName;// << "_" <<
+		fieldmap_converted->WriteRootFile((_filename.str()+".root").c_str(),_filename.str().c_str());
 		cout << " converted " << map_to_corr->GetNx() << " x " << map_to_corr->GetNy() << " x " << map_to_corr->GetNz() << endl;
 		cout << " to        " << fieldmap_converted->GetNx() << " x " << fieldmap_converted->GetNy() << " x " << fieldmap_converted->GetNz() << endl;
 		cout << " values " << endl;
+
+		cout << " creating comparison plots " << endl;
+		TH1F hist_relative_difference_Bx("relative_difference_Bx", ("relative difference in Bx for map "+_filename.str()).c_str(), 1000, -1, 1);
+		TH1F hist_relative_difference_By("relative_difference_By", ("relative difference in By for map "+_filename.str()).c_str(), 1000, -1, 1);
+		TH1F hist_relative_difference_Bz("relative_difference_Bz", ("relative difference in Bz for map "+_filename.str()).c_str(), 1000, -1, 1);
+		for (int x = 0; x < map_to_corr->GetNx(); x++) {
+			for (int y = 0; y < map_to_corr->GetNy(); y++) {
+				for (int z = 0; z < map_to_corr->GetNz(); z++) {
+					index = x * map_to_corr->GetNy() * map_to_corr->GetNz() + y
+							* map_to_corr->GetNz() + z;
+					double Bx1 = (*(map_to_corr->GetBx()))[index];
+					double Bx2 = (*(fieldmap_converted->GetBx()))[index];
+					double By1 = (*(map_to_corr->GetBy()))[index];
+					double By2 = (*(fieldmap_converted->GetBy()))[index];
+					double Bz1 = (*(map_to_corr->GetBz()))[index];
+					double Bz2 = (*(fieldmap_converted->GetBz()))[index];
+					hist_relative_difference_Bx.Fill((Bx2-Bx1)/Bx1*100.);
+					hist_relative_difference_By.Fill((By2-By1)/By1*100.);
+					hist_relative_difference_Bz.Fill((Bz2-Bz1)/Bz1*100.);
+					modul = div(index, iDiv);
+					if (modul.rem == 0) {
+						Double_t perc = TMath::Nint(100. * index / nTot);
+						cout << "\b\b\b\b\b\b" << setw(3) << perc << " % " << flush;
+					}
+				}
+			}
+		}
+		hist_relative_difference_Bx.Draw();
+		hist_relative_difference_Bx.SetXTitle("#Delta Bx/Bx [%]");
+		gPad->Print("relative_fieldmap_differences.ps(");
+		hist_relative_difference_By.Draw();
+		hist_relative_difference_By.SetXTitle("#Delta By/By [%]");
+		gPad->Print("relative_fieldmap_differences.ps(");
+		hist_relative_difference_Bz.Draw();
+		hist_relative_difference_Bz.SetXTitle("#Delta Bz/Bz [%]");
+		gPad->Print("relative_fieldmap_differences.ps(");
 		delete fieldmap_converted;
+		if (name_modification.size() > 0){
+			cout << " moving root file " << _filename.str()+".root" << " to the PANDAROOT input folder " << endl;
+			string _moveto = dir + "/input/" + _filename.str()+".root";
+			system(("mv "+_filename.str()+".root"+" "+_moveto).c_str());
+			fieldmapnames.push_back(_filename.str());
+		}
 	}
 }
 
@@ -147,15 +203,15 @@ void interpolate_fieldmaps() {
 	// The weight is the position for the interpolation between 0 and 1
 	map<string, double> weight;
 	momenta["0150"] = "0406";
-	weight["0150"] = -0.01; // extrapolate
+	weight["0150"] = -0.001; // extrapolate
 	momenta["0406"] = "0150";
-	weight["0406"] = 0.01; // interpolate
+	weight["0406"] = 0.00235; // interpolate
 	momenta["0890"] = "0406";
-	weight["0890"] = 0.01; // interpolate
+	weight["0890"] = 0.0032;
 	momenta["1191"] = "0890";
-	weight["1191"] = 0.01; // interpolate
+	weight["1191"] = 0.0067;
 	momenta["1500"] = "1191";
-	weight["1500"] = 0.01; // interpolate
+	weight["1500"] = 0.0095;
 
 	map<string, PndDipoleMap*> dipolefieldmaps1;
 	map<string, PndDipoleMap*> dipolefieldmaps2;
@@ -180,6 +236,8 @@ void interpolate_fieldmaps() {
 		//		("Promme_test_file" + momentum + ".dat").c_str());
 	}
 
+	TCanvas canvas("canvas", "comparison plots", 600, 600);
+	canvas.cd();
 	for (map<string, string>::iterator it = momenta.begin(); it
 			!= momenta.end(); it++) {
 		string momentum = it->first;
@@ -188,9 +246,22 @@ void interpolate_fieldmaps() {
 		//PndFieldMap* new_dipolefieldmap1 = new PndDipoleMap(("DipoleMap1_new."+(momentum)).c_str(), "R");
 		//new_dipolefiledmap1
 		interpolate_fieldmap(dipolefieldmaps1[momentum],
-				dipolefieldmaps1[interpol_mom], weight[momentum], "DipoleMap1."+momentum);
+				dipolefieldmaps1[interpol_mom], weight[momentum], "DipoleMap1"+name_modification+"."+momentum);
+		interpolate_fieldmap(dipolefieldmaps2[momentum],
+				dipolefieldmaps2[interpol_mom], weight[momentum], "DipoleMap2"+name_modification+"."+momentum);
+		interpolate_fieldmap(transfieldmaps[momentum],
+				transfieldmaps[interpol_mom], weight[momentum], "TransMap"+name_modification+"."+momentum);
 	}
+	// close the opened ps file
+	canvas.Clear();
+	canvas.Print("relative_fieldmap_differences.ps)");
 
+	cout << "\n list of created field map names " << endl;
+	cout << " ********************************" << endl;
+	for (vector<string>::iterator it = fieldmapnames.begin(); it != fieldmapnames.end(); it++){
+		cout << " " << *it << endl;
+	}
+	cout << " ********************************" << endl;
 }
 
 #include<TApplication.h>
