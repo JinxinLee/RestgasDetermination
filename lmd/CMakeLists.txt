@@ -54,8 +54,8 @@ link_directories( ${LINK_DIRECTORIES})
 
 ########################### create libLmd ######################################
 set(LMD_SRCS
-
 LmdTools/PndLmdContFact.cxx
+LmdTools/PndLmdAlignPar.cxx
 LmdDigi/PndLmdPixelHitProducerFast.cxx
 LmdDigi/PndLmdStripHitProducer.cxx
 LmdDigi/PndLmdHitProducerIdeal.cxx
@@ -84,10 +84,9 @@ set_target_properties(Lmd PROPERTIES ${FAIRROOT_LIBRARY_PROPERTIES})
 
 ########################### create libLmdReco ##################################
 set(LMDRECO_SRCS
-
 LmdReco/PndLmdStripClusterTask.cxx
-# LmdReco/PndLmdIdealRecoTask.cxx
-
+#LmdReco/PndLmdIdealClusterTask.cxx
+#LmdReco/PndLmdIdealRecoTask.cxx
 )
 set (LMD_RULECHECKER_SRCS ${LMD_RULECHECKER_SRCS} ${LMDRECO_SRCS})
 
