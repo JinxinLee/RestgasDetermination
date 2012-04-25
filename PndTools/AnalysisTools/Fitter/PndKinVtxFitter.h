@@ -31,7 +31,9 @@ class PndKinVtxFitter : public VAbsFitter
     double GlobalChi2() {return fGlobChi2;}
     double GetPull() {return fPull;}
     int Getdof() {return fdgf;} //VJ
-    
+    Float_t GetPocaVtx(TVector3 &vertex, TCandidate *a, TCandidate *b);
+    void GetCovariance(TMatrixD &a_cov0, TMatrixD &cov_al_x, TMatrixD &V_vtx, TMatrixD &covS);
+
   private:
     TCandList  fDaughters;
     void FindAndAddGenericDaughters(TCandidate *head);
@@ -53,7 +55,8 @@ class PndKinVtxFitter : public VAbsFitter
     void SetOutput(TCandidate *head);
     
     void TransportToVertex(TMatrixD &, TMatrixD &, TMatrixD &, TMatrixD &, TMatrixD &);
-    void GetStartVtx(TVector3 *); 
+    void GetStartVtx(TVector3 &vertex);
+
     
     TMatrixD al0; //original parameters
     TMatrixD al1;  //fitted parameters

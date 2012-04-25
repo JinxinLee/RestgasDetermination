@@ -585,5 +585,3 @@ PndMassFitter::GetInvariantMass()
 
 unsigned PndMassFitter::GetDecayPoint()
 {return m_atDecayPoint;}
-
-

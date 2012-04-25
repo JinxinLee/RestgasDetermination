@@ -7,6 +7,7 @@
 #include "TDecompLU.h"
 #include "TMatrixD.h"
 #include "TMatrixDSym.h"
+#include "PndVtxPoca.h"
 
 using namespace std;
 
@@ -139,10 +140,11 @@ void PndKinVtxFitter::Compute()
   ResetMatrices();
   ReadMatrix();
   
+  TMatrixD cov_al_x(7*nd,3);
   
   TVector3 startVtx;
   
-  GetStartVtx(&startVtx); 
+  GetStartVtx(startVtx);
   vtx_st[0][0]=startVtx.X();vtx_st[1][0]=startVtx.Y();vtx_st[2][0]=startVtx.Z();
   // vtx_st[0][0]=0.0;vtx_st[1][0]=0.0;vtx_st[2][0]=0.0;
   vtx_ex=vtx_st;
@@ -230,7 +232,7 @@ void PndKinVtxFitter::Compute()
     // TMatrixD chi2_new = lam_t* md;
     //TMatrixD chi2_new = lam_t*(mD*(al0 - al_new) );
     TMatrixD chi2_new = lam_t*(mD*(al0 - al_new)  + md);
-    // TMatrixD chi2_new = lam_t*(mD*(al0 - al_new) + mE*(vtx_st-vtx_ex) + md);
+//    TMatrixD chi2_new = lam_t*(mD*(al0 - al_new) + mE*(vtx_st-vtx_ex) + md);
     
     
     // New Covariance Matrix................
@@ -258,10 +260,11 @@ void PndKinVtxFitter::Compute()
       vtx_ex = vtx_new;
       al0 =al_new;
       //
-      TMatrixD Vd_update(Vd); 
-      Vd_update -= Vd*(mE*Vx*mE_t)*Vd.T();
+      TMatrixD Vd_new(Vd);
+      Vd_new -= Vd*(mE*Vx*mE_t)*Vd.T();
       TMatrixD V_al_new(V_al0);
-      V_al_new -= V_al0*(mD_t*Vd_update*mD)*V_al0.T();
+      V_al_new -= V_al0*(mD_t*Vd_new*mD)*V_al0.T();
+      cov_al_x -= V_al0*mD_t*Vd*mE*Vx; // Vertex-track Correlation
       
       //double covdif=(V_al0[6][6]-V_al_new[6][6]);
       //  if (covdif > 0 ) {mPull[0][0] =(al0[6][0]-al_new[6][0])/sqrt(covdif);}
@@ -282,17 +285,24 @@ void PndKinVtxFitter::Compute()
   
   
   // Trivial way for covariance matrix of composite
-  for(Int_t k=0;k<nd;k++)
-  {covC+=V_al0.GetSub(k*7,(k+1)*7-1,k*7,(k+1)*7-1);}
+// covC=
+//  for(Int_t k=0;k<nd;k++) {
+//        for(int j = 0; j< nd ; ++j)  {
+//   {if(k<=j) CovS(k,j) = V_al_0(k,j);}}
+//   CovC -= CovS;
+//  covC+=V_al0.GetSub(k*7,(k+1)*7-1,k*7,(k+1)*7-1);}
+
+  GetCovariance(V_al0,cov_al_x,V_vtx,covC);
   
   
   //   al_new_vtx=al1;
   //   Va_new_vtx=V_al1;
-  TransportToVertex(al0, V_al0, al_new_vtx, Va_new_vtx, vtx_ex);
-  al0=al_new_vtx;
-  V_al0=Va_new_vtx;
+//  TransportToVertex(al0, V_al0, al_new_vtx, Va_new_vtx, vtx_ex);
+ // al0=al_new_vtx;
+//  V_al0=Va_new_vtx;
   fGlobChi2=chi2[0][0];
-  
+  fdgf=2*nd-3; //
+  // Add no. of additional constraints
   // fChi2Diff=chi2_1[0][0]-chi2[0][0];
 }
 
@@ -316,18 +326,45 @@ void PndKinVtxFitter::SetOutput(TCandidate *head)
     sumA += a;
     TVector3 pos(al0[k*7+4][0],al0[k*7+5][0],al0[k*7+6][0]);
     TLorentzVector mom4(al0[k*7+0][0],al0[k*7+1][0],al0[k*7+2][0],al0[k*7+3][0]);
+//better to put daugthers with mass hypothesis .......?? VJ
+    TLorentzVector momM;
+    double fM=fDaughters[k].Mass();
+    momM.SetXYZM(al0[k*7+0][0],al0[k*7+1][0],al0[k*7+2][0],fM);
+//    momM.SetP4(fM,al0[k*7+0][0],al0[k*7+1][0],al0[k*7+2][0]);
     fDaughters[k].SetP7(pos,mom4); 
-    
+//    fDaughters[k].SetP7(pos,momM);
+
+     //Extend matrix for energy for each candidates if daughters from mass hypothesis 6x6 covariance
+    TMatrixD p1Cov(7,7);
+    TLorentzVector p1=fDaughters[k].P4();
+    TMatrixD p2Cov(7,7);
+
     for(int i=0;i<7;i++){
       for (int j=0;j<7;j++){
-        TMatrixD p1Cov(7,7);
         p1Cov[i][j]= V_al0[k*7+i][k*7+j];
-        fDaughters[k].SetCov7(p1Cov); //New covariance matrix without correlations 
       }
     }
+    for (int ii=0;ii<6;ii++) {for(int jj=0;jj<6;jj++) {p2Cov[ii][jj]=p1Cov[ii][jj];}}  //test
+
+     double invE = 1./al0[k*7+3][0];
+     p2Cov[0+3][3+3] = p2Cov[3+3][0+3] = (p1.X()*p1Cov[0+3][0+3]+p1.Y()*p1Cov[0+3][1+3]+p1.Z()*p1Cov[0+3][2+3])*invE;
+     p2Cov[1+3][3+3] = p2Cov[3+3][1+3] = (p1.X()*p1Cov[0+3][1+3]+p1.Y()*p1Cov[1+3][1+3]+p1.Z()*p1Cov[1+3][2+3])*invE;
+     p2Cov[2+3][3+3] = p2Cov[3+3][2+3] = (p1.X()*p1Cov[0+3][2+3]+p1.Y()*p1Cov[1+3][2+3]+p1.Z()*p1Cov[2+3][2+3])*invE;
+     p2Cov[3+3][3+3] = (p1.X()*p1.X()*p1Cov[0+3][0+3]+p1.Y()*p1.Y()*p1Cov[1+3][1+3]+p1.Z()*p1.Z()*p1Cov[2+3][2+3]
+     +2.0*p1.X()*p1.Y()*p1Cov[0+3][1+3]
+     +2.0*p1.X()*p1.Z()*p1Cov[0+3][2+3]
+     +2.0*p1.Y()*p1.Z()*p1Cov[1+3][2+3])*invE*invE;
+
+     p2Cov[3+3][4-4] = p2Cov[4-4][3+3] = (p1.X()*p1Cov[0+3][4-4]+p1.Y()*p1Cov[1+3][4-4]+p1.Z()*p1Cov[2+3][4-4])*invE;
+     p2Cov[3+3][5-4] = p2Cov[5-4][3+3] = (p1.X()*p1Cov[0+3][5-4]+p1.Y()*p1Cov[1+3][5-4]+p1.Z()*p1Cov[2+3][5-4])*invE;
+     p2Cov[3+3][6-4] = p2Cov[6-4][3+3] = (p1.X()*p1Cov[0+3][6-4]+p1.Y()*p1Cov[1+3][6-4]+p1.Z()*p1Cov[2+3][6-4])*invE;
+//        fDaughters[k].SetCov7(p2Cov); //New covariance matrix without correlations
+        fDaughters[k].SetCov7(p1Cov); //New covariance matrix without correlations
+
   }
   
   // For the composite particle ..............................
+// Include neutrals particles not involved in vertex fit e.g. gamma and pi0
   double fpx=0,fpy=0,fpz=0,fe=0;	
   for (int k=0;k<nd;k++)
   {
@@ -392,22 +429,6 @@ void PndKinVtxFitter::ReadMatrix()
     for(int i=3; i<6; ++i){J[6][i] = al0[kN+i-3][0]/al0[kN+3][0];}
     //   p2Cov= J*p3Cov*(J_t.Transpose(J));
     p2Cov=p1Cov;
-    /*
-     //Extend matrix for energy for each candidates .....
-     double invE = 1./al0[kN+3][0];
-     p2Cov[0+3][3+3] = p2Cov[3+3][0+3] = (p1.X()*p1Cov[0+3][0+3]+p1.Y()*p1Cov[0+3][1+3]+p1.Z()*p1Cov[0+3][2+3])*invE;
-     p2Cov[1+3][3+3] = p2Cov[3+3][1+3] = (p1.X()*p1Cov[0+3][1+3]+p1.Y()*p1Cov[1+3][1+3]+p1.Z()*p1Cov[1+3][2+3])*invE;
-     p2Cov[2+3][3+3] = p2Cov[3+3][2+3] = (p1.X()*p1Cov[0+3][2+3]+p1.Y()*p1Cov[1+3][2+3]+p1.Z()*p1Cov[2+3][2+3])*invE;
-     p2Cov[3+3][3+3] = (p1.X()*p1.X()*p1Cov[0+3][0+3]+p1.Y()*p1.Y()*p1Cov[1+3][1+3]+p1.Z()*p1.Z()*p1Cov[2+3][2+3]
-     +2.0*p1.X()*p1.Y()*p1Cov[0+3][1+3]
-     +2.0*p1.X()*p1.Z()*p1Cov[0+3][2+3]
-     +2.0*p1.Y()*p1.Z()*p1Cov[1+3][2+3])*invE*invE;
-     
-     p2Cov[3+3][4-4] = p2Cov[4-4][3+3] = (p1.X()*p1Cov[0+3][4-4]+p1.Y()*p1Cov[1+3][4-4]+p1.Z()*p1Cov[2+3][4-4])*invE;
-     p2Cov[3+3][5-4] = p2Cov[5-4][3+3] = (p1.X()*p1Cov[0+3][5-4]+p1.Y()*p1Cov[1+3][5-4]+p1.Z()*p1Cov[2+3][5-4])*invE;
-     p2Cov[3+3][6-4] = p2Cov[6-4][3+3] = (p1.X()*p1Cov[0+3][6-4]+p1.Y()*p1Cov[1+3][6-4]+p1.Z()*p1Cov[2+3][6-4])*invE;
-     */
-    
     //Change to px,py,pz,E,x,y,z
     for(int i=0;i<7;i++){
       for(int j=0;j<7;j++){
@@ -601,7 +622,7 @@ void PndKinVtxFitter::ReadMassKinMatrix()
     
     al1p[kN+0][0] = al1p[kN+0][0]-a*delY;
     al1p[kN+1][0] = al1p[kN+1][0]+a*delX;
-    al1p[kN+2][0] = al1p[kN+2][0];
+  //  al1p[kN+2][0] = al1p[kN+2][0];
     double E = TMath::Sqrt(al1p[kN+0][0]* al1p[kN+0][0]+al1p[kN+1][0]*al1p[kN+1][0]+al1p[kN+2][0]*al1p[kN+2][0]+m[k][0]*m[k][0]);
     Etot += E;
     
@@ -719,33 +740,82 @@ void PndKinVtxFitter::ReadPointingKinMatrix(TCandidate *head)
  }
  */
 
+void PndKinVtxFitter::GetStartVtx(TVector3 &vertex)
+{
+  vertex.SetXYZ(0.,0.,0.);
+  int nd=fDaughters.GetLength();
+  if ( nd <  2 ) vertex.SetXYZ(0.,0.,0.);
+  if ( nd == 2 ) GetPocaVtx(vertex,&fDaughters[0],&fDaughters[1]);
+
+  std::vector<Double_t> distances;
+  std::vector<TVector3> results;
+  // loop over daughters, take the mean value of all "best" positions
+  // TODO do this smarter by using already found vertices ?
+  TVector3 theVertex(0.,0.,0.);
+  Double_t actualDoca=0.;
+  for(Int_t daug1 =0;daug1<nd;daug1++)
+  {
+    TCandidate* a=&fDaughters[daug1];
+    for(Int_t daug2=daug1+1;daug2<nd;daug2++)
+    {
+      TCandidate* b=&fDaughters[daug2];
+      actualDoca = GetPocaVtx(theVertex,a,b);
+      distances.push_back(actualDoca);
+      results.push_back(theVertex);
+    }//daug2
+  }//daug1
+  //TODO invent a smart procedure to get the correct 2-Track doca and something reasonable for many tracks
+  // --> Mean = Sum(x/(sigmax^2)) / Sum(Sigmax^2)
+  // Averaging vertex results from each track pair how to do that? "geometric" or arithmetic mean?
+  std::vector<Double_t>::iterator iterDoca;
+  std::vector<TVector3>::iterator iterVtx;
+  Double_t docaweight=0,sumdocaweigts=0;
+  TVector3 vertexK;
+  for(iterVtx=results.begin(), iterDoca=distances.begin();iterVtx!=results.end()&&iterDoca!=distances.end();++iterVtx,++iterDoca)
+  {
+    docaweight=1/(*iterDoca);
+    //docaweight *= docaweight;
+    vertexK=*iterVtx;
+    if (docaweight == 0) docaweight = 1; // right so?
+    vertexK *= docaweight;
+    vertex+=vertexK;
+    sumdocaweigts+=docaweight;
+  }
+  if (sumdocaweigts == 0) sumdocaweigts=1;
+  vertex*=1./sumdocaweigts;
+  //sumdocaweigts = sqrt(sumdocaweigts);
+//  return fHeadOfTree->NDaughters()/sumdocaweigts;
+}
 
 
-void PndKinVtxFitter::GetStartVtx(TVector3 * SVtx)
+
+
+
+Float_t PndKinVtxFitter::GetPocaVtx(TVector3 &vertex, TCandidate *a, TCandidate *b)
 {
   //Double_t d=1.0, Double_t a=3.14159265358979323846, Double_t r1=0.0, Double_t r2=1.E8
   //Taken from the TVertexSelector .
   
-  if ( fDaughters.GetLength() != 2 ) SVtx->SetXYZ(0.,0.,0.); 
+//  if ( fDaughters.GetLength() != 2 ) SVtx->SetXYZ(0.,0.,0.);
   
-  TCandidate a=fDaughters[0];
-  TCandidate b=fDaughters[1];
+//  TCandidate a=fDaughters[0];
+//  TCandidate b=fDaughters[1];
   //  SVtx->SetXYZ( 0.5, 0.5, 1.0 );
-  SVtx->SetXYZ( 0.0, 0.0, 0.0 );
+//  SVtx->SetXYZ( 0.0, 0.0, 0.0 );
   //Float_t bField = TRho::Instance()->GetMagnetField();
   Double_t bField=2.0;
   // Position vectors
-  TVector3 position1 = a.GetPosition();
-  TVector3 position2 = b.GetPosition();
+  TVector3 position1 = a->GetPosition();
+  TVector3 position2 = b->GetPosition();
   
   // Momentum vectors
-  TVector3 ap3 = a.P3();
+  TVector3 ap3 = a->P3();
   Double_t pPerp1 = ap3.Perp();
   TVector3 d1 = ap3;
   d1.SetZ(0);
   d1*=1.0/pPerp1;
   
-  TVector3 bp3 = b.P3();
+  TVector3 bp3 = b->P3();
   Double_t pPerp2 = bp3.Perp();
   TVector3 d2 = bp3;
   d2.SetZ(0);
@@ -756,13 +826,13 @@ void PndKinVtxFitter::GetStartVtx(TVector3 * SVtx)
   // Radius and center
   Double_t rho1 = pPerp1/(0.0029979246*bField); // Radius in cm
   TVector3 r1=d1.Cross(dB);
-  r1 *= -a.Charge()*rho1;
+  r1 *= -a->Charge()*rho1;
   TVector3 center1 = position1 - r1;
   center1.SetZ(0);
   
   Double_t rho2 =  pPerp2/(0.0029979246*bField); // Radius in cm
   TVector3 r2=d2.Cross(dB);
-  r2 *= -b.Charge()*rho2;
+  r2 *= -b->Charge()*rho2;
   TVector3 center2 = position2 - r2;
   center2.SetZ(0);
   
@@ -824,8 +894,10 @@ void PndKinVtxFitter::GetStartVtx(TVector3 * SVtx)
     }
   }
   
-  TVector3 fVertex=0.5*(newapos[best]+newbpos[best]);
-  SVtx->SetXYZ( fVertex.X(), fVertex.Y(), fVertex.Z());
+//  TVector3 fVertex=0.5*(newapos[best]+newbpos[best]);
+//  SVtx->SetXYZ( fVertex.X(), fVertex.Y(), fVertex.Z());
+  vertex=0.5*(newapos[best]+newbpos[best]);
+  return fActualDoca;
 }
 
 void PndKinVtxFitter::TransportToVertex(TMatrixD &a_in, TMatrixD &a_cov_in, TMatrixD &a_out, TMatrixD &a_cov_out, TMatrixD &xref)
@@ -894,48 +966,82 @@ void PndKinVtxFitter::TransportToVertex(TMatrixD &a_in, TMatrixD &a_cov_in, TMat
   }
 }
 
-/*
- //Now the paramters & covariance for the composite (complicated stuff)..............
- 
- TMatrixD PVcov; // PosMom  Covariance 
- PVcov -= V_al0*mD_t*Vd*mE*Vx;
- 
+
+void PndKinVtxFitter::GetCovariance(TMatrixD &a_cov0, TMatrixD &cov_al_x, TMatrixD &V_vtx, TMatrixD &covS)
+ //The covariance for the vitual particle ( a bit complicated)
+{
+ int fNDau=fDaughters.GetLength();
+ int nd=fNDau;
+
+
+ TMatrixD cov_al_x_temp=cov_al_x;
+
  TMatrixD pA(4*nd,7*nd);
  pA.Zero();
  double  sumA=0;
  double a;
+ int kN, jN;
  for (int k=0;k<nd;k++){   
- int kN=k*7;
+ kN=k*7;
+ jN=k*4;
  a = -0.00299792458*2.0*fDaughters[k].GetCharge();
  sumA += a;
- pA[kN+0][0]=pA[kN+1][1]=pA[kN+2][2]=pA[kN+3][3]=1;
- pA[kN+0][5]=a; 
- pA[kN+1][4]=-a;
+ pA[jN][kN]=pA[jN+1][kN+1]=pA[jN+2][kN+2]=pA[jN+3][kN+3]=1;
+ pA[jN+1][kN+4]=-a;
+ pA[jN][kN+5]=a;
  }
- 
+
  TMatrixD pB(4,3);  
- pB.Zero();
- pB[0][1]=-sAumA;
- pB[1][0]=sum;
  TMatrixD pB_t(3,4);
- 
- TMatrixD pAcov(4*nd,3);
- pAcov=pA*PVcov;
- TMatrixD SDcov;
- SDcov=pA*Vd*D.T()
- TmatrixD cov3S;
- for (int k=0;k<nd;k++){ 
- int kN=k*7;   
+ pB.Zero();
+ pB[0][1]=-sumA;
+ pB[1][0]=sumA;
+
+TMatrixD covA_al_xi=pA*cov_al_x;
+//TMatrixD covB_al_xi=pB*cov_al_x;
+TMatrixD cov_al_xT(3,7*nd);
+cov_al_xT = cov_al_x_temp.T();
+
+TMatrixD pA_t(7*nd,4*nd);
+//pA_t=pA.T();
+
+//TMatrixD covP(4*nd,4*nd);
+TMatrixD covP = pA*a_cov0*(pA_t.Transpose(pA));
+TMatrixD covA=covA_al_xi*(pB_t.Transpose(pB));
+TMatrixD covB=pB*(cov_al_xT)*(pA_t.Transpose(pA));
+TMatrixD covBV=pB*(V_vtx)*(pB_t.Transpose(pB));
+
+TMatrixD covA_al_x(4,3);
+TMatrixD SumcovP(4,4);
+SumcovP=covBV;
+
+ for (int k=0;k<nd;k++){
+ kN=k*7;
+ jN=k*4;
  for (int i=0;i<4;i++) {
- for (int j=0;j<3;j++) { 
- cov3S[i][j] += pAcov[kN+i][j];}
- cov1S[
- }}
+ for (int j=0;j<4;j++) {
+ SumcovP[i][j] += covP[jN+i][jN+j];
+ SumcovP[i][j] += covA[jN+i][j];
+ SumcovP[i][j] += covB[i][jN+j];
+}
+ for (int jj=0;jj<3;jj++) {
+ covA_al_x[i][jj]  += covA_al_xi[jN+i][jj];
+}
+}
+}
  
- TMatrixD  pAcov_t;
- TMatrixD covS =pAcov+pB*V_vtx;
- TMatrixD covF = pA*V_al0*mD.T() + covF*pB_t.Transpose(pB)+pB*pAcov_t.Transpose(pAcov); 
- // Make big matrix ....covC ( covF    covS)
- //                           ( covS    V_vtx )
- covC=setSub
- */
+
+TMatrixD covPX(4,3);
+covPX = covA_al_x ;
+covPX += (pB *V_vtx);
+TMatrixD covPX_t(3,4);
+covPX_t=covPX_t.Transpose(covPX);
+
+
+
+covS.SetSub(0,0,SumcovP);
+covS.SetSub(4,0,covPX_t);
+covS.SetSub(0,4,covPX);
+covS.SetSub(4,4,V_vtx);
+
+}
