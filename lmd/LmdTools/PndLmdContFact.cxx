@@ -13,6 +13,7 @@ using namespace std;
 #include "PndSdsPixelDigiPar.h"
 #include "PndSdsStripDigiPar.h"
 #include "PndSdsTotDigiPar.h"
+#include "PndLmdAlignPar.h"
 #include "FairParRootFileIo.h"
 #include "FairParAsciiFileIo.h"
 #include "TList.h"
@@ -29,6 +30,7 @@ PndLmdContFact::PndLmdContFact() {
   fName="PndLmdContFact";
   fTitle="Factory for parameter containers in libPndLmd";
   fDigiParNames = new TList();
+  fAlignParNames = new TList();
   setAllContainers();
   FairRuntimeDb::instance()->addContFactory(this);
 }
@@ -38,6 +40,12 @@ PndLmdContFact::~PndLmdContFact(){
     fDigiParNames->Delete(); 
     delete fDigiParNames;
   }
+  if(0!=fAlignParNames) 
+  {
+    fAlignParNames->Delete(); 
+    delete fAlignParNames;
+  }
+
 }
 
 
@@ -63,6 +71,11 @@ void PndLmdContFact::setAllContainers() {
   p4->addContext("TestNonDefaultContext");
   fDigiParNames->Add(new TObjString(p4->GetName()));
   containers->Add(p4);
+
+  FairContainer* p5 = new FairContainer("LMDAlignPar", "PndLmd Alignment Parameters", "TestDefaultContext");
+  p5->addContext("TestNonDefaultContext");
+  fAlignParNames->Add(new TObjString(p5->GetName()));
+  containers->Add(p5);
 }
 
 FairParSet* PndLmdContFact::createContainer(FairContainer* c) {
@@ -85,6 +98,10 @@ FairParSet* PndLmdContFact::createContainer(FairContainer* c) {
   
   if (strcmp(name,"SDSStripDigiParTrap")==0) {
     p=new PndSdsStripDigiPar(c->getConcatName().Data(),c->GetTitle(),c->getContext());
+  }
+
+  if (strcmp(name,"LMDAlignPar")==0) {
+    p=new PndLmdAlignPar(c->getConcatName().Data(),c->GetTitle(),c->getContext());
   }
   return p;
 }

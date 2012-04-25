@@ -18,10 +18,11 @@ public:
 	~PndLmdContFact();
 	FairParSet* createContainer(FairContainer* c);
 	TList* GetDigiParNames() {return fDigiParNames;};
+	TList* GetAlignParNames() {return fAlignParNames;};
 private:
 	void setAllContainers();
 	TList* fDigiParNames;
-
+	TList* fAlignParNames;
 	ClassDef(PndLmdContFact,3)
 };
 
