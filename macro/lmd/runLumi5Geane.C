@@ -1,4 +1,4 @@
-void runLumi5Geane(const int nEvents=10, const double mom=15, const int startEvent=0, TString storePath="tmpOutput", const int verboseLevel=5)
+void runLumi5Geane(const int nEvents=10, const double mom=15, const int startEvent=0, TString storePath="tmpOutput", const int verboseLevel=0)
 {
   // ========================================================================
   // Input file (MC events)
