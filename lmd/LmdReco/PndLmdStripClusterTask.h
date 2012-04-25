@@ -34,16 +34,23 @@ class PndLmdStripClusterTask : public PndSdsStripClusterTask
 		    TVector3 &hitPos, TMatrixD &hitCov, Int_t &sensorID);
     // inline void SetyRotation(const Double_t inrot=0){fyRotation=inrot;};
     
-    //void Exec(Option_t* opt);
+    void Exec(Option_t* opt);
+    InitStatus Init();
     PndGeoHandling* fGeoH;
     FairRun* ana;
     FairRuntimeDb* rtdb;
     ClassDef(PndLmdStripClusterTask,2);
   
  private:
-    
-    Double_t fPbeam;
+    TList* fAlignParamList;
 
+    Double_t fPbeam;
+    void combitransToLumiFrame(TVector3& hitPos);
+    void rotateToLumiFrame(TVector3& hitPos);
+    TMatrixD rotateToLumiFrame(TMatrixD& hitCov);
+    void alignmentCorr(TVector3& hitPos, int sensID);
+    double fShiftX[32],fShiftY[32],fShiftZ[32];
+    double fRotateX[32],fRotateY[32],fRotateZ[32];
 };
 
 #endif /* LMDCLUSTERTASK_H */
