@@ -17,7 +17,6 @@
 
 class FairMCPoint;
 
-
 class PndTracking : public FairTask
 {
 
@@ -1161,7 +1160,6 @@ class PndTracking : public FairTask
 	Double_t info[][7],
 	UShort_t nParallelHits,
 	UShort_t *ListParallelHits,
-	UShort_t *Infoparal,
 	Short_t  Charge,
 	Double_t *Fi_initial_helix_referenceframe,
 	Double_t *Fi_final_helix_referenceframe,
@@ -1231,6 +1229,24 @@ class PndTracking : public FairTask
 	bool *status    // fit status; true = successful
 	  );
 
+  void StartFromSciTil(
+	Short_t * Charge,
+	UShort_t * FiConformalIndex,
+	Double_t *Fi_final_helix_referenceframe,
+	Double_t *Fi_initial_helix_referenceframe,
+	Double_t * Fi_low_limit,
+	Double_t * Fi_up_limit,
+	UShort_t HitsinBoxConformal[][NRDIVCONFORMAL][NFIDIVCONFORMAL],
+	Double_t info[][7],
+	Double_t infoparalConformal[][5],
+	UShort_t nBoxConformal[][NFIDIVCONFORMAL],
+	UInt_t nSttParHit,
+	UInt_t &nSttTrackCand,
+	UShort_t * RConformalIndex,
+	Double_t *trajectory_vertex,
+	Double_t *UU,
+	Double_t *VV
+	);
 
   void SeparateInnerOuterParallel(
 
