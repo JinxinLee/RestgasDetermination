@@ -8819,7 +8819,8 @@ if(istampa>=3){
 //  now for the    sigmap*   variables
       for(i=0; i< NpointsInFit;i++){
 	if( mvdhit[i]) {
-         sprintf(&aux[(i+4+NpointsInFit+nSttHits)*NStructRowsMax][0],"OBJECT",i);
+//         sprintf(&aux[(i+4+NpointsInFit+nSttHits)*NStructRowsMax][0],"OBJECT",i);
+         sprintf(&aux[(i+4+NpointsInFit+nSttHits)*NStructRowsMax][0],"OBJECT");
          NameRowsInWhichStructVarArePresent[(i+4+NpointsInFit+nSttHits)*NStructRowsMax]=
 		 &aux[(i+4+NpointsInFit+nSttHits)*NStructRowsMax][0];
          sprintf(&aux[(i+4+NpointsInFit+nSttHits)*NStructRowsMax+1][0],"A%d",i);
@@ -8835,7 +8836,8 @@ if(istampa>=3){
          NameRowsInWhichStructVarArePresent[(i+4+NpointsInFit+nSttHits)*NStructRowsMax+4]=
 		 &aux[(i+4+NpointsInFit+nSttHits)*NStructRowsMax+4][0];
 	} else {
-         sprintf(&aux[(i+4+NpointsInFit+nSttHits)*NStructRowsMax][0],"OBJECT",i);
+//         sprintf(&aux[(i+4+NpointsInFit+nSttHits)*NStructRowsMax][0],"OBJECT",i);
+         sprintf(&aux[(i+4+NpointsInFit+nSttHits)*NStructRowsMax][0],"OBJECT");
          NameRowsInWhichStructVarArePresent[(i+4+NpointsInFit+nSttHits)*NStructRowsMax]=
 		 &aux[(i+4+NpointsInFit+nSttHits)*NStructRowsMax][0];
          sprintf(&aux[(i+4+NpointsInFit+nSttHits)*NStructRowsMax+1][0],"Ap%d",i);
@@ -8856,7 +8858,8 @@ if(istampa>=3){
 //  now for the    sigmam*   variables
       for(i=0, ii=0; i< NpointsInFit;i++){
 	if( mvdhit[i]) continue;
-         sprintf(&aux[(ii+4+2*NpointsInFit+nSttHits)*NStructRowsMax][0],"OBJECT",i);
+//         sprintf(&aux[(ii+4+2*NpointsInFit+nSttHits)*NStructRowsMax][0],"OBJECT",i);
+         sprintf(&aux[(ii+4+2*NpointsInFit+nSttHits)*NStructRowsMax][0],"OBJECT");
          NameRowsInWhichStructVarArePresent[(ii+4+2*NpointsInFit+nSttHits)*NStructRowsMax]=
 		 &aux[(ii+4+2*NpointsInFit+nSttHits)*NStructRowsMax][0];
 
@@ -9818,7 +9821,8 @@ if(istampa>2) cout<<"Results : m1 = "<<m1_result<<", m2= "<<m2_result<<", q1 = "
 //  now for the    sigmap*   variables
       for(i=0; i< NpointsInFit;i++){
 	if( mvdhit[i]) {
-         sprintf(&aux[(i+4+NpointsInFit+nSttHits)*NStructRowsMax][0],"OBJECT",i);
+//         sprintf(&aux[(i+4+NpointsInFit+nSttHits)*NStructRowsMax][0],"OBJECT",i);
+         sprintf(&aux[(i+4+NpointsInFit+nSttHits)*NStructRowsMax][0],"OBJECT");
          NameRowsInWhichStructVarArePresent[(i+4+NpointsInFit+nSttHits)*NStructRowsMax]=
 		 &aux[(i+4+NpointsInFit+nSttHits)*NStructRowsMax][0];
          sprintf(&aux[(i+4+NpointsInFit+nSttHits)*NStructRowsMax+1][0],"A%d",i);
@@ -9834,7 +9838,8 @@ if(istampa>2) cout<<"Results : m1 = "<<m1_result<<", m2= "<<m2_result<<", q1 = "
          NameRowsInWhichStructVarArePresent[(i+4+NpointsInFit+nSttHits)*NStructRowsMax+4]=
 		 &aux[(i+4+NpointsInFit+nSttHits)*NStructRowsMax+4][0];
 	} else {
-         sprintf(&aux[(i+4+NpointsInFit+nSttHits)*NStructRowsMax][0],"OBJECT",i);
+//         sprintf(&aux[(i+4+NpointsInFit+nSttHits)*NStructRowsMax][0],"OBJECT",i);
+         sprintf(&aux[(i+4+NpointsInFit+nSttHits)*NStructRowsMax][0],"OBJECT");
          NameRowsInWhichStructVarArePresent[(i+4+NpointsInFit+nSttHits)*NStructRowsMax]=
 		 &aux[(i+4+NpointsInFit+nSttHits)*NStructRowsMax][0];
          sprintf(&aux[(i+4+NpointsInFit+nSttHits)*NStructRowsMax+1][0],"Ap%d",i);
@@ -9855,7 +9860,8 @@ if(istampa>2) cout<<"Results : m1 = "<<m1_result<<", m2= "<<m2_result<<", q1 = "
 //  now for the    sigmam*   variables
       for(i=0, ii=0; i< NpointsInFit;i++){
 	if( mvdhit[i]) continue;
-         sprintf(&aux[(ii+4+2*NpointsInFit+nSttHits)*NStructRowsMax][0],"OBJECT",i);
+//         sprintf(&aux[(ii+4+2*NpointsInFit+nSttHits)*NStructRowsMax][0],"OBJECT",i);
+         sprintf(&aux[(ii+4+2*NpointsInFit+nSttHits)*NStructRowsMax][0],"OBJECT");
          NameRowsInWhichStructVarArePresent[(ii+4+2*NpointsInFit+nSttHits)*NStructRowsMax]=
 		 &aux[(ii+4+2*NpointsInFit+nSttHits)*NStructRowsMax][0];
 
