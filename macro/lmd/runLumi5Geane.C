@@ -1,4 +1,4 @@
-void runLumi5Geane(const int nEvents=10, const double mom=15, const int startEvent=0, TString storePath="tmpOutput", const int verboseLevel=0)
+void runLumi5Geane(const int nEvents=10, const double mom=15, const int startEvent=0, TString storePath="tmpOutput", const int verboseLevel=5)
 {
   // ========================================================================
   // Input file (MC events)
@@ -33,6 +33,8 @@ void runLumi5Geane(const int nEvents=10, const double mom=15, const int startEve
   gSystem->Load("libLmdReco");
   gSystem->Load("libLmdTrk");
   // ------------------------------------------------------------------------
+
+
   // Output file
     TString outFile = storePath+"/Lumi_Geane_";
     outFile += startEvent;
@@ -54,7 +56,7 @@ void runLumi5Geane(const int nEvents=10, const double mom=15, const int startEve
 
 
 
-  // -----   Timer   --------------------------------------------------------
+  // -----   Timer   ------ --------------------------------------------------
   TStopwatch timer;
   timer.Start();
   // ------------------------------------------------------------------------

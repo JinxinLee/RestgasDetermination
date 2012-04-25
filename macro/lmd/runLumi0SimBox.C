@@ -1,12 +1,12 @@
 // Panda FullSim macro
 
 //void runLumi0SimBox(const int nEvents=10, const double mom=15, TString storePath="tmpOutput", const int verboseLevel=0, const int particle=-211)
-void runLumi0SimBox(const int nEvents=10, const double mom=15, TString storePath="tmpOutput", const int verboseLevel=0, const int particle=-2212)
+void runLumi0SimBox(const int nEvents=10, const double mom=15, TString storePath="tmpOutput", const int verboseLevel=0, const int particle=-2212, const int trkNum=1)
 {
   TStopwatch timer;
   timer.Start();
   gDebug=0;
-
+  cout<<"We start run for beam Mom = "<<mom<<endl;
   //output1
   TString simOutput=storePath+"/Lumi_MC_0.root";
   TString parOutput=storePath+"/Lumi_Params_0.root";
@@ -19,38 +19,43 @@ void runLumi0SimBox(const int nEvents=10, const double mom=15, TString storePath
   cout<<"All libraries succsesfully loaded!"<<endl;
 
   //set the MC version used
-  fRun->SetName("TGeant4");
-  //fRun->SetName("TGeant3");
+  //fRun->SetName("TGeant4");
+  fRun->SetName("TGeant3");//GEANE uses GEANT3!
   
   fRun->SetOutputFile(simOutput);
 
   //set material
   fRun->SetMaterials("media_pnd.geo");
 
+
   //create and add detectors
   FairModule *Cave= new PndCave("CAVE");
   Cave->SetGeometryFileName("pndcaveVAC.geo");
+  //  Cave->SetGeometryFileName("pndcave.geo");
   fRun->AddModule(Cave);
+
+   FairModule *Pipe= new PndPipe("PIPE");
+   Pipe->SetGeometryFileName("beampipe_201112.root");
+   fRun->AddModule(Pipe);
+
 
   FairModule *Magnet= new PndMagnet("MAGNET");
   Magnet->SetGeometryFileName("FullSolenoid.root");
   fRun->AddModule(Magnet);
-
+ 
   FairModule *Dipole= new PndMagnet("MAGNET");
   Dipole->SetGeometryFileName("dipole.geo");
   fRun->AddModule(Dipole);
 
-  //FairModule *Pipe= new PndPipe("PIPE");
-  //Pipe->SetGeometryFileName("pipebeamtarget.geo");
-  //fRun->AddModule(Pipe);
+
 
   /*FairDetector *Stt= new PndStt("STT", kFALSE);
   Stt->SetGeometryFileName("straws_skewed_blocks.geo");
   fRun->AddModule(Stt);*/
 
-  FairDetector *Mvd = new PndMvdDetector("MVD", kFALSE);
-  Mvd->SetGeometryFileName("MVD_v1.0_woPassiveTraps.root");
-  fRun->AddModule(Mvd);
+  // FairDetector *Mvd = new PndMvdDetector("MVD", kFALSE);
+  // Mvd->SetGeometryFileName("MVD_v1.0_woPassiveTraps.root");
+  // fRun->AddModule(Mvd);
   
  /* PndEmc *Emc = new PndEmc("EMC",kFALSE);
   Emc->SetGeometryFileNameDouble("emc_module1245.dat","emc_module3new.root"); // if you want to use new geometry for FwEndCap
@@ -73,77 +78,37 @@ void runLumi0SimBox(const int nEvents=10, const double mom=15, TString storePath
 
   PndLmdDetector *Lum = new PndLmdDetector("LUM", kTRUE);
   Lum->SetExclusiveSensorType("LumActive");  //ignore MVD
-  Lum->SetGeometryFileName("../macro/lmd/geo/Test-Dipol-Design.root"); //!!!
-  //  Lum->SetGeometryFileName("../macro/lmd/geo/MyTest-Dipol-Design.root"); //!!!
-   
-  //  Mvd->SetGeometryFileName("lumi.geo");
-  //   Mvd->SetGeometryFileName("MVD14.root");
+  Lum->SetGeometryFileName("../macro/lmd/geo/Test-Dipol-Design.root"); //sensors with trap shape
+  //Lum->SetGeometryFileName("../macro/lmd/geo/HV_MAPS-Design.root"); // new sensors
   Lum->SetVerboseLevel(verboseLevel);
   fRun->AddModule(Lum);
-
-  //  FairDetector *Stt= new CbmStt("STT", kTRUE);
-  //  Stt->SetGeometryFileName("straws_axial.geo");
-  //  fRun->AddModule(Stt);
-  
-  //  FairDetector *Emc = new CbmEmc("EMC",kTRUE);
-  //  Emc->SetGeometryFileName("emc_module12345.dat");
-  //  fRun->AddModule(Emc);
-  
-  //  FairDetector *Drc = new CbmDrc("DIRC", kTRUE);
-  //  Drc->SetGeometryFileName("dirc.geo");
-  //  fRun->AddModule(Drc);
 
   
   //particle generator
   FairPrimaryGenerator* primGen = new FairPrimaryGenerator();
+  // primGen->SmearVertexXY(kTRUE);
+  // primGen->SmearAngle(kTRUE);
+  // primGen->SmearVertexZ(kTRUE);
+  // primGen->SetBeamAngularDivergence(0.0003);// sigmaTheta~0.3 mrad
+  // primGen->SetBeam(0., 0., 2*0.08, 2*0.08); //sigmaX=sigmaY=0.8 mm ["square"shape of beam ]
+  // primGen->SetTarget(0.,0.1); // sigmaZ=1mm, gaus
+ 
   fRun->SetGenerator(primGen);
 
-  // Particle Generator (pdgid,mult, px,py,pz, vx,vy,vz)
-  
-  // single pions for testing
-  //      FairParticleGenerator* partGenX   = new FairParticleGenerator(211,1, 1.,0.,0., 0.,0.,0.);
-  //      FairParticleGenerator* partGenY   = new FairParticleGenerator(211,1, 0.,1.,0., 0.,0.,0.);
-  //      FairParticleGenerator* partGenZ   = new FairParticleGenerator(211,1, 0.,0.1,1., 0.,0.,0.);
-  //      FairParticleGenerator* partGenXYZ = new FairParticleGenerator(211,1, 1.,1.,5., 0.,0.,0.);
-  //      primGen->AddGenerator(partGenX);
-  //      primGen->AddGenerator(partGenY);
-  //      primGen->AddGenerator(partGenZ);
-  //      primGen->AddGenerator(partGenXYZ);
-  
-  // Ion Generator
-  //    FairIonGenerator *fIongen= new FairIonGenerator(79, 197,79,1, 0.,0., 25, 0.,0.,-1.);
-  //    primGen->AddGenerator(fIongen);
-  
   // Box Generator
-  FairBoxGenerator *fBox = new FairBoxGenerator(particle, 1);
+  FairBoxGenerator *fBox = new FairBoxGenerator(particle, trkNum);
   fBox->SetPRange(mom,mom);
-  //fBox->SetThetaRange(0.2,0.4); //3...8 mrad
-  //  fBox->SetThetaRange(0.13,0.56);
-  // fBox->SetThetaRange(0.13,0.7); // 2... 12 mrad
-  // fBox->SetThetaRange(0.3,0.3);
-  //  fBox->SetThetaRange(0.,0.7);
+  //fBox->SetThetaRange(0.13,0.7); // 2... 12 mrad
+  //fBox->SetThetaRange(0.13,0.65); // 2... 11 mrad
   fBox->SetThetaRange(0.229183, 0.458366); //4 ... 8 mrad
-  // fBox->SetThetaRange(0., 3.14);
-  // fBox->SetThetaRange(0.4, 0.46); //7-8 mrad
-  //fBox->SetThetaRange(0.257831, 0.315127); //4.5 ... 5.5 mrad
-  //  fBox->SetThetaRange(0.257831, 0.257831); //4.5 mrad
-  // fBox->SetThetaRange(0., 90.);
-  // fBox->SetPhiRange(0.,360.);
-  //fBox->SetThetaRange(0.35, 0.35);
-  //fBox->SetPhiRange(89.,91.);
-  //  fBox->SetPhiRange(0.,20.);//TEST
-  //  fBox->SetPhiRange(44.,46.);
-  //fBox->SetPhiRange(90.,90.);
-  //  fBox->SetPhiRange(22.5,22.5);
+  //fBox->SetThetaRange(0.3, 0.3);//TEST 
   fBox->SetPhiRange(0,360.);
-  //  fBox->SetThetaRange(0.2,0.46); //3.5 ... 8.? mrad
-  //
-  //  fBox->SetPhiRange(1*180./TMath::Pi(),2*180./TMath::Pi());
-  //fBox->SetPhiRange(80.,100.);
-  primGen->AddGenerator(fBox);
+  //fBox->SetPhiRange(-115,-85);
+  //  fBox->SetPhiRange(0,0);//TEST
+  primGen->AddGenerator(fBox); 
 
   
-  // //EvtGen Generator
+ // //EvtGen Generator
   // PndEvtGenDirect *EvtGen = new PndEvtGenDirect("pbarpSystem","PBARSYSTEMTO4PIPHSP.DEC",mom);
   // primGen->AddGenerator(EvtGen);
 
@@ -184,7 +149,7 @@ void runLumi0SimBox(const int nEvents=10, const double mom=15, TString storePath
   else
     fRun->SetStoreTraj(kFALSE);
 
-
+  // fRun->SetStoreTraj(kTRUE);
   fRun->Init();
 
  // -Trajectories Visualization (TGeoManager Only )

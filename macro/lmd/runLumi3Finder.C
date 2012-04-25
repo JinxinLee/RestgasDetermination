@@ -83,7 +83,7 @@ void runLumi3Finder(const int nEvents=100000, const int startEvent=0, TString st
   }
   else{
     if(Method=="CA"){ 
-      PndLmdTrackFinderCATask* lmdfinder = new PndLmdTrackFinderCATask(missPl);
+      PndLmdTrackFinderCATask* lmdfinder = new PndLmdTrackFinderCATask(missPl,0.05);
       lmdfinder->SetVerbose(verboseLevel);
       fRun->AddTask(lmdfinder);
     }

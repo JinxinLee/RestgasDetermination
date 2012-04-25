@@ -62,6 +62,13 @@ void runLumi2Reco(const int nEvents=1, const int startEvent=0, TString storePath
 //   FairParAsciiFileIo* parInput1 = new FairParAsciiFileIo();
 //   parInput1->open(parFile.Data(),"in");
   rtdb->setFirstInput(parInput1);
+
+  // alignment parameter file
+  TString alignparFile = "lumi.misalign.par";//mialignmented sensors!
+  // TString alignparFile = "lumi.align.par";//perfect!
+  FairParAsciiFileIo* parInput2 = new FairParAsciiFileIo();
+  parInput2->open(alignparFile.Data(),"in");
+  rtdb->setSecondInput(parInput2);
   /*Bool_t kParameterMerged=kTRUE;
   FairParRootFileIo* output=new FairParRootFileIo(kParameterMerged);
   output->open(parOutFile);
@@ -83,19 +90,10 @@ void runLumi2Reco(const int nEvents=1, const int startEvent=0, TString storePath
   //  PndLmdIdealClusterTask* lmdmccls = new PndLmdIdealClusterTask();
   lmdmccls->SetVerbose(verboseLevel);
   fRun->AddTask(lmdmccls);
-
- // PndMvdPixelClusterTask* mvdClusterizer = new PndMvdPixelClusterTask(chargecut, MCFile);//, slx, sly, sthreshold, snoise);
- // mvdClusterizer->SetVerbose(verboseLevel);
- // fRun->AddTask(mvdClusterizer);
-
-//   FairParRootFileIo* output=new FairParRootFileIo(kTRUE);
-//   output->open(parOutFile.Data());
-//   rtdb->setOutput(output);
   rtdb->setOutput(parInput1);
   rtdb->print();
   // =====                 End of HitProducers                           =====
   // =========================================================================
-//   PndMvdGeoPar* geoPar  = (PndMvdGeoPar*)(rtdb->getContainer("PndMvdGeoPar")); 
   
   // -----   Intialise and run   --------------------------------------------
   fRun->Init();
