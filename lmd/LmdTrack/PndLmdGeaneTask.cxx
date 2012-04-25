@@ -195,8 +195,9 @@ void PndLmdGeaneTask::Exec(Option_t* opt)
       // //do the transformation from LUMI frame (with z-axis perp. to lumi planes) to lab frame
       rotateFromLumiFrame(StartPosErr, true);
       StartMomErr = (recTrack->GetDirectionErrVec());
-      cout<<"Before: StartMomErr: "<<StartMomErr.Mag()<<endl;
-      StartMomErr.Print(); 
+      // cout<<"Before: StartMomErr: "<<StartMomErr.Mag()<<endl;
+      // StartMomErr.Print();
+      
       // //do the transformation from LUMI frame (with z-axis perp. to lumi planes) to lab frame
       rotateFromLumiFrame(StartMomErr, true);
       //     StartMomErr = TVector3(fabs(StartMomErr.X()),fabs(StartMomErr.Y()),fabs(StartMomErr.Z()));
