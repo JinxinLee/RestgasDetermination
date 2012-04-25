@@ -1,0 +1,240 @@
+#!/bin/bash 
+time root -l -b -q 'runLumi0SimBox.C(100000,11.91,"tmpOutput",0,-2212,10)'
+time root -l -b -q 'runLumi1Digi.C(100000)'
+time root -l -b -q 'runLumi2Reco.C(100000)'
+time root -l -b -q 'runLumi3Finder.C(100000,0,"tmpOutput", 0, "CA",true)'>> logCA_N_1
+time root -l -b -q 'runLumi4Fitter.C(100000)'
+time root -l -b -q 'runLumi5Geane.C(100000,11.91)'
+#time root -l -b -q 'AlignmentStudies.C'
+#time root -l -b -q 'GhostTrksStudies.C(2000,0,"tmpOutput",0,-2212,15,1,"CA")' >> logCA_N_1
+
+# time root -l -b -q 'runLumi3Finder.C(10000,0,"tmpOutput", 0, "Follow",true)' >> logFollow_N_1
+# time root -l -b -q 'runLumi4Fitter.C(10000)'
+# time root -l -b -q 'runLumi5Geane.C(10000,15)'
+# time root -l -b -q 'GhostTrksStudies.C(10000,0,"tmpOutput",0,-2212,15,1,"Follow")' >> logFollow_N_1
+
+# time root -l -b -q 'runLumi0SimBox.C(10000,15,"tmpOutput",0,-2212,2)'
+# time root -l -b -q 'runLumi1Digi.C(10000)'
+# time root -l -b -q 'runLumi2Reco.C(10000)'
+# time root -l -b -q 'runLumi3Finder.C(10000,0,"tmpOutput", 0, "CA",true)'>> logCA_N_2
+# #time root -l -b -q 'runLumi3Finder.C(10000,0,"tmpOutput", 0, "Follow",true)' >> logFollow
+# time root -l -b -q 'runLumi4Fitter.C(10000)'
+# time root -l -b -q 'runLumi5Geane.C(10000,15)'
+# time root -l -b -q 'GhostTrksStudies.C(10000,0,"tmpOutput",0,-2212,15,2,"CA")' >> logCA_N_2
+# time root -l -b -q 'runLumi3Finder.C(10000,0,"tmpOutput", 0, "Follow",true)' >> logFollow_N_2
+# time root -l -b -q 'runLumi4Fitter.C(10000)'
+# time root -l -b -q 'runLumi5Geane.C(10000,15)'
+# time root -l -b -q 'GhostTrksStudies.C(10000,0,"tmpOutput",0,-2212,15,2,"Follow")' >> logFollow_N_2
+
+# time root -l -b -q 'runLumi0SimBox.C(10000,15,"tmpOutput",0,-2212,3)'
+# time root -l -b -q 'runLumi1Digi.C(10000)'
+# time root -l -b -q 'runLumi2Reco.C(10000)'
+# time root -l -b -q 'runLumi3Finder.C(10000,0,"tmpOutput", 0, "CA",true)'>> logCA_N_3
+# #time root -l -b -q 'runLumi3Finder.C(10000,0,"tmpOutput", 0, "Follow",true)' >> logFollow
+# time root -l -b -q 'runLumi4Fitter.C(10000)'
+# time root -l -b -q 'runLumi5Geane.C(10000,15)'
+# time root -l -b -q 'GhostTrksStudies.C(10000,0,"tmpOutput",0,-2212,15,3,"CA")' >> logCA_N_3
+# time root -l -b -q 'runLumi3Finder.C(10000,0,"tmpOutput", 0, "Follow",true)' >> logFollow_N_3
+# time root -l -b -q 'runLumi4Fitter.C(10000)'
+# time root -l -b -q 'runLumi5Geane.C(10000,15)'
+# time root -l -b -q 'GhostTrksStudies.C(10000,0,"tmpOutput",0,-2212,15,3,"Follow")' >> logFollow_N_3
+
+# time root -l -b -q 'runLumi0SimBox.C(10000,15,"tmpOutput",0,-2212,4)'
+# time root -l -b -q 'runLumi1Digi.C(10000)'
+# time root -l -b -q 'runLumi2Reco.C(10000)'
+# time root -l -b -q 'runLumi3Finder.C(10000,0,"tmpOutput", 0, "CA",true)'>> logCA_N_4
+# #time root -l -b -q 'runLumi3Finder.C(10000,0,"tmpOutput", 0, "Follow",true)' >> logFollow
+# time root -l -b -q 'runLumi4Fitter.C(10000)'
+# time root -l -b -q 'runLumi5Geane.C(10000,15)'
+# time root -l -b -q 'GhostTrksStudies.C(10000,0,"tmpOutput",0,-2212,15,4,"CA")' >> logCA_N_4
+# time root -l -b -q 'runLumi3Finder.C(10000,0,"tmpOutput", 0, "Follow",true)' >> logFollow_N_4
+# time root -l -b -q 'runLumi4Fitter.C(10000)'
+# time root -l -b -q 'runLumi5Geane.C(10000,15)'
+# time root -l -b -q 'GhostTrksStudies.C(10000,0,"tmpOutput",0,-2212,15,4,"Follow")' >> logFollow_N_4
+
+# time root -l -b -q 'runLumi0SimBox.C(10000,15,"tmpOutput",0,-2212,5)'
+# time root -l -b -q 'runLumi1Digi.C(10000)'
+# time root -l -b -q 'runLumi2Reco.C(10000)'
+# time root -l -b -q 'runLumi3Finder.C(10000,0,"tmpOutput", 0, "CA",true)'>> logCA_N_5
+# #time root -l -b -q 'runLumi3Finder.C(10000,0,"tmpOutput", 0, "Follow",true)' >> logFollow
+# time root -l -b -q 'runLumi4Fitter.C(10000)'
+# time root -l -b -q 'runLumi5Geane.C(10000,15)'
+# time root -l -b -q 'GhostTrksStudies.C(10000,0,"tmpOutput",0,-2212,15,5,"CA")' >> logCA_N_5
+# time root -l -b -q 'runLumi3Finder.C(10000,0,"tmpOutput", 0, "Follow",true)' >> logFollow_N_5
+# time root -l -b -q 'runLumi4Fitter.C(10000)'
+# time root -l -b -q 'runLumi5Geane.C(10000,15)'
+# time root -l -b -q 'GhostTrksStudies.C(10000,0,"tmpOutput",0,-2212,15,5,"Follow")' >> logFollow_N_5
+
+#time root -l -b -q 'runLumi0SimBox.C(10000,15,"tmpOutput",0,-2212,10)'
+#time root -l -b -q 'runLumi1Digi.C(10000)'
+#time root -l -b -q 'runLumi2Reco.C(10000)'
+# time root -l -b -q 'runLumi3Finder.C(10000,0,"tmpOutput", 0, "CA",true)'>> logCA_N_10
+# time root -l -b -q 'runLumi4Fitter.C(10000)'
+# time root -l -b -q 'runLumi5Geane.C(10000,15)'
+# time root -l -b -q 'GhostTrksStudies.C(10000,0,"tmpOutput",0,-2212,15,10,"CA")' >> logCA_N_10
+# time root -l -b -q 'runLumi3Finder.C(10000,0,"tmpOutput", 0, "Follow",true)' >> logFollow_N_10
+# time root -l -b -q 'runLumi4Fitter.C(10000)'
+# time root -l -b -q 'runLumi5Geane.C(10000,15)'
+# time root -l -b -q 'GhostTrksStudies.C(10000,0,"tmpOutput",0,-2212,15,10,"Follow")' >> logFollow_N_10
+
+# time root -l -b -q 'runLumi0SimBox.C(10000,15,"tmpOutput",0,-2212,15)'
+# time root -l -b -q 'runLumi1Digi.C(10000)'
+# time root -l -b -q 'runLumi2Reco.C(10000)'
+# time root -l -b -q 'runLumi3Finder.C(10000,0,"tmpOutput", 0, "CA",true)'>> logCA_N_15
+# time root -l -b -q 'runLumi4Fitter.C(10000)'
+# time root -l -b -q 'runLumi5Geane.C(10000,15)'
+# time root -l -b -q 'GhostTrksStudies.C(10000,0,"tmpOutput",0,-2212,15,15,"CA")' >> logCA_N_15
+# time root -l -b -q 'runLumi3Finder.C(10000,0,"tmpOutput", 0, "Follow",true)' >> logFollow_N_15
+# time root -l -b -q 'runLumi4Fitter.C(10000)'
+# time root -l -b -q 'runLumi5Geane.C(10000,15)'
+# time root -l -b -q 'GhostTrksStudies.C(10000,0,"tmpOutput",0,-2212,15,15,"Follow")' >> logFollow_N_15
+
+# time root -l -b -q 'runLumi0SimBox.C(10000,15,"tmpOutput",0,-2212,20)'
+# time root -l -b -q 'runLumi1Digi.C(10000)'
+# time root -l -b -q 'runLumi2Reco.C(10000)'
+# time root -l -b -q 'runLumi3Finder.C(10000,0,"tmpOutput", 0, "CA",true)'>> logCA_N_20
+# time root -l -b -q 'runLumi4Fitter.C(10000)'
+# time root -l -b -q 'runLumi5Geane.C(10000,15)'
+# time root -l -b -q 'GhostTrksStudies.C(10000,0,"tmpOutput",0,-2212,15,20,"CA")' >> logCA_N_20
+# time root -l -b -q 'runLumi3Finder.C(10000,0,"tmpOutput", 0, "Follow",true)' >> logFollow_N_20
+# time root -l -b -q 'runLumi4Fitter.C(10000)'
+# time root -l -b -q 'runLumi5Geane.C(10000,15)'
+# time root -l -b -q 'GhostTrksStudies.C(10000,0,"tmpOutput",0,-2212,15,20,"Follow")' >> logFollow_N_20
+
+# time root -l -b -q 'runLumi0SimBox.C(10000,15,"tmpOutput",0,-2212,40)'
+# time root -l -b -q 'runLumi1Digi.C(10000)'
+# time root -l -b -q 'runLumi2Reco.C(10000)'
+# time root -l -b -q 'runLumi3Finder.C(10000,0,"tmpOutput", 0, "Follow",true)' >> logFollow_N_40
+# time root -l -b -q 'runLumi4Fitter.C(10000)'
+# time root -l -b -q 'runLumi5Geane.C(10000,15)'
+# time root -l -b -q 'GhostTrksStudies.C(10000,0,"tmpOutput",0,-2212,15,40,"Follow")'>> logFollow_N_40     
+# time root -l -b -q 'runLumi3Finder.C(10000,0,"tmpOutput", 0, "CA",true)' >> logCA_N_40
+# time root -l -b -q 'runLumi4Fitter.C(10000)'
+# time root -l -b -q 'runLumi5Geane.C(10000,15)'
+# time root -l -b -q 'GhostTrksStudies.C(10000,0,"tmpOutput",0,-2212,15,40,"CA")'>> logCA_N_40
+
+# mv tmpOutput/Ghost_trks_0_Mom_15_NsimTrks_* TrkSearchStudy/.
+# mv logCA_N_* TrkSearchStudy/.
+# mv logFollow_N_* TrkSearchStudy/.
+
+# time root -l -b -q 'runLumi0SimBox.C(10000,1.5,"tmpOutput",0,-2212,1)'
+# time root -l -b -q 'runLumi1Digi.C(10000)'
+# time root -l -b -q 'runLumi2Reco.C(10000)'
+ # time root -l -b -q 'runLumi3Finder.C(10000,0,"tmpOutput", 0, "CA",true)'>> logCA_N_1
+# time root -l -b -q 'runLumi4Fitter.C(10000)'
+# time root -l -b -q 'runLumi5Geane.C(10000,1.5)'
+# time root -l -b -q 'GhostTrksStudies.C(10000,0,"tmpOutput",0,-2212,1.5,1,"CA")' >> logCA_N_1
+# time root -l -b -q 'ResolutionStudies.C(40000,0,"tmpOutput",0,-2212,1.5)'
+# mv tmpOutput/compMC_and_REC_0_PID_-2212_Mom_1* results/compMC_and_REC_0_PID_-2212_Mom_1_5.root
+# time root -l -b -q 'runLumi3Finder.C(10000,0,"tmpOutput", 0, "Follow",true)' >> logFollow_N_1
+# time root -l -b -q 'runLumi4Fitter.C(10000)'
+# time root -l -b -q 'runLumi5Gean e.C(10000,1.5)'
+# time root -l -b -q 'GhostTrksStudies.C(10000,0,"tmpOutput",0,-2212,1.5,1,"Follow")' >> logFollow_N_1
+
+# time root -l -b -q 'runLumi0SimBox.C(10000,1.5,"tmpOutput",0,-2212,2)'
+# time root -l -b -q 'runLumi1Digi.C(10000)'
+# time root -l -b -q 'runLumi2Reco.C(10000)'
+# time root -l -b -q 'runLumi3Finder.C(10000,0,"tmpOutput", 0, "CA",true)'>> logCA_N_2
+# time root -l -b -q 'runLumi4Fitter.C(10000)'
+# time root -l -b -q 'runLumi5Geane.C(10000,1.5)'
+# time root -l -b -q 'GhostTrksStudies.C(10000,0,"tmpOutput",0,-2212,1.5,2,"CA")' >> logCA_N_2
+# time root -l -b -q 'runLumi3Finder.C(10000,0,"tmpOutput", 0, "Follow",true)' >> logFollow_N_2
+# time root -l -b -q 'runLumi4Fitter.C(10000)'
+# time root -l -b -q 'runLumi5Geane.C(10000,1.5)'
+# time root -l -b -q 'GhostTrksStudies.C(10000,0,"tmpOutput",0,-2212,1.5,2,"Follow")' >> logFollow_N_2
+
+# time root -l -b -q 'runLumi0SimBox.C(10000,1.5,"tmpOutput",0,-2212,3)'
+# time root -l -b -q 'runLumi1Digi.C(10000)'
+# time root -l -b -q 'runLumi2Reco.C(10000)'
+# time root -l -b -q 'runLumi3Finder.C(10000,0,"tmpOutput", 0, "CA",true)'>> logCA_N_3
+# #time root -l -b -q 'runLumi3Finder.C(10000,0,"tmpOutput", 0, "Follow",true)' >> logFollow
+# time root -l -b -q 'runLumi4Fitter.C(10000)'
+# time root -l -b -q 'runLumi5Geane.C(10000,1.5)'
+# time root -l -b -q 'GhostTrksStudies.C(10000,0,"tmpOutput",0,-2212,1.5,3,"CA")' >> logCA_N_3
+# time root -l -b -q 'runLumi3Finder.C(10000,0,"tmpOutput", 0, "Follow",true)' >> logFollow_N_3
+# time root -l -b -q 'runLumi4Fitter.C(10000)'
+# time root -l -b -q 'runLumi5Geane.C(10000,1.5)'
+# time root -l -b -q 'GhostTrksStudies.C(10000,0,"tmpOutput",0,-2212,1.5,3,"Follow")' >> logFollow_N_3
+
+# time root -l -b -q 'runLumi0SimBox.C(10000,1.5,"tmpOutput",0,-2212,4)'
+# time root -l -b -q 'runLumi1Digi.C(10000)'
+# time root -l -b -q 'runLumi2Reco.C(10000)'
+# time root -l -b -q 'runLumi3Finder.C(10000,0,"tmpOutput", 0, "CA",true)'>> logCA_N_4
+# #time root -l -b -q 'runLumi3Finder.C(10000,0,"tmpOutput", 0, "Follow",true)' >> logFollow
+# time root -l -b -q 'runLumi4Fitter.C(10000)'
+# time root -l -b -q 'runLumi5Geane.C(10000,1.5)'
+# time root -l -b -q 'GhostTrksStudies.C(10000,0,"tmpOutput",0,-2212,1.5,4,"CA")' >> logCA_N_4
+# time root -l -b -q 'runLumi3Finder.C(10000,0,"tmpOutput", 0, "Follow",true)' >> logFollow_N_4
+# time root -l -b -q 'runLumi4Fitter.C(10000)'
+# time root -l -b -q 'runLumi5Geane.C(10000,1.5)'
+# time root -l -b -q 'GhostTrksStudies.C(10000,0,"tmpOutput",0,-2212,1.5,4,"Follow")' >> logFollow_N_4
+
+# time root -l -b -q 'runLumi0SimBox.C(10000,1.5,"tmpOutput",0,-2212,5)'
+# time root -l -b -q 'runLumi1Digi.C(10000)'
+# time root -l -b -q 'runLumi2Reco.C(10000)'
+# time root -l -b -q 'runLumi3Finder.C(10000,0,"tmpOutput", 0, "CA",true)'>> logCA_N_5
+# #time root -l -b -q 'runLumi3Finder.C(10000,0,"tmpOutput", 0, "Follow",true)' >> logFollow
+# time root -l -b -q 'runLumi4Fitter.C(10000)'
+# time root -l -b -q 'runLumi5Geane.C(10000,1.5)'
+# time root -l -b -q 'GhostTrksStudies.C(10000,0,"tmpOutput",0,-2212,1.5,5,"CA")' >> logCA_N_5
+# time root -l -b -q 'runLumi3Finder.C(10000,0,"tmpOutput", 0, "Follow",true)' >> logFollow_N_5
+# time root -l -b -q 'runLumi4Fitter.C(10000)'
+# time root -l -b -q 'runLumi5Geane.C(10000,1.5)'
+# time root -l -b -q 'GhostTrksStudies.C(10000,0,"tmpOutput",0,-2212,1.5,5,"Follow")' >> logFollow_N_5
+
+# time root -l -b -q 'runLumi0SimBox.C(10000,1.5,"tmpOutput",0,-2212,10)'
+# time root -l -b -q 'runLumi1Digi.C(10000)'
+# time root -l -b -q 'runLumi2Reco.C(10000)'
+# time root -l -b -q 'runLumi3Finder.C(10000,0,"tmpOutput", 0, "CA",true)'>> logCA_N_10
+# #time root -l -b -q 'runLumi3Finder.C(10000,0,"tmpOutput", 0, "Follow",true)' >> logFollow
+# time root -l -b -q 'runLumi4Fitter.C(10000)'
+# time root -l -b -q 'runLumi5Geane.C(10000,1.5)'
+# time root -l -b -q 'GhostTrksStudies.C(10000,0,"tmpOutput",0,-2212,1.5,10,"CA")' >> logCA_N_10
+# time root -l -b -q 'runLumi3Finder.C(10000,0,"tmpOutput", 0, "Follow",true)' >> logFollow_N_10
+# time root -l -b -q 'runLumi4Fitter.C(10000)'
+# time root -l -b -q 'runLumi5Geane.C(10000,1.5)'
+# time root -l -b -q 'GhostTrksStudies.C(10000,0,"tmpOutput",0,-2212,1.5,10,"Follow")' >> logFollow_N_10
+
+# time root -l -b -q 'runLumi0SimBox.C(10000,1.5,"tmpOutput",0,-2212,15)'
+# time root -l -b -q 'runLumi1Digi.C(10000)'
+# time root -l -b -q 'runLumi2Reco.C(10000)'
+# time root -l -b -q 'runLumi3Finder.C(10000,0,"tmpOutput", 0, "CA",true)'>> logCA_N_15
+# #time root -l -b -q 'runLumi3Finder.C(10000,0,"tmpOutput", 0, "Follow",true)' >> logFollow
+# time root -l -b -q 'runLumi4Fitter.C(10000)'
+# time root -l -b -q 'runLumi5Geane.C(10000,1.5)'
+# time root -l -b -q 'GhostTrksStudies.C(10000,0,"tmpOutput",0,-2212,1.5,15,"CA")' >> logCA_N_15
+# time root -l -b -q 'runLumi3Finder.C(10000,0,"tmpOutput", 0, "Follow",true)' >> logFollow_N_15
+# time root -l -b -q 'runLumi4Fitter.C(10000)'
+# time root -l -b -q 'runLumi5Geane.C(10000,1.5)'
+# time root -l -b -q 'GhostTrksStudies.C(10000,0,"tmpOutput",0,-2212,1.5,15,"Follow")' >> logFollow_N_15
+
+# time root -l -b -q 'runLumi0SimBox.C(10000,1.5,"tmpOutput",0,-2212,20)'
+# time root -l -b -q 'runLumi1Digi.C(10000)'
+# time root -l -b -q 'runLumi2Reco.C(10000)'
+# time root -l -b -q 'runLumi3Finder.C(10000,0,"tmpOutput", 0, "Follow",true)' >> logFollow_N_20
+# time root -l -b -q 'runLumi4Fitter.C(10000)'
+# time root -l -b -q 'runLumi5Geane.C(10000,1.5)'
+# time root -l -b -q 'GhostTrksStudies.C(10000,0,"tmpOutput",0,-2212,1.5,20,"Follow")'>> logFollow_N_20     
+# time root -l -b -q 'runLumi3Finder.C(10000,0,"tmpOutput", 0, "CA",true)' >> logCA_N_20
+# time root -l -b -q 'runLumi4Fitter.C(10000)'
+# time root -l -b -q 'runLumi5Geane.C(10000,1.5)'
+# time root -l -b -q 'GhostTrksStudies.C(10000,0,"tmpOutput",0,-2212,1.5,20,"CA")'>> logCA_N_20
+
+# mv tmpOutput/Ghost_trks_0_Mom_1* TrkSearchStudy/1_5GeV/.
+# mv logCA_N_* TrkSearchStudy/1_5GeV
+# mv logFollow_N_* TrkSearchStudy/1_5GeV
+
+
+#time root -l -b -q 'runLumi0SimBox.C(40000,1.5)'
+#time root -l -b -q 'runLumi1Digi.C(40000)'
+#time root -l -b -q 'runLumi2Reco.C(40000)'
+#time root -l -b -q 'runLumi3Finder.C(40000,0,"tmpOutput", 0, "CA",true)'
+#time root -l -b -q 'runLumi4Fitter.C(40000)'
+#time root -l -b -q 'runLumi5Geane.C(40000,1.5)'
+#time root -l -b -q 'ResolutionStudies.C(40000,0,"tmpOutput",0,-2212,1.5)'
+#time root -l -b -q 'runLumi6Fit.C(40000,1.5)'
+##mv results/Conv.pdf results/Conv_1_5.pdf
+#mv tmpOutput/compMC_and_REC_0_PID_-2212_Mom_1* results/compMC_and_REC_0_PID_-2212_Mom_1_5.root
+
+exit
+ 
