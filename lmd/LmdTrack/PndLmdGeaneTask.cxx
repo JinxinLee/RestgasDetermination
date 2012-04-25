@@ -71,12 +71,12 @@ InitStatus PndLmdGeaneTask::Init()
     return kFATAL;
   }
 
-  // // Get input arrays
-  // fMCTracks = (TClonesArray*) ioman->GetObject("MCTrack");
-  // if (!fMCTracks){
-  //   std::cout << "-W- PndLmdGeaneTask::Init: "<< "No MCTrack" << " array!" << std::endl;
-  //   return kERROR;
-  // }
+  // Get input arrays
+  fMCTracks = (TClonesArray*) ioman->GetObject("MCTrack");
+  if (!fMCTracks){
+    std::cout << "-W- PndLmdGeaneTask::Init: "<< "No MCTrack" << " array!" << std::endl;
+    return kERROR;
+  }
 
   fMCHits = (TClonesArray*) ioman->GetObject("LMDPoint");
   if ( !fMCHits)	{
@@ -132,7 +132,7 @@ void PndLmdGeaneTask::SetParContainers()
 {
   // Get Base Container
  /// FairRun* ana = FairRun::Instance();
- //s FairRuntimeDb* rtdb=ana->GetRuntimeDb();
+ // FairRuntimeDb* rtdb=ana->GetRuntimeDb();
 
 }
 
@@ -168,16 +168,39 @@ void PndLmdGeaneTask::Exec(Option_t* opt)
 
       ///Get parameters of real track
       PndLinTrack* recTrack = (PndLinTrack*)(fTracks->At(i));
-      //   cout<<"recTrack="<<recTrack<<endl;
       TString 	DecName = recTrack->GetDetName();
       if(DecName!="Lumi") continue;
-      // cout<<"DecName: "<<DecName<<endl;
+
       //Vector of particle momentum and starting point
       TVector3 DirVec =  recTrack->GetDirectionVec();
+      // double dz = -0.008;
+      // double dx = DirVec.X()*dz;
+      // double dy = DirVec.Y()*dz;
+      // //do the transformation from LUMI frame (with z-axis perp. to lumi planes) to lab frame
+      rotateFromLumiFrame(DirVec,false);
+      //DirVec*=1./DirVec.Mag();
       StartMom = TVector3(DirVec.X()*fPbeam,DirVec.Y()*fPbeam,DirVec.Z()*fPbeam); 
       StartPos = recTrack->GetStartVec();
+      // StartPos +=TVector3(dx,dy,dz);
+      // cout<<"In LUMI frame:"<<endl;
+      // cout<<"StartPos:"<<endl;
+      // StartPos.Print();
+      // cout<<"StartMom:"<<endl;
+      // StartMom.Print();
+      // //do the transformation from LUMI frame (with z-axis perp. to lumi planes) to lab frame
+      combitransFromLumiFrame(StartPos);
       StartPosErr = recTrack->GetStartErrVec();
-      StartMomErr = (recTrack->GetDirectionErrVec())*fPbeam;
+      //cout<<"StartPosErr:"<<endl;
+      // StartPosErr.Print();
+      // //do the transformation from LUMI frame (with z-axis perp. to lumi planes) to lab frame
+      rotateFromLumiFrame(StartPosErr, true);
+      StartMomErr = (recTrack->GetDirectionErrVec());
+      cout<<"Before: StartMomErr: "<<StartMomErr.Mag()<<endl;
+      StartMomErr.Print(); 
+      // //do the transformation from LUMI frame (with z-axis perp. to lumi planes) to lab frame
+      rotateFromLumiFrame(StartMomErr, true);
+      //     StartMomErr = TVector3(fabs(StartMomErr.X()),fabs(StartMomErr.Y()),fabs(StartMomErr.Z()));
+      StartMomErr *=fPbeam;
        if(fVerbose>2){
 	 cout<<"------------------------------------------"<<endl;      
 	 cout<<"StartPos:"<<endl;
@@ -199,9 +222,23 @@ void PndLmdGeaneTask::Exec(Option_t* opt)
       TClonesArray& clref = *fTrackParGeane;
       Int_t size = clref.GetEntriesFast();
       FairTrackParH *fRes = new(clref[size]) FairTrackParH();
+
+      // //test for beam emittance----------------------
+      // PndMCTrack* mctrk = (PndMCTrack*)(fMCTracks->At(i));
+      // TVector3 PosMC = mctrk->GetStartVertex();
+      // vtx = PosMC;
+      // //------------------------------------------------
+
       fPro->SetPoint(vtx);
-      fPro->PropagateToPCA(1,-1);
-      //  fPro->BackTrackToVertex();
+      fPro->PropagateToPCA(1,-1);// back-propagate to point
+
+      // //back-propagate to line-------------------------
+      // TVector3 extremity1(vtx.X(),vtx.Y(),vtx.Z()-0.1);
+      // TVector3 extremity2(vtx.X(),vtx.Y(),vtx.Z()+0.1);
+      // fPro->SetWire(extremity1, extremity2);
+      // fPro->PropagateToPCA(2,-1);//back-propagate to line
+      // //-----------------------------------------------
+     
       Bool_t isProp = fPro->Propagate(fStart, fRes, PDGCode);
       ///----------------------------------------------------------------------
 
@@ -236,7 +273,24 @@ void PndLmdGeaneTask::Exec(Option_t* opt)
       // cout<<"================= %%%% ===================="<<endl;
       // ///----------------------------------------------------------------------
 
-    
+     // ///Propagate to plane  ------------------------------------
+     //  TVector3 oc = vtx;
+     //  TVector3 dj(0,1,0);
+     //  TVector3 dk(-1,0,0);
+     //  TVector3 v1s(StartPos.X(),StartPos.Y(),0);
+     //  TVector3 v2s(-StartPos.Y(),StartPos.X(),0); 
+     //  FairTrackParP *fStart = 
+     //  	new (clref1[size1]) FairTrackParP(StartPos, StartMom, StartPosErr, StartMomErr, fCharge, StartPos,  v1s,  v2s);
+     //  TClonesArray& clref = *fTrackParGeane;
+     //  Int_t size = clref.GetEntriesFast();
+     //  FairTrackParP *fRes = new(clref[size]) FairTrackParP();
+     
+     //  fPro->PropagateFromPlane(v1s, v2s);
+     //  fPro->PropagateToPlane(oc,dj,dk);
+     //  fPro->setBackProp();
+     //  Bool_t isProp = fPro->Propagate(fStart, fRes, PDGCode);
+     //  cout<<"================= %%%% ===================="<<endl;
+     //  ///----------------------------------------------------------------------
     
      
 
@@ -289,7 +343,7 @@ void PndLmdGeaneTask::Exec(Option_t* opt)
       }
   }
   // fMCTracks->Delete();
-  fMCHits->Delete();
+  // fMCHits->Delete();
   cout<<"PndLmdGeaneTask::Exec END!"<<endl;
 }
 
@@ -307,6 +361,78 @@ std::map<int, std::vector<int> > PndLmdGeaneTask::AssignHitsToTracks()
 
 	}
 	return result;
+}
+
+void PndLmdGeaneTask::combitransFromLumiFrame(TVector3& hitPos){
+  //do the transformation from lab frame to LUMI frame (with z-axis perp. to lumi planes)
+  const Double_t  kHalfFoilThickness  = 0.0075; // Thickness of sensitive foil (cm)
+  const Double_t  kTransZ = 1100.; //(cm) //move at z-position
+  const Double_t  kRotUmZ = 476.03; //(cm) //z-point to rotate
+  const Double_t  kTransX = 25; //(cm) //move at x-position
+  const Double_t  kRot =  0.040596358401388; // 2.326 degree  = 4.05963584013881024e-02 rad
+  TVector3 LumiTrans(0,0,kTransZ-kRotUmZ);
+  hitPos +=LumiTrans;
+  hitPos.RotateY(kRot);
+  LumiTrans = TVector3(0,0,kRotUmZ);
+  hitPos +=LumiTrans;
+  // cout<<"!!! NEW HIT position in LUMI frame!!! "<<endl;
+  //  hitPos.Print();
+}
+
+// void PndLmdGeaneTask::rotateFromLumiFrame(TVector3& hitPos){
+//   TMatrixD hitMtx(3,3);
+//   hitMtx[0][0] = hitPos[0];
+//   hitMtx[1][0] = hitPos[1];
+//   hitMtx[2][0] = hitPos[2];
+//   TMatrixD res = rotateFromLumiFrame(hitMtx);
+//   hitPos = TVector3(hitMtx(0,0),hitMtx(1,0),hitMtx(2,0));
+//   // hitPos = TVector3(res(0,0),res(1,0),res(2,0));
+// }
+
+//bool err = true - rotation of errors vector
+void PndLmdGeaneTask::rotateFromLumiFrame(TVector3& hitPos, bool err){
+  TMatrixD hitMtx(3,3);
+  if(err){
+    hitMtx[0][0] = hitPos[0]*hitPos[0];
+    hitMtx[1][1] = hitPos[1]*hitPos[1];
+    hitMtx[2][2] = hitPos[2]*hitPos[2];
+    TMatrixD res = rotateFromLumiFrame(hitMtx);
+    hitPos = TVector3(sqrt(res(0,0)),sqrt(res(1,1)),sqrt(res(2,2)));
+  }
+  else{
+    hitMtx[0][0] = hitPos[0];
+    hitMtx[1][0] = hitPos[1];
+    hitMtx[2][0] = hitPos[2];
+    TMatrixD res = rotateFromLumiFrame(hitMtx);
+    hitPos = TVector3(hitMtx(0,0),hitMtx(1,0),hitMtx(2,0));
+  }
+}
+
+TMatrixD PndLmdGeaneTask::rotateFromLumiFrame(TMatrixD& hitCov){
+   Double_t theta=-2.326;
+  Double_t degrad = TMath::Pi()/180.;
+  Double_t sintheta = TMath::Sin(degrad*theta);
+  Double_t costheta = TMath::Cos(degrad*theta);
+  TMatrixD rot(3,3);// Rotation around Y axis
+  rot[0][0]= costheta;
+  rot[0][1]= 0;
+  rot[0][2]= sintheta;
+  rot[1][0]= 0;
+  rot[1][1]= 1;
+  rot[1][2]= 0;
+  rot[2][0]= -sintheta;
+  rot[2][1]= 0;
+  rot[2][2]= costheta;
+  TMatrixD result = rot;
+  result.T();
+  result*=hitCov;
+  hitCov = result;
+  result*=rot;
+  // cout<<"hitCov:"<<endl;
+  // hitCov.Print();
+  // cout<<"result:"<<endl;
+  // result.Print();
+  return result;
 }
 
 ClassImp(PndLmdGeaneTask);

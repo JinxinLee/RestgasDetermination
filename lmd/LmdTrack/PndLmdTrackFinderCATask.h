@@ -26,7 +26,7 @@ class PndLmdTrackFinderCATask : public FairTask
     /** Default constructor **/
     PndLmdTrackFinderCATask();
     /** Constructor **/
-    PndLmdTrackFinderCATask(const bool missPl);
+    PndLmdTrackFinderCATask(const bool missPl, const double setdmax);
     /** Destructor **/
     virtual ~PndLmdTrackFinderCATask();
 
@@ -45,6 +45,7 @@ class PndLmdTrackFinderCATask : public FairTask
 
  private:
    Double_t dXY;
+   double d_max;
 
 //    std::vector<Int_t> GetHitPerCluster(PndSdsClusterStrip* clusterCand);
    Double_t GetTrackDip(PndMCTrack* myTrack);
@@ -67,6 +68,7 @@ class PndLmdTrackFinderCATask : public FairTask
      void Register();
      void Reset();
      void ProduceHits();
+     TH1D *hdist;
 
 
   ClassDef(PndLmdTrackFinderCATask,2);

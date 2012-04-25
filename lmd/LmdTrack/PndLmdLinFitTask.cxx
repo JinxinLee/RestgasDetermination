@@ -140,10 +140,10 @@ void PndLmdLinFitTask::Exec(Option_t* opt)
     /// Obtain first approximation ----------
     TVector3 posSeed = trcnd->getPosSeed();
     TVector3 dirSeed = trcnd->getDirSeed();
-    if(dirSeed.Theta()<3e-2 || dirSeed.Theta()>5e-2 ||  fabs(dirSeed.Phi())>0.3){
-      if(fVerbose>2) cout<<"Trk-cand doesn't pass throw limit (dirSeed.Theta() = "<<dirSeed.Theta()<<" dirSeed.Phi() = "<<dirSeed.Phi()<<")"<<endl;
-      continue;
-    }
+    // if(dirSeed.Theta()<3e-2 || dirSeed.Theta()>5e-2 ||  fabs(dirSeed.Phi())>0.3){
+    //   if(fVerbose>2) cout<<"Trk-cand doesn't pass throw limit (dirSeed.Theta() = "<<dirSeed.Theta()<<" dirSeed.Phi() = "<<dirSeed.Phi()<<")"<<endl;
+    //   continue;
+    // }
     if(fVerbose>2) std::cout << "Track: "<< track<< " Points: "<< numPts <<std::endl;
     ///--------------------------------------
 
@@ -240,9 +240,11 @@ double PndLmdLinFitTask::distance_perp(double x,double y,double z, double errx,d
 
 // calculate distance line-point in local coordinates
 double PndLmdLinFitTask::distance_l(double x,double y,double z, double errx,double erry,double errz, double *p) { 
-  double fdx = TMath::Power((x-(p[0] + p[1]*(z-p[4])))/errx,2);
-  double fdy = TMath::Power((y-(p[2] + p[3]*(z-p[4])))/erry,2);
-  double fchi2 = fdx + fdy;
+  Double_t t_min = p[1]*(x-p[0])+p[3]*(y-p[2])+p[5]*(z-p[4]);
+  double fdx = TMath::Power((x-(p[0] + p[1]*t_min))/errx,2);
+  double fdy = TMath::Power((y-(p[2] + p[3]*t_min))/erry,2);
+  double fdz = TMath::Power((z-(p[4] + p[5]*t_min))/errz,2);
+  double fchi2 = fdx + fdy +fdz;
   return fchi2; 
 }
 
@@ -259,9 +261,11 @@ void PndLmdLinFitTask::LocalFCN(int &, double *, double & sum, double * par, int
   int npoints = gr->GetN();
   sum = 0;
   for (int i  = 0; i < npoints; ++i) { 
+    //   double chi2 = distance_l(x[i],y[i],z[i],errx[i],erry[i],errz[i],par); 
     double chi2 = distance_perp(x[i],y[i],z[i],errx[i],erry[i],errz[i],par); 
     sum += chi2;
   }
+  // par[5] = sqrt(1-par[1]*par[1]-par[3]*par[3]);
 }
 
 double PndLmdLinFitTask::line3Dfit(Int_t nd, TGraph2DErrors* gr, Double_t* fitpar, Double_t* fitparerr)
@@ -302,7 +306,6 @@ double PndLmdLinFitTask::line3Dfit(Int_t nd, TGraph2DErrors* gr, Double_t* fitpa
       fitpar[i] = min->GetParameter(i); 
       fitparerr[i] = min->GetParError(i);
    }
-  
    // return amin; 
    Double_t chi2 = amin/(2.*Npoint-4);
    cout<<"Chi^2 = "<<chi2<<endl;
@@ -340,8 +343,17 @@ double PndLmdLinFitTask::line3Dfit(Int_t nd, TGraph2DErrors* gr, TVector3 posSee
     cout<<"dirSeed:"<<endl;
     dirSeed.Print();
   }
-  double l = 1/dirSeed.Z();
-  double pStart[6] = {posSeed.X(),l*dirSeed.X(),posSeed.Y(),l*dirSeed.Y(),posSeed.Z(),1.};
+  //  double l = 1/dirSeed.Z();
+  double l = 1/dirSeed.Mag();
+  //  double pStart[6] = {posSeed.X(),l*dirSeed.X(),posSeed.Y(),l*dirSeed.Y(),posSeed.Z(),1.};
+  //double pStart[6] = {posSeed.X(),l*dirSeed.X(),posSeed.Y(),l*dirSeed.Y(),posSeed.Z(),l*dirSeed.Z()};
+  //  //go out of middle of plane!
+  double pStart[6] = {posSeed.X(),l*dirSeed.X(),posSeed.Y(),l*dirSeed.Y(),posSeed.Z()-0.0085,l*dirSeed.Z()};
+  //  double pStart[6] = {posSeed.X(),l*dirSeed.X(),posSeed.Y(),l*dirSeed.Y(),posSeed.Z()-0.01,l*dirSeed.Z()};//100 mkm!!!
+  // double Z0 = -0.0075;//fix start of track before 1st lumi plane!
+  // double dx = (Z0 - posSeed.Z())*l*dirSeed.X();
+  // double dy = (Z0 - posSeed.Z())*l*dirSeed.Y();
+  // double pStart[6] = {posSeed.X(),(l*dirSeed.X()+dx),posSeed.Y(),(l*dirSeed.Y()+dy),-0.0075,l*dirSeed.Z()};
   double pStartErr[6] = {ErrX1,errRx,ErrY1,errRy,ErrZ1,errRz};
   if(fVerbose>2){
     for(int i=0;i<6;i++)
@@ -357,6 +369,8 @@ double PndLmdLinFitTask::line3Dfit(Int_t nd, TGraph2DErrors* gr, TVector3 posSee
   min->SetParameter(3,"Ay",pStart[3],pStartErr[3],0,0);
   min->SetParameter(4,"z0",pStart[4],0,0,0);
   min->SetParameter(5,"Az",pStart[5],0,0,0);
+  //  min->SetParameter(4,"z0",pStart[4],pStartErr[4],0,0);
+  // min->SetParameter(5,"Az",pStart[5],pStartErr[5],0,0);
   
   // Now ready for minimization step
   arglist[0] = 1500;
@@ -377,7 +391,9 @@ double PndLmdLinFitTask::line3Dfit(Int_t nd, TGraph2DErrors* gr, TVector3 posSee
       fitparerr[i] = min->GetParError(i);
    }
   
-   // fitpar[5]=sqrt(1-fitpar[1]*fitpar[1]-fitpar[3]*fitpar[3]);
+   // cout<<" before fitpar[5] = "<<fitpar[5]<<endl;
+   fitpar[5]=sqrt(1-fitpar[1]*fitpar[1]-fitpar[3]*fitpar[3]);
+   // cout<<" after fitpar[5] = "<<fitpar[5]<<endl;
    // cout<<"SEED DIR=("<<dirSeed.X()<<", "<<dirSeed.Y()<<", "<<dirSeed.Z()<<")"<<endl;
    // cout<<"RecTRK DIR=("<<fitpar[1]<<", "<<fitpar[3]<<", "<<fitpar[5]<<")"<<endl;
    for(size_t i=0;i<4;i++){
@@ -385,16 +401,18 @@ double PndLmdLinFitTask::line3Dfit(Int_t nd, TGraph2DErrors* gr, TVector3 posSee
        (*covmatrix)(i,j)= min->GetCovarianceMatrixElement(i,j);
      }
    }
-   (*covmatrix)(4,4) =  gr->GetErrorZ(0)*gr->GetErrorZ(0);
-   (*covmatrix)(4,4) += (*covmatrix)(0,0)*pow(tan(2.326*TMath::Pi()/180.),2);
-   // double dp5_dp1 = fabs(fitpar[1]/pow(fitpar[5],3));
-   // double dp5_dp3 = fabs(fitpar[3]/pow(fitpar[5],3));
-   // double errdz2 = pow(dp5_dp1,2)*(*covmatrix)(1,1) + pow(dp5_dp3,2)*(*covmatrix)(3,3) + 
-   //   2*dp5_dp1*dp5_dp3*(*covmatrix)(1,3);
-   // cout<<"pow(dp5_dp1,2)*(*covmatrix)(1,1) = "<<pow(dp5_dp1,2)*(*covmatrix)(1,1)<<endl;
-   // cout<<"pow(dp5_dp3,2)*(*covmatrix)(3,3) = "<<pow(dp5_dp3,2)*(*covmatrix)(3,3)<<endl;
-   // cout<<"2*dp5_dp1*dp5_dp3*(*covmatrix)(1,3) = "<<2*dp5_dp1*dp5_dp3*(*covmatrix)(1,3)<<endl;
-   // (*covmatrix)(5,5) = errdz2;
+   //   (*covmatrix)(4,4) =  0.00013*gr->GetErrorZ(0)*gr->GetErrorZ(0);
+   (*covmatrix)(4,4) =  0.0001*gr->GetErrorZ(0)*gr->GetErrorZ(0);
+   // (*covmatrix)(4,4) = 5e-09;
+   //  (*covmatrix)(4,4) += (*covmatrix)(0,0)*pow(tan(2.326*TMath::Pi()/180.),2);
+   double dp5_dp1 = fitpar[1]/fitpar[5];
+   double dp5_dp3 = fitpar[3]/fitpar[5];
+   double errdz2 = pow(dp5_dp1,2)*(*covmatrix)(1,1) + pow(dp5_dp3,2)*(*covmatrix)(3,3) + 
+     2*fabs(dp5_dp1*dp5_dp3*(*covmatrix)(1,3));
+   cout<<"pow(dp5_dp1,2)*(*covmatrix)(1,1) = "<<pow(dp5_dp1,2)*(*covmatrix)(1,1)<<endl;
+   cout<<"pow(dp5_dp3,2)*(*covmatrix)(3,3) = "<<pow(dp5_dp3,2)*(*covmatrix)(3,3)<<endl;
+   cout<<"2*dp5_dp1*dp5_dp3*(*covmatrix)(1,3) = "<<2*dp5_dp1*dp5_dp3*(*covmatrix)(1,3)<<endl;
+   (*covmatrix)(5,5) = errdz2;
    //(*covmatrix)(5,5) = (fitpar[1]*fitpar[1]*(*covmatrix)(1,1)+fitpar[3]*fitpar[3]*(*covmatrix)(3,3))/pow(fitpar[5],6);
    for(size_t i=0;i<6;i++){
      for(size_t j=0;j<6;j++){

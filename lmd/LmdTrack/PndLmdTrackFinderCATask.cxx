@@ -30,6 +30,8 @@ PndLmdTrackFinderCATask::PndLmdTrackFinderCATask() :
   fDigiBranchStrip = "LMDStripDigis";
   
   dXY = 0.5;
+  d_max = 0.01;
+  hdist = new TH1D("hdist","distance from common point",1e3,0,1.);
   //   dXY = 0.01;//TEST
 }
 
@@ -37,7 +39,7 @@ PndLmdTrackFinderCATask::PndLmdTrackFinderCATask() :
 // -------------------------------------------------------------------------
 
 // -----   Constructor   -------------------------------------------
-PndLmdTrackFinderCATask::PndLmdTrackFinderCATask(const bool missPl) :
+PndLmdTrackFinderCATask::PndLmdTrackFinderCATask(const bool missPl, const double setdmax) :
   FairTask("LMD Track Finding Task (Cellular Automation) with/without <<missing planes>> algoritm")
 {
   missPlAlgo = missPl;
@@ -46,6 +48,8 @@ PndLmdTrackFinderCATask::PndLmdTrackFinderCATask(const bool missPl) :
   fDigiBranchStrip = "LMDStripDigis";
   
   dXY = 0.5;
+  hdist = new TH1D("hdist","distance from common point",1e3,0,1.);
+  d_max = setdmax;
   //   dXY = 0.01;//TEST
 }
 
@@ -235,13 +239,15 @@ void PndLmdTrackFinderCATask::Exec(Option_t* opt)
 	double x0 = hit0->GetX(); double y0 = hit0->GetY();; double z0 = hit0->GetZ();
 	double x1 = hit1->GetX(); double y1 = hit1->GetY();; double z1 = hit1->GetZ();
 	TVector3 dirc(x1-x0,y1-y0,z1-z0);
+
 	//	cout<<"dirc.Theta() = "<<dirc.Theta()<<" dirc.Phi() = "<<dirc.Phi()<<endl;
-	if(dirc.Theta()<0.03 || dirc.Theta()>0.05 || fabs(dirc.Phi())>0.25){
+	  //	if(dirc.Theta()<0.03 || dirc.Theta()>0.05 || fabs(dirc.Phi())>0.25){
+	if(dirc.Theta()>0.01){ //in LUMI frame
 	  if(fVerbose>4){
 	    cout<<"For cell between #"<<(j-1)<<"."<<i<<" and #"<<j<<"."<<k;
 	    cout<<" dirc.Theta() = "<<dirc.Theta()<<" dirc.Phi() = "<<dirc.Phi()<<endl;
 	  }
-	  continue;
+	  //  continue;
 	}
 	else{
 	  if(fVerbose>4){
@@ -286,7 +292,7 @@ void PndLmdTrackFinderCATask::Exec(Option_t* opt)
   // TStopwatch *timer_makingneighbour = new TStopwatch();
   // timer_makingneighbour->Start();
 
-  double d_max = 0.01; 
+  
  
   int cd=0;
   bool stop=false;
@@ -336,7 +342,8 @@ void PndLmdTrackFinderCATask::Exec(Option_t* opt)
 	    //   d_max = d_max2;
 	    //   d2=d;
 	    // }
-	    
+	    hdist->Fill(d);
+	    //  cout<<"d_max = "<<d_max<<endl;
 	    if(d<d_max){
 	      if(pv[q]==pv[p]){
 		pv_new[p] = pv[p]+1;
@@ -414,19 +421,20 @@ void PndLmdTrackFinderCATask::Exec(Option_t* opt)
 	  // cout<<"dirc.Theta() = "<<dirc.Theta()<<" dirc.Phi() = "<<dirc.Phi()<<endl;
 	  // if(dirc.Theta()<0.025 || dirc.Theta()>0.055 || fabs(dirc.Phi())>0.3)
 	  //   continue;
-	 if(dirc.Theta()<0.03 || dirc.Theta()>0.05 || fabs(dirc.Phi())>0.25){
-	  if(fVerbose>4){
-	    cout<<"For cell between #"<<(j-2)<<"."<<i<<" and #"<<j<<"."<<k;
-	    cout<<" dirc.Theta() = "<<dirc.Theta()<<" dirc.Phi() = "<<dirc.Phi()<<endl;
+	  //	 if(dirc.Theta()<0.03 || dirc.Theta()>0.05 || fabs(dirc.Phi())>0.25){
+	  if(dirc.Theta()>0.01){ //in LUMI frame
+	    if(fVerbose>4){
+	      cout<<"For cell between #"<<(j-2)<<"."<<i<<" and #"<<j<<"."<<k;
+	      cout<<" dirc.Theta() = "<<dirc.Theta()<<" dirc.Phi() = "<<dirc.Phi()<<endl;
+	    }
+	    //	    continue;
 	  }
-	  continue;
-	}
-	else{
-	  if(fVerbose>4){
-	    cout<<"GOOD CELL: For cell between #"<<(j-1)<<"."<<i<<" and #"<<j<<"."<<k;
-	    cout<<" dirc.Theta() = "<<dirc.Theta()<<" dirc.Phi() = "<<dirc.Phi()<<endl;
+	  else{
+	    if(fVerbose>4){
+	      cout<<"GOOD CELL: For cell between #"<<(j-1)<<"."<<i<<" and #"<<j<<"."<<k;
+	      cout<<" dirc.Theta() = "<<dirc.Theta()<<" dirc.Phi() = "<<dirc.Phi()<<endl;
+	    }
 	  }
-	}
 
 	  cells.at(0).push_back(x0);
 	  cells.at(1).push_back(y0);
@@ -504,7 +512,7 @@ void PndLmdTrackFinderCATask::Exec(Option_t* opt)
 	      cout<<"d = "<<d<<" norm_v="<<norm_v<<endl;
 	      cout<<" "<<endl;
 	    }
-	   
+	    hdist->Fill(d);
 	    if(d<d_max){
 	      //  if(pv[q]==pv[p]){
 	      if(pv[q]==1 && pv[p]==-1){
@@ -559,7 +567,7 @@ void PndLmdTrackFinderCATask::Exec(Option_t* opt)
 	      cout<<"d = "<<d<<" norm_v="<<norm_v<<endl;
 	      cout<<" "<<endl;
 	    }
-	   
+	    hdist->Fill(d);
 	    if(d<d_max){
 	      if(pv[q]==-1 && pv[p]==3){
 		pv_new[q] = pv[q]-1;
@@ -674,7 +682,7 @@ void PndLmdTrackFinderCATask::Exec(Option_t* opt)
     TVector3 dir(dirX,dirY,dirZ);
     dir*=1./dir.Mag();
 
-    if(dir.Theta()<3e-2 || dir.Theta()>5e-2 || fabs(dir.Phi())>0.26) continue;
+    //    if(dir.Theta()<3e-2 || dir.Theta()>5e-2 || fabs(dir.Phi())>0.26) continue;
     if(fVerbose>2){
       cout<<"posSeed:"<<endl;
       posSeed.Print();
@@ -693,14 +701,16 @@ void PndLmdTrackFinderCATask::Exec(Option_t* opt)
       PndSdsHit* myHit = (PndSdsHit*)(fStripHitArray->At(hitsd.at(pl).at(id)));
       PndSdsClusterStrip* myCluster =  (PndSdsClusterStrip*)(fStripClusterArray->At(myHit->GetClusterIndex()));
       PndSdsDigiStrip* astripdigi = (PndSdsDigiStrip*)fStripDigiArray->At(myCluster->GetDigiIndex(0));
-      myTCand->AddHit(astripdigi->GetDetID(),hitsd.at(pl).at(id),myHit->GetPosition().Mag());  
+      //      myTCand->AddHit(astripdigi->GetDetID(),hitsd.at(pl).at(id),myHit->GetPosition().Mag());  
+      myTCand->AddHit(astripdigi->GetDetID(),hitsd.at(pl).at(id),myHit->GetPosition().Z());  
     }
     int id = cells.at(7).at(trk[trk.size()-1]);
     int pl = cells.at(9).at(trk[trk.size()-1]);
     PndSdsHit* myHit = (PndSdsHit*)(fStripHitArray->At(hitsd.at(pl).at(id)));
     PndSdsClusterStrip* myCluster =  (PndSdsClusterStrip*)(fStripClusterArray->At(myHit->GetClusterIndex()));
     PndSdsDigiStrip* astripdigi = (PndSdsDigiStrip*)fStripDigiArray->At(myCluster->GetDigiIndex(0));
-    myTCand->AddHit(astripdigi->GetDetID(),hitsd.at(pl).at(id),myHit->GetPosition().Mag());  
+    //    myTCand->AddHit(astripdigi->GetDetID(),hitsd.at(pl).at(id),myHit->GetPosition().Mag());  
+    myTCand->AddHit(astripdigi->GetDetID(),hitsd.at(pl).at(id),myHit->GetPosition().Z());  
     // cout<<"Save hit#"<<id<<" from plane#"<<trk.size()<<endl;
     
     ///-------------------------------------
@@ -775,7 +785,7 @@ void PndLmdTrackFinderCATask::Exec(Option_t* opt)
       TVector3 dir(dirX,dirY,dirZ);
       dir*=1./dir.Mag();
       
-      if(dir.Theta()<3e-2 || dir.Theta()>5e-2 || fabs(dir.Phi())>0.26) continue;
+      // if(dir.Theta()<3e-2 || dir.Theta()>5e-2 || fabs(dir.Phi())>0.26) continue;
       myTCand1->setTrackSeed(posSeed,dir,-1);
       if(fVerbose>2){
 	cout<<"posSeed:"<<endl;
@@ -796,7 +806,8 @@ void PndLmdTrackFinderCATask::Exec(Option_t* opt)
 	PndSdsHit* myHit = (PndSdsHit*)(fStripHitArray->At(hitsd.at(pl).at(id)));
 	PndSdsClusterStrip* myCluster =  (PndSdsClusterStrip*)(fStripClusterArray->At(myHit->GetClusterIndex()));
 	PndSdsDigiStrip* astripdigi = (PndSdsDigiStrip*)fStripDigiArray->At(myCluster->GetDigiIndex(0));
-	myTCand1->AddHit(astripdigi->GetDetID(),hitsd.at(pl).at(id),myHit->GetPosition().Mag());  
+	//	myTCand1->AddHit(astripdigi->GetDetID(),hitsd.at(pl).at(id),myHit->GetPosition().Mag());  
+	myTCand1->AddHit(astripdigi->GetDetID(),hitsd.at(pl).at(id),myHit->GetPosition().Z());  
       }
     
       int id = cells.at(7).at(trk[trk.size()-1]);
@@ -806,7 +817,8 @@ void PndLmdTrackFinderCATask::Exec(Option_t* opt)
       PndSdsHit* myHit = (PndSdsHit*)(fStripHitArray->At(hitsd.at(pl).at(id)));
       PndSdsClusterStrip* myCluster =  (PndSdsClusterStrip*)(fStripClusterArray->At(myHit->GetClusterIndex()));
       PndSdsDigiStrip* astripdigi = (PndSdsDigiStrip*)fStripDigiArray->At(myCluster->GetDigiIndex(0));
-      myTCand1->AddHit(astripdigi->GetDetID(),hitsd.at(pl).at(id),myHit->GetPosition().Mag());  
+      // myTCand1->AddHit(astripdigi->GetDetID(),hitsd.at(pl).at(id),myHit->GetPosition().Mag());  
+      myTCand1->AddHit(astripdigi->GetDetID(),hitsd.at(pl).at(id),myHit->GetPosition().Z());  
       
       new((*fTrackCandArrayTemp)[NtrkRec]) PndTrackCand(*(myTCand1)); //save Track Candidate
       //  new((*fTrackCandArray)[NtrkRec]) PndTrackCand(*(myTCand1)); //save Track Candidate
@@ -841,13 +853,15 @@ void PndLmdTrackFinderCATask::Exec(Option_t* opt)
       for(unsigned int ihit=0; ihit<numPts; ihit++){ //loop on the hits
 	PndTrackCandHit theHit = trcnd->GetSortedHit(ihit); //get hit
 	Int_t index = theHit.GetHitId();
+	Int_t detectorID = theHit.GetDetId();
 	double rho = theHit.GetRho();
+	//  	cout<<"rho = "<<rho<<" detectorID = "<<detectorID<<endl;
 	int pos_num;
-	if(rho<1105) pos_num=0;
+	if(rho<5.) pos_num=0;
 	else{
-	  if(rho<1115) pos_num=1;
+	  if(rho<15.) pos_num=1;
 	  else{
-	    if(rho<1125) pos_num=2;
+	    if(rho<25.) pos_num=2;
 	    else{
 	      pos_num=3;
 	    }
@@ -863,7 +877,7 @@ void PndLmdTrackFinderCATask::Exec(Option_t* opt)
 	
       }//end of Hits in TCand
     }
-    //    cout<<"trkcan_point:"<<endl;
+    if(fVerbose>4) cout<<"trkcan_point:"<<endl;
     if(fVerbose>4) trkcan_point.Print();
     TMatrixD coincidence(ntcand,4);
     for(int trkcID=0;trkcID<ntcand;trkcID++)
@@ -884,7 +898,7 @@ void PndLmdTrackFinderCATask::Exec(Option_t* opt)
 	}
       }
     }
-    //    cout<<"coincidence:"<<endl;
+    if(fVerbose>4) cout<<"coincidence:"<<endl;
     if(fVerbose>4) coincidence.Print();
     TVectorD distance(ntcand);
     TVectorF flag(ntcand);
@@ -908,14 +922,14 @@ void PndLmdTrackFinderCATask::Exec(Option_t* opt)
 	    if(coincidence(trkcID,ihit0)==coincidence(trkcID,ihit1)){
 	      int el = coincidence(trkcID,ihit0);
 	      repE[el]=repE[el]+1;
-	      // cout<<"ihit0 = "<<ihit0<<" ihit1 = "<<ihit1<<" el="<<el<<endl;
+	      //  cout<<"ihit0 = "<<ihit0<<" ihit1 = "<<ihit1<<" el="<<el<<endl;
 	    }
 	  }
 	}
 	bool addTrk=true;
 	//	cout<<" "<<endl;
 	for(int trkc=0;trkc<ntcand;trkc++){
-	  //	  cout<<"repE["<<trkc<<"]="<<repE[trkc]<<" flag(trkc)="<<flag(trkc)<<endl;
+	   if(fVerbose>5) cout<<"repE["<<trkc<<"]="<<repE[trkc]<<" flag(trkc)="<<flag(trkc)<<endl;
 	  if(repE[trkc]==3){
 	    addTrk=false;
 	    break;
@@ -923,7 +937,7 @@ void PndLmdTrackFinderCATask::Exec(Option_t* opt)
 	  if(repE[trkc]==2){
 	    if(flag(trkc)==true){
 	      addTrk=false;
-	      //   cout<<"We've already added trk #"<<trkc<<" this the same hits!"<<endl;
+	      if(fVerbose>4) cout<<"We've already added trk #"<<trkc<<" with the same hits!"<<endl;
 	      break;
 	    }
 	    int ihit=1;
@@ -943,7 +957,8 @@ void PndLmdTrackFinderCATask::Exec(Option_t* opt)
 	    int index_next = trkcan_point(trkcID,ihit+1);
 	    if(index_next==-1) index_next = trkcan_point(trkcID,ihit+2);
 	    
-	    //    cout<<"index_prev = "<<index_prev<<" index_mid = "<<index_mid<<" index_next  = "<<index_next<<endl;
+	    if(fVerbose>5) 
+	      cout<<"index_prev = "<<index_prev<<" index_mid = "<<index_mid<<" index_next  = "<<index_next<<endl;
 	    PndSdsHit* Hit_prev = (PndSdsHit*) fStripHitArray->At(index_prev);
 	    TVector3 Hit_prevPos = Hit_prev->GetPosition();
 	    
@@ -999,7 +1014,7 @@ void PndLmdTrackFinderCATask::Exec(Option_t* opt)
 			  +pow((Hit_nextPos.Y()-Hit_prevPos.Y()),2)
 			  +pow((Hit_nextPos.Z()-Hit_prevPos.Z()),2));
 	    double d_new = sqrt(d_x*d_x+d_y*d_y+d_z*d_z)/norm_v;
-	    // cout<<"d = "<<d<<" d_new = "<<d_new<<endl;
+	    //	    cout<<"d = "<<d<<" d_new = "<<d_new<<endl;
 	    if(d_new<d){
 	      addTrk=false;
 	      break;

@@ -21,7 +21,8 @@
 #include "TH1.h"
 #include "GFTrackCand.h"
 #include "FairGeanePro.h"
-
+#include "TMatrixD.h"
+#include "TVector3.h"
 //#include "PndSdsGeoHandling.h"
 #include "PndGeoHandling.h"
 #include "FairGeanePro.h"
@@ -30,7 +31,8 @@
 
 class TClonesArray;
 class PndSdsCluster;
-class TGeant3;
+//class TGeant3;//GEANE uses Geant3!
+//class TGeant4;
 
 class PndLmdGeaneTask : public FairTask
 {
@@ -77,7 +79,7 @@ class PndLmdGeaneTask : public FairTask
 
   // Input Data ----------
   TClonesArray* fMCHits;
-  /* TClonesArray* fMCTracks; */
+  TClonesArray* fMCTracks;
 
   TClonesArray* fTracks; //Real tracks
   TClonesArray* fHits; //Real hits
@@ -92,6 +94,10 @@ class PndLmdGeaneTask : public FairTask
   
   std::map<int, std::vector<int> > AssignHitsToTracks();
   
+  //from LUMI frame (with z-axis perpendicular to planes) to global PANDA frame
+  void combitransFromLumiFrame(TVector3& hitPos);
+  void rotateFromLumiFrame(TVector3& hitPos, bool errrot);
+  TMatrixD rotateFromLumiFrame(TMatrixD& hitCov);
   ClassDef(PndLmdGeaneTask,1);
 
 };
