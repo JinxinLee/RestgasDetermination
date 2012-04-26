@@ -25,6 +25,8 @@
 #include<iomanip>
 #include<sstream>
 #include<TH1.h>
+#include<TTree.h>
+#include<TFile.h>
 #include<TCanvas.h>
 
 using namespace std;
@@ -38,6 +40,10 @@ const string name_modification = "_v1";
 
 vector<string> fieldmapnames;
 
+TTree* gtree_values(NULL);
+
+double gBx, gBy, gBz, gDBx, gDBy, gDBz;
+
 void interpolate_fieldmap(PndFieldMap* map_to_corr,
 		PndFieldMap* map_to_interpol, double weight, string fileName) {
 	// Open file
@@ -49,7 +55,7 @@ void interpolate_fieldmap(PndFieldMap* map_to_corr,
 	}
 
 	// Write field map grid parameters
-	mapFile.precision(4);
+	mapFile.precision(6);
 	mapFile << showpoint;
 	if (map_to_corr->GetType() == 1)
 		mapFile << "nosym" << endl;
@@ -136,8 +142,15 @@ void interpolate_fieldmap(PndFieldMap* map_to_corr,
     system(("mv "+fileName+".dat"+" "+moveto).c_str());
 	cout << " converting ASCII files to ROOT files " << endl;
 	PndFieldMap* fieldmap_converted = NULL;
-	if (map_to_corr->GetType() == 3) fieldmap_converted = new PndDipoleMap(fileName.c_str(), "A");
-	if (map_to_corr->GetType() == 4) fieldmap_converted = new PndTransMap (fileName.c_str(), "A");
+	//gfield = 0;
+	if (map_to_corr->GetType() == 3) {
+		fieldmap_converted = new PndDipoleMap(fileName.c_str(), "A");
+		//gfield = 3;
+	}
+	if (map_to_corr->GetType() == 4) {
+		fieldmap_converted = new PndTransMap (fileName.c_str(), "A");
+		//gfield = 4;
+	}
 	if (fieldmap_converted){
 		fieldmap_converted->Init();
 		stringstream _filename;
@@ -162,9 +175,16 @@ void interpolate_fieldmap(PndFieldMap* map_to_corr,
 					double By2 = (*(fieldmap_converted->GetBy()))[index];
 					double Bz1 = (*(map_to_corr->GetBz()))[index];
 					double Bz2 = (*(fieldmap_converted->GetBz()))[index];
-					hist_relative_difference_Bx.Fill((Bx2-Bx1)/Bx1*100.);
-					hist_relative_difference_By.Fill((By2-By1)/By1*100.);
-					hist_relative_difference_Bz.Fill((Bz2-Bz1)/Bz1*100.);
+					gBx = Bx1;
+					gBy = By1;
+					gBz = Bz1;
+					gDBx = (Bx2-Bx1);
+					gDBy = (By2-By1);
+					gDBz = (Bz2-Bz1);
+					gtree_values->Fill();
+					hist_relative_difference_Bx.Fill(gDBx/Bx1*100.);
+					hist_relative_difference_By.Fill(gDBy/By1*100.);
+					hist_relative_difference_Bz.Fill(gDBz/Bz1*100.);
 					modul = div(index, iDiv);
 					if (modul.rem == 0) {
 						Double_t perc = TMath::Nint(100. * index / nTot);
@@ -238,6 +258,18 @@ void interpolate_fieldmaps() {
 
 	TCanvas canvas("canvas", "comparison plots", 600, 600);
 	canvas.cd();
+	TFile filetree("values.root", "RECREATE");
+	int field;
+	int energy;
+	gtree_values = new TTree("tree", "tree");
+	gtree_values->Branch("Bx", &gBx);
+	gtree_values->Branch("By", &gBy);
+	gtree_values->Branch("Bz", &gBz);
+	gtree_values->Branch("DBx", &gDBx);
+	gtree_values->Branch("DBy", &gDBy);
+	gtree_values->Branch("DBz", &gDBz);
+	gtree_values->Branch("energy", &energy);
+	gtree_values->Branch("field", &field);
 	for (map<string, string>::iterator it = momenta.begin(); it
 			!= momenta.end(); it++) {
 		string momentum = it->first;
@@ -245,16 +277,47 @@ void interpolate_fieldmaps() {
 		cout << " interpolating maps for " << momentum << endl;
 		//PndFieldMap* new_dipolefieldmap1 = new PndDipoleMap(("DipoleMap1_new."+(momentum)).c_str(), "R");
 		//new_dipolefiledmap1
+		energy = atoi((it->first).c_str());
+		field = 31;
 		interpolate_fieldmap(dipolefieldmaps1[momentum],
 				dipolefieldmaps1[interpol_mom], weight[momentum], "DipoleMap1"+name_modification+"."+momentum);
+		field = 32;
 		interpolate_fieldmap(dipolefieldmaps2[momentum],
 				dipolefieldmaps2[interpol_mom], weight[momentum], "DipoleMap2"+name_modification+"."+momentum);
+		field = 40;
 		interpolate_fieldmap(transfieldmaps[momentum],
 				transfieldmaps[interpol_mom], weight[momentum], "TransMap"+name_modification+"."+momentum);
 	}
 	// close the opened ps file
 	canvas.Clear();
 	canvas.Print("relative_fieldmap_differences.ps)");
+	filetree.Write();
+	// draw some more histograms for checks
+	canvas.Divide(2,2);
+	map<string, string> drawpairs;
+	drawpairs["Bx"]="DBx";
+	drawpairs["By"]="DBy";
+	drawpairs["Bz"]="DBz";
+	for (map<string, string>::iterator it = momenta.begin(); it
+			!= momenta.end(); it++) {
+		string momentum = it->first;
+		energy = atoi((it->first).c_str());
+		for (map<string, string>::iterator itB = drawpairs.begin(); itB != drawpairs.end(); itB++){
+			canvas.cd(1);
+			gPad->Clear();
+			gtree_values->Draw((itB->first+":"+itB->second).c_str(),(momentum+"==energy&&field==31").c_str());
+			canvas.cd(2);
+			gPad->Clear();
+			gtree_values->Draw((itB->first+":"+itB->second).c_str(),(momentum+"==energy&&field==32").c_str());
+			canvas.cd(3);
+			gPad->Clear();
+			gtree_values->Draw((itB->first+":"+itB->second).c_str(),(momentum+"==energy&&field==40").c_str());
+			canvas.Print("correlation_histograms.ps(");
+		}
+	}
+	canvas.Clear();
+	canvas.Print("correlation_histograms.ps)");
+	filetree.Close();
 
 	cout << "\n list of created field map names " << endl;
 	cout << " ********************************" << endl;
