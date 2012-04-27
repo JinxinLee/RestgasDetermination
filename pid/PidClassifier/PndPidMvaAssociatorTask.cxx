@@ -9,7 +9,9 @@
  * ************************************/
 #include "PndPidMvaAssociatorTask.h"
 
-#define DEBUG 1
+#define DEBUG 0
+
+ClassImp(PndPidMvaAssociatorTask)
 
 //==========================================================
 #if (DEBUG != 0)
@@ -144,7 +146,8 @@ InitStatus PndPidMvaAssociatorTask::Init()
   {
   case TMVA_MLP:// Multi label MLP classifier from TMVA.
   {
-    PndMultiClassMlpClassify* TmvaMlpCls = new PndMultiClassMlpClassify(fWeightsFileName, fClassNames, fVarNames);
+    PndMultiClassMlpClassify* TmvaMlpCls = new PndMultiClassMlpClassify(fWeightsFileName, fClassNames,
+                                                                        fVarNames);
     if(!TmvaMlpCls)
     {
       std::cerr << "<Error> Failed to initialize TMVA_MLP classifier."
@@ -162,7 +165,8 @@ InitStatus PndPidMvaAssociatorTask::Init()
   
   case TMVA_BDT:// Multi label BDT classifier from TMVA.
   {
-    PndMultiClassBdtClassify* TmvaBdtCls = new PndMultiClassBdtClassify(fWeightsFileName, fClassNames, fVarNames);
+    PndMultiClassBdtClassify* TmvaBdtCls = new PndMultiClassBdtClassify(fWeightsFileName, fClassNames,
+                                                                        fVarNames);
     if(!TmvaBdtCls)
     {
       std::cerr << "<Error> Failed to initialize TMVA_BDT classifier."
@@ -268,7 +272,7 @@ void PndPidMvaAssociatorTask::Exec(Option_t* option)
 
   if(fVerbose > 1)
   {
-    std::cout << "-I- Start PndPidAssociatorTask.\n";
+    std::cout << "-I- Start PndPidMvaAssociatorTask.\n";
   }
 
   // Get the charged Candidates
@@ -282,7 +286,7 @@ void PndPidMvaAssociatorTask::Exec(Option_t* option)
     
     if(fVerbose > 1)
     {
-      std::cout << "-I- PndPidAssociatorTask Ch BEFORE  "
+      std::cout << "-I- PndPidMVAAssociatorTask Ch BEFORE  "
 		<< pidcand->GetLorentzVector().M()
 		<< '\n';
     }
@@ -291,7 +295,7 @@ void PndPidMvaAssociatorTask::Exec(Option_t* option)
     
     if(fVerbose > 1)
     {
-      std::cout << "-I- PndPidAssociatorTask Ch AFTER "
+      std::cout << "-I- PndPidMVAAssociatorTask Ch AFTER "
 		<< pidcand->GetLorentzVector().M()
 		<< '\n';
     }
@@ -378,7 +382,7 @@ std::vector<float> const* PndPidMvaAssociatorTask::PrepareEvtVect(PndPidCandidat
   
   for(size_t i = 0; i < fVarNames.size(); i++)
   {  
-    if(fVarNames[i] == "p")
+    if( fVarNames[i] == "p" )
     {
       vect->push_back((pidcand.GetMomentum()).Mag());
     }
@@ -459,5 +463,3 @@ void PndPidMvaAssociatorTask::Finish()
 //_________________________________________________________________
 void PndPidMvaAssociatorTask::Reset()
 {}
-
-ClassImp(PndPidMvaAssociatorTask)

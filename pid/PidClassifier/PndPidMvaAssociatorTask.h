@@ -57,8 +57,14 @@ class PndPidMvaAssociatorTask: public FairTask
    */  
   virtual ~PndPidMvaAssociatorTask();
   
+  /**
+   * Execute the method.
+   */
   virtual void Exec(Option_t* option);
   
+  /**
+   * Initialize the method. Called by runner.
+   */
   virtual InitStatus Init();
   
   void Register();
@@ -67,7 +73,9 @@ class PndPidMvaAssociatorTask: public FairTask
   
   inline void SetVerbose(Bool_t verb);
   
-  /** Set parameter containers **/
+  /**
+   * Set parameter containers
+   */
   virtual void SetParContainers();
   
   virtual void Finish();
@@ -88,8 +96,17 @@ class PndPidMvaAssociatorTask: public FairTask
    */
   inline void SetWeightFileName(std::string const& wFileName);
   
-  void SetClassifier(std::string const& methodName);
+  /**
+   * Set the classifier type.
+   *@param methodT The method to be used.
+   */
   inline void SetClassifier(Mva_MethodType const& methodT);
+
+  /**
+   * Set the classifier type.
+   *@param methodName The method to be used.
+   */
+  void SetClassifier(std::string const& methodName);
 
   //______________ KNN- Classifier parameter _____________
   /**
@@ -151,7 +168,7 @@ class PndPidMvaAssociatorTask: public FairTask
   TClonesArray* fPidNeutralProb; //! PndPidProbability TCA for neutral particles
   TClonesArray* fMCTrack;        //! Monte-Carlo Truth track TCA
   
-  ClassDef(PndPidMvaAssociatorTask, 1);
+  ClassDef(PndPidMvaAssociatorTask, 0);
 };
 
 inline void PndPidMvaAssociatorTask::SetVerbose(Bool_t verb)
