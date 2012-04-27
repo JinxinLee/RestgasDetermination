@@ -27,7 +27,10 @@ class PndSttTrackFinder : public TObject
  public:
 
   /** Default constructor **/
-  PndSttTrackFinder() { }; 
+  PndSttTrackFinder() { 
+    fVerbose = 0;
+    fHelixHitProduction = kFALSE;
+  }; 
 
 
   /** Destructor **/
