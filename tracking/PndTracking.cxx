@@ -1176,20 +1176,12 @@ if(istampa>0){
 
 //   begins the first iteration with more severe cuts on the # hits in track candidate
  for(iParHit=0; iParHit<nSttParHit + 1 -  MINIMUMHITSPERTRACK ; iParHit++) {
-if(IVOLTE==41){
-	cout<<"evt41, inizio, iParHit "<<iParHit<<", nSttTrackCand "<<
-	nSttTrackCand<<", ListSttParHits[iParHit] "<<ListSttParHits[iParHit]<<
-	", suo InclusionListStt "<< InclusionListStt[ListSttParHits[iParHit]]<< endl;
-}
 	if( nSttTrackCand > MAXTRACKSPEREVENT) continue;
 	if( ! InclusionListStt[ListSttParHits[iParHit]] )  continue;
 
 	nRcell = RConformalIndex[ListSttParHits[iParHit]];
 	nFicell = FiConformalIndex[ListSttParHits[iParHit]];
 
-if(IVOLTE==41){
-	cout<<"evt41, iParHit "<<iParHit<<", nRcell "<<nRcell<<", nFicell "<<nFicell <<endl;
-}
 	outcome = FindTrackInXYProjection(
 				iParHit,//seed hit; it is positive for STT Hits.
 				nRcell,
@@ -1218,9 +1210,6 @@ if(IVOLTE==41){
 				&U[nSttTrackCand][0],
 				&V[nSttTrackCand][0]
 				);
-if(IVOLTE==41){
-	cout<<"evt41,  "<<iParHit<<", outcome "<<outcome<<endl;
-}
 	if(!outcome)  continue;
 
 // --------  here the track and its hits were found, filling the Inclusion list
@@ -5705,31 +5694,13 @@ for(int iz=0;iz<nummm;iz++){
 //	cout<<"\t"<<iz<<", Xconf "<< Xconformal[iz]<<", Yconf "<<
 //	Yconformal[iz]<<",  "<<
 //	ErrorDriftRadiusconformal[iz]<<endl;
-cout<<"cazzo,passadiquiquoqua prima?\n";
 }
-cout<<"cazzo,passadiquiquoqua?\n";
 
 }
 //--------------------
 
-cout<<"cazzo,crasha in FindTrackInXYProjection [prima]?\n";
 
 
-if(IVOLTE==41){
-	cout<<"evt41, nTracksFoundSoFar : "<<nTracksFoundSoFar
-	<<", nFitPoints "<<nFitPoints
-	<<", nHitsinTrack  "<<nHitsinTrack[nTracksFoundSoFar]
-	<<endl;
-	for(int ic=0;ic<1+nHitsinTrack[nTracksFoundSoFar];ic++){
- cout<<"\tXconformal["<<ic<<"] "<<Xconformal[ic]<<", Yconformal["<<ic<<"] "<<Yconformal[ic]<<endl;
-	}
-	for(int ic=0;ic<1+nHitsinTrack[nTracksFoundSoFar];ic++){
- cout<<"\tDriftRadiusconformal["<<ic<<"] "<<DriftRadiusconformal[ic]<<", Error["<<ic<<"] "
-	<<ErrorDriftRadiusconformal[ic]<<endl;
-	}
-	cout<<"\trotationangle "<<rotationangle<<", trajectory_vertex, X = "<<
-	trajectory_vertex[0]<<", Y  = "<<trajectory_vertex[1]<<endl;
-}
 
 
  status = FitHelixCylinder(
@@ -5750,7 +5721,6 @@ if(IVOLTE==41){
 			);
 
 
-cout<<"cazzo,crasha in FindTrackInXYProjection [dopo]?\n";
 
  if(status < 0  ) return false;
 
@@ -6331,9 +6301,6 @@ if(istampa>=3){
 		mvdhit[i]=false;
 		nSttHits++;
 	}
-if(IVOLTE==41){
-	Delta[i]=0.002;
-}//---------------------------
       }
 
 //-------------- stampaggi
@@ -6363,9 +6330,6 @@ if(istampa>=3){
 	int nBounds=NpointsInFit+nSttHits+1;
 
 
-cout<<"cazzofitxy, NStructVar "<<NStructVar<<", nRows "<<nRows<<", NStructRowsMax "
-	<<NStructRowsMax<<"\n\tNStructVar*NStructRowsMax "<<NStructVar*NStructRowsMax
-	<<", nSttHits=nRanges "<<nSttHits<<", nBounds "<<nBounds<<endl;
 
 //----  creating the various service arrays
 
@@ -11754,7 +11718,6 @@ if(istampa>2){
 		ErrorDriftRadiusconformal[ig]<<endl;
 	}
 }
-cout<<"cazzo, crasha in refit [prima]?\n";
 	exitstatus = FitHelixCylinder(  iparallel,
 					Xconformal,
 					Yconformal,
@@ -11775,7 +11738,6 @@ cout<<"cazzo, crasha in refit [prima]?\n";
 	//  existatus > 0, Type= false --> fit ok, it is a Straigh Line in XY; 
 	//  existatus = -1, fit failed, equation of XY circle : X**2 + Y**2 =0, impossible in principle; 
 	//  existatus < 0, fit failed. 
-cout<<"cazzo, crasha in refit [dopo]?\n";
 	if( exitstatus > 0 && Type)	*status=true;
 	return;
 }
