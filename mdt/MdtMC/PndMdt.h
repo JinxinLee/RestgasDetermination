@@ -61,6 +61,8 @@ public:
     void Initialize();
     void BeginEvent();
     Bool_t ProcessHits(FairVolume* vol);
+    Bool_t ProcessHitsFast(FairVolume* vol);
+    Bool_t ProcessHitsRoot(FairVolume* vol);
     void EndOfEvent();
 
     static Int_t fTrkIn; 
