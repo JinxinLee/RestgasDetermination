@@ -33,7 +33,23 @@
 PndSdsPixelClusterTask::PndSdsPixelClusterTask() :
 PndSdsTask("SDS Clustertisation Task"), fPersistance(kTRUE), fClusterType(-1), fEventNr(0)
 {
-  fGeoH = PndGeoHandling::Instance();
+  fFEModel = NULL;
+
+  fDigiArray = NULL;
+  fDigiPar = NULL;
+  fChargeConverter = NULL;
+  fGeoH = NULL;
+  
+  fClustBranchName = "";
+  /** Output array of PndSdsHits **/
+  fClusterArray = NULL;
+  fHitArray = NULL;
+  
+  fFunctor = NULL;
+  fStartFunctor = NULL;
+  
+  fClusterFinder = NULL;
+  fBackMapping = NULL;
 }
 // -------------------------------------------------------------------------
 
@@ -41,7 +57,23 @@ PndSdsTask("SDS Clustertisation Task"), fPersistance(kTRUE), fClusterType(-1), f
 PndSdsPixelClusterTask::PndSdsPixelClusterTask(const char* name) :
 PndSdsTask(name), fPersistance(kTRUE), fClusterType(-1), fEventNr(0)
 {
-  fGeoH = PndGeoHandling::Instance();
+  fFEModel = NULL;
+
+  fDigiArray = NULL;
+  fDigiPar = NULL;
+  fChargeConverter = NULL;
+  fGeoH = NULL;
+  
+  fClustBranchName = "";
+  /** Output array of PndSdsHits **/
+  fClusterArray = NULL;
+  fHitArray = NULL;
+  
+  fFunctor = NULL;
+  fStartFunctor = NULL;
+  
+  fClusterFinder = NULL;
+  fBackMapping = NULL;
 }
 // -------------------------------------------------------------------------
 
@@ -57,6 +89,10 @@ PndSdsPixelClusterTask::~PndSdsPixelClusterTask()
 // -----   Initialization  of Parameter Containers -------------------------
 void PndSdsPixelClusterTask::SetParContainers()
 {
+  if ( fGeoH == NULL ) {
+    fGeoH = PndGeoHandling::Instance();
+  }
+
   if( ! fDigiPar) Fatal("SetParContainers","No digitiztiopn parameters specified");
   if(fVerbose>1) Info("SetParContainers","done.");
   return;
@@ -67,9 +103,6 @@ void PndSdsPixelClusterTask::SetParContainers()
 
 InitStatus PndSdsPixelClusterTask::ReInit()
 {
-  
-//  InitStatus stat=kERROR;
-//  return stat;
   
   /*
    FairRun* ana = FairRun::Instance();

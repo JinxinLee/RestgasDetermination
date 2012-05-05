@@ -109,7 +109,7 @@ protected:
   Int_t    frows; //pixel rows in one FE
   Int_t fPixelHits;
 //  FairMCEventHeader* fMcEventHeader;
-  PndGeoHandling* fGeoH;
+  PndGeoHandling* fGeoH; //!
   Int_t fEventNr;
   Bool_t fOverwriteParams;
   Bool_t fTimeOrderedDigi; ///<set to kTRUE to use the time ordering of the output data.

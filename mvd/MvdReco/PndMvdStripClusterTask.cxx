@@ -60,6 +60,8 @@ void PndMvdStripClusterTask::SetParContainers()
   TList* theContNames = themvdcontfact->GetDigiParNames();
   Info("SetParContainers()","The container names list contains %i entries",theContNames->GetEntries());
   TIter cfIter(theContNames);
+  fDigiParameterList->Clear();
+  fChargeDigiParameterList->Clear();
   while (TObjString* contname = (TObjString*)cfIter()) {
     TString parsetname = contname->String();
     Info("SetParContainers()","%s",parsetname.Data());

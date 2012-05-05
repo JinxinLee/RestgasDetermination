@@ -89,21 +89,21 @@ class PndSdsPixelClusterTask : public PndSdsTask
     
     Bool_t fPersistance; // switch to turn on/off storing the arrays to a file
 
-    PndSdsFE* fFEModel;
+    PndSdsFE* fFEModel; //!
 
     /** Input array of PndSdsDigis **/
     TClonesArray* fDigiArray;
     PndSdsPixelDigiPar* fDigiPar;
     PndSdsChargeConversion* fChargeConverter;
-    PndGeoHandling* fGeoH;
+    PndGeoHandling* fGeoH; //!
     
     TString fClustBranchName;
     /** Output array of PndSdsHits **/
     TClonesArray* fClusterArray;
     TClonesArray* fHitArray;
 
-    BinaryFunctor* fFunctor;
-    BinaryFunctor* fStartFunctor;
+    BinaryFunctor* fFunctor; //!
+    BinaryFunctor* fStartFunctor; //!
     
     Int_t fClusterType;
     Int_t fEventNr;
@@ -113,7 +113,7 @@ class PndSdsPixelClusterTask : public PndSdsTask
     void ProduceHits();
     
   PndSdsPixelClusterFinder* fClusterFinder;
-  PndSdsPixelBackMapping* fBackMapping;
+  PndSdsPixelBackMapping* fBackMapping; //!
   
 //   TGeoHMatrix GetTransformation (std::string detName);
 //   void GetLocalHitPoints(PndSdsMCPoint* myPoint, FairGeoVector& myHitIn, FairGeoVector& myHitOut);

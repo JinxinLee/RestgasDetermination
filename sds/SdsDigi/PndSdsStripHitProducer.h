@@ -145,7 +145,8 @@ class PndSdsStripHitProducer : public PndSdsTask
   Int_t DigitizeTime(Double_t time,Double_t charge);
 
   FairMCEventHeader* fMcEventHeader;
-  PndGeoHandling* fGeoH; 	///< converter for detector names
+
+  PndGeoHandling* fGeoH; 	//! ///< converter for detector names
   Bool_t fOverrideParams;   ///< internal Flag that controls use of Parameter Invocations
   Bool_t fTimeOrderedDigi; ///< parameter to switch to time ordered simulation
 

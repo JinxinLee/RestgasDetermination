@@ -31,7 +31,28 @@ FairTask("Charge Noise Producer"), fGeoH(0)
 {
   fBranchName 	= "MVDStripDigis";
   fPersistance = kTRUE;
-  fGeoH = PndGeoHandling::Instance();
+  //  fGeoH = NULL;
+
+  fTimeOrderedDigi = kFALSE;
+  fBranchName = "";
+  fDigiStripArray = NULL;
+  fDigiPixelArray = NULL;
+  fDigiPixelBuffer = NULL;
+  fDigiStripBuffer = NULL;
+  fDigiParRect = NULL;
+  fDigiParTrap = NULL;
+  fDigiParPix = NULL;
+  fTotDigiParRect = NULL;
+  fTotDigiParTrap = NULL;
+  fTotDigiParPix = NULL;
+  fMCEventheader = NULL;
+  fStripRectChargeConv = NULL;
+  fStripTrapChargeConv = NULL;
+  fCurrentChargeConv = NULL;
+  fPixChargeConv = NULL;
+  fNoiseSpread = 0;
+  fThreshold = 0;
+  fPreviosTime = 0.;
 }
 // -------------------------------------------------------------------------
 
@@ -94,26 +115,26 @@ InitStatus PndMvdNoiseProducer::Init()
   else if (fDigiParRect->GetChargeConvMethod() == 1){
 	if(fVerbose>0) Info("Init()","use TOT charge conversion for rect. strips");
 	fStripRectChargeConv = new PndSdsTotChargeConversion(
-														 fTotDigiParRect->GetChargingTime(),
-														 fTotDigiParRect->GetConstCurrent(),
-														 fDigiParRect->GetThreshold(),
-														 fTotDigiParRect->GetClockFrequency(),
-														 fVerbose);
+							     fTotDigiParRect->GetChargingTime(),
+							     fTotDigiParRect->GetConstCurrent(),
+							     fDigiParRect->GetThreshold(),
+							     fTotDigiParRect->GetClockFrequency(),
+							     fVerbose);
   }
   else Fatal ("Init()","rect. strips: charge conversion method not defined!");
   
   if (fDigiParTrap->GetChargeConvMethod() == 0){
-	if(fVerbose>0) Info("Init()","ideal charge conversion for trap. strips");
-	fStripTrapChargeConv = new PndSdsIdealChargeConversion(fDigiParTrap->GetNoise());
+    if(fVerbose>0) Info("Init()","ideal charge conversion for trap. strips");
+    fStripTrapChargeConv = new PndSdsIdealChargeConversion(fDigiParTrap->GetNoise());
   }
   else if (fDigiParTrap->GetChargeConvMethod() == 1){
-	if(fVerbose>0) Info("Init()","use TOT charge conversion for trap. strips");
-	fStripTrapChargeConv = new PndSdsTotChargeConversion(
-														 fTotDigiParTrap->GetChargingTime(),
-														 fTotDigiParTrap->GetConstCurrent(),
-														 fDigiParTrap->GetThreshold(),
-														 fTotDigiParTrap->GetClockFrequency(),
-														 fVerbose);
+    if(fVerbose>0) Info("Init()","use TOT charge conversion for trap. strips");
+    fStripTrapChargeConv = new PndSdsTotChargeConversion(
+							 fTotDigiParTrap->GetChargingTime(),
+							 fTotDigiParTrap->GetConstCurrent(),
+							 fDigiParTrap->GetThreshold(),
+							 fTotDigiParTrap->GetClockFrequency(),
+							 fVerbose);
   }
   else Fatal ("Init()","trap. strips: charge conversion method not defined!");
   
@@ -122,13 +143,13 @@ InitStatus PndMvdNoiseProducer::Init()
 	fPixChargeConv = new PndSdsIdealChargeConversion(fDigiParPix->GetNoise());
   }
   else if (fDigiParPix->GetChargeConvMethod() == 1){
-	if(fVerbose>0) Info("Init()","use TOT charge conversion for pixel part");
-	fPixChargeConv = new PndSdsTotChargeConversion(
-												   fTotDigiParPix->GetChargingTime(),
-												   fTotDigiParPix->GetConstCurrent(),
-												   fDigiParPix->GetThreshold(),
-												   fTotDigiParPix->GetClockFrequency(),
-												   fVerbose);
+    if(fVerbose>0) Info("Init()","use TOT charge conversion for pixel part");
+    fPixChargeConv = new PndSdsTotChargeConversion(
+						   fTotDigiParPix->GetChargingTime(),
+						   fTotDigiParPix->GetConstCurrent(),
+						   fDigiParPix->GetThreshold(),
+						   fTotDigiParPix->GetClockFrequency(),
+						   fVerbose);
   }
   else Fatal ("Init()","pixel part: charge conversion method not defined!");
   
@@ -137,8 +158,9 @@ InitStatus PndMvdNoiseProducer::Init()
 
 void PndMvdNoiseProducer::FillSensorLists()
 {
-	TObjArray* sensorNames = fGeoH->GetSensorNames();
-	for (int i = 0; i < sensorNames->GetEntries(); i++)
+  TObjArray* sensorNames = fGeoH->GetSensorNames();
+
+  for (int i = 0; i < sensorNames->GetEntries(); i++)
   {
 		TString volpath = ((TObjString*)(sensorNames->At(i)))->GetString();
     if(!volpath.Contains("Mvd")) continue;
@@ -165,6 +187,10 @@ void PndMvdNoiseProducer::FillSensorLists()
 // -------------------------------------------------------------------------
 void PndMvdNoiseProducer::SetParContainers()
 {
+  if ( fGeoH == NULL ) {
+    fGeoH = PndGeoHandling::Instance();
+  }
+
   // Get Base Container
   FairRun* ana = FairRun::Instance();
   FairRuntimeDb* rtdb=ana->GetRuntimeDb();

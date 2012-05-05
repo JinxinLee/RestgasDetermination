@@ -2,6 +2,7 @@
 #define _PNDSDSCHARGEWEIGHTINGALGORITHMS_H
 
 #include <vector>
+#include "TObject.h"
 #include "TClonesArray.h"
 #include "TH2F.h"
 #include "PndSdsDigiStrip.h"
@@ -11,7 +12,7 @@ class PndSdsCluster;
 class PndSdsCalcStrip;
 
 
-class PndSdsChargeWeightingAlgorithms
+class PndSdsChargeWeightingAlgorithms : public TObject
 {
 /**\addtogroup algorithms
  @brief contains the three algorithms to find to track

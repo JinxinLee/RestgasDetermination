@@ -40,13 +40,31 @@ PndSdsTask("SDS Strip Clustertisation Task")
   fDigiParameterList = new TList();
   fChargeDigiParameterList = new TList();
   fPersistance = kTRUE;
-  fGeoH = PndGeoHandling::Instance();
   fChargeAlgos=0;
   fCurrentDigiPar=0;
   fCurrentChargeConverter=0;
   fCurrentStripCalcTop=0;
   fCurrentStripCalcBot=0;
   fCurrentClusterfinder=0;
+
+  fDigiArray = NULL;
+  fClusterArray = NULL;
+  fHitArray = NULL;
+    
+  fClustBranchName = "";
+  fClusterType = 0;
+    
+  fFEcolumns = 0;
+  fFErows = 0;
+  fChargeCut = 0.;
+  fRadChannel = 0;
+  fRadTime = 0;
+  fSingleStripChargeThreshold = 0.;
+    
+  fGeoH = NULL;
+    
+  fFunctor= NULL;
+
   fVerbose = 0;
 }
 
@@ -59,13 +77,31 @@ PndSdsTask(name)
   fDigiParameterList = new TList();
   fChargeDigiParameterList = new TList();
   fPersistance = kTRUE;
-  fGeoH = PndGeoHandling::Instance();
   fChargeAlgos=0;
   fCurrentChargeConverter=0;
   fCurrentDigiPar=0;
   fCurrentStripCalcTop=0;
   fCurrentStripCalcBot=0;
   fCurrentClusterfinder=0;
+
+  fDigiArray = NULL;
+  fClusterArray = NULL;
+  fHitArray = NULL;
+    
+  fClustBranchName = "";
+  fClusterType = 0;
+    
+  fFEcolumns = 0;
+  fFErows = 0;
+  fChargeCut = 0.;
+  fRadChannel = 0;
+  fRadTime = 0;
+  fSingleStripChargeThreshold = 0.;
+    
+  fGeoH = NULL;
+    
+  fFunctor= NULL;
+
   fVerbose = 0;
 }
 
@@ -81,23 +117,23 @@ PndSdsStripClusterTask::~PndSdsStripClusterTask()
 
 void PndSdsStripClusterTask::ClearCalculators()
 {
-	for( std::map<const char*,PndSdsCalcStrip*>::iterator it = fStripCalcTop.begin(); it != fStripCalcTop.end(); it++){
-		if(0 != it->second) delete it->second;
-		it->second = 0;
-	}
-	for( std::map<const char*,PndSdsCalcStrip*>::iterator it = fStripCalcBot.begin(); it != fStripCalcBot.end(); it++){
-		if(0 != it->second) delete it->second;
-		it->second = 0;
-	}
+  for( std::map<const char*,PndSdsCalcStrip*>::iterator it = fStripCalcTop.begin(); it != fStripCalcTop.end(); it++){
+    if(0 != it->second) delete it->second;
+    it->second = 0;
+  }
+  for( std::map<const char*,PndSdsCalcStrip*>::iterator it = fStripCalcBot.begin(); it != fStripCalcBot.end(); it++){
+    if(0 != it->second) delete it->second;
+    it->second = 0;
+  }
   if(0 != fChargeAlgos) delete fChargeAlgos;
-	for(std::map<const char*,PndSdsChargeConversion*>::iterator it = fChargeConverter.begin(); it != fChargeConverter.end(); it++){
-		if(0 != it->second) delete it->second;
-		it->second = 0;
-	}  
-	for(std::map<const char*,PndSdsStripClusterer*>::iterator it = fClusterFinderList.begin(); it != fClusterFinderList.end(); it++){
-		if(0 != it->second) delete it->second;
-		it->second = 0;
-	}  
+  for(std::map<const char*,PndSdsChargeConversion*>::iterator it = fChargeConverter.begin(); it != fChargeConverter.end(); it++){
+    if(0 != it->second) delete it->second;
+    it->second = 0;
+  }  
+  for(std::map<const char*,PndSdsStripClusterer*>::iterator it = fClusterFinderList.begin(); it != fClusterFinderList.end(); it++){
+    if(0 != it->second) delete it->second;
+    it->second = 0;
+  }  
   
   fCurrentChargeConverter=0;
   fCurrentStripCalcTop=0;
@@ -109,6 +145,9 @@ void PndSdsStripClusterTask::ClearCalculators()
 
 void PndSdsStripClusterTask::SetParContainers()
 {
+  if ( fGeoH == NULL ) {
+    fGeoH = PndGeoHandling::Instance();
+  }
 	return;
 }
 
@@ -145,6 +184,7 @@ void PndSdsStripClusterTask::SetCalculators()
   } 
   fChargeAlgos = new PndSdsChargeWeightingAlgorithms(fDigiArray);
   fChargeAlgos->SetVerbose(fVerbose);
+
 } 
 
 // -----   Public method Init   --------------------------------------------
@@ -427,7 +467,8 @@ void PndSdsStripClusterTask::Exec(Option_t* opt)
           tmphit->SetCov(hitCov);
           tmphit->SetTimeStamp(timestamp);
           tmphit->SetTimeStampError(timestampError);
-          if (fVerbose > 1) tmphit->Print();
+	  if (fVerbose > 1) 
+	    tmphit->Print();
         } else
           if (fVerbose > 2) std::cout<<"Strip charge contents too different"<<std::endl;
       }// loop bot clusters

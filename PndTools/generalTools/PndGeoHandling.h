@@ -46,6 +46,7 @@ public:
   
 	/// PndGeoHandling::Instance() has to be called the first time in the constructor of a task
 	/// otherwise the Sensor names are not available from the database
+  PndGeoHandling(); ///< default constructor. Has to be called in SetParContainers if the support of shortId is needed.
 	static PndGeoHandling* Instance();
   
 	static void Destroy(){
@@ -153,19 +154,20 @@ public:
   void GetGeoManager();
   void GetSensorNamePar();
   void InitRuntimeDb(TString parFileName);
+
+  virtual InitStatus ReInit() {fGeoMan =0;fGeoMan=gGeoManager;return kSUCCESS;}
   
-private:
+ private:
   static PndGeoHandling* fInstance;
-  PndGeoHandling(); ///< default constructor. Has to be called in SetParContainers if the support of shortId is needed.
   PndGeoHandling(PndGeoHandling& gh){
-	  fGeoMan = gh.fGeoMan;
-	  fSensorNamePar = gh.fSensorNamePar;
-	  fRtdb = gh.fRtdb;
-	  fLevelNames = gh.fLevelNames;
-	  fLevel = gh.fLevel;
-	  fFullPath = gh.fFullPath;
-	  fVerbose = gh.fVerbose;
-	  fRunId = gh.fRunId;
+    fGeoMan = gh.fGeoMan;
+    fSensorNamePar = gh.fSensorNamePar;
+    fRtdb = gh.fRtdb;
+    fLevelNames = gh.fLevelNames;
+    fLevel = gh.fLevel;
+    fFullPath = gh.fFullPath;
+    fVerbose = gh.fVerbose;
+    fRunId = gh.fRunId;
   }
   
   void DiveDownToFillSensNamePar(std::vector<std::string> listOfSensitives);

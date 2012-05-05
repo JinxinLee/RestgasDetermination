@@ -38,8 +38,21 @@ PndSdsTask("SDS Strip Digi Producer(PndSdsStripHitProducer)"), fDataBuffer(0), f
   fDigiParameterList = new TList();
   fChargeDigiParameterList = new TList();
   fPersistance = kTRUE;
-  fGeoH = PndGeoHandling::Instance();
+  fGeoH = NULL;//PndGeoHandling::Instance();
   fTimeOrderedDigi = kFALSE;
+
+  fPointArray = NULL;
+  fStripArray = NULL;
+
+  fCurrentDigiPar = NULL;
+  fCurrentChargeConverter = NULL;
+
+//   fStripCalcTop = NULL;
+//   fStripCalcBot = NULL;
+//   fChargeConverter = NULL;
+  fCurrentStripCalcTop = NULL;
+  fCurrentStripCalcBot = NULL;
+
 }
 // -------------------------------------------------------------------------
 
@@ -51,8 +64,20 @@ PndSdsTask(name), fDataBuffer(0), fEventNr(0)
   fDigiParameterList = new TList();
   fChargeDigiParameterList = new TList();
   fPersistance = kTRUE;
-  fGeoH = PndGeoHandling::Instance();
+  fGeoH = NULL;//PndGeoHandling::Instance();
   fTimeOrderedDigi = kFALSE;
+
+  fPointArray = NULL;
+  fStripArray = NULL;
+
+  fCurrentDigiPar = NULL;
+  fCurrentChargeConverter = NULL;
+
+//   fStripCalcTop = NULL;
+//   fStripCalcBot = NULL;
+//   fChargeConverter = NULL;
+  fCurrentStripCalcTop = NULL;
+  fCurrentStripCalcBot = NULL;
 }
 // -------------------------------------------------------------------------
 
@@ -117,6 +142,9 @@ void PndSdsStripHitProducer::SetCalculators()
 
 void PndSdsStripHitProducer::SetParContainers()
 {
+  if ( fGeoH == NULL )
+    fGeoH = PndGeoHandling::Instance();
+
   if(fVerbose>1) Info("SetParContainers","done.");
 	return;
 }
@@ -180,6 +208,7 @@ void PndSdsStripHitProducer::Exec(Option_t* opt)
   for (std::map<const char*,PndSdsChargeConversion*>::iterator it = fChargeConverter.begin(); it != fChargeConverter.end(); it++){
 	  it->second->StartExecute();
   }
+
   // Declare some variables
   PndSdsMCPoint *point = NULL;
   
@@ -247,7 +276,7 @@ void PndSdsStripHitProducer::Exec(Option_t* opt)
             		fCurrentStripCalcTop->CalcFEfromStrip(kit->GetIndex()),
             		fCurrentStripCalcTop->CalcChannelfromStrip(kit->GetIndex()),kit->GetCharge());
 
-        if (fVerbose > 1); std::cout << *kit << std::endl;
+	  if (fVerbose > 1) std::cout <<  *kit << std::endl;
 
       }
     }else if(fVerbose>2) std::cout<<"Top side empty"<<std::endl;

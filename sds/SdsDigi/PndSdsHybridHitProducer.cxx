@@ -44,6 +44,25 @@ PndSdsTask("SDS Hybrid Hit Producer")
   fDigiPixelMCInfo = kFALSE;
   fTimeOrderedDigi = kFALSE;
   //fFEModel = NULL;
+
+  fPointArray   = NULL;
+  fPixelArray   = NULL;
+  fPixelMCArray = NULL;
+
+  fDigiPar = NULL;
+  fTotDigiPar = NULL;
+  fChargeConverter = NULL;
+  fMCEventHeader = NULL;
+  fDataBuffer = NULL;
+
+  flx = 0.;	//pixel width in x;
+  fly = 0.;	//pixel width in y;
+  fthreshold = 0.; //pixel threshold in electrons
+  fnoise = 0.; //pixel noise in electrons
+  fqsigma = 0.; //gaussian charge cloud spread
+  fcols = 0; //pixel columns in one FE
+  frows = 0; //pixel rows in one FE
+
 }
 // -------------------------------------------------------------------------
 
@@ -54,11 +73,30 @@ PndSdsTask(name)
   fEventNr = 0;
   fOverwriteParams = kFALSE;
   fPersistance = kTRUE;
-  fGeoH = PndGeoHandling::Instance();
+  fGeoH = NULL;//PndGeoHandling::Instance();
   fDigiPixelMCInfo = kFALSE;
   fTimeOrderedDigi = kFALSE;
   //fFEModel = NULL;
   if(fVerbose>0) Info("PndSdsHybridHitProducer","%s created, Parameters will be taken from RTDB",name);
+
+  fPointArray   = NULL;
+  fPixelArray   = NULL;
+  fPixelMCArray = NULL;
+
+  fDigiPar = NULL;
+  fTotDigiPar = NULL;
+  fChargeConverter = NULL;
+  fMCEventHeader = NULL;
+  fDataBuffer = NULL;
+
+  flx = 0.;	//pixel width in x;
+  fly = 0.;	//pixel width in y;
+  fthreshold = 0.; //pixel threshold in electrons
+  fnoise = 0.; //pixel noise in electrons
+  fqsigma = 0.; //gaussian charge cloud spread
+  fcols = 0; //pixel columns in one FE
+  frows = 0; //pixel rows in one FE
+
 }
 // -------------------------------------------------------------------------
 
@@ -77,10 +115,22 @@ PndSdsTask("SDS Hybrid Digi Producer (PndSdsHybridHitProducer)")
   fOverwriteParams = kTRUE;
   fPersistance = kTRUE;
   fDigiPixelMCInfo = kFALSE;
-  fGeoH = PndGeoHandling::Instance();
+  fGeoH = NULL;//PndGeoHandling::Instance();
   fTimeOrderedDigi = kFALSE;
   //fFEModel = NULL;
   if(fVerbose>0) Info("PndSdsHybridHitProducer","SDS Hybrid Digi Producer created, Parameters will be overwritten in RTDB");
+
+  fPointArray   = NULL;
+  fPixelArray   = NULL;
+  fPixelMCArray = NULL;
+
+  fDigiPar = NULL;
+  fTotDigiPar = NULL;
+  fChargeConverter = NULL;
+  fMCEventHeader = NULL;
+  fDataBuffer = NULL;
+
+  fqsigma = 0.; //gaussian charge cloud spread
 }
 // -------------------------------------------------------------------------
 
@@ -96,6 +146,9 @@ PndSdsHybridHitProducer::~PndSdsHybridHitProducer()
 // -----   Initialization  of Parameter Containers -------------------------
 void PndSdsHybridHitProducer::SetParContainers()
 {
+  if ( fGeoH == NULL )
+    fGeoH = PndGeoHandling::Instance();
+
   if( ! fDigiPar) Fatal("SetParContainers","No digitiztion parameters specified.");
   if(fVerbose>1) Info("SetParContainers","done.");
   return;

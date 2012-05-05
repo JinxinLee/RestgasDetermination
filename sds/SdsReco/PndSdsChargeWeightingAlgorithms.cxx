@@ -14,7 +14,7 @@
 //using namespace std;
 ClassImp(PndSdsChargeWeightingAlgorithms);
 
-PndSdsChargeWeightingAlgorithms::PndSdsChargeWeightingAlgorithms(TClonesArray* arr)
+PndSdsChargeWeightingAlgorithms::PndSdsChargeWeightingAlgorithms(TClonesArray* arr) : TObject()
 {
 	fDigiArray = arr;
   fNoise=0.;

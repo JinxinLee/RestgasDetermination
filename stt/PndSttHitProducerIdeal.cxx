@@ -43,6 +43,13 @@ PndSttHitProducerIdeal::PndSttHitProducerIdeal() :
   FairTask("Ideal STT Hit Producer") 
 { 
   fPersistence = kTRUE;
+  
+  fPointArray    = NULL;
+  fHitArray      = NULL;
+  fHitInfoArray  = NULL;
+  fTubeArray     = NULL;
+  
+  fSttParameters = 0;
 }
 // -------------------------------------------------------------------------
 
@@ -88,8 +95,8 @@ InitStatus PndSttHitProducerIdeal::Init()
   ioman->Register("STTHitInfo", "STT", fHitInfoArray, fPersistence);
 
   // CHECK added 
-  PndSttMapCreator *mapper = new PndSttMapCreator(fSttParameters);
-  fTubeArray = mapper->FillTubeArray();
+//   PndSttMapCreator *mapper = new PndSttMapCreator(fSttParameters);
+//   fTubeArray = mapper->FillTubeArray();
 
   cout << "-I- PndSttHitProducerIdeal: Intialisation successfull" << endl;
   return kSUCCESS;
@@ -105,6 +112,11 @@ void PndSttHitProducerIdeal::SetParContainers() {
 // -----   Public method Exec   --------------------------------------------
 void PndSttHitProducerIdeal::Exec(Option_t* opt) 
 {
+  if ( fTubeArray == NULL ) {
+    PndSttMapCreator *mapper = new PndSttMapCreator(fSttParameters);
+    fTubeArray = mapper->FillTubeArray();
+  }
+ 
   // Reset output array
   if ( ! fHitArray ) 
     Fatal("Exec", "No HitArray");
@@ -204,8 +216,9 @@ void PndSttHitProducerIdeal::Exec(Option_t* opt)
     }   // Loop over MCPoints
 
   // Event summary
-  cout << "-I- PndSttHitProducerIdeal: " << nPoints << " SttPoints, "
-       << nPoints << " Hits created." << endl;
+  if ( fVerbose > 1) 
+   cout << "-I- PndSttHitProducerIdeal: " << nPoints << " SttPoints, "
+        << nPoints << " Hits created." << endl;
 
 }
 // -------------------------------------------------------------------------

@@ -26,7 +26,19 @@ PndSdsNoiseProducer::PndSdsNoiseProducer() :
 PndSdsTask("Charge Noise Producer"), fIonizationEnergy(1.)
 {
   fPersistance = kTRUE;
-  fGeoH = PndGeoHandling::Instance();
+  fGeoH = NULL;//PndGeoHandling::Instance();
+
+  fBranchNameStrip = "";
+  fBranchNamePixel = "";
+  fDigiStripArray = NULL;
+  fDigiPixelArray = NULL;
+  
+  fDigiParRect = NULL;
+  fDigiParTrap = NULL;
+  fDigiParPix = NULL;
+  
+  fNoiseSpread = 0;
+  fThreshold = 0;
 }
 // -------------------------------------------------------------------------
 
@@ -143,6 +155,9 @@ void PndSdsNoiseProducer::DiveDownNode(TGeoNode *nodeMother){
 // -------------------------------------------------------------------------
 void PndSdsNoiseProducer::SetParContainers()
 {
+  if ( fGeoH == NULL )
+    fGeoH = PndGeoHandling::Instance();
+
   // Get Base Container
   FairRun* ana = FairRun::Instance();
   FairRuntimeDb* rtdb=ana->GetRuntimeDb();

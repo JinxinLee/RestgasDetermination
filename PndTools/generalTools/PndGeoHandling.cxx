@@ -46,8 +46,28 @@ PndGeoHandling::PndGeoHandling():fVerbose(0),fRunId(-1)
   if(fInstance) return;
   fInstance = this;
   FairRun* run = FairRun::Instance();
-	if (!run) Fatal("PndGeoHandling","No FairRun object found. If used in a macro take another constructor.");
-  run->AddTask((FairTask*)this);
+// 	if (!run) Fatal("PndGeoHandling","No FairRun object found. If used in a macro take another constructor.");
+//   run->AddTask((FairTask*)this);
+  if (run) {
+    this->SetName("PndGeoHandling");
+    this->SetTitle("FairTask");
+    run->AddTask((FairTask*)this);
+  }
+  else {
+    std::cout << "PndGeoHandling. No FairRun object found. If used in a macro take another constructor." << std::endl;
+  }
+
+  fGeoMan = NULL;
+  fSensorNamePar = NULL;
+  fRtdb = NULL;
+  // static PndGeoHandling* fGeoHandlingInstance;
+  
+  //  fLevelNames = 0;
+  fLevel = 0;
+  fFullPath = true;
+  fVerbose = 0;
+  fRunId = 0;
+
 }
 
 void PndGeoHandling::SetParContainers()
@@ -85,6 +105,18 @@ PndGeoHandling::PndGeoHandling(TString mcFile, TString parFile):fVerbose(0), fRu
   
   
 	GetSensorNamePar();
+
+  fGeoMan = NULL;
+  fSensorNamePar = NULL;
+  fRtdb = NULL;
+  // static PndGeoHandling* fGeoHandlingInstance;
+  
+  //  fLevelNames = 0;
+  fLevel = 0;
+  fFullPath = true;
+  fVerbose = 0;
+  fRunId = 0;
+
 }
 
 PndGeoHandling::PndGeoHandling(Int_t runId, TString parFile):fVerbose(0)
@@ -103,6 +135,18 @@ PndGeoHandling::PndGeoHandling(Int_t runId, TString parFile):fVerbose(0)
 		fGeoMan = gGeoManager;
 	}
 	GetSensorNamePar();
+
+  fGeoMan = NULL;
+  fSensorNamePar = NULL;
+  fRtdb = NULL;
+  // static PndGeoHandling* fGeoHandlingInstance;
+  
+  //  fLevelNames = 0;
+  fLevel = 0;
+  fFullPath = true;
+  fVerbose = 0;
+  fRunId = 0;
+
 }
 
 Int_t PndGeoHandling::GetRunId(TString mcFile)

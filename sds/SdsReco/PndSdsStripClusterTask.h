@@ -108,9 +108,9 @@ class PndSdsStripClusterTask : public PndSdsTask
     PndSdsStripDigiPar* fCurrentDigiPar; 
     TList* fChargeDigiParameterList;
     //! Calculator objects 
-    std::map<const char*,PndSdsCalcStrip*> fStripCalcTop; 
-    std::map<const char*,PndSdsCalcStrip*> fStripCalcBot; 
-    std::map<const char*,PndSdsChargeConversion*> fChargeConverter;
+    std::map<const char*,PndSdsCalcStrip*> fStripCalcTop; //!
+    std::map<const char*,PndSdsCalcStrip*> fStripCalcBot; //!
+    std::map<const char*,PndSdsChargeConversion*> fChargeConverter; //!
     
     PndSdsCalcStrip* fCurrentStripCalcTop; 
     PndSdsCalcStrip* fCurrentStripCalcBot; 
@@ -120,9 +120,9 @@ class PndSdsStripClusterTask : public PndSdsTask
 	  
     PndGeoHandling* fGeoH;      //! Geometry name handling
     PndSdsStripClusterer* fCurrentClusterfinder;
-    std::map<const char*,PndSdsStripClusterer*> fClusterFinderList;
+    std::map<const char*,PndSdsStripClusterer*> fClusterFinderList; //!
     
-    BinaryFunctor* fFunctor;
+    BinaryFunctor* fFunctor; //!
 
     ClassDef(PndSdsStripClusterTask,2);
     

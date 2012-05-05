@@ -46,6 +46,7 @@ void tracks_BARREL_1000sep(char* type="proof", Int_t nofFiles = 1, TString proof
   FairRunAna *fRun= new FairRunAna(type,proofName.Data());
   fRun->SetOutputFile(outFile.Data());
   //  fRun->SetProofParName("$VMCWORKDIR/gconfig/libFairRoot3.par");
+  //  fRun->GetProof()->SetParameter("PROOF_PacketizerStrategy", (Int_t)0);
   
   fRun->SetInputFile(Form("file://%s/points_%dPart_n1000_f%d_sep.root",workDir.Data(),nparts,0));
   for ( Int_t ifile = 1 ; ifile < nofFiles ; ifile++ )
@@ -64,8 +65,9 @@ void tracks_BARREL_1000sep(char* type="proof", Int_t nofFiles = 1, TString proof
   for ( Int_t ifile = 0 ; ifile < nofFiles ; ifile++ )
     fnamelist->Add(new TObjString(Form("%s/params_%dPart_n1000_f%d_sep.root",workDir.Data(),nparts,ifile)));
 
-  //parInput1->open(parFile.Data());
+  //  parInput1->open(parFile.Data());
   parInput1->open(fnamelist);       
+  //parInput1->open(Form("%s/allParams_20120504_171441.root",workDir.Data()));
 
   FairParAsciiFileIo* parIo1 = new FairParAsciiFileIo();
   parIo1->open(allDigiFile.Data(),"in");
@@ -73,27 +75,27 @@ void tracks_BARREL_1000sep(char* type="proof", Int_t nofFiles = 1, TString proof
   rtdb->setFirstInput(parInput1);
   rtdb->setSecondInput(parIo1);
   // ------------------------------------------------------------------------
-
-  /*
+  
   // ##################################################################    MVD
   // -----   MDV digi producer   ----------------------------------------
   PndMvdDigiTask* mvddigi = new PndMvdDigiTask();
   mvddigi->SetVerbose(iVerbose);
   fRun->AddTask(mvddigi);
+  
   // -----   MDV cluster producer   -----------------------------------
   Double_t chargecut = 5000., pixelrad=1.8; // one day this will move to the parameter db.
   PndMvdClusterTask* mvdmccls = new PndMvdClusterTask();
   mvdmccls->SetVerbose(iVerbose);
   fRun->AddTask(mvdmccls);
-  
+    
   // ##################################################################   STT
   PndSttHitProducerIdeal* sttHitProducer = new PndSttHitProducerIdeal();
   // PndSttHitProducerRealFast* sttHitProducer = new PndSttHitProducerRealFast();
   fRun->AddTask(sttHitProducer);
-  */  
 
   // ##################################################################   GEM
   // -----   GEM digi producer   --------------------------------------
+    
   Int_t verboseLevel = 0;
   PndGemDigitize* gemDigitize = new PndGemDigitize("GEM Digitizer", verboseLevel);
   fRun->AddTask(gemDigitize);
@@ -106,12 +108,13 @@ void tracks_BARREL_1000sep(char* type="proof", Int_t nofFiles = 1, TString proof
   //fRun->AddTask(gemHitProducer);
   
   // ##################################################################
-  /*
+  
   PndBarrelTrackFinder* barrelTF = new PndBarrelTrackFinder();
   barrelTF->SetVerbose(0);
   barrelTF->UseMvdSttTpcGem(kTRUE,kTRUE,kFALSE,kTRUE);
   fRun->AddTask(barrelTF);
   
+  /*
   PndBarrelTrackFinderQA* barrelQA = new PndBarrelTrackFinderQA();
   barrelQA->SetVerbose(0);
   barrelQA->UseMvdSttTpcGem(kTRUE,kTRUE,kFALSE,kTRUE);
