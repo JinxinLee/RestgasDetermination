@@ -100,15 +100,24 @@
   fRun->AddTask(trackMC2);
  
   PndFtsTrackerIdeal* trackFts = new PndFtsTrackerIdeal();
-  trackFts->SetRelativeMomentumSmearing(0.01);
+  trackFts->SetRelativeMomentumSmearing(0.02);
   trackFts->SetVertexSmearing(0.02, 0.02, 0.02);
-  trackFts->SetTrackingEfficiency(0.95);
-  trackFts->SetTrackOutput("FTSTrkIdeal");
+  trackFts->SetTrackingEfficiency(1.);
+  trackFts->SetTrackOutput("FtsIdealTrack");
   fRun->AddTask(trackFts);
 
+  PndRecoKalmanTask* recoKalmanFwd = new PndRecoKalmanTask();
+  recoKalmanFwd->SetTrackInBranchName("FtsIdealTrack");
+  //recoKalmanFwd->SetTrackInIDBranchName("FtsIdealTrackID");
+  recoKalmanFwd->SetTrackOutBranchName("FtsIdealGenTrack");
+  recoKalmanFwd->SetBusyCut(50); // CHECK to be tuned
+  //recoKalmanFwd->SetIdealHyp(kTRUE);
+  //recoKalmanFwd->SetNumIterations(3);
+  fRun->AddTask(recoKalmanFwd);
+
   PndMCTrackAssociator* trackMC3 = new PndMCTrackAssociator();
-  trackMC3->SetTrackInBranchName("FTSTrkIdeal");
-  trackMC3->SetTrackOutBranchName("FTSTrkIdealID");
+  trackMC3->SetTrackInBranchName("FtsIdealGenTrack");
+  trackMC3->SetTrackOutBranchName("FtsIdealGenTrackID");
   fRun->AddTask(trackMC3);
  
   // -----   Intialise and run   --------------------------------------------

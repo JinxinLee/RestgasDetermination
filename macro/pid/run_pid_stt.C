@@ -50,8 +50,8 @@
   //corr->SetVerbose();
   corr->SetInputBranch("SttMvdGemGenTrack");
   corr->SetInputIDBranch("SttMvdGemGenTrackID");
-  corr->SetInputBranch2("FTSTrkIdeal");
-  corr->SetInputIDBranch2("FTSTrkIdealID");
+  corr->SetInputBranch2("FtsIdealGenTrack");
+  corr->SetInputIDBranch2("FtsIdealGenTrackID");
   //corr->SetDebugMode(kTRUE);
   //corr->SetFast(kTRUE);
   fRun->AddTask(corr);
