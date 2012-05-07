@@ -64,8 +64,8 @@ void runLumi2Reco(const int nEvents=1, const int startEvent=0, TString storePath
   rtdb->setFirstInput(parInput1);
 
   // alignment parameter file
-  TString alignparFile = "lumi.misalign.par";//mialignmented sensors!
-  // TString alignparFile = "lumi.align.par";//perfect!
+  //  TString alignparFile = "/data/FAIRsorf/pandaroot/trunk/macro/lmd/lumi.misalign.par";//mialignmented sensors!
+  TString alignparFile = "lumi.align.par";//perfect!
   FairParAsciiFileIo* parInput2 = new FairParAsciiFileIo();
   parInput2->open(alignparFile.Data(),"in");
   rtdb->setSecondInput(parInput2);
