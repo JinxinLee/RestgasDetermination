@@ -1,15 +1,10 @@
 #!/bin/bash      
-time root -l -b -q 'runLumi0SimBox.C(100,8.9)'
-#time root -l -b -q 'MCinfo.C(100,8.9)'
-#cp tmpOutput/Lumi_MC_0.root tmpOutput/Lumi_MC_pp_4Pi_copy.root 
-time root -l -b -q 'runLumi1Digi.C(100)'
-time root -l -b -q 'runLumi2Reco.C(100)'
-#time root -l -b -q 'runLumi3Finder.C(100,0,"tmpOutput", 0, "CA",false)'
-time root -l -b -q 'runLumi3Finder.C(100,0,"tmpOutput", 0, "Follow",true)'
-time root -l -b -q 'runLumi4Fitter.C(100)'
-#time root -l -b -q 'MC1stHitandRecLINTrkmatches.C(100)' >> logCA
-time root -l -b -q 'runLumi5Geane.C(100,8.9)'
-#time root -l -b -q 'MCandGEANTTrkmatchesBgk.C(1000,0,8.9)'
-#time root -l -b -q 'HitsInfoNEW.C(100)'
-time root -l -b -q 'MCandRECTrkmatches.C(100)'
+
+time root -l -b -q 'runLumi0SimBox.C(10000,15,"tmpOutput")'
+time root -l -b -q 'runLumi1Digi.C(10000,0,"tmpOutput")'
+time root -l -b -q 'runLumi2Reco.C(10000,0,"tmpOutput")'
+time root -l -b -q 'runLumi3Finder.C(10000,0,"tmpOutput", 0, "CA",true)'
+time root -l -b -q 'runLumi4Fitter.C(10000,0,"tmpOutput")'
+time root -l -b -q 'runLumi5Geane.C(10000,15,0,"tmpOutput")'
+
 exit
