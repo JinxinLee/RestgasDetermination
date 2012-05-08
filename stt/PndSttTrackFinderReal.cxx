@@ -6515,9 +6515,9 @@ if( FFimax - FFimin > nFidivConformal/2 ) {
 
 
 
-      if( FFimax > nRdivConformal/4 && Fimin < nRdivConformal/4 ) {
+      if( FFimax > nRdivConformal/4 && FFimin < nRdivConformal/4 ) {
         iFi0 =  (Short_t)  (nRdivConformal/4 );
-      } else if ( FFimax > 3*nRdivConformal/4 && Fimin < 3*nRdivConformal/4 ){
+      } else if ( FFimax > 3*nRdivConformal/4 && FFimin < 3*nRdivConformal/4 ){
         iFi0 =  (Short_t)  (3*nRdivConformal/4 );
       }  else {
                 cout <<"From PndSttTrackFinderReal::PndSttTrkAssociatedParallelHitsToHelixQuater  :"
