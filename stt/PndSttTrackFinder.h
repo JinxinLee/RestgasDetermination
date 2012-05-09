@@ -27,10 +27,7 @@ class PndSttTrackFinder : public TObject
  public:
 
   /** Default constructor **/
-  PndSttTrackFinder() { 
-    fVerbose = 0;
-    fHelixHitProduction = kFALSE;
-  }; 
+  PndSttTrackFinder() : fVerbose(0),  fHelixHitProduction(kFALSE) { }; 
 
 
   /** Destructor **/
@@ -54,9 +51,9 @@ class PndSttTrackFinder : public TObject
   /** Virtual method Finish. If needed, to be implemented in the concrete
    ** class. Executed at the end of the run.
    **/
-  virtual void Finish() { };
+  virtual void Finish() = 0;
 
-  virtual void AddHitCollection(TClonesArray* mHitArray, TClonesArray* mPointArray) { };
+  virtual void AddHitCollection(TClonesArray* mHitArray, TClonesArray* mPointArray) = 0;
 
   /** Set verbosity 
    *@param verbose   Verbosity level

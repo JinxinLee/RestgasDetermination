@@ -80,6 +80,8 @@ class PndSttTrackFinderReal : public PndSttTrackFinder
     return;
   };
 
+  void Finish() {};
+ 
 
  private:
 
