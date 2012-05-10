@@ -55,10 +55,11 @@ public:
   TVector3 getPosSeed() const {return fPosSeed;}
   TVector3 getDirSeed() const {return fDirSeed;}
   double getQoverPseed() const {return fQoverPseed;}
-
+  
+  UInt_t GetNHitsDet(UInt_t detId);
   std::vector<PndTrackCandHit>GetSortedHits();
   void Sort();
-
+  
   // Modifiers -----------------------
   void AddHit(UInt_t detId, UInt_t hitId, Double_t rho);
   void AddHit(TString branchName, UInt_t hitId, Double_t rho);

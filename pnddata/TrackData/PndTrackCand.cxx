@@ -81,6 +81,20 @@ void PndTrackCand::DeleteHit(UInt_t detId, UInt_t hitId)
 	//DeleteLink(det, hit);
 }
 
+UInt_t PndTrackCand::GetNHitsDet(UInt_t detId)
+{
+  // Function to count the number of hits from the same detId
+  Int_t detCounts = 0;
+  
+  for (Int_t ihit = 0; ihit<fHitId.size(); ihit++)
+    {
+      PndTrackCandHit candhit = GetSortedHit(ihit);
+      if (candhit.GetDetId() == detId) detCounts++;
+    }
+  
+  return detCounts;
+}
+
 void PndTrackCand::Sort()
 {
 	std::sort(fHitId.begin(), fHitId.end());
