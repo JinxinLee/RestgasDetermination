@@ -7,7 +7,7 @@ void reco_sttcombi(char inDigiFile [] = "digi_sttcombi.root",   //Input file Dig
   // ========================================================================
   // Verbosity level (0=quiet, 1=event level, 2=track level, 3=debug)
   Int_t iVerbose = 0;
-  
+    
   // Number of events to process
   Int_t nEvents = 0;
   
@@ -57,7 +57,9 @@ void reco_sttcombi(char inDigiFile [] = "digi_sttcombi.root",   //Input file Dig
   
   //  PndSttTrackFinderIdeal* sttTrackFinder = new PndSttTrackFinderIdeal(iVerbose);
   PndSttTrackFinderReal* sttTrackFinder = new PndSttTrackFinderReal(0);
-  PndSttFindTracks* sttFindTracks = new PndSttFindTracks("Track Finder", "FairTask", sttTrackFinder, iVerbose);
+  PndSttFindTracks* sttFindTracks = new PndSttFindTracks("Track Finder", "FairTask", 
+                                                         sttTrackFinder, iVerbose);
+
   sttFindTracks->AddHitCollectionName("STTHit", "STTPoint");
   //sttFindTracks->SetPersistence(kFALSE);
   fRun->AddTask(sttFindTracks);
@@ -66,11 +68,11 @@ void reco_sttcombi(char inDigiFile [] = "digi_sttcombi.root",   //Input file Dig
   //SttMvdTracking->Cleanup();
   SttMvdTracking->SetPersistence(kFALSE);
   fRun->AddTask(SttMvdTracking);
-
+  
   PndSttMvdGemTracking * SttMvdGemTracking = new PndSttMvdGemTracking(0);
   //SttMvdGemTracking->SetPdgFromMC();
   fRun->AddTask(SttMvdGemTracking);
-
+  
   PndMCTrackAssociator* trackMC = new PndMCTrackAssociator();
   trackMC->SetTrackInBranchName("SttMvdGemTrack");
   trackMC->SetTrackOutBranchName("SttMvdGemTrackID");
@@ -86,7 +88,7 @@ void reco_sttcombi(char inDigiFile [] = "digi_sttcombi.root",   //Input file Dig
   // recoKalman->SetParticleHypo("electron");
   // recoKalman->SetParticleHypo(11);
   fRun->AddTask(recoKalman);
-
+  
   //////////////////
   /*
     PndRecoMultiKalmanTask* recoKalman = new PndRecoMultiKalmanTask();
@@ -100,7 +102,16 @@ void reco_sttcombi(char inDigiFile [] = "digi_sttcombi.root",   //Input file Dig
   trackMC2->SetTrackInBranchName("SttMvdGemGenTrack"); 
   trackMC2->SetTrackOutBranchName("SttMvdGemGenTrackID");
   fRun->AddTask(trackMC2);
-  
+
+  // Correlator Task
+  //PndPidCorrelator* corr = new PndPidCorrelator();
+  //corr->SetVerbose();
+  //corr->SetInputBranch("SttMvdGemGenTrack");
+  //corr->SetInputIDBranch("SttMvdGemGenTrackID");
+  //corr->SetInputBranch2("FTSTrkIdeal");
+  //corr->SetInputIDBranch2("FTSTrkIdealID");
+  //fRun->AddTask(corr);
+
   // -----   Intialise and run   --------------------------------------------
   PndEmcMapper::Init(1);
   

@@ -5,7 +5,7 @@
  * License:                                   *
  * *******************************************
  */
-
+#pragma once
 #ifndef PND_MVA_TOOLS_H
 #define PND_MVA_TOOLS_H
 
@@ -60,8 +60,8 @@ struct ClassifierOutPuts
   {};
   
   // Copy Const
-ClassifierOutPuts(ClassifierOutPuts const& ot)
-: realLabel(ot.realLabel),
+  ClassifierOutPuts(ClassifierOutPuts const& ot)
+  : realLabel(ot.realLabel),
     givenLabel(ot.givenLabel),
     sgValue(ot.sgValue),
     bgValue(ot.bgValue),
@@ -72,17 +72,15 @@ ClassifierOutPuts(ClassifierOutPuts const& ot)
   ClassifierOutPuts& operator=(ClassifierOutPuts const& ot)
   {
     // check for self-assignment
-    if( this == &ot )
+    if( this != &ot )
     {
-      return *this;
+      // Copy (deep)
+      this->realLabel  = ot.realLabel;
+      this->givenLabel = ot.givenLabel;
+      this->sgValue    = ot.sgValue;
+      this->bgValue    = ot.bgValue;
+      this->mom        = ot.mom;
     }
-    // Copy (deep)
-    this->realLabel  = ot.realLabel;
-    this->givenLabel = ot.givenLabel;
-    this->sgValue    = ot.sgValue;
-    this->bgValue    = ot.bgValue;
-    this->mom        = ot.mom;
-
     return (*this);
   };
   
@@ -174,22 +172,21 @@ struct ROCPoints
   ROCPoints& operator=(ROCPoints const& ot)
   {
     // check for self-assignment
-    if(this == &ot)
+    if(this != &ot)
     {
-      return *this;
+      this->FP_rate = ot.FP_rate;
+      this->TP_rate = ot.TP_rate;
+      this->TN_rate = ot.TN_rate;
+      this->FN_rate = ot.FN_rate;
+      this->fp      = ot.fp;
+      this->tp      = ot.tp;
+      this->fn      = ot.fn;
+      this->tn      = ot.tn;
+      this->thr     = ot.thr;
     }
-    this->FP_rate = ot.FP_rate;
-    this->TP_rate = ot.TP_rate;
-    this->TN_rate = ot.TN_rate;
-    this->FN_rate = ot.FN_rate;
-    this->fp      = ot.fp;
-    this->tp      = ot.tp;
-    this->fn      = ot.fn;
-    this->tn      = ot.tn;
-    this->thr     = ot.thr;
     return (*this);
   };
-
+  
   // Variables
   float FP_rate;// False positief rate
   float TP_rate;// True positief rate

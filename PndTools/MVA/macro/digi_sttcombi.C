@@ -52,7 +52,7 @@ void digi_sttcombi(char inFile  [] = "points_sttcombi.root", //Input file (MC ev
    // -----   STT digi producers   --------------------------------- 
   PndSttHitProducerRealFast* sttHitProducer = new PndSttHitProducerRealFast();
   fRun->AddTask(sttHitProducer);
-   
+  
   // -----   MDV digi producers   --------------------------------- 
   PndMvdDigiTask* mvddigi = new PndMvdDigiTask();
   mvddigi->SetVerbose(iVerbose);
@@ -63,23 +63,27 @@ void digi_sttcombi(char inFile  [] = "points_sttcombi.root", //Input file (MC ev
   fRun->AddTask(mvdmccls);
 
   // -----   EMC hit producers   ---------------------------------
+
   PndEmcHitProducer* emcHitProd = new PndEmcHitProducer();
   emcHitProd->SetStorageOfData(kTRUE);
   fRun->AddTask(emcHitProd);  
-
-  // fast digitization
-  //PndEmcMakeDigi* emcMakeDigi=new PndEmcMakeDigi();
-  //fRun->AddTask(emcMakeDigi);
   
-  PndEmcHitsToWaveform* emcHitsToWaveform= new PndEmcHitsToWaveform(iVerbose);
-  PndEmcWaveformToDigi* emcWaveformToDigi= new PndEmcWaveformToDigi(iVerbose);
+  //PndEmcFullDigiTask* fdig = new PndEmcFullDigiTask(0,kTRUE);
+  //fdig->SetStorageOfData(kTRUE);
+  //fRun->AddTask(fdig);
+
+  //PndEmcMakeDigi* emcMakeDigi=new PndEmcMakeDigi();
+  //fRun->AddTask(emcMakeDigi); // fast digitization
+
+  PndEmcHitsToWaveform* emcHitsToWaveform = new PndEmcHitsToWaveform(iVerbose);
+  PndEmcWaveformToDigi* emcWaveformToDigi = new PndEmcWaveformToDigi(iVerbose);
 
   emcHitsToWaveform->SetStorageOfData(kTRUE);
   emcWaveformToDigi->SetStorageOfData(kTRUE);
-  
+    
   fRun->AddTask(emcHitsToWaveform);  // full digitization
   fRun->AddTask(emcWaveformToDigi);  // full digitization
-  
+
   PndEmcMakeCluster* emcMakeCluster= new PndEmcMakeCluster(iVerbose);
   emcMakeCluster->SetStorageOfData(kTRUE); 
   fRun->AddTask(emcMakeCluster);
@@ -88,12 +92,20 @@ void digi_sttcombi(char inFile  [] = "points_sttcombi.root", //Input file (MC ev
   emcMakeBump->SetStorageOfData(kTRUE);
   fRun->AddTask(emcMakeBump);
 
+  PndEmcHdrFiller* emcHdrFiller = new PndEmcHdrFiller();
+  fRun->AddTask(emcHdrFiller); // ECM header
+
   PndEmcMakeRecoHit* emcMakeRecoHit= new PndEmcMakeRecoHit();
   emcMakeRecoHit->SetStorageOfData(kTRUE);
   fRun->AddTask(emcMakeRecoHit);
-
-  PndEmcHdrFiller* emcHdrFiller = new PndEmcHdrFiller();
-  fRun->AddTask(emcHdrFiller); // ECM header
+  
+  PndEmcExpClusterSplitter* clspl = new PndEmcExpClusterSplitter();
+  clspl->SetStorageOfData(kTRUE);
+  fRun->AddTask(clspl);
+  
+  PndEmc2DLocMaxFinder* localMaxF = new PndEmc2DLocMaxFinder();
+  localMaxF->SetStorageOfData(kTRUE);
+  fRun->AddTask(localMaxF);
   
   // -----   MDT hit producers   ---------------------------------
   PndMdtHitProducerIdeal* mdtHitProd = new PndMdtHitProducerIdeal();
@@ -116,12 +128,12 @@ void digi_sttcombi(char inFile  [] = "points_sttcombi.root", //Input file (MC ev
   PndGemFindHits* gemFindHits = new PndGemFindHits("GEM Hit Finder", verboseLevel);
   fRun->AddTask(gemFindHits);
 
-   // -----   FTS hit producers   ---------------------------------
+  // -----   FTS hit producers   ---------------------------------
   PndFtsHitProducerRealFast* ftsHitProducer = new PndFtsHitProducerRealFast();
   //PndFtsHitProducerIdeal* ftsHitProducer = new PndFtsHitProducerIdeal();
   //PndFtsHitProducerRealFull* ftsHitProducer = new PndFtsHitProducerRealFull();
   fRun->AddTask(ftsHitProducer);
-
+  
   // -----   Intialise and run   --------------------------------------------
   fRun->Init();
   fRun->Run(0, nEvents);

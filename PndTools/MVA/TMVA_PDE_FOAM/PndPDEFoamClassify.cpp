@@ -1,3 +1,11 @@
+/* ***************************************
+ * PDEFoam  Classifier                   *
+ * Author: M.Babai@rug.nl                *
+ * LICENSE:                              *
+ * Version: 0.1 beta1.                   *
+ * License:                              *
+ * ***************************************
+ */
 #include "PndPDEFoamClassify.h"
 
 using namespace std;

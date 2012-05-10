@@ -6,6 +6,7 @@
  * License:                                   *
  * *******************************************
  */
+#pragma once
 #ifndef PND_MVA_VARIABLE_H
 #define PND_MVA_VARIABLE_H
 
@@ -76,18 +77,17 @@ inline PndMvaVariable::PndMvaVariable(PndMvaVariable const& oth)
 {};
 
 //! Assignment operator
-inline PndMvaVariable& PndMvaVariable::operator=(PndMvaVariable const &oth)
+inline PndMvaVariable& PndMvaVariable::operator=(PndMvaVariable const& oth)
 {
   // check for self-assignment
-  if (this == &oth)
-  {
-    return *this;
+  if (this != &oth)
+  {// Not equal, thus deep copy
+    this->Name       = oth.Name;
+    this->NormFactor = oth.NormFactor;
+    this->Mean       = oth.Mean;
+    this->Min        = oth.Min;
+    this->Max        = oth.Max;
   }
-  this->Name = oth.Name;
-  this->NormFactor = oth.NormFactor;
-  this->Mean = oth.Mean;
-  this->Min  = oth.Min;
-  this->Max  = oth.Max;
   return (*this);
 }// End of interface definition.
 #endif

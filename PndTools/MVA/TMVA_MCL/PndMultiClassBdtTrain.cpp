@@ -39,11 +39,13 @@ PndMultiClassBdtTrain::~PndMultiClassBdtTrain()
   {
     EvalFile->Close();
     delete EvalFile;
+    EvalFile = 0;
   }
 
   if(m_factory)
   {
     delete m_factory;
+    m_factory = 0;
   }
 
 }

@@ -14,6 +14,7 @@
  ******* VERY IMORTANT ****
  * You NEED TMVA version > 4.1.X before this works.
  */
+#pragma once
 #ifndef PND_MULTICLASS_BDT_CLASSIFY_H
 #define PND_MULTICLASS_BDT_CLASSIFY_H
 
@@ -40,7 +41,7 @@ class PndMultiClassBdtClassify : public PndMvaClassifier
   /**
    * Destructor.
    */
-  ~PndMultiClassBdtClassify();
+  virtual ~PndMultiClassBdtClassify();
   
   /**
    *@param EvtData The event to be classified.

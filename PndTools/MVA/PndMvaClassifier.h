@@ -6,6 +6,7 @@
  * License:                                     *
  * **********************************************
  */
+#pragma once
 #ifndef PND_MVA_CLASSIFIER_H
 #define PND_MVA_CLASSIFIER_H
 
@@ -21,8 +22,6 @@
 // PND PID includes.
 #include "PndMvaDataSet.h"
 #include "PndMvaUtil.h"
-
-// PANDA And ROOT includes
 
 /**
  * Main interface definition.

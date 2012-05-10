@@ -23,6 +23,7 @@
 #include "PndEmcMapper.h"
 #include "PndEmcPoint.h"
 #include "PndEmcCluster.h"
+#include "PndEmcBump.h"
 #include "PndEmcXClMoments.h"
 #include "PndEmcStructure.h"
 #include "PndTrack.h"
@@ -31,6 +32,7 @@
 #include "FairRuntimeDb.h"
 #include "FairParRootFileIo.h"
 #include "PndEmcGeoPar.h"
+#include "PndEmcClusterEnergySums.h"
 
 // 11 = e-
 void selectEvents(int pdg,

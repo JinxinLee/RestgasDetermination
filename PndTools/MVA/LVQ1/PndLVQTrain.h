@@ -5,6 +5,7 @@
  * LICENSE:                              *
  * ***************************************
  */
+#pragma once
 #ifndef PND_LVQ_TRAIN_H
 #define PND_LVQ_TRAIN_H
 
@@ -21,8 +22,7 @@
 // ____________________________________
 
 //! How to initialize LVQ code books.
-typedef enum
-{
+typedef enum ProtoInitType{
   RAND_FROM_DATA = 0,  // Select randomly from data vector.
   CCM_PR         = 1,  // Random init around Class Conditional Mean.
   KMEANS_PR      = 10, // Init using K-Means clustering.

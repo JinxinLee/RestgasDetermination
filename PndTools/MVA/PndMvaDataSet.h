@@ -4,6 +4,7 @@
  * License:                            *
  * Version:                            *
  ***************************************/
+#pragma once
 #ifndef PND_MVA_DATASET_H
 #define PND_MVA_DATASET_H
 
@@ -34,7 +35,7 @@
 
 // ========================================================================
 // Application type
-typedef enum {
+typedef enum AppType{
   UNKAPP        = 0,
   TRAIN         = 1, // Training algorithm.
   CLASSIFY      = 2, // Read weights to do classification.
@@ -44,7 +45,7 @@ typedef enum {
 } AppType;
 
 // Normalization schemes
-typedef enum {
+typedef enum NormType{
   NONORM  = 0, // Do nothing
   VARX    = 1, // Use Sample variance
   MINMAX  = 2, // Use Sample Min and Max

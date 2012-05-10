@@ -26,14 +26,19 @@ void selectEvents(int pdg,
   
   // Selected Zernike moments and LATeral energydeposition
   float z20, z53, latEdep;
+
   int numClus, numCrys, numBumps;
   
-  MCmom = mom = emc = emcOld = z20 = z53 = 0.00;
+  // Selected cluster properties.
+  float E1, E9, E25, E1E9, E9E25;
+
+  MCmom = mom = emc = emcOld = z20 = z53 = 0.0;
+  E1 = E9 = E25 = E1E9 = E9E25 = 0.0;
   numClus = numCrys = numBumps = 0;
   
   // N-Tuple to store the variables.
   TNtuple EmcNtp (partName.c_str(), partName.c_str(),
-		  "MCp:p:emc:emcOld:lat:z20:z53:numClus:numCrys:numBumps");
+		  "MCp:p:emc:emcOld:lat:z20:z53:numClus:numCrys:numBumps:E1:E9:E25:E1E9:E9E25");
 
   // Open Simulation file
   TFile sF(simFile.c_str());
@@ -59,13 +64,17 @@ void selectEvents(int pdg,
   
   FairRuntimeDb* rtdb = fRun->GetRuntimeDb();
   FairParRootFileIo* parInput1 = new FairParRootFileIo();
+
   parInput1->open(paramFile.c_str());
   rtdb->setFirstInput(parInput1);
   
   PndEmcGeoPar *geoPar = (PndEmcGeoPar*) rtdb->getContainer("PndEmcGeoPar");
   fRun->Init();
+  
   geoPar->InitEmcMapper();
-  PndEmcMapper::Init(6);
+
+  PndEmcMapper::Init(1);
+  
   ////////////////////////////
   
   // Open Digi file
@@ -74,10 +83,18 @@ void selectEvents(int pdg,
   // Digi tree
   TTree* digiTr = (TTree *) digiF.Get("cbmsim");
   
+  // Digi Array
+  TClonesArray* digi_arr = new TClonesArray("PndEmcDigi");
+  digiTr->SetBranchAddress("EmcDigi", &digi_arr);
+
   // CLusters Array
   TClonesArray* clusters_arr = new TClonesArray("PndEmcCluster");  
   digiTr->SetBranchAddress("EmcCluster", &clusters_arr);
-  
+
+  // Bumps Array
+  // TClonesArray* bumps_arr = new TClonesArray("PndEmcBump");  
+  // digiTr->SetBranchAddress("EmcBump", &bumps_arr);
+
   // Open Reco file
   TFile recoF(recoFile.c_str());
 
@@ -137,7 +154,9 @@ void selectEvents(int pdg,
     tsim->GetEntry(evid);
     digiTr->GetEntry(evid);
     RecoTr->GetEntry(evid);
-    
+
+    // Track for the primary particle. Other indices correspond to
+    // secondary ....
     PndTrack* tra = (PndTrack*) recTrakArr->At(0);
     
     if(tra)
@@ -145,7 +164,7 @@ void selectEvents(int pdg,
       // Charged or correct reconstructed.
       FairTrackParP par = tra->GetParamLast();
       
-      mom = par.GetMomentum().Mag();// Computed moment
+      mom = par.GetMomentum().Mag();// Computed (Reco.) moment
       MCmom = EvtIds[i].second;// MC moment
       
       std::cout << "Number of clusters = "
@@ -175,6 +194,11 @@ void selectEvents(int pdg,
       if( clIndex >= 0 )
       {
 	PndEmcCluster* HE_cluster = (PndEmcCluster*) clusters_arr->At(clIndex);
+
+	std::cout << " Number of involved digis = " << digi_arr->GetEntries()
+		  << '\n';
+		  
+	PndEmcClusterEnergySums Som ( (*HE_cluster), digi_arr);
 	
 	emcOld   = HE_cluster->energy();
 	emc      = HE_cluster->GetEnergyCorrected();
@@ -192,18 +216,30 @@ void selectEvents(int pdg,
 	//lat Edep
 	latEdep = HE_cluster->LatMom();
 	
+	E1    = Som.E1();
+	E9    = Som.E9();
+	E25   = Som.E25();
+	E1E9  = Som.E1E9();
+	E9E25 = Som.E9E25();
+
 	// Fill tree (NTuple)
 	// If something WENT wrong, during the fitting
 	if( tra->GetFlag() > 0 )
 	{
 	  EmcNtp.Fill(MCmom, mom, emc, emcOld,
 		      latEdep, z20, z53,
-		      numClus, numCrys, numBumps);
+		      numClus, numCrys, numBumps,
+		      E1, E9, E25, E1E9, E9E25);
 	  
-	  std::cout << "Selected Cluster index = "<< clIndex
+	  std::cout << " Cluster index = "<< clIndex
 		    << " emcOld = " << emcOld
 		    << " emc = "    << emc
 		    << " Track Flag = " << tra->GetFlag()
+		    << " E1  = "    << Som.E1()
+		    << " E9  = "    << Som.E9()
+		    << " E25 = "    << Som.E25()
+		    << " E1E9 = "   << Som.E1E9()
+		    << " E9E25 = "  << Som.E9E25()
 		    << '\n';
 	}// IF(tra->GetFlag() > 0)
       }// IF(clIndex >= 0)
@@ -221,7 +257,7 @@ void selectEvents(int pdg,
             << "\nNo decay = " << counts
             << "\nNo decay array size = " << EvtIds.size()
 	    << "\nIn Ntuple " << EmcNtp.GetEntriesFast()
-	    << "\nNumber of events in reco file = " << RecoTr->GetEntriesFast() 
+	    << "\nNumber of events in reco file = " << RecoTr->GetEntriesFast()
 	    << "\n========================================================\n";
   
   std::cout << "<INFO> Writing output to: " << outFileName << '\n';

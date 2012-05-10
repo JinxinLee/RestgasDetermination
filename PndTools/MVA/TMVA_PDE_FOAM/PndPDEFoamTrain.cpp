@@ -1,3 +1,11 @@
+/* ***************************************
+ * PDEFoam  Trainerer                    *
+ * Author: M.Babai@rug.nl                *
+ * LICENSE:                              *
+ * Version: 0.1 beta1.                   *
+ * License:                              *
+ * ***************************************
+ */
 #include "PndPDEFoamTrain.h"
 
 PndPDEFoamTrain::PndPDEFoamTrain(const std::string& inputFile,
@@ -14,6 +22,7 @@ PndPDEFoamTrain::~PndPDEFoamTrain()
   std::cout << "Cleaning-up foam list." << std::endl;
   if(PseRan){
     delete PseRan;
+    PseRan = 0;
   }
   
   for(size_t i = 0; i < m_foams.size(); i++)

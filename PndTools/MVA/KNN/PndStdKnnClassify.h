@@ -10,6 +10,7 @@
  * Based on the straight KNN algorithm
  * Using a linear search data structure.
  */
+#pragma once
 #ifndef PND_STD_KNN_CLASSIFY_H
 #define PND_STD_KNN_CLASSIFY_H
 

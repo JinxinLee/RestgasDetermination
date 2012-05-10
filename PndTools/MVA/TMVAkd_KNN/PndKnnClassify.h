@@ -6,7 +6,7 @@
  * Modified:                          *
  *                                    *
  * ************************************/
-
+#pragma once
 #ifndef PND_KNN_CLASSIFY_H
 #define PND_KNN_CLASSIFY_H
 
@@ -115,5 +115,7 @@ inline void PndKnnClassify::SetKnn(size_t const N)
 };
 
 inline size_t PndKnnClassify::GetKnn()
-{ return m_knn; };
+{
+  return m_knn;
+};
 #endif

@@ -4,6 +4,7 @@
  * Version:                          *
  * License:                          *
  *************************************/
+#pragma once
 #ifndef PND_MVA_CLASS_H
 #define PND_MVA_CLASS_H
 
@@ -18,22 +19,22 @@ struct PndMvaClass
    *@Param name Class name.
    */
   explicit PndMvaClass(std::string const& name);
-
+  
   //! Destructor
   virtual ~PndMvaClass();
-
+  
   //! Copy constructor  
   PndMvaClass(PndMvaClass const& oth);
   
   //! = Operator
   PndMvaClass& operator=(PndMvaClass const& oth);
-
+  
   std::string Name;  /**< Name of the class.*/
   size_t NExamples;  /**< Number of examples available of the class.*/
   size_t StartIdx;   /**< Start index of events of this class.*/
   size_t EndIdx;     /**< End index of events of this class.*/
   size_t NTrainEx;  /**< Number of examples in the train set.*/
-
+  
 private:
   bool operator== (PndMvaClass const& oth) const;
   bool operator>  (PndMvaClass const& oth) const;
@@ -44,7 +45,7 @@ private:
 /**
  * Constructor implementation.
  *@Param name Class name.
-*/
+ */
 inline PndMvaClass::PndMvaClass(std::string const& name)
 		   : Name(name), NExamples(0),
 		   StartIdx(0), EndIdx(0), NTrainEx(0)
@@ -61,16 +62,14 @@ inline PndMvaClass::PndMvaClass(PndMvaClass const& oth)
 inline PndMvaClass& PndMvaClass::operator=(PndMvaClass const& oth)
 {
   // check for self-assignment
-  if (this == &oth)
+  if (this != &oth)// Not self-assign
   {
-    return *this;
-  }
-  this->Name = oth.Name;
-  this->NExamples = oth.NExamples;
-  this->StartIdx = oth.StartIdx;
-  this->EndIdx = oth.EndIdx;
-  this->NTrainEx = oth.NTrainEx;
-
+    this->Name = oth.Name;
+    this->NExamples = oth.NExamples;
+    this->StartIdx = oth.StartIdx;
+    this->EndIdx = oth.EndIdx;
+    this->NTrainEx = oth.NTrainEx;
+  }  
   return (*this);
 };
 

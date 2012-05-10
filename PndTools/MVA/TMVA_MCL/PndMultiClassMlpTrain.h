@@ -14,6 +14,7 @@
  ******* VERY IMORTANT ****
  * You NEED TMVA version > 4.1.X before this works.
  */
+#pragma once
 #ifndef PND_MULTICLASS_MLP_TRAIN_H
 #define PND_MULTICLASS_MLP_TRAIN_H
 
@@ -44,7 +45,7 @@ class PndMultiClassMlpTrain : public PndMvaTrainer
   /**
    * Destructor.
    */
-  ~PndMultiClassMlpTrain();
+  virtual ~PndMultiClassMlpTrain();
   
   /**
    * Train the classifier.

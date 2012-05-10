@@ -5,6 +5,7 @@
  * License:                                   *
  * *******************************************
  */
+#pragma once
 #ifndef PND_MVA_UTIL_H
 #define PND_MVA_UTIL_H
 
@@ -21,8 +22,8 @@
 struct StepError
 {
   //! Constructor
-StepError()
-: m_step(0), m_trErr(0.0), m_tsErr(0.0)
+  StepError()
+  : m_step(0), m_trErr(0.0), m_tsErr(0.0)
   {};
   
   /**
@@ -46,8 +47,8 @@ StepError()
   {};
   
   //! Copy!
-StepError(StepError const& ot)
-: m_step(ot.m_step), m_trErr(ot.m_trErr), m_tsErr(ot.m_tsErr),
+  StepError(StepError const& ot)
+  : m_step(ot.m_step), m_trErr(ot.m_trErr), m_tsErr(ot.m_tsErr),
     m_MisClsTest (ot.m_MisClsTest),
     m_MisClsTrain(ot.m_MisClsTrain)
   {};
@@ -56,16 +57,14 @@ StepError(StepError const& ot)
   StepError& operator=(StepError const& ot)
   {
     // check for self-assignment
-    if (this == &ot)
-    {
-      return *this;
+    if (this != &ot)
+    {// Not equal, thus deep copy
+      this->m_step  = ot.m_step;
+      this->m_trErr = ot.m_trErr;
+      this->m_tsErr = ot.m_tsErr;
+      this->m_MisClsTest  = ot.m_MisClsTest;
+      this->m_MisClsTrain = ot.m_MisClsTrain;
     }
-    this->m_step  = ot.m_step;
-    this->m_trErr = ot.m_trErr;
-    this->m_tsErr = ot.m_tsErr;
-    this->m_MisClsTest  = ot.m_MisClsTest;
-    this->m_MisClsTrain = ot.m_MisClsTrain;
-
     return (*this);
   };
   
@@ -112,15 +111,12 @@ struct PndMvaDistObj
   PndMvaDistObj& operator=(PndMvaDistObj const& ot)
   {
     // check for self-assignment
-    if (this == &ot)
-    {
-      return *this;
+    if (this != &ot)
+    {// Not equal, thus deep copy
+      this->m_idx  = ot.m_idx;
+      this->m_dist = ot.m_dist;
+      this->m_cls  = ot.m_cls;
     }
-    
-    this->m_idx  = ot.m_idx;
-    this->m_dist = ot.m_dist;
-    this->m_cls  = ot.m_cls;
-    
     return (*this);
   };
 

@@ -31,8 +31,8 @@ PndMultiClassMlpClassify::~PndMultiClassMlpClassify()
   if(m_reader)
   {
     delete m_reader;
+    m_reader = 0;
   }
-  //m_EventContainer.clear();
 }
 
 /*

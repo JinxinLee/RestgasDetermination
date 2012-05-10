@@ -22,7 +22,9 @@ using namespace std;
 PndKnnClassify::PndKnnClassify(string const& inputFile,
 			       vector<string> const& classNames, 
 			       vector<string> const& varNames)
-  : PndMvaClassifier(inputFile, classNames, varNames)
+  : PndMvaClassifier(inputFile, classNames, varNames),
+    m_knn(0), m_ScaleFact(0.8), m_weight(1.0),
+    m_module(new TMVA::kNN::ModulekNN())
 {
   // Initialize the class indices map.
   for(size_t cls = 0; cls < classNames.size(); cls++)
@@ -30,12 +32,13 @@ PndKnnClassify::PndKnnClassify(string const& inputFile,
     m_classIndices.insert(make_pair(classNames[cls], cls));
   }
 
-  //Initialize TMVA KNN module (everything is done by this module.)
-  m_module = new TMVA::kNN::ModulekNN();
+  // Initialize TMVA KNN module (everything is done by this module.)
+  //m_module = new TMVA::kNN::ModulekNN();
 
   // Set the deafult value for scale factor
-  m_ScaleFact = 0.8;
-  m_knn = 0;
+  //m_ScaleFact = 0.8;
+  //m_knn = 0;
+  //m_weight = 1.0;
 }
 
 //! Destructor
@@ -45,6 +48,7 @@ PndKnnClassify::~PndKnnClassify()
   {
     m_module->Clear();
     delete m_module;
+    m_module = 0;
   }
 
   m_classIndices.clear();
@@ -220,7 +224,7 @@ void PndKnnClassify::GetMvaValues(std::vector<float> eventData,
     probSum += countsPerClass[cls];
   }
   // Now probSum = total number of events available in the current
-  // volume
+  // volume ( = K )
   
   for(size_t cls = 0; cls < classes.size(); cls++)
   {

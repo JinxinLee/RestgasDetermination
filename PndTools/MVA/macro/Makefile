@@ -2,7 +2,7 @@
 all: clean
 
 clean:
-	rm -f *~ *.o *.so *.d
+	rm -f *~ *.o *.so *.d inputlist logfile
 
-cleanall: clean
-	rm -f *.root gphysi.dat
+cleanall:
+	rm -f *~ *.o *.so *.d *.root gphysi.dat inputlist logfile

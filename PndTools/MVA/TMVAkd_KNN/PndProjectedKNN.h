@@ -6,6 +6,7 @@
  * Modified:                          *
  *                                    *
  * ************************************/
+#pragma once
 #ifndef PND_PROJECTED_KNN_H
 #define PND_PROJECTED_KNN_H
 

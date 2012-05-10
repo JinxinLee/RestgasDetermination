@@ -5,6 +5,7 @@
  * LICENSE:                              *
  * ***************************************
  */
+#pragma once
 #ifndef PND_MVA_CLUSTER_H
 #define PND_MVA_CLUSTER_H
 
@@ -23,10 +24,10 @@
 typedef std::vector < std::vector<float>* > ClDataSample;
 
 //! Clustering types
-typedef enum
-  { KMEANS_HARD = 0,
-    KMEANS_SOFT = 1// Not Implemented yet.
-  } ClusteringType;
+typedef enum ClusteringType{
+  KMEANS_HARD = 0,
+  KMEANS_SOFT = 1// Not Implemented yet.
+} ClusteringType;
 
 //---------------- Class definition --------------
 class PndMvaCluster

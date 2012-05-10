@@ -1,3 +1,10 @@
+/* ***************************************
+ * MultiClass MLP Classifier functions   *
+ * Author: M.Babai@rug.nl                *
+ * Version:                              *
+ * LICENSE:                              *
+ * ***************************************
+ */
 #include "PndMultiClassBdtClassify.h"
 
 
@@ -15,8 +22,8 @@ PndMultiClassBdtClassify::~PndMultiClassBdtClassify()
   if(m_reader)
   {
     delete m_reader;
+    m_reader = 0;
   }
-  //m_EventContainer.clear();
 }
 
 void PndMultiClassBdtClassify::GetMvaValues( std::vector<float> EvtData,
