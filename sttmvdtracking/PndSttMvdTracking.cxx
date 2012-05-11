@@ -4093,8 +4093,12 @@ if( istampa>=1 && nMCTracksaccettabili>0){
 		dis=sqrt( Oxx*Oxx+Oyy*Oyy );
 		if( dis < 1.e-20)  continue;
 		Ptras = R[ncand]*0.003*BFIELD;
-		Pxini = -CHARGE[ncand]*Ptras*Oyy/dis;
-		Pyini = CHARGE[ncand]*Ptras*Oxx/dis;
+
+//		Pxini = -CHARGE[ncand]*Ptras*Oyy/dis;
+//		Pyini = CHARGE[ncand]*Ptras*Oxx/dis;
+
+		Pxini = CHARGE[ncand]*Ptras*sin(FI0[ncand]);
+		Pyini = -CHARGE[ncand]*Ptras*cos(FI0[ncand]);
 
 //   starting point not necessarily at x=0., y=0.
 
