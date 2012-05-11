@@ -36,6 +36,7 @@ PndFtsTrackerIdeal::PndFtsTrackerIdeal():
   fMomSigma.SetXYZ(0.,0.,0.);
   fVtxSigma.SetXYZ(0.,0.,0.);
   SetTrackOutput();
+  for (int i=0;i<4;i++) fBranchActive[i]=kTRUE;
 }
 
 //_________________________________________________________________
@@ -150,6 +151,7 @@ void PndFtsTrackerIdeal::Exec(Option_t * option)
   std::map<Int_t, FairMCPoint*> lastPoint;
   std::map<Int_t, PndTrackCand*> candlist;
   for(Int_t iDet=0;iDet<4;iDet++){
+    if (kFALSE == fBranchActive[iDet]) continue; //skip manually switched off detector
     if(fVerbose>4) Info("Exec","Use detector %i",iDet);
     for (Int_t ih = 0; ih < fHits[iDet]->GetEntriesFast(); ih++) {
       ghit = (FairHit*) fHits[iDet]->At(ih);

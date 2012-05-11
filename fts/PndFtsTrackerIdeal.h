@@ -44,18 +44,23 @@ public:
   void SetVertexSmearing(Double_t sigmax = -1.,Double_t sigmay = -1.,Double_t sigmaz = -1.) { fVtxSigma.SetXYZ(fabs(sigmax),fabs(sigmay),fabs(sigmaz)); }; // in cm
   void SetTrackingEfficiency(Double_t eff = 1.) { fEfficiency=eff; };
   
+  void SetFtsActivity(Bool_t act=kTRUE){fBranchActive[0]=act;}
+  void SetGemActivity(Bool_t act=kTRUE){fBranchActive[1]=act;}
+  void SetMvdActivity(Bool_t act=kTRUE){fBranchActive[2]=act;fBranchActive[3]=act;}
+  
 protected:
   
   void SmearFWD(TVector3 &vec, const TVector3 &sigma); // smearing with doubled sigma in z direction
   
-  TClonesArray*  fMCTracks;     // Array of PndMCTrack
-  TClonesArray*  fMCPoints[4];  // Array of event's points
-  TClonesArray*  fHits[4];      // Array of event's hits
-  Int_t          fBranchIDs[4];  // Array of Branch IDs
+  TClonesArray*  fMCTracks;         //! Array of PndMCTrack
+  TClonesArray*  fMCPoints[4];      //! Array of event's points
+  TClonesArray*  fHits[4];          //! Array of event's hits
+  Int_t          fBranchIDs[4];     //! Array of Branch IDs
+  Bool_t         fBranchActive[4];  //! Array of Branch Activeness
   
-  TClonesArray  *fTrackCands;   // Array of found track candidates
-  TClonesArray  *fTracks;       // Array of found tracks
-  TClonesArray  *fTrackIds;     // Array of track IDs (Links)
+  TClonesArray  *fTrackCands;   //! Array of found track candidates
+  TClonesArray  *fTracks;       //! Array of found tracks
+  TClonesArray  *fTrackIds;     //! Array of track IDs (Links)
 
   // Parameters for fake tracking
   TVector3 fMomSigma;          // Momentum smearing sigma [GeV]
@@ -65,7 +70,7 @@ protected:
   Double_t fEfficiency;        // Tracking efficiency - if (0 <= e < 1), some tracks will be discarded
   
   TString fTracksArrayName;     // Branch name where to store the Track candidates
-  TDatabasePDG *pdg;            // Particle DB
+  TDatabasePDG *pdg;            //! Particle DB
   
   PndFtsTrackerIdeal(const  PndFtsTrackerIdeal& L);
   PndFtsTrackerIdeal& operator= (const  PndFtsTrackerIdeal&) {return *this;}
