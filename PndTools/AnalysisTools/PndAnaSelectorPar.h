@@ -17,8 +17,8 @@ class PndAnaSelectorPar : public FairParGenericSet
 		PndAnaSelectorPar (const char* name="PndAnaSelectorParName",
                         const char* title="Analysis pid Selectorr parameter",
                         const char* context="TestDefaultContext");
-		~PndAnaSelectorPar(void){};
-		void clear(void){};
+		~PndAnaSelectorPar(void){clear();};
+		void clear(void);
 		void putParams(FairParamList* list);
 		Bool_t getParams(FairParamList* list);
 		

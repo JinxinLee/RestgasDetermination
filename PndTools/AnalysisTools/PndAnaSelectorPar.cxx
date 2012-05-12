@@ -3,15 +3,23 @@
 #include "TMath.h"
 
 PndAnaSelectorPar::PndAnaSelectorPar(const char* name, const char* title, const char* context)
-: FairParGenericSet(name,title,context)
+: FairParGenericSet(name,title,context),
+fVeryLoose(5),
+fLoose(5),
+fTight(5),
+fVeryTight(5),
+fVariable(5)
 {
   clear();
-  
-  fVeryLoose.Set(5);
-  fLoose.Set(5);    
-  fTight.Set(5);    
-  fVeryTight.Set(5);
-  fVariable.Set(5);
+}
+
+void PndAnaSelectorPar::clear()
+{  
+  fVeryLoose.Reset();
+  fLoose.Reset();
+  fTight.Reset();
+  fVeryTight.Reset();
+  fVariable.Reset();
   
 }
 
@@ -29,6 +37,7 @@ void PndAnaSelectorPar::putParams(FairParamList* list)
 
 Bool_t PndAnaSelectorPar::getParams(FairParamList* list)
 {
+  // RTDB fills the values
   if (!list) return kFALSE;
   
   if (!list->fill("VeryLoose", &fVeryLoose)) return kFALSE;
