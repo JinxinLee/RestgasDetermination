@@ -15,12 +15,11 @@ fVariable(5)
 
 void PndAnaSelectorPar::clear()
 {  
-  fVeryLoose.Reset();
-  fLoose.Reset();
-  fTight.Reset();
-  fVeryTight.Reset();
-  fVariable.Reset();
-  
+  fVeryLoose.Reset(0.0);
+  fLoose.Reset(0.2);
+  fTight.Reset(0.5);
+  fVeryTight.Reset(0.9);
+  fVariable.Reset(0.0);
 }
 
 void PndAnaSelectorPar::putParams(FairParamList* list)
