@@ -54,6 +54,7 @@ using ROOT::Math::RotationZ;
 using ROOT::Math::Rotation3D;
 
 
+#include "PndDrcSurfAbs.h"
 #include "PndDrcPhoton.h"
 #include "PndDrcSurfPolyFlat.h"
 #include "PndDrcSurfQuadFlatDiff.h"
@@ -87,8 +88,8 @@ int main(int argc, char *argv[])
 
   //int ioption = 1; // parallel beam (0 deg)
   //int ioption = 2; // 0,  +- 20,  +-40 deg
-  int ioption = 3; // C-cone
-  //int ioption = 4; // random in front of lens.
+  //int ioption = 3; // C-cone
+  int ioption = 4; // random in front of lens.
   //int ioption = 5; // single photon for debugging.
   //int ioption = 6; // grid 5 deg
 
@@ -653,7 +654,7 @@ int main(int argc, char *argv[])
   // .x Geo.C 
   // .x Screen.C
   // 
-  //manager->Print(geo);
+  manager->Print(geo);
   
 
   //geo<<"}"<<endl;
@@ -718,7 +719,7 @@ int main(int argc, char *argv[])
   if (ioption==4)  
     {
       TRandom ran;
-      for (int ii=0; ii<30; ii++)
+      for (int ii=0; ii<10; ii++)
 	{
 	  ph.SetPosition(XYZPoint(0,0,dist-20));
 	  double phi =   ran.Uniform(0,2*pi);
@@ -862,37 +863,42 @@ int main(int argc, char *argv[])
 
 	  //cout<<" i,p,d="<<icnt_measured<<" "
 	  //<<(*iph).position()<<" "<<(*iph).direction()<<endl;
-
-	  if ((icnt_measured%2)==0)
+	  //--------------------
+	  list<const PndDrcSurfAbs*> list_surfaces = (*iph).SurfaceList();
+	  list<const PndDrcSurfAbs*>::iterator isurf;
+	  cout<<"---------"<<endl;
+	  for(isurf=list_surfaces.begin(); isurf != list_surfaces.end(); ++isurf) 
 	    {
-	      //cout<<icnt_measured<<endl;
-	      XYZPoint p1((*iph).Position());
-	      XYZVector d1((*iph).Direction());
-	      XYZPoint p2(ph_old.Position());
-	      XYZVector d2(ph_old.Direction());
-	      double d1x = d1.X();
-	      double d1z = d1.Z();
-	      double d2x = d2.X();
-	      double d2z = d2.Z();
-	      double p1x = p1.X();
-	      double p1z = p1.Z();
-	      double p2x = p2.X();
-	      //double p2z = p2.Z();
-
-
-	      double d = (d1x - d1z/d2z*d2x);
-	      double lam = (p2x-p1x)/d;
-	      //cout<<p1x<<" "<<p1z<<" "<<d1x<<" "<<d1z<<endl;
-	      //cout<<p2x<<" "<<p2z<<" "<<d2x<<" "<<d2z<<endl;
-	      
-	      //cout<<" "<<(p2x-p1x)<<" "<<d<<" "<<lam*d1z<<endl;
-	      cout<<" distz = "<<p1z+lam*d1z<<endl;
-	      //cout<<" distx = "<<p1x+lam*d1x<<endl;
-
-	      if (icnt_measured==2) dista = p1z+lam*d1z;
-	      if (icnt_measured==14) distb = p1z+lam*d1z;
-
+	      cout<<(*isurf)->Name()<<endl;  
 	    }
+	  //--------------------
+
+	  //--------------------
+	  list<double> list_posx = (*iph).PositionXlist();
+	  list<double> list_posy = (*iph).PositionYlist();
+	  list<double> list_posz = (*iph).PositionZlist();
+	  list<double>::iterator iposx;
+	  list<double>::iterator iposy;
+	  list<double>::iterator iposz;
+	  cout<<"---------"<<endl;
+	  for(
+	      iposx=list_posx.begin(),
+		iposy=list_posy.begin(),
+		iposz=list_posz.begin(); 
+	      iposx != list_posx.end(); 
+	      ++iposx,++iposy,++iposz) 
+	    {
+	      cout<<(*iposx)<<" "
+		  <<(*iposy)<<" "
+		  <<(*iposz)<<endl;  
+	    }
+	  //--------------------
+
+
+
+
+
+
 
 	  scr<<"    TMarker* t = new TMarker("<<x<<","<<y<<",20);"<<endl;
 	  scr<<"    t->SetMarkerStyle(7);"<<endl;

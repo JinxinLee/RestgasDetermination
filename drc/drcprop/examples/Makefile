@@ -23,8 +23,8 @@ OBJECTS = $(patsubst ../%.cxx,../%.o,$(wildcard ../*.cxx))
 DEBUG =
 #DEBUG = -g
 
-CFLAGS = -O2 -Wall $(DEBUG)
-#CFLAGS = -g -O0 -Wall
+#CFLAGS = -O2 -Wall $(DEBUG)
+CFLAGS = -g -O0 -Wall
 
 # shared library
 SOFLAGS = -shared -Wall $(DEBUG)
@@ -40,7 +40,7 @@ all:			test_simple_bar test_simple_bar2 test_simple_bar2a test_simple_bar2b test
 			test_top test_air_lens test_hook test_barrel1 test_barrel1a test_barrel2  \
 			test_barrel3 test_lens mppc test_system prototype test_cyl_lens \
 			test_simple_lens_sheet lib_DetEffi.so lib_KBarAnalysis.so test_coating \
-			test_barrel3_noairgap test_reco_simple
+			test_barrel3_noairgap test_reco_simple test_reco_full_generate_lut
 
 
 test_coating:		$(OBJECTS) test_coating.o
@@ -121,6 +121,8 @@ test_lens:		$(OBJECTS) test_lens.o
 test_reco_simple:	$(OBJECTS) test_reco_simple.o
 			g++ -o test_reco_simple test_reco_simple.o $(OBJECTS) $(LDLIBS)
 
+test_reco_full_generate_lut:	$(OBJECTS) test_reco_full_generate_lut.o
+			g++ -o test_reco_full_generate_lut test_reco_full_generate_lut.o $(OBJECTS) $(LDLIBS)
 
 mppc:			$(OBJECTS) mppc.o
 			g++ -o mppc mppc.o $(OBJECTS) $(LDLIBS)

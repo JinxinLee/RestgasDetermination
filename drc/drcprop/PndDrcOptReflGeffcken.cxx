@@ -18,6 +18,7 @@ using std::hex;
 #include "PndDrcOptMatLithotecQ0.h"
 #include "PndDrcOptMatTiO2.h"
 #include "PndDrcOptReflGeffcken.h"
+#include "PndDrcSurfAbs.h"
 #include "PndDrcPhoton.h"
 
 #include "matrix.h"

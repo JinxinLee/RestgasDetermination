@@ -66,6 +66,7 @@ using ROOT::Math::RotationZ;
 //========
 // drcprop
 //========
+#include "PndDrcSurfAbs.h"
 #include "PndDrcPhoton.h"
 #include "PndDrcSurfPolyFlat.h"
 #include "PndDrcSurfQuadFlatDiff.h"

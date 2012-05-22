@@ -159,6 +159,12 @@ class PndDrcPhoton
   */
   void SetPosition(const XYZPoint& pos){fPosition=pos;};
   
+
+  /*! \brief Surface list
+    \param surf Surface pointer to set.
+  */
+  void SetSurface1(const PndDrcSurfAbs* surf){fSurfaceList.push_back(surf);}
+  
   /*! \brief Position X list
     \return Position X list.
   */
@@ -174,6 +180,13 @@ class PndDrcPhoton
   */
   list<double>& PositionZlist(){return fPositionZlist;};
 
+
+  /*! \brief Surface list
+    \return Surface list.
+  */
+  list<const PndDrcSurfAbs*>& SurfaceList() {return fSurfaceList;};
+  
+  
   /*! \brief Direction
     \return Normalized direction.
   */
@@ -295,26 +308,27 @@ class PndDrcPhoton
 
   friend class PndDrcOptDevManager;
 
-
+  
  private:
-  int              fParticleIDnumber;              //!< Associated particle
-  double           fThetaC;                        //!< Cherenkov angle
-  double           fPhiC;                          //!< Cherenkov (polar) angle
-  double           fLambda;                        //!< Wavelength in nm.
-  XYZPoint         fPosition;                      //!< Actual position of photon.
-  XYZPoint         fPositionOld;                   //!< Old position of photon.
-  list<double>     fPositionXlist;                 //!< List of position X
-  list<double>     fPositionYlist;                 //!< List of position Y
-  list<double>     fPositionZlist;                 //!< List of position Z
-  XYZVector        fDirection;                     //!< Normalized direction of photon.
-  XYZVector        fOriginDirection;               //!< Normalized origin direction of photon.
-  Drc::kPhotonFate fFate;                          //!< The fate of the photon.
-  int              fReflections;                   //!< Number of suffered reflections.
-  int              fVerbosity;                     //!< Verbosity level 0-5.
-  PndDrcOptDev*    fDev;                           //!< Pointer to device where photon is.
-  double           fTime;                          //!< Time of flight.
-  int              fReflectionLimit;               //!< Reflection limit.
-  bool             fPrintFlag;                     //!< Print flag, by default true
+  int                  fParticleIDnumber;              //!< Associated particle
+  double               fThetaC;                        //!< Cherenkov angle
+  double               fPhiC;                          //!< Cherenkov (azimuthal) angle
+  double               fLambda;                        //!< Wavelength in nm.
+  XYZPoint             fPosition;                      //!< Actual position of photon.
+  XYZPoint             fPositionOld;                   //!< Old position of photon.
+  list<double>         fPositionXlist;                 //!< List of position X
+  list<double>         fPositionYlist;                 //!< List of position Y
+  list<double>         fPositionZlist;                 //!< List of position Z
+  list<const PndDrcSurfAbs*> fSurfaceList;                   //!< List of hit surface pointers.
+  XYZVector            fDirection;                     //!< Normalized direction of photon.
+  XYZVector            fOriginDirection;               //!< Normalized origin direction of photon.
+  Drc::kPhotonFate     fFate;                          //!< The fate of the photon.
+  int                  fReflections;                   //!< Number of suffered reflections.
+  int                  fVerbosity;                     //!< Verbosity level 0-5.
+  PndDrcOptDev*        fDev;                           //!< Pointer to device where photon is.
+  double               fTime;                          //!< Time of flight.
+  int                  fReflectionLimit;               //!< Reflection limit.
+  bool                 fPrintFlag;                     //!< Print flag, by default true
 
 
   /*! \brief Copy function for assigment and copy operator.

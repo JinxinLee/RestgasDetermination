@@ -4,6 +4,7 @@
 //
 // created 2007
 //-----------------------------------------------------
+#include "PndDrcSurfAbs.h"
 #include "PndDrcOptDevManager.h"
 #include "PndDrcPhoton.h"
 
@@ -52,6 +53,7 @@ void PndDrcPhoton::Copy(const PndDrcPhoton& ph)
   fPositionXlist    = ph.fPositionXlist;
   fPositionYlist    = ph.fPositionYlist;
   fPositionZlist    = ph.fPositionZlist;
+  fSurfaceList      = ph.fSurfaceList;
   fDirection        = ph.fDirection;
   fOriginDirection  = ph.fOriginDirection;
   fFate             = ph.fFate;
@@ -213,7 +215,7 @@ bool PndDrcPhoton::Refract(XYZVector normal,
 	}
       dir2 = dir2.Unit();
       SetDirection(dir2);
-      SetPosition1(Position() + 2*kEps*dir2); // bring it in new volume or outside.
+      SetPosition(Position() + 2*kEps*dir2); // bring it in new volume or outside.
       if (Verbosity()>=4)
 	{
 	  cout<<"     refraction, brought it inside to "

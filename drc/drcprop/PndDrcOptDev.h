@@ -16,6 +16,7 @@
 using std::list;
 using std::string;
 
+#include "PndDrcSurfAbs.h"
 #include "PndDrcPhoton.h"
 #include "Math/Transform3D.h"
 using ROOT::Math::Transform3D;
@@ -25,7 +26,7 @@ using ROOT::Math::Transform3D;
 //#include "Math/Point3D.h"
 //using ROOT::Math::XYZPoint;
 
-class PndDrcSurfAbs;
+//class PndDrcSurfAbs;
 class PndDrcOptMatAbs;
 
 class PndDrcOptDev

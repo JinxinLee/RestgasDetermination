@@ -6,6 +6,7 @@
 //-----------------------------------------------------
 #include "PndDrcOptReflSilver.h"
 
+#include "PndDrcSurfAbs.h"
 #include "PndDrcPhoton.h"
 //#include "PndDrcOptReflAbs.h"
 //

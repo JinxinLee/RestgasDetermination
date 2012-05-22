@@ -56,6 +56,7 @@ using ROOT::Math::RotationZ;
 #include "Math/Rotation3D.h"
 using ROOT::Math::Rotation3D;
 
+#include "PndDrcSurfAbs.h"
 #include "PndDrcEffiPerfect.h"
 #include "PndDrcPhoton.h"
 #include "PndDrcSurfPolyFlat.h"
