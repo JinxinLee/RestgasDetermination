@@ -55,9 +55,12 @@ using std::map;
 
 // -----   Default constructor   ------------------------------------------
 PndBarrelTrackFinder::PndBarrelTrackFinder() : FairTask("Barrel Track Finder", 1) {
-  for ( Int_t idet = 0 ; idet < 4 ; idet++ ) {
-    fIncludeDet[idet] = kFALSE;
-    fHitArray  [idet] = NULL;
+  for ( Int_t idet = 0 ; idet < 5 ; idet++ ) {
+    fIncludeDet  [idet] = kFALSE;
+    fHitArray    [idet] = NULL;
+    fDetName     [idet] = "";
+    fDetType     [idet] = 0;
+    fHitArrayName[idet] = "";
   }
   fBarrelTrackArray          = NULL;
   fBarrelTrackCandArray      = NULL;
@@ -80,7 +83,10 @@ PndBarrelTrackFinder::PndBarrelTrackFinder() : FairTask("Barrel Track Finder", 1
 
   fMaximalRadDiff = 0.1;
   fMaximalPhiDiff = 0.1;
-  
+
+  fTubeArray = NULL;
+  fSttParameters = NULL;
+ 
   Reset();
 }
 // -------------------------------------------------------------------------
@@ -90,9 +96,12 @@ PndBarrelTrackFinder::PndBarrelTrackFinder() : FairTask("Barrel Track Finder", 1
 // -----   Standard constructor   ------------------------------------------
 PndBarrelTrackFinder::PndBarrelTrackFinder(Int_t iVerbose) 
   : FairTask("Barrel Track Finder", iVerbose) { 
-  for ( Int_t idet = 0 ; idet < 4 ; idet++ ) {
+  for ( Int_t idet = 0 ; idet < 5 ; idet++ ) {
     fIncludeDet[idet] = kFALSE;
     fHitArray  [idet] = NULL;
+    fDetName     [idet] = "";
+    fDetType     [idet] = 0;
+    fHitArrayName[idet] = "";
   }
   fBarrelTrackArray          = NULL;
   fBarrelTrackCandArray      = NULL;
@@ -116,6 +125,9 @@ PndBarrelTrackFinder::PndBarrelTrackFinder(Int_t iVerbose)
   fMaximalRadDiff = 0.1;
   fMaximalPhiDiff = 0.1;
 
+  fTubeArray = NULL;
+  fSttParameters = NULL;
+ 
   Reset();
 }
 // -------------------------------------------------------------------------
@@ -125,9 +137,12 @@ PndBarrelTrackFinder::PndBarrelTrackFinder(Int_t iVerbose)
 // -----   Constructor with name   -----------------------------------------
 PndBarrelTrackFinder::PndBarrelTrackFinder(const char* name, Int_t iVerbose) 
   : FairTask(name, iVerbose) { 
-  for ( Int_t idet = 0 ; idet < 4 ; idet++ ) {
+  for ( Int_t idet = 0 ; idet < 5 ; idet++ ) {
     fIncludeDet[idet] = kFALSE;
     fHitArray  [idet] = NULL;
+    fDetName     [idet] = "";
+    fDetType     [idet] = 0;
+    fHitArrayName[idet] = "";
   }
   fBarrelTrackArray          = NULL;
   fBarrelTrackCandArray      = NULL;
@@ -150,6 +165,9 @@ PndBarrelTrackFinder::PndBarrelTrackFinder(const char* name, Int_t iVerbose)
   fMaximalRadDiff = 0.1;
   fMaximalPhiDiff = 0.1;
 
+  fTubeArray = NULL;
+  fSttParameters = NULL;
+ 
   Reset();
 }
 // -------------------------------------------------------------------------

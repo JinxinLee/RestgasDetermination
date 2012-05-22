@@ -144,7 +144,7 @@ class PndSdsStripHitProducer : public PndSdsTask
   
   Int_t DigitizeTime(Double_t time,Double_t charge);
 
-  FairMCEventHeader* fMcEventHeader;
+  FairMCEventHeader* fMcEventHeader; //!
 
   PndGeoHandling* fGeoH; 	//! ///< converter for detector names
   Bool_t fOverrideParams;   ///< internal Flag that controls use of Parameter Invocations

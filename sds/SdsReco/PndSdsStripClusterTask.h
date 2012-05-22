@@ -128,9 +128,9 @@ class PndSdsStripClusterTask : public PndSdsTask
     
   private:
 
-    TH1F* eta_rect;
-    TH1F* eta_trap;
-    TFile* etahistofile;
+    TH1F* eta_rect;//!
+    TH1F* eta_trap;//!
+    TFile* etahistofile;//!
 
   };
 
