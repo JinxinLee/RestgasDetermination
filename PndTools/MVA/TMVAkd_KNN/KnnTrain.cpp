@@ -46,7 +46,7 @@ int main(int argc, char** argv)
   vars.push_back("z53");
   
   // Create classifier object.
-  PndKnnTrain kNNtr ( inpt.c_str(), label, vars, true);
+  PndKnnTrain kNNtr ( inpt, label, vars, true);
   
   //NormType tt = VARX;
   //kNNtr.NormalizeData(VARX);
@@ -56,9 +56,12 @@ int main(int argc, char** argv)
   // Transform using PCA
   //kNNtr.PCATransForm();
   
+  // Set the size of the test set.
+  kNNtr.SetTestSetSize(0);
+
   // Set output file name
   kNNtr.SetOutPutFile(oupt);
-  
+
   // Init and set data structures
   kNNtr.Initialize();
   

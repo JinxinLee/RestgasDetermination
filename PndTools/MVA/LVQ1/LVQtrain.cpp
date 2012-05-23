@@ -38,6 +38,7 @@
 
 #if (DEBUGVQ_TRAIN_EXAMPLE > 0)
 // *************  DEBUG ONLY **********
+// Prints the given prototypes list.
 void printProto(std::vector< std::pair<std::string, std::vector<float>*> > const& dat)
 {
   std::cout << "==========================\n";
@@ -54,9 +55,8 @@ void printProto(std::vector< std::pair<std::string, std::vector<float>*> > const
   }
   std::cout << "==========================\n";
 }
-#endif
 
-#if (DEBUGVQ_TRAIN_EXAMPLE > 1)
+// Prints Error vector.
 void printErrors(PndLVQTrain const& tr)
 {
   // Note: Can produce large output on STDOUT.
@@ -131,15 +131,17 @@ int main(int argc, char** argv)
 
   //// Variable names
   std::vector<std::string> vars;
+  
+  vars.push_back("p");
   vars.push_back("emc");
   vars.push_back("lat");
   vars.push_back("z20");
   vars.push_back("z53");
-  
-  //vars.push_back("thetaC");
-  //vars.push_back("mvd");
-  //vars.push_back("tof");
-  //vars.push_back("stt"); 
+  // vars.push_back("E1");
+  vars.push_back("E9");
+  // vars.push_back("E25");
+  // vars.push_back("E1E9");
+  // vars.push_back("E9E25");
 
   // Use for asymm. init.
   std::map <std::string, size_t> numProtoMap;
@@ -167,7 +169,7 @@ int main(int argc, char** argv)
   // tr.SetNumberOfProto(numProtoMap);
   
   // Set the size of the test set in (%)
-  tr.SetTestSetSize(20);
+  tr.SetTestSetSize(10);
   
   tr.SetErrorStepSize(5000);//1000 (DEFALUT)
   
@@ -225,7 +227,7 @@ int main(int argc, char** argv)
   printErrors(tr);
 #endif//DEBUG
   
-#else //__________ CROSS_VALIDATE != 0 __________
+#else //__________ CROSS_VALIDATE != 0 (Do Cross-Validate) _______
   /*
    * We want to do cross-validation. So first create k-disjoint subsets
    * of the data point indices and use this to set the test set for
