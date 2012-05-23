@@ -37,8 +37,10 @@ using std::map;
 #include "TVector3.h"
 #include "TRandom.h"
 #include "TRotation.h"
-#include "TH1D.h"
+#include "TH1.h"
 #include "TH2D.h"
+#include "TAxis.h"
+
 #include "Math/Vector3D.h"
 using ROOT::Math::XYZVector;
 
@@ -69,12 +71,12 @@ using ROOT::Math::Rotation3D;
 #include "PndDrcOptDevManager.h"
 #include "PndDrcOptBrick.h"
 
+#include "test_reco_full_setup.h"
 
 // Generate lookup tables (LUT) for reconstruction
 
 int main(int argc, char *argv[])
 {
-
 
  
   // Example for a simple bar with flat downstream mirror and expansion box.
@@ -82,42 +84,11 @@ int main(int argc, char *argv[])
   const double pi=3.1415926535;
 
  
-  double bar_height = 17.5;
-  double bar_width  = 35.0/2;
-  double bar_length = 1250;
-
-
-  PndDrcOptBrick bar(bar_width/2,bar_height/2,bar_length/2);
-  bar.SetOptMaterial(PndDrcOptMatLithotecQ0());
-  bar.SetName("bar");
-  bar.Surface("side6")->SetReflectivity(PndDrcOptReflPerfect());
-  // shift bar in z to have bars end at 0,0,0
-  bar.AddTransform(Transform3D(XYZVector(0,0,bar_length/2)));
-
-  bar.Surface("side1")->SetName("out");
-  
-
-
-  PndDrcOptBrick box(300/2,300/2,300/2); // expansion box  600x600x300mm
-  box.SetOptMaterial(PndDrcOptMatLithotecQ0());
-  box.SetName("box");
-  // eliminate unwanted ambiguities
-  // shift bar in z to have bars end at 0,-250,0
-  box.AddTransform(Transform3D(XYZVector(0,270/2,-300/2)));
-  box.Surface("side1")->SetPixel();
-  box.Surface("side1")->SetName("pixel");
-  
-
-  PndDrcOptDevSys opt_system;
-  opt_system.AddDevice(bar);
-  opt_system.AddDevice(box);
-  opt_system.CoupleDevice("bar","box","out","side6");
-
-
-  // The manager must be created as pointer. It is created as singleton, that is only 
-  // one manager can exist per application.
   PndDrcOptDevManager* manager = new PndDrcOptDevManager();
-  manager->AddDeviceSystem(opt_system);
+
+
+  setup_geometry(manager); // geometrical setup in test_reco_full_setup.cc
+   
 
 
   string sfile = "Geo.C";
@@ -151,7 +122,7 @@ int main(int argc, char *argv[])
 
 
   // event loop
-  int     nevents        = 1000000;
+  int     nevents        = 10000;
   TRandom ran;
   double phi,costh,sinth;
   
@@ -160,9 +131,21 @@ int main(int argc, char *argv[])
   if (hfile) hfile->Close();
   hfile = new TFile("test_reco_full_generate_lut.root","RECREATE","LUT files");
 
-  TH2D*   kbarx_side2 = new TH2D("kbarx_side2"   ,"kbarx",600,-300.5,+299.5,300,-300.5,+299.5);
-  TH2D*   kbary_side2 = new TH2D("kbary_side2"   ,"kbary",600,-300.5,+299.5,300,-300.5,+299.5);
-  TH2D*   kbarz_side2 = new TH2D("kbarz_side2"   ,"kbarz",600,-300.5,+299.5,300,-300.5,+299.5);
+  TH2D*   kbarx_side2 = new TH2D("kbarx_side2"   ,"kbarx",200,-300.5,+299.5,200,-300.5,+299.5);
+  TH2D*   kbary_side2 = new TH2D("kbary_side2"   ,"kbary",200,-300.5,+299.5,200,-300.5,+299.5);
+  TH2D*   kbarz_side2 = new TH2D("kbarz_side2"   ,"kbarz",200,-300.5,+299.5,200,-300.5,+299.5);
+  TH2D*   kbarx_side3 = new TH2D("kbarx_side3"   ,"kbarx",200,-300.5,+299.5,200,-300.5,+299.5);
+  TH2D*   kbary_side3 = new TH2D("kbary_side3"   ,"kbary",200,-300.5,+299.5,200,-300.5,+299.5);
+  TH2D*   kbarz_side3 = new TH2D("kbarz_side3"   ,"kbarz",200,-300.5,+299.5,200,-300.5,+299.5);
+  TH2D*   kbarx_side4 = new TH2D("kbarx_side4"   ,"kbarx",200,-300.5,+299.5,200,-300.5,+299.5);
+  TH2D*   kbary_side4 = new TH2D("kbary_side4"   ,"kbary",200,-300.5,+299.5,200,-300.5,+299.5);
+  TH2D*   kbarz_side4 = new TH2D("kbarz_side4"   ,"kbarz",200,-300.5,+299.5,200,-300.5,+299.5);
+  TH2D*   kbarx_side5 = new TH2D("kbarx_side5"   ,"kbarx",200,-300.5,+299.5,200,-300.5,+299.5);
+  TH2D*   kbary_side5 = new TH2D("kbary_side5"   ,"kbary",200,-300.5,+299.5,200,-300.5,+299.5);
+  TH2D*   kbarz_side5 = new TH2D("kbarz_side5"   ,"kbarz",200,-300.5,+299.5,200,-300.5,+299.5);
+  TH2D*   kbarx_side1 = new TH2D("kbarx_side1"   ,"kbarx",200,-300.5,+299.5,200,-300.5,+299.5);
+  TH2D*   kbary_side1 = new TH2D("kbary_side1"   ,"kbary",200,-300.5,+299.5,200,-300.5,+299.5);
+  TH2D*   kbarz_side1 = new TH2D("kbarz_side1"   ,"kbarz",200,-300.5,+299.5,200,-300.5,+299.5);
 
   list<PndDrcPhoton> list_photon;
   
@@ -205,24 +188,85 @@ int main(int argc, char *argv[])
 	      list<const PndDrcSurfAbs*>::iterator isurf;
 	      list<const PndDrcSurfAbs*> list_surf;
 	      list_surf = (*iph).SurfaceList();
+	      vector<string> vec_surf(5);
+	      vec_surf[0]="---";
+	      vec_surf[1]="---";
+	      vec_surf[2]="---";
+	      vec_surf[3]="---";
+	      vec_surf[4]="---";
+	      
 	      if (list_surf.begin() != list_surf.end())
 		{
 		  isurf = list_surf.end();
 		  isurf--;
-		  //cout<<(*isurf)->Name()<<endl;
-		  isurf--;
-		  //cout<<(*isurf)->Name()<<endl;
-		  if ((*isurf)->Name() == "side2")
+		  vec_surf[4] = (*isurf)->Name();
+		  if (isurf != list_surf.begin())
 		    {
-		      if (kbarx_side2->GetBinContent(xx,yy) == 0) kbarx_side2 -> Fill(xx,yy,kx);
-		      if (kbary_side2->GetBinContent(xx,yy) == 0) kbary_side2 -> Fill(xx,yy,ky);
-		      if (kbarz_side2->GetBinContent(xx,yy) == 0) kbarz_side2 -> Fill(xx,yy,kz);  
+		      isurf--;
+		      vec_surf[3] = (*isurf)->Name();
 		    }
-		  
-		  isurf--;
-		  //cout<<(*isurf)->Name()<<endl;
+		  if (isurf != list_surf.begin())
+		    {
+		      isurf--;
+		      vec_surf[2] = (*isurf)->Name();
+		    }
+		  if (isurf != list_surf.begin())
+		    {
+		      isurf--;
+		      vec_surf[1] = (*isurf)->Name();
+		    }
+		  if (isurf != list_surf.begin())
+		    {
+		      isurf--;
+		      vec_surf[0] = (*isurf)->Name();
+		    }
+		}
+
+
+	      
+
+
+	      if      (vec_surf[2]=="out" && vec_surf[3]=="side2" && vec_surf[4]=="pixel")
+		{		  
+		  kbarx_side2 -> SetBinContent(kbarx_side2->FindBin(xx,yy),kx);
+		  kbary_side2 -> SetBinContent(kbary_side2->FindBin(xx,yy),ky);
+		  kbarz_side2 -> SetBinContent(kbarz_side2->FindBin(xx,yy),kz);  
+		}
+	      else if (vec_surf[2]=="out" && vec_surf[3]=="side3" && vec_surf[4]=="pixel")
+		{
+		  kbarx_side3 -> SetBinContent(kbarx_side3->FindBin(xx,yy),kx);
+		  kbary_side3 -> SetBinContent(kbary_side3->FindBin(xx,yy),ky);
+		  kbarz_side3 -> SetBinContent(kbarz_side3->FindBin(xx,yy),kz);  
+		}
+	      else if (vec_surf[2]=="out" && vec_surf[3]=="side4" && vec_surf[4]=="pixel")
+		{
+		  kbarx_side4 -> SetBinContent(kbarx_side4->FindBin(xx,yy),kx);
+		  kbary_side4 -> SetBinContent(kbary_side4->FindBin(xx,yy),ky);
+		  kbarz_side4 -> SetBinContent(kbarz_side4->FindBin(xx,yy),kz);  
+		}
+	      else if (vec_surf[2]=="out" && vec_surf[3]=="side5" && vec_surf[4]=="pixel")
+		{
+		  kbarx_side5 -> SetBinContent(kbarx_side5->FindBin(xx,yy),kx);
+		  kbary_side5 -> SetBinContent(kbary_side5->FindBin(xx,yy),ky);
+		  kbarz_side5 -> SetBinContent(kbarz_side5->FindBin(xx,yy),kz);  
+		}
+	      else if (vec_surf[3]=="out" && vec_surf[4]=="pixel") //direct hit
+		{
+		  kbarx_side1 -> SetBinContent(kbarx_side1->FindBin(xx,yy),kx);
+		  kbary_side1 -> SetBinContent(kbary_side1->FindBin(xx,yy),ky);
+		  kbarz_side1 -> SetBinContent(kbarz_side1->FindBin(xx,yy),kz);  
+		}
+	      else
+		{
+		  cerr<<" *** untreated combination: "<<endl;
+		  for (int i=0;i<5;i++) cout<<vec_surf[i]<<endl;
+		  exit (EXIT_FAILURE);
 		}
 	      
+
+
+
+
 
 		  //for(isurf=list_surf.begin(); isurf != list_surf.end(); ++isurf)
 		  //{

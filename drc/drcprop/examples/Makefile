@@ -23,8 +23,8 @@ OBJECTS = $(patsubst ../%.cxx,../%.o,$(wildcard ../*.cxx))
 DEBUG =
 #DEBUG = -g
 
-#CFLAGS = -O2 -Wall $(DEBUG)
-CFLAGS = -g -O0 -Wall
+CFLAGS = -O2 -Wall $(DEBUG)
+#CFLAGS = -g -O0 -Wall
 
 # shared library
 SOFLAGS = -shared -Wall $(DEBUG)
@@ -121,8 +121,9 @@ test_lens:		$(OBJECTS) test_lens.o
 test_reco_simple:	$(OBJECTS) test_reco_simple.o
 			g++ -o test_reco_simple test_reco_simple.o $(OBJECTS) $(LDLIBS)
 
-test_reco_full_generate_lut:	$(OBJECTS) test_reco_full_generate_lut.o
-			g++ -o test_reco_full_generate_lut test_reco_full_generate_lut.o $(OBJECTS) $(LDLIBS)
+test_reco_full_generate_lut:	$(OBJECTS) test_reco_full_generate_lut.o test_reco_full_setup.o
+			g++ -o test_reco_full_generate_lut test_reco_full_generate_lut.o \
+			test_reco_full_setup.o  $(OBJECTS) $(LDLIBS)
 
 mppc:			$(OBJECTS) mppc.o
 			g++ -o mppc mppc.o $(OBJECTS) $(LDLIBS)
