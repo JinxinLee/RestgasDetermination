@@ -10,8 +10,6 @@
 set(INCLUDE_DIRECTORIES
 ${ROOT_INCLUDE_DIR}
 ${GLPK_INCLUDE_DIR}
-
-
 ${CMAKE_SOURCE_DIR}/fairtools
 ${CMAKE_SOURCE_DIR}/geobase 
 ${CMAKE_SOURCE_DIR}/parbase 
@@ -49,6 +47,11 @@ link_directories( ${LINK_DIRECTORIES})
 
 set(TRACKING_SRCS
 PndTracking.cxx
+PndSttConformalFilling.cxx
+PndGlpkFits.cxx
+PndCTFindTrackInXY.cxx
+PndCTGeometryCalculations.cxx
+PndMergeSort.cxx
 )
 
 if(RULE_CHECKER_FOUND)
