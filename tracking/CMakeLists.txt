@@ -46,12 +46,12 @@ ${GLPK_LIB_DIR}
 link_directories( ${LINK_DIRECTORIES})
 
 set(TRACKING_SRCS
-PndTracking.cxx
-PndSttConformalFilling.cxx
-PndGlpkFits.cxx
-PndCTFindTrackInXY.cxx
-PndCTGeometryCalculations.cxx
-PndMergeSort.cxx
+PndTrkTracking.cxx
+PndTrkSttConformalFilling.cxx
+PndTrkGlpkFits.cxx
+PndTrkCTFindTrackInXY.cxx
+PndTrkCTGeometryCalculations.cxx
+PndTrkMergeSort.cxx
 )
 
 if(RULE_CHECKER_FOUND)
