@@ -38,9 +38,9 @@
 PndRecoKalmanTask::PndRecoKalmanTask(const char* name, Int_t iVerbose)
 : FairTask(name, iVerbose), fPersistence(kFALSE), fPDGHyp(-13)
 {
-  fTrackInBranchName    = "LheTrack"; 
-  fTrackInIDBranchName  = "LheTrackID";
-  fTrackOutBranchName   = "LheGenTrack"; 
+  fTrackInBranchName    = ""; 
+  fTrackInIDBranchName  = "";
+  fTrackOutBranchName   = ""; 
   fMvdBranchName = "";
   fCentralTrackerBranchName = "";
   fFitTrackArray = new TClonesArray("PndTrack");  

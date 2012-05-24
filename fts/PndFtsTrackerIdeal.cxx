@@ -50,8 +50,8 @@ PndFtsTrackerIdeal::~PndFtsTrackerIdeal()
 void PndFtsTrackerIdeal::Register() 
 {
   //---
-  FairRootManager::Instance()->Register("FTSTrkIdeal","FTSTrk", fTracks, kTRUE);
-  FairRootManager::Instance()->Register("FTSTrkIdealCand","FTSTrk", fTrackCands, kTRUE);
+  FairRootManager::Instance()->Register(fTracksArrayName,"FTSTrk", fTracks, kTRUE);
+  FairRootManager::Instance()->Register(fTracksArrayName+"Cand","FTSTrk", fTrackCands, kTRUE);
   if(fVerbose>3) Info("Register","Done.");
 }
 
