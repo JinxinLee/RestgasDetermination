@@ -18,10 +18,10 @@ class PndTrkMergeSort : public TObject
 
 
   void Merge(
-	UShort_t nl,
+	Short_t nl,
 	Double_t *left,
 	Int_t *ind_left,
-	UShort_t nr,
+	Short_t nr,
 	Double_t *right,
 	Int_t *ind_right,
 	Double_t *result,
@@ -31,7 +31,7 @@ class PndTrkMergeSort : public TObject
 
 
   void  Merge_Sort(
-	UShort_t n_ele,
+	Short_t n_ele,
 	Double_t *array,
 	Int_t *ind
 	);
