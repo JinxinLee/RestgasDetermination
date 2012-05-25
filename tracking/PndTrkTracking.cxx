@@ -1119,10 +1119,10 @@ void PndTrkTracking::Exec(Option_t* opt) {
 
 
  //  U and V only for the parallel Stt hits.
- Double_t
-	U[MAXTRACKSPEREVENT][nSttParHit],
-	V[MAXTRACKSPEREVENT][nSttParHit];
 
+ Double_t
+	U[MAXTRACKSPEREVENT][MAXSTTHITSINTRACK],
+	V[MAXTRACKSPEREVENT][MAXSTTHITSINTRACK];
 
 // tolta momentaneamente la parte che che usa gli scitil per primi.
 
