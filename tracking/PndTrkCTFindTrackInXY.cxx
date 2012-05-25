@@ -39,7 +39,7 @@ bool PndTrkCTFindTrackInXY::AcceptHitsConformal(
 UShort_t PndTrkCTFindTrackInXY::AssociateSciTilHit(
 	Double_t dimensionscitil,
 	Double_t *esse, // output, list of  S of the SciTil hits associated. 
-	bool* InclusionListSciTil,
+	std::vector <bool>* InclusionListSciTil,
 	UShort_t *List, // output, list of SciTil hits associated (max. 2);
 	UShort_t maxscitilhitsintrack,
 	UShort_t nSciTilHits,
@@ -71,7 +71,7 @@ UShort_t PndTrkCTFindTrackInXY::AssociateSciTilHit(
 
  igoodScit=0;
  for(iScitHit=0; iScitHit<nSciTilHits; iScitHit++){
-	if(!InclusionListSciTil[iScitHit]) continue;
+	if(!InclusionListSciTil->at(iScitHit)) continue;
 
 	intersect=GeomCalculator.IntersectionSciTil_Circle(
 	  dimensionscitil,
@@ -498,7 +498,8 @@ cout<<"cazzo,crasha in FindTrackInXYProjection [dopo]?\n";
 
 	if( *(in->nSciTilHitsinTrack) >0 ){
 		for(j=0;j<*(in->nSciTilHitsinTrack);j++){
-			(in->InclusionListSciTil)[(in->ListSciTilHitsinTrack)[j]]
+			std::vector <bool> *pinco=in->InclusionListSciTil;
+			pinco->at((in->ListSciTilHitsinTrack)[j])
 				=false;
 		}
 	}
@@ -670,10 +671,10 @@ Short_t PndTrkCTFindTrackInXY::FindTrackPatterninBoxConformal(
 	UShort_t *FiConformalIndex,
 	void* HitsinBoxConf,
 	Short_t ihit, // seed hit;
-	bool *InclusionListStt,
+	std::vector <bool> *InclusionListStt,
 	Double_t info[][7],
 	UShort_t* ListHitsinTrack,
-	UShort_t* ListSttParHits,
+	std::vector <UShort_t>* ListSttParHits,
 	UShort_t maxstthitsintrack,
 	UShort_t maxstthits,
 	UShort_t minimumhitspertrack,
@@ -726,15 +727,15 @@ Short_t PndTrkCTFindTrackInXY::FindTrackPatterninBoxConformal(
 
  for(i=0, nRemainingHits=0; i<Nparal; i++){
 
-	if( i != ihit && InclusionListStt[  ListSttParHits[i]   ] ) {   //  Inclusion of the
+	if( i != ihit && InclusionListStt->at(  ListSttParHits->at(i)   ) ) {   //  Inclusion of the
 				//  parallel hit straws already used in other tracks
 				//  remember the index of InclusionListStt is in the
 				//  ORIGINAL scheme of hits
-		TemporaryInclusionList[ ListSttParHits[i]  ]= true;
+		TemporaryInclusionList[ ListSttParHits->at(i)  ]= true;
 		Remaining[nRemainingHits]= i;   //  index of the PARALLEL hit
 		nRemainingHits++;
 	} else {
-		TemporaryInclusionList[ ListSttParHits[i]  ]= false;
+		TemporaryInclusionList[ ListSttParHits->at(i)  ]= false;
 	}
  }
 
@@ -777,7 +778,7 @@ Short_t PndTrkCTFindTrackInXY::FindTrackPatterninBoxConformal(
 			iFi = iFi2;
 		}
 	 for (j = 0; j< nBoxConformal[iR][iFi]; j++){
-	    if( InclusionListStt[ HitsinBoxConformal[j][iR][iFi] ]
+	    if( InclusionListStt->at( HitsinBoxConformal[j][iR][iFi] )
 					&&
 		   TemporaryInclusionList[HitsinBoxConformal[j][iR][iFi]]){
 			// hit number in the PARALLEL straws scheme
@@ -790,7 +791,7 @@ Short_t PndTrkCTFindTrackInXY::FindTrackPatterninBoxConformal(
 		}
 		TemporaryInclusionList[HitsinBoxConformal[j][iR][iFi]]= false;
 		nRemainingHits--;
-	    } // end of if( InclusionListStt[  ListSttParHits[...]]
+	    } // end of if( InclusionListStt->at(  ListSttParHits->at(...))
          }// end of  for (j = 0; j< nBoxConformal[iR][iFi]; j++)
       }  // end of  for( iFi2 = nFicell - NFiCELLDISTANCE ;
     }	// end of  for( iR= nRmin ; iR<= nRmax ; iR++)
@@ -822,11 +823,11 @@ Short_t PndTrkCTFindTrackInXY::FindTrackPatterninBoxConformal(
 Short_t PndTrkCTFindTrackInXY::FindTrackPatterninBoxConformalSpecial(
 	UShort_t *FiConformalIndex,
 	void* HitsinBoxConf,
-	bool *InclusionListStt,
+	std::vector <bool> *InclusionListStt,
 	Double_t info[][7],
 	UShort_t iSeed,
 	UShort_t *ListHitsinTrackinWhichToSearch,
-	UShort_t* ListSttParHits,
+	std::vector <UShort_t>* ListSttParHits,
 	UShort_t maxstthits,
 	UShort_t minimumhitspertrack,
 	void* nBoxConf,
@@ -877,7 +878,7 @@ Short_t PndTrkCTFindTrackInXY::FindTrackPatterninBoxConformalSpecial(
 
 //--------    the following initialization is essential for the algorithm to work
  for(i=0; i<Nparal; i++){
-	TemporaryInclusionList[ ListSttParHits[i]  ]= false;
+	TemporaryInclusionList[ ListSttParHits->at(i)  ]= false;
  }
 //-------------
 
@@ -885,8 +886,8 @@ Short_t PndTrkCTFindTrackInXY::FindTrackPatterninBoxConformalSpecial(
 	i=ListHitsinTrackinWhichToSearch[i2];
 //  Inclusion of the parallel hit straws already used in other tracks;
 //  remember the index of InclusionListStt is in the ORIGINAL scheme of hits.
-	if( i != iSeed && InclusionListStt[ListSttParHits[i]] ) {
-		TemporaryInclusionList[ListSttParHits[i]]= true;
+	if( i != iSeed && InclusionListStt->at(ListSttParHits->at(i)) ) {
+		TemporaryInclusionList[ListSttParHits->at(i)]= true;
 		Remaining[nRemainingHits]= i;   //  index of the PARALLEL hit
 		nRemainingHits++;
 	}
@@ -929,7 +930,7 @@ Short_t PndTrkCTFindTrackInXY::FindTrackPatterninBoxConformalSpecial(
 			iFi = iFi2;
 		}
 	     for (j = 0; j< nBoxConformal[iR][iFi]; j++){
-		if(InclusionListStt[HitsinBoxConformal[j][iR][iFi]]
+		if(InclusionListStt->at(HitsinBoxConformal[j][iR][iFi])
 				&&
 			TemporaryInclusionList[HitsinBoxConformal[j][iR][iFi]]) {
 //  hit number in the ORIGINAL straws scheme
@@ -938,7 +939,7 @@ Short_t PndTrkCTFindTrackInXY::FindTrackPatterninBoxConformalSpecial(
 		  TemporaryInclusionList[HitsinBoxConformal[j][iR][iFi]]
 			= false;
 		  nRemainingHits--;
-		}  // end of    if(InclusionListStt[ .. ]
+		}  // end of    if(InclusionListStt->at( .. )
 	     } // end of for (j = 0; j< nBoxConformal[iR][iFi]; j++)
 	  }  // end of    for( iFi2=nFice
 	}  // end of  for( iR= nRmin
@@ -960,7 +961,7 @@ Short_t PndTrkCTFindTrackInXY::FindTrackPatterninBoxConformalSpecial(
 
 Short_t PndTrkCTFindTrackInXY::FindTrackStrictCollection(
 	UShort_t *FiConformalIndex,
-	bool *InclusionListStt,
+	std::vector <bool> *InclusionListStt,
 	//  seed track (original notation) as far as the Fi angle is concerned
 	UShort_t iSeed,
 	UShort_t *ListHitsinTrackinWhichToSearch,
@@ -991,7 +992,7 @@ Short_t PndTrkCTFindTrackInXY::FindTrackStrictCollection(
  nHitsinTrack=0;
  for(i=0; i<NParallelToSearch; i++){
 	//  Inclusion of the parallel hit straws already used in other tracks
-     if( InclusionListStt[ListHitsinTrackinWhichToSearch[i]]) {
+     if( InclusionListStt->at(ListHitsinTrackinWhichToSearch[i])) {
 	//  the index of InclusionListStt is in the ORIGINAL scheme of hits
 
 	iFi = FiConformalIndex[ListHitsinTrackinWhichToSearch[i]];
@@ -1021,7 +1022,7 @@ Short_t PndTrkCTFindTrackInXY::FindTrackStrictCollection(
 
 	}  //  end of   if( iFi == iFiseed )
 
-        }    //  end of    if( InclusionListStt[ListHitsinTrackinWhichToSearch[i]])
+        }    //  end of    if( InclusionListStt->at(ListHitsinTrackinWhichToSearch[i]))
 
      }   //  end of        for(i=0; i<NparallelToSearch; i++)
 
@@ -1255,7 +1256,7 @@ UShort_t PndTrkCTFindTrackInXY::TrkAssociatedParallelHitsToHelixQuater(
 	Double_t deltanr,
 	UShort_t *FiConformalIndex,
 	void* HitsinBoxConf,
-	bool* InclusionListStt,
+	std::vector <bool>* InclusionListStt,
 	Double_t info[][7],
 	Double_t infoparalConformal[][5],
 	UShort_t *ListHitsinTrack,
@@ -1269,7 +1270,7 @@ UShort_t PndTrkCTFindTrackInXY::TrkAssociatedParallelHitsToHelixQuater(
 	Double_t Oxx,
 	Double_t Oyy,
 	Double_t q,
-	Double_t* radiaConf,
+	std::vector <Double_t>* radiaConf,
 	UShort_t *RConformalIndex,
 	Double_t Rr,
 	Double_t rstrawdetectormin,
@@ -1420,9 +1421,9 @@ cout<<"cazzocontrollo1 , FFimin  "<<FFimin<<", FFimax "<<FFimax<<
         aaa = cos(angle);
         if( fabs(cos(angle)) <1.e-10)  continue;
         r = -q/aaa;
-        if(r< radiaConf[0] || r>= 1./rstrawdetectormin)  continue;
+        if(r< radiaConf->at(0) || r>= 1./rstrawdetectormin)  continue;
         for(j=nrdivconformal-1; j>=0;j--){
-          if( r>= radiaConf[j] ){
+          if( r>= radiaConf->at(j) ){
            nR = j;
            break;
           }
@@ -1434,7 +1435,7 @@ cout<<"cazzocontrollo1 , FFimin  "<<FFimin<<", FFimax "<<FFimax<<
           if(  l2<0 || l2 >= nrdivconformal )  continue;
               for( k=0;k<nBoxConformal[l2][i];k++){
                 nHit_original = (UShort_t) infoparalConformal[HitsinBoxConformal[k][l2][i]][3];
-		if( !InclusionListStt[ nHit_original ] ) continue;
+		if( !InclusionListStt->at( nHit_original ) ) continue;
 // check if the hit position is near the circle of the Helix found by the fit
                 dx = -Oxx+info[ nHit_original ][0];
                 dy = -Oyy+info[ nHit_original ][1];
@@ -1468,7 +1469,7 @@ cout<<"cazzocontrollo1 , FFimin  "<<FFimin<<", FFimax "<<FFimax<<
              if(  l3<0 || l3 >= nrdivconformal )  continue;
               for( k=0;k<nBoxConformal[l3][i2];k++){
                 nHit_original = (UShort_t) infoparalConformal[  HitsinBoxConformal[k][l3][i2]  ][3];
-		if( !InclusionListStt[ nHit_original ] ) continue;
+		if( !InclusionListStt->at( nHit_original ) ) continue;
 // check if the hit position is near the circle of the Helix found by the fit
                 dx = -Oxx+info[ nHit_original ][0];
                 dy = -Oyy+info[ nHit_original ][1];
@@ -1502,7 +1503,7 @@ cout<<"cazzocontrollo1 , FFimin  "<<FFimin<<", FFimax "<<FFimax<<
              if(  l3<0 || l3 >= nrdivconformal )  continue;
               for( k=0;k<nBoxConformal[l3][i2];k++){
                 nHit_original = (UShort_t) infoparalConformal[  HitsinBoxConformal[k][l3][i2]  ][3];
-		if( !InclusionListStt[ nHit_original ] ) continue;
+		if( !InclusionListStt->at( nHit_original ) ) continue;
 // check if the hit position is near the circle of the Helix found by the fit
                 dx = -Oxx+info[ nHit_original ][0];
                 dy = -Oyy+info[ nHit_original ][1];
@@ -1555,7 +1556,7 @@ cout<<"cazzocontrollo1 , FFimin  "<<FFimin<<", FFimax "<<FFimax<<
         for(l=0; l<nrdivconformal;l++){
               for( k=0;k<nBoxConformal[l][i];k++){
                 nHit_original = (UShort_t) infoparalConformal[  HitsinBoxConformal[k][l][i]  ][3];
-		if( !InclusionListStt[ nHit_original ] ) continue;
+		if( !InclusionListStt->at( nHit_original ) ) continue;
 // check if the hit position is near the circle of the Helix found by the fit
                 dx = -Oxx+info[ nHit_original ][0];
                 dy = -Oyy+info[ nHit_original ][1];
@@ -1630,12 +1631,12 @@ cout<<"cazzocontrollo1 , erre2  "<<erre2<<endl;
 
 
          for(j=0; j<nrdivconformal; j++){
-cout<<"cazzocontrollo2 , j  "<<j<<", radiaConf[j] "<<radiaConf[j]<<endl;
+cout<<"cazzocontrollo2 , j  "<<j<<", radiaConf->at(j) "<<radiaConf->at(j)<<endl;
 
-              Rin = radiaConf[j];
+              Rin = radiaConf->at(j);
               if(j!=nrdivconformal-1) {
-cout<<"cazzocontrollo2 , j+1  "<<j+1<<", radiaConf[j+1] "<<radiaConf[j+1]<<endl;
-                 Rout =  radiaConf[j+1];
+cout<<"cazzocontrollo2 , j+1  "<<j+1<<", radiaConf->at(j+1) "<<radiaConf->at(j+1)<<endl;
+                 Rout =  radiaConf->at(j+1);
               }  else {
                  Rout = 1./rstrawdetectormin;
               }
@@ -1684,6 +1685,10 @@ cout<<"cazzocontrollo2 , itemp-2  "<<itemp-2<<", itemp+2 "<<itemp+2<<endl;
 cout<<"cazzocontrollo2 , kstart  "<<kstart <<", kend "<<kend<<endl;
                 for(k=kstart;k<kend;k++){
 cout<<"cazzocontrollo3, k "<<k<<", l2 "<<l2<<endl;
+cout<<"cazzocontrollo3.q, nBoxConformal "<< nBoxConformal <<endl;
+cout<<"cazzocontrollo3.q, (nBoxConformal+100) "<< (nBoxConformal+100) <<endl;
+cout<<"cazzocontrollo3.q, **(nBoxConformal) "<< **(nBoxConformal) <<endl;
+
 cout<<", nBoxConformal[k][l2] "<<nBoxConformal[k][l2]<<endl;
 
                  for( l3=0;l3<nBoxConformal[k][l2];l3++){
@@ -1698,9 +1703,9 @@ cout<<"cazzodentro3, infoparalConformal "<<
 infoparalConformal[  HitsinBoxConformal[l3][k][l2]  ][3]<<endl;
 		   nHit_original = (UShort_t) infoparalConformal
 			[  HitsinBoxConformal[l3][k][l2]  ][3];
-cout<<"cazzodentro3.1,InclusionListStt["<<nHit_original<<"] = "<<
-	InclusionListStt[ nHit_original ]<<endl;
-		   if( !InclusionListStt[ nHit_original ] ) continue;
+cout<<"cazzodentro3.1,InclusionListStt->at("<<nHit_original<<") = "<<
+	InclusionListStt->at( nHit_original )<<endl;
+		   if( !InclusionListStt->at( nHit_original ) ) continue;
 // check if the hit position is near the circle of the Helix found by the fit
                    dx = -Oxx+info[ nHit_original ][0];
                    dy = -Oyy+info[ nHit_original ][1];
@@ -1756,7 +1761,7 @@ cout<<"cazzo, passamaidiqui?\n";
         for(l=0; l<nrdivconformal;l++){
               for( k=0;k<nBoxConformal[l][i];k++){
                 nHit_original = (UShort_t) infoparalConformal[  HitsinBoxConformal[k][l][i]  ][3];
-		if( !InclusionListStt[ nHit_original ] ) continue;
+		if( !InclusionListStt->at( nHit_original ) ) continue;
 // check if the hit position is near the circle of the Helix found by the fit
                 dx = -Oxx+info[ nHit_original ][0];
                 dy = -Oyy+info[ nHit_original ][1];
@@ -1799,11 +1804,11 @@ cout<<"cazzo, passamaidiqui?\n";
 
 UShort_t PndTrkCTFindTrackInXY::TrkAssociatedParallelHitsToHelix5(
 	UShort_t *auxListHitsinTrack,
-	bool *InclusionListStt,
+	std::vector <bool> *InclusionListStt,
 	Double_t Fi_low,
 	Double_t Fi_up,
 	Double_t info[][7],
-	UShort_t *ListSttParHits,
+	std::vector <UShort_t> *ListSttParHits,
 	UInt_t NhitsParallel,
 	Double_t Oxx,
 	Double_t Oyy,
@@ -1828,11 +1833,11 @@ UShort_t PndTrkCTFindTrackInXY::TrkAssociatedParallelHitsToHelix5(
 
 
   for(i=0; i<NhitsParallel;i++){
-	if( !InclusionListStt[ ListSttParHits[i] ] ) continue;
+	if( !InclusionListStt->at( ListSttParHits->at(i) ) ) continue;
 // check if the hit position is near the circle of the Helix found by the fit
 
-	dx = -Oxx+info[ListSttParHits[i]][0];
-	dy = -Oyy+info[ListSttParHits[i]][1];
+	dx = -Oxx+info[ListSttParHits->at(i)][0];
+	dy = -Oyy+info[ListSttParHits->at(i)][1];
 	angle=atan2(dy,dx);
 	if(angle<0.) angle += 2.*PI;
 	if(angle<0.) angle =0.;
