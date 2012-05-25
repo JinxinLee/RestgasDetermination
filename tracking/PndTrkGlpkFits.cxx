@@ -134,9 +134,6 @@ if(istampa>=3){
 	int nBounds=NpointsInFit+nSttHits+1;
 
 
-cout<<"cazzofitxy, NStructVar "<<NStructVar<<", nRows "<<nRows<<", NStructRowsMax "
-	<<NStructRowsMax<<"\n\tNStructVar*NStructRowsMax "<<NStructVar*NStructRowsMax
-	<<", nSttHits=nRanges "<<nSttHits<<", nBounds "<<nBounds<<endl;
 
 //----  creating the various service arrays
 
