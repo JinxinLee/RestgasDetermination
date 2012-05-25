@@ -13,17 +13,17 @@ using namespace std;
 //----------begin of function PndTrkMergeSort::Merge
 
 void PndTrkMergeSort::Merge(
-	UShort_t nl,
+	Short_t nl,
 	Double_t *left,
 	Int_t *ind_left,
-	UShort_t nr,
+	Short_t nr,
 	Double_t *right,
 	Int_t *ind_right, 
 	Double_t *result,
 	Int_t *ind
 	)
 {
-   UShort_t i =0, j, nl_curr=0, nr_curr=0;
+   Short_t i =0, j, nl_curr=0, nr_curr=0;
 
    while( nl > 0 && nr >0){
      if( left[nl_curr] <= right[nr_curr]){
@@ -66,7 +66,7 @@ void PndTrkMergeSort::Merge(
 //----------begin of function PndTrkMergeSort::Merge_Sort
 
 void PndTrkMergeSort::Merge_Sort(
-	UShort_t n_ele,
+	Short_t n_ele,
 	Double_t *array,
 	Int_t *ind)
 {
