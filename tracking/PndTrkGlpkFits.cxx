@@ -12,14 +12,14 @@ using namespace std;
 //----------begin of function PndTrkGlpkFits::FitHelixCylinder
 
 Short_t PndTrkGlpkFits::FitHelixCylinder(
-	UShort_t nHitsinTrack,
+	Short_t nHitsinTrack,
 	Double_t *Xconformal,
 	Double_t *Yconformal,
 	Double_t *DriftRadiusconformal,
 	Double_t *ErrorDriftRadiusconformal,
 	Double_t rotationangle,
 	Double_t trajectory_vertex[2],
-	UShort_t NMAX,
+	Short_t NMAX,
 	Double_t *emme,
 	Double_t *qu,
 	Double_t *pAlfa,
@@ -36,7 +36,7 @@ Short_t PndTrkGlpkFits::FitHelixCylinder(
  //    ROWS (for read_rows  function)
  //
 
- UShort_t  NpointsInFit = nHitsinTrack-NMAX <0 ?  nHitsinTrack :  NMAX;
+ Short_t  NpointsInFit = nHitsinTrack-NMAX <0 ?  nHitsinTrack :  NMAX;
  bool mvdhit[NpointsInFit];
 
 
@@ -54,7 +54,7 @@ Short_t PndTrkGlpkFits::FitHelixCylinder(
 	Oyy[NpointsInFit],
 	q_result;
 
-     UShort_t  i, j, ii, iii, nSttHits, nMvdHits;
+     Short_t  i, j, ii, iii, nSttHits, nMvdHits;
      Short_t Status;
 
      float m1_result,m2_result, q1_result,q2_result, A1_result, A2_result;
@@ -987,13 +987,13 @@ if(istampa>2) cout<<"Results : m1 = "<<m1_result<<", m2= "<<m2_result<<", q1 = "
 //----------begin of function PndTrkGlpkFits::FitSZspace
 
 Short_t PndTrkGlpkFits::FitSZspace(
-	UShort_t nSkewHitsinTrack,
+	Short_t nSkewHitsinTrack,
 	Double_t *S,
 	Double_t *Z, //
 	Double_t *DriftRadius,
 	Double_t *ErrorDriftRadius, //
 	Double_t FInot,
-	UShort_t NMAX,
+	Short_t NMAX,
 	Double_t *emme,
 	int IVOLTE
 	)
@@ -1003,7 +1003,7 @@ Short_t PndTrkGlpkFits::FitSZspace(
     //   definition of variables for the glpsol  solver
    //    ROWS (for read_rows  function)
    //
-   UShort_t  NpointsInFit = nSkewHitsinTrack-NMAX <0 ?  nSkewHitsinTrack :  NMAX;
+   Short_t  NpointsInFit = nSkewHitsinTrack-NMAX <0 ?  nSkewHitsinTrack :  NMAX;
 
 
    bool mvdhit[NpointsInFit];
@@ -1025,7 +1025,7 @@ Short_t PndTrkGlpkFits::FitSZspace(
 		Oyy[NpointsInFit],
 		Delta[NpointsInFit];
 
-     UShort_t  i, j, ii, iii, n, nSttHits, nMvdHits;
+     Short_t  i, j, ii, iii, n, nSttHits, nMvdHits;
      Short_t Status;
 
      float m1_result,m2_result, q1_result,q2_result, A1_result, A2_result;
