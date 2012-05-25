@@ -10,43 +10,43 @@
 	Short_t* Charge;
 	Double_t deltanr;
 	Double_t dimensionscitil;
-	UShort_t *FiConformalIndex;
+	Short_t *FiConformalIndex;
 	Double_t *Fi_final_helix_referenceframe;
 	Double_t *Fi_initial_helix_referenceframe;
 	Double_t *Fi_low_limit;
 	Double_t *Fi_up_limit;
 	Double_t* GAMMA;
-	UShort_t* HitsinBoxConf;
+	Short_t* HitsinBoxConf;
 	Short_t iHit;	// seed hit; it is negative for SciTil Hits.
 	bool* InclusionListStt;
 	bool* InclusionListSciTil;
 	Double_t (*info)[7];
 	Double_t (*infoparalConformal)[5];
-	UShort_t* ListHitsinTrack;
-	UShort_t* ListSciTilHitsinTrack;
-	UShort_t* ListSttParHits;
-	UShort_t maxhitsinfit;
-	UShort_t maxscitilhitsintrack;
-	UShort_t maxstthits;
-	UShort_t maxstthitsintrack;
-	UShort_t minimumhitspertrack;
-	UShort_t minouterhitspertrack;
-	UShort_t* nBoxConf;
-	UShort_t nFicell; // Fi cell of the seed hit;
-	UShort_t nfidivconformal;
-	UShort_t *nHitsinTrack;
+	Short_t* ListHitsinTrack;
+	Short_t* ListSciTilHitsinTrack;
+	Short_t* ListSttParHits;
+	Short_t maxhitsinfit;
+	Short_t maxscitilhitsintrack;
+	Short_t maxstthits;
+	Short_t maxstthitsintrack;
+	Short_t minimumhitspertrack;
+	Short_t minouterhitspertrack;
+	Short_t* nBoxConf;
+	Short_t nFicell; // Fi cell of the seed hit;
+	Short_t nfidivconformal;
+	Short_t *nHitsinTrack;
 	Short_t nRcell;  // R cell of the seed hit;
-	UShort_t nrdivconformal;
-	UShort_t nSciTilHits;
-	UShort_t* nSciTilHitsinTrack;
-	UInt_t nsttparhit;
+	Short_t nrdivconformal;
+	Short_t nSciTilHits;
+	Short_t* nSciTilHitsinTrack;
+	Int_t nsttparhit;
 	Double_t* Oxx;
 	Double_t* Oyy;
 	void * posizSciT;
 	Double_t posizSciTilx;
 	Double_t posizSciTily;
 	Double_t* radiaConf;
-	UShort_t *RConformalIndex;
+	Short_t *RConformalIndex;
 	Double_t* Rr;
 	Double_t rstrawdetectormax;
 	Double_t rstrawdetectormin;
@@ -87,13 +87,13 @@ class PndTrkCTFindTrackInXY : public TObject
 
 
 
-  UShort_t AssociateSciTilHit(
+  Short_t AssociateSciTilHit(
 	Double_t dimensionscitil,
 	Double_t *esse, // output, list of  S of the SciTil hits associated. 
 	bool* InclusionListSciTil,
-	UShort_t *List, // output, list of SciTil hits associated (max. 2);
-	UShort_t maxscitilhitsintrack,
-	UShort_t nSciTilHits,
+	Short_t *List, // output, list of SciTil hits associated (max. 2);
+	Short_t maxscitilhitsintrack,
+	Short_t nSciTilHits,
 	Double_t Oxx,
 	Double_t Oyy,
 	Double_t posizSciTil[][3],
@@ -105,7 +105,7 @@ class PndTrkCTFindTrackInXY : public TObject
   void FindCharge(
 	Double_t oX,
 	Double_t oY,
-	UShort_t nHits,
+	Short_t nHits,
 	Double_t *X,
 	Double_t *Y,
 	Short_t  * Charge
@@ -119,64 +119,64 @@ class PndTrkCTFindTrackInXY : public TObject
 
 
   Short_t FindTrackPatterninBoxConformal(
-	UShort_t *FiConformalIndex,
-	UShort_t* HitsinBoxConformal,
+	Short_t *FiConformalIndex,
+	Short_t* HitsinBoxConformal,
 	Short_t ihit, // seed hit;
 	bool *InclusionListStt,
 	Double_t info[][7],
-	UShort_t* ListHitsinTrack,
-	UShort_t* ListSttParHits,
-	UShort_t maxstthitsintracks,
-	UShort_t MAXSTTHITS,
-	UShort_t MINIMUMHITSPERTRACK,
-	UShort_t* nBoxConformal,
-	UShort_t nfidivconformal,
-	UShort_t nFicell, // Fi cell of the seed hit;
-	UShort_t NFiCELLDISTANCE,
-	UShort_t Nparal,
+	Short_t* ListHitsinTrack,
+	Short_t* ListSttParHits,
+	Short_t maxstthitsintracks,
+	Short_t MAXSTTHITS,
+	Short_t MINIMUMHITSPERTRACK,
+	Short_t* nBoxConformal,
+	Short_t nfidivconformal,
+	Short_t nFicell, // Fi cell of the seed hit;
+	Short_t NFiCELLDISTANCE,
+	Short_t Nparal,
 	Short_t nRcell, // R cell of the seed hit;
 	// can be negative beacuse of SciTil hits;
-	UShort_t NRCELLDISTANCE,
-	UShort_t *RConformalIndex,
-	UShort_t nrdivconformal
+	Short_t NRCELLDISTANCE,
+	Short_t *RConformalIndex,
+	Short_t nrdivconformal
 	);
 
   Short_t FindTrackPatterninBoxConformalSpecial(
-	UShort_t *FiConformalIndex,
-	UShort_t* HitsinBoxConformal,
+	Short_t *FiConformalIndex,
+	Short_t* HitsinBoxConformal,
 	bool *InclusionListStt,
 	Double_t info[][7],
-	UShort_t iSeed,
-	UShort_t *ListHitsinTrackinWhichToSearch,
-	UShort_t* ListSttParHits,
-	UShort_t MAXSTTHITS,
-	UShort_t MINIMUMHITSPERTRACK,
-	UShort_t* nBoxConformal,
-	UShort_t NFiCELLDISTANCE,
-	UShort_t nfidivconformal,
-	UShort_t Nparal,
-	UShort_t NparallelToSearch,
-	UShort_t NRCELLDISTANCE,
-	UShort_t nrdivconformal,
-	UShort_t *OutputListHitsinTrack,
-	UShort_t *RConformalIndex
+	Short_t iSeed,
+	Short_t *ListHitsinTrackinWhichToSearch,
+	Short_t* ListSttParHits,
+	Short_t MAXSTTHITS,
+	Short_t MINIMUMHITSPERTRACK,
+	Short_t* nBoxConformal,
+	Short_t NFiCELLDISTANCE,
+	Short_t nfidivconformal,
+	Short_t Nparal,
+	Short_t NparallelToSearch,
+	Short_t NRCELLDISTANCE,
+	Short_t nrdivconformal,
+	Short_t *OutputListHitsinTrack,
+	Short_t *RConformalIndex
 
 	);
 
 
 
   Short_t FindTrackStrictCollection(
-	UShort_t *FiConformalIndex,
+	Short_t *FiConformalIndex,
 	bool *InclusionListStt,
 	//  seed track (original notation) as far as the Fi angle is concerned
-	UShort_t iSeed,
-	UShort_t *ListHitsinTrackinWhichToSearch,
-	UShort_t MAXSTTHITS,
-	UShort_t NFiCELLDISTANCE,
-	UShort_t nfidivconformal,
+	Short_t iSeed,
+	Short_t *ListHitsinTrackinWhichToSearch,
+	Short_t MAXSTTHITS,
+	Short_t NFiCELLDISTANCE,
+	Short_t nfidivconformal,
 	//  n. of hits to search in ListHitsinTrackinWhichToSearch
-	UShort_t NParallelToSearch,
-	UShort_t  *OutputListHitsinTrack
+	Short_t NParallelToSearch,
+	Short_t  *OutputListHitsinTrack
 	);
 
 
@@ -185,35 +185,35 @@ class PndTrkCTFindTrackInXY : public TObject
 	Double_t *Fi_final_helix_referenceframe,
 	Double_t *Fi_initial_helix_referenceframe,
 	Double_t info[][7],
-	UShort_t *ListParallelHits,
-	UShort_t nParallelHits,
+	Short_t *ListParallelHits,
+	Short_t nParallelHits,
 	Double_t oX,
 	Double_t oY,
 	Double_t *U,
 	Double_t *V
 	);
 
-  UShort_t TrkAssociatedParallelHitsToHelixQuater(
-	UShort_t *auxListHitsinTrack,
+  Short_t TrkAssociatedParallelHitsToHelixQuater(
+	Short_t *auxListHitsinTrack,
 	Double_t deltanr,
-	UShort_t *FiConformalIndex,
-	UShort_t* HitsinBoxConformal,
+	Short_t *FiConformalIndex,
+	Short_t* HitsinBoxConformal,
 	bool* InclusionListStt,
 	Double_t info[][7],
 	Double_t infoparalConformal[][5],
-	UShort_t *ListHitsinTrack,
+	Short_t *ListHitsinTrack,
 	Double_t m,
-	UShort_t MAXSTTHITS,
-	UShort_t* nBoxConformal,
-	UShort_t nfidivconformal,
-	UShort_t nHitsinTrack,
-	UInt_t NhitsParallel,
-	UShort_t nrdivconformal,
+	Short_t MAXSTTHITS,
+	Short_t* nBoxConformal,
+	Short_t nfidivconformal,
+	Short_t nHitsinTrack,
+	Int_t NhitsParallel,
+	Short_t nrdivconformal,
 	Double_t Oxx,
 	Double_t Oyy,
 	Double_t q,
 	Double_t* radiaConf,
-	UShort_t *RConformalIndex,
+	Short_t *RConformalIndex,
 	Double_t Rr,
 	Double_t rstrawdetectormin,
 	Short_t Status,
@@ -222,14 +222,14 @@ class PndTrkCTFindTrackInXY : public TObject
 
 
 
-  UShort_t TrkAssociatedParallelHitsToHelix5(
-	UShort_t *auxListHitsinTrack,
+  Short_t TrkAssociatedParallelHitsToHelix5(
+	Short_t *auxListHitsinTrack,
 	bool *InclusionListStt,
 	Double_t Fi_low,
 	Double_t Fi_up,
 	Double_t info[][7],
-	UShort_t *ListSttParHits,
-	UInt_t NhitsParallel,
+	Short_t *ListSttParHits,
+	Int_t NhitsParallel,
 	Double_t Oxx,
 	Double_t Oyy,
 	Double_t Rr,
