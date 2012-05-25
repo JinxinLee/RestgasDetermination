@@ -11,18 +11,18 @@ using namespace std;
 //----------begin of function PndTrkSttConformalFilling::BoxConformalFilling
 
 void PndTrkSttConformalFilling::BoxConformalFilling(
-	UShort_t *FiConformalIndex,
+	Short_t *FiConformalIndex,
 	void* HitsinBoxConf,
 	bool *InclusionListStt,
 	Double_t infoparalConformal[][5],
-	UShort_t *ListSttParHits,
-	UShort_t MAXHITSINCELL,
+	Short_t *ListSttParHits,
+	Short_t MAXHITSINCELL,
 	void* nBoxConf,
-	UShort_t NFIDIVCONFORMAL,
-	UInt_t Nparal,
-	UShort_t NRDIVCONFORMAL,
+	Short_t NFIDIVCONFORMAL,
+	Int_t Nparal,
+	Short_t NRDIVCONFORMAL,
 	Double_t *radiaConf,
-	UShort_t *RConformalIndex
+	Short_t *RConformalIndex
 						)
 {
 
@@ -34,14 +34,14 @@ void PndTrkSttConformalFilling::BoxConformalFilling(
 
  Double_t Fi;
 
- // make a POINTER to an ARRAY[NFIDIVCONFORMAL] of UShort_t and assign value present in the calling
+ // make a POINTER to an ARRAY[NFIDIVCONFORMAL] of Short_t and assign value present in the calling
  // sequence of this method;
- UShort_t (*nBoxConformal)[NFIDIVCONFORMAL] = (UShort_t (*)[NFIDIVCONFORMAL]) nBoxConf;
+ Short_t (*nBoxConformal)[NFIDIVCONFORMAL] = (Short_t (*)[NFIDIVCONFORMAL]) nBoxConf;
 
- // make a POINTER to an ARRAY[NRDIVCONFORMAL][NFIDIVCONFORMAL] of UShort_t and assign value present
+ // make a POINTER to an ARRAY[NRDIVCONFORMAL][NFIDIVCONFORMAL] of Short_t and assign value present
  // in the calling sequence of this method;
- UShort_t (*HitsinBoxConformal)[NRDIVCONFORMAL][NFIDIVCONFORMAL]=
-		(UShort_t (*)[NRDIVCONFORMAL][NFIDIVCONFORMAL])HitsinBoxConf;
+ Short_t (*HitsinBoxConformal)[NRDIVCONFORMAL][NFIDIVCONFORMAL]=
+		(Short_t (*)[NRDIVCONFORMAL][NFIDIVCONFORMAL])HitsinBoxConf;
 
  for(i = 0; i< NRDIVCONFORMAL ; i++){
 	for(j = 0; j< NFIDIVCONFORMAL ; j++){
@@ -81,7 +81,7 @@ void PndTrkSttConformalFilling::BoxConformalFilling(
 		 continue;
 	}
 	HitsinBoxConformal[ nBoxConformal[iR][iFi] ][iR][iFi]
-		=(UShort_t) ListSttParHits[i];
+		=(Short_t) ListSttParHits[i];
 	nBoxConformal[iR][iFi]++;
 	RConformalIndex[ ListSttParHits[i] ]  =  iR;
 	FiConformalIndex[ ListSttParHits[i] ]  =  iFi;
@@ -103,8 +103,8 @@ void PndTrkSttConformalFilling::BoxConformalFilling(
 void PndTrkSttConformalFilling::FromXYtoConformal(
 	Double_t trajectory_vertex[2],
 	Double_t info[][7],
-	UShort_t *ListSttParHits,
-	UInt_t Nparal,
+	Short_t *ListSttParHits,
+	Int_t Nparal,
 	Double_t infoparalConformal[][5],
 	Double_t STRAWRADIUS
 		)
@@ -116,7 +116,7 @@ void PndTrkSttConformalFilling::FromXYtoConformal(
 
 //
 
-  UShort_t
+  Short_t
 	i;
 
   Double_t
