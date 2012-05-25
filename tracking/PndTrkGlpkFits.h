@@ -20,14 +20,14 @@ class PndTrkGlpkFits : public TObject
 
 
   Short_t FitHelixCylinder(
-	UShort_t nHitsinTrack,
+	Short_t nHitsinTrack,
 	Double_t *Xconformal,
 	Double_t *Yconformal,
 	Double_t *DriftRadiusconformal,
 	Double_t *ErrorDriftRadiusconformal,
 	Double_t rotationangle,
 	Double_t trajectory_vertex[2],
-	UShort_t NMAX,
+	Short_t NMAX,
 	Double_t *m,
 	Double_t *q,
 	Double_t *pAlfa,
@@ -39,13 +39,13 @@ class PndTrkGlpkFits : public TObject
 	);
 
   Short_t FitSZspace(
-	UShort_t nSkewHitsinTrack,
+	Short_t nSkewHitsinTrack,
 	Double_t *S,
 	Double_t *Z,
 	Double_t *DriftRadius,
 	Double_t *ErrorDriftRadius,
 	Double_t FInot,
-	UShort_t NMAX,
+	Short_t NMAX,
 	Double_t *emme,
 	int IVOLTE
 	);
