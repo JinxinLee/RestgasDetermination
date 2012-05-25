@@ -1,5 +1,6 @@
 #ifndef PndTrkCTFindTrackInXY_H
 #define PndTrkCTFindTrackInXY_H 1
+#include <vector>
 
 // Root includes
 #include "TROOT.h"
@@ -18,13 +19,13 @@
 	Double_t* GAMMA;
 	void* HitsinBoxConf;
 	Short_t iHit;	// seed hit; it is negative for SciTil Hits.
-	bool* InclusionListStt;
-	bool* InclusionListSciTil;
+	std::vector <bool>* InclusionListStt;
+	std::vector <bool>* InclusionListSciTil;
 	Double_t (*info)[7];
 	Double_t (*infoparalConformal)[5];
 	UShort_t* ListHitsinTrack;
 	UShort_t* ListSciTilHitsinTrack;
-	UShort_t* ListSttParHits;
+	std::vector <UShort_t>* ListSttParHits;
 	UShort_t maxhitsinfit;
 	UShort_t maxscitilhitsintrack;
 	UShort_t maxstthits;
@@ -45,7 +46,7 @@
 	void * posizSciT;
 	Double_t posizSciTilx;
 	Double_t posizSciTily;
-	Double_t* radiaConf;
+	std::vector <Double_t>* radiaConf;
 	UShort_t *RConformalIndex;
 	Double_t* Rr;
 	Double_t rstrawdetectormax;
@@ -90,7 +91,7 @@ class PndTrkCTFindTrackInXY : public TObject
   UShort_t AssociateSciTilHit(
 	Double_t dimensionscitil,
 	Double_t *esse, // output, list of  S of the SciTil hits associated. 
-	bool* InclusionListSciTil,
+	std::vector <bool>* InclusionListSciTil,
 	UShort_t *List, // output, list of SciTil hits associated (max. 2);
 	UShort_t maxscitilhitsintrack,
 	UShort_t nSciTilHits,
@@ -122,10 +123,10 @@ class PndTrkCTFindTrackInXY : public TObject
 	UShort_t *FiConformalIndex,
 	void* HitsinBoxConf,
 	Short_t ihit, // seed hit;
-	bool *InclusionListStt,
+	std::vector <bool> *InclusionListStt,
 	Double_t info[][7],
 	UShort_t* ListHitsinTrack,
-	UShort_t* ListSttParHits,
+	std::vector <UShort_t>* ListSttParHits,
 	UShort_t maxstthitsintracks,
 	UShort_t MAXSTTHITS,
 	UShort_t MINIMUMHITSPERTRACK,
@@ -144,11 +145,11 @@ class PndTrkCTFindTrackInXY : public TObject
   Short_t FindTrackPatterninBoxConformalSpecial(
 	UShort_t *FiConformalIndex,
 	void* HitsinBoxConf,
-	bool *InclusionListStt,
+	std::vector <bool> *InclusionListStt,
 	Double_t info[][7],
 	UShort_t iSeed,
 	UShort_t *ListHitsinTrackinWhichToSearch,
-	UShort_t* ListSttParHits,
+	std::vector <UShort_t>* ListSttParHits,
 	UShort_t MAXSTTHITS,
 	UShort_t MINIMUMHITSPERTRACK,
 	void* nBoxConf,
@@ -167,7 +168,7 @@ class PndTrkCTFindTrackInXY : public TObject
 
   Short_t FindTrackStrictCollection(
 	UShort_t *FiConformalIndex,
-	bool *InclusionListStt,
+	std::vector <bool> *InclusionListStt,
 	//  seed track (original notation) as far as the Fi angle is concerned
 	UShort_t iSeed,
 	UShort_t *ListHitsinTrackinWhichToSearch,
@@ -198,7 +199,7 @@ class PndTrkCTFindTrackInXY : public TObject
 	Double_t deltanr,
 	UShort_t *FiConformalIndex,
 	void* HitsinBoxConf,
-	bool* InclusionListStt,
+	std::vector <bool>* InclusionListStt,
 	Double_t info[][7],
 	Double_t infoparalConformal[][5],
 	UShort_t *ListHitsinTrack,
@@ -212,7 +213,7 @@ class PndTrkCTFindTrackInXY : public TObject
 	Double_t Oxx,
 	Double_t Oyy,
 	Double_t q,
-	Double_t* radiaConf,
+	std::vector <Double_t>* radiaConf,
 	UShort_t *RConformalIndex,
 	Double_t Rr,
 	Double_t rstrawdetectormin,
@@ -224,11 +225,11 @@ class PndTrkCTFindTrackInXY : public TObject
 
   UShort_t TrkAssociatedParallelHitsToHelix5(
 	UShort_t *auxListHitsinTrack,
-	bool *InclusionListStt,
+	std::vector <bool> *InclusionListStt,
 	Double_t Fi_low,
 	Double_t Fi_up,
 	Double_t info[][7],
-	UShort_t *ListSttParHits,
+	std::vector <UShort_t> *ListSttParHits,
 	UInt_t NhitsParallel,
 	Double_t Oxx,
 	Double_t Oyy,
