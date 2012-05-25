@@ -319,7 +319,7 @@ void PndTrkCTGeometryCalculations::ChooseEntranceExitbis(
 	Double_t Oyy,
 	Short_t  Charge,
 	Double_t FiStart,
-	UShort_t nIntersections,
+	Short_t nIntersections,
 	Double_t *XintersectionList, //  second index =1 -->inner polygon;
 	Double_t *YintersectionList, //  second index =2 -->outer polygon.
 	Double_t Xcross[2],	// output
@@ -327,7 +327,7 @@ void PndTrkCTGeometryCalculations::ChooseEntranceExitbis(
 					)
 {
 
- UShort_t
+ Short_t
 	i,
 	j;
 
@@ -461,7 +461,7 @@ Double_t PndTrkCTGeometryCalculations::FindDistance(
 {
 
 
-	UShort_t i,
+	Short_t i,
 		 n;
 
 	Double_t Delta,
@@ -759,7 +759,7 @@ Short_t PndTrkCTGeometryCalculations::FindTrackEntranceExitbiHexagonLeft(
 	)
 {
 	Short_t flag;
-	UShort_t	nIntersections;
+	Short_t	nIntersections;
 	Double_t	FiStart,
 			XintersectionList[16], // all the possible intersections
 			YintersectionList[16]; // (up to 16 intersections).
@@ -872,7 +872,7 @@ Short_t PndTrkCTGeometryCalculations::FindTrackEntranceExitbiHexagonRight(
 	)
 {
 	Short_t flag;
-	UShort_t	nIntersections;
+	Short_t	nIntersections;
 	Double_t	FiStart,
 			XintersectionList[16], // all the possible intersections
 			YintersectionList[16]; // (up to 16 intersections).
@@ -1002,7 +1002,7 @@ Short_t PndTrkCTGeometryCalculations::FindTrackEntranceExitHexagonCircleLeft(
 			y2;
 //------------------
 
-	UShort_t	nIntersectionsCircle,
+	Short_t	nIntersectionsCircle,
 			nIntersections;
 	Double_t	FiStart,
 			XintersectionList[12],
@@ -1124,7 +1124,7 @@ Short_t PndTrkCTGeometryCalculations::FindTrackEntranceExitHexagonCircleRight(
 			y2;
 //------------------
 
-	UShort_t	nIntersectionsCircle,
+	Short_t	nIntersectionsCircle,
 			nIntersections;
 	Double_t	FiStart,
 			XintersectionList[12],
@@ -1222,7 +1222,7 @@ bool PndTrkCTGeometryCalculations::IntersectionCircle_Segment(
 	Double_t Oxx, // center of circle.
 	Double_t Oyy,
 	Double_t Rr, // Radius of circle.
-	UShort_t * Nintersections,
+	Short_t * Nintersections,
 	Double_t XintersectionList[2],
 	Double_t YintersectionList[2],
 	Double_t *distance
@@ -1309,7 +1309,7 @@ bool PndTrkCTGeometryCalculations::IntersectionSciTil_Circle(
 	Double_t Oxx, // center of circle.
 	Double_t Oyy,
 	Double_t Rr, // Radius of circle.
-	UShort_t * Nintersections,
+	Short_t * Nintersections,
 	Double_t XintersectionList[2],
 	Double_t YintersectionList[2]
 	)
@@ -1366,7 +1366,7 @@ Short_t  PndTrkCTGeometryCalculations::IntersectionsWithClosedbiHexagonLeft(
 	Double_t Ami,	// min Apotema of hexagonal  volume intersected by track;
 	Double_t Ama,	// max Apotema of hexagonal volume intersected by track;
 	//-------- outputs
-	UShort_t *nIntersections,
+	Short_t *nIntersections,
 	Double_t *XintersectionList,
 	Double_t *YintersectionList
 	)
@@ -1385,7 +1385,7 @@ Short_t  PndTrkCTGeometryCalculations::IntersectionsWithClosedbiHexagonLeft(
 	bool	internal,
 		AtLeast1;
 
-	UShort_t i,
+	Short_t i,
 		 is,
 		 j,
 		 Nintersections;
@@ -1509,7 +1509,7 @@ Short_t  PndTrkCTGeometryCalculations::IntersectionsWithClosedbiHexagonRight(
 	Double_t Ami,	// min Apotema of hexagonal  volume intersected by track;
 	Double_t Ama,	// max Apotema of hexagonal volume intersected by track;
 	//-------- outputs
-	UShort_t *nIntersections,
+	Short_t *nIntersections,
 	Double_t *XintersectionList,
 	Double_t *YintersectionList
 	)
@@ -1528,7 +1528,7 @@ Short_t  PndTrkCTGeometryCalculations::IntersectionsWithClosedbiHexagonRight(
 	bool	internal,
 		AtLeast1;
 
-	UShort_t i,
+	Short_t i,
 		 is,
 		 j,
 		 Nintersections;
@@ -1647,7 +1647,7 @@ Short_t  PndTrkCTGeometryCalculations::IntersectionsWithClosedPolygon(
 	Double_t Rmi,	// min Apotema of hexagonal  volume intersected by track;
 	Double_t Rma,	// max Apotema of hexagonal volume intersected by track;
 	//-------- outputs
-	UShort_t nIntersections[2],
+	Short_t nIntersections[2],
 	Double_t XintersectionList[][2],
 	Double_t YintersectionList[][2]
 	)
@@ -1669,7 +1669,7 @@ Short_t  PndTrkCTGeometryCalculations::IntersectionsWithClosedPolygon(
 	bool	internal[2],
 		AtLeast1[2];
 
-	UShort_t i,
+	Short_t i,
 		 is,
 		 j,
 		 Nintersections;
@@ -1779,7 +1779,7 @@ Short_t  PndTrkCTGeometryCalculations::IntersectionsWithClosedPolygon(
 
 //----------begin of function PndTrkCTGeometryCalculations::IntersectionsWithGapSemicircle
 
-UShort_t PndTrkCTGeometryCalculations::IntersectionsWithGapSemicircle(
+Short_t PndTrkCTGeometryCalculations::IntersectionsWithGapSemicircle(
 	Double_t Oxx,
 	Double_t Oyy,
 	Double_t Rr,
@@ -1791,7 +1791,7 @@ UShort_t PndTrkCTGeometryCalculations::IntersectionsWithGapSemicircle(
 	)
 {
 
-	UShort_t	nIntersectionsCircle;
+	Short_t	nIntersectionsCircle;
 
 	Double_t	cosFi,
 			theta1,
@@ -1876,12 +1876,12 @@ UShort_t PndTrkCTGeometryCalculations::IntersectionsWithGapSemicircle(
 
 //----------start  function PndTrkCTGeometryCalculations::IntersectionsWithOpenPolygon
 
-UShort_t  PndTrkCTGeometryCalculations::IntersectionsWithOpenPolygon(
+Short_t  PndTrkCTGeometryCalculations::IntersectionsWithOpenPolygon(
 	//-------- inputs
 	Double_t Oxx, // Track parameter
 	Double_t Oyy, // Track parameter
 	Double_t Rr, // Track parameter
-	UShort_t nSides, // input, n. of Sides of open Polygon.
+	Short_t nSides, // input, n. of Sides of open Polygon.
 	Double_t *a, //  coefficient of formula :  aX + bY + c = 0 defining
 	Double_t *b, //  the Polygon sides.
 	Double_t *c,
@@ -1897,7 +1897,7 @@ UShort_t  PndTrkCTGeometryCalculations::IntersectionsWithOpenPolygon(
 
 
 
-	UShort_t i,
+	Short_t i,
 		 is,
 		 j,
 		 nIntersections,
@@ -2025,7 +2025,7 @@ bool PndTrkCTGeometryCalculations::IsInTargetPipe(
 	Double_t gap
 	)
 {
-	UShort_t nintersections;
+	Short_t nintersections;
 
 	Double_t	delta,
 			XintersectionList[8],
