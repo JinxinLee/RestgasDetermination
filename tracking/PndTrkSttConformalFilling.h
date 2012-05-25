@@ -21,25 +21,25 @@ class PndTrkSttConformalFilling : public TObject
 
   void BoxConformalFilling(
 
-	UShort_t *FiConformalIndex,
+	Short_t *FiConformalIndex,
 	void* HitsinBoxConf,
 	bool *InclusionListStt,
 	Double_t infoparalConformal[][5],
-	UShort_t *ListSttParHits,
-	UShort_t MAXHITSINCELL,
+	Short_t *ListSttParHits,
+	Short_t MAXHITSINCELL,
 	void* nBoxConf,
-	UShort_t NFIDIVCONFORMAL,
-	UInt_t Nparal,
-	UShort_t NRDIVCONFORMAL,
+	Short_t NFIDIVCONFORMAL,
+	Int_t Nparal,
+	Short_t NRDIVCONFORMAL,
 	Double_t *radiaConf,
-	UShort_t *RConformalIndex
+	Short_t *RConformalIndex
 	);
 
   void FromXYtoConformal(
 	Double_t trajectory_vertex[2],
 	Double_t info[][7],
-	UShort_t *ListSttParHits,
-	UInt_t Nparal,
+	Short_t *ListSttParHits,
+	Int_t Nparal,
 	Double_t infoparalConformal[][5],
 	Double_t STRAWRADIUS
 	);
