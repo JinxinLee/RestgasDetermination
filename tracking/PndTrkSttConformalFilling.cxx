@@ -3,7 +3,6 @@
 #include <iostream>
 // Root includes
 #include "TROOT.h"
-#include <vector>
 
 using namespace std;
 
@@ -14,15 +13,15 @@ using namespace std;
 void PndTrkSttConformalFilling::BoxConformalFilling(
 	UShort_t *FiConformalIndex,
 	void* HitsinBoxConf,
-	std::vector <bool> *InclusionListStt,
+	bool *InclusionListStt,
 	Double_t infoparalConformal[][5],
-	std::vector <UShort_t> *ListSttParHits,
+	UShort_t *ListSttParHits,
 	UShort_t MAXHITSINCELL,
 	void* nBoxConf,
 	UShort_t NFIDIVCONFORMAL,
 	UInt_t Nparal,
 	UShort_t NRDIVCONFORMAL,
-	std::vector <Double_t> *radiaConf,
+	Double_t *radiaConf,
 	UShort_t *RConformalIndex
 						)
 {
@@ -51,9 +50,9 @@ void PndTrkSttConformalFilling::BoxConformalFilling(
  }
 
  for(i = 0; i< Nparal ; i++){
-	if( ! InclusionListStt->at( ListSttParHits->at(i) ) ) continue;
-	Fi = atan2(infoparalConformal[ListSttParHits->at(i)][1],
-		infoparalConformal[ListSttParHits->at(i)][0]) ;
+	if( ! InclusionListStt[ ListSttParHits[i] ] ) continue;
+	Fi = atan2(infoparalConformal[ListSttParHits[i]][1],
+		infoparalConformal[ListSttParHits[i]][0]) ;
 	if ( Fi < 0. ) Fi += 2.*PI;
 	iFi =  (Short_t) (0.5*NFIDIVCONFORMAL*Fi/PI);
 	if(iFi > NFIDIVCONFORMAL ) {
@@ -63,13 +62,13 @@ void PndTrkSttConformalFilling::BoxConformalFilling(
 	}
 
 
-	Double_t RRR = sqrt(infoparalConformal[ListSttParHits->at(i)][0]*
-			infoparalConformal[ListSttParHits->at(i)][0]+
-			infoparalConformal[ListSttParHits->at(i)][1]*
-			infoparalConformal[ListSttParHits->at(i)][1]);
+	Double_t RRR = sqrt(infoparalConformal[ListSttParHits[i]][0]*
+			infoparalConformal[ListSttParHits[i]][0]+
+			infoparalConformal[ListSttParHits[i]][1]*
+			infoparalConformal[ListSttParHits[i]][1]);
 
 	for(j=NRDIVCONFORMAL-1, iR=0; j>0; j--){ 
-		if( RRR> radiaConf->at(j) ){
+		if( RRR> radiaConf[j] ){
 			iR = j;
 			break;
 		}
@@ -82,10 +81,10 @@ void PndTrkSttConformalFilling::BoxConformalFilling(
 		 continue;
 	}
 	HitsinBoxConformal[ nBoxConformal[iR][iFi] ][iR][iFi]
-		=(UShort_t) ListSttParHits->at(i);
+		=(UShort_t) ListSttParHits[i];
 	nBoxConformal[iR][iFi]++;
-	RConformalIndex[ ListSttParHits->at(i) ]  =  iR;
-	FiConformalIndex[ ListSttParHits->at(i) ]  =  iFi;
+	RConformalIndex[ ListSttParHits[i] ]  =  iR;
+	FiConformalIndex[ ListSttParHits[i] ]  =  iFi;
  }  // end of for(i = 0; i< Nparal ; i++)
 
 
@@ -104,7 +103,7 @@ void PndTrkSttConformalFilling::BoxConformalFilling(
 void PndTrkSttConformalFilling::FromXYtoConformal(
 	Double_t trajectory_vertex[2],
 	Double_t info[][7],
-	std::vector <UShort_t> *ListSttParHits,
+	UShort_t *ListSttParHits,
 	UInt_t Nparal,
 	Double_t infoparalConformal[][5],
 	Double_t STRAWRADIUS
@@ -127,16 +126,16 @@ void PndTrkSttConformalFilling::FromXYtoConformal(
 	y;
 
   for(i=0; i<Nparal; i++){
-	x = info[ListSttParHits->at(i)][0]-trajectory_vertex[0];
-	y = info[ListSttParHits->at(i)][1]-trajectory_vertex[1];
-	r = info[ListSttParHits->at(i)][3];
+	x = info[ListSttParHits[i]][0]-trajectory_vertex[0];
+	y = info[ListSttParHits[i]][1]-trajectory_vertex[1];
+	r = info[ListSttParHits[i]][3];
 	gamma = x*x + y*y - r*r;
-	infoparalConformal[ListSttParHits->at(i)][0] = x / gamma;
-	infoparalConformal[ListSttParHits->at(i)][1] = y / gamma;
-	infoparalConformal[ListSttParHits->at(i)][2] = r/fabs(gamma);
+	infoparalConformal[ListSttParHits[i]][0] = x / gamma;
+	infoparalConformal[ListSttParHits[i]][1] = y / gamma;
+	infoparalConformal[ListSttParHits[i]][2] = r/fabs(gamma);
 	//  n. of the Hit (in the original order)
-	infoparalConformal[ListSttParHits->at(i)][3] = ListSttParHits->at(i) ;
-	infoparalConformal[ListSttParHits->at(i)][4] = STRAWRADIUS/fabs(gamma);
+	infoparalConformal[ListSttParHits[i]][3] = ListSttParHits[i] ;
+	infoparalConformal[ListSttParHits[i]][4] = STRAWRADIUS/fabs(gamma);
 
   }
 
