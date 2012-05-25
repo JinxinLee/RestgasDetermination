@@ -36,13 +36,13 @@ bool PndTrkCTFindTrackInXY::AcceptHitsConformal(
 
 
 
-UShort_t PndTrkCTFindTrackInXY::AssociateSciTilHit(
+Short_t PndTrkCTFindTrackInXY::AssociateSciTilHit(
 	Double_t dimensionscitil,
 	Double_t *esse, // output, list of  S of the SciTil hits associated. 
 	bool* InclusionListSciTil,
-	UShort_t *List, // output, list of SciTil hits associated (max. 2);
-	UShort_t maxscitilhitsintrack,
-	UShort_t nSciTilHits,
+	Short_t *List, // output, list of SciTil hits associated (max. 2);
+	Short_t maxscitilhitsintrack,
+	Short_t nSciTilHits,
 	Double_t Oxx,
 	Double_t Oyy,
 	Double_t posizSciTil[][3],
@@ -52,7 +52,7 @@ UShort_t PndTrkCTFindTrackInXY::AssociateSciTilHit(
 
  bool intersect;
 
- UShort_t
+ Short_t
 	igoodScit,
 	iScitHit,
 	Nint;
@@ -117,14 +117,14 @@ UShort_t PndTrkCTFindTrackInXY::AssociateSciTilHit(
 void PndTrkCTFindTrackInXY::FindCharge(
 	Double_t oX,
 	Double_t oY,
-	UShort_t nParallelHits,
+	Short_t nParallelHits,
 	Double_t *X,
 	Double_t *Y,
 	Short_t  * Charge
 	)
 {
 
-	UShort_t ihit,
+	Short_t ihit,
 			nleft,
 			nright;
 
@@ -191,7 +191,7 @@ bool PndTrkCTFindTrackInXY::FindTrackInXYProjection(
 
 //---------------
 
- UShort_t
+ Short_t
 	i,
 	j,
 	Naux,
@@ -463,7 +463,7 @@ bool PndTrkCTFindTrackInXY::FindTrackInXYProjection(
 //  P2 =  [ x0+abs{(L/2)*y0/RR}; y0+SIGN*abs{(L/2)*x0/RR} ].
 
  bool intersect;
- UShort_t
+ Short_t
 	Nint;
 //	nSciT;
  Double_t distance,
@@ -666,26 +666,26 @@ bool PndTrkCTFindTrackInXY::FindTrackInXYProjection(
 //----------begin of function PndTrkCTFindTrackInXY::FindTrackPatterninBoxConformal
 
 Short_t PndTrkCTFindTrackInXY::FindTrackPatterninBoxConformal(
-	UShort_t *FiConformalIndex,
-	UShort_t* HitsinBoxConformal,
+	Short_t *FiConformalIndex,
+	Short_t* HitsinBoxConformal,
 	Short_t ihit, // seed hit;
 	bool *InclusionListStt,
 	Double_t info[][7],
-	UShort_t* ListHitsinTrack,
-	UShort_t* ListSttParHits,
-	UShort_t maxstthitsintrack,
-	UShort_t maxstthits,
-	UShort_t minimumhitspertrack,
-	UShort_t* nBoxConformal,
-	UShort_t nfid,  // divisions in Fi in conformal;
-	UShort_t nFicell, // Fi cell of the seed hit;
-	UShort_t NFiCELLDISTANCE,
-	UShort_t Nparal,
+	Short_t* ListHitsinTrack,
+	Short_t* ListSttParHits,
+	Short_t maxstthitsintrack,
+	Short_t maxstthits,
+	Short_t minimumhitspertrack,
+	Short_t* nBoxConformal,
+	Short_t nfid,  // divisions in Fi in conformal;
+	Short_t nFicell, // Fi cell of the seed hit;
+	Short_t NFiCELLDISTANCE,
+	Short_t Nparal,
 	Short_t nRcell, // R cell of the seed hit;
 	// can be negative beacuse of SciTil hits;
-	UShort_t NRCELLDISTANCE,
-	UShort_t *RConformalIndex,
-	UShort_t nrd  // divisions in R in conformal;
+	Short_t NRCELLDISTANCE,
+	Short_t *RConformalIndex,
+	Short_t nrd  // divisions in R in conformal;
 			)
 {
 
@@ -694,7 +694,7 @@ Short_t PndTrkCTFindTrackInXY::FindTrackPatterninBoxConformal(
 	TemporaryInclusionList[maxstthits];
 
  Short_t	i;
- UShort_t	j,
+ Short_t	j,
 		iFi,
 		iR,
 		nRmin,
@@ -709,19 +709,19 @@ Short_t PndTrkCTFindTrackInXY::FindTrackPatterninBoxConformal(
  Double_t auxRvalues[maxstthits];
 
 
- // make a POINTER to an ARRAY[nfid] of UShort_t and assign value present in the calling
+ // make a POINTER to an ARRAY[nfid] of Short_t and assign value present in the calling
  // sequence of this method;
-// UShort_t (*nBoxConformal)[nfid] = (UShort_t (*)[nfid]) nBoxConf;
-// UShort_t (*nBoxConformal)[nfid] ;
+// Short_t (*nBoxConformal)[nfid] = (Short_t (*)[nfid]) nBoxConf;
+// Short_t (*nBoxConformal)[nfid] ;
 // &nBoxConformal[0][0] = nBoxConf;
 
 
 
- // make a POINTER to an ARRAY[nrd][nfid] of UShort_t and assign value present
+ // make a POINTER to an ARRAY[nrd][nfid] of Short_t and assign value present
  // in the calling sequence of this method;
-// UShort_t (*HitsinBoxConformal)[nrd][nfid]=
-//		(UShort_t (*)[nrd][nfid])HitsinBoxConf;
-// UShort_t (*HitsinBoxConformal)[nrd][nfid];
+// Short_t (*HitsinBoxConformal)[nrd][nfid]=
+//		(Short_t (*)[nrd][nfid])HitsinBoxConf;
+// Short_t (*HitsinBoxConformal)[nrd][nfid];
 // &HitsinBoxConformal[0][0][0] = HitsinBoxConf;
 
 
@@ -824,31 +824,31 @@ Short_t PndTrkCTFindTrackInXY::FindTrackPatterninBoxConformal(
 //  instead of all the parallel list.
 
 Short_t PndTrkCTFindTrackInXY::FindTrackPatterninBoxConformalSpecial(
-	UShort_t *FiConformalIndex,
-	UShort_t* HitsinBoxConformal,
+	Short_t *FiConformalIndex,
+	Short_t* HitsinBoxConformal,
 	bool *InclusionListStt,
 	Double_t info[][7],
-	UShort_t iSeed,
-	UShort_t *ListHitsinTrackinWhichToSearch,
-	UShort_t* ListSttParHits,
-	UShort_t maxstthits,
-	UShort_t minimumhitspertrack,
-	UShort_t* nBoxConformal,
-	UShort_t NFiCELLDISTANCE,
-	UShort_t nfid,  // divisions in Fi in the conformal;
-	UShort_t Nparal,
-	UShort_t NparallelToSearch,
-	UShort_t NRCELLDISTANCE,
-	UShort_t nrd,  // divisions in R in the conformal;
-	UShort_t *OutputListHitsinTrack,
-	UShort_t *RConformalIndex
+	Short_t iSeed,
+	Short_t *ListHitsinTrackinWhichToSearch,
+	Short_t* ListSttParHits,
+	Short_t maxstthits,
+	Short_t minimumhitspertrack,
+	Short_t* nBoxConformal,
+	Short_t NFiCELLDISTANCE,
+	Short_t nfid,  // divisions in Fi in the conformal;
+	Short_t Nparal,
+	Short_t NparallelToSearch,
+	Short_t NRCELLDISTANCE,
+	Short_t nrd,  // divisions in R in the conformal;
+	Short_t *OutputListHitsinTrack,
+	Short_t *RConformalIndex
 					)
 {
 
 
  bool TemporaryInclusionList[maxstthits];
 
- UShort_t	i,
+ Short_t	i,
 		i2,
 		j,
 		iFi,
@@ -867,17 +867,17 @@ Short_t PndTrkCTFindTrackInXY::FindTrackPatterninBoxConformalSpecial(
  Double_t auxRvalues[maxstthits];
 
 
- // make a POINTER to an ARRAY[nfid] of UShort_t and assign value present in the calling
+ // make a POINTER to an ARRAY[nfid] of Short_t and assign value present in the calling
  // sequence of this method;
-// UShort_t (*nBoxConformal)[nfid] = (UShort_t (*)[nfid]) nBoxConf;
-// UShort_t (*nBoxConformal)[nfid];
+// Short_t (*nBoxConformal)[nfid] = (Short_t (*)[nfid]) nBoxConf;
+// Short_t (*nBoxConformal)[nfid];
 // &nBoxConformal[0][0]=nBoxConf;
 
- // make a POINTER to an ARRAY[nrd][nfid] of UShort_t and assign value present
+ // make a POINTER to an ARRAY[nrd][nfid] of Short_t and assign value present
  // in the calling sequence of this method;
-// UShort_t (*HitsinBoxConformal)[nrd][nfid]=
-//		(UShort_t (*)[nrd][nfid])HitsinBoxConf;
-// UShort_t (*HitsinBoxConformal)[nrd][nfid];
+// Short_t (*HitsinBoxConformal)[nrd][nfid]=
+//		(Short_t (*)[nrd][nfid])HitsinBoxConf;
+// Short_t (*HitsinBoxConformal)[nrd][nfid];
 // &HitsinBoxConformal[0][0][0] = HitsinBoxConf;
 
 
@@ -968,21 +968,21 @@ Short_t PndTrkCTFindTrackInXY::FindTrackPatterninBoxConformalSpecial(
 //----------begin of function PndTrkCTFindTrackInXY::FindTrackStrictCollection
 
 Short_t PndTrkCTFindTrackInXY::FindTrackStrictCollection(
-	UShort_t *FiConformalIndex,
+	Short_t *FiConformalIndex,
 	bool *InclusionListStt,
 	//  seed track (original notation) as far as the Fi angle is concerned
-	UShort_t iSeed,
-	UShort_t *ListHitsinTrackinWhichToSearch,
-	UShort_t maxstthits,
-	UShort_t NFiCELLDISTANCE,
-	UShort_t nfid,
+	Short_t iSeed,
+	Short_t *ListHitsinTrackinWhichToSearch,
+	Short_t maxstthits,
+	Short_t NFiCELLDISTANCE,
+	Short_t nfid,
 	//  n. of hits to search in ListHitsinTrackinWhichToSearch
-	UShort_t NParallelToSearch,
-	UShort_t  *OutputListHitsinTrack
+	Short_t NParallelToSearch,
+	Short_t  *OutputListHitsinTrack
 	)
 {
 
- UShort_t
+ Short_t
 	i,
 	iFi,
 	iFiseed,
@@ -1050,8 +1050,8 @@ void PndTrkCTFindTrackInXY::OrderingParallel(
 	Double_t *Fi_final_helix_referenceframe,
 	Double_t *Fi_initial_helix_referenceframe,
 	Double_t info[][7],
-	UShort_t *ListParallelHits,
-	UShort_t nParallelHits,
+	Short_t *ListParallelHits,
+	Short_t nParallelHits,
 	Double_t oX,
 	Double_t oY,
 	Double_t *U,
@@ -1059,7 +1059,7 @@ void PndTrkCTFindTrackInXY::OrderingParallel(
 	)
 {
 
- UShort_t
+ Short_t
 	i,
 	j,
 	tmp[nParallelHits];
@@ -1111,7 +1111,7 @@ void PndTrkCTFindTrackInXY::OrderingParallel(
 		}
 		MergeSort.Merge_Sort( nParallelHits, U, tempo);
 		for (j = 0; j< nParallelHits; j++){
-			ListParallelHits[j] = (UShort_t) tempo[j];
+			ListParallelHits[j] = (Short_t) tempo[j];
 		}
 
 		if((aaa>b1&&aaa<3.*b1)){  //  case #1;
@@ -1167,7 +1167,7 @@ void PndTrkCTFindTrackInXY::OrderingParallel(
 		}
 		MergeSort.Merge_Sort( nParallelHits, V, tempo);
 		for (j = 0; j< nParallelHits; j++){
-			ListParallelHits[j] = (UShort_t) tempo[j];
+			ListParallelHits[j] = (Short_t) tempo[j];
 		}
 
 		if((aaa<=-3.*b1 || aaa>=3.*b1)){  //  case #2;
@@ -1259,27 +1259,27 @@ void PndTrkCTFindTrackInXY::OrderingParallel(
 
 //----------begin of function PndTrkTrackFinderReal::TrkAssociatedParallelHitsToHelixQuater
 
-UShort_t PndTrkCTFindTrackInXY::TrkAssociatedParallelHitsToHelixQuater(
-	UShort_t *auxListHitsinTrack,
+Short_t PndTrkCTFindTrackInXY::TrkAssociatedParallelHitsToHelixQuater(
+	Short_t *auxListHitsinTrack,
 	Double_t deltanr,
-	UShort_t *FiConformalIndex,
-	UShort_t* HitsinBoxConformal,
+	Short_t *FiConformalIndex,
+	Short_t* HitsinBoxConformal,
 	bool* InclusionListStt,
 	Double_t info[][7],
 	Double_t infoparalConformal[][5],
-	UShort_t *ListHitsinTrack,
+	Short_t *ListHitsinTrack,
 	Double_t m,
-	UShort_t maxstthits,
-	UShort_t* nBoxConformal,
-	UShort_t nfid,
-	UShort_t nHitsinTrack,
-	UInt_t NhitsParallel,
-	UShort_t nrd,
+	Short_t maxstthits,
+	Short_t* nBoxConformal,
+	Short_t nfid,
+	Short_t nHitsinTrack,
+	Int_t NhitsParallel,
+	Short_t nrd,
 	Double_t Oxx,
 	Double_t Oyy,
 	Double_t q,
 	Double_t* radiaConf,
-	UShort_t *RConformalIndex,
+	Short_t *RConformalIndex,
 	Double_t Rr,
 	Double_t rstrawdetectormin,
 	Short_t Status,
@@ -1294,7 +1294,7 @@ UShort_t PndTrkCTFindTrackInXY::TrkAssociatedParallelHitsToHelixQuater(
 	Unselected[maxstthits];  // this has to be at least nSttHits large.
   Short_t i, i2, j, k, l,  l2, l3, itemp, kstart, kend,
           iFi0,FFimin, FFimax;
-  UShort_t Nextra=8,
+  Short_t Nextra=8,
            nFi,
            Fi,
            nR,
@@ -1325,18 +1325,18 @@ UShort_t PndTrkCTFindTrackInXY::TrkAssociatedParallelHitsToHelixQuater(
 
 
 
- // make a POINTER to an ARRAY[nfid] of UShort_t and assign value present in the calling
+ // make a POINTER to an ARRAY[nfid] of Short_t and assign value present in the calling
  // sequence of this method;
-// UShort_t (*nBoxConformal)[nfid] = (UShort_t (*)[nfid]) nBoxConf;
-// UShort_t (*nBoxConformal)[nfid];
+// Short_t (*nBoxConformal)[nfid] = (Short_t (*)[nfid]) nBoxConf;
+// Short_t (*nBoxConformal)[nfid];
 
 // &nBoxConformal[0][0] = nBoxConf;
 
- // make a POINTER to an ARRAY[nrd][nfid] of UShort_t and assign value present
+ // make a POINTER to an ARRAY[nrd][nfid] of Short_t and assign value present
  // in the calling sequence of this method;
-// UShort_t (*HitsinBoxConformal)[nrd][nfid]=
-//		(UShort_t (*)[nrd][nfid])HitsinBoxConf;
-// UShort_t (*HitsinBoxConformal)[nrd][nfid];
+// Short_t (*HitsinBoxConformal)[nrd][nfid]=
+//		(Short_t (*)[nrd][nfid])HitsinBoxConf;
+// Short_t (*HitsinBoxConformal)[nrd][nfid];
 
 // &HitsinBoxConformal[0][0][0]=HitsinBoxConf;
 
@@ -1358,7 +1358,7 @@ UShort_t PndTrkCTFindTrackInXY::TrkAssociatedParallelHitsToHelixQuater(
   for(j=0; j<nHitsinTrack; j++){
 
 
-    i = (UShort_t)  infoparalConformal[ ListHitsinTrack[j] ][3];
+    i = (Short_t)  infoparalConformal[ ListHitsinTrack[j] ][3];
 
 
     if( FiConformalIndex[i] <  FFimin ) FFimin = FiConformalIndex[i];
@@ -1370,7 +1370,7 @@ UShort_t PndTrkCTFindTrackInXY::TrkAssociatedParallelHitsToHelixQuater(
      FFimin = 10000;
      FFimax =  0;
      for(j=0; j<nHitsinTrack; j++){
-       i = (UShort_t)  infoparalConformal[ ListHitsinTrack[j] ][3];
+       i = (Short_t)  infoparalConformal[ ListHitsinTrack[j] ][3];
        Fi = FiConformalIndex[i];
        if( Fi < nfid/4. ) Fi = FiConformalIndex[i]+nfid;
        if( Fi <  FFimin ) FFimin = Fi;
@@ -1418,11 +1418,11 @@ if( FFimax - FFimin > nfid/2 ) {
         }
 
 
-        for(l=(UShort_t) (-deltanr) ; l<(UShort_t)deltanr+1;l++){
+        for(l=(Short_t) (-deltanr) ; l<(Short_t)deltanr+1;l++){
           l2 = nR+l;
           if(  l2<0 || l2 >= nrd )  continue;
               for( k=0;k<*(nBoxConformal+l2*nrd+i);k++){
-                nHit_original = (UShort_t)
+                nHit_original = (Short_t)
 			infoparalConformal[*(HitsinBoxConformal+k*nrd*nfid+l2*nfid+i)][3];
 		if( !InclusionListStt[ nHit_original ] ) continue;
 // check if the hit position is near the circle of the Helix found by the fit
@@ -1442,7 +1442,7 @@ if( FFimax - FFimin > nfid/2 ) {
                     nAssociatedHits++; 
                 }
               }	//  end of  for( k=0;k<*(nBoxConformal....
-        }   //   end of for(l=(UShort_t)(-deltanr);l<(UShort_t)deltanr+1;l++)
+        }   //   end of for(l=(Short_t)(-deltanr);l<(Short_t)deltanr+1;l++)
 
 
         //------- special cases
@@ -1457,7 +1457,7 @@ if( FFimax - FFimin > nfid/2 ) {
              l3 = nR+l;
              if(  l3<0 || l3 >= nrd )  continue;
               for( k=0;k<*(nBoxConformal+l3*nfid+i2);k++){
-                nHit_original = (UShort_t)
+                nHit_original = (Short_t)
 			infoparalConformal[*(HitsinBoxConformal+k*nrd*nfid+l3*nfid+i2)][3];
 		if( !InclusionListStt[ nHit_original ] ) continue;
 // check if the hit position is near the circle of the Helix found by the fit
@@ -1492,7 +1492,7 @@ if( FFimax - FFimin > nfid/2 ) {
              l3 = nR+l;
              if(  l3<0 || l3 >= nrd )  continue;
               for( k=0;k<*(nBoxConformal+l3*nfid+i2);k++){
-                nHit_original = (UShort_t)
+                nHit_original = (Short_t)
 			infoparalConformal[*(HitsinBoxConformal+k*nrd*nfid+l3*nfid+i2)][3];
 		if( !InclusionListStt[ nHit_original ] ) continue;
 // check if the hit position is near the circle of the Helix found by the fit
@@ -1546,7 +1546,7 @@ if( FFimax - FFimin > nfid/2 ) {
         }
         for(l=0; l<nrd;l++){
               for( k=0;k<*(nBoxConformal+l*nfid+i);k++){
-                nHit_original = (UShort_t)
+                nHit_original = (Short_t)
 			infoparalConformal[*(HitsinBoxConformal+k*nrd*nfid+l*nfid+i)][3];
 		if( !InclusionListStt[ nHit_original ] ) continue;
 // check if the hit position is near the circle of the Helix found by the fit
@@ -1671,7 +1671,7 @@ if( FFimax - FFimin > nfid/2 ) {
 
                  for( l3=0;l3<*(nBoxConformal+k*nfid+l2);l3++){
 		   if( ! Unselected[*(HitsinBoxConformal+l3*nrd*nfid+k*nfid+l2)] )  continue;
-		   nHit_original = (UShort_t) infoparalConformal
+		   nHit_original = (Short_t) infoparalConformal
 			[*(HitsinBoxConformal+l3*nrd*nfid+k*nfid+l2)][3];
 		   if( !InclusionListStt[ nHit_original ] ) continue;
 // check if the hit position is near the circle of the Helix found by the fit
@@ -1716,7 +1716,7 @@ if( FFimax - FFimin > nfid/2 ) {
          }
         for(l=0; l<nrd;l++){
               for( k=0;k<*(nBoxConformal+l*nfid+i);k++){
-                nHit_original = (UShort_t)
+                nHit_original = (Short_t)
 			infoparalConformal[*(HitsinBoxConformal+k*nrd*nfid+l*nfid+i)][3];
 		if( !InclusionListStt[ nHit_original ] ) continue;
 // check if the hit position is near the circle of the Helix found by the fit
@@ -1759,14 +1759,14 @@ if( FFimax - FFimin > nfid/2 ) {
 
 //----------begin of function PndTrkCTFindTrackInXY::TrkAssociatedParallelHitsToHelix5
 
-UShort_t PndTrkCTFindTrackInXY::TrkAssociatedParallelHitsToHelix5(
-	UShort_t *auxListHitsinTrack,
+Short_t PndTrkCTFindTrackInXY::TrkAssociatedParallelHitsToHelix5(
+	Short_t *auxListHitsinTrack,
 	bool *InclusionListStt,
 	Double_t Fi_low,
 	Double_t Fi_up,
 	Double_t info[][7],
-	UShort_t *ListSttParHits,
-	UInt_t NhitsParallel,
+	Short_t *ListSttParHits,
+	Int_t NhitsParallel,
 	Double_t Oxx,
 	Double_t Oyy,
 	Double_t Rr,
@@ -1776,7 +1776,7 @@ UShort_t PndTrkCTFindTrackInXY::TrkAssociatedParallelHitsToHelix5(
 
   Short_t i;
 
-  UShort_t nAssociatedHits;
+  Short_t nAssociatedHits;
 
   Double_t angle,
            dx,
