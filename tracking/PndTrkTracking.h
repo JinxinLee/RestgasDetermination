@@ -98,12 +98,17 @@ class PndTrkTracking : public FairTask
 	;
   bool
 	doMcComparison,
+	SingleHitListStt[MAXSTTHITS],
 	iplotta,
 	MvdAloneTracking,
 	YesClean,
 	YesCleanMvd,
 	YesSciTil,
-	;
+	InclusionListStt[MAXSTTHITS],
+	InclusionListSciTil[MAXSCITILHITS],
+	inMvdTrackCandPixel[MAXMVDPIXELHITS],
+	inMvdTrackCandStrip[MAXMVDSTRIPHITS],
+	TypeConf[MAXTRACKSPEREVENT];
 
   /** object persistence **/
   Bool_t
@@ -122,8 +127,16 @@ class PndTrkTracking : public FairTask
 
 
   UShort_t
+	ListSttParHits[MAXSTTHITS],
+	ListSttSkewHits[MAXSTTHITS],
 	nMCTracks,
 	nSciTilHits,
+	nMvdPixelHitsinTrack[MAXTRACKSPEREVENT],
+	nMvdStripHitsinTrack[MAXTRACKSPEREVENT],
+	nSciTilHitsinTrack[MAXTRACKSPEREVENT],
+	nSttParHitsinTrack[MAXTRACKSPEREVENT],
+	nSttSkewHitsinTrack[MAXTRACKSPEREVENT],
+	nTrackCandHit[MAXTRACKSPEREVENT],
 	ListMvdPixelHitsinTrack[MAXTRACKSPEREVENT][MAXMVDPIXELHITSINTRACK],
 	ListMvdStripHitsinTrack[MAXTRACKSPEREVENT][MAXMVDSTRIPHITSINTRACK],
 	ListSttParHitsinTrack[MAXTRACKSPEREVENT][MAXSTTHITSINTRACK],
@@ -147,6 +160,11 @@ class PndTrkTracking : public FairTask
 	nMvdUSStripHitNotTrackCand,
 	ListHitMvdTrackCand[MAXMVDTRACKSPEREVENT][MAXMVDPIXELHITSINTRACK+MAXMVDSTRIPHITSINTRACK],
 	ListHitTypeMvdTrackCand[MAXMVDTRACKSPEREVENT][MAXMVDPIXELHITSINTRACK+MAXMVDSTRIPHITSINTRACK],
+	ListMvdDSPixelHitNotTrackCand[MAXMVDPIXELHITS],
+	ListMvdUSPixelHitNotTrackCand[MAXMVDPIXELHITS],
+	nHitMvdTrackCand[MAXMVDTRACKSPEREVENT],
+	ListMvdDSStripHitNotTrackCand[MAXMVDSTRIPHITS],
+	ListMvdUSStripHitNotTrackCand[MAXMVDSTRIPHITS],
   //  type = 0 --> Mvd Pixel;  type = 1 --> Mvd Strip; type = 1 --> Mvd Strip; type = 2 --> Stt Parallel
   //  type = 3 --> Stt Straw; type 1001 --> SciTil;  type -1 -->  noise.
 	ListTrackCandHitType[MAXTRACKSPEREVENT][MAXSTTHITSINTRACK+MAXMVDPIXELHITSINTRACK+MAXMVDSTRIPHITSINTRACK+MAXSCITILHITSINTRACK];
@@ -158,61 +176,41 @@ class PndTrkTracking : public FairTask
 
 
   Double_t
+	ALFA[MAXTRACKSPEREVENT],
+	BETA[MAXTRACKSPEREVENT],
+	CxMC[MAXMCTRACKS],
+	CyMC[MAXMCTRACKS],
 	Fimin,
+	GAMMA[MAXTRACKSPEREVENT],
+	MCSkewAloneX[MAXSTTHITS],
+	MCSkewAloneY[MAXSTTHITS],
 	MCtruthTrkInfo[15][MAXMCTRACKS],
+	Ox[MAXTRACKSPEREVENT],
+	Oy[MAXTRACKSPEREVENT],
 	posizSciTil[MAXSCITILHITS][3],
+	R[MAXTRACKSPEREVENT],
+	refindexMvdPixel[MAXMVDPIXELHITS],
+	refindexMvdStrip[MAXMVDSTRIPHITS],
+	radiaConf[NRDIVCONFORMAL],
+	R_MC[MAXMCTRACKS],
 	SciTilHitsXwithTrack[MAXTRACKSPEREVENT][MAXSCITILHITSINTRACK],
 	SciTilHitsYwithTrack[MAXTRACKSPEREVENT][MAXSCITILHITSINTRACK],
 	SEMILENGTH_STRAIGHT,
+	sigmaXMvdPixel[MAXMVDPIXELHITS],
+	sigmaYMvdPixel[MAXMVDPIXELHITS],
+	sigmaZMvdPixel[MAXMVDPIXELHITS],
+	sigmaXMvdStrip[MAXMVDSTRIPHITS],
+	sigmaYMvdStrip[MAXMVDSTRIPHITS],
+	sigmaZMvdStrip[MAXMVDSTRIPHITS],
 	S_SciTilHitsinTrack[MAXTRACKSPEREVENT][MAXSCITILHITS],
+	XMvdPixel[MAXMVDPIXELHITS],
+	XMvdStrip[MAXMVDSTRIPHITS],
+	YMvdPixel[MAXMVDPIXELHITS],
+	YMvdStrip[MAXMVDSTRIPHITS],
 	ZCENTER_STRAIGHT,
-	;
+	ZMvdPixel[MAXMVDPIXELHITS],
+	ZMvdStrip[MAXMVDSTRIPHITS];
 
-  std::vector <bool>* SingleHitListStt;
-  std::vector <bool>* InclusionListStt;
-  std::vector <bool>* InclusionListSciTil;
-  std::vector <bool>* inMvdTrackCandPixel;
-  std::vector <bool>* inMvdTrackCandStrip;
-  std::vector <bool>* TypeConf;
-  std::vector <UShort_t>* ListSttParHits;
-  std::vector <UShort_t>* ListSttSkewHits;
-  std::vector <UShort_t>* nMvdPixelHitsinTrack;
-  std::vector <UShort_t>* nMvdStripHitsinTrack;
-  std::vector <UShort_t>* nSciTilHitsinTrack;
-  std::vector <UShort_t>* nSttParHitsinTrack;
-  std::vector <UShort_t>* nSttSkewHitsinTrack;
-  std::vector <UShort_t>* nTrackCandHit;
-  std::vector <Short_t>* ListMvdDSPixelHitNotTrackCand;
-  std::vector <Short_t>* ListMvdUSPixelHitNotTrackCand;
-  std::vector <Short_t>* nHitMvdTrackCand;
-  std::vector <Short_t>* ListMvdDSStripHitNotTrackCand;
-  std::vector <Short_t>* ListMvdUSStripHitNotTrackCand;
-  std::vector <Double_t>* ALFA;
-  std::vector <Double_t>* BETA;
-  std::vector <Double_t>* CxMC;
-  std::vector <Double_t>* CyMC;
-  std::vector <Double_t>* GAMMA;
-  std::vector <Double_t>* MCSkewAloneX;
-  std::vector <Double_t>* MCSkewAloneY;
-  std::vector <Double_t>* Ox;
-  std::vector <Double_t>* Oy;
-  std::vector <Double_t>* R;
-  std::vector <Double_t>* refindexMvdPixel;
-  std::vector <Double_t>* refindexMvdStrip;
-  std::vector <Double_t>* radiaConf;
-  std::vector <Double_t>* R_MC;
-  std::vector <Double_t>* sigmaXMvdPixel;
-  std::vector <Double_t>* sigmaYMvdPixel;
-  std::vector <Double_t>* sigmaZMvdPixel;
-  std::vector <Double_t>* sigmaXMvdStrip;
-  std::vector <Double_t>* sigmaYMvdStrip;
-  std::vector <Double_t>* sigmaZMvdStrip;
-  std::vector <Double_t>* XMvdPixel;
-  std::vector <Double_t>* XMvdStrip;
-  std::vector <Double_t>* YMvdPixel;
-  std::vector <Double_t>* YMvdStrip;
-  std::vector <Double_t>* ZMvdPixel;
-  std::vector <Double_t>* ZMvdStrip;
   FILE
 	* HANDLE,
 	* HANDLE2,
