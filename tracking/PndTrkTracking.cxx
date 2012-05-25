@@ -1,4 +1,3 @@
-#include <vector>
 #include "glpk.h"
 #include "PndTrkTracking.h"
 #include "PndTrkSttConformalFilling.h"
@@ -98,7 +97,7 @@ PndTrkTracking::PndTrkTracking() : FairTask("Tracking") {
  YesCleanMvd = true;
  YesSciTil = false ;
  MvdAloneTracking = true;
-// Initialization_ClassVariables();
+ Initialization_ClassVariables();
  sprintf(fSttBranch,"STTHit");
  sprintf(fMvdPixelBranch,"MVDHitsPixel");
  sprintf(fMvdStripBranch,"MVDHitsStrip");
@@ -115,7 +114,7 @@ PndTrkTracking::PndTrkTracking(Int_t verbose) : FairTask("Tracking") {
  YesSciTil = false ;
  MvdAloneTracking = true;
 
-// Initialization_ClassVariables();
+ Initialization_ClassVariables();
  sprintf(fSttBranch,"STTHit");
  sprintf(fMvdPixelBranch,"MVDHitsPixel");
  sprintf(fMvdStripBranch,"MVDHitsStrip");
@@ -132,7 +131,7 @@ PndTrkTracking::PndTrkTracking(int istamp, bool  iplot, bool imc)
  YesCleanMvd = true;
  YesSciTil = false ;
  MvdAloneTracking = true;
-// Initialization_ClassVariables();
+ Initialization_ClassVariables();
  sprintf(fSttBranch,"STTHit");
  sprintf(fMvdPixelBranch,"MVDHitsPixel");
 
@@ -152,7 +151,7 @@ PndTrkTracking::PndTrkTracking(int istamp, bool  iplot, bool imc, bool doSciTil)
  YesCleanMvd = true;
  YesSciTil = doSciTil ;
  MvdAloneTracking = true;
-// Initialization_ClassVariables();
+ Initialization_ClassVariables();
  sprintf(fSttBranch,"STTHit");
  sprintf(fMvdPixelBranch,"MVDHitsPixel");
 
@@ -565,6 +564,25 @@ if(istampa >=1 ){
 //-----------------------
 
 
+//   calculate the boundaries of the Box in Conformal Space, see Gianluigi logbook on pag. 210-211
+ UShort_t i;
+ Double_t
+	A,
+	r1,
+	r2;
+
+ radiaConf[0] = 1./RSTRAWDETECTORMAX;
+ r1 = RSTRAWDETECTORMIN;
+ A = (RSTRAWDETECTORMAX - r1)/NRDIVCONFORMAL;
+ if ( NRDIVCONFORMAL > 1 ) {
+	for(i = 1; i< NRDIVCONFORMAL ; i++){
+		r2 = r1 + A;
+		radiaConf[NRDIVCONFORMAL-i] = 1./r2;
+		r1=r2;
+	}
+ }
+
+
 
 
  return kSUCCESS;
@@ -604,97 +622,6 @@ void PndTrkTracking::WriteHistograms(){
 // -----   Public method Exec   --------------------------------------------
 // -----   Public method Exec   --------------------------------------------
 void PndTrkTracking::Exec(Option_t* opt) {
-
-  std::vector <bool> temp_var0(MAXSTTHITS,0);
-		SingleHitListStt = &temp_var0;
-  std::vector <bool> temp_var1(MAXSTTHITS,0);
-		InclusionListStt = &temp_var1;
-  std::vector <bool> temp_var2(MAXSCITILHITS,0);
-		InclusionListSciTil = &temp_var2;
-  std::vector <bool> temp_var3(MAXMVDPIXELHITS,0);
-		inMvdTrackCandPixel = &temp_var3;
-  std::vector <bool> temp_var4(MAXMVDSTRIPHITS,0);
-		inMvdTrackCandStrip = &temp_var4;
-  std::vector <bool> temp_var5(MAXTRACKSPEREVENT,0);
-		TypeConf = &temp_var5;
-  std::vector <UShort_t> temp_var6(MAXSTTHITS,0);
-		ListSttParHits = &temp_var6;
-  std::vector <UShort_t> temp_var7(MAXSTTHITS,0);
-		ListSttSkewHits = &temp_var7;
-  std::vector <UShort_t> temp_var8(MAXTRACKSPEREVENT,0);
-		nMvdPixelHitsinTrack = &temp_var8;
-  std::vector <UShort_t> temp_var9(MAXTRACKSPEREVENT,0);
-		nMvdStripHitsinTrack = &temp_var9;
-  std::vector <UShort_t> temp_var10(MAXTRACKSPEREVENT,0);
-		nSciTilHitsinTrack = &temp_var10;
-  std::vector <UShort_t> temp_var11(MAXTRACKSPEREVENT,0);
-		nSttParHitsinTrack = &temp_var11;
-  std::vector <UShort_t> temp_var12(MAXTRACKSPEREVENT,0);
-		nSttSkewHitsinTrack = &temp_var12;
-  std::vector <UShort_t> temp_var13(MAXTRACKSPEREVENT,0);
-		nTrackCandHit = &temp_var13;
-  std::vector <Short_t> temp_var14(MAXMVDPIXELHITS,0);
-		ListMvdDSPixelHitNotTrackCand = &temp_var14;
-  std::vector <Short_t> temp_var15(MAXMVDPIXELHITS,0);
-		ListMvdUSPixelHitNotTrackCand = &temp_var15;
-  std::vector <Short_t> temp_var16(MAXMVDTRACKSPEREVENT,0);
-		nHitMvdTrackCand = &temp_var16;
-  std::vector <Short_t> temp_var17(MAXMVDSTRIPHITS,0);
-		ListMvdDSStripHitNotTrackCand = &temp_var17;
-  std::vector <Short_t> temp_var18(MAXMVDSTRIPHITS,0);
-		ListMvdUSStripHitNotTrackCand = &temp_var18;
-  std::vector <Double_t> temp_var19(MAXTRACKSPEREVENT,0);
-		ALFA = &temp_var19;
-  std::vector <Double_t> temp_var20(MAXTRACKSPEREVENT,0);
-		BETA = &temp_var20;
-  std::vector <Double_t> temp_var21(MAXMCTRACKS,0);
-		CxMC = &temp_var21;
-  std::vector <Double_t> temp_var22(MAXMCTRACKS,0);
-		CyMC = &temp_var22;
-  std::vector <Double_t> temp_var23(MAXTRACKSPEREVENT,0);
-		GAMMA = &temp_var23;
-  std::vector <Double_t> temp_var24(MAXSTTHITS,0);
-		MCSkewAloneX = &temp_var24;
-  std::vector <Double_t> temp_var25(MAXSTTHITS,0);
-		MCSkewAloneY = &temp_var25;
-  std::vector <Double_t> temp_var26(MAXTRACKSPEREVENT,0);
-		Ox = &temp_var26;
-  std::vector <Double_t> temp_var27(MAXTRACKSPEREVENT,0);
-		Oy = &temp_var27;
-  std::vector <Double_t> temp_var28(MAXTRACKSPEREVENT,0);
-		R = &temp_var28;
-  std::vector <Double_t> temp_var29(MAXMVDPIXELHITS,0);
-		refindexMvdPixel = &temp_var29;
-  std::vector <Double_t> temp_var30(MAXMVDSTRIPHITS,0);
-		refindexMvdStrip = &temp_var30;
-  std::vector <Double_t> temp_var31(NRDIVCONFORMAL,0);
-		radiaConf = &temp_var31;
-  std::vector <Double_t> temp_var32(MAXMCTRACKS,0);
-		R_MC = &temp_var32;
-  std::vector <Double_t> temp_var33(MAXMVDPIXELHITS,0);
-		sigmaXMvdPixel = &temp_var33;
-  std::vector <Double_t> temp_var34(MAXMVDPIXELHITS,0);
-		sigmaYMvdPixel = &temp_var34;
-  std::vector <Double_t> temp_var35(MAXMVDPIXELHITS,0);
-		sigmaZMvdPixel = &temp_var35;
-  std::vector <Double_t> temp_var36(MAXMVDSTRIPHITS,0);
-		sigmaXMvdStrip = &temp_var36;
-  std::vector <Double_t> temp_var37(MAXMVDSTRIPHITS,0);
-		sigmaYMvdStrip = &temp_var37;
-  std::vector <Double_t> temp_var38(MAXMVDSTRIPHITS,0);
-		sigmaZMvdStrip = &temp_var38;
-  std::vector <Double_t> temp_var39(MAXMVDPIXELHITS,0);
-		XMvdPixel = &temp_var39;
-  std::vector <Double_t> temp_var40(MAXMVDSTRIPHITS,0);
-		XMvdStrip = &temp_var40;
-  std::vector <Double_t> temp_var41(MAXMVDPIXELHITS,0);
-		YMvdPixel = &temp_var41;
-  std::vector <Double_t> temp_var42(MAXMVDSTRIPHITS,0);
-		YMvdStrip = &temp_var42;
-  std::vector <Double_t> temp_var43(MAXMVDPIXELHITS,0);
-		ZMvdPixel = &temp_var43;
-  std::vector <Double_t> temp_var44(MAXMVDSTRIPHITS,0);
-		ZMvdStrip = &temp_var44;
 
  bool
 	flag,
@@ -883,24 +810,6 @@ void PndTrkTracking::Exec(Option_t* opt) {
 
 //------------------------------------
 
-
-//   calculate the boundaries of the Box in Conformal Space, see Gianluigi logbook on pag. 210-211
- Double_t
-	A,
-	r1,
-	r2;
-
- radiaConf->at(0) = 1./RSTRAWDETECTORMAX; 
- r1 = RSTRAWDETECTORMIN;
- A = (RSTRAWDETECTORMAX - r1)/NRDIVCONFORMAL;
- if ( NRDIVCONFORMAL > 1 ) {
-	for(i = 1; i< NRDIVCONFORMAL ; i++){
-		r2 = r1 + A;
-		radiaConf->at(NRDIVCONFORMAL-i) = 1./r2;
-		r1=r2;
-	}
- }
-
  IVOLTE++;
 
  if(istampa>0)
@@ -930,13 +839,13 @@ void PndTrkTracking::Exec(Option_t* opt) {
  for( i= 0; i< nMvdPixelHit; i++){
 	pMvdPixelHit = (PndSdsHit *) fMvdPixelHitArray->At(i);
 	TVector3 temp = pMvdPixelHit->GetPosition();
-	XMvdPixel->at(i) = temp.X();
-	YMvdPixel->at(i) = temp.Y();
-	ZMvdPixel->at(i) = temp.Z();
-	sigmaXMvdPixel->at(i) = pMvdPixelHit->GetDx();
-	sigmaYMvdPixel->at(i) = pMvdPixelHit->GetDy();
-	sigmaZMvdPixel->at(i) = pMvdPixelHit->GetDz();
-	refindexMvdPixel->at(i) = pMvdPixelHit->GetRefIndex();
+	XMvdPixel[i] = temp.X();
+	YMvdPixel[i] = temp.Y();
+	ZMvdPixel[i] = temp.Z();
+	sigmaXMvdPixel[i] = pMvdPixelHit->GetDx();
+	sigmaYMvdPixel[i] = pMvdPixelHit->GetDy();
+	sigmaZMvdPixel[i] = pMvdPixelHit->GetDz();
+	refindexMvdPixel[i] = pMvdPixelHit->GetRefIndex();
  }
 
 // -------------------------------------------  extract info from HITS Strip MVD
@@ -944,13 +853,13 @@ void PndTrkTracking::Exec(Option_t* opt) {
  for( i= 0; i< nMvdStripHit; i++){
 	pMvdStripHit = (PndSdsHit *) fMvdStripHitArray->At(i);
 	TVector3 temp = pMvdStripHit->GetPosition();
-	XMvdStrip->at(i) = temp.X();
-	YMvdStrip->at(i) = temp.Y();
-	ZMvdStrip->at(i) = temp.Z();
-	sigmaXMvdStrip->at(i) = pMvdStripHit->GetDx();
-	sigmaYMvdStrip->at(i) = pMvdStripHit->GetDy();
-	sigmaZMvdStrip->at(i) = pMvdStripHit->GetDz();
-	refindexMvdStrip->at(i) = pMvdStripHit->GetRefIndex();
+	XMvdStrip[i] = temp.X();
+	YMvdStrip[i] = temp.Y();
+	ZMvdStrip[i] = temp.Z();
+	sigmaXMvdStrip[i] = pMvdStripHit->GetDx();
+	sigmaYMvdStrip[i] = pMvdStripHit->GetDy();
+	sigmaZMvdStrip[i] = pMvdStripHit->GetDz();
+	refindexMvdStrip[i] = pMvdStripHit->GetRefIndex();
  }
 
 
@@ -1056,11 +965,11 @@ void PndTrkTracking::Exec(Option_t* opt) {
 
 	if( fabs( WDX[i] )< 0.00001 && fabs( WDY[i] )< 0.00001 ){
 		info[i][5]= 1.;
-		ListSttParHits->at(nSttParHit)=i;
+		ListSttParHits[nSttParHit]=i;
 		nSttParHit++;
 	} else {
 		info[i][5]= 99.;// to signal that it is a skew straw.
-		ListSttSkewHits->at(nSttSkewHit)=i;
+		ListSttSkewHits[nSttSkewHit]=i;
 		nSttSkewHit++;
 	}
 
@@ -1142,7 +1051,7 @@ void PndTrkTracking::Exec(Option_t* opt) {
 	 //  set the inclusion list of the SciTils to true.
 
 	for(i=0;i<nSciTilHits;i++){
-		InclusionListSciTil->at(i)=true;
+		InclusionListSciTil[i]=true;
 	}
 
 //	 memset(InclusionListSciTil,true,nSciTilHits);
@@ -1235,7 +1144,7 @@ void PndTrkTracking::Exec(Option_t* opt) {
  input.deltanr = DELTAnR;
  input.dimensionscitil = DIMENSIONSCITIL;
  input.FiConformalIndex = FiConformalIndex;
- input.HitsinBoxConf = HitsinBoxConformal;
+ input.HitsinBoxConf = &HitsinBoxConformal[0][0][0];
  input.InclusionListStt = InclusionListStt;
  input.InclusionListSciTil = InclusionListSciTil;
  input.info = info;
@@ -1247,7 +1156,7 @@ void PndTrkTracking::Exec(Option_t* opt) {
  input.maxstthitsintrack = MAXSTTHITSINTRACK;
  input.minimumhitspertrack = MINIMUMHITSPERTRACK;
  input.minouterhitspertrack = MINOUTERHITSPERTRACK;
- input.nBoxConf = nBoxConformal;
+ input.nBoxConf = &nBoxConformal[0][0];
  input.nFicell = nFicell; // Fi cell of the seed hit;
  input.nfidivconformal = NFIDIVCONFORMAL;
  input.nrdivconformal = NRDIVCONFORMAL;
@@ -1273,47 +1182,46 @@ void PndTrkTracking::Exec(Option_t* opt) {
 
 
 	if( nSttTrackCand > MAXTRACKSPEREVENT-1) break;
-	if( ! InclusionListStt->at(ListSttParHits->at(iParHit)) )  continue;
+	if( ! InclusionListStt[ListSttParHits[iParHit]] )  continue;
 
 	// inputs for the FindTrackInXYProjection class;
-	nRcell = RConformalIndex[ListSttParHits->at(iParHit)];
-	nFicell = FiConformalIndex[ListSttParHits->at(iParHit)];
+	nRcell = RConformalIndex[ListSttParHits[iParHit]];
+	nFicell = FiConformalIndex[ListSttParHits[iParHit]];
 
 	// output results from FindTrackInXYProjection will be stored here;
 
-	input.ALFA = &ALFA->at(nSttTrackCand);
-	input.BETA = &BETA->at(nSttTrackCand);
+	input.ALFA = &ALFA[nSttTrackCand];
+	input.BETA = &BETA[nSttTrackCand];
 	input.Charge = &Charge[nSttTrackCand];
 	input.Fi_final_helix_referenceframe = &Fi_final_helix_referenceframe[nSttTrackCand];
 	input.Fi_initial_helix_referenceframe = &Fi_initial_helix_referenceframe[nSttTrackCand];
 	input.Fi_low_limit = &Fi_low_limit[nSttTrackCand];
 	input.Fi_up_limit = &Fi_up_limit[nSttTrackCand];
-	input.GAMMA = &GAMMA->at(nSttTrackCand);
+	input.GAMMA = &GAMMA[nSttTrackCand];
 	input.iHit = iParHit;	// seed hit; it is negative for SciTil Hits.
 	input.ListHitsinTrack = &ListSttParHitsinTrack[nSttTrackCand][0];
 	input.ListSciTilHitsinTrack = &ListSciTilHitsinTrack[nSttTrackCand][0];
 	input.nFicell = nFicell;  // Fi cell of the seed hit;
-	input.nHitsinTrack = &nSttParHitsinTrack->at(nSttTrackCand);
+	input.nHitsinTrack = &nSttParHitsinTrack[nSttTrackCand];
 	input.nRcell = nRcell;  // R cell of the seed hit;
-	input.nSciTilHitsinTrack = &nSciTilHitsinTrack->at(nSttTrackCand);
-	input.Oxx = &Ox->at(nSttTrackCand);
-	input.Oyy = &Oy->at(nSttTrackCand);
-	input.Rr = &R->at(nSttTrackCand);
+	input.nSciTilHitsinTrack = &nSciTilHitsinTrack[nSttTrackCand];
+	input.Oxx = &Ox[nSttTrackCand];
+	input.Oyy = &Oy[nSttTrackCand];
+	input.Rr = &R[nSttTrackCand];
 	input.S_SciTilHitsinTrack = &S_SciTilHitsinTrack[nSttTrackCand][0];
-  bool Tipo; input.TypeConf = &Tipo;
+	input.TypeConf = &TypeConf[nSttTrackCand];
 	input.U = &U[nSttTrackCand][0];
 	input.V = &V[nSttTrackCand][0];
 
 	outcome = SttTrackXYFinder.FindTrackInXYProjection(&input);
 
 	if(!outcome)  continue;
- TypeConf->at(nSttTrackCand) = Tipo;
 
 
 // --------  here the track and its hits were found, filling the Inclusion list
 
- for(j=0; j<nSttParHitsinTrack->at(nSttTrackCand); j++){
-   InclusionListStt->at(ListSttParHitsinTrack[nSttTrackCand][j]) = false;
+ for(j=0; j<nSttParHitsinTrack[nSttTrackCand]; j++){
+   InclusionListStt[ListSttParHitsinTrack[nSttTrackCand][j]] = false;
  }
  keepit[nSttTrackCand]=true;
 
@@ -1367,19 +1275,19 @@ void PndTrkTracking::ExtractInfoFromMvdTrackCand()
 	TVector3 posSeed=pMvdTrackCand->getPosSeed();
 	qop = pMvdTrackCand->getQoverPseed();
 	// n. hits in this track cand
-	nHitMvdTrackCand->at(i) = pMvdTrackCand->GetNHits();
-	if( nHitMvdTrackCand->at(i)>MAXMVDPIXELHITSINTRACK+MAXMVDSTRIPHITSINTRACK){
-		cout<<"from PndTrkTracking, nHitMvdTrackCand->at(i) = "<<nHitMvdTrackCand->at(i)
+	nHitMvdTrackCand[i] = pMvdTrackCand->GetNHits();
+	if( nHitMvdTrackCand[i]>MAXMVDPIXELHITSINTRACK+MAXMVDSTRIPHITSINTRACK){
+		cout<<"from PndTrkTracking, nHitMvdTrackCand[i] = "<<nHitMvdTrackCand[i]
 		<<" and it is > MAXMVDPIXELHITSINTRACK+MAXMVDSTRIPHITSINTRACK (="
 		<<MAXMVDPIXELHITSINTRACK+MAXMVDSTRIPHITSINTRACK
-		<<"); setting nHitMvdTrackCand->at(i) to "
+		<<"); setting nHitMvdTrackCand[i] to "
 		<<MAXMVDPIXELHITSINTRACK+MAXMVDSTRIPHITSINTRACK<<endl;
-	nHitMvdTrackCand->at(i)=MAXMVDPIXELHITSINTRACK+MAXMVDSTRIPHITSINTRACK;
+	nHitMvdTrackCand[i]=MAXMVDPIXELHITSINTRACK+MAXMVDSTRIPHITSINTRACK;
 	}
 
 	UShort_t kPixel,kStrip;
 
-	for(j=0, k=0, kPixel=0, kStrip=0; j<nHitMvdTrackCand->at(i); j++){
+	for(j=0, k=0, kPixel=0, kStrip=0; j<nHitMvdTrackCand[i]; j++){
 		pndtrackcandhit = pMvdTrackCand->GetSortedHit(j);
 
 	// the following case should never happen (in principle), but, just to be on
@@ -1402,7 +1310,7 @@ void PndTrkTracking::ExtractInfoFromMvdTrackCand()
 		}
 
 
-		inMvdTrackCandPixel->at( pndtrackcandhit.GetHitId() )= true;
+		inMvdTrackCandPixel[ pndtrackcandhit.GetHitId() ]= true;
 		ListHitTypeMvdTrackCand[i][k] = pndtrackcandhit.GetDetId();
 					  // this in reality is the Branch name of
 					  // Hit; this Branch name is used to identify
@@ -1426,7 +1334,7 @@ void PndTrkTracking::ExtractInfoFromMvdTrackCand()
 			continue;
 		}
 
-		inMvdTrackCandStrip->at( pndtrackcandhit.GetHitId() )= true;
+		inMvdTrackCandStrip[ pndtrackcandhit.GetHitId() ]= true;
 		ListHitTypeMvdTrackCand[i][k] = pndtrackcandhit.GetDetId();
 					  // this in reality is the Branch name of
 					  // Hit; this Branch name is used to identify
@@ -1446,7 +1354,7 @@ void PndTrkTracking::ExtractInfoFromMvdTrackCand()
 
      }    //   end of    for(j=0; j<nHitMvdTrackCand; j++)
 
-     nHitMvdTrackCand->at(i)=k; // if the case, readjust the # of hits in this candidate.
+     nHitMvdTrackCand[i]=k; // if the case, readjust the # of hits in this candidate.
 
   }   //   end of        for( i= 0; i< nMvdTrackCand ; i++)
 
@@ -1459,24 +1367,24 @@ void PndTrkTracking::ExtractInfoFromMvdTrackCand()
   nMvdUSStripHitNotTrackCand=0;
   nMvdDSStripHitNotTrackCand=0;
   for( i= 0; i< nMvdPixelHit ; i++){
-	if( ! inMvdTrackCandPixel->at(i) ){
-		if( ZMvdPixel->at(i)>=0.){
-			ListMvdDSPixelHitNotTrackCand->at(nMvdDSPixelHitNotTrackCand) = i;
+	if( ! inMvdTrackCandPixel[i] ){
+		if( ZMvdPixel[i]>=0.){
+			ListMvdDSPixelHitNotTrackCand[nMvdDSPixelHitNotTrackCand] = i;
 			nMvdDSPixelHitNotTrackCand++;
 		} else {
-			ListMvdUSPixelHitNotTrackCand->at(nMvdUSPixelHitNotTrackCand) = i;
+			ListMvdUSPixelHitNotTrackCand[nMvdUSPixelHitNotTrackCand] = i;
 			nMvdUSPixelHitNotTrackCand++;
 		}
 	}
   }
 
   for( i= 0; i< nMvdStripHit ; i++){
-	if( ! inMvdTrackCandStrip->at(i) ){
-		if( ZMvdStrip->at(i)>=0.){
-			ListMvdDSStripHitNotTrackCand->at(nMvdDSStripHitNotTrackCand) = i;
+	if( ! inMvdTrackCandStrip[i] ){
+		if( ZMvdStrip[i]>=0.){
+			ListMvdDSStripHitNotTrackCand[nMvdDSStripHitNotTrackCand] = i;
 			nMvdDSStripHitNotTrackCand++;
 		} else {
-			ListMvdUSStripHitNotTrackCand->at(nMvdUSStripHitNotTrackCand) = i;
+			ListMvdUSStripHitNotTrackCand[nMvdUSStripHitNotTrackCand] = i;
 			nMvdUSStripHitNotTrackCand++;
 		}
 	}
@@ -1500,8 +1408,8 @@ void PndTrkTracking::MakeInclusionListStt(
 
 // it needs to be initialized for each event !
  for(i=0;i<nSttHit;i++){
-	InclusionListStt->at(i) = true;
-	SingleHitListStt->at(i) = true;
+	InclusionListStt[i] = true;
+	SingleHitListStt[i] = true;
  }
 
 
@@ -1511,13 +1419,13 @@ void PndTrkTracking::MakeInclusionListStt(
 
 
  for(i=0; i< nSttHit-1; i++){
-	if( !InclusionListStt->at( i ) ) continue;
+	if( !InclusionListStt[ i ] ) continue;
 	for(j=i+1; j< nSttHit; j++){
-		if(InclusionListStt->at( j ) &&
+		if(InclusionListStt[ j ] &&
 			fabs(info[i][0] - info[j][0])<1.e-20 &&
 			fabs(info[i][1] - info[j][1])<1.e-20  )
 		{
-			SingleHitListStt->at(j)=InclusionListStt->at(j)= false ;
+			SingleHitListStt[j]=InclusionListStt[j]= false ;
 		}
 	} //  end of  for(j=i+1; j< Nhits;; j++)
 
