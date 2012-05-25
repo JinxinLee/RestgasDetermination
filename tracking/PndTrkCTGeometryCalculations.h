@@ -84,7 +84,7 @@ class PndTrkCTGeometryCalculations : public TObject
 	Double_t Oyy,
 	Short_t  Charge,
 	Double_t FiStart,
-	UShort_t nIntersections,
+	Short_t nIntersections,
 	Double_t *XintersectionList,
 	Double_t *YintersectionList,
 	Double_t Xcross[2],	// output
@@ -210,7 +210,7 @@ class PndTrkCTGeometryCalculations : public TObject
 	Double_t Oxx, // center of circle.
 	Double_t Oyy,
 	Double_t Rr, // Radius of circle.
-	UShort_t * Nintersections,
+	Short_t * Nintersections,
 	Double_t XintersectionList[2],
 	Double_t YintersectionList[2],
 	Double_t *distance
@@ -225,7 +225,7 @@ class PndTrkCTGeometryCalculations : public TObject
 	Double_t Oxx, // center of circle.
 	Double_t Oyy,
 	Double_t Rr, // Radius of circle.
-	UShort_t * Nintersections,
+	Short_t * Nintersections,
 	Double_t XintersectionList[2],
 	Double_t YintersectionList[2]
 	);
@@ -240,7 +240,7 @@ class PndTrkCTGeometryCalculations : public TObject
 	Double_t Ama,	// Apotema max of outer Hexagon;
 
 	//-------- outputs
-	UShort_t *nIntersections,
+	Short_t *nIntersections,
 	Double_t *XintersectionList,
 	Double_t *YintersectionList
 	);
@@ -254,7 +254,7 @@ class PndTrkCTGeometryCalculations : public TObject
 	Double_t Ama,	// Apotema max of outer Hexagon;
 
 	//-------- outputs
-	UShort_t *nIntersections,
+	Short_t *nIntersections,
 	Double_t *XintersectionList,
 	Double_t *YintersectionList
 	);
@@ -268,14 +268,14 @@ class PndTrkCTGeometryCalculations : public TObject
 	Double_t Rma,	// Rmax of cylindrical volume intersected by track;
 
 	//-------- outputs
-	UShort_t nIntersections[2],
+	Short_t nIntersections[2],
 	Double_t XintersectionList[][2],
 	Double_t YintersectionList[][2]
 	);
 
 
 
-  UShort_t IntersectionsWithGapSemicircle(
+  Short_t IntersectionsWithGapSemicircle(
 	Double_t Oxx,
 	Double_t Oyy,
 	Double_t Rr,
@@ -286,11 +286,11 @@ class PndTrkCTGeometryCalculations : public TObject
 	Double_t *YintersectionList
 	);
 
-  UShort_t IntersectionsWithOpenPolygon(
+  Short_t IntersectionsWithOpenPolygon(
 	Double_t Oxx, // Track parameter
 	Double_t Oyy, // Track parameter
 	Double_t Rr, // Track parameter
-	UShort_t nSides, // input, n. of Sides of open Polygon.
+	Short_t nSides, // input, n. of Sides of open Polygon.
 	Double_t *a, //  coefficient of formula :  aX + bY + c = 0 defining
 	Double_t *b, //  the Polygon sides.
 	Double_t *c,
