@@ -45,7 +45,7 @@
 
 // integer constants
 
-#define MAXHITSINCELL		50
+#define MAXHITSINCELL		20
 // the following MAXHITSINFIT cannot be too large because the fit
 // crashes 'silently' for too much memory consumption in the character arrays
 // or takes too long time;
@@ -201,7 +201,7 @@ void PndTrkTracking::Initialization_ClassVariables()
 	len = sizeof(fMvdStripBranch);
 	memset (fMvdStripBranch,0,len);
 
-//  UShort_t :
+//  Short_t :
 
 	nMCTracks=0;
 	nSciTilHits=0;
@@ -382,7 +382,7 @@ void PndTrkTracking::Initialization_ClassVariables()
 	memset (SciTilHitsYwithTrack,0,len);
 
 
-//  puntatori :
+//  pointers :
 
 	HANDLE=NULL;
 	HANDLE2=NULL;
@@ -565,7 +565,7 @@ if(istampa >=1 ){
 
 
 //   calculate the boundaries of the Box in Conformal Space, see Gianluigi logbook on pag. 210-211
- UShort_t i;
+ Short_t i;
  Double_t
 	A,
 	r1,
@@ -632,7 +632,7 @@ void PndTrkTracking::Exec(Option_t* opt) {
 	status[MAXTRACKSPEREVENT],
 	SttSZfit[MAXTRACKSPEREVENT];
 
- UShort_t
+ Short_t
 	nalone,
 	ncand,
 	nhitsinfit,
@@ -684,7 +684,7 @@ void PndTrkTracking::Exec(Option_t* opt) {
 	statusflag[MAXTRACKSPEREVENT]
 	;
 
- UInt_t
+ Int_t
 	iaccept,
 	nSttHit,
 	nSttMCPoint,
@@ -1178,9 +1178,6 @@ void PndTrkTracking::Exec(Option_t* opt) {
 //   begins the first iteration with more severe cuts on the # hits in track candidate
  for(iParHit=0; iParHit<nSttParHit + 1 -  MINIMUMHITSPERTRACK ; iParHit++) {
 
-
-
-
 	if( nSttTrackCand > MAXTRACKSPEREVENT-1) break;
 	if( ! InclusionListStt[ListSttParHits[iParHit]] )  continue;
 
@@ -1257,7 +1254,7 @@ void PndTrkTracking::Exec(Option_t* opt) {
 void PndTrkTracking::ExtractInfoFromMvdTrackCand()
 {
 
-  UShort_t
+  Short_t
 	i,
 	j,
 	k;
@@ -1285,7 +1282,7 @@ void PndTrkTracking::ExtractInfoFromMvdTrackCand()
 	nHitMvdTrackCand[i]=MAXMVDPIXELHITSINTRACK+MAXMVDSTRIPHITSINTRACK;
 	}
 
-	UShort_t kPixel,kStrip;
+	Short_t kPixel,kStrip;
 
 	for(j=0, k=0, kPixel=0, kStrip=0; j<nHitMvdTrackCand[i]; j++){
 		pndtrackcandhit = pMvdTrackCand->GetSortedHit(j);
@@ -1399,7 +1396,7 @@ void PndTrkTracking::ExtractInfoFromMvdTrackCand()
 
 
 void PndTrkTracking::MakeInclusionListStt(
-	UInt_t nSttHit,
+	Int_t nSttHit,
 	Double_t info[][7]
 	)
 {
