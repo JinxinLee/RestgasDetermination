@@ -165,7 +165,7 @@ PndSttTrackFinderReal::~PndSttTrackFinderReal()
 //  int  :
 	IVOLTE=-1;
 
-//  UShort_t :
+//  Short_t :
 
 	nRdivConformalEffective=0;
 	nSciTilHits=0;
@@ -275,7 +275,7 @@ void PndSttTrackFinderReal::WriteHistograms(){
 void PndSttTrackFinderReal::Init() 
 {
 
-   UShort_t i;
+   Short_t i;
    Double_t    r1, r2, A ,
               tempRadiaConf[nRdivConformal];
 
@@ -463,7 +463,7 @@ Int_t PndSttTrackFinderReal::DoFind(TClonesArray* trackCandArray, TClonesArray *
 
 
 
- UShort_t
+ Short_t
 	emme,
 	exitstatus,
 	inclination_type,
@@ -515,7 +515,7 @@ Int_t PndSttTrackFinderReal::DoFind(TClonesArray* trackCandArray, TClonesArray *
 	nFicell,
 	nRcell;
 
- UShort_t
+ Short_t
 	exphit,
 	iExclude,
 	imc,
@@ -550,7 +550,7 @@ Int_t PndSttTrackFinderReal::DoFind(TClonesArray* trackCandArray, TClonesArray *
 	nBoxConformal[nRdivConformal][nFidivConformal];  //  first index -> radial divisions, 2nd index -> azimuthal divisions; n. of
 							//  hits falling in this cell
 
-	UShort_t HitsinBoxConformal[MAXHITSINCELL][nRdivConformal][nFidivConformal];
+	Short_t HitsinBoxConformal[MAXHITSINCELL][nRdivConformal][nFidivConformal];
 		//  first index -> radial divisions, 2nd index -> azimuthal divisions;
 
 
@@ -2855,18 +2855,18 @@ cout<<"fine printout iniziale\n";
 
 //----------begin function PndSttTrackFinderReal::PndSttTrkAssociatedParallelHitsToHelix
 
-  UShort_t PndSttTrackFinderReal::PndSttTrkAssociatedParallelHitsToHelix(
+  Short_t PndSttTrackFinderReal::PndSttTrkAssociatedParallelHitsToHelix(
                    Double_t Ox,
                    Double_t Oy,
                    Double_t R,
                    Int_t Nhits,
                    Double_t info[][7],
-                   UShort_t *auxListHitsinTrack              //  this is the output
+                   Short_t *auxListHitsinTrack              //  this is the output
                                                      )
 {
 
     Int_t i;
-    UShort_t Nassociatedhits;
+    Short_t Nassociatedhits;
 
     Double_t dx, dy,distance;
 
@@ -3256,7 +3256,7 @@ cout<<"fine printout iniziale\n";
 
 
   bool  PndSttTrackFinderReal::iscontiguous(
-                int ncomponents, UShort_t * vec1, UShort_t *vec2)
+                int ncomponents, Short_t * vec1, Short_t *vec2)
 {
 
     for(int i=0; i<ncomponents;i++){
@@ -3272,14 +3272,14 @@ cout<<"fine printout iniziale\n";
 //----------end of function PndSttTrackFinderReal::iscontiguous
 
 void PndSttTrackFinderReal::clustering2(
-          UShort_t vec1[2],                                       // input
-          int nListElements, UShort_t List[][2],                 // input
-          int & nClusterElementsFound, UShort_t ClusterElementsFound[][2],  // output
-          int & nRemainingElements, UShort_t  RemainingElements[][2]     // output
+          Short_t vec1[2],                                       // input
+          int nListElements, Short_t List[][2],                 // input
+          int & nClusterElementsFound, Short_t ClusterElementsFound[][2],  // output
+          int & nRemainingElements, Short_t  RemainingElements[][2]     // output
                 )
 {
    int i;
-   UShort_t  vec2[2];
+   Short_t  vec2[2];
 
    nClusterElementsFound=0;
    nRemainingElements=0;
@@ -3305,14 +3305,14 @@ void PndSttTrackFinderReal::clustering2(
 //----------end of function PndSttTrackFinderReal::clustering2
 
 void PndSttTrackFinderReal::clustering3 (
-          UShort_t vec1[3],                                       // input
-          int nListElements, UShort_t List[][3],                 // input
-          int & nClusterElementsFound, UShort_t ClusterElementsFound[][3],  // output
-          int & nRemainingElements, UShort_t  RemainingElements[][3]     // output
+          Short_t vec1[3],                                       // input
+          int nListElements, Short_t List[][3],                 // input
+          int & nClusterElementsFound, Short_t ClusterElementsFound[][3],  // output
+          int & nRemainingElements, Short_t  RemainingElements[][3]     // output
                 )
 {
    int i;
-   UShort_t  vec2[3];
+   Short_t  vec2[3];
 
    nClusterElementsFound=0;
    nRemainingElements=0;
@@ -3352,7 +3352,7 @@ void PndSttTrackFinderReal::clustering3 (
                    Int_t Nhits, Double_t info[][7],
 		   Int_t Nincl, Int_t Minclinations[],
 		   Double_t inclination[][3],
-                   UShort_t nTracksFoundSoFar
+                   Short_t nTracksFoundSoFar
                                                      )
 {
 
@@ -3915,7 +3915,7 @@ if(istampa>= 3 && IVOLTE <= nmassimo) {
 		   Int_t Nincl,
 		    Int_t Minclinations[],
 		     Double_t inclination[][3],
-                   UShort_t nTracksFoundSoFar
+                   Short_t nTracksFoundSoFar
                                                      )
 {
 
@@ -4241,9 +4241,9 @@ fprintf(MACRO,"TEllipse* E%d = new TEllipse(%f,%f,%f,%f,0.,360.);\nE%d->SetLineW
 
   void PndSttTrackFinderReal::WriteMacroParallelHitsConformalwithMCspecial(
                    Int_t Nhits,
-//                   UShort_t iExclude,
+//                   Short_t iExclude,
                    Double_t auxinfoparalConformal[][5],
-                   UShort_t nTracksFoundSoFar,
+                   Short_t nTracksFoundSoFar,
 //                   Double_t * ALFA, 
 //                   Double_t * BETA, 
 //                   Double_t * GAMMA, 
@@ -4518,14 +4518,14 @@ fprintf(MACRO,"TEllipse* E%d = new TEllipse(%f,%f,%f,%f,0.,360.);\nE%d->SetLineW
 	Double_t Ox,
 	Double_t Oy,
 	Double_t R,
-	UShort_t Nhits,
-	UShort_t ListHitsinTrack[MAXTRACKSPEREVENT][nmaxHitsInTrack],
+	Short_t Nhits,
+	Short_t ListHitsinTrack[MAXTRACKSPEREVENT][nmaxHitsInTrack],
 	Double_t info[][7], Int_t Nincl, Int_t Minclinations[],
 	Double_t inclination[][3],
-	UShort_t imaxima,
+	Short_t imaxima,
 	Int_t sequencial,
-	UShort_t nscitilhitsintrack,
-	UShort_t *listscitilhitsintrack
+	Short_t nscitilhitsintrack,
+	Short_t *listscitilhitsintrack
 			)
 {
 
@@ -4682,19 +4682,19 @@ fprintf(MACRO,"TEllipse* E%d = new TEllipse(%f,%f,%f,%f,0.,360.);\nE%d->SetLineW
 	Double_t Oy,
 	Double_t R,
 	Short_t TrackFoundaTrackMC,
-	UShort_t Nhits,
-	UShort_t ListHitsinTrack[MAXTRACKSPEREVENT][nmaxHitsInTrack],
+	Short_t Nhits,
+	Short_t ListHitsinTrack[MAXTRACKSPEREVENT][nmaxHitsInTrack],
 	Double_t info[][7],
-	UShort_t ifoundtrack,
+	Short_t ifoundtrack,
 	Int_t sequentialNTrack,
-	UShort_t nscitilhitsintrack,
-	UShort_t *listscitilhitsintrack,
-		UShort_t nParalCommon[MAXTRACKSPEREVENT],
-		UShort_t ParalCommonList[MAXTRACKSPEREVENT][nmaxHits],
-		UShort_t nSpuriParinTrack[MAXTRACKSPEREVENT],
-		UShort_t ParSpuriList[MAXTRACKSPEREVENT][nmaxHits],
-		UShort_t nMCParalAlone[MAXTRACKSPEREVENT],
-		UShort_t MCParalAloneList[MAXTRACKSPEREVENT][nmaxHits]
+	Short_t nscitilhitsintrack,
+	Short_t *listscitilhitsintrack,
+		Short_t nParalCommon[MAXTRACKSPEREVENT],
+		Short_t ParalCommonList[MAXTRACKSPEREVENT][nmaxHits],
+		Short_t nSpuriParinTrack[MAXTRACKSPEREVENT],
+		Short_t ParSpuriList[MAXTRACKSPEREVENT][nmaxHits],
+		Short_t nMCParalAlone[MAXTRACKSPEREVENT],
+		Short_t MCParalAloneList[MAXTRACKSPEREVENT][nmaxHits]
                                                      )
 {
 
@@ -4906,9 +4906,9 @@ fprintf(MACRO,"TEllipse* E%d = new TEllipse(%f,%f,%f,%f,0.,360.);\nE%d->SetLineW
                    Double_t inclination[][3],
                    Int_t imaxima,
 	Int_t sequentialNTrack,
-	UShort_t nSttSkewhitinTrack,
-	UShort_t ListSkewHitsinTrack[MAXTRACKSPEREVENT][nmaxHitsInTrack],
-	UShort_t nscitilhits,
+	Short_t nSttSkewhitinTrack,
+	Short_t ListSkewHitsinTrack[MAXTRACKSPEREVENT][nmaxHitsInTrack],
+	Short_t nscitilhits,
 	Double_t *ESSE,
 	Double_t *ZETA
                                                      )
@@ -5197,14 +5197,14 @@ fprintf(MACRO,"TLine* FOUND%d = new TLine(%f,%f,%f,%f);\nFOUND%d->SetLineColor(2
                    Double_t inclination[][3],
                    Int_t imaxima,
 		   Int_t sequentialNTrack,
-                   UShort_t nSttSkewhitinTrack,
-                   UShort_t ListSkewHitsinTrack[MAXTRACKSPEREVENT][nmaxHitsInTrack],
-                   UShort_t nSkewCommon,
-                   UShort_t SkewCommonList[MAXTRACKSPEREVENT][nmaxHits],
-                   UShort_t daTrackFoundaTrackMC,
-		UShort_t nMCSkewAlone[MAXTRACKSPEREVENT],
-		UShort_t MCSkewAloneList[MAXTRACKSPEREVENT][nmaxHits],
-	UShort_t nscitilhits,
+                   Short_t nSttSkewhitinTrack,
+                   Short_t ListSkewHitsinTrack[MAXTRACKSPEREVENT][nmaxHitsInTrack],
+                   Short_t nSkewCommon,
+                   Short_t SkewCommonList[MAXTRACKSPEREVENT][nmaxHits],
+                   Short_t daTrackFoundaTrackMC,
+		Short_t nMCSkewAlone[MAXTRACKSPEREVENT],
+		Short_t MCSkewAloneList[MAXTRACKSPEREVENT][nmaxHits],
+	Short_t nscitilhits,
 	Double_t *ESSE,
 	Double_t *ZETA
                                                      )
@@ -5214,7 +5214,7 @@ fprintf(MACRO,"TLine* FOUND%d = new TLine(%f,%f,%f,%f);\nFOUND%d->SetLineColor(2
 	bool flaggo;
     Int_t i, j, i1, ii, iii, index, Kincl, nlow, nup, STATUS, imc, Nmin, Nmax;
 
-	UShort_t Lista[nmaxHits];
+	Short_t Lista[nmaxHits];
 
     Double_t xmin , xmax, ymin, ymax, Ox, Oy,
            dx, dy, diff, d1, d2,
@@ -5695,9 +5695,9 @@ cout<<"PndSttTrackFinderReal::WriteMacroSkewAssociatedHits, this track found by 
 
  void PndSttTrackFinderReal::PndSttFromXYtoConformal2(
                                 Double_t trajectory_vertex[3],
-                                UShort_t nHitsinTrack ,
-                                UShort_t iExclude ,
-                                UShort_t *ListHits,
+                                Short_t nHitsinTrack ,
+                                Short_t iExclude ,
+                                Short_t *ListHits,
                                 Double_t info[][7],
                                 Double_t auxinfoparalConformal[][5],
                                 Int_t * status
@@ -5762,10 +5762,10 @@ cout<<"PndSttTrackFinderReal::WriteMacroSkewAssociatedHits, this track found by 
  void  PndSttTrackFinderReal::PndSttBoxConformalFilling(
 			bool InclusionList[nmaxHits],
 			Double_t infoparalConformal[][5],Int_t Nparal,
-			UShort_t nBoxConformal[nRdivConformal][nFidivConformal],
-			UShort_t HitsinBoxConformal[][nRdivConformal][nFidivConformal],
-			UShort_t  RConformalIndex[nmaxHits],
-			UShort_t  FiConformalIndex[nmaxHits]
+			Short_t nBoxConformal[nRdivConformal][nFidivConformal],
+			Short_t HitsinBoxConformal[][nRdivConformal][nFidivConformal],
+			Short_t  RConformalIndex[nmaxHits],
+			Short_t  FiConformalIndex[nmaxHits]
 							)
 {
 
@@ -5808,7 +5808,7 @@ cout<<"PndSttTrackFinderReal::WriteMacroSkewAssociatedHits, this track found by 
 	<<MAXHITSINCELL<<endl;
 		 continue;
 	 }
-         HitsinBoxConformal[ nBoxConformal[iR][iFi] ][iR][iFi]=(UShort_t) i;
+         HitsinBoxConformal[ nBoxConformal[iR][iFi] ][iR][iFi]=(Short_t) i;
          nBoxConformal[iR][iFi]++;
          RConformalIndex[ infoparal[i] ]  =  iR;
          FiConformalIndex[ infoparal[i] ]  =  iFi;
@@ -5827,7 +5827,7 @@ cout<<"PndSttTrackFinderReal::WriteMacroSkewAssociatedHits, this track found by 
 
 
 
-void PndSttTrackFinderReal::Merge_Sort(UShort_t n_ele, Double_t *array, UShort_t *ind)
+void PndSttTrackFinderReal::Merge_Sort(Short_t n_ele, Double_t *array, Short_t *ind)
 {
 
 
@@ -5836,7 +5836,7 @@ void PndSttTrackFinderReal::Merge_Sort(UShort_t n_ele, Double_t *array, UShort_t
 //  accordingly.
 
 
-  UShort_t nr, nl, middle, i,
+  Short_t nr, nl, middle, i,
            ind_left[n_ele], ind_right[n_ele];
 
   Double_t left[n_ele], right[n_ele], result[n_ele];
@@ -5883,10 +5883,10 @@ void PndSttTrackFinderReal::Merge_Sort(UShort_t n_ele, Double_t *array, UShort_t
 
 
 
-void PndSttTrackFinderReal::Merge(UShort_t nl, Double_t *left, UShort_t *ind_left, UShort_t nr,
-                                         Double_t *right, UShort_t *ind_right,  Double_t *result, UShort_t *ind)
+void PndSttTrackFinderReal::Merge(Short_t nl, Double_t *left, Short_t *ind_left, Short_t nr,
+                                         Double_t *right, Short_t *ind_right,  Double_t *result, Short_t *ind)
 {
-   UShort_t i =0, j, nl_curr=0, nr_curr=0;
+   Short_t i =0, j, nl_curr=0, nr_curr=0;
 
    while( nl > 0 && nr >0){
      if( left[nl_curr] <= right[nr_curr]){
@@ -5931,19 +5931,19 @@ void PndSttTrackFinderReal::Merge(UShort_t nl, Double_t *left, UShort_t *ind_lef
 
 
   Short_t PndSttTrackFinderReal::PndSttFindTrackPatterninBoxConformal(
-		UShort_t NRCELLDISTANCE,
-		UShort_t NFiCELLDISTANCE,
-		UShort_t Nparal,
+		Short_t NRCELLDISTANCE,
+		Short_t NFiCELLDISTANCE,
+		Short_t Nparal,
 		Short_t ihit, // seed hit; if it is negative it is a SciTil hit.
 		Short_t nRcell, // R cell of the seed hit; can be negative beacuse of SciTil hits;
-		UShort_t nFicell, // Fi cell of the seed hit;
+		Short_t nFicell, // Fi cell of the seed hit;
 		Double_t info[][7],
 		bool InclusionList[nmaxHits],
-		UShort_t RConformalIndex[nmaxHits],
-		UShort_t FiConformalIndex[nmaxHits],
-		UShort_t nBoxConformal[nRdivConformal][nFidivConformal],
-		UShort_t HitsinBoxConformal[][nRdivConformal][nFidivConformal],
-		UShort_t *ListHitsinTrack
+		Short_t RConformalIndex[nmaxHits],
+		Short_t FiConformalIndex[nmaxHits],
+		Short_t nBoxConformal[nRdivConformal][nFidivConformal],
+		Short_t HitsinBoxConformal[][nRdivConformal][nFidivConformal],
+		Short_t *ListHitsinTrack
 		)
 {
 
@@ -5952,7 +5952,7 @@ void PndSttTrackFinderReal::Merge(UShort_t nl, Double_t *left, UShort_t *ind_lef
 	TemporaryInclusionList[nmaxHits];
 
  Short_t	i;
- UShort_t	j,
+ Short_t	j,
 		iFi,
 		iR,
 		nRmin,
@@ -6066,26 +6066,26 @@ cout<<"\tin FindTrackPatterninBoxConformal, nFicell = "<<nFicell<<endl;
 //  in the selected list    ListHitsinTrackinWhichToSearch   instead of all the parallel list.
 
   Short_t PndSttTrackFinderReal::PndSttFindTrackPatterninBoxConformalSpecial(
-			UShort_t NRCELLDISTANCE,
-			UShort_t NFiCELLDISTANCE,
-			UShort_t Nparal,
-			UShort_t NparallelToSearch,
-			UShort_t iSeed,
-			UShort_t *ListHitsinTrackinWhichToSearch,
+			Short_t NRCELLDISTANCE,
+			Short_t NFiCELLDISTANCE,
+			Short_t Nparal,
+			Short_t NparallelToSearch,
+			Short_t iSeed,
+			Short_t *ListHitsinTrackinWhichToSearch,
 			Double_t info[][7],
 			bool InclusionList[nmaxHits],
-			UShort_t RConformalIndex[nmaxHits],
-			UShort_t FiConformalIndex[nmaxHits],
-			UShort_t nBoxConformal[nRdivConformal][nFidivConformal],
-			UShort_t HitsinBoxConformal[][nRdivConformal][nFidivConformal],
-			UShort_t *OutputListHitsinTrack
+			Short_t RConformalIndex[nmaxHits],
+			Short_t FiConformalIndex[nmaxHits],
+			Short_t nBoxConformal[nRdivConformal][nFidivConformal],
+			Short_t HitsinBoxConformal[][nRdivConformal][nFidivConformal],
+			Short_t *OutputListHitsinTrack
 						)
 {
 
 
      bool TemporaryInclusionList[nmaxHits];
 
-     UShort_t	i,
+     Short_t	i,
 		i2,
 		j,
 		iFi,
@@ -6193,13 +6193,13 @@ cout<<"\tin FindTrackPatterninBoxConformal, nFicell = "<<nFicell<<endl;
 
 
   Short_t PndSttTrackFinderReal::PndSttFindTrackStrictCollection(
-                                                  UShort_t NFiCELLDISTANCE,                                                  
-                                                  UShort_t iSeed,   //  seed track (parallel notation) as fa as the Fi angle is concerned
-                                                  UShort_t NParallelToSearch,    //  n. of hits to search in ListHitsinTrackinWhichToSearch
-                                                  UShort_t *ListHitsinTrackinWhichToSearch,
+                                                  Short_t NFiCELLDISTANCE,                                                  
+                                                  Short_t iSeed,   //  seed track (parallel notation) as fa as the Fi angle is concerned
+                                                  Short_t NParallelToSearch,    //  n. of hits to search in ListHitsinTrackinWhichToSearch
+                                                  Short_t *ListHitsinTrackinWhichToSearch,
                                                   bool InclusionList[nmaxHits],
-                                                  UShort_t FiConformalIndex[nmaxHits],
-                                                  UShort_t  *OutputListHitsinTrack
+                                                  Short_t FiConformalIndex[nmaxHits],
+                                                  Short_t  *OutputListHitsinTrack
                                                                       )
 {
 
@@ -6208,7 +6208,7 @@ cout<<"\tin FindTrackPatterninBoxConformal, nFicell = "<<nFicell<<endl;
 
 
 
-     UShort_t i,  j, iR, iFi,  iFiseed, nHitsinTrack;
+     Short_t i,  j, iR, iFi,  iFiseed, nHitsinTrack;
 
 
      Double_t auxRvalues[nmaxHits];
@@ -6286,24 +6286,24 @@ if(istampa>=3 && IVOLTE <= nmassimo) {
 
 //----------begin of function PndSttTrackFinderReal::PndSttTrkAssociatedParallelHitsToHelixQuater
 
-  UShort_t PndSttTrackFinderReal::PndSttTrkAssociatedParallelHitsToHelixQuater(
+  Short_t PndSttTrackFinderReal::PndSttTrkAssociatedParallelHitsToHelixQuater(
 		   bool InclusionList[nmaxHits],
                    Double_t m,
                    Double_t q,
                    Short_t Status,
-                   UShort_t nHitsinTrack,
-                   UShort_t *ListHitsinTrack,
+                   Short_t nHitsinTrack,
+                   Short_t *ListHitsinTrack,
                    Int_t NhitsParallel,
                    Double_t Ox,
                    Double_t Oy,
                    Double_t R,
                    Double_t info[][7],
                    Double_t infoparalConformal[][5],
-                   UShort_t *RConformalIndex,
-                   UShort_t *FiConformalIndex,
-                   UShort_t nBoxConformal[nRdivConformal][nFidivConformal],
-                   UShort_t HitsinBoxConformal[][nRdivConformal][nFidivConformal],
-                   UShort_t *auxListHitsinTrack
+                   Short_t *RConformalIndex,
+                   Short_t *FiConformalIndex,
+                   Short_t nBoxConformal[nRdivConformal][nFidivConformal],
+                   Short_t HitsinBoxConformal[][nRdivConformal][nFidivConformal],
+                   Short_t *auxListHitsinTrack
                                                      )
 {
   bool passamin,passamax,
@@ -6311,7 +6311,7 @@ if(istampa>=3 && IVOLTE <= nmassimo) {
 
   Short_t i, i2, j, k, l,  l2, l3, itemp, kstart, kend,
           iFi0,FFimin, FFimax;
-  UShort_t Nextra=8,
+  Short_t Nextra=8,
            nFi,
            Fi,
            nR,
@@ -6348,7 +6348,7 @@ if(istampa>=3 && IVOLTE <= nmassimo) {
   FFimin = 10000;
   FFimax = 0;
   for(j=0; j<nHitsinTrack; j++){
-    i = (UShort_t)  infoparalConformal[ ListHitsinTrack[j] ][3];
+    i = (Short_t)  infoparalConformal[ ListHitsinTrack[j] ][3];
 
 
     if( FiConformalIndex[i] <  FFimin ) FFimin = FiConformalIndex[i];
@@ -6360,7 +6360,7 @@ if(istampa>=3 && IVOLTE <= nmassimo) {
      FFimin = 10000;
      FFimax =  0;
      for(j=0; j<nHitsinTrack; j++){
-       i = (UShort_t)  infoparalConformal[ ListHitsinTrack[j] ][3];
+       i = (Short_t)  infoparalConformal[ ListHitsinTrack[j] ][3];
        Fi = FiConformalIndex[i];
        if( Fi < nFidivConformal/4. ) Fi = FiConformalIndex[i]+nFidivConformal;
        if( Fi <  FFimin ) FFimin = Fi;
@@ -6414,7 +6414,7 @@ if( FFimax - FFimin > nFidivConformal/2 ) {
           l2 = nR+l;
           if(  l2<0 || l2 >= nRdivConformalEffective )  continue;
               for( k=0;k<nBoxConformal[l2][i];k++){
-                nHit_original = (UShort_t) infoparalConformal[  HitsinBoxConformal[k][l2][i]  ][3];
+                nHit_original = (Short_t) infoparalConformal[  HitsinBoxConformal[k][l2][i]  ][3];
 		if( !InclusionList[ nHit_original ] ) continue;
 // check if the hit position is near the circle of the Helix found by the fit
                 dx = -Ox+info[ nHit_original ][0];
@@ -6448,7 +6448,7 @@ if( FFimax - FFimin > nFidivConformal/2 ) {
              l3 = nR+l;
              if(  l3<0 || l3 >= nRdivConformalEffective )  continue;
               for( k=0;k<nBoxConformal[l3][i2];k++){
-                nHit_original = (UShort_t) infoparalConformal[  HitsinBoxConformal[k][l3][i2]  ][3];
+                nHit_original = (Short_t) infoparalConformal[  HitsinBoxConformal[k][l3][i2]  ][3];
 		if( !InclusionList[ nHit_original ] ) continue;
 // check if the hit position is near the circle of the Helix found by the fit
                 dx = -Ox+info[ nHit_original ][0];
@@ -6482,7 +6482,7 @@ if( FFimax - FFimin > nFidivConformal/2 ) {
              l3 = nR+l;
              if(  l3<0 || l3 >= nRdivConformalEffective )  continue;
               for( k=0;k<nBoxConformal[l3][i2];k++){
-                nHit_original = (UShort_t) infoparalConformal[  HitsinBoxConformal[k][l3][i2]  ][3];
+                nHit_original = (Short_t) infoparalConformal[  HitsinBoxConformal[k][l3][i2]  ][3];
 		if( !InclusionList[ nHit_original ] ) continue;
 // check if the hit position is near the circle of the Helix found by the fit
                 dx = -Ox+info[ nHit_original ][0];
@@ -6535,7 +6535,7 @@ if( FFimax - FFimin > nFidivConformal/2 ) {
         }
         for(l=0; l<nRdivConformalEffective;l++){
               for( k=0;k<nBoxConformal[l][i];k++){
-                nHit_original = (UShort_t) infoparalConformal[  HitsinBoxConformal[k][l][i]  ][3];
+                nHit_original = (Short_t) infoparalConformal[  HitsinBoxConformal[k][l][i]  ][3];
 		if( !InclusionList[ nHit_original ] ) continue;
 // check if the hit position is near the circle of the Helix found by the fit
                 dx = -Ox+info[ nHit_original ][0];
@@ -6657,7 +6657,7 @@ if( FFimax - FFimin > nFidivConformal/2 ) {
 
                  for( l3=0;l3<nBoxConformal[k][l2];l3++){
                   if( ! Unselected[HitsinBoxConformal[l3][k][l2] ] )  continue;
-                   nHit_original = (UShort_t) infoparalConformal[  HitsinBoxConformal[l3][k][l2]  ][3];
+                   nHit_original = (Short_t) infoparalConformal[  HitsinBoxConformal[l3][k][l2]  ][3];
 		   if( !InclusionList[ nHit_original ] ) continue;
 // check if the hit position is near the circle of the Helix found by the fit
                    dx = -Ox+info[ nHit_original ][0];
@@ -6703,7 +6703,7 @@ if( FFimax - FFimin > nFidivConformal/2 ) {
          }
         for(l=0; l<nRdivConformalEffective;l++){
               for( k=0;k<nBoxConformal[l][i];k++){
-                nHit_original = (UShort_t) infoparalConformal[  HitsinBoxConformal[k][l][i]  ][3];
+                nHit_original = (Short_t) infoparalConformal[  HitsinBoxConformal[k][l][i]  ][3];
 		if( !InclusionList[ nHit_original ] ) continue;
 // check if the hit position is near the circle of the Helix found by the fit
                 dx = -Ox+info[ nHit_original ][0];
@@ -6758,7 +6758,7 @@ if(istampa>=3) {
 
 //----------begin of function PndSttTrackFinderReal::PndSttTrkAssociatedParallelHitsToHelix5
 
-  UShort_t PndSttTrackFinderReal::PndSttTrkAssociatedParallelHitsToHelix5(
+  Short_t PndSttTrackFinderReal::PndSttTrkAssociatedParallelHitsToHelix5(
 		bool InclusionList[nmaxHits],
 		Int_t NhitsParallel,
 		Double_t Ox,
@@ -6767,13 +6767,13 @@ if(istampa>=3) {
 		Double_t info[][7],
 		Double_t Fi_low,
 		Double_t Fi_up,
-		UShort_t *auxListHitsinTrack
+		Short_t *auxListHitsinTrack
 			)
 {
 
   Short_t i;
 
-  UShort_t nAssociatedHits;
+  Short_t nAssociatedHits;
 
   Double_t angle,
            dx,
@@ -6863,7 +6863,7 @@ bool  PndSttTrackFinderReal::PndSttAcceptHitsConformal(  Double_t  distance,
 
 //----------begin of function PndSttTrackFinderReal::AssociateSkewHitsToXYTrack
 
- UShort_t PndSttTrackFinderReal::AssociateSkewHitsToXYTrack(
+ Short_t PndSttTrackFinderReal::AssociateSkewHitsToXYTrack(
 	bool *InclusionListSkew,
 	Double_t Ox,
 	Double_t Oy,
@@ -6875,7 +6875,7 @@ bool  PndSttTrackFinderReal::PndSttAcceptHitsConformal(  Double_t  distance,
 	Short_t  Charge,
 	Double_t Fi_initial_helix_referenceframe,
 	Double_t Fi_final_helix_referenceframe,
-	UShort_t SkewList[nmaxHits][2], // output,  list of selected skew hits (in skew numbering)
+	Short_t SkewList[nmaxHits][2], // output,  list of selected skew hits (in skew numbering)
 	Double_t *S,       //  output,  S coordinate of selected Skew hit
 	Double_t *Z,       //  output,  Z coordinate of selected Skew hit
 	Double_t *ZDrift,   //  output,  drift distance IN Z DIRECTION only, of selected Skew hit
@@ -7072,16 +7072,16 @@ bool  PndSttTrackFinderReal::PndSttAcceptHitsConformal(  Double_t  distance,
 
 //----------begin of function PndSttTrackFinderReal::AssociateBetterAfterFitSkewHitsToXYTrack
 
-  UShort_t PndSttTrackFinderReal::AssociateBetterAfterFitSkewHitsToXYTrack(
-                   UShort_t TemporarynSttSkewhitinTrack,  //  input
-                   UShort_t SkewList[nmaxHits][2], // input,  list of selected skew hits (in skew numbering)
+  Short_t PndSttTrackFinderReal::AssociateBetterAfterFitSkewHitsToXYTrack(
+                   Short_t TemporarynSttSkewhitinTrack,  //  input
+                   Short_t SkewList[nmaxHits][2], // input,  list of selected skew hits (in skew numbering)
                    Double_t *S,       //  input,  S coordinate of selected Skew hit
                    Double_t *Z,       //  input,  Z coordinate of selected Skew hit
                    Double_t *ZDrift,  //  input,  drift distance IN Z DIRECTION only, of selected Skew hit
                    Double_t *ZErrorafterTilt,   //  input,  Radius taking into account the tilt, IN Z DIRECTION only, of selected Skew hit
                    Double_t KAPPA,    // input, KAPPA result of fit
                    Double_t FI0,    // input, FI0 result of fit
-                   UShort_t *tempore,  //  output result, associated skew hits
+                   Short_t *tempore,  //  output result, associated skew hits
                    Double_t *temporeS,  //  output, associated skew hit  S
                    Double_t *temporeZ,  //  output, associated skew hits Z
                    Double_t *temporeZDrift,  //  output, associated skew hit Z drift
@@ -7092,7 +7092,7 @@ bool  PndSttTrackFinderReal::PndSttAcceptHitsConformal(  Double_t  distance,
 
 
 
-    UShort_t NAssociated;
+    Short_t NAssociated;
     Short_t  sign;
     Int_t i, j, i1, ii, iii,  Kincl, nlow, nup;
 
@@ -7177,14 +7177,14 @@ bool  PndSttTrackFinderReal::PndSttAcceptHitsConformal(  Double_t  distance,
 //----------begin of function PndSttTrackFinderReal::FitHelixCylinder
 
  Short_t PndSttTrackFinderReal::FitHelixCylinder(
-		UShort_t nHitsinTrack,
+		Short_t nHitsinTrack,
 		Double_t *Xconformal,
 		Double_t *Yconformal,
 		Double_t *DriftRadiusconformal,
 		Double_t *ErrorDriftRadiusconformal,
 		Double_t rotationangle,
 		Double_t * trajectory_vertex,
-		UShort_t NMAX,
+		Short_t NMAX,
 		Double_t *emme,
 		Double_t *qu,
 		Double_t *pAlfa,
@@ -7198,7 +7198,7 @@ bool  PndSttTrackFinderReal::PndSttAcceptHitsConformal(  Double_t  distance,
     //   definition of variables for the glpsol  solver
    //    ROWS (for read_rows  function)
    //
-   UShort_t  NpointsInFit = nHitsinTrack-NMAX <0 ?  nHitsinTrack :  NMAX;
+   Short_t  NpointsInFit = nHitsinTrack-NMAX <0 ?  nHitsinTrack :  NMAX;
 
    bool mvdhit[NpointsInFit];
 
@@ -7214,7 +7214,7 @@ bool  PndSttTrackFinderReal::PndSttAcceptHitsConformal(  Double_t  distance,
               Ox[NpointsInFit],
               Oy[NpointsInFit];
 
-     UShort_t  i, j, ii, iii, nSttHits, nMvdHits;
+     Short_t  i, j, ii, iii, nSttHits, nMvdHits;
      Short_t Status;
 
      char nome[300], stringa[300], stringa2[300];
@@ -8144,13 +8144,13 @@ if(istampa>2) cout<<"Results : m1 = "<<m1_result<<", m2= "<<m2_result<<", q1 = "
 //----------begin of function PndSttTrackFinderReal::FitSZspace
 
      Short_t PndSttTrackFinderReal::FitSZspace(
-			UShort_t nSkewHitsinTrack,
+			Short_t nSkewHitsinTrack,
 			Double_t *S,
 			Double_t *Z, //
 			Double_t *DriftRadius,
 			Double_t *ErrorDriftRadius, //
 			Double_t FInot,
-			UShort_t NMAX,
+			Short_t NMAX,
 			Double_t *emme
 						)
 {
@@ -8159,7 +8159,7 @@ if(istampa>2) cout<<"Results : m1 = "<<m1_result<<", m2= "<<m2_result<<", q1 = "
  //   definition of variables for the glpsol  solver
  //    ROWS (for read_rows  function)
  //
- UShort_t  NpointsInFit = nSkewHitsinTrack-NMAX <0 ?  nSkewHitsinTrack :  NMAX;
+ Short_t  NpointsInFit = nSkewHitsinTrack-NMAX <0 ?  nSkewHitsinTrack :  NMAX;
 
 
  bool mvdhit[NpointsInFit];
@@ -8184,7 +8184,7 @@ if(istampa>2) cout<<"Results : m1 = "<<m1_result<<", m2= "<<m2_result<<", q1 = "
 		Oy[NpointsInFit],
 		Delta[NpointsInFit];
 
- UShort_t  i, j, ii, iii, n, nSttHits, nMvdHits;
+ Short_t  i, j, ii, iii, n, nSttHits, nMvdHits;
  Short_t Status;
 
  char nome[300], stringa[300], stringa2[300];
@@ -9077,12 +9077,12 @@ printf("from main, end of final printout  con routines chiamate direttamente ---
 
 
      Short_t PndSttTrackFinderReal::PndSttFitSZspacebis(
-                                                     UShort_t nSttSkewhitinTrack,
+                                                     Short_t nSttSkewhitinTrack,
                                                      Double_t *S,
                                                      Double_t *Z,
                                                      Double_t *DriftRadius,
                                                      Double_t FInot,
-                                                     UShort_t NMAX,
+                                                     Short_t NMAX,
                                                      Double_t *emme
                                                             )
 {
@@ -9090,7 +9090,7 @@ printf("from main, end of final printout  con routines chiamate direttamente ---
     //   definition of variables for the glpsol  solver
    //    ROWS (for read_rows  function)
    //
-   UShort_t  NpointsInFit = nSttSkewhitinTrack-NMAX <0 ?  nSttSkewhitinTrack :  NMAX;
+   Short_t  NpointsInFit = nSttSkewhitinTrack-NMAX <0 ?  nSttSkewhitinTrack :  NMAX;
    int    nRows= NpointsInFit*9 +1;
    int typeRows[nRows];
    char * nameRows[nRows];
@@ -9147,7 +9147,7 @@ printf("from main, end of final printout  con routines chiamate direttamente ---
               Oy[nmaxHits],
               Delta[nmaxHits];
 
-     UShort_t  i, ii;
+     Short_t  i, ii;
      Short_t Status;
 
      char nome[300], stringa[300], stringa2[300];
@@ -9578,18 +9578,18 @@ printf("from main, end of final printout  con routines chiamate direttamente ---
                                                      Double_t Pzini,
                                                      Double_t Ptras,
                                                      Double_t info[][7],
-                                                     UShort_t nParallelHits,
-                                                     UShort_t *ListParallelHits,
-                                                     UShort_t nSttSkewhit,
-                                                     UShort_t *ListSkewHits,
+                                                     Short_t nParallelHits,
+                                                     Short_t *ListParallelHits,
+                                                     Short_t nSttSkewhit,
+                                                     Short_t *ListSkewHits,
                                                      Double_t *S,
-                                                     UShort_t *Infoparal,
-                                                     UShort_t *Infoskew
+                                                     Short_t *Infoparal,
+                                                     Short_t *Infoskew
                                                        )
 {
 
 
-      UShort_t i,j,flag,
+      Short_t i,j,flag,
                nTotal = nParallelHits+nSttSkewhit,
                BigList[nTotal];
       Double_t old,
@@ -9776,9 +9776,9 @@ printf("from main, end of final printout  con routines chiamate direttamente ---
 		Double_t oX,
 		Double_t oY,
 		Double_t info[][7],
-		UShort_t nParallelHits,
-		UShort_t *ListParallelHits,
-		UShort_t *Infoparal,
+		Short_t nParallelHits,
+		Short_t *ListParallelHits,
+		Short_t *Infoparal,
 		Short_t  Charge,  // input
 		Double_t *Fi_initial_helix_referenceframe, // output
 		Double_t *Fi_final_helix_referenceframe,   // output
@@ -9790,7 +9790,7 @@ printf("from main, end of final printout  con routines chiamate direttamente ---
 
 
 
-      UShort_t	i,j,
+      Short_t	i,j,
 		tmp[nParallelHits];
       Double_t	aaa,
 		b1,
@@ -9975,28 +9975,28 @@ printf("from main, end of final printout  con routines chiamate direttamente ---
 //----------begin of function PndSttTrackFinderReal::PndSttOrderingSkewandParallel
 
  void   PndSttTrackFinderReal::PndSttOrderingSkewandParallel(
-			UShort_t *Infoparal,
-			UShort_t *Infoskew,
+			Short_t *Infoparal,
+			Short_t *Infoskew,
 			Double_t oX,
 			Double_t oY,
 			Double_t Rr,
-			UShort_t nSkewhit,
-			UShort_t *ListSkewHits,
+			Short_t nSkewhit,
+			Short_t *ListSkewHits,
 			Double_t *SList, // this is rekated to the skew hits. IMPORTANT :
 					// the index must be the ORIGINAL skew hit number,
 					// therefore SList[Infoskew[ListSkewHits[*]]].
 			Short_t  Charge,
-			UShort_t nParHits,
-			UShort_t *ListParHits,
+			Short_t nParHits,
+			Short_t *ListParHits,
 			Double_t *U,
 			Double_t *V,
-			UShort_t *BigList // this is the final ordered Parallel+Skew list;
+			Short_t *BigList // this is the final ordered Parallel+Skew list;
 				// already in NATIVE hit number.
 				)
 {
 
 
-      UShort_t	i,j,
+      Short_t	i,j,
 		index[nSkewhit+nParHits],
 		tmp[nSkewhit+nParHits],
 		tmpList[nSkewhit];
@@ -10129,22 +10129,22 @@ printf("from main, end of final printout  con routines chiamate direttamente ---
                                                      Double_t oX,
                                                      Double_t oY,
                                                      Double_t info[][7],
-                                                     UShort_t nParallelHits,
-                                                     UShort_t *ListParallelHits,
-                                                     UShort_t nSkewHit,
-                                                     UShort_t *ListSkewHits,
+                                                     Short_t nParallelHits,
+                                                     Short_t *ListParallelHits,
+                                                     Short_t nSkewHit,
+                                                     Short_t *ListSkewHits,
                                                      Double_t *S,
-                                                     UShort_t *Infoparal,
-                                                     UShort_t *Infoskew,
-                                                     UShort_t *nTotal,
-                                                     UShort_t *BigList,
+                                                     Short_t *Infoparal,
+                                                     Short_t *Infoskew,
+                                                     Short_t *nTotal,
+                                                     Short_t *BigList,
                                                      Short_t  * Charge
                                                        )
 {
 
       *nTotal = nParallelHits+nSttSkewhit;
 
-      UShort_t i,j,flag,
+      Short_t i,j,flag,
                aux[*nTotal];
       Double_t old,
                auxFivalues[nmaxHits],
@@ -10410,7 +10410,7 @@ printf("from main, end of final printout  con routines chiamate direttamente ---
 
   void PndSttTrackFinderReal::WriteMacroParallelHitswithRfromMC(
                    Int_t Nhits, Double_t info[][7],
-                   UShort_t nTracksFoundSoFar,
+                   Short_t nTracksFoundSoFar,
 //                   bool *TypeConf,
                    Double_t *Ox,
                    Double_t *Oy,
@@ -10896,11 +10896,11 @@ cout<<"the ellipsis goes out of the boundaries of the skew straw, hit n. "<<i<<e
 
     void PndSttTrackFinderReal::AssociateFoundTrackstoMC(
 		  Double_t info[][7],
-                  UShort_t nTracksFoundSoFar,
-                  UShort_t *nHitsinTrack,
-                  UShort_t  ListHitsinTrack[MAXTRACKSPEREVENT][nmaxHits],
-                  UShort_t *nSttSkewhitinTrack,
-                  UShort_t  ListSkewHitsinTrack[MAXTRACKSPEREVENT][nmaxHits],
+                  Short_t nTracksFoundSoFar,
+                  Short_t *nHitsinTrack,
+                  Short_t  ListHitsinTrack[MAXTRACKSPEREVENT][nmaxHits],
+                  Short_t *nSttSkewhitinTrack,
+                  Short_t  ListSkewHitsinTrack[MAXTRACKSPEREVENT][nmaxHits],
                   Short_t daTrackFoundaTrackMC[MAXTRACKSPEREVENT]
 //                  Short_t *daMCTrackaTrackFound 
                                                         )
@@ -10911,11 +10911,11 @@ cout<<"the ellipsis goes out of the boundaries of the skew straw, hit n. "<<i<<e
 		inclusionMC[nTracksFoundSoFar][nmaxHits],
 		inclusionExp[nTracksFoundSoFar];
 
-   UShort_t	ntoMCtrack[nTracksFoundSoFar],
+   Short_t	ntoMCtrack[nTracksFoundSoFar],
 		toMCtracklist[nTracksFoundSoFar][nmaxHits],
 		toMCtrackfrequency[nTracksFoundSoFar][nmaxHits];
 
-   UShort_t  i, j, jtemp,jexp;
+   Short_t  i, j, jtemp,jexp;
 
    Short_t	enne,
 		itemp,
@@ -11055,11 +11055,11 @@ cout<<"the ellipsis goes out of the boundaries of the skew straw, hit n. "<<i<<e
     void PndSttTrackFinderReal::AssociateFoundTrackstoMCbis(
 		bool *keepit,
 		  Double_t info[][7],
-                  UShort_t nTracksFoundSoFar,
-                  UShort_t nHitsinTrack[MAXTRACKSPEREVENT],
-                  UShort_t  ListHitsinTrack[MAXTRACKSPEREVENT][nmaxHitsInTrack],
-                  UShort_t nSttSkewhitinTrack[MAXTRACKSPEREVENT],
-                  UShort_t  ListSkewHitsinTrack[MAXTRACKSPEREVENT][nmaxHitsInTrack],
+                  Short_t nTracksFoundSoFar,
+                  Short_t nHitsinTrack[MAXTRACKSPEREVENT],
+                  Short_t  ListHitsinTrack[MAXTRACKSPEREVENT][nmaxHitsInTrack],
+                  Short_t nSttSkewhitinTrack[MAXTRACKSPEREVENT],
+                  Short_t  ListSkewHitsinTrack[MAXTRACKSPEREVENT][nmaxHitsInTrack],
                   Short_t daTrackFoundaTrackMC[MAXTRACKSPEREVENT]
                                                         )
 {
@@ -11069,10 +11069,10 @@ cout<<"the ellipsis goes out of the boundaries of the skew straw, hit n. "<<i<<e
 	inclusionMC[nTracksFoundSoFar][nmaxHits],
 		inclusionExp[nTracksFoundSoFar];
 
-   UShort_t	ntoMCtrack[nTracksFoundSoFar],
+   Short_t	ntoMCtrack[nTracksFoundSoFar],
 		toMCtrackfrequency[nTracksFoundSoFar][nmaxHits];
 
-   UShort_t  i, j, jtemp,jexp;
+   Short_t  i, j, jtemp,jexp;
 
    Short_t	enne,
 		itemp,
@@ -11189,7 +11189,7 @@ cout<<"the ellipsis goes out of the boundaries of the skew straw, hit n. "<<i<<e
 
     void PndSttTrackFinderReal::PndSttInfoXYZParal(
                              Double_t info[][7],
-                             UShort_t infopar,
+                             Short_t infopar,
                              Double_t Ox,
                              Double_t Oy,
                              Double_t R,
@@ -11380,14 +11380,14 @@ cout<<"  stampa da PndSttInfoXYZSkew,  "<<", Z hit = "<<Z<<", Zrift = "<<ZDrift<
 //----------start of function PndSttTrackFinderReal::FixDiscontinuitiesFiangleinSZplane
 
   void PndSttTrackFinderReal::FixDiscontinuitiesFiangleinSZplane(
-                          UShort_t TemporarynSttSkewhitinTrack,
+                          Short_t TemporarynSttSkewhitinTrack,
                           Double_t *S,
                           Double_t *Fi_initial_helix_referenceframe,
                           Short_t Charge
                                                                 )
 {
 
-     UShort_t i;
+     Short_t i;
      Double_t max, min;
 
      for(i=0, min = 9999., max = -9999.; i<TemporarynSttSkewhitinTrack; i++){
@@ -11422,14 +11422,14 @@ cout<<"  stampa da PndSttInfoXYZSkew,  "<<", Z hit = "<<Z<<", Zrift = "<<ZDrift<
 	void   PndSttTrackFinderReal::FindCharge(
 		Double_t oX,
 		Double_t oY,
-		UShort_t nParallelHits,
+		Short_t nParallelHits,
 		Double_t *X,
 		Double_t *Y,
 		Short_t  * Charge
 				)
 {
 
-	UShort_t ihit,
+	Short_t ihit,
 			nleft,
 			nright;
 
@@ -11493,7 +11493,7 @@ cout<<"  stampa da PndSttInfoXYZSkew,  "<<", Z hit = "<<Z<<", Zrift = "<<ZDrift<
 		Double_t Rmi,	// min Apotema of hexagonal  volume intersected by track;
 		Double_t Rma,	// max Apotema of hexagonal volume intersected by track;
 		//-------- outputs
-		UShort_t nIntersections[2],
+		Short_t nIntersections[2],
 		Double_t XintersectionList[][2],
 		Double_t YintersectionList[][2]
 						)
@@ -11515,7 +11515,7 @@ cout<<"  stampa da PndSttInfoXYZSkew,  "<<", Z hit = "<<Z<<", Zrift = "<<ZDrift<
 	bool	internal[2],
 		AtLeast1[2];
 
-	UShort_t i,
+	Short_t i,
 		 is,
 		 j,
 		 Nintersections;
@@ -11625,12 +11625,12 @@ cout<<"  stampa da PndSttInfoXYZSkew,  "<<", Z hit = "<<Z<<", Zrift = "<<ZDrift<
 
 //----------start  function PndSttTrackFinderReal::IntersectionsWithOpenPolygon
 
-	UShort_t  PndSttTrackFinderReal::IntersectionsWithOpenPolygon(
+	Short_t  PndSttTrackFinderReal::IntersectionsWithOpenPolygon(
 		//-------- inputs
 		Double_t Ox, // Track parameter
 		Double_t Oy, // Track parameter
 		Double_t R, // Track parameter
-		UShort_t nSides, // input, n. of Sides of open Polygon.
+		Short_t nSides, // input, n. of Sides of open Polygon.
 		Double_t *a, //  coefficient of formula :  aX + bY + c = 0 defining
 		Double_t *b, //  the Polygon sides.
 		Double_t *c,
@@ -11646,7 +11646,7 @@ cout<<"  stampa da PndSttInfoXYZSkew,  "<<", Z hit = "<<Z<<", Zrift = "<<ZDrift<
 
 
 
-	UShort_t i,
+	Short_t i,
 		 is,
 		 j,
 		 nIntersections,
@@ -11716,7 +11716,7 @@ cout<<"  stampa da PndSttInfoXYZSkew,  "<<", Z hit = "<<Z<<", Zrift = "<<ZDrift<
 		Double_t Ami,	// min Apotema of hexagonal  volume intersected by track;
 		Double_t Ama,	// max Apotema of hexagonal volume intersected by track;
 		//-------- outputs
-		UShort_t *nIntersections,
+		Short_t *nIntersections,
 		Double_t *XintersectionList,
 		Double_t *YintersectionList
 						)
@@ -11735,7 +11735,7 @@ cout<<"  stampa da PndSttInfoXYZSkew,  "<<", Z hit = "<<Z<<", Zrift = "<<ZDrift<
 	bool	internal,
 		AtLeast1;
 
-	UShort_t i,
+	Short_t i,
 		 is,
 		 j,
 		 Nintersections;
@@ -11853,7 +11853,7 @@ c[] = {-2.*Ama/sqrt(3.),Ama,	2.*Ama/sqrt(3.),vgap/2.,2.*Ami/sqrt(3.),Ami,	-2.*Am
 		Double_t Ami,	// min Apotema of hexagonal  volume intersected by track;
 		Double_t Ama,	// max Apotema of hexagonal volume intersected by track;
 		//-------- outputs
-		UShort_t *nIntersections,
+		Short_t *nIntersections,
 		Double_t *XintersectionList,
 		Double_t *YintersectionList
 						)
@@ -11872,7 +11872,7 @@ c[] = {-2.*Ama/sqrt(3.),Ama,	2.*Ama/sqrt(3.),vgap/2.,2.*Ami/sqrt(3.),Ami,	-2.*Am
 	bool	internal,
 		AtLeast1;
 
-	UShort_t i,
+	Short_t i,
 		 is,
 		 j,
 		 Nintersections;
@@ -11992,7 +11992,7 @@ c[] = {-2.*Ama/sqrt(3.),-Ama,	2.*Ama/sqrt(3.),-vgap/2.,2.*Ami/sqrt(3.),-Ami,	-2.
 				Double_t Ox, // center of circle.
 				Double_t Oy,
 				Double_t R, // Radius of circle.
-				UShort_t * Nintersections,
+				Short_t * Nintersections,
 				Double_t XintersectionList[2],
 				Double_t YintersectionList[2],
 				Double_t *distance
@@ -12074,7 +12074,7 @@ c[] = {-2.*Ama/sqrt(3.),-Ama,	2.*Ama/sqrt(3.),-vgap/2.,2.*Ami/sqrt(3.),-Ami,	-2.
 //----------begin of function PndSttTrackFinderReal::IntersectionsWithGapSemicircle
 
 
-	UShort_t PndSttTrackFinderReal::IntersectionsWithGapSemicircle(
+	Short_t PndSttTrackFinderReal::IntersectionsWithGapSemicircle(
 			Double_t Oxx,
 			Double_t Oyy,
 			Double_t Rr,
@@ -12086,7 +12086,7 @@ c[] = {-2.*Ama/sqrt(3.),-Ama,	2.*Ama/sqrt(3.),-vgap/2.,2.*Ami/sqrt(3.),-Ami,	-2.
 						)
 {
 
-	UShort_t	nIntersectionsCircle;
+	Short_t	nIntersectionsCircle;
 
 	Double_t	cosFi,
 			theta1,
@@ -12197,7 +12197,7 @@ c[] = {-2.*Ama/sqrt(3.),-Ama,	2.*Ama/sqrt(3.),-vgap/2.,2.*Ami/sqrt(3.),-Ami,	-2.
 			Short_t flag,
 			Short_t  Charge,
 			Double_t FiStart,
-			UShort_t nIntersections[2],
+			Short_t nIntersections[2],
 			Double_t XintersectionList[][2], //  second index =1 -->inner polygon;
 			Double_t YintersectionList[][2], //  second index =2 -->outer polygon.
 			Double_t Xcross[2],	// output
@@ -12205,14 +12205,14 @@ c[] = {-2.*Ama/sqrt(3.),-Ama,	2.*Ama/sqrt(3.),-vgap/2.,2.*Ami/sqrt(3.),-Ami,	-2.
 					)
 {
 
-	UShort_t i,
+	Short_t i,
 		 j;
 // this method works under the hypothesis that flag=0 or 2 only.
 
 	if(flag == 0) {
 	  if(Charge > 0) {
 	     for(j=0;j<2;j++){  // j=0 --> inner polygon; j=1 --> outer polygon.
-		UShort_t auxIndex[nIntersections[j]];
+		Short_t auxIndex[nIntersections[j]];
 		Double_t fi[nIntersections[j]];
 		for( i=0;i<nIntersections[j];i++){
 		  fi[i] = atan2(YintersectionList[i][j]-Oyy,
@@ -12228,7 +12228,7 @@ c[] = {-2.*Ama/sqrt(3.),-Ama,	2.*Ama/sqrt(3.),-vgap/2.,2.*Ami/sqrt(3.),-Ami,	-2.
 
 	  } else {
 	     for(j=0;j<2;j++){  // j=0 --> inner polygon; j=1 --> outer polygon.
-		UShort_t auxIndex[nIntersections[j]];
+		Short_t auxIndex[nIntersections[j]];
 		Double_t fi[nIntersections[j]];
 		for( i=0;i<nIntersections[j];i++){
 		  fi[i] = atan2(YintersectionList[i][j]-Oyy,
@@ -12245,7 +12245,7 @@ c[] = {-2.*Ama/sqrt(3.),-Ama,	2.*Ama/sqrt(3.),-vgap/2.,2.*Ami/sqrt(3.),-Ami,	-2.
 
 	} else{	// therefore it means that flag = 2
 
-	  UShort_t auxIndex[nIntersections[0]];
+	  Short_t auxIndex[nIntersections[0]];
 	  Double_t fi[nIntersections[0]];
 	  if(Charge > 0) {
 		for( i=0;i<nIntersections[0];i++){
@@ -12296,7 +12296,7 @@ c[] = {-2.*Ama/sqrt(3.),-Ama,	2.*Ama/sqrt(3.),-vgap/2.,2.*Ami/sqrt(3.),-Ami,	-2.
 			Double_t Oyy,
 			Short_t  Charge,
 			Double_t FiStart,
-			UShort_t nIntersections,
+			Short_t nIntersections,
 			Double_t *XintersectionList, //  second index =1 -->inner polygon;
 			Double_t *YintersectionList, //  second index =2 -->outer polygon.
 			Double_t Xcross[2],	// output
@@ -12304,13 +12304,13 @@ c[] = {-2.*Ama/sqrt(3.),-Ama,	2.*Ama/sqrt(3.),-vgap/2.,2.*Ami/sqrt(3.),-Ami,	-2.
 					)
 {
 
-	UShort_t i,
+	Short_t i,
 		 j;
 // this method works under the hypothesis that there are at least 2 intersections.
 	if (nIntersections<2) return;
 
 	  if(Charge > 0) {
-		UShort_t auxIndex[nIntersections];
+		Short_t auxIndex[nIntersections];
 		Double_t fi[nIntersections];
 		for( i=0;i<nIntersections;i++){
 		  fi[i] = atan2(YintersectionList[i]-Oyy,
@@ -12326,7 +12326,7 @@ c[] = {-2.*Ama/sqrt(3.),-Ama,	2.*Ama/sqrt(3.),-vgap/2.,2.*Ami/sqrt(3.),-Ami,	-2.
 		Ycross[1] = YintersectionList[ auxIndex[nIntersections-2] ];
 
 	  } else {
-		UShort_t auxIndex[nIntersections];
+		Short_t auxIndex[nIntersections];
 		Double_t fi[nIntersections];
 		for( i=0;i<nIntersections;i++){
 		  fi[i] = atan2(YintersectionList[i]-Oyy,
@@ -12362,30 +12362,30 @@ c[] = {-2.*Ama/sqrt(3.),-Ama,	2.*Ama/sqrt(3.),-vgap/2.,2.*Ami/sqrt(3.),-Ami,	-2.
 	void PndSttTrackFinderReal::SeparateInnerOuterParallel(
 
 			// input
-			UShort_t nHits,
-			UShort_t *ListHits,
+			Short_t nHits,
+			Short_t *ListHits,
 			Double_t info[][7],
 			Double_t RStrawDetInnerParMax,
 
 			// output
-			UShort_t *nInnerHits,
-			UShort_t *ListInnerHits,
-			UShort_t *nOuterHits,
-			UShort_t *ListOuterHits,
+			Short_t *nInnerHits,
+			Short_t *ListInnerHits,
+			Short_t *nOuterHits,
+			Short_t *ListOuterHits,
 
-			UShort_t *nInnerHitsLeft,
-			UShort_t *ListInnerHitsLeft,
-			UShort_t *nInnerHitsRight,
-			UShort_t *ListInnerHitsRight,
+			Short_t *nInnerHitsLeft,
+			Short_t *ListInnerHitsLeft,
+			Short_t *nInnerHitsRight,
+			Short_t *ListInnerHitsRight,
 
-			UShort_t *nOuterHitsLeft,
-			UShort_t *ListOuterHitsLeft,
-			UShort_t *nOuterHitsRight,
-			UShort_t *ListOuterHitsRight
+			Short_t *nOuterHitsLeft,
+			Short_t *ListOuterHitsLeft,
+			Short_t *nOuterHitsRight,
+			Short_t *ListOuterHitsRight
 								)
 {
 
-	UShort_t ihit;
+	Short_t ihit;
 
 	Double_t r;
 
@@ -12446,7 +12446,7 @@ c[] = {-2.*Ama/sqrt(3.),-Ama,	2.*Ama/sqrt(3.),-vgap/2.,2.*Ami/sqrt(3.),-Ami,	-2.
 							)
 {
 	Short_t flag;
-	UShort_t	nIntersections[2];
+	Short_t	nIntersections[2];
 	Double_t	FiStart,
 			XintersectionList[12][2], // first index =0 --> inner Hexagon, =1 --> outer.
 			YintersectionList[12][2]; // second index : all the possible intersections
@@ -12536,7 +12536,7 @@ c[] = {-2.*Ama/sqrt(3.),-Ama,	2.*Ama/sqrt(3.),-vgap/2.,2.*Ami/sqrt(3.),-Ami,	-2.
 							)
 {
 	Short_t flag;
-	UShort_t	nIntersections;
+	Short_t	nIntersections;
 	Double_t	FiStart,
 			XintersectionList[16], // all the possible intersections
 			YintersectionList[16]; // (up to 16 intersections).
@@ -12653,7 +12653,7 @@ c[] = {-2.*Ama/sqrt(3.),-Ama,	2.*Ama/sqrt(3.),-vgap/2.,2.*Ami/sqrt(3.),-Ami,	-2.
 							)
 {
 	Short_t flag;
-	UShort_t	nIntersections;
+	Short_t	nIntersections;
 	Double_t	FiStart,
 			XintersectionList[16], // all the possible intersections
 			YintersectionList[16]; // (up to 16 intersections).
@@ -12765,7 +12765,7 @@ c[] = {-2.*Ama/sqrt(3.),-Ama,	2.*Ama/sqrt(3.),-vgap/2.,2.*Ami/sqrt(3.),-Ami,	-2.
 							)
 {
 	Short_t flag;
-	UShort_t	nIntersections[2];
+	Short_t	nIntersections[2];
 	Double_t	FiStart,
 			XintersectionList[12][2], // second index =0 --> inner Hexagon, =1 --> outer.
 			YintersectionList[12][2]; // first index : all the possible intersections
@@ -12885,7 +12885,7 @@ c[] = {-2.*Ama/sqrt(3.),-Ama,	2.*Ama/sqrt(3.),-vgap/2.,2.*Ami/sqrt(3.),-Ami,	-2.
 			y2;
 //------------------
 
-	UShort_t	nIntersectionsCircle,
+	Short_t	nIntersectionsCircle,
 			nIntersections;
 	Double_t	FiStart,
 			XintersectionList[12],
@@ -13015,7 +13015,7 @@ c[] = {-2.*Ama/sqrt(3.),-Ama,	2.*Ama/sqrt(3.),-vgap/2.,2.*Ami/sqrt(3.),-Ami,	-2.
 			y2;
 //------------------
 
-	UShort_t	nIntersectionsCircle,
+	Short_t	nIntersectionsCircle,
 			nIntersections;
 	Double_t	FiStart,
 			XintersectionList[12],
@@ -13244,14 +13244,14 @@ c[] = {-2.*Ama/sqrt(3.),-Ama,	2.*Ama/sqrt(3.),-vgap/2.,2.*Ami/sqrt(3.),-Ami,	-2.
 		Int_t nHits,
 		Double_t XY[][2],
 		Int_t  Charge,  // input
-		UShort_t *ListHits
+		Short_t *ListHits
 							)
 {
 
 
 
 
-      UShort_t	i,j,
+      Short_t	i,j,
 		tmp[nHits];
       Double_t	aaa,
 		b1,
@@ -13356,17 +13356,17 @@ c[] = {-2.*Ama/sqrt(3.),-Ama,	2.*Ama/sqrt(3.),-vgap/2.,2.*Ami/sqrt(3.),-Ami,	-2.
 	bool PndSttTrackFinderReal::FindTrackInXYProjection(
 		Short_t iHit,    // seed hit; if it is negative it is a SciTil hit.
 		Short_t nRcell,  // R cell of the seed hit; can be negative when SciTil hit.
-		UShort_t nFicell, // Fi cell of the seed hit;
+		Short_t nFicell, // Fi cell of the seed hit;
 		Int_t *Minclinations,
 		Double_t info[nmaxHits][7],
 		bool *InclusionList,
-		UShort_t *RConformalIndex,
-		UShort_t *FiConformalIndex,
-		UShort_t nBoxConformal[nRdivConformal][nFidivConformal],
-		UShort_t HitsinBoxConformal[MAXHITSINCELL][nRdivConformal][nFidivConformal],
-		UShort_t nTracksFoundSoFar,
-		UShort_t *nHitsinTrack,
-		UShort_t ListHitsinTrack[MAXTRACKSPEREVENT][nmaxHitsInTrack],
+		Short_t *RConformalIndex,
+		Short_t *FiConformalIndex,
+		Short_t nBoxConformal[nRdivConformal][nFidivConformal],
+		Short_t HitsinBoxConformal[MAXHITSINCELL][nRdivConformal][nFidivConformal],
+		Short_t nTracksFoundSoFar,
+		Short_t *nHitsinTrack,
+		Short_t ListHitsinTrack[MAXTRACKSPEREVENT][nmaxHitsInTrack],
 		Double_t *trajectory_vertex,
 		Double_t infoparalConformal[nmaxHits][5],
 		Double_t posizSciTilx,
@@ -13388,7 +13388,7 @@ c[] = {-2.*Ama/sqrt(3.),-Ama,	2.*Ama/sqrt(3.),-vgap/2.,2.*Ami/sqrt(3.),-Ami,	-2.
 
 //---------------
 
- UShort_t	i,
+ Short_t	i,
 		j,
 		Naux,
 		Nbaux,
@@ -13676,7 +13676,7 @@ for(int iz=0;iz<nummm;iz++){
 //  P2 =  [ x0+abs{(L/2)*y0/RR}; y0+SIGN*abs{(L/2)*x0/RR} ].
 
  bool intersect;
- UShort_t
+ Short_t
 	Nint,
 	nSciT;
  Double_t distance,
@@ -13890,18 +13890,18 @@ if(iplotta && IVOLTE <= nmassimo){
 
 //----------begin of function PndSttTrackFinderReal::AssociateSciTilHit
 
-	UShort_t PndSttTrackFinderReal::AssociateSciTilHit(
+	Short_t PndSttTrackFinderReal::AssociateSciTilHit(
 		Double_t Oxx,
 		Double_t Oyy,
 		Double_t Rr,
-		UShort_t *List,  // output
+		Short_t *List,  // output
 		Double_t *esse  // output
 				)
 {
 
  bool intersect;
 
- UShort_t
+ Short_t
 	igoodScit,
 	iScitHit,
 	Nint;
@@ -13964,7 +13964,7 @@ if(iplotta && IVOLTE <= nmassimo){
 			Double_t Oxx, // center of circle.
 			Double_t Oyy,
 			Double_t Rr, // Radius of circle.
-			UShort_t * Nintersections,
+			Short_t * Nintersections,
 			Double_t XintersectionList[2],
 			Double_t YintersectionList[2]
 							)
