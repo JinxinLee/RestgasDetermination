@@ -73,7 +73,7 @@ class PndSttMvdTracking : public FairTask
 
  private:
 
-  UShort_t nMCTracks;
+  Short_t nMCTracks;
 
 #define DiameterStrawTube  1.
   int static const TIMEOUT= 60;
@@ -89,7 +89,7 @@ class PndSttMvdTracking : public FairTask
   int IVOLTE ;
 
 #define maxTracks 200
- static const UShort_t
+ static const Short_t
 	nmassimo=50,
 	nmaxSttHits = 1050,
 	MAXMCTRACKS=10000,
@@ -132,7 +132,7 @@ class PndSttMvdTracking : public FairTask
 	InclusionListSciTil[nmaxSciTilHits];
 
 
- UShort_t
+ Short_t
 	nSciTilHits,
 	nTrackCandHit[MAXTRACKSPEREVENT],
 	nSciTilHitsinTrack[MAXTRACKSPEREVENT],
@@ -278,49 +278,49 @@ class PndSttMvdTracking : public FairTask
 		   Double_t R,
 		   Double_t primoangolo,
 		   Double_t ultimoangolo,
-                   UShort_t Nhits,
-UShort_t ListParHitsinTrack[MAXTRACKSPEREVENT][nmaxSttHitsInTrack],
+                   Short_t Nhits,
+Short_t ListParHitsinTrack[MAXTRACKSPEREVENT][nmaxSttHitsInTrack],
                    Double_t info[][7],
-                   UShort_t iTrack,
+                   Short_t iTrack,
 		Int_t iNome,
 		Short_t daSttTrackaMCTrack,
-		UShort_t nParalCommon[MAXTRACKSPEREVENT],
-		UShort_t ParalCommonList[MAXMCTRACKS][nmaxSttHitsInTrack],
-		UShort_t nSpuriParinTrack[MAXTRACKSPEREVENT],
-		UShort_t ParSpuriList[MAXTRACKSPEREVENT][nmaxSttHitsInTrack],
-		UShort_t nMCParalAlone[MAXTRACKSPEREVENT],
-		UShort_t MCParalAloneList[MAXTRACKSPEREVENT][nmaxSttHitsInTrack],
-	UShort_t nMvdPixelHitsAssociatedToSttTra,
-UShort_t ListPixel[MAXTRACKSPEREVENT][nmaxMvdPixelHitsInTrack],
-	UShort_t nMvdStripHitsAssociatedToSttTra,
-UShort_t ListStrip[MAXTRACKSPEREVENT][nmaxMvdStripHitsInTrack],
+		Short_t nParalCommon[MAXTRACKSPEREVENT],
+		Short_t ParalCommonList[MAXMCTRACKS][nmaxSttHitsInTrack],
+		Short_t nSpuriParinTrack[MAXTRACKSPEREVENT],
+		Short_t ParSpuriList[MAXTRACKSPEREVENT][nmaxSttHitsInTrack],
+		Short_t nMCParalAlone[MAXTRACKSPEREVENT],
+		Short_t MCParalAloneList[MAXTRACKSPEREVENT][nmaxSttHitsInTrack],
+	Short_t nMvdPixelHitsAssociatedToSttTra,
+Short_t ListPixel[MAXTRACKSPEREVENT][nmaxMvdPixelHitsInTrack],
+	Short_t nMvdStripHitsAssociatedToSttTra,
+Short_t ListStrip[MAXTRACKSPEREVENT][nmaxMvdStripHitsInTrack],
 
-		UShort_t nMvdPixelCommon,
-		UShort_t *MvdPixelCommonList,
-		UShort_t nMvdPixelSpuriinTrack,
-		UShort_t *MvdPixelSpuriList,
-		UShort_t nMCMvdPixelAlone,
-		UShort_t *MCMvdPixelAloneList,
+		Short_t nMvdPixelCommon,
+		Short_t *MvdPixelCommonList,
+		Short_t nMvdPixelSpuriinTrack,
+		Short_t *MvdPixelSpuriList,
+		Short_t nMCMvdPixelAlone,
+		Short_t *MCMvdPixelAloneList,
 
-		UShort_t nMvdStripCommon,
-		UShort_t *MvdStripCommonList,
-		UShort_t nMvdStripSpuriinTrack,
-		UShort_t *MvdStripSpuriList,
-		UShort_t nMCMvdStripAlone,
-		UShort_t *MCMvdStripAloneList,
+		Short_t nMvdStripCommon,
+		Short_t *MvdStripCommonList,
+		Short_t nMvdStripSpuriinTrack,
+		Short_t *MvdStripSpuriList,
+		Short_t nMCMvdStripAlone,
+		Short_t *MCMvdStripAloneList,
 
-		UShort_t nSkewHitsinTrack,
-UShort_t ListSkewHitsinTrack[MAXTRACKSPEREVENT][nmaxSttHitsInTrack],
+		Short_t nSkewHitsinTrack,
+Short_t ListSkewHitsinTrack[MAXTRACKSPEREVENT][nmaxSttHitsInTrack],
 		Double_t *SchosenSkew,
-		UShort_t nSkewCommon[MAXTRACKSPEREVENT],
-		UShort_t SkewCommonList[MAXTRACKSPEREVENT][nmaxSttHitsInTrack],
-		UShort_t nMCSkewAlone[MAXMCTRACKS],
-		UShort_t MCSkewAloneList[MAXMCTRACKS][nmaxSttHitsInTrack]
+		Short_t nSkewCommon[MAXTRACKSPEREVENT],
+		Short_t SkewCommonList[MAXTRACKSPEREVENT][nmaxSttHitsInTrack],
+		Short_t nMCSkewAlone[MAXMCTRACKS],
+		Short_t MCSkewAloneList[MAXMCTRACKS][nmaxSttHitsInTrack]
 			);
 
 
  void stampetta(
-		UShort_t nCandidate,
+		Short_t nCandidate,
 		bool *keepit
 		);
 
@@ -330,7 +330,7 @@ UShort_t ListSkewHitsinTrack[MAXTRACKSPEREVENT][nmaxSttHitsInTrack],
   void WriteMacroParallelHitsGeneral(
                    Int_t Nhits,
 		   Double_t info[][7],
-                   UShort_t nTracksFoundSoFar,
+                   Short_t nTracksFoundSoFar,
 		   bool *keepit,
                    Double_t *Ox,
 		   Double_t *Oy,
@@ -344,7 +344,7 @@ UShort_t ListSkewHitsinTrack[MAXTRACKSPEREVENT][nmaxSttHitsInTrack],
 		   Double_t time,
                    Int_t Nhits,
 		   Double_t info[][7],
-                   UShort_t nTracksFoundSoFar,
+                   Short_t nTracksFoundSoFar,
                    Double_t *Ox,
 		   Double_t *Oy,
 		   Double_t *R,
@@ -364,48 +364,48 @@ UShort_t ListSkewHitsinTrack[MAXTRACKSPEREVENT][nmaxSttHitsInTrack],
                    Double_t WDX[nmaxSttHits],
                    Double_t WDY[nmaxSttHits],
                    Double_t WDZ[nmaxSttHits],
-                   UShort_t iTrack,
+                   Short_t iTrack,
 			Int_t iNome,
-                   UShort_t nSkewHitsinTrack,
-UShort_t ListSkewHitsinTrack[MAXTRACKSPEREVENT][nmaxSttHitsInTrack],
-                   UShort_t nSkewCommon,
-                   UShort_t SkewCommonList[MAXTRACKSPEREVENT][nmaxSttHitsInTrack],
+                   Short_t nSkewHitsinTrack,
+Short_t ListSkewHitsinTrack[MAXTRACKSPEREVENT][nmaxSttHitsInTrack],
+                   Short_t nSkewCommon,
+                   Short_t SkewCommonList[MAXTRACKSPEREVENT][nmaxSttHitsInTrack],
                    Short_t daTrackFoundaTrackMC,
-                   UShort_t nMCSkewAlone,
-                   UShort_t MCSkewAloneList[MAXMCTRACKS][nmaxSttHitsInTrack],
-		   UShort_t nMvdPixelHitsAssociatedToSttTrack[MAXTRACKSPEREVENT], // output
-UShort_t ListPixel[MAXTRACKSPEREVENT][nmaxMvdPixelHitsInTrack], // output
-		   UShort_t nMvdStripHitsAssociatedToSttTrack[MAXTRACKSPEREVENT], // output
-UShort_t ListStrip[MAXTRACKSPEREVENT][nmaxMvdStripHitsInTrack], // output
+                   Short_t nMCSkewAlone,
+                   Short_t MCSkewAloneList[MAXMCTRACKS][nmaxSttHitsInTrack],
+		   Short_t nMvdPixelHitsAssociatedToSttTrack[MAXTRACKSPEREVENT], // output
+Short_t ListPixel[MAXTRACKSPEREVENT][nmaxMvdPixelHitsInTrack], // output
+		   Short_t nMvdStripHitsAssociatedToSttTrack[MAXTRACKSPEREVENT], // output
+Short_t ListStrip[MAXTRACKSPEREVENT][nmaxMvdStripHitsInTrack], // output
 
 
-		UShort_t nMvdPixelCommon,
-		UShort_t *MvdPixelCommonList,
-		UShort_t nMvdPixelSpuriinTrack,
-		UShort_t *MvdPixelSpuriList,
-		UShort_t nMCMvdPixelAlone,
-		UShort_t *MCMvdPixelAloneList,
+		Short_t nMvdPixelCommon,
+		Short_t *MvdPixelCommonList,
+		Short_t nMvdPixelSpuriinTrack,
+		Short_t *MvdPixelSpuriList,
+		Short_t nMCMvdPixelAlone,
+		Short_t *MCMvdPixelAloneList,
 
-		UShort_t nMvdStripCommon,
-		UShort_t *MvdStripCommonList,
-		UShort_t nMvdStripSpuriinTrack,
-		UShort_t *MvdStripSpuriList,
-		UShort_t nMCMvdStripAlone,
-		UShort_t *MCMvdStripAloneList,
+		Short_t nMvdStripCommon,
+		Short_t *MvdStripCommonList,
+		Short_t nMvdStripSpuriinTrack,
+		Short_t *MvdStripSpuriList,
+		Short_t nMCMvdStripAlone,
+		Short_t *MCMvdStripAloneList,
 		Double_t *ESSE
 						);
 
 
 
     void WriteMacroAllHitsRestanti(
-		UShort_t nSttHit,
-		UShort_t nSttParHit,
-		UShort_t nSttSkewHit,
+		Short_t nSttHit,
+		Short_t nSttParHit,
+		Short_t nSttSkewHit,
 		Double_t info[][7],
 		bool * keepit,
-		UShort_t nSttTrackCand,
-		UShort_t nTrackCandHit[MAXTRACKSPEREVENT],
-		UShort_t ListTrackCandHit[MAXTRACKSPEREVENT][nmaxSttHitsInTrack+
+		Short_t nSttTrackCand,
+		Short_t nTrackCandHit[MAXTRACKSPEREVENT],
+		Short_t ListTrackCandHit[MAXTRACKSPEREVENT][nmaxSttHitsInTrack+
 	                           nmaxMvdPixelHitsInTrack+
 				   nmaxMvdStripHitsInTrack+nmaxSciTilHitsinTrack],
 Short_t ListTrackCandHitType[MAXTRACKSPEREVENT][nmaxSttHitsInTrack+
@@ -418,7 +418,7 @@ Short_t ListTrackCandHitType[MAXTRACKSPEREVENT][nmaxSttHitsInTrack+
 					FILE * MACRO,
 					Double_t Ami,
 					Double_t Ama,
-					UShort_t color,
+					Short_t color,
 					char *name
 				);
 
@@ -428,28 +428,28 @@ Short_t ListTrackCandHitType[MAXTRACKSPEREVENT][nmaxSttHitsInTrack+
 					FILE * MACRO,
 					Double_t ApotemaMin,
 					Double_t Rma,
-					UShort_t color,
+					Short_t color,
 					char *name
 					);
 
     void AssociateFoundTrackstoMC(
 		  Double_t info[][7],
-                  UShort_t nTracksFoundSoFar,
-                  UShort_t nHitsinTrack[MAXTRACKSPEREVENT],
-                  UShort_t  ListHitsinTrack[MAXTRACKSPEREVENT][nmaxSttHits],
-                  UShort_t nSkewHitsinTrack[MAXTRACKSPEREVENT],
-                  UShort_t  ListSkewHitsinTrack[MAXTRACKSPEREVENT][nmaxSttHits],
+                  Short_t nTracksFoundSoFar,
+                  Short_t nHitsinTrack[MAXTRACKSPEREVENT],
+                  Short_t  ListHitsinTrack[MAXTRACKSPEREVENT][nmaxSttHits],
+                  Short_t nSkewHitsinTrack[MAXTRACKSPEREVENT],
+                  Short_t  ListSkewHitsinTrack[MAXTRACKSPEREVENT][nmaxSttHits],
                   Short_t daTrackFoundaTrackMC[MAXTRACKSPEREVENT]
 
 				);
 
     void AssociateFoundTrackstoMCbis(
 		  Double_t info[][7],
-                  UShort_t nTracksFoundSoFar,
-                  UShort_t nHitsinTrack[MAXTRACKSPEREVENT],
-                  UShort_t  ListHitsinTrack[MAXTRACKSPEREVENT][nmaxSttHits],
-                  UShort_t nSkewHitsinTrack[MAXTRACKSPEREVENT],
-                  UShort_t  ListSkewHitsinTrack[MAXTRACKSPEREVENT][nmaxSttHits],
+                  Short_t nTracksFoundSoFar,
+                  Short_t nHitsinTrack[MAXTRACKSPEREVENT],
+                  Short_t  ListHitsinTrack[MAXTRACKSPEREVENT][nmaxSttHits],
+                  Short_t nSkewHitsinTrack[MAXTRACKSPEREVENT],
+                  Short_t  ListSkewHitsinTrack[MAXTRACKSPEREVENT][nmaxSttHits],
                   Short_t daTrackFoundaTrackMC[MAXTRACKSPEREVENT]
 					);
 
@@ -459,11 +459,11 @@ Short_t ListTrackCandHitType[MAXTRACKSPEREVENT][nmaxSttHitsInTrack+
 		Double_t Ox[MAXTRACKSPEREVENT],
 		Double_t Oy[MAXTRACKSPEREVENT],
 		Double_t R[MAXTRACKSPEREVENT],
-                  UShort_t nTracksFoundSoFar,
-                  UShort_t nHitsinTrack[MAXTRACKSPEREVENT],
-                  UShort_t  ListHitsinTrack[MAXTRACKSPEREVENT][nmaxSttHits],
-                  UShort_t nSkewHitsinTrack[MAXTRACKSPEREVENT],
-                  UShort_t  ListSkewHitsinTrack[MAXTRACKSPEREVENT][nmaxSttHits],
+                  Short_t nTracksFoundSoFar,
+                  Short_t nHitsinTrack[MAXTRACKSPEREVENT],
+                  Short_t  ListHitsinTrack[MAXTRACKSPEREVENT][nmaxSttHits],
+                  Short_t nSkewHitsinTrack[MAXTRACKSPEREVENT],
+                  Short_t  ListSkewHitsinTrack[MAXTRACKSPEREVENT][nmaxSttHits],
                   Short_t daTrackFoundaTrackMC[MAXTRACKSPEREVENT]
 					);
 
@@ -479,17 +479,17 @@ Short_t ListTrackCandHitType[MAXTRACKSPEREVENT][nmaxSttHitsInTrack+
 		Double_t Y2[MAXTRACKSPEREVENT],
 		Double_t X3[MAXTRACKSPEREVENT],
 		Double_t Y3[MAXTRACKSPEREVENT],
-                  UShort_t nTracksFoundSoFar,
-                  UShort_t nHitsinTrack[MAXTRACKSPEREVENT],
-                  UShort_t  ListHitsinTrack[MAXTRACKSPEREVENT][nmaxSttHitsInTrack],
-                  UShort_t nSkewHitsinTrack[MAXTRACKSPEREVENT],
-                  UShort_t  ListSkewHitsinTrack[MAXTRACKSPEREVENT][nmaxSttHitsInTrack],
+                  Short_t nTracksFoundSoFar,
+                  Short_t nHitsinTrack[MAXTRACKSPEREVENT],
+                  Short_t  ListHitsinTrack[MAXTRACKSPEREVENT][nmaxSttHitsInTrack],
+                  Short_t nSkewHitsinTrack[MAXTRACKSPEREVENT],
+                  Short_t  ListSkewHitsinTrack[MAXTRACKSPEREVENT][nmaxSttHitsInTrack],
 
-		UShort_t nMvdPixelHitsinTrack[MAXTRACKSPEREVENT],
-UShort_t ListMvdPixelHitsinTrack[MAXTRACKSPEREVENT][nmaxMvdPixelHitsInTrack],
+		Short_t nMvdPixelHitsinTrack[MAXTRACKSPEREVENT],
+Short_t ListMvdPixelHitsinTrack[MAXTRACKSPEREVENT][nmaxMvdPixelHitsInTrack],
 		Int_t *FromPixeltoMCTrack,
-		UShort_t nMvdStripHitsinTrack[MAXTRACKSPEREVENT],
-UShort_t ListMvdStripHitsinTrack[MAXTRACKSPEREVENT][nmaxMvdStripHitsInTrack],
+		Short_t nMvdStripHitsinTrack[MAXTRACKSPEREVENT],
+Short_t ListMvdStripHitsinTrack[MAXTRACKSPEREVENT][nmaxMvdStripHitsInTrack],
 		Int_t *FromStriptoMCTrack,
 
                   Short_t daTrackFoundaTrackMC[MAXTRACKSPEREVENT]
@@ -502,38 +502,38 @@ UShort_t ListMvdStripHitsinTrack[MAXTRACKSPEREVENT][nmaxMvdStripHitsInTrack],
 
   void SttMatchedSpurious(
 			bool *keepit,
-			UShort_t ntotalHits,
+			Short_t ntotalHits,
 			Double_t info[][7],
-                        UShort_t nTracksFoundSoFar, //  quelle trovate dal PR
-  			UShort_t nHitsinTrack[], // n. hits paralleli, dal PR
-UShort_t ListHitsinTrack[MAXTRACKSPEREVENT][nmaxSttHitsInTrack], // dal PR
-			UShort_t nSkewHitsinTrack[MAXTRACKSPEREVENT], // n. hits skew, dal PR
-UShort_t ListSkewHitsinTrack[MAXTRACKSPEREVENT][nmaxSttHitsInTrack], // dal PR
+                        Short_t nTracksFoundSoFar, //  quelle trovate dal PR
+  			Short_t nHitsinTrack[], // n. hits paralleli, dal PR
+Short_t ListHitsinTrack[MAXTRACKSPEREVENT][nmaxSttHitsInTrack], // dal PR
+			Short_t nSkewHitsinTrack[MAXTRACKSPEREVENT], // n. hits skew, dal PR
+Short_t ListSkewHitsinTrack[MAXTRACKSPEREVENT][nmaxSttHitsInTrack], // dal PR
 
-			UShort_t nParalCommon[MAXTRACKSPEREVENT],
-                        UShort_t ParalCommonList[MAXMCTRACKS][nmaxSttHitsInTrack],
-                        UShort_t nSpuriParinTrack[MAXTRACKSPEREVENT],
-                        UShort_t ParSpuriList[MAXTRACKSPEREVENT][nmaxSttHitsInTrack],
+			Short_t nParalCommon[MAXTRACKSPEREVENT],
+                        Short_t ParalCommonList[MAXMCTRACKS][nmaxSttHitsInTrack],
+                        Short_t nSpuriParinTrack[MAXTRACKSPEREVENT],
+                        Short_t ParSpuriList[MAXTRACKSPEREVENT][nmaxSttHitsInTrack],
 
-			UShort_t nSkewCommon[MAXTRACKSPEREVENT],
-                        UShort_t SkewCommonList[MAXMCTRACKS][nmaxSttHitsInTrack],
-                        UShort_t nSpuriSkewinTrack[MAXTRACKSPEREVENT],
-                        UShort_t SkewSpuriList[MAXTRACKSPEREVENT][nmaxSttHitsInTrack],
+			Short_t nSkewCommon[MAXTRACKSPEREVENT],
+                        Short_t SkewCommonList[MAXMCTRACKS][nmaxSttHitsInTrack],
+                        Short_t nSpuriSkewinTrack[MAXTRACKSPEREVENT],
+                        Short_t SkewSpuriList[MAXTRACKSPEREVENT][nmaxSttHitsInTrack],
 
-                        UShort_t nHitsInMCTrack[MAXTRACKSPEREVENT],
-                        UShort_t nSkewHitsInMCTrack[MAXTRACKSPEREVENT],
+                        Short_t nHitsInMCTrack[MAXTRACKSPEREVENT],
+                        Short_t nSkewHitsInMCTrack[MAXTRACKSPEREVENT],
 
-			UShort_t nMCParalAlone[MAXTRACKSPEREVENT],
-			UShort_t MCParalAloneList[MAXTRACKSPEREVENT][nmaxSttHitsInTrack],
-			UShort_t nMCSkewAlone[MAXTRACKSPEREVENT],
-			UShort_t MCSkewAloneList[MAXTRACKSPEREVENT][nmaxSttHitsInTrack],
+			Short_t nMCParalAlone[MAXTRACKSPEREVENT],
+			Short_t MCParalAloneList[MAXTRACKSPEREVENT][nmaxSttHitsInTrack],
+			Short_t nMCSkewAlone[MAXTRACKSPEREVENT],
+			Short_t MCSkewAloneList[MAXTRACKSPEREVENT][nmaxSttHitsInTrack],
 
 			Short_t  daTrackFoundaTrackMC[MAXTRACKSPEREVENT]
                                                );
 
   void MatchMvdHitsToSttTracks(
 			Double_t delta,
-			UShort_t nSttTrackCand,
+			Short_t nSttTrackCand,
 			Double_t Ox[MAXTRACKSPEREVENT],
 			Double_t Oy[MAXTRACKSPEREVENT],
 			Double_t R[MAXTRACKSPEREVENT],
@@ -542,10 +542,10 @@ UShort_t ListSkewHitsinTrack[MAXTRACKSPEREVENT][nmaxSttHitsInTrack], // dal PR
 			Short_t CHARGE[MAXTRACKSPEREVENT],
 
 
-			UShort_t nMvdPixelHitsAssociatedToSttTrack[MAXTRACKSPEREVENT], // output
-			UShort_t ListMvdPixelHitsAssociatedToSttTrack[MAXTRACKSPEREVENT][nmaxMvdPixelHits], // output
-			UShort_t nMvdStripHitsAssociatedToSttTrack[MAXTRACKSPEREVENT], // output
-			UShort_t ListMvdStripHitsAssociatedToSttTrack[MAXTRACKSPEREVENT][nmaxMvdStripHits] // output
+			Short_t nMvdPixelHitsAssociatedToSttTrack[MAXTRACKSPEREVENT], // output
+			Short_t ListMvdPixelHitsAssociatedToSttTrack[MAXTRACKSPEREVENT][nmaxMvdPixelHits], // output
+			Short_t nMvdStripHitsAssociatedToSttTrack[MAXTRACKSPEREVENT], // output
+			Short_t ListMvdStripHitsAssociatedToSttTrack[MAXTRACKSPEREVENT][nmaxMvdStripHits] // output
                     );
 
 
@@ -555,7 +555,7 @@ UShort_t ListSkewHitsinTrack[MAXTRACKSPEREVENT][nmaxSttHitsInTrack], // dal PR
 			bool *keepit,
 			Double_t delta,
 			Double_t highqualitycut,
-			UShort_t nSttTrackCand,
+			Short_t nSttTrackCand,
 			Double_t Ox[MAXTRACKSPEREVENT],
 			Double_t Oy[MAXTRACKSPEREVENT],
 			Double_t R[MAXTRACKSPEREVENT],
@@ -563,10 +563,10 @@ UShort_t ListSkewHitsinTrack[MAXTRACKSPEREVENT][nmaxSttHitsInTrack], // dal PR
 			Double_t Fifirst[MAXTRACKSPEREVENT],
 			Short_t CHARGE[MAXTRACKSPEREVENT],
 
-UShort_t nMvdPixelHitsAssociatedToSttTrack[MAXTRACKSPEREVENT], // output
-UShort_t ListMvdPixelHitsAssociatedToSttTrack[MAXTRACKSPEREVENT][nmaxMvdPixelHitsInTrack], // output
-UShort_t nMvdStripHitsAssociatedToSttTrack[MAXTRACKSPEREVENT], // output
-UShort_t ListMvdStripHitsAssociatedToSttTrack[MAXTRACKSPEREVENT][nmaxMvdStripHitsInTrack] // output
+Short_t nMvdPixelHitsAssociatedToSttTrack[MAXTRACKSPEREVENT], // output
+Short_t ListMvdPixelHitsAssociatedToSttTrack[MAXTRACKSPEREVENT][nmaxMvdPixelHitsInTrack], // output
+Short_t nMvdStripHitsAssociatedToSttTrack[MAXTRACKSPEREVENT], // output
+Short_t ListMvdStripHitsAssociatedToSttTrack[MAXTRACKSPEREVENT][nmaxMvdStripHitsInTrack] // output
                     );
 
   void MatchMvdHitsToSttTracksagain(
@@ -574,7 +574,7 @@ UShort_t ListMvdStripHitsAssociatedToSttTrack[MAXTRACKSPEREVENT][nmaxMvdStripHit
 			bool *Mvdhits,
 			Double_t delta,
 			Double_t highqualitycut,
-			UShort_t nSttTrackCand,
+			Short_t nSttTrackCand,
 			Double_t Ox[MAXTRACKSPEREVENT],
 			Double_t Oy[MAXTRACKSPEREVENT],
 			Double_t R[MAXTRACKSPEREVENT],
@@ -583,10 +583,10 @@ UShort_t ListMvdStripHitsAssociatedToSttTrack[MAXTRACKSPEREVENT][nmaxMvdStripHit
 			Short_t CHARGE[MAXTRACKSPEREVENT],
 
 
-UShort_t nMvdPixelHitsAssociatedToSttTrack[MAXTRACKSPEREVENT], // output
-UShort_t ListMvdPixelHitsAssociatedToSttTrack[MAXTRACKSPEREVENT][nmaxMvdPixelHitsInTrack], // output
-UShort_t nMvdStripHitsAssociatedToSttTrack[MAXTRACKSPEREVENT], // output
-UShort_t ListMvdStripHitsAssociatedToSttTrack[MAXTRACKSPEREVENT][nmaxMvdStripHitsInTrack] // output
+Short_t nMvdPixelHitsAssociatedToSttTrack[MAXTRACKSPEREVENT], // output
+Short_t ListMvdPixelHitsAssociatedToSttTrack[MAXTRACKSPEREVENT][nmaxMvdPixelHitsInTrack], // output
+Short_t nMvdStripHitsAssociatedToSttTrack[MAXTRACKSPEREVENT], // output
+Short_t ListMvdStripHitsAssociatedToSttTrack[MAXTRACKSPEREVENT][nmaxMvdStripHitsInTrack] // output
 		);
 
 
@@ -595,10 +595,10 @@ UShort_t ListMvdStripHitsAssociatedToSttTrack[MAXTRACKSPEREVENT][nmaxMvdStripHit
 			bool *keepit,
 			bool *Mvdhits,
 			Double_t info[][7],
-			UShort_t nSttParHit,
-			UShort_t ListAllParHits[nmaxSttHits],
-			UShort_t StartTrackCand,
-			UShort_t EndTrackCand,
+			Short_t nSttParHit,
+			Short_t ListAllParHits[nmaxSttHits],
+			Short_t StartTrackCand,
+			Short_t EndTrackCand,
 			Double_t Ox[MAXTRACKSPEREVENT],
 			Double_t Oy[MAXTRACKSPEREVENT],
 			Double_t R[MAXTRACKSPEREVENT],
@@ -606,19 +606,19 @@ UShort_t ListMvdStripHitsAssociatedToSttTrack[MAXTRACKSPEREVENT][nmaxMvdStripHit
 			Double_t FI0[MAXTRACKSPEREVENT],
 			Double_t Fi_low_limit[MAXTRACKSPEREVENT],
 			Double_t Fi_up_limit[MAXTRACKSPEREVENT],
-			UShort_t nSttParHitsinTrack[MAXTRACKSPEREVENT], // input/output
-UShort_t ListSttParHitsinTrack[MAXTRACKSPEREVENT][nmaxSttHitsInTrack] // input/output
+			Short_t nSttParHitsinTrack[MAXTRACKSPEREVENT], // input/output
+Short_t ListSttParHitsinTrack[MAXTRACKSPEREVENT][nmaxSttHitsInTrack] // input/output
                     );
 
 
-  Short_t FitHelixCylinder( UShort_t nHitsinTrack,
+  Short_t FitHelixCylinder( Short_t nHitsinTrack,
 		Double_t *Xconformal,
 		Double_t *Yconformal,
 		Double_t *DriftRadiusconformal,
 		Double_t *ErrorDriftRadiusconformal,
 		Double_t rotationangle,
 		Double_t *trajectory_vertex,
-		UShort_t NMAX,
+		Short_t NMAX,
 		Double_t *m,
 		Double_t *q,
 		Double_t *pAlfa,
@@ -630,19 +630,19 @@ UShort_t ListSttParHitsinTrack[MAXTRACKSPEREVENT][nmaxSttHitsInTrack] // input/o
 
 
   Short_t FitSZspace(
-			UShort_t nSkewHitsinTrack,
+			Short_t nSkewHitsinTrack,
 			Double_t *S,
 			Double_t *Z,
 			Double_t *DriftRadius,
 			Double_t *ErrorDriftRadius,
 			Double_t FInot,
-			UShort_t NMAX,
+			Short_t NMAX,
 			Double_t *emme
 			);
 
   void RefitMvdStt(
-			UShort_t nCandHit,
-			UShort_t *ListTrackCandHit,
+			Short_t nCandHit,
+			Short_t *ListTrackCandHit,
 			Short_t *ListTrackCandHitType,
 			Double_t info[][7],
 			Double_t rotationangle,
@@ -656,7 +656,7 @@ UShort_t ListSttParHitsinTrack[MAXTRACKSPEREVENT][nmaxSttHitsInTrack] // input/o
 
 
   void MvdMatchtoMC(
-		UShort_t nMvdMCPoint,
+		Short_t nMvdMCPoint,
 
 		Int_t *FromPixeltoMCTrack,	// output
 		Int_t *FromStriptoMCTrack	// output
@@ -664,40 +664,40 @@ UShort_t ListSttParHitsinTrack[MAXTRACKSPEREVENT][nmaxSttHitsInTrack] // input/o
 
 
   void MvdMatchedSpurioustoTrackCand(
-			UShort_t nSttTrackCand,				// input
+			Short_t nSttTrackCand,				// input
 			bool * keepit,				// input
 			Short_t *daTrackFoundaTrackMC,			// input
 			Int_t *FromPixeltoMCTrack,			// input
 			Int_t *FromStriptoMCTrack,			// input
-			UShort_t *nMvdPixelHitsAssociatedToSttTrack,	// input
-UShort_t ListPixel[MAXTRACKSPEREVENT][nmaxMvdPixelHitsInTrack],// input
-			UShort_t *nMvdStripHitsAssociatedToSttTrack,	// input
-UShort_t ListStrip[MAXTRACKSPEREVENT][nmaxMvdStripHitsInTrack],// input
+			Short_t *nMvdPixelHitsAssociatedToSttTrack,	// input
+Short_t ListPixel[MAXTRACKSPEREVENT][nmaxMvdPixelHitsInTrack],// input
+			Short_t *nMvdStripHitsAssociatedToSttTrack,	// input
+Short_t ListStrip[MAXTRACKSPEREVENT][nmaxMvdStripHitsInTrack],// input
 
-			UShort_t *nMvdPixelCommon,		// output
-			UShort_t *MvdPixelCommonList,		// output
-			UShort_t *nMvdPixelSpuriinTrack,	// output
-			UShort_t *MvdPixelSpuriList,		// output
-			UShort_t *nMCMvdPixelAlone,		// output
-			UShort_t *MCMvdPixelAloneList,		// output
+			Short_t *nMvdPixelCommon,		// output
+			Short_t *MvdPixelCommonList,		// output
+			Short_t *nMvdPixelSpuriinTrack,	// output
+			Short_t *MvdPixelSpuriList,		// output
+			Short_t *nMCMvdPixelAlone,		// output
+			Short_t *MCMvdPixelAloneList,		// output
 
-			UShort_t *nMvdStripCommon,		// output
-			UShort_t *MvdStripCommonList,		// output
-			UShort_t *nMvdStripSpuriinTrack,	// output
-			UShort_t *MvdStripSpuriList,		// output
-			UShort_t *nMCMvdStripAlone,		// output
-			UShort_t *MCMvdStripAloneList		// output
+			Short_t *nMvdStripCommon,		// output
+			Short_t *MvdStripCommonList,		// output
+			Short_t *nMvdStripSpuriinTrack,	// output
+			Short_t *MvdStripSpuriList,		// output
+			Short_t *nMCMvdStripAlone,		// output
+			Short_t *MCMvdStripAloneList		// output
 				);
 
 
 
   void  Merge_Sort(
-	UShort_t n_ele,
+	Short_t n_ele,
 	Double_t *array,
 	Int_t *ind
 	);
 
-  void Merge(UShort_t nl, Double_t *left, Int_t *ind_left, UShort_t nr,
+  void Merge(Short_t nl, Double_t *left, Int_t *ind_left, Short_t nr,
 	Double_t *right, Int_t *ind_right,  Double_t *result, Int_t *ind);
 
 
@@ -739,13 +739,13 @@ UShort_t ListStrip[MAXTRACKSPEREVENT][nmaxMvdStripHitsInTrack],// input
 
 
   void EliminateSpuriousSZ(
-			UShort_t MaxTurnofTracks,
-			UShort_t *nMvdPixelHitsAssociatedToSttTrack,
-			UShort_t *ListMvdPixelHitsAssociatedToSttTrack,
-			UShort_t *nMvdStripHitsAssociatedToSttTrack,
-			UShort_t *ListMvdStripHitsAssociatedToSttTrack,
-			UShort_t *nSttSkewHitsinTrack,
-			UShort_t *ListSttSkewHitsinTrack,
+			Short_t MaxTurnofTracks,
+			Short_t *nMvdPixelHitsAssociatedToSttTrack,
+			Short_t *ListMvdPixelHitsAssociatedToSttTrack,
+			Short_t *nMvdStripHitsAssociatedToSttTrack,
+			Short_t *ListMvdStripHitsAssociatedToSttTrack,
+			Short_t *nSttSkewHitsinTrack,
+			Short_t *ListSttSkewHitsinTrack,
 			Double_t *S,
 			Double_t *ZED,
 			Double_t *DriftRadius,
@@ -790,7 +790,7 @@ UShort_t ListStrip[MAXTRACKSPEREVENT][nmaxMvdStripHitsInTrack],// input
 
     void PndSttInfoXYZParal (
                              Double_t info[][7],
-                             UShort_t infopar,
+                             Short_t infopar,
                              Double_t Ox,
                              Double_t Oy,
                              Double_t R,
@@ -803,16 +803,16 @@ UShort_t ListStrip[MAXTRACKSPEREVENT][nmaxMvdStripHitsInTrack],// input
 
 
    void FixDiscontinuitiesFiangleinSZplane(
-                          UShort_t TemporarynSkewHitsinTrack,
+                          Short_t TemporarynSkewHitsinTrack,
                           Double_t *S,
                           Double_t *Fi_initial_helix_referenceframe,
                           Short_t Charge
                                                                 );
 
-  UShort_t AssociateSkewHitsToXYTrack(
+  Short_t AssociateSkewHitsToXYTrack(
                    bool *InclusionListSkew,
-		   UShort_t NSkewhits,
-		   UShort_t *infoskew,
+		   Short_t NSkewhits,
+		   Short_t *infoskew,
                    Double_t Ox,
                    Double_t Oy,
                    Double_t R,
@@ -823,7 +823,7 @@ UShort_t ListStrip[MAXTRACKSPEREVENT][nmaxMvdStripHitsInTrack],// input
                    Double_t Fi_low_limit,
                    Double_t Fi_up_limit,
                    Short_t  Charge,
-                   UShort_t SkewList[nmaxSttHits][2], // output,  list of selected skew hits (in skew numbering)
+                   Short_t SkewList[nmaxSttHits][2], // output,  list of selected skew hits (in skew numbering)
                    Double_t *S,       //  output,  S coordinate of selected Skew hit
                    Double_t *Z,       //  output,  Z coordinate of selected Skew hit
                    Double_t *ZDrift,   //  output,  drift distance IN Z DIRECTION only, of selected Skew hit
@@ -860,8 +860,8 @@ UShort_t ListStrip[MAXTRACKSPEREVENT][nmaxMvdStripHitsInTrack],// input
 				);
    void   Ordering_Loading_ListTrackCandHit(
 			bool *keepit,
-			UShort_t FirstCandidate,
-			UShort_t LastCandidate,
+			Short_t FirstCandidate,
+			Short_t LastCandidate,
 			Double_t info[][7],
 			Double_t * Ox,
 			Double_t * Oy,
@@ -873,13 +873,13 @@ UShort_t ListStrip[MAXTRACKSPEREVENT][nmaxMvdStripHitsInTrack],// input
 
   void OrderingR_Loading_ListTrackCandHit(
 			bool *keepit,
-			UShort_t ncand,
+			Short_t ncand,
 			Double_t info[][7]
 				);
 
    void   OrderingConformal_Loading_ListTrackCandHit(
 			bool *keepit,
-			UShort_t ncand,
+			Short_t ncand,
 			Double_t info[][7],
 			Double_t * Ox,
 			Double_t * Oy,
@@ -905,26 +905,26 @@ UShort_t ListStrip[MAXTRACKSPEREVENT][nmaxMvdStripHitsInTrack],// input
 	void SeparateInnerOuterParallel(
 
 				// input
-				UShort_t nHits,
-				UShort_t *ListHits,
+				Short_t nHits,
+				Short_t *ListHits,
 				Double_t info[][7],
 				Double_t RStrawDetInnerParMax,
 
 				// output
-				UShort_t *nInnerHits,
-				UShort_t *ListInnerHits,
-				UShort_t *nOuterHits,
-				UShort_t *ListOuterHits,
+				Short_t *nInnerHits,
+				Short_t *ListInnerHits,
+				Short_t *nOuterHits,
+				Short_t *ListOuterHits,
 
-				UShort_t *nInnerHitsLeft,
-				UShort_t *ListInnerHitsLeft,
-				UShort_t *nInnerHitsRight,
-				UShort_t *ListInnerHitsRight,
+				Short_t *nInnerHitsLeft,
+				Short_t *ListInnerHitsLeft,
+				Short_t *nInnerHitsRight,
+				Short_t *ListInnerHitsRight,
 
-				UShort_t *nOuterHitsLeft,
-				UShort_t *ListOuterHitsLeft,
-				UShort_t *nOuterHitsRight,
-				UShort_t *ListOuterHitsRight
+				Short_t *nOuterHitsLeft,
+				Short_t *ListOuterHitsLeft,
+				Short_t *nOuterHitsRight,
+				Short_t *ListOuterHitsRight
 					);
 
 
@@ -940,10 +940,10 @@ UShort_t ListStrip[MAXTRACKSPEREVENT][nmaxMvdStripHitsInTrack],// input
 				Double_t FI0,
 				Short_t  Charge,
 				Double_t Start[3],
-				UShort_t &nHitsPar,
-				UShort_t *ListHitsPar,
-				UShort_t &nHitsSkew,
-				UShort_t *ListHitsSkew,
+				Short_t &nHitsPar,
+				Short_t *ListHitsPar,
+				Short_t &nHitsSkew,
+				Short_t *ListHitsSkew,
 				Double_t *auxS,
 				Double_t info[][7],
 				Double_t RStrawDetMin,
@@ -964,8 +964,8 @@ UShort_t ListStrip[MAXTRACKSPEREVENT][nmaxMvdStripHitsInTrack],// input
 			Double_t Start[3],
 			Double_t FI0,
 			Double_t FiLimitAdmissible,
-			UShort_t nHits,
-			UShort_t *Listofhits,
+			Short_t nHits,
+			Short_t *Listofhits,
 			Double_t info[][7],
 			Double_t RStrawDetMin,
 			Double_t RStrawDetInnerParMax,
@@ -983,14 +983,14 @@ UShort_t ListStrip[MAXTRACKSPEREVENT][nmaxMvdStripHitsInTrack],// input
 			Double_t Start[3],
 			Double_t FI0,
 			Double_t FiLimitAdmissible,
-			UShort_t nHits,
-			UShort_t *Listofhits,
+			Short_t nHits,
+			Short_t *Listofhits,
 			Double_t *S,
 			Double_t info[][7],
 			Double_t RminStrawSkew,
 			Double_t RmaxStrawSkew,
 			Double_t cut,
-			UShort_t maxnum
+			Short_t maxnum
 				);
 
 	bool BadTrack_ParStt(
@@ -1001,12 +1001,12 @@ UShort_t ListStrip[MAXTRACKSPEREVENT][nmaxMvdStripHitsInTrack],// input
 			Double_t Xcross[2],  // Xcross[0]=point of entrance;
 						//  Xcross[1]=point of exit.
 			Double_t Ycross[2],
-			UShort_t nHits,
-			UShort_t* ListHits,
+			Short_t nHits,
+			Short_t* ListHits,
 			Double_t info[][7],
 			Double_t cut,
-			UShort_t maxnum,
-			UShort_t islack // uncertainty allowed as far as
+			Short_t maxnum,
+			Short_t islack // uncertainty allowed as far as
 				// the n. of hits that should be present.
 				);
 
@@ -1020,18 +1020,18 @@ UShort_t ListStrip[MAXTRACKSPEREVENT][nmaxMvdStripHitsInTrack],// input
 		Double_t Rma,	// Rmax of cylindrical volume intersected by track;
 
 		//-------- outputs
-		UShort_t nIntersections[2],
+		Short_t nIntersections[2],
 		Double_t XintersectionList[][2],
 		Double_t YintersectionList[][2]
 					);
 
 
 
-	UShort_t   IntersectionsWithOpenPolygon(
+	Short_t   IntersectionsWithOpenPolygon(
 		Double_t Ox, // Track parameter
 		Double_t Oy, // Track parameter
 		Double_t R, // Track parameter
-		UShort_t nSides, // input, n. of Sides of open Polygon.
+		Short_t nSides, // input, n. of Sides of open Polygon.
 		Double_t *a, //  coefficient of formula :  aX + bY + c = 0 defining
 		Double_t *b, //  the Polygon sides.
 		Double_t *c,
@@ -1051,7 +1051,7 @@ UShort_t ListStrip[MAXTRACKSPEREVENT][nmaxMvdStripHitsInTrack],// input
 		Double_t Ama,	// Apotema max of outer Hexagon;
 
 		//-------- outputs
-		UShort_t *nIntersections,
+		Short_t *nIntersections,
 		Double_t *XintersectionList,
 		Double_t *YintersectionList
 					);
@@ -1066,7 +1066,7 @@ UShort_t ListStrip[MAXTRACKSPEREVENT][nmaxMvdStripHitsInTrack],// input
 		Double_t Ama,	// Apotema max of outer Hexagon;
 
 		//-------- outputs
-		UShort_t *nIntersections,
+		Short_t *nIntersections,
 		Double_t *XintersectionList,
 		Double_t *YintersectionList
 					);
@@ -1083,14 +1083,14 @@ UShort_t ListStrip[MAXTRACKSPEREVENT][nmaxMvdStripHitsInTrack],// input
 			Double_t Ox, // center of circle.
 			Double_t Oy,
 			Double_t R, // Radius of circle.
-			UShort_t * Nintersections,
+			Short_t * Nintersections,
 			Double_t XintersectionList[2],
 			Double_t YintersectionList[2],
 			Double_t *distance
 								);
 
 
-	UShort_t IntersectionsWithGapSemicircle(
+	Short_t IntersectionsWithGapSemicircle(
 			Double_t Oxx,
 			Double_t Oyy,
 			Double_t Rr,
@@ -1116,7 +1116,7 @@ UShort_t ListStrip[MAXTRACKSPEREVENT][nmaxMvdStripHitsInTrack],// input
 			Double_t Oyy,
 			Short_t  Charge,
 			Double_t FiStart,
-			UShort_t nIntersections,
+			Short_t nIntersections,
 			Double_t *XintersectionList,
 			Double_t *YintersectionList,
 			Double_t Xcross[2],	// output
@@ -1217,7 +1217,7 @@ UShort_t ListStrip[MAXTRACKSPEREVENT][nmaxMvdStripHitsInTrack],// input
 	void   FindCharge(
 		Double_t oX,
 		Double_t oY,
-		UShort_t nHits,
+		Short_t nHits,
 		Double_t *X,
 		Double_t *Y,
 		Short_t  * Charge
@@ -1231,17 +1231,17 @@ UShort_t ListStrip[MAXTRACKSPEREVENT][nmaxMvdStripHitsInTrack],// input
 			Double_t Oxx, // center of circle.
 			Double_t Oyy,
 			Double_t Rr, // Radius of circle.
-			UShort_t * Nintersections,
+			Short_t * Nintersections,
 			Double_t XintersectionList[2],
 			Double_t YintersectionList[2]
 								);
 
 
-	UShort_t AssociateSciTilHit(
+	Short_t AssociateSciTilHit(
 		Double_t Oxx,
 		Double_t Oyy,
 		Double_t Rr,
-		UShort_t *List, // output, list of SciTil hits associated (max. 2);
+		Short_t *List, // output, list of SciTil hits associated (max. 2);
 		Double_t *esse // output, list of  S of the SciTil hits associated. 
 				);
 
