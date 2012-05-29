@@ -122,7 +122,7 @@ int main(int argc, char *argv[])
 
 
   // event loop
-  int     nevents        = 10000;
+  int     nevents        = 10000000;
   TRandom ran;
   double phi,costh,sinth;
   
@@ -147,7 +147,100 @@ int main(int argc, char *argv[])
   TH2D*   kbary_side1 = new TH2D("kbary_side1"   ,"kbary",200,-300.5,+299.5,200,-300.5,+299.5);
   TH2D*   kbarz_side1 = new TH2D("kbarz_side1"   ,"kbarz",200,-300.5,+299.5,200,-300.5,+299.5);
 
-  list<PndDrcPhoton> list_photon;
+  TH2D*   kbarx_side23 = new TH2D("kbarx_side23" ,"kbarx",200,-300.5,+299.5,200,-300.5,+299.5);
+  TH2D*   kbary_side23 = new TH2D("kbary_side23" ,"kbary",200,-300.5,+299.5,200,-300.5,+299.5);
+  TH2D*   kbarz_side23 = new TH2D("kbarz_side23" ,"kbarz",200,-300.5,+299.5,200,-300.5,+299.5);
+
+  TH2D*   kbarx_side25 = new TH2D("kbarx_side25" ,"kbarx",200,-300.5,+299.5,200,-300.5,+299.5);
+  TH2D*   kbary_side25 = new TH2D("kbary_side25" ,"kbary",200,-300.5,+299.5,200,-300.5,+299.5);
+  TH2D*   kbarz_side25 = new TH2D("kbarz_side25" ,"kbarz",200,-300.5,+299.5,200,-300.5,+299.5);
+
+  TH2D*   kbarx_side32 = new TH2D("kbarx_side32" ,"kbarx",200,-300.5,+299.5,200,-300.5,+299.5);
+  TH2D*   kbary_side32 = new TH2D("kbary_side32" ,"kbary",200,-300.5,+299.5,200,-300.5,+299.5);
+  TH2D*   kbarz_side32 = new TH2D("kbarz_side32" ,"kbarz",200,-300.5,+299.5,200,-300.5,+299.5);
+
+  TH2D*   kbarx_side34 = new TH2D("kbarx_side34" ,"kbarx",200,-300.5,+299.5,200,-300.5,+299.5);
+  TH2D*   kbary_side34 = new TH2D("kbary_side34" ,"kbary",200,-300.5,+299.5,200,-300.5,+299.5);
+  TH2D*   kbarz_side34 = new TH2D("kbarz_side34" ,"kbarz",200,-300.5,+299.5,200,-300.5,+299.5);
+
+  TH2D*   kbarx_side35 = new TH2D("kbarx_side35" ,"kbarx",200,-300.5,+299.5,200,-300.5,+299.5);
+  TH2D*   kbary_side35 = new TH2D("kbary_side35" ,"kbary",200,-300.5,+299.5,200,-300.5,+299.5);
+  TH2D*   kbarz_side35 = new TH2D("kbarz_side35" ,"kbarz",200,-300.5,+299.5,200,-300.5,+299.5);
+
+  TH2D*   kbarx_side43 = new TH2D("kbarx_side43" ,"kbarx",200,-300.5,+299.5,200,-300.5,+299.5);
+  TH2D*   kbary_side43 = new TH2D("kbary_side43" ,"kbary",200,-300.5,+299.5,200,-300.5,+299.5);
+  TH2D*   kbarz_side43 = new TH2D("kbarz_side43" ,"kbarz",200,-300.5,+299.5,200,-300.5,+299.5);
+
+  TH2D*   kbarx_side45 = new TH2D("kbarx_side45" ,"kbarx",200,-300.5,+299.5,200,-300.5,+299.5);
+  TH2D*   kbary_side45 = new TH2D("kbary_side45" ,"kbary",200,-300.5,+299.5,200,-300.5,+299.5);
+  TH2D*   kbarz_side45 = new TH2D("kbarz_side45" ,"kbarz",200,-300.5,+299.5,200,-300.5,+299.5);
+
+  TH2D*   kbarx_side52 = new TH2D("kbarx_side52" ,"kbarx",200,-300.5,+299.5,200,-300.5,+299.5);
+  TH2D*   kbary_side52 = new TH2D("kbary_side52" ,"kbary",200,-300.5,+299.5,200,-300.5,+299.5);
+  TH2D*   kbarz_side52 = new TH2D("kbarz_side52" ,"kbarz",200,-300.5,+299.5,200,-300.5,+299.5);
+
+  TH2D*   kbarx_side53 = new TH2D("kbarx_side53" ,"kbarx",200,-300.5,+299.5,200,-300.5,+299.5);
+  TH2D*   kbary_side53 = new TH2D("kbary_side53" ,"kbary",200,-300.5,+299.5,200,-300.5,+299.5);
+  TH2D*   kbarz_side53 = new TH2D("kbarz_side53" ,"kbarz",200,-300.5,+299.5,200,-300.5,+299.5);
+
+  TH2D*   kbarx_side54 = new TH2D("kbarx_side54" ,"kbarx",200,-300.5,+299.5,200,-300.5,+299.5);
+  TH2D*   kbary_side54 = new TH2D("kbary_side54" ,"kbary",200,-300.5,+299.5,200,-300.5,+299.5);
+  TH2D*   kbarz_side54 = new TH2D("kbarz_side54" ,"kbarz",200,-300.5,+299.5,200,-300.5,+299.5);
+
+  TH2D*   kbarx_side235 = new TH2D("kbarx_side235" ,"kbarx",200,-300.5,+299.5,200,-300.5,+299.5);
+  TH2D*   kbary_side235 = new TH2D("kbary_side235" ,"kbary",200,-300.5,+299.5,200,-300.5,+299.5);
+  TH2D*   kbarz_side235 = new TH2D("kbarz_side235" ,"kbarz",200,-300.5,+299.5,200,-300.5,+299.5);
+
+  TH2D*   kbarx_side253 = new TH2D("kbarx_side253" ,"kbarx",200,-300.5,+299.5,200,-300.5,+299.5);
+  TH2D*   kbary_side253 = new TH2D("kbary_side253" ,"kbary",200,-300.5,+299.5,200,-300.5,+299.5);
+  TH2D*   kbarz_side253 = new TH2D("kbarz_side253" ,"kbarz",200,-300.5,+299.5,200,-300.5,+299.5);
+
+  //TH2D*   kbarx_side321 = new TH2D("kbarx_side321" ,"kbarx",200,-300.5,+299.5,200,-300.5,+299.5);
+  //TH2D*   kbary_side321 = new TH2D("kbary_side321" ,"kbary",200,-300.5,+299.5,200,-300.5,+299.5);
+  //TH2D*   kbarz_side321 = new TH2D("kbarz_side321" ,"kbarz",200,-300.5,+299.5,200,-300.5,+299.5);
+
+  TH2D*   kbarx_side325 = new TH2D("kbarx_side325" ,"kbarx",200,-300.5,+299.5,200,-300.5,+299.5);
+  TH2D*   kbary_side325 = new TH2D("kbary_side325" ,"kbary",200,-300.5,+299.5,200,-300.5,+299.5);
+  TH2D*   kbarz_side325 = new TH2D("kbarz_side325" ,"kbarz",200,-300.5,+299.5,200,-300.5,+299.5);
+
+
+  TH2D*   kbarx_side345 = new TH2D("kbarx_side345" ,"kbarx",200,-300.5,+299.5,200,-300.5,+299.5);
+  TH2D*   kbary_side345 = new TH2D("kbary_side345" ,"kbary",200,-300.5,+299.5,200,-300.5,+299.5);
+  TH2D*   kbarz_side345 = new TH2D("kbarz_side345" ,"kbarz",200,-300.5,+299.5,200,-300.5,+299.5);
+
+  TH2D*   kbarx_side352 = new TH2D("kbarx_side352" ,"kbarx",200,-300.5,+299.5,200,-300.5,+299.5);
+  TH2D*   kbary_side352 = new TH2D("kbary_side352" ,"kbary",200,-300.5,+299.5,200,-300.5,+299.5);
+  TH2D*   kbarz_side352 = new TH2D("kbarz_side352" ,"kbarz",200,-300.5,+299.5,200,-300.5,+299.5);
+
+  TH2D*   kbarx_side353 = new TH2D("kbarx_side353" ,"kbarx",200,-300.5,+299.5,200,-300.5,+299.5);
+  TH2D*   kbary_side353 = new TH2D("kbary_side353" ,"kbary",200,-300.5,+299.5,200,-300.5,+299.5);
+  TH2D*   kbarz_side353 = new TH2D("kbarz_side353" ,"kbarz",200,-300.5,+299.5,200,-300.5,+299.5);
+
+  TH2D*   kbarx_side354 = new TH2D("kbarx_side354" ,"kbarx",200,-300.5,+299.5,200,-300.5,+299.5);
+  TH2D*   kbary_side354 = new TH2D("kbary_side354" ,"kbary",200,-300.5,+299.5,200,-300.5,+299.5);
+  TH2D*   kbarz_side354 = new TH2D("kbarz_side354" ,"kbarz",200,-300.5,+299.5,200,-300.5,+299.5);
+
+  TH2D*   kbarx_side523 = new TH2D("kbarx_side523" ,"kbarx",200,-300.5,+299.5,200,-300.5,+299.5);
+  TH2D*   kbary_side523 = new TH2D("kbary_side523" ,"kbary",200,-300.5,+299.5,200,-300.5,+299.5);
+  TH2D*   kbarz_side523 = new TH2D("kbarz_side523" ,"kbarz",200,-300.5,+299.5,200,-300.5,+299.5);
+
+  TH2D*   kbarx_side532 = new TH2D("kbarx_side532" ,"kbarx",200,-300.5,+299.5,200,-300.5,+299.5);
+  TH2D*   kbary_side532 = new TH2D("kbary_side532" ,"kbary",200,-300.5,+299.5,200,-300.5,+299.5);
+  TH2D*   kbarz_side532 = new TH2D("kbarz_side532" ,"kbarz",200,-300.5,+299.5,200,-300.5,+299.5);
+
+  TH2D*   kbarx_side534 = new TH2D("kbarx_side534" ,"kbarx",200,-300.5,+299.5,200,-300.5,+299.5);
+  TH2D*   kbary_side534 = new TH2D("kbary_side534" ,"kbary",200,-300.5,+299.5,200,-300.5,+299.5);
+  TH2D*   kbarz_side534 = new TH2D("kbarz_side534" ,"kbarz",200,-300.5,+299.5,200,-300.5,+299.5);
+
+  TH2D*   kbarx_side535 = new TH2D("kbarx_side535" ,"kbarx",200,-300.5,+299.5,200,-300.5,+299.5);
+  TH2D*   kbary_side535 = new TH2D("kbary_side535" ,"kbary",200,-300.5,+299.5,200,-300.5,+299.5);
+  TH2D*   kbarz_side535 = new TH2D("kbarz_side535" ,"kbarz",200,-300.5,+299.5,200,-300.5,+299.5);
+
+  TH2D*   kbarx_side543 = new TH2D("kbarx_side543" ,"kbarx",200,-300.5,+299.5,200,-300.5,+299.5);
+  TH2D*   kbary_side543 = new TH2D("kbary_side543" ,"kbary",200,-300.5,+299.5,200,-300.5,+299.5);
+  TH2D*   kbarz_side543 = new TH2D("kbarz_side543" ,"kbarz",200,-300.5,+299.5,200,-300.5,+299.5);
+
+   list<PndDrcPhoton> list_photon;
   
   for (int ievent=0; ievent<nevents; ievent++)
     {
@@ -256,11 +349,149 @@ int main(int argc, char *argv[])
 		  kbary_side1 -> SetBinContent(kbary_side1->FindBin(xx,yy),ky);
 		  kbarz_side1 -> SetBinContent(kbarz_side1->FindBin(xx,yy),kz);  
 		}
+	      else if (vec_surf[1]=="out" && vec_surf[2]=="side2" && vec_surf[3]=="side3" && vec_surf[4]=="pixel")
+		{
+		  kbarx_side23 -> SetBinContent(kbarx_side23->FindBin(xx,yy),kx);
+		  kbary_side23 -> SetBinContent(kbary_side23->FindBin(xx,yy),ky);
+		  kbarz_side23 -> SetBinContent(kbarz_side23->FindBin(xx,yy),kz);  
+		}
+	      else if (vec_surf[1]=="out" && vec_surf[2]=="side2" && vec_surf[3]=="side5" && vec_surf[4]=="pixel")
+		{
+		  kbarx_side25 -> SetBinContent(kbarx_side25->FindBin(xx,yy),kx);
+		  kbary_side25 -> SetBinContent(kbary_side25->FindBin(xx,yy),ky);
+		  kbarz_side25 -> SetBinContent(kbarz_side25->FindBin(xx,yy),kz);  
+		}
+	      else if (vec_surf[1]=="out" && vec_surf[2]=="side3" && vec_surf[3]=="side2" && vec_surf[4]=="pixel")
+		{
+		  kbarx_side32 -> SetBinContent(kbarx_side32->FindBin(xx,yy),kx);
+		  kbary_side32 -> SetBinContent(kbary_side32->FindBin(xx,yy),ky);
+		  kbarz_side32 -> SetBinContent(kbarz_side32->FindBin(xx,yy),kz);  
+		}
+	      else if (vec_surf[1]=="out" && vec_surf[2]=="side3" && vec_surf[3]=="side4" && vec_surf[4]=="pixel")
+		{
+		  kbarx_side34 -> SetBinContent(kbarx_side34->FindBin(xx,yy),kx);
+		  kbary_side34 -> SetBinContent(kbary_side34->FindBin(xx,yy),ky);
+		  kbarz_side34 -> SetBinContent(kbarz_side34->FindBin(xx,yy),kz);  
+		}
+	      else if (vec_surf[1]=="out" && vec_surf[2]=="side3" && vec_surf[3]=="side5" && vec_surf[4]=="pixel")
+		{
+		  kbarx_side35 -> SetBinContent(kbarx_side35->FindBin(xx,yy),kx);
+		  kbary_side35 -> SetBinContent(kbary_side35->FindBin(xx,yy),ky);
+		  kbarz_side35 -> SetBinContent(kbarz_side35->FindBin(xx,yy),kz);  
+		}
+	      else if (vec_surf[1]=="out" && vec_surf[2]=="side4" && vec_surf[3]=="side3" && vec_surf[4]=="pixel")
+		{
+		  kbarx_side43 -> SetBinContent(kbarx_side43->FindBin(xx,yy),kx);
+		  kbary_side43 -> SetBinContent(kbary_side43->FindBin(xx,yy),ky);
+		  kbarz_side43 -> SetBinContent(kbarz_side43->FindBin(xx,yy),kz);  
+		}
+	      else if (vec_surf[1]=="out" && vec_surf[2]=="side4" && vec_surf[3]=="side5" && vec_surf[4]=="pixel")
+		{
+		  kbarx_side45 -> SetBinContent(kbarx_side45->FindBin(xx,yy),kx);
+		  kbary_side45 -> SetBinContent(kbary_side45->FindBin(xx,yy),ky);
+		  kbarz_side45 -> SetBinContent(kbarz_side45->FindBin(xx,yy),kz);  
+		}
+	      else if (vec_surf[1]=="out" && vec_surf[2]=="side5" && vec_surf[3]=="side2" && vec_surf[4]=="pixel")
+		{
+		  kbarx_side52 -> SetBinContent(kbarx_side52->FindBin(xx,yy),kx);
+		  kbary_side52 -> SetBinContent(kbary_side52->FindBin(xx,yy),ky);
+		  kbarz_side52 -> SetBinContent(kbarz_side52->FindBin(xx,yy),kz);  
+		}
+	      else if (vec_surf[1]=="out" && vec_surf[2]=="side5" && vec_surf[3]=="side3" && vec_surf[4]=="pixel")
+		{
+		  kbarx_side53 -> SetBinContent(kbarx_side53->FindBin(xx,yy),kx);
+		  kbary_side53 -> SetBinContent(kbary_side53->FindBin(xx,yy),ky);
+		  kbarz_side53 -> SetBinContent(kbarz_side53->FindBin(xx,yy),kz);  
+		}
+	      else if (vec_surf[1]=="out" && vec_surf[2]=="side5" && vec_surf[3]=="side4" && vec_surf[4]=="pixel")
+		{
+		  kbarx_side54 -> SetBinContent(kbarx_side54->FindBin(xx,yy),kx);
+		  kbary_side54 -> SetBinContent(kbary_side54->FindBin(xx,yy),ky);
+		  kbarz_side54 -> SetBinContent(kbarz_side54->FindBin(xx,yy),kz);  
+		}
+	      else if (vec_surf[0]=="out" && vec_surf[1]=="side2" && vec_surf[2]=="side3" && vec_surf[3]=="side5" && vec_surf[4]=="pixel")
+		{
+		  kbarx_side235 -> SetBinContent(kbarx_side235->FindBin(xx,yy),kx);
+		  kbary_side235 -> SetBinContent(kbary_side235->FindBin(xx,yy),ky);
+		  kbarz_side235 -> SetBinContent(kbarz_side235->FindBin(xx,yy),kz);  
+		}
+	      else if (vec_surf[0]=="out" && vec_surf[1]=="side2" && vec_surf[2]=="side5" && vec_surf[3]=="side3" && vec_surf[4]=="pixel")
+		{
+		  kbarx_side253 -> SetBinContent(kbarx_side253->FindBin(xx,yy),kx);
+		  kbary_side253 -> SetBinContent(kbary_side253->FindBin(xx,yy),ky);
+		  kbarz_side253 -> SetBinContent(kbarz_side253->FindBin(xx,yy),kz);  
+		}
+	      else if (vec_surf[0]=="out" && vec_surf[1]=="side3" && vec_surf[2]=="side2" && vec_surf[3]=="side5" && vec_surf[4]=="pixel")
+		{
+		  kbarx_side325 -> SetBinContent(kbarx_side325->FindBin(xx,yy),kx);
+		  kbary_side325 -> SetBinContent(kbary_side325->FindBin(xx,yy),ky);
+		  kbarz_side325 -> SetBinContent(kbarz_side325->FindBin(xx,yy),kz);  
+		}
+	      //else if (vec_surf[0]=="out" && vec_surf[1]=="side3" && vec_surf[2]=="side2" && vec_surf[3]=="side1" && vec_surf[4]=="pixel")
+	      //{
+	      //  kbarx_side321 -> SetBinContent(kbarx_side321->FindBin(xx,yy),kx);
+	      //  kbary_side321 -> SetBinContent(kbary_side321->FindBin(xx,yy),ky);
+	      //  kbarz_side321 -> SetBinContent(kbarz_side321->FindBin(xx,yy),kz);  
+	      //}
+	      else if (vec_surf[0]=="out" && vec_surf[1]=="side3" && vec_surf[2]=="side4" && vec_surf[3]=="side5" && vec_surf[4]=="pixel")
+		{
+		  kbarx_side345 -> SetBinContent(kbarx_side345->FindBin(xx,yy),kx);
+		  kbary_side345 -> SetBinContent(kbary_side345->FindBin(xx,yy),ky);
+		  kbarz_side345 -> SetBinContent(kbarz_side345->FindBin(xx,yy),kz);  
+		}
+	      else if (vec_surf[0]=="out" && vec_surf[1]=="side3" && vec_surf[2]=="side5" && vec_surf[3]=="side2" && vec_surf[4]=="pixel")
+		{
+		  kbarx_side352 -> SetBinContent(kbarx_side352->FindBin(xx,yy),kx);
+		  kbary_side352 -> SetBinContent(kbary_side352->FindBin(xx,yy),ky);
+		  kbarz_side352 -> SetBinContent(kbarz_side352->FindBin(xx,yy),kz);  
+		}
+	      else if (vec_surf[0]=="out" && vec_surf[1]=="side3" && vec_surf[2]=="side5" && vec_surf[3]=="side3" && vec_surf[4]=="pixel")
+		{
+		  kbarx_side353 -> SetBinContent(kbarx_side353->FindBin(xx,yy),kx);
+		  kbary_side353 -> SetBinContent(kbary_side353->FindBin(xx,yy),ky);
+		  kbarz_side353 -> SetBinContent(kbarz_side353->FindBin(xx,yy),kz);  
+		}
+	      else if (vec_surf[0]=="out" && vec_surf[1]=="side3" && vec_surf[2]=="side5" && vec_surf[3]=="side4" && vec_surf[4]=="pixel")
+		{
+		  kbarx_side354 -> SetBinContent(kbarx_side354->FindBin(xx,yy),kx);
+		  kbary_side354 -> SetBinContent(kbary_side354->FindBin(xx,yy),ky);
+		  kbarz_side354 -> SetBinContent(kbarz_side354->FindBin(xx,yy),kz);  
+		}
+	      else if (vec_surf[0]=="out" && vec_surf[1]=="side5" && vec_surf[2]=="side2" && vec_surf[3]=="side3" && vec_surf[4]=="pixel")
+		{
+		  kbarx_side523 -> SetBinContent(kbarx_side523->FindBin(xx,yy),kx);
+		  kbary_side523 -> SetBinContent(kbary_side523->FindBin(xx,yy),ky);
+		  kbarz_side523 -> SetBinContent(kbarz_side523->FindBin(xx,yy),kz);  
+		}
+	      else if (vec_surf[0]=="out" && vec_surf[1]=="side5" && vec_surf[2]=="side3" && vec_surf[3]=="side2" && vec_surf[4]=="pixel")
+		{
+		  kbarx_side532 -> SetBinContent(kbarx_side532->FindBin(xx,yy),kx);
+		  kbary_side532 -> SetBinContent(kbary_side532->FindBin(xx,yy),ky);
+		  kbarz_side532 -> SetBinContent(kbarz_side532->FindBin(xx,yy),kz);  
+		}
+	      else if (vec_surf[0]=="out" && vec_surf[1]=="side5" && vec_surf[2]=="side3" && vec_surf[3]=="side4" && vec_surf[4]=="pixel")
+		{
+		  kbarx_side534 -> SetBinContent(kbarx_side534->FindBin(xx,yy),kx);
+		  kbary_side534 -> SetBinContent(kbary_side534->FindBin(xx,yy),ky);
+		  kbarz_side534 -> SetBinContent(kbarz_side534->FindBin(xx,yy),kz);  
+		}
+	      else if (vec_surf[0]=="out" && vec_surf[1]=="side5" && vec_surf[2]=="side3" && vec_surf[3]=="side5" && vec_surf[4]=="pixel")
+		{
+		  kbarx_side535 -> SetBinContent(kbarx_side535->FindBin(xx,yy),kx);
+		  kbary_side535 -> SetBinContent(kbary_side535->FindBin(xx,yy),ky);
+		  kbarz_side535 -> SetBinContent(kbarz_side535->FindBin(xx,yy),kz);  
+		}
+	      else if (vec_surf[0]=="out" && vec_surf[1]=="side5" && vec_surf[2]=="side4" && vec_surf[3]=="side3" && vec_surf[4]=="pixel")
+		{
+		  kbarx_side543 -> SetBinContent(kbarx_side543->FindBin(xx,yy),kx);
+		  kbary_side543 -> SetBinContent(kbary_side543->FindBin(xx,yy),ky);
+		  kbarz_side543 -> SetBinContent(kbarz_side543->FindBin(xx,yy),kz);  
+		}
 	      else
 		{
-		  cerr<<" *** untreated combination: "<<endl;
+		  cerr<<" *** untreated combination at event "<<ievent<<endl;
 		  for (int i=0;i<5;i++) cout<<vec_surf[i]<<endl;
-		  exit (EXIT_FAILURE);
+		  //if (vec_surf[0]=="out") exit (EXIT_FAILURE);
 		}
 	      
 
