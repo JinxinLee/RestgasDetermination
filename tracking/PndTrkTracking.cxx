@@ -660,12 +660,12 @@ void PndTrkTracking::Exec(Option_t* opt) {
 	MCSkewAloneList[MAXTRACKSPEREVENT][MAXSTTHITSINTRACK],
 	// nBoxConformal,  first index -> radial divisions,
 	// 2nd index -> azimuthal divisions; n. of hits falling in this cell.
-	nBoxConformal[NRDIVCONFORMAL][NFIDIVCONFORMAL],
+	nBoxConformal[NRDIVCONFORMAL*NFIDIVCONFORMAL],
 	ParalCommonList[MAXTRACKSPEREVENT][MAXSTTHITSINTRACK],
 	ParSpuriList[MAXTRACKSPEREVENT][MAXSTTHITSINTRACK],
 	SkewCommonList[MAXTRACKSPEREVENT][MAXSTTHITSINTRACK],
 	SkewSpuriList[MAXTRACKSPEREVENT][MAXSTTHITSINTRACK],
-	HitsinBoxConformal[MAXHITSINCELL][NRDIVCONFORMAL][NFIDIVCONFORMAL];
+	HitsinBoxConformal[MAXHITSINCELL*NRDIVCONFORMAL*NFIDIVCONFORMAL];
 
  Short_t
 	i,
@@ -1144,7 +1144,7 @@ void PndTrkTracking::Exec(Option_t* opt) {
  input.deltanr = DELTAnR;
  input.dimensionscitil = DIMENSIONSCITIL;
  input.FiConformalIndex = FiConformalIndex;
- input.HitsinBoxConf = &HitsinBoxConformal[0][0][0];
+ input.HitsinBoxConf = HitsinBoxConformal;
  input.InclusionListStt = InclusionListStt;
  input.InclusionListSciTil = InclusionListSciTil;
  input.info = info;
@@ -1156,7 +1156,7 @@ void PndTrkTracking::Exec(Option_t* opt) {
  input.maxstthitsintrack = MAXSTTHITSINTRACK;
  input.minimumhitspertrack = MINIMUMHITSPERTRACK;
  input.minouterhitspertrack = MINOUTERHITSPERTRACK;
- input.nBoxConf = &nBoxConformal[0][0];
+ input.nBoxConf = nBoxConformal;
  input.nFicell = nFicell; // Fi cell of the seed hit;
  input.nfidivconformal = NFIDIVCONFORMAL;
  input.nrdivconformal = NRDIVCONFORMAL;
