@@ -226,6 +226,7 @@ int main(int argc, char *argv[])
 
 
   TH1D*   hphotons       = new TH1D("hphotons"  ,"measured photons",200,0,200);
+  TH1D*   hlambda        = new TH1D("hlambda"  ,"measured photons",200,0,1000);
 
 
   PndDrcOptDevManager* manager = new PndDrcOptDevManager();
@@ -267,16 +268,15 @@ int main(int argc, char *argv[])
   XYZPoint  pos_part(0,-10,625);
   XYZVector dir_part(0,1,1); 
   double    beta = 0.99;
-  double  effi           = 0.10; // photon detection efficiency
   TRandom ran;
   
 
 
-  for (int ievent=0; ievent<100; ievent++)
+  for (int ievent=0; ievent<10; ievent++)
     {
       int imeasured = 0;
       
-      bool photons_exist = manager->Cerenkov(pos_part,dir_part,beta);              // generate photon
+      bool photons_exist = manager->Cerenkov(pos_part,dir_part,beta,0,1e16,200,800);              // generate photon
       if (photons_exist) manager->Propagate();                           // propagate photons
 	
       list<PndDrcPhoton> list_photon = manager->PhotonList();            // get list
@@ -286,10 +286,11 @@ int main(int argc, char *argv[])
       list<PndDrcPhoton>::iterator iph;
       for(iph=list_photon.begin(); iph != list_photon.end(); ++iph) 
 	{
-	  if      ((*iph).Fate()==Drc::kPhotMeasured && ran.Uniform()<effi) 
+	  if      ((*iph).Fate()==Drc::kPhotMeasured && effi((*iph).Wavelength())) 
 	    {
 	      imeasured++;
-	      
+	      hlambda->Fill((*iph).Wavelength());
+	  
 	      // recontruction
 	      // the end of the is at (0,0,0) the photon vector is
 	      double xx=fabs((*iph).Position().X());
