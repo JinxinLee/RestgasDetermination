@@ -12,12 +12,12 @@ using namespace std;
 
 void PndTrkSttConformalFilling::BoxConformalFilling(
 	Short_t *FiConformalIndex,
-	void* HitsinBoxConf,
+	Short_t* HitsinBoxConformal,
 	bool *InclusionListStt,
 	Double_t infoparalConformal[][5],
 	Short_t *ListSttParHits,
 	Short_t MAXHITSINCELL,
-	void* nBoxConf,
+	Short_t* nBoxConformal,
 	Short_t NFIDIVCONFORMAL,
 	Int_t Nparal,
 	Short_t NRDIVCONFORMAL,
@@ -27,28 +27,32 @@ void PndTrkSttConformalFilling::BoxConformalFilling(
 {
 
  Short_t
+	bi_index,
 	i,
 	iFi,
 	iR,
-	j;
+	j,
+	tri_index;
 
  Double_t Fi;
 
  // make a POINTER to an ARRAY[NFIDIVCONFORMAL] of Short_t and assign value present in the calling
  // sequence of this method;
- Short_t (*nBoxConformal)[NFIDIVCONFORMAL] = (Short_t (*)[NFIDIVCONFORMAL]) nBoxConf;
+// Short_t (*nBoxConformal)[NFIDIVCONFORMAL] = (Short_t (*)[NFIDIVCONFORMAL]) nBoxConf;
 
  // make a POINTER to an ARRAY[NRDIVCONFORMAL][NFIDIVCONFORMAL] of Short_t and assign value present
  // in the calling sequence of this method;
- Short_t (*HitsinBoxConformal)[NRDIVCONFORMAL][NFIDIVCONFORMAL]=
-		(Short_t (*)[NRDIVCONFORMAL][NFIDIVCONFORMAL])HitsinBoxConf;
+// Short_t (*HitsinBoxConformal)[NRDIVCONFORMAL][NFIDIVCONFORMAL]=
+//		(Short_t (*)[NRDIVCONFORMAL][NFIDIVCONFORMAL])HitsinBoxConf;
 
- for(i = 0; i< NRDIVCONFORMAL ; i++){
-	for(j = 0; j< NFIDIVCONFORMAL ; j++){
-		nBoxConformal[i][j]= 0;
-	}
+
+ // initialize nBoxConformal (each event);
+ for(j = 0; j< NFIDIVCONFORMAL*NRDIVCONFORMAL ; j++){
+		nBoxConformal[j]= 0;
  }
 
+ // fill the nBoxConformal and the list contained in HitsinBoxConformal with
+ // all the axial straw hits;
  for(i = 0; i< Nparal ; i++){
 	if( ! InclusionListStt[ ListSttParHits[i] ] ) continue;
 	Fi = atan2(infoparalConformal[ListSttParHits[i]][1],
@@ -73,16 +77,17 @@ void PndTrkSttConformalFilling::BoxConformalFilling(
 			break;
 		}
 	}
-	if( nBoxConformal[iR][iFi] >= MAXHITSINCELL ){
+	bi_index = iR*NFIDIVCONFORMAL+iFi;
+	tri_index = nBoxConformal[bi_index]*NRDIVCONFORMAL*NFIDIVCONFORMAL + bi_index;
+	if( nBoxConformal[bi_index] >= MAXHITSINCELL ){
 		cout<<"Warning from PndTrkSttConformalFilling::BoxConformalFilling\t:"
 		<<"\n\tcontent in nBoxConformal["<<iR<<"]["<<
 		iFi<<"] has reached the Max allowed value = "
 		<<MAXHITSINCELL<<endl;
 		 continue;
 	}
-	HitsinBoxConformal[ nBoxConformal[iR][iFi] ][iR][iFi]
-		=(Short_t) ListSttParHits[i];
-	nBoxConformal[iR][iFi]++;
+	HitsinBoxConformal[ tri_index ] = (Short_t) ListSttParHits[i];
+	nBoxConformal[bi_index]++;
 	RConformalIndex[ ListSttParHits[i] ]  =  iR;
 	FiConformalIndex[ ListSttParHits[i] ]  =  iFi;
  }  // end of for(i = 0; i< Nparal ; i++)
