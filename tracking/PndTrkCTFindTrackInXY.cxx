@@ -693,16 +693,19 @@ Short_t PndTrkCTFindTrackInXY::FindTrackPatterninBoxConformal(
 	status,
 	TemporaryInclusionList[maxstthits];
 
- Short_t	i;
- Short_t	j,
-		iFi,
-		iR,
-		nRmin,
-		nRmax,
-		nRemainingHits,
-		nHitsinTrack,
-		auxIndex[maxstthits],
-		Remaining[maxstthits];
+ Short_t
+	bi_index,
+	i,
+	j,
+	iFi,
+	iR,
+	nRmin,
+	nRmax,
+	nRemainingHits,
+	nHitsinTrack,
+	tri_index,
+	auxIndex[maxstthits],
+	Remaining[maxstthits];
 
  Short_t iFi2;
 
@@ -758,6 +761,7 @@ Short_t PndTrkCTFindTrackInXY::FindTrackPatterninBoxConformal(
 
  status=true;
 
+
  while( nRemainingHits > 0 &&  i < nHitsinTrack && status) {
 
 
@@ -780,19 +784,21 @@ Short_t PndTrkCTFindTrackInXY::FindTrackPatterninBoxConformal(
 		}  else {
 			iFi = iFi2;
 		}
-	 for (j = 0; j< *(nBoxConformal+iR*nfid+iFi); j++){
-	    if( InclusionListStt[ *(HitsinBoxConformal+j*nrd*nfid+iR*nfid+iFi) ]
+	 bi_index = iR*nfid+iFi;
+	 tri_index = j*nrd*nfid+bi_index;
+	 for (j = 0; j< nBoxConformal[bi_index]; j++){
+	    if( InclusionListStt[ HitsinBoxConformal[tri_index] ]
 					&&
-		 TemporaryInclusionList[*(HitsinBoxConformal+j*nrd*nfid+iR*nfid+iFi)]) {
+		 TemporaryInclusionList[HitsinBoxConformal[tri_index]]) {
 			// hit number in the PARALLEL straws scheme
-			ListHitsinTrack[nHitsinTrack]=*(HitsinBoxConformal+j*nrd*nfid+iR*nfid+iFi) ;
+			ListHitsinTrack[nHitsinTrack]=HitsinBoxConformal[tri_index] ;
 			nHitsinTrack++;
 		if( nHitsinTrack >= maxstthitsintrack){
 		 // finish the search
 		 status=false; // finish all outer loops as well.
 		 break ;
 		}
-		TemporaryInclusionList[*(HitsinBoxConformal+j*nrd*nfid+iR*nfid+iFi)]= false;
+		TemporaryInclusionList[HitsinBoxConformal[tri_index]]= false;
 		nRemainingHits--;
 	    } // end of if( InclusionListStt[  ListSttParHits[...]]
          }// end of  for (j = 0; j< ....
@@ -848,21 +854,24 @@ Short_t PndTrkCTFindTrackInXY::FindTrackPatterninBoxConformalSpecial(
 
  bool TemporaryInclusionList[maxstthits];
 
- Short_t	i,
-		i2,
-		j,
-		iFi,
-		iR,
-		nFicell,
-		nHitsinTrack,
-		nRcell,
-		nRemainingHits,
-		nRmax,
-		nRmin,
-		auxIndex[maxstthits],
-		Remaining[maxstthits];
+ Short_t
+	bi_index,
+	i,
+	i2,
+	j,
+	iFi,
+	iFi2,
+	iR,
+	nFicell,
+	nHitsinTrack,
+	nRcell,
+	nRemainingHits,
+	nRmax,
+	nRmin,
+	tri_index,
+	auxIndex[maxstthits],
+	Remaining[maxstthits];
 
- Short_t iFi2;
 
  Double_t auxRvalues[maxstthits];
 
@@ -936,15 +945,17 @@ Short_t PndTrkCTFindTrackInXY::FindTrackPatterninBoxConformalSpecial(
 		} else {
 			iFi = iFi2;
 		}
-	     for (j = 0; j< *(nBoxConformal+iR*nfid+iFi); j++){
-		if(InclusionListStt[*(HitsinBoxConformal+j*nrd*nfid+iR*nfid+iFi)]
+	     bi_index = iR*nfid+iFi;
+	     tri_index = j*nrd*nfid+bi_index;
+	     for (j = 0; j< nBoxConformal[bi_index]; j++){
+		if(InclusionListStt[HitsinBoxConformal[tri_index]]
 				&&
-			TemporaryInclusionList[ *(HitsinBoxConformal+j*nrd*nfid+iR*nfid+iFi)]
+			TemporaryInclusionList[ HitsinBoxConformal[tri_index]]
 			) {
 //  hit number in the ORIGINAL straws scheme
-		  OutputListHitsinTrack[nHitsinTrack]=*(HitsinBoxConformal+j*nrd*nfid+iR*nfid+iFi) ;
+		  OutputListHitsinTrack[nHitsinTrack]=HitsinBoxConformal[tri_index] ;
 		  nHitsinTrack++;
-		  TemporaryInclusionList[*(HitsinBoxConformal+j*nrd*nfid+iR*nfid+iFi)]
+		  TemporaryInclusionList[HitsinBoxConformal[tri_index]]
 			= false;
 		  nRemainingHits--;
 		}  // end of    if(InclusionListStt[ .. ]
