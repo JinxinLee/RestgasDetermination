@@ -22,12 +22,12 @@ class PndTrkSttConformalFilling : public TObject
   void BoxConformalFilling(
 
 	Short_t *FiConformalIndex,
-	void* HitsinBoxConf,
+	Short_t* HitsinBoxConformal,
 	bool *InclusionListStt,
 	Double_t infoparalConformal[][5],
 	Short_t *ListSttParHits,
 	Short_t MAXHITSINCELL,
-	void* nBoxConf,
+	Short_t* nBoxConformal,
 	Short_t NFIDIVCONFORMAL,
 	Int_t Nparal,
 	Short_t NRDIVCONFORMAL,
