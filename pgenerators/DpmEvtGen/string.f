@@ -1293,6 +1293,8 @@ C
   4   CONTINUE
       IF(EPS1.LE.0.5)     INDEX=31                    
       IF(EPS1.LE.0.5*0.67) INDEX=95                   
+       EPSa=RNDM1(-1)
+       if(((INDEX.eq.31).or.(INDEX.eq.95)).and.(EPSa.le.0.5)) INDEX=122
       RETURN
       END
 
