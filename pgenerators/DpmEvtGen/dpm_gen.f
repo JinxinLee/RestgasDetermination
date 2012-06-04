@@ -153,7 +153,8 @@ c ------------------------------------ Determination of Pt_i and X_i -
         Pt=-1./Bslp*ALOG(RNDM1(-1)*RNDM1(-1))
         Px_aQ(i)=Pt*Cos(Fi)                 ! Uzhi 0.
         Py_aQ(i)=Pt*Sin(Fi)                 ! Uzhi 0.
-        X_aQ(i)=1./float(N_QS)              ! Uzhi   1/3
+**        X_aQ(i)=1./float(N_QS)
+caida        X_aQ(i)=RNDM1(-1)              !1./float(N_QS) ! Uzhi   1/3
 
         SumPxa=SumPxa+Px_aQ(i)
         SumPya=SumPya+Py_aQ(i)
@@ -162,7 +163,8 @@ c ------------------------------------ Determination of Pt_i and X_i -
         Pt=-1./Bslp*ALOG(RNDM1(-1)*RNDM1(-1))
         Px_Q(i) =Pt*Cos(Fi)                 ! Uzhi 0.
         Py_Q(i) =Pt*Sin(Fi)                 ! Uzhi 0.
-        X_Q(i)=1./float(N_QS)               ! Uzhi   1/3
+***         X_Q(i)=1./float(N_QS) 
+caida        X_Q(i)=RNDM1(-1)              !1./float(N_QS)   ! Uzhi  1/3
 
         SumPx =SumPx +Px_Q(i)
         SumPy =SumPy +Py_Q(i)
@@ -171,9 +173,9 @@ c ------------------------------------ Determination of Pt_i and X_i -
       SumPxa=SumPxa/float(N_QS)
       SumPya=SumPya/float(N_QS)
 
+ 
       SumPx =SumPx/float(N_QS)
       SumPy =SumPy/float(N_QS)
-
       Sum_Mt=0.
 
       do i=1,N_QS
@@ -191,6 +193,53 @@ c ------------------------------------ Determination of Pt_i and X_i -
       if(Sum_Mt.ge.SS) go to 110
 
 120   CONTINUE
+
+      ALPHAR=2.0               !aida  changed quark mass distribution
+      Alfa=1./ALPHAR
+      BetaB=(ALPHAR-1.)+(N_QS-2)*ALPHAR
+      N_QSm1=N_QS-1
+
+      ProdXaq=1.
+      Sum_Xaq=0.
+
+      ProdXq=1.
+      Sum_Xq=0.
+
+      do i=1,N_QSm1
+      Beta=1./(BetaB+1.)
+130   R1=RNDM1(-1)
+      R2=RNDM1(-1)
+      R1a=R1**Alfa
+      R2b=R2**Beta
+      R12=R1a+R2b
+      if(R12.gt.1.)go to 130
+      Xa=R1a/R12*(1.-Sum_Xaq)
+      X_aQ(i)=Xa
+      ProdXaq=ProdXaq*Xa
+      Sum_Xaq=Sum_Xaq+Xa
+
+140   R1=RNDM1(-1)
+      R2=RNDM1(-1)
+      R1a=R1**Alfa
+      R2b=R2**Beta
+      R12=R1a+R2b
+      if(R12.gt.1.)go to 140
+      Xq=R1a/R12*(1.-Sum_Xq)
+      X_Q(i)=Xq
+      ProdXq = ProdXq*Xq
+      Sum_Xq = Sum_Xq+ Xq
+      
+      BetaB=BetaB-ALPHAR
+      enddo
+
+      X_aQ(N_QS)=1.-Sum_Xaq
+      ProdXaq = ProdXaq*X_aQ(N_QS)
+
+      X_Q(N_QS) = 1.-Sum_Xq
+      ProdXq = ProdXq*X_Q(N_QS)
+
+      if(ProdXaq.eq.0.) go to 120
+      if(ProdXq .eq.0.) go to 120
 
       Alfa=0.
       Beta=0.
@@ -1025,6 +1074,7 @@ c-------------- End of event simulation ----------------------
       SumPz=0.
       SumE=0.
       do i=1,Nhad
+c      Print *, i, NREF(i), PXF(i), PYF(i), PZF(i)
        PZF(i)=(PZF(i)+Vcms*HEF(i))*Gamma   ! Uzhi
        SumPx=SumPx+PXF(i)
        SumPy=SumPy+PYF(i)
