@@ -17,10 +17,9 @@
 using namespace std;
 ClassImp(PndGeoCave)
 
-PndGeoCave::PndGeoCave() {
+PndGeoCave::PndGeoCave() : name("cave") {
   // Constructor
   fName="cave";
-  name="cave";
   maxModules=1;
 }
 
