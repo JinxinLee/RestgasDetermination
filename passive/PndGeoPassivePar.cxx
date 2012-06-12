@@ -11,7 +11,7 @@ using namespace std;
 ClassImp(PndGeoPassivePar)
 
 PndGeoPassivePar::PndGeoPassivePar(const char* name,const char* title,const char* context)
-           : FairParGenericSet(name,title,context) {
+           : FairParGenericSet(name,title,context), fGeoSensNodes(), fGeoPassNodes() {
 
                fGeoSensNodes = new TObjArray();
                fGeoPassNodes = new TObjArray();
