@@ -33,7 +33,9 @@
 using namespace std;
 
 // -------------   Default constructor  ----------------------------------
-PndMultiField::PndMultiField() {
+PndMultiField::PndMultiField() 
+ : fMaps(), fNoOfMaps(0), fFieldMaps(), fMapIter() 
+{
 
     fMaps= new TObjArray(10);
     fNoOfMaps=0;
@@ -42,7 +44,9 @@ PndMultiField::PndMultiField() {
 
 
 // -------------   Default constructor  ----------------------------------
-PndMultiField::PndMultiField(TString Map) {
+PndMultiField::PndMultiField(TString Map) 
+ : fMaps(), fNoOfMaps(0), fFieldMaps(), fMapIter() 
+{
 	
     fMaps= new TObjArray(10);
     fNoOfMaps=0;
@@ -98,10 +102,11 @@ PndMultiField::PndMultiField(TString Map) {
 // ------------------------------------------------------------------------
 
 // ------------   Constructor from PndFieldPar   --------------------------
-PndMultiField::PndMultiField(PndMultiFieldPar* fieldPar) {
+PndMultiField::PndMultiField(PndMultiFieldPar* fieldPar) 
+ : fMaps(), fNoOfMaps(0), fFieldMaps(), fMapIter()
+{
    fType = 5;
    fMaps= new TObjArray(10);
-   fNoOfMaps=0;
    TObjArray *fArray= fieldPar->GetParArray();
    if(fArray->IsEmpty()) fType=-1;
 

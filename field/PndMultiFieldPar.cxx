@@ -15,13 +15,14 @@
 
 // ------   Constructor   --------------------------------------------------
 PndMultiFieldPar::PndMultiFieldPar(const char* name, const char* title, const char* context) 
-  : PndMapPar(name, title, context) 
+  : PndMapPar(name, title, context), fParArray() 
 {
 
    fParArray=new TObjArray();
 }
 
-PndMultiFieldPar::PndMultiFieldPar() 
+PndMultiFieldPar::PndMultiFieldPar()
+  : PndMapPar(), fParArray()
 {
 }
 

@@ -3,15 +3,14 @@
  #include "FairParamList.h"
 // ------   Constructor   --------------------------------------------------
 PndConstPar::PndConstPar(const char* name, const char* title, const char* context) 
-  : PndMapPar(name, title, context) 
+  : PndMapPar(name, title, context), fBx(0), fBy(0), fBz(0) 
 {
-   fBx   = fBy   = fBz   = 0.;
    fType=0;
 }
 
-PndConstPar::PndConstPar() 
+PndConstPar::PndConstPar()
+  : PndMapPar(), fBx(0), fBy(0), fBz(0) 
 {
-   fBx   = fBy   = fBz   = 0.;
    fType=0;
 }
 

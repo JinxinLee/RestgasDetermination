@@ -123,6 +123,8 @@ public:
   /** Screen output **/
   virtual void Print();
 	
+  PndFieldMap(const  PndFieldMap& L);
+  PndFieldMap& operator= (const  PndFieldMap&) {return *this;};
 
 	
  protected:

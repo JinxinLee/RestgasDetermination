@@ -22,7 +22,7 @@
 using namespace std;
 // -------------   Default constructor  ----------------------------------
 PndTransMap::PndTransMap() 
- :PndFieldMap()
+ :PndFieldMap(), fHemiX(0), fHemiY(0)
 { 
   fType = 4;
 }
@@ -33,7 +33,8 @@ PndTransMap::PndTransMap()
 // -------------   Standard constructor   ---------------------------------
 PndTransMap::PndTransMap(const char* mapName, 
 				 const char* fileType)
-  : PndFieldMap(mapName, fileType) { 
+  : PndFieldMap(mapName, fileType), fHemiX(0), fHemiY(0)
+{ 
   fType = 4;
   TString Suffix="";
   FairRunSim *fRun= FairRunSim::Instance();
@@ -65,7 +66,8 @@ PndTransMap::PndTransMap(const char* mapName,
 
 // ------------   Constructor from PndFieldPar   --------------------------
 PndTransMap::PndTransMap(PndTransPar* fieldPar) 
-  : PndFieldMap() {
+  : PndFieldMap(), fHemiX(0), fHemiY(0)
+{
   fType = 4;
   fPosX  = fPosY  = fPosZ  = 0.;
   fXmin  = fYmin  = fZmin  = 0.;

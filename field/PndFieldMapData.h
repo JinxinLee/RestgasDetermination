@@ -68,7 +68,8 @@ public:
   TArrayF* GetBy() const { return fBy; }
   TArrayF* GetBz() const { return fBz; }
 
-	
+  PndFieldMapData(const  PndFieldMapData& L);
+  PndFieldMapData& operator= (const  PndFieldMapData&) {return *this;};
 	
  private:
 

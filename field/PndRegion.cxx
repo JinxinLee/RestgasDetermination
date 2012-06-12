@@ -9,11 +9,8 @@
 
 // -------------   Default constructor  ----------------------------------
 PndRegion::PndRegion( Double_t Zmin, Double_t Zmax)
- :TObject()
+ :TObject(), fZmin(Zmin), fZmax(Zmax)
 {
-   
-  fZmin=Zmin;
-  fZmax=Zmax;
 }
 
 // ------------   Destructor   --------------------------------------------

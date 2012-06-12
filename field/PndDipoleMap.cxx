@@ -12,7 +12,7 @@ Int_t PndDipoleMap::fNumberOfRegions=0;
 using namespace std;
 // -------------   Default constructor  ----------------------------------
 PndDipoleMap::PndDipoleMap() 
-  :PndFieldMap()
+  :PndFieldMap(), fHemiX(0), fHemiY(0), fRegionNo(0)
 { 
   fType = 3;
 }
@@ -23,7 +23,7 @@ PndDipoleMap::PndDipoleMap()
 // -------------   Standard constructor   ---------------------------------
 PndDipoleMap::PndDipoleMap(const char* mapName, 
 				 const char* fileType)
-  : PndFieldMap(mapName, fileType) 
+  : PndFieldMap(mapName, fileType), fHemiX(0), fHemiY(0), fRegionNo(0)
 { 
   fType = 3;
   TString Suffix="";
@@ -58,7 +58,8 @@ PndDipoleMap::PndDipoleMap(const char* mapName,
 
 // ------------   Constructor from PndFieldPar   --------------------------
 PndDipoleMap::PndDipoleMap(PndMapPar* fieldPar) 
-  : PndFieldMap() {
+  : PndFieldMap(), fHemiX(0), fHemiY(0), fRegionNo(0)
+{
  
   fType = 3;
   fPosX  = fPosY  = fPosZ  = 0.;

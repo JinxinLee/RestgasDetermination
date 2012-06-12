@@ -42,6 +42,8 @@ class PndMultiFieldPar : public PndMapPar
   
   TObjArray *GetParArray(){return fParArray; }
   
+  PndMultiFieldPar(const  PndMultiFieldPar& L);
+  PndMultiFieldPar& operator= (const  PndMultiFieldPar&) {return *this;};
 
 protected:
 
