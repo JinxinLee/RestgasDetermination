@@ -41,11 +41,11 @@
 #pragma link C++ class  PndSttPoint+;
 #pragma link C++ class  PndSttTrack+;
 
-#pragma link C++ class  PndTofHit+;
-#pragma link C++ class  PndTofPoint+;
+//#pragma link C++ class  PndTofHit+;
+//#pragma link C++ class  PndTofPoint+;
 
-#pragma link C++ class  PndRpcPoint+;
-#pragma link C++ class  PndRpcHit+;
+//#pragma link C++ class  PndRpcPoint+;
+//#pragma link C++ class  PndRpcHit+;
 
 #pragma link C++ class  PndFtsPoint+;
 #pragma link C++ class  PndFtsHit+;

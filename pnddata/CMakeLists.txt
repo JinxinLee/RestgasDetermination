@@ -56,12 +56,12 @@ SttData/PndSttHitInfo.cxx
 SttData/PndSttPoint.cxx  
 SttData/PndSttTrack.cxx
 
-TofData/PndTofHit.cxx
-TofData/PndTofPoint.cxx
+#TofData/PndTofHit.cxx
+#TofData/PndTofPoint.cxx
 
 
-RpcData/PndRpcPoint.cxx
-RpcData/PndRpcHit.cxx
+#RpcData/PndRpcPoint.cxx
+#RpcData/PndRpcHit.cxx
 
 FtsData/PndFtsPoint.cxx
 FtsData/PndFtsHit.cxx
