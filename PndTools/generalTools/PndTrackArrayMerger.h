@@ -29,6 +29,9 @@ private:
   TClonesArray* fOutputArray;
   std::vector<TString> fInputBranchList;
   std::vector<TClonesArray*> fInputArrayList;
+
+  PndTrackArrayMerger(const  PndTrackArrayMerger& L);
+  PndTrackArrayMerger& operator= (const  PndTrackArrayMerger&) {return *this;}
   
 public:
   ClassDef(PndTrackArrayMerger,1);

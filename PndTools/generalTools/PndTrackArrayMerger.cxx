@@ -11,13 +11,12 @@
 
 
 PndTrackArrayMerger::PndTrackArrayMerger()
-:fPersistance(kTRUE),
-fOutputBranch("ALLTracks")
+:fPersistance(kTRUE), fOutputBranch("ALLTracks"), fOutputArray(), fInputArrayList(), fInputBranchList()
 {}
 
 PndTrackArrayMerger::PndTrackArrayMerger(TString s)
-:fPersistance(kTRUE)
-{fOutputBranch = s;}
+:fPersistance(kTRUE), fOutputBranch(s), fOutputArray(), fInputArrayList(), fInputBranchList()
+{}
 
 PndTrackArrayMerger::~PndTrackArrayMerger()
 {}

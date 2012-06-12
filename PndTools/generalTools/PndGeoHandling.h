@@ -156,19 +156,21 @@ public:
   void InitRuntimeDb(TString parFileName);
 
   virtual InitStatus ReInit() {fGeoMan =0;fGeoMan=gGeoManager;return kSUCCESS;}
-  
+ 
+  PndGeoHandling& operator= (const  PndGeoHandling&) {return *this;}
+ 
  private:
   static PndGeoHandling* fInstance;
-  PndGeoHandling(PndGeoHandling& gh){
-    fGeoMan = gh.fGeoMan;
-    fSensorNamePar = gh.fSensorNamePar;
-    fRtdb = gh.fRtdb;
-    fLevelNames = gh.fLevelNames;
-    fLevel = gh.fLevel;
-    fFullPath = gh.fFullPath;
-    fVerbose = gh.fVerbose;
-    fRunId = gh.fRunId;
-  }
+  PndGeoHandling(PndGeoHandling& gh):
+    fGeoMan(gh.fGeoMan),
+    fSensorNamePar(gh.fSensorNamePar),
+    fRtdb(gh.fRtdb),
+    fLevelNames(gh.fLevelNames),
+    fLevel(gh.fLevel),
+    fFullPath(gh.fFullPath),
+    fVerbose(gh.fVerbose),
+    fRunId(gh.fRunId)
+  {}
   
   void DiveDownToFillSensNamePar(std::vector<std::string> listOfSensitives);
   

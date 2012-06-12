@@ -2,7 +2,7 @@
 #include "PndSensorNamePar.h"
 
 PndSensorNamePar::PndSensorNamePar(const char* name, const char* title, const char* context)
-  : FairParGenericSet(name,title,context)
+  : FairParGenericSet(name,title,context), fSensorNames()
 {
   clear();
   fSensorNames = new TObjArray();

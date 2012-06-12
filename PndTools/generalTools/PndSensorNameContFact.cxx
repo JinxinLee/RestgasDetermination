@@ -21,7 +21,7 @@ ClassImp(PndSensorNameContFact);
 
 static PndSensorNameContFact gPndSensorNameContFact;
 
-PndSensorNameContFact::PndSensorNameContFact() {
+PndSensorNameContFact::PndSensorNameContFact(): fSensorParNames(), fContainerNames() {
   // Constructor (called when the library is loaded)
   fName="PndSensorNameContFact";
   fTitle="Factory for parameter containers of the PndGeoHandler";

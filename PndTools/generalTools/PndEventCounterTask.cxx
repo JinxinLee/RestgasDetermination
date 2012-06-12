@@ -12,7 +12,8 @@ fInitialiezed(kFALSE),
 fEvtCounter(0),
 fEvtTalk(talk),
 fNEvts(nev),
-fTimeOffset(0.)
+fTimeOffset(0.),
+fTimer()
 {
   fTimer.Start();
 }

@@ -41,7 +41,7 @@ PndGeoHandling* PndGeoHandling::Instance(){
 	return fInstance;
 }
 
-PndGeoHandling::PndGeoHandling():fVerbose(0),fRunId(-1)
+PndGeoHandling::PndGeoHandling():fVerbose(0),fGeoMan(),fSensorNamePar(),fRtdb(),fLevel(0),fFullPath(true),fRunId(0),fLevelNames()
 {
   if(fInstance) return;
   fInstance = this;
@@ -56,17 +56,6 @@ PndGeoHandling::PndGeoHandling():fVerbose(0),fRunId(-1)
   else {
     std::cout << "PndGeoHandling. No FairRun object found. If used in a macro take another constructor." << std::endl;
   }
-
-  fGeoMan = NULL;
-  fSensorNamePar = NULL;
-  fRtdb = NULL;
-  // static PndGeoHandling* fGeoHandlingInstance;
-  
-  //  fLevelNames = 0;
-  fLevel = 0;
-  fFullPath = true;
-  fVerbose = 0;
-  fRunId = 0;
 
 }
 
@@ -87,7 +76,7 @@ void PndGeoHandling::SetParContainers()
   FairTask::SetParContainers();
 }
 
-PndGeoHandling::PndGeoHandling(TString mcFile, TString parFile):fVerbose(0), fRunId(-1)
+PndGeoHandling::PndGeoHandling(TString mcFile, TString parFile):fVerbose(0),fGeoMan(),fSensorNamePar(),fRtdb(),fLevel(0),fFullPath(true),fRunId(0),fLevelNames()
 {
   if(fInstance) return;
   fInstance = this;
@@ -105,21 +94,9 @@ PndGeoHandling::PndGeoHandling(TString mcFile, TString parFile):fVerbose(0), fRu
   
   
 	GetSensorNamePar();
-
-  fGeoMan = NULL;
-  fSensorNamePar = NULL;
-  fRtdb = NULL;
-  // static PndGeoHandling* fGeoHandlingInstance;
-  
-  //  fLevelNames = 0;
-  fLevel = 0;
-  fFullPath = true;
-  fVerbose = 0;
-  fRunId = 0;
-
 }
 
-PndGeoHandling::PndGeoHandling(Int_t runId, TString parFile):fVerbose(0)
+PndGeoHandling::PndGeoHandling(Int_t runId, TString parFile):fVerbose(0),fGeoMan(),fSensorNamePar(),fRtdb(),fLevel(0),fFullPath(true),fRunId(0),fLevelNames()
 {
   if(fInstance) return;
   fInstance = this;
@@ -135,17 +112,6 @@ PndGeoHandling::PndGeoHandling(Int_t runId, TString parFile):fVerbose(0)
 		fGeoMan = gGeoManager;
 	}
 	GetSensorNamePar();
-
-  fGeoMan = NULL;
-  fSensorNamePar = NULL;
-  fRtdb = NULL;
-  // static PndGeoHandling* fGeoHandlingInstance;
-  
-  //  fLevelNames = 0;
-  fLevel = 0;
-  fFullPath = true;
-  fVerbose = 0;
-  fRunId = 0;
 
 }
 
