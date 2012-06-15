@@ -202,6 +202,7 @@ void PndLmdStripClusterTask::SetCalculators()
     if (fVerbose > 2) cout<<"fShiftX["<<ik<<"]="<<fShiftX[ik]<<endl;
     }
   }
+  lmdalignpar->Print();
 }
 
 TVector3 PndLmdStripClusterTask::AddMSErr(TVector3 hpos, TVector3 hposerr){
@@ -543,7 +544,7 @@ TMatrixD PndLmdStripClusterTask::rotateToLumiFrame(TMatrixD& hitCov){
 //TO DO: find a way do it in global and not hit by hit.
 void PndLmdStripClusterTask::alignmentCorr(TVector3& hitPos, int sensID){
   hitPos -=TVector3(fShiftX[sensID],fShiftY[sensID],fShiftZ[sensID]);
-  TMatrixD rot(3,3);// assuming that rotationa are small
+  TMatrixD rot(3,3);// assuming that rotations are small
   rot[0][0]=1;
   rot[0][1]= fRotateZ[sensID];
   rot[0][2]=fRotateY[sensID];
