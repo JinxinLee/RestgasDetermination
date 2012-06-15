@@ -52,18 +52,18 @@ source config.sh
 last=`expr $nEvts - 1`
 for start in `seq 0 $step $last` ; do
 cd /data/FAIRsorf/pandaroot/build/bin
-#./bkg_rec_mc_match -s ${start} -n ${step} -mom  ${mom} -path ${path} -v 1  &> ${path}/bkgStudy_${start}.log
 ./bkg_rec_mc_match -s ${start} -n ${step} -mom  ${mom} -path ${path} -v 1  >> ${path}/bkgStudy_ALL.log
 if [ $start == "0" ]; then
 cp ${path}/compMC_and_REC_withSignal0.root ${path}/sumAll.root
 fi
 if [ $start != "0" ]; then 
-  $ROOTSYS/bin/hadd -f ${path}/sumAll_tot.root ${path}/sumAll.root ${path}/compMC_and_REC_withSignal${start}.root
-  mv ${path}/sumAll_tot.root ${path}/sumAll.root
+ $ROOTSYS/bin/hadd -f ${path}/sumAll_tot.root ${path}/sumAll.root ${path}/compMC_and_REC_withSignal${start}.root
+ mv ${path}/sumAll_tot.root ${path}/sumAll.root
 fi
 done
-cd /home/akaravdina/lmdMacro
-time root -l -b -q sumBkgStudies_MCmatch_withSignal.C\("\"${path}\""\)
+./sum_bkg_rec_mc_match -path ${path} >> ${path}/summary_sumAll.log
+#cd /home/akaravdina/lmdMacro
+#time root -l -b -q sumBkgStudies_MCmatch_withSignal.C\("\"${path}\""\)
 
 
 

@@ -44,8 +44,8 @@ void MCandRECTrk(const int nEvents=2, const int startEvent=0, TString storePath=
   
   
   //--- Geane info ------------------------------------------------------------------
-  // TClonesArray* geaneArray =new TClonesArray("FairTrackParP");
-  TClonesArray* geaneArray =new TClonesArray("FairTrackParH");
+  TClonesArray* geaneArray =new TClonesArray("FairTrackParP");
+  //  TClonesArray* geaneArray =new TClonesArray("FairTrackParH");
   tgeane.SetBranchAddress("GeaneTrackFinal",&geaneArray);  //Tracks with parabolic parametrisation
   
   //--- Output histogram -----------------------------------------------------
@@ -59,12 +59,12 @@ void MCandRECTrk(const int nEvents=2, const int startEvent=0, TString storePath=
   TH1 *hVyMC = new TH1F("hVyMC","Vy^{MC};Vy, cm;",1e3,-2e0,2e0);
   TH1 *hVzMC = new TH1F("hVzMC","Vz^{MC};Vz, cm;",1e3,-2e0,2e0);
 
-  // TH1 *hPxRec = new TH1F("hPxRec","Px^{Rec};Px, GeV/c;",1e3,-5e1,5e1);
-  // TH1 *hPyRec = new TH1F("hPyRec","Py^{Rec};Py, GeV/c;",1e3,-5e1,5e1);
-  // TH1 *hPzRec = new TH1F("hPzRec","Pz^{Rec};Pz, GeV/c;",1e3,-5e1,5e1);
-  // TH1 *hPxMC = new TH1F("hPxMC","Px^{MC};Px, GeV/c;",1e3,-5e1,5e1);
-  // TH1 *hPyMC = new TH1F("hPyMC","Py^{MC};Py, GeV/c;",1e3,-5e1,5e1);
-  // TH1 *hPzMC = new TH1F("hPzMC","Pz^{MC};Pz, GeV/c;",1e3,-5e1,5e1);
+  TH1 *hPxRec = new TH1F("hPxRec","Px^{Rec};Px, GeV/c;",1e3,-5e1,5e1);
+  TH1 *hPyRec = new TH1F("hPyRec","Py^{Rec};Py, GeV/c;",1e3,-5e1,5e1);
+  TH1 *hPzRec = new TH1F("hPzRec","Pz^{Rec};Pz, GeV/c;",1e3,-5e1,5e1);
+  TH1 *hPxMC = new TH1F("hPxMC","Px^{MC};Px, GeV/c;",1e3,-5e1,5e1);
+  TH1 *hPyMC = new TH1F("hPyMC","Py^{MC};Py, GeV/c;",1e3,-5e1,5e1);
+  TH1 *hPzMC = new TH1F("hPzMC","Pz^{MC};Pz, GeV/c;",1e3,-5e1,5e1);
 
   TH1 *hPRec = new TH1F("hPRec","|P|^{Rec};|P|, GeV/c;",1e3,0,5e1);
   TH1 *hPhiRec = new TH1F("hPhiRec","#phi^{Rec};#phi, rad;",1e2,-3.15,3.15);
@@ -103,16 +103,17 @@ void MCandRECTrk(const int nEvents=2, const int startEvent=0, TString storePath=
 
     ///-- Read info about GEANE(resonctructed) tracks--------------------------
     for (Int_t iN=0; iN<nGeaneTrks; iN++){
-      FairTrackParH *fRes = (FairTrackParH*)geaneArray->At(iN);
-      Double_t lyambda = fRes->GetLambda();
+      //    FairTrackParH *fRes = (FairTrackParH*)geaneArray->At(iN);
+      FairTrackParP *fRes = (FairTrackParP*)geaneArray->At(iN);
+      //      Double_t lyambda = fRes->GetLambda();
       TVector3 posRec = fRes->GetPosition();
       hVxRec->Fill(posRec.X());
       hVyRec->Fill(posRec.Y());
       hVzRec->Fill(posRec.Z());
-      Double_t thetaRec = TMath::Pi()/2. - lyambda;
-      hThetaRec->Fill(thetaRec);
-      Double_t phiRec = fRes->GetPhi();
-      hPhiRec->Fill(phiRec);
+      // Double_t thetaRec = TMath::Pi()/2. - lyambda;
+      // hThetaRec->Fill(thetaRec);
+      // Double_t phiRec = fRes->GetPhi();
+      // hPhiRec->Fill(phiRec);
       TVector3 MomRec = fRes->GetMomentum();
       hPRec->Fill(MomRec.Mag());
     }

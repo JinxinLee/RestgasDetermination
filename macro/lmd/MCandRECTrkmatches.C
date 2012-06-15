@@ -213,7 +213,7 @@ N_{MC};N_{trk-cand}",100,0,100,100,0,100);
     
     const int nGeaneTrks = geaneArray->GetEntriesFast();
     const int nParticles = true_tracks->GetEntriesFast();
-    const int numTrk = 1;
+    const int numTrk = 2;
     double chi2Cont[5*numTrk];
     double ndiffIDCont[5*numTrk];
     if(nParticles!=numTrk) continue;
