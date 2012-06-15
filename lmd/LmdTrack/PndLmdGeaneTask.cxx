@@ -325,9 +325,10 @@ void PndLmdGeaneTask::Exec(Option_t* opt)
 	new((*fTrackParFinal)[counterGeaneTrk]) FairTrackParH(*(fRes)); //save Track
 	//	new((*fTrackParFinal)[counterGeaneTrk]) FairTrackParP(*(fRes)); //save Track
 	counterGeaneTrk++;
-	cout<<"***** isProp TRUE *****"<<endl;
+	//	cout<<"***** isProp TRUE *****"<<endl;
       }
       else{
+	if(fVerbose>2){
 	cout<<"!!! Back-propagation with GEANE didn't return result !!!"<<endl;
 	cout<<"StartPos:"<<endl;
 	StartPos.Print();
@@ -338,6 +339,7 @@ void PndLmdGeaneTask::Exec(Option_t* opt)
 	StartMom.Print();
 	cout<<"StartMomErr: "<<StartMomErr.Mag()<<endl;
 	StartMomErr.Print();  
+	}
 	new((*fTrackParFinal)[counterGeaneTrk]) FairTrackParH(); //save NULL
 	//	new((*fTrackParFinal)[counterGeaneTrk]) FairTrackParP(); //save NULL
 	counterGeaneTrk++;
@@ -345,7 +347,7 @@ void PndLmdGeaneTask::Exec(Option_t* opt)
   }
   // fMCTracks->Delete();
   // fMCHits->Delete();
-  cout<<"PndLmdGeaneTask::Exec END!"<<endl;
+  if(fVerbose>2) cout<<"PndLmdGeaneTask::Exec END!"<<endl;
 }
 
 void PndLmdGeaneTask::Finish()
