@@ -409,9 +409,9 @@ double PndLmdLinFitTask::line3Dfit(Int_t nd, TGraph2DErrors* gr, TVector3 posSee
    double dp5_dp3 = fitpar[3]/fitpar[5];
    double errdz2 = pow(dp5_dp1,2)*(*covmatrix)(1,1) + pow(dp5_dp3,2)*(*covmatrix)(3,3) + 
      2*fabs(dp5_dp1*dp5_dp3*(*covmatrix)(1,3));
-   cout<<"pow(dp5_dp1,2)*(*covmatrix)(1,1) = "<<pow(dp5_dp1,2)*(*covmatrix)(1,1)<<endl;
-   cout<<"pow(dp5_dp3,2)*(*covmatrix)(3,3) = "<<pow(dp5_dp3,2)*(*covmatrix)(3,3)<<endl;
-   cout<<"2*dp5_dp1*dp5_dp3*(*covmatrix)(1,3) = "<<2*dp5_dp1*dp5_dp3*(*covmatrix)(1,3)<<endl;
+   // cout<<"pow(dp5_dp1,2)*(*covmatrix)(1,1) = "<<pow(dp5_dp1,2)*(*covmatrix)(1,1)<<endl;
+   // cout<<"pow(dp5_dp3,2)*(*covmatrix)(3,3) = "<<pow(dp5_dp3,2)*(*covmatrix)(3,3)<<endl;
+   // cout<<"2*dp5_dp1*dp5_dp3*(*covmatrix)(1,3) = "<<2*dp5_dp1*dp5_dp3*(*covmatrix)(1,3)<<endl;
    (*covmatrix)(5,5) = errdz2;
    //(*covmatrix)(5,5) = (fitpar[1]*fitpar[1]*(*covmatrix)(1,1)+fitpar[3]*fitpar[3]*(*covmatrix)(3,3))/pow(fitpar[5],6);
    for(size_t i=0;i<6;i++){
