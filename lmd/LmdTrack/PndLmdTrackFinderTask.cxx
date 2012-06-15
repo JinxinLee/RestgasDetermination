@@ -233,7 +233,8 @@ void PndLmdTrackFinderTask::FindHitsIII(std::vector<PndTrackCand> &tofill, std::
       tmp.SetXYZ(hit2->GetX(), hit2->GetY(), hit2->GetZ());
       vec = tmp - start;   //calc direction vector for FINDING
       dvec.SetXYZ(hit2->GetDx(), hit2->GetDy(), hit2->GetDz());
-      if(vec.Theta()>0.03 && vec.Theta()<0.05 && vec.Phi()>-0.3 && vec.Phi()<0.3){ //ignore vectors with theta outside 2-9 mrad
+      //  if(vec.Theta()>0.03 && vec.Theta()<0.05 && vec.Phi()>-0.3 && vec.Phi()<0.3){ //ignore vectors with theta outside 2-9 mrad
+      if(vec.Theta()<0.01){ //in LUMI frame 
 	if(fVerbose>1) cout <<"FindHitsIII: Track will be recorded! "<<endl;
         trackStart.push_back(start);
         trackStartd.push_back(dstart);
@@ -369,7 +370,8 @@ void PndLmdTrackFinderTask::FindHitsII(std::vector<PndTrackCand> &tofill, std::v
       tmp.SetXYZ(hit2->GetX(), hit2->GetY(), hit2->GetZ());
       vec = tmp - start;   //calc direction vector for FINDING
       dvec.SetXYZ(hit2->GetDx(), hit2->GetDy(), hit2->GetDz());
-      if(vec.Theta()>0.03 && vec.Theta()<0.05 && vec.Phi()>-0.3 && vec.Phi()<0.3){ //ignore vectors with theta outside 2-9 mrad 
+      //  if(vec.Theta()>0.03 && vec.Theta()<0.05 && vec.Phi()>-0.3 && vec.Phi()<0.3){ //ignore vectors with theta outside 2-9 mrad
+      if(vec.Theta()<0.01){ //in LUMI frame 
 	if(fVerbose>1) cout <<"FindHitsII: Track will be recorded! "<<endl;
 	trackStart.push_back(start);
         trackStartd.push_back(dstart);
@@ -502,7 +504,8 @@ void PndLmdTrackFinderTask::FindHitsI(std::vector<PndTrackCand> &tofill, std::ve
       tmp.SetXYZ(hit2->GetX(), hit2->GetY(), hit2->GetZ());
       vec = tmp - start;   //calc direction vector for FINDING
       dvec.SetXYZ(hit2->GetDx(), hit2->GetDy(), hit2->GetDz());
-      if(vec.Theta()>0.03 && vec.Theta()<0.05 && vec.Phi()>-0.3 && vec.Phi()<0.3){ //ignore vectors with theta outside 2-9 mrad
+      //  if(vec.Theta()>0.03 && vec.Theta()<0.05 && vec.Phi()>-0.3 && vec.Phi()<0.3){ //ignore vectors with theta outside 2-9 mrad
+      if(vec.Theta()<0.01){ //in LUMI frame 
 	if(fVerbose>1) cout <<"FindHitsI: Track will be recorded! "<<endl;
         trackStart.push_back(start);
         trackStartd.push_back(dstart);
