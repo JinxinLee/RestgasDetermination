@@ -6,6 +6,7 @@
 #include "PndLmdStripHitProducer.h"
 //LUMI
 #include "PndLmdContFact.h"
+//#include "PndLmdAlignPar.h"
 //SDS
 #include "PndSdsIdealChargeConversion.h"
 #include "PndSdsTotChargeConversion.h"
