@@ -301,7 +301,7 @@ int main(int __argc,char *__argv[]) {
   TNtuple *nrecall = new TNtuple("nrecall","recAll","x:y:z:px:py:pz:p:theta:phi");
   TNtuple *nrecsig = new TNtuple("nrecsig","recSig","id:x:y:z:px:py:pz:p:theta:phi");
   TNtuple *nrecbkg = new TNtuple("nrecbkg","recBkg","id:sumid:x:y:z:px:py:pz:p:theta:phi");
-
+  TNtuple *nmcall = new TNtuple("nmcall","mcAll","id:sumid:x:y:z:px:py:pz:p:theta:phi");
   for (Int_t j=0; j<nEvents; j++){
   //for (Int_t j=9000; j<nEvents; j++){
 
@@ -375,13 +375,13 @@ int main(int __argc,char *__argv[]) {
       hMCpdgSUM_num->Fill(sumID,nParticles);
     }
     ///-----------------------------------------------------------------------------------------
-    if(sumID==4424) {
+    // if(sumID==4424) {
       for (Int_t iN=0; iN<nParticles; iN++){
 	PndMCTrack *mctrk =(PndMCTrack*) true_tracks->At(iN);
 	Int_t mcID = mctrk->GetPdgCode();
-	if(mcID==-2212){
-	  TVector3 StartMC = mctrk->GetStartVertex();
-	  TVector3 MomMC = mctrk->GetMomentum();
+	TVector3 StartMC = mctrk->GetStartVertex();
+	TVector3 MomMC = mctrk->GetMomentum();
+	if(mcID==-2212 && sumID==4424){
 	  hVxMCAP->Fill(StartMC.X());
 	  hVyMCAP->Fill(StartMC.Y());
 	  hVzMCAP->Fill(StartMC.Z());
@@ -393,8 +393,11 @@ int main(int __argc,char *__argv[]) {
 	  cout<<"thetaMC = "<<thetaMC<<endl;
 	  tThetaMC->Fill();
 	}
+	nmcall->Fill(mcID,sumID,StartMC.X(),StartMC.Y(),StartMC.Z(),
+		     MomMC.X(),MomMC.Y(), MomMC.Z(),
+		     MomMC.Mag(), MomMC.Theta(), MomMC.Phi());
       }
-    }
+      //    }
 
 
     if(nGeaneTrks==0) continue;
@@ -600,7 +603,7 @@ int main(int __argc,char *__argv[]) {
 		fillRecTrk=false;//put information from reconstructed track only once!
 	      }
 	      else{
-		nrecbkg->Fill(mcID,posRec.X(),posRec.Y(),posRec.Z(),
+		nrecbkg->Fill(mcID,sumID,posRec.X(),posRec.Y(),posRec.Z(),
 			      MomRec.X(),MomRec.Y(),MomRec.Z(),
 			      MomRec.Mag(),MomRec.Theta(),MomRec.Phi());
 	      }
@@ -731,6 +734,7 @@ int main(int __argc,char *__argv[]) {
   nrecsig->Write();
   nrecbkg->Write();
   nrecall->Write();
+  nmcall->Write();
   hVxRec->Write(); 
   hVyRec->Write(); 
   hVzRec->Write(); 
