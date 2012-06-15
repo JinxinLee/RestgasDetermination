@@ -53,7 +53,7 @@ void rotateToLumiFrame(TVector3& hitPos){
   // hitPos.Print();
 }
 
-void AlignmentStudies(const int nEvents=1000, const int startEvent=0, TString storePath="tmpOutput", const int verboseLevel=0, const int particle=-2212, const double mom=15, const int output=0)
+void AlignmentStudies(const int nEvents=100000, const int startEvent=0, TString storePath="tmpOutput", const int verboseLevel=0, const int output=1)
 {
   // ----  Load libraries   -------------------------------------------------
   gROOT->Macro("$VMCWORKDIR/gconfig/rootlogon.C");
