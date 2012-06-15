@@ -31,7 +31,7 @@ PndLmdTrackFinderCATask::PndLmdTrackFinderCATask() :
   
   dXY = 0.5;
   d_max = 0.01;
-  hdist = new TH1D("hdist","distance from common point",1e3,0,1.);
+  hdist = new TH1D("hdist","distance from common point",1e4,0,10.);
   //   dXY = 0.01;//TEST
 }
 
