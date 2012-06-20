@@ -70,6 +70,9 @@ EmcDigi/PndEmcPSATrapDigiFilter.cxx
 EmcDigi/PndEmcPSAMatchedDigiFilter.cxx
 EmcDigi/PndEmcFadcFilter.cxx
 EmcDigi/PndEmcFullDigiTask.cxx
+EmcDigi/PndEmcDigiWriteoutBuffer.cxx
+EmcDigi/PndEmcDigiRingSorter.cxx
+EmcDigi/PndEmcDigiSorterTask.cxx
 EmcMC/PndGeoEmc.cxx 
 EmcMC/PndEmc.cxx 
 EmcMC/PndEmcReader.cxx 

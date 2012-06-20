@@ -64,6 +64,10 @@
 #pragma link C++ class  PndEmcClusterCalibrationPar+;
 #pragma link C++ class  PndEmcClusterCalibrationParObject+;
 
+#pragma link C++ class  PndEmcDigiWriteoutBuffer+;
+#pragma link C++ class  PndEmcDigiRingSorter+;
+#pragma link C++ class  PndEmcDigiSorterTask+;
+
 #pragma link C++ class  ReadMainzProto60+;
 #pragma link C++ class  ReadMainzProto60v4+;
 #pragma link C++ class  ReadMainzProto60v6+;

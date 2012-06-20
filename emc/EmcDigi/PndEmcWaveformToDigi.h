@@ -22,6 +22,7 @@
 #define PndEmcWaveformToDigi_H
 
 #include "FairTask.h"
+#include "PndEmcDigiWriteoutBuffer.h"
 #include <string>		
 //#include <vector>
 
@@ -56,6 +57,7 @@ public:
   virtual void Exec(Option_t* opt);
 
   void SetStorageOfData(Bool_t val); // Method to specify whether digis are stored or not.
+  void RunTimeBased(){fTimeOrderedDigi = kTRUE;}
 
 private:
 
@@ -92,10 +94,13 @@ private:
 	/** Get parameter containers **/
 	virtual void SetParContainers();
 	
+	PndEmcDigiWriteoutBuffer* fDataBuffer;
+	
 	/** Verbosity level **/
 	Int_t fVerbose;
 
 	Bool_t fStoreDigis;
+	Bool_t fTimeOrderedDigi; ///<set to kTRUE to use the time ordering of the output data.
 	
 	Double_t fWfNormalisation; // Waveform normalisation constant
 	Double_t fWfNormalisation_pmt;

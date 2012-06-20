@@ -37,7 +37,7 @@
 using namespace std;
 
 // -----   Default constructor   -----------------------------------
-PndEmcDigi::PndEmcDigi():fEnergy(0),fTrackId(-1),fDetectorId(-1),fTime(0),fHitIndex(-1),fWhere(0,0,0), fThetaInd(0), fPhiInd(0),fTheta(0), fPhi(0)
+PndEmcDigi::PndEmcDigi():FairTimeStamp(0),fEnergy(0),fTrackId(-1),fDetectorId(-1),fHitIndex(-1),fWhere(0,0,0), fThetaInd(0), fPhiInd(0),fTheta(0), fPhi(0)
 {
 }
 // -----------------------------------------------------------------
@@ -47,7 +47,7 @@ PndEmcDigi::PndEmcDigi():fEnergy(0),fTrackId(-1),fDetectorId(-1),fTime(0),fHitIn
 PndEmcDigi::~PndEmcDigi() {}
 // -----------------------------------------------------------------
   
-PndEmcDigi::PndEmcDigi(Int_t trackid, Int_t id, Float_t energy, Float_t time, Int_t hitIndex):fEnergy(energy),fTrackId(trackid),fDetectorId(id),fTime(time),fHitIndex(hitIndex),fWhere(0,0,0), fThetaInd(0), fPhiInd(0),fTheta(0), fPhi(0)
+PndEmcDigi::PndEmcDigi(Int_t trackid, Int_t id, Float_t energy, Float_t time, Int_t hitIndex):FairTimeStamp(time),fEnergy(energy),fTrackId(trackid),fDetectorId(id),fHitIndex(hitIndex),fWhere(0,0,0), fThetaInd(0), fPhiInd(0),fTheta(0), fPhi(0)
 {
 	PndEmcMapper *emcMap=PndEmcMapper::Instance();
 	PndEmcTwoCoordIndex* tci=emcMap->GetTCI(id);
@@ -67,8 +67,8 @@ PndEmcDigi::PndEmcDigi(Int_t trackid, Int_t id, Float_t energy, Float_t time, In
 //
 
 PndEmcDigi::PndEmcDigi( const PndEmcDigi& other ) 
-: fEnergy( other.fEnergy ),
-  fTime( other.fTime ),
+: FairTimeStamp(other.GetTimeStamp()),
+  fEnergy( other.fEnergy ),
   fTrackId(other.fTrackId),
   fDetectorId( other.fDetectorId),
   fHitIndex( other.fHitIndex),
@@ -287,16 +287,16 @@ Double_t PndEmcDigi::GetEnergy()  const
 bool
 PndEmcDigi::operator==( const PndEmcDigi& otherDigi ) const
 {
-  bool equal = false;
+  bool isEqual = false;
   
   // 2 EmcDigis are equal is their relative energy difference whithin the folloowing tolerance
   Double_t energy_tolerance=1e-5;
 
   if ( this->GetThetaInt() == otherDigi.GetThetaInt() &&
        this->GetPhiInt() == otherDigi.GetPhiInt() &&
-       ((this->GetEnergy() - otherDigi.GetEnergy())/this->GetEnergy()<energy_tolerance )) equal=true;
+       ((this->GetEnergy() - otherDigi.GetEnergy())/this->GetEnergy()<energy_tolerance )) isEqual =true;
   
-  return equal;
+  return isEqual;
 }
 
 bool PndEmcDigi::operator!=(const PndEmcDigi& otherDigi) const 

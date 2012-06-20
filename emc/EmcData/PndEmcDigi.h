@@ -25,15 +25,23 @@
 #include "TObject.h"
 #include "PndEmcTwoCoordIndex.h"
 #include "PndEmcHit.h"
-#include "FairMultiLinkedData.h"
+#include "FairTimeStamp.h"
 #include "TVector3.h"
 
 class TVector3;
 class PndEmcXtal;
 class PndEmcSharedDigi;
 
-class PndEmcDigi : public FairMultiLinkedData
+class PndEmcDigi : public FairTimeStamp
 {
+	
+    friend std::ostream& operator<< (std::ostream& out, PndEmcDigi& digi){
+      out << "PndEmc Digi in crystal: " << digi.GetDetectorId() 
+      << " energy: " << digi.GetEnergy()
+      << " timestamp: "<<digi.GetTimeStamp();
+      return out;
+    }
+	
  public:    
   
   
@@ -49,7 +57,17 @@ class PndEmcDigi : public FairMultiLinkedData
 
 	virtual bool operator==(const PndEmcDigi & otherDigi) const;
 	virtual bool operator!=(const PndEmcDigi & otherDigi) const;
-        virtual bool operator<( const PndEmcDigi & otherDigi) const;
+    virtual bool operator<( const PndEmcDigi & otherDigi) const;
+
+	virtual bool equal(FairTimeStamp* data){
+	  PndEmcDigi* myDigi = dynamic_cast <PndEmcDigi*> (data);
+	  if (myDigi != 0){
+	    if (fDetectorId == myDigi->GetDetectorId())
+			return true;
+	  }
+	  return false;
+	}
+	
 	/** Output to screen **/
 	virtual void Print(const Option_t* opt ="") const;
 
@@ -57,7 +75,6 @@ class PndEmcDigi : public FairMultiLinkedData
 	
 	/** Modifiers **/
 	void SetEnergy(Double32_t energy) { fEnergy     = energy ;};
-	void SetTime(Double32_t time)     { fTime     = time ;};
 	void SetTrackId(Int_t id)         { fTrackId    = id     ;};
 	void SetDetectorId(Int_t id);
 
@@ -67,7 +84,6 @@ class PndEmcDigi : public FairMultiLinkedData
   
 	/** Accessors **/
 	virtual Double_t GetEnergy()  const;
-	Double_t GetTime()  const { return fTime     ;};
 	Int_t GetTrackId()    const { return fTrackId    ;};
 	Int_t GetHitIndex()    const { return fHitIndex    ;};
 	Int_t GetDetectorId() const { return fDetectorId ;};
@@ -103,7 +119,6 @@ class PndEmcDigi : public FairMultiLinkedData
 	Int_t fPhiInd;
 	Double_t fTheta;
 	Double_t fPhi;
-	Double_t fTime;      // digi time
 	TVector3 fWhere;
 
 	Int_t fHitIndex; //  Index of hit which is converted to digi

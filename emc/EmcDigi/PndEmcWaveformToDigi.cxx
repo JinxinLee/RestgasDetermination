@@ -40,7 +40,7 @@ using std::endl;
 using std::fstream;
 
 PndEmcWaveformToDigi::PndEmcWaveformToDigi(Int_t verbose, Bool_t storedigis):
-  fWaveformArray(new TClonesArray()), fDigiArray(new TClonesArray()), fSampleRate(0), fSampleRate_PMT(0), fEnergyDigiThreshold(0), fASIC_Shaping_int_time(0), fPMT_Shaping_int_time(0), fPMT_Shaping_diff_time(0), fCrystal_time_constant(0), fShashlyk_time_constant(0), fNumber_of_samples_in_waveform(0), fNumber_of_samples_in_waveform_pmt(0), fDigiPosMethod(0), fEmcDigiRescaleFactor(0), fEmcDigiPositionDepthPWO(0), fEmcDigiPositionDepthShashlyk(0), fPulseshape(0), fPulseshape_pmt(0), psaAlgorithm(0), psaAlgorithm_pmt(0), fDigiPar(new PndEmcDigiPar()), fRecoPar(new PndEmcRecoPar()), fVerbose(verbose), fStoreDigis(storedigis), fWfNormalisation(0), fWfNormalisation_pmt(0)
+  fWaveformArray(new TClonesArray()), fDigiArray(new TClonesArray()), fSampleRate(0), fSampleRate_PMT(0), fEnergyDigiThreshold(0), fASIC_Shaping_int_time(0), fPMT_Shaping_int_time(0), fPMT_Shaping_diff_time(0), fCrystal_time_constant(0), fShashlyk_time_constant(0), fNumber_of_samples_in_waveform(0), fNumber_of_samples_in_waveform_pmt(0), fDigiPosMethod(0), fEmcDigiRescaleFactor(0), fEmcDigiPositionDepthPWO(0), fEmcDigiPositionDepthShashlyk(0), fPulseshape(0), fPulseshape_pmt(0), psaAlgorithm(0), psaAlgorithm_pmt(0), fDigiPar(new PndEmcDigiPar()), fRecoPar(new PndEmcRecoPar()), fVerbose(verbose), fStoreDigis(storedigis), fWfNormalisation(0), fWfNormalisation_pmt(0), fTimeOrderedDigi(kFALSE)
 {
   fDigiPosMethod="depth";// "surface" or "depth"
   fEmcDigiRescaleFactor=1.08;
@@ -53,6 +53,7 @@ PndEmcWaveformToDigi::PndEmcWaveformToDigi(Int_t verbose, Bool_t storedigis):
 
 PndEmcWaveformToDigi::~PndEmcWaveformToDigi()
 {
+	if (fDataBuffer!= 0) delete fDataBuffer;
 }
 
 
@@ -76,9 +77,14 @@ InitStatus PndEmcWaveformToDigi::Init()
 	}
 	
 	// Create and register output array
-	fDigiArray = new TClonesArray("PndEmcDigi");
+//	fDigiArray = new TClonesArray("PndEmcDigi");
+//	ioman->Register("EmcDigi","Emc",fDigiArray,fStoreDigis);
+	
+	fDataBuffer = new PndEmcDigiWriteoutBuffer("EmcDigi", "Emc", fStoreDigis);
+	fDataBuffer = (PndEmcDigiWriteoutBuffer*)ioman->RegisterWriteoutBuffer("EmcDigi", fDataBuffer);
+	fDataBuffer->ActivateBuffering(fTimeOrderedDigi);
 
-	ioman->Register("EmcDigi","Emc",fDigiArray,fStoreDigis);
+
 	fSampleRate=fDigiPar->GetSampleRate();
 	fSampleRate_PMT=fDigiPar->GetSampleRate_PMT();
 	fASIC_Shaping_int_time=fDigiPar->GetASIC_Shaping_int_time();      //s
@@ -157,13 +163,12 @@ void PndEmcWaveformToDigi::Exec(Option_t* opt)
 	if (fVerbose>2){
 		timer.Start();
 	}
-// Reset output array
-	if ( ! fDigiArray ) Fatal("Exec", "No Digi Array");
-  	fDigiArray->Delete();
+	
+	Double_t EventTime = FairRootManager::Instance()->GetEventTime();
+
 	Double_t peakPosition;
 	Double_t energy;
 	Double_t digi_time;
-	Int_t i_digi=0; //index of digi in TClonesArray
 	Int_t hitIndex;
 	Int_t detId;
 	Int_t trackId;
@@ -176,24 +181,28 @@ void PndEmcWaveformToDigi::Exec(Option_t* opt)
 		detId=theWaveform->GetDetectorId();
 		trackId=theWaveform->GetTrackId();
 		module=theWaveform->GetModule();
-		// Determine waveform maximum and its position
+
+		Double_t timeshift; // how maximum is shifted
 		if(module==5){
 			psaAlgorithm_pmt->Process(theWaveform,energy,peakPosition);
 			energy/=fWfNormalisation_pmt;
-			digi_time=peakPosition/fSampleRate_PMT;
+			digi_time=peakPosition/fSampleRate_PMT*1e9;//ns
 
 		}
 		else{
 			psaAlgorithm->Process(theWaveform,energy,peakPosition);
 			energy/=fWfNormalisation;
-			digi_time=peakPosition/fSampleRate;
+			digi_time=peakPosition/fSampleRate*1e9;//ns
 		}
 		if (energy>fEnergyDigiThreshold)
 		{
-			PndEmcDigi* myDigi = new((*fDigiArray)[i_digi]) PndEmcDigi(trackId,detId, energy, digi_time, hitIndex);
+
+			Double_t timestamp=EventTime+digi_time;	
+			PndEmcDigi* myDigi = new PndEmcDigi(trackId,detId, energy, timestamp, hitIndex);
 			myDigi->AddLink(FairLink("EmcWaveform", iWaveform));
-			i_digi++;
-			
+			fDataBuffer->FillNewData(myDigi, 300); // 300 ns
+			if (fVerbose>2)
+				cout<<"timestamp="<<timestamp<<" EventTime="<<EventTime<<" digi_time="<<digi_time<<endl;
 		}
 	}
 	if (fVerbose>2){
