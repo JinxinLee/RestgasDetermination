@@ -40,8 +40,6 @@ Short_t PndTrkGlpkFits::FitHelixCylinder(
  bool mvdhit[NpointsInFit];
 
 
-
-
  Double_t
 	A,
 	alfetta,
@@ -102,9 +100,6 @@ if(istampa>=3){
 		mvdhit[i]=false;
 		nSttHits++;
 	}
-if(IVOLTE==41){
-	Delta[i]=0.002;
-}//---------------------------
       }
 
 //-------------- stampaggi
