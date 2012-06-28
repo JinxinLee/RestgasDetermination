@@ -131,17 +131,17 @@ int main(int argc, char** argv)
 
   //// Variable names
   std::vector<std::string> vars;
-  
-  vars.push_back("p");
+
+  // vars.push_back("p");
   vars.push_back("emc");
   vars.push_back("lat");
   vars.push_back("z20");
   vars.push_back("z53");
+  vars.push_back("E9E25");
   // vars.push_back("E1");
-  vars.push_back("E9");
+  // vars.push_back("E9");
   // vars.push_back("E25");
   // vars.push_back("E1E9");
-  // vars.push_back("E9E25");
 
   // Use for asymm. init.
   std::map <std::string, size_t> numProtoMap;
@@ -454,7 +454,7 @@ int main(int argc, char** argv)
   }
 #endif// DEBUG
  
-  //======= Clean trainers list (we dont need them)======
+  // ====== Clean trainers list (we dont need them) =====
   for(size_t j = 0; j < trainerList.size(); ++j)
   {
     delete trainerList[j];

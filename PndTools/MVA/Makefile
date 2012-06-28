@@ -12,13 +12,15 @@
 MAKEFLAGS  = -wkr --no-print-directory #--debug -s
 
 FLAGSMACHINE  = -march=native -mtune=native
-FLAGSMACHINE += -mfpmath=sse -msse3
+FLAGSMACHINE += -mfpmath=sse -msse3 -mstackrealign
 
 CCFLAGS  = -W -Wall -Wextra -Wshadow -Wredundant-decls
 CCFLAGS += -Wnormalized=nfc -Wdisabled-optimization -Woverlength-strings
 CCFLAGS += -Winvalid-pch -Wfloat-equal -Werror
-CCFLAGS += -O3 -fopenmp ${FLAGSMACHINE}
-# CCFLAGS += -fdiagnostics-show-option -fdiagnostics-show-location=every-line
+CCFLAGS += -fdiagnostics-show-option -fdiagnostics-show-location=every-line
+CCFLAGS += -O3 -fopenmp -funroll-loops -fsplit-ivs-in-unroller
+CCFLAGS += -fvariable-expansion-in-unroller
+CCFLAGS += ${FLAGSMACHINE}
 
 INCLUDE = $(shell root-config --cflags) -I./
 

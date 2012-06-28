@@ -211,16 +211,17 @@ int main(int argc, char** argv)
   //labels.push_back("proton");
   
   // Add Variables
-  varNames.push_back("p");
-  // varNames.push_back("emc");
+  //varNames.push_back("p");
+  varNames.push_back("emc");
   varNames.push_back("lat");
   varNames.push_back("z20");
   varNames.push_back("z53");
+  varNames.push_back("E9E25");
+
   // varNames.push_back("E1");
-  varNames.push_back("E9");
+  //varNames.push_back("E9");
   // varNames.push_back("E25");
   // varNames.push_back("E1E9");
-  // varNames.push_back("E9E25");
   
   // Create classifier.
   PndLVQClassify cls (inF, labels, varNames);
