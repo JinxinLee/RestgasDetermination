@@ -496,8 +496,10 @@ int PndTrkComparisonMCtruth::ComparisonwithMC(
 	     cout<<"da PndTracking  : evento (partendo da 0)  N. "<<
 	       IVOLTE<< "\n       N. di MC truth tracks  : "<<nMCTracks<<endl;
 	}
+
 	if (nMCTracks ==0){
 		cout<<"da PndTracking  :  N. di MC truth tracks = 0, return!\n"<<endl;
+		return 0;
 	} else if(nMCTracks> MAXMCTRACKS){
 		cout<<"da PndTracking  :  N. di MC truth tracks = "<<nMCTracks
 		<<" and it is > MAXMCTRACKS = "<<MAXMCTRACKS
@@ -961,8 +963,33 @@ for (ii=0; ii<nTotalCandidates  ;ii++){
   }   //   end of  for (ii=0; ii<nTotalCandidates  ;ii++)
 
 
+//--------------ghosts
+
+// fa il conto delle ghost solo sugli eventi che hanno almeno 1 traccia MC accettabile.
+ int NParghost=0, NParhitsghost=0,icc;
+ ibuone=-1;
+ if( nMCTracksaccettabili>0){
+
+    for(icc=0; icc<nTotalCandidates;icc++){
+	if(!keepit[icc]) continue;
+	ibuone++;
+       if( daTrackFoundaTrackMC[icc] == -1){
+          NParghost++;
+          NParhitsghost += nSttParHitsinTrack[icc]+nSttSkewHitsinTrack[icc];
+
+          fprintf(HANDLE,"          tracce Trovata n. %d e' Ghost\n",ibuone);
+       }
+    }
+    fprintf(HANDLE,
+"          tracceGhostTrovate %d TotaleHitsGhost %d  ----\n",
+            NParghost,
+            NParhitsghost
+           );
+
+    fprintf(HANDLE,"----------------------------------------------------------\n");
 
 
+}  //   end of    if( nMCTracksaccettabili>0)
 
 
  return nMCTracks;
