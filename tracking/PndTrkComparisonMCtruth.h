@@ -17,6 +17,8 @@ struct PndTrkComparisonMCtruth_io_Data{
 	Double_t *FI0;
 	TClonesArray *fMCTrackArray;
 	TClonesArray *fMvdMCPointArray;
+	FILE     *HANDLE;
+	FILE     *HANDLE2;
 	Double_t  (*info)[7];
 	int       istampa;
 	int       IVOLTE;
