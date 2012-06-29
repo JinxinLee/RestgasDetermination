@@ -415,6 +415,8 @@ int PndTrkComparisonMCtruth::ComparisonwithMC(
  Double_t *FI0 = ioData.FI0;
  TClonesArray *fMCTrackArray = ioData.fMCTrackArray;
  TClonesArray *fMvdMCPointArray = ioData.fMvdMCPointArray;
+ FILE * HANDLE = ioData.HANDLE;
+ FILE * HANDLE2 = ioData.HANDLE2;
  Double_t  (*info)[7] = ioData.info;
  int       istampa = ioData.istampa;
  int       IVOLTE = ioData.IVOLTE;
@@ -809,10 +811,6 @@ for (i=0;i<nMCTracks;i++){
 
 //----------- fine conteggio delle tracce MC accettabili
 
-//  ---- open filehandle per statistica sugli hits etc.
-   FILE *HANDLE = fopen("statistiche.txt","w");
-//---- apertura file con info su Found tracce su cui si fa Helix fit dopo
-   FILE *HANDLE2 = fopen("info_da_PndTrackFinderReal.txt","w");
 
    fprintf(HANDLE, "\n Evento %d  NTotaleTracceMC %d ------\n",IVOLTE,
   	nMCTracksaccettabili);
