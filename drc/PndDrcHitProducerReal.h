@@ -86,17 +86,34 @@ public:
   /** method: FindDrcHitPosition-> finds hit position in PMT plane **/
   void FindDrcHitPosition(Double_t xPoint, Double_t yPoint,
 		                          Double_t& xHit, Double_t& yHit, Int_t & pmtID);
+  void FindDrcHitPositionTilt(Double_t xPoint, Double_t yPoint,
+		                          Double_t& xHit, Double_t& yHit, Int_t & pmtID);					  
 
  /**  Set Photon Detector Parameter **/
   void SetPhotonDetEff(Double_t& lambda_min, Double_t& lambda_max,
                                          Double_t& lambda_step, Double_t efficiency[]);
+  void SetFakeDetEff(Double_t& lambda_min, Double_t& lambda_max,
+                                         Double_t& lambda_step, Double_t efficiency[]);			
   void SetPhotonDetEffOld(Double_t& lambda_min, Double_t& lambda_max,
                                          Double_t& lambda_step, Double_t efficiency[]);
   void SetPhotonDetEffNew(Double_t& lambda_min, Double_t& lambda_max,
                                          Double_t& lambda_step, Double_t efficiency[]);
+					 
+ /** Set Photon Transport Efficiency **/
+  void SetPhotonTransportEff(Double_t&, Double_t&, Double_t&, Double_t&, Int_t& , Double_t fEfficiency[]);
+ /** Auxiliraly functions **/
+ void NumberOfBounces(TVector3, TVector3, Int_t *, Int_t *, Double_t *, Double_t *);
+ Double_t FindPhiRot(Double_t, Double_t);
+ Double_t FindOutPoint(Double_t, Double_t, Double_t, Double_t*, Bool_t);
 
   void SetIsDetEfficiency(Bool_t isDetEff){fisDetEff=isDetEff;}
   void SetIsPixelization(Bool_t isPixel){fisPixel=isPixel;}
+  void SetTransportEfficiency(Bool_t isTran = 0){fisTransportEff = isTran;}
+  
+  //########################################
+  void SetTilt(Double_t tilt = 0.){ftilt = tilt;} // degrees
+  //########################################
+    
  protected:
   
  private:
@@ -105,9 +122,26 @@ public:
   void ProcessPhotonPoint();
   void ProcessBarPoint();
   void Smear(Double_t& time, Double_t sigt);
+  
+  // basic parameters of DIRC
+  Double_t fpi;
+  Double_t fzup;
+  Double_t fzdown;
+  Double_t fradius;
+  Double_t fhthick;
+  Double_t fpipehAngle;
+  Double_t fbbGap;
+  Double_t fbbnum;
+  Double_t fbarnum;
+  Double_t fphi0;
+  Double_t fdphi;
+  Double_t flside;
+  Double_t fbarwidth;
  
   Bool_t fisDetEff;
   Bool_t fisPixel;
+  Bool_t fisTransportEff;
+  Double_t ftilt; 
   Int_t fDetectorID;
   TVector3 fPosHit;
   TVector3 fDPosHit;
@@ -117,11 +151,14 @@ public:
   Double_t fTime, fTimeThreshold;
   Int_t fRefIndex;
   Int_t fPDRefIndex;
-
+  
   TClonesArray* fBarPointArray; // DRC MC points in the bars
   TClonesArray* fPDPointArray; // DRC MC points in the photon plane
   TClonesArray* fHitArray; // DRC hits
   TClonesArray* fPDHitArray; // DRC Photon Detectorhits
+  TClonesArray* fMCArray; // DRC Hits in the photon detector
+  
+  TH2F* detEffLam;
   
 
  // TObjArray *fVolumeArray;
@@ -141,8 +178,9 @@ public:
   Double_t fPixelDim; //Pixel Diemsion of photocathode
   Double_t fSigmat; //Time Resolution in ps
   Double_t fCollectionEff; //Collection Efficiency
-  Double_t fPackingFraction; //Packing Fraction or Active Area Ratio
-  Int_t detection;  //flag for detection
+  Double_t fPackingFraction; //Packing Fraction or Active Area Ratio  
+  Double_t fRoughness; // Surface roughness (bars)
+  Int_t detection;
   Int_t nevents;
   
   /** Set the parameters to the default values. **/
