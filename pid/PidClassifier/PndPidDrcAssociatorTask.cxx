@@ -74,36 +74,36 @@ void PndPidDrcAssociatorTask::DoPidMatch(PndPidCandidate* pidcand, PndPidProbabi
 
   // electron
   {
-    Double_t mass   = 0.0005;
-    Double_t sigma  = 0.006;
+    Float_t mass   = 0.0005;
+    Float_t sigma  = 0.002;//0.006; changed by Maria Patsyuk (m.patsyuk@gsi.de) on 3. July 2012
     prob->SetElectronPdf(GetPdf(pidcand->GetDrcThetaC(),pidcand->GetMomentum().Mag(),mass, sigma));
   }
 
   // muon
   {
-    Double_t mass   = 0.106;
-    Double_t sigma  = 0.006;
+    Float_t mass   = 0.106;
+    Float_t sigma  = 0.002;//0.006;
     prob->SetMuonPdf(GetPdf(pidcand->GetDrcThetaC(),pidcand->GetMomentum().Mag(),mass, sigma));
   }
   
   // pion
   {
-    Double_t mass   = 0.140;
-    Double_t sigma  = 0.006;
+    Float_t mass   = 0.140;
+    Float_t sigma  = 0.002;//0.006;
     prob->SetPionPdf(GetPdf(pidcand->GetDrcThetaC(),pidcand->GetMomentum().Mag(),mass, sigma));
   }
   
   // kaon
   {
-    Double_t mass   = 0.494;
-    Double_t sigma  = 0.005;
+    Float_t mass   = 0.494;
+    Float_t sigma  = 0.002;//0.005;
     prob->SetKaonPdf(GetPdf(pidcand->GetDrcThetaC(),pidcand->GetMomentum().Mag(),mass, sigma));
   }
   
   // proton
   {
-    Double_t mass   = 0.938;
-    Double_t sigma  = 0.005;
+    Float_t mass   = 0.938;
+    Float_t sigma  = 0.002;//0.005;
     prob->SetProtonPdf(GetPdf(pidcand->GetDrcThetaC(),pidcand->GetMomentum().Mag(),mass, sigma));
   }
 }  
