@@ -11,6 +11,12 @@
 class  PndGeoDrc : public FairGeoSet {
 
   private:
+  double fNquartz;
+  double fNEV;
+  double fRoughness;			    //!< Quartz bar surface roughness [nm] = 10A
+  double fGlueLayer;			    //!< Thickness of the glue layer [cm].
+  double fGreaseLayer;			    //!< Thickness of the layer of optical grease [cm]
+  
   double fRadius;                           //!< Barrel radius [cm] (middle of radiator)
   double fBarHalfThick;                     //!< Radiator bars half thickness [cm].
   double fBarBoxZDown;                      //!< Bar box down stream coordinate [cm].
@@ -34,7 +40,11 @@ class  PndGeoDrc : public FairGeoSet {
   double fPhLength;       		    //!< [cm] half length of the prism
   double fPAngle;       		    //!< [degrees] opening angle of the prism
   double fPDrop;       			    //!< [cm] drop of the prism - inner side
-  double fPOffset;	      		    //!< [cm] offset of the prism - outer side   
+  double fPOffset;	      		    //!< [cm] offset of the prism - outer side  
+  
+  double fLside;
+  double fBarWidth;
+  double fPi; 
 
   protected:
   char modName[20];  // name of module
@@ -45,6 +55,25 @@ class  PndGeoDrc : public FairGeoSet {
   const char* getModuleName(Int_t);
   const char* getEleName(Int_t);
   
+  /*! The mean refraction index of fused silica (for reconstruction).
+    \return The Nquartz. */
+  Double_t  nQuartz() {return fNquartz;}
+  
+  /*! The refraction index of the expansion volume.
+    \return The NEV. */
+  Double_t  nEV() {return fNEV;}
+  
+  /*! The roughness of the quartz bar surface.
+    \return The fRoughness. */
+  Double_t  Roughness() {return fRoughness;} 
+  
+  /*! The thickness of the glue layer.
+    \return The fGlueLayer. */
+  Double_t  GlueLayer() {return fGlueLayer;} 
+  
+  /*! The thickness of the optical grease layer.
+    \return The fGreaseLayer. */
+  Double_t  GreaseLayer() {return fGlueLayer;} 
 
   /*! The DRC barrel radius.
     \return The radius [cm]. */
@@ -113,6 +142,12 @@ class  PndGeoDrc : public FairGeoSet {
   
   /*! The opening angle of the Prism [degrees]. */
   Double_t  PrismAngle() {return fPAngle;}
+  
+  /*! The width of the bar box with gaps [cm]. */
+  Double_t  Lside() {return fLside;}
+  
+  /*! The width of the bar gaps [cm]. */
+  Double_t  BarWidth() {return fBarWidth;}
 
   ClassDef(PndGeoDrc,1) // Class for Drc
 
