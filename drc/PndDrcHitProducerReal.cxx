@@ -1372,7 +1372,7 @@ void PndDrcHitProducerReal::SetParameters(){
   fSigmat=0.05;  //Time Resolution is 50 ps ############################
   fVerbose=0;
   fCollectionEff=0.65;//Collection Efficiency 
-  fPackingFraction=1.;//0.80;//Packing Efficiency 
+  fPackingFraction=0.80;//Packing Efficiency 
   fRoughness = 0.001; // 10 A
   
   // basic DIRC parameters:
