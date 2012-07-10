@@ -51,7 +51,6 @@
 	Double_t rstrawdetectormax;
 	Double_t rstrawdetectormin;
 	Double_t strawradius;
-//	Double_t* S;
 	Double_t* S_SciTilHitsinTrack;
 	Double_t *trajectory_vertex;
 	bool* TypeConf;
