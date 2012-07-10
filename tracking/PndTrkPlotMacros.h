@@ -1,0 +1,312 @@
+#ifndef PndTrkPlotMacros_H
+#define PndTrkPlotMacros_H 1
+
+// Root includes
+#include "TClonesArray.h"
+#include "TROOT.h"
+
+
+struct PndTrkPlotMacros_InputData{
+	Double_t apotemamaxinnerparstraw;
+	Double_t apotemamaxskewstraw;
+	Double_t apotemaminouterparstraw;
+	Double_t apotemaminskewstraw;
+	Double_t bfield;
+	Short_t *Charge;
+	Double_t cvel;
+	Short_t *daTrackFoundaTrackMC;
+	Double_t dimensionscitil;
+	bool doMcComparison;
+	Double_t *FI0;
+	TClonesArray *fMCTrackArray;
+	TClonesArray *fSttPointArray;
+	Double_t *info;
+	int IVOLTE;
+	Double_t *KAPPA;
+	bool *keepit;
+	bool *InclusionListSciTil;
+	int istampa;
+	Short_t *ListMvdPixelHitsinTrack;
+	Short_t *ListMvdStripHitsinTrack;
+	Short_t *ListSciTilHitsinTrack;
+	Short_t *ListSttParHitsinTrack;
+	Short_t *ListSttSkewHitsinTrack;
+	Short_t *ListTrackCandHit;
+	Short_t *ListTrackCandHitType;
+	int MAXMCTRACKS;
+	int MAXMVDPIXELHITS;
+	int MAXMVDPIXELHITSINTRACK;
+	int MAXMVDSTRIPHITS;
+	int MAXMVDSTRIPHITSINTRACK;
+	int MAXSCITILHITSINTRACK;
+	int MAXSCITILHITS;
+	int MAXSTTHITS;
+	int MAXSTTHITSINTRACK;
+	int MAXTRACKSPEREVENT;
+	Short_t *MCMvdPixelAloneList;
+	Short_t *MCMvdStripAloneList;
+	Short_t *MCParalAloneList;
+	Short_t *MCSkewAloneList;
+	Double_t *MCSkewAloneX;
+	Double_t *MCSkewAloneY;
+	Short_t *MvdPixelCommonList;
+	Short_t *MvdPixelSpuriList;
+	Short_t *MvdStripCommonList;
+	Short_t *MvdStripSpuriList;
+	Short_t *nMCMvdPixelAlone;
+	Short_t *nMCMvdStripAlone;
+	Short_t *nMCParalAlone;
+	Short_t *nMCSkewAlone;
+	Short_t nMCTracks;
+	Short_t *nMvdPixelCommon;
+	Short_t  nMvdPixelHit;
+	Short_t *nMvdPixelHitsinTrack;
+	Short_t *nMvdPixelSpuriinTrack;
+	Short_t *nMvdStripCommon;
+	Short_t nMvdStripHit;
+	Short_t *nMvdStripHitsinTrack;
+	Short_t *nMvdStripSpuriinTrack;
+	Short_t *nParalCommon;
+	Short_t nSciTilHits;
+	Short_t *nSciTilHitsinTrack;
+	Short_t *nSkewCommon;
+	Short_t *nSpuriParinTrack;
+	Int_t    nSttHit;
+	Int_t    nSttParHit;
+	Short_t *nSttParHitsinTrack;
+	Int_t    nSttSkewHit;
+	Short_t *nSttSkewHitsinTrack;
+	Short_t  nTotalCandidates;
+	Short_t *nTrackCandHit;
+	Double_t *Ox;
+	Double_t *Oy;
+	Short_t *ParalCommonList;
+	Short_t *ParSpuriList;
+	Double_t *posizSciTil;
+	Double_t *R;
+	Double_t rstrawdetectormax;
+	Double_t rstrawdetectormin;
+	Double_t *SchosenSkew;
+	Double_t *sigmaXMvdPixel;
+	Double_t *sigmaXMvdStrip;
+	Double_t *sigmaYMvdPixel;
+	Double_t *sigmaYMvdStrip;
+	Short_t *SkewCommonList;
+	Double_t verticalgap;
+	Double_t *XMvdPixel;
+	Double_t *XMvdStrip;
+	Double_t *YMvdPixel;
+	Double_t *YMvdStrip;
+	Double_t *WDX;
+	Double_t *WDY;
+	Double_t *WDZ;
+	Double_t *ZMvdPixel;
+	Double_t *ZMvdStrip;
+	} ;
+
+
+
+class PndTrkPlotMacros : public TObject
+{
+
+
+ public:
+
+
+ /** Default constructor **/
+ PndTrkPlotMacros(){};
+ /** Destructor **/
+ ~PndTrkPlotMacros(){};
+
+void disegnaAssiXY(
+	FILE * MACRO,
+	double xmin,
+	double xmax,
+	double ymin,
+	double ymax
+	);
+
+
+void disegnaSciTilHit(
+	Double_t DIMENSIONSCITIL,
+	FILE * MACRO,
+	int ScitilHit,
+	double posx,
+	double posy,
+	int tipo
+	);
+
+void DrawBiHexagonInMacro(
+	Double_t vgap,
+	FILE * MACRO,
+	Double_t Ami,
+	Double_t Ama,
+	Short_t color,
+	char *name
+	);
+
+
+void DrawHexagonCircleInMacro(
+	Double_t GAP,
+	FILE * MACRO,
+	Double_t ApotemaMin,
+	Double_t Rma,
+	Short_t color,
+	char *name
+	);
+
+
+ void SttInfoXYZParal(
+	Double_t *info,
+	Short_t infopar,
+	Double_t Oxx,
+	Double_t Oyy,
+	Double_t Rr,
+	Double_t KAPPA,
+	Double_t FI0,
+	Short_t Charge,
+	Double_t *Posiz
+	);
+
+ void  WriteAllMacros(
+	PndTrkPlotMacros_InputData In_Put
+	);
+
+
+
+ void WriteMacroAllHitsRestanti(
+	Double_t APOTEMAMAXINNERPARSTRAW,
+	Double_t APOTEMAMAXSKEWSTRAW,
+	Double_t APOTEMAMINOUTERPARSTRAW,
+	Double_t APOTEMAMINSKEWSTRAW,
+	bool *InclusionListSciTil,
+	Double_t *info,
+	int IVOLTE,
+	bool *keepit,
+	Short_t *ListCandH,
+	Short_t *ListCandHitT,
+	int MAXMVDPIXELHITS,
+	int MAXMVDPIXELHITSINTRACK,
+	int MAXMVDSTRIPHITS,
+	int MAXMVDSTRIPHITSINTRACK,
+	int MAXSCITILHITSINTRACK,
+	int MAXSTTHITS,
+	int MAXSTTHITSINTRACK,
+	int MAXTRACKSPEREVENT,
+	Short_t nMvdPixelHit,
+	Short_t nMvdStripHit,
+	Short_t nSciTilHit,
+	Short_t nSttHit,
+	Short_t nSttParHit,
+	Short_t nSttSkewHit,
+	Short_t nSttTrackCand,
+	Short_t *nCandHit,
+	Double_t *posizSciTil,
+	Double_t RSTRAWDETECTORMAX,
+	Double_t RSTRAWDETECTORMIN,
+	Double_t VERTICALGAP,
+	Double_t *XMvdPixel,
+	Double_t *XMvdStrip,
+	Double_t *YMvdPixel,
+	Double_t *YMvdStrip
+	);
+
+ void WriteMacroParallelHitsGeneral(
+	Double_t APOTEMAMAXINNERPARSTRAW,
+	Double_t APOTEMAMAXSKEWSTRAW,
+	Double_t APOTEMAMINOUTERPARSTRAW,
+	Double_t APOTEMAMINSKEWSTRAW,
+	Double_t BFIELD,
+	Double_t CVEL,
+	Double_t DIMENSIONSCITIL,
+	bool doMcComparison,
+	TClonesArray *fMCTrackArray,
+	Int_t Nhits,
+	Double_t *info,
+	int IVOLTE,
+	Short_t nMCTracks,
+	Short_t nMvdPixelHit,
+	Short_t nMvdStripHit,
+	Short_t nSciTilHits,
+	Short_t nTracksFoundSoFar,
+	bool *keepit,
+	Double_t *FI0,
+	Double_t *Ox,
+	Double_t *Oy,
+	Double_t *posizSciTil,
+	Double_t *primoangolo,
+	Double_t *R,
+	Double_t RSTRAWDETECTORMAX,
+	Double_t RSTRAWDETECTORMIN,
+	Double_t *sigmaXMvdPixel,
+	Double_t *sigmaXMvdStrip,
+	Double_t *sigmaYMvdPixel,
+	Double_t *sigmaYMvdStrip,
+	Double_t *ultimoangolo,
+	Double_t VERTICALGAP,
+	Double_t *XMvdPixel,
+	Double_t *XMvdStrip,
+	Double_t *YMvdPixel,
+	Double_t *YMvdStrip
+	);
+
+ void WriteMacroSkewAssociatedHitswithMC(
+	Double_t *ESSE,
+	PndTrkPlotMacros_InputData In_Put,
+	Int_t iNome, // questo e' per il nome delle Macro solamente.
+	Short_t iTrack
+	);
+
+
+ void WriteMacroSttParallelAssociatedHitsandMvdwithMC(
+	PndTrkPlotMacros_InputData In_Put,
+	Double_t Oxx,
+	Double_t Oyy,
+	Double_t Rr,
+	Double_t primoangolo,
+	Double_t ultimoangolo,
+	Short_t Nhits,
+	Short_t *ListParHitsinT,
+	int iTrack,
+	int iNome,
+	Short_t daSttTrackaMCTrack,
+	Short_t *nParalCommon,
+	Short_t *ParalCommonL,
+	Short_t *nSpuriParinTrack,
+	Short_t *ParSpuriL,
+	Short_t *nMCParalAlone,
+	Short_t *MCParalAloneL,
+	Short_t nMvdPixelHitsAssociatedToSttTra,
+	Short_t *ListPix,
+
+	Short_t nMvdStripHitsAssociatedToSttTra,
+	Short_t *ListStr,
+	Short_t nMvdPixelCommon,
+	Short_t *MvdPixelCommonList,
+	Short_t nMvdPixelSpuriinTrack,
+	Short_t *MvdPixelSpuriList,
+	Short_t nMCMvdPixelAlone,
+	Short_t *MCMvdPixelAloneList,
+	Short_t nMvdStripCommon,
+	Short_t *MvdStripCommonList,
+	Short_t nMvdStripSpuriinTrack,
+	Short_t *MvdStripSpuriList,
+	Short_t nMCMvdStripAlone,
+	Short_t *MCMvdStripAloneList,
+	Short_t nSkewHitsinTrack,
+	Short_t *ListSkewHitsinT,
+
+	Double_t *SchosenSkew,
+	Short_t *nSkewCommon,
+	Short_t *SkewCommonL,
+	Short_t *nMCSkewAlone,
+	Short_t *MCSkewAloneL
+	);
+
+
+
+  ClassDef(PndTrkPlotMacros,1);
+
+};
+
+#endif
