@@ -6,6 +6,7 @@
 #include "PndTrkCTFindTrackInXY.h"
 #include "PndTrkCTGeometryCalculations.h"
 #include "PndTrkMergeSort.h"
+#include "PndTrkPlotMacros.h"
 #include "PndSttHit.h"
 #include "PndSciTHit.h"
 #include "PndSttPoint.h"
@@ -659,17 +660,11 @@ void PndTrkTracking::Exec(Option_t* opt) {
 	tempore[MAXSTTHITS],
 	TemporarySkewList[2*MAXSTTHITS][2],
 	BigList[MAXTRACKSPEREVENT][MAXSTTHITSINTRACK],
-//	MCParalAloneList[MAXTRACKSPEREVENT][MAXSTTHITSINTRACK],
-//	MCSkewAloneList[MAXTRACKSPEREVENT][MAXSTTHITSINTRACK],
 	MCParalAloneList[MAXTRACKSPEREVENT*MAXSTTHITSINTRACK],
 	MCSkewAloneList[MAXTRACKSPEREVENT*MAXSTTHITSINTRACK],
 	// nBoxConformal,  first index -> radial divisions,
 	// 2nd index -> azimuthal divisions; n. of hits falling in this cell.
 	nBoxConformal[NRDIVCONFORMAL*NFIDIVCONFORMAL],
-//	ParalCommonList[MAXTRACKSPEREVENT][MAXSTTHITSINTRACK],
-//	ParSpuriList[MAXTRACKSPEREVENT][MAXSTTHITSINTRACK],
-//	SkewCommonList[MAXTRACKSPEREVENT][MAXSTTHITSINTRACK],
-//	SkewSpuriList[MAXTRACKSPEREVENT][MAXSTTHITSINTRACK],
 	ParalCommonList[MAXTRACKSPEREVENT*MAXSTTHITSINTRACK],
 	ParSpuriList[MAXTRACKSPEREVENT*MAXSTTHITSINTRACK],
 	SkewCommonList[MAXTRACKSPEREVENT*MAXSTTHITSINTRACK],
@@ -1663,7 +1658,7 @@ void PndTrkTracking::Exec(Option_t* opt) {
 //     forming the new track with Mvd+Stt hits
 
 
-		// here nTrackCandHit[ncand] is only the sum of the 'XY' type of hits (no Skew Stt hits)
+		// here nTrackCandHit[ncand] is the sum of all the hits (Mvd+Stt) belonging to the track;
 		nTrackCandHit[ncand] =nSttParHitsinTrack[ncand]+
 					nSttSkewHitsinTrack[ncand]+
 					nMvdPixelHitsinTrack[ncand]+
@@ -2945,28 +2940,22 @@ if(istampa>1) cout<<"PndTracking, entra in TrackCleanup tracce normali, IVOLTE "
 
  Short_t
 	nMvdPixelCommon[nTotalCandidates],
-//	MvdPixelCommonList[nTotalCandidates][MAXMVDPIXELHITSINTRACK],
 	MvdPixelCommonList[nTotalCandidates*MAXMVDPIXELHITSINTRACK],
 	nMvdPixelSpuriinTrack[nTotalCandidates],
-//	MvdPixelSpuriList[nTotalCandidates][MAXMVDPIXELHITSINTRACK],
 	MvdPixelSpuriList[nTotalCandidates*MAXMVDPIXELHITSINTRACK],
 	nMCMvdPixelAlone[nTotalCandidates],
-//	MCMvdPixelAloneList[nTotalCandidates][MAXMVDPIXELHITSINTRACK],
 	MCMvdPixelAloneList[nTotalCandidates*MAXMVDPIXELHITSINTRACK],
 
 	nMvdStripCommon[nTotalCandidates],
-//	MvdStripCommonList[nTotalCandidates][MAXMVDSTRIPHITSINTRACK],
 	MvdStripCommonList[nTotalCandidates*MAXMVDSTRIPHITSINTRACK],
 	nMvdStripSpuriinTrack[nTotalCandidates],
-//	MvdStripSpuriList[nTotalCandidates][MAXMVDSTRIPHITSINTRACK],
 	MvdStripSpuriList[nTotalCandidates*MAXMVDSTRIPHITSINTRACK],
 	nMCMvdStripAlone[nTotalCandidates],
-//	MCMvdStripAloneList[nTotalCandidates][MAXMVDSTRIPHITSINTRACK];
 	MCMvdStripAloneList[nTotalCandidates*MAXMVDSTRIPHITSINTRACK];
 
 
 
- if( doMcComparison){
+ if( doMcComparison && nTotalCandidates > 0){
 	// make the struct for the data to pass to the
 	// method PndTrkComparisonMCtruth::ComparisonwithMC ;
 	PndTrkComparisonMCtruth_io_Data ioData;
@@ -2981,6 +2970,8 @@ if(istampa>1) cout<<"PndTracking, entra in TrackCleanup tracce normali, IVOLTE "
 	ioData.FI0 = FI0;
 	ioData.fMCTrackArray = fMCTrackArray;
 	ioData.fMvdMCPointArray = fMvdMCPointArray;
+	ioData.HANDLE = HANDLE,
+	ioData.HANDLE2 = HANDLE2,
 	ioData.info = info;
 	ioData.istampa = istampa;
 	ioData.IVOLTE = IVOLTE;
@@ -3056,16 +3047,157 @@ if(istampa>1) cout<<"PndTracking, entra in TrackCleanup tracce normali, IVOLTE "
 
 //----------
 
+ // write the Macro for visualization of tracks and hits;
 
+ if(iplotta){
+	PndTrkPlotMacros mymacro;
+	PndTrkPlotMacros_InputData In_Put;
 
+	In_Put.apotemamaxinnerparstraw = APOTEMAMAXINNERPARSTRAW ;
+	In_Put.apotemamaxskewstraw = APOTEMAMAXSKEWSTRAW ;
+	In_Put.apotemaminouterparstraw = APOTEMAMINOUTERPARSTRAW ;
+	In_Put.apotemaminskewstraw = APOTEMAMINSKEWSTRAW ;
+	In_Put.bfield = BFIELD ;
+	In_Put.Charge = Charge ;
+	In_Put.cvel = CVEL ;
+	In_Put.daTrackFoundaTrackMC = daTrackFoundaTrackMC ;
+	In_Put.dimensionscitil = DIMENSIONSCITIL ;
+	In_Put.doMcComparison = doMcComparison ;
+	In_Put.FI0 = FI0 ;
+	In_Put.fMCTrackArray = fMCTrackArray ;
+	In_Put.fSttPointArray = fSttPointArray ;
+	In_Put.info =  &info[0][0] ;
+	In_Put.IVOLTE = IVOLTE ;
+	In_Put.KAPPA = KAPPA ;
+	In_Put.keepit = keepit ;
+	In_Put.InclusionListSciTil = InclusionListSciTil ;
+	In_Put.istampa = istampa ;
+	In_Put.ListMvdPixelHitsinTrack = &ListMvdPixelHitsinTrack[0][0] ;
+	In_Put.ListMvdStripHitsinTrack = &ListMvdStripHitsinTrack[0][0] ;
+	In_Put.ListSciTilHitsinTrack = &ListSciTilHitsinTrack[0][0] ;
+	In_Put.ListSttParHitsinTrack = &ListSttParHitsinTrack[0][0] ;
+	In_Put.ListSttSkewHitsinTrack = &ListSttSkewHitsinTrack[0][0] ;
+	In_Put.ListTrackCandHit = &ListTrackCandHit[0][0] ;
+	In_Put.ListTrackCandHitType = &ListTrackCandHitType[0][0] ;
+	In_Put.MAXMCTRACKS = MAXMCTRACKS ;
+	In_Put.MAXMVDPIXELHITS = MAXMVDPIXELHITS ;
+	In_Put.MAXMVDPIXELHITSINTRACK = MAXMVDPIXELHITSINTRACK ;
+	In_Put.MAXMVDSTRIPHITS = MAXMVDSTRIPHITS ;
+	In_Put.MAXMVDSTRIPHITSINTRACK = MAXMVDSTRIPHITSINTRACK ;
+	In_Put.MAXSCITILHITSINTRACK = MAXSCITILHITSINTRACK ;
+	In_Put.MAXSCITILHITS = MAXSCITILHITS ;
+	In_Put.MAXSTTHITS = MAXSTTHITS ;
+	In_Put.MAXSTTHITSINTRACK = MAXSTTHITSINTRACK ;
+	In_Put.MAXTRACKSPEREVENT = MAXTRACKSPEREVENT ;
+	In_Put.MCMvdPixelAloneList = MCMvdPixelAloneList ;
+	In_Put.MCMvdStripAloneList = MCMvdStripAloneList ;
+	In_Put.MCParalAloneList = MCParalAloneList ;
+	In_Put.MCSkewAloneList = MCSkewAloneList ;
+	In_Put.MCSkewAloneX = MCSkewAloneX ;
+	In_Put.MCSkewAloneY = MCSkewAloneY ;
+	In_Put.MvdPixelCommonList = MvdPixelCommonList ;
+	In_Put.MvdPixelSpuriList = MvdPixelSpuriList ;
+	In_Put.MvdStripCommonList = MvdStripCommonList ;
+	In_Put.MvdStripSpuriList = MvdStripSpuriList ;
+	In_Put.nMCMvdPixelAlone = nMCMvdPixelAlone ;
+	In_Put.nMCMvdStripAlone = nMCMvdStripAlone ;
+	In_Put.nMCParalAlone = nMCParalAlone ;
+	In_Put.nMCSkewAlone = nMCSkewAlone ;
+	In_Put.nMCTracks = nMCTracks ;
+	In_Put.nMvdPixelCommon = nMvdPixelCommon ;
+	In_Put.nMvdPixelHit = nMvdPixelHit ;
+	In_Put.nMvdPixelHitsinTrack = nMvdPixelHitsinTrack ;
+	In_Put.nMvdPixelSpuriinTrack = nMvdPixelSpuriinTrack ;
+	In_Put.nMvdStripCommon = nMvdStripCommon ;
+	In_Put.nMvdStripHit = nMvdStripHit ;
+	In_Put.nMvdStripHitsinTrack = nMvdStripHitsinTrack ;
+	In_Put.nMvdStripSpuriinTrack = nMvdStripSpuriinTrack ;
+	In_Put.nParalCommon = nParalCommon ;
+	In_Put.nSciTilHits = nSciTilHits ;
+	In_Put.nSciTilHitsinTrack = nSciTilHitsinTrack ;
+	In_Put.nSkewCommon = nSkewCommon ;
+	In_Put.nSpuriParinTrack = nSpuriParinTrack ;
+	In_Put.nSttHit = nSttHit ;
+	In_Put.nSttParHit = nSttParHit ;
+	In_Put.nSttParHitsinTrack = nSttParHitsinTrack ;
+	In_Put.nSttSkewHit = nSttSkewHit ;
+	In_Put.nSttSkewHitsinTrack = nSttSkewHitsinTrack ;
+	In_Put.nTotalCandidates = nTotalCandidates ;
+	In_Put.nTrackCandHit = nTrackCandHit ;
+	In_Put.Ox = Ox ;
+	In_Put.Oy = Oy ;
+	In_Put.ParalCommonList = ParalCommonList ;
+	In_Put.ParSpuriList = ParSpuriList ;
+	In_Put.posizSciTil = &posizSciTil[0][0] ;
+	In_Put.R = R ;
+	In_Put.rstrawdetectormax = RSTRAWDETECTORMAX ;
+	In_Put.rstrawdetectormin = RSTRAWDETECTORMIN ;
+	In_Put.SchosenSkew = &SchosenSkew[0][0] ;
+	In_Put.sigmaXMvdPixel = sigmaXMvdPixel ;
+	In_Put.sigmaXMvdStrip = sigmaXMvdStrip ;
+	In_Put.sigmaYMvdPixel = sigmaYMvdPixel ;
+	In_Put.sigmaYMvdStrip = sigmaYMvdStrip ;
+	In_Put.SkewCommonList = SkewCommonList ;
+	In_Put.verticalgap = VERTICALGAP ;
+	In_Put.XMvdPixel = XMvdPixel ;
+	In_Put.XMvdStrip = XMvdStrip ;
+	In_Put.YMvdPixel = YMvdPixel ;
+	In_Put.YMvdStrip = YMvdStrip ;
+	In_Put.WDX = WDX ;
+	In_Put.WDY = WDY ;
+	In_Put.WDZ = WDZ ;
+	In_Put.ZMvdPixel = ZMvdPixel ;
+	In_Put.ZMvdStrip = ZMvdStrip ;
 
+	mymacro.WriteAllMacros(
+	In_Put
 
+/*
 
+//	Charge,
+//	FI0,
+//	info,
+//	KAPPA,
+//	keepit,
+	istampa,
+	nMCParalAlone,
+	nMCSkewAlone,
+	nParalCommon,
+	nSkewCommon,
+	nSpuriParinTrack,
+	nSttHit,
+	nSttParHit,
+	nSttSkewHit,
+	nTotalCandidates,
+//	&MCParalAloneList[0][0],
+//	&MCSkewAloneList[0][0],
+	&ParalCommonList[0][0],
+//	ParSpuriList,
+//	&SchosenSkew[0][0],
+//	&SkewCommonList[0][0],
+	daTrackFoundaTrackMC,
+	WDX,
+	WDY,
+//	WDZ,
+	nMvdPixelCommon,
+	&MvdPixelCommonList[0][0],
+	nMvdPixelSpuriinTrack,
+//	&MvdPixelSpuriList[0][0],
+//	nMCMvdPixelAlone,
+//	&MCMvdPixelAloneList[0][0],
+//	nMvdStripCommon,
+//	&MvdStripCommonList[0][0],
+//	nMvdStripSpuriinTrack,
+//	&MvdStripSpuriList[0][0],
+//	nMCMvdStripAlone,
+	&MCMvdStripAloneList[0][0]
 
+*/
 
+				);
+ }
 
-
-
+//----------------
 
 
 
