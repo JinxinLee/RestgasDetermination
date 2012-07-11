@@ -53,6 +53,7 @@ PndTrkGlpkFits.cxx
 PndTrkMergeSort.cxx
 PndTrkSttConformalFilling.cxx
 PndTrkPlotMacros.cxx
+PndTrkPrintouts.cxx
 PndTrkTracking.cxx
 )
 
