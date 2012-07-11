@@ -33,7 +33,7 @@ std::vector<std::pair<double, PndSdsDigiPixel*> > PndSdsDigiPixelWriteoutBuffer:
 	std::vector<std::pair<double, PndSdsDigiPixel*> > result;
 	std::pair<double, PndSdsDigiPixel*> singleResult;
 	if (newData.first > 0)
-		singleResult.first = oldData.first + newData.first;
+		singleResult.first = newData.first;
 	singleResult.second = oldData.second;
 	singleResult.second->AddCharge(newData.second->GetCharge());
 	if (fVerbose > 0){

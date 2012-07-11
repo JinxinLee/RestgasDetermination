@@ -442,7 +442,7 @@ void PndMvdNoiseProducer::AddDigiStrip(Int_t &noisies, Int_t iPoint, Int_t senso
 		indices.push_back(iPoint);
 		PndSdsDigiStrip* tempStrip = new PndSdsDigiStrip(indices,detID,sensorID,fe,chan,fCurrentChargeConv->ChargeToDigiValue(charge), FairRootManager::Instance()->GetEventTime()) ;
 		noisies++;
-		fDigiStripBuffer->FillNewData(tempStrip, FairRootManager::Instance()->GetEventTime() + 10);
+		fDigiStripBuffer->FillNewData(tempStrip, FairRootManager::Instance()->GetEventTime(), FairRootManager::Instance()->GetEventTime() + 10);
 //  }
 }
 // -------------------------------------------------------------------------
@@ -459,7 +459,7 @@ void PndMvdNoiseProducer::AddDigiPixel(Int_t &noisies, Int_t iPoint, Int_t senso
 	  		tempPixel->SetTimeStamp(tempPixel->GetTimeStamp() - fPixChargeConv->GetTimeWalk((Int_t)tempPixel->GetCharge()));
 	  		tempPixel->SetTimeStampError(fPixChargeConv->GetTimeStampErrorAfterCorrection());
 	  }
-	  fDigiPixelBuffer->FillNewData(tempPixel,fPixChargeConv->ChargeToDigiValue(charge)*6 + FairRootManager::Instance()->GetEventTime());
+	  fDigiPixelBuffer->FillNewData(tempPixel,fPixChargeConv->ChargeToDigiValue(charge)*6 + FairRootManager::Instance()->GetEventTime(), FairRootManager::Instance()->GetEventTime());
 	//  std::cout << "DataInBuffer: " << fDigiPixelBuffer->GetNData() << std::endl;
 }
 

@@ -200,7 +200,7 @@ void PndEmcWaveformToDigi::Exec(Option_t* opt)
 			Double_t timestamp=EventTime+digi_time;	
 			PndEmcDigi* myDigi = new PndEmcDigi(trackId,detId, energy, timestamp, hitIndex);
 			myDigi->AddLink(FairLink("EmcWaveform", iWaveform));
-			fDataBuffer->FillNewData(myDigi, 300); // 300 ns
+			fDataBuffer->FillNewData(myDigi, 300, 300); // 300 ns
 			if (fVerbose>2)
 				cout<<"timestamp="<<timestamp<<" EventTime="<<EventTime<<" digi_time="<<digi_time<<endl;
 		}

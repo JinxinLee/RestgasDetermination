@@ -119,7 +119,6 @@ void PndSttHitProducerRealFull::Exec(Option_t* opt) {
   // Declare some variables
   PndSttPoint* point  = NULL;
 
-  Double_t EventTime = FairRootManager::Instance()->GetEventTime();
    
   // Loop over SttPoints
   Int_t nPoints = fPointArray->GetEntriesFast();
@@ -165,7 +164,7 @@ void PndSttHitProducerRealFull::Exec(Option_t* opt) {
     // drift time calculation
     Double_t pulset = stt.PartToTime(point->GetMass()/GeV, momentum.Mag()/GeV, InOut);
 //    std::cout << "pulset: " << pulset << " EventTime: " << EventTime;
-    pulset += EventTime;
+//    pulset += EventTime;
 //    std::cout << " Sum: " << pulset << std::endl;
     // simulated radius (cm)
     double radius = stt.TimnsToDiscm(pulset);
@@ -212,7 +211,7 @@ void PndSttHitProducerRealFull::Exec(Option_t* opt) {
 
 
     // create hit
-    AddHit(detID, tubeID, iPoint, pos, dpos, pulset, radius, closestDistanceError, depCharge);
+    AddHit(detID, tubeID, iPoint, pos, dpos, pulset, radius, closestDistanceError, depCharge, point->GetTime());
 
     AddHitInfo(0, 0, point->GetTrackID(), iPoint, 0, kFALSE);
 
@@ -240,15 +239,17 @@ void PndSttHitProducerRealFull::FoldZPosWithResolution(Double_t &zpos, Double_t 
 
 
 // -----   Private method AddHit   --------------------------------------------
-PndSttHit* PndSttHitProducerRealFull::AddHit(Int_t detID, Int_t tubeID, Int_t iPoint, TVector3& pos, TVector3& dpos, Double_t p, Double_t rsim, Double_t closestDistanceError, Double_t depcharge)
+PndSttHit* PndSttHitProducerRealFull::AddHit(Int_t detID, Int_t tubeID, Int_t iPoint, TVector3& pos, TVector3& dpos, Double_t p, Double_t rsim, Double_t closestDistanceError, Double_t depcharge, Double_t timeOfFlight)
 {
   // see PndSttHit for hit description
+
+	  Double_t EventTime = FairRootManager::Instance()->GetEventTime();
 
   PndSttHit *hitnew =  new PndSttHit(detID, tubeID, iPoint, pos, dpos, p, rsim, closestDistanceError, depcharge);
   hitnew->Reset();
   FairEventHeader* evtHeader = (FairEventHeader*)FairRootManager::Instance()->GetObject("EventHeader.");
   hitnew->AddLink(FairLink(evtHeader->GetInputFileId(), evtHeader->GetMCEntryNumber(),  "STTPoint", iPoint));
-  fDataBuffer->FillNewData(hitnew, p);
+  fDataBuffer->FillNewData(hitnew, p+EventTime, timeOfFlight+EventTime);
   return hitnew;
 
 }

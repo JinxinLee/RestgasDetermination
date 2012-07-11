@@ -349,7 +349,7 @@ void PndSdsStripHitProducer::AddDigi(Int_t &iStrip, Int_t iPoint, Int_t detID, I
 	      tempStrip->AddLink(FairLink(evtHeader->GetInputFileId(), evtHeader->GetMCEntryNumber(),  fInBranchId, iPoint));
 	      tempStrip->AddLink(FairLink(-1, fEventNr, "EventHeader.", -1));
 	  }
-	  fDataBuffer->FillNewData(tempStrip,	timeStamp + 100);
+	  fDataBuffer->FillNewData(tempStrip,	timeStamp + 100, point->GetTime() + FairRootManager::Instance()->GetEventTime());
 
 //	  std::cout << "AddDigi called: " << *tempStrip << std::endl;
 

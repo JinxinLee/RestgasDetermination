@@ -232,7 +232,9 @@ void PndSdsHybridHitProducer::Exec(Option_t* opt)
   
   Double_t EventTime = FairRootManager::Instance()->GetEventTime();
   
-  if(fVerbose>0) std::cout << "-I- PndSdsHybridHitProducer::Exec EventTime: " << EventTime << std::endl;
+//  if(fVerbose>0)
+  std::cout << std::endl;
+  std::cout << "-I- PndSdsHybridHitProducer::Exec EventTime: " << EventTime << std::endl;
   
   
   fPixelList.clear();
@@ -376,7 +378,7 @@ void PndSdsHybridHitProducer::Exec(Option_t* opt)
       tempPixel->AddLink(FairLink(evtHeader->GetInputFileId(), evtHeader->GetMCEntryNumber(),  fInBranchId, indices[i]));
     }
     tempPixel->AddLink(FairLink(-1, fEventNr, "EventHeader.", -1));
-    fDataBuffer->FillNewData(tempPixel, fChargeConverter->ChargeToDigiValue(fPixelList[iPix].GetCharge())*6 + EventTime);
+    fDataBuffer->FillNewData(tempPixel, fChargeConverter->ChargeToDigiValue(fPixelList[iPix].GetCharge())*6 + EventTime, point->GetTime()+EventTime);
     
     if (fVerbose > 0){
       std::cout << "PixelDigi: " << (tempPixel) << std::endl;
