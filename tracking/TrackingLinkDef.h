@@ -10,6 +10,7 @@
 #pragma link C++ class PndTrkMergeSort+;
 #pragma link C++ class PndTrkPlotMacros+;
 #pragma link C++ class PndTrkSttConformalFilling+;
+#pragma link C++ class PndTrkPrintouts+;
 #pragma link C++ class PndTrkTracking+;
 
 #endif
