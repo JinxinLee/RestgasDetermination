@@ -1,4 +1,5 @@
 #include "glpk.h"
+
 #include "PndTrkTracking.h"
 #include "PndTrkComparisonMCtruth.h"
 #include "PndTrkSttConformalFilling.h"
@@ -7,6 +8,8 @@
 #include "PndTrkCTGeometryCalculations.h"
 #include "PndTrkMergeSort.h"
 #include "PndTrkPlotMacros.h"
+#include "PndTrkPrintouts.h"
+
 #include "PndSttHit.h"
 #include "PndSciTHit.h"
 #include "PndSttPoint.h"
@@ -813,12 +816,14 @@ void PndTrkTracking::Exec(Option_t* opt) {
 
  PndTrkCTGeometryCalculations GeomCalculator;
 
+ PndTrkPrintouts fPrint;
+
 //------------------------------------
 
  IVOLTE++;
 
  if(istampa>0)
-	cout<<endl<<"Entering in PndTrack : evt (starting from 0)  n. "<<IVOLTE<<endl;
+	cout<<endl<<"Entering in PndTrkTrack : evt (starting from 0)  n. "<<IVOLTE<<endl;
 
 //------------------------------------
 
@@ -868,6 +873,29 @@ void PndTrkTracking::Exec(Option_t* opt) {
  }
 
 
+// ---------------   printout of Mvd Hits;
+ if(istampa>=1)
+	fPrint.stampaMvdHits(
+		fMvdPixelBranch,
+		fMvdStripBranch,
+		nMvdPixelHit,
+		nMvdStripHit,
+		refindexMvdPixel,
+		refindexMvdStrip,
+		sigmaXMvdPixel,
+		sigmaXMvdStrip,
+		sigmaYMvdPixel,
+		sigmaYMvdStrip,
+		sigmaZMvdPixel,
+		sigmaZMvdStrip,
+		XMvdPixel,
+		XMvdStrip,
+		YMvdPixel,
+		YMvdStrip,
+		ZMvdPixel,
+		ZMvdStrip
+			);
+
 
 // ------------------------------------------ get info from trackcand  of MVD
 
@@ -882,8 +910,6 @@ void PndTrkTracking::Exec(Option_t* opt) {
  }
 
 
- if(istampa>=3)cout<<"da PndTrkTracking  :  n. totale di Mvd track cand =    "
-		<<nMvdTrackCand<<"  --------------"<<endl;
 
 
 // -----------------------more info from Mvd trackcand.
@@ -906,7 +932,6 @@ void PndTrkTracking::Exec(Option_t* opt) {
  }
 
 
-
 //----------   fetching the STT  hits
 
  nSttHit = fSttHitArray->GetEntriesFast();
@@ -921,11 +946,8 @@ void PndTrkTracking::Exec(Option_t* opt) {
  }
 
  if (istampa >= 1) {
-	cout<<"da PndTrkTracking  : evento (partendo da 0)  N. "<<
-		IVOLTE<<endl<< "    N. totale Hits in STT  : "<<nSttHit<<endl;
+	cout<<"da PndTrkTracking  :  n. totale Hits in STT  : "<<nSttHit<<endl;
  }
-
-
 
 
  nSttParHit=0; 
@@ -979,13 +1001,14 @@ void PndTrkTracking::Exec(Option_t* opt) {
 	}
 
 
-
+ //  printout of the Stt hits;
+ if (istampa >= 1) fPrint.stampaSttHits(i,ipunto,dradius,WDX,WDY,WDZ,puntator,pSttTube);
 
   }  //   end of for( i= 0; i< nSttHit; i++)
 
-
 //	fill the inclusion list for Stt, include only first hit for those straws with
 //	multiple hits.
+
  MakeInclusionListStt(nSttHit, info);
 
 //-----------------------------------  end of exclusion of straws with multiple hits
@@ -1062,6 +1085,17 @@ void PndTrkTracking::Exec(Option_t* opt) {
 //	 memset(InclusionListSciTil,true,nSciTilHits);
 
 	}  // end of if( nSciTilHits>0){
+
+
+//-----------stampe.
+if(istampa>0){
+  cout<<"da PndTrkTracking, dopo purga di SciTil; n. hits = "<<nSciTilHits<<endl;
+  for(j=0; j<nSciTilHits; j++){
+	cout<<"da PndTrkTracking SciTil Xpos "<<posizSciTil[j][0]<<", Ypos "<<
+	posizSciTil[j][1]<<", Zpos "<<posizSciTil[j][2]<<endl;
+  }
+}
+//---------- fine stampe.
 
 
 
@@ -1629,7 +1663,7 @@ void PndTrkTracking::Exec(Option_t* opt) {
 
 
 		if( nMvdPixelHitsinTrack[ncand] > MAXMVDPIXELHITSINTRACK){
-			cout<<"from PndTracking, nMvdPixelHitsinTrack["<<ncand
+			cout<<"from PndTrkTracking, nMvdPixelHitsinTrack["<<ncand
 			<<"] is "<<nMvdPixelHitsinTrack[ncand]
 			<<"and it is > MAXMVDPIXELHITSINTRACK ("
 			<<MAXMVDPIXELHITSINTRACK
@@ -1639,7 +1673,7 @@ void PndTrkTracking::Exec(Option_t* opt) {
 		}
 
 		if( nMvdStripHitsinTrack[ncand] > MAXMVDSTRIPHITSINTRACK){
-			cout<<"from PndTracking, nMvdStripHitsinTrack["<<ncand
+			cout<<"from PndTrkTracking, nMvdStripHitsinTrack["<<ncand
 			<<"] is "<<nMvdStripHitsinTrack[ncand]
 			<<"and it is > MAXMVDSTRIPHITSINTRACK ("
 			<<MAXMVDSTRIPHITSINTRACK
@@ -2356,7 +2390,7 @@ void PndTrkTracking::Exec(Option_t* opt) {
 	}
 
     if(YesClean){
-if(istampa>1) cout<<"PndTracking, entra in TrackCleanup tracce normali, IVOLTE "<<IVOLTE
+if(istampa>1) cout<<"PndTrkTracking, entra in TrackCleanup tracce normali, IVOLTE "<<IVOLTE
 	<<" e track cand. "<<ncand<<endl;
 	if ( !TrackCleanup(
 			gap,
@@ -5186,7 +5220,7 @@ if(istampa>=3){cout<<"\tevento n. "<<IVOLTE<<" questi Mvd ALONE US hits passano 
 //-------  end of using the Mvd which are in no Mvd Track Candidate
 
 
-if(istampa>=3 ){cout<<"da PndTracking : appena prima arbitration, IVOLTE = "<<
+if(istampa>=3 ){cout<<"da PndTrkTracking : appena prima arbitration, IVOLTE = "<<
 IVOLTE<<", Stt track cand = "<<i<<", ngoodmix = "<<ngoodmix<<endl;}
 
 		if( ngoodmix==1){
@@ -5198,13 +5232,13 @@ IVOLTE<<", Stt track cand = "<<i<<", ngoodmix = "<<ngoodmix<<endl;}
 			oldtotal2 = DIST[0];
 			oldN = nHighQuality[0];
 //			oldtotal /= nTotali[0];
-if(istampa>=3 ){cout<<"da PndTracking : goodmix n. 0, total distance (che e' = total distance2) = "<<oldtotal
+if(istampa>=3 ){cout<<"da PndTrkTracking : goodmix n. 0, total distance (che e' = total distance2) = "<<oldtotal
 				<<", e nHighQuality = "<<nHighQuality[0]<<endl;}
 			chosenmix=0;
 			chosenmix2=0;
 			for(j1=1; j1<ngoodmix;j1++){
 				total = DIST[j1];
-if(istampa>=3){cout<<"da PndTracking :\t goodmix n. "<<j1<<", total distance "<<total
+if(istampa>=3){cout<<"da PndTrkTracking :\t goodmix n. "<<j1<<", total distance "<<total
 					<<", e nHighQuality = "<<nHighQuality[j1]<<endl;}
 				if(oldN<nHighQuality[j1]){
 					oldN=nHighQuality[j1];
@@ -5222,7 +5256,7 @@ if(istampa>=3){cout<<"da PndTracking :\t goodmix n. "<<j1<<", total distance "<<
 			}
 		}	// end of  if( ngoodmix==1)
 //--- end of arbitration
-if(istampa>=3 ){cout<<"da PndTracking : fine arbitration, IVOLTE = "<<
+if(istampa>=3 ){cout<<"da PndTrkTracking : fine arbitration, IVOLTE = "<<
 IVOLTE<<", Stt track cand = "<<i<<endl;}
 
 
@@ -5398,7 +5432,7 @@ void PndTrkTracking::OrderingConformal_Loading_ListTrackCandHit(
 
 if(istampa>=3) for(int ica=0; ica<nMvdPixelHitsinTrack[ncand]+nMvdStripHitsinTrack[ncand]+
 	nSttParHitsinTrack[ncand]+nSttSkewHitsinTrack[ncand]; ica++){
-	cout<<"from PndTracking, hit n. "<<ListTrackCandHit[ncand][ica]<<", hit type "
+	cout<<"from PndTrkTracking, hit n. "<<ListTrackCandHit[ncand][ica]<<", hit type "
 	<<ListTrackCandHitType[ncand][ica]<<endl;
 }
 
