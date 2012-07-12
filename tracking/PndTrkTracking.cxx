@@ -1645,6 +1645,32 @@ if(istampa>0){
 			ListMvdStripHitsinTrack // output
 			);
 
+//-------------- stampa
+ if(istampa>=2){
+	fPrint.stampetta(
+			IVOLTE,
+			keepit,
+			&ListMvdPixelHitsinTrack[0][0],
+			&ListMvdStripHitsinTrack[0][0],
+			&ListSttParHitsinTrack[0][0],
+			&ListSttSkewHitsinTrack[0][0],
+			&ListSciTilHitsinTrack[0][0],
+			nMvdPixelHitsinTrack,
+			nMvdStripHitsinTrack,
+			nSttParHitsinTrack,
+			nSttSkewHitsinTrack,
+			nSciTilHitsinTrack,
+			nSttTrackCand,
+			MAXMVDPIXELHITSINTRACK,
+			MAXMVDSTRIPHITSINTRACK,
+			MAXSCITILHITSINTRACK,
+			MAXSTTHITSINTRACK,
+			R,
+			Ox,
+			Oy
+			);
+ }
+//-------------- fine stampa
 
 
 //-----------------  end of section with match Mvd hits with Stt hits
@@ -1768,6 +1794,33 @@ if(istampa>0){
 
 //-------------------- end of ordering
 
+//-------------- stampa
+ if(istampa>=2){
+	cout<<"\tstampa dopo ordering,    prima di refit.\n";
+	fPrint.stampetta(
+			IVOLTE,
+			keepit,
+			&ListMvdPixelHitsinTrack[0][0],
+			&ListMvdStripHitsinTrack[0][0],
+			&ListSttParHitsinTrack[0][0],
+			&ListSttSkewHitsinTrack[0][0],
+			&ListSciTilHitsinTrack[0][0],
+			nMvdPixelHitsinTrack,
+			nMvdStripHitsinTrack,
+			nSttParHitsinTrack,
+			nSttSkewHitsinTrack,
+			nSciTilHitsinTrack,
+			nSttTrackCand,
+			MAXMVDPIXELHITSINTRACK,
+			MAXMVDSTRIPHITSINTRACK,
+			MAXSCITILHITSINTRACK,
+			MAXSTTHITSINTRACK,
+			R,
+			Ox,
+			Oy
+			);
+ }
+//-------------- fine stampa
 
 
 //---------------------   refit the Helix in XY plane using Stt + Mvd associated hits
@@ -1989,6 +2042,33 @@ if(istampa>0){
 //--------------------- end of  refit the Helix in XY plane using Stt + Mvd associated hits
 
 
+//-------------- stampa
+ if(istampa>=2){
+	cout<<"\tstampa dopo il Refit.\n";
+	fPrint.stampetta(
+			IVOLTE,
+			keepit,
+			&ListMvdPixelHitsinTrack[0][0],
+			&ListMvdStripHitsinTrack[0][0],
+			&ListSttParHitsinTrack[0][0],
+			&ListSttSkewHitsinTrack[0][0],
+			&ListSciTilHitsinTrack[0][0],
+			nMvdPixelHitsinTrack,
+			nMvdStripHitsinTrack,
+			nSttParHitsinTrack,
+			nSttSkewHitsinTrack,
+			nSciTilHitsinTrack,
+			nSttTrackCand,
+			MAXMVDPIXELHITSINTRACK,
+			MAXMVDSTRIPHITSINTRACK,
+			MAXSCITILHITSINTRACK,
+			MAXSTTHITSINTRACK,
+			R,
+			Ox,
+			Oy
+			);
+ }
+//-------------- fine stampa
 
 
   if(nMvdPixelHit+nMvdStripHit>0){
@@ -2021,6 +2101,33 @@ if(istampa>0){
 //---------------------   %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 
+//-------------- stampa
+ if(istampa>=2){
+	cout<<"\tstampa dopo il Match Again.\n";
+	fPrint.stampetta(
+			IVOLTE,
+			keepit,
+			&ListMvdPixelHitsinTrack[0][0],
+			&ListMvdStripHitsinTrack[0][0],
+			&ListSttParHitsinTrack[0][0],
+			&ListSttSkewHitsinTrack[0][0],
+			&ListSciTilHitsinTrack[0][0],
+			nMvdPixelHitsinTrack,
+			nMvdStripHitsinTrack,
+			nSttParHitsinTrack,
+			nSttSkewHitsinTrack,
+			nSciTilHitsinTrack,
+			nSttTrackCand,
+			MAXMVDPIXELHITSINTRACK,
+			MAXMVDSTRIPHITSINTRACK,
+			MAXSCITILHITSINTRACK,
+			MAXSTTHITSINTRACK,
+			R,
+			Ox,
+			Oy
+			);
+ }
+//-------------- fine stampa
 
 
 // use the risult just obtained from the fit in XY to redo the association of the Skew Straw hits
@@ -2076,6 +2183,10 @@ if(istampa>0){
 	{
 		ListSttSkewHitsinTrack[ncand][j]=TemporarySkewList[j][0];
 		ListSttSkewHitsinTrackSolution[ncand][j]=TemporarySkewList[j][1];
+if(IVOLTE==3){
+	cout<<"\tdopo AssociateSkewHitsToXYTrack, hit skew n. "<<
+		ListSttSkewHitsinTrack[ncand][j]<<endl;
+}
 	}
 
 
@@ -2209,6 +2320,36 @@ if(istampa>0){
 
 //---------------------   here do the fit again in the SZ space if there are Mvd hits.
 //			  For this, reordering of the  Mvd hits is not necessary.
+if(IVOLTE==3){cout<<"\tprima KAPPA = "<<KAPPA[ncand]<<endl;}
+if(IVOLTE==3){
+	cout<<"\tprima di nuovo SZ fit, numero di skew hits "<<
+		nSttSkewHitsinTrack[ncand]<<" e loro lista "<<endl;
+	for(int ig=0;ig<nSttSkewHitsinTrack[ncand];ig++){
+		cout<<"\tdopo nuovo fit e EliminateSpuriousSZ, hit skew n. "<<
+		ListSttSkewHitsinTrack[ncand][ig]<<endl;
+	}
+	cout<<"\tdopo nuovo fit e EliminateSpuriousSZ, numero di Pixel hits "<<
+		nMvdPixelHitsinTrack[ncand]<<" e loro lista "<<endl;
+	for(int ig=0;ig<nMvdPixelHitsinTrack[ncand];ig++){
+		cout<<"\tdopo nuovo fit e EliminateSpuriousSZ, Pixel hit n. "<<
+		ListMvdPixelHitsinTrack[ncand][ig]<<endl;
+	}
+	cout<<"\tdopo nuovo fit e EliminateSpuriousSZ, numero di Strip hits "<<
+		nMvdStripHitsinTrack[ncand]<<" e loro lista "<<endl;
+	for(int ig=0;ig<nMvdStripHitsinTrack[ncand];ig++){
+		cout<<"\tdopo nuovo fit e EliminateSpuriousSZ, Strip hit n. "<<
+		ListMvdStripHitsinTrack[ncand][ig]<<endl;
+	}
+
+	cout<<"\tnhitsinfit "<<nhitsinfit<<", FI0 "<<FI0[ncand]
+	<<", MAXHITSINFIT "<<MAXHITSINFIT
+	<<" e loro lista :\n";
+	for(int ig=0;ig<nhitsinfit;ig++){
+		cout<<"\tS "<<S[ig]<<",  ZED "<<ZED[ig]<<", DriftRadius "
+		<<DriftRadius[ig]<<", ErrorDriftRadius "<<ErrorDriftRadius[ig]<<endl;
+	}
+
+}
 
 		resultFitSZagain[ncand] = fit.FitSZspace(
 					nhitsinfit,	// n. hits to be fitted
@@ -2230,6 +2371,7 @@ if(istampa>0){
 			keepit[ncand]=false;
 		}
 
+if(IVOLTE==3){cout<<"\tdopo KAPPA = "<<KAPPA[ncand]<<endl;}
 
 
 
@@ -2288,6 +2430,27 @@ if(istampa>0){
 				    );
 
 
+if(IVOLTE==3){
+	cout<<"\tdopo nuovo fit e EliminateSpuriousSZ, numero di skew hits "<<
+		nSttSkewHitsinTrack[ncand]<<" e loro lista "<<endl;
+	for(int ig=0;ig<nSttSkewHitsinTrack[ncand];ig++){
+		cout<<"\tdopo nuovo fit e EliminateSpuriousSZ, hit skew n. "<<
+		ListSttSkewHitsinTrack[ncand][ig]<<endl;
+	}
+	cout<<"\tdopo nuovo fit e EliminateSpuriousSZ, numero di Pixel hits "<<
+		nMvdPixelHitsinTrack[ncand]<<" e loro lista "<<endl;
+	for(int ig=0;ig<nMvdPixelHitsinTrack[ncand];ig++){
+		cout<<"\tdopo nuovo fit e EliminateSpuriousSZ, Pixel hit n. "<<
+		ListMvdPixelHitsinTrack[ncand][ig]<<endl;
+	}
+	cout<<"\tdopo nuovo fit e EliminateSpuriousSZ, numero di Strip hits "<<
+		nMvdStripHitsinTrack[ncand]<<" e loro lista "<<endl;
+	for(int ig=0;ig<nMvdStripHitsinTrack[ncand];ig++){
+		cout<<"\tdopo nuovo fit e EliminateSpuriousSZ, Strip hit n. "<<
+		ListMvdStripHitsinTrack[ncand][ig]<<endl;
+	}
+
+}
 
 	  }  // end of  if(keepit[ncand])
 
@@ -2316,6 +2479,42 @@ if(istampa>0){
  }  // end of  (YesCleanMvd)
 
     }	//  end of for(ncand=0; ncand< nTotalCandidates; ncand++)
+
+
+
+
+
+//-------------- stampa
+ if(istampa>=2){
+	cout<<"\tstampa dopo il Cleanup piccolo\n";
+	fPrint.stampetta(
+			IVOLTE,
+			keepit,
+			&ListMvdPixelHitsinTrack[0][0],
+			&ListMvdStripHitsinTrack[0][0],
+			&ListSttParHitsinTrack[0][0],
+			&ListSttSkewHitsinTrack[0][0],
+			&ListSciTilHitsinTrack[0][0],
+			nMvdPixelHitsinTrack,
+			nMvdStripHitsinTrack,
+			nSttParHitsinTrack,
+			nSttSkewHitsinTrack,
+			nSciTilHitsinTrack,
+			nSttTrackCand,
+			MAXMVDPIXELHITSINTRACK,
+			MAXMVDSTRIPHITSINTRACK,
+			MAXSCITILHITSINTRACK,
+			MAXSTTHITSINTRACK,
+			R,
+			Ox,
+			Oy
+			);
+ }
+//-------------- fine stampa
+
+
+
+
 
 
 //---  redo association of parallel Stt  straw  hits to this track, after better refit.
@@ -2377,6 +2576,33 @@ if(istampa>0){
 	Start[2]=0.;
 	gap = (Double_t) (VERTICALGAP);
 
+//-------------- stampa
+ if(istampa>=2){
+	cout<<"\tstampa prima del Cleanup grosso\n";
+	fPrint.stampetta(
+			IVOLTE,
+			keepit,
+			&ListMvdPixelHitsinTrack[0][0],
+			&ListMvdStripHitsinTrack[0][0],
+			&ListSttParHitsinTrack[0][0],
+			&ListSttSkewHitsinTrack[0][0],
+			&ListSciTilHitsinTrack[0][0],
+			nMvdPixelHitsinTrack,
+			nMvdStripHitsinTrack,
+			nSttParHitsinTrack,
+			nSttSkewHitsinTrack,
+			nSciTilHitsinTrack,
+			nSttTrackCand,
+			MAXMVDPIXELHITSINTRACK,
+			MAXMVDSTRIPHITSINTRACK,
+			MAXSCITILHITSINTRACK,
+			MAXSTTHITSINTRACK,
+			R,
+			Ox,
+			Oy
+			);
+ }
+//-------------- fine stampa
 
 
     for(ncand=0, nRemainingCandidates=0; ncand< nTotalCandidates; ncand++){
