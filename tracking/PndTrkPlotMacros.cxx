@@ -520,23 +520,6 @@ void PndTrkPlotMacros::DrawHexagonCircleInMacro(
 
     for(  i= 0, k=-1; i< nTotalCandidates; i++){
 
-	//-------stampe.
-if(istampa>=2){
-		cout<<"\n\n---------------------------------------------\n";
-		cout<<" evt. n. "<<IVOLTE<<", candidato "<<i
-		<<", n hits || "<<nSttParHitsinTrack[i]<<" e loro lista :\n";
-		for(int iz=0;iz<nSttParHitsinTrack[i];iz++){
-			cout<<"\thit || n. "<<ListSttParHitsinTrack[i*MAXSTTHITSINTRACK+iz]<<endl;
-		}
-		cout<<"\tn hits // "<<nSttSkewHitsinTrack[i]<<" e loro lista :\n";
-		for(int iz=0;iz<nSttSkewHitsinTrack[i];iz++){
-			cout<<"\thit || n. "<<ListSttSkewHitsinTrack[i*MAXSTTHITSINTRACK+iz]<<endl;
-		}
-		if(keepit[i])cout<<"\tkeepit = true\n";
-		else cout<<"\tkeepit = false\n";
-		cout<<"---------------------------------------------\n";
-}
-	//--------fine stampe.
 
 
 	if(!keepit[i]) continue;
@@ -551,17 +534,6 @@ if(istampa>=2){
 			ultimoangolo[i] = atan2( YMvdStrip[ ListTrackCandHit[i*dime+npunti] ]-Oy[i],
 						 XMvdStrip[ ListTrackCandHit[i*dime+npunti] ]-Ox[i]);
 		} else if( ListTrackCandHitType[i*dime+npunti] == 2 ){  // it is a parallel straw hit
-
-
-cout<<"cazzo, info "<<info<<endl;
-cout<<"ListTrackCandHit[i*dime+npunti] "<<ListTrackCandHit[i*dime+npunti]<<endl;
-cout<<"Ox[i] "<<Ox[i]<<endl;
-cout<<"Oy[i] "<<Oy[i]<<endl;
-cout<<"R[i] "<<R[i]<<endl;
-cout<<"KAPPA[i] "<<KAPPA[i]<<endl;
-cout<<"FI0[i]  "<<FI0[i]<<endl;
-//cout<<"Charge[i]  "<<Charge[i]<<endl;
-//cout<<"Posiz1  "<<Posiz1<<endl;
 
 
 			SttInfoXYZParal (
@@ -612,11 +584,6 @@ cout<<"FI0[i]  "<<FI0[i]<<endl;
 	   	MCSkewAloneX[ MCSkewAloneList[i*MAXSTTHITSINTRACK+j] ]=puntator->GetX();
 	   	MCSkewAloneY[ MCSkewAloneList[i*MAXSTTHITSINTRACK+j] ]=puntator->GetY();
 	   }
-
-
-if(istampa>1) cout<<"PndSttMvdTracking, evt. "<<IVOLTE<<
-";\n\tprima di WriteMacro, n. vero della trackcand "
-	<<i<<", n. sequenziale per le macro = "<<k<<endl;
 
 		WriteMacroSttParallelAssociatedHitsandMvdwithMC(
 			In_Put,
@@ -875,6 +842,8 @@ void PndTrkPlotMacros::WriteMacroAllHitsRestanti(
 
 
 //	determina il boundary del plot tenendo conto di TUTTI gli hits.
+
+/*
       xmin=1.e20;
       xmax=-1.e20;
       ymin=1.e20;
@@ -929,6 +898,17 @@ void PndTrkPlotMacros::WriteMacroAllHitsRestanti(
        ymax = ymax + delta*0.05;
        ymin = ymin - delta*0.05;
 
+	if( xmin>-1.05*RSTRAWDETECTORMAX||xmin<-1.05*RSTRAWDETECTORMAX) xmin=-1.05*RSTRAWDETECTORMAX;
+	if( ymin>-1.05*RSTRAWDETECTORMAX||ymin<-1.05*RSTRAWDETECTORMAX) ymin=-1.05*RSTRAWDETECTORMAX;
+	if( xmax<1.05*RSTRAWDETECTORMAX||xmax>1.05*RSTRAWDETECTORMAX) xmax=1.05*RSTRAWDETECTORMAX;
+	if( ymax<1.05*RSTRAWDETECTORMAX||ymax>1.05*RSTRAWDETECTORMAX) ymax=1.05*RSTRAWDETECTORMAX;
+
+*/
+
+      xmin=-1.3*RSTRAWDETECTORMAX;
+      xmax=1.3*RSTRAWDETECTORMAX;
+      ymin=-1.3*RSTRAWDETECTORMAX;
+      ymax=1.3*RSTRAWDETECTORMAX;
 
       sprintf(nome,"MacroSttMvdHitsRestantiEvent%d", IVOLTE);
       sprintf(nome2,"%s.C",nome);
@@ -1095,6 +1075,9 @@ void PndTrkPlotMacros::WriteMacroParallelHitsGeneral(
       sprintf(nome2,"%s.C",nome);
       FILE * MACRO = fopen(nome2,"w");
       fprintf(MACRO,"void %s()\n{\n",nome);
+
+
+/*
       xmin=1.e20;
       xmax=-1.e20;
       ymin=1.e20;
@@ -1147,14 +1130,22 @@ void PndTrkPlotMacros::WriteMacroParallelHitsGeneral(
        ymax = ymax + delta*0.15;
        ymin = ymin - delta*0.15;
 
+	if( xmin>-1.05*RSTRAWDETECTORMAX||xmin<-1.05*RSTRAWDETECTORMAX) xmin=-1.05*RSTRAWDETECTORMAX;
+	if( ymin>-1.05*RSTRAWDETECTORMAX||ymin<-1.05*RSTRAWDETECTORMAX) ymin=-1.05*RSTRAWDETECTORMAX;
+	if( xmax<1.05*RSTRAWDETECTORMAX||xmax>1.05*RSTRAWDETECTORMAX) xmax=1.05*RSTRAWDETECTORMAX;
+	if( ymax<1.05*RSTRAWDETECTORMAX||ymax>1.05*RSTRAWDETECTORMAX) ymax=1.05*RSTRAWDETECTORMAX;
 
-	if( xmin>-1.05*RSTRAWDETECTORMAX) xmin=-1.05*RSTRAWDETECTORMAX;
-	if( ymin>-1.05*RSTRAWDETECTORMAX) ymin=-1.05*RSTRAWDETECTORMAX;
-	if( xmax<1.05*RSTRAWDETECTORMAX) xmax=1.05*RSTRAWDETECTORMAX;
-	if( ymax<1.05*RSTRAWDETECTORMAX) ymax=1.05*RSTRAWDETECTORMAX;
+*/
 
-//	ymin=xmin=-1.05*RSTRAWDETECTORMAX;
-//	ymax=xmax= 1.05*RSTRAWDETECTORMAX;
+      xmin=-1.3*RSTRAWDETECTORMAX;
+      xmax=1.3*RSTRAWDETECTORMAX;
+      ymin=-1.3*RSTRAWDETECTORMAX;
+      ymax=1.3*RSTRAWDETECTORMAX;
+
+
+
+
+
 
 
        fprintf(MACRO,"TCanvas* my= new TCanvas();\nmy->Range(%f,%f,%f,%f);\n",xmin,ymin,xmax,ymax);
@@ -2517,6 +2508,9 @@ void PndTrkPlotMacros::WriteMacroSttParallelAssociatedHitsandMvdwithMC(
       sprintf(nome2,"%s.C",nome);
       FILE * MACRO = fopen(nome2,"w");
       fprintf(MACRO,"{\n");
+
+
+/*
       xmin=1.e20;
       xmax=-1.e20;
       ymin=1.e20;
@@ -2624,6 +2618,20 @@ void PndTrkPlotMacros::WriteMacroSttParallelAssociatedHitsandMvdwithMC(
 
        ymax = ymax + delta*0.15;
        ymin = ymin - delta*0.15;
+
+// protection for MC tracks not belonging to the STT-Mvd region;
+
+	if( xmin>-1.05*RSTRAWDETECTORMAX||xmin<-1.05*RSTRAWDETECTORMAX) xmin=-1.05*RSTRAWDETECTORMAX;
+	if( ymin>-1.05*RSTRAWDETECTORMAX||ymin<-1.05*RSTRAWDETECTORMAX) ymin=-1.05*RSTRAWDETECTORMAX;
+	if( xmax<1.05*RSTRAWDETECTORMAX||xmax>1.05*RSTRAWDETECTORMAX) xmax=1.05*RSTRAWDETECTORMAX;
+	if( ymax<1.05*RSTRAWDETECTORMAX||ymax>1.05*RSTRAWDETECTORMAX) ymax=1.05*RSTRAWDETECTORMAX;
+*/
+
+      xmin=-1.3*RSTRAWDETECTORMAX;
+      xmax=1.3*RSTRAWDETECTORMAX;
+      ymin=-1.3*RSTRAWDETECTORMAX;
+      ymax=1.3*RSTRAWDETECTORMAX;
+
 
 
        fprintf(MACRO,"TCanvas* my= new TCanvas();\nmy->Range(%f,%f,%f,%f);\n",
