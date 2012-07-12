@@ -1,6 +1,8 @@
 #include "PndTrkPrintouts.h"
 
 #include "FairMCPoint.h"
+#include "FairRootManager.h"
+
 #include "PndSttTube.h"
 #include <iostream>
 #include <cmath>
@@ -11,6 +13,63 @@
 
 
 using namespace std;
+
+//----------begin of function PndTrkPrintouts::stampaMvdHits
+
+void PndTrkPrintouts::stampaMvdHits(
+	char *fMvdPixelBranch,
+	char *fMvdStripBranch,
+	Short_t nMvdPixelHit,
+	Short_t nMvdStripHit,
+	Double_t *refindexMvdPixel,
+	Double_t *refindexMvdStrip,
+	Double_t *sigmaXMvdPixel,
+	Double_t *sigmaXMvdStrip,
+	Double_t *sigmaYMvdPixel,
+	Double_t *sigmaYMvdStrip,
+	Double_t *sigmaZMvdPixel,
+	Double_t *sigmaZMvdStrip,
+	Double_t *XMvdPixel,
+	Double_t *XMvdStrip,
+	Double_t *YMvdPixel,
+	Double_t *YMvdStrip,
+	Double_t *ZMvdPixel,
+	Double_t *ZMvdStrip
+	)
+{
+  cout<<"da PndTrkTraking  :  n. Mvd Pixel Hits = "<<nMvdPixelHit<<endl;
+  cout<<"da PndTrkTracking  :  n. Mvd Strip Hits = "<<nMvdStripHit<<endl;
+  cout<<"da PndTrkTracking  :  info hits di Mvd pixels ------------------\n";
+  for(int i= 0; i< nMvdPixelHit; i++){
+      cout<<"      Pixel hit n. "<<i<<" Info : X  = "<<XMvdPixel[i]<<";  Y  = "<<YMvdPixel[i]<<
+            ";  Z  = "<<ZMvdPixel[i]<<", R=sqrt(X**2+Y**2) = "<<
+	    sqrt(XMvdPixel[i]*XMvdPixel[i]+YMvdPixel[i]*YMvdPixel[i])<<endl;
+      cout<<"\t\tPixel Info : sigmaX  = "<<sigmaXMvdPixel[i]<<";  sigmaY  = "<<sigmaYMvdPixel[i]<<
+            ";  sigmaZ  = "<<sigmaZMvdPixel[i]<<endl<<"\t suo RefIndex = "<<refindexMvdPixel[i]<<
+	    ", suo FairRootManager::Instance()->GetBranchId(fMvdPixelBranch) = "<<
+	    FairRootManager::Instance()->GetBranchId(fMvdPixelBranch)<<endl;
+  }
+  cout<<"        ------------------\n";
+
+  cout<<"\tInfo hits di Mvd strips; n. strip hits = "<<nMvdStripHit<<" ------------------\n";
+  for(int i= 0; i< nMvdStripHit; i++){
+      cout<<"      Strip hit n. "<<i<<" Info : X  = "<<XMvdStrip[i]<<";  Y  = "<<YMvdStrip[i]<<
+            ";  Z  = "<<ZMvdStrip[i]<<", R=sqrt(X**2+Y**2) = "<<
+	    sqrt(XMvdStrip[i]*XMvdStrip[i]+YMvdStrip[i]*YMvdStrip[i])<<endl;
+      cout<<"\t\tStrip Info : sigmaX  = "<<sigmaXMvdStrip[i]<<";  sigmaY  = "<<sigmaYMvdStrip[i]<<
+            ";  sigmaZ  = "<<sigmaZMvdStrip[i]<<endl<<"\t suo RefIndex = "<<refindexMvdStrip[i]<<
+	    ", suo FairRootManager::Instance()->GetBranchId(fMvdStripBranch) = "<<
+	    FairRootManager::Instance()->GetBranchId(fMvdStripBranch)<<endl;
+
+  }
+  cout<<"        ------------------\n";
+
+  cout<<"-----------------------------------------------------\n";
+
+
+ }
+
+//----------end of function PndTrkPrintouts::stampaMvdHits
 
 
 //----------begin of function PndTrkPrintouts::stampaSttHits
@@ -29,7 +88,7 @@ void PndTrkPrintouts::stampaSttHits(
 
 	Short_t i = iHit;
 
-	cout <<"da PndTracking, Stt iHit "<< i << " e n. punto MC ottenuto con RefIndex = "
+	cout <<"\tStt iHit "<< i << " e n. punto MC ottenuto con RefIndex = "
       	<<ipunto<<endl;
       if(ipunto<0) {
       	cout<<"hit di background da mixing!\n";
@@ -57,6 +116,84 @@ void PndTrkPrintouts::stampaSttHits(
 
 
 //----------end of function PndTrkPrintouts::stampaSttHits
+
+//----------begin of function PndTrkPrintouts::stampetta
+
+void PndTrkPrintouts::stampetta(
+	int IVOLTE,
+	bool *keepit,
+	Short_t *ListMvdPixelHitsinTrack,
+	Short_t *ListMvdStripHitsinTrack,
+	Short_t *ListSttParHitsinTrack,
+	Short_t *ListSttSkewHitsinTrack,
+	Short_t *ListSciTilHitsinTrack,
+	Short_t *nMvdPixelHitsinTrack,
+	Short_t *nMvdStripHitsinTrack,
+	Short_t *nSttParHitsinTrack,
+	Short_t *nSttSkewHitsinTrack,
+	Short_t *nSciTilHitsinTrack,
+	Short_t nSttTrackCand,
+	int MAXMVDPIXELHITSINTRACK,
+	int MAXMVDSTRIPHITSINTRACK,
+	int MAXSCITILHITSINTRACK,
+	int MAXSTTHITSINTRACK,
+	Double_t *R,
+	Double_t *Ox,
+	Double_t *Oy
+	)
+{
+	int i,j;
+
+	cout<<"da PndTrkTracking, inizia stampetta ---------------------------\n";
+	   cout<<"da PndTrkTracking, evt. "<<IVOLTE<<",  n. SttTrackCand totali = "
+	   <<nSttTrackCand<<endl;
+      for(  i= 0; i< nSttTrackCand; i++){
+	   cout<<"\tcandidate n. "<<i<<", keepit = "<<keepit[i]<<", Ox "<<Ox[i]
+	   <<", Oy "<<Oy[i]<<", R "<<R[i]<<endl;
+	   cout<<"-----------------\n";
+      	if(!keepit[i]) continue;
+	   cout<<"da PndTrkTracking --------------------------------------\n"<<
+	   "	SttTrackCand n.  "<<i<<";  n. Hits in Pixels associati = "
+	   <<nMvdPixelHitsinTrack[i]<<"   e loro lista \n";
+	   for(j=0; j<nMvdPixelHitsinTrack[i];j++){
+		cout<<"\t\tMvd Pixel Hit n. "<<
+		     ListMvdPixelHitsinTrack[i*MAXMVDPIXELHITSINTRACK+j]<<endl;
+	   }
+           cout<<"da PndTrkTracking --------------------------------------\n"<<
+	   "	SttTrackCand n.  "<<i<<";  n. Hits in Strips associati = "
+	   <<nMvdStripHitsinTrack[i]<<"   e loro lista \n";
+	   for(j=0; j<nMvdStripHitsinTrack[i];j++){
+	        cout<<"\t\tMvd Strip Hit n. "<<
+		     ListMvdStripHitsinTrack[i*MAXMVDSTRIPHITSINTRACK+j]<<endl;
+	   }
+           cout<<"da PndTrkTracking --------------------------------------\n"<<
+	   "	SttTrackCand n.  "<<i<<";  n. || Hits in Stt in Track = "
+	   <<nSttParHitsinTrack[i]<<"   e loro lista \n";
+	   for(j=0; j<nSttParHitsinTrack[i];j++){
+	        cout<<"\t\t|| Stt Hit n. "<<
+		     ListSttParHitsinTrack[i*MAXSTTHITSINTRACK+j]<<endl;
+	   }
+           cout<<"da PndTrkTracking --------------------------------------\n"<<
+	   "	SttTrackCand n.  "<<i<<";  n. skew Hits in Stt Track = "
+	   <<nSttSkewHitsinTrack[i]<<"   e loro lista \n";
+	   for(j=0; j<nSttSkewHitsinTrack[i];j++){
+	        cout<<"\t\tskew Stt Hit n. "<<
+		     ListSttSkewHitsinTrack[i*MAXSTTHITSINTRACK+j]<<endl;
+	   }
+           cout<<"da PndTrkTracking --------------------------------------\n"<<
+	   "	SttTrackCand n.  "<<i<<";  n. SciTil Hits in Stt Track = "
+	   <<nSciTilHitsinTrack[i]<<"   e loro lista \n";
+	   for(j=0; j<nSciTilHitsinTrack[i];j++){
+	        cout<<"\t\tscitil Hit n. "<<
+		     ListSciTilHitsinTrack[i*MAXSCITILHITSINTRACK+j]<<endl;
+	   }
+      }// end of   for(  i= 0; i< nSttTrackCand; i++)
+
+	cout<<"---------------fine stampetta----------------------"<<endl<<endl;
+	return;
+
+}
+//----------end of function PndTrkPrintouts::stampetta
 
 
 
