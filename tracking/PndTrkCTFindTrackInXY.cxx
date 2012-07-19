@@ -1058,8 +1058,8 @@ Short_t PndTrkCTFindTrackInXY::FindTrackStrictCollection(
 
 void PndTrkCTFindTrackInXY::OrderingParallel(
 	Short_t  Charge,
-	Double_t *Fi_final_helix_referenceframe,
 	Double_t *Fi_initial_helix_referenceframe,
+	Double_t *Fi_final_helix_referenceframe,
 	Double_t info[][7],
 	Short_t *ListParallelHits,
 	Short_t nParallelHits,
