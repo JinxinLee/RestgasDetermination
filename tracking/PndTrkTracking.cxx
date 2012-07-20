@@ -1637,6 +1637,7 @@ if(istampa>0){
 
 //-------------- stampa
  if(istampa>=2){
+	cout<<"dopo MatchMvdHitsToSttTracks2[1646], evt. "<<IVOLTE<<endl;
 	fPrint.stampetta(
 			IVOLTE,
 			keepit,
@@ -2088,6 +2089,7 @@ if(istampa>0){
 //-------------- stampa
  if(istampa>=2){
 	cout<<"\tstampa dopo il Match Again.\n";
+
 	fPrint.stampetta(
 			IVOLTE,
 			keepit,
@@ -2350,30 +2352,30 @@ if(istampa>0){
 	    }
 
 	    EliminateSpuriousSZ(
-				MaxTurns,
-				&nMvdPixelHitsinTrack[ncand],	// input and output
-				&ListMvdPixelHitsinTrack[ncand][0],// input and output
-				&nMvdStripHitsinTrack[ncand],	// input and output
-				&ListMvdStripHitsinTrack[ncand][0],// input and output
-				&nSttSkewHitsinTrack[ncand],	// input and output
-				&ListSttSkewHitsinTrack[ncand][0],// input and output
-				Sbis,	// input, position of the central wire on the Helix cylinder;
-				ZEDbis,	// input, position of the central wire on the Helix cylinder.
-				DriftRadiusbis,	// input
-				ErrorDriftRadiusbis,	// input
-				&SchosenPixel[ncand][0], // this value from now on
-				&SchosenStrip[ncand][0], // can also be > 2PI or < 2PI when
-				&SchosenSkew[ncand][0],  // the particle makes more than 1 turn.
-				&ZchosenPixel[ncand][0],
-				&ZchosenStrip[ncand][0],
-				&ZchosenSkew[ncand][0],
-				ErrorchosenPixel,
-				ErrorchosenStrip,
-				ErrorchosenSkew,
-				KAPPA[ncand],
-				FI0[ncand],
-				R[ncand]
-				    );
+		MaxTurns,
+		&nMvdPixelHitsinTrack[ncand],	// input and output
+		&ListMvdPixelHitsinTrack[ncand][0],// input and output
+		&nMvdStripHitsinTrack[ncand],	// input and output
+		&ListMvdStripHitsinTrack[ncand][0],// input and output
+		&nSttSkewHitsinTrack[ncand],	// input and output
+		&ListSttSkewHitsinTrack[ncand][0],// input and output
+		Sbis,	// input, position of the central wire on the Helix cylinder;
+		ZEDbis,	// input, position of the central wire on the Helix cylinder.
+		DriftRadiusbis,	// input
+		ErrorDriftRadiusbis,	// input
+		&SchosenPixel[ncand][0], // this value from now on
+		&SchosenStrip[ncand][0], // can also be > 2PI or < 2PI when
+		&SchosenSkew[ncand][0],  // the particle makes more than 1 turn.
+		&ZchosenPixel[ncand][0],
+		&ZchosenStrip[ncand][0],
+		&ZchosenSkew[ncand][0],
+		ErrorchosenPixel,
+		ErrorchosenStrip,
+		ErrorchosenSkew,
+		KAPPA[ncand],
+		FI0[ncand],
+		R[ncand]
+		    );
 
 	  }  // end of  if(keepit[ncand])
 
@@ -2388,12 +2390,12 @@ if(istampa>0){
 	// reject the candidate if it is NOT contained in the pipe and
 	// therefore it should have at least 1 Mvd hit but it has none.
 	if( (!GeomCalculator.IsInTargetPipe(	Ox[ncand],
-				Oy[ncand],
-				R[ncand],
-				FI0[ncand],
-				KAPPA[ncand],
-				Charge[ncand],
-				VERTICALGAP/2.) )
+			Oy[ncand],
+			R[ncand],
+			FI0[ncand],
+			KAPPA[ncand],
+			Charge[ncand],
+			VERTICALGAP/2.) )
 				 &&
 		nMvdStripHitsinTrack[ncand]+nMvdPixelHitsinTrack[ncand]==0)
 		{
@@ -4736,7 +4738,7 @@ void PndTrkTracking::MatchMvdHitsToSttTracksagain(
 
   for(itrack=0; itrack<nSttTrackCand; itrack++){
 	if( ! keepit[itrack] ) continue;
-	if( ! Mvdhits[itrack] ) continue;
+//	if( ! Mvdhits[itrack] ) continue;
 	ntot=nPixelHitsinTrack[itrack]+nStripHitsinTrack[itrack];
 	if( Fifirst[itrack] < -99998. ){  // case with Fifirst[i]=-99999.; in this
 					// case the circle is contained
@@ -4871,6 +4873,8 @@ void PndTrkTracking::MatchMvdHitsToSttTracksagain(
 		nStripHitsinTrack[itrack] = naddstr;
 	}	//  end of  if(naddpix>0)
 
+	if(nPixelHitsinTrack[itrack]+nStripHitsinTrack[itrack]>0)
+		Mvdhits[itrack]=true;
 
  }	// end of for(itrack=0; itrack<nSttTrackCand; itrack++)
 
@@ -4919,7 +4923,6 @@ void PndTrkTracking::MatchMvdHitsToSttTracks2(
 		total,
 		Dist,
 		DIST[MAXMVDTRACKSPEREVENT+1];
-
 
 
 
