@@ -2901,7 +2901,7 @@ fts05assembly#1
 $Xpos -354.5 $Zpos 
 1. 0. 0. 0. 0. 1. 0. 1. 0.\n"
 }
-for($i=2591; $i<2610;$i++){
+for($i=2592; $i<2610;$i++){
 $Xpos = $diametrostraw*( 400/2 + 0.5 - ($i - 2401) );
 print OUT "//*********************                                                           
 fts05tubeup#$i
