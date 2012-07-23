@@ -2731,7 +2731,6 @@ void PndTrkPlotMacros::WriteMacroSttParallelAssociatedHitsandMvdwithMC(
         ii = ListSkewHitsinTrack[iTrack*MAXSTTHITSINTRACK+i];
 	    aaa=Oxx+Rr*cos(SchosenSkew[ii]);
 	    bbb=Oyy+Rr*sin(SchosenSkew[ii]);
-
 		bool flaggo = true;
 		for( int k=0; k<nSkewCommon[iTrack];k++){
 			if( SkewCommonList[iTrack*MAXSTTHITSINTRACK+k]== ii){
