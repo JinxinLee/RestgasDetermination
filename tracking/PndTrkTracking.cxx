@@ -2126,8 +2126,6 @@ if(istampa>0){
 
   for(ncand=0; ncand< nTotalCandidates; ncand++)
   {
-if(IVOLTE==53){cout<<"cazzoevt53[2123], cand "<<ncand<<
-	", keepit "<<keepit[ncand]<<",  Mvdhits "<<Mvdhits[ncand]<<endl;}
 	if(!keepit[ncand]) continue;
 	if( ! Mvdhits[ncand])
 	{
@@ -2387,15 +2385,6 @@ if(IVOLTE==53){cout<<"cazzoevt53[2123], cand "<<ncand<<
 	  }  // end of  if(keepit[ncand])
 
 //------------------------
-//-------stampa.
-if(IVOLTE==53){cout<<"cazzoevt53[2383], keepit[0] "<<keepit[0]<<",  nTotalCandidates "<<
-	nTotalCandidates<<", elenco hit skew in traccia :\n";
-	for(int h=0;h<nSttSkewHitsinTrack[0];h++){
-		cout<<"cazzoevt53\tskew hit n. "<<ListSttSkewHitsinTrack[0][h]<<
-		"  e suo S "<<SchosenSkew[0][ListSttSkewHitsinTrack[0][h]]<<endl;
-	}
-}
-//------------
 
 
 
@@ -2491,15 +2480,6 @@ if(IVOLTE==53){cout<<"cazzoevt53[2383], keepit[0] "<<keepit[0]<<",  nTotalCandid
 
 	// adding at the end the SciTil hits (if present).
 
-//-------stampa.
-if(IVOLTE==53){cout<<"cazzoevt53[2477], keepit[0] "<<keepit[0]<<",  nTotalCandidates "<<
-	nTotalCandidates<<", elenco hit skew in traccia :\n";
-	for(int h=0;h<nSttSkewHitsinTrack[0];h++){
-		cout<<"cazzoevt53\tskew hit n. "<<ListSttSkewHitsinTrack[0][h]<<
-		"  e suo S "<<SchosenSkew[0][ListSttSkewHitsinTrack[0][h]]<<endl;
-	}
-}
-//------------
 
 	for(ncand=0; ncand< nTotalCandidates; ncand++){
 		i=nMvdPixelHitsinTrack[ncand]+nMvdStripHitsinTrack[ncand]+
@@ -3028,9 +3008,6 @@ if(istampa>1) cout<<"PndTrkTracking, entra in TrackCleanup tracce normali, IVOLT
 	   {
 		ListSttSkewHitsinTrack[ncand][j]=TemporarySkewList[j][0];
 		SchosenSkew[ncand][ListSttSkewHitsinTrack[ncand][j]] = TemporaryS[j];
-if(IVOLTE==53){cout<<"cazzoevt53, cand "<<ncand<<", skew hit n. "<<
-	ListSttSkewHitsinTrack[ncand][j]<<", S "<<
-	SchosenSkew[ncand][ListSttSkewHitsinTrack[ncand][j]]<<endl;}
 	   }
 
 
@@ -3251,20 +3228,6 @@ if(IVOLTE==53){cout<<"cazzoevt53, cand "<<ncand<<", skew hit n. "<<
 
  // write the Macro for visualization of tracks and hits;
 
-//-----------
-if(IVOLTE==53){
-	cout<<"cazzoevt53, track 0 e suo printout skew; keepit "<<keepit[0]
-	<<", statusflag  "<<statusflag[0]<<
-	"; nSkewhits "<<
-	nSttSkewHitsinTrack[0]<<
-	" e loro lista :\n";
-	for(int iy=0;iy<nSttSkewHitsinTrack[0];iy++){
-		cout<<"\thit skew n. "<<ListSttSkewHitsinTrack[0][iy]<<
-		", Schosen "<<SchosenSkew[0][ListSttSkewHitsinTrack[0][iy]]<<
-		", Z chosen "<<ZchosenSkew[0][ListSttSkewHitsinTrack[0][iy]]<<endl;
-	}
-}
-//---------
 
 
 
