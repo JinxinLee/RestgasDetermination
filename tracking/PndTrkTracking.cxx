@@ -382,11 +382,6 @@ void PndTrkTracking::Initialization_ClassVariables()
 	len = sizeof(posizSciTil);
 	memset (posizSciTil,0,len);
 
-	len = sizeof(SciTilHitsXwithTrack);
-	memset (SciTilHitsXwithTrack,0,len);
-
-	len = sizeof(SciTilHitsYwithTrack);
-	memset (SciTilHitsYwithTrack,0,len);
 
 
 //  pointers :
@@ -1329,7 +1324,6 @@ if(istampa>0){
 
 
 
-
  nSttTrackCand++;
 
   }      // end  of   for(iParHit=0; iParHit<nSttParHit+1-MINIMUMHITSPERTRACK; iParHit++)
@@ -1538,8 +1532,14 @@ if(istampa>0){
 
       // ---------    numbering according to the ORIGINAL hit number
     for(int i1=0; i1< nSttSkewHitsinTrack[i]; i1++){
-             Sfinal[i][ListSttSkewHitsinTrack[i][i1]]  =  S[i1] ;
-             Zfinal[i][ListSttSkewHitsinTrack[i][i1]]  =  Z[i1] ;
+//             Sfinal[i][ListSttSkewHitsinTrack[i][i1]]  =  S[i1] ;
+//             Zfinal[i][ListSttSkewHitsinTrack[i][i1]]  =  Z[i1] ;
+//             ZDriftfinal[i][ListSttSkewHitsinTrack[i][i1]]  =  ZDrift[i1] ;
+//             ZErrorafterTiltfinal[i][ListSttSkewHitsinTrack[i][i1]]  =  ZErrorafterTilt[i1] ;
+	SchosenSkew[i][ListSttSkewHitsinTrack[i][i1]]=
+		Sfinal[i][ListSttSkewHitsinTrack[i][i1]]  =  S[i1] ;
+	ZchosenSkew[i][ListSttSkewHitsinTrack[i][i1]]=
+		Zfinal[i][ListSttSkewHitsinTrack[i][i1]]  =  Z[i1] ;
              ZDriftfinal[i][ListSttSkewHitsinTrack[i][i1]]  =  ZDrift[i1] ;
              ZErrorafterTiltfinal[i][ListSttSkewHitsinTrack[i][i1]]  =  ZErrorafterTilt[i1] ;
     }
@@ -1920,6 +1920,7 @@ if(istampa>0){
 //  XY refit.
 
 	for(i=0, iaccept=0;i<nSciTilHitsinTrack[ncand];i++){
+
 		intersect=GeomCalculator.IntersectionSciTil_Circle(
 			DIMENSIONSCITIL,
 			posizSciTil[ListSciTilHitsinTrack[ncand][i]][0],
@@ -1946,9 +1947,13 @@ if(istampa>0){
 			} // end of  if ( Nint==2)
 			ListSciTilHitsinTrack[ncand][iaccept]=
 					ListSciTilHitsinTrack[ncand][i];
-			SciTilHitsXwithTrack[ncand][iaccept]=XintersectionList[0];
-			SciTilHitsYwithTrack[ncand][iaccept]=YintersectionList[0];
+			S_SciTilHitsinTrack[ncand][0]=atan2(YintersectionList[0]-Oy[ncand],
+				XintersectionList[0]-Ox[ncand]);
+			if ( S_SciTilHitsinTrack[ncand][0]<0.)
+				S_SciTilHitsinTrack[ncand][0] += 2.*PI;
 			iaccept++;
+
+
 		}   //  end of  if(intersect)
 
 	} // end of  for(i=0, iaccept=0;i<nSciTilHitsinTrack[ncand];i++)
@@ -2121,6 +2126,8 @@ if(istampa>0){
 
   for(ncand=0; ncand< nTotalCandidates; ncand++)
   {
+if(IVOLTE==53){cout<<"cazzoevt53[2123], cand "<<ncand<<
+	", keepit "<<keepit[ncand]<<",  Mvdhits "<<Mvdhits[ncand]<<endl;}
 	if(!keepit[ncand]) continue;
 	if( ! Mvdhits[ncand])
 	{
@@ -2233,24 +2240,23 @@ if(istampa>0){
 	}
 
 
-	// the SciTil hits ( can be only up to 2).
-	for(j=0;j<nSciTilHitsinTrack[ncand];j++){
-		// calculate S on the lateral face of the Helix.
-		i = nMvdPixelHitsinTrack[ncand]+nMvdStripHitsinTrack[ncand]+j;
-		S[i] = atan2(	SciTilHitsYwithTrack[ncand][j]-Oy[ncand],
-				SciTilHitsXwithTrack[ncand][j]-Ox[ncand]);
+	// the SciTil hit ( when they are 2, the S_SciTilHitsinTrack is already a mean
+	// of the two; then consider only 1 SciTil hit, the first, and make an average
+	// of the two Z positions).
 
-		if ( S[i]<0.) S[i] += 2.*PI;
-
-		ZED[i]=posizSciTil[ListSciTilHitsinTrack[ncand][j]][2];
-		// DriftRadius is set conventionally at -2, for later use in the SZ fit;
-		// the error on the point used in the fit is ErrorDriftRadius and this
-		// is overestimated to be DIMENSIONSCITIL/2.
-		DriftRadius[i]=-2.;
-		ErrorDriftRadius[i]= DIMENSIONSCITIL/2.; ;
-
-	} // end of  for(j=0, i = nMvdPi.....
-
+	i = nMvdPixelHitsinTrack[ncand]+nMvdStripHitsinTrack[ncand];
+	if(nSciTilHitsinTrack[ncand]==2){
+		ZED[i]=0.5*(posizSciTil[ListSciTilHitsinTrack[ncand][0]][2]+
+			posizSciTil[ListSciTilHitsinTrack[ncand][1]][2]);
+	}else if (nSciTilHitsinTrack[ncand]==1){
+		ZED[i]=posizSciTil[ListSciTilHitsinTrack[ncand][0]][2];
+	}
+	S[i] = S_SciTilHitsinTrack[ncand][0];
+	// DriftRadius is set conventionally at -2, for later use in the SZ fit;
+	// the error on the point used in the fit is ErrorDriftRadius and this
+	// is overestimated to be DIMENSIONSCITIL/2.
+	DriftRadius[i]=-2.;
+	ErrorDriftRadius[i]= DIMENSIONSCITIL/2.; ;
 
 
 	// the Skew Stt hits
@@ -2302,6 +2308,7 @@ if(istampa>0){
 
 //---------------------   here do the fit again in the SZ space if there are Mvd hits.
 //			  For this, reordering of the  Mvd hits is not necessary.
+
 
 		resultFitSZagain[ncand] = fit.FitSZspace(
 					nhitsinfit,	// n. hits to be fitted
@@ -2380,6 +2387,15 @@ if(istampa>0){
 	  }  // end of  if(keepit[ncand])
 
 //------------------------
+//-------stampa.
+if(IVOLTE==53){cout<<"cazzoevt53[2383], keepit[0] "<<keepit[0]<<",  nTotalCandidates "<<
+	nTotalCandidates<<", elenco hit skew in traccia :\n";
+	for(int h=0;h<nSttSkewHitsinTrack[0];h++){
+		cout<<"cazzoevt53\tskew hit n. "<<ListSttSkewHitsinTrack[0][h]<<
+		"  e suo S "<<SchosenSkew[0][ListSttSkewHitsinTrack[0][h]]<<endl;
+	}
+}
+//------------
 
 
 
@@ -2475,7 +2491,15 @@ if(istampa>0){
 
 	// adding at the end the SciTil hits (if present).
 
-
+//-------stampa.
+if(IVOLTE==53){cout<<"cazzoevt53[2477], keepit[0] "<<keepit[0]<<",  nTotalCandidates "<<
+	nTotalCandidates<<", elenco hit skew in traccia :\n";
+	for(int h=0;h<nSttSkewHitsinTrack[0];h++){
+		cout<<"cazzoevt53\tskew hit n. "<<ListSttSkewHitsinTrack[0][h]<<
+		"  e suo S "<<SchosenSkew[0][ListSttSkewHitsinTrack[0][h]]<<endl;
+	}
+}
+//------------
 
 	for(ncand=0; ncand< nTotalCandidates; ncand++){
 		i=nMvdPixelHitsinTrack[ncand]+nMvdStripHitsinTrack[ncand]+
@@ -2971,11 +2995,9 @@ if(istampa>1) cout<<"PndTrkTracking, entra in TrackCleanup tracce normali, IVOLT
 			ListSttParHitsinTrack // input and output
 			);
 
-
    for(ncand=nSttTrackCand; ncand< nTotalCandidates; ncand++){
 
    //     try to attach skew hits to the new tracks (the result can also be 0).
-
 	if(!keepit[ncand]) continue;
 	// when statusflag[ncand]<0 the track does not intersect Stt region.
 	if( statusflag[ncand]<0) continue;
@@ -3006,7 +3028,9 @@ if(istampa>1) cout<<"PndTrkTracking, entra in TrackCleanup tracce normali, IVOLT
 	   {
 		ListSttSkewHitsinTrack[ncand][j]=TemporarySkewList[j][0];
 		SchosenSkew[ncand][ListSttSkewHitsinTrack[ncand][j]] = TemporaryS[j];
-
+if(IVOLTE==53){cout<<"cazzoevt53, cand "<<ncand<<", skew hit n. "<<
+	ListSttSkewHitsinTrack[ncand][j]<<", S "<<
+	SchosenSkew[ncand][ListSttSkewHitsinTrack[ncand][j]]<<endl;}
 	   }
 
 
@@ -3098,8 +3122,6 @@ if(istampa>1) cout<<"PndTrkTracking, entra in TrackCleanup tracce normali, IVOLT
 
 //-------  load the new PndTrackCand ; each track has the STT and the Mvd hits associated
 //-------  also load the new PndTrack ; each track has the STT and the Mvd hits associated
-
-
 
  LoadPndTrack_TrackCand(
 	keepit,
@@ -3228,6 +3250,23 @@ if(istampa>1) cout<<"PndTrkTracking, entra in TrackCleanup tracce normali, IVOLT
 //----------
 
  // write the Macro for visualization of tracks and hits;
+
+//-----------
+if(IVOLTE==53){
+	cout<<"cazzoevt53, track 0 e suo printout skew; keepit "<<keepit[0]
+	<<", statusflag  "<<statusflag[0]<<
+	"; nSkewhits "<<
+	nSttSkewHitsinTrack[0]<<
+	" e loro lista :\n";
+	for(int iy=0;iy<nSttSkewHitsinTrack[0];iy++){
+		cout<<"\thit skew n. "<<ListSttSkewHitsinTrack[0][iy]<<
+		", Schosen "<<SchosenSkew[0][ListSttSkewHitsinTrack[0][iy]]<<
+		", Z chosen "<<ZchosenSkew[0][ListSttSkewHitsinTrack[0][iy]]<<endl;
+	}
+}
+//---------
+
+
 
  if(iplotta){
 	PndTrkPlotMacros mymacro;
