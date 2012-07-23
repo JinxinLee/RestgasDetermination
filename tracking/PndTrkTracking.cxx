@@ -1127,6 +1127,11 @@ if(istampa>0){
 	infoparalConformal,
 	STRAWRADIUS
 		);
+if(IVOLTE==83){cout<<"\t.... e corrispondenti infoparalConformal[][3]\n";
+	for(int h=0;h<nSttParHit;h++){
+		cout<<"\t\t"<<infoparalConformal[ListSttParHits[h]][3]<<endl;
+	}
+}
 
  fill.BoxConformalFilling(
 	FiConformalIndex,
@@ -1285,7 +1290,7 @@ if(istampa>0){
 	if( ! InclusionListStt[ListSttParHits[iParHit]] )  continue;
 
 	// inputs for the FindTrackInXYProjection class;
-	input.iHit = iParHit;	// seed hit; it is negative for SciTil Hits.
+	input.iHit = iParHit;// seed hit in the PARALLEL number scheme; it is negative for SciTil Hits.
 	input.nFicell = FiConformalIndex[ListSttParHits[iParHit]];  // Fi cell of the seed hit;
 	input.nRcell = RConformalIndex[ListSttParHits[iParHit]];  // R cell of the seed hit;
 
