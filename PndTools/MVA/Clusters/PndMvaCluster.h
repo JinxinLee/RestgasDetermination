@@ -21,7 +21,7 @@
 #define PNDMVA_CLUSTER_DEBUG 0
 
 //! Data structure of the space points and the cluster centers
-typedef std::vector < std::vector<float>* > ClDataSample;
+typedef std::vector< std::pair<std::string, std::vector<float>*> > DataPoints;
 
 //! Clustering types
 typedef enum ClusteringType{
@@ -40,7 +40,7 @@ class PndMvaCluster
    *@param InputData Input Data points.
    *@param nCluster  Number of clusters to be created.
    */
-  explicit PndMvaCluster( ClDataSample const& InputData, unsigned int nCluster);
+  explicit PndMvaCluster( DataPoints const& InputData, size_t nCluster);
   
   /**
    * Destructor.
@@ -52,27 +52,36 @@ class PndMvaCluster
    *@param ClType Clustering algorithm.
    *@return Vector containing the cluster centroids.
    */
-  ClDataSample* Cluster( ClusteringType const ClType = KMEANS_HARD);
-  
+  virtual DataPoints* Cluster( ClusteringType const ClType = KMEANS_HARD);
+
+  /**
+   * Compute Cluster centers for the current input data. The label of
+   * the majority of their members determines the label of the center.
+   *@param ClType Clustering algorithm (default is KMEANS_HARD).
+   *@return Vector containing the cluster centroids.
+   */
+  virtual DataPoints* ClusterAndLabel( ClusteringType const ClType,
+                                       std::vector<std::string> const& labels);
+
   //------- Getters
   /**
    * Get the number of cluster centeroids.
    *@return Number of cluster centeroids.
    */
-  inline unsigned int GetNumberOfClusters() const;
+  inline size_t GetNumberOfClusters() const;
   
   /**
    * Get the dimension of the input data points.
    *@return Dimension of the data points.
    */
-  inline unsigned int GetClusterDimension() const;
+  inline size_t GetClusterDimension() const;
   
   //------- Setters
   /**
    * Set the number of centroids.
    *@param val Number of centeroids.
    */
-  inline void SetNumberOfClusters(unsigned int val);
+  inline void SetNumberOfClusters(size_t val);
   
   //__________________ DEBUG FUNCTIONS ______________
 #if (PNDMVA_CLUSTER_DEBUG > 0)
@@ -91,7 +100,7 @@ class PndMvaCluster
   
   // Functions & Procedures
   /// Performs the actual hard K-Means clustering.
-  ClDataSample* K_Means();
+  DataPoints* K_Means();
 
   /// Initialize the centroids before clustering.
   void InitCentroids();
@@ -106,32 +115,38 @@ class PndMvaCluster
   void ClearStructures();
 
   /// Init empty Centroid to the furthest point.
-  void ReInitEmptyCenter(unsigned int centerIdx);
+  void ReInitEmptyCenter(size_t centerIdx);
 
   // Variables
-  unsigned int m_num_Cluster;/// number of cluster centers.
-  ClDataSample m_PointSet;/// input data points.
-  unsigned int m_dimension;/// Data points dimension.
+  size_t m_num_Cluster;/// number of cluster centers.
+  DataPoints m_PointSet;/// input data points.
+  size_t m_dimension;/// Data points dimension.
 
   /// Container to hold the centroid.
-  ClDataSample m_Centroids;
+  DataPoints m_Centroids;
 
   ///Connection of each point to a centroid.
-  std::vector <unsigned int> m_PointsToClusters;
+  std::vector <size_t> m_PointsToClusters;
 
   /// Responsibility list of each centroid.
-  std::vector< std::set<unsigned int>* > m_ClustersToPoints;
+  std::vector< std::set<size_t>* > m_ClustersToPoints;
 };
 
 //__________________ Inlines ____________
 
-inline unsigned int PndMvaCluster::GetNumberOfClusters() const
-{return m_num_Cluster; };
+inline size_t PndMvaCluster::GetNumberOfClusters() const
+{
+  return m_num_Cluster;
+};
 
-inline unsigned int PndMvaCluster::GetClusterDimension() const
-{ return m_dimension; };
+inline size_t PndMvaCluster::GetClusterDimension() const
+{
+  return m_dimension;
+};
 
-inline void PndMvaCluster::SetNumberOfClusters(unsigned int val)
-{ m_num_Cluster = val; };
+inline void PndMvaCluster::SetNumberOfClusters(size_t val)
+{
+  m_num_Cluster = val;
+};
 
 #endif// End interface

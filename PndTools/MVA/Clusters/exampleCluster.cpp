@@ -18,17 +18,20 @@
 
 #define DEBUG_CLUSTERS_PRINT 0
 
+#define CLUSTER_MULTI_LABEL  1
+
 typedef std::vector< std::pair<std::string, std::vector<float>*> > RawPoints;
 
-#if DEBUG_CLUSTERS_PRINT
 // *************  DEBUG ONLY **********
-void printCentroids(ClDataSample const& dat)
+#if (DEBUG_CLUSTERS_PRINT > 0)
+void printCentroids(DataPoints const& dat)
 {
   std::cout << "==========================\n";
   for(size_t i = 0; i < dat.size(); i++)
   {
-    std::vector<float>* example = dat[i];
-    std::cout<< " (" << " ";
+    std::string label = dat[i].first;
+    std::vector<float>* example = dat[i].second;
+    std::cout<< " label = "<< label << " (" << " ";
     for(size_t j = 0; j < example->size(); j++)
     {
       std::cout << example->at(j) << "  ";
@@ -37,8 +40,8 @@ void printCentroids(ClDataSample const& dat)
   }
   std::cout << "==========================\n";
 }
-// *************  DEBUG ONLY **********
 #endif
+// *************  DEBUG ONLY **********
 
 /**
  * Example program. Shows, how to use the current clustering
@@ -72,14 +75,19 @@ int main(int argc, char** argv)
   
   // Construct the variable name vector  
   std::vector<std::string> vars;
-  
+
+  // vars.push_back("p");
   vars.push_back("emc");
   vars.push_back("lat");
   vars.push_back("z20");
   vars.push_back("z53");
-
-  //vars.push_back("stt"); vars.push_back("thetaC");
-  //vars.push_back("mvd"); vars.push_back("tof");  
+  vars.push_back("E9E25");
+  // vars.push_back("E1");
+  // vars.push_back("E9");
+  // vars.push_back("E25");
+  // vars.push_back("E1E9");
+  // vars.push_back("stt"); vars.push_back("thetaC");
+  // vars.push_back("mvd"); vars.push_back("tof");  
 
   // Read the input points.
   PndMvaDataSet data(InFile, label, vars, TRAIN);
@@ -90,7 +98,10 @@ int main(int argc, char** argv)
   // Get available examples
   RawPoints const& samples = data.GetData();
 
-  std::vector< ClDataSample* > ProtoVector ( label.size() );
+  // Per label clustering. In case one provides the labeld data
+  // seprated.
+#if (CLUSTER_MULTI_LABEL == 0)
+  std::vector< DataPoints* > ProtoVector ( label.size() );
   
   // Prepair clustering input
   // Class loop
@@ -102,7 +113,7 @@ int main(int argc, char** argv)
 #endif
   for(cl = 0; cl < numClasses; cl++)
   {
-    ClDataSample clusteringInput;
+    DataPoints clusteringInput;
     std::string clsName = label[cl];
     
     // Example loop
@@ -110,7 +121,7 @@ int main(int argc, char** argv)
     {
       if(samples[i].first == clsName)
       {
-	clusteringInput.push_back(samples[i].second);
+	clusteringInput.push_back(samples[i]);
       }
     }// We have seen all available examples.
 
@@ -119,36 +130,53 @@ int main(int argc, char** argv)
 	      << '\n';
     
     PndMvaCluster clust (clusteringInput, numCentrrs);
-    ClDataSample* protoA = clust.Cluster();
+    //DataPoints* protoA = clust.Cluster();
+    DataPoints* protoA = clust.ClusterAndLabel(KMEANS_HARD, label);
 
-#if DEBUG_CLUSTERS_PRINT
+#if (DEBUG_CLUSTERS_PRINT > 0)
     printCentroids(*protoA);
 #endif
     
     ProtoVector[cl] = protoA;
     
     clusteringInput.clear();
-    
+    //delete protoA;
   }// End of class loop
+#endif
 
-#if DEBUG_CLUSTERS_PRINT
+  // Semi unsupervised clustering. One can do the labeling afterward.
+#if (CLUSTER_MULTI_LABEL == 1 )
+  PndMvaCluster clst (samples, numCentrrs);
+  DataPoints* protoB = clst.ClusterAndLabel(KMEANS_HARD, label);
+
+#if (DEBUG_CLUSTERS_PRINT > 0)
+  // Print Cluster nodes.
+  printCentroids(*protoB);
+#endif
+
+  delete protoB;
+#endif
+
+#if (DEBUG_CLUSTERS_PRINT > 1)
   std::cout << "++++++++++++++++++++++++++++++++++++++\n"
 	    << "Printing the copied values:\n"
 	    << "++++++++++++++++++++++++++++++++++++++\n";
   
   for(size_t l = 0; l < ProtoVector.size(); l++)
   {
-    ClDataSample* protoA = ProtoVector[l];
+    DataPoints* protoA = ProtoVector[l];
     printCentroids(*protoA);
   }
 #endif
 
+#if (CLUSTER_MULTI_LABEL == 0 )
   //_______________ Cleaning ___________________//
   for(size_t l = 0; l < ProtoVector.size(); l++)
   {
     delete ProtoVector[l];
   }
-  
   ProtoVector.clear();
+#endif
+
   return 0;
 }

@@ -483,8 +483,8 @@ void PndLVQTrain::InitProtoK_Means()
   // Get available data points.
   std::vector<std::pair<std::string, std::vector<float>*> > const& events = m_dataSets.GetData();
   
-  // Init temporary prototype container.
-  std::map<std::string, ClDataSample*> ProtoVector;//(classes.size());
+  // Init temporary container. Store clustering output.
+  std::map<std::string, DataPoints*> ProtoVector;//(classes.size());
   
   //======== Class loop
   int cls = 0;
@@ -495,7 +495,7 @@ void PndLVQTrain::InitProtoK_Means()
 #endif  
   for( cls = 0; cls < numberOfClasses; cls++)
   {
-    ClDataSample clusteringInput;
+    DataPoints clusteringInput;
     std::string clsName = (classes[cls]).Name;
     size_t numProto = m_numProtoPerClass[clsName];
 
@@ -504,7 +504,7 @@ void PndLVQTrain::InitProtoK_Means()
     {
       if(events[evt].first == clsName)
       {
-	clusteringInput.push_back(events[evt].second);
+	clusteringInput.push_back(events[evt]);
       }
     }// ExampleLoop
     
@@ -516,7 +516,7 @@ void PndLVQTrain::InitProtoK_Means()
     
     // Create clusters from current data points.
     PndMvaCluster clust (clusteringInput, numProto);
-    ClDataSample* clustOut = clust.Cluster();
+    DataPoints* clustOut = clust.Cluster();
 
 #ifdef _OPENMP
 #pragma omp critical (AddToProtoListMap)
@@ -533,28 +533,36 @@ void PndLVQTrain::InitProtoK_Means()
   // Copy cluster centers (CMs) to LVQ prototypes (code books)
   for(size_t i = 0 ; i < classes.size(); i++)
   {
+    // Select current label
     std::string label = classes[i].Name;
 
-    //std::vector<std::vector<float>*>* TMP = ProtoVector[label];
-    //                       ------ TMP->size() -------
-    for(size_t pr = 0; pr < (ProtoVector[label])->size(); pr++)
+    // Select centroids for the current label
+    DataPoints* tdat = ProtoVector[label];
+
+    // Copy coordinates to prototypes vector.
+    for(size_t j = 0; j < tdat->size(); ++j)
     {
-      //                                                   ----- TMP.at(pr) ---------
-      std::vector<float>* lvpr = new std::vector<float>( *( (ProtoVector[label])->at(pr) ) );
+      std::pair<std::string, std::vector<float>*>& TMP = tdat->at(j);
+      std::vector<float>* lvpr = new std::vector<float>( *(TMP.second) );
       m_LVQProtos.push_back(std::make_pair(label, lvpr));
     }
-  }
+  }// End of classes loop
   
   // We are done. Clean-up
   for(size_t i = 0 ; i < classes.size(); i++)
   {
     std::string label = classes[i].Name;
-    for(size_t pr = 0; pr < (ProtoVector[label])->size(); pr++)
+
+    DataPoints* tdat = ProtoVector[label];
+    
+    for(size_t j = 0; j < tdat->size(); ++j)
     {
-      delete (ProtoVector[label])->at(pr);
+      std::pair<std::string, std::vector<float>*>& TMP = tdat->at(j);
+      delete TMP.second;
     }
+    tdat->clear();
     delete ProtoVector[label];
-  }
+  }// END of cleaning
   ProtoVector.clear();
 }
 

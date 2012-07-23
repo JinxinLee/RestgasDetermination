@@ -40,15 +40,23 @@ int main(int argc, char**argv)
   
   clas.push_back("electron");
   clas.push_back("pion");
-  clas.push_back("muon");
-  clas.push_back("kaon");
-  clas.push_back("proton");
+  //  clas.push_back("muon");
+  //clas.push_back("kaon");
+  //clas.push_back("proton");
   
-  vars.push_back("p");
+  //vars.push_back("p");
   vars.push_back("emc");
   vars.push_back("lat");
   vars.push_back("z20");
   vars.push_back("z53");
+  vars.push_back("E9E25");
+  // vars.push_back("E1");
+  // vars.push_back("E9");
+  // vars.push_back("E25");
+  // vars.push_back("E1E9");
+  // vars.push_back("stt"); vars.push_back("thetaC");
+  // vars.push_back("mvd"); vars.push_back("tof");  
+
 
   // vars.push_back("thetaC"); vars.push_back("stt");
   // vars.push_back("mvd"); vars.push_back("tof");
@@ -109,7 +117,7 @@ int main(int argc, char**argv)
   // Class (label) loop.
   for(cls = 0; cls < NumClasses; cls++)
   {
-    mean += sigma + 2;
+    //mean += sigma + 2;
     //Event loop
     for(int ev = 0; ev < numevt; ev++)
     {
