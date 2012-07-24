@@ -58,7 +58,6 @@ Short_t PndTrkCTFindTrackInXY::AssociateSciTilHit(
 	Nint;
 
  Double_t
-	distance,
 	XintersectionList[2],
 	YintersectionList[2];
 
