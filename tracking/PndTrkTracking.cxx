@@ -677,8 +677,8 @@ void PndTrkTracking::Exec(Option_t* opt) {
 	k,
 	kall,
 	l,
-	nFicell,
-	nRcell,
+//	nFicell,
+//	nRcell,
 	tubeID,
 	Charge[MAXTRACKSPEREVENT],
 	daTrackFoundaTrackMC[MAXTRACKSPEREVENT],
@@ -1223,11 +1223,12 @@ if(IVOLTE==83){cout<<"\t.... e corrispondenti infoparalConformal[][3]\n";
 			    // of the Stt system.;
 
 	Fi =  atan2(posizSciTil[i][1],posizSciTil[i][0]) ;
+//-----------------
 	if ( Fi < 0. ) Fi += 2.*PI;
 	input.nFicell =  (Short_t) (0.5*NFIDIVCONFORMAL*Fi/PI);
-	if(nFicell > NFIDIVCONFORMAL ) {
+	if(input.nFicell > NFIDIVCONFORMAL ) {
 		input.nFicell = NFIDIVCONFORMAL;
-	} else if (nFicell<0) {
+	} else if (input.nFicell<0) {
 		input.nFicell = 0;
 	}
 	input.posizSciTilx = posizSciTil[i][0];
@@ -1325,10 +1326,8 @@ if(IVOLTE==83){cout<<"\t.... e corrispondenti infoparalConformal[][3]\n";
  for(j=0; j<nSttParHitsinTrack[nSttTrackCand]; j++){
    InclusionListStt[ListSttParHitsinTrack[nSttTrackCand][j]] = false;
  }
+
  keepit[nSttTrackCand]=true;
-
-
-
  nSttTrackCand++;
 
   }      // end  of   for(iParHit=0; iParHit<nSttParHit+1-MINIMUMHITSPERTRACK; iParHit++)
