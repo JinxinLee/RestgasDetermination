@@ -59,9 +59,6 @@ Short_t PndTrkCTFindTrackInXY::AssociateSciTilHit(
 
  Double_t
 	distance,
-	QQ,
-	sqrtRR,
-	SIGN,
 	XintersectionList[2],
 	YintersectionList[2];
 
@@ -129,7 +126,6 @@ void PndTrkCTFindTrackInXY::FindCharge(
 			nright;
 
 	Double_t cross,
-		 disq,
 		 minl,
 		 minr;
 
@@ -149,7 +145,6 @@ void PndTrkCTFindTrackInXY::FindCharge(
 	// to the hit following the smaller path) otherwise it stays 'on the right'.
 
 		if (cross>0.) {
-			disq =	X[ihit]*X[ihit]+Y[ihit]*Y[ihit];
 			nleft++;
 		} else {
 			nright++;
