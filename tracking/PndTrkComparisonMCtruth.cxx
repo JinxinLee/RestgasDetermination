@@ -580,7 +580,8 @@ int PndTrkComparisonMCtruth::ComparisonwithMC(
 
 		nn = nSttParHitsinTrack[i]+nSttSkewHitsinTrack[i]+
 			nMvdPixelHitsinTrack[i]+nMvdStripHitsinTrack[i];
-		// the first point on trajectory is point closest approach to (0,0)
+		// assume that the point on trajectory at Z=0 is
+		// the point of closest approach to (0,0,0)
 		X1[i] = Ox[i] + R[i]*cos( FI0[i]);
 		Y1[i] = Oy[i] + R[i]*sin( FI0[i]);
 
@@ -669,7 +670,7 @@ int PndTrkComparisonMCtruth::ComparisonwithMC(
 //---------- stampe.
  if(istampa>=3){
 	for(i=0;i<nTotalCandidates;i++){
-		cout<<"from PndTracking : Track candidate n. "<<i;
+		cout<<"from PndTrkComparisonMCtruth : Track candidate n. "<<i;
 		if(keepit[i]){
 		  cout<<"  associated to MC Track n. "<<daTrackFoundaTrackMC[i]<<endl;
 		} else {
@@ -753,8 +754,6 @@ int PndTrkComparisonMCtruth::ComparisonwithMC(
 	nMCMvdStripAlone,		// output
 	MCMvdStripAloneList	// output
 			);
-
-
 // ora il confronto per il meeting di  Groningen
 
 //---------- conteggio delle tracce MC accettabili!!
@@ -1200,7 +1199,7 @@ void PndTrkComparisonMCtruth::MvdMatchedSpurioustoTrackCand(
 
 	Short_t i,j;
 
-	int index;
+	int index, index2;
 
 	for(i=0; i<nSttTrackCand;i++){
 		if(!keepit[i]) continue;
@@ -1212,10 +1211,6 @@ void PndTrkComparisonMCtruth::MvdMatchedSpurioustoTrackCand(
 		nMCMvdStripAlone[i]=0;
 	}
 
-
-
-
-
 	for(i=0; i<nSttTrackCand;i++){
 		if(!keepit[i]) continue;
 		for(j=0;j<nMvdPixelHit;j++){
@@ -1226,19 +1221,20 @@ void PndTrkComparisonMCtruth::MvdMatchedSpurioustoTrackCand(
 		}
 
 		for(j=0;j<nPixelHitsinTrack[i];j++){
-			index = i*MAXMVDPIXELHITSINTRACK+j;
+//			index = i*MAXMVDPIXELHITSINTRACK+j;
+			index = i*nMvdPixelHit+j;
 			includePixel[i][*(ListPixelHitsinTrack+index)]=false;
 		  if( daTrackFoundaTrackMC[i]> -1){
 			if( daTrackFoundaTrackMC[i] ==
 				FromPixeltoMCTrack[*(ListPixelHitsinTrack+index)]
 			  ){
-				index = i*nMvdPixelHit+nMvdPixelCommon[i];
-				*(MvdPixelCommonList+index) =
+				index2 = i*nMvdPixelHit+nMvdPixelCommon[i];
+				*(MvdPixelCommonList+index2) =
 				     *(ListPixelHitsinTrack+index);
 				nMvdPixelCommon[i]++;
 			} else {
-				index = i*nMvdPixelHit+nMvdPixelSpuriinTrack[i];
-				*(MvdPixelSpuriList+index) =
+				index2 = i*nMvdPixelHit+nMvdPixelSpuriinTrack[i];
+				*(MvdPixelSpuriList+index2) =
 				     *(ListPixelHitsinTrack+index);
 				nMvdPixelSpuriinTrack[i]++;
 			}
@@ -1246,19 +1242,20 @@ void PndTrkComparisonMCtruth::MvdMatchedSpurioustoTrackCand(
 		}
 
 		for(j=0;j<nStripHitsinTrack[i];j++){
-			index = i*MAXMVDSTRIPHITSINTRACK+j;
+//			index = i*MAXMVDSTRIPHITSINTRACK+j;
+			index = i*nMvdStripHit+j;
 			includeStrip[i][*(ListStripHitsinTrack+index)]=false;
 		  if( daTrackFoundaTrackMC[i]> -1){
 			if( daTrackFoundaTrackMC[i] ==
 				FromStriptoMCTrack[*(ListStripHitsinTrack+index)]
 			  ){
-			  	index = i*nMvdStripHit+nMvdStripCommon[i];
-				*(MvdStripCommonList+index) =
+			  	index2 = i*nMvdStripHit+nMvdStripCommon[i];
+				*(MvdStripCommonList+index2) =
 				     *(ListStripHitsinTrack+index);
 				nMvdStripCommon[i]++;
 			} else {
-				index = i*nMvdStripHit+nMvdStripSpuriinTrack[i];
-				*(MvdStripSpuriList+index) =
+				index2 = i*nMvdStripHit+nMvdStripSpuriinTrack[i];
+				*(MvdStripSpuriList+index2) =
 				     *(ListStripHitsinTrack+index);
 				nMvdStripSpuriinTrack[i]++;
 			}
