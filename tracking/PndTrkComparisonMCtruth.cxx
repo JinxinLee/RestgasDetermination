@@ -740,20 +740,27 @@ int PndTrkComparisonMCtruth::ComparisonwithMC(
 	nMvdStripHitsinTrack,	// input
 	nTotalCandidates,		// input
 
-	nMvdPixelCommon,		// output
+	nMvdPixelCommon,	// output
 	MvdPixelCommonList,	// output
 	nMvdPixelSpuriinTrack,	// output
 	MvdPixelSpuriList,	// output
 	nMCMvdPixelAlone,		// output
 	MCMvdPixelAloneList,	// output
 
-	nMvdStripCommon,		// output
+	nMvdStripCommon,	// output
 	MvdStripCommonList,	// output
 	nMvdStripSpuriinTrack,	// output
 	MvdStripSpuriList,	// output
 	nMCMvdStripAlone,		// output
 	MCMvdStripAloneList	// output
 			);
+
+
+
+
+
+
+
 // ora il confronto per il meeting di  Groningen
 
 //---------- conteggio delle tracce MC accettabili!!
@@ -1220,15 +1227,17 @@ void PndTrkComparisonMCtruth::MvdMatchedSpurioustoTrackCand(
 			includeStrip[i][j]=true;
 		}
 
+
 		for(j=0;j<nPixelHitsinTrack[i];j++){
-//			index = i*MAXMVDPIXELHITSINTRACK+j;
-			index = i*nMvdPixelHit+j;
+			index = i*MAXMVDPIXELHITSINTRACK+j;
+//			index = i*nMvdPixelHit+j;
 			includePixel[i][*(ListPixelHitsinTrack+index)]=false;
 		  if( daTrackFoundaTrackMC[i]> -1){
 			if( daTrackFoundaTrackMC[i] ==
 				FromPixeltoMCTrack[*(ListPixelHitsinTrack+index)]
 			  ){
-				index2 = i*nMvdPixelHit+nMvdPixelCommon[i];
+//				index2 = i*nMvdPixelHit+nMvdPixelCommon[i];
+				index2 = i*MAXMVDPIXELHITSINTRACK+nMvdPixelCommon[i];
 				*(MvdPixelCommonList+index2) =
 				     *(ListPixelHitsinTrack+index);
 				nMvdPixelCommon[i]++;
@@ -1242,14 +1251,15 @@ void PndTrkComparisonMCtruth::MvdMatchedSpurioustoTrackCand(
 		}
 
 		for(j=0;j<nStripHitsinTrack[i];j++){
-//			index = i*MAXMVDSTRIPHITSINTRACK+j;
-			index = i*nMvdStripHit+j;
+			index = i*MAXMVDSTRIPHITSINTRACK+j;
+//			index = i*nMvdStripHit+j;
 			includeStrip[i][*(ListStripHitsinTrack+index)]=false;
 		  if( daTrackFoundaTrackMC[i]> -1){
 			if( daTrackFoundaTrackMC[i] ==
 				FromStriptoMCTrack[*(ListStripHitsinTrack+index)]
 			  ){
-			  	index2 = i*nMvdStripHit+nMvdStripCommon[i];
+//			  	index2 = i*nMvdStripHit+nMvdStripCommon[i];
+			  	index2 = i*MAXMVDSTRIPHITSINTRACK+nMvdStripCommon[i];
 				*(MvdStripCommonList+index2) =
 				     *(ListStripHitsinTrack+index);
 				nMvdStripCommon[i]++;
@@ -1386,7 +1396,7 @@ void PndTrkComparisonMCtruth::MvdMatchtoMC(
 			distance = (XMvdMCPoint-XMvdPixel[i])*(XMvdMCPoint-XMvdPixel[i])+
 				(YMvdMCPoint-YMvdPixel[i])*(YMvdMCPoint-YMvdPixel[i])+
 				(ZMvdMCPoint-ZMvdPixel[i])*(ZMvdMCPoint-ZMvdPixel[i]);
-if(istampa>2)	{
+if(istampa>3)	{
 	cout<<"distanza**2 di Pixel hit n. "<<i
    <<" da MC Mvd Point n. "<<j<<" = "<<distance<<endl;
 		}
@@ -1436,7 +1446,7 @@ cout<<"Evento n. "<<IVOLTE<<
 			distance = (XMvdMCPoint-XMvdStrip[i])*(XMvdMCPoint-XMvdStrip[i])+
 				(YMvdMCPoint-YMvdStrip[i])*(YMvdMCPoint-YMvdStrip[i])+
 				(ZMvdMCPoint-ZMvdStrip[i])*(ZMvdMCPoint-ZMvdStrip[i]);
-if(istampa>2) cout<<"distanza**2 di Strip hit n. "<<i
+if(istampa>3) cout<<"distanza**2 di Strip hit n. "<<i
    <<" da MC Mvd Point n. "<<j<<" = "<<distance<<endl;
 			if( distance<dist){
 				FromStriptoMCTrack[i]=MCPointtoMCTrackID;
