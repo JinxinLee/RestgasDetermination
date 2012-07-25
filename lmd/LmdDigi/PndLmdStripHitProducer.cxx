@@ -76,6 +76,10 @@ void PndLmdStripHitProducer::SetCalculators()
 // -----   Initialization  of Parameter Containers -------------------------
 void PndLmdStripHitProducer::SetParContainers()
 {
+  if ( fGeoH == NULL ) {
+    fGeoH = PndGeoHandling::Instance();
+    fGeoH->SetParContainers();
+  }
   // called from the FairRun::Init()
   // Caution: The Parameter Set is not filled from the DB IO, yet.
   // This will be done just before this Tasks Init() is called.
