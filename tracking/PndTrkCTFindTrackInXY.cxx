@@ -216,7 +216,6 @@ bool PndTrkCTFindTrackInXY::FindTrackInXYProjection(
 
 
 
-
 //----------------
  *(in->nHitsinTrack) = FindTrackPatterninBoxConformal(
 	in->FiConformalIndex,
@@ -231,7 +230,7 @@ bool PndTrkCTFindTrackInXY::FindTrackInXYProjection(
 	in->minimumhitspertrack,
 	in->nBoxConf,
 	in->nfidivconformal,
-	in->nFicell,
+	in->nFicell, // Fi cell of the seed hit;
 	2,   //  distance in Fi cells allowed
 	in->nsttparhit,
 	in->nRcell, // R cell of the seed hit;
@@ -241,15 +240,10 @@ bool PndTrkCTFindTrackInXY::FindTrackInXYProjection(
 	in->nrdivconformal
 			);
 
-
-
  if( *(in->nHitsinTrack) < in->minimumhitspertrack ||
 	*(in->nHitsinTrack) > in->maxstthitsintrack) {
 	return false;
  }
-
-
-
 
 //-----------------------
 
@@ -266,9 +260,6 @@ bool PndTrkCTFindTrackInXY::FindTrackInXYProjection(
 	< in->apotemamaxskewstraw*in->apotemamaxskewstraw  ) break;
   Nouter++;
  }
-
-
-
 
  if( Nouter >= in->minouterhitspertrack) {
 	for(i=0; i< Nouter;i++){
@@ -487,8 +478,6 @@ bool PndTrkCTFindTrackInXY::FindTrackInXYProjection(
 	*(in->Rr)
 				);
 
-
-
 	if( *(in->nSciTilHitsinTrack) >0 ){
 		for(j=0;j<*(in->nSciTilHitsinTrack);j++){
 			(in->InclusionListSciTil)[(in->ListSciTilHitsinTrack)[j]]
@@ -645,7 +634,6 @@ bool PndTrkCTFindTrackInXY::FindTrackInXYProjection(
 	if( flagStt ==  1 ) return false;	// track comprised in cylinder : discard,
 					// because at this stage only tracks from
 					// vertex are searched.
-
 
 
 
@@ -1339,7 +1327,6 @@ Short_t PndTrkCTFindTrackInXY::TrkAssociatedParallelHitsToHelixQuater(
      }
   }
 
-
 //  finding the boundaries in the Conformal plane. The basic assumption is that the range
 // in Fi is much less that 180 degrees.
 
@@ -1634,12 +1621,13 @@ if( FFimax - FFimin > nfid/2 ) {
 		   if( ! Unselected[*(HitsinBoxConformal+l3*nrd*nfid+k*nfid+l2)] )  continue;
 		   nHit_original = (Short_t) infoparalConformal
 			[*(HitsinBoxConformal+l3*nrd*nfid+k*nfid+l2)][3];
+
 		   if( !InclusionListStt[ nHit_original ] ) continue;
 // check if the hit position is near the circle of the Helix found by the fit
                    dx = -Oxx+info[ nHit_original ][0];
                    dy = -Oyy+info[ nHit_original ][1];
                    distance = sqrt(dx*dx+dy*dy);
-                   if ( fabs(Rr - distance ) > NTIMES*STRAWRADIUS )  continue;
+                  if ( fabs(Rr - distance ) > NTIMES*STRAWRADIUS )  continue;
 
 //-------------------
                    xx=infoparalConformal[*(HitsinBoxConformal+l3*nrd*nfid+k*nfid+l2)][0];
