@@ -649,8 +649,8 @@ int main(int __argc,char *__argv[]) {
 	hMCPhiGEANEPhi->Fill(phiMC,phiBP);
 	hMCThetaResTheta->Fill(thetaMC,thetaMC-thetaBP);
 	hMCPhiResPhi->Fill(phiMC,phiMC-phiBP);
-	if((phiMC-phiBP)>0.04) 
-	  cout<<"[BAD] Event #"<<j<<" has "<<nTrkCandidates<<" trk-cands and "<<numTrk<<" tracks!"<<endl;
+	// if((phiMC-phiBP)>0.04) 
+	//   cout<<"[BAD] Event #"<<j<<" has "<<nTrkCandidates<<" trk-cands and "<<numTrk<<" tracks!"<<endl;
 	hResPointX->Fill(PosRec.X());
 	hResPointY->Fill(PosRec.Y());
 	hResDCA->Fill(PosRec.Mag());
@@ -755,8 +755,8 @@ int main(int __argc,char *__argv[]) {
 	  // dirLumiMC.Print();
 
 	  dirLumiMC *=1./dirLumiMC.Mag();
-	  cout<<"vtxLumiMC = "<<endl;
-	  vtxLumiMC.Print();
+	  // cout<<"vtxLumiMC = "<<endl;
+	  // vtxLumiMC.Print();
 
 
 	  // //	  double dz = -0.001;
@@ -1086,7 +1086,7 @@ int main(int __argc,char *__argv[]) {
   //  cout<<"binmax = "<<binmax<<" binx1 = "<<binx1<<" binx2 = "<<binx2<<endl;
   Double_t nall = hSeedGEANETheta->Integral(0, binmax);
   Double_t neff = hSeedGEANETheta->Integral(binx1, binx2);
-  cout<<"Number of track-candidate with #theta from [30-50] mrad = "<<neff<<endl;
+  // cout<<"Number of track-candidate with #theta from [30-50] mrad = "<<neff<<endl;
   cout<<"Total number of track-candidate = "<<nall<<endl;
   //----------------------------------------------------------------------
   c8->cd(5);
