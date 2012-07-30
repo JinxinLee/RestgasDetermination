@@ -1,6 +1,7 @@
 void create_misalignment_lumi(double dr=0, double da=0){
   dr*=1e-4;//mkm --> cm
-  da*=1e-4;// 10e-4rad --> rad
+  // da*=1e-5;// 10e-5rad --> rad
+  da*=1e-3;// 10e-3rad --> rad
   std::ofstream output;//misalignment params of each sensor
   output.open("/home/akaravdina/lmdMacro/lumi.misalign.par");
   output<<"#################################################################"<<endl;
@@ -58,24 +59,17 @@ void create_misalignment_lumi(double dr=0, double da=0){
   ///TEST for one sensor only!
   for(Int_t j=0; j<4; ++j){
     for(Int_t i=0; i<8; ++i){
-      TRandom1 grand;
-      // //  if(j==0){
-      // if(j>-1){
-	dx[j][i] = grand.Gaus(0,dr);
-	dy[j][i] = grand.Gaus(0,dr);
-      // }
-      // else{
-      // 	dx[j][i] = 0;
-      // 	dy[j][i] = 0;
-      // }
+      //TRandom3 the recommended one, since it has good random proprieties (period of about 10**6000 )and it is fast.
+      TRandom3 grand;
+      dx[j][i] = grand.Gaus(0,dr);
+      dy[j][i] = grand.Gaus(0,dr);
       dz[j][i] = grand.Gaus(0,dr);
       dalpha[j][i] = grand.Gaus(0,da);
       dbeta[j][i] = grand.Gaus(0,da);
       dgamma[j][i] = grand.Gaus(0,da);
-      // dz[j][i] = 0.;
-      // dalpha[j][i] = 0.;
-      // dbeta[j][i] = 0.;
-      // dgamma[j][i] = 0.;
+      //dalpha[j][i] = 0.;
+      //      dbeta[j][i] = 0.;
+      //dgamma[j][i] = 0.;
 
       cout<<" dx["<<j<<"]["<<i<<"]="<<dx[j][i]<<" ";
       cout<<" dy["<<j<<"]["<<i<<"]="<<dy[j][i]<<" ";
