@@ -57,10 +57,13 @@ void create_misalignment_lumi(double dr=0, double da=0){
  // }
 
   ///TEST for one sensor only!
+  TRandom1 seedgen;
   for(Int_t j=0; j<4; ++j){
     for(Int_t i=0; i<8; ++i){
       //TRandom3 the recommended one, since it has good random proprieties (period of about 10**6000 )and it is fast.
       TRandom3 grand;
+      int seedgrand = seedgen.Uniform(1e9);
+      grand.SetSeed(seedgrand);
       dx[j][i] = grand.Gaus(0,dr);
       dy[j][i] = grand.Gaus(0,dr);
       dz[j][i] = grand.Gaus(0,dr);
