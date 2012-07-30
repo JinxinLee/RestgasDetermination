@@ -99,7 +99,7 @@ InitStatus PndLmdLinFitTask::Init()
 
 void PndLmdLinFitTask::Exec(Option_t* opt)
 {
-  std::cout<<"PndLmdLinFitTask::Exec"<<std::endl;
+  //  std::cout<<"PndLmdLinFitTask::Exec"<<std::endl;
   // Reset output Array
   if(fTrackArray==0) Fatal("PndLmdLinFitTask::Exec","No TrackArray");
    fTrackArray->Delete();
@@ -161,7 +161,7 @@ void PndLmdLinFitTask::Exec(Option_t* opt)
          lastHit=index;
       PndSdsHit* addHit = (PndSdsHit*) fRecoArray->At(index);
       TVector3 addPos = addHit->GetPosition();
-      addPos.Print();
+      //      addPos.Print();
       fitme.SetPoint(ihit, addPos.X(), addPos.Y(), addPos.Z());
       fitme.SetPointError(ihit, addHit->GetDx(), addHit->GetDy(), addHit->GetDz());
     }//end of Hits in TCand
@@ -308,7 +308,7 @@ double PndLmdLinFitTask::line3Dfit(Int_t nd, TGraph2DErrors* gr, Double_t* fitpa
    }
    // return amin; 
    Double_t chi2 = amin/(2.*Npoint-4);
-   cout<<"Chi^2 = "<<chi2<<endl;
+   // cout<<"Chi^2 = "<<chi2<<endl;
    return chi2; 
 }
 
@@ -414,12 +414,12 @@ double PndLmdLinFitTask::line3Dfit(Int_t nd, TGraph2DErrors* gr, TVector3 posSee
    // cout<<"2*dp5_dp1*dp5_dp3*(*covmatrix)(1,3) = "<<2*dp5_dp1*dp5_dp3*(*covmatrix)(1,3)<<endl;
    (*covmatrix)(5,5) = errdz2;
    //(*covmatrix)(5,5) = (fitpar[1]*fitpar[1]*(*covmatrix)(1,1)+fitpar[3]*fitpar[3]*(*covmatrix)(3,3))/pow(fitpar[5],6);
-   for(size_t i=0;i<6;i++){
-     for(size_t j=0;j<6;j++){
-       cout<<(*covmatrix)(i,j)<<" ";
-     }
-   	 cout<<endl;
-   }
+   // for(size_t i=0;i<6;i++){
+   //   for(size_t j=0;j<6;j++){
+   //     cout<<(*covmatrix)(i,j)<<" ";
+   //   }
+   // 	 cout<<endl;
+   // }
 
    //  Double_t chi2 = amin/(3.*Npoint-6);
    // Double_t chi2 = amin/(3.*Npoint-3);
