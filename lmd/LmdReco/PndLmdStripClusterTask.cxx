@@ -199,7 +199,8 @@ void PndLmdStripClusterTask::SetCalculators()
       fRotateX[ik] = lmdalignpar->GetRotateX(ik);
       fRotateY[ik] = lmdalignpar->GetRotateY(ik);
       fRotateZ[ik] = lmdalignpar->GetRotateZ(ik);
-    if (fVerbose > 2) cout<<"fShiftX["<<ik<<"]="<<fShiftX[ik]<<endl;
+      if (fVerbose > 2) cout<<"fShiftX["<<ik<<"]="<<fShiftX[ik]<<" fRotateX["<<ik<<"]="<<fRotateX[ik]
+			    <<" fRotateY["<<ik<<"]="<<fRotateY[ik]<<" fRotateZ["<<ik<<"]="<<fRotateZ[ik]<<endl;
     }
   }
   lmdalignpar->Print();
@@ -543,25 +544,90 @@ TMatrixD PndLmdStripClusterTask::rotateToLumiFrame(TMatrixD& hitCov){
 //Correction to hit position due to misalignment of sensor
 //TO DO: find a way do it in global and not hit by hit.
 void PndLmdStripClusterTask::alignmentCorr(TVector3& hitPos, int sensID){
-  hitPos -=TVector3(fShiftX[sensID],fShiftY[sensID],fShiftZ[sensID]);
-  TMatrixD rot(3,3);// assuming that rotations are small
-  rot[0][0]=1;
-  rot[0][1]= fRotateZ[sensID];
-  rot[0][2]=fRotateY[sensID];
-  rot[1][0]=-fRotateZ[sensID];
-  rot[1][1]=1;
-  rot[1][2]=fRotateX[sensID];
-  rot[2][0]=-fRotateY[sensID];
-  rot[2][1]=-fRotateX[sensID];
-  rot[2][2]=1;
-  TMatrixD hitMtx(3,3);
-  hitMtx[0][0] = hitPos[0];
-  hitMtx[1][0] = hitPos[1];
-  hitMtx[2][0] = hitPos[2];
-  TMatrixD result = rot;
-  result *=hitMtx;
-  // result.Print();
-  hitPos = TVector3(result[0][0],result[1][0],result[2][0]);
+  // cout<<"BEFORE: "<<endl;
+  // hitPos.Print();
+  TVector3 hitPos_loc(hitPos.X(),hitPos.Y(),0.);
+  hitPos_loc -=TVector3(fShiftX[sensID],fShiftY[sensID],fShiftZ[sensID]);
+  double xnew = hitPos_loc.X()+fRotateZ[sensID]*hitPos_loc.Y()-fRotateY[sensID]*hitPos_loc.Z();
+  double ynew = hitPos_loc.Y()-fRotateZ[sensID]*hitPos_loc.X()+fRotateX[sensID]*hitPos_loc.Z();
+  double znew = hitPos_loc.Z()-fRotateY[sensID]*hitPos_loc.X()-fRotateX[sensID]*hitPos_loc.Y();
+  // cout<<"======================="<<endl;
+  // hitPos.Print();
+  // cout<<"(xnew-xold)="<<xnew-hitPos.X()<<" (ynew-yold)="<<ynew-hitPos.Y()<<" (znew-zold)="<<znew-hitPos.Z()<<endl;
+
+  hitPos = TVector3(xnew,ynew,hitPos.Z()+znew);
+  // hitPos.Print();
+  // cout<<"--------------------------"<<endl;
+  // TMatrixD rot(3,3);
+  // // for(int ij=0;ij<3;ij++)
+  // //   rot[ij][ij]=1;
+  // // if(fRotateX[sensID]!=0){
+  //   TMatrixD rotX(3,3);
+  //   rotX[0][0]= 1;
+  //   rotX[0][1]= 0;
+  //   rotX[0][2]= 0;
+  //   rotX[1][0]= 0;
+  //   rotX[1][1]= TMath::Cos(fRotateX[sensID]);
+  //   rotX[1][2]= TMath::Sin(fRotateX[sensID]);
+  //   rotX[2][0]= 0;
+  //   rotX[2][1]= -TMath::Sin(fRotateX[sensID]);
+  //   rotX[2][2]= TMath::Cos(fRotateX[sensID]);
+
+  //   TMatrixD rotY(3,3);
+  //   rotY[0][0]= TMath::Cos(fRotateY[sensID]);
+  //   rotY[0][1]= 0;
+  //   rotY[0][2]= -TMath::Sin(fRotateY[sensID]);
+  //   rotY[1][0]= 0;
+  //   rotY[1][1]= 1;
+  //   rotY[1][2]= 0;
+  //   rotY[2][0]= TMath::Sin(fRotateY[sensID]);
+  //   rotY[2][1]= 0;
+  //   rotY[2][2]= TMath::Cos(fRotateY[sensID]);
+
+  //   TMatrixD rotZ(3,3);
+  //   rotZ[0][0]= TMath::Cos(fRotateZ[sensID]);
+  //   rotZ[0][1]= TMath::Sin(fRotateZ[sensID]);
+  //   rotZ[0][2]= 0;
+  //   rotZ[1][0]= -TMath::Sin(fRotateZ[sensID]);
+  //   rotZ[1][1]= TMath::Cos(fRotateZ[sensID]);
+  //   rotZ[1][2]= 0;
+  //   rotZ[2][0]= 0;
+  //   rotZ[2][1]= 0;
+  //   rotZ[2][2]= 1;
+
+  //   rot = rotX*rotY;
+  //   rot *=rotZ;
+  //   // cout<<"fRotateX["<<sensID<<"]"<<fRotateX[sensID]<<endl;
+  // // }
+  // // if(fRotateY[sensID]!=0){
+  // //   //cout<<"fRotateY["<<sensID<<"]"<<fRotateY[sensID]<<endl;
+  // // }
+  // // if(fRotateZ[sensID]!=0){
+  // //   //cout<<"fRotateZ["<<sensID<<"]"<<fRotateZ[sensID]<<endl;
+  // // }
+ 
+  // // rot[0][0]= 1;
+  // // rot[0][1]= fRotateZ[sensID];
+  // // rot[0][2]= -fRotateY[sensID];
+  // // rot[1][0]= -fRotateZ[sensID];
+  // // rot[1][1]= 1;
+  // // rot[1][2]= fRotateX[sensID];
+  // // rot[2][0]= fRotateY[sensID];
+  // // rot[2][1]= -fRotateX[sensID];
+  // // rot[2][2]= 1;
+  // TMatrixD hitMtx(3,3);
+  // hitMtx[0][0] = hitPos[0];
+  // hitMtx[1][0] = hitPos[1];
+  // hitMtx[2][0] = hitPos[2];
+  // TMatrixD result = rot;
+  // // result.Print();
+  // result *=hitMtx;
+  // // result.Print();
+  // hitPos = TVector3(result[0][0],result[1][0],result[2][0]);
+  // // cout<<"AFTER: "<<endl;
+  // // hitPos.Print();
+  // // cout<<"&^%$^%$#%$#%$#%$&^*&&%&"<<endl;
+  // // cout<<"5486748684"<<endl;
 }
 
 Bool_t PndLmdStripClusterTask::Backmap( TVector2 meantopPoint, Double_t meantoperr, TVector2 meanbotPoint, Double_t meanboterr,
