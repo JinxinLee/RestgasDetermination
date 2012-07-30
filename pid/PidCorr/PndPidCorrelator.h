@@ -81,6 +81,9 @@ protected:
   Short_t fDrcMode;                 // DRC Mode: 0 no DRC, 1 -empty-,  (2) DrcHit
   Short_t fDskMode;                 // DSK Mode: 0 no DSK, 1 -empty-,  (2) DskParticle
  
+  Int_t fEmcClstCount;              // Number of EMC clusters
+  Int_t fFscClstCount;		    // Number of FSC clusters
+
   Double_t fMvdELoss;               // Energy Loss in MVD 
   Double_t fMvdPath;                // MVD path crossed by the particle
   Int_t fMvdHitCount;               // Number of mvd hits
@@ -108,6 +111,7 @@ protected:
   TFile *r;                          // File for debug ntuples
   TNtuple *tofCorr;                  // Debug ntuple for tof correlation
   TNtuple *emcCorr;                  // Debug ntuple for emc correlation 
+  TNtuple *fscCorr;                  // Debug ntuple for fsc correlation
   TNtuple *mdtCorr;                  // Debug ntuple for mdt correlation 
   TNtuple *drcCorr;                  // Debug ntuple for drc correlation
   TNtuple *dskCorr;                  // Debug ntuple for dsk correlation
@@ -126,7 +130,8 @@ protected:
   Bool_t GetMvdInfo  (PndTrack* track, PndPidCandidate* pid); 
   Bool_t GetSttInfo  (PndTrack* track, PndPidCandidate* pid);  
   Bool_t GetTofInfo  (FairTrackParH* helix, PndPidCandidate* pid); 
-  Bool_t GetEmcInfo  (FairTrackParH* helix, PndPidCandidate* pid); 
+  Bool_t GetEmcInfo  (FairTrackParH* helix, PndPidCandidate* pid);
+  Bool_t GetFscInfo (FairTrackParH* helix, PndPidCandidate* pid);
   Bool_t GetMdtInfo  (PndTrack* track, PndPidCandidate* pid);   
   Bool_t GetDrcInfo  (FairTrackParH* helix, PndPidCandidate* pid); 
   Bool_t GetDskInfo  (FairTrackParH* helix, PndPidCandidate* pid);

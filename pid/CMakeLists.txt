@@ -64,6 +64,7 @@ PidCorr/PndPidCorrelator.cxx
 PidCorr/PndPidTrackInfo.cxx
 PidCorr/PndPidMvdInfo.cxx
 PidCorr/PndPidSttInfo.cxx
+PidCorr/PndPidFscInfo.cxx
 PndPidContFact.cxx
 
 ###### Associator
