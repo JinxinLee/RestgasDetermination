@@ -1,4 +1,4 @@
-void runLumi4Fitter(const int nEvents=100000, const int startEvent=0, TString storePath="tmpOutput", const int verboseLevel=4)
+void runLumi4Fitter(const int nEvents=100000, const int startEvent=0, TString storePath="tmpOutput", const int verboseLevel=0)
 {
   // ========================================================================
   // Input file (MC events)
