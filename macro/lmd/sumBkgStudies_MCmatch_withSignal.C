@@ -1,4 +1,4 @@
-void sumBkgStudies_MCmatch_withSignal(TString storePath= "/data/FAIRsorf/pandaroot/trunk/macro/lmd/tmpHIMster/11042012")
+void sumBkgStudies_MCmatch_withSignal(TString storePath= "/data/FAIRsorf/pandaroot/trunk/macro/lmd/tmpHIMster/results/15GeV")
 {
   // ----  Load libraries   -------------------------------------------------
   gROOT->Macro("$VMCWORKDIR/gconfig/rootlogon.C");
@@ -188,7 +188,7 @@ void sumBkgStudies_MCmatch_withSignal(TString storePath= "/data/FAIRsorf/pandaro
   TCanvas *cBkgpbar = new TCanvas("cBkgpbar");
   cBkgpbar->Divide(3,2);
   cBkgpbar->cd(1);
-  nrecbkg->Draw("sumid","id==-2212");
+  nrecbkg->Draw("sumid","id==-2212 && sumid<1e5");
   cBkgpbar->cd(2);
   nrecbkg->Draw("sumid","id==-2212 && sumid>2000 && sumid<4000");
   cBkgpbar->cd(3);
@@ -198,7 +198,7 @@ void sumBkgStudies_MCmatch_withSignal(TString storePath= "/data/FAIRsorf/pandaro
   cBkgpbar->cd(5);
   nrecbkg->Draw("sumid","id==-2212 && sumid>6000 && sumid<7000");
   cBkgpbar->cd(6);
- nrecbkg->Draw("sumid","id==-2212 && sumid>7000");
+  nrecbkg->Draw("sumid","id==-2212 && sumid>7000 && sumid<1e5");
   cBkgpbar->Write();
 
 
@@ -234,6 +234,152 @@ void sumBkgStudies_MCmatch_withSignal(TString storePath= "/data/FAIRsorf/pandaro
   nrecsig->Draw("theta:pz","theta>0.003 && theta<0.009 && abs(z)<10 && abs(p-11.91)<0.05");
   cSigTheta->Write();
   f->Write();
+  
+  TCanvas *ctmp = new TCanvas("ctmp");
+  //  for(int isum=900;isum<7000;isum++){
+  //  for(int isum=900;isum<5000;isum++){
+  for(int isum=5258;isum<7000;isum++){
+  //  for(int isum=5268;isum<7000;isum++){
+  // for(int isum=4534;isum<4537;isum++){
+    const int isumcur = isum;
+    TString exprsum = "sumid==";
+    exprsum+=isumcur;
+    //   cout<<"cut: "<<exprsum<<endl;
+    Long64_t numSum = nrecbkg->Draw("sumid",exprsum);
+    //  cout<<"numSum = "<<numSum<<endl;
+    if(numSum>20){
+      cout<<isum<<" & "<<numSum<<" [";
+      int totpart=0;
+      for(int iid=-3122;iid<3122;iid++){
+	const int iidcur = iid;
+	TString exprid = "id==";
+	exprid+=iidcur;
+	exprid+=" && ";
+	exprid+=exprsum;
+	Long64_t num = nrecbkg->Draw("id",exprid);
+	if(num!=0){
+	  if(iid==-2212){
+	    cout<<" barp "<<num;
+	    totpart+=num;
+	  }
+	  if(iid==2212){
+	    cout<<" p "<<num;
+	    totpart+=num;
+	  }
+	  if(iid==-211){
+	    cout<<" pi- "<<num;
+	    totpart+=num;
+	  }
+	  if(iid==211){
+	    cout<<" pi+ "<<num;
+	    totpart+=num;
+	  }
+	  if(iid==3122){
+	    cout<<" Lambda "<<num;
+	    totpart+=num;
+	  }
+	  if(iid==321){
+	    cout<<" K+ "<<num;
+	    totpart+=num;
+	  }
+	  if(iid==-321){
+	    cout<<" K- "<<num;
+	    totpart+=num;
+	  }
+	  if(iid==13){
+	    cout<<" mu- "<<num;
+	    totpart+=num;
+	  }
+	  if(iid==-13){
+	    cout<<" mu+ "<<num;
+	    totpart+=num;
+	  }
+	  if(iid==11){
+	    cout<<" e- "<<num;
+	    totpart+=num;
+	  }
+	  if(iid==-11){
+	    cout<<" e+ "<<num;
+	    totpart+=num;
+	  }
+	}
+      }
+      // cout<<"totpart = "<<totpart<<" numSum = "<<numSum<<endl;
+      if(totpart!=numSum) cout<<" + "<<numSum-totpart<<" are missing!";
+      cout<<"]"<<endl;
+    }
+  }
+
+  // TCanvas *ctmp2 = new TCanvas("ctmp2");
+  // for(int isum=5000;isum<7000;isum++){
+  //   const int isumcur = isum;
+  //   TString exprsum = "sumid==";
+  //   exprsum+=isumcur;
+  //   //   cout<<"cut: "<<exprsum<<endl;
+  //   Long64_t numSum = nrecbkg->Draw("sumid",exprsum);
+  //   //  cout<<"numSum = "<<numSum<<endl;
+  //   if(numSum>20){
+  //     cout<<isum<<" & "<<numSum<<" [";
+  //     int totpart=0;
+  //     for(int iid=-3122;iid<3122;iid++){
+  // 	const int iidcur = iid;
+  // 	TString exprid = "id==";
+  // 	exprid+=iidcur;
+  // 	exprid+=" && ";
+  // 	exprid+=exprsum;
+  // 	Long64_t num = nrecbkg->Draw("id",exprid);
+  // 	if(num!=0){
+  // 	  if(iid==-2212){
+  // 	    cout<<" barp "<<num;
+  // 	    totpart+=num;
+  // 	  }
+  // 	  if(iid==2212){
+  // 	    cout<<" p "<<num;
+  // 	    totpart+=num;
+  // 	  }
+  // 	  if(iid==-211){
+  // 	    cout<<" pi- "<<num;
+  // 	    totpart+=num;
+  // 	  }
+  // 	  if(iid==211){
+  // 	    cout<<" pi+ "<<num;
+  // 	    totpart+=num;
+  // 	  }
+  // 	  if(iid==3122){
+  // 	    cout<<" Lambda "<<num;
+  // 	    totpart+=num;
+  // 	  }
+  // 	  if(iid==321){
+  // 	    cout<<" K+ "<<num;
+  // 	    totpart+=num;
+  // 	  }
+  // 	  if(iid==-321){
+  // 	    cout<<" K- "<<num;
+  // 	    totpart+=num;
+  // 	  }
+  // 	  if(iid==13){
+  // 	    cout<<" mu- "<<num;
+  // 	    totpart+=num;
+  // 	  }
+  // 	  if(iid==-13){
+  // 	    cout<<" mu+ "<<num;
+  // 	    totpart+=num;
+  // 	  }
+  // 	  if(iid==11){
+  // 	    cout<<" e- "<<num;
+  // 	    totpart+=num;
+  // 	  }
+  // 	  if(iid==-11){
+  // 	    cout<<" e+ "<<num;
+  // 	    totpart+=num;
+  // 	  }
+  // 	}
+  //     }
+  //     // cout<<"totpart = "<<totpart<<" numSum = "<<numSum<<endl;
+  //     if(totpart!=numSum) cout<<" + "<<numSum-totpart<<" are missing!";
+  //     cout<<"]"<<endl;
+  //   }
+  // }
   ///---------------------------------------------------------------------------
 
 }
