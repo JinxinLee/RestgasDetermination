@@ -283,9 +283,9 @@ int main(int __argc,char *__argv[]) {
   (scaleY == 0) ? misal_scales[1] = 1. : misal_scales[1] = 1.*scaleY;
   (scaleR == 0) ? misal_scales[2] = 1. : misal_scales[2] = 1.*scaleR;
 
-  TH2F *resx = new TH2F("resx","residuals vs. x; x, cm;#delta_{x}, cm",100,-15,15,1000,-1e-1,1e-1);
-  TH2F *resy = new TH2F("resy","residuals vs. y; y, cm;#delta_{y}, cm",100,-15,15,1000,-1e-1,1e-1);
-  TH2F *resxy = new TH2F("resxy","residuals y vs. residuals x; #delta_{x}, cm; #delta_{y}, cm",1000,-1e-1,1e-1,1000,-1e-1,1e-1);
+  TH2F *resx = new TH2F("resx","residuals vs. x; x, cm;#delta_{x}, cm",100,-15,15,5000,-2.5e-1,2.5e-1);
+  TH2F *resy = new TH2F("resy","residuals vs. y; y, cm;#delta_{y}, cm",100,-15,15,5000,-2.5e-1,2.5e-1);
+  TH2F *resxy = new TH2F("resxy","residuals y vs. residuals x; #delta_{x}, cm; #delta_{y}, cm",5000,-2.5e-1,2.5e-1,5000,-2.5e-1,2.5e-1);
  for (unsigned int histID = 0; histID < 32; ++histID)
  {
     char histoResXName[100];
