@@ -77,10 +77,21 @@
 #pragma link C++ class  TProtoUnpackEvent+;
 #pragma link C++ class  TGo4EventElement+;
 
+#pragma link C++ class PndEmcAbsPSA+;
+#pragma link C++ class PndEmcPSAParabolicBaseline+;
+#pragma link C++ class PndEmcPSAFPGADigitalFilterAnalyser+;
+#pragma link C++ class PndEmcPSAFPGAFilterCF+;
+#pragma link C++ class PndEmcPSAFPGAFilterDelay+;
+#pragma link C++ class PndEmcPSAFPGAFilterLine+;
+#pragma link C++ class PndEmcPSAFPGAFilterMA+;
+#pragma link C++ class PndEmcPSAFPGAFilterMWD+;
+#pragma link C++ class PndEmcPSAFPGAIntegratingAnalyser+;
+#pragma link C++ class PndEmcPSAFPGALinFitter+;
+#pragma link C++ class PndEmcPSAFPGAMLinFitter+;
+#pragma link C++ class PndEmcPSAFPGASampleAnalyser+;
 
 #pragma link C++ class  vector<PndEmcHit*>;
 #pragma link C++ class  vector<PndEmcPoint*>;
 #pragma link C++ class  vector<PndEmcDigi*>;
 
 #endif
-

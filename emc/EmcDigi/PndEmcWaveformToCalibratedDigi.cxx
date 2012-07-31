@@ -177,6 +177,7 @@ void PndEmcWaveformToCalibratedDigi::Exec(Option_t* opt)
 	Double_t digi_time;
 	Int_t i_digi=0; //index of digi in TClonesArray
 	Int_t hitIndex;
+	Int_t nHits;
 	Int_t detId;
 	Int_t trackId;
 	Int_t module;
@@ -201,24 +202,27 @@ void PndEmcWaveformToCalibratedDigi::Exec(Option_t* opt)
 			digi_time=peakPosition/fSampleRate;
 		}
 		*/
-		psaAlgorithm_proto192->Process(theWaveform,energy,peakPosition);
-		energy/=fWfNormalisation_proto192;
-		digi_time = peakPosition/fSampleRate;
-		std::map<Int_t,Double_t>::iterator it;
-		it = fCalibrationMap.find(detId);
-		if(it!=fCalibrationMap.end()){
-//            std::cout << "found calibration value for hitindex " << hitIndex << std::endl;
-			energy/=it->second;
-		}
-//        std::cout << "energy: " << energy << " threshold: "<< fEnergyDigiThreshold << endl;
-//            std::cout << "creating digi for detid: " << detId << "hitindex: " << hitIndex <<std::endl;
-		if (energy>fEnergyDigiThreshold)
-		{
-//            std::cout << "energy: " << energy << endl;
-			PndEmcDigi* myDigi = new((*fDigiArray)[i_digi]) PndEmcDigi(trackId,detId, energy, digi_time, hitIndex);
-			myDigi->AddLink(FairLink("EmcWaveform", iWaveform));
-			i_digi++;
-			
+		nHits = psaAlgorithm_proto192->Process(theWaveform);
+		for(Int_t i = 0; i< nHits; i++){
+			psaAlgorithm_proto192->GetHit(i,energy,peakPosition);
+			energy/=fWfNormalisation_proto192;
+			digi_time = peakPosition/fSampleRate;
+			std::map<Int_t,Double_t>::iterator it;
+			it = fCalibrationMap.find(detId);
+			if(it!=fCalibrationMap.end()){
+				//            std::cout << "found calibration value for hitindex " << hitIndex << std::endl;
+				energy/=it->second;
+			}
+			//        std::cout << "energy: " << energy << " threshold: "<< fEnergyDigiThreshold << endl;
+			//            std::cout << "creating digi for detid: " << detId << "hitindex: " << hitIndex <<std::endl;
+			if (energy>fEnergyDigiThreshold)
+			{
+				//            std::cout << "energy: " << energy << endl;
+				PndEmcDigi* myDigi = new((*fDigiArray)[i_digi]) PndEmcDigi(trackId,detId, energy, digi_time, hitIndex);
+				myDigi->AddLink(FairLink("EmcWaveform", iWaveform));
+				i_digi++;
+
+			}
 		}
 	}
 	if (fVerbose>2){

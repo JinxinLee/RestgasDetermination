@@ -25,12 +25,21 @@ public:
 	
 	virtual void Process(const PndEmcWaveform * waveform, Double_t &amplitude, Double_t &time);
 	
+	virtual Int_t Process(const PndEmcWaveform *waveform);
+	virtual void GetHit(Int_t i, Double_t &energy, Double_t &time);
+	
+	
 	void FitPeak(const std::vector<Double_t> & signal, Double_t& ampl, Double_t& pos,Int_t peakBin) const;
 	void FitPeak(const std::vector<Double_t> & signal, Double_t& ampl, Double_t& pos, Int_t start, Int_t end) const;
 	void FitPeak(const std::vector<Double_t> & signal, Double_t& ampl, Double_t& pos) const;
 	void GetBaseline(const std::vector<Double_t> &signal,Double_t &baseline)const;
 	private:
 	Int_t lBaselength;
+	Double_t lAmplitude;
+	Double_t lTime;
+
+	ClassDef(PndEmcPSAParabolicBaseline,1);
 };
+
 
 #endif

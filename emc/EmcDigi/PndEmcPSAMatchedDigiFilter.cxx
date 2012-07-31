@@ -21,6 +21,19 @@ fParams(params),
 fPulseshape(pulseshape)
 {}
 
+Int_t PndEmcPSAMatchedDigiFilter::Process(const PndEmcWaveform *waveform){
+	Process(waveform,lAmplitude,lTime);
+	if(lAmplitude > 0){
+		return 1;
+	}else{
+		return 0;
+	}
+}
+void PndEmcPSAMatchedDigiFilter::GetHit(Int_t i, Double_t &energy, Double_t &time){
+	energy = lAmplitude;
+	time = lTime;
+}
+
 void PndEmcPSAMatchedDigiFilter::Process(const PndEmcWaveform *waveform, Double_t &amplitude, Double_t &time)
 {
 	const std::vector<Double_t> signal=waveform->GetSignal();

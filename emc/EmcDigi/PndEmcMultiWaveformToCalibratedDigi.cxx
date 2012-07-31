@@ -120,22 +120,21 @@ InitStatus PndEmcMultiWaveformToCalibratedDigi::Init()
 	fPulseshape_pmt= new PndEmcCRRCPulseshape(fPMT_Shaping_int_time,fPMT_Shaping_diff_time,fShashlyk_time_constant);
 
 
-	// Pulse shape analysis algorithm.
-	// Simple parabolic fit.
-	//psaAlgorithm = new PndEmcPSAParabolic();
+	if(fpsaAlgorithm == NULL){
+		// Matched digital filter
+		// Parameters of the filter are hardcoded at the moment
+		// For different pulseshape in barrel and endcaps different filters should be implemented
+		std::vector<Double_t> params;
+		params.push_back(30); // width
+		params.push_back(fSampleRate); // Sample rate
+		fpsaAlgorithm = new PndEmcPSAMatchedDigiFilter(params,fPulseshape);
+	}
 
-	// Matched digital filter
-	// Parameters of the filter are hardcoded at the moment
-	// For different pulseshape in barrel and endcaps different filters should be implemented
- 	std::vector<Double_t> params;
- 	params.push_back(30); // width
-	params.push_back(fSampleRate); // Sample rate
-	psaAlgorithm = new PndEmcPSAMatchedDigiFilter(params,fPulseshape);
-
-//	std::vector<Double_t> params2;
-// 	params2.push_back(30); // width
-//	params2.push_back(fSampleRate_PMT); // Sample rate
-	psaAlgorithm_pmt = new PndEmcPSAParabolic();
+	if(fpsaAlgorithm_pmt == NULL){
+		// Pulse shape analysis algorithm.
+		// Simple parabolic fit.
+		fpsaAlgorithm_pmt = new PndEmcPSAParabolic();
+	}
 	
 	// Determine normalisation constant for PndEmcMultiWaveform
 	PndEmcWaveform *tmpwaveform=new PndEmcWaveform(0,101010001, fNumber_of_samples_in_waveform);
@@ -148,10 +147,9 @@ InitStatus PndEmcMultiWaveformToCalibratedDigi::Init()
 	tmpwaveform2->UpdateWaveform(gevHit, 0, false, 1., 0., fSampleRate_PMT, fPulseshape_pmt);
 	Double_t tmpPeakPosition;
 	Double_t tmpPeakPosition2;
-	psaAlgorithm->Process(tmpwaveform,fWfNormalisation,tmpPeakPosition);
-	psaAlgorithm_pmt->Process(tmpwaveform2,fWfNormalisation_pmt,tmpPeakPosition2);
+	fpsaAlgorithm->Process(tmpwaveform,fWfNormalisation,tmpPeakPosition);
+	fpsaAlgorithm_pmt->Process(tmpwaveform2,fWfNormalisation_pmt,tmpPeakPosition2);
 
-	psaAlgorithm_proto192 = new PndEmcPSAParabolicBaseline(20);
 	fWfNormalisation_proto192 = 1;
 
 	if(fCalibrationFileName !="")
@@ -184,6 +182,13 @@ void PndEmcMultiWaveformToCalibratedDigi::Exec(Option_t* opt)
 	Int_t nWaveforms = fWaveformArray->GetEntriesFast();
 	Int_t nSignal;
 	Bool_t highgain;
+	PndEmcAbsPSA *thePSA;
+	Double_t theEnergyNorm;
+	Double_t theSampleRate;
+	Int_t nHits[4];
+	Double_t hittimes[4][32];
+	Double_t hitenergies[4][32];
+	std::map<Int_t,Double_t>::iterator it;
 	//cout<<"PndEmcMultiWaveformToCalibratedDigi: "<<nWaveforms<<" waveforms to convert"<<endl;
 	for (Int_t iWaveform=0; iWaveform<nWaveforms; iWaveform++) {
 		PndEmcMultiWaveform* theWaveform = (PndEmcMultiWaveform*) fWaveformArray->At(iWaveform);
@@ -191,70 +196,77 @@ void PndEmcMultiWaveformToCalibratedDigi::Exec(Option_t* opt)
 		detId=theWaveform->GetDetectorId();
 		trackId=theWaveform->GetTrackId();
 		module=theWaveform->GetModule();
-		// Determine waveform maximum and its position
-/*		if(module==5){
-			psaAlgorithm_pmt->Process(theWaveform,energy,peakPosition);
-			energy/=fWfNormalisation_pmt;
-			digi_time=peakPosition/fSampleRate_PMT;
-
+		nSignal=theWaveform->GetNumberOfWaveforms();
+		if(module == 5){
+			thePSA = fpsaAlgorithm_pmt;
+			theEnergyNorm = fWfNormalisation_pmt;
+			theSampleRate = fSampleRate_PMT;
+		} else {
+			thePSA = fpsaAlgorithm;
+			theEnergyNorm = fWfNormalisation_proto192;;
+			theSampleRate = fSampleRate;
 		}
-		else{
-			psaAlgorithm->Process(theWaveform,energy,peakPosition);
-			energy/=fWfNormalisation;
-			digi_time=peakPosition/fSampleRate;
-		}
-		*/
-//        nSignal = theWaveform->GetNumberOfWaveforms();
-//        if(hitIndex == 45) std::cout << "################################" << std::endl;
-		highgain = kTRUE;
-		energy = -1;
-		peakPosition = -1;
-		if(nSignal ==1){
-			theWaveform->SetActiveWaveform(0);
-			psaAlgorithm_proto192->Process(theWaveform,energy,peakPosition);
-		}else{
-			theWaveform->SetActiveWaveform(0);
-			psaAlgorithm_proto192->Process(theWaveform,energy,peakPosition);
-//            if(hitIndex == 45) std::cout << "highgain: " << energy;
-			if(energy>1500 || energy <= 0){
-				theWaveform->SetActiveWaveform(1);
-				psaAlgorithm_proto192->Process(theWaveform,energy,peakPosition);
-//                if(hitIndex == 45) std::cout << "lowgain: " << energy;
-
-				highgain=kFALSE;
-			}
-//            if(hitIndex == 45) std::cout << std::endl;
-		}
-
-		energy/=fWfNormalisation_proto192;
-		digi_time = peakPosition/fSampleRate;
-		std::map<Int_t,Double_t>::iterator it;
-		it = fCalibrationMap.find(detId);
-		if(it!=fCalibrationMap.end()){
-//            if(hitIndex == 45) std::cout << "found calibration value of " << it->second << " for hitIndex " << hitIndex << std::endl;
-			energy*=it->second;
-		}else{
-//            if(hitIndex == 45) std::cout << "no calibration value for hitIndex " << hitIndex << std::endl;
-		}
-		if(!highgain){
-//            if(hitIndex == 45) std::cout << "highgain" << std::endl;
-			it=fGainMap.find(detId);
-			if(it!=fGainMap.end()){
-//            if(hitIndex == 45) std::cout << "found highgain value of " << it->second << " for hitIndex " << hitIndex << std::endl;
-				energy*=it->second;
+		for(Int_t iSignal=0; iSignal < nSignal; iSignal++){
+			theWaveform->SetActiveWaveform(iSignal);
+			nHits[iSignal] = thePSA->Process(theWaveform);
+//            std::cout << "Signal " << iSignal << ": " << nHits[iSignal] << " Hits" << std::endl;
+			for(Int_t iHit = 0; iHit < nHits[iSignal]; iHit ++){
+				thePSA->GetHit(iHit,hitenergies[iSignal][iHit],hittimes[iSignal][iHit]);
+//                std::cout << "Signal " << iSignal << ", Hit " << iHit << ": Energy " << hitenergies[iSignal][iHit] <<std::endl;
 			}
 		}
-//        if(energy>1000){
-//            if(hitIndex == 45) std::cout << "energy: " << energy << " threshold: "<< fEnergyDigiThreshold << endl;
-//            if(hitIndex == 45) std::cout << "creating digi for detid: " << detId << "hitIndex: " << hitIndex <<std::endl;
-//        }
-		if (energy>fEnergyDigiThreshold)
-		{
-//            if(hitIndex == 45) std::cout << "energy: " << energy << endl;
-			PndEmcDigi* myDigi = new((*fDigiArray)[i_digi]) PndEmcDigi(trackId,detId, energy, digi_time, hitIndex);
-			myDigi->AddLink(FairLink("EmcMultiWaveform", iWaveform));
-			i_digi++;
+//        std::cout << "found "<<nHits[0] << " hits for detid " << detId << std::endl;
+		for(Int_t iHit = 0; iHit < nHits[0]; iHit++){
+			highgain = kTRUE;
+			peakPosition = hittimes[0][iHit];
+			energy = hitenergies[0][iHit];
+			if(nSignal > 1 && energy > 1500.){ //todo make highgain limit a config option
+				//look for hit in lowgain
+//                std::cout << "Hit " << iHit << " is too high (" << energy << ") checking lowgain." << std::endl;
+//                std::cout << "highgain time: " << hittimes[0][iHit] << std::endl;
+				for(Int_t iHit1 = 0; iHit1<nHits[1]; iHit1++){
+//                    std::cout << "lowgain hit time: " << hittimes[1][iHit] << std::endl;
+					if(TMath::Abs(peakPosition - hittimes[1][iHit1]) < 10.){ //todo make timediff a config option
+//                        std::cout << "Found matching highgain hit " << iHit1 << std::endl;
+						energy = hitenergies[1][iHit1];
+						peakPosition = hittimes[0][iHit];
+						highgain = kFALSE;
+						break;
+					}
+				}
+			}
+						
 			
+			energy/=theEnergyNorm;
+			digi_time = peakPosition/theSampleRate;
+//            std::cout << "looking for calibration of detid " << detId << std::endl;
+			it = fCalibrationMap.find(detId);
+			if(it!=fCalibrationMap.end()){
+//                            if(hitIndex == 45) std::cout << "found calibration value of " << it->second << " for hitIndex " << hitIndex << std::endl;
+				energy*=it->second;
+			}else{
+//                            if(hitIndex == 45) std::cout << "no calibration value for hitIndex " << hitIndex << std::endl;
+			}
+			if(!highgain){
+//                            if(hitIndex == 45) std::cout << "highgain" << std::endl;
+				it=fGainMap.find(detId);
+				if(it!=fGainMap.end()){
+								if(hitIndex == 45) std::cout << "found highgain value of " << it->second << " for hitIndex " << hitIndex << std::endl;
+					energy*=it->second;
+				}
+			}
+			//        if(energy>1000){
+			//            if(hitIndex == 45) std::cout << "energy: " << energy << " threshold: "<< fEnergyDigiThreshold << endl;
+			//            if(hitIndex == 45) std::cout << "creating digi for detid: " << detId << "hitIndex: " << hitIndex <<std::endl;
+			//        }
+			if (energy>fEnergyDigiThreshold)
+			{
+//                            if(hitIndex == 45) std::cout << "energy: " << energy << endl;
+				PndEmcDigi* myDigi = new((*fDigiArray)[i_digi]) PndEmcDigi(trackId,detId, energy, digi_time, hitIndex);
+				myDigi->AddLink(FairLink("EmcMultiWaveform", iWaveform));
+				i_digi++;
+
+			}
 		}
 	}
 	if (fVerbose>2){

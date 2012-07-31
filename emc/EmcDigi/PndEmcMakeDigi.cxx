@@ -159,6 +159,7 @@ void PndEmcMakeDigi::Exec(Option_t* opt)
 					case 7: // Proto60
 						a=sqrt(fExcessNoiseFactorAPD/(fNPhotoElectronsPerMeVAPDBarrel*1e3)); // 1e3 is conversion from MeV to GeV
 						sigma_E=sqrt(pow(a/sqrt(energy),2)+pow(fIncoherent_elec_noise_width_GeV_APD/energy,2));
+
 						break;
 					case 3: // FWD endcap 
 						a=sqrt(fExcessNoiseFactorVPT/(fNPhotoElectronsPerMeVVPT*1e3)); // 1e3 is conversion from MeV to GeV
@@ -181,7 +182,11 @@ void PndEmcMakeDigi::Exec(Option_t* opt)
 			}
 			if(fUseDigiEffectiveSmearing ==2){
 				Double_t nPhotons=(energy*1e3*fDetectedPhotonsPerMeV);
-				energy= gRandom->Gaus(0,fIncoherent_elec_noise_width_GeV_APD)+(gRandom->PoissonD(nPhotons)/1.0e3)/fDetectedPhotonsPerMeV;
+				if(theHit->GetModule()==7&&theHit->GetRow()==4&&theHit->GetCrystal()==5){
+					energy= gRandom->Gaus(0,fIncoherent_elec_noise_width_GeV_VPT)+(gRandom->PoissonD(nPhotons)/1.0e3)/fDetectedPhotonsPerMeV;
+				}else{					
+					energy= gRandom->Gaus(0,fIncoherent_elec_noise_width_GeV_APD)+(gRandom->PoissonD(nPhotons)/1.0e3)/fDetectedPhotonsPerMeV;
+				}
 			}
 
 		if (energy>fThreshold&& detId>0)

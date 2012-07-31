@@ -40,7 +40,7 @@ using std::endl;
 using std::fstream;
 
 PndEmcWaveformToDigi::PndEmcWaveformToDigi(Int_t verbose, Bool_t storedigis):
-  fWaveformArray(new TClonesArray()), fDigiArray(new TClonesArray()), fSampleRate(0), fSampleRate_PMT(0), fEnergyDigiThreshold(0), fASIC_Shaping_int_time(0), fPMT_Shaping_int_time(0), fPMT_Shaping_diff_time(0), fCrystal_time_constant(0), fShashlyk_time_constant(0), fNumber_of_samples_in_waveform(0), fNumber_of_samples_in_waveform_pmt(0), fDigiPosMethod(0), fEmcDigiRescaleFactor(0), fEmcDigiPositionDepthPWO(0), fEmcDigiPositionDepthShashlyk(0), fPulseshape(0), fPulseshape_pmt(0), psaAlgorithm(0), psaAlgorithm_pmt(0), fDigiPar(new PndEmcDigiPar()), fRecoPar(new PndEmcRecoPar()), fVerbose(verbose), fStoreDigis(storedigis), fWfNormalisation(0), fWfNormalisation_pmt(0), fTimeOrderedDigi(kFALSE)
+  fWaveformArray(new TClonesArray()), fDigiArray(new TClonesArray()), fSampleRate(0), fSampleRate_PMT(0), fEnergyDigiThreshold(0), fASIC_Shaping_int_time(0), fPMT_Shaping_int_time(0), fPMT_Shaping_diff_time(0), fCrystal_time_constant(0), fShashlyk_time_constant(0), fNumber_of_samples_in_waveform(0), fNumber_of_samples_in_waveform_pmt(0), fDigiPosMethod(0), fEmcDigiRescaleFactor(0), fEmcDigiPositionDepthPWO(0), fEmcDigiPositionDepthShashlyk(0), fPulseshape(0), fPulseshape_pmt(0), fpsaAlgorithm(0), fpsaAlgorithm_pmt(0), fDigiPar(new PndEmcDigiPar()), fRecoPar(new PndEmcRecoPar()), fVerbose(verbose), fStoreDigis(storedigis), fWfNormalisation(0), fWfNormalisation_pmt(0), fTimeOrderedDigi(kFALSE)
 {
   fDigiPosMethod="depth";// "surface" or "depth"
   fEmcDigiRescaleFactor=1.08;
@@ -120,24 +120,21 @@ InitStatus PndEmcWaveformToDigi::Init()
 	fPulseshape= new PndEmcAsicPulseshape(fASIC_Shaping_int_time,fCrystal_time_constant);
 	fPulseshape_pmt= new PndEmcCRRCPulseshape(fPMT_Shaping_int_time,fPMT_Shaping_diff_time,fShashlyk_time_constant);
 
+	if(fpsaAlgorithm == NULL){
+		// Matched digital filter
+		// Parameters of the filter are hardcoded at the moment
+		// For different pulseshape in barrel and endcaps different filters should be implemented
+		std::vector<Double_t> params;
+		params.push_back(30); // width
+		params.push_back(fSampleRate); // Sample rate
+		fpsaAlgorithm = new PndEmcPSAMatchedDigiFilter(params,fPulseshape);
+	}
 
-	// Pulse shape analysis algorithm.
-	// Simple parabolic fit.
-	//psaAlgorithm = new PndEmcPSAParabolic();
-
-	// Matched digital filter
-	// Parameters of the filter are hardcoded at the moment
-	// For different pulseshape in barrel and endcaps different filters should be implemented
- 	std::vector<Double_t> params;
- 	params.push_back(30); // width
-	params.push_back(fSampleRate); // Sample rate
-	psaAlgorithm = new PndEmcPSAMatchedDigiFilter(params,fPulseshape);
-
-//	std::vector<Double_t> params2;
-// 	params2.push_back(30); // width
-//	params2.push_back(fSampleRate_PMT); // Sample rate
-	psaAlgorithm_pmt = new PndEmcPSAParabolic();
-	
+	if(fpsaAlgorithm_pmt == NULL){
+		// Pulse shape analysis algorithm.
+		// Simple parabolic fit.
+		fpsaAlgorithm_pmt = new PndEmcPSAParabolic();
+	}
 	// Determine normalisation constant for PndEmcWaveform
 	PndEmcWaveform *tmpwaveform=new PndEmcWaveform(0,101010001, fNumber_of_samples_in_waveform);
 	PndEmcWaveform *tmpwaveform2=new PndEmcWaveform(0,101010001, fNumber_of_samples_in_waveform_pmt);
@@ -149,8 +146,11 @@ InitStatus PndEmcWaveformToDigi::Init()
 	tmpwaveform2->UpdateWaveform(gevHit, 0, false, 1., 0., fSampleRate_PMT, fPulseshape_pmt);
 	Double_t tmpPeakPosition;
 	Double_t tmpPeakPosition2;
-	psaAlgorithm->Process(tmpwaveform,fWfNormalisation,tmpPeakPosition);
-	psaAlgorithm_pmt->Process(tmpwaveform2,fWfNormalisation_pmt,tmpPeakPosition2);
+	fpsaAlgorithm->Process(tmpwaveform,fWfNormalisation,tmpPeakPosition);
+	fpsaAlgorithm_pmt->Process(tmpwaveform2,fWfNormalisation_pmt,tmpPeakPosition2);
+
+	delete tmpwaveform;
+	delete tmpwaveform2;
 
 	cout << "-I- PndEmcWaveformToDigi: Intialization successfull" << endl;
 	
@@ -170,10 +170,14 @@ void PndEmcWaveformToDigi::Exec(Option_t* opt)
 	Double_t energy;
 	Double_t digi_time;
 	Int_t hitIndex;
+	Int_t nHits;
 	Int_t detId;
 	Int_t trackId;
 	Int_t module;
 	Int_t nWaveforms = fWaveformArray->GetEntriesFast();
+	PndEmcAbsPSA *thePSA;
+	Double_t theEnergyNorm;
+	Double_t theSampleRate;
 	//cout<<"PndEmcWaveformToDigi: "<<nWaveforms<<" waveforms to convert"<<endl;
 	for (Int_t iWaveform=0; iWaveform<nWaveforms; iWaveform++) {
 		PndEmcWaveform* theWaveform = (PndEmcWaveform*) fWaveformArray->At(iWaveform);
@@ -183,26 +187,31 @@ void PndEmcWaveformToDigi::Exec(Option_t* opt)
 		module=theWaveform->GetModule();
 
 		Double_t timeshift; // how maximum is shifted
-		if(module==5){
-			psaAlgorithm_pmt->Process(theWaveform,energy,peakPosition);
-			energy/=fWfNormalisation_pmt;
-			digi_time=peakPosition/fSampleRate_PMT*1e9;//ns
-
+		if(module == 5){
+			thePSA = fpsaAlgorithm_pmt;
+			theEnergyNorm = fWfNormalisation_pmt;
+			theSampleRate = fSampleRate_PMT;
+		} else {
+			thePSA = fpsaAlgorithm;
+			theEnergyNorm = fWfNormalisation;
+			theSampleRate = fSampleRate;
 		}
-		else{
-			psaAlgorithm->Process(theWaveform,energy,peakPosition);
-			energy/=fWfNormalisation;
+		nHits = thePSA->Process(theWaveform);
+		for(Int_t i = 0 ; i< nHits; i++){
+			thePSA->GetHit(i,energy,digi_time);
+			energy/=theEnergyNorm;
 			digi_time=peakPosition/fSampleRate*1e9;//ns
-		}
-		if (energy>fEnergyDigiThreshold)
-		{
-
-			Double_t timestamp=EventTime+digi_time;	
-			PndEmcDigi* myDigi = new PndEmcDigi(trackId,detId, energy, timestamp, hitIndex);
-			myDigi->AddLink(FairLink("EmcWaveform", iWaveform));
-			fDataBuffer->FillNewData(myDigi, 300, 300); // 300 ns
-			if (fVerbose>2)
-				cout<<"timestamp="<<timestamp<<" EventTime="<<EventTime<<" digi_time="<<digi_time<<endl;
+			if (energy>fEnergyDigiThreshold)
+			{
+				Double_t timestamp=EventTime+digi_time;	
+				PndEmcDigi* myDigi = new PndEmcDigi(trackId,detId, energy, digi_time, hitIndex);
+				myDigi->AddLink(FairLink("EmcWaveform", iWaveform));
+				fDataBuffer->FillNewData(myDigi, 300, 300); // 300 ns
+				if (fVerbose>2){
+					cout<<"timestamp="<<timestamp<<" EventTime="<<EventTime<<" digi_time="<<digi_time<<endl;
+				}
+				
+			}
 		}
 	}
 	if (fVerbose>2){

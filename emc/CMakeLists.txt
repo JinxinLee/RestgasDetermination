@@ -3,7 +3,7 @@
 # The extension is already found.  Any number of sources could be listed here.
 
 set(INCLUDE_DIRECTORIES
-${ROOT_INCLUDE_DIR} 
+${ROOT_INCLUDE_DIR}
 ${CMAKE_SOURCE_DIR}/fairtools
 ${CMAKE_SOURCE_DIR}/geobase 
 ${CMAKE_SOURCE_DIR}/parbase 
@@ -64,6 +64,7 @@ EmcDigi/PndEmcMultiWaveformToCalibratedDigi.cxx
 EmcDigi/PndEmcDigiPar.cxx 
 EmcDigi/PndEmcDigiNonuniformityPar.cxx 
 EmcDigi/PndEmcMakeDigi.cxx
+EmcDigi/PndEmcAbsPSA.cxx
 EmcDigi/PndEmcPSAParabolic.cxx
 EmcDigi/PndEmcPSAParabolicBaseline.cxx
 EmcDigi/PndEmcPSATrapDigiFilter.cxx
@@ -105,6 +106,16 @@ EmcCorr/PndEmcClusterCalibrator.cxx
 EmcCorr/PndEmcClusterCalibrationPar.cxx
 #basetasks/PndGlobalEvtTask.cxx
 PndEmcContFact.cxx 
+EmcDigi/PndEmcPSAFPGA/PndEmcPSAFPGADigitalFilterAnalyser.cxx
+EmcDigi/PndEmcPSAFPGA/PndEmcPSAFPGAFilterCF.cxx
+EmcDigi/PndEmcPSAFPGA/PndEmcPSAFPGAFilterDelay.cxx
+EmcDigi/PndEmcPSAFPGA/PndEmcPSAFPGAFilterLine.cxx
+EmcDigi/PndEmcPSAFPGA/PndEmcPSAFPGAFilterMA.cxx
+EmcDigi/PndEmcPSAFPGA/PndEmcPSAFPGAFilterMWD.cxx
+EmcDigi/PndEmcPSAFPGA/PndEmcPSAFPGAIntegratingAnalyser.cxx
+EmcDigi/PndEmcPSAFPGA/PndEmcPSAFPGALinFitter.cxx
+EmcDigi/PndEmcPSAFPGA/PndEmcPSAFPGAMLinFitter.cxx
+EmcDigi/PndEmcPSAFPGA/PndEmcPSAFPGASampleAnalyser.cxx
 )
 
 if(RULE_CHECKER_FOUND)
@@ -123,7 +134,7 @@ ROOT_GENERATE_DICTIONARY("${EMC_HEADERS}" "${EMC_LINKDEF}" "${EMC_DICTIONARY}" "
 SET(EMC_SRCS ${EMC_SRCS} ${EMC_DICTIONARY})
 
 add_library(Emc SHARED ${EMC_SRCS})
-target_link_libraries(Emc ${ROOT_LIBRARIES})
+target_link_libraries(Emc ${ROOT_LIBRARIES} )
 set_target_properties(Emc PROPERTIES ${FAIRROOT_LIBRARY_PROPERTIES})
 ################ install ###################
 install(TARGETS Emc DESTINATION ${CMAKE_BINARY_DIR}/lib)

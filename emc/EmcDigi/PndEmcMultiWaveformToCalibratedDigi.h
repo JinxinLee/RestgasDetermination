@@ -61,6 +61,9 @@ public:
 
   void SetStorageOfData(Bool_t val); // Method to specify whether digis are stored or not.
 
+  virtual void SetPSAAlgorithm(PndEmcAbsPSA *psa){fpsaAlgorithm=psa;}
+  virtual void SetPSAAlgorithmPMT(PndEmcAbsPSA *psa){fpsaAlgorithm_pmt=psa;}
+
 private:
 	void ReadCalibrationFile();
 	/** Input array of PndEmcMultiWaveforms **/
@@ -88,9 +91,8 @@ private:
 	
 	PndEmcAbsPulseshape* fPulseshape;
 	PndEmcAbsPulseshape* fPulseshape_pmt;
-	PndEmcAbsPSA *psaAlgorithm;
-	PndEmcAbsPSA *psaAlgorithm_pmt;
-	PndEmcAbsPSA *psaAlgorithm_proto192;
+	PndEmcAbsPSA *fpsaAlgorithm;
+	PndEmcAbsPSA *fpsaAlgorithm_pmt;
 
 	PndEmcDigiPar*    fDigiPar;      /** Digitisation parameter container **/
 	PndEmcRecoPar*    fRecoPar;      /** Reconstruction parameter container **/

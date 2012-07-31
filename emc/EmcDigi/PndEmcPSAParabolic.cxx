@@ -21,6 +21,19 @@ void PndEmcPSAParabolic::Process(const PndEmcWaveform *waveform, Double_t &ampli
 	FitPeak(signal, amplitude, time);
 }
 
+Int_t PndEmcPSAParabolic::Process(const PndEmcWaveform *waveform){
+	Process(waveform,lAmplitude,lTime);
+	if(lAmplitude > 0){
+		return 1;
+	}else{
+		return 0;
+	}
+}
+void PndEmcPSAParabolic::GetHit(Int_t i, Double_t &energy, Double_t &time){
+	energy = lAmplitude;
+	time = lTime;
+}
+
 void PndEmcPSAParabolic::FitPeak(const std::vector<Double_t> & signal, Double_t& ampl, Double_t& pos, Int_t peakBin) const
 {
 	Int_t waveformLength=signal.size();

@@ -273,6 +273,7 @@ void PndEmcHitProducer::Exec(Option_t* opt)
 		fTrackEnergy[DetId] += point->GetEnergyLoss() * energyscalefactor;
 		fPointMatch[DetId].push_back(iPoint);
 //        printf("point with detID %d has z Position %f and energyloss %f scaled with %f\n",DetId,zpos, point->GetEnergyLoss(),energyscalefactor);	
+//        printf("front is at x: %f y: %f z: %f\n", frontvec.X(),frontvec.Y(),frontvec.Z());
 	} else {
 		fTrackEnergy[DetId] += point->GetEnergyLoss();
 		fPointMatch[DetId].push_back(iPoint);

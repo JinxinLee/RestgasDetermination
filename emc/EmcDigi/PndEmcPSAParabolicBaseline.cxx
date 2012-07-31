@@ -26,6 +26,19 @@ void PndEmcPSAParabolicBaseline::Process(const PndEmcWaveform *waveform, Double_
 	amplitude -= baseline;
 }
 
+Int_t PndEmcPSAParabolicBaseline::Process(const PndEmcWaveform *waveform){
+	Process(waveform,lAmplitude,lTime);
+	if(lAmplitude > 0){
+		return 1;
+	}else{
+		return 0;
+	}
+}
+void PndEmcPSAParabolicBaseline::GetHit(Int_t i, Double_t &energy, Double_t &time){
+	energy = lAmplitude;
+	time = lTime;
+}
+
 void PndEmcPSAParabolicBaseline::FitPeak(const std::vector<Double_t> & signal, Double_t& ampl, Double_t& pos, Int_t peakBin) const
 {
 	Int_t waveformLength=signal.size();
@@ -78,3 +91,4 @@ void PndEmcPSAParabolicBaseline::GetBaseline(const std::vector<Double_t> & signa
 }
 
 
+ClassImp(PndEmcPSAParabolicBaseline);
