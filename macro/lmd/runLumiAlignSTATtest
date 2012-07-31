@@ -2,24 +2,25 @@
 
 #numer of events used for resolution study
 SIMEVENTS=100000
-#SIMEVENTS=10000
+#SIMEVENTS=100
 #SIMEVENTS=100
 #Declare array with elements for knoss stat. study
 #ARRAY=(100 200 500 1000 2000 5000 10000 20000 50000 100000)
 #ARRAY=(100000 50000 20000 10000 5000 2000 1000 500 200 100)
 ARRAY=(100000)
+#ARRAY=(100)
 #ARRAY=(100000 10000 1000 100)
 # get number of elements in the array
 ELEMENTS=${#ARRAY[@]}
 
 #Declare array with elements for misalignment scale
-#ARRAYD=(0 20 30 50 70 100 150 200 250 300 350 400 450 500) #mum
-ARRAYD=(500) #mum
-#ARRAYD=(500) #mum
+#ARRAYD=(0 20 30 50 70 100 150 200 250 300 350 400 450 500 550 600) #mum
+#ARRAYD=(300 350 400 450 500) #mum
+ARRAYD=(0) #mum
 #ARRAYD=(100) #mum
 ELEMENTSD=${#ARRAYD[@]}
-#ARRAYA=(0 1 3 5 7 10 20 50 100) # 1e-3 rad
-ARRAYA=(0) # 1e-3 rad
+ARRAYA=(0 1 2 3 4 5 6 7 8 9 10 15 20 25 30 40 50 70 100) # 1e-3 rad
+#ARRAYA=(1 5) # 1e-3 rad
 # get number of elements in the array
 ELEMENTSA=${#ARRAYA[@]}
 
@@ -93,7 +94,10 @@ ELEMENTSA=${#ARRAYA[@]}
 	    cp /home/akaravdina/lmdMacro/tmpOutputAlign/ResidualsHist.root ${pathname}/ResidualsHist_after.root
 	    cp /home/akaravdina/lmdMacro/tmpOutputAlign/Lumi_out_MC_and_REC_trks_matches_with_IDs0.root  ${pathname}/Lumi_out_MC_and_REC_trks_matches_with_IDs0_after.root 
 	    cd  /home/akaravdina/lmdMacro/
-	    time root -l -b -q GenAlignEffect.C\(\"${pathname}/\"\)
+#	    time root -l -b -q GenAlignEffect.C\(\"${pathname}/\"\)
+	    resfile=/data/FAIRsorf/pandaroot/trunk/macro/lmd/tmpOutputAlign/results/RotStudy
+	    time root -l -b -q GenAlignEffect.C\(\"${pathname}/\",${ARRAYA[${ia}]},${ia},${ELEMENTSA},\"${resfile}\"\)
+	    #time root -l -b -q GenAlignEffect.C\(\"${pathname}/\",${ARRAYD[${j}]},${j},${ELEMENTSD},\"${resfile}\"\)
 # # #---------------------------------------------------------------------- 
 	 done
      done
