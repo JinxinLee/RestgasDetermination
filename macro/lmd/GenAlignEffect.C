@@ -6,7 +6,7 @@
 
 #include <sstream>
 using namespace std;
-void GenAlignEffect(TString path="/data/FAIRsorf/pandaroot/trunk/macro/lmd/tmpOutputAlign/results/01062012/",double misalsc=0, int crGraph=0, int poNum=10, TString resname="/data/FAIRsorf/pandaroot/trunk/macro/lmd/tmpOutputAlign/results/Sens.root")
+void GenAlignEffect(TString path="/data/FAIRsorf/pandaroot/trunk/macro/lmd/tmpOutputAlign/results/01062012/",double misalsc=0, int crGraph=0, int poNum=10, TString resname="/data/FAIRsorf/pandaroot/trunk/macro/lmd/tmpOutputAlign/results/Sens")
 {
   /// Theta resolution--------------------------------------------------------------------------------------  
   TString name1 = path + "Lumi_out_MC_and_REC_trks_matches_with_IDs0_before.root";
@@ -134,7 +134,8 @@ void GenAlignEffect(TString path="/data/FAIRsorf/pandaroot/trunk/macro/lmd/tmpOu
   TGraph *misal_a_5;
 
   if(crGraph<1){
-    fres = new TFile(resname,"RECREATE");
+    TString resname_root = resname+".root";
+    fres = new TFile(resname_root,"RECREATE");
     resx_b = new TGraph(poNum);
     resx_b->SetName("resx_b");
     resy_b = new TGraph(poNum);
@@ -175,7 +176,8 @@ void GenAlignEffect(TString path="/data/FAIRsorf/pandaroot/trunk/macro/lmd/tmpOu
 
   }
   else{
-    fres = new TFile(resname,"UPDATE");
+    TString resname_root = resname+".root";
+    fres = new TFile(resname_root,"UPDATE");
     resx_b = (TGraph*)fres->Get("resx_b");
     resy_b = (TGraph*)fres->Get("resy_b");
     resx_a = (TGraph*)fres->Get("resx_a");
@@ -235,4 +237,93 @@ void GenAlignEffect(TString path="/data/FAIRsorf/pandaroot/trunk/macro/lmd/tmpOu
   misal_b_5->Write("misal_b_5",2);
   misal_a_5->Write("misal_a_5",2);
   fres->Write();
+
+
+  ///Save all hist in file
+  if(crGraph==(poNum-1)){
+    TString resname_pdf = resname+".pdf";
+    TString resname_pdf_o = resname_pdf+"(";
+    TCanvas c1("c1");
+    th_mean->SetTitle("#theta Mean");
+    th_mean->SetMarkerStyle(25);
+    th_mean->Draw("AP");
+    c1.Print(resname_pdf_o); //write canvas and keep the ps file open
+    th_sigma->SetTitle("#theta Sigma");
+    th_sigma->SetMarkerStyle(25);
+    th_sigma->Draw("AP");
+    c1.Print(resname_pdf_o); //write canvas and keep the ps file open
+    resx_b->SetTitle("x residuals [before]");
+    resx_b->SetMarkerStyle(25);
+    resx_b->Draw("AP");
+    c1.Print(resname_pdf_o); //write canvas and keep the ps file open
+    resx_a->SetTitle("x residuals [after]");
+    resx_a->SetMarkerStyle(25);
+    resx_a->SetMarkerColor(2);
+    resx_a->Draw("AP");
+    c1.Print(resname_pdf_o); //write canvas and keep the ps file open
+    resy_b->SetTitle("y residuals [before]");
+    resy_b->SetMarkerStyle(25);
+    resy_b->Draw("AP");
+    c1.Print(resname_pdf_o); //write canvas and keep the ps file open
+    resy_a->SetTitle("y residuals [after]");
+    resy_a->SetMarkerStyle(25);
+    resy_a->SetMarkerColor(2);
+    resy_a->Draw("AP");
+    c1.Print(resname_pdf_o); //write canvas and keep the ps file open
+    misal_b_0->SetTitle("translation x [before]");
+    misal_b_0->SetMarkerStyle(25);
+    misal_b_0->Draw("AP");
+    c1.Print(resname_pdf_o); //write canvas and keep the ps file open
+    misal_a_0->SetTitle("translation x [after]");
+    misal_a_0->SetMarkerStyle(25);
+    misal_a_0->SetMarkerColor(2);
+    misal_a_0->Draw("AP");
+    c1.Print(resname_pdf_o); //write canvas and keep the ps file open
+    misal_b_1->SetTitle("translation y [before]");
+    misal_b_1->SetMarkerStyle(25);
+    misal_b_1->Draw("AP");
+    c1.Print(resname_pdf_o); //write canvas and keep the ps file open
+    misal_a_1->SetTitle("translation y [after]");
+    misal_a_1->SetMarkerStyle(25);
+    misal_a_1->SetMarkerColor(2);
+    misal_a_1->Draw("AP");
+    c1.Print(resname_pdf_o); //write canvas and keep the ps file open
+    misal_b_2->SetTitle("translation z [before]");
+    misal_b_2->SetMarkerStyle(25);
+    misal_b_2->Draw("AP");
+    c1.Print(resname_pdf_o); //write canvas and keep the ps file open
+    misal_a_2->SetTitle("translation z [after]");
+    misal_a_2->SetMarkerStyle(25);
+    misal_a_2->SetMarkerColor(2);
+    misal_a_2->Draw("AP");
+    c1.Print(resname_pdf_o); //write canvas and keep the ps file open
+    misal_b_3->SetTitle("rotation x [before]");
+    misal_b_3->SetMarkerStyle(25);
+    misal_b_3->Draw("AP");
+    c1.Print(resname_pdf_o); //write canvas and keep the ps file open
+    misal_a_3->SetTitle("rotation x [after]");
+    misal_a_3->SetMarkerStyle(25);
+    misal_a_3->SetMarkerColor(2);
+    misal_a_3->Draw("AP");
+    c1.Print(resname_pdf_o); //write canvas and keep the ps file open
+    misal_b_4->SetTitle("rotation y [before]");
+    misal_b_4->SetMarkerStyle(25);
+    misal_b_4->Draw("AP");
+    c1.Print(resname_pdf_o); //write canvas and keep the ps file open
+    misal_a_4->SetTitle("rotation y [after]");
+    misal_a_4->SetMarkerStyle(25);
+    misal_a_4->SetMarkerColor(2);
+    misal_a_4->Draw("AP");
+    c1.Print(resname_pdf_o); //write canvas and keep the ps file open
+    misal_b_5->SetTitle("rotation z [before]");
+    misal_b_5->SetMarkerStyle(25);
+    misal_b_5->Draw("AP");
+    c1.Print(resname_pdf_o); //write canvas and keep the ps file open
+    misal_a_5->SetTitle("rotation z [after]");
+    misal_a_5->SetMarkerStyle(25);
+    misal_a_5->SetMarkerColor(2);
+    misal_a_5->Draw("AP");
+    TString resname_pdf_c = resname_pdf+")";
+    c1.Print(resname_pdf_c); //canvas is added to "c1.ps" and ps file is closed
+  }
 }
