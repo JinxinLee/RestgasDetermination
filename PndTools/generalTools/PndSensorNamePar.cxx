@@ -9,6 +9,17 @@ PndSensorNamePar::PndSensorNamePar(const char* name, const char* title, const ch
   fSensorNames->SetOwner(kTRUE);
 }
 
+PndSensorNamePar::PndSensorNamePar(const  PndSensorNamePar& L)
+{
+	fSensorNames = new TObjArray(*(L.GetSensorNames()));
+}
+
+PndSensorNamePar& PndSensorNamePar::operator= (const  PndSensorNamePar& L)
+{
+	fSensorNames = new TObjArray(*(L.GetSensorNames()));
+	return *this;
+}
+
 void PndSensorNamePar::putParams(FairParamList* list)
 {
   if(!list) return;

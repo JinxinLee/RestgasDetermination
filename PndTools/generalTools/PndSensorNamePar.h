@@ -53,10 +53,10 @@ class PndSensorNamePar : public FairParGenericSet
     	}
     }
 
-    TObjArray* GetSensorNames(){return fSensorNames;}
+    TObjArray* GetSensorNames() const{return fSensorNames;}
 
     PndSensorNamePar(const  PndSensorNamePar& L);
-    PndSensorNamePar& operator= (const  PndSensorNamePar&) {return *this;}
+    PndSensorNamePar& operator= (const  PndSensorNamePar& L);
 
   private:
     TObjArray* fSensorNames;
