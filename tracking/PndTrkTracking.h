@@ -2,6 +2,7 @@
 #define PndTrkTracking_H 1
 #include <vector>
 
+// #include "FairRootManager.h"
 #include "FairTask.h"
 #include "PndGeoSttPar.h"
 #include "PndMCTrack.h"
@@ -83,7 +84,7 @@ class PndTrkTracking : public FairTask
 
 
   static const Short_t
-	MAXMCTRACKS		= 10000,
+	MAXMCTRACKS		= 1000,
 	MAXMVDPIXELHITS		= 500,
 	MAXMVDPIXELHITSINTRACK	= 10,
 	MAXMVDSTRIPHITS		= 500,
@@ -190,13 +191,14 @@ class PndTrkTracking : public FairTask
 	Ox[MAXTRACKSPEREVENT],
 	Oy[MAXTRACKSPEREVENT],
 	posizSciTil[MAXSCITILHITS][3],
+	pSciTilx[MAXSCITILHITS],
+	pSciTily[MAXSCITILHITS],
+	pSciTilz[MAXSCITILHITS],
 	R[MAXTRACKSPEREVENT],
 	refindexMvdPixel[MAXMVDPIXELHITS],
 	refindexMvdStrip[MAXMVDSTRIPHITS],
 	radiaConf[NRDIVCONFORMAL],
 	R_MC[MAXMCTRACKS],
-//	SciTilHitsXwithTrack[MAXTRACKSPEREVENT][MAXSCITILHITSINTRACK],
-//	SciTilHitsYwithTrack[MAXTRACKSPEREVENT][MAXSCITILHITSINTRACK],
 	SEMILENGTH_STRAIGHT,
 	sigmaXMvdPixel[MAXMVDPIXELHITS],
 	sigmaYMvdPixel[MAXMVDPIXELHITS],
@@ -212,6 +214,8 @@ class PndTrkTracking : public FairTask
 	ZCENTER_STRAIGHT,
 	ZMvdPixel[MAXMVDPIXELHITS],
 	ZMvdStrip[MAXMVDSTRIPHITS];
+
+//  FairRootManager *ioman;
 
   FILE
 	* HANDLE,
@@ -232,8 +236,21 @@ class PndTrkTracking : public FairTask
 
 
   TClonesArray
- /** Input array of PndSttTube (map of STT tubes) **/
+  /** MC Track Array  **/
 	*fMCTrackArray,
+ /** Input array of MC points  of Mvd**/
+	*fMvdMCPointArray,
+ /** Input array of MvdPixelHitArray **/
+	*fMvdPixelHitArray,
+ /** Input array of MvdStripHitArray **/
+	*fMvdStripHitArray,
+ /** Input array of PndTracksCand of Mvd**/
+	*fMvdTrackCandArray,
+ /** SciTil Hit Array **/
+	*fSciTHitArray,
+ /** SciTil MC Point Array **/
+	*fSciTPointArray,
+ /** Input array of PndSttTube (map of STT tubes) **/
 	*fSttTubeArray,
  /** Input array of PndSttPoints **/
 	*fSttPointArray,
@@ -243,16 +260,6 @@ class PndTrkTracking : public FairTask
 	*fSttTrackArray,
  /** Input array of PndTracksCand of Stt **/
 	*fSttTrackCandArray,
- /** Input array of MC points  of Mvd**/
-	*fMvdMCPointArray,
- /** Input array of MvdPixelHitArray **/
-	*fMvdPixelHitArray,
- /** Input array of MvdStripHitArray **/
-	*fMvdStripHitArray,
- /** Input array of PndTracksCand of Mvd**/
-	*fMvdTrackCandArray,
- /** Input array of SciTil Hit Array **/
-	*fSciTHitArray,
  /** Output array of PndSttMvd  PndTrackCand **/
 	*fSttMvdPndTrackCandArray,
  /** Output array of PndSttMvd   PndTrack **/
