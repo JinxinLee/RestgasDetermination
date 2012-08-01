@@ -30,10 +30,10 @@ class PndMdtTrk : public FairMultiLinkedData {
   void Clear();
 
   /** Accessors **/
-  void GetHitList(Int_t *hit)            { for (Int_t ii=0; ii<15; ii++) hit[ii] = fHitList[ii]; };
-  void GetHitMult(Int_t *hit)            { for (Int_t ii=0; ii<15; ii++) hit[ii] = fHitMult[ii]; };
-  void GetHitDist(Float_t *hit)          { for (Int_t ii=0; ii<15; ii++) hit[ii] = fHitDist[ii]; };
-  void GetHitDeltaAngle(Float_t *hit)    { for (Int_t ii=0; ii<15; ii++) hit[ii] = fHitDeltaAngle[ii]; };
+  void GetHitList(Int_t *hit)            { for (Int_t ii=0; ii<25; ii++) hit[ii] = fHitList[ii]; };
+  void GetHitMult(Int_t *hit)            { for (Int_t ii=0; ii<25; ii++) hit[ii] = fHitMult[ii]; };
+  void GetHitDist(Float_t *hit)          { for (Int_t ii=0; ii<25; ii++) hit[ii] = fHitDist[ii]; };
+  void GetHitDeltaAngle(Float_t *hit)    { for (Int_t ii=0; ii<25; ii++) hit[ii] = fHitDeltaAngle[ii]; };
   Int_t   GetHitIndex(Int_t lay)   const { return fHitList[lay]; };
   Int_t   GetHitMult  (Int_t lay)  const { return fHitMult[lay]; };
   Float_t GetHitDist (Int_t lay)   const { return fHitDist[lay]; };
@@ -69,11 +69,11 @@ class PndMdtTrk : public FairMultiLinkedData {
 
  private:
   
-  Int_t fHitList[15];      // List of indexes of MdtHit
-  Int_t fHitMult[15];      // Number of MdtHits inside the correlation
-  Float_t fHitDist[15];    // Distance of the closest point to the previous layer hit
-  Float_t fHitDeltaAngle[15];
-  Float_t fLayDist[15];    // Distance of the actual layer from the previous one
+  Int_t fHitList[25];      // List of indexes of MdtHit
+  Int_t fHitMult[25];      // Number of MdtHits inside the correlation
+  Float_t fHitDist[25];    // Distance of the closest point to the previous layer hit
+  Float_t fHitDeltaAngle[25];
+  Float_t fLayDist[25];    // Distance of the actual layer from the previous one
   Float_t fIronDist;       // Amount of crossed iron [cm]
   Int_t fHitCount;         // Number of hits inside correlation
   Int_t fLayerCount;       // Number of fired layers
@@ -87,9 +87,9 @@ class PndMdtTrk : public FairMultiLinkedData {
 
 inline void PndMdtTrk::SetHitIndex(Int_t lay, Int_t trackId)  
 { 
-  if (lay>15) 
+  if (lay>25) 
     {
-      cout << " -E- PndMdtTrk::SetHitIndex: Layer > 15 !!!!!" << endl;
+      cout << " -E- PndMdtTrk::SetHitIndex: Layer > 25 !!!!!" << endl;
     }
   else
     {
@@ -101,9 +101,9 @@ inline void PndMdtTrk::SetHitIndex(Int_t lay, Int_t trackId)
 
 inline void PndMdtTrk::SetHitMult(Int_t lay, Int_t mult)  
 { 
-  if (lay>15) 
+  if (lay>25) 
     {
-      cout << " -E- PndMdtTrk::SetHitMult: Layer > 15 !!!!!" << endl;
+      cout << " -E- PndMdtTrk::SetHitMult: Layer > 25 !!!!!" << endl;
     }
   else
     {
@@ -113,9 +113,9 @@ inline void PndMdtTrk::SetHitMult(Int_t lay, Int_t mult)
 
 inline void PndMdtTrk::SetHitDist(Int_t lay, Float_t dist)  
 { 
-  if (lay>15) 
+  if (lay>25) 
     {
-      cout << " -E- PndMdtTrk::SetHitDist: Layer > 15 !!!!!" << endl;
+      cout << " -E- PndMdtTrk::SetHitDist: Layer > 25 !!!!!" << endl;
     }
   else
     {
@@ -125,9 +125,9 @@ inline void PndMdtTrk::SetHitDist(Int_t lay, Float_t dist)
 
 inline void PndMdtTrk::SetHitDeltaAngle(Int_t lay, Float_t dist)
 {
-  if (lay>15)
+  if (lay>25)
     {
-      cout << " -E- PndMdtTrk::SetHitDeltaAngle: Layer > 15 !!!!!" << endl;
+      cout << " -E- PndMdtTrk::SetHitDeltaAngle: Layer > 25 !!!!!" << endl;
     }
   else
     {
@@ -137,9 +137,9 @@ inline void PndMdtTrk::SetHitDeltaAngle(Int_t lay, Float_t dist)
 
 inline void PndMdtTrk::SetLayerDist(Int_t lay, Float_t dist)  
 { 
-  if (lay>15) 
+  if (lay>25) 
     {
-      cout << " -E- PndMdtTrk::SetLayerDist: Layer > 15 !!!!!" << endl;
+      cout << " -E- PndMdtTrk::SetLayerDist: Layer > 25 !!!!!" << endl;
     }
   else
     {

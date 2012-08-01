@@ -15,7 +15,7 @@ PndMdtTrk::~PndMdtTrk()
 PndTrackCand* PndMdtTrk::AddTrackCand(const PndTrackCand* inTrackCand)
 {
   PndTrackCand *outTrackCand = (PndTrackCand*)inTrackCand->Clone();
-  for (Int_t ii=0; ii<15; ii++) 
+  for (Int_t ii=0; ii<25; ii++) 
     {
       if (fHitList[ii]!=-1)
 	outTrackCand->AddHit(kMdtHit, fHitList[ii], (250+ii*10.)*(250+ii*10.));
@@ -26,7 +26,7 @@ PndTrackCand* PndMdtTrk::AddTrackCand(const PndTrackCand* inTrackCand)
 // -----   Clear function   -------------------------------------------
 void PndMdtTrk::Clear()
 {
-  for (Int_t ii=0; ii<15; ii++)
+  for (Int_t ii=0; ii<25; ii++)
     { fHitList[ii]  = -1;
       fHitMult[ii]  =  0;
       fHitDist[ii] = -1.;
