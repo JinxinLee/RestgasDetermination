@@ -30,7 +30,7 @@
 
 // ========================================================================
 //! Method types for selecting which classifier to use.
-typedef enum
+typedef enum 
   {
     KNN = 0,// KNN methode
     LVQ = 1, // LVQ
@@ -112,7 +112,7 @@ class PndPidMvaAssociatorTask: public FairTask
   /**
    *@param val nNumber of neighbors to be uset for KNN classifier.
    */
-  inline void SetNumNeigh(int val);
+  inline void SetNumNeigh(size_t val);
   
   /**
    * Set the scale factor and the event weight for KNN classifier.
@@ -152,7 +152,7 @@ class PndPidMvaAssociatorTask: public FairTask
   std::string fWeightsFileName;
   
   //! Number of neighbors
-  int    fNumNeigh;
+  size_t fNumNeigh;
   float  fScFact;
   double fWeight;
 
@@ -163,11 +163,12 @@ class PndPidMvaAssociatorTask: public FairTask
   Mva_MethodType fMethodType;
 
   TClonesArray* fPidChargedCand; //! PndPidCandidate TCA for charged particles
-  TClonesArray* fPidNeutralCand; //! PndPidCandidate TCA for neutral particles
   TClonesArray* fPidChargedProb; //! PndPidProbability TCA for charged particles
-  TClonesArray* fPidNeutralProb; //! PndPidProbability TCA for neutral particles
   TClonesArray* fMCTrack;        //! Monte-Carlo Truth track TCA
-  
+  //TClonesArray* fPidNeutralCand; //! PndPidCandidate TCA for neutral particles
+  //TClonesArray* fPidNeutralProb; //! PndPidProbability TCA for neutral particles
+  std::string   fMethodName;
+
   ClassDef(PndPidMvaAssociatorTask, 0);
 };
 
@@ -191,7 +192,7 @@ inline void PndPidMvaAssociatorTask::SetWeightFileName(std::string const& wFileN
   fWeightsFileName = wFileName;
 };
 
-inline void PndPidMvaAssociatorTask::SetNumNeigh(int val)
+inline void PndPidMvaAssociatorTask::SetNumNeigh(size_t val)
 {
   fNumNeigh = val;
 };

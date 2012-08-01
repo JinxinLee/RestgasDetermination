@@ -37,14 +37,15 @@ void printResult(std::map<std::string,float>& res)
  */
 PndPidMvaAssociatorTask::PndPidMvaAssociatorTask()
   : FairTask("PndPidMvaAssociatorTaskSTD"),
-    fNumNeigh(200), fScFact(0.8), fWeight(1.00),
-    fClassifier(0)
+    fNumNeigh(200), fScFact(0.8),
+    fWeight(1.00), fClassifier(0),
+    fMethodName("UNKNOWN_METHOD")
 {
   std::cout << "<INFO> Call Default task constructor. " 
 	    << "(PndPidMvaAssociatorTask)\n";
   // Init charged and neutral probab. containers.
-  fPidChargedProb = new TClonesArray("PndPidProbability");
-  fPidNeutralProb = new TClonesArray("PndPidProbability");
+  fPidChargedProb = new TClonesArray("PidMvaProb");
+  //fPidNeutralProb = new TClonesArray("PndPidProbability");
 
   // Set Default path to the weight file  
   SetDefaultWeightsPath();
@@ -57,12 +58,12 @@ PndPidMvaAssociatorTask::PndPidMvaAssociatorTask()
 PndPidMvaAssociatorTask::PndPidMvaAssociatorTask(char const* name, char const* title)
   : FairTask(name),
     fNumNeigh(200), fScFact(0.8), fWeight(1.00),
-    fClassifier(0)
+    fClassifier(0), fMethodName("UNKNOWN_METHOD")
 {
   std::cout << title << '\n';
   // Init charged and neutral probab. containers.
-  fPidChargedProb = new TClonesArray("PndPidProbability");
-  fPidNeutralProb = new TClonesArray("PndPidProbability");
+  fPidChargedProb = new TClonesArray("PidMvaProb");
+  //fPidNeutralProb = new TClonesArray("PndPidProbability");
 
   // Set Default path to the weight file
   SetDefaultWeightsPath();
@@ -91,15 +92,15 @@ PndPidMvaAssociatorTask::~PndPidMvaAssociatorTask()
   
   if(fPidChargedCand)
     delete fPidChargedCand;
-  
-  if(fPidNeutralCand)
-    delete fPidNeutralCand;
-  
+
   if(fPidChargedProb)
     delete fPidChargedProb;
+
+  //if(fPidNeutralCand)
+  //delete fPidNeutralCand;  
   
-  if(fPidNeutralProb)
-    delete fPidNeutralProb;
+  //if(fPidNeutralProb)
+  //delete fPidNeutralProb;
   
   if(fMCTrack)
     delete  fMCTrack;
@@ -126,15 +127,17 @@ InitStatus PndPidMvaAssociatorTask::Init()
   }
 
   // Get Neutral candidates.
-  fPidNeutralCand = (TClonesArray *)fManager->GetObject("PidNeutralCand");
-  
-  if ( ! fPidNeutralCand)
-  {
+  /*
+    fPidNeutralCand = (TClonesArray *)fManager->GetObject("PidNeutralCand");
+    
+    if ( ! fPidNeutralCand)
+    {
     std::cerr << "<ERROR> PndPidMvaAssociatorTask::Init: No PidNeutralCand there!"
-	      << std::endl;
+    << std::endl;
     return kERROR;
-  }
-
+    }
+  */
+  
   Register();
   
   std::cout << "<INFO> Using weight file  "
@@ -160,6 +163,7 @@ InitStatus PndPidMvaAssociatorTask::Init()
     //fClassifier = dynamic_cast<PndMultiClassMlpClassify*>(TmvaMlpCls);
     fClassifier = TmvaMlpCls;
     std::cout << "<INFO> TMVA_MLP initialized using " << fWeightsFileName << '\n';
+    fMethodName = "TMVAMLP";
   }
   break;
   
@@ -179,6 +183,7 @@ InitStatus PndPidMvaAssociatorTask::Init()
     //fClassifier = dynamic_cast<PndMultiClassBdtClassify*>(TmvaBdtCls);
     fClassifier = TmvaBdtCls;
     std::cout << "<INFO> TMVA_BDT initialized using " << fWeightsFileName << '\n';
+    fMethodName = "TMVABDT";
   }
   break;
   
@@ -198,6 +203,7 @@ InitStatus PndPidMvaAssociatorTask::Init()
     //fClassifier = dynamic_cast<PndMvaClassifier*>(LvqCls);
     fClassifier = LvqCls;
     std::cout << "<INFO> LVQ initialized using " << fWeightsFileName << '\n';
+    fMethodName = "LVQ";
   }
   break;
   
@@ -221,6 +227,8 @@ InitStatus PndPidMvaAssociatorTask::Init()
     //fClassifier = dynamic_cast<PndMvaClassifier*>(KnnCls);
     fClassifier = KnnCls;
     std::cout << "<INFO> KNN initialized using " << fWeightsFileName << '\n';
+
+    fMethodName = "KNN";
   }
   break;
   }// End of switch(fMethodType)
@@ -235,6 +243,8 @@ void PndPidMvaAssociatorTask::SetParContainers()
 
 void PndPidMvaAssociatorTask::SetClassifier(std::string const& methodNameStr)
 {
+  fMethodName = methodNameStr;
+
   if(methodNameStr == "KNN")
   {
     fMethodType = KNN;
@@ -302,17 +312,19 @@ void PndPidMvaAssociatorTask::Exec(Option_t* option)
   }
   
   // Get the Neutral Candidates
-  for(int i = 0; i < fPidNeutralCand->GetEntriesFast(); i++)
-  {
+  /*
+    for(int i = 0; i < fPidNeutralCand->GetEntriesFast(); i++)
+    {
     PndPidCandidate* pidcand = (PndPidCandidate*)fPidNeutralCand->At(i);
     TClonesArray& pidRef = *fPidNeutralProb;
-
+    
     // initializes with zeros
     PndPidProbability* prob = new(pidRef[i]) PndPidProbability();
     
     // Classify
     DoPidMatch(*pidcand, *prob);
-  }
+    }
+  */
 }
 
 /**
@@ -391,7 +403,7 @@ std::vector<float> const* PndPidMvaAssociatorTask::PrepareEvtVect(PndPidCandidat
     else if(fVarNames[i] == "emc")
     {
       if(mom != 0.0)
-      {
+      { // E/p
 	vect->push_back( (pidcand.GetEmcCalEnergy())/mom);
       }
       else
@@ -447,11 +459,12 @@ std::vector<float> const* PndPidMvaAssociatorTask::PrepareEvtVect(PndPidCandidat
 //_________________________________________________________________
 void PndPidMvaAssociatorTask::Register()
 {
+  std::string tcaName = "Pid" + fMethodName + "MvaProb";
   //---
-  FairRootManager::Instance()->Register("PidMvaChargedProbability","Pid",
+  FairRootManager::Instance()->Register(tcaName.c_str(),"Pid",
 					fPidChargedProb, kTRUE); 
-  FairRootManager::Instance()->Register("PidMvaNeutralProbability","Pid", 
-					fPidNeutralProb, kTRUE);
+  //FairRootManager::Instance()->Register("PidMvaNeutralProbability","Pid", 
+  //					fPidNeutralProb, kTRUE);
 }
 
 //_________________________________________________________________
