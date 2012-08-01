@@ -46,6 +46,11 @@ struct PndTrkPlotMacros_InputData{
 	Short_t *MCMvdPixelAloneList;
 	Short_t *MCMvdStripAloneList;
 	Short_t *MCParalAloneList;
+
+	Short_t *MCSciTilAloneList;// equivalent to a matrix
+		//  [nTotalCandidates][nSciTilHits]
+
+
 	Short_t *MCSkewAloneList;
 	Double_t *MCSkewAloneX;
 	Double_t *MCSkewAloneY;
@@ -56,6 +61,10 @@ struct PndTrkPlotMacros_InputData{
 	Short_t *nMCMvdPixelAlone;
 	Short_t *nMCMvdStripAlone;
 	Short_t *nMCParalAlone;
+
+	Short_t *nMCSciTilAlone;
+
+
 	Short_t *nMCSkewAlone;
 	Short_t nMCTracks;
 	Short_t *nMvdPixelCommon;
@@ -67,8 +76,16 @@ struct PndTrkPlotMacros_InputData{
 	Short_t *nMvdStripHitsinTrack;
 	Short_t *nMvdStripSpuriinTrack;
 	Short_t *nParalCommon;
+
+	Short_t *nSciTilCommon;
+
+
+
 	Short_t nSciTilHits;
 	Short_t *nSciTilHitsinTrack;
+
+	Short_t *nSciTilSpuriinTrack;
+
 	Short_t *nSkewCommon;
 	Short_t *nSpuriParinTrack;
 	Int_t    nSttHit;
@@ -87,6 +104,14 @@ struct PndTrkPlotMacros_InputData{
 	Double_t rstrawdetectormax;
 	Double_t rstrawdetectormin;
 	Double_t *SchosenSkew;
+
+
+	Short_t *SciTilCommonList ;// equivalent to a matrix
+			// [nTotalCandidates][MAXSCITILHITSINTRACK]
+	Short_t *SciTilSpuriList ;// equivalent to a matrix
+			// [nTotalCandidates][MAXSCITILHITSINTRACK]
+
+
 	Double_t *sigmaXMvdPixel;
 	Double_t *sigmaXMvdStrip;
 	Double_t *sigmaYMvdPixel;
@@ -126,14 +151,15 @@ void disegnaAssiXY(
 	double ymax
 	);
 
-
 void disegnaSciTilHit(
+	int colorcode,  // goes in the SetColor function of root;
 	Double_t DIMENSIONSCITIL,
 	FILE * MACRO,
-	int ScitilHit,
 	double posx,
 	double posy,
-	int tipo
+	int ScitilHit,
+	int tipo// if 0 then SciTil draw in XY; if 1 then SciTil draw in SZ; else
+		// SciTil draw in UV.
 	);
 
 void DrawBiHexagonInMacro(
@@ -223,6 +249,7 @@ void DrawHexagonCircleInMacro(
 	TClonesArray *fMCTrackArray,
 	Int_t Nhits,
 	Double_t *info,
+	PndTrkPlotMacros_InputData In_Put,
 	int IVOLTE,
 	Short_t nMCTracks,
 	Short_t nMvdPixelHit,
@@ -252,6 +279,7 @@ void DrawHexagonCircleInMacro(
 
  void WriteMacroSkewAssociatedHitswithMC(
 	Double_t *ESSE,
+	Double_t *ESSEalone,
 	PndTrkPlotMacros_InputData In_Put,
 	Int_t iNome, // questo e' per il nome delle Macro solamente.
 	Short_t iTrack
