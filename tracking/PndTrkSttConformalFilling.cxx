@@ -36,14 +36,6 @@ void PndTrkSttConformalFilling::BoxConformalFilling(
 
  Double_t Fi;
 
- // make a POINTER to an ARRAY[NFIDIVCONFORMAL] of Short_t and assign value present in the calling
- // sequence of this method;
-// Short_t (*nBoxConformal)[NFIDIVCONFORMAL] = (Short_t (*)[NFIDIVCONFORMAL]) nBoxConf;
-
- // make a POINTER to an ARRAY[NRDIVCONFORMAL][NFIDIVCONFORMAL] of Short_t and assign value present
- // in the calling sequence of this method;
-// Short_t (*HitsinBoxConformal)[NRDIVCONFORMAL][NFIDIVCONFORMAL]=
-//		(Short_t (*)[NRDIVCONFORMAL][NFIDIVCONFORMAL])HitsinBoxConf;
 
 
  // initialize nBoxConformal (each event);
