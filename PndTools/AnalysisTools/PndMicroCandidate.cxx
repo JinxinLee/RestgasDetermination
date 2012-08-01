@@ -78,6 +78,7 @@ PndMicroCandidate::PndMicroCandidate():
   fMuoIron(0.),
   fMuoMomentumIn(0.),
   fMuoModule(0), 
+  fMuoHits(0), 
   fMuoIndex(-1),
   fDegreesOfFreedom(0),
   fFitStatus(0),
@@ -147,6 +148,7 @@ PndMicroCandidate::PndMicroCandidate(Int_t charge, TVector3 &pos, TLorentzVector
   fMuoIron(0.),
   fMuoMomentumIn(0.),
   fMuoModule(0), 
+  fMuoHits(0),
   fMuoIndex(-1),
   fDegreesOfFreedom(0),
   fFitStatus(0),
@@ -221,6 +223,7 @@ PndMicroCandidate::PndMicroCandidate(Int_t charge, TVector3 &pos, TLorentzVector
   fMuoIron(0.),
   fMuoMomentumIn(0.),
   fMuoModule(0), 
+  fMuoHits(0), 
   fMuoIndex(-1),
   fDegreesOfFreedom(0),
   fFitStatus(0),
@@ -393,7 +396,8 @@ void PndMicroCandidate::SetDefault()
   fMuoQuality = -1.; 
   fMuoIron = 0.;
   fMuoMomentumIn = 0.;
-  fMuoModule = 0; 
+  fMuoModule = 0;  
+  fMuoHits = 0; 
   fMuoIndex = -1;
   fDegreesOfFreedom = 0;
   fFitStatus = 0;

@@ -487,7 +487,7 @@ InitStatus PndPidCorrelator::Init() {
       fscCorr = new TNtuple("fscCorr","TRACK-FSC Correlation",
 			    "track_x:track_y:track_z:track_phi:track_p:track_charge:track_theta:track_z0:emc_x:emc_y:emc_z:emc_phi:chi2:dphi:emc_ene:glen:emc_mod");
       mdtCorr = new TNtuple("mdtCorr","TRACK-MDT Correlation",
-			    "track_x:track_y:track_z:track_phi:track_p:track_charge:track_theta:track_z0:mdt_x:mdt_y:mdt_z:mdt_phi:chi2:mdt_mod:dphi:glen:mdt_count");
+			    "track_x:track_y:track_z:track_phi:track_p:track_charge:track_theta:track_z0:mdt_x:mdt_y:mdt_z:mdt_phi:chi2:mdt_mod:dphi:glen:mdt_count:nhits");
       drcCorr = new TNtuple("drcCorr","TRACK-DRC Correlation",
 			    "track_x:track_y:track_z:track_phi:track_p:track_charge:track_theta:track_z0:drc_x:drc_y:drc_phi:chi2:drc_thetac:drc_nphot:dphi:glen");
       dskCorr = new TNtuple("dskCorr","TRACK-DSK Correlation",
@@ -985,7 +985,7 @@ Bool_t PndPidCorrelator::GetMdtInfo(PndTrack* track, PndPidCandidate* pidCand) {
     }
   PndMdtHit *mdtHit = NULL;
   Int_t mdtEntries = fMdtHit->GetEntriesFast();
-  Int_t mdtIndex = -1, mdtMod = 0, mdtLayer = 0;
+  Int_t mdtIndex = -1, mdtMod = 0, mdtLayer = 0, mdtHits = 0;
   Float_t mdtGLength = -1000;
   Float_t mdtQuality = 1000000;
   Float_t mdtIron = 0., mdtMom = 0, mdtTempMom = 0;
@@ -1039,6 +1039,12 @@ Bool_t PndPidCorrelator::GetMdtInfo(PndTrack* track, PndPidCandidate* pidCand) {
 	      mdtLayer = mdtTrk->GetLayerCount();
 	      mdtIron = mdtTrk->GetIronDist();
 	      mdtMod = mdtTrk->GetModule();
+	      mdtHits = 0;
+	      for (Int_t iLayer=0; iLayer<mdtLayer; iLayer++)
+		{
+		  mdtHits = mdtHits + mdtTrk->GetHitMult(iLayer);
+		  std::cout << iLayer << "\t" << mdtTrk->GetHitMult(iLayer) << "\t" << mdtHits << std::endl;
+		}
 	    }
 	}
       if (fDebugMode)
@@ -1046,7 +1052,7 @@ Bool_t PndPidCorrelator::GetMdtInfo(PndTrack* track, PndPidCandidate* pidCand) {
 	  Float_t ntuple[] = {vertex.X(), vertex.Y(), vertex.Z(), vertex.Phi(), 
 			      helix->GetMomentum().Mag(), helix->GetQ(), helix->GetMomentum().Theta(), helix->GetZ(),
 			      mdtPos.X(), mdtPos.Y(), mdtPos.Z(), mdtPos.Phi(),
-			      dist, mdtHit->GetModule(), vertex.DeltaPhi(mdtPos), mdtGLength, mdtLayer};
+			      dist, mdtHit->GetModule(), vertex.DeltaPhi(mdtPos), mdtGLength, mdtLayer, mdtHits};
 	  mdtCorr->Fill(ntuple);
 	}
     }
@@ -1058,7 +1064,8 @@ Bool_t PndPidCorrelator::GetMdtInfo(PndTrack* track, PndPidCandidate* pidCand) {
       pidCand->SetMuoIron(mdtIron);
       pidCand->SetMuoMomentumIn(mdtMom);
       pidCand->SetMuoModule(mdtMod);
-      pidCand->SetMuoNumberOfLayers(mdtLayer);
+      pidCand->SetMuoNumberOfLayers(mdtLayer); 
+      pidCand->SetMuoHits(mdtHits);
     }
   
   if (fMdtRefit && (mdtIndex!=-1) && (mdtMom>0.)  )

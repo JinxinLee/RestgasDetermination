@@ -128,6 +128,7 @@ class PndPidCandidate : public VAbsMicroCandidate  //TObject
   Float_t		GetMuoIron()      const{return fMuoIron;}
   Float_t		GetMuoMomentumIn()const{return fMuoMomentumIn;}
   Int_t                 GetMuoModule()    const { return fMuoModule; }
+  Int_t                 GetMuoHits()    const { return fMuoHits; }
   Int_t                 GetMuoIndex()     const { return fMuoIndex; }
 
   // Tracking
@@ -239,8 +240,9 @@ class PndPidCandidate : public VAbsMicroCandidate  //TObject
   void	SetMuoQuality(Double_t val)     { fMuoQuality=(Float_t) val;}
   void	SetMuoIron(Double_t val)        { fMuoIron=(Float_t) val;} 
   void	SetMuoMomentumIn(Double_t val)  { fMuoMomentumIn=(Float_t) val;}
-  void  SetMuoModule(Int_t val)           { fMuoModule = val; }
-  void  SetMuoIndex(Int_t val)            { fMuoIndex = val; }
+  void  SetMuoModule(Int_t val)         { fMuoModule = val; } 
+  void  SetMuoHits(Int_t val)           { fMuoHits = val; }
+  void  SetMuoIndex(Int_t val)          { fMuoIndex = val; }
 
   // Tracking
   void   	SetDegreesOfFreedom(Int_t val) { fDegreesOfFreedom=val;}
@@ -347,6 +349,7 @@ class PndPidCandidate : public VAbsMicroCandidate  //TObject
   Float_t       fMuoIron;
   Float_t       fMuoMomentumIn;
   Int_t         fMuoModule;
+  Int_t         fMuoHits;
   Int_t         fMuoIndex;
   
   // Tracking
@@ -355,7 +358,7 @@ class PndPidCandidate : public VAbsMicroCandidate  //TObject
   Float_t 	fChiSquared;
   
 
-  ClassDef(PndPidCandidate,2) // Abstract base class for MicroDST candidates
+  ClassDef(PndPidCandidate,3) // Abstract base class for MicroDST candidates
     };
 
 //std::ostream&  operator << (std::ostream& o, const VAbsMicroCandidate&);

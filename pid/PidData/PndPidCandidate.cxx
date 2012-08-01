@@ -78,6 +78,7 @@ PndPidCandidate::PndPidCandidate():
   fMuoIron(0.),
   fMuoMomentumIn(0.),
   fMuoModule(0), 
+  fMuoHits(0),
   fMuoIndex(-1),
   fDegreesOfFreedom(0),
   fFitStatus(0),
@@ -147,6 +148,7 @@ PndPidCandidate::PndPidCandidate(Int_t charge, TVector3 &pos, TLorentzVector &p4
   fMuoIron(0.),
   fMuoMomentumIn(0.),
   fMuoModule(0), 
+  fMuoHits(0),
   fMuoIndex(-1),
   fDegreesOfFreedom(0),
   fFitStatus(0),
@@ -219,7 +221,8 @@ PndPidCandidate::PndPidCandidate(Int_t charge, TVector3 &pos, TLorentzVector &p4
   fMuoQuality(-1.), 
   fMuoIron(0.),
   fMuoMomentumIn(0.),
-  fMuoModule(0), 
+  fMuoModule(0),
+  fMuoHits(0),
   fMuoIndex(-1),
   fDegreesOfFreedom(0),
   fFitStatus(0),
@@ -393,6 +396,7 @@ void PndPidCandidate::SetDefault()
   fMuoIron = 0.;
   fMuoMomentumIn = 0.;
   fMuoModule = 0; 
+  fMuoHits = 0;
   fMuoIndex = -1;
   fDegreesOfFreedom = 0;
   fFitStatus = 0;
