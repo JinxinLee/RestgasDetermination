@@ -1,7 +1,8 @@
 #include "PndSdsMCPoint.h"
+#include "PndSciTPoint.h"
+#include "PndSciTHit.h"
 #include "PndTrkComparisonMCtruth.h"
-
-
+// #include "PndTrkCTGeometryCalculations.h"
 #include "PndMCTrack.h"
 // Root includes
 #include "TROOT.h"
@@ -17,12 +18,34 @@ using namespace std;
  void PndTrkComparisonMCtruth::AssociateFoundTrackstoMCquater(
 	Double_t BFIELD,
 	Double_t CVEL,
+	Short_t *daTrackFoundaTrackMC,
 	TClonesArray *fMCTrackArray,
+	Int_t   *FromPixeltoMCTrack,
+	Int_t   *FromStriptoMCTrack,
+	int *FromSciTiltoMCTrackList,	// it is an array of
+		//  dimension   nSciTilHits*nMCTracks, equivalent to a matrix
+		//  of dimension  [nSciTilHits][nMCTracks].
 	bool *keepit,
 	Double_t info[][7],
+	Short_t *ListHitsinTrack,
+	Short_t *ListPixelHitsinTrack,
+	Short_t *ListSciTilHitsinTrack, // equivalent to a matrix of
+					// dimension [MAXTRACKSPEREVENT][MAXSCITILHITSINTRACK]
+	Short_t *ListSkewHitsinTrack,
+	Short_t *ListStripHitsinTrack,
 	int MAXMVDPIXELHITSINTRACK,
 	int MAXMVDSTRIPHITSINTRACK,
+	int MAXSCITILHITSINTRACK,
 	int MAXSTTHITSINTRACK,
+	int *nFromSciTiltoMCTrack,
+	Short_t *nHitsinTrack,
+	int nMCTracks,
+	Short_t *nPixelHitsinTrack,
+	Short_t nSciTilHits,
+	Short_t *nSciTilHitsinTrack,
+	Short_t *nSkewHitsinTrack,
+	Short_t *nStripHitsinTrack,
+	Short_t  nTracksFoundSoFar,
 	Double_t *Ox,
 	Double_t *Oy,
 	Double_t *R,
@@ -31,20 +54,7 @@ using namespace std;
 	Double_t *X2,
 	Double_t *Y2,
 	Double_t *X3,
-	Double_t *Y3,
-	Short_t  nTracksFoundSoFar,
-	Short_t *nHitsinTrack,
-	Short_t *ListHitsinTrack,
-	Short_t *nSkewHitsinTrack,
-	Short_t *ListSkewHitsinTrack,
-
-	Short_t *nPixelHitsinTrack,
-	Short_t *ListPixelHitsinTrack,
-	Int_t   *FromPixeltoMCTrack,
-	Short_t *nStripHitsinTrack,
-	Short_t *ListStripHitsinTrack,
-	Int_t   *FromStriptoMCTrack,
-	Short_t *daTrackFoundaTrackMC
+	Double_t *Y3
 						)
 {
 
@@ -172,6 +182,7 @@ using namespace std;
 
 	for(i=0; i<nHitsinTrack[jexp]; i++){
 		nindex = jexp*MAXSTTHITSINTRACK + i;
+		//  enne = MC track alla quale lo hit e' associato.
 		enne = (Int_t)( info[ *(ListHitsinTrack+nindex) ][6]+0.01 );
 		if(enne<0) continue;   //  hit not associated to any MC track; noise hit.
 
@@ -276,9 +287,9 @@ using namespace std;
 			}  // end of if(flaggo)
 		}
 
-	}   //  end of for(i=0; i<nHitsinTrack[jexp]; i++)
+	}   //  end of for(i=0; i<nPixelHitsinTrack[jexp]; i++)
 
-// infine le strip -------------------------------------------
+// le strip -------------------------------------------
 
 	for(i=0; i<nStripHitsinTrack[jexp]; i++){
 		nindex = jexp*MAXMVDSTRIPHITSINTRACK + i;
@@ -332,44 +343,116 @@ using namespace std;
 			} // end of if(flaggo)
 		}
 
-	}   //  end of for(i=0; i<nHitsinTrack[jexp]; i++)
+	}   //  end of for(i=0; i<nStripHitsinTrack[jexp]; i++)
+
+
+
+
+// the SciTil hits -------------------------------------------
+
+	for(i=0; i<nSciTilHitsinTrack[jexp]; i++){
+	    nindex = jexp*MAXSCITILHITSINTRACK+i;
+	    int SciTilTilenumber = ListSciTilHitsinTrack[nindex];
+	    // nFromSciTiltoMCTrack is zero in case this SciTil hit is not associated to any
+	    // MC truth track. In that case effectively the SciTil hit is ignored.
+	    for(int iMClinks=0; iMClinks< nFromSciTiltoMCTrack[SciTilTilenumber];iMClinks++){
+
+		enne = FromSciTiltoMCTrackList[SciTilTilenumber*nMCTracks+iMClinks];
+		if(firstime) {
+			toMCtracklist[jexp][0]= enne;
+			toMCtrackfrequency[jexp][0]=1;
+			firstime = false;
+
+			getMCInfo( BFIELD, CVEL, &Cx, &Cy,fMCTrackArray,enne, &Rr);
+			if( Rr<0.) {
+				toMCtrackdistance[jexp][0]=-1.;
+			} else {
+				alfa = -2.*Cx;
+				beta = -2.*Cy;
+				gamma = Cx*Cx+Cy*Cy-Rr*Rr;
+				toMCtrackdistance[jexp][0]= FindDistance(Ox[jexp],Oy[jexp],
+				R[jexp],tanlow[jexp],tanmid[jexp],tanup[jexp],alfa,beta,gamma);
+			}
+			ntoMCtrack[jexp]=1;
+
+		} else {	// continuation of  if(firstime)
+
+			flaggo=true;
+			for(j=0; j<ntoMCtrack[jexp]; j++){
+				if( enne == toMCtracklist[jexp][j] ) {
+					toMCtrackfrequency[jexp][j]++;
+					flaggo=false;
+					break;
+				}
+			}
+			if(flaggo){
+				toMCtracklist[jexp][ ntoMCtrack[jexp] ] = enne;
+				toMCtrackfrequency[jexp][ ntoMCtrack[jexp] ] = 1;
+				getMCInfo( BFIELD, CVEL, &Cx, &Cy,fMCTrackArray,enne, &Rr);
+				if( Rr<0.) {
+					toMCtrackdistance[jexp][ntoMCtrack[jexp]]=-1.;
+				} else {
+					alfa = -2.*Cx;
+					beta = -2.*Cy;
+					gamma = Cx*Cx+Cy*Cy-Rr*Rr;
+					toMCtrackdistance[jexp][ntoMCtrack[jexp]]=
+						FindDistance(Ox[jexp],Oy[jexp],R[jexp],
+						tanlow[jexp],tanmid[jexp],tanup[jexp],
+						alfa,beta,gamma);
+				}
+				ntoMCtrack[jexp]++;
+			} // end of if(flaggo)
+		}
+
+	    }  // end of  for(int iMClinks=0; iMClinks< ...
+	}   //  end of for(i=0; i<nSciTilHitsinTrack[jexp]; i++)
+
 
      }  // end of  for(jexp=0; jexp< nTracksFoundSoFar ;jexp++)
 
 //--------------------------------------------------------------------
-     itemp=0;
-     while ( itemp > -1){
-	itemp=-1;
-	massimo = -1;
-	minimo = 999999999999.;
-	for(jexp=0; jexp< nTracksFoundSoFar ;jexp++){
-		if(!keepit[jexp]) continue;
-		if( !inclusionExp[jexp])  continue;
-		for(i=0; i< ntoMCtrack[jexp]; i++){
-			if( !inclusionMC[jexp][i])  continue;
 
 
-			// if( toMCtrackfrequency[jexp][i]>massimo){
-			if( toMCtrackdistance[jexp][i]<-0.5) continue;
-			if( toMCtrackdistance[jexp][i]<minimo){
-				massimo=toMCtrackfrequency[jexp][i];
-				minimo=toMCtrackdistance[jexp][i];
-				itemp = toMCtracklist[jexp][i];
-				jtemp = jexp;
-			}
+
+ itemp=0;
+ while ( itemp > -1){
+   itemp=-1;
+   massimo = -1;
+   minimo = 999999999999.;
+   for(jexp=0; jexp< nTracksFoundSoFar ;jexp++){
+	if(!keepit[jexp]) continue;
+	if( !inclusionExp[jexp])  continue;
+	for(i=0; i< ntoMCtrack[jexp]; i++){
+	  if( !inclusionMC[jexp][i])  continue;
+	  if( toMCtrackdistance[jexp][i]<-0.5) continue;
+
+	  if( toMCtrackfrequency[jexp][i]>massimo){
+		massimo=toMCtrackfrequency[jexp][i];
+		minimo=toMCtrackdistance[jexp][i];
+		itemp = toMCtracklist[jexp][i];
+		jtemp = jexp;
+	  } else if ( toMCtrackfrequency[jexp][i]== massimo){
+		if( toMCtrackdistance[jexp][i]<minimo){
+			minimo=toMCtrackdistance[jexp][i];
+			itemp = toMCtracklist[jexp][i];
+			jtemp = jexp;
 		}
+	  }
+	} // end of for(i=0; i< ntoMCtrack[jexp]; i++)
 	}  // end of   for(jexp=0; jexp< nTracksFoundSoFar ;jexp++)
+
+
 	if( itemp>-1 ){
-		daTrackFoundaTrackMC[jtemp]=itemp;
-		inclusionExp[jtemp]=false;
-		for(jexp=0; jexp<nTracksFoundSoFar;jexp++){
-			if(!keepit[jexp]) continue;
-			for(int jk=0;jk<ntoMCtrack[jexp];jk++){
-				if( itemp==toMCtracklist[jexp][jk]){
-					inclusionMC[jexp][jk]=false;
-				}
+	  daTrackFoundaTrackMC[jtemp]=itemp;
+	  inclusionExp[jtemp]=false;
+	  for(jexp=0; jexp<nTracksFoundSoFar;jexp++){
+		if(!keepit[jexp]) continue;
+		for(int jk=0;jk<ntoMCtrack[jexp];jk++){
+			if( itemp==toMCtracklist[jexp][jk]){
+				inclusionMC[jexp][jk]=false;
 			}
 		}
+	  } // end of  for(jexp=0; jexp<nTracksFoundSoFar;jexp++)
 	}
      }    //    end while ( itemp > -1)
 
@@ -410,6 +493,7 @@ int PndTrkComparisonMCtruth::ComparisonwithMC(
  Short_t *Charge = ioData.Charge;
  Double_t CVEL = ioData.Cvel;
  Short_t *daTrackFoundaTrackMC = ioData.daTrackFoundaTrackMC;
+ Double_t DIMENSIONSCITIL = ioData.DIMENSIONSciTil;
  Double_t ERRORSQPIXEL = ioData.Errorsqpixel;
  Double_t ERRORSQSTRIP = ioData.Errorsqstrip;
  Double_t *FI0 = ioData.FI0;
@@ -425,6 +509,7 @@ int PndTrkComparisonMCtruth::ComparisonwithMC(
  bool     *InclusionListStt = ioData.InclusionListStt;
  Short_t  *ListMvdPixelHitsinTrack =  ioData.ListMvdPixelHitsinTrack;
  Short_t  *ListMvdStripHitsinTrack =  ioData.ListMvdStripHitsinTrack;
+ Short_t  *ListSciTilHitsinTrack = ioData.ListSciTilHitsinTrack;
  Short_t  *ListSttParHitsinTrack =  ioData.ListSttParHitsinTrack;
  Short_t  *ListSttSkewHitsinTrack =  ioData.ListSttSkewHitsinTrack;
  Short_t  *ListTrackCandHit = ioData.ListTrackCandHit;
@@ -437,10 +522,14 @@ int PndTrkComparisonMCtruth::ComparisonwithMC(
  int	   MAXSTTHITS = ioData.MAXSTTHITS;
  int	   MAXSTTHITSINTRACK = ioData.MAXSTTHITSINTRACK;
  int	   MAXTRACKSPEREVENT = ioData.MAXTRACKSPEREVENT;
- Short_t  *MCMvdPixelAloneList = ioData.MCMvdPixelAloneList;
- Short_t  *MCMvdStripAloneList = ioData.MCMvdStripAloneList;
- Short_t  *MCParalAloneList = ioData.MCParalAloneList;
- Short_t  *MCSkewAloneList = ioData.MCSkewAloneList;
+ Short_t  *MCMvdPixelAloneList = ioData.MCMvdPixelAloneList; // equivalent to
+			//  a [MAXTRACKSPEREVENT][nMvdPixelHit]
+ Short_t  *MCMvdStripAloneList = ioData.MCMvdStripAloneList; // equivalent to
+			//  a [MAXTRACKSPEREVENT][nMvdStripHit]
+ Short_t  *MCParalAloneList = ioData.MCParalAloneList; // equivalent to
+			//  a [MAXTRACKSPEREVENT][nSttHit]
+ Short_t  *MCSkewAloneList = ioData.MCSkewAloneList; // equivalent to
+			//  a [MAXTRACKSPEREVENT][nSttHit]
  Short_t  *MvdPixelCommonList = ioData.MvdPixelCommonList;
  Short_t  *MvdPixelSpuriList = ioData.MvdPixelSpuriList;
  Short_t  *MvdStripCommonList = ioData.MvdStripCommonList;
@@ -459,6 +548,8 @@ int PndTrkComparisonMCtruth::ComparisonwithMC(
  Short_t   nMvdStripHit = ioData.nMvdStripHit;
  Short_t  *nMvdStripSpuriinTrack = ioData.nMvdStripSpuriinTrack;
  Short_t  *nParalCommon = ioData.nParalCommon;
+ Short_t  nSciTilHits = ioData.nSciTilHits;
+ Short_t *nSciTilHitsinTrack = ioData.nSciTilHitsinTrack ;
  Short_t  *nSkewCommon = ioData.nSkewCommon;
  Short_t  *nSkewHitsInMCTrack = ioData.nSkewHitsInMCTrack;
  Short_t  *nSpuriParinTrack = ioData.nSpuriParinTrack;
@@ -480,10 +571,13 @@ int PndTrkComparisonMCtruth::ComparisonwithMC(
  bool     *SttSZfit = ioData.SttSZfit;
  Double_t *XMvdPixel = ioData.XMvdPixel;
  Double_t *XMvdStrip = ioData.XMvdStrip;
+ Double_t *XSciTilCenter = ioData.XSciTilCenter;
  Double_t *YMvdPixel = ioData.YMvdPixel;
  Double_t *YMvdStrip = ioData.YMvdStrip;
+ Double_t *YSciTilCenter = ioData.YSciTilCenter;
  Double_t *ZMvdPixel = ioData.ZMvdPixel;
  Double_t *ZMvdStrip = ioData.ZMvdStrip;
+ Double_t *ZSciTilCenter = ioData.ZSciTilCenter;
 
 
  nele = MAXSTTHITSINTRACK+
@@ -558,10 +652,53 @@ int PndTrkComparisonMCtruth::ComparisonwithMC(
 		FromStriptoMCTrack	// output
 		);
 
+ if(istampa>=3){
+	cout<<"\n----------  da PndTrkComparisonMCTruth\n";
+	for(int h=0;h<nMvdPixelHit;h++){
+	  cout<<"\til Pixel n. "<<h
+	  <<"  associato a MC track n. "<<FromPixeltoMCTrack[h]<<endl;
+	}
+	for(int h=0;h<nMvdStripHit;h++){
+	  cout<<"\til Strip n. "<<h
+	  <<"  associato a MC track n. "<<FromStriptoMCTrack[h]<<endl;
+	}
+ }
+
+//  the following method associates the SciTil hits to corresponding MC tracks
+
+   // there is the possibility that one SciTil tile contained (before the purge
+   // done at the beginning of the Pattern Recognition) more hits from more MC
+   //  truth track. Therefore one SciTil tile has nMCTracks [in principle]
+   //  maximum number of connections to MC truth. So FromSciTiltoMCTrack
+   //  is meant to be equivalent to a matrix  of dimensions
+   //  [nSciTilHits][nMCTracks].
+   //  Correspondingly,  nFromSciTiltoMCTrack[n] is the number of
+   //  connections (to the MC truth tracks) of the Sci Tile number n.
+   int
+	nFromSciTiltoMCTrack[nSciTilHits],
+	FromSciTiltoMCTrackList[nSciTilHits*nMCTracks];
+
+	SciTilMatchtoMC(
+	BFIELD,
+	CVEL,
+	DIMENSIONSCITIL,
+	fMCTrackArray,
+	FromSciTiltoMCTrackList,// output
+	ioData.fSciTHitArray,
+	ioData.fSciTilMaxNumber,
+	ioData.fSciTPointArray,
+	nFromSciTiltoMCTrack,//  output
+	ioData.nHitsInSciTile,
+	nMCTracks,
+	nSciTilHits,
+	ioData.OriginalSciTilList,
+	XSciTilCenter,
+	YSciTilCenter,
+	ZSciTilCenter
+		);
+
 //  this section associates the found tracks  to the
 //  MC tracks, creating a bilinear correspondence between MC tracks and PR Found tracks
-
-
 
  if( nMCTracks >0 && nTotalCandidates > 0){
 
@@ -635,12 +772,31 @@ int PndTrkComparisonMCtruth::ComparisonwithMC(
 	if(nTotalCandidates>0) AssociateFoundTrackstoMCquater(
 		BFIELD,
 		CVEL,
+		daTrackFoundaTrackMC,
 		fMCTrackArray,
+		FromPixeltoMCTrack,
+		FromStriptoMCTrack,
+		FromSciTiltoMCTrackList,
 		keepit,
 		info,
+		ListSttParHitsinTrack,
+		ListMvdPixelHitsinTrack,
+		ListSciTilHitsinTrack,
+		ListSttSkewHitsinTrack,
+		ListMvdStripHitsinTrack,
 		MAXMVDPIXELHITSINTRACK,
 		MAXMVDSTRIPHITSINTRACK,
+		MAXSCITILHITSINTRACK,
 		MAXSTTHITSINTRACK,
+		nFromSciTiltoMCTrack,
+		nSttParHitsinTrack,
+		nMCTracks,
+		nMvdPixelHitsinTrack,
+		nSciTilHits,
+		nSciTilHitsinTrack,
+		nSttSkewHitsinTrack,
+		nMvdStripHitsinTrack,
+		nTotalCandidates,
 		Ox,
 		Oy,
 		R,
@@ -649,21 +805,9 @@ int PndTrkComparisonMCtruth::ComparisonwithMC(
 		X2,
 		Y2,
 		X3,
-		Y3,
-		nTotalCandidates,
-		nSttParHitsinTrack,
-		ListSttParHitsinTrack,
-		nSttSkewHitsinTrack,
-		ListSttSkewHitsinTrack,
-		nMvdPixelHitsinTrack,
-		ListMvdPixelHitsinTrack,
-		FromPixeltoMCTrack,
-		nMvdStripHitsinTrack,
-		ListMvdStripHitsinTrack,
-		FromStriptoMCTrack,
-		daTrackFoundaTrackMC
+		Y3
 		);
-
+//	for(int h=0;h<nTotalCandidates;h++){ daTrackFoundaTrackMC[h]=-1;};
  }  // end   if( nMCTracks >0 && nTotalCandidates > 0)
 
 
@@ -715,13 +859,10 @@ int PndTrkComparisonMCtruth::ComparisonwithMC(
 	SkewSpuriList
 	);
 
-//--------------------  end comparison of the PndTrackCand from PR of the STT to the MC truth
 
 //	assumo che la traccia MC associata alla traccia trovata dal Pattern Recognition
 //	sia quella giusta e di
 //	conseguenza calcolo gli hits Mvd spuri e comuni
-
-
 
  MvdMatchedSpurioustoTrackCand(
 	daTrackFoundaTrackMC,	// input
@@ -738,13 +879,13 @@ int PndTrkComparisonMCtruth::ComparisonwithMC(
 	nMvdStripHit,
 	nMvdPixelHitsinTrack,	// input
 	nMvdStripHitsinTrack,	// input
-	nTotalCandidates,		// input
+	nTotalCandidates,	// input
 
 	nMvdPixelCommon,	// output
 	MvdPixelCommonList,	// output
 	nMvdPixelSpuriinTrack,	// output
 	MvdPixelSpuriList,	// output
-	nMCMvdPixelAlone,		// output
+	nMCMvdPixelAlone,	// output
 	MCMvdPixelAloneList,	// output
 
 	nMvdStripCommon,	// output
@@ -754,10 +895,36 @@ int PndTrkComparisonMCtruth::ComparisonwithMC(
 	nMCMvdStripAlone,		// output
 	MCMvdStripAloneList	// output
 			);
+//----------------------------------------------------------
+
+// calcolo gli hit comuni, spuri ed alone degli SciTil.
+
+ SciTilMatchedSpurioustoTrackCand(
+	daTrackFoundaTrackMC,	// input
+	FromSciTiltoMCTrackList,	// input; equivalent to a matrix
+					//  of dimension  [nSciTilHits][nMCTracks]
+	keepit,				// input
+	ListSciTilHitsinTrack,	// input; equivalent to a matrix of dimension
+					// [MAXTRACKSPEREVENT][MAXSCITILHITSINTRACK]
+	MAXSCITILHITSINTRACK,	// input
+	ioData.MCSciTilAloneList,	// output; equivalent to a matrix of dimension
+					// [MAXTRACKSPEREVENT][MAXSCITILHITSINTRACK]
+	nFromSciTiltoMCTrack,	// input
+	ioData.nMCSciTilAlone,	// output
+	nMCTracks,			// input
+	nSciTilHits,		// input
+	nSciTilHitsinTrack,	// input
+	ioData.nSciTilCommon,		// output
+	ioData.nSciTilSpuriinTrack,	// output
+	nTotalCandidates,		// input
+	ioData.SciTilCommonList,	// output; equivalent to a matrix of dimension
+					// [MAXTRACKSPEREVENT][MAXSCITILHITSINTRACK]
+	ioData.SciTilSpuriList	// output; equivalent to a matrix of dimension
+					// [MAXTRACKSPEREVENT][MAXSCITILHITSINTRACK].
+			);
 
 
-
-
+//----------------------------------------------------------
 
 
 
@@ -1230,50 +1397,41 @@ void PndTrkComparisonMCtruth::MvdMatchedSpurioustoTrackCand(
 
 		for(j=0;j<nPixelHitsinTrack[i];j++){
 			index = i*MAXMVDPIXELHITSINTRACK+j;
-//			index = i*nMvdPixelHit+j;
 			includePixel[i][*(ListPixelHitsinTrack+index)]=false;
-		  if( daTrackFoundaTrackMC[i]> -1){
-			if( daTrackFoundaTrackMC[i] ==
+
+			if( daTrackFoundaTrackMC[i]>= 0 &&  daTrackFoundaTrackMC[i] ==
 				FromPixeltoMCTrack[*(ListPixelHitsinTrack+index)]
 			  ){
-//				index2 = i*nMvdPixelHit+nMvdPixelCommon[i];
 				index2 = i*MAXMVDPIXELHITSINTRACK+nMvdPixelCommon[i];
 				*(MvdPixelCommonList+index2) =
 				     *(ListPixelHitsinTrack+index);
 				nMvdPixelCommon[i]++;
 			} else {
-				index2 = i*nMvdPixelHit+nMvdPixelSpuriinTrack[i];
+				index2 = i*MAXMVDPIXELHITSINTRACK+nMvdPixelSpuriinTrack[i];
 				*(MvdPixelSpuriList+index2) =
 				     *(ListPixelHitsinTrack+index);
 				nMvdPixelSpuriinTrack[i]++;
 			}
-		  }
 		}
 
 		for(j=0;j<nStripHitsinTrack[i];j++){
 			index = i*MAXMVDSTRIPHITSINTRACK+j;
-//			index = i*nMvdStripHit+j;
 			includeStrip[i][*(ListStripHitsinTrack+index)]=false;
-		  if( daTrackFoundaTrackMC[i]> -1){
-			if( daTrackFoundaTrackMC[i] ==
+			if(daTrackFoundaTrackMC[i]>= 0 && daTrackFoundaTrackMC[i] ==
 				FromStriptoMCTrack[*(ListStripHitsinTrack+index)]
 			  ){
-//			  	index2 = i*nMvdStripHit+nMvdStripCommon[i];
 			  	index2 = i*MAXMVDSTRIPHITSINTRACK+nMvdStripCommon[i];
 				*(MvdStripCommonList+index2) =
 				     *(ListStripHitsinTrack+index);
 				nMvdStripCommon[i]++;
 			} else {
-				index2 = i*nMvdStripHit+nMvdStripSpuriinTrack[i];
+				index2 = i*MAXMVDSTRIPHITSINTRACK+nMvdStripSpuriinTrack[i];
 				*(MvdStripSpuriList+index2) =
 				     *(ListStripHitsinTrack+index);
 				nMvdStripSpuriinTrack[i]++;
 			}
-		  }
 		}
 	}	// end of for(i=0; i<nSttTrackCand;i++)
-
-
 
 
 
@@ -1284,17 +1442,12 @@ void PndTrkComparisonMCtruth::MvdMatchedSpurioustoTrackCand(
 			if(!includePixel[j][i]) continue;
 			if( daTrackFoundaTrackMC[j]==FromPixeltoMCTrack[i] ){
 				index = j*nMvdPixelHit+nMCMvdPixelAlone[j];
-				*(MCMvdPixelAloneList+index)=
-					i;
+				MCMvdPixelAloneList[index]=i;
 				nMCMvdPixelAlone[j]++;
 			}
 		}
 	    }
 	}
-
-
-
-
 
 	for(j=0; j<nSttTrackCand;j++){
 	    if(!keepit[j]) continue;
@@ -1303,7 +1456,7 @@ void PndTrkComparisonMCtruth::MvdMatchedSpurioustoTrackCand(
 			if(!includeStrip[j][i]) continue;
 			if( daTrackFoundaTrackMC[j]==FromStriptoMCTrack[i] ){
 				index = j*nMvdStripHit+nMCMvdStripAlone[j];
-				*(MCMvdStripAloneList+index)=i;
+				MCMvdStripAloneList[index]=i;
 				nMCMvdStripAlone[j]++;
 			}
 		}
@@ -1396,10 +1549,6 @@ void PndTrkComparisonMCtruth::MvdMatchtoMC(
 			distance = (XMvdMCPoint-XMvdPixel[i])*(XMvdMCPoint-XMvdPixel[i])+
 				(YMvdMCPoint-YMvdPixel[i])*(YMvdMCPoint-YMvdPixel[i])+
 				(ZMvdMCPoint-ZMvdPixel[i])*(ZMvdMCPoint-ZMvdPixel[i]);
-if(istampa>3)	{
-	cout<<"distanza**2 di Pixel hit n. "<<i
-   <<" da MC Mvd Point n. "<<j<<" = "<<distance<<endl;
-		}
 			if( distance<dist){
 				FromPixeltoMCTrack[i]=MCPointtoMCTrackID;
 				jmcpoint=j;
@@ -1410,23 +1559,8 @@ if(istampa>3)	{
 		if( FromPixeltoMCTrack[i]>= 0){
 			inclusionMCPoint[jmcpoint]=false;
 		}
-if(istampa>=2){
-	if( FromPixeltoMCTrack[i]<0 ){
-cout<<"Evento n. "<<IVOLTE<<
-"; il pixel hit n. "<<i<<" non e' associato ad alcun Mvd Point (FromPixeltoMCTrack=-1).\n";
-	} else {
-cout<<"Evento n. "<<IVOLTE<<
-  "; associato pixel hit n. "<<i<<" a  MC Mvd Point n. "<<jmcpoint
-		<<" e di conseguenza alla traccia MC n. "<<FromPixeltoMCTrack[i]<<endl;
-	}
-}
 
 	}	// end of for(i=0; i<nMvdPixelHit;i++)
-
-
-
-
-
 
 	for(i=0; i<nMvdStripHit;i++){
 		if (refindexMvdStrip[i]<0.) continue;
@@ -1477,6 +1611,168 @@ cout<<"Evento n. "<<IVOLTE<<
 //----------end of function PndTrkComparisonMCtruth::MvdMatchtoMC
 
 
+//----------begin of function PndTrkComparisonMCtruth::SciTilMatchtoMC
+ void PndTrkComparisonMCtruth::SciTilMatchtoMC(
+	Double_t BFIELD,
+	Double_t CVEL,
+	Double_t DIMENSIONSCITIL,
+	TClonesArray *fMCTrackArray,
+	int *FromSciTiltoMCTrackList,	// output; it is an array of
+	//  dimension   nSciTilHits*nMCTracks, equivalent to a matrix
+	//  of dimension  [nSciTilHits][nMCTracks].
+	TClonesArray *fSciTHitArray,
+	Short_t fSciTilMaxNumber,
+	TClonesArray *fSciTPointArray,
+	int *nFromSciTiltoMCTrack, // output; nFromSciTiltoMCTrack[nSciTilHits].
+	Short_t *nHitsInSciTile,
+	int nMCTracks,
+	Short_t nSciTilHits,
+	Short_t *OriginalSciTilList,
+	Double_t *XSciTilCenter,
+	Double_t *YSciTilCenter,
+	Double_t *ZSciTilCenter
+		)
+{
+
+  // initialization to correspondence to 0  MC truth tracks.
+ for(int nsc=0; nsc<nSciTilHits; nsc++){
+	nFromSciTiltoMCTrack[nsc]=0;
+	// in a SciTil there may be more than 1 MC hit, here
+	// it is the loop over those.
+	// nHitsInSciTile[n] is the number of SciTil hits in the
+	// tile indentified by the number   n, which in actuality is
+	// the number of the first hit [in the SciTil hit list]
+	// belonging to that tile;
+	// OriginalSciTilList[n][nnn]  is their list.
+	for(int h=0;h<nHitsInSciTile[nsc];h++){
+		int m=OriginalSciTilList[nsc*fSciTilMaxNumber+h];
+		PndSciTHit *hit=(PndSciTHit*)fSciTHitArray->At(m);
+		PndSciTPoint *point=(PndSciTPoint*)
+			fSciTPointArray->At(hit->GetRefIndex());
+		if( point->GetTrackID()>=0){
+		   FromSciTiltoMCTrackList[nsc*nMCTracks+
+			nFromSciTiltoMCTrack[nsc]]=point->GetTrackID();
+		   nFromSciTiltoMCTrack[nsc]++;
+		}
+	} // end of for(int h=0;h<nHitsInSciTile[nsc];h++)
+ }  // end of  for(int nsc=0; nsc<nSciTilHits; nsc++)
+
+
+
+ return;
+}
+//----------end of function PndTrkComparisonMCtruth::SciTilMatchtoMC
+
+//----------begin function PndTrkComparisonMCtruth::SciTilMatchedSpurioustoTrackCand
+
+ void PndTrkComparisonMCtruth::SciTilMatchedSpurioustoTrackCand(
+	Short_t *daTrackFoundaTrackMC,	// input
+	int *FromSciTiltoMCTrackList,	// input; equivalent to a matrix
+					//  of dimension  [nSciTilHits][nMCTracks]
+	bool *keepit,			// input
+	Short_t *ListSciTilHitsinTrack,	// input; equivalent to a matrix of dimension
+					// [MAXTRACKSPEREVENT][MAXSCITILHITSINTRACK]
+	int MAXSCITILHITSINTRACK,	// input
+	Short_t *MCSciTilAloneList,	// output; equivalent to a matrix of dimension
+					// [MAXTRACKSPEREVENT][MAXSCITILHITSINTRACK]
+	int *nFromSciTiltoMCTrack,	// input
+	Short_t *nMCSciTilAlone,	// output
+	int nMCTracks,			// input
+	Short_t nSciTilHits,		// input
+	Short_t  *nSciTilHitsinTrack,	// input
+	Short_t *nSciTilCommon,		// output
+	Short_t *nSciTilSpuriinTrack,	// output
+	Short_t nSttTrackCand,		// input
+	Short_t *SciTilCommonList,	// output; equivalent to a matrix of dimension
+					// [MAXTRACKSPEREVENT][MAXSCITILHITSINTRACK]
+	Short_t *SciTilSpuriList	// output; equivalent to a matrix of dimension
+					// [MAXTRACKSPEREVENT][MAXSCITILHITSINTRACK].
+			)
+{
+ // calculate the SciTil hits matched, spurious, alone to all tracks found
+ // by Pattern Recognition.
+
+ // The SciTil hit number is the 'purged' one already.
+
+
+ bool
+	flag_Common,
+	includeSciTil[nSttTrackCand][nSciTilHits];
+
+ int
+	i,
+	index2,
+	j,
+	SciTHn;
+
+
+ for(i=0; i<nSttTrackCand;i++){
+	if(!keepit[i]) continue;
+	nSciTilSpuriinTrack[i]=0;
+	nMCSciTilAlone[i]=0;
+ }
+
+
+ for(i=0; i<nSttTrackCand;i++){
+	if(!keepit[i]) continue;
+	nSciTilCommon[i]=0;
+	for(j=0;j<nSciTilHits;j++){
+		includeSciTil[i][j]=true;
+	}
+
+	for(j=0;j<nSciTilHitsinTrack[i];j++){
+	   SciTHn = ListSciTilHitsinTrack[i*MAXSCITILHITSINTRACK+j];
+	   includeSciTil[i][SciTHn]=false;
+	   flag_Common = false;
+
+	   // loop over all MC tracks associated to SciTilHit n. SciTHn;
+	   for(int h=0;h<nFromSciTiltoMCTrack[SciTHn];h++){
+		if( daTrackFoundaTrackMC[i]>= 0 &&  daTrackFoundaTrackMC[i] ==
+			FromSciTiltoMCTrackList[SciTHn*nMCTracks+h]  )
+		{
+			flag_Common = true;
+			index2 = i*MAXSCITILHITSINTRACK+nSciTilCommon[i];
+			SciTilCommonList[index2] = SciTHn;
+			// increment the n. of common SciTils of Track i
+			nSciTilCommon[i]++;
+		}  // end of if( daTrackFoundaTrackMC[i]>= 0 && ......
+	   }  // end of  for(int h=0;h<nFromSciTiltoMCTrack;h++)
+
+
+	   // if  flag_Common  is still false, this SciTil Hit is spurious;
+	   if(!flag_Common){
+		index2 = i*MAXSCITILHITSINTRACK+nSciTilSpuriinTrack[i];
+		SciTilSpuriList[index2] = SciTHn ;
+		nSciTilSpuriinTrack[i]++;
+	   }
+
+
+	}  // end of for(j=0;j<nSciTilHitsinTrack[i];j++)
+
+ }	// end of for(i=0; i<nSttTrackCand;i++)
+
+
+ // find the SciTil hits 'alone';
+ for(j=0; j<nSttTrackCand;j++){
+   if(!keepit[j]) continue;
+   if(daTrackFoundaTrackMC[j]> -1){
+      for(i=0;i<nSciTilHits;i++){
+	if(!includeSciTil[j][i]) continue;
+	for(int h=0;h<nFromSciTiltoMCTrack[i];h++){
+		if(daTrackFoundaTrackMC[j]==FromSciTiltoMCTrackList[i*nMCTracks+h]){
+			index2 = j*nSciTilHits+nMCSciTilAlone[j];
+			MCSciTilAloneList[index2]=i;
+			nMCSciTilAlone[j]++;
+		}  // end of if( daTrackFoundaTrackMC[j] ....)
+	} // end of  for(int h=0;h<nFromSciTiltoMCTrack[SciTHn];h++)
+      }  // end of for(i=0;i<nSciTilHit;i++)
+   } // end of if(daTrackFoundaTrackMC[j]> -1)
+ }  // end of  for(j=0; j<nSttTrackCand;j++)
+
+ return;
+}
+
+//----------end of function PndTrkComparisonMCtruth::SciTilMatchedSpurioustoTrackCand
 
 //----------begin of function PndTrkComparisonMCtruth::StampaMCTracks
  void PndTrkComparisonMCtruth::stampaMCTracks(
@@ -1599,8 +1895,8 @@ void PndTrkComparisonMCtruth::SttMatchedSpurious(
 				}
 			}
 			if(flaggo){
-				index2 = jexp*MAXSTTHITSINTRACK+nMCParalAlone[jexp];
-				*(MCParalAloneList+index2) = i;
+				index2 = jexp*ntotalHits+nMCParalAlone[jexp];
+				MCParalAloneList[index2] = i;
 				nMCParalAlone[jexp]++;
 			} // end of  if(flaggo)
 	}  //  end of  for(i=0; i<ntotalHits; i++)
@@ -1619,7 +1915,7 @@ void PndTrkComparisonMCtruth::SttMatchedSpurious(
 		} else {
 			index2 = jexp*MAXSTTHITSINTRACK+nSpuriSkewinTrack[jexp];
 			*(SkewSpuriList+index2) = iHit;
-			nSpuriSkewinTrack[jexp]++;			
+			nSpuriSkewinTrack[jexp]++;
 		}
 
 	}
@@ -1640,8 +1936,8 @@ void PndTrkComparisonMCtruth::SttMatchedSpurious(
 				}
 			}
 			if(flaggo){
-				index2 = jexp*MAXSTTHITSINTRACK +nMCSkewAlone[jexp] ;
-				*(MCSkewAloneList+index2) = i;
+				index2 = jexp*ntotalHits+nMCSkewAlone[jexp] ;
+				MCSkewAloneList[index2] = i;
 				nMCSkewAlone[jexp]++;
 			}
 	}
