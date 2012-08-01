@@ -39,15 +39,18 @@ void PndTrkPlotMacros::disegnaAssiXY(
 
 //----------end of function PndTrkPlotMacros::disegnaAssiXY
 
+
 //----------begin of function PndTrkPlotMacros::disegnaSciTilHit
 
 void PndTrkPlotMacros::disegnaSciTilHit(
+	int colorcode,  // goes in the SetColor function of root;
 	Double_t DIMENSIONSCITIL,
 	FILE * MACRO,
-	int ScitilHit,
 	double posx,
 	double posy,
-	int tipo
+	int ScitilHit,
+	int tipo// if 0 then SciTil draw in XY; if 1 then SciTil draw in SZ; else
+		// SciTil draw in UV.
 	)
 {
 	double	x1,x2,y1,y2,L,Rr, RR;
@@ -81,7 +84,7 @@ void PndTrkPlotMacros::disegnaSciTilHit(
 
    }
 	fprintf(MACRO,"TLine *Tile%d = new TLine(%f,%f,%f,%f);\n",ScitilHit,x1,y1,x2,y2);
-	fprintf(MACRO,"Tile%d->SetLineColor(1);\n",ScitilHit);
+	fprintf(MACRO,"Tile%d->SetLineColor(%d);\n",ScitilHit,colorcode);
 
 
 	if(tipo==0){
@@ -100,7 +103,6 @@ void PndTrkPlotMacros::disegnaSciTilHit(
 }
 
 //----------end of function PndTrkPlotMacros::disegnaSciTilHit
-
 
 //----------begin of function PndTrkPlotMacros::DrawBiHexagonInMacro
 
@@ -483,6 +485,7 @@ void PndTrkPlotMacros::DrawHexagonCircleInMacro(
 
 	Double_t esseSciTil[MAXTRACKSPEREVENT][MAXSCITILHITS];
 	PndTrkCTGeometryCalculations GeometryCalculator;
+
 	for(  i= 0; i< nTotalCandidates; i++){
 		if(!keepit[i]) continue;
 		for(j=0;j< nSciTilHitsinTrack[i];j++){
@@ -515,6 +518,45 @@ void PndTrkPlotMacros::DrawHexagonCircleInMacro(
 
 		} // end of for(j....
 	}  // end of  for(  i= 0; i< nTotalCandidates; i++)
+
+
+//-----------------
+
+
+
+// calcolo di S degli eventuali hits SciTil 'Alone' delle tracce trovate.
+
+ Double_t esseSciTilAlone[MAXTRACKSPEREVENT][MAXSCITILHITS];
+
+ for(  i= 0; i< nTotalCandidates; i++){
+	if(!keepit[i]) continue;
+
+
+	for(j=0;j< In_Put.nMCSciTilAlone[i];j++){
+		intersect=GeometryCalculator.IntersectionSciTil_Circle(
+			DIMENSIONSCITIL,
+			posizSciTil[In_Put.MCSciTilAloneList[i*nSciTilHits+j]*3+0],
+			posizSciTil[In_Put.MCSciTilAloneList[i*nSciTilHits+j]*3+1],
+			Ox[i], // center of circle.
+			Oy[i],
+			R[i], // Radius of circle.
+			&Nint,
+			XintersectionList,
+			YintersectionList
+						);
+	// calculate S on the lateral face of the Helix.
+	    esseSciTilAlone[i][j] =
+		atan2(posizSciTil[In_Put.MCSciTilAloneList[i*nSciTilHits+j]*3+1]-Oy[i],
+		posizSciTil[In_Put.MCSciTilAloneList[i*nSciTilHits+j]*3+0]-Ox[i]);
+	    if ( esseSciTilAlone[i][j]<0.) esseSciTilAlone[i][j] += 2.*PI;
+
+
+
+
+
+	} // end of for(j....
+ }  // end of  for(  i= 0; i< nTotalCandidates; i++)
+
 
 //------------------
 
@@ -605,7 +647,6 @@ void PndTrkPlotMacros::DrawHexagonCircleInMacro(
 		MCParalAloneList,
 		nMvdPixelHitsinTrack[i],
 		ListMvdPixelHitsinTrack,
-
 		nMvdStripHitsinTrack[i],
 		ListMvdStripHitsinTrack,
 		nMvdPixelCommon[i],
@@ -635,6 +676,7 @@ void PndTrkPlotMacros::DrawHexagonCircleInMacro(
       	nMvdStripHitsinTrack[i]>0 &&  doMcComparison){
 	    WriteMacroSkewAssociatedHitswithMC(
 		&esseSciTil[i][0],
+		&esseSciTilAlone[i][0],
 		In_Put,
 		i,
 		k
@@ -642,7 +684,6 @@ void PndTrkPlotMacros::DrawHexagonCircleInMacro(
       }  //  end of	if(  nSttSkewHitsinTrack[i]+nMvdPixelHitsinTrack[i]+
 	//	nMvdStripHitsinTrack[i]>0 &&  doMcComparison)
     }            //   end of   for(  i= 0; i< nSttTrackCand; i++)
-
 
 
 
@@ -658,6 +699,7 @@ void PndTrkPlotMacros::DrawHexagonCircleInMacro(
 	fMCTrackArray,
 	nSttHit,
 	info,
+	In_Put,
 	IVOLTE,
 	nMCTracks,
 	nMvdPixelHit,
@@ -684,7 +726,6 @@ void PndTrkPlotMacros::DrawHexagonCircleInMacro(
 	YMvdPixel,
 	YMvdStrip
 	);
-
 
 //     la seguente e' da modificare per includere eventuali hits SciTil mai usati.
  WriteMacroAllHitsRestanti(
@@ -841,69 +882,7 @@ void PndTrkPlotMacros::WriteMacroAllHitsRestanti(
 
 
 
-//	determina il boundary del plot tenendo conto di TUTTI gli hits.
 
-/*
-      xmin=1.e20;
-      xmax=-1.e20;
-      ymin=1.e20;
-      ymax=-1.e20;
-       for( i=0; i< nSttHit; i++) {
-            if (info[i*7+0]-info[i*7+3] < xmin)   xmin = info[i*7+0]-info[i*7+3];
-            if (info[i*7+0]+info[i*7+3] > xmax)   xmax = info[i*7+0]+info[i*7+3];
-            if (info[i*7+1]-info[i*7+3] < ymin)   ymin = info[i*7+1]-info[i*7+3];
-            if (info[i*7+1]+info[i*7+3] > ymax)   ymax = info[i*7+1]+info[i*7+3];
-          }
-       for( i=0; i< nMvdPixelHit; i++) {
-            if (XMvdPixel[i] < xmin)   xmin = XMvdPixel[i];
-            if (XMvdPixel[i] > xmax)   xmax = XMvdPixel[i];
-            if (YMvdPixel[i] < ymin)   ymin = YMvdPixel[i];
-            if (YMvdPixel[i] > ymax)   ymax = YMvdPixel[i];
-          }
-       for( i=0; i< nMvdStripHit; i++) {
-            if (XMvdStrip[i] < xmin)   xmin = XMvdStrip[i];
-            if (XMvdStrip[i] > xmax)   xmax = XMvdStrip[i];
-            if (YMvdStrip[i] < ymin)   ymin = YMvdStrip[i];
-            if (YMvdStrip[i] > ymax)   ymax = YMvdStrip[i];
-          }
-       for( i=0; i< nSciTilHits; i++) {
-            if (posizSciTil[i*3+0] < xmin)   xmin = posizSciTil[i*3+0];
-            if (posizSciTil[i*3+0] > xmax)   xmax = posizSciTil[i*3+0];
-            if (posizSciTil[i*3+1] < ymin)   ymin = posizSciTil[i*3+1];
-            if (posizSciTil[i*3+1] > ymax)   ymax = posizSciTil[i*3+1];
-          }
-
-       if( xmin > 0. ) xmin = 0.;
-       if( xmax < 0.)  xmax = 0.;
-       if( ymin > 0. ) ymin = 0.;
-       if( ymax < 0.)  ymax = 0.;
-
-       deltax = xmax-xmin;
-       deltay = ymax - ymin;
-
-
-       if( deltax > deltay) {
-         ymin -=  0.5*(deltax-deltay);
-         ymax = ymin+ deltax;
-         delta = deltax;
-       }  else  {
-         xmin -=  0.5*(deltay-deltax);
-         xmax = xmin+ deltay;
-         delta= deltay;
-       }
-
-       xmax = xmax + delta*0.05;
-       xmin = xmin - delta*0.05;
-
-       ymax = ymax + delta*0.05;
-       ymin = ymin - delta*0.05;
-
-	if( xmin>-1.05*RSTRAWDETECTORMAX||xmin<-1.05*RSTRAWDETECTORMAX) xmin=-1.05*RSTRAWDETECTORMAX;
-	if( ymin>-1.05*RSTRAWDETECTORMAX||ymin<-1.05*RSTRAWDETECTORMAX) ymin=-1.05*RSTRAWDETECTORMAX;
-	if( xmax<1.05*RSTRAWDETECTORMAX||xmax>1.05*RSTRAWDETECTORMAX) xmax=1.05*RSTRAWDETECTORMAX;
-	if( ymax<1.05*RSTRAWDETECTORMAX||ymax>1.05*RSTRAWDETECTORMAX) ymax=1.05*RSTRAWDETECTORMAX;
-
-*/
 
       xmin=-1.3*RSTRAWDETECTORMAX;
       xmax=1.3*RSTRAWDETECTORMAX;
@@ -984,7 +963,7 @@ void PndTrkPlotMacros::WriteMacroAllHitsRestanti(
        for( i=0; i< nSciTilHits; i++) {
          if( InclusionListSciTil[i]) {     // all SciTil hit never used.
             fprintf(MACRO,
-"TMarker* Strip%d = new TMarker(%f,%f,%d);\nStrip%d->SetMarkerColor(1);\nStrip%d->Draw();\n",
+"TMarker* SciT%d = new TMarker(%f,%f,%d);\nSciT%d->SetMarkerColor(1);\nSciT%d->Draw();\n",
                     i,posizSciTil[i*3+0],posizSciTil[i*3+1],30,i,i,i);
           }
        }
@@ -1015,6 +994,7 @@ void PndTrkPlotMacros::WriteMacroParallelHitsGeneral(
 	TClonesArray *fMCTrackArray,
 	Int_t Nhits,
 	Double_t *info,
+	PndTrkPlotMacros_InputData In_Put,
 	int IVOLTE,
 	Short_t nMCTracks,
 	Short_t nMvdPixelHit,
@@ -1077,80 +1057,13 @@ void PndTrkPlotMacros::WriteMacroParallelHitsGeneral(
       fprintf(MACRO,"void %s()\n{\n",nome);
 
 
-/*
-      xmin=1.e20;
-      xmax=-1.e20;
-      ymin=1.e20;
-      ymax=-1.e20;
-       for( i=0; i< Nhits; i++) {	// all straws, anche le skew
-            if (info[i*7+0]-info[i*7+3] < xmin)   xmin = info[i*7+0]-info[i*7+3];
-            if (info[i*7+0]+info[i*7+3] > xmax)   xmax = info[i*7+0]+info[i*7+3];
-            if (info[i*7+1]-info[i*7+3] < ymin)   ymin = info[i*7+1]-info[i*7+3];
-            if (info[i*7+1]+info[i*7+3] > ymax)   ymax = info[i*7+1]+info[i*7+3];
-       }
-       for( ii=0; ii< nMvdPixelHit; ii++) {
-            if (XMvdPixel[ii] < xmin)   xmin = XMvdPixel[ii];
-            if (XMvdPixel[ii] > xmax)   xmax = XMvdPixel[ii] ;
-            if (YMvdPixel[ii] < ymin)   ymin = YMvdPixel[ii];
-            if (YMvdPixel[ii] > ymax)   ymax = YMvdPixel[ii];
-       }
-
-       for( ii=0; ii< nMvdStripHit; ii++) {
-            if (XMvdStrip[ii] < xmin)   xmin = XMvdStrip[ii];
-            if (XMvdStrip[ii] > xmax)   xmax = XMvdStrip[ii] ;
-            if (YMvdStrip[ii] < ymin)   ymin = YMvdStrip[ii];
-            if (YMvdStrip[ii] > ymax)   ymax = YMvdStrip[ii];
-       }
-
-	// SciTil hits.
-       for( ii=0; ii< nSciTilHits; ii++) {
-            if (posizSciTil[ii*3+0] < xmin)   xmin = posizSciTil[ii*3+0];
-            if (posizSciTil[ii*3+0] > xmax)   xmax = posizSciTil[ii*3+0] ;
-            if (posizSciTil[ii*3+1] < ymin)   ymin = posizSciTil[ii*3+1];
-            if (posizSciTil[ii*3+1] > ymax)   ymax = posizSciTil[ii*3+1];
-       }
-
-
-       deltax = xmax-xmin;
-       deltay = ymax - ymin;
-
-       if( deltax > deltay) {
-         ymin -=  0.5*(deltax-deltay);
-         ymax = ymin+ deltax;
-         delta = deltax;
-       }  else  {
-         xmin -=  0.5*(deltay-deltax);
-         xmax = xmin+ deltay;
-         delta= deltay;
-       }
-
-       xmax = xmax + delta*0.15;
-       xmin = xmin - delta*0.15;
-
-       ymax = ymax + delta*0.15;
-       ymin = ymin - delta*0.15;
-
-	if( xmin>-1.05*RSTRAWDETECTORMAX||xmin<-1.05*RSTRAWDETECTORMAX) xmin=-1.05*RSTRAWDETECTORMAX;
-	if( ymin>-1.05*RSTRAWDETECTORMAX||ymin<-1.05*RSTRAWDETECTORMAX) ymin=-1.05*RSTRAWDETECTORMAX;
-	if( xmax<1.05*RSTRAWDETECTORMAX||xmax>1.05*RSTRAWDETECTORMAX) xmax=1.05*RSTRAWDETECTORMAX;
-	if( ymax<1.05*RSTRAWDETECTORMAX||ymax>1.05*RSTRAWDETECTORMAX) ymax=1.05*RSTRAWDETECTORMAX;
-
-*/
-
       xmin=-1.3*RSTRAWDETECTORMAX;
       xmax=1.3*RSTRAWDETECTORMAX;
       ymin=-1.3*RSTRAWDETECTORMAX;
       ymax=1.3*RSTRAWDETECTORMAX;
 
 
-
-
-
-
-
        fprintf(MACRO,"TCanvas* my= new TCanvas();\nmy->Range(%f,%f,%f,%f);\n",xmin,ymin,xmax,ymax);
-
-
 
 	disegnaAssiXY(MACRO,xmin,xmax,ymin,ymax);
 
@@ -1225,16 +1138,18 @@ fprintf(MACRO,
 //---- disegna gli Scitil.
 
 
-	for( i=0; i< nSciTilHits; i++) {
-		disegnaSciTilHit(
-				DIMENSIONSCITIL,
-				MACRO,
-				i,
-				posizSciTil[i*3+0],
-				posizSciTil[i*3+1],
-				0	//  0 --> disegna in XY.
-				);
-	}
+ for( i=0; i< nSciTilHits; i++) {
+	disegnaSciTilHit(
+		1, // color code (the same as in SetColor of root);
+		DIMENSIONSCITIL,
+		MACRO,
+		posizSciTil[i*3+0],
+		posizSciTil[i*3+1],
+		i,
+		0// if 0 then SciTil draw in XY; if 1 then SciTil draw in SZ; else
+		// SciTil draw in UV.
+			);
+ }
 //------------------------
 
 //-------------------------------   plotting all the tracks found
@@ -1348,15 +1263,17 @@ fprintf(MACRO,
 //---- disegna gli Scitil.
 
 
-	for( i=0; i< nSciTilHits; i++) {
-		disegnaSciTilHit(
-				DIMENSIONSCITIL,
-				MACRO,
-				i,
-				posizSciTil[i*3+0],
-				posizSciTil[i*3+1],
-				0
-				);
+ for( i=0; i< nSciTilHits; i++) {
+	disegnaSciTilHit(
+		1, // color code, the same as in SetColor of root;
+		DIMENSIONSCITIL,
+		MACRO,
+		posizSciTil[i*3+0],
+		posizSciTil[i*3+1],
+		i,
+		0// if 0 then SciTil draw in XY; if 1 then SciTil draw in SZ;
+				// else SciTil draw in UV.
+		);
 	}
 //------------------------
 
@@ -1380,8 +1297,6 @@ fprintf(MACRO,
 
     }
 
-
-// -----------
 //----------------- ora le traccia MC
   for(i=0; i<nMCTracks;i++) {
 	Int_t icode;
@@ -1518,7 +1433,8 @@ fprintf(MACRO,
 
 
 void PndTrkPlotMacros::WriteMacroSkewAssociatedHitswithMC(
-	Double_t *ESSE,
+	Double_t *ESSE,   // S of all associated SciTil hits to the present track;
+	Double_t *ESSEalone,   // S of 'Alone'  SciTil hits to the present track;
 	PndTrkPlotMacros_InputData In_Put,
 	Int_t iNome, // questo e' per il nome delle Macro solamente.
 	Short_t iTrack
@@ -1544,39 +1460,28 @@ void PndTrkPlotMacros::WriteMacroSkewAssociatedHitswithMC(
  Double_t KAPPA = In_Put.KAPPA[iTrack] ;
 
  Short_t *ListPixelHitsinTrack = In_Put.ListMvdPixelHitsinTrack ;
-
  Short_t *ListSciTilHitsinTrack = In_Put.ListSciTilHitsinTrack;
-
  Short_t *ListSkewHitsinTrack = In_Put.ListSttSkewHitsinTrack ;
-
  Short_t *ListStripHitsinTrack = In_Put.ListMvdStripHitsinTrack ; // output
-
- Short_t *MCMvdPixelAloneList = &In_Put.MCMvdPixelAloneList[iTrack*MAXMVDPIXELHITSINTRACK] ;
-
- Short_t *MCMvdStripAloneList = &In_Put.MCMvdStripAloneList[iTrack*MAXMVDSTRIPHITSINTRACK] ;
-
+ Short_t *MCMvdPixelAloneList = In_Put.MCMvdPixelAloneList ;
+ Short_t *MCMvdStripAloneList = In_Put.MCMvdStripAloneList ;
  Short_t *MCSkewAloneList = In_Put.MCSkewAloneList ;
-
- Short_t *MvdPixelCommonList = &In_Put.MvdPixelCommonList[iTrack*MAXSTTHITSINTRACK];
+ Short_t *MvdPixelCommonList = In_Put.MvdPixelCommonList;
  Short_t *MvdPixelSpuriList = In_Put.MvdPixelSpuriList;
- Short_t *MvdStripCommonList =
-		&In_Put.MvdStripCommonList[iTrack*MAXMVDSTRIPHITSINTRACK];
+ Short_t *MvdStripCommonList = In_Put.MvdStripCommonList;
 
  Short_t nMCMvdPixelAlone = In_Put.nMCMvdPixelAlone[iTrack] ;
  Short_t nMCMvdStripAlone = In_Put.nMCMvdStripAlone[iTrack] ;
  Short_t nMCSkewAlone = In_Put.nMCSkewAlone[iTrack] ;
-
  Short_t nMvdPixelCommon = In_Put.nMvdPixelCommon[iTrack] ;
-
  Short_t nMvdPixelSpuriinTrack = In_Put.nMvdPixelSpuriinTrack[iTrack] ;
-
  Short_t nMvdStripCommon = In_Put.nMvdStripCommon[iTrack] ;
  Short_t nMvdStripSpuriinTrack = In_Put.nMvdStripSpuriinTrack[iTrack] ;
 
- Short_t *nPixelHitsinTrack = In_Put.nMvdPixelHitsinTrack ; // output
+ Short_t *nPixelHitsinTrack = In_Put.nMvdPixelHitsinTrack ;
  Short_t *nSciTilHitsinTrack = In_Put.nSciTilHitsinTrack;
  Short_t nSkewCommon = In_Put.nSkewCommon[iTrack] ;
- Short_t nSkewHitsinTrack = In_Put.nSttSkewHitsinTrack[iTrack] ;
+ Short_t *nSkewHitsinTrack = In_Put.nSttSkewHitsinTrack ;
  Short_t *nStripHitsinTrack = In_Put.nMvdStripHitsinTrack ; // output
  Double_t Oxx = In_Put.Ox[iTrack] ;
  Double_t Oyy = In_Put.Oy[iTrack] ;
@@ -1598,6 +1503,9 @@ void PndTrkPlotMacros::WriteMacroSkewAssociatedHitswithMC(
 //-----------------------------------------
 
  TDatabasePDG *fdbPDG= TDatabasePDG::Instance();
+
+
+ int icolore;
 
     Int_t i, j, i1, ii, iii, index, Kincl, nlow, nup, STATUS, imc, Nmin, Nmax;
 
@@ -1639,7 +1547,7 @@ void PndTrkPlotMacros::WriteMacroSkewAssociatedHitswithMC(
 
 //--------------- ricerca del minimo e massimo.
 
- if( nSciTilHitsinTrack[iTrack]+nSkewHitsinTrack+
+ if( nSciTilHitsinTrack[iTrack]+nSkewHitsinTrack[iTrack]+
 	nPixelHitsinTrack[iTrack]+
 	nStripHitsinTrack[iTrack] == 1) // solo 1 punto da disegnare, in questo caso aggiunge
  {					// un punto finto in  (0, FI0 ).
@@ -1650,13 +1558,9 @@ void PndTrkPlotMacros::WriteMacroSkewAssociatedHitswithMC(
       Smax=zmax = -zmin;
  }
 
-//---------------------
 
 
-
-
-// prima lo (gli) hits SciTil; assumo al massimo 1 SciTil per traccia;
-//  quindi nSciTilHits[iTrack] puo' essere 0 o 1.
+// prima lo (gli) hits SciTil associati alla traccia;
 
  for(i=0; i<nSciTilHitsinTrack[iTrack];i++){
 		j=ListSciTilHitsinTrack[iTrack*MAXSCITILHITSINTRACK+i];
@@ -1666,13 +1570,19 @@ void PndTrkPlotMacros::WriteMacroSkewAssociatedHitswithMC(
 		if( posizSciTil[j*3+2]<zmin ) zmin=posizSciTil[j*3+2];
 	}
 
+// poi lo (gli) hits SciTil 'Alone' della traccia;
 
-
+ for(i=0; i<In_Put.nMCSciTilAlone[iTrack];i++){
+		j=In_Put.MCSciTilAloneList[iTrack*In_Put.nSciTilHits+i];
+		if( ESSEalone[i]>Smax ) Smax=ESSEalone[i];
+		if( ESSEalone[i]<Smin ) Smin=ESSEalone[i];
+		if( posizSciTil[j*3+2]>zmax ) zmax=posizSciTil[j*3+2];
+		if( posizSciTil[j*3+2]<zmin ) zmin=posizSciTil[j*3+2];
+	}
 
 //-------------------------
 
-
-       for( iii=0; iii< nSkewHitsinTrack; iii++) {
+       for( iii=0; iii< nSkewHitsinTrack[iTrack]; iii++) {
          i = ListSkewHitsinTrack[iTrack*MAXSTTHITSINTRACK+iii] ;
          aaa = sqrt(WDX[i]*WDX[i]+WDY[i]*WDY[i]+ WDZ[i]*WDZ[i]);
          vx1 = WDX[i]/aaa;
@@ -1710,9 +1620,7 @@ void PndTrkPlotMacros::WriteMacroSkewAssociatedHitswithMC(
 
 	if( distance >= info[i*7+4] + Aellipsis1) continue;
 
-
 //--------------------------
-
 
         fi1 = atan2(POINTS1[j+1]-Oyy, POINTS1[j]-Oxx) ;  // atan2 returns radians in (-pi and +pi]
         if( fi1 < 0.) fi1 += 2.*PI;
@@ -1723,11 +1631,9 @@ void PndTrkPlotMacros::WriteMacroSkewAssociatedHitswithMC(
         if( Smin > fi1 - Bellipsis1 ) Smin = fi1 - Bellipsis1;
         if( Smax < fi1 + Bellipsis1 ) Smax = fi1 + Bellipsis1;
 
-
-
    }    //  end of    for( ii=0; ii<2; ii++)
 
-  }   //   end of  for( iii=0; iii< nSkewHitsinTrack; iii++)
+  }   //   end of  for( iii=0; iii< nSkewHitsinTrack[iTrack]; iii++)
 
 //------ aggiungo in blu eventuali punti della traccia MC che sono non mecciati
 
@@ -1844,7 +1750,7 @@ void PndTrkPlotMacros::WriteMacroSkewAssociatedHitswithMC(
 //   ora i pixel 'Alone'
   for(i=0; i<nMCMvdPixelAlone;i++){
 
-        ii=MCMvdPixelAloneList[i];
+        ii=MCMvdPixelAloneList[iTrack*MAXMVDPIXELHITSINTRACK+i];
 	if( zmin > ZMvdPixel[ ii ] )
 	    zmin = ZMvdPixel[ ii ];
         if( zmax <  ZMvdPixel[ii ] )
@@ -1861,7 +1767,7 @@ void PndTrkPlotMacros::WriteMacroSkewAssociatedHitswithMC(
 //   ora le strip 'Alone'
 
   for(i=0; i<nMCMvdStripAlone;i++){
-        ii=MCMvdStripAloneList[i];
+        ii=MCMvdStripAloneList[iTrack*MAXMVDSTRIPHITSINTRACK+i];
 	if( zmin > ZMvdStrip[ ii ] )
 	    zmin = ZMvdStrip[ ii ];
         if( zmax <  ZMvdStrip[ii ] )
@@ -1914,23 +1820,49 @@ void PndTrkPlotMacros::WriteMacroSkewAssociatedHitswithMC(
 
 //------------
 //  plot di eventuali hits  SciTil;
+	// prima la lista di SciTil 'common' e spuri :
 	for(i=0;i<nSciTilHitsinTrack[iTrack];i++){
 		j=ListSciTilHitsinTrack[iTrack*MAXSCITILHITSINTRACK+i];
+		// controlla se sono hit 'common' o spuri;
+		icolore=2;  // colore rosso, assegnato agli spuri;
+		for(int h=0;h<In_Put.nSciTilCommon[iTrack];h++){
+			if(j == In_Put.SciTilCommonList[iTrack*MAXSCITILHITSINTRACK+h]){
+				icolore=1; // colore nero, usato per gli hits 'common';
+				break;
+			}
+		}
+
 		disegnaSciTilHit(
-				DIMENSIONSCITIL,
-				MACRO,
-				i,
-				posizSciTil[j*3+2],
-				ESSE[i]*Rr,
-				1	// disegna in SZ.
-				);
+			icolore, // color code; the same as in SetColor of root;
+			DIMENSIONSCITIL,
+			MACRO,
+			posizSciTil[j*3+2],
+			ESSE[i]*Rr,
+			j,
+			1  // if 0 then SciTil draw in XY; if 1 then SciTil draw in SZ; else
+				// SciTil draw in UV.
+			);
 	}
-//------------
+	// poi la lista di SciTil 'alone' :
+	for(i=0;i<In_Put.nMCSciTilAlone[iTrack];i++){
+		j=In_Put.MCSciTilAloneList[iTrack*In_Put.nSciTilHits+i];
+		disegnaSciTilHit(
+			4, // color code; the same as in SetColor of root;
+			DIMENSIONSCITIL,
+			MACRO,
+			posizSciTil[j*3+2],
+			ESSEalone[i]*Rr,
+			j,
+			1  // if 0 then SciTil draw in XY; if 1 then SciTil draw in SZ; else
+				// SciTil draw in UV.
+			);
+	}
+
 // --------------------------------
 
 
 
-       for( iii=0; iii< nSkewHitsinTrack; iii++) {
+       for( iii=0; iii< nSkewHitsinTrack[iTrack]; iii++) {
          i = ListSkewHitsinTrack[iTrack*MAXSTTHITSINTRACK+iii] ;
 
          aaa = sqrt(WDX[i]*WDX[i]+WDY[i]*WDY[i]+ WDZ[i]*WDZ[i]);
@@ -1991,36 +1923,34 @@ void PndTrkPlotMacros::WriteMacroSkewAssociatedHitswithMC(
 
 
         Double_t rotation1 = 180.*atan2(Tiltdirection1[1],Tiltdirection1[0])/PI;
-        fprintf(MACRO,"TEllipse* Skew%d_%d = new TEllipse(%f,%f,%f,%f,0.,360.,%f);\nSkew%d_%d->SetFillStyle(0);\n",
-                    i,ii,POINTS1[j+2],Rr*fi1,Aellipsis1,Rr*Bellipsis1,rotation1,i,ii);
-
-
-
-
+//        fprintf(MACRO,"TEllipse* Skew%d_%d = new TEllipse(%f,%f,%f,%f,0.,360.,%f);\nSkew%d_%d->SetFillStyle(0);\n",
+//                    i,ii,POINTS1[j+2],Rr*fi1,Aellipsis1,Rr*Bellipsis1,rotation1,i,ii);
 
 // ------ se lo hit e' spurio marcalo in rosso
 	bool flaggo=true;
         for( i1=0; i1<nSkewCommon; i1++){
           if ( SkewCommonList[iTrack*MAXSTTHITSINTRACK +i1] == i ){
-
 		flaggo=false;
 		break;
           }
-
         }
-	if(flaggo) fprintf(MACRO,"Skew%d_%d->SetLineColor(2);\n",i,ii);
-        fprintf(MACRO,"Skew%d_%d->Draw();\n",i,ii);
+	if(flaggo){
+ fprintf(MACRO,
+ "TEllipse* spurioSkew%d_%d = new TEllipse(%f,%f,%f,%f,0.,360.,%f);\nspurioSkew%d_%d->SetFillStyle(0);\n",
+                    i,ii,POINTS1[j+2],Rr*fi1,Aellipsis1,Rr*Bellipsis1,rotation1,i,ii);
+	   fprintf(MACRO,"spurioSkew%d_%d->SetLineColor(2);\n",i,ii);
+	   fprintf(MACRO,"spurioSkew%d_%d->Draw();\n",i,ii);
+	}else {
+           fprintf(MACRO,"TEllipse* Skew%d_%d = new TEllipse(%f,%f,%f,%f,0.,360.,%f);\nSkew%d_%d->SetFillStyle(0);\n",
+                    i,ii,POINTS1[j+2],Rr*fi1,Aellipsis1,Rr*Bellipsis1,rotation1,i,ii);
+	   fprintf(MACRO,"Skew%d_%d->Draw();\n",i,ii);
+	}
 
         index++;
 
    }    //  end of    for( ii=0; ii<2; ii++)
 
-  }   //   end of  for( iii=0; iii< nSkewHitsinTrack; iii++)
-
-
-
-
-
+  }   //   end of  for( iii=0; iii< nSkewHitsinTrack[iTrack]; iii++)
 
 
 
@@ -2114,7 +2044,6 @@ void PndTrkPlotMacros::WriteMacroSkewAssociatedHitswithMC(
 
   for(i=0; i<nPixelHitsinTrack[iTrack];i++){
         ii=ListPixelHitsinTrack[iTrack*MAXMVDPIXELHITSINTRACK+i];
-
 	if( zmin > ZMvdPixel[ ii ] )
 	    zmin = ZMvdPixel[ ii ];
         if( zmax <  ZMvdPixel[ii ] )
@@ -2132,7 +2061,7 @@ void PndTrkPlotMacros::WriteMacroSkewAssociatedHitswithMC(
 
 		bool flaggo=true;
 		for( int k=0; k<nMvdPixelCommon;k++){
-			if( MvdPixelCommonList[k]== ii){
+			if( MvdPixelCommonList[iTrack*MAXMVDPIXELHITSINTRACK+k]== ii){
 				fprintf(MACRO,
 		"TMarker* CommonPixel%d = new TMarker(%f,%f,%d);\nCommonPixel%d->SetMarkerColor(1);\n",
 				ii,ZMvdPixel[ii],Rr*esse,26,ii);
@@ -2167,7 +2096,7 @@ void PndTrkPlotMacros::WriteMacroSkewAssociatedHitswithMC(
  
 		bool flaggo=true;
 		for( int k=0; k<nMvdStripCommon;k++){
-			if( MvdStripCommonList[k]== ii){
+			if( MvdStripCommonList[iTrack*MAXMVDSTRIPHITSINTRACK+k]== ii){
             fprintf(MACRO,"TMarker* CommonStrip%d = new TMarker(%f,%f,%d);\nCommonStrip%d->SetMarkerColor(1);\n",
                     ii,ZMvdStrip[ii],Rr*esse,25,ii);
 		fprintf(MACRO,"CommonStrip%d->Draw();\n",ii);
@@ -2188,7 +2117,7 @@ void PndTrkPlotMacros::WriteMacroSkewAssociatedHitswithMC(
 //   ora i pixel 'Alone'
   for(i=0; i<nMCMvdPixelAlone;i++){
 
-        ii=MCMvdPixelAloneList[i];
+        ii=MCMvdPixelAloneList[iTrack*MAXMVDPIXELHITSINTRACK+i];
 	if( zmin > ZMvdPixel[ ii ] )
 	    zmin = ZMvdPixel[ ii ];
         if( zmax <  ZMvdPixel[ii ] )
@@ -2208,7 +2137,7 @@ void PndTrkPlotMacros::WriteMacroSkewAssociatedHitswithMC(
 //   ora le strip 'Alone'
 
   for(i=0; i<nMCMvdStripAlone;i++){
-        ii=MCMvdStripAloneList[i];
+        ii=MCMvdStripAloneList[iTrack*MAXMVDSTRIPHITSINTRACK+i];
 	if( zmin > ZMvdStrip[ ii ] )
 	    zmin = ZMvdStrip[ ii ];
         if( zmax <  ZMvdStrip[ii ] )
@@ -2364,9 +2293,6 @@ void PndTrkPlotMacros::WriteMacroSkewAssociatedHitswithMC(
       fprintf(MACRO,"}\n");
       fclose(MACRO);
 
-
-
-
  }
 
 //------------------end of function PndTrkPlotMacros::WriteMacroSkewAssociatedHitswithMC
@@ -2459,43 +2385,26 @@ void PndTrkPlotMacros::WriteMacroSttParallelAssociatedHitsandMvdwithMC(
 
 	Double_t *info = In_Put.info;
 	Short_t *ListParHitsinTrack = ListParHitsinT;
-
  Short_t *nSciTilHitsinTrack = In_Put.nSciTilHitsinTrack;
-
  Double_t *posizSciTil = In_Put.posizSciTil;
-
 	Short_t *MCParalAloneList= MCParalAloneL;
-
  Short_t *ListHitsinTrack = In_Put.ListSttParHitsinTrack ;
-
 	Short_t *ListPixelHitsinTrack = ListPix;
-
  Short_t *ListSciTilHitsinTrack = In_Put.ListSciTilHitsinTrack;
-
 	Short_t *ListStripHitsinTrack = ListStr;
-
 	Short_t *ListSkewHitsinTrack= ListSkewHitsinT;
-
 	Short_t *MCSkewAloneList= MCSkewAloneL;
-
 	Double_t *MCSkewAloneX = In_Put.MCSkewAloneX;
 	Double_t *MCSkewAloneY = In_Put.MCSkewAloneY;
-
 	Short_t *ParalCommonList= ParalCommonL;
-
 	Short_t *ParSpuriList= ParSpuriL;
-
 	Double_t RSTRAWDETECTORMAX = In_Put.rstrawdetectormax;
 	Double_t RSTRAWDETECTORMIN = In_Put.rstrawdetectormin;
-
-
 	Double_t *sigmaXMvdPixel = In_Put.sigmaXMvdPixel;
 	Double_t *sigmaXMvdStrip = In_Put.sigmaXMvdStrip;
 	Double_t *sigmaYMvdPixel = In_Put.sigmaYMvdPixel;
 	Double_t *sigmaYMvdStrip = In_Put.sigmaYMvdStrip;
-
 	Short_t *SkewCommonList = SkewCommonL;
-
 	Double_t VERTICALGAP = In_Put.verticalgap;
 	Double_t *XMvdPixel = In_Put.XMvdPixel;
 	Double_t *XMvdStrip = In_Put.XMvdStrip;
@@ -2509,123 +2418,6 @@ void PndTrkPlotMacros::WriteMacroSttParallelAssociatedHitsandMvdwithMC(
       FILE * MACRO = fopen(nome2,"w");
       fprintf(MACRO,"{\n");
 
-
-/*
-      xmin=1.e20;
-      xmax=-1.e20;
-      ymin=1.e20;
-      ymax=-1.e20;
-
-
-//---- Scitil hits.
-       for( ii=0; ii< nSciTilHitsinTrack[iTrack]; ii++) {
-            i = ListSciTilHitsinTrack[iTrack*MAXSCITILHITSINTRACK+0] ;
-            if (posizSciTil[i*3+0] < xmin)   xmin = posizSciTil[i*3+0];
-            if (posizSciTil[i*3+0] > xmax)   xmax = posizSciTil[i*3+0];
-            if (posizSciTil[i*3+1] < ymin)   ymin = posizSciTil[i*3+1];
-            if (posizSciTil[i*3+1] > ymax)   ymax = posizSciTil[i*3+1];
-       }
-//-------------
-
-       for( ii=0; ii< Nhits; ii++) {
-            i = ListHitsinTrack[iTrack*MAXSTTHITSINTRACK+ii] ;
-            if (info[i*7+0]-info[i*7+3] < xmin)   xmin = info[i*7+0]-info[i*7+3];
-            if (info[i*7+0]+info[i*7+3] > xmax)   xmax = info[i*7+0]+info[i*7+3];
-            if (info[i*7+1]-info[i*7+3] < ymin)   ymin = info[i*7+1]-info[i*7+3];
-            if (info[i*7+1]+info[i*7+3] > ymax)   ymax = info[i*7+1]+info[i*7+3];
-       }
-       for( i=0; i< nSkewHitsinTrack; i++) {
-            ii = ListSkewHitsinTrack[iTrack*MAXSTTHITSINTRACK+i] ;
-	    aaa=Oxx+Rr*cos(SchosenSkew[ii]);
-	    bbb=Oyy+Rr*sin(SchosenSkew[ii]);
-            if (aaa < xmin)   xmin = aaa;
-            if (aaa > xmax)   xmax = aaa;
-            if (bbb < ymin)   ymin = bbb;
-            if (bbb > ymax)   ymax = bbb;
-
-       }
-//       for( ii=0; ii< nMvdStripHit; ii++) {
-       for( i=0; i< nMvdStripHitsAssociatedToSttTra; i++) {
-        ii = ListStripHitsinTrack[iTrack*MAXMVDSTRIPHITSINTRACK+i];
-            if (XMvdStrip[ii] < xmin)   xmin = XMvdStrip[ii];
-            if (XMvdStrip[ii] > xmax)   xmax = XMvdStrip[ii] ;
-            if (YMvdStrip[ii] < ymin)   ymin = YMvdStrip[ii];
-            if (YMvdStrip[ii] > ymax)   ymax = YMvdStrip[ii];
-       }
-//       for( ii=0; ii< nMvdPixelHit; ii++) {
-       for( i=0; i< nMvdPixelHitsAssociatedToSttTra; i++) {
-        ii = ListPixelHitsinTrack[iTrack*MAXMVDPIXELHITSINTRACK+i];
-            if (XMvdPixel[ii] < xmin)   xmin = XMvdPixel[ii];
-            if (XMvdPixel[ii] > xmax)   xmax = XMvdPixel[ii] ;
-            if (YMvdPixel[ii] < ymin)   ymin = YMvdPixel[ii];
-            if (YMvdPixel[ii] > ymax)   ymax = YMvdPixel[ii];
-       }
-
-       for( i=0; i< nMCMvdPixelAlone; i++) {
-        ii = MCMvdPixelAloneList[i];
-            if (XMvdPixel[ii] < xmin)   xmin = XMvdPixel[ii];
-            if (XMvdPixel[ii] > xmax)   xmax = XMvdPixel[ii] ;
-            if (YMvdPixel[ii] < ymin)   ymin = YMvdPixel[ii];
-            if (YMvdPixel[ii] > ymax)   ymax = YMvdPixel[ii];
-       }
-
-       for( i=0; i< nMCMvdStripAlone; i++) {
-        ii = MCMvdStripAloneList[i];
-            if (XMvdStrip[ii] < xmin)   xmin = XMvdStrip[ii];
-            if (XMvdStrip[ii] > xmax)   xmax = XMvdStrip[ii] ;
-            if (YMvdStrip[ii] < ymin)   ymin = YMvdStrip[ii];
-            if (YMvdStrip[ii] > ymax)   ymax = YMvdStrip[ii];
-       }
-
-
-       for( ii=0; ii< nMCParalAlone[iTrack]; ii++) {
-            i = MCParalAloneList[iTrack*MAXSTTHITSINTRACK+ii] ;
-	    if( info[i*7+0] < xmin)   xmin = info[i*7+0];
-	    if( info[i*7+0] > xmax)   xmax = info[i*7+0];
-	    if( info[i*7+1] < ymin)   ymin = info[i*7+1];
-	    if( info[i*7+1] > ymax)   ymax = info[i*7+1];
-       }
-
-       for( ii=0; ii< nMCSkewAlone[iTrack]; ii++) {
-            i = MCSkewAloneList[iTrack*MAXSTTHITSINTRACK+ii] ;
-	    if( info[i*7+0] < xmin)   xmin = info[i*7+0];
-	    if( info[i*7+0] > xmax)   xmax = info[i*7+0];
-	    if( info[i*7+1] < ymin)   ymin = info[i*7+1];
-	    if( info[i*7+1] > ymax)   ymax = info[i*7+1];
-       }
-
-
-       if( xmin > 0. ) xmin = 0.;
-       if( xmax < 0.)  xmax = 0.;
-       if( ymin > 0. ) ymin = 0.;
-       if( ymax < 0.)  ymax = 0.;
-
-       deltax = xmax-xmin;
-       deltay = ymax - ymin;
-
-       if( deltax > deltay) {
-         ymin -=  0.5*(deltax-deltay);
-         ymax = ymin+ deltax;
-         delta = deltax;
-       }  else  {
-         xmin -=  0.5*(deltay-deltax);
-         xmax = xmin+ deltay;
-         delta= deltay;
-       }
-
-       xmax = xmax + delta*0.15;
-       xmin = xmin - delta*0.15;
-
-       ymax = ymax + delta*0.15;
-       ymin = ymin - delta*0.15;
-
-// protection for MC tracks not belonging to the STT-Mvd region;
-
-	if( xmin>-1.05*RSTRAWDETECTORMAX||xmin<-1.05*RSTRAWDETECTORMAX) xmin=-1.05*RSTRAWDETECTORMAX;
-	if( ymin>-1.05*RSTRAWDETECTORMAX||ymin<-1.05*RSTRAWDETECTORMAX) ymin=-1.05*RSTRAWDETECTORMAX;
-	if( xmax<1.05*RSTRAWDETECTORMAX||xmax>1.05*RSTRAWDETECTORMAX) xmax=1.05*RSTRAWDETECTORMAX;
-	if( ymax<1.05*RSTRAWDETECTORMAX||ymax>1.05*RSTRAWDETECTORMAX) ymax=1.05*RSTRAWDETECTORMAX;
-*/
 
       xmin=-1.3*RSTRAWDETECTORMAX;
       xmax=1.3*RSTRAWDETECTORMAX;
@@ -2677,19 +2469,53 @@ void PndTrkPlotMacros::WriteMacroSttParallelAssociatedHitsandMvdwithMC(
 
 //---- disegna gli Scitil.
 
-	for( ii=0; ii< nSciTilHitsinTrack[iTrack]; ii++) {
-		i = ListSciTilHitsinTrack[iTrack*MAXSCITILHITSINTRACK+ii] ;
+	// prima la lista di SciTil 'common' :
+	for(i=0;i<In_Put.nSciTilCommon[iTrack];i++){
+		j=In_Put.SciTilCommonList[iTrack*MAXSCITILHITSINTRACK+i];
 		disegnaSciTilHit(
-				DIMENSIONSCITIL,
-				MACRO,
-				i,
-				posizSciTil[i*3+0],
-				posizSciTil[i*3+1],
-				0
-				);
-
+			1, // color code; the same as in SetColor of root;
+			DIMENSIONSCITIL,
+			MACRO,
+			posizSciTil[j*3+0],
+			posizSciTil[j*3+1],
+			j,
+			0  // if 0 then SciTil draw in XY; if 1 then SciTil draw in SZ; else
+				// SciTil draw in UV.
+			);
 	}
-//------------------------
+	// poi la lista di SciTil 'spuri' :
+	for(i=0;i<In_Put.nSciTilSpuriinTrack[iTrack];i++){
+		j=In_Put.SciTilSpuriList[iTrack*MAXSCITILHITSINTRACK+i];
+		disegnaSciTilHit(
+			2, // color code; the same as in SetColor of root;
+			DIMENSIONSCITIL,
+			MACRO,
+			posizSciTil[j*3+0],
+			posizSciTil[j*3+1],
+			j,
+			0  // if 0 then SciTil draw in XY; if 1 then SciTil draw in SZ; else
+				// SciTil draw in UV.
+			);
+	}
+	// poi la lista di SciTil 'alone' :
+	for(i=0;i<In_Put.nMCSciTilAlone[iTrack];i++){
+		j=In_Put.MCSciTilAloneList[iTrack*In_Put.nSciTilHits+i];
+		disegnaSciTilHit(
+			4, // color code; the same as in SetColor of root;
+			DIMENSIONSCITIL,
+			MACRO,
+			posizSciTil[j*3+0],
+			posizSciTil[j*3+1],
+			j,
+			0  // if 0 then SciTil draw in XY; if 1 then SciTil draw in SZ; else
+				// SciTil draw in UV.
+			);
+	}
+
+// --------------------------------
+
+
+
        fprintf(MACRO,"TEllipse* FoundTrack = new TEllipse(%f,%f,%f,%f,%f,%f);\n"
 			,Oxx,Oyy,Rr,Rr,primoangolo,ultimoangolo);
 
@@ -2794,7 +2620,6 @@ void PndTrkPlotMacros::WriteMacroSttParallelAssociatedHitsandMvdwithMC(
                      i,XMvdStrip[i],YMvdStrip[i],25,i,i);
        }
 //-------------
-
 
        for( i=0; i< nMvdPixelHitsAssociatedToSttTra; i++) {
         ii = ListPixelHitsinTrack[iTrack*MAXMVDPIXELHITSINTRACK+i];
