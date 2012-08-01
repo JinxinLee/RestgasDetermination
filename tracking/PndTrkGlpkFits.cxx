@@ -1061,13 +1061,13 @@ Short_t PndTrkGlpkFits::FitSZspace(
 
 
 
-//  use the trick of increasing the rotation angle by 10 degrees in order to obtain always a positive m
-//      rotationangle -= PI/18.;
       rotationangle = PI/2.;
 
 
-      cose = cos(rotationangle);
-      sine = sin(rotationangle);
+//      cose = cos(rotationangle);
+//     sine = sin(rotationangle);
+      cose = 0.;
+      sine = 1.;
 
       nSttHits = nMvdHits = 0;
  for(i=0;i<NpointsInFit; i++){
