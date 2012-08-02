@@ -27,6 +27,7 @@
 #pragma link C++ class PndAnalysisCalcTools+;
 #pragma link C++ class PndSimpleAnalysis+;
 #pragma link C++ class PndAnalysisTask+;
+#pragma link C++ class PndMyAnalysisTask+;
 #pragma link C++ class PndAnaTask+;
 #pragma link C++ class PndListDefiner+;
 #pragma link C++ class PndListProvider+;

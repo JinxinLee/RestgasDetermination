@@ -51,6 +51,7 @@ PndAnalysis.cxx
 PndAnalysisCalcTools.cxx
 PndSimpleAnalysis.cxx
 PndAnalysisTask.cxx
+PndMyAnalysisTask.cxx
 PndAnaTask.cxx
 PndListDefiner.cxx
 PndListProvider.cxx
