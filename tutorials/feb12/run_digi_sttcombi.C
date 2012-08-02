@@ -69,7 +69,7 @@
   PndEmcHitsToWaveform* emcHitsToWaveform= new PndEmcHitsToWaveform(iVerbose);
   PndEmcWaveformToDigi* emcWaveformToDigi=new PndEmcWaveformToDigi(iVerbose);
   emcHitsToWaveform->SetStorageOfData(kFALSE);
-  emcWaveformToDigi->SetStorageOfData(kFALSE);
+  //emcWaveformToDigi->SetStorageOfData(kFALSE);
   fRun->AddTask(emcHitsToWaveform);  // full digitization
   fRun->AddTask(emcWaveformToDigi);  // full digitization
 

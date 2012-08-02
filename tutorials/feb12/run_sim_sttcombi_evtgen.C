@@ -1,7 +1,7 @@
 // Macro created 20/09/2006 by S.Spataro
 // It creates a geant simulation file for emc
-run_sim_sttcombi_evtgen(Int_t nEvents=10, TString particle="psi(2S)", TString fname = "psi2s_jpsi2pi.dec", UInt_t seed=0)
-//run_sim_sttcombi_evtgen(Int_t nEvents=10, UInt_t seed=0)
+run_sim_sttcombi_evtgen(Int_t nEvents=10, TString particle="psi(2S)", 
+						TString decname = "psi2s_jpsi2pi.dec", Double_t mom = -1.0, UInt_t seed=123)
 {
   gRandom->SetSeed(seed);
   TStopwatch timer;
@@ -118,8 +118,7 @@ run_sim_sttcombi_evtgen(Int_t nEvents=10, TString particle="psi(2S)", TString fn
   FairPrimaryGenerator* primGen = new FairPrimaryGenerator();
   fRun->SetGenerator(primGen);
 
-  //FairEvtGenGenerator* evtGen = new FairEvtGenGenerator("output.evt");
-  PndEvtGenDirect *evtGen = new PndEvtGenDirect("psi(2S)", "psi2s_jpsi2pi.dec");
+  PndEvtGenDirect *evtGen = new PndEvtGenDirect(particle, decname, mom, seed);
   evtGen->SetStoreTree();
   primGen->AddGenerator(evtGen);
 

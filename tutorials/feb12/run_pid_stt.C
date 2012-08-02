@@ -2,7 +2,7 @@
   // ========================================================================
   // Verbosity level (0=quiet, 1=event level, 2=track level, 3=debug)
   Int_t iVerbose = 0;
-  Int_t nEvents = 0;
+  Int_t nEvents = 2200;
   // ----  Load libraries   -------------------------------------------------
   gROOT->LoadMacro("$VMCWORKDIR/gconfig/rootlogon.C");
   rootlogon();
@@ -50,8 +50,8 @@
   //corr->SetVerbose();
   corr->SetInputBranch("SttMvdGemGenTrack");
   corr->SetInputIDBranch("SttMvdGemGenTrackID");
-  corr->SetInputBranch2("FTSTrkIdeal");
-  corr->SetInputIDBranch2("FTSTrkIdealID");
+  corr->SetInputBranch2("FtsIdealGenTrack");
+  corr->SetInputIDBranch2("FtsIdealGenTrackID");
   //corr->SetDebugMode(kTRUE);
   //corr->SetFast(kTRUE);
   fRun->AddTask(corr);
