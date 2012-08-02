@@ -199,6 +199,8 @@ public:
     
     void WriteToFile(TString fname="ntpdata.root", TString opt="RECREATE");
     void AddToFile(TString fname="ntpdata.root");
+    
+    const TTree* GetInternalTree() {return fTree;}
    
 private:
     
