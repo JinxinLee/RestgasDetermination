@@ -48,10 +48,10 @@ void PndAnaPidCombiner::Init()
   for(std::map<TString,TClonesArray*>::iterator iter=fPidArrays.begin();
       iter!=fPidArrays.end();iter++)
   {
-    std::cout<<"PidCombiner:Init() Add array'"<<(iter->first).Data()<<"'"<<std::endl;
+    //std::cout<<"PidCombiner:Init() Add array'"<<(iter->first).Data()<<"'"<<std::endl;
     iter->second = ReadTCA(iter->first);
   }
-  std::cout<<"PidCombiner initialized."<<std::endl;
+  //std::cout<<"PidCombiner initialized."<<std::endl;
   fInitialized=kTRUE;
 }
 
@@ -80,7 +80,7 @@ Bool_t PndAnaPidCombiner::Apply(TCandidate &tc)
   TClonesArray* aTca=0;
   PndPidProbability* aProb=0;
   Int_t trackIndex = tc.GetTrackNumber();
-  std::cout<<"PidCombiner: Try TCandidate uid:"<<tc.Uid()<<" trknr:"<<trackIndex<<std::endl;
+  //std::cout<<"PidCombiner: Try TCandidate uid:"<<tc.Uid()<<" trknr:"<<trackIndex<<std::endl;
   if(trackIndex<0)
   {
     ApplyFlat(tc);

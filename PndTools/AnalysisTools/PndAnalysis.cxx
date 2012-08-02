@@ -132,7 +132,8 @@ void PndAnalysis::Init()
     fMcTracks = (TClonesArray*) fRootManager->GetObject("MCTrack");
     if ( ! fMcTracks && fVerbose ) std::cout << "-W- PndAnalysis::Init(): No \"MCTrack\" array found. No MC info available." << std::endl;
     fMcCands =new TClonesArray("TCandidate");
-    fRootManager->Register("PndMcTracks","PndMcTracks", fMcCands, kTRUE);
+    // next line commented by KG, 07/2012
+    fRootManager->Register("PndMcTracks","PndMcTracksFolder", fMcCands, kTRUE); 
     fBuildMcCands = true;
   }
   fChainEntries =(fRootManager->GetInChain())->GetEntries();

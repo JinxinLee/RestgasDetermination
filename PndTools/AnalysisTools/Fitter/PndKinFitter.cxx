@@ -164,7 +164,7 @@ void PndKinFitter::Solve()
   TMatrixD Vd_inv = mD*V_al0*mD_t;
 
   TMatrixD Vd = Vd_inv.Invert(&ierr);
-  Vd.Print(); 
+  //Vd.Print(); 
  // TMatrixD lam=Vd*md;
   TMatrixD lam = Vd* ( mD*(al1 - al0) + md);
   TMatrixD al_new=al0-V_al0*mD_t*lam;
