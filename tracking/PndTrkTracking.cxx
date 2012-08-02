@@ -388,13 +388,6 @@ void PndTrkTracking::Initialization_ClassVariables()
 
 	HANDLE=NULL;
 	HANDLE2=NULL;
-	HANDLEXYZ=NULL;
-	PHANDLEX=NULL;
-	PHANDLEY=NULL;
-	PHANDLEZ=NULL;
-	SHANDLEX=NULL;
-	SHANDLEY=NULL;
-	SHANDLEZ=NULL;
 
 	hdeltaRPixel=NULL;
 	hdeltaRStrip=NULL;
@@ -444,22 +437,14 @@ InitStatus PndTrkTracking::Init() {
 //  --------------------------- opening files for special purposes
 
 
-if(istampa >=1 ){
+if(doMcComparison >=1 ){
 //---- apertura file con info su Found tracce su cui si fa Helix fit dopo
    HANDLE2 = fopen("info_da_PndTrackFinderReal.txt","w");
 
 //  ---- open filehandle per statistica sugli hits etc.
    HANDLE = fopen("statistiche.txt","w");
 //  ---------------
-//   HANDLEXYZ = fopen("infoPndTrackFinderRealXYZ.txt","w");
 
-//  ---------------  open file delle info su deltaX, Y, Z  degli hits in comune tra tracce trovate e MC
-   PHANDLEX = fopen("deltaParXmio.txt","w");
-   PHANDLEY = fopen("deltaParYmio.txt","w");
-   PHANDLEZ = fopen("deltaParZmio.txt","w");
-   SHANDLEX = fopen("deltaSkewXmio.txt","w");
-   SHANDLEY = fopen("deltaSkewYmio.txt","w");
-   SHANDLEZ = fopen("deltaSkewZmio.txt","w");
 
 }  //  end of if(istampa >=1)
 
