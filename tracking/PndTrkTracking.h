@@ -219,14 +219,7 @@ class PndTrkTracking : public FairTask
 
   FILE
 	* HANDLE,
-	* HANDLE2,
-	* HANDLEXYZ,
-	* PHANDLEX,
-	* PHANDLEY,
-	* PHANDLEZ,
-	* SHANDLEX,
-	* SHANDLEY,
-	* SHANDLEZ ;
+	* HANDLE2;
 
   TH1F
 	*hdeltaRPixel,
