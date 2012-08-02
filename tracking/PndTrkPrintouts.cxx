@@ -37,6 +37,8 @@ void PndTrkPrintouts::stampaMvdHits(
 	Double_t *ZMvdStrip
 	)
 {
+
+
   cout<<"da PndTrkTraking  :  n. Mvd Pixel Hits = "<<nMvdPixelHit<<endl;
   cout<<"da PndTrkTracking  :  n. Mvd Strip Hits = "<<nMvdStripHit<<endl;
   cout<<"da PndTrkTracking  :  info hits di Mvd pixels ------------------\n";
