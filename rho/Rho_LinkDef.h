@@ -145,8 +145,8 @@
 //#pragma link C++ class TEoverPHistogram;
 //#pragma link C++ class TMoverPHistogram;
 //#pragma link C++ class TDalitzPlot;
-//#pragma link C++ class TTuple;
-//#pragma link C++ class TColumn;
+#pragma link C++ class TTuple;
+#pragma link C++ class TColumn;
 //#pragma link C++ class THistID;
 
 #endif

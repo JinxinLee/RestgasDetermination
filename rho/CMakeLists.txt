@@ -15,6 +15,7 @@ ${CMAKE_SOURCE_DIR}/rho/RhoMath
 ${CMAKE_SOURCE_DIR}/rho/RhoSelector
 ${CMAKE_SOURCE_DIR}/rho/RhoTools
 ${CMAKE_SOURCE_DIR}/rho/RhoFitter
+${CMAKE_SOURCE_DIR}/rho/RhoHistogram
 ${CMAKE_SOURCE_DIR}/rho
 )
 
@@ -104,10 +105,10 @@ RhoTools/TTreeNavigator.cxx
 RhoTools/TUnaryOperator.cxx
 RhoTools/VAbsFitter.cxx
 
-#RhoHistogram/TColumn.cxx
+RhoHistogram/TColumn.cxx
 #RhoHistogram/THistID.cxx
 #RhoHistogram/THistogram.cxx
-#RhoHistogram/TTuple.cxx
+RhoHistogram/TTuple.cxx
 
 )
 
