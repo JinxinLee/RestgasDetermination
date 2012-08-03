@@ -16,6 +16,7 @@ class PndAnalysis;
 class TCandList;
 class PndMcTruthMatch;
 class TStopwatch;
+class TTuple;
 
 class PndMyAnalysisTask : public FairTask
 {
@@ -44,6 +45,7 @@ class PndMyAnalysisTask : public FairTask
  protected:
 	
 	int evcount;
+	int epmax, emmax, pipmax, pimmax, mcmax;
 	
 	
 	// **** mass selectors for the resonances/composites
@@ -53,7 +55,7 @@ class PndMyAnalysisTask : public FairTask
 	
 	void FillMassHisto(TH1F* h, TCandList &l);
 	int  SelectPdgCode(TCandList &mct, TCandList &l);
-		 
+	
 	TPidMassSelector *jpsiMassSel;
 	PndMcTruthMatch *mcm;
 	
@@ -82,6 +84,9 @@ class PndMyAnalysisTask : public FairTask
 	TH1F *hjpsi_chi2_mf;
 	
 	TH2F *hvpos;
+	
+	TTuple *ntp;
+	TTuple *ntp2;
 	
 /*	TH1F *hjpsimass;
 	TH1F *hpsimass;*/

@@ -1,9 +1,8 @@
-/******************************************************
-
-JPsi->e+e-
-Reads the TPC tracks and reconstruct the InvariantMass 
-of J/Psi: Dipak
-*******************************************************/ 
+// ******************************************************
+// Psi' -> J/psi (-> e+ e-) pi+ pi- Analysis Example Task
+//
+// K.Goetzen 7/2012
+// *******************************************************
 
 #include "TClonesArray.h"
 
@@ -25,6 +24,8 @@ of J/Psi: Dipak
 // RHO stuff
 #include "TPidSelector.h"
 #include "TCandidate.h"
+#include "RhoHistogram/TTuple.h"
+#include "TFactory.h"
 
 // Analysis Tools
 #include "PndMyAnalysisTask.h"
@@ -83,7 +84,7 @@ InitStatus PndMyAnalysisTask::Init()
 	
 	hjpsim_vf   = new TH1F("hjpsim_vf","J/#psi mass vertex fit",200,0,4);
 	hjpsim_4cf  = new TH1F("hjpsim_4cf","J/#psi mass (4C fit)",200,0,4);
-	hjpsim_mcf  = new TH1F("hjpsim_mcf","J/#psi mass (4C fit)",200,0,4);
+	hjpsim_mcf  = new TH1F("hjpsim_mcf","J/#psi mass (mass constraint fit)",200,0,4);
 	
 	hjpsi_chi2_vf  = new TH1F("hjpsi_chi2_vf","J/#psi, #chi^{2} vertex fit",100,0,10);
 	hpsi_chi2_4c   = new TH1F("hpsi_chi2_4c","#psi, #chi^{2} 4C fit",100,0,250);
@@ -91,13 +92,21 @@ InitStatus PndMyAnalysisTask::Init()
 	
 	hvpos = new TH2F("hvpos","(x,y) projection of fitted decay vertex",100,-2,2,100,-2,2);
 	
+	ntp=new TTuple("ntp","the J/psi ntuple");
+	ntp2=new TTuple("ntp2","the psi(2S) ntuple");
+	
 	// **** mass selector and McTruthMatcher
 	//
-	jpsiMassSel = new TPidMassSelector("jpsiSelector" , 3.097, 0.3);
+	jpsiMassSel = new TPidMassSelector("jpsiSelector" , 3.097, 0.6);
 	mcm      = new PndMcTruthMatch();
   
 	evcount=0;
- 	
+ 	epmax=0;
+	emmax=0;
+	pipmax=0;
+	pimmax=0;
+	mcmax=0;
+	
 	cout << "-I- PndMyAnalysisTask: Intialization successfull" << endl;
 	
   	timer=new TStopwatch();
@@ -131,28 +140,52 @@ void PndMyAnalysisTask::Exec(Option_t* opt)
 	{
 		cout <<"evt "<<evcount;
 		timer->Stop();
-		cout <<"  t="<< timer->CpuTime()<<endl;		
+		cout <<"  t="<< timer->CpuTime();		
 		timer->Start();
+		cout <<"  Cand Watermark = "<<TFactory::Instance()->GetCandidateWatermark();
+		cout <<" epmax:"<<epmax;
+		cout <<" emmax:"<<emmax;
+		cout <<" pipmax:"<<pipmax;
+		cout <<" pimmax:"<<pimmax;
+		cout <<" mcmax:"<<mcmax;
+		cout <<endl;
 	}
+	
 	
 	// **** create all the particle lists we'll need for rebuilding the decay tree
 	//
 	//TCandList eplus, eminus, piplus, piminus, jpsi, psi, mctrk;   
 	 
 	TCandList all, chrg, mctrk, el, eplus, eminus, piplus, piminus, jpsi, jpsi2, psi2s;
+	TCandList epsel, emsel;
 	
 	TLorentzVector ini(0, 0, 6.231552, 7.240065);
 	
 	
 	// *** the MC Truth objects
+
 	theAnalysis->FillList(mctrk,"McTruth");
 		
-	// *** Select with no PID info ('All'); type and mass are set 		
-	theAnalysis->FillList(eplus,   "ElectronAllPlus");
-	theAnalysis->FillList(eminus,  "ElectronAllMinus");
-	theAnalysis->FillList(piplus,  "PionAllPlus");
-	theAnalysis->FillList(piminus, "PionAllMinus");
+//	cout <<"    #### mct="<<mctrk.GetLength()<<endl;
 	
+	// *** Select with no PID info ('All'); type and mass are set 		
+	theAnalysis->FillList(eplus,   "ElectronAllPlus","PidAlgoEmcBayes");
+	theAnalysis->FillList(eminus,  "ElectronAllMinus","PidAlgoEmcBayes");
+	theAnalysis->FillList(piplus,  "PionAllPlus","PidAlgoEmcBayes");
+	theAnalysis->FillList(piminus, "PionAllMinus","PidAlgoEmcBayes");
+	
+
+	int nmc = mctrk.GetLength();
+	int nep = eplus.GetLength();
+	int nem = eminus.GetLength();
+	int npip = piplus.GetLength();
+	int npim = piminus.GetLength();
+	
+	if (nmc>mcmax) mcmax=nmc;
+	if (nep>epmax) epmax=nep;
+	if (nem>emmax) emmax=nem;
+	if (npip>pipmax) pipmax=npip;
+	if (npim>pimmax) pimmax=npim;
 	
 // 	jpsi.Combine(eplus, eminus);
 // 	FillMassHisto(hjpsimass, jpsi);
@@ -191,18 +224,44 @@ void PndMyAnalysisTask::Exec(Option_t* opt)
 			hvpos->Fill(jVtx.X(),jVtx.Y());
 		}
 		
-/*		bool match = mcm->MctMatch(jpsi[j], mctrk);
+		bool match = mcm->MctMatch(jpsi[j], mctrk);
 		
 		//ntp->Fill(jpsi[j].M(),jfit->M(),chi2_vtx,jVtx.X(),jVtx.Y(),jVtx.Z(),match);
 		
-		ntp->Column("jpsim",	jpsi[j].M(),	-1.);
-		ntp->Column("jpsifitm",	jfit->M(),		-1.);
-		ntp->Column("vchi2",	chi2_vtx,		9999.);
-		ntp->Column("vx",		jVtx.X(),		9999.);
-		ntp->Column("vy",		jVtx.Y(),		9999.);
-		ntp->Column("vz",		jVtx.Z(),		9999.);
-		ntp->Column("jmct",	    match,			kFALSE);
-		ntp->DumpData();	*/
+		TCandidate *ep = jpsi[j].Daughter(0);
+		TCandidate *em = jpsi[j].Daughter(1);
+		
+		ntp->Column("jpsim",	jpsi[j].M(),			-1.);
+		ntp->Column("jpsitht",	jpsi[j].P4().Theta(),	-999.);
+		ntp->Column("jpsip",	jpsi[j].P(),			-1.);
+		ntp->Column("jpsiphi",	jpsi[j].P4().Phi(),		-999.);
+		
+		ntp->Column("eptht",	ep->P4().Theta(),		-999.);
+		ntp->Column("epp",		ep->P(),				-1.);
+		ntp->Column("epphi",	ep->P4().Phi(),			-999.);
+		ntp->Column("eppid0",   ep->GetPidInfo(0),		-1.);
+		ntp->Column("eppid1",   ep->GetPidInfo(1),		-1.);
+		ntp->Column("eppid2",   ep->GetPidInfo(2),		-1.);
+		ntp->Column("eppid3",   ep->GetPidInfo(3),		-1.);
+		ntp->Column("eppid4",   ep->GetPidInfo(4),		-1.);
+		
+		ntp->Column("emtht",	em->P4().Theta(),		-999.);
+		ntp->Column("emp",		em->P(),				-1.);
+		ntp->Column("emphi",	em->P4().Phi(),			-999.);
+		ntp->Column("empid0",   em->GetPidInfo(0),		-1.);
+		ntp->Column("empid1",   em->GetPidInfo(1),		-1.);
+		ntp->Column("empid2",   em->GetPidInfo(2),		-1.);
+		ntp->Column("empid3",   em->GetPidInfo(3),		-1.);
+		ntp->Column("empid4",   em->GetPidInfo(4),		-1.);
+		
+		ntp->Column("jpsifitm",	jfit->M(),				-1.);
+		ntp->Column("vchi2",	chi2_vtx,				9999.);
+		ntp->Column("vx",		jVtx.X(),				9999.);
+		ntp->Column("vy",		jVtx.Y(),				9999.);
+		ntp->Column("vz",		jVtx.Z(),				9999.);
+		ntp->Column("jmct",	    match,					kFALSE);
+		
+		ntp->DumpData();	
 	}
 	
 	// *** some rough mass selection
@@ -249,14 +308,64 @@ void PndMyAnalysisTask::Exec(Option_t* opt)
 		hjpsim_4cf->Fill((tlvepf+tlvemf).M());
 		
 		
-/*		bool match = mcm->MctMatch(psi2s[j], mctrk);
+		
+		TCandidate *ep = psi2s[j].Daughter(0)->Daughter(0);
+		TCandidate *em = psi2s[j].Daughter(0)->Daughter(1);
+		TCandidate *pip = psi2s[j].Daughter(1);
+		TCandidate *pim = psi2s[j].Daughter(2);
+		TCandidate *jpsic = psi2s[j].Daughter(0);
+		
+		bool match = mcm->MctMatch(psi2s[j], mctrk);
+		bool matchj = mcm->MctMatch(*jpsic, mctrk);
 		
 		ntp2->Column("psim",		psi2s[j].M(),		-1.);
-		ntp2->Column("jpsim",	psi2s[j].Daughter(0)->M(),	-1.);
-		ntp2->Column("jfitm",	(tlvepf+tlvemf).M(),		-1.);
 		ntp2->Column("fcchi2",	chi2_4c,		9999.);
 		ntp2->Column("psimct",   match,			kFALSE);
-		ntp2->DumpData();	*/
+		
+		ntp2->Column("jmct",   matchj,			kFALSE);
+		ntp2->Column("jfitm",	(tlvepf+tlvemf).M(),		-1.);
+		ntp2->Column("jpsim",	jpsic->M(),	-1.);
+		ntp->Column("jpsitht",	jpsic->P4().Theta(),	-999.);
+		ntp->Column("jpsip",	jpsic->P(),			-1.);
+		ntp->Column("jpsiphi",	jpsic->P4().Phi(),		-999.);
+		
+		ntp2->Column("eptht",	ep->P4().Theta(),		-999.);
+		ntp2->Column("epp",		ep->P(),				-1.);
+		ntp2->Column("epphi",	ep->P4().Phi(),			-999.);
+		ntp2->Column("eppid0",   ep->GetPidInfo(0),		-1.);
+		ntp2->Column("eppid1",   ep->GetPidInfo(1),		-1.);
+		ntp2->Column("eppid2",   ep->GetPidInfo(2),		-1.);
+		ntp2->Column("eppid3",   ep->GetPidInfo(3),		-1.);
+		ntp2->Column("eppid4",   ep->GetPidInfo(4),		-1.);
+		
+		ntp2->Column("emtht",	em->P4().Theta(),		-999.);
+		ntp2->Column("emp",		em->P(),				-1.);
+		ntp2->Column("emphi",	em->P4().Phi(),			-999.);
+		ntp2->Column("empid0",   em->GetPidInfo(0),		-1.);
+		ntp2->Column("empid1",   em->GetPidInfo(1),		-1.);
+		ntp2->Column("empid2",   em->GetPidInfo(2),		-1.);
+		ntp2->Column("empid3",   em->GetPidInfo(3),		-1.);
+		ntp2->Column("empid4",   em->GetPidInfo(4),		-1.);
+		
+		ntp2->Column("piptht",	pip->P4().Theta(),		-999.);
+		ntp2->Column("pipp",		pip->P(),				-1.);
+		ntp2->Column("pipphi",	pip->P4().Phi(),			-999.);
+		ntp2->Column("pippid0",   pip->GetPidInfo(0),		-1.);
+		ntp2->Column("pippid1",   pip->GetPidInfo(1),		-1.);
+		ntp2->Column("pippid2",   pip->GetPidInfo(2),		-1.);
+		ntp2->Column("pippid3",   pip->GetPidInfo(3),		-1.);
+		ntp2->Column("pippid4",   pip->GetPidInfo(4),		-1.);
+		
+		ntp2->Column("pimtht",	pim->P4().Theta(),		-999.);
+		ntp2->Column("pimp",		pim->P(),				-1.);
+		ntp2->Column("pimphi",	pim->P4().Phi(),			-999.);
+		ntp2->Column("pimpid0",   pim->GetPidInfo(0),		-1.);
+		ntp2->Column("pimpid1",   pim->GetPidInfo(1),		-1.);
+		ntp2->Column("pimpid2",   pim->GetPidInfo(2),		-1.);
+		ntp2->Column("pimpid3",   pim->GetPidInfo(3),		-1.);
+		ntp2->Column("pimpid4",   pim->GetPidInfo(4),		-1.);
+		
+		ntp2->DumpData();	
 		
 	}		
 	
@@ -282,7 +391,7 @@ void PndMyAnalysisTask::Exec(Option_t* opt)
 	jpsi.Combine(eplus, eminus);
 	for (j=0;j<jpsi.GetLength();++j) hjpsim_tpid->Fill( jpsi[j].M() );
 	
-	jpsi.Select(jpsiMassSel);
+	//jpsi.Select(jpsiMassSel);
 	
 	psi2s.Combine(jpsi, piplus, piminus);
 	for (j=0;j<psi2s.GetLength();++j) hpsim_tpid->Fill( psi2s[j].M() );
@@ -296,7 +405,7 @@ void PndMyAnalysisTask::Exec(Option_t* opt)
 	jpsi.Combine(eplus, eminus);
 	for (j=0;j<jpsi.GetLength();++j) hjpsim_lpid->Fill( jpsi[j].M() );
 	
-	jpsi.Select(jpsiMassSel);
+	//jpsi.Select(jpsiMassSel);
 	//SelectMass(jpsi,3.096,1.0);
 	
 	psi2s.Combine(jpsi, piplus, piminus);
@@ -367,6 +476,11 @@ void PndMyAnalysisTask::Finish()
 	hjpsi_chi2_mf->Write();
 			
 	hvpos->Write();
+	
+	ntp->GetInternalTree()->Write();
+	ntp2->GetInternalTree()->Write();
+	//ntp->WriteToFile("outtask_ntp.root");
+	//ntp2->AddToFile("outtask_ntp.root");
 	
 //   hjpsimass->Write();
 //   hpsimass->Write();
