@@ -1261,7 +1261,6 @@ if(istampa>0){
 	input.U = &U[nSttTrackCand][0];
 	input.V = &V[nSttTrackCand][0];
 
-
 	outcome = SttTrackXYFinder.FindTrackInXYProjection(&input);
 
 	if(!outcome){
