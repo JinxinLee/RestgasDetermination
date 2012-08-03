@@ -281,8 +281,8 @@ void DrawHexagonCircleInMacro(
 	Double_t *ESSE,
 	Double_t *ESSEalone,
 	PndTrkPlotMacros_InputData In_Put,
-	Int_t iNome, // questo e' per il nome delle Macro solamente.
-	Short_t iTrack
+	int iNome, // questo e' per il nome delle Macro solamente.
+	int iTrack
 	);
 
 
