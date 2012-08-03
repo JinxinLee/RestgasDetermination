@@ -908,10 +908,10 @@ int PndTrkComparisonMCtruth::ComparisonwithMC(
 					// [MAXTRACKSPEREVENT][MAXSCITILHITSINTRACK]
 	MAXSCITILHITSINTRACK,	// input
 	ioData.MCSciTilAloneList,	// output; equivalent to a matrix of dimension
-					// [MAXTRACKSPEREVENT][MAXSCITILHITSINTRACK]
+					// [MAXTRACKSPEREVENT][nSciTilHits]
 	nFromSciTiltoMCTrack,	// input
 	ioData.nMCSciTilAlone,	// output
-	nMCTracks,			// input
+	nMCTracks,		// input
 	nSciTilHits,		// input
 	nSciTilHitsinTrack,	// input
 	ioData.nSciTilCommon,		// output
@@ -925,7 +925,6 @@ int PndTrkComparisonMCtruth::ComparisonwithMC(
 
 
 //----------------------------------------------------------
-
 
 
 // ora il confronto per il meeting di  Groningen
@@ -1633,7 +1632,7 @@ cout<<"Evento n. "<<IVOLTE<<
 		)
 {
 
-  // initialization to correspondence to 0  MC truth tracks.
+  // initialization;
  for(int nsc=0; nsc<nSciTilHits; nsc++){
 	nFromSciTiltoMCTrack[nsc]=0;
 	// in a SciTil there may be more than 1 MC hit, here
@@ -1673,7 +1672,7 @@ cout<<"Evento n. "<<IVOLTE<<
 					// [MAXTRACKSPEREVENT][MAXSCITILHITSINTRACK]
 	int MAXSCITILHITSINTRACK,	// input
 	Short_t *MCSciTilAloneList,	// output; equivalent to a matrix of dimension
-					// [MAXTRACKSPEREVENT][MAXSCITILHITSINTRACK]
+					// [MAXTRACKSPEREVENT][nSciTilHits]
 	int *nFromSciTiltoMCTrack,	// input
 	Short_t *nMCSciTilAlone,	// output
 	int nMCTracks,			// input
