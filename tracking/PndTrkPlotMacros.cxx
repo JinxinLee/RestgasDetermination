@@ -474,7 +474,6 @@ void PndTrkPlotMacros::DrawHexagonCircleInMacro(
 	Double_t *ZMvdStrip = In_Put.ZMvdStrip;
 
 //----------------------------
-cout<<"cazzoinizio, nSciTilHits "<<In_Put.nSciTilHits<<endl;
 
  Double_t
 	ultimoangolo[nTotalCandidates],
@@ -672,7 +671,6 @@ cout<<"cazzoinizio, nSciTilHits "<<In_Put.nSciTilHits<<endl;
 	}	// end of  if( nSttParHitsinTrack[i]+nMvdPixelHitsinTrack[i]+
 		//			nMvdStripHitsinTrack[i]>0 &&  doMcComparison)
 
-cout<<"cazzo macazzo, cand "<<i<<", keepit "<<keepit[i]<<endl;
       if(  nSttSkewHitsinTrack[i]+nMvdPixelHitsinTrack[i]+
       	nMvdStripHitsinTrack[i]>0 &&  doMcComparison){
 	    WriteMacroSkewAssociatedHitswithMC(
@@ -1573,9 +1571,6 @@ void PndTrkPlotMacros::WriteMacroSkewAssociatedHitswithMC(
 
 // poi lo (gli) hits SciTil 'Alone' della traccia;
 
-cout<<"cazzonegro, nSciTilHits "<<In_Put.nSciTilHits<<
-	", iTrack "<<iTrack<<", In_Put.nMCSciTilAlone[iTrack] "<<
-In_Put.nMCSciTilAlone[iTrack]<<endl;
  for(i=0; i<In_Put.nMCSciTilAlone[iTrack];i++){
 		j=In_Put.MCSciTilAloneList[iTrack*In_Put.nSciTilHits+i];
 		if( ESSEalone[i]>Smax ) Smax=ESSEalone[i];
