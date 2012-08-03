@@ -1026,11 +1026,10 @@ void PndTrkTracking::Exec(Option_t* opt) {
 	OriginalSciTilList[fSciTilMaxNumber][fSciTilMaxNumber];
 
 
- if( nSciTilHits >0 ){
-	if(istampa>0)
-		cout<<"da PndTrkTracking, event "<<IVOLTE<<", "<<nSciTilHits
+ if(istampa>0) cout<<"da PndTrkTracking, event "<<IVOLTE<<", "<<nSciTilHits
 		<<" SciTil hits presenti inizialmente."<<endl;
 
+	if( nSciTilHits >0 ){
 	// OriginalSciTilList is the list of original SciTil hits (not purged yet)
 	// present in a given SciTil tile :
 	// OriginalSciTilList[nacceptedhit][*];
