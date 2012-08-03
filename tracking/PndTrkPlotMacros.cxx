@@ -474,7 +474,7 @@ void PndTrkPlotMacros::DrawHexagonCircleInMacro(
 	Double_t *ZMvdStrip = In_Put.ZMvdStrip;
 
 //----------------------------
-
+cout<<"cazzoinizio, nSciTilHits "<<In_Put.nSciTilHits<<endl;
 
  Double_t
 	ultimoangolo[nTotalCandidates],
@@ -622,9 +622,9 @@ void PndTrkPlotMacros::DrawHexagonCircleInMacro(
 		nMvdStripHitsinTrack[i]>0 &&  doMcComparison) {
 
 	   for( j=0;j<nMCSkewAlone[i];j++){
-		puntator  = (FairMCPoint*) fSttPointArray->At(MCSkewAloneList[i*MAXSTTHITSINTRACK+j]);
-	   	MCSkewAloneX[ MCSkewAloneList[i*MAXSTTHITSINTRACK+j] ]=puntator->GetX();
-	   	MCSkewAloneY[ MCSkewAloneList[i*MAXSTTHITSINTRACK+j] ]=puntator->GetY();
+		puntator  = (FairMCPoint*) fSttPointArray->At(MCSkewAloneList[i*nSttHit+j]);
+	   	MCSkewAloneX[ MCSkewAloneList[i*nSttHit+j] ]=puntator->GetX();
+	   	MCSkewAloneY[ MCSkewAloneList[i*nSttHit+j] ]=puntator->GetY();
 	   }
 
 		WriteMacroSttParallelAssociatedHitsandMvdwithMC(
@@ -654,13 +654,13 @@ void PndTrkPlotMacros::DrawHexagonCircleInMacro(
 		nMvdPixelSpuriinTrack[i],
 		&MvdPixelSpuriList[i*MAXMVDPIXELHITSINTRACK],
 		nMCMvdPixelAlone[i],
-		&MCMvdPixelAloneList[i*MAXMVDPIXELHITSINTRACK],
+		&MCMvdPixelAloneList[i*In_Put.nMvdPixelHit],
 		nMvdStripCommon[i],
 		&MvdStripCommonList[i*MAXMVDSTRIPHITSINTRACK],
 		nMvdStripSpuriinTrack[i],
 		&MvdStripSpuriList[i*MAXMVDSTRIPHITSINTRACK],
 		nMCMvdStripAlone[i],
-		&MCMvdStripAloneList[i*MAXMVDSTRIPHITSINTRACK],
+		&MCMvdStripAloneList[i*In_Put.nMvdStripHit],
 		nSttSkewHitsinTrack[i],
 		ListSttSkewHitsinTrack,
 		&SchosenSkew[i*MAXSTTHITS],
@@ -672,14 +672,15 @@ void PndTrkPlotMacros::DrawHexagonCircleInMacro(
 	}	// end of  if( nSttParHitsinTrack[i]+nMvdPixelHitsinTrack[i]+
 		//			nMvdStripHitsinTrack[i]>0 &&  doMcComparison)
 
+cout<<"cazzo macazzo, cand "<<i<<", keepit "<<keepit[i]<<endl;
       if(  nSttSkewHitsinTrack[i]+nMvdPixelHitsinTrack[i]+
       	nMvdStripHitsinTrack[i]>0 &&  doMcComparison){
 	    WriteMacroSkewAssociatedHitswithMC(
 		&esseSciTil[i][0],
 		&esseSciTilAlone[i][0],
 		In_Put,
-		i,
-		k
+		k, // questo si usa solo per il nome della Macro.
+		i
 			);
       }  //  end of	if(  nSttSkewHitsinTrack[i]+nMvdPixelHitsinTrack[i]+
 	//	nMvdStripHitsinTrack[i]>0 &&  doMcComparison)
@@ -1436,8 +1437,8 @@ void PndTrkPlotMacros::WriteMacroSkewAssociatedHitswithMC(
 	Double_t *ESSE,   // S of all associated SciTil hits to the present track;
 	Double_t *ESSEalone,   // S of 'Alone'  SciTil hits to the present track;
 	PndTrkPlotMacros_InputData In_Put,
-	Int_t iNome, // questo e' per il nome delle Macro solamente.
-	Short_t iTrack
+	int iNome, // questo e' per il nome delle Macro solamente.
+	int iTrack
 		)
  {
 
@@ -1572,6 +1573,9 @@ void PndTrkPlotMacros::WriteMacroSkewAssociatedHitswithMC(
 
 // poi lo (gli) hits SciTil 'Alone' della traccia;
 
+cout<<"cazzonegro, nSciTilHits "<<In_Put.nSciTilHits<<
+	", iTrack "<<iTrack<<", In_Put.nMCSciTilAlone[iTrack] "<<
+In_Put.nMCSciTilAlone[iTrack]<<endl;
  for(i=0; i<In_Put.nMCSciTilAlone[iTrack];i++){
 		j=In_Put.MCSciTilAloneList[iTrack*In_Put.nSciTilHits+i];
 		if( ESSEalone[i]>Smax ) Smax=ESSEalone[i];
@@ -1638,7 +1642,7 @@ void PndTrkPlotMacros::WriteMacroSkewAssociatedHitswithMC(
 //------ aggiungo in blu eventuali punti della traccia MC che sono non mecciati
 
        for( iii=0; iii< nMCSkewAlone; iii++) {
-         i = MCSkewAloneList[iTrack*MAXSTTHITSINTRACK+iii];
+         i = MCSkewAloneList[iTrack*In_Put.nSttHit+iii];
          aaa = sqrt(WDX[i]*WDX[i]+WDY[i]*WDY[i]+ WDZ[i]*WDZ[i]);
          vx1 = WDX[i]/aaa;
          vy1 = WDY[i]/aaa;
@@ -1750,7 +1754,7 @@ void PndTrkPlotMacros::WriteMacroSkewAssociatedHitswithMC(
 //   ora i pixel 'Alone'
   for(i=0; i<nMCMvdPixelAlone;i++){
 
-        ii=MCMvdPixelAloneList[iTrack*MAXMVDPIXELHITSINTRACK+i];
+        ii=MCMvdPixelAloneList[iTrack*In_Put.nMvdPixelHit+i];
 	if( zmin > ZMvdPixel[ ii ] )
 	    zmin = ZMvdPixel[ ii ];
         if( zmax <  ZMvdPixel[ii ] )
@@ -1767,7 +1771,7 @@ void PndTrkPlotMacros::WriteMacroSkewAssociatedHitswithMC(
 //   ora le strip 'Alone'
 
   for(i=0; i<nMCMvdStripAlone;i++){
-        ii=MCMvdStripAloneList[iTrack*MAXMVDSTRIPHITSINTRACK+i];
+        ii=MCMvdStripAloneList[iTrack*In_Put.nMvdStripHit+i];
 	if( zmin > ZMvdStrip[ ii ] )
 	    zmin = ZMvdStrip[ ii ];
         if( zmax <  ZMvdStrip[ii ] )
@@ -1957,7 +1961,7 @@ void PndTrkPlotMacros::WriteMacroSkewAssociatedHitswithMC(
 //------ aggiungo in blu eventuali punti della traccia MC che sono non mecciati
 
        for( iii=0; iii< nMCSkewAlone; iii++) {
-         i = MCSkewAloneList[iTrack*MAXSTTHITSINTRACK+iii];
+         i = MCSkewAloneList[iTrack*In_Put.nSttHit+iii];
          aaa = sqrt(WDX[i]*WDX[i]+WDY[i]*WDY[i]+ WDZ[i]*WDZ[i]);
          vx1 = WDX[i]/aaa;
          vy1 = WDY[i]/aaa;
@@ -2117,7 +2121,7 @@ void PndTrkPlotMacros::WriteMacroSkewAssociatedHitswithMC(
 //   ora i pixel 'Alone'
   for(i=0; i<nMCMvdPixelAlone;i++){
 
-        ii=MCMvdPixelAloneList[iTrack*MAXMVDPIXELHITSINTRACK+i];
+        ii=MCMvdPixelAloneList[iTrack*In_Put.nMvdPixelHit+i];
 	if( zmin > ZMvdPixel[ ii ] )
 	    zmin = ZMvdPixel[ ii ];
         if( zmax <  ZMvdPixel[ii ] )
@@ -2137,7 +2141,7 @@ void PndTrkPlotMacros::WriteMacroSkewAssociatedHitswithMC(
 //   ora le strip 'Alone'
 
   for(i=0; i<nMCMvdStripAlone;i++){
-        ii=MCMvdStripAloneList[iTrack*MAXMVDSTRIPHITSINTRACK+i];
+        ii=MCMvdStripAloneList[iTrack*In_Put.nMvdStripHit+i];
 	if( zmin > ZMvdStrip[ ii ] )
 	    zmin = ZMvdStrip[ ii ];
         if( zmax <  ZMvdStrip[ii ] )
@@ -2544,7 +2548,7 @@ void PndTrkPlotMacros::WriteMacroSttParallelAssociatedHitsandMvdwithMC(
        }
 //------------- hits paralleli MC 'alone'
        for( ii=0; ii< nMCParalAlone[iTrack]; ii++) {
-            i = MCParalAloneList[iTrack*MAXSTTHITSINTRACK+ii] ;
+            i = MCParalAloneList[iTrack*In_Put.nSttHit+ii] ;
             fprintf(MACRO,
    "TEllipse* AloneParalHit%d = new TEllipse(%f,%f,%f,%f,0.,360.);\nAloneParalHit%d->SetFillStyle(0);\nAloneParalHit%d->SetLineColor(4);\nAloneParalHit%d->Draw();\n",
                      i,info[i*7+0],info[i*7+1],info[i*7+3],info[i*7+3],i,i,i);
@@ -2577,7 +2581,7 @@ void PndTrkPlotMacros::WriteMacroSttParallelAssociatedHitsandMvdwithMC(
        }
 //------------- hits paralleli MC 'alone'
        for( ii=0; ii< nMCSkewAlone[iTrack]; ii++) {
-            i = MCSkewAloneList[iTrack*MAXSTTHITSINTRACK+ii] ;
+            i = MCSkewAloneList[iTrack*In_Put.nSttHit+ii] ;
            fprintf(MACRO,
    "TMarker* AloneSkewHit%d = new TMarker(%f,%f,%d);\nAloneSkewHit%d->SetMarkerColor(4);\nAloneSkewHit%d->Draw();\n",
                      i,MCSkewAloneX[i],MCSkewAloneY[i],28,i,i);
