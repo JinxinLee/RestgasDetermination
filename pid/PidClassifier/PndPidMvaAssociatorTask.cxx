@@ -349,12 +349,16 @@ void PndPidMvaAssociatorTask::DoPidMatch(PndPidCandidate& pidcand,
 	    << "\nEMC " << pidcand.GetEmcCalEnergy()
 	    << "\nEMC/P "
 	    << (pidcand.GetEmcCalEnergy())/((pidcand.GetMomentum()).Mag())
+	    << "\nEMCZ20 " << pidcand.GetEmcClusterZ20()
+	    << "\nEMCZ53 " << pidcand.GetEmcClusterZ53()
+	    << "\nEMCLAT " << pidcand.GetEmcClusterLat()
+            << "\nEmcE1 "  << pidcand.GetEmcClusterE1()
+            << "\nEmcE9 "  << pidcand.GetEmcClusterE9()
+            << "\nEmcE25 " << pidcand.GetEmcClusterE25()
 	    << "\nSTT " << pidcand.GetSttMeanDEDX()
 	    << "\nMVD " << pidcand.GetMvdDEDX()
 	    << "\nDRC_TC " << pidcand.GetDrcThetaC()
-	    << "\nEMCZ20 " << pidcand.GetEmcClusterZ20()
-	    << "\nEMCZ53 " << pidcand.GetEmcClusterZ53()
-	    << "\nEMCLAT " << pidcand.GetEmcClusterLat() << '\n';
+            << '\n';
   printResult(out);
   std::cout << "====================================================\n";
 #endif
