@@ -641,10 +641,12 @@ void PndTrkTracking::Exec(Option_t* opt) {
 	nMCParalAlone[MAXTRACKSPEREVENT],
 	nMCSkewAlone[MAXTRACKSPEREVENT],
 	nParalCommon[MAXTRACKSPEREVENT],
+	npixelhitsintrack,
 	nSkewCommon[MAXTRACKSPEREVENT],
 	nSkewHitsInMCTrack[MAXTRACKSPEREVENT],
 	nSpuriParinTrack[MAXTRACKSPEREVENT],
 	nSpuriSkewinTrack[MAXTRACKSPEREVENT],
+	nstriphitsintrack,
 	//  given a Hit number it gives its radial box number
 	RConformalIndex[MAXSTTHITS],
 	//  given a Hit number it gives its azimuthal box number
@@ -1404,7 +1406,7 @@ if(istampa>0){
 
 // limit the total # Stt hits to MAXSTTHITSINTRACK
  if( nSttSkewHitsinTrack[i]+nSttParHitsinTrack[i] > MAXSTTHITSINTRACK ) {
-	if(MAXSTTHITSINTRACK-nSttParHitsinTrack[i]>0)
+	if(MAXSTTHITSINTRACK > nSttParHitsinTrack[i])
 		nSttSkewHitsinTrack[i]=MAXSTTHITSINTRACK-nSttParHitsinTrack[i];
 	else nSttSkewHitsinTrack[i]=0;
  }
@@ -1509,7 +1511,7 @@ if(istampa>0){
        nSttSkewHitsinTrack[i] = NNN;
     // limit the total # of hits in track to MAXSTTHITSINTRACK.
 	if( nSttSkewHitsinTrack[i]+nSttParHitsinTrack[i] > MAXSTTHITSINTRACK ) {
-	 if(MAXSTTHITSINTRACK-nSttParHitsinTrack[i]>0)
+	 if(MAXSTTHITSINTRACK > nSttParHitsinTrack[i])
 		nSttSkewHitsinTrack[i]=MAXSTTHITSINTRACK-nSttParHitsinTrack[i];
 	 else nSttSkewHitsinTrack[i]=0;
 	}
@@ -1542,10 +1544,7 @@ if(istampa>0){
 
       // ---------    numbering according to the ORIGINAL hit number
     for(int i1=0; i1< nSttSkewHitsinTrack[i]; i1++){
-//             Sfinal[i][ListSttSkewHitsinTrack[i][i1]]  =  S[i1] ;
-//             Zfinal[i][ListSttSkewHitsinTrack[i][i1]]  =  Z[i1] ;
-//             ZDriftfinal[i][ListSttSkewHitsinTrack[i][i1]]  =  ZDrift[i1] ;
-//             ZErrorafterTiltfinal[i][ListSttSkewHitsinTrack[i][i1]]  =  ZErrorafterTilt[i1] ;
+
 	SchosenSkew[i][ListSttSkewHitsinTrack[i][i1]]=
 		Sfinal[i][ListSttSkewHitsinTrack[i][i1]]  =  S[i1] ;
 	ZchosenSkew[i][ListSttSkewHitsinTrack[i][i1]]=
@@ -1559,6 +1558,33 @@ if(istampa>0){
  }   //  end of     for(i=0; i<nSttTrackCand;i++)
 //------------------------------------------------------  end of skew hits section
 
+//-------------- stampa
+ if(istampa>=2){
+	cout<<"at [1566], evt. "<<IVOLTE<<endl;
+	fPrint.stampetta(
+			IVOLTE,
+			keepit,
+			&ListMvdPixelHitsinTrack[0][0],
+			&ListMvdStripHitsinTrack[0][0],
+			&ListSttParHitsinTrack[0][0],
+			&ListSttSkewHitsinTrack[0][0],
+			&ListSciTilHitsinTrack[0][0],
+			nMvdPixelHitsinTrack,
+			nMvdStripHitsinTrack,
+			nSttParHitsinTrack,
+			nSttSkewHitsinTrack,
+			nSciTilHitsinTrack,
+			nSttTrackCand,
+			MAXMVDPIXELHITSINTRACK,
+			MAXMVDSTRIPHITSINTRACK,
+			MAXSCITILHITSINTRACK,
+			MAXSTTHITSINTRACK,
+			R,
+			Ox,
+			Oy
+			);
+ }
+//-------------- fine stampa
 
 
 // now the ordering the parallel and skew hits.
@@ -2181,6 +2207,12 @@ if(istampa>0){
 		TemporaryZDrift,   //  output,  drift distance IN Z DIRECTION only, of selected Skew hit
 		TemporaryZErrorafterTilt   //  output,  Radius taking into account the tilt, IN Z DIRECTION only, of selected Skew hit
 			);
+	// limit the total # Stt hits to MAXSTTHITSINTRACK
+	if( nSttSkewHitsinTrack[ncand]+nSttParHitsinTrack[ncand] > MAXSTTHITSINTRACK ) {
+	  if(MAXSTTHITSINTRACK > nSttParHitsinTrack[ncand])
+		nSttSkewHitsinTrack[ncand]=MAXSTTHITSINTRACK-nSttParHitsinTrack[ncand];
+	  else nSttSkewHitsinTrack[ncand]=0;
+	}
 	for(j=0;j<nSttSkewHitsinTrack[ncand];j++)
 	{
 		ListSttSkewHitsinTrack[ncand][j]=TemporarySkewList[j][0];
@@ -2189,7 +2221,6 @@ if(istampa>0){
 
 
 //-------------------------------------------  %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
 
 
 //---------------------   here calculate the S and Z values of Mvd Pixels, Mvd Strips,
@@ -2479,6 +2510,18 @@ if(istampa>0){
 //	the array ordered are :
 //	ListTrackCandHit, ListTrackCandHitType, ListSttParHitsinTrack, ListSttSkewHitsinTrack
 //	and also at the end the SciTil hit (if present) is added.
+
+//-------------------------------
+  for(ncand=0; ncand< nTotalCandidates; ncand++){
+	// limit the total # Stt hits to MAXSTTHITSINTRACK
+	if( nSttSkewHitsinTrack[ncand]+nSttParHitsinTrack[ncand] > MAXSTTHITSINTRACK ) {
+	  if(MAXSTTHITSINTRACK > nSttSkewHitsinTrack[ncand])
+		nSttParHitsinTrack[ncand]=MAXSTTHITSINTRACK-nSttSkewHitsinTrack[ncand];
+	  else nSttParHitsinTrack[ncand]=0;
+	}
+  }
+//---------------
+
 	Ordering_Loading_ListTrackCandHit(
 		keepit,
 		0,
@@ -2596,9 +2639,6 @@ if(istampa>1) cout<<"PndTrkTracking, entra in TrackCleanup tracce normali, IVOLT
 
 	if(MvdAloneTracking && nMvdPixelHit+nMvdStripHit>0) {
 
-
-
-
 //  load the UsedPixel and UsedStrip  vectors.
 	bool	UsedPixel[MAXMVDPIXELHITS],
 		UsedStrip[MAXMVDSTRIPHITS];
@@ -2641,17 +2681,20 @@ if(istampa>1) cout<<"PndTrkTracking, entra in TrackCleanup tracce normali, IVOLT
 		if( nTotalCandidates >= MAXTRACKSPEREVENT -1 ) break; // protection for the
 						// length of many arrays.
 		nalone=0;
-
+		npixelhitsintrack=0;
+		nstriphitsintrack=0;
 		for(j=0;j<nHitMvdTrackCand[i];j++){
 
 		  if(ListHitTypeMvdTrackCand[i][j] == 
 			FairRootManager::Instance()->GetBranchId(fMvdPixelBranch)){
 		   if(UsedPixel[ ListHitMvdTrackCand[i][j] ])   continue;
+		   if(npixelhitsintrack>MAXMVDPIXELHITSINTRACK) continue;
 		   AloneX[nalone] = XMvdPixel[ ListHitMvdTrackCand[i][j] ];
 		   AloneY[nalone] = YMvdPixel[ ListHitMvdTrackCand[i][j] ];
 		   List[nalone] = ListHitMvdTrackCand[i][j];
 		   ListType[nalone] = 0;
 		   nalone++;
+		   npixelhitsintrack++;
 		  }else {// at this point this is a Strip hit; already made sure
 			// earlier in the code that there is no third possibility.
 
@@ -2661,11 +2704,13 @@ if(istampa>1) cout<<"PndTrkTracking, entra in TrackCleanup tracce normali, IVOLT
 
 
 		   if(UsedStrip[ ListHitMvdTrackCand[i][j] ])   continue;
+		   if(nstriphitsintrack>MAXMVDSTRIPHITSINTRACK) continue;
 		   AloneX[nalone] = XMvdStrip[ ListHitMvdTrackCand[i][j] ];
 		   AloneY[nalone] = YMvdStrip[ ListHitMvdTrackCand[i][j] ];
 		   List[nalone] = ListHitMvdTrackCand[i][j];
 		   ListType[nalone] = 1;
 		   nalone++;
+		   nstriphitsintrack++;
 		  }
 		}	// end of   for(j=0;j<nHitMvdTrackCand[i];j++)
 
@@ -2807,11 +2852,11 @@ if(istampa>1) cout<<"PndTrkTracking, entra in TrackCleanup tracce normali, IVOLT
 
 //------------------ end trying to attach a SciTil hit to the track.
 
-
-
 //     ordering all the hits belonging to the new candidate tracks, by increasing R;
 //     loading    ListTrackCandHit. The ordering is necessary here because the charge
 //     has to be calculated.
+
+
 
 	Ordering_Loading_ListTrackCandHit(
 		keepit,
@@ -2985,15 +3030,19 @@ if(istampa>1) cout<<"PndTrkTracking, entra in TrackCleanup tracce normali, IVOLT
 			nSttParHitsinTrack, // input and output
 			ListSttParHitsinTrack // input and output
 			);
-
+	// limit the total # Stt hits to MAXSTTHITSINTRACK
    for(ncand=nSttTrackCand; ncand< nTotalCandidates; ncand++){
+	if( nSttParHitsinTrack[ncand] > MAXSTTHITSINTRACK ) {
+	  nSttParHitsinTrack[ncand]=MAXSTTHITSINTRACK;
+	}
+   } // end of   for(ncand=nSttTrackCand; ncand< nTotalCandidates; ncand++)
+
 
    //     try to attach skew hits to the new tracks (the result can also be 0).
+   for(ncand=nSttTrackCand; ncand< nTotalCandidates; ncand++){
 	if(!keepit[ncand]) continue;
 	// when statusflag[ncand]<0 the track does not intersect Stt region.
 	if( statusflag[ncand]<0) continue;
-
-
 	   nSttSkewHitsinTrack[ncand] = AssociateSkewHitsToXYTrack(
 		InclusionListStt,
 		nSttSkewHit,
@@ -3014,6 +3063,12 @@ if(istampa>1) cout<<"PndTrkTracking, entra in TrackCleanup tracce normali, IVOLT
 		TemporaryZDrift,   //  output,  drift distance IN Z DIRECTION only, of selected Skew hit
 		TemporaryZErrorafterTilt   //  output,  Radius taking into account the tilt, IN Z DIRECTION only, of selected Skew hit
 								);
+	   // limit the total # Stt hits to MAXSTTHITSINTRACK
+	   if( nSttSkewHitsinTrack[ncand]+nSttParHitsinTrack[ncand] > MAXSTTHITSINTRACK ) {
+		if(MAXSTTHITSINTRACK > nSttParHitsinTrack[ncand])
+		  nSttSkewHitsinTrack[ncand]=MAXSTTHITSINTRACK-nSttParHitsinTrack[ncand];
+		else nSttSkewHitsinTrack[ncand]=0;
+	   }
 
 	   for(j=0;j<nSttSkewHitsinTrack[ncand];j++)
 	   {
@@ -3267,7 +3322,7 @@ if(istampa>1) cout<<"PndTrkTracking, entra in TrackCleanup tracce normali, IVOLT
 
  // write the Macro for visualization of tracks and hits;
 
- if(iplotta){
+ if(iplotta && IVOLTE<100){
 	PndTrkPlotMacros mymacro;
 	PndTrkPlotMacros_InputData In_Put;
 	In_Put.apotemamaxinnerparstraw = APOTEMAMAXINNERPARSTRAW ;
@@ -5563,6 +5618,8 @@ void PndTrkTracking::Ordering_Loading_ListTrackCandHit(
 
 	for(ncand=FirstCandidate; ncand< LastCandidate; ncand++){
 		// for small radius trajectory better the ordering with conformal.
+
+
 		if( R[ncand]< RSTRAWDETECTORMAX/2.){
 			OrderingConformal_Loading_ListTrackCandHit(
 				keepit,
