@@ -43,9 +43,12 @@ PndPidMvaAssociatorTask::PndPidMvaAssociatorTask()
 {
   std::cout << "<INFO> Call Default task constructor. " 
 	    << "(PndPidMvaAssociatorTask)\n";
-  // Init charged and neutral probab. containers.
-  fPidChargedProb = new TClonesArray("PidMvaProb");
-  //fPidNeutralProb = new TClonesArray("PndPidProbability");
+
+  // Init charged probab. containers.
+  fPidChargedProb = new TClonesArray("PndPidProbability");
+  
+  // Init neutral probab. containers.
+  // fPidNeutralProb = new TClonesArray("PndPidProbability");
 
   // Set Default path to the weight file  
   SetDefaultWeightsPath();
@@ -61,14 +64,19 @@ PndPidMvaAssociatorTask::PndPidMvaAssociatorTask(char const* name, char const* t
     fClassifier(0), fMethodName("UNKNOWN_METHOD")
 {
   std::cout << title << '\n';
-  // Init charged and neutral probab. containers.
-  fPidChargedProb = new TClonesArray("PidMvaProb");
-  //fPidNeutralProb = new TClonesArray("PndPidProbability");
+  // Init charged probab. containers.
+  fPidChargedProb = new TClonesArray("PndPidProbability");
+
+  // Init neutral probab. containers.
+  // fPidNeutralProb = new TClonesArray("PndPidProbability");
 
   // Set Default path to the weight file
   SetDefaultWeightsPath();
 }
 
+/*
+ * Set the default path where the weights are stored.
+ */
 void PndPidMvaAssociatorTask::SetDefaultWeightsPath()
 {
   fWeightsFileName  = std::string(getenv("VMCWORKDIR"));
@@ -138,8 +146,6 @@ InitStatus PndPidMvaAssociatorTask::Init()
     }
   */
   
-  Register();
-  
   std::cout << "<INFO> Using weight file  "
 	    << fWeightsFileName
 	    << "\n<INFO> Init classifiers.\n";
@@ -163,6 +169,7 @@ InitStatus PndPidMvaAssociatorTask::Init()
     //fClassifier = dynamic_cast<PndMultiClassMlpClassify*>(TmvaMlpCls);
     fClassifier = TmvaMlpCls;
     std::cout << "<INFO> TMVA_MLP initialized using " << fWeightsFileName << '\n';
+
     fMethodName = "TMVAMLP";
   }
   break;
@@ -183,6 +190,7 @@ InitStatus PndPidMvaAssociatorTask::Init()
     //fClassifier = dynamic_cast<PndMultiClassBdtClassify*>(TmvaBdtCls);
     fClassifier = TmvaBdtCls;
     std::cout << "<INFO> TMVA_BDT initialized using " << fWeightsFileName << '\n';
+
     fMethodName = "TMVABDT";
   }
   break;
@@ -203,6 +211,7 @@ InitStatus PndPidMvaAssociatorTask::Init()
     //fClassifier = dynamic_cast<PndMvaClassifier*>(LvqCls);
     fClassifier = LvqCls;
     std::cout << "<INFO> LVQ initialized using " << fWeightsFileName << '\n';
+
     fMethodName = "LVQ";
   }
   break;
@@ -233,6 +242,9 @@ InitStatus PndPidMvaAssociatorTask::Init()
   break;
   }// End of switch(fMethodType)
   
+  // Register objects in the output chainoutput
+  Register();
+
   std::cout << "<INFO> PndPidMvaAssociatorTask::Init: Success!\n";
   return kSUCCESS;
 }
@@ -337,6 +349,7 @@ void PndPidMvaAssociatorTask::DoPidMatch(PndPidCandidate& pidcand,
 {
   std::map<std::string, float> out;
   std::vector<float> const* evtPidData = PrepareEvtVect(pidcand);
+
   // Perform Recognition.
   fClassifier->GetMvaValues( *evtPidData, out);
   
@@ -344,20 +357,20 @@ void PndPidMvaAssociatorTask::DoPidMatch(PndPidCandidate& pidcand,
 
 #if (DEBUG != 0)
   std::cout << "****************************************************\n"
-	    << "Momentum " << (pidcand.GetMomentum()).Mag()
-	    << "\nGetEnergy " << pidcand.GetEnergy()
-	    << "\nEMC " << pidcand.GetEmcCalEnergy()
-	    << "\nEMC/P "
+	    << "Momentum = " << (pidcand.GetMomentum()).Mag()
+	    << "\nGetEnergy = " << pidcand.GetEnergy()
+	    << "\nEMC = " << pidcand.GetEmcCalEnergy()
+	    << "\nEMC/P = "
 	    << (pidcand.GetEmcCalEnergy())/((pidcand.GetMomentum()).Mag())
-	    << "\nEMCZ20 " << pidcand.GetEmcClusterZ20()
-	    << "\nEMCZ53 " << pidcand.GetEmcClusterZ53()
-	    << "\nEMCLAT " << pidcand.GetEmcClusterLat()
-            << "\nEmcE1 "  << pidcand.GetEmcClusterE1()
-            << "\nEmcE9 "  << pidcand.GetEmcClusterE9()
-            << "\nEmcE25 " << pidcand.GetEmcClusterE25()
-	    << "\nSTT " << pidcand.GetSttMeanDEDX()
-	    << "\nMVD " << pidcand.GetMvdDEDX()
-	    << "\nDRC_TC " << pidcand.GetDrcThetaC()
+	    << "\nEMCZ20 = " << pidcand.GetEmcClusterZ20()
+	    << "\nEMCZ53 = " << pidcand.GetEmcClusterZ53()
+	    << "\nEMCLAT = " << pidcand.GetEmcClusterLat()
+            << "\nEmcE1 = "  << pidcand.GetEmcClusterE1()
+            << "\nEmcE9 = "  << pidcand.GetEmcClusterE9()
+            << "\nEmcE25 = " << pidcand.GetEmcClusterE25()
+	    << "\nSTT = " << pidcand.GetSttMeanDEDX()
+	    << "\nMVD = " << pidcand.GetMvdDEDX()
+	    << "\nDRC_TC = " << pidcand.GetDrcThetaC()
             << '\n';
   printResult(out);
   std::cout << "====================================================\n";
@@ -415,7 +428,28 @@ std::vector<float> const* PndPidMvaAssociatorTask::PrepareEvtVect(PndPidCandidat
 	std::cerr << "<ER-I> p = " << mom << std::endl;
 	vect->push_back(pidcand.GetEmcCalEnergy());
       }
-    }    
+    }
+    // Cluster Ex parameters.
+    else if( (fVarNames[i] == "e1") || (fVarNames[i] == "e1") )
+    {
+      vect->push_back(pidcand.GetEmcClusterE1());
+    }
+    else if( (fVarNames[i] == "e9") || (fVarNames[i] == "E9") )
+    {
+      vect->push_back(pidcand.GetEmcClusterE9());
+    }
+    else if( (fVarNames[i] == "e25") || (fVarNames[i] == "E25") )
+    {
+      vect->push_back(pidcand.GetEmcClusterE25());
+    }
+    else if( (fVarNames[i] == "e1e9") || (fVarNames[i] == "E1E9") )
+    {
+	vect->push_back(pidcand.GetEmcClusterE1()/pidcand.GetEmcClusterE9());
+    }
+    else if( (fVarNames[i] == "e9e25") || (fVarNames[i] == "E9E25") )
+    {
+      vect->push_back(pidcand.GetEmcClusterE9()/pidcand.GetEmcClusterE25());
+    }
     //======== Zernike & moments
     else if(fVarNames[i] == "z20")
     {
@@ -430,20 +464,7 @@ std::vector<float> const* PndPidMvaAssociatorTask::PrepareEvtVect(PndPidCandidat
     {
       vect->push_back(pidcand.GetEmcClusterLat());
     }
-    // Cluster Ex parameters.
-    else if(fVarNames[i] == "e1")
-    {
-      vect->push_back(pidcand.GetEmcClusterE1());
-    }
-    else if(fVarNames[i] == "e9")
-    {
-      vect->push_back(pidcand.GetEmcClusterE9());
-    }
-    else if(fVarNames[i] == "e25")
-    {
-      vect->push_back(pidcand.GetEmcClusterE25());
-    }
-    // ==========================
+    // ========== other detectors
     else if(fVarNames[i] == "stt")
     {
       vect->push_back(pidcand.GetSttMeanDEDX());
@@ -463,19 +484,18 @@ std::vector<float> const* PndPidMvaAssociatorTask::PrepareEvtVect(PndPidCandidat
 //_________________________________________________________________
 void PndPidMvaAssociatorTask::Register()
 {
-  std::string tcaName = "Pid" + fMethodName + "MvaProb";
+  std::string tcaName = fMethodName + "MvaProb";
   //---
-  FairRootManager::Instance()->Register(tcaName.c_str(),"Pid",
-					fPidChargedProb, kTRUE); 
-  //FairRootManager::Instance()->Register("PidMvaNeutralProbability","Pid", 
-  //					fPidNeutralProb, kTRUE);
+  FairRootManager::Instance()->Register(tcaName.c_str(),"Pid", fPidChargedProb, kTRUE); 
+  
+  // FairRootManager::Instance()->Register("MvaNeutralProb","Pid", fPidNeutralProb, kTRUE);
 }
 
 //_________________________________________________________________
 void PndPidMvaAssociatorTask::Finish()
 {
-  //  FairRootManager* ioman = FairRootManager::Instance();
-  //  ioman->W
+  // FairRootManager* ioman = FairRootManager::Instance();
+  // ioman->Write();
 }
 //_________________________________________________________________
 void PndPidMvaAssociatorTask::Reset()

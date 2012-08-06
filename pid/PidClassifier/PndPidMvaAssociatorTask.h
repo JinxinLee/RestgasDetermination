@@ -140,6 +140,7 @@ class PndPidMvaAssociatorTask: public FairTask
   FairRootManager *fManager;
   
   // Classifiers variables and functions
+  /* Set the default path where the weights are stored. */
   void SetDefaultWeightsPath();
 
   //! Variable names container.
