@@ -1,8 +1,8 @@
 //pi+ = 211, pi- = -211, mu+ = -13, mu- = 13, K+ = 321, K- = -321, K0L = 130
 //pi0 = 111, gamma = 22, e- = 11, e+ = -11, proton = 2212, protonMin = -2212
 
-void sim_sttcombi_pgun( int seed = 387,
-                        int nEvents = 200,
+void sim_sttcombi_pgun( int seed = 381,
+                        int nEvents = 300,
                         int pid  = 11,//pdg code
                         float p1 = 1.0,
                         float p2 = 2.0,
@@ -25,8 +25,6 @@ void sim_sttcombi_pgun( int seed = 387,
   // If it does not work,  please check the path of the libs and put it by hands
   gROOT->LoadMacro("$VMCWORKDIR/gconfig/rootlogon.C");
   rootlogon();
-  //gROOT->LoadMacro("$VMCWORKDIR/gconfig/basiclibs.C");
-  //basiclibs();
   
   FairRunSim* fRun = new FairRunSim();
   
@@ -123,7 +121,7 @@ void sim_sttcombi_pgun( int seed = 387,
 
   // ------- DRC
   PndDrc* Drc = new PndDrc("DIRC", kTRUE);
-  Drc->SetGeometryFileName("dirc_l0_p0.root");
+  Drc->SetGeometryFileName("dirc_l0_p0_updated.root");
   Drc->SetRunCherenkov(kFALSE); // for fast sim Cherenkov -> kFALSE
   fRun->AddModule(Drc);
   

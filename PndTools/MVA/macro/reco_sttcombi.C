@@ -47,7 +47,6 @@ void reco_sttcombi(char inDigiFile [] = "digi_sttcombi.root",   //Input file Dig
   rtdb->setFirstInput(parInput1);
   rtdb->setSecondInput(parIo1);
   // ------------------------------------------------------------------------
-  // -----   LHETRACK  ---------------------------------
   
   PndMvdRiemannTrackFinderTask* mvdTrackFinder = new PndMvdRiemannTrackFinderTask();
   mvdTrackFinder->SetVerbose(iVerbose);

@@ -47,14 +47,19 @@
   // ------------------------------------------------------------------------
   
   PndPidCorrelator* corr = new PndPidCorrelator();
-  //corr->SetVerbose();
-  corr->SetInputBranch("SttMvdGenTrack");
-  //corr->SetInputIDBranch("LheTrackID");
+  corr->SetVerbose(10);
+  corr->SetInputBranch("SttMvdGemGenTrack");
+  corr->SetInputIDBranch("SttMvdGemGenTrackID");
+  //corr->SetInputBranch2("FTSTrkIdeal");
+  //corr->SetInputIDBranch2("FTSTrkIdealID");
+  //corr->SetInputBranch("SttMvdGenTrack");
   corr->SetDebugMode(kTRUE);
+  //corr->SetFast(kTRUE);
   fRun->AddTask(corr);
   
   // -----   Intialise and run   --------------------------------------------
-  PndEmcMapper::Init(6);
+  PndEmcMapper::Init(1);
+  
   //////////////
   std::vector<std::string> labels;
   std::vector<std::string> vars;
@@ -66,6 +71,7 @@
   vars.push_back("lat");  
   vars.push_back("z20");
   vars.push_back("z53");
+  vars.push_back("E9E25");
 
   PndPidMvaAssociatorTask* ts = new PndPidMvaAssociatorTask();
   // Set the path to the weightFiles; otherwise the standard
