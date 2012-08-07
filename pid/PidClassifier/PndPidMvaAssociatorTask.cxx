@@ -22,7 +22,7 @@
 #include "PndPidProbability.h"
 
 // MVA Headers.
-#include "PndMvaClassifier.h";
+#include "PndMvaClassifier.h"
 #include "PndKnnClassify.h"
 #include "PndLVQClassify.h"
 #include "PndMultiClassMlpClassify.h"
