@@ -37,6 +37,8 @@ PndFlukaGenerator.cxx
 PndGasGenerator.cxx
 PndHypBupGenerator.cxx
 PndGiBuuGenerator.cxx
+PndGiBuuTrack.cxx
+PndGiBuuDecayerAbs.cxx
 )
 
 if(RULE_CHECKER_FOUND)

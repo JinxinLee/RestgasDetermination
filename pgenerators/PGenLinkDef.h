@@ -19,7 +19,7 @@
 #pragma link C++ class  PndGasGenerator+;
 #pragma link C++ class  PndHypBupGenerator+;
 #pragma link C++ class  PndGiBuuGenerator;
-
-
+#pragma link C++ class  PndGiBuuTrack+;
+#pragma link C++ class  PndGiBuuDecayerAbs;
 
 #endif
