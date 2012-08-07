@@ -7,6 +7,9 @@
  * Modified:                          *
  *                                    *
  * ************************************/
+//standard C++ includes
+#include <iostream>
+
 #include "PndPidEmcAssociatorTask.h"
 
 //==========================================================
@@ -16,9 +19,6 @@
 PndPidEmcAssociatorTask::PndPidEmcAssociatorTask()
   : PndPidMvaAssociatorTask("PndPidMvaAssociatorTaskSTD")
 {
-  std::cout << "<INFO> Default task constructor. " 
-	    << "(PndPidEmcAssociatorTask)\n";
-  
   std::vector<std::string> const* vNames = SetEmcParNames();
   SetVarNames(*vNames);
   delete vNames;
@@ -28,11 +28,9 @@ PndPidEmcAssociatorTask::PndPidEmcAssociatorTask()
 /**
  * Constructor.
  */
-PndPidEmcAssociatorTask::PndPidEmcAssociatorTask(char const* name, char const* title)
+PndPidEmcAssociatorTask::PndPidEmcAssociatorTask(char const* name)
   : PndPidMvaAssociatorTask(name)
 {
-  std::cout << title << '\n';
-  
   std::vector<std::string> const* vNames = SetEmcParNames();
   SetVarNames(*vNames);
   delete vNames;

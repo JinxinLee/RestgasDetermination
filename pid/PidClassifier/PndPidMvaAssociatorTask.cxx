@@ -7,8 +7,28 @@
  * Modified:                          *
  *                                    *
  * ************************************/
+//===================
 #include "PndPidMvaAssociatorTask.h"
 
+// Standard C++ includes
+#include <iostream>
+
+// Root includes.
+#include "TClonesArray.h"
+
+// PANDA and Fair includes.
+#include "FairTask.h"
+#include "PndPidCandidate.h"
+#include "PndPidProbability.h"
+
+// MVA Headers.
+#include "PndMvaClassifier.h";
+#include "PndKnnClassify.h"
+#include "PndLVQClassify.h"
+#include "PndMultiClassMlpClassify.h"
+#include "PndMultiClassBdtClassify.h"
+
+//====================
 #define DEBUG 0
 
 ClassImp(PndPidMvaAssociatorTask)
@@ -37,41 +57,52 @@ void printResult(std::map<std::string,float>& res)
  */
 PndPidMvaAssociatorTask::PndPidMvaAssociatorTask()
   : FairTask("PndPidMvaAssociatorTaskSTD"),
-    fNumNeigh(200), fScFact(0.8),
-    fWeight(1.00), fClassifier(0),
+    fManager(0),
+    fVarNames  (std::vector<std::string>()),
+    fClassNames(std::vector<std::string>()),
+    fWeightsFileName(std::string(getenv("VMCWORKDIR")) + std::string("/PndTools/MVA/PndMVAWeights/")),
+    fNumNeigh(200),
+    fScFact(0.8),
+    fWeight(1.00),
+    fClassifier(0),
+    fMethodType(UNKNOWN_METHOD),
+    fPidChargedCand(0),
+    fPidChargedProb(new TClonesArray("PndPidProbability")),
+    fMCTrack(0),
     fMethodName("UNKNOWN_METHOD")
 {
-  std::cout << "<INFO> Call Default task constructor. " 
-	    << "(PndPidMvaAssociatorTask)\n";
-
-  // Init charged probab. containers.
-  fPidChargedProb = new TClonesArray("PndPidProbability");
-  
   // Init neutral probab. containers.
   // fPidNeutralProb = new TClonesArray("PndPidProbability");
 
   // Set Default path to the weight file  
-  SetDefaultWeightsPath();
+  // SetDefaultWeightsPath();
 }
 
 //___________________________________________________________
 /**
  * Constructor.
  */
-PndPidMvaAssociatorTask::PndPidMvaAssociatorTask(char const* name, char const* title)
+PndPidMvaAssociatorTask::PndPidMvaAssociatorTask(char const* name)
   : FairTask(name),
-    fNumNeigh(200), fScFact(0.8), fWeight(1.00),
-    fClassifier(0), fMethodName("UNKNOWN_METHOD")
+    fManager(0),
+    fVarNames  (std::vector<std::string>()),
+    fClassNames(std::vector<std::string>()),
+    fWeightsFileName(std::string(getenv("VMCWORKDIR")) + std::string("/PndTools/MVA/PndMVAWeights/")),
+    fNumNeigh(200),
+    fScFact(0.8),
+    fWeight(1.00),
+    fClassifier(0),
+    fMethodType(UNKNOWN_METHOD),
+    fPidChargedCand(0),
+    fPidChargedProb(new TClonesArray("PndPidProbability")),
+    fMCTrack(0),
+    fMethodName("UNKNOWN_METHOD")
 {
-  std::cout << title << '\n';
-  // Init charged probab. containers.
-  fPidChargedProb = new TClonesArray("PndPidProbability");
-
   // Init neutral probab. containers.
   // fPidNeutralProb = new TClonesArray("PndPidProbability");
 
   // Set Default path to the weight file
-  SetDefaultWeightsPath();
+  //SetDefaultWeightsPath();
 }
 
 /*
@@ -137,7 +168,6 @@ InitStatus PndPidMvaAssociatorTask::Init()
   // Get Neutral candidates.
   /*
     fPidNeutralCand = (TClonesArray *)fManager->GetObject("PidNeutralCand");
-    
     if ( ! fPidNeutralCand)
     {
     std::cerr << "<ERROR> PndPidMvaAssociatorTask::Init: No PidNeutralCand there!"
@@ -146,9 +176,8 @@ InitStatus PndPidMvaAssociatorTask::Init()
     }
   */
   
-  std::cout << "<INFO> Using weight file  "
-	    << fWeightsFileName
-	    << "\n<INFO> Init classifiers.\n";
+  std::cout << "<INFO> Using weight file  " << fWeightsFileName
+	    << '\n';
   
   // Init Classifier object
   switch(fMethodType)
@@ -255,23 +284,25 @@ void PndPidMvaAssociatorTask::SetParContainers()
 
 void PndPidMvaAssociatorTask::SetClassifier(std::string const& methodNameStr)
 {
-  fMethodName = methodNameStr;
-
   if(methodNameStr == "KNN")
   {
     fMethodType = KNN;
+    fMethodName = "KNN";
   }
   else if(methodNameStr == "LVQ")
   {
     fMethodType = LVQ;
+    fMethodName = "LVQ";
   }
   else if(methodNameStr == "TMVA_MLP")
   {
     fMethodType = TMVA_MLP;
+    fMethodName = "TMVAMLP";
   }
   else if(methodNameStr == "TMVA_BDT")
   {
     fMethodType = TMVA_BDT;
+    fMethodName = "TMVABDT";
   }
   else
   {
@@ -282,6 +313,8 @@ void PndPidMvaAssociatorTask::SetClassifier(std::string const& methodNameStr)
 //______________________________________________________
 void PndPidMvaAssociatorTask::Exec(Option_t* option)
 {
+  std::cout << option << '\n';
+
   if (fPidChargedProb->GetEntriesFast() != 0)
   {
     fPidChargedProb->Delete();
@@ -329,10 +362,8 @@ void PndPidMvaAssociatorTask::Exec(Option_t* option)
     {
     PndPidCandidate* pidcand = (PndPidCandidate*)fPidNeutralCand->At(i);
     TClonesArray& pidRef = *fPidNeutralProb;
-    
     // initializes with zeros
     PndPidProbability* prob = new(pidRef[i]) PndPidProbability();
-    
     // Classify
     DoPidMatch(*pidcand, *prob);
     }
@@ -357,6 +388,9 @@ void PndPidMvaAssociatorTask::DoPidMatch(PndPidCandidate& pidcand,
     delete evtPidData;
   }
   else {
+    // Feature vector is empty or damaged.
+    delete evtPidData;
+    evtPidData = 0;
     return;
   }
 
@@ -420,15 +454,13 @@ std::vector<float> const* PndPidMvaAssociatorTask::PrepareEvtVect(PndPidCandidat
     {
       vect->push_back((pidcand.GetMomentum()).Mag());
     }
-    // This needs to be fixed (exception??)
-    
     else if(fVarNames[i] == "emc")
     {
       if(mom > 0.0) { // E/p
 	vect->push_back( (pidcand.GetEmcCalEnergy())/mom);
       }
       else {
-        std::cerr << "<WARNING> p !> 0. The event is skipped.\n"
+        std::cerr << "<WARNING> (p !> 0). The event is skipped.\n"
                   << "<ER-I> p = " << mom << std::endl;
         delete vect;
         return 0;
@@ -453,7 +485,7 @@ std::vector<float> const* PndPidMvaAssociatorTask::PrepareEvtVect(PndPidCandidat
         vect->push_back(pidcand.GetEmcClusterE1()/pidcand.GetEmcClusterE9());
       }
       else {
-        std::cerr << "<WARNING> EmcClusterE9 !> 0. The event is skipped.\n"
+        std::cerr << "<WARNING> (EmcClusterE9 !> 0). The event is skipped.\n"
                   << std::flush;
         delete vect;
         return 0;
@@ -465,7 +497,7 @@ std::vector<float> const* PndPidMvaAssociatorTask::PrepareEvtVect(PndPidCandidat
         vect->push_back(pidcand.GetEmcClusterE9()/pidcand.GetEmcClusterE25());
       }
       else {
-        std::cerr << "<WARNING> EmcClusterE25 !> 0. The event is skipped.\n"
+        std::cerr << "<WARNING> (EmcClusterE25 !> 0). The event is skipped.\n"
                   << std::flush;
         delete vect;
         return 0;

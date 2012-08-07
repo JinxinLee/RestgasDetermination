@@ -10,32 +10,30 @@
 #ifndef PID_MVA_ASSOCIATOR_H
 #define PID_MVA_ASSOCIATOR_H
 
-//standard C++ includes
-#include <iostream>
+// Standard C++ includes
+#include <string>
+#include <vector>
 
 // Root includes.
-#include "TClonesArray.h"
+class TClonesArray;
 
 // PANDA and Fair includes.
 #include "FairTask.h"
-#include "FairRootManager.h"
-#include "PndMCTrack.h"
-#include "PndPidCandidate.h"
-#include "PndPidProbability.h"
+class PndPidCandidate;
+class PndPidProbability;
 
-#include "PndKnnClassify.h"
-#include "PndLVQClassify.h"
-#include "PndMultiClassMlpClassify.h"
-#include "PndMultiClassBdtClassify.h"
+// MVA headers
+class PndMvaClassifier;
 
 // ========================================================================
 //! Method types for selecting which classifier to use.
 typedef enum 
   {
-    KNN = 0,// KNN methode
-    LVQ = 1, // LVQ
-    TMVA_MLP = 2, // Multi label TMVA ANN.
-    TMVA_BDT = 3 // Multi label TMVA BDT.
+    UNKNOWN_METHOD = 0,
+    KNN = 1,// KNN methode
+    LVQ = 2, // LVQ
+    TMVA_MLP = 3, // Multi label TMVA ANN.
+    TMVA_BDT = 4 // Multi label TMVA BDT.
   } Mva_MethodType;
 
 // ========================================================================
@@ -50,8 +48,8 @@ class PndPidMvaAssociatorTask: public FairTask
   /**
    * Constructor.
    */
-  PndPidMvaAssociatorTask(char const* name, char const* title="PndPidMvaAssociatorTask");
-  
+  PndPidMvaAssociatorTask(char const* name);
+
   /**
    * Destructor.
    */  
@@ -166,8 +164,8 @@ class PndPidMvaAssociatorTask: public FairTask
   TClonesArray* fPidChargedCand; //! PndPidCandidate TCA for charged particles
   TClonesArray* fPidChargedProb; //! PndPidProbability TCA for charged particles
   TClonesArray* fMCTrack;        //! Monte-Carlo Truth track TCA
-  //TClonesArray* fPidNeutralCand; //! PndPidCandidate TCA for neutral particles
-  //TClonesArray* fPidNeutralProb; //! PndPidProbability TCA for neutral particles
+  // TClonesArray* fPidNeutralCand; //! PndPidCandidate TCA for neutral particles
+  // TClonesArray* fPidNeutralProb; //! PndPidProbability TCA for neutral particles
   std::string   fMethodName;
 
   ClassDef(PndPidMvaAssociatorTask, 0);
@@ -202,6 +200,7 @@ inline void PndPidMvaAssociatorTask::SetClassifier(Mva_MethodType const& methodT
 {
   fMethodType = methodT;
 };
+
 inline void PndPidMvaAssociatorTask::SetKnnEventParams(float scFact, double weight)
 {
   fScFact = scFact;
