@@ -84,7 +84,8 @@ class PndTrkTracking : public FairTask
 
 
   static const Short_t
-	MAXMCTRACKS		= 1000,
+//	MAXMCTRACKS		= 1000,
+	MAXMCTRACKS		= 100,
 	MAXMVDPIXELHITS		= 500,
 	MAXMVDPIXELHITSINTRACK	= 10,
 	MAXMVDSTRIPHITS		= 500,
