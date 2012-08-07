@@ -69,8 +69,8 @@ Bool_t PndGiBuuGenerator::ReadEvent(FairPrimaryGenerator* primGen)
 	while (fEvent == oldEventNr && !(fInputAsciiFile->eof())){
 		*fInputAsciiFile >> GiBuuPid >> GiBuuCharge >> motherId1 >> motherId2 >> dummyInt >> mass >> dummyInt >> energy >> fPx >> fPy >> fPz >> dummyDouble >> fEvent >> runId >> dummyDouble;
 		fPdg = GetPdgParticleId(GiBuuPid, GiBuuCharge);
-		std::cout << fPdg << " " << GiBuuPid << " " << GiBuuCharge << " " << motherId1 << " " << motherId2 << " " << dummyInt << " " << mass << " " << dummyInt << " " << energy << " " << fPx << " " << fPy << " " << fPz << " " << dummyDouble << " " << fEvent << " " << runId << " " << dummyDouble;
-		std::cout << std::endl;
+//		std::cout << fPdg << " " << GiBuuPid << " " << GiBuuCharge << " " << motherId1 << " " << motherId2 << " " << dummyInt << " " << mass << " " << dummyInt << " " << energy << " " << fPx << " " << fPy << " " << fPz << " " << dummyDouble << " " << fEvent << " " << runId << " " << dummyDouble;
+//		std::cout << std::endl;
 
 		if (fDecayerMap.count(fPdg) > 0){
 			std::vector<PndGiBuuTrack> tracks = fDecayerMap[fPdg]->DecayTrack(PndGiBuuTrack(fPdg, fPx, fPy, fPz, 0., 0.,0.));
@@ -98,13 +98,13 @@ void PndGiBuuGenerator::FillPidMap()
 	Int_t giCharge = 0;
 	Int_t pdgPid = 0;
 
-	std::cout << "Reading In PidFile: " << fPidDataFileName.Data() <<  " " << PidFile << " " << PidFile->eof() << std::endl;
+//	std::cout << "Reading In PidFile: " << fPidDataFileName.Data() <<  " " << PidFile << " " << PidFile->eof() << std::endl;
 
 	while (!(PidFile->eof())){
 		*PidFile >> giPid >> giCharge >> pdgPid;
 		std::pair<Int_t, Int_t> GiBuuPid(giPid, giCharge);
 		fMapGiBuuToPdg[GiBuuPid] = pdgPid;
-		std::cout << giPid << " " << giCharge << " = " << pdgPid << std::endl;
+//		std::cout << giPid << " " << giCharge << " = " << pdgPid << std::endl;
 	}
 	PidFile->close();
 	PidFile = 0;
