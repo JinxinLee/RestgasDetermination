@@ -18,5 +18,8 @@
 #pragma link C++ class  PndRangeValues+;
 #pragma link C++ class  PndGasGenerator+;
 #pragma link C++ class  PndHypBupGenerator+;
+#pragma link C++ class  PndGiBuuGenerator;
+
+
 
 #endif
