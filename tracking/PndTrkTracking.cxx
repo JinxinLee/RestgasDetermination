@@ -655,8 +655,6 @@ void PndTrkTracking::Exec(Option_t* opt) {
 	tempore[MAXSTTHITS],
 	TemporarySkewList[2*MAXSTTHITS][2],
 	BigList[MAXTRACKSPEREVENT][MAXSTTHITSINTRACK],
-//	MCParalAloneList[MAXTRACKSPEREVENT*MAXSTTHITSINTRACK],
-//	MCSkewAloneList[MAXTRACKSPEREVENT*MAXSTTHITSINTRACK],
 	// nBoxConformal,  first index -> radial divisions,
 	// 2nd index -> azimuthal divisions; n. of hits falling in this cell.
 	nBoxConformal[NRDIVCONFORMAL*NFIDIVCONFORMAL],
@@ -1023,15 +1021,21 @@ void PndTrkTracking::Exec(Option_t* opt) {
  // of the if( fSciTHitArray != NULL).
  Short_t fSciTilMaxNumber;
  if( nSciTilHits > 0) fSciTilMaxNumber = nSciTilHits ; else fSciTilMaxNumber = 1;
+
  Short_t
 	nHitsInSciTile[fSciTilMaxNumber],
 	OriginalSciTilList[fSciTilMaxNumber][fSciTilMaxNumber];
 
+//--------   initialization (to 0) of nHitsInSciTile array;
+ memset (nHitsInSciTile,0,sizeof(nHitsInSciTile));
+//---
 
  if(istampa>0) cout<<"da PndTrkTracking, event "<<IVOLTE<<", "<<nSciTilHits
 		<<" SciTil hits presenti inizialmente."<<endl;
+	for(j=0; j<nSciTilHits; j++){
+	}
 
-	if( nSciTilHits >0 ){
+   if( nSciTilHits >0 ){
 	// OriginalSciTilList is the list of original SciTil hits (not purged yet)
 	// present in a given SciTil tile :
 	// OriginalSciTilList[nacceptedhit][*];
@@ -1044,31 +1048,33 @@ void PndTrkTracking::Exec(Option_t* opt) {
 	// of the (first) SciTil Hit inside the Sci Tile.
 	pPndSciTHit = (PndSciTHit*) fSciTHitArray->At(0);
 	posiz = pPndSciTHit->GetPosition();
-	if(istampa>0)cout<<"da PndTrkTracking SciTil non purgati, Xpos "<<
+	if(istampa>0)cout<<"da PndTrkTracking SciTil n. "<<0<<
+	" non purgato, Xpos "<<
 			posiz.X()<<", Ypos "<<
 			posiz.Y()<<", Zpos "<<posiz.Z()<<endl;
 
-	pSciTilx[0]=posizSciTil[0][0]=posiz.X();
-	pSciTily[0]=posizSciTil[0][1]=posiz.Y();
-	pSciTilz[0]=posizSciTil[0][2]=posiz.Z();
+	posizSciTil[0][0]=posiz.X();
+	posizSciTil[0][1]=posiz.Y();
+	posizSciTil[0][2]=posiz.Z();
+	pSciTilx[0]=posiz.X();
+	pSciTily[0]=posiz.Y();
+	pSciTilz[0]=posiz.Z();
 	OriginalSciTilList[0][0]=0;
 	nHitsInSciTile[0]=1;
 	iaccept=1;
 	// the other SciTil hits; purge them if they are duplicate.
-	 for(j=1; j<nSciTilHits; j++){
+	for(j=1; j<nSciTilHits; j++){
 		pPndSciTHit = (PndSciTHit*) fSciTHitArray->At(j);
 		posiz = pPndSciTHit->GetPosition();
-		if(istampa>0)cout<<"da PndTrkTracking SciTil non purgati, Xpos "
+		if(istampa>0)cout<<"da PndTrkTracking SciTil n. "<<j<<" non purgato, Xpos "
 			<<posiz.X()<<", Ypos "<<posiz.Y()<<", Zpos "<<posiz.Z()<<endl;
 
 	// purging the duplicate SciTil hits.
 	    flag = true;
 	    for(k=0; k<iaccept; k++){
 		if(
-			(fabs(posiz.X() - posizSciTil[k][0])< 1.e-20)
-					&&
-			(fabs(posiz.Y() - posizSciTil[k][1])< 1.e-20)
-					&&
+			(fabs(posiz.X() - posizSciTil[k][0])< 1.e-20) &&
+			(fabs(posiz.Y() - posizSciTil[k][1])< 1.e-20) &&
 			(fabs(posiz.Z() - posizSciTil[k][2])< 1.e-20)
 		  ){
 			flag=false;
@@ -1078,9 +1084,12 @@ void PndTrkTracking::Exec(Option_t* opt) {
 		}  // end of if((fabs(posiz.X() - old...
 	    } // end of for(k=0; k<iaccept; k++)
 	    if(flag){
-		pSciTilx[iaccept]=posizSciTil[iaccept][0]=posiz.X();
-		pSciTily[iaccept]=posizSciTil[iaccept][1]=posiz.Y();
-		pSciTilz[iaccept]=posizSciTil[iaccept][2]=posiz.Z();
+		posizSciTil[iaccept][0]=posiz.X();
+		posizSciTil[iaccept][1]=posiz.Y();
+		posizSciTil[iaccept][2]=posiz.Z();
+		pSciTilx[iaccept]=posiz.X();
+		pSciTily[iaccept]=posiz.Y();
+		pSciTilz[iaccept]=posiz.Z();
 		OriginalSciTilList[iaccept][0]= j;
 		nHitsInSciTile[iaccept]=1;
 		iaccept++;
@@ -1107,12 +1116,10 @@ if(istampa>0){
 
 
 
- }  // end of if( nSciTilHits >0 )
+   }  // end of if( nSciTilHits >0 )
 
 
 //-----------------------------------end fetching SciTil hits.
-
-
 
 //-------------------
 //-------------------
@@ -1281,7 +1288,6 @@ if(istampa>0){
 
 
 //----- end use the SciTil hits first.
-
 
 
 
@@ -1560,7 +1566,6 @@ if(istampa>0){
 
 //-------------- stampa
  if(istampa>=2){
-	cout<<"at [1566], evt. "<<IVOLTE<<endl;
 	fPrint.stampetta(
 			IVOLTE,
 			keepit,
@@ -2873,19 +2878,22 @@ if(istampa>1) cout<<"PndTrkTracking, entra in TrackCleanup tracce normali, IVOLT
 
 // -----------------  finding the charge of those track found starting from Mvd
 
-	int nMvdOnly;
-	Double_t Sini, Slast,
-		esse[MAXMVDPIXELHITSINTRACK+MAXMVDSTRIPHITSINTRACK+MAXSTTHITSINTRACK];
+ int dim = MAXMVDPIXELHITSINTRACK+MAXMVDSTRIPHITSINTRACK+
+			MAXSTTHITSINTRACK+MAXSCITILHITSINTRACK;
+
+ int nMvdOnly;
+ Double_t
+	esse[dim],
+	Sini,
+	Slast;
 
 	Double_t
-	DriftRadius[nTrackCandHit[ncand]],// all skew hits have double
-	ErrorDriftRadius[nTrackCandHit[ncand]],// solutions
-//	S[nTrackCandHit[ncand]], // multiplication by 2 in the
-	ZED[nTrackCandHit[ncand]]; // rather improbable chance that
+	DriftRadius[dim],// all skew hits have double
+	ErrorDriftRadius[dim],// solutions
+	ZED[dim]; // rather improbable chance that
 
 	for(ncand=nSttTrackCand; ncand< nTotalCandidates; ncand++){
 	    if(!keepit[ncand]) continue;
-
 
 	// S[]  is used later in the SZ fit.
 
@@ -3183,31 +3191,56 @@ if(istampa>1) cout<<"PndTrkTracking, entra in TrackCleanup tracce normali, IVOLT
 
 //------------ section with comparison MC Mvd hits - associated hits to a certain track
 
+
+
+
+ int dim1,  dim2  , dim3 , dim4, dim5, dim6, dim7;
+
+ if(nSttHit == 0 ) { dim1=1; } else { dim1 = MAXTRACKSPEREVENT*nSttHit; };
+
  Short_t
-	MCParalAloneList[MAXTRACKSPEREVENT*nSttHit],
-	MCSkewAloneList[MAXTRACKSPEREVENT*nSttHit],
+	MCParalAloneList[dim1],
+	MCSkewAloneList[dim1];
 
-	nMvdPixelCommon[nTotalCandidates],
-	MvdPixelCommonList[nTotalCandidates*MAXMVDPIXELHITSINTRACK],
-	nMvdPixelSpuriinTrack[nTotalCandidates],
-	MvdPixelSpuriList[nTotalCandidates*MAXMVDPIXELHITSINTRACK],
-	nMCMvdPixelAlone[nTotalCandidates],
-	MCMvdPixelAloneList[nTotalCandidates*nMvdPixelHit],
+ if(nTotalCandidates == 0 ) {
+	dim1 = 1;
+	dim2 = 1;
+	dim3 = 1;
+	dim4 = 1;
+	dim5 = 1;
+	dim6 = 1;
+	dim7 = 1;
+ } else {
+	dim1 = nTotalCandidates;
+	dim2 = nTotalCandidates*MAXMVDPIXELHITSINTRACK;
+	dim3 = nTotalCandidates*MAXMVDSTRIPHITSINTRACK;
+	dim4 = nTotalCandidates*nMvdPixelHit;
+	dim5 = nTotalCandidates*nMvdStripHit;
+	dim6 = nTotalCandidates*MAXSCITILHITSINTRACK;
+	dim7 = nTotalCandidates*nSciTilHits;
+ }
 
-	nMvdStripCommon[nTotalCandidates],
-	MvdStripCommonList[nTotalCandidates*MAXMVDSTRIPHITSINTRACK],
-	nMvdStripSpuriinTrack[nTotalCandidates],
-	MvdStripSpuriList[nTotalCandidates*MAXMVDSTRIPHITSINTRACK],
-	nMCMvdStripAlone[nTotalCandidates],
-	MCMvdStripAloneList[nTotalCandidates*nMvdStripHit],
+ Short_t
+	nMvdPixelCommon[dim1],
+	MvdPixelCommonList[dim2],
+	nMvdPixelSpuriinTrack[dim1],
+	MvdPixelSpuriList[dim2],
+	nMCMvdPixelAlone[dim1],
+	MCMvdPixelAloneList[dim4],
 
-	nSciTilCommon[nTotalCandidates],
-	SciTilCommonList[nTotalCandidates*MAXSCITILHITSINTRACK],
-	nSciTilSpuriinTrack[nTotalCandidates],
-	SciTilSpuriList[nTotalCandidates*MAXSCITILHITSINTRACK],
-	nMCSciTilAlone[nTotalCandidates],
-	MCSciTilAloneList[nTotalCandidates*nSciTilHits];
+	nMvdStripCommon[dim1],
+	MvdStripCommonList[dim3],
+	nMvdStripSpuriinTrack[dim1],
+	MvdStripSpuriList[dim3],
+	nMCMvdStripAlone[dim1],
+	MCMvdStripAloneList[dim5],
 
+	nSciTilCommon[dim1],
+	SciTilCommonList[dim6],
+	nSciTilSpuriinTrack[dim1],
+	SciTilSpuriList[dim6],
+	nMCSciTilAlone[dim1],
+	MCSciTilAloneList[dim7];
 
 
  if( doMcComparison && nTotalCandidates > 0){
