@@ -204,7 +204,7 @@ void PndEmcWaveformToDigi::Exec(Option_t* opt)
 			if (energy>fEnergyDigiThreshold)
 			{
 				Double_t timestamp=EventTime+digi_time;	
-				PndEmcDigi* myDigi = new PndEmcDigi(trackId,detId, energy, digi_time, hitIndex);
+				PndEmcDigi* myDigi = new PndEmcDigi(trackId,detId, energy, timestamp, hitIndex);
 				myDigi->AddLink(FairLink("EmcWaveform", iWaveform));
 				fDataBuffer->FillNewData(myDigi, 300, 300); // 300 ns
 				if (fVerbose>2){
