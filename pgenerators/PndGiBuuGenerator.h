@@ -17,6 +17,8 @@
 
 
 #include "FairGenerator.h"
+#include "PndGiBuuDecayerAbs.h"
+
 #include "TString.h"
 #include <fstream>
 #include <map>
@@ -48,6 +50,8 @@ class PndGiBuuGenerator : public FairGenerator
    **/
   virtual Bool_t ReadEvent(FairPrimaryGenerator* primGen);
 
+  void RegisterDecayer(Int_t pdgCode, PndGiBuuDecayerAbs* decayer){ fDecayerMap[pdgCode] = decayer; }
+
  protected:
  Bool_t Init();
 	
@@ -64,6 +68,8 @@ class PndGiBuuGenerator : public FairGenerator
   TString fFileName;   //! Input file name
   TString fPidDataFileName; //! Input Pid data file name
   std::ifstream *fInputAsciiFile; //!
+
+  std::map<Int_t, PndGiBuuDecayerAbs*> fDecayerMap; //!
 
   Double_t fPx, fPy, fPz;  //! Momentum of particle
   Int_t    fPdg;           //! PDG code of particle

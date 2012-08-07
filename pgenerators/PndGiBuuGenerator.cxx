@@ -19,6 +19,9 @@ PndGiBuuGenerator::PndGiBuuGenerator(const Char_t* fileName, const Char_t* pidDa
 // -----   Destructor   ---------------------------------------------------
 PndGiBuuGenerator::~PndGiBuuGenerator() {
   CloseInput();
+  for (std::map<Int_t, PndGiBuuDecayerAbs*>::const_iterator iter = fDecayerMap.begin(); iter != fDecayerMap.end(); iter++){
+	  delete(iter->second);
+  }
 }
 // ------------------------------------------------------------------------
 
@@ -68,6 +71,14 @@ Bool_t PndGiBuuGenerator::ReadEvent(FairPrimaryGenerator* primGen)
 		fPdg = GetPdgParticleId(GiBuuPid, GiBuuCharge);
 		std::cout << fPdg << " " << GiBuuPid << " " << GiBuuCharge << " " << motherId1 << " " << motherId2 << " " << dummyInt << " " << mass << " " << dummyInt << " " << energy << " " << fPx << " " << fPy << " " << fPz << " " << dummyDouble << " " << fEvent << " " << runId << " " << dummyDouble;
 		std::cout << std::endl;
+
+		if (fDecayerMap.count(fPdg) > 0){
+			std::vector<PndGiBuuTrack> tracks = fDecayerMap[fPdg]->DecayTrack(PndGiBuuTrack(fPdg, fPx, fPy, fPz, 0., 0.,0.));
+			for (int i = 0; i < tracks.size(); i++){
+				primGen->AddTrack(tracks[i].GetPdgId(), tracks[i].GetMomentum().X(), tracks[i].GetMomentum().Y(),tracks[i].GetMomentum().Z(),
+						 	 	  tracks[i].GetVertex().X(), tracks[i].GetVertex().Y(),tracks[i].GetVertex().Z());
+			}
+		}
 
 		if (fEvent == oldEventNr){
 			primGen->AddTrack(fPdg, fPx, fPy, fPz, 0.,0.,0.);
