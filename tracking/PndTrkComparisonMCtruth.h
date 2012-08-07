@@ -72,7 +72,7 @@ struct PndTrkComparisonMCtruth_io_Data{
 	Short_t  *nMvdStripSpuriinTrack;
 	Short_t  *nParalCommon;
 	Short_t  *nSciTilCommon;
-	Short_t  nSciTilHits;
+	Short_t   nSciTilHits;
 	Short_t  *nSciTilHitsinTrack;
 	Short_t  *nSciTilSpuriinTrack;
 	Short_t  *nSkewCommon;
@@ -134,24 +134,24 @@ class PndTrkComparisonMCtruth
 		//  of dimension  [nSciTilHits][nMCTracks].
 	bool *keepit,
 	Double_t info[][7],
-	Short_t *ListHitsinTrack,
-	Short_t *ListPixelHitsinTrack,
+	Short_t *ListSttParHitsinTrack,
+	Short_t *ListMvdPixelHitsinTrack,
 	Short_t *ListSciTilHitsinTrack,
-	Short_t *ListSkewHitsinTrack,
-	Short_t *ListStripHitsinTrack,
+	Short_t *ListSttSkewHitsinTrack,
+	Short_t *ListMvdStripHitsinTrack,
 	int MAXMVDPIXELHITSINTRACK,
 	int MAXMVDSTRIPHITSINTRACK,
 	int MAXSCITILHITSINTRACK,
 	int MAXSTTHITSINTRACK,
 	int *nFromSciTiltoMCTrack,
-	Short_t *nHitsinTrack,
+	Short_t *nSttParHitsinTrack,
 	int nMCTracks,
-	Short_t *nPixelHitsinTrack,
+	Short_t *nMvdPixelHitsinTrack,
 	Short_t nSciTilHits,
 	Short_t *nSciTilHitsinTrack, // equivalen to a matrix of
 		// dimension [MAXTRACKSPEREVENT][MAXSCITILHITSINTRACK]
-	Short_t *nSkewHitsinTrack,
-	Short_t *nStripHitsinTrack,
+	Short_t *nSttSkewHitsinTrack,
+	Short_t *nMvdStripHitsinTrack,
 	Short_t  nTracksFoundSoFar,
 	Double_t *Ox,
 	Double_t *Oy,
@@ -194,14 +194,14 @@ void MvdMatchedSpurioustoTrackCand(
 	Int_t *FromPixeltoMCTrack,	// input
 	Int_t *FromStriptoMCTrack,	// input
 	bool *keepit,			// input
-	Short_t *ListPixelHitsinTrack,// input
-	Short_t *ListStripHitsinTrack,// input
+	Short_t *ListMvdPixelHitsinTrack,// input
+	Short_t *ListMvdStripHitsinTrack,// input
 	int MAXMVDPIXELHITSINTRACK,
 	int MAXMVDSTRIPHITSINTRACK,
 	Short_t nMvdPixelHit,
 	Short_t nMvdStripHit,
-	Short_t *nPixelHitsinTrack,	// input
-	Short_t *nStripHitsinTrack,	// input
+	Short_t *nMvdPixelHitsinTrack,	// input
+	Short_t *nMvdStripHitsinTrack,	// input
 	Short_t nSttTrackCand,		// input
 
 	Short_t *nMvdPixelCommon,		// output
@@ -300,21 +300,21 @@ void SttMatchedSpurious(
 	int MAXSTTHITS,
 	int MAXSTTHITSINTRACK,
 	int MAXTRACKSPEREVENT,
-	Short_t *ListHitsinTrack, // from PR
-	Short_t *ListSkewHitsinTrack, // from PR
+	Short_t *ListSttParHitsinTrack, // from PR
+	Short_t *ListSttSkewHitsinTrack, // from PR
 	Short_t *MCParalAloneList,
 	Short_t *MCSkewAloneList,
 	Short_t *nHitsInMCTrack,
-	Short_t  nHitsinTrack[], // n. hits PARALLEL, from PR
+	Short_t *nSttParHitsinTrack, // n. hits PARALLEL, from PR
 	Short_t *nMCParalAlone,
 	Short_t *nMCSkewAlone,
 	Short_t *nParalCommon,
 	Short_t *nSkewCommon,
 	Short_t *nSkewHitsInMCTrack,
-	Short_t *nSkewHitsinTrack, // n. hits skew, from PR
+	Short_t *nSttSkewHitsinTrack, // n. hits skew, from PR
 	Short_t *nSpuriParinTrack,
 	Short_t *nSpuriSkewinTrack,
-	Short_t  ntotalHits,
+	Short_t  nSttHits,
 	Short_t  nTracksFoundSoFar, // those found by PR
 	Short_t *ParalCommonList,
 	Short_t *ParSpuriList,
