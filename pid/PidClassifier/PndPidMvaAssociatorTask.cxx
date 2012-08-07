@@ -242,7 +242,7 @@ InitStatus PndPidMvaAssociatorTask::Init()
   break;
   }// End of switch(fMethodType)
   
-  // Register objects in the output chainoutput
+  // Register objects in the output chain
   Register();
 
   std::cout << "<INFO> PndPidMvaAssociatorTask::Init: Success!\n";
@@ -288,8 +288,8 @@ void PndPidMvaAssociatorTask::Exec(Option_t* option)
   }
 
 #if (DEBUG != 0)
-  std::cout << "<INFO> Call to Exec with " << option
-	    << '\n';
+  std::cout << "<INFO> Call to Exec with options = " << option
+	    << "___\n";
 #endif
 
   if(fVerbose > 1)
@@ -347,13 +347,18 @@ void PndPidMvaAssociatorTask::Exec(Option_t* option)
 void PndPidMvaAssociatorTask::DoPidMatch(PndPidCandidate& pidcand,
 					 PndPidProbability& prob)
 {
+  
   std::map<std::string, float> out;
   std::vector<float> const* evtPidData = PrepareEvtVect(pidcand);
-
-  // Perform Recognition.
-  fClassifier->GetMvaValues( *evtPidData, out);
   
-  delete evtPidData;
+  // Perform Recognition.
+  if( evtPidData ) {
+    fClassifier->GetMvaValues( *evtPidData, out);
+    delete evtPidData;
+  }
+  else {
+    return;
+  }
 
 #if (DEBUG != 0)
   std::cout << "****************************************************\n"
@@ -419,18 +424,18 @@ std::vector<float> const* PndPidMvaAssociatorTask::PrepareEvtVect(PndPidCandidat
     
     else if(fVarNames[i] == "emc")
     {
-      if(mom != 0.0)
-      { // E/p
+      if(mom > 0.0) { // E/p
 	vect->push_back( (pidcand.GetEmcCalEnergy())/mom);
       }
-      else
-      {
-	std::cerr << "<ER-I> p = " << mom << std::endl;
-	vect->push_back(pidcand.GetEmcCalEnergy());
+      else {
+        std::cerr << "<WARNING> p !> 0. The event is skipped.\n"
+                  << "<ER-I> p = " << mom << std::endl;
+        delete vect;
+        return 0;
       }
     }
     // Cluster Ex parameters.
-    else if( (fVarNames[i] == "e1") || (fVarNames[i] == "e1") )
+    else if( (fVarNames[i] == "e1") || (fVarNames[i] == "E1") )
     {
       vect->push_back(pidcand.GetEmcClusterE1());
     }
@@ -444,11 +449,27 @@ std::vector<float> const* PndPidMvaAssociatorTask::PrepareEvtVect(PndPidCandidat
     }
     else if( (fVarNames[i] == "e1e9") || (fVarNames[i] == "E1E9") )
     {
-	vect->push_back(pidcand.GetEmcClusterE1()/pidcand.GetEmcClusterE9());
+      if( pidcand.GetEmcClusterE9() > 0 ) {
+        vect->push_back(pidcand.GetEmcClusterE1()/pidcand.GetEmcClusterE9());
+      }
+      else {
+        std::cerr << "<WARNING> EmcClusterE9 !> 0. The event is skipped.\n"
+                  << std::flush;
+        delete vect;
+        return 0;
+      }
     }
     else if( (fVarNames[i] == "e9e25") || (fVarNames[i] == "E9E25") )
     {
-      vect->push_back(pidcand.GetEmcClusterE9()/pidcand.GetEmcClusterE25());
+      if( pidcand.GetEmcClusterE25() > 0 ) {
+        vect->push_back(pidcand.GetEmcClusterE9()/pidcand.GetEmcClusterE25());
+      }
+      else {
+        std::cerr << "<WARNING> EmcClusterE25 !> 0. The event is skipped.\n"
+                  << std::flush;
+        delete vect;
+        return 0;
+      }
     }
     //======== Zernike & moments
     else if(fVarNames[i] == "z20")
@@ -476,7 +497,7 @@ std::vector<float> const* PndPidMvaAssociatorTask::PrepareEvtVect(PndPidCandidat
     else if(fVarNames[i] == "thetaC")
     {
       vect->push_back(pidcand.GetDrcThetaC());
-    } 
+    }
   }
   return vect;
 }
@@ -487,7 +508,6 @@ void PndPidMvaAssociatorTask::Register()
   std::string tcaName = fMethodName + "MvaProb";
   //---
   FairRootManager::Instance()->Register(tcaName.c_str(),"Pid", fPidChargedProb, kTRUE); 
-  
   // FairRootManager::Instance()->Register("MvaNeutralProb","Pid", fPidNeutralProb, kTRUE);
 }
 
