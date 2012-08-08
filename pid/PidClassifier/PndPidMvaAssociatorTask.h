@@ -7,6 +7,7 @@
  * Modified:                          *
  *                                    *
  * ************************************/
+#pragma once
 #ifndef PID_MVA_ASSOCIATOR_H
 #define PID_MVA_ASSOCIATOR_H
 
@@ -19,6 +20,7 @@ class TClonesArray;
 
 // PANDA and Fair includes.
 #include "FairTask.h"
+class FairRootManager;
 class PndPidCandidate;
 class PndPidProbability;
 

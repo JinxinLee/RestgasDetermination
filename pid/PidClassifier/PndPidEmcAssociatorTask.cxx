@@ -7,10 +7,10 @@
  * Modified:                          *
  *                                    *
  * ************************************/
-//standard C++ includes
-#include <iostream>
-
 #include "PndPidEmcAssociatorTask.h"
+
+// Standard C++ includes
+#include <iostream>
 
 //==========================================================
 /**

@@ -18,6 +18,7 @@
 
 // PANDA and Fair includes.
 #include "FairTask.h"
+#include "FairRootManager.h"
 #include "PndPidCandidate.h"
 #include "PndPidProbability.h"
 
@@ -456,11 +457,11 @@ std::vector<float> const* PndPidMvaAssociatorTask::PrepareEvtVect(PndPidCandidat
     }
     else if(fVarNames[i] == "emc")
     {
-      if(mom > 0.0) { // E/p
+      if(mom > 0.00) { // E/p
 	vect->push_back( (pidcand.GetEmcCalEnergy())/mom);
       }
       else {
-        std::cerr << "<WARNING> (p !> 0). The event is skipped.\n"
+        std::cerr << "<WARNING> (p > 0) failed. The event is skipped.\n"
                   << "<ER-I> p = " << mom << std::endl;
         delete vect;
         return 0;
@@ -485,7 +486,7 @@ std::vector<float> const* PndPidMvaAssociatorTask::PrepareEvtVect(PndPidCandidat
         vect->push_back(pidcand.GetEmcClusterE1()/pidcand.GetEmcClusterE9());
       }
       else {
-        std::cerr << "<WARNING> (EmcClusterE9 !> 0). The event is skipped.\n"
+        std::cerr << "<WARNING> (EmcClusterE9 > 0) failed. The event is skipped.\n"
                   << std::flush;
         delete vect;
         return 0;
@@ -497,7 +498,7 @@ std::vector<float> const* PndPidMvaAssociatorTask::PrepareEvtVect(PndPidCandidat
         vect->push_back(pidcand.GetEmcClusterE9()/pidcand.GetEmcClusterE25());
       }
       else {
-        std::cerr << "<WARNING> (EmcClusterE25 !> 0). The event is skipped.\n"
+        std::cerr << "<WARNING> (EmcClusterE25 > 0) failed. The event is skipped.\n"
                   << std::flush;
         delete vect;
         return 0;
@@ -545,10 +546,7 @@ void PndPidMvaAssociatorTask::Register()
 
 //_________________________________________________________________
 void PndPidMvaAssociatorTask::Finish()
-{
-  // FairRootManager* ioman = FairRootManager::Instance();
-  // ioman->Write();
-}
+{}
 //_________________________________________________________________
 void PndPidMvaAssociatorTask::Reset()
 {}

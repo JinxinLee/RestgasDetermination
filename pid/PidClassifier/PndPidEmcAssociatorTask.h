@@ -7,6 +7,7 @@
  * Modified:                          *
  *                                    *
  * ************************************/
+#pragma once
 #ifndef PID_EMC_ASSOCIATOR_H
 #define PID_EMC_ASSOCIATOR_H
 
@@ -38,8 +39,13 @@ class PndPidEmcAssociatorTask: public PndPidMvaAssociatorTask
   // Assignment operator.
   PndPidEmcAssociatorTask& operator=(PndPidMvaAssociatorTask const& other);
   
+  // Set the default variable names for emc
   void SetVarNames(std::vector<std::string> const& vNames);
-
+  
+  /*
+   * Creates a vector with names of the statndard variables for emc
+   * pat. rec.
+  */
   std::vector<std::string> const* SetEmcParNames() const;
 
   ClassDef(PndPidEmcAssociatorTask, 0);
