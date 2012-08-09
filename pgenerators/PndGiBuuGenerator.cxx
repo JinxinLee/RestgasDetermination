@@ -9,7 +9,7 @@
 
 // -----   Standard constructor   -----------------------------------------
 PndGiBuuGenerator::PndGiBuuGenerator(const Char_t* fileName, const Char_t* pidDataFileName) :
-		fEvent(0), fFileName(fileName), fPidDataFileName(pidDataFileName), fInputAsciiFile(0), fPx(0), fPy(0), fPz(0), fPdg(0)
+		fEvent(0), fRunId(0), fFileName(fileName), fPidDataFileName(pidDataFileName), fInputAsciiFile(0), fPx(0), fPy(0), fPz(0), fPdg(0)
 {
 	std::cout << "Constructor Called!" << std::endl;
 }
@@ -54,6 +54,7 @@ Bool_t PndGiBuuGenerator::ReadEvent(FairPrimaryGenerator* primGen)
 	Double_t mass = 0.;
 	Double_t energy = 0.;
 	Int_t oldEventNr = fEvent;
+	Int_t oldRunId = fRunId;
 
 	Double_t dummyDouble = 0.;
 
@@ -67,7 +68,7 @@ Bool_t PndGiBuuGenerator::ReadEvent(FairPrimaryGenerator* primGen)
 	}
 
 	while (fEvent == oldEventNr && !(fInputAsciiFile->eof())){
-		*fInputAsciiFile >> GiBuuPid >> GiBuuCharge >> motherId1 >> motherId2 >> dummyInt >> mass >> dummyInt >> energy >> fPx >> fPy >> fPz >> dummyDouble >> fEvent >> runId >> dummyDouble;
+		*fInputAsciiFile >> GiBuuPid >> GiBuuCharge >> motherId1 >> motherId2 >> dummyInt >> mass >> dummyInt >> energy >> fPx >> fPy >> fPz >> dummyDouble >> fEvent >> fRunId >> dummyDouble;
 		fPdg = GetPdgParticleId(GiBuuPid, GiBuuCharge);
 //		std::cout << fPdg << " " << GiBuuPid << " " << GiBuuCharge << " " << motherId1 << " " << motherId2 << " " << dummyInt << " " << mass << " " << dummyInt << " " << energy << " " << fPx << " " << fPy << " " << fPz << " " << dummyDouble << " " << fEvent << " " << runId << " " << dummyDouble;
 //		std::cout << std::endl;
@@ -80,7 +81,7 @@ Bool_t PndGiBuuGenerator::ReadEvent(FairPrimaryGenerator* primGen)
 			}
 		}
 
-		if (fEvent == oldEventNr){
+		if (fEvent == oldEventNr && fRunId == oldRunId){
 			primGen->AddTrack(fPdg, fPx, fPy, fPz, 0.,0.,0.);
 		}
 	}

@@ -65,6 +65,7 @@ class PndGiBuuGenerator : public FairGenerator
  std::map<std::pair<Int_t, Int_t>, Int_t > fMapGiBuuToPdg; //!
   
   Int_t fEvent;      //! Event number
+  Int_t fRunId;			//! Run number in GiBuu
   TString fFileName;   //! Input file name
   TString fPidDataFileName; //! Input Pid data file name
   std::ifstream *fInputAsciiFile; //!
