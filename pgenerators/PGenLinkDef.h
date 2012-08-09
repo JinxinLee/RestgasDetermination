@@ -21,5 +21,6 @@
 #pragma link C++ class  PndGiBuuGenerator;
 #pragma link C++ class  PndGiBuuTrack+;
 #pragma link C++ class  PndGiBuuDecayerAbs;
+#pragma link C++ class  PndGiBuuJPsiEE;
 
 #endif

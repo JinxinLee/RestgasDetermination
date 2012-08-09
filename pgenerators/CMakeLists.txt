@@ -39,6 +39,7 @@ PndHypBupGenerator.cxx
 PndGiBuuGenerator.cxx
 PndGiBuuTrack.cxx
 PndGiBuuDecayerAbs.cxx
+PndGiBuuJPsiEE.cxx
 )
 
 if(RULE_CHECKER_FOUND)
