@@ -198,7 +198,7 @@ void PndEmcWaveformToDigi::Exec(Option_t* opt)
 		}
 		nHits = thePSA->Process(theWaveform);
 		for(Int_t i = 0 ; i< nHits; i++){
-			thePSA->GetHit(i,energy,digi_time);
+			thePSA->GetHit(i,energy,peakPosition);
 			energy/=theEnergyNorm;
 			digi_time=peakPosition/fSampleRate*1e9;//ns
 			if (energy>fEnergyDigiThreshold)
