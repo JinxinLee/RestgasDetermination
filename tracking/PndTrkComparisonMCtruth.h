@@ -38,9 +38,12 @@ struct PndTrkComparisonMCtruth_io_Data{
 	Short_t  *ListTrackCandHit;
 	Short_t  *ListTrackCandHitType;
 	int       MAXMCTRACKS;
+	int	  MAXMVDPIXELHITS;
 	int       MAXMVDPIXELHITSINTRACK;
 	int       Maxmvdmcpoints;
+	int	  MAXMVDSTRIPHITS;
 	int       MAXMVDSTRIPHITSINTRACK;
+	int	  MAXSCITILHITS;
 	int       MAXSCITILHITSINTRACK;
 	int	  MAXSTTHITS;
 	int	  MAXSTTHITSINTRACK;
