@@ -1319,7 +1319,8 @@ Short_t PndTrkCTFindTrackInXY::TrkAssociatedParallelHitsToHelixQuater(
      FFimin = 10000;
      FFimax =  0;
      for(j=0; j<nHitsinTrack; j++){
-       i = (Short_t)  infoparalConformal[ ListHitsinTrack[j] ][3];
+//       i = (Short_t)  infoparalConformal[ ListHitsinTrack[j] ][3]; obsoleto.
+       i = ListHitsinTrack[j];
        Fi = FiConformalIndex[i];
        if( Fi < nfid/4. ) Fi = FiConformalIndex[i]+nfid;
        if( Fi <  FFimin ) FFimin = Fi;
