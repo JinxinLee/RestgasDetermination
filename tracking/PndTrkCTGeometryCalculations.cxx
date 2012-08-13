@@ -1255,7 +1255,8 @@ bool PndTrkCTGeometryCalculations::IntersectionCircle_Segment(
 	det = a*a+b*b ;
 	if(det < 1.e-20){
 		cout<<"from  PndTrkCTGeometryCalculations::IntersectionCircle_Segment :"
-				<<" this is not the equation of a segment, return!\n";
+			<<" this is not the equation of a segment; a = "<<a<<", b = "
+			<<b<<", return false!\n";
 		return false;
 	}
 	//  find if intersection circle - segment is possible.
