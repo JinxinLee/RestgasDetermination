@@ -29,13 +29,13 @@
 #include "PndMultiClassMlpClassify.h"
 #include "PndMultiClassBdtClassify.h"
 
-//====================
-#define DEBUG 0
-
 ClassImp(PndPidMvaAssociatorTask)
 
+//====================
+#define PIDMVA_ASSOCIATORT_DEBUG 0
+
 //==========================================================
-#if (DEBUG != 0)
+#if (PIDMVA_ASSOCIATORT_DEBUG != 0)
 // Function to use for debugging
 void printResult(std::map<std::string,float>& res)
 {
@@ -43,7 +43,7 @@ void printResult(std::map<std::string,float>& res)
   for( std::map<std::string,float>::iterator ii=res.begin(); 
        ii != res.end(); ++ii)
   {
-    std::cout <<"\t"     << (*ii).first 
+    std::cout << "\t"    << (*ii).first 
 	      << "\t=> " << (*ii).second
 	      << '\n';
   }
@@ -125,47 +125,55 @@ void PndPidMvaAssociatorTask::SetDefaultWeightsPath()
 PndPidMvaAssociatorTask::~PndPidMvaAssociatorTask()
 {
   // Clean-up allocated stuff.
-  fManager->Write();
-  
-  if(fManager)
+  if(fManager) {
+    fManager->Write();
     delete fManager;
-  
-  if(fPidChargedCand)
+  }
+
+  if(fPidChargedCand) {
     delete fPidChargedCand;
-
-  if(fPidChargedProb)
+  }
+  
+  if(fPidChargedProb) {
     delete fPidChargedProb;
-
+  }
   //if(fPidNeutralCand)
   //delete fPidNeutralCand;  
   
   //if(fPidNeutralProb)
   //delete fPidNeutralProb;
   
-  if(fMCTrack)
+  if(fMCTrack) {
     delete  fMCTrack;
+  }
 
-  if(fClassifier)
+  if(fClassifier) {
     delete fClassifier;
+  }
 }
 
 //___________________________________________________________
 InitStatus PndPidMvaAssociatorTask::Init()
 {
   std::cout << "<-I-> InitStatus PndPidMvaAssociatorTask::Init()\n";
-  
+
   fManager = FairRootManager::Instance();
+  if( !fManager ) {
+    std::cerr << "<ERROR> PndPidMvaAssociatorTask::Init:\n"
+	      << "\t Could not init FairRootManager."
+              << std::endl;
+
+    return kERROR;
+  }
   
   // Get charged candidates.
   fPidChargedCand = (TClonesArray *)fManager->GetObject("PidChargedCand");
-  
-  if ( !fPidChargedCand)
-  {
+  if ( !fPidChargedCand) {
     std::cerr << "<ERROR> PndPidMvaAssociatorTask::Init: No PidChargedCand there!"
 	      << std::endl;
     return kERROR;
   }
-
+  
   // Get Neutral candidates.
   /*
     fPidNeutralCand = (TClonesArray *)fManager->GetObject("PidNeutralCand");
@@ -321,7 +329,7 @@ void PndPidMvaAssociatorTask::Exec(Option_t* option)
     fPidChargedProb->Delete();
   }
 
-#if (DEBUG != 0)
+#if ( PIDMVA_ASSOCIATORT_DEBUG != 0 )
   std::cout << "<INFO> Call to Exec with options = " << option
 	    << "___\n";
 #endif
@@ -331,7 +339,7 @@ void PndPidMvaAssociatorTask::Exec(Option_t* option)
     std::cout << "-I- Start PndPidMvaAssociatorTask.\n";
   }
 
-  // Get the charged Candidates
+  // Charged Candidates Loop
   for(int i = 0; i < fPidChargedCand->GetEntriesFast(); i++)
   {
     PndPidCandidate* pidcand = (PndPidCandidate*)fPidChargedCand->At(i);
@@ -395,7 +403,7 @@ void PndPidMvaAssociatorTask::DoPidMatch(PndPidCandidate& pidcand,
     return;
   }
 
-#if (DEBUG != 0)
+#if ( PIDMVA_ASSOCIATORT_DEBUG != 0 )
   std::cout << "****************************************************\n"
 	    << "Momentum = " << (pidcand.GetMomentum()).Mag()
 	    << "\nGetEnergy = " << pidcand.GetEnergy()
@@ -441,6 +449,11 @@ void PndPidMvaAssociatorTask::DoPidMatch(PndPidCandidate& pidcand,
     {
       prob.SetProtonPdf(out[name]);
     }
+    else
+    {
+      std::cerr << "<ERROR> Unknown label (class Name).\n"
+                << std::flush;
+    }
   }
 }
 
@@ -464,7 +477,8 @@ std::vector<float> const* PndPidMvaAssociatorTask::PrepareEvtVect(PndPidCandidat
         std::cerr << "<WARNING> (p > 0) failed. The event is skipped.\n"
                   << "<ER-I> p = " << mom << std::endl;
         delete vect;
-        return 0;
+        vect = 0;
+        return 0;// Can not proceed. Break the procedure
       }
     }
     // Cluster Ex parameters.
@@ -489,7 +503,8 @@ std::vector<float> const* PndPidMvaAssociatorTask::PrepareEvtVect(PndPidCandidat
         std::cerr << "<WARNING> (EmcClusterE9 > 0) failed. The event is skipped.\n"
                   << std::flush;
         delete vect;
-        return 0;
+        vect = 0;
+        return 0;// Can not proceed. Break the procedure
       }
     }
     else if( (fVarNames[i] == "e9e25") || (fVarNames[i] == "E9E25") )
@@ -501,7 +516,8 @@ std::vector<float> const* PndPidMvaAssociatorTask::PrepareEvtVect(PndPidCandidat
         std::cerr << "<WARNING> (EmcClusterE25 > 0) failed. The event is skipped.\n"
                   << std::flush;
         delete vect;
-        return 0;
+        vect = 0;
+        return 0;// Can not proceed. Break the procedure
       }
     }
     //======== Zernike & moments
