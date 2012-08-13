@@ -76,7 +76,8 @@ class PndTrkPrintouts
 	int MAXSTTHITSINTRACK,
 	Double_t *R,
 	Double_t *Ox,
-	Double_t *Oy
+	Double_t *Oy,
+	Double_t *FI0
 	);
 
 
