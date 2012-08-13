@@ -39,7 +39,6 @@ Short_t PndTrkGlpkFits::FitHelixCylinder(
  Short_t  NpointsInFit = nHitsinTrack-NMAX <0 ?  nHitsinTrack :  NMAX;
  bool mvdhit[NpointsInFit];
 
-
  Double_t
 	A,
 	alfetta,
@@ -861,6 +860,8 @@ cout<<"cavolo, da sttmvdtracking : nRows = "<<nRows<<", NStructVar = "<<
 //      ,final_values,TIMEOUT
 	,final_values
 	);
+
+
 	if(status != 0) return -5 ;
 
 
@@ -1069,6 +1070,9 @@ Short_t PndTrkGlpkFits::FitSZspace(
       cose = 0.;
       sine = 1.;
 
+
+ // Delta[i] is actually used in the fit, and also Drift Radius.
+
       nSttHits = nMvdHits = 0;
  for(i=0;i<NpointsInFit; i++){
 	Oxx[i] =   Z[i]*cose +(S[i] - FInot)*sine;
@@ -1076,7 +1080,9 @@ Short_t PndTrkGlpkFits::FitSZspace(
 	Delta[i] = ErrorDriftRadius[i];
 //          Delta[i] = 2.*DriftRadius[i];
 
-	if( DriftRadius[ i ]<0. )
+
+
+	if( DriftRadius[i]<0. )
 	{
 		mvdhit[i]=true;
 		nMvdHits++;
@@ -1162,9 +1168,6 @@ Short_t PndTrkGlpkFits::FitSZspace(
 			ii++;
 		}
 	}
-
-
-
 
 
 	//--- the following is for the  SIG   structural variables
@@ -1878,6 +1881,7 @@ cout<<"cavolo2, da sttmvdtracking : nRows = "<<nRows<<", NStructVar = "<<
 //      ,final_values, TIMEOUT
       ,final_values
        );
+
 
      if (status != 0) return -5;	// fit failed
 
