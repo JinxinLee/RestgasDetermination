@@ -3356,6 +3356,38 @@ if(istampa>1) cout<<"PndTrkTracking, entra in TrackCleanup tracce normali, IVOLT
  // write the Macro for visualization of tracks and hits;
 
  if(iplotta && IVOLTE<100){
+
+	// the following initialization is necessary when the MC comparison
+	// is not done just above (when doMcComparison=false). In this case
+	// in fact it is necessary to have  the arrays nParalCommon, nSpuriParinTrack  etc.etc.
+	// set at 0  otherwise some WriteMacro  methods  crash;
+	if(!doMcComparison){
+		for(i=0; i<nTotalCandidates;i++){
+			nParalCommon[i] = 0;
+			nSpuriParinTrack[i] = 0;
+			nMCParalAlone[i] = 0;
+
+			nSkewCommon[i] = 0;
+			nSpuriSkewinTrack[i] = 0;
+			nMCSkewAlone[i] = 0;
+
+			nMvdPixelCommon[i] = 0;
+			nMvdPixelSpuriinTrack[i] = 0;
+			nMCMvdPixelAlone[i] = 0;
+
+			nMvdStripCommon[i] = 0;
+			nMvdStripSpuriinTrack[i] = 0;
+			nMCMvdStripAlone[i] = 0;
+
+			nSciTilCommon[i] = 0;
+			nSciTilSpuriinTrack[i] = 0;
+			nMCSciTilAlone[i] = 0;
+
+		}  // end for(i=0; i<nTotalCandidates;i++)
+
+	}
+
+
 	PndTrkPlotMacros mymacro;
 	PndTrkPlotMacros_InputData In_Put;
 	In_Put.apotemamaxinnerparstraw = APOTEMAMAXINNERPARSTRAW ;
