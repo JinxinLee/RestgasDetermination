@@ -681,6 +681,7 @@ void PndTrkTracking::Exec(Option_t* opt) {
 
  Int_t
 	iaccept,
+	len,
 	nSttHit,
 	nSttMCPoint,
 	nSttParHit,
@@ -1135,7 +1136,14 @@ if(istampa>0){
 //-------------------
 
 
+ //  initialization of the (assumed) starting point of the tracks, at the origin;
+ //  needs to be modified later;
+
  trajectory_vertex[0]=trajectory_vertex[1]=0.;
+ len = sizeof(Trajectory_Start);
+ memset (Trajectory_Start,0,len);
+//--------------
+
 
  PndTrkSttConformalFilling fill;
 
@@ -1459,6 +1467,7 @@ if(istampa>0){
 	&Fi_initial_helix_referenceframe[i],
 	Charge[i]
 	);
+
  outcome = fit.FitSZspace( 
 	nSttSkewHitsinTrack[i]+nSciTilHitsinTrack[i],
 	tmpS,
@@ -1586,7 +1595,8 @@ if(istampa>0){
 			MAXSTTHITSINTRACK,
 			R,
 			Ox,
-			Oy
+			Oy,
+			FI0
 			);
  }
 //-------------- fine stampa
@@ -1699,7 +1709,8 @@ if(istampa>0){
 			MAXSTTHITSINTRACK,
 			R,
 			Ox,
-			Oy
+			Oy,
+			FI0
 			);
  }
 //-------------- fine stampa
@@ -1849,7 +1860,8 @@ if(istampa>0){
 			MAXSTTHITSINTRACK,
 			R,
 			Ox,
-			Oy
+			Oy,
+			FI0
 			);
  }
 //-------------- fine stampa
@@ -1954,7 +1966,6 @@ if(istampa>0){
 		keepit[ncand]=false;
 		continue;
 	}
-
 //--------------
 
 //  find out if the SciTil hit associated with this track is still acceptable after the last
@@ -2098,7 +2109,8 @@ if(istampa>0){
 			MAXSTTHITSINTRACK,
 			R,
 			Ox,
-			Oy
+			Oy,
+			FI0
 			);
  }
 //-------------- fine stampa
@@ -2157,7 +2169,8 @@ if(istampa>0){
 			MAXSTTHITSINTRACK,
 			R,
 			Ox,
-			Oy
+			Oy,
+			FI0
 			);
  }
 //-------------- fine stampa
@@ -2355,6 +2368,7 @@ if(istampa>0){
 //			  For this, reordering of the  Mvd hits is not necessary.
 
 
+
 		resultFitSZagain[ncand] = fit.FitSZspace(
 					nhitsinfit,	// n. hits to be fitted
 					S,
@@ -2484,7 +2498,8 @@ if(istampa>0){
 			MAXSTTHITSINTRACK,
 			R,
 			Ox,
-			Oy
+			Oy,
+			FI0
 			);
  }
 //-------------- fine stampa
@@ -2582,7 +2597,8 @@ if(istampa>0){
 			MAXSTTHITSINTRACK,
 			R,
 			Ox,
-			Oy
+			Oy,
+			FI0
 			);
  }
 //-------------- fine stampa
