@@ -1670,6 +1670,9 @@ if(istampa>=2){
 //-------------------
 //-------------------
 
+ int lunghe = sizeof(Trajectory_Start);
+ memset (Trajectory_Start,0,lunghe);
+
  nTotalCandidates = nSttTrackCand;  // nSttTrackCand is already <= MAXTRACKSPEREVENT.
 
 //----   find the angular range (in Fi) allowed for the STT hits, with the present Ox,Oy and R
@@ -1995,6 +1998,9 @@ if(istampa>=2&& IVOLTE<20){
 		diff,
 		rotationangle,
 		trajectory_vertex[2];
+
+ trajectory_vertex[0]=0.;
+ trajectory_vertex[1]=0.;
 
  for(ncand=0; ncand< nTotalCandidates; ncand++){
 	if(!keepit[ncand]) continue;
