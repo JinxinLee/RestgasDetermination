@@ -58,6 +58,7 @@ void PndTrkSttConformalFilling::BoxConformalFilling(
 	}
 
 
+
 	Double_t RRR = sqrt(infoparalConformal[ListSttParHits[i]][0]*
 			infoparalConformal[ListSttParHits[i]][0]+
 			infoparalConformal[ListSttParHits[i]][1]*
@@ -69,6 +70,11 @@ void PndTrkSttConformalFilling::BoxConformalFilling(
 			break;
 		}
 	}
+
+
+
+
+
 	bi_index = iR*NFIDIVCONFORMAL+iFi;
 	tri_index = nBoxConformal[bi_index]*NRDIVCONFORMAL*NFIDIVCONFORMAL + bi_index;
 	if( nBoxConformal[bi_index] >= MAXHITSINCELL ){
@@ -82,9 +88,12 @@ void PndTrkSttConformalFilling::BoxConformalFilling(
 	nBoxConformal[bi_index]++;
 	RConformalIndex[ ListSttParHits[i] ]  =  iR;
 	FiConformalIndex[ ListSttParHits[i] ]  =  iFi;
+
+
+
+
+
  }  // end of for(i = 0; i< Nparal ; i++)
-
-
 
  return;
 
