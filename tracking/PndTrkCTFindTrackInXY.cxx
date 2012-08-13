@@ -381,6 +381,8 @@ bool PndTrkCTFindTrackInXY::FindTrackInXYProjection(
    nFitPoints = *(in->nHitsinTrack);
  }  // end of  if(in->iHit<0)
 
+
+
   for(j=0; j<(*(in->nHitsinTrack)); j++){
     Xconformal[j+offset] =infoparalConformal[(in->ListHitsinTrack)[j]][0];
     Yconformal[j+offset] =infoparalConformal[(in->ListHitsinTrack)[j]][1];
@@ -694,10 +696,7 @@ Short_t PndTrkCTFindTrackInXY::FindTrackPatterninBoxConformal(
  Double_t auxRvalues[maxstthits];
 
 
-
-
 //   ihit        is the hit number in the PARALLEL number scheme
-
 
  for(i=0, nRemainingHits=0; i<Nparal; i++){
 
@@ -743,6 +742,9 @@ Short_t PndTrkCTFindTrackInXY::FindTrackPatterninBoxConformal(
 	}  else {
 		nRmax = nRcell + NRCELLDISTANCE;
 	}
+
+
+
     for( iR= nRmin ; iR<= nRmax && status ; iR++){
       for(iFi2=nFicell-NFiCELLDISTANCE;iFi2<=nFicell+NFiCELLDISTANCE && status;iFi2++){
 		if ( iFi2 < 0 )  {
@@ -753,12 +755,12 @@ Short_t PndTrkCTFindTrackInXY::FindTrackPatterninBoxConformal(
 			iFi = iFi2;
 		}
 	 bi_index = iR*nfid+iFi;
-	 tri_index = j*nrd*nfid+bi_index;
 	 for (j = 0; j< nBoxConformal[bi_index]; j++){
+	    tri_index = j*nrd*nfid+bi_index;
 	    if( InclusionListStt[ HitsinBoxConformal[tri_index] ]
 					&&
 		 TemporaryInclusionList[HitsinBoxConformal[tri_index]]) {
-			// hit number in the PARALLEL straws scheme
+			// hit number in the ORIGINAL straws scheme
 			ListHitsinTrack[nHitsinTrack]=HitsinBoxConformal[tri_index] ;
 			nHitsinTrack++;
 		if( nHitsinTrack >= maxstthitsintrack){
@@ -1238,7 +1240,7 @@ Short_t PndTrkCTFindTrackInXY::TrkAssociatedParallelHitsToHelixQuater(
 	Double_t m,
 	Short_t maxstthits,
 	Short_t* nBoxConformal,
-	Short_t nfid,
+	Short_t nfid, // number of division of the fi range [0-360] used in BoxConformal.
 	Short_t nHitsinTrack,
 	Int_t NhitsParallel,
 	Short_t nrd,
@@ -1303,23 +1305,25 @@ Short_t PndTrkCTFindTrackInXY::TrkAssociatedParallelHitsToHelixQuater(
   FFimax = 0;
 
   for(j=0; j<nHitsinTrack; j++){
-
-
-//    i = (Short_t)  infoparalConformal[ ListHitsinTrack[j] ][3]; // obsoleto.
     i = ListHitsinTrack[j];
-
 
 
     if( FiConformalIndex[i] <  FFimin ) FFimin = FiConformalIndex[i];
     if( FiConformalIndex[i] >  FFimax ) FFimax = FiConformalIndex[i];
-  }
+  }  // end of for(j=0; j<nHitsinTrack; j++)
 
+
+
+
+// --------  here treat the case in which a trajectory crosses the ascissa in the
+// conformal plane and consequently FFimin is close to zero while FFimax is close
+// to the maximum number possible (=nfid); in other words FFimin and FFimax are
+// wrong;
 
   if( FFimax > 3.*nfid/4. && FFimin < nfid/4.) {
      FFimin = 10000;
      FFimax =  0;
      for(j=0; j<nHitsinTrack; j++){
-//       i = (Short_t)  infoparalConformal[ ListHitsinTrack[j] ][3]; obsoleto.
        i = ListHitsinTrack[j];
        Fi = FiConformalIndex[i];
        if( Fi < nfid/4. ) Fi = FiConformalIndex[i]+nfid;
@@ -1327,6 +1331,7 @@ Short_t PndTrkCTFindTrackInXY::TrkAssociatedParallelHitsToHelixQuater(
        if( Fi >  FFimax ) FFimax = Fi;
      }
   }
+
 
 //  finding the boundaries in the Conformal plane. The basic assumption is that the range
 // in Fi is much less that 180 degrees.
