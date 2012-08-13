@@ -3363,25 +3363,11 @@ if(istampa>1) cout<<"PndTrkTracking, entra in TrackCleanup tracce normali, IVOLT
 	// set at 0  otherwise some WriteMacro  methods  crash;
 	if(!doMcComparison){
 		for(i=0; i<nTotalCandidates;i++){
-			nParalCommon[i] = 0;
-			nSpuriParinTrack[i] = 0;
-			nMCParalAlone[i] = 0;
-
-			nSkewCommon[i] = 0;
-			nSpuriSkewinTrack[i] = 0;
-			nMCSkewAlone[i] = 0;
-
-			nMvdPixelCommon[i] = 0;
-			nMvdPixelSpuriinTrack[i] = 0;
-			nMCMvdPixelAlone[i] = 0;
-
-			nMvdStripCommon[i] = 0;
-			nMvdStripSpuriinTrack[i] = 0;
-			nMCMvdStripAlone[i] = 0;
-
-			nSciTilCommon[i] = 0;
-			nSciTilSpuriinTrack[i] = 0;
-			nMCSciTilAlone[i] = 0;
+			nParalCommon[i] = 0; nSpuriParinTrack[i] = 0;nMCParalAlone[i] = 0;
+			nSkewCommon[i] = 0;nSpuriSkewinTrack[i] = 0;nMCSkewAlone[i] = 0;
+			nMvdPixelCommon[i] = 0;nMvdPixelSpuriinTrack[i] = 0;nMCMvdPixelAlone[i] = 0;
+			nMvdStripCommon[i] = 0;nMvdStripSpuriinTrack[i] = 0;nMCMvdStripAlone[i] = 0;
+			nSciTilCommon[i] = 0;nSciTilSpuriinTrack[i] = 0;nMCSciTilAlone[i] = 0;
 
 		}  // end for(i=0; i<nTotalCandidates;i++)
 
