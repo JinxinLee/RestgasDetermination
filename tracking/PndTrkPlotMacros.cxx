@@ -16,6 +16,7 @@ using namespace std;
 
 
 //----------end of function PndTrkPlotMacros::disegnaAssiXY
+// inizio cambio_in_perl ;
 void PndTrkPlotMacros::disegnaAssiXY(
 	FILE * MACRO,
 	double xmin,
@@ -24,6 +25,7 @@ void PndTrkPlotMacros::disegnaAssiXY(
 	double ymax
 	)
 {
+// fine cambio_in_perl ;
 
        fprintf(MACRO,"TGaxis *Assex = new  TGaxis(%f,%f,%f,%f,%f,%f,510);\n",xmin,0.,xmax,0.,xmin,xmax);
        fprintf(MACRO,"Assex->SetTitle(\"X\");\n");
@@ -42,6 +44,7 @@ void PndTrkPlotMacros::disegnaAssiXY(
 
 //----------begin of function PndTrkPlotMacros::disegnaSciTilHit
 
+// inizio cambio_in_perl ;
 void PndTrkPlotMacros::disegnaSciTilHit(
 	int colorcode,  // goes in the SetColor function of root;
 	Double_t DIMENSIONSCITIL,
@@ -53,6 +56,7 @@ void PndTrkPlotMacros::disegnaSciTilHit(
 		// SciTil draw in UV.
 	)
 {
+// fine cambio_in_perl ;
 	double	x1,x2,y1,y2,L,Rr, RR;
 
 
@@ -105,6 +109,7 @@ void PndTrkPlotMacros::disegnaSciTilHit(
 //----------end of function PndTrkPlotMacros::disegnaSciTilHit
 
 //----------begin of function PndTrkPlotMacros::DrawBiHexagonInMacro
+// inizio cambio_in_perl ;
 
 void PndTrkPlotMacros::DrawBiHexagonInMacro(
 	Double_t vgap,
@@ -115,6 +120,7 @@ void PndTrkPlotMacros::DrawBiHexagonInMacro(
 	char *name
 	)
 {
+// fine cambio_in_perl ;
 	Short_t iside;
 
 	// these are the points defining the sides of the biexhagon on the left(inner).
@@ -150,6 +156,7 @@ void PndTrkPlotMacros::DrawBiHexagonInMacro(
 //----------end of function PndTrkPlotMacros::DrawBiHexagonInMacro
 
 //----------begin of function PndTrkPlotMacros::DrawHexagonCircleInMacro
+// inizio cambio_in_perl ;
 
 void PndTrkPlotMacros::DrawHexagonCircleInMacro(
 	Double_t GAP,
@@ -160,6 +167,7 @@ void PndTrkPlotMacros::DrawHexagonCircleInMacro(
 	char *name
 	)
 {
+// fine cambio_in_perl ;
 	Short_t iside;
 
 	Double_t angle1, angle2;
@@ -222,9 +230,9 @@ void PndTrkPlotMacros::DrawHexagonCircleInMacro(
 
 
 //---------- begin of function PndTrkPlotMacros::SttInfoXYZParal
-
+// inizio cambio_in_perl ;
  void PndTrkPlotMacros::SttInfoXYZParal(
-	Double_t *info,
+	std::vector <Double_t> *info,
 	Short_t infopar,
 	Double_t Oxx,
 	Double_t Oyy,
@@ -235,13 +243,14 @@ void PndTrkPlotMacros::DrawHexagonCircleInMacro(
 	Double_t *Posiz
 	)
 {
+// fine cambio_in_perl ;
 
  Double_t const PI = 3.141592654;
 
    Double_t fi, norm, vers[2];
 
-   vers[0] = Oxx - info[infopar*7+0];
-   vers[1] = Oyy - info[infopar*7+1];
+   vers[0] = Oxx - info->at(infopar*7+0);
+   vers[1] = Oyy - info->at(infopar*7+1);
    norm = sqrt( vers[0]*vers[0] + vers[1]*vers[1] );
 
    if(norm < 1.e-20) {
@@ -254,25 +263,25 @@ void PndTrkPlotMacros::DrawHexagonCircleInMacro(
 
 
 
-   if( fabs( Rr - fabs( norm - info[infopar*7+3] ) ) // distance trajectory-drift radius
+   if( fabs( Rr - fabs( norm - info->at(infopar*7+3) ) ) // distance trajectory-drift radius
 				<
-		fabs( Rr - (norm + info[infopar*7+3]) )  ) {
+		fabs( Rr - (norm + info->at(infopar*7+3)) )  ) {
 
-	Posiz[0] = info[infopar*7+0] + info[infopar*7+3]*vers[0]/norm;
-	Posiz[1] = info[infopar*7+1] + info[infopar*7+3]*vers[1]/norm;
+	Posiz[0] = info->at(infopar*7+0) + info->at(infopar*7+3)*vers[0]/norm;
+	Posiz[1] = info->at(infopar*7+1) + info->at(infopar*7+3)*vers[1]/norm;
 
    } else {
 
-	Posiz[0] = info[infopar*7+0] - info[infopar*7+3]*vers[0]/norm;
-	Posiz[1] = info[infopar*7+1] - info[infopar*7+3]*vers[1]/norm;
+	Posiz[0] = info->at(infopar*7+0) - info->at(infopar*7+3)*vers[0]/norm;
+	Posiz[1] = info->at(infopar*7+1) - info->at(infopar*7+3)*vers[1]/norm;
 
-   }	// end of if ( fabs( Rr - fabs( Distance - info[infopar*7+3] ) ).....
-
-
+   }	// end of if ( fabs( Rr - fabs( Distance - info->at(infopar*7+3) ) ).....
 
 
-//   Posiz[0] = info[infopar*7+0] + info[infopar*7+3]*vers[0]/norm;
-//   Posiz[1] = info[infopar*7+1] + info[infopar*7+3]*vers[1]/norm;
+
+
+//   Posiz[0] = info->at(infopar*7+0) + info->at(infopar*7+3)*vers[0]/norm;
+//   Posiz[1] = info->at(infopar*7+1) + info->at(infopar*7+3)*vers[1]/norm;
 
    if( fabs(KAPPA)<1.e-20 ){
      Posiz[2] = -888888888.;
@@ -295,6 +304,7 @@ void PndTrkPlotMacros::DrawHexagonCircleInMacro(
 }
 
 //---------- end function PndTrkPlotMacros::SttInfoXYZParal
+
 
 
 
@@ -330,6 +340,7 @@ void PndTrkPlotMacros::DrawHexagonCircleInMacro(
 
  FairMCPoint *puntator;
 
+//  marker1 per cambioperl;
 
 //---------------  trasformazione   in variabili locali;
 	int MAXMCTRACKS = In_Put.MAXMCTRACKS;
@@ -350,130 +361,240 @@ void PndTrkPlotMacros::DrawHexagonCircleInMacro(
 	Double_t APOTEMAMINOUTERPARSTRAW = In_Put.apotemaminouterparstraw;
 	Double_t APOTEMAMINSKEWSTRAW = In_Put.apotemaminskewstraw;
 	Double_t BFIELD = In_Put.bfield;
-	Short_t *Charge = In_Put.Charge;
-	Double_t CVEL = In_Put.cvel;
-	Short_t *daTrackFoundaTrackMC = In_Put.daTrackFoundaTrackMC;
 
+ vector<Short_t> Charge(In_Put.MAXTRACKSPEREVENT);
+	for(i=0;i<In_Put.MAXTRACKSPEREVENT;i++){Charge.at(i)=In_Put.Charge[i];}
+
+	Double_t CVEL = In_Put.cvel;
+ vector<Short_t> daTrackFoundaTrackMC(In_Put.MAXTRACKSPEREVENT) ;
+	for(i=0;i<In_Put.MAXTRACKSPEREVENT;i++){ daTrackFoundaTrackMC.at(i)= In_Put.daTrackFoundaTrackMC[i];}
 	Double_t DIMENSIONSCITIL = In_Put.dimensionscitil;
 	bool doMcComparison = In_Put.doMcComparison;
-	Double_t *FI0 = In_Put.FI0;
+ vector<Double_t> FI0(In_Put.MAXTRACKSPEREVENT) ;
+	for(i=0;i<In_Put.MAXTRACKSPEREVENT;i++){ FI0.at(i)= In_Put.FI0[i];}
 	TClonesArray *fMCTrackArray = In_Put.fMCTrackArray;
 	TClonesArray *fSttPointArray = In_Put.fSttPointArray;
-	Double_t *info = In_Put.info;
 
-	bool *InclusionListSciTil = In_Put.InclusionListSciTil;
+ vector<Double_t> info(In_Put.MAXSTTHITS*7) ; // dimensione originale : [MAXSTTHITS][7];
+	for(i=0;i<In_Put.MAXSTTHITS*7;i++){ info.at(i)= In_Put.info[i];}
+
+ vector<bool> InclusionListSciTil(In_Put.MAXSTTHITS) ;
+	for(i=0;i<In_Put.MAXSTTHITS;i++){ InclusionListSciTil.at(i)= In_Put.InclusionListSciTil[i];}
 	int IVOLTE = In_Put.IVOLTE;
-	Double_t *KAPPA = In_Put.KAPPA;
-	bool *keepit = In_Put.keepit;
+ vector<Double_t> KAPPA(In_Put.MAXTRACKSPEREVENT) ;
+	for(i=0;i<In_Put.MAXTRACKSPEREVENT;i++){ KAPPA.at(i)= In_Put.KAPPA[i];}
+ vector<bool> keepit(In_Put.MAXTRACKSPEREVENT) ;
+	for(i=0;i<In_Put.MAXTRACKSPEREVENT;i++){ keepit.at(i)= In_Put.keepit[i];}
 	int istampa = In_Put.istampa;
 
-	Short_t *ListMvdPixelHitsinTrack =In_Put.ListMvdPixelHitsinTrack;
-
-	Short_t *ListMvdStripHitsinTrack =  In_Put.ListMvdStripHitsinTrack;
-
-	Short_t *ListSciTilHitsinTrack = In_Put.ListSciTilHitsinTrack;
-
-	Short_t *ListSttParHitsinTrack  = In_Put.ListSttParHitsinTrack;
-
-	Short_t *ListSttSkewHitsinTrack = In_Put.ListSttSkewHitsinTrack;
-
-	Short_t *ListTrackCandHit = In_Put.ListTrackCandHit;
-
-	Short_t *ListTrackCandHitType = In_Put.ListTrackCandHitType;
+ vector<Short_t> ListMvdPixelHitsinTrack(In_Put.MAXTRACKSPEREVENT*In_Put.MAXMVDPIXELHITSINTRACK) ;
+	for(i=0;i<In_Put.MAXTRACKSPEREVENT*In_Put.MAXMVDPIXELHITSINTRACK;i++)
+		{ ListMvdPixelHitsinTrack.at(i)= In_Put.ListMvdPixelHitsinTrack[i];}
 
 
-	Short_t *MCMvdPixelAloneList = In_Put.MCMvdPixelAloneList;
-
-	Short_t *MCMvdStripAloneList = In_Put.MCMvdStripAloneList;
-
-	Short_t *MCParalAloneList = In_Put.MCParalAloneList;
-
-	Short_t *MCSkewAloneList = In_Put.MCSkewAloneList;
-
-	Double_t *MCSkewAloneX = In_Put.MCSkewAloneX;
-	Double_t *MCSkewAloneY = In_Put.MCSkewAloneY;
-
-	Short_t *MvdPixelCommonList = In_Put.MvdPixelCommonList;
-
-	Short_t *MvdPixelSpuriList = In_Put.MvdPixelSpuriList;
-
-	Short_t *MvdStripCommonList = In_Put.MvdStripCommonList;
-
-	Short_t *MvdStripSpuriList = In_Put.MvdStripSpuriList;
+ vector<Short_t> ListMvdStripHitsinTrack(In_Put.MAXTRACKSPEREVENT*In_Put.MAXMVDSTRIPHITSINTRACK) ;
+	for(i=0;i<In_Put.MAXTRACKSPEREVENT*In_Put.MAXMVDSTRIPHITSINTRACK;i++)
+		{ ListMvdStripHitsinTrack.at(i)= In_Put.ListMvdStripHitsinTrack[i];}
 
 
-	Short_t *nMCMvdPixelAlone = In_Put.nMCMvdPixelAlone;
-	Short_t *nMCMvdStripAlone = In_Put.nMCMvdStripAlone;
+ vector<Short_t> ListSciTilHitsinTrack(In_Put.MAXTRACKSPEREVENT*In_Put.MAXSCITILHITSINTRACK) ;
+	for(i=0;i<In_Put.MAXTRACKSPEREVENT*In_Put.MAXSCITILHITSINTRACK;i++)
+		{ ListSciTilHitsinTrack.at(i)= In_Put.ListSciTilHitsinTrack[i];}
 
-	Short_t *nMCParalAlone = In_Put.nMCParalAlone;
-	Short_t *nMCSkewAlone = In_Put.nMCSkewAlone;
+
+ vector<Short_t> ListSttParHitsinTrack(In_Put.MAXTRACKSPEREVENT*In_Put.MAXSTTHITSINTRACK) ;
+	for(i=0;i<In_Put.MAXTRACKSPEREVENT*In_Put.MAXSTTHITSINTRACK;i++)
+		{ ListSttParHitsinTrack.at(i)= In_Put.ListSttParHitsinTrack[i];}
+
+
+ vector<Short_t> ListSttSkewHitsinTrack(In_Put.MAXTRACKSPEREVENT*In_Put.MAXSTTHITSINTRACK) ;
+	for(i=0;i<In_Put.MAXTRACKSPEREVENT*In_Put.MAXSTTHITSINTRACK;i++)
+		{ ListSttSkewHitsinTrack.at(i)= In_Put.ListSttSkewHitsinTrack[i];}
+
+
+ vector<Short_t> ListTrackCandHit(In_Put.MAXTRACKSPEREVENT*(In_Put.MAXSTTHITSINTRACK
+	+ In_Put.MAXMVDPIXELHITSINTRACK + In_Put.MAXMVDSTRIPHITSINTRACK +
+	In_Put.MAXSCITILHITSINTRACK)) ;
+	for(i=0;i<In_Put.MAXTRACKSPEREVENT*(In_Put.MAXSTTHITSINTRACK+
+		In_Put.MAXMVDPIXELHITSINTRACK + In_Put.MAXMVDSTRIPHITSINTRACK +
+		In_Put.MAXSCITILHITSINTRACK);i++)
+	{ ListTrackCandHit.at(i)= In_Put.ListTrackCandHit[i];}
+
+ vector<Short_t>ListTrackCandHitType(In_Put.MAXTRACKSPEREVENT*(In_Put.MAXSTTHITSINTRACK
+	+ In_Put.MAXMVDPIXELHITSINTRACK + In_Put.MAXMVDSTRIPHITSINTRACK +
+	In_Put.MAXSCITILHITSINTRACK)) ;
+	for(i=0;i<In_Put.MAXTRACKSPEREVENT*(In_Put.MAXSTTHITSINTRACK+
+		In_Put.MAXMVDPIXELHITSINTRACK + In_Put.MAXMVDSTRIPHITSINTRACK +
+		In_Put.MAXSCITILHITSINTRACK);i++)
+	{ ListTrackCandHitType.at(i)= In_Put.ListTrackCandHitType[i];}
+
+
+ vector<Short_t> MCMvdPixelAloneList(In_Put.nTotalCandidates*In_Put.nMvdPixelHit) ;
+	for(i=0;i<In_Put.nTotalCandidates*In_Put.nMvdPixelHit;i++)
+		{ MCMvdPixelAloneList.at(i)= In_Put.MCMvdPixelAloneList[i];}
+
+
+ vector<Short_t> MCMvdStripAloneList(In_Put.nTotalCandidates*In_Put.nMvdStripHit) ;
+	for(i=0;i<In_Put.nTotalCandidates*In_Put.nMvdStripHit;i++)
+		{ MCMvdStripAloneList.at(i)= In_Put.MCMvdStripAloneList[i];}
+
+
+ vector<Short_t> MCParalAloneList(In_Put.MAXTRACKSPEREVENT*In_Put.nSttHit) ;
+	for(i=0;i<In_Put.MAXTRACKSPEREVENT*In_Put.nSttHit;i++)
+		{ MCParalAloneList.at(i)= In_Put.MCParalAloneList[i];}
+
+
+ vector<Short_t> MCSkewAloneList(In_Put.MAXTRACKSPEREVENT*In_Put.nSttHit) ;
+	for(i=0;i<In_Put.MAXTRACKSPEREVENT*In_Put.nSttHit;i++)
+		{ MCSkewAloneList.at(i)= In_Put.MCSkewAloneList[i];}
+
+
+ vector<Double_t> MCSkewAloneX(In_Put.MAXSTTHITS) ;
+	for(i=0;i<In_Put.MAXSTTHITS;i++){ MCSkewAloneX.at(i)= In_Put.MCSkewAloneX[i];}
+ vector<Double_t> MCSkewAloneY(In_Put.MAXSTTHITS) ;
+	for(i=0;i<In_Put.MAXSTTHITS;i++){ MCSkewAloneY.at(i)= In_Put.MCSkewAloneY[i];}
+
+ vector<Short_t> MvdPixelCommonList(In_Put.nTotalCandidates*In_Put.MAXMVDPIXELHITSINTRACK) ;
+	for(i=0;i<In_Put.nTotalCandidates*In_Put.MAXMVDPIXELHITSINTRACK;i++)
+		{ MvdPixelCommonList.at(i)= In_Put.MvdPixelCommonList[i];}
+
+
+ vector<Short_t> MvdPixelSpuriList(In_Put.nTotalCandidates*In_Put.MAXMVDPIXELHITSINTRACK) ;
+	for(i=0;i<In_Put.nTotalCandidates*In_Put.MAXMVDPIXELHITSINTRACK;i++)
+		{ MvdPixelSpuriList.at(i)= In_Put.MvdPixelSpuriList[i];}
+
+
+ vector<Short_t> MvdStripCommonList(In_Put.nTotalCandidates*In_Put.MAXMVDSTRIPHITSINTRACK) ;
+	for(i=0;i<In_Put.nTotalCandidates*In_Put.MAXMVDSTRIPHITSINTRACK;i++)
+		{ MvdStripCommonList.at(i)= In_Put.MvdStripCommonList[i];}
+
+
+ vector<Short_t> MvdStripSpuriList(In_Put.nTotalCandidates*In_Put.MAXMVDSTRIPHITSINTRACK) ;
+	for(i=0;i<In_Put.nTotalCandidates*In_Put.MAXMVDSTRIPHITSINTRACK;i++)
+		{ MvdStripSpuriList.at(i)= In_Put.MvdStripSpuriList[i];}
+
+
+
+ vector<Short_t> nMCMvdPixelAlone(In_Put.nTotalCandidates) ;
+	for(i=0;i<In_Put.nTotalCandidates;i++){ nMCMvdPixelAlone.at(i)= In_Put.nMCMvdPixelAlone[i];}
+ vector<Short_t> nMCMvdStripAlone(In_Put.nTotalCandidates) ;
+	for(i=0;i<In_Put.nTotalCandidates;i++){ nMCMvdStripAlone.at(i)= In_Put.nMCMvdStripAlone[i];}
+
+ vector<Short_t> nMCParalAlone(In_Put.MAXTRACKSPEREVENT) ;
+	for(i=0;i<In_Put.MAXTRACKSPEREVENT;i++){ nMCParalAlone.at(i)= In_Put.nMCParalAlone[i];}
+ vector<Short_t> nMCSkewAlone(In_Put.MAXTRACKSPEREVENT) ;
+	for(i=0;i<In_Put.MAXTRACKSPEREVENT;i++){ nMCSkewAlone.at(i)= In_Put.nMCSkewAlone[i];}
 
 	Short_t nMCTracks = In_Put.nMCTracks;
 
-	Short_t *nMvdPixelCommon = In_Put.nMvdPixelCommon;
+ vector<Short_t> nMvdPixelCommon(In_Put.nTotalCandidates) ;
+	for(i=0;i<In_Put.nTotalCandidates;i++){ nMvdPixelCommon.at(i)= In_Put.nMvdPixelCommon[i];}
 	Short_t nMvdPixelHit = In_Put.nMvdPixelHit;
-	Short_t *nMvdPixelHitsinTrack = In_Put.nMvdPixelHitsinTrack;
-	Short_t *nMvdPixelSpuriinTrack = In_Put.nMvdPixelSpuriinTrack;
+ vector<Short_t> nMvdPixelHitsinTrack(In_Put.MAXTRACKSPEREVENT) ;
+	for(i=0;i<In_Put.MAXTRACKSPEREVENT;i++){ nMvdPixelHitsinTrack.at(i)= In_Put.nMvdPixelHitsinTrack[i];}
+ vector<Short_t> nMvdPixelSpuriinTrack(In_Put.MAXTRACKSPEREVENT) ;
+	for(i=0;i<In_Put.MAXTRACKSPEREVENT;i++){ nMvdPixelSpuriinTrack.at(i)= In_Put.nMvdPixelSpuriinTrack[i];}
 
-	Short_t *nMvdStripCommon = In_Put.nMvdStripCommon;
+ vector<Short_t> nMvdStripCommon(In_Put.nTotalCandidates) ;
+	for(i=0;i<In_Put.nTotalCandidates;i++){ nMvdStripCommon.at(i)= In_Put.nMvdStripCommon[i];}
 	Short_t nMvdStripHit = In_Put.nMvdStripHit;
-	Short_t *nMvdStripHitsinTrack = In_Put.nMvdStripHitsinTrack;
-	Short_t *nMvdStripSpuriinTrack = In_Put.nMvdStripSpuriinTrack;
+ vector<Short_t> nMvdStripHitsinTrack(In_Put.MAXTRACKSPEREVENT) ;
+	for(i=0;i<In_Put.MAXTRACKSPEREVENT;i++){ nMvdStripHitsinTrack.at(i)= In_Put.nMvdStripHitsinTrack[i];}
+ vector<Short_t> nMvdStripSpuriinTrack(In_Put.nTotalCandidates) ;
+	for(i=0;i<In_Put.nTotalCandidates;i++){ nMvdStripSpuriinTrack.at(i)= In_Put.nMvdStripSpuriinTrack[i];}
 
 
-	Short_t *nParalCommon = In_Put.nParalCommon;
+ vector<Short_t> nParalCommon(In_Put.MAXTRACKSPEREVENT) ;
+	for(i=0;i<In_Put.MAXTRACKSPEREVENT;i++){ nParalCommon.at(i)= In_Put.nParalCommon[i];}
 
 	Short_t nSciTilHits = In_Put.nSciTilHits;
 
-	Short_t *nSciTilHitsinTrack = In_Put.nSciTilHitsinTrack;
+ vector<Short_t> nSciTilHitsinTrack(In_Put.MAXTRACKSPEREVENT) ;
+	for(i=0;i<In_Put.MAXTRACKSPEREVENT;i++){ nSciTilHitsinTrack.at(i)= In_Put.nSciTilHitsinTrack[i];}
 
-	Short_t *nSkewCommon = In_Put.nSkewCommon;
+ vector<Short_t> nSkewCommon(In_Put.MAXTRACKSPEREVENT) ;
+	for(i=0;i<In_Put.MAXTRACKSPEREVENT;i++){ nSkewCommon.at(i)= In_Put.nSkewCommon[i];}
 
-	Short_t *nSpuriParinTrack = In_Put.nSpuriParinTrack;
+ vector<Short_t> nSpuriParinTrack(In_Put.MAXTRACKSPEREVENT) ;
+	for(i=0;i<In_Put.MAXTRACKSPEREVENT;i++){ nSpuriParinTrack.at(i)= In_Put.nSpuriParinTrack[i];}
 
 	Int_t    nSttHit = In_Put.nSttHit;
 	Int_t    nSttParHit = In_Put.nSttParHit;
-	Short_t *nSttParHitsinTrack = In_Put.nSttParHitsinTrack;
+ vector<Short_t> nSttParHitsinTrack(In_Put.MAXTRACKSPEREVENT) ;
+	for(i=0;i<In_Put.MAXTRACKSPEREVENT;i++){ nSttParHitsinTrack.at(i)= In_Put.nSttParHitsinTrack[i];}
 	Int_t    nSttSkewHit = In_Put.nSttSkewHit;
-	Short_t *nSttSkewHitsinTrack = In_Put.nSttSkewHitsinTrack;
+ vector<Short_t> nSttSkewHitsinTrack(In_Put.MAXTRACKSPEREVENT) ;
+	for(i=0;i<In_Put.MAXTRACKSPEREVENT;i++){ nSttSkewHitsinTrack.at(i)= In_Put.nSttSkewHitsinTrack[i];}
 
 	Short_t  nTotalCandidates = In_Put.nTotalCandidates;
-	Short_t *nTrackCandHit = In_Put.nTrackCandHit;
+ vector<Short_t> nTrackCandHit(In_Put.MAXTRACKSPEREVENT) ;
+	for(i=0;i<In_Put.MAXTRACKSPEREVENT;i++){ nTrackCandHit.at(i)= In_Put.nTrackCandHit[i];}
 
-	Double_t *Ox = In_Put.Ox;
-	Double_t *Oy = In_Put.Oy;
+ vector<Double_t> Ox(In_Put.MAXTRACKSPEREVENT) ;
+	for(i=0;i<In_Put.MAXTRACKSPEREVENT;i++){ Ox.at(i)= In_Put.Ox[i];}
+ vector<Double_t> Oy(In_Put.MAXTRACKSPEREVENT) ;
+	for(i=0;i<In_Put.MAXTRACKSPEREVENT;i++){ Oy.at(i)= In_Put.Oy[i];}
 
-	Short_t *ParalCommonList = In_Put.ParalCommonList;
+ vector<Short_t> ParalCommonList(In_Put.MAXTRACKSPEREVENT*In_Put.MAXSTTHITSINTRACK) ;
+	for(i=0;i<In_Put.MAXTRACKSPEREVENT*In_Put.MAXSTTHITSINTRACK;i++)
+		{ ParalCommonList.at(i)= In_Put.ParalCommonList[i];}
 
-	Short_t *ParSpuriList = In_Put.ParSpuriList;
 
-	Double_t *posizSciTil = In_Put.posizSciTil;
+ vector<Short_t> ParSpuriList(In_Put.MAXTRACKSPEREVENT*In_Put.MAXSTTHITSINTRACK) ;
+	for(i=0;i<In_Put.MAXTRACKSPEREVENT*In_Put.MAXSTTHITSINTRACK;i++)
+		{ ParSpuriList.at(i)= In_Put.ParSpuriList[i];}
 
-	Double_t *R = In_Put.R;
+
+ vector<Double_t> posizSciTil(In_Put.MAXSCITILHITS*3) ; // dimensione originale : [MAXSCITILHITS][3];
+	for(i=0;i<In_Put.MAXSCITILHITS*3;i++){ posizSciTil.at(i)= In_Put.posizSciTil[i];}
+
+
+ vector<Double_t> R(In_Put.MAXTRACKSPEREVENT) ;
+	for(i=0;i<In_Put.MAXTRACKSPEREVENT;i++){ R.at(i)= In_Put.R[i];}
 
 	Double_t RSTRAWDETECTORMAX = In_Put.rstrawdetectormax;
 	Double_t RSTRAWDETECTORMIN = In_Put.rstrawdetectormin;
 
-	Double_t *sigmaXMvdPixel = In_Put.sigmaXMvdPixel;
-	Double_t *sigmaXMvdStrip = In_Put.sigmaXMvdStrip;
-	Double_t *sigmaYMvdPixel = In_Put.sigmaYMvdPixel;
-	Double_t *sigmaYMvdStrip = In_Put.sigmaYMvdStrip;
+ vector<Double_t> sigmaXMvdPixel(In_Put.MAXMVDPIXELHITS) ;
+	for(i=0;i<In_Put.MAXMVDPIXELHITS;i++){ sigmaXMvdPixel.at(i)= In_Put.sigmaXMvdPixel[i];}
+ vector<Double_t> sigmaXMvdStrip(In_Put.MAXMVDSTRIPHITS) ;
+	for(i=0;i<In_Put.MAXMVDSTRIPHITS;i++){ sigmaXMvdStrip.at(i)= In_Put.sigmaXMvdStrip[i];}
+ vector<Double_t> sigmaYMvdPixel(In_Put.MAXMVDPIXELHITS) ;
+	for(i=0;i<In_Put.MAXMVDPIXELHITS;i++){ sigmaYMvdPixel.at(i)= In_Put.sigmaYMvdPixel[i];}
+ vector<Double_t> sigmaYMvdStrip(In_Put.MAXMVDSTRIPHITS) ;
+	for(i=0;i<In_Put.MAXMVDSTRIPHITS;i++){ sigmaYMvdStrip.at(i)= In_Put.sigmaYMvdStrip[i];}
 
-	Double_t *SchosenSkew = In_Put.SchosenSkew;
-	Short_t *SkewCommonList = In_Put.SkewCommonList;
+ vector<Double_t> SchosenSkew(In_Put.MAXTRACKSPEREVENT*In_Put.MAXSTTHITS) ;
+	for(i=0;i<In_Put.MAXTRACKSPEREVENT*In_Put.MAXSTTHITS;i++)
+		{ SchosenSkew.at(i)= In_Put.SchosenSkew[i];}
+
+ vector<Short_t> SkewCommonList(In_Put.MAXTRACKSPEREVENT*In_Put.MAXSTTHITSINTRACK) ;
+	for(i=0;i<In_Put.MAXTRACKSPEREVENT*In_Put.MAXSTTHITSINTRACK;i++)
+		{ SkewCommonList.at(i)= In_Put.SkewCommonList[i];}
+
 
 	Double_t VERTICALGAP = In_Put.verticalgap;
-	Double_t *XMvdPixel = In_Put.XMvdPixel;
-	Double_t *XMvdStrip = In_Put.XMvdStrip;
-	Double_t *YMvdPixel = In_Put.YMvdPixel;
-	Double_t *YMvdStrip = In_Put.YMvdStrip;
-	Double_t *WDX = In_Put.WDX;
-	Double_t *WDY = In_Put.WDY;
-	Double_t *WDZ = In_Put.WDZ;
-	Double_t *ZMvdPixel = In_Put.ZMvdPixel;
-	Double_t *ZMvdStrip = In_Put.ZMvdStrip;
+ vector<Double_t> XMvdPixel(In_Put.MAXMVDPIXELHITS) ;
+	for(i=0;i<In_Put.MAXMVDPIXELHITS;i++){ XMvdPixel.at(i)= In_Put.XMvdPixel[i];}
+ vector<Double_t> XMvdStrip(In_Put.MAXMVDSTRIPHITS) ;
+	for(i=0;i<In_Put.MAXMVDSTRIPHITS;i++){ XMvdStrip.at(i)= In_Put.XMvdStrip[i];}
+ vector<Double_t> YMvdPixel(In_Put.MAXMVDPIXELHITS) ;
+	for(i=0;i<In_Put.MAXMVDPIXELHITS;i++){ YMvdPixel.at(i)= In_Put.YMvdPixel[i];}
+ vector<Double_t> YMvdStrip(In_Put.MAXMVDSTRIPHITS) ;
+	for(i=0;i<In_Put.MAXMVDSTRIPHITS;i++){ YMvdStrip.at(i)= In_Put.YMvdStrip[i];}
+ vector<Double_t> WDX(In_Put.MAXSTTHITS) ;
+	for(i=0;i<In_Put.MAXSTTHITS;i++){ WDX.at(i)= In_Put.WDX[i];}
+ vector<Double_t> WDY(In_Put.MAXSTTHITS) ;
+	for(i=0;i<In_Put.MAXSTTHITS;i++){ WDY.at(i)= In_Put.WDY[i];}
+ vector<Double_t> WDZ(In_Put.MAXSTTHITS) ;
+	for(i=0;i<In_Put.MAXSTTHITS;i++){ WDZ.at(i)= In_Put.WDZ[i];}
+ vector<Double_t> ZMvdPixel(In_Put.MAXMVDPIXELHITS) ;
+	for(i=0;i<In_Put.MAXMVDPIXELHITS;i++){ ZMvdPixel.at(i)= In_Put.ZMvdPixel[i];}
+ vector<Double_t> ZMvdStrip(In_Put.MAXMVDSTRIPHITS) ;
+	for(i=0;i<In_Put.MAXMVDSTRIPHITS;i++){ ZMvdStrip.at(i)= In_Put.ZMvdStrip[i];}
 
 //----------------------------
+//  marker2 per cambioperl;
 
  Double_t
 	ultimoangolo[nTotalCandidates],
@@ -482,129 +603,127 @@ void PndTrkPlotMacros::DrawHexagonCircleInMacro(
 
 // calcolo di S degli eventuali hits SciTil presenti nelle tracce trovate.
 
-	Double_t esseSciTil[MAXTRACKSPEREVENT][MAXSCITILHITS];
 	PndTrkCTGeometryCalculations GeometryCalculator;
 
-	for(  i= 0; i< nTotalCandidates; i++){
-		if(!keepit[i]) continue;
-		for(j=0;j< nSciTilHitsinTrack[i];j++){
+ for(  i= 0, k=-1; i< nTotalCandidates; i++){
+	Double_t esseSciTil[nSciTilHitsinTrack.at(i)];
+		if(!keepit.at(i)) continue;
+		for(j=0;j< nSciTilHitsinTrack.at(i);j++){
 
 		intersect=GeometryCalculator.IntersectionSciTil_Circle(
 			DIMENSIONSCITIL,
-			posizSciTil[ListSciTilHitsinTrack[i*MAXSCITILHITSINTRACK+j]*3+0],
-			posizSciTil[ListSciTilHitsinTrack[i*MAXSCITILHITSINTRACK+j]*3+1],
-			Ox[i], // center of circle.
-			Oy[i],
-			R[i], // Radius of circle.
+			posizSciTil.at(ListSciTilHitsinTrack.at(i*MAXSCITILHITSINTRACK+j)*3+0),
+			posizSciTil.at(ListSciTilHitsinTrack.at(i*MAXSCITILHITSINTRACK+j)*3+1),
+			Ox.at(i), // center of circle.
+			Oy.at(i),
+			R.at(i), // Radius of circle.
 			&Nint,
 			XintersectionList,
 			YintersectionList
 						);
+
 // reject case with no intersection of the SciTil with the circle trajectory.
 	 if(intersect){
 	// calculate S on the lateral face of the Helix.
 		if ( Nint==1){	// the majority of the cases
-			esseSciTil[i][j] = atan2(YintersectionList[0]-Oy[i],
-					XintersectionList[0]-Ox[i]);
+			esseSciTil[j] = atan2(YintersectionList[0]-Oy.at(i),
+					XintersectionList[0]-Ox.at(i));
 		} else {  // in this case Nint=2 (it should be a very rare case).
 		// do an average of the two positions.
-			esseSciTil[i][j] = atan2( 0.5*(YintersectionList[0]+YintersectionList[1])
-			-Oy[i],0.5*(XintersectionList[0]+XintersectionList[1])-Ox[i]);
+			esseSciTil[j] = atan2( 0.5*(YintersectionList[0]+YintersectionList[1])
+			-Oy.at(i),0.5*(XintersectionList[0]+XintersectionList[1])-Ox.at(i));
 		} // end of  if ( Nint==1)
-		if ( esseSciTil[i][j]<0.) esseSciTil[i][j] += 2.*PI;
+		if ( esseSciTil[j]<0.) esseSciTil[j] += 2.*PI;
 
 	 }  // continuation of if(intersect)
 
 		} // end of for(j....
-	}  // end of  for(  i= 0; i< nTotalCandidates; i++)
 
 
+
+// }  // end of  for(  i= 0; i< nTotalCandidates; i++)
 //-----------------
-
-
 
 // calcolo di S degli eventuali hits SciTil 'Alone' delle tracce trovate.
 
- Double_t esseSciTilAlone[MAXTRACKSPEREVENT][MAXSCITILHITS];
+// Double_t esseSciTilAlone[MAXTRACKSPEREVENT][MAXSCITILHITS];
 
- for(  i= 0; i< nTotalCandidates; i++){
-	if(!keepit[i]) continue;
+// for(  i= 0, k=-1; i< nTotalCandidates; i++){
+	Double_t esseSciTilAlone[ In_Put.nMCSciTilAlone[i] ];
+	if(!keepit.at(i)) continue;
 
 
 	for(j=0;j< In_Put.nMCSciTilAlone[i];j++){
 		intersect=GeometryCalculator.IntersectionSciTil_Circle(
 			DIMENSIONSCITIL,
-			posizSciTil[In_Put.MCSciTilAloneList[i*nSciTilHits+j]*3+0],
-			posizSciTil[In_Put.MCSciTilAloneList[i*nSciTilHits+j]*3+1],
-			Ox[i], // center of circle.
-			Oy[i],
-			R[i], // Radius of circle.
+			posizSciTil.at(In_Put.MCSciTilAloneList[i*nSciTilHits+j]*3+0),
+			posizSciTil.at(In_Put.MCSciTilAloneList[i*nSciTilHits+j]*3+1),
+			Ox.at(i), // center of circle.
+			Oy.at(i),
+			R.at(i), // Radius of circle.
 			&Nint,
 			XintersectionList,
 			YintersectionList
 						);
 	// calculate S on the lateral face of the Helix.
-	    esseSciTilAlone[i][j] =
-		atan2(posizSciTil[In_Put.MCSciTilAloneList[i*nSciTilHits+j]*3+1]-Oy[i],
-		posizSciTil[In_Put.MCSciTilAloneList[i*nSciTilHits+j]*3+0]-Ox[i]);
-	    if ( esseSciTilAlone[i][j]<0.) esseSciTilAlone[i][j] += 2.*PI;
-
-
-
-
+	    esseSciTilAlone[j] =
+		atan2(posizSciTil.at(In_Put.MCSciTilAloneList[i*nSciTilHits+j]*3+1)-Oy.at(i),
+		posizSciTil.at(In_Put.MCSciTilAloneList[i*nSciTilHits+j]*3+0)-Ox.at(i));
+	    if ( esseSciTilAlone[j]<0.) esseSciTilAlone[j] += 2.*PI;
 
 	} // end of for(j....
- }  // end of  for(  i= 0; i< nTotalCandidates; i++)
 
 
-//------------------
+// }  // end of  for(  i= 0; i< nTotalCandidates; i++)
+//    for(  i= 0, k=-1; i< nTotalCandidates; i++){
+//	if(!keepit.at(i)) continue;
 
-    for(  i= 0, k=-1; i< nTotalCandidates; i++){
-
-
-
-	if(!keepit[i]) continue;
 	k++;
-	int npunti=-1+nSttParHitsinTrack[i]+nSttSkewHitsinTrack[i]+
-		nMvdPixelHitsinTrack[i]+nMvdStripHitsinTrack[i]+nSciTilHitsinTrack[i];
+	int npunti=-1+nSttParHitsinTrack.at(i)+nSttSkewHitsinTrack.at(i)+
+		nMvdPixelHitsinTrack.at(i)+nMvdStripHitsinTrack.at(i)+nSciTilHitsinTrack.at(i);
 
-		if (ListTrackCandHitType[i*dime+npunti] == 0){  //  Mvd Pixel
-			ultimoangolo[i] = atan2( YMvdPixel[ ListTrackCandHit[i*dime+npunti] ]-Oy[i],
-						 XMvdPixel[ ListTrackCandHit[i*dime+npunti] ]-Ox[i]);
-		} else if (ListTrackCandHitType[i*dime+npunti] == 1){  //  Mvd Strip
-			ultimoangolo[i] = atan2( YMvdStrip[ ListTrackCandHit[i*dime+npunti] ]-Oy[i],
-						 XMvdStrip[ ListTrackCandHit[i*dime+npunti] ]-Ox[i]);
-		} else if( ListTrackCandHitType[i*dime+npunti] == 2 ){  // it is a parallel straw hit
+		if (ListTrackCandHitType.at(i*dime+npunti) == 0){  //  Mvd Pixel
+			ultimoangolo[i] = atan2( YMvdPixel.at( ListTrackCandHit.at(i*dime+npunti) )-Oy.at(i),
+						 XMvdPixel.at( ListTrackCandHit.at(i*dime+npunti) )-Ox.at(i));
+		} else if (ListTrackCandHitType.at(i*dime+npunti) == 1){  //  Mvd Strip
+			ultimoangolo[i] = atan2( YMvdStrip.at( ListTrackCandHit.at(i*dime+npunti) )-Oy.at(i),
+						 XMvdStrip.at( ListTrackCandHit.at(i*dime+npunti) )-Ox.at(i));
+		} else if( ListTrackCandHitType.at(i*dime+npunti) == 2 ){  // it is a parallel straw hit
 
 
+//inizio cambio_in_perl ;
 			SttInfoXYZParal (
-				info,
-				ListTrackCandHit[i*dime+npunti],
-				Ox[i],
-				Oy[i],
-				R[i],
-				KAPPA[i],
-				FI0[i],
-				Charge[i],
+				&info,
+				ListTrackCandHit.at(i*dime+npunti),
+				Ox.at(i),
+				Oy.at(i),
+				R.at(i),
+				KAPPA.at(i),
+				FI0.at(i),
+				Charge.at(i),
 				Posiz1
 				);
-			ultimoangolo[i] = atan2( Posiz1[1]-Oy[i],Posiz1[0]-Ox[i]);
-		} else if ( ListTrackCandHitType[i*dime+npunti] == 3 ){  // it is a skew straw hit
+
+//fine cambio_in_perl ;
+
+
+			ultimoangolo[i] = atan2( Posiz1[1]-Oy.at(i),Posiz1[0]-Ox.at(i));
+		} else if ( ListTrackCandHitType.at(i*dime+npunti) == 3 ){  // it is a skew straw hit
 
 			ultimoangolo[i] =
-			 SchosenSkew[i*MAXSTTHITS +ListTrackCandHit[i*dime+npunti] ];
-		} else  if ( ListTrackCandHitType[i*dime+npunti] == 1001){  // SciTil hit.
+			 SchosenSkew.at(i*MAXSTTHITS +ListTrackCandHit.at(i*dime+npunti) );
+		} else  if ( ListTrackCandHitType.at(i*dime+npunti) == 1001){  // SciTil hit.
 			ultimoangolo[i] =
-				atan2(posizSciTil[ListTrackCandHit[i*dime+npunti]*3+1]-Oy[i],
-				posizSciTil[ListTrackCandHit[i*dime+npunti]*3+0]-Ox[i]);
+				atan2(posizSciTil.at(ListTrackCandHit.at(i*dime+npunti)*3+1)-Oy.at(i),
+				posizSciTil.at(ListTrackCandHit.at(i*dime+npunti)*3+0)-Ox.at(i));
 		}
 		if( ultimoangolo[i]<0.) ultimoangolo[i]+= 2.*PI;
 
 
 
 	double primo;
-	primoangolo[i] = fmod(FI0[i],2.*PI);
-	if(Charge[i]>0.){
+	primoangolo[i] = fmod(FI0.at(i),2.*PI);
+	if(Charge.at(i)>0.){
 		if( ultimoangolo[i]> primoangolo[i]) ultimoangolo[i]-=2.*PI;
 		primo=ultimoangolo[i]*180./PI;
 		ultimoangolo[i]=primoangolo[i]*180./PI;
@@ -617,75 +736,52 @@ void PndTrkPlotMacros::DrawHexagonCircleInMacro(
 	}
 
 
-	if( nSttParHitsinTrack[i]+nMvdPixelHitsinTrack[i]+
-		nMvdStripHitsinTrack[i]>0 &&  doMcComparison) {
+	if( nSttParHitsinTrack.at(i)+nMvdPixelHitsinTrack.at(i)+
+		nMvdStripHitsinTrack.at(i)>0 &&  doMcComparison) {
 
-	   for( j=0;j<nMCSkewAlone[i];j++){
-		puntator  = (FairMCPoint*) fSttPointArray->At(MCSkewAloneList[i*nSttHit+j]);
-	   	MCSkewAloneX[ MCSkewAloneList[i*nSttHit+j] ]=puntator->GetX();
-	   	MCSkewAloneY[ MCSkewAloneList[i*nSttHit+j] ]=puntator->GetY();
+	   for( j=0;j<nMCSkewAlone.at(i);j++){
+		puntator  = (FairMCPoint*) fSttPointArray->At(MCSkewAloneList.at(i*nSttHit+j));
+	   	MCSkewAloneX.at( MCSkewAloneList.at(i*nSttHit+j) )=puntator->GetX();
+	   	MCSkewAloneY.at( MCSkewAloneList.at(i*nSttHit+j) )=puntator->GetY();
 	   }
+
+//  inizio cambio_in_perl ;
 
 		WriteMacroSttParallelAssociatedHitsandMvdwithMC(
 			In_Put,
-			Ox[i],
-			Oy[i],
-			R[i],
+			Ox.at(i),
+			Oy.at(i),
+			R.at(i),
 			primoangolo[i],
 			ultimoangolo[i],
-			nSttParHitsinTrack[i],
-			ListSttParHitsinTrack,
+			nSttParHitsinTrack.at(i),
 			i,
 		k,	// questo si usa solo per il nome della Macro.
-		daTrackFoundaTrackMC[i],
-		nParalCommon,
-		ParalCommonList,
-		nSpuriParinTrack,
-		ParSpuriList,
-		nMCParalAlone,
-		MCParalAloneList,
-		nMvdPixelHitsinTrack[i],
-		ListMvdPixelHitsinTrack,
-		nMvdStripHitsinTrack[i],
-		ListMvdStripHitsinTrack,
-		nMvdPixelCommon[i],
-		&MvdPixelCommonList[i*MAXMVDPIXELHITSINTRACK],
-		nMvdPixelSpuriinTrack[i],
-		&MvdPixelSpuriList[i*MAXMVDPIXELHITSINTRACK],
-		nMCMvdPixelAlone[i],
-		&MCMvdPixelAloneList[i*In_Put.nMvdPixelHit],
-		nMvdStripCommon[i],
-		&MvdStripCommonList[i*MAXMVDSTRIPHITSINTRACK],
-		nMvdStripSpuriinTrack[i],
-		&MvdStripSpuriList[i*MAXMVDSTRIPHITSINTRACK],
-		nMCMvdStripAlone[i],
-		&MCMvdStripAloneList[i*In_Put.nMvdStripHit],
-		nSttSkewHitsinTrack[i],
-		ListSttSkewHitsinTrack,
-		&SchosenSkew[i*MAXSTTHITS],
-		nSkewCommon,
-		SkewCommonList,
-		nMCSkewAlone,
-		MCSkewAloneList
+		daTrackFoundaTrackMC.at(i),
+		nMvdPixelHitsinTrack.at(i),
+		nMvdStripHitsinTrack.at(i),
+		nSttSkewHitsinTrack.at(i)
 						);
-	}	// end of  if( nSttParHitsinTrack[i]+nMvdPixelHitsinTrack[i]+
-		//			nMvdStripHitsinTrack[i]>0 &&  doMcComparison)
+//  fine cambio_in_perl ;
 
-      if(  nSttSkewHitsinTrack[i]+nMvdPixelHitsinTrack[i]+
-      	nMvdStripHitsinTrack[i]>0 &&  doMcComparison){
+	}	// end of  if( nSttParHitsinTrack.at(i)+nMvdPixelHitsinTrack.at(i)+
+		//			nMvdStripHitsinTrack.at(i)>0 &&  doMcComparison)
+
+      if(  nSttSkewHitsinTrack.at(i)+nMvdPixelHitsinTrack.at(i)+
+      	nMvdStripHitsinTrack.at(i)>0 &&  doMcComparison){
 	    WriteMacroSkewAssociatedHitswithMC(
-		&esseSciTil[i][0],
-		&esseSciTilAlone[i][0],
+		esseSciTil,
+		esseSciTilAlone,
 		In_Put,
 		k, // questo si usa solo per il nome della Macro.
 		i
 			);
-      }  //  end of	if(  nSttSkewHitsinTrack[i]+nMvdPixelHitsinTrack[i]+
-	//	nMvdStripHitsinTrack[i]>0 &&  doMcComparison)
+      }  //  end of	if(  nSttSkewHitsinTrack.at(i)+nMvdPixelHitsinTrack.at(i)+
+	//	nMvdStripHitsinTrack.at(i)>0 &&  doMcComparison)
     }            //   end of   for(  i= 0; i< nSttTrackCand; i++)
 
 
-
+//  inizio cambio_in_perl ;
  WriteMacroParallelHitsGeneral(
 	APOTEMAMAXINNERPARSTRAW,
 	APOTEMAMAXSKEWSTRAW,
@@ -697,7 +793,7 @@ void PndTrkPlotMacros::DrawHexagonCircleInMacro(
 	doMcComparison,
 	fMCTrackArray,
 	nSttHit,
-	info,
+	&info,
 	In_Put,
 	IVOLTE,
 	nMCTracks,
@@ -705,25 +801,25 @@ void PndTrkPlotMacros::DrawHexagonCircleInMacro(
 	nMvdStripHit,
 	nSciTilHits,
 	nTotalCandidates,
-	keepit,
-	FI0,
-	Ox,
-	Oy,
-	posizSciTil,
+	&keepit,
+	&FI0,
+	&Ox,
+	&Oy,
+	&posizSciTil,
 	primoangolo,
-	R,
+	&R,
 	RSTRAWDETECTORMAX,
 	RSTRAWDETECTORMIN,
-	sigmaXMvdPixel,
-	sigmaXMvdStrip,
-	sigmaYMvdPixel,
-	sigmaYMvdStrip,
+	&sigmaXMvdPixel,
+	&sigmaXMvdStrip,
+	&sigmaYMvdPixel,
+	&sigmaYMvdStrip,
 	ultimoangolo,
 	VERTICALGAP,
-	XMvdPixel,
-	XMvdStrip,
-	YMvdPixel,
-	YMvdStrip
+	&XMvdPixel,
+	&XMvdStrip,
+	&YMvdPixel,
+	&YMvdStrip
 	);
 
 //     la seguente e' da modificare per includere eventuali hits SciTil mai usati.
@@ -732,12 +828,12 @@ void PndTrkPlotMacros::DrawHexagonCircleInMacro(
 	APOTEMAMAXSKEWSTRAW,
 	APOTEMAMINOUTERPARSTRAW,
 	APOTEMAMINSKEWSTRAW,
-	InclusionListSciTil,
-		info,
+	&InclusionListSciTil,
+		&info,
 		IVOLTE,
-		keepit,
-	ListTrackCandHit,
-	ListTrackCandHitType,
+		&keepit,
+	&ListTrackCandHit,
+	&ListTrackCandHitType,
 	MAXMVDPIXELHITS,
 	MAXMVDPIXELHITSINTRACK,
 	MAXMVDSTRIPHITS,
@@ -753,17 +849,18 @@ void PndTrkPlotMacros::DrawHexagonCircleInMacro(
 		nSttParHit,
 		nSttSkewHit,
 		nTotalCandidates,
-		nTrackCandHit,
-		posizSciTil,
+		&nTrackCandHit,
+		&posizSciTil,
 	RSTRAWDETECTORMAX,
 	RSTRAWDETECTORMIN,
 	VERTICALGAP,
-		XMvdPixel,
-		XMvdStrip,
-		YMvdPixel,
-		YMvdStrip
+		&XMvdPixel,
+		&XMvdStrip,
+		&YMvdPixel,
+		&YMvdStrip
 					);
 
+//  fine cambio_in_perl ;
 
 
 //---------------------  fine plottamenti --------------------------------------------
@@ -772,6 +869,7 @@ void PndTrkPlotMacros::DrawHexagonCircleInMacro(
 	return;
 }
 
+//  marker3 per cambioperl ;
 
 //----------end of function PndTrkPlotMacros::WriteAllMacros
 
@@ -780,17 +878,18 @@ void PndTrkPlotMacros::DrawHexagonCircleInMacro(
 
 //----------begin of function PndTrkPlotMacros::WriteMacroAllHitsRestanti
 
+//  inizio cambio_in_perl ;
 void PndTrkPlotMacros::WriteMacroAllHitsRestanti(
 	Double_t APOTEMAMAXINNERPARSTRAW,
 	Double_t APOTEMAMAXSKEWSTRAW,
 	Double_t APOTEMAMINOUTERPARSTRAW,
 	Double_t APOTEMAMINSKEWSTRAW,
-	bool *InclusionListSciTil,
-	Double_t *info,
+	std::vector <bool> *InclusionListSciTil,
+	std::vector <Double_t> *info,
 	int IVOLTE,
-	bool *keepit,
-	Short_t *ListCandH,
-	Short_t *ListCandHitT,
+	std::vector <bool> *keepit,
+	std::vector <Short_t> *ListTrackCandHit,
+	std::vector <Short_t> *ListTrackCandHitType,
 	int MAXMVDPIXELHITS,
 	int MAXMVDPIXELHITSINTRACK,
 	int MAXMVDSTRIPHITS,
@@ -806,18 +905,20 @@ void PndTrkPlotMacros::WriteMacroAllHitsRestanti(
 	Short_t nSttParHit,
 	Short_t nSttSkewHit,
 	Short_t nSttTrackCand,
-	Short_t *nCandHit,
-	Double_t *posizSciTil,
+	std::vector <Short_t> *nTrackCandHit,
+	std::vector <Double_t> *posizSciTil,
 	Double_t RSTRAWDETECTORMAX,
 	Double_t RSTRAWDETECTORMIN,
 	Double_t VERTICALGAP,
-	Double_t *XMvdPixel,
-	Double_t *XMvdStrip,
-	Double_t *YMvdPixel,
-	Double_t *YMvdStrip
+	std::vector <Double_t> *XMvdPixel,
+	std::vector <Double_t> *XMvdStrip,
+	std::vector <Double_t> *YMvdPixel,
+	std::vector <Double_t> *YMvdStrip
+
 				)
  {
 
+//  fine cambio_in_perl ;
 
 //	nSttHit = parallel+skew.
 
@@ -843,9 +944,6 @@ void PndTrkPlotMacros::WriteMacroAllHitsRestanti(
  int dime = MAXSTTHITSINTRACK+MAXMVDPIXELHITSINTRACK+
 		MAXMVDSTRIPHITSINTRACK+MAXSCITILHITSINTRACK;
 
- Short_t *ListCandHit =ListCandH;
-
- Short_t *ListCandHitType = ListCandHitT;
 
 
 	for(i=0;i<nSttHit;i++){
@@ -861,22 +959,22 @@ void PndTrkPlotMacros::WriteMacroAllHitsRestanti(
 
 
 	for(i=0;i<nSttTrackCand;i++){
-		if(!keepit[i]) continue;
+		if(!keepit->at(i)) continue;
 
-		for(j=0;j<nCandHit[i];j++){
+		for(j=0;j<nTrackCandHit->at(i);j++){
 
-		     switch (ListCandHitType[i*dime+j]){
+		     switch (ListTrackCandHitType->at(i*dime+j)){
 			case 0:
-			   exclusionPixel[ ListCandHit[i*dime+j] ] = true;
+			   exclusionPixel[ ListTrackCandHit->at(i*dime+j) ] = true;
 			   break;
 			case 1:
-			   exclusionStrip[ ListCandHit[i*dime+j] ] = true;
+			   exclusionStrip[ ListTrackCandHit->at(i*dime+j) ] = true;
 			   break;
 			default:
-			   exclusionStt[ ListCandHit[i*dime+j] ] = true;
+			   exclusionStt[ ListTrackCandHit->at(i*dime+j) ] = true;
 			   break;
 		     }
-		}	// end of  for(j=0;j<nCandHit[i];j++)
+		}	// end of  for(j=0;j<nTrackCandHit->at(i);j++)
 	}	//  end of  for(i=0;i<nSttTrackCand;i++)
 
 
@@ -935,12 +1033,12 @@ void PndTrkPlotMacros::WriteMacroAllHitsRestanti(
 
        for( i=0; i< nSttHit; i++) {
          if( !exclusionStt[i]) {     // all straws
-         if( info[i*7+5] == 1 ) {     // parallel straws
+         if( info->at(i*7+5) == 1 ) {     // parallel straws
             fprintf(MACRO,"TEllipse* E%d = new TEllipse(%f,%f,%f,%f,0.,360.);\nE%d->SetFillStyle(0);\nE%d->Draw();\n",
-                     i,info[i*7+0],info[i*7+1],info[i*7+3],info[i*7+3],i,i);
+                     i,info->at(i*7+0),info->at(i*7+1),info->at(i*7+3),info->at(i*7+3),i,i);
 	 }  else  {	//  skew straws.
 	    fprintf(MACRO,"TMarker* SS%d = new TMarker(%f,%f,%d);\nSS%d->SetMarkerColor(1);\nSS%d->Draw();\n",
-		i,info[i*7+0],info[i*7+1],28,i,i,i);
+		i,info->at(i*7+0),info->at(i*7+1),28,i,i,i);
 	 }
           }
        }
@@ -948,22 +1046,22 @@ void PndTrkPlotMacros::WriteMacroAllHitsRestanti(
          if( !exclusionPixel[i]) {     // all Pixels
             fprintf(MACRO,
 "TMarker* Pixel%d = new TMarker(%f,%f,%d);\nPixel%d->SetMarkerColor(1);\nPixel%d->Draw();\n",
-                    i,XMvdPixel[i],YMvdPixel[i],26,i,i);
+                    i,XMvdPixel->at(i),YMvdPixel->at(i),26,i,i);
           }
        }
        for( i=0; i< nMvdStripHit; i++) {
          if( !exclusionStrip[i]) {     // all Pixels
             fprintf(MACRO,
 "TMarker* Strip%d = new TMarker(%f,%f,%d);\nStrip%d->SetMarkerColor(1);\nStrip%d->Draw();\n",
-                    i,XMvdStrip[i],YMvdStrip[i],25,i,i,i);
+                    i,XMvdStrip->at(i),YMvdStrip->at(i),25,i,i,i);
           }
        }
 
        for( i=0; i< nSciTilHits; i++) {
-         if( InclusionListSciTil[i]) {     // all SciTil hit never used.
+         if( InclusionListSciTil->at(i)) {     // all SciTil hit never used.
             fprintf(MACRO,
 "TMarker* SciT%d = new TMarker(%f,%f,%d);\nSciT%d->SetMarkerColor(1);\nSciT%d->Draw();\n",
-                    i,posizSciTil[i*3+0],posizSciTil[i*3+1],30,i,i,i);
+                    i,posizSciTil->at(i*3+0),posizSciTil->at(i*3+1),30,i,i,i);
           }
        }
       fprintf(MACRO,"}\n");
@@ -980,6 +1078,7 @@ void PndTrkPlotMacros::WriteMacroAllHitsRestanti(
 
 
 //----------start of function PndTrkPlotMacros::WriteMacroParallelHitsGeneral
+//  inizio cambio_in_perl ;
 
 void PndTrkPlotMacros::WriteMacroParallelHitsGeneral(
 	Double_t APOTEMAMAXINNERPARSTRAW,
@@ -992,7 +1091,7 @@ void PndTrkPlotMacros::WriteMacroParallelHitsGeneral(
 	bool doMcComparison,
 	TClonesArray *fMCTrackArray,
 	Int_t Nhits,
-	Double_t *info,
+	std::vector <Double_t> *info,
 	PndTrkPlotMacros_InputData In_Put,
 	int IVOLTE,
 	Short_t nMCTracks,
@@ -1000,28 +1099,30 @@ void PndTrkPlotMacros::WriteMacroParallelHitsGeneral(
 	Short_t nMvdStripHit,
 	Short_t nSciTilHits,
 	Short_t nTracksFoundSoFar,
-	bool *keepit,
-	Double_t *FI0,
-	Double_t *Ox,
-	Double_t *Oy,
-	Double_t *posizSciTil,
+	std::vector <bool> *keepit,
+	std::vector <Double_t> *FI0,
+	std::vector <Double_t> *Ox,
+	std::vector <Double_t> *Oy,
+	std::vector <Double_t> *posizSciTil,
 	Double_t *primoangolo,
-	Double_t *R,
+	std::vector <Double_t> *R,
 	Double_t RSTRAWDETECTORMAX,
 	Double_t RSTRAWDETECTORMIN,
-	Double_t *sigmaXMvdPixel,
-	Double_t *sigmaXMvdStrip,
-	Double_t *sigmaYMvdPixel,
-	Double_t *sigmaYMvdStrip,
+	std::vector <Double_t> *sigmaXMvdPixel,
+	std::vector <Double_t> *sigmaXMvdStrip,
+	std::vector <Double_t> *sigmaYMvdPixel,
+	std::vector <Double_t> *sigmaYMvdStrip,
 	Double_t *ultimoangolo,
 	Double_t VERTICALGAP,
-	Double_t *XMvdPixel,
-	Double_t *XMvdStrip,
-	Double_t *YMvdPixel,
-	Double_t *YMvdStrip
+	std::vector <Double_t> *XMvdPixel,
+	std::vector <Double_t> *XMvdStrip,
+	std::vector <Double_t> *YMvdPixel,
+	std::vector <Double_t> *YMvdStrip
+
 
 	)
 {
+//  fine cambio_in_perl ;
 
     Int_t i, j, i1, ii, index, Kincl, nlow, nup, STATUS;
 
@@ -1103,34 +1204,34 @@ void PndTrkPlotMacros::WriteMacroParallelHitsGeneral(
 //--------------
 
        for( i=0; i< Nhits; i++) {
-         if( info[i*7+5] == 1 ) {     // parallel straws
+         if( info->at(i*7+5) == 1 ) {     // parallel straws
 fprintf(MACRO,"TEllipse* Paral%d = new TEllipse(%f,%f,%f,%f,0.,360.);\nParal%d->SetFillStyle(0);\nParal%d->Draw();\n",
-                     i,info[i*7+0],info[i*7+1],info[i*7+3],info[i*7+3],i,i);
+                     i,info->at(i*7+0),info->at(i*7+1),info->at(i*7+3),info->at(i*7+3),i,i);
           } else {	// skew straws.
 fprintf(MACRO,"TMarker* Skew%d = new TMarker(%f,%f,%d);\nSkew%d->SetMarkerColor(1);\nSkew%d->Draw();\n",
-		i,info[i*7+0],info[i*7+1],28,i,i,i);
+		i,info->at(i*7+0),info->at(i*7+1),28,i,i,i);
 	  }
        }
 
        for( ii=0; ii< nMvdStripHit; ii++) {
-            x1= XMvdStrip[ii]-sigmaXMvdStrip[ii];
-            x2= XMvdStrip[ii]+sigmaXMvdStrip[ii];
-            y1= YMvdStrip[ii]-sigmaYMvdStrip[ii];
-            y2= YMvdStrip[ii]+sigmaYMvdStrip[ii];
+            x1= XMvdStrip->at(ii)-sigmaXMvdStrip->at(ii);
+            x2= XMvdStrip->at(ii)+sigmaXMvdStrip->at(ii);
+            y1= YMvdStrip->at(ii)-sigmaYMvdStrip->at(ii);
+            y2= YMvdStrip->at(ii)+sigmaYMvdStrip->at(ii);
 fprintf(MACRO,
  "TMarker* Strip%d = new TMarker(%f,%f,%d);\nStrip%d->SetMarkerColor(1);\nStrip%d->Draw();\n",
-                    ii,XMvdStrip[ii],YMvdStrip[ii],25,ii,ii,ii);
+                    ii,XMvdStrip->at(ii),YMvdStrip->at(ii),25,ii,ii,ii);
 
 
        }
        for( ii=0; ii< nMvdPixelHit; ii++) {
-            x1= XMvdPixel[ii]-sigmaXMvdPixel[ii];
-            x2= XMvdPixel[ii]+sigmaXMvdPixel[ii];
-            y1= YMvdPixel[ii]-sigmaYMvdPixel[ii];
-            y2= YMvdPixel[ii]+sigmaYMvdPixel[ii];
+            x1= XMvdPixel->at(ii)-sigmaXMvdPixel->at(ii);
+            x2= XMvdPixel->at(ii)+sigmaXMvdPixel->at(ii);
+            y1= YMvdPixel->at(ii)-sigmaYMvdPixel->at(ii);
+            y2= YMvdPixel->at(ii)+sigmaYMvdPixel->at(ii);
 fprintf(MACRO,
 "TMarker* Pixel%d = new TMarker(%f,%f,%d);\nPixel%d->SetMarkerColor(1);\nPixel%d->Draw();\n",
-                    ii,XMvdPixel[ii],YMvdPixel[ii],26,ii,ii);
+                    ii,XMvdPixel->at(ii),YMvdPixel->at(ii),26,ii,ii);
        }
 
 
@@ -1142,8 +1243,8 @@ fprintf(MACRO,
 		1, // color code (the same as in SetColor of root);
 		DIMENSIONSCITIL,
 		MACRO,
-		posizSciTil[i*3+0],
-		posizSciTil[i*3+1],
+		posizSciTil->at(i*3+0),
+		posizSciTil->at(i*3+1),
 		i,
 		0// if 0 then SciTil draw in XY; if 1 then SciTil draw in SZ; else
 		// SciTil draw in UV.
@@ -1155,14 +1256,12 @@ fprintf(MACRO,
 
     for(i=0, ii=0; i<nTracksFoundSoFar; i++){
 
-	if(!keepit[i]) continue;
+	if(!keepit->at(i)) continue;
 	ii++;
-       aaa = Ox[i];
-       bbb = Oy[i];
-       rrr = R[i];
+       aaa = Ox->at(i);
+       bbb = Oy->at(i);
+       rrr = R->at(i);
           fprintf(MACRO,
-//"TEllipse* ris%d=new TEllipse(%f,%f,%f,%f,0.,360.);\nris%d->SetFillStyle(0);\nris%d->SetLineColor(2);\nris%d->Draw();\n",
-//                     i,aaa,bbb,rrr,rrr,i,i,i);
 "TEllipse* ris%d=new TEllipse(%f,%f,%f,%f,%f,%f);\nris%d->SetFillStyle(0);\nris%d->SetLineColor(2);\nris%d->Draw(\"only\");\n",
 		ii,aaa,bbb,rrr,rrr,primoangolo[i],ultimoangolo[i],ii,ii,ii);
 
@@ -1227,53 +1326,55 @@ fprintf(MACRO,
 //--------------
 
        for( i=0; i< Nhits; i++) {
-         if( info[i*7+5] == 1 ) {     // parallel straws
+         if( info->at(i*7+5) == 1 ) {     // parallel straws
 fprintf(MACRO,"TEllipse* Paral%d = new TEllipse(%f,%f,%f,%f,0.,360.);\nParal%d->SetFillStyle(0);\nParal%d->Draw();\n",
-                     i,info[i*7+0],info[i*7+1],info[i*7+3],info[i*7+3],i,i);
+                     i,info->at(i*7+0),info->at(i*7+1),info->at(i*7+3),info->at(i*7+3),i,i);
           } else {	// skew straws.
 fprintf(MACRO,"TMarker* Skew%d = new TMarker(%f,%f,%d);\nSkew%d->SetMarkerColor(1);\nSkew%d->Draw();\n",
-		i,info[i*7+0],info[i*7+1],28,i,i,i);
+		i,info->at(i*7+0),info->at(i*7+1),28,i,i,i);
 	  }
        }
 
        for( ii=0; ii< nMvdStripHit; ii++) {
-            x1= XMvdStrip[ii]-sigmaXMvdStrip[ii];
-            x2= XMvdStrip[ii]+sigmaXMvdStrip[ii];
-            y1= YMvdStrip[ii]-sigmaYMvdStrip[ii];
-            y2= YMvdStrip[ii]+sigmaYMvdStrip[ii];
+            x1= XMvdStrip->at(ii)-sigmaXMvdStrip->at(ii);
+            x2= XMvdStrip->at(ii)+sigmaXMvdStrip->at(ii);
+            y1= YMvdStrip->at(ii)-sigmaYMvdStrip->at(ii);
+            y2= YMvdStrip->at(ii)+sigmaYMvdStrip->at(ii);
 fprintf(MACRO,
  "TMarker* Strip%d = new TMarker(%f,%f,%d);\nStrip%d->SetMarkerColor(1);\nStrip%d->Draw();\n",
-                    ii,XMvdStrip[ii],YMvdStrip[ii],25,ii,ii,ii);
+                    ii,XMvdStrip->at(ii),YMvdStrip->at(ii),25,ii,ii,ii);
 
 
        }
        for( ii=0; ii< nMvdPixelHit; ii++) {
-            x1= XMvdPixel[ii]-sigmaXMvdPixel[ii];
-            x2= XMvdPixel[ii]+sigmaXMvdPixel[ii];
-            y1= YMvdPixel[ii]-sigmaYMvdPixel[ii];
-            y2= YMvdPixel[ii]+sigmaYMvdPixel[ii];
-//            fprintf(MACRO,"TBox* BP%d = new TBox(%f,%f,%f,%f);\nBP%d->SetFillColor(4);\nBP%d->Draw();\n",
-//                     ii,x1,y1,x2,y2,ii,ii);
+            x1= XMvdPixel->at(ii)-sigmaXMvdPixel->at(ii);
+            x2= XMvdPixel->at(ii)+sigmaXMvdPixel->at(ii);
+            y1= YMvdPixel->at(ii)-sigmaYMvdPixel->at(ii);
+            y2= YMvdPixel->at(ii)+sigmaYMvdPixel->at(ii);
 fprintf(MACRO,
 "TMarker* Pixel%d = new TMarker(%f,%f,%d);\nPixel%d->SetMarkerColor(1);\nPixel%d->Draw();\n",
-                    ii,XMvdPixel[ii],YMvdPixel[ii],26,ii,ii);
+                    ii,XMvdPixel->at(ii),YMvdPixel->at(ii),26,ii,ii);
        }
 
 //---- disegna gli Scitil.
 
-
  for( i=0; i< nSciTilHits; i++) {
+//inizio cambio_in_perl
+
 	disegnaSciTilHit(
 		1, // color code, the same as in SetColor of root;
 		DIMENSIONSCITIL,
 		MACRO,
-		posizSciTil[i*3+0],
-		posizSciTil[i*3+1],
+		posizSciTil->at(i*3+0),
+		posizSciTil->at(i*3+1),
 		i,
 		0// if 0 then SciTil draw in XY; if 1 then SciTil draw in SZ;
 				// else SciTil draw in UV.
 		);
 	}
+
+//fine cambio_in_perl
+
 //------------------------
 
 
@@ -1282,14 +1383,12 @@ fprintf(MACRO,
 //-------------------------------   plotting all the tracks found
     for(i=0, ii=0; i<nTracksFoundSoFar; i++){
 
-	if(!keepit[i]) continue;
+	if(!keepit->at(i)) continue;
 	ii++;
-       aaa = Ox[i];
-       bbb = Oy[i];
-       rrr = R[i];
+       aaa = Ox->at(i);
+       bbb = Oy->at(i);
+       rrr = R->at(i);
           fprintf(MACRO,
-//"TEllipse* ris%d=new TEllipse(%f,%f,%f,%f,0.,360.);\nris%d->SetFillStyle(0);\nris%d->SetLineColor(2);\nris%d->Draw();\n",
-//                     i,aaa,bbb,rrr,rrr,i,i,i);
 "TEllipse* ris%d=new TEllipse(%f,%f,%f,%f,%f,%f);\nris%d->SetFillStyle(0);\nris%d->SetLineColor(2);\nris%d->Draw(\"only\");\n",
 		ii,aaa,bbb,rrr,rrr,primoangolo[i],ultimoangolo[i],ii,ii,ii);
 
@@ -1430,6 +1529,7 @@ fprintf(MACRO,
 
 //----------start of function PndTrkPlotMacros::WriteMacroSkewAssociatedHitswithMC
 
+// marker4 per cambioperl
 
 void PndTrkPlotMacros::WriteMacroSkewAssociatedHitswithMC(
 	Double_t *ESSE,   // S of all associated SciTil hits to the present track;
@@ -2294,11 +2394,15 @@ void PndTrkPlotMacros::WriteMacroSkewAssociatedHitswithMC(
 
  }
 
+
 //------------------end of function PndTrkPlotMacros::WriteMacroSkewAssociatedHitswithMC
 
 
 
 //--start of function PndTrkPlotMacros::WriteMacroSttParallelAssociatedHitsandMvdwithMC
+
+// marker5 per cambioperl ;
+//  inizio cambio_in_perl;
 
 void PndTrkPlotMacros::WriteMacroSttParallelAssociatedHitsandMvdwithMC(
 	PndTrkPlotMacros_InputData In_Put,
@@ -2308,41 +2412,15 @@ void PndTrkPlotMacros::WriteMacroSttParallelAssociatedHitsandMvdwithMC(
 	Double_t primoangolo,
 	Double_t ultimoangolo,
 	Short_t Nhits,
-	Short_t *ListParHitsinT,
 	int iTrack,
 	int iNome,
 	Short_t daSttTrackaMCTrack,
-	Short_t *nParalCommon,
-	Short_t *ParalCommonL,
-	Short_t *nSpuriParinTrack,
-	Short_t *ParSpuriL,
-	Short_t *nMCParalAlone,
-	Short_t *MCParalAloneL,
 	Short_t nMvdPixelHitsAssociatedToSttTra,
-	Short_t *ListPix,
 	Short_t nMvdStripHitsAssociatedToSttTra,
-	Short_t *ListStr,
-	Short_t nMvdPixelCommon,
-	Short_t *MvdPixelCommonList,
-	Short_t nMvdPixelSpuriinTrack,
-	Short_t *MvdPixelSpuriList,
-	Short_t nMCMvdPixelAlone,
-	Short_t *MCMvdPixelAloneList,
-	Short_t nMvdStripCommon,
-	Short_t *MvdStripCommonList,
-	Short_t nMvdStripSpuriinTrack,
-	Short_t *MvdStripSpuriList,
-	Short_t nMCMvdStripAlone,
-	Short_t *MCMvdStripAloneList,
-	Short_t nSkewHitsinTrack,
-	Short_t *ListSkewHitsinT,
-	Double_t *SchosenSkew,
-	Short_t *nSkewCommon,
-	Short_t *SkewCommonL,
-	Short_t *nMCSkewAlone,
-	Short_t *MCSkewAloneL
+	Short_t nSkewHitsinTrack
 			)
 {
+//  fine cambio_in_perl;
 
     Int_t i, j, i1, ii, index, Kincl, nlow, nup, STATUS;
 
@@ -2362,53 +2440,258 @@ void PndTrkPlotMacros::WriteMacroSttParallelAssociatedHitsandMvdwithMC(
            zl[200],zu[200],
            POINTS1[6];
 
+//  istruzione per perl : da qui non usare cambia_cxx ;
 
 //  conversioni  in variabili locali;
 
 	int MAXMCTRACKS = In_Put.MAXMCTRACKS;
+	int MAXMVDPIXELHITS = In_Put.MAXMVDPIXELHITS;
 	int MAXMVDPIXELHITSINTRACK = In_Put.MAXMVDPIXELHITSINTRACK;
+	int MAXMVDSTRIPHITS = In_Put.MAXMVDSTRIPHITS;
 	int MAXMVDSTRIPHITSINTRACK = In_Put.MAXMVDSTRIPHITSINTRACK;
+	int MAXSCITILHITS = In_Put.MAXSCITILHITS;
 	int MAXSCITILHITSINTRACK = In_Put.MAXSCITILHITSINTRACK;
+	int MAXSTTHITS = In_Put.MAXSTTHITS;
 	int MAXSTTHITSINTRACK = In_Put.MAXSTTHITSINTRACK;
 	int MAXTRACKSPEREVENT = In_Put.MAXTRACKSPEREVENT;
+	int dime = MAXSTTHITSINTRACK+MAXMVDPIXELHITSINTRACK+
+				MAXMVDSTRIPHITSINTRACK+MAXSCITILHITSINTRACK;
 
 	Double_t APOTEMAMAXINNERPARSTRAW = In_Put.apotemamaxinnerparstraw;
 	Double_t APOTEMAMAXSKEWSTRAW = In_Put.apotemamaxskewstraw;
 	Double_t APOTEMAMINOUTERPARSTRAW = In_Put.apotemaminouterparstraw;
 	Double_t APOTEMAMINSKEWSTRAW = In_Put.apotemaminskewstraw;
 	Double_t BFIELD = In_Put.bfield;
-	Double_t CVEL = In_Put.cvel;
-	Double_t DIMENSIONSCITIL = In_Put.dimensionscitil;
-	TClonesArray *fMCTrackArray = In_Put.fMCTrackArray;
-	int IVOLTE = In_Put.IVOLTE;
 
-	Double_t *info = In_Put.info;
-	Short_t *ListParHitsinTrack = ListParHitsinT;
- Short_t *nSciTilHitsinTrack = In_Put.nSciTilHitsinTrack;
- Double_t *posizSciTil = In_Put.posizSciTil;
-	Short_t *MCParalAloneList= MCParalAloneL;
- Short_t *ListHitsinTrack = In_Put.ListSttParHitsinTrack ;
-	Short_t *ListPixelHitsinTrack = ListPix;
- Short_t *ListSciTilHitsinTrack = In_Put.ListSciTilHitsinTrack;
-	Short_t *ListStripHitsinTrack = ListStr;
-	Short_t *ListSkewHitsinTrack= ListSkewHitsinT;
-	Short_t *MCSkewAloneList= MCSkewAloneL;
-	Double_t *MCSkewAloneX = In_Put.MCSkewAloneX;
-	Double_t *MCSkewAloneY = In_Put.MCSkewAloneY;
-	Short_t *ParalCommonList= ParalCommonL;
-	Short_t *ParSpuriList= ParSpuriL;
+ vector<Short_t> Charge(In_Put.MAXTRACKSPEREVENT);
+	for(i=0;i<In_Put.MAXTRACKSPEREVENT;i++){Charge.at(i)=In_Put.Charge[i];}
+
+	Double_t CVEL = In_Put.cvel;
+ vector<Short_t> daTrackFoundaTrackMC(In_Put.MAXTRACKSPEREVENT) ;
+	for(i=0;i<In_Put.MAXTRACKSPEREVENT;i++){ daTrackFoundaTrackMC.at(i)= In_Put.daTrackFoundaTrackMC[i];}
+	Double_t DIMENSIONSCITIL = In_Put.dimensionscitil;
+	bool doMcComparison = In_Put.doMcComparison;
+ vector<Double_t> FI0(In_Put.MAXTRACKSPEREVENT) ;
+	for(i=0;i<In_Put.MAXTRACKSPEREVENT;i++){ FI0.at(i)= In_Put.FI0[i];}
+	TClonesArray *fMCTrackArray = In_Put.fMCTrackArray;
+	TClonesArray *fSttPointArray = In_Put.fSttPointArray;
+
+ vector<Double_t> info(In_Put.MAXSTTHITS*7) ; // dimensione originale : [MAXSTTHITS][7];
+	for(i=0;i<In_Put.MAXSTTHITS*7;i++){ info.at(i)= In_Put.info[i];}
+
+ vector<bool> InclusionListSciTil(In_Put.MAXSTTHITS) ;
+	for(i=0;i<In_Put.MAXSTTHITS;i++){ InclusionListSciTil.at(i)= In_Put.InclusionListSciTil[i];}
+	int IVOLTE = In_Put.IVOLTE;
+ vector<Double_t> KAPPA(In_Put.MAXTRACKSPEREVENT) ;
+	for(i=0;i<In_Put.MAXTRACKSPEREVENT;i++){ KAPPA.at(i)= In_Put.KAPPA[i];}
+ vector<bool> keepit(In_Put.MAXTRACKSPEREVENT) ;
+	for(i=0;i<In_Put.MAXTRACKSPEREVENT;i++){ keepit.at(i)= In_Put.keepit[i];}
+	int istampa = In_Put.istampa;
+
+ vector<Short_t> ListMvdPixelHitsinTrack(In_Put.MAXTRACKSPEREVENT*In_Put.MAXMVDPIXELHITSINTRACK) ;
+	for(i=0;i<In_Put.MAXTRACKSPEREVENT*In_Put.MAXMVDPIXELHITSINTRACK;i++)
+		{ ListMvdPixelHitsinTrack.at(i)= In_Put.ListMvdPixelHitsinTrack[i];}
+
+
+ vector<Short_t> ListMvdStripHitsinTrack(In_Put.MAXTRACKSPEREVENT*In_Put.MAXMVDSTRIPHITSINTRACK) ;
+	for(i=0;i<In_Put.MAXTRACKSPEREVENT*In_Put.MAXMVDSTRIPHITSINTRACK;i++)
+		{ ListMvdStripHitsinTrack.at(i)= In_Put.ListMvdStripHitsinTrack[i];}
+
+
+ vector<Short_t> ListSciTilHitsinTrack(In_Put.MAXTRACKSPEREVENT*In_Put.MAXSCITILHITSINTRACK) ;
+	for(i=0;i<In_Put.MAXTRACKSPEREVENT*In_Put.MAXSCITILHITSINTRACK;i++)
+		{ ListSciTilHitsinTrack.at(i)= In_Put.ListSciTilHitsinTrack[i];}
+
+
+ vector<Short_t> ListSttParHitsinTrack(In_Put.MAXTRACKSPEREVENT*In_Put.MAXSTTHITSINTRACK) ;
+	for(i=0;i<In_Put.MAXTRACKSPEREVENT*In_Put.MAXSTTHITSINTRACK;i++)
+		{ ListSttParHitsinTrack.at(i)= In_Put.ListSttParHitsinTrack[i];}
+
+
+ vector<Short_t> ListSttSkewHitsinTrack(In_Put.MAXTRACKSPEREVENT*In_Put.MAXSTTHITSINTRACK) ;
+	for(i=0;i<In_Put.MAXTRACKSPEREVENT*In_Put.MAXSTTHITSINTRACK;i++)
+		{ ListSttSkewHitsinTrack.at(i)= In_Put.ListSttSkewHitsinTrack[i];}
+
+
+ vector<Short_t> ListTrackCandHit(In_Put.MAXTRACKSPEREVENT + In_Put.MAXSTTHITSINTRACK
+	+ In_Put.MAXMVDPIXELHITSINTRACK + In_Put.MAXMVDSTRIPHITSINTRACK +
+	In_Put.MAXSCITILHITSINTRACK) ;
+	for(i=0;i<In_Put.MAXTRACKSPEREVENT+ In_Put.MAXSTTHITSINTRACK+
+		In_Put.MAXMVDPIXELHITSINTRACK + In_Put.MAXMVDSTRIPHITSINTRACK +
+		In_Put.MAXSCITILHITSINTRACK;i++)
+	{ ListTrackCandHit.at(i)= In_Put.ListTrackCandHit[i];}
+
+ vector<Short_t>ListTrackCandHitType(In_Put.MAXTRACKSPEREVENT + In_Put.MAXSTTHITSINTRACK
+	+ In_Put.MAXMVDPIXELHITSINTRACK + In_Put.MAXMVDSTRIPHITSINTRACK +
+	In_Put.MAXSCITILHITSINTRACK) ;
+	for(i=0;i<In_Put.MAXTRACKSPEREVENT+ In_Put.MAXSTTHITSINTRACK+
+		In_Put.MAXMVDPIXELHITSINTRACK + In_Put.MAXMVDSTRIPHITSINTRACK +
+		In_Put.MAXSCITILHITSINTRACK;i++)
+	{ ListTrackCandHitType.at(i)= In_Put.ListTrackCandHitType[i];}
+
+
+ vector<Short_t> MCMvdPixelAloneList(In_Put.nTotalCandidates*In_Put.nMvdPixelHit) ;
+	for(i=0;i<In_Put.nTotalCandidates*In_Put.nMvdPixelHit;i++)
+		{ MCMvdPixelAloneList.at(i)= In_Put.MCMvdPixelAloneList[i];}
+
+
+ vector<Short_t> MCMvdStripAloneList(In_Put.nTotalCandidates*In_Put.nMvdStripHit) ;
+	for(i=0;i<In_Put.nTotalCandidates*In_Put.nMvdStripHit;i++)
+		{ MCMvdStripAloneList.at(i)= In_Put.MCMvdStripAloneList[i];}
+
+
+ vector<Short_t> MCParalAloneList(In_Put.MAXTRACKSPEREVENT*In_Put.nSttHit) ;
+	for(i=0;i<In_Put.MAXTRACKSPEREVENT*In_Put.nSttHit;i++)
+		{ MCParalAloneList.at(i)= In_Put.MCParalAloneList[i];}
+
+
+ vector<Short_t> MCSkewAloneList(In_Put.MAXTRACKSPEREVENT*In_Put.nSttHit) ;
+	for(i=0;i<In_Put.MAXTRACKSPEREVENT*In_Put.nSttHit;i++)
+		{ MCSkewAloneList.at(i)= In_Put.MCSkewAloneList[i];}
+
+
+ vector<Double_t> MCSkewAloneX(In_Put.MAXSTTHITS) ;
+	for(i=0;i<In_Put.MAXSTTHITS;i++){ MCSkewAloneX.at(i)= In_Put.MCSkewAloneX[i];}
+ vector<Double_t> MCSkewAloneY(In_Put.MAXSTTHITS) ;
+	for(i=0;i<In_Put.MAXSTTHITS;i++){ MCSkewAloneY.at(i)= In_Put.MCSkewAloneY[i];}
+
+ vector<Short_t> MvdPixelCommonList(In_Put.nTotalCandidates*In_Put.MAXMVDPIXELHITSINTRACK) ;
+	for(i=0;i<In_Put.nTotalCandidates*In_Put.MAXMVDPIXELHITSINTRACK;i++)
+		{ MvdPixelCommonList.at(i)= In_Put.MvdPixelCommonList[i];}
+
+
+ vector<Short_t> MvdPixelSpuriList(In_Put.nTotalCandidates*In_Put.MAXMVDPIXELHITSINTRACK) ;
+	for(i=0;i<In_Put.nTotalCandidates*In_Put.MAXMVDPIXELHITSINTRACK;i++)
+		{ MvdPixelSpuriList.at(i)= In_Put.MvdPixelSpuriList[i];}
+
+
+ vector<Short_t> MvdStripCommonList(In_Put.nTotalCandidates*In_Put.MAXMVDSTRIPHITSINTRACK) ;
+	for(i=0;i<In_Put.nTotalCandidates*In_Put.MAXMVDSTRIPHITSINTRACK;i++)
+		{ MvdStripCommonList.at(i)= In_Put.MvdStripCommonList[i];}
+
+
+ vector<Short_t> MvdStripSpuriList(In_Put.nTotalCandidates*In_Put.MAXMVDSTRIPHITSINTRACK) ;
+	for(i=0;i<In_Put.nTotalCandidates*In_Put.MAXMVDSTRIPHITSINTRACK;i++)
+		{ MvdStripSpuriList.at(i)= In_Put.MvdStripSpuriList[i];}
+
+ vector<Short_t> nMCMvdPixelAlone(In_Put.nTotalCandidates) ;
+	for(i=0;i<In_Put.nTotalCandidates;i++){ nMCMvdPixelAlone.at(i)= In_Put.nMCMvdPixelAlone[i];}
+ vector<Short_t> nMCMvdStripAlone(In_Put.nTotalCandidates) ;
+	for(i=0;i<In_Put.nTotalCandidates;i++){ nMCMvdStripAlone.at(i)= In_Put.nMCMvdStripAlone[i];}
+
+ vector<Short_t> nMCParalAlone(In_Put.MAXTRACKSPEREVENT) ;
+	for(i=0;i<In_Put.MAXTRACKSPEREVENT;i++){ nMCParalAlone.at(i)= In_Put.nMCParalAlone[i];}
+ vector<Short_t> nMCSkewAlone(In_Put.MAXTRACKSPEREVENT) ;
+	for(i=0;i<In_Put.MAXTRACKSPEREVENT;i++){ nMCSkewAlone.at(i)= In_Put.nMCSkewAlone[i];}
+
+	Short_t nMCTracks = In_Put.nMCTracks;
+
+ vector<Short_t> nMvdPixelCommon(In_Put.nTotalCandidates) ;
+	for(i=0;i<In_Put.nTotalCandidates;i++){ nMvdPixelCommon.at(i)= In_Put.nMvdPixelCommon[i];}
+	Short_t nMvdPixelHit = In_Put.nMvdPixelHit;
+ vector<Short_t> nMvdPixelHitsinTrack(In_Put.MAXTRACKSPEREVENT) ;
+	for(i=0;i<In_Put.MAXTRACKSPEREVENT;i++){ nMvdPixelHitsinTrack.at(i)= In_Put.nMvdPixelHitsinTrack[i];}
+ vector<Short_t> nMvdPixelSpuriinTrack(In_Put.MAXTRACKSPEREVENT) ;
+	for(i=0;i<In_Put.MAXTRACKSPEREVENT;i++){ nMvdPixelSpuriinTrack.at(i)= In_Put.nMvdPixelSpuriinTrack[i];}
+
+ vector<Short_t> nMvdStripCommon(In_Put.nTotalCandidates) ;
+	for(i=0;i<In_Put.nTotalCandidates;i++){ nMvdStripCommon.at(i)= In_Put.nMvdStripCommon[i];}
+	Short_t nMvdStripHit = In_Put.nMvdStripHit;
+ vector<Short_t> nMvdStripHitsinTrack(In_Put.MAXTRACKSPEREVENT) ;
+	for(i=0;i<In_Put.MAXTRACKSPEREVENT;i++){ nMvdStripHitsinTrack.at(i)= In_Put.nMvdStripHitsinTrack[i];}
+ vector<Short_t> nMvdStripSpuriinTrack(In_Put.nTotalCandidates) ;
+	for(i=0;i<In_Put.nTotalCandidates;i++){ nMvdStripSpuriinTrack.at(i)= In_Put.nMvdStripSpuriinTrack[i];}
+
+
+ vector<Short_t> nParalCommon(In_Put.MAXTRACKSPEREVENT) ;
+	for(i=0;i<In_Put.MAXTRACKSPEREVENT;i++){ nParalCommon.at(i)= In_Put.nParalCommon[i];}
+
+	Short_t nSciTilHits = In_Put.nSciTilHits;
+
+ vector<Short_t> nSciTilHitsinTrack(In_Put.MAXTRACKSPEREVENT) ;
+	for(i=0;i<In_Put.MAXTRACKSPEREVENT;i++){ nSciTilHitsinTrack.at(i)= In_Put.nSciTilHitsinTrack[i];}
+
+ vector<Short_t> nSkewCommon(In_Put.MAXTRACKSPEREVENT) ;
+	for(i=0;i<In_Put.MAXTRACKSPEREVENT;i++){ nSkewCommon.at(i)= In_Put.nSkewCommon[i];}
+
+ vector<Short_t> nSpuriParinTrack(In_Put.MAXTRACKSPEREVENT) ;
+	for(i=0;i<In_Put.MAXTRACKSPEREVENT;i++){ nSpuriParinTrack.at(i)= In_Put.nSpuriParinTrack[i];}
+
+	Int_t    nSttHit = In_Put.nSttHit;
+	Int_t    nSttParHit = In_Put.nSttParHit;
+ vector<Short_t> nSttParHitsinTrack(In_Put.MAXTRACKSPEREVENT) ;
+	for(i=0;i<In_Put.MAXTRACKSPEREVENT;i++){ nSttParHitsinTrack.at(i)= In_Put.nSttParHitsinTrack[i];}
+	Int_t    nSttSkewHit = In_Put.nSttSkewHit;
+ vector<Short_t> nSttSkewHitsinTrack(In_Put.MAXTRACKSPEREVENT) ;
+	for(i=0;i<In_Put.MAXTRACKSPEREVENT;i++){ nSttSkewHitsinTrack.at(i)= In_Put.nSttSkewHitsinTrack[i];}
+
+	Short_t  nTotalCandidates = In_Put.nTotalCandidates;
+ vector<Short_t> nTrackCandHit(In_Put.MAXTRACKSPEREVENT) ;
+	for(i=0;i<In_Put.MAXTRACKSPEREVENT;i++){ nTrackCandHit.at(i)= In_Put.nTrackCandHit[i];}
+
+ vector<Double_t> Ox(In_Put.MAXTRACKSPEREVENT) ;
+	for(i=0;i<In_Put.MAXTRACKSPEREVENT;i++){ Ox.at(i)= In_Put.Ox[i];}
+ vector<Double_t> Oy(In_Put.MAXTRACKSPEREVENT) ;
+	for(i=0;i<In_Put.MAXTRACKSPEREVENT;i++){ Oy.at(i)= In_Put.Oy[i];}
+
+ vector<Short_t> ParalCommonList(In_Put.MAXTRACKSPEREVENT*In_Put.MAXSTTHITSINTRACK) ;
+	for(i=0;i<In_Put.MAXTRACKSPEREVENT*In_Put.MAXSTTHITSINTRACK;i++)
+		{ ParalCommonList.at(i)= In_Put.ParalCommonList[i];}
+
+
+ vector<Short_t> ParSpuriList(In_Put.MAXTRACKSPEREVENT*In_Put.MAXSTTHITSINTRACK) ;
+	for(i=0;i<In_Put.MAXTRACKSPEREVENT*In_Put.MAXSTTHITSINTRACK;i++)
+		{ ParSpuriList.at(i)= In_Put.ParSpuriList[i];}
+
+
+ vector<Double_t> posizSciTil(In_Put.MAXSCITILHITS*3) ; // dimensione originale : [MAXSCITILHITS][3];
+	for(i=0;i<In_Put.MAXSCITILHITS*3;i++){ posizSciTil.at(i)= In_Put.posizSciTil[i];}
+
+
+ vector<Double_t> R(In_Put.MAXTRACKSPEREVENT) ;
+	for(i=0;i<In_Put.MAXTRACKSPEREVENT;i++){ R.at(i)= In_Put.R[i];}
+
 	Double_t RSTRAWDETECTORMAX = In_Put.rstrawdetectormax;
 	Double_t RSTRAWDETECTORMIN = In_Put.rstrawdetectormin;
-	Double_t *sigmaXMvdPixel = In_Put.sigmaXMvdPixel;
-	Double_t *sigmaXMvdStrip = In_Put.sigmaXMvdStrip;
-	Double_t *sigmaYMvdPixel = In_Put.sigmaYMvdPixel;
-	Double_t *sigmaYMvdStrip = In_Put.sigmaYMvdStrip;
-	Short_t *SkewCommonList = SkewCommonL;
+
+ vector<Double_t> sigmaXMvdPixel(In_Put.MAXMVDPIXELHITS) ;
+	for(i=0;i<In_Put.MAXMVDPIXELHITS;i++){ sigmaXMvdPixel.at(i)= In_Put.sigmaXMvdPixel[i];}
+ vector<Double_t> sigmaXMvdStrip(In_Put.MAXMVDSTRIPHITS) ;
+	for(i=0;i<In_Put.MAXMVDSTRIPHITS;i++){ sigmaXMvdStrip.at(i)= In_Put.sigmaXMvdStrip[i];}
+ vector<Double_t> sigmaYMvdPixel(In_Put.MAXMVDPIXELHITS) ;
+	for(i=0;i<In_Put.MAXMVDPIXELHITS;i++){ sigmaYMvdPixel.at(i)= In_Put.sigmaYMvdPixel[i];}
+ vector<Double_t> sigmaYMvdStrip(In_Put.MAXMVDSTRIPHITS) ;
+	for(i=0;i<In_Put.MAXMVDSTRIPHITS;i++){ sigmaYMvdStrip.at(i)= In_Put.sigmaYMvdStrip[i];}
+
+ vector<Double_t> SchosenSkew(In_Put.MAXTRACKSPEREVENT*In_Put.MAXSTTHITS) ;
+	for(i=0;i<In_Put.MAXTRACKSPEREVENT*In_Put.MAXSTTHITS;i++)
+		{ SchosenSkew.at(i)= In_Put.SchosenSkew[i];}
+
+ vector<Short_t> SkewCommonList(In_Put.MAXTRACKSPEREVENT*In_Put.MAXSTTHITSINTRACK) ;
+	for(i=0;i<In_Put.MAXTRACKSPEREVENT*In_Put.MAXSTTHITSINTRACK;i++)
+		{ SkewCommonList.at(i)= In_Put.SkewCommonList[i];}
+
 	Double_t VERTICALGAP = In_Put.verticalgap;
-	Double_t *XMvdPixel = In_Put.XMvdPixel;
-	Double_t *XMvdStrip = In_Put.XMvdStrip;
-	Double_t *YMvdPixel = In_Put.YMvdPixel;
-	Double_t *YMvdStrip = In_Put.YMvdStrip;
+ vector<Double_t> XMvdPixel(In_Put.MAXMVDPIXELHITS) ;
+	for(i=0;i<In_Put.MAXMVDPIXELHITS;i++){ XMvdPixel.at(i)= In_Put.XMvdPixel[i];}
+ vector<Double_t> XMvdStrip(In_Put.MAXMVDSTRIPHITS) ;
+	for(i=0;i<In_Put.MAXMVDSTRIPHITS;i++){ XMvdStrip.at(i)= In_Put.XMvdStrip[i];}
+ vector<Double_t> YMvdPixel(In_Put.MAXMVDPIXELHITS) ;
+	for(i=0;i<In_Put.MAXMVDPIXELHITS;i++){ YMvdPixel.at(i)= In_Put.YMvdPixel[i];}
+ vector<Double_t> YMvdStrip(In_Put.MAXMVDSTRIPHITS) ;
+	for(i=0;i<In_Put.MAXMVDSTRIPHITS;i++){ YMvdStrip.at(i)= In_Put.YMvdStrip[i];}
+ vector<Double_t> WDX(In_Put.MAXSTTHITS) ;
+	for(i=0;i<In_Put.MAXSTTHITS;i++){ WDX.at(i)= In_Put.WDX[i];}
+ vector<Double_t> WDY(In_Put.MAXSTTHITS) ;
+	for(i=0;i<In_Put.MAXSTTHITS;i++){ WDY.at(i)= In_Put.WDY[i];}
+ vector<Double_t> WDZ(In_Put.MAXSTTHITS) ;
+	for(i=0;i<In_Put.MAXSTTHITS;i++){ WDZ.at(i)= In_Put.WDZ[i];}
+ vector<Double_t> ZMvdPixel(In_Put.MAXMVDPIXELHITS) ;
+	for(i=0;i<In_Put.MAXMVDPIXELHITS;i++){ ZMvdPixel.at(i)= In_Put.ZMvdPixel[i];}
+ vector<Double_t> ZMvdStrip(In_Put.MAXMVDSTRIPHITS) ;
+	for(i=0;i<In_Put.MAXMVDSTRIPHITS;i++){ ZMvdStrip.at(i)= In_Put.ZMvdStrip[i];}
+
+//  istruzione per perl : da qui usa cambia_cxx ;
 
 //---------- parallel straws Macro now
       char nome[300], nome2[300];
@@ -2475,8 +2758,8 @@ void PndTrkPlotMacros::WriteMacroSttParallelAssociatedHitsandMvdwithMC(
 			1, // color code; the same as in SetColor of root;
 			DIMENSIONSCITIL,
 			MACRO,
-			posizSciTil[j*3+0],
-			posizSciTil[j*3+1],
+			posizSciTil.at(j*3+0),
+			posizSciTil.at(j*3+1),
 			j,
 			0  // if 0 then SciTil draw in XY; if 1 then SciTil draw in SZ; else
 				// SciTil draw in UV.
@@ -2489,8 +2772,8 @@ void PndTrkPlotMacros::WriteMacroSttParallelAssociatedHitsandMvdwithMC(
 			2, // color code; the same as in SetColor of root;
 			DIMENSIONSCITIL,
 			MACRO,
-			posizSciTil[j*3+0],
-			posizSciTil[j*3+1],
+			posizSciTil.at(j*3+0),
+			posizSciTil.at(j*3+1),
 			j,
 			0  // if 0 then SciTil draw in XY; if 1 then SciTil draw in SZ; else
 				// SciTil draw in UV.
@@ -2503,8 +2786,8 @@ void PndTrkPlotMacros::WriteMacroSttParallelAssociatedHitsandMvdwithMC(
 			4, // color code; the same as in SetColor of root;
 			DIMENSIONSCITIL,
 			MACRO,
-			posizSciTil[j*3+0],
-			posizSciTil[j*3+1],
+			posizSciTil.at(j*3+0),
+			posizSciTil.at(j*3+1),
 			j,
 			0  // if 0 then SciTil draw in XY; if 1 then SciTil draw in SZ; else
 				// SciTil draw in UV.
@@ -2528,37 +2811,37 @@ void PndTrkPlotMacros::WriteMacroSttParallelAssociatedHitsandMvdwithMC(
 
 
 //------------- hits paralleli in comune con traccia MC
-       for( ii=0; ii< nParalCommon[iTrack]; ii++) {
-            i = ParalCommonList[iTrack*MAXSTTHITSINTRACK+ii] ;
+       for( ii=0; ii< nParalCommon.at(iTrack); ii++) {
+            i = ParalCommonList.at(iTrack*MAXSTTHITSINTRACK+ii) ;
             fprintf(MACRO,
   "TEllipse* CommonParalHit%d = new TEllipse(%f,%f,%f,%f,0.,360.);\nCommonParalHit%d->SetFillStyle(0);\nCommonParalHit%d->Draw();\n",
-                     i,info[i*7+0],info[i*7+1],info[i*7+3],info[i*7+3],i,i);
+                     i,info[i*7+0],info.at(i*7+1),info.at(i*7+3),info.at(i*7+3),i,i);
        }
 //------------- hits paralleli spuri
-       for( ii=0; ii< nSpuriParinTrack[iTrack]; ii++) {
-            i = ParSpuriList[iTrack*MAXSTTHITSINTRACK+ii] ;
+       for( ii=0; ii< nSpuriParinTrack.at(iTrack); ii++) {
+            i = ParSpuriList.at(iTrack*MAXSTTHITSINTRACK+ii) ;
             fprintf(MACRO,
    "TEllipse* SpurParalHit%d = new TEllipse(%f,%f,%f,%f,0.,360.);\nSpurParalHit%d->SetFillStyle(0);\nSpurParalHit%d->SetLineColor(2);\nSpurParalHit%d->Draw();\n",
-                     i,info[i*7+0],info[i*7+1],info[i*7+3],info[i*7+3],i,i,i);
+                     i,info[i*7+0],info.at(i*7+1),info.at(i*7+3),info.at(i*7+3),i,i,i);
        }
 //------------- hits paralleli MC 'alone'
-       for( ii=0; ii< nMCParalAlone[iTrack]; ii++) {
-            i = MCParalAloneList[iTrack*In_Put.nSttHit+ii] ;
+       for( ii=0; ii< nMCParalAlone.at(iTrack); ii++) {
+            i = MCParalAloneList.at(iTrack*In_Put.nSttHit+ii) ;
             fprintf(MACRO,
    "TEllipse* AloneParalHit%d = new TEllipse(%f,%f,%f,%f,0.,360.);\nAloneParalHit%d->SetFillStyle(0);\nAloneParalHit%d->SetLineColor(4);\nAloneParalHit%d->Draw();\n",
-                     i,info[i*7+0],info[i*7+1],info[i*7+3],info[i*7+3],i,i,i);
+                     i,info[i*7+0],info.at(i*7+1),info.at(i*7+3),info.at(i*7+3),i,i,i);
        }
 
 //-------------
 //------------- hits skew in comune e spuri di traccia MC
 
        for( i=0; i< nSkewHitsinTrack; i++) {
-        ii = ListSkewHitsinTrack[iTrack*MAXSTTHITSINTRACK+i];
-	    aaa=Oxx+Rr*cos(SchosenSkew[ii]);
-	    bbb=Oyy+Rr*sin(SchosenSkew[ii]);
+        ii = ListSttSkewHitsinTrack.at(iTrack*MAXSTTHITSINTRACK+i);
+	    aaa=Oxx+Rr*cos(SchosenSkew.at(iTrack*MAXSTTHITS+ii));
+	    bbb=Oyy+Rr*sin(SchosenSkew.at(iTrack*MAXSTTHITS+ii));
 		bool flaggo = true;
-		for( int k=0; k<nSkewCommon[iTrack];k++){
-			if( SkewCommonList[iTrack*MAXSTTHITSINTRACK+k]== ii){
+		for( int k=0; k<nSkewCommon.at(iTrack);k++){
+			if( SkewCommonList.at(iTrack*MAXSTTHITSINTRACK+k)== ii){
 	fprintf(MACRO,"TMarker* CommonSkewHit%d = new TMarker(%f,%f,%d);\n",
 				ii,aaa,bbb,28);
 	fprintf(MACRO,"CommonSkewHit%d->SetMarkerColor(1);\nCommonSkewHit%d->Draw();\n"
@@ -2575,27 +2858,27 @@ void PndTrkPlotMacros::WriteMacroSttParallelAssociatedHitsandMvdwithMC(
 
        }
 //------------- hits paralleli MC 'alone'
-       for( ii=0; ii< nMCSkewAlone[iTrack]; ii++) {
-            i = MCSkewAloneList[iTrack*In_Put.nSttHit+ii] ;
+       for( ii=0; ii< nMCSkewAlone.at(iTrack); ii++) {
+            i = MCSkewAloneList.at(iTrack*In_Put.nSttHit+ii) ;
            fprintf(MACRO,
    "TMarker* AloneSkewHit%d = new TMarker(%f,%f,%d);\nAloneSkewHit%d->SetMarkerColor(4);\nAloneSkewHit%d->Draw();\n",
-                     i,MCSkewAloneX[i],MCSkewAloneY[i],28,i,i);
+                     i,MCSkewAloneX.at(i),MCSkewAloneY.at(i),28,i,i);
        }
 
 //------------- now the Strips
 
        for( i=0; i< nMvdStripHitsAssociatedToSttTra; i++) {
-        ii = ListStripHitsinTrack[iTrack*MAXMVDSTRIPHITSINTRACK+i];
-            x1= XMvdStrip[ii]-sigmaXMvdStrip[ii];
-            x2= XMvdStrip[ii]+sigmaXMvdStrip[ii];
-            y1= YMvdStrip[ii]-sigmaYMvdStrip[ii];
-            y2= YMvdStrip[ii]+sigmaYMvdStrip[ii];
+        ii = ListMvdStripHitsinTrack.at(iTrack*In_Put.MAXMVDSTRIPHITSINTRACK+i);
+            x1= XMvdStrip.at(ii)-sigmaXMvdStrip.at(ii);
+            x2= XMvdStrip.at(ii)+sigmaXMvdStrip.at(ii);
+            y1= YMvdStrip.at(ii)-sigmaYMvdStrip.at(ii);
+            y2= YMvdStrip.at(ii)+sigmaYMvdStrip.at(ii);
 
 		bool flaggo=true;
-		for( int k=0; k<nMvdStripCommon;k++){
-			if( MvdStripCommonList[k]== ii){
+		for( int k=0; k<nMvdStripCommon.at(iTrack);k++){
+			if( MvdStripCommonList.at(iTrack*In_Put.MAXMVDSTRIPHITSINTRACK+k)== ii){
             fprintf(MACRO,"TMarker* CommonMvdStrip%d = new TMarker(%f,%f,%d);\n",
-                    ii,XMvdStrip[ii],YMvdStrip[ii],25);
+                    ii,XMvdStrip.at(ii),YMvdStrip.at(ii),25);
 		fprintf(MACRO,"CommonMvdStrip%d->SetMarkerColor(1);\nCommonMvdStrip%d->Draw();\n",
                     ii,ii);
 				flaggo=false;
@@ -2604,7 +2887,7 @@ void PndTrkPlotMacros::WriteMacroSttParallelAssociatedHitsandMvdwithMC(
 		}
 		if(flaggo){
             fprintf(MACRO,"TMarker* SpurMvdStrip%d = new TMarker(%f,%f,%d);\n",
-                    ii,XMvdStrip[ii],YMvdStrip[ii],25);
+                    ii,XMvdStrip.at(ii),YMvdStrip.at(ii),25);
 		fprintf(MACRO,"SpurMvdStrip%d->SetMarkerColor(2);\nSpurMvdStrip%d->Draw();\n",ii,ii);
 		}
 
@@ -2612,26 +2895,26 @@ void PndTrkPlotMacros::WriteMacroSttParallelAssociatedHitsandMvdwithMC(
        }
 
 //-------------- hit Mvd Strips 'Alone'
-       for( ii=0; ii< nMCMvdStripAlone; ii++) {
-            i = MCMvdStripAloneList[ii] ;
+       for( ii=0; ii< nMCMvdStripAlone.at(iTrack); ii++) {
+            i = MCMvdStripAloneList.at(iTrack*In_Put.nMvdStripHit+ii) ;
             fprintf(MACRO,
    "TMarker* AloneMvdStrip%d = new TMarker(%f,%f,%d);\nAloneMvdStrip%d->SetMarkerColor(4);\nAloneMvdStrip%d->Draw();\n",
-                     i,XMvdStrip[i],YMvdStrip[i],25,i,i);
+                     i,XMvdStrip.at(i),YMvdStrip.at(i),25,i,i);
        }
 //-------------
 
        for( i=0; i< nMvdPixelHitsAssociatedToSttTra; i++) {
-        ii = ListPixelHitsinTrack[iTrack*MAXMVDPIXELHITSINTRACK+i];
-            x1= XMvdPixel[ii]-sigmaXMvdPixel[ii];
-            x2= XMvdPixel[ii]+sigmaXMvdPixel[ii];
-            y1= YMvdPixel[ii]-sigmaYMvdPixel[ii];
-            y2= YMvdPixel[ii]+sigmaYMvdPixel[ii];
+        ii = ListMvdPixelHitsinTrack.at(iTrack*MAXMVDPIXELHITSINTRACK+i);
+            x1= XMvdPixel.at(ii)-sigmaXMvdPixel.at(ii);
+            x2= XMvdPixel.at(ii)+sigmaXMvdPixel.at(ii);
+            y1= YMvdPixel.at(ii)-sigmaYMvdPixel.at(ii);
+            y2= YMvdPixel.at(ii)+sigmaYMvdPixel.at(ii);
 
 		bool flaggo=true;
-		for( int k=0; k<nMvdPixelCommon;k++){
-			if( MvdPixelCommonList[k]== ii){
+		for( int k=0; k<nMvdPixelCommon.at(iTrack);k++){
+if( MvdPixelCommonList.at(iTrack*In_Put.MAXMVDPIXELHITSINTRACK+k)== ii){
             fprintf(MACRO,"TMarker* CommonMvdPixel%d = new TMarker(%f,%f,%d);\n",
-                    ii,XMvdPixel[ii],YMvdPixel[ii],26);
+                    ii,XMvdPixel.at(ii),YMvdPixel.at(ii),26);
  fprintf(MACRO,"CommonMvdPixel%d->SetMarkerColor(1);\nCommonMvdPixel%d->Draw();\n",
                     ii,ii);
 				flaggo=false;
@@ -2640,7 +2923,7 @@ void PndTrkPlotMacros::WriteMacroSttParallelAssociatedHitsandMvdwithMC(
 		}
 		if(flaggo){
             fprintf(MACRO,"TMarker* SpurMvdPixel%d = new TMarker(%f,%f,%d);\n",
-                    ii,XMvdPixel[ii],YMvdPixel[ii],26);
+                    ii,XMvdPixel.at(ii),YMvdPixel.at(ii),26);
  fprintf(MACRO,"SpurMvdPixel%d->SetMarkerColor(2);\nSpurMvdPixel%d->Draw();\n",ii,ii);
 		}
 
@@ -2648,11 +2931,11 @@ void PndTrkPlotMacros::WriteMacroSttParallelAssociatedHitsandMvdwithMC(
        }
 
 //-------------- hit Mvd Pixel 'Alone'
-       for( ii=0; ii< nMCMvdPixelAlone; ii++) {
-            i = MCMvdPixelAloneList[ii] ;
+       for( ii=0; ii< nMCMvdPixelAlone.at(iTrack); ii++) {
+            i = MCMvdPixelAloneList.at(iTrack*In_Put.nMvdPixelHit+ii) ;
             fprintf(MACRO,
    "TMarker* AloneMvdPixel%d = new TMarker(%f,%f,%d);\nAloneMvdPixel%d->SetMarkerColor(4);\nAloneMvdPixel%d->Draw();\n",
-                     i,XMvdPixel[i],YMvdPixel[i],26,i,i);
+                     i,XMvdPixel.at(i),YMvdPixel.at(i),26,i,i);
        }
 //-------------
 //----------------- ora la traccia MC corrispondente a questa traccia Stt
