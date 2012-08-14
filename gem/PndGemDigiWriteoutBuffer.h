@@ -1,0 +1,37 @@
+/*
+ * PndGemDigiWriteoutBuffer.h
+ *
+ *  Created on: May 10, 2011
+ *      Author: stockman
+ */
+
+#ifndef PNDGEMDIGIWRITEOUTBUFFER_H_
+#define PNDGEMDIGIWRITEOUTBUFFER_H_
+
+#include "FairWriteoutBuffer.h"
+#include "PndGemDigi.h"
+
+class FairTimeStamp;
+
+class PndGemDigiWriteoutBuffer : public FairWriteoutBuffer{
+
+public:
+	PndGemDigiWriteoutBuffer();
+	PndGemDigiWriteoutBuffer(TString branchName, TString folderName, Bool_t persistance);
+	void AddNewDataToTClonesArray(FairTimeStamp*);
+
+	virtual ~PndGemDigiWriteoutBuffer();
+
+	virtual std::vector<std::pair<double, PndGemDigi*> > Modify(std::pair<double, PndGemDigi*> oldData, std::pair<double, PndGemDigi*> newData);
+        
+	virtual double FindTimeForData(FairTimeStamp* data) ;
+	virtual void FillDataMap(FairTimeStamp* data, double activeTime) ;
+	virtual void EraseDataFromDataMap(FairTimeStamp* data);
+protected:	
+
+	std::map<PndGemDigi, double> fData_map;
+	
+	ClassDef(PndGemDigiWriteoutBuffer, 1);
+};
+
+#endif /* PNDGEMDIGIWRITEOUTBUFFER_H_ */
