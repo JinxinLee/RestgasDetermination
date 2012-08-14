@@ -37,9 +37,12 @@ using std::map;
 PndGemTrackFinderOnHits::PndGemTrackFinderOnHits() {
   fDigiPar = NULL;
 
+  fSigmaMult = 60.;
+
   fMCTrackArray = NULL;
   fMCPointArray = NULL;
   fNofEvents    = 0;
+  fNofClHits    = 0;
 
   fVerbose = 0;
   fPrimary = 0;
@@ -226,7 +229,7 @@ Int_t PndGemTrackFinderOnHits::DoFind(TClonesArray* hitArray,
     Double_t y1 = gemHit->GetY();
 
     Int_t closestHit = -1;
-    Double_t closestDist = 1000.;
+    Double_t closestDist = 100000.;
 
     for(Int_t iHit2 = 0; iHit2 < nGemHits; iHit2++){
       gemHit2 = (PndGemHit*) hitArray->At(iHit2);
@@ -249,18 +252,72 @@ Int_t PndGemTrackFinderOnHits::DoFind(TClonesArray* hitArray,
       Double_t xer = TMath::Sqrt(gemHit->GetDx()*gemHit->GetDx()+gemHit2->GetDx()*gemHit2->GetDx());
       Double_t yer = TMath::Sqrt(gemHit->GetDy()*gemHit->GetDy()+gemHit2->GetDy()*gemHit2->GetDy());
 
-      if ( TMath::Abs(x1p-x2) > 3.*xer ) {
+      if ( fVerbose ) {
+	cout << "X comparing " << x1 << " -> " << x1p << " with " << x2 
+	     << " //// error " << xer << " = " << TMath::Abs(x1p-x2)/xer << endl;
+	cout << "Y comparing " << y1 << " -> " << y1p << " with " << y2 
+	     << " //// error " << yer << " = " << TMath::Abs(y1p-y2)/yer << endl;
+      }
+
+      //        1 full phi / 4 full phi  / 1 sel phi  / 2 sel phi   / 4 sel phi   / p=.4 / p=.6 / p=1. / p=2. / p=5.
+      // 60. -> 931 tracks / 3099 tracks / 980 tracks / 1455 tracks / 2228 tracks /  /  /  /  /
+      // 36. -> 931 tracks / 3099 tracks / 980 tracks / 1455 tracks / 2228 tracks /    2 /  116 /  993 / 1031 / 1042
+      // 33. -> 931 tracks / 3099 tracks / 980 tracks / 1455 tracks / 2228 tracks /    2 /  116 /  993 / 1031 / 1042
+      // 30. -> 930 tracks / 3092 tracks / 978 tracks / 1458 tracks / 2213 tracks /    2 /  111 /  993 / 1031 / 1042
+      // 27. -> 926 tracks / 3072 tracks / 973 tracks / 1449 tracks / 2179 tracks /    2 /  105 /  990 / 1030 / 1041
+      // 24. -> 920 tracks / 3038 tracks / 967 tracks / 1438 tracks / 2112 tracks /    2 /   46 /  952 / 1030 / 1040
+      // 21. -> 906 tracks / 2992 tracks / 957 tracks / 1413 tracks / 2053 tracks /    2 /   26 /  561 / 1028 / 1038
+      // 18. -> 894 tracks / 2927 tracks / 938 tracks / 1381 tracks / 1969 tracks /    2 /   21 /  167 / 1025 / 1033
+      // 15. -> 867 tracks / 2820 tracks / 916 tracks / 1331 tracks / 1850 tracks /    2 /   10 /  143 / 1020 / 1022
+      // 12. -> 828 tracks / 2699 tracks / 879 tracks / 1260 tracks / 1735 tracks /    2 /    6 /   32 / 1016 / 1014
+      //  9. -> 773 tracks / 2482 tracks / 804 tracks / 1148 tracks / 1538 tracks /    2 /    2 /   13 /  331 /  997
+      //  6. -> 668 tracks / 2110 tracks / 688 tracks /  947 tracks / 1202 tracks /    0 /    0 /    0 /    1 /  985
+      //  3. -> 397 tracks / 1275 tracks / 339 tracks /  474 tracks /  510 tracks /    0 /    0 /    0 /    0 /   34
+
+      //     .4   .6   1.    2.    5.   1ful  4ful 1sel  2sel  4sel
+      /*
+      100    666  990  1003  1040  1048  944  3276  984  1584  2853
+       90    666  990  1003  1040  1048  944  3255  984  1574  2788
+       80    666  990  1002  1040  1048  944  3235  983  1557  2708
+       70    666  990  1002  1040  1048  944  3231  983  1541  2661
+       60    666  989  1002  1040  1047  945  3203  983  1531  2569
+       50    666  988  1002  1040  1048  941  3171  983  1510  2475
+       45    657  987  1001  1040  1047  938  3158  982  1501  2422
+       40    323  985  1001  1040  1047  931  3151  983  1489  2358
+       36    130  667  1000  1040  1045  931  3141  985  1482  2333
+       33     54  200  1000  1040  1044  934  3135  983  1477  2307  
+       30     49  136  1000  1040  1043  935  3121  983  1471  2269
+       27     48  127   998  1039  1042  930  3101  979  1458  2218
+       24     46   61   985  1039  1041  922  3067  973  1443  2165
+       21     40   38   660  1037  1037  901  3017  965  1428  2094
+       18     36   32   247  1033  1033  887  2955  947  1397  2015
+       15     29   22   216  1028  1021  864  2840  919  1339  1883
+       12     23   18    51  1023  1013  829  2708  881  1263  1750
+       10     11    7    28   763  1004  797  2577  839  1193  1618
+        9     11    6    22   336   998  776  2492  805  1152  1534
+        6      1    0     2     1   985  669  2114  688   950  1209
+        4      0    0     0     0   537  523  1639  509   684   815
+        3      0    0     0     0    34  397  1276  339   474   510
+      */
+
+      if ( TMath::Abs(x1p-x2) > fSigmaMult*xer ) { // changed 3.* to 6.*, but would be happier with r/phi cut
 // 	if ( TMath::Abs(gemHit->GetZ()-89.4) < 0.2 && TMath::Abs(gemHit2->GetZ()-90.6) < 0.2 )
 // 	  cout << "FAILED X with xer " << xer << " yer " << yer << " /// x1-x2 = " << TMath::Abs(x1p-x2) << endl;
+	if ( fVerbose ) 
+	  cout << "failed x" << endl;
 	continue;
       }
-      if ( TMath::Abs(y1p-y2) > 3.*yer ) {
-// 	if ( TMath::Abs(gemHit->GetZ()-89.4) < 0.2 && TMath::Abs(gemHit2->GetZ()-90.6) < 0.2 )
-// 	  cout << "FAILED Y with xer " << xer << " yer " << yer << " /// y1-y2 = " << TMath::Abs(y1p-y2) << endl;
+      if ( TMath::Abs(y1p-y2) > fSigmaMult*yer ) { // changed 3.* to 6.*, but would be happier with r/phi cut
+	// 	if ( TMath::Abs(gemHit->GetZ()-89.4) < 0.2 && TMath::Abs(gemHit2->GetZ()-90.6) < 0.2 )
+	// 	  cout << "FAILED Y with xer " << xer << " yer " << yer << " /// y1-y2 = " << TMath::Abs(y1p-y2) << endl;
+	if ( fVerbose ) 
+	  cout << "failed y" << endl;
 	continue;
       }
 
       Double_t distSq = (x1p-x2)*(x1p-x2)/xer/xer+(y1p-y2)*(y1p-y2)/yer/yer;
+      if ( fVerbose ) 
+	cout << "distsq = " << distSq << endl;
       if ( closestDist > distSq ) {
 	closestDist = distSq;
 	closestHit  = iHit2;
@@ -278,11 +335,14 @@ Int_t PndGemTrackFinderOnHits::DoFind(TClonesArray* hitArray,
 	}
 	gemHit->SetNDigiHits(closestHit);
 	gemHit2->SetNDigiHits(iHit);
+
 	hitMatchDist[closestHit] = closestDist;
 	if ( fVerbose > 4 )
 	  cout << "matching hits " << iHit << " and " << iHit2 << endl;
       }
     }
+    if ( closestHit != - 1 )
+      fNofClHits++;
   } 
 
   for ( Int_t istat1 = 0 ; istat1 < fDigiPar->GetNStations() ; istat1++ ) {
@@ -320,6 +380,8 @@ Int_t PndGemTrackFinderOnHits::DoFind(TClonesArray* hitArray,
     cout << "!!!!!!!!!!!!!!!!!! " << nr << " tracks have been found" << endl;
     cout << "------------------------------------------------" << endl;
   }
+
+  //  cout << "co za pojebanstwo, na koniec mam " << fNofClHits << " closeHitow" << endl;
 
   return nr;
 }
@@ -761,7 +823,10 @@ Int_t PndGemTrackFinderOnHits::FindTrackSegments(TClonesArray* hitArray, Int_t s
       cout << "     -> with theta of " << theta << " (radius = " << radius << " and phi angle = " << pangle*TMath::RadToDeg() << ")" << endl;
     for(Int_t iHit2 = 0; iHit2 < nGemHits; iHit2++){
       gemHit2 = (PndGemHit*) hitArray->At(iHit2);
-      if ( TMath::Abs(gemHit2->GetZ()-(zStation2-.6)) > 0.3 ) continue;
+      if ( TMath::Abs(gemHit2->GetZ()-(zStation2-1.)) > 0.3 ) { // where the second hit is..., but i think does not have to check this
+	// 	cout << "not good Z" << endl; 
+ 	continue;
+      }
       if ( gemHit2->GetNDigiHits() < 0 ) continue;
       if ( fVerbose > 3 || printInfo )
 	cout << "trying to match it with " << gemHit2->GetX() << " " << gemHit2->GetY() << " " << gemHit2->GetZ() << endl;
@@ -779,10 +844,10 @@ Int_t PndGemTrackFinderOnHits::FindTrackSegments(TClonesArray* hitArray, Int_t s
 	cout << "       (radius = " << radius2 << " and phi angle = " << pangle2*TMath::RadToDeg() << ")" << endl;
       
       Double_t expectedRad2  = (fParRadPhi0 + fParRadPhi2*TMath::RadToDeg()*TMath::RadToDeg()*(pangle-pangle2)*(pangle-pangle2))*radius*zDistRatio;
-      Double_t expRadUncert = 0.05*radius*zDistRatio;
+      Double_t expRadUncert = 0.08*radius*zDistRatio; // changed 0.05 to  0.08
 
       if ( fVerbose > 3 || printInfo )
-	cout << " -> while expected radius was " << expectedRad2 << endl;
+	cout << " -> while expected radius was " << expectedRad2 << " with error of " << expRadUncert << endl;
 
       if ( radius2>expectedRad2+expRadUncert || radius2<expectedRad2-expRadUncert ) continue;
 

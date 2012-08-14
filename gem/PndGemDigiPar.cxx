@@ -143,7 +143,8 @@ void PndGemDigiPar::CreateStations()
 
     for ( Int_t isec = 0 ; isec < nofSensors ; isec++ ) {
       sensorNr   = (Int_t)fGemParameters[arrayIndex+0];
-      sensorName = Form("Gem_Disk%d_Gem%s_Sensor_kapton",stationNr,(sensorNr==1?"1":"6"));
+      //      sensorName = Form("Gem_Disk%d_Gem%s_Sensor_kapton",stationNr,(sensorNr==1?"1":"6"));
+      sensorName = Form("Gem_Disk%d_Gem%s_Sensor_TPCmixture",stationNr,(sensorNr==1?"1":"6"));
 
       sensor = new PndGemSensor(sensorName.Data(), stationNr, sensorNr, (Int_t)fGemParameters[arrayIndex+1],
 				fGemParameters[arrayIndex+ 2], fGemParameters[arrayIndex+ 3], fGemParameters[arrayIndex+ 4],
@@ -179,7 +180,8 @@ PndGemStation* PndGemDigiPar::GetStation(Int_t iStation) {
 
 // -----   Public method GetNodeName   -------------------------------------
 TString PndGemDigiPar::GetNodeName(Int_t sensorId) {
-  TString detN = Form("/cave_1/Gem_Disks_0/Gem_Disk%d_Volume_0/Gem_Disk%d_Seg%d_Gem%c_Sensor_kapton_0",
+//TString detN = Form("/cave_1/Gem_Disks_0/Gem_Disk%d_Volume_0/Gem_Disk%d_Seg%d_Gem%c_Sensor_kapton_0",
+  TString detN = Form("/cave_1/Gem_Disks_0/Gem_Disk%d_Volume_0/Gem_Disk%d_Seg%d_Gem%c_Sensor_TPCmixture_0",
 		      GetStationNr(sensorId),
 		      GetStationNr(sensorId),
 		      GetSegmentNr(sensorId),

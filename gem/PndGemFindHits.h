@@ -60,7 +60,7 @@ class PndGemFindHits : public FairTask
   /** Execution **/
   virtual void Exec(Option_t* opt);
 
-
+  void SetUseClusters(Bool_t bt=kTRUE) {fUseClusters = bt;}
 
  private:
 
@@ -75,6 +75,8 @@ class PndGemFindHits : public FairTask
   Int_t             fTNofHits;
 
   TStopwatch fTimer;
+
+  Bool_t fUseClusters;
 
   /** Get parameter containers **/
   virtual void SetParContainers();

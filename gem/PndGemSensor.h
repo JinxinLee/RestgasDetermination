@@ -120,6 +120,9 @@ class PndGemSensor : public TNamed
    **/
   Int_t GetChannel(Double_t x, Double_t y, Int_t iSide);
 
+  Int_t GetChannel2(Double_t x, Double_t y, Int_t iSide, Double_t& feeDist); 
+  Double_t GetChannel(Double_t x, Double_t y, Int_t iSide, Double_t& stripWidth);
+ 
   /** Test whether a coordinate pair (x,y) in global coordinates is
    ** inside the sensor **/
   Bool_t Inside(Double_t x, Double_t y);
@@ -134,6 +137,9 @@ class PndGemSensor : public TNamed
    **/
   //Bool_t ActivateChannels(Int_t ipt, Double_t x, Double_t y);  // not implemented
 
+   Double_t GetStripOrientation(Double_t x, Double_t y, Int_t iSide);
+   Double_t GetDistance(Int_t iSide, Double_t chan1, Double_t chan2);
+   Double_t GetMeanChannel(Int_t iSide, Double_t chan1, Double_t weight1, Double_t chan2, Double_t weight2);
 
   /** Calculates the coordinates of the intersections of front strip i
    ** with back strip j in the global coordinate system
@@ -145,9 +151,9 @@ class PndGemSensor : public TNamed
    **/
   //Int_t Intersect(Int_t iFStrip, Int_t iBStrip, std::vector<Double_t>& xCross, std::vector<Double_t>& yCross);  // not implemented
 
-  Int_t Intersect(Int_t iFStrip, Int_t iBStrip, Double_t& xCross, Double_t& yCross, Double_t& zCross);
+  Int_t Intersect(Double_t iFStrip, Double_t iBStrip, Double_t& xCross, Double_t& yCross, Double_t& zCross);
 
-  Int_t Intersect(Int_t iFStrip, Int_t iBStrip, Double_t& xCross, Double_t& yCross, Double_t& zCross,
+  Int_t Intersect(Double_t iFStrip, Double_t iBStrip, Double_t& xCross, Double_t& yCross, Double_t& zCross,
 		  Double_t& dr, Double_t& dp);
 
   //Int_t IntersectClusters(Double_t fChan, Double_t bChan, Double_t& xCross, Double_t& yCross, Double_t& zCross);  // not implemented

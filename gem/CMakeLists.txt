@@ -43,6 +43,7 @@ PndGemContFact.cxx
 PndGemGeoPar.cxx
 PndGemDigiPar.cxx
 PndGemDigitize.cxx
+PndGemFindClusters.cxx
 PndGemFindHits.cxx
 PndGemMatchHits.cxx
 PndGemStation.cxx
@@ -56,6 +57,9 @@ PndGemTrackFinderQA.cxx
 #PndGemRecoHit.cxx
 PndGemIdealPatternRecoTask.cxx
 PndGemMagneticFieldVsTrackParameters.cxx
+PndGemDigiWriteoutBuffer.cxx
+PndGemDigiSorterTask.cxx
+PndGemDigiRingSorter.cxx
 )
 if(RULE_CHECKER_FOUND)
   CHECK_RULES("${GEM_SRCS}" "${INCLUDE_DIRECTORIES}" GEM_RULES)

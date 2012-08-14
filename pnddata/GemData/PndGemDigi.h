@@ -30,14 +30,33 @@
 
 #include <vector>
 
-#include "FairMultiLinkedData.h"
+#include "FairTimeStamp.h"
 
 #include "PndDetectorList.h"
 
 #include "TObject.h"
 
-class PndGemDigi : public FairMultiLinkedData
+class PndGemDigi : public FairTimeStamp
 {
+  friend std::ostream& operator<< (std::ostream& out, PndGemDigi& digi){
+    out << "PndGemDigi in: " << digi.GetDetectorId() 
+	<< "( system = " << digi.GetSystemId()
+	<< ", station = " << digi.GetStationNr()
+	<< ", sensor = " << digi.GetSensorNr()
+	<< ", side = " << digi.GetSide()
+	<< "), channelNr = " << digi.GetChannelNr()
+	<< ", charge = " << digi.GetCharge()
+	<< ", cor = " << digi.GetCor() 
+	<< ", timestamp "<< digi.GetTimeStamp()
+	<< ", from Point(s) ";
+    std::vector<Int_t>indices = digi.GetIndices();
+    for (unsigned int i = 0; i < indices.size(); i++){
+      out << indices[i] << "  ";
+    }
+    out << std::endl;
+    
+    return out;
+  }
 
  public:
 
@@ -52,20 +71,20 @@ class PndGemDigi : public FairMultiLinkedData
    **@param iSide     0=front side; 1=back side
    **@param iChannel  channel number
    **/
-  PndGemDigi(Int_t iDetectorId, Int_t iChannel, Int_t index);
+  PndGemDigi(Int_t iDetectorId, Double_t iChannel, Int_t index);
+  PndGemDigi(Int_t iDetectorId, Double_t iChannel, Int_t index, Double_t signal, Double_t time);
 
   /** Destructor **/
   virtual ~PndGemDigi();
 
-  void SetADC(Double_t iADC) { fDigiADC = iADC; }
-  void SetTDC(Double_t iTDC) { fDigiTDC = iTDC; }
+  void SetCharge(Double_t iCharge) { fDigiCharge = iCharge; }
   void SetCor(Double_t iCor) { fDigiCor = iCor; }
 
-  void AddADC(Double_t iADC) { fDigiADC+= iADC; }
+  void AddCharge(Double_t iCharge) { fDigiCharge+= iCharge; }
 
   /** Accessors **/
   Int_t GetDetectorId() const { return fDetectorId; }
-  Int_t GetChannelNr()  const { return fChannelNr; }
+  Double_t GetChannelNr()  const { return fChannelNr; }
 
   Int_t    GetSystemId()   const { 
     return ( ( fDetectorId & (  31<<27) ) >> 27); }
@@ -76,8 +95,7 @@ class PndGemDigi : public FairMultiLinkedData
   Int_t    GetSide()       const {
     return ( ( fDetectorId & (   1<< 5) ) >>  5 ); }  // 0=front, 1=back
 
-  Double_t GetADC()          const { return fDigiADC; }
-  Double_t GetTDC()          const { return fDigiTDC; }
+  Double_t GetCharge()          const { return fDigiCharge; }
   Double_t GetCor()          const { return fDigiCor; }
   
   std::vector<Int_t> GetIndices() const { 
@@ -98,16 +116,43 @@ class PndGemDigi : public FairMultiLinkedData
     SetLinks(FairMultiLinkedData("GEMPoint", index));
   } 
 
+  virtual bool equal(FairTimeStamp* data){
+    PndGemDigi* myDigi = dynamic_cast <PndGemDigi*> (data);
+    if (myDigi != 0){
+      if (fDetectorId == myDigi->GetDetectorId() )
+	return kTRUE;
+    }
+    return false;
+  }
+  
+  virtual bool operator<(const PndGemDigi& myDigi) const{
+    if (fDetectorId < myDigi.GetDetectorId()) return true; else if (fDetectorId > myDigi.GetDetectorId()) return false;
+    if (fChannelNr  < myDigi.GetChannelNr ()) return true; else if (fChannelNr  > myDigi.GetChannelNr ()) return false;
+    return false;
+  }
+
+  virtual bool operator>(const PndGemDigi& myDigi) const{
+    if (fDetectorId > myDigi.GetDetectorId()) return true; else if (fDetectorId < myDigi.GetDetectorId()) return false;
+    if (fChannelNr  > myDigi.GetChannelNr ()) return true; else if (fChannelNr  < myDigi.GetChannelNr ()) return false;
+    return false;
+  }
+
+  virtual bool operator==(const PndGemDigi& myDigi) const{
+    if   (fDetectorId == myDigi.GetDetectorId()) 
+      if (fChannelNr  == myDigi.GetChannelNr ()) 
+	return true; 
+    return false;
+  }
+
  private:
 
-  Int_t    fDetectorId;
-  Int_t    fChannelNr;
+  Int_t    fDetectorId; // detectorId * 256 + stationId * 16 + sensorId
+  Double_t fChannelNr;  // channel number
   
-  Double_t fDigiADC;
-  Double_t fDigiTDC;
-  Double_t fDigiCor;
+  Double_t fDigiCharge; // charge in the digi
+  Double_t fDigiCor;    // correlation between digis
 
-  ClassDef(PndGemDigi,1);
+  ClassDef(PndGemDigi,2);
 
 };
 

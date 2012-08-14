@@ -248,6 +248,282 @@ Int_t PndGemSensor::GetChannel(Double_t x, Double_t y, Int_t iSide) {
 }
 // -------------------------------------------------------------------------
 
+// -----   Public method GetStripOrientation   --------------------------------------
+Double_t PndGemSensor::GetStripOrientation(Double_t x, Double_t y, Int_t iSide) {
+  if (iSide !=0 && iSide != 1) return -1.;
+  if ( !Inside(x,y) ) return -1.;
+
+  if ( fType == 1 ) {
+    return -1.;
+  }
+  if ( fType == 0 ) { // angle info for iSide 0, radius info for iSide 1
+    if ( iSide == 0 ) {
+      Double_t radius = TMath::Sqrt(x*x+y*y);
+      Double_t hitPhi = TMath::ACos(y/radius);
+      if ( x < 0. ) 
+	hitPhi = 2.*TMath::Pi()-hitPhi;
+      hitPhi = 2.*TMath::Pi()-hitPhi;
+      return hitPhi;
+    }
+    if ( iSide == 1 ) {
+      Double_t radius = TMath::Sqrt(x*x+y*y);
+      Double_t hitPhi = TMath::ACos(y/radius);
+      if ( x < 0. ) 
+	hitPhi = 2.*TMath::Pi()-hitPhi;
+      hitPhi = 2.*TMath::Pi()-hitPhi;
+      return hitPhi+TMath::Pi()/2.;
+    }
+  }
+  if ( fType == 2 ) { // x y strips
+    if ( iSide == 0 ) { // x information encoded
+      return 0.;
+    }
+    if ( iSide == 1 ) { // y information encoded
+      return TMath::Pi()/2.;
+    }
+  }
+  return -1.;
+}
+// -------------------------------------------------------------------------
+
+// -----   Public method GetDistance   --------------------------------------
+Double_t PndGemSensor::GetDistance(Int_t iSide, Double_t chan1, Double_t chan2) {
+  if ( iSide == 0 && ( chan1 - fNChannelsFront/2. ) * ( chan2 - fNChannelsFront/2. ) < 0. ) return -1.;
+  if ( iSide == 1 && ( chan1 - fNChannelsBack /2. ) * ( chan2 - fNChannelsBack /2. ) < 0. ) return -1.;
+  if ( fType == 0 ) {
+    return TMath::Abs(chan1-chan2);
+  }
+  if ( fType == 1 ) {
+    return TMath::Abs(chan1-chan2);
+  }
+  if ( fType == 2 ) {
+    if ( iSide == 0 ) {
+      Int_t nlStrips = (Int_t)(TMath::Ceil((fOuterRadius-fInnerRadius)/fPitch[0]));
+      Int_t nsStrips = (Int_t)(TMath::Ceil(fInnerRadius/fPitch[0]));
+      Int_t part1 = 666;
+      Int_t part2 = 666;
+      if      ( TMath::Abs(chan1-fNChannelsFront/2) > nsStrips*2 ) part1 =  0;
+      else if ( TMath::Abs(chan1-fNChannelsFront/2) < nsStrips   ) {
+	part1 = -1;
+	if ( chan1 < fNChannelsFront/2 ) chan1 = chan1-nsStrips;
+	else                             chan1 = chan1+nsStrips;
+      }
+      else                                                         part1 =  1;
+      if      ( TMath::Abs(chan2-fNChannelsFront/2) > nsStrips*2 ) part2 =  0;
+      else if ( TMath::Abs(chan2-fNChannelsFront/2) < nsStrips   ) {
+	part2 = -1;
+	if ( chan2 < fNChannelsFront/2 ) chan2 = chan2-nsStrips;
+	else                             chan2 = chan2+nsStrips;
+      }
+      else                                                         part2 =  1;
+
+      if ( part1*part2 == -1 ) return -1;
+      return TMath::Abs(chan1-chan2);
+    }
+    if ( iSide == 1 ) {
+      return TMath::Abs(chan1-chan2);
+    }
+  }
+}
+// -------------------------------------------------------------------------
+
+// -----   Public method GetMeanChannel   --------------------------------------
+Double_t PndGemSensor::GetMeanChannel(Int_t iSide, Double_t chan1, Double_t weight1, Double_t chan2, Double_t weight2) {
+  if ( iSide == 0 && ( chan1 - fNChannelsFront/2. ) * ( chan2 - fNChannelsFront/2. ) < 0. ) return -1.;
+  if ( iSide == 1 && ( chan1 - fNChannelsBack /2. ) * ( chan2 - fNChannelsBack /2. ) < 0. ) return -1.;
+  if ( fType == 0 ) {
+    return (chan1*weight1+chan2*weight2)/(weight1+weight2);
+  }
+  if ( fType == 1 ) {
+    return (chan1*weight1+chan2*weight2)/(weight1+weight2);
+  }
+  if ( fType == 2 ) {
+    if ( iSide == 0 ) {
+      Int_t nlStrips = (Int_t)(TMath::Ceil((fOuterRadius-fInnerRadius)/fPitch[0]));
+      Int_t nsStrips = (Int_t)(TMath::Ceil(fInnerRadius/fPitch[0]));
+      Int_t part1 = 666;
+      Int_t part2 = 666;
+      if      ( TMath::Abs(chan1-fNChannelsFront/2) > nsStrips*2 ) part1 =  0;
+      else if ( TMath::Abs(chan1-fNChannelsFront/2) < nsStrips   ) {
+	part1 = -1;
+	if ( chan1 < fNChannelsFront/2 ) chan1 = chan1-nsStrips;
+	else                             chan1 = chan1+nsStrips;
+      }
+      else                                                         part1 =  1;
+      if      ( TMath::Abs(chan2-fNChannelsFront/2) > nsStrips*2 ) part2 =  0;
+      else if ( TMath::Abs(chan2-fNChannelsFront/2) < nsStrips   ) {
+	part2 = -1;
+	if ( chan2 < fNChannelsFront/2 ) chan2 = chan2-nsStrips;
+	else                             chan2 = chan2+nsStrips;
+      }
+      else                                                         part2 =  1;
+
+      if ( part1*part2 == -1 ) return -1;
+
+      Double_t meanCh = (chan1*weight1+chan2*weight2)/(weight1+weight2);
+
+      if ( part1+part2 < 0 ) {
+	if ( meanCh > nlStrips && meanCh < nlStrips+nsStrips ) meanCh += nsStrips;
+	if ( meanCh > fNChannelsFront/2+nsStrips && meanCh < fNChannelsFront-nlStrips ) meanCh -= nsStrips;
+      }
+
+      return meanCh;
+    }
+    if ( iSide == 1 ) {
+      return (chan1*weight1+chan2*weight2)/(weight1+weight2);
+    }
+  }
+}
+// -------------------------------------------------------------------------
+
+// -----   Public method GetChannel2   --------------------------------------
+Int_t PndGemSensor::GetChannel2(Double_t x, Double_t y, Int_t iSide, Double_t& feeDist) {
+  feeDist = -1.;
+
+  if (iSide !=0 && iSide != 1) {
+    cout << "-W- PndGemSensor::GetChannel: Illegal side number " 
+	 << iSide << endl;
+    return -1;
+  }
+
+  if ( !Inside(x,y) ) return -1;
+  Double_t radius = TMath::Sqrt(x*x+y*y);
+  
+  if ( fType == 1 ) {
+    cout << "do not use this type anymore" << endl;
+    return -1;
+  }
+  if ( fType == 0 ) { // angle info for iSide 0, radius info for iSide 1
+    if ( iSide == 0 ) {
+      feeDist = fOuterRadius - radius;
+
+      Double_t hitPhi = TMath::ACos(y/radius);
+      if ( x < 0. ) 
+	hitPhi = 2.*TMath::Pi()-hitPhi;
+      hitPhi = 2.*TMath::Pi()-hitPhi;
+      return (Int_t)(TMath::Ceil((hitPhi*fInnerRadius)/fPitch[iSide]));
+    }
+    if ( iSide == 1 ) {
+      Double_t hitPhi = TMath::ACos(y/radius);
+      if ( x < 0. ) 
+	hitPhi = 2.*TMath::Pi()-hitPhi;
+      hitPhi = 2.*TMath::Pi()-hitPhi;
+      //      feeDist = hitPhi;
+      if ( hitPhi < TMath::Pi()/2. )
+ 	feeDist = hitPhi*radius;
+      else if ( hitPhi < TMath::Pi() )
+ 	feeDist = (TMath::Pi()-hitPhi)*radius;
+       else if ( hitPhi < 3.*TMath::Pi()/2. )
+ 	feeDist = (hitPhi-TMath::Pi())*radius;
+       else
+ 	feeDist = (2.*TMath::Pi()-hitPhi)*radius;
+       feeDist -= fStripAngle[1]/2.; // that's the width of middle bar
+
+      if ( x < 0. )
+	return (Int_t)(TMath::Ceil((radius-fInnerRadius)/fPitch[1]));
+      else
+	return (Int_t)(TMath::Ceil((radius-fInnerRadius)/fPitch[1])) + fNChannelsBack/2;
+    }
+  }
+  if ( fType == 2 ) { // x y strips
+    if ( iSide == 0 ) { // x information encoded
+      Double_t hitPhi = TMath::ACos(y/radius);
+      if ( x < 0. ) 
+	hitPhi = 2.*TMath::Pi()-hitPhi;
+      hitPhi = 2.*TMath::Pi()-hitPhi;
+      Double_t feeY = TMath::Cos(hitPhi)*fOuterRadius;
+      feeDist = TMath::Abs(feeY)-TMath::Abs(y);
+
+      Int_t nlStrips = (Int_t)(TMath::Ceil((fOuterRadius-fInnerRadius)/fPitch[0]));
+      Int_t nsStrips = (Int_t)(TMath::Ceil(fInnerRadius/fPitch[0]));
+      if ( x <= -fInnerRadius )
+	return (x+fOuterRadius)/fPitch[0];
+      if ( x < 0. && y >= 0. )
+	return nlStrips           +(x+fInnerRadius)/fPitch[0];
+      if ( x < 0. && y < 0. )
+	return nlStrips+  nsStrips+(x+fInnerRadius)/fPitch[0];
+      // now x can't be smaller than 0.
+      if ( x >= fInnerRadius ) 
+	return nlStrips+4*nsStrips+(x-fInnerRadius)/fPitch[0];
+      if ( y >= 0. )
+	return nlStrips+2*nsStrips+(x)/fPitch[0];
+      if ( y <  0. )
+	return nlStrips+3*nsStrips+(x)/fPitch[0];
+    }
+    if ( iSide == 1 ) { // y information encoded
+      feeDist = TMath::Abs(x) - fStripAngle[1]/2.;
+
+      if ( x <  0. ) 
+	return (y+fOuterRadius)/fPitch[1];
+      if ( x >= 0. ) 
+	return (y+fOuterRadius)/fPitch[1]+fNChannelsBack/2;
+    }
+  }
+  return -1.;
+}
+// -------------------------------------------------------------------------
+// -----   Public method GetChannel   --------------------------------------
+Double_t PndGemSensor::GetChannel(Double_t x, Double_t y, Int_t iSide, Double_t& stripWidth) {
+  stripWidth = fPitch[iSide];
+
+  if (iSide !=0 && iSide != 1) {
+    cout << "-W- PndGemSensor::GetChannel: Illegal side number " 
+	 << iSide << endl;
+    return -1;
+  }
+
+  if ( !Inside(x,y) ) return -1;
+  Double_t radius = TMath::Sqrt(x*x+y*y);
+  
+  if ( fType == 1 ) {
+    cout << "do not use this type anymore" << endl;
+    return -1;
+  }
+  if ( fType == 0 ) { // angle info for iSide 0, radius info for iSide 1
+    if ( iSide == 0 ) {
+      stripWidth = stripWidth*radius/fInnerRadius;
+      Double_t hitPhi = TMath::ACos(y/radius);
+      if ( x < 0. ) 
+	hitPhi = 2.*TMath::Pi()-hitPhi;
+      hitPhi = 2.*TMath::Pi()-hitPhi;
+      return (hitPhi*fInnerRadius)/fPitch[iSide];
+    }
+    if ( iSide == 1 ) {
+      if ( x < 0. )
+	return (radius-fInnerRadius)/fPitch[1];
+      else
+	return (radius-fInnerRadius)/fPitch[1] + fNChannelsBack/2;
+    }
+  }
+  if ( fType == 2 ) { // x y strips
+    if ( iSide == 0 ) { // x information encoded
+      Int_t nlStrips = (Int_t)(TMath::Ceil((fOuterRadius-fInnerRadius)/fPitch[0]));
+      Int_t nsStrips = (Int_t)(TMath::Ceil(fInnerRadius/fPitch[0]));
+      if ( x <= -fInnerRadius )
+	return (x+fOuterRadius)/fPitch[0];
+      if ( x < 0. && y >= 0. )
+	return nlStrips           +(x+fInnerRadius)/fPitch[0];
+      if ( x < 0. && y < 0. )
+	return nlStrips+  nsStrips+(x+fInnerRadius)/fPitch[0];
+      // now x can't be smaller than 0.
+      if ( x >= fInnerRadius ) 
+	return nlStrips+4*nsStrips+(x-fInnerRadius)/fPitch[0];
+      if ( y >= 0. )
+	return nlStrips+2*nsStrips+(x)/fPitch[0];
+      if ( y <  0. )
+	return nlStrips+3*nsStrips+(x)/fPitch[0];
+    }
+    if ( iSide == 1 ) { // y information encoded
+      if ( x <  0. ) 
+	return (y+fOuterRadius)/fPitch[1];
+      if ( x >= 0. ) 
+	return (y+fOuterRadius)/fPitch[1]+fNChannelsBack/2;
+    }
+  }
+  return -1.;
+}
+// -------------------------------------------------------------------------
+
 // -----   Public method Inside   ------------------------------------------
 Bool_t PndGemSensor::Inside(Double_t x, Double_t y) {
   if ( TMath::Abs(x) < fStripAngle[1]/2. ) return kFALSE;
@@ -267,7 +543,7 @@ Bool_t PndGemSensor::Inside(Double_t radius) {
 // -------------------------------------------------------------------------
 
 // -----   Public method Intersect   ---------------------------------------
-Int_t PndGemSensor::Intersect(Int_t iFStrip, Int_t iBStrip, Double_t& xCross, Double_t& yCross, Double_t& zCross) {
+Int_t PndGemSensor::Intersect(Double_t iFStrip, Double_t iBStrip, Double_t& xCross, Double_t& yCross, Double_t& zCross) {
   //  cout << "trying to find intersection of strip " << iFStrip << " and " << iBStrip << endl;
 
   if ( fType == -1 ) {
@@ -278,7 +554,7 @@ Int_t PndGemSensor::Intersect(Int_t iFStrip, Int_t iBStrip, Double_t& xCross, Do
   if ( iFStrip <  fNChannelsFront/2 && iBStrip >= fNChannelsBack/2 ) return -1;
   if ( iFStrip >= fNChannelsFront/2 && iBStrip <  fNChannelsBack/2 ) return -1;
   
-  Int_t bs = iBStrip;
+  Double_t bs = iBStrip;
   if ( bs >= fNChannelsBack/2 ) bs -= fNChannelsBack/2;
   if ( fType == 0 ) { // r phi strips
     Double_t phi    = fPitch[0]*((Double_t)iFStrip-0.5) / fInnerRadius;
@@ -335,7 +611,7 @@ Int_t PndGemSensor::Intersect(Int_t iFStrip, Int_t iBStrip, Double_t& xCross, Do
 
 
 // -----   Public method Intersect   ---------------------------------------
-Int_t PndGemSensor::Intersect(Int_t iFStrip, Int_t iBStrip, Double_t& xCross, Double_t& yCross, Double_t& zCross,
+Int_t PndGemSensor::Intersect(Double_t iFStrip, Double_t iBStrip, Double_t& xCross, Double_t& yCross, Double_t& zCross,
 			      Double_t& dr, Double_t& dp) {
   //  cout << "trying to find intersection of strip " << iFStrip << " and " << iBStrip << endl;
 
@@ -347,7 +623,7 @@ Int_t PndGemSensor::Intersect(Int_t iFStrip, Int_t iBStrip, Double_t& xCross, Do
   //cout << iFStrip << " of " << fNChannelsFront << " and " << iBStrip << " of " << fNChannelsBack << endl;
   if ( iFStrip <  fNChannelsFront/2 && iBStrip >= fNChannelsBack/2 ) return -1;
   if ( iFStrip >= fNChannelsFront/2 && iBStrip <  fNChannelsBack/2 ) return -1;
-  Int_t bs = iBStrip;
+  Double_t bs = iBStrip;
   if ( bs >= fNChannelsBack/2 ) bs -= fNChannelsBack/2;
   if ( fType == 0 ) { // r phi strips
     Double_t phi    = fPitch[0]*((Double_t)iFStrip-0.5) / fInnerRadius;
@@ -394,18 +670,21 @@ Int_t PndGemSensor::Intersect(Int_t iFStrip, Int_t iBStrip, Double_t& xCross, Do
 
     if ( !Inside(xCross,yCross) ) return -1;
 
-    Double_t rMax = TMath::Sqrt( (TMath::Abs(xCross)+fPitch[0])*(TMath::Abs(xCross)+fPitch[0])+
-				 (TMath::Abs(yCross)+fPitch[1])*(TMath::Abs(yCross)+fPitch[1]) );
-    Double_t rMin = TMath::Sqrt( (TMath::Abs(xCross)-fPitch[0])*(TMath::Abs(xCross)-fPitch[0])+
-				 (TMath::Abs(yCross)-fPitch[1])*(TMath::Abs(yCross)-fPitch[1]) );
-    Double_t phi1 = TMath::ATan( (TMath::Abs(yCross)-fPitch[1])/(TMath::Abs(xCross)+fPitch[0]) );
-    Double_t phi2 = TMath::ATan( (TMath::Abs(yCross)+fPitch[1])/(TMath::Abs(xCross)-fPitch[0]) );
-    dp = TMath::Abs(phi1-phi2);
-    dp = TMath::Tan(dp)*(rMax+rMin)/2./TMath::Sqrt(12.);
-
-    dr = (rMax-rMin)/TMath::Sqrt(12.);
-//     if ( dp > 350 ) 
-//       dp = TMath::Abs(360.-dp);
+    /*
+      Double_t rMax = TMath::Sqrt( (TMath::Abs(xCross)+fPitch[0])*(TMath::Abs(xCross)+fPitch[0])+
+      (TMath::Abs(yCross)+fPitch[1])*(TMath::Abs(yCross)+fPitch[1]) );
+      Double_t rMin = TMath::Sqrt( (TMath::Abs(xCross)-fPitch[0])*(TMath::Abs(xCross)-fPitch[0])+
+      (TMath::Abs(yCross)-fPitch[1])*(TMath::Abs(yCross)-fPitch[1]) );
+`      Double_t phi1 = TMath::ATan( (TMath::Abs(yCross)-fPitch[1])/(TMath::Abs(xCross)+fPitch[0]) );
+      Double_t phi2 = TMath::ATan( (TMath::Abs(yCross)+fPitch[1])/(TMath::Abs(xCross)-fPitch[0]) );
+      dp = TMath::Abs(phi1-phi2);
+      dp = TMath::Tan(dp)*(rMax+rMin)/2./TMath::Sqrt(12.);
+      dr = (rMax-rMin)/TMath::Sqrt(12.);
+      //     if ( dp > 350 ) 
+      //       dp = TMath::Abs(360.-dp);
+      */
+    dr = fPitch[0]/TMath::Sqrt(12.);
+    dp = fPitch[1]/TMath::Sqrt(12.);
 
     return fDetectorId;
   }

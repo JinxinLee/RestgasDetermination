@@ -16,6 +16,7 @@
 #pragma link C++ class PndGemGeoPar+;
 #pragma link C++ class PndGemDigiPar+;
 #pragma link C++ class PndGemDigitize+;
+#pragma link C++ class PndGemFindClusters+;
 #pragma link C++ class PndGemFindHits+;
 #pragma link C++ class PndGemMatchHits+;
 #pragma link C++ class PndGemStation+;
@@ -30,6 +31,10 @@
 #pragma link C++ class PndGemIdealPatternRecoTask+;
 
 #pragma link C++ class PndGemMagneticFieldVsTrackParameters+;
+
+#pragma link C++ class PndGemDigiWriteoutBuffer+;
+#pragma link C++ class PndGemDigiSorterTask+;
+#pragma link C++ class PndGemDigiRingSorter+;
 
 #endif
 

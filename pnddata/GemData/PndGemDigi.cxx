@@ -16,28 +16,39 @@ PndGemDigi::PndGemDigi() {
   fDetectorId   =  0;
   fChannelNr    =  0;
 
-  fDigiADC      =  0.;
-  fDigiTDC      =  0.;  
-  fDigiCor      =  0.5; 
+  fDigiCharge      =  0.;
+  fDigiCor      =  0.0; 
 }
 // -------------------------------------------------------------------------
 
 
 
 // -----   Standard constructor   ------------------------------------------
-PndGemDigi::PndGemDigi(Int_t iDetectorId, Int_t iChannel, Int_t index) {
+PndGemDigi::PndGemDigi(Int_t iDetectorId, Double_t iChannel, Int_t index) {
 
   AddIndex(index);
 
   fDetectorId   = iDetectorId;
   fChannelNr    = iChannel;
   
-  fDigiADC      =  0.;
-  fDigiTDC      =  0.;  
-  fDigiCor      =  0.5;  
+  fDigiCharge      =  0.;
+  fDigiCor      =  0.0;  
 }
 // -------------------------------------------------------------------------
 
+// -----   Standard constructor   ------------------------------------------
+PndGemDigi::PndGemDigi(Int_t iDetectorId, Double_t iChannel, Int_t index, Double_t signal, Double_t time) {
+
+  AddIndex(index);
+  SetTimeStamp(time);
+
+  fDetectorId   = iDetectorId;
+  fChannelNr    = iChannel;
+  
+  fDigiCharge      =  signal;
+  fDigiCor      =  0.0;  
+}
+// -------------------------------------------------------------------------
 
 // -----   Destructor   ----------------------------------------------------
 PndGemDigi::~PndGemDigi() { }

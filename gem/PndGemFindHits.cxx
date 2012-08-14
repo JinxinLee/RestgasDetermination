@@ -51,6 +51,8 @@ PndGemFindHits::PndGemFindHits() : FairTask("GEM Hit Finder", 1) {
   fDigis   = NULL;
   fHits    = NULL;
 
+  fUseClusters = kFALSE;
+
   fTNofEvents = 0;
   fTNofDigis  = 0;
   fTNofHits = 0;
@@ -66,6 +68,8 @@ PndGemFindHits::PndGemFindHits(Int_t iVerbose)
   fDigis   = NULL;
   fHits    = NULL;
 
+  fUseClusters = kFALSE;
+
   fTNofEvents = 0;
   fTNofDigis  = 0;
   fTNofHits = 0;
@@ -80,6 +84,8 @@ PndGemFindHits::PndGemFindHits(const char* name, Int_t iVerbose)
   fDigiPar = NULL;
   fDigis   = NULL;
   fHits    = NULL;
+
+  fUseClusters = kFALSE;
 
   fTNofEvents = 0;
   fTNofDigis  = 0;
@@ -229,7 +235,10 @@ InitStatus PndGemFindHits::Init() {
   // Get input array
   FairRootManager* ioman = FairRootManager::Instance();
   if ( ! ioman ) Fatal("Init", "No FairRootManager");
-  fDigis = (TClonesArray*) ioman->GetObject("GEMDigi");
+  if ( fUseClusters ) 
+    fDigis = (TClonesArray*) ioman->GetObject("GEMCluster");
+  else
+    fDigis = (TClonesArray*) ioman->GetObject("GEMDigi");
 
   // Register output array
   fHits = new TClonesArray("PndGemHit", 1000);
@@ -352,15 +361,14 @@ void PndGemFindHits::SortDigis() {
 Int_t PndGemFindHits::FindHits(PndGemSensor* sensor, 
 			       set<Int_t>& fSet, set<Int_t>& bSet) {
 
-  
   Int_t    iType  = sensor->GetType();
  
   Double_t sigmaX = 1., sigmaY = 2.;
   
   Int_t iDigiF = -1;
   Int_t iDigiB = -1;
-  Int_t iChanF = -1;
-  Int_t iChanB = -1;
+  Double_t iChanF = -1;
+  Double_t iChanB = -1;
   Int_t nHits = fHits->GetEntriesFast();
   Double_t xHit;
   Double_t yHit;
@@ -408,8 +416,14 @@ Int_t PndGemFindHits::FindHits(PndGemSensor* sensor,
       }
       
       sigmaX = dp;
-      if ( dr > sigmaX ) sigmaX = dr;
-      sigmaY = sigmaX;
+      sigmaY = dr;
+
+//       if ( fUseClusters ) {
+// 	zHit += sensor->GetD()/2.;
+// 	if ( sensor->GetType() ) 
+// 	  zHit -= sensor->GetD();
+//       }
+      //      cout << "what about sensorz0 = " << sensor->GetZ0() << " or zHit = " << zHit << endl;
 
       pos.SetXYZ(xHit, yHit, zHit);
       dpos.SetXYZ(sigmaX, sigmaY, sensor->GetD());

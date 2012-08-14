@@ -21,8 +21,8 @@ void create4StationsGem()
   const TString  kLayerName [kNofLayers] = {"WindowF_kapton","WindowF_aluminium",
 					    "space",
 					    "CathodeF_kapton","CathodeF_aluminium",
-					    "space",
-					    "Gem1F_copper","Gem1_Sensor_kapton","Gem1B_copper",
+					    "Gem1_Sensor_TPCmixture",
+					    "Gem1F_copper","Gem1_kapton","Gem1B_copper",
 					    "space",
 					    "Gem2F_copper","Gem2_kapton","Gem2B_copper",
 					    "space",
@@ -34,15 +34,15 @@ void create4StationsGem()
 					    "space",
 					    "Gem5F_copper","Gem5_kapton","Gem5B_copper",
 					    "space",
-					    "Gem6F_copper","Gem6_Sensor_kapton","Gem6B_copper",
-					    "space",
+					    "Gem6F_copper","Gem6_kapton","Gem6B_copper",
+					    "Gem6_Sensor_TPCmixture",
 					    "CathodeB_aluminium","CathodeB_kapton",
 					    "space",
 					    "WindowB_aluminium","WindowB_kapton"};
   const Double_t kLayerThick[kNofLayers] = {  0.0007,  0.0001,          //     2 window
 					      1.0010,                   // +1= 3 space
 					      0.0007,  0.0001,          // +2= 5 cathode
-					      1.0020,                   // +1= 6 space
+					      1.0020,                   // +1= 6 active space
 					      0.0002,  0.0050,  0.0002, // +3= 9 gemfoil
 					      0.2010,                   // +1=10 space
 					      0.0002,  0.0050,  0.0002, // +3=13 gemfoil
@@ -56,7 +56,7 @@ void create4StationsGem()
 					      0.0002,  0.0050,  0.0002, // +3=29 gemfoil
 					      0.2010,                   // +1=30 space
 					      0.0002,  0.0050,  0.0002, // +3=31 gemfoil
-					      1.0020,                   // +1=34 space
+					      1.0020,                   // +1=34 active space
 					      0.0001,  0.0007,          // +2=36 cathode
 					      1.0010,                   // +1=37 space
 					      0.0001,  0.0007};         // +2=39 window
@@ -96,11 +96,16 @@ void create4StationsGem()
   TString outfile= "../../geometry/gem_4Stations.root";
   TFile* fi = new TFile(outfile,"RECREATE");  
   
+  cout << "created output file" << endl;
   FairGeoLoader* geoLoad = new FairGeoLoader("TGeo","FairGeoLoader");
   FairGeoInterface *geoFace = geoLoad->getGeoInterface();
+  cout << "geoface setmediafile" << endl;
   geoFace->setMediaFile("../../geometry/media_pnd.geo");
+  cout << "geoface readmedia" << endl;
   geoFace->readMedia();
+  cout << "geoface print" << endl;
   geoFace->print();
+  cout << "geoface done" << endl;
  
   FairGeoMedia *Media =  geoFace->getMedia();
   FairGeoBuilder *geobuild=geoLoad->getGeoBuilder();
@@ -112,6 +117,9 @@ void create4StationsGem()
   FairGeoMedium *CbmMediumCopper    = Media->getMedium("copper");
   FairGeoMedium *CbmMediumKapton    = Media->getMedium("kapton");
   FairGeoMedium *CbmMediumArCO2     = Media->getMedium("GEMmixture");
+  cout << "tpc mixture" << endl;
+  FairGeoMedium *CbmTPCmixture      = Media->getMedium("TPCmixture");
+  cout << "dont like the media?" << endl;
 
   Int_t nmed=geobuild->createMedium(CbmMediumAir);
   nmed=geobuild->createMedium(CbmMediumPWO);
@@ -120,6 +128,9 @@ void create4StationsGem()
   nmed=geobuild->createMedium(CbmMediumCopper);
   nmed=geobuild->createMedium(CbmMediumKapton);
   nmed=geobuild->createMedium(CbmMediumArCO2);
+  cout << "or maybe here?" << endl;
+  nmed=geobuild->createMedium(CbmTPCmixture);
+  cout << "but it works" << endl;
 
   TGeoManager* gGeoMan = (TGeoManager*)gROOT->FindObject("FAIRGeom");
 
@@ -200,6 +211,7 @@ void create4StationsGem()
 	layerPosition += kLayerThick[ilay]/2.;
 	continue;
       }
+      //      cout << " HAHA, got layer " << kLayerName[ilay].Data() << endl;
 
       Double_t segPhiSpan = 360./(Double_t(kDiskNFoils[istat]));
       Double_t segBegin   =  90.;
@@ -220,6 +232,7 @@ void create4StationsGem()
 	
 	TString layerMaterial = kLayerName[ilay].Data();
 	layerMaterial.Remove(0,layerMaterial.Last('_')+1);
+	//	cout << "THE MATERIAL IS \"" << layerMaterial.Data() << "\"" << endl;
 	DiskLayersVol  [istat][ilay][iseg] = new TGeoVolume(Form("Gem_Disk%d_Seg%d_%s",istat+1,iseg+1,kLayerName[ilay].Data()),
 							    DiskLayersShapeC[istat][ilay][iseg],
 							    gGeoMan->GetMedium(layerMaterial.Data()));
@@ -245,9 +258,12 @@ void create4StationsGem()
       
       if ( kLayerName[ilay].Contains("Gem") && kLayerName[ilay].Contains("Sensor") ) {
 	Double_t newRadius = kDiskInnerRadius[istat];
+	Double_t nofStrips = 0;
+
+	cout << "rad = " << kDiskInnerRadius[istat] << " pitch = " << kSensorStripPitch[sensorNumber][0] << " for sensor " << sensorNumber << endl;
 	if ( kSensorStripType[sensorNumber] != 2 ) {
-	  Double_t nofStrips = TMath::Ceil(2.*TMath::Pi()*kDiskInnerRadius[istat]/kSensorStripPitch[sensorNumber][0]);
-	  newRadius          = nofStrips*kSensorStripPitch[sensorNumber][0]/2./TMath::Pi();
+	  nofStrips = TMath::Ceil(2.*TMath::Pi()*kDiskInnerRadius[istat]/kSensorStripPitch[sensorNumber][0]);
+	  newRadius = nofStrips*kSensorStripPitch[sensorNumber][0]/2./TMath::Pi();
 	}
 	cout << "!!!! " << istat << " " << ilay << " > there shall be " << nofStrips << " strips here so the radius should be " << newRadius << endl;
 	pout << "                        " << sensorNumber+1 << ",  " << kSensorStripType[sensorNumber] << ",  " 

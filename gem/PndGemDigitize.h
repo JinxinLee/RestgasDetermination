@@ -23,13 +23,16 @@
 #include "FairTask.h"
 
 #include "TStopwatch.h"
+#include "TRandom2.h"
+#include "PndGemMCPoint.h"
+#include "PndGemSensor.h"
 
 #include <list>
 #include <map>
 
 class TClonesArray;
 class PndGemDigiPar;
-
+class PndGemDigiWriteoutBuffer;
 
 
 class PndGemDigitize : public FairTask
@@ -61,6 +64,10 @@ class PndGemDigitize : public FairTask
   void SaveOutsideHits(Bool_t bt=kTRUE) {fSaveOutsideHits = bt;}
 
 
+  void SetRealisticResponse(Bool_t bt=kTRUE) {fRealisticResponse = bt;}
+
+  void RunTimeBased        (Bool_t bt=kTRUE) {fTimeOrderedDigi   = bt;}
+
  private:
 
   //  FairGeoStsPar*     fGeoPar;       /** Geometry parameter container **/
@@ -81,14 +88,20 @@ class PndGemDigitize : public FairTask
   Int_t             fTNofDigis;
 
   TStopwatch        fTimer;
+  TRandom2*         fRand;
 
   /** Map of active channels (pair detectorId, channel number) 
    ** to index of PndGemDigi **/
   std::map<std::pair<Int_t, Int_t>, Int_t> fChannelMap; //!
  
+  Bool_t fRealisticResponse;
+
   TClonesArray* fHitOutsideArray;
 
   Bool_t fSaveOutsideHits; /** whether to save the hits **/
+
+  PndGemDigiWriteoutBuffer* fDataBuffer;
+  Bool_t fTimeOrderedDigi;
 
   /** Get parameter containers **/
   virtual void SetParContainers();
@@ -109,6 +122,24 @@ class PndGemDigitize : public FairTask
   /** Finish at the end of each event **/
   virtual void Finish();
 
+
+  /** Digitize MC points in one event **/
+  void DigitizeEvent();
+
+  /** Digitize MC points in one event **/
+  void DigitizeRealisticEvent();
+
+  /** Simulated rectangular response **/
+  void SimulateRectangularResponse(Int_t sensorDetId, Int_t side, Double_t channelInd, Double_t stripWidth, Double_t showerSigma, Double_t showerStrength, Int_t iPoint);
+
+  /** Simulated gaussian response **/
+  void SimulateGaussianResponse(PndGemSensor* sensor, Int_t side, PndGemMCPoint* gemPoint, Double_t showerSigma, Double_t showerStrength, Int_t iPoint);
+
+  /** Activate channel **/
+  void ActivateChannel(Int_t sensorDetId, Int_t sensorSide, Int_t channelNumber, Double_t signalHeight, Double_t signalTime, Int_t iPoint);
+
+  /** Print Digis **/
+  void PrintDigis();
 
   ClassDef(PndGemDigitize,1);
 

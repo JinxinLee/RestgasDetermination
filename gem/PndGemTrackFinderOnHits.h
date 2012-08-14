@@ -57,6 +57,7 @@ class PndGemTrackFinderOnHits : public PndGemTrackFinder
   /** Public modifiers **/
   void SetVerbose(const Int_t& verbose) { fVerbose = verbose; };
   void SetPrimary(const Int_t& primary) { fPrimary = primary; };
+  void SetSigmaMult(Double_t tempd)     { fSigmaMult = tempd; };
 
   
  private:
@@ -84,6 +85,8 @@ class PndGemTrackFinderOnHits : public PndGemTrackFinder
   **/
   Int_t fPrimary;
   
+  Double_t fSigmaMult;
+
   // Parameters, taken from the digiPar file
   Double_t fParThetaA;
   Double_t fParThetaB;
@@ -102,6 +105,7 @@ class PndGemTrackFinderOnHits : public PndGemTrackFinder
   /** Event counter **/
   Int_t fNofEvents;  // event counter
   Int_t fMCAvailable;
+  Int_t fNofClHits;
 
   Int_t fNofExpectedTrackSegments;
   Int_t fNofFoundTrackSegments;
