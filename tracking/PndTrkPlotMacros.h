@@ -181,9 +181,10 @@ void DrawHexagonCircleInMacro(
 	char *name
 	);
 
+//inizio cambio_in_perl  ;
 
  void SttInfoXYZParal(
-	Double_t *info,
+	std::vector <Double_t> *info,
 	Short_t infopar,
 	Double_t Oxx,
 	Double_t Oyy,
@@ -205,12 +206,12 @@ void DrawHexagonCircleInMacro(
 	Double_t APOTEMAMAXSKEWSTRAW,
 	Double_t APOTEMAMINOUTERPARSTRAW,
 	Double_t APOTEMAMINSKEWSTRAW,
-	bool *InclusionListSciTil,
-	Double_t *info,
+	std::vector <bool> *InclusionListSciTil,
+	std::vector <Double_t> *info,
 	int IVOLTE,
-	bool *keepit,
-	Short_t *ListCandH,
-	Short_t *ListCandHitT,
+	std::vector <bool> *keepit,
+	std::vector <Short_t> *ListTrackCandHit,
+	std::vector <Short_t> *ListTrackCandHitType,
 	int MAXMVDPIXELHITS,
 	int MAXMVDPIXELHITSINTRACK,
 	int MAXMVDSTRIPHITS,
@@ -226,15 +227,16 @@ void DrawHexagonCircleInMacro(
 	Short_t nSttParHit,
 	Short_t nSttSkewHit,
 	Short_t nSttTrackCand,
-	Short_t *nCandHit,
-	Double_t *posizSciTil,
+	std::vector <Short_t> *nTrackCandHit,
+	std::vector <Double_t> *posizSciTil,
 	Double_t RSTRAWDETECTORMAX,
 	Double_t RSTRAWDETECTORMIN,
 	Double_t VERTICALGAP,
-	Double_t *XMvdPixel,
-	Double_t *XMvdStrip,
-	Double_t *YMvdPixel,
-	Double_t *YMvdStrip
+	std::vector <Double_t> *XMvdPixel,
+	std::vector <Double_t> *XMvdStrip,
+	std::vector <Double_t> *YMvdPixel,
+	std::vector <Double_t> *YMvdStrip
+
 	);
 
  void WriteMacroParallelHitsGeneral(
@@ -248,7 +250,7 @@ void DrawHexagonCircleInMacro(
 	bool doMcComparison,
 	TClonesArray *fMCTrackArray,
 	Int_t Nhits,
-	Double_t *info,
+	std::vector <Double_t> *info,
 	PndTrkPlotMacros_InputData In_Put,
 	int IVOLTE,
 	Short_t nMCTracks,
@@ -256,26 +258,28 @@ void DrawHexagonCircleInMacro(
 	Short_t nMvdStripHit,
 	Short_t nSciTilHits,
 	Short_t nTracksFoundSoFar,
-	bool *keepit,
-	Double_t *FI0,
-	Double_t *Ox,
-	Double_t *Oy,
-	Double_t *posizSciTil,
+	std::vector <bool> *keepit,
+	std::vector <Double_t> *FI0,
+	std::vector <Double_t> *Ox,
+	std::vector <Double_t> *Oy,
+	std::vector <Double_t> *posizSciTil,
 	Double_t *primoangolo,
-	Double_t *R,
+	std::vector <Double_t> *R,
 	Double_t RSTRAWDETECTORMAX,
 	Double_t RSTRAWDETECTORMIN,
-	Double_t *sigmaXMvdPixel,
-	Double_t *sigmaXMvdStrip,
-	Double_t *sigmaYMvdPixel,
-	Double_t *sigmaYMvdStrip,
+	std::vector <Double_t> *sigmaXMvdPixel,
+	std::vector <Double_t> *sigmaXMvdStrip,
+	std::vector <Double_t> *sigmaYMvdPixel,
+	std::vector <Double_t> *sigmaYMvdStrip,
 	Double_t *ultimoangolo,
 	Double_t VERTICALGAP,
-	Double_t *XMvdPixel,
-	Double_t *XMvdStrip,
-	Double_t *YMvdPixel,
-	Double_t *YMvdStrip
+	std::vector <Double_t> *XMvdPixel,
+	std::vector <Double_t> *XMvdStrip,
+	std::vector <Double_t> *YMvdPixel,
+	std::vector <Double_t> *YMvdStrip
+
 	);
+//fine cambio_in_perl  ;
 
  void WriteMacroSkewAssociatedHitswithMC(
 	Double_t *ESSE,
@@ -285,6 +289,7 @@ void DrawHexagonCircleInMacro(
 	int iTrack
 	);
 
+// inizio cambio_in_perl  ;
 
  void WriteMacroSttParallelAssociatedHitsandMvdwithMC(
 	PndTrkPlotMacros_InputData In_Put,
@@ -294,42 +299,14 @@ void DrawHexagonCircleInMacro(
 	Double_t primoangolo,
 	Double_t ultimoangolo,
 	Short_t Nhits,
-	Short_t *ListParHitsinT,
 	int iTrack,
 	int iNome,
 	Short_t daSttTrackaMCTrack,
-	Short_t *nParalCommon,
-	Short_t *ParalCommonL,
-	Short_t *nSpuriParinTrack,
-	Short_t *ParSpuriL,
-	Short_t *nMCParalAlone,
-	Short_t *MCParalAloneL,
 	Short_t nMvdPixelHitsAssociatedToSttTra,
-	Short_t *ListPix,
-
 	Short_t nMvdStripHitsAssociatedToSttTra,
-	Short_t *ListStr,
-	Short_t nMvdPixelCommon,
-	Short_t *MvdPixelCommonList,
-	Short_t nMvdPixelSpuriinTrack,
-	Short_t *MvdPixelSpuriList,
-	Short_t nMCMvdPixelAlone,
-	Short_t *MCMvdPixelAloneList,
-	Short_t nMvdStripCommon,
-	Short_t *MvdStripCommonList,
-	Short_t nMvdStripSpuriinTrack,
-	Short_t *MvdStripSpuriList,
-	Short_t nMCMvdStripAlone,
-	Short_t *MCMvdStripAloneList,
-	Short_t nSkewHitsinTrack,
-	Short_t *ListSkewHitsinT,
-
-	Double_t *SchosenSkew,
-	Short_t *nSkewCommon,
-	Short_t *SkewCommonL,
-	Short_t *nMCSkewAlone,
-	Short_t *MCSkewAloneL
+	Short_t nSkewHitsinTrack
 	);
+// fine cambio_in_perl  ;
 
 
 
