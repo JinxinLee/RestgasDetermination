@@ -437,18 +437,18 @@ Int_t PndGemSensor::GetChannel2(Double_t x, Double_t y, Int_t iSide, Double_t& f
       Int_t nlStrips = (Int_t)(TMath::Ceil((fOuterRadius-fInnerRadius)/fPitch[0]));
       Int_t nsStrips = (Int_t)(TMath::Ceil(fInnerRadius/fPitch[0]));
       if ( x <= -fInnerRadius )
-	return (x+fOuterRadius)/fPitch[0];
+	return (Int_t)((x+fOuterRadius)/fPitch[0]);
       if ( x < 0. && y >= 0. )
-	return nlStrips           +(x+fInnerRadius)/fPitch[0];
+	return (Int_t)(nlStrips           +(x+fInnerRadius)/fPitch[0]);
       if ( x < 0. && y < 0. )
-	return nlStrips+  nsStrips+(x+fInnerRadius)/fPitch[0];
+	return (Int_t)(nlStrips+  nsStrips+(x+fInnerRadius)/fPitch[0]);
       // now x can't be smaller than 0.
       if ( x >= fInnerRadius ) 
-	return nlStrips+4*nsStrips+(x-fInnerRadius)/fPitch[0];
+	return (Int_t)(nlStrips+4*nsStrips+(x-fInnerRadius)/fPitch[0]);
       if ( y >= 0. )
-	return nlStrips+2*nsStrips+(x)/fPitch[0];
+	return (Int_t)(nlStrips+2*nsStrips+(x)/fPitch[0]);
       if ( y <  0. )
-	return nlStrips+3*nsStrips+(x)/fPitch[0];
+	return (Int_t)(nlStrips+3*nsStrips+(x)/fPitch[0]);
     }
     if ( iSide == 1 ) { // y information encoded
       feeDist = TMath::Abs(x) - fStripAngle[1]/2.;

@@ -284,7 +284,7 @@ void PndGemFindClusters::FindClusters() {
     DigiCluster tempDC;
     tempDC.detId  = digi->GetDetectorId();
     tempDC.digiNr.push_back(mapIt->second);
-    tempDC.chanNr.push_back(digi->GetChannelNr());
+    tempDC.chanNr.push_back((Int_t)digi->GetChannelNr());
     tempDC.sigADC.push_back(digi->GetCharge());
     tempDC.cluTDC = digi->GetTimeStamp();
     tempDC.cluADC = digi->GetCharge();
@@ -349,7 +349,7 @@ void PndGemFindClusters::AnalyzeClusters() {
 	  //	  cout << "adding digi id " << id << " and in fact " << fDigiClusters[idc1].digiNr[id] << endl;
 	  digi   = (PndGemDigi*)fDigis->At(fDigiClusters[idc1].digiNr[id]);
 	  fDigiClusters[idc2].digiNr.push_back(fDigiClusters[idc1].digiNr[id]);
-	  fDigiClusters[idc2].chanNr.push_back(digi->GetChannelNr());
+	  fDigiClusters[idc2].chanNr.push_back((Int_t)digi->GetChannelNr());
 	  fDigiClusters[idc2].sigADC.push_back(digi->GetCharge());
 	  fDigiClusters[idc2].cluTDC = digi->GetTimeStamp();
 	  fDigiClusters[idc2].cluPos = sensor->GetMeanChannel(side,fDigiClusters[idc2].cluPos,fDigiClusters[idc2].cluADC,digi->GetChannelNr(),digi->GetCharge());
@@ -753,7 +753,7 @@ Bool_t PndGemFindClusters::CompareDigiToClusters(Int_t digiNumber) {
 	   << idc << " ( " << fDigiClusters[idc].cluPos << " ) with distance " << digiClustDist << " . " << fDigiClusters[idc].digiNr.size() << " digis in cluster" << flush;
 
     fDigiClusters[idc].digiNr.push_back(digiNumber);
-    fDigiClusters[idc].chanNr.push_back(digi->GetChannelNr());
+    fDigiClusters[idc].chanNr.push_back((Int_t)digi->GetChannelNr());
     fDigiClusters[idc].sigADC.push_back(digi->GetCharge());
     fDigiClusters[idc].cluTDC = digi->GetTimeStamp();
     fDigiClusters[idc].cluPos = sensor->GetMeanChannel(iSide,fDigiClusters[idc].cluPos,fDigiClusters[idc].cluADC,digi->GetChannelNr(),digi->GetCharge());

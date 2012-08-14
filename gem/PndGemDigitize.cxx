@@ -473,11 +473,11 @@ void PndGemDigitize::ActivateChannel(Int_t sensorDetId, Int_t sensorSide, Int_t 
 void PndGemDigitize::PrintDigis() {
   Int_t nofDigis = fDigis->GetEntriesFast();
   for ( Int_t idigi = 0 ; idigi < nofDigis ; idigi++ ) {
-    PndGemDigi* digiToDraw = (PndGemDigi*)fDigis->At(idigi);
-    Int_t digiStationNr   = digiToDraw->GetStationNr();
-    Int_t digiSensorNr    = digiToDraw->GetSensorNr();
-    Int_t digiSide        = digiToDraw->GetSide();
-    Int_t channelNumber   = digiToDraw->GetChannelNr();
+    PndGemDigi* digiToDraw   = (PndGemDigi*)fDigis->At(idigi);
+    Int_t digiStationNr      = digiToDraw->GetStationNr();
+    Int_t digiSensorNr       = digiToDraw->GetSensorNr();
+    Int_t digiSide           = digiToDraw->GetSide();
+    Double_t channelNumber   = digiToDraw->GetChannelNr();
 
     cout << "HAVE digi " << idigi << " at " << digiStationNr << "." << digiSensorNr << "." << digiSide << "." << channelNumber << " ( " << digiToDraw->GetDetectorId() << " ) with signal = " << digiToDraw->GetCharge() << endl;
 
