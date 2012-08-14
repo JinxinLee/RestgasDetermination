@@ -154,7 +154,7 @@ void PndGemDigitize::Exec(Option_t* opt) {
   for ( Int_t idigi = 0 ; idigi < fDigis->GetEntriesFast() ; idigi++ ) {
     adigi = dynamic_cast<PndGemDigi*>(fDigis->At(idigi));
     adigi->SetTimeStamp(adigi->GetTimeStamp()+EventTime);
-    fDataBuffer->FillNewData(adigi,10.);//adigi->GetTimeStamp()+EventTime);
+    fDataBuffer->FillNewData(adigi,adigi->GetTimeStamp()+EventTime,10.);
   }
   cout << "------------------------------------------" << endl;
 }
@@ -543,7 +543,7 @@ InitStatus PndGemDigitize::ReInit() {
   // Build new digitisation scheme
   //  if ( fDigiScheme->Init(fGeoPar, fDigiPar) ) return kSUCCESS;
 
-  return kERROR;
+  return kSUCCESS;
 
 }
 // -------------------------------------------------------------------------
