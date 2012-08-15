@@ -1449,9 +1449,11 @@ if(istampa>=2){
   // redefinition of the total number of Stt hits.
   nSttHitsinTrack[i] = nSttParHitsinTrack[i]+nSttSkewHitsinTrack[i];
 
-//  assume the trajectory comes from (0,0).
-  Trajectory_Start[0][i]=0.;
-  Trajectory_Start[1][i]=0.;
+// initialization,  assume the trajectory comes from (0,0) and set at 0
+// Trajectory_Start;
+
+ int lunghe = sizeof(Trajectory_Start);
+ memset (Trajectory_Start,0,lunghe);
 
 
   TVector3	dirSeed,
@@ -1506,8 +1508,8 @@ if(istampa>=2){
 	}
 
 	FI0[i] = atan2(-Oy[i], -Ox[i]);
-	Ox[i] +=  Trajectory_Start[0][i];
-	Oy[i] +=  Trajectory_Start[1][i];
+	Ox[i] +=  Trajectory_Start[i][0];
+	Oy[i] +=  Trajectory_Start[i][1];
 
 
 	Fifirst[i] = atan2( y-Oy[i], x-Ox[i]);
@@ -1669,9 +1671,6 @@ if(istampa>=2){
 //-------------------
 //-------------------
 //-------------------
-
- int lunghe = sizeof(Trajectory_Start);
- memset (Trajectory_Start,0,lunghe);
 
  nTotalCandidates = nSttTrackCand;  // nSttTrackCand is already <= MAXTRACKSPEREVENT.
 
@@ -2075,13 +2074,13 @@ if(istampa>=2&& IVOLTE<20){
 			);
 
 	if(status[ncand]){
-			Ox[ncand] = -ALFA[ncand]/2.;
-			Oy[ncand] = -BETA[ncand]/2.;
-			R[ncand] = Ox[ncand]*Ox[ncand]+Oy[ncand]*Oy[ncand]-GAMMA[ncand];
-			if( R[ncand] > 0. ) R[ncand]=sqrt(R[ncand]) ;
-			else  R[ncand]=0.;
-			FI0[ncand] = atan2(Trajectory_Start[1][ncand]-Oy[ncand], Trajectory_Start[0][ncand]-Ox[ncand]);
-			if( FI0[ncand] < 0. )  FI0[ncand]+= 2.*PI;
+		Ox[ncand] = -ALFA[ncand]/2.;
+		Oy[ncand] = -BETA[ncand]/2.;
+		R[ncand] = Ox[ncand]*Ox[ncand]+Oy[ncand]*Oy[ncand]-GAMMA[ncand];
+		if( R[ncand] > 0. ) R[ncand]=sqrt(R[ncand]) ;
+		else  R[ncand]=0.;
+		FI0[ncand] = atan2(Trajectory_Start[ncand][1]-Oy[ncand], Trajectory_Start[ncand][0]-Ox[ncand]);
+		if( FI0[ncand] < 0. )  FI0[ncand]+= 2.*PI;
 	}
 
 	if(R[ncand]<RStrawDetectorMin/2.) {
