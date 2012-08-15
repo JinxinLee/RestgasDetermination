@@ -480,7 +480,15 @@ bool PndTrkCTFindTrackInXY::FindTrackInXYProjection(
 	*(in->Rr)
 				);
 
+ // even though it should be impossible in principle, EXCLUDE the possibility of having more
+ // than TWO SciTil hits belonging to a track;
+
 	if( *(in->nSciTilHitsinTrack) >0 ){
+		// even though it should be impossible in principle, EXCLUDE
+		// the possibility of having more
+		// than TWO SciTil hits belonging to a track;
+		if( *(in->nSciTilHitsinTrack) > 2 ) ) *(in->nSciTilHitsinTrack)=2;
+
 		for(j=0;j<*(in->nSciTilHitsinTrack);j++){
 			(in->InclusionListSciTil)[(in->ListSciTilHitsinTrack)[j]]
 				=false;
