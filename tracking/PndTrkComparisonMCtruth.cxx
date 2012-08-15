@@ -542,6 +542,11 @@ int PndTrkComparisonMCtruth::ComparisonwithMC(
 			//  a matrix [MAXTRACKSPEREVENT][nSttHit]
  Short_t  *MCSkewAloneList = ioData.MCSkewAloneList; // equivalent to
 			//  a matrix [MAXTRACKSPEREVENT][nSttHit]
+
+ Double_t *MCSkewAloneX; MCSkewAloneX = ioData.MCSkewAloneX;
+ Double_t *MCSkewAloneY; MCSkewAloneY = ioData.MCSkewAloneY;
+
+
  Short_t  *MvdPixelCommonList = ioData.MvdPixelCommonList; // equivalent to
 			//  a matrix [nTotalCandidates][MAXMVDPIXELHITSINTRACK];
  Short_t  *MvdPixelSpuriList = ioData.MvdPixelSpuriList; // equivalent to
@@ -880,7 +885,22 @@ int PndTrkComparisonMCtruth::ComparisonwithMC(
 	SkewSpuriList
 	);
 
+// now, knowing    nMCSkewAlone   and  MCSkewAloneList  I can calculate  the X and Y
+// position of the corresponding  Stt  MC POINTS;
 
+// The original dimension of MCSkewAloneX is  MAXSTTHITS, and since MCSkewAloneList is a list
+// of Stt hits, then  MCSkewAloneList is a number always <= MAXSTTHITS;
+
+ for(ncand=0;ncand<nTotalCandidates;ncand++){
+   if(!keepit[ncand]) continue;
+   for( j=0;j<nMCSkewAlone[ncand];j++){
+     FairMCPoint* puntator=(FairMCPoint*)ioData.fSttPointArray->At(MCSkewAloneList[ncand*nSttHit+j]);
+     MCSkewAloneX [ MCSkewAloneList[ncand*nSttHit+j] ] = puntator->GetX();
+     MCSkewAloneY [ MCSkewAloneList[ncand*nSttHit+j] ] =puntator->GetY();
+   } // end of for( j=0;j<nMCSkewAlone[ncand];j++)
+ }  //  end of  for(ncand=0;ncand<nTotalCandidates;ncand++)
+
+//------------------------
 //	assumo che la traccia MC associata alla traccia trovata dal Pattern Recognition
 //	sia quella giusta e di
 //	conseguenza calcolo gli hits Mvd spuri e comuni
@@ -947,6 +967,12 @@ int PndTrkComparisonMCtruth::ComparisonwithMC(
 
 
 //----------------------------------------------------------
+
+
+
+
+
+
 
 
 // ora il confronto per il meeting di  Groningen
