@@ -157,7 +157,7 @@ int main(int argc, char** argv)
   delete protoB;
 #endif
 
-#if (DEBUG_CLUSTERS_PRINT > 1)
+#if ( (DEBUG_CLUSTERS_PRINT > 1) && (CLUSTER_MULTI_LABEL == 0) )
   std::cout << "++++++++++++++++++++++++++++++++++++++\n"
 	    << "Printing the copied values:\n"
 	    << "++++++++++++++++++++++++++++++++++++++\n";

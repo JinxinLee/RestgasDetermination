@@ -332,7 +332,9 @@ int main(int argc, char** argv)
   std::ofstream OutPut;
 
   OutPut.open (outF.c_str());
-  OutPut << "# Classification results for the events from\n# "
+  OutPut << "# The weight file name is:\n# "
+         << inF
+         << "\n# Classification results for the events from:\n# "
 	 << evtF
 	 << "\n# Total number of events was " << classifiedEvents.size()
 	 << "\n\n";

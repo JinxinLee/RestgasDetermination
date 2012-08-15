@@ -77,7 +77,7 @@ examplePCATransform: % : %.cpp PndMvaDataSet
 
 Classifiers:
 	$(MAKE) -C KNN;
-	$(MAKE) -C LVQ1;
+	$(MAKE) -C LVQ;
 	$(MAKE) -C TMVAkd_KNN;
 	$(MAKE) -C Clusters;
 	$(MAKE) -C TMVA_MCL;
@@ -169,7 +169,7 @@ clean:
 	rm -f *~ *.o build/*
 	cd Clusters; $(MAKE) clean
 	cd KNN ; $(MAKE) clean
-	cd LVQ1; $(MAKE) clean
+	cd LVQ; $(MAKE) clean
 	cd TMVAkd_KNN; $(MAKE) clean
 	cd TMVA_PDE_FOAM; $(MAKE) clean
 	cd TMVA_MCL; $(MAKE) clean

@@ -2,7 +2,7 @@
 //pi0 = 111, gamma = 22, e- = 11, e+ = -11, proton = 2212, protonMin = -2212
 
 void sim_sttcombi_pgun( int seed = 381,
-                        int nEvents = 300,
+                        int nEvents = 100,
                         int pid  = 11,//pdg code
                         float p1 = 1.0,
                         float p2 = 2.0,

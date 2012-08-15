@@ -12,7 +12,7 @@ ${CMAKE_SOURCE_DIR}/pnddata
 ${CMAKE_SOURCE_DIR}/PndTools/MVA
 ${CMAKE_SOURCE_DIR}/PndTools/MVA/Clusters
 ${CMAKE_SOURCE_DIR}/PndTools/MVA/KNN
-${CMAKE_SOURCE_DIR}/PndTools/MVA/LVQ1
+${CMAKE_SOURCE_DIR}/PndTools/MVA/LVQ
 ${CMAKE_SOURCE_DIR}/PndTools/MVA/TMVAkd_KNN
 ${CMAKE_SOURCE_DIR}/PndTools/MVA/TMVA_MCL
 )
@@ -37,8 +37,8 @@ PndMvaVarPCATransform.h
 Clusters/PndMvaCluster.h
 KNN/PndStdKnnClassify.h
 KNN/PndPrzWindowClassify.h
-LVQ1/PndLVQClassify.h
-LVQ1/PndLVQTrain.h
+LVQ/PndLVQClassify.h
+LVQ/PndLVQTrain.h
 TMVAkd_KNN/PndKnnClassify.h
 TMVAkd_KNN/PndKnnTrain.h
 # TMVAkd_KNN/PndProjectedKNN.h
@@ -61,8 +61,8 @@ PndMvaVarPCATransform.cpp
 Clusters/PndMvaCluster.cpp
 KNN/PndStdKnnClassify.cpp
 KNN/PndPrzWindowClassify.cpp
-LVQ1/PndLVQClassify.cpp
-LVQ1/PndLVQTrain.cpp
+LVQ/PndLVQClassify.cpp
+LVQ/PndLVQTrain.cpp
 TMVAkd_KNN/PndKnnClassify.cpp
 TMVAkd_KNN/PndKnnTrain.cpp
 # TMVAkd_KNN/PndProjectedKNN.cpp
