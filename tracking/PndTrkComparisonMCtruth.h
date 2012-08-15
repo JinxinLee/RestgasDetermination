@@ -22,6 +22,7 @@ struct PndTrkComparisonMCtruth_io_Data{
 	Short_t fSciTilMaxNumber;
 	TClonesArray *fSciTHitArray;
 	TClonesArray *fSciTPointArray;
+	TClonesArray *fSttPointArray;
 	FILE     *HANDLE;
 	FILE     *HANDLE2;
 	Double_t  (*info)[7];
@@ -52,6 +53,8 @@ struct PndTrkComparisonMCtruth_io_Data{
 	Short_t  *MCMvdStripAloneList;
 	Short_t  *MCParalAloneList;
 	Short_t  *MCSkewAloneList;
+	Double_t *MCSkewAloneX; // dimension : [MAXSTTHITS]
+	Double_t *MCSkewAloneY; // dimension : [MAXSTTHITS]
 	Short_t  *MvdPixelCommonList;
 	Short_t  *MvdPixelSpuriList;
 	Short_t  *MCSciTilAloneList; // equivalent to a matrix
