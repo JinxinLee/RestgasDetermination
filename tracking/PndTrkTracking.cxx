@@ -991,7 +991,7 @@ void PndTrkTracking::Exec(Option_t* opt) {
 
 
  //  printout of the Stt hits;
- if (istampa >= 1) fPrint.stampaSttHits(i,ipunto,dradius,WDX,WDY,WDZ,puntator,pSttTube);
+ if (istampa >= 1 ) fPrint.stampaSttHits(i,ipunto,dradius,WDX,WDY,WDZ,puntator,pSttTube);
 
   }  //   end of for( i= 0; i< nSttHit; i++)
 
@@ -1575,6 +1575,7 @@ if(istampa>0){
 
 //-------------- stampa
  if(istampa>=2){
+	cout<<"from PndTrkTracking, after AssociateBetterAfterFitSkewHitsToXYTrack.\n";
 	fPrint.stampetta(
 			IVOLTE,
 			keepit,
@@ -2225,6 +2226,9 @@ if(istampa>0){
 		TemporaryZDrift,   //  output,  drift distance IN Z DIRECTION only, of selected Skew hit
 		TemporaryZErrorafterTilt   //  output,  Radius taking into account the tilt, IN Z DIRECTION only, of selected Skew hit
 			);
+
+
+
 	// limit the total # Stt hits to MAXSTTHITSINTRACK
 	if( nSttSkewHitsinTrack[ncand]+nSttParHitsinTrack[ncand] > MAXSTTHITSINTRACK ) {
 	  if(MAXSTTHITSINTRACK > nSttParHitsinTrack[ncand])
@@ -2237,7 +2241,6 @@ if(istampa>0){
 		ListSttSkewHitsinTrackSolution[ncand][j]=TemporarySkewList[j][1];
 	}
 
-
 //-------------------------------------------  %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 
@@ -2249,9 +2252,18 @@ if(istampa>0){
 //  Pixel+Strips+SciTil + other Skew Stt hits in case Pixel+Strips+SciTil are <= 2; instead
 //  Sbis, ZEDbis etc. contain Pixel+Strips+all Skew Stt hits.
 
-	//  nXYZhits = n. of Mvd hits + SciTil hits.
-	nXYZhits = nMvdPixelHitsinTrack[ncand]+nMvdStripHitsinTrack[ncand]+
+	//  nXYZhits = n. of Mvd hits + SciTil hits. However, if there are 2 SciTil
+	//  hits in this track (namely two adjacent SciTil tiles have a hit
+	//  caused PRESUMABLY by the same track) then count them AS ONE because below
+	//  the average of their postions is considered !
+
+	if( nSciTilHitsinTrack[ncand] == 2) {
+	   nXYZhits = nMvdPixelHitsinTrack[ncand]+nMvdStripHitsinTrack[ncand]+ 1;
+	}else {   // in this case nSciTilHitsinTrack[ncand] is 0 or 1;
+	   nXYZhits = nMvdPixelHitsinTrack[ncand]+nMvdStripHitsinTrack[ncand]+
 			nSciTilHitsinTrack[ncand];
+	}
+
 	// calculate if there is the need of using some skew hits in the subsequent SZ fit;
 	// put in  nhitsinfit  the number of hits used in the subsequent  SZ  fit.
 	if( nXYZhits <=2){
@@ -2265,7 +2277,6 @@ if(istampa>0){
 	Double_t
 	DriftRadius[nhitsinfit],
 	ErrorDriftRadius[nhitsinfit],
-//	S[nhitsinfit],
 	ZED[nhitsinfit];
 
 
@@ -2306,15 +2317,21 @@ if(istampa>0){
 	if(nSciTilHitsinTrack[ncand]==2){
 		ZED[i]=0.5*(posizSciTil[ListSciTilHitsinTrack[ncand][0]][2]+
 			posizSciTil[ListSciTilHitsinTrack[ncand][1]][2]);
+		S[i] = S_SciTilHitsinTrack[ncand][0];
+		// DriftRadius is set conventionally at -2, for later use in the SZ fit;
+		// the error on the point used in the fit is ErrorDriftRadius and this
+		// is overestimated to be DIMENSIONSCITIL/2.
+		DriftRadius[i]=-2.;
+		ErrorDriftRadius[i]= DIMENSIONSCITIL/2.; ;
 	}else if (nSciTilHitsinTrack[ncand]==1){
 		ZED[i]=posizSciTil[ListSciTilHitsinTrack[ncand][0]][2];
+		S[i] = S_SciTilHitsinTrack[ncand][0];
+		// DriftRadius is set conventionally at -2, for later use in the SZ fit;
+		// the error on the point used in the fit is ErrorDriftRadius and this
+		// is overestimated to be DIMENSIONSCITIL/2.
+		DriftRadius[i]=-2.;
+		ErrorDriftRadius[i]= DIMENSIONSCITIL/2.; ;
 	}
-	S[i] = S_SciTilHitsinTrack[ncand][0];
-	// DriftRadius is set conventionally at -2, for later use in the SZ fit;
-	// the error on the point used in the fit is ErrorDriftRadius and this
-	// is overestimated to be DIMENSIONSCITIL/2.
-	DriftRadius[i]=-2.;
-	ErrorDriftRadius[i]= DIMENSIONSCITIL/2.; ;
 
 
 	// the Skew Stt hits
@@ -2323,8 +2340,16 @@ if(istampa>0){
 		k=ListSttSkewHitsinTrack[ncand][j];
 		kall = nMvdPixelHitsinTrack[ncand]+
 			nMvdStripHitsinTrack[ncand]+j;
-		i = nMvdPixelHitsinTrack[ncand]+nMvdStripHitsinTrack[ncand]+
+		if( nSciTilHitsinTrack[ncand] ==2 ){ // in this case only 1 SciTil hit
+						// has been considered above;
+		  i = nMvdPixelHitsinTrack[ncand]+nMvdStripHitsinTrack[ncand]+1+j;
+		} else {  // this is the case of 1 or 0 SciTil hits in track; the
+			//  (impossible?) case of > 2 SciTil hits has already been
+			//  prevented early in PndTrkCTFindTrackInXY.
+		  i = nMvdPixelHitsinTrack[ncand]+nMvdStripHitsinTrack[ncand]+
 			nSciTilHitsinTrack[ncand] +j ;
+		}
+
 		// calculate the quantities used for the SZ fit only.
 		if(i<nhitsinfit){
 			S[i] = TemporaryS[j];
@@ -2366,7 +2391,6 @@ if(istampa>0){
 
 //---------------------   here do the fit again in the SZ space if there are Mvd hits.
 //			  For this, reordering of the  Mvd hits is not necessary.
-
 
 
 		resultFitSZagain[ncand] = fit.FitSZspace(
@@ -2813,8 +2837,6 @@ if(istampa>1) cout<<"PndTrkTracking, entra in TrackCleanup tracce normali, IVOLT
 				&GAMMA[nTotalCandidates],// output of the fit
 				&status[nTotalCandidates]// fit status; true = success.
 					);
-
-
 
 				Ox[nTotalCandidates] = -ALFA[nTotalCandidates]/2.;
 				Oy[nTotalCandidates] = -BETA[nTotalCandidates]/2.;
@@ -3278,6 +3300,7 @@ if(istampa>1) cout<<"PndTrkTracking, entra in TrackCleanup tracce normali, IVOLT
 	ioData.fSciTilMaxNumber = fSciTilMaxNumber;
 	ioData.fSciTHitArray = fSciTHitArray;
 	ioData.fSciTPointArray = fSciTPointArray;
+	ioData.fSttPointArray = fSttPointArray;
 	ioData.HANDLE = HANDLE,
 	ioData.HANDLE2 = HANDLE2,
 	ioData.info = info;
@@ -3306,6 +3329,8 @@ if(istampa>1) cout<<"PndTrkTracking, entra in TrackCleanup tracce normali, IVOLT
 	ioData.MCParalAloneList = MCParalAloneList;
 	ioData.MCSciTilAloneList = MCSciTilAloneList;
 	ioData.MCSkewAloneList = MCSkewAloneList;
+	ioData.MCSkewAloneX = MCSkewAloneX ;
+	ioData.MCSkewAloneY = MCSkewAloneY ;
 	ioData.MvdPixelCommonList = MvdPixelCommonList;
 	ioData.MvdPixelSpuriList = MvdPixelSpuriList;
 	ioData.MvdStripCommonList = MvdStripCommonList;
@@ -3378,14 +3403,14 @@ if(istampa>1) cout<<"PndTrkTracking, entra in TrackCleanup tracce normali, IVOLT
 	// in fact it is necessary to have  the arrays nParalCommon, nSpuriParinTrack  etc.etc.
 	// set at 0  otherwise some WriteMacro  methods  crash;
 	if(!doMcComparison){
-		for(i=0; i<nTotalCandidates;i++){
-			nParalCommon[i] = 0; nSpuriParinTrack[i] = 0;nMCParalAlone[i] = 0;
-			nSkewCommon[i] = 0;nSpuriSkewinTrack[i] = 0;nMCSkewAlone[i] = 0;
-			nMvdPixelCommon[i] = 0;nMvdPixelSpuriinTrack[i] = 0;nMCMvdPixelAlone[i] = 0;
-			nMvdStripCommon[i] = 0;nMvdStripSpuriinTrack[i] = 0;nMCMvdStripAlone[i] = 0;
-			nSciTilCommon[i] = 0;nSciTilSpuriinTrack[i] = 0;nMCSciTilAlone[i] = 0;
+	 for(i=0; i<nTotalCandidates;i++){
+	  nParalCommon[i]=0; nSpuriParinTrack[i]=0; nMCParalAlone[i]=0;
+	  nSkewCommon[i]=0; nSpuriSkewinTrack[i]=0; nMCSkewAlone[i]=0;
+	  nMvdPixelCommon[i]=0; nMvdPixelSpuriinTrack[i]=0; nMCMvdPixelAlone[i]=0;
+	  nMvdStripCommon[i]=0; nMvdStripSpuriinTrack[i]=0; nMCMvdStripAlone[i]=0;
+	  nSciTilCommon[i]=0; nSciTilSpuriinTrack[i]=0; nMCSciTilAlone[i]=0;
 
-		}  // end for(i=0; i<nTotalCandidates;i++)
+	 }  // end for(i=0; i<nTotalCandidates;i++)
 
 	}
 
