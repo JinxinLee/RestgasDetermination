@@ -2,8 +2,8 @@
 #define PndTrkComparisonMCtruth_H 1
 
 // #include "FairRootManager.h"
-#include "PndMCTrack.h"
 #include "PndTrkVectors.h"
+#include "PndMCTrack.h"
 // Root includes
 #include "TROOT.h"
 #include "TClonesArray.h"
@@ -26,7 +26,7 @@ struct PndTrkComparisonMCtruth_io_Data{
 	TClonesArray *fSttPointArray;
 	FILE     *HANDLE;
 	FILE     *HANDLE2;
-	Double_t  (*info)[7];
+	Double_t *info;
 	int       istampa;
 	int       IVOLTE;
 	Double_t *KAPPA;
@@ -117,6 +117,7 @@ struct PndTrkComparisonMCtruth_io_Data{
 	Double_t *ZSciTilCenter;
 	};
 
+ // inizio cambio_in_perl
 
 class PndTrkComparisonMCtruth
 {
@@ -140,7 +141,7 @@ class PndTrkComparisonMCtruth
 		//  dimension   nSciTilHits*nMCTracks, equivalent to a matrix
 		//  of dimension  [nSciTilHits][nMCTracks].
 	bool *keepit,
-	Double_t info[][7],
+	Double_t *info,
 	Short_t *ListSttParHitsinTrack,
 	Short_t *ListMvdPixelHitsinTrack,
 	Short_t *ListSciTilHitsinTrack,
@@ -302,7 +303,7 @@ void MvdMatchtoMC(
 void SttMatchedSpurious(
 	Short_t *daTrackFoundaTrackMC,
 	bool *InclusionListStt,
-	Double_t info[][7],
+	Double_t *info,
 	bool *keepit,
 	int MAXSTTHITS,
 	int MAXSTTHITSINTRACK,
@@ -329,6 +330,7 @@ void SttMatchedSpurious(
 	Short_t *SkewSpuriList
 	);
 
+ // fine cambio_in_perl
 
   ClassDef(PndTrkComparisonMCtruth,1);
 
