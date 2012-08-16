@@ -61,6 +61,7 @@ class PndGiBuuGenerator : public FairGenerator
 
  void FillPidMap();
  Int_t GetPdgParticleId(Int_t GiBuuId, Int_t charge);
+ void WriteoutDecayParticle(Int_t oldEventNr, Int_t oldRunId, FairPrimaryGenerator* primGen);
 
  std::map<std::pair<Int_t, Int_t>, Int_t > fMapGiBuuToPdg; //!
   
