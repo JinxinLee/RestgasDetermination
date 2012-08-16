@@ -31,9 +31,9 @@ using namespace std;
 	bool *keepit,
 	Double_t info[][7],
 	Short_t *ListSttParHitsinTrack,// equivalent to a matrix of
-				// [dimension [MAXTRACKSPEREVENT][MAXSTTHITSINTRACK];
+				// dimension [MAXTRACKSPEREVENT][MAXSTTHITSINTRACK];
 	Short_t *ListMvdPixelHitsinTrack,// equivalent to a matrix of
-				// [dimension 
+				// dimension [MAXTRACKSPEREVENT][MAXMVDPIXELHITSINTRACK]
 	Short_t *ListSciTilHitsinTrack, // equivalent to a matrix of
 					// dimension [MAXTRACKSPEREVENT][MAXSCITILHITSINTRACK]
 	Short_t *ListSttSkewHitsinTrack, // equivalent to
