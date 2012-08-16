@@ -1,5 +1,7 @@
 #ifndef PndTrkVectors_H
 #define PndTrkVectors_H 1
+// Root includes
+#include "TROOT.h"
 
 #include <stdlib.h>
 #include <iostream>
