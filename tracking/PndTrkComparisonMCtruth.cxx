@@ -25,21 +25,14 @@ using namespace std;
 	TClonesArray *fMCTrackArray,
 	Int_t   *FromPixeltoMCTrack,
 	Int_t   *FromStriptoMCTrack,
-	int *FromSciTiltoMCTrackList,	// it is an array of
-		//  dimension   nSciTilHits*nMCTracks, equivalent to a matrix
-		//  of dimension  [nSciTilHits][nMCTracks].
+	int *FromSciTiltoMCTrackList,	//  equivalent to a matrix [nSciTilHits][nMCTracks].
 	bool *keepit,
-	Double_t info[][7],
-	Short_t *ListSttParHitsinTrack,// equivalent to a matrix of
-				// dimension [MAXTRACKSPEREVENT][MAXSTTHITSINTRACK];
-	Short_t *ListMvdPixelHitsinTrack,// equivalent to a matrix of
-				// dimension [MAXTRACKSPEREVENT][MAXMVDPIXELHITSINTRACK]
-	Short_t *ListSciTilHitsinTrack, // equivalent to a matrix of
-					// dimension [MAXTRACKSPEREVENT][MAXSCITILHITSINTRACK]
-	Short_t *ListSttSkewHitsinTrack, // equivalent to
-			//  a matrix [MAXTRACKSPEREVENT][MAXSTTHITSINTRACK];
-	Short_t *ListMvdStripHitsinTrack, // equivalent to
-			//  a matrix [MAXTRACKSPEREVENT][MAXMVDSTRIPHITSINTRACK];
+	Double_t *info, // equivalent to  a matrix  [MAXSTTHITS][7];
+	Short_t *ListSttParHitsinTrack,// equivalent to a matrix  [MAXTRACKSPEREVENT][MAXSTTHITSINTRACK];
+	Short_t *ListMvdPixelHitsinTrack,// equivalent to a matrix of [MAXTRACKSPEREVENT][MAXMVDPIXELHITSINTRACK]
+	Short_t *ListSciTilHitsinTrack, // equivalent to a matrix of [MAXTRACKSPEREVENT][MAXSCITILHITSINTRACK]
+	Short_t *ListSttSkewHitsinTrack, // equivalent to a matrix [MAXTRACKSPEREVENT][MAXSTTHITSINTRACK];
+	Short_t *ListMvdStripHitsinTrack, // equivalent to a matrix [MAXTRACKSPEREVENT][MAXMVDSTRIPHITSINTRACK];
 	int MAXMVDPIXELHITSINTRACK,
 	int MAXMVDSTRIPHITSINTRACK,
 	int MAXSCITILHITSINTRACK,
@@ -191,7 +184,7 @@ using namespace std;
 	for(i=0; i<nSttParHitsinTrack[jexp]; i++){
 		nindex = jexp*MAXSTTHITSINTRACK + i;
 		//  enne = MC track alla quale lo hit e' associato.
-		enne = (Int_t)( info[ ListSttParHitsinTrack[nindex] ][6]+0.01 );
+		enne = (Int_t)( info[ ListSttParHitsinTrack[nindex]*7+ 6]+0.01 );
 		if(enne<0) continue;   //  hit not associated to any MC track; noise hit.
 
 		if(firstime) {
@@ -509,7 +502,8 @@ int PndTrkComparisonMCtruth::ComparisonwithMC(
  TClonesArray *fMvdMCPointArray = ioData.fMvdMCPointArray;
  FILE * HANDLE = ioData.HANDLE;
  FILE * HANDLE2 = ioData.HANDLE2;
- Double_t  (*info)[7] = ioData.info;
+ Double_t  *info = ioData.info; // equivalent to
+			//  a matrix  [MAXSTTHITS][7];
  int       istampa = ioData.istampa;
  int       IVOLTE = ioData.IVOLTE;
  Double_t *KAPPA = ioData.KAPPA; // dimension : [MAXTRACKSPEREVENT]
@@ -772,12 +766,12 @@ int PndTrkComparisonMCtruth::ComparisonwithMC(
 			Y3[i] = YMvdStrip[ ListTrackCandHit[i*nele+nn-1] ] ;
 		break;
 		case 2 :	// Straw parallel
-			X3[i] = info[ ListTrackCandHit[i*nele+nn-1] ][0] ;
-			Y3[i] = info[ ListTrackCandHit[i*nele+nn-1] ][1] ;
+			X3[i] = info[ ListTrackCandHit[i*nele+nn-1]*7+ 0] ;
+			Y3[i] = info[ ListTrackCandHit[i*nele+nn-1]*7+ 1] ;
 		break;
 		case 3 :	// Straw skew
-			X3[i] = info[ ListTrackCandHit[i*nele+nn-1] ][0] ;
-			Y3[i] = info[ ListTrackCandHit[i*nele+nn-1] ][1] ;
+			X3[i] = info[ ListTrackCandHit[i*nele+nn-1]*7+ 0] ;
+			Y3[i] = info[ ListTrackCandHit[i*nele+nn-1]*7+ 1] ;
 		break;
 		};
 
@@ -1029,7 +1023,7 @@ for (i=0;i<nMCTracks;i++){
 
 
 	for(int ic=0;ic<nSttHit;ic++){
-		if( ( (int) (info[ic][6]+0.1) ) == i   && info[ic][5]<2.){
+		if( ( (int) (info[ic*7 + 6]+0.1) ) == i   && info[ic*7 + 5]<2.){
 			citata++;
 		}
 	}
@@ -1892,7 +1886,7 @@ cout<<"Evento n. "<<IVOLTE<<
 void PndTrkComparisonMCtruth::SttMatchedSpurious(
 	Short_t *daTrackFoundaTrackMC,
 	bool *InclusionListStt,
-	Double_t info[][7],
+	Double_t *info,
 	bool *keepit,
 	int MAXSTTHITS,
 	int MAXSTTHITSINTRACK,
@@ -1940,7 +1934,7 @@ void PndTrkComparisonMCtruth::SttMatchedSpurious(
 	for(exphit=0; exphit<nSttParHitsinTrack[jexp]; exphit++){
 		index1 = jexp*MAXSTTHITSINTRACK + exphit;
 		iHit = ListSttParHitsinTrack[index1] ;
-		enne = (Short_t) ( info[iHit][6] + 0.01);
+		enne = (Short_t) ( info[iHit*7 + 6] + 0.01);
 		if( enne ==   daTrackFoundaTrackMC[jexp] ){
 			index2 = jexp*MAXSTTHITSINTRACK +nParalCommon[jexp];
 			ParalCommonList[index2] = iHit;
@@ -1954,10 +1948,10 @@ void PndTrkComparisonMCtruth::SttMatchedSpurious(
 	}
 //--- ricerca degli hits non mecciati, della traccia MC associata a questa traccia trovata.
 	for(i=0; i<nSttHit; i++){
-		emme = (Short_t) ( info[ i ][6] + 0.01);
+		emme = (Short_t) ( info[ i*7+6] + 0.01);
 		// escludo gli hits non paralleli oppure che non appartengono alla giusta
 		// traccia MC
-		if( info[i][5] > 2. || (emme != daTrackFoundaTrackMC[jexp]) ) continue;
+		if( info[i*7+5] > 2. || (emme != daTrackFoundaTrackMC[jexp]) ) continue;
 		if( !InclusionListStt[i]) continue; // escludo gli hits con multiple hits
 			flaggo=true;
 			for(exphit=0; exphit<nSttParHitsinTrack[jexp]; exphit++){
@@ -1980,7 +1974,7 @@ void PndTrkComparisonMCtruth::SttMatchedSpurious(
 	for(exphit=0; exphit<nSttSkewHitsinTrack[jexp]; exphit++){
 		index1 = jexp*MAXSTTHITSINTRACK + exphit;
 		iHit =  ListSttSkewHitsinTrack[index1];
-		enne = (Short_t) ( info[iHit][6] + 0.01);
+		enne = (Short_t) ( info[iHit*7+6] + 0.01);
 		if( enne ==   daTrackFoundaTrackMC[jexp] ){
 			index2 = jexp*MAXSTTHITSINTRACK+nSkewCommon[jexp];
 			SkewCommonList[index2] = iHit;
@@ -1994,11 +1988,11 @@ void PndTrkComparisonMCtruth::SttMatchedSpurious(
 	}
 //--- ricerca degli hits non mecciati, della traccia MC associata a questa traccia trovata.
 	for(i=0; i<nSttHit; i++){
-		emme = (Short_t) ( info[ i ][6] + 0.01);
+		emme = (Short_t) ( info[ i*7+6] + 0.01);
 
-		// considero solo le skew ( info[i][5]=99.) ed escludo quelle che
+		// considero solo le skew ( info[i*7+5]=99.) ed escludo quelle che
 		//  non appartengono alla giusta traccia MC
-		if( info[i][5] < 98. || (emme != daTrackFoundaTrackMC[jexp]) ) continue;
+		if( info[i*7+5] < 98. || (emme != daTrackFoundaTrackMC[jexp]) ) continue;
 		if( !InclusionListStt[i]) continue; // escludo gli hits con multiple hits
 			flaggo=true;
 			for(exphit=0; exphit<nSttSkewHitsinTrack[jexp]; exphit++){
