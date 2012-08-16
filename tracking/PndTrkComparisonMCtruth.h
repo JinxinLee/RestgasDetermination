@@ -3,6 +3,7 @@
 
 // #include "FairRootManager.h"
 #include "PndMCTrack.h"
+#include "PndTrkVectors.h"
 // Root includes
 #include "TROOT.h"
 #include "TClonesArray.h"
