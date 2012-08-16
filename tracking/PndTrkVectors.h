@@ -11,12 +11,13 @@ template <class T> class Vec{
  public:
 
  int dimension;
-
+ TString name;
  T *array;
 
- Vec(T *p, int dim){
+ Vec(T *p, int dim, TString nam){
 	dimension = dim;
 	array = p;
+	name = nam;
  };
 
  ~Vec(){;};
@@ -27,7 +28,7 @@ template <class T> class Vec{
    T& alias = array[index];
    return  alias ;
   }
-  cout<< "index "<<index<<" is outofbounds!\n";
+  cout<< "Array "<<name<<": index = "<<index<<" and it is out of bounds! Exiting the job.\n";
   exit(-1);
  };
 
