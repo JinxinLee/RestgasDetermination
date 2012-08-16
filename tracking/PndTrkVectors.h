@@ -22,6 +22,16 @@ template <class T> class Vec{
 
  ~Vec(){;};
 
+ T& at(int index){
+
+  if(index>=0 && index<dimension){
+   T& alias = array[index];
+   return  alias ;
+  }
+  cout<< "Array "<<name<<": index = "<<index<<" and it is out of bounds! Exiting the job.\n";
+  exit(-1);
+ };
+
  T& operator[] (int index){
 
   if(index>=0 && index<dimension){
