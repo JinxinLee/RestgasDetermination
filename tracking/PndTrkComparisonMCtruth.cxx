@@ -4,6 +4,8 @@
 #include "PndTrkComparisonMCtruth.h"
 // #include "PndTrkCTGeometryCalculations.h"
 #include "PndMCTrack.h"
+#include "PndTrkVectors.h"
+
 // Root includes
 #include "TROOT.h"
 #include "TClonesArray.h"
@@ -14,6 +16,7 @@
 
 using namespace std;
 //----------begin of function PndTrkComparisonMCtruth::AssociateFoundTrackstoMCquater
+// inizio cambio_in_perl ;
 
  void PndTrkComparisonMCtruth::AssociateFoundTrackstoMCquater(
 	Double_t BFIELD,
@@ -61,6 +64,7 @@ using namespace std;
 	Double_t *Y3
 						)
 {
+// fine cambio_in_perl ;
 
  bool
 	firstime,
@@ -472,6 +476,7 @@ using namespace std;
 //----------end of function PndTrkComparisonMCtruth::AssociateFoundTrackstoMCquater
 
 
+//  marker1 per cambioperl;
 //----------begin of function PndTrkComparisonMCtruth::ComparisonwithMC
 
 int PndTrkComparisonMCtruth::ComparisonwithMC(
@@ -493,13 +498,13 @@ int PndTrkComparisonMCtruth::ComparisonwithMC(
 
 
  Double_t BFIELD = ioData.Bfield;
- Short_t *Charge = ioData.Charge;
+ Short_t *Charge = ioData.Charge; // dimension : [MAXTRACKSPEREVENT]
  Double_t CVEL = ioData.Cvel;
- Short_t *daTrackFoundaTrackMC = ioData.daTrackFoundaTrackMC;
+ Short_t *daTrackFoundaTrackMC = ioData.daTrackFoundaTrackMC; // dimension : [MAXTRACKSPEREVENT]
  Double_t DIMENSIONSCITIL = ioData.DIMENSIONSciTil;
  Double_t ERRORSQPIXEL = ioData.Errorsqpixel;
  Double_t ERRORSQSTRIP = ioData.Errorsqstrip;
- Double_t *FI0 = ioData.FI0;
+ Double_t *FI0 = ioData.FI0; // dimension : [MAXTRACKSPEREVENT]
  TClonesArray *fMCTrackArray = ioData.fMCTrackArray;
  TClonesArray *fMvdMCPointArray = ioData.fMvdMCPointArray;
  FILE * HANDLE = ioData.HANDLE;
@@ -507,9 +512,9 @@ int PndTrkComparisonMCtruth::ComparisonwithMC(
  Double_t  (*info)[7] = ioData.info;
  int       istampa = ioData.istampa;
  int       IVOLTE = ioData.IVOLTE;
- Double_t *KAPPA = ioData.KAPPA;
- bool     *keepit = ioData.keepit;
- bool     *InclusionListStt = ioData.InclusionListStt;
+ Double_t *KAPPA = ioData.KAPPA; // dimension : [MAXTRACKSPEREVENT]
+ bool     *keepit = ioData.keepit; // dimension : [MAXTRACKSPEREVENT]
+ bool     *InclusionListStt = ioData.InclusionListStt; // dimension : [MAXTRACKSPEREVENT]
  Short_t  *ListMvdPixelHitsinTrack =  ioData.ListMvdPixelHitsinTrack; // equivalent to
 			//  a matrix [MAXTRACKSPEREVENT][MAXMVDPIXELHITSINTRACK];
  Short_t  *ListMvdStripHitsinTrack =  ioData.ListMvdStripHitsinTrack; // equivalent to
@@ -543,9 +548,9 @@ int PndTrkComparisonMCtruth::ComparisonwithMC(
  Short_t  *MCSkewAloneList = ioData.MCSkewAloneList; // equivalent to
 			//  a matrix [MAXTRACKSPEREVENT][nSttHit]
 
- Double_t *MCSkewAloneX; MCSkewAloneX = ioData.MCSkewAloneX;
- Double_t *MCSkewAloneY; MCSkewAloneY = ioData.MCSkewAloneY;
+ Double_t *MCSkewAloneX; MCSkewAloneX = ioData.MCSkewAloneX; // dimension : [MAXSTTHITS] ;
 
+ Double_t *MCSkewAloneY; MCSkewAloneY = ioData.MCSkewAloneY; // dimension : [MAXSTTHITS] ;
 
  Short_t  *MvdPixelCommonList = ioData.MvdPixelCommonList; // equivalent to
 			//  a matrix [nTotalCandidates][MAXMVDPIXELHITSINTRACK];
@@ -555,61 +560,60 @@ int PndTrkComparisonMCtruth::ComparisonwithMC(
 			//  a matrix [nTotalCandidates][MAXMVDSTRIPHITSINTRACK];
  Short_t  *MvdStripSpuriList = ioData.MvdStripSpuriList; // equivalent to
 			//  a matrix [nTotalCandidates][MAXMVDSTRIPHITSINTRACK]
- Short_t  *nHitsInMCTrack = ioData.nHitsInMCTrack;
- Short_t  *nMCMvdPixelAlone = ioData.nMCMvdPixelAlone;
- Short_t  *nMCMvdStripAlone = ioData.nMCMvdStripAlone;
- Short_t  *nMCParalAlone = ioData.nMCParalAlone;
- Short_t  *nMCSkewAlone = ioData.nMCSkewAlone;
- Short_t  *nMvdPixelCommon = ioData.nMvdPixelCommon;
- Short_t  *nMvdPixelHitsinTrack = ioData.nMvdPixelHitsinTrack;
- Short_t  *nMvdStripHitsinTrack = ioData.nMvdStripHitsinTrack;
+ Short_t  *nHitsInMCTrack = ioData.nHitsInMCTrack; // dimension : [MAXTRACKSPEREVENT]
+ Short_t  *nMCMvdPixelAlone = ioData.nMCMvdPixelAlone; // dimension : [nTotalCandidates]
+ Short_t  *nMCMvdStripAlone = ioData.nMCMvdStripAlone; // dimension : [nTotalCandidates]
+ Short_t  *nMCParalAlone = ioData.nMCParalAlone; // dimension : [MAXTRACKSPEREVENT]
+ Short_t  *nMCSkewAlone = ioData.nMCSkewAlone; // dimension : [MAXTRACKSPEREVENT]
+ Short_t  *nMvdPixelCommon = ioData.nMvdPixelCommon; // dimension : [nTotalCandidates]
+ Short_t  *nMvdPixelHitsinTrack = ioData.nMvdPixelHitsinTrack; // dimension : [MAXTRACKSPEREVENT]
+ Short_t  *nMvdStripHitsinTrack = ioData.nMvdStripHitsinTrack; // dimension : [MAXTRACKSPEREVENT]
  Short_t   nMvdPixelHit = ioData.nMvdPixelHit;
- Short_t  *nMvdPixelSpuriinTrack = ioData.nMvdPixelSpuriinTrack;
- Short_t  *nMvdStripCommon = ioData.nMvdStripCommon;
+ Short_t  *nMvdPixelSpuriinTrack = ioData.nMvdPixelSpuriinTrack; // dimension : [nTotalCandidates]
+ Short_t  *nMvdStripCommon = ioData.nMvdStripCommon;  //  dimension : [nTotalCandidates]
  Short_t   nMvdStripHit = ioData.nMvdStripHit;
- Short_t  *nMvdStripSpuriinTrack = ioData.nMvdStripSpuriinTrack;
- Short_t  *nParalCommon = ioData.nParalCommon;
+ Short_t  *nMvdStripSpuriinTrack = ioData.nMvdStripSpuriinTrack; // dimension : [nTotalCandidates]
+ Short_t  *nParalCommon = ioData.nParalCommon; // dimension : [MAXTRACKSPEREVENT]
  Short_t   nSciTilHits = ioData.nSciTilHits;
- Short_t  *nSciTilHitsinTrack = ioData.nSciTilHitsinTrack ;
- Short_t  *nSkewCommon = ioData.nSkewCommon;
- Short_t  *nSkewHitsInMCTrack = ioData.nSkewHitsInMCTrack;
- Short_t  *nSpuriParinTrack = ioData.nSpuriParinTrack;
- Short_t  *nSpuriSkewinTrack = ioData.nSpuriSkewinTrack;
+ Short_t  *nSciTilHitsinTrack = ioData.nSciTilHitsinTrack ; // dimension : [MAXTRACKSPEREVENT]
+ Short_t  *nSkewCommon = ioData.nSkewCommon; // dimension : [MAXTRACKSPEREVENT]
+ Short_t  *nSkewHitsInMCTrack = ioData.nSkewHitsInMCTrack; // dimension : [MAXTRACKSPEREVENT]
+ Short_t  *nSpuriParinTrack = ioData.nSpuriParinTrack; // dimension : [MAXTRACKSPEREVENT]
+ Short_t  *nSpuriSkewinTrack = ioData.nSpuriSkewinTrack; // dimension : [MAXTRACKSPEREVENT]
  Int_t     nSttHit = ioData.nSttHit;
- Short_t  *nSttParHitsinTrack = ioData.nSttParHitsinTrack;
- Short_t  *nSttSkewHitsinTrack = ioData.nSttSkewHitsinTrack;
+ Short_t  *nSttParHitsinTrack = ioData.nSttParHitsinTrack; // dimension : [MAXTRACKSPEREVENT]
+ Short_t  *nSttSkewHitsinTrack = ioData.nSttSkewHitsinTrack; // dimension : [MAXTRACKSPEREVENT]
  Short_t   nTotalCandidates = ioData.nTotalCandidates;
- Double_t *Ox = ioData.Ox;
- Double_t *Oy = ioData.Oy;
+ Double_t *Ox = ioData.Ox; // dimension : [MAXTRACKSPEREVENT]
+ Double_t *Oy = ioData.Oy; // dimension : [MAXTRACKSPEREVENT]
  Short_t  *ParalCommonList = ioData.ParalCommonList; // equivalent to
 			//  a matrix [MAXTRACKSPEREVENT][MAXSTTHITSINTRACK]
  Short_t  *ParSpuriList = ioData.ParSpuriList; // equivalent to
 			//  a matrix [MAXTRACKSPEREVENT][MAXSTTHITSINTRACK]
- Double_t *R = ioData.R;
- Double_t *refindexMvdPixel = ioData.refindexMvdPixel;
- Double_t *refindexMvdStrip = ioData.refindexMvdStrip;
- Short_t  *resultFitSZagain = ioData.resultFitSZagain;
+ Double_t *R = ioData.R; // dimension : [MAXTRACKSPEREVENT]
+ Double_t *refindexMvdPixel = ioData.refindexMvdPixel; // dimension : [MAXMVDPIXELHITS]
+ Double_t *refindexMvdStrip = ioData.refindexMvdStrip; // dimension : [MAXMVDSTRIPHITS]
+ Short_t  *resultFitSZagain = ioData.resultFitSZagain; // dimension : [MAXTRACKSPEREVENT]
  Short_t  *SkewCommonList = ioData.SkewCommonList; // equivalent to
 			//  a matrix [MAXTRACKSPEREVENT][MAXSTTHITSINTRACK]
  Short_t  *SkewSpuriList = ioData.SkewSpuriList; // equivalent to
 			//  a matrix [MAXTRACKSPEREVENT][MAXSTTHITSINTRACK]
- bool     *SttSZfit = ioData.SttSZfit;
- Double_t *XMvdPixel = ioData.XMvdPixel;
- Double_t *XMvdStrip = ioData.XMvdStrip;
- Double_t *XSciTilCenter = ioData.XSciTilCenter;
- Double_t *YMvdPixel = ioData.YMvdPixel;
- Double_t *YMvdStrip = ioData.YMvdStrip;
- Double_t *YSciTilCenter = ioData.YSciTilCenter;
- Double_t *ZMvdPixel = ioData.ZMvdPixel;
- Double_t *ZMvdStrip = ioData.ZMvdStrip;
- Double_t *ZSciTilCenter = ioData.ZSciTilCenter;
+ bool     *SttSZfit = ioData.SttSZfit; // dimension : [MAXTRACKSPEREVENT]
+ Double_t *XMvdPixel = ioData.XMvdPixel; // dimension : [MAXMVDPIXELHITS]
+ Double_t *XMvdStrip = ioData.XMvdStrip; // dimension : [MAXMVDSTRIPHITS]
+ Double_t *XSciTilCenter = ioData.XSciTilCenter; // dimension : [MAXSCITILHITS]
+ Double_t *YMvdPixel = ioData.YMvdPixel; // dimension : [MAXMVDPIXELHITS]
+ Double_t *YMvdStrip = ioData.YMvdStrip; // dimension : [MAXMVDSTRIPHITS]
+ Double_t *YSciTilCenter = ioData.YSciTilCenter; // dimension : [MAXSCITILHITS]
+ Double_t *ZMvdPixel = ioData.ZMvdPixel; // dimension : [MAXMVDPIXELHITS]
+ Double_t *ZMvdStrip = ioData.ZMvdStrip; // dimension : [MAXMVDSTRIPHITS]
+ Double_t *ZSciTilCenter = ioData.ZSciTilCenter; // dimension : [MAXSCITILHITS]
 
 
- nele = MAXSTTHITSINTRACK+
-			MAXMVDPIXELHITSINTRACK+
-			MAXMVDSTRIPHITSINTRACK+
+ nele = MAXSTTHITSINTRACK+MAXMVDPIXELHITSINTRACK+MAXMVDSTRIPHITSINTRACK+
 			MAXSCITILHITSINTRACK;
 
+//  marker2 per cambioperl;
 
 //----------   fetching the MC truth tracks
 	nMCTracks = fMCTrackArray->GetEntriesFast(); // num. tracce/evento
@@ -628,12 +632,14 @@ int PndTrkComparisonMCtruth::ComparisonwithMC(
 		nMCTracks = MAXMCTRACKS;
 	}
 
+ // inizio cambio_in_perl
  if(istampa>=2) stampaMCTracks(
 	BFIELD,
 	CVEL,
 	fMCTrackArray,
 	nMCTracks
 	);
+ // fine cambio_in_perl
 
 // ---------------------------------------------  get MC Points of  MVD
 
@@ -657,6 +663,7 @@ int PndTrkComparisonMCtruth::ComparisonwithMC(
    Int_t	FromPixeltoMCTrack[nMvdPixelHit],
 		FromStriptoMCTrack[nMvdStripHit];
 
+ // inizio cambio_in_perl
 	MvdMatchtoMC(
 		ERRORSQPIXEL,
 		ERRORSQSTRIP,
@@ -677,6 +684,7 @@ int PndTrkComparisonMCtruth::ComparisonwithMC(
 		FromPixeltoMCTrack,	// output
 		FromStriptoMCTrack	// output
 		);
+ // fine cambio_in_perl
 
  if(istampa>=3){
 	cout<<"\n----------  da PndTrkComparisonMCTruth\n";
@@ -703,6 +711,9 @@ int PndTrkComparisonMCtruth::ComparisonwithMC(
    int
 	nFromSciTiltoMCTrack[nSciTilHits],
 	FromSciTiltoMCTrackList[nSciTilHits*nMCTracks];
+
+
+ // inizio cambio_in_perl
 	SciTilMatchtoMC(
 	BFIELD,
 	CVEL,
@@ -721,6 +732,8 @@ int PndTrkComparisonMCtruth::ComparisonwithMC(
 	YSciTilCenter,
 	ZSciTilCenter
 		);
+
+ // fine cambio_in_perl
 
 //  this section associates the found tracks  to the
 //  MC tracks, creating a bilinear correspondence between MC tracks and PR Found tracks
@@ -793,6 +806,7 @@ int PndTrkComparisonMCtruth::ComparisonwithMC(
 	}	// end of  for(i=0; i<nTotalCandidates;i++)
 
 
+ // inizio cambio_in_perl
 	if(nTotalCandidates>0) AssociateFoundTrackstoMCquater(
 		BFIELD,
 		CVEL,
@@ -831,7 +845,9 @@ int PndTrkComparisonMCtruth::ComparisonwithMC(
 		X3,
 		Y3
 		);
-//	for(int h=0;h<nTotalCandidates;h++){ daTrackFoundaTrackMC[h]=-1;};
+
+
+// fine cambio_in_perl
  }  // end   if( nMCTracks >0 && nTotalCandidates > 0)
 
 
@@ -854,6 +870,8 @@ int PndTrkComparisonMCtruth::ComparisonwithMC(
 //  the following method counts the matched to MC and spurious hits for all STT  Found tracks and
 //  also the ghost tracks
 
+
+// inizio cambio_in_perl
 
  SttMatchedSpurious(
 	daTrackFoundaTrackMC,
@@ -965,14 +983,9 @@ int PndTrkComparisonMCtruth::ComparisonwithMC(
 					// [MAXTRACKSPEREVENT][MAXSCITILHITSINTRACK].
 			);
 
+// fine cambio_in_perl
 
 //----------------------------------------------------------
-
-
-
-
-
-
 
 
 // ora il confronto per il meeting di  Groningen
@@ -1212,9 +1225,12 @@ for (ii=0; ii<nTotalCandidates  ;ii++){
  return nMCTracks;
 }
 
+// marker3 per cambioperl;
 //----------end of function PndTrkComparisonMCtruth::ComparisonwithMC
 
 //------------------------- begin of function  PndTrkComparisonMCtruth::FindDistance
+
+//  inizio cambio_in_perl.
 
 Double_t PndTrkComparisonMCtruth::FindDistance(
 	Double_t Oxx,	//  center from wich distance is calculated
@@ -1228,6 +1244,7 @@ Double_t PndTrkComparisonMCtruth::FindDistance(
 	Double_t gamma	//  intersection circumference parameter
 			)
 {
+//  fine cambio_in_perl.
 	Short_t i,
 		 n;
 
@@ -1327,6 +1344,7 @@ int nevento=1;
 
 //------------------------- begin of function  PndTrkComparisonMCtruth::getMCInfo
 
+//  inizio cambio_in_perl.
 void PndTrkComparisonMCtruth::getMCInfo(
 	Double_t BFIELD,
 	Double_t CVEL,
@@ -1337,6 +1355,7 @@ void PndTrkComparisonMCtruth::getMCInfo(
 	Double_t * Rr
 	)
 {
+//  fine cambio_in_perl.
 		Int_t icode;
 		Double_t aaa, Dd, Fifi, Oxx, Oyy, Pxx, Pyy, carica  ;
 		PndMCTrack* pMC;
@@ -1379,6 +1398,7 @@ void PndTrkComparisonMCtruth::getMCInfo(
 
 
 
+//  inizio cambio_in_perl.
 //------------------ begin function  PndTrkComparisonMCtruth::MvdMatchedSpurioustoTrackCand
 void PndTrkComparisonMCtruth::MvdMatchedSpurioustoTrackCand(
 	Short_t *daTrackFoundaTrackMC,	// input
@@ -1410,6 +1430,7 @@ void PndTrkComparisonMCtruth::MvdMatchedSpurioustoTrackCand(
 	Short_t *MCMvdStripAloneList		// output
 				)
 {
+//  fine cambio_in_perl.
 
 
 //	bool includePixel[MAXTRACKSPEREVENT][nMvdPixelHit],
@@ -1509,21 +1530,14 @@ void PndTrkComparisonMCtruth::MvdMatchedSpurioustoTrackCand(
 	    }
 	}
 
-
-
-
 	return;
 }
 
 //------------------ end function  PndTrkComparisonMCtruth::MvdMatchedSpurioustoTrackCand
 
-
-
-
-
-
-
 //----------begin of function PndTrkComparisonMCtruth::MvdMatchtoMC
+
+//  inizio cambio_in_perl.
 
 void PndTrkComparisonMCtruth::MvdMatchtoMC(
 	Double_t ERRORSQPIXEL,
@@ -1546,6 +1560,7 @@ void PndTrkComparisonMCtruth::MvdMatchtoMC(
 	Int_t *FromStriptoMCTrack	// output
 	)
 {
+//  fine cambio_in_perl.
 
 	bool	inclusionMCPoint[nMvdMCPoint];
 
@@ -1658,6 +1673,7 @@ cout<<"Evento n. "<<IVOLTE<<
 
 
 //----------begin of function PndTrkComparisonMCtruth::SciTilMatchtoMC
+//  inizio cambio_in_perl.
  void PndTrkComparisonMCtruth::SciTilMatchtoMC(
 	Double_t BFIELD,
 	Double_t CVEL,
@@ -1679,6 +1695,7 @@ cout<<"Evento n. "<<IVOLTE<<
 	Double_t *ZSciTilCenter
 		)
 {
+//  fine cambio_in_perl.
 
   // initialization;
  for(int nsc=0; nsc<nSciTilHits; nsc++){
@@ -1713,6 +1730,7 @@ cout<<"Evento n. "<<IVOLTE<<
 
 //----------begin function PndTrkComparisonMCtruth::SciTilMatchedSpurioustoTrackCand
 
+//  inizio cambio_in_perl.
  void PndTrkComparisonMCtruth::SciTilMatchedSpurioustoTrackCand(
 	Short_t *daTrackFoundaTrackMC,	// input
 	int *FromSciTiltoMCTrackList,	// input; equivalent to a matrix
@@ -1737,6 +1755,9 @@ cout<<"Evento n. "<<IVOLTE<<
 					// [MAXTRACKSPEREVENT][MAXSCITILHITSINTRACK].
 			)
 {
+//  fine cambio_in_perl.
+
+
  // calculate the SciTil hits matched, spurious, alone to all tracks found
  // by Pattern Recognition.
 
@@ -1823,6 +1844,7 @@ cout<<"Evento n. "<<IVOLTE<<
 //----------end of function PndTrkComparisonMCtruth::SciTilMatchedSpurioustoTrackCand
 
 //----------begin of function PndTrkComparisonMCtruth::StampaMCTracks
+//  inizio cambio_in_perl.
  void PndTrkComparisonMCtruth::stampaMCTracks(
 	Double_t BFIELD,
 	Double_t CVEL,
@@ -1830,6 +1852,7 @@ cout<<"Evento n. "<<IVOLTE<<
 	int nMCTracks
 						)
  {
+//  fine cambio_in_perl.
 	cout<<"from PndTrkComparisonMCtruth::StampaMCTracks  n. MC Tracks "
 		<<nMCTracks<<" e lista solo di quelle che vengono da (0,0,0) :\n";
 		for(int ic=0;ic<nMCTracks;ic++){
@@ -1864,6 +1887,7 @@ cout<<"Evento n. "<<IVOLTE<<
 
 //------------------------- begin of function  PndTrkComparisonMCtruth::SttMatchedSpurious
 
+//  inizio cambio_in_perl.
 
 void PndTrkComparisonMCtruth::SttMatchedSpurious(
 	Short_t *daTrackFoundaTrackMC,
@@ -1895,6 +1919,7 @@ void PndTrkComparisonMCtruth::SttMatchedSpurious(
 	Short_t *SkewSpuriList
 	)
 {
+// fine cambio_in_perl.
  bool flaggo;
  Short_t	i, jexp, exphit, iHit,
 		enne;
