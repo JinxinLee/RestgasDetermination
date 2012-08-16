@@ -3303,7 +3303,7 @@ if(istampa>1) cout<<"PndTrkTracking, entra in TrackCleanup tracce normali, IVOLT
 	ioData.fSttPointArray = fSttPointArray;
 	ioData.HANDLE = HANDLE,
 	ioData.HANDLE2 = HANDLE2,
-	ioData.info = info;
+	ioData.info = &info[0][0];
 	ioData.istampa = istampa;
 	ioData.IVOLTE = IVOLTE;
 	ioData.KAPPA = KAPPA;
@@ -3390,6 +3390,10 @@ if(istampa>1) cout<<"PndTrkTracking, entra in TrackCleanup tracce normali, IVOLT
 	// class for the MC comparison;
 	PndTrkComparisonMCtruth cmp;
 	nMCTracks = cmp.ComparisonwithMC( ioData);
+
+
+
+
  }
 
 //----------
