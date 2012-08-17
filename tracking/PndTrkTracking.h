@@ -93,7 +93,7 @@ class PndTrkTracking : public FairTask
 	MAXMVDTRACKSPEREVENT	= 400,
 	MAXSCITILHITS		= 200, // max SciTil hits total.
 	MAXSCITILHITSINTRACK	= 2,   // max SciTil hits in one track.
-	MAXSTTHITS		= 1050,
+	MAXSTTHITS		= 900,
 	MAXSTTHITSINTRACK	= 30,
 	MAXTRACKSPEREVENT	= 200,
 //	NFIDIVCONFORMAL		= (Short_t) (3.141592654 * 45./0.5),
