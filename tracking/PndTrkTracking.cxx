@@ -3402,7 +3402,7 @@ if(istampa>1) cout<<"PndTrkTracking, entra in TrackCleanup tracce normali, IVOLT
 
  // write the Macro for visualization of tracks and hits;
 
- if(iplotta && IVOLTE<100){
+ if(iplotta && IVOLTE<300){
 
 	// the following initialization is necessary when the MC comparison
 	// is not done just above (when doMcComparison=false). In this case
