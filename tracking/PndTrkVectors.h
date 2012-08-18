@@ -38,7 +38,7 @@ template <class T> class Vec{
 
  // constructor;
  Vec(T *p, int dim, TString nam){
-	if(dim <= 0 || dim > 1000000){
+	if(dim < 0 || dim > 1000000){
 		cout<<"PndTrkVectors::Vec  the dimension of the array "<<nam<<" is "
 		<<dim<<" and not acceptable; exit(-2) the program.\n";
 		exit(-2);
@@ -58,7 +58,7 @@ template <class T> class Vec{
    return  alias ;
   }
   cout<< "PndTrkVectors::  array "<<name<<": index = "<<index<<" and it is out of bounds ["<<
-  dimension<<"];exiting the process.\n";
+  dimension<<"]; exiting the process.\n";
   exit(-1);
  };
 
