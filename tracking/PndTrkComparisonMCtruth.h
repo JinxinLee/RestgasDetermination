@@ -133,43 +133,44 @@ class PndTrkComparisonMCtruth
  void AssociateFoundTrackstoMCquater(
 	Double_t BFIELD,
 	Double_t CVEL,
-	Short_t *daTrackFoundaTrackMC,
+	Vec <Short_t> *daTrackFoundaTrackMC,
 	TClonesArray *fMCTrackArray,
-	Int_t   *FromPixeltoMCTrack,
-	Int_t   *FromStriptoMCTrack,
-	int *FromSciTiltoMCTrackList,	// it is an array of
+	Vec <Int_t>   *FromPixeltoMCTrack,
+	Vec <Int_t>   *FromStriptoMCTrack,
+	Vec <int> *FromSciTiltoMCTrackList,
 		//  dimension   nSciTilHits*nMCTracks, equivalent to a matrix
 		//  of dimension  [nSciTilHits][nMCTracks].
-	bool *keepit,
-	Double_t *info,
-	Short_t *ListSttParHitsinTrack,
-	Short_t *ListMvdPixelHitsinTrack,
-	Short_t *ListSciTilHitsinTrack,
-	Short_t *ListSttSkewHitsinTrack,
-	Short_t *ListMvdStripHitsinTrack,
+	Vec <bool> *keepit,
+	Vec <Double_t> *info,
+	Vec <Short_t> *ListSttParHitsinTrack,
+	Vec <Short_t> *ListMvdPixelHitsinTrack,
+	Vec <Short_t> *ListSciTilHitsinTrack,
+	Vec <Short_t> *ListSttSkewHitsinTrack,
+	Vec <Short_t> *ListMvdStripHitsinTrack,
 	int MAXMVDPIXELHITSINTRACK,
 	int MAXMVDSTRIPHITSINTRACK,
 	int MAXSCITILHITSINTRACK,
 	int MAXSTTHITSINTRACK,
-	int *nFromSciTiltoMCTrack,
-	Short_t *nSttParHitsinTrack,
+	Vec <int> *nFromSciTiltoMCTrack,
+	Vec <Short_t> *nSttParHitsinTrack,
 	int nMCTracks,
-	Short_t *nMvdPixelHitsinTrack,
+	Vec <Short_t> *nMvdPixelHitsinTrack,
 	Short_t nSciTilHits,
-	Short_t *nSciTilHitsinTrack, // equivalen to a matrix of
+	Vec <Short_t> *nSciTilHitsinTrack,
 		// dimension [MAXTRACKSPEREVENT][MAXSCITILHITSINTRACK]
-	Short_t *nSttSkewHitsinTrack,
-	Short_t *nMvdStripHitsinTrack,
+	Vec <Short_t> *nSttSkewHitsinTrack,
+	Vec <Short_t> *nMvdStripHitsinTrack,
 	Short_t  nTracksFoundSoFar,
-	Double_t *Ox,
-	Double_t *Oy,
-	Double_t *R,
-	Double_t *X1,
-	Double_t *Y1,
-	Double_t *X2,
-	Double_t *Y2,
-	Double_t *X3,
-	Double_t *Y3
+	Vec <Double_t> *Ox,
+	Vec <Double_t> *Oy,
+	Vec <Double_t> *R,
+	Vec <Double_t> *X1,
+	Vec <Double_t> *Y1,
+	Vec <Double_t> *X2,
+	Vec <Double_t> *Y2,
+	Vec <Double_t> *X3,
+	Vec <Double_t> *Y3
+
 					);
 
  int ComparisonwithMC(
@@ -198,33 +199,33 @@ void getMCInfo(
 	);
 
 void MvdMatchedSpurioustoTrackCand(
-	Short_t *daTrackFoundaTrackMC,	// input
-	Int_t *FromPixeltoMCTrack,	// input
-	Int_t *FromStriptoMCTrack,	// input
-	bool *keepit,			// input
-	Short_t *ListMvdPixelHitsinTrack,// input
-	Short_t *ListMvdStripHitsinTrack,// input
+	Vec <Short_t> *daTrackFoundaTrackMC,
+	Vec <Int_t> *FromPixeltoMCTrack,
+	Vec <Int_t> *FromStriptoMCTrack,
+	Vec <bool> *keepit,
+	Vec <Short_t> *ListMvdPixelHitsinTrack,
+	Vec <Short_t> *ListMvdStripHitsinTrack,
 	int MAXMVDPIXELHITSINTRACK,
 	int MAXMVDSTRIPHITSINTRACK,
 	Short_t nMvdPixelHit,
 	Short_t nMvdStripHit,
-	Short_t *nMvdPixelHitsinTrack,	// input
-	Short_t *nMvdStripHitsinTrack,	// input
+	Vec <Short_t> *nMvdPixelHitsinTrack,
+	Vec <Short_t> *nMvdStripHitsinTrack,
 	Short_t nSttTrackCand,		// input
 
-	Short_t *nMvdPixelCommon,		// output
-	Short_t *MvdPixelCommonList,		// output
-	Short_t *nMvdPixelSpuriinTrack,	// output
-	Short_t *MvdPixelSpuriList,		// output
-	Short_t *nMCMvdPixelAlone,		// output
-	Short_t *MCMvdPixelAloneList,		// output
+	Vec <Short_t> *nMvdPixelCommon,
+	Vec <Short_t> *MvdPixelCommonList,
+	Vec <Short_t> *nMvdPixelSpuriinTrack,
+	Vec <Short_t> *MvdPixelSpuriList,
+	Vec <Short_t> *nMCMvdPixelAlone,
+	Vec <Short_t> *MCMvdPixelAloneList,
 
-	Short_t *nMvdStripCommon,		// output
-	Short_t *MvdStripCommonList,		// output
-	Short_t *nMvdStripSpuriinTrack,	// output
-	Short_t *MvdStripSpuriList,		// output
-	Short_t *nMCMvdStripAlone,		// output
-	Short_t *MCMvdStripAloneList		// output
+	Vec <Short_t> *nMvdStripCommon,
+	Vec <Short_t> *MvdStripCommonList,
+	Vec <Short_t> *nMvdStripSpuriinTrack,
+	Vec <Short_t> *MvdStripSpuriList,
+	Vec <Short_t> *nMCMvdStripAlone,
+	Vec <Short_t> *MCMvdStripAloneList	
 				);
 
 void MvdMatchtoMC(
@@ -236,16 +237,16 @@ void MvdMatchtoMC(
 	int IVOLTE,
 	Short_t nMvdPixelHit,
 	Short_t nMvdStripHit,
-	Double_t *refindexMvdPixel,
-	Double_t *refindexMvdStrip,
-	Double_t *XMvdPixel,
-	Double_t *XMvdStrip,
-	Double_t *YMvdPixel,
-	Double_t *YMvdStrip,
-	Double_t *ZMvdPixel,
-	Double_t *ZMvdStrip,
-	Int_t *FromPixeltoMCTrack,	// output
-	Int_t *FromStriptoMCTrack	// output
+	Vec <Double_t> *refindexMvdPixel,
+	Vec <Double_t> *refindexMvdStrip,
+	Vec <Double_t> *XMvdPixel,
+	Vec <Double_t> *XMvdStrip,
+	Vec <Double_t> *YMvdPixel,
+	Vec <Double_t> *YMvdStrip,
+	Vec <Double_t> *ZMvdPixel,
+	Vec <Double_t> *ZMvdStrip,
+	Vec <Int_t> *FromPixeltoMCTrack,
+	Vec <Int_t> *FromStriptoMCTrack	
 	);
 
  void SciTilMatchtoMC(
@@ -253,37 +254,36 @@ void MvdMatchtoMC(
 	Double_t CVEL,
 	Double_t DIMENSIONSCITIL,
 	TClonesArray *fMCTrackArray,
-	int *FromSciTiltoMCTrackList,	// output; it is an array of
-	//  dimension   nSciTilHits*nMCTracks, equivalent to a matrix
-	//  of dimension  [nSciTilHits][nMCTracks].
+	Vec <int> *FromSciTiltoMCTrackList,
 	TClonesArray *fSciTHitArray,
 	Short_t fSciTilMaxNumber,
 	TClonesArray *fSciTPointArray,
-	int *nFromSciTiltoMCTrack, // output; nFromSciTiltoMCTrack[nSciTilHits].
+	Vec <int> *nFromSciTiltoMCTrack,
 	Short_t *nHitsInSciTile,
 	int nMCTracks,
 	Short_t nSciTilHits,
 	Short_t *OriginalSciTilList,
-	Double_t *XSciTilCenter,
-	Double_t *YSciTilCenter,
-	Double_t *ZSciTilCenter
+	Vec <Double_t> *XSciTilCenter,
+	Vec <Double_t> *YSciTilCenter,
+	Vec <Double_t> *ZSciTilCenter
+
 		);
 
  void SciTilMatchedSpurioustoTrackCand(
-	Short_t *daTrackFoundaTrackMC,	// input
-	int *FromSciTiltoMCTrackList,	// input; equivalent to a matrix
+	Vec <Short_t> *daTrackFoundaTrackMC,
+	Vec <int> *FromSciTiltoMCTrackList,
 					//  of dimension  [nSciTilHits][nMCTracks]
-	bool *keepit,			// input
-	Short_t *ListSciTilHitsinTrack,	// input; equivalent to a matrix of dimension
+	Vec <bool> *keepit,
+	Vec <Short_t> *ListSciTilHitsinTrack,
 					// [MAXTRACKSPEREVENT][MAXSCITILHITSINTRACK]
 	int MAXSCITILHITSINTRACK,	// input
 	Short_t *MCSciTilAloneList,	// output; equivalent to a matrix of dimension
 					// [MAXTRACKSPEREVENT][MAXSCITILHITSINTRACK]
-	int *nFromSciTiltoMCTrack,	// input
+	Vec <int> *nFromSciTiltoMCTrack,
 	Short_t *nMCSciTilAlone,	// output
 	int nMCTracks,			// input
 	Short_t nSciTilHits,		// input
-	Short_t  *nSciTilHitsinTrack,	// input
+	Vec <Short_t>  *nSciTilHitsinTrack,
 	Short_t *nSciTilCommon,		// output
 	Short_t *nSciTilSpuriinTrack,	// output
 	Short_t nSttTrackCand,		// input
@@ -301,33 +301,34 @@ void MvdMatchtoMC(
 			);
 
 void SttMatchedSpurious(
-	Short_t *daTrackFoundaTrackMC,
-	bool *InclusionListStt,
-	Double_t *info,
-	bool *keepit,
+	Vec <Short_t> *daTrackFoundaTrackMC,
+	Vec <bool> *InclusionListStt,
+	Vec <Double_t> *info,
+	Vec <bool> *keepit,
 	int MAXSTTHITS,
 	int MAXSTTHITSINTRACK,
 	int MAXTRACKSPEREVENT,
-	Short_t *ListSttParHitsinTrack, // from PR
-	Short_t *ListSttSkewHitsinTrack, // from PR
-	Short_t *MCParalAloneList,
-	Short_t *MCSkewAloneList,
-	Short_t *nHitsInMCTrack,
-	Short_t *nSttParHitsinTrack, // n. hits PARALLEL, from PR
-	Short_t *nMCParalAlone,
-	Short_t *nMCSkewAlone,
-	Short_t *nParalCommon,
-	Short_t *nSkewCommon,
-	Short_t *nSkewHitsInMCTrack,
-	Short_t *nSttSkewHitsinTrack, // n. hits skew, from PR
-	Short_t *nSpuriParinTrack,
-	Short_t *nSpuriSkewinTrack,
+	Vec <Short_t> *ListSttParHitsinTrack,
+	Vec <Short_t> *ListSttSkewHitsinTrack,
+	Vec <Short_t> *MCParalAloneList,
+	Vec <Short_t> *MCSkewAloneList,
+	Vec <Short_t> *nHitsInMCTrack,
+	Vec <Short_t> *nSttParHitsinTrack,
+	Vec <Short_t> *nMCParalAlone,
+	Vec <Short_t> *nMCSkewAlone,
+	Vec <Short_t> *nParalCommon,
+	Vec <Short_t> *nSkewCommon,
+	Vec <Short_t> *nSkewHitsInMCTrack,
+	Vec <Short_t> *nSttSkewHitsinTrack,
+	Vec <Short_t> *nSpuriParinTrack,
+	Vec <Short_t> *nSpuriSkewinTrack,
 	Short_t  nSttHits,
 	Short_t  nTracksFoundSoFar, // those found by PR
-	Short_t *ParalCommonList,
-	Short_t *ParSpuriList,
-	Short_t *SkewCommonList,
-	Short_t *SkewSpuriList
+	Vec <Short_t> *ParalCommonList,
+	Vec <Short_t> *ParSpuriList,
+	Vec <Short_t> *SkewCommonList,
+	Vec <Short_t> *SkewSpuriList
+
 	);
 
  // fine cambio_in_perl
