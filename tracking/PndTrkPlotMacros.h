@@ -1,6 +1,8 @@
 #ifndef PndTrkPlotMacros_H
 #define PndTrkPlotMacros_H 1
 
+#include "PndTrkVectors.h"
+
 // Root includes
 #include "TClonesArray.h"
 #include "TROOT.h"
@@ -50,7 +52,6 @@ struct PndTrkPlotMacros_InputData{
 	Short_t *MCSciTilAloneList;// equivalent to a matrix
 		//  [nTotalCandidates][nSciTilHits]
 
-
 	Short_t *MCSkewAloneList;
 	Double_t *MCSkewAloneX;
 	Double_t *MCSkewAloneY;
@@ -63,7 +64,6 @@ struct PndTrkPlotMacros_InputData{
 	Short_t *nMCParalAlone;
 
 	Short_t *nMCSciTilAlone;
-
 
 	Short_t *nMCSkewAlone;
 	Short_t nMCTracks;
@@ -129,7 +129,7 @@ struct PndTrkPlotMacros_InputData{
 	Double_t *ZMvdStrip;
 	} ;
 
-
+//inizio cambio_in_perl
 
 class PndTrkPlotMacros : public TObject
 {
@@ -181,10 +181,9 @@ void DrawHexagonCircleInMacro(
 	char *name
 	);
 
-//inizio cambio_in_perl  ;
 
  void SttInfoXYZParal(
-	std::vector <Double_t> *info,
+	Vec <Double_t> *info,
 	Short_t infopar,
 	Double_t Oxx,
 	Double_t Oyy,
@@ -206,12 +205,12 @@ void DrawHexagonCircleInMacro(
 	Double_t APOTEMAMAXSKEWSTRAW,
 	Double_t APOTEMAMINOUTERPARSTRAW,
 	Double_t APOTEMAMINSKEWSTRAW,
-	std::vector <bool> *InclusionListSciTil,
-	std::vector <Double_t> *info,
+	Vec <bool> *InclusionListSciTil,
+	Vec <Double_t> *info,
 	int IVOLTE,
-	std::vector <bool> *keepit,
-	std::vector <Short_t> *ListTrackCandHit,
-	std::vector <Short_t> *ListTrackCandHitType,
+	Vec <bool> *keepit,
+	Vec <Short_t> *ListTrackCandHit,
+	Vec <Short_t> *ListTrackCandHitType,
 	int MAXMVDPIXELHITS,
 	int MAXMVDPIXELHITSINTRACK,
 	int MAXMVDSTRIPHITS,
@@ -227,15 +226,15 @@ void DrawHexagonCircleInMacro(
 	Short_t nSttParHit,
 	Short_t nSttSkewHit,
 	Short_t nSttTrackCand,
-	std::vector <Short_t> *nTrackCandHit,
-	std::vector <Double_t> *posizSciTil,
+	Vec <Short_t> *nTrackCandHit,
+	Vec <Double_t> *posizSciTil,
 	Double_t RSTRAWDETECTORMAX,
 	Double_t RSTRAWDETECTORMIN,
 	Double_t VERTICALGAP,
-	std::vector <Double_t> *XMvdPixel,
-	std::vector <Double_t> *XMvdStrip,
-	std::vector <Double_t> *YMvdPixel,
-	std::vector <Double_t> *YMvdStrip
+	Vec <Double_t> *XMvdPixel,
+	Vec <Double_t> *XMvdStrip,
+	Vec <Double_t> *YMvdPixel,
+	Vec <Double_t> *YMvdStrip
 
 	);
 
@@ -250,7 +249,7 @@ void DrawHexagonCircleInMacro(
 	bool doMcComparison,
 	TClonesArray *fMCTrackArray,
 	Int_t Nhits,
-	std::vector <Double_t> *info,
+	Vec <Double_t> *info,
 	PndTrkPlotMacros_InputData In_Put,
 	int IVOLTE,
 	Short_t nMCTracks,
@@ -258,28 +257,27 @@ void DrawHexagonCircleInMacro(
 	Short_t nMvdStripHit,
 	Short_t nSciTilHits,
 	Short_t nTracksFoundSoFar,
-	std::vector <bool> *keepit,
-	std::vector <Double_t> *FI0,
-	std::vector <Double_t> *Ox,
-	std::vector <Double_t> *Oy,
-	std::vector <Double_t> *posizSciTil,
-	Double_t *primoangolo,
-	std::vector <Double_t> *R,
+	Vec <bool> *keepit,
+	Vec <Double_t> *FI0,
+	Vec <Double_t> *Ox,
+	Vec <Double_t> *Oy,
+	Vec <Double_t> *posizSciTil,
+	Vec <Double_t> *primoangolo,
+	Vec <Double_t> *R,
 	Double_t RSTRAWDETECTORMAX,
 	Double_t RSTRAWDETECTORMIN,
-	std::vector <Double_t> *sigmaXMvdPixel,
-	std::vector <Double_t> *sigmaXMvdStrip,
-	std::vector <Double_t> *sigmaYMvdPixel,
-	std::vector <Double_t> *sigmaYMvdStrip,
-	Double_t *ultimoangolo,
+	Vec <Double_t> *sigmaXMvdPixel,
+	Vec <Double_t> *sigmaXMvdStrip,
+	Vec <Double_t> *sigmaYMvdPixel,
+	Vec <Double_t> *sigmaYMvdStrip,
+	Vec <Double_t> *ultimoangolo,
 	Double_t VERTICALGAP,
-	std::vector <Double_t> *XMvdPixel,
-	std::vector <Double_t> *XMvdStrip,
-	std::vector <Double_t> *YMvdPixel,
-	std::vector <Double_t> *YMvdStrip
+	Vec <Double_t> *XMvdPixel,
+	Vec <Double_t> *XMvdStrip,
+	Vec <Double_t> *YMvdPixel,
+	Vec <Double_t> *YMvdStrip
 
 	);
-//fine cambio_in_perl  ;
 
  void WriteMacroSkewAssociatedHitswithMC(
 	Double_t *ESSE,
@@ -289,7 +287,6 @@ void DrawHexagonCircleInMacro(
 	int iTrack
 	);
 
-// inizio cambio_in_perl  ;
 
  void WriteMacroSttParallelAssociatedHitsandMvdwithMC(
 	PndTrkPlotMacros_InputData In_Put,
