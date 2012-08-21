@@ -9,7 +9,7 @@
 #include "TROOT.h"
 
 
-class PndTrkPrintouts
+class PndTrkPrintouts : TObject
 {
 
 
