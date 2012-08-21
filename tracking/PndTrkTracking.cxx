@@ -938,7 +938,6 @@ void PndTrkTracking::Exec(Option_t* opt) {
 	cout<<"da PndTrkTracking  :  n. totale Hits in STT  : "<<nSttHit<<endl;
  }
 
-
  nSttParHit=0; 
  nSttSkewHit=0;
 
@@ -5014,14 +5013,17 @@ void PndTrkTracking::MatchMvdHitsToSttTracksagain(
 	}	//  end of   for(ipix=0; ipix<nMvdPixelHit; ipix++)
 
 	if(naddpix>0){
+		if(naddpix>MAXMVDPIXELHITSINTRACK){
+			// protection against strange tracks (and also from
+			// out-of-bound indexing of arrays);
+			naddpix=MAXMVDPIXELHITSINTRACK;
+		}  // 
 		for(j=0;j<naddpix;j++){
-//			ListPixelHitsinTrack[itrack]
-//			[nPixelHitsinTrack[itrack]+j]=List[j];
 			ListPixelHitsinTrack[itrack][j]=List[j];
 		}
-//		nPixelHitsinTrack[itrack] += naddpix;
 		nPixelHitsinTrack[itrack] = naddpix;
 	}	//  end of  if(naddpix>0)
+
 
 	naddstr=0;
 	for(istr=0; istr<nMvdStripHit; istr++){
@@ -5061,14 +5063,17 @@ void PndTrkTracking::MatchMvdHitsToSttTracksagain(
 
 	}	//  end of   for(istr=0; istr<nMvdStripHit; istr++)
 	if(naddstr>0){
+		if(naddstr>MAXMVDSTRIPHITSINTRACK){
+			// protection against strange tracks (and also from
+			// out-of-bound indexing of arrays);
+			naddstr=MAXMVDSTRIPHITSINTRACK;
+		}  // 
 		for(j=0;j<naddstr;j++){
-//			ListStripHitsinTrack[itrack]
-//			[nStripHitsinTrack[itrack]+j]=List[j];
 			ListStripHitsinTrack[itrack][j]=List[j];
 		}
-//		nStripHitsinTrack[itrack] += naddstr;
 		nStripHitsinTrack[itrack] = naddstr;
 	}	//  end of  if(naddpix>0)
+
 
 	if(nPixelHitsinTrack[itrack]+nStripHitsinTrack[itrack]>0)
 		Mvdhits[itrack]=true;
