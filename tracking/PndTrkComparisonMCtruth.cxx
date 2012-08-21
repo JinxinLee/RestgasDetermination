@@ -580,6 +580,7 @@ int PndTrkComparisonMCtruth::ComparisonwithMC(
 		ioData.nTotalCandidates*ioData.MAXMVDPIXELHITSINTRACK,"MvdPixelSpuriList") ;
  Vec<Short_t> MvdStripCommonList(ioData.MvdStripCommonList,
 		ioData.nTotalCandidates*ioData.MAXMVDSTRIPHITSINTRACK,"MvdStripCommonList") ;
+
  Vec<Short_t> MvdStripSpuriList(ioData.MvdStripSpuriList,
 		ioData.nTotalCandidates*ioData.MAXMVDSTRIPHITSINTRACK,"MvdStripSpuriList") ;
  Vec<Short_t> nHitsInMCTrack(ioData.nHitsInMCTrack,ioData.MAXTRACKSPEREVENT,"nHitsInMCTrack") ;
@@ -590,6 +591,8 @@ int PndTrkComparisonMCtruth::ComparisonwithMC(
  Vec<Short_t> nMvdPixelCommon(ioData.nMvdPixelCommon,ioData.nTotalCandidates,"nMvdPixelCommon") ;
  Vec<Short_t> nMvdPixelHitsinTrack(ioData.nMvdPixelHitsinTrack,ioData.MAXTRACKSPEREVENT,"nMvdPixelHitsinTrack") ;
  Vec<Short_t> nMvdStripHitsinTrack(ioData.nMvdStripHitsinTrack,ioData.MAXTRACKSPEREVENT,"nMvdStripHitsinTrack") ;
+
+
  Short_t   nMvdPixelHit = ioData.nMvdPixelHit;
  Vec<Short_t> nMvdPixelSpuriinTrack(ioData.nMvdPixelSpuriinTrack,ioData.nTotalCandidates,"nMvdPixelSpuriinTrack") ;
  Vec<Short_t> nMvdStripCommon(ioData.nMvdStripCommon,ioData.nTotalCandidates,"nMvdStripCommon") ;
@@ -968,6 +971,7 @@ int PndTrkComparisonMCtruth::ComparisonwithMC(
 
 // inizio cambio_in_perl
 
+if(IVOLTE>749) {cout<<"Prima, IVOLTE "<<IVOLTE<<endl;}
  MvdMatchedSpurioustoTrackCand(
 	&daTrackFoundaTrackMC,	// input
 
@@ -999,6 +1003,7 @@ int PndTrkComparisonMCtruth::ComparisonwithMC(
 	&nMCMvdStripAlone,		// output
 	&MCMvdStripAloneList	// output
 			);
+if(IVOLTE>749) {cout<<"Dopo, IVOLTE "<<IVOLTE<<endl;}
 //----------------------------------------------------------
 
 // calcolo gli hit comuni, spuri ed alone degli SciTil.
@@ -1471,7 +1476,7 @@ void PndTrkComparisonMCtruth::MvdMatchedSpurioustoTrackCand(
 	Vec <Short_t> *nMvdStripSpuriinTrack,
 	Vec <Short_t> *MvdStripSpuriList,
 	Vec <Short_t> *nMCMvdStripAlone,
-	Vec <Short_t> *MCMvdStripAloneList	
+	Vec <Short_t> *MCMvdStripAloneList
 				)
 {
 //  fine cambio_in_perl.
@@ -1538,20 +1543,27 @@ void PndTrkComparisonMCtruth::MvdMatchedSpurioustoTrackCand(
 		for(j=0;j<nMvdStripHitsinTrack->at(i);j++){
 			index = i*MAXMVDSTRIPHITSINTRACK+j;
 			includeStrip[i *tmp_dim3+ ListMvdStripHitsinTrack->at(index)]=false;
+
+
+
 			if(daTrackFoundaTrackMC->at(i)>= 0 && daTrackFoundaTrackMC->at(i) ==
 				FromStriptoMCTrack->at(ListMvdStripHitsinTrack->at(index))
 			  ){
-			  	index2 = i*MAXMVDSTRIPHITSINTRACK+nMvdStripCommon->at(i);
+				index2 = i*MAXMVDSTRIPHITSINTRACK+nMvdStripCommon->at(i);
 				MvdStripCommonList->at(index2) =
 				     ListMvdStripHitsinTrack->at(index);
 				nMvdStripCommon->at(i)++;
 			} else {
+
+
 				index2 = i*MAXMVDSTRIPHITSINTRACK+nMvdStripSpuriinTrack->at(i);
+
+
 				MvdStripSpuriList->at(index2) =
 				     ListMvdStripHitsinTrack->at(index);
 				nMvdStripSpuriinTrack->at(i)++;
 			}
-		}
+		}  // fine for
 	}	// end of for(i=0; i<nSttTrackCand;i++)
 
 
