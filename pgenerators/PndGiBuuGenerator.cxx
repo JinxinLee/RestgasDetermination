@@ -62,14 +62,19 @@ Bool_t PndGiBuuGenerator::ReadEvent(FairPrimaryGenerator* primGen)
 
 	if (fEvent > 0){
 		WriteoutDecayParticle(oldEventNr, oldRunId, primGen);
-		primGen->AddTrack(fPdg, fPx, fPy, fPz, 0., 0., 0.);
 	} else {
-		oldEventNr = 1;
-		oldRunId = 1;
+		oldEventNr = 0;
+		oldRunId = 0;
+		fEvent = 0;
+		fRunId = 0;
 	}
 
 	while (fEvent == oldEventNr && !(fInputAsciiFile->eof())){
 		*fInputAsciiFile >> GiBuuPid >> GiBuuCharge >> motherId1 >> motherId2 >> dummyInt >> mass >> dummyInt >> energy >> fPx >> fPy >> fPz >> dummyDouble >> fEvent >> fRunId >> dummyDouble;
+		if (0 == oldEventNr){
+			oldEventNr = fEvent;
+			oldRunId = fRunId;
+		}
 		fPdg = GetPdgParticleId(GiBuuPid, GiBuuCharge);
 		WriteoutDecayParticle(oldEventNr, oldRunId, primGen);
 	}
@@ -83,11 +88,13 @@ void PndGiBuuGenerator::WriteoutDecayParticle(Int_t oldEventNr, Int_t oldRunId, 
 		if (fDecayerMap.count(fPdg) > 0) {
 			std::vector<PndGiBuuTrack> tracks = fDecayerMap[fPdg]->DecayTrack(PndGiBuuTrack(fPdg, fPx, fPy, fPz, 0., 0., 0.));
 			for (int i = 0; i < tracks.size(); i++) {
+				std::cout << "Writing decayed particles: " << tracks[i].GetPdgId() << std::endl;
 				primGen->AddTrack(tracks[i].GetPdgId(),
 						tracks[i].GetMomentum().X(), tracks[i].GetMomentum().Y(), tracks[i].GetMomentum().Z(),
 						tracks[i].GetVertex().X(), tracks[i].GetVertex().Y(), tracks[i].GetVertex().Z());
 			}
 		} else {
+			std::cout << "Writing particle direct: " << fPdg << std::endl;
 			primGen->AddTrack(fPdg, fPx, fPy, fPz, 0., 0., 0.);
 		}
 	}
