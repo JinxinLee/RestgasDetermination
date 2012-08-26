@@ -111,45 +111,52 @@ if(istampa>1) {cout<<"in BadTrack_ParStt :hit || n. "<<ListHits[ihit]<<", X "<<i
 	nume = 0.5*length/STRAWRADIUS -islack;
 	if( ninside < nume ){
 		if(istampa>1){
+			int icz = 0.5*length/STRAWRADIUS;
 			cout<<"in BadTrack_ParStt, n. Hits inside = "<<ninside
 			<<" is < n. hits that should be inside at least = "
-			<<((int) 0.5*length/STRAWRADIUS)<<"-islack ("<<
-			islack<<"), track rejected!\n";
-			return true;
+			<<icz<<"-islack ("<<islack<<"), track rejected!\n";
 		}
+		return true;
 	}
 
 	// compute the distance of last hit to point at which track leaves this detector volume.
 	// In case nHits = 0 don't do this check (whether or not the track is genuine has
 	// been decided already in the previous  for(ihit=0 ;ihit<nHits;ihit++) loop).
 
+	if(nHits>0){
+
 	// here S is already the fi of the last point.
-	if( GeometryCalculator.IsInsideArc(Oxx,Oyy,Charge,
+	  if( GeometryCalculator.IsInsideArc(Oxx,Oyy,Charge,
 			Xcross,
 			Ycross,
-			S )
-		) {
+			S ))
+	  {
 
-	   Distance[nHits] =
-	   (info[ListHits[nHits-1]][0]-Xcross[1])*(info[ListHits[nHits-1]][0]-Xcross[1])+
-	   (info[ListHits[nHits-1]][1]-Ycross[1])*(info[ListHits[nHits-1]][1]-Ycross[1])
+		Distance[nHits] =
+			(info[ListHits[nHits-1]][0]-Xcross[1])*
+			(info[ListHits[nHits-1]][0]-Xcross[1])+
+			(info[ListHits[nHits-1]][1]-Ycross[1])*
+			(info[ListHits[nHits-1]][1]-Ycross[1]);
 						;
-if(istampa>1)cout<<"in BadTrack_ParStt, Stt || hit n. (original notation) "<<
-	ListHits[nHits-1]<<", Distance to boundary = "<<sqrt(Distance[nHits])
-	<<", 4*cut "<<4.*cut<<endl;
-	   if( Distance[nHits]>cut2 ){
-		if( Distance[nHits]>16.*cut2){
-			return true;
-		}
-		ibad++;
-	   }
-	}	// end of if( IsInsideArc
+		if(istampa>1)cout<<"in BadTrack_ParStt, Stt || hit n. (original notation) "
+			<<ListHits[nHits-1]<<", Distance to boundary = "
+			<<sqrt(Distance[nHits])<<", 4*cut "<<4.*cut<<endl;
 
+		if( Distance[nHits]>cut2 ){
+			if( Distance[nHits]>16.*cut2)return true;
+			ibad++;
+		}  // end of  if( Distance[nHits]>cut2 )
+	  }  // end of if( IsInsideArc
 
 if(istampa>1)cout<<"in BadTrack_ParStt, ibad "<<ibad<<", max bad allowed = "<< maxnum<<endl;
 
 	if( ibad > maxnum) return true;
 	return false;
+
+	} // end of   if(nHits>0)
+
+
+
 }
 
 
