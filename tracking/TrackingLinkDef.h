@@ -3,6 +3,7 @@
 #pragma link off all globals;
 #pragma link off all classes;
 #pragma link off all functions;
+#pragma link C++ class PndTrkCleanup+;
 #pragma link C++ class PndTrkComparisonMCtruth+;
 #pragma link C++ class PndTrkCTFindTrackInXY+;
 #pragma link C++ class PndTrkCTGeometryCalculations+;
