@@ -4,6 +4,7 @@
 #include "PndTrkComparisonMCtruth.h"
 #include "PndTrkSttConformalFilling.h"
 #include "PndTrkGlpkFits.h"
+#include "PndTrkCleanup.h"
 #include "PndTrkCTFindTrackInXY.h"
 #include "PndTrkCTGeometryCalculations.h"
 #include "PndTrkMergeSort.h"
@@ -802,6 +803,8 @@ void PndTrkTracking::Exec(Option_t* opt) {
  PndSdsHit
 	*pMvdPixelHit,
 	*pMvdStripHit;
+
+ PndTrkCleanup Cleaner;
 
  PndTrkCTGeometryCalculations GeomCalculator;
 
@@ -2640,27 +2643,33 @@ if(istampa>0){
     if(YesClean){
 if(istampa>1) cout<<"PndTrkTracking, entra in TrackCleanup tracce normali, IVOLTE "<<IVOLTE
 	<<" e track cand. "<<ncand<<endl;
-	if ( !TrackCleanup(
-			gap,
-			Ox[ncand],
-			Oy[ncand],
-			R[ncand],
-			KAPPA[ncand],
-			FI0[ncand],
-			Charge[ncand],
-			Start,
-			nHitsPar,
-			&ListSttParHitsinTrack[ncand][0],  // this is already ordered.
-			nHitsSkew,
-			&ListSttSkewHitsinTrack[ncand][0],  // this is already ordered.
-			auxS,
-			info,
-			RSTRAWDETECTORMIN,
-			APOTEMAMAXINNERPARSTRAW,
-			APOTEMAMINSKEWSTRAW,
-			APOTEMAMAXSKEWSTRAW,
-			APOTEMAMINOUTERPARSTRAW,
-			RSTRAWDETECTORMAX
+	if ( !Cleaner.TrackCleanup(
+		APOTEMAMAXINNERPARSTRAW,
+		APOTEMAMAXSKEWSTRAW,
+		APOTEMAMINOUTERPARSTRAW,
+		APOTEMAMINSKEWSTRAW,
+		auxS,
+		Charge[ncand],
+		FI0[ncand],
+		gap,
+		info,
+		istampa,
+		IVOLTE,
+		KAPPA[ncand],
+		&ListSttParHitsinTrack[ncand][0],
+		&ListSttSkewHitsinTrack[ncand][0],
+		MAXSTTHITS,
+		nHitsPar,
+		nHitsSkew,
+		Ox[ncand],
+		Oy[ncand],
+		R[ncand],
+		RSTRAWDETECTORMAX,
+		RSTRAWDETECTORMIN,
+		SEMILENGTH_STRAIGHT,
+		Start,
+		STRAWRADIUS,
+		ZCENTER_STRAIGHT
 				) ) {
 		keepit[ncand]=false;
 		continue;
@@ -3163,27 +3172,33 @@ if(istampa>1) cout<<"PndTrkTracking, entra in TrackCleanup tracce normali, IVOLT
      for(ncand=nSttTrackCand; ncand< nTotalCandidates; ncand++){
 
 
-	if ( !TrackCleanup(
-			gap,
-			Ox[ncand],
-			Oy[ncand],
-			R[ncand],
-			KAPPA[ncand],
-			FI0[ncand],
-			Charge[ncand],
-			Start,
-			nSttParHitsinTrack[ncand],
-			&ListSttParHitsinTrack[ncand][0],  // this is already ordered.
-			nSttSkewHitsinTrack[ncand],
-			&ListSttSkewHitsinTrack[ncand][0],  // this is already ordered.
-			&SchosenSkew[ncand][0],
-			info,
-			RSTRAWDETECTORMIN,
-			APOTEMAMAXINNERPARSTRAW,
-			APOTEMAMINSKEWSTRAW,
-			APOTEMAMAXSKEWSTRAW,
-			APOTEMAMINOUTERPARSTRAW,
-			RSTRAWDETECTORMAX
+	if ( !Cleaner.TrackCleanup(
+		APOTEMAMAXINNERPARSTRAW,
+		APOTEMAMAXSKEWSTRAW,
+		APOTEMAMINOUTERPARSTRAW,
+		APOTEMAMINSKEWSTRAW,
+		&SchosenSkew[ncand][0],
+		Charge[ncand],
+		FI0[ncand],
+		gap,
+		info,
+		istampa,
+		IVOLTE,
+		KAPPA[ncand],
+		&ListSttParHitsinTrack[ncand][0],
+		&ListSttSkewHitsinTrack[ncand][0],
+		MAXSTTHITS,
+		nSttParHitsinTrack[ncand],
+		nSttSkewHitsinTrack[ncand],
+		Ox[ncand],
+		Oy[ncand],
+		R[ncand],
+		RSTRAWDETECTORMAX,
+		RSTRAWDETECTORMIN,
+		SEMILENGTH_STRAIGHT,
+		Start,
+		STRAWRADIUS,
+		ZCENTER_STRAIGHT
 				) ) {
 		keepit[ncand]=false;
 	}  // end of if ( !TrackCleanup
