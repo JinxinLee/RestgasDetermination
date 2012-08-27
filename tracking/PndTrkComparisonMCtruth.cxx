@@ -106,14 +106,14 @@ using namespace std;
 		 gamma,
 		 minimo;
   // non cambiare senno' cambiaperl non funziona !
-	int TMPtanlow[tmp_dim2];
-	Vec <int> tanlow(TMPtanlow,tmp_dim2,"tanlow");
+	Double_t TMPtanlow[tmp_dim2];
+	Vec <Double_t> tanlow(TMPtanlow,tmp_dim2,"tanlow");
 
-	int TMPtanmid[tmp_dim2];
-	Vec <int> tanmid(TMPtanmid,tmp_dim2,"tanmid");
+	Double_t TMPtanmid[tmp_dim2];
+	Vec <Double_t> tanmid(TMPtanmid,tmp_dim2,"tanmid");
 
-	int TMPtanup[tmp_dim2];
-	Vec <int> tanup(TMPtanup,tmp_dim2,"tanup");
+	Double_t TMPtanup[tmp_dim2];
+	Vec <Double_t> tanup(TMPtanup,tmp_dim2,"tanup");
 
 	int TMPtoMCtrackdistance[tmp_dim2*MAXSTTHITSINTRACK];
 	Vec <int> toMCtrackdistance(TMPtoMCtrackdistance,tmp_dim2*MAXSTTHITSINTRACK,"toMCtrackdistance");
@@ -1088,7 +1088,7 @@ for (i=0;i<nMCTracks;i++){
 
 //----------- fine conteggio delle tracce MC accettabili
 
-   fprintf(HANDLE, "\n Evento %d  NTotaleTracceMC %d (only the reasonable ones) ------\n",IVOLTE,
+   fprintf(HANDLE, "\n Evento %d  NTotaleTracceMC %d ------\n",IVOLTE,
   	nMCTracksaccettabili);
 	int ibene=0;
 	if(nMCTracksaccettabili>0){
@@ -1100,7 +1100,7 @@ for (i=0;i<nMCTracks;i++){
 			}
 		}
 	}
-	if(ibene>0) fprintf(HANDLE,"\tn. tracce MC accettabili ricostruite %d\n"
+	if(ibene>0) fprintf(HANDLE,"\tn. volte almeno 1 traccia MC accettabile e' ricostruita %d\n"
 		,ibene);
 bool flaggo;
 int ii, ibuone=-1;
