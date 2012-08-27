@@ -1088,7 +1088,7 @@ for (i=0;i<nMCTracks;i++){
 
 //----------- fine conteggio delle tracce MC accettabili
 
-   fprintf(HANDLE, "\n Evento %d  NTotaleTracceMC %d ------\n",IVOLTE,
+   fprintf(HANDLE, "\n Evento %d  NTotaleTracceMC %d (only the reasonable ones) ------\n",IVOLTE,
   	nMCTracksaccettabili);
 	int ibene=0;
 	if(nMCTracksaccettabili>0){
