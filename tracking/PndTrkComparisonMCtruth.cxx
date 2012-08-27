@@ -1100,7 +1100,7 @@ for (i=0;i<nMCTracks;i++){
 			}
 		}
 	}
-	if(ibene>0) fprintf(HANDLE,"\tn. volte almeno 1 traccia MC accettabile e' ricostruita %d\n"
+	if(ibene>0) fprintf(HANDLE,"\tn. tracce MC accettabili ricostruite %d\n"
 		,ibene);
 bool flaggo;
 int ii, ibuone=-1;
