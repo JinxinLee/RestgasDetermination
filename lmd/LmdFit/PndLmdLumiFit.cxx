@@ -150,11 +150,11 @@ double PndLmdLumiFit::LumiFit(TH1D* thetaDist)
  
   Double_t int2 = mythInt(thsCS); //.createIntegral(th,th) ; 
 
-  cout.precision(10);
+  std::cout.precision(10);
 
   if(resultths){
     resultths->Print();
-    cout << endl << "Norm CS: " << thsCS.getNorm(th)<< endl<<endl;
+    std::cout << std::endl << "Norm CS: " << thsCS.getNorm(th)<< std::endl<<std::endl;
     return thsCS.getNorm(th);
  //const TMatrixDSym& cor1 = resultthn->correlationMatrix() ;
  //const TMatrixDSym& cov1 = resultthn->covarianceMatrix() ;
