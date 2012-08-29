@@ -2855,6 +2855,27 @@ if(istampa>1) cout<<"PndSttMvdTracking, entra in TrackCleanup tracce normali, IV
 				ListTrackCandHit[nTotalCandidates][j]= List[j];
 				ListTrackCandHitType[nTotalCandidates][j]= ListType[j];
 			}
+
+			// it is necessary to calculate rotationangle at this point [since this
+			// is not an old stt candidate for which it is just enough to say
+			// tan(rotationangle) = Py/Px ].  Use (almost) the same piece of code
+			// existing in PndTrackFinderReal, modified by taking into account the
+			// translation of axis in the Pivoting point.
+			double rotationcos, rotationsin;
+			for(j=1, rotationcos=0., rotationsin=0.; j<nalone; j++){
+				// fi in the XY space is the same as fi in conformal space;
+				double fi = atan2(AloneY[nalone]-AloneY[0],AloneX[nalone]-AloneX[0]);
+				// use the cos and sin to avoid strange situations in the average when
+				// the hits are aroung 0 degrees or 180 degrees;
+				rotationcos += cos(fi);
+				rotationsin += sin(fi);
+			}
+			rotationcos /= (nalone-1);
+			rotationsin /= (nalone-1);
+			rotationangle = atan2(rotationsin, rotationcos);
+if(istampa>2) cout<<" rotation angle prima = "<<rotationangle<<endl;
+
+
 			// here at this point there are no Stt hits associated.
 			RefitMvdStt(
 				nalone,
@@ -8342,7 +8363,8 @@ void PndSttMvdTracking::Merge(Short_t nl, Double_t *left, Int_t *ind_left, Short
 //-------------- stampaggi
 if(istampa>=3){
 	cout<<"from FitHelixCylinder,prima di rotazione,  Evento "<<IVOLTE<<", nHitsinTrack = "<<nHitsinTrack
-	<<"\nfrom FitHelixCylinder, nPointsinFit = "<<NpointsInFit<<endl;
+	<<"\nfrom FitHelixCylinder, nPointsinFit = "<<NpointsInFit<<", rotationangle "<<
+	rotationangle<<endl;
 	for(i=0 ; i< NpointsInFit ; i++) {
 		cout<<"  Xconformal["<<i<<"] = "<<Xconformal[ i ]<<
 		";   Yconformal["<<i<<"] = "<<Yconformal[ i ]<<",  drift radius conformal "<<
@@ -10334,6 +10356,7 @@ if(istampa>2){
 	cout<<"PndSttMvdTracking::RefitMvdStt, n. Hits (Mvd+Stt || ) = "<<iparallel<<endl;
 	cout<<"\tthe trajectory pivoting hit is n. "<<iexcl<<" in the track hit list;\n";
 	cout<<"\tthe trajectory pivoting vertex is in X = "<<tv[0]<<", Y = "<<tv[1]<<endl;
+	cout<<"\trotationangle "<<rotationangle<<endl;
 	for(int ig=0;ig<iparallel;ig++){
 		if( DriftRadiusconformal[ig] <0.) {
 				cout<<"\tMvd Hit;   ";
