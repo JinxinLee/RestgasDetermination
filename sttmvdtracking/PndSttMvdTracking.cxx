@@ -14543,7 +14543,8 @@ if(istampa>1) {cout<<"in BadTrack_ParStt :hit || n. "<<ListHits[ihit]<<", X "<<i
 
 
 	// cut on the minimum (conservative) n. hits that must have fired
-	int nume = length/DiameterStrawTube -islack;
+	int nume ;
+	nume = (int)( length/DiameterStrawTube -islack) ;
 	if( ninside < nume ){
 		if(istampa>1){
 			cout<<"in BadTrack_ParStt, n. Hits inside = "<<ninside
