@@ -3452,7 +3452,7 @@ if(istampa>2){
 
  // write the Macro for visualization of tracks and hits;
 
- if(iplotta && IVOLTE<300){
+ if(iplotta && IVOLTE<10){
 
 	// the following initialization is necessary when the MC comparison
 	// is not done just above (when doMcComparison=false). In this case
