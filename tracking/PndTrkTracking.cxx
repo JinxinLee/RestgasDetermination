@@ -2830,6 +2830,41 @@ if(istampa>1) cout<<"PndTrkTracking, entra in TrackCleanup tracce normali, IVOLT
 				ListTrackCandHit[nTotalCandidates][j]= List[j];
 				ListTrackCandHitType[nTotalCandidates][j]= ListType[j];
 			}
+			// it is necessary to calculate rotationangle at this point [since this
+			// is not an old stt candidate for which it is just enough to say
+			// tan(rotationangle) = Py/Px ].  Use (almost) the same piece of code
+			// existing in PndTrackFinderReal, modified by taking into account the
+			// translation of axis in the Pivoting point.
+			double rotationcos, rotationsin;
+			for(j=1, rotationcos=0., rotationsin=0.; j<nalone; j++){
+				// fi in the XY space is the same as fi in conformal space;
+				double fi = atan2(AloneY[j]-AloneY[0],AloneX[j]-AloneX[0]);
+				// use the cos and sin to avoid strange situations in the average when
+				// the hits are aroung 0 degrees or 180 degrees;
+				rotationcos += cos(fi);
+				rotationsin += sin(fi);
+			}
+			rotationcos /= (nalone-1);
+			rotationsin /= (nalone-1);
+			rotationangle = atan2(rotationsin, rotationcos);
+//----------------
+if(istampa>2){
+	cout<<"from PndSttMvdTracking, evt. "<<IVOLTE<<", Mvd only track, Pivoting hit :\n";
+	if(ListType[0]==0){ cout<<"\tPixel n. "<<List[0];}
+	else if (ListType[0]==1){ cout<<"\tStrip n. "<<List[0];}
+	cout<<", X "<<AloneX[0]<<", Y "<<AloneY[0]<<endl;
+	cout<<"\tother hits :"<<endl;
+	for(int h =1;h<nalone;h++){
+	  if(ListType[h]==0){
+		cout<<"\tPixel hit n. "<<List[h]<<", X "<<AloneX[h]<<", Y "<<AloneY[h]<<endl;
+	  } else {
+		cout<<"\tStrip hit n. "<<List[h]<<", X "<<AloneX[h]<<", Y "<<AloneY[h]<<endl;
+	  }
+	}
+		cout<<" rotation angle prima = "<<rotationangle<<endl;
+}
+//--------------------
+
 			// here at this point there are no Stt hits associated.
 			RefitMvdStt(
 				nalone,
