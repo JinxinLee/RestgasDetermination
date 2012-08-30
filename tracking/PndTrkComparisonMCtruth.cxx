@@ -1172,6 +1172,13 @@ for (ii=0; ii<nTotalCandidates  ;ii++){
              nSpuriSkewinTrack[ii]
 
            )  ;
+    fprintf(HANDLE,"\t\t%d PixelHitsMC %d PixelHitsMecc %d PixelMeccSpuri ",
+nMvdPixelCommon[ii]+nMCMvdPixelAlone[ii],nMvdPixelCommon[ii],nMvdPixelSpuriinTrack[ii]);
+    fprintf(HANDLE,"%d StripHitsMC %d StripHitsMecc %d StripMeccSpuri\n",
+nMvdStripCommon[ii]+nMCMvdStripAlone[ii],nMvdStripCommon[ii],nMvdStripSpuriinTrack[ii]);
+    fprintf(HANDLE,"\t\t%d SciTilHitsMC %d SciTilHitsMecc %d SciTilMeccSpuri\n",
+ioData.nSciTilCommon[ii]+ioData.nMCSciTilAlone[ii],ioData.nSciTilCommon[ii],ioData.nSciTilSpuriinTrack[ii]);
+
     fprintf(HANDLE,
 "       e corrisponde a track found n. %d\n", ibuone );
     fprintf(HANDLE,
