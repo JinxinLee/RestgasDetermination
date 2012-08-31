@@ -68,6 +68,7 @@ class PndTrkTracking : public FairTask
 	return;
   };
 
+  void SetEventsToPlot(int nev ){fNevents_to_plot = nev;};
 
   void SetParContainers();
 
@@ -176,6 +177,7 @@ class PndTrkTracking : public FairTask
 
 
   int
+	fNevents_to_plot,
 	istampa,
 	IVOLTE ;
 
