@@ -115,8 +115,8 @@ using namespace std;
 	Double_t TMPtanup[tmp_dim2];
 	Vec <Double_t> tanup(TMPtanup,tmp_dim2,"tanup");
 
-	int TMPtoMCtrackdistance[tmp_dim2*MAXSTTHITSINTRACK];
-	Vec <int> toMCtrackdistance(TMPtoMCtrackdistance,tmp_dim2*MAXSTTHITSINTRACK,"toMCtrackdistance");
+	Double_t TMPtoMCtrackdistance[tmp_dim2*MAXSTTHITSINTRACK];
+	Vec <Double_t> toMCtrackdistance(TMPtoMCtrackdistance,tmp_dim2*MAXSTTHITSINTRACK,"toMCtrackdistance");
 
   // fine non cambiare senno' cambiaperl non funziona !
 
