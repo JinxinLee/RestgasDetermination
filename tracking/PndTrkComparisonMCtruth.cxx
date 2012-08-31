@@ -1036,13 +1036,15 @@ int PndTrkComparisonMCtruth::ComparisonwithMC(
 
 //---------- conteggio delle tracce MC accettabili!!
 
+int cita;
 int citata;
 int nMCTracksaccettabili=0;
 int ListaMCTracksaccettabili[nMCTracks];
+int  nHasMvdHit=0;
+int  nHasSciTilHit=0;
 PndMCTrack* pMCtr;
 
 for (i=0;i<nMCTracks;i++){
-	citata=0;
    	pMCtr = (PndMCTrack*) fMCTrackArray->At(i);
    	if ( ! pMCtr ) continue;
          Double_t aaa, carica, Rr, Dd, Fifi, Oxx, Oyy, Cx, Cy, Pxx, Pyy  ;
@@ -1070,26 +1072,63 @@ for (i=0;i<nMCTracks;i++){
 		<<", Centro Y = "<<Cy<<endl;
 	}
 
-
-
+	citata=0;
 	for(int ic=0;ic<nSttHit;ic++){
+		// info[*][5] = tipe of inclination of the straw;
 		if( ( (int) (info[ic*7 + 6]+0.1) ) == i   && info[ic*7 + 5]<2.){
 			citata++;
 		}
-	}
+	}   // end  for(int ic=0;ic<nSttHit;ic++)
+
 	if( citata>2 && fabs(Oxx)<1. && fabs(Oyy) < 1. ) {
 		ListaMCTracksaccettabili[nMCTracksaccettabili]=i;
 		nMCTracksaccettabili++;
-	}
 
+		// check if there is at least 1 MvdHit in this MC track;
+		// the Pixel first;
+		cita=0;
+		for(int ic=0;ic<nMvdPixelHit;ic++){
+			if( FromPixeltoMCTrack[ic]  == i ){
+				cita++;
+				break;
+			}
+		}
+		// if the Pixel are 0, check the Strips;
+		if(cita==0){
+		   for(int ic=0;ic<nMvdStripHit;ic++){
+			if( FromStriptoMCTrack[ic]  == i ){
+				cita++;
+				break;
+			}
+		   }
+		}  // end of if;
+		if(cita>0){ nHasMvdHit++; }
+		//-------------------------------
+
+		// check if there is at least 1 SciTil hit in this MC track;
+		cita=0;
+		for(int ic=0;ic<nSciTilHits;ic++){
+		   for(int jc=0; jc< nFromSciTiltoMCTrack[ic]; jc++){
+			if( FromSciTiltoMCTrackList[ic*nMCTracks + jc]  == i ){
+				cita++;
+				break;
+			}
+		   }  // end for(int jc=0;
+		   if(cita>0) break;
+		}   // end for(int ic=0;ic<nSciTilHits;ic++)
+		if(cita>0){ nHasSciTilHit++; }
+
+	}  // end of  if( citata>2 && fabs(Oxx)<1. && fabs(Oyy) < 1. )
 
 }  // end of  for (i=0;i<nMCTracks;i++)
 
 
 //----------- fine conteggio delle tracce MC accettabili
 
-   fprintf(HANDLE, "\n Evento %d  NTotaleTracceMC %d ------\n",IVOLTE,
-  	nMCTracksaccettabili);
+   fprintf(HANDLE, "\n Evento %d  NTotaleTracceMC %d ,",IVOLTE,
+	nMCTracksaccettabili);
+   fprintf(HANDLE, "\tdi cui %d con almeno 1 hit Mvd e %d con almeno 1 hit SciTil.\n",
+	nHasMvdHit,nHasSciTilHit);
 	int ibene=0;
 	if(nMCTracksaccettabili>0){
 		for(int ii=0; ii<nTotalCandidates;ii++){
