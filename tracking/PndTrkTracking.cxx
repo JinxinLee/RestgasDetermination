@@ -105,6 +105,9 @@ PndTrkTracking::PndTrkTracking() : FairTask("Tracking") {
  YesCleanMvd = true;
  YesSciTil = false ;
  MvdAloneTracking = true;
+ fNevents_to_plot = 10;
+
+
  Initialization_ClassVariables();
  sprintf(fSttBranch,"STTHit");
  sprintf(fMvdPixelBranch,"MVDHitsPixel");
@@ -293,6 +296,8 @@ void PndTrkTracking::Initialization_ClassVariables()
 	len = sizeof(ListTrackCandHitType);
 	memset (ListTrackCandHitType,0,len);
 
+//  int :
+	fNevents_to_plot = 10;
 //  Double_t :
 
 	Fimin=0.;
@@ -3245,7 +3250,6 @@ if(istampa>2){
 //-----------  end of cleanup of new tracks found.
 
 
-
 	} // end of  if(MvdAloneTracking && nMvdPixelHit+nMvdStripHit>0)
 
 
@@ -3452,7 +3456,7 @@ if(istampa>2){
 
  // write the Macro for visualization of tracks and hits;
 
- if(iplotta && IVOLTE<10){
+ if(iplotta && IVOLTE< fNevents_to_plot){
 
 	// the following initialization is necessary when the MC comparison
 	// is not done just above (when doMcComparison=false). In this case
