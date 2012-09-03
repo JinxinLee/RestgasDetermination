@@ -26,6 +26,7 @@ ${CMAKE_SOURCE_DIR}/sds/SdsMC
 ${CMAKE_SOURCE_DIR}/sds/SdsDigi
 ${CMAKE_SOURCE_DIR}/sds/SdsReco
 ${CMAKE_SOURCE_DIR}/sds/SdsTools
+${CMAKE_SOURCE_DIR}/sds/SdsFEModel
 ${CMAKE_SOURCE_DIR}/lmd
 ${CMAKE_SOURCE_DIR}/lmd/LmdMC
 ${CMAKE_SOURCE_DIR}/lmd/LmdDigi
@@ -33,6 +34,7 @@ ${CMAKE_SOURCE_DIR}/lmd/LmdReco
 ${CMAKE_SOURCE_DIR}/lmd/LmdTrack
 ${CMAKE_SOURCE_DIR}/lmd/LmdFit
 ${CMAKE_SOURCE_DIR}/lmd/LmdTools
+${CMAKE_SOURCE_DIR}/lmd/LmdQA
 ${CMAKE_SOURCE_DIR}/genfit
 ${CMAKE_SOURCE_DIR}/recotasks
 ${CMAKE_SOURCE_DIR}/trackbase
@@ -54,9 +56,10 @@ link_directories( ${LINK_DIRECTORIES})
 
 ########################### create libLmd ######################################
 set(LMD_SRCS
+
 LmdTools/PndLmdContFact.cxx
-LmdTools/PndLmdAlignPar.cxx
 LmdDigi/PndLmdPixelHitProducerFast.cxx
+LmdDigi/PndLmdHybridHitProducer.cxx
 LmdDigi/PndLmdStripHitProducer.cxx
 LmdDigi/PndLmdHitProducerIdeal.cxx
 LmdDigi/PndLmdDigiTask.cxx 
@@ -84,9 +87,14 @@ set_target_properties(Lmd PROPERTIES ${FAIRROOT_LIBRARY_PROPERTIES})
 
 ########################### create libLmdReco ##################################
 set(LMDRECO_SRCS
+
 LmdReco/PndLmdStripClusterTask.cxx
-#LmdReco/PndLmdIdealClusterTask.cxx
-#LmdReco/PndLmdIdealRecoTask.cxx
+LmdReco/PndLmdPixelClusterTask.cxx
+LmdReco/PndLmdHitMergeTask.cxx
+LmdReco/PndLmdSimplePixelClusterFinder.cxx
+LmdReco/PndLmdChargeWeightedPixelMapping.cxx
+# LmdReco/PndLmdIdealRecoTask.cxx
+
 )
 set (LMD_RULECHECKER_SRCS ${LMD_RULECHECKER_SRCS} ${LMDRECO_SRCS})
 
@@ -115,6 +123,7 @@ LmdTrack/PndLmdTrackFinderTask.cxx
 LmdTrack/PndLmdTrackFinderCATask.cxx
 #LmdTrack/PndLmdMCPointTrackFinderTask.cxx
 LmdTrack/PndLmdLinFitTask.cxx
+LmdTrack/PndLmdLineTask.cxx
 #LmdTrack/PndLmdMCPointLinFitTask.cxx
 LmdTrack/PndLmdIdealFitTask.cxx
 LmdTrack/PndLinTrack.cxx
@@ -166,9 +175,36 @@ add_library(LmdFit SHARED ${LMDTRK_SRCS})
 target_link_libraries(LmdFit ${ROOT_LIBRARIES})
 set_target_properties(LmdFit PROPERTIES ${FAIRROOT_LIBRARY_PROPERTIES})
 
+########################### create libLmdTools ##################################
+set(LMDTOOLS_SRCS
+
+LmdQA/PndLmdQATask.cxx
+
+)
+set (LMD_RULECHECKER_SRCS ${LMD_RULECHECKER_SRCS} ${LMDTOOLS_SRCS})
+
+if(RULE_CHECKER_FOUND)
+  CHECK_RULES("${LMD_RULECHECKER_SRCS}" "${INCLUDE_DIRECTORIES}" LMD_RULES)
+endif(RULE_CHECKER_FOUND)
+
+
+# fill list of header files from list of source files
+# by exchanging the file extension
+CHANGE_FILE_EXTENSION(*.cxx *.h LMDTOOLS_HEADERS "${LMDTOOLS_SRCS}")
+set(LMDTOOLS_LINKDEF  LmdToolLinkDef.h)
+set(LMDTOOLS_DICTIONARY ${CMAKE_CURRENT_BINARY_DIR}/LmdToolDict.cxx)
+
+ROOT_GENERATE_DICTIONARY("${LMDTOOLS_HEADERS}" "${LMDTOOLS_LINKDEF}" "${LMDTOOLS_DICTIONARY}" "${INCLUDE_DIRECTORIES}")
+SET(LMDTOOLS_SRCS ${LMDTOOLS_SRCS} ${LMDTOOLS_DICTIONARY})
+
+add_library(LmdTool SHARED ${LMDTOOLS_SRCS})
+target_link_libraries(LmdTool ${ROOT_LIBRARIES})
+set_target_properties(LmdTool PROPERTIES ${FAIRROOT_LIBRARY_PROPERTIES})
+
 ################################## install #####################################
 install(TARGETS Lmd DESTINATION ${CMAKE_BINARY_DIR}/lib)
 install(TARGETS LmdReco DESTINATION ${CMAKE_BINARY_DIR}/lib)
 install(TARGETS LmdTrk DESTINATION ${CMAKE_BINARY_DIR}/lib)
 install(TARGETS LmdFit DESTINATION ${CMAKE_BINARY_DIR}/lib)
+install(TARGETS LmdTool DESTINATION ${CMAKE_BINARY_DIR}/lib)
 

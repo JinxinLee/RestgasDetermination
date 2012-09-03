@@ -12,6 +12,7 @@
 #pragma link C++ class PndLmdTrackFinderTask+;
 #pragma link C++ class PndLmdTrackFinderCATask+;
 #pragma link C++ class PndLmdLinFitTask+;
+#pragma link C++ class PndLmdLineTask+;
 #pragma link C++ class PndLmdIdealFitTask+;
 #pragma link C++ class PndLinTrack+;
 //#pragma link C++ class PndLmdMCPointLinFitTask+;
