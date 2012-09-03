@@ -145,6 +145,7 @@ void PndSdsStripHitProducer::SetParContainers()
   if ( fGeoH == NULL )
     fGeoH = PndGeoHandling::Instance();
 
+  fGeoH->SetParContainers();
   if(fVerbose>1) Info("SetParContainers","done.");
 	return;
 }

@@ -148,6 +148,7 @@ void PndSdsStripClusterTask::SetParContainers()
   if ( fGeoH == NULL ) {
     fGeoH = PndGeoHandling::Instance();
   }
+  fGeoH->SetParContainers();
 	return;
 }
 

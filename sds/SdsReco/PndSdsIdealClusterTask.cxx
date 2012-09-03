@@ -60,6 +60,7 @@ PndSdsIdealClusterTask::~PndSdsIdealClusterTask()
 // -----   Initialization  of Parameter Containers -------------------------
 void PndSdsIdealClusterTask::SetParContainers()
 {
+	fGeoH->SetParContainers();
 }
 
 InitStatus PndSdsIdealClusterTask::ReInit()

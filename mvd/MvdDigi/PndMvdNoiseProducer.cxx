@@ -191,6 +191,7 @@ void PndMvdNoiseProducer::SetParContainers()
     fGeoH = PndGeoHandling::Instance();
   }
 
+  fGeoH->SetParContainers();
   // Get Base Container
   FairRun* ana = FairRun::Instance();
   FairRuntimeDb* rtdb=ana->GetRuntimeDb();

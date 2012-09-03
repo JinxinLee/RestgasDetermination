@@ -149,6 +149,7 @@ void PndSdsHybridHitProducer::SetParContainers()
   if ( fGeoH == NULL )
     fGeoH = PndGeoHandling::Instance();
 
+  fGeoH->SetParContainers();
   if( ! fDigiPar) Fatal("SetParContainers","No digitiztion parameters specified.");
   if(fVerbose>1) Info("SetParContainers","done.");
   return;

@@ -158,6 +158,8 @@ void PndSdsNoiseProducer::SetParContainers()
   if ( fGeoH == NULL )
     fGeoH = PndGeoHandling::Instance();
 
+  fGeoH->SetParContainers();
+
   // Get Base Container
   FairRun* ana = FairRun::Instance();
   FairRuntimeDb* rtdb=ana->GetRuntimeDb();

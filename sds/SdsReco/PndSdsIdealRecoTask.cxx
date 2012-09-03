@@ -94,6 +94,7 @@ InitStatus PndSdsIdealRecoTask::Init()
 // -------------------------------------------------------------------------
 void PndSdsIdealRecoTask::SetParContainers()
 {
+	fGeoH->SetParContainers();
 }
 
 

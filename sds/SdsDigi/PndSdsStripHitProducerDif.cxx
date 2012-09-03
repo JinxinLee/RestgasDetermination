@@ -118,6 +118,8 @@ void PndSdsStripHitProducerDif::SetParContainers()
 {
   // called from the FairRun::Init()
   // Get Base Container
+
+  fGeoH->SetParContainers();
   FairRun* ana = FairRun::Instance();
   FairRuntimeDb* rtdb=ana->GetRuntimeDb();
   fDigiParRect = (PndSdsStripDigiPar*)(rtdb->getContainer("SSDStripDigiParRect"));

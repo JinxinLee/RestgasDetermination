@@ -96,6 +96,7 @@ void PndMvdIdealRecoTask::SetParContainers()
   //  FairRun* ana = FairRun::Instance();
   //  FairRuntimeDb* rtdb=ana->GetRuntimeDb();
   //	PndSdsIdealRecoTask::SetParContainers();
+	fGeoH->SetParContainers();
 }
 
 
