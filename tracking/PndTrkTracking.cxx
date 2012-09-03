@@ -1395,14 +1395,23 @@ if(istampa>0){
 	//  has completed the parameter info;
 	//  a priori this is set false.
 	GoodSkewFit[i]=false;
+	//  set FI0 now; FI0 may be changed in case there is a SZ fitting
+	FI0[i]=Fi_initial_helix_referenceframe[i];
 
 	nSttSkewHitsinTrack[i]=0;
 
-	if( Fi_low_limit[i] <-99998.) continue ;  // this is when in XY the Helix circle is not in the
+	if( Fi_low_limit[i] <-99998.){
+	   cout<<"warning from PndTrkTracking :  Helix circle doesn't cross the Stt region;"<<
+		"situation in principle impossible! Continuing\n";
+	   // for precaution, set nSttParHitsinTrack, nSttSkewHitsinTrack and nSciTilHitsinTrack to 0.
+	   nSttParHitsinTrack[i]=0;
+	   nSttSkewHitsinTrack[i]=0;
+	   nSciTilHitsinTrack[i]=0;
+	   continue ;  // this i1s when in XY the Helix circle is not in the
 						// STT region; this in principle should never happen.
+	}
 
 //-----  finding the skew hits intersecting this XY trajectory circle
-
 
  nSttSkewHitsinTrack[i] = AssociateSkewHitsToXYTrack(
 	InclusionListStt, // excluded only if it is a double hit
@@ -1456,6 +1465,8 @@ if(istampa>0){
 	for(j=0;j<nSttSkewHitsinTrack[i];j++){
 	   Sfinal[i][ListSttSkewHitsinTrack[i][j]]= S[j];
 	}
+	// here keepit is not used; instead GoodSkewFit[i] has been already set to false earlier;
+	// so simply continue to the next candidate;
 	continue ;
  }
 
@@ -1499,7 +1510,6 @@ if(istampa>0){
  FI0[i]=Fi_initial_helix_referenceframe[i];  //  therefore, FI0[i] has an extra +2*PI or -2*PI added
 						  // in case of tracks
 						  //  crossing the X axis
-
 //-----  finding a better association of the skew hits intersecting this XY trajectory circle
 
 //    this means discarding those skew hits that are too far away from the fitted straight line
