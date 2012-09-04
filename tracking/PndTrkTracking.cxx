@@ -1614,7 +1614,8 @@ if(istampa>0){
 			R,
 			Ox,
 			Oy,
-			FI0
+			FI0,
+			KAPPA
 			);
  }
 //-------------- fine stampa
@@ -1728,7 +1729,8 @@ if(istampa>0){
 			R,
 			Ox,
 			Oy,
-			FI0
+			FI0,
+			KAPPA
 			);
  }
 //-------------- fine stampa
@@ -1737,6 +1739,8 @@ if(istampa>0){
 //-----------------  end of section with match Mvd hits with Stt hits
 
 	for(  ncand= 0; ncand< nSttTrackCand; ncand++){
+
+		if(!keepit[ncand]) continue;
 
 		if(nMvdPixelHitsinTrack[ncand]+
 			nMvdStripHitsinTrack[ncand]==0){
@@ -1879,7 +1883,8 @@ if(istampa>0){
 			R,
 			Ox,
 			Oy,
-			FI0
+			FI0,
+			KAPPA
 			);
  }
 //-------------- fine stampa
@@ -2128,7 +2133,8 @@ if(istampa>0){
 			R,
 			Ox,
 			Oy,
-			FI0
+			FI0,
+			KAPPA
 			);
  }
 //-------------- fine stampa
@@ -2188,7 +2194,8 @@ if(istampa>0){
 			R,
 			Ox,
 			Oy,
-			FI0
+			FI0,
+			KAPPA
 			);
  }
 //-------------- fine stampa
@@ -2200,7 +2207,8 @@ if(istampa>0){
   for(ncand=0; ncand< nTotalCandidates; ncand++)
   {
 	if(!keepit[ncand]) continue;
-	if( ! Mvdhits[ncand])
+	if( ! Mvdhits[ncand])  // the philosophy of this cut is : there is no sense in doing
+		// the SZ fita again, unless there are Mvd hits that can improve the result a lot.
 	{
 		if(YesCleanMvd){
 	// reject the candidate if it is NOT contained in the pipe and
@@ -2425,9 +2433,11 @@ if(istampa>0){
 
 		if( resultFitSZagain[ncand]==1){
 			KAPPA[ncand] = emme;
+			GoodSkewFit[ncand] = true;
 			if( ncand<= nSttTrackCand ) SttSZfit[ncand]=true;
 		} else {
 			keepit[ncand]=false;
+			GoodSkewFit[ncand] = false;
 		}
 
 //-------------------------------------------
@@ -2493,10 +2503,10 @@ if(istampa>0){
 //	First cleanup based on the absence of Mvd hits
 
 
- if(YesCleanMvd){
-	// reject the candidate if it is NOT contained in the pipe and
-	// therefore it should have at least 1 Mvd hit but it has none.
-	if( (!GeomCalculator.IsInTargetPipe(	Ox[ncand],
+	if(YesCleanMvd){
+		// reject the candidate if it is NOT contained in the pipe and
+		// therefore it should have at least 1 Mvd hit but it has none.
+		if( (!GeomCalculator.IsInTargetPipe(	Ox[ncand],
 			Oy[ncand],
 			R[ncand],
 			FI0[ncand],
@@ -2504,17 +2514,23 @@ if(istampa>0){
 			Charge[ncand],
 			VERTICALGAP/2.) )
 				 &&
-		nMvdStripHitsinTrack[ncand]+nMvdPixelHitsinTrack[ncand]==0)
+			nMvdStripHitsinTrack[ncand]+nMvdPixelHitsinTrack[ncand]==0)
 		{
 			keepit[ncand]=false;
 		}
- }  // end of  (YesCleanMvd)
+	}  // end of  (YesCleanMvd)
 
-    }	//  end of for(ncand=0; ncand< nTotalCandidates; ncand++)
-
-
+  }	//  end of for(ncand=0; ncand< nTotalCandidates; ncand++)
 
 
+ // In case some candidate track were not processed in the previous loop, there might
+ // be still GoodSkewFit[ncand] = false; in that case the candidate track is rejected
+ // because it has no information on KAPPA;
+  for(ncand=0; ncand< nTotalCandidates; ncand++){
+	if(!GoodSkewFit[ncand]) keepit[ncand]=false;
+  }
+
+//--------
 
 //-------------- stampa
  if(istampa>=2){
@@ -2540,7 +2556,8 @@ if(istampa>0){
 			R,
 			Ox,
 			Oy,
-			FI0
+			FI0,
+			KAPPA
 			);
  }
 //-------------- fine stampa
@@ -2597,6 +2614,7 @@ if(istampa>0){
 
 
 	for(ncand=0; ncand< nTotalCandidates; ncand++){
+		if(!keepit[ncand]) continue;
 		i=nMvdPixelHitsinTrack[ncand]+nMvdStripHitsinTrack[ncand]+
 			nSttParHitsinTrack[ncand]+nSttSkewHitsinTrack[ncand];
 		for(j=0;j<nSciTilHitsinTrack[ncand];j++) {
@@ -2639,7 +2657,8 @@ if(istampa>0){
 			R,
 			Ox,
 			Oy,
-			FI0
+			FI0,
+			KAPPA
 			);
  }
 //-------------- fine stampa
@@ -2655,10 +2674,10 @@ if(istampa>0){
 		auxS[i] = SchosenSkew[ncand][ListSttSkewHitsinTrack[ncand][i]];
 	}
 
-    if(YesClean){
-if(istampa>1) cout<<"PndTrkTracking, entra in TrackCleanup tracce normali, IVOLTE "<<IVOLTE
-	<<" e track cand. "<<ncand<<endl;
-	if ( !Cleaner.TrackCleanup(
+	if(YesClean){
+		if(istampa>1) cout<<"PndTrkTracking, entra in TrackCleanup "<<
+			"tracce normali, IVOLTE "<<IVOLTE<<" e track cand. "<<ncand<<endl;
+		if ( !Cleaner.TrackCleanup(
 		APOTEMAMAXINNERPARSTRAW,
 		APOTEMAMAXSKEWSTRAW,
 		APOTEMAMINOUTERPARSTRAW,
@@ -2686,11 +2705,11 @@ if(istampa>1) cout<<"PndTrkTracking, entra in TrackCleanup tracce normali, IVOLT
 		STRAWRADIUS,
 		ZCENTER_STRAIGHT
 				) ) {
-		keepit[ncand]=false;
-		continue;
-	}
+			keepit[ncand]=false;
+			continue;
+		} // end if
 
-    }  // end of if(YesClean)
+	}  // end of if(YesClean)
 
 	nRemainingCandidates++;
 
@@ -3106,8 +3125,10 @@ if(istampa>2){
 						);
 		if( resultFitSZagain[ncand]==1){
 			KAPPA[ncand] = emme;
+			GoodSkewFit[ncand] = true;
 		} else {
 			keepit[ncand]=false;
+			GoodSkewFit[ncand] = false;
 		}
 
 	} //   end of  for(ncand=nSttTrackCand; ncand< nTotalCandidates; ncand++)
@@ -3136,6 +3157,7 @@ if(istampa>2){
 			);
 	// limit the total # Stt hits to MAXSTTHITSINTRACK
    for(ncand=nSttTrackCand; ncand< nTotalCandidates; ncand++){
+	if(!keepit[ncand]) continue;
 	if( nSttParHitsinTrack[ncand] > MAXSTTHITSINTRACK ) {
 	  nSttParHitsinTrack[ncand]=MAXSTTHITSINTRACK;
 	}
@@ -3207,6 +3229,7 @@ if(istampa>2){
 	// adding at the end the SciTil hit (if present).
 
 	for(ncand=nSttTrackCand; ncand< nTotalCandidates; ncand++){
+		if(!keepit[ncand]) continue;
 		if( nSciTilHitsinTrack[ncand]==1) {
 			i=nMvdPixelHitsinTrack[ncand]+nMvdStripHitsinTrack[ncand]+
 			  nSttParHitsinTrack[ncand]+nSttSkewHitsinTrack[ncand];
@@ -3220,7 +3243,7 @@ if(istampa>2){
 
   if(YesClean){
      for(ncand=nSttTrackCand; ncand< nTotalCandidates; ncand++){
-
+	if(!keepit[ncand]) continue;
 
 	if ( !Cleaner.TrackCleanup(
 		APOTEMAMAXINNERPARSTRAW,
