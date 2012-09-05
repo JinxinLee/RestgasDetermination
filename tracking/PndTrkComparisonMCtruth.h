@@ -119,7 +119,7 @@ struct PndTrkComparisonMCtruth_io_Data{
 
  // inizio cambio_in_perl
 
-class PndTrkComparisonMCtruth : public TObject
+class PndTrkComparisonMCtruth
 {
 
 
