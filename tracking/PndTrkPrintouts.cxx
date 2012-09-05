@@ -142,7 +142,8 @@ void PndTrkPrintouts::stampetta(
 	Double_t *R,
 	Double_t *Ox,
 	Double_t *Oy,
-	Double_t *FI0
+	Double_t *FI0,
+	Double_t *KAPPA
 	)
 {
 	int i,j;
@@ -152,7 +153,7 @@ void PndTrkPrintouts::stampetta(
 	   <<nSttTrackCand<<endl;
       for(  i= 0; i< nSttTrackCand; i++){
 	   cout<<"\tcandidate n. "<<i<<", keepit = "<<keepit[i]<<", Ox "<<Ox[i]
-	   <<", Oy "<<Oy[i]<<", R "<<R[i]<<", FI0 "<<FI0[i]<<endl;
+	   <<", Oy "<<Oy[i]<<", R "<<R[i]<<", FI0 "<<FI0[i]<<", KAPPA "<<KAPPA[i]<<endl;
 	   cout<<"-----------------\n";
       	if(!keepit[i]) continue;
 	   cout<<"da PndTrkTracking --------------------------------------\n"<<
