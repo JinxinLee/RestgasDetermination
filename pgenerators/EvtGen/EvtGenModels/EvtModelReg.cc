@@ -101,6 +101,7 @@
 #include "EvtGenModels/EvtElectronPositron.hh"
 #include "EvtGenModels/EvtDeuteronSpectator.hh"
 //#include "EvtGenModels/EvtPpbarPi0Pi0.hh"
+#include "EvtGenModels/EvtPpbarEtacGamma.hh"
 
 #include "EvtGenModels/EvtLNuGamma.hh"
 
@@ -207,6 +208,7 @@ EvtModelReg::EvtModelReg()
     modelist.Register(new EvtElectronPositron); // [Gosia Sudol 24/07/09]
 //    modelist.Register(new EvtPpbarPi0Pi0); 
     modelist.Register(new EvtDeuteronSpectator); // [Albrecht Gillitzer 10/02/12]
+    modelist.Register(new EvtPpbarEtacGamma); // [Johan Messchendorp, September 2012]
 
     modelist.Register(new EvtBTo4piCP);
     modelist.Register(new EvtBTo3piCP);
