@@ -77,7 +77,8 @@ class PndTrkPrintouts : public TObject
 	Double_t *R,
 	Double_t *Ox,
 	Double_t *Oy,
-	Double_t *FI0
+	Double_t *FI0,
+	Double_t *KAPPA
 	);
 
 
