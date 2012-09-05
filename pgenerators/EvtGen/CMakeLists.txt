@@ -207,6 +207,7 @@ EvtGenModels/EvtPhsp.cc
 EvtGenModels/EvtPi0Dalitz.cc
 EvtGenModels/EvtPpbarGammaGamma.cc
 EvtGenModels/EvtPpbarPi0Gamma.cc
+EvtGenModels/EvtPpbarEtacGamma.cc
 EvtGenModels/EvtPto3P.cc
 EvtGenModels/EvtPycont.cc
 EvtGenModels/EvtPyGaGa.cc
