@@ -24,6 +24,7 @@
 #include <stdlib.h>
 #include "EvtGenBase/EvtStringParticle.hh"
 #include "EvtGenBase/EvtVector4R.hh"
+#include "EvtGenBase/EvtReport.hh"
 
 
 EvtStringParticle::~EvtStringParticle(){

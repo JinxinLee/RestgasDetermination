@@ -28,6 +28,7 @@ link_directories( ${LINK_DIRECTORIES})
 
 set(EVTGEN_SRCS
 EvtGen.cc
+EvtGenBase/EvtSpinType.cc
 EvtGenBase/Evt3Rank3C.cc
 EvtGenBase/EvtAbsLineShape.cc
 EvtGenBase/EvtAmp.cc

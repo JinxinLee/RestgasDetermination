@@ -26,6 +26,7 @@
 #include <stdlib.h>
 #include <assert.h>
 #include "EvtGenBase/EvtModel.hh"
+#include "EvtGenBase/EvtReport.hh"
 
 #include "EvtGenModels/EvtTauVectornu.hh"
 #include "EvtGenModels/EvtVVP.hh"

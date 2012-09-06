@@ -23,6 +23,7 @@
 #include "EvtGenModels/EvtBtoXsgamma.hh"
 #include "EvtGenModels/EvtBtoXsgammaFlatEnergy.hh"
 #include "EvtGenBase/EvtRandom.hh"
+#include "EvtGenBase/EvtReport.hh"
 #include <fstream>
 using std::endl;
 using std::fstream;

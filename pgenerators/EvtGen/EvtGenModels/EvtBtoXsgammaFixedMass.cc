@@ -22,6 +22,7 @@
 #include <stdlib.h>
 #include "EvtGenModels/EvtBtoXsgamma.hh"
 #include "EvtGenModels/EvtBtoXsgammaFixedMass.hh"
+#include "EvtGenBase/EvtReport.hh"
 #include <fstream>
 using std::endl;
 using std::fstream;

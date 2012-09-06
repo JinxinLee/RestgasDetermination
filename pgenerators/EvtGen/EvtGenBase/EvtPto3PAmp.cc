@@ -16,6 +16,7 @@
 #include "EvtGenBase/EvtDalitzCoord.hh"
 #include "EvtGenBase/EvtdFunction.hh"
 #include "EvtGenBase/EvtCyclic3.hh"
+#include "EvtGenBase/EvtReport.hh"
 using std::endl;
 using EvtCyclic3::Index;
 using EvtCyclic3::Pair;

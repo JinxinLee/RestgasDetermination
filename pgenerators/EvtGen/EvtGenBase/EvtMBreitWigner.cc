@@ -1,5 +1,6 @@
 #include "EvtGenBase/EvtPatches.hh"
 #include "EvtGenBase/EvtMBreitWigner.hh"
+#include "EvtGenBase/EvtReport.hh"
 #include <stdio.h>
 #include <stdlib.h>
 using std::endl;

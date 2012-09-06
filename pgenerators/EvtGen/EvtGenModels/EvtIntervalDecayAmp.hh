@@ -34,6 +34,7 @@
 #include "EvtGenBase/EvtCPUtil.hh"
 #include "EvtGenBase/EvtPDL.hh"
 #include "EvtGenBase/EvtCyclic3.hh"
+#include "EvtGenBase/EvtReport.hh"
 
 template <class T>
 class EvtIntervalDecayAmp : public  EvtDecayAmp {

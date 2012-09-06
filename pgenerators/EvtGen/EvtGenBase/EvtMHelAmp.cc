@@ -1,6 +1,7 @@
 #include "EvtGenBase/EvtPatches.hh"
 #include "EvtGenBase/EvtMHelAmp.hh"
 #include "EvtGenBase/EvtKine.hh"
+#include "EvtGenBase/EvtReport.hh"
 #include <stdio.h>
 #include <stdlib.h>
 using std::endl;
