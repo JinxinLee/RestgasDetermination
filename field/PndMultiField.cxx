@@ -72,7 +72,7 @@ PndMultiField::PndMultiField(TString Map)
 		AddField(map_s3);
 		AddField(map_s4);
 	
-	}else if (Map="DIPOLE") {
+	}else if (Map=="DIPOLE") {
 		PndDipoleMap *map_d1= new PndDipoleMap("DipoleMap1", "R");
 		PndDipoleMap *map_d2= new PndDipoleMap("DipoleMap2", "R");
 		
