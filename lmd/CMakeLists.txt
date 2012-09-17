@@ -58,6 +58,7 @@ link_directories( ${LINK_DIRECTORIES})
 set(LMD_SRCS
 
 LmdTools/PndLmdContFact.cxx
+LmdTools/PndLmdAlignPar.cxx
 LmdDigi/PndLmdPixelHitProducerFast.cxx
 LmdDigi/PndLmdHybridHitProducer.cxx
 LmdDigi/PndLmdStripHitProducer.cxx

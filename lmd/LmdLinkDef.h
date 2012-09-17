@@ -19,6 +19,7 @@
 #pragma link C++ class PndLmdDetector+;
 #pragma link C++ class PndLmdGeo+;
 #pragma link C++ class PndLmdContFact+;
+#pragma link C++ class PndLmdAlignPar+;
 
 //digi
 #pragma link C++ class PndLmdPixelHitProducerFast+;
