@@ -1565,8 +1565,6 @@ c[] = {-2.*Ama/sqrt(3.),-Ama,	2.*Ama/sqrt(3.),-vgap/2.,2.*Ami/sqrt(3.),-Ami,	-2.
 
 //   find intersections (maximum 16) with the 8 sides.
 
-
-
 		AtLeast1 = false;
 		*nIntersections =0;
 		internal = true;
@@ -1593,7 +1591,8 @@ c[] = {-2.*Ama/sqrt(3.),-Ama,	2.*Ama/sqrt(3.),-vgap/2.,2.*Ami/sqrt(3.),-Ami,	-2.
 						&distance // distance of (Oxx,Oyy) from line
 							  // defined by  a*x+b*y+c=0.
 							)
-			   ){
+			   )
+			{
 			   AtLeast1=true;
 			   for(j=0;j<Nintersections;j++){
 				XintersectionList[ *nIntersections ] =tempX[j];
