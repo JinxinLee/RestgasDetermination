@@ -1734,7 +1734,8 @@ Short_t  PndTrkCTGeometryCalculations::IntersectionsWithClosedPolygon(
 						&distance // distance of (Oxx,Oyy) from line
 							  // defined by  a*x+b*y+c=0.
 							)
-			   ){
+			   )
+			{
 			   AtLeast1[i]=true;
 			   for(j=0;j<Nintersections;j++){
 				XintersectionList[ nIntersections[i] ][i] =tempX[j];
