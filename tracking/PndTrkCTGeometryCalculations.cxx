@@ -1688,7 +1688,7 @@ Short_t  PndTrkCTGeometryCalculations::IntersectionsWithClosedPolygon(
 	//----------------------
 
 		Erre[] = {Rmi, Rma},  //  this is the distance from (0,0) 
-					// of the Verteces of the Hexagon delimiting the Skew area
+					// of the SIDES of the Hexagon delimiting the Skew area
 		tempX[2],
 		tempY[2];
 
