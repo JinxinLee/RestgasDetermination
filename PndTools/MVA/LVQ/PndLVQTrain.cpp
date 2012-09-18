@@ -27,7 +27,8 @@ PndLVQTrain::PndLVQTrain(std::vector< std::pair<std::string, std::vector<float>*
     m_proto_init(RAND_FROM_DATA),
     m_initProtoFile(""),
     m_ErrorStep(1000),
-    m_ProgStep(1000)
+    m_ProgStep(1000),
+    m_PerEpoch(false)
 {}
 
 /**
@@ -49,7 +50,8 @@ PndLVQTrain::PndLVQTrain(std::string const& inputFile,
     m_proto_init(RAND_FROM_DATA),
     m_initProtoFile(""),
     m_ErrorStep(1000),
-    m_ProgStep(1000)
+    m_ProgStep(1000),
+    m_PerEpoch(false)
 {}
 
 /**
@@ -90,7 +92,7 @@ void PndLVQTrain::Train()
   // Compute learning rate constant "a"
   double ethaZero     = m_ethaZero;//0.1;
   double ethaFinal    = m_ethaFinal;//0.0001;
-  int    numSweep     = m_NumSweep;//1000;
+  unsigned int numSweep  = m_NumSweep;//1000;
   unsigned int tFinal = numSweep * ( events.size() );
   long double a       = (ethaZero - ethaFinal)/(ethaFinal * static_cast<double>(tFinal) );
   
@@ -146,14 +148,21 @@ void PndLVQTrain::Train()
       std::cerr << ". " ;
     }
 
-    // Evaluate classifier.
-    if( (m_ErrorStep != 0) &&
-	((time % m_ErrorStep) == 0)
-	)
+    // Evaluate classifier per specified number of steps.
+    if( (!m_PerEpoch) &&
+        (m_ErrorStep != 0) &&
+        ( (time % m_ErrorStep) == 0 )
+      )
     {
       EvalClassifierError(time);
     }
-  
+    else if( (m_PerEpoch) && // Evaluate classifier per Epoch.
+             ( (time % events.size()) == 0 )
+           )
+    {
+      // EvalClassifierError(time);
+      EvalClassifierError( (time / events.size()) );
+    }
     // select a random example
     // int index = static_cast<int>(trand.Uniform(0.0, (events.size() - 1) ) );
     int index = static_cast<int>( (trand.Uniform(0.0, (events.size() - 1)) ) + 0.5);
@@ -204,7 +213,11 @@ void PndLVQTrain::Train()
   }
 
   // Last evaluation after the very last learning step.
-  EvalClassifierError( (tFinal - 1) );
+  if( m_PerEpoch ) {
+    EvalClassifierError( (tFinal / events.size()) );
+  } else {
+    EvalClassifierError( tFinal );
+  }
 
   std::cerr << '\n';
   std::cout << "<INFO> Finished training.\n";
@@ -243,7 +256,7 @@ void PndLVQTrain::Train21()
   
   double ethaZero     = m_ethaZero;//0.1;
   double ethaFinal    = m_ethaFinal;//0.001;
-  int    numSweep     = m_NumSweep;//100;
+  unsigned int numSweep  = m_NumSweep;//100;
   unsigned int tFinal = numSweep * ( events.size());
   long double a       = (ethaZero - ethaFinal)/(ethaFinal * static_cast<double>(tFinal));
   
@@ -274,7 +287,7 @@ void PndLVQTrain::Train21()
 
   // Print some INFO.
   std::cout << "<INFO>: Performing LVQ2.1 learning with parameters:\n"
-	    <<"Init constant = " << m_initConst << ", ethaZero =" 
+	    <<"Init constant = " << m_initConst << ", ethaZero = " 
 	    << ethaZero << ", ethaFinal = " << ethaFinal
 	    <<", numSweep = " << numSweep << ", tFinal= "<< tFinal 
 	    <<", learn coeff. = " << a << ", Window = " << windowSize 
@@ -290,12 +303,21 @@ void PndLVQTrain::Train21()
       std::cerr << " ." ;
     }
     
-    // Evaluate classifier.
-    if( ( (m_ErrorStep != 0) &&
-	  (time % m_ErrorStep) == 0 )
-	)
+    // Evaluate classifier per specified number of steps.
+    if( ( (!m_PerEpoch) && 
+          (m_ErrorStep != 0) &&
+	  (time % m_ErrorStep) == 0
+        )
+      )
     {
       EvalClassifierError(time);
+    }
+    else if( (m_PerEpoch) && // Evaluate classifier per Epoch.
+             ( (time % events.size()) == 0 )
+           )
+    {
+      //EvalClassifierError(time);
+      EvalClassifierError( (time / events.size()) );
     }
 
     double distance = 0.0;
@@ -379,11 +401,15 @@ void PndLVQTrain::Train21()
   }
 
   // Last evaluation
-  EvalClassifierError( (tFinal - 1) );
+  if( m_PerEpoch ) {
+    EvalClassifierError( (tFinal / events.size()) );
+  }
+  else {
+    EvalClassifierError( tFinal );
+  }
 
   std::cerr << std::endl;
   std::cout << "<INFO> Finished training.\n";
-
   //WriteToWeightFile(m_LVQProtos);
 }
 

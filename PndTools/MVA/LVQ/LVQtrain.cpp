@@ -26,7 +26,7 @@
  * 0 = no crossvalidation, Normal init or read from pre init vector
  * 1 = crossvalidation using root trees
  */
-#define CROSS_VALIDATE 1
+#define CROSS_VALIDATE 0
 
 #if (CROSS_VALIDATE != 0)
 #define NUMBER_OF_FOLDS 10 // k-Fold CV
@@ -171,8 +171,11 @@ int main(int argc, char** argv)
   // Set the size of the test set in (%)
   tr.SetTestSetSize(10);
   
-  tr.SetErrorStepSize(5000);//1000 (DEFALUT)
+  tr.SetErrorStepSize(10000);//1000 (DEFALUT)
   
+  // Set per Epoch evaluation.
+  tr.SetPerEpochEval(true);
+
   //VARX, MINMAX, MEDIAN, NONORM(DEFAULT)
   // tr.NormalizeData(VARX);
   

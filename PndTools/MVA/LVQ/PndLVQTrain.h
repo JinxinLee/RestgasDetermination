@@ -135,6 +135,21 @@ class PndLVQTrain: public PndMvaTrainer
    */
   void EvalClassifierError();
 
+  /**
+   * Select if we want to follow the training evaluation per epoch
+   * (sweeps) or per step. The number of steps = Sweeps * (#examples).
+   *
+   *@param val true = evaluate per epoch, false per step. Default is
+   * false.
+   */
+  inline void SetPerEpochEval(bool val);
+
+  /**
+   * Getter for evaluation scheme.
+   *@return Per epoch or per step.
+   */
+  inline bool GetPerEpochEval() const;
+
   ////================= DEBUG Only, NOT TO BE USED
 #if DEBUG_LVQ_TRAIN == 1
   inline std::vector< std::pair<std::string, std::vector<float>*> > const& train1sec()
@@ -250,6 +265,9 @@ class PndLVQTrain: public PndMvaTrainer
   
   //! Map labels (classes) to number of prototypes.
   std::map < std::string, size_t> m_numProtoPerClass;
+
+  //! If evaluate per epoch
+  bool m_PerEpoch;
 };
 //END Interface definition
 
@@ -281,5 +299,15 @@ inline void PndLVQTrain::SetErrorStepSize(unsigned int const val)
 inline void PndLVQTrain::SetLVQ2_1WindowSize(float const Wsize)
 {
   m_WindowSize = Wsize;
+};
+
+inline void PndLVQTrain::SetPerEpochEval(bool val)
+{
+  m_PerEpoch = val;
+};
+
+inline bool PndLVQTrain::GetPerEpochEval() const
+{
+  return m_PerEpoch;
 };
 #endif// End of interface definition
