@@ -1397,7 +1397,7 @@ Short_t  PndTrkCTGeometryCalculations::IntersectionsWithClosedbiHexagonLeft(
 	//-------------------
 	// a,b,c == coefficients of the implicit equations of the 3 sides of the half inner Hexagon
 	// plus 3 sides of the half outer Hexagon plus 2 vertical sides corresponding to the Gap :
-	//    a*x + b*y +c =0; the numbering of these 8 sides foolows the convention of Gianluigi's
+	//    a*x + b*y +c =0; the numbering of these 8 sides follows the convention of Gianluigi's
 	// logbook on page 286.
 a[] = {-1./sqrt(3.) ,	1.,	1./sqrt(3.),	1.,	1./sqrt(3.),	1.,	-1./sqrt(3.),	1.},
 b[] = {1.,		0.,	1.,		0.,	1.,		0.,	1.,		0.},
