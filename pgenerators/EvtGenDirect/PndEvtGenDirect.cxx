@@ -11,8 +11,8 @@
 #include "TTree.h"
 #include "TVector3.h"
 #include "TParticle.h"
-#include "PndEvtGenDirect.h"
 #include "FairPrimaryGenerator.h"
+#include "PndEvtGenDirect.h"
 #include "TRandom.h"
 
 #include "EvtGenBase/EvtPatches.hh"
@@ -22,7 +22,7 @@
 #include "EvtGenBase/EvtParticle.hh"
 #include "EvtGenBase/EvtRandom.hh"
 #include "EvtGenBase/EvtRandomEngine.hh"
-#include "EvtGenBase/EvtReport.hh"
+//#include "EvtGenBase/EvtReport.hh"
 #include <string>
 #include <stdio.h>
 #include <stdlib.h>
@@ -177,7 +177,8 @@ Bool_t PndEvtGenDirect::ReadEvent(FairPrimaryGenerator* primGen) {
   if (verbose>1 ||(verbose==1 && (evtnr<10 || ((evtnr+1)%100)==0))){
     cout << "PndEvtGenDirect::ReadEvent "<<evtnr <<" "<<fEnergy<<" "<<fMomentum << endl;
     parent->printParticle();
-    report(INFO,"EvtGen") << "event Number\t"<< evtnr << evtstdhep << endl;
+//    report(INFO,"EvtGen") << "event Number\t"<< evtnr << evtstdhep << endl;
+    cout << "event Number\t"<< evtnr << evtstdhep << endl;
     cout << evtnr << "\t" << evtstdhep.getNPart();
     cout <<evtstdhep<<endl;
     cout <<"==== now compare ==="<<endl;
