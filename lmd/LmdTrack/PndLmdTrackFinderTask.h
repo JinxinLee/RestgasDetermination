@@ -26,7 +26,7 @@ class PndLmdTrackFinderTask : public FairTask
  public:
 
     /** Default constructor **/
-    PndLmdTrackFinderTask(Int_t inFinderMode=0, TString hitBranch="LMDHitsStrip", Int_t innSensPP=8);
+    PndLmdTrackFinderTask(Int_t inFinderMode=0, TString hitBranch="LMDHitsStrip", TString clusterBranch="LMDStripClusterCand", TString digiBranch="LMDStripDigis", Int_t innSensPP=8);
     /** Destructor **/
     virtual ~PndLmdTrackFinderTask();
 
