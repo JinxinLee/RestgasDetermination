@@ -14,6 +14,7 @@
 #include "PndLmdTrackFinderTask.h"
 
 #include "PndSdsDigiStrip.h"
+#include "TStopwatch.h"
 // #include "PndSdsPixelCluster.h"
 
 
@@ -119,6 +120,7 @@ bool PndLmdTrackFinderTask::SortHitsByDet(std::vector< std::vector< std::pair<In
     PndSdsHit* myHit = (PndSdsHit*)(fStripHitArray->At(iHit));
   
     Int_t sensid = myHit->GetSensorID(); // Sensors: 1..32
+    // cout<<"sensid = "<<sensid<<endl;
     Int_t planeid = floor((sensid)/(double)nSensPP); //nSensPP sensors/plane => Planes: 0..3
     hitsd.at(planeid).push_back( make_pair (iHit,false) );
   }
@@ -231,7 +233,8 @@ void PndLmdTrackFinderTask::FindHitsIII(std::vector<PndTrackCand> &tofill, std::
       tmp.SetXYZ(hit2->GetX(), hit2->GetY(), hit2->GetZ());
       vec = tmp - start;   //calc direction vector for FINDING
       dvec.SetXYZ(hit2->GetDx(), hit2->GetDy(), hit2->GetDz());
-      if(vec.Theta()>0.03 && vec.Theta()<0.05 && vec.Phi()>-0.3 && vec.Phi()<0.3){ //ignore vectors with theta outside 2-9 mrad
+      //      if(vec.Theta()>0.03 && vec.Theta()<0.05 && vec.Phi()>-0.3 && vec.Phi()<0.3){ //ignore vectors with theta outside 2-9 mrad
+      if(vec.Theta()<0.01){ //ignore vectors with theta outside 10 mrad
         trackStart.push_back(start);
         trackStartd.push_back(dstart);
         trackVec.push_back(vec);        //save vector from start to second
@@ -363,7 +366,8 @@ void PndLmdTrackFinderTask::FindHitsII(std::vector<PndTrackCand> &tofill, std::v
       tmp.SetXYZ(hit2->GetX(), hit2->GetY(), hit2->GetZ());
       vec = tmp - start;   //calc direction vector for FINDING
       dvec.SetXYZ(hit2->GetDx(), hit2->GetDy(), hit2->GetDz());
-      if(vec.Theta()>0.03 && vec.Theta()<0.05 && vec.Phi()>-0.3 && vec.Phi()<0.3){ //ignore vectors with theta outside 2-9 mrad
+      //      if(vec.Theta()>0.03 && vec.Theta()<0.05 && vec.Phi()>-0.3 && vec.Phi()<0.3){ //ignore vectors with theta outside 2-9 mrad
+	if(vec.Theta()<0.01){ //ignore vectors with theta outside 10 mrad
         trackStart.push_back(start);
         trackStartd.push_back(dstart);
         trackVec.push_back(vec);        //save vector from start to second
@@ -493,7 +497,8 @@ void PndLmdTrackFinderTask::FindHitsI(std::vector<PndTrackCand> &tofill, std::ve
       tmp.SetXYZ(hit2->GetX(), hit2->GetY(), hit2->GetZ());
       vec = tmp - start;   //calc direction vector for FINDING
       dvec.SetXYZ(hit2->GetDx(), hit2->GetDy(), hit2->GetDz());
-      if(vec.Theta()>0.03 && vec.Theta()<0.05 && vec.Phi()>-0.3 && vec.Phi()<0.3){ //ignore vectors with theta outside 2-9 mrad
+      //if(vec.Theta()>0.03 && vec.Theta()<0.05 && vec.Phi()>-0.3 && vec.Phi()<0.3){ //ignore vectors with theta outside 2-9 mrad
+      if(vec.Theta()<0.01){ //ignore vectors with theta outside 10 mrad
         trackStart.push_back(start);
         trackStartd.push_back(dstart);
         trackVec.push_back(vec);        //save vector from start to second
@@ -627,6 +632,8 @@ void PndLmdTrackFinderTask::FindHitsI(std::vector<PndTrackCand> &tofill, std::ve
 // -----   Public method Exec   --------------------------------------------
 void PndLmdTrackFinderTask::Exec(Option_t* opt)
 {
+  TStopwatch *timer_exec = new TStopwatch();
+  timer_exec->Start();
   if(fVerbose>2) cout << "Evt started--------------"<<endl<<endl;
 
   //which combinations of planes to build pseudo-vectos
@@ -697,6 +704,11 @@ void PndLmdTrackFinderTask::Exec(Option_t* opt)
     new((*fTrackCandArray)[t]) PndTrackCand(theCands.at(t)); 
 
   if(fVerbose>2) cout << "Evt finsihed--------------"<<endl<<endl;
+  timer_exec->Stop();
+  Double_t rtime_exec = timer_exec->RealTime();
+  Double_t ctime_exec = timer_exec->CpuTime();
+  cout << "Real time for Exec:" << rtime_exec << " s, CPU time " << ctime_exec << " s" << endl;
+  cout << endl;
 }
 // -------------------------------------------------------------------------
 
