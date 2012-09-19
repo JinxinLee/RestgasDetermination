@@ -1,3 +1,4 @@
+int QAmacro_gem_2()
 {
   Int_t verboseLevel = 0;
 

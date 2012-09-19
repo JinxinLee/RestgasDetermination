@@ -1,6 +1,7 @@
 // TEST 2: full reconstruction, i.e. digi fast + reco + kalman
 // #include "/home/lavezzi/test_dev/original/trunk3/pnddata/PndDetectorList.h"
 // void QAmacro_stt_2(){
+void QAmacro_stt_2()
 {
   TStopwatch timer;
   timer.Start();

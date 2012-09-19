@@ -7,6 +7,7 @@
 //
 // JGM, April 2010
 //
+int QAmacro_emc_4()
 {
   
         gROOT->LoadMacro("$VMCWORKDIR/gconfig/rootlogon.C");

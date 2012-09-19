@@ -1,4 +1,5 @@
 // root macro to analyze the clusterization output
+void QAmacro_mvd_ana()
 {
   cout << "QA Analysis module for the MVD - Hit resolution check." << endl;
   TStopwatch timer;

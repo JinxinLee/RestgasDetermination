@@ -1,5 +1,6 @@
 // Macro created 20/09/2006 by S.Spataro
 // It creates a geant simulation file for emc
+int QAmacro_emc_1()
 {
   TStopwatch timer;
   timer.Start();

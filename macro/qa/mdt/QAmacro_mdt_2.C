@@ -1,3 +1,4 @@
+void QAmacro_mdt_2()
 {
 
   gROOT->LoadMacro("$VMCWORKDIR/gconfig/rootlogon.C");

@@ -3,6 +3,7 @@
 // theta in [20°, 140°]
 // phi   in [0°, 360°]
 
+void QAmacro_stt_1()
 {
   TStopwatch timer;
   timer.Start();

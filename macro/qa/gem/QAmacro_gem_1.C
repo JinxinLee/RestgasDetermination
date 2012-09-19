@@ -1,3 +1,4 @@
+void QAmacro_gem_1()
 {
   //FileNames
   TString OutputFile    = "tstQA.points.root";

@@ -1,4 +1,5 @@
 // TEST 3: check digi and reco output
+void QAmacro_stt_3()
 {
   TStopwatch timer;
   timer.Start();

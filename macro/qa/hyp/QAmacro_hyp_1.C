@@ -1,3 +1,4 @@
+void QAmacro_hyp_1()
 {
   gROOT->LoadMacro("$VMCWORKDIR/gconfig/rootlogon.C");
   rootlogon();

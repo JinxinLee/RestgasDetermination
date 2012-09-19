@@ -1,3 +1,4 @@
+void QAmacro_mvd_2()
 {
 	  cout << "QA module for the MVD Digitization and Hit Reconstruction." << endl;
   TStopwatch timer;

@@ -1,3 +1,4 @@
+void QAmacro_mvd_1()
 {
   cout << "QA module for the MVD Simulation." << endl;
   TStopwatch timer;
