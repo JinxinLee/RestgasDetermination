@@ -169,7 +169,7 @@ int main(int __argc,char *__argv[]) {
 
   vector <int> countPDGid(6246); //number of each possible particle, [i]= PDGid + countPDGid.size()/2.;
   vector <TString> process(10000);// process[i]= name of process with PGDis sum=i; 
-  bool fsumID[20][10000];
+  bool fsumID[100][10000];
   for(int in=0;in<20;in++){
       for(int isum=0;isum<10000;isum++){
 	fsumID[in][isum]=false;
@@ -177,6 +177,7 @@ int main(int __argc,char *__argv[]) {
     }
 
   for (Int_t j=0; j<nEvents; j++){
+  // for (Int_t j=25910; j<nEvents; j++){
     TString process_cur="";
     int sumIDnum=0;
     vector <int> vecPDGid;
@@ -193,7 +194,8 @@ int main(int __argc,char *__argv[]) {
   
     const int nParticles = true_tracks->GetEntriesFast();
     // cout<<"==============================================="<<endl;
-    if(j%500==0) cout<<"Event #"<<j<<" has "<<nParticles<<" particle(s)"<<endl;
+    if(j%500==0) 
+    cout<<"Event #"<<j<<" has "<<nParticles<<" particle(s)"<<endl;
     // cout<<"And there are:"<<endl;
     hMCparticles->Fill(nParticles);
     double  TotCharge=0;
@@ -207,7 +209,7 @@ int main(int __argc,char *__argv[]) {
        vecPDGid.push_back(mcID);
 
      
-    //   //	cout<<"#"<<nk<<"has PDGid="<<mcID<<endl;
+       //       cout<<"#"<<nk<<"has PDGid="<<mcID<<endl;
        TDatabasePDG *fdbPDG = TDatabasePDG::Instance();
        TParticlePDG *fParticle = fdbPDG->GetParticle(mcID);
        double      mcMass = fParticle->Mass();
@@ -215,7 +217,7 @@ int main(int __argc,char *__argv[]) {
        TotCharge += fCharge;
        //       int IDpos = fabs(mcID);
        int IDpos = mcID + 0.5*countPDGid.size();
-       //cout<<" IDpos = "<< IDpos<<endl;
+       //       cout<<" IDpos = "<< IDpos<<endl;
        countPDGid[IDpos] +=1;
        TLorentzVector MomMC = mctrk->Get4Momentum();
       hMCLabtheta->Fill(MomMC.Theta());
@@ -224,7 +226,7 @@ int main(int __argc,char *__argv[]) {
       double Pz = MomMC.Pz();
       hMCpx->Fill(Px);
       hMCpy->Fill(Py);
-      hMCpz->Fill(Pz);
+      hMCpz->Fill(Pz); 
       hMCphi->Fill(MomMC.Phi());
       hMCLABtheta_vs_ID->Fill(mcID,MomMC.Theta());
       if(MomMC.Theta()<1.5e-2 && mcID<0){
@@ -259,7 +261,7 @@ int main(int __argc,char *__argv[]) {
     // for(int pid=0;pid<3123;pid++){
     for(int pid=0;pid<6246;pid++){
       if(countPDGid[pid]==0) continue;
-      // cout<<"countPDGid["<<pid<<"]="<<countPDGid[pid]<<" current sum = "<<sumIDnum<<endl;
+      //      cout<<"countPDGid["<<pid<<"]="<<countPDGid[pid]<<" current sum = "<<sumIDnum<<endl;
       sumIDnum += fabs(pid-0.5*countPDGid.size())*countPDGid[pid];
 
       //build name of process like a string
@@ -311,6 +313,12 @@ int main(int __argc,char *__argv[]) {
       case 111:
 	process_cur+=  countID +"\$\\pi^{0}";
 	break;
+      case 11:
+	process_cur+=  countID +"e^{-}";
+	break;
+      case -11:
+	process_cur+=  countID +"e^{+}";
+	break;
       case 130:
 	process_cur+=  countID +"\$K^{0}_{L}$";
 	break;
@@ -318,16 +326,18 @@ int main(int __argc,char *__argv[]) {
 	process_cur+=  countID +"\$K^{0}_{S}$";
 	break;
       default:
-	process_cur+= countID+"PDGid="+pidIDs;
+	process_cur+= "+"+countID+"*(PDGid="+pidIDs+")";
       }
+      //      cout<<" process_cur: "<<process_cur<<endl;
     }
-
+    //    cout<<"sumIDnum = "<<sumIDnum<<" nParticles = "<<nParticles<<endl;
     if(fsumID[nParticles][sumIDnum]==false){
+      //      cout<<"process[sumIDnum] = "<<process[sumIDnum]<<endl;
       if(process[sumIDnum]=="") process[sumIDnum]=process_cur;
       else process[sumIDnum]+=" or "+process_cur;
     }
 
-    //  cout<<"sumIDnum="<<sumIDnum<<" process_cur:"<<process_cur<<endl;
+    //    cout<<"sumIDnum="<<sumIDnum<<" process_cur:"<<process_cur<<endl;
     hSumIDs->Fill(sumIDnum);
     hSumIDs_numPar->Fill(sumIDnum,nParticles);
     fsumID[nParticles][sumIDnum]=true;
@@ -335,10 +345,11 @@ int main(int __argc,char *__argv[]) {
     for(int ks=0;ks<smallTheta.size();ks++){
       if(smallTheta[ks]!=0) hSumIDs_numPar_smallTheta->Fill(sumIDnum,nParticles);
     }
-    //  cout<<"sumIDnum = "<<sumIDnum<<", "<<nParticles<<" particles"<<endl;
+    //    cout<<"sumIDnum="<<sumIDnum<<" process_cur:"<<process_cur<<endl;
+    //    cout<<"sumIDnum = "<<sumIDnum<<", "<<nParticles<<" particles"<<endl;
     //    sumIDnum = 0;
   }
-
+  //  cout<<"we will go to write summery now!"<<endl;
   /// Read SumIDs info bin by bin ----------------------------------------------
   double sumMin = hSumIDs_numPar->GetXaxis()->GetXmin();
   double sumMax = hSumIDs_numPar->GetXaxis()->GetXmax();
@@ -357,7 +368,7 @@ int main(int __argc,char *__argv[]) {
   for(int xi=0;xi<hSumIDs_numPar->GetNbinsX();xi++){
     for(int yi=0;yi<hSumIDs_numPar->GetNbinsY();yi++){
       double numEv = hSumIDs_numPar->GetBinContent(xi,yi);
-      //cout<<"xi = "<<xi<<" yi = "<<yi<<endl;
+      // cout<<"xi = "<<xi<<" yi = "<<yi<<endl;
       //if(numEv!=0) cout<<"sum="<<sumStep*xi-1<<" with number of particles="<<nparStep*yi-1<<" has "<<numEv<<endl;
       //  if(numEv!=0) cout<<sumStep*xi-1<<" & "<<numEv<<" & "<<nparStep*yi-1<<" \\"<<endl;
       double numEvAtt = hSumIDs_numPar_smallTheta->GetBinContent(xi,yi);
