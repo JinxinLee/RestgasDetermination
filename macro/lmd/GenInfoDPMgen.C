@@ -1,3 +1,40 @@
+//################################################################
+//# Macros for DPM output check
+//# author: Anastasia Karavdina
+//# date: September, 2012
+//#
+//# to compile it add in "# install #" part of CMakeLists.txt lines:
+//# add_executable(dpm_out_check GenInfoDPMgen.C)
+//# target_link_libraries(dpm_out_check ${ROOT_LIBRARIES})
+//#
+//# to run it (and see options): 
+//# ${PANDAROOT}/build/bin/./dpm_out_check --help
+//################################################################
+
+#include <iostream>
+#include <sstream>
+
+#include<TApplication.h>
+#include<TCanvas.h>
+#include<TROOT.h>
+#include<TString.h>
+#include<TChain.h>
+#include<TFile.h>
+#include<TClonesArray.h>
+#include<TSystem.h>
+#include<TH1.h>
+#include<TH2.h>
+#include<TRotation.h>
+#include<TVector3.h>
+#include<TMath.h>
+#include<TGaxis.h>
+#include<TNtuple.h>
+#include<TLatex.h>
+#include<TStopwatch.h>
+
+#include<PndMCTrack.h>
+#include<PndSdsMCPoint.h>
+#include<string>
 #include "TStopwatch.h"
 #include "TString.h"
 #include "TChain.h"
@@ -12,9 +49,65 @@
 #include "TFile.h"
 //#include "PndMCTrack.h"
 using namespace std;
-static const double cProtonMass=0.938272029;		//mass of the proton, in GeV (PDG 2008)
-void GenInfoDPMgen(const int nEvents=2, const double beamMom = 1.5, const int startEvent=0, TString storePath="tmpOutputDPM", const int verboseLevel=3)
-{
+
+// void GenInfoDPMgen(const int nEvents=2, const double beamMom = 1.5, const int startEvent=0, TString storePath="tmpOutputDPM", const int verboseLevel=3)
+// {
+int main(int __argc,char *__argv[]) {
+  TString storePath="/data/FAIRsorf/pandaroot/trunk/macro/lmd/tmpOutputBkg";
+  double beamMom = 1.5;
+  int startEvent=0;
+  int nEvents=100;
+  std::string pathStr="", beamMomStr="", startStr="", nEvStr="";
+  // decode arguments
+  if( __argc>1 && ( strcmp( __argv[1], "-help" ) == 0
+		    || strcmp( __argv[1], "--help" ) == 0 ) ){
+    
+    std::cout << "This is script for checking DPM output with parameters\n"
+	      <<"-path path to the file(s) \n"
+	      <<"-s start event \n"
+	      <<"-n number of events \n"
+	      <<"-p beam momentum \n"
+	      <<"Have fun! \n"
+	      << std::endl;
+    return 0;
+  } 
+  while ((optind < (__argc-1) ) && (__argv[optind][0]=='-')) {
+    bool found=false;
+    std::string sw = __argv[optind];
+    if (sw=="-path"){
+      optind++;
+      pathStr = __argv[optind];
+      found=true;
+    }
+    if (sw=="-s"){
+      optind++;
+      startStr = __argv[optind];
+      found=true;
+    }
+    if (sw=="-n"){
+      optind++;
+      nEvStr = __argv[optind];
+      found=true;
+    }
+    if (sw=="-p"){
+      optind++;
+      beamMomStr = __argv[optind];
+      found=true;
+    }
+    if (!found){
+      std::cout<< "Unknown switch: "
+	       << __argv[optind] <<std::endl;
+      optind++;
+    }
+  while ( (optind < __argc ) && __argv[optind][0]!='-' ) optind++; 
+  }
+
+  std::stringstream pathSStr(pathStr), beamSStr(beamMomStr),startSStr(startStr),nEvSStr(nEvStr);
+
+  pathSStr >> storePath;
+  beamSStr >> beamMom;
+  startSStr >> startEvent;
+  nEvSStr >> nEvents;
   // ----  Load libraries   -------------------------------------------------
   gROOT->Macro("$VMCWORKDIR/gconfig/rootlogon.C");
   gSystem->Load("libLmdTrk");
@@ -33,8 +126,15 @@ void GenInfoDPMgen(const int nEvents=2, const double beamMom = 1.5, const int st
   simMC += ".root";
   TChain tMC("cbmsim");
   tMC.Add(simMC);
-  
   // ---------------------------------------------------------------------------------
+
+  //--- MC info -----------------------------------------------------------------
+  TClonesArray* true_tracks=new TClonesArray("PndMCTrack");
+  tMC.SetBranchAddress("MCTrack",&true_tracks);  //True Track to compare
+  
+  TClonesArray* true_points=new TClonesArray("PndSdsMCPoint");
+  tMC.SetBranchAddress("LMDPoint",&true_points);  //True Points to compare
+  //----------------------------------------------------------------------------------
   
   // ---- Output file ----------------------------------------------------------------
   TString out=storePath+"/GenInfo_out_DPM_all_beamMom_";
@@ -44,13 +144,6 @@ void GenInfoDPMgen(const int nEvents=2, const double beamMom = 1.5, const int st
   TFile *f = new TFile(out,"RECREATE");
   // ---------------------------------------------------------------------------------
   
-  //--- MC info -----------------------------------------------------------------
-  TClonesArray* true_tracks=new TClonesArray("PndMCTrack");
-  tMC.SetBranchAddress("MCTrack",&true_tracks);  //True Track to compare
-  
-  TClonesArray* true_points=new TClonesArray("PndSdsMCPoint");
-  tMC.SetBranchAddress("LMDPoint",&true_points);  //True Points to compare
-  //----------------------------------------------------------------------------------
   
   
   //--- Output histogram -----------------------------------------------------
@@ -74,7 +167,6 @@ void GenInfoDPMgen(const int nEvents=2, const double beamMom = 1.5, const int st
  // PbarBeam.SetPxPyPzE(0.,0.,beamMom,TMath::Sqrt(cProtonMass*cProtonMass + beamMom*beamMom));
  // PTarget.SetPxPyPzE(0.,0.,0.,cProtonMass);
 
- // vector <int> countPDGid(3123); //number of each possible particle, [i]=PDGid
   vector <int> countPDGid(6246); //number of each possible particle, [i]= PDGid + countPDGid.size()/2.;
   vector <TString> process(10000);// process[i]= name of process with PGDis sum=i; 
   bool fsumID[20][10000];
