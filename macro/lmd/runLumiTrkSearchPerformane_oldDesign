@@ -20,12 +20,12 @@ mv tmpOutput/Lumi_out_MC_and_REC_trks_matches_with_IDs0.root  tmpOutput/Lumi_out
 
 
 
-time root -l -b -q 'runLumi0SimBox.C(100000,11.91,"tmpOutput",0,-2212,2)' >> log0_2trk
-time root -l -b -q 'runLumi1Digi.C(100000,0,"tmpOutput")' >> log1_2trk
-time root -l -b -q 'runLumi2Reco.C(100000,0,"tmpOutput")' >> log2_2trk
+time root -l -b -q 'runLumi0SimBox.C(100000,11.91,"tmpOutput",0,-2212,2)' 
+time root -l -b -q 'runLumi1Digi.C(100000,0,"tmpOutput")'
+time root -l -b -q 'runLumi2Reco.C(100000,0,"tmpOutput")'
 time root -l -b -q 'runLumi3Finder.C(100000,0,"tmpOutput", 0, "CA",true)' >> logCA_2trk
-time root -l -b -q 'runLumi4Fitter.C(100000,0,"tmpOutput")' >> log4_2trk
-time root -l -b -q 'runLumi5Geane.C(100000,11.91,0,"tmpOutput")' >> log5_2trk
+time root -l -b -q 'runLumi4Fitter.C(100000,0,"tmpOutput")'
+time root -l -b -q 'runLumi5Geane.C(100000,11.91,0,"tmpOutput")'
 cd /data/FAIRsorf/pandaroot/trunk/build/bin
 ./rec_mc_match -s 0 -n 100000 -t 2 -mom 11.91 -path "/data/FAIRsorf/pandaroot/trunk/macro/lmd/tmpOutput"
 cd /home/akaravdina/lmdMacro
@@ -39,12 +39,12 @@ cd /data/FAIRsorf/pandaroot/trunk/build/bin
 cd /home/akaravdina/lmdMacro
 mv tmpOutput/Lumi_out_MC_and_REC_trks_matches_with_IDs0.root  tmpOutput/Lumi_out_MC_and_REC_trks_matches_with_IDs0_Follow_new_100000_2trk_11_91GeV.root
 
-time root -l -b -q 'runLumi0SimBox.C(100000,11.91,"tmpOutput",0,-2212,3)' >> log0_3trk
-time root -l -b -q 'runLumi1Digi.C(100000,0,"tmpOutput")' >> log1_3trk
-time root -l -b -q 'runLumi2Reco.C(100000,0,"tmpOutput")'  >> log2_3trk
+time root -l -b -q 'runLumi0SimBox.C(100000,11.91,"tmpOutput",0,-2212,3)'
+time root -l -b -q 'runLumi1Digi.C(100000,0,"tmpOutput")'
+time root -l -b -q 'runLumi2Reco.C(100000,0,"tmpOutput")' 
 time root -l -b -q 'runLumi3Finder.C(100000,0,"tmpOutput", 0, "CA",true)'  >> logCA_3trk
-time root -l -b -q 'runLumi4Fitter.C(100000,0,"tmpOutput")'  >> log4_3trk
-time root -l -b -q 'runLumi5Geane.C(100000,11.91,0,"tmpOutput")'  >> log5_3trk
+time root -l -b -q 'runLumi4Fitter.C(100000,0,"tmpOutput")' 
+time root -l -b -q 'runLumi5Geane.C(100000,11.91,0,"tmpOutput")'
 cd /data/FAIRsorf/pandaroot/trunk/build/bin
 ./rec_mc_match -s 0 -n 100000 -t 3 -mom 11.91 -path "/data/FAIRsorf/pandaroot/trunk/macro/lmd/tmpOutput"
 cd /home/akaravdina/lmdMacro
@@ -59,12 +59,12 @@ cd /home/akaravdina/lmdMacro
 mv tmpOutput/Lumi_out_MC_and_REC_trks_matches_with_IDs0.root  tmpOutput/Lumi_out_MC_and_REC_trks_matches_with_IDs0_Follow_new_100000_3trk_11_91GeV.root
 
 
-time root -l -b -q 'runLumi0SimBox.C(100000,11.91,"tmpOutput",0,-2212,4)' >> log0_4trk
-time root -l -b -q 'runLumi1Digi.C(100000,0,"tmpOutput")'  >> log1_4trk
-time root -l -b -q 'runLumi2Reco.C(100000,0,"tmpOutput")'  >> log2_4trk
+time root -l -b -q 'runLumi0SimBox.C(100000,11.91,"tmpOutput",0,-2212,4)'
+time root -l -b -q 'runLumi1Digi.C(100000,0,"tmpOutput")'
+time root -l -b -q 'runLumi2Reco.C(100000,0,"tmpOutput")'
 time root -l -b -q 'runLumi3Finder.C(100000,0,"tmpOutput", 0, "CA",true)'  >> logCA_4trk
-time root -l -b -q 'runLumi4Fitter.C(100000,0,"tmpOutput")'  >> log4_4trk
-time root -l -b -q 'runLumi5Geane.C(100000,11.91,0,"tmpOutput")'  >> log5_4trk
+time root -l -b -q 'runLumi4Fitter.C(100000,0,"tmpOutput")'
+time root -l -b -q 'runLumi5Geane.C(100000,11.91,0,"tmpOutput")'
 cd /data/FAIRsorf/pandaroot/trunk/build/bin
 ./rec_mc_match -s 0 -n 100000 -t 4 -mom 11.91 -path "/data/FAIRsorf/pandaroot/trunk/macro/lmd/tmpOutput"
 cd /home/akaravdina/lmdMacro
@@ -78,12 +78,12 @@ cd /data/FAIRsorf/pandaroot/trunk/build/bin
 cd /home/akaravdina/lmdMacro
 mv tmpOutput/Lumi_out_MC_and_REC_trks_matches_with_IDs0.root  tmpOutput/Lumi_out_MC_and_REC_trks_matches_with_IDs0_Follow_new_100000_4trk_11_91GeV.root
 
-time root -l -b -q 'runLumi0SimBox.C(100000,11.91,"tmpOutput",0,-2212,5)' >> log0_5trk
-time root -l -b -q 'runLumi1Digi.C(100000,0,"tmpOutput")' >> log1_5trk
-time root -l -b -q 'runLumi2Reco.C(100000,0,"tmpOutput")' >> log2_5trk
+time root -l -b -q 'runLumi0SimBox.C(100000,11.91,"tmpOutput",0,-2212,5)'
+time root -l -b -q 'runLumi1Digi.C(100000,0,"tmpOutput")'
+time root -l -b -q 'runLumi2Reco.C(100000,0,"tmpOutput")'
 time root -l -b -q 'runLumi3Finder.C(100000,0,"tmpOutput", 0, "CA",true)'  >> logCA_5trk
-time root -l -b -q 'runLumi4Fitter.C(100000,0,"tmpOutput")' >> log4_5trk
-time root -l -b -q 'runLumi5Geane.C(100000,11.91,0,"tmpOutput")' >> log5_5trk
+time root -l -b -q 'runLumi4Fitter.C(100000,0,"tmpOutput")'
+time root -l -b -q 'runLumi5Geane.C(100000,11.91,0,"tmpOutput")'
 cd /data/FAIRsorf/pandaroot/trunk/build/bin
 ./rec_mc_match -s 0 -n 100000 -t 5 -mom 11.91 -path "/data/FAIRsorf/pandaroot/trunk/macro/lmd/tmpOutput"
 cd /home/akaravdina/lmdMacro
@@ -97,12 +97,12 @@ cd /data/FAIRsorf/pandaroot/trunk/build/bin
 cd /home/akaravdina/lmdMacro
 mv tmpOutput/Lumi_out_MC_and_REC_trks_matches_with_IDs0.root  tmpOutput/Lumi_out_MC_and_REC_trks_matches_with_IDs0_Follow_new_100000_5trk_11_91GeV.root
 
-time root -l -b -q 'runLumi0SimBox.C(100000,11.91,"tmpOutput",0,-2212,10)' >> log0_10trk
-time root -l -b -q 'runLumi1Digi.C(100000,0,"tmpOutput")' >> log1_10trk
-time root -l -b -q 'runLumi2Reco.C(100000,0,"tmpOutput")' >> log2_10trk
+time root -l -b -q 'runLumi0SimBox.C(100000,11.91,"tmpOutput",0,-2212,10)'
+time root -l -b -q 'runLumi1Digi.C(100000,0,"tmpOutput")'
+time root -l -b -q 'runLumi2Reco.C(100000,0,"tmpOutput")'
 time root -l -b -q 'runLumi3Finder.C(100000,0,"tmpOutput", 0, "CA",true)'  >> logCA_10trk
-time root -l -b -q 'runLumi4Fitter.C(100000,0,"tmpOutput")' >> log4_10trk
-time root -l -b -q 'runLumi5Geane.C(100000,11.91,0,"tmpOutput")' >> log5_10trk
+time root -l -b -q 'runLumi4Fitter.C(100000,0,"tmpOutput")'
+time root -l -b -q 'runLumi5Geane.C(100000,11.91,0,"tmpOutput")'
 cd /data/FAIRsorf/pandaroot/trunk/build/bin
 ./rec_mc_match -s 0 -n 100000 -t 10 -mom 11.91 -path "/data/FAIRsorf/pandaroot/trunk/macro/lmd/tmpOutput"
 cd /home/akaravdina/lmdMacro
@@ -116,12 +116,12 @@ cd /data/FAIRsorf/pandaroot/trunk/build/bin
 cd /home/akaravdina/lmdMacro
 mv tmpOutput/Lumi_out_MC_and_REC_trks_matches_with_IDs0.root  tmpOutput/Lumi_out_MC_and_REC_trks_matches_with_IDs0_Follow_new_100000_10trk_11_91GeV.root
 
-time root -l -b -q 'runLumi0SimBox.C(100000,11.91,"tmpOutput",0,-2212,15)' >> log0_15trk
-time root -l -b -q 'runLumi1Digi.C(100000,0,"tmpOutput")' >> log1_15trk
-time root -l -b -q 'runLumi2Reco.C(100000,0,"tmpOutput")' >> log2_15trk
+time root -l -b -q 'runLumi0SimBox.C(100000,11.91,"tmpOutput",0,-2212,15)'
+time root -l -b -q 'runLumi1Digi.C(100000,0,"tmpOutput")'
+time root -l -b -q 'runLumi2Reco.C(100000,0,"tmpOutput")'
 time root -l -b -q 'runLumi3Finder.C(100000,0,"tmpOutput", 0, "CA",true)'  >> logCA_15trk
-time root -l -b -q 'runLumi4Fitter.C(100000,0,"tmpOutput")' >> log4_15trk
-time root -l -b -q 'runLumi5Geane.C(100000,11.91,0,"tmpOutput")' >> log5_15trk
+time root -l -b -q 'runLumi4Fitter.C(100000,0,"tmpOutput")'
+time root -l -b -q 'runLumi5Geane.C(100000,11.91,0,"tmpOutput")' 
 cd /data/FAIRsorf/pandaroot/trunk/build/bin
 ./rec_mc_match -s 0 -n 100000 -t 15 -mom 11.91 -path "/data/FAIRsorf/pandaroot/trunk/macro/lmd/tmpOutput"
 cd /home/akaravdina/lmdMacro
@@ -135,12 +135,12 @@ cd /data/FAIRsorf/pandaroot/trunk/build/bin
 cd /home/akaravdina/lmdMacro
 mv tmpOutput/Lumi_out_MC_and_REC_trks_matches_with_IDs0.root  tmpOutput/Lumi_out_MC_and_REC_trks_matches_with_IDs0_Follow_new_100000_15trk_11_91GeV.root
 
-time root -l -b -q 'runLumi0SimBox.C(100000,11.91,"tmpOutput",0,-2212,20)'  >> log0_20trk
-time root -l -b -q 'runLumi1Digi.C(100000,0,"tmpOutput")'   >> log1_20trk
-time root -l -b -q 'runLumi2Reco.C(100000,0,"tmpOutput")'   >> log2_20trk
+time root -l -b -q 'runLumi0SimBox.C(100000,11.91,"tmpOutput",0,-2212,20)' 
+time root -l -b -q 'runLumi1Digi.C(100000,0,"tmpOutput")' 
+time root -l -b -q 'runLumi2Reco.C(100000,0,"tmpOutput")'  
 time root -l -b -q 'runLumi3Finder.C(100000,0,"tmpOutput", 0, "CA",true)'  >> logCA_20trk
-time root -l -b -q 'runLumi4Fitter.C(100000,0,"tmpOutput")'   >> log4_20trk
-time root -l -b -q 'runLumi5Geane.C(100000,11.91,0,"tmpOutput")'   >> log5_20trk
+time root -l -b -q 'runLumi4Fitter.C(100000,0,"tmpOutput")'  
+time root -l -b -q 'runLumi5Geane.C(100000,11.91,0,"tmpOutput")' 
 cd /data/FAIRsorf/pandaroot/trunk/build/bin
 ./rec_mc_match -s 0 -n 100000 -t 20 -mom 11.91 -path "/data/FAIRsorf/pandaroot/trunk/macro/lmd/tmpOutput"
 cd /home/akaravdina/lmdMacro
