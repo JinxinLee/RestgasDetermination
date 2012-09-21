@@ -120,9 +120,9 @@ int main(int argc, char *argv[])
 
   TFile*  hfile = new TFile("test_reco_full_generate_lut.root","READ"); 
 
-  TH2D* lut_x[99];
-  TH2D* lut_y[99];
-  TH2D* lut_z[99];
+  TH2D* lut_x[41];
+  TH2D* lut_y[41];
+  TH2D* lut_z[41];
   
 
 

@@ -59,6 +59,7 @@ PndDrcSurfAbs.cxx
 PndDrcSurfCyl.cxx 
 PndDrcSurfQuadFlatDiff.cxx 
 PndDrcSurfPolyFlat.cxx 
+PndDrcSurfPolyFlatFocus.cxx 
 PndDrcSurfPolySphere.cxx 
 PndDrcSurfPolyCyl.cxx 
 PndDrcSurfPolyPara.cxx 
