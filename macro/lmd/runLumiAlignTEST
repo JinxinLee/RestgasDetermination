@@ -1,291 +1,70 @@
 #!/bin/bash
+PANDAROOT=/data/FAIRsorf/pandaroot/trunk
+PANDAROOTmy=/data/FAIRsorf/pandaroot/karavdina
+# #----------------------------------------------------------------------
+mkdir ${PANDAROOT}/macro/lmd/tmpOutputAlignTMP
+mkdir ${PANDAROOT}/macro/lmd/tmpOutputAlignTMP/results
+#rm /home/akaravdina/lmdMacro/tmpOutputAlign/*
 
-# rm /home/akaravdina/lmdMacro/tmpOutputAlign/*
-# ##Full sim & rec
-# time root -l -b -q 'runLumi0SimBox.C(100000,11.91,"tmpOutputAlign")'
-# time root -l -b -q 'runLumi1Digi.C(100000,0,"tmpOutputAlign")'
-# time root -l -b -q 'create_misalignment_lumi.C(0.005,0.)'
-# time root -l -b -q 'runLumi2Reco.C(100000,0,"tmpOutputAlign")' >> REC_TESTmisalign50mkmDOF111000.log
-# time root -l -b -q 'runLumi3Finder.C(100000,0,"tmpOutputAlign", 0, "CA",true)'
-# time root -l -b -q 'runLumi4Fitter.C(100000,0,"tmpOutputAlign")'
-# time root -l -b -q 'runLumi5Geane.C(100000,11.91,0,"tmpOutputAlign")'
-
-# cd /data/FAIRsorf/pandaroot/build/bin
-# ##obtain information about resolution before alignment
-# ./rec_mc_match -s 0 -n 100000 -mom 11.91 -path "/data/FAIRsorf/pandaroot/trunk/macro/lmd/tmpOutputAlign"
-
-# ##obtain info about hits for alignment
-# ./hits_align -s 0 -n 100000 -path /home/akaravdina/lmdMacro/tmpOutputAlign -out /home/akaravdina/lmdMacro/tmpOutputAlign/TrackForAlign.txt -v 0
-
-# ##do alignment
-# cd /data/FAIRsorf/pandaroot/karavdina/myKnossos
-# rm logForRES
-# ./knossos -i /home/akaravdina/lmdMacro/tmpOutputAlign/TrackForAlign.txt -o /home/akaravdina/lmdMacro/tmpOutputAlign/LumiAlignConst.txt -n 100000 -r 1 >> logForRES
-
-# rm /home/akaravdina/lmdMacro/lumi.misalign_after.par
-# head -14 /home/akaravdina/lmdMacro/lumi.misalign.par >> /home/akaravdina/lmdMacro/lumi.misalign_after.par
-# #obtain results and write it in new *.par file
-# ./analyze -in '/home/akaravdina/lmdMacro/lumi.misalign.par' -out '/home/akaravdina/lmdMacro/tmpOutputAlign/LumiAlignConst.txt' -new '/home/akaravdina/lmdMacro/lumi.misalign_after.par'
-# ## change old params for new params
-# mv  /home/akaravdina/lmdMacro/lumi.misalign.par  /home/akaravdina/lmdMacro/lumi.misalign_before.par
-# mv  /home/akaravdina/lmdMacro/lumi.misalign_after.par /home/akaravdina/lmdMacro/lumi.misalign.par
-
-# ##save results in good storage place
-# cd /home/akaravdina/lmdMacro
-# mkdir tmpOutputAlign/results/misalign50mkmDOF111000
-# cp /home/akaravdina/lmdMacro/tmpOutputAlign/Lumi_out_MC_and_REC_trks_matches_with_IDs0.root /home/akaravdina/lmdMacro/tmpOutputAlign/results/misalign50mkmDOF111000/Lumi_out_MC_and_REC_trks_matches_with_IDs0_before.root
-# cp  /data/FAIRsorf/pandaroot/karavdina/myKnossos/Results.root /home/akaravdina/lmdMacro/tmpOutputAlign/results/misalign50mkmDOF111000/Results.root
-# cp /home/akaravdina/lmdMacro/lumi.misalign_before.par /home/akaravdina/lmdMacro/tmpOutputAlign/results/misalign50mkmDOF111000/.
-# cp /home/akaravdina/lmdMacro/lumi.misalign.par /home/akaravdina/lmdMacro/tmpOutputAlign/results/misalign50mkmDOF111000/lumi.misalign_after.par
-# rm /home/akaravdina/lmdMacro/tmpOutputAlign/*
-
-
-# ##repeat rec with new params
-# time root -l -b -q 'runLumi0SimBox.C(100000,11.91,"tmpOutputAlign")'
-# time root -l -b -q 'runLumi1Digi.C(100000,0,"tmpOutputAlign")'
-# time root -l -b -q 'runLumi2Reco.C(100000,0,"tmpOutputAlign")' >> REC_TESTmisalign50mkmDOF111000_2.log
-# time root -l -b -q 'runLumi3Finder.C(100000,0,"tmpOutputAlign", 0, "CA",true)'
-# time root -l -b -q 'runLumi4Fitter.C(100000,0,"tmpOutputAlign")'
-# time root -l -b -q 'runLumi5Geane.C(100000,11.91,0,"tmpOutputAlign")'
-
-# cd /data/FAIRsorf/pandaroot/build/bin
-# ##obtain information about resolution before alignment
-# ./rec_mc_match -s 0 -n 100000 -mom 11.91 -path "/data/FAIRsorf/pandaroot/trunk/macro/lmd/tmpOutputAlign"
-# cp /home/akaravdina/lmdMacro/tmpOutputAlign/Lumi_out_MC_and_REC_trks_matches_with_IDs0.root /home/akaravdina/lmdMacro/tmpOutputAlign/results/misalign50mkmDOF111000/Lumi_out_MC_and_REC_trks_matches_with_IDs0_after.root 
-# cd /home/akaravdina/lmdMacro/
-# time root -l -b -q 'GenAlignEffect.C("/data/FAIRsorf/pandaroot/trunk/macro/lmd/tmpOutputAlign/results/misalign50mkmDOF111000/")'
-
-
-# # #----------------------------------------------------------------------------------------------
-
-# rm /home/akaravdina/lmdMacro/tmpOutputAlign/*
-# ##Full sim & rec
-# time root -l -b -q 'runLumi0SimBox.C(100000,11.91,"tmpOutputAlign")'
-# time root -l -b -q 'runLumi1Digi.C(100000,0,"tmpOutputAlign")'
-# time root -l -b -q 'create_misalignment_lumi.C(0.002,0.)'
-# time root -l -b -q 'runLumi2Reco.C(100000,0,"tmpOutputAlign")' >> REC_TESTmisalign20mkmDOF111000.log
-# time root -l -b -q 'runLumi3Finder.C(100000,0,"tmpOutputAlign", 0, "CA",true)'
-# time root -l -b -q 'runLumi4Fitter.C(100000,0,"tmpOutputAlign")'
-# time root -l -b -q 'runLumi5Geane.C(100000,11.91,0,"tmpOutputAlign")'
-
-# cd /data/FAIRsorf/pandaroot/build/bin
-# ##obtain information about resolution before alignment
-# ./rec_mc_match -s 0 -n 100000 -mom 11.91 -path "/data/FAIRsorf/pandaroot/trunk/macro/lmd/tmpOutputAlign"
-
-# ##obtain info about hits for alignment
-# ./hits_align -s 0 -n 100000 -path /home/akaravdina/lmdMacro/tmpOutputAlign -out /home/akaravdina/lmdMacro/tmpOutputAlign/TrackForAlign.txt -v 0
-
-# ##do alignment
-# cd /data/FAIRsorf/pandaroot/karavdina/myKnossos
-# rm logForRES
-# ./knossos -i /home/akaravdina/lmdMacro/tmpOutputAlign/TrackForAlign.txt -o /home/akaravdina/lmdMacro/tmpOutputAlign/LumiAlignConst.txt -n 100000 -r 1 >> logForRES
-
-# rm /home/akaravdina/lmdMacro/lumi.misalign_after.par
-# head -14 /home/akaravdina/lmdMacro/lumi.misalign.par >> /home/akaravdina/lmdMacro/lumi.misalign_after.par
-# #obtain results and write it in new *.par file
-# ./analyze -in '/home/akaravdina/lmdMacro/lumi.misalign.par' -out '/home/akaravdina/lmdMacro/tmpOutputAlign/LumiAlignConst.txt' -new '/home/akaravdina/lmdMacro/lumi.misalign_after.par'
-# ## change old params for new params
-# mv  /home/akaravdina/lmdMacro/lumi.misalign.par  /home/akaravdina/lmdMacro/lumi.misalign_before.par
-# mv  /home/akaravdina/lmdMacro/lumi.misalign_after.par /home/akaravdina/lmdMacro/lumi.misalign.par
-
-# ##save results in good storage place
-# cd /home/akaravdina/lmdMacro
-# mkdir tmpOutputAlign/results/misalign20mkmDOF111000
-# cp /home/akaravdina/lmdMacro/tmpOutputAlign/Lumi_out_MC_and_REC_trks_matches_with_IDs0.root /home/akaravdina/lmdMacro/tmpOutputAlign/results/misalign20mkmDOF111000/Lumi_out_MC_and_REC_trks_matches_with_IDs0_before.root
-# cp  /data/FAIRsorf/pandaroot/karavdina/myKnossos/Results.root /home/akaravdina/lmdMacro/tmpOutputAlign/results/misalign20mkmDOF111000/Results.root
-# cp /home/akaravdina/lmdMacro/lumi.misalign_before.par /home/akaravdina/lmdMacro/tmpOutputAlign/results/misalign20mkmDOF111000/.
-# cp /home/akaravdina/lmdMacro/lumi.misalign.par /home/akaravdina/lmdMacro/tmpOutputAlign/results/misalign20mkmDOF111000/lumi.misalign_after.par
-# rm /home/akaravdina/lmdMacro/tmpOutputAlign/*
-
-
-# ##repeat rec with new params
-# time root -l -b -q 'runLumi0SimBox.C(100000,11.91,"tmpOutputAlign")'
-# time root -l -b -q 'runLumi1Digi.C(100000,0,"tmpOutputAlign")'
-# time root -l -b -q 'runLumi2Reco.C(100000,0,"tmpOutputAlign")' >> REC_TESTmisalign20mkmDOF111000_2.log
-# time root -l -b -q 'runLumi3Finder.C(100000,0,"tmpOutputAlign", 0, "CA",true)'
-# time root -l -b -q 'runLumi4Fitter.C(100000,0,"tmpOutputAlign")'
-# time root -l -b -q 'runLumi5Geane.C(100000,11.91,0,"tmpOutputAlign")'
-
-# cd /data/FAIRsorf/pandaroot/build/bin
-# ##obtain information about resolution before alignment
-# ./rec_mc_match -s 0 -n 100000 -mom 11.91 -path "/data/FAIRsorf/pandaroot/trunk/macro/lmd/tmpOutputAlign"
-# cp /home/akaravdina/lmdMacro/tmpOutputAlign/Lumi_out_MC_and_REC_trks_matches_with_IDs0.root /home/akaravdina/lmdMacro/tmpOutputAlign/results/misalign20mkmDOF111000/Lumi_out_MC_and_REC_trks_matches_with_IDs0_after.root 
-# cd  /home/akaravdina/lmdMacro/
-# time root -l -b -q 'GenAlignEffect.C("/data/FAIRsorf/pandaroot/trunk/macro/lmd/tmpOutputAlign/results/misalign20mkmDOF111000/")'
-
-# # # #----------------------------------------------------------------------
-
-# rm /home/akaravdina/lmdMacro/tmpOutputAlign/*
-# ##Full sim & rec
-# time root -l -b -q 'runLumi0SimBox.C(100000,11.91,"tmpOutputAlign")'
-# time root -l -b -q 'runLumi1Digi.C(100000,0,"tmpOutputAlign")'
-# time root -l -b -q 'create_misalignment_lumi.C(0.001,0.)'
-# time root -l -b -q 'runLumi2Reco.C(100000,0,"tmpOutputAlign")' >> REC_TESTmisalign10mkmDOF111000.log
-# time root -l -b -q 'runLumi3Finder.C(100000,0,"tmpOutputAlign", 0, "CA",true)'
-# time root -l -b -q 'runLumi4Fitter.C(100000,0,"tmpOutputAlign")'
-# time root -l -b -q 'runLumi5Geane.C(100000,11.91,0,"tmpOutputAlign")'
-
-# cd /data/FAIRsorf/pandaroot/build/bin
-# ##obtain information about resolution before alignment
-# ./rec_mc_match -s 0 -n 100000 -mom 11.91 -path "/data/FAIRsorf/pandaroot/trunk/macro/lmd/tmpOutputAlign"
-
-# ##obtain info about hits for alignment
-# ./hits_align -s 0 -n 100000 -path /home/akaravdina/lmdMacro/tmpOutputAlign -out /home/akaravdina/lmdMacro/tmpOutputAlign/TrackForAlign.txt -v 0
-
-# ##do alignment
-# cd /data/FAIRsorf/pandaroot/karavdina/myKnossos
-# rm logForRES
-# ./knossos -i /home/akaravdina/lmdMacro/tmpOutputAlign/TrackForAlign.txt -o /home/akaravdina/lmdMacro/tmpOutputAlign/LumiAlignConst.txt -n 100000 -r 1 >> logForRES
-
-# rm /home/akaravdina/lmdMacro/lumi.misalign_after.par
-# head -14 /home/akaravdina/lmdMacro/lumi.misalign.par >> /home/akaravdina/lmdMacro/lumi.misalign_after.par
-# #obtain results and write it in new *.par file
-# ./analyze -in '/home/akaravdina/lmdMacro/lumi.misalign.par' -out '/home/akaravdina/lmdMacro/tmpOutputAlign/LumiAlignConst.txt' -new '/home/akaravdina/lmdMacro/lumi.misalign_after.par'
-# ## change old params for new params
-# mv  /home/akaravdina/lmdMacro/lumi.misalign.par  /home/akaravdina/lmdMacro/lumi.misalign_before.par
-# mv  /home/akaravdina/lmdMacro/lumi.misalign_after.par /home/akaravdina/lmdMacro/lumi.misalign.par
-
-# ##save results in good storage place
-# cd /home/akaravdina/lmdMacro
-# mkdir tmpOutputAlign/results/misalign10mkmDOF111000
-# cp /home/akaravdina/lmdMacro/tmpOutputAlign/Lumi_out_MC_and_REC_trks_matches_with_IDs0.root /home/akaravdina/lmdMacro/tmpOutputAlign/results/misalign10mkmDOF111000/Lumi_out_MC_and_REC_trks_matches_with_IDs0_before.root
-# cp  /data/FAIRsorf/pandaroot/karavdina/myKnossos/Results.root /home/akaravdina/lmdMacro/tmpOutputAlign/results/misalign10mkmDOF111000/Results.root
-# cp /home/akaravdina/lmdMacro/lumi.misalign_before.par /home/akaravdina/lmdMacro/tmpOutputAlign/results/misalign10mkmDOF111000/.
-# cp /home/akaravdina/lmdMacro/lumi.misalign.par /home/akaravdina/lmdMacro/tmpOutputAlign/results/misalign10mkmDOF111000/lumi.misalign_after.par
-# rm /home/akaravdina/lmdMacro/tmpOutputAlign/*
-
-
-# ##repeat rec with new params
-# time root -l -b -q 'runLumi0SimBox.C(100000,11.91,"tmpOutputAlign")'
-# time root -l -b -q 'runLumi1Digi.C(100000,0,"tmpOutputAlign")'
-# time root -l -b -q 'runLumi2Reco.C(100000,0,"tmpOutputAlign")' >> REC_TESTmisalign10mkmDOF111000_2.log
-# time root -l -b -q 'runLumi3Finder.C(100000,0,"tmpOutputAlign", 0, "CA",true)'
-# time root -l -b -q 'runLumi4Fitter.C(100000,0,"tmpOutputAlign")'
-# time root -l -b -q 'runLumi5Geane.C(100000,11.91,0,"tmpOutputAlign")'
-
-# cd /data/FAIRsorf/pandaroot/build/bin
-# ##obtain information about resolution before alignment
-# ./rec_mc_match -s 0 -n 100000 -mom 11.91 -path "/data/FAIRsorf/pandaroot/trunk/macro/lmd/tmpOutputAlign"
-# cp /home/akaravdina/lmdMacro/tmpOutputAlign/Lumi_out_MC_and_REC_trks_matches_with_IDs0.root /home/akaravdina/lmdMacro/tmpOutputAlign/results/misalign10mkmDOF111000/Lumi_out_MC_and_REC_trks_matches_with_IDs0_after.root 
-# cd  /home/akaravdina/lmdMacro/
-# time root -l -b -q 'GenAlignEffect.C("/data/FAIRsorf/pandaroot/trunk/macro/lmd/tmpOutputAlign/results/misalign10mkmDOF111000/")'
-
-
-# # #----------------------------------------------------------------------
-
-rm /home/akaravdina/lmdMacro/tmpOutputAlign/*
 ##Full sim & rec
-time root -l -b -q 'runLumi0SimBox.C(100000,11.91,"tmpOutputAlign")'
-time root -l -b -q 'runLumi1Digi.C(100000,0,"tmpOutputAlign")'
-time root -l -b -q 'create_misalignment_lumi.C(0.0010,0.)'
-time root -l -b -q 'runLumi2Reco.C(100000,0,"tmpOutputAlign")' >> REC_TESTmisalign10mkmDOF111000.log
-time root -l -b -q 'runLumi3Finder.C(100000,0,"tmpOutputAlign", 0, "CA",true)'
-time root -l -b -q 'runLumi4Fitter.C(100000,0,"tmpOutputAlign")'
-time root -l -b -q 'runLumi5Geane.C(100000,11.91,0,"tmpOutputAlign")'
+time root -l -b -q 'runLumi0SimBox.C(1000,11.91,"tmpOutputAlignTMP")'
+time root -l -b -q 'runLumi1Digi.C(1000,0,"tmpOutputAlignTMP")'
+time root -l -b -q 'create_misalignment_lumi.C(100.,0.)'
+time root -l -b -q 'runLumi2Reco.C(1000,0,"tmpOutputAlignTMP")' >> REC_TESTmisalign100mkmDOF111000.log
+time root -l -b -q 'runLumi3Finder.C(1000,0,"tmpOutputAlignTMP", 0, "CA",true)'
+time root -l -b -q 'runLumi4Fitter.C(1000,0,"tmpOutputAlignTMP")'
+time root -l -b -q 'runLumi5Geane.C(1000,11.91,0,"tmpOutputAlignTMP")'
 
-cd /data/FAIRsorf/pandaroot/build/bin
+cd ${PANDAROOT}/build/bin
 ##obtain information about resolution before alignment
-./rec_mc_match -s 0 -n 100000 -mom 11.91 -path "/data/FAIRsorf/pandaroot/trunk/macro/lmd/tmpOutputAlign"
+./rec_mc_match -s 0 -n 1000 -mom 11.91 -path ${PANDAROOT}/macro/lmd/tmpOutputAlignTMP
 
 ##obtain info about hits for alignment
-./hits_align -s 0 -n 100000 -path /home/akaravdina/lmdMacro/tmpOutputAlign -out /home/akaravdina/lmdMacro/tmpOutputAlign/TrackForAlign.txt -outhist /home/akaravdina/lmdMacro/tmpOutputAlign/ResidualsHist.root -v 0
+./hits_align -s 0 -n 1000 -path ${PANDAROOT}/macro/lmd/tmpOutputAlignTMP -out ${PANDAROOT}/macro/lmd/tmpOutputAlignTMP/TrackForAlign.txt -outhist ${PANDAROOT}/macro/lmd/tmpOutputAlignTMP/ResidualsHist.root -v 0
 
 ##do alignment
-cd /data/FAIRsorf/pandaroot/karavdina/myKnossos
+cd ${PANDAROOTmy}/myKnossos
 rm logForRES
-./knossos -i /home/akaravdina/lmdMacro/tmpOutputAlign/TrackForAlign.txt -o /home/akaravdina/lmdMacro/tmpOutputAlign/LumiAlignConst.txt -n 100000 -r 1 >> logForRES
+./knossos -i ${PANDAROOT}/macro/lmd/tmpOutputAlignTMP/TrackForAlign.txt -o ${PANDAROOT}/macro/lmd/tmpOutputAlignTMP/LumiAlignConst.txt -n 1000 -r 1 >> logForRES
 
-rm /home/akaravdina/lmdMacro/lumi.misalign_after.par
-head -14 /home/akaravdina/lmdMacro/lumi.misalign.par >> /home/akaravdina/lmdMacro/lumi.misalign_after.par
 #obtain results and write it in new *.par file
-./analyze -in '/home/akaravdina/lmdMacro/lumi.misalign.par' -out '/home/akaravdina/lmdMacro/tmpOutputAlign/LumiAlignConst.txt' -new '/home/akaravdina/lmdMacro/lumi.misalign_after.par'
+rm ${PANDAROOT}/macro/lmd/lumi.misalign_after.par
+head -14 ${PANDAROOT}/macro/lmd/lumi.misalign.par >> ${PANDAROOT}/macro/lmd/lumi.misalign_after.par
+./analyze -in ${PANDAROOT}/macro/lmd/lumi.misalign.par -out ${PANDAROOT}/macro/lmd/tmpOutputAlignTMP/LumiAlignConst.txt -new ${PANDAROOT}/macro/lmd/lumi.misalign_after.par
+
 ## change old params for new params
-mv  /home/akaravdina/lmdMacro/lumi.misalign.par  /home/akaravdina/lmdMacro/lumi.misalign_before.par
-mv  /home/akaravdina/lmdMacro/lumi.misalign_after.par /home/akaravdina/lmdMacro/lumi.misalign.par
+mv  ${PANDAROOT}/macro/lmd/lumi.misalign.par  ${PANDAROOT}/macro/lmd/lumi.misalign_before.par
+mv  ${PANDAROOT}/macro/lmd/lumi.misalign_after.par ${PANDAROOT}/macro/lmd/lumi.misalign.par
 
 ##save results in good storage place
-cd /home/akaravdina/lmdMacro
-mkdir tmpOutputAlign/results/misalign10mkmDOF111000
-cp /home/akaravdina/lmdMacro/tmpOutputAlign/Lumi_out_MC_and_REC_trks_matches_with_IDs0.root /home/akaravdina/lmdMacro/tmpOutputAlign/results/misalign10mkmDOF111000/Lumi_out_MC_and_REC_trks_matches_with_IDs0_before.root
-cp  /data/FAIRsorf/pandaroot/karavdina/myKnossos/Results.root /home/akaravdina/lmdMacro/tmpOutputAlign/results/misalign10mkmDOF111000/Results.root
-cp /home/akaravdina/lmdMacro/lumi.misalign_before.par /home/akaravdina/lmdMacro/tmpOutputAlign/results/misalign10mkmDOF111000/.
-cp /home/akaravdina/lmdMacro/lumi.misalign.par /home/akaravdina/lmdMacro/tmpOutputAlign/results/misalign10mkmDOF111000/lumi.misalign_after.par
-cp /home/akaravdina/lmdMacro/tmpOutputAlign/ResidualsHist.root /home/akaravdina/lmdMacro/tmpOutputAlign/results/misalign10mkmDOF111000/.
-rm /home/akaravdina/lmdMacro/tmpOutputAlign/*
+cd ${PANDAROOT}/macro/lmd
+mkdir tmpOutputAlignTMP/results/misalign100mkmDOF111000
+cp ${PANDAROOT}/macro/lmd/tmpOutputAlignTMP/Lumi_out_MC_and_REC_trks_matches_with_IDs0.root ${PANDAROOT}/macro/lmd/tmpOutputAlignTMP/results/misalign100mkmDOF111000/Lumi_out_MC_and_REC_trks_matches_with_IDs0_before.root
+cp ${PANDAROOTmy}/myKnossos/Results.root ${PANDAROOT}/macro/lmd/tmpOutputAlignTMP/results/misalign100mkmDOF111000/Results.root
+cp ${PANDAROOT}/macro/lmd/lumi.misalign_before.par ${PANDAROOT}/macro/lmd/tmpOutputAlignTMP/results/misalign100mkmDOF111000/.
+cp ${PANDAROOT}/macro/lmd/lumi.misalign.par ${PANDAROOT}/macro/lmd/tmpOutputAlignTMP/results/misalign100mkmDOF111000/lumi.misalign_after.par
+cp ${PANDAROOT}/macro/lmd/tmpOutputAlignTMP/ResidualsHist.root ${PANDAROOT}/macro/lmd/tmpOutputAlignTMP/results/misalign100mkmDOF111000/ResidualsHist_before.root
+rm ${PANDAROOT}/macro/lmd/tmpOutputAlignTMP/*
 
 
 ##repeat rec with new params
-time root -l -b -q 'runLumi0SimBox.C(100000,11.91,"tmpOutputAlign")'
-time root -l -b -q 'runLumi1Digi.C(100000,0,"tmpOutputAlign")'
-time root -l -b -q 'runLumi2Reco.C(100000,0,"tmpOutputAlign")' >> REC_TESTmisalign10mkmDOF111000_2.log
-time root -l -b -q 'runLumi3Finder.C(100000,0,"tmpOutputAlign", 0, "CA",true)'
-time root -l -b -q 'runLumi4Fitter.C(100000,0,"tmpOutputAlign")'
-time root -l -b -q 'runLumi5Geane.C(100000,11.91,0,"tmpOutputAlign")'
+time root -l -b -q 'runLumi0SimBox.C(1000,11.91,"tmpOutputAlignTMP")'
+time root -l -b -q 'runLumi1Digi.C(1000,0,"tmpOutputAlignTMP")'
+time root -l -b -q 'runLumi2Reco.C(1000,0,"tmpOutputAlignTMP")' >> REC_TESTmisalign100mkmDOF111000_2.log
+time root -l -b -q 'runLumi3Finder.C(1000,0,"tmpOutputAlignTMP", 0, "CA",true)'
+time root -l -b -q 'runLumi4Fitter.C(1000,0,"tmpOutputAlignTMP")'
+time root -l -b -q 'runLumi5Geane.C(1000,11.91,0,"tmpOutputAlignTMP")'
 
-cd /data/FAIRsorf/pandaroot/build/bin
-##obtain information about resolution before alignment
-./rec_mc_match -s 0 -n 100000 -mom 11.91 -path "/data/FAIRsorf/pandaroot/trunk/macro/lmd/tmpOutputAlign"
-cp /home/akaravdina/lmdMacro/tmpOutputAlign/Lumi_out_MC_and_REC_trks_matches_with_IDs0.root /home/akaravdina/lmdMacro/tmpOutputAlign/results/misalign10mkmDOF111000/Lumi_out_MC_and_REC_trks_matches_with_IDs0_after.root 
-cd  /home/akaravdina/lmdMacro/
-time root -l -b -q 'GenAlignEffect.C("/data/FAIRsorf/pandaroot/trunk/macro/lmd/tmpOutputAlign/results/misalign10mkmDOF111000/")'
-
-
-# # #----------------------------------------------------------------------
-
-rm /home/akaravdina/lmdMacro/tmpOutputAlign/*
-##Full sim & rec
-time root -l -b -q 'runLumi0SimBox.C(100000,1.5,"tmpOutputAlign")'
-time root -l -b -q 'runLumi1Digi.C(100000,0,"tmpOutputAlign")'
-time root -l -b -q 'create_misalignment_lumi.C(0.0010,0.)'
-time root -l -b -q 'runLumi2Reco.C(100000,0,"tmpOutputAlign")' >> REC_TESTmisalign10mkmDOF111000_1_5GeV.log
-time root -l -b -q 'runLumi3Finder.C(100000,0,"tmpOutputAlign", 0, "CA",true)'
-time root -l -b -q 'runLumi4Fitter.C(100000,0,"tmpOutputAlign")'
-time root -l -b -q 'runLumi5Geane.C(100000,1.5,0,"tmpOutputAlign")'
-
-cd /data/FAIRsorf/pandaroot/build/bin
-##obtain information about resolution before alignment
-./rec_mc_match -s 0 -n 100000 -mom 1.5 -path "/data/FAIRsorf/pandaroot/trunk/macro/lmd/tmpOutputAlign"
-
-##obtain info about hits for alignment
-./hits_align -s 0 -n 100000 -path /home/akaravdina/lmdMacro/tmpOutputAlign -out /home/akaravdina/lmdMacro/tmpOutputAlign/TrackForAlign.txt -outhist /home/akaravdina/lmdMacro/tmpOutputAlign/ResidualsHist.root -v 0
-
-##do alignment
-cd /data/FAIRsorf/pandaroot/karavdina/myKnossos
-rm logForRES
-./knossos -i /home/akaravdina/lmdMacro/tmpOutputAlign/TrackForAlign.txt -o /home/akaravdina/lmdMacro/tmpOutputAlign/LumiAlignConst.txt -n 100000 -r 1 >> logForRES
-
-rm /home/akaravdina/lmdMacro/lumi.misalign_after.par
-head -14 /home/akaravdina/lmdMacro/lumi.misalign.par >> /home/akaravdina/lmdMacro/lumi.misalign_after.par
-#obtain results and write it in new *.par file
-./analyze -in '/home/akaravdina/lmdMacro/lumi.misalign.par' -out '/home/akaravdina/lmdMacro/tmpOutputAlign/LumiAlignConst.txt' -new '/home/akaravdina/lmdMacro/lumi.misalign_after.par'
-## change old params for new params
-mv  /home/akaravdina/lmdMacro/lumi.misalign.par  /home/akaravdina/lmdMacro/lumi.misalign_before.par
-mv  /home/akaravdina/lmdMacro/lumi.misalign_after.par /home/akaravdina/lmdMacro/lumi.misalign.par
-
+cd ${PANDAROOT}/build/bin
+##obtain information about resolution after alignment
+./rec_mc_match -s 0 -n 1000 -mom 11.91 -path ${PANDAROOT}/macro/lmd/tmpOutputAlignTMP
+cp ${PANDAROOT}/macro/lmd/tmpOutputAlignTMP/Lumi_out_MC_and_REC_trks_matches_with_IDs0.root ${PANDAROOT}/macro/lmd/tmpOutputAlignTMP/results/misalign100mkmDOF111000/Lumi_out_MC_and_REC_trks_matches_with_IDs0_after.root
+##obtain info about hits for alignment [here just for check resuduals after alignment procedure]
+./hits_align -s 0 -n 1000 -path ${PANDAROOT}/macro/lmd/tmpOutputAlignTMP -out ${PANDAROOT}/macro/lmd/tmpOutputAlignTMP/TrackForAlign.txt -outhist ${PANDAROOT}/macro/lmd/tmpOutputAlignTMP/ResidualsHist.root -v 0
 ##save results in good storage place
-cd /home/akaravdina/lmdMacro
-mkdir tmpOutputAlign/results/misalign10mkmDOF111000_1_5GeV
-cp /home/akaravdina/lmdMacro/tmpOutputAlign/Lumi_out_MC_and_REC_trks_matches_with_IDs0.root /home/akaravdina/lmdMacro/tmpOutputAlign/results/misalign10mkmDOF111000_1_5GeV/Lumi_out_MC_and_REC_trks_matches_with_IDs0_before.root
-cp  /data/FAIRsorf/pandaroot/karavdina/myKnossos/Results.root /home/akaravdina/lmdMacro/tmpOutputAlign/results/misalign10mkmDOF111000_1_5GeV/Results.root
-cp /home/akaravdina/lmdMacro/lumi.misalign_before.par /home/akaravdina/lmdMacro/tmpOutputAlign/results/misalign10mkmDOF111000_1_5GeV/.
-cp /home/akaravdina/lmdMacro/lumi.misalign.par /home/akaravdina/lmdMacro/tmpOutputAlign/results/misalign10mkmDOF111000_1_5GeV/lumi.misalign_after.par
-cp /home/akaravdina/lmdMacro/tmpOutputAlign/ResidualsHist.root /home/akaravdina/lmdMacro/tmpOutputAlign/results/misalign10mkmDOF111000_1_5GeV/.
-rm /home/akaravdina/lmdMacro/tmpOutputAlign/*
-
-
-##repeat rec with new params
-time root -l -b -q 'runLumi0SimBox.C(100000,1.5,"tmpOutputAlign")'
-time root -l -b -q 'runLumi1Digi.C(100000,0,"tmpOutputAlign")'
-time root -l -b -q 'runLumi2Reco.C(100000,0,"tmpOutputAlign")' >> REC_TESTmisalign10mkmDOF111000_1_5GeV_2.log
-time root -l -b -q 'runLumi3Finder.C(100000,0,"tmpOutputAlign", 0, "CA",true)'
-time root -l -b -q 'runLumi4Fitter.C(100000,0,"tmpOutputAlign")'
-time root -l -b -q 'runLumi5Geane.C(100000,1.5,0,"tmpOutputAlign")'
-
-cd /data/FAIRsorf/pandaroot/build/bin
-##obtain information about resolution before alignment
-./rec_mc_match -s 0 -n 100000 -mom 1.5 -path "/data/FAIRsorf/pandaroot/trunk/macro/lmd/tmpOutputAlign"
-cp /home/akaravdina/lmdMacro/tmpOutputAlign/Lumi_out_MC_and_REC_trks_matches_with_IDs0.root /home/akaravdina/lmdMacro/tmpOutputAlign/results/misalign10mkmDOF111000_1_5GeV/Lumi_out_MC_and_REC_trks_matches_with_IDs0_after.root 
-cd  /home/akaravdina/lmdMacro/
-time root -l -b -q 'GenAlignEffect.C("/data/FAIRsorf/pandaroot/trunk/macro/lmd/tmpOutputAlign/results/misalign10mkmDOF111000_1_5GeV/")'
+cp ${PANDAROOT}/macro/lmd/tmpOutputAlignTMP/ResidualsHist.root ${PANDAROOT}/macro/lmd/tmpOutputAlignTMP/results/misalign100mkmDOF111000/ResidualsHist_after.root 
+cd  ${PANDAROOT}/macro/lmd
+##obtain summary plots
+time root -l -b -q GenAlignEffect.C\(\"${PANDAROOT}/macro/lmd/tmpOutputAlignTMP/results/misalign100mkmDOF111000/\",100,0,1,\"${PANDAROOT}/macro/lmd/tmpOutputAlignTMP/results/Sens\"\)
 
 exit
