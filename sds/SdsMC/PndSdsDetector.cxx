@@ -39,7 +39,7 @@ class FairVolume;
 // -----   Default constructor   -------------------------------------------
 PndSdsDetector::PndSdsDetector():FairDetector(),fPersistance(kTRUE), fUseRadDamOption(false)
 {
-  fPndSdsCollection = new TClonesArray("PndSdsMCPoint");
+//  fPndSdsCollection = new TClonesArray("PndSdsMCPoint");
   fPosIndex = 0;
 }
 // -------------------------------------------------------------------------
@@ -50,7 +50,7 @@ PndSdsDetector::PndSdsDetector():FairDetector(),fPersistance(kTRUE), fUseRadDamO
 PndSdsDetector::PndSdsDetector (const char* name, Bool_t active)
 : FairDetector(name, active), fPersistance(kTRUE), fUseRadDamOption(false)
 {
-  fPndSdsCollection = new TClonesArray("PndSdsMCPoint");
+//  fPndSdsCollection = new TClonesArray("PndSdsMCPoint");
   fPosIndex = 0;
   fGeoH = PndGeoHandling::Instance();
 }
@@ -73,6 +73,7 @@ void PndSdsDetector::Initialize()
 {
   std::cout<<" -I- Initializing PndSdsDetector()"<<std::endl;
   SetBranchNames();
+
   FairDetector::Initialize();
   if(0==gGeoManager) {
     std::cout<<" -E- No gGeoManager in PndSdsDetector::Initialize()!"<<std::endl;
@@ -222,7 +223,12 @@ void PndSdsDetector::FinishRun()
 // -----   Public method Register   ----------------------------------------
 void PndSdsDetector::Register()
 {
-  FairRootManager::Instance()->Register(fOutBranchName, fFolderName, fPndSdsCollection, fPersistance);
+	fPndSdsCollection = FairRootManager::Instance()->GetTClonesArray(fOutBranchName);
+	if (! fPndSdsCollection){
+		  std::cout << "-W- PndSdsDetector: New branch " << fOutBranchName << " created!" << std::endl;
+		  FairRootManager::Instance()->Register(fOutBranchName, "PndSdsMCPoint", fFolderName, kTRUE);
+	}
+  //FairRootManager::Instance()->Register(fOutBranchName, fFolderName, fPndSdsCollection, fPersistance);
 }
 // -------------------------------------------------------------------------
 
@@ -388,14 +394,14 @@ void PndSdsDetector::SetExclusiveSensorType(const TString sens)
 
 // -----   Private method AddHit   -----------------------------------------
 PndSdsMCPoint* PndSdsDetector::AddHit(Int_t trackID, Int_t detID, Int_t sensorID, TVector3 posIn,TVector3 posOut,TVector3 momIn, TVector3 momOut,
-                                      Double_t time, Double_t length, Double_t eLoss) const
+                                      Double_t time, Double_t length, Double_t eLoss)
 {
-  TClonesArray&
-  clref = *fPndSdsCollection;
-  
-  Int_t
-  size = clref.GetEntriesFast();
-  
+//  TClonesArray&
+//  clref = *fPndSdsCollection;
+//
+//  Int_t
+//  size = clref.GetEntriesFast();
+  fPndSdsCollection = FairRootManager::Instance()->GetTClonesArray(fOutBranchName);
   FairMCEventHeader* header= (FairMCEventHeader*)FairRootManager::Instance()->GetObject("MCEventHeader.");
 
   if (fVerboseLevel >= 2)
@@ -404,7 +410,7 @@ PndSdsMCPoint* PndSdsDetector::AddHit(Int_t trackID, Int_t detID, Int_t sensorID
     << ", " << posOut.Z() << ") cm,  detector " << fGeoH->GetPath(sensorID) << " " << detID << ", track "
     << trackID << ", energy loss " << eLoss*1e06 << " keV" << std::endl;
   
- PndSdsMCPoint* storedData = new(clref[size]) PndSdsMCPoint(trackID, detID, sensorID, posIn, posOut,
+ PndSdsMCPoint* storedData = new((*fPndSdsCollection)[fPndSdsCollection->GetEntriesFast()]) PndSdsMCPoint(trackID, detID, sensorID, posIn, posOut,
                                         momIn, momOut, time, length, eLoss);
  //storedData->SetTimeStamp(header->GetT()); 
  /** MC points do not inhirts from Time stamp anymore, time stamp can be set after simulation. M.Al-Turany  */

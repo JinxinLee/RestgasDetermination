@@ -191,7 +191,7 @@ protected:
   PndSdsMCPoint* AddHit(Int_t trackID, Int_t detID, Int_t sensorID,
   		      TVector3 posIn, TVector3 posOut,
 		      TVector3 momIn, TVector3 momOut,
-		      Double_t time, Double_t length, Double_t eLoss)const;
+		      Double_t time, Double_t length, Double_t eLoss);
 
 
   /** Private method ResetParameters
