@@ -158,14 +158,30 @@ XYZVector PndDrcSurfPolyFlatFocus::Normal(const XYZPoint& point) const
       exit(EXIT_FAILURE);
     }
 
+  /*
+    cout<<" fp= "<<fFocalPoint.X()<<" "
+    <<fFocalPoint.Y()<<" "
+    <<fFocalPoint.Z()<<endl;
+    cout<<"  p= "<<point.X()<<" "
+    <<point.Y()<<" "
+    <<point.Z()<<endl;
+    cout<<"  n= "<<fNormal.X()<<" "
+    <<fNormal.Y()<<" "
+      <<fNormal.Z()<<endl;
+  */
+
+
   if (fNormal.Dot(fFocalPoint-point) >0)
     {
-      return (fNormal + (fFocalPoint-point)).Unit();
+      return ( fNormal + (fFocalPoint-point).Unit()).Unit();
     }
   else
     {
-      return (-fNormal + (fFocalPoint-point)).Unit();
+      return (-fNormal + (fFocalPoint-point).Unit()).Unit();
     }
+
+
+
 
 }
 //----------------------------------------------------------------------
@@ -473,4 +489,6 @@ void PndDrcSurfPolyFlatFocus::AddTransform(const Transform3D& trans)
     }
   fNormal = trans * fNormal;
   fPixelPoint = trans*fPixelPoint;
+  fFocalPoint = trans*fFocalPoint;
+  
 }
