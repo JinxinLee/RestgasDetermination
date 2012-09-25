@@ -4,8 +4,7 @@ eventDisplay()
 {
     //-----User Settings:-----------------------------------------------
   TString  SimEngine      ="TGeant3"; 
-  TString  InputFile     ="Mvd_Test2.root";
-  TString  ParFile       ="Mvd_Params2.root";
+  TString  InputFile     ="Mvd_Sim_AddDisks.root";
   //------------------------------------------------------------------
 
 
@@ -20,15 +19,16 @@ eventDisplay()
   TString digiFile = creator.GetDigiFileName();
   TString recoFile = creator.GetRecoFileName();
   TString trackF = creator.GetTrackFindingFileName();
+  TString ParFile = creator.GetParFileName();
                                      
   // -----   Reconstruction run   -------------------------------------------
   FairRunAna *fRun= new FairRunAna();
   fRun->SetInputFile(InputFile.Data());
-  fRun->AddFriend(recoFile.Data());
-  fRun->AddFriend(digiFile.Data());
-  fRun->AddFriend(trackF.Data());
+//  fRun->AddFriend(recoFile.Data());
+//  fRun->AddFriend(digiFile.Data());
+//  fRun->AddFriend(trackF.Data());
   fRun->SetOutputFile("tst.root");
-  fRun->RunWithTimeStamps();
+//  fRun->RunWithTimeStamps();
    FairRuntimeDb* rtdb = fRun->GetRuntimeDb();
   FairParRootFileIo* parInput1 = new FairParRootFileIo();
   parInput1->open(ParFile.Data());
@@ -70,7 +70,7 @@ eventDisplay()
   FairHitDraw *MvdRecoStrip = new FairHitDraw ("MVDHitsStrip");
   MvdRecoStrip->SetTimeWindowPlus(10);
   MvdRecoStrip->SetTimeWindowMinus(10);
-  FairHitDraw *STTHits = new FairHitDraw ("STTSortedHits");
+  FairHitDraw *STTHits = new FairHitDraw ("STTHit");
   STTHits->SetTimeWindowPlus(200);
   STTHits->SetTimeWindowMinus(1);
   fMan->AddTask(Track);
@@ -88,12 +88,12 @@ eventDisplay()
 //  fMan->AddTask( PndDskPoint);
 //
 //  fMan->AddTask(EMCRecoHit);
-//  fMan->AddTask(MvdRecoHit);
-//  fMan->AddTask(MvdRecoStrip);
+  fMan->AddTask(MvdRecoHit);
+  fMan->AddTask(MvdRecoStrip);
   fMan->AddTask(STTHits);
   
-  fMan->AddTask(RiemannCand);
-  fMan->AddTask(PndTrackRiemann);
+//  fMan->AddTask(RiemannCand);
+//  fMan->AddTask(PndTrackRiemann);
 
   fMan->Init();
 
