@@ -3241,6 +3241,8 @@ if(istampa>2){
 
 //-----------  cleanup of the new tracks found
 
+
+
   if(YesClean){
      for(ncand=nSttTrackCand; ncand< nTotalCandidates; ncand++){
 	if(!keepit[ncand]) continue;
@@ -3293,7 +3295,14 @@ if(istampa>2){
 // -------------------------------------------------------------------------------------
 
 
-
+//--------------------------
+ if(istampa>1){
+	for(ncand=0; ncand< nTotalCandidates; ncand++){
+		cout<<"evento n. "<<IVOLTE<<",  prima di LoadPndTrack_TrackCand, candidato n. "
+		<<ncand<<", suo keepit "<<keepit[ncand]<<endl;
+	} // end of   for(ncand=nSttTrackCand; ncand< nTotalCandidates; ncand++)
+}
+//--------------------------
 
 //-------  load the new PndTrackCand ; each track has the STT and the Mvd hits associated
 //-------  also load the new PndTrack ; each track has the STT and the Mvd hits associated
