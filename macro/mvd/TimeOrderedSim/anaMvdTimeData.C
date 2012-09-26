@@ -6,17 +6,17 @@ anaMvdTimeData(Int_t nEvents=1000)
   // ========================================================================
   // Verbosity level (0=quiet, 1=event level, 2=track level, 3=debug)
   Int_t iVerbose = 0;
-  TString MCFile = "Mvd_Sim_Dpm_500.root";
-  TString parFile = "Mvd_Sim_Dpm_500_params.root";
+  TString MCFile = "Mvd_Sim.root";
   // ----  Load libraries   -------------------------------------------------
   gROOT->Macro("$VMCWORKDIR/gconfig/rootlogon.C");
   gSystem->Load("libMCMatchExamples");
   // ------------------------------------------------------------------------
   // Output file
   PndFileNameCreator creator(MCFile.Data());
-  TString DigiFile = creator.GetDigiFileName(false).c_str();
-  TString RecoFile = creator.GetRecoFileName(false).c_str();
-  TString TrackFFile = creator.GetTrackFindingFileName(false).c_str();
+  TString DigiFile = creator.GetDigiFileName();
+  TString RecoFile = creator.GetRecoFileName();
+  TString TrackFFile = creator.GetTrackFindingFileName();
+  TString parFile = creator.GetParFileName();
   TString outFile = "Test.root";
   
   std::cout << "MCFile  : " << MCFile.Data()<< std::endl;
@@ -34,7 +34,7 @@ anaMvdTimeData(Int_t nEvents=1000)
   fRun->SetInputFile(DigiFile);
   fRun->AddFriend(MCFile);
   fRun->AddFriend(RecoFile);
-  fRun->AddFriend(TrackFFile);
+ // fRun->AddFriend(TrackFFile);
   fRun->SetOutputFile(outFile);
   //fRun->RunWithTimeStamps();
   // ------------------------------------------------------------------------
@@ -50,7 +50,7 @@ anaMvdTimeData(Int_t nEvents=1000)
   // -----    Default MVD hit producer   --------------------------------------------
 
   PndMCTestDataCrawler* crawler = new PndMCTestDataCrawler();
-  crawler->SetStartBranch("MVDRiemannTrackCand");
+  crawler->SetStartBranch("MVDHitsPixel");
   crawler->SetStopBranch("EventHeader.");
   crawler->SetVerbose(2);
   crawler->SetHistoRange(-20, 40, 601);

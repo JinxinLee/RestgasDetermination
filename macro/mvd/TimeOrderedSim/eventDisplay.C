@@ -55,6 +55,7 @@ eventDisplay()
   FairMCPointDraw *PndSTTPoint = new FairMCPointDraw ("STTPoint",kMagenta, kFullSquare);
 //  FairMCPointDraw *PndGEMPoint = new FairMCPointDraw ("GEMPoint",kRed, kFullSquare);
 //  FairMCPointDraw *PndDskPoint = new FairMCPointDraw ("DskCerenkov",kGreen, kFullSquare);
+    FairMCPointDraw *FtsPoint = new FairMCPointDraw("FTSPoint", kRed, kFullSquare);
 //  FairHitDraw *EMCRecoHit = new FairHitDraw("EmcRecoHit");
 //
   PndTrackCandDraw* RiemannCand = new PndTrackCandDraw("MVDRiemannTrackCand");
@@ -86,6 +87,7 @@ eventDisplay()
   fMan->AddTask( PndSTTPoint);
 //  fMan->AddTask( PndGEMPoint);
 //  fMan->AddTask( PndDskPoint);
+  fMan->AddTask( FtsPoint);
 //
 //  fMan->AddTask(EMCRecoHit);
   fMan->AddTask(MvdRecoHit);
