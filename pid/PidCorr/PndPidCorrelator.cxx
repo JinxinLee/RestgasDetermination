@@ -1043,7 +1043,7 @@ Bool_t PndPidCorrelator::GetMdtInfo(PndTrack* track, PndPidCandidate* pidCand) {
 	      for (Int_t iLayer=0; iLayer<mdtLayer; iLayer++)
 		{
 		  mdtHits = mdtHits + mdtTrk->GetHitMult(iLayer);
-		  std::cout << iLayer << "\t" << mdtTrk->GetHitMult(iLayer) << "\t" << mdtHits << std::endl;
+		  //std::cout << iLayer << "\t" << mdtTrk->GetHitMult(iLayer) << "\t" << mdtHits << std::endl;
 		}
 	    }
 	}
