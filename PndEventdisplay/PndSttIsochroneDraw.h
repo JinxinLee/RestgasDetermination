@@ -84,10 +84,6 @@ protected:
   TEveBoxSet* fListOfIsochrones;
   //TEveElementList *fTrackCont;
 
-   Double_t MinEnergyLimit;
-   Double_t MaxEnergyLimit;
-   Double_t PEnergy;
-
    BinaryFunctor* fStartFunctor;
    BinaryFunctor* fStopFunctor;
 
