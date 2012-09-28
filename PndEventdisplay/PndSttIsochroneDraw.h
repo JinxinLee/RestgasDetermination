@@ -1,22 +1,23 @@
 // -------------------------------------------------------------------------
-// -----                      PndTrackDraw header file                 -----
+// -----                      PndSttIsochroneDraw header file                 -----
 // -----                Created 09/25/09  by T. Stockmanns             -----
 // -------------------------------------------------------------------------
 
 
-/** PndTrackDraw
+/** PndSttIsochroneDraw
  * @author T.Stockmanns
  * @since 25.09.09
  *   MVD event display object
  **
  **/
 
-#ifndef PNDTRACKDRAW_H
-#define PNDTRACKDRAW_H
+#ifndef PndSttIsochroneDraw_H
+#define PndSttIsochroneDraw_H
 
 #include "FairTask.h"
 #include "TEveTrackPropagator.h"
 #include "TEveElement.h"
+#include "TEveBoxSet.h"
 
 #include "TEveArrow.h"
 #include "TString.h"
@@ -25,27 +26,28 @@
 #include "FairRootManager.h"
 
 #include "PndTrackCandDraw.h"
+#include "PndGeoSttPar.h"
 #include <vector>
 class TEveTrackList;
 class FairEventManager;
 class TObjArray;
 
-class PndTrackDraw : public FairTask {
+class PndSttIsochroneDraw : public FairTask {
 
  public:
 
   /** Default constructor **/
-  PndTrackDraw(Bool_t propagation = kFALSE);
+  PndSttIsochroneDraw(Bool_t propagation = kFALSE);
 
 
   /** Standard constructor 
   *@param name        Name of task
   *@param iVerbose    Verbosity level
   **/
-  PndTrackDraw(const char* name, Bool_t propagation = kFALSE, Int_t iVerbose = 1);
+  PndSttIsochroneDraw(const char* name, Bool_t propagation = kFALSE, Int_t iVerbose = 1);
 
   /** Destructor **/
-  virtual ~PndTrackDraw();
+  virtual ~PndSttIsochroneDraw();
 
   /** Set verbosity level. For this task and all of the subtasks. **/
   void SetVerbose(Int_t iVerbose){fVerbose = iVerbose;};
@@ -71,22 +73,17 @@ class PndTrackDraw : public FairTask {
 
 protected:
 
-  void PropagateTrack(FairTrackParP& trackPar, Int_t pidHypo, Int_t color = -1, TEveElement* group = 0);
-  TClonesArray  *fPndTrackList;  //!
-  TEveTrackPropagator *fTrPr; 
+  TClonesArray* fSttHitArray;
+  TClonesArray* fSttTubeArray;
+
+  PndGeoSttPar* fSttParameters;
+
   FairEventManager * fEventManager; //!
   TObjArray *fEveTrList;
   TString fEvent; //!
-  TEveTrackList *fTrList;  //!
+  TEveBoxSet* fListOfIsochrones;
   //TEveElementList *fTrackCont;
-  FairGeanePro *fPro;
- // FairRootManager* fManager;
-  PndTrackCandDraw* fTrackCandDraw;
-  std::vector<TEveArrow*> fArrows;
-  Bool_t fDoPropagation;
 
-  TEveElementList* fListOfTracks;
-    
    Double_t MinEnergyLimit;
    Double_t MaxEnergyLimit;
    Double_t PEnergy;
@@ -94,7 +91,7 @@ protected:
    BinaryFunctor* fStartFunctor;
    BinaryFunctor* fStopFunctor;
 
-  ClassDef(PndTrackDraw,1);
+  ClassDef(PndSttIsochroneDraw,1);
     
 };
 

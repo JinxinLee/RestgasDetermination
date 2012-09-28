@@ -22,7 +22,12 @@ using std::cout;
 using std::endl;
 
 // -----   Default constructor   -------------------------------------------
-PndTrackDraw::PndTrackDraw(Bool_t propagate):fListOfTracks(0), fDoPropagation(propagate)
+PndTrackDraw::PndTrackDraw(Bool_t propagate)
+	:fListOfTracks(0),
+	 fTimeWindowPlus(0.),
+	 fTimeWindowMinus(0.),
+	 fDoPropagation(propagate),
+	 fUseEventTime(kTRUE)
 {
 	   fPndTrackList = 0;
 }
@@ -32,7 +37,10 @@ PndTrackDraw::PndTrackDraw(Bool_t propagate):fListOfTracks(0), fDoPropagation(pr
 // -----   Standard constructor   ------------------------------------------
 PndTrackDraw::PndTrackDraw(const char* name, Bool_t propagate, Int_t iVerbose)
   : FairTask(name, iVerbose),
-    fEveTrList( new TObjArray(16)), fListOfTracks(0), fDoPropagation(propagate)
+    fTimeWindowPlus(0.),
+    fTimeWindowMinus(0.),
+    fEveTrList( new TObjArray(16)), fListOfTracks(0), fDoPropagation(propagate),
+    fUseEventTime(kTRUE)
 {
 	 // fPro = new FairGeanePro();
 	  fPndTrackList = 0;
@@ -48,7 +56,7 @@ InitStatus PndTrackDraw::Init()
 		FairRootManager* fManager = FairRootManager::Instance();
 		fPndTrackList = (TClonesArray *) fManager->GetObject(GetName());
 		if (fPndTrackList == 0) {
-			cout << "FairMCPointDraw::Init()  branch " << GetName()
+			cout << "PndTrackDraw::Init()  branch " << GetName()
 					<< " Not found! Task will be deactivated " << endl;
 			SetActive(kFALSE);
 		}
@@ -66,10 +74,18 @@ InitStatus PndTrackDraw::Init()
 
 		fTrackCandDraw->Init();
    }
+   fStartFunctor = new StopTime();
+   fStopFunctor = new StopTime();
+
    if (IsActive())
 		return kSUCCESS;
 	else
 		return kERROR;
+}
+// -----   Destructor   ----------------------------------------------------
+PndTrackDraw::~PndTrackDraw()
+{
+	delete fTrackCandDraw;
 }
 
 // -------------------------------------------------------------------------
@@ -90,6 +106,22 @@ void PndTrackDraw::Exec(Option_t* option)
     //fListOfTracks->DestroyElements();
     fListOfTracks = new TEveElementList("PndTracks","List of PndTracks");
     gEve->AddElement(fListOfTracks,fEventManager);
+
+	if (FairRunAna::Instance()->IsTimeStamp()) {
+		std::cout << "Inside TimeStamp" << std::endl;
+		fPndTrackList->Clear();
+		Double_t eventTime = FairRootManager::Instance()->GetEventTime();
+		if (fUseEventTime) {
+			fStartTime = eventTime - fTimeWindowMinus;
+		}
+		cout << "EventTime: " << eventTime << " TimeWindow: " << fStartTime
+				<< " - " << eventTime + fTimeWindowPlus << std::endl;
+
+		fPndTrackList = FairRootManager::Instance()->GetData(GetName(),
+				fStartFunctor, fStartTime, fStopFunctor,
+				eventTime + fTimeWindowPlus); //FairRootManager::Instance()->GetEventTime() +
+		std::cout << fStartTime << " " << eventTime + fTimeWindowPlus << " FoundTracks: " << fPndTrackList->GetEntriesFast() << std::endl;
+	}
 
     for (Int_t i=0; i<fPndTrackList->GetEntriesFast(); i++)	{
 		if(fVerbose>2) cout << "PndTrackDraw::Exec "<< i << endl;
@@ -259,10 +291,7 @@ void PndTrackDraw::PropagateTrack(FairTrackParP& trackPar, Int_t pidHypo, Int_t 
 }
 
 
-// -----   Destructor   ----------------------------------------------------
-PndTrackDraw::~PndTrackDraw()
-{
-}
+
 // -------------------------------------------------------------------------
 void PndTrackDraw::SetParContainers()
 {
@@ -317,6 +346,17 @@ TEveTrackList *PndTrackDraw::GetTrGroup(Int_t pid)
   }                          
   return fTrList;
 }
+
+void PndTrackDraw::SetTimeWindowMinus(Double_t val)
+{
+  fTimeWindowMinus = val;
+}
+
+void PndTrackDraw::SetTimeWindowPlus(Double_t val)
+{
+  fTimeWindowPlus = val;
+}
+
 
 ClassImp(PndTrackDraw)
 

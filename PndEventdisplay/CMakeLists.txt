@@ -22,6 +22,7 @@ ${CMAKE_SOURCE_DIR}/pnddata/MvdData
 ${CMAKE_SOURCE_DIR}/pnddata/SdsData
 ${CMAKE_SOURCE_DIR}/mvd/MvdDigi
 ${CMAKE_SOURCE_DIR}/sds/SdsDigi
+${CMAKE_SOURCE_DIR}/stt
 ${CMAKE_SOURCE_DIR}/PndEventdisplay
 )
 
@@ -38,6 +39,7 @@ PndTrackCandDraw.cxx
 PndTrackDraw.cxx
 PndSttMCPointDraw.cxx
 PndMvdDigiPixelDraw.cxx
+PndSttIsochroneDraw.cxx
 )
 
 if(RULE_CHECKER_FOUND)
