@@ -51,7 +51,7 @@ source config.sh
 
 last=`expr $nEvts - 1`
 for start in `seq 0 $step $last` ; do
-cd /data/FAIRsorf/pandaroot/build/bin
+cd /data/FAIRsorf/pandaroot/trunk/build/bin
 ./bkg_rec_mc_match -s ${start} -n ${step} -mom  ${mom} -path ${path} -v 1  >> ${path}/bkgStudy_ALL.log
 if [ $start == "0" ]; then
 cp ${path}/compMC_and_REC_withSignal0.root ${path}/sumAll.root
