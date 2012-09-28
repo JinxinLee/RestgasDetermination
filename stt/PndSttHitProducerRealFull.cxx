@@ -245,11 +245,11 @@ PndSttHit* PndSttHitProducerRealFull::AddHit(Int_t detID, Int_t tubeID, Int_t iP
 
 	  Double_t EventTime = FairRootManager::Instance()->GetEventTime();
 
-  PndSttHit *hitnew =  new PndSttHit(detID, tubeID, iPoint, pos, dpos, p, rsim, closestDistanceError, depcharge);
+  PndSttHit *hitnew =  new PndSttHit(detID, tubeID, iPoint, pos, dpos, p+EventTime+timeOfFlight, rsim, closestDistanceError, depcharge);
   hitnew->Reset();
   FairEventHeader* evtHeader = (FairEventHeader*)FairRootManager::Instance()->GetObject("EventHeader.");
   hitnew->AddLink(FairLink(evtHeader->GetInputFileId(), evtHeader->GetMCEntryNumber(),  "STTPoint", iPoint));
-  fDataBuffer->FillNewData(hitnew, p+EventTime, timeOfFlight+EventTime);
+  fDataBuffer->FillNewData(hitnew, p+EventTime+timeOfFlight, timeOfFlight+EventTime);
   return hitnew;
 
 }
