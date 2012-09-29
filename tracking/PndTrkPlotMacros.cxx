@@ -1725,7 +1725,10 @@ void PndTrkPlotMacros::WriteMacroParallelHitsGeneralConformalwithMC(
     for(i=0; i<nTracksFoundSoFar; i++){
 	if(!keepit->at(i)) continue;
 
-
+	ALFA[i] = -2.*Oxxx->at(i);
+	BETA[i] = -2.*Oyyy->at(i);
+	GAMMA[i]= Oxxx->at(i)*Oxxx->at(i)+Oyyy->at(i)*Oyyy->at(i)
+		 - R->at(i) * R->at(i);
       if( fabs(GAMMA[i]) > 1.e-10) {
        aaa = -0.5*ALFA[i]/GAMMA[i];
        bbb = -0.5*BETA[i]/GAMMA[i];
