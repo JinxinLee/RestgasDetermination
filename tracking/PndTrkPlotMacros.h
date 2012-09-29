@@ -59,6 +59,7 @@ struct PndTrkPlotMacros_InputData{
 	Short_t *MvdPixelSpuriList;
 	Short_t *MvdStripCommonList;
 	Short_t *MvdStripSpuriList;
+	Short_t NFIDIVCONFORMAL;
 	Short_t *nMCMvdPixelAlone;
 	Short_t *nMCMvdStripAlone;
 	Short_t *nMCParalAlone;
@@ -76,10 +77,8 @@ struct PndTrkPlotMacros_InputData{
 	Short_t *nMvdStripHitsinTrack;
 	Short_t *nMvdStripSpuriinTrack;
 	Short_t *nParalCommon;
-
+	Short_t NRDIVCONFORMAL;
 	Short_t *nSciTilCommon;
-
-
 
 	Short_t nSciTilHits;
 	Short_t *nSciTilHitsinTrack;
@@ -101,6 +100,7 @@ struct PndTrkPlotMacros_InputData{
 	Short_t *ParSpuriList;
 	Double_t *posizSciTil;
 	Double_t *R;
+	Double_t *radiaConf;
 	Double_t rstrawdetectormax;
 	Double_t rstrawdetectormin;
 	Double_t *SchosenSkew;
@@ -276,7 +276,47 @@ void DrawHexagonCircleInMacro(
 	Vec <Double_t> *XMvdStrip,
 	Vec <Double_t> *YMvdPixel,
 	Vec <Double_t> *YMvdStrip
+	);
 
+
+ void WriteMacroParallelHitsGeneralConformalwithMC(
+	Double_t APOTEMAMAXINNERPARSTRAW,
+	Double_t APOTEMAMAXSKEWSTRAW,
+	Double_t APOTEMAMINOUTERPARSTRAW,
+	Double_t APOTEMAMINSKEWSTRAW,
+	Double_t BFIELD,
+	Double_t CVEL,
+	Double_t DIMENSIONSCITIL,
+	bool doMcComparison,
+	TClonesArray *fMCTrackArray,
+	Int_t Nhits,
+	Vec <Double_t> *info,
+	PndTrkPlotMacros_InputData In_Put,
+	int IVOLTE,
+	Short_t nMCTracks,
+	Short_t nMvdPixelHit,
+	Short_t nMvdStripHit,
+	Short_t nSciTilHits,
+	Short_t nTracksFoundSoFar,
+	Vec <bool> *keepit,
+	Vec <Double_t> *FI0,
+	Vec <Double_t> *Ox,
+	Vec <Double_t> *Oy,
+	Vec <Double_t> *posizSciTil,
+	Vec <Double_t> *primoangolo,
+	Vec <Double_t> *R,
+	Double_t RSTRAWDETECTORMAX,
+	Double_t RSTRAWDETECTORMIN,
+	Vec <Double_t> *sigmaXMvdPixel,
+	Vec <Double_t> *sigmaXMvdStrip,
+	Vec <Double_t> *sigmaYMvdPixel,
+	Vec <Double_t> *sigmaYMvdStrip,
+	Vec <Double_t> *ultimoangolo,
+	Double_t VERTICALGAP,
+	Vec <Double_t> *XMvdPixel,
+	Vec <Double_t> *XMvdStrip,
+	Vec <Double_t> *YMvdPixel,
+	Vec <Double_t> *YMvdStrip
 	);
 
  void WriteMacroSkewAssociatedHitswithMC(
