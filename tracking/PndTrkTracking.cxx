@@ -4,6 +4,7 @@
 #include "PndTrkComparisonMCtruth.h"
 #include "PndTrkSttConformalFilling.h"
 #include "PndTrkGlpkFits.h"
+#include "PndTrkLegendreFits.h"
 #include "PndTrkCleanup.h"
 #include "PndTrkCTFindTrackInXY.h"
 #include "PndTrkCTGeometryCalculations.h"
@@ -1383,7 +1384,8 @@ if(istampa>0){
 	Z[2*MAXSTTHITS];
 
  // the class with all the fits.
- PndTrkGlpkFits fit;
+// PndTrkGlpkFits fit;
+ PndTrkLegendreFits fit;
 
 
 
@@ -3566,6 +3568,7 @@ if(istampa>2){
 	In_Put.MvdPixelSpuriList = MvdPixelSpuriList ;
 	In_Put.MvdStripCommonList = MvdStripCommonList ;
 	In_Put.MvdStripSpuriList = MvdStripSpuriList ;
+	In_Put.NFIDIVCONFORMAL =  NFIDIVCONFORMAL;
 	In_Put.nMCMvdPixelAlone = nMCMvdPixelAlone ;
 	In_Put.nMCMvdStripAlone = nMCMvdStripAlone ;
 	In_Put.nMCParalAlone = nMCParalAlone ;
@@ -3580,6 +3583,7 @@ if(istampa>2){
 	In_Put.nMvdStripHit = nMvdStripHit ;
 	In_Put.nMvdStripHitsinTrack = nMvdStripHitsinTrack ;
 	In_Put.nMvdStripSpuriinTrack = nMvdStripSpuriinTrack ;
+	In_Put.NRDIVCONFORMAL = NRDIVCONFORMAL;
 	In_Put.nParalCommon = nParalCommon ;
 	In_Put.nSciTilCommon = nSciTilCommon ;
 	In_Put.nSciTilHits = nSciTilHits ;
@@ -3600,6 +3604,7 @@ if(istampa>2){
 	In_Put.ParSpuriList = ParSpuriList ;
 	In_Put.posizSciTil = &posizSciTil[0][0] ;
 	In_Put.R = R ;
+	In_Put.radiaConf = radiaConf;
 	In_Put.rstrawdetectormax = RSTRAWDETECTORMAX ;
 	In_Put.rstrawdetectormin = RSTRAWDETECTORMIN ;
 	In_Put.SchosenSkew = &SchosenSkew[0][0] ;
@@ -6290,7 +6295,8 @@ DriftRadiusconformal[MAXSTTHITSINTRACK+MAXMVDPIXELHITSINTRACK+MAXMVDSTRIPHITSINT
 ErrorDriftRadiusconformal[MAXSTTHITSINTRACK+MAXMVDPIXELHITSINTRACK+MAXMVDSTRIPHITSINTRACK];
 
 
- PndTrkGlpkFits fit;
+// PndTrkGlpkFits fit;
+ PndTrkLegendreFits fit;
 
 
 	*status= false;
@@ -6387,7 +6393,6 @@ ErrorDriftRadiusconformal[MAXSTTHITSINTRACK+MAXMVDPIXELHITSINTRACK+MAXMVDSTRIPHI
 
 	//  existatus > 0, Type= true --> fit ok, it is a Circle in XY; 
 	//  existatus > 0, Type= false --> fit ok, it is a Straigh Line in XY; 
-	//  existatus = -1, fit failed, equation of XY circle : X**2 + Y**2 =0, impossible in principle; 
 	//  existatus < 0, fit failed. 
 	if( exitstatus > 0 && Type)	*status=true;
 	return;
