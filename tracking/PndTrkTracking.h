@@ -547,17 +547,10 @@ class PndTrkTracking : public FairTask
 	);
 
 
-  void  OrderingParallel(
-	Double_t oX,
-	Double_t oY,
+  void  Ordering_Parallel_Hits(
 	Double_t info[][7],
-	Short_t nParallelHits,
-	Short_t *ListParallelHits,
-	Short_t  Charge,
-	Double_t *Fi_initial_helix_referenceframe,
-	Double_t *Fi_final_helix_referenceframe,
-	Double_t *U,
-	Double_t *V
+	Short_t *ListSttParHi,
+	Int_t nSttParHit
 	);
 
   void OrderingR_Loading_ListTrackCandHit(
