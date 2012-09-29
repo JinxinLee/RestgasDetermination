@@ -930,7 +930,7 @@ void PndTrkTracking::Exec(Option_t* opt) {
  }
 
 
-//----------   fetching the STT  hits
+//--------------------------------------------------------   fetching the STT  hits
 
  nSttHit = fSttHitArray->GetEntriesFast();
  if (nSttHit ==0){
@@ -997,11 +997,17 @@ void PndTrkTracking::Exec(Option_t* opt) {
 		nSttSkewHit++;
 	}
 
-
  //  printout of the Stt hits;
  if (istampa >= 1 ) fPrint.stampaSttHits(i,ipunto,dradius,WDX,WDY,WDZ,puntator,pSttTube);
 
   }  //   end of for( i= 0; i< nSttHit; i++)
+
+//   reordering the list of parallel hits ( ListSttParHits) by decreasing spatial radius;
+//   first the outermost then the innermost. This is necessary because later the search
+//   must starts from the outer hits. 
+
+ Ordering_Parallel_Hits( info, ListSttParHits,nSttParHit );
+
 
 //	fill the inclusion list for Stt, include only first hit for those straws with
 //	multiple hits.
@@ -1237,7 +1243,8 @@ if(istampa>0){
 	U[MAXTRACKSPEREVENT][MAXSTTHITSINTRACK],
 	V[MAXTRACKSPEREVENT][MAXSTTHITSINTRACK];
 
-
+ //  variable usedd in the plotting in the Legiandre plot;
+ input.icounter=0;
 
  if(YesSciTil) {
     for(i=0; i<nSciTilHits ; i++) {
@@ -1286,7 +1293,10 @@ if(istampa>0){
 	input.U = &U[nSttTrackCand][0];
 	input.V = &V[nSttTrackCand][0];
 
+	input.icounter++;  // this is the plot number;
+cout<<"cazzo, trktracking, scitil, prima di FindTrackInXYProjection, icounter = "<<input.icounter<<endl;
 	outcome = SttTrackXYFinder.FindTrackInXYProjection(&input);
+cout<<"cazzo, trktracking, scitil, dopo di FindTrackInXYProjection"<<endl;
 
 	if(!outcome){
 		continue;
@@ -1346,7 +1356,11 @@ if(istampa>0){
 	input.U = &U[nSttTrackCand][0];
 	input.V = &V[nSttTrackCand][0];
 
+	input.icounter++;  // this is the plot number;
+cout<<"cazzo, trktracking, STThits, prima di FindTrackInXYProjection, icounter = "<<input.icounter
+<<", hit n. "<< iParHit<<endl;
 	outcome = SttTrackXYFinder.FindTrackInXYProjection(&input);
+cout<<"cazzo, trktracking, STThits, dopo di FindTrackInXYProjection"<<endl;
 
 	if(!outcome)  continue;
 
@@ -5805,6 +5819,48 @@ if(istampa>=3) for(int ica=0; ica<nMvdPixelHitsinTrack[ncand]+nMvdStripHitsinTra
 
 //--------end function PndTrkTracking::OrderingConformal_Loading_ListTrackCandHit
 
+//--------begin of function PndTrkTracking::Ordering_Parallel_Hits
+
+void  PndTrkTracking::Ordering_Parallel_Hits(
+	Double_t info[][7],
+	Short_t *ListSttParHi,
+	Int_t nSttParHit
+	)
+{
+
+ Short_t
+	j,
+	OLDListSttParHits[nSttParHit];
+
+ Int_t
+	auxIndex[nSttParHit];
+
+ Double_t
+	auxRvalues[nSttParHit];
+
+
+//   ordering the parallel hits by decreasing spatial radius.
+
+ for (j = 0; j< nSttParHit; j++){
+	auxIndex[j]=j;
+	auxRvalues[j]=
+		info[ListSttParHi[ j ]  ][0]*info[ListSttParHi[ j ]  ][0]+
+		info[ListSttParHi[ j ]  ][1]*info[ListSttParHi[ j ]  ][1];
+	OLDListSttParHits[j]=ListSttParHi[j];
+ }
+
+ PndTrkMergeSort Sorter;
+
+ Sorter.Merge_Sort( (Short_t) nSttParHit, auxRvalues, auxIndex);
+
+ for (j = 0; j< nSttParHit; j++){
+	ListSttParHi[ nSttParHit-1-j] = OLDListSttParHits[ auxIndex[ j ]   ];
+ }
+
+ return;
+}
+
+//--------end function PndTrkTracking::Ordering_Parallel_Hits
 
 
 //----------begin of function PndTrkTracking::Ordering_Loading_ListTrackCandHit
