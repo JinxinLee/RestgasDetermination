@@ -17,6 +17,7 @@
 	Double_t *Fi_up_limit;
 	Double_t* GAMMA;
 	Short_t* HitsinBoxConf;
+	int icounter; // counter useful for debugging;
 	Short_t iHit;	// seed hit; it is negative for SciTil Hits.
 	bool* InclusionListStt;
 	bool* InclusionListSciTil;
