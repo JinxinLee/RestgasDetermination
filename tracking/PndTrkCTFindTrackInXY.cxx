@@ -1,6 +1,7 @@
 #include "PndTrkCTFindTrackInXY.h"
 #include "PndTrkCTGeometryCalculations.h"
 #include "PndTrkGlpkFits.h"
+#include "PndTrkLegendreFits.h"
 #include "PndTrkCTGeometryCalculations.h"
 #include "PndTrkMergeSort.h"
 #include <iostream>
@@ -393,7 +394,11 @@ bool PndTrkCTFindTrackInXY::FindTrackInXYProjection(
   }
 
 
- PndTrkGlpkFits fit;
+// PndTrkGlpkFits fit;
+ PndTrkLegendreFits fit;
+
+cout<<"cazzo, in findtrackinxy, prima di  = FitHelixCylinder, icounter "
+<<in->icounter<<", seed hit "<<in->iHit<<endl;
  status = fit.FitHelixCylinder(
 		nFitPoints, // +1 comes from one SciTil hit.
 		Xconformal,
@@ -410,10 +415,10 @@ bool PndTrkCTFindTrackInXY::FindTrackInXYProjection(
 		in->GAMMA,
 		in->TypeConf,
 		0, // istampa
-		0 //  IVOLTE
+		in->icounter //  IVOLTE
 			);
 
-
+cout<<"cazzo, in findtrackinxy, dopo FitHelixCylinder, parametri traccia : status = "<<status<<endl;
 
  if(status < 0  ) return false;
 
@@ -427,6 +432,7 @@ bool PndTrkCTFindTrackInXY::FindTrackInXYProjection(
  if( *(in->Rr) < 0. )  return false;
  *(in->Rr)= sqrt( *(in->Rr) );
  aaa = sqrt( (*(in->Oxx)) * (*(in->Oxx)) + (*(in->Oyy)) * (*(in->Oyy))  );
+cout<<"\t\tOx = "<<*(in->Oxx)<<", Oy "<<*(in->Oyy)<<", R = "<<*(in->Rr)<<endl;
 
  // the following is because the circumference is supposed to come from (0,0);
  //   here the factor 0.9 is used in order to be conservative.
