@@ -1,0 +1,91 @@
+#ifndef PndTrkLegendreFits_H
+#define PndTrkLegendreFits_H 1
+
+// Root includes
+#include "TROOT.h"
+
+class PndTrkLegendreFits : public TObject
+{
+
+ private:
+
+ int fIcounter;
+
+ int	fNThetaDiv,
+	fNRDiv;
+
+ Double_t
+	fDeltaT,
+	fRMin,
+	fThetaMax,
+	fThetaMin;
+
+
+ public:
+
+  /** Default constructor **/
+  PndTrkLegendreFits();
+
+
+  /** Destructor **/
+  ~PndTrkLegendreFits(){};
+
+
+ int FindMaximumInMatrix(
+		int nRDiv,		// input, n. division in the R axis;
+		int nThetaD,	// input  n. division in the Theta axis;
+		UShort_t *Mat,	// input Matrix of dimensions [fNRDiv][fNThetaDiv] of
+				// which the Maximum has to be searched;
+
+		int *iRMax,		// output, bin in R of the location of the Maximum;
+		int *iTMax		// output, bin in Theta of the location of the Maximum;
+						);
+
+
+  Short_t FitHelixCylinder(
+	Short_t nHitsinTrack,
+	Double_t *Xconformal,
+	Double_t *Yconformal,
+	Double_t *DriftRadiusconformal,
+	Double_t *ErrorDriftRadiusconformal,
+	Double_t rotationangle,
+	Double_t trajectory_vertex[2],
+	Short_t NMAX,
+	Double_t *m,
+	Double_t *q,
+	Double_t *pAlfa,
+	Double_t *pBeta,
+	Double_t *pGamma,
+	bool *Type,
+	int istampa,
+	int IVOLTE
+	);
+
+  Short_t FitSZspace(
+	Short_t nSkewHitsinTrack,
+	Double_t *S,
+	Double_t *Z,
+	Double_t *DriftRadius,
+	Double_t *ErrorDriftRadius,
+	Double_t FInot,
+	Short_t NMAX,
+	Double_t *emme,
+	int IVOLTE
+	);
+
+int LoadMatrix_FindMaximum(
+	Short_t nHitsinTrack,			// input
+	Double_t *X,			// X position (in conformal or SZ or whatever);
+	Double_t *Y,			// Y position (in conformal or SZ or whatever);
+	Double_t *DriftRadius,		// negative if Mvd hit or similar;
+
+	Double_t *Rout,	// output parameter of the straight line; Xcos(Theta)+Y*sin(Theta)=R;
+	Double_t *Thetaout  // output parameter of the straight line; Xcos(Theta)+Y*sin(Theta)=R;
+					);
+
+
+  ClassDef(PndTrkLegendreFits,1);
+
+};
+
+#endif
