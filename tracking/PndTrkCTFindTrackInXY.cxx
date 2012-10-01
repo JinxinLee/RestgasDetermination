@@ -394,11 +394,9 @@ bool PndTrkCTFindTrackInXY::FindTrackInXYProjection(
   }
 
 
-// PndTrkGlpkFits fit;
- PndTrkLegendreFits fit;
+ PndTrkGlpkFits fit;
+// PndTrkLegendreFits fit;
 
-cout<<"cazzo, in findtrackinxy, prima di  = FitHelixCylinder, icounter "
-<<in->icounter<<", seed hit "<<in->iHit<<endl;
  status = fit.FitHelixCylinder(
 		nFitPoints, // +1 comes from one SciTil hit.
 		Xconformal,
@@ -418,7 +416,6 @@ cout<<"cazzo, in findtrackinxy, prima di  = FitHelixCylinder, icounter "
 		in->icounter //  IVOLTE
 			);
 
-cout<<"cazzo, in findtrackinxy, dopo FitHelixCylinder, parametri traccia : status = "<<status<<endl;
 
  if(status < 0  ) return false;
 
