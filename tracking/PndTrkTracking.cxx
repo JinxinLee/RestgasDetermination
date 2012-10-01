@@ -1,5 +1,4 @@
 #include "glpk.h"
-
 #include "PndTrkTracking.h"
 #include "PndTrkComparisonMCtruth.h"
 #include "PndTrkSttConformalFilling.h"
@@ -629,6 +628,7 @@ void PndTrkTracking::Exec(Option_t* opt) {
  bool
 	flag,
 	intersect,
+	GoodSkewFit[MAXTRACKSPEREVENT],
 	keepit[MAXTRACKSPEREVENT],
 	Mvdhits[MAXTRACKSPEREVENT],
 	outcome,
@@ -699,6 +699,10 @@ void PndTrkTracking::Exec(Option_t* opt) {
  Int_t	nrounds0,
 	nrounds1,
 	ListHits[MAXMVDPIXELHITSINTRACK+MAXMVDSTRIPHITSINTRACK];
+
+ Double_t
+	S[2*MAXSTTHITS],
+	Z[2*MAXSTTHITS];
 
  Double_t
 	Distance,
@@ -1006,7 +1010,7 @@ void PndTrkTracking::Exec(Option_t* opt) {
 //   first the outermost then the innermost. This is necessary because later the search
 //   must starts from the outer hits. 
 
- Ordering_Parallel_Hits( info, ListSttParHits,nSttParHit );
+ Initial_SttParHits_DecreasingR_Ordering( info, ListSttParHits,nSttParHit );
 
 
 //	fill the inclusion list for Stt, include only first hit for those straws with
@@ -1373,25 +1377,6 @@ if(istampa>0){
 
 
 
-
-//-----------------------
-//-----------------------
-//-----------------------
-//-----------------------  doing the fit with the skew hits for each XY plane track found
-//-----------------------
-//-----------------------
-//-----------------------
-
-
-
-
-
- bool	GoodSkewFit[MAXTRACKSPEREVENT];
-
-	Double_t
-	S[2*MAXSTTHITS],
-	Z[2*MAXSTTHITS];
-
  // the class with all the fits.
  PndTrkGlpkFits fit;
 // PndTrkLegendreFits fit;
@@ -1400,205 +1385,22 @@ if(istampa>0){
 
 
  for(i=0; i<nSttTrackCand;i++){
+	// initialization of important arrays used later;
+//	keepit[i]=true;
 
 	//  flag indicating if the skew sector info
 	//  has completed the parameter info;
 	//  a priori this is set false.
-	GoodSkewFit[i]=false;
-	//  set FI0 now; FI0 may be changed in case there is a SZ fitting
+
+	//  set FI0 now; FI0 may be changed later in case there is a SZ fitting
 	FI0[i]=Fi_initial_helix_referenceframe[i];
 
+	// flag of a good fit in SZ space;
+	GoodSkewFit[i]=false;
 	nSttSkewHitsinTrack[i]=0;
 
-	if( Fi_low_limit[i] <-99998.){
-	   cout<<"warning from PndTrkTracking :  Helix circle doesn't cross the Stt region;"<<
-		"situation in principle impossible! Continuing\n";
-	   // for precaution, set nSttParHitsinTrack, nSttSkewHitsinTrack and nSciTilHitsinTrack to 0.
-	   nSttParHitsinTrack[i]=0;
-	   nSttSkewHitsinTrack[i]=0;
-	   nSciTilHitsinTrack[i]=0;
-	   continue ;  // this i1s when in XY the Helix circle is not in the
-						// STT region; this in principle should never happen.
-	}
+ }  // end for(i=0; i<nSttTrackCand;i++)
 
-//-----  finding the skew hits intersecting this XY trajectory circle
-
- nSttSkewHitsinTrack[i] = AssociateSkewHitsToXYTrack(
-	InclusionListStt, // excluded only if it is a double hit
-	nSttSkewHit,
-	ListSttSkewHits,
-	Ox[i],   //  input : X of center of XY plane circle
-	Oy[i],   //  input : Y of center of XY plane circle
-	R[i],   //  input : Radius of XY plane circle
-	info,
-	WDX,
-	WDY,
-	WDZ,
-	Fi_low_limit[i],// in the Helix XY frame, taking into account the minimum/maximum
-	Fi_up_limit[i], // radius of the STT  detector.
-	Charge[i],
-	TemporarySkewList, // output,  list of selected skew hits (in original numbering)
-	S,       //  output,  S coordinate of selected Skew hit
-	Z,       //  output,  Z coordinate of center wire of selected Skew hit
-	ZDrift,   //  output,  drift distance IN Z DIRECTION only, of selected Skew hit
-	ZErrorafterTilt   //  output,  Radius taking into account the tilt, IN Z DIRECTION only, of selected Skew hit
-		);
-
-// limit the total # Stt hits to MAXSTTHITSINTRACK
- if( nSttSkewHitsinTrack[i]+nSttParHitsinTrack[i] > MAXSTTHITSINTRACK ) {
-	if(MAXSTTHITSINTRACK > nSttParHitsinTrack[i])
-		nSttSkewHitsinTrack[i]=MAXSTTHITSINTRACK-nSttParHitsinTrack[i];
-	else nSttSkewHitsinTrack[i]=0;
- }
-
-// here there are up to 2 SciTil hits in track.
- if(nSciTilHitsinTrack[i]>0){
-    for(j=0;j<nSciTilHitsinTrack[i];j++){
-	tmpS[j]= S_SciTilHitsinTrack[i][j]; // this is already between 0 and 2PI.
-	tmpZ[j]=posizSciTil[ ListSciTilHitsinTrack[i][j] ][2],
-	tmpZDrift[j]=-1., // conventional, to signal that this is not a STT hit.
-	// error is intentionally overestimated for later use in SZ fit.
-//	tmpErrorZDrift[j] = DIMENSIONSCITIL/sqrt(12.);
-	tmpErrorZDrift[j] = DIMENSIONSCITIL/2.;
-    }
- }
- for(j=0;j<nSttSkewHitsinTrack[i];j++){
-	ListSttSkewHitsinTrack[i][j]=TemporarySkewList[j][0];
-	tmpS[j+nSciTilHitsinTrack[i]]=S[j],
-	tmpZ[j+nSciTilHitsinTrack[i]]=Z[j],
-	tmpZDrift[j+nSciTilHitsinTrack[i]]=ZDrift[j],
-	// error is intentionally overestimated for later use in SZ fit.
-	tmpErrorZDrift[j+nSciTilHitsinTrack[i]] = 3.*STRAWRADIUS;
- }
-
- if( nSttSkewHitsinTrack[i]+nSciTilHitsinTrack[i]< 2) {
-	for(j=0;j<nSttSkewHitsinTrack[i];j++){
-	   Sfinal[i][ListSttSkewHitsinTrack[i][j]]= S[j];
-	}
-	// here keepit is not used; instead GoodSkewFit[i] has been already set to false earlier;
-	// so simply continue to the next candidate;
-	continue ;
- }
-
-//  finding if there are discontinuity at 0 for fi value of the Skew Straws Hit.
-//  In case of discontinuity at 0, add 2*PI to fi of those hits with fi in the 1st quadrant.
-//  This is necessary because the discontinuities would make the fit
-//  in the SZ plane fail.
-//  In this discontinuity fixing, the value FI0 of the vertex (0,0) is also included.
-//  If there is discontinuity fixing, the values of S[i] AND POSSIBLY
-//  Fi_initial_helix_referenceframe[i] might be modified (+2.*PI) from  now on.
-
-
- FixDiscontinuitiesFiangleinSZplane(
-	nSttSkewHitsinTrack[i],
-	S,
-	&Fi_initial_helix_referenceframe[i],
-	Charge[i]
-	);
-
- outcome = fit.FitSZspace( 
-	nSttSkewHitsinTrack[i]+nSciTilHitsinTrack[i],
-	tmpS,
-	tmpZ,
-	tmpZDrift,  // drift radius onto the SZ projection; if negative --> SciTil hit.
-	tmpErrorZDrift,
-	Fi_initial_helix_referenceframe[i],   //   this is an input;
-	MAXHITSINFIT,   // maximum n. hits in fit.
-	&KAPPA[i],
-	0     // IVOLTE
-	);
-//    outcome is negative (-99) when m = 0. and (-100) as result when the fit with glpk
-//		failed.
- if(outcome < 0 || fabs(KAPPA[i])>1.e10)  {
-	//  necessary to load here the Sfinal  vector anyway.
-	for(j=0;j<nSttSkewHitsinTrack[i];j++){
-		Sfinal[i][ListSttSkewHitsinTrack[i][j]]= S[j];
-	}
-	continue;
- }
-
- FI0[i]=Fi_initial_helix_referenceframe[i];  //  therefore, FI0[i] has an extra +2*PI or -2*PI added
-						  // in case of tracks
-						  //  crossing the X axis
-//-----  finding a better association of the skew hits intersecting this XY trajectory circle
-
-//    this means discarding those skew hits that are too far away from the fitted straight line
-//    found in the SZ fit.
-
-
-
- Short_t STATUS;
- NNN=AssociateBetterAfterFitSkewHitsToXYTrack(
-	nSttSkewHitsinTrack[i],
-	TemporarySkewList, // input, list of selected skew hits (in skew numbering)
-	S,	//  input,  S coordinate of selected Skew hit
-	Z,	//  input,  Z coordinate of center wire of selected Skew hit
-	ZDrift,	//  input,  drift distance IN Z DIRECTION only, of selected Skew hit
-	ZErrorafterTilt,   //  input,  Radius taking into account the tilt,
-		// IN Z DIRECTION only, of selected Skew hit
-	KAPPA[i],	// input, KAPPA result of fit
-	FI0[i],	// input, FI0 result of fit,
-	tempore,	//  output, associated skew hits
-	temporeS,	//  output, associated skew hit  S
-	temporeZ,	//  output, associated skew hits Zcoordinate of center wire
-	temporeZDrift,	//  output, associated skew hit Z drift
-	temporeZErrorafterTilt,  //  output, associated skew hits Z error after tilt
-	&STATUS	// output status.
-	);
-//    out of this function  STATUS  is zero signals only that KAPPA  is zero.
-
- if( STATUS >=0 ){
-
-       if (NNN < 2) continue ;
-       nSttSkewHitsinTrack[i] = NNN;
-    // limit the total # of hits in track to MAXSTTHITSINTRACK.
-	if( nSttSkewHitsinTrack[i]+nSttParHitsinTrack[i] > MAXSTTHITSINTRACK ) {
-	 if(MAXSTTHITSINTRACK > nSttParHitsinTrack[i])
-		nSttSkewHitsinTrack[i]=MAXSTTHITSINTRACK-nSttParHitsinTrack[i];
-	 else nSttSkewHitsinTrack[i]=0;
-	}
-       for(j=0;j<nSttSkewHitsinTrack[i];j++){
-		ListSttSkewHitsinTrack[i][j]=tempore[j];
-		Sfinal[i][ListSttSkewHitsinTrack[i][j]]= temporeS[j];
-		S[j]  =  temporeS[j] ;
-		Z[j]  =  temporeZ[j] ;
-		ZDrift[j]  =  temporeZDrift[j] ;
-		ZErrorafterTilt[j]  =  temporeZErrorafterTilt[j] ;
-       }
-
-
-       GoodSkewFit[i]= true;
-
- }   else {   //   continuation of   if( outcome >=0 )
-	// in this case nSttSkewHitsinTrack[i] remains the value as before (it is not set to NNN).
-
-    for(j=0;j<nSttSkewHitsinTrack[i];j++){ ListSttSkewHitsinTrack[i][j]=TemporarySkewList[j][0];}
-    GoodSkewFit[i]= true;
- }    //  end of     if( STATUS >=0 )
-
-
-
-      if( nSttParHitsinTrack[i]+nSttSkewHitsinTrack[i] < MINIMUMHITSPERTRACK ||
-	 nSttParHitsinTrack[i]+nSttSkewHitsinTrack[i]>MAXSTTHITSINTRACK) {
-	keepit[i]=false;
-        continue;
-      }
-
-      // ---------    numbering according to the ORIGINAL hit number
-    for(int i1=0; i1< nSttSkewHitsinTrack[i]; i1++){
-
-	SchosenSkew[i][ListSttSkewHitsinTrack[i][i1]]=
-		Sfinal[i][ListSttSkewHitsinTrack[i][i1]]  =  S[i1] ;
-	ZchosenSkew[i][ListSttSkewHitsinTrack[i][i1]]=
-		Zfinal[i][ListSttSkewHitsinTrack[i][i1]]  =  Z[i1] ;
-             ZDriftfinal[i][ListSttSkewHitsinTrack[i][i1]]  =  ZDrift[i1] ;
-             ZErrorafterTiltfinal[i][ListSttSkewHitsinTrack[i][i1]]  =  ZErrorafterTilt[i1] ;
-    }
-     // ---------
-
-
- }   //  end of     for(i=0; i<nSttTrackCand;i++)
-//------------------------------------------------------  end of skew hits section
 
 //-------------- stampa
  if(istampa>=2){
@@ -4691,6 +4493,63 @@ void PndTrkTracking::InfoXYZParal(
 
 
 
+//--------begin of function PndTrkTracking::Initial_SttParHits_DecreasingR_Ordering
+
+void  PndTrkTracking::Initial_SttParHits_DecreasingR_Ordering(
+	Double_t info[][7],
+	Short_t *ListSttParHi,
+	Int_t nSttParHit
+	)
+{
+
+ Short_t
+	j,
+	OLDListSttParHits[nSttParHit];
+
+ Int_t
+	auxIndex[nSttParHit];
+
+ Double_t
+	auxRvalues[nSttParHit];
+
+
+//   ordering the parallel hits by decreasing spatial radius.
+
+ for (j = 0; j< nSttParHit; j++){
+	auxIndex[j]=j;
+	auxRvalues[j]=
+		info[ListSttParHi[ j ]  ][0]*info[ListSttParHi[ j ]  ][0]+
+		info[ListSttParHi[ j ]  ][1]*info[ListSttParHi[ j ]  ][1];
+	OLDListSttParHits[j]=ListSttParHi[j];
+ }
+
+ PndTrkMergeSort Sorter;
+
+ Sorter.Merge_Sort( (Short_t) nSttParHit, auxRvalues, auxIndex);
+
+ for (j = 0; j< nSttParHit; j++){
+	ListSttParHi[ nSttParHit-1-j] = OLDListSttParHits[ auxIndex[ j ]   ];
+ }
+
+ return;
+}
+
+//--------end function PndTrkTracking::Initial_SttParHits_DecreasingR_Ordering
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 //----------------------  begin function   PndTrkTracking::LoadPndTrack_TrackCand
 
@@ -5842,50 +5701,6 @@ if(istampa>=3) for(int ica=0; ica<nMvdPixelHitsinTrack[ncand]+nMvdStripHitsinTra
 }
 
 //--------end function PndTrkTracking::OrderingConformal_Loading_ListTrackCandHit
-
-//--------begin of function PndTrkTracking::Ordering_Parallel_Hits
-
-void  PndTrkTracking::Ordering_Parallel_Hits(
-	Double_t info[][7],
-	Short_t *ListSttParHi,
-	Int_t nSttParHit
-	)
-{
-
- Short_t
-	j,
-	OLDListSttParHits[nSttParHit];
-
- Int_t
-	auxIndex[nSttParHit];
-
- Double_t
-	auxRvalues[nSttParHit];
-
-
-//   ordering the parallel hits by decreasing spatial radius.
-
- for (j = 0; j< nSttParHit; j++){
-	auxIndex[j]=j;
-	auxRvalues[j]=
-		info[ListSttParHi[ j ]  ][0]*info[ListSttParHi[ j ]  ][0]+
-		info[ListSttParHi[ j ]  ][1]*info[ListSttParHi[ j ]  ][1];
-	OLDListSttParHits[j]=ListSttParHi[j];
- }
-
- PndTrkMergeSort Sorter;
-
- Sorter.Merge_Sort( (Short_t) nSttParHit, auxRvalues, auxIndex);
-
- for (j = 0; j< nSttParHit; j++){
-	ListSttParHi[ nSttParHit-1-j] = OLDListSttParHits[ auxIndex[ j ]   ];
- }
-
- return;
-}
-
-//--------end function PndTrkTracking::Ordering_Parallel_Hits
-
 
 //----------begin of function PndTrkTracking::Ordering_Loading_ListTrackCandHit
 
