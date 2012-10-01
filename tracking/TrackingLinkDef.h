@@ -13,6 +13,7 @@
 #pragma link C++ class PndTrkSttConformalFilling+;
 #pragma link C++ class PndTrkPrintouts+;
 #pragma link C++ class PndTrkTracking+;
+#pragma link C++ class PndTrkLegendreFits+;
 
 #endif
 
