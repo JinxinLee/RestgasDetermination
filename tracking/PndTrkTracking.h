@@ -452,8 +452,6 @@ class PndTrkTracking : public FairTask
 	);
 
 
-
-
   void InfoXYZParal(
 	Double_t info[][7],
 	Short_t infopar,
@@ -464,6 +462,13 @@ class PndTrkTracking : public FairTask
 	Double_t FI0,
 	Short_t Charge,
 	Double_t *Posiz	//  output
+	);
+
+
+  void  Initial_SttParHits_DecreasingR_Ordering(
+	Double_t info[][7],
+	Short_t *ListSttParHi,
+	Int_t nSttParHit
 	);
 
 
@@ -544,13 +549,6 @@ class PndTrkTracking : public FairTask
 	Double_t Trajectory_Start[][2],
 	Short_t *CHARGE,
 	Double_t SchosenSkew[][MAXSTTHITS]
-	);
-
-
-  void  Ordering_Parallel_Hits(
-	Double_t info[][7],
-	Short_t *ListSttParHi,
-	Int_t nSttParHit
 	);
 
   void OrderingR_Loading_ListTrackCandHit(
