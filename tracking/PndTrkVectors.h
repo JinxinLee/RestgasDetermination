@@ -57,8 +57,8 @@ template <class T> class Vec{
    T& alias = array[index];
    return  alias ;
   }
-  cout<< "PndTrkVectors::  array "<<name<<": index = "<<index<<" and it is out of bounds ["<<
-  dimension<<"]; exiting the process.\n";
+  cout<< "PndTrkVectors::  array "<<name<<": index = "<<index<<" and it is out of bounds [from 0 to "<<
+  dimension-1<<" included]; exiting the process.\n";
   exit(-1);
  };
 
