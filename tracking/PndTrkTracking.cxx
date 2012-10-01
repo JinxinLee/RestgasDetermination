@@ -1294,9 +1294,7 @@ if(istampa>0){
 	input.V = &V[nSttTrackCand][0];
 
 	input.icounter++;  // this is the plot number;
-cout<<"cazzo, trktracking, scitil, prima di FindTrackInXYProjection, icounter = "<<input.icounter<<endl;
 	outcome = SttTrackXYFinder.FindTrackInXYProjection(&input);
-cout<<"cazzo, trktracking, scitil, dopo di FindTrackInXYProjection"<<endl;
 
 	if(!outcome){
 		continue;
@@ -1357,10 +1355,7 @@ cout<<"cazzo, trktracking, scitil, dopo di FindTrackInXYProjection"<<endl;
 	input.V = &V[nSttTrackCand][0];
 
 	input.icounter++;  // this is the plot number;
-cout<<"cazzo, trktracking, STThits, prima di FindTrackInXYProjection, icounter = "<<input.icounter
-<<", hit n. "<< iParHit<<endl;
 	outcome = SttTrackXYFinder.FindTrackInXYProjection(&input);
-cout<<"cazzo, trktracking, STThits, dopo di FindTrackInXYProjection"<<endl;
 
 	if(!outcome)  continue;
 
@@ -1398,15 +1393,14 @@ cout<<"cazzo, trktracking, STThits, dopo di FindTrackInXYProjection"<<endl;
 	Z[2*MAXSTTHITS];
 
  // the class with all the fits.
-// PndTrkGlpkFits fit;
- PndTrkLegendreFits fit;
+ PndTrkGlpkFits fit;
+// PndTrkLegendreFits fit;
 
 
 
 
  for(i=0; i<nSttTrackCand;i++){
 
-	keepit[i]=true;	// initialization.
 	//  flag indicating if the skew sector info
 	//  has completed the parameter info;
 	//  a priori this is set false.
@@ -2597,6 +2591,35 @@ cout<<"cazzo, trktracking, STThits, dopo di FindTrackInXYProjection"<<endl;
 			ListSttParHitsinTrack // input and output
 			);
 
+//-------------- stampa
+ if(istampa>=2){
+	cout<<"\tstampa dopo CollectParSttHitsagain\n";
+	fPrint.stampetta(
+			IVOLTE,
+			keepit,
+			&ListMvdPixelHitsinTrack[0][0],
+			&ListMvdStripHitsinTrack[0][0],
+			&ListSttParHitsinTrack[0][0],
+			&ListSttSkewHitsinTrack[0][0],
+			&ListSciTilHitsinTrack[0][0],
+			nMvdPixelHitsinTrack,
+			nMvdStripHitsinTrack,
+			nSttParHitsinTrack,
+			nSttSkewHitsinTrack,
+			nSciTilHitsinTrack,
+			nSttTrackCand,
+			MAXMVDPIXELHITSINTRACK,
+			MAXMVDSTRIPHITSINTRACK,
+			MAXSCITILHITSINTRACK,
+			MAXSTTHITSINTRACK,
+			R,
+			Ox,
+			Oy,
+			FI0,
+			KAPPA
+			);
+ }
+//-------------- fine stampa
 
 //	ordering all the hits belonging to the candidate track, by increasing R (large
 //	trajectories)  or Conformal variables (better for small trajectories);
@@ -3337,7 +3360,6 @@ if(istampa>2){
 	);
 
 
-
 //------------ section with comparison MC Mvd hits - associated hits to a certain track
 
 
@@ -3504,9 +3526,6 @@ if(istampa>2){
 	// class for the MC comparison;
 	PndTrkComparisonMCtruth cmp;
 	nMCTracks = cmp.ComparisonwithMC( ioData);
-
-
-
 
  }
 
@@ -4762,26 +4781,31 @@ void PndTrkTracking::LoadPndTrack_TrackCand(
 	pTrckCand->setMcTrackId(  -1   );
 
 	for(j=0; j< nTrackCandHit[ncand]; j++){
+
 	     switch (ListTrackCandHitType[ncand][j]){
 		case 0:
 			pTrckCand->AddHit(FairRootManager::Instance()->
 				GetBranchId(fMvdPixelBranch),
 				(Int_t)ListTrackCandHit[ncand][j],j);
+cout<<FairRootManager::Instance()->GetBranchId(fMvdPixelBranch)<<endl;
 		break;
 		case 1:
 			pTrckCand->AddHit(FairRootManager::Instance()->
 				GetBranchId(fMvdStripBranch),
 				(Int_t)ListTrackCandHit[ncand][j],j);
+cout<<FairRootManager::Instance()->GetBranchId(fMvdStripBranch)<<endl;
 		break;
 		case 2:
 			pTrckCand->AddHit(FairRootManager::Instance()->
 				GetBranchId(fSttBranch),
 				(Int_t)ListTrackCandHit[ncand][j],j);
+cout<<FairRootManager::Instance()->GetBranchId(fSttBranch)<<endl;
 		break;
 		case 3:
 			pTrckCand->AddHit(FairRootManager::Instance()->
 				GetBranchId(fSttBranch),
 				(Int_t)ListTrackCandHit[ncand][j],j);
+cout<<FairRootManager::Instance()->GetBranchId(fSttBranch)<<endl;
 		break;
 	     }
 	}
@@ -6351,8 +6375,8 @@ DriftRadiusconformal[MAXSTTHITSINTRACK+MAXMVDPIXELHITSINTRACK+MAXMVDSTRIPHITSINT
 ErrorDriftRadiusconformal[MAXSTTHITSINTRACK+MAXMVDPIXELHITSINTRACK+MAXMVDSTRIPHITSINTRACK];
 
 
-// PndTrkGlpkFits fit;
- PndTrkLegendreFits fit;
+ PndTrkGlpkFits fit;
+// PndTrkLegendreFits fit;
 
 
 	*status= false;
