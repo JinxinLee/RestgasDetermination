@@ -52,7 +52,7 @@ FairTask("Charge Noise Producer"), fGeoH(0)
   fPixChargeConv = NULL;
   fNoiseSpread = 0;
   fThreshold = 0;
-  fPreviosTime = 0.;
+  fPreviousTime = 0.;
 }
 // -------------------------------------------------------------------------
 
@@ -92,7 +92,7 @@ InitStatus PndMvdNoiseProducer::Init()
   if ( ! fMCEventheader ){
 	Warning("Init","Did not find the MC event header, assume 50ns of noise clockticks per call of Exec().");
   }
-  fPreviosTime=0.;
+  fPreviousTime=0.;
   
   FillSensorLists();
   
@@ -231,7 +231,7 @@ void PndMvdNoiseProducer::Exec(Option_t* opt)
   xfrac = CalcDistFraction(fDigiParRect->GetNoise(),fDigiParRect->GetThreshold());
   cycles = CalcReadoutCycles(fDigiParRect->GetFeBusClock());
   chanwhite = gRandom->Poisson(xfrac*chanmax);
-  if(fVerbose>1) std::cout << " -I- PndMvdNoiseProducer: RECT <N> = " << xfrac*cycles*chanmax
+  if(fVerbose>1); std::cout << " -I- PndMvdNoiseProducer: RECT <N> = " << xfrac*cycles*chanmax
     << " leading to " << chanwhite << " noisy digis of " << chanmax
     << " total channels" << std::endl;
   for(Int_t i = 0;i < chanwhite;i++)
@@ -258,7 +258,7 @@ void PndMvdNoiseProducer::Exec(Option_t* opt)
   // Get Number of Channels fired from noise
   xfrac = CalcDistFraction(fDigiParRect->GetNoise(),fDigiParRect->GetThreshold());
   chanwhite = gRandom->Poisson(xfrac*cycles*chanmax);
-  if(fVerbose>1) std::cout << " -I- PndMvdNoiseProducer: RECT <N> = " << xfrac*cycles*chanmax
+  if(fVerbose>1); std::cout << " -I- PndMvdNoiseProducer: RECT <N> = " << xfrac*cycles*chanmax
     << " leading to " << chanwhite << " noisy digis of " << chanmax
     << " total channels" << std::endl;
   for(Int_t i = 0;i < chanwhite;i++)
@@ -287,7 +287,7 @@ void PndMvdNoiseProducer::Exec(Option_t* opt)
   xfrac = CalcDistFraction(fDigiParTrap->GetNoise(),fDigiParTrap->GetThreshold());
   cycles = CalcReadoutCycles(fDigiParTrap->GetFeBusClock());
   chanwhite = gRandom->Poisson(xfrac*cycles*chanmax);
-  if(fVerbose>1) std::cout << " -I- PndMvdNoiseProducer: TRAP <N> = " << xfrac*cycles*chanmax
+  if(fVerbose>1); std::cout << " -I- PndMvdNoiseProducer: TRAP <N> = " << xfrac*cycles*chanmax
     << " leading to " << chanwhite << " noisy digis of " << chanmax
     << " total channels" << std::endl;
   for(Int_t i = 0;i < chanwhite;i++)
@@ -314,7 +314,7 @@ void PndMvdNoiseProducer::Exec(Option_t* opt)
   xfrac = CalcDistFraction(fDigiParPix->GetNoise(),fDigiParPix->GetThreshold());
   cycles = CalcReadoutCycles(fDigiParPix->GetFeBusClock());
   chanwhite = gRandom->Poisson(xfrac*cycles*chanmax);
-  if(fVerbose>1) std::cout << " -I- PndMvdNoiseProducer: PIXEL <N> = " << xfrac*cycles*chanmax
+  if(fVerbose>1); std::cout << " -I- PndMvdNoiseProducer: PIXEL <N> = " << xfrac*cycles*chanmax
     << " leading to " << chanwhite << " noisy digis of " << chanmax
     << " total channels" << std::endl;
   for(Int_t i = 0;i < chanwhite;i++)
@@ -355,8 +355,8 @@ void PndMvdNoiseProducer::Exec(Option_t* opt)
     AddDigiPixel(nNoisyPixels,-1,did,fe,col,row,charge);
   }
   
-  if (fMCEventheader!=0) fPreviosTime=fMCEventheader->GetT(); // []
-  else fPreviosTime=0.; 
+  fPreviousTime = FairRootManager::Instance()->GetEventTime();
+
   // *** The End ***
   if(fVerbose>0)
   {
@@ -392,13 +392,14 @@ Double_t PndMvdNoiseProducer::CalcReadoutCycles(Double_t clock)
   Double_t timewindow=0.;
   if (clock > 0){
     if (fMCEventheader!=0) {
-      timewindow = fMCEventheader->GetT();
-      timewindow -= fPreviosTime;
+      timewindow = FairRootManager::Instance()->GetEventTime();
+      timewindow -= fPreviousTime;
     } else {
       timewindow = 50.; // how many ns do we suppress readout of zeros?
     }
   }
-  if(fVerbose>1) printf(" -I- PndMvdNoiseProducer::CalcReadoutCycles(): %g cycles (%gMHz,%gns)\n",cycles,clock,timewindow);
+  if(fVerbose>1);
+  printf(" -I- PndMvdNoiseProducer::CalcReadoutCycles(): %g cycles (%gMHz,%gns)\n",cycles,clock,timewindow);
   return cycles;
 }
 

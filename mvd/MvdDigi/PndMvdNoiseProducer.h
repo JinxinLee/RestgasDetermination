@@ -110,7 +110,7 @@ class PndMvdNoiseProducer : public FairTask
 
   Int_t fNoiseSpread;
   Int_t fThreshold;
-  Double_t fPreviosTime;
+  Double_t fPreviousTime;
 
 //   void Register();
 
