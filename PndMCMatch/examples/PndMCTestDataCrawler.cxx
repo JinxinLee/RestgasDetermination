@@ -26,7 +26,7 @@
 
 // -----   Default constructor   -------------------------------------------
 PndMCTestDataCrawler::PndMCTestDataCrawler() :
-	FairTask("Creates PndMC data crawler test"), fEventNr(0), fStartBranch(""), fStopBranch(""), fStartVal(-20), fStopVal(40), fBins(601) {
+	FairTask("Creates PndMC data crawler test"), fCrawler(0), fEventNr(0), fStartBranch(""), fStopBranch(""), fStartVal(-20), fStopVal(40), fBins(601) {
 }
 // -------------------------------------------------------------------------
 
