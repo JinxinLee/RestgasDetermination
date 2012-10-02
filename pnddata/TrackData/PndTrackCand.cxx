@@ -127,12 +127,13 @@ void PndTrackCand::CalcTimeStamp()
 
 			TClonesArray* myArray = (TClonesArray*)FairRootManager::Instance()->GetObject(branchName);
 			if (myArray > 0){
-				FairTimeStamp* myData = (FairTimeStamp*)(FairRootManager::Instance()->GetLinkData(myLink));
+				FairTimeStamp* myData = (FairTimeStamp*)(FairRootManager::Instance()->GetCloneOfLinkData(myLink));
 				if (myData > 0){
 					Double_t var = myData->GetTimeStampError() * myData->GetTimeStampError();
 					timestamp += myData->GetTimeStamp()/var;
 					timestamperror += 1/var;
 					counts++;
+					delete myData;
 				}
 				else {
 					std::cout << "Data not found: " << FairRootManager::Instance()->GetBranchName(myLink.GetType()) << "/" << myLink.GetIndex() << std::endl;

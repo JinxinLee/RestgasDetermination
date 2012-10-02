@@ -33,53 +33,53 @@ void PndMCDataCrawler::Init() {
 	fIoman->GetObject("MVDSortedPixelDigis");
 
 
-	fIoman->GetObject("EmcCluster");
-	fIoman->GetObject("EmcBump");
-	fIoman->GetObject("EmcDigi");
-	fIoman->GetObject("EmcHit");
-	fIoman->GetObject("EmcPoint");
-	fIoman->GetObject("EmcRecoHit");
-	fIoman->GetObject("EmcSharedDigi");
-	fIoman->GetObject("EmcWaveform");
+//	fIoman->GetObject("EmcCluster");
+//	fIoman->GetObject("EmcBump");
+//	fIoman->GetObject("EmcDigi");
+//	fIoman->GetObject("EmcHit");
+//	fIoman->GetObject("EmcPoint");
+//	fIoman->GetObject("EmcRecoHit");
+//	fIoman->GetObject("EmcSharedDigi");
+//	fIoman->GetObject("EmcWaveform");
 
 
 
 	fIoman->GetObject("STTPoint");
 	fIoman->GetObject("STTHit");
-	fIoman->GetObject("SttHelixHit");
-	fIoman->GetObject("STTTrack");
-	fIoman->GetObject("STTTrackCand");
+//	fIoman->GetObject("SttHelixHit");
+//	fIoman->GetObject("STTTrack");
+//	fIoman->GetObject("STTTrackCand");
 
-	fIoman->GetObject("PndTpcPoint");
-	fIoman->GetObject("PndTpcPrimaryCluster");
-	fIoman->GetObject("PndTpcDriftedElectron");
-	fIoman->GetObject("PndTpcAvalanche");
-	fIoman->GetObject("PndTpcSignal");
-	fIoman->GetObject("PndTpcDigi");
-	fIoman->GetObject("PndTpcCluster");
+//	fIoman->GetObject("PndTpcPoint");
+//	fIoman->GetObject("PndTpcPrimaryCluster");
+//	fIoman->GetObject("PndTpcDriftedElectron");
+//	fIoman->GetObject("PndTpcAvalanche");
+//	fIoman->GetObject("PndTpcSignal");
+//	fIoman->GetObject("PndTpcDigi");
+//	fIoman->GetObject("PndTpcCluster");
 
 
-	fIoman->GetObject("GEMPoint");
-	fIoman->GetObject("GEMDigi");
-	fIoman->GetObject("GEMHit");
-
-	fIoman->GetObject("PndDchPoint");
-	fIoman->GetObject("PndDchDigi");
-	fIoman->GetObject("PndDchCylinderHit");
-
-	fIoman->GetObject("MdtPoint");
-	fIoman->GetObject("MdtHit");
-	fIoman->GetObject("MdtTrk");
-
-	fIoman->GetObject("LheHit");
-	fIoman->GetObject("LheCandidate");
-	fIoman->GetObject("LheTrack");
-	fIoman->GetObject("MVDIdealTrackCand");
-	fIoman->GetObject("MVDRiemannTrackCand");
-	fIoman->GetObject("PndTrack");
-	fIoman->GetObject("LheGenTrack");
-	fIoman->GetObject("PidChargedCand");
-	fIoman->GetObject("PidNeutralCand");
+//	fIoman->GetObject("GEMPoint");
+//	fIoman->GetObject("GEMDigi");
+//	fIoman->GetObject("GEMHit");
+//
+//	fIoman->GetObject("PndDchPoint");
+//	fIoman->GetObject("PndDchDigi");
+//	fIoman->GetObject("PndDchCylinderHit");
+//
+//	fIoman->GetObject("MdtPoint");
+//	fIoman->GetObject("MdtHit");
+//	fIoman->GetObject("MdtTrk");
+//
+//	fIoman->GetObject("LheHit");
+//	fIoman->GetObject("LheCandidate");
+//	fIoman->GetObject("LheTrack");
+//	fIoman->GetObject("MVDIdealTrackCand");
+//	fIoman->GetObject("MVDRiemannTrackCand");
+//	fIoman->GetObject("PndTrack");
+//	fIoman->GetObject("LheGenTrack");
+//	fIoman->GetObject("PidChargedCand");
+//	fIoman->GetObject("PidNeutralCand");
 }
 
 FairMultiLinkedData PndMCDataCrawler::GetInfo(FairMultiLinkedData startLink, TString stopStage)
@@ -97,7 +97,7 @@ FairMultiLinkedData PndMCDataCrawler::GetInfo(FairMultiLinkedData startLink, Int
 }
 
 FairMultiLinkedData* PndMCDataCrawler::GetEntry(FairLink link){
-	return (FairMultiLinkedData*)FairRootManager::Instance()->GetLinkData(link);
+	return (FairMultiLinkedData*)FairRootManager::Instance()->GetCloneOfLinkData(link);
 }
 
 FairMultiLinkedData* PndMCDataCrawler::GetEntry(Int_t fileId, Int_t eventNr, Int_t type, Int_t index){
