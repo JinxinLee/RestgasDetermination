@@ -36,7 +36,8 @@ using std::endl;
 
 // -----   Default constructor   -------------------------------------------
 PndSttHitProducerRealFull::PndSttHitProducerRealFull() :
-  FairTask("Ideal STT Hit Producer") {
+  FairTask("Ideal STT Hit Producer"), fDataBuffer(0)
+{
   fPersistence = kTRUE;
 }
 // -------------------------------------------------------------------------
