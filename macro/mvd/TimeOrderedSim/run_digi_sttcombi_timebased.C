@@ -3,12 +3,12 @@
   // Verbosity level (0=quiet, 1=event level, 2=track level, 3=debug)
   Int_t iVerbose = 0;
 
-  TString inFile = "Mvd_Sim.root";
+  TString inFile = "Mvd_Sim_timebased.root";
 
 
 
   // Number of events to process
-  Int_t nEvents = 0;
+  Int_t nEvents = 100;
  
   // ----  Load libraries   -------------------------------------------------
   gROOT->LoadMacro("$VMCWORKDIR/gconfig/rootlogon.C");

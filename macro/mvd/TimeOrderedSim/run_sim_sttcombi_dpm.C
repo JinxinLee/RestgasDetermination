@@ -9,7 +9,7 @@ run_sim_sttcombi_dpm(Int_t nEvents=10, Float_t mom = 5., Int_t mode =1, UInt_t s
   int verboseLevel = 0;
 
   //FileNames
-  TString simOutput="Mvd_Sim_AddDisks.root";
+  TString simOutput="Mvd_Sim.root";
 
   // Load basic libraries
   // If it does not work,  please check the path of the libs and put it by hands
@@ -79,9 +79,9 @@ run_sim_sttcombi_dpm(Int_t nEvents=10, Float_t mom = 5., Int_t mode =1, UInt_t s
   Mvd->SetGeometryFileName("Mvd-2.1_FullVersion.root");
   fRun->AddModule(Mvd);
 
-  FairDetector *AddDisks = new PndMvdDetector("AddDisks", kTRUE);
-  AddDisks->SetGeometryFileName("Mvd_LamdaDisks.root");
-  fRun->AddModule(AddDisks);
+//  FairDetector *AddDisks = new PndMvdDetector("AddDisks", kTRUE);
+//  AddDisks->SetGeometryFileName("Mvd_LamdaDisks.root");
+//  fRun->AddModule(AddDisks);
 
   PndEmc *Emc = new PndEmc("EMC",kTRUE);
   Emc->SetGeometryVersion(1); 

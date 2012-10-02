@@ -5,7 +5,7 @@
 
   // Input file
 
-  TString MCFile = "Mvd_Sim.root";
+  TString MCFile = "Mvd_Sim_timebased.root";
 
   // Number of events to process
   Int_t nEvents = 0;

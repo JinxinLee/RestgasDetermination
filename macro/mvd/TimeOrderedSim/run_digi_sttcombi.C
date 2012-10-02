@@ -8,7 +8,7 @@
 
 
   // Number of events to process
-  Int_t nEvents = 0;
+  Int_t nEvents = 10;
  
   // ----  Load libraries   -------------------------------------------------
   gROOT->LoadMacro("$VMCWORKDIR/gconfig/rootlogon.C");

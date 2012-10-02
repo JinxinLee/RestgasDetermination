@@ -1,10 +1,10 @@
 
 
-eventDisplay()
+eventDisplay_timebased()
 {
     //-----User Settings:-----------------------------------------------
   TString  SimEngine      ="TGeant3"; 
-  TString  InputFile     ="Mvd_Sim.root";
+  TString  InputFile     ="Mvd_Sim_timebased.root";
   //------------------------------------------------------------------
 
 
@@ -26,9 +26,9 @@ eventDisplay()
   fRun->SetInputFile(InputFile.Data());
   fRun->AddFriend(recoFile.Data());
   fRun->AddFriend(digiFile.Data());
-  fRun->AddFriend(trackF.Data());
+//  fRun->AddFriend(trackF.Data());
   fRun->SetOutputFile("tst.root");
-//  fRun->RunWithTimeStamps();
+  fRun->RunWithTimeStamps();
    FairRuntimeDb* rtdb = fRun->GetRuntimeDb();
   FairParRootFileIo* parInput1 = new FairParRootFileIo();
   parInput1->open(ParFile.Data());
@@ -55,13 +55,15 @@ eventDisplay()
   FairMCPointDraw *PndSTTPoint = new FairMCPointDraw ("STTPoint",kMagenta, kFullSquare);
 //  FairMCPointDraw *PndGEMPoint = new FairMCPointDraw ("GEMPoint",kRed, kFullSquare);
 //  FairMCPointDraw *PndDskPoint = new FairMCPointDraw ("DskCerenkov",kGreen, kFullSquare);
-    FairMCPointDraw *FtsPoint = new FairMCPointDraw("FTSPoint", kRed, kFullSquare);
 //  FairHitDraw *EMCRecoHit = new FairHitDraw("EmcRecoHit");
 //
   PndTrackCandDraw* RiemannCand = new PndTrackCandDraw("MVDRiemannTrackCand");
   RiemannCand->SetTimeWindowPlus(10);
   RiemannCand->SetTimeWindowMinus(10);
   PndTrackDraw* PndTrackRiemann = new PndTrackDraw("MVDTrack");
+  PndTrackRiemann->SetTimeWindowPlus(10);
+  PndTrackRiemann->SetTimeWindowMinus(10);
+
 //  PndRiemannTrackDraw* RiemannTrack = new PndRiemannTrackDraw("MVDRiemannTrack");
 //  PndMvdDigiPixelDraw* MvdDigiPixel = new PndMvdDigiPixelDraw("MVDPixelDigis");
                                                             
@@ -71,17 +73,18 @@ eventDisplay()
   FairHitDraw *MvdRecoStrip = new FairHitDraw ("MVDHitsStrip");
   MvdRecoStrip->SetTimeWindowPlus(10);
   MvdRecoStrip->SetTimeWindowMinus(10);
-  FairHitDraw *STTHits = new FairHitDraw ("STTHit");
+  FairHitDraw *STTHits = new FairHitDraw ("STTSortedHits");
   STTHits->SetTimeWindowPlus(200);
   STTHits->SetTimeWindowMinus(1);
   fMan->AddTask(Track);
   fMan->AddTask(MvdPoints);
-  
+
   PndSttIsochroneDraw* STTIsochrone = new PndSttIsochroneDraw("STTHit");
-  STTIsochrone->SetTimeWindowPlus(300);
+  STTIsochrone->SetTimeWindowPlus(250);
   STTIsochrone->SetTimeWindowMinus(10);
   STTIsochrone->UseIsochroneTime();
   fMan->AddTask(STTIsochrone);
+
 //  fMan->AddTask(MvdDigiPixel);
 //  fMan->AddTask(EMCPoints);
 //  fMan->AddTask(TofPoint);
@@ -93,14 +96,13 @@ eventDisplay()
   fMan->AddTask( PndSTTPoint);
 //  fMan->AddTask( PndGEMPoint);
 //  fMan->AddTask( PndDskPoint);
-  fMan->AddTask( FtsPoint);
 //
 //  fMan->AddTask(EMCRecoHit);
   fMan->AddTask(MvdRecoHit);
   fMan->AddTask(MvdRecoStrip);
   fMan->AddTask(STTHits);
   
-//  fMan->AddTask(RiemannCand);
+  fMan->AddTask(RiemannCand);
   fMan->AddTask(PndTrackRiemann);
 
   fMan->Init();
