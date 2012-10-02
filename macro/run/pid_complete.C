@@ -1,7 +1,7 @@
-void reco_complete_stt()
+void pid_complete()
 {
-  // Macro created 20/09/2006 by S.Spataro
-  // It loads a simulation file and digitize hits for EMC
+  // Macro created 02/10/2012 by S.Spataro
+  // It loads a reconstruction file and compute ID informations
 
   gROOT->LoadMacro("$VMCWORKDIR/gconfig/rootlogon.C");  
   rootlogon();
@@ -13,13 +13,13 @@ void reco_complete_stt()
   Int_t nEvents = 0;  // if 0 all the vents will be processed
   
   // Parameter file
-  TString parFile = "simparams_stt.root"; // at the moment you do not need it
+  TString parFile = "simparams.root"; // at the moment you do not need it
   
   // Digitisation file (ascii)
   TString digiFile = "all.par";
   
   // Output file
-  TString outFile = "reco_complete_stt.root";
+  TString outFile = "pid_complete.root";
   
   // -----   Timer   --------------------------------------------------------
   TStopwatch timer;
@@ -27,8 +27,9 @@ void reco_complete_stt()
   
   // -----   Reconstruction run   -------------------------------------------
   FairRunAna *fRun= new FairRunAna();
-  fRun->SetInputFile("sim_complete_stt.root");
-  fRun->AddFriend("digi_complete_stt.root");
+  fRun->SetInputFile("sim_complete.root");
+  fRun->AddFriend("digi_complete.root");
+  fRun->AddFriend("reco_complete.root");
   fRun->SetOutputFile(outFile);
   FairGeane *Geane = new FairGeane();
   fRun->AddTask(Geane);
@@ -49,36 +50,37 @@ void reco_complete_stt()
   rtdb->setSecondInput(parIo1);
 
   // ------------------------------------------------------------------------
-  PndMvdRiemannTrackFinderTask* mvdTrackFinder = new PndMvdRiemannTrackFinderTask();
-  mvdTrackFinder->SetVerbose(iVerbose);
-  mvdTrackFinder->SetMaxDist(0.05);
-  mvdTrackFinder->SetPersistence(kFALSE);
-  fRun->AddTask(mvdTrackFinder);
 
-  //  PndSttTrackFinderIdeal* sttTrackFinder = new PndSttTrackFinderIdeal(iVerbose);
-  PndSttTrackFinderReal* sttTrackFinder = new PndSttTrackFinderReal(0);
-  PndSttFindTracks* sttFindTracks = new PndSttFindTracks("Track Finder", "FairTask", sttTrackFinder, iVerbose);
-  sttFindTracks->AddHitCollectionName("STTHit", "STTPoint");
-  sttFindTracks->SetPersistence(kFALSE);
-  fRun->AddTask(sttFindTracks);
+  PndPidCorrelator* corr = new PndPidCorrelator();
+  //corr->SetVerbose();
+  corr->SetInputBranch("SttMvdGemGenTrack");
+  corr->SetInputIDBranch("SttMvdGemGenTrackID");
+  corr->SetInputBranch2("FtsIdealGenTrack");
+  corr->SetInputIDBranch2("FtsIdealGenTrackID");
+  //corr->SetDebugMode(kTRUE);
+  //corr->SetFast(kTRUE);
+  fRun->AddTask(corr);
+ 
+  PndPidIdealAssociatorTask *assMC= new PndPidIdealAssociatorTask();
+  fRun->AddTask(assMC);
 
-  PndSttMvdTracking *  SttMvdTracking = new PndSttMvdTracking(0, false, false);
-  //SttMvdTracking->Cleanup();
-  SttMvdTracking->SetPersistence(kFALSE);
-  fRun->AddTask(SttMvdTracking);
+  PndPidMvdAssociatorTask *assMvd= new PndPidMvdAssociatorTask();
+  fRun->AddTask(assMvd);
 
-  PndSttMvdGemTracking * SttMvdGemTracking = new PndSttMvdGemTracking(0);
-  fRun->AddTask(SttMvdGemTracking);
+  PndPidMdtHCAssociatorTask *assMdt= new PndPidMdtHCAssociatorTask();
+  fRun->AddTask(assMdt);
 
-  PndRecoKalmanTask* recoKalman = new PndRecoKalmanTask();
-  recoKalman->SetTrackInBranchName("SttMvdGemTrack");
-  recoKalman->SetTrackOutBranchName("SttMvdGemGenTrack");
-  recoKalman->SetBusyCut(50); // CHECK to be tuned
-  fRun->AddTask(recoKalman);
+  PndPidDrcAssociatorTask *assDrc= new PndPidDrcAssociatorTask();
+  fRun->AddTask(assDrc);
 
-  PndMCTrackAssociator* trackMC2 = new PndMCTrackAssociator();
-  trackMC2->SetTrackInBranchName("SttMvdGemGenTrack");
-  trackMC2->SetTrackOutBranchName("SttMvdGemGenTrackID");
+  PndPidDiscAssociatorTask *assDisc= new PndPidDiscAssociatorTask();
+  fRun->AddTask(assDisc);
+
+  PndPidSttAssociatorTask *assStt= new PndPidSttAssociatorTask();
+  fRun->AddTask(assStt);
+
+  PndPidEmcBayesAssociatorTask *assEMC= new PndPidEmcBayesAssociatorTask();
+  fRun->AddTask(assEMC);
 
   // -----   Intialise and run   --------------------------------------------
   PndEmcMapper::Init(1);

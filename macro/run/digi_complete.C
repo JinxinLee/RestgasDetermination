@@ -1,4 +1,4 @@
-void digi_complete_stt()
+void digi_complete()
 {
   // Macro created 20/09/2006 by S.Spataro
   // It loads a simulation file and digitize hits for EMC
@@ -10,16 +10,16 @@ void digi_complete_stt()
   Int_t iVerbose = 0; // just forget about it, for the moment
   
   // Input file (MC events)
-  TString inFile = "sim_complete_stt.root";
+  TString inFile = "sim_complete.root";
   
   // Parameter file
-  TString parFile = "simparams_stt.root"; // at the moment you do not need it
+  TString parFile = "simparams.root"; // at the moment you do not need it
   
   // Digitisation file (ascii)
   TString digiFile = "all.par";
   
   // Output file
-  TString outFile = "digi_complete_stt.root";
+  TString outFile = "digi_complete.root";
   
   // -----   Timer   --------------------------------------------------------
   TStopwatch timer;
@@ -30,16 +30,16 @@ void digi_complete_stt()
   fRun->SetOutputFile(outFile);
   
   // -----  Parameter database   --------------------------------------------
-  TString emcDigiFile = gSystem->Getenv("VMCWORKDIR");
-  emcDigiFile += "/macro/params/";
-  emcDigiFile += digiFile;
+  TString allDigiFile = gSystem->Getenv("VMCWORKDIR");
+  allDigiFile += "/macro/params/";
+  allDigiFile += digiFile;
   
   FairRuntimeDb* rtdb = fRun->GetRuntimeDb();
   FairParRootFileIo* parInput1 = new FairParRootFileIo();
   parInput1->open(parFile.Data());
   
   FairParAsciiFileIo* parIo1 = new FairParAsciiFileIo();
-  parIo1->open(emcDigiFile.Data(),"in");
+  parIo1->open(allDigiFile.Data(),"in");
         
   rtdb->setFirstInput(parInput1);
   rtdb->setSecondInput(parIo1);
@@ -61,7 +61,7 @@ void digi_complete_stt()
   PndEmcHitsToWaveform* emcHitsToWaveform= new PndEmcHitsToWaveform(iVerbose);
   PndEmcWaveformToDigi* emcWaveformToDigi=new PndEmcWaveformToDigi(iVerbose);
   emcHitsToWaveform->SetStorageOfData(kFALSE);
-  emcWaveformToDigi->SetStorageOfData(kFALSE);
+  //emcWaveformToDigi->SetStorageOfData(kFALSE);
   fRun->AddTask(emcHitsToWaveform);  // full digitization
   fRun->AddTask(emcWaveformToDigi);  // full digitization
 
@@ -73,6 +73,11 @@ void digi_complete_stt()
 
   PndEmcHdrFiller* emcHdrFiller = new PndEmcHdrFiller();
   fRun->AddTask(emcHdrFiller); // ECM header
+
+  // -----   SciT hit producers   ---------------------------
+  PndSciTHitProducerIdeal* tofhit = new PndSciTHitProducerIdeal();
+  tofhit->SetVerbose(iVerbose);
+  fRun->AddTask(tofhit);
 
   // -----   MDT hit producers   ---------------------------------
   PndMdtHitProducerIdeal* mdtHitProd = new PndMdtHitProducerIdeal();
@@ -97,9 +102,12 @@ void digi_complete_stt()
 
   // -----   FTS hit producers   ---------------------------------
   PndFtsHitProducerRealFast* ftsHitProducer = new PndFtsHitProducerRealFast();
-  //PndFtsHitProducerIdeal* ftsHitProducer = new PndFtsHitProducerIdeal();
-  //PndFtsHitProducerRealFull* ftsHitProducer = new PndFtsHitProducerRealFull();
   fRun->AddTask(ftsHitProducer);
+
+  // -----   Ftof hit producers   ---------------------------
+  PndFtofHitProducerIdeal* ftofhit = new PndFtofHitProducerIdeal();
+  ftofhit->SetVerbose(iVerbose);
+  fRun->AddTask(ftofhit)
 
   // -----   Intialise and run   --------------------------------------------
   fRun->Init();

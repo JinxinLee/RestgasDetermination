@@ -1,23 +1,23 @@
 // Macro for running Panda simulation  with Geant3  or Geant4 (M. Al-Turany)
-// This macro is supposed to run the full simulation of the panda detector with the STT option
+// This macro is supposed to run the full simulation of the panda detector
 // to run the macro:
-// root  sim_complete_stt.C  or in root session root>.x  sim_complete_stt.C
+// root  sim_complete.C  or in root session root>.x  sim_complete_stt.C
 // to run with different options:(e.g more events, different momentum, Geant4)
-// root  sim_complete_stt.C"(100, "TGeant4",2)"
+// root  sim_complete.C"(100, "TGeant4",2)"
 
-sim_complete_stt(Int_t nEvents = 10, TString  SimEngine ="TGeant3", Float_t mom = 7.24)
+sim_complete(Int_t nEvents = 10, TString  SimEngine ="TGeant3", Float_t mom = 7.24)
 {
   //-----User Settings:-----------------------------------------------
-  TString  OutputFile     ="sim_complete_stt.root";
-  TString  ParOutputfile  ="simparams_stt.root";
+  TString  OutputFile     ="sim_complete.root";
+  TString  ParOutputfile  ="simparams.root";
   Double_t BeamMomentum   =15.0;
   TString  MediaFile      ="media_pnd.geo";
   gDebug                  = 0;
-  TString digiFile        = "emc.par"; //The emc run the hit producer directly 
+  TString digiFile        = "all.par"; //The emc run the hit producer directly 
   // choose your event generator 
   Bool_t UseEvtGen	      =kTRUE;     
   Bool_t UseDpm 	      =kFALSE;
-  Bool_t UseBoxGenerator  =kFALSE;
+  Bool_t UseBoxGenerator      =kFALSE;
   
   //------------------------------------------------------------------
 
@@ -38,14 +38,14 @@ sim_complete_stt(Int_t nEvents = 10, TString  SimEngine ="TGeant3", Float_t mom 
   
   // Set the parameters 
   //-------------------------------
-  TString emcDigiFile = gSystem->Getenv("VMCWORKDIR");
-  emcDigiFile += "/macro/params/";
-  emcDigiFile += digiFile;
+  TString allDigiFile = gSystem->Getenv("VMCWORKDIR");
+  allDigiFile += "/macro/params/";
+  allDigiFile += digiFile;
  
  
   //-------Set the parameter output --------------------
   FairParAsciiFileIo* parIo1 = new FairParAsciiFileIo();
-  parIo1->open(emcDigiFile.Data(),"in");
+  parIo1->open(allDigiFile.Data(),"in");
   rtdb->setFirstInput(parIo1);        
 
  //---------------------Set Parameter output      ---------- 
@@ -71,6 +71,7 @@ sim_complete_stt(Int_t nEvents = 10, TString  SimEngine ="TGeant3", Float_t mom 
   fRun->AddModule(Dipole);
   //-------------------------  Pipe     -----------------
   FairModule *Pipe= new PndPipe("PIPE");
+  //Pipe->SetGeometryFileName("beampipe_201112.root");
   fRun->AddModule(Pipe);
   //-------------------------  STT       -----------------
   FairDetector *Stt= new PndStt("STT", kTRUE);
@@ -86,12 +87,12 @@ sim_complete_stt(Int_t nEvents = 10, TString  SimEngine ="TGeant3", Float_t mom 
   fRun->AddModule(Gem);
   //-------------------------  EMC       -----------------
   PndEmc *Emc = new PndEmc("EMC",kTRUE);
-  Emc->SetGeometryVersion(2);
+  Emc->SetGeometryVersion(1);
   Emc->SetStorageOfData(kFALSE);
   fRun->AddModule(Emc);
   //-------------------------  DRC       -----------------
   PndDrc *Drc = new PndDrc("DIRC", kTRUE);
-  Drc->SetGeometryFileName("dirc_l0_p0.root"); 
+  Drc->SetGeometryFileName("dirc_l0_p0_updated.root"); 
   Drc->SetRunCherenkov(kFALSE);
   fRun->AddModule(Drc); 
   //-------------------------  DISC      -----------------
@@ -112,6 +113,10 @@ sim_complete_stt(Int_t nEvents = 10, TString  SimEngine ="TGeant3", Float_t mom 
   FairDetector *Fts= new PndFts("FTS", kTRUE);
   Fts->SetGeometryFileName("fts.geo");
   fRun->AddModule(Fts); 
+  //-------------------------  FTOF       -----------------
+  FairDetector *FTof = new PndFtof("FTOF",kTRUE);
+  FTof->SetGeometryFileName("ftofwall.root");
+  fRun->AddModule(FTof);
 
   // Create and Set Event Generator
   //-------------------------------
