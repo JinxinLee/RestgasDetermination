@@ -24,6 +24,7 @@
 #include "FairGeanePro.h"
 
 #include "FairRootManager.h"
+#include "PndMCDataCrawler.h";
 
 #include "PndTrackCandDraw.h"
 #include "PndGeoSttPar.h"
@@ -66,10 +67,13 @@ class PndSttIsochroneDraw : public FairTask {
   virtual void SetTimeWindowMinus(Double_t val);
   virtual void SetTimeWindowPlus(Double_t val);
 
+  virtual void UseIsochroneTime(){fUseIsochroneTime = kTRUE;}
+
   Double_t fTimeWindowPlus;
   Double_t fTimeWindowMinus;
   Double_t fStartTime;
   Bool_t fUseEventTime;
+  Bool_t fUseIsochroneTime;
 
 protected:
 
@@ -86,6 +90,9 @@ protected:
 
    BinaryFunctor* fStartFunctor;
    BinaryFunctor* fStopFunctor;
+
+   PndMCDataCrawler* fCrawler;
+   TBranch* fEventHeaderBranch;
 
   ClassDef(PndSttIsochroneDraw,1);
     

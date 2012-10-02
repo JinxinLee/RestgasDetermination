@@ -23,7 +23,9 @@ using std::cout;
 using std::endl;
 
 // -----   Standard constructor   ------------------------------------------
-PndTrackCandDraw::PndTrackCandDraw(const char* TrackCandName, Int_t iVerbose):FairBoxSetDraw(TrackCandName, iVerbose)
+PndTrackCandDraw::PndTrackCandDraw(const char* TrackCandName, Int_t iVerbose):
+		FairBoxSetDraw(TrackCandName, iVerbose),
+		fPixPointList(0), fStripPointList(0), fTrackCandList(0), fSttHelixList(0), fGemHitList(0)
 {
 }
 // -------------------------------------------------------------------------
@@ -61,6 +63,8 @@ InitStatus PndTrackCandDraw::Init()
 
    }
    fq=0;
+
+   return kSUCCESS;
 }
 // -------------------------------------------------------------------------
 
@@ -172,8 +176,10 @@ TVector3 PndTrackCandDraw::GetVector(FairLink link)
 		branchName == "SttHelixHit" ||
 		branchName == "GemHit")
 	{
-		p = (FairHit*)ioman->GetLinkData(link);
-		return (TVector3(p->GetX(), p->GetY(), p->GetZ()));
+		p = (FairHit*)ioman->GetCloneOfLinkData(link);
+		TVector3 vec(p->GetX(), p->GetY(), p->GetZ());
+		delete p;
+		return (vec);
 	}
 	else
 		std::cout

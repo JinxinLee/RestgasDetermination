@@ -9,6 +9,7 @@ ${CMAKE_SOURCE_DIR}/geobase
 ${CMAKE_SOURCE_DIR}/parbase 
 ${CMAKE_SOURCE_DIR}/base 
 ${CMAKE_SOURCE_DIR}/PndTools/generalTools 
+${CMAKE_SOURCE_DIR}/PndMCMatch
 ${CMAKE_SOURCE_DIR}/field 
 ${CMAKE_SOURCE_DIR}/trackbase 
 ${CMAKE_SOURCE_DIR}/geane
