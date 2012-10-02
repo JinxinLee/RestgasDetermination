@@ -820,6 +820,11 @@ void PndTrkTracking::Exec(Option_t* opt) {
 
  PndTrkPrintouts fPrint;
 
+ // the class with all the fits.
+ PndTrkGlpkFits fit;
+// PndTrkLegendreFits fit;
+
+
 //------------------------------------
 
  IVOLTE++;
@@ -1374,13 +1379,6 @@ if(istampa>0){
  nSttTrackCand++;
 
   }      // end  of   for(iParHit=0; iParHit<nSttParHit+1-MINIMUMHITSPERTRACK; iParHit++)
-
-
-
- // the class with all the fits.
- PndTrkGlpkFits fit;
-// PndTrkLegendreFits fit;
-
 
 
 
@@ -4646,25 +4644,21 @@ void PndTrkTracking::LoadPndTrack_TrackCand(
 			pTrckCand->AddHit(FairRootManager::Instance()->
 				GetBranchId(fMvdPixelBranch),
 				(Int_t)ListTrackCandHit[ncand][j],j);
-cout<<FairRootManager::Instance()->GetBranchId(fMvdPixelBranch)<<endl;
 		break;
 		case 1:
 			pTrckCand->AddHit(FairRootManager::Instance()->
 				GetBranchId(fMvdStripBranch),
 				(Int_t)ListTrackCandHit[ncand][j],j);
-cout<<FairRootManager::Instance()->GetBranchId(fMvdStripBranch)<<endl;
 		break;
 		case 2:
 			pTrckCand->AddHit(FairRootManager::Instance()->
 				GetBranchId(fSttBranch),
 				(Int_t)ListTrackCandHit[ncand][j],j);
-cout<<FairRootManager::Instance()->GetBranchId(fSttBranch)<<endl;
 		break;
 		case 3:
 			pTrckCand->AddHit(FairRootManager::Instance()->
 				GetBranchId(fSttBranch),
 				(Int_t)ListTrackCandHit[ncand][j],j);
-cout<<FairRootManager::Instance()->GetBranchId(fSttBranch)<<endl;
 		break;
 	     }
 	}
@@ -6190,8 +6184,8 @@ DriftRadiusconformal[MAXSTTHITSINTRACK+MAXMVDPIXELHITSINTRACK+MAXMVDSTRIPHITSINT
 ErrorDriftRadiusconformal[MAXSTTHITSINTRACK+MAXMVDPIXELHITSINTRACK+MAXMVDSTRIPHITSINTRACK];
 
 
- PndTrkGlpkFits fit;
-// PndTrkLegendreFits fit;
+// PndTrkGlpkFits fit;
+ PndTrkLegendreFits fit;
 
 
 	*status= false;
