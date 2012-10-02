@@ -155,6 +155,8 @@ void PndMvdRiemannTrackFinderTask::Exec(Option_t* opt)
 	  //PndRiemannTrack myTrack = trackFinder.GetTrack(i);
 
 	  PndTrack* myTrack = new ((*fTrackArray)[i])PndTrack(trackFinder.GetPndTrack(i, fB));
+	  myTrack->SetTimeStamp(myCand->GetTimeStamp());
+	  myTrack->SetTimeStampError(myCand->GetTimeStampError());
 	  myTrack->SetLink(FairLink("MVDRiemannTrackCand", i));
 	  if (fVerbose > 0) {
 		  std::cout << i << ": ";
