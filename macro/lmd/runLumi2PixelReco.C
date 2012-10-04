@@ -1,4 +1,4 @@
-void runLumi2PixelReco(const int nEvents=10, const int startEvent=0, TString storePath="tmpOutput", const int verboseLevel=5)
+void runLumi2PixelReco(const int nEvents=10, const int startEvent=0, TString storePath="tmpOutput", const int verboseLevel=0)
 {
   // ========================================================================
   // Input file (MC events)
@@ -62,12 +62,21 @@ void runLumi2PixelReco(const int nEvents=10, const int startEvent=0, TString sto
 //   FairParAsciiFileIo* parInput1 = new FairParAsciiFileIo();
 //   parInput1->open(parFile.Data(),"in");
   rtdb->setFirstInput(parInput1);
+
+  // alignment parameter file
+  TString alignparFile = "lumi.align.par";//perfect!
+  //  TString alignparFile = "lumi.misalign.par";//misalignment! 
+  FairParAsciiFileIo* parInput2 = new FairParAsciiFileIo();
+  parInput2->open(alignparFile.Data(),"in");
+  rtdb->setSecondInput(parInput2);
+
   /*Bool_t kParameterMerged=kTRUE;
   FairParRootFileIo* output=new FairParRootFileIo(kParameterMerged);
   output->open(parOutFile);
   rtdb->setOutput(output);
 */  
 // fRun->LoadGeometry();
+
   // ------------------------------------------------------------------------
 
 
