@@ -71,12 +71,12 @@ InitStatus PndLmdGeaneTask::Init()
     return kFATAL;
   }
 
-  // Get input arrays
-  fMCTracks = (TClonesArray*) ioman->GetObject("MCTrack");
-  if (!fMCTracks){
-    std::cout << "-W- PndLmdGeaneTask::Init: "<< "No MCTrack" << " array!" << std::endl;
-    return kERROR;
-  }
+  // // Get input arrays
+  // fMCTracks = (TClonesArray*) ioman->GetObject("MCTrack");
+  // if (!fMCTracks){
+  //   std::cout << "-W- PndLmdGeaneTask::Init: "<< "No MCTrack" << " array!" << std::endl;
+  //   return kERROR;
+  // }
 
   fMCHits = (TClonesArray*) ioman->GetObject("LMDPoint");
   if ( !fMCHits)	{
@@ -90,11 +90,12 @@ InitStatus PndLmdGeaneTask::Init()
     return kERROR;
   }
 
-  fHits = (TClonesArray*) ioman->GetObject("LMDHitsStrip");
-  if (!fHits){
-    std::cout << "-W- PndLmdGeaneTask::Init: "<< "No Hits" << " array!" << std::endl;
-    return kERROR;
-  }
+  // fHits = (TClonesArray*) ioman->GetObject("LMDHitsStrip");
+  // //fHits = (TClonesArray*) ioman->GetObject("LmdHits");
+  // if (!fHits){
+  //   std::cout << "-W- PndLmdGeaneTask::Init: "<< "No Hits" << " array!" << std::endl;
+  //   return kERROR;
+  // }
 
   fTrackParGeane = new TClonesArray("FairTrackParH");
   ioman->Register("GeaneTrackPar","Geane", fTrackParGeane, kTRUE);
