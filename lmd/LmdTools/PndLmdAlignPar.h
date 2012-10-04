@@ -33,7 +33,9 @@ class PndLmdAlignPar : public FairParGenericSet
 		Double_t GetRotateX(int j) const {return frotate_x[j];}
 		Double_t GetRotateY(int j) const {return frotate_y[j];}
 		Double_t GetRotateZ(int j) const {return frotate_z[j];}
-   
+		Int_t GetNsensors(){return fsensors;}
+		Int_t GetNsides(){return fsides;}
+		Int_t GetNplanes(){return fplanes;}
   private:
     //Planes parameters
     Int_t fsensors;//Number of sensors no one plane [one side]
