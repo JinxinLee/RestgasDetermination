@@ -26,7 +26,7 @@ class PndLmdTrackFinderCATask : public FairTask
     /** Default constructor **/
     PndLmdTrackFinderCATask();
     /** Constructor **/
-    PndLmdTrackFinderCATask(const bool missPl, const double setdmax);
+    PndLmdTrackFinderCATask(const bool missPl, const double setdmax, Int_t innSensPP=8, Int_t innP=4, TString hitBranch="LMDHitsStrip", TString clusterBranch="LMDStripClusterCand", TString digiBranch="LMDStripDigis");
     /** Destructor **/
     virtual ~PndLmdTrackFinderCATask();
 
@@ -46,7 +46,12 @@ class PndLmdTrackFinderCATask : public FairTask
  private:
    Double_t dXY;
    double d_max;
+   int nSensPP;//number of sensors on one plane
+   int nP;//number of planes
+   bool SortHitsByDet(std::vector< std::vector< std::pair<Int_t,bool> > > &hitsd, Int_t nStripHits);
 
+   bool SortHitsByDetSimple(std::vector< std::vector< Int_t > > &hitsd, Int_t nStripHits);
+   bool SortHitsByZ(std::vector< std::vector< std::pair<Int_t,bool> > > &hitsd, Int_t nStripHits);
 //    std::vector<Int_t> GetHitPerCluster(PndSdsClusterStrip* clusterCand);
    Double_t GetTrackDip(PndMCTrack* myTrack);
    Double_t GetTrackCurvature(PndMCTrack* myTrack);
@@ -64,7 +69,7 @@ class PndLmdTrackFinderCATask : public FairTask
 
      /** Output array of PndSdsHits **/
      TClonesArray* fTrackCandArray;
-     TClonesArray* fTrackCandArrayTemp; //Template 
+     //    TClonesArray* fTrackCandArrayTemp; //Template 
      void Register();
      void Reset();
      void ProduceHits();
