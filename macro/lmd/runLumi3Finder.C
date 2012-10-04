@@ -2,6 +2,11 @@
 ///  missPl=true - use "missing plane" algorithm
 void runLumi3Finder(const int nEvents=100000, const int startEvent=0, TString storePath="tmpOutput", const int verboseLevel=0,  TString Method="Follow", const bool missPl=false)
 {
+  // -----   Timer   --------------------------------------------------------
+  TStopwatch timer;
+  timer.Start();
+  // ------------------------------------------------------------------------
+
   // ========================================================================
   // Input file (MC events)
   TString MCFile = storePath+"/Lumi_MC_";
@@ -46,10 +51,10 @@ void runLumi3Finder(const int nEvents=100000, const int startEvent=0, TString st
 
 
 
-  // -----   Timer   --------------------------------------------------------
-  TStopwatch timer;
-  timer.Start();
-  // ------------------------------------------------------------------------
+  // // -----   Timer   --------------------------------------------------------
+  // TStopwatch timer;
+  // timer.Start();
+  // // ------------------------------------------------------------------------
 
 
   // -----   Reconstruction run   -------------------------------------------
@@ -77,14 +82,15 @@ void runLumi3Finder(const int nEvents=100000, const int startEvent=0, TString st
   if(Method=="Follow"){
     int FinderMode=0;
     if(missPl==true) FinderMode=1;
-    PndLmdTrackFinderTask* lmdfinder = new PndLmdTrackFinderTask(FinderMode);
+    //    PndLmdTrackFinderTask* lmdfinder = new PndLmdTrackFinderTask(FinderMode);
+    PndLmdTrackFinderTask* lmdfinder = new PndLmdTrackFinderTask(missPl, "LMDHitsStrip","LMDStripClusterCand","LMDStripDigis",8);
+    lmdfinder->SetInaccuracy(0.01);
     lmdfinder->SetVerbose(verboseLevel);
     fRun->AddTask(lmdfinder);
   }
   else{
     if(Method=="CA"){ 
-      // PndLmdTrackFinderCATask* lmdfinder = new PndLmdTrackFinderCATask(missPl,0.1);
-      PndLmdTrackFinderCATask* lmdfinder = new PndLmdTrackFinderCATask(missPl,0.5);
+      PndLmdTrackFinderCATask* lmdfinder = new PndLmdTrackFinderCATask(missPl,0.012,8,4,"LMDHitsStrip","LMDStripClusterCand","LMDStripDigis");
       lmdfinder->SetVerbose(verboseLevel);
       fRun->AddTask(lmdfinder);
     }
