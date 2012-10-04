@@ -57,7 +57,9 @@
 // the following MAXHITSINFIT cannot be too large because the fit
 // crashes 'silently' for too much memory consumption in the character arrays
 // or takes too long time;
-#define MAXHITSINFIT		12
+
+//  #define MAXHITSINFIT		12
+#define MAXHITSINFIT		30
 #define MAXMVDMCPOINTS		2000
 #define MINIMUMHITSPERTRACK	3
 #define MINOUTERHITSPERTRACK	5
@@ -1770,6 +1772,26 @@ if(istampa>0){
 		iexcl=-1;
 	}
 
+//---------------- inizio stampe.
+if(istampa>=2){
+	if(iexcl!= -1){
+		cout<<"from PndSttMvdTracking, evt. "<<IVOLTE<<", Prima di refit, Pivoting hit :\n";
+		if(ListTrackCandHitType[ncand][iexcl]==0){
+			cout<<"\t Pixel hit n. "<<ListTrackCandHit[ncand][iexcl]<<endl;
+		} else {
+			cout<<"\t Strip hit n. "<<ListTrackCandHit[ncand][iexcl]<<endl;
+		}
+	} else {
+		cout<<"from PndSttMvdTracking, evt. "<<IVOLTE
+			<<", Prima di refit, no Pivoting hit.\n";
+	}
+	cout<<"\trotation angle = "<<rotationangle<<endl;
+}
+//-------------- fine di stampe.
+
+//--------------------
+
+
 	RefitMvdStt(
 			nTrackCandHit[ncand], //this is  input
 			&ListTrackCandHit[ncand][0],//this is both input and output
@@ -2721,7 +2743,7 @@ if(istampa>0){
 			rotationsin /= (nalone-1);
 			rotationangle = atan2(rotationsin, rotationcos);
 //----------------
-if(istampa>2){
+if(istampa>=2){
 	cout<<"from PndSttMvdTracking, evt. "<<IVOLTE<<", Mvd only track, Pivoting hit :\n";
 	if(ListType[0]==0){ cout<<"\tPixel n. "<<List[0];}
 	else if (ListType[0]==1){ cout<<"\tStrip n. "<<List[0];}
@@ -2737,6 +2759,7 @@ if(istampa>2){
 		cout<<" rotation angle prima = "<<rotationangle<<endl;
 }
 //--------------------
+
 
 			// here at this point there are no Stt hits associated.
 			RefitMvdStt(
@@ -6184,16 +6207,17 @@ DriftRadiusconformal[MAXSTTHITSINTRACK+MAXMVDPIXELHITSINTRACK+MAXMVDSTRIPHITSINT
 ErrorDriftRadiusconformal[MAXSTTHITSINTRACK+MAXMVDPIXELHITSINTRACK+MAXMVDSTRIPHITSINTRACK];
 
 
-// PndTrkGlpkFits fit;
- PndTrkLegendreFits fit;
+ PndTrkGlpkFits fit;
+// PndTrkLegendreFits fit;
 
 
 	*status= false;
 	factor=3.;
 	mindis=0.5;
-//	trajectory_vertex[0]=trajectory_vertex[1]=0.;
 
 	for(i=0, iparallel=0; i<nCandHit && iparallel< MAXHITSINFIT; i++){
+
+
 
 		if(i==iexcl) continue;
 		if( ListCandHitType[i] == 0 ){	// mvd pixels
@@ -6215,7 +6239,7 @@ ErrorDriftRadiusconformal[MAXSTTHITSINTRACK+MAXMVDPIXELHITSINTRACK+MAXMVDSTRIPHI
 			Xconformal[iparallel] = (XMvdPixel[ListCandHit[i]]-tv[0])/gamma;
 			Yconformal[iparallel] = (YMvdPixel[ListCandHit[i]]-tv[1])/gamma;
 			DriftRadiusconformal[iparallel]=-1.;// only to signal later this is a Mvd hit.
-			ErrorDriftRadiusconformal[iparallel]=factor*ErrorMvd/gamma;
+			ErrorDriftRadiusconformal[iparallel]=factor*ErrorMvd/fabs(gamma);
 			iparallel++;
 		} else if ( ListCandHitType[i] == 1 ){	// mvd strips
 			//----- translate the little circumference in XY representing
@@ -6235,7 +6259,7 @@ ErrorDriftRadiusconformal[MAXSTTHITSINTRACK+MAXMVDPIXELHITSINTRACK+MAXMVDSTRIPHI
 			Xconformal[iparallel] = (XMvdStrip[ListCandHit[i]]-tv[0])/gamma;
 			Yconformal[iparallel] = (YMvdStrip[ListCandHit[i]]-tv[1])/gamma;
 			DriftRadiusconformal[iparallel]=-1.;// only to signal later this is a Mvd hit.
-			ErrorDriftRadiusconformal[iparallel]=factor* ErrorMvd/gamma;
+			ErrorDriftRadiusconformal[iparallel]=factor* ErrorMvd/fabs(gamma);
 			iparallel++;
 		} else if ( ListCandHitType[i] == 2 ){	// Stt parallel hit.
 
@@ -6253,8 +6277,8 @@ ErrorDriftRadiusconformal[MAXSTTHITSINTRACK+MAXMVDPIXELHITSINTRACK+MAXMVDSTRIPHI
 				info[ListCandHit[i]][3];
 			Xconformal[iparallel] = (info[ListCandHit[i]][0]-tv[0])/gamma;
 			Yconformal[iparallel] = (info[ListCandHit[i]][1]-tv[1])/gamma;
-			DriftRadiusconformal[iparallel]=info[ListCandHit[i]][3]/gamma;
-			ErrorDriftRadiusconformal[iparallel]=factor*ErrorStraw/gamma;
+			DriftRadiusconformal[iparallel]=info[ListCandHit[i]][3]/fabs(gamma);
+			ErrorDriftRadiusconformal[iparallel]=factor*ErrorStraw/fabs(gamma);
 			iparallel++;
 		}
 	}	// end of for(i=0, iparallel=0;
