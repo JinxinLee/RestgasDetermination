@@ -739,6 +739,8 @@ void PndTrkPlotMacros::DrawHexagonCircleInMacro(
 	&YMvdStrip
 	);
 
+ // Macro nel piano conforme, senza gli hits Mvd;
+
  WriteMacroParallelHitsGeneralConformalwithMC(
 	APOTEMAMAXINNERPARSTRAW,
 	APOTEMAMAXSKEWSTRAW,
@@ -778,6 +780,51 @@ void PndTrkPlotMacros::DrawHexagonCircleInMacro(
 	&YMvdPixel,
 	&YMvdStrip
 	);
+
+
+ // Macro nel piano conforme, con anche gli hits Mvd;
+
+ WriteMacroParallel_MvdHitsGeneralConformalwithMC(
+	APOTEMAMAXINNERPARSTRAW,
+	APOTEMAMAXSKEWSTRAW,
+	APOTEMAMINOUTERPARSTRAW,
+	APOTEMAMINSKEWSTRAW,
+	BFIELD,
+	CVEL,
+	DIMENSIONSCITIL,
+	doMcComparison,
+	fMCTrackArray,
+	nSttHit,
+	&info,
+	In_Put,
+	IVOLTE,
+	nMCTracks,
+	nMvdPixelHit,
+	nMvdStripHit,
+	nSciTilHits,
+	nTotalCandidates,
+	&keepit,
+	&FI0,
+	&Ox,
+	&Oy,
+	&posizSciTil,
+	&primoangolo,
+	&R,
+	RSTRAWDETECTORMAX,
+	RSTRAWDETECTORMIN,
+	&sigmaXMvdPixel,
+	&sigmaXMvdStrip,
+	&sigmaYMvdPixel,
+	&sigmaYMvdStrip,
+	&ultimoangolo,
+	VERTICALGAP,
+	&XMvdPixel,
+	&XMvdStrip,
+	&YMvdPixel,
+	&YMvdStrip
+	);
+
+
 //     la seguente e' da modificare per includere eventuali hits SciTil mai usati.
  WriteMacroAllHitsRestanti(
 	APOTEMAMAXINNERPARSTRAW,
@@ -1481,6 +1528,45 @@ fprintf(MACRO,
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 //----------start of function PndTrkPlotMacros::WriteMacroParallelHitsGeneralConformalwithMC
 //  inizio cambio_in_perl ;
 
@@ -1570,7 +1656,7 @@ void PndTrkPlotMacros::WriteMacroParallelHitsGeneralConformalwithMC(
 //---------- parallel straws Macro now con anche le tracce MC
 
 
-      sprintf(nome,"MacroSttMvdAllHitsConformalwithMCEvent%d", IVOLTE);
+      sprintf(nome,"MacroSttAllHitsConformalwithMCEvent%d", IVOLTE);
       sprintf(nome2,"%s.C",nome);
       FILE * MACRO = fopen(nome2,"w");
       fprintf(MACRO,"void %s()\n{\n",nome);
@@ -1856,6 +1942,467 @@ void PndTrkPlotMacros::WriteMacroParallelHitsGeneralConformalwithMC(
 
 
 //----------end of function PndTrkPlotMacros::WriteMacroParallelHitsGeneralConformalwithMC
+
+
+
+//----------start of function PndTrkPlotMacros::WriteMacroParallel_MvdHitsGeneralConformalwithMC
+//  inizio cambio_in_perl ;
+
+void PndTrkPlotMacros::WriteMacroParallel_MvdHitsGeneralConformalwithMC(
+	Double_t APOTEMAMAXINNERPARSTRAW,
+	Double_t APOTEMAMAXSKEWSTRAW,
+	Double_t APOTEMAMINOUTERPARSTRAW,
+	Double_t APOTEMAMINSKEWSTRAW,
+	Double_t BFIELD,
+	Double_t CVEL,
+	Double_t DIMENSIONSCITIL,
+	bool doMcComparison,
+	TClonesArray *fMCTrackArray,
+	Int_t Nhits,
+	Vec <Double_t> * info,
+	PndTrkPlotMacros_InputData In_Put,
+	int IVOLTE,
+	Short_t nMCTracks,
+	Short_t nMvdPixelHit,
+	Short_t nMvdStripHit,
+	Short_t nSciTilHits,
+	Short_t nTracksFoundSoFar,
+	Vec <bool> * keepit,
+	Vec <Double_t> * FI0,
+	Vec <Double_t> * Oxxx,
+	Vec <Double_t> * Oyyy,
+	Vec <Double_t> * posizSciTil,
+	Vec <Double_t> * primoangolo,
+	Vec <Double_t> * R,
+	Double_t RSTRAWDETECTORMAX,
+	Double_t RSTRAWDETECTORMIN,
+	Vec <Double_t> * sigmaXMvdPixel,
+	Vec <Double_t> * sigmaXMvdStrip,
+	Vec <Double_t> * sigmaYMvdPixel,
+	Vec <Double_t> * sigmaYMvdStrip,
+	Vec <Double_t> * ultimoangolo,
+	Double_t VERTICALGAP,
+	Vec <Double_t> * XMvdPixel,
+	Vec <Double_t> * XMvdStrip,
+	Vec <Double_t> * YMvdPixel,
+	Vec <Double_t> * YMvdStrip
+
+	)
+{
+//  fine cambio_in_perl ;
+
+    Int_t i, j, i1, ii, index, Kincl, nlow, nup, STATUS;
+
+    Double_t xmin , xmax, ymin, ymax, xl, xu, yl, yu,
+           gamma,
+           dx, dy, diff, d1, d2,
+           delta, deltax, deltay, deltaz, deltaS,
+           factor,ff,
+           zmin, zmax, Smin, Smax, S1, S2,
+           z1, z2, y1, y2,x1,x2,
+           vx1, vy1, vz1, C0x1, C0y1, C0z1,
+           aaa, bbb, ccc, rrr, angle, minor, major,
+           distance, Rx, Ry, LL,
+           Aellipsis1, Bellipsis1,fi1,
+           fmin, fmax, offset, step,
+           SkewInclWithRespectToS, zpos, zpos1, zpos2,
+           Tiltdirection1[2],
+           zl[200],zu[200],
+           POINTS1[6];
+
+      char nome[300], nome2[300];
+
+ const double PI = 3.141592654;
+
+  Double_t USciT[nSciTilHits];
+  Vec <Double_t> USciTil(USciT,nSciTilHits,"USciTil");
+
+  Double_t VSciT[nSciTilHits];
+  Vec <Double_t> VSciTil(VSciT,nSciTilHits,"VSciTil");
+
+  Double_t  oX[Nhits], oY[Nhits], Radi[Nhits];
+  Vec <Double_t> Ox(oX,Nhits,"Ox");
+  Vec <Double_t> Oy(oY,Nhits,"Oy");
+  Vec <Double_t> Radius(Radi,Nhits,"Radius");
+
+
+  Double_t	UPixel[nMvdPixelHit],
+		VPixel[nMvdPixelHit],
+		PRadius[nMvdPixelHit],
+		UStrip[nMvdStripHit],
+		VStrip[nMvdStripHit],
+		SRadius[nMvdStripHit];
+  Vec <Double_t> PixelU(UPixel,nMvdPixelHit,"PixelU");
+  Vec <Double_t> PixelV(VPixel,nMvdPixelHit,"PixelV");
+  Vec <Double_t> RadiusP(PRadius,nMvdPixelHit,"RadiusP");
+  Vec <Double_t> StripU(UStrip,nMvdStripHit,"StripU");
+  Vec <Double_t> StripV(VStrip,nMvdStripHit,"StripV");
+  Vec <Double_t> RadiusS(SRadius,nMvdStripHit,"RadiusS");
+
+
+
+
+  Double_t  ALF[nTracksFoundSoFar],BET[nTracksFoundSoFar],
+		GAMM[nTracksFoundSoFar];
+  Vec <Double_t> ALFA(ALF,nTracksFoundSoFar,"ALFA");
+  Vec <Double_t> BETA(BET,nTracksFoundSoFar,"BETA");
+  Vec <Double_t> GAMMA(GAMM,nTracksFoundSoFar,"GAMMA");
+
+//---------- parallel straws Macro now con anche le tracce MC
+
+
+      sprintf(nome,"MacroSttMvdAllHitsConformalwithMCEvent%d", IVOLTE);
+      sprintf(nome2,"%s.C",nome);
+      FILE * MACRO = fopen(nome2,"w");
+      fprintf(MACRO,"void %s()\n{\n",nome);
+
+      xmin=1.e20;
+      xmax=-1.e20;
+      ymin=1.e20;
+      ymax=-1.e20;
+
+
+
+//--- SciTil  info
+	for( i=0; i< nSciTilHits; i++) {
+		Double_t erre = posizSciTil[i][0]*posizSciTil[i][0]+
+				posizSciTil[i][1]*posizSciTil[i][1];
+	    USciTil[i] = posizSciTil[i][0]/erre;
+	    VSciTil[i] = posizSciTil[i][1]/erre;
+            if (USciTil[i] < xmin)   xmin = USciTil[i];
+            if (USciTil[i] > xmax)   xmax = USciTil[i];
+            if (VSciTil[i] < ymin)   ymin = VSciTil[i];
+            if (VSciTil[i] > ymax)   ymax = VSciTil[i];
+	}
+//------
+
+
+       for( i=0; i< Nhits; i++) {
+         if( info->at(i*7+5) == 1 ) {     // parallel straws
+//   centro sfera in sistema conforme
+            gamma = info->at(i*7+0)*info->at(i*7+0) +
+		info->at(i*7+1)*info->at(i*7+1) - info->at(i*7+3)*info->at(i*7+3);
+            Ox[i] = info->at(i*7+0) / gamma;
+            Oy[i] = info->at(i*7+1) / gamma;
+            Radius[i] = info->at(i*7+3)/gamma;
+            if (Ox[i]-Radius[i] < xmin)   xmin = Ox[i]-Radius[i];
+            if (Ox[i]+Radius[i] > xmax)   xmax = Ox[i]+Radius[i];
+            if (Oy[i]-Radius[i] < ymin)   ymin = Oy[i]-Radius[i];
+            if (Oy[i]+Radius[i] > ymax)   ymax = Oy[i]+Radius[i];
+          }
+       }
+
+
+// Mvd hits;
+
+     double	CC,
+		pseudoRadius = 0.01 ; //  'raggio' di Pixel e Strip;
+     // Pixel
+     for( i=0; i< nMvdPixelHit; i++) {
+	// here, for the boundary calculation, it is enough to approximate the
+	// rectangular sensor in a circle of radius 0.01 in XY space;
+
+	CC = XMvdPixel->at(i)*XMvdPixel->at(i) + YMvdPixel->at(i)*YMvdPixel->at(i);
+	// assumo un raggio del circolo che ingloba il sensore di 0.01 cm;
+	gamma = CC - pseudoRadius*pseudoRadius;
+	PixelU[i] = XMvdPixel->at(i) / gamma;
+	PixelV[i] = YMvdPixel->at(i) / gamma;
+	RadiusP[i] = pseudoRadius/gamma;
+
+	if (PixelU[i]-RadiusP[i] < xmin)   xmin = PixelU[i]-RadiusP[i];
+	if (PixelU[i]+RadiusP[i] > xmax)   xmax = PixelU[i]+RadiusP[i];
+	if (PixelV[i]-RadiusP[i] < ymin)   ymin = PixelV[i]-RadiusP[i];
+	if (PixelV[i]+RadiusP[i] > ymax)   ymax = PixelV[i]+RadiusP[i];
+
+     }  // end of  for( i=0; i< nMvdPixelHit; i++)
+
+     // Strip
+     for( i=0; i< nMvdStripHit; i++) {
+	// here, for the boundary calculation, it is enough to approximate the
+	// rectangular sensor in a circle of radius 0.01 in XY space;
+
+	CC = XMvdStrip->at(i)*XMvdStrip->at(i) + YMvdPixel->at(i)*YMvdStrip->at(i);
+	// assumo un raggio del circolo che ingloba il sensore di 0.01 cm;
+	gamma = CC - pseudoRadius*pseudoRadius;
+	StripU[i] = XMvdStrip->at(i) / gamma;
+	StripV[i] = YMvdStrip->at(i) / gamma;
+	RadiusS[i] = pseudoRadius/gamma;
+
+	if (StripU[i]-RadiusS[i] < xmin)   xmin = PixelU[i]-RadiusS[i];
+	if (StripU[i]+RadiusS[i] > xmax)   xmax = StripU[i]+RadiusS[i];
+	if (StripV[i]-RadiusS[i] < ymin)   ymin = StripV[i]-RadiusS[i];
+	if (StripV[i]+RadiusS[i] > ymax)   ymax = StripV[i]+RadiusS[i];
+
+     }  // end of  for( i=0; i< nMvdStripHit; i++)
+
+
+
+       if( xmin > 0. ) xmin = 0.;
+       if( xmax < 0.)  xmax = 0.;
+       if( ymin > 0. ) ymin = 0.;
+       if( ymax < 0.)  ymax = 0.;
+
+       deltax = xmax-xmin;
+       deltay = ymax - ymin;
+
+       if( deltax > deltay) {
+         ymin -=  0.5*(deltax-deltay);
+         ymax = ymin+ deltax;
+         delta = deltax;
+       }  else  {
+         xmin -=  0.5*(deltay-deltax);
+         xmax = xmin+ deltay;
+         delta= deltay;
+       }
+
+       xmax = xmax + delta*0.15;
+       xmin = xmin - delta*0.15;
+
+       ymax = ymax + delta*0.15;
+       ymin = ymin - delta*0.15;
+
+
+
+       fprintf(MACRO,"TCanvas* my= new TCanvas();\nmy->Range(%f,%f,%f,%f);\n",
+		xmin,ymin,xmax,ymax);
+
+// ora la grigliatura  con i cerchi
+
+       fprintf(MACRO,
+ "TEllipse* Griglia%d = new TEllipse(0.,0.,%f,%f,0.,360.);\nGriglia%d->SetLineColor(4);\nGriglia%d->Draw();\n",
+        In_Put.NRDIVCONFORMAL,1./RSTRAWDETECTORMIN,1./RSTRAWDETECTORMIN,
+	   In_Put.NRDIVCONFORMAL,In_Put.NRDIVCONFORMAL);
+
+       for( i=In_Put.NRDIVCONFORMAL-1; i>=0 ; i--) {
+            fprintf(MACRO,
+  "TEllipse* Griglia%d = new TEllipse(0.,0.,%f,%f,0.,360.);\nGriglia%d->SetLineColor(4);\nGriglia%d->Draw();\n",
+                     i,In_Put.radiaConf[i],In_Put.radiaConf[i],i,i);
+       }
+//---------------------
+// ora la grigliatura  con i segmenti blu per delimitare la zona degli Stt.
+
+       for(i=0;  i<In_Put.NFIDIVCONFORMAL; i++) {
+            ff = i*2.*PI/In_Put.NFIDIVCONFORMAL;
+            x1=cos(ff)/RSTRAWDETECTORMAX;
+            y1=sin(ff)/RSTRAWDETECTORMAX;
+            x2=cos(ff)/RSTRAWDETECTORMIN;
+            y2=sin(ff)/RSTRAWDETECTORMIN;
+            fprintf(MACRO,
+"TLine* Seg%d = new TLine(%f,%f,%f,%f);\nSeg%d->SetLineColor(4);\nSeg%d->Draw();\n",
+                     i,x1,y1,x2,y2,i,i);
+       }
+//---------------------
+// ora la grigliatura  con i segmenti magenta per comprendere la zona degli SciTil.
+
+	double RMAXSCITIL=50.; //cm
+       for(i=0;  i<In_Put.NFIDIVCONFORMAL; i++) {
+            ff = i*2.*PI/In_Put.NFIDIVCONFORMAL;
+            x1=cos(ff)/RMAXSCITIL;
+            y1=sin(ff)/RMAXSCITIL;
+            x2=cos(ff)/RSTRAWDETECTORMAX;
+            y2=sin(ff)/RSTRAWDETECTORMAX;
+ fprintf(MACRO,"TLine* Seg%d = new TLine(%f,%f,%f,%f);\nSeg%d->SetLineColor(6);\nSeg%d->Draw();\n",
+                     i,x1,y1,x2,y2,i,i);
+       }
+//---------------------
+
+       fprintf(MACRO,"TGaxis *Assex = new  TGaxis(%f,%f,%f,%f,%f,%f,510);\n",xmin,0.,xmax,0.,xmin,xmax);
+       fprintf(MACRO,"Assex->SetTitle(\"U    \");\n");
+       fprintf(MACRO,"Assex->SetTitleOffset(1.5);\n");
+       fprintf(MACRO,"Assex->Draw();\n");
+       fprintf(MACRO,"TGaxis *Assey = new  TGaxis(%f,%f,%f,%f,%f,%f,510);\n", 0.,ymin,0.,ymax,ymin,ymax);
+       fprintf(MACRO,"Assey->SetTitle(\"V    \");\n");
+       fprintf(MACRO,"Assey->SetTitleOffset(1.5);\n");
+       fprintf(MACRO,"Assey->Draw();\n");
+
+
+// plot degli Hits Stt.
+       for( i=0; i< Nhits; i++) {
+         if( info->at(i*7+5) == 1 ) {     // parallel straws
+            fprintf(MACRO,
+"TEllipse* E%d = new TEllipse(%f,%f,%f,%f,0.,360.);\nE%d->SetFillStyle(0);\nE%d->Draw();\n",
+                  i,Ox[i],Oy[i],Radius[i],Radius[i],i,i);
+          }
+       }
+
+
+
+// plot degli Hits Pixel Mvd.
+       for( i=0; i< nMvdPixelHit; i++) {
+            fprintf(MACRO,
+"TMarker* Pixel%d = new TMarker(%f,%f,%d);\nPixel%d->SetMarkerColor(1);\nPixel%d->Draw();\n",
+                  i,PixelU[i],PixelV[i],26,i,i);
+//"TEllipse* Pixel%d = new TEllipse(%f,%f,%f,%f,0.,360.);\nPixel%d->SetFillStyle(0);\nPixel%d->Draw();\n",
+//                  i,PixelU[i],PixelV[i],RadiusP[i],RadiusP[i],i,i);
+       }
+//-----------
+
+
+
+// plot degli Hits Strip Mvd.
+       for( i=0; i< nMvdStripHit; i++) {
+            fprintf(MACRO,
+"TMarker* Strip%d = new TMarker(%f,%f,%d);\nStrip%d->SetMarkerColor(1);\nStrip%d->Draw();\n",
+                  i,StripU[i],StripV[i],25,i,i);
+// "TEllipse* Strip%d = new TEllipse(%f,%f,%f,%f,0.,360.);\nStrip%d->SetFillStyle(0);\nStrip%d->Draw();\n",
+//                  i,StripU[i],StripV[i],RadiusS[i],RadiusS[i],i,i);
+       }
+//-----------
+// plot degli Hit SciTil
+	for( i=0; i< nSciTilHits; i++) {
+
+
+		disegnaSciTilHit(
+			1,  // goes in the SetColor function of root;
+			In_Put.dimensionscitil,
+			MACRO,
+			posizSciTil[i][0],
+			posizSciTil[i][1],
+			i,
+			2 // 2--> disegno SciTil in conforme.
+			);
+	}
+
+
+
+
+//------------------   plotting all the tracks found
+
+
+    for(i=0; i<nTracksFoundSoFar; i++){
+	if(!keepit->at(i)) continue;
+
+	ALFA[i] = -2.*Oxxx->at(i);
+	BETA[i] = -2.*Oyyy->at(i);
+	GAMMA[i]= Oxxx->at(i)*Oxxx->at(i)+Oyyy->at(i)*Oyyy->at(i)
+		 - R->at(i) * R->at(i);
+      if( fabs(GAMMA[i]) > 1.e-10) {
+       aaa = -0.5*ALFA[i]/GAMMA[i];
+       bbb = -0.5*BETA[i]/GAMMA[i];
+       rrr = sqrt( aaa*aaa+bbb*bbb-1./GAMMA[i]);
+       if( fabs(rrr/GAMMA[i]) < 30.) {
+           fprintf(MACRO,
+"TEllipse* ris%d=new TEllipse(%f,%f,%f,%f,0.,360.);\nris%d->SetFillStyle(0);\nris%d->SetLineColor(2);\nris%d->Draw();\n",
+                     i,aaa,bbb,rrr,rrr,i,i,i);
+       }  else{
+
+
+          yl = -xmin*ALFA[i]/BETA[i] - 1./BETA[i];
+          yu = -xmax*ALFA[i]/BETA[i] - 1./BETA[i];
+          fprintf(MACRO,"TLine* ris%d = new TLine(%f,%f,%f,%f);\n",i,xmin,yl,xmax,yu);
+          fprintf(MACRO,"ris%d->SetLineColor(2);\n",i);
+          fprintf(MACRO,"ris%d->Draw();\n",i);
+
+
+
+       }
+      }  else {
+
+        if(fabs(BETA[i]) < 1.e-10){
+         if(fabs(ALFA[i])<1.e-10) {
+          continue;
+         } else {
+          fprintf(MACRO,"TLine* ris%d = new TLine(%f,%f,%f,%f);\n"
+			,i,-1./ALFA[i],ymin,- 1./ALFA[i],ymax);
+          fprintf(MACRO,"ris%d->SetLineColor(2);\n",i);
+          fprintf(MACRO,"ris%d->Draw();\n",i);
+         }
+        } else {
+          yl = -xmin*ALFA[i]/BETA[i] - 1./BETA[i];
+          yu = -xmax*ALFA[i]/BETA[i] - 1./BETA[i];
+          fprintf(MACRO,"TLine* ris%d = new TLine(%f,%f,%f,%f);\n",i,xmin,yl,xmax,yu);
+          fprintf(MACRO,"ris%d->SetLineColor(2);\n",i);
+          fprintf(MACRO,"ris%d->Draw();\n",i);
+        }
+
+      }
+
+    }  // end of  for(i=0; i<nTracksFoundSoFar; i++)
+
+// ------------------------------
+
+
+//   plotting all the tracks MC generated
+	if(doMcComparison){
+	Int_t icode;
+         Double_t Rr, Dd, Fifi, Oxx, Oyy, Cx, Cy, Px, Py, carica  ;
+     PndMCTrack* pMC;
+	for(i=0;i<nMCTracks; i++){
+		pMC = (PndMCTrack*) In_Put.fMCTrackArray->At(i);
+		if ( ! pMC ) continue;
+         	icode  = pMC->GetPdgCode() ;    //   PDG code of track
+         	Oxx = pMC->GetStartVertex().X();    //   X of starting point track
+         	Oyy = pMC->GetStartVertex().Y();    //   Y of starting point track
+         	Px = pMC->GetMomentum().X();
+         	Py = pMC->GetMomentum().Y();
+         	aaa = sqrt( Px*Px + Py*Py);
+         	Rr =   aaa*1000./(BFIELD*CVEL);    //   R (cm) of Helix of track projected in XY plane; B = 2 Tesla
+         TDatabasePDG *fdbPDG= TDatabasePDG::Instance();
+         TParticlePDG *fParticle= fdbPDG->GetParticle(icode);
+       if (icode>1000000000) carica = 1.;
+       else  carica = fParticle->Charge()/3. ;    //   charge of track
+       if (fabs(carica)<0.1 ) continue;
+           Cx = Oxx + Py*1000./(BFIELD*CVEL*carica);
+           Cy = Oyy - Px*1000./(BFIELD*CVEL*carica);
+    gamma = -Rr*Rr + Cx*Cx+Cy*Cy;
+    if(fabs(gamma)< 0.001) {
+     if(Cy != 0.) {
+       yl = xmin*(-Cx/Cy) + 0.5/Cy;
+       yu = xmax*(-Cx/Cy) + 0.5/Cy;
+       xl = xmin;
+       xu = xmax;
+     } else {
+       yl = ymin;
+       yu = ymax;
+       xu=xl = 0.5/Cx;
+     }
+       fprintf(MACRO,"TLine* MCris%d = new TLine(%f,%f,%f,%f);\n",i,xl,yl,xu,yu);
+       fprintf(MACRO,"MCris%d->SetLineStyle(2);\n",i);
+       fprintf(MACRO,"MCris%d->SetLineColor(3);\n",i);
+       fprintf(MACRO,"MCris%d->SetLineWidth(1);\n",i);
+       fprintf(MACRO,"MCris%d->Draw();\n",i);
+
+    }  else {
+       if(fabs(Rr/gamma) > 1.) {
+         if(fabs(Cy)>0.001 ) {
+           yl = -xmin*Cx/Cy+0.5/Cy;
+           yu = -xmax*Cx/Cy+0.5/Cy;
+           fprintf(MACRO,"TLine* MCline%d = new TLine(%f,%f,%f,%f);\n",i,xmin,yl,xmax,yu);
+           fprintf(MACRO,"MCline%d->SetLineColor(3);\n",i);
+           fprintf(MACRO,"MCline%d->Draw();\n",i);
+         } else {
+           fprintf(MACRO,"TLine* MCline%d = new TLine(%f,%f,%f,%f);\n"
+	   ,i,2.*Cx,ymin,2.*Cx,ymax);
+           fprintf(MACRO,"MCline%d->SetLineColor(2);\n",i);
+           fprintf(MACRO,"MCline%d->Draw();\n",i);
+         }
+        }  else {
+           fprintf(MACRO, "TEllipse* MCcerchio%d = new TEllipse(%f,%f,%f,%f,0.,360.);\nMCcerchio%d->SetLineColor(3);\n",
+                     i,Cx/gamma,Cy/gamma,Rr/fabs(gamma),Rr/fabs(gamma),i);
+
+           fprintf(MACRO,"MCcerchio%d->SetFillStyle(0);\nMCcerchio%d->SetLineStyle(2);\nMCcerchio%d->SetLineWidth(1);\nMCcerchio%d->Draw();\n",
+                     i,i,i,i);
+        }
+    }
+   }	// end of for(i=0;i<nMCTracks; i++)
+
+	}  // end of if(doMcComparison)
+
+
+     fprintf(MACRO,"}\n");
+     fclose(MACRO);
+       
+
+
+
+
+
+    return ;
+
+}
+
+
+//----------end of function PndTrkPlotMacros::WriteMacroParallel_MvdHitsGeneralConformalwithMC
 
 
 
