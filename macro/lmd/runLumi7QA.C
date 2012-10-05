@@ -1,4 +1,4 @@
-void runLumi7QA(const int nEvents=100000, const int startEvent=0, TString storePath="tmpOutput", const int verboseLevel=5)
+void runLumi7QA(const int nEvents=100000, const int startEvent=0, TString storePath="tmpOutnewDesign", const int verboseLevel=5)
 {
   // ========================================================================
   // Input file (MC events)
@@ -32,6 +32,10 @@ void runLumi7QA(const int nEvents=100000, const int startEvent=0, TString storeP
   TString DumFile = storePath+"/Lumi_IGNORE_";
   DumFile += startEvent;
   DumFile += ".root";
+  // Output file
+  TString OutFile = storePath+"/Lumi_QA_";
+  OutFile += startEvent;
+  OutFile += ".root";
   // Par file
   TString parFile = storePath+"/Lumi_Params_";
   parFile += startEvent;
@@ -77,12 +81,12 @@ void runLumi7QA(const int nEvents=100000, const int startEvent=0, TString storeP
   parInput1->open(parFile.Data(),"UPDATE");
   rtdb->setFirstInput(parInput1);
 
-  PndLmdQATask* lmdqa = new PndLmdQATask("LMDPoint","MCTrack","LmdHits","LMDTrack","GeaneTrackFinal","tmpOutput/QA.root");
+  PndLmdQATask* lmdqa = new PndLmdQATask("LMDPoint","MCTrack","LmdHits","LMDTrack","GeaneTrackFinal",OutFile);
   lmdqa->SetVerbose(verboseLevel);
   fRun->AddTask(lmdqa);
 
   //rtdb->setOutput(parInput1);
-  //rtdb->print();
+  //  rtdb->print();
 
   fRun->Init();
 
