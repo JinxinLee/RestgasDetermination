@@ -633,7 +633,7 @@ void PndLmdTrackFinderTask::FindHitsI(std::vector<PndTrackCand> &tofill, std::ve
 void PndLmdTrackFinderTask::Exec(Option_t* opt)
 {
   TStopwatch *timer_exec = new TStopwatch();
-  timer_exec->Start();
+   if(fVerbose>2) timer_exec->Start();
   if(fVerbose>2) cout << "Evt started--------------"<<endl<<endl;
 
   //which combinations of planes to build pseudo-vectos
@@ -704,11 +704,13 @@ void PndLmdTrackFinderTask::Exec(Option_t* opt)
     new((*fTrackCandArray)[t]) PndTrackCand(theCands.at(t)); 
 
   if(fVerbose>2) cout << "Evt finsihed--------------"<<endl<<endl;
-  timer_exec->Stop();
-  Double_t rtime_exec = timer_exec->RealTime();
-  Double_t ctime_exec = timer_exec->CpuTime();
-  cout << "Real time for Exec:" << rtime_exec << " s, CPU time " << ctime_exec << " s" << endl;
-  cout << endl;
+  if(fVerbose>2){
+    timer_exec->Stop();
+    Double_t rtime_exec = timer_exec->RealTime();
+    Double_t ctime_exec = timer_exec->CpuTime();
+    cout << "Real time for Exec:" << rtime_exec << " s, CPU time " << ctime_exec << " s" << endl;
+    cout << endl;
+  }
 }
 // -------------------------------------------------------------------------
 

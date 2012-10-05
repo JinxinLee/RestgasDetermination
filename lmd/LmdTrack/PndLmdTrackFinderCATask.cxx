@@ -136,9 +136,9 @@ bool PndLmdTrackFinderCATask::SortHitsByDetSimple(std::vector< std::vector< Int_
   for(Int_t iHit = 0; iHit < nStripHits; iHit++){
     PndSdsHit* myHit = (PndSdsHit*)(fStripHitArray->At(iHit));
     Int_t sensid = myHit->GetSensorID(); // Sensors: 1..32
-    //cout<<"sensid = "<<sensid<<endl;
+    cout<<"sensid = "<<sensid<<endl;
     Int_t planeid = floor((sensid)/(double)nSensPP); //nSensPP sensors/plane => Planes: 0..3
-    // cout<<" planeid = "<< planeid<<endl;
+    cout<<" planeid = "<< planeid<<endl;
     hitsd.at(planeid).push_back(iHit);
   }
 
@@ -173,6 +173,7 @@ bool PndLmdTrackFinderCATask::SortHitsByZ(std::vector< std::vector< std::pair<In
       //   cout<<"tmp = "<<tmp<<" detZ.at(idet) = "<<detZ.at(idet)
       //	  <<" fabs(tmp-detZ.at(idet))="<<fabs(tmp-detZ.at(idet))<<endl;
       if(fabs(tmp-detZ.at(idet))<9.){ //check if already found [for using with Dipole]
+      // if(fabs(tmp-detZ.at(idet))<0.015){ //check if already found [for using with Dipole] !!! for pixel !!!
         newZ = false;
       }
     }
@@ -208,7 +209,9 @@ bool PndLmdTrackFinderCATask::SortHitsByZ(std::vector< std::vector< std::pair<In
      
       // if( z == detZ.at(idet) ){
       if( fabs(z-detZ.at(idet))<9. ){ //[for using with Dipole]
-        hitsd.at(idet).push_back( make_pair (iHit,false) );
+      //  cout<<" fabs(z-detZ.at(idet) = "<< fabs(z-detZ.at(idet))<<endl;
+      //      if( fabs(z-detZ.at(idet))<0.015 ){ //[for using with Dipole] !!! for pixel !!!
+	hitsd.at(idet).push_back( make_pair (iHit,false) );
 	//	cout<<"detZ.at("<<idet<<")="<<detZ.at(idet)<<" z="<<z<<endl;
       }
     }
@@ -273,8 +276,10 @@ InitStatus PndLmdTrackFinderCATask::Init()
 void PndLmdTrackFinderCATask::Exec(Option_t* opt)
 {
   TStopwatch *timer_exec = new TStopwatch();
-  timer_exec->Start();
-  if(fVerbose>2) cout << "Evt started--------------"<<endl<<endl;
+  if(fVerbose>2){
+    timer_exec->Start();
+    cout << "Evt started--------------"<<endl<<endl;
+  }
   
   // Reset output array
   if ( ! fTrackCandArray )
@@ -722,14 +727,15 @@ void PndLmdTrackFinderCATask::Exec(Option_t* opt)
   if(fVerbose>2){
     Int_t ntcandFin=fTrackCandArray->GetEntriesFast();
     cout<<"Number of Trk-Cands is "<<ntcandFin<<endl;
+    timer_exec->Stop();
+    Double_t rtime_exec = timer_exec->RealTime();
+    Double_t ctime_exec = timer_exec->CpuTime();
+    cout << "Real time for Exec:" << rtime_exec << " s, CPU time " << ctime_exec << " s" << endl;
+    cout << endl;
     cout<< "Evt finsihed--------------"<<endl<<endl;
   }
 
-  timer_exec->Stop();
-  Double_t rtime_exec = timer_exec->RealTime();
-  Double_t ctime_exec = timer_exec->CpuTime();
-  cout << "Real time for Exec:" << rtime_exec << " s, CPU time " << ctime_exec << " s" << endl;
-  cout << endl;
+  
 }
 
 Double_t PndLmdTrackFinderCATask::GetTrackCurvature(PndMCTrack* myTrack)
