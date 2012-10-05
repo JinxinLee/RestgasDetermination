@@ -52,9 +52,16 @@ PndLmdLinFitTask::PndLmdLinFitTask()
 {
   fTCandBranchName = "LMDTrackCand";
   fRecoBranchName = "LMDHitsStrip";
+  //  fRecoBranchName = "LmdHits";
   fTruePointBranch = "LMDPoint";  //True Points only for drawing!
 }
-
+PndLmdLinFitTask::PndLmdLinFitTask(TString tTCandBranchName, TString tRecoBranchName)
+  : FairTask("3D-Straight-Line-Fit")
+{
+  fTCandBranchName = tTCandBranchName;
+  fRecoBranchName = tRecoBranchName;
+  fTruePointBranch = "LMDPoint";  //True Points only for drawing!
+}
 
 PndLmdLinFitTask::~PndLmdLinFitTask()
 {
@@ -348,8 +355,10 @@ double PndLmdLinFitTask::line3Dfit(Int_t nd, TGraph2DErrors* gr, TVector3 posSee
   //  double pStart[6] = {posSeed.X(),l*dirSeed.X(),posSeed.Y(),l*dirSeed.Y(),posSeed.Z(),1.};
   //double pStart[6] = {posSeed.X(),l*dirSeed.X(),posSeed.Y(),l*dirSeed.Y(),posSeed.Z(),l*dirSeed.Z()};
   //  //go out of middle of plane!
-  double pStart[6] = {posSeed.X(),l*dirSeed.X(),posSeed.Y(),l*dirSeed.Y(),posSeed.Z()-0.0085,l*dirSeed.Z()};
-  //  double pStart[6] = {posSeed.X(),l*dirSeed.X(),posSeed.Y(),l*dirSeed.Y(),posSeed.Z()-0.01,l*dirSeed.Z()};//100 mkm!!!
+  double pStart[6] = {posSeed.X(),l*dirSeed.X(),posSeed.Y(),l*dirSeed.Y(),posSeed.Z()-0.0085,l*dirSeed.Z()};//85 mkm!!!
+  //  double pStart[6] = {posSeed.X(),l*dirSeed.X(),posSeed.Y(),l*dirSeed.Y(),posSeed.Z()-0.0075,l*dirSeed.Z()};//75 mkm!!!
+  //double pStart[6] = {posSeed.X(),l*dirSeed.X(),posSeed.Y(),l*dirSeed.Y(),posSeed.Z()-0.01,l*dirSeed.Z()};//100 mkm!!!
+  //  double pStart[6] = {posSeed.X(),l*dirSeed.X(),posSeed.Y(),l*dirSeed.Y(),posSeed.Z(),l*dirSeed.Z()};//75 mkm!!!
   // double Z0 = -0.0075;//fix start of track before 1st lumi plane!
   // double dx = (Z0 - posSeed.Z())*l*dirSeed.X();
   // double dy = (Z0 - posSeed.Z())*l*dirSeed.Y();

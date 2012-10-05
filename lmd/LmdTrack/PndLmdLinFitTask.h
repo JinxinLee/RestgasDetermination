@@ -32,6 +32,7 @@ public:
 
   // Constructors/Destructors ---------
   PndLmdLinFitTask();
+  PndLmdLinFitTask(TString tTCandBranchName, TString tRecoBranchName);
   PndLmdLinFitTask(const PndLmdLinFitTask& o){};
   PndLmdLinFitTask& operator=(const PndLmdLinFitTask& o) { return *this;};
   virtual ~PndLmdLinFitTask();
