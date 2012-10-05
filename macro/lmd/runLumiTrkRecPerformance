@@ -1,0 +1,37 @@
+#!/bin/bash
+################################################################
+## script for running sim&rec for trk reconstruction performance
+## [with strips sensors set-up!]
+## 28/09/2012
+## A.Karavdina
+################################################################
+# sleep 120m
+path=${VMCWORKDIR}/macro/lmd/tmpOut
+mkdir ${path}
+#for numTrks in 1 2 3 4 5 10 15
+for numTrks in 1
+do
+    time root -l -b -q runLumi0SimBox.C\(1000,11.91,"\"${path}\"",0,-2212,${numTrks}\) >> logOLD0_${numTrks}trk
+    time root -l -b -q runLumi1Digi.C\(1000,0,"\"${path}\""\) >> logOLD1_${numTrks}trk
+    time root -l -b -q runLumi2Reco.C\(1000,0,"\"${path}\""\) >> logOLD2_${numTrks}trk
+    time root -l -b -q runLumi3Finder.C\(1000,0,"\"${path}\"",0,"\"CA\"",true\) >> logOLDCA_${numTrks}trk
+    time root -l -b -q runLumi4Fitter.C\(1000,0,"\"${path}\""\) >> logOLD4_${numTrks}trk
+    time root -l -b -q runLumi5Geane.C\(1000,11.91,0,"\"${path}\""\) >> logOLD5_${numTrks}trk
+cd ${VMCWORKDIR}/build/bin
+./rec_mc_match -s 0 -n 1000 -t ${numTrks} -mom 11.91 -npx 0 -path ${path}
+cd ${VMCWORKDIR}/macro/lmd
+mv ${path}/Lumi_out_MC_and_REC_trks_matches_with_IDs0.root  ${path}/Lumi_out_MC_and_REC_trks_matches_with_IDs0_CA_new_1000_1trk_11_91GeV.root
+
+time root -l -b -q runLumi3Finder.C\(1000,0,"\"${path}\"",0,"\"Follow\"",true\)  >> logOLDFollow_${numTrks}trk
+time root -l -b -q runLumi4Fitter.C\(1000,0,"\"${path}\""\)
+time root -l -b -q runLumi5Geane.C\(1000,11.91,0,"\"${path}\""\)
+cd ${VMCWORKDIR}/build/bin
+./rec_mc_match -s 0 -n 1000 -t ${numTrks} -mom 11.91 -npx 0 -path ${path}
+cd ${VMCWORKDIR}/macro/lmd
+mv ${path}/Lumi_out_MC_and_REC_trks_matches_with_IDs0.root ${path}/Lumi_out_MC_and_REC_trks_matches_with_IDs0_Follow_new_1000_1trk_11_91GeV.root
+done
+
+mkdir /myResults/LUMI_Trk/newCA_oldDesign/1000events
+mv ${path}/Lumi_out_MC_and_REC_trks_matches_with_IDs0_* /myResults/LUMI_Trk/newCA_oldDesign/1000events/.
+mv logOLD*  /myResults/LUMI_Trk/newCA_oldDesign/1000events/.
+exit
