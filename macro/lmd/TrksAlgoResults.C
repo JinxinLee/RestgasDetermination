@@ -14,20 +14,45 @@
 using namespace std;
 void TrksAlgoResults(TString storePath="/myResults/LUMI_Trk/newCA_oldDesign/100000events")
 {
-  double Ntrks[8]={1,2,3,4,5,10,15,20};
+  // double Ntrks[8]={1,2,3,4,5,10,15,20};
+  double Ntrks[7]={1,2,3,4,5,10,15};
+  double eNtrks[7]={0,0,0,0,0,0,0};
   //Track-Follow
-  double reconstF[8];//number of reconstructed tracks
-  double ghostF[8]; //percent of ghost tracks
-  double missedF[8]; //percent of missed tracks
-  double timeF[8]={4.87,5.51,6.22,6.93,7.73,12.83,21.58,36.61};//time spent per 1 trk reconstruction , ms
+  double reconstF[7];//number of reconstructed tracks
+  double ghostF_I[7]; //percent of ghost tracks
+  double missedF_I[7]; //percent of missed tracks
+ double ghostF_II[7]; //percent of ghost tracks
+  double missedF_II[7]; //percent of missed tracks
 
+  double ghostF_I_mean[7]; //average of ghost tracks
+  double missedF_I_mean[7]; //average of missed tracks
+  double ghostF_II_mean[7]; //average of ghost tracks
+  double missedF_II_mean[7]; //average of missed tracks
+  double ghostF_I_rms[7]; //rms average of ghost tracks
+  double missedF_I_rms[7]; //rms average of missed tracks
+  double ghostF_II_rms[7]; //rms average of ghost tracks
+  double missedF_II_rms[7]; //rms average of missed tracks
+
+
+  double timeF[7]={25.3,32.28,41.28,52.47,68.69,334.81,1611.94};//time spent per 1 trk reconstruction , ms
   //Cellular Automaton
-  double reconstCA[8];//number of reconstructed tracks
-  double ghostCA[8]; //percent of ghost tracks
-  double missedCA[8]; //percent of missed tracks
-  double timeCA[8]={4.96,5.64,6.52,7.48,8.72,18.2,37.44,74.65};//time spent per 1 trk reconstruction , ms
- 
-  for(int iNtrk=0;iNtrk<8;iNtrk++){
+  double reconstCA[7];//number of reconstructed tracks
+  double ghostCA_I[7]; //percent of ghost tracks
+  double missedCA_I[7]; //percent of missed tracks
+  double ghostCA_II[7]; //percent of ghost tracks
+  double missedCA_II[7]; //percent of missed tracks
+
+  double ghostCA_I_mean[7]; //average of ghost tracks
+  double missedCA_I_mean[7]; //average of missed tracks
+  double ghostCA_II_mean[7]; //average of ghost tracks
+  double missedCA_II_mean[7]; //average of missed tracks
+  double ghostCA_I_rms[7]; //rms average of ghost tracks
+  double missedCA_I_rms[7]; //rms average of missed tracks
+  double ghostCA_II_rms[7]; //rms average of ghost tracks
+  double missedCA_II_rms[7]; //rms average of missed tracks
+
+  double timeCA[7]={25.99,33.26,41.63,51.25,63.08,155.27,343.77};//time spent per 1 trk reconstruction , ms
+  for(int iNtrk=0;iNtrk<7;iNtrk++){
     TString fileCAname=storePath+"/Lumi_out_MC_and_REC_trks_matches_with_IDs0";
     fileCAname+="_CA";
     TString fileFname=storePath+"/Lumi_out_MC_and_REC_trks_matches_with_IDs0";
@@ -48,52 +73,96 @@ void TrksAlgoResults(TString storePath="/myResults/LUMI_Trk/newCA_oldDesign/1000
     int nrecF = hResThetaF->GetEntries();
     reconstF[iNtrk]=nrecF;
 
-    TH1F* hntrkmissedCA = (TH1F*)fileCA->Get("hntrkmissed");
-    int nmissCA = hntrkmissedCA->GetEntries();
-    int nmissCA_under = hntrkmissedCA->GetBinContent(0);
-    nmissCA-=nmissCA_under;
+    //missed\ghost from definition I: compare dPhi & dTheta for MC and REC trks
+    TH1F* hntrkmissedCA_I = (TH1F*)fileCA->Get("hntrkmissed_I");
+    int nmissCA_I = hntrkmissedCA_I->GetEntries();
+    int nmissCA_I_under = hntrkmissedCA_I->GetBinContent(0);
+    nmissCA_I-=nmissCA_I_under;
+    missedCA_I_mean[iNtrk] = hntrkmissedCA_I->GetMean();
+    missedCA_I_rms[iNtrk] = hntrkmissedCA_I->GetMeanError();
   
-    TH1F* hntrkmissedF = (TH1F*)fileF->Get("hntrkmissed");
-    int nmissF = hntrkmissedF->GetEntries();
-    int nmissF_under = hntrkmissedF->GetBinContent(0);
-    nmissF-=nmissF_under;
-  
+    TH1F* hntrkmissedF_I = (TH1F*)fileF->Get("hntrkmissed_I");
+    int nmissF_I = hntrkmissedF_I->GetEntries();
+    int nmissF_I_under = hntrkmissedF_I->GetBinContent(0);
+    nmissF_I-=nmissF_I_under;
+    missedF_I_mean[iNtrk] = hntrkmissedF_I->GetMean();
+    missedF_I_rms[iNtrk] = hntrkmissedF_I->GetMeanError();
+
+    TH1F* hntrkghostCA_I = (TH1F*)fileCA->Get("hntrkghost_I");
+    int nghostCA_I = hntrkghostCA_I->GetEntries();
+    int nghostCA_I_under = hntrkghostCA_I->GetBinContent(0);
+    nghostCA_I-=nghostCA_I_under;
+    ghostCA_I_mean[iNtrk] = hntrkghostCA_I->GetMean();
+    ghostCA_I_rms[iNtrk] = hntrkghostCA_I->GetMeanError();
+
+    TH1F* hntrkghostF_I = (TH1F*)fileF->Get("hntrkghost_I");
+    int nghostF_I = hntrkghostF_I->GetEntries();
+    int nghostF_I_under = hntrkghostF_I->GetBinContent(0);
+    nghostF_I-=nghostF_I_under;
+    ghostF_I_mean[iNtrk] = hntrkghostF_I->GetMean();
+    ghostF_I_rms[iNtrk] = hntrkghostF_I->GetMeanError();
+
+    //missed\ghost from definition II: based on hits info
+    TH1F* hntrkmissedCA_II = (TH1F*)fileCA->Get("hntrkmissed_II");
+    int nmissCA_II = hntrkmissedCA_II->GetEntries();
+    int nmissCA_II_under = hntrkmissedCA_II->GetBinContent(0);
+    nmissCA_II-=nmissCA_II_under;
+    missedCA_II_mean[iNtrk] = hntrkmissedCA_II->GetMean();
+    missedCA_II_rms[iNtrk] = hntrkmissedCA_II->GetMeanError();  
+
+    TH1F* hntrkmissedF_II = (TH1F*)fileF->Get("hntrkmissed_II");
+    int nmissF_II = hntrkmissedF_II->GetEntries();
+    int nmissF_II_under = hntrkmissedF_II->GetBinContent(0);
+    nmissF_II-=nmissF_II_under;
+    missedF_II_mean[iNtrk] = hntrkmissedF_II->GetMean();
+    missedF_II_rms[iNtrk] = hntrkmissedF_II->GetMeanError();
+
+    TH1F* hntrkghostCA_II = (TH1F*)fileCA->Get("hntrkghost_II");
+    int nghostCA_II = hntrkghostCA_II->GetEntries();
+    int nghostCA_II_under = hntrkghostCA_II->GetBinContent(0);
+    nghostCA_II-=nghostCA_II_under;
+    ghostCA_II_mean[iNtrk] = hntrkghostCA_II->GetMean();
+    ghostCA_II_rms[iNtrk] = hntrkghostCA_II->GetMeanError();
+
+    TH1F* hntrkghostF_II = (TH1F*)fileF->Get("hntrkghost_II");
+    int nghostF_II = hntrkghostF_II->GetEntries();
+    int nghostF_II_under = hntrkghostF_II->GetBinContent(0);
+    nghostF_II-=nghostF_II_under;
+    ghostF_II_mean[iNtrk] = hntrkghostF_I->GetMean();
+    ghostF_II_rms[iNtrk] = hntrkghostF_I->GetMeanError();
 
     TH2F* hnRecnMCCA = (TH2F*)fileCA->Get("hnRecnMC");
     TH1D* hnRecnMCCA_rec = hnRecnMCCA->ProjectionY();
-    int nsimTrk = Ntrks[iNtrk]*(hnRecnMCCA_rec->GetEntries()); 
-    int nbinghost = hnRecnMCCA_rec->GetNbinsX();//should be equal for CA&F
-    int nghostCA=0;
-    for(int ibg=Ntrks[iNtrk]+2;ibg<nbinghost;ibg++)
-      nghostCA += (ibg-Ntrks[iNtrk])*hnRecnMCCA_rec->GetBinContent(ibg);
-        
-    int nghostF=0;
-    TH2F* hnRecnMCF = (TH2F*)fileF->Get("hnRecnMC");
-    TH1D* hnRecnMCF_rec = hnRecnMCF->ProjectionY();
-    for(int ibg=Ntrks[iNtrk]+2;ibg<nbinghost;ibg++)
-      nghostF += (ibg-Ntrks[iNtrk])*hnRecnMCF_rec->GetBinContent(ibg);
-
-    ghostCA[iNtrk]=100*double(nghostCA)/nsimTrk;
-    missedCA[iNtrk]=100*double(nmissCA)/nsimTrk;
-    ghostF[iNtrk]=100*double(nghostF)/nsimTrk;
-    missedF[iNtrk]=100*double(nmissF)/nsimTrk;
-    timeCA[iNtrk]=1000*double(timeCA[iNtrk])/nrecCA;
-    timeF[iNtrk]=1000*double(timeF[iNtrk])/nrecF;
+    int nsimTrk = (hnRecnMCCA_rec->GetEntries()); 
+   
+    ghostCA_I[iNtrk]=100*double(nghostCA_I*ghostCA_I_mean[iNtrk])/(nsimTrk*Ntrks[iNtrk]);
+    missedCA_I[iNtrk]=100*double(nmissCA_I*missedCA_I_mean[iNtrk])/(nsimTrk*Ntrks[iNtrk]);
+    ghostF_I[iNtrk]=100*double(nghostF_I*ghostF_I_mean[iNtrk])/(nsimTrk*Ntrks[iNtrk]);
+    missedF_I[iNtrk]=100*double(nmissF_I*missedF_I_mean[iNtrk])/(nsimTrk*Ntrks[iNtrk]);
+    ghostCA_II[iNtrk]=100*double(nghostCA_II*ghostCA_II_mean[iNtrk])/(nsimTrk*Ntrks[iNtrk]);
+    missedCA_II[iNtrk]=100*double(nmissCA_II*missedCA_II_mean[iNtrk])/(nsimTrk*Ntrks[iNtrk]);
+    ghostF_II[iNtrk]=100*double(nghostF_II*ghostF_II_mean[iNtrk])/(nsimTrk*Ntrks[iNtrk]);
+    missedF_II[iNtrk]=100*double(nmissF_II*missedF_II_mean[iNtrk])/(nsimTrk*Ntrks[iNtrk]);
+    timeCA[iNtrk]=1000*double(timeCA[iNtrk])/reconstCA[iNtrk];
+    timeF[iNtrk]=1000*double(timeF[iNtrk])/reconstF[iNtrk];
     cout<<"nsimTrk = "<<nsimTrk<<" nrecF = "<<nrecF<<" nrecCA = "<<nrecCA<<endl;
-    cout<<" nmissF = "<<nmissF<<" nmissCA = "<<nmissCA<<endl;
-    cout<<" nghostF = "<<nghostF<<" nghostCA = "<<nghostCA<<endl;
+    cout<<"(I:based on phi&theta diff between MC and REC), (II:based on hit info)"<<endl;
+    cout<<" nmissF_I = "<<nmissF_I<<" nmissCA_I = "<<nmissCA_I<<endl;
+    cout<<" nmissF_II = "<<nmissF_II<<" nmissCA_II = "<<nmissCA_II<<endl;
+    cout<<" nghostF_I = "<<nghostF_I<<" nghostCA_I = "<<nghostCA_I<<endl;
+    cout<<" nghostF_II = "<<nghostF_II<<" nghostCA_II = "<<nghostCA_II<<endl;
     cout<<" timeF = "<<timeF[iNtrk]<<" timeCA = "<<timeCA[iNtrk]<<endl;
     cout<<"***************************************"<<endl;
     cout<<" "<<endl;
 
 
   }
-  TGraph *grSpeedCA = new TGraph(8,Ntrks,timeCA);
+  TGraph *grSpeedCA = new TGraph(7,Ntrks,timeCA);
   grSpeedCA->SetMarkerStyle(20);
   grSpeedCA->SetMarkerColor(2);
   grSpeedCA->SetMarkerSize(1.5);
-  TGraph *grSpeedF = new TGraph(8,Ntrks,timeF);
-  grSpeedF->SetMarkerStyle(21);
+  TGraph *grSpeedF = new TGraph(7,Ntrks,timeF);
+  grSpeedF->SetMarkerStyle(20);
   grSpeedF->SetMarkerColor(4);
   grSpeedF->SetMarkerSize(1.5);
   TMultiGraph *mgSpeed = new TMultiGraph("mgSpeed","Speed;N^{trk}_{MC};time per trk, ms");
@@ -101,60 +170,134 @@ void TrksAlgoResults(TString storePath="/myResults/LUMI_Trk/newCA_oldDesign/1000
   mgSpeed->Add(grSpeedF);
  
 
-  TGraph *grRecCA = new TGraph(8,Ntrks,reconstCA);
+  TGraph *grRecCA = new TGraph(7,Ntrks,reconstCA);
   grRecCA->SetMarkerStyle(20);
   grRecCA->SetMarkerColor(2);
   grRecCA->SetMarkerSize(1.5);
-  TGraph *grRecF = new TGraph(8,Ntrks,reconstF);
-  grRecF->SetMarkerStyle(21);
+  TGraph *grRecF = new TGraph(7,Ntrks,reconstF);
+  grRecF->SetMarkerStyle(20);
   grRecF->SetMarkerColor(4);
   grRecF->SetMarkerSize(1.5);
   TMultiGraph *mgTotRec = new TMultiGraph("mgRecTrks","RecTrks;N^{trk}_{MC};N^{trk}_{Rec}");
   mgTotRec->Add(grRecCA);
   mgTotRec->Add(grRecF);
 
-  TGraph *grMissCA = new TGraph(8,Ntrks,missedCA);
-  grMissCA->SetMarkerStyle(20);
-  grMissCA->SetMarkerColor(2);
-  grMissCA->SetMarkerSize(1.5);
-  TGraph *grMissF = new TGraph(8,Ntrks,missedF);
-  grMissF->SetMarkerStyle(21);
-  grMissF->SetMarkerColor(4);
-  grMissF->SetMarkerSize(1.5);
+  TGraph *grMissCA_I = new TGraph(7,Ntrks,missedCA_I);
+  grMissCA_I->SetMarkerStyle(20);
+  grMissCA_I->SetMarkerColor(2);
+  grMissCA_I->SetMarkerSize(1.5);
+  TGraph *grMissF_I = new TGraph(7,Ntrks,missedF_I);
+  grMissF_I->SetMarkerStyle(20);
+  grMissF_I->SetMarkerColor(4);
+  grMissF_I->SetMarkerSize(1.5);
+  TGraph *grMissCA_II = new TGraph(7,Ntrks,missedCA_II);
+  grMissCA_II->SetMarkerStyle(21);
+  grMissCA_II->SetMarkerColor(2);
+  grMissCA_II->SetMarkerSize(1.5);
+  TGraph *grMissF_II = new TGraph(7,Ntrks,missedF_II);
+  grMissF_II->SetMarkerStyle(21);
+  grMissF_II->SetMarkerColor(4);
+  grMissF_II->SetMarkerSize(1.5);
   TMultiGraph *mgMissed = new TMultiGraph("mgMissed","Missed;N^{trk}_{MC};missed trks, %");
-  mgMissed->Add(grMissCA);
-  mgMissed->Add(grMissF);
+  mgMissed->Add(grMissCA_I);
+  mgMissed->Add(grMissF_I);
+  mgMissed->Add(grMissCA_II);
+  mgMissed->Add(grMissF_II);
+ 
 
-  TGraph *grGhostCA = new TGraph(8,Ntrks,ghostCA);
-  grGhostCA->SetMarkerStyle(20);
-  grGhostCA->SetMarkerColor(2);
-  grGhostCA->SetMarkerSize(1.5);
-  TGraph *grGhostF = new TGraph(8,Ntrks,ghostF);
-  grGhostF->SetMarkerStyle(21);
-  grGhostF->SetMarkerColor(4);
-  grGhostF->SetMarkerSize(1.5);
+  TGraph *grGhostCA_I = new TGraph(7,Ntrks,ghostCA_I);
+  grGhostCA_I->SetMarkerStyle(20);
+  grGhostCA_I->SetMarkerColor(2);
+  grGhostCA_I->SetMarkerSize(1.5);
+  TGraph *grGhostF_I = new TGraph(7,Ntrks,ghostF_I);
+  grGhostF_I->SetMarkerStyle(20);
+  grGhostF_I->SetMarkerColor(4);
+  grGhostF_I->SetMarkerSize(1.5);
+  TGraph *grGhostCA_II = new TGraph(7,Ntrks,ghostCA_II);
+  grGhostCA_II->SetMarkerStyle(21);
+  grGhostCA_II->SetMarkerColor(2);
+  grGhostCA_II->SetMarkerSize(1.5);
+  TGraph *grGhostF_II = new TGraph(7,Ntrks,ghostF_II);
+  grGhostF_II->SetMarkerStyle(21);
+  grGhostF_II->SetMarkerColor(4);
+  grGhostF_II->SetMarkerSize(1.5);
   TMultiGraph *mgGhost = new TMultiGraph("mgGhost","Ghost;N^{trk}_{MC};ghost trks, %");
-  mgGhost->Add(grGhostCA);
-  mgGhost->Add(grGhostF);
-  
+  mgGhost->Add(grGhostCA_I);
+  mgGhost->Add(grGhostF_I);
+  mgGhost->Add(grGhostCA_II);
+  mgGhost->Add(grGhostF_II);
+
+
+  TGraphErrors *grMissCA_value_I = new TGraphErrors(7,Ntrks,missedCA_I_mean,eNtrks,missedCA_I_rms);
+  grMissCA_value_I->SetMarkerStyle(20);
+  grMissCA_value_I->SetMarkerColor(2);
+  grMissCA_value_I->SetMarkerSize(1.5);
+  TGraphErrors *grMissCA_value_II = new TGraphErrors(7,Ntrks,missedCA_II_mean,eNtrks,missedCA_II_rms);
+  grMissCA_value_II->SetMarkerStyle(21);
+  grMissCA_value_II->SetMarkerColor(2);
+  grMissCA_value_II->SetMarkerSize(1.5);
+  TGraphErrors *grGhostCA_value_I = new TGraphErrors(7,Ntrks,ghostCA_I_mean,eNtrks,ghostCA_I_rms);
+  grGhostCA_value_I->SetMarkerStyle(20);
+  grGhostCA_value_I->SetMarkerColor(2);
+  grGhostCA_value_I->SetMarkerSize(1.5);
+  TGraphErrors *grGhostCA_value_II = new TGraphErrors(7,Ntrks,ghostCA_II_mean,eNtrks,ghostCA_II_rms);
+  grGhostCA_value_II->SetMarkerStyle(21);
+  grGhostCA_value_II->SetMarkerColor(2);
+  grGhostCA_value_II->SetMarkerSize(1.5);
+
+  TGraphErrors *grMissF_value_I = new TGraphErrors(7,Ntrks,missedF_I_mean,eNtrks,missedF_I_rms);
+  grMissF_value_I->SetMarkerStyle(20);
+  grMissF_value_I->SetMarkerColor(4);
+  grMissF_value_I->SetMarkerSize(1.5);
+  TGraphErrors *grMissF_value_II = new TGraphErrors(7,Ntrks,missedF_II_mean,eNtrks,missedF_II_rms);
+  grMissF_value_II->SetMarkerStyle(21);
+  grMissF_value_II->SetMarkerColor(4);
+  grMissF_value_II->SetMarkerSize(1.5);
+  TGraphErrors *grGhostF_value_I = new TGraphErrors(7,Ntrks,ghostF_I_mean,eNtrks,ghostF_I_rms);
+  grGhostF_value_I->SetMarkerStyle(20);
+  grGhostF_value_I->SetMarkerColor(4);
+  grGhostF_value_I->SetMarkerSize(1.5);
+  TGraphErrors *grGhostF_value_II = new TGraphErrors(7,Ntrks,ghostF_II_mean,eNtrks,ghostF_II_rms);
+  grGhostF_value_II->SetMarkerStyle(21);
+  grGhostF_value_II->SetMarkerColor(4);
+  grGhostF_value_II->SetMarkerSize(1.5);
+
+  TMultiGraph *mgMissedMean = new TMultiGraph("mgMissedMean","Missed;N^{trk}_{MC};average number of missed trks");
+  mgMissedMean->Add(grMissCA_value_I);
+  mgMissedMean->Add(grMissCA_value_II);
+  mgMissedMean->Add(grMissF_value_I);
+  mgMissedMean->Add(grMissF_value_II);
+
+  TMultiGraph *mgGhostMean = new TMultiGraph("mgGhostMean","Ghost;N^{trk}_{MC};average number of ghost trks");
+  mgGhostMean->Add(grGhostCA_value_I);
+  mgGhostMean->Add(grGhostCA_value_II);
+  mgGhostMean->Add(grGhostF_value_I);
+  mgGhostMean->Add(grGhostF_value_II);
+
   TString fileOUTname=storePath+"/TrksAlgoResults.root";
   TString fileOUTnamepdf=storePath+"/TrksAlgoResults.pdf";
   TFile *fileOUT = new TFile(fileOUTname,"RECREATE");
   TCanvas *c1 = new TCanvas("Overview");
-  c1->Divide(2,2);
+  c1->Divide(3,2);
   c1->cd(1);
   mgSpeed->Draw("APL");
-  c1->cd(2);
+  c1->cd(4);
   mgTotRec->Draw("APL");
   c1->cd(3);
   mgMissed->Draw("APL");
-  c1->cd(4);
+  c1->cd(6);
   mgGhost->Draw("APL");
+  c1->cd(2);
+  mgMissedMean->Draw("APL");
+  c1->cd(5);
+  mgGhostMean->Draw("APL");
   c1->Write();
   mgSpeed->Write();
   mgTotRec->Write();
   mgMissed->Write();
   mgGhost->Write();
+  mgMissedMean->Write();
+  mgGhostMean->Write();
   fileOUT->Close();
   c1->SaveAs(fileOUTnamepdf);
 }
