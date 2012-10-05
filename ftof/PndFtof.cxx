@@ -52,8 +52,11 @@ using std::endl;
 using std::ostringstream;
 
 // -----   Default constructor   -------------------------------------------
-PndFtof::PndFtof() {
+PndFtof::PndFtof()
+  : FairDetector(), fFtofCollection(0)
+{
   fFtofCollection        = new TClonesArray("PndFtofPoint");
+  fVerboseLevel = 0;
  
   fListOfSensitives.push_back("Ftof_Central_Strip");//Root_Test.root
   fListOfSensitives.push_back("Ftof_Beam_Strip");//Root_Test.root
@@ -63,13 +66,14 @@ PndFtof::PndFtof() {
 
 // -----   Standard constructor   ------------------------------------------
 PndFtof::PndFtof(const char* name, Bool_t active)
-  : FairDetector(name, active) {
+  : FairDetector(name, active), fFtofCollection(0)
+{
     fFtofCollection        = new TClonesArray("PndFtofPoint");
+    fVerboseLevel = 0;
 
     fListOfSensitives.push_back("Ftof_Central_Strip");//Root_Test.root
     fListOfSensitives.push_back("Ftof_Beam_Strip");//Root_Test.root
     fListOfSensitives.push_back("Ftof_Vertical_Strip");//Root_Test.root
- 
 }
 // -------------------------------------------------------------------------
 
@@ -102,10 +106,10 @@ void PndFtof::Initialize() {
   par->setInputVersion(sim->GetRunId(),1);
 
   //TObjArray *fSensNodes = par->GetGeoSensitiveNodes();
-  std::cout<<" -I- Initializing PndFtofDetector()"<<std::endl;
+  std::cout<<" -I- Initializing PndFtof()"<<std::endl;
   
   if(0==gGeoManager) {
-    std::cout<<" -E- No gGeoManager in PndFtofDetector::Initialize()!"<<std::endl;
+    std::cout<<" -E- No gGeoManager in PndFtof::Initialize()!"<<std::endl;
     abort();
   }
  
@@ -232,7 +236,6 @@ Bool_t PndFtof::ProcessHits(FairVolume* vol)
 // -----   Public method EndOfEvent   -----------------------------------------
 void PndFtof::EndOfEvent() {
   if (fVerboseLevel)  Print();
-  Print();
   
   Reset();
 }

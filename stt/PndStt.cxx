@@ -44,10 +44,9 @@ PndStt::PndStt()
 : fTrackID(0), fVolumeID(0), fPos(0,0,0,0), fPosIn(0,0,0,0), fPosOut(0,0,0,0), fPosInLocal(0,0,0,0), fPosOutLocal(0,0,0,0),
     fMomIn(0,0,0,0), fMomOut(0,0,0,0), fTime(0), fLength(0), fELoss(0), fMass(0), fIsInitialized(kFALSE), fPosIndex(0),
     fSttCollection(0), fpostot(0,0,0,0), fpostotin(0,0,0,0), fpostotout(0,0,0,0), fPassNodes(new TObjArray()), fGeoType(0), fInFlag(0)
- 
 {
     fSttCollection = new TClonesArray("PndSttPoint");
-    fVerboseLevel = 1;
+    fVerboseLevel = 0;
 }
 // -------------------------------------------------------------------------
 
@@ -61,7 +60,7 @@ PndStt::PndStt(const char* name, Bool_t active)
     fSttCollection(0), fpostot(0,0,0,0), fpostotin(0,0,0,0), fpostotout(0,0,0,0), fPassNodes(new TObjArray()), fGeoType(0), fInFlag(0)
 {
     fSttCollection = new TClonesArray("PndSttPoint");
-    fVerboseLevel = 1;
+    fVerboseLevel = 0;
 }
 // -------------------------------------------------------------------------
 

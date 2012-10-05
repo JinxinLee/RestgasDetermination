@@ -52,26 +52,24 @@ using std::endl;
 using std::ostringstream;
 
 // -----   Default constructor   -------------------------------------------
-PndSciT::PndSciT() {
+PndSciT::PndSciT()
+ : FairDetector(), fSciTCollection(0), fVolumeID(-1), pvId(0)
+ {
   fSciTCollection        = new TClonesArray("PndSciTPoint");
-  fVolumeID = -1;
-  pvId=0;
+  fVerboseLevel = 0;
   
   fListOfSensitives.push_back("SciTil");//Root_Test.root
-  
 }
 // -------------------------------------------------------------------------
 
 // -----   Standard constructor   ------------------------------------------
 PndSciT::PndSciT(const char* name, Bool_t active)
-  : FairDetector(name, active) {
+  : FairDetector(name, active), fSciTCollection(0), fVolumeID(-1), pvId(0)
+{
     fSciTCollection        = new TClonesArray("PndSciTPoint");
-    fVolumeID = -1;
-    pvId=0;
+    fVerboseLevel = 0;
 
     fListOfSensitives.push_back("SciTil");//Root_Test.root
-    
- 
 }
 // -------------------------------------------------------------------------
 
@@ -106,10 +104,10 @@ void PndSciT::Initialize() {
   TGeoMedium *pv= gGeoManager->GetMedium("polyvinyltoluene");
   pvId=  pv->GetId();
   
-  std::cout<<" -I- Initializing PndSciTDetector()"<<std::endl;
+  std::cout<<" -I- Initializing PndSciT()"<<std::endl;
   
   if(0==gGeoManager) {
-    std::cout<<" -E- No gGeoManager in PndSciTDetector::Initialize()!"<<std::endl;
+    std::cout<<" -E- No gGeoManager in PndSciT::Initialize()!"<<std::endl;
     abort();
   }
   
@@ -218,7 +216,6 @@ Bool_t PndSciT::ProcessHits(FairVolume* vol)
 // -----   Public method EndOfEvent   -----------------------------------------
 void PndSciT::EndOfEvent() {
   if (fVerboseLevel)  Print();
-  Print();
   
   Reset();
 }

@@ -44,8 +44,7 @@ PndFts::PndFts()
     fFtsCollection(0), fpostot(0,0,0,0), fpostotin(0,0,0,0), fpostotout(0,0,0,0), fPassNodes(new TObjArray()), valid(kFALSE), fGeoType(0)
 {
     fFtsCollection = new TClonesArray("PndFtsPoint");
-    fPosIndex = 0;
-    fVerboseLevel = 1;
+    fVerboseLevel = 0;
 }
 // -------------------------------------------------------------------------
 
@@ -58,8 +57,7 @@ PndFts::PndFts(const char* name, Bool_t active)
     fFtsCollection(0), fpostot(0,0,0,0), fpostotin(0,0,0,0), fpostotout(0,0,0,0), fPassNodes(new TObjArray()), valid(kFALSE), fGeoType(0)
 {
   fFtsCollection = new TClonesArray("PndFtsPoint");
-  fPosIndex = 0;
-  fVerboseLevel = 1;
+  fVerboseLevel = 0;
 }
 // -------------------------------------------------------------------------
 
@@ -402,7 +400,7 @@ void PndFts::CopyClones(TClonesArray* cl1, TClonesArray* cl2, Int_t offset)
 // -------------------------------------------------------------------------
 
 void PndFts::Initialize(){
-  cout << "-I----------------- PndFts:Initialize()---------------------- " <<endl;
+  cout << " -I- Initializing PndFts()" <<endl;
   FairDetector::Initialize();
  
 }
