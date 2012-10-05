@@ -82,7 +82,9 @@ int main(int argc, char *argv[])
   //---------------------------------------------------------
 
   
-  int ioption = 1; // 1=cherenkov, 2=testbeam
+  //int ioption = 1; // 1=cherenkov
+  int ioption = 2; // angular frames
+  // else=testbeam
 
   int verbosity = 0;
   
@@ -114,18 +116,18 @@ int main(int argc, char *argv[])
 
   // 8 points define a sheet
 
-  XYZPoint p1(-half_width, +half_thick, half_length);    //         p5----------p8
+  XYZPoint p1(-half_width, +half_thick, half_length);    //         p1----------p4
   XYZPoint p2(-half_width, -half_thick, half_length);    //        /|          /|
   XYZPoint p3(+half_width, -half_thick, half_length);    //       / |         / |
-  XYZPoint p4(+half_width, +half_thick, half_length);    //      /  p6-------/--p7
+  XYZPoint p4(+half_width, +half_thick, half_length);    //      /  p2-------/--p3
   //                                                            /  /        /  /
   //                                                           /  /        /  /
   //                                                          /  /        /  /
   //                                                         /  /        /  /
-  XYZPoint p5(-half_width, +half_thick, -half_length);  // p1---------p4  /
+  XYZPoint p5(-half_width, +half_thick, -half_length);  // p5---------p8  /
   XYZPoint p6(-half_width, -half_thick, -half_length);  // | /         | /
   XYZPoint p7(+half_width, -half_thick, -half_length);  // |/          |/
-  XYZPoint p8(+half_width, +half_thick, -half_length);  // p2---------p3 
+  XYZPoint p8(+half_width, +half_thick, -half_length);  // p6---------p7 
 
 
   // How to produce surfaces by shift and rotate operation is for sake of clearness
@@ -134,6 +136,7 @@ int main(int argc, char *argv[])
   PndDrcOptReflPerfect refl;
 
   // Declare flat surfaces with arbitrary number of points.
+
   PndDrcSurfPolyFlatFocus a1;
   PndDrcSurfPolyFlat a2,a3,a4,a5,a6;
 
@@ -143,7 +146,8 @@ int main(int argc, char *argv[])
   a1.AddPoint(p2);
   a1.AddPoint(p3);
   a1.AddPoint(p4);
-  a1.SetFocalPoint(XYZPoint(0,0,-half_length-300)); // before trafo
+  //a1.SetFocalPoint(XYZPoint(0,0,-half_length-300)); // before trafo
+  a1.SetFocalPoint(XYZPoint(0,0,-half_length-5)); // before trafo
   a1.SetName("adown");
 
   a2.SetVerbosity(verbosity);
@@ -179,7 +183,6 @@ int main(int argc, char *argv[])
   a6.AddPoint(p7);
   a6.AddPoint(p6);
   a6.AddPoint(p5);
-  a6.SetPixel();      // this acts as a screen
   a6.SetPrintColor(2);
   a6.SetName("aup");
 
@@ -260,9 +263,56 @@ int main(int argc, char *argv[])
   double   beta = 0.80;//0.684;
   bool photons_exist = false;
   
+  list<PndDrcPhoton> list_photon;  
+
   if (ioption==1)
     {
-      photons_exist = manager->Cerenkov(pos,dir,beta,100000); // generate photons
+      photons_exist = manager->Cerenkov(pos,dir,beta,1000000,1.e16,440,450); // generate photons
+
+
+      list_photon = manager->PhotonList();  // get list
+      list<PndDrcPhoton>::iterator iph;
+      for(iph=list_photon.begin(); iph != list_photon.end(); ++iph) 
+	{
+	  (*iph).SetPrintFlag(false);
+	}
+      manager->SetPhotonList(list_photon,"sheet");
+    }
+  if (ioption==2)  
+    {
+      for (double xx=-80; xx<=80; xx+=5)
+	{
+	  for (double yy=-8; yy<=8; yy+=2)
+	    {
+	      PndDrcPhoton ph;
+	      
+	      //double xx=0;
+	      //double yy=0;
+	      ph.SetPosition(XYZPoint(xx,yy,1225));
+	      ph.SetDirection(XYZVector(0,0,+1));
+	      ph.SetWavelength(650);
+	      list_photon.push_back(ph);
+	      
+	      double angle = kPi/180.0 * 20.0;
+	      ph.SetDirection(XYZVector(0,sin(+angle),+cos(+angle)));
+	      ph.SetWavelength(521);
+	      list_photon.push_back(ph);
+	      ph.SetDirection(XYZVector(0,sin(-angle),+cos(-angle)));
+	      ph.SetWavelength(521);
+	      list_photon.push_back(ph);
+	     
+	      angle = kPi/180.0 * 40.0;
+	      ph.SetDirection(XYZVector(0,sin(+angle),+cos(+angle)));
+	      ph.SetWavelength(451);
+	      list_photon.push_back(ph);
+	      ph.SetDirection(XYZVector(0,sin(-angle),+cos(-angle)));
+	      ph.SetWavelength(451);
+	      list_photon.push_back(ph);
+	      
+	    }
+	}
+      photons_exist = true;
+      manager->SetPhotonList(list_photon,"sheet");
     }
   else
     {
@@ -310,7 +360,7 @@ int main(int argc, char *argv[])
   scr.open("Screen.C",std::ios::out);
   scr<<"{"<<endl;
   scr<<"    TCanvas *c1 = new TCanvas(\"c1\"); "<<endl;
-      scr<<"    TH1F *hgr = new TH1F(\"hgr\",\"test_simple_lens_sheet y vs x\""
+      scr<<"    TH1F *hgr = new TH1F(\"hgr\",\"test_simple_mirror_sheet y vs x\""
 	 <<",500,-500,500);"<<endl;
   scr<<"    hgr->SetStats(0);"<<endl;
   scr<<"    hgr->SetMarkerStyle(20);"<<endl;
@@ -323,7 +373,7 @@ int main(int argc, char *argv[])
 
   // analyse list
 
-  list<PndDrcPhoton> list_photon = manager->PhotonList();  // get list
+  list_photon = manager->PhotonList();  // get list
 
   //fstream out;
   //out.open("debug.dat",std::ios::out);
@@ -343,12 +393,39 @@ int main(int argc, char *argv[])
 	  icnt_measured++;
 	  double xx=(*iph).Position().X();
 	  double yy=(*iph).Position().Y();
-	  scr<<"    TMarker* t = new TMarker("<<xx<<","<<yy<<",20);"<<endl;
-	  scr<<"    t->SetMarkerColor("
-		<<(*iph).ColorNumber((*iph).Wavelength())
-		<<");"<<endl;
-	  scr<<"    t->SetMarkerSize(0.2);"<<endl;
-	  scr<<"    t->Draw();"<<endl;
+
+	  int irefl = (*iph).Reflections()-1; // -1 for mirror
+	  cout<<irefl<<endl;
+	  //irefl/=5;
+	  irefl=irefl%10;
+	  
+	  int icol=29;
+
+	  if (irefl == 0) icol = 1; // black
+	  if (irefl == 1) icol = 28; // brown
+	  if (irefl == 2) icol = 2; // red
+	  if (irefl == 3) icol = 42; // orange
+	  if (irefl == 4) icol = 5; // yellow
+	  if (irefl == 5) icol = 3; // green
+	  if (irefl == 6) icol = 4; // blue
+	  if (irefl == 7) icol = 6; // violett
+	  if (irefl == 8) icol = 14; // gray
+	  if (irefl == 9) icol = 18; // white
+
+	  //if (irefl<10)
+	    {
+	      
+	      scr<<"    TMarker* t = new TMarker("<<xx<<","<<yy<<",20);"<<endl;
+	      scr<<"    t->SetMarkerColor("
+		 <<icol
+		 <<");"<<endl;
+	      //	  scr<<"    t->SetMarkerColor("
+	      //<<(*iph).ColorNumber((*iph).Wavelength())
+	      //<<");"<<endl;
+	      scr<<"    t->SetMarkerSize(0.2);"<<endl;
+	      scr<<"    t->Draw();"<<endl;
+	    }
+	  
 	}
       else if ((*iph).Fate()==Drc::kPhotFlying)   {icnt_flying++;}
       else if ((*iph).Fate()==Drc::kPhotAbsorbed) {icnt_absorbed++;}

@@ -42,6 +42,7 @@ PndDrcPhoton::PndDrcPhoton()
   fDev              = 0;
   fReflectionLimit  = 1000;
   fPrintFlag        = true;
+  fListLimit        = 10;
 }
 //----------------------------------------------------------------------
 void PndDrcPhoton::Copy(const PndDrcPhoton& ph)
@@ -65,6 +66,7 @@ void PndDrcPhoton::Copy(const PndDrcPhoton& ph)
   fDev              = ph.fDev;
   fReflectionLimit  = ph.fReflectionLimit;
   fPrintFlag        = ph.fPrintFlag;
+  fListLimit        = ph.fListLimit;
 }
 //----------------------------------------------------------------------
 PndDrcPhoton::PndDrcPhoton(const PndDrcPhoton& ph)
@@ -81,6 +83,15 @@ PndDrcPhoton& PndDrcPhoton::operator=(const PndDrcPhoton& ph)
   if (&ph != this) Copy(ph);
   return *this;
 
+}
+//----------------------------------------------------------------------
+void  PndDrcPhoton::SetSurface1(const PndDrcSurfAbs* surf)
+{
+  if (fPrintFlag) fSurfaceList.push_back(surf);
+  if (fSurfaceList.size()>fListLimit) 
+    {
+      fSurfaceList.pop_front();
+    }
 }
 //----------------------------------------------------------------------
 void PndDrcPhoton::SetPosition1(const XYZPoint& pos)
@@ -101,11 +112,18 @@ void PndDrcPhoton::SetPosition1(const XYZPoint& pos)
 
   SetPosition(pos);
 
-  if( fPrintFlag )
+  if (fPrintFlag)
     {
       fPositionXlist.push_back(pos.X());
       fPositionYlist.push_back(pos.Y());
       fPositionZlist.push_back(pos.Z());
+    }
+  
+  if (fPositionXlist.size()>fListLimit) 
+    {
+      fPositionXlist.pop_front();
+      fPositionYlist.pop_front();
+      fPositionZlist.pop_front();
     }
   
 }

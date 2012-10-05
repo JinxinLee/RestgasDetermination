@@ -163,7 +163,8 @@ class PndDrcPhoton
   /*! \brief Surface list
     \param surf Surface pointer to set.
   */
-  void SetSurface1(const PndDrcSurfAbs* surf){fSurfaceList.push_back(surf);}
+  void SetSurface1(const PndDrcSurfAbs* surf);
+  
   
   /*! \brief Position X list
     \return Position X list.
@@ -293,17 +294,40 @@ class PndDrcPhoton
   int ColorNumber(double lambda) const;
 
 
+  /*! \brief Max. number of list entries.
+    \sa  SurfaceList()
+    \sa  PositionXlist()
+    \sa  PositionYlist()
+    \sa  PositionZlist()
+
+    \return Max number of list entries
+  */
+  int ListLimit() const {return fListLimit;};
+
+  /*! \brief Set max. number of list entries.
+    \sa  SurfaceList()
+    \sa  PositionXlist()
+    \sa  PositionYlist()
+    \sa  PositionZlist()
+    \sa  PrintFlag()
+
+    \pa lim Max number of list entries
+  */
+  void SetListLimit(unsigned int lim) {fListLimit=lim;};
+
   /*! \brief Print flag of photon to write its way to the data stream
     \sa  Print(fstream& stream)
     \return print flag.
   */
   bool PrintFlag() const {return fPrintFlag;};
 
-  /*! \brief Set print flag of photon to write its way to the data stream
+  /*! \brief Set print flag of photon to write its way to the data stream. Also the
+    generation of lists is enabled or disabled.
     \sa  Print(fstream& stream)
     \param flg Print flag.
   */
   void SetPrintFlag(bool flg){fPrintFlag=flg;};
+
 
 
   friend class PndDrcOptDevManager;
@@ -319,7 +343,7 @@ class PndDrcPhoton
   list<double>         fPositionXlist;                 //!< List of position X
   list<double>         fPositionYlist;                 //!< List of position Y
   list<double>         fPositionZlist;                 //!< List of position Z
-  list<const PndDrcSurfAbs*> fSurfaceList;                   //!< List of hit surface pointers.
+  list<const PndDrcSurfAbs*> fSurfaceList;             //!< List of hit surface pointers.
   XYZVector            fDirection;                     //!< Normalized direction of photon.
   XYZVector            fOriginDirection;               //!< Normalized origin direction of photon.
   Drc::kPhotonFate     fFate;                          //!< The fate of the photon.
@@ -329,6 +353,7 @@ class PndDrcPhoton
   double               fTime;                          //!< Time of flight.
   int                  fReflectionLimit;               //!< Reflection limit.
   bool                 fPrintFlag;                     //!< Print flag, by default true
+  unsigned int         fListLimit;                     //!< Max number of list entries. 
 
 
   /*! \brief Copy function for assigment and copy operator.

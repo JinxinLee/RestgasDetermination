@@ -20,11 +20,11 @@ OBJECTS = $(patsubst ../%.cxx,../%.o,$(wildcard ../*.cxx))
 
 
 #debugger ddd: compile everything with option -g
-DEBUG =
+#DEBUG =
 #DEBUG = -g
 
-CFLAGS = -O2 -Wall $(DEBUG)
-#CFLAGS = -g -O0 -Wall
+#CFLAGS = -O2 -Wall $(DEBUG)
+CFLAGS = -g -O0 -Wall
 
 # shared library
 SOFLAGS = -shared -Wall $(DEBUG)

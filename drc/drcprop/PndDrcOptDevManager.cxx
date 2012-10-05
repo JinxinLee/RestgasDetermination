@@ -631,6 +631,8 @@ bool PndDrcOptDevManager::Cerenkov(const string& vol_name, const string& sys_nam
 
     for (int i=0; i<inum1; i++) // loop over photons
     {
+      if (i%1000==0) cout<<" i="<<i<<endl;
+      
       do
       {
         // sample a lambda distribution with a 1/lambda^2 shape.
@@ -731,13 +733,18 @@ void PndDrcOptDevManager::Propagate()
 
   int cnt = 0;
 
+
+
   for (iph = fListPhoton.begin(); iph != fListPhoton.end(); ++iph)
   {
     PndDrcOptDev* dev = (*iph).Device();
 
+    cnt++;
+    if (cnt%1000==0) cout<<" cnt "<<cnt<<endl;//###
+
     if (fVerbosity==4)
     {
-      cnt++;
+      
       cout << "***** Photon ID: " << cnt << " " << dev->Name() << endl;
       dev->SetVerbosity(4);
     }

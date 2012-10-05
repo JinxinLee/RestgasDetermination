@@ -84,8 +84,8 @@ int main(int argc, char *argv[])
 
   //int focus_option = 0; // nothing
   //int focus_option = 1; // lens
-  //int focus_option = 2; // focussing downstream spherical mirror
-  int focus_option = 3; // focussing downstream cylindrical mirror
+  int focus_option = 2; // focussing downstream spherical mirror
+  //int focus_option = 3; // focussing downstream cylindrical mirror
   
   
   int ioption = 1; // 1=cherenkov, 2=testbeam
@@ -239,7 +239,7 @@ int main(int argc, char *argv[])
   double ex_box_hl = 150;
   
   PndDrcOptBrick ex_box(ex_box_hw,ex_box_ht,ex_box_hl);
-  ex_box.SetOptMaterial(PndDrcOptMatMarcol7());
+  ex_box.SetOptMaterial(PndDrcOptMatLithotecQ0());
   ex_box.SetName("expansion box");
   //ex_box.Surface("side6")->SetPixel();
   if (focus_option==1)
@@ -314,7 +314,7 @@ int main(int argc, char *argv[])
   
   if (ioption==1)
     {
-      photons_exist = manager->Cerenkov(pos,dir,beta,100000); // generate photons
+      photons_exist = manager->Cerenkov(pos,dir,beta,100000,1.e16,440,450); // generate photons
     }
   else
     {
@@ -402,19 +402,34 @@ int main(int argc, char *argv[])
 	{
 	  icnt_measured++;
 	  double xx=(*iph).Position().X();
-	  double yy;
-	  if (top_option==1)
-	    {
-	      yy=(*iph).Time();
-	    }
-	  else
-	    {
-	      yy=(*iph).Position().Y();
-	    }
+	  double yy=(*iph).Position().Y();
+
+	  int irefl = (*iph).Reflections()-1; // -1 for mirror
+	  cout<<irefl<<endl;
+	  irefl/=5;
+	  irefl=irefl%10;
+	  
+	  int icol=29;
+
+	  if (irefl == 0) icol = 1; // black
+	  if (irefl == 1) icol = 28; // brown
+	  if (irefl == 2) icol = 2; // red
+	  if (irefl == 3) icol = 42; // orange
+	  if (irefl == 4) icol = 5; // yellow
+	  if (irefl == 5) icol = 3; // green
+	  if (irefl == 6) icol = 4; // blue
+	  if (irefl == 7) icol = 6; // violett
+	  if (irefl == 8) icol = 14; // gray
+	  if (irefl == 9) icol = 18; // white
+
+
 	  scr<<"    TMarker* t = new TMarker("<<xx<<","<<yy<<",20);"<<endl;
 	  scr<<"    t->SetMarkerColor("
-		<<(*iph).ColorNumber((*iph).Wavelength())
+		<<icol
 		<<");"<<endl;
+	  //	  scr<<"    t->SetMarkerColor("
+	  //<<(*iph).ColorNumber((*iph).Wavelength())
+	  //<<");"<<endl;
 	  scr<<"    t->SetMarkerSize(0.2);"<<endl;
 	  scr<<"    t->Draw();"<<endl;
 	}
