@@ -34,10 +34,10 @@ void runLumi0SimBox(const int nEvents=10, const double mom=15, TString storePath
   //  Cave->SetGeometryFileName("pndcave.geo");
   fRun->AddModule(Cave);
 
-   FairModule *Pipe= new PndPipe("PIPE");
-   Pipe->SetGeometryFileName("beampipe_201112.root");
-   fRun->AddModule(Pipe);
-
+  // FairModule *Pipe= new PndPipe("PIPE");
+  // Pipe->SetGeometryFileName("beampipe_201112.root");
+  // fRun->AddModule(Pipe);
+  
 
   FairModule *Magnet= new PndMagnet("MAGNET");
   Magnet->SetGeometryFileName("FullSolenoid.root");
@@ -79,7 +79,7 @@ void runLumi0SimBox(const int nEvents=10, const double mom=15, TString storePath
   PndLmdDetector *Lum = new PndLmdDetector("LUM", kTRUE);
   Lum->SetExclusiveSensorType("LumActive");  //ignore MVD
   Lum->SetGeometryFileName("../macro/lmd/geo/Test-Dipol-Design.root"); //sensors with trap shape
-  //Lum->SetGeometryFileName("../macro/lmd/geo/HV_MAPS-Design.root"); // new sensors
+  //  Lum->SetGeometryFileName("../macro/lmd/geo/HV_MAPS-Design.root"); // new sensors
   Lum->SetVerboseLevel(verboseLevel);
   fRun->AddModule(Lum);
 
@@ -98,12 +98,14 @@ void runLumi0SimBox(const int nEvents=10, const double mom=15, TString storePath
   // Box Generator
   FairBoxGenerator *fBox = new FairBoxGenerator(particle, trkNum);
   fBox->SetPRange(mom,mom);
-  //fBox->SetThetaRange(0.13,0.7); // 2... 12 mrad
+  //  fBox->SetThetaRange(0.13,0.7); // 2... 12 mrad
   //fBox->SetThetaRange(0.13,0.65); // 2... 11 mrad
   fBox->SetThetaRange(0.229183, 0.458366); //4 ... 8 mrad
+  //fBox->SetThetaRange(0.458366, 0.458366); //!!! 8 mrad
   //fBox->SetThetaRange(0.3, 0.3);//TEST 
-  fBox->SetPhiRange(0,360.);
-  //fBox->SetPhiRange(-115,-85);
+  // fBox->SetPhiRange(0,360.);
+  fBox->SetPhiRange(0.5,359.5); //FOR missed track check
+  // fBox->SetPhiRange(0.,0.);
   //  fBox->SetPhiRange(0,0);//TEST
   primGen->AddGenerator(fBox); 
 
@@ -124,11 +126,12 @@ void runLumi0SimBox(const int nEvents=10, const double mom=15, TString storePath
 
   //reading the new field map in the old format
   fRun->SetBeamMom(mom);
+
   PndMultiField *fField= new PndMultiField();
   
-  PndTransMap *map_t = new PndTransMap("TransMap", "R");
-  PndDipoleMap *map_d1 = new PndDipoleMap("DipoleMap1", "R");
-  PndDipoleMap *map_d2 = new PndDipoleMap("DipoleMap2", "R");
+  PndTransMap *map_t = new PndTransMap("TransMap_v1", "R");
+  PndDipoleMap *map_d1 = new PndDipoleMap("DipoleMap1_v1", "R");
+  PndDipoleMap *map_d2 = new PndDipoleMap("DipoleMap2_v1", "R");
   PndSolenoidMap *map_s1 = new PndSolenoidMap("SolenoidMap1", "R");
   PndSolenoidMap *map_s2 = new PndSolenoidMap("SolenoidMap2", "R");
   PndSolenoidMap *map_s3 = new PndSolenoidMap("SolenoidMap3", "R");
