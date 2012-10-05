@@ -30,7 +30,8 @@
 #include<PndSdsHit.h>
 #include<PndSdsClusterStrip.h>
 #include<PndSdsDigiStrip.h>
-
+#include<PndSdsDigiPixel.h>
+#include<PndSdsClusterPixel.h>
 // needed for geane backtracking
 #include<FairRunAna.h>
 #include<FairRootManager.h>
@@ -42,26 +43,48 @@
 #include<FairTrackParH.h>
 
 #include<string>
-void combitransFromLumiFrame(TVector3& hitPos){
-  //do the transformation from lab frame to LUMI frame (with z-axis perp. to lumi planes)
-  const Double_t  kHalfFoilThickness  = 0.0075; // Thickness of sensitive foil (cm)
-  const Double_t  kTransZ = 1100.; //(cm) //move at z-position
-  const Double_t  kRotUmZ = 476.03; //(cm) //z-point to rotate
-  const Double_t  kTransX = 25; //(cm) //move at x-position
-  const Double_t  kRot =  0.040596358401388; // 2.326 degree  = 4.05963584013881024e-02 rad
+void combitransFromLumiFrame(TVector3& hitPos, int senType=0){
+  Double_t  kTransZ, kRotUmZ, kRot, kTransX;
+  if(senType>0){ //Pixel sensors
+    //do the transformation from lab frame to LUMI frame (with z-axis perp. to lumi planes)
+    double end_seg_upstream = 360.1; // where bending starts with
+    double r_bend = 5750.; // the bending radius
+    double phi_bend = 40.068e-3; // and the angle of the circle path
+    // const Double_t kRot = phi_bend/3.141*180.;//=2.295727;//2.326; //(deg) //Rotate to dipol
+    kRot = phi_bend;//here we need abgle in rad!
+    // the point where both tangents of the straight beam pipe tubes meet is
+    kRotUmZ = end_seg_upstream + tan(phi_bend/2.)*r_bend;//476.03; //(cm) //z-point to rotate
+    kTransZ = 1130.; //(cm) //move at z-position
+    kTransX = (kTransZ - end_seg_upstream - tan(phi_bend/2.)*r_bend)*tan(phi_bend); // 25 (cm) //move at x-position
+  }
+  else{
+    /// THIS WORKS ONLY FOR DESIGN WITH STRIP SENSORS!
+    //do the transformation from lab frame to LUMI frame (with z-axis perp. to lumi planes)
+    kTransZ = 1100.; //(cm) //move at z-position
+    kRotUmZ = 476.03; //(cm) //z-point to rotate
+    kTransX = 25; //(cm) //move at x-position
+    kRot =  0.040596358401388; // 2.326 degree  = 4.05963584013881024e-02 rad
+  }
   TVector3 LumiTrans(0,0,kTransZ-kRotUmZ);
   hitPos +=LumiTrans;
   hitPos.RotateY(kRot);
   LumiTrans = TVector3(0,0,kRotUmZ);
   hitPos +=LumiTrans;
-  // cout<<"!!! NEW HIT position in LUMI frame!!! "<<endl;
-  //  hitPos.Print();
 }
-TMatrixD rotateFromLumiFrame(TMatrixD& hitCov){
-  Double_t theta=-2.326;
-  Double_t degrad = TMath::Pi()/180.;
-  Double_t sintheta = TMath::Sin(degrad*theta);
-  Double_t costheta = TMath::Cos(degrad*theta);
+TMatrixD rotateFromLumiFrame(TMatrixD& hitCov, int senType=0){
+  Double_t  sintheta, costheta;
+  if(senType>0){ //Pixel sensors
+    double phi_bend = 40.068e-3; // and the angle of the circle path
+    sintheta = TMath::Sin(phi_bend);
+    costheta = TMath::Cos(phi_bend);
+  }
+  else{
+    /// THIS WORKS ONLY FOR DESIGN WITH STRIP SENSORS!
+    Double_t theta=-2.326;
+    Double_t degrad = TMath::Pi()/180.;
+    sintheta = TMath::Sin(degrad*theta);
+    costheta = TMath::Cos(degrad*theta);
+  }
   TMatrixD rot(3,3);// Rotation around Y axis
   rot[0][0]= costheta;
   rot[0][1]= 0;
@@ -81,20 +104,20 @@ TMatrixD rotateFromLumiFrame(TMatrixD& hitCov){
 }
 
 
-void rotateFromLumiFrame(TVector3& hitPos, bool err){
+void rotateFromLumiFrame(TVector3& hitPos, bool err, int senType=0){
   TMatrixD hitMtx(3,3);
   if(err){
     hitMtx[0][0] = hitPos[0]*hitPos[0];
     hitMtx[1][1] = hitPos[1]*hitPos[1];
     hitMtx[2][2] = hitPos[2]*hitPos[2];
-    TMatrixD res = rotateFromLumiFrame(hitMtx);
+    TMatrixD res = rotateFromLumiFrame(hitMtx,senType);
     hitPos = TVector3(sqrt(res(0,0)),sqrt(res(1,1)),sqrt(res(2,2)));
   }
   else{
     hitMtx[0][0] = hitPos[0];
     hitMtx[1][0] = hitPos[1];
     hitMtx[2][0] = hitPos[2];
-    TMatrixD res = rotateFromLumiFrame(hitMtx);
+    TMatrixD res = rotateFromLumiFrame(hitMtx,senType);
     hitPos = TVector3(hitMtx(0,0),hitMtx(1,0),hitMtx(2,0));
   }
 }
@@ -104,11 +127,13 @@ int main(int __argc,char *__argv[]) {
   //TODO: read this like params!
   //  const int nEvents=500000;
   int nEvents=1000;
+  int nMCtracks=1;
   int startEvent=0;
   TString storePath="/data/FAIRsorf/pandaroot/trunk/macro/lmd/tmpOutput";
   double Plab=15.;
   int verboseLevel=0;
-  std::string startStr="", momStr="", nStr="", pathStr="", verbStr="";
+  int dnu=0;//if>0 then use namespace for pixel
+  std::string startStr="", momStr="", nStr="", pathStr="", verbStr="" , mcTrkStr="", useNewDStr="";
   // decode arguments
   if( __argc>1 && ( strcmp( __argv[1], "-help" ) == 0
 		    || strcmp( __argv[1], "--help" ) == 0 ) ){
@@ -116,9 +141,11 @@ int main(int __argc,char *__argv[]) {
     std::cout << "This is script for comparision reconstructed and simulated tracks with parameters\n"
 	      <<"-s start event \n"
 	      <<"-n Number of events \n"
+	      <<"-t Number of trks per event \n"
 	      <<"-mom Beam Momentum \n"
 	      <<"-path path to the file(s) \n"
 	      <<"-v verbose Level (if>0, print out some information) \n"
+	      <<"-npx if>0 then use namespace for pixel"
 	      <<"Have fun! \n"
 	      << std::endl;
     return 0;
@@ -136,6 +163,11 @@ int main(int __argc,char *__argv[]) {
       nStr = __argv[optind];
       found=true;
     }
+    if (sw=="-t"){
+      optind++;
+      mcTrkStr = __argv[optind];
+      found=true;
+    }
     if (sw=="-path"){
       optind++;
       pathStr = __argv[optind];
@@ -151,7 +183,11 @@ int main(int __argc,char *__argv[]) {
       verbStr = __argv[optind];
       found=true;
     }
-   
+    if (sw=="-npx"){
+      optind++;
+      useNewDStr = __argv[optind];
+      found=true;
+    }
     if (!found){
       std::cout<< "Unknown switch: "
 	       << __argv[optind] <<std::endl;
@@ -161,15 +197,15 @@ int main(int __argc,char *__argv[]) {
   while ( (optind < __argc ) && __argv[optind][0]!='-' ) optind++; 
   }
 
-  std::stringstream startSStr(startStr), momSStr(momStr), nSStr(nStr), pathSStr(pathStr), verbSStr(verbStr);
+  std::stringstream startSStr(startStr), momSStr(momStr), nSStr(nStr), pathSStr(pathStr), verbSStr(verbStr), mcTrkSStr(mcTrkStr),useNewDSStr(useNewDStr);
 
   startSStr >> startEvent;
   momSStr >> Plab;
   nSStr >> nEvents;
   pathSStr >> storePath;
   verbSStr >> verboseLevel;
-
-
+  mcTrkSStr >> nMCtracks;
+  useNewDSStr >> dnu;
   cout<<"Will be used Path: "<<storePath<<endl;
   //void MCandRECTrkmatches(const int nEvents=2, const int startEvent=0, TString storePath="tmpOutput", const int verboseLevel=3, double dv=0.5, bool no4d=false)
   //{
@@ -197,7 +233,9 @@ int main(int __argc,char *__argv[]) {
   TChain tdigiHits("cbmsim");
   tdigiHits.Add(DigiFile);
   
-  TString recHit=storePath+"/Lumi_reco_";
+  TString recHit=storePath+"/Lumi_reco";
+  // if(dnu>0) recHit+="Merged";
+  recHit +="_";
   recHit += startEvent;
   recHit += ".root";
   TChain tHits("cbmsim");
@@ -240,16 +278,34 @@ int main(int __argc,char *__argv[]) {
   
   
   //--- Digitization info ------------------------------------------------------------
-  TClonesArray* fStripClusterArray = new TClonesArray("PndSdsClusterStrip");
-  tHits.SetBranchAddress("LMDStripClusterCand",&fStripClusterArray); 
+  TClonesArray* fStripClusterArray;
+  if(dnu>0){
+    fStripClusterArray = new TClonesArray("PndSdsClusterPixel");
+    tHits.SetBranchAddress("LMDPixelClusterCand",&fStripClusterArray);
+  }
+  else{
+    fStripClusterArray = new TClonesArray("PndSdsClusterStrip");
+    tHits.SetBranchAddress("LMDStripClusterCand",&fStripClusterArray); 
+  }
+
   
-  TClonesArray* fStripDigiArray = new TClonesArray("PndSdsDigiStrip");
-  tdigiHits.SetBranchAddress("LMDStripDigis",&fStripDigiArray); 
+  TClonesArray* fStripDigiArray;
+  if(dnu>0){
+    fStripDigiArray = new TClonesArray("PndSdsDigiPixel");
+    tdigiHits.SetBranchAddress("LMDPixelDigis",&fStripDigiArray);
+  }
+  else{
+    fStripDigiArray = new TClonesArray("PndSdsDigiStrip");
+    tdigiHits.SetBranchAddress("LMDStripDigis",&fStripDigiArray); 
+  }
   //----------------------------------------------------------------------------------
   
   //--- Real Hits --------------------------------------------------------------------
   TClonesArray* rechit_array=new TClonesArray("PndSdsHit");
-  tHits.SetBranchAddress("LMDHitsStrip",&rechit_array);  //Points for Tracks
+  if(dnu>0)
+    tHits.SetBranchAddress("LMDHitsPixel",&rechit_array);  //Points for Tracks
+  else
+    tHits.SetBranchAddress("LMDHitsStrip",&rechit_array);  //Points for Tracks
   //----------------------------------------------------------------------------------
   
   
@@ -277,16 +333,20 @@ int main(int __argc,char *__argv[]) {
 			       1000,0,1000,100,0,100);
   TH1 *hntrkcand = new TH1F("hntrkcand","Number of track-candidates per event;N_{trk-cand}",100,0,100);
   TH1 *hntrk = new TH1F("hntrk","Number of tracks per event;N_{trk}",100,0,100);
+  TH1 *hntrkmissed_I = new TH1F("hntrkmissed_I","Number of missed tracks per event (#phi, #theta trks);N_{trk}",30,0,30);
+  TH1 *hntrkghost_I = new TH1F("hntrkghost_I","Number of ghost tracks per event (#phi, #theta trks);N_{trk}",30,0,30);
+  TH1 *hntrkmissed_II = new TH1F("hntrkmissed_II","Number of missed tracks per event (hits matching);N_{trk}",30,0,30);
+  TH1 *hntrkghost_II = new TH1F("hntrkghost_II","Number of ghost tracks per event (hits matching);N_{trk}",30,0,30);
+  TH2 *hntrkmissedPhiTheta = new TH2F("hntrkmissedPhiTheta",";#delta#theta/#sigma#theta;#delta#phi/#sigma#phi",1000,0,100,1000,0,100);
   TH2 *hntrkcandvsIDs = new TH2F("hntrkcandvsIDs","Number of track-candidates per event vs Number of track-candidates with hits from diff. MC-track;N_{IDs};N_{trk-cand}",10,0,10,100,0,100);
   TH2 *hntrkcandvsMC = new TH2F("hntrkcandvsMC","Number of per event vs. Number of simulated tracks; N_{MC};N_{trk-cand}",100,0,100,100,0,100);
 
   TH2 *hnhitsvsIDs = new TH2F("hnhitsvsIDs","Number of hits per track-candidate vs Number of track-candidates with hits from diff. MC-track;N_{IDs};Number of hits",10,0,10,4,2,6);
-  
-  TH1 * hallPhi = new TH1F("hallPhi","#phi for all MC-track;#phi, rad",20,-355./113,355./113);
-  TH1 * hgoodPhi = new TH1F("hgoodPhi","#phi for good track-candidates",20,-355./113,355./113);
-  
-  TH1 * hallTheta = new TH1F("hallTheta","#theta for all MC-track;#theta, rad",20,3.5e-3,8.5e-3);
-  TH1 * hgoodTheta = new TH1F("hgoodTheta","#theta for good track-candidates",20,3.5e-3,8.5e-3);
+ 
+  TH1 * hallTheta = new TH1F("hallTheta","#theta for all MC-track;#theta, rad",50,2e-3,10e-3);
+  TH1 * hgoodTheta = new TH1F("hgoodTheta","#theta for good track-candidates",50,2e-3,10e-3);
+  TH1 * hallPhi = new TH1F("hallPhi","#phi for all MC-track;#phi, rad",50,-355./113,355./113);
+  TH1 * hgoodPhi = new TH1F("hgoodPhi","#phi for good track-candidates",50,-355./113,355./113);
 
   TH2 * hgoodPhichi2 = new TH2F("hgoodPhichi2","#phi for good track-candidates vs. #chi^{2} ",5e2,0,50,20,-355./113,355./113);
   TH2 * hgoodThetachi2 = new TH2F("hgoodThetachi2","#theta for good track-candidates vs. #chi^{2} ",5e2,0,50,20,3.5e-3,8.5e-3);
@@ -320,34 +380,34 @@ int main(int __argc,char *__argv[]) {
   TH1 *hResLumiTrkPointPy = new TH1F("hResLumiTrkPointPy","Py_{MC}-Py_{rec}(near Lumi);#deltaPy, GeV/c",1e2,-0.001,0.001);
   TH1 *hResLumiTrkPointPz = new TH1F("hResLumiTrkPointPz","Pz_{MC}-Pz_{rec}(near Lumi);#deltaPz, GeV/c",1e2,-0.0001,0.0001);
 
-  TH1 *hResLumiTrkPointXPull = new TH1F("hResLumiTrkPointXPull","X_{MC}-X_{rec}(near Lumi);#deltaX,cm",1e2,-10.,10.);
-  TH1 *hResLumiTrkPointYPull = new TH1F("hResLumiTrkPointYPull","Y_{MC}-Y_{rec}(near Lumi);#deltaY,cm",1e2,-10.,10.);
-  TH1 *hResLumiTrkPointZPull = new TH1F("hResLumiTrkPointZPull","Z_{MC}-Z_{rec}(near Lumi);#deltaZ,cm",1e2,-10.,10.);
+  TH1 *hResLumiTrkPointXPull = new TH1F("hResLumiTrkPointXPull","(X_{MC}-X_{rec})/#sigma;(X_{MC}-X_{rec})/#sigma",1e2,-10.,10.);
+  TH1 *hResLumiTrkPointYPull = new TH1F("hResLumiTrkPointYPull","(Y_{MC}-Y_{rec})/#sigma;(Y_{MC}-Y_{rec})/#sigma",1e2,-10.,10.);
+  TH1 *hResLumiTrkPointZPull = new TH1F("hResLumiTrkPointZPull","(Z_{MC}-Z_{rec})/#sigma;(Z_{MC}-Z_{rec})/#sigma",1e2,-10.,10.);
 
-  TH1 *hResLumiTrkPointPxPull = new TH1F("hResLumiTrkPointPxPull","Px_{MC}-Px_{rec}(near Lumi);#deltaPx, GeV/c",1e2,-10,10.);
-  TH1 *hResLumiTrkPointPyPull = new TH1F("hResLumiTrkPointPyPull","Py_{MC}-Py_{rec}(near Lumi);#deltaPy, GeV/c",1e2,-10,10);
-  TH1 *hResLumiTrkPointPzPull = new TH1F("hResLumiTrkPointPzPullS","Pz_{MC}-Pz_{rec}(near Lumi);#deltaPz, GeV/c",1e2,-10,10);
+  TH1 *hResLumiTrkPointPxPull = new TH1F("hResLumiTrkPointPxPull","(Px_{MC}-Px_{rec})/#sigma;(Px_{MC}-Px_{rec})/#sigma",1e2,-10,10.);
+  TH1 *hResLumiTrkPointPyPull = new TH1F("hResLumiTrkPointPyPull","(Py_{MC}-Py_{rec})/#sigma;(Py_{MC}-Py_{rec})/#sigma",1e2,-10,10);
+  TH1 *hResLumiTrkPointPzPull = new TH1F("hResLumiTrkPointPzPullS","(Pz_{MC}-Pz_{rec})/#sigma;(Pz_{MC}-Pz_{rec})/#sigma",1e2,-10,10);
 
   TH1 *hErrPointX = new TH1F("hErrPointX","#sigma_{X};#sigmaX,cm",1e3,0,1.);
   TH1 *hErrPointY = new TH1F("hErrPointY","#sigma_{Y};#sigmaY,cm",1e3,0,1.);
   TH1 *hErrLinPointX = new TH1F("hErrLinPointX","#sigma_{X};#sigmaX,cm",1e3,0,0.01);
   TH1 *hErrLinPointY = new TH1F("hErrLinPointY","#sigma_{Y};#sigmaY,cm",1e3,0,0.001);
   TH1 *hErrPointZ = new TH1F("hErrPointZ","#sigma_{Z};#sigmaZ,cm",1e2,0,0.01);
-  TH1 *hPullPointX = new TH1F("hPullPointX","(X_{MC}-X_{rec})/#sigma_{X};",1e2,-10,10);
-  TH1 *hPullPointY = new TH1F("hPullPointY","(Y_{MC}-Y_{rec})/#sigma_{Y};",1e2,-10,10);
-  TH1 *hPullPointZ = new TH1F("hPullPointZ","(Z_{MC}-Z_{rec})/#sigma_{Z};",1e2,-10,10);
+  TH1 *hPullPointX = new TH1F("hPullPointX","(X_{MC}-X_{rec})/#sigma_{X};(X_{MC}-X_{rec})/#sigma_{X}",1e2,-10,10);
+  TH1 *hPullPointY = new TH1F("hPullPointY","(Y_{MC}-Y_{rec})/#sigma_{Y};(Y_{MC}-Y_{rec})/#sigma_{Y}",1e2,-10,10);
+  TH1 *hPullPointZ = new TH1F("hPullPointZ","(Z_{MC}-Z_{rec})/#sigma_{Z};(Z_{MC}-Z_{rec})/#sigma_{Z}",1e2,-10,10);
   
   TH1 *hResPointPx = new TH1F("hResPointPx","Px_{MC}-Px_{rec};#deltaPx, GeV/c",1e2,-0.01,0.01);
   TH1 *hErrPointPx = new TH1F("hErrPointPx","#sigma_{Px};#sigmaPx, GeV/c",1e3,0,0.01);
-  TH1 *hPullPointPx = new TH1F("hPullPointPx","(Px_{MC}-Px_{rec})/#sigma_{Px};",1e2,-10,10);
+  TH1 *hPullPointPx = new TH1F("hPullPointPx","(Px_{MC}-Px_{rec})/#sigma_{Px};(Px_{MC}-Px_{rec})/#sigma_{Px}",1e2,-10,10);
   
   TH1 *hResPointPy = new TH1F("hResPointPy","Py_{MC}-Py_{rec};#deltaPy, GeV/c",1e2,-0.01,0.01);
   TH1 *hErrPointPy = new TH1F("hErrPointPy","#sigma_{Py};#sigmaPy, GeV/c",1e3,0,0.01);
-  TH1 *hPullPointPy = new TH1F("hPullPointPy","(Py_{MC}-Py_{rec})/#sigma_{Py};",1e2,-10,10);
+  TH1 *hPullPointPy = new TH1F("hPullPointPy","(Py_{MC}-Py_{rec})/#sigma_{Py};(Py_{MC}-Py_{rec})/#sigma_{Py}",1e2,-10,10);
   
   TH1 *hResPointPz = new TH1F("hResPointPz","Pz_{MC}-Pz_{rec};#deltaPz, GeV/c",1e2,-1e-4,1e-4);
   TH1 *hErrPointPz = new TH1F("hErrPointPz","#sigma_{Pz};#sigmaPz, GeV/c",1e3,0,1e-3);
-  TH1 *hPullPointPz = new TH1F("hPullPointPz","(Pz_{MC}-Pz_{rec})/#sigma_{Pz};",1e2,-10,10);
+  TH1 *hPullPointPz = new TH1F("hPullPointPz","(Pz_{MC}-Pz_{rec})/#sigma_{Pz};(Pz_{MC}-Pz_{rec})/#sigma_{Pz}",1e2,-10,10);
   
   TH1 *hResDCA = new TH1F("hDCA","|DCA|;|DCA|,cm",1e3,0,10.);
   TH1 *hErrDCA = new TH1F("hErrDCA","#sigma_{DCA};#sigmaDCA,cm",1e3,0,1.);
@@ -386,7 +446,9 @@ int main(int __argc,char *__argv[]) {
   TH2 *hMCPhiGEANEPhi = new TH2F("hMCPhiGEANEPhi",";#phi_{MC}, rad;#phi_{GEANE}, rad",1e3,-3.15,3.15,1e3,-3.15,3.15);
   
   TH2 *hMCThetaResTheta = new TH2F("hMCThetaResTheta",";#theta_{MC}, rad;#Delta#theta, rad",1e2,0,0.012,1e3,-1e-2,1e-2);
-  TH2 *hMCPhiResPhi = new TH2F("hMCPhiResPhi",";#phi_{MC}, rad;#Delta#phi, rad",1e2,-3.15,3.15,1e2,-1e-1,1e-1);
+  TH2 *hMCPhiResPhi = new TH2F("hMCPhiResPhi",";#phi_{MC}, rad;#Delta#phi, rad",1e2,-3.15,3.15,1e2,-5e-1,5e-1);
+  TH2 *hMCThetaResSeedTheta = new TH2F("hMCThetaResSeedTheta",";#theta_{MC}, rad;#Delta#theta, rad",1e2,0.,0.1,1e3,-1e-2,1e-2);
+  TH2 *hMCPhiResSeedPhi = new TH2F("hMCPhiResSeedPhi",";#phi_{MC}, rad;#Delta#phi, rad",1e2,-3.15,3.15,1e2,-1e-1,1e-1);
   TH2 *hResZResPhi = new TH2F("hResZResPhi",";#Delta#phi, rad;#Delta Z, cm",1e3,-2e-1,2e-1,1e3,-0.02,0.02);
   TH2 *hntrkMCtrkID = new TH2F("hntrkMCtrkID","Number of participation this MCid in rec.tracks;ID;Number of rec.trks",10,0,10,10,0,10);
   TH2 *hchi2MCdiffID = new TH2F("hchi2MCdiffID","number diff MCid in rec.tracks vs. #chi^{2};#chi^{2};N",5e2,0,50,10,0,10);
@@ -419,15 +481,16 @@ int main(int __argc,char *__argv[]) {
     
     const int nGeaneTrks = geaneArray->GetEntriesFast();
     const int nParticles = true_tracks->GetEntriesFast();
+    if(nParticles!=nMCtracks) continue;
     const int numTrk = nGeaneTrks;
     const int nRecHits = rechit_array->GetEntriesFast();
     const int nTrkCandidates = trkcand_array->GetEntriesFast();
     const int nRecTrks = rec_trk->GetEntriesFast();
-    if(verboseLevel>0)  cout<<"Event #"<<j<<" has "<<nParticles<<" true particles, "<<nTrkCandidates<<" trk-cands, "<<numTrk<<" tracks and "
-			    <<nGeaneTrks<<" geane Trks!"<<endl;
+    if(verboseLevel>0)  
+      cout<<"Event #"<<j<<" has "<<nParticles<<" true particles, "<<nTrkCandidates
+	  <<" trk-cands, "<<numTrk<<" tracks and "<<nGeaneTrks<<" geane Trks!"<<endl;
     double chi2Cont[5*numTrk];
     double ndiffIDCont[5*numTrk];
-    //  if(nParticles!=numTrk) continue;
    
     hMCtrkvshits->Fill(nRecHits,nParticles);
     if(nTrkCandidates>numTrk) cout<<"Event #"<<j<<" has "<<nTrkCandidates<<" trk-cands and "<<numTrk<<" tracks!"<<endl;
@@ -437,11 +500,21 @@ int main(int __argc,char *__argv[]) {
     
     /// Set MC ID for each track ----------------------------------------------------
     Int_t nRecGEANEtrk = 0;
-    int MCtrk[numTrk];
-    for(int nk=0;nk<numTrk;nk++)
+    int MCtrk[nParticles]; //Number of participation this MCid in rec.tracks
+    int RECtrkMCid[nGeaneTrks];//Assignment MC id to REC trk;
+    for(int nk=0;nk<nParticles;nk++)
       MCtrk[nk]=0;
+    bool goodTrk[nGeaneTrks];
+    bool ghostTrk[nGeaneTrks];
     for (Int_t iN=0; iN<nGeaneTrks; iN++){
-      vector<int> MCtrkID;
+      goodTrk[iN] = false;
+      ghostTrk[iN] = false;
+      RECtrkMCid[iN]=-1;
+    }
+
+    int goodRectrk=0;//for missed trk-search
+    for (Int_t iN=0; iN<nGeaneTrks; iN++){
+      vector<int> MCtrkID; //arrray of hits MCid
       Int_t diffIDs=1;
       FairTrackParH *fRes = (FairTrackParH*)geaneArray->At(iN);
       Double_t lyambda = fRes->GetLambda();
@@ -462,15 +535,30 @@ int main(int __argc,char *__argv[]) {
       double chi2 = trk->GetChiSquare();
       chi2Cont[iN] = chi2;
       hchi2nTrkCand->Fill(nTrkCandidates,chi2);
-      //  if(chi2>5) continue; // !!! TEST
       PndTrackCand *trkcand = (PndTrackCand*)trkcand_array->At(candID);
       const int Ntrkcandhits= trkcand->GetNHits();
       PndSdsMCPoint* MCPointHit;
+
+      //Matching between MC & Rec on hits level-----------------------------------
+      if(verboseLevel>1) cout<<"MCidTOP:"<<endl;
       for (Int_t iHit = 0; iHit < Ntrkcandhits; iHit++){
 	PndTrackCandHit candhit = (PndTrackCandHit)(trkcand->GetSortedHit(iHit));
 	Int_t hitID = candhit.GetHitId();
 	PndSdsHit* myHit = (PndSdsHit*)(rechit_array->At(hitID));
-	
+	//for pixel design
+	if(dnu>0){
+	  //  if(verboseLevel>1) cout<<"Rec hit("<<myHit->GetClusterIndex()<<")";
+	  PndSdsClusterPixel* myCluster = (PndSdsClusterPixel*)(fStripClusterArray->At(myHit->GetClusterIndex()));
+	  PndSdsDigiPixel* astripdigi = (PndSdsDigiPixel*)(fStripDigiArray->At(myCluster->GetDigiIndex(0)));
+	  PndSdsMCPoint* MCPoint = (PndSdsMCPoint*)(true_points->At(astripdigi->GetIndex(0)));
+	  int MCidTOP = MCPoint->GetTrackID();
+	  if(iHit==0) MCPointHit = MCPoint;
+	  MCtrkID.push_back(MCidTOP);
+	  //	  if(verboseLevel>1) cout<<"MCid("<<MCidTOP<<") ";
+	  if(verboseLevel>1) cout<<MCidTOP<<" ";
+	}
+	//for strip design
+	else{
 	///Top cluster
 	PndSdsClusterStrip* myCluster =  (PndSdsClusterStrip*)(fStripClusterArray->At(myHit->GetClusterIndex()));
 	PndSdsDigiStrip* astripdigi = (PndSdsDigiStrip*)(fStripDigiArray->At(myCluster->GetDigiIndex(0)));
@@ -478,18 +566,18 @@ int main(int __argc,char *__argv[]) {
 	PndSdsMCPoint* MCPoint = (PndSdsMCPoint*)(true_points->At(astripdigi->GetIndex(0)));
 	int MCidTOP = MCPoint->GetTrackID();
 	if(iHit==0) MCPointHit = MCPoint;
-	double zTop = MCPoint->GetZ();
-	double xTop = MCPoint->GetX();
-	double yTop = MCPoint->GetY();
+	// double zTop = MCPoint->GetZ();
+	// double xTop = MCPoint->GetX();
+	// double yTop = MCPoint->GetY();
 	///Bottom cluster
 	Int_t  botIndex = myHit->GetBotIndex();
 	PndSdsClusterStrip* myClusterBot =  (PndSdsClusterStrip*)(fStripClusterArray->At(botIndex));
 	PndSdsDigiStrip* astripdigiBot = (PndSdsDigiStrip*)(fStripDigiArray->At(myClusterBot->GetDigiIndex(0)));
 	if (astripdigiBot->GetIndex(0) == -1) continue; // sort out noise
 	PndSdsMCPoint* MCPointBot = (PndSdsMCPoint*)(true_points->At(astripdigiBot->GetIndex(0)));
-	double zBot = MCPointBot->GetZ();
-	double xBot = MCPointBot->GetX();
-	double yBot = MCPointBot->GetY();
+	// double zBot = MCPointBot->GetZ();
+	// double xBot = MCPointBot->GetX();
+	// double yBot = MCPointBot->GetY();
 	// cout<<"zTop - zBot = "<<zTop-zBot<<endl;
 	// cout<<"xTop - xBot = "<<xTop-xBot<<endl;
 	// cout<<"yTop - yBot = "<<yTop-yBot<<endl;
@@ -497,8 +585,9 @@ int main(int __argc,char *__argv[]) {
 	//	if(MCidTOP!=MCidBOT) continue;
 	MCtrkID.push_back(MCidTOP);
 	MCtrkID.push_back(MCidBOT);
+	}
       }
-      
+      if(verboseLevel>1) cout<<""<<endl;
       //   Sorting MC IDs ---------------------------------------- 
       Int_t k, x;
       bool ch=false; //Was element changed? 
@@ -512,19 +601,11 @@ int main(int __argc,char *__argv[]) {
 	  }
 	MCtrkID[k] = MCtrkID[n]; MCtrkID[n] = x; // change position between the least and current elements
       }
-      // if(ch){
-      // 	cout<<"Number ev = "<<i<<endl;
-       // cout<<"MC IDs: ";
-       // for(vector<int>::iterator it=MCtrkID.begin(); it<MCtrkID.end(); it++)
-       // 	 cout<<" "<< *it;
-       // cout<<" !"<<endl;
-      // }
-      // cout<<"Number of element changes in this event is "<<nch<<endl;
       ///--------------------------------------------------------------------------
       
       /// Counting number of diff MC ids ----------------------------------------      
       Int_t prevID = MCtrkID[0];
-      for(int nk=0;nk<numTrk;nk++){
+      for(int nk=0;nk<nParticles;nk++){
 	if(MCtrkID[0]==nk)
 	  MCtrk[nk]=MCtrk[nk]+1;
       }
@@ -533,7 +614,7 @@ int main(int __argc,char *__argv[]) {
 	if(prevID<MCtrkID[n]){
 	  diffIDs++;
 	  prevID=MCtrkID[n];
-	  for(int nk=0;nk<numTrk;nk++){
+	  for(int nk=0;nk<nParticles;nk++){
 	    if(MCtrkID[n]==nk)
 	      MCtrk[nk]=MCtrk[nk]+1;
 	  }
@@ -545,24 +626,63 @@ int main(int __argc,char *__argv[]) {
       hntrkcandvsIDs->Fill(diffIDs,nTrkCandidates);
       hnhitsvsIDs->Fill(diffIDs,Ntrkcandhits);
       ///------------------------------------------------------------------------
+
+      /// Set track quality: good or ghost? and assign MC id to rec trk ---------
+      if(diffIDs<2){
+	RECtrkMCid[iN] = MCtrkID[0];
+	goodTrk[iN] = true;
+      }
+      else{
+	vector<int> countMC_IDs(diffIDs);
+	prevID = MCtrkID[0];
+	int diffCount=0;
+	for(Int_t n=0; n<MCtrkID.size(); n++) {
+	  countMC_IDs[diffCount]++;
+	  if(prevID<MCtrkID[n]){
+	    diffCount++;
+	    prevID=MCtrkID[n];
+	  }
+	}
+	int maxID=countMC_IDs[0];
+	int posIDmax=0;
+	for(int kn=0;kn<diffIDs;kn++){
+	  //	  cout<<"countMC_IDs["<<kn<<"]="<<countMC_IDs[kn]<<" 0.7*MCtrkID.size() = "<<0.7*MCtrkID.size()<<endl;
+	  if(countMC_IDs[kn]>0.7*MCtrkID.size()){ //more then 70% of hits come from the same MC id
+	    goodTrk[iN] = true;
+	    ghostTrk[iN] = false;
+	  }
+	  else{
+	    if(!goodTrk[iN]) ghostTrk[iN] = true;
+	  }
+	  
+	  if(countMC_IDs[kn]>maxID){ 
+	    maxID=countMC_IDs[kn];
+	    posIDmax = kn;
+	  }
+	}
+	prevID = MCtrkID[0];
+	diffCount=0;
+	for(Int_t n=0; n<MCtrkID.size(); n++) {
+	  if(diffCount==posIDmax) RECtrkMCid[iN] = prevID;
+	  if(prevID<MCtrkID[n]){
+	    diffCount++;
+	    prevID=MCtrkID[n];
+	  }
+	}
+      }
+      ///------------------------------------------------------------------------
       
       /// Comporision MC, trk-candidates and REConstructed tracks --------------------------------------------
       TVector3 posSeed = trkcand->getPosSeed();
       TVector3 dirSeed = trkcand->getDirSeed();
       hSeedThetaDiffIDs->Fill(diffIDs,dirSeed.Theta());
-      hSeedPhiDiffIDs->Fill(diffIDs,dirSeed.Phi());
-      //  cout<<"diffIDs="<<diffIDs<<endl;
-      // if(diffIDs<2){ // Hits with only one type of MC IDs are combined in track-candidate
-      //if(diffIDs<3){ // Hits with only two type of MC IDs are combined in track-candidate
-      //if(diffIDs>1){ // Hits with diff. types of MC IDs are combined in track-candidate
+      hSeedPhiDiffIDs->Fill(diffIDs,dirSeed.Phi()); 
       if(diffIDs>-1){ // All tracks
-	//	if(diffIDs>3) cout<<"Event #"<<j<<" diffIDs = "<<diffIDs<<endl;
 	/// Try to find connection between position of -----------
 	/// reconstructed track and track after GEANE propagation
 	TVector3 pos_rec_trk = trk->GetStartVec();
 	TVector3 dir_rec_trk = trk->GetDirectionVec();
 	TVector3 pos_prop_geane_trk = fRes->GetPosition();
-	//	if(fabs(pos_prop_geane_trk.X())<0.5 && fabs(pos_prop_geane_trk.Y())<0.5 && fabs(pos_prop_geane_trk.Z())<0.05){
 	Double_t theta_prop_geane_trk = TMath::Pi()/2. - lyambda;
 	Double_t phi_prop_geane_trk = fRes->GetPhi();
 	hRecGEANEX->Fill(pos_rec_trk.X(),pos_prop_geane_trk.X());
@@ -580,7 +700,6 @@ int main(int __argc,char *__argv[]) {
 	hSeedGEANETheta->Fill(dirSeed.Theta(), theta_prop_geane_trk);
 	hSeedGEANEPhi->Fill(dirSeed.Phi(), phi_prop_geane_trk);
 	hSeedThetaPhi->Fill(dirSeed.Theta(),dir_rec_trk.Phi());
-
 	///-------------------------------------------------------
 	
 	/// CUT: Check position and coordinates errors of PCA ---------------------------------------
@@ -603,20 +722,12 @@ int main(int __argc,char *__argv[]) {
 	///-----------------------------------------------------------------------------------
 	
 	/// Read MC track parameters ----------------------------------------------------------
-	int MCidforREC = MCtrkID[0];
+	int MCidforREC = RECtrkMCid[iN];
 	PndMCTrack *mctrk =(PndMCTrack*) true_tracks->At(MCidforREC);
 	Int_t mcID = mctrk->GetPdgCode();
-	//	  if(mcID!=-2212) continue;
 	TVector3 MomMC = mctrk->GetMomentum();
-	// cout<<" "<<endl;
-	// cout<<" ------------------ "<<endl;
-	// cout<<"MC trk dir:"<<endl;
-	// MomMC.Print();
-	//	if(MomMC)
 	Double_t thetaMC = MomMC.Theta();
 	Double_t phiMC = MomMC.Phi();
-	// hgoodTheta->Fill(thetaMC);
-	// hgoodPhi->Fill(phiMC);
 	///------------------------------------------------------------------------------------
 	
 	/// Read track-parameters after back-propagation ---------------------------------------
@@ -625,6 +736,23 @@ int main(int __argc,char *__argv[]) {
 	// Double_t err_lyambda = errMom.Theta();
 	Double_t phiBP = fRes->GetPhi();
 	Double_t err_phi = fRes->GetDPhi();
+
+	///Let's checked for good tracks ------------------
+
+	for(Int_t jk=0; jk< nParticles;jk++){
+	  PndMCTrack *mctrk =(PndMCTrack*) true_tracks->At(jk);
+	  Int_t mcID = mctrk->GetPdgCode();
+	  if(mcID==-2212){
+	    TVector3 MomMC = mctrk->GetMomentum();
+	    double diffTheta=fabs(MomMC.Theta()-thetaBP)/err_lyambda;
+	    double diffPhi=fabs(MomMC.Phi()-phiBP)/err_phi;
+	    hntrkmissedPhiTheta->Fill(diffTheta,diffPhi);
+	    //	    if(diffTheta<4. && diffPhi<4.) goodRectrk++;
+	    if(diffTheta<3. && diffPhi<3.) goodRectrk++;
+	  }
+	}
+	///(end) check for good tracks --------------------------
+
 	// Double_t err_phi = errMom.Phi();
 	Double_t errMomRecBP = fRes->GetDQp();
 	// Double_t errMomRecBP =  errMom.Mag();
@@ -649,8 +777,6 @@ int main(int __argc,char *__argv[]) {
 	hMCPhiGEANEPhi->Fill(phiMC,phiBP);
 	hMCThetaResTheta->Fill(thetaMC,thetaMC-thetaBP);
 	hMCPhiResPhi->Fill(phiMC,phiMC-phiBP);
-	// if((phiMC-phiBP)>0.04) 
-	//   cout<<"[BAD] Event #"<<j<<" has "<<nTrkCandidates<<" trk-cands and "<<numTrk<<" tracks!"<<endl;
 	hResPointX->Fill(PosRec.X());
 	hResPointY->Fill(PosRec.Y());
 	hResDCA->Fill(PosRec.Mag());
@@ -682,12 +808,9 @@ int main(int __argc,char *__argv[]) {
 	nrecall->Fill(pos_prop_geane_trk.X(),pos_prop_geane_trk.Y(),pos_prop_geane_trk.Z(),
 		      MomRecBP.X(),MomRecBP.Y(),MomRecBP.Z(),
 		      MomRecBP.Mag(),thetaBP,phiBP);
-	//	cout<<"thetaBP="<<thetaBP<<" MomRecBP.Theta()="<<MomRecBP.Theta()
-	// <<" phiBP="<<phiBP<<" MomRecBP.Phi()="<<MomRecBP.Phi()<<endl;
 	///==================================
 	
 	Double_t resPhi = phiBP-phiMC;
-	//	Double_t resMom = MomRecBP.Mag()-MomMC.Mag();
 	hResMom->Fill(resMom);
 	hErrMom->Fill(errMomRecBP);
 	hPullMom->Fill(resMom/errMomRecBP);
@@ -711,79 +834,52 @@ int main(int __argc,char *__argv[]) {
 	TVector3 vtxLumiErr = trk->GetStartErrVec();
 	TVector3 dirLumi = trk->GetDirectionVec();
 	TVector3 dirLumiErr = trk->GetDirectionErrVec();
-	
-	  // double dz = 0.001;
-	  // double dx = dirLumi.X()*dz;
-	  // double dy = dirLumi.Y()*dz;
-	  // vtxLumi += TVector3(dx,dy,dz);
-	  // cout<<"vtxLumi(before):"<<endl;
-	  // vtxLumi.Print();
-	  // cout<<"dirLumiErr(before):"<<endl;
-	  // dirLumiErr.Print();
-
-	  // //do the transformation from LUMI frame (with z-axis perp. to lumi planes) to lab frame
-	  combitransFromLumiFrame(vtxLumi);
-	  rotateFromLumiFrame(dirLumi, false);
-	  // double dirErrnorm = dirLumiErr.Mag();
-	  // dirLumiErr *= 1./dirErrnorm;
-	  rotateFromLumiFrame(dirLumiErr, true);
-	  //	  dirLumiErr *= dirErrnorm;
-
-	  // double vtxErrnorm = vtxLumiErr.Mag();
-	  // vtxLumiErr *= 1./vtxErrnorm;
-	  rotateFromLumiFrame(vtxLumiErr, true);
-	  // vtxLumiErr *= vtxErrnorm;
-
-	  // cout<<"dirLumi(after):"<<endl;
-	  // dirLumi.Print();
-
-	  // cout<<"dirLumiErr(after):"<<endl;
-	  // dirLumiErr.Print();
-	 
-	  double xTrue = MCPointHit->GetX();
-	  double yTrue = MCPointHit->GetY();
-	  double zTrue = MCPointHit->GetZ();
-	  TVector3 vtxLumiMC = TVector3(xTrue,yTrue,zTrue);
+	// //do the transformation from LUMI frame (with z-axis perp. to lumi planes) to lab frame
+	combitransFromLumiFrame(vtxLumi,dnu);
+	rotateFromLumiFrame(dirLumi, false, dnu);
+	rotateFromLumiFrame(dirLumiErr, true, dnu);
+	rotateFromLumiFrame(vtxLumiErr, true, dnu);
+		 
+	double xTrue = MCPointHit->GetX();
+	double yTrue = MCPointHit->GetY();
+	double zTrue = MCPointHit->GetZ();
+	TVector3 vtxLumiMC = TVector3(xTrue,yTrue,zTrue);
 	
 	
-	  double pxTrue =  MCPointHit->GetPx();
-	  double pyTrue =  MCPointHit->GetPy();
-	  double pzTrue =  MCPointHit->GetPz();
-	  TVector3 dirLumiMC = TVector3(pxTrue,pyTrue,pzTrue);
-	  hMomMC->Fill(dirLumiMC.Mag());
-	  // cout<<"MC hit dir:"<<endl;
-	  // dirLumiMC.Print();
-
-	  dirLumiMC *=1./dirLumiMC.Mag();
-	  // cout<<"vtxLumiMC = "<<endl;
-	  // vtxLumiMC.Print();
-
-
-	  // //	  double dz = -0.001;
-	  double dz = -0.0017;
-	  double dx = dirLumiMC.X()*dz;
-	  double dy = dirLumiMC.Y()*dz;
-	  vtxLumiMC += TVector3(dx,dy,dz);
-	 
-	  hResLumiTrkMom->Fill(dirLumiMC.Mag()-dirLumi.Mag());
-	  hResLumiTrkTheta->Fill(dirLumiMC.Theta()-dirLumi.Theta());
-	  hResLumiTrkPhi->Fill(dirLumiMC.Phi()-dirLumi.Phi());
-	  hResLumiTrkPointX->Fill(vtxLumiMC.X()-vtxLumi.X());
-	  hResLumiTrkPointY->Fill(vtxLumiMC.Y()-vtxLumi.Y());
-	  hResLumiTrkPointZ->Fill(vtxLumiMC.Z()-vtxLumi.Z());
-	  
-	  hResLumiTrkPointPx->Fill(dirLumiMC.X()-dirLumi.X());
-	  hResLumiTrkPointPy->Fill(dirLumiMC.Y()-dirLumi.Y());
-	  hResLumiTrkPointPz->Fill(dirLumiMC.Z()-dirLumi.Z());
-
-	  hResLumiTrkPointXPull->Fill((vtxLumiMC.X()-vtxLumi.X())/vtxLumiErr.X());
-	  hResLumiTrkPointYPull->Fill((vtxLumiMC.Y()-vtxLumi.Y())/vtxLumiErr.Y());
-	  hResLumiTrkPointZPull->Fill((vtxLumiMC.Z()-vtxLumi.Z())/vtxLumiErr.Z());
-	  
-	  hResLumiTrkPointPxPull->Fill((dirLumiMC.X()-dirLumi.X())/dirLumiErr.X());
-	  hResLumiTrkPointPyPull->Fill((dirLumiMC.Y()-dirLumi.Y())/dirLumiErr.Y());
-	  hResLumiTrkPointPzPull->Fill((dirLumiMC.Z()-dirLumi.Z())/dirLumiErr.Z());
-      ///================================================================
+	double pxTrue =  MCPointHit->GetPx();
+	double pyTrue =  MCPointHit->GetPy();
+	double pzTrue =  MCPointHit->GetPz();
+	TVector3 dirLumiMC = TVector3(pxTrue,pyTrue,pzTrue);
+	hMomMC->Fill(dirLumiMC.Mag());
+	dirLumiMC *=1./dirLumiMC.Mag();
+	
+	double dz = -zTrue+vtxLumi.Z();//Correct definition Z coord of comparision
+	double dx = dirLumiMC.X()*dz;
+	double dy = dirLumiMC.Y()*dz;
+	vtxLumiMC += TVector3(dx,dy,dz);
+	
+	hResLumiTrkMom->Fill(dirLumiMC.Mag()-dirLumi.Mag());
+	hResLumiTrkTheta->Fill(dirLumiMC.Theta()-dirLumi.Theta());
+	hResLumiTrkPhi->Fill(dirLumiMC.Phi()-dirLumi.Phi());
+	hResLumiTrkPointX->Fill(vtxLumiMC.X()-vtxLumi.X());
+	hResLumiTrkPointY->Fill(vtxLumiMC.Y()-vtxLumi.Y());
+	hResLumiTrkPointZ->Fill(vtxLumiMC.Z()-vtxLumi.Z());
+	
+	hResLumiTrkPointPx->Fill(dirLumiMC.X()-dirLumi.X());
+	hResLumiTrkPointPy->Fill(dirLumiMC.Y()-dirLumi.Y());
+	hResLumiTrkPointPz->Fill(dirLumiMC.Z()-dirLumi.Z());
+	
+	hResLumiTrkPointXPull->Fill((vtxLumiMC.X()-vtxLumi.X())/vtxLumiErr.X());
+	hResLumiTrkPointYPull->Fill((vtxLumiMC.Y()-vtxLumi.Y())/vtxLumiErr.Y());
+	hResLumiTrkPointZPull->Fill((vtxLumiMC.Z()-vtxLumi.Z())/vtxLumiErr.Z());
+	
+	hResLumiTrkPointPxPull->Fill((dirLumiMC.X()-dirLumi.X())/dirLumiErr.X());
+	hResLumiTrkPointPyPull->Fill((dirLumiMC.Y()-dirLumi.Y())/dirLumiErr.Y());
+	hResLumiTrkPointPzPull->Fill((dirLumiMC.Z()-dirLumi.Z())/dirLumiErr.Z());
+	
+	hMCThetaResSeedTheta->Fill(dirLumiMC.Theta(),(dirLumiMC.Theta()-dirLumi.Theta()));
+	hMCPhiResSeedPhi->Fill(dirLumiMC.Phi(),(dirLumiMC.Phi()-dirLumi.Phi()));
+	///================================================================
       }
       ///-------------------------------------------------------------------------------------
       MCtrkID.clear();
@@ -791,9 +887,31 @@ int main(int __argc,char *__argv[]) {
     for(int nk=0;nk<numTrk;nk++){
       hntrkMCtrkID->Fill(nk,MCtrk[nk]);
       hchi2MCdiffID->Fill(chi2Cont[nk],ndiffIDCont[nk]);
-      //      if(MCtrk[nk]>1) cout<<"Attention MCtrk["<<nk<<"]="<<MCtrk[nk]<<endl;
     }
- 
+    /// (I) missed\ghost tracks are defined on Phi\Theta difference between MC&REC trks
+    if((nMCtracks-goodRectrk)>0) hntrkmissed_I->Fill(nMCtracks-goodRectrk);
+    if((nGeaneTrks-goodRectrk)>0) hntrkghost_I->Fill(nGeaneTrks-goodRectrk);
+    if(verboseLevel>0){
+    cout<<nMCtracks<<" trks per event were simulated and "<<nGeaneTrks<<" were reconstructed"<<endl;
+    cout<<"-- (I) dPhi\dTheta -------------------------"<<endl;
+    cout<<"Good trks: "<<goodRectrk<<" missed: "<<nMCtracks-goodRectrk<<" ghost: "<<nGeaneTrks-goodRectrk<<endl;
+    cout<<"--------------------------------"<<endl;
+    }
+    /// (II) missed\ghost tracks are defined on hits information
+    int goodRecII=0, ghostRecII=0;
+    for (Int_t iN=0; iN<nGeaneTrks; iN++){
+      if(goodTrk[iN]) goodRecII++;
+      if(ghostTrk[iN]) ghostRecII++;
+    }
+    if(ghostRecII>0) hntrkghost_II->Fill(ghostRecII);
+    if((nMCtracks-goodRecII)>0) hntrkmissed_II->Fill(nMCtracks-goodRecII);
+    if(verboseLevel>0){
+      cout<<"-- (II) Hits matching -------------------------"<<endl;
+      cout<<"Good trks: "<<goodRecII<<" missed: "<<nMCtracks-goodRecII<<" ghost: "<<ghostRecII<<endl;
+      cout<<"--------------------------------"<<endl;
+      cout<<" "<<endl;
+    }
+    //  cout<<"number of good: "<<goodRecII<<" number of missed: "<<nMCtracks-goodRecII<<" number of ghost: "<<ghostRecII<<endl;
     ///-------------------------------------------------------------------------------------
   
     //    cout<<"nGeaneTrks = "<<nGeaneTrks<<" nRecGEANEtrk = "<<nRecGEANEtrk<<endl;
@@ -1198,19 +1316,87 @@ int main(int __argc,char *__argv[]) {
  TCanvas *c13 = new TCanvas("TrkLin_and_MC_pulls");
  c13->Divide(3,2);
  c13->cd(1);
+ hResLumiTrkPointXPull->Fit(funp,"r");
  hResLumiTrkPointXPull->Draw();
  c13->cd(2);
+ hResLumiTrkPointYPull->Fit(funp,"r");
  hResLumiTrkPointYPull->Draw();
  c13->cd(3);
+ hResLumiTrkPointZPull->Fit(funp,"r");
  hResLumiTrkPointZPull->Draw();
  c13->cd(4);
+ hResLumiTrkPointPxPull->Fit(funp,"r");
  hResLumiTrkPointPxPull->Draw();
  c13->cd(5);
+ hResLumiTrkPointPyPull->Fit(funp,"r");
  hResLumiTrkPointPyPull->Draw();
  c13->cd(6);
+ hResLumiTrkPointPzPull->Fit(funp,"r");
  hResLumiTrkPointPzPull->Draw();
  c13->Write();
  c13->Close();
+
+ TCanvas *c14 = new TCanvas("TrkIP_andLin_and_MC_pulls");
+ c14->Divide(3,2);
+ c14->cd(1);
+ //Grey = Trk near IP
+ //Blue = Trk near Lumi
+ hPullPointX->SetLineWidth(2);
+ hPullPointX->SetLineColor(12);
+ hPullPointX->SetFillColor(12);
+ hPullPointX->SetFillStyle(3003);
+ hPullPointX->Draw();
+ hResLumiTrkPointXPull->SetLineColor(4);
+ hResLumiTrkPointXPull->SetLineWidth(2);
+ hResLumiTrkPointXPull->Draw("same");
+ c14->cd(2);
+ hPullPointY->SetLineWidth(2);
+ hPullPointY->SetLineColor(12);
+ hPullPointY->SetFillColor(12);
+ hPullPointY->SetFillStyle(3003);
+ hPullPointY->Draw();
+ hResLumiTrkPointYPull->SetLineColor(4);
+ hResLumiTrkPointYPull->SetLineWidth(2);
+ hResLumiTrkPointYPull->Draw("same");
+ c14->cd(3);
+ hPullPointZ->SetLineWidth(2);
+ hPullPointZ->SetLineColor(12);
+ hPullPointZ->SetFillColor(12);
+ hPullPointZ->SetFillStyle(3003);
+ hPullPointZ->Draw();
+ hResLumiTrkPointZPull->SetLineColor(4);
+ hResLumiTrkPointZPull->SetLineWidth(2);
+ hResLumiTrkPointZPull->Draw("same");
+ c14->cd(4);
+ hPullPointPx->SetLineWidth(2);
+ hPullPointPx->SetLineColor(12);
+ hPullPointPx->SetFillColor(12);
+ hPullPointPx->SetFillStyle(3003);
+ hPullPointPx->Draw();
+ hResLumiTrkPointPxPull->SetLineColor(4);
+ hResLumiTrkPointPxPull->SetLineWidth(2);
+ hResLumiTrkPointPxPull->Draw("same");
+ c14->cd(5);
+ hPullPointPy->SetLineWidth(2);
+ hPullPointPy->SetLineColor(12);
+ hPullPointPy->SetFillColor(12);
+ hPullPointPy->SetFillStyle(3003);
+ hPullPointPy->Draw();
+ hResLumiTrkPointPyPull->SetLineColor(4);
+ hResLumiTrkPointPyPull->SetLineWidth(2);
+ hResLumiTrkPointPyPull->Draw("same");
+ c14->cd(6);
+ hPullPointPz->SetLineWidth(2);
+ hPullPointPz->SetLineColor(12);
+ hPullPointPz->SetFillColor(12);
+ hPullPointPz->SetFillStyle(3003);
+ hPullPointPz->Draw();
+ hResLumiTrkPointPzPull->SetLineColor(4);
+ hResLumiTrkPointPzPull->SetLineWidth(2);
+ hResLumiTrkPointPzPull->Draw("same");
+ c14->Write();
+ c14->Close();
+
 
   hSeedThetaDiffIDs->Write();
   hSeedPhiDiffIDs->Write();
@@ -1274,5 +1460,12 @@ int main(int __argc,char *__argv[]) {
  hLumiTrkB->Write(); 
  hLumiTrkC->Write(); 
  hLumiTrkD->Write(); 
+ hMCThetaResSeedTheta->Write();
+ hMCPhiResSeedPhi->Write();
+ hntrkmissedPhiTheta->Write();
+ hntrkmissed_I->Write();
+ hntrkghost_I->Write();
+ hntrkmissed_II->Write();
+ hntrkghost_II->Write();
  f->Close();
 }
