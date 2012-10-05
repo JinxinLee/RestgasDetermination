@@ -110,11 +110,21 @@ void PndLmdPixelClusterTask::SetBranchNames()
 
 void PndLmdPixelClusterTask::combitransToLumiFrame(TVector3& hitPos){
   //do the transformation from lab frame to LUMI frame (with z-axis perp. to lumi planes)
-  const Double_t  kHalfFoilThickness  = 0.0075; // Thickness of sensitive foil (cm)
-  const Double_t  kTransZ = 1100.; //(cm) //move at z-position
-  const Double_t  kRotUmZ = 476.03; //(cm) //z-point to rotate
-  const Double_t  kTransX = 25; //(cm) //move at x-position
-  const Double_t  kRot =  0.040596358401388; // 2.326 degree  = 4.05963584013881024e-02 rad
+  double end_seg_upstream = 360.1; // where bending starts with
+  double r_bend = 5750.; // the bending radius
+  double phi_bend = 40.068e-3; // and the angle of the circle path
+  // const Double_t kRot = phi_bend/3.141*180.;//=2.295727;//2.326; //(deg) //Rotate to dipol
+  const Double_t kRot = phi_bend;//here we need abgle in rad!
+  // the point where both tangents of the straight beam pipe tubes meet is
+  const Double_t kRotUmZ = end_seg_upstream + tan(phi_bend/2.)*r_bend;//476.03; //(cm) //z-point to rotate
+  const Double_t kTransZ = 1130.; //(cm) //move at z-position
+  const Double_t kTransX = (kTransZ - end_seg_upstream - tan(phi_bend/2.)*r_bend)*tan(phi_bend); // 25 (cm) //move at x-position
+  // cout<<"kTransX = "<<kTransX<<" kRotUmZ = "<<kRotUmZ<<" kRot = "<<kRot<<endl;
+  // const Double_t  kHalfFoilThickness  = 0.0075; // Thickness of sensitive foil (cm)
+  // const Double_t  kTransZ = 1130.; //(cm) //move at z-position
+  // const Double_t  kRotUmZ = 476.03; //(cm) //z-point to rotate
+  // const Double_t  kTransX = 25; //(cm) //move at x-position
+  // const Double_t  kRot =  0.040596358401388; // 2.326 degree  = 4.05963584013881024e-02 rad
   TVector3 LumiTrans(0,0,kRotUmZ);
   hitPos -=LumiTrans;
   hitPos.RotateY(-kRot);
@@ -133,10 +143,9 @@ void PndLmdPixelClusterTask::rotateToLumiFrame(TVector3& hitPos){
   hitPos = TVector3(hitMtx(0,0),hitMtx(1,0),hitMtx(2,0));
 }
 TMatrixD PndLmdPixelClusterTask::rotateToLumiFrame(TMatrixD& hitCov){
-  Double_t theta=2.326;
-  Double_t degrad = TMath::Pi()/180.;
-  Double_t sintheta = TMath::Sin(degrad*theta);
-  Double_t costheta = TMath::Cos(degrad*theta);
+  double phi_bend = 40.068e-3; // and the angle of the circle path
+  Double_t sintheta = TMath::Sin(phi_bend);
+  Double_t costheta = TMath::Cos(phi_bend);
   TMatrixD rot(3,3);// Rotation around Y axis
   rot[0][0]= costheta;
   rot[0][1]= 0;
@@ -235,7 +244,10 @@ void PndLmdPixelClusterTask::Exec(Option_t* opt)
     // mapping with the choosen back mapping
     PndSdsHit myHit = fBackMapping->GetCluster(clusterArray);
     myHit.SetClusterIndex(fClusterType,i, 0, fEventNr);
-
+    if(fVerbose>0){
+      cout<<"Before transl to LUMI frame:"<<endl;
+      myHit.Print();
+    }
     TVector3 hitPos = myHit.GetPosition();
     // do the transformation from lab frame to LUMI frame (with z-axis perp. to lumi planes)
     combitransToLumiFrame(hitPos);
@@ -251,7 +263,7 @@ void PndLmdPixelClusterTask::Exec(Option_t* opt)
 
  //   myHit.SetCharge(myHit.GetCharge());
     if(fVerbose>0){
-      std::cout << " -I-  PndSdsPixelClusterTask::Exec(): Calculated Hit: " << std::endl;
+      std::cout << " -I-  PndSdsPixelClusterTask::Exec(): Calculated Hit(LUMI frame): " << std::endl;
       myHit.Print();
       ((FairMultiLinkedData)(myHit)).Print();
     }
