@@ -55,21 +55,18 @@ link_directories( ${LINK_DIRECTORIES})
 
 ################################## install #####################################
 # install(TARGETS Lmd DESTINATION ${CMAKE_BINARY_DIR}/lib)
-add_executable(resolution_and_acceptance Resolution_and_acceptance.cxx)
+add_executable(bkg_rec_mc_match BkgStudies_MCmatch_withSignal_exe.C)
+add_executable(rec_mc_match MCandRECTrkmatches_exe.C)
+add_executable(sum_bkg_rec_mc_match sumBkgStudies_MCmatch_withSignal_exe.C)
+add_executable(hits_align CreateHitsForAlignment.C)
+add_executable(dpm_out_check GenInfoDPMgen.C)
+	
 # loading of libraries in the correct order is important!
 # (-lSts -lGen -lRich -lTrd -lTof -lMvd -lGlobal -lKF -lDilept
 #-lMuch -lBase -lField -lMCStack -lPassive -lGeoBase
 #-lParBase)
-target_link_libraries(resolution_and_acceptance ${ROOT_LIBRARIES} LmdTesting Geane Geom Proof TrkBase FairTools PndData VMC EG GeomPainter generalTools Base GeoBase FairDB ParBase)
-
-add_executable(check_particle_path Check_particle_path.C)
-target_link_libraries(check_particle_path ${ROOT_LIBRARIES} LmdTesting Geane Geom Proof TrkBase FairTools PndData VMC EG GeomPainter generalTools Base GeoBase FairDB ParBase)
-
-add_executable(createRootGeometry_beampipe createRootGeometry_beampipe.C)
-# loading of libraries in the correct order is important!
-# (-lSts -lGen -lRich -lTrd -lTof -lMvd -lGlobal -lKF -lDilept
-#-lMuch -lBase -lField -lMCStack -lPassive -lGeoBase
-#-lParBase)
-target_link_libraries(createRootGeometry_beampipe ${ROOT_LIBRARIES} Geom GeoBase)
-add_executable(createRootGeometry_lmd_HV_MAPS create_HV_MAPS.C)
-target_link_libraries(createRootGeometry_lmd_HV_MAPS ${ROOT_LIBRARIES} Geom GeoBase)
+target_link_libraries(bkg_rec_mc_match ${ROOT_LIBRARIES} Geane Geom Proof TrkBase FairTools PndData VMC EG GeomPainter generalTools Base GeoBase FairDB ParBase)
+target_link_libraries(rec_mc_match ${ROOT_LIBRARIES} Geane Geom Proof TrkBase FairTools PndData VMC EG GeomPainter generalTools Base GeoBase FairDB ParBase LmdTrk)
+target_link_libraries(sum_bkg_rec_mc_match ${ROOT_LIBRARIES})
+target_link_libraries(hits_align ${ROOT_LIBRARIES} Geane Geom Proof TrkBase FairTools PndData VMC EG GeomPainter generalTools Base GeoBase FairDB ParBase LmdTrk)
+target_link_libraries(dpm_out_check ${ROOT_LIBRARIES} Geane Geom Proof TrkBase FairTools PndData VMC EG GeomPainter generalTools Base GeoBase FairDB ParBase)
