@@ -1,4 +1,4 @@
-void create_ftof_rootgeo(Double_t distance = 750){
+void create_ftof_rootgeo(Double_t distance = 775){
   // Forward tof geometry parameters
   //-----------------------------
   //-- macro created by Alicia S. based on
