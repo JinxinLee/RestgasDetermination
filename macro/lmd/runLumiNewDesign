@@ -1,0 +1,30 @@
+#!/bin/bash  
+path=tmpOutnewDesign
+mkdir ${path}
+#for numTrks in 1 2 3 4 5 10 15
+for numTrks in 1 2
+do
+    root -l -b -q runLumiPixel0SimBox.C\(1000,11.91,"\"${path}\"",0,-2212,${numTrks}\)
+    root -l -b -q runLumiPixel1Digi.C\(1000,0,"\"${path}\""\)
+    root -l -b -q runLumiPixel2Reco.C\(1000,0,"\"${path}\""\)
+    root -l -b -q runLumiPixel2bHitMerge.C\(1000,0,"\"${path}\""\)
+    root -l -b -q runLumiPixel3Finder.C\(1000,0,"\"${path}\"",0,"\"CA\""\) >> logNEW_CA_${numTrks}trks
+    root -l -b -q runLumiPixel4Fitter.C\(1000,0,"\"${path}\""\)
+    root -l -b -q runLumi5Geane.C\(1000,11.91,0,"\"${path}\"",0,1\)
+    cd /data/FAIRsorf/pandaroot/trunk/build/bin
+    ./rec_mc_match -s 0 -n 1000 -t ${numTrks} -mom 11.91 -npx 1 -v 0 -path "/data/FAIRsorf/pandaroot/trunk/macro/lmd/tmpOutnewDesign"
+    cd /home/akaravdina/lmdMacro
+    mv tmpOutnewDesign/Lumi_out_MC_and_REC_trks_matches_with_IDs0.root tmpOutnewDesign/Lumi_out_MC_and_REC_trks_matches_with_IDs0_CA_${numTrks}trks.root
+    
+    root -l -b -q runLumi3bFinder.C\(1000,0,"\"${path}\"",0,"\"Follow\""\) >> logNEW_Follow_${numTrks}trks
+    root -l -b -q runNewLumi4Fitter.C\(1000,0,"\"${path}\""\)
+    root -l -b -q runLumi5Geane.C\(1000,11.91,0,"\"${path}\"",0,1\)
+    cd /data/FAIRsorf/pandaroot/trunk/build/bin
+    ./rec_mc_match -s 0 -n 1000 -t ${numTrks} -mom 11.91 -npx 1 -v 0 -path "/data/FAIRsorf/pandaroot/trunk/macro/lmd/tmpOutnewDesign"
+    cd /home/akaravdina/lmdMacro
+    mv tmpOutnewDesign/Lumi_out_MC_and_REC_trks_matches_with_IDs0.root tmpOutnewDesign/Lumi_out_MC_and_REC_trks_matches_with_IDs0_Follow_${numTrks}trks.root
+done
+
+# mkdir /myResults/LUMI_Trk/pixelDesign/1000events
+# mv tmpOutnewDesign/Lumi_out_MC_and_REC_trks_matches_with_IDs0_* /myResults/LUMI_Trk/pixelDesign/1000events/.
+# mv logNEW* /myResults/LUMI_Trk/pixelDesign/1000events/.
