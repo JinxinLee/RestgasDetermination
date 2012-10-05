@@ -106,7 +106,18 @@ void PndLmdHitMergeTask::Exec(Option_t* opt)
     for(Int_t jHit = iHit+1; jHit < fHitArray->GetEntriesFast(); jHit++){ //check other hits
       PndSdsHit* myHit2 = (PndSdsHit*)(fHitArray->At(jHit));
     
-      if( fabs(myHit1->GetZ()-myHit2->GetZ())<0.1 ){  //actually same Hit: merge
+      //    if( fabs(myHit1->GetZ()-myHit2->GetZ())<0.1 ){  //actually same Hit: merge
+    if( fabs(myHit1->GetZ()-myHit2->GetZ())<0.05 && 
+	fabs(myHit1->GetZ()-myHit2->GetZ())>0.01 &&
+	fabs(myHit1->GetX()-myHit2->GetX())<0.016&& 
+	fabs(myHit1->GetY()-myHit2->GetY())<0.016){  //actually same Hit: merge (too pixel size fo x-y)
+      if (fVerbose > 2){
+	std::cout<<"----- We are going to merge HITS: -----"<<std::endl;
+	myHit1->Print();
+	std::cout<<".... AND ...."<<std::endl;
+	myHit2->Print();
+	std::cout<<"---------------------------------------"<<std::endl;
+      }
         mergewithIDs.push_back(jHit);
         mergedHits.push_back(jHit);
       }
