@@ -210,7 +210,13 @@ void PndSdsDetector::EndOfEvent()
   if (fVerboseLevel)
     Print();
   
-  fPndSdsCollection->Delete();
+  if (fPndSdsCollection) {
+	  fPndSdsCollection->Delete();
+  } else {
+	  if (fVerboseLevel > 1) {
+		  std::cout << "-W- PndSdsDetector::EndOfEvent: no fPndSdsCollection pointer!" << std::endl;
+	  }
+  }
   fPosIndex = 0;
 }
 // -------------------------------------------------------------------------
