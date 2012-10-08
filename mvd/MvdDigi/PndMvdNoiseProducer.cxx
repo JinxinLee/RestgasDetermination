@@ -231,7 +231,7 @@ void PndMvdNoiseProducer::Exec(Option_t* opt)
   xfrac = CalcDistFraction(fDigiParRect->GetNoise(),fDigiParRect->GetThreshold());
   cycles = CalcReadoutCycles(fDigiParRect->GetFeBusClock());
   chanwhite = gRandom->Poisson(xfrac*chanmax);
-  if(fVerbose>1); std::cout << " -I- PndMvdNoiseProducer: RECT <N> = " << xfrac*cycles*chanmax
+  if(fVerbose>1) std::cout << " -I- PndMvdNoiseProducer: RECT <N> = " << xfrac*cycles*chanmax
     << " leading to " << chanwhite << " noisy digis of " << chanmax
     << " total channels" << std::endl;
   for(Int_t i = 0;i < chanwhite;i++)
@@ -258,7 +258,7 @@ void PndMvdNoiseProducer::Exec(Option_t* opt)
   // Get Number of Channels fired from noise
   xfrac = CalcDistFraction(fDigiParRect->GetNoise(),fDigiParRect->GetThreshold());
   chanwhite = gRandom->Poisson(xfrac*cycles*chanmax);
-  if(fVerbose>1); std::cout << " -I- PndMvdNoiseProducer: RECT <N> = " << xfrac*cycles*chanmax
+  if(fVerbose>1) std::cout << " -I- PndMvdNoiseProducer: RECT <N> = " << xfrac*cycles*chanmax
     << " leading to " << chanwhite << " noisy digis of " << chanmax
     << " total channels" << std::endl;
   for(Int_t i = 0;i < chanwhite;i++)
@@ -287,7 +287,7 @@ void PndMvdNoiseProducer::Exec(Option_t* opt)
   xfrac = CalcDistFraction(fDigiParTrap->GetNoise(),fDigiParTrap->GetThreshold());
   cycles = CalcReadoutCycles(fDigiParTrap->GetFeBusClock());
   chanwhite = gRandom->Poisson(xfrac*cycles*chanmax);
-  if(fVerbose>1); std::cout << " -I- PndMvdNoiseProducer: TRAP <N> = " << xfrac*cycles*chanmax
+  if(fVerbose>1) std::cout << " -I- PndMvdNoiseProducer: TRAP <N> = " << xfrac*cycles*chanmax
     << " leading to " << chanwhite << " noisy digis of " << chanmax
     << " total channels" << std::endl;
   for(Int_t i = 0;i < chanwhite;i++)
@@ -314,7 +314,7 @@ void PndMvdNoiseProducer::Exec(Option_t* opt)
   xfrac = CalcDistFraction(fDigiParPix->GetNoise(),fDigiParPix->GetThreshold());
   cycles = CalcReadoutCycles(fDigiParPix->GetFeBusClock());
   chanwhite = gRandom->Poisson(xfrac*cycles*chanmax);
-  if(fVerbose>1); std::cout << " -I- PndMvdNoiseProducer: PIXEL <N> = " << xfrac*cycles*chanmax
+  if(fVerbose>1) std::cout << " -I- PndMvdNoiseProducer: PIXEL <N> = " << xfrac*cycles*chanmax
     << " leading to " << chanwhite << " noisy digis of " << chanmax
     << " total channels" << std::endl;
   for(Int_t i = 0;i < chanwhite;i++)
