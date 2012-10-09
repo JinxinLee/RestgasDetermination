@@ -27,10 +27,11 @@ PndHypGe.cxx
 PndGeoHypGePar.cxx 
 PndHypGePoint.cxx 
 PndHypGeHit.cxx 
-PndHypGeHitProducerIdeal.cxx  
+PndHypGeHitProducerIdeal.cxx 
 PndHypGeContFact.cxx 
 PndHypGeReader.cxx 
 GeCluster.cxx
+PndHypGeIdealTrackFinderTask.cxx 
 )
 
 # fill list of header files from list of source files

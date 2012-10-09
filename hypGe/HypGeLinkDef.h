@@ -13,5 +13,6 @@
 #pragma link C++ class  PndHypGeHit+;
 #pragma link C++ class  PndHypGeHitProducerIdeal+;
 #pragma link C++ class  GeCluster+;
+#pragma link C++ class  PndHypGeIdealTrackFinderTask+;
 
 #endif
