@@ -113,10 +113,14 @@ sim_complete(Int_t nEvents = 10, TString  SimEngine ="TGeant3", Float_t mom = 7.
   FairDetector *Fts= new PndFts("FTS", kTRUE);
   Fts->SetGeometryFileName("fts.geo");
   fRun->AddModule(Fts); 
-  //-------------------------  FTOF       -----------------
+  //-------------------------  FTOF      -----------------
   FairDetector *FTof = new PndFtof("FTOF",kTRUE);
   FTof->SetGeometryFileName("ftofwall.root");
   fRun->AddModule(FTof);
+  //-------------------------  RICH       ----------------
+  FairDetector *Rich= new PndRich("RICH",kFALSE);
+  Rich->SetGeometryFileName("rich.geo");
+  fRun->AddModule(Rich);
 
   // Create and Set Event Generator
   //-------------------------------
