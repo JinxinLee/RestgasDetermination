@@ -47,6 +47,7 @@ rootlogon()
   if(isLibrary("libSciT"))gSystem->Load("libSciT");
   if(isLibrary("libDrcProp"))gSystem->Load("libDrcProp");
   if(isLibrary("libDrc"))gSystem->Load("libDrc");
+  if(isLibrary("libRich"))gSystem->Load("libRich");
   if(isLibrary("libMdt"))gSystem->Load("libMdt");
   if(isLibrary("libGeane"))gSystem->Load("libGeane");
   if(isLibrary("libLmd"))gSystem->Load("libLmd");

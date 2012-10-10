@@ -88,6 +88,8 @@ SdsData/PndSdsHit.cxx
 SdsData/PndSdsPidCand.cxx
 SdsData/PndSdsRadDamHit.cxx
 SdsData/PndSdsDigiPixelMCInfo.cxx
+
+RichData/PndRichPoint.cxx
  
 MvdData/PndMvdApvHit.cxx
 MvdData/PndMvdPidCand.cxx

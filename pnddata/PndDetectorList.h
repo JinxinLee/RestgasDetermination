@@ -11,7 +11,7 @@
 
 enum DetectorId {
 /** kDCH must be the 1st id, and kHYP must be the last one. Please put new detectors in between!! **/
-    kDCH,kDRC,kDSK,kEMC,kGEM,kLUMI,kMDT,kMVD,kRPC,kSTT,kTPC,kTOF,kFTS,kHYPG,kHYP};
+    kDCH,kDRC,kDSK,kEMC,kGEM,kLUMI,kMDT,kMVD,kRPC,kSTT,kTPC,kTOF,kFTS,kHYPG,kHYP,kRICH};
     
 /** Unique identifier for all Panda Point and Hit types **/
 
