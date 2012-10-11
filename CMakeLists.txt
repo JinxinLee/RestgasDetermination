@@ -75,7 +75,7 @@ SET(SIMPATH $ENV{SIMPATH})
 
 SET(ROOT_MIN_VERSION "5.24/00")
 
-find_package(ROOT REQUIRED)
+find_package(ROOT 5.32.00 REQUIRED)
 
 IF(ROOT_INSTALLED_VERSION_TOO_OLD)
   MESSAGE( FATAL_ERROR "Invalid ROOT version \"${ROOTERSION}\", at least version  \"5.24/00\" is required, or external packages jul09")
