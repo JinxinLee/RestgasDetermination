@@ -76,7 +76,7 @@ TMVA_MCL/PndMultiClassBdtClassify.cpp
 )
 # If we can build mlp into the lib
 SET(ROOT_MIN_VERSION "5.28/00")
-find_package(ROOT REQUIRED)
+find_package(ROOT 5.28.00 REQUIRED)
 IF( NOT ROOT_INSTALLED_VERSION_TOO_OLD )
    MESSAGE("-- <MVA_INFO> Building MVA with multiClass.")
    SET(MVA_HEADERS ${MVA_HEADERS} ${TMVA_ALG_HEADR})
