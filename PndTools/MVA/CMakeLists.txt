@@ -74,16 +74,17 @@ TMVA_MCL/PndMultiClassMlpClassify.cpp
 TMVA_MCL/PndMultiClassBdtTrain.cpp
 TMVA_MCL/PndMultiClassBdtClassify.cpp
 )
+
 # If we can build mlp into the lib
-SET(ROOT_MIN_VERSION "5.28/00")
-find_package(ROOT 5.28.00 REQUIRED)
-IF( NOT ROOT_INSTALLED_VERSION_TOO_OLD )
+# The version number is calculated major*10000 + minor * 100 + patch version
+# 5.28/00 results in 52800
+If(${ROOT_VERSION_NUMBER} LESS 52800)
+   MESSAGE("-- <MVA_WARN> ROOT version is too old for Muliclass support.")
+Else(${ROOT_VERSION_NUMBER} LESS 52800)
    MESSAGE("-- <MVA_INFO> Building MVA with multiClass.")
    SET(MVA_HEADERS ${MVA_HEADERS} ${TMVA_ALG_HEADR})
    SET(MVA_SRCS ${MVA_SRCS} ${TMVA_ALG_SOURCE})
-ELSE ()
-   MESSAGE("-- <MVA_WARN> ROOT version is too old for Muliclass support.")
-ENDIF ( NOT ROOT_INSTALLED_VERSION_TOO_OLD )
+EndIf(${ROOT_VERSION_NUMBER} LESS 52800)
 
 # ###################################
 # if(RULE_CHECKER_FOUND)
