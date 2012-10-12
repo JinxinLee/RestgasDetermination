@@ -64,6 +64,10 @@ ENDIF(NOT DEFINED ENV{SIMPATH})
 STRING(REGEX MATCHALL "[^:]+" PATH $ENV{PATH})
 SET(SIMPATH $ENV{SIMPATH})
 
+# Check if the external packages are installed into a separate install
+# directory
+CHECK_EXTERNAL_PACKAGE_INSTALL_DIR()
+
 # Set the build type. Possibilities are None, Debug, Release, 
 # RelWithDebInfo and MinSizeRel 
 #SET(CMAKE_BUILD_TYPE Debug)
@@ -73,14 +77,7 @@ SET(SIMPATH $ENV{SIMPATH})
 # For example the framework can run without GEANT4, but ROOT is
 # mandatory
 
-SET(ROOT_MIN_VERSION "5.24/00")
-
 find_package(ROOT 5.32.00 REQUIRED)
-
-IF(ROOT_INSTALLED_VERSION_TOO_OLD)
-  MESSAGE( FATAL_ERROR "Invalid ROOT version \"${ROOTERSION}\", at least version  \"5.24/00\" is required, or external packages jul09")
-ENDIF (ROOT_INSTALLED_VERSION_TOO_OLD)
-
 find_package(PLUTO REQUIRED)
 find_package(glpk REQUIRED)
 find_package(Pythia8 REQUIRED)
