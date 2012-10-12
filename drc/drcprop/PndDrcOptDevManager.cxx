@@ -631,7 +631,7 @@ bool PndDrcOptDevManager::Cerenkov(const string& vol_name, const string& sys_nam
 
     for (int i=0; i<inum1; i++) // loop over photons
     {
-      if (i%1000==0) cout<<" i="<<i<<endl;
+      //if (i%1000==0) cout<<" i="<<i<<endl;
       
       do
       {

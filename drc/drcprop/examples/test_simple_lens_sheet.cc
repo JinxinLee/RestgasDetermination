@@ -88,9 +88,11 @@ int main(int argc, char *argv[])
   //int focus_option = 3; // focussing downstream cylindrical mirror
   
   
-  int ioption = 1; // 1=cherenkov, 2=testbeam
-
-  int top_option = 0; // 0 with expansion volume, 1 without expandsion volume
+  //int ioption = 1; // 1=cherenkov, 2=testbeam
+  //int ioption = 3; // grid
+  int ioption =4;// line
+  
+  int top_option = 0; // 0 with expansion volume, 1 without expansion volume
   // top_option=1 writes times versus x into the Screen.C file.
 
 
@@ -148,7 +150,7 @@ int main(int argc, char *argv[])
 
   if (focus_option == 2) // spherical downstream mirror
     {
-      PndDrcOptLens mirror(half_width,half_thick,10/2,9999,mirror_radius); // spherical mirror
+      PndDrcOptLens mirror(half_width,half_thick,10/2,9999,mirror_radius,0,-1); // spherical mirror
       mirror.SetOptMaterial(PndDrcOptMatLithotecQ0());
       mirror.SetName("mirror");
       mirror.Surface("side6")->SetReflectivity(PndDrcOptReflSilver()); // the mirror
@@ -316,7 +318,95 @@ int main(int argc, char *argv[])
     {
       photons_exist = manager->Cerenkov(pos,dir,beta,100000,1.e16,440,450); // generate photons
     }
-  else
+  else if (ioption==3)
+    {
+      TRandom ran;
+      double lambda = 600;
+      double pi = 3.1415926535;
+      list<PndDrcPhoton> list_photon;
+      
+      
+      for (double angle=20; angle<=20; angle+=5)
+	{
+	  double slab_width = half_width*1.9;//p4.X()*1.9;
+	  double slab_height = half_thick*1.9;
+	  
+	  //cout<<" angle = "<<angle<<endl;
+	  //for (double lambda1=630; lambda1>329; lambda1-=30)
+	    {
+	      double lambda1=lambda;
+	      // go in x dir
+	      double y1 = tan(angle*pi/180);
+	      double x1 = y1;
+	      double scale = 3/angle;
+	      for (double y=-y1; y<= y1; y+= 2*y1/100*scale)
+		{
+		  PndDrcPhoton ph;
+		  double xx=ran.Uniform(-0.5*slab_width,0.5*slab_width);
+		  double yy=ran.Uniform(-0.5*slab_height,0.5*slab_height);
+		  ph.SetPosition(XYZPoint(xx,yy,half_length+ran.Uniform(0,100)));
+		  double x = x1;
+		  ph.SetDirection(XYZVector(x,y,1).Unit());
+		  ph.SetWavelength(lambda1);
+		  list_photon.push_back(ph);
+		  ph.SetDirection(XYZVector(-x,y,1).Unit());
+		  ph.SetWavelength(lambda1);
+		  list_photon.push_back(ph);
+		}
+	      for (double x=-x1; x<= x1; x+= 2*y1/100*scale)
+		{
+		  PndDrcPhoton ph;
+		  double xx=ran.Uniform(-0.5*slab_width,0.5*slab_width);
+		  double yy=ran.Uniform(-0.5*slab_height,0.5*slab_height);
+		  ph.SetPosition(XYZPoint(xx,yy,half_length+ran.Uniform(0,100)));
+		  double y = y1;
+		  ph.SetDirection(XYZVector(x,y,1).Unit());
+		  ph.SetWavelength(lambda1);
+		  list_photon.push_back(ph);
+		  ph.SetDirection(XYZVector(x,-y,1).Unit());
+		  ph.SetWavelength(lambda1);
+		  list_photon.push_back(ph);
+		}
+	      
+	    }
+	}
+      
+      photons_exist=true;
+      manager->SetPhotonList(list_photon,"sheet");
+    }
+  if (ioption==4)  
+    {
+      TRandom ran;
+      list<PndDrcPhoton> list_photon;
+      // draw a line
+      double xdir,ydir,zdir;
+      zdir = 500;
+      for (xdir = -10; xdir<10; xdir+=0.001)
+	{
+	  ydir = xdir*1;
+	  
+	  
+	  //double xx=0;
+	  //double yy=0;
+	  //double zz=1225;
+	  double xx=ran.Uniform( -half_width*0.9, +half_width*0.9);
+	  double yy=ran.Uniform( -half_thick*0.9, +half_thick*0.9);
+	  double zz=ran.Uniform(-half_length*0.9,+half_length*0.9);
+	  
+
+	  PndDrcPhoton ph;
+	  
+	  ph.SetPosition(XYZPoint(xx,yy,zz));
+	  ph.SetDirection(XYZVector(xdir,ydir,zdir).Unit());
+	  ph.SetWavelength(650);
+	  list_photon.push_back(ph);
+	  
+	  
+	}
+      photons_exist = true;
+      manager->SetPhotonList(list_photon,"sheet");
+    }
+    else
     {
       PndDrcPhoton ph;
       ph.SetReflectionLimit(200);  
@@ -406,21 +496,21 @@ int main(int argc, char *argv[])
 
 	  int irefl = (*iph).Reflections()-1; // -1 for mirror
 	  cout<<irefl<<endl;
-	  irefl/=5;
+	  //irefl/=10;
 	  irefl=irefl%10;
 	  
 	  int icol=29;
 
-	  if (irefl == 0) icol = 1; // black
-	  if (irefl == 1) icol = 28; // brown
-	  if (irefl == 2) icol = 2; // red
-	  if (irefl == 3) icol = 42; // orange
-	  if (irefl == 4) icol = 5; // yellow
-	  if (irefl == 5) icol = 3; // green
-	  if (irefl == 6) icol = 4; // blue
-	  if (irefl == 7) icol = 6; // violett
-	  if (irefl == 8) icol = 14; // gray
-	  if (irefl == 9) icol = 18; // white
+	  if (irefl == 0) icol = kBlack; // black
+	  if (irefl == 1) icol = kOrange-7; // brown
+	  if (irefl == 2) icol = kRed;//2; // red
+	  if (irefl == 3) icol = kOrange-3;//42; // orange
+	  if (irefl == 4) icol = kYellow;//5; // yellow
+	  if (irefl == 5) icol = kGreen;//3; // green
+	  if (irefl == 6) icol = kBlue;//4; // blue
+	  if (irefl == 7) icol = kViolet;//6; // violett
+	  if (irefl == 8) icol = kGray;//14; // gray
+	  if (irefl == 9) icol = kWhite;//18; // white
 
 
 	  scr<<"    TMarker* t = new TMarker("<<xx<<","<<yy<<",20);"<<endl;
@@ -430,7 +520,7 @@ int main(int argc, char *argv[])
 	  //	  scr<<"    t->SetMarkerColor("
 	  //<<(*iph).ColorNumber((*iph).Wavelength())
 	  //<<");"<<endl;
-	  scr<<"    t->SetMarkerSize(0.2);"<<endl;
+	  scr<<"    t->SetMarkerSize(0.5);"<<endl;
 	  scr<<"    t->Draw();"<<endl;
 	}
       else if ((*iph).Fate()==Drc::kPhotFlying)   {icnt_flying++;}

@@ -50,13 +50,14 @@ class PndDrcSurfPolyFlatFocus : public PndDrcSurfAbs
   */
   void     AddPoint(XYZPoint point);       
 
-   /*! \brief Set the focal point
+   /*! \brief Set the focal length and the point where the optical axis hits the surface
 
-   perpendicular photons will be directed to this point. Surface must have reflection!
+   Surface must have reflection! This focussing works only by manipulating the normal vector.
 
-    \param point The point
+    \param focal_length The focal length
+    \para  axis_point   The optical axis point.
   */
-  void     SetFocalPoint(XYZPoint point);       
+  void     SetFocalPoint(double focal_length, XYZPoint axis_point);       
 
  /*! \brief Test if point within surface.
 
@@ -112,13 +113,15 @@ class PndDrcSurfPolyFlatFocus : public PndDrcSurfAbs
  protected:
 
   vector<XYZPoint> fP;                  //!<  Vector of surface boundary points.             
-  double fRadius;                       //!< Radius for curved surfaces.
-  double fConConst;                     //!< Conial constant for curved surfaces.
-  XYZPoint fFocalPoint;                 //!< Focal point.
+  double           fRadius;             //!< Radius for curved surfaces.
+  double           fConConst;           //!< Conial constant for curved surfaces.
+  XYZPoint         fAxisPoint;          //!< Optical axis hits surface at this point.
+  double           fFocalLength;        //!< Focal length.
 
  private:
 
   XYZVector        fNormal;             //!< Normal vector.    
+  mutable XYZVector        fPhotonDir;         //!< Saved photon from SurfaceHit() and used in Normal().
   
 
   /*! \brief Auxiliary function for assignment operator and copy constructor..

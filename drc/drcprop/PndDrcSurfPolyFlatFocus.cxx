@@ -64,7 +64,9 @@ using std::endl;
 //----------------------------------------------------------------------
 PndDrcSurfPolyFlatFocus::PndDrcSurfPolyFlatFocus()
 {
-  fFocalPoint = XYZPoint(0,0,0);
+  fAxisPoint   = XYZPoint(0,0,0);
+  fFocalLength = 0.0;
+  
   
 }
 //----------------------------------------------------------------------
@@ -79,7 +81,10 @@ void PndDrcSurfPolyFlatFocus::Copy(const PndDrcSurfPolyFlatFocus& s)
 	fNormal      = s.fNormal;
 	fRadius      = s.fRadius;
 	fConConst    = s.fConConst;
-	fFocalPoint  = s.fFocalPoint;
+	fFocalLength = s.fFocalLength;
+	fAxisPoint   = s.fAxisPoint;
+	fPhotonDir   = s.fPhotonDir;
+	
 }
 //----------------------------------------------------------------------
 PndDrcSurfPolyFlatFocus::PndDrcSurfPolyFlatFocus(const PndDrcSurfPolyFlatFocus& s) : PndDrcSurfAbs(s)
@@ -104,9 +109,10 @@ PndDrcSurfPolyFlatFocus&  PndDrcSurfPolyFlatFocus::operator=(const PndDrcSurfPol
 	return *this;
 }
 //----------------------------------------------------------------------
-void PndDrcSurfPolyFlatFocus::SetFocalPoint(XYZPoint point)
+void PndDrcSurfPolyFlatFocus::SetFocalPoint(double focal_length, XYZPoint axis_point)
 {
-  fFocalPoint = point;
+  fFocalLength = focal_length;
+  fAxisPoint   = axis_point;
 }
 
 //----------------------------------------------------------------------
@@ -152,34 +158,46 @@ void PndDrcSurfPolyFlatFocus::AddPoint(XYZPoint point)
 XYZVector PndDrcSurfPolyFlatFocus::Normal(const XYZPoint& point) const
 {
   // normal vector is a constant.
-  if (fFocalPoint.Mag2()==0)
+  if (fAxisPoint.Mag2()==0 || fFocalLength==0)
     {
-      cerr<<"      PndDrcSurfPolyFlatFocus::surfaceHit: focal point not set, abort. "<<endl;
+      cerr<<"      PndDrcSurfPolyFlatFocus::surfaceHit: focal length or axis  point not set, abort. "<<endl;
       exit(EXIT_FAILURE);
     }
 
-  /*
-    cout<<" fp= "<<fFocalPoint.X()<<" "
-    <<fFocalPoint.Y()<<" "
-    <<fFocalPoint.Z()<<endl;
-    cout<<"  p= "<<point.X()<<" "
-    <<point.Y()<<" "
-    <<point.Z()<<endl;
-    cout<<"  n= "<<fNormal.X()<<" "
-    <<fNormal.Y()<<" "
-      <<fNormal.Z()<<endl;
-  */
 
+  XYZPoint  fp        = fAxisPoint - fFocalLength*fNormal;
+  XYZVector refl_dir  = fPhotonDir - 2*(fPhotonDir.Dot(fNormal))*fNormal;
+  double    lambda    = (fAxisPoint-fp).Dot(fNormal) / refl_dir.Dot(fNormal);
+  XYZPoint  dest      = fAxisPoint - lambda * refl_dir;
+  //dest = -1*dest;
+  
+  XYZVector n1(dest-point);
+  n1 = n1.Unit();
+  
+  //double a1 = n1.X()-fPhotonDir.X();
+  //double a2 = n1.Y()-fPhotonDir.Y();
+  //double a3 = n1.Z()-fPhotonDir.Z();
+  
+  
+  XYZVector u(n1-fPhotonDir);
+  //u = u.Unit();
+  
 
-  if (fNormal.Dot(fFocalPoint-point) >0)
-    {
-      return ( fNormal + (fFocalPoint-point).Unit()).Unit();
-    }
-  else
-    {
-      return (-fNormal + (fFocalPoint-point).Unit()).Unit();
-    }
+  // cout<<" test"<<endl;
+  
+  return u.Unit();
+  
+  //if (fNormal.Dot(fFocalPoint-point) >0)
+    //{
+    //return ( fNormal + (fFocalPoint-point).Unit()).Unit();
+    //}
+  //else
+    //{
+      //  return (-fNormal + (fFocalPoint-point).Unit()).Unit();
+    //}
 
+    //return fNormal;
+  
 
 
 
@@ -259,6 +277,8 @@ bool PndDrcSurfPolyFlatFocus::SurfaceHit(PndDrcPhoton& ph,
 
   unsigned int isize = fP.size();
 
+  fPhotonDir = ph.Direction(); // save for usage in Normal(). (This is not the cleanest programming style...)
+  
 
   if (isize < 3)
     {
@@ -489,6 +509,6 @@ void PndDrcSurfPolyFlatFocus::AddTransform(const Transform3D& trans)
     }
   fNormal = trans * fNormal;
   fPixelPoint = trans*fPixelPoint;
-  fFocalPoint = trans*fFocalPoint;
+  fAxisPoint  = trans*fAxisPoint;
   
 }

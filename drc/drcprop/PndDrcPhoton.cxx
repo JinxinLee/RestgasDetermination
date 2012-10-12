@@ -438,5 +438,7 @@ void PndDrcPhoton::Print() const
   {
     cout<<"     dev    = "<<"zero pointer"<<endl;
   }
+  cout<<"     size surface list = "<<fSurfaceList.size()<<endl;
+  
   cout<<" --------------"<<endl;
 }
