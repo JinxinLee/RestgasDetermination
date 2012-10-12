@@ -26,6 +26,7 @@
 #include<TRandom.h>
 #include<PndLmdDim.h>
 #include<TGeoPhysicalNode.h>
+#include<TGeoCone.h>
 
 #include<iostream>
 #include<cmath>
@@ -68,10 +69,10 @@ void create_HV_MAPS(bool misalign = false) {
 	FairGeoMedium* FairMediumAir = Media->getMedium("air");
 	FairGeoMedium* FairMediumSteel = Media->getMedium("steel");
 	FairGeoMedium* FairMediumTi = Media->getMedium(str_ti.c_str()); //titanium"); not found in media_pnd.geo !
-	FairGeoMedium* FairMediumKapton = Media->getMedium("mylar"); // mylar properties are nearly the same as for the non existing Kapton
 	FairGeoMedium *FairMediumSilicon = Media->getMedium("silicon");
 	FairGeoMedium *FairMediumDiamond = Media->getMedium("HYPdiamond");
 	FairGeoMedium *FairMediumVacuum = Media->getMedium("vacuum");
+	FairGeoMedium *FairMediumKapton = Media->getMedium("kapton");
 
 	if (!FairMediumAir || !FairMediumSteel || !FairMediumTi || !FairMediumKapton || !FairMediumSilicon || !FairMediumVacuum) {
 		std::cout << " warning: not all media found " << std::endl;
@@ -177,7 +178,7 @@ void create_HV_MAPS(bool misalign = false) {
 	comb_trans_cut_pipe_downstream->RegisterYourself();
 	// compose all the parts into one luminosity vacuum box
 	TGeoCompositeShape *shape_lmd_box = new TGeoCompositeShape("shape_lmd_box",
-			"((lmd_box_outer-lmd_box_inner)-box_hole_upstream:comb_trans_cut_pipe_upstream)-box_hole_downstream:comb_trans_cut_pipe_downstream");
+			"(lmd_box_outer-lmd_box_inner)-box_hole_upstream:comb_trans_cut_pipe_upstream-box_hole_downstream:comb_trans_cut_pipe_downstream");
 	TGeoVolume *vol_lmd_box = new TGeoVolume("vol_lmd_box", shape_lmd_box,
 				gGeoManager->GetMedium("steel"));
 	vol_lmd_box->SetLineColor(11);
@@ -186,6 +187,75 @@ void create_HV_MAPS(bool misalign = false) {
 	comb_trans_pipe_upstream->RegisterYourself();
 	if (include_box)
 		vol_lmd_vac->AddNode(vol_lmd_box, 0, comb_trans_lmd_box);
+
+	//	TGeoTube* lmd_flange_upstr = new TGeoTube(
+	//			"lmd_flange_upstr", 9.2, 25.3/2., 1.2);
+	//	TGeoCombiTrans* lmd_trans_fl_up = new TGeoCombiTrans("lmd_trans_fl_up", 0., 0., 1.2+delta, r1);
+	//	lmd_trans_fl_up->RegisterYourself();
+		// upstream flange holding the kapton cone
+	//	TGeoTube* lmd_cone_flange_upstr = new TGeoTube(
+	//			"lmd_cone_flange_upstr", 9.2, 25.3/2., 1.5);
+	//	TGeoCombiTrans* lmd_trans_co_fl_up = new TGeoCombiTrans("lmd_trans_co_fl_up", 0., 0., -1.5+50.-delta, r1);
+	//	lmd_trans_co_fl_up->RegisterYourself();
+
+	// 20 mu thick kapton foil cone
+	double cone_height = 30./2.;
+	double cone_r_in_upstream = 20.4/2.;
+	double cone_r_in_downstream = 7./2.;
+	double cone_thickness = 0.002;
+	TGeoCone* lmd_capton_cone = new TGeoCone("lmd_capton_cone",
+			cone_height, cone_r_in_upstream,
+			cone_r_in_upstream+cone_thickness/2.,
+			cone_r_in_downstream, cone_r_in_downstream+cone_thickness/2.);
+	TGeoCombiTrans* lmd_trans_cap_co = new TGeoCombiTrans("lmd_trans_cap_co", 0., 0., 2*tube_upstream_length+lmddim.box_thickness + cone_height, georot_no);
+	lmd_trans_cap_co->RegisterYourself();
+	TGeoVolume *vlum_CaptonCone = new TGeoVolume("vlum_CaptonCone", lmd_capton_cone,
+			gGeoManager->GetMedium("kapton"));
+	vlum_CaptonCone->SetLineColor(kRed);//39);
+	if (include_box)
+		vol_lmd_vac->AddNode(vlum_CaptonCone, 0, lmd_trans_cap_co);
+	// beam pipe to shield the sensors
+	double pipe_inner_r_in = 7./2.;
+	double pipe_inner_length = 60./2.;
+	double pipe_thickness = 0.1;
+	TGeoTube* lmd_beam_pipe = new TGeoTube("lmd_beam_pipe", pipe_inner_r_in, pipe_inner_r_in + pipe_thickness, pipe_inner_length);
+	TGeoCombiTrans* lmd_trans_p = new TGeoCombiTrans("lmd_trans_p", 0., 0., 2*tube_upstream_length+lmddim.box_thickness + 2*cone_height + pipe_inner_length, georot_no);
+	lmd_trans_p->RegisterYourself();
+	TGeoVolume *vlum_trans_p = new TGeoVolume("vlum_trans_p", lmd_beam_pipe,
+				gGeoManager->GetMedium("steel"));
+	if (include_box)
+		vol_lmd_vac->AddNode(vlum_trans_p, 0, lmd_trans_p);
+	// beam pipe cone downstream
+	double cone_p_height = 10./2.;
+	double cone_p_r_in_upstream = pipe_inner_r_in;
+	double cone_p_r_in_downstream = 9./2.;
+	double cone_p_thickness = 0.2;
+	TGeoCone* lmd_cone_downstr = new TGeoCone("lmd_cone_downstr", cone_p_height, cone_p_r_in_upstream,
+			cone_p_r_in_upstream+cone_p_thickness/2.,
+			cone_p_r_in_downstream, cone_p_r_in_downstream+cone_p_thickness/2.);
+	TGeoCombiTrans* lmd_trans_co_do = new TGeoCombiTrans("lmd_trans_co_do", 0., 0.,
+			2*tube_upstream_length+lmddim.box_thickness + 2*cone_height + 2*pipe_inner_length + cone_p_height, georot_no);
+	lmd_trans_co_do->RegisterYourself();
+	TGeoVolume *vlum_pipe_inner_cone = new TGeoVolume("vlum_pipe_inner_cone", lmd_cone_downstr,
+				gGeoManager->GetMedium("steel"));
+	if (include_box)
+		vol_lmd_vac->AddNode(vlum_pipe_inner_cone, 0, lmd_trans_co_do);
+		// flange holding the kapton cone downstream
+	//	TGeoCone* lmd_cone_flange_downstr = new TGeoCone("lmd_cone_flange_downstr", 3.12/2., 3.1, 8.6/2., 3.1, 3.2);
+	//	TGeoCombiTrans* lmd_trans_co_fl_do = new TGeoCombiTrans("lmd_trans_co_fl_do", 0., 0., 50.+23.386+3.12/2., r1);
+	//	lmd_trans_co_fl_do->RegisterYourself();
+		// beam pipe to shield the sensors
+	//	TGeoTube* lmd_beam_pipe = new TGeoTube("lmd_beam_pipe", 3.5, 3.6, 50./2.);
+	//	TGeoCombiTrans* lmd_trans_p = new TGeoCombiTrans("lmd_trans_p", 0., 0., 50.+23.386+50./2., r1);
+	//	lmd_trans_p->RegisterYourself();
+		// beam pipe cone downstream
+	//	TGeoCone* lmd_cone_downstr = new TGeoCone("lmd_cone_downstr", 20./2., 3.5, 3.7, 9./2., 9.2/2.);
+	//	TGeoCombiTrans* lmd_trans_co_do = new TGeoCombiTrans("lmd_trans_co_do", 0., 0., 50.+23.386+50.+20./2., r1);
+	//	lmd_trans_co_do->RegisterYourself();
+		// beam pipe downstream
+	//	TGeoTube* lmd_beam_pipe_downstream = new TGeoTube("lmd_beam_pipe_downstream", 9./2., 9.2/2., 56./2.);
+	//	TGeoCombiTrans* lmd_trans_p_down = new TGeoCombiTrans("lmd_trans_p_down", 0., 0., 50.+23.386+50.+20.+56./2., r1);
+	//	lmd_trans_p_down->RegisterYourself();
 
 	// ****************************** beam pipe dummy **********************************
 	if (show_beam_pipe_dummy) {
