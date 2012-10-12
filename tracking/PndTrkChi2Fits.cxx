@@ -101,14 +101,13 @@ Short_t PndTrkChi2Fits::FitHelixCylinder(
 			ui = u2, vi = v2 ;
 	}
 
-cout<<"cazzo in chi2, i = "<<i<<", sigma = "<<ErrorDriftRadiusconformal[i]<<endl;
 	// now the minimization with the chi2 formula;
 	sigma2 = ErrorDriftRadiusconformal[i]*ErrorDriftRadiusconformal[i];
 	Su += ui/sigma2;
 	Sv += vi/sigma2;
 	
 	Suv += ui * vi/sigma2;
-	Suu += ui* vi/sigma2;
+	Suu += ui* ui/sigma2;
 	
 	S1 += 1./sigma2;
 
@@ -122,29 +121,35 @@ cout<<"cazzo in chi2, i = "<<i<<", sigma = "<<ErrorDriftRadiusconformal[i]<<endl
 	*emme = (Suv * S1 - Su * Sv)/dete;
 	*qu =  (Suu * Sv - Su * Suv)/dete;
 
-cout<<"cazzo in chi2, emme = "<<(*emme)<<", qu = "<<(*qu)<<endl;
-// now take into account the displacement and correct
- *pGamma += (trajectory_vertex[0]*trajectory_vertex[0]+
+
+ // calculate the coefficients taking into account the translation;
+
+	*pAlfa = (*emme)/(*qu);
+	*pBeta = -1./(*qu);
+
+// now take into account the displacement and calculate Gamma;
+
+ *pGamma = (trajectory_vertex[0]*trajectory_vertex[0]+   // *pGamma is assumed to be 0 at the beginning;
 		trajectory_vertex[1]*trajectory_vertex[1]
 		-*pAlfa*trajectory_vertex[0]-*pBeta*trajectory_vertex[1]);
+
+ // calculate the coefficients taking into account the translation;
  *pAlfa -=  2.*trajectory_vertex[0];
  *pBeta -=  2.*trajectory_vertex[1];
 
 
 // calculate  *emme and *qu using the newly calculated *pAlfa, *pBeta, *pGamma of the
-// circular trajectory in XY. Assuming also that *pGamma ~ 0, that is the circumference
+// circular trajectory in XY. Assuming also that *pGamma ~ 0, that is, the circumference
 // goes thru the origin.
 
  if( abs(*pBeta)>1e-10) {
  // normal case of a straight line in UV that can be put in the    V = m*U +q  form;
 	*emme = -(*pAlfa)/(*pBeta);
 	*qu  = -1./(*pBeta);
-cout<<"cazzo in chi2,dopo ricalcolo; emme = "<<(*emme)<<", qu = "<<(*qu)<<", tutto normale."<<endl;
 	return 1;
   } else {
 	*emme = -(*pAlfa)/1e-10;
 	*qu  = -1./1e-10;
-cout<<"cazzo in chi2,dopo ricalcolo; emme = "<<(*emme)<<", qu = "<<(*qu)<<", qu grande, return 99."<<endl;
 	return 99;
  }
 
