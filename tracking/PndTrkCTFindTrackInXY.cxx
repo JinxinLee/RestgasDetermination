@@ -394,8 +394,8 @@ bool PndTrkCTFindTrackInXY::FindTrackInXYProjection(
   }
 
 
- PndTrkGlpkFits fit;
-// PndTrkLegendreFits fit;
+// PndTrkGlpkFits fit;
+ PndTrkLegendreFits fit;
 
  status = fit.FitHelixCylinder(
 		nFitPoints, // +1 comes from one SciTil hit.
@@ -429,7 +429,7 @@ bool PndTrkCTFindTrackInXY::FindTrackInXYProjection(
  if( *(in->Rr) < 0. )  return false;
  *(in->Rr)= sqrt( *(in->Rr) );
  aaa = sqrt( (*(in->Oxx)) * (*(in->Oxx)) + (*(in->Oyy)) * (*(in->Oyy))  );
-cout<<"\t\tOx = "<<*(in->Oxx)<<", Oy "<<*(in->Oyy)<<", R = "<<*(in->Rr)<<endl;
+if(istampa>1) cout<<"\t\tOx = "<<*(in->Oxx)<<", Oy "<<*(in->Oyy)<<", R = "<<*(in->Rr)<<endl;
 
  // the following is because the circumference is supposed to come from (0,0);
  //   here the factor 0.9 is used in order to be conservative.
