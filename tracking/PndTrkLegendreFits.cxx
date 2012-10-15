@@ -15,8 +15,8 @@ using namespace std;
  /** Default constructor **/
 PndTrkLegendreFits::PndTrkLegendreFits()
 {
- fNThetaDiv = 360,
- fNRDiv = 100;
+ fNThetaDiv = 360,  // this is one of the dimension of the accumulation Matrix;
+ fNRDiv = 100;   // this is the other dimension;
  fRMin=0.;
  fThetaMax=2.*PI,
  fThetaMin=0.;
@@ -355,7 +355,9 @@ int PndTrkLegendreFits::LoadMatrix_FindMaximum(
 
  for (i=0; i<nHitsinTrack; i++){
 //if(Drift[i]==0.) continue;
+	// for now the number of Theta generated are one per Theta bin;
 	for(j=0;j<fNThetaDiv;j++) {
+		// generate the Theta in the middle of the bin;
 		Theta = fThetaMin + (j+0.5)*fDeltaT;
 		R = X[i]*cos(Theta) + Y[i]*sin(Theta)+Drift[i];
 		IndexR = (int) ((fabs(R)-fRMin)/DeltaR);
