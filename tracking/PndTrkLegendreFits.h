@@ -78,6 +78,11 @@ int LoadMatrix_FindMaximum(
 	Double_t *X,			// X position (in conformal or SZ or whatever);
 	Double_t *Y,			// Y position (in conformal or SZ or whatever);
 	Double_t *DriftRadius,		// negative if Mvd hit or similar;
+	Double_t *ErrorDriftRadiusconformal,	// for the Mvd this is the Radius of the circumference
+						// translated with the Conformal transformation,
+						// which is, in the XY space : a) centered on the Pixel
+						// or Strip; with radius = 0.01 cm --> therefore encompassing
+						// completely the Pixel or Stip hit.
 
 	Double_t *Rout,	// output parameter of the straight line; Xcos(Theta)+Y*sin(Theta)=R;
 	Double_t *Thetaout  // output parameter of the straight line; Xcos(Theta)+Y*sin(Theta)=R;
