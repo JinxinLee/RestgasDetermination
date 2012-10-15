@@ -1,5 +1,6 @@
 #include "glpk.h"
 #include "PndTrkTracking.h"
+#include "PndTrkChi2Fits.h"
 #include "PndTrkComparisonMCtruth.h"
 #include "PndTrkSttConformalFilling.h"
 #include "PndTrkGlpkFits.h"
@@ -58,8 +59,11 @@
 // crashes 'silently' for too much memory consumption in the character arrays
 // or takes too long time;
 
-//  #define MAXHITSINFIT		12
-#define MAXHITSINFIT		30
+
+// MAXHITSINFIT has to be 12 when using the GLPK fitting procedure; there is no limitation
+// with the other type of fits;
+//#define MAXHITSINFIT		12
+#define MAXHITSINFIT		50
 #define MAXMVDMCPOINTS		2000
 #define MINIMUMHITSPERTRACK	3
 #define MINOUTERHITSPERTRACK	5
@@ -1790,6 +1794,11 @@ if(istampa>=2){
 //-------------- fine di stampe.
 
 //--------------------
+
+//	trajectory_vertex[0]=0.;
+//	trajectory_vertex[1]=0.;
+//	iexcl = -1;
+//	rotationangle=0.;
 
 
 	RefitMvdStt(
@@ -6207,8 +6216,9 @@ DriftRadiusconformal[MAXSTTHITSINTRACK+MAXMVDPIXELHITSINTRACK+MAXMVDSTRIPHITSINT
 ErrorDriftRadiusconformal[MAXSTTHITSINTRACK+MAXMVDPIXELHITSINTRACK+MAXMVDSTRIPHITSINTRACK];
 
 
- PndTrkGlpkFits fit;
+// PndTrkGlpkFits fit;
 // PndTrkLegendreFits fit;
+ PndTrkChi2Fits fit;
 
 
 	*status= false;
