@@ -6219,9 +6219,9 @@ DriftRadiusconformal[MAXSTTHITSINTRACK+MAXMVDPIXELHITSINTRACK+MAXMVDSTRIPHITSINT
 ErrorDriftRadiusconformal[MAXSTTHITSINTRACK+MAXMVDPIXELHITSINTRACK+MAXMVDSTRIPHITSINTRACK];
 
 
-// PndTrkGlpkFits fit;
+ PndTrkGlpkFits fit;
 // PndTrkLegendreFits fit;
- PndTrkChi2Fits fit;
+// PndTrkChi2Fits fit;
 
 
 	*status= false;
