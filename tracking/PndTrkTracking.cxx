@@ -830,6 +830,12 @@ void PndTrkTracking::Exec(Option_t* opt) {
  PndTrkGlpkFits fit;
 // PndTrkLegendreFits fit;
 
+//  reset the TClones Arrays of the PndTrackCand and PndTrack; it is necessary
+//  to do this for every event at the very beginning of the Exec (those TClones Arrays
+//  have been registered  in the Init and they are automatically writted each event).
+
+ fSttMvdPndTrackCandArray->Delete();
+ fSttMvdPndTrackArray->Delete();
 
 //------------------------------------
 
@@ -1464,9 +1470,6 @@ if(istampa>0){
 
 //-----------------------------------
 
- fSttMvdPndTrackCandArray->Delete();
-
- fSttMvdPndTrackArray->Delete();
 
  nTotalCandidates = nSttTrackCand;  // nSttTrackCand is already <= MAXTRACKSPEREVENT.
 
