@@ -541,7 +541,8 @@ int PndTrkComparisonMCtruth::ComparisonwithMC(
 		ioData.MAXMVDPIXELHITSINTRACK+
 		ioData.MAXMVDSTRIPHITSINTRACK+
 		ioData.MAXSCITILHITSINTRACK),"ListTrackCandHit") ;
- Vec<Short_t> ListTrackCandHitType (ioData.ListTrackCandHitType,ioData.MAXTRACKSPEREVENT*(ioData.MAXSTTHITSINTRACK+
+ Vec<Short_t> ListTrackCandHitType (ioData.ListTrackCandHitType,
+ 		ioData.MAXTRACKSPEREVENT*(ioData.MAXSTTHITSINTRACK+
 		ioData.MAXMVDPIXELHITSINTRACK+
 		ioData.MAXMVDSTRIPHITSINTRACK+
 		ioData.MAXSCITILHITSINTRACK),"ListTrackCandHitType") ;
@@ -805,6 +806,7 @@ int PndTrkComparisonMCtruth::ComparisonwithMC(
 		Y1[i] = Oy[i] + R[i]*sin( FI0[i]);
 
 		//  the third point on trajectory is given by the last hit
+
 
 		switch ( ListTrackCandHitType[i*nele+nn-1]){
 		case 0 :	// Pixel
