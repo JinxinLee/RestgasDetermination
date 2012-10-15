@@ -93,7 +93,7 @@ Short_t PndTrkLegendreFits::FitHelixCylinder(
 	Theta;  // output parameter of the straight line; Xcos(Theta)+Y*sin(Theta)=R;
 
 fIcounter=IVOLTE;
-cout<<"cazzo,in FitHelixCylinder, prima di fit, icounter "<<IVOLTE<<endl;
+if (istampa>0) cout<<"in FitHelixCylinder, prima di fit, icounter "<<IVOLTE<<endl;
  result = LoadMatrix_FindMaximum(
 		nHitsinTrack,			// input
 		Xconformal,			// X position (in conformal or SZ or whatever);
@@ -109,7 +109,7 @@ cout<<"cazzo,in FitHelixCylinder, prima di fit, icounter "<<IVOLTE<<endl;
  cosT = cos(Theta);
  sinT = sin(Theta);
 
-cout<<"cazzo, FitHelixCylinder, dopo fit, Theta(deg) "<<Theta*180./PI<<", R "<<R<<endl;
+if (istampa>0) cout<<"FitHelixCylinder, dopo fit, Theta(deg) "<<Theta*180./PI<<", R "<<R<<endl;
  //------------------------- final summary of the fit results; load output variables;
 
  *pGamma = 0.;
@@ -329,20 +329,20 @@ int PndTrkLegendreFits::LoadMatrix_FindMaximum(
  DeltaR = HistoRmax/fNRDiv;
 
  // fill the Matrix;
-
-cout<<"macazzo! prima di riempire plot, fIcounter "<<fIcounter<<endl;
+Int_t istampa = 0;
+if (istampa>0) cout<<"prima di riempire plot, fIcounter "<<fIcounter<<endl;
   char titolo[100];
   sprintf(titolo,"Legendre%d",fIcounter);
   TH2F * hMatrixPlot = new TH2F(titolo, "", fNThetaDiv, fThetaMin, fThetaMax,
 	 fNRDiv, 0. , HistoRmax);
 
-cout<<"\n\tcazzo, in LoadMatrix_FindMaximum parte il filling; nHitsinTrack "<<nHitsinTrack<<endl;
+if (istampa>0) cout<<"\n\tin LoadMatrix_FindMaximum parte il filling; nHitsinTrack "<<nHitsinTrack<<endl;
  for (i=0; i<nHitsinTrack; i++){
-cout<<"\t\tcazzo, X[i] "<<X[i]<<", Y[i] "<<Y[i]<<endl;
+if (istampa>0) cout<<"\t\t X[i] "<<X[i]<<", Y[i] "<<Y[i]<<endl;
 	for(j=0;j<fNThetaDiv;j++) {
 		Theta = fThetaMin + (j+0.5)*fDeltaT;
 		R = X[i]*cos(Theta) + Y[i]*sin(Theta)+Drift[i];
-if(fabs(R)>=HistoRmax)   cout<<"caspita! R "<<fabs(R)<<", Rmax "<<HistoRmax<<
+if(fabs(R)>=HistoRmax)   cout<<" R "<<fabs(R)<<", Rmax "<<HistoRmax<<
 	", Theta "<<Theta<<", drift "<<Drift[i]<<endl;
 		IndexR = (int) ((fabs(R)-fRMin)/DeltaR);
 		if(IndexR>=fNRDiv) IndexR=fNRDiv-1;
@@ -359,7 +359,7 @@ if(fabs(R)>=HistoRmax)   cout<<"caspita! R "<<fabs(R)<<", Rmax "<<HistoRmax<<
 		hMatrixPlot->Fill(Theta, fabs(R));
 	}
  }  // end of for (i=0; nHitsinTrack; i++)
-cout<<"\tcazzo,finito il filling ------------------------------"<<endl<<endl;
+if (istampa>0) cout<<"\tfinito il filling ------------------------------"<<endl<<endl;
 
 
  hMatrixPlot->Write();
