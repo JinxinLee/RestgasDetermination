@@ -15,7 +15,7 @@ using namespace std;
  /** Default constructor **/
 PndTrkLegendreFits::PndTrkLegendreFits()
 {
- fNThetaDiv = 500,
+ fNThetaDiv = 360,
  fNRDiv = 100;
  fRMin=0.;
  fThetaMax=2.*PI,
@@ -93,12 +93,16 @@ Short_t PndTrkLegendreFits::FitHelixCylinder(
 	Theta;  // output parameter of the straight line; Xcos(Theta)+Y*sin(Theta)=R;
 
 fIcounter=IVOLTE;
-if (istampa>0) cout<<"in FitHelixCylinder, prima di fit, icounter "<<IVOLTE<<endl;
  result = LoadMatrix_FindMaximum(
 		nHitsinTrack,			// input
 		Xconformal,			// X position (in conformal or SZ or whatever);
 		Yconformal,			// Y position (in conformal or SZ or whatever);
 		DriftRadiusconformal,		// negative if Mvd hit or similar;
+		ErrorDriftRadiusconformal,	// for the Mvd this is the Radius of the circumference
+						// translated with the Conformal transformation,
+						// which is, in the XY space : a) centered on the Pixel
+						// or Strip; with radius = 0.01 cm --> therefore encompassing
+						// completely the Pixel or Stip hit.
 
 		&R,	// output parameter of the straight line; Xcos(Theta)+Y*sin(Theta)=R;
 		&Theta  // output parameter of the straight line; Xcos(Theta)+Y*sin(Theta)=R;
@@ -109,7 +113,6 @@ if (istampa>0) cout<<"in FitHelixCylinder, prima di fit, icounter "<<IVOLTE<<end
  cosT = cos(Theta);
  sinT = sin(Theta);
 
-if (istampa>0) cout<<"FitHelixCylinder, dopo fit, Theta(deg) "<<Theta*180./PI<<", R "<<R<<endl;
  //------------------------- final summary of the fit results; load output variables;
 
  *pGamma = 0.;
@@ -134,18 +137,22 @@ if (istampa>0) cout<<"FitHelixCylinder, dopo fit, Theta(deg) "<<Theta*180./PI<<"
 		-*pAlfa*trajectory_vertex[0]-*pBeta*trajectory_vertex[1]);
  *pAlfa -=  2.*trajectory_vertex[0];
  *pBeta -=  2.*trajectory_vertex[1];
+
+
+// calculate  *emme and *qu using the newly calculated *pAlfa, *pBeta, *pGamma of the
+// circular trajectory in XY. Assuming also that *pGamma ~ 0, that is the circumference
+// goes thru the origin.
+
+ if( abs(*pBeta)>1e-10) {
  // normal case of a straight line in UV that can be put in the    V = m*U +q  form;
- if( abs(sinT)> 1.e-10) {
-	*emme = -cosT/sinT;
-	*qu = R/sinT;
+	*emme = -(*pAlfa)/(*pBeta);
+	*qu  = -1./(*pBeta);
 	return 1;
- // case of equation of a line in UV of the type  U = R --> X**2+Y**2 - X/R = 0  in XY;
- } else {
-	*emme=1.;
-	*qu = 1./R;
+  } else {
+	*emme = -(*pAlfa)/1e-10;
+	*qu  = -1./1e-10;
 	return 99;
  }
-
 
 }
 //----------end of function PndTrkLegendreFits::FitHelixCylinder
@@ -281,6 +288,12 @@ int PndTrkLegendreFits::LoadMatrix_FindMaximum(
 	Double_t *X,			// X position (in conformal or SZ or whatever);
 	Double_t *Y,			// Y position (in conformal or SZ or whatever);
 	Double_t *DriftRadius,		// negative if Mvd hit or similar;
+	Double_t *ErrorDriftRadiusconformal,	// for the Mvd this is the Radius of the circumference
+						// translated with the Conformal transformation,
+						// which is, in the XY space : a) centered on the Pixel
+						// or Strip; with radius = 0.01 cm --> therefore encompassing
+						// completely the Pixel or Stip hit.
+
 
 	Double_t *Rout,	// output parameter of the straight line; Xcos(Theta)+Y*sin(Theta)=R;
 	Double_t *Thetaout  // output parameter of the straight line; Xcos(Theta)+Y*sin(Theta)=R;
@@ -289,6 +302,7 @@ int PndTrkLegendreFits::LoadMatrix_FindMaximum(
  const int MAXCONTENT= 30000;
 
  int	IndexR,
+	IndexT,
 	i,
 	iRMax,
 	iTMax,
@@ -316,8 +330,10 @@ int PndTrkLegendreFits::LoadMatrix_FindMaximum(
  for (i=0; i<nHitsinTrack; i++){
 	R = sqrt(X[i]*X[i]+Y[i]*Y[i]);
 
-	if( DriftRadius[i]<0. ) {  // this is a Mvd point;
-		if(HistoRmax < R){ HistoRmax=R; }
+	if( DriftRadius[i]<0. ) {  // this is a Mvd point; the Pixel/Strip
+		// in the Conformal plane is approximately contained in
+		// a circle centered in X[i], Y[i] of radius ErrorDriftRadiusconformal[i];
+		if(HistoRmax < R){ HistoRmax=R+ErrorDriftRadiusconformal[i]; }
 		Drift[i] = 0;
 	} else {	// this is a Stt axial hit;
 		// take into consideration also the drift radius;
@@ -326,24 +342,22 @@ int PndTrkLegendreFits::LoadMatrix_FindMaximum(
 		Drift[i] = DriftRadius[i];
 	}
  }  // end of for (i=0; nHitsinTrack; i++)
- DeltaR = HistoRmax/fNRDiv;
+ DeltaR = (HistoRmax-fRMin)/fNRDiv;
 
  // fill the Matrix;
-Int_t istampa = 0;
-if (istampa>0) cout<<"prima di riempire plot, fIcounter "<<fIcounter<<endl;
+
   char titolo[100];
   sprintf(titolo,"Legendre%d",fIcounter);
-  TH2F * hMatrixPlot = new TH2F(titolo, "", fNThetaDiv, fThetaMin, fThetaMax,
-	 fNRDiv, 0. , HistoRmax);
+  TH2F * hMatrixPlot = new TH2F(titolo, "",fNRDiv, 0. , HistoRmax
+  		, fNThetaDiv, fThetaMin, fThetaMax);
 
-if (istampa>0) cout<<"\n\tin LoadMatrix_FindMaximum parte il filling; nHitsinTrack "<<nHitsinTrack<<endl;
+
+
  for (i=0; i<nHitsinTrack; i++){
-if (istampa>0) cout<<"\t\t X[i] "<<X[i]<<", Y[i] "<<Y[i]<<endl;
+//if(Drift[i]==0.) continue;
 	for(j=0;j<fNThetaDiv;j++) {
 		Theta = fThetaMin + (j+0.5)*fDeltaT;
 		R = X[i]*cos(Theta) + Y[i]*sin(Theta)+Drift[i];
-if(fabs(R)>=HistoRmax)   cout<<" R "<<fabs(R)<<", Rmax "<<HistoRmax<<
-	", Theta "<<Theta<<", drift "<<Drift[i]<<endl;
 		IndexR = (int) ((fabs(R)-fRMin)/DeltaR);
 		if(IndexR>=fNRDiv) IndexR=fNRDiv-1;
 		// the following is an essential calculation for Theta,
@@ -352,14 +366,18 @@ if(fabs(R)>=HistoRmax)   cout<<" R "<<fabs(R)<<", Rmax "<<HistoRmax<<
 		if( R <0.) {
 			Theta += PI;
 			if(Theta>2.*PI){ Theta -= 2.*PI; }
+			IndexT = (int)((Theta-fThetaMin)/fDeltaT) ;
+			if(IndexT>=fNThetaDiv) IndexT=fNThetaDiv-1;
+		} else {
+			IndexT = j;
 		}
-		if( Matrix[IndexR][j] < MAXCONTENT ){
-			Matrix[IndexR][j]++;
+		if( Matrix[IndexR][IndexT] < MAXCONTENT ){
+			Matrix[IndexR][IndexT]++;
 		}
-		hMatrixPlot->Fill(Theta, fabs(R));
+		if(Theta == fThetaMax) Theta -= 1e-10;
+		hMatrixPlot->Fill( fabs(R),Theta);
 	}
  }  // end of for (i=0; nHitsinTrack; i++)
-if (istampa>0) cout<<"\tfinito il filling ------------------------------"<<endl<<endl;
 
 
  hMatrixPlot->Write();
@@ -377,10 +395,10 @@ if (istampa>0) cout<<"\tfinito il filling ------------------------------"<<endl<
 
  //  fit failed
  if(maxval < 0) return -5;
-
  // the found parameters;
  *Rout = (iRMax+0.5) *DeltaR + fRMin;
  *Thetaout = (iTMax+0.5) *fDeltaT + fThetaMin;
+
 
  return 1;
 }
