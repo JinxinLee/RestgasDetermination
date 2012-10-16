@@ -2035,7 +2035,7 @@ bool PndTrkCTGeometryCalculations::IsInTargetPipe(
 			Ycross[2];
 
 	//  find if this track lays in the target pipe volume
-	//  for Radius < 15 (supposidly the maximu radius of the Mvd system)
+	//  for distances < 15 (supposidly the maximum radius of the Mvd system)
 	//  and consequently it cannot have Mvd hits.
 
 	nintersections=0;
@@ -2071,6 +2071,8 @@ bool PndTrkCTGeometryCalculations::IsInTargetPipe(
 		YintersectionList[nintersections] = Oyy + Rr*sin(fi0-kappa*gap);
 		nintersections++;
 
+	// order the found intersection point by increasing/decreasing FI
+	// depending if the Charge is negative or positive.
 	ChooseEntranceExitbis(
 				Oxx,
 				Oyy,
@@ -2084,6 +2086,10 @@ bool PndTrkCTGeometryCalculations::IsInTargetPipe(
 				);
 
 	// here I suppose that the Mvd system CONSERVATIVELY ends at Rmax=5 cm.
+//---------------
+for(int ic=0;ic<nintersections;ic++){
+}
+//-------------
 	if( fabs(Ycross[0]) > 4. ) return true;
 	else  return false;
 }
