@@ -46,16 +46,22 @@
 #include <sstream>
 #include <vector>
 #include <iostream>
+#include <TGeoManager.h>
+#include <TGeoVolume.h>
+#include <TGeoMatrix.h>
 
 using namespace std;
 
 class PndLmdDim {
 private:
 	static PndLmdDim* instance;
+	TGeoManager* fgGeoMan;
 	PndLmdDim();
 	PndLmdDim(const PndLmdDim& instance);
 	PndLmdDim& operator=(const PndLmdDim& instance){return *this;}
 	~PndLmdDim();
+	// the navigation paths for the detector geometry are stored here
+	vector<string> nav_paths;
 public:
 	static PndLmdDim& Get_instance();
 
@@ -63,6 +69,8 @@ public:
 	double pi;
 	// number of detector planes
 	unsigned int n_planes;
+	// number of modules per plane half
+	unsigned int nmodules;
 	// position of planes where the first plane defines the origin
 	double* plane_pos_z;
 	// ****************************** cvd cooling support discs ************************
@@ -522,6 +530,11 @@ public:
 	// x, y, z coordinate transformation between the local sensor reference frames
 	// of misaligned and aligned sensors
 	void transform_local_sensor();
+
+	// Generates the luminosity monitor geometry into the mother volume
+	// Please make sure that mother volume is large enough or that it
+	// is an assembly volume
+	void Generate_rootgeom(TGeoVolume& mothervol, bool misaligned = false);
 
 };
 
