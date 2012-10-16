@@ -325,8 +325,12 @@ int PndTrkLegendreFits::LoadMatrix_FindMaximum(
  size_t len;
  len = sizeof(Matrix);
  memset (Matrix,0,len);
- // find the maximum R of the 'histogram';
+ // the following HistoRmax corresponds to 1/R**2 in XY plane with R=40 (approximately
+ // the radius of a outer axial Stt hit).
+ HistoRmax = 0.000625;
 
+
+ // find the maximum R of the 'histogram';
  for (i=0; i<nHitsinTrack; i++){
 	R = sqrt(X[i]*X[i]+Y[i]*Y[i]);
 
@@ -346,15 +350,14 @@ int PndTrkLegendreFits::LoadMatrix_FindMaximum(
 
  // fill the Matrix;
 
-  char titolo[100];
-  sprintf(titolo,"Legendre%d",fIcounter);
-  TH2F * hMatrixPlot = new TH2F(titolo, "",fNRDiv, 0. , HistoRmax
-  		, fNThetaDiv, fThetaMin, fThetaMax);
+//  char titolo[100];
+//  sprintf(titolo,"Legendre%d",fIcounter);
+//  TH2F * hMatrixPlot = new TH2F(titolo, "",fNRDiv, 0. , HistoRmax
+//  		, fNThetaDiv, fThetaMin, fThetaMax);
 
 
 
  for (i=0; i<nHitsinTrack; i++){
-//if(Drift[i]==0.) continue;
 	// for now the number of Theta generated are one per Theta bin;
 	for(j=0;j<fNThetaDiv;j++) {
 		// generate the Theta in the middle of the bin;
@@ -377,13 +380,13 @@ int PndTrkLegendreFits::LoadMatrix_FindMaximum(
 			Matrix[IndexR][IndexT]++;
 		}
 		if(Theta == fThetaMax) Theta -= 1e-10;
-		hMatrixPlot->Fill( fabs(R),Theta);
+//		hMatrixPlot->Fill( fabs(R),Theta);
 	}
  }  // end of for (i=0; nHitsinTrack; i++)
 
 
- hMatrixPlot->Write();
- delete hMatrixPlot;
+// hMatrixPlot->Write();
+// delete hMatrixPlot;
 
  //  find maximum in the Matrix;
  maxval = FindMaximumInMatrix(
