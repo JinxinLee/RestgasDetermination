@@ -2051,30 +2051,10 @@ if(istampa>=2){
   for(ncand=0; ncand< nTotalCandidates; ncand++)
   {
 	if(!keepit[ncand]) continue;
-	if( ! Mvdhits[ncand])  // the philosophy of this cut is : there is no sense in doing
-		// the SZ fita again, unless there are Mvd hits that can improve the result a lot.
-	{
-		if(YesCleanMvd){
-	// reject the candidate if it is NOT contained in the pipe and
-	// therefore it should have at least 1 Mvd hit but it has none.
-			if( (!GeomCalculator.IsInTargetPipe(
-				Ox[ncand],
-				Oy[ncand],
-				R[ncand],
-				FI0[ncand],
-				KAPPA[ncand],
-				Charge[ncand],
-				VERTICALGAP/2.) )
-				)   keepit[ncand]=false;
-		}  // end of  (YesCleanMvd)
-
-		continue;
-	}
 
 	if( statusflag[ncand] == -1 ) continue; // this is when the XY circle is contained in the
 						// the Mvd region completely; skip the association of
 						// the Skews.
-
 	nSttSkewHitsinTrack[ncand]= AssociateSkewHitsToXYTrack(
 		InclusionListStt, // hit is excluded only if it multiple hit.
 		nSttSkewHit,
@@ -2350,7 +2330,8 @@ if(istampa>=2){
 	if(YesCleanMvd){
 		// reject the candidate if it is NOT contained in the pipe and
 		// therefore it should have at least 1 Mvd hit but it has none.
-		if( (!GeomCalculator.IsInTargetPipe(	Ox[ncand],
+		if( (!GeomCalculator.IsInTargetPipe(
+			Ox[ncand],
 			Oy[ncand],
 			R[ncand],
 			FI0[ncand],
@@ -6219,9 +6200,9 @@ DriftRadiusconformal[MAXSTTHITSINTRACK+MAXMVDPIXELHITSINTRACK+MAXMVDSTRIPHITSINT
 ErrorDriftRadiusconformal[MAXSTTHITSINTRACK+MAXMVDPIXELHITSINTRACK+MAXMVDSTRIPHITSINTRACK];
 
 
- PndTrkGlpkFits fit;
+// PndTrkGlpkFits fit;
 // PndTrkLegendreFits fit;
-// PndTrkChi2Fits fit;
+ PndTrkChi2Fits fit;
 
 
 	*status= false;
