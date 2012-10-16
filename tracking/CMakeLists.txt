@@ -57,6 +57,7 @@ PndTrkPlotMacros.cxx
 PndTrkPrintouts.cxx
 PndTrkTracking.cxx
 PndTrkLegendreFits.cxx
+PndTrkChi2Fits.cxx
 )
 
 if(RULE_CHECKER_FOUND)
