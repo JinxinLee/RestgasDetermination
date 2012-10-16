@@ -3616,16 +3616,12 @@ void PndTrkPlotMacros::WriteMacroSttParallelAssociatedHitsandMvdwithMC(
                      i,info[i*7+0],info.at(i*7+1),info.at(i*7+3),info.at(i*7+3),i,i);
        }
 //------------- hits paralleli spuri
-cout<<"cazzo, prima iTrack "<<iTrack; cout<<", nSpuriParinTrack.at(iTrack) "<<
-	nSpuriParinTrack.at(iTrack) <<endl;
        for( ii=0; ii< nSpuriParinTrack.at(iTrack); ii++) {
             i = ParSpuriList.at(iTrack*MAXSTTHITSINTRACK+ii) ;
-cout<<"\tcazzo, i "<<i<<endl;
             fprintf(MACRO,
    "TEllipse* SpurParalHit%d = new TEllipse(%f,%f,%f,%f,0.,360.);\nSpurParalHit%d->SetFillStyle(0);\nSpurParalHit%d->SetLineColor(2);\nSpurParalHit%d->Draw();\n",
                      i,info[i*7+0],info.at(i*7+1),info.at(i*7+3),info.at(i*7+3),i,i,i);
        }
-cout<<"\tcazzo, passadiqui "<<endl;
 //------------- hits paralleli MC 'alone'
        for( ii=0; ii< nMCParalAlone.at(iTrack); ii++) {
             i = MCParalAloneList.at(iTrack*In_Put.nSttHit+ii) ;
