@@ -10,7 +10,7 @@
 #include <PndLmdDim.h>
 #include<TGeoMatrix.h>
 
-PndLmdDim* PndLmdDim::instance = 0;
+PndLmdDim* PndLmdDim::pinstance = 0;
 
 
 #include <TROOT.h>
@@ -77,7 +77,7 @@ PndLmdDim::PndLmdDim()
 	//  |---------|----------|----------| top
 	//  ||------|-||-------|-||-------|-|
 	//  ||      | ||       | ||       | |
-	//  ||  1   | ||   2   | ||   3   | |     row 1
+	//  ||  0   | ||   1   | ||   2   | |     row 1
 	//  ||	    | || active| ||       | |
 	//  ||------|-||-------|-||-------|-|
 	//  |         | passive  |          |
@@ -87,7 +87,7 @@ PndLmdDim::PndLmdDim()
 	//            | passive  |          |
 	//            ||-------|-||-------|-|
 	//            ||       | ||       | |
-	//            ||   4   | ||   5   | |     row 2
+	//      3     ||   4   | ||   5   | |     row 2
 	//            ||       | ||       | |
 	//            ||-------|-||-------|-|
 	//            |----------|----------| top
@@ -249,21 +249,28 @@ PndLmdDim::PndLmdDim(const PndLmdDim & instance)
 
 PndLmdDim::~PndLmdDim()
 {
-	delete instance;
+	delete pinstance;
 }
 
 
 
 PndLmdDim & PndLmdDim::Get_instance()
 {
-	if (!instance){
-		instance = new PndLmdDim();
+	if (!pinstance){
+		pinstance = new PndLmdDim();
 	}
-	return (*instance);
+	return (*pinstance);
+}
+
+PndLmdDim* PndLmdDim::Instance(){
+	if (!pinstance){
+		pinstance = new PndLmdDim();
+	}
+	return (pinstance);
 }
 
 
-
+/*
 void PndLmdDim::transform_sensor_local_to_lmd_local(const int sensor_id, double & x, double & y, double & z, bool misaligned)
 {
 }
@@ -278,7 +285,7 @@ void PndLmdDim::transform_local_lmd_to_global(const int sensor_id, double & x, d
 
 void PndLmdDim::transform_local_sensor()
 {
-}
+}*/
 
 #include<FairGeoLoader.h>
 #include<FairGeoInterface.h>
@@ -511,6 +518,9 @@ void PndLmdDim::Generate_rootgeom(TGeoVolume& mothervol, bool misaligned){
 							"shape_cvd_support",
 							"(shape_cvd_disc-shape_cvd_cutout_inner:cvd_combtrans-shape_cvd_disc_cut_side:cvd_combtrans)");
 
+	TGeoVolume* lmd_vol_cvd_disc = new TGeoVolume("lmd_vol_cvd_disc",
+							shape_cvd_support, fgGeoMan->GetMedium("HYPdiamond"));
+	lmd_vol_cvd_disc->SetLineColor(9);
 	// *********************************** HV-MAPS *************************************
 
 	// create basic shapes and their positions
@@ -564,6 +574,19 @@ void PndLmdDim::Generate_rootgeom(TGeoVolume& mothervol, bool misaligned){
 					new TGeoCompositeShape("shape_maps_active",
 							"(shape_maps_active_centered:combtrans_maps_active-shape_maps_passive)");
 
+	TGeoVolume* _vol_passive =
+			new TGeoVolume(
+					"LumPassiveRect_",
+					shape_maps_passive,
+					fgGeoMan->GetMedium("silicon"));
+	_vol_passive->SetLineColor(30);
+
+	TGeoVolume* _vol_active =
+			new TGeoVolume(
+					nav_paths[7].c_str(),
+					shape_maps_active,
+					fgGeoMan->GetMedium("silicon"));
+	_vol_active->SetLineColor(36);
 	// **************************************************************
 
 	// ****************************** loops in the luminosity detector ************************
@@ -571,6 +594,7 @@ void PndLmdDim::Generate_rootgeom(TGeoVolume& mothervol, bool misaligned){
 	stringstream uniqueid; // seems pandaroot has problems when volumes are not uniquely named
 	double _x(0), _y(0), _z(0), _rotphi(0), _rottheta(0), _rotpsi(0);
 	unsigned int sensor_id(0);
+	unsigned int module_id(0);
 	for (int ihalf = 0; ihalf < 2; ihalf++){ // loop over detector halves
 		// in order do be able to displace the detector halves those are introduced as
 		// separate volume assemblies
@@ -617,9 +641,10 @@ void PndLmdDim::Generate_rootgeom(TGeoVolume& mothervol, bool misaligned){
 				TGeoRotation* rot_module = new TGeoRotation("rot_module", _rotphi, _rottheta, _rotpsi);
 				TGeoCombiTrans* rottrans_module = new TGeoCombiTrans(_x, _y, _z, rot_module);
 				// add the cvd disc into that assembly
-				TGeoVolume* lmd_vol_cvd_disc = new TGeoVolume("lmd_vol_cvd_disc",
-										shape_cvd_support, fgGeoMan->GetMedium("HYPdiamond"));
-				lmd_vol_module_->AddNode(lmd_vol_cvd_disc, imodule, rottrans_no);
+				//TGeoVolume* lmd_vol_cvd_disc = new TGeoVolume("lmd_vol_cvd_disc",
+				//						shape_cvd_support, fgGeoMan->GetMedium("HYPdiamond"));
+				lmd_vol_module_->AddNode(lmd_vol_cvd_disc, module_id, rottrans_no);
+				module_id++;
 				for (int iside = 0; iside < 2; iside++){ // loop over the two sides of the modules
 					name.str("");
 					name << nav_paths[5] << iside;
@@ -669,6 +694,7 @@ void PndLmdDim::Generate_rootgeom(TGeoVolume& mothervol, bool misaligned){
 							}
 							 _rottheta = 0.; _rotpsi = 0.;
 							//"LumActiveRect" is the keyword for digitization of hits
+							/*
 							name.str("");
 							name << nav_paths[7] << isensor;
 							uniqueid.str("");
@@ -679,6 +705,8 @@ void PndLmdDim::Generate_rootgeom(TGeoVolume& mothervol, bool misaligned){
 											shape_maps_active,
 											fgGeoMan->GetMedium("silicon"));
 							_vol_active->SetLineColor(36);
+							*/
+							/*
 							name.str("");
 							name << "LumPassiveRect_" << isensor;
 							TGeoVolume* _vol_passive =
@@ -687,10 +715,25 @@ void PndLmdDim::Generate_rootgeom(TGeoVolume& mothervol, bool misaligned){
 											shape_maps_passive,
 											fgGeoMan->GetMedium("silicon"));
 							_vol_passive->SetLineColor(30);
+							*/
 							TGeoRotation* rot_sensor = new TGeoRotation("rot_sensor", _rotphi, _rottheta, _rotpsi);
 							TGeoCombiTrans* rottrans_sensor = new TGeoCombiTrans(_x, _y, _z, rot_sensor);
-							lmd_vol_die_->AddNode(_vol_active, 0, rottrans_sensor);
-							lmd_vol_die_->AddNode(_vol_passive, 0, rottrans_sensor);
+							lmd_vol_die_->AddNode(_vol_active, sensor_id, rottrans_sensor);
+							lmd_vol_die_->AddNode(_vol_passive, sensor_id, rottrans_sensor);
+							if (1) { // some tests for debugging
+								int _sensor_id = Get_sensor_id(ihalf, iplane, imodule, iside, idie, isensor);
+								if (sensor_id != _sensor_id){
+									cout << " wrong sensor id " << _sensor_id << " != " << sensor_id << endl;
+								}
+								int _ihalf, _iplane, _imodule, _iside, _idie, _isensor;
+								Get_sensor_by_id(sensor_id, _ihalf, _iplane, _imodule, _iside, _idie, _isensor);
+								if (ihalf != _ihalf) cout << " wrong half " << _ihalf << endl;
+								if (iplane != _iplane) cout << " wrong plane " << _iplane << endl;
+								if (imodule != _imodule) cout << " wrong module " << _imodule << endl;
+								if (iside != _iside) cout << " wrong side " << _iside << endl;
+								if (idie != _idie) cout << " wrong die " << _idie << endl;
+								if (isensor != _isensor) cout << " wrong sensor " << _isensor << endl;
+							}
 							sensor_id++;
 						} // loop over sensors
 						lmd_vol_side_->AddNode(lmd_vol_die_, 0, rottrans_die);
@@ -840,4 +883,21 @@ void PndLmdDim::Generate_rootgeom(TGeoVolume& mothervol, bool misaligned){
 		}
 		//gGeoMan->Set
 */
+}
+
+void PndLmdDim::Init_transrot_matrices(){
+	if (!fgGeoMan){
+		cout << "Error in PndLmdDim::Init_transrot_matrices: Geo manager not available" << endl;
+		return;
+	}
+	// Find the Node containing the reference frame name by
+	// asking for the node at it's position
+
+
+	//TGeoVolume* fgGeoMan->FindVolumeFast(nav_paths[1].c_str());
+	//nav_paths[1];
+}
+
+void PndLmdDim::Transform_global_to_lmd_local(double& x, double& y, double& z){
+	;
 }

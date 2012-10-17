@@ -28,6 +28,8 @@
 //#include "PndSdsGeoHandling.h"
 #include "PndGeoHandling.h"
 #include "FairGeanePro.h"
+#include "TGeoManager.h"
+#include "PndLmdDim.h"
 #include <vector>
 #include <map>
 
@@ -37,7 +39,7 @@ class TGeant3;
 
 // some design constants of the LUMI detector
 const int nplanes(4);
-const int nsensors_per_plane(72);//(12);
+const int nsensors_per_plane(100);//(12);
 
 class PndLmdPerformanceTask: public FairTask {
 public:
@@ -82,6 +84,8 @@ private:
 
 	FairGeanePro* fPro;
 	PndGeoHandling* fGeoH;
+	TGeoManager* fgGeoMan;
+	PndLmdDim* lmddim;
 	int fEventNr;
 	bool fUseMVDPoint;
 	Double_t fPbeam;
@@ -171,6 +175,7 @@ private:
 	// calculated plane and sensor in plane id
 	int plane;
 	int sensor;
+	bool missed;
 
 	// Drawing directly from a tree is elegant but slow as every Draw call
 	// loops over the whole tree of events
@@ -189,6 +194,7 @@ private:
 
 	// histograms per sensor
 	TH2* hists_xy[nplanes][nsensors_per_plane];
+	TH2* hists_xy_local[nplanes][nsensors_per_plane];
 	TH1* hists_theta_init[nplanes][nsensors_per_plane];
 	TH1* hists_theta_in[nplanes][nsensors_per_plane];
 	TH1* hists_theta_diff[nplanes][nsensors_per_plane];

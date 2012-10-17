@@ -54,7 +54,7 @@ using namespace std;
 
 class PndLmdDim {
 private:
-	static PndLmdDim* instance;
+	static PndLmdDim* pinstance;
 	TGeoManager* fgGeoMan;
 	PndLmdDim();
 	PndLmdDim(const PndLmdDim& instance);
@@ -64,6 +64,7 @@ private:
 	vector<string> nav_paths;
 public:
 	static PndLmdDim& Get_instance();
+	static PndLmdDim* Instance();
 
 	// pi
 	double pi;
@@ -155,6 +156,7 @@ public:
 	int maps_n_row;
 	// enabled [row][col]
 	bool** enabled;
+	// number of sensors per side
 	int n_sensors;
 	// NOTE: MOST of the following VARIABLES are HALF of it
 	// due to geometry construction in GEANT
@@ -246,33 +248,53 @@ public:
 	double rot_z;
 
 	// returns false when one of the variables exceeds design values
-	bool Is_valid_idcall(int iplane, int imodule = 0, int iside = 0, int isensor = 0){
-		if (iplane  < 0 || iplane  >= n_planes) return false;
-		if (imodule < 0 || imodule >= n_cvd_discs) return false;
-		if (iside   < 0 || iside   >= 2) return false;
-		if (isensor < 0 || isensor >= n_sensors) return false;
+	bool Is_valid_idcall(int ihalf, int iplane = 0, int imodule = 0, int iside = 0, int idie = 0, int isensor = 0){
+		if (ihalf   < 0 || ihalf   >= 2)
+			return false;
+		if (iplane  < 0 || iplane  >= n_planes)
+			return false;
+		if (imodule < 0 || imodule >= n_cvd_discs)
+			return false;
+		if (iside   < 0 || iside   >= 2)
+			return false;
+		if (idie    < 0 || idie    >= 2)
+			return false;
+		// allow to count the non existing inner sensor at die 2
+		if (isensor < 0 || isensor >= n_sensors + 1)
+			return false;
 		return true;
 	}
 
 	// get the sensor id for a sensor on a given side, module and plane
-	int Get_sensor_id(int iplane, int imodule, int iside, int isensor){
-		return isensor + iside * n_sensors + imodule * n_sensors * 2 + iplane * n_cvd_discs * n_sensors * 2;
+	int Get_sensor_id(int ihalf, int iplane, int imodule, int iside, int idie, int isensor){
+		if (idie == 1) isensor += 2; // the parallel sensor to sensor 0 is not there!
+		int result = isensor + (iside + (imodule + (iplane + ihalf * n_planes) * nmodules) * 2 ) * n_sensors;
+		return result;
 	}
 
 	// get the sensor position by it's id in terms of plane module and side
-	void Get_sensor_by_id(const int sensor_id, int& iplane, int& imodule, int& iside, int& isensor){
+	void Get_sensor_by_id(const int sensor_id, int& ihalf, int& iplane, int& imodule, int& iside, int& idie, int& isensor){
 		int _sensor_id = sensor_id;
 		isensor = _sensor_id % n_sensors;
+		idie = 0;
+		if (isensor > 2) {
+			idie = 1;
+			isensor -= 2; // add the first but non existing sensor at die 2
+		}
 		_sensor_id /= n_sensors;
 		iside = _sensor_id % 2;
 		_sensor_id /= 2;
-		imodule = _sensor_id % n_cvd_discs;
-		_sensor_id /= n_cvd_discs;
+		imodule = _sensor_id % nmodules;
+		_sensor_id /= nmodules;
 		iplane = _sensor_id % n_planes;
-		if (!Is_valid_idcall(iplane, imodule, iside, isensor)){
+		_sensor_id /= n_planes;
+		ihalf = _sensor_id % 2;
+		if (!Is_valid_idcall(ihalf, iplane, imodule, iside, idie, isensor)){
+			ihalf = 0;
 			iplane = 0;
 			imodule = 0;
 			iside = 0;
+			idie = 0;
 			isensor = 0;
 			cout << "Error in PndLmdDim::Get_sensor_by_id: "<< sensor_id <<" is not a valid sensor id!" << endl;
 		}
@@ -352,7 +374,7 @@ public:
 		y = pos_y;
 		z = pos_z;
 	}
-
+/*
 	// the local system is where the first plane is at xyz = 0 and
 	// the detector is oriented along z
 	// module counting starts from the first plane (positive x and positive y)
@@ -466,7 +488,7 @@ public:
 
 			if (0){
 				cout << endl;
-				cout << Get_sensor_id(iplane, imodule, iside, isensor) << endl;
+				//cout << Get_sensor_id(iplane, imodule, iside, isensor) << endl;
 				cout  << '\t' << "iplane" << '\t' << "imodule" << '\t' << "iside" << '\t' << "isensor";
 				cout  << '\t' << "x" << '\t' << "y" << '\t' << "z";
 				cout  << '\t' << "rotx" << '\t' << "roty" << '\t' << "rotz" << endl;
@@ -498,9 +520,9 @@ public:
 
 	// x, y, z coordinates are expressed in the reference frame of one sensor
 	void transform_to_sensor_local(const int sensor_id, double& x, double& y, double& z, bool misaligned = false){
-		int iplane, imodule, iside, isensor;
+		int ihalf, iplane, imodule, iside, idie, isensor;
 		transform_to_lmd_local(x, y, z);
-		Get_sensor_by_id(sensor_id, iplane, imodule, iside, isensor);
+		Get_sensor_by_id(sensor_id, ihalf, iplane, imodule, iside, idie, isensor);
 		double _x(0), _y(0), _z(0), _rotx(0), _roty(0), _rotz(0);
 		Get_pos_sens_local(iplane, imodule, iside, isensor, _x, _y, _z, _rotx, _roty, _rotz, misaligned);
 		x -= _x;
@@ -518,23 +540,33 @@ public:
 			x += maps_active_offset_x;
 		y -= maps_active_offset_y;
 	}
+	*/
+
+	// x, y, z coordinate transformation from the PANDA global reference frame to the
+	// local reference frame of the luminosity monitor
+	void Transform_global_to_lmd_local(double& x, double& y, double& z);
 
 	// x, y, z coordinate transformation from the local sensor reference frame to the
 	// local reference frame of the luminosity monitor
-	void transform_sensor_local_to_lmd_local(const int sensor_id, double& x, double& y, double& z, bool misaligned = false);
+	//void transform_sensor_local_to_lmd_local(const int sensor_id, double& x, double& y, double& z, bool misaligned = false);
 
 	// x, y, z coordinate transformation from the local luminosity reference frame to the
 	// global reference frame of panda
-	void transform_local_lmd_to_global(const int sensor_id, double& x, double& y, double& z, bool misaligned = false);
+	//void transform_local_lmd_to_global(const int sensor_id, double& x, double& y, double& z, bool misaligned = false);
 
 	// x, y, z coordinate transformation between the local sensor reference frames
 	// of misaligned and aligned sensors
-	void transform_local_sensor();
+	//void transform_local_sensor();
+
 
 	// Generates the luminosity monitor geometry into the mother volume
 	// Please make sure that mother volume is large enough or that it
 	// is an assembly volume
 	void Generate_rootgeom(TGeoVolume& mothervol, bool misaligned = false);
+
+	// Initialization of the translation and rotation matrices
+	// to local luminosity frame
+	void Init_transrot_matrices();
 
 };
 

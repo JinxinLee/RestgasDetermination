@@ -123,10 +123,10 @@ int main(int nargs, char** args) {
 	// -----   Reconstruction run   -------------------------------------------
 	FairRunAna *fRun = new FairRunAna();
 	fRun->SetInputFile(MCFile);
-	fRun->AddFriend(DigiFile);
-	fRun->AddFriend(RecoFile);
-	fRun->AddFriend(CandFile);
-	fRun->AddFriend(TrkFile);
+	//fRun->AddFriend(DigiFile);
+	//fRun->AddFriend(RecoFile);
+	//fRun->AddFriend(CandFile);
+	//fRun->AddFriend(TrkFile);
 	fRun->SetOutputFile(outFile);
 	// ------------------------------------------------------------------------
 

@@ -35,6 +35,7 @@
 //PndLmd includes
 #include "PndLinTrack.h"
 #include "TGaxis.h"
+//#include "PndLmdDim.h"
 
 #include <vector>
 #include <map>
@@ -89,14 +90,15 @@ InitStatus PndLmdPerformanceTask::Init() {
 		fnevents = ioman->CheckMaxEventNo();
 	}
 
+	/*
 	fMCHits = (TClonesArray*) ioman->GetObject("LMDPoint");
 	if (!fMCHits) {
 		std::cout << "-W- PndLmdPerformanceTask::Init: " << "No LMDPoint"
 				<< " array!" << std::endl;
 		return kERROR;
-	}
+	}*/
 
-	fTracks = (TClonesArray*) ioman->GetObject("LMDTrack");
+	/*fTracks = (TClonesArray*) ioman->GetObject("LMDTrack");
 	if (!fTracks) {
 		std::cout << "-W- PndLmdPerformanceTask::Init: " << "No Track"
 				<< " array!" << std::endl;
@@ -108,7 +110,7 @@ InitStatus PndLmdPerformanceTask::Init() {
 		std::cout << "-W- PndLmdPerformanceTask::Init: " << "No Hits"
 				<< " array!" << std::endl;
 		return kERROR;
-	}
+	}*/
 
 	//--- MC info -----------------------------------------------------------------
 	true_tracks = (TClonesArray*) ioman->GetObject("MCTrack"); //True Track to compare
@@ -122,22 +124,22 @@ InitStatus PndLmdPerformanceTask::Init() {
 
 
 	//--- Digitization info ------------------------------------------------------------
-	fStripClusterArray
-			= (TClonesArray*) ioman->GetObject("LMDStripClusterCand");
-	fStripDigiArray = (TClonesArray*) ioman->GetObject("LMDStripDigis");
+	//fStripClusterArray
+	//		= (TClonesArray*) ioman->GetObject("LMDStripClusterCand");
+	//fStripDigiArray = (TClonesArray*) ioman->GetObject("LMDStripDigis");
 	//----------------------------------------------------------------------------------
 
 	//--- Real Hits --------------------------------------------------------------------
-	rechit_array = (TClonesArray*) ioman->GetObject("LMDHitsStrip"); //Points for Tracks
+	//rechit_array = (TClonesArray*) ioman->GetObject("LMDHitsStrip"); //Points for Tracks
 	//----------------------------------------------------------------------------------
 
 
 	//--- Track Candidate ---------------------------------------------------------------
-	trkcand_array = (TClonesArray*) ioman->GetObject("LMDTrackCand"); //Points for Track Canidates
+	//trkcand_array = (TClonesArray*) ioman->GetObject("LMDTrackCand"); //Points for Track Canidates
 	//-----------------------------------------------------------------------------------
 
 	//--- Real tracks -------------------------------------------------------------------
-	rec_trk = (TClonesArray*) ioman->GetObject("LMDTrack"); //Tracks
+	//rec_trk = (TClonesArray*) ioman->GetObject("LMDTrack"); //Tracks
 	//----------------------------------------------------------------------------------
 
 	fDetName = new TClonesArray("TObjString");
@@ -148,6 +150,7 @@ InitStatus PndLmdPerformanceTask::Init() {
 	fGeoH = PndGeoHandling::Instance();
 	FairRun* fRun = FairRun::Instance();
 	FairRuntimeDb* rtdb = fRun->GetRuntimeDb();
+	lmddim = PndLmdDim::Instance();
 	// FairBaseParSet* par=(FairBaseParSet*)
 	//   (rtdb->findContainer("FairBaseParSet"));
 	// fPbeam = par->GetBeamMom();
@@ -186,10 +189,12 @@ InitStatus PndLmdPerformanceTask::Init() {
 	   	TGaxis::SetMaxDigits(3);
 	}
 
+	hist_output_file->cd();
+
 	hist_angular_distr_gen = new TH2F("hist_angular_distr_gen",
-			"hist_angular_distr_gen", 400, 0., 10.e-3, 400, -3.141, 3.141);
+			"hist_angular_distr_gen", 400, 2.e-3, 12.e-3, 400, -3.141, 3.141);
 	hist_angular_distr_acc = new TH2F("hist_angular_distr_acc",
-			"hist_angular_distr_acc", 400, 0., 10.e-3, 400, -3.141, 3.141);
+			"hist_angular_distr_acc", 400, 2.e-3, 12.e-3, 400, -3.141, 3.141);
 
 	// spatial acceptance in x and y at the first lumi plane
 	hist_spatial_distr_gen = new TH2F("hist_spatial_distr_gen",
@@ -198,9 +203,9 @@ InitStatus PndLmdPerformanceTask::Init() {
 			"hist_spatial_distr_acc", 1000, -100., 100., 1000, -100., 100.);
 
 	hist_theta_over_mom_gen = new TH2F("hist_theta_over_mom_gen",
-			"hist_theta_over_mom_gen", 2000, 1., 20., 100, 0., 10.e-3);
+			"hist_theta_over_mom_gen", 2000, 1., 20., 100, 2.e-3, 12.e-3);
 	hist_theta_over_mom_acc = new TH2F("hist_theta_over_mom_acc",
-			"hist_theta_over_mom_acc", 2000, 1., 20., 100, 0., 10.e-3);
+			"hist_theta_over_mom_acc", 2000, 1., 20., 100, 2.e-3, 12.e-3);
 
 	hist_phi_over_mom_gen = new TH2F("hist_phi_over_mom_gen",
 			"hist_phi_over_mom_gen", 2000, 1., 20., 400, -3.141, 3.141);
@@ -232,6 +237,7 @@ InitStatus PndLmdPerformanceTask::Init() {
 	// calculated plane and sensor in plane id
 	tree_results->Branch("plane", &plane);
 	tree_results->Branch("sensor", &sensor);
+	tree_results->Branch("missed", &missed);
 
 	// Drawing directly from a tree is elegant but slow as every Draw call
 	// loops over the whole tree of events
@@ -364,6 +370,15 @@ InitStatus PndLmdPerformanceTask::Init() {
 			hist_name .str("");
 			hist_title.str("");
 
+			hist_name << "hist_xy_local_plane_" << iplane << "_sensor_" << isensor;
+			hist_title << "xy local hit distribution plane " << iplane << " sensor "
+					<< isensor;
+			hists_xy_local[iplane][isensor] = new TH2F(hist_name.str().c_str(),
+					hist_title.str().c_str(), 100, -2, 2, 100, -2, 2);
+			hists_xy_local[iplane][isensor]->Draw();
+			hists_xy_local[iplane][isensor]->GetXaxis()->SetTitle("X [cm]");
+			hists_xy_local[iplane][isensor]->GetYaxis()->SetTitle("Y [cm]");
+
 			hist_name << "hist_theta_init_plane_" << iplane << "_sensor_"
 					<< isensor;
 			hist_title << "initial #Theta distribution plane " << iplane
@@ -435,6 +450,9 @@ InitStatus PndLmdPerformanceTask::Init() {
 	//inv_lmdrotation.RotateY(-0.04025);
 	inv_lmdrotation.RotateY(-40.068e-3);
 	inv_lmdtranslation.SetXYZ(-26.2461, 0.000000, -1130.);
+
+	fgGeoMan = (TGeoManager*) gROOT->FindObject("FAIRGeom");
+	if (!fgGeoMan) cout << "Error: could not find the geometry manager!" << endl;
 
 	return kSUCCESS;
 }
@@ -550,6 +568,61 @@ void PndLmdPerformanceTask::Exec(Option_t* opt) {
 				TVector3 _mcpoint((mcpoint->GetPosition())); // position at the sensor entrance
 				TVector3 _mctrack(mcpoint->GetPx(), mcpoint->GetPy(),
 						mcpoint->GetPz()); // momentum of the track at the entrance
+				// variables used for conversion via root geometries
+				double glob_pt[3] = {mcpoint->GetX(), mcpoint->GetY(), mcpoint->GetZ() + 1.e-4};
+				double loc_pt[3] = {0,0,0};
+				if (1) {
+					//const double* current_point = fgGeoMan->GetCurrentPoint();
+					//cout << current_point[0] << " " << current_point[1] << " " << current_point[2] << endl;
+					TGeoNode* node =
+							fgGeoMan->FindNode(mcpoint->GetX(), mcpoint->GetY(), mcpoint->GetZ() + 1.e-4);
+					if (node){
+						missed = false;
+						//std::cout << node->GetName() << std::endl;
+						//std::cout << node->GetIndex() << std::endl;
+						//node->GetMatrix()->Print();
+						//std::cout <<  << std::endl;
+						//std::cout << node->GetMotherVolume()->GetName() << std::endl;
+						//std::cout << node->GetNumber() << "\n" << std::endl;
+						TGeoVolume* local_top = fgGeoMan->GetVolume("lmd_vol_ref_sys");
+						if (! local_top ){
+							std::cout << " Error: Could not set top volume to lmd_vol_ref_sys" << std::endl;
+						} else {
+							//fgGeoMan->SetTopVolume(local_top);
+							//cout << fgGeoMan->GetPath() << endl;
+							fgGeoMan->MasterToLocal(glob_pt, loc_pt);
+
+						}
+						//std::cout << glob_pt[0] << " " << glob_pt[1] << " " << glob_pt[2] << " " << std::endl;
+						//std::cout << loc_pt[0] << " " << loc_pt[1] << " " << loc_pt[2] << " " << std::endl;
+					} else {
+						missed = true;
+						std::cout << " Error: no node found for the current MC point " << std::endl;
+						//mcpoint->Print();
+					}
+					/*
+					double new_point[3] = {8.7, 1., 29.7375};
+					fgGeoMan->SetCurrentPoint(new_point);
+					const double* new_current_point = fgGeoMan->GetCurrentPoint();
+					cout << new_current_point[0] << " " << new_current_point[1] << " " << new_current_point[2] << endl;
+					cout << fgGeoMan->GetCurrentNode()->GetName() << endl;
+					gGeoMan->FindNode();
+					cout << fgGeoMan->GetCurrentNode()->GetName() << endl;
+
+					string path = "/lmd_HV_MAPS_1/vol_lmd_vac_0/Lumi_HV-MAPS_0/vol_LumPassive_cvd_disc_plane_1_disc_1_0";
+					fgGeoMan->cd(path.c_str());///LumActivePixelRect_plane_0_disc_0_side_0_col_0_row_0_0");
+					cout << fgGeoMan->GetPath()<< endl;
+					TGeoPhysicalNode* node =
+							fgGeoMan->MakePhysicalNode((path + "/LumActivePixelRect_plane_0_disc_0_side_0_col_0_row_0_0").c_str());///Lumi_HV-MAPS/LumPassive_cvd_disc_plane_2_disc_3");
+					if (node){
+						//TGeoCombiTrans* align_trans = new TGeoCombiTrans(1.,0.,0.,georot_no);
+						//node->Align(align_trans);
+						//gGeoMan->CloseGeometry();
+						TGeoHMatrix* matrix = node -> GetMatrix();
+						matrix -> Print();
+					}*/
+				}
+
 				if (1) { // translate it into the reference system of the lumi monitor
 					_mcpoint = inv_lmdtranslation + _mcpoint;
 					_mcpoint = inv_lmdrotation * _mcpoint;
@@ -585,8 +658,14 @@ void PndLmdPerformanceTask::Exec(Option_t* opt) {
 				det_id = mcpoint->GetDetectorID(); // store the detector id
 				sens_id = mcpoint->GetSensorID(); // store the sensor id
 				// calculate the plane and sensor on this plane
-				plane = sens_id / nsensors_per_plane;
-				sensor = sens_id - plane * nsensors_per_plane;
+				int half, module, side, die;
+				lmddim->Get_sensor_by_id(sens_id, half, plane, module, side, die, sensor);
+				if (die == 1) sensor += 2;
+				sensor += lmddim->n_sensors * side;
+				sensor += lmddim->n_sensors * 2 * module;
+				sensor += lmddim->n_sensors * 2 * lmddim->nmodules * half; // I know, I know these lines are not optimized ;)
+				//plane = sens_id / nsensors_per_plane;
+				//sensor = sens_id - plane * nsensors_per_plane;
 
 				// write those values out
 				px_init = momMC.X();
@@ -618,6 +697,7 @@ void PndLmdPerformanceTask::Exec(Option_t* opt) {
 
 					hist_xy[plane] ->Fill(x_in, y_in);
 					hists_xy[plane][sensor]->Fill(x_in, y_in);
+					hists_xy_local[plane][sensor]->Fill(loc_pt[0], loc_pt[1]);
 
 					hist_theta_init[plane] ->Fill(ptheta_init, pphi_init);
 					hists_theta_init[plane][sensor]->Fill(ptheta_init);
@@ -1003,12 +1083,12 @@ void PndLmdPerformanceTask::Finish() {
 	TCanvas canvas_properties_per_sensor("canvas_properties_per_sensor",
 			"properties per sensor", 800, 800);
 	canvas_properties_per_sensor.cd();
-	// assuming to have 72 sensors per plane
-	if (nsensors_per_plane != 72)
+	// assuming to have 100 sensors per plane
+	if (nsensors_per_plane != 100)
 		cout
-				<< " warning: attempting to draw histograms for a number of sensors per plane not 8! "
+				<< " warning: attempting to draw histograms for a number of sensors per plane not 100! "
 				<< endl;
-	canvas_properties_per_sensor.Divide(9, 9);
+	canvas_properties_per_sensor.Divide(10, 10);
 
 	for (int iplane = 0; iplane < nplanes; iplane++) {
 		canvas_properties_per_plane.cd(iplane + 1);
@@ -1019,6 +1099,13 @@ void PndLmdPerformanceTask::Finish() {
 		for (int isensor = 0; isensor < nsensors_per_plane; isensor++) {
 			canvas_properties_per_sensor.cd(isensor + 1);
 			hists_xy[iplane][isensor]->Draw("COLZ");
+		}
+		canvas_properties_per_sensor.Print("Resolution_acceptance_results.ps(");
+	}
+	for (int iplane = 0; iplane < nplanes; iplane++) {
+		for (int isensor = 0; isensor < nsensors_per_plane; isensor++) {
+			canvas_properties_per_sensor.cd(isensor + 1);
+			hists_xy_local[iplane][isensor]->Draw("COLZ");
 		}
 		canvas_properties_per_sensor.Print("Resolution_acceptance_results.ps(");
 	}
@@ -1183,6 +1270,7 @@ void PndLmdPerformanceTask::Finish() {
 }
 
 std::map<int, std::vector<int> > PndLmdPerformanceTask::AssignHitsToTracks() {
+	/*
 	std::map<int, std::vector<int> > result;
 	for (int i = 0; i < fMCHits->GetEntriesFast(); i++) { //get all MC Hits
 		PndSdsMCPoint* myPoint = (PndSdsMCPoint*) (fMCHits->At(i)); //sort MCHits with Tracks
@@ -1190,7 +1278,7 @@ std::map<int, std::vector<int> > PndLmdPerformanceTask::AssignHitsToTracks() {
 		result[myPoint->GetTrackID()].push_back(i);
 
 	}
-	return result;
+	return result;*/
 }
 
 void PndLmdPerformanceTask::DrawProgressBar(int len, double percent) {
