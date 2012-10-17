@@ -148,10 +148,6 @@ if(pathstring.Contains("fts06tube")){
 
 }
 
-PndFtsTube * PndFtsMapCreator::GetTubeFromTubeID(Int_t tubeid) {
-  if(fGeoType == 1) return GetTubeFromTubeIDGeoType1(tubeid);
-  return NULL;
-}
 
 Int_t PndFtsMapCreator::GetTubeIDFromNameGeoType1(TString name){
 
