@@ -23,6 +23,15 @@ PndGeoSttPar::~PndGeoSttPar(void)
 {
 }
 
+PndGeoSttPar::PndGeoSttPar(PndGeoSttPar& par) :
+  fGeoSensNodes(par.GetGeoSensitiveNodes()),
+  fGeoPassNodes(par.GetGeoPassiveNodes()),
+  fGeoType(par.GetGeometryType()),
+  fTubeInRad(par.GetTubeInRad()), 
+  fTubeOutRad(par.GetTubeOutRad())
+{
+}
+
 void PndGeoSttPar::clear(void) 
 {
     if(fGeoSensNodes) delete fGeoSensNodes;

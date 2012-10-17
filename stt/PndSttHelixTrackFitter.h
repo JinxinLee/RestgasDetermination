@@ -85,7 +85,7 @@ class PndSttHelixTrackFitter : public PndSttTrackFitter
   // plain = with no constraint
   Int_t DoFitPlain(PndTrackCand* pTrackCand, PndSttTrack* pTrack, Int_t pidHypo = 211);
   // through origin = force the track to pass in 0, 0, 0.
-  Int_t DoFitThroughOrigin(PndTrackCand* pTrackCand, PndSttTrack* pTrack, Int_t pidHypo = 211);
+  //  Int_t DoFitThroughOrigin(PndTrackCand* pTrackCand, PndSttTrack* pTrack, Int_t pidHypo = 211);
  
   // charge reconstruction from xy fit
   Int_t GetCharge(Double_t dCenter, Double_t phiCenter, Double_t radius);
