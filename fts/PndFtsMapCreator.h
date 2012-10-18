@@ -23,7 +23,6 @@ class PndFtsMapCreator : public TObject
 
   // general functions, to be specified depending on geo type
   Int_t GetTubeIDFromPath(TString path);
-  //Int_t GetTubeIDFromName(TString name);
   PndFtsTube * GetTubeFromTubeID(Int_t tubeid);
   TClonesArray * FillTubeArray();
   Int_t GetChamberIDFromPath(TString path); 

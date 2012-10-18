@@ -89,6 +89,11 @@ Int_t PndFtsMapCreator::GetTubeIDFromPathGeoType1(TString path){
   return GetTubeIDFromNameGeoType1(tmpstring);
 }
 
+PndFtsTube * PndFtsMapCreator::GetTubeFromTubeID(Int_t tubeid) {
+  if(fGeoType == 1) return GetTubeFromTubeIDToFillGeoType1(tubeid);
+  return NULL;
+}
+
 
 Int_t PndFtsMapCreator::GetChamberIDFromName(TString name){
   TString pathstring=name;
