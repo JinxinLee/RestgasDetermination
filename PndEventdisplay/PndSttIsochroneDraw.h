@@ -24,7 +24,7 @@
 #include "FairGeanePro.h"
 
 #include "FairRootManager.h"
-#include "PndMCDataCrawler.h";
+#include "PndMCDataCrawler.h"
 
 #include "PndTrackCandDraw.h"
 #include "PndGeoSttPar.h"
