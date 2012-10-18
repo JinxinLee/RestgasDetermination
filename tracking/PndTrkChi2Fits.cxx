@@ -41,7 +41,9 @@ Short_t PndTrkChi2Fits::FitHelixCylinder(
 	i;
 
  Double_t
+	Alfa,
 	alfetta,
+	Beta,
 	cose = cos(rotationangle),
 	dete,
 	mm,
@@ -72,14 +74,14 @@ Short_t PndTrkChi2Fits::FitHelixCylinder(
  // they still need to be rotated.
 
  // modify the input values for the translation :
- *pAlfa += 2.*trajectory_vertex[0];
- *pBeta += 2.*trajectory_vertex[1];
+ Alfa = (*pAlfa) + 2.*trajectory_vertex[0];
+ Beta = (*pBeta) + 2.*trajectory_vertex[1];
 
  // now take into account the rotation by rotationangle;
 
- alfetta = *pAlfa;
- *pAlfa = *pAlfa*cose + *pBeta*sine;
- *pBeta = -alfetta*sine + *pBeta*cose;
+ alfetta = Alfa;
+ Alfa = Alfa*cose + Beta*sine;
+ Beta = -alfetta*sine + Beta*cose;
 
  Double_t
 	Xp[nHitsinTrack],
@@ -89,14 +91,23 @@ Short_t PndTrkChi2Fits::FitHelixCylinder(
  for(i=0;i<nHitsinTrack; i++){
 	Xp[i] =  Xconformal[ i ] *cose + Yconformal[ i ]*sine;
 	Yp[i] = -Xconformal[ i ] *sine + Yconformal[ i ]*cose;
+
  }
 //--------------------
 
  // starts fitting procedure by finding the POCA first and then doing the Chi**2 minimization;
+ // use the starting value of Alfa and Beta for finding the POCA 
 
- mm = sqrt( (*pAlfa)*(*pAlfa) + (*pBeta)*(*pBeta) );
+
+ mm = sqrt( Alfa*Alfa + Beta*Beta );
 
  // find the POCA of the Stt hit or Mvd hit to the original trajectory in conformal space;
+
+ Su = 0.;
+ Sv = 0.;
+ Suv = 0.;
+ Suu = 0.;
+ S1 = 0.;
 
  for(i=0; i<nHitsinTrack; i++){
 
@@ -104,12 +115,12 @@ Short_t PndTrkChi2Fits::FitHelixCylinder(
 		ui = Xp[i];  // U
 		vi = Yp[i];  // V
 	}else {  // this is a Stt axial;
-		u1 = Xp[i] - DriftRadiusconformal[i] * (*pAlfa)/mm;
-		v1 = Yp[i] - DriftRadiusconformal[i] * (*pBeta)/mm;
-		u2 = Xp[i] + DriftRadiusconformal[i] * (*pAlfa)/mm;
-		v2 = Yp[i] + DriftRadiusconformal[i] * (*pBeta)/mm;
+		u1 = Xp[i] - DriftRadiusconformal[i] * Alfa/mm;
+		v1 = Yp[i] - DriftRadiusconformal[i] * Beta/mm;
+		u2 = Xp[i] + DriftRadiusconformal[i] * Alfa/mm;
+		v2 = Yp[i] + DriftRadiusconformal[i] * Beta/mm;
 		// poca is the point closest to the straight line;
-		fabs((*pBeta)*v1+(*pAlfa)*u1+1) < fabs((*pBeta)*v2+(*pAlfa)*u2+1) ?
+		fabs(Beta*v1+Alfa*u1+1) < fabs(Beta*v2+Alfa*u2+1) ?
 			ui = u1, vi = v1 :
 			ui = u2, vi = v2 ;
 	}
@@ -140,39 +151,45 @@ Short_t PndTrkChi2Fits::FitHelixCylinder(
 
  // calculate the output coefficients of the circumference in XY plane;
 
-	*pAlfa = (*emme)/(*qu);
-	*pBeta = -1./(*qu);
+	Alfa = (*emme)/(*qu);
+	Beta = -1./(*qu);
 
 //  now take into account the rotation and correct back; the affected quantities are ALFA and BETA,
 //  (*emme and *qu also but later);
- alfetta = *pAlfa;
- *pAlfa = *pAlfa*cose - *pBeta*sine;
- *pBeta = alfetta*sine + *pBeta*cose;
+ alfetta = Alfa;
+ Alfa = Alfa*cose - Beta*sine;
+ Beta = alfetta*sine + Beta*cose;
 
 // calculate the coefficients taking into account the translation;
 // now take into account the displacement and calculate Gamma;
 
- *pGamma = (trajectory_vertex[0]*trajectory_vertex[0]+   // *pGamma is assumed to be 0 at the beginning;
+ *pGamma = trajectory_vertex[0]*trajectory_vertex[0]+   // *pGamma is assumed to be 0 at the beginning;
 		trajectory_vertex[1]*trajectory_vertex[1]
-		-*pAlfa*trajectory_vertex[0]-*pBeta*trajectory_vertex[1]);
+		-Alfa*trajectory_vertex[0]-Beta*trajectory_vertex[1];
 
  // calculate the coefficients taking into account the translation;
- *pAlfa -=  2.*trajectory_vertex[0];
- *pBeta -=  2.*trajectory_vertex[1];
+ Alfa -=  2.*trajectory_vertex[0];
+ Beta -=  2.*trajectory_vertex[1];
+
+
 
 
 // calculate  *emme and *qu using the newly calculated *pAlfa, *pBeta, *pGamma of the
 // circular trajectory in XY. Assuming also that *pGamma ~ 0, that is, the circumference
 // goes thru the origin.
 
- if( abs(*pBeta)>1e-9) {
+ if( abs(Beta)>1e-9) {
  // normal case of a straight line in UV that can be put in the    V = m*U +q  form;
-	*emme = -(*pAlfa)/(*pBeta);
-	*qu  = -1./(*pBeta);
+	*emme = -Alfa/Beta;
+	*qu  = -1./Beta;
+	*pAlfa = Alfa;
+	*pBeta = Beta;
 	return 1;
   } else {
-	*emme = -(*pAlfa)/1e-9;
+	*emme = -Alfa/1e-9;
 	*qu  = -1./1e-9;
+	*pAlfa = Alfa;
+	*pBeta = Beta;
 	return 99;
  }
 
