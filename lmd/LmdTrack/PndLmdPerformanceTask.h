@@ -202,8 +202,8 @@ private:
 	TH1* hists_theta_rec_diff[nplanes][nsensors_per_plane];
 	TH1* hists_theta_rec_diff_rel[nplanes][nsensors_per_plane];
 
-	TRotation inv_lmdrotation;
-	TVector3 inv_lmdtranslation;
+	//TRotation inv_lmdrotation;
+	//TVector3 inv_lmdtranslation;
 
 	TFile* hist_output_file;
 

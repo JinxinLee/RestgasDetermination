@@ -74,6 +74,33 @@ public:
 	unsigned int nmodules;
 	// position of planes where the first plane defines the origin
 	double* plane_pos_z;
+	// ****************************** plane half array *****************************
+	// x in lmd reference frame
+	double half_offset_x;
+	// y in lmd reference frame
+	double half_offset_y;
+	// z in lmd reference frame
+	double half_offset_z;
+	// phi rotation in lmd reference frame
+	double half_tilt_phi;
+	// theta rotation in lmd reference frame
+	double half_tilt_theta;
+	// psi rotation in lmd reference frame
+	double half_tilt_psi;
+	// ****************************** plane half supports ******************************
+	// x in the detector half reference frame
+	double plane_half_offset_x;
+	// y in the detector half reference frame
+	double plane_half_offset_y;
+	// z in the detector half reference frame
+	double plane_half_offset_z;
+	// phi rotation in the detector half reference frame
+	double plane_half_tilt_phi;
+	// theta rotation in the detector half reference frame
+	double plane_half_tilt_theta;
+	// psi rotation in the detector half reference frame
+	double plane_half_tilt_psi;
+
 	// ****************************** cvd cooling support discs ************************
 	// cvd_diamond is cut out of 79.5 mm discs of 200 micron thickness
 	// inner min. radius due to beam pipe + a safety margin
@@ -106,18 +133,31 @@ public:
 	// Values are standard deviation.
 	// first comes translation than rotation
 
-	// x is radial to the beam pipe
+	// x is radial to the beam pipe when support is aligned
 	double cvd_offset_x;
-	// y is tangent to the beam pipe
+	// y is tangent to the beam pipe when support is aligned
 	double cvd_offset_y;
-	// z is along the beam pipe
+	// z is along the beam pipe when support is aligned
 	double cvd_offset_z;
-	// x is a rotation around the radial component of the beam pipe
-	double cvd_tilt_x; // please do not use yet
-	// y is a rotation around the tangent component of the beam pipe
-	double cvd_tilt_y; // please do not use yet
-	// z is a rotation around an axis parallel to the along the beam pipe
-	double cvd_tilt_z;//1e0;
+	// phi rotation in the reference frame of the plane half support
+	double cvd_tilt_phi;
+	// theta rotation in the reference frame of the plane half support
+	double cvd_tilt_theta;
+	// psi rotation in the reference frame of the plane half support
+	double cvd_tilt_psi;
+	// *********************************** one side on a CVD disc *************************************
+	// x is radial to the beam pipe when cvd is aligned
+	double side_offset_x;
+	// y is tangent to the beam pipe when cvd is aligned
+	double side_offset_y;
+	// z is along the beam pipe when cvd is aligned
+	double side_offset_z; // should not be used due to clashing volumes with the support!
+	// phi rotation in the reference frame of the cvd support
+	double side_tilt_phi; // should not be used due to clashing volumes with the support!
+	// theta rotation in the reference frame of the cvd support
+	double side_tilt_theta;
+	// psi rotation in the reference frame of the cvd support
+	double side_tilt_psi; // should not be used due to clashing volumes with the support!
 	// *********************************** HV-MAPS *************************************
 	//
 	//            left   right
@@ -195,11 +235,11 @@ public:
 	// z is along the beam pipe
 	double die_offset_z; //should not be used -> crashing volumes;
 	// x is a rotation around the edge of the cvd disc
-	double die_tilt_x; // please do not use yet
+	double die_tilt_phi; // please do not use yet
 	// y is a rotation around the orthogonal component of the edge of the cvd disc
-	double die_tilt_y; // please do not use yet
+	double die_tilt_theta; // please do not use yet
 	// z is a rotation around an axis parallel to the along the beam pipe
-	double die_tilt_z;// please do not use yet;
+	double die_tilt_psi;// please do not use yet;
 	//*********************************** lumi box parameters ***********************************
 	// see CAD files for details
 	// https://edms.cern.ch/nav/P:FAIR-000000719:V0/P:FAIR-000000726:V0/TAB3
@@ -304,58 +344,41 @@ public:
 	// value must be kept same for the cvd diamond as well
 	// as the sensors sitting on the diamond it self
 	// the storage is realized by a map
-	// the vector contains offsets in x, y, z, rotx, roty, rotz;
+	// the vector contains offsets in x, y, z, rotphi, rottheta, rotpsi;
 	map<string, vector<double> > offsets;
 	map<string, vector<double> >::iterator itoffset;
-	string Generate_offsetkey(int iplane, int imodule, int iside, int isensor){
+	string Generate_key(int ihalf, int iplane, int imodule, int iside, int idie, int isensor){
 		stringstream keystream;
-		keystream << iplane << imodule << iside << isensor;
+		keystream << ihalf << iplane << imodule << iside << idie << isensor;
 		return keystream.str();
 	}
 
-	void Get_offset(int iplane, int imodule, int iside, int isensor,
+	// same structure as for offsets is used for the transformation matrices
+	// stored are matrix operations
+	// global -> local lumi
+	//   key: ihalf = -1 iplane = -1 imodule = -1 iside = -1 idie = -1 isensor = -1
+	// local lumi -> local sensor
+	//   key: all variable
+	map<string, TGeoMatrix* > transformation_matrices;
+	map<string, TGeoMatrix* > transformation_matrices_aligned; // alternative aligned detector description
+	map<string, TGeoMatrix* >::iterator it_transformation_matrices;
+
+	// cleanup some maps containing only references
+	void Cleanup();
+
+	// read transformation matrices from a given file
+	// aligned and not aligned are two separate maps
+	// containing the description of the detector positions
+	void Read_transformation_matrices(string filename, bool aligned = true);
+
+	// write transformation matrices from a given file
+	// aligned and not aligned are two separate maps
+	// containing the description of the detector positions
+	void Write_transformation_matrices(string filename, bool aligned = true);
+
+	void Get_offset(int ihalf, int iplane, int imodule, int iside, int idie, int isensor,
 			double& x, double& y, double& z,
-			double& rotx, double& roty, double& rotz){
-		string key = Generate_offsetkey(iplane, imodule, iside, isensor);
-		itoffset = offsets.find(key);
-		if (itoffset != offsets.end()){
-			x = itoffset->second[0];
-			y = itoffset->second[1];
-			z = itoffset->second[2];
-			rotx = itoffset->second[3];
-			roty = itoffset->second[4];
-			rotz = itoffset->second[5];
-		} else {
-			// the precision of cvd discs is requested
-			// when requested offset applies also to the sensors
-			// on both sides
-			if (iside < 0 && isensor < 0){
-				x = gRandom->Gaus(0, cvd_offset_x);
-				y = gRandom->Gaus(0, cvd_offset_y);
-				z = gRandom->Gaus(0, cvd_offset_z);
-				rotx = gRandom->Gaus(0, cvd_tilt_x);
-				roty = gRandom->Gaus(0, cvd_tilt_y);
-				rotz = gRandom->Gaus(0, cvd_tilt_z);
-			}
-			// the precision of dies containing sensors is requested
-			// when requested offset applies to all sensors
-			// on one side
-			if (iside >= 0 && isensor < 0 ){
-				x = gRandom->Gaus(0, die_offset_x);
-				y = gRandom->Gaus(0, die_offset_y);
-				z = gRandom->Gaus(0, die_offset_z);
-				rotx = gRandom->Gaus(0, die_tilt_x);
-				roty = gRandom->Gaus(0, die_tilt_y);
-				rotz = gRandom->Gaus(0, die_tilt_z);
-			}
-			offsets[key].push_back(x);
-			offsets[key].push_back(y);
-			offsets[key].push_back(z);
-			offsets[key].push_back(rotx);
-			offsets[key].push_back(roty);
-			offsets[key].push_back(rotz);
-		}
-	}
+			double& rotphi, double& rottheta, double& rotpsi);
 
 	// several functions returning the position and orientation of
 	// the luminosity detector
@@ -544,7 +567,11 @@ public:
 
 	// x, y, z coordinate transformation from the PANDA global reference frame to the
 	// local reference frame of the luminosity monitor
-	void Transform_global_to_lmd_local(double& x, double& y, double& z);
+	void Transform_global_to_lmd_local(double& x, double& y, double& z, bool aligned);
+
+	// x, y, z vector transformation from the PANDA global reference frame to the
+	// local reference frame of the luminosity monitor
+	void Transform_global_to_lmd_local_vect(double& x, double& y, double& z, bool aligned);
 
 	// x, y, z coordinate transformation from the local sensor reference frame to the
 	// local reference frame of the luminosity monitor
@@ -562,11 +589,10 @@ public:
 	// Generates the luminosity monitor geometry into the mother volume
 	// Please make sure that mother volume is large enough or that it
 	// is an assembly volume
+	// in addition rotation and translation matrices are calculated
+	// to store those into a file please use
+	// Write_transformation_matrices(filename, false);
 	void Generate_rootgeom(TGeoVolume& mothervol, bool misaligned = false);
-
-	// Initialization of the translation and rotation matrices
-	// to local luminosity frame
-	void Init_transrot_matrices();
 
 };
 

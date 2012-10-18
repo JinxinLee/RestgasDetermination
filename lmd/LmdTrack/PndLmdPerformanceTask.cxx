@@ -151,6 +151,7 @@ InitStatus PndLmdPerformanceTask::Init() {
 	FairRun* fRun = FairRun::Instance();
 	FairRuntimeDb* rtdb = fRun->GetRuntimeDb();
 	lmddim = PndLmdDim::Instance();
+	lmddim -> Read_transformation_matrices("matrices.txt", true);
 	// FairBaseParSet* par=(FairBaseParSet*)
 	//   (rtdb->findContainer("FairBaseParSet"));
 	// fPbeam = par->GetBeamMom();
@@ -448,8 +449,8 @@ InitStatus PndLmdPerformanceTask::Init() {
 	// The matrix is a rotation around y of around 0.04025 radian
 	// TRotation inv_lmdrotation;
 	//inv_lmdrotation.RotateY(-0.04025);
-	inv_lmdrotation.RotateY(-40.068e-3);
-	inv_lmdtranslation.SetXYZ(-26.2461, 0.000000, -1130.);
+	//inv_lmdrotation.RotateY(-40.068e-3);
+	//inv_lmdtranslation.SetXYZ(-26.2461, 0.000000, -1130.);
 
 	fgGeoMan = (TGeoManager*) gROOT->FindObject("FAIRGeom");
 	if (!fgGeoMan) cout << "Error: could not find the geometry manager!" << endl;
@@ -623,9 +624,15 @@ void PndLmdPerformanceTask::Exec(Option_t* opt) {
 					}*/
 				}
 
-				if (1) { // translate it into the reference system of the lumi monitor
-					_mcpoint = inv_lmdtranslation + _mcpoint;
-					_mcpoint = inv_lmdrotation * _mcpoint;
+				if (0) { // translate it into the reference system of the lumi monitor
+					//_mcpoint = inv_lmdtranslation + _mcpoint;
+					//_mcpoint = inv_lmdrotation * _mcpoint;
+				}
+				if (1) {
+					double point[3];
+					_mcpoint.GetXYZ(point);
+					lmddim->Transform_global_to_lmd_local(point[0], point[1], point[2], true);
+					_mcpoint.SetXYZ(point[0], point[1], point[2]);
 				}
 				TVector3 momMC = mctrk->GetMomentum(); // momentum in the primary vertex
 				TVector3 posMC = mctrk->GetStartVertex(); // position of the primary vertex
@@ -651,7 +658,11 @@ void PndLmdPerformanceTask::Exec(Option_t* opt) {
 						//cout << "Propagation worked! " << endl;
 					//}
 					//_mctrack = fRes->GetMomentum();//
-					_mctrack = inv_lmdrotation*_mctrack;
+					//_mctrack = inv_lmdrotation*_mctrack;
+					double vect[3];
+					_mctrack.GetXYZ(vect);
+					lmddim->Transform_global_to_lmd_local_vect(vect[0], vect[1], vect[2], true);
+					_mctrack.SetXYZ(vect[0], vect[1], vect[2]);
 					//delete fStart;
 					//delete fRes;
 				}

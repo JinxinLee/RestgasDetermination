@@ -25,7 +25,30 @@ PndLmdDim::PndLmdDim()
 	// position of planes where the first plane defines the origin
 	plane_pos_z = new double[4];
 	plane_pos_z[0] = 0.0; plane_pos_z[1] = 20.0; plane_pos_z[2] = 30.0; plane_pos_z[3] = 40.0;
-	// ****************************** cvd cooling support discs ************************
+	half_offset_x = 0.005; // 50 mum
+	half_offset_y = 0.005;
+	half_offset_z = 0.005;
+	half_tilt_phi = 0.; // negligible
+	half_tilt_theta = 0.;
+	half_tilt_psi = 0.;
+	plane_half_offset_x = 0.005;
+	plane_half_offset_y = 0.005;
+	plane_half_offset_z = 0.005;
+	plane_half_tilt_phi = 0.0; // negligible
+	plane_half_tilt_theta = 0.0;
+	plane_half_tilt_psi = 0.0;
+	cvd_offset_x = 0.005;
+	cvd_offset_y = 0.005;
+	cvd_offset_z = 0.0;
+	cvd_tilt_phi = 0.001;
+	cvd_tilt_theta = 0.;
+	cvd_tilt_psi = 0.;
+	side_offset_x = 0.005;
+	side_offset_y = 0.005;
+	side_offset_z = 0.; // do not use! -> clashing volumes
+	side_tilt_phi = 0.; // do not use! -> clashing volumes
+	side_tilt_theta = 0.;
+	side_tilt_psi = 0.; // do not use! -> clashing volumes
 	// cvd_diamond is cut out of 79.5 mm discs of 200 micron thickness
 	// inner min. radius due to beam pipe + a safety margin
 	inner_rad = 3.7;
@@ -53,57 +76,6 @@ PndLmdDim::PndLmdDim()
 	cvd_disc_dist = pol_side_dist_min + sqrt(
 		cvd_disc_rad * cvd_disc_rad - pol_side_lg_half * pol_side_lg_half);
 
-	// the mechanical alignment precision is defined as an offset of and tilt around
-	// the middle of the cvd diamond.
-	// Values are standard deviation.
-	// first comes translation than rotation
-
-	// x is radial to the beam pipe
-	cvd_offset_x = 0.01;//2.01;
-	// y is tangent to the beam pipe
-	cvd_offset_y = 0.01;//1.01;
-	// z is along the beam pipe
-	cvd_offset_z = 0.01;//1.01;
-	// x is a rotation around the radial component of the beam pipe
-	cvd_tilt_x = 0.; // please do not use yet
-	// y is a rotation around the tangent component of the beam pipe
-	cvd_tilt_y = 0.; // please do not use yet
-	// z is a rotation around an axis parallel to the along the beam pipe
-	cvd_tilt_z = 0.001;//1e0;
-	// *********************************** HV-MAPS *************************************
-	//
-	//            left   right
-	//
-	//  |---------|----------|----------| top
-	//  ||------|-||-------|-||-------|-|
-	//  ||      | ||       | ||       | |
-	//  ||  0   | ||   1   | ||   2   | |     row 1
-	//  ||	    | || active| ||       | |
-	//  ||------|-||-------|-||-------|-|
-	//  |         | passive  |          |
-	//  |---------|----------|----------| bottom
-	//  gap
-	//            |----------|----------| bottom
-	//            | passive  |          |
-	//            ||-------|-||-------|-|
-	//            ||       | ||       | |
-	//      3     ||   4   | ||   5   | |     row 2
-	//            ||       | ||       | |
-	//            ||-------|-||-------|-|
-	//            |----------|----------| top
-	//
-	//            right   left
-	//
-	//                A   y; maps_n_row; height
-	//                |
-	//                |
-	//                --> x; maps_n_col; width
-	//
-	// the current design foresees a rotation of the first parameters
-
-	// even when several maps are placed on one die
-	// those will be placed in the simulation next to
-	// each other as separate detectors
 	maps_n_col = 3;
 	maps_n_row = 2;
 	// enabled [row][col]
@@ -139,26 +111,12 @@ PndLmdDim::PndLmdDim()
 	maps_die_width  = maps_width  * maps_n_col;
 	maps_die_height = maps_height * maps_n_row + die_gap * maps_n_row - 1;
 
-	// the mechanical alignment precision is defined as an offset of and tilt around
-	// the middle of the cvd diamond.
-	// Values are standard deviation.
-	// first comes translation than rotation\
-	// translations along z as well as rotations around x and y are
-	// negligible for dies glued on a cvd diamond
-	// rotation around z is not working yet
-
-	// x is along the edge of the cvd disc
-	die_offset_x = 0.01;//2.01;
-	// y is orthogonal to the edge of the cvd disc
-	die_offset_y = 0.01;//1.01;
-	// z is along the beam pipe
-	die_offset_z = 0.; //should not be used -> crashing volumes;
-	// x is a rotation around the edge of the cvd disc
-	die_tilt_x = 0.; // please do not use yet
-	// y is a rotation around the orthogonal component of the edge of the cvd disc
-	die_tilt_y = 0.; // please do not use yet
-	// z is a rotation around an axis parallel to the along the beam pipe
-	die_tilt_z = 0.;// please do not use yet;
+	die_offset_x = 0.;
+	die_offset_y = 0.;
+	die_offset_z = 0.;
+	die_tilt_phi = 0.;
+	die_tilt_theta = 0.;
+	die_tilt_psi = 0.;
 	//*********************************** lumi box parameters ***********************************
 	// see CAD files for details
 	// https://edms.cern.ch/nav/P:FAIR-000000719:V0/P:FAIR-000000726:V0/TAB3
@@ -249,6 +207,10 @@ PndLmdDim::PndLmdDim(const PndLmdDim & instance)
 
 PndLmdDim::~PndLmdDim()
 {
+	cout << endl;
+	cout << " Cleaning up PndLmdDim " << endl;
+	cout << " If you see that message several times please check the performance of your code! " << endl;
+	Cleanup();
 	delete pinstance;
 }
 
@@ -299,6 +261,7 @@ void PndLmdDim::transform_local_sensor()
 #include<TGeoBBox.h>
 
 void PndLmdDim::Generate_rootgeom(TGeoVolume& mothervol, bool misaligned){
+	Cleanup();
 	FairGeoLoader* geoLoad =  FairGeoLoader::Instance();
 	if (!geoLoad){
 		geoLoad = new FairGeoLoader("TGeo", "FairGeoLoader");
@@ -360,12 +323,12 @@ void PndLmdDim::Generate_rootgeom(TGeoVolume& mothervol, bool misaligned){
 					fgGeoMan->GetMedium("vacuum"));
 	//vol_lmd_vac->SetTransparency(20);
 	lmd_vol_vac->SetLineColor(3);
-	double x, y, z, rotx, roty, rotz;
-	Get_pos_lmd_global(x, y, z, rotx, roty, rotz);
+	double x, y, z, rottheta, rotphi, rotpsi;
+	Get_pos_lmd_global(x, y, z, rottheta, rotphi, rotpsi);
 	TGeoRotation* lmd_rot = new TGeoRotation("lmd_rot");
-	lmd_rot->RotateX(rotx/pi*180.);
-	lmd_rot->RotateY(roty/pi*180.);
-	lmd_rot->RotateZ(rotz/pi*180.);
+	lmd_rot->RotateX(rottheta/pi*180.);
+	lmd_rot->RotateY(rotphi/pi*180.);
+	lmd_rot->RotateZ(rotpsi/pi*180.);
 	TGeoCombiTrans* lmd_transrot = new TGeoCombiTrans(x, y, z, lmd_rot);
 	lmd_transrot->SetName("lmd_transrot");
 	lmd_transrot->RegisterYourself();
@@ -593,6 +556,8 @@ void PndLmdDim::Generate_rootgeom(TGeoVolume& mothervol, bool misaligned){
 	stringstream name;
 	stringstream uniqueid; // seems pandaroot has problems when volumes are not uniquely named
 	double _x(0), _y(0), _z(0), _rotphi(0), _rottheta(0), _rotpsi(0);
+	double _offset_x(0), _offset_y(0), _offset_z(0),
+		_offset_phi(0), _offset_theta(0), _offset_psi(0);
 	unsigned int sensor_id(0);
 	unsigned int module_id(0);
 	for (int ihalf = 0; ihalf < 2; ihalf++){ // loop over detector halves
@@ -611,8 +576,17 @@ void PndLmdDim::Generate_rootgeom(TGeoVolume& mothervol, bool misaligned){
 			uniqueid << "_" << ihalf << iplane;
 			TGeoVolumeAssembly* lmd_vol_plane_ = new TGeoVolumeAssembly((name.str()+uniqueid.str()).c_str());
 			// move to the position of the corresponding plane
-			TGeoCombiTrans* rottrans_plane = new TGeoCombiTrans(0., 0.,
+			TGeoMatrix* rottrans_plane = new TGeoCombiTrans(0., 0.,
 					plane_pos_z[iplane], rot_no);
+			if (misaligned){
+				Get_offset(ihalf, iplane, -1, -1, -1, -1,
+						_offset_x, _offset_y, _offset_z, _offset_phi, _offset_theta, _offset_psi);
+				TGeoRotation* rot_plane_offset = new TGeoRotation("rot_plane_offset",
+						_offset_phi/pi*180., _offset_theta/pi*180., _offset_psi/pi*180.);
+				TGeoCombiTrans* rottrans_plane_offset =
+						new TGeoCombiTrans(_offset_x, _offset_y, _offset_z, rot_plane_offset);
+				rottrans_plane = new TGeoHMatrix(*rottrans_plane * *rottrans_plane_offset);
+			}
 			for (int imodule = 0; imodule < nmodules; imodule++){ // loop over modules
 				name.str("");
 				name << nav_paths[4] << imodule;
@@ -630,6 +604,17 @@ void PndLmdDim::Generate_rootgeom(TGeoVolume& mothervol, bool misaligned){
 				_rotphi = 0.;
 				_rottheta = 0.;
 				_rotpsi = angle/pi*180.;
+				TGeoRotation* rot_module = new TGeoRotation("rot_module", _rotphi, _rottheta, _rotpsi);
+				TGeoMatrix* rottrans_module = new TGeoCombiTrans(_x, _y, _z, rot_module);
+				if (misaligned){
+					Get_offset(ihalf, iplane, imodule, -1, -1, -1,
+							_offset_x, _offset_y, _offset_z, _offset_phi, _offset_theta, _offset_psi);
+					TGeoRotation* rot_module_offset = new TGeoRotation("rot_module_offset",
+							_offset_phi/pi*180., _offset_theta/pi*180., _offset_psi/pi*180.);
+					TGeoCombiTrans* rottrans_module_offset =
+							new TGeoCombiTrans(_offset_x, _offset_y, _offset_z, rot_module_offset);
+					rottrans_module = new TGeoHMatrix(*rottrans_module * *rottrans_module_offset);
+				}
 				/*
 				if (ihalf == 0 && iplane == 2 && imodule == 3){
 					_x += 2.;
@@ -638,8 +623,6 @@ void PndLmdDim::Generate_rootgeom(TGeoVolume& mothervol, bool misaligned){
 					_rotphi += 20.;
 					_rottheta += 70.;
 				}*/
-				TGeoRotation* rot_module = new TGeoRotation("rot_module", _rotphi, _rottheta, _rotpsi);
-				TGeoCombiTrans* rottrans_module = new TGeoCombiTrans(_x, _y, _z, rot_module);
 				// add the cvd disc into that assembly
 				//TGeoVolume* lmd_vol_cvd_disc = new TGeoVolume("lmd_vol_cvd_disc",
 				//						shape_cvd_support, fgGeoMan->GetMedium("HYPdiamond"));
@@ -656,7 +639,16 @@ void PndLmdDim::Generate_rootgeom(TGeoVolume& mothervol, bool misaligned){
 					if (iside == 0) {_rotphi = 0.; _rottheta = 0.; _rotpsi = 0.;}
 					else {_rotphi = 0.; _rottheta = 180.; _rotpsi = 0.;}
 					TGeoRotation* rot_side = new TGeoRotation("rot_side", _rotphi, _rottheta, _rotpsi);
-					TGeoCombiTrans* rottrans_side = new TGeoCombiTrans(_x, _y, _z, rot_side);
+					TGeoMatrix* rottrans_side = new TGeoCombiTrans(_x, _y, _z, rot_side);
+					if (misaligned){
+						Get_offset(ihalf, iplane, imodule, iside, -1, -1,
+								_offset_x, _offset_y, _offset_z, _offset_phi, _offset_theta, _offset_psi);
+						TGeoRotation* rot_side_offset = new TGeoRotation("rot_side_offset",
+								_offset_phi/pi*180., _offset_theta/pi*180., _offset_psi/pi*180.);
+						TGeoCombiTrans* rottrans_side_offset =
+								new TGeoCombiTrans(_offset_x, _offset_y, _offset_z, rot_side_offset);
+						rottrans_side = new TGeoHMatrix(*rottrans_side * *rottrans_side_offset);
+					}
 					// glue the HV-MAPS to the cvd surface
 					for (int idie = 0; idie < 2; idie++){ // loop over dies
 						name.str("");
@@ -720,7 +712,12 @@ void PndLmdDim::Generate_rootgeom(TGeoVolume& mothervol, bool misaligned){
 							TGeoCombiTrans* rottrans_sensor = new TGeoCombiTrans(_x, _y, _z, rot_sensor);
 							lmd_vol_die_->AddNode(_vol_active, sensor_id, rottrans_sensor);
 							lmd_vol_die_->AddNode(_vol_passive, sensor_id, rottrans_sensor);
-							if (1) { // some tests for debugging
+							// save the transformation from the lumi reference frame
+							// into the local frame of the sensors
+							transformation_matrices[Generate_key(ihalf, iplane, imodule, iside, idie, isensor)] =
+									new TGeoHMatrix((*rottrans_plane) * (*rottrans_module) * (*rottrans_side) * (*rottrans_die) * (*rottrans_sensor));
+
+							if (0) { // some tests for debugging
 								int _sensor_id = Get_sensor_id(ihalf, iplane, imodule, iside, idie, isensor);
 								if (sensor_id != _sensor_id){
 									cout << " wrong sensor id " << _sensor_id << " != " << sensor_id << endl;
@@ -745,117 +742,12 @@ void PndLmdDim::Generate_rootgeom(TGeoVolume& mothervol, bool misaligned){
 			lmd_vol_half_->AddNode(lmd_vol_plane_, 0, rottrans_plane);
 		} // loop over planes
 		lmd_vol_ref_sys->AddNode(lmd_vol_half_, 0, rottrans_no);
+		// save the transformation into the lumi reference frame
+		transformation_matrices[Generate_key(-1, -1, -1, -1, -1, -1)] = new TGeoHMatrix((*lmd_transrot) * (*rottrans_lmd_in_box));
 	} // loop over detector halves
 	mothervol.AddNode(lmd_vol_vac, 0, lmd_transrot);
-/*
 
-
-		TGeoVolumeAssembly* SubunitVol = new TGeoVolumeAssembly("Lumi_HV-MAPS");
-
-		int sensor_id = 0;
-		for (int i_plane = 0; i_plane < 4; i_plane++) {
-			std::stringstream plane_name;
-			plane_name << "plane_" << (i_plane + 1);
-			for (int i_cvd_disc = 0; i_cvd_disc < n_cvd_discs; i_cvd_disc++) {
-				std::stringstream disc_name;
-				disc_name << "LumPassive_cvd_disc_" << plane_name.str() << "_disc_"
-						<< (i_cvd_disc + 1);
-				std::stringstream rot_name;
-				rot_name << "rot_" << plane_name.str() << "_disc_" << (i_cvd_disc
-						+ 1);
-				TGeoVolume* tmpvol = new TGeoVolume(disc_name.str().c_str(),
-						shape_cvd_support, gGeoMan->GetMedium("HYPdiamond"));//HYPdiamond"));
-				tmpvol->SetLineColor(16);
-				double _x(0), _y(0), _z(0), _rotx(0), _roty(0), _rotz(0);
-				Get_pos_mod_local(i_plane, i_cvd_disc, _x, _y, _z, _rotx,
-						_roty, _rotz, misalign);
-				TGeoRotation* rot = new TGeoRotation(rot_name.str().c_str());
-				rot->RotateX(_rotx / pi * 180.);
-				rot->RotateY(_roty / pi * 180.);
-				rot->RotateZ(_rotz / pi * 180.);
-				TGeoTranslation* trt = new TGeoTranslation(_x, _y, _z);//pos_z + plane_pos_z[i_plane]  - pos_rot_z);
-				TGeoCombiTrans* trctmp = new TGeoCombiTrans(*trt, *rot);
-				trctmp->SetName((rot_name.str() + "_comb").c_str());
-				trctmp->RegisterYourself();
-				delete rot;
-				delete trt;
-				TGeoVolumeAssembly* _SubunitVol = new TGeoVolumeAssembly(("vol_"+disc_name.str()).c_str());
-				_SubunitVol->AddNode(tmpvol, i_cvd_disc + 1, trctmp);
-				SubunitVol->AddNode(_SubunitVol, 0, comb_trans_no);
-				//break;
-				for (int iside = 0; iside < 2; iside++) {
-					// modules are placed on both sides
-					// aligned to the cut edges
-					int isensor = -1;
-					for (int maps_col = 0; maps_col < maps_n_col; maps_col++) {
-						for (int maps_row = 0; maps_row < maps_n_row; maps_row++) {
-							if (enabled[maps_row][maps_col]) isensor++; else continue;
-							// place active and passive volume
-							std::stringstream _module_name;
-							_module_name << "_plane_" << i_plane << "_disc_"
-									<< i_cvd_disc;
-							_module_name << "_side_" << iside ;//<< "_die_" << idie;
-							_module_name << "_col_" << maps_col << "_row_"
-									<< maps_row;
-							//"LumActiveRect" is the keyword for digitization of hits
-							TGeoVolume* _vol_active =
-									new TGeoVolume(
-											("LumActivePixelRect"
-													+ _module_name.str()).c_str(),
-											shape_maps_active,
-											gGeoMan->GetMedium("silicon"));
-							_vol_active->SetLineColor(36);
-							TGeoVolume
-									* _vol_passive =
-											new TGeoVolume(
-													("LumPassiveRect"
-															+ _module_name.str()).c_str(),
-													shape_maps_passive,
-													gGeoMan->GetMedium("silicon"));
-							_vol_passive->SetLineColor(30);
-							double _rot_x(0.);
-							double _rot_y(0.);
-							double _rot_z(0.);
-							double _trans_z(0.);
-							double _trans_y(0.);
-							double _trans_x(0.);
-							Get_pos_sens_local(i_plane, i_cvd_disc, iside,
-									isensor, _trans_x, _trans_y, _trans_z, _rot_x,
-									_rot_y, _rot_z, misalign);
-
-							TGeoRotation* _rot = new TGeoRotation(
-									("rot_" + _module_name.str()).c_str());
-							_rot->RotateX(_rot_x / pi * 180.);
-							_rot->RotateY(_rot_y / pi * 180.);
-							_rot->RotateZ(_rot_z / pi * 180.);
-							TGeoTranslation* _trans = new TGeoTranslation(_trans_x,
-									_trans_y, _trans_z);
-							TGeoCombiTrans* _combtrans = new TGeoCombiTrans(
-									*_trans, *_rot);
-							_combtrans->SetName(
-									("combtrans_" + _module_name.str()).c_str());
-							_combtrans->RegisterYourself();
-							delete _rot;
-							delete _trans;
-							_SubunitVol->AddNode(_vol_active, 0, _combtrans);
-							_SubunitVol->AddNode(_vol_passive, 0, _combtrans);
-							// some checks
-							int sensor_id_check = Get_sensor_id(i_plane, i_cvd_disc, iside, isensor);
-							if ( sensor_id_check != sensor_id){
-								cout << "Error: Sensor id " << sensor_id_check << " does not correspond to the constructed order " << sensor_id << " !"  << endl;
-							}
-							int _iplane, _imodule, _iside, _isensor;
-							Get_sensor_by_id(sensor_id, _iplane, _imodule, _iside, _isensor);
-							if ( _iplane != i_plane || _imodule != i_cvd_disc || _iside != iside || _isensor != isensor){
-								cout << "Error: wrong Sensor returned by id" << endl;
-							}
-							sensor_id++;
-						}
-					}
-				}
-			}
-		}
-
+	/*
 		gGeoMan->CloseGeometry();
 		//gGeoMan->Get
 		//cout << gGeoMan->InitTrack(0,30,1050,0,0,1)->GetName() << endl;
@@ -885,19 +777,239 @@ void PndLmdDim::Generate_rootgeom(TGeoVolume& mothervol, bool misaligned){
 */
 }
 
-void PndLmdDim::Init_transrot_matrices(){
-	if (!fgGeoMan){
-		cout << "Error in PndLmdDim::Init_transrot_matrices: Geo manager not available" << endl;
-		return;
+#include <fstream>
+
+void PndLmdDim::Read_transformation_matrices(string filename, bool aligned){
+	map<string, TGeoMatrix* >* matrices = NULL;
+	if (aligned){
+		matrices = &transformation_matrices_aligned;
+	} else {
+		matrices = &transformation_matrices;
 	}
-	// Find the Node containing the reference frame name by
-	// asking for the node at it's position
-
-
-	//TGeoVolume* fgGeoMan->FindVolumeFast(nav_paths[1].c_str());
-	//nav_paths[1];
+	// kill existing matrices
+	for (it_transformation_matrices = matrices->begin(); it_transformation_matrices != matrices->end(); it_transformation_matrices++){
+		delete(it_transformation_matrices->second);
+	}
+	matrices->clear();
+	ifstream file(filename.c_str());
+	int matrices_counter(0);
+	if (file.is_open()){
+		while (1){
+			// read the key
+			string key;
+			getline (file, key);
+			//cout << "next key " << key << endl;
+			char newline;
+			if (file.good()){
+				// generate rotation and translation matrices with it
+				// error treatment is not foreseen yet
+				string line1;
+				getline (file, line1);
+				istringstream inputstream1(line1);
+				double translation[3];
+				for (int i = 0 ; i < 3 ; i++){
+					inputstream1 >> translation[i];
+				}
+				string line2;
+				getline (file, line2);
+				istringstream inputstream2(line2);
+				double rotation[9];
+				for (int i = 0 ; i < 9 ; i++){
+					inputstream2 >> rotation[i];
+				}
+				TGeoRotation* rot = new TGeoRotation("rotation");
+				rot->SetMatrix(rotation);
+				TGeoCombiTrans* rottrans =
+						new TGeoCombiTrans(translation[0], translation[1], translation[2], rot);
+				(*matrices)[key] = rottrans;
+				matrices_counter++;
+			} else {
+				file.close();
+				break;
+			}
+		}
+		file.close();
+		cout << " Read " << matrices_counter << " matrices from " << filename << endl;
+	} else {
+		cout << " Error in PndLmdDim::Read_transformation_matrices: could not read from " << filename << endl;
+	}
 }
 
-void PndLmdDim::Transform_global_to_lmd_local(double& x, double& y, double& z){
-	;
+#include <iomanip>
+
+void PndLmdDim::Write_transformation_matrices(string filename, bool aligned){
+	map<string, TGeoMatrix* >* matrices = NULL;
+	if (aligned){
+		matrices = &transformation_matrices_aligned;
+	} else {
+		matrices = &transformation_matrices;
+	}
+	int matrices_counter(0);
+	ofstream file(filename.c_str());
+	if (file.is_open()){
+		for (it_transformation_matrices = matrices->begin(); it_transformation_matrices != matrices->end(); it_transformation_matrices++){
+			// write the key
+			file << it_transformation_matrices->first << '\n';
+			const double * translation = it_transformation_matrices->second->GetTranslation();
+			const double * rotation = it_transformation_matrices->second->GetRotationMatrix();
+			// write the numbers for the translation
+			for (int i = 0 ; i < 3 ; i++){
+				file << setw( 14 ) << scientific << translation[i];
+				if (i == 2) file << '\n'; else file << ' ';
+			}
+			// write the numbers for the rotation
+			for (int i = 0 ; i < 9 ; i++){
+				file << setw( 14 ) << scientific << rotation[i];
+				if (i == 8) file << '\n'; else file << ' ';
+			}
+			matrices_counter++;
+		}
+		file.close();
+		cout << matrices_counter << " Transformation matrices were written to " << filename << endl;
+	}
+	else cout << " Error in PndLmdDim::Write_transformation_matrices: could not write to " << filename << endl;
+}
+
+void PndLmdDim::Cleanup(){
+	for (it_transformation_matrices = transformation_matrices.begin(); it_transformation_matrices != transformation_matrices.end(); it_transformation_matrices++){
+		delete(it_transformation_matrices->second);
+	}
+	transformation_matrices.clear();
+	for (it_transformation_matrices = transformation_matrices_aligned.begin(); it_transformation_matrices != transformation_matrices_aligned.end(); it_transformation_matrices++){
+		delete(it_transformation_matrices->second);
+	}
+	transformation_matrices_aligned.clear();
+}
+
+void PndLmdDim::Get_offset(int ihalf, int iplane, int imodule, int iside, int idie, int isensor,
+		double& x, double& y, double& z,
+		double& rotphi, double& rottheta, double& rotpsi){
+	string key = Generate_key(ihalf, iplane, imodule, iside, idie, isensor);
+	itoffset = offsets.find(key);
+	if (itoffset != offsets.end()){
+		x = itoffset->second[0];
+		y = itoffset->second[1];
+		z = itoffset->second[2];
+		rotphi = itoffset->second[3];
+		rottheta = itoffset->second[4];
+		rotpsi = itoffset->second[5];
+	} else {
+		cout << " generating offset for";
+		// the precision of dies containing sensors is requested
+		// when requested offset applies to all sensors
+		// on one side
+		if (ihalf >= 0 && iplane >= 0 && imodule >= 0 && iside >= 0 &&
+				idie < 0 && isensor < 0 ){
+			cout << " one module side " << endl;
+			x = gRandom->Gaus(0, side_offset_x);
+			y = gRandom->Gaus(0, side_offset_y);
+			z = gRandom->Gaus(0, side_offset_z);
+			rottheta = gRandom->Gaus(0, side_tilt_phi);
+			rotphi = gRandom->Gaus(0, side_tilt_theta);
+			rotpsi = gRandom->Gaus(0, side_tilt_psi);
+		}
+		// the precision of cvd discs is requested
+		// when requested offset applies also to the sensors
+		// on both sides
+		if (ihalf >= 0 && iplane >= 0&& imodule >= 0 &&
+				iside < 0 && idie < 0 && isensor < 0){
+			cout << " one module " << endl;
+			x = gRandom->Gaus(0, cvd_offset_x);
+			y = gRandom->Gaus(0, cvd_offset_y);
+			z = gRandom->Gaus(0, cvd_offset_z);
+			rotphi = gRandom->Gaus(0, cvd_tilt_phi);
+			rottheta = gRandom->Gaus(0, cvd_tilt_theta);
+			rotpsi = gRandom->Gaus(0, cvd_tilt_psi);
+			//x = (cvd_offset_x);
+			//y = (cvd_offset_y);
+			//z = (cvd_offset_z);
+			//rotphi = (cvd_tilt_phi);
+			//rottheta = (cvd_tilt_theta);
+			//rotpsi = (cvd_tilt_psi);
+		}
+		// the precision of plane halves containing sensors is requested
+		// when requested offset applies to all modules
+		if (ihalf >= 0 && iplane >= 0 &&
+				imodule < 0 && iside < 0 && idie < 0 && isensor < 0 ){
+			cout << " one plane half " << endl;
+			x = gRandom->Gaus(0, plane_half_offset_x);
+			y = gRandom->Gaus(0, plane_half_offset_y);
+			z = gRandom->Gaus(0, plane_half_offset_z);
+			rottheta = gRandom->Gaus(0, plane_half_tilt_phi);
+			rotphi = gRandom->Gaus(0, plane_half_tilt_theta);
+			rotpsi = gRandom->Gaus(0, plane_half_tilt_psi);
+		}
+		// the precision of halves of planes is requested
+		// when requested offset applies to module supports
+		if (ihalf >= 0 &&
+				iplane < 0 && imodule < 0 && iside < 0 &&
+				idie < 0 && isensor < 0 ){
+			cout << " one half " << endl;
+			x = gRandom->Gaus(0, half_offset_x);
+			y = gRandom->Gaus(0, half_offset_y);
+			z = gRandom->Gaus(0, half_offset_z);
+			rottheta = gRandom->Gaus(0, half_tilt_phi);
+			rotphi = gRandom->Gaus(0, half_tilt_theta);
+			rotpsi = gRandom->Gaus(0, half_tilt_psi);
+		}
+		// the precision of the luminosity detector is requested
+		// when no degrees of freedom are available to the rest
+		if (ihalf < 0 && imodule < 0 && iplane < 0 && iside < 0 &&
+				idie < 0 && isensor < 0 ){
+			cout << " the luminosity detector " << endl;
+			// not implemented yet
+			x = gRandom->Gaus(0, 0);
+			y = gRandom->Gaus(0, 0);
+			z = gRandom->Gaus(0, 0);
+			rottheta = gRandom->Gaus(0, 0);
+			rotphi = gRandom->Gaus(0, 0);
+			rotpsi = gRandom->Gaus(0, 0);
+		}
+		offsets[key].push_back(x);
+		offsets[key].push_back(y);
+		offsets[key].push_back(z);
+		offsets[key].push_back(rotphi);
+		offsets[key].push_back(rottheta);
+		offsets[key].push_back(rotpsi);
+	}
+}
+
+void PndLmdDim::Transform_global_to_lmd_local(double& x, double& y, double& z, bool aligned){
+	map<string, TGeoMatrix* >* matrices = NULL;
+	if (aligned){
+		matrices = &transformation_matrices_aligned;
+	} else {
+		matrices = &transformation_matrices;
+	}
+	it_transformation_matrices = matrices->find(Generate_key(-1, -1, -1, -1, -1, -1));
+	if (it_transformation_matrices == matrices->end()) {
+		cout << " Error in PndLmdDim::Transform_global_to_lmd_local: No transformation matrices loaded! " << endl;
+		return;
+	}
+	double from[3] = {x,y,z};
+	//cout << x << " " << y << " " << z << endl;
+	double to[3];
+	it_transformation_matrices->second->MasterToLocal(from, to);
+	x = to[0]; y = to[1]; z = to[2];
+	//cout << x << " " << y << " " << z << endl << endl;
+}
+
+void PndLmdDim::Transform_global_to_lmd_local_vect(double& x, double& y, double& z, bool aligned){
+	map<string, TGeoMatrix* >* matrices = NULL;
+	if (aligned){
+		matrices = &transformation_matrices_aligned;
+	} else {
+		matrices = &transformation_matrices;
+	}
+	it_transformation_matrices = matrices->find(Generate_key(-1, -1, -1, -1, -1, -1));
+	if (it_transformation_matrices == matrices->end()) {
+		cout << " Error in PndLmdDim::Transform_global_to_lmd_local: No transformation matrices loaded! " << endl;
+		return;
+	}
+	double from[3] = {x,y,z};
+	//cout << x << " " << y << " " << z << endl;
+	double to[3];
+	it_transformation_matrices->second->MasterToLocalVect(from, to);
+	x = to[0]; y = to[1]; z = to[2];
+	//cout << x << " " << y << " " << z << endl << endl;
 }
