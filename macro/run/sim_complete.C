@@ -15,7 +15,8 @@ sim_complete(Int_t nEvents = 10, TString  SimEngine ="TGeant3", Float_t mom = 7.
   gDebug                  = 0;
   TString digiFile        = "all.par"; //The emc run the hit producer directly 
   // choose your event generator 
-  Bool_t UseEvtGen	      =kTRUE;     
+  Bool_t UseEvtGen	      =kFALSE; 
+  Bool_t UseEvtGenDirect      =kTRUE;     
   Bool_t UseDpm 	      =kFALSE;
   Bool_t UseBoxGenerator      =kFALSE;
   
@@ -146,7 +147,11 @@ sim_complete(Int_t nEvents = 10, TString  SimEngine ="TGeant3", Float_t mom = 7.
 	  FairEvtGenGenerator* evtGen = new FairEvtGenGenerator(EvtInput.Data());
 	  primGen->AddGenerator(evtGen);
   }	
-	
+  if(UseEvtGenDirect){	
+          PndEvtGenDirect *EvtGen = new PndEvtGenDirect("pbarpSystem","2pipi.dec",mom);
+	  EvtGen->SetStoreTree(kFALSE);
+	  primGen->AddGenerator(EvtGen);
+  }	
 
  //---------------------Create and Set the Field(s)---------- 
   PndMultiField *fField= new PndMultiField("FULL");
