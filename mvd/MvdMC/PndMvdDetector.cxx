@@ -24,6 +24,7 @@ void PndMvdDetector::SetDefaultSensorNames(){
   fListOfSensitives.push_back("SensorActiveArea");//MVD14.root
   fListOfSensitives.push_back("StripActive");//MVD_v1.0.root
   fListOfSensitives.push_back("PixelActive");//MVD_v1.0.root
+  fListOfSensitives.push_back("TrapAddDisks");
   fListOfSensitives.push_back("TestHCal");//tracking station
   if (fVerboseLevel>0) {
     std::cout<<"- I - PndMvdDetector: fListOfSensitives contains:";
