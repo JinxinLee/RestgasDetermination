@@ -107,7 +107,7 @@ void digi_complete()
   // -----   Ftof hit producers   ---------------------------
   PndFtofHitProducerIdeal* ftofhit = new PndFtofHitProducerIdeal();
   ftofhit->SetVerbose(iVerbose);
-  fRun->AddTask(ftofhit)
+  fRun->AddTask(ftofhit);
 
   // -----   Intialise and run   --------------------------------------------
   fRun->Init();
