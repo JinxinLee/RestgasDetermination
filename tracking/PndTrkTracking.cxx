@@ -1782,7 +1782,8 @@ if(istampa>0){
 //---------------- inizio stampe.
 if(istampa>=2){
 	if(iexcl!= -1){
-		cout<<"from PndSttMvdTracking, evt. "<<IVOLTE<<", Prima di refit, Pivoting hit :\n";
+		cout<<"from PndSttMvdTracking, evt. "<<IVOLTE<<", cand n. "<<ncand
+		<<", Prima di refit, Pivoting hit :\n";
 		if(ListTrackCandHitType[ncand][iexcl]==0){
 			cout<<"\t Pixel hit n. "<<ListTrackCandHit[ncand][iexcl]<<endl;
 		} else {
@@ -6181,7 +6182,7 @@ void  PndTrkTracking::RefitMvdStt(
 	bool Type;
 
 	Short_t	i,
-			iparallel;
+		iparallel;
 
 
 	Short_t	exitstatus;
@@ -6274,6 +6275,7 @@ ErrorDriftRadiusconformal[MAXSTTHITSINTRACK+MAXMVDPIXELHITSINTRACK+MAXMVDSTRIPHI
 			DriftRadiusconformal[iparallel]=info[ListCandHit[i]][3]/fabs(gamma);
 			ErrorDriftRadiusconformal[iparallel]=factor*ErrorStraw/fabs(gamma);
 			iparallel++;
+
 		}
 	}	// end of for(i=0, iparallel=0;
 
@@ -6297,6 +6299,7 @@ ErrorDriftRadiusconformal[MAXSTTHITSINTRACK+MAXMVDPIXELHITSINTRACK+MAXMVDSTRIPHI
 					0, // istampa
 					0 //  IVOLTE
 					);
+
 
 	//  existatus > 0, Type= true --> fit ok, it is a Circle in XY; 
 	//  existatus > 0, Type= false --> fit ok, it is a Straigh Line in XY; 
