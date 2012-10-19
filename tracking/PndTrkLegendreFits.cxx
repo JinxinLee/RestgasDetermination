@@ -210,6 +210,13 @@ Short_t PndTrkLegendreFits::FitSZspace(
  len = sizeof(Matrix);
  memset (Matrix,0,len);
 
+
+  char titolo[100];
+  sprintf(titolo,"KAPPA%d",fIcounter);
+  TH1F * hKAPPAPlot = new TH1F(titolo, "",ThetaDiv, fThetaMin, fThetaMax);
+
+
+
  // filling the matrix;
 
  for(i=0;i<nSkewHitsinTrack;i++){
@@ -249,11 +256,15 @@ Short_t PndTrkLegendreFits::FitSZspace(
 	} else {
 		theta1 = PI/2.;
 	}
+	if(theta1<0.) theta1 =0.; else if ( theta1 > PI ) theta1 = PI;
+
+	hKAPPAPlot->Fill( theta1);
 	// filling the Matrix; keep in mind that   atan  goes from -PI/2 to PI/2
 	// and so theta1, theta2 do.
 	ncell = (int) ( (theta1 +PI/2.)/ThetaDiv );
 	if(ncell <0) { ncell=0; } else if (ncell>=ThetaDiv) {ncell = ThetaDiv-1;}
 	Matrix[ncell]++;
+	
     }
  }   // end of  for(i=0;i<nSkewHitsinTrack;i++)
 
