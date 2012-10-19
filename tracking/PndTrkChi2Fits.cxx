@@ -77,11 +77,24 @@ Short_t PndTrkChi2Fits::FitHelixCylinder(
  Alfa = (*pAlfa) + 2.*trajectory_vertex[0];
  Beta = (*pBeta) + 2.*trajectory_vertex[1];
 
+//------------
+double Ox = -46.3119, Oy = 24.1085;
+double aA = -2.*Ox, aB = -2.*Oy;
+ aA = aA + 2.*trajectory_vertex[0];
+ aB = aB + 2.*trajectory_vertex[1];
+//-----------------------
+
  // now take into account the rotation by rotationangle;
 
  alfetta = Alfa;
  Alfa = Alfa*cose + Beta*sine;
  Beta = -alfetta*sine + Beta*cose;
+
+//--------
+ alfetta = aA;
+ aA = aA*cose + aB*sine;
+ aB = -alfetta*sine + aB*cose;
+//--------
 
  Double_t
 	Xp[nHitsinTrack],
@@ -108,7 +121,6 @@ Short_t PndTrkChi2Fits::FitHelixCylinder(
  Suv = 0.;
  Suu = 0.;
  S1 = 0.;
-
  for(i=0; i<nHitsinTrack; i++){
 
 	if( DriftRadiusconformal[i]<0){  // this is a Mvd hit;
@@ -120,9 +132,13 @@ Short_t PndTrkChi2Fits::FitHelixCylinder(
 		u2 = Xp[i] + DriftRadiusconformal[i] * Alfa/mm;
 		v2 = Yp[i] + DriftRadiusconformal[i] * Beta/mm;
 		// poca is the point closest to the straight line;
-		fabs(Beta*v1+Alfa*u1+1) < fabs(Beta*v2+Alfa*u2+1) ?
-			ui = u1, vi = v1 :
-			ui = u2, vi = v2 ;
+		if(fabs(Beta*v1+Alfa*u1+1) < fabs(Beta*v2+Alfa*u2+1) ){
+			ui = u1;
+			vi = v1;
+		} else {
+			ui = u2;
+			vi = v2;
+		}
 	}
 
 	// now the minimization with the chi2 formula;
