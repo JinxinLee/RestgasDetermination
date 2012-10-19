@@ -40,6 +40,7 @@ class TGeant3;
 // some design constants of the LUMI detector
 const int nplanes(4);
 const int nsensors_per_plane(100);//(12);
+const int nmdules_per_plane(10);
 
 class PndLmdPerformanceTask: public FairTask {
 public:
@@ -175,6 +176,22 @@ private:
 	// calculated plane and sensor in plane id
 	int plane;
 	int sensor;
+	// variables due to new HVMAPS setup
+	int ihalf, iplane, imodule, iside, idie, isensor;
+	double x_in_mod; // reference frame on the module surface
+	double y_in_mod;
+	double z_in_mod;
+	double x_in_sens; // reference frame on the sensor
+	double y_in_sens;
+	double z_in_sens;
+	double x_in_sens_al; // aligned reference frame on the sensor
+	double y_in_sens_al;
+	double z_in_sens_al;
+	double x_in_aligned; // reference frame on the module surface
+	double y_in_aligned; // aligned coordinates in the lumi frame
+	double z_in_aligned;
+	double theta_prop;
+	double theta_prop_aligned;
 	bool missed;
 
 	// Drawing directly from a tree is elegant but slow as every Draw call
@@ -195,6 +212,7 @@ private:
 	// histograms per sensor
 	TH2* hists_xy[nplanes][nsensors_per_plane];
 	TH2* hists_xy_local[nplanes][nsensors_per_plane];
+	TH2* hists_xy_local_cvd[nplanes][nmdules_per_plane];
 	TH1* hists_theta_init[nplanes][nsensors_per_plane];
 	TH1* hists_theta_in[nplanes][nsensors_per_plane];
 	TH1* hists_theta_diff[nplanes][nsensors_per_plane];

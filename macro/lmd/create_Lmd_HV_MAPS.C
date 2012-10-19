@@ -138,7 +138,16 @@ void create_HV_MAPS(bool misalign = false) {
 
 	  PndLmdDim& lmddim = PndLmdDim::Get_instance();
 
-	  lmddim.Generate_rootgeom(*top);
+	  // for testing purposes
+	  lmddim.Generate_rootgeom(*top, misalign);
+	  //lmddim.Write_transformation_matrices("matrices.txt", false);
+	  if (!misalign)
+		  lmddim.Write_transformation_matrices("matrices_perfect.txt", false);
+	  else
+		  lmddim.Write_transformation_matrices("matrices.txt", false);
+
+	  //lmddim.Read_transformation_matrices("matrices.txt", true);
+	  //lmddim.Write_transformation_matrices("matrices_aligned.txt", true);
 
 	  gGeoMan->CloseGeometry();
 	  top->Write();

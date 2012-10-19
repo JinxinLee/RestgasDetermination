@@ -86,7 +86,7 @@ void createRootGeometry_beampipe() {
 	geoBuild->createMedium(FairMediumKapton);
 	std::cout << " done " << std::endl;
 	// open output file
-	TString fGeoFile = Form("geo/beampipe_201203.root");
+	TString fGeoFile = Form("geo/beampipe_201210.root");
 	TFile* fi = new TFile(fGeoFile, "RECREATE");
 
 	// define cave
@@ -715,10 +715,10 @@ void createRootGeometry_beampipe() {
 	beamPipe->AddNode(VcrossTSTMPs, 0, trg7); // g
 	beamPipe->AddNode(VDipolePip, 0, trh4); // h
 	//beamPipe->AddNode(VLumMon,        0, tri6);       // i
-	beamPipe->AddNode(vlum_beampipe_upstream, 0, tri6);       // i
-	beamPipe->AddNode(vlum_CaptonCone, 0, tri6);       // i
-	beamPipe->AddNode(vlum_beampipe_downstream, 0, tri6);       // i
-	beamPipe->AddNode(VEndCross,      0, trj8);       // j
+	//beamPipe->AddNode(vlum_beampipe_upstream, 0, tri6);       // i
+	//beamPipe->AddNode(vlum_CaptonCone, 0, tri6);       // i
+	//beamPipe->AddNode(vlum_beampipe_downstream, 0, tri6);       // i
+	//beamPipe->AddNode(VEndCross,      0, trj8);       // j
 
 	// create an array of z positions for the sensors in 10 cm distances
 	for (int iposz = 0; iposz < 1200; iposz+=10) sensor_positions.push_back(iposz);

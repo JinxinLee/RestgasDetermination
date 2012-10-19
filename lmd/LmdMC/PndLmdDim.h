@@ -6,30 +6,7 @@
  *
  * Global comments:
  *
- * - with rotation around x, y, z I messed up. Sorry.
- *   x y z have now the usual meaning of euler angle operations meaning
- *   1. rotation around z
- *   2. rotation around x
- *   3. rotation around new z
- *
- * - important for sensor id:
- *   PANDAROOT generates a sensor id according to the order it was created
- *   For a working id -> sensor conversion one must create
- *   the luminosity detector with the following loops:
- *
- *   	for (int i_plane = 0; i_plane < 4; i_plane++) {
-...
-		for (int i_cvd_disc = 0; i_cvd_disc < n_cvd_discs-2; i_cvd_disc++) {
-...
-			for (int iside = 0; iside < 2; iside++) {
-...
-				int isensor = -1;
-				for (int maps_col = 0; maps_col < maps_n_col; maps_col++) {
-					for (int maps_row = 0; maps_row < maps_n_row; maps_row++) {
-						if (enabled[maps_row][maps_col]) isensor++;
-
-	otherwise all assumptions in transform_to_sensor_local won't work!
- *
+ * to do
  *
  *
  *  Created on: Oct 5, 2012
@@ -49,6 +26,10 @@
 #include <TGeoManager.h>
 #include <TGeoVolume.h>
 #include <TGeoMatrix.h>
+#include <TVector3.h>
+#include <TMatrixT.h>
+
+typedef TMatrixT<double> TMatrixD; // hmm funny, should be declared in TMatrixT.h
 
 using namespace std;
 
@@ -145,6 +126,10 @@ public:
 	double cvd_tilt_theta;
 	// psi rotation in the reference frame of the plane half support
 	double cvd_tilt_psi;
+	// thickness of the kapton flexible circuits to the sensors
+	// (chosen to be thicker to simulate also the influence of the
+	//  printed circuits themselves)
+	double kapton_disc_thick_half;
 	// *********************************** one side on a CVD disc *************************************
 	// x is radial to the beam pipe when cvd is aligned
 	double side_offset_x;
@@ -357,7 +342,9 @@ public:
 	// stored are matrix operations
 	// global -> local lumi
 	//   key: ihalf = -1 iplane = -1 imodule = -1 iside = -1 idie = -1 isensor = -1
-	// local lumi -> local sensor
+	// local lumi -> local side on cvd disc
+	//   key: ihalf >=0 iplane >= 0 imodule >=0 iside = -1 idie = -1 isensor = -1
+	// local side on cvd disc -> local sensor
 	//   key: all variable
 	map<string, TGeoMatrix* > transformation_matrices;
 	map<string, TGeoMatrix* > transformation_matrices_aligned; // alternative aligned detector description
@@ -565,13 +552,178 @@ public:
 	}
 	*/
 
+	// get the transformation matrix from the PANDA global reference frame to the
+	// Luminosity reference frame
+	TGeoMatrix& Get_transformation_global_to_lmd_local(bool aligned = true);
+
+	// get the transformation matrix from lmd local reference frame to the
+	// cvd disc surface reference frame
+	TGeoMatrix& Get_transformation_lmd_local_to_module_side(
+			int ihalf, int iplane, int imodule, int iside, bool aligned = true);
+
+	// get the transformation matrix from lmd cvd disc surface frame to the
+	// sensor reference frame
+	TGeoMatrix& Get_transformation_module_side_to_sensor(
+			int ihalf, int iplane, int imodule, int iside, int idie, int isensor,  bool aligned = true);
+
+	// get the transformation matrix from PANDA global reference frame to the
+	// sensor reference frame
+	TGeoMatrix& Get_transformation_global_to_sensor(
+			int ihalf, int iplane, int imodule, int iside, int idie, int isensor,  bool aligned = true);
+
+	// get the inverse transformation matrix from the PANDA global reference frame to the
+	// Luminosity reference frame
+	TGeoMatrix& Get_transformation_lmd_local_to_global(bool aligned = true);
+
+	// get the inverse transformation matrix from lmd local reference frame to the
+	// cvd disc surface reference frame
+	TGeoMatrix& Get_transformation_module_side_to_lmd_local(
+			int ihalf, int iplane, int imodule, int iside, bool aligned = true);
+
+	// get the inverse transformation matrix from lmd cvd disc surface frame to the
+	// sensor reference frame
+	TGeoMatrix& Get_transformation_sensor_to_module_side(
+			int ihalf, int iplane, int imodule, int iside, int idie, int isensor,  bool aligned = true);
+
+	// get the inverse transformation matrix from PANDA global reference frame to the
+	// sensor reference frame
+	TGeoMatrix& Get_transformation_sensor_to_global(
+			int ihalf, int iplane, int imodule, int iside, int idie, int isensor,  bool aligned = true);
+
+	// get the transformation matrix from a ideal sensor to the aligned one
+	TGeoMatrix& Get_transformation_sensor_to_sensor_aligned(
+			int ihalf, int iplane, int imodule, int iside, int idie, int isensor);
+
+	// get the transformation matrix from a aligned sensor to the ideal one
+	TGeoMatrix& Get_transformation_sensor_aligned_to_sensor(
+			int ihalf, int iplane, int imodule, int iside, int idie, int isensor);
+
+	//************************** 3d vector transformations ******************************
+
+	// Transform from the PANDA global reference frame to the
+	// Luminosity reference frame
+	TVector3& Transform_global_to_lmd_local(const TVector3& point, bool isvector = false, bool aligned = true);
+
+	// Transform from lmd local reference frame to the
+	// cvd disc surface reference frame
+	TVector3& Transform_lmd_local_to_module_side(const TVector3& point,
+			int ihalf, int iplane, int imodule, int iside, bool isvector = false, bool aligned = true);
+
+	// Transform from lmd cvd disc surface frame to the
+	// sensor reference frame
+	TVector3& Transform_module_side_to_sensor(const TVector3& point,
+			int ihalf, int iplane, int imodule, int iside, int idie, int isensor, bool isvector = false, bool aligned = true);
+
+	// Transform from PANDA global reference frame to the
+	// sensor reference frame
+	TVector3& Transform_global_to_sensor(const TVector3& point,
+			int ihalf, int iplane, int imodule, int iside, int idie, int isensor, bool isvector = false, bool aligned = true);
+
+	// Transform from the PANDA global reference frame to the
+	// Luminosity reference frame
+	TVector3& Transform_lmd_local_to_global(const TVector3& point, bool isvector = false, bool aligned = true);
+
+	// Transform from lmd local reference frame to the
+	// cvd disc surface reference frame
+	TVector3& Transform_module_side_to_lmd_local(const TVector3& point,
+			int ihalf, int iplane, int imodule, int iside, bool isvector = false, bool aligned = true);
+
+	// Transform from lmd cvd disc surface frame to the
+	// sensor reference frame
+	TVector3& Transform_sensor_to_module_side(const TVector3& point,
+			int ihalf, int iplane, int imodule, int iside, int idie, int isensor, bool isvector = false, bool aligned = true);
+
+	// Transform from PANDA global reference frame to the
+	// sensor reference frame
+	TVector3& Transform_sensor_to_global(const TVector3& point,
+			int ihalf, int iplane, int imodule, int iside, int idie, int isensor, bool isvector = false, bool aligned = true);
+
+	// Transform from a ideal sensor to the aligned one
+	TVector3& Transform_sensor_to_sensor_aligned(const TVector3& point,
+			int ihalf, int iplane, int imodule, int iside, int idie, int isensor, bool isvector = false);
+
+	// Transform from a aligned sensor to the ideal one
+	TVector3& Transform_sensor_aligned_to_sensor(const TVector3& point,
+			int ihalf, int iplane, int imodule, int iside, int idie, int isensor, bool isvector = false);
+
+	// ************************* 3d matrix rotations ***************************************
+
+	// Transform from the PANDA global reference frame to the
+	// Luminosity reference frame
+	// treats only 3 x 3 matrices representing the space
+	TMatrixD& Transform_global_to_lmd_local(const TMatrixD& matrix, bool aligned = true);
+
+	// Transform from lmd local reference frame to the
+	// cvd disc surface reference frame
+	// treats only 3 x 3 matrices representing the space
+	TMatrixD& Transform_lmd_local_to_module_side(const TMatrixD& matrix,
+			int ihalf, int iplane, int imodule, int iside, bool aligned = true);
+
+	// Transform from lmd cvd disc surface frame to the
+	// sensor reference frame
+	// treats only 3 x 3 matrices representing the space
+	TMatrixD& Transform_module_side_to_sensor(const TMatrixD& matrix,
+			int ihalf, int iplane, int imodule, int iside, int idie, int isensor, bool aligned = true);
+
+	// Transform from PANDA global reference frame to the
+	// sensor reference frame
+	// treats only 3 x 3 matrices representing the space
+	TMatrixD& Transform_global_to_sensor(const TMatrixD& matrix,
+			int ihalf, int iplane, int imodule, int iside, int idie, int isensor, bool aligned = true);
+
+	// Transform from the PANDA global reference frame to the
+	// Luminosity reference frame
+	// treats only 3 x 3 matrices representing the space
+	TMatrixD& Transform_lmd_local_to_global(const TMatrixD& matrix, bool aligned = true);
+
+	// Transform from lmd local reference frame to the
+	// cvd disc surface reference frame
+	// treats only 3 x 3 matrices representing the space
+	TMatrixD& Transform_module_side_to_lmd_local(const TMatrixD& matrix,
+			int ihalf, int iplane, int imodule, int iside, bool aligned = true);
+
+	// Transform from lmd cvd disc surface frame to the
+	// sensor reference frame
+	// treats only 3 x 3 matrices representing the space
+	TMatrixD& Transform_sensor_to_module_side(const TMatrixD& matrix,
+			int ihalf, int iplane, int imodule, int iside, int idie, int isensor, bool aligned = true);
+
+	// Transform from PANDA global reference frame to the
+	// sensor reference frame
+	// treats only 3 x 3 matrices representing the space
+	TMatrixD& Transform_sensor_to_global(const TMatrixD& matrix,
+			int ihalf, int iplane, int imodule, int iside, int idie, int isensor, bool aligned = true);
+
+	// Transform from a ideal sensor to the aligned one
+	// treats only 3 x 3 matrices representing the space
+	TMatrixD& Transform_sensor_to_sensor_aligned(const TMatrixD& matrix,
+			int ihalf, int iplane, int imodule, int iside, int idie, int isensor);
+
+	// Transform from a aligned sensor to the ideal one
+	// treats only 3 x 3 matrices representing the space
+	TMatrixD& Transform_sensor_aligned_to_sensor(const TMatrixD& matrix,
+			int ihalf, int iplane, int imodule, int iside, int idie, int isensor);
+
+
+	// *************************
+
+	// get a pointer to the requested matrices with checks
+	// returns NULL if no matrices available
+	// do not delete!
+	map<string, TGeoMatrix* >* Get_matrices(bool aligned = true);
+
+	// get a pointer to the requested matrix with checks
+	// returns NULL if no matrix available
+	// do not delete!
+	TGeoMatrix* Get_matrix(int ihalf, int iplane, int imodule, int iside, int idie, int isensor,  bool aligned = true);
+
 	// x, y, z coordinate transformation from the PANDA global reference frame to the
 	// local reference frame of the luminosity monitor
-	void Transform_global_to_lmd_local(double& x, double& y, double& z, bool aligned);
+	void Transform_global_to_lmd_local(double& x, double& y, double& z, bool aligned = true);
 
 	// x, y, z vector transformation from the PANDA global reference frame to the
 	// local reference frame of the luminosity monitor
-	void Transform_global_to_lmd_local_vect(double& x, double& y, double& z, bool aligned);
+	void Transform_global_to_lmd_local_vect(double& x, double& y, double& z, bool aligned = true);
 
 	// x, y, z coordinate transformation from the local sensor reference frame to the
 	// local reference frame of the luminosity monitor

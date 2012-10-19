@@ -152,6 +152,7 @@ InitStatus PndLmdPerformanceTask::Init() {
 	FairRuntimeDb* rtdb = fRun->GetRuntimeDb();
 	lmddim = PndLmdDim::Instance();
 	lmddim -> Read_transformation_matrices("matrices.txt", true);
+	lmddim -> Read_transformation_matrices("matrices_perfect.txt", false);
 	// FairBaseParSet* par=(FairBaseParSet*)
 	//   (rtdb->findContainer("FairBaseParSet"));
 	// fPbeam = par->GetBeamMom();
@@ -239,6 +240,27 @@ InitStatus PndLmdPerformanceTask::Init() {
 	tree_results->Branch("plane", &plane);
 	tree_results->Branch("sensor", &sensor);
 	tree_results->Branch("missed", &missed);
+	// new HVMAPS variables
+	tree_results->Branch("ihalf", &ihalf);
+	tree_results->Branch("iplane", &iplane);
+	tree_results->Branch("imodule", &imodule);
+	tree_results->Branch("iside", &iside);
+	tree_results->Branch("idie", &idie);
+	tree_results->Branch("isensor", &isensor);
+	tree_results->Branch("x_in_mod", &x_in_mod); // reference frame on the module surface
+	tree_results->Branch("y_in_mod", &y_in_mod);
+	tree_results->Branch("z_in_mod", &z_in_mod);
+	tree_results->Branch("x_in_sens", &x_in_sens); // reference frame on the sensor
+	tree_results->Branch("y_in_sens", &y_in_sens);
+	tree_results->Branch("z_in_sens", &z_in_sens);
+	tree_results->Branch("x_in_sens_al", &x_in_sens_al); // reference frame on the sensor
+	tree_results->Branch("y_in_sens_al", &y_in_sens_al);
+	tree_results->Branch("z_in_sens_al", &z_in_sens_al);
+	tree_results->Branch("x_in_aligned", &x_in_aligned); // reference frame on the module surface
+	tree_results->Branch("y_in_aligned", &y_in_aligned); // aligned coordinates in the lumi frame
+	tree_results->Branch("z_in_aligned", &z_in_aligned);
+	tree_results->Branch("theta_prop", &theta_prop);
+	tree_results->Branch("theta_prop_aligned", &theta_prop_aligned);
 
 	// Drawing directly from a tree is elegant but slow as every Draw call
 	// loops over the whole tree of events
@@ -477,7 +499,7 @@ void PndLmdPerformanceTask::SetHistFilename(TString filename){
 /*
 void PndLmdPerformanceTask::Propagate(TVector3 pos, TVector3 mom, int pdgcode,
 		TVector3 ip, TVector3& initpos, TVector3& initdir) {
-	//TVector3 initpos, TVector3 initdir, TVector3 IP, TVector3& respos, TVector3& resdir, double mom){ // PDGCode
+	//TVector3 initpos, TVector3 initdir, TVector3 IP, TVector3& respos, TVector3& resdir, ", &);mom){ // PDGCode
 	if (!fPro) {
 		cout << " no propagator found, creating one and initilizing the rest "
 				<< endl;
@@ -570,9 +592,9 @@ void PndLmdPerformanceTask::Exec(Option_t* opt) {
 				TVector3 _mctrack(mcpoint->GetPx(), mcpoint->GetPy(),
 						mcpoint->GetPz()); // momentum of the track at the entrance
 				// variables used for conversion via root geometries
-				double glob_pt[3] = {mcpoint->GetX(), mcpoint->GetY(), mcpoint->GetZ() + 1.e-4};
-				double loc_pt[3] = {0,0,0};
-				if (1) {
+				//double glob_pt[3] = {mcpoint->GetX(), mcpoint->GetY(), mcpoint->GetZ() + 1.e-4};
+				//double loc_pt[3] = {0,0,0};
+				if (0) {
 					//const double* current_point = fgGeoMan->GetCurrentPoint();
 					//cout << current_point[0] << " " << current_point[1] << " " << current_point[2] << endl;
 					TGeoNode* node =
@@ -591,7 +613,7 @@ void PndLmdPerformanceTask::Exec(Option_t* opt) {
 						} else {
 							//fgGeoMan->SetTopVolume(local_top);
 							//cout << fgGeoMan->GetPath() << endl;
-							fgGeoMan->MasterToLocal(glob_pt, loc_pt);
+							//fgGeoMan->MasterToLocal(glob_pt, loc_pt);
 
 						}
 						//std::cout << glob_pt[0] << " " << glob_pt[1] << " " << glob_pt[2] << " " << std::endl;
@@ -629,10 +651,7 @@ void PndLmdPerformanceTask::Exec(Option_t* opt) {
 					//_mcpoint = inv_lmdrotation * _mcpoint;
 				}
 				if (1) {
-					double point[3];
-					_mcpoint.GetXYZ(point);
-					lmddim->Transform_global_to_lmd_local(point[0], point[1], point[2], true);
-					_mcpoint.SetXYZ(point[0], point[1], point[2]);
+					_mcpoint = lmddim->Transform_global_to_lmd_local(_mcpoint, false, false);
 				}
 				TVector3 momMC = mctrk->GetMomentum(); // momentum in the primary vertex
 				TVector3 posMC = mctrk->GetStartVertex(); // position of the primary vertex
@@ -659,24 +678,24 @@ void PndLmdPerformanceTask::Exec(Option_t* opt) {
 					//}
 					//_mctrack = fRes->GetMomentum();//
 					//_mctrack = inv_lmdrotation*_mctrack;
-					double vect[3];
-					_mctrack.GetXYZ(vect);
-					lmddim->Transform_global_to_lmd_local_vect(vect[0], vect[1], vect[2], true);
-					_mctrack.SetXYZ(vect[0], vect[1], vect[2]);
+					//lmddim->Transform_global_to_lmd_local(_mctrack, true);
 					//delete fStart;
 					//delete fRes;
 				}
 				det_id = mcpoint->GetDetectorID(); // store the detector id
 				sens_id = mcpoint->GetSensorID(); // store the sensor id
 				// calculate the plane and sensor on this plane
-				int half, module, side, die;
-				lmddim->Get_sensor_by_id(sens_id, half, plane, module, side, die, sensor);
-				if (die == 1) sensor += 2;
-				sensor += lmddim->n_sensors * side;
-				sensor += lmddim->n_sensors * 2 * module;
-				sensor += lmddim->n_sensors * 2 * lmddim->nmodules * half; // I know, I know these lines are not optimized ;)
+				lmddim->Get_sensor_by_id(sens_id, ihalf, iplane, imodule, iside, idie, isensor);
+				sensor = isensor;
+				plane = iplane;
+				if (idie == 1) sensor += 2;
+				sensor += lmddim->n_sensors * iside;
+				sensor += lmddim->n_sensors * 2 * imodule;
+				sensor += lmddim->n_sensors * 2 * lmddim->nmodules * ihalf; // I know, I know these lines are not optimized ;)
 				//plane = sens_id / nsensors_per_plane;
 				//sensor = sens_id - plane * nsensors_per_plane;
+				TVector3 _mctrack_aligned = lmddim->Transform_global_to_sensor(_mctrack, ihalf, iplane, imodule, iside, idie, isensor, true, true);
+				_mctrack = lmddim->Transform_global_to_sensor(_mctrack, ihalf, iplane, imodule, iside, idie, isensor, true, false);
 
 				// write those values out
 				px_init = momMC.X();
@@ -693,6 +712,33 @@ void PndLmdPerformanceTask::Exec(Option_t* opt) {
 				ptheta_in = _mctrack.Theta();
 				pphi_in = _mctrack.Phi();
 
+				TVector3& _mcpoint_mod =
+						lmddim->Transform_lmd_local_to_module_side(_mcpoint,
+								ihalf, iplane, imodule, iside, false, false);
+				x_in_mod = _mcpoint_mod.X();
+				y_in_mod = _mcpoint_mod.Y();
+				z_in_mod = _mcpoint_mod.Z();
+				TVector3& _mcpoint_sens =
+						lmddim->Transform_global_to_sensor(mcpoint->GetPosition(),
+								ihalf, iplane, imodule, iside, idie, isensor, false, false);
+				x_in_sens = _mcpoint_sens.X(); // reference frame on the sensor
+				y_in_sens = _mcpoint_sens.Y();
+				z_in_sens = _mcpoint_sens.Z();
+				TVector3& _mcpoint_sens_al =
+						lmddim->Transform_global_to_sensor(mcpoint->GetPosition(),
+								ihalf, iplane, imodule, iside, idie, isensor, false, true);
+				x_in_sens_al = _mcpoint_sens_al.X(); // reference frame on the sensor
+				y_in_sens_al = _mcpoint_sens_al.Y();
+				z_in_sens_al = _mcpoint_sens_al.Z();
+				TVector3& _mcpoint_aligned =
+						lmddim->Transform_global_to_lmd_local(mcpoint->GetPosition(), false, true);
+				x_in_aligned = _mcpoint_aligned.X(); // reference frame on the module surface
+				y_in_aligned = _mcpoint_aligned.Y(); // aligned coordinates in the lumi frame
+				z_in_aligned = _mcpoint_aligned.Z();
+
+				theta_prop = _mctrack.Theta();
+				theta_prop_aligned = _mctrack_aligned.Theta();
+
 				if (plane < 0 || plane >= nplanes || sensor < 0 || sensor
 						>= nsensors_per_plane) {
 					cout
@@ -708,7 +754,7 @@ void PndLmdPerformanceTask::Exec(Option_t* opt) {
 
 					hist_xy[plane] ->Fill(x_in, y_in);
 					hists_xy[plane][sensor]->Fill(x_in, y_in);
-					hists_xy_local[plane][sensor]->Fill(loc_pt[0], loc_pt[1]);
+					hists_xy_local[plane][sensor]->Fill(_mcpoint_sens.X(), _mcpoint_sens.Y());
 
 					hist_theta_init[plane] ->Fill(ptheta_init, pphi_init);
 					hists_theta_init[plane][sensor]->Fill(ptheta_init);
