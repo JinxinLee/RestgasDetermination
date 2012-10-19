@@ -147,8 +147,10 @@ sim_complete(Int_t nEvents = 10, TString  SimEngine ="TGeant3", Float_t mom = 7.
 	  FairEvtGenGenerator* evtGen = new FairEvtGenGenerator(EvtInput.Data());
 	  primGen->AddGenerator(evtGen);
   }	
-  if(UseEvtGenDirect){	
-          PndEvtGenDirect *EvtGen = new PndEvtGenDirect("pbarpSystem","2pipi.dec",mom);
+  if(UseEvtGenDirect){
+          TString  EvtInput =gSystem->Getenv("VMCWORKDIR");
+          EvtInput+="/macro/run/2pipi.dec";	
+          PndEvtGenDirect *EvtGen = new PndEvtGenDirect("pbarpSystem", EvtInput.Data(), mom);
 	  EvtGen->SetStoreTree(kFALSE);
 	  primGen->AddGenerator(EvtGen);
   }	
