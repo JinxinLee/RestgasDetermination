@@ -395,6 +395,7 @@ bool PndTrkCTFindTrackInXY::FindTrackInXYProjection(
 
 
 // PndTrkGlpkFits fit;
+
  PndTrkLegendreFits fit;
 
  status = fit.FitHelixCylinder(
