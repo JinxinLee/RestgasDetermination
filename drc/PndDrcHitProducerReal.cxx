@@ -193,8 +193,8 @@ void PndDrcHitProducerReal::ProcessBarPoint()
     Double_t Xs = fradius * cos(phi_curr);
     Double_t Ys = fradius * sin(phi_curr);
     //cout<<"-I- HitProducerReal: Xs = "<<Xs<<", Ys = "<<Ys<<endl;
-    Double_t Xb = bbX/2.*((2.*b-1.)/fbarnum - 1.)*sin(phi_curr);
-    Double_t Yb = bbX/2.*((2.*b-1.)/fbarnum - 1.)*cos(phi_curr);
+    Double_t Xb =  bbX/2.*((2.*b-1.)/fbarnum - 1.)*sin(phi_curr);
+    Double_t Yb = -bbX/2.*((2.*b-1.)/fbarnum - 1.)*cos(phi_curr);
     //cout<<"-I- HitProducerReal: ((2.*b-1.)/barnum - 1.)"<< ((2.*b-1.)/barnum - 1.)<<endl;
     //cout<<"-I- HitProducerReal: Xb = "<<Xb<<", Yb = "<<Yb<<endl;          
     Double_t fXHit = Xs+Xb;
