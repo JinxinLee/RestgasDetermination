@@ -93,7 +93,7 @@ sim_complete(Int_t nEvents = 10, TString  SimEngine ="TGeant3", Float_t mom = 7.
   fRun->AddModule(Emc);
   //-------------------------  DRC       -----------------
   PndDrc *Drc = new PndDrc("DIRC", kTRUE);
-  Drc->SetGeometryFileName("dirc_l0_p0_updated.root"); 
+  Drc->SetGeometryFileName("dirc_l0_p0.root"); 
   Drc->SetRunCherenkov(kFALSE);
   fRun->AddModule(Drc); 
   //-------------------------  DISC      -----------------
@@ -107,6 +107,7 @@ sim_complete(Int_t nEvents = 10, TString  SimEngine ="TGeant3", Float_t mom = 7.
   Muo->SetBarrel("fast");
   Muo->SetEndcap("fast");
   Muo->SetMuonFilter("fast");
+  Muo->SetForward("fast");
   Muo->SetMdtMagnet(kTRUE);
   Muo->SetMdtMFIron(kTRUE);
   fRun->AddModule(Muo);

@@ -83,6 +83,7 @@ run_sim_sttcombi_pgun(Int_t nEvents=10, Int_t pid=13, Float_t p1=1.0, Float_t p2
   Muo->SetBarrel("fast");
   Muo->SetEndcap("fast");
   Muo->SetMuonFilter("fast");
+  Muo->SetForward("fast");
   Muo->SetMdtMagnet(kTRUE);
   Muo->SetMdtMFIron(kTRUE);
   fRun->AddModule(Muo);
@@ -98,7 +99,7 @@ run_sim_sttcombi_pgun(Int_t nEvents=10, Int_t pid=13, Float_t p1=1.0, Float_t p2
   fRun->AddModule(Dsk);
 
   PndDrc *Drc = new PndDrc("DIRC", kTRUE);
-  Drc->SetGeometryFileName("dirc_l0_p0_updated.root");
+  Drc->SetGeometryFileName("dirc_l0_p0.root");
   Drc->SetRunCherenkov(kFALSE); // for fast sim Cherenkov -> kFALSE
   fRun->AddModule(Drc);
 
