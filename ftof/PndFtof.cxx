@@ -179,7 +179,6 @@ Bool_t PndFtof::ProcessHits(FairVolume* vol)
 	 
 	 
 	  
-	  cout << "*******  Info from gMC *************" << endl;
 	  //Int_t cp=-1;
 	  Int_t fVolid = gMC->CurrentVolID(cp);
 	  Int_t nSiL = -1;
