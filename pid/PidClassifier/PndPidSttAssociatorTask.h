@@ -40,25 +40,29 @@ class PndPidSttAssociatorTask : public FairTask {
   void MuonDEDXMeanFunction();
   void PionDEDXMeanFunction();
   void KaonDEDXMeanFunction();
-  void ProtonDEDXMeanFunction();
+  void ProtonDEDXMeanFunctionL();
+  void ProtonDEDXMeanFunctionH();
 
   void ElectronDEDXSigmaFunction();
   void MuonDEDXSigmaFunction();
   void PionDEDXSigmaFunction();
   void KaonDEDXSigmaFunction();
-  void ProtonDEDXSigmaFunction();
+  void ProtonDEDXSigmaFunctionL();
+  void ProtonDEDXSigmaFunctionH();
  
   TF1 *fElectronDEDXMean;
   TF1 *fMuonDEDXMean;
   TF1 *fPionDEDXMean;
   TF1 *fKaonDEDXMean;
-  TF1 *fProtonDEDXMean;
+  TF1 *fProtonDEDXMeanL;
+  TF1 *fProtonDEDXMeanH;
 
   TF1 *fElectronDEDXSigma;
   TF1 *fMuonDEDXSigma;
   TF1 *fPionDEDXSigma;
   TF1 *fKaonDEDXSigma;
-  TF1 *fProtonDEDXSigma;
+  TF1 *fProtonDEDXSigmaL;
+  TF1 *fProtonDEDXSigmaH;
 
 
 

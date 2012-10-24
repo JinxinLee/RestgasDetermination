@@ -20,7 +20,8 @@ PndPidSttAssociatorTask::~PndPidSttAssociatorTask() {
   delete fMuonDEDXMean;
   delete fPionDEDXMean;
   delete fKaonDEDXMean;
-  delete fProtonDEDXMean;
+  delete fProtonDEDXMeanL;
+  delete fProtonDEDXMeanH;
 }
 
 //___________________________________________________________
@@ -60,12 +61,14 @@ InitStatus PndPidSttAssociatorTask::Init() {
   MuonDEDXMeanFunction();
   PionDEDXMeanFunction();
   KaonDEDXMeanFunction();
-  ProtonDEDXMeanFunction();
+  ProtonDEDXMeanFunctionL();
+  ProtonDEDXMeanFunctionH();
   ElectronDEDXSigmaFunction();
   MuonDEDXSigmaFunction();
   PionDEDXSigmaFunction();
   KaonDEDXSigmaFunction();
-  ProtonDEDXSigmaFunction();
+  ProtonDEDXSigmaFunctionL();
+  ProtonDEDXSigmaFunctionH();
 
   ioman->Register("PidAlgoStt","Pid", fPidChargedProb, kTRUE); 
 
@@ -95,7 +98,8 @@ void PndPidSttAssociatorTask::Exec(Option_t * option) {
 
       // CUT on momentum: if mom > 0.8 GeV/c
       // no way to decide what particle it is 
-      if (pidCand->GetMomentum().Mag() > 0.8) continue; 
+      if (pidCand->GetMomentum().Mag() < 0.2 ) continue;
+      if (pidCand->GetMomentum().Mag() > 5.0 ) continue;
 
       DoPidMatch(pidCand,prob);
     }
@@ -152,13 +156,20 @@ void PndPidSttAssociatorTask::DoPidMatch(PndPidCandidate* pidcand, PndPidProbabi
   //        << " "   << prob->GetKaonPdf() << endl;
   
   // p
-  dedx_mean  = fProtonDEDXMean->Eval(momentum);
-  dedx_sigma = fProtonDEDXSigma->Eval(momentum);
-  prob->SetProtonPdf(GetPdf(dedx, dedx_mean, dedx_sigma));
-  //   cout << "p: " << pidcand->GetMomentum().Mag() 
-  //        << " "   << pidcand->GetSttMeanDEDX() 
-  //        << " "   << dedx_mean 
-  //        << " "   << dedx_sigma 
+  if(momentum < 1.){
+      dedx_mean  = fProtonDEDXMeanL->Eval(momentum);
+      dedx_sigma = fProtonDEDXSigmaL->Eval(momentum);
+      prob->SetProtonPdf(GetPdf(dedx, dedx_mean, dedx_sigma));
+  }
+  if(momentum > 1.){
+      dedx_mean  = fProtonDEDXMeanH->Eval(momentum);
+      dedx_sigma = fProtonDEDXSigmaH->Eval(momentum);
+      prob->SetProtonPdf(GetPdf(dedx, dedx_mean, dedx_sigma));
+  }
+  //   cout << "p: " << pidcand->GetMomentum().Mag()
+  //        << " "   << pidcand->GetSttMeanDEDX()
+  //        << " "   << dedx_mean
+  //        << " "   << dedx_sigma
   //        << " "   << prob->GetProtonPdf() << endl;
 
   //   cout << endl;
@@ -180,66 +191,90 @@ Double_t PndPidSttAssociatorTask::GetPdf(Double_t dedx, Double_t mean, Double_t 
 // functions to parametrize the dedx_mean as function of momentum -----------
 
 void PndPidSttAssociatorTask::ElectronDEDXMeanFunction() {
-  fElectronDEDXMean = new TF1("emdedx","[0] * (1./x)**2 + [1] * TMath::Log(x) + [2]", 0.05, 1.5);
-  if(fDefaultHypo == kTRUE) fElectronDEDXMean->SetParameters(-0.00120431, 0.262162, 7.31789);
-  else  fElectronDEDXMean->SetParameters(-0.0051344, 0.163231, 7.30319);
+  fElectronDEDXMean = new TF1("emdedx","[0] * (1./x)**2 + [1] * TMath::Log(x) + [2]", 0.2, 5.);
+
+  if(fDefaultHypo == kTRUE) fElectronDEDXMean->SetParameters(-2.53435e-02,1.35409e-01,7.34210e+00);
+  else  fElectronDEDXMean->SetParameters(-2.53435e-02,1.35409e-01,7.34210e+00);
+
 }
 
 void PndPidSttAssociatorTask::MuonDEDXMeanFunction() {
-  fMuonDEDXMean = new TF1("mumdedx","[0] * (1./x)**2 + [1] * TMath::Log(x) + [2]", 0.05, 1.5);
-  if(fDefaultHypo == kTRUE) fMuonDEDXMean->SetParameters(0.0429347, 0.294544, 5.29321);
-  else fMuonDEDXMean->SetParameters(0.0737857, 0.643465, 5.42333);
+  fMuonDEDXMean = new TF1("mumdedx","[0] * (1./x)**2 + [1] * TMath::Log(x) + [2]", 0.2, 5.);
+  if(fDefaultHypo == kTRUE) fMuonDEDXMean->SetParameters(8.84580e-02,7.70377e-01,5.38858e+00);
+  else fMuonDEDXMean->SetParameters(8.84580e-02,7.70377e-01,5.38858e+00);
+
 }
 
 void PndPidSttAssociatorTask::PionDEDXMeanFunction() {
-  fPionDEDXMean = new TF1("pimdedx","[0] * (1./x)**2 + [1] * TMath::Log(x) + [2]", 0.05, 1.5);
-  if(fDefaultHypo == kTRUE) fPionDEDXMean->SetParameters(0.0892015, 0.280158, 5.07325);
-  else fPionDEDXMean->SetParameters(0.124558, 0.585125, 5.20178);
+  fPionDEDXMean = new TF1("pimdedx","[0] * (1./x)**2 + [1] * TMath::Log(x) + [2]", 0.2, 5);
+  if(fDefaultHypo == kTRUE) fPionDEDXMean->SetParameters(1.28760e-01,7.53150e-01,5.22487e+00);
+  else fPionDEDXMean->SetParameters(1.28760e-01,7.53150e-01,5.22487e+00);
+
 }
 
 void PndPidSttAssociatorTask::KaonDEDXMeanFunction() {
-  fKaonDEDXMean = new TF1("kmdedx","[0] * (1./x)**2 + [1] * TMath::Log(x) + [2]", 0.05, 1.5);
-  if(fDefaultHypo == kTRUE) fKaonDEDXMean->SetParameters(1.26194, 1.20396, 4.38778);
-  else fKaonDEDXMean->SetParameters(1.71069, 2.21786, 3.82597);
+  fKaonDEDXMean = new TF1("kmdedx","[0] * (1./x)**2 + [1] * TMath::Log(x) + [2]", 0.2, 5.);
+  if(fDefaultHypo == kTRUE) fKaonDEDXMean->SetParameters(1.56819e+00,8.85371e-01,4.13682e+00);
+  else fKaonDEDXMean->SetParameters(1.56819e+00,8.85371e-01,4.13682e+00);
+
 }
 
-void PndPidSttAssociatorTask::ProtonDEDXMeanFunction() {
-  fProtonDEDXMean = new TF1("pmdedx","[0] * (1./x)**2 + [1] * TMath::Log(x) + [2]", 0.05, 1.5);
- if(fDefaultHypo == kTRUE) fProtonDEDXMean->SetParameters(4.41642, 1.93142, 3.88883);
- else fProtonDEDXMean->SetParameters(4.26561, -0.152697, 4.03156);
+void PndPidSttAssociatorTask::ProtonDEDXMeanFunctionH() {
+  fProtonDEDXMeanH = new TF1("pmdedx","[0] * (1./x)**2 + [1] * TMath::Log(x) + [2]", 0.2, 5.);
+ if(fDefaultHypo == kTRUE) fProtonDEDXMeanH->SetParameters(4.16818e+00,6.90343e-01,3.97309e+00);
+ else fProtonDEDXMeanH->SetParameters(4.16818e+00,6.90343e-01,3.97309e+00);
+
+}
+
+void PndPidSttAssociatorTask::ProtonDEDXMeanFunctionL() {
+  fProtonDEDXMeanL = new TF1("pmdedx","[0] * (1./x)**2 + [1] * TMath::Log(x) + [2]", 0.2, 5.);
+ if(fDefaultHypo == kTRUE) fProtonDEDXMeanL->SetParameters(6.52530,5.82758,1.86702);
+ else fProtonDEDXMeanL->SetParameters(6.52530,5.82758,1.86702);
+
 }
 
 
 // functions to parametrize the dedx_sigma as function of momentum ----------
 
 void PndPidSttAssociatorTask::ElectronDEDXSigmaFunction() {
-  fElectronDEDXSigma = new TF1("esdedx","[0] * (1./x)**2 + [1] * TMath::Log(x) + [2]", 0.05, 1.5);
-  if(fDefaultHypo == kTRUE) fElectronDEDXSigma->SetParameters(0.00022143, -0.0322239, 0.640245);
-  else fElectronDEDXSigma->SetParameters(0.00428134, -0.00359152, 0.655438);
+  fElectronDEDXSigma = new TF1("esdedx","[0] * (1./x)**2 + [1] * TMath::Log(x) + [2]", 0.2, 5.);
+  if(fDefaultHypo == kTRUE) fElectronDEDXSigma->SetParameters(1.81859e-03,-1.01187e-02,6.76615e-01);
+  else fElectronDEDXSigma->SetParameters(1.81859e-03,-1.01187e-02,6.76615e-01);
+
 }
 
 void PndPidSttAssociatorTask::MuonDEDXSigmaFunction() {
-  fMuonDEDXSigma = new TF1("musdedx","[0] * (1./x)**2 + [1] * TMath::Log(x) + [2]", 0.05, 1.5);
-  if(fDefaultHypo == kTRUE) fMuonDEDXSigma->SetParameters(0.00522699, -0.0702869, 0.553049);
-  else fMuonDEDXSigma->SetParameters(0.0193587, -0.0174329, 0.539616);
+  fMuonDEDXSigma = new TF1("musdedx","[0] * (1./x)**2 + [1] * TMath::Log(x) + [2]", 0.2, 5.);
+  if(fDefaultHypo == kTRUE) fMuonDEDXSigma->SetParameters(8.54877e-03,2.96974e-02,5.51581e-01);
+  else fMuonDEDXSigma->SetParameters(8.54877e-03,2.96974e-02,5.51581e-01);
+
 }
 
 void PndPidSttAssociatorTask::PionDEDXSigmaFunction() {
-  fPionDEDXSigma = new TF1("pisdedx","[0] * (1./x)**2 + [1] * TMath::Log(x) + [2]", 0.05, 1.5);
-  if(fDefaultHypo == kTRUE) fPionDEDXSigma->SetParameters(0.0177034, 0.00101551, 0.556542);
-  else fPionDEDXSigma->SetParameters(0.0395417, -0.0443629, 0.502671);
+  fPionDEDXSigma = new TF1("pisdedx","[0] * (1./x)**2 + [1] * TMath::Log(x) + [2]", 0.2, 5.);
+  if(fDefaultHypo == kTRUE) fPionDEDXSigma->SetParameters(1.49778e-02,3.05617e-02,5.43355e-01);
+  else fPionDEDXSigma->SetParameters(1.49778e-02,3.05617e-02,5.43355e-01);
+
 }
 
 void PndPidSttAssociatorTask::KaonDEDXSigmaFunction() {
-  fKaonDEDXSigma = new TF1("ksdedx","[0] * (1./x)**2 + [1] * TMath::Log(x) + [2]", 0.05, 1.5);
-  if(fDefaultHypo == kTRUE) fKaonDEDXSigma->SetParameters(0.200184, 0.571222, 0.500267);
-  else  fKaonDEDXSigma->SetParameters(0.260654, 0.385838, 0.307763);
+  fKaonDEDXSigma = new TF1("ksdedx","[0] * (1./x)**2 + [1] * TMath::Log(x) + [2]", 0.2, 5.);
+  if(fDefaultHypo == kTRUE) fKaonDEDXSigma->SetParameters(2.30775e-01,8.81697e-02,4.20122e-01);
+  else  fKaonDEDXSigma->SetParameters(2.30775e-01,8.81697e-02,4.20122e-01);
+
 }
 
-void PndPidSttAssociatorTask::ProtonDEDXSigmaFunction() {
-  fProtonDEDXSigma = new TF1("psdedx","[0] * (1./x)**2 + [1] * TMath::Log(x) + [2]", 0.05, 1.5);
-  if(fDefaultHypo == kTRUE) fProtonDEDXSigma->SetParameters(0.704066, 1.59322, 0.323623);
-  else fProtonDEDXSigma->SetParameters(0.338277, -0.664876, 0.656844);
+void PndPidSttAssociatorTask::ProtonDEDXSigmaFunctionL() {
+  fProtonDEDXSigmaL = new TF1("psdedx","[0] * (1./x)**2 + [1] * TMath::Log(x) + [2]", 0.2, 5.);
+  if(fDefaultHypo == kTRUE) fProtonDEDXSigmaL->SetParameters(1.11867e+00,1.78621e+00,-1.01217e-01);
+  else fProtonDEDXSigmaL->SetParameters(1.11867e+00,1.78621e+00,-1.01217e-01);
+
+}
+void PndPidSttAssociatorTask::ProtonDEDXSigmaFunctionH() {
+  fProtonDEDXSigmaH = new TF1("psdedx","[0] * (1./x)**2 + [1] * TMath::Log(x) + [2]", 0.2, 5.);
+  if(fDefaultHypo == kTRUE) fProtonDEDXSigmaH->SetParameters(5.17593e-01,6.68813e-02,4.59503e-01);
+  else fProtonDEDXSigmaL->SetParameters(5.17593e-01,6.68813e-02,4.59503e-01);
+
 }
 
 ClassImp(PndPidSttAssociatorTask)
