@@ -40,6 +40,7 @@ MdtMC/PndMdtMagnet.cxx
 MdtMC/PndMdtCoil.cxx
 MdtMC/PndMdtMuonFilter.cxx
 MdtMC/PndMdtMFIron.cxx
+MdtMC/PndMdtForward.cxx
 MdtMC/PndMdtGeoConstructorFast.cxx
 MdtDigi/PndMdtHitProducerIdeal.cxx
 MdtDigi/PndMdtHitProducer.cxx

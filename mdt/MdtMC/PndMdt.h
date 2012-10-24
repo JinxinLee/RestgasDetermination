@@ -35,25 +35,17 @@ public:
 // hit
     inline void Register() { FairRootManager::Instance()->Register("MdtPoint","Mdt",fMdtCollection,kTRUE); };
     
-   
     void ResetParameters();
-    void CopyClones(TClonesArray*, TClonesArray*, Int_t);
     void Print() const;
     void Reset();
 
 /** Accessors **/
-    inline Int_t GetPosIndex()            const { return fPosIndex;              };
-   
     TClonesArray* GetCollection(Int_t iColl) const ;
     
 /** Modifiers **/
-    inline void SetPosIndex(Int_t pin)      { fPosIndex = pin; };
     inline void SetPos(TLorentzVector vect) { fPos.SetXYZT(vect.X(),vect.Y(),vect.Z(),vect.T()); };
     inline void SetMom(TLorentzVector vect) { fMom.SetXYZT(vect.X(),vect.Y(),vect.Z(),vect.T()); };
 
-// geometry    
-    void SetParFile(TString);
-        
 // detector
     inline void SetVerbosity(Bool_t verbosity) { fVerboseLevel = verbosity; };
 
@@ -65,12 +57,6 @@ public:
     Bool_t ProcessHitsRoot(FairVolume* vol);
     void EndOfEvent();
 
-    static Int_t fTrkIn; 
-    static TLorentzVector fPos_In;
-    static TLorentzVector fMom_In;
-
-	ClassDef(PndMdt,1)
-    
 private:
 
     Bool_t CheckIfSensitive(std::string name);
@@ -78,6 +64,7 @@ private:
     void PndMdtMagnet(); //!
     void PndMdtMuonFilter(); //!
     void PndMdtMFIron(); //!
+    void PndMdtForward(); //!
     void PndMdtCoil(); //!
     void ConstructGeometryTo(); //!
     void ConstructGeometryFast(); //!
@@ -86,15 +73,16 @@ private:
       
 // hit
     TClonesArray* fMdtCollection; //!
-    Int_t fPosIndex;      
+    Int_t fTrkIn;       
     Float_t fELoss; 
     TLorentzVector fPos;  
     TLorentzVector fMom;  
+    TLorentzVector fPos_In;  
+    TLorentzVector fMom_In;  
 
 // detector
     Bool_t fVerboseLevel; 
-    PndGeoMdtPar* par;   //! 
-    TString ffn;
+    
     bool mdtMagnet; //!
     bool mdtCoil; //!
     bool mdtMFI; //!
@@ -103,6 +91,8 @@ private:
     TString fEndcap;
     TString fMuonFilter;
     TString fForward;
+
+    ClassDef(PndMdt,1)
 };
 
 #endif /* !PNDMDT_H */

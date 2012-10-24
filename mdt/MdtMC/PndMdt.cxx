@@ -27,45 +27,26 @@
 
 using namespace std;
 
-Int_t PndMdt::fTrkIn = -1;
-TLorentzVector PndMdt::fPos_In;
-TLorentzVector PndMdt::fMom_In;
-
-
 // -----   Default constructor   -------------------------------------------
 PndMdt::PndMdt() 
+  :  FairDetector(), fMdtCollection(0), fTrkIn(-1), 
+     fBarrel(""), fEndcap(""), fMuonFilter(""), fForward(""),
+     mdtMagnet(0), mdtMFI(0), mdtCoil(0), fVerboseLevel(0),
+     fELoss(0), fPos(), fMom(), fPos_In(), fMom_In()
 {
     fMdtCollection        = new TClonesArray("PndMdtPoint");
-    fPosIndex   = 0;
-    fTrkIn = -1;
-    ResetParameters();
-    SetVerbosity(kFALSE);
-    fBarrel = "";
-    fEndcap = "";
-    fMuonFilter = "";
-    fForward = "";
-    mdtMagnet = kFALSE;
-    mdtMFI = kFALSE;
-    mdtCoil = kFALSE;
 }
 // -------------------------------------------------------------------------
 
 
 // -----   Inherited constructor   -----------------------------------------
-PndMdt::PndMdt(const char* name, Bool_t active) : FairDetector(name,active)
+PndMdt::PndMdt(const char* name, Bool_t active)
+  : FairDetector(name,active), fMdtCollection(0), fTrkIn(-1), 
+     fBarrel(""), fEndcap(""), fMuonFilter(""), fForward(""),
+     mdtMagnet(0), mdtMFI(0), mdtCoil(0), fVerboseLevel(0),
+     fELoss(0), fPos(), fMom(), fPos_In(), fMom_In()
 {
     fMdtCollection        = new TClonesArray("PndMdtPoint");
-    fPosIndex   = 0;
-    fTrkIn = -1;
-    ResetParameters();
-    SetVerbosity(kFALSE); 
-    fBarrel = "";
-    fEndcap = "";
-    fMuonFilter = "";
-    fForward = "";
-    mdtMagnet = kFALSE;
-    mdtMFI = kFALSE;
-    mdtCoil = kFALSE;
 }
 // -------------------------------------------------------------------------
 
@@ -93,53 +74,18 @@ void PndMdt::Print() const
 // -----   Public method Reset   ----------------------------------------------
 void PndMdt::Reset() 
 {
-   fMdtCollection->Delete(); 
-   fPosIndex = 0;
-}
-// ----------------------------------------------------------------------------
-
-
-// -----   Public method CopyClones   -----------------------------------------
-void PndMdt::CopyClones(TClonesArray* cl1, TClonesArray* cl2, Int_t offset ) 
-{
-/*  Int_t nEntries = cl1->GetEntriesFast();
-  TClonesArray& clref = *cl2;
-  PndMdtPoint* oldpoint = NULL;
-  for (Int_t i=0; i<nEntries; i++) {
-    oldpoint = (PndMdtPoint*) cl1->At(i);
-    Int_t index = oldpoint->GetTrackID() + offset;
-    oldpoint->SetTrackID(index);
-    new (clref[fPosIndex]) PndMdtPoint(*oldpoint);
-    fPosIndex++;
-  }
-  cout << " -I- PndMdt: " << cl2->GetEntriesFast() << " merged entries."
-       << endl;
-*/
+  if (fMdtCollection) fMdtCollection->Delete(); 
 }
 // ----------------------------------------------------------------------------
 
 // -----   Public method ResetParameters   ------------------------------------
 void PndMdt::ResetParameters() 
 {
-  /*  fEventID = -999;
-    fTrackID = -999;
-    fTrackParentID = -999;
-    fDetectorID = -999;
-    fPDG = -999;
-    */
     fELoss = 0.;
     fPos.SetXYZT(0., 0., 0., 0.);
     fMom.SetXYZT(0., 0., 0., 0.) ;
 }
 // ----------------------------------------------------------------------------
-
-
-// -----   Public method SetParFile   --------------------------------------
-void PndMdt::SetParFile(TString filename)
-{
-    ffn = filename;
-}
-// -------------------------------------------------------------------------
 
 // -----   Public method ConstructGeometry   ----------------------------------
 void PndMdt::ConstructGeometry() 
@@ -199,8 +145,7 @@ void PndMdt::ConstructGeometry()
     {
       if (fForward=="fast" || fForward =="Fast")
 	{
-	  std::cout<< "PndMdt::ConstructGeometry : No Torino design for Forward MDT" <<std::endl;
-	  exit(0); 
+	  PndMdtForward(); 
 	}
       else if (fForward.EndsWith(".root"))
 	{
@@ -229,7 +174,7 @@ void PndMdt::Initialize()
   FairDetector::Initialize();
   FairRun* sim = FairRun::Instance();
   FairRuntimeDb* rtdb=sim->GetRuntimeDb();
-  //par=(PndGeoMdtPar*)(rtdb->getContainer("PndGeoMdtPar"));
+  //PndGeoMdtPar* par=(PndGeoMdtPar*)(rtdb->getContainer("PndGeoMdtPar"));
   
   //TObjArray *fSensNodes = par->GetSensitiveNodes();
 }
@@ -249,16 +194,16 @@ Bool_t PndMdt::ProcessHits(FairVolume* vol)
   TString name = gMC->CurrentVolOffName(1);
   if (name.Contains("BA")) ProcessHitsRoot(vol);
   else ProcessHitsFast(vol);
-    
   
   if (gMC->IsTrackEntering() || gMC->IsNewTrack() )
-
-  return kTRUE;
+     return kTRUE;
 }
 
 // -----   Public method ProcessHitsFast  --------------------------------------
 Bool_t PndMdt::ProcessHitsFast(FairVolume* vol) 
 {
+  if (gMC->TrackCharge()==0) return kTRUE; // skip neutrals
+
   TString name = vol->GetName();
  
   if (gMC->IsTrackEntering() || gMC->IsNewTrack() )
@@ -270,7 +215,7 @@ Bool_t PndMdt::ProcessHitsFast(FairVolume* vol)
       fTrkIn = gMC->GetStack()->GetCurrentTrackNumber();
     }; // end entering
   
-  fELoss = fELoss + gMC->Edep(); 
+  fELoss += gMC->Edep(); 
   
   if (gMC->IsTrackExiting() || gMC->IsTrackStop() || gMC->IsTrackDisappeared() )
     {
@@ -302,27 +247,27 @@ Bool_t PndMdt::ProcessHitsFast(FairVolume* vol)
       ResetParameters();
     };
   
-  //ResetParameters();
   return kTRUE;
 }
 
 // -----   Public method ProcessHitsRoot  --------------------------------------
 Bool_t PndMdt::ProcessHitsRoot(FairVolume* vol) 
 {
+  if (gMC->TrackCharge()==0) return kTRUE; // skip neutrals
+  
   TString name = gMC->CurrentVolName();
   TString path = gMC->CurrentVolPath();
   if (fVerboseLevel) std::cout << "Path: " << path << std::endl;
   
   if (gMC->IsTrackEntering() || gMC->IsNewTrack() )
     { 
-      fPos_In.SetXYZM(0.,0.,0.,0.);
-      fMom_In.SetXYZM(0.,0.,0.,0.);
+      fELoss = 0.;
       gMC->TrackPosition(fPos_In);
       gMC->TrackMomentum(fMom_In);
       fTrkIn = gMC->GetStack()->GetCurrentTrackNumber();
     }; // end entering
   
-  fELoss = fELoss + gMC->Edep();
+  fELoss += gMC->Edep();
   
   if (fVerboseLevel) cout << "pdg: " <<  gMC->TrackPid() << "\teloss: " << fELoss << endl;
   
@@ -365,7 +310,6 @@ Bool_t PndMdt::ProcessHitsRoot(FairVolume* vol)
       ResetParameters();
     };
   
-  //ResetParameters(); // if not each time eloss is reset to 0 instead to increase
   return kTRUE;
 }
 
