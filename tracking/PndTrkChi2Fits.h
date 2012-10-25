@@ -1,6 +1,7 @@
 #ifndef PndTrkChi2Fits_H
 #define PndTrkChi2Fits_H 1
 
+#include "PndTrkVectors.h"
 // Root includes
 #include "TROOT.h"
 
@@ -40,6 +41,53 @@ class PndTrkChi2Fits : public TObject
 	bool *Type,
 	int istampa,
 	int IVOLTE
+	);
+
+
+  Short_t FitSZspace(
+	Short_t nHitsinTrack,
+	Double_t *S,
+	Double_t *Z,
+	Double_t *DriftRadius,
+	Double_t *ErrorDriftRadius,
+	Double_t FInot,
+	Short_t NMAX,
+	Double_t *emme,
+	int IVOLTE
+	);
+
+  void GSumCalculation(
+
+	Double_t *S,	// input; the independent-like variable;
+	Double_t *Z1,	// input, first possibility of Z; the dependent-like variable;
+	Double_t *Z2,	// input; second possibility of Z; the dependent-like variable;
+	Double_t *Sigma, // input; the errors on Z;
+	Double_t FInot,  // input fixed parameter;
+	int nHits,
+	Double_t *outSum	// the output; this must be an array of 2**nSttHits elements;
+
+	);
+
+  void UinvSumCalculation(
+
+	Double_t *S,	// input; the independent-like variable;
+	Double_t *Sigma, // input; the errors on Z;
+	Double_t FInot,  // input fixed parameter;
+	int nHits,
+	Double_t *outSum	// the output; this must be an array of 2**nSttHits elements;
+
+	);
+
+
+  void ZqSumCalculation(
+
+	Double_t *Z1,	// input, first possibility of Z; the dependent-like variable;
+	Double_t *Z2,	// input; second possibility of Z; the dependent-like variable;
+	Double_t *Sigma, // input; the errors on Z;
+	Double_t FInot,  // input fixed parameter;
+	int nHits,
+	Double_t *outSum	// the output; this must be an array of 2**nSttHits elements;
+
 	);
 
 
