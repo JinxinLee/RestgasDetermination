@@ -22,7 +22,7 @@ ${CMAKE_SOURCE_DIR}/gem
 ${CMAKE_SOURCE_DIR}/genfit
 ${CMAKE_SOURCE_DIR}/pnddata
 ${CMAKE_SOURCE_DIR}/pnddata/SttData
-${CMAKE_SOURCE_DIR}/pnddata/TofData
+${CMAKE_SOURCE_DIR}/pnddata/SciTData
 ${CMAKE_SOURCE_DIR}/pnddata/MdtData
 ${CMAKE_SOURCE_DIR}/pnddata/DrcData
 ${CMAKE_SOURCE_DIR}/pnddata/DskData

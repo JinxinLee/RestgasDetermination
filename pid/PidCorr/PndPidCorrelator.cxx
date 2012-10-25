@@ -5,8 +5,8 @@
 #include "PndTrack.h"
 #include "PndTrackID.h"
 
-#include "PndTofPoint.h"
-#include "PndTofHit.h"
+#include "PndSciTPoint.h"
+#include "PndSciTHit.h"
 #include "PndEmcBump.h"
 #include "PndEmcDigi.h"
 #include "PndEmcStructure.h"
@@ -266,17 +266,26 @@ InitStatus PndPidCorrelator::Init() {
   // *** TOF ***
   if (fTofMode)
     {
-      fTofHit = (TClonesArray*) fManager->GetObject("TofHit");
+      fTofHit = (TClonesArray*) fManager->GetObject("SciTHit");
       if ( ! fTofHit ) 
 	{
-	  cout << "-W- PndPidCorrelator::Init: No TofHit array!" << endl;
+	  cout << "-W- PndPidCorrelator::Init: No SciTHit array!" << endl;
 	  fTofMode = 0;
 	}
       else  
 	{
-	  cout << "-I- PndPidCorrelator::Init: Using TofHit" << endl;
+	  cout << "-I- PndPidCorrelator::Init: Using SciTHit" << endl;
 	  fTofMode = 2;
 	}
+    if (fIdeal)
+      {
+        fTofPoint = (TClonesArray*) fManager->GetObject("SciTPoint");
+        if ( ! fTofPoint )
+          {
+            cout << "-W- PndPidCorrelator::Init: No SciTPoint array!" << endl;
+            fTofMode = 0;
+          }
+      }
     }
   
   // *** FTOF ***
@@ -802,7 +811,7 @@ Bool_t PndPidCorrelator::GetTofInfo(FairTrackParH* helix, PndPidCandidate* pidCa
   FairGeanePro *fProVertex = new FairGeanePro();
   if (!fCorrErrorProp) fProVertex->PropagateOnlyParameters();
   //---
-  PndTofHit *tofHit = NULL; 
+  PndSciTHit *tofHit = NULL; 
   Int_t tofEntries = fTofHit->GetEntriesFast();
   Int_t tofIndex = -1;
   Float_t tofTof = 0., tofLength = -1000, tofGLength = -1000;
@@ -814,8 +823,8 @@ Bool_t PndPidCorrelator::GetTofInfo(FairTrackParH* helix, PndPidCandidate* pidCa
   TVector3 momentum(0., 0., 0.);
   for (Int_t tt = 0; tt<tofEntries; tt++)
     {
-      tofHit = (PndTofHit*)fTofHit->At(tt);
-      if ( fIdeal && ( ((PndTofPoint*)fTofPoint->At(tofHit->GetRefIndex()))->GetTrackID() !=pidCand->GetMcIndex()) ) continue;
+      tofHit = (PndSciTHit*)fTofHit->At(tt);
+      if ( fIdeal && ( ((PndSciTPoint*)fTofPoint->At(tofHit->GetRefIndex()))->GetTrackID() !=pidCand->GetMcIndex()) ) continue;
       tofHit->Position(tofPos);
     
       if (fGeanePro) // Overwrites vertex if Geane is used
