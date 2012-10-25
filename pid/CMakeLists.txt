@@ -29,6 +29,7 @@ ${CMAKE_SOURCE_DIR}/pnddata/DskData
 ${CMAKE_SOURCE_DIR}/pnddata/SdsData
 ${CMAKE_SOURCE_DIR}/pnddata/GemData
 ${CMAKE_SOURCE_DIR}/pnddata/TrackData
+${CMAKE_SOURCE_DIR}/ftof
 ${CMAKE_SOURCE_DIR}/stt
 ${CMAKE_SOURCE_DIR}/stt/sttreco
 ${CMAKE_SOURCE_DIR}/geane
@@ -65,6 +66,7 @@ PidCorr/PndPidTrackInfo.cxx
 PidCorr/PndPidMvdInfo.cxx
 PidCorr/PndPidSttInfo.cxx
 PidCorr/PndPidFscInfo.cxx
+PidCorr/PndPidFtofInfo.cxx
 PndPidContFact.cxx
 
 ###### Associator

@@ -84,6 +84,7 @@ class PndMicroCandidate : public VAbsMicroCandidate  //TObject
   Float_t		GetTofQuality()     const { return fTofQuality; }
   Int_t                 GetTofIndex()       const { return fTofIndex; }
   Float_t               GetTofBeta()        const { return (fTofStopTime>0.&&fTofTrackLength>0.) ? fTofTrackLength/(30. * fTofStopTime) : -1.; } 
+  Short_t               GetTofModule()      const { return fTofModule; }
 
   // Barrel DIRC
   Float_t		GetDrcThetaC()          const { return fDrcThetaC;}
@@ -196,6 +197,7 @@ class PndMicroCandidate : public VAbsMicroCandidate  //TObject
   void  SetTofTrackLength(Double_t val) { fTofTrackLength = val; }
   void  SetTofQuality(Double_t val)     { fTofQuality = val; }
   void	SetTofIndex(Int_t val)          { fTofIndex = val;}
+  void  SetTofModule(Short_t val)       { fTofModule = val; }
 	
   // Barrel DIRC
   void	SetDrcThetaC(Double_t val)       { fDrcThetaC= (Float_t) val;}
@@ -304,6 +306,7 @@ class PndMicroCandidate : public VAbsMicroCandidate  //TObject
   Float_t       fTofTrackLength;
   Float_t       fTofQuality;
   Int_t         fTofIndex;
+  Short_t       fTofModule;
 	
   // Barrel DIRC
   Float_t 	fDrcThetaC;

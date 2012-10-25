@@ -48,14 +48,15 @@ PndPidCorrelator::~PndPidCorrelator()
 
 //___________________________________________________________
 PndPidCorrelator::PndPidCorrelator() : 
-  FairTask(), fMcTrack(new TClonesArray()), fTrack(new TClonesArray()), fTrackID(new TClonesArray()), fTrack2(new TClonesArray()), fTrackID2(new TClonesArray()), fPidChargedCand(new TClonesArray()), fPidNeutralCand(new TClonesArray()), fMdtTrack(new TClonesArray()), fMvdHitsStrip(new TClonesArray()), fMvdHitsPixel(new TClonesArray()), fTofHit(new TClonesArray()), fTofPoint(new TClonesArray()), fEmcCluster(new TClonesArray()), fEmcBump(new TClonesArray()), fEmcDigi(new TClonesArray()), fMdtPoint(new TClonesArray()), fMdtHit(new TClonesArray()), fMdtTrk(new TClonesArray()), fDrcPoint(new TClonesArray()), fDrcHit(new TClonesArray()), fDskParticle(new TClonesArray()), fSttHit(new TClonesArray()), 
+  FairTask(), fMcTrack(new TClonesArray()), fTrack(new TClonesArray()), fTrackID(new TClonesArray()), fTrack2(new TClonesArray()), fTrackID2(new TClonesArray()), fPidChargedCand(new TClonesArray()), fPidNeutralCand(new TClonesArray()), fMdtTrack(new TClonesArray()), fMvdHitsStrip(new TClonesArray()), fMvdHitsPixel(new TClonesArray()), fTofHit(new TClonesArray()), fTofPoint(new TClonesArray()), fFtofHit(new TClonesArray()), fFtofPoint(new TClonesArray()), fEmcCluster(new TClonesArray()), fEmcBump(new TClonesArray()), fEmcDigi(new TClonesArray()), fMdtPoint(new TClonesArray()), fMdtHit(new TClonesArray()), fMdtTrk(new TClonesArray()), fDrcPoint(new TClonesArray()), fDrcHit(new TClonesArray()), fDskParticle(new TClonesArray()), fSttHit(new TClonesArray()), 
   fCorrPar(new PndPidCorrPar()), fEmcGeoPar(new PndEmcGeoPar()), fEmcErrorMatrixPar(new PndEmcErrorMatrixPar()), fEmcErrorMatrix(new PndEmcErrorMatrix()), fSttParameters(new PndGeoSttPar()), fEmcCalibrator(NULL), fEmcClstCount(0), fFscClstCount(0),
   fDebugMode(kFALSE),
   fGeanePro(kTRUE), 
   fMdtRefit(kFALSE),
   fMvdMode(-1),
   fSttMode(-1),
-  fTofMode(-1),
+  fTofMode(-1), 
+  fFtofMode(-1),
   fEmcMode(-1),
   fMdtMode(-1), 
   fDrcMode(-1),
@@ -96,14 +97,15 @@ PndPidCorrelator::PndPidCorrelator() :
 //___________________________________________________________
 PndPidCorrelator::PndPidCorrelator(const char *name, const char *title) :
   FairTask(name),
-  fMcTrack(new TClonesArray()), fTrack(new TClonesArray()), fTrackID(new TClonesArray()), fTrack2(new TClonesArray()), fTrackID2(new TClonesArray()), fPidChargedCand(new TClonesArray()), fPidNeutralCand(new TClonesArray()), fMdtTrack(new TClonesArray()), fMvdHitsStrip(new TClonesArray()), fMvdHitsPixel(new TClonesArray()), fTofHit(new TClonesArray()), fTofPoint(new TClonesArray()), fEmcCluster(new TClonesArray()), fEmcBump(new TClonesArray()), fEmcDigi(new TClonesArray()), fMdtPoint(new TClonesArray()), fMdtHit(new TClonesArray()), fMdtTrk(new TClonesArray()), fDrcPoint(new TClonesArray()), fDrcHit(new TClonesArray()), fDskParticle(new TClonesArray()), fSttHit(new TClonesArray()), 
+  fMcTrack(new TClonesArray()), fTrack(new TClonesArray()), fTrackID(new TClonesArray()), fTrack2(new TClonesArray()), fTrackID2(new TClonesArray()), fPidChargedCand(new TClonesArray()), fPidNeutralCand(new TClonesArray()), fMdtTrack(new TClonesArray()), fMvdHitsStrip(new TClonesArray()), fMvdHitsPixel(new TClonesArray()), fTofHit(new TClonesArray()), fTofPoint(new TClonesArray()), fFtofHit(new TClonesArray()), fFtofPoint(new TClonesArray()), fEmcCluster(new TClonesArray()), fEmcBump(new TClonesArray()), fEmcDigi(new TClonesArray()), fMdtPoint(new TClonesArray()), fMdtHit(new TClonesArray()), fMdtTrk(new TClonesArray()), fDrcPoint(new TClonesArray()), fDrcHit(new TClonesArray()), fDskParticle(new TClonesArray()), fSttHit(new TClonesArray()), 
   fCorrPar(new PndPidCorrPar()), fEmcGeoPar(new PndEmcGeoPar()), fEmcErrorMatrixPar(new PndEmcErrorMatrixPar()), fEmcErrorMatrix(new PndEmcErrorMatrix()), fSttParameters(new PndGeoSttPar()), fEmcCalibrator(NULL), fEmcClstCount(0), fFscClstCount(0),
   fDebugMode(kFALSE),
   fGeanePro(kTRUE), 
   fMdtRefit(kFALSE),
   fMvdMode(-1),
   fSttMode(-1),
-  fTofMode(-1),
+  fTofMode(-1), 
+  fFtofMode(-1),
   fEmcMode(-1),
   fMdtMode(-1), 
   fDrcMode(-1),
@@ -275,6 +277,31 @@ InitStatus PndPidCorrelator::Init() {
 	  cout << "-I- PndPidCorrelator::Init: Using TofHit" << endl;
 	  fTofMode = 2;
 	}
+    }
+  
+  // *** FTOF ***
+  if (fFtofMode)
+    {
+      fFtofHit = (TClonesArray*) fManager->GetObject("FtofHit");
+      if ( ! fFtofHit ) 
+	{
+	  cout << "-W- PndPidCorrelator::Init: No FtofHit array!" << endl;
+	  fFtofMode = 0;
+	}
+      else  
+	{
+	  cout << "-I- PndPidCorrelator::Init: Using FtofHit" << endl;
+	  fFtofMode = 2;
+	}
+    if (fIdeal)
+      {
+        fFtofPoint = (TClonesArray*) fManager->GetObject("FtofPoint");
+        if ( ! fFtofPoint )
+          {
+            cout << "-W- PndPidCorrelator::Init: No FtofPoint array!" << endl;
+            fFtofMode = 0;
+          }
+      }
     }
   
   // *** EMC ***
@@ -482,6 +509,8 @@ InitStatus PndPidCorrelator::Init() {
     
       tofCorr = new TNtuple("tofCorr","TRACK-TOF Correlation",
 			    "track_x:track_y:track_z:track_phi:track_p:track_charge:track_theta:track_z0:tof_x:tof_y:tof_z:tof_phi:chi2:dphi:len:glen");
+      ftofCorr = new TNtuple("ftofCorr","TRACK-FTOF Correlation",
+                            "track_x:track_y:track_z:track_phi:track_p:track_charge:track_theta:track_z0:tof_x:tof_y:tof_z:tof_phi:chi2:dphi:len:glen");
       emcCorr = new TNtuple("emcCorr","TRACK-EMC Correlation",
 			    "track_x:track_y:track_z:track_phi:track_p:track_charge:track_theta:track_z0:emc_x:emc_y:emc_z:emc_phi:chi2:dphi:emc_ene:glen:emc_mod");
       fscCorr = new TNtuple("fscCorr","TRACK-FSC Correlation",
@@ -509,9 +538,10 @@ InitStatus PndPidCorrelator::Init() {
       //std::cout<<"PndPidCorrelator: Emc error matrix is read from file"<<std::endl;
     }
     
-    fEmcCalibrator= PndEmcClusterCalibrator::MakeEmcClusterCalibrator(2, 1);	
+  fEmcCalibrator= PndEmcClusterCalibrator::MakeEmcClusterCalibrator(2, 1);	
   
-	if (fFast)  cout << "-W- PndPidCorrelator::Init: Using fast correlator!!" << endl;
+  if (fFast)  cout << "-W- PndPidCorrelator::Init: Using fast correlator!!" << endl;
+    
   cout << "-I- PndPidCorrelator::Init: Success!" << endl;
   fEventCounter = 1;
   return kSUCCESS;
@@ -547,34 +577,34 @@ void PndPidCorrelator::Exec(Option_t * option) {
   cout << " =====   PndPidCorrelator - Event: " << fEventCounter;
   Int_t nTracksTot=0;
   if (fTrack)
-  {
-	  nTracksTot += fTrack->GetEntriesFast();
-  }
+    {
+      nTracksTot += fTrack->GetEntriesFast();
+    }
   if (fTrack2)
-  {
-	  nTracksTot += fTrack2->GetEntriesFast();
-  }
+    {
+      nTracksTot += fTrack2->GetEntriesFast();
+    }
 
   cout << " - Number of tracks for pid " << nTracksTot;
   if (fEmcMode>0)
-  {
-	  PndEmcCluster *tmp_cluster;
-	  for(Int_t i=0; i < fEmcCluster->GetEntriesFast();i++)
-	  {
-		  tmp_cluster = (PndEmcCluster*)fEmcCluster->At(i);
-		  if(tmp_cluster->GetModule() < 5 && tmp_cluster->GetModule() >0)
-		  {
-			  fEmcClstCount++;
-		  }
-		  if(tmp_cluster->GetModule() == 5)
-		  {
-			  fFscClstCount++;
-		  }
-	  }
-	  cout << " - Number of Clusters for pid: ";
-	  cout << " EMC: " << fEmcClstCount;
-	  cout << " FSC: " << fFscClstCount;
-  }
+    {
+      PndEmcCluster *tmp_cluster;
+      for(Int_t i=0; i < fEmcCluster->GetEntriesFast();i++)
+	{
+	  tmp_cluster = (PndEmcCluster*)fEmcCluster->At(i);
+	  if(tmp_cluster->GetModule() < 5 && tmp_cluster->GetModule() >0)
+	    {
+	      fEmcClstCount++;
+	    }
+	  if(tmp_cluster->GetModule() == 5)
+	    {
+	      fFscClstCount++;
+	    }
+	}
+      cout << " - Number of Clusters for pid: ";
+      cout << " EMC: " << fEmcClstCount;
+      cout << " FSC: " << fFscClstCount;
+    }
   cout<<endl;
 
   ResetEmcQ();
@@ -607,7 +637,7 @@ void PndPidCorrelator::ConstructChargedCandidate() {
 	if (trackID->GetNCorrTrackId()>0)
 	  {
 	    pidCand->SetMcIndex(trackID->GetCorrTrackID());
-          if (fIdealHyp)
+	    if (fIdealHyp)
 	      {
 		PndMCTrack *mcTrack = (PndMCTrack*)fMcTrack->At(trackID->GetCorrTrackID());
 		if ( ! mcTrack ) 
@@ -642,7 +672,7 @@ void PndPidCorrelator::ConstructChargedCandidate() {
       {
 	if ( (fTofMode==2) && (fTofHit    ->GetEntriesFast()>0) ) GetTofInfo(helix, pidCand);
 	if ( (fEmcMode>0)  && (fEmcClstCount>0) ) GetEmcInfo(helix, pidCand);
-	if ( (fEmcMode>0)  && (fFscClstCount>0) ) GetFscInfo(helix, pidCand);
+	// if ( (fEmcMode>0)  && (fFscClstCount>0) ) GetFscInfo(helix, pidCand); // no sense to loop barrel tracks to fsc
 	if ( (fMdtMode>0)  && (fMdtHit    ->GetEntriesFast()>0) ) GetMdtInfo(track, pidCand);  
 	if ( (fDrcMode>0)  && (fDrcHit    ->GetEntriesFast()>0) ) GetDrcInfo(helix, pidCand);
 	if ( (fDskMode>0)  && (fDskParticle->GetEntriesFast()>0)) GetDskInfo(helix, pidCand); 
@@ -676,13 +706,10 @@ void PndPidCorrelator::ConstructChargedCandidate() {
 	pidCand->AddLink(FairLink("PndTrack", i));
 	if (!GetTrackInfo(track, pidCand)) continue;
 	GetMvdInfo(track, pidCand);
-	if ( (fSttMode==3) && (fSttHit    ->GetEntriesFast()>0) ) GetSttInfo(track, pidCand);
-	if ( (fTofMode==2) && (fTofHit    ->GetEntriesFast()>0) ) GetTofInfo(helix, pidCand);
-	if ( (fEmcMode>0)  && (fEmcClstCount>0) ) GetEmcInfo(helix, pidCand);
+	if ( (fFtofMode==2) && (fFtofHit->GetEntriesFast()>0) ) GetFtofInfo(helix, pidCand);
 	if ( (fEmcMode>0)  && (fFscClstCount>0) ) GetFscInfo(helix, pidCand);
 	if ( (fMdtMode>0)  && (fMdtHit    ->GetEntriesFast()>0) ) GetMdtInfo(track, pidCand);
-	if ( (fDrcMode>0)  && (fDrcHit    ->GetEntriesFast()>0) ) GetDrcInfo(helix, pidCand);
-	if ( (fDskMode>0)  && (fDskParticle->GetEntriesFast()>0) ) GetDskInfo(helix, pidCand);
+	
 	AddChargedCandidate(pidCand);
       }
     }
@@ -701,7 +728,7 @@ void PndPidCorrelator::ConstructNeutralCandidate() {
       nBumps = fEmcCluster->GetEntriesFast();
       emcType = "EmcCluster";
     }
-	else if(fEmcMode == 3)
+  else if(fEmcMode == 3)
     {
       nBumps = fEmcBump->GetEntriesFast();
       emcType = "EmcBump";
@@ -717,7 +744,7 @@ void PndPidCorrelator::ConstructNeutralCandidate() {
 	  bump = (PndEmcBump*) fEmcCluster->At(i);
 	  clu  = (PndEmcBump*) fEmcCluster->At(i);
 	}
-        else if(fEmcMode == 3)
+      else if(fEmcMode == 3)
 	{
 	  bump = (PndEmcBump*) fEmcBump->At(i);
 	  if (fClusterList[bump->GetClusterIndex()]) continue; // skip correlated clusters
@@ -834,6 +861,7 @@ Bool_t PndPidCorrelator::GetTofInfo(FairTrackParH* helix, PndPidCandidate* pidCa
       pidCand->SetTofStopTime(tofTof);
       pidCand->SetTofTrackLength(tofLength);
       pidCand->SetTofIndex(tofIndex);
+      pidCand->SetTofModule(1);
     }
   
   return kTRUE;
@@ -935,11 +963,11 @@ Bool_t PndPidCorrelator::GetEmcInfo(FairTrackParH* helix, PndPidCandidate* pidCa
 	}
       
       if (fDebugMode){
-			Float_t ntuple[] = {vertex.X(), vertex.Y(), vertex.Z(), vertex.Phi(),
-			helix->GetMomentum().Mag(), helix->GetQ(), helix->GetMomentum().Theta(), helix->GetZ(),
-			emcPos.X(), emcPos.Y(), emcPos.Z(), emcPos.Phi(),
-			dist, vertex.DeltaPhi(emcPos), emcHit->energy(), emcGLength, emcModule};
-			emcCorr->Fill(ntuple);
+	Float_t ntuple[] = {vertex.X(), vertex.Y(), vertex.Z(), vertex.Phi(),
+			    helix->GetMomentum().Mag(), helix->GetQ(), helix->GetMomentum().Theta(), helix->GetZ(),
+			    emcPos.X(), emcPos.Y(), emcPos.Z(), emcPos.Phi(),
+			    dist, vertex.DeltaPhi(emcPos), emcHit->energy(), emcGLength, emcModule};
+	emcCorr->Fill(ntuple);
       }
     }// End for(ee = 0;)
   

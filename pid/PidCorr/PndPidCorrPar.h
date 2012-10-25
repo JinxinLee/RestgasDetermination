@@ -17,7 +17,10 @@ class PndPidCorrPar : public FairParGenericSet
   Float_t GetMdtCut()        { return fMdtCut; }; 
   Float_t GetDrcRadius()     { return fDrcRadius; };
   Float_t GetDrcCut()        { return fDrcCut; }; 
-  
+  Float_t GetZLastPlane()    { return fZLastPlane; };
+  Float_t GetFtofZ()         { return fFtofZ; };
+  Float_t GetRichZ()         { return fRichZ; };  
+
   PndPidCorrPar (const char* name="PndPidCorrPar",
 		 const char* title="Pid correlation parameter",
 		 const char* context="TestDefaultContext");
@@ -37,8 +40,11 @@ class PndPidCorrPar : public FairParGenericSet
   Float_t fMdtCut;         // cut chi2 for MDT  
   Float_t fDrcRadius;      // radius DRC detector
   Float_t fDrcCut;         // cut chi2 for DRC 
- 
-  ClassDef(PndPidCorrPar,1);
+  Float_t fZLastPlane;     // position of last point for fwd correlation
+  Float_t fFtofZ;          // Z of Ftof
+  Float_t fRichZ;          // Z of RICH
+
+  ClassDef(PndPidCorrPar, 2);
 };
 
 #endif

@@ -78,7 +78,8 @@ class VAbsMicroCandidate : public FairMultiLinkedData
   virtual Float_t		GetTofQuality()     const=0;
   virtual Int_t                 GetTofIndex()       const=0;
   virtual Float_t		GetTofBeta()     const=0;
-	
+  virtual Short_t               GetTofModule()   const = 0;
+
   // Barrel DIRC
   virtual Float_t		GetDrcThetaC() const =0;
   virtual Float_t		GetDrcThetaCErr() const =0;

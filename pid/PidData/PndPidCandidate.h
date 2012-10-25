@@ -84,6 +84,7 @@ class PndPidCandidate : public VAbsMicroCandidate  //TObject
   Float_t		GetTofQuality()     const { return fTofQuality; }
   Int_t                 GetTofIndex()       const { return fTofIndex; }
   Float_t               GetTofBeta()        const { return (fTofStopTime>0.&&fTofTrackLength>0.) ? fTofTrackLength/(30. * fTofStopTime) : -1.; } 
+  Short_t               GetTofModule()      const { return fTofModule; }
 
   // Barrel DIRC
   Float_t		GetDrcThetaC()          const { return fDrcThetaC;}
@@ -98,6 +99,7 @@ class PndPidCandidate : public VAbsMicroCandidate  //TObject
   Float_t		GetDiscQuality()         const { return fDiscQuality;}
   Int_t		        GetDiscNumberOfPhotons() const { return fDiscNumberOfPhotons;}
   Int_t                 GetDiscIndex()           const { return fDiscIndex; }
+
   // RICH
   Float_t		GetRichThetaC()          const { return fRichThetaC;}
   Float_t		GetRichThetaCErr()       const { return fRichThetaCErr;}
@@ -196,6 +198,7 @@ class PndPidCandidate : public VAbsMicroCandidate  //TObject
   void  SetTofTrackLength(Double_t val) { fTofTrackLength = val; }
   void  SetTofQuality(Double_t val)     { fTofQuality = val; }
   void	SetTofIndex(Int_t val)          { fTofIndex = val;}
+  void  SetTofModule(Int_t val)         { fTofModule = val;}
 	
   // Barrel DIRC
   void	SetDrcThetaC(Double_t val)       { fDrcThetaC= (Float_t) val;}
@@ -304,6 +307,7 @@ class PndPidCandidate : public VAbsMicroCandidate  //TObject
   Float_t       fTofTrackLength;
   Float_t       fTofQuality;
   Int_t         fTofIndex;
+  Short_t       fTofModule; // 1 Barrel, 2 Forward
 	
   // Barrel DIRC
   Float_t 	fDrcThetaC;
@@ -358,7 +362,7 @@ class PndPidCandidate : public VAbsMicroCandidate  //TObject
   Float_t 	fChiSquared;
   
 
-  ClassDef(PndPidCandidate,3) // Abstract base class for MicroDST candidates
+  ClassDef(PndPidCandidate,4) // Abstract base class for MicroDST candidates
     };
 
 //std::ostream&  operator << (std::ostream& o, const VAbsMicroCandidate&);

@@ -44,6 +44,7 @@ PndMicroCandidate::PndMicroCandidate():
   fTofTrackLength(0.),
   fTofQuality(-1.),
   fTofIndex(-1),
+  fTofModule(-1),
   fDrcThetaC(0.),
   fDrcThetaCErr(0.),
   fDrcQuality(-1.),
@@ -114,6 +115,7 @@ PndMicroCandidate::PndMicroCandidate(Int_t charge, TVector3 &pos, TLorentzVector
   fTofTrackLength(0.),
   fTofQuality(-1.),
   fTofIndex(-1),
+  fTofModule(-1),
   fDrcThetaC(0.),
   fDrcThetaCErr(0.),
   fDrcQuality(-1.),
@@ -189,6 +191,7 @@ PndMicroCandidate::PndMicroCandidate(Int_t charge, TVector3 &pos, TLorentzVector
   fTofTrackLength(0.),
   fTofQuality(-1.),
   fTofIndex(-1),
+  fTofModule(-1),
   fDrcThetaC(0.),
   fDrcThetaCErr(0.),
   fDrcQuality(-1.),
@@ -363,6 +366,7 @@ void PndMicroCandidate::SetDefault()
   fTofTrackLength = 0.;
   fTofQuality = -1.;
   fTofIndex = -1;
+  fTofModule = -1;
   fDrcThetaC = 0.;
   fDrcThetaCErr = 0.;
   fDrcQuality = -1.;

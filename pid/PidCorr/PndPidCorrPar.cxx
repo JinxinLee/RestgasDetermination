@@ -32,6 +32,9 @@ void PndPidCorrPar::putParams(FairParamList* list)
 	list->add("MdtCut",        fMdtCut);
 	list->add("DrcRadius",     fDrcRadius);
 	list->add("DrcCut",        fDrcCut);
+        list->add("ZLastPlane",    fZLastPlane);
+        list->add("FtofZ",         fFtofZ);
+        list->add("RichZ",         fRichZ);
 }
 
 Bool_t PndPidCorrPar::getParams(FairParamList* list)
@@ -46,6 +49,9 @@ Bool_t PndPidCorrPar::getParams(FairParamList* list)
 	if (!list->fill("MdtCut",        &fMdtCut))        return kFALSE;
 	if (!list->fill("DrcRadius",     &fDrcRadius))     return kFALSE;
 	if (!list->fill("DrcCut",        &fDrcCut))        return kFALSE;
+        if (!list->fill("ZLastPlane",    &fZLastPlane))    return kFALSE;
+        if (!list->fill("FtofZ",         &fFtofZ))         return kFALSE;
+        if (!list->fill("RichZ",         &fRichZ))         return kFALSE;
 
 	return kTRUE;
 }

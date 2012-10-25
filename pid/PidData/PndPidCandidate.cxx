@@ -44,6 +44,7 @@ PndPidCandidate::PndPidCandidate():
   fTofTrackLength(0.),
   fTofQuality(-1.),
   fTofIndex(-1),
+  fTofModule(-1),
   fDrcThetaC(0.),
   fDrcThetaCErr(0.),
   fDrcQuality(-1.),
@@ -114,6 +115,7 @@ PndPidCandidate::PndPidCandidate(Int_t charge, TVector3 &pos, TLorentzVector &p4
   fTofTrackLength(0.),
   fTofQuality(-1.),
   fTofIndex(-1),
+  fTofModule(-1),
   fDrcThetaC(0.),
   fDrcThetaCErr(0.),
   fDrcQuality(-1.),
@@ -188,6 +190,7 @@ PndPidCandidate::PndPidCandidate(Int_t charge, TVector3 &pos, TLorentzVector &p4
   fTofTrackLength(0.),
   fTofQuality(-1.),
   fTofIndex(-1),
+  fTofModule(-1),
   fDrcThetaC(0.),
   fDrcThetaCErr(0.),
   fDrcQuality(-1.),
@@ -362,6 +365,7 @@ void PndPidCandidate::SetDefault()
   fTofTrackLength = 0.;
   fTofQuality = -1.;
   fTofIndex = -1;
+  fTofModule = -1;
   fDrcThetaC = 0.;
   fDrcThetaCErr = 0.;
   fDrcQuality = -1.;

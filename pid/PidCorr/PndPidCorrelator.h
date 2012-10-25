@@ -53,7 +53,9 @@ protected:
   TClonesArray* fMvdHitsStrip;      //! PndSdsHit TCA for strip
   TClonesArray* fMvdHitsPixel;      //! PndSdsHit TCA for pixel
   TClonesArray* fTofHit;            //! PndTofHit TCA 
-  TClonesArray* fTofPoint;          //! PndTofPoint TCA
+  TClonesArray* fTofPoint;          //! PndTofPoint TCA 
+  TClonesArray* fFtofHit;           //! PndFtofHit TCA
+  TClonesArray* fFtofPoint;           //! PndFtofPoint TCA 
   TClonesArray* fEmcCluster;        //! PndEmcCluster TCA 
   TClonesArray* fEmcBump;           //! PndEmcBump TCA
   TClonesArray* fEmcDigi;           //! PndEmcDigi TCA
@@ -76,6 +78,7 @@ protected:
   Short_t fMvdMode;                 // MVD Mode: 0 no MVD, 1 MvdPoint, (2) MvdHit
   Short_t fSttMode;                 // STT Mode: 0 no STT, 1 SttPoint,  2  SttHit, (3) SttHelixHit
   Short_t fTofMode;                 // TOF Mode: 0 no TOF, 1 -empty-,  (2) TofHit
+  Short_t fFtofMode;                // FTOF Mode:0 no FTOF,1 -empty-,  (2) FTofHit
   Short_t fEmcMode;                 // EMC Mode: 0 no EMC, 1 -empty-,  (2) EmcCluster, 3 EmcBumps
   Short_t fMdtMode;                 // MDT Mode: 0 no MDT, 1 -empty-,  (2) MdtHit 
   Short_t fDrcMode;                 // DRC Mode: 0 no DRC, 1 -empty-,  (2) DrcHit
@@ -110,6 +113,7 @@ protected:
   PndRecoKalmanFit *fFitter;         // Refitter for MDT tracks
   TFile *r;                          // File for debug ntuples
   TNtuple *tofCorr;                  // Debug ntuple for tof correlation
+  TNtuple *ftofCorr;                 // Debug ntuple for ftof correlation
   TNtuple *emcCorr;                  // Debug ntuple for emc correlation 
   TNtuple *fscCorr;                  // Debug ntuple for fsc correlation
   TNtuple *mdtCorr;                  // Debug ntuple for mdt correlation 
@@ -129,7 +133,8 @@ protected:
   Bool_t GetTrackInfo(PndTrack* track, PndPidCandidate* pid); 
   Bool_t GetMvdInfo  (PndTrack* track, PndPidCandidate* pid); 
   Bool_t GetSttInfo  (PndTrack* track, PndPidCandidate* pid);  
-  Bool_t GetTofInfo  (FairTrackParH* helix, PndPidCandidate* pid); 
+  Bool_t GetTofInfo  (FairTrackParH* helix, PndPidCandidate* pid);  
+  Bool_t GetFtofInfo (FairTrackParH* helix, PndPidCandidate* pid); 
   Bool_t GetEmcInfo  (FairTrackParH* helix, PndPidCandidate* pid);
   Bool_t GetFscInfo (FairTrackParH* helix, PndPidCandidate* pid);
   Bool_t GetMdtInfo  (PndTrack* track, PndPidCandidate* pid);   
@@ -171,6 +176,7 @@ public:
   void SetMvdMode(Short_t mode)	{ fMvdMode = mode; };                 // MVD Mode: 0 no MVD
   void SetSttMode(Short_t mode)	{ fSttMode = mode; };                 // STT Mode: 0 no STT
   void SetTofMode(Short_t mode)	{ fTofMode = mode; };                 // TOF Mode: 0 no TOF
+  void SetFtofMode(Short_t mode){ fFtofMode = mode; };                // FTOF Mode:0 no FTOF
   void SetEmcMode(Short_t mode)	{ fEmcMode = mode; };                 // EMC Mode: 0 no EMC
   void SetMdtMode(Short_t mode)	{ fMdtMode = mode; };                 // MDT Mode: 0 no MDT 
   void SetDrcMode(Short_t mode)	{ fDrcMode = mode; };                 // DRC Mode: 0 no DRC
