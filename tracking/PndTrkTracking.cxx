@@ -65,6 +65,7 @@
 //#define MAXHITSINFIT		12
 #define MAXHITSINFIT		50
 #define MAXMVDMCPOINTS		2000
+#define MAXSKEWHITSINFIT	8
 #define MINIMUMHITSPERTRACK	3
 #define MINOUTERHITSPERTRACK	5
 #define TIMEOUT			60
@@ -826,9 +827,12 @@ void PndTrkTracking::Exec(Option_t* opt) {
 
  PndTrkPrintouts fPrint;
 
- // the class with all the fits.
- PndTrkGlpkFits fit;
+
+ // the class with all the fits. This is used for the SZ fit.
+ bool YesGLPKfitSZ = false;
+ PndTrkGlpkFits fit;  YesGLPKfitSZ=true;
 // PndTrkLegendreFits fit;
+// PndTrkChi2Fits fit;
 
 //  reset the TClones Arrays of the PndTrackCand and PndTrack; it is necessary
 //  to do this for every event at the very beginning of the Exec (those TClones Arrays
@@ -1429,6 +1433,7 @@ if(istampa>0){
 			nSttSkewHitsinTrack,
 			nSciTilHitsinTrack,
 			nSttTrackCand,
+			-1,	// this means : print all candidates;
 			MAXMVDPIXELHITSINTRACK,
 			MAXMVDSTRIPHITSINTRACK,
 			MAXSCITILHITSINTRACK,
@@ -1541,6 +1546,7 @@ if(istampa>0){
 			nSttSkewHitsinTrack,
 			nSciTilHitsinTrack,
 			nSttTrackCand,
+			-1,	// this means : print all Candidates;
 			MAXMVDPIXELHITSINTRACK,
 			MAXMVDSTRIPHITSINTRACK,
 			MAXSCITILHITSINTRACK,
@@ -1695,6 +1701,7 @@ if(istampa>0){
 			nSttSkewHitsinTrack,
 			nSciTilHitsinTrack,
 			nSttTrackCand,
+			-1,	// this means : print all candidates;
 			MAXMVDPIXELHITSINTRACK,
 			MAXMVDSTRIPHITSINTRACK,
 			MAXSCITILHITSINTRACK,
@@ -1866,7 +1873,7 @@ if(istampa>=2){
 				XintersectionList[0]=
 					(XintersectionList[0]+XintersectionList[1])/2.;
 			} // end of  if ( Nint==2)
-			ListSciTilHitsinTrack[ncand][iaccept]=
+			ListSciTilHitsinTrack[ncand][iaccept]= 
 					ListSciTilHitsinTrack[ncand][i];
 			S_SciTilHitsinTrack[ncand][0]=atan2(YintersectionList[0]-Oy[ncand],
 				XintersectionList[0]-Ox[ncand]);
@@ -1971,6 +1978,7 @@ if(istampa>=2){
 			nSttSkewHitsinTrack,
 			nSciTilHitsinTrack,
 			nSttTrackCand,
+			-1, //  print all candidates;
 			MAXMVDPIXELHITSINTRACK,
 			MAXMVDSTRIPHITSINTRACK,
 			MAXSCITILHITSINTRACK,
@@ -2032,6 +2040,7 @@ if(istampa>=2){
 			nSttSkewHitsinTrack,
 			nSciTilHitsinTrack,
 			nSttTrackCand,
+			-1, // print all candidates;
 			MAXMVDPIXELHITSINTRACK,
 			MAXMVDSTRIPHITSINTRACK,
 			MAXSCITILHITSINTRACK,
@@ -2116,18 +2125,32 @@ if(istampa>=2){
 
 	// calculate if there is the need of using some skew hits in the subsequent SZ fit;
 	// put in  nhitsinfit  the number of hits used in the subsequent  SZ  fit.
-	if( nXYZhits <=2){
+
+
+	// the following is valid only for GLPK fits;
+	if(YesGLPKfitSZ)
+	{	// flag for the GLPK choice of fit;
+	  if( nXYZhits <=2){
 		nSttSkewHitsinTrack[ncand]<5 ?
 			nhitsinfit = nXYZhits + nSttSkewHitsinTrack[ncand] :
 			nhitsinfit = nXYZhits+5 ; // 1 0 2 XYZ hit + 5 Skew hits.
-	} else {
+	  } else {
 		nhitsinfit= nXYZhits;
-	}
+	  }
+	} else {  // other fit choice;
+
+	  // the following is valid for non-GLPK fits;
+	  nhitsinfit = nXYZhits + nSttSkewHitsinTrack[ncand];
+	}  // end of if(YesGLPKfitSZ
+
+	// the following is a protection against declaration of 0 dimension array;
+	int dime ;
+	if(nhitsinfit>0) dime = nhitsinfit ; else dime=1;
 
 	Double_t
-	DriftRadius[nhitsinfit],
-	ErrorDriftRadius[nhitsinfit],
-	ZED[nhitsinfit];
+	DriftRadius[dime],
+	ErrorDriftRadius[dime],
+	ZED[dime];
 
 
 	// the Mvd Pixels hit
@@ -2141,7 +2164,10 @@ if(istampa>=2){
 		// the error on the point used in the fit is ErrorDriftRadius and this
 		// is overestimated to be  1cm.
 		DriftRadiusbis[i]=DriftRadius[i]=-1.;
-		ErrorDriftRadiusbis[i]=ErrorDriftRadius[i]= 1. ;
+		// the following error is conventional for the chi**2 type of fit;
+		ErrorDriftRadiusbis[i]=ErrorDriftRadius[i]= 0.5 ;
+		// the following is the error in case of GLPK fit;
+//		ErrorDriftRadiusbis[i]=ErrorDriftRadius[i]= 1. ;
 	}
 	// the Mvd Strips hit
 	for(j=0, i = nMvdPixelHitsinTrack[ncand]; j< nMvdStripHitsinTrack[ncand]; j++){
@@ -2154,7 +2180,10 @@ if(istampa>=2){
 		// the error on the point used in the fit is ErrorDriftRadius and this
 		// is overestimated to be  1cm.
 		DriftRadiusbis[i]=DriftRadius[i]=-1.;
-		ErrorDriftRadiusbis[i]=ErrorDriftRadius[i]= 1. ;
+		// the following error is conventional for the chi**2 type of fit;
+		ErrorDriftRadiusbis[i]=ErrorDriftRadius[i]= 0.5 ;
+		// the following is the error in case of GLPK fit;
+//		ErrorDriftRadiusbis[i]=ErrorDriftRadius[i]= 1. ;
 		i ++;
 	}
 
@@ -2173,7 +2202,7 @@ if(istampa>=2){
 		// is overestimated to be DIMENSIONSCITIL/2.
 		DriftRadius[i]=-2.;
 		ErrorDriftRadius[i]= DIMENSIONSCITIL/2.; ;
-	}else if (nSciTilHitsinTrack[ncand]==1){
+	} else if (nSciTilHitsinTrack[ncand]==1){
 		ZED[i]=posizSciTil[ListSciTilHitsinTrack[ncand][0]][2];
 		S[i] = S_SciTilHitsinTrack[ncand][0];
 		// DriftRadius is set conventionally at -2, for later use in the SZ fit;
@@ -2239,23 +2268,61 @@ if(istampa>=2){
 			Charge[ncand]	// this remains unchanged.
 					);
 
+//-------------- stampa
+ if(istampa>=2){
+	cout<<"\tstampa prima di FitSZspace, [non in Mvd track section] .\n";
+
+	fPrint.stampetta(
+			IVOLTE,
+			keepit,
+			&ListMvdPixelHitsinTrack[0][0],
+			&ListMvdStripHitsinTrack[0][0],
+			&ListSttParHitsinTrack[0][0],
+			&ListSttSkewHitsinTrack[0][0],
+			&ListSciTilHitsinTrack[0][0],
+			nMvdPixelHitsinTrack,
+			nMvdStripHitsinTrack,
+			nSttParHitsinTrack,
+			nSttSkewHitsinTrack,
+			nSciTilHitsinTrack,
+			nSttTrackCand,
+			ncand,	// prints aonly the  ncand-th candidate;
+			MAXMVDPIXELHITSINTRACK,
+			MAXMVDSTRIPHITSINTRACK,
+			MAXSCITILHITSINTRACK,
+			MAXSTTHITSINTRACK,
+			R,
+			Ox,
+			Oy,
+			FI0,
+			KAPPA
+			);
+ }
+//-------------- fine stampa
 //---------------------   here do the fit again in the SZ space if there are Mvd hits.
 //			  For this, reordering of the  Mvd hits is not necessary.
 
 
+	if(nhitsinfit>0){
 		resultFitSZagain[ncand] = fit.FitSZspace(
-					nhitsinfit,	// n. hits to be fitted
-					S,
-					ZED,
-					DriftRadius,
-					ErrorDriftRadius,
-					FI0[ncand],
-					MAXHITSINFIT,	// maximum number allowed in the fit
-						// deve essere meno di 30+30+60
-					&emme,
-					IVOLTE	// IVOLTE
+				nhitsinfit,	// n. hits to be fitted
+				S,
+				ZED,
+				DriftRadius,
+				ErrorDriftRadius,
+				FI0[ncand],
+				MAXSKEWHITSINFIT,// maximum number of STT Skew hits in fit;
+				&emme,
+				IVOLTE*100+ncand // number of the accumulation plot.
 						);
 
+
+//-------------- stampa
+ if(istampa>=2){
+	cout<<"\tstampa dopo FitSZspace, [not in Mvd track section], result (1 va bene) = "
+	<<resultFitSZagain[ncand]<<endl;
+	}
+//---------------------------------------------------------------------------
 		if( resultFitSZagain[ncand]==1){
 			KAPPA[ncand] = emme;
 			GoodSkewFit[ncand] = true;
@@ -2264,6 +2331,27 @@ if(istampa>=2){
 			keepit[ncand]=false;
 			GoodSkewFit[ncand] = false;
 		}
+
+
+	}  else {  // continuation of  if(nhitsinfit>0)
+		keepit[ncand]=false;
+		GoodSkewFit[ncand] = false;
+	}   // end of  if(nhitsinfit>0)
+
+
+//-------------- stampa
+ if(istampa>=2){
+	cout<<"\tstampa dopo FitSZspace, [not in Mvd track section], result (1 va bene) = "
+	<<resultFitSZagain[ncand]<<endl;
+
+	fPrint.stampetta(
+IVOLTE,keepit,&ListMvdPixelHitsinTrack[0][0],&ListMvdStripHitsinTrack[0][0],
+&ListSttParHitsinTrack[0][0],&ListSttSkewHitsinTrack[0][0],&ListSciTilHitsinTrack[0][0],
+nMvdPixelHitsinTrack,nMvdStripHitsinTrack,nSttParHitsinTrack,nSttSkewHitsinTrack,
+nSciTilHitsinTrack,nSttTrackCand,ncand,MAXMVDPIXELHITSINTRACK,MAXMVDSTRIPHITSINTRACK,
+MAXSCITILHITSINTRACK,MAXSTTHITSINTRACK,R,Ox,Oy,FI0,KAPPA);
+ }
+//-------------- fine stampa
 
 //-------------------------------------------
 
@@ -2324,11 +2412,26 @@ if(istampa>=2){
 //------------------------
 
 
+//-------------- stampa
+ if(istampa>=2){
+	cout<<"\tstampa dopo EliminateSpuriousSZ, [non in Mvd track section] .\n";
+
+	fPrint.stampetta(
+IVOLTE,keepit,&ListMvdPixelHitsinTrack[0][0],&ListMvdStripHitsinTrack[0][0],
+&ListSttParHitsinTrack[0][0],&ListSttSkewHitsinTrack[0][0],&ListSciTilHitsinTrack[0][0],
+nMvdPixelHitsinTrack,nMvdStripHitsinTrack,nSttParHitsinTrack,nSttSkewHitsinTrack,
+nSciTilHitsinTrack,nSttTrackCand,ncand,MAXMVDPIXELHITSINTRACK,MAXMVDSTRIPHITSINTRACK,
+MAXSCITILHITSINTRACK,MAXSTTHITSINTRACK,R,Ox,Oy,FI0,KAPPA);
+ }
+//-------------- fine stampa
+
+
 
 //	First cleanup based on the absence of Mvd hits
 
 
 	if(YesCleanMvd){
+
 		// reject the candidate if it is NOT contained in the pipe and
 		// therefore it should have at least 1 Mvd hit but it has none.
 		if( (!GeomCalculator.IsInTargetPipe(
@@ -2375,6 +2478,7 @@ if(istampa>=2){
 			nSttSkewHitsinTrack,
 			nSciTilHitsinTrack,
 			nSttTrackCand,
+			-1, // print all the candidates;
 			MAXMVDPIXELHITSINTRACK,
 			MAXMVDSTRIPHITSINTRACK,
 			MAXSCITILHITSINTRACK,
@@ -2424,6 +2528,7 @@ if(istampa>=2){
 			nSttSkewHitsinTrack,
 			nSciTilHitsinTrack,
 			nSttTrackCand,
+			-1,	// print all candidates;
 			MAXMVDPIXELHITSINTRACK,
 			MAXMVDSTRIPHITSINTRACK,
 			MAXSCITILHITSINTRACK,
@@ -2505,6 +2610,7 @@ if(istampa>=2){
 			nSttSkewHitsinTrack,
 			nSciTilHitsinTrack,
 			nSttTrackCand,
+			-1,	// print all candidates;
 			MAXMVDPIXELHITSINTRACK,
 			MAXMVDSTRIPHITSINTRACK,
 			MAXSCITILHITSINTRACK,
@@ -2968,16 +3074,15 @@ if(istampa>=2){
 
 // ----------------------------- fit in SZ with the Mvd tracks
 		resultFitSZagain[ncand] = fit.FitSZspace(
-					nMvdOnly,	// n. hits to be fitted
-					S,
-					ZED,
-					DriftRadius,
-					ErrorDriftRadius,
-					FI0[ncand],
-					MAXHITSINFIT,	// maximum number allowed in the fit
-						// deve essere meno di 30+30+60.
-					&emme,
-					0   // IVOLTE
+				nMvdOnly,	// n. hits to be fitted
+				S,
+				ZED,
+				DriftRadius,
+				ErrorDriftRadius,
+				FI0[ncand],
+				MAXSKEWHITSINFIT,	// maximum STT Skew hits in fit;
+				&emme,
+				0   // IVOLTE
 						);
 		if( resultFitSZagain[ncand]==1){
 			KAPPA[ncand] = emme;
