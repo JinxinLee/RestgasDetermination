@@ -440,10 +440,6 @@ class PndTrkTracking : public FairTask
 	);
 
 
-
-
-
-
   void FixDiscontinuitiesFiangleinSZplane(
 	Short_t TemporarynSkewHitsinTrack,
 	Double_t *S,
@@ -485,6 +481,26 @@ class PndTrkTracking : public FairTask
 	Double_t ZchosenSkew[][MAXSTTHITS]
 	);
 
+
+
+  void LoadSZetc_forSZfit(
+	Short_t ncand,			// input
+	Short_t nhitsinfit,		// input
+	Double_t * TemporaryS,		// input
+	Double_t * TemporaryZ,		// input
+	Double_t * TemporaryZDrift,	// input
+	Double_t * TemporaryZErrorafterTilt,	// input
+	bool YesGLPKfitSZ,		// input
+
+	Double_t * ErrorDriftRadius,	 // output
+	Double_t * ErrorDriftRadiusbis,	 // output
+	Double_t * DriftRadius,		 // output
+	Double_t * DriftRadiusbis,	 // output
+	Double_t * S,			 // output
+	Double_t * Sbis,		 // output
+	Double_t * ZED,			 // output
+	Double_t * ZEDbis		 // output
+	);
 
 
   void MakeInclusionListStt(
