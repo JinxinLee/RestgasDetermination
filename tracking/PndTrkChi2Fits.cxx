@@ -284,7 +284,7 @@ Short_t PndTrkChi2Fits::FitHelixCylinder(
 // a priori is NOT know how may Stt (Skew) hits are there in the track candidate.
 
 
- Combinations = pow(2,nSttHits);
+ Combinations = pow(2.,nSttHits) + 0.1 ;// +0.1 only for beeing absolutely sure agains rounding errors;
 
  Double_t
 	GSum[Combinations],
@@ -430,8 +430,8 @@ return 1;
  // it is a recursive method;
 
 
- Combinations = pow(2, nHits);
- Combinations2 = pow(2, nHits-1);
+ Combinations = pow(2., nHits) + 0.1; // +0.1 to be absolutely sure agains rounding errors;
+ Combinations2 = pow(2., nHits-1) + 0.1;
 
  if(nHits==1)
  {
@@ -502,8 +502,8 @@ return 1;
  // it is a recursive method;
 
 
- Combinations = pow(2, nHits);
- Combinations2 = pow(2, nHits-1);
+ Combinations = pow(2., nHits)+0.1;  // +0.1 to be absolutely sure agains rounding errors;
+ Combinations2 = pow(2., nHits-1)+0.1;
 
  if(nHits==1)
  {
@@ -572,8 +572,8 @@ return 1;
  // it is a recursive method;
 
 
- Combinations = pow(2, nHits);
- Combinations2 = pow(2, nHits-1);
+ Combinations = pow(2., nHits)+0.1; // +0.1 to be absolutely sure against rounding errors;
+ Combinations2 = pow(2., nHits-1)+0.1;
 
  if(nHits==1)
  {
