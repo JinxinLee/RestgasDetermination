@@ -2067,6 +2067,10 @@ if(istampa>=2){
 	if( statusflag[ncand] == -1 ) continue; // this is when the XY circle is contained in the
 						// the Mvd region completely; skip the association of
 						// the Skews.
+
+	// the arrays  Temporary....   are related to the current candidate; they loose meaning
+	// as soon as the loop over the candidate tracks finishes;
+
 	nSttSkewHitsinTrack[ncand]= AssociateSkewHitsToXYTrack(
 		InclusionListStt, // hit is excluded only if it multiple hit.
 		nSttSkewHit,
@@ -2081,7 +2085,14 @@ if(istampa>=2){
 		Fi_low_limit[ncand],	// Fi (in Helix XY frame) lower limit using the Stt detector minimum/maximum radius
 		Fi_up_limit[ncand],	// Fi (in Helix XY frame) upper limit using the Stt detector maximum/minimum radius
 		Charge[ncand],
-		TemporarySkewList, // output,  list of selected skew hits (in skew numbering)
+
+		TemporarySkewList, // output : TemporarySkewList[*][0] =  list of selected skew hits
+				   // numbers(in skew numbering);
+				   // TemporarySkewList[*][1] =  solution number (0 or 1) as per
+				   // the calculateintersections  method;
+	// the info on TemporaryS, TemporaryZ, TemporaryZDrift, TemporaryZErrorafterTilt  as follows :
+	// if   i  is the (original) Skew Hit number, and ii (0 or 1) is
+	// the solution, then the infos are stored in the   i + ii*MAXSTTHITS location;
 		TemporaryS,       //  output,  S coordinate of selected Skew hit
 		TemporaryZ,       //  output,  Z coordinate of selected Skew hit (center wire)
 		TemporaryZDrift,   //  output,  drift distance IN Z DIRECTION only, of selected Skew hit
@@ -2113,7 +2124,7 @@ if(istampa>=2){
 
 	if( nSciTilHitsinTrack[ncand] == 2) {
 	   nXYZhits = nMvdPixelHitsinTrack[ncand]+nMvdStripHitsinTrack[ncand]+ 1;
-	}else {   // in this case nSciTilHitsinTrack[ncand] is 0 or 1;
+	}else{   // in this case nSciTilHitsinTrack[ncand] is 0 or 1;
 	   nXYZhits = nMvdPixelHitsinTrack[ncand]+nMvdStripHitsinTrack[ncand]+
 			nSciTilHitsinTrack[ncand];
 	}
@@ -3075,6 +3086,10 @@ if(istampa>=2){
 	if(!keepit[ncand]) continue;
 	// when statusflag[ncand]<0 the track does not intersect Stt region.
 	if( statusflag[ncand]<0) continue;
+
+	// the arrays  Temporary....   are related to the current candidate; they loose meaning
+	// as soon as the loop over the candidate tracks finishes;
+
 	   nSttSkewHitsinTrack[ncand] = AssociateSkewHitsToXYTrack(
 		InclusionListStt,
 		nSttSkewHit,
@@ -3089,7 +3104,13 @@ if(istampa>=2){
 		Fi_low_limit[ncand],	// Fi (in Helix XY frame) lower limit using the Stt detector minimum/maximum radius
 		Fi_up_limit[ncand],	// Fi (in Helix XY frame) upper limit using the Stt detector maximum/minimum radius
 		Charge[ncand],
-		TemporarySkewList, // output,  list of selected skew hits (in skew numbering)
+		TemporarySkewList, // output : TemporarySkewList[*][0] =  list of selected skew hits
+				   // numbers(in skew numbering);
+				   // TemporarySkewList[*][1] =  solution number (0 or 1) as per
+				   // the calculateintersections  method;
+	// the info on TemporaryS, TemporaryZ, TemporaryZDrift, TemporaryZErrorafterTilt  as follows :
+	// if   i  is the (original) Skew Hit number, and ii (0 or 1) is
+	// the solution, then the infos are stored in the   i + ii*MAXSTTHITS location;
 		TemporaryS,       //  output,  S coordinate of selected Skew hit
 		TemporaryZ,       //  output,  Z coordinate of selected Skew hit (center wire)
 		TemporaryZDrift,   //  output,  drift distance IN Z DIRECTION only, of selected Skew hit
@@ -3105,6 +3126,7 @@ if(istampa>=2){
 	   for(j=0;j<nSttSkewHitsinTrack[ncand];j++)
 	   {
 		ListSttSkewHitsinTrack[ncand][j]=TemporarySkewList[j][0];
+		ListSttSkewHitsinTrackSolution[ncand][j]=TemporarySkewList[j][1];
 		SchosenSkew[ncand][ListSttSkewHitsinTrack[ncand][j]] = TemporaryS[j];
 	   }
 
@@ -3651,9 +3673,20 @@ Short_t PndTrkTracking::AssociateSkewHitsToXYTrack(
 	)
  {
 
-
-
- Int_t i, j, i1, ii, iii, NAssociated, Kincl, nlow, nup, STATUS, Nmin, Nmax;
+ int
+	i,
+	i1,
+	ii,
+	iii,
+	j,
+	Kincl,
+	location,
+	NAssociated,
+	nlow,
+	Nmax,
+	Nmin,
+	nup,
+	STATUS;
 
  Double_t xmin , xmax, ymin, ymax,
            dx, dy, diff, d1, d2,
@@ -3681,7 +3714,7 @@ Short_t PndTrkTracking::AssociateSkewHitsToXYTrack(
       NAssociated=0;
 
        for( iii=0; iii< NSkewhits; iii++) {
-         i = infoskew[iii];
+         i = infoskew[iii];  // i  is the Hit number in original Skew Hit numbering;
          if( !InclusionListSkew[i]) continue;
 
 
@@ -3702,6 +3735,8 @@ Short_t PndTrkTracking::AssociateSkewHitsToXYTrack(
 
        for( ii=0; ii<2; ii++){
 
+	// ii =0, 1 is the solution number according to the algoritm of
+	// the method   calculateintersections;
         j=3*ii;
         distance = sqrt(
                   (POINTS1[j]-C0x1)*(POINTS1[j]-C0x1) + 
@@ -3737,14 +3772,21 @@ Short_t PndTrkTracking::AssociateSkewHitsToXYTrack(
 		 continue;
 	}
 
-        S[NAssociated] = atan2(POINTS1[j+1]-Oyy, POINTS1[j]-Oxx) ;  // atan2 returns radians in (-pi and +pi]
-        if( S[NAssociated] < 0.) S[NAssociated] += 2.*PI;
+	// store S, Z, ZDrift, ZErrorafterTilt  as follows :
+	// if   i  is the (original) Skew Hit number, and ii (0 or 1) is
+	// the solution, then the infos are stored in the   i + ii*MAXSTTHITS location;
+
+	location = i + ii*MAXSTTHITS;
 
 
-        if(  S[NAssociated] < Fi_low_limit) {
-           if(  S[NAssociated]+2.*PI > Fi_up_limit)  continue;
-        }  else if(  S[NAssociated] > Fi_up_limit) {
-	   if(  S[NAssociated]- 2.*PI < Fi_low_limit)  continue;
+        S[location] = atan2(POINTS1[j+1]-Oyy, POINTS1[j]-Oxx) ;  // atan2 returns radians in (-pi and +pi]
+        if( S[location] < 0.) S[location] += 2.*PI;
+
+
+        if(  S[location] < Fi_low_limit) {
+           if(  S[location]+2.*PI > Fi_up_limit)  continue;
+        }  else if(  S[location] > Fi_up_limit) {
+	   if(  S[location]- 2.*PI < Fi_low_limit)  continue;
         }
 
 
@@ -3752,21 +3794,24 @@ Short_t PndTrkTracking::AssociateSkewHitsToXYTrack(
 //---------------------------   end check
 
 
-        Z[NAssociated] = POINTS1[j+2];
-        ZDrift[NAssociated] = Aellipsis1*Tiltdirection1[0];
-        ZErrorafterTilt[NAssociated] = 0.02*aaa*Tiltdirection1[0]/LL;
-        SkewList[NAssociated][0] = i;  // n. skew hit in original hit numbering
-        SkewList[NAssociated][1] = ii;  //  solution 0 or solution 1 were accepted
+	Z[location] = POINTS1[j+2];
+	ZDrift[location] = Aellipsis1*Tiltdirection1[0];
+	ZErrorafterTilt[location] = 0.02*aaa*Tiltdirection1[0]/LL;
+
+	// the list of the selected Skew skew hits instead, is stored sequentially;
+
+	SkewList[NAssociated][0] = i;  // n. skew hit in original hit numbering
+	SkewList[NAssociated][1] = ii;  //  solution 0 or solution 1 were accepted
 
 
 // check if this skew hit doesn't "push out"  the most external parallel hit
 // (see Gianluigi's logbook on page 251)
 
 /*
-        Double_t Zh1 = Z[NAssociated] - ZDrift[NAssociated];
-        Double_t Zh2 = Z[NAssociated] + ZDrift[NAssociated];
-        Double_t Sh1 = S[NAssociated] - Aellipsis1*Tiltdirection1[1];
-        Double_t Sh2 = S[NAssociated] + Aellipsis1*Tiltdirection1[1];
+        Double_t Zh1 = Z[location] - ZDrift[location];
+        Double_t Zh2 = Z[location] + ZDrift[location];
+        Double_t Sh1 = S[location] - Aellipsis1*Tiltdirection1[1];
+        Double_t Sh2 = S[location] + Aellipsis1*Tiltdirection1[1];
         Double_t Zlast1 = (Fi_final_helix_referenceframe-Fi_initial_helix_referenceframe)*Zh1
                                   /(Sh1-Fi_initial_helix_referenceframe);
         Double_t Zlast2 = (Fi_final_helix_referenceframe-Fi_initial_helix_referenceframe)*Zh2
@@ -4924,7 +4969,8 @@ void PndTrkTracking::LoadSZetc_forSZfit(
 	i,
 	j,
 	k,
-	kall;
+	kall,
+	location;
 
 
 	// the Mvd Pixels hit
@@ -4994,9 +5040,13 @@ void PndTrkTracking::LoadSZetc_forSZfit(
 
 
 	// the Skew Stt hits
+	// the info on TemporaryS, TemporaryZ, TemporaryZDrift, TemporaryZErrorafterTilt  as follows :
+	// if   i  is the (original) Skew Hit number, and ii (0 or 1) is
+	// the solution according to the calculateintersections method ,
+	// then the infos are stored in the   i + ii*MAXSTTHITS location;
+
 	for(j=0;j<nSttSkewHitsinTrack[ncand]; j++){
 
-//		k=ListSttSkewHitsinTrack[ncand][j];
 		kall = nMvdPixelHitsinTrack[ncand]+
 			nMvdStripHitsinTrack[ncand]+j;
 		if( nSciTilHitsinTrack[ncand] ==2 ){ // in this case only 1 SciTil hit
@@ -5008,21 +5058,26 @@ void PndTrkTracking::LoadSZetc_forSZfit(
 		  i = nMvdPixelHitsinTrack[ncand]+nMvdStripHitsinTrack[ncand]+
 			nSciTilHitsinTrack[ncand] +j ;
 		}
+		// here :		k = Skew Hit number (original notation),
+		//  ListSttSkewHitsinTrackSolution[ncand][j] = number of the solution
+		// (0 or 1) according to the  calculateintersections method;
+		k=ListSttSkewHitsinTrack[ncand][j];
+		location = k + ListSttSkewHitsinTrackSolution[ncand][j]*MAXSTTHITS;
 
 		// calculate the quantities used for the SZ fit only.
 		if(i<nhitsinfit){
-			S[i] = TemporaryS[j];
-			ZED[i]=TemporaryZ[j];
-			DriftRadius[i]=TemporaryZDrift[j];
-			ErrorDriftRadius[i]=2.*TemporaryZDrift[j];
+			S[i] = TemporaryS[location];
+			ZED[i]=TemporaryZ[location];
+			DriftRadius[i]=TemporaryZDrift[location];
+			ErrorDriftRadius[i]=2.*TemporaryZDrift[location];
 		}
 		//-----------
-		ZEDbis[kall]=TemporaryZ[j];
-		Sbis[kall]= TemporaryS[j];
-		DriftRadiusbis[kall]=TemporaryZDrift[j];
+		ZEDbis[kall]=TemporaryZ[location];
+		Sbis[kall]= TemporaryS[location];
+		DriftRadiusbis[kall]=TemporaryZDrift[location];
 		// overestimate the error on the Drift Radius used in the SZ  fit.
-		if( fabs(TemporaryZDrift[j]) >1.e-10) {
-		   ErrorDriftRadiusbis[kall]=TemporaryZErrorafterTilt[j];
+		if( fabs(TemporaryZDrift[location]) >1.e-10) {
+		   ErrorDriftRadiusbis[kall]=TemporaryZErrorafterTilt[location];
 		} else {
 		   ErrorDriftRadiusbis[kall]=0.5;
 		}
