@@ -843,7 +843,7 @@ void PndTrkTracking::Exec(Option_t* opt) {
 
 //------------------------------------
 
- IVOLTE++;
+ IVOLTE++;	
 
  if(istampa>0)
 	cout<<endl<<"Entering in PndTrkTrack : evt (starting from 0)  n. "<<IVOLTE<<endl;
@@ -2141,7 +2141,7 @@ if(istampa>=2){
 
 	  // the following is valid for non-GLPK fits;
 	  nhitsinfit = nXYZhits + nSttSkewHitsinTrack[ncand];
-	}  // end of if(YesGLPKfitSZ
+	}  // end of if(YesGLPKfitSZ)
 
 	// the following is a protection against declaration of 0 dimension array;
 	int dime ;
@@ -2164,10 +2164,13 @@ if(istampa>=2){
 		// the error on the point used in the fit is ErrorDriftRadius and this
 		// is overestimated to be  1cm.
 		DriftRadiusbis[i]=DriftRadius[i]=-1.;
-		// the following error is conventional for the chi**2 type of fit;
-		ErrorDriftRadiusbis[i]=ErrorDriftRadius[i]= 0.5 ;
+		if(YesGLPKfitSZ){
 		// the following is the error in case of GLPK fit;
-//		ErrorDriftRadiusbis[i]=ErrorDriftRadius[i]= 1. ;
+		 ErrorDriftRadiusbis[i]=ErrorDriftRadius[i]= 1. ;
+		} else{
+		// the following error is conventional for the chi**2 type of fit;
+		 ErrorDriftRadiusbis[i]=ErrorDriftRadius[i]= 0.5 ;
+		}
 	}
 	// the Mvd Strips hit
 	for(j=0, i = nMvdPixelHitsinTrack[ncand]; j< nMvdStripHitsinTrack[ncand]; j++){
@@ -2180,10 +2183,13 @@ if(istampa>=2){
 		// the error on the point used in the fit is ErrorDriftRadius and this
 		// is overestimated to be  1cm.
 		DriftRadiusbis[i]=DriftRadius[i]=-1.;
-		// the following error is conventional for the chi**2 type of fit;
-		ErrorDriftRadiusbis[i]=ErrorDriftRadius[i]= 0.5 ;
+		if(YesGLPKfitSZ){
 		// the following is the error in case of GLPK fit;
-//		ErrorDriftRadiusbis[i]=ErrorDriftRadius[i]= 1. ;
+		 ErrorDriftRadiusbis[i]=ErrorDriftRadius[i]= 1. ;
+		} else {
+		// the following error is conventional for the chi**2 type of fit;
+		 ErrorDriftRadiusbis[i]=ErrorDriftRadius[i]= 0.5 ;
+		}
 		i ++;
 	}
 
@@ -2425,6 +2431,23 @@ MAXSCITILHITSINTRACK,MAXSTTHITSINTRACK,R,Ox,Oy,FI0,KAPPA);
  }
 //-------------- fine stampa
 
+//--------------------------------------------------------------------------
+/*
+// rifaccio fit dopo pulizia
+		resultFitSZagain[ncand] = fit.FitSZspace(
+				nhitsinfit,	// n. hits to be fitted
+				S,
+				ZED,
+				DriftRadius,
+				ErrorDriftRadius,
+				FI0[ncand],
+				MAXSKEWHITSINFIT,// maximum number of STT Skew hits in fit;
+				&emme,
+				IVOLTE*100+ncand // number of the accumulation plot.
+						);
+
+*/
+//--------------------------------------------------------------------------
 
 
 //	First cleanup based on the absence of Mvd hits
