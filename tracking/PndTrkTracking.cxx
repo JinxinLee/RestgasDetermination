@@ -2103,14 +2103,7 @@ if(istampa>=2){
 //-------------------------------------------  %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 
-//---------------------   here calculate the S and Z values of Mvd Pixels, Mvd Strips,
-//	 Stt Skew hits and SciTil hits (if present).
-
-//  the difference between S and Sbis, ZED and ZEDbis, DriftRadius and DriftRadiusbis,
-//  ErrorDriftRadius and ErrorDriftRadiusbis, is that S, ZED etc. contain the list of
-//  Pixel+Strips+SciTil + other Skew Stt hits in case Pixel+Strips+SciTil are <= 2; instead
-//  Sbis, ZEDbis etc. contain Pixel+Strips+all Skew Stt hits.
-
+// calculate the number of hits to use in the SZ fit later;
 	//  nXYZhits = n. of Mvd hits + SciTil hits. However, if there are 2 SciTil
 	//  hits in this track (namely two adjacent SciTil tiles have a hit
 	//  caused PRESUMABLY by the same track) then count them AS ONE because below
@@ -2133,7 +2126,7 @@ if(istampa>=2){
 	  if( nXYZhits <=2){
 		nSttSkewHitsinTrack[ncand]<5 ?
 			nhitsinfit = nXYZhits + nSttSkewHitsinTrack[ncand] :
-			nhitsinfit = nXYZhits+5 ; // 1 0 2 XYZ hit + 5 Skew hits.
+			nhitsinfit = nXYZhits + 5 ; // 1 0 2 XYZ hit + 5 Skew hits.
 	  } else {
 		nhitsinfit= nXYZhits;
 	  }
@@ -2147,114 +2140,41 @@ if(istampa>=2){
 	int dime ;
 	if(nhitsinfit>0) dime = nhitsinfit ; else dime=1;
 
+
+//---------------------   here calculate the S and Z values of Mvd Pixels, Mvd Strips,
+//	 Stt Skew hits and SciTil hits (if present).
+
+//  the difference between S and Sbis, ZED and ZEDbis, DriftRadius and DriftRadiusbis,
+//  ErrorDriftRadius and ErrorDriftRadiusbis, is that S, ZED etc. contain the list of
+//  Pixel+Strips+SciTil + other Skew Stt hits in case Pixel+Strips+SciTil are <= 2; instead
+//  Sbis, ZEDbis etc. contain Pixel+Strips+all Skew Stt hits.
+
 	Double_t
 	DriftRadius[dime],
 	ErrorDriftRadius[dime],
 	ZED[dime];
 
 
-	// the Mvd Pixels hit
-	for(i=0; i< nMvdPixelHitsinTrack[ncand]; i++){
-		k=ListMvdPixelHitsinTrack[ncand][i];
-		ZEDbis[i] = ZED[i] = ZMvdPixel[k];
-		S[i] = atan2( YMvdPixel[k]-Oy[ncand],XMvdPixel[k]-Ox[ncand]);
-		if(S[i]<0.) S[i] +=2.*PI;
-		Sbis[i] = S[i];
-		// DriftRadius is set conventionally at -1, for later use in the SZ fit;
-		// the error on the point used in the fit is ErrorDriftRadius and this
-		// is overestimated to be  1cm.
-		DriftRadiusbis[i]=DriftRadius[i]=-1.;
-		if(YesGLPKfitSZ){
-		// the following is the error in case of GLPK fit;
-		 ErrorDriftRadiusbis[i]=ErrorDriftRadius[i]= 1. ;
-		} else{
-		// the following error is conventional for the chi**2 type of fit;
-		 ErrorDriftRadiusbis[i]=ErrorDriftRadius[i]= 0.5 ;
-		}
-	}
-	// the Mvd Strips hit
-	for(j=0, i = nMvdPixelHitsinTrack[ncand]; j< nMvdStripHitsinTrack[ncand]; j++){
-		k=ListMvdStripHitsinTrack[ncand][j];
-		ZEDbis[i] = ZED[i] = ZMvdStrip[k];
-		S[i] = atan2( YMvdStrip[k]-Oy[ncand],XMvdStrip[k]-Ox[ncand]);
-		if(S[i]<0.) S[i] +=2.*PI;
-		Sbis[i] = S[i] ;
-		// DriftRadius is set conventionally at -1, for later use in the SZ fit;
-		// the error on the point used in the fit is ErrorDriftRadius and this
-		// is overestimated to be  1cm.
-		DriftRadiusbis[i]=DriftRadius[i]=-1.;
-		if(YesGLPKfitSZ){
-		// the following is the error in case of GLPK fit;
-		 ErrorDriftRadiusbis[i]=ErrorDriftRadius[i]= 1. ;
-		} else {
-		// the following error is conventional for the chi**2 type of fit;
-		 ErrorDriftRadiusbis[i]=ErrorDriftRadius[i]= 0.5 ;
-		}
-		i ++;
-	}
+	// load the quantities needed for the SZ fit;
 
+	LoadSZetc_forSZfit(
+		ncand,	// input
+		nhitsinfit,
+		TemporaryS,		// input
+		TemporaryZ,		// input
+		TemporaryZDrift,	// input
+		TemporaryZErrorafterTilt,	// input
+		YesGLPKfitSZ,		// input
 
-	// the SciTil hit ( when they are 2, the S_SciTilHitsinTrack is already a mean
-	// of the two; then consider only 1 SciTil hit, the first, and make an average
-	// of the two Z positions).
-
-	i = nMvdPixelHitsinTrack[ncand]+nMvdStripHitsinTrack[ncand];
-	if(nSciTilHitsinTrack[ncand]==2){
-		ZED[i]=0.5*(posizSciTil[ListSciTilHitsinTrack[ncand][0]][2]+
-			posizSciTil[ListSciTilHitsinTrack[ncand][1]][2]);
-		S[i] = S_SciTilHitsinTrack[ncand][0];
-		// DriftRadius is set conventionally at -2, for later use in the SZ fit;
-		// the error on the point used in the fit is ErrorDriftRadius and this
-		// is overestimated to be DIMENSIONSCITIL/2.
-		DriftRadius[i]=-2.;
-		ErrorDriftRadius[i]= DIMENSIONSCITIL/2.; ;
-	} else if (nSciTilHitsinTrack[ncand]==1){
-		ZED[i]=posizSciTil[ListSciTilHitsinTrack[ncand][0]][2];
-		S[i] = S_SciTilHitsinTrack[ncand][0];
-		// DriftRadius is set conventionally at -2, for later use in the SZ fit;
-		// the error on the point used in the fit is ErrorDriftRadius and this
-		// is overestimated to be DIMENSIONSCITIL/2.
-		DriftRadius[i]=-2.;
-		ErrorDriftRadius[i]= DIMENSIONSCITIL/2.; ;
-	}
-
-
-	// the Skew Stt hits
-	for(j=0;j<nSttSkewHitsinTrack[ncand]; j++){
-
-		k=ListSttSkewHitsinTrack[ncand][j];
-		kall = nMvdPixelHitsinTrack[ncand]+
-			nMvdStripHitsinTrack[ncand]+j;
-		if( nSciTilHitsinTrack[ncand] ==2 ){ // in this case only 1 SciTil hit
-						// has been considered above;
-		  i = nMvdPixelHitsinTrack[ncand]+nMvdStripHitsinTrack[ncand]+1+j;
-		} else {  // this is the case of 1 or 0 SciTil hits in track; the
-			//  (impossible?) case of > 2 SciTil hits has already been
-			//  prevented early in PndTrkCTFindTrackInXY.
-		  i = nMvdPixelHitsinTrack[ncand]+nMvdStripHitsinTrack[ncand]+
-			nSciTilHitsinTrack[ncand] +j ;
-		}
-
-		// calculate the quantities used for the SZ fit only.
-		if(i<nhitsinfit){
-			S[i] = TemporaryS[j];
-			ZED[i]=TemporaryZ[j];
-			DriftRadius[i]=TemporaryZDrift[j];
-			ErrorDriftRadius[i]=2.*TemporaryZDrift[j];
-		}
-		//-----------
-		ZEDbis[kall]=TemporaryZ[j];
-		Sbis[kall]= TemporaryS[j];
-		DriftRadiusbis[kall]=TemporaryZDrift[j];
-		// overestimate the error on the Drift Radius used in the SZ  fit.
-		if( fabs(TemporaryZDrift[j]) >1.e-10) {
-		   ErrorDriftRadiusbis[kall]=TemporaryZErrorafterTilt[j];
-		} else {
-		   ErrorDriftRadiusbis[kall]=0.5;
-		}
-
-
-	}	//   end of  for(j=0;j<nSttSkewHitsinTrack[ncand]; j++)
+		ErrorDriftRadius,	 // output
+		ErrorDriftRadiusbis,	 // output
+		DriftRadius,		 // output
+		DriftRadiusbis,	 // output
+		S,			 // output
+		Sbis,		 // output
+		ZED,			 // output
+		ZEDbis		 // output
+	);
 
 
 // ---------------  fit in SZ  with Mvd + SciTil only
@@ -4682,18 +4602,6 @@ void  PndTrkTracking::Initial_SttParHits_DecreasingR_Ordering(
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
 //----------------------  begin function   PndTrkTracking::LoadPndTrack_TrackCand
 
 void PndTrkTracking::LoadPndTrack_TrackCand(
@@ -4976,6 +4884,154 @@ void PndTrkTracking::LoadPndTrack_TrackCand(
 
 
 //----------end function PndTrkTracking::LoadPndTrack_TrackCand
+
+
+
+//----------begin function PndTrkTracking::LoadSZetc_forSZfit
+
+
+void PndTrkTracking::LoadSZetc_forSZfit(
+	Short_t ncand,	// input
+	Short_t nhitsinfit,
+	Double_t * TemporaryS,		// input
+	Double_t * TemporaryZ,		// input
+	Double_t * TemporaryZDrift,	// input
+	Double_t * TemporaryZErrorafterTilt,	// input
+	bool YesGLPKfitSZ,		// input
+
+	Double_t * ErrorDriftRadius,	 // output
+	Double_t * ErrorDriftRadiusbis,	 // output
+	Double_t * DriftRadius,		 // output
+	Double_t * DriftRadiusbis,	 // output
+	Double_t * S,			 // output
+	Double_t * Sbis,		 // output
+	Double_t * ZED,			 // output
+	Double_t * ZEDbis		 // output
+	)
+{
+ //---------------------   here calculate the S and Z values of Mvd Pixels, Mvd Strips,
+ //	 Stt Skew hits and SciTil hits (if present).
+
+ //  the difference between S and Sbis, ZED and ZEDbis, DriftRadius and DriftRadiusbis,
+ //  ErrorDriftRadius and ErrorDriftRadiusbis, is that S, ZED etc. contain the list of
+ //  Pixel+Strips+SciTil + other Skew Stt hits in case Pixel+Strips+SciTil are <= 2; instead
+ //  Sbis, ZEDbis etc. contain Pixel+Strips+all Skew Stt hits.
+
+
+	int
+	i,
+	j,
+	k,
+	kall;
+
+
+	// the Mvd Pixels hit
+	for(i=0; i< nMvdPixelHitsinTrack[ncand]; i++){
+		k=ListMvdPixelHitsinTrack[ncand][i];
+		ZEDbis[i] = ZED[i] = ZMvdPixel[k];
+		S[i] = atan2( YMvdPixel[k]-Oy[ncand],XMvdPixel[k]-Ox[ncand]);
+		if(S[i]<0.) S[i] +=2.*PI;
+		Sbis[i] = S[i];
+		// DriftRadius is set conventionally at -1, for later use in the SZ fit;
+		// the error on the point used in the fit is ErrorDriftRadius and this
+		// is overestimated to be  1cm.
+		DriftRadiusbis[i]=DriftRadius[i]=-1.;
+		if(YesGLPKfitSZ){
+		// the following is the error in case of GLPK fit;
+		 ErrorDriftRadiusbis[i]=ErrorDriftRadius[i]= 1. ;
+		} else{
+		// the following error is conventional for the chi**2 type of fit;
+		 ErrorDriftRadiusbis[i]=ErrorDriftRadius[i]= 0.5 ;
+		}
+	}
+	// the Mvd Strips hit
+	for(j=0, i = nMvdPixelHitsinTrack[ncand]; j< nMvdStripHitsinTrack[ncand]; j++){
+		k=ListMvdStripHitsinTrack[ncand][j];
+		ZEDbis[i] = ZED[i] = ZMvdStrip[k];
+		S[i] = atan2( YMvdStrip[k]-Oy[ncand],XMvdStrip[k]-Ox[ncand]);
+		if(S[i]<0.) S[i] +=2.*PI;
+		Sbis[i] = S[i] ;
+		// DriftRadius is set conventionally at -1, for later use in the SZ fit;
+		// the error on the point used in the fit is ErrorDriftRadius and this
+		// is overestimated to be  1cm.
+		DriftRadiusbis[i]=DriftRadius[i]=-1.;
+		if(YesGLPKfitSZ){
+		// the following is the error in case of GLPK fit;
+		 ErrorDriftRadiusbis[i]=ErrorDriftRadius[i]= 1. ;
+		} else {
+		// the following error is conventional for the chi**2 type of fit;
+		 ErrorDriftRadiusbis[i]=ErrorDriftRadius[i]= 0.5 ;
+		}
+		i ++;
+	}
+
+	// the SciTil hit ( when they are 2, the S_SciTilHitsinTrack is already a mean
+	// of the two; then consider only 1 SciTil hit, the first, and make an average
+	// of the two Z positions).
+
+	i = nMvdPixelHitsinTrack[ncand]+nMvdStripHitsinTrack[ncand];
+	if(nSciTilHitsinTrack[ncand]==2){
+		ZED[i]=0.5*(posizSciTil[ListSciTilHitsinTrack[ncand][0]][2]+
+			posizSciTil[ListSciTilHitsinTrack[ncand][1]][2]);
+		S[i] = S_SciTilHitsinTrack[ncand][0];
+		// DriftRadius is set conventionally at -2, for later use in the SZ fit;
+		// the error on the point used in the fit is ErrorDriftRadius and this
+		// is overestimated to be DIMENSIONSCITIL/2.
+		DriftRadius[i]=-2.;
+		ErrorDriftRadius[i]= DIMENSIONSCITIL/2.; ;
+	} else if (nSciTilHitsinTrack[ncand]==1){
+		ZED[i]=posizSciTil[ListSciTilHitsinTrack[ncand][0]][2];
+		S[i] = S_SciTilHitsinTrack[ncand][0];
+		// DriftRadius is set conventionally at -2, for later use in the SZ fit;
+		// the error on the point used in the fit is ErrorDriftRadius and this
+		// is overestimated to be DIMENSIONSCITIL/2.
+		DriftRadius[i]=-2.;
+		ErrorDriftRadius[i]= DIMENSIONSCITIL/2.; ;
+	}
+
+
+
+	// the Skew Stt hits
+	for(j=0;j<nSttSkewHitsinTrack[ncand]; j++){
+
+		k=ListSttSkewHitsinTrack[ncand][j];
+		kall = nMvdPixelHitsinTrack[ncand]+
+			nMvdStripHitsinTrack[ncand]+j;
+		if( nSciTilHitsinTrack[ncand] ==2 ){ // in this case only 1 SciTil hit
+						// has been considered above;
+		  i = nMvdPixelHitsinTrack[ncand]+nMvdStripHitsinTrack[ncand]+1+j;
+		} else {  // this is the case of 1 or 0 SciTil hits in track; the
+			//  (impossible?) case of > 2 SciTil hits has already been
+			//  prevented early in PndTrkCTFindTrackInXY.
+		  i = nMvdPixelHitsinTrack[ncand]+nMvdStripHitsinTrack[ncand]+
+			nSciTilHitsinTrack[ncand] +j ;
+		}
+
+		// calculate the quantities used for the SZ fit only.
+		if(i<nhitsinfit){
+			S[i] = TemporaryS[j];
+			ZED[i]=TemporaryZ[j];
+			DriftRadius[i]=TemporaryZDrift[j];
+			ErrorDriftRadius[i]=2.*TemporaryZDrift[j];
+		}
+		//-----------
+		ZEDbis[kall]=TemporaryZ[j];
+		Sbis[kall]= TemporaryS[j];
+		DriftRadiusbis[kall]=TemporaryZDrift[j];
+		// overestimate the error on the Drift Radius used in the SZ  fit.
+		if( fabs(TemporaryZDrift[j]) >1.e-10) {
+		   ErrorDriftRadiusbis[kall]=TemporaryZErrorafterTilt[j];
+		} else {
+		   ErrorDriftRadiusbis[kall]=0.5;
+		}
+
+
+	}	//   end of  for(j=0;j<nSttSkewHitsinTrack[ncand]; j++)
+
+
+ return;
+}
+//----------end function PndTrkTracking::LoadSZetc_forSZfit
 
 
 
