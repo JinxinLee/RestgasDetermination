@@ -759,10 +759,12 @@ void PndTrkTracking::Exec(Option_t* opt) {
 					// skew hits only one
 					// solution is selected.
 	Start[3],
+
 	TemporaryS[2*MAXSTTHITS],
 	TemporaryZ[2*MAXSTTHITS],
 	TemporaryZDrift[2*MAXSTTHITS],
 	TemporaryZErrorafterTilt[2*MAXSTTHITS],
+
 	temporeZErrorafterTilt[MAXSTTHITSINTRACK],
 	temporeS[MAXSTTHITSINTRACK],
 	temporeZ[MAXSTTHITSINTRACK],
@@ -4994,7 +4996,7 @@ void PndTrkTracking::LoadSZetc_forSZfit(
 	// the Skew Stt hits
 	for(j=0;j<nSttSkewHitsinTrack[ncand]; j++){
 
-		k=ListSttSkewHitsinTrack[ncand][j];
+//		k=ListSttSkewHitsinTrack[ncand][j];
 		kall = nMvdPixelHitsinTrack[ncand]+
 			nMvdStripHitsinTrack[ncand]+j;
 		if( nSciTilHitsinTrack[ncand] ==2 ){ // in this case only 1 SciTil hit
