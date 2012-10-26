@@ -162,7 +162,7 @@ fIcounter=IVOLTE;
 //----------begin of function PndTrkLegendreFits::FitSZspace
 
 Short_t PndTrkLegendreFits::FitSZspace(
-	Short_t nSkewHitsinTrack,
+	Short_t nHitsinTrack,
 	Double_t *S,
 	Double_t *Z, //
 	Double_t *DriftRadiusProjected,
@@ -170,29 +170,34 @@ Short_t PndTrkLegendreFits::FitSZspace(
 	Double_t FInot,
 	Short_t NMAX,
 	Double_t *emme,
-	int IVOLTE
+	int PlotNumber
 	)
 {
 
  const int
-	MAXCONTENT= 30000,
-	ThetaDiv = 180;
+	ThetaDiv = 20;
 
  int
 	i,
+	icount,
 	CellMax,
 	ncell,
+	nMvdHits,
+	nSttHits,
 	result;
 
  UShort_t
 	Matrix[ThetaDiv];
 
  Double_t
+	Amax,
+	Amin,
 	delta,
 	max,
-	theta1,
-	theta2,
 	ThetaMax;
+
+
+ if(nHitsinTrack<1)  return -1;
 
  // this fit in SZ is a fit with only 1 variable :  S = kappa * Z + fi0   with kappa
  // the variable, and  fi0 = FInot  is fixed (obtained by the previous XY fit);
@@ -205,69 +210,99 @@ Short_t PndTrkLegendreFits::FitSZspace(
  // the Mvd and SciTil hits.
 
 
+
  // reset the Matrix;
  size_t len;
  len = sizeof(Matrix);
  memset (Matrix,0,len);
 
 
-  char titolo[100];
-  sprintf(titolo,"KAPPA%d",fIcounter);
-  TH1F * hKAPPAPlot = new TH1F(titolo, "",ThetaDiv, fThetaMin, fThetaMax);
 
+ // count the number of Stt hits (2 entries in the accumulation plot each)
+ // and the Mvd/SciTil number of hits (1 entry only);
+ nMvdHits = 0;
+ nSttHits = 0;
+ for(i=0;i<nHitsinTrack;i++){
+    if(DriftRadiusProjected[i]<=0.) nMvdHits ++; else nSttHits++;
+ }
 
+ // now the array containing the list of Angles can be declared;
 
- // filling the matrix;
+ Double_t	AngleArray[nMvdHits + 2*nSttHits];
 
- for(i=0;i<nSkewHitsinTrack;i++){
-    if(DriftRadiusProjected[i]<0.){
+ // filling the AngleArray and finding the range of extension of the Angles;
+
+ for(i=0, icount=0, Amax = -99999., Amin = 9999999.;i<nHitsinTrack;i++){
+    if(DriftRadiusProjected[i]>0.){
 	// Stt hit : 2 possible tangent;
 
 	// calculation of the first possible tangent;
 	if( abs(Z[i]+DriftRadiusProjected[i])>1.e-10){
-		theta1 = atan( (S[i]-FInot)/(Z[i]+DriftRadiusProjected[i]) );
+		AngleArray[icount] = atan( (S[i]-FInot)/(Z[i]+DriftRadiusProjected[i]) );
 	} else {
-		theta1 = PI/2.;
+		AngleArray[icount] = PI/2.;
 	}
-	// filling the Matrix; keep in mind that   atan  goes from -PI/2 to PI/2
-	// and so theta1, theta2 do.
-	ncell = (int) ( (theta1 +PI/2.)/ThetaDiv );
-	if(ncell <0) { ncell=0; } else if (ncell>=ThetaDiv) {ncell = ThetaDiv-1;}
-	Matrix[ncell]++;
-
+	if(AngleArray[icount]<Amin) Amin=AngleArray[icount];
+	if(AngleArray[icount]>Amax) Amax=AngleArray[icount];
+	icount++;
 	// calculation of the second possible tangent;
 	if( abs(Z[i]-DriftRadiusProjected[i])>1.e-10){
-		theta2 = atan( (S[i]-FInot)/(Z[i]-DriftRadiusProjected[i]) );
+		AngleArray[icount] = atan( (S[i]-FInot)/(Z[i]-DriftRadiusProjected[i]) );
 	} else {
-		theta2 = PI/2.;
+		AngleArray[icount] = PI/2.;
 	}
-	// filling the Matrix; keep in mind that   atan  goes from -PI/2 to PI/2
-	// and so theta1, theta2 do.
-	ncell = (int) ( (theta2 + PI/2.)/ThetaDiv );
-	if(ncell <0) { ncell=0; } else if (ncell>=ThetaDiv) {ncell = ThetaDiv-1;}
-	Matrix[ncell]++;
+	if(AngleArray[icount]<Amin) Amin=AngleArray[icount];
+	if(AngleArray[icount]>Amax) Amax=AngleArray[icount];
+	icount++;
 
-    } else {
+   } else { // continuation of if(DriftRadiusProjected[i]>0.)
+
 	// Mvd or SciTil hit : only 1 tangent is possible;
-
 	// calculation of the only possible tangent;
 	if( abs(Z[i])>1.e-10){
-		theta1 = atan( (S[i]-FInot)/Z[i] );
+		AngleArray[icount] = atan( (S[i]-FInot)/Z[i] );
 	} else {
-		theta1 = PI/2.;
+		AngleArray[icount] = PI/2.;
 	}
-	if(theta1<0.) theta1 =0.; else if ( theta1 > PI ) theta1 = PI;
+	if(AngleArray[icount]<Amin) Amin=AngleArray[icount];
+	if(AngleArray[icount]>Amax) Amax=AngleArray[icount];
+	icount++;
 
-	hKAPPAPlot->Fill( theta1);
-	// filling the Matrix; keep in mind that   atan  goes from -PI/2 to PI/2
-	// and so theta1, theta2 do.
-	ncell = (int) ( (theta1 +PI/2.)/ThetaDiv );
-	if(ncell <0) { ncell=0; } else if (ncell>=ThetaDiv) {ncell = ThetaDiv-1;}
+   }  // end of   if(DriftRadiusProjected[i]>0.)
+
+ }  // end of    for(i=0, icount=0, Amax ....
+
+
+ //  fix the case when Amin=Amax (for instance when there is only one hit to fit);
+ if(Amin >= Amax )  Amin = Amax - 0.1*fabs(Amax);
+ // add a 10% slac to the range of the Angles;
+ delta = 0.1*(Amax - Amin);
+ Amax += delta;
+ Amin -= delta;
+ delta = (Amax-Amin)/ThetaDiv ;
+
+
+
+  char titolo[100];
+  sprintf(titolo,"KAPPA%d",PlotNumber);
+  TH1F * hKAPPAPlot = new TH1F(titolo, "",ThetaDiv, Amin, Amax );
+
+ // filling the Matrix;
+
+ for(i=0 ;i<icount;i++){
+
+	ncell = (int) ( (AngleArray[i] - Amin)/delta );
+//	if(ncell <0) { ncell=0; } else if (ncell>=ThetaDiv) {ncell = ThetaDiv-1;}
 	Matrix[ncell]++;
-	
-    }
- }   // end of  for(i=0;i<nSkewHitsinTrack;i++)
 
+	hKAPPAPlot->Fill(AngleArray[i]);
+
+ } // end of for(i=0 ;i<icount;i++)
+
+
+
+ hKAPPAPlot->Write();
+ delete hKAPPAPlot;
 
  // find the cell of the maximum in the Matrix;
  max = Matrix[0];
@@ -278,16 +313,16 @@ Short_t PndTrkLegendreFits::FitSZspace(
 
  //------------------------- final summary of the fit results; load output variables;
 
- delta = PI/ThetaDiv;
- ThetaMax = -PI/2. + (CellMax+0.5) * delta;
+ ThetaMax = Amin + (CellMax+0.5) * delta;
 
  if (abs(PI/2. - ThetaMax) < 1.e-5){
-	*emme = 9999999.;
-	return 1;
+	(*emme) = 9999999.;
  } else {
-	*emme = tan(ThetaMax);
-	return 1;
+	(*emme) = tan(ThetaMax);
  }
+
+	return 1;
+
 
 }
 
