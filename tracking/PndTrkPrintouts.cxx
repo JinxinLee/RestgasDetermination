@@ -134,7 +134,8 @@ void PndTrkPrintouts::stampetta(
 	Short_t *nSttParHitsinTrack,
 	Short_t *nSttSkewHitsinTrack,
 	Short_t *nSciTilHitsinTrack,
-	Short_t nSttTrackCand,
+	Short_t nTotalCand,
+	Short_t Cand,
 	int MAXMVDPIXELHITSINTRACK,
 	int MAXMVDSTRIPHITSINTRACK,
 	int MAXSCITILHITSINTRACK,
@@ -146,12 +147,23 @@ void PndTrkPrintouts::stampetta(
 	Double_t *KAPPA
 	)
 {
-	int i,j;
+	int i,j, nend, start;
+
+ if(Cand<0)
+ {
+	// print all candidates;
+	start = 0;
+	nend = nTotalCand;
+ } else {
+	// print only the particular candidate Cand;
+	start = Cand;
+	nend = Cand+1;
+ }
 
 	cout<<"da PndTrkTracking, inizia stampetta ---------------------------\n";
 	   cout<<"da PndTrkTracking, evt. "<<IVOLTE<<",  n. SttTrackCand totali = "
-	   <<nSttTrackCand<<endl;
-      for(  i= 0; i< nSttTrackCand; i++){
+	   <<nTotalCand<<endl;
+      for(  i= start; i< nend; i++){
 	   cout<<"\tcandidate n. "<<i<<", keepit = "<<keepit[i]<<", Ox "<<Ox[i]
 	   <<", Oy "<<Oy[i]<<", R "<<R[i]<<", FI0 "<<FI0[i]<<", KAPPA "<<KAPPA[i]<<endl;
 	   cout<<"-----------------\n";
@@ -191,7 +203,7 @@ void PndTrkPrintouts::stampetta(
 	        cout<<"\t\tscitil Hit n. "<<
 		     ListSciTilHitsinTrack[i*MAXSCITILHITSINTRACK+j]<<endl;
 	   }
-      }// end of   for(  i= 0; i< nSttTrackCand; i++)
+      }// end of   for(  i= start; i< nend; i++)
 
 	cout<<"---------------fine stampetta----------------------"<<endl<<endl;
 	return;
