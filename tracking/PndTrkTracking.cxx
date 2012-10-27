@@ -3708,9 +3708,6 @@ Short_t PndTrkTracking::AssociateSkewHitsToXYTrack(
  PndTrkCTGeometryCalculations GeomCalculator;
 
 
-//   calculate the Fi range allowed to the skew hits, with Fi calculated in the TRACK CYLINDER REFERENCE FRAME.
-
-
       NAssociated=0;
 
        for( iii=0; iii< NSkewhits; iii++) {
@@ -3978,6 +3975,8 @@ void PndTrkTracking::EliminateSpuriousSZ(
 	)
 {
 
+	bool	already[MAXSTTHITS];
+
 	Short_t i,
 		 j,
 		 k,
@@ -3989,7 +3988,8 @@ void PndTrkTracking::EliminateSpuriousSZ(
 		 auxnSttSkew,
 		 auxListSttSkew[MAXSTTHITS];
 
-	Int_t  nr2,
+	Int_t	len,
+		 nr2,
 		 nrounds0,
 		 nrounds1,
 		 nchosen,
@@ -4009,11 +4009,15 @@ void PndTrkTracking::EliminateSpuriousSZ(
 		 zeta0,
 		 zeta1,
 		 Dista[4],
+		 dista_storage[MAXSTTHITS],
 		 Errore[4],
 		 Esse[4],
 		 Zeta[4];
 
  PndTrkCTGeometryCalculations GeomC;
+
+	len = sizeof(already);
+	memset (already,false,len);
 
 	auxnMvdPixel=0;
 	auxnMvdStrip=0;
@@ -4098,9 +4102,6 @@ if(istampa>3){
 			if(nchosen>=0)SchosenSkew[ListSkewHitsinTrack[j]]=S[i]+nchosen*2.*PI;
 			else SchosenSkew[ListSkewHitsinTrack[j]]=S[i]+(nchosen-1)*2.*PI;
 			ZchosenSkew[ListSkewHitsinTrack[j]]=zeta0;
-
-
-
 //-----------------stampe.
 if(istampa>3){
 	cout<<"in EliminateSpuriousSZ : insomma, dista prima della selezione = "<<
@@ -4109,16 +4110,46 @@ if(istampa>3){
 }
 //--------------fine stampe.
 
-		if(
-			dista < 4.*error
+
+		if(	dista < 4.*error
 //			dista < 1.1*error
 				||
 			dista < 2.*minimumSttDriftError
-			){
-			auxListSttSkew[auxnSttSkew]=ListSkewHitsinTrack[j];
-			ErrorchosenSkew[ListSkewHitsinTrack[j]]=error;
-			auxnSttSkew++;
-		}
+			)
+		{
+
+			//  check now if the other solution of the same hit
+			//  has already been selected before;
+
+			if( already[ ListSkewHitsinTrack[j] ]){
+			  // in this case the other solution has already been
+			  // selected; therefore in   dista_storage[ ListSkewHitsinTrack[j] ]
+			  // there must be the distance  previously calculated;
+			  if( dista_storage[ ListSkewHitsinTrack[j] ]>dista ){
+				auxListSttSkew[auxnSttSkew]=ListSkewHitsinTrack[j];
+				ErrorchosenSkew[ListSkewHitsinTrack[j]]=error;
+				auxnSttSkew++;
+			  }
+			} else {  // continuation of  if( already[ ListSkewHitsinTrack[j] ] 
+
+
+			  already[ ListSkewHitsinTrack[j] ] = true;
+			  // store the  distance calculated;
+			  dista_storage[ListSkewHitsinTrack[j] ]=dista;
+			  auxListSttSkew[auxnSttSkew]=ListSkewHitsinTrack[j];
+			  ErrorchosenSkew[ListSkewHitsinTrack[j]]=error;
+			  auxnSttSkew++;
+
+
+
+
+			} // end of   if( already[ ListSkewHitsinTrack[j] ] )
+
+
+
+
+
+		}  // end of  if( dista < 4.*error ....)
 	}	// end of  for(j=0;j<*nSkewHitsinTrack;j++)
 
 
