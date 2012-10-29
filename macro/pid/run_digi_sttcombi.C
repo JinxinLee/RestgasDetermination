@@ -95,7 +95,7 @@
   PndMdtTrkProducer* mdtTrkProd = new PndMdtTrkProducer();
   fRun->AddTask(mdtTrkProd);
   // -----   DRC hit producers   ---------------------------------
-  PndDrcHitProducerIdeal* drchit = new PndDrcHitProducerIdeal();
+  PndDrcHitProducerReal* drchit = new PndDrcHitProducerReal();
   drchit->SetVerbose(iVerbose);
   fRun->AddTask(drchit);
   // -----   GEM hit producers   ---------------------------------

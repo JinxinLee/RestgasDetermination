@@ -88,7 +88,7 @@ void digi_complete()
   fRun->AddTask(mdtTrkProd);
 
   // -----   DRC hit producers   ---------------------------------
-  PndDrcHitProducerIdeal* drchit = new PndDrcHitProducerIdeal();
+  PndDrcHitProducerReal* drchit = new PndDrcHitProducerReal();
   drchit->SetVerbose(iVerbose);
   fRun->AddTask(drchit);
 
