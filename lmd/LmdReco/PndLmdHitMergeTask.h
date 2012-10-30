@@ -9,6 +9,7 @@
 
 #include "FairTask.h"
 #include "PndSdsHit.h"
+#include "PndLmdDim.h"
 
 #include <string>
 #include <vector>
@@ -41,6 +42,8 @@ class PndLmdHitMergeTask : public FairTask
     TClonesArray* fMergedHitArray;  // Output array of PndSdsHits
     
     TString fHitBranchName;
+
+    PndLmdDim* lmddim;
     
     ClassDef(PndLmdHitMergeTask,0);
     

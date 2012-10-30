@@ -11,6 +11,7 @@
 #include "FairRootManager.h"
 #include "PndLmdAlignPar.h"
 #include "PndSdsClusterPixel.h"
+#include "PndLmdDim.h"
 class PndLmdPixelClusterTask : public PndSdsPixelClusterTask
 {
  public:
@@ -42,6 +43,7 @@ class PndLmdPixelClusterTask : public PndSdsPixelClusterTask
     vector<double> fShiftX,fShiftY,fShiftZ;
     vector<double> fRotateX,fRotateY,fRotateZ;
     bool readAlign;
+    PndLmdDim* lmddim;
 };
 
 #endif /* LMDCLUSTERTASK_H */

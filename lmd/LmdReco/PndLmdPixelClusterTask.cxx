@@ -9,6 +9,7 @@
 #include "PndSdsPixelDigiPar.h"
 #include "PndLmdContFact.h"
 #include "PndLmdAlignPar.h"
+#include "PndLmdDim.h"
 // -----   Default constructor   -------------------------------------------
 PndLmdPixelClusterTask::PndLmdPixelClusterTask() :
 PndSdsPixelClusterTask("LMD Clustertisation Task")
@@ -34,6 +35,11 @@ void PndLmdPixelClusterTask::SetParContainers()
 	fDigiPar = (PndSdsPixelDigiPar*)(rtdb->getContainer("SDSPixelDigiPar"));
 	rtdb->getContainer("SDSPixelTotDigiPar");
 	
+
+	//Read lmd geo description. still not sure where and how to do it as soon as Init stays in PndSdsPixelClusterTask
+	lmddim = PndLmdDim::Instance();
+	// lmddim -> Read_transformation_matrices("matrices.txt", true);
+	lmddim -> Read_transformation_matrices("matrices_perfect.txt", false);
 
 	PndLmdContFact* themvdcontfact = (PndLmdContFact*)rtdb->getContFactory("PndLmdContFact");
 	//read params for lumi alignment
@@ -249,16 +255,18 @@ void PndLmdPixelClusterTask::Exec(Option_t* opt)
       myHit.Print();
     }
     TVector3 hitPos = myHit.GetPosition();
-    // do the transformation from lab frame to LUMI frame (with z-axis perp. to lumi planes)
-    combitransToLumiFrame(hitPos);
-    // //do correction due to misalignemt of sensor
-    // int sensorID = myHit.GetSensorID();
-    // alignmentCorr(hitPos,sensorID);
-    myHit.SetPosition(hitPos);//save value
-
     TMatrixD hitCov = myHit.GetCov();
-    //transformation to LUMI frame
-    hitCov = rotateToLumiFrame(hitCov);
+    ///don't want touch BackMapping now
+    ///Let's work with coordinates in Global frame
+    hitPos = lmddim->Transform_global_to_lmd_local(hitPos, false, false);
+    hitCov = lmddim->Transform_global_to_lmd_local(hitCov, false);
+    if(fVerbose>0){
+      cout<<"After Transform_global_to_lmd_local:"<<endl;
+      hitPos.Print();
+      hitCov.Print();
+    }
+   
+    myHit.SetPosition(hitPos);//save value
     myHit.SetCov(hitCov);//save value
 
  //   myHit.SetCharge(myHit.GetCharge());
