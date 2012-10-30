@@ -64,10 +64,10 @@ class PndLinTrack : public TObject
   TString 	GetDetName()		const { return fDetName;}
   void		GetPar(Double_t* par)	const { par[0]=fP0;par[1]=fP1;par[2]=fP2;par[3]=fP3;par[4]=fP4;par[5]=fP5;}
   /* TVector3	GetStartVec()		const { return TVector3(fP0,fP2,0.);} */
-  //TVector3	GetStartVec()		const { return TVector3(fP0,fP2,fP4);}
-  TVector3	GetStartVec();
-  //  TVector3	GetDirectionVec()	const { return TVector3(fP1,fP3,fP5);}
-  TVector3	GetDirectionVec();
+  TVector3	GetStartVec()		const { return TVector3(fP0,fP2,fP4);}
+  // TVector3	GetStartVec();
+  TVector3	GetDirectionVec()	const { return TVector3(fP1,fP3,fP5);}
+  //TVector3	GetDirectionVec();
   TVector3	GetStartErrVec();
   TVector3	GetDirectionErrVec();
   /* TVector3      GetParErr(Double_t* errpar)  */

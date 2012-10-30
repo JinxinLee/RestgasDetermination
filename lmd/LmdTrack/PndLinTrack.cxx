@@ -36,23 +36,23 @@ PndLinTrack::PndLinTrack(TString detName, Double_t p0, Double_t p1, Double_t p2,
   // fCovMatrix = TMatrixDSym(6);
 }
 
-TVector3 PndLinTrack::GetStartVec(){
-  return TVector3(fP0,fP2,fP4);
-  // return TVector3(fP0,fP2,fP4-0.0075);//go out middle of the plane
-}
+// TVector3 PndLinTrack::GetStartVec(){
+//   return TVector3(fP0,fP2,fP4);
+//   // return TVector3(fP0,fP2,fP4-0.0075);//go out middle of the plane
+// }
 
-TVector3 PndLinTrack::GetDirectionVec(){
-  //  double l = 1./sqrt(1+fP1*fP1+fP3*fP3);
-  // double l = 1./sqrt(fP1*fP1+fP3*fP3+fP5*fP5);
-  // return TVector3(fP1*l,fP3*l,fP5*l);
-  //  double l = sqrt(1-fP1*fP1-fP3*fP3);
-  // double l = sqrt(1-hypot(fP1,fP3));
-  //  std::cout<<"fP1 = "<<fP1<<" fP3 = "<<fP3<<" l = "<<l<<std::endl;
-  // TVector3 res = TVector3(fP1,fP3,l);
- TVector3 res = TVector3(fP1,fP3,fP5);
- // res *= 1./res.Mag();
- return res;
-}
+// TVector3 PndLinTrack::GetDirectionVec(){
+//   //  double l = 1./sqrt(1+fP1*fP1+fP3*fP3);
+//   // double l = 1./sqrt(fP1*fP1+fP3*fP3+fP5*fP5);
+//   // return TVector3(fP1*l,fP3*l,fP5*l);
+//   //  double l = sqrt(1-fP1*fP1-fP3*fP3);
+//   // double l = sqrt(1-hypot(fP1,fP3));
+//   //  std::cout<<"fP1 = "<<fP1<<" fP3 = "<<fP3<<" l = "<<l<<std::endl;
+//   // TVector3 res = TVector3(fP1,fP3,l);
+//  TVector3 res = TVector3(fP1,fP3,fP5);
+//  // res *= 1./res.Mag();
+//  return res;
+// }
 
 TVector3 PndLinTrack::GetStartErrVec(){
   return TVector3(TMath::Sqrt((fCovMatrix)(0,0)),TMath::Sqrt((fCovMatrix)(2,2)),TMath::Sqrt((fCovMatrix)(4,4)));
