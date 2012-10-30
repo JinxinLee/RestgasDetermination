@@ -1221,15 +1221,16 @@ TVector3& PndLmdDim::Transform_global_to_sensor(const TVector3& point,
 	return *(new TVector3(local));
 }
 
+
 TVector3& PndLmdDim::Transform_lmd_local_to_global(const TVector3& point, bool isvector, bool aligned){
-	// I think Local to Master calculation is faster than the getter of the inverse matrix
-	TGeoMatrix& matrix = Get_transformation_global_to_lmd_local(aligned);
-	double local[3];
-	point.GetXYZ(local);
-	double master[3];
-	if (isvector) matrix.LocalToMasterVect(local, master);
-	else matrix.MasterToLocal(local, master);
-	return *(new TVector3(local));
+  // I think Local to Master calculation is faster than the getter of the inverse matrix
+  TGeoMatrix& matrix = Get_transformation_global_to_lmd_local(aligned);
+  double local[3];
+  point.GetXYZ(local);
+  double master[3];
+  if (isvector) matrix.LocalToMasterVect(local, master);
+  else matrix.LocalToMaster(local, master);
+  return *(new TVector3(master));
 }
 
 TVector3& PndLmdDim::Transform_lmd_local_to_sensor(const TVector3& point,
@@ -1239,8 +1240,8 @@ TVector3& PndLmdDim::Transform_lmd_local_to_sensor(const TVector3& point,
 	point.GetXYZ(local);
 	double master[3];
 	if (isvector) matrix.LocalToMasterVect(local, master);
-	else matrix.MasterToLocal(local, master);
-	return *(new TVector3(local));
+	else matrix.LocalToMaster(local, master);
+	return *(new TVector3(master));
 }
 
 TVector3& PndLmdDim::Transform_module_side_to_lmd_local(const TVector3& point,
@@ -1251,8 +1252,8 @@ TVector3& PndLmdDim::Transform_module_side_to_lmd_local(const TVector3& point,
 	point.GetXYZ(local);
 	double master[3];
 	if (isvector) matrix.LocalToMasterVect(local, master);
-	else matrix.MasterToLocal(local, master);
-	return *(new TVector3(local));
+	else matrix.LocalToMaster(local, master);
+	return *(new TVector3(master));
 }
 
 TVector3& PndLmdDim::Transform_sensor_to_module_side(const TVector3& point,
@@ -1263,8 +1264,8 @@ TVector3& PndLmdDim::Transform_sensor_to_module_side(const TVector3& point,
 	point.GetXYZ(local);
 	double master[3];
 	if (isvector) matrix.LocalToMasterVect(local, master);
-	else matrix.MasterToLocal(local, master);
-	return *(new TVector3(local));
+	else matrix.LocalToMaster(local, master);
+	return *(new TVector3(master));
 }
 
 TVector3& PndLmdDim::Transform_sensor_to_global(const TVector3& point,
@@ -1275,8 +1276,8 @@ TVector3& PndLmdDim::Transform_sensor_to_global(const TVector3& point,
 	point.GetXYZ(local);
 	double master[3];
 	if (isvector) matrix.LocalToMasterVect(local, master);
-	else matrix.MasterToLocal(local, master);
-	return *(new TVector3(local));
+	else matrix.LocalToMaster(local, master);
+	return *(new TVector3(master));
 }
 
 TVector3& PndLmdDim::Transform_sensor_to_lmd_local(const TVector3& point,
@@ -1286,8 +1287,8 @@ TVector3& PndLmdDim::Transform_sensor_to_lmd_local(const TVector3& point,
 	point.GetXYZ(local);
 	double master[3];
 	if (isvector) matrix.LocalToMasterVect(local, master);
-	else matrix.MasterToLocal(local, master);
-	return *(new TVector3(local));
+	else matrix.LocalToMaster(local, master);
+	return *(new TVector3(master));
 }
 
 TVector3& PndLmdDim::Transform_sensor_to_sensor_aligned(const TVector3& point,
