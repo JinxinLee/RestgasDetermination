@@ -201,7 +201,7 @@ protected:
   void ResetParameters();
 
 
-  ClassDef(PndSdsDetector,5);
+  ClassDef(PndSdsDetector,6);
 
 };
 
