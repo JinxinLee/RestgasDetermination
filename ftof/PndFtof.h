@@ -132,7 +132,7 @@ class PndFtof : public FairDetector
   std::vector<std::string> fListOfSensitives;
   bool CheckIfSensitive(std::string name);
   
-  PndGeoFtofPar *par;
+  PndGeoFtofPar *par; //!
   Int_t          fTrackID;           //  track index
   Int_t          fVolumeID;          //  volume id
   Int_t          fEventID;           //  event id
