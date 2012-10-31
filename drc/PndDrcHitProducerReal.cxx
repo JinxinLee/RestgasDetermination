@@ -65,7 +65,8 @@ PndDrcHitProducerReal::PndDrcHitProducerReal(Int_t verbose, Int_t det_type)
   fisDetEff= kTRUE; 
   fisPixel= kTRUE; 
   fGeo = new PndGeoDrc();
-
+  SetParameters();
+  
 }
 // -------------------------------------------------------------------------
 
@@ -236,6 +237,7 @@ void PndDrcHitProducerReal::ProcessPhotonPoint()
   if (fVerbose > 0) {
     cout <<" Number of Photon MC Points in Photon Detector Plane : "<<fPDPointArray->GetEntries()<<endl;
   }
+   
   Double_t lambda_min,lambda_max,lambda_step;
   Double_t DetEfficiency[800];
   //SetFakeDetEff(lambda_min,lambda_max,lambda_step,DetEfficiency);
@@ -253,6 +255,7 @@ void PndDrcHitProducerReal::ProcessPhotonPoint()
 
 // Loop over PndDrcPDPoints
    for(Int_t k=0; k<fPDPointArray->GetEntriesFast(); k++) {
+    
        Ppt = (PndDrcPDPoint*)fPDPointArray->At(k);
        
        Int_t trID= Ppt->GetTrackID();
@@ -267,7 +270,7 @@ void PndDrcHitProducerReal::ProcessPhotonPoint()
        Int_t NbouncesX, NbouncesY;
        Double_t angleX, angleY;
        NumberOfBounces(StartVertex, PphoInit, &NbouncesX, &NbouncesY, &angleX, &angleY);
-       cout<<"N bouncesX = "<<NbouncesX<<", NbouncesY = "<<NbouncesY<<", angleX = "<<angleX<<", angleY = "<<angleY<<endl;
+       //cout<<"N bouncesX = "<<NbouncesX<<", NbouncesY = "<<NbouncesY<<", angleX = "<<angleX<<", angleY = "<<angleY<<endl;
 
        Double_t PPx= Ppt->GetPx();
        Double_t PPy= Ppt->GetPy();
@@ -275,10 +278,10 @@ void PndDrcHitProducerReal::ProcessPhotonPoint()
 
        Double_t etot = sqrt(PPx*PPx + PPy*PPy +PPz*PPz);// in GeV
        Double_t lambda=197.0*2.0*fpi/(etot*1.0E9);//wavelength of photon in nm
-       cout<<"1. lambda = "<<lambda<<endl;
+       //cout<<"1. lambda = "<<lambda<<endl;
        
        if(fisDetEff){
-         cout<<"det eff!!! lam_min = "<<lambda_min<<", lam_max = "<<lambda_max<<endl;
+         //cout<<"det eff!!! lam_min = "<<lambda_min<<", lam_max = "<<lambda_max<<endl;
          if (lambda >= lambda_min && lambda < lambda_max) {
             Int_t ilambda=(Int_t)((lambda-lambda_min)/lambda_step);
 	    Double_t rand = gRandom->Rndm();
@@ -286,13 +289,13 @@ void PndDrcHitProducerReal::ProcessPhotonPoint()
             if (DetEfficiency[ilambda]*fCollectionEff*fPackingFraction > rand ) detection = 1;
             
 	    detEffLam->Fill(lambda, DetEfficiency[ilambda]*fCollectionEff);
-	    cout<<"filled lam = "<<lambda<<", eff = "<<DetEfficiency[ilambda]<<endl;
+	    //cout<<"filled lam = "<<lambda<<", eff = "<<DetEfficiency[ilambda]<<endl;
 	 }	 
        }
        if(!fisDetEff){ 
          detection=1;
        }
-       cout<<"detection = "<<detection<<endl;
+       //cout<<"detection = "<<detection<<endl;
        //####################################
        // transport efficiency
        // assume that detection efficiency above CAN NOT be used together with transport efficiency
@@ -303,7 +306,7 @@ void PndDrcHitProducerReal::ProcessPhotonPoint()
 	    Int_t ilambda=(Int_t)((lambda-lambda_min_tr)/lambda_step_tr); 
 	    Int_t iangleX =(Int_t)(angleX/angle_step_tr);	    
 	    Int_t iangleY =(Int_t)(angleY/angle_step_tr);
-	    cout<<"iangleX = "<<iangleX<<", iangleY = "<<iangleY<<", ilam = "<<ilambda<<", lambda_points_tr = "<<lambda_points_tr<<endl;          
+	    //cout<<"iangleX = "<<iangleX<<", iangleY = "<<iangleY<<", ilam = "<<ilambda<<", lambda_points_tr = "<<lambda_points_tr<<endl;          
 	    Double_t rand = gRandom->Rndm();
 	    detection = 0;
 	    //cout<<"Bounce eff = "<<TransportEfficiency[ilambda]<<endl;
@@ -312,7 +315,7 @@ void PndDrcHitProducerReal::ProcessPhotonPoint()
 	    Double_t ReflectionProbX = TransportEfficiency[ilambda+ iangleX*lambda_points_tr];
 	    Double_t ReflectionProbY = TransportEfficiency[ilambda+ iangleY*lambda_points_tr];
 	     TotalTrProb = pow(ReflectionProbX, (Int_t)NbouncesX)*pow(ReflectionProbY, (Int_t)NbouncesY);
-	    cout<<"tr eff X = "<<ReflectionProbX<<", tr eff Y = "<<ReflectionProbY<<", total = "<<TotalTrProb<<endl;
+	    //cout<<"tr eff X = "<<ReflectionProbX<<", tr eff Y = "<<ReflectionProbY<<", total = "<<TotalTrProb<<endl;
 	    if(TotalTrProb > rand) detection = 1;
 	 }
        }
@@ -418,15 +421,15 @@ void PndDrcHitProducerReal::ProcessPhotonPoint()
 	   fTime,
 	   fTimeThreshold,
 	   fPDRefIndex);
-     }	   
-  }
+     }
+  } 
 }
 //------   Find Nubmer of Bounces     --------------------------------------
 void PndDrcHitProducerReal::NumberOfBounces(TVector3 start, TVector3 dir, Int_t *n1, Int_t *n2, Double_t *alpha1, Double_t *alpha2){
     // calculates the number of bounces in x and y direction and reflection angles in these directions.
     
     Double_t PhiRot = FindPhiRot(start.X(), start.Y());
-    cout<<"-I- NumberOfBounces: phi rot = "<<PhiRot<<endl;
+    //cout<<"-I- NumberOfBounces: phi rot = "<<PhiRot<<endl;
     
     // Photon production point in bar' coordinate system (origin at the corner of the bar):
     TVector3 startBar;
@@ -461,7 +464,7 @@ void PndDrcHitProducerReal::NumberOfBounces(TVector3 start, TVector3 dir, Int_t 
     //fbarwidth = flside/fbarnum;
     //cout<<"-I- NumberOfBounces: lside = "<<flside<<", bar width = "<<fbarwidth<<endl;
         
-    cout<<"fbarnum = "<<fbarnum<<endl;
+    //cout<<"fbarnum = "<<fbarnum<<endl;
     // Find which bar in the bar box was hit:
     if(fbarnum > 1){    
       Int_t NhitBar = (Int_t)((0.5*flside + startBar.Y())/fbarwidth)+1;
@@ -475,7 +478,7 @@ void PndDrcHitProducerReal::NumberOfBounces(TVector3 start, TVector3 dir, Int_t 
     }
     
     if(fbarnum == 1 && flside > fbarwidth){
-      cout<<"second case!!!"<<endl;
+      //cout<<"second case!!!"<<endl;
       FindOutPoint(X0, startBar.X()-(fradius-fhthick), 		   2.*fhthick, &N1, 0);
       FindOutPoint(Y0, startBar.Y()+0.5*fbarwidth, fbarwidth, &N2, 0);
     }
@@ -494,7 +497,7 @@ void PndDrcHitProducerReal::NumberOfBounces(TVector3 start, TVector3 dir, Int_t 
     if(angle2 > fpi/2.){angle2 = fpi - PphoB.Angle(up_down);}
     *alpha1 = angle1;
     *alpha2 = angle2;
-    cout<<"-I- NumberOfBounces: angle1 = "<<angle1<<", angle2 = "<<angle2<<endl;
+    //cout<<"-I- NumberOfBounces: angle1 = "<<angle1<<", angle2 = "<<angle2<<endl;
 }
 
 //----------------------------------------------------------------------------------------------
@@ -1403,8 +1406,11 @@ void PndDrcHitProducerReal::Smear(Double_t& time, Double_t sigt){
 // -----   Finish Task   ---------------------------------------------------
 void PndDrcHitProducerReal::Finish()
 {
-  TCanvas* C = new TCanvas("C","DetEffLam",500,500);
-  detEffLam->Draw();
+  
+  if(fDrawing){
+    TCanvas* C = new TCanvas("C","DetEffLam",500,500);
+    detEffLam->Draw();
+  }
   cout << "-I- PndDrcHitProducerReal: Finish" << endl;
  }
 // -------------------------------------------------------------------------

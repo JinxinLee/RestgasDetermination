@@ -113,7 +113,9 @@ public:
   //########################################
   void SetTilt(Double_t tilt = 0.){ftilt = tilt;} // degrees
   //########################################
-    
+  
+  void DrawDetEfficiency(Bool_t dr=kFALSE){fDrawing = dr;}
+     
  protected:
   
  private:
@@ -141,6 +143,7 @@ public:
   Bool_t fisDetEff;
   Bool_t fisPixel;
   Bool_t fisTransportEff;
+  Bool_t fDrawing;
   Double_t ftilt; 
   Int_t fDetectorID;
   TVector3 fPosHit;
