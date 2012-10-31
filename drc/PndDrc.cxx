@@ -72,7 +72,7 @@ PndDrc::PndDrc() {
   fStopTime = kFALSE;
   fTakeDirect = kFALSE; 
   fDetEffAtProduction = kFALSE;  
-  ffocusing = 0; 
+  fFocusing = 0; 
   fTakeRealReflectivity = kTRUE;
   fListOfSensitives.push_back("Sensor");
   if(fVerboseLevel > 0){
@@ -101,7 +101,7 @@ PndDrc::PndDrc(const char* name, Bool_t active)
     fGeo         = new PndGeoDrc();
     fStopTime = kFALSE;
     fTakeDirect = kFALSE;     
-    ffocusing = 0; 
+    fFocusing = 0; 
     fTakeRealReflectivity = kTRUE;
     fDetEffAtProduction = kFALSE;   
     fListOfSensitives.push_back("Sensor");
@@ -144,37 +144,61 @@ void PndDrc::Initialize() {
   //PndGeoDrcPar *par  = (PndGeoDrcPar*)(rtdb->getContainer("PndGeoDrcPar"));
 
   if (fRunCherenkov==kFALSE) cout << " -I- PndDrc: Switching OFF Cherenkov Propagation" << endl;
+ 
+  // basic DIRC parameters:
+  fpi            =  TMath::Pi();
+  fzup		 =  fGeo->barBoxZUp();
+  fzdown	 =  fGeo->barBoxZDown();
+  fradius        =  fGeo->radius();          //radius in the middle of the bar = 50.cm
+  fhthick        =  fGeo->barHalfThick();    //half thickness of the bars=1.7/2 cm
+  fpipehAngle    =  fGeo->PipehAngle(); 
+  fbbGap         =  fGeo->BBoxGap();
+  fbbnum         =  fGeo->BBoxNum();
+  fbarnum        =  fGeo->barNum();
+  fphi0          =  (180.-2.*fpipehAngle)/fbbnum + fpipehAngle;
+  fdphi          =  (180.-2.*fpipehAngle)/fbbnum*2.;
+  flside 	 =  fGeo->Lside();
+  fbarwidth	 =  fGeo->BarWidth();
   
+  cout<<"DRC parameters: fpi = "<<fpi<<", fzup = "<<fzup<<", fbarnum = "<<fbarnum<<", flside = "<<flside<<endl;
   
   // print out for debugging all names and pointers stored in manager
   // manager->Print();
+  
+  //%%%%%%%%%%%%%%5
+    nphotons = 0;
+  //%%%%%%%%%%%%%%%
   
   // bar ID number:    
   fbarID =gMC->VolId("DrcBarSensor");      
   cout<<"bar 1 id = "<<fbarID<<endl;
     
   // focusing system - for now there is no:
-  flensID = fbarID;
-  if(ffocusing == 1){    
-    flensID = gMC->VolId("DrcLENS3Sensor");
-    //cout<<"lens1 = "<<v2->FindNode("DrcLENS1_1")->GetVolume()->GetNumber()<<
-    //    ", lens2 = "<<v2->FindNode("DrcLENS2_1")->GetVolume()->GetNumber()<<
-    //	", lens3 = "<<v2->FindNode("DrcLENS3Sensor_1")->GetVolume()->GetNumber()<<endl;
+  flens3ID = fbarID;
+  flens2ID = fbarID;
+  flens1ID = fbarID;
+  if(fFocusing == 1){    
+    flens3ID = gMC->VolId("DrcLENS3Sensor");
+    flens2ID = gMC->VolId("DrcLENS2Sensor");
+    flens1ID = gMC->VolId("DrcLENS1Sensor");
+    //cout<<"lens1 = "<<v2->FindNode("DrcLENS1Sensor_1")->GetVolume()->GetNumber()<<
+    //    ", lens2 = "<<v2->FindNode("DrcLENS2Sensor_1")->GetVolume()->GetNumber()<<
+    // 	", lens3 = "<<v2->FindNode("DrcLENS3Sensor_1")->GetVolume()->GetNumber()<<endl;
   }
-  //cout<<"lens id = "<<flensID<<endl;
-    
+  cout<<"lens1ID = "<<flens1ID<<", flens2ID = "<<flens2ID<<", lens3ID = "<<flens3ID<<endl;
+      
   // PD id number  
   fpdID = gMC->VolId("DrcPDSensor");
-  //cout<<"pd id = "<<fpdID<<endl;
+  cout<<"pd id = "<<fpdID<<endl;
     
   // to find out which barbox charged particle hit:  
   fbboxID = gMC->VolId("DrcBarBox");
-  //cout<<"bbox id = "<<fbboxID<<endl;
+  cout<<"bbox id = "<<fbboxID<<endl;
    
   // EV id number  
   fevID = gMC->VolId("DrcEV");
-  //cout<<"EV id = "<<fevID<<endl;
-  
+  cout<<"EV id = "<<fevID<<endl;
+      
   // create a detector efficiency function:
   if(fDetEffAtProduction == kTRUE){
     fCollectionEff=0.65;//Collection Efficiency 
@@ -727,48 +751,137 @@ void PndDrc::BeginEvent(){
 Bool_t PndDrc::ProcessHits(FairVolume* vol) {
   
   TString nam =vol->GetName();
+  //cout<<"-I- PndDrc: vol nam = "<<nam<<endl;
   Int_t num = vol->getMCid();
        
    //Register points in the barrel (PndDrcBarPoints)
   fEventID = gMC->CurrentEvent();
   fPdgCode = gMC->TrackPid();
-   
+     
   //TLorentzVector fPos, fMom;
   gMC->TrackPosition(fPos);
+  
+  //$$$$$$$$$$$$$$$$$$$$$$
+  //stop secondaries so that they do not produce Cherenkov photons
+  if(fStopSecondaries){
+    if(fPdgCode != 50000050){
+      if(gMC->GetStack()->GetCurrentParentTrackNumber() != -1 ){
+        if(gMC->IsTrackEntering()){
+          gMC->StopTrack();
+        }
+      }  
+    }
+  }
+  //$$$$$$$$$$$$$$$$$$$$$$
+  
+  //$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
+ /* // stop muon or pion or kaon immediately after the DIRC
+  if(fabs(fPdgCode) == 211 || fabs(fPdgCode) == 13 || fabs(fPdgCode) == 321){    
+    //cout<<"pos: x = "<<fPos.X()<<", y = "<<fPos.Y()<<", R = "<<sqrt(fPos.X()*fPos.X() + fPos.Y()*fPos.Y()) <<endl;    
+    if(gMC->IsTrackExiting()==1){
+      //cout<<"track is exiting!!! "<<num<<endl;
+      if(num == fbarID){
+        if(sqrt(fPos.X()*fPos.X() + fPos.Y()*fPos.Y()) > fradius+1.5){
+	  //cout<<"pos: x = "<<fPos.X()<<", y = "<<fPos.Y()<<", R = "<<sqrt(fPos.X()*fPos.X() + fPos.Y()*fPos.Y()) <<endl;
+	  //cout<<"particle "<<fPdgCode<<" is stopped"<<endl;
+          gMC->StopTrack();
+	}
+      }	
+    }
+    if(sqrt(fPos.X()*fPos.X() + fPos.Y()*fPos.Y()) > fradius+5.){
+      gMC->StopTrack();
+    }
+  }
+*/    
+  //$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
     
   if (fPdgCode == 50000050){  
     if (fRunCherenkov==kFALSE ) {
       gMC->StopTrack();
       if (fVerboseLevel >0) cout<< "Photon killed" << endl;
-    }
+    }  
+      
+      //$$$$$$$$$$$$$$$$$$$$$$$$$$$
+      /* if(num == fbarID && fLastTrackID != gMC->GetStack()->GetCurrentTrackNumber()){ // check how many photons were born  
+        nphotons = nphotons + 1;
+        cout<<"photon number "<<nphotons<<" is produced!!!"<<endl;
+       }*/
+             
+      //cout<<"photon z coord = "<<fPos.Z()<<endl;
+      
+      
+      //cout<<"mother = "<<gMC->MotherID()<<endl;
+     /* if(fPos.Z() < -118.5){// && gMC->TrackTime()*1.0e09 < 10.){ // how many photons reach PD plane        
+        nphotons = nphotons + 1;
+        cout<<"photon number "<<nphotons<<" is produced!!!"<<endl;
+        gMC->StopTrack();          
+      }*/
+      //$$$$$$$$$$$$$$$$$$$$$$$$$$$
      
     // apply detector efficiency at the production stage:    
-    if(fDetEffAtProduction && fLastTrackID != gMC->GetStack()->GetCurrentTrackNumber()){     
+    if(fDetEffAtProduction && fLastTrackID != gMC->GetStack()->GetCurrentTrackNumber()){
+      //cout<<"-I- PndDrc: DET EFF IS APPLIED!!!"<<endl;     
       gMC->TrackMomentum(fMom1);
       Double_t Px= fMom1.Px();
       Double_t Py= fMom1.Py();
       Double_t Pz= fMom1.Pz();
       Double_t fP = sqrt(Px*Px + Py*Py +Pz*Pz);
-      Double_t lambda=197.0*2.0*TMath::Pi()/(fP*1.0E9);      
+      Double_t lambda=197.0*2.0*fpi/(fP*1.0E9);      
       Double_t ra = frand.Uniform(0., 1.);
       if(ra > fDetEff->Eval(lambda)){               
         gMC->StopTrack();	
       }
     }
+    
+    //$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
+    // apply transport efficiency at production stage:
+    // Maria Patsyuk 20.04.2012
+    if(fTransportEffAtProduction && fLastTrackID != gMC->GetStack()->GetCurrentTrackNumber()){
+      gMC->TrackMomentum(fMom2);
+      // initial momentum of the photon
+      TVector3 PphoInit;
+      PphoInit.SetXYZ(fMom2.Px(),fMom2.Py(),fMom2.Pz());
+      Double_t P_tr = sqrt(pow(PphoInit.X(),2) + pow(PphoInit.Y(),2) + pow(PphoInit.Z(),2));
+      Double_t lam_tr = (197.0*2.0*fpi/(P_tr*1.0E9)) / 1000.;
+      //cout<<"lam = "<<lam_tr<<endl;
+      gMC->TrackPosition(fPos2);
+      // production point of the photon
+      TVector3 StartVertex;
+      StartVertex.SetXYZ(fPos2.X(), fPos2.Y(), fPos2.Z());
+      //cout<<"production point = "<<fPos2.X()<<", "<< fPos2.Y()<<", "<< fPos2.Z()<<endl;
+      //calculate the number of bounces:
+      Int_t NbouncesX, NbouncesY;
+      Double_t angleX, angleY;
+      NumberOfBounces(StartVertex, PphoInit, &NbouncesX, &NbouncesY, &angleX, &angleY);
+      // calculate the bounce probability
+      Double_t n_quartz = sqrt(1. + (0.696*lam_tr*lam_tr/(lam_tr*lam_tr-pow(0.068,2))) + (0.407*lam_tr*lam_tr/(lam_tr*lam_tr-pow(0.116,2))) + 0.897*lam_tr*lam_tr/(lam_tr*lam_tr-pow(9.896,2)));
+      //cout<<"n_quartz = "<<n_quartz<<endl;
+      Double_t bounce_probX = 1. - pow(4.*fpi*cos(angleX)*fGeo->Roughness()*n_quartz/lam_tr,2); 
+      Double_t bounce_probY = 1. - pow(4.*fpi*cos(angleY)*fGeo->Roughness()*n_quartz/lam_tr,2);
+      Double_t TotalTrProb = pow(bounce_probX, (Int_t)NbouncesX)*pow(bounce_probY, (Int_t)NbouncesY);
+      //cout<<"tr eff X = "<<bounce_probX<<", tr eff Y = "<<bounce_probY<<", total = "<<TotalTrProb<<endl;
+      Double_t ra_tr = frand.Uniform(0., 1.);
+      if(ra_tr > TotalTrProb){               
+        gMC->StopTrack();	
+      }
+    }
+    //$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
              
-/*  
-  // check whether function 'ConstructOpGeometry' works:
-  if(gMC->IsTrackExiting()==1){
-    //if(nam.BeginsWith("DrcBar")){
-    if(num == fbarID){  
-//      if(fPos.Z() > -110. && fPos.Z() < -109. && aaa < 11){
-        cout<<"track is exiting the bar at z = "<<fPos.Z()<<endl;	
-//      }
-    }  
-  }
-  //----------------------------   
-*/    
-
+    
+    // ONLY FOR DESIGN WITH LENSES!!!!
+    // kill photons that get out of the lens through the sides
+    // air gap is 0.5 cm, EV starts at -120 cm, 0.05 cm - curvature?
+    if(fFocusing == 1){    
+      if(gMC->IsTrackExiting()==1){
+        if(num == flens1ID || num == flens2ID || num == flens3ID){
+	  if(fPos.Z() > -119.238){
+	    gMC->StopTrack();
+	  }
+	}
+      } 
+    }
+    
+    
     // "TakeOnlyDirectPho" option:
     // if photon is exiting the bar - check its direction
     if(fTakeDirect){  
@@ -783,7 +896,20 @@ Bool_t PndDrc::ProcessHits(FairVolume* vol) {
 	}
       }
     }
-   
+    // "TakeOnlyReflectedPho" option:
+    // if photon is exiting the bar - check its direction
+   if(fTakeReflected){  
+      if(gMC->IsTrackExiting()==1){        
+        if(num == fbarID && fPos.Z() < fBarEnd){
+	  //std::cout<<"Track is exiting the "<<num<<", "<<nam<<std::endl;
+	  gMC->TrackPosition(fPos);
+	  gMC->TrackMomentum(fMom);
+	  if ((fPos.X()*fMom.X() + fPos.Y()*fMom.Y()) > 0.){
+	    gMC->StopTrack();	    	   
+	  }
+	}
+      }
+    }
    // kill photons older than fPhoMaxTime:  
    if (fStopTime == kTRUE && gMC->TrackTime()*1.0e09 > fPhoMaxTime){          
       gMC->StopTrack();
@@ -868,6 +994,135 @@ Bool_t PndDrc::ProcessHits(FairVolume* vol) {
 
 // ---------------------------------------------------------------------------
 
+//------   Find Nubmer of Bounces     --------------------------------------
+void PndDrc::NumberOfBounces(TVector3 start, TVector3 dir, Int_t *n1, Int_t *n2, Double_t *alpha1, Double_t *alpha2){
+    // calculates the number of bounces in x and y direction and reflection angles in these directions.
+    
+    Double_t PhiRot = FindPhiRot(start.X(), start.Y());
+    //cout<<"-I- NumberOfBounces: phi rot = "<<PhiRot<<endl;
+    
+    // Photon production point in bar' coordinate system (origin at the corner of the bar):
+    TVector3 startBar;
+    startBar.SetXYZ(start.X(), start.Y(), start.Z());
+    //cout<<"-I- NumberOfBounces: start.X = "<<start.X()<<", start.Y = "<<start.Y()<<endl;
+    startBar.RotateZ(-PhiRot/180.*fpi);
+    //cout<<"-I- NumberOfBounces: startBar.X = "<<startBar.X()<<", startBar.Y = "<<startBar.Y()<<endl;
+    
+    // Photon momentum in bar' coord system:
+    TVector3 PphoB;
+    PphoB = dir.Unit();
+    PphoB.RotateZ(-PhiRot/180.*fpi);
+    
+    // Find coordinates of X0, Y0:
+    Double_t Z0, X0, Y0;
+    if(dir.Theta() < 3.1415/2.){
+      Z0 = -(fabs(fzup) + 2.*fzdown - startBar.Z());
+    }
+    if(dir.Theta() >= 3.1415/2.){
+      Z0 = -(startBar.Z() -  fzup);
+    }
+    //cout<<"-I- NumberOfBounces: Z0 = "<<Z0<<", Theta = "<<PphoB.Theta()/3.1415*180.<<", tan t = "<<tan(PphoB.Theta())<<", phi = "<<PphoB.Phi()/3.1415*180.<<endl;
+    X0 = Z0*tan(PphoB.Theta())*cos(PphoB.Phi());
+    Y0 = Z0*tan(PphoB.Theta())*sin(PphoB.Phi());
+    //cout<<"-I- NumberOfBounces: X0 = "<<X0<<", Y0 = "<<Y0<<endl;
+    
+    // Find the number of bounces in each direction       
+    Double_t N1, N2;
+    //frad_out = (fradius-fhthick)/cos(2.*3.1415/16./2.); // radius at corner - thickness ###
+    //flside   = 2.*frad_out*sin(2.*3.1415/16./2.) - (2.*fboxthick) - (2.*fboxgap);
+    //flside = (180. - 2.*fpipehAngle - fbbGap/fradius*(fbbnum/2. - 1.)/fpi*180.)/(fbbnum/2.) * fradius/ 180.*fpi;
+    //fbarwidth = flside/fbarnum;
+    //cout<<"-I- NumberOfBounces: lside = "<<flside<<", bar width = "<<fbarwidth<<endl;
+        
+    if(fbarnum > 1){
+      // Find which bar in the bar box was hit:
+      Int_t NhitBar = (Int_t)((0.5*flside + startBar.Y())/fbarwidth)+1;
+      //cout<<"-I- NumberOfBounces: bar "<<NhitBar<<" was hit, "<<((0.5*flside + startBar.Y())/fbarwidth)+1<<endl;
+      //cout<<"-I- NumberOfBounces: start bar Y = "<<startBar.Y()<<endl;
+    
+     //cout<<"-I- NumberOfBounces: start position X = "<< startBar.X() - (fradius-fhthick)<<", Y = "<<startBar.Y() + 0.5*flside-(NhitBar-1)*fbarwidth<<endl;  
+      FindOutPoint(X0, startBar.X()-(fradius-fhthick), 		   2.*fhthick, &N1, 0);
+      FindOutPoint(Y0, startBar.Y()+0.5*flside-(NhitBar-1)*fbarwidth, fbarwidth, &N2, 0);
+      //cout<<"-I- NumberOfBounces: N1 = "<<N1<<", N2 = "<<N2<<endl;
+    }
+    if(fbarnum == 1 && flside > fbarwidth){
+      FindOutPoint(X0, startBar.X()-(fradius-fhthick), 		   2.*fhthick, &N1, 0);
+      FindOutPoint(Y0, startBar.Y()+0.5*fbarwidth, fbarwidth, &N2, 0);
+    }
+    
+    *n1 = (Int_t)N1;
+    *n2 = (Int_t)N2;
+    
+    // calculate the reflection angles in x and y directions:
+    TVector3 up_down;
+    up_down.SetXYZ(0.,1.,0.);
+    TVector3 left_right;
+    left_right.SetXYZ(1.,0.,0.);
+    Double_t angle1 = PphoB.Angle(left_right);
+    if(angle1 > fpi/2.){angle1 = fpi - PphoB.Angle(left_right);}
+    Double_t angle2 = PphoB.Angle(up_down);
+    if(angle2 > fpi/2.){angle2 = fpi - PphoB.Angle(up_down);}
+    *alpha1 = angle1;
+    *alpha2 = angle2;
+    //cout<<"-I- NumberOfBounces: angle1 = "<<angle1<<", angle2 = "<<angle2<<endl;
+}
+
+//----------------------------------------------------------------------------------------------
+Double_t PndDrc::FindPhiRot(Double_t xx, Double_t yy){ // returns [degrees]
+
+    TVector3 hit;
+    hit.SetXYZ(xx,yy,0.);
+    Double_t startPhi = hit.Phi()/fpi*180.; // [degrees]
+    if(startPhi < 0.){startPhi = 360. + hit.Phi()*180./fpi;}
+    //cout<<"-I- FindPhoRot: start phi = "<<startPhi<<endl;    
+    //cout<<"-I- InBarCoordinateSystem: dphi = "<<fDphi<<endl;
+    Double_t PhiRot = 0.; //[degrees]
+    if(startPhi >= 0. && startPhi < 90.){
+      PhiRot = TMath::Floor(startPhi/fdphi) *fdphi + fdphi/2.;
+    }
+    if(startPhi >= 90. && startPhi < 270.){
+      PhiRot = 90. + fpipehAngle + TMath::Floor((startPhi-90.-fpipehAngle)/fdphi) *fdphi + fdphi/2.;
+    } 
+    if(startPhi >= 270. && startPhi < 360.){
+      PhiRot = 270. + fpipehAngle + TMath::Floor((startPhi-270.-fpipehAngle)/fdphi) *fdphi + fdphi/2.;
+    }
+    //cout<<"-I- FindPhiRot: PhiRot = "<<PhiRot<<endl;       
+    return PhiRot; // degrees
+}
+
+//----------------------------------------------------------------------------------------------------------
+Double_t PndDrc::FindOutPoint(Double_t x0, Double_t xEn, Double_t a, Double_t *NN, Bool_t print){	
+	Double_t m=99.;
+	Double_t n=TMath::Floor(x0/a);
+	m = n;		
+	if(print){std::cout<<"n = "<<n<<", NN = "<<*NN<<", x0 = "<<x0<<", a = "<<a<<std::endl;}
+	Double_t x1 = x0 - n*a;
+	if(x0 < 0.){x1 = x0 - (n+1)*a;}
+	if(print){std::cout<<"xy = "<< x1<<std::endl;}
+	Double_t xK = 0.;
+	if((m/2. - TMath::Floor(m/2.)) == 0.) { // 4etnoe
+		if(print){std::cout<<"odd==0"<<std::endl;}
+		if(x0 >= 0. && x1 + xEn <= a){xK = x1 + xEn;} 
+		if(x0 >= 0. && x1 + xEn >  a){xK = 2*a - x1 - xEn; n = 1. + n;}
+		if(x0 < 0. && x1 + xEn >= 0.){xK = a - (x1 + xEn); n = -1. -n;}
+		if(x0 < 0. && x1 + xEn < 0.) {xK = a + x1 + xEn; n = -n;}
+	if(print){std::cout<<"xK = "<< xK<<", n = "<<n<<std::endl;}
+		
+	}
+
+	if((m/2. - TMath::Floor(m/2.)) != 0.) { // ne4etnoe
+		if(print){std::cout<<"even!=0"<<std::endl;} 
+		if(x0 >= 0. && x1 + xEn <= a){xK = a - (x1 + xEn);} 
+		if(x0 >= 0. && x1 + xEn >  a){xK = x1 + xEn - a; n = 1. + n;}
+		if(x0 < 0. && x1 + xEn >= 0.){xK = x1 + xEn; n = -1. -n;} 
+		if(x0 < 0. && x1 + xEn < 0.) {xK = - (x1 + xEn); n = -n;}
+	if(print){std::cout<<"xK = "<< xK<<", n = "<<n<<std::endl;}
+
+	}
+ 	
+	*NN = n;		
+	return xK;
+}
 
 
 // -----   Public method EndOfEvent   -----------------------------------------
@@ -975,19 +1230,20 @@ void PndDrc::ConstructGeometry()
     ConstructRootGeometry();
     if(fileName.Contains("_l0_")){ 
       fBarEnd = -119.999;
-      ffocusing = 0;      
+      fFocusing = 0;      
     }
     if(fileName.Contains("_l2_")){
       fBarEnd = -119.999;
-      ffocusing = 2;      
+      fFocusing = 2;      
     }
     if(fileName.Contains("_l1_")){
       fBarEnd = -118.725;
-      ffocusing = 1;
+      fFocusing = 1;
     }    
   } else{
     std::cout<<"Geometry format not supported!"<<std::endl;
-  }   
+  } 
+  cout<<"Focusing = "<<fFocusing<<endl;  
   cout<< " ============================================= " << endl;
 }
 
@@ -1109,13 +1365,13 @@ void PndDrc::ConstructOpGeometry()
 
   for(Int_t i=0; i<fGeo->barNum(); i++){
     //gMC->SetBorderSurface("BarAirSurface", "DrcBarSensor", i+1, "DrcAirBox", 0, "BarSurface");
-    if(ffocusing == 1 || ffocusing == 0){ // lens or no focusing      
+    if(fFocusing == 1 || fFocusing == 0){ // lens or no focusing      
       //gMC->SetBorderSurface("Lens1AirSurface", "DrcLENS1", i+1, "DrcAirBox", 0, "BarSurface");
       //gMC->SetBorderSurface("Lens2AirSurface", "DrcLENS2", i+1, "DrcAirBox", 0, "BarSurface");
       //gMC->SetBorderSurface("Lens3AirSurface", "DrcLENS3", i+1, "DrcAirBox", 0, "BarSurface");
       gMC->SetBorderSurface("BarMirrSurface", "DrcBarSensor", i+1, "DrcMirr", i+1, "MirrSurface");
     }
-    /*if(ffocusing == 2){ // forward mirror
+    /*if(fFocusing == 2){ // forward mirror
       gMC->SetBorderSurface("Block1AirSurface", "DrcBlock1", i+1, "DrcAirBox", 0, "BarSurface");
       gMC->SetBorderSurface("Block2AirSurface", "DrcBlock2", i+1, "DrcAirBox", 0, "BarSurface");
     } */   
@@ -1128,15 +1384,24 @@ void PndDrc::ConstructOpGeometry()
     gMC->SetMaterialProperty("MirrSurface", "REFLECTIVITY", npoints_r, ephoton_r, reflectivity_r);
   }
   
- 
-  gMC->DefineOpSurface("EVSurface", kGlisur, kDielectric_metal, kPolished, 0.0);
-  gMC->SetBorderSurface("EVAirSurface", "DrcEV", 1, "BarrelDIRC", 0, "EVSurface"); 
-  gMC->SetMaterialProperty("EVSurface", "REFLECTIVITY", npoints_i, ephoton_i, reflectivity_i);
+  cout<<"fbarnum = "<<fbarnum<<endl;
+  if( fGeo->barNum() > 1){
+    gMC->DefineOpSurface("EVSurface", kGlisur, kDielectric_metal, kPolished, 0.0);
+    gMC->SetBorderSurface("EVAirSurface", "DrcEV", 1, "BarrelDIRC", 0, "EVSurface"); 
+    gMC->SetMaterialProperty("EVSurface", "REFLECTIVITY", npoints_i, ephoton_i, reflectivity_i);
   
-  gMC->DefineOpSurface("PDSurface", kGlisur, kDielectric_dielectric, kPolished, 0.0);
-  gMC->SetBorderSurface("EVPDSurface", "DrcEV", 1, "DrcPDSensor", 1, "PDSurface");
-  gMC->SetMaterialProperty("PDSurface", "EFFICIENCY", npoints_i, ephoton_i, reflectivity_i);
-  
+    gMC->DefineOpSurface("PDSurface", kGlisur, kDielectric_dielectric, kPolished, 0.0);
+    gMC->SetBorderSurface("EVPDSurface", "DrcEV", 1, "DrcPDSensor", 1, "PDSurface");
+    gMC->SetMaterialProperty("PDSurface", "EFFICIENCY", npoints_i, ephoton_i, reflectivity_i);
+  }
+  if( fGeo->barNum() == 1){
+    cout<<"bar num = "<<fGeo->BBoxNum()<<endl;
+    for(int m=1; m<fGeo->BBoxNum(); m++){
+        gMC->DefineOpSurface("EVSurface", kGlisur, kDielectric_metal, kPolished, 0.0);
+        gMC->SetBorderSurface("EVAirSurface", "DrcEV", m, "BarrelDIRC", 0, "EVSurface");
+        gMC->SetMaterialProperty("EVSurface", "REFLECTIVITY", npoints_i, ephoton_i, reflectivity_i);
+    }
+  }
   cout<<" =======  DRC::ConstructOpGeometry -> Finished! ====== "<< endl;     
 }  
 

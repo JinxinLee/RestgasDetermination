@@ -43,11 +43,36 @@ class PndDrc : public FairDetector
   /** Destructor **/
   virtual ~PndDrc();
   
+  /*! \brief  Kill secondaries at its production point.
+    \param ss
+  */
+  void StopSecondaries(Bool_t ss = kFALSE){fStopSecondaries = ss;}
+    
   
   /*! \brief  Kill photons at production point according to the detector efficiency distribution.
     \param dep 
+    
+    NOTE! Transport efficiency can not be used together with Detector efficiency:
+  it can not be used like:
+  SetDetEffAtProduction(kTRUE)
+  SetTransportEffAtProduction(kTRUE)
+  
+  at least one of them should be kFALSE
   */
   void SetDetEffAtProduction(Bool_t dep = kFALSE){fDetEffAtProduction = dep;}
+  
+  /*! \brief  Kill photons at production point according to the transport efficiency distribution.
+  \param tra
+  
+  NOTE! Transport efficiency can not be used together with Detector efficiency:
+  it can not be used like:
+  SetDetEffAtProduction(kTRUE)
+  SetTransportEffAtProduction(kTRUE)
+  
+  at least one of them should be kFALSE
+    
+  */
+  void SetTransportEffAtProduction(Bool_t tra = kFALSE){fTransportEffAtProduction = tra;}
   
   /*! \brief  Choose between ideal and real mirror:
     \param mir 
@@ -71,11 +96,19 @@ class PndDrc : public FairDetector
     kFALSE = only reflected photons
     kTRUE = only direct photons
   */ 
-  void SetOnlyDirectPho(Bool_t db=kTRUE) {fTakeDirect = db;}
+  void SetOnlyDirectPho(Bool_t db=kFALSE) {fTakeDirect = db;}
+  
+  /*!  \brief No directo photons that go from the bar end to the PD plane of reflected from the cone part of the EV
+    \param db Flag
+    kFALSE = all photons
+    kTRUE = only bottom reflected photons
+  */ 
+  void SetOnlyReflectedPho(Bool_t dref=kFALSE) {fTakeReflected = dref;}
 
   /** Virtual method Initialize
    ** Initialises detector. Stores volume IDs for DIRC detector and mirror.
    **/
+     
   virtual void Initialize();
 
 
@@ -142,6 +175,10 @@ class PndDrc : public FairDetector
   //  virtual void ConstructRootGeometry();
     std::vector<std::string> fListOfSensitives;  
     bool CheckIfSensitive(std::string name);
+    
+    void NumberOfBounces(TVector3, TVector3, Int_t *, Int_t *, Double_t *, Double_t *);
+    Double_t FindPhiRot(Double_t, Double_t);
+    Double_t FindOutPoint(Double_t, Double_t, Double_t, Double_t*, Bool_t);
 
   PndDrcPDPoint* AddHit(Int_t trackID, 
 			Int_t copyNo, 
@@ -169,7 +206,27 @@ class PndDrc : public FairDetector
   void SetRunCherenkov(Bool_t ch) { fRunCherenkov = ch; };
 
  private:
+ 
+  //$$$$$$$$$$$$$$$$$$$$
+  Int_t nphotons;
+  //$$$$$$$$$$$$$$$$$$$$
 
+ 
+  // basic parameters of DIRC
+  Double_t fpi;
+  Double_t fzup;
+  Double_t fzdown;
+  Double_t fradius;
+  Double_t fhthick;
+  Double_t fpipehAngle;
+  Double_t fbbGap;
+  Double_t fbbnum;
+  Double_t fbarnum;
+  Double_t fphi0;
+  Double_t fdphi;
+  Double_t flside;
+  Double_t fbarwidth;
+ 
   Bool_t fRunCherenkov;            //!  Switch ON/OFF Cherenkov propagation
   Int_t          fTrackID;         //!  track index
   Int_t          fCopyNo;          //!  volume id
@@ -183,21 +240,32 @@ class PndDrc : public FairDetector
   Int_t          volDetector;               //!  MC volume ID of drc
   Double_t       fMass;
   TLorentzVector fMom1;
+  TLorentzVector fMom2; //! for transport efficiency calculation
+  TLorentzVector fPos2; //! for transport efficiency calculation
   Double_t 	 fBarEnd;
   
   // from Initialisation:
   Double_t       fLambda[1000];
   Double_t       fEfficiency[1000];
   Double_t       fEfficiencyR[1000];
+  Double_t 	 fLambdaMin;
+  Double_t 	 fLambdaMax;
+  Double_t 	 fLambdaStep;
+  Double_t 	 fAngleStep;
+  Int_t		 fLambdaPoints;
+  
   // used in ProcessHits function:
   Int_t		 fbarID;	   //!  ID number of DrcBarSensors
   Int_t          fpdID;		   //!  ID number of DrcPdSensor
-  Int_t		 flensID;	   //!  ID number of outer lenses
+  Int_t		 flens3ID;	   //!  ID number of third lenses
+  Int_t		 flens2ID;
+  Int_t		 flens1ID;
   Int_t		 fbboxID;      	   //!  ID number of DrcBarBoxes
   Int_t 	 fevID;		   //!  ID number of Expansion Volume
   
   TGraph*        fDetEff;          //!  Detector Efficiency as a function of photon wavelength
   Bool_t         fDetEffAtProduction;
+  Bool_t     	 fTransportEffAtProduction;
   TRandom3	 frand;
   Int_t          fLastTrackID;
   Double_t       fCollectionEff;//Collection Efficiency 
@@ -205,9 +273,11 @@ class PndDrc : public FairDetector
  
   Bool_t         fStopTime;
   Double_t       fPhoMaxTime;
-  Bool_t         fTakeDirect;     
-  Int_t 	 ffocusing; 
+  Bool_t         fTakeDirect; 
+  Bool_t         fTakeReflected;     
+  Int_t 	 fFocusing; 
   Bool_t         fTakeRealReflectivity;
+  Bool_t	 fStopSecondaries;
 
   PndGeoDrc*     fGeo;             //! Pointer to basic DRC geometry data
 
@@ -224,7 +294,7 @@ class PndDrc : public FairDetector
   void ResetParameters();
 
   Int_t  fSenId1, fSenId2, fSenIdBar;
-  ClassDef(PndDrc,7)
+  ClassDef(PndDrc,9)
 
 }; 
 
