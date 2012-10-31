@@ -17,6 +17,7 @@ class PndPidCorrPar : public FairParGenericSet
   Float_t GetMdtCut()        { return fMdtCut; }; 
   Float_t GetDrcRadius()     { return fDrcRadius; };
   Float_t GetDrcCut()        { return fDrcCut; }; 
+  Float_t GetDskCut()        { return fDskCut; }; 
   Float_t GetZLastPlane()    { return fZLastPlane; };
   Float_t GetFtofZ()         { return fFtofZ; };
   Float_t GetRichZ()         { return fRichZ; };  
@@ -39,7 +40,8 @@ class PndPidCorrPar : public FairParGenericSet
   Float_t fMdtRadius;      // radius MDT detector
   Float_t fMdtCut;         // cut chi2 for MDT  
   Float_t fDrcRadius;      // radius DRC detector
-  Float_t fDrcCut;         // cut chi2 for DRC 
+  Float_t fDrcCut;         // cut chi2 for DRC  
+  Float_t fDskCut;         // cut chi2 for DSK
   Float_t fZLastPlane;     // position of last point for fwd correlation
   Float_t fFtofZ;          // Z of Ftof
   Float_t fRichZ;          // Z of RICH

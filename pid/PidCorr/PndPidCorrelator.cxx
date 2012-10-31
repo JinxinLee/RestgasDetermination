@@ -1148,7 +1148,7 @@ Bool_t PndPidCorrelator::GetDrcInfo(FairTrackParH* helix, PndPidCandidate* pidCa
       if (fGeanePro) // Overwrites vertex if Geane is used
 	{
      
-	  fProDrc->PropagateToVolume("DrcBase",0,1);
+	  fProDrc->PropagateToVolume("BarrelDIRC",0,1);
 	  vertex.SetXYZ(-10000, -10000, -10000); // reset vertex
 	  FairTrackParH *fRes= new FairTrackParH();
 	  Bool_t rc =  fProDrc->Propagate(helix, fRes, fPidHyp*pidCand->GetCharge()); 	
@@ -1223,7 +1223,7 @@ Bool_t PndPidCorrelator::GetDskInfo(FairTrackParH* helix, PndPidCandidate* pidCa
 	}
     
     
-      Float_t dist = (vertex-dskPos).Mag();
+      Float_t dist = (vertex-dskPos).Mag2();
     
       if ( dskQuality > dist)
 	{
@@ -1242,8 +1242,8 @@ Bool_t PndPidCorrelator::GetDskInfo(FairTrackParH* helix, PndPidCandidate* pidCa
 	}
     }
   
-  //if ((dskQuality<fCorrPar->GetDskCut()) || (fIdeal && dskIndex!=-1))
-  if ((dskQuality<1000) || (fIdeal && dskIndex!=-1))
+  if ((dskQuality<fCorrPar->GetDskCut()) || (fIdeal && dskIndex!=-1))
+    //if ((dskQuality<1000) || (fIdeal && dskIndex!=-1))
     {
       pidCand->SetDiscQuality(dskQuality);
       pidCand->SetDiscThetaC(dskThetaC);
