@@ -121,7 +121,7 @@ sim_complete(Int_t nEvents = 10, TString  SimEngine ="TGeant3", Float_t mom = 7.
   fRun->AddModule(FTof);
   //-------------------------  RICH       ----------------
   FairDetector *Rich= new PndRich("RICH",kFALSE);
-  Rich->SetGeometryFileName("rich.geo");
+  Rich->SetGeometryFileName("rich_v2.geo");
   fRun->AddModule(Rich);
 
   // Create and Set Event Generator
