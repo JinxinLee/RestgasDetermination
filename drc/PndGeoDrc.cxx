@@ -1,9 +1,9 @@
 /////////////////////////////////////////////////////////////
 // PndGeoDrc
 //
-// Class for geometry of DRC (PROTOTYPE case!!!!!!!!!)
+// Class for geometry of DRC (PandaRoot general case)
 //
-// Created 25/04/12 by M. Patsyuk GSI
+// Created 13/11/07 by A. Cecchi, Ferrara University 
 //
 /////////////////////////////////////////////////////////////
 
@@ -28,12 +28,12 @@ PndGeoDrc::PndGeoDrc() {
   fGlueLayer	= 0.0025; // [cm]
   fGreaseLayer  = 0.1; // [cm] 
 
-  fRadius       = 55.;	      // [cm] Barrel radius
-  fBarHalfThick = 1.725/2.0;    // [cm] bar half thickness
-  fBarBoxZDown  = 2.5;//130.0;      // [cm] Downstream coordinate of radiator barrel
+  fRadius       = 50.;	      // [cm] Barrel radius
+  fBarHalfThick = 1.7/2.0;//1.7/2.0;    // [cm] bar half thickness
+  fBarBoxZDown  = 130.0;      // [cm] Downstream coordinate of radiator barrel
   fBarBoxZUp    =-120.0;      // [cm] Upstream coordinate of radiator barrel  
-  fBarNum       = 1;//5;          // Number of bars within barbox.
-  fBoxGap	= 1.;//0.1;   // [cm] Gap between bar and bar box (only at the top and bottom of the bars)
+  fBarNum       = 5;          // Number of bars within barbox.
+  fBoxGap	= 0.5;   // [cm] Gap between bar and bar box (only at the top and bottom of the bars)
   fBarGap	= 0.01;	      // [cm] Half gap between bars, =1 to have a realistic barbox thickness
   fBoxThick	= 0.05;	      // [cm] Thickness of bar box
       
@@ -43,8 +43,8 @@ PndGeoDrc::PndGeoDrc() {
   
   // parameters of the EV:
   fEVlength     = 30.;        // [cm] Length of expansion volume
-  fEVdrop	= 0.6;//1.;	      // [cm] drop of the EV - inner radius (used only with prism)
-  fEVoffset	= 0.7;	      // [cm] offset of the EV - outer radius
+  fEVdrop	= 1.;	      // [cm] drop of the EV - inner radius (used only with prism)
+  fEVoffset	= 0.;	      // [cm] offset of the EV - outer radius
   fEVangle	= 30.;	      // [degrees] opening angle of the EV
   fEVbackAngle  = 90.;	      // [degrees] angle between the PD surface and the Z axis, default = 90.
   
@@ -55,8 +55,8 @@ PndGeoDrc::PndGeoDrc() {
   fPOffset	=  1.;	      // [cm] offset of the prism - outer side  
   
   fPi            =  TMath::Pi();
-  fLside	= 17.;//(180. - 2.*fPipehAngle - fBarBoxGap/fRadius*(fBarBoxNum/2. - 1.)/fPi*180.)/(fBarBoxNum/2.) * fRadius/ 180.*fPi;
-  fBarWidth	=  3.5;//fLside/fBarNum;  
+  fLside	= (180. - 2.*fPipehAngle - fBarBoxGap/fRadius*(fBarBoxNum/2. - 1.)/fPi*180.)/(fBarBoxNum/2.) * fRadius/ 180.*fPi;
+  fBarWidth	=  fLside/fBarNum;  
  }
 // -------------------------------------------------------------------------
 
