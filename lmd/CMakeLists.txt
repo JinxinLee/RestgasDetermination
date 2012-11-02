@@ -57,6 +57,7 @@ link_directories( ${LINK_DIRECTORIES})
 ########################### create libLmd ######################################
 set(LMD_SRCS
 
+LmdMC/PndLmdDim.cxx
 LmdTools/PndLmdContFact.cxx
 LmdTools/PndLmdAlignPar.cxx
 LmdDigi/PndLmdPixelHitProducerFast.cxx
@@ -67,6 +68,7 @@ LmdDigi/PndLmdDigiTask.cxx
 LmdDigi/PndLmdNoiseProducer.cxx 
 LmdMC/PndLmdDetector.cxx
 LmdMC/PndLmdGeo.cxx
+
 )
 set (LMD_RULECHECKER_SRCS ${LMD_SRCS})
 
@@ -180,7 +182,6 @@ set_target_properties(LmdFit PROPERTIES ${FAIRROOT_LIBRARY_PROPERTIES})
 set(LMDTOOLS_SRCS
 
 LmdQA/PndLmdQATask.cxx
-
 )
 set (LMD_RULECHECKER_SRCS ${LMD_RULECHECKER_SRCS} ${LMDTOOLS_SRCS})
 
@@ -202,10 +203,37 @@ add_library(LmdTool SHARED ${LMDTOOLS_SRCS})
 target_link_libraries(LmdTool ${ROOT_LIBRARIES})
 set_target_properties(LmdTool PROPERTIES ${FAIRROOT_LIBRARY_PROPERTIES})
 
+################################ create libLmdTesting ##########################
+set(LMDTEST_SRCS
+LmdTrack/PndLmdPerformanceTask.cxx
+)
+
+set (LMD_RULECHECKER_SRCS ${LMD_RULECHECKER_SRCS} ${LMDTEST_SRCS})
+
+if(RULE_CHECKER_FOUND)
+  CHECK_RULES("${LMD_RULECHECKER_SRCS}" "${INCLUDE_DIRECTORIES}"
+LMD_RULES)
+endif(RULE_CHECKER_FOUND)
+
+# fill list of header files from list of source files
+# by exchanging the file extension
+CHANGE_FILE_EXTENSION(*.cxx *.h LMDTEST_HEADERS "${LMDTEST_SRCS}")
+set(LMDTEST_LINKDEF  LmdTestsLinkDef.h)
+set(LMDTEST_DICTIONARY ${CMAKE_CURRENT_BINARY_DIR}/LmdTestsDict.cxx)
+
+ROOT_GENERATE_DICTIONARY("${LMDTEST_HEADERS}" "${LMDTEST_LINKDEF}"
+"${LMDTEST_DICTIONARY}" "${INCLUDE_DIRECTORIES}")
+SET(LMDTEST_SRCS ${LMDTEST_SRCS} ${LMDTEST_DICTIONARY})
+
+add_library(LmdTesting SHARED ${LMDTEST_SRCS})
+target_link_libraries(LmdTesting ${ROOT_LIBRARIES})
+set_target_properties(LmdTesting PROPERTIES
+${FAIRROOT_LIBRARY_PROPERTIES})
+
 ################################## install #####################################
 install(TARGETS Lmd DESTINATION ${CMAKE_BINARY_DIR}/lib)
 install(TARGETS LmdReco DESTINATION ${CMAKE_BINARY_DIR}/lib)
 install(TARGETS LmdTrk DESTINATION ${CMAKE_BINARY_DIR}/lib)
 install(TARGETS LmdFit DESTINATION ${CMAKE_BINARY_DIR}/lib)
 install(TARGETS LmdTool DESTINATION ${CMAKE_BINARY_DIR}/lib)
-
+install(TARGETS LmdTesting DESTINATION ${CMAKE_BINARY_DIR}/lib)

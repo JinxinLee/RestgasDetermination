@@ -16,6 +16,7 @@
 #pragma link C++ class PndSdsTask+;
 
 //LMD
+#pragma link C++ class PndLmdDim+;
 #pragma link C++ class PndLmdDetector+;
 #pragma link C++ class PndLmdGeo+;
 #pragma link C++ class PndLmdContFact+;
