@@ -92,7 +92,9 @@ void runLumi5Geane(const int nEvents=10, const double mom=15, const int startEve
  // PndEmcMapper *emcMap = PndEmcMapper::Instance(6);
   Double_t fpBeam = mom;
   TVector3 IP(0,0,0);
-  PndLmdGeaneTask* lmdgeane = new PndLmdGeaneTask(fpBeam, IP, senType);
+  PndLmdGeaneTask* lmdgeane = new PndLmdGeaneTask(fpBeam, IP);
+  if(senType>0) lmdgeane->SetSensPixelFlag(true);
+  else lmdgeane->SetSensStripFlag(true);
   lmdgeane->SetVerbose(verboseLevel);
   fRun->AddTask(lmdgeane);
   rtdb->setOutput(parInput1);

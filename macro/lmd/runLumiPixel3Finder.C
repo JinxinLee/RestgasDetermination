@@ -80,9 +80,12 @@ void runLumiPixel3Finder(const int nEvents=1000, const int startEvent=0, TString
   if(Method=="Follow") {
     PndLmdTrackFinderTask* lmdfinder = new PndLmdTrackFinderTask(missPl, "LmdHits","LMDPixelClusterCand","LMDPixelDigis", 100);
     lmdfinder->SetInaccuracy(0.01);
+    lmdfinder->SetSensPixelFlag(true);
   }else{
     if(Method=="CA"){
-      PndLmdTrackFinderCATask* lmdfinder = new PndLmdTrackFinderCATask(missPl,0.02,100,4,"LmdHits","LMDPixelClusterCand","LMDPixelDigis"); //for merged hits
+      //  PndLmdTrackFinderCATask* lmdfinder = new PndLmdTrackFinderCATask(missPl,0.02,100,4,"LmdHits","LMDPixelClusterCand","LMDPixelDigis"); //for merged hits
+      PndLmdTrackFinderCATask* lmdfinder = new PndLmdTrackFinderCATask(missPl,0.02,100,8,"LmdHits","LMDPixelClusterCand","LMDPixelDigis"); //for free hits
+      lmdfinder->SetSensPixelFlag(true);
     }
     else{
       cout<<"Method "<<Method<<" doesn't exist!"<<endl;
