@@ -13,7 +13,7 @@
 #include "PndSdsMCPoint.h"
 #include "PndSdsClusterStrip.h"
 #include "TrackData/PndTrackCand.h"
-
+#include "PndLmdDim.h"
 #include <string>
 #include <vector>
 
@@ -41,16 +41,16 @@ class PndLmdTrackFinderCATask : public FairTask
 
     void SetVerbose(Int_t verbose){ fVerbose = verbose; };
     void SetInaccuracy(Double_t accu) { dXY = accu; };
-    
-
+    void SetSensStripFlag(bool fS){ flagStipSens = fS; };    
+    void SetSensPixelFlag(bool fS){ flagPixelSens = fS; }; 
  private:
    Double_t dXY;
    double d_max;
    int nSensPP;//number of sensors on one plane
    int nP;//number of planes
    bool SortHitsByDet(std::vector< std::vector< std::pair<Int_t,bool> > > &hitsd, Int_t nStripHits);
-
    bool SortHitsByDetSimple(std::vector< std::vector< Int_t > > &hitsd, Int_t nStripHits);
+   bool SortHitsByDetSimple2(std::vector< std::vector< Int_t > > &hitsd, Int_t nStripHits);//Uses PmdLmdDim class
    bool SortHitsByZ(std::vector< std::vector< std::pair<Int_t,bool> > > &hitsd, Int_t nStripHits);
 //    std::vector<Int_t> GetHitPerCluster(PndSdsClusterStrip* clusterCand);
    Double_t GetTrackDip(PndMCTrack* myTrack);
@@ -60,7 +60,8 @@ class PndLmdTrackFinderCATask : public FairTask
    TString fClusterBranchStrip;
    TString fDigiBranchStrip;
    bool missPlAlgo;
-
+   bool flagStipSens;
+   bool flagPixelSens;
 
     /** Input array of PndSdsDigis **/
      TClonesArray* fStripHitArray;
@@ -74,7 +75,7 @@ class PndLmdTrackFinderCATask : public FairTask
      void Reset();
      void ProduceHits();
      TH1D *hdist;
-
+     PndLmdDim* lmddim;
 
   ClassDef(PndLmdTrackFinderCATask,2);
 

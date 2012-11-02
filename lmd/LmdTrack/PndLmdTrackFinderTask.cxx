@@ -27,6 +27,8 @@ PndLmdTrackFinderTask::PndLmdTrackFinderTask(Int_t inFinderMode, TString hitBran
    fClusterBranchStrip = clusterBranch; 
    fDigiBranchStrip = digiBranch; 
    dXY = 0.01;
+   flagStipSens = false;
+   flagPixelSens = false;
    //   dXY = 0.01;//TEST
 }
 
@@ -69,6 +71,9 @@ InitStatus PndLmdTrackFinderTask::ReInit()
 // -----   Public method Init   --------------------------------------------
 InitStatus PndLmdTrackFinderTask::Init()
 {
+  lmddim = PndLmdDim::Instance();
+  // lmddim -> Read_transformation_matrices("matrices.txt", true);
+  lmddim -> Read_transformation_matrices("matrices_perfect.txt", false);
 
   FairRootManager* ioman = FairRootManager::Instance();
 
@@ -123,6 +128,41 @@ bool PndLmdTrackFinderTask::SortHitsByDet(std::vector< std::vector< std::pair<In
     // cout<<"sensid = "<<sensid<<endl;
     Int_t planeid = floor((sensid)/(double)nSensPP); //nSensPP sensors/plane => Planes: 0..3
     hitsd.at(planeid).push_back( make_pair (iHit,false) );
+  }
+
+  for(Int_t iPlane = 0; iPlane < 4; iPlane++){
+     if(hitsd.at(iPlane).size()>0) nPlanes++;
+  }
+
+  cout << "Hits: " << nStripHits << endl;
+  if(fVerbose>2) {
+    cout << "Hits: " << nStripHits << " in " << nPlanes << " plane(s)." << endl;
+    for(Int_t idet = 0; idet < 4; idet++)
+      cout << "Plane: "<< idet <<" DiscHits: "<< hitsd.at(idet).size() <<endl;
+  }
+
+  if(nPlanes>2) return true;
+  return false;
+}
+// -------------------------------------------------------------------------
+
+// -----   Private method SortHitsByDet2   --------------------------------------------
+bool PndLmdTrackFinderTask::SortHitsByDet2(std::vector< std::vector< std::pair<Int_t,bool> > > &hitsd, Int_t nStripHits)
+{
+  Int_t nPlanes=0;
+
+//sort in plane's
+  for(Int_t iHit = 0; iHit < nStripHits; iHit++){
+    PndSdsHit* myHit = (PndSdsHit*)(fStripHitArray->At(iHit));
+  
+    Int_t sensid = myHit->GetSensorID();
+    int ihalf,iplane,imodule,iside,idie,isensor;
+    lmddim->Get_sensor_by_id(sensid,ihalf,iplane,imodule,iside,idie,isensor);
+    // hitsd.at(iplane).push_back(iHit);
+    hitsd.at(iplane).push_back( make_pair (iHit,false) );
+    // cout<<"sensid = "<<sensid<<endl;
+    // Int_t planeid = floor((sensid)/(double)nSensPP); //nSensPP sensors/plane => Planes: 0..3
+    // hitsd.at(planeid).push_back( make_pair (iHit,false) );
   }
 
   for(Int_t iPlane = 0; iPlane < 4; iPlane++){
@@ -657,10 +697,20 @@ void PndLmdTrackFinderTask::Exec(Option_t* opt)
 
   //-----do some sorting first----------
   std::vector< std::vector< std::pair<int,bool> > > hitsd(4);
-  if (!SortHitsByDet(hitsd, nStripHits)) {
-    if(fVerbose>2) cout << "Evt finsihed: too less planes-----"<<endl<<endl;
-    return;
-  }
+ bool resSortHits;
+ if(flagStipSens) resSortHits = SortHitsByDet(hitsd, nStripHits);//!strip sensors
+ else{
+   if(flagPixelSens) resSortHits = SortHitsByDet2(hitsd, nStripHits);//! pixel sensors
+   else{
+     std::cout<<"Algorithm is needed sensor type! Please, set it via SetSensStripFlag(bool fS) or SetSensPixelFlag(bool fS)"<<std::endl;
+     return;
+   }
+ }
+ if(!resSortHits){
+   if(fVerbose>2) cout << "Evt finsihed: too less planes-----"<<endl<<endl;
+   return;
+ }
+
 
   if(fVerbose>2){
     cout<<"HitMap size: "<< hitsd.size() <<endl;

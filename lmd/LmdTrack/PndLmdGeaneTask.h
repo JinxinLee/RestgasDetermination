@@ -28,6 +28,7 @@
 #include "FairGeanePro.h"
 #include <vector>
 #include <map>
+#include "PndLmdDim.h"
 
 class TClonesArray;
 class PndSdsCluster;
@@ -42,7 +43,7 @@ class PndLmdGeaneTask : public FairTask
   PndLmdGeaneTask();
 
   ///Set up beam momuntum value and position of interaction point
-  PndLmdGeaneTask(Double_t pBeam, TVector3 IP, Int_t sensType=0);
+  PndLmdGeaneTask(Double_t pBeam, TVector3 IP);
 
   /** Destructor **/
   ~PndLmdGeaneTask();
@@ -58,9 +59,14 @@ class PndLmdGeaneTask : public FairTask
   
   virtual void Finish();
 
+  void SetSensStripFlag(bool fS){ flagStipSens = fS; };    
+  void SetSensPixelFlag(bool fS){ flagPixelSens = fS; }; 
+
  private:
-  
-		
+  bool flagStipSens;
+  bool flagPixelSens;
+
+  PndLmdDim* lmddim;
   TClonesArray* fTrackParGeane;
   TClonesArray* fTrackParIni;
   TClonesArray* fTrackParFinal;
@@ -73,7 +79,6 @@ class PndLmdGeaneTask : public FairTask
   Double_t fPbeam;
   Int_t fPDGid;
   TVector3 vtx;
-  int fsensType;//0=strips sensors, 1=Pixel sensors
 		
   std::map<int, std::vector<int> > fTrackPixHitIdMap;	 //Track -> PixHitId
   std::map<int, std::vector<int> > fTrackStripHitIdMap;	 //Track -> StripHitId
