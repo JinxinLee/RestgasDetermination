@@ -22,6 +22,7 @@
 #include<TNtuple.h>
 #include<PndMCTrack.h>
 #include<PndSdsMCPoint.h>
+#include "PndLmdDim.h"
 
 //lmd track
 #include<PndLinTrack.h>
@@ -351,7 +352,9 @@ int main(int __argc,char *__argv[]) {
   TH2 * hgoodPhichi2 = new TH2F("hgoodPhichi2","#phi for good track-candidates vs. #chi^{2} ",5e2,0,50,20,-355./113,355./113);
   TH2 * hgoodThetachi2 = new TH2F("hgoodThetachi2","#theta for good track-candidates vs. #chi^{2} ",5e2,0,50,20,3.5e-3,8.5e-3);
   
-  TH1 *hMomMC = new TH1F("hMomMC","P_{MC};P,GeV/c",1e3,0,16.);
+  //  TH1 *hMomMC = new TH1F("hMomMC","P_{MC};P,GeV/c",1e3,0,16.);
+  TNtuple *nmomMC = new TNtuple("nmomMC","MCmomentum","p0:p_nearLUMI:p_afterLUMI");
+  //  TH1 *hMomMCnearLUMI = new TH1F("hMomMCnear","P_{MC};P,GeV/c",1e3,0,16.);
 
   TH1 *hResMom = new TH1F("hResMom","P_{MC}-P_{rec};#deltaP,GeV/c",1e3,-1e-4,1e-4);
   TH1 *hErrMom = new TH1F("hErrMom","#sigma_{P};#sigmaP,GeV/c",1e3,0,1e-3);
@@ -431,7 +434,7 @@ int main(int __argc,char *__argv[]) {
   TH2 *hSeedGEANEX = new TH2F("hSeedGEANEX",";X_{cand}, cm;X_{GEANE}, cm",1e3,-15.,15.,1e3,-5.,5.);
   TH2 *hSeedGEANEY = new TH2F("hSeedGEANEY",";Y_{cand}, cm;Y_{GEANE}, cm",1e3,-15,15.,1e3,-5.,5.);
   TH2 *hSeedGEANEZ = new TH2F("hSeedGEANEZ",";Z_{cand}, cm;Z_{GEANE}, cm",1e3,-0.015,0.015,1e3,-0.05,0.05);
-  TH2 *hSeedGEANER = new TH2F("hSeedGEANER",";R_{cand}, cm;R_{GEANE}, cm",1e3,0,10.,1e3,0,10.);
+  TH2 *hSeedGEANER = new TH2F("hSeedGEANER",";R_{cand}, cm;R_{GEANE}, cm",1e3,0,100.,1e3,0,100.);
   TH2 *hSeedGEANETheta = new TH2F("hSeedGEANETheta",";#theta_{cand}, rad;#theta_{GEANE}, rad",1e3,0,0.1,1e3,0,0.1);
   TH2 *hSeedGEANEPhi = new TH2F("hSeedGEANEPhi",";#phi_{cand}, rad;#phi_{GEANE}, rad",1e3,-7,7,1e3,-7,7);
   TH2 *hSeedThetaPhi = new TH2F("hSeedThetaPhi",";#theta_{cand}, rad;#phi_{cand}, rad",1e3,0,1.,1e3,-1.,1.);
@@ -467,7 +470,13 @@ int main(int __argc,char *__argv[]) {
 			    1e3,0,100,2e1,0,0.2);
  TH2 *hchi2nTrkCand = new TH2F("hchi2nTrkCand"," ;Number of trk-cand;#chi^2",
 			    30,0,30,5e2,0,50.);
-  TNtuple *nrecall = new TNtuple("nrecall","recAll","x:y:z:px:py:pz:p:theta:phi");
+  TNtuple *nrecpointall = new TNtuple("nrecpointall","recpointAll","xrecbp:yrecbp:zrecbp:xrec:yrec:zrec:xseed:yseed:zseed");
+  TNtuple *nrecdirall = new TNtuple("nrecdirall","recdirAll","pxrecbp:pyrecbp:pzrecbp:dirxrec:diryrec:dirzrec:dirxseed:diryseed:dirzseed");
+
+  //Load lumi geo params
+  PndLmdDim *lmddim = PndLmdDim::Instance();
+  // lmddim -> Read_transformation_matrices("matrices.txt", true);
+  lmddim -> Read_transformation_matrices("matrices_perfect.txt", false);
 
   for (Int_t j=0; j<nEvents; j++){
     //  cout<<"Event #"<<j<<endl;
@@ -481,14 +490,15 @@ int main(int __argc,char *__argv[]) {
     
     const int nGeaneTrks = geaneArray->GetEntriesFast();
     const int nParticles = true_tracks->GetEntriesFast();
-    if(nParticles!=nMCtracks) continue;
+   
     const int numTrk = nGeaneTrks;
     const int nRecHits = rechit_array->GetEntriesFast();
     const int nTrkCandidates = trkcand_array->GetEntriesFast();
     const int nRecTrks = rec_trk->GetEntriesFast();
     if(verboseLevel>0)  
-      cout<<"Event #"<<j<<" has "<<nParticles<<" true particles, "<<nTrkCandidates
+      cout<<"Event #"<<j<<" has "<<nParticles<<" true particles, "<<" out of it "<<nRecHits<<" hits, "<<nTrkCandidates
 	  <<" trk-cands, "<<numTrk<<" tracks and "<<nGeaneTrks<<" geane Trks!"<<endl;
+    if(nParticles!=nMCtracks) continue;
     double chi2Cont[5*numTrk];
     double ndiffIDCont[5*numTrk];
    
@@ -537,20 +547,25 @@ int main(int __argc,char *__argv[]) {
       hchi2nTrkCand->Fill(nTrkCandidates,chi2);
       PndTrackCand *trkcand = (PndTrackCand*)trkcand_array->At(candID);
       const int Ntrkcandhits= trkcand->GetNHits();
+      cout<<"Ntrkcandhits = "<<Ntrkcandhits<<endl;
       PndSdsMCPoint* MCPointHit;
 
       //Matching between MC & Rec on hits level-----------------------------------
       if(verboseLevel>1) cout<<"MCidTOP:"<<endl;
+      double momMC0,momMC1,momMC2;
+      momMC0 = Plab;
       for (Int_t iHit = 0; iHit < Ntrkcandhits; iHit++){
 	PndTrackCandHit candhit = (PndTrackCandHit)(trkcand->GetSortedHit(iHit));
 	Int_t hitID = candhit.GetHitId();
 	PndSdsHit* myHit = (PndSdsHit*)(rechit_array->At(hitID));
 	//for pixel design
+	double MCpointMom;
 	if(dnu>0){
 	  //  if(verboseLevel>1) cout<<"Rec hit("<<myHit->GetClusterIndex()<<")";
 	  PndSdsClusterPixel* myCluster = (PndSdsClusterPixel*)(fStripClusterArray->At(myHit->GetClusterIndex()));
 	  PndSdsDigiPixel* astripdigi = (PndSdsDigiPixel*)(fStripDigiArray->At(myCluster->GetDigiIndex(0)));
 	  PndSdsMCPoint* MCPoint = (PndSdsMCPoint*)(true_points->At(astripdigi->GetIndex(0)));
+	  MCpointMom = sqrt(MCPoint->GetPx()*MCPoint->GetPx()+MCPoint->GetPy()*MCPoint->GetPy()+MCPoint->GetPz()*MCPoint->GetPz());
 	  int MCidTOP = MCPoint->GetTrackID();
 	  if(iHit==0) MCPointHit = MCPoint;
 	  MCtrkID.push_back(MCidTOP);
@@ -564,6 +579,8 @@ int main(int __argc,char *__argv[]) {
 	PndSdsDigiStrip* astripdigi = (PndSdsDigiStrip*)(fStripDigiArray->At(myCluster->GetDigiIndex(0)));
 	if (astripdigi->GetIndex(0) == -1) continue; // sort out noise
 	PndSdsMCPoint* MCPoint = (PndSdsMCPoint*)(true_points->At(astripdigi->GetIndex(0)));
+	MCpointMom = sqrt(MCPoint->GetPx()*MCPoint->GetPx()+MCPoint->GetPy()*MCPoint->GetPy()+MCPoint->GetPz()*MCPoint->GetPz());
+
 	int MCidTOP = MCPoint->GetTrackID();
 	if(iHit==0) MCPointHit = MCPoint;
 	// double zTop = MCPoint->GetZ();
@@ -586,7 +603,11 @@ int main(int __argc,char *__argv[]) {
 	MCtrkID.push_back(MCidTOP);
 	MCtrkID.push_back(MCidBOT);
 	}
+	if(iHit==0) momMC1 = MCpointMom;
+	if(iHit==(Ntrkcandhits-1)) momMC2 = MCpointMom;
       }
+      // TNtuple *nmomMC = new TNtuple("nmomMC","MCmomentum","p0:p_nearLUMI:p_afterLUMI");
+      nmomMC->Fill(momMC0,momMC1,momMC2);
       if(verboseLevel>1) cout<<""<<endl;
       //   Sorting MC IDs ---------------------------------------- 
       Int_t k, x;
@@ -805,9 +826,17 @@ int main(int __argc,char *__argv[]) {
 	hPullPointPy->Fill((MomMC.Y()-MomRecBP.Y())/errPy);
 	hErrPointPz->Fill(errPz);
 	hPullPointPz->Fill((MomMC.Z()-MomRecBP.Z())/errPz);
-	nrecall->Fill(pos_prop_geane_trk.X(),pos_prop_geane_trk.Y(),pos_prop_geane_trk.Z(),
-		      MomRecBP.X(),MomRecBP.Y(),MomRecBP.Z(),
-		      MomRecBP.Mag(),thetaBP,phiBP);
+
+	// nrecall->Fill(pos_prop_geane_trk.X(),pos_prop_geane_trk.Y(),pos_prop_geane_trk.Z(),
+	// 	      MomRecBP.X(),MomRecBP.Y(),MomRecBP.Z(),
+	// 	      pos_rec_trk.X(),pos_rec_trk.Y(),pos_rec_trk.Z(),dir_rec_trk.X(),dir_rec_trk.Y(),dir_rec_trk.Z(),
+	// 	      posSeed.X(),posSeed.Y(),posSeed.Z(),dirSeed.X(),dirSeed.Y(),dirSeed.Z());
+	       nrecpointall->Fill(pos_prop_geane_trk.X(),pos_prop_geane_trk.Y(),pos_prop_geane_trk.Z(),
+				  pos_rec_trk.X(),pos_rec_trk.Y(),pos_rec_trk.Z(),
+				  posSeed.X(),posSeed.Y(),posSeed.Z());
+	       nrecdirall->Fill(MomRecBP.X(),MomRecBP.Y(),MomRecBP.Z(),
+				dir_rec_trk.X(),dir_rec_trk.Y(),dir_rec_trk.Z(),
+				dirSeed.X(),dirSeed.Y(),dirSeed.Z());
 	///==================================
 	
 	Double_t resPhi = phiBP-phiMC;
@@ -835,11 +864,18 @@ int main(int __argc,char *__argv[]) {
 	TVector3 dirLumi = trk->GetDirectionVec();
 	TVector3 dirLumiErr = trk->GetDirectionErrVec();
 	// //do the transformation from LUMI frame (with z-axis perp. to lumi planes) to lab frame
-	combitransFromLumiFrame(vtxLumi,dnu);
-	rotateFromLumiFrame(dirLumi, false, dnu);
-	rotateFromLumiFrame(dirLumiErr, true, dnu);
-	rotateFromLumiFrame(vtxLumiErr, true, dnu);
-		 
+	if(dnu>0){
+	  vtxLumi = lmddim->Transform_lmd_local_to_global(vtxLumi, false, false);
+	  dirLumi = lmddim->Transform_lmd_local_to_global(dirLumi, true, false);
+	  vtxLumiErr = lmddim->Transform_lmd_local_to_global(vtxLumiErr, true, false);
+	  dirLumiErr = lmddim->Transform_lmd_local_to_global(dirLumiErr, true, false);
+	} 
+	else{
+	  combitransFromLumiFrame(vtxLumi,dnu);
+	  rotateFromLumiFrame(dirLumi, false, dnu);
+	  rotateFromLumiFrame(dirLumiErr, true, dnu);
+	  rotateFromLumiFrame(vtxLumiErr, true, dnu);	
+	}
 	double xTrue = MCPointHit->GetX();
 	double yTrue = MCPointHit->GetY();
 	double zTrue = MCPointHit->GetZ();
@@ -850,7 +886,7 @@ int main(int __argc,char *__argv[]) {
 	double pyTrue =  MCPointHit->GetPy();
 	double pzTrue =  MCPointHit->GetPz();
 	TVector3 dirLumiMC = TVector3(pxTrue,pyTrue,pzTrue);
-	hMomMC->Fill(dirLumiMC.Mag());
+	//	hMomMC->Fill(dirLumiMC.Mag());
 	dirLumiMC *=1./dirLumiMC.Mag();
 	
 	double dz = -zTrue+vtxLumi.Z();//Correct definition Z coord of comparision
@@ -1440,9 +1476,10 @@ int main(int __argc,char *__argv[]) {
   hResLumiTrkPointPxPull->Write();
   hResLumiTrkPointPyPull->Write();
   hResLumiTrkPointPzPull->Write();
-  hMomMC->Write();
+  //  hMomMC->Write();
   hResZResPhi->Write();
-  nrecall->Write();
+  nrecpointall->Write();
+  nrecdirall->Write();
 
   TCanvas *c134 = new TCanvas("TrkLinparams");
  c134->Divide(2,2);
@@ -1467,5 +1504,6 @@ int main(int __argc,char *__argv[]) {
  hntrkghost_I->Write();
  hntrkmissed_II->Write();
  hntrkghost_II->Write();
+ nmomMC->Write();
  f->Close();
 }
