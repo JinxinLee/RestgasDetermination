@@ -16,6 +16,7 @@
 #include "PndLmdDim.h"
 #include <string>
 #include <vector>
+#include "TH2.h"
 
 class TClonesArray;
 
@@ -75,6 +76,7 @@ class PndLmdTrackFinderCATask : public FairTask
      void Reset();
      void ProduceHits();
      TH1D *hdist;
+     TH2D *htheta;
      PndLmdDim* lmddim;
 
   ClassDef(PndLmdTrackFinderCATask,2);

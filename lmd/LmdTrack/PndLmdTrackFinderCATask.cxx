@@ -33,6 +33,7 @@ PndLmdTrackFinderCATask::PndLmdTrackFinderCATask() :
   dXY = 0.5;
   d_max = 0.01;
   hdist = new TH1D("hdist","distance from common point",1e4,0,10.);
+  htheta = new TH2D("htheta",";length;#theta angle",1e3,0,25,1e3,0,3.15);
   nSensPP = 8;
   nP = 4;
   flagStipSens = false;
@@ -57,6 +58,7 @@ PndLmdTrackFinderCATask::PndLmdTrackFinderCATask(const bool missPl, const double
   
   dXY = 0.5;
   hdist = new TH1D("hdist","distance from common point",1e3,0,1.);
+  htheta = new TH2D("htheta",";length;#theta angle",1e3,0,25,1e3,0,3.15);
   d_max = setdmax; 
   nSensPP = innSensPP;
   nP = innP;
@@ -181,7 +183,8 @@ bool PndLmdTrackFinderCATask::SortHitsByDetSimple2(std::vector< std::vector< Int
     int ihalf,iplane,imodule,iside,idie,isensor;
     lmddim->Get_sensor_by_id(sensid,ihalf,iplane,imodule,iside,idie,isensor);
     //    hitsd.at(iplane).push_back(iHit);
-    int virtplane = 2*iplane+iside;
+    // int virtplane = 2*iplane+iside;//free hits
+    int virtplane = iplane;//merged hits
     hitsd.at(virtplane).push_back(iHit);
   }
 
@@ -431,8 +434,10 @@ void PndLmdTrackFinderCATask::Exec(Option_t* opt)
 	  //   cout<<"check hits between "<<j<<" and "<<j+1<<" planes"<<endl;
 	  double x1 = hit1->GetX(); double y1 = hit1->GetY(); double z1 = hit1->GetZ();
 	  TVector3 dirc(x1-x0,y1-y0,z1-z0);
+	  // dirc *= 1./dirc.Mag();
 	  ///dTheta of cells to reduce wrong combination
-	  if(dirc.Theta()>0.01){ //in LUMI frame
+	  htheta->Fill(dirc.Mag(),dirc.Theta());
+	  if((dirc.Theta()>0.01 && dirc.Mag()>1.) || (dirc.Mag()<0.1 && dirc.Theta()>1.5)){ //in LUMI frame //for point between diff.planes or for point between diff. layes
 	    if(fVerbose>4){
 	      cout<<"For cell between #"<<(j)<<"."<<i<<" and #"<<(j+1)<<"."<<k;
 	      cout<<" dirc.Theta() = "<<dirc.Theta()<<" dirc.Phi() = "<<dirc.Phi()<<endl;
@@ -468,8 +473,11 @@ void PndLmdTrackFinderCATask::Exec(Option_t* opt)
 	      //   cout<<"check hits between "<<j<<" and "<<j+jp<<" planes"<<endl;
 	      double x2 = hit2->GetX(); double y2 = hit2->GetY(); double z2 = hit2->GetZ();
 	      TVector3 dirc2(x2-x0,y2-y0,z2-z0);
+	      //     dirc2 *= 1./dirc2.Mag();
 	      ///dTheta of cells to reduce wrong combination
-	      if(dirc2.Theta()>0.01){ //in LUMI frame
+	      //    if(dirc2.Theta()>0.01){ //in LUMI frame
+	      htheta->Fill(dirc2.Mag(),dirc2.Theta());
+	      if((dirc2.Theta()>0.01 && dirc2.Mag()>1.) || (dirc2.Mag()<0.1 && dirc2.Theta()>1.5)){ //in LUMI frame //for point between diff.planes or for point between diff. layes
 		if(fVerbose>4){
 		  cout<<"For cell between #"<<(j)<<"."<<i<<" and #"<<(j+jp)<<"."<<k;
 		  cout<<" dirc2.Theta() = "<<dirc2.Theta()<<" dirc2.Phi() = "<<dirc2.Phi()<<endl;
@@ -575,11 +583,11 @@ void PndLmdTrackFinderCATask::Exec(Option_t* opt)
   for(int icv=0;icv<cellsSize;icv++)
     pv_new[icv]=0;
 
-  for(int itter=0;itter<nplanes-1;itter++){
+  for(int itter=0;itter<2*nplanes;itter++){
     for(int con=0;con<connect.size();){
       int con1 = connect[con];
       int con2 = connect[con+1];
-      if(cells.at(10).at(con1)==cells.at(10).at(con2)){
+      if(cells.at(10).at(con1)==cells.at(10).at(con2) && pv_new[con2]==cells.at(10).at(con2)){
 	pv_new[con1] = cells.at(10).at(con1);
 	pv_new[con2] = cells.at(10).at(con2)+1;
       }
@@ -611,7 +619,9 @@ void PndLmdTrackFinderCATask::Exec(Option_t* opt)
 
   // TStopwatch *timer_build_trk_combinations = new TStopwatch();
   // timer_build_trk_combinations->Start();
-  //Build track from cells combination
+
+  //Build track from cells combination --------------------------------
+
   //find max number of cells in a track
   int pcmax = 0;
   for(int cid=1;cid<cells.at(10).size();cid++){
@@ -620,6 +630,7 @@ void PndLmdTrackFinderCATask::Exec(Option_t* opt)
   }
   if(fVerbose>4) cout<<"track can contain "<<pcmax<<"+1 cells"<<endl;
   const int trk_arr_size = pcmax+1;
+  //  const int trk_arr_size = pcmax+2;
   std::vector< std::vector<int> > trk_cells(trk_arr_size);
   int trk_count=-1;
   for(int newpcmax=pcmax;newpcmax>0;newpcmax--){// loop over possible number of cells in trk
@@ -627,104 +638,118 @@ void PndLmdTrackFinderCATask::Exec(Option_t* opt)
     if(fVerbose>4) cout<<"Now we are looking for trk with max "<<cur_max_tag+1<<" cells"<<endl;
     bool newtrk=true;
     for(int con=connect.size()-1;con>=0;){// loop over all connections between cells
-    bool nextloop=false;
-    int con1,con2;
-    int curr_arr;
-    if(newtrk){
-      //check last array in trk_cells was filled by data
-      bool add_new=false;
-      if(trk_count<0) add_new=true;
-      else{
-	curr_arr=trk_arr_size;
-	while(curr_arr>0){
-	  curr_arr--;
-	  if(trk_cells.at(curr_arr).at(trk_count)>-1) add_new=true;
-	}
-      }
-      if(add_new){
-	if(fVerbose>4)	cout<<"**************** Hey, here comes new trk-cand! *****************"<<endl;
-	trk_count++;//increase counter for trk-candidates
-	//sizes of cells arrays in trk should be the same
-	curr_arr=trk_arr_size;
-	while(curr_arr>0){
-	  curr_arr--;
-	  trk_cells.at(curr_arr).push_back(-1);
-	}
-      }
-
-      cur_max_tag = newpcmax;
-      con2 = connect[con];
-      con--;
-      con1 = connect[con];
-      con--;
-      if((cells.at(10).at(con2))==cur_max_tag) nextloop=true;
-    }
-    else{
-      con2 = con1; //trk should be connected to cell from previous part
-      for(int coni=connect.size()-1;coni>=0;){
-	if(con2==connect[coni]){
-	  coni--;
-	  con1 = connect[coni];
-	  nextloop=true;
-	}
-	coni -=2;
-      }
-    }
-    if(!nextloop) continue;
-    while(cur_max_tag>0){
-      //    cout<<"cells.at(10).at("<<con2<<") = "<<cells.at(10).at(con2)<<endl;
-      if((cells.at(10).at(con2))==cur_max_tag){
-	cur_max_tag -=1;
-	//	cout<<"cur_max_tag = "<<cur_max_tag<<endl;
-	//	cout<<"cells.at(10).at("<<con1<<") = "<<cells.at(10).at(con1)<<endl;
-	if((cells.at(10).at(con1))==cur_max_tag){// difference in tags = 1
-	  cur_max_tag -=1;
-	  //	  if(fVerbose>4)	cout<<" con2:"<<con2<<" con1:"<<con1<<endl;
-	  trk_cells.at(cur_max_tag+2).at(trk_count)=con2;
-	  trk_cells.at(cur_max_tag+1).at(trk_count)=con1;
-	  if(cur_max_tag>0) newtrk=false;
-	  //  else newtrk=true;
-	  if(cur_max_tag>0) continue;
-	  else{
-	    for(int conN=0;conN<connect.size();){
-	      int con3 = connect[conN];
-	      conN++;
-	      int con4 = connect[conN];
-	      conN++;
-	      if(con4==con1){
-		trk_cells.at(cur_max_tag).at(trk_count)=con3;
-		//	if(fVerbose>4)    cout<<" con0:"<<con3<<endl;
-	      }
-	    }
-	  }
-	}
+      bool nextloop=false;
+      int con1,con2;
+      int curr_arr;
+      if(newtrk){// here we check both cells
+	//check last array in trk_cells was filled by data
+	bool add_new=false;
+	if(trk_count<0) add_new=true;
 	else{
-	  cur_max_tag--;
-	  if((cells.at(10).at(con1))==cur_max_tag){// difference in tags = 2
-	    //  if(fVerbose>4) cout<<" con2:"<<con2<<" con1:"<<con1<<endl;
-	    trk_cells.at(cur_max_tag+2).at(trk_count)=con2;
-	    trk_cells.at(cur_max_tag+1).at(trk_count)=con1;
-	    if(cur_max_tag>0) newtrk=false;
-	    if(cur_max_tag>0) continue;
-	    else{
-	      for(int conN=0;conN<connect.size();){
-		int con3 = connect[conN];
-		conN++;
-		int con4 = connect[conN];
-		conN++;
-		if(con4==con1){
-		  trk_cells.at(cur_max_tag).at(trk_count)=con3;
-		  //	  if(fVerbose>4)    cout<<" con0:"<<con3<<endl;
-		}
-	      }
-	    }
+	  curr_arr=trk_arr_size;
+	  while(curr_arr>0){
+	    cout<<"curr_arr = "<<curr_arr<<endl;
+	    curr_arr--;
+	    if(trk_cells.at(curr_arr).at(trk_count)>0) add_new=true;
 	  }
 	}
+	if(add_new){
+	  if(fVerbose>4)	cout<<"**************** Hey, here comes new trk-cand! *****************"<<endl;
+	  trk_count++;//increase counter for trk-candidates
+	  //sizes of cells arrays in trk should be the same
+	  curr_arr=trk_arr_size;
+	  while(curr_arr>0){
+	    curr_arr--;
+	    trk_cells.at(curr_arr).push_back(-1);
+	  }
+	}
+
+	cur_max_tag = newpcmax;
+	con2 = connect[con];
+	con--;
+	con1 = connect[con];
+	con--;
+	if((cells.at(10).at(con2))==cur_max_tag) nextloop=true;
       }
-      else
-	break;
+      else{// here we check only one cell, another one is already known
+	con2 = con1; //trk should be connected to cell from previous part
+	for(int coni=connect.size()-1;coni>=0;){
+	  if(con2==connect[coni]){
+	    coni--;
+	    con1 = connect[coni];
+	    nextloop=true;
+	  }
+	  coni -=2;
+	}
+	if(con2==con1) break;
+	cout<<"	con2 = "<<con2<<" con1 = "<<con1<<endl;
+      }
+      if(!nextloop) continue;
+      while(cur_max_tag>0){// here we know cell_con2 and cell_con1
+	cout<<"cells.at(10).at("<<con2<<") = "<<cells.at(10).at(con2)<<endl;
+	cout<<"cells.at(10).at("<<con1<<") = "<<cells.at(10).at(con1)<<endl;
+	if((cells.at(10).at(con2))==cur_max_tag){
+	  cout<<"cur_max_tag = "<<cur_max_tag<<endl;
+	  cur_max_tag -=1;
+	  if((cells.at(10).at(con1))==cur_max_tag){// difference in tags = 1
+	    cout<<"cur_max_tag = "<<cur_max_tag<<endl;
+	    // cur_max_tag -=1;
+	    // trk_cells.at(cur_max_tag+2).at(trk_count)=con2;
+	    // trk_cells.at(cur_max_tag+1).at(trk_count)=con1;
+	    trk_cells.at(cur_max_tag+1).at(trk_count)=con2;
+	    trk_cells.at(cur_max_tag).at(trk_count)=con1;
+	    // con--;
+	    // con--;
+	    cout<<"for new loop: cur_max_tag = "<<cur_max_tag<<" con = "<<con<<endl;
+	    if(cur_max_tag>0) newtrk=false; // we are looking for others cells in trk
+	    if(cur_max_tag>0) break;
+	    else{
+	      cout<<"New trk search will be started!"<<endl;
+	      newtrk=true; 
+	    }
+	    //   if(cur_max_tag>0) continue;
+	    // else{
+	    //   for(int conN=0;conN<connect.size();){
+	    // 	int con3 = connect[conN];
+	    // 	conN++;
+	    // 	int con4 = connect[conN];
+	    // 	conN++;
+	    // 	if(con4==con1){
+	    // 	  trk_cells.at(cur_max_tag).at(trk_count)=con3;
+	    // 	  if(fVerbose>4)    cout<<" con3:"<<con3<<endl;
+	    // 	}
+	    //   }
+	    // }
+	  }
+	  // else{
+	  //   cur_max_tag--;
+	  //   if((cells.at(10).at(con1))==cur_max_tag){// difference in tags = 2
+	  //     if(fVerbose>4) cout<<" con2:"<<con2<<" con1:"<<con1<<endl;
+	  //     trk_cells.at(cur_max_tag+2).at(trk_count)=con2;
+	  //     trk_cells.at(cur_max_tag+1).at(trk_count)=con1;
+	  //     if(cur_max_tag>0) newtrk=false;
+	  //     if(cur_max_tag>0) continue;
+	  //     else{
+	  // 	for(int conN=0;conN<connect.size();){
+	  // 	  int con3 = connect[conN];
+	  // 	  conN++;
+	  // 	  int con4 = connect[conN];
+	  // 	  conN++;
+	  // 	  if(con4==con1){
+	  // 	    trk_cells.at(cur_max_tag).at(trk_count)=con3;
+	  // 	    if(fVerbose>4)    cout<<" con3:"<<con3<<endl;
+	  // 	  }
+	  // 	}
+	  //     }
+	  //   }
+	  // }
+	}
+	else
+	  break;
+      }
+      //      cout<<"con = "<<con<<endl;
     }
-    }
+    //    cout<<"newpcmax = "<<newpcmax<<endl;
   }
   
   //fillter -----------------------------------------------
