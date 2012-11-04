@@ -138,7 +138,8 @@ void PndLmdLinFitTask::Exec(Option_t* opt)
   //}
 
   // Fitting ----------------------------------------------------------------------------------
-  if(fVerbose>1)std::cout<<" -I- PndLmdLinFitTask: start Fitting "<<std::endl;
+  //  if(fVerbose>1) 
+  std::cout<<" -I- PndLmdLinFitTask: start Fitting "<<std::endl;
   int rec_tkr=0;
   for(Int_t track=0; track<ntcand; track++)
   {
@@ -151,7 +152,8 @@ void PndLmdLinFitTask::Exec(Option_t* opt)
     //   if(fVerbose>2) cout<<"Trk-cand doesn't pass throw limit (dirSeed.Theta() = "<<dirSeed.Theta()<<" dirSeed.Phi() = "<<dirSeed.Phi()<<")"<<endl;
     //   continue;
     // }
-    if(fVerbose>2) std::cout << "Track: "<< track<< " Points: "<< numPts <<std::endl;
+    //  if(fVerbose>2) 
+    std::cout << "Track: "<< track<< " Points: "<< numPts <<std::endl;
     ///--------------------------------------
 
     TGraph2DErrors fitme(numPts); //new graph for fitting
@@ -353,16 +355,11 @@ double PndLmdLinFitTask::line3Dfit(Int_t nd, TGraph2DErrors* gr, TVector3 posSee
   //  double l = 1/dirSeed.Z();
   double l = 1/dirSeed.Mag();
   //  double pStart[6] = {posSeed.X(),l*dirSeed.X(),posSeed.Y(),l*dirSeed.Y(),posSeed.Z(),1.};
-  //double pStart[6] = {posSeed.X(),l*dirSeed.X(),posSeed.Y(),l*dirSeed.Y(),posSeed.Z(),l*dirSeed.Z()};
-  //  //go out of middle of plane!
-  double pStart[6] = {posSeed.X(),l*dirSeed.X(),posSeed.Y(),l*dirSeed.Y(),posSeed.Z()-0.0085,l*dirSeed.Z()};//85 mkm!!!
-  //  double pStart[6] = {posSeed.X(),l*dirSeed.X(),posSeed.Y(),l*dirSeed.Y(),posSeed.Z()-0.0075,l*dirSeed.Z()};//75 mkm!!!
-  //double pStart[6] = {posSeed.X(),l*dirSeed.X(),posSeed.Y(),l*dirSeed.Y(),posSeed.Z()-0.01,l*dirSeed.Z()};//100 mkm!!!
-  //  double pStart[6] = {posSeed.X(),l*dirSeed.X(),posSeed.Y(),l*dirSeed.Y(),posSeed.Z(),l*dirSeed.Z()};//75 mkm!!!
-  // double Z0 = -0.0075;//fix start of track before 1st lumi plane!
-  // double dx = (Z0 - posSeed.Z())*l*dirSeed.X();
-  // double dy = (Z0 - posSeed.Z())*l*dirSeed.Y();
-  // double pStart[6] = {posSeed.X(),(l*dirSeed.X()+dx),posSeed.Y(),(l*dirSeed.Y()+dy),-0.0075,l*dirSeed.Z()};
+
+  double pStart[6] = {posSeed.X(),l*dirSeed.X(),posSeed.Y(),l*dirSeed.Y(),posSeed.Z(),l*dirSeed.Z()};
+  // //  //go out of middle of plane!
+  // double pStart[6] = {posSeed.X(),l*dirSeed.X(),posSeed.Y(),l*dirSeed.Y(),posSeed.Z()-0.0085,l*dirSeed.Z()};//85 mkm!!!
+  
   double pStartErr[6] = {ErrX1,errRx,ErrY1,errRy,ErrZ1,errRz};
   if(fVerbose>2){
     for(int i=0;i<6;i++)
