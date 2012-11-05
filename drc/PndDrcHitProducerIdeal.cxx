@@ -28,6 +28,7 @@
 #include "PndGeoDrcPar.h"
 #include "TFormula.h"
 #include "TMath.h"
+#include "TGeoMatrix.h"
 #include "TParticlePDG.h"
 #include "TDatabasePDG.h"
 #include "TPDGCode.h"
