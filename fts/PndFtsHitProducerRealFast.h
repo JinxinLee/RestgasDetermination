@@ -51,26 +51,30 @@ class PndFtsHitProducerRealFast : public FairTask
 
 
   /** Input array of PndFtsPoints **/
-  TClonesArray* fPointArray;  //!
+  TClonesArray* fPointArray; 
 
   /** Output array of PndFtsHits **/
-  TClonesArray* fHitArray;    //!
+  TClonesArray* fHitArray;   
 
-  TObjArray *fVolumeArray;    //!
+  TObjArray *fVolumeArray;   
 
   /** Output array of PndFtsHitInfo **/
-  TClonesArray* fHitInfoArray;//!
+  TClonesArray* fHitInfoArray;
   Int_t fevtn;
 
-  PndGeoFtsPar*  fFtsParameters;//!
+  PndGeoFtsPar*  fFtsParameters;
   
   /** object persistence **/
   Bool_t  fPersistence; //!
 
+
+  TClonesArray* fTubeArray;
+
+
   PndFtsHitProducerRealFast(const  PndFtsHitProducerRealFast& L);
   PndFtsHitProducerRealFast& operator= (const  PndFtsHitProducerRealFast&) {return *this;}
-
- ClassDef(PndFtsHitProducerRealFast,1);
+  
+  ClassDef(PndFtsHitProducerRealFast,1);
 
 };
 

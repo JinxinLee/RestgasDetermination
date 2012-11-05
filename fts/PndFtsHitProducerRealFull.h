@@ -48,18 +48,21 @@ class PndFtsHitProducerRealFull : public FairTask
  private: 
 
   /** Input array of PndFtsPoints **/
-  TClonesArray* fPointArray;   //!
+  TClonesArray* fPointArray;   
 
   /** Output array of PndFtsHits **/
-  TClonesArray* fHitArray;     //!
+  TClonesArray* fHitArray;    
 
   /** Output array of PndFtsHitInfo **/
-  TClonesArray* fHitInfoArray; //!
+  TClonesArray* fHitInfoArray;
+
+  PndGeoFtsPar *fFtsParameters;
 
   /** object persistence **/
-  Bool_t  fPersistence; //!
+  Bool_t  fPersistence; 
 
-  PndGeoFtsPar *fFtsParameters;  //!  CHECK added
+  /** from parameters array of PndSttTube **/  //  CHECK added
+  TClonesArray* fTubeArray;
 
   PndFtsHitProducerRealFull(const  PndFtsHitProducerRealFull& L);
   PndFtsHitProducerRealFull& operator= (const  PndFtsHitProducerRealFull&) {return *this;}

@@ -40,10 +40,14 @@ using std::sqrt;
 
 // -----   Default constructor   -------------------------------------------
 PndFtsHitProducerIdeal::PndFtsHitProducerIdeal() :
-  FairTask("Ideal FTS Hit Producer"), fPointArray(new TClonesArray),  fHitArray(new TClonesArray),
-  fTubeArray(new TClonesArray), fHitInfoArray(new TClonesArray), fFtsParameters(new PndGeoFtsPar()), 
-  fPersistence(kTRUE)
-{ 
+  FairTask("Ideal FTS Hit Producer")
+{
+  fPersistence = kTRUE;
+  fPointArray    = NULL;
+  fHitArray      = NULL;
+  fHitInfoArray  = NULL;
+  fTubeArray     = NULL; 
+  fFtsParameters =0;
 }
 // -------------------------------------------------------------------------
 
@@ -87,7 +91,7 @@ InitStatus PndFtsHitProducerIdeal::Init()
   ioman->Register("FTSHitInfo", "FTS", fHitInfoArray, fPersistence);
 
   // CHECK added 
-  PndFtsMapCreator *fMapper     = new PndFtsMapCreator(fFtsParameters);
+  //PndFtsMapCreator *fMapper     = new PndFtsMapCreator(fFtsParameters);
   cout << "-I- PndFtsHitProducerIdeal: Intialisation successfull" << endl;
 
   return kSUCCESS;
@@ -103,6 +107,10 @@ void PndFtsHitProducerIdeal::SetParContainers() {
 // -----   Public method Exec   --------------------------------------------
 void PndFtsHitProducerIdeal::Exec(Option_t* opt) 
 {
+  if(fTubeArray == NULL){
+    PndFtsMapCreator *mapper = new PndFtsMapCreator(fFtsParameters);
+    fTubeArray = mapper->FillTubeArray();
+  }
   // Reset output array
   if ( ! fHitArray ) 
     Fatal("Exec", "No HitArray");
@@ -141,13 +149,14 @@ void PndFtsHitProducerIdeal::Exec(Option_t* opt)
       // tubeID  CHECK added
       Int_t tubeID = point->GetTubeID();
       Int_t chamberID = point->GetChamberID();
+      PndFtsTube *tube = (PndFtsTube*) fTubeArray->At(tubeID);
 
       // Determine hit position and isochrone (x,y of wire, measured z  position)
       TVector3
 	posInLocal(point->GetXInLocal(), point->GetYInLocal(), point->GetZInLocal()),
 	posOutLocal(point->GetXOutLocal(), point->GetYOutLocal(), point->GetZOutLocal());
 
-      TVector3 position(point->GetX(), point->GetY(), point->GetZ());
+      TVector3 position = tube->GetPosition();
 
       Double_t
 	closestDistance,

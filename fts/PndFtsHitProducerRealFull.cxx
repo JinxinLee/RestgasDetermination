@@ -34,8 +34,8 @@ using std::endl;
 
 // -----   Default constructor   -------------------------------------------
 PndFtsHitProducerRealFull::PndFtsHitProducerRealFull() :
-  FairTask("Ideal Fts Hit Producer"), fPointArray(new TClonesArray),  fHitArray(new TClonesArray),
-  fHitInfoArray(new TClonesArray), fFtsParameters(new PndGeoFtsPar()), 
+  FairTask("Real FTS Hit Producer"), fPointArray(new TClonesArray),  fHitArray(new TClonesArray),
+  fHitInfoArray(new TClonesArray), fFtsParameters(new PndGeoFtsPar()),
   fPersistence(kTRUE)
 {
 }
@@ -77,7 +77,9 @@ InitStatus PndFtsHitProducerRealFull::Init() {
   ioman->Register("FTSHitInfo", "FTS", fHitInfoArray, fPersistence);
   
   // CHECK added 
-  
+  PndFtsMapCreator *mapper = new PndFtsMapCreator(fFtsParameters);
+  fTubeArray = mapper->FillTubeArray();
+
   cout << "-I- PndFtsHitProducerRealFull: Intialization successfull" << endl;
   
   return kSUCCESS;
@@ -88,7 +90,7 @@ InitStatus PndFtsHitProducerRealFull::Init() {
 // CHECK added 
 void PndFtsHitProducerRealFull::SetParContainers() {
   FairRuntimeDb* rtdb = FairRunAna::Instance()->GetRuntimeDb();
-  //fSttParameters = (PndGeoSttPar*) rtdb->getContainer("PndGeoSttPar");
+  fFtsParameters = (PndGeoFtsPar*) rtdb->getContainer("PndGeoFtsPar");
 }
 
 // -----   Public method Exec   --------------------------------------------
@@ -113,7 +115,7 @@ void PndFtsHitProducerRealFull::Exec(Option_t* opt) {
   // Declare some variables
   PndFtsPoint* point  = NULL;
    
-  // Loop over SttPoints
+  // Loop over FtsPoints
   Int_t nPoints = fPointArray->GetEntriesFast();
   for (Int_t iPoint = 0; iPoint < nPoints; iPoint++) {
     point  = (PndFtsPoint*) fPointArray->At(iPoint);
@@ -124,6 +126,7 @@ void PndFtsHitProducerRealFull::Exec(Option_t* opt) {
     // tubeID  CHECK added
     Int_t tubeID = point->GetTubeID();
     Int_t chamberID = point->GetChamberID();    
+    PndFtsTube *tube = (PndFtsTube*) fTubeArray->At(tubeID);
 
     double InOut[6];
     memset(InOut, 0, sizeof(InOut));
@@ -175,12 +178,9 @@ void PndFtsHitProducerRealFull::Exec(Option_t* opt) {
     Double_t closestDistanceError = 0.0150; // per adesso (stessa che in Ideal: 
                                             // radialResolution = 0.0150)
 
-    TVector3 position(point->GetX(), point->GetY(), point->GetZ());
+    TVector3 position = tube->GetPosition();
 
     // ----------------
-    // stt2, ma cancellati in stt1 (controlla: in stt2 la posizione dell' hit non 
-    // corrisponde al centro del tubo (xcentro, ycentro, 35.), ma per il Real deve
-    // essere cosi' ??perche' in stt2 non e' cosi'??
     // TVector3 posInLocal(point->GetXInLocal(), point->GetYInLocal(), point->GetZInLocal());
     // TVector3 posOutLocal(point->GetXOutLocal(), point->GetYOutLocal(), point->GetZOutLocal());
     // Double_t zpos = position.Z() + ((posOutLocal.Z() + posInLocal.Z()) / 2.);
@@ -195,7 +195,6 @@ void PndFtsHitProducerRealFull::Exec(Option_t* opt) {
     dpos.SetXYZ(0.5, 0.5, 3.); // per adesso (stessi che in Ideal:
                                // innerStrawDiameter/2 = 0.5,
                                // longitudinalResolution = 3.)
-    //----- end stt2 ------------------------------------------
 
 
     // create hit

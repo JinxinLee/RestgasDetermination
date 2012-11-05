@@ -94,7 +94,7 @@ InitStatus PndFtsHitProducerRealFast::Init() {
 
   //CHECK added
   PndFtsMapCreator *mapper = new PndFtsMapCreator(fFtsParameters);
-  //fTubeArray = mapper->FillTubeArray();
+  fTubeArray = mapper->FillTubeArray();
 
   return kSUCCESS;
 
@@ -143,6 +143,7 @@ void PndFtsHitProducerRealFast::Exec(Option_t* opt) {
     // tubeID  CHECK added
     Int_t tubeID = point->GetTubeID();
     Int_t chamberID=point->GetChamberID();
+    PndFtsTube *tube = (PndFtsTube*) fTubeArray->At(tubeID);
 
     double InOut[6];
     memset(InOut, 0, sizeof(InOut));
@@ -160,8 +161,8 @@ void PndFtsHitProducerRealFast::Exec(Option_t* opt) {
     //setting the single straw tube simulation constants
     // 3 options currently available:
     // TConst(tube radius (cm), gas pressure (bar), Ar%, CO2%)
-    // stt.TConst(0.4, 1, 0.9, 0.1); 
-    //stt.TConst(0.5, 1, 0.9, 0.1);//1 bar
+    // fts.TConst(0.4, 1, 0.9, 0.1); 
+    //fts.TConst(0.5, 1, 0.9, 0.1);//1 bar
     fts.TConst(0.5, 2, 0.8, 0.2);  //2 bar
     
     // wire positioning->controllare bene  
@@ -208,8 +209,9 @@ void PndFtsHitProducerRealFast::Exec(Option_t* opt) {
     //closestDistanceError = 0.0150; //150 microns check this point!                             
     //closestDistanceError =TMath::Sqrt(2.)*radius/TMath::Sqrt(12);
 
-    TVector3 position(point->GetX(), point->GetY(), point->GetZ());
 
+    //TVector3 position(point->GetX(), point->GetY(), point->GetZ()); //point info
+    TVector3 position = tube->GetPosition();
     pos.SetXYZ(position.X(), position.Y(), position.Z()); // <--- stt1
 
     //    dpos.SetXYZ(innerStrawDiameter / 2., innerStrawDiameter / 2., GetLongitudinalResolution(position.Z()));
