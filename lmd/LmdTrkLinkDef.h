@@ -16,7 +16,9 @@
 #pragma link C++ class PndLmdIdealFitTask+;
 #pragma link C++ class PndLinTrack+;
 //#pragma link C++ class PndLmdMCPointLinFitTask+;
+//#pragma link C++ class PndLmdTrackCandToGFTrackCandConvertorTask+;
 #pragma link C++ class PndLmdGeaneTask+;
+#pragma link C++ class PndLmdKalmanTask+;
 //#pragma link C++ class FairGeaneTrLmd+;
 
 
