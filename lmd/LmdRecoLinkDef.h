@@ -15,5 +15,6 @@
 #pragma link C++ class PndLmdStripClusterTask+;
 #pragma link C++ class PndLmdPixelClusterTask+;
 #pragma link C++ class PndLmdHitMergeTask+;
+
 #endif
 
