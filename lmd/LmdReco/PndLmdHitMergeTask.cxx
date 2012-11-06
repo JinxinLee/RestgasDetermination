@@ -62,8 +62,8 @@ InitStatus PndLmdHitMergeTask::Init()
 
   // set output arrays
   fMergedHitArray = new TClonesArray("PndSdsHit");
-  ioman->Register("LmdHits", "PndLmd", fMergedHitArray, true);
-  
+  // ioman->Register("LmdHits", "PndLmd", fMergedHitArray, true);
+  ioman->Register("LMDHitsMerged", "PndLmd", fMergedHitArray, true);
   Info("Init","Initialisation successfull");
   return kSUCCESS;
 }
