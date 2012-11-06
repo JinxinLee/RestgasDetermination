@@ -565,31 +565,31 @@ Bool_t PndLmdStripClusterTask::Backmap( TVector2 meantopPoint, Double_t meantope
   //  cout<<"sensorID = "<<sensorID<<endl;
   //  cout<<"fGeoH = "<<fGeoH<<endl;
   Double_t errZ = 2.*fGeoH->GetSensorDimensionsShortId(sensorID).Z()/TMath::Sqrt(12.0);
-  // cout<<"fGeoH->GetSensorDimensionsShortId(sensorID).Z() = "<<fGeoH->GetSensorDimensionsShortId(sensorID).Z()<<endl;
+  //cout<<"fGeoH->GetSensorDimensionsShortId(sensorID).Z() = "<<fGeoH->GetSensorDimensionsShortId(sensorID).Z()<<endl;
   //  Double_t errZ = fGeoH->GetSensorDimensionsShortId(sensorID).Z()/TMath::Sqrt(12.0);//TEST!!!
   // cout<<"errZ = "<<errZ<<endl;
 
   TVector2 onsensorPoint = 
   CalcLineCross(meantopPoint, fCurrentStripCalcTop->GetStripDirection(), meanbotPoint, fCurrentStripCalcBot->GetStripDirection() );
-  // here we assume the sensor system to be in the _Middle_ of the volume
+  // // here we assume the sensor system to be in the _Middle_ of the volume
   localpos.SetXYZ( onsensorPoint.X(), onsensorPoint.Y(), 0.);
+ // here we assume the sensor system to be in the _surface_ of the volume
+  //localpos.SetXYZ( onsensorPoint.X(), onsensorPoint.Y(),-(fGeoH->GetSensorDimensionsShortId(sensorID).Z()));
   // let's see if we're still on the sensor (cut combinations with noise off)
   if(fabs(localpos.X()) > fabs(fCurrentDigiPar->GetTopAnchor().X())) return kFALSE;
   if(fabs(localpos.Y()) > fabs(fCurrentDigiPar->GetTopAnchor().Y())) return kFALSE;
   
+ 
   //do the transformation from sensor to lab frame
   hitPos = fGeoH->LocalToMasterShortId(localpos,sensorID);
-  // cout<<"!!! OLD HIT in LAB frame!!! "<<endl;
-  // hitPos.Print();
+  
+  ///TODO: think how to make alignment with using Kalman fillter
+  // // //do the transformation from lab frame to LUMI frame (with z-axis perp. to lumi planes)
+  // combitransToLumiFrame(hitPos);
 
-  // //do the transformation from lab frame to LUMI frame (with z-axis perp. to lumi planes)
-  combitransToLumiFrame(hitPos);
-  // if(fabs(hitPos.Z())<1e-2) hitPos.SetZ(0.);//TEST
-  // cout<<"!!! NEW HIT in LUMI frame!!! "<<endl;
-  // hitPos.Print();
-
-  //do correction due to misalignemt of sensor
-  alignmentCorr(hitPos,sensorID);
+  // //do correction due to misalignemt of sensor
+  // alignmentCorr(hitPos,sensorID);
+  
 
   // calculate the errors corresponding to a skewed system!
   t = meantoperr*fCurrentDigiPar->GetTopPitch()*cos(fCurrentDigiPar->GetOrient());
@@ -600,30 +600,22 @@ Bool_t PndLmdStripClusterTask::Backmap( TVector2 meantopPoint, Double_t meantope
   locCov[1][1]=t*t+b*b+2*fabs(t*b*cos(fCurrentDigiPar->GetSkew())); //TEST
   locCov[2][2]=errZ*errZ;
 
-  //Add unsertancy due to multiple scattering
-  TVector3 hitErr(sqrt(locCov[0][0]),sqrt(locCov[1][1]),sqrt(locCov[2][2]));
-  TVector3 hitErrMSadd = AddMSErr(hitPos, hitErr);
-  locCov[0][0] = TMath::Power(hitErrMSadd.X(),2);
-  locCov[1][1] = TMath::Power(hitErrMSadd.Y(),2);
-  locCov[2][2] = TMath::Power(hitErrMSadd.Z(),2);
+  //TODO: we don't need it fo KF, but need it for Chi2 fit =\
+  // //Add unsertancy due to multiple scattering
+  // TVector3 hitErr(sqrt(locCov[0][0]),sqrt(locCov[1][1]),sqrt(locCov[2][2]));
+  // TVector3 hitErrMSadd = AddMSErr(hitPos, hitErr);
+  // locCov[0][0] = TMath::Power(hitErrMSadd.X(),2);
+  // locCov[1][1] = TMath::Power(hitErrMSadd.Y(),2);
+  // locCov[2][2] = TMath::Power(hitErrMSadd.Z(),2);
 
+  
   //do the transformation from sensor to lab frame
   hitCov = fGeoH->LocalToMasterErrorsShortId(locCov,sensorID);
 
-  //transformation to LUMI frame
-  hitCov = rotateToLumiFrame(hitCov);
-  // cout<<"Cov Matrix for hit:"<<endl;
-  // hitCov.Print();
-
-  // //Add unsertancy due to multiple scattering
-  // TVector3 hitErr(sqrt(hitCov[0][0]),sqrt(hitCov[1][1]),sqrt( hitCov[2][2]));
-  // TVector3 hitErrMSadd = AddMSErr(hitPos, hitErr);
-  // hitCov[0][0] = TMath::Power(hitErrMSadd.X(),2);
-  // hitCov[1][1] = TMath::Power(hitErrMSadd.Y(),2);
-  // hitCov[2][2] = TMath::Power(hitErrMSadd.Z(),2);
-
-  // cout<<"NEW Cov Matrix for hit:"<<endl;
-  // hitCov.Print();
+  ///TODO: think how to make alignment with using Kalman fillter
+  // //transformation to LUMI frame
+  // hitCov = rotateToLumiFrame(hitCov);
+ 
   return kTRUE;
 }
 

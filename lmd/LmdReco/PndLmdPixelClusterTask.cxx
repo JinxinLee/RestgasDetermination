@@ -250,26 +250,27 @@ void PndLmdPixelClusterTask::Exec(Option_t* opt)
     // mapping with the choosen back mapping
     PndSdsHit myHit = fBackMapping->GetCluster(clusterArray);
     myHit.SetClusterIndex(fClusterType,i, 0, fEventNr);
-    if(fVerbose>0){
-      cout<<"Before transl to LUMI frame:"<<endl;
-      myHit.Print();
-    }
-    TVector3 hitPos = myHit.GetPosition();
-    TMatrixD hitCov = myHit.GetCov();
-    ///don't want touch BackMapping now
-    ///Let's work with coordinates in Global frame
-    hitPos = lmddim->Transform_global_to_lmd_local(hitPos, false, false);
-    hitCov = lmddim->Transform_global_to_lmd_local(hitCov, false);
-    if(fVerbose>0){
-      cout<<"After Transform_global_to_lmd_local:"<<endl;
-      hitPos.Print();
-      hitCov.Print();
-    }
+    //translate to LUMI frame --------------------
+    // if(fVerbose>0){
+    //   cout<<"Before transl to LUMI frame:"<<endl;
+    //   myHit.Print();
+    // }
+    // TVector3 hitPos = myHit.GetPosition();
+    // TMatrixD hitCov = myHit.GetCov();
+    // ///don't want touch BackMapping now
+    // ///Let's work with coordinates in Global frame
+    // hitPos = lmddim->Transform_global_to_lmd_local(hitPos, false, false);
+    // hitCov = lmddim->Transform_global_to_lmd_local(hitCov, false);
+    // if(fVerbose>0){
+    //   cout<<"After Transform_global_to_lmd_local:"<<endl;
+    //   hitPos.Print();
+    //   hitCov.Print();
+    // }
    
-    myHit.SetPosition(hitPos);//save value
-    myHit.SetCov(hitCov);//save value
+    // myHit.SetPosition(hitPos);//save value
+    // myHit.SetCov(hitCov);//save value
+    //translate to LUMI frame (END) ---------------
 
- //   myHit.SetCharge(myHit.GetCharge());
     if(fVerbose>0){
       std::cout << " -I-  PndSdsPixelClusterTask::Exec(): Calculated Hit(LUMI frame): " << std::endl;
       myHit.Print();
