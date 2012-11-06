@@ -51,7 +51,8 @@ PndLmdLinFitTask::PndLmdLinFitTask()
   : FairTask("3D-Straight-Line-Fit")
 {
   fTCandBranchName = "LMDTrackCand";
-  fRecoBranchName = "LMDHitsStrip";
+  // fRecoBranchName = "LMDHitsStrip";
+  fRecoBranchName = "LMDHitsPixel";
   //  fRecoBranchName = "LmdHits";
   fTruePointBranch = "LMDPoint";  //True Points only for drawing!
 }
@@ -185,6 +186,9 @@ void PndLmdLinFitTask::Exec(Option_t* opt)
 					    accuracy, firstHit, lastHit, track);
     trackfit->SetCovarianceMatrix(*COVmatrix);
     new((*fTrackArray)[rec_tkr]) PndLinTrack(*(trackfit)); //save Track
+    TVector3 dirTEST = trackfit->GetDirectionVec();
+    cout<<"dirTEST:"<<endl;
+    dirTEST.Print();
     delete trackfit;//TEST
     rec_tkr++;
     //}

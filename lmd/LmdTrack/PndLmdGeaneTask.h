@@ -25,7 +25,6 @@
 #include "TVector3.h"
 //#include "PndSdsGeoHandling.h"
 #include "PndGeoHandling.h"
-#include "FairGeanePro.h"
 #include <vector>
 #include <map>
 #include "PndLmdDim.h"

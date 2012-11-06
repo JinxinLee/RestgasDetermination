@@ -162,7 +162,8 @@ void PndLmdGeaneTask::Exec(Option_t* opt)
   //  Int_t PDGCode = fPDGid;
   TDatabasePDG *fdbPDG = TDatabasePDG::Instance();
   TParticlePDG *fParticle = fdbPDG->GetParticle(PDGCode);
-  Double_t  fCharge = fParticle->Charge();
+  Double_t  fCharge = fParticle->Charge()/3.;
+  //  cout<<"fCharge = "<<fCharge<<endl;
 
   //go through all tracks
   int glI = fTracks->GetEntriesFast();
@@ -183,39 +184,40 @@ void PndLmdGeaneTask::Exec(Option_t* opt)
       StartPos = recTrack->GetStartVec();
       StartPosErr = recTrack->GetStartErrVec();
       StartMomErr = recTrack->GetDirectionErrVec();
-      // //do the transformation from LUMI frame (with z-axis perp. to lumi planes) to lab frame
-      if(flagStipSens){//!strip
-	rotateFromLumiFrame(DirVec,false);
-	combitransFromLumiFrame(StartPos);
-	// rotateFromLumiFrame(StartPosErr, true);
-	// rotateFromLumiFrame(StartMomErr, true);
-      }
-      else{
-	if(flagPixelSens){//!pixel
-	  DirVec  = lmddim->Transform_lmd_local_to_global(DirVec, true, false);
-	  StartPos  = lmddim->Transform_lmd_local_to_global(StartPos, false, false);
-	  TMatrixD StartPosCov(3,3);
-	  StartPosCov(0,0) = StartPosErr.X()*StartPosErr.X();
-	  StartPosCov(1,1) = StartPosErr.Y()*StartPosErr.Y();
-	  StartPosCov(2,2) = StartPosErr.Z()*StartPosErr.Z();
-	  StartPosCov = lmddim->Transform_global_to_lmd_local(StartPosCov, false);
-	  StartPosErr.SetXYZ(sqrt(StartPosCov(0,0)),sqrt(StartPosCov(1,1)),sqrt(StartPosCov(2,2)));
-	  // cout<<"StartPosCov: "<<endl;
-	  // StartPosCov.Print();
-	  TMatrixD StartMomCov(3,3);
-	  StartMomCov(0,0) = StartMomErr.X()*StartMomErr.X();
-	  StartMomCov(1,1) = StartMomErr.Y()*StartMomErr.Y();
-	  StartMomCov(2,2) = StartMomErr.Z()*StartMomErr.Z();
-	  StartMomCov = lmddim->Transform_global_to_lmd_local(StartMomCov, false);
-	  StartMomErr.SetXYZ(sqrt(StartMomCov(0,0)),sqrt(StartMomCov(1,1)),sqrt(StartMomCov(2,2)));
-	  // cout<<"StartMomCov: "<<endl;
-	  // StartMomCov.Print();
-	}
-	else{
-	  std::cout<<"Algorithm is needed sensor type! Please, set it via SetSensStripFlag(bool fS) or SetSensPixelFlag(bool fS)"<<std::endl;
-	  return;
-	}
-      }
+
+      // // //do the transformation from LUMI frame (with z-axis perp. to lumi planes) to lab frame
+      // if(flagStipSens){//!strip
+      // 	rotateFromLumiFrame(DirVec,false);
+      // 	combitransFromLumiFrame(StartPos);
+      // 	// rotateFromLumiFrame(StartPosErr, true);
+      // 	// rotateFromLumiFrame(StartMomErr, true);
+      // }
+      // else{
+      // 	if(flagPixelSens){//!pixel
+      // 	  DirVec  = lmddim->Transform_lmd_local_to_global(DirVec, true, false);
+      // 	  StartPos  = lmddim->Transform_lmd_local_to_global(StartPos, false, false);
+      // 	  TMatrixD StartPosCov(3,3);
+      // 	  StartPosCov(0,0) = StartPosErr.X()*StartPosErr.X();
+      // 	  StartPosCov(1,1) = StartPosErr.Y()*StartPosErr.Y();
+      // 	  StartPosCov(2,2) = StartPosErr.Z()*StartPosErr.Z();
+      // 	  StartPosCov = lmddim->Transform_global_to_lmd_local(StartPosCov, false);
+      // 	  StartPosErr.SetXYZ(sqrt(StartPosCov(0,0)),sqrt(StartPosCov(1,1)),sqrt(StartPosCov(2,2)));
+      // 	  // cout<<"StartPosCov: "<<endl;
+      // 	  // StartPosCov.Print();
+      // 	  TMatrixD StartMomCov(3,3);
+      // 	  StartMomCov(0,0) = StartMomErr.X()*StartMomErr.X();
+      // 	  StartMomCov(1,1) = StartMomErr.Y()*StartMomErr.Y();
+      // 	  StartMomCov(2,2) = StartMomErr.Z()*StartMomErr.Z();
+      // 	  StartMomCov = lmddim->Transform_global_to_lmd_local(StartMomCov, false);
+      // 	  StartMomErr.SetXYZ(sqrt(StartMomCov(0,0)),sqrt(StartMomCov(1,1)),sqrt(StartMomCov(2,2)));
+      // 	  // cout<<"StartMomCov: "<<endl;
+      // 	  // StartMomCov.Print();
+      // 	}
+      // 	else{
+      // 	  std::cout<<"Algorithm is needed sensor type! Please, set it via SetSensStripFlag(bool fS) or SetSensPixelFlag(bool fS)"<<std::endl;
+      // 	  return;
+      // 	}
+      // }
       
       // StartMom = TVector3(DirVec.X()*fPbeam,DirVec.Y()*fPbeam,DirVec.Z()*fPbeam); 
       StartMom = fPbeam*DirVec;

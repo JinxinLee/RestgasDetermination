@@ -69,7 +69,8 @@ PndLmdKalmanTask::PndLmdKalmanTask()
 {
   //  fTrackBranchName = "GFTrackCandLmd";
   fTrackBranchName = "LMDTrackCand";
-  fSdsHitBranchName = "LMDHitsStrip";
+  //  fSdsHitBranchName = "LMDHitsStrip";
+  fSdsHitBranchName = "LMDHitsPixel";
   PndGeoHandling::Instance();
 }
 
@@ -121,7 +122,8 @@ PndLmdKalmanTask::Init()
   // Build hit factory -----------------------------
   fTheRecoHitFactory = new GFRecoHitFactory();
 
-  TClonesArray* stripar=(TClonesArray*) ioman->GetObject("LMDHitsStrip");
+  // TClonesArray* stripar=(TClonesArray*) ioman->GetObject("LMDHitsStrip");
+  TClonesArray* stripar=(TClonesArray*) ioman->GetObject(fSdsHitBranchName);
   if(stripar==0){ //TODO Convention on detector number needed
     Error("PndLmdKalmanTask::Init","LMDHitsStrip array not found");
   } else {
@@ -160,7 +162,7 @@ PndLmdKalmanTask::Init()
     (rtdb->findContainer("FairBaseParSet"));
   fPbeam = par->GetBeamMom();
   //fPbeam -=8.77e-5;//TEST!!! energy loss for 11.91 GeV/c
-  fPbeam -=1e-4;//TEST!!! energy loss for 1.5 GeV/c
+  // fPbeam -=1e-4;//TEST!!! energy loss for 1.5 GeV/c
   std::cout<<"Beam Momentum for this run is "<<fPbeam<<std::endl;
   fPDGCode = -2212; //barp
   fCharge = -1;//barp
@@ -336,8 +338,8 @@ PndLmdKalmanTask::Exec(Option_t* opt)
     FairTrackParH *fStart = new FairTrackParH(StartPos, StartMom, StartPosErr, StartMomErr, fCharge);
     FairTrackParH *fRes = new FairTrackParH();
     //   Double_t deltaZ = -7.5e-3;//go out of plane for 75 mkm
-    Double_t deltaZ = +7.5e-3;//go out of plane for 75 mkm
-    //  Double_t deltaZ = -5e-18;//go out of plane for 5e-14 mkm
+    //  Double_t deltaZ = +7.5e-3;//go out of plane for 75 mkm
+    Double_t deltaZ = -5e-2;//go out of plane for 500 mkm
     // Double_t deltaZ = +3e1;//go out in plane
     TVector3 dirCand = GFtrkCand->getDirSeed();
     std::cout<<" ---- dirCand ---- "<<std::endl;
@@ -349,8 +351,8 @@ PndLmdKalmanTask::Exec(Option_t* opt)
     fPro->PropagateToPCA(1, -1);
     // fPro->BackTrackToVirtualPlaneAtPCA(1);
     Bool_t rc =  fPro->Propagate(fStart, fRes, fPDGCode);
-    if(rc) std::cout<<"sucsess in back propagation to origin!"<<std::endl;
-    else std::cout<<" =( no sucsess in back propagation to origin! =("<<std::endl;
+    if(rc) std::cout<<"success in back propagation to origin!"<<std::endl;
+    else std::cout<<" =( no success in back propagation to origin! =("<<std::endl;
     if (rc)
       {
  	StartPos.SetXYZ(fRes->GetX(), fRes->GetY(), fRes->GetZ());
@@ -409,7 +411,7 @@ PndLmdKalmanTask::Exec(Option_t* opt)
       std::cout<<"*** FITTER EXCEPTION ***"<<std::endl;
       std::cout<<e.what()<<std::endl;
     }
-    if (fVerbose>0) std::cout<<"SUCCESSFULL FIT!"<<std::endl;
+    if (fVerbose>0) std::cout<<"successful FIT!"<<std::endl;
     std::cout<<"GFTrack: "<<std::endl;
     trk->Print();
 
@@ -462,8 +464,8 @@ PndLmdKalmanTask::Exec(Option_t* opt)
     //    fPro->PropagateToPCA(1, +1);
     fPro->PropagateToPCA(1, -1);
     Bool_t rcNEW =  fPro->Propagate(fStartNEW, fResNEW, fPDGCode);
-    if(rcNEW) std::cout<<"=) ! sucsess in propagation to origin of trk-cand ! (="<<std::endl;
-    else std::cout<<" =( no sucsess in propagation to origin of trk-cand =("<<std::endl;
+    if(rcNEW) std::cout<<"=) ! success in propagation to origin of trk-cand ! (="<<std::endl;
+    else std::cout<<" =( no success in propagation to origin of trk-cand =("<<std::endl;
     if (rcNEW)
       {
  	FinPos.SetXYZ(fResNEW->GetX(), fResNEW->GetY(), fResNEW->GetZ());
