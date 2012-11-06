@@ -21,6 +21,7 @@
 #include<TStopwatch.h>
 #include<TNtuple.h>
 #include<PndMCTrack.h>
+#include<PndTrack.h>
 #include<PndSdsMCPoint.h>
 #include "PndLmdDim.h"
 
@@ -132,9 +133,10 @@ int main(int __argc,char *__argv[]) {
   int startEvent=0;
   TString storePath="/data/FAIRsorf/pandaroot/trunk/macro/lmd/tmpOutput";
   double Plab=15.;
-  int verboseLevel=0;
+  int verboseLevel=5;
+  int kf = 0;//if>0 then Kalman Fillter was used for trk-fit
   int dnu=0;//if>0 then use namespace for pixel
-  std::string startStr="", momStr="", nStr="", pathStr="", verbStr="" , mcTrkStr="", useNewDStr="";
+  std::string startStr="", momStr="", nStr="", pathStr="", verbStr="" , mcTrkStr="", useNewDStr="",usedKFStr="";
   // decode arguments
   if( __argc>1 && ( strcmp( __argv[1], "-help" ) == 0
 		    || strcmp( __argv[1], "--help" ) == 0 ) ){
@@ -146,7 +148,8 @@ int main(int __argc,char *__argv[]) {
 	      <<"-mom Beam Momentum \n"
 	      <<"-path path to the file(s) \n"
 	      <<"-v verbose Level (if>0, print out some information) \n"
-	      <<"-npx if>0 then use namespace for pixel"
+	      <<"-npx if>0 then use namespace for pixel \n"
+	      <<"-kf if>0 then Kalman Fillter was used for trk-fit \n"
 	      <<"Have fun! \n"
 	      << std::endl;
     return 0;
@@ -189,6 +192,11 @@ int main(int __argc,char *__argv[]) {
       useNewDStr = __argv[optind];
       found=true;
     }
+    if (sw=="-kf"){
+      optind++;
+      usedKFStr = __argv[optind];
+      found=true;
+    }
     if (!found){
       std::cout<< "Unknown switch: "
 	       << __argv[optind] <<std::endl;
@@ -198,7 +206,7 @@ int main(int __argc,char *__argv[]) {
   while ( (optind < __argc ) && __argv[optind][0]!='-' ) optind++; 
   }
 
-  std::stringstream startSStr(startStr), momSStr(momStr), nSStr(nStr), pathSStr(pathStr), verbSStr(verbStr), mcTrkSStr(mcTrkStr),useNewDSStr(useNewDStr);
+  std::stringstream startSStr(startStr), momSStr(momStr), nSStr(nStr), pathSStr(pathStr), verbSStr(verbStr), mcTrkSStr(mcTrkStr),useNewDSStr(useNewDStr), usedKFSStr(usedKFStr);
 
   startSStr >> startEvent;
   momSStr >> Plab;
@@ -207,6 +215,7 @@ int main(int __argc,char *__argv[]) {
   verbSStr >> verboseLevel;
   mcTrkSStr >> nMCtracks;
   useNewDSStr >> dnu;
+  usedKFSStr >> kf;
   cout<<"Will be used Path: "<<storePath<<endl;
   //void MCandRECTrkmatches(const int nEvents=2, const int startEvent=0, TString storePath="tmpOutput", const int verboseLevel=3, double dv=0.5, bool no4d=false)
   //{
@@ -247,12 +256,19 @@ int main(int __argc,char *__argv[]) {
   trkCand += ".root";
   TChain tTrkCand("cbmsim");
   tTrkCand.Add(trkCand);
-  
-  TString recTrack = storePath+"/Lumi_Track_";
+
+  TString recTrack;
+  TChain tTrkRec("cbmsim");
+  recTrack = storePath+"/Lumi_Track_";
   recTrack += startEvent;
   recTrack += ".root";
-  TChain tTrkRec("cbmsim");
   tTrkRec.Add(recTrack);
+  // if(kf<1){
+  //   recTrack = storePath+"/Lumi_Track_";
+  //   recTrack += startEvent;
+  //   recTrack += ".root";
+  //   tTrkRec.Add(recTrack);
+  // }
   
   TString geaneFile = storePath+"/Lumi_Geane_";
   geaneFile += startEvent;
@@ -318,6 +334,17 @@ int main(int __argc,char *__argv[]) {
   //--- Real tracks -------------------------------------------------------------------
   TClonesArray* rec_trk=new TClonesArray("PndLinTrack");
   tTrkRec.SetBranchAddress("LMDTrack",&rec_trk);  //Tracks
+  //  tgeane.SetBranchAddress("PndTrackLmd",&rec_trk);  //Tracks
+  // if(kf>0){
+  //   rec_trk = new TClonesArray("PndTrack");
+  //   tgeane.SetBranchAddress("PndTrackLmd",&rec_trk);  //Tracks
+  // }
+  // else{
+  //   rec_trk = new TClonesArray("PndLinTrack");
+  //   tTrkRec.SetBranchAddress("LMDTrack",&rec_trk);  //Tracks
+  // }
+
+  cout<<"Here we go to GEANE file: "<<endl;
   //----------------------------------------------------------------------------------
   
   //--- Geane info ------------------------------------------------------------------
@@ -325,8 +352,9 @@ int main(int __argc,char *__argv[]) {
   TClonesArray* geaneArray =new TClonesArray("FairTrackParH");
   tgeane.SetBranchAddress("GeaneTrackFinal",&geaneArray);  //Tracks with parabolic parametrisation
   
+  cout<<"And we'll make some hists"<<endl;
   //--- Output histogram -----------------------------------------------------
-  TH1 *hchi2 = new TH1F("hchi2","#chi^2 for reconstructed tracks;#chi^2;",5e2,0,50);
+  TH1 *hchi2 = new TH1F("hchi2","#chi^2 for reconstructed tracks;#chi^2;",1.5e2,0,15.);
   TH2 *hnRecnMC = new TH2F("hnRecnMC","Number reconstracted tracks vs. Number simulated tracks; N_{MC}; N_{rec}",
 			   100,0,100,100,0,100);
   TH1 *hDiffIDs = new TH1F("hDiffIDs","Number of track-candidates with hits from diff. MC-track;N_{IDs}",10,0,10);
@@ -335,8 +363,10 @@ int main(int __argc,char *__argv[]) {
   TH1 *hntrkcand = new TH1F("hntrkcand","Number of track-candidates per event;N_{trk-cand}",100,0,100);
   TH1 *hntrk = new TH1F("hntrk","Number of tracks per event;N_{trk}",100,0,100);
   TH1 *hntrkmissed_I = new TH1F("hntrkmissed_I","Number of missed tracks per event (#phi, #theta trks);N_{trk}",30,0,30);
+  TH1 *hntrkgood_I = new TH1F("hntrkgood_I","Number of good tracks per event (#phi, #theta trks);N_{trk}",30,0,30);
   TH1 *hntrkghost_I = new TH1F("hntrkghost_I","Number of ghost tracks per event (#phi, #theta trks);N_{trk}",30,0,30);
   TH1 *hntrkmissed_II = new TH1F("hntrkmissed_II","Number of missed tracks per event (hits matching);N_{trk}",30,0,30);
+  TH1 *hntrkgood_II = new TH1F("hntrkgood_II","Number of good tracks per event (hits matching);N_{trk}",30,0,30);
   TH1 *hntrkghost_II = new TH1F("hntrkghost_II","Number of ghost tracks per event (hits matching);N_{trk}",30,0,30);
   TH2 *hntrkmissedPhiTheta = new TH2F("hntrkmissedPhiTheta",";#delta#theta/#sigma#theta;#delta#phi/#sigma#phi",1000,0,100,1000,0,100);
   TH2 *hntrkcandvsIDs = new TH2F("hntrkcandvsIDs","Number of track-candidates per event vs Number of track-candidates with hits from diff. MC-track;N_{IDs};N_{trk-cand}",10,0,10,100,0,100);
@@ -408,8 +438,8 @@ int main(int __argc,char *__argv[]) {
   TH1 *hErrPointPy = new TH1F("hErrPointPy","#sigma_{Py};#sigmaPy, GeV/c",1e3,0,0.01);
   TH1 *hPullPointPy = new TH1F("hPullPointPy","(Py_{MC}-Py_{rec})/#sigma_{Py};(Py_{MC}-Py_{rec})/#sigma_{Py}",1e2,-10,10);
   
-  TH1 *hResPointPz = new TH1F("hResPointPz","Pz_{MC}-Pz_{rec};#deltaPz, GeV/c",1e2,-1e-4,1e-4);
-  TH1 *hErrPointPz = new TH1F("hErrPointPz","#sigma_{Pz};#sigmaPz, GeV/c",1e3,0,1e-3);
+  TH1 *hResPointPz = new TH1F("hResPointPz","Pz_{MC}-Pz_{rec};#deltaPz, GeV/c",1e2,-1e-3,1e-3);
+  TH1 *hErrPointPz = new TH1F("hErrPointPz","#sigma_{Pz};#sigmaPz, GeV/c",1e3,0,1e-1);
   TH1 *hPullPointPz = new TH1F("hPullPointPz","(Pz_{MC}-Pz_{rec})/#sigma_{Pz};(Pz_{MC}-Pz_{rec})/#sigma_{Pz}",1e2,-10,10);
   
   TH1 *hResDCA = new TH1F("hDCA","|DCA|;|DCA|,cm",1e3,0,10.);
@@ -481,19 +511,23 @@ int main(int __argc,char *__argv[]) {
   for (Int_t j=0; j<nEvents; j++){
     //  cout<<"Event #"<<j<<endl;
     // Read GEANE & MC info -----------------------------------------------------------------
+    //    if(kf<1) 
+    tTrkRec.GetEntry(j);
     tgeane.GetEntry(j);
     tMC.GetEntry(j);
     tTrkCand.GetEntry(j);
-    tTrkRec.GetEntry(j);
     tHits.GetEntry(j);
     tdigiHits.GetEntry(j);
     
     const int nGeaneTrks = geaneArray->GetEntriesFast();
     const int nParticles = true_tracks->GetEntriesFast();
    
+
     const int numTrk = nGeaneTrks;
     const int nRecHits = rechit_array->GetEntriesFast();
     const int nTrkCandidates = trkcand_array->GetEntriesFast();
+    // if(nTrkCandidates<1) continue;//TEST!!!
+    // if(nTrkCandidates!=nGeaneTrks) continue;//TEST!!!
     const int nRecTrks = rec_trk->GetEntriesFast();
     if(verboseLevel>0)  
       cout<<"Event #"<<j<<" has "<<nParticles<<" true particles, "<<" out of it "<<nRecHits<<" hits, "<<nTrkCandidates
@@ -532,20 +566,39 @@ int main(int __argc,char *__argv[]) {
 	cout<<"GEANE didn't propagate this trk!"<<endl;
 	cout<<"Event #"<<j<<" diffIDs = "<<diffIDs<<endl;}
       if(lyambda==0) continue;
-      PndLinTrack *trk = (PndLinTrack*)rec_trk->At(iN);
+      PndLinTrack *trk;
       double linpar[6];
-      trk->GetPar(linpar);
-      hLumiTrkA->Fill(linpar[1]); 
-      hLumiTrkB->Fill(linpar[0]); 
-      hLumiTrkC->Fill(linpar[3]); 
-      hLumiTrkD->Fill(linpar[2]); 
       Double_t errparlin[6];
-      trk->GetParErr(errparlin);
-      Int_t candID = trk->GetTCandID();
-      double chi2 = trk->GetChiSquare();
-      chi2Cont[iN] = chi2;
-      hchi2nTrkCand->Fill(nTrkCandidates,chi2);
-      PndTrackCand *trkcand = (PndTrackCand*)trkcand_array->At(candID);
+      double chi2;
+      PndTrack *trkpnd;
+      Int_t candID;
+      PndTrackCand *trkcand;
+      if(kf>0){
+	trkpnd = (PndTrack*)rec_trk->At(iN);
+	//	trkpnd->Print();
+	candID = trkpnd->GetRefIndex();
+	trkcand = (PndTrackCand*)trkcand_array->At(candID);
+	  //	trkcand = (PndTrackCand*)trkpnd->GetTrackCandPtr();
+	cout<<"Number of hits in trk-cand: "<<trkcand->GetNHits()<<endl;
+	//	candID = trk->GetTCandID();
+      }
+      else{
+	trk = (PndLinTrack*)rec_trk->At(iN);
+	trk->GetPar(linpar);
+	hLumiTrkA->Fill(linpar[1]); 
+	hLumiTrkB->Fill(linpar[0]); 
+	hLumiTrkC->Fill(linpar[3]); 
+	hLumiTrkD->Fill(linpar[2]); 
+	trk->GetParErr(errparlin);
+	candID = trk->GetTCandID();
+	trkcand = (PndTrackCand*)trkcand_array->At(candID);
+	chi2 = trk->GetChiSquare();
+	chi2Cont[iN] = chi2;
+	hchi2nTrkCand->Fill(nTrkCandidates,chi2);
+      }
+      // cout<<"Now I'll try to read candID#"<<candID<<endl;
+      // PndTrackCand *trkcand = (PndTrackCand*)trkcand_array->At(candID);
+      // PndTrackCand *trkcand = (PndTrackCand*)trkcand_array->At(iN); //TODO: find out how to check trk-cand in case then cut are applied to trk-fit results
       const int Ntrkcandhits= trkcand->GetNHits();
       cout<<"Ntrkcandhits = "<<Ntrkcandhits<<endl;
       PndSdsMCPoint* MCPointHit;
@@ -582,6 +635,7 @@ int main(int __argc,char *__argv[]) {
 	MCpointMom = sqrt(MCPoint->GetPx()*MCPoint->GetPx()+MCPoint->GetPy()*MCPoint->GetPy()+MCPoint->GetPz()*MCPoint->GetPz());
 
 	int MCidTOP = MCPoint->GetTrackID();
+	if(verboseLevel>1) cout<<MCidTOP<<" ";
 	if(iHit==0) MCPointHit = MCPoint;
 	// double zTop = MCPoint->GetZ();
 	// double xTop = MCPoint->GetX();
@@ -701,26 +755,29 @@ int main(int __argc,char *__argv[]) {
       if(diffIDs>-1){ // All tracks
 	/// Try to find connection between position of -----------
 	/// reconstructed track and track after GEANE propagation
-	TVector3 pos_rec_trk = trk->GetStartVec();
-	TVector3 dir_rec_trk = trk->GetDirectionVec();
 	TVector3 pos_prop_geane_trk = fRes->GetPosition();
 	Double_t theta_prop_geane_trk = TMath::Pi()/2. - lyambda;
 	Double_t phi_prop_geane_trk = fRes->GetPhi();
-	hRecGEANEX->Fill(pos_rec_trk.X(),pos_prop_geane_trk.X());
-	hRecGEANEY->Fill(pos_rec_trk.Y(),pos_prop_geane_trk.Y());
-	hRecGEANEZ->Fill(pos_rec_trk.Z(),pos_prop_geane_trk.Z());
-	hRecGEANER->Fill(pos_rec_trk.Perp(),pos_prop_geane_trk.Perp());
-	hRecGEANETheta->Fill(dir_rec_trk.Theta(), theta_prop_geane_trk);
-	hRecGEANEPhi->Fill(dir_rec_trk.Phi(), phi_prop_geane_trk);
-	hRecThetaPhi->Fill(dir_rec_trk.Theta(),dir_rec_trk.Phi());
-	
-	hSeedGEANEX->Fill(posSeed.X(),pos_prop_geane_trk.X());
-	hSeedGEANEY->Fill(posSeed.Y(),pos_prop_geane_trk.Y());
-	hSeedGEANEZ->Fill(posSeed.Z(),pos_prop_geane_trk.Z());
-	hSeedGEANER->Fill(posSeed.Perp(),pos_prop_geane_trk.Perp());
-	hSeedGEANETheta->Fill(dirSeed.Theta(), theta_prop_geane_trk);
-	hSeedGEANEPhi->Fill(dirSeed.Phi(), phi_prop_geane_trk);
-	hSeedThetaPhi->Fill(dirSeed.Theta(),dir_rec_trk.Phi());
+	TVector3 pos_rec_trk,dir_rec_trk;
+	if(kf<1){
+	  pos_rec_trk = trk->GetStartVec();
+	  dir_rec_trk = trk->GetDirectionVec();
+	  hRecGEANEX->Fill(pos_rec_trk.X(),pos_prop_geane_trk.X());
+	  hRecGEANEY->Fill(pos_rec_trk.Y(),pos_prop_geane_trk.Y());
+	  hRecGEANEZ->Fill(pos_rec_trk.Z(),pos_prop_geane_trk.Z());
+	  hRecGEANER->Fill(pos_rec_trk.Perp(),pos_prop_geane_trk.Perp());
+	  hRecGEANETheta->Fill(dir_rec_trk.Theta(), theta_prop_geane_trk);
+	  hRecGEANEPhi->Fill(dir_rec_trk.Phi(), phi_prop_geane_trk);
+	  hRecThetaPhi->Fill(dir_rec_trk.Theta(),dir_rec_trk.Phi());
+	  
+	  hSeedGEANEX->Fill(posSeed.X(),pos_prop_geane_trk.X());
+	  hSeedGEANEY->Fill(posSeed.Y(),pos_prop_geane_trk.Y());
+	  hSeedGEANEZ->Fill(posSeed.Z(),pos_prop_geane_trk.Z());
+	  hSeedGEANER->Fill(posSeed.Perp(),pos_prop_geane_trk.Perp());
+	  hSeedGEANETheta->Fill(dirSeed.Theta(), theta_prop_geane_trk);
+	  hSeedGEANEPhi->Fill(dirSeed.Phi(), phi_prop_geane_trk);
+	  hSeedThetaPhi->Fill(dirSeed.Theta(),dir_rec_trk.Phi());
+	}
 	///-------------------------------------------------------
 	
 	/// CUT: Check position and coordinates errors of PCA ---------------------------------------
@@ -863,19 +920,19 @@ int main(int __argc,char *__argv[]) {
 	TVector3 vtxLumiErr = trk->GetStartErrVec();
 	TVector3 dirLumi = trk->GetDirectionVec();
 	TVector3 dirLumiErr = trk->GetDirectionErrVec();
-	// //do the transformation from LUMI frame (with z-axis perp. to lumi planes) to lab frame
-	if(dnu>0){
-	  vtxLumi = lmddim->Transform_lmd_local_to_global(vtxLumi, false, false);
-	  dirLumi = lmddim->Transform_lmd_local_to_global(dirLumi, true, false);
-	  vtxLumiErr = lmddim->Transform_lmd_local_to_global(vtxLumiErr, true, false);
-	  dirLumiErr = lmddim->Transform_lmd_local_to_global(dirLumiErr, true, false);
-	} 
-	else{
-	  combitransFromLumiFrame(vtxLumi,dnu);
-	  rotateFromLumiFrame(dirLumi, false, dnu);
-	  rotateFromLumiFrame(dirLumiErr, true, dnu);
-	  rotateFromLumiFrame(vtxLumiErr, true, dnu);	
-	}
+	// // //do the transformation from LUMI frame (with z-axis perp. to lumi planes) to lab frame
+	// if(dnu>0){
+	//   vtxLumi = lmddim->Transform_lmd_local_to_global(vtxLumi, false, false);
+	//   dirLumi = lmddim->Transform_lmd_local_to_global(dirLumi, true, false);
+	//   vtxLumiErr = lmddim->Transform_lmd_local_to_global(vtxLumiErr, true, false);
+	//   dirLumiErr = lmddim->Transform_lmd_local_to_global(dirLumiErr, true, false);
+	// } 
+	// else{
+	//   combitransFromLumiFrame(vtxLumi,dnu);
+	//   rotateFromLumiFrame(dirLumi, false, dnu);
+	//   rotateFromLumiFrame(dirLumiErr, true, dnu);
+	//   rotateFromLumiFrame(vtxLumiErr, true, dnu);	
+	// }
 	double xTrue = MCPointHit->GetX();
 	double yTrue = MCPointHit->GetY();
 	double zTrue = MCPointHit->GetZ();
@@ -925,6 +982,7 @@ int main(int __argc,char *__argv[]) {
       hchi2MCdiffID->Fill(chi2Cont[nk],ndiffIDCont[nk]);
     }
     /// (I) missed\ghost tracks are defined on Phi\Theta difference between MC&REC trks
+    hntrkgood_I->Fill(goodRectrk);
     if((nMCtracks-goodRectrk)>0) hntrkmissed_I->Fill(nMCtracks-goodRectrk);
     if((nGeaneTrks-goodRectrk)>0) hntrkghost_I->Fill(nGeaneTrks-goodRectrk);
     if(verboseLevel>0){
@@ -939,6 +997,7 @@ int main(int __argc,char *__argv[]) {
       if(goodTrk[iN]) goodRecII++;
       if(ghostTrk[iN]) ghostRecII++;
     }
+    hntrkgood_II->Fill(goodRecII);
     if(ghostRecII>0) hntrkghost_II->Fill(ghostRecII);
     if((nMCtracks-goodRecII)>0) hntrkmissed_II->Fill(nMCtracks-goodRecII);
     if(verboseLevel>0){
