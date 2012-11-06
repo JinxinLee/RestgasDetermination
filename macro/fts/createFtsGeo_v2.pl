@@ -15,19 +15,19 @@ $alpha=5;
 $cosangle=cos($alpha*$pigreco/180);
 $sinangle=sin($alpha*$pigreco/180);
 
-# posizione in Z del CENTRO del primo strato (128 straws)
+# Z position
 #$Zpos = 2954.;
 
-#  lunghezza di una straw
+# straw length
 $len = 640. ;
 
-# diametro esterno di una straw, assumo sia 10. mm
+# straw outer diameter
 $diametrostraw = 10.1;  
 $Zpos = 2954.-$diametrostraw/2;
-# spessore del mylar, assumo sia 0.03 mm
+#  mylar thick
 $spessoremylar = 0.03;
 
-# diametro filo straw, assumo sia 0.05 mm
+# sense wire diameter, wire material W
 $diametrofilo= 0.02;
 
 ################################################################
@@ -37,13 +37,10 @@ $diametrofilo= 0.02;
 $Xpos = $diametrostraw*( $nstraws/2 -0.5);
 $Ypos = 0.;
 
-# costruzione e posizionamento della straw piu' a DESTRA guardando
-# verso downstream;  le altre straws poi saranno delle sue copie.
-
 $semilen = $len/2.;
 $raggio = $diametrostraw/2.;
 
-#  cilindro di mylar
+# cave
 open OUT,">../../geometry/fts_v2.geo";
 print OUT "//*********************
 fts01assembly#1
@@ -220,9 +217,7 @@ fts01assembly#1
 $Xpos $Ypos $Zpos
 1. 0. 0. 0. 0. 1. 0. 1. 0.\n"
 }
-#############primo layer completto##################
-
-
+#############first layer completed##################
 #  ora metto le altre 128 copie della seconda file di straws,                  
 # sono anche staggerate di mezzo posto verso sinistra                               
 $z2 = $Zpos + 0.5*sqrt(3.)*$diametrostraw;
@@ -267,7 +262,7 @@ $Xpos = $diametrostraw*( $nstraws/2 -0.5);
 $raggio = $diametrostraw/2.;
 
 for($i=257; $i<315;$i++){
-$Xpos = (1/$cosangle)*$diametrostraw*( 128/2 + 0.5 - ($i - 257) );
+$Xpos = (1/$cosangle)*$diametrostraw*( 128/2 - 0.5 - ($i - 257) );
 print OUT "//*********************                                                           
 fts01tube#$i
 fts01assembly#1
@@ -275,7 +270,7 @@ $Xpos $Ypos $Zpos
 $cosangle 0. -$sinangle $sinangle 0. $cosangle 0. 1. 0.\n"
 }
 for($i=315; $i<327;$i++){
-$Xpos = (1/$cosangle)*$diametrostraw*( 128/2 + 0.5 - ($i - 257)+(203*$sinangle)/$diametrostraw );
+$Xpos = (1/$cosangle)*$diametrostraw*( 128/2 - 0.5 - ($i - 257)+(203*$sinangle)/$diametrostraw );
 print OUT "//*********************                                                           
 fts01tubedown#$i
 fts01assembly#1
@@ -283,7 +278,7 @@ $Xpos -203 $Zpos
 $cosangle 0. -$sinangle $sinangle 0. $cosangle 0. 1. 0.\n"
 }
 for($i=315; $i<327;$i++){
-$Xpos = (1/$cosangle)*$diametrostraw*( 128/2 + 0.5 - ($i - 257)-(203*$sinangle)/$diametrostraw );
+$Xpos = (1/$cosangle)*$diametrostraw*( 128/2 - 0.5 - ($i - 257)-(203*$sinangle)/$diametrostraw );
 print OUT "//*********************                                                           
 fts01tubeup#$i
 fts01assembly#1
@@ -291,7 +286,7 @@ $Xpos 203 $Zpos
 $cosangle 0. -$sinangle $sinangle 0. $cosangle 0. 1. 0.\n"
 }
 for($i=327; $i<385;$i++){
-$Xpos = (1/$cosangle)*$diametrostraw*( 128/2 + 0.5 - ($i - 257) );
+$Xpos = (1/$cosangle)*$diametrostraw*( 128/2 - 0.5 - ($i - 257) );
 print OUT "//*********************                                                           
 fts01tube#$i
 fts01assembly#1
@@ -303,7 +298,7 @@ $z2 = $Zpos + 0.5*sqrt(3.)*$diametrostraw;
 $raggio = $diametrostraw/2.;
 
 for($i=385; $i<443;$i++){
-$Xpos = (1/$cosangle)*$diametrostraw*( 128/2 - ($i - 385) );
+$Xpos = (1/$cosangle)*$diametrostraw*( 128/2 -1- ($i - 385) );
 print OUT "//*********************                                                           
 fts01tube#$i
 fts01assembly#1
@@ -311,7 +306,7 @@ $Xpos $Ypos $z2
 $cosangle 0. -$sinangle $sinangle 0. $cosangle 0. 1. 0.\n"
 }
 for($i=443; $i<455;$i++){
-$Xpos = (1/$cosangle)*$diametrostraw*( 128/2 - ($i - 385)+(203*$sinangle)/$diametrostraw  );
+$Xpos = (1/$cosangle)*$diametrostraw*( 128/2 -1- ($i - 385)+(203*$sinangle)/$diametrostraw  );
 print OUT "//*********************                                                           
 fts01tubedown#$i
 fts01assembly#1
@@ -319,7 +314,7 @@ $Xpos -203 $z2
 $cosangle 0. -$sinangle $sinangle 0. $cosangle 0. 1. 0.\n"
 }
 for($i=443; $i<455;$i++){
-$Xpos = (1/$cosangle)*$diametrostraw*( 128/2 - ($i - 385)-(203*$sinangle)/$diametrostraw  );
+$Xpos = (1/$cosangle)*$diametrostraw*( 128/2 -1- ($i - 385)-(203*$sinangle)/$diametrostraw  );
 print OUT "//*********************                                                           
 fts01tubeup#$i
 fts01assembly#1
@@ -327,7 +322,7 @@ $Xpos 203 $z2
 $cosangle 0. -$sinangle $sinangle 0. $cosangle 0. 1. 0.\n"
 }
 for($i=455; $i<513;$i++){
-$Xpos = (1/$cosangle)*$diametrostraw*( 128/2 - ($i - 385) );
+$Xpos = (1/$cosangle)*$diametrostraw*( 128/2 -1- ($i - 385) );
 print OUT "//*********************                                                           
 fts01tube#$i
 fts01assembly#1
@@ -342,7 +337,7 @@ $Xpos = $diametrostraw*( $nstraws/2 -0.5);
 $raggio = $diametrostraw/2.;
 
 for($i=513; $i<571;$i++){
-$Xpos =  (1/$cosangle)*$diametrostraw*( 128/2 + 0.5  - ($i - 513) );
+$Xpos =  (1/$cosangle)*$diametrostraw*( 128/2 - 0.5  - ($i - 513) );
 print OUT "//*********************                                                           
 fts01tube#$i
 fts01assembly#1
@@ -350,7 +345,7 @@ $Xpos $Ypos $Zpos
 $cosangle 0. $sinangle -$sinangle 0. $cosangle 0. 1. 0.\n"
 }
 for($i=571; $i<583;$i++){
-$Xpos =  (1/$cosangle)*$diametrostraw*( 128/2 + 0.5 - ($i - 513)-(203*$sinangle)/$diametrostraw );
+$Xpos =  (1/$cosangle)*$diametrostraw*( 128/2 - 0.5 - ($i - 513)-(203*$sinangle)/$diametrostraw );
 print OUT "//*********************                                                           
 fts01tubedown#$i
 fts01assembly#1
@@ -358,7 +353,7 @@ $Xpos -203 $Zpos
 $cosangle 0. $sinangle -$sinangle 0. $cosangle 0. 1. 0.\n"
 }
 for($i=571; $i<583;$i++){
-$Xpos = (1/$cosangle)*$diametrostraw*( 128/2 + 0.5 - ($i - 513)+(203*$sinangle)/$diametrostraw );
+$Xpos = (1/$cosangle)*$diametrostraw*( 128/2 - 0.5 - ($i - 513)+(203*$sinangle)/$diametrostraw );
 print OUT "//*********************                                                           
 fts01tubeup#$i
 fts01assembly#1
@@ -366,7 +361,7 @@ $Xpos 203 $Zpos
 $cosangle 0. $sinangle -$sinangle 0. $cosangle 0. 1. 0.\n"
 }
 for($i=583; $i<641;$i++){
-$Xpos =  (1/$cosangle)*$diametrostraw*( 128/2 + 0.5 - ($i - 513) );
+$Xpos =  (1/$cosangle)*$diametrostraw*( 128/2 - 0.5 - ($i - 513) );
 print OUT "//*********************                                                           
 fts01tube#$i
 fts01assembly#1
@@ -378,7 +373,7 @@ $z2 = $Zpos + 0.5*sqrt(3.)*$diametrostraw;
 $raggio = $diametrostraw/2.;
 
 for($i=641; $i<699;$i++){
-$Xpos =  (1/$cosangle)*$diametrostraw*( 128/2 - ($i - 641) );
+$Xpos =  (1/$cosangle)*$diametrostraw*( 128/2 -1- ($i - 641) );
 print OUT "//*********************                                                           
 fts01tube#$i
 fts01assembly#1
@@ -386,7 +381,7 @@ $Xpos $Ypos $z2
 $cosangle 0. $sinangle -$sinangle 0. $cosangle 0. 1. 0.\n"
 }
 for($i=699; $i<711;$i++){
-$Xpos =  (1/$cosangle)*$diametrostraw*( 128/2 - ($i - 641)-(203*$sinangle)/$diametrostraw );
+$Xpos =  (1/$cosangle)*$diametrostraw*( 128/2 -1- ($i - 641)-(203*$sinangle)/$diametrostraw );
 print OUT "//*********************                                                           
 fts01tubedown#$i
 fts01assembly#1
@@ -394,7 +389,7 @@ $Xpos -203 $z2
 $cosangle 0. $sinangle -$sinangle 0. $cosangle 0. 1. 0.\n"
 }
 for($i=699; $i<711;$i++){
-$Xpos =  (1/$cosangle)*$diametrostraw*( 128/2 - ($i - 641)+(203*$sinangle)/$diametrostraw );
+$Xpos =  (1/$cosangle)*$diametrostraw*( 128/2 -1- ($i - 641)+(203*$sinangle)/$diametrostraw );
 print OUT "//*********************                                                           
 fts01tubeup#$i
 fts01assembly#1
@@ -402,7 +397,7 @@ $Xpos 203 $z2
 $cosangle 0. $sinangle -$sinangle 0. $cosangle 0. 1. 0.\n"
 }
 for($i=711; $i<769;$i++){
-$Xpos =  (1/$cosangle)*$diametrostraw*( 128/2 - ($i - 641) );
+$Xpos =  (1/$cosangle)*$diametrostraw*( 128/2 -1- ($i - 641) );
 print OUT "//*********************                                                           
 fts01tube#$i
 fts01assembly#1
@@ -417,7 +412,7 @@ $Xpos = $diametrostraw*( $nstraws/2 -0.5);
 $raggio = $diametrostraw/2.;
 
 for($i=769; $i<827;$i++){
-$Xpos = $diametrostraw*( 128/2 + 0.5 - ($i - 769) );
+$Xpos = $diametrostraw*( 128/2 - 0.5 - ($i - 769) );
 print OUT "//*********************                                                           
 fts01tube#$i
 fts01assembly#1
@@ -425,7 +420,7 @@ $Xpos $Ypos $Zpos
 1. 0. 0. 0. 0. 1. 0. 1. 0.\n"
 }
 for($i=827; $i<839;$i++){
-$Xpos = $diametrostraw*( 128/2 + 0.5 - ($i - 769) );
+$Xpos = $diametrostraw*( 128/2 - 0.5 - ($i - 769) );
 print OUT "//*********************                                                           
 fts01tubedown#$i
 fts01assembly#1
@@ -433,7 +428,7 @@ $Xpos -203 $Zpos
 1. 0. 0. 0. 0. 1. 0. 1. 0.\n"
 }
 for($i=827; $i<839;$i++){
-$Xpos = $diametrostraw*( 128/2 + 0.5 - ($i - 769) );
+$Xpos = $diametrostraw*( 128/2 - 0.5 - ($i - 769) );
 print OUT "//*********************                                                           
 fts01tubeup#$i
 fts01assembly#1
@@ -441,7 +436,7 @@ $Xpos 203 $Zpos
 1. 0. 0. 0. 0. 1. 0. 1. 0.\n"
 }
 for($i=839; $i<897;$i++){
-$Xpos = $diametrostraw*( 128/2 + 0.5 - ($i - 769) );
+$Xpos = $diametrostraw*( 128/2 - 0.5 - ($i - 769) );
 print OUT "//*********************                                                           
 fts01tube#$i
 fts01assembly#1
@@ -713,7 +708,7 @@ $Xpos = $diametrostraw*( $nstraws/2 -0.5);
 $raggio = $diametrostraw/2.;
 
 for($i=257; $i<315;$i++){
-$Xpos = (1/$cosangle)*$diametrostraw*( 128/2 + 0.5 - ($i - 257) );
+$Xpos = (1/$cosangle)*$diametrostraw*( 128/2 - 0.5 - ($i - 257) );
 print OUT "//*********************                                                           
 fts02tube#$i
 fts02assembly#1
@@ -721,7 +716,7 @@ $Xpos $Ypos $Zpos
 $cosangle 0. -$sinangle $sinangle 0. $cosangle 0. 1. 0.\n"
 }
 for($i=315; $i<327;$i++){
-$Xpos = (1/$cosangle)*$diametrostraw*( 128/2 + 0.5 - ($i - 257)+(203*$sinangle)/$diametrostraw );
+$Xpos = (1/$cosangle)*$diametrostraw*( 128/2 - 0.5 - ($i - 257)+(203*$sinangle)/$diametrostraw );
 print OUT "//*********************                                                           
 fts02tubedown#$i
 fts02assembly#1
@@ -729,7 +724,7 @@ $Xpos -203 $Zpos
 $cosangle 0. -$sinangle $sinangle 0. $cosangle 0. 1. 0.\n"
 }
 for($i=315; $i<327;$i++){
-$Xpos = (1/$cosangle)*$diametrostraw*( 128/2 + 0.5 - ($i - 257)-(203*$sinangle)/$diametrostraw );
+$Xpos = (1/$cosangle)*$diametrostraw*( 128/2 - 0.5 - ($i - 257)-(203*$sinangle)/$diametrostraw );
 print OUT "//*********************                                                           
 fts02tubeup#$i
 fts02assembly#1
@@ -737,7 +732,7 @@ $Xpos 203 $Zpos
 $cosangle 0. -$sinangle $sinangle 0. $cosangle 0. 1. 0.\n"
 }
 for($i=327; $i<385;$i++){
-$Xpos = (1/$cosangle)*$diametrostraw*( 128/2 + 0.5 - ($i - 257) );
+$Xpos = (1/$cosangle)*$diametrostraw*( 128/2 - 0.5 - ($i - 257) );
 print OUT "//*********************                                                           
 fts02tube#$i
 fts02assembly#1
@@ -749,7 +744,7 @@ $z2 = $Zpos + 0.5*sqrt(3.)*$diametrostraw;
 $raggio = $diametrostraw/2.;
 
 for($i=385; $i<443;$i++){
-$Xpos = (1/$cosangle)*$diametrostraw*( 128/2 - ($i - 385) );
+$Xpos = (1/$cosangle)*$diametrostraw*( 128/2 -1- ($i - 385) );
 print OUT "//*********************                                                           
 fts02tube#$i
 fts02assembly#1
@@ -757,7 +752,7 @@ $Xpos $Ypos $z2
 $cosangle 0. -$sinangle $sinangle 0. $cosangle 0. 1. 0.\n"
 }
 for($i=443; $i<455;$i++){
-$Xpos = (1/$cosangle)*$diametrostraw*( 128/2 - ($i - 385)+(203*$sinangle)/$diametrostraw  );
+$Xpos = (1/$cosangle)*$diametrostraw*( 128/2 -1- ($i - 385)+(203*$sinangle)/$diametrostraw  );
 print OUT "//*********************                                                           
 fts02tubedown#$i
 fts02assembly#1
@@ -765,7 +760,7 @@ $Xpos -203 $z2
 $cosangle 0. -$sinangle $sinangle 0. $cosangle 0. 1. 0.\n"
 }
 for($i=443; $i<455;$i++){
-$Xpos = (1/$cosangle)*$diametrostraw*( 128/2 - ($i - 385)-(203*$sinangle)/$diametrostraw  );
+$Xpos = (1/$cosangle)*$diametrostraw*( 128/2 -1- ($i - 385)-(203*$sinangle)/$diametrostraw  );
 print OUT "//*********************                                                           
 fts02tubeup#$i
 fts02assembly#1
@@ -773,7 +768,7 @@ $Xpos 203 $z2
 $cosangle 0. -$sinangle $sinangle 0. $cosangle 0. 1. 0.\n"
 }
 for($i=455; $i<513;$i++){
-$Xpos = (1/$cosangle)*$diametrostraw*( 128/2 - ($i - 385) );
+$Xpos = (1/$cosangle)*$diametrostraw*( 128/2 -1- ($i - 385) );
 print OUT "//*********************                                                           
 fts02tube#$i
 fts02assembly#1
@@ -787,7 +782,7 @@ $Xpos = $diametrostraw*( $nstraws/2 -0.5);
 $raggio = $diametrostraw/2.;
 
 for($i=513; $i<571;$i++){
-$Xpos =  (1/$cosangle)*$diametrostraw*( 128/2 + 0.5  - ($i - 513) );
+$Xpos =  (1/$cosangle)*$diametrostraw*( 128/2 - 0.5  - ($i - 513) );
 print OUT "//*********************                                                           
 fts02tube#$i
 fts02assembly#1
@@ -795,7 +790,7 @@ $Xpos $Ypos $Zpos
 $cosangle 0. $sinangle -$sinangle 0. $cosangle 0. 1. 0.\n"
 }
 for($i=571; $i<583;$i++){
-$Xpos =  (1/$cosangle)*$diametrostraw*( 128/2 + 0.5 - ($i - 513)-(203*$sinangle)/$diametrostraw );
+$Xpos =  (1/$cosangle)*$diametrostraw*( 128/2 - 0.5 - ($i - 513)-(203*$sinangle)/$diametrostraw );
 print OUT "//*********************                                                           
 fts02tubedown#$i
 fts02assembly#1
@@ -803,7 +798,7 @@ $Xpos -203 $Zpos
 $cosangle 0. $sinangle -$sinangle 0. $cosangle 0. 1. 0.\n"
 }
 for($i=571; $i<583;$i++){
-$Xpos = (1/$cosangle)*$diametrostraw*( 128/2 + 0.5 - ($i - 513)+(203*$sinangle)/$diametrostraw );
+$Xpos = (1/$cosangle)*$diametrostraw*( 128/2 - 0.5 - ($i - 513)+(203*$sinangle)/$diametrostraw );
 print OUT "//*********************                                                           
 fts02tubeup#$i
 fts02assembly#1
@@ -811,7 +806,7 @@ $Xpos 203 $Zpos
 $cosangle 0. $sinangle -$sinangle 0. $cosangle 0. 1. 0.\n"
 }
 for($i=583; $i<641;$i++){
-$Xpos =  (1/$cosangle)*$diametrostraw*( 128/2 + 0.5 - ($i - 513) );
+$Xpos =  (1/$cosangle)*$diametrostraw*( 128/2 - 0.5 - ($i - 513) );
 print OUT "//*********************                                                           
 fts02tube#$i
 fts02assembly#1
@@ -823,7 +818,7 @@ $z2 = $Zpos + 0.5*sqrt(3.)*$diametrostraw;
 $raggio = $diametrostraw/2.;
 
 for($i=641; $i<699;$i++){
-$Xpos =  (1/$cosangle)*$diametrostraw*( 128/2 - ($i - 641) );
+$Xpos =  (1/$cosangle)*$diametrostraw*( 128/2 -1- ($i - 641) );
 print OUT "//*********************                                                           
 fts02tube#$i
 fts02assembly#1
@@ -831,7 +826,7 @@ $Xpos $Ypos $z2
 $cosangle 0. $sinangle -$sinangle 0. $cosangle 0. 1. 0.\n"
 }
 for($i=699; $i<711;$i++){
-$Xpos =  (1/$cosangle)*$diametrostraw*( 128/2 - ($i - 641)-(203*$sinangle)/$diametrostraw );
+$Xpos =  (1/$cosangle)*$diametrostraw*( 128/2 -1- ($i - 641)-(203*$sinangle)/$diametrostraw );
 print OUT "//*********************                                                           
 fts02tubedown#$i
 fts02assembly#1
@@ -839,7 +834,7 @@ $Xpos -203 $z2
 $cosangle 0. $sinangle -$sinangle 0. $cosangle 0. 1. 0.\n"
 }
 for($i=699; $i<711;$i++){
-$Xpos =  (1/$cosangle)*$diametrostraw*( 128/2 - ($i - 641)+(203*$sinangle)/$diametrostraw );
+$Xpos =  (1/$cosangle)*$diametrostraw*( 128/2 -1- ($i - 641)+(203*$sinangle)/$diametrostraw );
 print OUT "//*********************                                                           
 fts02tubeup#$i
 fts02assembly#1
@@ -847,7 +842,7 @@ $Xpos 203 $z2
 $cosangle 0. $sinangle -$sinangle 0. $cosangle 0. 1. 0.\n"
 }
 for($i=711; $i<769;$i++){
-$Xpos =  (1/$cosangle)*$diametrostraw*( 128/2 - ($i - 641) );
+$Xpos =  (1/$cosangle)*$diametrostraw*( 128/2 -1- ($i - 641) );
 print OUT "//*********************                                                           
 fts02tube#$i
 fts02assembly#1
@@ -861,7 +856,7 @@ $Xpos = $diametrostraw*( $nstraws/2 -0.5);
 $raggio = $diametrostraw/2.;
 
 for($i=769; $i<827;$i++){
-$Xpos = $diametrostraw*( 128/2 + 0.5 - ($i - 769) );
+$Xpos = $diametrostraw*( 128/2 - 0.5 - ($i - 769) );
 print OUT "//*********************                                                           
 fts02tube#$i
 fts02assembly#1
@@ -869,7 +864,7 @@ $Xpos $Ypos $Zpos
 1. 0. 0. 0. 0. 1. 0. 1. 0.\n"
 }
 for($i=827; $i<839;$i++){
-$Xpos = $diametrostraw*( 128/2 + 0.5 - ($i - 769) );
+$Xpos = $diametrostraw*( 128/2 - 0.5 - ($i - 769) );
 print OUT "//*********************                                                           
 fts02tubedown#$i
 fts02assembly#1
@@ -877,7 +872,7 @@ $Xpos -203 $Zpos
 1. 0. 0. 0. 0. 1. 0. 1. 0.\n"
 }
 for($i=827; $i<839;$i++){
-$Xpos = $diametrostraw*( 128/2 + 0.5 - ($i - 769) );
+$Xpos = $diametrostraw*( 128/2 - 0.5 - ($i - 769) );
 print OUT "//*********************                                                           
 fts02tubeup#$i
 fts02assembly#1
@@ -885,7 +880,7 @@ $Xpos 203 $Zpos
 1. 0. 0. 0. 0. 1. 0. 1. 0.\n"
 }
 for($i=839; $i<897;$i++){
-$Xpos = $diametrostraw*( 128/2 + 0.5 - ($i - 769) );
+$Xpos = $diametrostraw*( 128/2 - 0.5 - ($i - 769) );
 print OUT "//*********************                                                           
 fts02tube#$i
 fts02assembly#1
@@ -2581,7 +2576,7 @@ tungsten
 1. 0. 0. 0. 1. 0. 0. 0. 1.
 ";
 
-for($i=2; $i<192;$i++){
+for($i=2; $i<187;$i++){
 $Xpos = $diametrostraw*( $nstraws/2 + 0.5 - $i);
 
 print OUT "//*********************
@@ -2634,7 +2629,7 @@ tungsten
 1. 0. 0. 0. 1. 0. 0. 0. 1.
 ";
 #### tubi sotto la beam pipe
-for($i=193; $i<210;$i++){
+for($i=188; $i<206;$i++){
 $Xpos = $diametrostraw*( $nstraws/2 + 0.5 - $i);
 print OUT "//*********************
 fts05tubedown#$i
@@ -2643,7 +2638,7 @@ $Xpos -354.5 $Zpos
 1. 0. 0. 0. 0. 1. 0. 1. 0.\n"
 }
 
-$i=192;
+$i=187;
 ####tubi sopra la beam pipe
 $Xpos = $diametrostraw*( $nstraws/2 + 0.5 - $i);
 $raggio = $diametrostraw/2.;
@@ -2686,7 +2681,7 @@ tungsten
 ";
 
 ####tubi sopra la beam pipe
-for($i=193; $i<210;$i++){
+for($i=188; $i<206;$i++){
 $Xpos = $diametrostraw*( $nstraws/2 + 0.5 - $i);
 print OUT "//*********************
 fts05tubeup#$i
@@ -2695,7 +2690,7 @@ $Xpos 354.5 $Zpos
 1. 0. 0. 0. 0. 1. 0. 1. 0.\n"
 }
 
-for($i=210; $i<401;$i++){
+for($i=206; $i<401;$i++){
 $Xpos = $diametrostraw*( $nstraws/2 + 0.5 - $i);
 print OUT "//*********************
 fts05tube#$i
@@ -2706,7 +2701,7 @@ $Xpos $Ypos $Zpos
  # #############primo layer completto##################
  #  ora metto le altre 128 copie della seconda file di straws.
  $z2 = $Zpos + 0.5*sqrt(3.)*$diametrostraw;
- for($i=401; $i<592;$i++){
+ for($i=401; $i<587;$i++){
  $Xpos = $diametrostraw*( $nstraws/2  - ($i - 401) );
  print OUT "//*********************                                                           
  fts05tube#$i
@@ -2715,7 +2710,7 @@ $Xpos $Ypos $Zpos
  1. 0. 0. 0. 0. 1. 0. 1. 0.\n"
  }
  #### tubi sotto la beam pipe
- for($i=592; $i<610;$i++){
+ for($i=587; $i<606;$i++){
  $Xpos = $diametrostraw*( $nstraws/2 - ($i - 401) );
  print OUT "//*********************
  fts05tubedown#$i
@@ -2723,7 +2718,7 @@ $Xpos $Ypos $Zpos
  $Xpos -354.5 $z2
  1. 0. 0. 0. 0. 1. 0. 1. 0.\n"
  }
- for($i=592; $i<610;$i++){
+ for($i=587; $i<606;$i++){
  $Xpos = $diametrostraw*( $nstraws/2 -  ($i - 401) );
  print OUT "//*********************
  fts05tubeup#$i
@@ -2731,7 +2726,7 @@ $Xpos $Ypos $Zpos
  $Xpos 354.5 $z2
  1. 0. 0. 0. 0. 1. 0. 1. 0.\n"
  }
- for($i=610; $i<801;$i++){
+ for($i=606; $i<801;$i++){
  $Xpos = $diametrostraw*( $nstraws/2  - ($i - 401) );
  print OUT "//*********************                                                           
  fts05tube#$i
@@ -2739,13 +2734,13 @@ $Xpos $Ypos $Zpos
  $Xpos $Ypos $z2 
  1. 0. 0. 0. 0. 1. 0. 1. 0.\n"
  }
- #########primo double layers completato#########
- ########secondo double layers: inclinazione dei tubi di +5 gradi######### 
+#########primo double layers completato#########
+########secondo double layers: inclinazione dei tubi di +5 gradi######### 
  $Zpos = 50-$diametrostraw/2;
  $Xpos = (1/$cosangle)*$diametrostraw*( $nstraws/2 -0.5);
  $raggio = $diametrostraw/2.;
 
- for($i=801; $i<992;$i++){
+ for($i=801; $i<987;$i++){
  $Xpos = (1/$cosangle)*$diametrostraw*( $nstraws/2 + 0.5 - ($i - 801) );
  print OUT "//*********************                                                           
  fts05tube#$i
@@ -2753,7 +2748,7 @@ $Xpos $Ypos $Zpos
  $Xpos $Ypos $Zpos
  $cosangle 0. -$sinangle $sinangle 0. $cosangle 0. 1. 0.\n"
  }
- for($i=992; $i<1010;$i++){
+ for($i=987; $i<1006;$i++){
  $Xpos = (1/$cosangle)*$diametrostraw*( $nstraws/2 + 0.5 - ($i - 801)+(354.5*$sinangle)/$diametrostraw); #2.75
  print OUT "//*********************                                                           
  fts05tubedown#$i
@@ -2761,7 +2756,7 @@ $Xpos $Ypos $Zpos
  $Xpos -354.5 $Zpos 
  $cosangle 0. -$sinangle $sinangle 0. $cosangle 0. 1. 0.\n"
  }
- for($i=992; $i<1010;$i++){
+ for($i=987; $i<1006;$i++){
  $Xpos = (1/$cosangle)*$diametrostraw*( $nstraws/2 + 0.5 - ($i - 801)-(354.5*$sinangle)/$diametrostraw );
  print OUT "//*********************                                                           
  fts05tubeup#$i
@@ -2769,7 +2764,7 @@ $Xpos $Ypos $Zpos
  $Xpos 354.5 $Zpos 
  $cosangle 0. -$sinangle $sinangle 0. $cosangle 0. 1. 0.\n"
  }
- for($i=1010; $i<1201;$i++){
+ for($i=1006; $i<1201;$i++){
  $Xpos = (1/$cosangle)*$diametrostraw*( $nstraws/2 + 0.5 - ($i - 801) );
  print OUT "//*********************                                                           
  fts05tube#$i
@@ -2777,11 +2772,11 @@ $Xpos $Ypos $Zpos
  $Xpos $Ypos $Zpos
  $cosangle 0. -$sinangle $sinangle 0. $cosangle 0. 1. 0.\n"
  }
- #####secondo strato########
+#####secondo strato########
  $z2 = $Zpos + 0.5*sqrt(3.)*$diametrostraw;
  $raggio = $diametrostraw/2.;
 
- for($i=1201; $i<1392;$i++){
+ for($i=1201; $i<1387;$i++){
  $Xpos = (1/$cosangle)*$diametrostraw*( $nstraws/2 - ($i - 1201) );
  print OUT "//*********************                                                           
  fts05tube#$i
@@ -2789,7 +2784,7 @@ $Xpos $Ypos $Zpos
  $Xpos $Ypos $z2
  $cosangle 0. -$sinangle $sinangle 0. $cosangle 0. 1. 0.\n"
  }
- for($i=1392; $i<1410;$i++){
+ for($i=1387; $i<1406;$i++){
  $Xpos = (1/$cosangle)*$diametrostraw*( $nstraws/2 - ($i - 1201)+(354.5*$sinangle)/$diametrostraw );
  print OUT "//*********************                                                           
  fts05tubedown#$i
@@ -2797,7 +2792,7 @@ $Xpos $Ypos $Zpos
  $Xpos -354.5 $z2 
  $cosangle 0. -$sinangle $sinangle 0. $cosangle 0. 1. 0.\n"
  }
- for($i=1392; $i<1410;$i++){
+ for($i=1387; $i<1406;$i++){
  $Xpos = (1/$cosangle)*$diametrostraw*( $nstraws/2 - ($i - 1201)-(354.5*$sinangle)/$diametrostraw );
  print OUT "//*********************                                                           
  fts05tubeup#$i
@@ -2805,7 +2800,7 @@ $Xpos $Ypos $Zpos
  $Xpos 354.5 $z2
  $cosangle 0. -$sinangle $sinangle 0. $cosangle 0. 1. 0.\n"
  }
- for($i=1410; $i<1601;$i++){
+ for($i=1406; $i<1601;$i++){
  $Xpos = (1/$cosangle)*$diametrostraw*( $nstraws/2 - ($i - 1201) );
  print OUT "//*********************                                                           
  fts05tube#$i
@@ -2813,13 +2808,13 @@ $Xpos $Ypos $Zpos
  $Xpos $Ypos $z2
  $cosangle 0. -$sinangle $sinangle 0. $cosangle 0. 1. 0.\n"
  }
- #########secondo double layers completato#########
- ########terzo double layers: inclinazione dei tubi di -5 gradi#########
+#########secondo double layers completato#########
+########terzo double layers: inclinazione dei tubi di -5 gradi#########
  $Zpos = 100-$diametrostraw/2;
  $Xpos = (1/$cosangle)*$diametrostraw*( $nstraws/2 -0.5);
  $raggio = $diametrostraw/2.;
 
- for($i=1601; $i<1792;$i++){
+ for($i=1601; $i<1787;$i++){
  $Xpos = (1/$cosangle)*$diametrostraw*( $nstraws/2 + 0.5  - ($i - 1601) );
  print OUT "//*********************                                                           
  fts05tube#$i
@@ -2827,7 +2822,7 @@ $Xpos $Ypos $Zpos
  $Xpos $Ypos $Zpos
  $cosangle 0. $sinangle -$sinangle 0. $cosangle 0. 1. 0.\n"
  }
- for($i=1792; $i<1810;$i++){
+ for($i=1787; $i<1806;$i++){
  $Xpos = (1/$cosangle)*$diametrostraw*( $nstraws/2 + 0.5 - ($i - 1601)-(354.5*$sinangle)/$diametrostraw );
  print OUT "//*********************                                                           
  fts05tubedown#$i
@@ -2835,7 +2830,7 @@ $Xpos $Ypos $Zpos
  $Xpos -354.5 $Zpos 
  $cosangle 0. $sinangle -$sinangle 0. $cosangle 0. 1. 0.\n"
  }
- for($i=1792; $i<1810;$i++){
+ for($i=1787; $i<1806;$i++){
  $Xpos = (1/$cosangle)*$diametrostraw*( $nstraws/2 + 0.5 - ($i - 1601)+(354.5*$sinangle)/$diametrostraw );
  print OUT "//*********************                                                           
  fts05tubeup#$i
@@ -2843,7 +2838,7 @@ $Xpos $Ypos $Zpos
  $Xpos 354.5 $Zpos 
  $cosangle 0. $sinangle -$sinangle 0. $cosangle 0. 1. 0.\n"
  }
- for($i=1810; $i<2001;$i++){
+ for($i=1806; $i<2001;$i++){
  $Xpos = (1/$cosangle)*$diametrostraw*( $nstraws/2 + 0.5 - ($i - 1601) );
  print OUT "//*********************                                                           
  fts05tube#$i
@@ -2855,7 +2850,7 @@ $Xpos $Ypos $Zpos
  #########secondo strato###############
  $z2 = $Zpos + 0.5*sqrt(3.)*$diametrostraw;
  $raggio = $diametrostraw/2.;
- for($i=2001; $i<2192;$i++){
+ for($i=2001; $i<2187;$i++){
  $Xpos = (1/$cosangle)*$diametrostraw*( $nstraws/2 - ($i - 2001) );
  print OUT "//*********************                                                           
  fts05tube#$i
@@ -2863,7 +2858,7 @@ $Xpos $Ypos $Zpos
  $Xpos $Ypos $z2
  $cosangle 0. $sinangle -$sinangle 0. $cosangle 0. 1. 0.\n"
  }
- for($i=2192; $i<2210;$i++){
+ for($i=2187; $i<2206;$i++){
  $Xpos = (1/$cosangle)*$diametrostraw*( $nstraws/2 - ($i - 2001)-(354.5*$sinangle)/$diametrostraw );
  print OUT "//*********************                                                           
  fts05tubedown#$i
@@ -2871,7 +2866,7 @@ $Xpos $Ypos $Zpos
  $Xpos -354.5 $z2 
  $cosangle 0. $sinangle -$sinangle 0. $cosangle 0. 1. 0.\n"
  }
- for($i=2192; $i<2210;$i++){
+ for($i=2187; $i<2206;$i++){
  $Xpos = (1/$cosangle)*$diametrostraw*( $nstraws/2 - ($i - 2001)+(354.5*$sinangle)/$diametrostraw );
  print OUT "//*********************                                                           
  fts05tubeup#$i
@@ -2879,7 +2874,7 @@ $Xpos $Ypos $Zpos
  $Xpos 354.5 $z2
  $cosangle 0. $sinangle -$sinangle 0. $cosangle 0. 1. 0.\n"
  }
- for($i=2210; $i<2401;$i++){
+ for($i=2206; $i<2401;$i++){
  $Xpos = (1/$cosangle)*$diametrostraw*( $nstraws/2 - ($i - 2001) );
  print OUT "//*********************                                                           
  fts05tube#$i
@@ -2892,32 +2887,32 @@ $Xpos $Ypos $Zpos
  $Zpos = 150-$diametrostraw/2;
  $Xpos = $diametrostraw*( $nstraws/2 -0.5);
  $raggio = $diametrostraw/2.;
- for($i=2401; $i<2592;$i++){
- $Xpos = $diametrostraw*( $nstraws/2 + 0.5 - ($i - 2401) );
+ for($i=2401; $i<2587;$i++){
+ $Xpos = $diametrostraw*( $nstraws/2 - 0.5 - ($i - 2401) );
  print OUT "//*********************                                                           
  fts05tube#$i
  fts05assembly#1
  $Xpos $Ypos $Zpos
  1. 0. 0. 0. 0. 1. 0. 1. 0.\n"
  }
- for($i=2592; $i<2610;$i++){
- $Xpos = $diametrostraw*( $nstraws/2 + 0.5 - ($i - 2401) );
+ for($i=2587; $i<2606;$i++){
+ $Xpos = $diametrostraw*( $nstraws/2 - 0.5 - ($i - 2401) );
  print OUT "//*********************                                                           
  fts05tubedown#$i
  fts05assembly#1
  $Xpos -354.5 $Zpos 
  1. 0. 0. 0. 0. 1. 0. 1. 0.\n"
  }
- for($i=2591; $i<2610;$i++){
- $Xpos = $diametrostraw*( $nstraws/2 + 0.5 - ($i - 2401) );
+ for($i=2587; $i<2606;$i++){
+ $Xpos = $diametrostraw*( $nstraws/2 - 0.5 - ($i - 2401) );
  print OUT "//*********************                                                           
  fts05tubeup#$i
  fts05assembly#1
  $Xpos 354.5 $Zpos 
  1. 0. 0. 0. 0. 1. 0. 1. 0.\n"
  }
- for($i=2610; $i<2801;$i++){
- $Xpos = $diametrostraw*( $nstraws/2 + 0.5 - ($i - 2401) );
+ for($i=2606; $i<2801;$i++){
+ $Xpos = $diametrostraw*( $nstraws/2 - 0.5 - ($i - 2401) );
  print OUT "//*********************                                                           
  fts05tube#$i
  fts05assembly#1
@@ -2928,7 +2923,7 @@ $Xpos $Ypos $Zpos
  #########secondo strato###############
  $z2 = $Zpos + 0.5*sqrt(3.)*$diametrostraw;
  $raggio = $diametrostraw/2.;
- for($i=2801; $i<2992;$i++){
+ for($i=2801; $i<2987;$i++){
  $Xpos = $diametrostraw*( $nstraws/2 - ($i - 2801) );
  print OUT "//*********************                                                           
  fts05tube#$i
@@ -2936,7 +2931,7 @@ $Xpos $Ypos $Zpos
  $Xpos $Ypos $z2
  1. 0. 0. 0. 0. 1. 0. 1. 0.\n"
  }
- for($i=2992; $i<3010;$i++){
+ for($i=2987; $i<3006;$i++){
  $Xpos = $diametrostraw*( $nstraws/2 - ($i - 2801) );
  print OUT "//*********************                                                           
  fts05tubedown#$i
@@ -2944,7 +2939,7 @@ $Xpos $Ypos $Zpos
  $Xpos -354.5 $z2 
  1. 0. 0. 0. 0. 1. 0. 1. 0.\n"
  }
- for($i=2992; $i<3010;$i++){
+ for($i=2987; $i<3006;$i++){
  $Xpos = $diametrostraw*( $nstraws/2 - ($i - 2801) );
  print OUT "//*********************                                                           
  fts05tubeup#$i
@@ -2952,7 +2947,7 @@ $Xpos $Ypos $Zpos
  $Xpos 354.5 $z2
  1. 0. 0. 0. 0. 1. 0. 1. 0.\n"
  }
- for($i=3010; $i<3201;$i++){
+ for($i=3006; $i<3201;$i++){
  $Xpos = $diametrostraw*( $nstraws/2 - ($i - 2801) );
  print OUT "//*********************                                                           
  fts05tube#$i
@@ -3020,7 +3015,7 @@ $Xpos = $diametrostraw*( $nstraws/2 -0.5);
  1. 0. 0. 0. 1. 0. 0. 0. 1.
  ";
 
- for($i=2; $i<192;$i++){
+ for($i=2; $i<185;$i++){
  $Xpos = $diametrostraw*( $nstraws/2 + 0.5 - $i);
 
  print OUT "//*********************
@@ -3045,8 +3040,7 @@ $Xpos = $diametrostraw*( $nstraws/2 -0.5);
  $Xpos -354.5 $Zpos
  1. 0. 0. 0. 0. 1. 0. 1. 0.
  ";
-
- # all'interno un cilindro di argon
+# all'interno un cilindro di argon
  $raggio = $raggio - $spessoremylar;
  print OUT "//*********************
  fts06gasdown#$i
@@ -3073,7 +3067,7 @@ $Xpos = $diametrostraw*( $nstraws/2 -0.5);
  1. 0. 0. 0. 1. 0. 0. 0. 1.
  ";
  #### tubi sotto la beam pipe
- for($i=193; $i<210;$i++){
+ for($i=186; $i<205;$i++){
  $Xpos = $diametrostraw*( $nstraws/2 + 0.5 - $i);
  print OUT "//*********************
  fts06tubedown#$i
@@ -3082,7 +3076,7 @@ $Xpos = $diametrostraw*( $nstraws/2 -0.5);
  1. 0. 0. 0. 0. 1. 0. 1. 0.\n"
  }
 
- $i=192;
+ $i=185;
  ####tubi sopra la beam pipe
  $Xpos = $diametrostraw*( $nstraws/2 + 0.5 - $i);
  $raggio = $diametrostraw/2.;
@@ -3125,7 +3119,7 @@ $Xpos = $diametrostraw*( $nstraws/2 -0.5);
  ";
 
  ####tubi sopra la beam pipe
- for($i=193; $i<210;$i++){
+ for($i=186; $i<205;$i++){
  $Xpos = $diametrostraw*( $nstraws/2 + 0.5 - $i);
  print OUT "//*********************
  fts06tubeup#$i
@@ -3134,7 +3128,7 @@ $Xpos = $diametrostraw*( $nstraws/2 -0.5);
  1. 0. 0. 0. 0. 1. 0. 1. 0.\n"
  }
 
- for($i=210; $i<401;$i++){
+ for($i=205; $i<401;$i++){
  $Xpos = $diametrostraw*( $nstraws/2 + 0.5 - $i);
  print OUT "//*********************
  fts06tube#$i
@@ -3147,7 +3141,7 @@ $Xpos = $diametrostraw*( $nstraws/2 -0.5);
   #############primo layer completto##################
   #  ora metto le altre 128 copie della seconda file di straws.
   $z2 = $Zpos + 0.5*sqrt(3.)*$diametrostraw;
-  for($i=401; $i<592;$i++){
+  for($i=401; $i<585;$i++){
   $Xpos = $diametrostraw*( $nstraws/2  - ($i - 401) );
   print OUT "//*********************                                                           
   fts06tube#$i
@@ -3156,7 +3150,7 @@ $Xpos = $diametrostraw*( $nstraws/2 -0.5);
   1. 0. 0. 0. 0. 1. 0. 1. 0.\n"
   }
   #### tubi sotto la beam pipe
-  for($i=592; $i<610;$i++){
+  for($i=585; $i<605;$i++){
   $Xpos = $diametrostraw*( $nstraws/2 - ($i - 401) );
   print OUT "//*********************
   fts06tubedown#$i
@@ -3164,7 +3158,7 @@ $Xpos = $diametrostraw*( $nstraws/2 -0.5);
   $Xpos -354.5 $z2
   1. 0. 0. 0. 0. 1. 0. 1. 0.\n"
   }
-  for($i=592; $i<610;$i++){
+  for($i=585; $i<605;$i++){
   $Xpos = $diametrostraw*( $nstraws/2 -  ($i - 401) );
   print OUT "//*********************
   fts06tubeup#$i
@@ -3172,9 +3166,9 @@ $Xpos = $diametrostraw*( $nstraws/2 -0.5);
   $Xpos 354.5 $z2
   1. 0. 0. 0. 0. 1. 0. 1. 0.\n"
   }
-  for($i=610; $i<801;$i++){
+  for($i=605; $i<801;$i++){
   $Xpos = $diametrostraw*( $nstraws/2  - ($i - 401) );
-  print OUT "//*********************                                                           
+  print OUT "//********************* 
   fts06tube#$i
   fts06assembly#1
   $Xpos $Ypos $z2 
@@ -3186,23 +3180,23 @@ $Xpos = $diametrostraw*( $nstraws/2 -0.5);
   $Xpos = (1/$cosangle)*$diametrostraw*( $nstraws/2 -0.5);
   $raggio = $diametrostraw/2.;
 
-  for($i=801; $i<992;$i++){
+  for($i=801; $i<985;$i++){
   $Xpos = (1/$cosangle)*$diametrostraw*( $nstraws/2 + 0.5 - ($i - 801) );
-  print OUT "//*********************                                                           
+  print OUT "//********************* 
   fts06tube#$i
   fts06assembly#1
   $Xpos $Ypos $Zpos
   $cosangle 0. -$sinangle $sinangle 0. $cosangle 0. 1. 0.\n"
   }
-  for($i=992; $i<1010;$i++){
+  for($i=985; $i<1005;$i++){
   $Xpos = (1/$cosangle)*$diametrostraw*( $nstraws/2 + 0.5 - ($i - 801)+(354.5*$sinangle)/$diametrostraw); #2.75
-  print OUT "//*********************                                                           
+  print OUT "//*********************                                          
   fts06tubedown#$i
   fts06assembly#1
   $Xpos -354.5 $Zpos 
   $cosangle 0. -$sinangle $sinangle 0. $cosangle 0. 1. 0.\n"
   }
-  for($i=992; $i<1010;$i++){
+  for($i=985; $i<1005;$i++){
   $Xpos = (1/$cosangle)*$diametrostraw*( $nstraws/2 + 0.5 - ($i - 801)-(354.5*$sinangle)/$diametrostraw );
   print OUT "//*********************                                                           
   fts06tubeup#$i
@@ -3210,7 +3204,7 @@ $Xpos = $diametrostraw*( $nstraws/2 -0.5);
   $Xpos 354.5 $Zpos 
   $cosangle 0. -$sinangle $sinangle 0. $cosangle 0. 1. 0.\n"
   }
-  for($i=1010; $i<1201;$i++){
+  for($i=1005; $i<1201;$i++){
   $Xpos = (1/$cosangle)*$diametrostraw*( $nstraws/2 + 0.5 - ($i - 801) );
   print OUT "//*********************                                                           
   fts06tube#$i
@@ -3222,31 +3216,31 @@ $Xpos = $diametrostraw*( $nstraws/2 -0.5);
   $z2 = $Zpos + 0.5*sqrt(3.)*$diametrostraw;
   $raggio = $diametrostraw/2.;
 
-  for($i=1201; $i<1392;$i++){
+  for($i=1201; $i<1385;$i++){
   $Xpos = (1/$cosangle)*$diametrostraw*( $nstraws/2 - ($i - 1201) );
-  print OUT "//*********************                                                           
+  print OUT "//*********************
   fts06tube#$i
   fts06assembly#1
   $Xpos $Ypos $z2
   $cosangle 0. -$sinangle $sinangle 0. $cosangle 0. 1. 0.\n"
   }
-  for($i=1392; $i<1410;$i++){
+  for($i=1385; $i<1405;$i++){
   $Xpos = (1/$cosangle)*$diametrostraw*( $nstraws/2 - ($i - 1201)+(354.5*$sinangle)/$diametrostraw );
-  print OUT "//*********************                                                           
+  print OUT "//*********************
   fts06tubedown#$i
   fts06assembly#1
   $Xpos -354.5 $z2 
   $cosangle 0. -$sinangle $sinangle 0. $cosangle 0. 1. 0.\n"
   }
-  for($i=1392; $i<1410;$i++){
+  for($i=1385; $i<1405;$i++){
   $Xpos = (1/$cosangle)*$diametrostraw*( $nstraws/2 - ($i - 1201)-(354.5*$sinangle)/$diametrostraw );
-  print OUT "//*********************                                                           
+  print OUT "//*********************
   fts06tubeup#$i
   fts06assembly#1
   $Xpos 354.5 $z2
   $cosangle 0. -$sinangle $sinangle 0. $cosangle 0. 1. 0.\n"
   }
-  for($i=1410; $i<1601;$i++){
+  for($i=1405; $i<1601;$i++){
   $Xpos = (1/$cosangle)*$diametrostraw*( $nstraws/2 - ($i - 1201) );
   print OUT "//*********************                                                           
   fts06tube#$i
@@ -3254,39 +3248,39 @@ $Xpos = $diametrostraw*( $nstraws/2 -0.5);
   $Xpos $Ypos $z2
   $cosangle 0. -$sinangle $sinangle 0. $cosangle 0. 1. 0.\n"
   }
-  #########secondo double layers completato#########
-  ########terzo double layers: inclinazione dei tubi di -5 gradi#########
+#########secondo double layers completato#########
+########terzo double layers: inclinazione dei tubi di -5 gradi#########
   $Zpos = 100-$diametrostraw/2;
   $Xpos = (1/$cosangle)*$diametrostraw*( $nstraws/2 -0.5);
   $raggio = $diametrostraw/2.;
 
-  for($i=1601; $i<1792;$i++){
+  for($i=1601; $i<1785;$i++){
   $Xpos = (1/$cosangle)*$diametrostraw*( $nstraws/2 + 0.5  - ($i - 1601) );
-  print OUT "//*********************                                                           
+  print OUT "//*********************
   fts06tube#$i
   fts06assembly#1
   $Xpos $Ypos $Zpos
   $cosangle 0. $sinangle -$sinangle 0. $cosangle 0. 1. 0.\n"
   }
-  for($i=1792; $i<1810;$i++){
+  for($i=1785; $i<1805;$i++){
   $Xpos = (1/$cosangle)*$diametrostraw*( $nstraws/2 + 0.5 - ($i - 1601)-(354.5*$sinangle)/$diametrostraw );
-  print OUT "//*********************                                                           
+  print OUT "//*********************
   fts06tubedown#$i
   fts06assembly#1
   $Xpos -354.5 $Zpos 
   $cosangle 0. $sinangle -$sinangle 0. $cosangle 0. 1. 0.\n"
   }
-  for($i=1792; $i<1810;$i++){
+  for($i=1785; $i<1805;$i++){
   $Xpos = (1/$cosangle)*$diametrostraw*( $nstraws/2 + 0.5 - ($i - 1601)+(354.5*$sinangle)/$diametrostraw );
-  print OUT "//*********************                                                           
+  print OUT "//*********************
   fts06tubeup#$i
   fts06assembly#1
   $Xpos 354.5 $Zpos 
   $cosangle 0. $sinangle -$sinangle 0. $cosangle 0. 1. 0.\n"
   }
-  for($i=1810; $i<2001;$i++){
+  for($i=1805; $i<2001;$i++){
   $Xpos = (1/$cosangle)*$diametrostraw*( $nstraws/2 + 0.5 - ($i - 1601) );
-  print OUT "//*********************                                                           
+  print OUT "//*********************
   fts06tube#$i
   fts06assembly#1
   $Xpos $Ypos $Zpos
@@ -3296,70 +3290,70 @@ $Xpos = $diametrostraw*( $nstraws/2 -0.5);
   #########secondo strato###############
   $z2 = $Zpos + 0.5*sqrt(3.)*$diametrostraw;
   $raggio = $diametrostraw/2.;
-  for($i=2001; $i<2192;$i++){
+  for($i=2001; $i<2185;$i++){
   $Xpos = (1/$cosangle)*$diametrostraw*( $nstraws/2 - ($i - 2001) );
-  print OUT "//*********************                                                           
+  print OUT "//*********************                                        
   fts06tube#$i
   fts06assembly#1
   $Xpos $Ypos $z2
   $cosangle 0. $sinangle -$sinangle 0. $cosangle 0. 1. 0.\n"
   }
-  for($i=2192; $i<2210;$i++){
+  for($i=2185; $i<2205;$i++){
   $Xpos = (1/$cosangle)*$diametrostraw*( $nstraws/2 - ($i - 2001)-(354.5*$sinangle)/$diametrostraw );
-  print OUT "//*********************                                                           
+  print OUT "//*********************
   fts06tubedown#$i
   fts06assembly#1
   $Xpos -354.5 $z2 
   $cosangle 0. $sinangle -$sinangle 0. $cosangle 0. 1. 0.\n"
   }
-  for($i=2192; $i<2210;$i++){
+  for($i=2185; $i<2205;$i++){
   $Xpos = (1/$cosangle)*$diametrostraw*( $nstraws/2 - ($i - 2001)+(354.5*$sinangle)/$diametrostraw );
-  print OUT "//*********************                                                           
+  print OUT "//*********************
   fts06tubeup#$i
   fts06assembly#1
   $Xpos 354.5 $z2
   $cosangle 0. $sinangle -$sinangle 0. $cosangle 0. 1. 0.\n"
   }
-  for($i=2210; $i<2401;$i++){
+  for($i=2205; $i<2401;$i++){
   $Xpos = (1/$cosangle)*$diametrostraw*( $nstraws/2 - ($i - 2001) );
-  print OUT "//*********************                                                           
+  print OUT "//*********************
   fts06tube#$i
   fts06assembly#1
   $Xpos $Ypos $z2
   $cosangle 0. $sinangle -$sinangle 0. $cosangle 0. 1. 0.\n"
   }
-  #########terzo double layers completato#########
-  ########quarto double layers: inclinazione dei tubi di 0 gradi#########
+#########terzo double layers completato#########
+########quarto double layers: inclinazione dei tubi di 0 gradi#########
   $Zpos = 150-$diametrostraw/2;
   $Xpos = $diametrostraw*( $nstraws/2 -0.5);
   $raggio = $diametrostraw/2.;
-  for($i=2401; $i<2592;$i++){
-  $Xpos = $diametrostraw*( $nstraws/2 + 0.5 - ($i - 2401) );
-  print OUT "//*********************                                                           
+  for($i=2401; $i<2585;$i++){
+  $Xpos = $diametrostraw*( $nstraws/2 - ($i - 2401) );
+  print OUT "//*********************                                      
   fts06tube#$i
   fts06assembly#1
   $Xpos $Ypos $Zpos
   1. 0. 0. 0. 0. 1. 0. 1. 0.\n"
   }
-  for($i=2592; $i<2610;$i++){
-  $Xpos = $diametrostraw*( $nstraws/2 + 0.5 - ($i - 2401) );
-  print OUT "//*********************                                                           
+  for($i=2585; $i<2605;$i++){
+  $Xpos = $diametrostraw*( $nstraws/2 - ($i - 2401) );
+  print OUT "//*********************
   fts06tubedown#$i
   fts06assembly#1
   $Xpos -354.5 $Zpos 
   1. 0. 0. 0. 0. 1. 0. 1. 0.\n"
   }
-  for($i=2591; $i<2610;$i++){
-  $Xpos = $diametrostraw*( $nstraws/2 + 0.5 - ($i - 2401) );
-  print OUT "//*********************                                                           
+  for($i=2585; $i<2605;$i++){
+  $Xpos = $diametrostraw*( $nstraws/2 - ($i - 2401) );
+  print OUT "//*********************                                           
   fts06tubeup#$i
   fts06assembly#1
   $Xpos 354.5 $Zpos 
   1. 0. 0. 0. 0. 1. 0. 1. 0.\n"
   }
-  for($i=2610; $i<2801;$i++){
-  $Xpos = $diametrostraw*( $nstraws/2 + 0.5 - ($i - 2401) );
-  print OUT "//*********************                                                           
+  for($i=2605; $i<2801;$i++){
+  $Xpos = $diametrostraw*( $nstraws/2 - ($i - 2401) );
+  print OUT "//*********************
   fts06tube#$i
   fts06assembly#1
   $Xpos $Ypos $Zpos
@@ -3369,33 +3363,33 @@ $Xpos = $diametrostraw*( $nstraws/2 -0.5);
   #########secondo strato###############
   $z2 = $Zpos + 0.5*sqrt(3.)*$diametrostraw;
   $raggio = $diametrostraw/2.;
-  for($i=2801; $i<2992;$i++){
-  $Xpos = $diametrostraw*( $nstraws/2 - ($i - 2801) );
-  print OUT "//*********************                                                           
+  for($i=2801; $i<2985;$i++){
+  $Xpos = $diametrostraw*( $nstraws/2 +0.5- ($i - 2801) );
+  print OUT "//*********************
   fts06tube#$i
   fts06assembly#1
   $Xpos $Ypos $z2
   1. 0. 0. 0. 0. 1. 0. 1. 0.\n"
   }
-  for($i=2992; $i<3010;$i++){
-  $Xpos = $diametrostraw*( $nstraws/2 - ($i - 2801) );
-  print OUT "//*********************                                                           
+  for($i=2985; $i<3005;$i++){
+  $Xpos = $diametrostraw*( $nstraws/2 +0.5- ($i - 2801) );
+  print OUT "//*********************                 
   fts06tubedown#$i
   fts06assembly#1
   $Xpos -354.5 $z2 
   1. 0. 0. 0. 0. 1. 0. 1. 0.\n"
   }
-  for($i=2992; $i<3010;$i++){
-  $Xpos = $diametrostraw*( $nstraws/2 - ($i - 2801) );
-  print OUT "//*********************                                                           
+  for($i=2985; $i<3005;$i++){
+  $Xpos = $diametrostraw*( $nstraws/2 +0.5- ($i - 2801) );
+  print OUT "//*********************
   fts06tubeup#$i
   fts06assembly#1
   $Xpos 354.5 $z2
   1. 0. 0. 0. 0. 1. 0. 1. 0.\n"
   }
-  for($i=3010; $i<3201;$i++){
-  $Xpos = $diametrostraw*( $nstraws/2 - ($i - 2801) );
-  print OUT "//*********************                                                           
+  for($i=3005; $i<3201;$i++){
+  $Xpos = $diametrostraw*( $nstraws/2 +0.5- ($i - 2801) );
+  print OUT "//*********************
   fts06tube#$i
   fts06assembly#1
   $Xpos $Ypos $z2
