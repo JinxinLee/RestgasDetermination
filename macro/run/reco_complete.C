@@ -92,8 +92,8 @@ void reco_complete()
   fRun->AddTask(trackMC2);
  
   PndFtsTrackerIdeal* trackFts = new PndFtsTrackerIdeal();
-  trackFts->SetRelativeMomentumSmearing(0.02);
-  trackFts->SetVertexSmearing(0.02, 0.02, 0.02);
+  trackFts->SetRelativeMomentumSmearing(0.05);
+  trackFts->SetVertexSmearing(0.05, 0.05, 0.05);
   trackFts->SetTrackingEfficiency(1.);
   trackFts->SetTrackOutput("FtsIdealTrack");
   fRun->AddTask(trackFts);
