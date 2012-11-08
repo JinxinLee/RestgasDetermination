@@ -1190,7 +1190,7 @@ Bool_t PndPidCorrelator::GetDrcInfo(FairTrackParH* helix, PndPidCandidate* pidCa
 
 //_________________________________________________________________
 Bool_t PndPidCorrelator::GetDskInfo(FairTrackParH* helix, PndPidCandidate* pidCand) {
-  if ((helix->GetMomentum().Theta()*TMath::RadToDeg())<1.) return kFALSE;
+  //if ((helix->GetMomentum().Theta()*TMath::RadToDeg())<1.) return kFALSE;
   FairGeanePro *fProDsk = new FairGeanePro(); 
   if (!fCorrErrorProp) fProDsk->PropagateOnlyParameters();
   //---
@@ -1207,7 +1207,7 @@ Bool_t PndPidCorrelator::GetDskInfo(FairTrackParH* helix, PndPidCandidate* pidCa
   for (Int_t dd = 0; dd<dskEntries; dd++)
     {
       dskParticle = (PndDskParticle*)fDskParticle->At(dd);
-      //if ( fIdeal && ( ((PndDskParticle*)fDrcPoint->At(drcHit->GetRefIndex()))->GetTrackID() !=pidCand->GetMcIndex()) ) continue;
+      if ( fIdeal && (dskParticle->GetTrackID() !=pidCand->GetMcIndex()) ) continue;
       dskParticle->Position(dskPos);
     
       if (fGeanePro) // Overwrites vertex if Geane is used
@@ -1243,7 +1243,6 @@ Bool_t PndPidCorrelator::GetDskInfo(FairTrackParH* helix, PndPidCandidate* pidCa
     }
   
   if ((dskQuality<fCorrPar->GetDskCut()) || (fIdeal && dskIndex!=-1))
-    //if ((dskQuality<1000) || (fIdeal && dskIndex!=-1))
     {
       pidCand->SetDiscQuality(dskQuality);
       pidCand->SetDiscThetaC(dskThetaC);
@@ -1281,7 +1280,8 @@ void PndPidCorrelator::Finish() {
       fscCorr->Write();
       mdtCorr->Write();  
       drcCorr->Write();
-    
+      dskCorr->Write();
+
       r->Save();
     
       tofCorr->Delete();
@@ -1289,12 +1289,14 @@ void PndPidCorrelator::Finish() {
       fscCorr->Delete();
       mdtCorr->Delete();
       drcCorr->Delete();
+      dskCorr->Delete();
     
       tofCorr = 0;
       emcCorr = 0; 
       fscCorr = 0;
       mdtCorr = 0;
       drcCorr = 0;
+      dskCorr = 0;
     
       r->Close();
       r->Delete();
