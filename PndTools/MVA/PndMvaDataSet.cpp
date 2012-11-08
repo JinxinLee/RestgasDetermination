@@ -950,6 +950,8 @@ void PndMvaDataSet::VarNormalize()
   //float min, max, offset, scale;
   //min = max = offset = scale = 0.00;
   // Maybe we need to implement this.
+  std::cerr << "\n\n\t<ERROR> Not implemented method.\n\n"
+            << std::endl;
 }
 
 

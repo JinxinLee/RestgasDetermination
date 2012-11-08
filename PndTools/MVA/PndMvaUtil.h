@@ -23,7 +23,9 @@ struct StepError
 {
   //! Constructor
   StepError()
-  : m_step(0), m_trErr(0.0), m_tsErr(0.0)
+  : m_step(0), m_trErr(0.0), m_tsErr(0.0),
+    m_MisClsTest ( std::map <std::string, float>() ),
+    m_MisClsTrain( std::map <std::string, float>() )
   {};
   
   /**

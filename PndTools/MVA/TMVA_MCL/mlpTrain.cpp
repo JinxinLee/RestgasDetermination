@@ -40,16 +40,18 @@ int main(int argc, char** argv)
   labels.push_back("pion");
   
   // Variable names 
-  variables.push_back("p");
+  // variables.push_back("p");
+
   variables.push_back("emc");
   variables.push_back("lat");
   variables.push_back("z20");
   variables.push_back("z53");
-  variables.push_back("E1");
-  variables.push_back("E9");
-  variables.push_back("E25");
-  variables.push_back("E1E9");
   variables.push_back("E9E25");
+
+  // variables.push_back("E1");
+  // variables.push_back("E9");
+  // variables.push_back("E25");
+  // variables.push_back("E1E9");
 
   PndMultiClassMlpTrain mltr(inFile, labels, variables);
   mltr.SetEvaluation(true);

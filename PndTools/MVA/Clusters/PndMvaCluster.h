@@ -41,7 +41,17 @@ class PndMvaCluster
    *@param nCluster  Number of clusters to be created.
    */
   explicit PndMvaCluster( DataPoints const& InputData, size_t nCluster);
-  
+
+  /**
+   * Constructor.
+   *@param InputData Input Data points.
+   *@param nCluster  Number of clusters to be created.
+   *@param prune  Prune the created cluster.
+   *@param forceLabels Force to label the undecided and unknown points.
+   */
+  explicit PndMvaCluster( DataPoints const& InputData, size_t nCluster,
+                          bool const prune, bool const forceLabels);
+
   /**
    * Destructor.
    */
@@ -58,6 +68,7 @@ class PndMvaCluster
    * Compute Cluster centers for the current input data. The label of
    * the majority of their members determines the label of the center.
    *@param ClType Clustering algorithm (default is KMEANS_HARD).
+   *@param labels The labes of the currently available classes.
    *@return Vector containing the cluster centroids.
    */
   virtual DataPoints* ClusterAndLabel( ClusteringType const ClType,
@@ -82,6 +93,21 @@ class PndMvaCluster
    *@param val Number of centeroids.
    */
   inline void SetNumberOfClusters(size_t val);
+
+  /**
+   * Set if the created cluster list needs to be pruned. Remove the
+   * unknown and undecided labels.
+   *@param prune If prune after clustering.
+   */
+  inline void Setprune (bool const prune = false);
+  
+  /**
+   * The centroids that do not have a label (unknown, undecided) will
+   * get the label of the nearest data point from the input data set.
+   *@param forceLabel Force the labeling even if the determined label
+   *is unknown or undecided.
+   */
+  inline void SetForceToLabel (bool const forceLabel = false);
   
   //__________________ DEBUG FUNCTIONS ______________
 #if (PNDMVA_CLUSTER_DEBUG > 0)
@@ -130,6 +156,9 @@ class PndMvaCluster
 
   /// Responsibility list of each centroid.
   std::vector< std::set<size_t>* > m_ClustersToPoints;
+  
+  bool m_prune;//! If prune the current cluster.
+  bool m_forceToLabel;// Force to label the current mean
 };
 
 //__________________ Inlines ____________
@@ -149,4 +178,12 @@ inline void PndMvaCluster::SetNumberOfClusters(size_t val)
   m_num_Cluster = val;
 };
 
+inline void PndMvaCluster::Setprune (bool const prune)
+{
+  m_prune = prune;
+};
+inline void PndMvaCluster::SetForceToLabel (bool const label)
+{
+  m_forceToLabel = label;
+};
 #endif// End interface

@@ -16,7 +16,7 @@
 #include "PndMvaDataSet.h"
 #include "PndMvaCluster.h"
 
-#define DEBUG_CLUSTERS_PRINT 0
+#define DEBUG_CLUSTERS_PRINT 1
 
 #define CLUSTER_MULTI_LABEL  1
 
@@ -130,7 +130,7 @@ int main(int argc, char** argv)
 	      << '\n';
     
     PndMvaCluster clust (clusteringInput, numCentrrs);
-    //DataPoints* protoA = clust.Cluster();
+    // DataPoints* protoA = clust.Cluster();
     DataPoints* protoA = clust.ClusterAndLabel(KMEANS_HARD, label);
 
 #if (DEBUG_CLUSTERS_PRINT > 0)
@@ -147,6 +147,10 @@ int main(int argc, char** argv)
   // Semi unsupervised clustering. One can do the labeling afterward.
 #if (CLUSTER_MULTI_LABEL == 1 )
   PndMvaCluster clst (samples, numCentrrs);
+  // Enable pruning
+  // clst.Setprune(true);
+  // Enable relabeling
+  // clst.SetForceToLabel(true);
   DataPoints* protoB = clst.ClusterAndLabel(KMEANS_HARD, label);
 
 #if (DEBUG_CLUSTERS_PRINT > 0)

@@ -17,7 +17,26 @@ PndMvaCluster::PndMvaCluster( DataPoints const& InputData, size_t nCluster)
   : m_num_Cluster(nCluster), 
     m_PointSet(InputData),
     m_dimension( InputData.size() == 0 ? 0 : ( (m_PointSet[0]).second)->size() ),
-    m_PointsToClusters( std::vector<size_t>(m_PointSet.size(), 0) )
+    m_PointsToClusters( std::vector<size_t>(m_PointSet.size(), 0) ),
+    m_prune (false),
+    m_forceToLabel (false)
+{}
+
+/**
+ * Constructor.
+ *@param InputData Input Data points.
+ *@param nCluster  Number of clusters to be created.
+ *@param prune  Prune the created cluster.
+ *@param forceLabels Force to label the undecided and unknown points.
+ */
+PndMvaCluster::PndMvaCluster( DataPoints const& InputData, size_t nCluster,
+                              bool const prune, bool const forceLabels)
+  : m_num_Cluster(nCluster),
+    m_PointSet(InputData),
+    m_dimension( InputData.size() == 0 ? 0 : ( (m_PointSet[0]).second)->size() ),
+    m_PointsToClusters( std::vector<size_t>(m_PointSet.size(), 0) ),
+    m_prune (prune),
+    m_forceToLabel (forceLabels)
 {}
 
 /**
@@ -26,10 +45,11 @@ PndMvaCluster::PndMvaCluster( DataPoints const& InputData, size_t nCluster)
 PndMvaCluster::~PndMvaCluster()
 {
   ClearStructures();
-  // for(size_t p = 0; p < m_PointSet.size(); ++p) {
-  //   delete m_PointSet[p];
+  
+  //for(size_t p = 0; p < m_PointSet.size(); ++p) {
+    //delete m_PointSet[p].second;
   // }
-  // m_PointSet.clear();
+  m_PointSet.clear();
 }
 
 /*
@@ -99,8 +119,8 @@ DataPoints* PndMvaCluster::ClusterAndLabel( ClusteringType const ClType,
   std::map < std::string, size_t> labelCnt;
 
   // Local temporary vars.
-  size_t maxCnt;
-  std::string wLab;
+  size_t maxCnt;// Count of labels for the current centroid.
+  std::string wLab;// Winning label
 
   // Responsibility list loop. We need to visit all of the centroids
   // and relabel them
@@ -124,8 +144,8 @@ DataPoints* PndMvaCluster::ClusterAndLabel( ClusteringType const ClType,
     for(it = lst->begin(); it != lst->end(); ++it)
     {
       size_t dataIdx = *it;
-      std::string const& lb = m_PointSet[dataIdx].first;
-      labelCnt[lb] += 1;
+      std::string const& curLabel = m_PointSet[dataIdx].first;
+      labelCnt[curLabel] += 1;
     }
     // Done counting, Decide by finding maximum
     maxCnt = 0;//std::numeric_limits<size_t>::min();
@@ -137,20 +157,99 @@ DataPoints* PndMvaCluster::ClusterAndLabel( ClusteringType const ClType,
         maxCnt = labelCnt[label[lb]];
         wLab = label[lb];
       }
-      else if(labelCnt[label[lb]] == maxCnt) {//Equal
+      else if(labelCnt[label[lb]] == maxCnt) {//Equal numbers
         // maxCnt = labelCnt[label[lb]];
-        if(maxCnt == 0) {
+        if(maxCnt == 0) {// No members in the list
           wLab = "Empty_MemberList";
         }
-        else {
+        else {// Equal number, we can not decide.
           std::ostringstream cnt;
           cnt << maxCnt;
-          wLab = cnt.str() + "_UN_DECIDED";
+          wLab = "UNDECIDED_" + cnt.str();
         }
       }
     }// Found winning label. Assign
     (*dat)[ct].first = wLab;
   }
+  //_________________________ Prune if required. ______________
+  if(m_prune)
+  {
+    std::cout << "\t<-I-> Pruning the centroids.\n";
+    for( size_t j = 0; j < dat->size(); ++j)
+    {
+      std::string const& curLabel = (*dat)[j].first;
+      if( ( curLabel == "Empty_MemberList") || 
+          ( curLabel.find("UNDECIDED_") != std::string::npos)
+        )
+      {
+
+        std::cout << "\t<-I-> Dropping centroid number "
+                  << j << '\n';
+
+        (*dat)[j].first = "DROP_FROM_CENTROIDS";
+      }
+    }// All elements to be droped are marked.
+    std::vector< std::pair<std::string, std::vector<float>*> >::iterator drp = dat->begin();
+    while( drp != dat->end() )
+    {
+      std::string const& drpLab = (*drp).first;
+      // If we need to drop current centroid.
+      if( drpLab == "DROP_FROM_CENTROIDS")
+      {
+        delete (*drp).second;// Delete vector
+        dat->erase(drp);// Delete element (std::pair)
+        drp = dat->begin();// Go to begin (note size is changed!)
+      }
+      else
+      {
+        drp++;
+      }
+    }
+    std::cout << "\t<-I-> Total number of dropped elements = "
+              << (m_num_Cluster - dat->size())
+              << '\n';
+  }// End if(m_prune)
+
+  //________________________ Force labeling if required. ________
+  if(m_forceToLabel)
+  {
+    float minDist, distance;
+    std::string WinLabel;
+    std::cout << "\t<-I-> Forcing to label the centroids based "
+              << "on the data points with the shortest distance.\n";
+
+    // Centroids loop
+    for( size_t j = 0; j < dat->size(); ++j)
+    {
+      std::string const& curLabel = (*dat)[j].first;
+      if( ( curLabel == "Empty_MemberList") || 
+          ( curLabel.find("UNDECIDED_") != std::string::npos)
+        )
+      {
+        std::cout << "\t<-I-> Relabeling centroid number "
+                  << j << '\n';
+
+        minDist = std::numeric_limits<float>::max();
+        std::vector<float> const* curCenter = (*dat)[j].second;
+
+        // Loop through input data and find the element with the shortest
+        // distance to the current centroid.
+        for(size_t k = 0; k < m_PointSet.size(); k++)
+        {
+          std::vector<float> const* curDataPoint = m_PointSet[k].second;
+          distance = ComputeDist((*curCenter), (*curDataPoint));
+          if( distance < minDist)
+          {
+            minDist = distance;
+            WinLabel = m_PointSet[k].first;
+          }
+        }// Met all examples. Label is determined
+        (*dat)[j].first = WinLabel;
+      }// END of if (label)
+    }// All elements are visited and relabeld.
+  }// END if(m_forceToLabel)
+  
+  // Return the computed centroids.
   return (dat);
 }
 
@@ -218,8 +317,8 @@ DataPoints* PndMvaCluster::K_Means()
     // ================ Check empty clusters =======
     
     // For now we do nothing but maybe better to do 'singleton' Create
-    //a new cluster consisting of the one point furthest from its
-    //centroid.
+    // a new cluster consisting of the one point furthest from its
+    // centroid.
     /*
       for(size_t i = 0; i < m_ClustersToPoints.size(); i++)
       {
