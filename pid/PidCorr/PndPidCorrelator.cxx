@@ -1190,7 +1190,7 @@ Bool_t PndPidCorrelator::GetDrcInfo(FairTrackParH* helix, PndPidCandidate* pidCa
 
 //_________________________________________________________________
 Bool_t PndPidCorrelator::GetDskInfo(FairTrackParH* helix, PndPidCandidate* pidCand) {
-  //if ((helix->GetMomentum().Theta()*TMath::RadToDeg())<1.) return kFALSE;
+  if ((helix->GetMomentum().Theta()*TMath::RadToDeg())>22.) return kFALSE;
   FairGeanePro *fProDsk = new FairGeanePro(); 
   if (!fCorrErrorProp) fProDsk->PropagateOnlyParameters();
   //---
