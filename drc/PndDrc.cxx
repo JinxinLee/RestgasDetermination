@@ -174,9 +174,11 @@ void PndDrc::Initialize() {
   cout<<"bar 1 id = "<<fbarID<<endl;
     
   // focusing system - for now there is no:
-  flens3ID = fbarID;
-  flens2ID = fbarID;
-  flens1ID = fbarID;
+  if(fFocusing == 0){
+    flens3ID = fbarID;
+    flens2ID = fbarID;
+    flens1ID = fbarID;
+  }
   if(fFocusing == 1){    
     flens3ID = gMC->VolId("DrcLENS3Sensor");
     flens2ID = gMC->VolId("DrcLENS2Sensor");
@@ -184,6 +186,13 @@ void PndDrc::Initialize() {
     //cout<<"lens1 = "<<v2->FindNode("DrcLENS1Sensor_1")->GetVolume()->GetNumber()<<
     //    ", lens2 = "<<v2->FindNode("DrcLENS2Sensor_1")->GetVolume()->GetNumber()<<
     // 	", lens3 = "<<v2->FindNode("DrcLENS3Sensor_1")->GetVolume()->GetNumber()<<endl;
+  }
+  if(fFocusing == 3){        
+    flens2ID = gMC->VolId("DrcLENS2Sensor");
+    flens1ID = gMC->VolId("DrcLENS1Sensor");
+    //cout<<"lens1 = "<<v2->FindNode("DrcLENS1Sensor_1")->GetVolume()->GetNumber()<<
+    //    ", lens2 = "<<v2->FindNode("DrcLENS2Sensor_1")->GetVolume()->GetNumber()<<endl;
+    flens3ID = flens2ID;
   }
   cout<<"lens1ID = "<<flens1ID<<", flens2ID = "<<flens2ID<<", lens3ID = "<<flens3ID<<endl;
       
@@ -713,7 +722,7 @@ void PndDrc::Initialize() {
     fEfficiency[499]=0.68;
     fEfficiency[500]=0.73;
     
-    fLambda[1000];
+    //fLambda[1000];
     for(Int_t i=0; i<1000; i++){
       fLambda[i] = i;
     }
@@ -807,8 +816,7 @@ Bool_t PndDrc::ProcessHits(FairVolume* vol) {
         cout<<"photon number "<<nphotons<<" is produced!!!"<<endl;
        }*/
              
-      //cout<<"photon z coord = "<<fPos.Z()<<endl;
-      
+      //cout<<"photon z coord = "<<fPos.Z()<<endl;      
       
       //cout<<"mother = "<<gMC->MotherID()<<endl;
      /* if(fPos.Z() < -118.5){// && gMC->TrackTime()*1.0e09 < 10.){ // how many photons reach PD plane        
@@ -868,7 +876,7 @@ Bool_t PndDrc::ProcessHits(FairVolume* vol) {
     //$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
              
     
-    // ONLY FOR DESIGN WITH LENSES!!!!
+ /*   // ONLY FOR DESIGN WITH LENSES!!!!
     // kill photons that get out of the lens through the sides
     // air gap is 0.5 cm, EV starts at -120 cm, 0.05 cm - curvature?
     if(fFocusing == 1){    
@@ -880,13 +888,14 @@ Bool_t PndDrc::ProcessHits(FairVolume* vol) {
 	}
       } 
     }
-    
+ */   
     
     // "TakeOnlyDirectPho" option:
     // if photon is exiting the bar - check its direction
     if(fTakeDirect){  
       if(gMC->IsTrackExiting()==1){        
-        if(num == fbarID && fPos.Z() < fBarEnd){
+        if(num == flens3ID && fPos.Z() < fBarEnd){
+	  //cout<<"fBarEnd = "<<fBarEnd<<endl;
 	  //std::cout<<"Track is exiting the "<<num<<", "<<nam<<std::endl;
 	  gMC->TrackPosition(fPos);
 	  gMC->TrackMomentum(fMom);
@@ -900,7 +909,7 @@ Bool_t PndDrc::ProcessHits(FairVolume* vol) {
     // if photon is exiting the bar - check its direction
    if(fTakeReflected){  
       if(gMC->IsTrackExiting()==1){        
-        if(num == fbarID && fPos.Z() < fBarEnd){
+        if(num == flens3ID && fPos.Z() < fBarEnd){
 	  //std::cout<<"Track is exiting the "<<num<<", "<<nam<<std::endl;
 	  gMC->TrackPosition(fPos);
 	  gMC->TrackMomentum(fMom);
@@ -1027,13 +1036,7 @@ void PndDrc::NumberOfBounces(TVector3 start, TVector3 dir, Int_t *n1, Int_t *n2,
     //cout<<"-I- NumberOfBounces: X0 = "<<X0<<", Y0 = "<<Y0<<endl;
     
     // Find the number of bounces in each direction       
-    Double_t N1, N2;
-    //frad_out = (fradius-fhthick)/cos(2.*3.1415/16./2.); // radius at corner - thickness ###
-    //flside   = 2.*frad_out*sin(2.*3.1415/16./2.) - (2.*fboxthick) - (2.*fboxgap);
-    //flside = (180. - 2.*fpipehAngle - fbbGap/fradius*(fbbnum/2. - 1.)/fpi*180.)/(fbbnum/2.) * fradius/ 180.*fpi;
-    //fbarwidth = flside/fbarnum;
-    //cout<<"-I- NumberOfBounces: lside = "<<flside<<", bar width = "<<fbarwidth<<endl;
-        
+    Double_t N1, N2;    
     if(fbarnum > 1){
       // Find which bar in the bar box was hit:
       Int_t NhitBar = (Int_t)((0.5*flside + startBar.Y())/fbarwidth)+1;
@@ -1239,7 +1242,12 @@ void PndDrc::ConstructGeometry()
     if(fileName.Contains("_l1_")){
       fBarEnd = -118.725;
       fFocusing = 1;
-    }    
+    } 
+     if(fileName.Contains("_l3_")){
+      fBarEnd = -119.8;
+      fFocusing = 3;
+      //cout<<"focusing = "<<fFocusing<<endl;
+    }  
   } else{
     std::cout<<"Geometry format not supported!"<<std::endl;
   } 
@@ -1365,7 +1373,7 @@ void PndDrc::ConstructOpGeometry()
 
   for(Int_t i=0; i<fGeo->barNum(); i++){
     //gMC->SetBorderSurface("BarAirSurface", "DrcBarSensor", i+1, "DrcAirBox", 0, "BarSurface");
-    if(fFocusing == 1 || fFocusing == 0){ // lens or no focusing      
+    if(fFocusing == 1 || fFocusing == 0 || fFocusing == 3){ // lens or no focusing      
       //gMC->SetBorderSurface("Lens1AirSurface", "DrcLENS1", i+1, "DrcAirBox", 0, "BarSurface");
       //gMC->SetBorderSurface("Lens2AirSurface", "DrcLENS2", i+1, "DrcAirBox", 0, "BarSurface");
       //gMC->SetBorderSurface("Lens3AirSurface", "DrcLENS3", i+1, "DrcAirBox", 0, "BarSurface");
