@@ -56,7 +56,8 @@ class VAbsMicroCandidate : public FairMultiLinkedData
   virtual TMatrixD& P4Cov() const =0;
   virtual Int_t    GetMcIndex() const =0;
   virtual Int_t     GetTrackIndex() const=0;	
-	
+  virtual Int_t     GetTrackBranch() const=0;
+  
   // ************************
   // detector specific stuff
   // ************************
@@ -78,7 +79,6 @@ class VAbsMicroCandidate : public FairMultiLinkedData
   virtual Float_t		GetTofQuality()     const=0;
   virtual Int_t                 GetTofIndex()       const=0;
   virtual Float_t		GetTofBeta()     const=0;
-  virtual Short_t               GetTofModule()   const = 0;
 
   // Barrel DIRC
   virtual Float_t		GetDrcThetaC() const =0;

@@ -34,7 +34,8 @@ PndPidCandidate::PndPidCandidate():
   fLastHitY(0.),		
   fLastHitZ(0.),		
   fMcIndex(-1),
-  fTrackIndex(-1),
+  fTrackIndex(-1), 
+  fTrackBranch(-1),
   fMvdDEDX(0.),
   fMvdHits(0),
   fSttMeanDEDX(0.),
@@ -44,7 +45,6 @@ PndPidCandidate::PndPidCandidate():
   fTofTrackLength(0.),
   fTofQuality(-1.),
   fTofIndex(-1),
-  fTofModule(-1),
   fDrcThetaC(0.),
   fDrcThetaCErr(0.),
   fDrcQuality(-1.),
@@ -106,6 +106,7 @@ PndPidCandidate::PndPidCandidate(Int_t charge, TVector3 &pos, TLorentzVector &p4
   fLastHitZ(0.),		
   fMcIndex(-1),
   fTrackIndex(-1),
+  fTrackBranch(-1),
   fMvdDEDX(0.),
   fMvdHits(0),
   fSttMeanDEDX(0.),
@@ -115,7 +116,6 @@ PndPidCandidate::PndPidCandidate(Int_t charge, TVector3 &pos, TLorentzVector &p4
   fTofTrackLength(0.),
   fTofQuality(-1.),
   fTofIndex(-1),
-  fTofModule(-1),
   fDrcThetaC(0.),
   fDrcThetaCErr(0.),
   fDrcQuality(-1.),
@@ -181,6 +181,7 @@ PndPidCandidate::PndPidCandidate(Int_t charge, TVector3 &pos, TLorentzVector &p4
   fLastHitZ(0.),		
   fMcIndex(-1),
   fTrackIndex(-1),
+  fTrackBranch(-1),
   fMvdDEDX(0.),
   fMvdHits(0),
   fSttMeanDEDX(0.),
@@ -190,7 +191,6 @@ PndPidCandidate::PndPidCandidate(Int_t charge, TVector3 &pos, TLorentzVector &p4
   fTofTrackLength(0.),
   fTofQuality(-1.),
   fTofIndex(-1),
-  fTofModule(-1),
   fDrcThetaC(0.),
   fDrcThetaCErr(0.),
   fDrcQuality(-1.),
@@ -356,6 +356,7 @@ void PndPidCandidate::SetDefault()
   fLastHitZ = 0.;		
   fMcIndex = -1;
   fTrackIndex = -1;
+  fTrackBranch = -1;
   fMvdDEDX = 0.;
   fMvdHits = 0;
   fSttMeanDEDX = 0.;
@@ -365,7 +366,6 @@ void PndPidCandidate::SetDefault()
   fTofTrackLength = 0.;
   fTofQuality = -1.;
   fTofIndex = -1;
-  fTofModule = -1;
   fDrcThetaC = 0.;
   fDrcThetaCErr = 0.;
   fDrcQuality = -1.;

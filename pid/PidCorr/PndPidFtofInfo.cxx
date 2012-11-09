@@ -100,7 +100,6 @@ Bool_t PndPidCorrelator::GetFtofInfo(FairTrackParH* helix, PndPidCandidate* pidC
       pidCand->SetTofStopTime(tofTof);
       pidCand->SetTofTrackLength(tofLength);
       pidCand->SetTofIndex(tofIndex);
-      pidCand->SetTofModule(2);
     }
 
 

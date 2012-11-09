@@ -62,6 +62,7 @@ class PndPidCandidate : public VAbsMicroCandidate  //TObject
   TMatrixD& P4Cov() const ;
   Int_t     GetMcIndex() const{return fMcIndex;}
   Int_t     GetTrackIndex() const{return fTrackIndex;}	
+  Int_t     GetTrackBranch() const{return fTrackBranch;}
 
   // ************************
   // detector specific stuff
@@ -84,8 +85,7 @@ class PndPidCandidate : public VAbsMicroCandidate  //TObject
   Float_t		GetTofQuality()     const { return fTofQuality; }
   Int_t                 GetTofIndex()       const { return fTofIndex; }
   Float_t               GetTofBeta()        const { return (fTofStopTime>0.&&fTofTrackLength>0.) ? fTofTrackLength/(30. * fTofStopTime) : -1.; } 
-  Short_t               GetTofModule()      const { return fTofModule; }
-
+ 
   // Barrel DIRC
   Float_t		GetDrcThetaC()          const { return fDrcThetaC;}
   Float_t		GetDrcThetaCErr()       const { return fDrcThetaCErr;}
@@ -172,7 +172,8 @@ class PndPidCandidate : public VAbsMicroCandidate  //TObject
   void	SetCov7(const TMatrixD &cov7 );
   void	SetP4Cov(const TMatrixD &covP4 );
   void	SetMcIndex(int idx) {fMcIndex=idx; }
-  void  SetTrackIndex(int idx) {fTrackIndex=idx; }	
+  void  SetTrackIndex(int idx) {fTrackIndex=idx; } 
+  void  SetTrackBranch(int idx) {fTrackBranch=idx; }	
 
   void  SetHelixParams(Double_t *par) {if (par!=0) for (int i=0; i<5;i++) fParams[i] = (Float_t)par[i];}
   void  SetHelixCov(Double_t* cov){if (cov!=0) for (int i=0; i<15;i++) fCov[i] = (Float_t)cov[i];}
@@ -198,8 +199,7 @@ class PndPidCandidate : public VAbsMicroCandidate  //TObject
   void  SetTofTrackLength(Double_t val) { fTofTrackLength = val; }
   void  SetTofQuality(Double_t val)     { fTofQuality = val; }
   void	SetTofIndex(Int_t val)          { fTofIndex = val;}
-  void  SetTofModule(Int_t val)         { fTofModule = val;}
-	
+ 	
   // Barrel DIRC
   void	SetDrcThetaC(Double_t val)       { fDrcThetaC= (Float_t) val;}
   void	SetDrcThetaCErr(Double_t val)    { fDrcThetaCErr=(Float_t) val;}
@@ -286,6 +286,7 @@ class PndPidCandidate : public VAbsMicroCandidate  //TObject
 			
   Int_t		fMcIndex;    // MC truth index
   Int_t         fTrackIndex; // PndTrack index
+  Int_t         fTrackBranch;// index of PndTrack TClonesArray
   Float_t	fErrP7[28];  // The symmetric 7*7 error matrix
   Float_t	fParams[5];  // The helix fit parameters
   Float_t	fCov[15];    // The helix error matrix
@@ -307,7 +308,6 @@ class PndPidCandidate : public VAbsMicroCandidate  //TObject
   Float_t       fTofTrackLength;
   Float_t       fTofQuality;
   Int_t         fTofIndex;
-  Short_t       fTofModule; // 1 Barrel, 2 Forward
 	
   // Barrel DIRC
   Float_t 	fDrcThetaC;

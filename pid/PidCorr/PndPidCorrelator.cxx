@@ -527,9 +527,9 @@ InitStatus PndPidCorrelator::Init() {
       mdtCorr = new TNtuple("mdtCorr","TRACK-MDT Correlation",
 			    "track_x:track_y:track_z:track_phi:track_p:track_charge:track_theta:track_z0:mdt_x:mdt_y:mdt_z:mdt_phi:chi2:mdt_mod:dphi:glen:mdt_count:nhits");
       drcCorr = new TNtuple("drcCorr","TRACK-DRC Correlation",
-			    "track_x:track_y:track_z:track_phi:track_p:track_charge:track_theta:track_z0:drc_x:drc_y:drc_phi:chi2:drc_thetac:drc_nphot:dphi:glen");
+			    "track_x:track_y:track_z:track_phi:track_p:track_charge:track_theta:track_z0:drc_x:drc_y:drc_phi:chi2:drc_thetac:drc_nphot:dphi:glen:flag");
       dskCorr = new TNtuple("dskCorr","TRACK-DSK Correlation",
-			    "track_x:track_y:track_z:track_phi:track_p:track_charge:track_theta:track_z0:dsk_x:dsk_y:dsk_phi:chi2:dsk_thetac:dsk_nphot:dphi:glen");
+			    "track_x:track_y:track_z:track_phi:track_p:track_charge:track_theta:track_z0:dsk_x:dsk_y:dsk_z:dsk_phi:chi2:dsk_thetac:dsk_nphot:dphi:glen:track_lx:track_ly:track_lz:track_xp:flag");
       cout << "-I- PndPidCorrelator::Init: Filling Debug histograms" << endl;
     
     }
@@ -673,6 +673,7 @@ void PndPidCorrelator::ConstructChargedCandidate() {
       pidCand->SetMcIndex(trackCand.getMcTrackId());
     }
     pidCand->SetTrackIndex(i);
+    pidCand->SetTrackBranch(FairRootManager::Instance()->GetBranchId(fTrackBranch));
     pidCand->AddLink(FairLink(fTrackBranch, i));
     if (!GetTrackInfo(track, pidCand)) continue;
     if ( (fMvdMode==2) && ((fMvdHitsStrip->GetEntriesFast()+fMvdHitsPixel->GetEntriesFast())>0) ) GetMvdInfo(track, pidCand); 
@@ -712,6 +713,7 @@ void PndPidCorrelator::ConstructChargedCandidate() {
 	  pidCand->SetMcIndex(trackCand.getMcTrackId());
 	}
 	pidCand->SetTrackIndex(i);
+        pidCand->SetTrackBranch(FairRootManager::Instance()->GetBranchId(fTrackBranch2));
 	pidCand->AddLink(FairLink("PndTrack", i));
 	if (!GetTrackInfo(track, pidCand)) continue;
 	GetMvdInfo(track, pidCand);
@@ -870,7 +872,6 @@ Bool_t PndPidCorrelator::GetTofInfo(FairTrackParH* helix, PndPidCandidate* pidCa
       pidCand->SetTofStopTime(tofTof);
       pidCand->SetTofTrackLength(tofLength);
       pidCand->SetTofIndex(tofIndex);
-      pidCand->SetTofModule(1);
     }
   
   return kTRUE;
@@ -1126,7 +1127,7 @@ Bool_t PndPidCorrelator::GetMdtInfo(PndTrack* track, PndPidCandidate* pidCand) {
 
 //_________________________________________________________________
 Bool_t PndPidCorrelator::GetDrcInfo(FairTrackParH* helix, PndPidCandidate* pidCand) {
-  if ((helix->GetMomentum().Theta()*TMath::RadToDeg())<20.) return kFALSE;
+  if (helix->GetZ()>120.) return kFALSE; // cut fwd endcap tracks
   FairGeanePro *fProDrc = new FairGeanePro();
   if (!fCorrErrorProp) fProDrc->PropagateOnlyParameters();
   //---
@@ -1137,6 +1138,7 @@ Bool_t PndPidCorrelator::GetDrcInfo(FairTrackParH* helix, PndPidCandidate* pidCa
   Float_t drcQuality = 1000000;
   
   TVector3 vertex(0., 0., 0.);
+  Float_t vertex_z = -1000;
   TVector3 drcPos(0., 0., 0.);
   TVector3 momentum(0., 0., 0.);
   for (Int_t dd = 0; dd<drcEntries; dd++)
@@ -1154,13 +1156,14 @@ Bool_t PndPidCorrelator::GetDrcInfo(FairTrackParH* helix, PndPidCandidate* pidCa
 	  Bool_t rc =  fProDrc->Propagate(helix, fRes, fPidHyp*pidCand->GetCharge()); 	
 	  if (!rc) continue;
 	  vertex.SetXYZ(fRes->GetX(), fRes->GetY(), 0.);
+	  vertex_z = fRes->GetZ();
 	  drcGLength = fProDrc->GetLengthAtPCA();
 	}
     
       Float_t dphi = vertex.DeltaPhi(drcPos);
       Float_t dist = dphi * dphi;
     
-      if ( drcQuality > dist)
+      if ( (drcQuality > dist) && (drcGLength<25.) ) // additional cut on extrapoaltion distance to avoit fake correations
 	{
 	  drcIndex = dd;
 	  drcQuality = dist;
@@ -1170,9 +1173,11 @@ Bool_t PndPidCorrelator::GetDrcInfo(FairTrackParH* helix, PndPidCandidate* pidCa
 	}
       if (fDebugMode)
 	{
-	  Float_t ntuple[] = {vertex.X(), vertex.Y(), vertex.Z(), vertex.Phi(),  
+	  Float_t ntuple[] = {vertex.X(), vertex.Y(), vertex_z, vertex.Phi(),  
 			      helix->GetMomentum().Mag(), helix->GetQ(), helix->GetMomentum().Theta(), helix->GetZ(),
-			      drcPos.X(), drcPos.Y(), drcPos.Phi(), dist, drcHit->GetThetaC(), 0., vertex.DeltaPhi(drcPos), drcGLength};
+			      drcPos.X(), drcPos.Y(), drcPos.Phi(), dist, drcHit->GetThetaC(), 0., vertex.DeltaPhi(drcPos), drcGLength,
+			      pidCand->GetFitStatus()
+	  };
 	  drcCorr->Fill(ntuple);
 	}
     }
@@ -1190,7 +1195,8 @@ Bool_t PndPidCorrelator::GetDrcInfo(FairTrackParH* helix, PndPidCandidate* pidCa
 
 //_________________________________________________________________
 Bool_t PndPidCorrelator::GetDskInfo(FairTrackParH* helix, PndPidCandidate* pidCand) {
-  if ((helix->GetMomentum().Theta()*TMath::RadToDeg())>22.) return kFALSE;
+  if (helix->GetZ()<180.) return kFALSE; // consider tracks only from last gem plane
+  
   FairGeanePro *fProDsk = new FairGeanePro(); 
   if (!fCorrErrorProp) fProDsk->PropagateOnlyParameters();
   //---
@@ -1199,7 +1205,7 @@ Bool_t PndPidCorrelator::GetDskInfo(FairTrackParH* helix, PndPidCandidate* pidCa
   Int_t dskIndex = -1, dskPhot = 0;
   Float_t dskThetaC = -1000, dskThetaCErr = 0, dskGLength = -1000;
   Float_t dskQuality = 1000000;
-  
+  Float_t x_p = -1000;
   
   TVector3 vertex(0., 0., 0.);
   TVector3 dskPos(0., 0., 0.);
@@ -1213,13 +1219,14 @@ Bool_t PndPidCorrelator::GetDskInfo(FairTrackParH* helix, PndPidCandidate* pidCa
       if (fGeanePro) // Overwrites vertex if Geane is used
 	{
       
-	  fProDsk->PropagateToVolume("DskBase",0,1);
+	  fProDsk->PropagateToVolume("Plate",0,1);
 	  vertex.SetXYZ(-10000, -10000, -10000); // reset vertex
 	  FairTrackParH *fRes= new FairTrackParH();
 	  Bool_t rc =  fProDsk->Propagate(helix, fRes, fPidHyp*pidCand->GetCharge());
 	  if (!rc) continue;
 	  vertex.SetXYZ(fRes->GetX(), fRes->GetY(), fRes->GetZ());
 	  dskGLength = fProDsk->GetLengthAtPCA();
+	  x_p = fRes->GetMomentum().Mag();
 	}
     
     
@@ -1237,7 +1244,9 @@ Bool_t PndPidCorrelator::GetDskInfo(FairTrackParH* helix, PndPidCandidate* pidCa
 	{
 	  Float_t ntuple[] = {vertex.X(), vertex.Y(), vertex.Z(), vertex.Phi(),
 			      helix->GetMomentum().Mag(), helix->GetQ(), helix->GetMomentum().Theta(), helix->GetZ(),
-			      dskPos.X(), dskPos.Y(), dskPos.Phi(), dist, dskParticle->GetThetaC(), 0., vertex.DeltaPhi(dskPos), dskGLength};
+			      dskPos.X(), dskPos.Y(), dskPos.Z(), dskPos.Phi(), dist, dskParticle->GetThetaC(), 0., vertex.DeltaPhi(dskPos), dskGLength,
+			      helix->GetX(), helix->GetY(), helix->GetZ(), x_p, pidCand->GetFitStatus()
+};
 	  dskCorr->Fill(ntuple);
 	}
     }
