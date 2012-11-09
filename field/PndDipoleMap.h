@@ -38,7 +38,7 @@ public:
    ** @param name       Name of field map
    ** @param fileType   R = ROOT file, A = ASCII
    **/
-  PndDipoleMap(const char* mapName, const char* fileType = "R");
+  PndDipoleMap(const char* mapName, const char* fileType = "R", Double_t BeamMom=15.0);
 
 
   /** Constructor from PndFieldPar **/
@@ -73,9 +73,9 @@ public:
 
   // Hemispheres of a point (for temporary use)
   Double_t fHemiX, fHemiY;   //!
+  Double_t fBeamMom;        //!
 
-
-  ClassDef(PndDipoleMap,2) 
+  ClassDef(PndDipoleMap,3)
 
 };
 

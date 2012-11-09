@@ -27,7 +27,7 @@ public:
   /** Default constructor **/
   PndMultiField();
 
-	PndMultiField(TString Map);	
+  PndMultiField(TString Map, Double_t BeamMom=15.0);
 	
 	
   /** Constructor from PndFieldPar **/
@@ -49,7 +49,7 @@ public:
   void FillParContainer();
   /** Screen output **/
   virtual void Print();
-  ClassDef(PndMultiField,1) 
+  ClassDef(PndMultiField,2)
 
  /** Get magnetic field. For use of GEANT3
    ** @param point            Coordinates [cm]
@@ -66,6 +66,7 @@ public:
   Int_t     fNoOfMaps;
   std::map <PndRegion*, FairField* > fFieldMaps;//! 
   std::map <PndRegion*, FairField* >::iterator fMapIter; //!
+  Double_t fBeamMom; 
 
 };
 

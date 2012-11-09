@@ -12,7 +12,7 @@ Int_t PndDipoleMap::fNumberOfRegions=0;
 using namespace std;
 // -------------   Default constructor  ----------------------------------
 PndDipoleMap::PndDipoleMap() 
-  :PndFieldMap(), fHemiX(0), fHemiY(0), fRegionNo(0)
+  :PndFieldMap(), fRegionNo(0), fHemiX(0), fHemiY(0), fBeamMom(0.)
 { 
   fType = 3;
 }
@@ -22,32 +22,30 @@ PndDipoleMap::PndDipoleMap()
 
 // -------------   Standard constructor   ---------------------------------
 PndDipoleMap::PndDipoleMap(const char* mapName, 
-				 const char* fileType)
-  : PndFieldMap(mapName, fileType), fHemiX(0), fHemiY(0), fRegionNo(0)
+				 const char* fileType, Double_t BeamMom)
+  : PndFieldMap(mapName, fileType), fRegionNo(0), fHemiX(0), fHemiY(0),  fBeamMom(BeamMom)
 { 
   fType = 3;
   TString Suffix="";
   FairRunSim *fRun= FairRunSim::Instance();
-  if(fRun){
-    Double_t BeamMom= fRun->GetBeamMom();
-    if(fRun->UseBeamMom() && BeamMom){
-      if(BeamMom< 3)Suffix=".0150" ;
-      else if (BeamMom< 6.0 && BeamMom >= 3.0)Suffix=".0406";
-      else if (BeamMom< 10.0 && BeamMom >= 6.0 )Suffix=".0890" ;
-      else if (BeamMom< 13.0 && BeamMom >= 10.0)Suffix=".1191";
-      else if (BeamMom> 13.0) Suffix=".1500";
-    }else{
-      Suffix="";
-    }
-    TString NewName=mapName;
-    NewName=mapName+Suffix;
-    SetName(NewName.Data());
-    TString dir = getenv("VMCWORKDIR");
-    fFileName = dir + "/input/" + NewName;
-    if ( fileType[0] == 'R' ) fFileName += ".root";
-    else                      fFileName += ".dat";
+  if(fRun) fBeamMom= fRun->GetBeamMom();
+   
+  if(fBeamMom< 3)Suffix=".0150" ;
+  else if (fBeamMom< 6.0 && fBeamMom >= 3.0)Suffix=".0406";
+  else if (fBeamMom< 10.0 && fBeamMom >= 6.0 )Suffix=".0890" ;
+  else if (fBeamMom< 13.0 && fBeamMom >= 10.0)Suffix=".1191";
+  else if (fBeamMom> 13.0) Suffix=".1500";
+  
+   
+  TString NewName=mapName;
+  NewName=mapName+Suffix;
+  SetName(NewName.Data());
+  TString dir = getenv("VMCWORKDIR");
+  fFileName = dir + "/input/" + NewName;
+  if ( fileType[0] == 'R' ) fFileName += ".root";
+  else                      fFileName += ".dat";
 
-  }
+  
   fNumberOfRegions++;
   fRegionNo=fNumberOfRegions;
   

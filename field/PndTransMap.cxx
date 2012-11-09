@@ -22,7 +22,7 @@
 using namespace std;
 // -------------   Default constructor  ----------------------------------
 PndTransMap::PndTransMap() 
- :PndFieldMap(), fHemiX(0), fHemiY(0)
+ :PndFieldMap(), fHemiX(0), fHemiY(0), fBeamMom(0.)
 { 
   fType = 4;
 }
@@ -32,32 +32,30 @@ PndTransMap::PndTransMap()
 
 // -------------   Standard constructor   ---------------------------------
 PndTransMap::PndTransMap(const char* mapName, 
-				 const char* fileType)
-  : PndFieldMap(mapName, fileType), fHemiX(0), fHemiY(0)
+				 const char* fileType, Double_t BeamMom)
+  : PndFieldMap(mapName, fileType), fHemiX(0), fHemiY(0),fBeamMom(BeamMom)
 { 
   fType = 4;
-  TString Suffix="";
-  FairRunSim *fRun= FairRunSim::Instance();
-  if(fRun){
-    Double_t BeamMom= fRun->GetBeamMom();
-    if(fRun->UseBeamMom() && BeamMom){
-      if (BeamMom< 2.0 )Suffix=".0150" ;
-      else if (BeamMom< 5.0 )Suffix=".0406";
-      else if (BeamMom< 10.0 )Suffix=".0890" ;
-      else if (BeamMom< 12.0 )Suffix=".1191";
-      else  Suffix=".1500";
-    }else{
-      Suffix="";
-    }
-    TString NewName=mapName;
-    NewName=mapName+Suffix;
-    SetName(NewName.Data());
-    TString dir = getenv("VMCWORKDIR");
-    fFileName = dir + "/input/" + NewName;
-    if ( fileType[0] == 'R' ) fFileName += ".root";
-    else                      fFileName += ".dat";
+   TString Suffix="";
+   FairRunSim *fRun= FairRunSim::Instance();
+   if(fRun) fBeamMom= fRun->GetBeamMom();
+   
+   if(fBeamMom< 3)Suffix=".0150" ;
+   else if (fBeamMom< 6.0 && fBeamMom >= 3.0)Suffix=".0406";
+   else if (fBeamMom< 10.0 && fBeamMom >= 6.0 )Suffix=".0890" ;
+   else if (fBeamMom< 13.0 && fBeamMom >= 10.0)Suffix=".1191";
+   else if (fBeamMom> 13.0) Suffix=".1500";
+   
+   
+   TString NewName=mapName;
+   NewName=mapName+Suffix;
+   SetName(NewName.Data());
+   TString dir = getenv("VMCWORKDIR");
+   fFileName = dir + "/input/" + NewName;
+   if ( fileType[0] == 'R' ) fFileName += ".root";
+   else                      fFileName += ".dat";
 
-  }
+
 
 }
 // ------------------------------------------------------------------------

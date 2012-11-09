@@ -37,7 +37,7 @@ public:
    ** @param name       Name of field map
    ** @param fileType   R = ROOT file, A = ASCII
    **/
-  PndTransMap(const char* mapName, const char* fileType = "R");
+  PndTransMap(const char* mapName, const char* fileType = "R", Double_t BeamMom=15.0);
 
 
   /** Constructor from PndFieldPar **/
@@ -68,7 +68,7 @@ protected:
 
   // Hemispheres of a point (for temporary use)
   Double_t fHemiX, fHemiY;   //!
-
+  Double_t fBeamMom;        //!
 
   ClassDef(PndTransMap,1) 
 

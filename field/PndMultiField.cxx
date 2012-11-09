@@ -34,31 +34,25 @@ using namespace std;
 
 // -------------   Default constructor  ----------------------------------
 PndMultiField::PndMultiField() 
- : fMaps(), fNoOfMaps(0), fFieldMaps(), fMapIter() 
+ : fMaps(new TObjArray(10)), fNoOfMaps(0), fFieldMaps(), fMapIter(), fBeamMom(0.)
 {
-
-    fMaps= new TObjArray(10);
-    fNoOfMaps=0;
-    fType = 5;
+      fType = 5;
 }
 
 
 // -------------   Default constructor  ----------------------------------
-PndMultiField::PndMultiField(TString Map) 
- : fMaps(), fNoOfMaps(0), fFieldMaps(), fMapIter() 
+PndMultiField::PndMultiField(TString Map, Double_t BeamMom)
+ : fMaps(new TObjArray(10)), fNoOfMaps(0), fFieldMaps(), fMapIter(), fBeamMom(BeamMom)
 {
-	
-    fMaps= new TObjArray(10);
-    fNoOfMaps=0;
     fType = 5;
 	
 	Map.ToUpper();
 	
 	if (Map=="FULL") {
 		
-	    PndTransMap *map_t= new PndTransMap("TransMap", "R");
-		PndDipoleMap *map_d1= new PndDipoleMap("DipoleMap1", "R");
-		PndDipoleMap *map_d2= new PndDipoleMap("DipoleMap2", "R");
+      PndTransMap *map_t= new PndTransMap("TransMap", "R", fBeamMom);
+		PndDipoleMap *map_d1= new PndDipoleMap("DipoleMap1", "R", fBeamMom);
+		PndDipoleMap *map_d2= new PndDipoleMap("DipoleMap2", "R", fBeamMom);
 		PndSolenoidMap *map_s1= new PndSolenoidMap("SolenoidMap1", "R");
 		PndSolenoidMap *map_s2= new PndSolenoidMap("SolenoidMap2", "R");
 		PndSolenoidMap *map_s3= new PndSolenoidMap("SolenoidMap3", "R");
@@ -73,8 +67,8 @@ PndMultiField::PndMultiField(TString Map)
 		AddField(map_s4);
 	
 	}else if (Map=="DIPOLE") {
-		PndDipoleMap *map_d1= new PndDipoleMap("DipoleMap1", "R");
-		PndDipoleMap *map_d2= new PndDipoleMap("DipoleMap2", "R");
+		PndDipoleMap *map_d1= new PndDipoleMap("DipoleMap1", "R", fBeamMom);
+		PndDipoleMap *map_d2= new PndDipoleMap("DipoleMap2", "R", fBeamMom);
 		
 		AddField(map_d1);
 		AddField(map_d2);
@@ -103,10 +97,9 @@ PndMultiField::PndMultiField(TString Map)
 
 // ------------   Constructor from PndFieldPar   --------------------------
 PndMultiField::PndMultiField(PndMultiFieldPar* fieldPar) 
- : fMaps(), fNoOfMaps(0), fFieldMaps(), fMapIter()
+ : fMaps( new TObjArray(10)), fNoOfMaps(0), fFieldMaps(), fMapIter(), fBeamMom(0.)
 {
    fType = 5;
-   fMaps= new TObjArray(10);
    TObjArray *fArray= fieldPar->GetParArray();
    if(fArray->IsEmpty()) fType=-1;
 
