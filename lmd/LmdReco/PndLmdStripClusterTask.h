@@ -39,11 +39,14 @@ class PndLmdStripClusterTask : public PndSdsStripClusterTask
     PndGeoHandling* fGeoH;
     FairRun* ana;
     FairRuntimeDb* rtdb;
+
+    void SetMSflag(bool fflag){flagMS = fflag;};
     ClassDef(PndLmdStripClusterTask,2);
   
  private:
-    TList* fAlignParamList;
 
+    bool flagMS;
+    TList* fAlignParamList;
     Double_t fPbeam;
     void combitransToLumiFrame(TVector3& hitPos);
     void rotateToLumiFrame(TVector3& hitPos);

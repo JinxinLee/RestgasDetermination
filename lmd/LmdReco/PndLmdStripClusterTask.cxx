@@ -30,7 +30,7 @@ PndLmdStripClusterTask::PndLmdStripClusterTask() :
 {
   fGeoH = PndGeoHandling::Instance();
   fAlignParamList = new TList();
- 
+  flagMS = true;
 }
 
 // -----   Destructor   ----------------------------------------------------
@@ -64,7 +64,7 @@ InitStatus PndLmdStripClusterTask::Init()
 //
   if ( ! fDigiArray )
   {
-    std::cout << "-W- PndSdsPixelClusterTask::Init: "
+    std::cout << "-W- PndSdsStripClusterTask::Init: "
     << "No SDSDigi array!" << std::endl;
     return kERROR;
   }
@@ -220,10 +220,10 @@ TVector3 PndLmdStripClusterTask::AddMSErr(TVector3 hpos, TVector3 hposerr){
   TLorentzVector LorMom(0, 0, fPbeam, Ebeam);
   Double_t beta = LorMom.Beta();
   Double_t X = 0.015;
-  Double_t X0 = 9.36;
-  Double_t thetaMS = 13.6*1e-3*TMath::Sqrt(X/X0)*(1+0.038*TMath::Log(X/X0))/(beta*fPbeam);
-  // Double_t thetaMS = 13.6*1e-3*TMath::Sqrt(X/X0)/(beta*fPbeam);
-  // cout<<"thetaMS = "<<thetaMS<<" fPbeam = "<<fPbeam<<endl;
+  Double_t X0 = 9.37;
+  // Double_t thetaMS = 13.6*1e-3*TMath::Sqrt(X/X0)*(1+0.038*TMath::Log(X/X0))/(beta*fPbeam);
+  Double_t thetaMS = 13.6*1e-3*TMath::Sqrt(X/X0)/(beta*fPbeam);
+  //cout<<"thetaMS = "<<thetaMS<<" fPbeam = "<<fPbeam<<endl;
   //-----------------------------------------------------------
 
   //TO DO: use parameters from geometry info for LUMI
@@ -232,8 +232,8 @@ TVector3 PndLmdStripClusterTask::AddMSErr(TVector3 hpos, TVector3 hposerr){
   double xerr,yerr;
   double zhit = hpos.Z();
   //  const double Z0 = 1100.;
-  // const double Z0 = 1099.;
- const double Z0 = 0.;
+  const double Z0 = 1099.;
+  // const double Z0 = 0.;
   int num = (zhit-Z0)/d;
   //  double numd = (zhit-Z0)/10.;
   //cout<<"num = "<<num<<endl;
@@ -252,13 +252,14 @@ TVector3 PndLmdStripClusterTask::AddMSErr(TVector3 hpos, TVector3 hposerr){
   //  Double_t l = 10./cos(2.326*TMath::Pi()/180.);
   double sigmaMS;
   for(int j=0;j<num;j++){
-    sigmaMS = 2*(j+1)*d*thetaMS;
-    // sigmaMS = j*d*thetaMS;
+    // sigmaMS = 2*(j+1)*d*thetaMS;
+    sigmaMS = (j+1)*d*thetaMS;
     // cout<<"sigmaMS = "<<sigmaMS<<" xerr="<<xerr<<" yerr="<<yerr<<endl;
     //sigmaMS = j*d*thetaMS;
     xerr = TMath::Hypot(xerr,sigmaMS);
     yerr = TMath::Hypot(yerr,sigmaMS);  
   }
+  cout<<" num:"<<num<<"(Z="<<zhit<<") xerr="<<xerr<<" yerr="<<yerr<<endl;
   TVector3 res(xerr,yerr,hposerr.Z());
   return res;
 };
@@ -573,8 +574,8 @@ Bool_t PndLmdStripClusterTask::Backmap( TVector2 meantopPoint, Double_t meantope
   CalcLineCross(meantopPoint, fCurrentStripCalcTop->GetStripDirection(), meanbotPoint, fCurrentStripCalcBot->GetStripDirection() );
   // // here we assume the sensor system to be in the _Middle_ of the volume
   localpos.SetXYZ( onsensorPoint.X(), onsensorPoint.Y(), 0.);
- // here we assume the sensor system to be in the _surface_ of the volume
-  //localpos.SetXYZ( onsensorPoint.X(), onsensorPoint.Y(),-(fGeoH->GetSensorDimensionsShortId(sensorID).Z()));
+  //  here we assume the sensor system to be in the _surface_ of the volume
+  //  localpos.SetXYZ( onsensorPoint.X(), onsensorPoint.Y(),-(fGeoH->GetSensorDimensionsShortId(sensorID).Z()));
   // let's see if we're still on the sensor (cut combinations with noise off)
   if(fabs(localpos.X()) > fabs(fCurrentDigiPar->GetTopAnchor().X())) return kFALSE;
   if(fabs(localpos.Y()) > fabs(fCurrentDigiPar->GetTopAnchor().Y())) return kFALSE;
@@ -600,14 +601,14 @@ Bool_t PndLmdStripClusterTask::Backmap( TVector2 meantopPoint, Double_t meantope
   locCov[1][1]=t*t+b*b+2*fabs(t*b*cos(fCurrentDigiPar->GetSkew())); //TEST
   locCov[2][2]=errZ*errZ;
 
-  //TODO: we don't need it fo KF, but need it for Chi2 fit =\
-  // //Add unsertancy due to multiple scattering
-  // TVector3 hitErr(sqrt(locCov[0][0]),sqrt(locCov[1][1]),sqrt(locCov[2][2]));
-  // TVector3 hitErrMSadd = AddMSErr(hitPos, hitErr);
-  // locCov[0][0] = TMath::Power(hitErrMSadd.X(),2);
-  // locCov[1][1] = TMath::Power(hitErrMSadd.Y(),2);
-  // locCov[2][2] = TMath::Power(hitErrMSadd.Z(),2);
-
+  if(flagMS){
+    // //Add unsertancy due to multiple scattering
+    TVector3 hitErr(sqrt(locCov[0][0]),sqrt(locCov[1][1]),sqrt(locCov[2][2]));
+    TVector3 hitErrMSadd = AddMSErr(hitPos, hitErr);
+    locCov[0][0] = TMath::Power(hitErrMSadd.X(),2);
+    locCov[1][1] = TMath::Power(hitErrMSadd.Y(),2);
+    locCov[2][2] = TMath::Power(hitErrMSadd.Z(),2);
+  }
   
   //do the transformation from sensor to lab frame
   hitCov = fGeoH->LocalToMasterErrorsShortId(locCov,sensorID);
