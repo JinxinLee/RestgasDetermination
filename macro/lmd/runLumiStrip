@@ -1,0 +1,28 @@
+################################################################
+## script for running sim&rec for LMD
+## [with strip sensors set-up!]
+## 13/11/2012
+## A.Karavdina
+################################################################
+
+#!/bin/bash     
+path=${VMCWORKDIR}/macro/lmd/testStrip
+mkdir ${path}
+numTrks=1
+numEv=1000
+#take into account multiple scattering in hit errors calculation
+addMS=true
+pbeam=15
+
+time root -l -b -q runLumi0SimBox.C\(${numEv},${pbeam},"\"${path}\"",0,-2212,${numTrks}\)
+time root -l -b -q runLumi1Digi.C\(${numEv},0,"\"${path}\""\)
+time root -l -b -q runLumi2Reco.C\(${numEv},0,"\"${path}\"",0,${addMS}\)
+### change "CA" --> "Follow" if you want to use Trk-Following as trk-search algorithm
+### cange false --> true if you want ro use missing search algorithm
+time root -l -b -q runLumi3Finder.C\(${numEv},0,"\"${path}\"",0,"\"CA\"",false\)
+### Minuit
+time root -l -b -q runLumi4Fitter.C\(${numEv},0,"\"${path}\""\)
+### or Kalman Fillter
+# time root -l -b -q runLumi4KalmanFitter.C\(${numEv},0,"\"${path}\"",0,0\)
+time root -l -b -q runLumi5Geane.C\(${numEv},${pbeam},0,"\"${path}\""\)
+exit
