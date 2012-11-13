@@ -1,4 +1,4 @@
-void runLumi5Geane(const int nEvents=10, const double mom=15, const int startEvent=0, TString storePath="tmpOutput", const int verboseLevel=0, int senType=0)
+void runLumi5Geane(const int nEvents=10, const double mom=15, const int startEvent=0, TString storePath="tmpOutput", const int verboseLevel=0, const bool mergedHits=false)
 {
   // ========================================================================
   // Input file (MC events)
@@ -9,8 +9,9 @@ void runLumi5Geane(const int nEvents=10, const double mom=15, const int startEve
   DigiFile += startEvent;
   DigiFile += ".root";
   // Digi file
-  TString RecoFile = storePath+"/Lumi_reco_";
-  // TString RecoFile = storePath+"/Lumi_recoMerged_";
+  TString RecoFile = storePath;
+  if(mergedHits)RecoFile+="/Lumi_recoMerged_";
+  else RecoFile+="/Lumi_reco_";
   RecoFile += startEvent;
   RecoFile += ".root";
   // TCand file
@@ -93,8 +94,6 @@ void runLumi5Geane(const int nEvents=10, const double mom=15, const int startEve
   Double_t fpBeam = mom;
   TVector3 IP(0,0,0);
   PndLmdGeaneTask* lmdgeane = new PndLmdGeaneTask(fpBeam, IP);
-  if(senType>0) lmdgeane->SetSensPixelFlag(true);
-  else lmdgeane->SetSensStripFlag(true);
   lmdgeane->SetVerbose(verboseLevel);
   fRun->AddTask(lmdgeane);
   rtdb->setOutput(parInput1);
