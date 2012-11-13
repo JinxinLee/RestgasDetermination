@@ -1,4 +1,4 @@
-void runLumi2Reco(const int nEvents=1, const int startEvent=0, TString storePath="tmpOutput", const int verboseLevel=0)
+void runLumi2Reco(const int nEvents=1, const int startEvent=0, TString storePath="tmpOutput", const int verboseLevel=0, bool useMSerr=true)
 {
   // ========================================================================
   // Input file (MC events)
@@ -89,6 +89,7 @@ void runLumi2Reco(const int nEvents=1, const int startEvent=0, TString storePath
   PndLmdStripClusterTask* lmdmccls = new PndLmdStripClusterTask();
   //  PndLmdIdealClusterTask* lmdmccls = new PndLmdIdealClusterTask();
   lmdmccls->SetVerbose(verboseLevel);
+  lmdmccls->SetMSflag(useMSerr);//switch on\off error calculation due to multiple scaterring
   fRun->AddTask(lmdmccls);
   rtdb->setOutput(parInput1);
   rtdb->print();
