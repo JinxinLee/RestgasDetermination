@@ -27,7 +27,6 @@
 #include "PndGeoHandling.h"
 #include <vector>
 #include <map>
-#include "PndLmdDim.h"
 
 class TClonesArray;
 class PndSdsCluster;
@@ -58,14 +57,7 @@ class PndLmdGeaneTask : public FairTask
   
   virtual void Finish();
 
-  void SetSensStripFlag(bool fS){ flagStipSens = fS; };    
-  void SetSensPixelFlag(bool fS){ flagPixelSens = fS; }; 
-
  private:
-  bool flagStipSens;
-  bool flagPixelSens;
-
-  PndLmdDim* lmddim;
   TClonesArray* fTrackParGeane;
   TClonesArray* fTrackParIni;
   TClonesArray* fTrackParFinal;
@@ -98,11 +90,6 @@ class PndLmdGeaneTask : public FairTask
   void ProduceHits();
   
   std::map<int, std::vector<int> > AssignHitsToTracks();
-  
-  //from LUMI frame (with z-axis perpendicular to planes) to global PANDA frame
-  void combitransFromLumiFrame(TVector3& hitPos);
-  void rotateFromLumiFrame(TVector3& hitPos, bool errrot);
-  TMatrixD rotateFromLumiFrame(TMatrixD& hitCov);
   ClassDef(PndLmdGeaneTask,1);
 
 };

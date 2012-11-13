@@ -52,9 +52,6 @@ PndLmdGeaneTask::PndLmdGeaneTask(Double_t pBeam,TVector3 IP): FairTask("Geane Ta
   vtx = IP;
   cout<<"Interaction Point:"<<endl;
   vtx.Print();
-
-  flagStipSens = false;
-  flagPixelSens = false;
 }
 
 
@@ -66,10 +63,7 @@ PndLmdGeaneTask::~PndLmdGeaneTask()
 // -----   Public method Init   --------------------------------------------
 InitStatus PndLmdGeaneTask::Init()
 {
-  lmddim = PndLmdDim::Instance();
-  // lmddim -> Read_transformation_matrices("matrices.txt", true);
-  lmddim -> Read_transformation_matrices("matrices_perfect.txt", false);
-
+ 
   // Get RootManager
   FairRootManager* ioman = FairRootManager::Instance();
   if ( !ioman){
@@ -184,44 +178,22 @@ void PndLmdGeaneTask::Exec(Option_t* opt)
       StartPos = recTrack->GetStartVec();
       StartPosErr = recTrack->GetStartErrVec();
       StartMomErr = recTrack->GetDirectionErrVec();
-
-      // // //do the transformation from LUMI frame (with z-axis perp. to lumi planes) to lab frame
-      // if(flagStipSens){//!strip
-      // 	rotateFromLumiFrame(DirVec,false);
-      // 	combitransFromLumiFrame(StartPos);
-      // 	// rotateFromLumiFrame(StartPosErr, true);
-      // 	// rotateFromLumiFrame(StartMomErr, true);
-      // }
-      // else{
-      // 	if(flagPixelSens){//!pixel
-      // 	  DirVec  = lmddim->Transform_lmd_local_to_global(DirVec, true, false);
-      // 	  StartPos  = lmddim->Transform_lmd_local_to_global(StartPos, false, false);
-      // 	  TMatrixD StartPosCov(3,3);
-      // 	  StartPosCov(0,0) = StartPosErr.X()*StartPosErr.X();
-      // 	  StartPosCov(1,1) = StartPosErr.Y()*StartPosErr.Y();
-      // 	  StartPosCov(2,2) = StartPosErr.Z()*StartPosErr.Z();
-      // 	  StartPosCov = lmddim->Transform_global_to_lmd_local(StartPosCov, false);
-      // 	  StartPosErr.SetXYZ(sqrt(StartPosCov(0,0)),sqrt(StartPosCov(1,1)),sqrt(StartPosCov(2,2)));
-      // 	  // cout<<"StartPosCov: "<<endl;
-      // 	  // StartPosCov.Print();
-      // 	  TMatrixD StartMomCov(3,3);
-      // 	  StartMomCov(0,0) = StartMomErr.X()*StartMomErr.X();
-      // 	  StartMomCov(1,1) = StartMomErr.Y()*StartMomErr.Y();
-      // 	  StartMomCov(2,2) = StartMomErr.Z()*StartMomErr.Z();
-      // 	  StartMomCov = lmddim->Transform_global_to_lmd_local(StartMomCov, false);
-      // 	  StartMomErr.SetXYZ(sqrt(StartMomCov(0,0)),sqrt(StartMomCov(1,1)),sqrt(StartMomCov(2,2)));
-      // 	  // cout<<"StartMomCov: "<<endl;
-      // 	  // StartMomCov.Print();
-      // 	}
-      // 	else{
-      // 	  std::cout<<"Algorithm is needed sensor type! Please, set it via SetSensStripFlag(bool fS) or SetSensPixelFlag(bool fS)"<<std::endl;
-      // 	  return;
-      // 	}
-      // }
-      
-      // StartMom = TVector3(DirVec.X()*fPbeam,DirVec.Y()*fPbeam,DirVec.Z()*fPbeam); 
       StartMom = fPbeam*DirVec;
       StartMomErr *=fPbeam;
+      // /// try calculate mometum vector errors
+      // double momerr_x = fPbeam*StartMomErr.X();
+      // double momerr_y = fPbeam*StartMomErr.Y();
+      // double dp5_dp1 = StartMom.X()/StartMom.Z();
+      // double dp5_dp3 = StartMom.Y()/StartMom.Z();
+      // double errdz2 = pow(dp5_dp1*momerr_x,2) + pow(dp5_dp3*momerr_y,2);
+      // double momerr_z = sqrt(errdz2);
+      // cout<<"StartMomErr *=fPbeam "<<endl;
+      // StartMomErr.Print();
+      // StartMomErr.SetXYZ(momerr_x,momerr_y,momerr_z);
+      // cout<<"StartMomErr yyyy"<<endl;
+      // StartMomErr.Print();
+      // //  StartMomErr *=fPbeam;
+
        if(fVerbose>2){
 	 cout<<"------------------------------------------"<<endl;      
 	 cout<<"StartPos:"<<endl;
@@ -236,6 +208,42 @@ void PndLmdGeaneTask::Exec(Option_t* opt)
        }
       TClonesArray& clref1 = *fTrackParIni;
       Int_t size1 = clref1.GetEntriesFast();
+
+      // ///Pre-Propagate ---------------------------
+      // FairTrackParH *fResPre = new FairTrackParH();
+      // FairTrackParH *fStartPre = new FairTrackParH(StartPos, StartMom, StartPosErr, StartMomErr, fCharge);
+      // //   Double_t deltaZ = -5e-2;//go out of plane for 500 mkm
+      // Double_t deltaZ = 5e-2;//go out of plane for 500 mkm
+      // TVector3 dirCand = DirVec;
+      // TVector3 pointbackprop(StartPos.X()+deltaZ*dirCand.X(),StartPos.Y()+deltaZ*dirCand.Y(),(StartPos.Z()+deltaZ));
+      // fPro->SetPoint(pointbackprop);
+      // fPro->PropagateToPCA(1, +1);
+      // Bool_t rc =  fPro->Propagate(fStartPre, fResPre, PDGCode);
+      // if(fVerbose>2){
+      // 	if(rc) std::cout<<"success in back propagation to point 500 mkm out from 1st plane !"<<std::endl;
+      // 	else std::cout<<" =( no success in back propagation to point 500 mkm out from 1st plane ! =("<<std::endl;
+      // }
+      // if (rc)
+      // 	{
+      // 	  StartPos.SetXYZ(fResPre->GetX(), fResPre->GetY(), fResPre->GetZ());
+      // 	  StartMom.SetXYZ(fResPre->GetPx(), fResPre->GetPy(), fResPre->GetPz());
+      // 	  StartPosErr.SetXYZ(fResPre->GetDX(), fResPre->GetDY(), fResPre->GetDZ());
+      // 	  StartMomErr.SetXYZ(fResPre->GetDPx(), fResPre->GetDPy(), fResPre->GetDPz());
+      // 	  if(fVerbose>2){
+      // 	    cout<<"--------------- AND NOW ---------------------------"<<endl;      
+      // 	    cout<<"StartPos:"<<endl;
+      // 	    StartPos.Print();
+      // 	    cout<<"StartPosErr:"<<endl;
+      // 	    StartPosErr.Print();
+      // 	    cout<<""<<endl;
+      // 	    cout<<"StartMom: "<<StartMom.Mag()<<endl;
+      // 	    StartMom.Print();
+      // 	    cout<<"StartMomErr: "<<StartMomErr.Mag()<<endl;
+      // 	    StartMomErr.Print();     
+      // 	  }
+
+      // 	}
+      // //--------------------------------------------------------------------------------
 
       ///Propagate to the PCA to a space point---------------------------------
       FairTrackParH *fStart = 
@@ -384,92 +392,6 @@ std::map<int, std::vector<int> > PndLmdGeaneTask::AssignHitsToTracks()
 
 	}
 	return result;
-}
-
-void PndLmdGeaneTask::combitransFromLumiFrame(TVector3& hitPos){
-  Double_t kTransZ, kRotUmZ, kTransX, kRot;
-  // if(fsensType>0){//Pixel
-  //   //do the transformation from lab frame to LUMI frame (with z-axis perp. to lumi planes)
-  //   double end_seg_upstream = 360.1; // where bending starts with
-  //   double r_bend = 5750.; // the bending radius
-  //   double phi_bend = 40.068e-3; // and the angle of the circle path
-  //   // const Double_t kRot = phi_bend/3.141*180.;//=2.295727;//2.326; //(deg) //Rotate to dipol
-  //   kRot = phi_bend;//here we need abgle in rad!
-  //   // the point where both tangents of the straight beam pipe tubes meet is
-  //   kRotUmZ = end_seg_upstream + tan(phi_bend/2.)*r_bend;//476.03; //(cm) //z-point to rotate
-  //   kTransZ = 1130.; //(cm) //move at z-position
-  //   kTransX = (kTransZ - end_seg_upstream - tan(phi_bend/2.)*r_bend)*tan(phi_bend); // 25 (cm) //move at x-position
-  // }
-  // else{//Strip
-    //do the transformation from lab frame to LUMI frame (with z-axis perp. to lumi planes)
-    kTransZ = 1100.; //(cm) //move at z-position
-    kRotUmZ = 476.03; //(cm) //z-point to rotate
-    kTransX = 25; //(cm) //move at x-position
-    kRot =  0.040596358401388; // 2.326 degree  = 4.05963584013881024e-02 rad
-    // }
- 
-  TVector3 LumiTrans(0,0,kTransZ-kRotUmZ);
-  hitPos +=LumiTrans;
-  hitPos.RotateY(kRot);
-  LumiTrans = TVector3(0,0,kRotUmZ);
-  hitPos +=LumiTrans;
-  // cout<<"!!! NEW HIT position in LUMI frame!!! "<<endl;
-  //  hitPos.Print();
-}
-
-//bool err = true - rotation of errors vector
-void PndLmdGeaneTask::rotateFromLumiFrame(TVector3& hitPos, bool err){
-  TMatrixD hitMtx(3,3);
-  if(err){
-    hitMtx[0][0] = hitPos[0]*hitPos[0];
-    hitMtx[1][1] = hitPos[1]*hitPos[1];
-    hitMtx[2][2] = hitPos[2]*hitPos[2];
-    TMatrixD res = rotateFromLumiFrame(hitMtx);
-    hitPos = TVector3(sqrt(res(0,0)),sqrt(res(1,1)),sqrt(res(2,2)));
-  }
-  else{
-    hitMtx[0][0] = hitPos[0];
-    hitMtx[1][0] = hitPos[1];
-    hitMtx[2][0] = hitPos[2];
-    TMatrixD res = rotateFromLumiFrame(hitMtx);
-    hitPos = TVector3(hitMtx(0,0),hitMtx(1,0),hitMtx(2,0));
-  }
-}
-
-TMatrixD PndLmdGeaneTask::rotateFromLumiFrame(TMatrixD& hitCov){
-  Double_t sintheta, costheta;
- // if(fsensType>0){//Pixel
- //   double phi_bend = -40.068e-3; // and the angle of the circle path
- //   sintheta = TMath::Sin(phi_bend);
- //   costheta = TMath::Cos(phi_bend);
- // }
- // else{//Strip
-  Double_t theta=-2.326;
-  Double_t degrad = TMath::Pi()/180.;
-  sintheta = TMath::Sin(degrad*theta);
-  costheta = TMath::Cos(degrad*theta);
-  //}
- 
-  TMatrixD rot(3,3);// Rotation around Y axis
-  rot[0][0]= costheta;
-  rot[0][1]= 0;
-  rot[0][2]= sintheta;
-  rot[1][0]= 0;
-  rot[1][1]= 1;
-  rot[1][2]= 0;
-  rot[2][0]= -sintheta;
-  rot[2][1]= 0;
-  rot[2][2]= costheta;
-  TMatrixD result = rot;
-  result.T();
-  result*=hitCov;
-  hitCov = result;
-  result*=rot;
-  // cout<<"hitCov:"<<endl;
-  // hitCov.Print();
-  // cout<<"result:"<<endl;
-  // result.Print();
-  return result;
 }
 
 ClassImp(PndLmdGeaneTask);
