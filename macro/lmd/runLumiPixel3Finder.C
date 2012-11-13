@@ -1,6 +1,6 @@
 ///  Method="Follow" - Track-following method, Method="CA" - Cellular Automaton
 ///  missPl=true - use "missing plane" algorithm
-void runLumiPixel3Finder(const int nEvents=1000, const int startEvent=0, TString storePath="tmpOutput", const int verboseLevel=5,  TString Method="Follow", const bool missPl=true)
+void runLumiPixel3Finder(const int nEvents=1000, const int startEvent=0, TString storePath="tmpOutput", const int verboseLevel=5,  TString Method="Follow", const bool missPl=true, const bool mergedHits=true)
 {
   // ========================================================================
   // Input file (MC events)
@@ -10,7 +10,6 @@ void runLumiPixel3Finder(const int nEvents=1000, const int startEvent=0, TString
   TString DigiFile = storePath+"/Lumi_digi_";
   DigiFile += startEvent;
   DigiFile += ".root";
-  // Digi file
   TString RecoMergedFile = storePath+"/Lumi_recoMerged_";
   RecoMergedFile += startEvent;
   RecoMergedFile += ".root";
@@ -60,7 +59,7 @@ void runLumiPixel3Finder(const int nEvents=1000, const int startEvent=0, TString
   fRun->SetInputFile(MCFile);
   fRun->AddFriend(DigiFile);
   fRun->AddFriend(RecoFile);
-  fRun->AddFriend(RecoMergedFile);
+  if(mergedHits) fRun->AddFriend(RecoMergedFile);
   fRun->SetOutputFile(outFile);
   // ------------------------------------------------------------------------
 
@@ -76,15 +75,27 @@ void runLumiPixel3Finder(const int nEvents=1000, const int startEvent=0, TString
   // ======                       Track Finder                          ======
   // =========================================================================
   
-  // -----    MVD hit producer   --------------------------------------------
+  // -----  LMD collections names & importain parameters --------------------------------------------
+  TString inHits = "LMDHitsPixel";
+  TString inClusters = "LMDPixelClusterCand";
+  TString inDigis = "LMDPixelDigis";
+  int nsensors = 100;
+  int nplanes = 8;
+  double accurF = 0.01;//parameter for trk-finder corridor
+  double accurCA = 0.02;//parameter for CA neigboring search
+
+  if(mergedHits){
+    inHits = "LMDHitsMerged";
+    nplanes = 4;
+  }
+
   if(Method=="Follow") {
-    PndLmdTrackFinderTask* lmdfinder = new PndLmdTrackFinderTask(missPl, "LmdHits","LMDPixelClusterCand","LMDPixelDigis", 100);
-    lmdfinder->SetInaccuracy(0.01);
+    PndLmdTrackFinderTask* lmdfinder = new PndLmdTrackFinderTask(missPl,inHits,inClusters,inDigis, nsensors);
+    lmdfinder->SetInaccuracy(accurF);
     lmdfinder->SetSensPixelFlag(true);
   }else{
     if(Method=="CA"){
-      PndLmdTrackFinderCATask* lmdfinder = new PndLmdTrackFinderCATask(missPl,0.02,100,4,"LmdHits","LMDPixelClusterCand","LMDPixelDigis"); //for merged hits
-      //    PndLmdTrackFinderCATask* lmdfinder = new PndLmdTrackFinderCATask(missPl,0.02,100,8,"LmdHits","LMDPixelClusterCand","LMDPixelDigis"); //for free hits
+      PndLmdTrackFinderCATask* lmdfinder = new PndLmdTrackFinderCATask(missPl,accurCA,nsensors,nplanes,inHits,inClusters,inDigis); //for merged hits
       lmdfinder->SetSensPixelFlag(true);
     }
     else{
@@ -107,8 +118,8 @@ void runLumiPixel3Finder(const int nEvents=1000, const int startEvent=0, TString
   fRun->Run(0,nEvents);
   // ------------------------------------------------------------------------
 
- rtdb->saveOutput();
- rtdb->print();
+  rtdb->saveOutput();
+  rtdb->print();
   // -----   Finish   -------------------------------------------------------
   timer.Stop();
   Double_t rtime = timer.RealTime();
