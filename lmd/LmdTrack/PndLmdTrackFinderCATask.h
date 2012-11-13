@@ -64,14 +64,14 @@ class PndLmdTrackFinderCATask : public FairTask
    bool flagStipSens;
    bool flagPixelSens;
 
-    /** Input array of PndSdsDigis **/
+    /** Input array of PndSdsDigis and PndSdsHits**/
      TClonesArray* fStripHitArray;
      TClonesArray* fStripClusterArray;
      TClonesArray* fStripDigiArray;
 
-     /** Output array of PndSdsHits **/
+     /** Output array of Track-Cand **/
      TClonesArray* fTrackCandArray;
-     //    TClonesArray* fTrackCandArrayTemp; //Template 
+         //    TClonesArray* fTrackCandArrayTemp; //Template 
      void Register();
      void Reset();
      void ProduceHits();

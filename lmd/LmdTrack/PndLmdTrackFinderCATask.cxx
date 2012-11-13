@@ -143,9 +143,9 @@ bool PndLmdTrackFinderCATask::SortHitsByDetSimple(std::vector< std::vector< Int_
   for(Int_t iHit = 0; iHit < nStripHits; iHit++){
     PndSdsHit* myHit = (PndSdsHit*)(fStripHitArray->At(iHit));
     Int_t sensid = myHit->GetSensorID(); // Sensors: 1..32
-    cout<<"sensid = "<<sensid<<endl;
+    //    cout<<"sensid = "<<sensid<<endl;
     Int_t planeid = floor((sensid)/(double)nSensPP); //nSensPP sensors/plane => Planes: 0..3
-    cout<<" planeid = "<< planeid<<endl;
+    //    cout<<" planeid = "<< planeid<<endl;
     hitsd.at(planeid).push_back(iHit);
   }
 
@@ -183,8 +183,8 @@ bool PndLmdTrackFinderCATask::SortHitsByDetSimple2(std::vector< std::vector< Int
     int ihalf,iplane,imodule,iside,idie,isensor;
     lmddim->Get_sensor_by_id(sensid,ihalf,iplane,imodule,iside,idie,isensor);
     //    hitsd.at(iplane).push_back(iHit);
-    // int virtplane = 2*iplane+iside;//free hits
     int virtplane = iplane;//merged hits
+    if(nP>4) virtplane = 2*iplane+iside;// single hits
     hitsd.at(virtplane).push_back(iHit);
   }
 
@@ -316,6 +316,7 @@ InitStatus PndLmdTrackFinderCATask::Init()
   fTrackCandArray = new TClonesArray("PndTrackCand");
   ioman->Register("LMDTrackCand", "PndLmd", fTrackCandArray, kTRUE);
 
+
   std::cout << "-I- PndLmdTrackFinderCATask: Initialisation successfull" << std::endl;
   if(missPlAlgo) std::cout << "-I- PndLmdTrackFinderCATask: missing plane(s) algorithm will be used" << std::endl;
   return kSUCCESS;
@@ -404,7 +405,9 @@ void PndLmdTrackFinderCATask::Exec(Option_t* opt)
   }
   //  cell_arr_size++;
   if(fVerbose>4) cout<<"Number of possible cells = "<<cell_arr_size<<endl;
-  if(cell_arr_size>1000) cell_arr_size*=0.5;
+  // if(NpointsI[nplanes-1]>NpointsI[0] || NpointsI[nplanes-2]>NpointsI[0]) cell_arr_size*=10000;
+  //  if(cell_arr_size>1100) return;
+  if(cell_arr_size>10000) cell_arr_size*=0.5;
   ///Build all cells  
   std::vector< std::vector<Double_t> > cells(11,vector<double>(cell_arr_size));
  
@@ -437,7 +440,8 @@ void PndLmdTrackFinderCATask::Exec(Option_t* opt)
 	  // dirc *= 1./dirc.Mag();
 	  ///dTheta of cells to reduce wrong combination
 	  htheta->Fill(dirc.Mag(),dirc.Theta());
-	  if((dirc.Theta()>0.01 && dirc.Mag()>1.) || (dirc.Mag()<0.1 && dirc.Theta()>1.5)){ //in LUMI frame //for point between diff.planes or for point between diff. layes
+	  //  if((dirc.Theta()>0.01 && dirc.Mag()>1.) || (dirc.Mag()<0.1 && dirc.Theta()>1.5)){ //in LUMI frame //for point between diff.planes or for point between diff. layes
+	  if((dirc.Theta()<0.03 && dirc.Theta()>0.05 && dirc.Mag()>1.) || (dirc.Mag()<0.1 && dirc.Theta()>0.5)){ //in LUMI frame //for point between diff.planes or for point between diff. layes
 	    if(fVerbose>4){
 	      cout<<"For cell between #"<<(j)<<"."<<i<<" and #"<<(j+1)<<"."<<k;
 	      cout<<" dirc.Theta() = "<<dirc.Theta()<<" dirc.Phi() = "<<dirc.Phi()<<endl;
@@ -477,7 +481,8 @@ void PndLmdTrackFinderCATask::Exec(Option_t* opt)
 	      ///dTheta of cells to reduce wrong combination
 	      //    if(dirc2.Theta()>0.01){ //in LUMI frame
 	      htheta->Fill(dirc2.Mag(),dirc2.Theta());
-	      if((dirc2.Theta()>0.01 && dirc2.Mag()>1.) || (dirc2.Mag()<0.1 && dirc2.Theta()>1.5)){ //in LUMI frame //for point between diff.planes or for point between diff. layes
+	      //	      if((dirc2.Theta()>0.01 && dirc2.Mag()>1.) || (dirc2.Mag()<0.1 && dirc2.Theta()>1.5)){ //in LUMI frame //for point between diff.planes or for point between diff. layes
+	      if((dirc2.Theta()<0.03 && dirc2.Theta()>0.05 && dirc2.Mag()>1.) || (dirc2.Mag()<0.1 && dirc2.Theta()>0.5)){ //in LUMI frame //for point between diff.planes or for point between diff. layes
 		if(fVerbose>4){
 		  cout<<"For cell between #"<<(j)<<"."<<i<<" and #"<<(j+jp)<<"."<<k;
 		  cout<<" dirc2.Theta() = "<<dirc2.Theta()<<" dirc2.Phi() = "<<dirc2.Phi()<<endl;
@@ -648,7 +653,7 @@ void PndLmdTrackFinderCATask::Exec(Option_t* opt)
 	else{
 	  curr_arr=trk_arr_size;
 	  while(curr_arr>0){
-	    cout<<"curr_arr = "<<curr_arr<<endl;
+	    //	    cout<<"curr_arr = "<<curr_arr<<endl;
 	    curr_arr--;
 	    if(trk_cells.at(curr_arr).at(trk_count)>0) add_new=true;
 	  }
@@ -682,17 +687,17 @@ void PndLmdTrackFinderCATask::Exec(Option_t* opt)
 	  coni -=2;
 	}
 	if(con2==con1) break;
-	cout<<"	con2 = "<<con2<<" con1 = "<<con1<<endl;
+	//	cout<<"	con2 = "<<con2<<" con1 = "<<con1<<endl;
       }
       if(!nextloop) continue;
       while(cur_max_tag>0){// here we know cell_con2 and cell_con1
-	cout<<"cells.at(10).at("<<con2<<") = "<<cells.at(10).at(con2)<<endl;
-	cout<<"cells.at(10).at("<<con1<<") = "<<cells.at(10).at(con1)<<endl;
+	// cout<<"cells.at(10).at("<<con2<<") = "<<cells.at(10).at(con2)<<endl;
+	// cout<<"cells.at(10).at("<<con1<<") = "<<cells.at(10).at(con1)<<endl;
 	if((cells.at(10).at(con2))==cur_max_tag){
-	  cout<<"cur_max_tag = "<<cur_max_tag<<endl;
+	  //  cout<<"cur_max_tag = "<<cur_max_tag<<endl;
 	  cur_max_tag -=1;
 	  if((cells.at(10).at(con1))==cur_max_tag){// difference in tags = 1
-	    cout<<"cur_max_tag = "<<cur_max_tag<<endl;
+	    //  cout<<"cur_max_tag = "<<cur_max_tag<<endl;
 	    // cur_max_tag -=1;
 	    // trk_cells.at(cur_max_tag+2).at(trk_count)=con2;
 	    // trk_cells.at(cur_max_tag+1).at(trk_count)=con1;
@@ -700,11 +705,11 @@ void PndLmdTrackFinderCATask::Exec(Option_t* opt)
 	    trk_cells.at(cur_max_tag).at(trk_count)=con1;
 	    // con--;
 	    // con--;
-	    cout<<"for new loop: cur_max_tag = "<<cur_max_tag<<" con = "<<con<<endl;
+	    //	    cout<<"for new loop: cur_max_tag = "<<cur_max_tag<<" con = "<<con<<endl;
 	    if(cur_max_tag>0) newtrk=false; // we are looking for others cells in trk
 	    if(cur_max_tag>0) break;
 	    else{
-	      cout<<"New trk search will be started!"<<endl;
+	      //  cout<<"New trk search will be started!"<<endl;
 	      newtrk=true; 
 	    }
 	    //   if(cur_max_tag>0) continue;
@@ -786,6 +791,24 @@ void PndLmdTrackFinderCATask::Exec(Option_t* opt)
       }
     }
   }
+
+  for(int itrc=0;itrc<(cell_parts.size()/2);itrc++){
+    for(int itrc2=(cell_parts.size()/2);itrc2<cell_parts.size();itrc2++){
+      if(cell_parts[itrc]==cell_parts[itrc2]){
+	//reject trk-cand with the same number of cells and similar cells
+	int curr_arr=trk_arr_size;
+	while(curr_arr>0){
+	  curr_arr--;
+	  if(trk_cells.at(curr_arr).at(itrc)==trk_cells.at(curr_arr).at(itrc2)){
+	    trk_accept[itrc]=false;
+	    if(fVerbose>4) 
+	      cout<<"Delete: trk-cand#"<<itrc<<" because of trk_cells.at("<<curr_arr<<").at("<<itrc<<")"<<endl;
+	  }
+	}
+      }
+    }
+  }
+
   // timer_build_trk_combinations->Stop();
   // Double_t rtime_build_trk_combinations = timer_build_trk_combinations->RealTime();
   // Double_t ctime_build_trk_combinations = timer_build_trk_combinations->CpuTime();
@@ -800,6 +823,7 @@ void PndLmdTrackFinderCATask::Exec(Option_t* opt)
     if(!trk_accept[itrk]) continue;
     PndTrackCand *myTCand = new PndTrackCand();
     bool firstHit=true;
+    TVector3 dir;
     for(int icell=0;icell<trk_arr_size;icell++){
       int cellNum = trk_cells.at(icell).at(itrk);
       if(cellNum<0) continue;
@@ -820,14 +844,21 @@ void PndLmdTrackFinderCATask::Exec(Option_t* opt)
 	double dirX = cells.at(3).at(cellNum)-cells.at(0).at(cellNum);
 	double dirY = cells.at(4).at(cellNum)-cells.at(1).at(cellNum);
 	double dirZ = cells.at(5).at(cellNum)-cells.at(2).at(cellNum);
-	TVector3 dir(dirX,dirY,dirZ);
+	dir.SetXYZ(dirX,dirY,dirZ);
 	dir*=1./dir.Mag();
-	if(fVerbose>2){
-	  cout<<"posSeed:"<<endl;
-	  posSeed.Print();
-	  cout<<"dirSeed:"<<endl;
-	  dir.Print();
-	}
+	// //shift trk out of plane [needed for correct treatment in Kalman Fillter and GEANE]
+	// double sh_z = -0.02; //200 mkm
+	// double sh_x = dirX*sh_z;
+	// double sh_y = dirX*sh_y;
+	// TVector3 sh_point(sh_x,sh_y,sh_z);
+	// posSeed +=sh_point;
+	// if(fVerbose>2){
+	//   cout<<"posSeed:"<<endl;
+	//   posSeed.Print();
+	//   cout<<"dirSeed:"<<endl;
+	//   dir.Print();
+	// }
+	
 	myTCand->setTrackSeed(posSeed,dir,-1);
 	firstHit=false;
       }
@@ -840,6 +871,7 @@ void PndLmdTrackFinderCATask::Exec(Option_t* opt)
       myTCand->AddHit(astripdigi->GetDetID(),hitsd.at(pl).at(id),myHit->GetPosition().Z()); 
       // myTCand->AddHit(0,hitsd.at(pl).at(id),myHit->GetPosition().Z()); 
     }
+    if(dir.Theta()<0.03 && dir.Theta()>0.05) continue; 
     new((*fTrackCandArray)[NtrkRec]) PndTrackCand(*(myTCand)); //save Track Candidate
     //    new((*fTrackCandArrayTemp)[NtrkRec]) PndTrackCand(*(myTCand)); //save Track Candidate
     NtrkRec++;
