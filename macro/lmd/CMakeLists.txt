@@ -38,7 +38,7 @@ ${CMAKE_SOURCE_DIR}/lmd/LmdMC
 ${CMAKE_SOURCE_DIR}/lmd/LmdDigi
 ${CMAKE_SOURCE_DIR}/lmd/LmdReco
 ${CMAKE_SOURCE_DIR}/lmd/LmdTrack
-${CMAKE_SOURCE_DIR}/lmd/LmdTools
+3${CMAKE_SOURCE_DIR}/lmd/LmdTools
 ${CMAKE_SOURCE_DIR}/lmd
 ${CMAKE_SOURCE_DIR}/genfit
 ${CMAKE_SOURCE_DIR}/GenfitTools/trackrep
@@ -64,3 +64,5 @@ link_directories( ${LINK_DIRECTORIES})
 
 ################################## install #####################################
 # install(TARGETS Lmd DESTINATION ${CMAKE_BINARY_DIR}/lib)
+add_executable(createRootGeometry_lmd_HV_MAPS create_Lmd_HV_MAPS.C)
+target_link_libraries(createRootGeometry_lmd_HV_MAPS ${ROOT_LIBRARIES} genfit genfitAdapters trackrep RecoHits Stt Fts Lmd LmdTrk Sds SdsReco Geane Geom Proof TrkBase FairTools PndData VMC EG GeomPainter generalTools Base GeoBase FairDB ParBase MathMore Minuit)
