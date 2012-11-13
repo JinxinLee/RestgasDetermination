@@ -253,6 +253,8 @@ double PndLmdLinFitTask::distance_perp(double x,double y,double z, double errx,d
 
 // calculate distance line-point in local coordinates
 double PndLmdLinFitTask::distance_l(double x,double y,double z, double errx,double erry,double errz, double *p) { 
+  if((p[1]*p[1]+p[3]*p[3])<1) p[5]=sqrt(1-(p[1]*p[1]+p[3]*p[3]));
+  else p[5]=0.99;
   Double_t t_min = p[1]*(x-p[0])+p[3]*(y-p[2])+p[5]*(z-p[4]);
   double fdx = TMath::Power((x-(p[0] + p[1]*t_min))/errx,2);
   double fdy = TMath::Power((y-(p[2] + p[3]*t_min))/erry,2);
@@ -274,8 +276,8 @@ void PndLmdLinFitTask::LocalFCN(int &, double *, double & sum, double * par, int
   int npoints = gr->GetN();
   sum = 0;
   for (int i  = 0; i < npoints; ++i) { 
-    //   double chi2 = distance_l(x[i],y[i],z[i],errx[i],erry[i],errz[i],par); 
-    double chi2 = distance_perp(x[i],y[i],z[i],errx[i],erry[i],errz[i],par); 
+    double chi2 = distance_l(x[i],y[i],z[i],errx[i],erry[i],errz[i],par); 
+    //    double chi2 = distance_perp(x[i],y[i],z[i],errx[i],erry[i],errz[i],par); 
     sum += chi2;
   }
   // par[5] = sqrt(1-par[1]*par[1]-par[3]*par[3]);
@@ -377,9 +379,13 @@ double PndLmdLinFitTask::line3Dfit(Int_t nd, TGraph2DErrors* gr, TVector3 posSee
   min->SetParameter(1,"Ax",pStart[1],pStartErr[1],0,0);
   min->SetParameter(2,"y0",pStart[2],pStartErr[2],0,0);
   min->SetParameter(3,"Ay",pStart[3],pStartErr[3],0,0);
+  // min->SetParameter(0,"x0",pStart[0],pStartErr[0],pStart[0]-5*pStartErr[0],pStart[0]+5*pStartErr[0]);
+  // min->SetParameter(1,"Ax",pStart[1],pStartErr[1],pStart[1]-5*pStartErr[1],pStart[0]+5*pStartErr[1]);
+  // min->SetParameter(2,"y0",pStart[2],pStartErr[2],pStart[2]-5*pStartErr[2],pStart[0]+5*pStartErr[2]);
+  // min->SetParameter(3,"Ay",pStart[3],pStartErr[3],pStart[3]-5*pStartErr[3],pStart[0]+5*pStartErr[3]);
   min->SetParameter(4,"z0",pStart[4],0,0,0);
+  // min->SetParameter(4,"z0",pStart[4],pStartErr[4],0,0);
   min->SetParameter(5,"Az",pStart[5],0,0,0);
-  //  min->SetParameter(4,"z0",pStart[4],pStartErr[4],0,0);
   // min->SetParameter(5,"Az",pStart[5],pStartErr[5],0,0);
   
   // Now ready for minimization step
@@ -402,7 +408,18 @@ double PndLmdLinFitTask::line3Dfit(Int_t nd, TGraph2DErrors* gr, TVector3 posSee
    }
   
    // cout<<" before fitpar[5] = "<<fitpar[5]<<endl;
+   if((fitpar[1]*fitpar[1]+fitpar[3]*fitpar[3])<1.){
    fitpar[5]=sqrt(1-fitpar[1]*fitpar[1]-fitpar[3]*fitpar[3]);
+   }
+   else{
+     fitpar[5]=1;
+   }
+   // double norm_vec = sqrt(fitpar[1]*fitpar[1]+fitpar[3]*fitpar[3]+fitpar[5]*fitpar[5]);
+   // double inv_norm_vec =  1./norm_vec;
+   // fitpar[1] *= inv_norm_vec;
+   // fitpar[3] *= inv_norm_vec;
+   // fitpar[5] *= inv_norm_vec;
+
    // cout<<" after fitpar[5] = "<<fitpar[5]<<endl;
    // cout<<"SEED DIR=("<<dirSeed.X()<<", "<<dirSeed.Y()<<", "<<dirSeed.Z()<<")"<<endl;
    // cout<<"RecTRK DIR=("<<fitpar[1]<<", "<<fitpar[3]<<", "<<fitpar[5]<<")"<<endl;
@@ -411,32 +428,15 @@ double PndLmdLinFitTask::line3Dfit(Int_t nd, TGraph2DErrors* gr, TVector3 posSee
        (*covmatrix)(i,j)= min->GetCovarianceMatrixElement(i,j);
      }
    }
-   //   (*covmatrix)(4,4) =  0.00013*gr->GetErrorZ(0)*gr->GetErrorZ(0);
-   (*covmatrix)(4,4) =  0.0001*gr->GetErrorZ(0)*gr->GetErrorZ(0);
-   // (*covmatrix)(4,4) = 5e-09;
-   //  (*covmatrix)(4,4) += (*covmatrix)(0,0)*pow(tan(2.326*TMath::Pi()/180.),2);
+   (*covmatrix)(4,4) =  gr->GetErrorZ(0)*gr->GetErrorZ(0);
+   //  (*covmatrix)(4,4) =  1.;//TEST
    double dp5_dp1 = fitpar[1]/fitpar[5];
    double dp5_dp3 = fitpar[3]/fitpar[5];
    double errdz2 = pow(dp5_dp1,2)*(*covmatrix)(1,1) + pow(dp5_dp3,2)*(*covmatrix)(3,3) + 
      2*fabs(dp5_dp1*dp5_dp3*(*covmatrix)(1,3));
-   // cout<<"pow(dp5_dp1,2)*(*covmatrix)(1,1) = "<<pow(dp5_dp1,2)*(*covmatrix)(1,1)<<endl;
-   // cout<<"pow(dp5_dp3,2)*(*covmatrix)(3,3) = "<<pow(dp5_dp3,2)*(*covmatrix)(3,3)<<endl;
-   // cout<<"2*dp5_dp1*dp5_dp3*(*covmatrix)(1,3) = "<<2*dp5_dp1*dp5_dp3*(*covmatrix)(1,3)<<endl;
    (*covmatrix)(5,5) = errdz2;
-   //(*covmatrix)(5,5) = (fitpar[1]*fitpar[1]*(*covmatrix)(1,1)+fitpar[3]*fitpar[3]*(*covmatrix)(3,3))/pow(fitpar[5],6);
-   // for(size_t i=0;i<6;i++){
-   //   for(size_t j=0;j<6;j++){
-   //     cout<<(*covmatrix)(i,j)<<" ";
-   //   }
-   // 	 cout<<endl;
-   // }
-
-   //  Double_t chi2 = amin/(3.*Npoint-6);
-   // Double_t chi2 = amin/(3.*Npoint-3);
-   //  Double_t chi2 = amin/(3.*Npoint-5);
+   //  (*covmatrix)(5,5) = 0.01*errdz2/12.;//TEST
    Double_t chi2 = amin/(2.*Npoint-4);
-   //Double_t chi2 = amin/(3.*Npoint-4);
-   //  Double_t chi2 = amin;
    cout<<"After fit: Chi^2 = "<<chi2<<endl;
    ///-------------------------------------------------------------
   
