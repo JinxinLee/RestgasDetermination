@@ -134,7 +134,7 @@ bool PndLmdTrackFinderTask::SortHitsByDet(std::vector< std::vector< std::pair<In
      if(hitsd.at(iPlane).size()>0) nPlanes++;
   }
 
-  cout << "Hits: " << nStripHits << endl;
+  //  cout << "Hits: " << nStripHits << endl;
   if(fVerbose>2) {
     cout << "Hits: " << nStripHits << " in " << nPlanes << " plane(s)." << endl;
     for(Int_t idet = 0; idet < 4; idet++)
