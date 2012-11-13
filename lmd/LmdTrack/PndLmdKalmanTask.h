@@ -40,6 +40,7 @@ public:
 
   // Constructors/Destructors ---------
   PndLmdKalmanTask();
+  PndLmdKalmanTask(TString HitBranch, TString TrackBranch);
   virtual ~PndLmdKalmanTask();
 
   // Operators
@@ -91,14 +92,7 @@ private:
   Double_t fPbeam;//beam momentum
   Int_t fPDGCode;
   Double_t fCharge;
-  // Private Methods -----------------
- //from LUMI frame (with z-axis perpendicular to planes) to global PANDA frame
-  void combitransFromLumiFrame(TVector3& hitPos);
-  void rotateFromLumiFrame(TVector3& hitPos, bool errrot);
-  TMatrixD rotateFromLumiFrame(TMatrixD& hitCov);
-  void rotateToLumiFrame(TVector3& hitPos);//TODO: add implemetation for pixel
-  TMatrixD rotateToLumiFrame(TMatrixD& hitCov);//TODO: add implemetation for pixel
-  PndLinTrack* GenfitTrack2PndLinTrack(const GFTrack* tr);
+  // PndLinTrack* GenfitTrack2PndLinTrack(const GFTrack* tr);
   GFFieldManager *gfMagField;
 //public:
   ClassDef(PndLmdKalmanTask,1);
