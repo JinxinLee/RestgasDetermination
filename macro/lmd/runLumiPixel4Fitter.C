@@ -1,4 +1,4 @@
-void runLumiPixel4Fitter(const int nEvents=100000, const int startEvent=0, TString storePath="tmpOutput", const int verboseLevel=0)
+void runLumiPixel4Fitter(const int nEvents=100000, const int startEvent=0, TString storePath="tmpOutput", const int verboseLevel=0, const bool mergedHits=true)
 {
   // ========================================================================
   // Input file (MC events)
@@ -8,9 +8,10 @@ void runLumiPixel4Fitter(const int nEvents=100000, const int startEvent=0, TStri
   TString DigiFile = storePath+"/Lumi_digi_";
   DigiFile += startEvent;
   DigiFile += ".root";
-  // Digi file
-  // TString RecoFile = storePath+"/Lumi_reco_";
-  TString RecoFile = storePath+"/Lumi_recoMerged_";
+
+  TString RecoFile = storePath;
+  if(mergedHits) RecoFile +="/Lumi_recoMerged_";
+  else  RecoFile +="/Lumi_reco_";
   RecoFile += startEvent;
   RecoFile += ".root";
   // TCand file
@@ -75,12 +76,15 @@ void runLumiPixel4Fitter(const int nEvents=100000, const int startEvent=0, TStri
 
 
   // =========================================================================
-  // ======                       Track Finder                          ======
+  // ======                       Track Fitter                          ======
   // =========================================================================
   
-  // -----    MVD hit producer   --------------------------------------------
- 
-  PndLmdLinFitTask* lmdfit = new PndLmdLinFitTask("LMDTrackCand","LmdHits");
+  // -----  LMD collections names & importain parameters --------------------------------------------
+  TString inHits = "LMDHitsPixel";
+  if(mergedHits){
+    inHits = "LMDHitsMerged";
+  }
+  PndLmdLinFitTask* lmdfit = new PndLmdLinFitTask("LMDTrackCand",inHits);
   TString tTCandBranchName, TString tRecoBranchName
   lmdfit->SetVerbose(verboseLevel);
   fRun->AddTask(lmdfit);
