@@ -79,7 +79,7 @@ void runLumi4Fitter(const int nEvents=100000, const int startEvent=0, TString st
   
   // -----    MVD hit producer   --------------------------------------------
  
-  PndLmdLinFitTask* lmdfit = new PndLmdLinFitTask();
+  PndLmdLinFitTask* lmdfit = new PndLmdLinFitTask("LMDTrackCand","LMDHitsStrip");
   lmdfit->SetVerbose(verboseLevel);
   fRun->AddTask(lmdfit);
 
