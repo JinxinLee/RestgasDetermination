@@ -62,7 +62,6 @@ InitStatus PndLmdHitMergeTask::Init()
 
   // set output arrays
   fMergedHitArray = new TClonesArray("PndSdsHit");
-  // ioman->Register("LmdHits", "PndLmd", fMergedHitArray, true);
   ioman->Register("LMDHitsMerged", "PndLmd", fMergedHitArray, true);
   Info("Init","Initialisation successfull");
   return kSUCCESS;
@@ -124,9 +123,9 @@ void PndLmdHitMergeTask::Exec(Option_t* opt)
 	    std::cout<<sensor_id2<<", "<<ihalf2<<", "<<iplane2<<", "<<imodule2<<", "<<iside2<<", "<<idie2<<", "<<isensor2<<std::endl;
 	    myHit2->Print();
 	  }
-      //more cleaver check by module_id
+      //more cleaver check by plane, side and half check
       if(iplane1==iplane2 && ihalf1==ihalf2 && imodule1==imodule2 && iside1!=iside2){
-	if(fabs(myHit1->GetX()-myHit2->GetX())<0.016 && fabs(myHit1->GetY()-myHit2->GetY())<0.016){
+	if(fabs(myHit1->GetX()-myHit2->GetX())<0.01 && fabs(myHit1->GetY()-myHit2->GetY())<0.01){
 	  if (fVerbose > 2){
 	    std::cout<<"----- We are going to merge HITS: -----"<<std::endl;
 	    myHit1->Print();
@@ -163,7 +162,7 @@ void PndLmdHitMergeTask::Exec(Option_t* opt)
         PndSdsHit* myHit2 = (PndSdsHit*)(fHitArray->At(mergewithIDs.at(iMerge)));
         x+=myHit2->GetX(); y+=myHit2->GetY(); z+=myHit2->GetZ();
       }
-      x/=mergewithIDs.size(); y/=mergewithIDs.size(); z/=mergewithIDs.size();
+      x/=(mergewithIDs.size()+1); y/=(mergewithIDs.size()+1); z/=(mergewithIDs.size()+1);
       tmphit->SetX(x); tmphit->SetY(y); tmphit->SetZ(z);
     }else{ //dont merge, just use original hit
       tmphit = new((*fMergedHitArray)[newHits]) PndSdsHit(*myHit1);
