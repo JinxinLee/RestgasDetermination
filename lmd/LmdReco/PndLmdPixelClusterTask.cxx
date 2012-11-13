@@ -250,10 +250,18 @@ void PndLmdPixelClusterTask::Exec(Option_t* opt)
     // mapping with the choosen back mapping
     PndSdsHit myHit = fBackMapping->GetCluster(clusterArray);
     myHit.SetClusterIndex(fClusterType,i, 0, fEventNr);
+    TMatrixD hitCov = myHit.GetCov();
+    hitCov.Print();
+    hitCov(0,0) = 5.56960000000000085e-06; //assuming hit resolution for x-y 23.6 mkm
+    hitCov(1,1) = 5.56960000000000085e-06; //assuming hit resolution for x-y 23.6 mkm
+    hitCov(2,2) = 4.28489999999999954e-08; //assuming hit resolution for z 2.07 mkm
+    cout<<"new hitCov:"<<endl;
+    hitCov.Print();
+    myHit.SetCov(hitCov);//save value
     //translate to LUMI frame --------------------
     // if(fVerbose>0){
     //   cout<<"Before transl to LUMI frame:"<<endl;
-    //   myHit.Print();
+    //myHit.Print();
     // }
     // TVector3 hitPos = myHit.GetPosition();
     // TMatrixD hitCov = myHit.GetCov();
