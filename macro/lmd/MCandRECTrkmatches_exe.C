@@ -45,84 +45,84 @@
 #include<FairTrackParH.h>
 
 #include<string>
-void combitransFromLumiFrame(TVector3& hitPos, int senType=0){
-  Double_t  kTransZ, kRotUmZ, kRot, kTransX;
-  if(senType>0){ //Pixel sensors
-    //do the transformation from lab frame to LUMI frame (with z-axis perp. to lumi planes)
-    double end_seg_upstream = 360.1; // where bending starts with
-    double r_bend = 5750.; // the bending radius
-    double phi_bend = 40.068e-3; // and the angle of the circle path
-    // const Double_t kRot = phi_bend/3.141*180.;//=2.295727;//2.326; //(deg) //Rotate to dipol
-    kRot = phi_bend;//here we need abgle in rad!
-    // the point where both tangents of the straight beam pipe tubes meet is
-    kRotUmZ = end_seg_upstream + tan(phi_bend/2.)*r_bend;//476.03; //(cm) //z-point to rotate
-    kTransZ = 1130.; //(cm) //move at z-position
-    kTransX = (kTransZ - end_seg_upstream - tan(phi_bend/2.)*r_bend)*tan(phi_bend); // 25 (cm) //move at x-position
-  }
-  else{
-    /// THIS WORKS ONLY FOR DESIGN WITH STRIP SENSORS!
-    //do the transformation from lab frame to LUMI frame (with z-axis perp. to lumi planes)
-    kTransZ = 1100.; //(cm) //move at z-position
-    kRotUmZ = 476.03; //(cm) //z-point to rotate
-    kTransX = 25; //(cm) //move at x-position
-    kRot =  0.040596358401388; // 2.326 degree  = 4.05963584013881024e-02 rad
-  }
-  TVector3 LumiTrans(0,0,kTransZ-kRotUmZ);
-  hitPos +=LumiTrans;
-  hitPos.RotateY(kRot);
-  LumiTrans = TVector3(0,0,kRotUmZ);
-  hitPos +=LumiTrans;
-}
-TMatrixD rotateFromLumiFrame(TMatrixD& hitCov, int senType=0){
-  Double_t  sintheta, costheta;
-  if(senType>0){ //Pixel sensors
-    double phi_bend = 40.068e-3; // and the angle of the circle path
-    sintheta = TMath::Sin(phi_bend);
-    costheta = TMath::Cos(phi_bend);
-  }
-  else{
-    /// THIS WORKS ONLY FOR DESIGN WITH STRIP SENSORS!
-    Double_t theta=-2.326;
-    Double_t degrad = TMath::Pi()/180.;
-    sintheta = TMath::Sin(degrad*theta);
-    costheta = TMath::Cos(degrad*theta);
-  }
-  TMatrixD rot(3,3);// Rotation around Y axis
-  rot[0][0]= costheta;
-  rot[0][1]= 0;
-  rot[0][2]= sintheta;
-  rot[1][0]= 0;
-  rot[1][1]= 1;
-  rot[1][2]= 0;
-  rot[2][0]= -sintheta;
-  rot[2][1]= 0;
-  rot[2][2]= costheta;
-  TMatrixD result = rot;
-  result.T();
-  result*=hitCov;
-  hitCov = result;
-  result*=rot;
-  return result;
-}
+// void combitransFromLumiFrame(TVector3& hitPos, int senType=0){
+//   Double_t  kTransZ, kRotUmZ, kRot, kTransX;
+//   if(senType>0){ //Pixel sensors
+//     //do the transformation from lab frame to LUMI frame (with z-axis perp. to lumi planes)
+//     double end_seg_upstream = 360.1; // where bending starts with
+//     double r_bend = 5750.; // the bending radius
+//     double phi_bend = 40.068e-3; // and the angle of the circle path
+//     // const Double_t kRot = phi_bend/3.141*180.;//=2.295727;//2.326; //(deg) //Rotate to dipol
+//     kRot = phi_bend;//here we need abgle in rad!
+//     // the point where both tangents of the straight beam pipe tubes meet is
+//     kRotUmZ = end_seg_upstream + tan(phi_bend/2.)*r_bend;//476.03; //(cm) //z-point to rotate
+//     kTransZ = 1130.; //(cm) //move at z-position
+//     kTransX = (kTransZ - end_seg_upstream - tan(phi_bend/2.)*r_bend)*tan(phi_bend); // 25 (cm) //move at x-position
+//   }
+//   else{
+//     /// THIS WORKS ONLY FOR DESIGN WITH STRIP SENSORS!
+//     //do the transformation from lab frame to LUMI frame (with z-axis perp. to lumi planes)
+//     kTransZ = 1100.; //(cm) //move at z-position
+//     kRotUmZ = 476.03; //(cm) //z-point to rotate
+//     kTransX = 25; //(cm) //move at x-position
+//     kRot =  0.040596358401388; // 2.326 degree  = 4.05963584013881024e-02 rad
+//   }
+//   TVector3 LumiTrans(0,0,kTransZ-kRotUmZ);
+//   hitPos +=LumiTrans;
+//   hitPos.RotateY(kRot);
+//   LumiTrans = TVector3(0,0,kRotUmZ);
+//   hitPos +=LumiTrans;
+// }
+// TMatrixD rotateFromLumiFrame(TMatrixD& hitCov, int senType=0){
+//   Double_t  sintheta, costheta;
+//   if(senType>0){ //Pixel sensors
+//     double phi_bend = 40.068e-3; // and the angle of the circle path
+//     sintheta = TMath::Sin(phi_bend);
+//     costheta = TMath::Cos(phi_bend);
+//   }
+//   else{
+//     /// THIS WORKS ONLY FOR DESIGN WITH STRIP SENSORS!
+//     Double_t theta=-2.326;
+//     Double_t degrad = TMath::Pi()/180.;
+//     sintheta = TMath::Sin(degrad*theta);
+//     costheta = TMath::Cos(degrad*theta);
+//   }
+//   TMatrixD rot(3,3);// Rotation around Y axis
+//   rot[0][0]= costheta;
+//   rot[0][1]= 0;
+//   rot[0][2]= sintheta;
+//   rot[1][0]= 0;
+//   rot[1][1]= 1;
+//   rot[1][2]= 0;
+//   rot[2][0]= -sintheta;
+//   rot[2][1]= 0;
+//   rot[2][2]= costheta;
+//   TMatrixD result = rot;
+//   result.T();
+//   result*=hitCov;
+//   hitCov = result;
+//   result*=rot;
+//   return result;
+// }
 
 
-void rotateFromLumiFrame(TVector3& hitPos, bool err, int senType=0){
-  TMatrixD hitMtx(3,3);
-  if(err){
-    hitMtx[0][0] = hitPos[0]*hitPos[0];
-    hitMtx[1][1] = hitPos[1]*hitPos[1];
-    hitMtx[2][2] = hitPos[2]*hitPos[2];
-    TMatrixD res = rotateFromLumiFrame(hitMtx,senType);
-    hitPos = TVector3(sqrt(res(0,0)),sqrt(res(1,1)),sqrt(res(2,2)));
-  }
-  else{
-    hitMtx[0][0] = hitPos[0];
-    hitMtx[1][0] = hitPos[1];
-    hitMtx[2][0] = hitPos[2];
-    TMatrixD res = rotateFromLumiFrame(hitMtx,senType);
-    hitPos = TVector3(hitMtx(0,0),hitMtx(1,0),hitMtx(2,0));
-  }
-}
+// void rotateFromLumiFrame(TVector3& hitPos, bool err, int senType=0){
+//   TMatrixD hitMtx(3,3);
+//   if(err){
+//     hitMtx[0][0] = hitPos[0]*hitPos[0];
+//     hitMtx[1][1] = hitPos[1]*hitPos[1];
+//     hitMtx[2][2] = hitPos[2]*hitPos[2];
+//     TMatrixD res = rotateFromLumiFrame(hitMtx,senType);
+//     hitPos = TVector3(sqrt(res(0,0)),sqrt(res(1,1)),sqrt(res(2,2)));
+//   }
+//   else{
+//     hitMtx[0][0] = hitPos[0];
+//     hitMtx[1][0] = hitPos[1];
+//     hitMtx[2][0] = hitPos[2];
+//     TMatrixD res = rotateFromLumiFrame(hitMtx,senType);
+//     hitPos = TVector3(hitMtx(0,0),hitMtx(1,0),hitMtx(2,0));
+//   }
+// }
 
 using namespace std;
 int main(int __argc,char *__argv[]) {
@@ -403,7 +403,7 @@ int main(int __argc,char *__argv[]) {
   TH1 *hangMCRec = new TH1F("hangMCRec", "Angle between Pmc and Prec;#delta#alpha, rad", 1e3,0.,0.1);
   TH1 *hResPointX = new TH1F("hResPointX","X_{MC}-X_{rec};#deltaX,cm",1e2,-2.,2.);
   TH1 *hResPointY = new TH1F("hResPointY","Y_{MC}-Y_{rec};#deltaY,cm",1e2,-2.,2.);
-  TH1 *hResPointZ = new TH1F("hResPointZ","Z_{MC}-Z_{rec};#deltaZ,cm",1e2,-0.015,0.015);
+  TH1 *hResPointZ = new TH1F("hResPointZ","Z_{MC}-Z_{rec};#deltaZ,cm",1e3,-0.15,0.15);
 
   TH1 *hResLumiTrkPointX = new TH1F("hResLumiTrkPointX","X_{MC}-X_{rec}(near Lumi);#deltaX,cm",1e2,-0.02,0.02);
   TH1 *hResLumiTrkPointY = new TH1F("hResLumiTrkPointY","Y_{MC}-Y_{rec}(near Lumi);#deltaY,cm",1e2,-0.02,0.02);
@@ -579,7 +579,7 @@ int main(int __argc,char *__argv[]) {
 	candID = trkpnd->GetRefIndex();
 	trkcand = (PndTrackCand*)trkcand_array->At(candID);
 	  //	trkcand = (PndTrackCand*)trkpnd->GetTrackCandPtr();
-	cout<<"Number of hits in trk-cand: "<<trkcand->GetNHits()<<endl;
+	//	cout<<"Number of hits in trk-cand: "<<trkcand->GetNHits()<<endl;
 	//	candID = trk->GetTCandID();
       }
       else{
@@ -946,7 +946,7 @@ int main(int __argc,char *__argv[]) {
 	//	hMomMC->Fill(dirLumiMC.Mag());
 	dirLumiMC *=1./dirLumiMC.Mag();
 	
-	double dz = -zTrue+vtxLumi.Z();//Correct definition Z coord of comparision
+	double dz = -zTrue+vtxLumi.Z();//Correct definition Z coord for comparision
 	double dx = dirLumiMC.X()*dz;
 	double dy = dirLumiMC.Y()*dz;
 	vtxLumiMC += TVector3(dx,dy,dz);
@@ -1335,11 +1335,12 @@ int main(int __argc,char *__argv[]) {
   hErrMom->Write();
   hPullMom->Write();
   hResPhi->Write();
+  hErrPhi->Write();
+  hPullPhi->Write();
   hResTheta->Write();
+  hErrTheta->Write();
+  hPullTheta->Write();
   hangMCRec->Write();
-  hResPointX->Write();
-  hResPointY->Write();
-  hResPointZ->Write();
   hPointXY->Write();
   hPointXYcut->Write();
   hSeedGEANEX->Write();
@@ -1513,6 +1514,17 @@ int main(int __argc,char *__argv[]) {
   hResPointPz->Write();
   hErrPointPz->Write();
   hPullPointPz->Write();
+
+  hResPointX->Write();
+  hErrPointX->Write();
+  hPullPointX->Write();
+  hResPointY->Write();
+  hErrPointY->Write();
+  hPullPointY->Write();
+  hResPointZ->Write();
+  hErrPointZ->Write();
+  hPullPointZ->Write();
+
   hMCtrkvshits->Write();
   hntrkMCtrkID->Write();
   hchi2nTrkCand->Write();
