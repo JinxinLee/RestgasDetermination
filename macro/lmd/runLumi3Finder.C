@@ -85,12 +85,14 @@ void runLumi3Finder(const int nEvents=100000, const int startEvent=0, TString st
     //    PndLmdTrackFinderTask* lmdfinder = new PndLmdTrackFinderTask(FinderMode);
     PndLmdTrackFinderTask* lmdfinder = new PndLmdTrackFinderTask(missPl, "LMDHitsStrip","LMDStripClusterCand","LMDStripDigis",8);
     lmdfinder->SetInaccuracy(0.01);
+    lmdfinder->SetSensStripFlag(true);
     lmdfinder->SetVerbose(verboseLevel);
     fRun->AddTask(lmdfinder);
   }
   else{
     if(Method=="CA"){ 
       PndLmdTrackFinderCATask* lmdfinder = new PndLmdTrackFinderCATask(missPl,0.012,8,4,"LMDHitsStrip","LMDStripClusterCand","LMDStripDigis");
+      lmdfinder->SetSensStripFlag(true);
       lmdfinder->SetVerbose(verboseLevel);
       fRun->AddTask(lmdfinder);
     }
