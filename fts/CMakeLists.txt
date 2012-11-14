@@ -31,6 +31,7 @@ PndGeoFts.cxx
 PndFtsDigiPar.cxx
 PndFtsHitInfo.cxx
 PndFts.cxx
+PndFts2.cxx
 PndFtsContFact.cxx
 PndFtsMapCreator.cxx
 PndFtsTube.cxx

@@ -8,6 +8,7 @@
 #pragma link C++ class PndFtsDigiPar;
 #pragma link C++ class PndFtsHitInfo+;
 #pragma link C++ class PndFts+;
+#pragma link C++ class PndFts2+;
 #pragma link C++ class PndFtsContFact+;
 #pragma link C++ class PndFtsMapCreator+;
 #pragma link C++ class PndFtsTube+;
