@@ -35,7 +35,7 @@ void runLumiPixel0SimBox(const int nEvents=10, const double mom=15, TString stor
   fRun->AddModule(Cave);
 
   FairModule *Pipe= new PndPipe("PIPE");
-  Pipe->SetGeometryFileName("beampipe_201203.root");
+  Pipe->SetGeometryFileName("beampipe_201210.root");
   fRun->AddModule(Pipe);
   
 

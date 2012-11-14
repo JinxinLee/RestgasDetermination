@@ -30,4 +30,4 @@ pbeam=15
 
     cd ${VMCWORKDIR}/build/bin
     ./rec_mc_match -s 0 -n ${numEv} -t ${numTrks} -mom ${pbeam} -npx 1 -v 0 -path ${path}
-exit
+#exit
