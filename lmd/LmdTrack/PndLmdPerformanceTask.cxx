@@ -762,7 +762,7 @@ void PndLmdPerformanceTask::Exec(Option_t* opt) {
 					hist_theta_in[plane] ->Fill(ptheta_in, pphi_in);
 					hists_theta_in[plane][sensor]->Fill(ptheta_in);
 
-					hist_theta_diff[plane] ->Fill(ptheta_in - ptheta_init);
+					hist_theta_diff[plane] ->Fill(ptheta_in - ptheta_init, pphi_init);
 					hists_theta_diff[plane][sensor]->Fill(
 							ptheta_in - ptheta_init, pphi_init);
 
