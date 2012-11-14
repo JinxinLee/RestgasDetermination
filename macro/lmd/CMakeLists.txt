@@ -65,4 +65,6 @@ link_directories( ${LINK_DIRECTORIES})
 ################################## install #####################################
 # install(TARGETS Lmd DESTINATION ${CMAKE_BINARY_DIR}/lib)
 add_executable(createRootGeometry_lmd_HV_MAPS create_Lmd_HV_MAPS.C)
-target_link_libraries(createRootGeometry_lmd_HV_MAPS ${ROOT_LIBRARIES} genfit genfitAdapters trackrep RecoHits Stt Fts Lmd LmdTrk Sds SdsReco Geane Geom Proof TrkBase FairTools PndData VMC EG GeomPainter generalTools Base GeoBase FairDB ParBase MathMore Minuit)
+#target_link_libraries(createRootGeometry_lmd_HV_MAPS ${ROOT_LIBRARIES} genfit genfitAdapters trackrep RecoHits Stt Fts Lmd LmdTrk Sds SdsReco Geane Geom Proof TrkBase FairTools PndData VMC EG GeomPainter generalTools Base GeoBase FairDB ParBase MathMore Minuit)
+target_link_libraries(createRootGeometry_lmd_HV_MAPS ${ROOT_LIBRARIES} Lmd Sds Geane Geom Proof TrkBase FairTools PndData VMC EG GeomPainter generalTools Base GeoBase FairDB ParBase MathMore Minuit)
+
