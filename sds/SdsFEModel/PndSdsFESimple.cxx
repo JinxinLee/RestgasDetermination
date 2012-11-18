@@ -56,7 +56,7 @@ void PndSdsFESimple::SetParameter(double chargingtime, double constcurrent, doub
 {
   if(fFunction)
   {
-    fFunction->SetParameter(0,chargetime);
+    fFunction->SetParameter(0,chargingtime);
     fFunction->SetParameter(1,constcurrent);
   }
   fThreshold = threshold;
