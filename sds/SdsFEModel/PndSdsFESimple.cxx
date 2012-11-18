@@ -52,6 +52,18 @@ PndSdsFESimple::PndSdsFESimple(double chargetime, double constcurrent, double th
 
 }
 
+void PndSdsFESimple::SetParameter(double chargingtime, double constcurrent, double threshold, double frequency)
+{
+  if(fFunction)
+  {
+    fFunction->SetParameter(0,chargetime);
+    fFunction->SetParameter(1,constcurrent);
+  }
+  fThreshold = threshold;
+  fTimeStep = 1. / frequency * 1000.;
+  return;
+}
+
 PndSdsFESimple::~PndSdsFESimple() {
 }
 ClassImp(PndSdsFESimple);

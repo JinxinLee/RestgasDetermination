@@ -142,4 +142,13 @@ Double_t PndSdsCalcPixelDif::SmearCharge(Double_t charge)
   return smeared;
 }
 
+//______________________________________________________________________________
+std::ostream& PndSdsCalcPixelDif::operator<<(std::ostream& out)
+{
+  out << "fPixelSizeX: " << fPixelSizeX << " fPixelSizeY: " <<
+  fPixelSizeY << std::endl;
+  
+  return out;
+}
+
 
