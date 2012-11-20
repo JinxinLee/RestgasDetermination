@@ -147,9 +147,20 @@ void PndFtsHitProducerIdeal::Exec(Option_t* opt)
       trackID = point->GetTrackID();
 
       // tubeID  CHECK added
+      Int_t skew = 0;
       Int_t tubeID = point->GetTubeID();
       Int_t chamberID = point->GetChamberID();
+      Int_t layerID = point->GetLayerID();
       PndFtsTube *tube = (PndFtsTube*) fTubeArray->At(tubeID);
+
+      //if skewed tube: skew==1
+      if(layerID>=3 && layerID<=6){skew=1;} //skewed tudes fts1
+      if(layerID>=11 && layerID<=14){skew=1;} //skewed tudes fts2
+      if(layerID>=19 && layerID<=22){skew=1;} //skewed tudes fts3
+      if(layerID>=27 && layerID<=30){skew=1;} //skewed tudes fts4
+      if(layerID>=35 && layerID<=38){skew=1;} //skewed tudes fts5
+      if(layerID>=43 && layerID<=46){skew=1;} //skewed tudes fts6
+
 
       // Determine hit position and isochrone (x,y of wire, measured z  position)
       TVector3
@@ -203,7 +214,7 @@ void PndFtsHitProducerIdeal::Exec(Option_t* opt)
       
       PndFtsHit *hit = NULL;
     
-      hit = new ((*fHitArray)[counter]) PndFtsHit(detID, tubeID, chamberID, iPoint, pos, dpos, 0, closestDistance, closestDistanceError, eloss * 1e6);
+      hit = new ((*fHitArray)[counter]) PndFtsHit(detID, tubeID, chamberID, layerID, skew, iPoint, pos, dpos, 0, closestDistance, closestDistanceError, eloss * 1e6);
      
       new ((*fHitInfoArray)[counter]) PndFtsHitInfo(0, 0, trackID, iPoint,
 						   0, kFALSE);

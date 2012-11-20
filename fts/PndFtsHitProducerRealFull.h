@@ -34,7 +34,7 @@ class PndFtsHitProducerRealFull : public FairTask
   /** Virtual method Exec **/
   virtual void Exec(Option_t* opt);
 
-  PndFtsHit* AddHit(Int_t detID, Int_t tubeID, Int_t chamberID, Int_t iPoint, TVector3& pos, TVector3& dpos, Double_t p, Double_t rsim, Double_t closestDistanceError, Double_t depcharge);
+  PndFtsHit* AddHit(Int_t detID, Int_t tubeID, Int_t chamberID, Int_t layerID, Int_t skew, Int_t iPoint, TVector3& pos, TVector3& dpos, Double_t p, Double_t rsim, Double_t closestDistanceError, Double_t depcharge);
 
   PndFtsHitInfo* AddHitInfo(Int_t fileNumber, Int_t eventNumber, Int_t trackID, Int_t pointID, Int_t nMerged, Bool_t isFake);
 

@@ -141,9 +141,20 @@ void PndFtsHitProducerRealFast::Exec(Option_t* opt) {
     detID = point->GetDetectorID();
 
     // tubeID  CHECK added
+    Int_t skew = 0;
     Int_t tubeID = point->GetTubeID();
     Int_t chamberID=point->GetChamberID();
+    Int_t layerID=point->GetLayerID();
     PndFtsTube *tube = (PndFtsTube*) fTubeArray->At(tubeID);
+
+    //if skewed tube: skew==1               
+    if(layerID>=3 && layerID<=6){skew=1;} //skewed tudes fts1    
+    if(layerID>=11 && layerID<=14){skew=1;} //skewed tudes fts2                             
+    if(layerID>=19 && layerID<=22){skew=1;} //skewed tudes fts3                                   
+    if(layerID>=27 && layerID<=30){skew=1;} //skewed tudes fts4         
+    if(layerID>=35 && layerID<=38){skew=1;} //skewed tudes fts5               
+    if(layerID>=43 && layerID<=46){skew=1;} //skewed tudes fts6
+
 
     double InOut[6];
     memset(InOut, 0, sizeof(InOut));
@@ -220,7 +231,7 @@ void PndFtsHitProducerRealFast::Exec(Option_t* opt) {
                                // longitudinalResolution = 3.)
 
     // create hit
-    AddHit(detID, tubeID, chamberID, iPoint, pos, dpos, pulset, radius, closestDistanceError, depcharge);
+    AddHit(detID, tubeID, chamberID, layerID, skew, iPoint, pos, dpos, pulset, radius, closestDistanceError, depcharge);
 
     AddHitInfo(0, 0, point->GetTrackID(), iPoint, 0, kFALSE);
 
@@ -251,14 +262,14 @@ void PndFtsHitProducerRealFast::FoldZPosWithResolution(Double_t &zpos, Double_t 
 
 
 // -----   Private method AddHit   --------------------------------------------
-PndFtsHit* PndFtsHitProducerRealFast::AddHit(Int_t detID, Int_t tubeID, Int_t chamberID, Int_t iPoint, TVector3& pos, TVector3& dpos, Double_t p, Double_t rsim, Double_t closestDistanceError, Double_t depcharge) {
+PndFtsHit* PndFtsHitProducerRealFast::AddHit(Int_t detID, Int_t tubeID, Int_t chamberID, Int_t layerID, Int_t skew, Int_t iPoint, TVector3& pos, TVector3& dpos, Double_t p, Double_t rsim, Double_t closestDistanceError, Double_t depcharge) {
 
 
   // see PndFtsHit for hit description
   TClonesArray& clref = *fHitArray;
   Int_t size = clref.GetEntriesFast();
  
-  PndFtsHit *hitnew = new(clref[size]) PndFtsHit(detID, tubeID, chamberID, iPoint, pos, dpos, p, rsim, closestDistanceError, depcharge);
+  PndFtsHit *hitnew = new(clref[size]) PndFtsHit(detID, tubeID, chamberID, layerID, skew, iPoint, pos, dpos, p, rsim, closestDistanceError, depcharge);
   return hitnew;
 
 }
