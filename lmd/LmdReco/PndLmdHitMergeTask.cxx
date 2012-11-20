@@ -97,6 +97,9 @@ void PndLmdHitMergeTask::Exec(Option_t* opt)
   PndSdsHit* tmphit;
   unsigned int newHits=0;
   for(Int_t iHit = 0; iHit < fHitArray->GetEntriesFast(); iHit++){
+    if (fVerbose > 2){
+      if(iHit==0) cout<<"#### NEW event ####"<<endl;
+    }
     bool skip=false;
     for(unsigned int ijk=0; ijk<mergedHits.size(); ijk++) //check if already merged
       if(iHit==mergedHits.at(ijk))
@@ -124,8 +127,9 @@ void PndLmdHitMergeTask::Exec(Option_t* opt)
 	    myHit2->Print();
 	  }
       //more cleaver check by plane, side and half check
-      if(iplane1==iplane2 && ihalf1==ihalf2 && imodule1==imodule2 && iside1!=iside2){
-	if(fabs(myHit1->GetX()-myHit2->GetX())<0.01 && fabs(myHit1->GetY()-myHit2->GetY())<0.01){
+      //   if(iplane1==iplane2 && ihalf1==ihalf2 && imodule1==imodule2 && iside1!=iside2){
+      if(fabs((myHit1->GetZ())-(myHit2->GetZ()))<0.1 ){  //actually same Hit: merge
+	if(fabs((myHit1->GetX())-(myHit2->GetX()))<0.02 && fabs((myHit1->GetY())-(myHit2->GetY()))<0.02){
 	  if (fVerbose > 2){
 	    std::cout<<"----- We are going to merge HITS: -----"<<std::endl;
 	    myHit1->Print();
