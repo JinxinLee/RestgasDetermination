@@ -170,7 +170,7 @@ PndLmdKalmanTask::Init()
   fPbeam = par->GetBeamMom();
   //fPbeam -=8.77e-5;//TEST!!! energy loss for 11.91 GeV/c
   // fPbeam -=1e-4;//TEST!!! energy loss for 1.5 GeV/c
-  std::cout<<"Beam Momentum for this run is "<<fPbeam<<std::endl;
+  // std::cout<<"Beam Momentum for this run is "<<fPbeam<<std::endl;
   fPDGCode = -2212; //barp
   fCharge = -1;//barp
 
@@ -195,14 +195,14 @@ PndLmdKalmanTask::Exec(Option_t* opt)
 
   fTrackFittedArray->Delete();
 
-  std::cout<<"((((((((((((((((((((( PndLmdKalmanTask::Exec )))))))))))))))))))))"<<std::endl;
+  if(fVerbose>1) std::cout<<"((((((((((((((((((((( PndLmdKalmanTask::Exec )))))))))))))))))))))"<<std::endl;
   Int_t counterGeaneTrk = 0;
   Int_t rec_tkr_count = 0;
   Int_t ntracks=fTrackArray->GetEntriesFast();
   //  PndTrack* tAfter = NULL;
 
   // Detailed output
-  if(fVerbose>1)std::cout<<" -I- PndLmdKalmanTask: contains "<<ntracks<<" Tracks."<<std::endl;
+  if(fVerbose>1) std::cout<<" -I- PndLmdKalmanTask: contains "<<ntracks<<" Tracks."<<std::endl;
   // if(fVerbose>2){
   //   std::cout<< " Detailed Debug info on the tracks:"<<std::endl;
   //   unsigned int detid=12345, index=12345;
@@ -226,11 +226,9 @@ PndLmdKalmanTask::Exec(Option_t* opt)
 
   //  std::vector<TLorentzVector*> particles;
   //std::vector<Int_t> signs;
-
-  for(Int_t itr=0;itr<ntracks;++itr){
-    std::cout<<"starting track"<<itr<<std::endl;
-
-
+ 
+    for(Int_t itr=0;itr<ntracks;++itr){
+      if(fVerbose>1) std::cout<<"starting track"<<itr<<std::endl;
 
     PndTrackCand* trackCand = (PndTrackCand*)fTrackArray->At(itr);
     const int Ntrkcandhits= trackCand->GetNHits();
@@ -239,8 +237,8 @@ PndLmdKalmanTask::Exec(Option_t* opt)
     Int_t hitID = theHit.GetHitId();
     PndSdsHit* myHit = (PndSdsHit*)(fSdsHitsArray->At(hitID));
     TMatrixD  hitCov = myHit->GetCov();
-    std::cout<<"hitCov:"<<std::endl;
-    hitCov.Print();
+    if(fVerbose>1) std::cout<<"hitCov:"<<std::endl;
+    if(fVerbose>1) hitCov.Print();
     Int_t id =  myHit->GetSensorID();
      //  FairRootManager* ioman = FairRootManager::Instance();
      //  TString fGeoFile = ioman->GetInFile()->GetName();
@@ -252,12 +250,14 @@ PndLmdKalmanTask::Exec(Option_t* opt)
      fGeoH->GetOUVShortId(id, oo,uu,vv);
      double ooZnew = oo.Z()-(fGeoH->GetSensorDimensionsShortId(id).Z());//shift c.s to plane surface
      oo.SetZ(ooZnew);
-     std::cout<<"oo:"<<std::endl;
-     oo.Print();
-     std::cout<<"uu:"<<std::endl;
-     uu.Print();
-     std::cout<<"vv:"<<std::endl;
-     vv.Print();
+     if(fVerbose>1){
+       std::cout<<"oo:"<<std::endl;
+       oo.Print();
+       std::cout<<"uu:"<<std::endl;
+       uu.Print();
+       std::cout<<"vv:"<<std::endl;
+       vv.Print();
+     }
      GFDetPlane start_pl(oo,uu,vv);
 
 
@@ -298,6 +298,7 @@ PndLmdKalmanTask::Exec(Option_t* opt)
     // StartMom.Print();
     // std::cout<<"StartMomErr:"<<std::endl;
     // StartMomErr.Print();
+    if(fVerbose>1){
     std::cout<<"*** BEFORE ***"<<std::endl;
     std::cout<<"StartPos:"<<std::endl;
     StartPos.Print();
@@ -307,7 +308,7 @@ PndLmdKalmanTask::Exec(Option_t* opt)
     StartMom.Print();
     std::cout<<"StartMomErr:"<<std::endl;
     StartMomErr.Print();
-
+    }
     // /// The Runge Kutta trk rep ---------------
     // RKTrackRep* rep = new RKTrackRep(StartPos,StartMom,StartPosErr,StartMomErr,fPDGCode);
 
@@ -349,8 +350,10 @@ PndLmdKalmanTask::Exec(Option_t* opt)
     Double_t deltaZ = -5e-2;//go out of plane for 500 mkm
     // Double_t deltaZ = +3e1;//go out in plane
     TVector3 dirCand = GFtrkCand->getDirSeed();
-    std::cout<<" ---- dirCand ---- "<<std::endl;
-    dirCand.Print();
+    if(fVerbose>1){
+      std::cout<<" ---- dirCand ---- "<<std::endl;
+      dirCand.Print();
+    }
     TVector3 pointbackprop(StartPos.X()+deltaZ*dirCand.X(),StartPos.Y()+deltaZ*dirCand.Y(),(StartPos.Z()+deltaZ));
     //TVector3 pointbackprop(0.,0.,0.);
     //    TVector3 pointbackprop(StartPos.X(),StartPos.Y(),StartPos.Z()+0.0001);
@@ -358,8 +361,10 @@ PndLmdKalmanTask::Exec(Option_t* opt)
     fPro->PropagateToPCA(1, -1);
     // fPro->BackTrackToVirtualPlaneAtPCA(1);
     Bool_t rc =  fPro->Propagate(fStart, fRes, fPDGCode);
+    if(fVerbose>1){
     if(rc) std::cout<<"success in back propagation to origin!"<<std::endl;
     else std::cout<<" =( no success in back propagation to origin! =("<<std::endl;
+    }
     if (rc)
       {
  	StartPos.SetXYZ(fRes->GetX(), fRes->GetY(), fRes->GetZ());
@@ -367,16 +372,18 @@ PndLmdKalmanTask::Exec(Option_t* opt)
  	StartPosErr.SetXYZ(fRes->GetDX(), fRes->GetDY(), fRes->GetDZ());
  	StartMomErr.SetXYZ(fRes->GetDPx(), fRes->GetDPy(), fRes->GetDPz());
       }
-    std::cout<<"*** AFTER ***"<<std::endl;
-    std::cout<<"StartPos:"<<std::endl;
-    StartPos.Print();
-    std::cout<<"StartPosErr:"<<std::endl;
-    StartPosErr.Print();
-    std::cout<<"StartMom:"<<std::endl;
-    StartMom.Print();
-    std::cout<<"StartMomErr:"<<std::endl;
-    StartMomErr.Print();
-    // GFDetPlane start_pl(StartPos,U,V);
+    if(fVerbose>1){
+      std::cout<<"*** AFTER ***"<<std::endl;
+      std::cout<<"StartPos:"<<std::endl;
+      StartPos.Print();
+      std::cout<<"StartPosErr:"<<std::endl;
+      StartPosErr.Print();
+      std::cout<<"StartMom:"<<std::endl;
+      StartMom.Print();
+      std::cout<<"StartMomErr:"<<std::endl;
+      StartMomErr.Print();
+    }
+      // GFDetPlane start_pl(StartPos,U,V);
     //  TVector3 StartDir = StartMom*(1./StartMom.Mag());
     // GFDetPlane start_pl(StartPos,StartDir);
     // std::cout<<"start_pl:"<<std::endl;
@@ -396,8 +403,10 @@ PndLmdKalmanTask::Exec(Option_t* opt)
     // Load RecoHits
     try {
       trk->addHitVector(fTheRecoHitFactory->createMany(trk->getCand()));
-      std::cout<<trk->getNumHits()<<" hits in track "
-           <<itr<<std::endl;
+      if(fVerbose>1){
+	std::cout<<trk->getNumHits()<<" hits in track "
+		 <<itr<<std::endl;
+      }
     }
     catch(GFException& e) {
       std::cout <<" *** PndLmdKalmanTask::Exec "<< "\t" << "Genfit Exception: trk->addHitVector " << e.what() << std::endl;
@@ -408,19 +417,25 @@ PndLmdKalmanTask::Exec(Option_t* opt)
     // Start Fitter
     try{
       //   std::cout<<"starting fit"<<std::endl;
-      std::cout<<" ... GFtrk BEFORE ..."<<std::endl;
-      trk->Print();
+      if(fVerbose>1){
+	std::cout<<" ... GFtrk BEFORE ..."<<std::endl;
+	trk->Print();
+      }
       fitter.processTrack(trk);
-      std::cout<<" ... GFtrk AFTER ..."<<std::endl;
-      trk->Print();
+      if(fVerbose>1){
+	std::cout<<" ... GFtrk AFTER ..."<<std::endl;
+	trk->Print();
+      }
     }
     catch (GFException e){
       std::cout<<"*** FITTER EXCEPTION ***"<<std::endl;
       std::cout<<e.what()<<std::endl;
     }
     if (fVerbose>0) std::cout<<"successful FIT!"<<std::endl;
-    std::cout<<"GFTrack: "<<std::endl;
-    trk->Print();
+     if(fVerbose>1){
+       std::cout<<"GFTrack: "<<std::endl;
+       trk->Print();
+     }
 
     // //--Convert GF trk to FairTrackParH
     // GFAbsTrackRep* clone = trk->getCardinalRep()->clone();
@@ -448,9 +463,11 @@ PndLmdKalmanTask::Exec(Option_t* opt)
 
     // --- Get trk in  PndTrack format ---
     PndTrack* trkPnd = GenfitTrack2PndTrack(trk);
-    std::cout<<"trkPnd AFTER GenFit "<<std::endl;
-    trkPnd->Print();
-    std::cout<<"Number of hits in trk-cand: "<<trackCand->GetNHits()<<std::endl;
+    if(fVerbose>1){
+      std::cout<<"trkPnd AFTER GenFit "<<std::endl;
+      trkPnd->Print();
+      std::cout<<"Number of hits in trk-cand: "<<trackCand->GetNHits()<<std::endl;
+    }
     trkPnd->SetTrackCand(*trackCand);
     trkPnd->SetRefIndex(itr);//TODO: check is it correct set RefIn like ID of trk-cand???
     // --- Save as Lin trk ---
@@ -471,8 +488,10 @@ PndLmdKalmanTask::Exec(Option_t* opt)
     //    fPro->PropagateToPCA(1, +1);
     fPro->PropagateToPCA(1, -1);
     Bool_t rcNEW =  fPro->Propagate(fStartNEW, fResNEW, fPDGCode);
-    if(rcNEW) std::cout<<"=) ! success in propagation to origin of trk-cand ! (="<<std::endl;
-    else std::cout<<" =( no success in propagation to origin of trk-cand =("<<std::endl;
+    if(fVerbose>1){
+      if(rcNEW) std::cout<<"=) ! success in propagation to origin of trk-cand ! (="<<std::endl;
+      else std::cout<<" =( no success in propagation to origin of trk-cand =("<<std::endl;
+    }
     if (rcNEW)
       {
  	FinPos.SetXYZ(fResNEW->GetX(), fResNEW->GetY(), fResNEW->GetZ());
@@ -582,8 +601,8 @@ PndLmdKalmanTask::Exec(Option_t* opt)
     // // //    new((*fTrackFittedArray)[fTrackcount]) PndTrack(*(tAfter)); //save Track
     // // fTrackcount++;
   }
-
-  std::cout<<"Fitting done"<<std::endl;
+  if(fVerbose>1)
+    std::cout<<"Fitting done"<<std::endl;
   return;
 }
 
