@@ -4,12 +4,16 @@
 
 
 #include "PndLmdPixelClusterTask.h"
-#include "FairRuntimeDb.h"
-#include "FairRunAna.h"
 #include "PndSdsPixelDigiPar.h"
 #include "PndLmdContFact.h"
 #include "PndLmdAlignPar.h"
 #include "PndLmdDim.h"
+#include "TLorentzVector.h"
+//FAIR
+#include "FairRun.h"
+#include "FairRuntimeDb.h"
+#include "FairBaseParSet.h"
+#include "FairRunAna.h"
 // -----   Default constructor   -------------------------------------------
 PndLmdPixelClusterTask::PndLmdPixelClusterTask() :
 PndSdsPixelClusterTask("LMD Clustertisation Task")
@@ -17,6 +21,7 @@ PndSdsPixelClusterTask("LMD Clustertisation Task")
   fPersistance = kTRUE;
   fAlignParamList = new TList();
   readAlign = true;
+  flagMS = true;
 }
 // -------------------------------------------------------------------------
 
@@ -25,6 +30,53 @@ PndLmdPixelClusterTask::~PndLmdPixelClusterTask()
 {
 }
 // -------------------------------------------------------------------------
+
+InitStatus PndLmdPixelClusterTask::Init()
+{
+  FairBaseParSet* par=(FairBaseParSet*)(rtdb->findContainer("FairBaseParSet"));
+  fPbeam = par->GetBeamMom();
+
+  SetBranchNames();
+
+  SetBackMapping();
+  SetClusterFinder();
+  
+  FairRootManager* ioman = FairRootManager::Instance();
+  
+  if ( ! ioman )
+  {
+    std::cout << "-E- PndSdsPixelClusterTask::Init: "
+    << "RootManager not instantiated!" << std::endl;
+    return kFATAL;
+  }
+  
+
+  // Get input array
+  fDigiArray = (TClonesArray*) ioman->GetObject(fInBranchName);
+//
+  if ( ! fDigiArray )
+  {
+    std::cout << "-E- PndSdsPixelClusterTask::Init: "
+    << "No SDSDigi array!" << std::endl;
+    return kERROR;
+  }
+  
+  fClusterArray = ioman->Register(fClustBranchName, "PndSdsClusterPixel", fFolderName, fPersistance);
+
+  fHitArray =  ioman->Register(fOutBranchName, "PndSdsHit", fFolderName, fPersistance);
+  
+  SetInBranchId();
+
+  fFunctor = new TimeGap();
+  fStartFunctor = new StopTime();
+  
+  if(fVerbose>1) fDigiPar->Print();
+  
+  std::cout << "-I- PndSdsPixelClusterTask: Initialisation successfull" << std::endl;
+  return kSUCCESS;
+}
+// -------------------------------------------------------------------------
+
 
 // -----   Initialization  of Parameter Containers -------------------------
 void PndLmdPixelClusterTask::SetParContainers()
@@ -188,6 +240,52 @@ void PndLmdPixelClusterTask::alignmentCorr(TVector3& hitPos, int ssensID){
   hitPos = TVector3(xnew,ynew,hitPos.Z()+znew);
 }
 
+
+TVector3 PndLmdPixelClusterTask::AddMSErr(TVector3 hpos, TVector3 hposerr){
+  if(fVerbose>0) Info("PndLmdPixelClusterTask::AddMSErr","calculation additional errors due to multiple scaterring");
+
+  //Calculation of ThetaMS -------------------------------------
+  //Charge & mass of particle
+  Int_t PDGCode = -2212;
+  Double_t fMass = 0.938272046;
+  Double_t Ebeam = TMath::Hypot(fPbeam,fMass);
+  TLorentzVector LorMom(0, 0, fPbeam, Ebeam);
+  Double_t beta = LorMom.Beta();
+  Double_t X_to_X0 = 0.00306;//for one plane: flexcable+(HV-MAPS)+cooling disk+(HV-MAPS)+flexcable
+  X_to_X0 -= 0.00053;//-(HV-MAPS)
+  Double_t thetaMS = 13.6*1e-3*TMath::Sqrt(X_to_X0)/(beta*fPbeam);
+  //-----------------------------------------------------------
+
+  //TO DO: use parameters from geometry info for LUMI
+  Double_t d1 = 20.; 
+  Double_t d2 = 10.; 
+  double xerr,yerr;
+  xerr = hposerr.X();
+  yerr = hposerr.Y();
+  double zhit = hpos.Z();
+  int num = 0;
+  if(zhit>1140 && zhit<1150) num=1;
+  if(zhit>1150 && zhit<1160) num=2;
+  if(zhit>1160 && zhit<1170) num=3;
+
+  
+  // cout<<"Plane #"<<num<<" before: zhit="<<zhit<<" xerr = "<<xerr<<" yerr = "<<yerr<<endl;
+ 
+  double sigmaMS;
+  for(int j=0;j<num;j++){
+    // sigmaMS = 2*(j+1)*d*thetaMS;
+    double d=d2;
+    if(j==0) d=d2;
+    sigmaMS = (j+1)*d*thetaMS;
+    xerr = TMath::Hypot(xerr,sigmaMS);
+    yerr = TMath::Hypot(yerr,sigmaMS); 
+    cout<<"num:"<<num<<" j="<<j<<" d = "<<d<<endl;
+  }
+  cout<<" num:"<<num<<"(Z="<<zhit<<") xerr="<<xerr<<" yerr="<<yerr<<endl;
+  TVector3 res(xerr,yerr,hposerr.Z());
+  return res;
+};
+
 // -----   Public method Exec   --------------------------------------------
 void PndLmdPixelClusterTask::Exec(Option_t* opt)
 {
@@ -255,9 +353,18 @@ void PndLmdPixelClusterTask::Exec(Option_t* opt)
     hitCov(0,0) = 5.56960000000000085e-06; //assuming hit resolution for x-y 23.6 mkm
     hitCov(1,1) = 5.56960000000000085e-06; //assuming hit resolution for x-y 23.6 mkm
     hitCov(2,2) = 4.28489999999999954e-08; //assuming hit resolution for z 2.07 mkm
-    cout<<"new hitCov:"<<endl;
-    hitCov.Print();
+    
+    //Add multiple scattering error ---------------
+    if(flagMS){
+      TVector3 hitPos = myHit.GetPosition();
+      TVector3 hitErr(sqrt(hitCov[0][0]),sqrt(hitCov[1][1]),sqrt(hitCov[2][2]));
+      TVector3 hitErrMSadd = AddMSErr(hitPos, hitErr);
+      hitCov[0][0] = TMath::Power(hitErrMSadd.X(),2);
+      hitCov[1][1] = TMath::Power(hitErrMSadd.Y(),2);
+      hitCov[2][2] = TMath::Power(hitErrMSadd.Z(),2);
+    }
     myHit.SetCov(hitCov);//save value
+
     //translate to LUMI frame --------------------
     // if(fVerbose>0){
     //   cout<<"Before transl to LUMI frame:"<<endl;

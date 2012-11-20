@@ -12,6 +12,8 @@
 #include "PndLmdAlignPar.h"
 #include "PndSdsClusterPixel.h"
 #include "PndLmdDim.h"
+#include "FairRun.h"
+#include "FairRuntimeDb.h"
 class PndLmdPixelClusterTask : public PndSdsPixelClusterTask
 {
  public:
@@ -31,9 +33,15 @@ class PndLmdPixelClusterTask : public PndSdsPixelClusterTask
     void Exec(Option_t* opt);
     FairRun* ana;
     FairRuntimeDb* rtdb;
+    void SetMSflag(bool fflag){flagMS = fflag;};
+    InitStatus Init();
+
     ClassDef(PndLmdPixelClusterTask,3);
 
  private:
+    bool flagMS;
+    double fPbeam;
+    TVector3 AddMSErr(TVector3 hpos, TVector3 hposerr);
     TList* fAlignParamList;
     void combitransToLumiFrame(TVector3& hitPos);
     void rotateToLumiFrame(TVector3& hitPos);
