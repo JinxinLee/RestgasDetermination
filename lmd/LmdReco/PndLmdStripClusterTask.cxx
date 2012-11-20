@@ -602,7 +602,7 @@ Bool_t PndLmdStripClusterTask::Backmap( TVector2 meantopPoint, Double_t meantope
   locCov[2][2]=errZ*errZ;
 
   if(flagMS){
-    // //Add unsertancy due to multiple scattering
+    // //Add uncertanty due to multiple scattering
     TVector3 hitErr(sqrt(locCov[0][0]),sqrt(locCov[1][1]),sqrt(locCov[2][2]));
     TVector3 hitErrMSadd = AddMSErr(hitPos, hitErr);
     locCov[0][0] = TMath::Power(hitErrMSadd.X(),2);
