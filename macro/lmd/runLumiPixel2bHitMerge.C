@@ -1,4 +1,4 @@
-void runLumiPixel2bHitMerge(const int nEvents=10, const int startEvent=0, TString storePath="tmpOutput", const int verboseLevel=5)
+void runLumiPixel2bHitMerge(const int nEvents=10, const int startEvent=0, TString storePath="tmpOutput", const int verboseLevel=0)
 {
   // ========================================================================
   // Input file (Reco events)
