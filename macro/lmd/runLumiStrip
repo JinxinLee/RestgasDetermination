@@ -19,7 +19,7 @@ time root -l -b -q runLumi1Digi.C\(${numEv},0,"\"${path}\""\)
 time root -l -b -q runLumi2Reco.C\(${numEv},0,"\"${path}\"",0,${addMS}\)
 ### change "CA" --> "Follow" if you want to use Trk-Following as trk-search algorithm
 ### cange false --> true if you want ro use missing search algorithm
-time root -l -b -q runLumi3Finder.C\(${numEv},0,"\"${path}\"",0,"\"CA\"",false\)
+time root -l -b -q runLumi3Finder.C\(${numEv},0,"\"${path}\"",0,"\"CA\"",true\)
 ### Minuit
 time root -l -b -q runLumi4Fitter.C\(${numEv},0,"\"${path}\""\)
 ### or Kalman Fillter

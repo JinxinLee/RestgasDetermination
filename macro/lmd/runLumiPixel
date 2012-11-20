@@ -20,7 +20,7 @@ pbeam=15
 ### change "CA" --> "Follow" if you want to use Trk-Following as trk-search algorithm
 ### NB: Trk-Following can't use single(not merged) hits!
 ### change true --> false if you don't want to use missing search algorithm
-    root -l -b -q runLumiPixel3Finder.C\(${numEv},0,"\"${path}\"",3,"\"CA\"",true,${mergedHits}\)
+    root -l -b -q runLumiPixel3Finder.C\(${numEv},0,"\"${path}\"",0,"\"CA\"",true,${mergedHits}\)
 
     ##Miniut
     root -l -b -q runLumiPixel4Fitter.C\(${numEv},0,"\"${path}\"",0,${mergedHits}\)
