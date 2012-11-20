@@ -18,6 +18,7 @@
 
 #include "TVector3.h"
 #include "FairHit.h"
+#include "PndTrack.h"
 
 class PndFtsHit : public FairHit
 {
@@ -32,6 +33,8 @@ class PndFtsHit : public FairHit
   *@param detID     Detector unique volume ID
   *@param tubeID    Unique tube ID
   *@param chamberID    Unique chamber ID
+  *@param layerID    Unique layer ID
+  *@param skew    flag for skewed tube
   *@param mcindex   Index of corresponding MCPoint
   *@param pos       Position coordinates of the tube [cm]
   *@param dpos      Errors in position coordinates [cm]
@@ -41,7 +44,7 @@ class PndFtsHit : public FairHit
   **/
 
   // THIS ONE!
-  PndFtsHit(Int_t detID, Int_t tubeID, Int_t chamberID, Int_t mcindex, TVector3& pos, TVector3& dpos, Double_t p, Double_t isochrone, Double_t isochroneError, Double_t chDep);
+  PndFtsHit(Int_t detID, Int_t tubeID, Int_t chamberID, Int_t layerID, Int_t skew, Int_t mcindex, TVector3& pos, TVector3& dpos, Double_t p, Double_t isochrone, Double_t isochroneError, Double_t chDep);
 
 
   /** Destructor **/
@@ -73,6 +76,8 @@ class PndFtsHit : public FairHit
   Int_t GetTubeID() { return fTubeID; }
   void SetChamberID(Int_t chamberid) { fChamberID = chamberid; }
   Int_t GetChamberID() { return fChamberID; }
+  void SetLayerID(Int_t layerid) { fLayerID = layerid; }
+  Int_t GetLayerID() { return fLayerID; }
 
  protected:
 
@@ -90,6 +95,8 @@ class PndFtsHit : public FairHit
   /** tube id **/
   Int_t fTubeID; // CHECK added
   Int_t fChamberID;
+  Int_t fLayerID;
+  Int_t fSkew;
 
  ClassDef(PndFtsHit,1);
 };
