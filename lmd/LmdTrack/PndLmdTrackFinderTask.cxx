@@ -273,7 +273,8 @@ void PndLmdTrackFinderTask::FindHitsIII(std::vector<PndTrackCand> &tofill, std::
       tmp.SetXYZ(hit2->GetX(), hit2->GetY(), hit2->GetZ());
       vec = tmp - start;   //calc direction vector for FINDING
       dvec.SetXYZ(hit2->GetDx(), hit2->GetDy(), hit2->GetDz());
-      //      if(vec.Theta()>0.03 && vec.Theta()<0.05 && vec.Phi()>-0.3 && vec.Phi()<0.3){ //ignore vectors with theta outside 2-9 mrad
+      if(vec.Theta()>0.03 && vec.Theta()<0.05 && vec.Phi()>-0.25 && vec.Phi()<0.25){ //ignore vectors with theta outside 2-9 mrad
+	//if(0<1){
       //      if(vec.Theta()<0.01){ //ignore vectors with theta outside 10 mrad
         trackStart.push_back(start);
         trackStartd.push_back(dstart);
@@ -283,7 +284,7 @@ void PndLmdTrackFinderTask::FindHitsIII(std::vector<PndTrackCand> &tofill, std::
         //trackID2.push_back(hitsd.at(1).at(k).first);
         trackID2.push_back(i);  //save Hit-Id's for TrackCand
         trackID3.push_back(k);
-	//      }
+      }
     }//end of disc 2 (or 3 if none in disc 2) hits
   }//end of disc 1 hits
 
@@ -363,13 +364,9 @@ void PndLmdTrackFinderTask::FindHitsIII(std::vector<PndTrackCand> &tofill, std::
       PndSdsHit* myHit0 = (PndSdsHit*)(fStripHitArray->At(ids.at(0)));
       PndSdsHit* myHit1 = (PndSdsHit*)(fStripHitArray->At(ids.at(1)));
       TVector3 hit0 = myHit0->GetPosition(); TVector3 hit1 = myHit1->GetPosition();
-      double p1seed = (hit0.X()-hit1.X())/(hit0.Z()-hit1.Z());
-      double p0seed = 0.5*(hit0.X()+hit1.X()-p1seed*(hit0.Z()+hit1.Z()-2*1099.)); //TO DO: don't use const
-      double p3seed = (hit0.Y()-hit1.Y())/(hit0.Z()-hit1.Z());
-      double p2seed = 0.5*(hit0.Y()+hit1.Y()-p1seed*(hit0.Z()+hit1.Z()-2*1099.)); //TO DO: don't use const
-      TVector3 posSeed(p0seed,p2seed,0);
-      TVector3 dirSeed(p1seed,p3seed,1100.);
-      myTCand->setTrackSeed(posSeed,dirSeed,0);
+      TVector3 posSeed(hit0.X(),hit0.Y(),hit0.Z());
+      vec*=1./vec.Mag();
+      myTCand->setTrackSeed(posSeed,vec,-1);
       ///-------------------------------------
 
       tofill.push_back(*(myTCand)); //save Track Candidate
@@ -406,7 +403,8 @@ void PndLmdTrackFinderTask::FindHitsII(std::vector<PndTrackCand> &tofill, std::v
       tmp.SetXYZ(hit2->GetX(), hit2->GetY(), hit2->GetZ());
       vec = tmp - start;   //calc direction vector for FINDING
       dvec.SetXYZ(hit2->GetDx(), hit2->GetDy(), hit2->GetDz());
-      //      if(vec.Theta()>0.03 && vec.Theta()<0.05 && vec.Phi()>-0.3 && vec.Phi()<0.3){ //ignore vectors with theta outside 2-9 mrad
+      if(vec.Theta()>0.03 && vec.Theta()<0.05 && vec.Phi()>-0.25 && vec.Phi()<0.25){ //ignore vectors with theta outside 2-9 mrad
+      // if(0<1){
       //	if(vec.Theta()<0.01){ //ignore vectors with theta outside 10 mrad
         trackStart.push_back(start);
         trackStartd.push_back(dstart);
@@ -416,7 +414,7 @@ void PndLmdTrackFinderTask::FindHitsII(std::vector<PndTrackCand> &tofill, std::v
         //trackID2.push_back(hitsd.at(1).at(k).first);
         trackID1.push_back(i);  //save Hit-Id's for TrackCand
         trackID3.push_back(k);
-	//      }
+      }
     }//end of disc 2 (or 3 if none in disc 2) hits
   }//end of disc 1 hits
 
@@ -496,13 +494,9 @@ void PndLmdTrackFinderTask::FindHitsII(std::vector<PndTrackCand> &tofill, std::v
       PndSdsHit* myHit0 = (PndSdsHit*)(fStripHitArray->At(ids.at(0)));
       PndSdsHit* myHit1 = (PndSdsHit*)(fStripHitArray->At(ids.at(1)));
       TVector3 hit0 = myHit0->GetPosition(); TVector3 hit1 = myHit1->GetPosition();
-      double p1seed = (hit0.X()-hit1.X())/(hit0.Z()-hit1.Z());
-      double p0seed = 0.5*(hit0.X()+hit1.X()-p1seed*(hit0.Z()+hit1.Z()-2*1099.)); //TO DO: don't use const
-      double p3seed = (hit0.Y()-hit1.Y())/(hit0.Z()-hit1.Z());
-      double p2seed = 0.5*(hit0.Y()+hit1.Y()-p1seed*(hit0.Z()+hit1.Z()-2*1099.)); //TO DO: don't use const
-      TVector3 posSeed(p0seed,p2seed,0);
-      TVector3 dirSeed(p1seed,p3seed,1100.);
-      myTCand->setTrackSeed(posSeed,dirSeed,0);
+      TVector3 posSeed(hit0.X(),hit0.Y(),hit0.Z());
+      vec*=1./vec.Mag();
+      myTCand->setTrackSeed(posSeed,vec,-1);
       ///-------------------------------------
 
       tofill.push_back(*(myTCand)); //save Track Candidate
@@ -537,7 +531,7 @@ void PndLmdTrackFinderTask::FindHitsI(std::vector<PndTrackCand> &tofill, std::ve
       tmp.SetXYZ(hit2->GetX(), hit2->GetY(), hit2->GetZ());
       vec = tmp - start;   //calc direction vector for FINDING
       dvec.SetXYZ(hit2->GetDx(), hit2->GetDy(), hit2->GetDz());
-      //if(vec.Theta()>0.03 && vec.Theta()<0.05 && vec.Phi()>-0.3 && vec.Phi()<0.3){ //ignore vectors with theta outside 2-9 mrad
+      if(vec.Theta()>0.03 && vec.Theta()<0.05 && vec.Phi()>-0.25 && vec.Phi()<0.25){ //ignore vectors with theta outside 2-9 mrad
       //      if(vec.Theta()<0.01){ //ignore vectors with theta outside 10 mrad
         trackStart.push_back(start);
         trackStartd.push_back(dstart);
@@ -547,7 +541,7 @@ void PndLmdTrackFinderTask::FindHitsI(std::vector<PndTrackCand> &tofill, std::ve
         //trackID2.push_back(hitsd.at(1).at(k).first);
         trackID1.push_back(i);  //save Hit-Id's for TrackCand
         trackID2.push_back(k);
-	//      }
+    }
     }//end of disc 2 (or 3 if none in disc 2) hits
   }//end of disc 1 hits
 

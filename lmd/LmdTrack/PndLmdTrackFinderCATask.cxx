@@ -407,7 +407,7 @@ void PndLmdTrackFinderCATask::Exec(Option_t* opt)
   if(fVerbose>4) cout<<"Number of possible cells = "<<cell_arr_size<<endl;
   // if(NpointsI[nplanes-1]>NpointsI[0] || NpointsI[nplanes-2]>NpointsI[0]) cell_arr_size*=10000;
   //  if(cell_arr_size>1100) return;
-  if(cell_arr_size>10000) cell_arr_size*=0.5;
+  if(cell_arr_size>100000) cell_arr_size*=0.5;
   ///Build all cells  
   std::vector< std::vector<Double_t> > cells(11,vector<double>(cell_arr_size));
  
@@ -441,7 +441,22 @@ void PndLmdTrackFinderCATask::Exec(Option_t* opt)
 	  ///dTheta of cells to reduce wrong combination
 	  htheta->Fill(dirc.Mag(),dirc.Theta());
 	  //  if((dirc.Theta()>0.01 && dirc.Mag()>1.) || (dirc.Mag()<0.1 && dirc.Theta()>1.5)){ //in LUMI frame //for point between diff.planes or for point between diff. layes
-	  if((dirc.Theta()<0.03 && dirc.Theta()>0.05 && dirc.Mag()>1.) || (dirc.Mag()<0.1 && dirc.Theta()>0.5)){ //in LUMI frame //for point between diff.planes or for point between diff. layes
+	  bool goodDir = true;
+	  if(dirc.Mag()>1.){
+	    if((dirc.Theta()<0.03 && dirc.Theta()>0.05) || fabs(dirc.Phi())>0.25){
+	      goodDir = false;
+	      if(fVerbose>6) cout<<" dirc.Mag()>1. && (dirc.Theta()<0.03 && dirc.Theta()>0.05) || fabs(dirc.Phi())>0.25)"<<endl;
+	    }
+	  }
+	  else{
+	    if(dirc.Theta()>0.5){
+	      goodDir = false;
+	      if(fVerbose>6) cout<<" dirc.Mag()<1.&& dirc.Theta()>0.5"<<endl;
+	    }
+	  }
+	 
+	if(!goodDir){ //in LUMI frame //for point between diff.planes or for point between diff. layes
+	  // if(0>1){ //TEST
 	    if(fVerbose>4){
 	      cout<<"For cell between #"<<(j)<<"."<<i<<" and #"<<(j+1)<<"."<<k;
 	      cout<<" dirc.Theta() = "<<dirc.Theta()<<" dirc.Phi() = "<<dirc.Phi()<<endl;
@@ -482,7 +497,25 @@ void PndLmdTrackFinderCATask::Exec(Option_t* opt)
 	      //    if(dirc2.Theta()>0.01){ //in LUMI frame
 	      htheta->Fill(dirc2.Mag(),dirc2.Theta());
 	      //	      if((dirc2.Theta()>0.01 && dirc2.Mag()>1.) || (dirc2.Mag()<0.1 && dirc2.Theta()>1.5)){ //in LUMI frame //for point between diff.planes or for point between diff. layes
-	      if((dirc2.Theta()<0.03 && dirc2.Theta()>0.05 && dirc2.Mag()>1.) || (dirc2.Mag()<0.1 && dirc2.Theta()>0.5)){ //in LUMI frame //for point between diff.planes or for point between diff. layes
+	      //  if((dirc2.Theta()<0.03 && dirc2.Theta()>0.05 && fabs(dirc2.Phi())>0.25 && dirc2.Mag()>1.) || (dirc2.Mag()<0.1 && dirc2.Theta()>0.5)){ //in LUMI frame //for point between diff.planes or for point between diff. layes
+	      
+	      bool goodDir = true;
+	      if(dirc2.Mag()>1.){
+		if((dirc2.Theta()<0.03 && dirc2.Theta()>0.05) || fabs(dirc2.Phi())>0.25){
+		  goodDir = false;
+		  if(fVerbose>6) cout<<" dirc2.Mag()>1. && (dirc2.Theta()<0.03 && dirc2.Theta()>0.05) || fabs(dirc2.Phi())>0.25)"<<endl;
+		}
+	      }
+	      else{
+		if(dirc2.Theta()>0.5){
+		  if(fVerbose>6) cout<<" dirc2.Mag()<1.&& dirc2.Theta()>0.5"<<endl;
+		  goodDir = false;
+		}
+	      }
+
+
+	    if(!goodDir){ //
+	      //   if(0>1){ //TEST
 		if(fVerbose>4){
 		  cout<<"For cell between #"<<(j)<<"."<<i<<" and #"<<(j+jp)<<"."<<k;
 		  cout<<" dirc2.Theta() = "<<dirc2.Theta()<<" dirc2.Phi() = "<<dirc2.Phi()<<endl;
@@ -871,7 +904,7 @@ void PndLmdTrackFinderCATask::Exec(Option_t* opt)
       myTCand->AddHit(astripdigi->GetDetID(),hitsd.at(pl).at(id),myHit->GetPosition().Z()); 
       // myTCand->AddHit(0,hitsd.at(pl).at(id),myHit->GetPosition().Z()); 
     }
-    if(dir.Theta()<0.03 && dir.Theta()>0.05) continue; 
+    if((dir.Theta()<0.03 && dir.Theta()>0.05) || fabs(dir.Phi())>0.25) continue; //TEST
     new((*fTrackCandArray)[NtrkRec]) PndTrackCand(*(myTCand)); //save Track Candidate
     //    new((*fTrackCandArrayTemp)[NtrkRec]) PndTrackCand(*(myTCand)); //save Track Candidate
     NtrkRec++;
