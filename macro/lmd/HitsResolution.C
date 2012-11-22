@@ -44,6 +44,8 @@
 #include<PndSdsDigiPixel.h>
 #include<PndSdsClusterStrip.h>
 #include<PndSdsDigiStrip.h>
+#include<PndSdsMergedHit.h>
+
 // needed for geane backtracking
 #include<FairRunAna.h>
 #include<FairRootManager.h>
@@ -67,7 +69,8 @@ int main(int __argc,char *__argv[]) {
   double Plab=15.;
   int verboseLevel=0;
   int sentype=0;
-  std::string startStr="", momStr="", nStr="", pathStr="", verbStr="", outrootStr="", sensorTypeStr="";
+  bool mergedHit=false;
+  std::string startStr="", momStr="", nStr="", pathStr="", verbStr="", outrootStr="", sensorTypeStr="", mergedStr="";
   // decode arguments
   if( __argc>1 && ( strcmp( __argv[1], "-help" ) == 0
 		    || strcmp( __argv[1], "--help" ) == 0 ) ){
@@ -79,6 +82,7 @@ int main(int __argc,char *__argv[]) {
 	      <<"-path path to the file(s) \n"
 	      <<"-out name for output file with ntuples \n"
 	      <<"-st sensor type: 0=strip 1=pixel"
+	      <<"-mh merged hits?: true=yes false=no"
 	      <<"-v verbose Level (if>0, print out some information) \n"
 	      <<"Have fun! \n"
 	      << std::endl;
@@ -122,6 +126,12 @@ int main(int __argc,char *__argv[]) {
       outrootStr= __argv[optind];
       found=true;
     }
+    if(sw=="-mh"){
+      optind++;
+      mergedStr= __argv[optind];
+      cout<<"reading -mh switch! "<<mergedStr<<endl;
+      found=true;
+    }
     if (!found){
       std::cout<< "Unknown switch: "
 	       << __argv[optind] <<std::endl;
@@ -131,13 +141,16 @@ int main(int __argc,char *__argv[]) {
   while ( (optind < __argc ) && __argv[optind][0]!='-' ) optind++; 
   }
 
-  std::stringstream startSStr(startStr), nSStr(nStr), pathSStr(pathStr), verbSStr(verbStr), sensorTypeSStr(sensorTypeStr);
+  std::stringstream startSStr(startStr), nSStr(nStr), pathSStr(pathStr), verbSStr(verbStr), sensorTypeSStr(sensorTypeStr), mergedSStr(mergedStr);
 
   startSStr >> startEvent; 
   nSStr >> nEvents;
   pathSStr >> storePath;
   verbSStr >> verboseLevel;
   sensorTypeSStr >> sentype;
+  mergedSStr >> boolalpha >> mergedHit;
+
+  cout<<"mergedHit = "<<mergedHit<<endl;
   cout<<"For data files will be used path: "<<storePath<<endl;
 
   // ---- Open output file ------------------------------------------------
@@ -165,6 +178,14 @@ int main(int __argc,char *__argv[]) {
   recHit += ".root";
   TChain tHits("cbmsim");
   tHits.Add(recHit);
+
+  TString recHitmerged=storePath+"/Lumi_recoMerged_";
+  recHitmerged += startEvent;
+  recHitmerged += ".root";
+  TChain tHitsMerged("cbmsim");
+  if(mergedHit)
+    tHitsMerged.Add(recHitmerged);
+ 
   
   TString trkCand = storePath+"/Lumi_TCand_";
   trkCand += startEvent;
@@ -196,7 +217,10 @@ int main(int __argc,char *__argv[]) {
     collNameCluster="LMDPixelClusterCand";
     typArrayCluster = "PndSdsClusterPixel";
     typArrayDigi = "PndSdsDigiPixel";
-    collNameHits = "LMDHitsPixel";
+    if(mergedHit)
+      collNameHits = "LMDHitsMerged";
+    else
+      collNameHits = "LMDHitsPixel";
   }
   else{
     collNameDigis = "LMDStripDigis";
@@ -216,8 +240,15 @@ int main(int __argc,char *__argv[]) {
   //----------------------------------------------------------------------------------
   
   //--- Real Hits --------------------------------------------------------------------
-  TClonesArray* rechit_array=new TClonesArray("PndSdsHit");
-  tHits.SetBranchAddress(collNameHits,&rechit_array);  //Points for Tracks
+  TClonesArray* rechit_array;
+  if(mergedHit){
+    rechit_array = new TClonesArray("PndSdsMergedHit");
+    tHitsMerged.SetBranchAddress(collNameHits,&rechit_array);  //Points for Tracks
+  }
+  else{
+    rechit_array=new TClonesArray("PndSdsHit");
+    tHits.SetBranchAddress(collNameHits,&rechit_array);  //Points for Tracks
+  }
   //----------------------------------------------------------------------------------
   
   //--- Track Candidate ---------------------------------------------------------------
@@ -246,7 +277,7 @@ int main(int __argc,char *__argv[]) {
   //Load lumi geo params
   PndLmdDim *lmddim = PndLmdDim::Instance();
   // lmddim -> Read_transformation_matrices("matrices.txt", true);
-  lmddim -> Read_transformation_matrices("matrices_perfect.txt", false);
+  lmddim -> Read_transformation_matrices("/panda/pandaroot/macro/lmd/matrices_perfect.txt", false);
 
   for (Int_t j=0; j<nEvents; j++){
     // Read REC tree -----------------------------------------------------------------
@@ -255,6 +286,8 @@ int main(int __argc,char *__argv[]) {
     tHits.GetEntry(j);
     tdigiHits.GetEntry(j);
     tMC.GetEntry(j);
+    if(mergedHit)
+      tHitsMerged.GetEntry(j);
     ///-----------------------------------------------------------------------------------------
 
     const int nRecTrks = rec_trk->GetEntriesFast();
@@ -263,7 +296,6 @@ int main(int __argc,char *__argv[]) {
     /// Read info about hits from reconstructed tracks ----------------------------------------------------
     TVector3 startPosMCtrk;
     TVector3 startDirMCtrk;
-
     for (Int_t iN=0; iN<nRecTrks; iN++){
       PndLinTrack *trk_lin = (PndLinTrack*)rec_trk->At(iN);
       TVector3 startlintrk = trk_lin->GetStartVec();
@@ -271,7 +303,7 @@ int main(int __argc,char *__argv[]) {
       Int_t candID = trk_lin->GetTCandID();
       PndTrackCand *trkcand = (PndTrackCand*)trkcand_array->At(candID);
       const int Ntrkcandhits= trkcand->GetNHits();
-      if(Ntrkcandhits<4) continue; //!!! TEST with 4 hits tracks only !!!
+      //  if(Ntrkcandhits!=4) continue; //!!! TEST with 4 hits tracks only !!!
       double phiMCgl;
       TVector3 startPosMC, startDirMC;
 	for (Int_t iHit = 0; iHit < Ntrkcandhits; iHit++){
@@ -279,12 +311,13 @@ int main(int __argc,char *__argv[]) {
 	  PndTrackCandHit candhit = (PndTrackCandHit)(trkcand->GetSortedHit(iHit));
 	  Int_t hitID = candhit.GetHitId();
 	  PndSdsHit* myHit = (PndSdsHit*)(rechit_array->At(hitID));
+	  int sensorID = myHit->GetSensorID();
 	  TVector3 HitPos = myHit->GetPosition(); 
 	  TMatrixD HitCov = myHit->GetCov(); 
 	  TVector3 HitPosErr(sqrt(HitCov(0,0)),sqrt(HitCov(1,1)),sqrt(HitCov(2,2)));
 	  TVector3 mcMid,mcTop,mcTopOUT, mcMom;
 	  TVector3 mcTrkPointREC,mcTrkPointMC;
-	  int sensorID = myHit->GetSensorID();
+
 	  int ihalf, iplane, imodule, iside, idie, isensor;
 	  if(sentype>0){//pixel
 	    PndSdsClusterPixel* myCluster = (PndSdsClusterPixel*)(fStripClusterArray->At(myHit->GetClusterIndex()));
@@ -300,6 +333,9 @@ int main(int __argc,char *__argv[]) {
 	    mcMom.SetXYZ(xMom,yMom,zMom);
 	    // calculate the plane and sensor on this plane
 	    lmddim->Get_sensor_by_id(sensorID, ihalf, iplane, imodule, iside, idie, isensor);
+	    if(iHit!=iplane) cout <<"###!###"; 
+            cout<<" iHit: "<<iHit<<" iplane: "<<iplane<<" sensorID:"<<sensorID<<" event#"<<j<<endl;
+	    cout<<"MC:("<<mcTop.X()<<", "<<mcTop.Y()<<", "<<mcTop.Z()<<")"<<endl;
 	  }
 	  else{//strip
 	    PndSdsClusterStrip* myCluster =  (PndSdsClusterStrip*)(fStripClusterArray->At(myHit->GetClusterIndex()));

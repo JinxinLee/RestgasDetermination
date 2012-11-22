@@ -34,6 +34,8 @@
 #include<PndSdsDigiStrip.h>
 #include<PndSdsDigiPixel.h>
 #include<PndSdsClusterPixel.h>
+#include<PndSdsMergedHit.h>
+
 // needed for geane backtracking
 #include<FairRunAna.h>
 #include<FairRootManager.h>
@@ -134,9 +136,9 @@ int main(int __argc,char *__argv[]) {
   TString storePath="/data/FAIRsorf/pandaroot/trunk/macro/lmd/tmpOutput";
   double Plab=15.;
   int verboseLevel=5;
-  int kf = 0;//if>0 then Kalman Fillter was used for trk-fit
-  int dnu=0;//if>0 then use namespace for pixel
-  std::string startStr="", momStr="", nStr="", pathStr="", verbStr="" , mcTrkStr="", useNewDStr="",usedKFStr="";
+  int mh = 0;//if>0 : use merged hit collection
+  int dnu=0;//if>0 : use namespace for pixel
+  std::string startStr="", momStr="", nStr="", pathStr="", verbStr="" , mcTrkStr="", useNewDStr="",usedMHStr="";
   // decode arguments
   if( __argc>1 && ( strcmp( __argv[1], "-help" ) == 0
 		    || strcmp( __argv[1], "--help" ) == 0 ) ){
@@ -148,8 +150,8 @@ int main(int __argc,char *__argv[]) {
 	      <<"-mom Beam Momentum \n"
 	      <<"-path path to the file(s) \n"
 	      <<"-v verbose Level (if>0, print out some information) \n"
-	      <<"-npx if>0 then use namespace for pixel \n"
-	      <<"-kf if>0 then Kalman Fillter was used for trk-fit \n"
+	      <<"-npx if>0: use namespace for pixel \n"
+	      <<"-mh if>0: use merged hits\n"
 	      <<"Have fun! \n"
 	      << std::endl;
     return 0;
@@ -192,9 +194,9 @@ int main(int __argc,char *__argv[]) {
       useNewDStr = __argv[optind];
       found=true;
     }
-    if (sw=="-kf"){
+    if (sw=="-mh"){
       optind++;
-      usedKFStr = __argv[optind];
+      usedMHStr = __argv[optind];
       found=true;
     }
     if (!found){
@@ -206,7 +208,7 @@ int main(int __argc,char *__argv[]) {
   while ( (optind < __argc ) && __argv[optind][0]!='-' ) optind++; 
   }
 
-  std::stringstream startSStr(startStr), momSStr(momStr), nSStr(nStr), pathSStr(pathStr), verbSStr(verbStr), mcTrkSStr(mcTrkStr),useNewDSStr(useNewDStr), usedKFSStr(usedKFStr);
+  std::stringstream startSStr(startStr), momSStr(momStr), nSStr(nStr), pathSStr(pathStr), verbSStr(verbStr), mcTrkSStr(mcTrkStr),useNewDSStr(useNewDStr), usedMHSStr(usedMHStr);
 
   startSStr >> startEvent;
   momSStr >> Plab;
@@ -215,7 +217,7 @@ int main(int __argc,char *__argv[]) {
   verbSStr >> verboseLevel;
   mcTrkSStr >> nMCtracks;
   useNewDSStr >> dnu;
-  usedKFSStr >> kf;
+  usedMHSStr >> mh;
   cout<<"Will be used Path: "<<storePath<<endl;
   //void MCandRECTrkmatches(const int nEvents=2, const int startEvent=0, TString storePath="tmpOutput", const int verboseLevel=3, double dv=0.5, bool no4d=false)
   //{
@@ -250,6 +252,14 @@ int main(int __argc,char *__argv[]) {
   recHit += ".root";
   TChain tHits("cbmsim");
   tHits.Add(recHit);
+  
+  TString recHitmerged=storePath+"/Lumi_recoMerged_";
+  recHitmerged += startEvent;
+  recHitmerged += ".root";
+  TChain tHitsMerged("cbmsim");
+  if(mh)
+    tHitsMerged.Add(recHitmerged);
+
   
   TString trkCand = storePath+"/Lumi_TCand_";
   trkCand += startEvent;
@@ -318,11 +328,21 @@ int main(int __argc,char *__argv[]) {
   //----------------------------------------------------------------------------------
   
   //--- Real Hits --------------------------------------------------------------------
-  TClonesArray* rechit_array=new TClonesArray("PndSdsHit");
-  if(dnu>0)
-    tHits.SetBranchAddress("LMDHitsPixel",&rechit_array);  //Points for Tracks
-  else
+  TClonesArray* rechit_array;
+  if(dnu>0){
+    if(mh>0){  
+      rechit_array = new TClonesArray("PndSdsMergedHit");
+      tHitsMerged.SetBranchAddress("LMDHitsMerged",&rechit_array);  //Points for Tracks
+    }
+    else{
+      rechit_array = new TClonesArray("PndSdsHit");
+      tHits.SetBranchAddress("LMDHitsPixel",&rechit_array);  //Points for Tracks
+    }
+  }
+  else{
+    rechit_array = new TClonesArray("PndSdsHit");
     tHits.SetBranchAddress("LMDHitsStrip",&rechit_array);  //Points for Tracks
+  }
   //----------------------------------------------------------------------------------
   
   
@@ -518,7 +538,8 @@ int main(int __argc,char *__argv[]) {
     tTrkCand.GetEntry(j);
     tHits.GetEntry(j);
     tdigiHits.GetEntry(j);
-    
+    if(mh>0)
+      tHitsMerged.GetEntry(j);
     const int nGeaneTrks = geaneArray->GetEntriesFast();
     const int nParticles = true_tracks->GetEntriesFast();
    
@@ -533,6 +554,8 @@ int main(int __argc,char *__argv[]) {
       cout<<"Event #"<<j<<" has "<<nParticles<<" true particles, "<<" out of it "<<nRecHits<<" hits, "<<nTrkCandidates
 	  <<" trk-cands, "<<numTrk<<" tracks and "<<nGeaneTrks<<" geane Trks!"<<endl;
     if(nParticles!=nMCtracks) continue;
+    if(nRecHits<3*nMCtracks) cout<<"Event #"<<j<<" doesn't have enough rec.hits!!!"<<endl;
+    if(nRecHits<3*nMCtracks) continue;
     double chi2Cont[5*numTrk];
     double ndiffIDCont[5*numTrk];
    
@@ -573,16 +596,7 @@ int main(int __argc,char *__argv[]) {
       PndTrack *trkpnd;
       Int_t candID;
       PndTrackCand *trkcand;
-      if(kf>0){
-	trkpnd = (PndTrack*)rec_trk->At(iN);
-	//	trkpnd->Print();
-	candID = trkpnd->GetRefIndex();
-	trkcand = (PndTrackCand*)trkcand_array->At(candID);
-	  //	trkcand = (PndTrackCand*)trkpnd->GetTrackCandPtr();
-	//	cout<<"Number of hits in trk-cand: "<<trkcand->GetNHits()<<endl;
-	//	candID = trk->GetTCandID();
-      }
-      else{
+     
 	trk = (PndLinTrack*)rec_trk->At(iN);
 	trk->GetPar(linpar);
 	hLumiTrkA->Fill(linpar[1]); 
@@ -595,12 +609,12 @@ int main(int __argc,char *__argv[]) {
 	chi2 = trk->GetChiSquare();
 	chi2Cont[iN] = chi2;
 	hchi2nTrkCand->Fill(nTrkCandidates,chi2);
-      }
+      
       // cout<<"Now I'll try to read candID#"<<candID<<endl;
       // PndTrackCand *trkcand = (PndTrackCand*)trkcand_array->At(candID);
       // PndTrackCand *trkcand = (PndTrackCand*)trkcand_array->At(iN); //TODO: find out how to check trk-cand in case then cut are applied to trk-fit results
       const int Ntrkcandhits= trkcand->GetNHits();
-      cout<<"Ntrkcandhits = "<<Ntrkcandhits<<endl;
+      //      cout<<"Ntrkcandhits = "<<Ntrkcandhits<<endl;
       PndSdsMCPoint* MCPointHit;
 
       //Matching between MC & Rec on hits level-----------------------------------
@@ -759,7 +773,7 @@ int main(int __argc,char *__argv[]) {
 	Double_t theta_prop_geane_trk = TMath::Pi()/2. - lyambda;
 	Double_t phi_prop_geane_trk = fRes->GetPhi();
 	TVector3 pos_rec_trk,dir_rec_trk;
-	if(kf<1){
+
 	  pos_rec_trk = trk->GetStartVec();
 	  dir_rec_trk = trk->GetDirectionVec();
 	  hRecGEANEX->Fill(pos_rec_trk.X(),pos_prop_geane_trk.X());
@@ -777,7 +791,7 @@ int main(int __argc,char *__argv[]) {
 	  hSeedGEANETheta->Fill(dirSeed.Theta(), theta_prop_geane_trk);
 	  hSeedGEANEPhi->Fill(dirSeed.Phi(), phi_prop_geane_trk);
 	  hSeedThetaPhi->Fill(dirSeed.Theta(),dir_rec_trk.Phi());
-	}
+
 	///-------------------------------------------------------
 	
 	/// CUT: Check position and coordinates errors of PCA ---------------------------------------
@@ -825,8 +839,8 @@ int main(int __argc,char *__argv[]) {
 	    double diffTheta=fabs(MomMC.Theta()-thetaBP)/err_lyambda;
 	    double diffPhi=fabs(MomMC.Phi()-phiBP)/err_phi;
 	    hntrkmissedPhiTheta->Fill(diffTheta,diffPhi);
-	    //	    if(diffTheta<4. && diffPhi<4.) goodRectrk++;
-	    if(diffTheta<3. && diffPhi<3.) goodRectrk++;
+	    if(diffTheta<4. && diffPhi<4.) goodRectrk++;
+	    // if(diffTheta<3. && diffPhi<3.) goodRectrk++;
 	  }
 	}
 	///(end) check for good tracks --------------------------
@@ -1575,6 +1589,9 @@ int main(int __argc,char *__argv[]) {
  hntrkghost_I->Write();
  hntrkmissed_II->Write();
  hntrkghost_II->Write();
+ hntrkgood_I->Write();
+ hntrkgood_II->Write();
+
  nmomMC->Write();
  f->Close();
 }
