@@ -2365,8 +2365,12 @@ MAXSCITILHITSINTRACK,MAXSTTHITSINTRACK,R,Ox,Oy,FI0,KAPPA);
 //-------------- fine stampa
 
 //--------------------------------------------------------------------------
+
+// redo fit after spurious cleaning;
+		// recalculate the input values with the new list of hits
+		// belonging to this track cand;
+
 /*
-// rifaccio fit dopo pulizia
 		resultFitSZagain[ncand] = fit.FitSZspace(
 				nhitsinfit,	// n. hits to be fitted
 				S,
@@ -2376,10 +2380,69 @@ MAXSCITILHITSINTRACK,MAXSTTHITSINTRACK,R,Ox,Oy,FI0,KAPPA);
 				FI0[ncand],
 				MAXSKEWHITSINFIT,// maximum number of STT Skew hits in fit;
 				&emme,
-				IVOLTE*100+ncand // number of the accumulation plot.
+				0 // number of the accumulation plot;no meaning
+						// here for this type of fit;
 						);
+		if( resultFitSZagain[ncand]==1){
+			KAPPA[ncand] = emme;
+			GoodSkewFit[ncand] = true;
+			if( ncand<= nSttTrackCand ) SttSZfit[ncand]=true;
+		} else {
+			keepit[ncand]=false;
+			GoodSkewFit[ncand] = false;
+		}
+
+
+//    redo the spurious cleaning after the second iteration SZ fit;
+
+	  if(keepit[ncand]){
+	    if(R[ncand] < RSTRAWDETECTORMAX/2.){
+		if(-Charge[ncand]*KAPPA[ncand]>0.){	// this means Pz>0.
+		  Turns= 0.5*fabs((ZCENTER_STRAIGHT+SEMILENGTH_STRAIGHT)
+					*KAPPA[ncand])/PI;
+		  if( fabs(Turns)<10.)  MaxTurns=(Short_t) Turns ;
+		  else  MaxTurns=10;
+		} else {
+		  Turns= 0.5*fabs((ZCENTER_STRAIGHT-SEMILENGTH_STRAIGHT)
+					*KAPPA[ncand])/PI;
+		  if( fabs(Turns)<10.)  MaxTurns=(Short_t) Turns ;
+		  else  MaxTurns=10;
+		}
+	    } else {
+		MaxTurns=0;
+	    }
+
+	    EliminateSpuriousSZ(
+		MaxTurns,
+		&nMvdPixelHitsinTrack[ncand],	// input and output
+		&ListMvdPixelHitsinTrack[ncand][0],// input and output
+		&nMvdStripHitsinTrack[ncand],	// input and output
+		&ListMvdStripHitsinTrack[ncand][0],// input and output
+		&nSttSkewHitsinTrack[ncand],	// input and output
+		&ListSttSkewHitsinTrack[ncand][0],// input and output
+		Sbis,	// input, position of the central wire on the Helix cylinder;
+		ZEDbis,	// input, position of the central wire on the Helix cylinder.
+		DriftRadiusbis,	// input
+		ErrorDriftRadiusbis,	// input
+		&SchosenPixel[ncand][0], // this value from now on
+		&SchosenStrip[ncand][0], // can also be > 2PI or < 2PI when
+		&SchosenSkew[ncand][0],  // the particle makes more than 1 turn.
+		&ZchosenPixel[ncand][0],
+		&ZchosenStrip[ncand][0],
+		&ZchosenSkew[ncand][0],
+		ErrorchosenPixel,
+		ErrorchosenStrip,
+		ErrorchosenSkew,
+		KAPPA[ncand],
+		FI0[ncand],
+		R[ncand]
+		    );
+
+	  }  // end of  if(keepit[ncand])
 
 */
+//------------------------
+
 //--------------------------------------------------------------------------
 
 
