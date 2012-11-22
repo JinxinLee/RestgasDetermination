@@ -1,0 +1,65 @@
+#!/bin/bash      
+path=${VMCWORKDIR}/macro/lmd/tmpOutoldDesign
+mkdir ${path}
+#numTrks=1
+numEv=100000
+#take into account multiple scattering in hit errors calculation
+
+for pbeam in 1.5 11.91 8.9 4.06 15
+#for pbeam in 15 11.91 8.9 1.5
+do 
+    for numTrks in 1 2 3 4 5 10 15
+    # for numTrks in 5
+    do
+time root -l -b -q runLumi0SimBox.C\(${numEv},${pbeam},"\"${path}\"",0,-2212,${numTrks}\)
+time root -l -b -q runLumi1Digi.C\(${numEv},0,"\"${path}\""\)
+
+addMS=true
+time root -l -b -q runLumi2Reco.C\(${numEv},0,"\"${path}\"",0,${addMS}\)
+
+time root -l -b -q runLumi3Finder.C\(${numEv},0,"\"${path}\"",0,"\"CA\"",true\) >> ${path}/logStrip_CA_${numTrks}trks
+time root -l -b -q runLumi4Fitter.C\(${numEv},0,"\"${path}\""\)
+time root -l -b -q runLumi5Geane.C\(${numEv},${pbeam},0,"\"${path}\""\)
+cd ${VMCWORKDIR}/build/bin
+./rec_mc_match -s 0 -n ${numEv} -t ${numTrks} -mom ${pbeam} -npx 0 -v 0 -path ${path}
+#./hits_study -s 0 -n ${numEv} -path ${path} -out ${path}/ResidualsHist_${pbeam}.root -st 0 -v 0
+cd ${VMCWORKDIR}/macro/lmd/
+mv ${path}/Lumi_out_MC_and_REC_trks_matches_with_IDs0.root ${path}/Lumi_out_MC_and_REC_trks_matches_with_IDs0_CA_${numTrks}trks_MinuitFit_${pbeam}.root
+rm ${path}/Lumi_Track_0.root
+rm ${path}/Lumi_Geane_0.root
+
+time root -l -b -q runLumi3Finder.C\(${numEv},0,"\"${path}\"",0,"\"Follow\"",true\) >> ${path}/logStrip_Follow_${numTrks}trks
+time root -l -b -q runLumi4Fitter.C\(${numEv},0,"\"${path}\""\)
+time root -l -b -q runLumi5Geane.C\(${numEv},${pbeam},0,"\"${path}\""\)
+cd ${VMCWORKDIR}/build/bin
+./rec_mc_match -s 0 -n ${numEv} -t ${numTrks} -mom ${pbeam} -npx 0 -v 0 -path ${path}
+#./hits_study -s 0 -n ${numEv} -path ${path} -out ${path}/ResidualsHist_${pbeam}.root -st 0 -v 0
+cd ${VMCWORKDIR}/macro/lmd/
+mv ${path}/Lumi_out_MC_and_REC_trks_matches_with_IDs0.root ${path}/Lumi_out_MC_and_REC_trks_matches_with_IDs0_Follow_${numTrks}trks_MinuitFit_${pbeam}.root
+rm ${path}/Lumi_Track_0.root
+rm ${path}/Lumi_Geane_0.root
+
+addMS=false
+time root -l -b -q runLumi2Reco.C\(${numEv},0,"\"${path}\"",0,${addMS}\)
+
+time root -l -b -q runLumi3Finder.C\(${numEv},0,"\"${path}\"",0,"\"CA\"",true\)
+time root -l -b -q runLumi4KalmanFitter.C\(${numEv},0,"\"${path}\"",0,0\)
+time root -l -b -q runLumi5Geane.C\(${numEv},${pbeam},0,"\"${path}\""\)
+ 
+cd ${VMCWORKDIR}/build/bin
+./rec_mc_match -s 0 -n ${numEv} -t ${numTrks} -mom ${pbeam} -npx 0 -v 0 -path ${path}
+cd ${VMCWORKDIR}/macro/lmd
+mv ${path}/Lumi_out_MC_and_REC_trks_matches_with_IDs0.root ${path}/Lumi_out_MC_and_REC_trks_matches_with_IDs0_CA_${numTrks}trks_KalmanFillter_${pbeam}.root
+
+time root -l -b -q runLumi3Finder.C\(${numEv},0,"\"${path}\"",0,"\"Follow\"",true\)
+time root -l -b -q runLumi4KalmanFitter.C\(${numEv},0,"\"${path}\"",0,0\)
+time root -l -b -q runLumi5Geane.C\(${numEv},${pbeam},0,"\"${path}\""\)
+ 
+cd ${VMCWORKDIR}/build/bin
+./rec_mc_match -s 0 -n ${numEv} -t ${numTrks} -mom ${pbeam} -npx 0 -v 0 -path ${path}
+cd ${VMCWORKDIR}/macro/lmd
+mv ${path}/Lumi_out_MC_and_REC_trks_matches_with_IDs0.root ${path}/Lumi_out_MC_and_REC_trks_matches_with_IDs0_Follow_${numTrks}trks_KalmanFillter_${pbeam}.root
+
+done
+done
+exit
