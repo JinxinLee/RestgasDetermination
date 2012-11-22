@@ -43,9 +43,9 @@ void PndGeoSttPar::putParams(FairParamList* l)
   if (!l) return;
   l->addObject("FairGeoNodes Sensitive List", fGeoSensNodes);
   l->addObject("FairGeoNodes Passive List", fGeoPassNodes); 
-  l->add("Tube Inner Radius", fTubeInRad);
-  l->add("Tube Outer Radius", fTubeOutRad);
-  l->add("Geometry Type", fGeoType);
+  l->add("Tube_Inner_Radius", fTubeInRad);
+  l->add("Tube_Outer_Radius", fTubeOutRad);
+  l->add("Geometry_Type", fGeoType);
 }
 
 Bool_t PndGeoSttPar::getParams(FairParamList* l) 
@@ -53,9 +53,9 @@ Bool_t PndGeoSttPar::getParams(FairParamList* l)
     if (!l) return kFALSE;
     if (!l->fillObject("FairGeoNodes Sensitive List", fGeoSensNodes)) return kFALSE;
     if (!l->fillObject("FairGeoNodes Passive List", fGeoPassNodes)) return kFALSE; 
-    if (!l->fill("Tube Inner Radius", &fTubeInRad) )  return kFALSE;
-    if (!l->fill("Tube Outer Radius", &fTubeOutRad)) return kFALSE;
-    if (!l->fill("Geometry Type", &fGeoType)) return kFALSE;
+    if (!l->fill("Tube_Inner_Radius", &fTubeInRad) )  return kFALSE;
+    if (!l->fill("Tube_Outer_Radius", &fTubeOutRad)) return kFALSE;
+    if (!l->fill("Geometry_Type", &fGeoType)) return kFALSE;
     
     return kTRUE;
 }
