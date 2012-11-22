@@ -95,6 +95,7 @@ LmdReco/PndLmdPixelClusterTask.cxx
 LmdReco/PndLmdHitMergeTask.cxx
 LmdReco/PndLmdSimplePixelClusterFinder.cxx
 LmdReco/PndLmdChargeWeightedPixelMapping.cxx
+LmdReco/PndSdsMergedHit.cxx
 #LmdReco/PndLmdIdealRecoTask.cxx
 #LmdMC/PndLmdDim.cxx
 )
