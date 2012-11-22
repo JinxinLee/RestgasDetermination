@@ -445,13 +445,14 @@ void PndLmdTrackFinderCATask::Exec(Option_t* opt)
 	  if(dirc.Mag()>1.){
 	    if((dirc.Theta()<0.03 && dirc.Theta()>0.05) || fabs(dirc.Phi())>0.25){
 	      goodDir = false;
-	      if(fVerbose>6) cout<<" dirc.Mag()>1. && (dirc.Theta()<0.03 && dirc.Theta()>0.05) || fabs(dirc.Phi())>0.25)"<<endl;
+	      //  if(fVerbose>6) cout<<" dirc.Mag()>1. && (dirc.Theta()<0.03 && dirc.Theta()>0.05) || fabs(dirc.Phi())>0.25)"<<endl;
 	    }
 	  }
 	  else{
-	    if(dirc.Theta()>0.5){
+	    //  if(dirc.Theta()>0.5){
+	    if(dirc.Theta()>2){
 	      goodDir = false;
-	      if(fVerbose>6) cout<<" dirc.Mag()<1.&& dirc.Theta()>0.5"<<endl;
+	      //   if(fVerbose>6) cout<<" dirc.Mag()<1.&& dirc.Theta()>0.5"<<endl;
 	    }
 	  }
 	 
@@ -503,12 +504,13 @@ void PndLmdTrackFinderCATask::Exec(Option_t* opt)
 	      if(dirc2.Mag()>1.){
 		if((dirc2.Theta()<0.03 && dirc2.Theta()>0.05) || fabs(dirc2.Phi())>0.25){
 		  goodDir = false;
-		  if(fVerbose>6) cout<<" dirc2.Mag()>1. && (dirc2.Theta()<0.03 && dirc2.Theta()>0.05) || fabs(dirc2.Phi())>0.25)"<<endl;
+		  // if(fVerbose>6) cout<<" dirc2.Mag()>1. && (dirc2.Theta()<0.03 && dirc2.Theta()>0.05) || fabs(dirc2.Phi())>0.25)"<<endl;
 		}
 	      }
 	      else{
-		if(dirc2.Theta()>0.5){
-		  if(fVerbose>6) cout<<" dirc2.Mag()<1.&& dirc2.Theta()>0.5"<<endl;
+		//	if(dirc2.Theta()>0.5){
+		if(dirc2.Theta()>2){
+		  //  if(fVerbose>6) cout<<" dirc2.Mag()<1.&& dirc2.Theta()>0.5"<<endl;
 		  goodDir = false;
 		}
 	      }
@@ -804,21 +806,33 @@ void PndLmdTrackFinderCATask::Exec(Option_t* opt)
       if(trk_cells.at(curr_arr).at(itrk)<0) maxcellnum--;
     }
     cell_parts.push_back(maxcellnum);
-    trk_accept.push_back(true);
-     if(fVerbose>4) cout<<" with:"<<maxcellnum<<" cells"<<endl;
+    if(maxcellnum>0) trk_accept.push_back(true);
+    else trk_accept.push_back(false);
+    //    trk_accept.push_back(true);
+    if(fVerbose>4) cout<<" with:"<<maxcellnum<<" cells"<<endl;
   }
   
   for(int itrc=0;itrc<cell_parts.size();itrc++){
+    if(!trk_accept[itrc]) continue;
     for(int itrc2=0;itrc2<cell_parts.size();itrc2++){
+      if(!trk_accept[itrc2]) continue;
       if(cell_parts[itrc]<cell_parts[itrc2]){
+	int count_re=0;
 	//reject trk-cand with smaller number of cells and similar cells
 	int curr_arr=trk_arr_size;
 	while(curr_arr>0){
 	  curr_arr--;
-	  if(trk_cells.at(curr_arr).at(itrc)==trk_cells.at(curr_arr).at(itrc2)){
-	    trk_accept[itrc]=false;
-	    if(fVerbose>4) 
-	      cout<<"Delete: trk-cand#"<<itrc<<" because of trk_cells.at("<<curr_arr<<").at("<<itrc<<")"<<endl;
+	  if(trk_cells.at(curr_arr).at(itrc)<0 || trk_cells.at(curr_arr).at(itrc2)<0) continue;
+	  if(trk_cells.at(curr_arr).at(itrc)==trk_cells.at(curr_arr).at(itrc2))
+	    count_re++;
+	}
+	if(count_re>0.3*cell_parts[itrc]){
+	  trk_accept[itrc]=false;
+	  if(fVerbose>4){
+	    // cout<<"Delete: trk-cand#"<<itrc<<" because of trk_cells.at("<<curr_arr<<").at("<<itrc<<"):"
+	    // 	<<trk_cells.at(curr_arr).at(itrc)<<endl;
+	    cout<<"Delete: trk-cand#"<<itrc
+		<<" because it contains ("<<count_re<<") more then 30% cells from trk-cand#"<<itrc2<<endl;
 	  }
 	}
       }
@@ -829,13 +843,20 @@ void PndLmdTrackFinderCATask::Exec(Option_t* opt)
     for(int itrc2=(cell_parts.size()/2);itrc2<cell_parts.size();itrc2++){
       if(cell_parts[itrc]==cell_parts[itrc2]){
 	//reject trk-cand with the same number of cells and similar cells
+	int count_re=0;
 	int curr_arr=trk_arr_size;
 	while(curr_arr>0){
 	  curr_arr--;
+	  if(trk_cells.at(curr_arr).at(itrc)<0 || trk_cells.at(curr_arr).at(itrc2)<0) continue;
 	  if(trk_cells.at(curr_arr).at(itrc)==trk_cells.at(curr_arr).at(itrc2)){
-	    trk_accept[itrc]=false;
-	    if(fVerbose>4) 
-	      cout<<"Delete: trk-cand#"<<itrc<<" because of trk_cells.at("<<curr_arr<<").at("<<itrc<<")"<<endl;
+	    count_re++;
+	  }
+	}
+	if(count_re>0.7*cell_parts[itrc]){
+	  trk_accept[itrc]=false;
+	  if(fVerbose>4){
+	    cout<<"Delete: trk-cand#"<<itrc<<" because it contains("
+		<<count_re<<") more then 70% of cells from trk-cand#"<<itrc2<<endl;
 	  }
 	}
       }
@@ -874,10 +895,17 @@ void PndLmdTrackFinderCATask::Exec(Option_t* opt)
 	double startY = cells.at(1).at(cellNum);
 	double startZ = cells.at(2).at(cellNum);
 	TVector3 posSeed(startX,startY,startZ);
-	double dirX = cells.at(3).at(cellNum)-cells.at(0).at(cellNum);
-	double dirY = cells.at(4).at(cellNum)-cells.at(1).at(cellNum);
-	double dirZ = cells.at(5).at(cellNum)-cells.at(2).at(cellNum);
+	int cellNumNext=trk_cells.at(icell+1).at(itrk);
+	if(cellNumNext<0){//next plane is missing
+	  cellNumNext=trk_cells.at(icell+2).at(itrk);
+	}
+	double dirX = cells.at(3).at(cellNumNext)-cells.at(0).at(cellNum);
+	double dirY = cells.at(4).at(cellNumNext)-cells.at(1).at(cellNum);
+	double dirZ = cells.at(5).at(cellNumNext)-cells.at(2).at(cellNum);
 	dir.SetXYZ(dirX,dirY,dirZ);
+	if(fVerbose>3)
+	  cout<<"Trk-cand direction is taking based on "<<dir.Mag()<<" cm"<<endl;
+
 	dir*=1./dir.Mag();
 	// //shift trk out of plane [needed for correct treatment in Kalman Fillter and GEANE]
 	// double sh_z = -0.02; //200 mkm
@@ -904,7 +932,13 @@ void PndLmdTrackFinderCATask::Exec(Option_t* opt)
       myTCand->AddHit(astripdigi->GetDetID(),hitsd.at(pl).at(id),myHit->GetPosition().Z()); 
       // myTCand->AddHit(0,hitsd.at(pl).at(id),myHit->GetPosition().Z()); 
     }
+    if(fVerbose>3){
+      if((dir.Theta()<0.03 && dir.Theta()>0.05) || fabs(dir.Phi())>0.25)
+	cout<<"Ooops, trk-cand has: theta="<<dir.Theta()<<" and phi="<<dir.Phi()<<endl;
+      }
     if((dir.Theta()<0.03 && dir.Theta()>0.05) || fabs(dir.Phi())>0.25) continue; //TEST
+    const int numPts = myTCand->GetNHits(); //read how many points in this track
+    if(numPts<1) cout<<"!!! Attention HERE is problem: number of hits in trk-cand = "<<numPts<<"!!!"<<endl;
     new((*fTrackCandArray)[NtrkRec]) PndTrackCand(*(myTCand)); //save Track Candidate
     //    new((*fTrackCandArrayTemp)[NtrkRec]) PndTrackCand(*(myTCand)); //save Track Candidate
     NtrkRec++;
