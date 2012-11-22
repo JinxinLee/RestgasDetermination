@@ -1,4 +1,4 @@
-void runLumiPixel1Digi(const int nEvents=10, const int startEvent=0, TString storePath="tmpOutput", const int verboseLevel=10, const int pitch=1)
+void runLumiPixel1Digi(const int nEvents=10, const int startEvent=0, TString storePath="tmpOutput", const int verboseLevel=0, const int pitch=1)
 {
   // -----   Timer   --------------------------------------------------------
   TStopwatch timer;
