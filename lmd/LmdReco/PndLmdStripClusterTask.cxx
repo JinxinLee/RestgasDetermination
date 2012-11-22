@@ -259,7 +259,8 @@ TVector3 PndLmdStripClusterTask::AddMSErr(TVector3 hpos, TVector3 hposerr){
     xerr = TMath::Hypot(xerr,sigmaMS);
     yerr = TMath::Hypot(yerr,sigmaMS);  
   }
-  cout<<" num:"<<num<<"(Z="<<zhit<<") xerr="<<xerr<<" yerr="<<yerr<<endl;
+  if (fVerbose > 2)
+   cout<<" num:"<<num<<"(Z="<<zhit<<") xerr="<<xerr<<" yerr="<<yerr<<endl;
   TVector3 res(xerr,yerr,hposerr.Z());
   return res;
 };
