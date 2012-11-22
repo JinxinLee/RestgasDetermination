@@ -132,7 +132,7 @@ void PndLmdPixelClusterTask::SetAlignConst(){
 			    <<" fRotateY["<<ik<<"]="<<fRotateY[ik]<<" fRotateZ["<<ik<<"]="<<fRotateZ[ik]<<endl;
     }
   }
-  lmdalignpar->Print();
+ if (fVerbose > 2)  lmdalignpar->Print();
 }
 void PndLmdPixelClusterTask::SetBackMapping()
 {
@@ -279,9 +279,9 @@ TVector3 PndLmdPixelClusterTask::AddMSErr(TVector3 hpos, TVector3 hposerr){
     sigmaMS = (j+1)*d*thetaMS;
     xerr = TMath::Hypot(xerr,sigmaMS);
     yerr = TMath::Hypot(yerr,sigmaMS); 
-    cout<<"num:"<<num<<" j="<<j<<" d = "<<d<<endl;
+    //  cout<<"num:"<<num<<" j="<<j<<" d = "<<d<<endl;
   }
-  cout<<" num:"<<num<<"(Z="<<zhit<<") xerr="<<xerr<<" yerr="<<yerr<<endl;
+  // cout<<" num:"<<num<<"(Z="<<zhit<<") xerr="<<xerr<<" yerr="<<yerr<<endl;
   TVector3 res(xerr,yerr,hposerr.Z());
   return res;
 };
@@ -349,7 +349,7 @@ void PndLmdPixelClusterTask::Exec(Option_t* opt)
     PndSdsHit myHit = fBackMapping->GetCluster(clusterArray);
     myHit.SetClusterIndex(fClusterType,i, 0, fEventNr);
     TMatrixD hitCov = myHit.GetCov();
-    hitCov.Print();
+    // hitCov.Print();
     hitCov(0,0) = 5.56960000000000085e-06; //assuming hit resolution for x-y 23.6 mkm
     hitCov(1,1) = 5.56960000000000085e-06; //assuming hit resolution for x-y 23.6 mkm
     hitCov(2,2) = 4.28489999999999954e-08; //assuming hit resolution for z 2.07 mkm
