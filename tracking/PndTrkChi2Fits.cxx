@@ -103,7 +103,6 @@ Short_t PndTrkChi2Fits::FitHelixCylinder(
 
  mm = sqrt( Alfa*Alfa + Beta*Beta );
 
- // find the POCA of the Stt hit or Mvd hit to the original trajectory in conformal space;
 
  Su = 0.;
  Sv = 0.;
@@ -116,6 +115,7 @@ Short_t PndTrkChi2Fits::FitHelixCylinder(
 		ui = Xp[i];  // U
 		vi = Yp[i];  // V
 	}else {  // this is a Stt axial;
+ // find the POCA of the Stt hit to the original trajectory in conformal space;
 		u1 = Xp[i] - DriftRadiusconformal[i] * Alfa/mm;
 		v1 = Yp[i] - DriftRadiusconformal[i] * Beta/mm;
 		u2 = Xp[i] + DriftRadiusconformal[i] * Alfa/mm;
