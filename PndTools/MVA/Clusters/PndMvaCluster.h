@@ -125,22 +125,25 @@ class PndMvaCluster
   PndMvaCluster& operator=(const PndMvaCluster& other);
   
   // Functions & Procedures
-  /// Performs the actual hard K-Means clustering.
+  // Performs the actual hard K-Means clustering.
   DataPoints* K_Means();
 
-  /// Initialize the centroids before clustering.
+  // Initialize the centroids before clustering.
   void InitCentroids();
 
-  /// Partitions the data points among the current cluster centroids.
+  // Partitions the data points among the current cluster centroids.
   void InitialPartition();
 
-  /// Compute (modify) the coordinates of centroids. 
+  // Compute (modify) the coordinates of centroids. 
   void ComputeCentroids();
 
-  /// Clear the currently used data structures.
+  // Set all dimensions to zero
+  void ResetCenteroids();
+
+  // Clear the currently used data structures.
   void ClearStructures();
 
-  /// Init empty Centroid to the furthest point.
+  // Init empty Centroid to the furthest point.
   void ReInitEmptyCenter(size_t centerIdx);
 
   // Variables
@@ -148,16 +151,16 @@ class PndMvaCluster
   DataPoints m_PointSet;/// input data points.
   size_t m_dimension;/// Data points dimension.
 
-  /// Container to hold the centroid.
+  // Container to hold the centroid.
   DataPoints m_Centroids;
 
-  ///Connection of each point to a centroid.
+  // Connection of each point to a centroid.
   std::vector <size_t> m_PointsToClusters;
 
-  /// Responsibility list of each centroid.
+  // Responsibility list of each centroid.
   std::vector< std::set<size_t>* > m_ClustersToPoints;
   
-  bool m_prune;//! If prune the current cluster.
+  bool m_prune;// If prune the current cluster.
   bool m_forceToLabel;// Force to label the current mean
 };
 

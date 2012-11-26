@@ -374,11 +374,28 @@ DataPoints* PndMvaCluster::K_Means()
   return (Cl_Out);
 }
 
+/* Set all dimensions to zero */
+void PndMvaCluster::ResetCenteroids()
+{
+  for(size_t ct = 0; ct < m_num_Cluster; ct++)
+  {
+    // Current cluster centroid
+    std::vector<float>* curCt = m_Centroids[ct].second;
+
+    for(size_t dim = 0; dim < curCt->size(); dim++)
+    {
+      (*curCt)[dim] = 0.0;
+    }
+  }
+}
 /*
  * Compute (modify) the coordinates of centroids.
  */
 void PndMvaCluster::ComputeCentroids()
 {
+  // Reset all centroid
+  ResetCenteroids();
+  
   // Centeroids loop
   for(size_t ct = 0; ct < m_num_Cluster; ct++)
   {
@@ -397,7 +414,7 @@ void PndMvaCluster::ComputeCentroids()
       
       for(size_t idx = 0; idx < m_dimension; idx++)
       {
-	curCt->at(idx) += curPt->at(idx);
+	curCt->at(idx) += curPt->at(idx); // FIXME FIXME FIXME Mean is maybe not correct.
       }
     }
     // If no points in cluster It will Go to inf. Correct this.
