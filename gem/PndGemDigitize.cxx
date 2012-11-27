@@ -181,8 +181,8 @@ void PndGemDigitize::DigitizeEvent() {
   for ( Int_t iPoint = 0 ; iPoint < nofPoints ; iPoint++ ) {
     PndGemMCPoint* currentPndGemMCPoint = (PndGemMCPoint*)fPoints->At(iPoint);
 
-    Double_t posIn[3] = {currentPndGemMCPoint->GetX(),
- 			 currentPndGemMCPoint->GetY(),
+    Double_t posIn[3] = {0.5*(currentPndGemMCPoint->GetX()+currentPndGemMCPoint->GetXOut()),
+			 0.5*(currentPndGemMCPoint->GetY()+currentPndGemMCPoint->GetYOut()),
  			 currentPndGemMCPoint->GetZ()};
     
     Int_t sensorId = currentPndGemMCPoint->GetSensorId();
