@@ -19,10 +19,11 @@ public:
   TObjArray             *GetGeoSensitiveNodes(){return fGeoSensNodes;}
   TObjArray             *GetGeoPassiveNodes(){return fGeoPassNodes;}
 
-  PndGeoPassivePar(const  PndGeoPassivePar& L);
+private:
+  PndGeoPassivePar(const  PndGeoPassivePar& L){;}
   PndGeoPassivePar& operator= (const  PndGeoPassivePar&) {return *this;}
 
-  ClassDef(PndGeoPassivePar,1)
+   ClassDef(PndGeoPassivePar,1)
 };
 
 #endif /* !PNDGEOPASSIVEPAR_H */

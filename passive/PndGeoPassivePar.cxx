@@ -1,13 +1,11 @@
 //*-- AUTHOR : Denis Bertini
 //*-- Created : 21/06/2005
-
-using namespace std;
 #include "PndGeoPassivePar.h"
 #include "FairParamList.h"
 #include <iostream>
 #include <iomanip>
 #include "TObjArray.h"
-
+using namespace std;
 ClassImp(PndGeoPassivePar)
 
 PndGeoPassivePar::PndGeoPassivePar(const char* name,const char* title,const char* context)

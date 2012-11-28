@@ -24,8 +24,8 @@ public:
     virtual ~PndFieldCreator();
     virtual FairField* createFairField();
     virtual void SetParm();
-
-    PndFieldCreator(const  PndFieldCreator& L);
+private:
+    PndFieldCreator(const  PndFieldCreator& L){;}
     PndFieldCreator& operator= (const  PndFieldCreator&) {return *this;};
 
     ClassDef(PndFieldCreator,1);

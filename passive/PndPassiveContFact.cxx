@@ -8,13 +8,13 @@
 //  Factory for the parameter containers in libPassive
 //
 /////////////////////////////////////////////////////////////
-
-using namespace std;
 #include "PndPassiveContFact.h"
 #include "FairRuntimeDb.h"
 #include "PndGeoPassivePar.h"
 #include <iostream>
 #include <iomanip>
+
+using namespace std;
 
 ClassImp(PndPassiveContFact)
 

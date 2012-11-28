@@ -41,8 +41,8 @@ class PndMultiFieldPar : public PndMapPar
   void SetParameters(FairField* field);
   
   TObjArray *GetParArray(){return fParArray; }
-  
-  PndMultiFieldPar(const  PndMultiFieldPar& L);
+private:
+  PndMultiFieldPar(const  PndMultiFieldPar& L){;}
   PndMultiFieldPar& operator= (const  PndMultiFieldPar&) {return *this;};
 
 protected:

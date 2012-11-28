@@ -67,11 +67,11 @@ public:
   TArrayF* GetBx() const { return fBx; }
   TArrayF* GetBy() const { return fBy; }
   TArrayF* GetBz() const { return fBz; }
-
-  PndFieldMapData(const  PndFieldMapData& L);
+ private:
+  PndFieldMapData(const  PndFieldMapData& L){;}
   PndFieldMapData& operator= (const  PndFieldMapData&) {return *this;};
 	
- private:
+
 
   /** Type of map. 1 = PndFieldMap, 2 = Sym2, 3 = Sym3 **/
   Int_t fType;
