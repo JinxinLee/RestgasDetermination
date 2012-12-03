@@ -20,6 +20,7 @@ ${CMAKE_SOURCE_DIR}/rho/RhoBase
 ${CMAKE_SOURCE_DIR}/rho/RhoSelector
 ${CMAKE_SOURCE_DIR}/tutorials/anatask
 ${CMAKE_SOURCE_DIR}/PndTools/AnalysisTools
+${CMAKE_SOURCE_DIR}/PndTools/AnalysisTools/Fitter
 ${CMAKE_SOURCE_DIR}/genfit
 )
 
@@ -35,12 +36,14 @@ set(anatask_SRCS
 #PndAnalysis.cxx
 #PndMicroWriter.cxx
 PndJpsi2PiAna.cxx
+PndSoftTriggerTask.cxx
 )
 
 set(anatask_HEADERS
 #PndAnalysis.h
 #PndMicroWriter.h
 PndJpsi2PiAna.h
+PndSoftTriggerTask.h
 )
 
 

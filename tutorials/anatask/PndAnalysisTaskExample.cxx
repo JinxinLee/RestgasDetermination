@@ -17,7 +17,7 @@ of J/Psi: Dipak
 
 #include "FairRun.h"
 #include "FairRuntimeDb.h"
-#include "PndAnalysis.h"
+#include "PndAnalysisTaskExample.h"
 #include <string>
 #include <iostream>
 
@@ -34,19 +34,19 @@ using std::endl;
 
 		
 // -----   Default constructor   -------------------------------------------
-PndAnalysis::PndAnalysis() :
+PndAnalysisTaskExample::PndAnalysisTaskExample() :
   FairTask("Panda Analysis Task") { 
 }
 // -------------------------------------------------------------------------
 
 // -----   Destructor   ----------------------------------------------------
-PndAnalysis::~PndAnalysis() { }
+PndAnalysisTaskExample::~PndAnalysisTaskExample() { }
 // -------------------------------------------------------------------------
 
 
 
 // -----   Public method Init   --------------------------------------------
-InitStatus PndAnalysis::Init() {
+InitStatus PndAnalysisTaskExample::Init() {
  
   //cout << " Inside the Init function****" << endl;
   
@@ -67,13 +67,13 @@ InitStatus PndAnalysis::Init() {
   fNeutralArray = (TClonesArray*) ioman->GetObject("PndNeutralCandidates");
   
   if ( !fChargedArray && !fNeutralArray) {
-    cout << "-W- PndAnalysis::Init: "
+    cout << "-W- PndAnalysisTaskExample::Init: "
 	 << "No PndChargedCandidates && PndNeutralCandidates array!" << endl;
     return kERROR;
   }
 
   // Create and register output array
-  cout << "-I- PndAnalysis: Intialization successfull" << endl;
+  cout << "-I- PndAnalysisTaskExample: Intialization successfull" << endl;
 
   phimass = new TH1F("phimass","phi cands",100,0.95,1.1);
   pi0mass = new TH1F("pi0mass","pi0 cands",100,0.135-0.03,0.135+0.03);
@@ -113,7 +113,7 @@ InitStatus PndAnalysis::Init() {
 
 }
 
-void PndAnalysis::SetParContainers() {
+void PndAnalysisTaskExample::SetParContainers() {
 
   // Get run and runtime database
   FairRunAna* run = FairRunAna::Instance();
@@ -128,7 +128,7 @@ void PndAnalysis::SetParContainers() {
 // -------------------------------------------------------------------------
 
 // -----   Public method Exec   --------------------------------------------
-void PndAnalysis::Exec(Option_t* opt) {
+void PndAnalysisTaskExample::Exec(Option_t* opt) {
 
   TFactory::Instance()->Reset();
   
@@ -217,7 +217,7 @@ void PndAnalysis::Exec(Option_t* opt) {
 }
 // -------------------------------------------------------------------------
 
-void PndAnalysis::Finish()
+void PndAnalysisTaskExample::Finish()
 {
   phimass->Write();
   pi0mass->Write();
@@ -228,4 +228,4 @@ void PndAnalysis::Finish()
 
 }
 
-ClassImp(PndAnalysis)
+ClassImp(PndAnalysisTaskExample)
