@@ -120,6 +120,7 @@ class VAbsMicroCandidate : public FairMultiLinkedData
   virtual Int_t		        GetMuoNumberOfLayers() const=0;
   virtual Float_t		GetMuoProbability() const=0;	 
   virtual Float_t		GetMuoQuality() const=0;
+  virtual Float_t		GetMuoIron()      const=0;
   virtual Float_t		GetMuoMomentumIn() const=0;
   virtual Int_t                 GetMuoModule()    const=0; 
   virtual Int_t                 GetMuoHits()    const=0;
