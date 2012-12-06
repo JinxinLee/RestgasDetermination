@@ -13,6 +13,7 @@
 
 #include "PndLmdHitMergeTask.h"
 #include "PndSdsHit.h"
+#include "PndSdsMergedHit.h"
 
 // -----   Default constructor   -------------------------------------------
 PndLmdHitMergeTask::PndLmdHitMergeTask() :
@@ -61,7 +62,8 @@ InitStatus PndLmdHitMergeTask::Init()
   }
 
   // set output arrays
-  fMergedHitArray = new TClonesArray("PndSdsHit");
+  // fMergedHitArray = new TClonesArray("PndSdsHit");
+  fMergedHitArray = new TClonesArray("PndSdsMergedHit");
   ioman->Register("LMDHitsMerged", "PndLmd", fMergedHitArray, true);
   Info("Init","Initialisation successfull");
   return kSUCCESS;
@@ -94,7 +96,8 @@ void PndLmdHitMergeTask::Exec(Option_t* opt)
   // -------   SEARCH Close Hits  ------
   std::vector<unsigned int> mergewithIDs, mergedHits;
   //std::map<unsigned int, std::vector<unsigned int>> backmap;
-  PndSdsHit* tmphit;
+  //  PndSdsHit* tmphit;
+  PndSdsMergedHit* tmphit;
   unsigned int newHits=0;
   for(Int_t iHit = 0; iHit < fHitArray->GetEntriesFast(); iHit++){
     if (fVerbose > 2){
@@ -129,7 +132,7 @@ void PndLmdHitMergeTask::Exec(Option_t* opt)
       //more cleaver check by plane, side and half check
       //   if(iplane1==iplane2 && ihalf1==ihalf2 && imodule1==imodule2 && iside1!=iside2){
       if(fabs((myHit1->GetZ())-(myHit2->GetZ()))<0.1 ){  //actually same Hit: merge
-	if(fabs((myHit1->GetX())-(myHit2->GetX()))<0.02 && fabs((myHit1->GetY())-(myHit2->GetY()))<0.02){
+	if(fabs((myHit1->GetX())-(myHit2->GetX()))<0.016 && fabs((myHit1->GetY())-(myHit2->GetY()))<0.016){
 	  if (fVerbose > 2){
 	    std::cout<<"----- We are going to merge HITS: -----"<<std::endl;
 	    myHit1->Print();
@@ -160,16 +163,23 @@ void PndLmdHitMergeTask::Exec(Option_t* opt)
     //  }
 
     if(mergewithIDs.size()>0){ //merge hits
-      tmphit = new((*fMergedHitArray)[newHits]) PndSdsHit(*myHit1);
+      if (fVerbose > 4)
+	cout<<"hit merged with: "<<mergewithIDs.size()<<" hits"<<endl;
+      // tmphit = new((*fMergedHitArray)[newHits]) PndSdsHit(*myHit1);
+      tmphit = new((*fMergedHitArray)[newHits]) PndSdsMergedHit(*myHit1,0);
+
       double x=tmphit->GetX(), y=tmphit->GetY(), z=tmphit->GetZ();
       for(unsigned int iMerge=0; iMerge<mergewithIDs.size(); iMerge++){ //loop over hits to merge in
         PndSdsHit* myHit2 = (PndSdsHit*)(fHitArray->At(mergewithIDs.at(iMerge)));
         x+=myHit2->GetX(); y+=myHit2->GetY(); z+=myHit2->GetZ();
+	tmphit->SetSecondMCHit(myHit2->GetRefIndex()); //!!! works only in case merging 2 hits
       }
       x/=(mergewithIDs.size()+1); y/=(mergewithIDs.size()+1); z/=(mergewithIDs.size()+1);
       tmphit->SetX(x); tmphit->SetY(y); tmphit->SetZ(z);
+
     }else{ //dont merge, just use original hit
-      tmphit = new((*fMergedHitArray)[newHits]) PndSdsHit(*myHit1);
+      //       tmphit = new((*fMergedHitArray)[newHits]) PndSdsHit(*myHit1);
+      tmphit = new((*fMergedHitArray)[newHits]) PndSdsMergedHit(*myHit1,-1);
     }
 
     newHits++;
