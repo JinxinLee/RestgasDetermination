@@ -1228,7 +1228,6 @@ bool PndTrkCTGeometryCalculations::IntersectionCircle_Segment(
 	Double_t *distance
 	)
 {
-
 // this method finds the intersection of a circle with a segment. If the circle
 // passes through an endpoint of the segment, that is considered an intersection also.
 
@@ -1280,7 +1279,6 @@ bool PndTrkCTGeometryCalculations::IntersectionCircle_Segment(
 	Yintersection = (-a*cperp + aperp*c)/det;
 	det = sqrt(det);
 	length_segmentq = (P1x-P2x)*(P1x-P2x) + (P1y-P2y)*(P1y-P2y);
-
 	status = false;
 	for(ipossibility=-1;ipossibility<2;ipossibility +=2){
 		x = Xintersection + ipossibility*length*b/det ;
@@ -1338,8 +1336,8 @@ bool PndTrkCTGeometryCalculations::IntersectionSciTil_Circle(
 	-QQ,
 	posizSciTilx-SIGN*0.5*DIMENSIONSCITIL*posizSciTily/sqrtRR,
 	posizSciTilx+SIGN*0.5*DIMENSIONSCITIL*posizSciTily/sqrtRR,
-	posizSciTily-SIGN*posizSciTilx*0.5*DIMENSIONSCITIL/sqrtRR,
 	posizSciTily+SIGN*posizSciTilx*0.5*DIMENSIONSCITIL/sqrtRR,
+	posizSciTily-SIGN*posizSciTilx*0.5*DIMENSIONSCITIL/sqrtRR,
 	Oxx,
 	Oyy,
 	Rr,
