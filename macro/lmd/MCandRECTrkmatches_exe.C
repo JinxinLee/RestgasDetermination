@@ -128,6 +128,9 @@
 
 using namespace std;
 int main(int __argc,char *__argv[]) {
+  gROOT->Macro("/panda/pandaroot/macro/lmd/Style_Imported_Style.C");
+  gROOT->SetStyle("Imported_Style"); 
+
   //TODO: read this like params!
   //  const int nEvents=500000;
   int nEvents=1000;
@@ -398,12 +401,16 @@ int main(int __argc,char *__argv[]) {
   TH1 * hgoodTheta = new TH1F("hgoodTheta","#theta for good track-candidates",50,2e-3,10e-3);
   TH1 * hallPhi = new TH1F("hallPhi","#phi for all MC-track;#phi, rad",50,-355./113,355./113);
   TH1 * hgoodPhi = new TH1F("hgoodPhi","#phi for good track-candidates",50,-355./113,355./113);
+  TH2 * hgoodPhiTheta = new TH2F("hgoodPhiTheta","#phi and #thete for good track-candidates",50,2e-3,10e-3,100,-355./113,355./113);
+ TH2 * hallPhiTheta = new TH2F("hallPhiTheta","#phi & #theta for all MC",50,2e-3,10e-3,100,-355./113,355./113);
 
   TH2 * hgoodPhichi2 = new TH2F("hgoodPhichi2","#phi for good track-candidates vs. #chi^{2} ",5e2,0,50,20,-355./113,355./113);
   TH2 * hgoodThetachi2 = new TH2F("hgoodThetachi2","#theta for good track-candidates vs. #chi^{2} ",5e2,0,50,20,3.5e-3,8.5e-3);
   
   //  TH1 *hMomMC = new TH1F("hMomMC","P_{MC};P,GeV/c",1e3,0,16.);
   TNtuple *nmomMC = new TNtuple("nmomMC","MCmomentum","p0:p_nearLUMI:p_afterLUMI");
+  TNtuple *ntuprecTrk = new TNtuple("ntuprecTrk","Info about reconstructed trks: goodTrk [0=good,+1=ghost]","x:y:z:mom:theta:phi:goodTrk");
+  TNtuple *ntupMCTrk = new TNtuple("ntupMCTrk","Info about simulated trks: goodTrk [0=good, -1=missed]","x:y:z:mom:theta:phi:goodTrk:nrechits");
   //  TH1 *hMomMCnearLUMI = new TH1F("hMomMCnear","P_{MC};P,GeV/c",1e3,0,16.);
 
   TH1 *hResMom = new TH1F("hResMom","P_{MC}-P_{rec};#deltaP,GeV/c",1e3,-1e-4,1e-4);
@@ -527,7 +534,7 @@ int main(int __argc,char *__argv[]) {
   PndLmdDim *lmddim = PndLmdDim::Instance();
   // lmddim -> Read_transformation_matrices("matrices.txt", true);
   lmddim -> Read_transformation_matrices("matrices_perfect.txt", false);
-
+  int glBadEv = 0;
   for (Int_t j=0; j<nEvents; j++){
     //  cout<<"Event #"<<j<<endl;
     // Read GEANE & MC info -----------------------------------------------------------------
@@ -547,15 +554,14 @@ int main(int __argc,char *__argv[]) {
     const int numTrk = nGeaneTrks;
     const int nRecHits = rechit_array->GetEntriesFast();
     const int nTrkCandidates = trkcand_array->GetEntriesFast();
-    // if(nTrkCandidates<1) continue;//TEST!!!
-    // if(nTrkCandidates!=nGeaneTrks) continue;//TEST!!!
     const int nRecTrks = rec_trk->GetEntriesFast();
     if(verboseLevel>0)  
       cout<<"Event #"<<j<<" has "<<nParticles<<" true particles, "<<" out of it "<<nRecHits<<" hits, "<<nTrkCandidates
 	  <<" trk-cands, "<<numTrk<<" tracks and "<<nGeaneTrks<<" geane Trks!"<<endl;
     if(nParticles!=nMCtracks) continue;
-    if(nRecHits<3*nMCtracks) cout<<"Event #"<<j<<" doesn't have enough rec.hits!!!"<<endl;
-    if(nRecHits<3*nMCtracks) continue;
+    if(nRecHits<3*nMCtracks) glBadEv++;
+    // if(nRecHits<3*nMCtracks) cout<<"Event #"<<j<<" doesn't have enough rec.hits!!!"<<endl;
+    // if(nRecHits<3*nMCtracks) continue;
     double chi2Cont[5*numTrk];
     double ndiffIDCont[5*numTrk];
    
@@ -580,7 +586,7 @@ int main(int __argc,char *__argv[]) {
     }
 
     int goodRectrk=0;//for missed trk-search
-    for (Int_t iN=0; iN<nGeaneTrks; iN++){
+    for (Int_t iN=0; iN<nGeaneTrks; iN++){// loop over all reconstructed trks
       vector<int> MCtrkID; //arrray of hits MCid
       Int_t diffIDs=1;
       FairTrackParH *fRes = (FairTrackParH*)geaneArray->At(iN);
@@ -610,21 +616,19 @@ int main(int __argc,char *__argv[]) {
 	chi2Cont[iN] = chi2;
 	hchi2nTrkCand->Fill(nTrkCandidates,chi2);
       
-      // cout<<"Now I'll try to read candID#"<<candID<<endl;
-      // PndTrackCand *trkcand = (PndTrackCand*)trkcand_array->At(candID);
-      // PndTrackCand *trkcand = (PndTrackCand*)trkcand_array->At(iN); //TODO: find out how to check trk-cand in case then cut are applied to trk-fit results
-      const int Ntrkcandhits= trkcand->GetNHits();
-      //      cout<<"Ntrkcandhits = "<<Ntrkcandhits<<endl;
-      PndSdsMCPoint* MCPointHit;
-
-      //Matching between MC & Rec on hits level-----------------------------------
-      if(verboseLevel>1) cout<<"MCidTOP:"<<endl;
-      double momMC0,momMC1,momMC2;
-      momMC0 = Plab;
-      for (Int_t iHit = 0; iHit < Ntrkcandhits; iHit++){
-	PndTrackCandHit candhit = (PndTrackCandHit)(trkcand->GetSortedHit(iHit));
+	// PndTrackCand *trkcand = (PndTrackCand*)trkcand_array->At(iN); //TODO: find out how to check trk-cand in case then cut are applied to trk-fit results
+	const int Ntrkcandhits= trkcand->GetNHits();
+	PndSdsMCPoint* MCPointHit;
+	
+	//Matching between MC & Rec on hits level-----------------------------------
+	if(verboseLevel>1) cout<<"MCidTOP:"<<endl;
+	double momMC0,momMC1,momMC2;
+	momMC0 = Plab;
+	for (Int_t iHit = 0; iHit < Ntrkcandhits; iHit++){ // loop over rec.hits
+	  PndTrackCandHit candhit = (PndTrackCandHit)(trkcand->GetSortedHit(iHit));
 	Int_t hitID = candhit.GetHitId();
 	PndSdsHit* myHit = (PndSdsHit*)(rechit_array->At(hitID));
+
 	//for pixel design
 	double MCpointMom;
 	if(dnu>0){
@@ -639,6 +643,7 @@ int main(int __argc,char *__argv[]) {
 	  //	  if(verboseLevel>1) cout<<"MCid("<<MCidTOP<<") ";
 	  if(verboseLevel>1) cout<<MCidTOP<<" ";
 	}
+
 	//for strip design
 	else{
 	///Top cluster
@@ -674,6 +679,7 @@ int main(int __argc,char *__argv[]) {
 	if(iHit==0) momMC1 = MCpointMom;
 	if(iHit==(Ntrkcandhits-1)) momMC2 = MCpointMom;
       }
+
       // TNtuple *nmomMC = new TNtuple("nmomMC","MCmomentum","p0:p_nearLUMI:p_afterLUMI");
       nmomMC->Fill(momMC0,momMC1,momMC2);
       if(verboseLevel>1) cout<<""<<endl;
@@ -828,30 +834,10 @@ int main(int __argc,char *__argv[]) {
 	// Double_t err_lyambda = errMom.Theta();
 	Double_t phiBP = fRes->GetPhi();
 	Double_t err_phi = fRes->GetDPhi();
-
-	///Let's checked for good tracks ------------------
-
-	for(Int_t jk=0; jk< nParticles;jk++){
-	  PndMCTrack *mctrk =(PndMCTrack*) true_tracks->At(jk);
-	  Int_t mcID = mctrk->GetPdgCode();
-	  if(mcID==-2212){
-	    TVector3 MomMC = mctrk->GetMomentum();
-	    double diffTheta=fabs(MomMC.Theta()-thetaBP)/err_lyambda;
-	    double diffPhi=fabs(MomMC.Phi()-phiBP)/err_phi;
-	    hntrkmissedPhiTheta->Fill(diffTheta,diffPhi);
-	    if(diffTheta<4. && diffPhi<4.) goodRectrk++;
-	    // if(diffTheta<3. && diffPhi<3.) goodRectrk++;
-	  }
-	}
-	///(end) check for good tracks --------------------------
-
-	// Double_t err_phi = errMom.Phi();
 	Double_t errMomRecBP = fRes->GetDQp();
-	// Double_t errMomRecBP =  errMom.Mag();
 	TVector3 MomRecBP = fRes->GetMomentum();
-	//	if(fabs(MomRecBP.Mag()-15)<2e-5) continue; //TEST!
-	// Double_t thetaBP = MomRecBP.Theta();
-	// Double_t phiBP = MomRecBP.Phi();
+
+
 	Double_t errPx = fRes->GetDPx();
 	Double_t errPy = fRes->GetDPy();
 	Double_t errPz = fRes->GetDPz();
@@ -859,9 +845,9 @@ int main(int __argc,char *__argv[]) {
 	Double_t resTheta = thetaBP-thetaMC;
 
 	double resMom = MomRecBP.Mag()-MomMC.Mag();
-	//	if(fabs(resMom)>4e-6) continue;
 	hgoodTheta->Fill(thetaMC);
 	hgoodPhi->Fill(phiMC);
+	hgoodPhiTheta->Fill(thetaMC,phiMC);
 	hgoodThetachi2->Fill(chi2,thetaMC);
 	hgoodPhichi2->Fill(chi2,phiMC);
 	
@@ -898,18 +884,6 @@ int main(int __argc,char *__argv[]) {
 	hErrPointPz->Fill(errPz);
 	hPullPointPz->Fill((MomMC.Z()-MomRecBP.Z())/errPz);
 
-	// nrecall->Fill(pos_prop_geane_trk.X(),pos_prop_geane_trk.Y(),pos_prop_geane_trk.Z(),
-	// 	      MomRecBP.X(),MomRecBP.Y(),MomRecBP.Z(),
-	// 	      pos_rec_trk.X(),pos_rec_trk.Y(),pos_rec_trk.Z(),dir_rec_trk.X(),dir_rec_trk.Y(),dir_rec_trk.Z(),
-	// 	      posSeed.X(),posSeed.Y(),posSeed.Z(),dirSeed.X(),dirSeed.Y(),dirSeed.Z());
-	       nrecpointall->Fill(pos_prop_geane_trk.X(),pos_prop_geane_trk.Y(),pos_prop_geane_trk.Z(),
-				  pos_rec_trk.X(),pos_rec_trk.Y(),pos_rec_trk.Z(),
-				  posSeed.X(),posSeed.Y(),posSeed.Z());
-	       nrecdirall->Fill(MomRecBP.X(),MomRecBP.Y(),MomRecBP.Z(),
-				dir_rec_trk.X(),dir_rec_trk.Y(),dir_rec_trk.Z(),
-				dirSeed.X(),dirSeed.Y(),dirSeed.Z());
-	///==================================
-	
 	Double_t resPhi = phiBP-phiMC;
 	hResMom->Fill(resMom);
 	hErrMom->Fill(errMomRecBP);
@@ -925,7 +899,36 @@ int main(int __argc,char *__argv[]) {
 	Double_t angMCRec = MomMC.Angle(MomRecBP); // Angle between two vectors
 	hangMCRec->Fill(angMCRec);
 	hchi2->Fill(chi2);
-	//	}
+
+	///Let's checked for good tracks by phi\theta definition ------------------
+
+	for(Int_t jk=0; jk< nParticles;jk++){
+	  PndMCTrack *mctrk =(PndMCTrack*) true_tracks->At(jk);
+	  Int_t mcID = mctrk->GetPdgCode();
+	  if(mcID==-2212){
+	    TVector3 MomMC = mctrk->GetMomentum();
+	    double diffTheta=fabs(MomMC.Theta()-thetaBP)/err_lyambda;
+	    double diffPhi=fabs(MomMC.Phi()-phiBP)/err_phi;
+
+	    if(fabs(MomMC.Phi())<0.14 || fabs(MomMC.Phi())>3){ //for #phi near edge reconstructed angle can differ
+	      double phiMC1 = -MomMC.Phi();
+	      double diffPhi2=fabs(phiMC1-phiBP)/err_phi;
+	      if(diffPhi2<diffPhi) diffPhi = diffPhi2;
+	    }
+	
+	    hntrkmissedPhiTheta->Fill(diffTheta,diffPhi);
+	    if(diffTheta<4. && diffPhi<4.) goodRectrk++;
+	  }
+	}
+	///(end) check for good tracks --------------------------
+	nrecpointall->Fill(pos_prop_geane_trk.X(),pos_prop_geane_trk.Y(),pos_prop_geane_trk.Z(),
+			   pos_rec_trk.X(),pos_rec_trk.Y(),pos_rec_trk.Z(),
+			   posSeed.X(),posSeed.Y(),posSeed.Z());
+	nrecdirall->Fill(MomRecBP.X(),MomRecBP.Y(),MomRecBP.Z(),
+			 dir_rec_trk.X(),dir_rec_trk.Y(),dir_rec_trk.Z(),
+			 dirSeed.X(),dirSeed.Y(),dirSeed.Z());
+	///==================================
+	
 	
 	///Compare lin trk and MC trk in LUMI frame========================
 	// cout<<" "<<endl;
@@ -1008,12 +1011,46 @@ int main(int __argc,char *__argv[]) {
     /// (II) missed\ghost tracks are defined on hits information
     int goodRecII=0, ghostRecII=0;
     for (Int_t iN=0; iN<nGeaneTrks; iN++){
-      if(goodTrk[iN]) goodRecII++;
-      if(ghostTrk[iN]) ghostRecII++;
+      int trkType = -1;
+      if(goodTrk[iN]){
+	goodRecII++;
+	trkType = 0;
+      }
+      if(ghostTrk[iN]){
+	ghostRecII++;
+	trkType = +1;
+      }
+
+      FairTrackParH *fRes = (FairTrackParH*)geaneArray->At(iN);
+      Double_t lyambda = fRes->GetLambda();
+      Double_t thetaBP = TMath::Pi()/2. - lyambda;
+      Double_t phiBP = fRes->GetPhi();
+      TVector3 MomRecBP = fRes->GetMomentum();
+      TVector3 PosBP = fRes->GetPosition();
+      ntuprecTrk->Fill(PosBP.X(),PosBP.Y(),PosBP.Z(),MomRecBP.Mag(),thetaBP,phiBP,trkType);
     }
     hntrkgood_II->Fill(goodRecII);
     if(ghostRecII>0) hntrkghost_II->Fill(ghostRecII);
-    if((nMCtracks-goodRecII)>0) hntrkmissed_II->Fill(nMCtracks-goodRecII);
+    if((nMCtracks-goodRecII)>0){ 
+      hntrkmissed_II->Fill(nMCtracks-goodRecII);
+    }
+    
+    for(int imc=0;imc<nParticles;imc++){//MC trks
+      bool missTrk=true;
+      for(int irec=0;irec<nGeaneTrks;irec++){//RECids assigment
+	int mc_comp = RECtrkMCid[irec];
+	if(mc_comp==imc) missTrk=false;
+      }
+      
+      PndMCTrack *mctrk =(PndMCTrack*) true_tracks->At(imc);
+      TVector3 MomMC = mctrk->GetMomentum();
+      TVector3 PosMC = mctrk->GetStartVertex();
+      int trkQ;
+      if(missTrk) trkQ=-1;
+      else trkQ=0;
+      ntupMCTrk->Fill(PosMC.X(),PosMC.Y(),PosMC.Z(),MomMC.Mag(),MomMC.Theta(),MomMC.Phi(),trkQ,nRecHits);
+    }
+
     if(verboseLevel>0){
       cout<<"-- (II) Hits matching -------------------------"<<endl;
       cout<<"Good trks: "<<goodRecII<<" missed: "<<nMCtracks-goodRecII<<" ghost: "<<ghostRecII<<endl;
@@ -1036,6 +1073,7 @@ int main(int __argc,char *__argv[]) {
 	TVector3 MomMC = mctrk->GetMomentum();
 	hallTheta->Fill(MomMC.Theta());
 	hallPhi->Fill(MomMC.Phi());
+	hallPhiTheta->Fill(MomMC.Theta(),MomMC.Phi());
       }
     }
   }
@@ -1080,8 +1118,12 @@ int main(int __argc,char *__argv[]) {
   heffPhi->SetTitle("Efficiency vs. #phi");
   heffPhi->Divide(hallPhi);
 
+  TH2F *heffPhiTheta = (TH2F*)hgoodPhiTheta->Clone("heffPhiTheta");
+  heffPhiTheta->SetTitle("Efficiency #phi & #theta");
+  heffPhiTheta->Divide(hallPhiTheta);
+
   TCanvas *c2 = new TCanvas("EffINFO");
-  c2->Divide(2,2);
+  c2->Divide(3,2);
   c2->cd(1);
   hallTheta->SetLineWidth(2);
   hallTheta->SetFillStyle(3354);
@@ -1092,10 +1134,12 @@ int main(int __argc,char *__argv[]) {
   hgoodTheta->SetFillStyle(3690);
   hgoodTheta->SetFillColor(kRed);
   hgoodTheta->Draw("same");
-  c2->cd(2);
+  c2->cd(4);
   heffTheta->SetMinimum(0.9);
   heffTheta->Draw();
   c2->cd(3);
+  hallPhiTheta->Draw("colz");
+  c2->cd(2);
   hallPhi->SetLineWidth(2);
   hallPhi->SetFillStyle(3354);
   hallPhi->SetFillColor(kBlack);
@@ -1105,9 +1149,12 @@ int main(int __argc,char *__argv[]) {
   hgoodPhi->SetFillColor(kRed);
   hgoodPhi->SetFillStyle(3690);
   hgoodPhi->Draw("same");
-  c2->cd(4);
+  c2->cd(5);
   heffPhi->SetMinimum(0.9);
   heffPhi->Draw();
+  c2->cd(6);
+  heffPhiTheta->Draw("colz");
+
   c2->Write();
   c2->Close();
 
@@ -1158,9 +1205,9 @@ int main(int __argc,char *__argv[]) {
   c3->Close();
 
   
-  TF1 *funcoord = new TF1("fitcoord","gaus",-0.5,0.5);
-  funrth->SetParameters(1e4,0,1e-1);
-  funrth->SetParNames("Constant","Mean","Sigma");
+  TF1 *funcoord = new TF1("fitcoord","gaus",-1,1.);
+  funcoord->SetParameters(1e4,0,1e-1);
+  funcoord->SetParNames("Constant","Mean","Sigma");
   
   // TF1 *funp = new TF1("fitp","gaus",-10,10);
   funp->SetParameters(100,0,1);
@@ -1371,19 +1418,46 @@ int main(int __argc,char *__argv[]) {
   hchi2Erry->Write();
   
   TCanvas *c10 = new TCanvas("ThetaPhiDistr");
-  c10->Divide(2,3);
+  c10->Divide(4,2);
+  // c10->cd(1);
+  //  hSeedThetaDiffIDs->Draw("colz");
+  // c10->cd(2);
+  //  hSeedPhiDiffIDs->Draw("colz");
+  // c10->cd(1);
+  // hMCThetaGEANETheta->Draw("colz");
+  // c10->cd(2);
+  // hMCPhiGEANEPhi->Draw("colz");
   c10->cd(1);
-  hSeedThetaDiffIDs->Draw();
-  c10->cd(2);
-  hSeedPhiDiffIDs->Draw();
-  c10->cd(3);
-  hMCThetaGEANETheta->Draw();
-  c10->cd(4);
-  hMCPhiGEANEPhi->Draw();
+  hMCThetaResTheta->Draw("colz");
   c10->cd(5);
-  hMCThetaResTheta->Draw();
+  hMCPhiResPhi->Draw("colz");
+
+  TH1F *fdiffThetaMean;
+  TH1F *fdiffThetaSigma;
+  TH1F *fdiffThetaChi2;
+  hMCThetaResTheta->FitSlicesY();
+  fdiffThetaMean = (TH1F*)gDirectory->Get("hMCThetaResTheta_1");
+  fdiffThetaSigma = (TH1F*)gDirectory->Get("hMCThetaResTheta_2");
+  fdiffThetaChi2= (TH1F*)gDirectory->Get("hMCThetaResTheta_chi2");
+  TH1F *fdiffPhiMean;
+  TH1F *fdiffPhiSigma;
+  TH1F *fdiffPhiChi2;
+  hMCPhiResPhi->FitSlicesY();
+  fdiffPhiMean = (TH1F*)gDirectory->Get("hMCPhiResPhi_1");
+  fdiffPhiSigma = (TH1F*)gDirectory->Get("hMCPhiResPhi_2");
+  fdiffPhiChi2 = (TH1F*)gDirectory->Get("hMCPhiResPhi_chi2");
+  c10->cd(2);
+  fdiffThetaMean->Draw();
   c10->cd(6);
-  hMCPhiResPhi->Draw();
+  fdiffPhiMean->Draw();
+  c10->cd(3);
+  fdiffThetaSigma->Draw();
+  c10->cd(7);
+  fdiffPhiSigma->Draw();
+  c10->cd(4);
+  fdiffThetaChi2->Draw();
+  c10->cd(8);
+  fdiffPhiChi2->Draw();
   c10->Write();
   c10->Close();
 
@@ -1403,22 +1477,31 @@ int main(int __argc,char *__argv[]) {
   TCanvas *c12 = new TCanvas("TrkLin_and_MC");
   c12->Divide(3,3);
   c12->cd(1);
+  hResLumiTrkMom->Fit(funrp,"r");
   hResLumiTrkMom->Draw();
   c12->cd(2);
+  hResLumiTrkTheta->Fit(funrth,"r");
   hResLumiTrkTheta->Draw();
   c12->cd(3);
+  hResLumiTrkPhi->Fit(funrphi,"r");
   hResLumiTrkPhi->Draw();
   c12->cd(4);
+  hResLumiTrkPointX->Fit(funcoord,"r");
   hResLumiTrkPointX->Draw();
   c12->cd(5);
+  hResLumiTrkPointY->Fit(funcoord,"r");
   hResLumiTrkPointY->Draw();
   c12->cd(6);
+  hResLumiTrkPointZ->Fit(funcoord,"r");
   hResLumiTrkPointZ->Draw();
   c12->cd(7);
+  hResLumiTrkPointPx->Fit(funp,"r");
   hResLumiTrkPointPx->Draw();
   c12->cd(8);
+  hResLumiTrkPointPy->Fit(funp,"r");
   hResLumiTrkPointPy->Draw();
   c12->cd(9);
+  hResLumiTrkPointPz->Fit(funp,"r");
   hResLumiTrkPointPz->Draw();
   c12->Write();
   c12->Close();
@@ -1591,7 +1674,10 @@ int main(int __argc,char *__argv[]) {
  hntrkghost_II->Write();
  hntrkgood_I->Write();
  hntrkgood_II->Write();
-
+ heffPhiTheta->Write();
  nmomMC->Write();
+ ntuprecTrk->Write();
+ ntupMCTrk->Write();
  f->Close();
+ cout<<"Number of events with low number of hits (less then 3 per trk): "<<glBadEv<<endl;
 }
