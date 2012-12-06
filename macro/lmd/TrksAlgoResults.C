@@ -13,10 +13,13 @@
 #include "TFile.h"
 using namespace std;
 
-void TrksAlgoResults(TString storePath="StripSensors")
-//void TrksAlgoRes(TString storePath="PixelSensors")
-//void TrksAlgoResults(TString storePath="/myResults/LUMI_Trk/pixelDesign/100000events")
+//void TrksAlgoResults(TString storePath="StripSensors/1e4_events/noHitsNumberCheck")
+void TrksAlgoResults(TString storePath="PixelSensors/1e4_events/noHitsNumberCheck")
 {
+
+  gROOT->Macro("/panda/pandaroot/macro/lmd/Style_Imported_Style.C");
+  gROOT->SetStyle("Imported_Style"); 
+
   // double Ntrks[8]={1,2,3,4,5,10,15,20};
   double Ntrks[7]={1,2,3,4,5,10,15};
   double eNtrks[7]={0,0,0,0,0,0,0};
@@ -38,8 +41,11 @@ void TrksAlgoResults(TString storePath="StripSensors")
   double goodF_I_mean[7]; //average of good tracks
   double goodF_II_mean[7]; //average of good tracks
 
-  //  double timeF[7]={25.3,32.28,41.28,52.47,68.69,334.81,1611.94};//time spent per 1 trk reconstruction , ms
-  double timeF[7]={0,0,0,0,0,0,0};//time spent per 1 trk reconstruction , ms
+
+  //time spent per 1 trk reconstruction , ms
+  //  double timeF[7]={7.73,8.97,10.41,11.71,13.95,24.46,39.42};// strip, 15 GeV
+  //double timeF[7]={7.75,9.14,10.76,12.42,14.05,24.02,43.3};// strip, 1.5 GeV
+  double timeF[7]={7.5,9.11,10.84,12.16,13.94,22.05,30.3};// pixel, 15 GeV
   //Cellular Automaton
   double reconstCA[7];//number of reconstructed tracks
   double ghostCA_I[7]; //percent of ghost tracks
@@ -58,27 +64,13 @@ void TrksAlgoResults(TString storePath="StripSensors")
   double goodCA_I_mean[7]; //average of good tracks
   double goodCA_II_mean[7]; //average of good tracks
 
-  //  double timeCA[7]={25.99,33.26,41.63,51.25,63.08,155.27,343.77};//time spent per 1 trk reconstruction , ms
-  double timeCA[7]={0,0,0,0,0,0,0};//time spent per 1 trk reconstruction , ms
-  for(int iNtrk=0;iNtrk<7;iNtrk++){
-    // ///STRIP -----------------------------------------------------------------
-    TString fileCAname=storePath+"/Lumi_out_MC_and_REC_trks_matches_with_IDs0";
-    fileCAname+="_CA_";
-    TString fileFname=storePath+"/Lumi_out_MC_and_REC_trks_matches_with_IDs0";
-    fileFname+="_Follow_";
-    fileCAname+=Ntrks[iNtrk];
-    fileFname+=Ntrks[iNtrk];
-    fileCAname+="trks_";
-    fileFname+="trks_";
-     fileCAname+="KalmanFillter_";
-     fileFname+="KalmanFillter_";
-    // fileCAname+="MinuitFit_";
-    // fileFname+="MinuitFit_";
-    fileCAname+="1.5.root";
-    fileFname+="1.5.root";
-    // ///STRIP -----------------------------------------------------------------
 
-    // ///PIXEL -----------------------------------------------------------------
+  //time spent per 1 trk reconstruction , ms
+  //  double timeCA[7]={7.98,9.43,11.39,13.77,17.76,72.49,371.08};//strip, 15 GeV/c
+  //  double timeCA[7]={7.99,9.76,11.76,14.08,18.44,77.7,420.63};//strip, 1.5 GeV/c
+  double timeCA[7]={7.86,9.59,11.53,13.58,15.91,32.69,62.59};//pixel, 15 GeV/c
+  for(int iNtrk=0;iNtrk<7;iNtrk++){
+    // // ///STRIP -----------------------------------------------------------------
     // TString fileCAname=storePath+"/Lumi_out_MC_and_REC_trks_matches_with_IDs0";
     // fileCAname+="_CA_";
     // TString fileFname=storePath+"/Lumi_out_MC_and_REC_trks_matches_with_IDs0";
@@ -87,15 +79,32 @@ void TrksAlgoResults(TString storePath="StripSensors")
     // fileFname+=Ntrks[iNtrk];
     // fileCAname+="trks_";
     // fileFname+="trks_";
-    // fileCAname+="mergedHits_true_";
-    // fileFname+="mergedHits_true_";
-    // //    fileCAname+="addMS_false_KalmanFillter_";
-    // //    fileFname+="addMS_false_KalmanFillter_";
+    //  fileCAname+="KalmanFillter_";
+    //  fileFname+="KalmanFillter_";
+    // // fileCAname+="MinuitFit_";
+    // // fileFname+="MinuitFit_";
+    // fileCAname+="1.5.root";
+    // fileFname+="1.5.root";
+    // // ///STRIP -----------------------------------------------------------------
+
+    ///PIXEL -----------------------------------------------------------------
+    TString fileCAname=storePath+"/Lumi_out_MC_and_REC_trks_matches_with_IDs0";
+    fileCAname+="_CA_";
+    TString fileFname=storePath+"/Lumi_out_MC_and_REC_trks_matches_with_IDs0";
+    fileFname+="_Follow_";
+    fileCAname+=Ntrks[iNtrk];
+    fileFname+=Ntrks[iNtrk];
+    fileCAname+="trks_";
+    fileFname+="trks_";
+    fileCAname+="mergedHits_true_";
+    fileFname+="mergedHits_true_";
+    fileCAname+="addMS_false_KalmanFillter_";
+    fileFname+="addMS_false_KalmanFillter_";
     // fileCAname+="addMS_true_MinuitFit_";
     // fileFname+="addMS_true_MinuitFit_";
-    // fileCAname+="15.root";
-    // fileFname+="15.root";
-    // ///PIXEL -----------------------------------------------------------------
+    fileCAname+="1.5.root";
+    fileFname+="1.5.root";
+    ///PIXEL -----------------------------------------------------------------
 
     TFile *fileCA = new TFile(fileCAname,"READ");
     TFile *fileF = new TFile(fileFname,"READ");
@@ -355,18 +364,27 @@ void TrksAlgoResults(TString storePath="StripSensors")
   latex.SetTextSize(0.035);
   latex.SetTextAlign(12);  //align at center
  
-  latex.DrawLatex(1.8,1.1,"#it{Cellular Automaton (Trks matching)}");
-  latex.DrawLatex(1.8,1.0,"#it{Cellular Automaton (Hits matching)}");
-  latex.DrawLatex(1.8,.8,"#it{Trk-Following (Trks matching)}");
-  latex.DrawLatex(1.8,.7,"#it{Trk-Following (Hits matching)}");
+  // latex.DrawLatex(1.8,2.1,"#it{Cellular Automaton (Trks matching)}");
+  // latex.DrawLatex(1.8,2.0,"#it{Cellular Automaton (Hits matching)}");
+  // latex.DrawLatex(1.8,1.8,"#it{Trk-Following (Trks matching)}");
+  // latex.DrawLatex(1.8,1.7,"#it{Trk-Following (Hits matching)}");
+
+  latex.DrawLatex(3.9,0.8,"#it{Cellular Automaton (Trks matching)}");
+  latex.DrawLatex(3.9,0.75,"#it{Cellular Automaton (Hits matching)}");
+  latex.DrawLatex(3.9,0.7,"#it{Trk-Following (Trks matching)}");
+  latex.DrawLatex(3.9,0.65,"#it{Trk-Following (Hits matching)}");
+  
   TMarker caI(1.2, 0.9, 20);
   caI.SetMarkerColor(2);
   caI.SetMarkerSize(1.2); 
   TMarker caII(1.2, 0.85, 21);
   caII.SetMarkerColor(2);
   caII.SetMarkerSize(1.2);
-  caI.DrawMarker(1.2,1.1);
-  caII.DrawMarker(1.2,1.0);
+  // caI.DrawMarker(1.2,1.1);
+  // caII.DrawMarker(1.2,1.0);
+  caI.DrawMarker(3.4,0.8);
+  caII.DrawMarker(3.4,0.75);
+
 
   TMarker fI(1.2, 0.9, 20);
   fI.SetMarkerColor(4);
@@ -374,8 +392,10 @@ void TrksAlgoResults(TString storePath="StripSensors")
   TMarker fII(1.2, 0.85, 21);
   fII.SetMarkerColor(4);
   fII.SetMarkerSize(1.2);
-  fI.DrawMarker(1.2,0.8);
-  fII.DrawMarker(1.2,0.7);
+  // fI.DrawMarker(1.2,0.8);
+  // fII.DrawMarker(1.2,0.7);
+  fI.DrawMarker(3.4,0.7);
+  fII.DrawMarker(3.4,0.65);
 
   // latex.DrawLatex(.2,.8,longstring);
   c1->cd(4);
