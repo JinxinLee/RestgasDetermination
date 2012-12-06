@@ -467,6 +467,7 @@ bool PndTrkCTFindTrackInXY::FindTrackInXYProjection(
  // whether or not the seed hit was a Stt hit try if any SciTil hits are
  // associated to this track cand.
 
+
  if(in->YesSciTil){
 	//   *(in->nSciTilHitsinTrack)    is the n. of SciTil hit associated to this track.
 	*(in->nSciTilHitsinTrack)= AssociateSciTilHit(
