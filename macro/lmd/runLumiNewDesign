@@ -8,36 +8,39 @@
 path=${VMCWORKDIR}/macro/lmd/tmpOutnewDesign
 mkdir ${path}
 #mergedHits=true
-numEv=100000
+numEv=10000
 #pbeam=11.91
 
 #numEv=100
-for pbeam in 15 1.5 4.06 8.9 11.91
-#for pbeam in 15 8.9 1.5 
+#for pbeam in 15 1.5 4.06 8.9 11.91
+#for pbeam in 15 8.9 1.5
+for pbeam in 1.5
 do
-    for numTrks in 15 10 1 2 3 4 5
-     # for numTrks in 3
+    for numTrks in 1 2 3 15 10 4 5
+#    for numTrks in 1
+
     do
     mergedHits=true
     addMS=true
     root -l -b -q runLumiPixel0SimBox.C\(${numEv},${pbeam},"\"${path}\"",0,-2212,${numTrks}\)
     root -l -b -q runLumiPixel1Digi.C\(${numEv},0,"\"${path}\""\)
-    root -l -b -q runLumiPixel2Reco.C\(${numEv},0,"\"${path}\"",0,${addMS}\)
-    root -l -b -q runLumiPixel2bHitMerge.C\(${numEv},0,"\"${path}\""\)
+    root -l -b -q runLumiPixel2Reco.C\(${numEv},0,"\"${path}\"",0,${addMS}\) >> ${path}/logPixel_HitRec_${numTrks}trks_mergedHits_${pbeam}GeV
+    root -l -b -q runLumiPixel2bHitMerge.C\(${numEv},0,"\"${path}\""\) >> ${path}/logPixel_HitMerge_${numTrks}trks_mergedHits_${pbeam}GeV
 
     ##CA & Minuit
-    root -l -b -q runLumiPixel3Finder.C\(${numEv},0,"\"${path}\"",0,"\"CA\"",true,${mergedHits}\) >> ${path}/logPixel_CA_${numTrks}trks_mergedHits
-    root -l -b -q runLumiPixel4Fitter.C\(${numEv},0,"\"${path}\"",0,${mergedHits}\)
-    root -l -b -q runLumi5Geane.C\(${numEv},${pbeam},0,"\"${path}\"",0,${mergedHits}\)
+    root -l -b -q runLumiPixel3Finder.C\(${numEv},0,"\"${path}\"",0,"\"CA\"",true,${mergedHits}\) >> ${path}/logPixel_CA_${numTrks}trks_mergedHits_${pbeam}GeV
+    root -l -b -q runLumiPixel4Fitter.C\(${numEv},0,"\"${path}\"",0,${mergedHits}\) >> ${path}/logPixel_MinuitFit_${numTrks}trks_mergedHits_${pbeam}GeV
+    root -l -b -q runLumi5Geane.C\(${numEv},${pbeam},0,"\"${path}\"",0,${mergedHits}\) >> ${path}/logPixel_GEANE_${numTrks}trks_mergedHits_${pbeam}GeV
     cd ${VMCWORKDIR}/build/bin
-    ./rec_mc_match -s 0 -n ${numEv} -t ${numTrks} -mom ${pbeam} -npx 1 -mh 1 -v 0 -path ${path}
-    ./hits_study -s 0 -n ${numEv} -path ${path} -out ${path}/ResidualsHist_${numTrks}_${pbeam}_mergedHits_${mergedHits}_addMS_${addMS}.root -st 1 -mh ${mergedHits} -v 1
+   # ./hits_study -s 0 -n ${numEv} -path ${path} -out ${path}/ResidualsHist_${numTrks}_${pbeam}_mergedHits_${mergedHits}_addMS_${addMS}.root -st 1 -mh ${mergedHits}
+    ./rec_mc_match -s 0 -n ${numEv} -t ${numTrks} -mom ${pbeam} -npx 1 -mh 1 -v 0 -path ${path} >> ${path}/logPIXEL_CA_Minuit_mc_rec_match_${pbeam}GeV
+   
 
    cd ${VMCWORKDIR}/macro/lmd
    mv ${path}/Lumi_out_MC_and_REC_trks_matches_with_IDs0.root ${path}/Lumi_out_MC_and_REC_trks_matches_with_IDs0_CA_${numTrks}trks_mergedHits_${mergedHits}_addMS_${addMS}_MinuitFit_${pbeam}.root
 
     # ##Trk-Follow & Minuit
-    root -l -b -q runLumiPixel3Finder.C\(${numEv},0,"\"${path}\"",0,"\"Follow\"",true,${mergedHits}\) >> ${path}/logPixel_Follow_${numTrks}trks_mergedHits
+    root -l -b -q runLumiPixel3Finder.C\(${numEv},0,"\"${path}\"",0,"\"Follow\"",true,${mergedHits}\) >> ${path}/logPixel_Follow_${numTrks}trks_mergedHits_${pbeam}GeV
     root -l -b -q runLumiPixel4Fitter.C\(${numEv},0,"\"${path}\"",0,${mergedHits}\)
     root -l -b -q runLumi5Geane.C\(${numEv},${pbeam},0,"\"${path}\"",0,${mergedHits}\)
     cd ${VMCWORKDIR}/build/bin
@@ -50,11 +53,12 @@ do
     ## CA & Kalman
     root -l -b -q runLumiPixel2bHitMerge.C\(${numEv},0,"\"${path}\""\)
     root -l -b -q runLumiPixel3Finder.C\(${numEv},0,"\"${path}\"",0,"\"CA\"",true,${mergedHits}\)
-    time root -l -b -q runLumi4KalmanFitter.C\(${numEv},0,"\"${path}\"",0,1,${mergedHits}\)
+    time root -l -b -q runLumi4KalmanFitter.C\(${numEv},0,"\"${path}\"",0,1,${mergedHits}\) >> ${path}/logPixel_KalmanFit_${numTrks}trks_mergedHits_${pbeam}GeV
     time root -l -b -q runLumi5Geane.C\(${numEv},${pbeam},0,"\"${path}\"",0,${mergedHits}\)
     cd ${VMCWORKDIR}/build/bin
-    ./rec_mc_match -s 0 -n ${numEv} -t ${numTrks} -mom ${pbeam} -npx 1  -mh 1 -v 0 -path ${path}
-    ./hits_study -s 0 -n ${numEv} -path ${path} -out ${path}/ResidualsHist_${numTrks}_${pbeam}_mergedHits_${mergedHits}_addMS_${addMS}.root -st 1 -mh ${mergedHits} -v 1
+   # ./hits_study -s 0 -n ${numEv} -path ${path} -out ${path}/ResidualsHist_${numTrks}_${pbeam}_mergedHits_${mergedHits}_addMS_${addMS}.root -st 1 -mh ${mergedHits}
+    ./rec_mc_match -s 0 -n ${numEv} -t ${numTrks} -mom ${pbeam} -npx 1  -mh 1 -v 0 -path ${path}  >> ${path}/logPIXEL_Follow_Minuit_mc_rec_match_${pbeam}GeV
+  
     cd ${VMCWORKDIR}/macro/lmd
     mv ${path}/Lumi_out_MC_and_REC_trks_matches_with_IDs0.root ${path}/Lumi_out_MC_and_REC_trks_matches_with_IDs0_CA_${numTrks}trks_mergedHits_${mergedHits}_addMS_${addMS}_KalmanFillter_${pbeam}.root
 
@@ -73,12 +77,12 @@ do
     addMS=true
     root -l -b -q runLumiPixel2Reco.C\(${numEv},0,"\"${path}\"",0,${addMS}\)
     ##CA & Minuit
-    root -l -b -q runLumiPixel3Finder.C\(${numEv},0,"\"${path}\"",0,"\"CA\"",true,${mergedHits}\)  >> ${path}/logPixel_CA_${numTrks}trks_singleHits
+    root -l -b -q runLumiPixel3Finder.C\(${numEv},0,"\"${path}\"",0,"\"CA\"",true,${mergedHits}\)  >> ${path}/logPixel_CA_${numTrks}trks_singleHits_${pbeam}GeV
     root -l -b -q runLumiPixel4Fitter.C\(${numEv},0,"\"${path}\"",0,${mergedHits}\)
     root -l -b -q runLumi5Geane.C\(${numEv},${pbeam},0,"\"${path}\"",0,${mergedHits}\)
     cd ${VMCWORKDIR}/build/bin
+    ./hits_study -s 0 -n ${numEv} -path ${path} -out ${path}/ResidualsHist_${numTrks}_${pbeam}_mergedHits_${mergedHits}_addMS_${addMS}.root -st 1 -mh ${mergedHits}
     ./rec_mc_match -s 0 -n ${numEv} -t ${numTrks} -mom ${pbeam} -npx 1 -mh 0 -v 0 -path ${path}
-    ./hits_study -s 0 -n ${numEv} -path ${path} -out ${path}/ResidualsHist_${numTrks}_${pbeam}_mergedHits_${mergedHits}_addMS_${addMS}.root -st 1 -mh ${mergedHits} -v 1
 
     cd ${VMCWORKDIR}/macro/lmd
     mv ${path}/Lumi_out_MC_and_REC_trks_matches_with_IDs0.root ${path}/Lumi_out_MC_and_REC_trks_matches_with_IDs0_CA_${numTrks}trks_mergedHits_${mergedHits}_addMS_${addMS}_MinuitFit_${pbeam}.root
