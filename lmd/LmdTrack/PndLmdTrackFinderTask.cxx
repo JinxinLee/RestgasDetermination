@@ -366,6 +366,12 @@ void PndLmdTrackFinderTask::FindHitsIII(std::vector<PndTrackCand> &tofill, std::
       TVector3 hit0 = myHit0->GetPosition(); TVector3 hit1 = myHit1->GetPosition();
       TVector3 posSeed(hit0.X(),hit0.Y(),hit0.Z());
       vec*=1./vec.Mag();
+      //shift trk out of plane [needed for correct treatment in Kalman Fillter and GEANE]
+      double sh_z = -0.02; //200 mkm
+      double sh_x = vec.X()*sh_z;
+      double sh_y = vec.Y()*sh_y;
+      TVector3 sh_point(sh_x,sh_y,sh_z);
+      posSeed +=sh_point;
       myTCand->setTrackSeed(posSeed,vec,-1);
       ///-------------------------------------
 
@@ -496,6 +502,12 @@ void PndLmdTrackFinderTask::FindHitsII(std::vector<PndTrackCand> &tofill, std::v
       TVector3 hit0 = myHit0->GetPosition(); TVector3 hit1 = myHit1->GetPosition();
       TVector3 posSeed(hit0.X(),hit0.Y(),hit0.Z());
       vec*=1./vec.Mag();
+	//shift trk out of plane [needed for correct treatment in Kalman Fillter and GEANE]
+	double sh_z = -0.02; //200 mkm
+	double sh_x = vec.X()*sh_z;
+	double sh_y = vec.Y()*sh_y;
+	TVector3 sh_point(sh_x,sh_y,sh_z);
+	posSeed +=sh_point;
       myTCand->setTrackSeed(posSeed,vec,-1);
       ///-------------------------------------
 
@@ -648,6 +660,13 @@ void PndLmdTrackFinderTask::FindHitsI(std::vector<PndTrackCand> &tofill, std::ve
       // cout<<"Trk cand: pos"<<endl;
       // posSeed.Print();
       vec*=1./vec.Mag();
+      //shift trk out of plane [needed for correct treatment in Kalman Fillter and GEANE]
+      double sh_z = -0.02; //200 mkm
+      double sh_x = vec.X()*sh_z;
+      double sh_y = vec.Y()*sh_y;
+      TVector3 sh_point(sh_x,sh_y,sh_z);
+      posSeed +=sh_point;
+
       // cout<<"Trk cand: vec"<<endl;
       // vec.Print();
       myTCand->setTrackSeed(posSeed,vec,-1);

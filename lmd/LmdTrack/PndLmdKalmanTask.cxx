@@ -347,7 +347,8 @@ PndLmdKalmanTask::Exec(Option_t* opt)
     FairTrackParH *fRes = new FairTrackParH();
     //   Double_t deltaZ = -7.5e-3;//go out of plane for 75 mkm
     //  Double_t deltaZ = +7.5e-3;//go out of plane for 75 mkm
-    Double_t deltaZ = -5e-2;//go out of plane for 500 mkm
+    //   Double_t deltaZ = -5e-2;//go out of plane for 500 mkm
+    Double_t deltaZ = -5e-4;//go out of plane for 5mkm
     //Double_t deltaZ = -1e2;//go out of plane for 500 mkm
     // Double_t deltaZ = +3e1;//go out in plane
     TVector3 dirCand = GFtrkCand->getDirSeed();
@@ -479,19 +480,20 @@ PndLmdKalmanTask::Exec(Option_t* opt)
     TVector3 FinMomErr(fFittedTrkParabolStart.GetDPx(),fFittedTrkParabolStart.GetDPy(),fFittedTrkParabolStart.GetDPz());
    
 
-    //propagate to middle of plane
+    //propagate out of middle of plane
     FairTrackParH *fStartNEW = new FairTrackParH(FinPos, FinMom, FinPosErr, FinMomErr, fCharge);
     FairTrackParH *fResNEW = new FairTrackParH();
-    Double_t deltaZ1 = -deltaZ;//go in of plane for 75 mkm
+    //   Double_t deltaZ1 = -deltaZ;//go in of plane for 75 mkm
+    Double_t deltaZ1 = -2e-2;//go out of plane for 200 mkm
     TVector3 dirVec = FinMom*(1./FinMom.Mag());
     TVector3 pointbackpropNEW(FinPos.X()+deltaZ1*dirVec.X(),FinPos.Y()+deltaZ1*dirVec.Y(),(FinPos.Z()+deltaZ1));
     fPro->SetPoint(pointbackpropNEW);
-    fPro->PropagateToPCA(1, +1);
-    //    fPro->PropagateToPCA(1, -1);
+    // fPro->PropagateToPCA(1, +1);
+    fPro->PropagateToPCA(1, -1);
     Bool_t rcNEW =  fPro->Propagate(fStartNEW, fResNEW, fPDGCode);
     if(fVerbose>1){
-      if(rcNEW) std::cout<<"=) ! success in propagation to origin of trk-cand ! (="<<std::endl;
-      else std::cout<<" =( no success in propagation to origin of trk-cand =("<<std::endl;
+      if(rcNEW) std::cout<<"=) ! success in final propagation to origin of trk-cand ! (="<<std::endl;
+      else std::cout<<" =( no success in final propagation to origin of trk-cand =("<<std::endl;
     }
     if (rcNEW)
       {
