@@ -534,6 +534,7 @@ int main(int __argc,char *__argv[]) {
   PndLmdDim *lmddim = PndLmdDim::Instance();
   // lmddim -> Read_transformation_matrices("matrices.txt", true);
   lmddim -> Read_transformation_matrices("matrices_perfect.txt", false);
+  int glBADGEANE=0;
   int glBadEv = 0;
   for (Int_t j=0; j<nEvents; j++){
     //  cout<<"Event #"<<j<<endl;
@@ -558,6 +559,7 @@ int main(int __argc,char *__argv[]) {
     if(verboseLevel>0)  
       cout<<"Event #"<<j<<" has "<<nParticles<<" true particles, "<<" out of it "<<nRecHits<<" hits, "<<nTrkCandidates
 	  <<" trk-cands, "<<numTrk<<" tracks and "<<nGeaneTrks<<" geane Trks!"<<endl;
+    hnRecnMC->Fill(nParticles,nGeaneTrks);
     if(nParticles!=nMCtracks) continue;
     if(nRecHits<3*nMCtracks) glBadEv++;
     // if(nRecHits<3*nMCtracks) cout<<"Event #"<<j<<" doesn't have enough rec.hits!!!"<<endl;
@@ -567,7 +569,7 @@ int main(int __argc,char *__argv[]) {
    
     hMCtrkvshits->Fill(nRecHits,nParticles);
     if(nTrkCandidates>numTrk) cout<<"Event #"<<j<<" has "<<nTrkCandidates<<" trk-cands and "<<numTrk<<" tracks!"<<endl;
-    hnRecnMC->Fill(nParticles,nGeaneTrks);
+   
     hntrkcand->Fill(nTrkCandidates);
     hntrkcandvsMC->Fill(nParticles,nTrkCandidates);
     
@@ -593,7 +595,9 @@ int main(int __argc,char *__argv[]) {
       Double_t lyambda = fRes->GetLambda();
       if(lyambda==0){
 	cout<<"GEANE didn't propagate this trk!"<<endl;
-	cout<<"Event #"<<j<<" diffIDs = "<<diffIDs<<endl;}
+	cout<<"Event #"<<j<<" diffIDs = "<<diffIDs<<endl;
+	glBADGEANE++;
+      }
       if(lyambda==0) continue;
       PndLinTrack *trk;
       double linpar[6];
@@ -1680,4 +1684,5 @@ int main(int __argc,char *__argv[]) {
  ntupMCTrk->Write();
  f->Close();
  cout<<"Number of events with low number of hits (less then 3 per trk): "<<glBadEv<<endl;
+ cout<<"Number of trks where GEANE failed: "<<glBADGEANE<<endl;
 }
