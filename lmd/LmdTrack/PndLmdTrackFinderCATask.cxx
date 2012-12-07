@@ -908,7 +908,7 @@ void PndLmdTrackFinderCATask::Exec(Option_t* opt)
 
 	dir*=1./dir.Mag();
 	//shift trk out of plane [needed for correct treatment in Kalman Fillter and GEANE]
-	double sh_z = -0.02; //200 mkm
+	double sh_z = -0.035; //350 mkm
 	double sh_x = dirX*sh_z;
 	double sh_y = dirY*sh_y;
 	TVector3 sh_point(sh_x,sh_y,sh_z);

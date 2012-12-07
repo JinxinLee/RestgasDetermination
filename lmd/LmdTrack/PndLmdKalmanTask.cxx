@@ -484,7 +484,7 @@ PndLmdKalmanTask::Exec(Option_t* opt)
     FairTrackParH *fStartNEW = new FairTrackParH(FinPos, FinMom, FinPosErr, FinMomErr, fCharge);
     FairTrackParH *fResNEW = new FairTrackParH();
     //   Double_t deltaZ1 = -deltaZ;//go in of plane for 75 mkm
-    Double_t deltaZ1 = -2e-2;//go out of plane for 200 mkm
+    Double_t deltaZ1 = -3.5e-2;//go out of plane for 350 mkm
     TVector3 dirVec = FinMom*(1./FinMom.Mag());
     TVector3 pointbackpropNEW(FinPos.X()+deltaZ1*dirVec.X(),FinPos.Y()+deltaZ1*dirVec.Y(),(FinPos.Z()+deltaZ1));
     fPro->SetPoint(pointbackpropNEW);
