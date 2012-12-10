@@ -252,36 +252,40 @@ caida       print *, 'sigma_tot',sigma_tot,' B',parB,' ro',rho;
        aelm = 1./137.036    !  0- not Colomb and Interf, 
 *  aida end parameters    
 ***  aida calculation of integrals Colomb, 
-      Ndiv=100000
-      dt=(Tmax-Tmin)/float(Ndiv)
-       SIG_col=0.
+       Ndiv=500000
+      dto=(Tmax-Tmin)/float(Ndiv)
+       SIG_COL=0.
+       print *, 'Tmin=', Tmin, 'Tmax=', Tmax
       do i=1,Ndiv
-      T11=Tmin+(i-1)*dt
-      T22=T11+dt
-      df_col=DSIG_COL(T22)+DSIG_COL(T11)
+       T11=Tmin+(i-1)*dto
+       T22=T11+dto
+       dt=(T22-T11)/2.0
+c       print*, 'dt=', dt
+       SIG_COL=SIG_COL+abs(dt)*(1./3.*DSIG_COL(T11)+
+     & 4./3.*DSIG_COL(T11+dt)+1./3.*DSIG_COL(T22))
       
-      SIG_COL=sig_col+(0.5*df_col*abs(dt))
       enddo
-caida      PRINT *,'sig_col',SIG_COL
+      PRINT *,'sig_col',SIG_COL
 
 * aida calculation of integral interfer
       SIG_INTER=0.
       SIG_IEXACT=0.
       do i=1,Ndiv
-      T11=Tmin+(i-1)*dt
-      T22=T11+dt
-      df_int=DSIG_INTER(T22)+DSIG_INTER(T11)
-      SIG_INTER=SIG_INTER+(0.5*df_int*abs(dt))
-      df_iex=DSIG_INT_Ex(T22)+DSIG_INT_Ex(T11)
-      SIG_IEXACT=SIG_IEXACT+(0.5* df_iex*abs(dt))              
+      T11=Tmin+(i-1)*dto
+      T22=T11+dto
+       dt=(T22-T11)/2.0
+       SIG_INTER=SIG_INTER+abs(dt)*(1./3.*DSIG_INTER(T11)+
+     & 4./3.*DSIG_INTER(T11+dt)+1./3.*DSIG_INTER(T22))
+       SIG_IEXACT=SIG_IEXACT+abs(dt)*(1./3.*DSIG_INT_Ex(T11)+
+     & 4./3.*DSIG_INT_Ex(T11+dt)+1./3.*DSIG_INT_Ex(T22))     
       enddo
-caida      PRINT *,'sig_inter',sig_inter
+      PRINT *,'sig_inter',sig_inter, 'sig_iexact', sig_iexact
 !  numerical calculation of SIG_had using form.(1)
       sig_had=dsig_had(0.)/parB-dsig_had(Tmax)/parB
-caida      PRINT *,'sig_had_el', sig_had
+      PRINT *,'sig_had_el', sig_had
 !     calculation of sigma_hadron using our parametrization
       sig_had_p=SIG_HADi(Tmin)-SIG_HADi(Tmax)
-caida      PRINT *,'sig_had_p',sig_had_p
+      PRINT *,'sig_had_p',sig_had_p
     
 !       sig_col=0              ! kulon ==0
 !        sig_inter=0             ! inter ==0 
