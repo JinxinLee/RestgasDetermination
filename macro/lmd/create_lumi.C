@@ -22,10 +22,10 @@ void create_lumi(){
   const Double_t  kHalfFoilThickness  = 0.0075; // Thickness of sensitive foil (cm)
   // const Double_t  kHalfFoilThickness  = 0.0035; // Thickness of sensitive foil (cm) TEST
 
-  const Double_t  kRot = 2.326; //(deg) //Rotate to dipol
-  const Double_t  kRotUmZ = 476.03; //(cm) //z-point to rotate
-  //const Double_t  kRot = 0; //(deg) //Rotate to dipol TEST
-  //  const Double_t  kRotUmZ = 0; //(cm) //z-point to rotate TEST
+   const Double_t  kRot = 2.326; //(deg) //Rotate to dipol
+   const Double_t  kRotUmZ = 476.03; //(cm) //z-point to rotate
+  // const Double_t  kRot = 0; //(deg) //Rotate to dipol TEST
+  // const Double_t  kRotUmZ = 0; //(cm) //z-point to rotate TEST
   
   const Double_t  kTransZ = 1100; //(cm) //move at z-position
 
