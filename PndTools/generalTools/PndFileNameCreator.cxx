@@ -23,122 +23,128 @@ PndFileNameCreator::PndFileNameCreator(std::string fileName):
 
 
 
-std::string PndFileNameCreator::GetParFileName(bool cut)
+std::string PndFileNameCreator::GetParFileName(std::string addon, bool cut)
 {
-  return GetCustomFileName(fExtPar, cut);
+  return GetCustomFileName(fExtPar, addon, cut);
 }
 
-std::string PndFileNameCreator::GetSimFileName(bool cut)
+std::string PndFileNameCreator::GetSimFileName(std::string addon, bool cut)
 {
-  return GetCustomFileName(fExtSim, cut);
+  return GetCustomFileName(fExtSim, addon, cut);
 }
 
-std::string PndFileNameCreator::GetDigiFileName(bool cut)
+std::string PndFileNameCreator::GetDigiFileName(std::string addon, bool cut)
 {
-	return GetCustomFileName(fExtDigi, cut);
+	return GetCustomFileName(fExtDigi, addon, cut);
 }
 
-std::string PndFileNameCreator::GetRecoFileName(bool cut)
+std::string PndFileNameCreator::GetRecoFileName(std::string addon, bool cut)
 {
-	return GetCustomFileName(fExtReco, cut);
+	return GetCustomFileName(fExtReco, addon, cut);
 }
 
-std::string PndFileNameCreator::GetTrackFindingFileName(bool cut)
+std::string PndFileNameCreator::GetTrackFindingFileName(std::string addon, bool cut)
 {
-	return GetCustomFileName(fExtTrackF, cut);
+	return GetCustomFileName(fExtTrackF, addon, cut);
 }
 
-std::string PndFileNameCreator::GetIdealTrackFindingFileName(bool cut)
+std::string PndFileNameCreator::GetIdealTrackFindingFileName(std::string addon, bool cut)
 {
-	return GetCustomFileName(fExtIdealTrackF, cut);
+	return GetCustomFileName(fExtIdealTrackF, addon, cut);
 }
 
-std::string PndFileNameCreator::GetRiemannFileName(bool cut)
+std::string PndFileNameCreator::GetRiemannFileName(std::string addon, bool cut)
 {
-	return GetCustomFileName(fExtRiemann, cut);
+	return GetCustomFileName(fExtRiemann, addon, cut);
 }
 
-std::string PndFileNameCreator::GetCombinedRiemannFileName(bool cut)
+std::string PndFileNameCreator::GetCombinedRiemannFileName(std::string addon, bool cut)
 {
-	return GetCustomFileName(fExtCombinedRiemann, cut);
+	return GetCustomFileName(fExtCombinedRiemann, addon, cut);
 }
 
 
-std::string PndFileNameCreator::GetKalmanFileName(bool cut)
+std::string PndFileNameCreator::GetKalmanFileName(std::string addon, bool cut)
 {
-	return GetCustomFileName(fExtKalman, cut);
+	return GetCustomFileName(fExtKalman, addon, cut);
 }
 
-std::string PndFileNameCreator::GetVertexFileName(bool cut)
+std::string PndFileNameCreator::GetVertexFileName(std::string addon, bool cut)
 {
-	return GetCustomFileName(fExtVertex, cut);
+	return GetCustomFileName(fExtVertex, addon, cut);
 }
  
 // -----------------
 
-std::string PndFileNameCreator::GetParFileName(std::string inputFileName, bool cut)
-{
-	fFileName = inputFileName;
-	return GetParFileName(cut);
-}
+//std::string PndFileNameCreator::GetParFileName(std::string inputFileName, std::string addon, bool cut)
+//{
+//	fFileName = inputFileName;
+//	return GetParFileName(addon, cut);
+//}
+//
+//std::string PndFileNameCreator::GetSimFileName(std::string inputFileName, std::string addon, bool cut)
+//{
+//	fFileName = inputFileName;
+//	return GetSimFileName(addon, cut);
+//}
+//
+//std::string PndFileNameCreator::GetDigiFileName(std::string inputFileName, std::string addon, bool cut)
+//{
+//	fFileName = inputFileName;
+//	return GetDigiFileName(addon, cut);
+//}
+//
+//std::string PndFileNameCreator::GetRecoFileName(std::string inputFileName, std::string addon, bool cut)
+//{
+//	fFileName = inputFileName;
+//	return GetRecoFileName(addon, cut);
+//}
+//
+//std::string PndFileNameCreator::GetTrackFindingFileName(std::string inputFileName, std::string addon, bool cut)
+//{
+//	fFileName = inputFileName;
+//	return GetTrackFindingFileName(addon, cut);
+//}
+//
+//std::string PndFileNameCreator::GetIdealTrackFindingFileName(std::string inputFileName, std::string addon, bool cut)
+//{
+//	fFileName = inputFileName;
+//	return GetIdealTrackFindingFileName(addon, cut);
+//}
+//
+//std::string PndFileNameCreator::GetKalmanFileName(std::string inputFileName, std::string addon, bool cut)
+//{
+//	fFileName = inputFileName;
+//	return GetKalmanFileName(addon, cut);
+//}
+//
+//std::string PndFileNameCreator::GetVertexFileName(std::string inputFileName, std::string addon, bool cut)
+//{
+//	fFileName = inputFileName;
+//	return GetVertexFileName(addon, cut);
+//}
+//
+//std::string PndFileNameCreator::GetRiemannFileName(std::string inputFileName, std::string addon, bool cut)
+//{
+//	fFileName = inputFileName;
+//	return GetRiemannFileName(addon, cut);
+//}
+//
+//std::string PndFileNameCreator::GetCombinedRiemannFileName(std::string inputFileName, std::string addon, bool cut)
+//{
+//	fFileName = inputFileName;
+//	return GetCombinedRiemannFileName(addon, cut);
+//}
 
-std::string PndFileNameCreator::GetSimFileName(std::string inputFileName, bool cut)
+std::string PndFileNameCreator::GetCustomFileName(std::string ext, std::string addon, bool cut)
 {
-	fFileName = inputFileName;
-	return GetSimFileName(cut);
-}
-
-std::string PndFileNameCreator::GetDigiFileName(std::string inputFileName, bool cut)
-{
-	fFileName = inputFileName;
-	return GetDigiFileName(cut);
-}
-
-std::string PndFileNameCreator::GetRecoFileName(std::string inputFileName, bool cut)
-{
-	fFileName = inputFileName;
-	return GetRecoFileName(cut);
-}
-
-std::string PndFileNameCreator::GetTrackFindingFileName(std::string inputFileName, bool cut)
-{
-	fFileName = inputFileName;
-	return GetTrackFindingFileName(cut);
-}
-
-std::string PndFileNameCreator::GetIdealTrackFindingFileName(std::string inputFileName, bool cut)
-{
-	fFileName = inputFileName;
-	return GetIdealTrackFindingFileName(cut);
-}
-
-std::string PndFileNameCreator::GetKalmanFileName(std::string inputFileName, bool cut)
-{
-	fFileName = inputFileName;
-	return GetKalmanFileName(cut);
-}
-
-std::string PndFileNameCreator::GetVertexFileName(std::string inputFileName, bool cut)
-{
-	fFileName = inputFileName;
-	return GetVertexFileName(cut);
-}
-
-std::string PndFileNameCreator::GetRiemannFileName(std::string inputFileName, bool cut)
-{
-	fFileName = inputFileName;
-	return GetRiemannFileName(cut);
-}
-
-std::string PndFileNameCreator::GetCombinedRiemannFileName(std::string inputFileName, bool cut)
-{
-	fFileName = inputFileName;
-	return GetCombinedRiemannFileName(cut);
-}
-
-std::string PndFileNameCreator::GetCustomFileName(std::string ext, bool cut)
-{
+	std::cout << "Ext: " << ext << " addon: " << addon << " cut: " << cut;
 	std::string result = TruncateFileName(cut);
+	std::cout << " Truncated: " << result << std::endl;
+	if (addon.size() > 0){
+		result += "_";
+		result += addon;
+	}
 	if (ext.size() > 0){
 		result += "_";
 		result += ext;
@@ -148,11 +154,11 @@ std::string PndFileNameCreator::GetCustomFileName(std::string ext, bool cut)
 	return result;
 }
 
-std::string PndFileNameCreator::GetCustomFileName(std::string inputFileName, std::string ext, bool cut)
-{
-	fFileName = inputFileName;
-	return GetCustomFileName(ext, cut);
-}
+//std::string PndFileNameCreator::GetCustomFileName(std::string inputFileName, std::string ext, std::string addon, bool cut)
+//{
+//	fFileName = inputFileName;
+//	return GetCustomFileName(ext, addon, cut);
+//}
 
 std::string PndFileNameCreator::GetCustomFileNameInitial(std::string ext)
 {
