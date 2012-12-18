@@ -81,7 +81,7 @@ PndTrack* GenfitTrack2PndTrack(const GFTrack* tr){
     }
   }
 
-  //  calculation of spu = sign[p·(DJ x DK)]
+  //  calculation of spu = sign[p(DJ x DK)]
   double first_pro(0), last_pro(0), first_spu, last_spu;
   bool exc(false);
 
