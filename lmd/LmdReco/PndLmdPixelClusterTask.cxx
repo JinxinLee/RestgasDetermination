@@ -322,7 +322,7 @@ void PndLmdPixelClusterTask::Exec(Option_t* opt)
 
     if (FairRunAna::Instance()->IsTimeStamp()){
 //		std::cout << "TempCluster: " << *tempCluster << std::endl;
-		tempCluster->Reset();
+		tempCluster->ResetLinks();
 		for (UInt_t j = 0; j < clusters[i].size(); j++){
 			PndSdsDigiPixel* tempDigi = (PndSdsDigiPixel*)fDigiArray->At(clusters[i][j]);
 //			std::cout << "TempDigi: " << *tempDigi << std::endl;
