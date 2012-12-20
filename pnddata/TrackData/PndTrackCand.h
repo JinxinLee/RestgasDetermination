@@ -73,7 +73,7 @@ public:
 
   void CalcTimeStamp();
 
-  void Reset();
+  void ResetLinks();
 
   void Print();
 

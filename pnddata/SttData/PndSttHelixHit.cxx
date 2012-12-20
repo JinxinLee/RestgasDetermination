@@ -43,7 +43,7 @@ void PndSttHelixHit::Clear()
   fTubeID = 0;
   fIsochrone = 0.; 
   fIsochroneError = 0.;
-  Reset();
+  ResetLinks();
 }  
 
  

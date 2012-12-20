@@ -86,6 +86,7 @@ protected:
   TObjArray *fEveTrList;
   TString fEvent; //!
   TEveBoxSet* fListOfIsochrones;
+  TEveBoxSet* fListOfTiltedIsochrones;
   //TEveElementList *fTrackCont;
 
    BinaryFunctor* fStartFunctor;

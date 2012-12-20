@@ -31,7 +31,8 @@ class PndSdsPixelDigiPar : public FairParGenericSet
     Int_t GetFECols()           const {return fFeCols;}
     Int_t GetFERows()           const {return fFeRows;}
     Double_t GetClustRadius()   const {return fRadius;}
-    Double_t GetFeBusClock()      const {return fFeBusClock;}
+    Double_t GetFeBusClock()    const {return fFeBusClock;}
+    Double_t GetTimeStep()		const {return (1./fFeBusClock * 1000.);} ///< Time step of one clock cycle in ns
     Int_t GetChargeConvMethod() const  {return fChargeConvMethod;}
     Double_t GetPixelSorterCellWidth() const {return fPixelSorterCellWidth;}
     Int_t GetPixelSorterNumberOfCells() const {return fPixelSorterNumberOfCells;}

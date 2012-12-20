@@ -359,7 +359,7 @@ void PndMCMatch::AddToFinalStage(FairLink hitPair, Float_t mult){
 }
 
 void PndMCMatch::ClearFinalStage(){
-	fFinalStageML.Reset();
+	fFinalStageML.ResetLinks();
 }
 
 void PndMCMatch::ClearMCList()

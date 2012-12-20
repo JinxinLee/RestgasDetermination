@@ -63,6 +63,7 @@ public:
 	friend std::ostream& operator<< (std::ostream& out, const PndMCStage& stage){
 		out << stage.GetStageId() << ": " << stage.GetBranchName() << " // " <<  stage.GetFileName() << std::endl; //" with weight: " << stage.GetWeight() << std::endl;
 		((PndMCObject)stage).Print(out);
+//		out << std::endl;
 		return out;
 	}
 

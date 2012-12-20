@@ -102,8 +102,8 @@ void PndMvdTrackFinderAnaTask::Exec(Option_t* opt)
 		  hitsInTrack[detID].push_back(hitID);
 	  }
 	  fHitMatrix.push_back(hitsInTrack);
-	  std::cout << " Curv: " << myTrackCand->getCurv() << " Dip: " << myTrackCand->getDip()
-	  		    << " Inv: " << myTrackCand->inverted() << std::endl;
+	  std::cout << " Curv: " << myTrackCand->getCurv() << " Dip: " << myTrackCand->getDip() << std::endl;
+	  //		    << " Inv: " << myTrackCand->inverted() << std::endl;
   }
   std::cout << "HitMatrix.size(): " << fHitMatrix.size() << std::endl;
  // for (int p = 0; p < fHitMatrix.size(); p++){
@@ -119,8 +119,8 @@ void PndMvdTrackFinderAnaTask::Exec(Option_t* opt)
   		  std::cout << detID << "/" << hitID << " ";
   		  IdealHitsInTrack[detID].push_back(hitID);
   	  }
-  	std::cout << " Curv: " << myIdealTrackCand->getCurv() << " Dip: " << myIdealTrackCand->getDip()
-  		  	  << " Inv: " << myIdealTrackCand->inverted() << std::endl;
+  	std::cout << " Curv: " << myIdealTrackCand->getCurv() << " Dip: " << myIdealTrackCand->getDip() << std::endl;
+  		 // 	  << " Inv: " << myIdealTrackCand->inverted() << std::endl;
   	int foundHits = TrackIncluded(IdealHitsInTrack);
   	int idealHits = NHitsInTrack(IdealHitsInTrack);
 

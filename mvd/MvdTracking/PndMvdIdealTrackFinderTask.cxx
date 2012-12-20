@@ -177,10 +177,10 @@ void PndMvdIdealTrackFinderTask::Exec(Option_t* opt)
   if(fVerbose>0) PrintResult();
 
   Int_t i = 0;
-  for (std::map<Int_t,PndTrackCand*>::const_iterator kIt=fTrackCandMap.begin();
-      kIt != fTrackCandMap.end(); kIt++){
-    new((*fTrackCandArray)[i]) PndTrackCand(*(kIt->second));
-    i++;
+  for (std::map<Int_t,PndTrackCand*>::const_iterator kIt=fTrackCandMap.begin(); kIt != fTrackCandMap.end(); kIt++){
+	  Double_t eventTime = FairRootManager::Instance()->GetEventTime();
+	  kIt->second->SetTimeStamp(eventTime);
+	  new((*fTrackCandArray)[i]) PndTrackCand(*(kIt->second));
   }
   ClearTrackCandMap();
 }

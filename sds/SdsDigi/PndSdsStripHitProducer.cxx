@@ -344,7 +344,7 @@ void PndSdsStripHitProducer::AddDigi(Int_t &iStrip, Int_t iPoint, Int_t detID, I
 				sensorID, fe, chan, smearedCharge, correctedTimeStamp);
 
 	  if (fTimeOrderedDigi){
-	    tempStrip->Reset();
+	    tempStrip->ResetLinks();
 	    FairEventHeader* evtHeader = (FairEventHeader*)FairRootManager::Instance()->GetObject("EventHeader.");
 	  //  for (int i = 0; i < indices.size(); i++)
 	      tempStrip->AddLink(FairLink(evtHeader->GetInputFileId(), evtHeader->GetMCEntryNumber(),  fInBranchId, iPoint));

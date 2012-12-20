@@ -5,12 +5,14 @@
 
 #include <iostream>
 #include "PndSdsMCPoint.h"
+#include "FairRun.h"
+#include "FairEventHeader.h"
 
 
 // -----   Default constructor   -------------------------------------------
 PndSdsMCPoint::PndSdsMCPoint() : FairMCPoint(), 
  		        fXfOut(0.), fYfOut(0.), fZfOut(0.), 
- 		        fPxfOut(0.), fPyfOut(0.), fPzfOut(0) 
+ 		        fPxfOut(0.), fPyfOut(0.), fPzfOut(0), fSensorID(-1)
  		
 {} 
 	// -------------------------------------------------------------------------
@@ -34,6 +36,7 @@ PndSdsMCPoint::PndSdsMCPoint(Int_t trackID, Int_t detID, Int_t sensorID,
 
   SetSensorID(sensorID);
 
+  FairEventHeader* evtHeader = FairRun::Instance()->GetEventHeader();
   SetLink(FairLink("MCTrack", trackID));
 }
 // -------------------------------------------------------------------------

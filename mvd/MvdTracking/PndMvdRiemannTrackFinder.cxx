@@ -175,8 +175,7 @@ void PndMvdRiemannTrackFinder::FindTracks()
 				actTrack.szFit(false);
         
 				TVectorD orig = actTrack.orig();
-				if (fVerbose > 1) std::cout << "actHit added: " << testHit  << " r: " << actTrack.r()
-          << " orig: " << orig[0] << " " << orig[1] << std::endl;
+				if (fVerbose > 1) std::cout << "actHit added: " << testHit  << " r: " << actTrack.r() << " orig: " << orig[0] << " " << orig[1] << std::endl;
 				tooClose=GetTooCloseHitsInLayer(Layer,testHit);
 				fHitsTooClose[trackId].insert(fHitsTooClose[trackId].begin(),tooClose.begin(),tooClose.end());
 				//break;
@@ -204,11 +203,11 @@ void PndMvdRiemannTrackFinder::FindTracks()
 			if (fVerbose > 1){
 				TVectorD orig = actTrack.orig();
 				std::cout << "Track added! " << StartTrack[0] << " " << StartTrack[1]
-        << " " << StartTrack[2] << " r: " << actTrack.r()
-        << " orig: " << orig[0] << " " << orig[1]
-        << " sz-m: " << actTrack.getSZm() << " sz-t: " << actTrack.getSZt()
-        << " dip: " << actTrack.dip()
-        << std::endl;
+							<< " " << StartTrack[2] << " r: " << actTrack.r()
+							<< " orig: " << orig[0] << " " << orig[1]
+							<< " sz-m: " << actTrack.getSZm() << " sz-t: " << actTrack.getSZt()
+							<< " dip: " << actTrack.dip()
+							<< std::endl;
 			}
       
 			if (fVerbose > 0) std::cout << "Hits in Track: " << StartTrack.size() << std::endl;
@@ -221,9 +220,9 @@ void PndMvdRiemannTrackFinder::FindTracks()
 				TVectorD myOrig = actTrack.orig();
 				std::cout << " numHits: " << actTrack.getNumHits() << std::endl;
 				std::cout << " curv: " << 1/actTrack.r() << "+/-" << actTrack.dR()/(actTrack.r() * actTrack.r())
-        << " dip: " << actTrack.dip() << "+/-" << actTrack.dDip()
-        << " orig: " << myOrig[0] << "+/-" << actTrack.dX()
-        << " " << myOrig[1] << "+/-" << actTrack.dY() << std::endl;
+						<< " dip: " << actTrack.dip() << "+/-" << actTrack.dDip()
+						<< " orig: " << myOrig[0] << "+/-" << actTrack.dX()
+						<< " " << myOrig[1] << "+/-" << actTrack.dY() << std::endl;
         //	actTrack.getPforHit(0, 2);
 			}
 		}

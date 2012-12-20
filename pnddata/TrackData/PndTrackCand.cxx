@@ -55,10 +55,10 @@ void PndTrackCand::AddHit(FairLink link, Double_t rho)
 }
 
 
-void PndTrackCand::Reset()
+void PndTrackCand::ResetLinks()
 {
   fHitId.clear();
-  FairMultiLinkedData::Reset();
+  FairMultiLinkedData::ResetLinks();
 }
 
 int PndTrackCand::HitInTrack(UInt_t detId, UInt_t hitId)

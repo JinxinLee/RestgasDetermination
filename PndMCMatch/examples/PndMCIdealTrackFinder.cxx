@@ -44,15 +44,21 @@ void PndMCIdealTrackFinder::Exec(Option_t* opt)
 	//fMCMatch->CreateArtificialStage(kMCTrack, "", "");
 
 	fMCMatch->CreateArtificialStage("MCTrack");
-	PndMCResult myResult = fMCMatch->GetMCInfo("MCTrack", "DchHit");
+	PndMCResult myResult = fMCMatch->GetMCInfo("MCTrack", "MVDHitsStrip");
 	std::cout << myResult;
+
+	fTrackCand->Delete();
 
 	for (int trackIndex = 0; trackIndex < myResult.GetNEntries(); trackIndex++){
 		PndMCEntry myEntry = myResult.GetEntry(trackIndex);
-		PndTrackCand* myTrackCand = new((*fTrackCand)[trackIndex]) PndTrackCand;
-		for (int entryIndex = 0; entryIndex < myEntry.GetNLinks(); entryIndex++)
-			myTrackCand->AddHit(myEntry.GetLink(entryIndex).GetType(), myEntry.GetLink(entryIndex).GetIndex(), entryIndex);
-		myTrackCand->setMcTrackId(trackIndex);
+		if (myEntry.GetNLinks() > 1){
+			PndTrackCand* myTrackCand = new((*fTrackCand)[fTrackCand->GetEntriesFast()]) PndTrackCand;
+			for (int entryIndex = 0; entryIndex < myEntry.GetNLinks(); entryIndex++)
+				if (myEntry.GetLink(entryIndex).GetType() > 0)
+					myTrackCand->AddHit(myEntry.GetLink(entryIndex), entryIndex);
+			myTrackCand->setMcTrackId(trackIndex);
+			myTrackCand->SetTimeStamp(FairRootManager::Instance()->GetEventTime());
+		}
 	}
 
 }

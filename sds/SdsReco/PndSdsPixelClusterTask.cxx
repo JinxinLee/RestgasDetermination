@@ -93,7 +93,7 @@ void PndSdsPixelClusterTask::SetParContainers()
     fGeoH = PndGeoHandling::Instance();
   }
   fGeoH->SetParContainers();
-  if( ! fDigiPar) Fatal("SetParContainers","No digitiztiopn parameters specified");
+  if( ! fDigiPar) Fatal("SetParContainers","No digitization parameters specified");
   if(fVerbose>1) Info("SetParContainers","done.");
   return;
 }
@@ -177,7 +177,8 @@ void PndSdsPixelClusterTask::Exec(Option_t* opt)
    if(fVerbose>0) std::cout << "-I- PndSdsPixelClusterTask::Exec EventTime: " << EventTime << std::endl;
 
     if (FairRunAna::Instance()->IsTimeStamp()){
-    	fDigiArray = FairRootManager::Instance()->GetData(fInBranchName, fStartFunctor, EventTime + 10);
+    	std::cout << "TimeStepPixel: " << fDigiPar->GetTimeStep();
+    	fDigiArray = FairRootManager::Instance()->GetData(fInBranchName, fFunctor, fDigiPar->GetTimeStep() * 2);
     }
 
   if ( ! fHitArray ) Fatal("Exec", "No HitArray");
@@ -199,7 +200,7 @@ void PndSdsPixelClusterTask::Exec(Option_t* opt)
 
     if (FairRunAna::Instance()->IsTimeStamp()){
 //		std::cout << "TempCluster: " << *tempCluster << std::endl;
-		tempCluster->Reset();
+		tempCluster->ResetLinks();
 		for (UInt_t j = 0; j < clusters[i].size(); j++){
 			PndSdsDigiPixel* tempDigi = (PndSdsDigiPixel*)fDigiArray->At(clusters[i][j]);
 //			std::cout << "TempDigi: " << *tempDigi << std::endl;
@@ -224,7 +225,7 @@ void PndSdsPixelClusterTask::Exec(Option_t* opt)
     
     // mapping with the choosen back mapping
     PndSdsHit myHit = fBackMapping->GetCluster(clusterArray);
-    myHit.SetClusterIndex(fClusterType,i, 0, fEventNr);
+    myHit.SetClusterIndex(fClusterType,i, -1, FairRootManager::Instance()->GetEntryNr());
 
  //   myHit.SetCharge(myHit.GetCharge());
     if(fVerbose>0){

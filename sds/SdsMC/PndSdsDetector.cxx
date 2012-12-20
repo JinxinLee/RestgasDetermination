@@ -418,8 +418,7 @@ PndSdsMCPoint* PndSdsDetector::AddHit(Int_t trackID, Int_t detID, Int_t sensorID
   
  PndSdsMCPoint* storedData = new((*fPndSdsCollection)[fPndSdsCollection->GetEntriesFast()]) PndSdsMCPoint(trackID, detID, sensorID, posIn, posOut,
                                         momIn, momOut, time, length, eLoss);
- //storedData->SetTimeStamp(header->GetT()); 
- /** MC points do not inhirts from Time stamp anymore, time stamp can be set after simulation. M.Al-Turany  */
+
  return storedData;
   
 }

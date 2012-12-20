@@ -26,6 +26,7 @@ ${CMAKE_SOURCE_DIR}/emc/EmcData
 ${CMAKE_SOURCE_DIR}/emc/EmcReco
 ${CMAKE_SOURCE_DIR}/tpc
 ${CMAKE_SOURCE_DIR}/PndMCMatch
+${CMAKE_SOURCE_DIR}/PndMCMatch/examples
 )
 
 include_directories( ${INCLUDE_DIRECTORIES})
@@ -77,6 +78,7 @@ examples/PndMCIdealTrackFinder.cxx
 examples/PndMCTestEmcClusterCompare.cxx
 examples/PndMCTestPatternRecoQuality.cxx
 examples/PndMCTestDataCrawler.cxx
+examples/PndMCTimebasedPatternRecoQuality.cxx
 )
 
 CHANGE_FILE_EXTENSION(*.cxx *.h MCMATCHEXAMPLES_HEADERS "${MCMATCHEXAMPLES_SRCS}")

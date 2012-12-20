@@ -35,8 +35,8 @@ using std::endl;
 // -----   Default constructor   -------------------------------------------
 PndSttIsochroneDraw::PndSttIsochroneDraw(Bool_t propagate)
    : fTimeWindowPlus(0.), fTimeWindowMinus(0.), fStartTime(-1), fUseEventTime(kTRUE), fUseIsochroneTime(kFALSE),
-	 fSttHitArray(0), fSttTubeArray(0), fSttParameters(0), fEventManager(0), fListOfIsochrones(0),
-	 fStartFunctor(0), fStopFunctor(0), fCrawler(0)
+	 fSttHitArray(0), fSttTubeArray(0), fSttParameters(0), fEventManager(0), fListOfIsochrones(0), fListOfTiltedIsochrones(0),
+	 fStartFunctor(0), fStopFunctor(0), fCrawler(0), fEveTrList(0), fEventHeaderBranch(0)
 {
 }
 // -------------------------------------------------------------------------
@@ -45,8 +45,8 @@ PndSttIsochroneDraw::PndSttIsochroneDraw(Bool_t propagate)
 // -----   Standard constructor   ------------------------------------------
 PndSttIsochroneDraw::PndSttIsochroneDraw(const char* name, Bool_t propagate, Int_t iVerbose)
   : FairTask(name, iVerbose), fTimeWindowPlus(0.), fTimeWindowMinus(0.), fStartTime(-1), fUseEventTime(kTRUE), fUseIsochroneTime(kFALSE),
-	 fSttHitArray(0), fSttTubeArray(0), fSttParameters(0), fEventManager(0), fListOfIsochrones(0),
-	 fStartFunctor(0), fStopFunctor(0), fCrawler(0)
+	 fSttHitArray(0), fSttTubeArray(0), fSttParameters(0), fEventManager(0), fListOfIsochrones(0), fListOfTiltedIsochrones(0),
+	 fStartFunctor(0), fStopFunctor(0), fCrawler(0), fEveTrList(0), fEventHeaderBranch(0)
 {
 	 // fPro = new FairGeanePro();
 
@@ -105,9 +105,11 @@ void PndSttIsochroneDraw::Exec(Option_t* option)
 		Reset();
 
 		fListOfIsochrones = new TEveBoxSet("SttIsochrones");
+		fListOfTiltedIsochrones = new TEveBoxSet("SttTiltedIsochrones");
 		//fListOfTracks->DestroyElements();
 
 		gEve->AddElement(fListOfIsochrones, fEventManager);
+		fListOfIsochrones->AddElement(fListOfTiltedIsochrones);
 		Double_t eventTime = FairRootManager::Instance()->GetEventTime();
 
 		if (FairRunAna::Instance()->IsTimeStamp()) {
@@ -197,6 +199,7 @@ void PndSttIsochroneDraw::Exec(Option_t* option)
 
 				TEveGeoShape* myEveShape;
 				myEveShape = new TEveGeoShape("SttTube");
+				radiusError = 0.05;
 				myEveShape->SetShape(
 						new TGeoTube(radius - radiusError, radius + radiusError,
 								tubeLengthHalf));
@@ -243,12 +246,19 @@ void PndSttIsochroneDraw::Exec(Option_t* option)
 				geoTrans.SetTranslation(trans);
 
 				myEveShape->SetTransMatrix(geoTrans);
-
-				fListOfIsochrones->AddElement(myEveShape);
-
+				if (radius > 0) {
+					if (myTube->GetWireDirection().Pt() > 0) {
+						fListOfTiltedIsochrones->AddElement(myEveShape);
+					}
+					else {
+						fListOfIsochrones->AddElement(myEveShape);
+					}
+				}
 			}
 		}
 		gEve->Redraw3D(kFALSE);
+		delete fListOfIsochrones;
+		delete fListOfTiltedIsochrones;
 	}
 }
 
@@ -271,9 +281,16 @@ void PndSttIsochroneDraw::Finish()
 void PndSttIsochroneDraw::Reset()
 {
    if (fListOfIsochrones != 0){
+	   fListOfIsochrones->Reset();
 	   gEve->RemoveElement(fListOfIsochrones, fEventManager);
 	   //delete(fListOfTracks);
    }
+
+   if (fListOfTiltedIsochrones != 0) {
+		fListOfTiltedIsochrones->Reset();
+		gEve->RemoveElement(fListOfTiltedIsochrones, fEventManager);
+		//delete(fListOfTracks);
+	}
 }
 
 

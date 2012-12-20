@@ -116,6 +116,7 @@ class PndSdsStripClusterTask : public PndSdsTask
     PndSdsCalcStrip* fCurrentStripCalcBot; 
     PndSdsChargeWeightingAlgorithms* fChargeAlgos;
     PndSdsChargeConversion* fCurrentChargeConverter;
+    PndSdsStripDigiPar* fDigiPar;
 
 	  
     PndGeoHandling* fGeoH;      //! Geometry name handling

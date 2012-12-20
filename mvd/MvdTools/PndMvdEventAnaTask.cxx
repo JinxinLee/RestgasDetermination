@@ -652,7 +652,7 @@ std::map<int, std::vector<int> > PndMvdEventAnaTask::AssignHitsToTracks()
 void PndMvdEventAnaTask::PrintTrackCand(GFTrackCand* cand) const
 {
   unsigned int det, hit;
-     std::cout << "TrackCand: " << cand->getCurv() << " curv, " << cand->getDip() << " dip, " << (int)(cand->inverted()) << " inverted." << "\n";
+     //std::cout << "TrackCand: " << cand->getCurv() << " curv, " << cand->getDip() << " dip, " << (int)(cand->inverted()) << " inverted." << "\n";
      for (unsigned int i = 0; i < cand->getNHits(); i++){
     	 cand->getHit(i, det, hit);
     	 std::cout << det << "/" << hit << " ";

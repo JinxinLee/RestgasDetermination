@@ -16,106 +16,114 @@
 #include "FairRootManager.h"
 #include "PndLhePidTrack.h"
 
-
 #include "PndDetectorList.h"
 #include <iostream>
 using std::cout;
 using std::endl;
 
 // -----   Standard constructor   ------------------------------------------
-PndTrackCandDraw::PndTrackCandDraw(const char* TrackCandName, Int_t iVerbose):
-		FairBoxSetDraw(TrackCandName, iVerbose),
-		fPixPointList(0), fStripPointList(0), fTrackCandList(0), fSttHelixList(0), fGemHitList(0)
-{
+PndTrackCandDraw::PndTrackCandDraw(const char* TrackCandName, Int_t iVerbose) :
+		FairBoxSetDraw(TrackCandName, iVerbose), fPixPointList(0), fStripPointList(
+				0), fTrackCandList(0), fSttHelixList(0), fGemHitList(0) {
 }
 // -------------------------------------------------------------------------
-InitStatus PndTrackCandDraw::Init()
-{
+InitStatus PndTrackCandDraw::Init() {
 	FairBoxSetDraw::Init();
 
-   if(fVerbose>1)  cout<<  "PndTrackCandDraw::Init()" << endl;
-   fManager = FairRootManager::Instance();
-   fPixPointList = (TClonesArray *)fManager->GetObject("MVDHitsPixel");
-   fStripPointList = (TClonesArray *)fManager->GetObject("MVDHitsStrip");
-   fSttHelixList   = (TClonesArray *)fManager->GetObject("SttHelixHit");
-   fGemHitList		= (TClonesArray* )fManager->GetObject("GEMHit");
-   if(fPixPointList==0){
-      cout << "PndTrackCandDraw::Init()  branch MVDHitsPixel Not found! Task will be deactivated "<< endl;
-      //SetActive(kFALSE);
-    }
-   if(fStripPointList==0){
-      cout << "PndTrackCandDraw::Init()  branch MVDHitsStrip Not found! Task will be deactivated "<< endl;
-      //SetActive(kFALSE);
-    }
-  if(fSttHelixList==0){
-      cout << "PndTrackCandDraw::Init()  branch SttHelixList Not found! Task will be deactivated "<< endl;
-      //SetActive(kFALSE);
-   }
-   if(fGemHitList==0){
-         cout << "PndTrackCandDraw::Init()  branch GemHitList Not found! Task will be deactivated "<< endl;
-         //SetActive(kFALSE);
-      }
-   if(fVerbose>2){
-     cout<<  "PndTrackCandDraw::Init() get pix points list" <<  fPixPointList<< endl;
-     cout<<  "PndTrackCandDraw::Init() get strip points list" <<  fStripPointList<< endl;
-     cout<<  "PndTrackCandDraw::Init() get stt helix list" << fSttHelixList<<endl;
-     cout<<  "PndTrackCandDraw::Init() get gem hit list" << fGemHitList<<endl;
+	if (fVerbose > 1)
+		cout << "PndTrackCandDraw::Init()" << endl;
+	fManager = FairRootManager::Instance();
+	fPixPointList = (TClonesArray *) fManager->GetObject("MVDHitsPixel");
+	fStripPointList = (TClonesArray *) fManager->GetObject("MVDHitsStrip");
+	fSttHelixList = (TClonesArray *) fManager->GetObject("SttHelixHit");
+	fGemHitList = (TClonesArray*) fManager->GetObject("GEMHit");
+	if (fPixPointList == 0) {
+		cout
+				<< "PndTrackCandDraw::Init()  branch MVDHitsPixel Not found! Task will be deactivated "
+				<< endl;
+		//SetActive(kFALSE);
+	}
+	if (fStripPointList == 0) {
+		cout
+				<< "PndTrackCandDraw::Init()  branch MVDHitsStrip Not found! Task will be deactivated "
+				<< endl;
+		//SetActive(kFALSE);
+	}
+	if (fSttHelixList == 0) {
+		cout
+				<< "PndTrackCandDraw::Init()  branch SttHelixList Not found! Task will be deactivated "
+				<< endl;
+		//SetActive(kFALSE);
+	}
+	if (fGemHitList == 0) {
+		cout
+				<< "PndTrackCandDraw::Init()  branch GemHitList Not found! Task will be deactivated "
+				<< endl;
+		//SetActive(kFALSE);
+	}
+	if (fVerbose > 2) {
+		cout << "PndTrackCandDraw::Init() get pix points list" << fPixPointList
+				<< endl;
+		cout << "PndTrackCandDraw::Init() get strip points list"
+				<< fStripPointList << endl;
+		cout << "PndTrackCandDraw::Init() get stt helix list" << fSttHelixList
+				<< endl;
+		cout << "PndTrackCandDraw::Init() get gem hit list" << fGemHitList
+				<< endl;
 
-   }
-   fq=0;
+	}
+	fq = 0;
 
-   return kSUCCESS;
+	return kSUCCESS;
 }
 // -------------------------------------------------------------------------
 
+void PndTrackCandDraw::AddBoxes(FairBoxSet* set, TObject* obj, Int_t i) {
 
-void PndTrackCandDraw::AddBoxes(FairBoxSet* set, TObject* obj, Int_t i)
-{
-
-	if (0 == strcmp(obj->ClassName(), "GFTrackCand") || 0 == strcmp(obj->ClassName(), "PndLhePidTrack"))
+	if (0 == strcmp(obj->ClassName(), "GFTrackCand")
+			|| 0 == strcmp(obj->ClassName(), "PndLhePidTrack"))
 		AddBoxesTrackCand(set, obj, i);
 	else if (0 == strcmp(obj->ClassName(), "PndTrackCand"))
 		AddBoxesPndTrackCand(set, obj, i);
 }
 
+void PndTrackCandDraw::AddBoxesTrackCand(FairBoxSet* set, TObject* obj, Int_t i) {
+	GFTrackCand *tc;
+	PndLhePidTrack *pidtc;
 
-void PndTrackCandDraw::AddBoxesTrackCand(FairBoxSet* set, TObject* obj, Int_t i)
-{
-	   GFTrackCand *tc;
-	   PndLhePidTrack *pidtc;
+	if (0 == strcmp(obj->ClassName(), "GFTrackCand")) {
+		tc = (GFTrackCand *) obj;
+		std::cout << "fTrackCandList is full of GFTrackCands" << std::endl;
+	} else if (0 == strcmp(obj->ClassName(), "PndLhePidTrack")) {
+		pidtc = (PndLhePidTrack *) fTrackCandList->At(i);
+		std::cout << "fTrackCandList is full of PndLhePidTracks" << std::endl;
+		AddBoxesPndTrackCand(set, pidtc->GetTrackCand(), i);
+	} else {
+		std::cout << "fTrackCandList is full of UNKNOWN " << obj->ClassName()
+				<< "?" << std::endl;
+	}
+	if (0 == tc)
+		return;
 
-	      if( 0 == strcmp(obj->ClassName() , "GFTrackCand")) {
-	        tc=(GFTrackCand *)obj;
-	        std::cout<<"fTrackCandList is full of GFTrackCands"<<std::endl;
-	      } else if ( 0 == strcmp(obj->ClassName() , "PndLhePidTrack") ) {
-	        pidtc=(PndLhePidTrack *)fTrackCandList->At(i);
-	        std::cout<<"fTrackCandList is full of PndLhePidTracks"<<std::endl;
-	        AddBoxesPndTrackCand(set,pidtc->GetTrackCand(), i);
-	      } else {
-	        std::cout<<"fTrackCandList is full of UNKNOWN "<<obj->ClassName()<<"?"<<std::endl;
-	      }
-	      if(0==tc) return;
-
-
-	      for (Int_t j = 0; j < tc->getNHits(); j++){
-	        unsigned int detId, hitId;
-	        tc->getHit(j, detId, hitId);
-	        TVector3 point = GetVector(detId, hitId);
-	        set->AddBox(point.X(), point.Y(), point.Z());
-	        set->DigitValue(i);
-	      }
+	for (Int_t j = 0; j < tc->getNHits(); j++) {
+		unsigned int detId, hitId;
+		tc->getHit(j, detId, hitId);
+		TVector3 point = GetVector(detId, hitId);
+		set->AddBox(point.X(), point.Y(), point.Z());
+		set->DigitValue(i);
+	}
 }
 
-void PndTrackCandDraw::AddBoxesPndTrackCand(FairBoxSet* set, TObject* obj, Int_t i)
-{
+void PndTrackCandDraw::AddBoxesPndTrackCand(FairBoxSet* set, TObject* obj, Int_t i) {
 
-	PndTrackCand* pndtc = (PndTrackCand*)obj;
+	PndTrackCand* pndtc = (PndTrackCand*) obj;
 	std::cout << "Hits in TrackCand: " << std::endl;
 
-	((FairMultiLinkedData*)pndtc)->Print();
-	for (Int_t j = 0; j < pndtc->GetNHits(); j++){
+	((FairMultiLinkedData*) pndtc)->Print();
+	for (Int_t j = 0; j < pndtc->GetNHits(); j++) {
 		TVector3 point = GetVector(pndtc->GetLink(j));
 		set->AddBox(point.X(), point.Y(), point.Z());
+		std::cout << " color: " << i << std::endl;
 		set->DigitValue(i);
 	}
 
@@ -130,18 +138,13 @@ void PndTrackCandDraw::AddBoxesPndTrackCand(FairBoxSet* set, TObject* obj, Int_t
 //	std::cout << std::endl;
 }
 
-TVector3 PndTrackCandDraw::GetVector(Int_t detId, Int_t hitId)
-{
+TVector3 PndTrackCandDraw::GetVector(Int_t detId, Int_t hitId) {
 	FairHit * p;
 	FairRootManager* ioman = FairRootManager::Instance();
 	TString branchName = ioman->GetBranchName(detId);
-	TClonesArray* data = (TClonesArray*)(ioman->GetObject(branchName));
-	if (branchName == "MVDHitsStrip" ||
-		branchName == "MVDHitsPixel" ||
-		branchName == "SttHelixHit" ||
-		branchName == "GemHit")
-	{
-		p = (FairHit*)data->At(hitId);
+	TClonesArray* data = (TClonesArray*) (ioman->GetObject(branchName));
+	if (branchName == "MVDHitsStrip" || branchName == "MVDHitsPixel" || branchName == "SttHelixHit" || branchName == "GEMHit") {
+		p = (FairHit*) data->At(hitId);
 //		if (detId == kMVDHitsPixel)
 //		{
 //			p = (FairHit *) fPixPointList->At(hitId);
@@ -156,32 +159,28 @@ TVector3 PndTrackCandDraw::GetVector(Int_t detId, Int_t hitId)
 //		else if (detId == kGemHit){
 //			p = (FairHit *) fGemHitList->At(hitId);
 //		}
-
+		std::cout << "Hit in " << branchName << "(" << p->GetX() << "/" << p->GetY() << "/" << p->GetZ() << ")" << std::endl;
 		return (TVector3(p->GetX(), p->GetY(), p->GetZ()));
-	}
-	else
+	} else
 		std::cout
 				<< "-E- PndTrackCandDraw::GetVector : Unknown Detector with ID: "
 				<< detId << std::endl;
 	return TVector3();
 }
 
-TVector3 PndTrackCandDraw::GetVector(FairLink link)
-{
+TVector3 PndTrackCandDraw::GetVector(FairLink link) {
 	FairHit *p;
 	FairRootManager* ioman = FairRootManager::Instance();
 	TString branchName = ioman->GetBranchName(link.GetType());
-	if (branchName == "MVDHitsStrip" ||
-		branchName == "MVDHitsPixel" ||
-		branchName == "SttHelixHit" ||
-		branchName == "GemHit")
-	{
-		p = (FairHit*)ioman->GetCloneOfLinkData(link);
+	if (branchName == "MVDHitsStrip" || branchName == "MVDHitsPixel"
+			|| branchName == "SttHelixHit" || branchName == "GemHit") {
+		p = (FairHit*) ioman->GetCloneOfLinkData(link);
 		TVector3 vec(p->GetX(), p->GetY(), p->GetZ());
+		std::cout << "Hit in " << branchName << "Link: " << link << "(" << p->GetX() << "/" << p->GetY() << "/" << p->GetZ() << ")";// << std::endl;
+
 		delete p;
 		return (vec);
-	}
-	else
+	} else
 		std::cout
 				<< "-E- PndTrackCandDraw::GetVector : Unknown Detector with ID: "
 				<< link << std::endl;
@@ -190,14 +189,9 @@ TVector3 PndTrackCandDraw::GetVector(FairLink link)
 }
 
 // -----   Destructor   ----------------------------------------------------
-PndTrackCandDraw::~PndTrackCandDraw()
-{
+PndTrackCandDraw::~PndTrackCandDraw() {
 }
 // -------------------------------------------------------------------------
 
-
-
 ClassImp(PndTrackCandDraw)
-
-
 

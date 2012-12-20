@@ -113,7 +113,7 @@ InitStatus PndMCMatchCreatorTask::Init()
 	fMCLink = new TClonesArray("PndMCEntry");
 	ioman->Register("MCLink", "MCInfo", fMCLink, kTRUE);
 
-	ioman->Register("MCMatch", "MCMatch", fMCMatch, kFALSE);
+	ioman->Register("MCMatch", "MCInfo", fMCMatch, kFALSE);
 
 	std::cout << "-I- PndMCMatchCreatorTask::Init: Initialization successfull" << std::endl;
 

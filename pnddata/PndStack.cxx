@@ -8,6 +8,7 @@
 #include "FairMCPoint.h"
 #include "PndMCTrack.h"
 #include "FairRootManager.h"
+#include "FairMCEventHeader.h"
 
 #include "TError.h"
 #include "TLorentzVector.h"
@@ -299,6 +300,8 @@ void PndStack::UpdateTrackIndex(TRefArray* detList) {
   fLogger->Debug(MESSAGE_ORIGIN, "PndStack: Updating track indizes...");
   Int_t nColl = 0;
 
+  FairMCEventHeader* header = (FairMCEventHeader*)FairRootManager::Instance()->GetObject("MCEventHeader.");
+
   // First update mother ID in MCTracks
   for (Int_t i=0; i<fNTracks; i++) {
     PndMCTrack* track = (PndMCTrack*)fTracks->At(i);
@@ -324,32 +327,35 @@ void PndStack::UpdateTrackIndex(TRefArray* detList) {
   TIterator* detIter = detList->MakeIterator();
   detIter->Reset();
   FairDetector* det = NULL;
-  while( (det = (FairDetector*)detIter->Next() ) ) {
+	while ((det = (FairDetector*) detIter->Next())) {
 
+		// --> Get hit collections from detector
+		Int_t iColl = 0;
+		TClonesArray* hitArray;
+		while ((hitArray = det->GetCollection(iColl++))) {
+			nColl++;
+			Int_t nPoints = hitArray->GetEntriesFast();
 
-    // --> Get hit collections from detector
-    Int_t iColl = 0;
-    TClonesArray* hitArray;
-    while ( (hitArray = det->GetCollection(iColl++)) ) {
-      nColl++;
-      Int_t nPoints = hitArray->GetEntriesFast();
-      
-      // --> Update track index for all MCPoints in the collection
-      for (Int_t iPoint=0; iPoint<nPoints; iPoint++) {
-	FairMCPoint* point = (FairMCPoint*)hitArray->At(iPoint);
-	Int_t iTrack = point->GetTrackID();
+			// --> Update track index for all MCPoints in the collection
+			for (Int_t iPoint = 0; iPoint < nPoints; iPoint++) {
+				FairMCPoint* point = (FairMCPoint*) hitArray->At(iPoint);
+				Int_t iTrack = point->GetTrackID();
 
-	fIndexIter = fIndexMap.find(iTrack);
-	if (fIndexIter == fIndexMap.end()) {
-	  fLogger->Error(MESSAGE_ORIGIN,"PndStack: Particle index %i not found in index map! " ,iTrack);
-	  Fatal("PndStack::UpdateTrackIndex","Particle index not found in map");
-	}
-	point->SetTrackID((*fIndexIter).second);
-        point->SetLink(FairLink("MCTrack", (*fIndexIter).second));
-      }
+				fIndexIter = fIndexMap.find(iTrack);
+				if (fIndexIter == fIndexMap.end()) {
+					fLogger->Error(MESSAGE_ORIGIN,
+							"PndStack: Particle index %i not found in index map! ",
+							iTrack);
+					Fatal("PndStack::UpdateTrackIndex",
+							"Particle index not found in map");
+				}
+				point->SetTrackID((*fIndexIter).second);
+//				std::cout << "Header->GetEventID() " << header->GetEventID() << std::endl;
+				point->SetLink(FairLink(-1, (header->GetEventID()-1), "MCTrack", (*fIndexIter).second));
+			}
 
-    }   // Collections of this detector
-  }     // List of active detectors
+		}   // Collections of this detector
+	}     // List of active detectors
 
   fLogger->Debug(MESSAGE_ORIGIN,"...stack and %i collections updated.", nColl);
   delete detIter;

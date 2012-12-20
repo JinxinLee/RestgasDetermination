@@ -259,7 +259,7 @@ void PndSdsStripClusterTask::Exec(Option_t* opt)
 
 	if (FairRunAna::Instance()->IsTimeStamp()){
 	  fDigiArray->Clear();
-	  fDigiArray = FairRootManager::Instance()->GetData(fInBranchName, fFunctor, 10); //FairRootManager::Instance()->GetEventTime() +
+	  fDigiArray = FairRootManager::Instance()->GetData(fInBranchName, fFunctor, (1./40.0) * 1000.); //FairRootManager::Instance()->GetEventTime() +
 	  if(fVerbose > 1)
 		  std::cout << "-I- PndSdsStripClusterTask::Exec Digis: " << fDigiArray->GetEntries() << std::endl;
 	}
@@ -335,7 +335,7 @@ void PndSdsStripClusterTask::Exec(Option_t* opt)
       PndSdsClusterStrip* myCluster = new((*fClusterArray)[clindex]) PndSdsClusterStrip(*(*clit));
 
       if (FairRunAna::Instance()->IsTimeStamp()){
-		  myCluster->Reset();
+		  myCluster->ResetLinks();
 		  for(UInt_t i = 0; i < myCluster->GetClusterSize(); i++){
 			  PndSdsDigiStrip* tempDigi = (PndSdsDigiStrip*)fDigiArray->At(myCluster->GetDigiIndex(i));
 			  myCluster->AddLink(FairLink(tempDigi->GetEntryNr()));
@@ -463,8 +463,8 @@ void PndSdsStripClusterTask::Exec(Option_t* opt)
           tmphit = new((*fHitArray)[i]) PndSdsHit(clDetID,sensorIDtop,hitPos,hitErr,
                                                   topIndex,mycharge,oneclusterbot.size()+oneclustertop.size(),mcindex);
           tmphit->SetBotIndex(botIndex);
-          tmphit->SetLink(FairLink(fClusterType, topIndex));
-          tmphit->AddLink(FairLink(fClusterType, botIndex));
+          tmphit->SetLink(FairLink(-1, FairRootManager::Instance()->GetEntryNr(), fClusterType, topIndex));
+          tmphit->AddLink(FairLink(-1, FairRootManager::Instance()->GetEntryNr(), fClusterType, botIndex));
           tmphit->SetCov(hitCov);
           tmphit->SetTimeStamp(timestamp);
           tmphit->SetTimeStampError(timestampError);

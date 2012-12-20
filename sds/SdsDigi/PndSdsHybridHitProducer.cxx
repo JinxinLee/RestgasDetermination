@@ -367,18 +367,19 @@ void PndSdsHybridHitProducer::Exec(Option_t* opt)
     	std::cout << "TimeStampCalc: EventTime: " << EventTime << " ToF " << point->GetTime() << " charge " << smearedChargeInE << " TW: " << timewalk << " CorrectedTS: " << correctedTimeStamp << std::endl;
     	std::cout << "Diff TimeStamp - EventTime " << correctedTimeStamp - EventTime << std::endl;
    	}
-
     PndSdsDigiPixel *tempPixel = new PndSdsDigiPixel( fPixelList[iPix].GetMCIndex(), fInBranchId, fPixelList[iPix].GetSensorID() ,fPixelList[iPix].GetFE(),
                                                      fPixelList[iPix].GetCol(), fPixelList[iPix].GetRow(),
                                                      smearedCharge, correctedTimeStamp); //fChargeConverter->GetTimeStamp(point->GetTime(), charge,fEventHeader->GetEventTime()) );
     
-    tempPixel->Reset();
-    std::vector<int> indices = fPixelList[iPix].GetMCIndex();
-    FairEventHeader* evtHeader = (FairEventHeader*)FairRootManager::Instance()->GetObject("EventHeader.");
-    for (int i = 0; i < indices.size(); i++){
-      tempPixel->AddLink(FairLink(evtHeader->GetInputFileId(), evtHeader->GetMCEntryNumber(),  fInBranchId, indices[i]));
+    if (fTimeOrderedDigi){
+		tempPixel->ResetLinks();
+		std::vector<int> indices = fPixelList[iPix].GetMCIndex();
+		FairEventHeader* evtHeader = (FairEventHeader*)FairRootManager::Instance()->GetObject("EventHeader.");
+		for (int i = 0; i < indices.size(); i++){
+		  tempPixel->AddLink(FairLink(evtHeader->GetInputFileId(), evtHeader->GetMCEntryNumber(),  fInBranchId, indices[i]));
+		}
+		tempPixel->AddLink(FairLink(-1, fEventNr, "EventHeader.", -1));
     }
-    tempPixel->AddLink(FairLink(-1, fEventNr, "EventHeader.", -1));
     fDataBuffer->FillNewData(tempPixel, fChargeConverter->ChargeToDigiValue(fPixelList[iPix].GetCharge())*6 + EventTime, point->GetTime()+EventTime);
     
     if (fVerbose > 0){
