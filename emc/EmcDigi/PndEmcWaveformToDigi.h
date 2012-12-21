@@ -35,6 +35,7 @@ class PndEmcDigiPar;
 class PndEmcRecoPar;
 class PndEmcAbsPSA;
 class PndEmcAbsPulseshape;
+class PndEmcAbsCrystalCalibrator;
 
 class PndEmcWaveformToDigi : public FairTask
 {
@@ -59,8 +60,31 @@ public:
   void SetStorageOfData(Bool_t val); // Method to specify whether digis are stored or not.
   void RunTimeBased(){fTimeOrderedDigi = kTRUE;}
 
+  /**
+	* @brief Set PSA Algorithm to be used for Barrel and Endcaps
+	*
+	* @param psa  The psa to be used
+	*
+	**/
   virtual void SetPSAAlgorithm(PndEmcAbsPSA *psa){fpsaAlgorithm=psa;}
+
+  /**
+	* @brief Set PSA Algorithm to be used for Forward Shashlik
+	*
+	* @param psa  The psa to be used
+	*
+	* @return 
+	**/
   virtual void SetPSAAlgorithmPMT(PndEmcAbsPSA *psa){fpsaAlgorithm_pmt=psa;}
+  
+  /**
+	* @brief Set The Crystal Calibrator to use
+	*
+	* @param Cal The Calibrator to be used  
+	*
+	* @return 
+	**/
+  virtual void SetCrystalCalibrator(PndEmcAbsCrystalCalibrator *Cal){fCalibrator=Cal;}
 
 private:
 
@@ -78,6 +102,7 @@ private:
 	Double_t fPMT_Shaping_diff_time;    //s
 	Double_t fCrystal_time_constant;  //s
 	Double_t fShashlyk_time_constant;  //s
+
 	Int_t fNumber_of_samples_in_waveform;
 	Int_t fNumber_of_samples_in_waveform_pmt;
 	
@@ -92,6 +117,8 @@ private:
 	PndEmcAbsPSA *fpsaAlgorithm;
 	PndEmcAbsPSA *fpsaAlgorithm_pmt;
 
+	PndEmcAbsCrystalCalibrator *fCalibrator;
+
 	PndEmcDigiPar*    fDigiPar;      /** Digitisation parameter container **/
 	PndEmcRecoPar*    fRecoPar;      /** Reconstruction parameter container **/
 	/** Get parameter containers **/
@@ -105,8 +132,6 @@ private:
 	Bool_t fStoreDigis;
 	Bool_t fTimeOrderedDigi; ///<set to kTRUE to use the time ordering of the output data.
 	
-	Double_t fWfNormalisation; // Waveform normalisation constant
-	Double_t fWfNormalisation_pmt;
 
 	PndEmcWaveformToDigi(const  PndEmcWaveformToDigi& L);
 	PndEmcWaveformToDigi& operator= (const  PndEmcWaveformToDigi&) {return *this;};
