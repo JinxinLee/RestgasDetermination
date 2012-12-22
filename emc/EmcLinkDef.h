@@ -90,6 +90,12 @@
 #pragma link C++ class PndEmcPSAFPGAMLinFitter+;
 #pragma link C++ class PndEmcPSAFPGASampleAnalyser+;
 
+
+#pragma link C++ class PndEmcAbsCrystalCalibrator+;
+#pragma link C++ class PndEmcDummyCrystalCalibrator+;
+#pragma link C++ class PndEmcFileCrystalCalibrator+;
+#pragma link C++ class PndEmcSimCrystalCalibrator+;
+
 #pragma link C++ class  vector<PndEmcHit*>;
 #pragma link C++ class  vector<PndEmcPoint*>;
 #pragma link C++ class  vector<PndEmcDigi*>;

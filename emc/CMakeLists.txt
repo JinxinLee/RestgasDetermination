@@ -19,7 +19,6 @@ ${CMAKE_SOURCE_DIR}/emc/EmcTools
 ${CMAKE_SOURCE_DIR}/emc/EmcProtoTools
 ${CMAKE_SOURCE_DIR}/emc/EmcCorr
 ${CMAKE_SOURCE_DIR}/emc
-
 )
 
 include_directories( ${INCLUDE_DIRECTORIES})
@@ -116,6 +115,10 @@ EmcDigi/PndEmcPSAFPGA/PndEmcPSAFPGAIntegratingAnalyser.cxx
 EmcDigi/PndEmcPSAFPGA/PndEmcPSAFPGALinFitter.cxx
 EmcDigi/PndEmcPSAFPGA/PndEmcPSAFPGAMLinFitter.cxx
 EmcDigi/PndEmcPSAFPGA/PndEmcPSAFPGASampleAnalyser.cxx
+EmcDigi/PndEmcAbsCrystalCalibrator.cxx
+EmcDigi/PndEmcDummyCrystalCalibrator.cxx
+EmcDigi/PndEmcFileCrystalCalibrator.cxx
+EmcDigi/PndEmcSimCrystalCalibrator.cxx
 )
 
 if(RULE_CHECKER_FOUND)
@@ -134,7 +137,7 @@ ROOT_GENERATE_DICTIONARY("${EMC_HEADERS}" "${EMC_LINKDEF}" "${EMC_DICTIONARY}" "
 SET(EMC_SRCS ${EMC_SRCS} ${EMC_DICTIONARY})
 
 add_library(Emc SHARED ${EMC_SRCS})
-target_link_libraries(Emc ${ROOT_LIBRARIES} )
+target_link_libraries(Emc ${ROOT_LIBRARIES})
 set_target_properties(Emc PROPERTIES ${FAIRROOT_LIBRARY_PROPERTIES})
 ################ install ###################
 install(TARGETS Emc DESTINATION ${CMAKE_BINARY_DIR}/lib)
