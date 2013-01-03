@@ -10,7 +10,7 @@ sim_complete(Int_t nEvents = 10, TString  SimEngine ="TGeant3", Float_t mom = 7.
   //-----User Settings:-----------------------------------------------
   TString  OutputFile     ="sim_complete.root";
   TString  ParOutputfile  ="simparams.root";
-  Double_t BeamMomentum   =15.0;
+  Double_t BeamMomentum   =15.0; // beam momentum ONLY for the scaling of the dipole field. For the generator use "mom"
   TString  MediaFile      ="media_pnd.geo";
   gDebug                  = 0;
   TString digiFile        = "all.par"; //The emc run the hit producer directly 
