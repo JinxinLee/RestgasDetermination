@@ -367,7 +367,8 @@ void PndTrkPlotMacros::DrawHexagonCircleInMacro(
 
  Vec<Double_t> info(In_Put.info,In_Put.MAXSTTHITS*7,"info") ;
 
- Vec<bool> InclusionListSciTil(In_Put.InclusionListSciTil,In_Put.MAXSTTHITS,"InclusionListSciTil") ;
+ Vec<bool> InclusionListSciTil(In_Put.InclusionListSciTil,In_Put.MAXSCITILHITS,"InclusionListSciTil") ;
+ Vec<bool> InclusionListStt(In_Put.InclusionListSciTil,In_Put.MAXSTTHITS,"InclusionListSciTil") ;
 	int IVOLTE = In_Put.IVOLTE;
  Vec<Double_t> KAPPA(In_Put.KAPPA,In_Put.MAXTRACKSPEREVENT,"KAPPA") ;
  Vec<bool> keepit(In_Put.keepit,In_Put.MAXTRACKSPEREVENT,"keepit") ;
@@ -832,6 +833,7 @@ void PndTrkPlotMacros::DrawHexagonCircleInMacro(
 	APOTEMAMINOUTERPARSTRAW,
 	APOTEMAMINSKEWSTRAW,
 	&InclusionListSciTil,
+	&InclusionListStt,
 		&info,
 		IVOLTE,
 		&keepit,
@@ -888,6 +890,7 @@ void PndTrkPlotMacros::WriteMacroAllHitsRestanti(
 	Double_t APOTEMAMINOUTERPARSTRAW,
 	Double_t APOTEMAMINSKEWSTRAW,
 	Vec <bool> * InclusionListSciTil,
+	Vec <bool> * InclusionListStt,
 	Vec <Double_t> * info,
 	int IVOLTE,
 	Vec <bool> * keepit,
@@ -1035,7 +1038,7 @@ void PndTrkPlotMacros::WriteMacroAllHitsRestanti(
 //--------------
 
        for( i=0; i< nSttHit; i++) {
-         if( !exclusionStt[i]) {     // all straws
+         if( (!exclusionStt[i])  && InclusionListStt->at(i) ) {     // all straws
          if( info->at(i*7+5) == 1 ) {     // parallel straws
             fprintf(MACRO,"TEllipse* E%d = new TEllipse(%f,%f,%f,%f,0.,360.);\nE%d->SetFillStyle(0);\nE%d->Draw();\n",
                      i,info->at(i*7+0),info->at(i*7+1),info->at(i*7+3),info->at(i*7+3),i,i);
@@ -1207,6 +1210,7 @@ void PndTrkPlotMacros::WriteMacroParallelHitsGeneral(
 //--------------
 
        for( i=0; i< Nhits; i++) {
+         if(!In_Put.InclusionListStt[i]) continue;
          if( info->at(i*7+5) == 1 ) {     // parallel straws
 fprintf(MACRO,"TEllipse* Paral%d = new TEllipse(%f,%f,%f,%f,0.,360.);\nParal%d->SetFillStyle(0);\nParal%d->Draw();\n",
                      i,info->at(i*7+0),info->at(i*7+1),info->at(i*7+3),info->at(i*7+3),i,i);
@@ -1329,6 +1333,11 @@ fprintf(MACRO,
 //--------------
 
        for( i=0; i< Nhits; i++) {
+
+if(i==56 || i==143) {cout<<"\ncazzofiga--------------------- InclusionListStt["<<i<<"] = "<<In_Put.InclusionListStt[i]<<endl;}
+
+
+         if( ! In_Put.InclusionListStt[i] ) continue;
          if( info->at(i*7+5) == 1 ) {     // parallel straws
 fprintf(MACRO,"TEllipse* Paral%d = new TEllipse(%f,%f,%f,%f,0.,360.);\nParal%d->SetFillStyle(0);\nParal%d->Draw();\n",
                      i,info->at(i*7+0),info->at(i*7+1),info->at(i*7+3),info->at(i*7+3),i,i);
@@ -1529,44 +1538,6 @@ fprintf(MACRO,
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 //----------start of function PndTrkPlotMacros::WriteMacroParallelHitsGeneralConformalwithMC
 //  inizio cambio_in_perl ;
 
@@ -1683,6 +1654,7 @@ void PndTrkPlotMacros::WriteMacroParallelHitsGeneralConformalwithMC(
 
 
        for( i=0; i< Nhits; i++) {
+         if(!In_Put.InclusionListStt[i]) continue;
          if( info->at(i*7+5) == 1 ) {     // parallel straws
 //   centro sfera in sistema conforme
             gamma = info->at(i*7+0)*info->at(i*7+0) +
@@ -1778,6 +1750,7 @@ void PndTrkPlotMacros::WriteMacroParallelHitsGeneralConformalwithMC(
 
 // plot degli Hits Stt.
        for( i=0; i< Nhits; i++) {
+         if(!In_Put.InclusionListStt[i]) continue;
          if( info->at(i*7+5) == 1 ) {     // parallel straws
             fprintf(MACRO,
 "TEllipse* E%d = new TEllipse(%f,%f,%f,%f,0.,360.);\nE%d->SetFillStyle(0);\nE%d->Draw();\n",
@@ -2078,6 +2051,7 @@ void PndTrkPlotMacros::WriteMacroParallel_MvdHitsGeneralConformalwithMC(
 
 
        for( i=0; i< Nhits; i++) {
+         if(!In_Put.InclusionListStt[i]) continue;
          if( info->at(i*7+5) == 1 ) {     // parallel straws
 //   centro sfera in sistema conforme
             gamma = info->at(i*7+0)*info->at(i*7+0) +
@@ -2218,6 +2192,7 @@ void PndTrkPlotMacros::WriteMacroParallel_MvdHitsGeneralConformalwithMC(
 
 // plot degli Hits Stt.
        for( i=0; i< Nhits; i++) {
+         if(!In_Put.InclusionListStt[i]) continue;
          if( info->at(i*7+5) == 1 ) {     // parallel straws
             fprintf(MACRO,
 "TEllipse* E%d = new TEllipse(%f,%f,%f,%f,0.,360.);\nE%d->SetFillStyle(0);\nE%d->Draw();\n",
@@ -2562,6 +2537,7 @@ void PndTrkPlotMacros::WriteMacroSkewAssociatedHitswithMC(
 
        for( iii=0; iii< nSkewHitsinTrack[iTrack]; iii++) {
          i = ListSkewHitsinTrack[iTrack*MAXSTTHITSINTRACK+iii] ;
+         if(!In_Put.InclusionListStt[i]) continue;
          aaa = sqrt(WDX[i]*WDX[i]+WDY[i]*WDY[i]+ WDZ[i]*WDZ[i]);
          vx1 = WDX[i]/aaa;
          vy1 = WDY[i]/aaa;
@@ -2842,6 +2818,7 @@ void PndTrkPlotMacros::WriteMacroSkewAssociatedHitswithMC(
 
        for( iii=0; iii< nSkewHitsinTrack[iTrack]; iii++) {
          i = ListSkewHitsinTrack[iTrack*MAXSTTHITSINTRACK+iii] ;
+         if(!In_Put.InclusionListStt[i]) continue;
 
          aaa = sqrt(WDX[i]*WDX[i]+WDY[i]*WDY[i]+ WDZ[i]*WDZ[i]);
          vx1 = WDX[i]/aaa;
@@ -3355,7 +3332,8 @@ void PndTrkPlotMacros::WriteMacroSttParallelAssociatedHitsandMvdwithMC(
 
  Vec<Double_t> info(In_Put.info,In_Put.MAXSTTHITS*7,"info") ; // dimensione originale : [MAXSTTHITS][7];
 
- Vec<bool> InclusionListSciTil(In_Put.InclusionListSciTil,In_Put.MAXSTTHITS,"InclusionListSciTil") ;
+ Vec<bool> InclusionListSciTil(In_Put.InclusionListSciTil,In_Put.MAXSCITILHITS,"InclusionListSciTil") ;
+ Vec<bool> InclusionListStt(In_Put.InclusionListSciTil,In_Put.MAXSTTHITS,"InclusionListStt") ;
 	int IVOLTE = In_Put.IVOLTE;
  Vec<Double_t> KAPPA(In_Put.KAPPA,In_Put.MAXTRACKSPEREVENT,"KAPPA") ;
  Vec<bool> keepit(In_Put.keepit,In_Put.MAXTRACKSPEREVENT,"keepit") ;
