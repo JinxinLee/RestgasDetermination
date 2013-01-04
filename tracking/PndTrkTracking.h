@@ -17,7 +17,6 @@
 #include "TH1F.h"
 #include "TH2F.h"
 
-
 class FairMCPoint;
 
 class PndTrkTracking : public FairTask
