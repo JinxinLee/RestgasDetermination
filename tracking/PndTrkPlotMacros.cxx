@@ -1334,7 +1334,6 @@ fprintf(MACRO,
 
        for( i=0; i< Nhits; i++) {
 
-if(i==56 || i==143) {cout<<"\ncazzofiga--------------------- InclusionListStt["<<i<<"] = "<<In_Put.InclusionListStt[i]<<endl;}
 
 
          if( ! In_Put.InclusionListStt[i] ) continue;
