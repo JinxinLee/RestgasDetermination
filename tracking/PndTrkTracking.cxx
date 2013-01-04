@@ -1345,6 +1345,8 @@ if(istampa>0){
 //----- loop over the parallel hits
 
 //   begins the first iteration with more severe cuts on the # hits in track candidate
+
+int iconta=0;
  for(iParHit=0; iParHit<nSttParHit + 1 -  MINIMUMHITSPERTRACK ; iParHit++) {
 
 	if( nSttTrackCand >= MAXTRACKSPEREVENT) {
@@ -1354,7 +1356,7 @@ if(istampa>0){
 		break;
 	}
 	if( ! InclusionListStt[ListSttParHits[iParHit]] )  continue;
-
+iconta++;
 	// inputs for the FindTrackInXYProjection class;
 	input.iHit = iParHit;// seed hit in the PARALLEL number scheme; it is negative for SciTil Hits.
 	input.nFicell = FiConformalIndex[ListSttParHits[iParHit]];  // Fi cell of the seed hit;
@@ -1420,7 +1422,8 @@ if(istampa>0){
 
 //-------------- stampa
  if(istampa>=2){
-	cout<<"from PndTrkTracking, after AssociateBetterAfterFitSkewHitsToXYTrack.\n";
+	cout<<"from PndTrkTracking, before Ordering, after primo loop sui paralleli.\n";
+	cout<<"\tevt. n. "<<IVOLTE<<", n. di cicli fatti nel primo loop "<<iconta<<endl;
 	fPrint.stampetta(
 			IVOLTE,
 			keepit,
@@ -3524,6 +3527,8 @@ if(istampa>=2){
 	In_Put.KAPPA = KAPPA ;
 	In_Put.keepit = keepit ;
 	In_Put.InclusionListSciTil = InclusionListSciTil ;
+	In_Put.InclusionListStt = SingleHitListStt ;
+
 	In_Put.istampa = istampa ;
 	In_Put.ListMvdPixelHitsinTrack = &ListMvdPixelHitsinTrack[0][0] ;
 	In_Put.ListMvdStripHitsinTrack = &ListMvdStripHitsinTrack[0][0] ;
@@ -5212,6 +5217,8 @@ void PndTrkTracking::MakeInclusionListStt(
  for(i=0; i< nSttHit-1; i++){
 	if( !InclusionListStt[ i ] ) continue;
 	for(j=i+1; j< nSttHit; j++){
+
+
 		if(InclusionListStt[ j ] &&
 			fabs(info[i][0] - info[j][0])<1.e-20 &&
 			fabs(info[i][1] - info[j][1])<1.e-20  )
