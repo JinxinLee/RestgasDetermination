@@ -27,6 +27,7 @@ struct PndTrkPlotMacros_InputData{
 	Double_t *KAPPA;
 	bool *keepit;
 	bool *InclusionListSciTil;
+	bool *InclusionListStt;
 	int istampa;
 	Short_t *ListMvdPixelHitsinTrack;
 	Short_t *ListMvdStripHitsinTrack;
@@ -206,6 +207,7 @@ void DrawHexagonCircleInMacro(
 	Double_t APOTEMAMINOUTERPARSTRAW,
 	Double_t APOTEMAMINSKEWSTRAW,
 	Vec <bool> *InclusionListSciTil,
+	Vec <bool> *InclusionListStt,
 	Vec <Double_t> *info,
 	int IVOLTE,
 	Vec <bool> *keepit,
