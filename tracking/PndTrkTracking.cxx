@@ -1,5 +1,6 @@
 #include "glpk.h"
 #include "PndTrkTracking.h"
+#include "PndTrkBoundaryParStraws.h"
 #include "PndTrkChi2Fits.h"
 #include "PndTrkComparisonMCtruth.h"
 #include "PndTrkSttConformalFilling.h"
@@ -269,6 +270,9 @@ void PndTrkTracking::Initialization_ClassVariables()
 	len = sizeof(nSttSkewHitsinTrack);
 	memset (nSttSkewHitsinTrack,0,len);
 
+	len = sizeof(nSttSkewHitsinTrack);
+	memset (nSttSkewHitsinTrack,0,len);
+
 //  Short_t :
 
 	nMvdDSPixelHitNotTrackCand=0;
@@ -479,6 +483,21 @@ if(doMcComparison >=1 ){
  PndSttMapCreator *mapper = new PndSttMapCreator(fSttParameters);
  fSttTubeArray = mapper->FillTubeArray();
  //----------------------------------------------------  end map
+
+//------------------- temporary ----------------------------
+
+// TemporarySttTubeList(fSttTubeArray);
+//------------------- end temporary ----------------------------
+
+// load the array indicating if a straw is exetrnal of not;
+// true -->  it is external; false --> it is internal;
+// remember that the numbering of the STT Straws starts at 1;
+	PndTrkBoundaryParStraws BoundaryParStraws ;
+	External_Straws[0] = false;  // just to be super-safe;
+	for(int i=1;i<NUMBER_STRAWS+1;i++){
+		External_Straws[i] = BoundaryParStraws.Set(i);
+	}
+
 
 //    get   the MCTrack  array
 
@@ -845,7 +864,7 @@ void PndTrkTracking::Exec(Option_t* opt) {
 
 //------------------------------------
 
- IVOLTE++;	
+ IVOLTE++;
 
  if(istampa>0)
 	cout<<endl<<"Entering in PndTrkTrack : evt (starting from 0)  n. "<<IVOLTE<<endl;
@@ -982,6 +1001,8 @@ void PndTrkTracking::Exec(Option_t* opt) {
 	// right way to extract the corrisponding MC point.
 	ipunto= pSttHit->GetRefIndex();
 	tubeID = pSttHit->GetTubeID();
+	// TubeID[i] = STT tubeID correspondint to the hit number i ;
+	TubeID[i] = tubeID;
 	pSttTube = (PndSttTube *) fSttTubeArray->At(tubeID);
 	TVector3 center = pSttTube->GetPosition();
 	// drift radius
@@ -998,9 +1019,9 @@ void PndTrkTracking::Exec(Option_t* opt) {
 		WDY[i] = -wiredirection.Y();
 		WDZ[i] = -wiredirection.Z();
 	}
-	info[i][0]= pSttTube->GetPosition().X();
-	info[i][1]= pSttTube->GetPosition().Y();
-	info[i][2]= pSttTube->GetPosition().Z();
+	info[i][0]= center.X();
+	info[i][1]= center.Y();
+	info[i][2]= center.Z();
 	info[i][3]= dradius;
 	info[i][4]= pSttTube->GetHalfLength();
 
@@ -1025,7 +1046,7 @@ void PndTrkTracking::Exec(Option_t* opt) {
 	}
 
  //  printout of the Stt hits;
- if (istampa >= 1 ) fPrint.stampaSttHits(i,ipunto,dradius,WDX,WDY,WDZ,puntator,pSttTube);
+ if (istampa >= 1 ) fPrint.stampaSttHits(i,ipunto,dradius,WDX,WDY,WDZ,puntator,pSttTube,tubeID);
 
   }  //   end of for( i= 0; i< nSttHit; i++)
 
@@ -1042,8 +1063,6 @@ void PndTrkTracking::Exec(Option_t* opt) {
  MakeInclusionListStt(nSttHit, info);
 
 //-----------------------------------  end of exclusion of straws with multiple hits
-
-
 
 //-------------------------------------------- fetch the SciTil hits
  nSciTilHits = 0;
@@ -1347,15 +1366,18 @@ if(istampa>0){
 //   begins the first iteration with more severe cuts on the # hits in track candidate
 
 int iconta=0;
- for(iParHit=0; iParHit<nSttParHit + 1 -  MINIMUMHITSPERTRACK ; iParHit++) {
+// for(iParHit=0; iParHit<nSttParHit + 1 -  MINIMUMHITSPERTRACK ; iParHit++) {
+ for(iParHit=0; iParHit<nSttParHit; iParHit++) {
+	if( ! InclusionListStt[ListSttParHits[iParHit]] )  continue;
 
+	if( !External_Straws[TubeID[ListSttParHits[iParHit]]] ) continue; // only seeds at the external boundary of the STT
+						  // central detector;
 	if( nSttTrackCand >= MAXTRACKSPEREVENT) {
 		cout<<"from PndTrkTracking :  # n. Tracks found so far = "
 		<<nSttTrackCand<<" and it is >= MAXTRACKSPEREVENT ( = "
 		 <<MAXTRACKSPEREVENT<<"); exiting from || hit loop.\n";
 		break;
 	}
-	if( ! InclusionListStt[ListSttParHits[iParHit]] )  continue;
 iconta++;
 	// inputs for the FindTrackInXYProjection class;
 	input.iHit = iParHit;// seed hit in the PARALLEL number scheme; it is negative for SciTil Hits.
@@ -6653,6 +6675,188 @@ ErrorDriftRadiusconformal[MAXSTTHITSINTRACK+MAXMVDPIXELHITSINTRACK+MAXMVDSTRIPHI
 
 //------------------ end function  PndTrkTracking::RefitMvdStt
 
+//------------------ begin function  PndTrkTracking::TemporarySttTubeList
+void  PndTrkTracking::TemporarySttTubeList(TClonesArray *fSttTuArray)
+{
+	int num = fSttTuArray->GetEntries();
+	int i,
+	    tubeID;
+	double Rrr;
+	PndSttTube *pSttTube ;
+	TVector3 center;
+	TVector3 wiredirection;
 
+
+
+	cout<<"numero totale di tubi "<<num<<endl;
+	// il primo tubo e' il n. 1;
+	tubeID=1;
+	pSttTube = (PndSttTube*) fSttTubeArray->At(tubeID);
+	center = pSttTube->GetPosition();
+	wiredirection = pSttTube->GetWireDirection();
+	Rrr = sqrt( center.X()*center.X()+center.Y()*center.Y());
+	cout<<"\tFirst STT straw tubeID;  n.  "<<tubeID<<", centro X "<< center.X()
+	<<", centro Y "<< center.Y()<<", centro Z "<< center.Z()<<", R = "<<Rrr<<endl;
+	//	double HL = pSttTube->GetHalfLength();
+	// ultimo tubo;
+	tubeID=num;
+	pSttTube = (PndSttTube*) fSttTubeArray->At(tubeID);
+	center = pSttTube->GetPosition();
+	wiredirection = pSttTube->GetWireDirection();
+	Rrr = sqrt( center.X()*center.X()+center.Y()*center.Y());
+	cout<<"\tLast STT straw tubeID,  n.  "<<tubeID<<", centro X "<< center.X()
+	<<", centro Y "<< center.Y()<<", centro Z "<< center.Z()<<", R = "<<Rrr<<endl<<endl;
+
+
+	// STT  al bordo verticale centrale;
+	cout<<"\tCentral Vertical Boundary  || STT straws :\n";
+	for(i=1;i<=num;i++){
+		pSttTube = (PndSttTube*) fSttTubeArray->At(i);
+		center = pSttTube->GetPosition();
+		wiredirection = pSttTube->GetWireDirection();
+		Rrr = sqrt( center.X()*center.X()+center.Y()*center.Y());
+		// solo STT parallel;
+		if(!(fabs( wiredirection.X() )< 0.00001 && fabs( wiredirection.Y() )< 0.00001))continue;
+		if(fabs(center.X())>3.)  continue;
+		cout<<"\tSTT straw || tubeID n.  "<<i<<", centro X "<< center.X()
+		<<", centro Y "<< center.Y()<<", centro Z "<< center.Z()<<", R = "<<Rrr<<endl;
+	}  // end for(i=1;i<=num;i++)
+
+
+	// STT  al bordo esterno;
+	cout<<"\n\tExternal Round Boundary || STT straws :\n";
+	for(i=1;i<=num;i++){
+		pSttTube = (PndSttTube*) fSttTubeArray->At(i);
+		center = pSttTube->GetPosition();
+		wiredirection = pSttTube->GetWireDirection();
+		Rrr = sqrt( center.X()*center.X()+center.Y()*center.Y());
+		// solo STT parallel;
+		if(!(fabs( wiredirection.X() )< 0.00001 && fabs( wiredirection.Y() )< 0.00001))continue;
+
+		if( Rrr <39.)  continue;
+		cout<<"\tSTT straw || tubeID n.  "<<i<<", centro X "<< center.X()
+		<<", centro Y "<< center.Y()<<", centro Z "<< center.Z()<<", R = "<<Rrr<<endl;
+	}  // end for(i=1;i<=num;i++)
+
+	// boundary Inner delle Stt parallele a sinistra;
+
+	// Stt lato inner, del 2 quadrante;
+	// equazione del bordo : sqrt(3)*y - x -2*RSTRAWDETECTORMIN = 0 ;
+	cout<<"\n\tInner Boundary 2nd quadrant || STT straws :\n";
+	double distanza;
+	for(i=1;i<=num;i++){
+		pSttTube = (PndSttTube*) fSttTubeArray->At(i);
+		center = pSttTube->GetPosition();
+		wiredirection = pSttTube->GetWireDirection();
+		// solo STT parallel;
+		if(center.X()>0.)  continue;
+		if(!(fabs( wiredirection.X() )< 0.00001 && fabs( wiredirection.Y() )< 0.00001))continue;
+		distanza = fabs(sqrt(3.)*center.Y()-center.X() -2*RSTRAWDETECTORMIN)/2.;
+		if(distanza>2.*STRAWRADIUS || center.X()< -RSTRAWDETECTORMIN - 2.*STRAWRADIUS)  continue;
+		Rrr = sqrt( center.X()*center.X()+center.Y()*center.Y());
+		cout<<"\tSTT straw || tubeID n.  "<<i<<", centro X "<< center.X()
+		<<", centro Y "<< center.Y()<<", centro Z "<< center.Z()<<", R = "<<Rrr<<endl;
+	}  // end for(i=1;i<=num;i++)
+
+
+	// Stt lato inner, lato verticale;
+	// equazione del bordo :  x = -RSTRAWDETECTORMIN ;
+	cout<<"\n\tInner Vertical Boundary 2nd quadrant || STT straws :\n";
+	for(i=1;i<=num;i++){
+		pSttTube = (PndSttTube*) fSttTubeArray->At(i);
+		center = pSttTube->GetPosition();
+		wiredirection = pSttTube->GetWireDirection();
+		// solo STT parallel;
+		if(!(fabs( wiredirection.X() )< 0.00001 && fabs( wiredirection.Y() )< 0.00001))continue;
+		if(center.X()>0.)  continue;
+		if(center.X()< -RSTRAWDETECTORMIN - 2.*STRAWRADIUS)  continue;
+		if(fabs(center.Y())> RSTRAWDETECTORMIN/sqrt(3.))  continue;
+		Rrr = sqrt( center.X()*center.X()+center.Y()*center.Y());
+		cout<<"\tSTT straw || tubeID n.  "<<i<<", centro X "<< center.X()
+		<<", centro Y "<< center.Y()<<", centro Z "<< center.Z()<<", R = "<<Rrr<<endl;
+	}  // end for(i=1;i<=num;i++)
+
+
+
+	// Stt lato inner, del 3 quadrante;
+	// equazione del bordo : -sqrt(3)*y - x -2*RSTRAWDETECTORMIN = 0 ;
+	cout<<"\n\tInner Boundary 3nd quadrant || STT straws :\n";
+	for(i=1;i<=num;i++){
+		pSttTube = (PndSttTube*) fSttTubeArray->At(i);
+		center = pSttTube->GetPosition();
+		wiredirection = pSttTube->GetWireDirection();
+		// solo STT parallel;
+		if(center.X()>0.)  continue;
+		if(!(fabs( wiredirection.X() )< 0.00001 && fabs( wiredirection.Y() )< 0.00001))continue;
+		distanza = fabs(-sqrt(3.)*center.Y()-center.X() -2*RSTRAWDETECTORMIN)/2.;
+		if(distanza>2.*STRAWRADIUS || center.X()< -RSTRAWDETECTORMIN - 2.*STRAWRADIUS)  continue;
+		Rrr = sqrt( center.X()*center.X()+center.Y()*center.Y());
+		cout<<"\tSTT straw || tubeID n.  "<<i<<", centro X "<< center.X()
+		<<", centro Y "<< center.Y()<<", centro Z "<< center.Z()<<", R = "<<Rrr<<endl;
+	}  // end for(i=1;i<=num;i++)
+
+	//  parte a destra dell'inner Stt boundary; considero la parte a sinistra e cambio il segno a tutte le X;
+
+	// Stt lato inner, del 1 quadrante;
+	// equazione del bordo : sqrt(3)*y - x -2*RSTRAWDETECTORMIN = 0 ;
+	cout<<"\n\tInner Boundary 1nd quadrant || STT straws :\n";
+	for(i=1;i<=num;i++){
+		pSttTube = (PndSttTube*) fSttTubeArray->At(i);
+		center = pSttTube->GetPosition();
+		wiredirection = pSttTube->GetWireDirection();
+		// solo STT parallel;
+		if(center.X()<0.)  continue;
+		if(!(fabs( wiredirection.X() )< 0.00001 && fabs( wiredirection.Y() )< 0.00001))continue;
+		distanza = fabs(sqrt(3.)*center.Y()+center.X() -2*RSTRAWDETECTORMIN)/2.;
+		if(distanza>2.*STRAWRADIUS || center.X()> RSTRAWDETECTORMIN + 2.*STRAWRADIUS)  continue;
+		Rrr = sqrt( center.X()*center.X()+center.Y()*center.Y());
+		cout<<"\tSTT straw || tubeID n.  "<<i<<", centro X "<< center.X()
+		<<", centro Y "<< center.Y()<<", centro Z "<< center.Z()<<", R = "<<Rrr<<endl;
+	}  // end for(i=1;i<=num;i++)
+
+
+	// Stt lato inner, lato verticale;
+	// equazione del bordo :  x = RSTRAWDETECTORMIN ;
+	cout<<"\n\tInner Vertical Boundary 1nd quadrant || STT straws :\n";
+	for(i=1;i<=num;i++){
+		pSttTube = (PndSttTube*) fSttTubeArray->At(i);
+		center = pSttTube->GetPosition();
+		wiredirection = pSttTube->GetWireDirection();
+		// solo STT parallel;
+		if(!(fabs( wiredirection.X() )< 0.00001 && fabs( wiredirection.Y() )< 0.00001))continue;
+		if(center.X()<0.)  continue;
+		if(center.X()> RSTRAWDETECTORMIN + 2.*STRAWRADIUS)  continue;
+		if(fabs(center.Y())> RSTRAWDETECTORMIN/sqrt(3.))  continue;
+		Rrr = sqrt( center.X()*center.X()+center.Y()*center.Y());
+		cout<<"\tSTT straw || tubeID n.  "<<i<<", centro X "<< center.X()
+		<<", centro Y "<< center.Y()<<", centro Z "<< center.Z()<<", R = "<<Rrr<<endl;
+	}  // end for(i=1;i<=num;i++)
+
+
+
+	// Stt lato inner, del 4 quadrante;
+	// equazione del bordo : -sqrt(3)*y + x -2*RSTRAWDETECTORMIN = 0 ;
+	cout<<"\n\tInner Boundary 4nd quadrant || STT straws :\n";
+	for(i=1;i<=num;i++){
+		pSttTube = (PndSttTube*) fSttTubeArray->At(i);
+		center = pSttTube->GetPosition();
+		wiredirection = pSttTube->GetWireDirection();
+		// solo STT parallel;
+		if(center.X()<0.)  continue;
+		if(!(fabs( wiredirection.X() )< 0.00001 && fabs( wiredirection.Y() )< 0.00001))continue;
+		distanza = fabs(-sqrt(3.)*center.Y()+center.X() -2*RSTRAWDETECTORMIN)/2.;
+		if(distanza>2.*STRAWRADIUS || center.X()> RSTRAWDETECTORMIN + 2.*STRAWRADIUS)  continue;
+		Rrr = sqrt( center.X()*center.X()+center.Y()*center.Y());
+		cout<<"\tSTT straw || tubeID n.  "<<i<<", centro X "<< center.X()
+		<<", centro Y "<< center.Y()<<", centro Z "<< center.Z()<<", R = "<<Rrr<<endl;
+	}  // end for(i=1;i<=num;i++)
+
+
+
+
+	return;
+}
+
+//------------------ end function  PndTrkTracking::TemporarySttTubeList
 ClassImp(PndTrkTracking)
 
