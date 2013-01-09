@@ -84,14 +84,15 @@ void PndTrkPrintouts::stampaSttHits(
 	Double_t *WDY,
 	Double_t *WDZ,
 	FairMCPoint* puntator,
-	PndSttTube * pSttTube
+	PndSttTube * pSttTube,
+	Short_t tubeID
 	)
 {
 
 	Short_t i = iHit;
 
 	cout <<"\tStt iHit "<< i << " e n. punto MC ottenuto con RefIndex = "
-      	<<ipunto<<endl;
+      	<<ipunto<<", the straw was hit with tube ID = "<<tubeID<<endl;
       if(ipunto<0) {
       	cout<<"hit di background da mixing!\n";
       	cout <<"             hit wire pos. in middle "   << pSttTube->GetPosition().X() << " " <<
