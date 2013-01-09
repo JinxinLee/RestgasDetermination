@@ -46,6 +46,7 @@ ${GLPK_LIB_DIR}
 link_directories( ${LINK_DIRECTORIES})
 
 set(TRACKING_SRCS
+PndTrkBoundaryParStraws.cxx
 PndTrkChi2Fits.cxx
 PndTrkCleanup.cxx
 PndTrkComparisonMCtruth.cxx
