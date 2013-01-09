@@ -52,7 +52,8 @@ class PndTrkPrintouts : public TObject
 	Double_t *WDY,
 	Double_t *WDZ,
 	FairMCPoint* puntator,
-	PndSttTube * pSttTube
+	PndSttTube * pSttTube,
+	Short_t tubeID
 	);
 
 
