@@ -98,10 +98,13 @@ class PndTrkTracking : public FairTask
 	MAXTRACKSPEREVENT	= 200,
 //	NFIDIVCONFORMAL		= (Short_t) (3.141592654 * 45./0.5),
 	NFIDIVCONFORMAL		= 282,
-	NRDIVCONFORMAL		= 10
+	NRDIVCONFORMAL		= 10,
+	NUMBER_STRAWS		= 4542+1; // +1 is because the straw numbers
+					  // start at 1;
 	;
   bool
 	doMcComparison,
+	External_Straws[NUMBER_STRAWS],
 	SingleHitListStt[MAXSTTHITS],
 	iplotta,
 	MvdAloneTracking,
@@ -172,7 +175,8 @@ class PndTrkTracking : public FairTask
 	nSciTilHitsinTrack[MAXTRACKSPEREVENT],
 	nSttParHitsinTrack[MAXTRACKSPEREVENT],
 	nSttSkewHitsinTrack[MAXTRACKSPEREVENT],
-	nTrackCandHit[MAXTRACKSPEREVENT];
+	nTrackCandHit[MAXTRACKSPEREVENT],
+	TubeID[MAXSTTHITS];
 
 
   int
@@ -769,6 +773,8 @@ class PndTrkTracking : public FairTask
 	Short_t *auxListHitsinTrack
 	);
 
+
+  void TemporarySttTubeList(TClonesArray *fSttTuArray);
 
 
 
