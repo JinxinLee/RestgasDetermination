@@ -8,10 +8,10 @@
 path=${VMCWORKDIR}/macro/lmd/testPixel
 mkdir ${path}
 numTrks=1
-mergedHits=true
-numEv=1000
+mergedHits=false
+numEv=100
 pbeam=15
-    root -l -b -q runLumiPixel0SimBox.C\(${numEv},${pbeam},"\"${path}\"",0,-2212,${numTrks}\)
+    root -l -b -q runLumiPixel0SimBox.C\(${numEv},0,${pbeam},"\"${path}\"",0,-2212,${numTrks}\)
     root -l -b -q runLumiPixel1Digi.C\(${numEv},0,"\"${path}\""\)
     root -l -b -q runLumiPixel2Reco.C\(${numEv},0,"\"${path}\""\)
 ### Merge hits
@@ -23,11 +23,11 @@ pbeam=15
     root -l -b -q runLumiPixel3Finder.C\(${numEv},0,"\"${path}\"",0,"\"CA\"",true,${mergedHits}\)
 
     ##Miniut
-    root -l -b -q runLumiPixel4Fitter.C\(${numEv},0,"\"${path}\"",0,${mergedHits}\)
+   # root -l -b -q runLumiPixel4Fitter.C\(${numEv},0,"\"${path}\"",0,${mergedHits}\)
     ### or Kalman Fillter
-    # root -l -b -q runLumi4KalmanFitter.C\(${numEv},0,"\"${path}\"",0,1,${mergedHits}\)
+    root -l -b -q runLumi4KalmanFitter.C\(${numEv},0,"\"${path}\"",0,1,${mergedHits}\)
     root -l -b -q runLumi5Geane.C\(${numEv},${pbeam},0,"\"${path}\"",0,${mergedHits}\)
 
     cd ${VMCWORKDIR}/build/bin
-    ./rec_mc_match -s 0 -n ${numEv} -t ${numTrks} -mom ${pbeam} -npx 1 -v 0 -path ${path}
-#exit
+    ./rec_mc_match -s 0 -n ${numEv} -t ${numTrks} -mom ${pbeam} -npx 1 -mh 0 -v 0 -path ${path}
+# #exit
