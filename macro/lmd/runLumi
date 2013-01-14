@@ -8,3 +8,5 @@ time root -l -b -q 'runLumi4Fitter.C(10000,0,"tmpOutput")'
 time root -l -b -q 'runLumi5Geane.C(10000,15,0,"tmpOutput")'
 
 exit
+
+

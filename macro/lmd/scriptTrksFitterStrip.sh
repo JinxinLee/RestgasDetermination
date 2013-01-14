@@ -1,5 +1,7 @@
 #!/bin/bash
-pathStrip=${VMCWORKDIR}/macro/lmd/StripSensors/
+##pathStrip=${VMCWORKDIR}/macro/lmd/StripSensors/
+SIMEVENTS=1000000
+pathStrip=/home/karavdin/datastorage/TrackPerformanceStrip/${SIMEVENTS}
 for pbeam in 15 11.91 8.9 4.06 1.5
 do
  #### CA

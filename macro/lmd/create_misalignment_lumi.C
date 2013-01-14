@@ -1,9 +1,10 @@
-void create_misalignment_lumi(double dr=0, double da=0){
+void create_misalignment_lumi(double dr=0, double da=0, string filename){
   dr*=1e-4;//mkm --> cm
   // da*=1e-5;// 10e-5rad --> rad
   da*=1e-3;// 10e-3rad --> rad
   std::ofstream output;//misalignment params of each sensor
-  output.open("/home/akaravdina/lmdMacro/lumi.misalign.par");
+  //output.open("/home/karavdin/pandaRoot12/macro/lmd/lumi.misalign.par");
+  output.open(filename.c_str());
   output<<"#################################################################"<<endl;
  output<<"# Alignment parameters for LMD"<<endl;
  output<<"# Format:"<<endl;

@@ -71,37 +71,6 @@ void combitransToLumiFrame(TVector3& hitPos){
   //  hitPos.Print();
 }
 
-// void rotateToLumiFrame(TVector3& hitPos){
-//   TMatrixD hitMtx(3,3);
-//   hitMtx[0][0] = hitPos[0];
-//   hitMtx[1][0] = hitPos[1];
-//   hitMtx[2][0] = hitPos[2];
-//   TMatrixD res = rotateToLumiFrame(hitMtx);
-//   hitPos = TVector3(hitMtx(0,0),hitMtx(1,0),hitMtx(2,0));
-// }
-// TMatrixD rotateToLumiFrame(TMatrixD& hitCov){
-//   Double_t theta=2.326;
-//   Double_t degrad = TMath::Pi()/180.;
-//   Double_t sintheta = TMath::Sin(degrad*theta);
-//   Double_t costheta = TMath::Cos(degrad*theta);
-//   TMatrixD rot(3,3);// Rotation around Y axis
-//   rot[0][0]= costheta;
-//   rot[0][1]= 0;
-//   rot[0][2]= sintheta;
-//   rot[1][0]= 0;
-//   rot[1][1]= 1;
-//   rot[1][2]= 0;
-//   rot[2][0]= -sintheta;
-//   rot[2][1]= 0;
-//   rot[2][2]= costheta;
-//   TMatrixD result = rot;
-//   result.T();
-//   result*=hitCov;
-//   hitCov = result;
-//   result*=rot;
-//   return result;
-// }
-
 int main(int __argc,char *__argv[]) {
   //TODO: read this like params!
   //  const int nEvents=500000;

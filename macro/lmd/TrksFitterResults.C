@@ -63,57 +63,72 @@ void TrksFitterResults(TString fileName="")
   cout<<" nmiss_II = "<<nmiss_II<<" "<<missed_II<<" %"<<endl;
   cout<<" nghost_I = "<<nghost_I<<" "<<ghost_I<<" %"<<endl;
   cout<<" nghost_II = "<<nghost_II<<" "<<ghost_II<<" %"<<endl;
-  cout<<"***************************************"<<endl;
+  //  cout<<"***************************************"<<endl;
   cout<<" "<<endl;
 
   ///Resolution & Pull distributions
+  //  cout<<"&*********** and now we'll refit hists! *************** &"<<endl;
   TH1F* hResPointPx = (TH1F*)fileIN->Get("hResPointPx");
-  TF1 *fResPx = (TF1*)hResPointPx->GetFunction("fitcoord");
+  //  TF1 *fResPx = (TF1*)hResPointPx->GetFunction("fitcoord");
+  TF1 *fResPx = new TF1("fitPx","gaus");
+  hResPointPx->Fit(fResPx,"qr");
   double ResPx = fResPx->GetParameter(2);
-
+  
   TH1F* hResPointPy = (TH1F*)fileIN->Get("hResPointPy");
-  TF1 *fResPy = (TF1*)hResPointPy->GetFunction("fitcoord");
+  //  TF1 *fResPy = (TF1*)hResPointPy->GetFunction("fitcoord");
+  TF1 *fResPy = new TF1("fitPy","gaus");
+  hResPointPy->Fit(fResPy,"qr");
   double ResPy = fResPy->GetParameter(2);
 
   TH1F* hResPointPz = (TH1F*)fileIN->Get("hResPointPz");
-  TF1 *fResPz = (TF1*)hResPointPz->GetFunction("fitcoord");
+  //  TF1 *fResPz = (TF1*)hResPointPz->GetFunction("fitcoord");
+  TF1 *fResPz = new TF1("fitPz","gaus");
+  hResPointPz->Fit(fResPz,"qr");
   double ResPz = fResPz->GetParameter(2);
 
   TH1F* hPullPointPx = (TH1F*)fileIN->Get("hPullPointPx");
-  TF1 *fPullPx = (TF1*)hPullPointPx->GetFunction("fitp");
+  TF1 *fPullPx  = new TF1("fitPPx","gaus");
+  hPullPointPx->Fit(fPullPx,"qr");
   double PullPx_mean = fPullPx->GetParameter(1);
   double PullPx_sigma = fPullPx->GetParameter(2);
 
   TH1F* hPullPointPy = (TH1F*)fileIN->Get("hPullPointPy");
-  TF1 *fPullPy = (TF1*)hPullPointPy->GetFunction("fitp");
+  TF1 *fPullPy = new TF1("fitPPy","gaus");
+  hPullPointPy->Fit(fPullPy,"qr");
   double PullPy_mean = fPullPy->GetParameter(1);
   double PullPy_sigma = fPullPy->GetParameter(2);
   
   TH1F* hPullPointPz = (TH1F*)fileIN->Get("hPullPointPz");
-  TF1 *fPullPz = (TF1*)hPullPointPz->GetFunction("fitp");
+  TF1 *fPullPz  = new TF1("fitPPz","gaus");
+  hPullPointPz->Fit(fPullPz,"qr");
   double PullPz_mean = fPullPz->GetParameter(1);
   double PullPz_sigma = fPullPz->GetParameter(2);
 
 
   TH1F* hResPointX = (TH1F*)fileIN->Get("hResPointX");
-  TF1 *fResX = (TF1*)hResPointX->GetFunction("fitcoord");
+  TF1 *fResX  = new TF1("fitX","gaus");
+  hResPointX->Fit(fResX,"qr");
   double ResX = fResX->GetParameter(2);
 
   TH1F* hResPointY = (TH1F*)fileIN->Get("hResPointY");
-  TF1 *fResY = (TF1*)hResPointY->GetFunction("fitcoord");
+  TF1 *fResY  = new TF1("fitY","gaus");
+  hResPointY->Fit(fResY,"qr");
   double ResY = fResY->GetParameter(2);
 
   TH1F* hResPointZ = (TH1F*)fileIN->Get("hResPointZ");
-  TF1 *fResZ = (TF1*)hResPointZ->GetFunction("fitcoord");
+  TF1 *fResZ  = new TF1("fitZ","gaus");
+  hResPointZ->Fit(fResZ,"qr");
   double ResZ = fResZ->GetParameter(2);
 
   TH1F* hPullPointX = (TH1F*)fileIN->Get("hPullPointX");
-  TF1 *fPullX = (TF1*)hPullPointX->GetFunction("fitp");
+  TF1 *fPullX  = new TF1("fitPX","gaus");
+  hPullPointX->Fit(fPullX,"qr");
   double PullX_mean = fPullX->GetParameter(1);
   double PullX_sigma = fPullX->GetParameter(2);
 
   TH1F* hPullPointY = (TH1F*)fileIN->Get("hPullPointY");
-  TF1 *fPullY = (TF1*)hPullPointY->GetFunction("fitp");
+  TF1 *fPullY  = new TF1("fitPY","gaus");
+  hPullPointY->Fit(fPullY,"qr");
   double PullY_mean = fPullY->GetParameter(1);
   double PullY_sigma = fPullY->GetParameter(2);
   
@@ -121,7 +136,8 @@ void TrksFitterResults(TString fileName="")
   double PullZ_mean=-100;
   double PullZ_sigma=-100;
   if(hPullPointZ->GetRMS()!=0){
-    TF1 *fPullZ = (TF1*)hPullPointZ->GetFunction("fitp");
+    TF1 *fPullZ  = new TF1("fitPZ","gaus");
+    hPullPointZ->Fit(fPullZ,"qr");
     PullZ_mean = fPullZ->GetParameter(1);
     PullZ_sigma = fPullZ->GetParameter(2);
   }
@@ -131,24 +147,28 @@ void TrksFitterResults(TString fileName="")
   TF1 *funrth = new TF1("fitrth","gaus",-0.01,0.01);
   funrth->SetParameters(100,0,3e-3);
   funrth->SetParNames("Constant","Mean","Sigma");
-  hiniResTheta->Fit(funrth,"r");
+  hiniResTheta->Fit(funrth,"qr");
   double thetaResIni = funrth->GetParameter(2);
 
   TH1F* hResTheta = (TH1F*)fileIN->Get("hResTheta");
-  TF1 *fResTheta = (TF1*)hResTheta->GetFunction("fitrth");
+  TF1 *fResTheta = new TF1("fitfrth","gaus",-0.01,0.01);
+  hResTheta->Fit(fResTheta,"qr");
   double ResTheta = fResTheta->GetParameter(2);
 
   TH1F* hPullTheta = (TH1F*)fileIN->Get("hPullTheta");
-  TF1 *fPullTheta = (TF1*)hPullTheta->GetFunction("fitp");
+  TF1 *fPullTheta = new TF1("fitpth","gaus",-10,10);
+  hPullTheta->Fit(fPullTheta,"qr");
   double PullTheta_mean = fPullTheta->GetParameter(1);
   double PullTheta_sigma = fPullTheta->GetParameter(2);
 
   TH1F* hResPhi = (TH1F*)fileIN->Get("hResPhi");
-  TF1 *fResPhi = (TF1*)hResPhi->GetFunction("fitrphi");
+  TF1 *fResPhi = new TF1("fitrphi","gaus",-1,1);
+  hResPhi->Fit(fResPhi,"qr");
   double ResPhi = fResPhi->GetParameter(2);
 
   TH1F* hPullPhi = (TH1F*)fileIN->Get("hPullPhi");
-  TF1 *fPullPhi = (TF1*)hPullPhi->GetFunction("fitp");
+  TF1 *fPullPhi = new TF1("fitpphi","gaus",-10,10);
+  hPullPhi->Fit(fPullPhi,"qr");
   double PullPhi_mean = fPullPhi->GetParameter(1);
   double PullPhi_sigma = fPullPhi->GetParameter(2);
 
@@ -157,7 +177,7 @@ void TrksFitterResults(TString fileName="")
   cout<<" Res PCA (X, Y, Z) = ("<<ResX<<", "<<ResY<<", "<<ResZ<<") cm"<<endl;
   cout<<" Res Mom (Px, Py, Pz) = ("<<ResPx*1e3<<", "<<ResPy*1e3<<", "<<ResPz*1e3<<") MeV/c"<<endl;
   cout<<" Res Angles (Theta, Phi) = ("<<ResTheta*1e6<<", mkrad; "<<ResPhi*1e3<<", mrad)"<<endl;
-  cout<<"***************************************"<<endl;
+  //cout<<"***************************************"<<endl;
   cout<<" "<<endl;
 
   cout<<" Pulls:"<<endl;

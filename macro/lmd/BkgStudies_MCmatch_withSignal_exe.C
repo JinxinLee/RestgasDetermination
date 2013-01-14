@@ -43,6 +43,9 @@
 #include<PndSdsHit.h>
 #include<PndSdsClusterStrip.h>
 #include<PndSdsDigiStrip.h>
+#include<PndSdsClusterPixel.h>
+#include<PndSdsDigiPixel.h>
+#include<PndSdsMergedHit.h>
 
 // needed for geane backtracking
 #include<FairRunAna.h>
@@ -151,12 +154,26 @@ int main(int __argc,char *__argv[]) {
   TChain tdigiHits("cbmsim");
   tdigiHits.Add(DigiFile);
   
-  TString recHit=storePath+"/Lumi_reco_";
-  recHit += startEvent;
-  recHit += ".root";
-  TChain tHits("cbmsim");
-  tHits.Add(recHit);
-  
+  //strip
+  // TString recHit=storePath+"/Lumi_reco_";
+  // recHit += startEvent;
+  // recHit += ".root";
+  // TChain tHits("cbmsim");
+  // tHits.Add(recHit);
+
+  //pixel
+ TString recHit=storePath+"/Lumi_reco_";
+ recHit += startEvent;
+ recHit += ".root";
+ TChain tHits("cbmsim");
+ tHits.Add(recHit);
+
+ TString recHitmerged=storePath+"/Lumi_recoMerged_";
+ recHitmerged += startEvent;
+ recHitmerged += ".root";
+ TChain tHitsMerged("cbmsim");
+  tHitsMerged.Add(recHitmerged);
+
   TString trkCand = storePath+"/Lumi_TCand_";
   trkCand += startEvent;
   trkCand += ".root";
@@ -192,16 +209,25 @@ int main(int __argc,char *__argv[]) {
   tMC.SetBranchAddress("LMDPoint",&true_points);  //True Points to compare
   //----------------------------------------------------------------------------------
 //--- Digitization info ------------------------------------------------------------
-  TClonesArray* fStripClusterArray = new TClonesArray("PndSdsClusterStrip");
-  tHits.SetBranchAddress("LMDStripClusterCand",&fStripClusterArray); 
+  // TClonesArray* fStripClusterArray = new TClonesArray("PndSdsClusterStrip");
+  // tHits.SetBranchAddress("LMDStripClusterCand",&fStripClusterArray); 
   
-  TClonesArray* fStripDigiArray = new TClonesArray("PndSdsDigiStrip");
-  tdigiHits.SetBranchAddress("LMDStripDigis",&fStripDigiArray); 
+  // TClonesArray* fStripDigiArray = new TClonesArray("PndSdsDigiStrip");
+  // tdigiHits.SetBranchAddress("LMDStripDigis",&fStripDigiArray); 
+
+   TClonesArray* fStripClusterArray = new TClonesArray("PndSdsClusterPixel");
+   tHits.SetBranchAddress("LMDPixelClusterCand",&fStripClusterArray);
+   TClonesArray* fStripDigiArray = new TClonesArray("PndSdsDigiPixel");
+   tdigiHits.SetBranchAddress("LMDPixelDigis",&fStripDigiArray);
+ 
   //----------------------------------------------------------------------------------
   
   //--- Real Hits --------------------------------------------------------------------
-  TClonesArray* rechit_array=new TClonesArray("PndSdsHit");
-  tHits.SetBranchAddress("LMDHitsStrip",&rechit_array);  //Points for Tracks
+   //  TClonesArray* rechit_array=new TClonesArray("PndSdsHit");
+  //  tHits.SetBranchAddress("LMDHitsStrip",&rechit_array);  //Points for Tracks
+
+   TClonesArray* rechit_array = new TClonesArray("PndSdsMergedHit");
+   tHitsMerged.SetBranchAddress("LMDHitsMerged",&rechit_array);  //Points for Tracks
   //----------------------------------------------------------------------------------
   
   
@@ -299,9 +325,13 @@ int main(int __argc,char *__argv[]) {
   tThetaMC->Branch("thetaMC", &thetaMC);
 
   TNtuple *nrecall = new TNtuple("nrecall","recAll","x:y:z:px:py:pz:p:theta:phi");
-  TNtuple *nrecsig = new TNtuple("nrecsig","recSig","id:x:y:z:px:py:pz:p:theta:phi");
-  TNtuple *nrecbkg = new TNtuple("nrecbkg","recBkg","id:sumid:x:y:z:px:py:pz:p:theta:phi");
+    TNtuple *nrecsig = new TNtuple("nrecsig","recSig","id:x:y:z:px:py:pz:p:theta:phi");
+    //  TNtuple *nrecbkg = new TNtuple("nrecbkg","recBkg","id:sumid:x:y:z:px:py:pz:p:theta:phi");
+  TNtuple *nrecbkg = new TNtuple("nrecbkg","recBkg","id:sumid:x:y:z:p:theta:phi:xmc:ymc:zmc");
   TNtuple *nmcall = new TNtuple("nmcall","mcAll","id:sumid:x:y:z:px:py:pz:p:theta:phi");
+
+  TNtuple *ntupMCTrk = new TNtuple("ntupMCTrk","Info about simulated trks","pdgid:x:y:z:mom:theta:phi");
+
   for (Int_t j=0; j<nEvents; j++){
   //for (Int_t j=9000; j<nEvents; j++){
 
@@ -314,6 +344,7 @@ int main(int __argc,char *__argv[]) {
     tTrkCand.GetEntry(j);
     tTrkRec.GetEntry(j);
     tHits.GetEntry(j);
+    tHitsMerged.GetEntry(j);
     tdigiHits.GetEntry(j);
 
     const int nGeaneTrks = geaneArray->GetEntriesFast();
@@ -390,7 +421,7 @@ int main(int __argc,char *__argv[]) {
 	  hPhiMCAP->Fill(MomMC.Phi());
     	  thetaMC = 1000*MomMC.Theta();
 	  if(MomMC.Mag()>Plab+0.05 || thetaMC<0. || thetaMC>1000.) continue;
-	  cout<<"thetaMC = "<<thetaMC<<endl;
+	  //	  cout<<"thetaMC = "<<thetaMC<<endl;
 	  tThetaMC->Fill();
 	}
 	nmcall->Fill(mcID,sumID,StartMC.X(),StartMC.Y(),StartMC.Z(),
@@ -449,33 +480,53 @@ int main(int __argc,char *__argv[]) {
 	Int_t candID = trk_lin->GetTCandID();
 	PndTrackCand *trkcand = (PndTrackCand*)trkcand_array->At(candID);
 	const int Ntrkcandhits= trkcand->GetNHits();
+	if(verboseLevel>2)  cout<<"Trk #"<<iN<<" has "<<Ntrkcandhits<<" hits"<<endl;
 	//	cout<<"trk #"<<iN<<": ";
+
+	// //strip
+	// for (Int_t iHit = 0; iHit < Ntrkcandhits; iHit++){
+	//   PndTrackCandHit candhit = (PndTrackCandHit)(trkcand->GetSortedHit(iHit));
+	//   Int_t hitID = candhit.GetHitId();
+	//   PndSdsHit* myHit = (PndSdsHit*)(rechit_array->At(hitID));
+	  
+	//   ///Top cluster
+	//   PndSdsClusterStrip* myCluster =  (PndSdsClusterStrip*)(fStripClusterArray->At(myHit->GetClusterIndex()));
+	//   PndSdsDigiStrip* astripdigi = (PndSdsDigiStrip*)(fStripDigiArray->At(myCluster->GetDigiIndex(0)));
+	//   if (astripdigi->GetIndex(0) == -1) continue; // sort out noise
+	//   PndSdsMCPoint* MCPoint = (PndSdsMCPoint*)(true_points->At(astripdigi->GetIndex(0)));
+	//   int MCidTOP = MCPoint->GetTrackID();
+	  
+	//   ///Bottom cluster
+	//   Int_t  botIndex = myHit->GetBotIndex();
+	//   PndSdsClusterStrip* myClusterBot =  (PndSdsClusterStrip*)(fStripClusterArray->At(botIndex));
+	//   PndSdsDigiStrip* astripdigiBot = (PndSdsDigiStrip*)(fStripDigiArray->At(myClusterBot->GetDigiIndex(0)));
+	//   if (astripdigiBot->GetIndex(0) == -1) continue; // sort out noise
+	//   PndSdsMCPoint* MCPointBot = (PndSdsMCPoint*)(true_points->At(astripdigiBot->GetIndex(0)));
+	//   int MCidBOT = MCPointBot->GetTrackID();
+	//   //	if(MCidTOP!=MCidBOT) continue;
+	//   MCtrkID.push_back(MCidTOP);
+	//   MCtrkID.push_back(MCidBOT);
+	//   MCtrkIDcount.push_back(1);
+	//   MCtrkIDcount.push_back(1);
+	//   //	  cout<<" "<<MCidTOP<<" "<<MCidBOT;
+	// }
+
+	//pixel
 	for (Int_t iHit = 0; iHit < Ntrkcandhits; iHit++){
 	  PndTrackCandHit candhit = (PndTrackCandHit)(trkcand->GetSortedHit(iHit));
 	  Int_t hitID = candhit.GetHitId();
 	  PndSdsHit* myHit = (PndSdsHit*)(rechit_array->At(hitID));
-	  
-	  ///Top cluster
-	  PndSdsClusterStrip* myCluster =  (PndSdsClusterStrip*)(fStripClusterArray->At(myHit->GetClusterIndex()));
-	  PndSdsDigiStrip* astripdigi = (PndSdsDigiStrip*)(fStripDigiArray->At(myCluster->GetDigiIndex(0)));
-	  if (astripdigi->GetIndex(0) == -1) continue; // sort out noise
+	  PndSdsClusterPixel* myCluster = (PndSdsClusterPixel*)(fStripClusterArray->At(myHit->GetClusterIndex()));
+	  PndSdsDigiPixel* astripdigi = (PndSdsDigiPixel*)(fStripDigiArray->At(myCluster->GetDigiIndex(0)));
 	  PndSdsMCPoint* MCPoint = (PndSdsMCPoint*)(true_points->At(astripdigi->GetIndex(0)));
 	  int MCidTOP = MCPoint->GetTrackID();
-	  
-	  ///Bottom cluster
-	  Int_t  botIndex = myHit->GetBotIndex();
-	  PndSdsClusterStrip* myClusterBot =  (PndSdsClusterStrip*)(fStripClusterArray->At(botIndex));
-	  PndSdsDigiStrip* astripdigiBot = (PndSdsDigiStrip*)(fStripDigiArray->At(myClusterBot->GetDigiIndex(0)));
-	  if (astripdigiBot->GetIndex(0) == -1) continue; // sort out noise
-	  PndSdsMCPoint* MCPointBot = (PndSdsMCPoint*)(true_points->At(astripdigiBot->GetIndex(0)));
-	  int MCidBOT = MCPointBot->GetTrackID();
-	  //	if(MCidTOP!=MCidBOT) continue;
 	  MCtrkID.push_back(MCidTOP);
-	  MCtrkID.push_back(MCidBOT);
 	  MCtrkIDcount.push_back(1);
-	  MCtrkIDcount.push_back(1);
-	  //	  cout<<" "<<MCidTOP<<" "<<MCidBOT;
+	  //	  if(verboseLevel>1) cout<<"MCid("<<MCidTOP<<") ";
+	  if(verboseLevel>1) cout<<MCidTOP<<" ";
 	}
+    
+
 	//	cout<<""<<endl;
 	
 	Int_t k, x;
@@ -585,6 +636,7 @@ int main(int __argc,char *__argv[]) {
 	      hVxMC->Fill(StartMC.X());
 	      hVyMC->Fill(StartMC.Y());
 	      hVzMC->Fill(StartMC.Z());
+	      ntupMCTrk->Fill(mcID,StartMC.X(),StartMC.Y(),StartMC.Z(),MomMC.Mag(),thetaMC,phiMC);
 	      ///Fill histgs for antiproton------------------------
 	      if(mcID==-2212 && sumID==4424 && fillRecTrk) {
        		hVxRecAP->Fill(posRec.X());
@@ -603,9 +655,8 @@ int main(int __argc,char *__argv[]) {
 		fillRecTrk=false;//put information from reconstructed track only once!
 	      }
 	      else{
-		nrecbkg->Fill(mcID,sumID,posRec.X(),posRec.Y(),posRec.Z(),
-			      MomRec.X(),MomRec.Y(),MomRec.Z(),
-			      MomRec.Mag(),MomRec.Theta(),MomRec.Phi());
+		//	nrecbkg = new TNtuple("nrecbkg","recBkg","id:sumid:x:y:z:px:py:pz:p:theta:phi:xmc:ymc:zmc");
+		nrecbkg->Fill(mcID,sumID,posRec.X(),posRec.Y(),posRec.Z(),MomRec.Mag(),MomRec.Theta(),MomRec.Phi(),StartMC.X(),StartMC.Y(),StartMC.Z());
 	      }
 	      ///----------------------------------------------------------------------
 	      diffIDs++;
@@ -645,6 +696,7 @@ int main(int __argc,char *__argv[]) {
 	    hVxMC->Fill(StartMC.X());
 	    hVyMC->Fill(StartMC.Y());
 	    hVzMC->Fill(StartMC.Z());
+	    ntupMCTrk->Fill(mcID,StartMC.X(),StartMC.Y(),StartMC.Z(),MomMC.Mag(),thetaMC,phiMC);
 	    ///Fill histgs for antiproton from el.scattering ---
 	    if(mcID==-2212 && sumID==4424) {
 	      hVxRecAP->Fill(posRec.X());
@@ -661,9 +713,7 @@ int main(int __argc,char *__argv[]) {
 			    MomRec.Mag(),MomRec.Theta(),MomRec.Phi());
 	    }
 	    else{
-	      nrecbkg->Fill(mcID,sumID,posRec.X(),posRec.Y(),posRec.Z(),
-			      MomRec.X(),MomRec.Y(),MomRec.Z(),
-			      MomRec.Mag(),MomRec.Theta(),MomRec.Phi());
+	      nrecbkg->Fill(mcID,sumID,posRec.X(),posRec.Y(),posRec.Z(),MomRec.Mag(),MomRec.Theta(),MomRec.Phi(),StartMC.X(),StartMC.Y(),StartMC.Z());
 	    }
 	  ///----------------------------------------------------------
 	}

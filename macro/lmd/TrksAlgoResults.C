@@ -14,10 +14,11 @@
 using namespace std;
 
 //void TrksAlgoResults(TString storePath="StripSensors/1e4_events/noHitsNumberCheck")
-void TrksAlgoResults(TString storePath="PixelSensors/1e4_events/noHitsNumberCheck")
+//void TrksAlgoResults(TString storePath="/home/karavdin/datastorage/TrackPerformanceStrip/1000000/")
+void TrksAlgoResults(TString storePath="/home/karavdin/datastorage/TrackPerformancePixel/1000000/")
 {
 
-  gROOT->Macro("/panda/pandaroot/macro/lmd/Style_Imported_Style.C");
+  gROOT->Macro("/home/karavdin/pandaRoot12/macro/lmd/Style_Imported_Style.C");
   gROOT->SetStyle("Imported_Style"); 
 
   // double Ntrks[8]={1,2,3,4,5,10,15,20};
@@ -43,7 +44,7 @@ void TrksAlgoResults(TString storePath="PixelSensors/1e4_events/noHitsNumberChec
 
 
   //time spent per 1 trk reconstruction , ms
-  //  double timeF[7]={7.73,8.97,10.41,11.71,13.95,24.46,39.42};// strip, 15 GeV
+  //double timeF[7]={7.73,8.97,10.41,11.71,13.95,24.46,39.42};// strip, 15 GeV
   //double timeF[7]={7.75,9.14,10.76,12.42,14.05,24.02,43.3};// strip, 1.5 GeV
   double timeF[7]={7.5,9.11,10.84,12.16,13.94,22.05,30.3};// pixel, 15 GeV
   //Cellular Automaton
@@ -66,9 +67,9 @@ void TrksAlgoResults(TString storePath="PixelSensors/1e4_events/noHitsNumberChec
 
 
   //time spent per 1 trk reconstruction , ms
-  //  double timeCA[7]={7.98,9.43,11.39,13.77,17.76,72.49,371.08};//strip, 15 GeV/c
+  // double timeCA[7]={7.98,9.43,11.39,13.77,17.76,72.49,371.08};//strip, 15 GeV/c
   //  double timeCA[7]={7.99,9.76,11.76,14.08,18.44,77.7,420.63};//strip, 1.5 GeV/c
-  double timeCA[7]={7.86,9.59,11.53,13.58,15.91,32.69,62.59};//pixel, 15 GeV/c
+    double timeCA[7]={7.86,9.59,11.53,13.58,15.91,32.69,62.59};//pixel, 15 GeV/c
   for(int iNtrk=0;iNtrk<7;iNtrk++){
     // // ///STRIP -----------------------------------------------------------------
     // TString fileCAname=storePath+"/Lumi_out_MC_and_REC_trks_matches_with_IDs0";
@@ -79,13 +80,13 @@ void TrksAlgoResults(TString storePath="PixelSensors/1e4_events/noHitsNumberChec
     // fileFname+=Ntrks[iNtrk];
     // fileCAname+="trks_";
     // fileFname+="trks_";
-    //  fileCAname+="KalmanFillter_";
-    //  fileFname+="KalmanFillter_";
-    // // fileCAname+="MinuitFit_";
-    // // fileFname+="MinuitFit_";
-    // fileCAname+="1.5.root";
-    // fileFname+="1.5.root";
-    // // ///STRIP -----------------------------------------------------------------
+    // // fileCAname+="KalmanFillter_";
+    // // fileFname+="KalmanFillter_";
+    // fileCAname+="MinuitFit_";
+    // fileFname+="MinuitFit_";
+    // fileCAname+="15.root";
+    // fileFname+="15.root";
+    // // ///STRIP ----------------------------------------------------------------- 
 
     ///PIXEL -----------------------------------------------------------------
     TString fileCAname=storePath+"/Lumi_out_MC_and_REC_trks_matches_with_IDs0";
@@ -100,14 +101,56 @@ void TrksAlgoResults(TString storePath="PixelSensors/1e4_events/noHitsNumberChec
     fileFname+="mergedHits_true_";
     fileCAname+="addMS_false_KalmanFillter_";
     fileFname+="addMS_false_KalmanFillter_";
-    // fileCAname+="addMS_true_MinuitFit_";
-    // fileFname+="addMS_true_MinuitFit_";
-    fileCAname+="1.5.root";
-    fileFname+="1.5.root";
+    //fileCAname+="addMS_true_MinuitFit_";
+    //fileFname+="addMS_true_MinuitFit_";
+    fileCAname+="15.root";
+    fileFname+="15.root";
     ///PIXEL -----------------------------------------------------------------
 
     TFile *fileCA = new TFile(fileCAname,"READ");
+    if (fileCA->IsZombie()) {
+      std::cout << "Error opening file: "<<fileCAname<< std::endl;
+      reconstCA[iNtrk]=0;//number of reconstructed tracks
+      ghostCA_I[iNtrk]=0; //percent of ghost tracks
+      missedCA_I[iNtrk]=0; //percent of missed tracks
+      ghostCA_II[iNtrk]=0; //percent of ghost tracks
+      missedCA_II[iNtrk]=0; //percent of missed tracks
+      
+      ghostCA_I_mean[iNtrk]=0; //average of ghost tracks
+      missedCA_I_mean[iNtrk]=0; //average of missed tracks
+      ghostCA_II_mean[iNtrk]=0; //average of ghost tracks
+      missedCA_II_mean[iNtrk]=0; //average of missed tracks
+      ghostCA_I_rms[iNtrk]=0; //rms average of ghost tracks
+      missedCA_I_rms[iNtrk]=0; //rms average of missed tracks
+      ghostCA_II_rms[iNtrk]=0; //rms average of ghost tracks
+      missedCA_II_rms[iNtrk]=0; //rms average of missed tracks
+      goodCA_I_mean[iNtrk]=0; //average of good tracks
+      goodCA_II_mean[iNtrk]=0; //average of good tracks
+      continue;
+    }
+    
     TFile *fileF = new TFile(fileFname,"READ");
+    if (fileF->IsZombie()) {
+      std::cout << "Error opening file: " <<fileFname<< std::endl;
+      reconstF[iNtrk]=0;//number of reconstructed tracks
+      ghostF_I[iNtrk]=0; //percent of ghost tracks
+      missedF_I[iNtrk]=0; //percent of missed tracks
+      ghostF_II[iNtrk]=0; //percent of ghost tracks
+      missedF_II[iNtrk]=0; //percent of missed tracks
+
+      ghostF_I_mean[iNtrk]=0; //average of ghost tracks
+      missedF_I_mean[iNtrk]=0; //average of missed tracks
+      ghostF_II_mean[iNtrk]=0; //average of ghost tracks
+      missedF_II_mean[iNtrk]=0; //average of missed tracks
+      ghostF_I_rms[iNtrk]=0; //rms average of ghost tracks
+      missedF_I_rms[iNtrk]=0; //rms average of missed tracks
+      ghostF_II_rms[iNtrk]=0; //rms average of ghost tracks
+      missedF_II_rms[iNtrk]=0; //rms average of missed tracks
+      goodF_I_mean[iNtrk]=0; //average of good tracks
+      goodF_II_mean[iNtrk]=0; //average of good tracks
+       continue;
+    }
+
     TH1F* hResThetaCA = (TH1F*)fileCA->Get("hResTheta");
     int nrecCA = hResThetaCA->GetEntries();
     reconstCA[iNtrk]=nrecCA;
@@ -121,8 +164,8 @@ void TrksAlgoResults(TString storePath="PixelSensors/1e4_events/noHitsNumberChec
 
     TH1F* hntrkmissedCA_I = (TH1F*)fileCA->Get("hntrkmissed_I");
     int nmissCA_I = hntrkmissedCA_I->GetEntries();
-    int nmissCA_I_under = hntrkmissedCA_I->GetBinContent(0);
-    nmissCA_I-=nmissCA_I_under;
+    // int nmissCA_I_under = hntrkmissedCA_I->GetBinContent(0);
+    // nmissCA_I-=nmissCA_I_under;
     missedCA_I_mean[iNtrk] = hntrkmissedCA_I->GetMean();
     missedCA_I_rms[iNtrk] = hntrkmissedCA_I->GetMeanError();
   
@@ -130,22 +173,22 @@ void TrksAlgoResults(TString storePath="PixelSensors/1e4_events/noHitsNumberChec
     goodF_I_mean[iNtrk] = hntrkgoodF_I->GetMean();
     TH1F* hntrkmissedF_I = (TH1F*)fileF->Get("hntrkmissed_I");
     int nmissF_I = hntrkmissedF_I->GetEntries();
-    int nmissF_I_under = hntrkmissedF_I->GetBinContent(0);
-    nmissF_I-=nmissF_I_under;
+    // int nmissF_I_under = hntrkmissedF_I->GetBinContent(0);
+    // nmissF_I-=nmissF_I_under;
     missedF_I_mean[iNtrk] = hntrkmissedF_I->GetMean();
     missedF_I_rms[iNtrk] = hntrkmissedF_I->GetMeanError();
 
     TH1F* hntrkghostCA_I = (TH1F*)fileCA->Get("hntrkghost_I");
     int nghostCA_I = hntrkghostCA_I->GetEntries();
-    int nghostCA_I_under = hntrkghostCA_I->GetBinContent(0);
-    nghostCA_I-=nghostCA_I_under;
+    // int nghostCA_I_under = hntrkghostCA_I->GetBinContent(0);
+    // nghostCA_I-=nghostCA_I_under;
     ghostCA_I_mean[iNtrk] = hntrkghostCA_I->GetMean();
     ghostCA_I_rms[iNtrk] = hntrkghostCA_I->GetMeanError();
 
     TH1F* hntrkghostF_I = (TH1F*)fileF->Get("hntrkghost_I");
     int nghostF_I = hntrkghostF_I->GetEntries();
-    int nghostF_I_under = hntrkghostF_I->GetBinContent(0);
-    nghostF_I-=nghostF_I_under;
+    // int nghostF_I_under = hntrkghostF_I->GetBinContent(0);
+    // nghostF_I-=nghostF_I_under;
     ghostF_I_mean[iNtrk] = hntrkghostF_I->GetMean();
     ghostF_I_rms[iNtrk] = hntrkghostF_I->GetMeanError();
 
@@ -154,8 +197,8 @@ void TrksAlgoResults(TString storePath="PixelSensors/1e4_events/noHitsNumberChec
     goodCA_II_mean[iNtrk] = hntrkgoodCA_II->GetMean();
     TH1F* hntrkmissedCA_II = (TH1F*)fileCA->Get("hntrkmissed_II");
     int nmissCA_II = hntrkmissedCA_II->GetEntries();
-    int nmissCA_II_under = hntrkmissedCA_II->GetBinContent(0);
-    nmissCA_II-=nmissCA_II_under;
+    // int nmissCA_II_under = hntrkmissedCA_II->GetBinContent(0);
+    // nmissCA_II-=nmissCA_II_under;
     missedCA_II_mean[iNtrk] = hntrkmissedCA_II->GetMean();
     missedCA_II_rms[iNtrk] = hntrkmissedCA_II->GetMeanError();  
 
@@ -163,22 +206,22 @@ void TrksAlgoResults(TString storePath="PixelSensors/1e4_events/noHitsNumberChec
     goodF_II_mean[iNtrk] = hntrkgoodF_II->GetMean();
     TH1F* hntrkmissedF_II = (TH1F*)fileF->Get("hntrkmissed_II");
     int nmissF_II = hntrkmissedF_II->GetEntries();
-    int nmissF_II_under = hntrkmissedF_II->GetBinContent(0);
-    nmissF_II-=nmissF_II_under;
+    // int nmissF_II_under = hntrkmissedF_II->GetBinContent(0);
+    // nmissF_II-=nmissF_II_under;
     missedF_II_mean[iNtrk] = hntrkmissedF_II->GetMean();
     missedF_II_rms[iNtrk] = hntrkmissedF_II->GetMeanError();
 
     TH1F* hntrkghostCA_II = (TH1F*)fileCA->Get("hntrkghost_II");
     int nghostCA_II = hntrkghostCA_II->GetEntries();
-    int nghostCA_II_under = hntrkghostCA_II->GetBinContent(0);
-    nghostCA_II-=nghostCA_II_under;
+    // int nghostCA_II_under = hntrkghostCA_II->GetBinContent(0);
+    // nghostCA_II-=nghostCA_II_under;
     ghostCA_II_mean[iNtrk] = hntrkghostCA_II->GetMean();
     ghostCA_II_rms[iNtrk] = hntrkghostCA_II->GetMeanError();
 
     TH1F* hntrkghostF_II = (TH1F*)fileF->Get("hntrkghost_II");
     int nghostF_II = hntrkghostF_II->GetEntries();
-    int nghostF_II_under = hntrkghostF_II->GetBinContent(0);
-    nghostF_II-=nghostF_II_under;
+    // int nghostF_II_under = hntrkghostF_II->GetBinContent(0);
+    // nghostF_II-=nghostF_II_under;
     ghostF_II_mean[iNtrk] = hntrkghostF_II->GetMean();
     ghostF_II_rms[iNtrk] = hntrkghostF_II->GetMeanError();
 
@@ -186,16 +229,29 @@ void TrksAlgoResults(TString storePath="PixelSensors/1e4_events/noHitsNumberChec
     TH1D* hnRecnMCCA_rec = hnRecnMCCA->ProjectionY();
     int nsimTrk = (hnRecnMCCA_rec->GetEntries()); 
    
-    ghostCA_I[iNtrk]=100*double(nghostCA_I*ghostCA_I_mean[iNtrk])/(nsimTrk*Ntrks[iNtrk]);
-    missedCA_I[iNtrk]=100*double(nmissCA_I*missedCA_I_mean[iNtrk])/(nsimTrk*Ntrks[iNtrk]);
-    ghostF_I[iNtrk]=100*double(nghostF_I*ghostF_I_mean[iNtrk])/(nsimTrk*Ntrks[iNtrk]);
-    missedF_I[iNtrk]=100*double(nmissF_I*missedF_I_mean[iNtrk])/(nsimTrk*Ntrks[iNtrk]);
-    ghostCA_II[iNtrk]=100*double(nghostCA_II*ghostCA_II_mean[iNtrk])/(nsimTrk*Ntrks[iNtrk]);
-    missedCA_II[iNtrk]=100*double(nmissCA_II*missedCA_II_mean[iNtrk])/(nsimTrk*Ntrks[iNtrk]);
-    ghostF_II[iNtrk]=100*double(nghostF_II*ghostF_II_mean[iNtrk])/(nsimTrk*Ntrks[iNtrk]);
-    missedF_II[iNtrk]=100*double(nmissF_II*missedF_II_mean[iNtrk])/(nsimTrk*Ntrks[iNtrk]);
-    timeCA[iNtrk]=1000*double(timeCA[iNtrk])/reconstCA[iNtrk];
-    timeF[iNtrk]=1000*double(timeF[iNtrk])/reconstF[iNtrk];
+    // ghostCA_I[iNtrk]=100*double(nghostCA_I*ghostCA_I_mean[iNtrk])/(nsimTrk*Ntrks[iNtrk]);
+    // missedCA_I[iNtrk]=100*double(nmissCA_I*missedCA_I_mean[iNtrk])/(nsimTrk*Ntrks[iNtrk]);
+    // ghostF_I[iNtrk]=100*double(nghostF_I*ghostF_I_mean[iNtrk])/(nsimTrk*Ntrks[iNtrk]);
+    // missedF_I[iNtrk]=100*double(nmissF_I*missedF_I_mean[iNtrk])/(nsimTrk*Ntrks[iNtrk]);
+    // ghostCA_II[iNtrk]=100*double(nghostCA_II*ghostCA_II_mean[iNtrk])/(nsimTrk*Ntrks[iNtrk]);
+    // missedCA_II[iNtrk]=100*double(nmissCA_II*missedCA_II_mean[iNtrk])/(nsimTrk*Ntrks[iNtrk]);
+    // ghostF_II[iNtrk]=100*double(nghostF_II*ghostF_II_mean[iNtrk])/(nsimTrk*Ntrks[iNtrk]);
+    // missedF_II[iNtrk]=100*double(nmissF_II*missedF_II_mean[iNtrk])/(nsimTrk*Ntrks[iNtrk]);
+
+    ghostCA_I[iNtrk]=100*double(nghostCA_I)/(nsimTrk);
+    missedCA_I[iNtrk]=100*double(nmissCA_I)/(nsimTrk);
+    ghostF_I[iNtrk]=100*double(nghostF_I)/(nsimTrk);
+    missedF_I[iNtrk]=100*double(nmissF_I)/(nsimTrk);
+    ghostCA_II[iNtrk]=100*double(nghostCA_II)/(nsimTrk);
+    missedCA_II[iNtrk]=100*double(nmissCA_II)/(nsimTrk);
+    ghostF_II[iNtrk]=100*double(nghostF_II)/(nsimTrk);
+    missedF_II[iNtrk]=100*double(nmissF_II)/(nsimTrk);
+
+    // timeCA[iNtrk]=1000*double(timeCA[iNtrk])/reconstCA[iNtrk];
+    // timeF[iNtrk]=1000*double(timeF[iNtrk])/reconstF[iNtrk];
+    timeCA[iNtrk]=20*1000*double(timeCA[iNtrk])/reconstCA[iNtrk];
+    timeF[iNtrk]= 20*1000*double(timeF[iNtrk])/reconstF[iNtrk];
+
     cout<<"nsimTrk = "<<nsimTrk<<" nrecF = "<<nrecF<<" nrecCA = "<<nrecCA<<endl;
     cout<<"(I:based on phi&theta diff between MC and REC), (II:based on hit info)"<<endl;
     cout<<" nmissF_I = "<<nmissF_I<<" nmissCA_I = "<<nmissCA_I<<endl;
@@ -273,7 +329,7 @@ void TrksAlgoResults(TString storePath="PixelSensors/1e4_events/noHitsNumberChec
   grMissF_II->SetMarkerStyle(21);
   grMissF_II->SetMarkerColor(4);
   grMissF_II->SetMarkerSize(1.2);
-  TMultiGraph *mgMissed = new TMultiGraph("mgMissed","Missed;N^{trk}_{MC};missed trks, %");
+  TMultiGraph *mgMissed = new TMultiGraph("mgMissed","Missed;N^{trk}_{MC};events with missed trks, %");
   mgMissed->Add(grMissCA_I);
   mgMissed->Add(grMissF_I);
   mgMissed->Add(grMissCA_II);
@@ -296,7 +352,7 @@ void TrksAlgoResults(TString storePath="PixelSensors/1e4_events/noHitsNumberChec
   grGhostF_II->SetMarkerStyle(21);
   grGhostF_II->SetMarkerColor(4);
   grGhostF_II->SetMarkerSize(1.2);
-  TMultiGraph *mgGhost = new TMultiGraph("mgGhost","Ghost;N^{trk}_{MC};ghost trks, %");
+  TMultiGraph *mgGhost = new TMultiGraph("mgGhost","Ghost;N^{trk}_{MC};events with ghost trks, %");
   mgGhost->Add(grGhostCA_I);
   mgGhost->Add(grGhostF_I);
   mgGhost->Add(grGhostCA_II);
@@ -359,7 +415,7 @@ void TrksAlgoResults(TString storePath="PixelSensors/1e4_events/noHitsNumberChec
   //  #frac{d#sigma}{dcos#theta} (e^{+}e^{-} #rightarrow f#bar{f} ) =
     //  #left| #frac{1}{1 - #Delta#alpha} #right|^{2} (1+cos^{2}#theta)";
 
-  mgSpeed->Draw("APL");
+  mgSpeed->Draw("A");
   TLatex latex;
   latex.SetTextSize(0.035);
   latex.SetTextAlign(12);  //align at center
@@ -369,6 +425,9 @@ void TrksAlgoResults(TString storePath="PixelSensors/1e4_events/noHitsNumberChec
   // latex.DrawLatex(1.8,1.8,"#it{Trk-Following (Trks matching)}");
   // latex.DrawLatex(1.8,1.7,"#it{Trk-Following (Hits matching)}");
 
+
+  //  TPad* info = new TPad("info","information",0,0,0.3,0.5);
+  //  info->Draw();
   latex.DrawLatex(3.9,0.8,"#it{Cellular Automaton (Trks matching)}");
   latex.DrawLatex(3.9,0.75,"#it{Cellular Automaton (Hits matching)}");
   latex.DrawLatex(3.9,0.7,"#it{Trk-Following (Trks matching)}");

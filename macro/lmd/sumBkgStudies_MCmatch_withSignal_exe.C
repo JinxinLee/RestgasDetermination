@@ -124,7 +124,8 @@ int main(int __argc,char *__argv[]) {
   for(int xi=0;xi<hMCpdgSUM_sum_f->GetNbinsX();xi++){
     double numEv =  hMCpdgSUM_sum_f->GetBinContent(xi);
     if(numEv!=0) {
-      if(numEv>20) cout<<sumStep*xi-1<<" & "<<numEv<<"  ( "<<100*numEv/barpevents <<" \\%)"<<" \\"<<endl;
+      //      if(numEv>20) 
+      cout<<sumStep*xi-1<<" & "<<numEv<<"  ( "<<100*numEv/barpevents <<" \\%)"<<" \\"<<endl;
       if((sumStep*xi-1)!=4424) totBkg+=numEv;
     }
   }
@@ -275,7 +276,7 @@ int main(int __argc,char *__argv[]) {
   latex.DrawLatex(.2,.4,"211 = #pi^{+}");
   latex.DrawLatex(.2,.3,"13 = #mu^{-}");
   latex.DrawLatex(.2,.2,"11 = e^{-}");
-  c3->Write();
+  //c3->Write();
 
   TCanvas *cBkgpbar = new TCanvas("cBkgpbar");
   cBkgpbar->Divide(3,2);
@@ -291,43 +292,68 @@ int main(int __argc,char *__argv[]) {
   nrecbkg->Draw("sumid","id==-2212 && sumid>6000 && sumid<7000");
   cBkgpbar->cd(6);
   nrecbkg->Draw("sumid","id==-2212 && sumid>7000 && sumid<1e5");
-  cBkgpbar->Write();
+  
 
 
   TCanvas *cBkgTheta = new TCanvas("cBkgTheta");
   cBkgTheta->Divide(3,2);
   cBkgTheta->cd(1);
-  nrecbkg->Draw("theta:x","theta>0.003 && theta<0.009 && abs(z)<10 && abs(p-11.91)<0.05");
+  nrecbkg->Draw("theta:x","theta>0.003 && theta<0.009","colz");
   cBkgTheta->cd(2);
-  nrecbkg->Draw("theta:y","theta>0.003 && theta<0.009 && abs(z)<10 && abs(p-11.91)<0.05");
+  nrecbkg->Draw("theta:y","theta>0.003 && theta<0.009","colz");
   cBkgTheta->cd(3);
-  nrecbkg->Draw("theta:z","theta>0.003 && theta<0.009 && abs(z)<10 && abs(p-11.91)<0.05");
+  nrecbkg->Draw("theta:z","theta>0.003 && theta<0.009","colz");
   cBkgTheta->cd(4);
-  nrecbkg->Draw("theta:px","theta>0.003 && theta<0.009 && abs(z)<10 && abs(p-11.91)<0.05");
+  nrecbkg->Draw("theta:px","theta>0.003 && theta<0.009","colz");
   cBkgTheta->cd(5);
-  nrecbkg->Draw("theta:py","theta>0.003 && theta<0.009 && abs(z)<10 && abs(p-11.91)<0.05");
+  nrecbkg->Draw("theta:py","theta>0.003 && theta<0.009","colz");
   cBkgTheta->cd(6);
-  nrecbkg->Draw("theta:pz","theta>0.003 && theta<0.009 && abs(z)<10 && abs(p-11.91)<0.05");
-  cBkgTheta->Write();
+  nrecbkg->Draw("theta:pz","theta>0.003 && theta<0.009","colz");
+ 
 
   TCanvas *cSigTheta = new TCanvas("cSigTheta");
   cSigTheta->Divide(3,2);
   cSigTheta->cd(1);
-  nrecsig->Draw("theta:x","theta>0.003 && theta<0.009 && abs(z)<10 && abs(p-11.91)<0.05");
+  nrecsig->Draw("theta:x","theta>0.003 && theta<0.009","colz");
   cSigTheta->cd(2);
-  nrecsig->Draw("theta:y","theta>0.003 && theta<0.009 && abs(z)<10 && abs(p-11.91)<0.05");
+  nrecsig->Draw("theta:y","theta>0.003 && theta<0.009","colz");
   cSigTheta->cd(3);
-  nrecsig->Draw("theta:z","theta>0.003 && theta<0.009 && abs(z)<10 && abs(p-11.91)<0.05");
+  nrecsig->Draw("theta:z","theta>0.003 && theta<0.009","colz");
   cSigTheta->cd(4);
-  nrecsig->Draw("theta:px","theta>0.003 && theta<0.009 && abs(z)<10 && abs(p-11.91)<0.05");
+  nrecsig->Draw("theta:px","theta>0.003 && theta<0.009","colz");
   cSigTheta->cd(5);
-  nrecsig->Draw("theta:py","theta>0.003 && theta<0.009 && abs(z)<10 && abs(p-11.91)<0.05");
+  nrecsig->Draw("theta:py","theta>0.003 && theta<0.009","colz");
   cSigTheta->cd(6);
-  nrecsig->Draw("theta:pz","theta>0.003 && theta<0.009 && abs(z)<10 && abs(p-11.91)<0.05");
-  cSigTheta->Write();
+  nrecsig->Draw("theta:pz","theta>0.003 && theta<0.009","colz");
+
+  TCanvas *cSumTheta = new TCanvas("cSumTheta");
+  TH1F* hthetasig = new TH1F("hthetasig",";#theta, rad",100,0,0.03);
+  nrecsig->Project("hthetasig","theta");
+  hthetasig->SetLineColor(2);
+  hthetasig->Draw();
+  TH1F* hthetabkg = new TH1F("hthetabkg",";#theta, rad",100,0,0.03);
+  nrecbkg->Project("hthetabkg","theta");
+  hthetabkg->SetLineColor(4);
+  hthetabkg->Draw("same");
+  cSumTheta->SetLogy();
+
+  TString resname_pdf =storePath+"/summary.pdf";
+  TString resname_pdf_o = resname_pdf+"(";
+  cSumTheta->Print(resname_pdf_o); 
+  cSigTheta->Print(resname_pdf_o); 
+  cBkgTheta->Print(resname_pdf_o);
+  TString resname_pdf_c = resname_pdf+")";
+  // cBkgpbar->Print(resname_pdf_c);
+  c3->Print(resname_pdf_c);
+
+
+
+  // // cSigTheta->Write();
+  // // cBkgTheta->Write();
+  // // cBkgpbar->Write();
   f->Write();
   
-  TCanvas *ctmp = new TCanvas("ctmp");
+  //TCanvas *ctmp = new TCanvas("ctmp");
   //  for(int isum=900;isum<7000;isum++){
   for(int isum=0;isum<7000;isum++){
   //  for(int isum=900;isum<5000;isum++){
@@ -406,5 +432,5 @@ int main(int __argc,char *__argv[]) {
   }
 
   ///---------------------------------------------------------------------------
-
+ 
 }

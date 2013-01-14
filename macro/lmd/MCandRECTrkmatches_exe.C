@@ -128,7 +128,7 @@
 
 using namespace std;
 int main(int __argc,char *__argv[]) {
-  gROOT->Macro("/panda/pandaroot/macro/lmd/Style_Imported_Style.C");
+  gROOT->Macro("/home/karavdin/pandaRoot12/macro/lmd/Style_Imported_Style.C");
   gROOT->SetStyle("Imported_Style"); 
 
   //TODO: read this like params!
@@ -221,7 +221,13 @@ int main(int __argc,char *__argv[]) {
   mcTrkSStr >> nMCtracks;
   useNewDSStr >> dnu;
   usedMHSStr >> mh;
+  cout<<"====================================="<<endl;
+  cout<<"some INFO about this macro params: "<<endl;
+  cout<<"expected number of tracks per event: "<<nMCtracks<<endl;
+  cout<<"expected number of events: "<<nEvents<<endl;
+  cout<<"Pbeam: "<<Plab<<endl;
   cout<<"Will be used Path: "<<storePath<<endl;
+  cout<<"====================================="<<endl;
   //void MCandRECTrkmatches(const int nEvents=2, const int startEvent=0, TString storePath="tmpOutput", const int verboseLevel=3, double dv=0.5, bool no4d=false)
   //{
   // ----  Load libraries   -------------------------------------------------
@@ -529,7 +535,7 @@ int main(int __argc,char *__argv[]) {
 			    30,0,30,5e2,0,50.);
   TNtuple *nrecpointall = new TNtuple("nrecpointall","recpointAll","xrecbp:yrecbp:zrecbp:xrec:yrec:zrec:xseed:yseed:zseed");
   TNtuple *nrecdirall = new TNtuple("nrecdirall","recdirAll","pxrecbp:pyrecbp:pzrecbp:dirxrec:diryrec:dirzrec:dirxseed:diryseed:dirzseed");
-
+  TH2I *hnhits = new TH2I("hnhits","# rec hits vs. # sim hits; sim; rec",100,0,100,100,0,100);
   //Load lumi geo params
   PndLmdDim *lmddim = PndLmdDim::Instance();
   // lmddim -> Read_transformation_matrices("matrices.txt", true);
@@ -550,10 +556,10 @@ int main(int __argc,char *__argv[]) {
       tHitsMerged.GetEntry(j);
     const int nGeaneTrks = geaneArray->GetEntriesFast();
     const int nParticles = true_tracks->GetEntriesFast();
-   
-
     const int numTrk = nGeaneTrks;
     const int nRecHits = rechit_array->GetEntriesFast();
+    const int nMCHits = true_points->GetEntriesFast();
+    
     const int nTrkCandidates = trkcand_array->GetEntriesFast();
     const int nRecTrks = rec_trk->GetEntriesFast();
     if(verboseLevel>0)  
@@ -561,6 +567,7 @@ int main(int __argc,char *__argv[]) {
 	  <<" trk-cands, "<<numTrk<<" tracks and "<<nGeaneTrks<<" geane Trks!"<<endl;
     hnRecnMC->Fill(nParticles,nGeaneTrks);
     if(nParticles!=nMCtracks) continue;
+    hnhits->Fill(nMCHits,nRecHits);
     if(nRecHits<3*nMCtracks) glBadEv++;
     // if(nRecHits<3*nMCtracks) cout<<"Event #"<<j<<" doesn't have enough rec.hits!!!"<<endl;
     // if(nRecHits<3*nMCtracks) continue;
@@ -589,9 +596,17 @@ int main(int __argc,char *__argv[]) {
 
     int goodRectrk=0;//for missed trk-search
     for (Int_t iN=0; iN<nGeaneTrks; iN++){// loop over all reconstructed trks
+
+    
       vector<int> MCtrkID; //arrray of hits MCid
       Int_t diffIDs=1;
       FairTrackParH *fRes = (FairTrackParH*)geaneArray->At(iN);
+      ///get rid from most probably ghost track ------------
+      TVector3 PosRec = fRes->GetPosition();
+      double pca_lim = 1.;
+      if(Plab<2) pca_lim = 10.;
+      if(fabs(PosRec.X())>pca_lim && fabs(PosRec.Y())>pca_lim) continue; // PCA_x and PCA_y should be less then 1 cm! 15GeV/c
+      ///get rid from most probably ghost track (END) ---
       Double_t lyambda = fRes->GetLambda();
       if(lyambda==0){
 	cout<<"GEANE didn't propagate this trk!"<<endl;
@@ -746,7 +761,7 @@ int main(int __argc,char *__argv[]) {
 	int posIDmax=0;
 	for(int kn=0;kn<diffIDs;kn++){
 	  //	  cout<<"countMC_IDs["<<kn<<"]="<<countMC_IDs[kn]<<" 0.7*MCtrkID.size() = "<<0.7*MCtrkID.size()<<endl;
-	  if(countMC_IDs[kn]>0.7*MCtrkID.size()){ //more then 70% of hits come from the same MC id
+	  if(countMC_IDs[kn]>0.65*MCtrkID.size()){ //more then 65% of hits come from the same MC id
 	    goodTrk[iN] = true;
 	    ghostTrk[iN] = false;
 	  }
@@ -805,7 +820,7 @@ int main(int __argc,char *__argv[]) {
 	///-------------------------------------------------------
 	
 	/// CUT: Check position and coordinates errors of PCA ---------------------------------------
-	TVector3 PosRec = fRes->GetPosition();
+
 	hDiffIDsPointX->Fill(diffIDs,PosRec.X());
 	hDiffIDsPointY->Fill(diffIDs,PosRec.Y());
 	hDiffIDsPointZ->Fill(diffIDs,PosRec.Z());
@@ -1682,6 +1697,7 @@ int main(int __argc,char *__argv[]) {
  nmomMC->Write();
  ntuprecTrk->Write();
  ntupMCTrk->Write();
+ hnhits->Write();
  f->Close();
  cout<<"Number of events with low number of hits (less then 3 per trk): "<<glBadEv<<endl;
  cout<<"Number of trks where GEANE failed: "<<glBADGEANE<<endl;

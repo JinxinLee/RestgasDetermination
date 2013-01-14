@@ -1,16 +1,20 @@
 // Panda FullSim macro
 
 //void runLumi0SimBox(const int nEvents=10, const double mom=15, TString storePath="tmpOutput", const int verboseLevel=0, const int particle=-211)
-void runLumi0SimBox(const int nEvents=10, const double mom=15, TString storePath="tmpOutput", const int verboseLevel=0, const int particle=-2212, const int trkNum=1)
+void runLumi0SimBox(const int nEvents=10000, const int startEv=0, const double mom=15, TString storePath="tmpOutput", const int verboseLevel=0, const int particle=-2212, const int trkNum=1, const int seed=3435)
 {
+  gRandom->SetSeed(seed);
   TStopwatch timer;
   timer.Start();
   gDebug=0;
   cout<<"We start run for beam Mom = "<<mom<<endl;
   //output1
-  TString simOutput=storePath+"/Lumi_MC_0.root";
-  TString parOutput=storePath+"/Lumi_Params_0.root";
-
+  TString simOutput=storePath+"/Lumi_MC_";
+  simOutput += startEv;
+  simOutput += ".root";
+  TString parOutput=storePath+"/Lumi_Params_";
+  parOutput +=startEv;
+  parOutput +=".root";
   //Load basic libraries
   gROOT->Macro("$VMCWORKDIR/gconfig/rootlogon.C");
   gSystem->Load("libSds");
@@ -19,8 +23,8 @@ void runLumi0SimBox(const int nEvents=10, const double mom=15, TString storePath
   cout<<"All libraries succsesfully loaded!"<<endl;
 
   //set the MC version used
-  //fRun->SetName("TGeant4");
-  fRun->SetName("TGeant3");//GEANE uses GEANT3!
+  fRun->SetName("TGeant4");
+  //  fRun->SetName("TGeant3");//GEANE uses GEANT3!
   
   fRun->SetOutputFile(simOutput);
 
@@ -96,6 +100,7 @@ void runLumi0SimBox(const int nEvents=10, const double mom=15, TString storePath
   fRun->SetGenerator(primGen);
 
   // Box Generator
+ 
   FairBoxGenerator *fBox = new FairBoxGenerator(particle, trkNum);
   fBox->SetPRange(mom,mom);
   //  fBox->SetThetaRange(0.13,0.7); // 2... 12 mrad

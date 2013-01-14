@@ -54,7 +54,8 @@ using namespace std;
 // {
 int main(int __argc,char *__argv[]) {
   TString storePath="/data/FAIRsorf/pandaroot/trunk/macro/lmd/tmpOutputBkg";
-  double beamMom = 1.5;
+  //  double beamMom = 1.5;
+  TString beamMom ="";
   int startEvent=0;
   int nEvents=100;
   std::string pathStr="", beamMomStr="", startStr="", nEvStr="";
@@ -138,7 +139,12 @@ int main(int __argc,char *__argv[]) {
   
   // ---- Output file ----------------------------------------------------------------
   TString out=storePath+"/GenInfo_out_DPM_all_beamMom_";
+  //  int beamMomint= int(1000*beamMom);
+  // double beamMomnew = beamMomint/1000;
+  // cout<<"beamMom = "<<beamMom<<" beamMomint = "<<beamMomint<<" beamMomnew ="<<beamMomnew <<endl;
   out += beamMom;
+  out += "_";
+  out += startEvent;
   //  out += "_inel.root";
   out += "_inel_and_el.root";
   TFile *f = new TFile(out,"RECREATE");
@@ -147,7 +153,7 @@ int main(int __argc,char *__argv[]) {
   
   
   //--- Output histogram -----------------------------------------------------
-  TH1 *hMCparticles = new TH1F("hMCparticles","Number of simulated particles;N;",5e1,0,5e1);
+  TH1 *hMCparticles = new TH1F("hMCparticles","Number of simulated particles;N;",5e4,0,5e4);
   TH1 *hMCpx = new TH1F("hMCpx","Px*;Px, GeV/c;",1e3,-1e1,1e1);
   TH1 *hMCpy = new TH1F("hMCpy","Py*;Py, GeV/c;",1e3,-1e1,1e1);
   TH1 *hMCpz = new TH1F("hMCpz","Pz*;Pz, GeV/c;",1e3,-1e1,1e1);
@@ -159,6 +165,10 @@ int main(int __argc,char *__argv[]) {
   TH1 *hSumIDs = new TH1F("hSumIDs","sum of PDG IDs;",1e4,0,1e4);
   TH2 *hSumIDs_numPar = new TH2F("hSumIDs_numPar",";sum of PDG IDs;number of particles",1e4,0,1e4,20,0,20);
   TH2 *hSumIDs_numPar_smallTheta = new TH2F("hSumIDs_numPar_smallTheta",";sum of PDG IDs;number of particles",1e4,0,1e4,20,0,20);
+
+ TNtuple *ntupMCTrk = new TNtuple("ntupMCTrk","Info about simulated trks","pdgid:x:y:z:mom:theta:phi");
+ TNtuple *ntupMCHit = new TNtuple("ntupMCHit","Info about simulated hits","pdgid:x:y:z:mom:theta:phi:eloss:sensid");
+
  //int countPDGid[15];
  /// [0]=22 photon, [1]=111 pi0, [2]=130 K0_L, [3]=211 pi+, [4]=310 K0_S, [5]=321 K+
  /// [6]=333 phi, [7]=2112 n, [8]=2212 p, [9]=3122 lyambda, [10]=-211 pi-, [11]=-321 K-
@@ -169,7 +179,7 @@ int main(int __argc,char *__argv[]) {
 
   vector <int> countPDGid(6246); //number of each possible particle, [i]= PDGid + countPDGid.size()/2.;
   vector <TString> process(10000);// process[i]= name of process with PGDis sum=i; 
-  bool fsumID[100][10000];
+  bool fsumID[1000][10000];
   for(int in=0;in<20;in++){
       for(int isum=0;isum<10000;isum++){
 	fsumID[in][isum]=false;
@@ -192,6 +202,19 @@ int main(int __argc,char *__argv[]) {
   // MC info -----------------------------------------------------------------
   tMC.GetEntry(j); 
   
+
+  // MC hit --------------------------------------------------------------------
+  const int nMCpoints = true_points->GetEntriesFast();
+  for(int ipmc=0;ipmc<nMCpoints;ipmc++){
+    PndSdsMCPoint* MCPoint = (PndSdsMCPoint*)(true_points->At(ipmc));
+    int MCp_id = MCPoint->GetTrackID();
+    TVector3 MCpointV = MCPoint->GetPosition();
+    TVector3 MCpointMom(MCPoint->GetPx(),MCPoint->GetPy(),MCPoint->GetPz());
+    ntupMCHit->Fill(MCp_id,MCpointV.X(),MCpointV.Y(),MCpointV.Z(),MCpointMom.Theta(),MCpointMom.Phi(),MCPoint->GetEnergyLoss(),MCPoint->GetSensorID());
+  }
+  
+  //MC trk --------------------------------------------------------------------
+
     const int nParticles = true_tracks->GetEntriesFast();
     // cout<<"==============================================="<<endl;
     if(j%500==0) 
@@ -202,10 +225,13 @@ int main(int __argc,char *__argv[]) {
      for(int nk=0;nk<nParticles;nk++){
 
        PndMCTrack *mctrk =(PndMCTrack*) true_tracks->At(nk);
+       TVector3 MomMCv = mctrk->GetMomentum();
+       TVector3 PosMCv = mctrk->GetStartVertex();
        Int_t mcID = mctrk->GetPdgCode();
        if(fabs(mcID)>3122) cout<<"!!!!!!!! PDGid = "<<mcID<<endl;
        if(fabs(mcID)>3122) countPDGid[0] +=1;
        if(fabs(mcID)>3122) continue;
+       ntupMCTrk->Fill(mcID,PosMCv.X(),PosMCv.Y(),PosMCv.Z(),MomMCv.Mag(),MomMCv.Theta(),MomMCv.Phi());
        vecPDGid.push_back(mcID);
 
      
@@ -220,6 +246,8 @@ int main(int __argc,char *__argv[]) {
        //       cout<<" IDpos = "<< IDpos<<endl;
        countPDGid[IDpos] +=1;
        TLorentzVector MomMC = mctrk->Get4Momentum();
+       // = new TNtuple("ntupMCTrk","Info about simulated trks","x:y:z:mom:theta:phi");
+ 
       hMCLabtheta->Fill(MomMC.Theta());
       double Px = MomMC.Px();
       double Py = MomMC.Py();
@@ -429,6 +457,7 @@ int main(int __argc,char *__argv[]) {
   hMCpz->Write();
   hMCphi->Write();
   hMCLabtheta->Write();
-
+  ntupMCTrk->Write();
+  ntupMCHit->Write();
   f->Close();
 }
