@@ -213,8 +213,8 @@ class PndDrc : public FairDetector
 
  
   // basic parameters of DIRC
-  Double_t fpi;
-  Double_t fzup;
+  Double_t fpi;			//!
+  Double_t fzup;		//!
   Double_t fzdown;
   Double_t fradius;
   Double_t fhthick;
@@ -229,6 +229,7 @@ class PndDrc : public FairDetector
  
   Bool_t fRunCherenkov;            //!  Switch ON/OFF Cherenkov propagation
   Int_t          fTrackID;         //!  track index
+  Int_t          fCurrentTrackID;         //!  track index
   Int_t          fCopyNo;          //!  volume id
   TLorentzVector fPos;             //!  position
   TLorentzVector fMom;             //!  momentum
@@ -243,6 +244,7 @@ class PndDrc : public FairDetector
   TLorentzVector fMom2; //! for transport efficiency calculation
   TLorentzVector fPos2; //! for transport efficiency calculation
   Double_t 	 fBarEnd;
+  Double_t 	 fMirrorGap;
   
   // from Initialisation:
   Double_t       fLambda[1000];
@@ -288,13 +290,11 @@ class PndDrc : public FairDetector
   TClonesArray*  fDrcBarCollection;        //! Hit collection in the bar
   Int_t          fEventID;
   
-  Int_t aaa;
-
   // reset all parameters   
   void ResetParameters();
 
   Int_t  fSenId1, fSenId2, fSenIdBar;
-  ClassDef(PndDrc,9)
+  ClassDef(PndDrc,10)
 
 }; 
 
