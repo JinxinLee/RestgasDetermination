@@ -1,7 +1,5 @@
-/** CbmStsMapsHit
- *@author Michael Deveaux <m.deveaux@gsi.de>
- **Acknowledgements to M. Al-Turany, D. Bertini, G. Gaycken
- **Version beta 0.1 (02.02.2005)
+/** 
+last revision December, 2012
  **/
 
 

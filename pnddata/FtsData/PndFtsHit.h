@@ -1,9 +1,4 @@
-/** CbmStsMapsHit
- ** Class for MAPS detector hit
- **@author Michael Deveaux <m.deveaux@gsi.de>
- ** Acknowledgements to M. Al-Turany, D. Bertini, G. Gaycken
- ** Version beta 0.1 (02.02.2005)
- ** Slight modifications by V. Friese to match coding conventions
+/** 
  **
  ** Meaning of RefIndex:  Index of corresponding MCPoint
  **                       -1 if fake or background hit
@@ -18,7 +13,6 @@
 
 #include "TVector3.h"
 #include "FairHit.h"
-#include "PndTrack.h"
 
 class PndFtsHit : public FairHit
 {
