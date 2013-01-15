@@ -98,9 +98,9 @@ PndDrc::PndDrc()
     fMirrorGap(0),
   
   // for efficiency calculation:
-    fLambda({0}),
-    fEfficiency({0}),
-    fEfficiencyR({0}),
+    //fLambda({0}),
+    //fEfficiency({0}),
+    //fEfficiencyR({0}),
     fLambdaMin(0.),
     fLambdaMax(0.),
     fLambdaStep(0.),
@@ -153,6 +153,12 @@ PndDrc::PndDrc()
       std::cout<<"\n\t"<<fListOfSensitives[k];
     std::cout<<std::endl;
   } 
+  
+  for(Int_t i=0; i<1000; i++){
+    fLambda[i] = 0.;
+    fEfficiency[i] = 0.;
+    fEfficiencyR[i] = 0.;
+  }
 }
 // -------------------------------------------------------------------------
 
@@ -195,9 +201,9 @@ PndDrc::PndDrc(const char* name, Bool_t active)
     fMirrorGap(0),
   
   // for efficiency calculation:
-    fLambda({0}),
-    fEfficiency({0}),
-    fEfficiencyR({0}),
+    //fLambda({0}),
+    //fEfficiency({0}),
+    //fEfficiencyR({0}),
     fLambdaMin(0.),
     fLambdaMax(0.),
     fLambdaStep(0.),
@@ -249,6 +255,12 @@ PndDrc::PndDrc(const char* name, Bool_t active)
       for(Int_t k=0; k<fListOfSensitives.size(); k++)
         std::cout<<"\n\t"<<fListOfSensitives[k];
       std::cout<<std::endl;
+    }
+    
+    for(Int_t i=0; i<1000; i++){
+      fLambda[i] = 0.;
+      fEfficiency[i] = 0.;
+      fEfficiencyR[i] = 0.;
     }
 }
 // -------------------------------------------------------------------------
