@@ -423,6 +423,7 @@ int main(int __argc,char *__argv[]) {
   TH1 *hErrMom = new TH1F("hErrMom","#sigma_{P};#sigmaP,GeV/c",1e3,0,1e-3);
   TH1 *hPullMom = new TH1F("hPullMom","(P_{MC}-P_{rec})/#sigma_{P};",1e3,-1e1,1e1);
   TH1 *hResTheta = new TH1F("hResTheta","#theta_{MC}-#theta_{rec};#delta#theta,rad",1e3,-1e-2,1e-2);
+  //  TH1 *hResTheta = new TH1F("hResTheta","#theta_{MC}-#theta_{rec};#delta#theta,rad",1e3,-1e-3,1e-3);//TEST
   TH1 *hErrTheta = new TH1F("hErrTheta","#sigma(#theta_{rec});#sigma,rad",1e3,0,0.01);
   TH1 *hPullTheta = new TH1F("hPullTheta","(#theta_{MC}-#theta_{rec})/#sigma_{#theta};",1e2,-10,10);
   TH1 *hResPhi = new TH1F("hResPhi","#phi_{MC}-#phi_{rec};#delta#phi,rad",2e3,-1.,1.);
@@ -494,8 +495,8 @@ int main(int __argc,char *__argv[]) {
   TH2 *hRecGEANEPhi = new TH2F("hRecGEANEPhi",";#phi_{rec}, rad;#phi_{GEANE}, rad",1e3,-7,7,1e3,-7,7);
   TH2 *hRecThetaPhi = new TH2F("hRecThetaPhi",";#theta_{rec}, rad;#phi_{rec}, rad",1e3,0,1.,1e3,-7,7);
   
-  TH2 *hSeedGEANEX = new TH2F("hSeedGEANEX",";X_{cand}, cm;X_{GEANE}, cm",1e3,-15.,15.,1e3,-5.,5.);
-  TH2 *hSeedGEANEY = new TH2F("hSeedGEANEY",";Y_{cand}, cm;Y_{GEANE}, cm",1e3,-15,15.,1e3,-5.,5.);
+  TH2 *hSeedGEANEX = new TH2F("hSeedGEANEX",";X_{cand}, cm;X_{GEANE}, cm",1e3,-100.,100.,1e3,-100.,100.);
+  TH2 *hSeedGEANEY = new TH2F("hSeedGEANEY",";Y_{cand}, cm;Y_{GEANE}, cm",1e3,-100.,100.,1e3,-100.,100.);
   TH2 *hSeedGEANEZ = new TH2F("hSeedGEANEZ",";Z_{cand}, cm;Z_{GEANE}, cm",1e3,-0.015,0.015,1e3,-0.05,0.05);
   TH2 *hSeedGEANER = new TH2F("hSeedGEANER",";R_{cand}, cm;R_{GEANE}, cm",1e3,0,100.,1e3,0,100.);
   TH2 *hSeedGEANETheta = new TH2F("hSeedGEANETheta",";#theta_{cand}, rad;#theta_{GEANE}, rad",1e3,0,0.1,1e3,0,0.1);
@@ -533,7 +534,7 @@ int main(int __argc,char *__argv[]) {
 			    1e3,0,100,2e1,0,0.2);
  TH2 *hchi2nTrkCand = new TH2F("hchi2nTrkCand"," ;Number of trk-cand;#chi^2",
 			    30,0,30,5e2,0,50.);
-  TNtuple *nrecpointall = new TNtuple("nrecpointall","recpointAll","xrecbp:yrecbp:zrecbp:xrec:yrec:zrec:xseed:yseed:zseed");
+  TNtuple *nrecpointall = new TNtuple("nrecpointall","recpointAll","xrecbp:yrecbp:zrecbp:xrec:yrec:zrec:xseed:yseed:zseed:chi2");
   TNtuple *nrecdirall = new TNtuple("nrecdirall","recdirAll","pxrecbp:pyrecbp:pzrecbp:dirxrec:diryrec:dirzrec:dirxseed:diryseed:dirzseed");
   TH2I *hnhits = new TH2I("hnhits","# rec hits vs. # sim hits; sim; rec",100,0,100,100,0,100);
   //Load lumi geo params
@@ -542,6 +543,7 @@ int main(int __argc,char *__argv[]) {
   lmddim -> Read_transformation_matrices("matrices_perfect.txt", false);
   int glBADGEANE=0;
   int glBadEv = 0;
+  int glNoisehit = 0;// total number of noise hits
   for (Int_t j=0; j<nEvents; j++){
     //  cout<<"Event #"<<j<<endl;
     // Read GEANE & MC info -----------------------------------------------------------------
@@ -603,9 +605,15 @@ int main(int __argc,char *__argv[]) {
       FairTrackParH *fRes = (FairTrackParH*)geaneArray->At(iN);
       ///get rid from most probably ghost track ------------
       TVector3 PosRec = fRes->GetPosition();
-      double pca_lim = 1.;
-      if(Plab<2) pca_lim = 10.;
-      if(fabs(PosRec.X())>pca_lim && fabs(PosRec.Y())>pca_lim) continue; // PCA_x and PCA_y should be less then 1 cm! 15GeV/c
+      double pca_lim = 1.;//=10*sigma_Xpca~10*{0.093,0.11,0.12,0.22,0.55};
+      if(Plab<5) pca_lim = 2.;
+      if(Plab<2) pca_lim = 5.;
+      // if(fabs(PosRec.X())>pca_lim && fabs(PosRec.Y())>pca_lim){
+      // 	cout<<"666 Event #"<<j<<" has too large X_pca ot Y_pca 666"<<endl;
+      // }
+      if(fabs(PosRec.X())>pca_lim && fabs(PosRec.Y())>pca_lim) continue; // PCA_x and PCA_y should be < 10sigmaX
+
+     
       ///get rid from most probably ghost track (END) ---
       Double_t lyambda = fRes->GetLambda();
       if(lyambda==0){
@@ -654,6 +662,12 @@ int main(int __argc,char *__argv[]) {
 	  //  if(verboseLevel>1) cout<<"Rec hit("<<myHit->GetClusterIndex()<<")";
 	  PndSdsClusterPixel* myCluster = (PndSdsClusterPixel*)(fStripClusterArray->At(myHit->GetClusterIndex()));
 	  PndSdsDigiPixel* astripdigi = (PndSdsDigiPixel*)(fStripDigiArray->At(myCluster->GetDigiIndex(0)));
+	  if (astripdigi->GetIndex(0) == -1){
+	    glNoisehit++;
+	    //  MCtrkID.push_back(-111);
+	    continue;
+	  }
+	  // if (astripdigi->GetIndex(0) == -1) continue; // sort out noise
 	  PndSdsMCPoint* MCPoint = (PndSdsMCPoint*)(true_points->At(astripdigi->GetIndex(0)));
 	  MCpointMom = sqrt(MCPoint->GetPx()*MCPoint->GetPx()+MCPoint->GetPy()*MCPoint->GetPy()+MCPoint->GetPz()*MCPoint->GetPz());
 	  int MCidTOP = MCPoint->GetTrackID();
@@ -668,6 +682,7 @@ int main(int __argc,char *__argv[]) {
 	///Top cluster
 	PndSdsClusterStrip* myCluster =  (PndSdsClusterStrip*)(fStripClusterArray->At(myHit->GetClusterIndex()));
 	PndSdsDigiStrip* astripdigi = (PndSdsDigiStrip*)(fStripDigiArray->At(myCluster->GetDigiIndex(0)));
+	if (astripdigi->GetIndex(0) == -1) glNoisehit++;
 	if (astripdigi->GetIndex(0) == -1) continue; // sort out noise
 	PndSdsMCPoint* MCPoint = (PndSdsMCPoint*)(true_points->At(astripdigi->GetIndex(0)));
 	MCpointMom = sqrt(MCPoint->GetPx()*MCPoint->GetPx()+MCPoint->GetPy()*MCPoint->GetPy()+MCPoint->GetPz()*MCPoint->GetPz());
@@ -682,6 +697,7 @@ int main(int __argc,char *__argv[]) {
 	Int_t  botIndex = myHit->GetBotIndex();
 	PndSdsClusterStrip* myClusterBot =  (PndSdsClusterStrip*)(fStripClusterArray->At(botIndex));
 	PndSdsDigiStrip* astripdigiBot = (PndSdsDigiStrip*)(fStripDigiArray->At(myClusterBot->GetDigiIndex(0)));
+	if (astripdigiBot->GetIndex(0) == -1) glNoisehit++;
 	if (astripdigiBot->GetIndex(0) == -1) continue; // sort out noise
 	PndSdsMCPoint* MCPointBot = (PndSdsMCPoint*)(true_points->At(astripdigiBot->GetIndex(0)));
 	// double zBot = MCPointBot->GetZ();
@@ -942,7 +958,7 @@ int main(int __argc,char *__argv[]) {
 	///(end) check for good tracks --------------------------
 	nrecpointall->Fill(pos_prop_geane_trk.X(),pos_prop_geane_trk.Y(),pos_prop_geane_trk.Z(),
 			   pos_rec_trk.X(),pos_rec_trk.Y(),pos_rec_trk.Z(),
-			   posSeed.X(),posSeed.Y(),posSeed.Z());
+			   posSeed.X(),posSeed.Y(),posSeed.Z(),chi2);
 	nrecdirall->Fill(MomRecBP.X(),MomRecBP.Y(),MomRecBP.Z(),
 			 dir_rec_trk.X(),dir_rec_trk.Y(),dir_rec_trk.Z(),
 			 dirSeed.X(),dirSeed.Y(),dirSeed.Z());
@@ -1381,6 +1397,7 @@ int main(int __argc,char *__argv[]) {
   Double_t neff = hSeedGEANETheta->Integral(binx1, binx2);
   // cout<<"Number of track-candidate with #theta from [30-50] mrad = "<<neff<<endl;
   cout<<"Total number of track-candidate = "<<nall<<endl;
+ 
   //----------------------------------------------------------------------
   c8->cd(5);
   hSeedGEANEPhi->Draw();
@@ -1701,4 +1718,5 @@ int main(int __argc,char *__argv[]) {
  f->Close();
  cout<<"Number of events with low number of hits (less then 3 per trk): "<<glBadEv<<endl;
  cout<<"Number of trks where GEANE failed: "<<glBADGEANE<<endl;
+ cout<<"Total number of noise hits = "<<glNoisehit<<endl;
 }
