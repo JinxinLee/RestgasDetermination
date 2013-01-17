@@ -38,7 +38,9 @@
 #include "PndVtxFitterParticle.h"
 
 
+Double_t PndAnalysisCalcTools::fBz=0.;
 Int_t PndAnalysisCalcTools::fVerbose=0;
+Bool_t PndAnalysisCalcTools::fBzSet=kFALSE;
 
 PndAnalysisCalcTools::PndAnalysisCalcTools()
 {
@@ -103,14 +105,16 @@ Bool_t PndAnalysisCalcTools::P7toHelix(const TVector3 &pos, const TLorentzVector
   // to RHO helix parameters (D0,Phi0,rho(omega),Z0,tan(dip))
   // Assuming vx,vy,vz give the POCA to the z axis.
   if(p4.Perp()< 1e-9) {Warning("P7toHelix","Too small transverse momentum: %g",p4.Perp());return kFALSE;}
-  Double_t pnt[3], Bf[3];
-  pnt[0]=pos.X();
-  pnt[1]=pos.Y();
-  pnt[2]=pos.Z(); 
-  FairRunAna::Instance()->GetField()->GetFieldValue(pnt, Bf); //[kGs]
-  //Double_t B = sqrt(Bf[0]*Bf[0]+Bf[1]*Bf[1]+Bf[2]*Bf[2]);
-  Double_t B = Bf[2]; // assume field in z only
-  //Double_t B = 20.;
+//  Double_t pnt[3], Bf[3];
+//  pnt[0]=pos.X();
+//  pnt[1]=pos.Y();
+//  pnt[2]=pos.Z(); 
+//  FairRunAna::Instance()->GetField()->GetFieldValue(pnt, Bf); //[kGs]
+//  //Double_t B = sqrt(Bf[0]*Bf[0]+Bf[1]*Bf[1]+Bf[2]*Bf[2]);
+//  Double_t B = Bf[2]; // assume field in z only
+//  //Double_t B = 20.;
+
+  Double_t B = GetBz(pos);
   if(fVerbose>1)printf("P7ToHelix: BField is %g kGs\n",B);
   Double_t qBc = -0.000299792458*B*Q;//Mind factor from momenta being in GeV
   //Double_t pti=1/p4.Perp();
@@ -192,8 +196,8 @@ Bool_t PndAnalysisCalcTools::P7toHelix(const TVector3 &pos, const TLorentzVector
     jacobian[0][0] = xc/RC; // dD0  / dvx
     jacobian[0][1] = yc/RC; // dD0   /dvy
     jacobian[0][2] = 0.; // dD0   /dvz
-    jacobian[0][3] = yc/(qBc*RC)-px*pti*pti/fabs(rho); // dD0   /dpx
-    jacobian[0][4] = xc/(qBc*RC)-py*pti*pti/fabs(rho); // dD0   /dpy
+    jacobian[0][3] = yc/(qBc*RC)-px*pti/fabs(qBc); // dD0   /dpx
+    jacobian[0][4] = -1.*xc/(qBc*RC)-py*pti/fabs(qBc); // dD0   /dpy
     jacobian[0][5] = 0.; // dD0   /dpz
     jacobian[0][6] = 0.; // dD0   /de
     
@@ -213,11 +217,11 @@ Bool_t PndAnalysisCalcTools::P7toHelix(const TVector3 &pos, const TLorentzVector
     jacobian[2][5] = 0.; // drho  /dpz
     jacobian[2][6] = 0.; // drho  /de
     
-    jacobian[3][0] = 0.; // dZ0   /dvx
-    jacobian[3][1] = 0.; // dZ0   /dvy
+    jacobian[3][0] = pz*yc/(RCsq*qBc); // dZ0   /dvx
+    jacobian[3][1] = -1.*pz*xc/(RCsq*qBc); // dZ0   /dvy
     jacobian[3][2] = 1.; // dZ0   /dvz
-    jacobian[3][3] = pz*yc/(RCsq*qBc); // dZ0   /dpx
-    jacobian[3][4] = -1.*pz*xc/(RCsq*qBc); // dZ0   /dpy
+    jacobian[3][3] = pz/qBc * (py*pti*pti + xc/(qBc*RCsq)); // dZ0   /dpx
+    jacobian[3][4] = -1.*pz/qBc * (px*pti*pti - yc/(qBc*RCsq)); // dZ0   /dpy
     jacobian[3][5] = (phi0-phip)/qBc; // dZ0   /dpz
     jacobian[3][6] = 0.; // dZ0   /de
     
@@ -268,7 +272,8 @@ Bool_t PndAnalysisCalcTools::P7toPRG(const TVector3 &pos, const TLorentzVector &
   
   // get field
   const double B = GetBz(pos); // [kGs]
-  const double qBc = -0.000299792458*B*Q; // momenta being in GeV
+  const double qBc = -0.000299792458*B*Q; // [GeV/cm] using B/[kGs]
+  //const double qBc = -0.299792458*B*Q; // momenta being in GeV length in cm
   if(fVerbose>1)printf("P7toPRG: BField is %g kGs\n",B);
   if(fVerbose>1)printf("P7toPRG: Charge is %g e-\n",Q);
   if(fVerbose>1)printf("P7toPRG: QBc is %g \n",qBc);  
@@ -280,7 +285,10 @@ Bool_t PndAnalysisCalcTools::P7toPRG(const TVector3 &pos, const TLorentzVector &
   const double px = p4.Px(); // reconstructed momentum
   const double py = p4.Py(); // reconstructed momentum
   const double pz = p4.Pz(); // reconstructed momentum
-  
+  const double p2 = px*px+py*py+pz*pz;
+  const double p2i = (p2==0.)?0.:1./p2;
+  if(fVerbose>1)printf("P7toPRG: x is [%8g,%8g,%8g] cm \n",xp,yp,zp);
+  if(fVerbose>1)printf("P7toPRG: p is [%8g,%8g,%8g] GeV/c \n",px,py,pz);
   // phi_p
   const double phip = p4.Phi();
   if(fVerbose>1)printf("P7toPRG: phi is %g \n",phip);
@@ -322,11 +330,14 @@ Bool_t PndAnalysisCalcTools::P7toPRG(const TVector3 &pos, const TLorentzVector &
   else if (phi0 > TMath::Pi()) phi0 -= TMath::TwoPi();
   
   if(fVerbose>1)printf("P7toPRG: phi0 = %.4g, \tphiP = %.4g, \tDeltaPhi = %.4g \tepsilon=%.4g, \tQ=%g\n",phi0,phip,phip-phi0, epsilon, Q);
+  if(fVerbose>1){double xnew=epsilon*sin(phi0); double ynew=-epsilon*cos(phi0);
+    printf("P7toPRG: xnew = %.4g, \tynew = %.4g, \t(x^2+y^2) = %.4g \tepsilon^2=%.4g\n",xnew,ynew,xnew*xnew+ynew*ynew, epsilon*epsilon);
+  }
   
   //get z0
   const double z0 = zp - pz*(phip-phi0)/qBc;
   //const double z0 = zp - tanDip*R0*(phip-phi0);
-  if(fVerbose>1)printf("P7ToHelix: z0 is %g cm from zp=%.3g cm\n",z0,zp);
+  if(fVerbose>1)printf("P7toPRG: z0 is %g cm from zp=%.3g cm\n",z0,zp);
   
   helixparams[0]=epsilon;
   helixparams[1]=z0;
@@ -343,45 +354,48 @@ Bool_t PndAnalysisCalcTools::P7toPRG(const TVector3 &pos, const TLorentzVector &
   {
     //TMatrixD jacobian(5,7); 
     
-    jacobian[0][0] = xc/RC; // dEpsilon  / dvx
-    jacobian[0][1] = yc/RC; // dEpsilon   /dvy
+    jacobian[0][0] = Q*xc/RC; // dEpsilon  / dvx
+    jacobian[0][1] = Q*yc/RC; // dEpsilon   /dvy
     jacobian[0][2] = 0.; // dEpsilon   /dvz
-    jacobian[0][3] = yc/(qBc*RC)-px*pti*pti/fabs(rho); // dD0   /dpx
-    jacobian[0][4] = xc/(qBc*RC)-py*pti*pti/fabs(rho); // dD0   /dpy
+    jacobian[0][3] = Q*(yc/(qBc*RC)-TMath::Sign(pti,R0)*px/qBc); // dEpsilon   /dpx
+    jacobian[0][4] = Q*(-xc/(qBc*RC)-TMath::Sign(pti,R0)*py/qBc); // dEpsilon   /dpy
     jacobian[0][5] = 0.; // dEpsilon   /dpz
     jacobian[0][6] = 0.; // dEpsilon   /de
     
-    jacobian[1][0] = 0.; // dZ0   /dvx
-    jacobian[1][1] = 0.; // dZ0   /dvy
+    jacobian[1][0] = -pz*yc/(RCsq*qBc); // dZ0   /dvx
+    jacobian[1][1] = pz*xc/(RCsq*qBc); // dZ0   /dvy
     jacobian[1][2] = 1.; // dZ0   /dvz
-    jacobian[1][3] = pz*yc/(RCsq*qBc); // dZ0   /dpx
-    jacobian[1][4] = -1.*pz*xc/(RCsq*qBc); // dZ0   /dpy
-    jacobian[1][5] = (phi0-phip)/qBc; // dZ0   /dpz
+    jacobian[1][3] = (py*pti*pti + xc/(qBc*RCsq))*pz/qBc; // dZ0   /dpx
+    jacobian[1][4] = -(px*pti*pti - yc/(qBc*RCsq))*pz/qBc; // dZ0   /dpy
+    jacobian[1][5] = -(phip-phi0)/qBc; // dZ0   /dpz
     jacobian[1][6] = 0.; // dZ0   /de
+                         // ok
     
     jacobian[2][0] = 0.; // dTheta /dvx
     jacobian[2][1] = 0.; // dTheta /dvy
     jacobian[2][2] = 0.; // dTheta /dvz
-    jacobian[2][3] = -1.*tanDip*px*pti*pti; // dTheta /dpx
-    jacobian[2][4] = -1.*tanDip*py*pti*pti; // dTheta /dpy
-    jacobian[2][5] = pti; // dTheta /dpz
+    jacobian[2][3] = px*pz*pti*p2i; // dTheta /dpx
+    jacobian[2][4] = py*pz*pti*p2i; // dTheta /dpy
+    jacobian[2][5] = -pt*p2i; // dTheta /dpz
     jacobian[2][6] = 0.; // dTheta /de
+                         //ok
     
-    jacobian[3][0] = yc/(RCsq); // dPhi0 /dvx
-    jacobian[3][1] = -1.*xc/(RCsq); // dPhi0 /dvy
+    jacobian[3][0] = -yc/(RCsq); // dPhi0 /dvx
+    jacobian[3][1] = xc/(RCsq); // dPhi0 /dvy
     jacobian[3][2] = 0.; // dPhi0 /dvz
-    jacobian[3][3] = -1.*xc/(RCsq*qBc); // dPhi0 /dpx 
-    jacobian[3][4] = -1.*yc/(RCsq*qBc); // dPhi0 /dpy 
+    jacobian[3][3] = xc/(RCsq*qBc); // dPhi0 /dpx 
+    jacobian[3][4] = yc/(RCsq*qBc); // dPhi0 /dpy 
     jacobian[3][5] = 0.; // dPhi0 /dpz 
     jacobian[3][6] = 0.; // dPhi0 /de
     
     jacobian[4][0] = 0.; // drho  /dvx
     jacobian[4][1] = 0.; // drho  /dvy
     jacobian[4][2] = 0.; // drho  /dvz
-    jacobian[4][3] = -1.*rho*px*pti*pti; // drho  /dpx
-    jacobian[4][4] = -1.*rho*py*pti*pti; // drho  /dpy
+    jacobian[4][3] = -rho*px*pti*pti; // drho  /dpx
+    jacobian[4][4] = -rho*py*pti*pti; // drho  /dpy
     jacobian[4][5] = 0.; // drho  /dpz
     jacobian[4][6] = 0.; // drho  /de
+                         //ok
     
     TMatrixD tempmat(jacobian,TMatrixD::kMult,cov77);
     TMatrixD covrho(tempmat,TMatrixD::kMultTranspose,jacobian);
@@ -413,13 +427,16 @@ Bool_t PndAnalysisCalcTools::SDtoHelix(FairTrackParH* par, TCandidate* cand, Boo
   // fair helix: (q/p,lambda, phi, y_perp, z_perp)
   Double_t Q=par->GetQ();
   if(0==Q) return kFALSE;
-  Double_t pnt[3], Bf[3];
-  pnt[0]=par->GetX();
-  pnt[1]=par->GetY();
-  pnt[2]=par->GetZ(); 
-  FairRunAna::Instance()->GetField()->GetFieldValue(pnt, Bf); //[kGs]
-  //Double_t B = sqrt(Bf[0]*Bf[0]+Bf[1]*Bf[1]+Bf[2]*Bf[2]);
-  Double_t B = Bf[2];
+//  Double_t pnt[3], Bf[3];
+//  pnt[0]=par->GetX();
+//  pnt[1]=par->GetY();
+//  pnt[2]=par->GetZ(); 
+//  FairRunAna::Instance()->GetField()->GetFieldValue(pnt, Bf); //[kGs]
+//  //Double_t B = sqrt(Bf[0]*Bf[0]+Bf[1]*Bf[1]+Bf[2]*Bf[2]);
+//  Double_t B = Bf[2];
+  
+  Double_t B = GetBz(par->GetPosition());
+  
   Double_t qBc = -0.000299792458*B*Q;
   Double_t icL = 1. / cos(par->GetLambda()); // inverted for practical reasons (better to multiply than to divide)
   Double_t icLs = icL*icL;
@@ -460,6 +477,7 @@ Bool_t PndAnalysisCalcTools::SDtoHelix(FairTrackParH* par, TCandidate* cand, Boo
 
 Double_t PndAnalysisCalcTools::GetBz(const TVector3 &pos)
 {
+  if(kTRUE==fBzSet) return fBz;
   // Read magnetic filed strength in z direction [kGs]
   double pnt[3], Bf[3];
   pnt[0]=pos.X(); pnt[1]=pos.Y(); pnt[2]=pos.Z(); 

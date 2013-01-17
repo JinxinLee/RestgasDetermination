@@ -370,10 +370,10 @@ TCandidate::SetMotherLink( TCandidate* m )
   //assert( !isLocal() );
   
   // commented by KG, 2/2012
-/*  if (m->nDaug>=5) {
-    cerr << "TCandidate::SetMotherLink: Can not add more than 5 daughters." << endl;
-    return;
-  }*/
+  //  if (m->nDaug>=5) {
+  //  cerr << "TCandidate::SetMotherLink: Can not add more than 5 daughters." << endl;
+  //  return;
+  //}
   
   // set the mother link
   fTheMother = m;

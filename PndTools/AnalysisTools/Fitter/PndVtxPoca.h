@@ -5,7 +5,8 @@
 // PndVtxPoca			  		                                          			//
 //                                                                      //
 // Author: R. Kliemt 2010 			                              	        //
-// taken from PndKinVtxFitter::GetStartVtx()                            //
+// idea taken from PndKinVtxFitter::GetStartVtx()                            //
+// extended for multiple tracks                                         //
 //                                                                      //
 //////////////////////////////////////////////////////////////////////////
 

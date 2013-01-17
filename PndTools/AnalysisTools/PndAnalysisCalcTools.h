@@ -20,7 +20,7 @@ class TGeant3;
 class PndAnalysisCalcTools {
 public:
 
-  static void SetVerbose(Int_t level){fVerbose = level;}
+  static void SetVerbose(Int_t level){ fVerbose = level; }
 
   // Calculator functions
   static Bool_t FillHelixParams(TCandidate* cand, Bool_t skipcov=kFALSE);
@@ -31,11 +31,16 @@ public:
   static Bool_t SDtoHelix(FairTrackParH* par, TCandidate* cand, Bool_t skipcov=kFALSE);
   static Double_t GetBz(const TVector3 &position);
   
+  static void ForceConstantBz(Double_t bz=0.){fBz=bz;fBzSet=kTRUE;};
+  static void UnForceConstantBz(){fBzSet=kFALSE;};
+  
 private:
   PndAnalysisCalcTools();
   ~PndAnalysisCalcTools();
   
+  static Double_t fBz;
   static Int_t fVerbose;
+  static Bool_t fBzSet;
   
 };
 

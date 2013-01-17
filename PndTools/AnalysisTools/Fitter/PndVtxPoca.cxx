@@ -51,9 +51,7 @@ Double_t PndVtxPoca::GetPocaVtx(TVector3 &vertex)
       results.push_back(theVertex);
     }//daug2
   }//daug1
-  //TODO invent a smart procedure to get the correct 2-Track doca and something reasonable for many tracks
-  // --> Mean = Sum(x/(sigmax^2)) / Sum(Sigmax^2) 
-  // Averaging vertex results from each track pair how to do that? "geometric" or arithmetic mean?
+  // Averaging vertex results from each track pair, weighted with 1/distance
   std::vector<Double_t>::iterator iterDoca;
   std::vector<TVector3>::iterator iterVtx;
   Double_t docaweight=0,sumdocaweigts=0; 
