@@ -98,7 +98,8 @@
   Drc->SetVerboseLevel(0);
   Drc->SetOnlyDirectPho(kFALSE);
   // put the geometry file you want into the next line:  
-  Drc->SetGeometryFileName("dirc_l0_p0.root"); 
+  //Drc->SetGeometryFileName("dirc_l0_p0.root"); 
+  Drc->SetGeometryFileName("prototype_noLens_noGrease_bigPD_1.root");
   fRun->AddModule(Drc);
   
   // Create and Set Event Generator
@@ -110,9 +111,10 @@
    // Box Generator
   FairBoxGenerator* boxGen = new FairBoxGenerator(321, 1); // 321 = kaon; 1 = multipl.
   boxGen->SetPRange(3.,3.); // GeV/c
-  boxGen->SetPhiRange(5., 5.); // Azimuth angle range [degree]
-  boxGen->SetThetaRange(35., 35.); // Polar angle in lab system range [degree]
-  boxGen->SetXYZ(0., 0., 0.); // mm o cm ??
+  boxGen->SetPhiRange(10.8, 10.8); // Azimuth angle range [degree]
+  boxGen->SetThetaRange(70., 70.); // Polar angle in lab system range [degree]
+  //boxGen->SetXYZ(0., 0., 0.); // mm o cm ??
+  boxGen->SetXYZ(53., 10.1, -40.);
   primGen->AddGenerator(boxGen); 
 
   fRun->SetStoreTraj(kTRUE); // to store particle trajectories  
@@ -130,12 +132,18 @@
    
   /**Initialize the session*/
   fRun->Init();
+    
+  // Only if Geant4
+   if ( gMC->GetName() == TString("TGeant4") ) {
+     gROOT->LoadMacro("$VMCWORKDIR/gconfig/g4Config2.C");
+     Config2();
+   }
   
   rtdb->setOutput(output);
   rtdb->saveOutput();
   rtdb->print();
 
-  Int_t   nEvents=2; 
+  Int_t   nEvents=10; 
 
   // Transport nEvents
   // -----------------
