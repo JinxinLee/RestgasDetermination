@@ -1,8 +1,11 @@
 // Extracts the TOP volume of a geomanager
 // Ralf Kliemt 05.03.2010
+createGeoSim(TString infile  = "TrackingStation.root")
 {
-  TString infile  = "TrackingStation.root";
-  TString outfile = "TrackingStationSim.root";
+//  TString infile  = "TrackingStation.root";
+//  TString outfile = "TrackingStationSim.root";
+  TString outfile = infile;
+  outfile.ReplaceAll(".root","Sim.root");
   TString topVolumeName = "TS";
   TString geomanagerName = "FAIRGeom";
 

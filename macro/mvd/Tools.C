@@ -81,7 +81,7 @@ void DrawNice2DHisto(TH2* h,const char* opt="",double range = 10.)
   }
   h->SetStats(kFALSE);
   h->SetTitleOffset(0.8,"T");
-  gPad->SetRightMargin(0.32);
+  gPad->SetRightMargin(0.15);
   h->DrawCopy(options.Data());
 }
 
@@ -132,17 +132,18 @@ void BetterStatBox( TPad* pad ){
   }
 }
 
-TLegend* BuildLegend_THStack( THStack* stack, float x1, float y1, float x2, float y2 ){
-  
-  TLegend* legend = new TLegend(x1,y1,x2,y2);
-  TList*   list = stack->GetHists();
-  TIter    next( list );
-  TH1*     hist;
-  
-  while ( hist = (TH1*)next() ) legend->AddEntry(hist,"","F");
-  
-  return legend;
-}
+// TLegend discontinued in ROOT ???
+//TLegend* BuildLegend_THStack( THStack* stack, float x1, float y1, float x2, float y2 ){
+//  
+//  TLegend* legend = new TLegend(x1,y1,x2,y2);
+//  TList*   list = stack->GetHists();
+//  TIter    next( list );
+//  TH1*     hist;
+//  
+//  while ( hist = (TH1*)next() ) legend->AddEntry(hist,"","F");
+//  
+//  return legend;
+//}
 
 void LoadPandaStyle(void)
 {
@@ -170,7 +171,7 @@ void LoadPandaStyle(void)
   if(gStyle->GetName() == "PANDA") return;
   // use the 'plain' style for plots (white backgrounds, etc)
   //cout << "...using style 'Plain'" << endl;
-  gROOT->SetStyle("Plain");
+  //gROOT->SetStyle("Plain");
   
   // Create the 'PANDA' style for approved plots. Note that this style may need
   // some fine tuning in your macro depending on what you are plotting, e.g.
@@ -182,7 +183,7 @@ void LoadPandaStyle(void)
   // Ralf Kliemt:
   // I changed a bit for myself here
   
-  TStyle *pandaStyle= new TStyle("PANDA","PANDA approved plots style");
+  TStyle *pandaStyle= new TStyle("PANDA","PANDA approved plots style, modified by ralfk");
   
   // use plain black on white colors
   pandaStyle->SetFrameBorderMode(0);
@@ -194,13 +195,25 @@ void LoadPandaStyle(void)
   pandaStyle->SetStatColor(0);
   //   pandaStyle->SetFillColor(0);// conflict with 2D plots
   //   pandaStyle->SetPalette(1);
+  //R.K: Now remove the title box
+  //pandaStyle->SetTitleAlign(33);  
+  pandaStyle->SetTitleBorderSize(0);
+  pandaStyle->SetTitleColor(1);
+  pandaStyle->SetTitleFillColor(0);
+  pandaStyle->SetTitleFontSize(0.07);
   
+
   // set the paper & margin sizes
   pandaStyle->SetPaperSize(20,26);
-  pandaStyle->SetPadTopMargin(0.05);
+  pandaStyle->SetPadTopMargin(0.14);
   pandaStyle->SetPadRightMargin(0.05);
-  pandaStyle->SetPadBottomMargin(0.16);
-  pandaStyle->SetPadLeftMargin(0.12);
+  pandaStyle->SetPadBottomMargin(0.14);
+  pandaStyle->SetPadLeftMargin(0.14);
+//  pandaStyle->SetPaperSize(20,26);
+//  pandaStyle->SetPadTopMargin(0.05);
+//  pandaStyle->SetPadRightMargin(0.05);
+//  pandaStyle->SetPadBottomMargin(0.16);
+//  pandaStyle->SetPadLeftMargin(0.12);
   
   // use large Times-Roman fonts
   //   pandaStyle->SetTextFont(132);
