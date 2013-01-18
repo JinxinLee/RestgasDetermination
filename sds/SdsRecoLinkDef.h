@@ -25,6 +25,7 @@
 #pragma link C++ class PndSdsTimeWalkCorrTask+;
 #pragma link C++ class PndSdsTimeWalkCorrSimple+;
 #pragma link C++ class PndSdsTimeWalkCorr+;
+#pragma link C++ class PndSdsStripCorrelator;
 
 //tools
 //#pragma link C++ class PndMvdRadDamList+;

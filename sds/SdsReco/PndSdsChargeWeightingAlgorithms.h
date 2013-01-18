@@ -15,11 +15,11 @@ class PndSdsCalcStrip;
 class PndSdsChargeWeightingAlgorithms : public TObject
 {
 /**\addtogroup algorithms
- @brief contains the three algorithms to find to track
+ @brief contains algorithms to find a centeroid of a cluster
 
- The three algorithms are Center of gravity, head tail and using the eta function
- @author Lars Ackermann
- @date 07.11.2008
+ The centeroid finding algorithms are: Binary, Median, Center of gravity, Head-Tail and using the Eta-Distribution
+ @author Lars Ackermann, Ralf Kliemt
+ @date 2008 - 2013
  cluster_reco
 	  */
 /**@{*/
@@ -82,6 +82,21 @@ public:
   	   @endcode
        */
 	std::pair<Double_t,Double_t> Binary(const PndSdsCluster* Cluster);
+
+	/**
+	@fn std::pair<Double_t,Double_t> Median(const StripCluster& Cluster)
+
+       middle coordinate of a strip range
+       @param Cluster investigationg cluster
+       @return coordinate
+       @example
+  	   @code
+	  	Median(cluster);
+  	   @endcode
+       */
+	std::pair<Double_t,Double_t> Median(const PndSdsCluster* Cluster);
+
+	
 	/**
 	 @fn std::pair<Double_t,Double_t> auto_select(const StripCluster& Cluster)
 
@@ -113,7 +128,6 @@ public:
 	void SetDigiArray(TClonesArray* darray){fDigiArray = darray;};
 	void SetCalcStrip(PndSdsCalcStrip* calc){fCalcStrip = calc;};
 	void SetChargeConverter(PndSdsChargeConversion* ChargeConverter){fChargeConverter = ChargeConverter;};
-  void SetNoise(Double_t n=0){fNoise=n;};
   void SetVerbose(Int_t level=0){fVerbose=level;};
 
 private:
@@ -125,7 +139,6 @@ private:
 	TClonesArray* fDigiArray;
 	PndSdsCalcStrip* fCalcStrip;
 	PndSdsChargeConversion* fChargeConverter;
-  Double_t fNoise;
   Int_t fVerbose;
 
 	ClassDef(PndSdsChargeWeightingAlgorithms,1);

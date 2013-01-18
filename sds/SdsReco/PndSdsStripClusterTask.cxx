@@ -515,7 +515,6 @@ void PndSdsStripClusterTask::SetCurrentCalculators(PndSdsStripDigiPar* digipar)
   fCurrentDigiPar = digipar;
   fChargeAlgos->SetCalcStrip(fCurrentStripCalcTop);
   fChargeAlgos->SetChargeConverter(fCurrentChargeConverter);
-  fChargeAlgos->SetNoise(digipar->GetNoise());
   fChargeCut = digipar->GetChargeCut();
   fSingleStripChargeThreshold = digipar->GetSingleChargeCut();
   return;
@@ -689,11 +688,10 @@ void PndSdsStripClusterTask::CalcMeanCharge(PndSdsClusterStrip* onecluster, Doub
       else result = fChargeAlgos->Eta(onecluster, eta_rect);
       break;
       
-//    case 4:
-//      // Head-Tail, Binary for cluster size 1
-//      //unfunctional right now, fix pending
-//      result = fChargeAlgos->HeadTail(onecluster);
-//      break;
+    case 4:
+      // Head-Tail, Binary for cluster size 1
+      result = fChargeAlgos->HeadTail(onecluster);
+      break;
       
       //Center of Gravity, Binary for cluster size 1
     default:

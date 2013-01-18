@@ -131,6 +131,7 @@ SdsReco/PndSdsChargeWeightingAlgorithms.cxx
 SdsReco/PndSdsTimeWalkCorr.cxx
 SdsReco/PndSdsTimeWalkCorrSimple.cxx
 SdsReco/PndSdsTimeWalkCorrTask.cxx
+SdsReco/PndSdsStripCorrelator.cxx
 
 #MvdTools/PndMvdRadDamList.cxx
 #MvdTools/PndMvdRadDamTask.cxx

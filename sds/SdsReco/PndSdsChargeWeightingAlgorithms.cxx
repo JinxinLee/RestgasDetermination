@@ -17,8 +17,7 @@ ClassImp(PndSdsChargeWeightingAlgorithms);
 PndSdsChargeWeightingAlgorithms::PndSdsChargeWeightingAlgorithms(TClonesArray* arr) : TObject()
 {
 	fDigiArray = arr;
-  fNoise=0.;
-  fVerbose=0;
+        fVerbose=0;
 }
 PndSdsChargeWeightingAlgorithms::~PndSdsChargeWeightingAlgorithms()
 {
@@ -35,53 +34,59 @@ Double_t PndSdsChargeWeightingAlgorithms::Erfmod(Double_t x, Double_t p0, Double
 
 std::pair<Double_t,Double_t> PndSdsChargeWeightingAlgorithms::CenterOfGravity(const PndSdsCluster* Cluster)
 {
-  std::pair<Double_t,Double_t> result;
   Int_t nrHits = Cluster->GetClusterSize();
-  if(nrHits>1)							// minimum of hits in cluster
-  {
-    Double_t x_g=0., chargesum=0, charge=0, noise=0, stripno=0;
-    Double_t xerror=0.,xerrtmp=0.,cherr=0.;
-    noise = fCalcStrip->GetNoise();
-    for(Int_t l=0;l<nrHits;++l)     // loop over all hits
-    {
-      // we work in cannel numbers, so no pitch used
-      //
-      //           ( q_i*chan_i )
-      // x_g= SUM ( ------------ )
-      //           (   Q_sum    )
-      //     
-      //
-      
-      charge = DigiCharge(Cluster->GetDigiIndex(l));
-      stripno = DigiStripno(Cluster->GetDigiIndex(l));
-      chargesum+=charge;
-      x_g += charge * stripno ;
-      if(fVerbose>2) Info("CenterOfGravity","Adding digi values (stripno,charge) = (%f,%f)",stripno,charge);
-    }
-    x_g = x_g/chargesum;
-    result.first=x_g;
-    
-    // error estimation propagate dq:
-    //      Sqrt (SUM{ ((x_i - x)dq_i)^2 })
-    // dx=  -------------------------------
-    //                    Q
-    //
-    for(Int_t l=0;l<nrHits;++l)     // loop over all hits again (errors)
-    {
-      cherr = DigiChargeError(Cluster->GetDigiIndex(l));
-      cherr = sqrt(noise*noise+cherr*cherr);
-      xerrtmp = ( x_g - DigiStripno(Cluster->GetDigiIndex(l)) ) * cherr;
-      xerror += xerrtmp*xerrtmp;
-    }
-    xerror = sqrt(xerror)/(chargesum);
-    
-    if (xerror < 1e-15) 
-      Warning("CenterOfGravity","Got bad error value: Cluster with %i digis. Position %f +-%f chn.",nrHits,x_g,xerror);
-    result.second = xerror;
-    
-  }else{
-    result=Binary(Cluster);
+  if(nrHits<2) return Binary(Cluster);
+  std::pair<Double_t,Double_t> result;
+  Double_t x_g=0., chargesum=0, charge=0, stripno=0;
+  Double_t xerror=0.,xtmp=0.,err=0.;
+  Double_t noise = fCalcStrip->GetNoise();  
+  Double_t threshold = fCalcStrip->GetThreshold();  
+  Double_t Tthr=threshold/noise;
+
+  for(Int_t l=0;l<nrHits;++l)     // loop over all hits
+  { //           ( q_i*chan_i )
+    // x_g= SUM ( ------------ )
+    //           (   Q_sum    )
+    charge = DigiCharge(Cluster->GetDigiIndex(l));
+    stripno = DigiStripno(Cluster->GetDigiIndex(l));
+    chargesum+=charge;
+    x_g += charge * stripno ;
+    if(fVerbose>2) Info("CenterOfGravity","Adding digi values (stripno,charge) = (%f,%f)",stripno,charge);
   }
+  x_g = x_g/chargesum;
+  result.first=x_g;
+  
+    Int_t chanmax=DigiStripno(Cluster->GetDigiIndex(nrHits-1));
+    Int_t chanmin=DigiStripno(Cluster->GetDigiIndex(0));
+    for(Int_t l=0;l<nrHits;++l)     // loop over all hits
+    { 
+      stripno = DigiStripno(Cluster->GetDigiIndex(l));
+      if(stripno>chanmax) chanmax=stripno;
+      if(stripno<chanmin) chanmin=stripno;
+      xtmp = stripno - x_g;
+      xtmp*=xtmp;
+      xerror+=xtmp;
+    }
+    chanmax++;
+    chanmax-=x_g;
+    chanmax*=chanmax;
+    chanmin--;
+    chanmin-=x_g;
+    chanmin*=chanmin;
+    xtmp=chanmax;
+    xtmp+=chanmin;
+    xtmp*=Tthr;
+    xtmp*=Tthr;
+    xtmp/=12.;//Thr is uniform distr.
+    err=xerror;
+    err+=xtmp;
+    err=sqrt(err);
+    err*=noise;
+    err/=chargesum;
+
+  if (err < 1e-15) Warning("CenterOfGravity","Got bad error value: Cluster with %i digis. Position %f +-%f chn.",nrHits,x_g,xerror);
+  result.second = err;
+  
   if(fVerbose>1) Info("CenterOfGravity","Got a cluster with %i digis. Position %f +- %f chn.",nrHits,result.first,result.second);
   return result;
 }
@@ -89,51 +94,61 @@ std::pair<Double_t,Double_t> PndSdsChargeWeightingAlgorithms::CenterOfGravity(co
 
 std::pair<Double_t,Double_t> PndSdsChargeWeightingAlgorithms::HeadTail(const PndSdsCluster* Cluster)
 {
+  Int_t nrHits = Cluster->GetClusterSize();
+  if(nrHits<2) return Binary(Cluster);
+  if(nrHits==2) return CenterOfGravity(Cluster);
+
   // We assume that the digis in each cluster are sorted.
   std::pair<Double_t,Double_t> result;
-  Int_t nrHits = Cluster->GetClusterSize();
-  
-  if(nrHits<2) return Binary(Cluster);
-  
+  Double_t noise = fCalcStrip->GetNoise();
+ 
   Double_t x_h=DigiStripno(Cluster->GetDigiIndex(0));
   Double_t x_t=DigiStripno(Cluster->GetDigiIndex(nrHits-1));
-  Double_t q_h=DigiCharge(Cluster->GetDigiIndex(0));
-  Double_t q_t=DigiCharge(Cluster->GetDigiIndex(nrHits-1));
-  Double_t err=0;
-  Double_t temmperr=0;
   
-  Double_t q_inner=0.;
-  if(nrHits==2) { // this will result in the same result as CoG for nrHits==2
-    Double_t xm=(q_h*x_h + q_t*x_t)/(q_h+q_t);
-    result.first=xm;
-    err = (x_h-xm)*(x_h-xm)+(x_t-xm)*(x_t-xm);
-    err=sqrt(err);
-    err*=fNoise/(q_h+q_t);
-    result.second=err;
-  } else {
-    for(Int_t l=1;l<(nrHits-1);l++) q_inner += DigiCharge(Cluster->GetDigiIndex(l));
-    q_inner = q_inner/(nrHits-2);
-    Double_t wert=(q_t-q_h)/(2.*q_inner);
-    if(wert<0) wert=-wert;
-    result.first=(0.5*(x_h+x_t)+wert);
-    
-    // error caclculation: dx^2 = noise^2*{n*w^2/Q^2+1/(2q^2)}
-    err=wert/(q_h+q_t+q_inner); err*=err; err*=nrHits;
-    temmperr=1/q_inner; temmperr*=temmperr; temmperr*=0.5;
-    err+=temmperr;  
-    err=sqrt(err);
-    err*=fNoise;
-    
-    result.second=err;
+  Double_t Q=0.,q_inner=0., charge=0.,stripno=-1.,err=0.;
+  Int_t k_h=0, k_t=nrHits-1;
+  for (Int_t kk=0;kk<nrHits;kk++)
+  {
+    charge = DigiCharge(Cluster->GetDigiIndex(kk));
+    stripno = DigiStripno(Cluster->GetDigiIndex(kk));
+    Q+=charge;
+    if(x_h>stripno){k_h=kk;x_h=stripno;}
+    if(x_t<stripno){k_t=kk;x_t=stripno;}
   }
+  Double_t x_ht=x_h+0.5*nrHits;
+  Double_t q_h=DigiCharge(Cluster->GetDigiIndex(k_h));
+  Double_t q_t=DigiCharge(Cluster->GetDigiIndex(k_t));
+  q_inner=Q-q_h-q_t;
+  q_inner /= (nrHits-2.); // this number is just a good estiamte for the charge being lost of such a particle in one strip
+  Double_t w=(q_t-q_h)/(2.*q_inner);
+  x_ht+=w;
+  err=sqrt(2.)*noise/q_inner;  
+  
+  result.first=x_ht;
+  result.second=err;
+  
   return result;
 }
 
 
+std::pair<Double_t,Double_t> PndSdsChargeWeightingAlgorithms::Median(const PndSdsCluster* Cluster)
+{
+  Int_t nrHits = Cluster->GetClusterSize();
+  std::pair<Double_t,Double_t> result;
+  Double_t channel=Cluster->GetDigiIndex(0); // assume sorted digis in cluster from k to k+n
+  channel+=0.5*nrHits;
+  result.first=channel;
+  result.second=1./sqrt(12.);
+  if(fVerbose>1) Info("Median","Got a cluster with %i digis. Position %f +- %f chn.",nrHits,result.first,result.second);
+  return result;
+}
+
+
+
 std::pair<Double_t,Double_t> PndSdsChargeWeightingAlgorithms::Binary(const PndSdsCluster* Cluster)
 {
-  std::pair<Double_t,Double_t> result;
   Int_t nrHits = Cluster->GetClusterSize();
+  std::pair<Double_t,Double_t> result;
   Double_t charge=0.,chargemax=0;
   Double_t channel=0;
   for(Int_t i=0;i<nrHits;++i)
