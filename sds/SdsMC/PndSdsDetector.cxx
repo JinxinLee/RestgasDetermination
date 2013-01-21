@@ -37,7 +37,7 @@
 class FairVolume;
 
 // -----   Default constructor   -------------------------------------------
-PndSdsDetector::PndSdsDetector():FairDetector(),fPersistance(kTRUE), fUseRadDamOption(false), fVolumeID(-1)
+PndSdsDetector::PndSdsDetector():FairDetector(),fPersistance(kTRUE), fVolumeID(-1), fUseRadDamOption(false)
 {
 //  fPndSdsCollection = new TClonesArray("PndSdsMCPoint");
   fPosIndex = 0;
@@ -48,7 +48,7 @@ PndSdsDetector::PndSdsDetector():FairDetector(),fPersistance(kTRUE), fUseRadDamO
 
 // -----   Standard constructor   ------------------------------------------
 PndSdsDetector::PndSdsDetector (const char* name, Bool_t active)
-: FairDetector(name, active), fPersistance(kTRUE), fUseRadDamOption(false), fVolumeID(-1)
+: FairDetector(name, active), fPersistance(kTRUE), fVolumeID(-1), fUseRadDamOption(false)
 {
 //  fPndSdsCollection = new TClonesArray("PndSdsMCPoint");
   fPosIndex = 0;

@@ -375,7 +375,7 @@ void PndSdsHybridHitProducer::Exec(Option_t* opt)
 		tempPixel->ResetLinks();
 		std::vector<int> indices = fPixelList[iPix].GetMCIndex();
 		FairEventHeader* evtHeader = (FairEventHeader*)FairRootManager::Instance()->GetObject("EventHeader.");
-		for (int i = 0; i < indices.size(); i++){
+		for (int i = 0; i < (int)indices.size(); i++){
 		  tempPixel->AddLink(FairLink(evtHeader->GetInputFileId(), evtHeader->GetMCEntryNumber(),  fInBranchId, indices[i]));
 		}
 		tempPixel->AddLink(FairLink(-1, fEventNr, "EventHeader.", -1));

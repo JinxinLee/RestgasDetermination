@@ -35,7 +35,7 @@ class PndVtxPRG : public VAbsFitter
   private:
     Bool_t Calculate(int niterations=1);
     Bool_t CalcPrgParams(TCandidate* cand,TVector3 expansionpoint); // calculate helix and its covariance
-    Bool_t CalcPrgParams(TCandidate* cand){CalcPrgParams(cand,fExpansionPoint);}; // calculate helix and its covariance
+    Bool_t CalcPrgParams(TCandidate* cand){return CalcPrgParams(cand,fExpansionPoint);}; // calculate helix and its covariance
     //double CalculateVertexFast(Bool_t skpcov=false);
     bool fDebug;
     TVector3 fExpansionPoint; // Expansion point

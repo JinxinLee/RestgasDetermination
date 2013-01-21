@@ -215,25 +215,21 @@ std::pair<Double_t,Double_t> PndSdsChargeWeightingAlgorithms::Eta(const PndSdsCl
   if(nrHits < 2.){return Binary(Cluster);}
   if(nrHits > 2.){return CenterOfGravity(Cluster);}
   
-  if(nrHits == 2. && DigiStripno(Cluster->GetDigiIndex(1))-DigiStripno(Cluster->GetDigiIndex(0))==1.)
-  {
-    
-    std::pair<Double_t,Double_t> result;
-    
-    std::pair<Double_t,Double_t> eta_value;
-    Double_t stripno=0.;
-    Int_t 	 NmbOfStrips=0;
-    
-    eta_value = EtaValue(Cluster, stripno, NmbOfStrips);
-    
-    result.first=PosVsEta->GetBinContent(ceil(eta_value.first * 200.));           //etadist histogram contains 200 bins.
-    
-    result.second=(PosVsEta->GetBinContent(ceil((eta_value.first+eta_value.second) * 200.))
-                  - PosVsEta->GetBinContent(ceil((eta_value.first-eta_value.second) * 200.)))/2.;
-    
-    return result;
-    
-  }
+  std::pair<Double_t,Double_t> result;
+  //if(nrHits == 2. && DigiStripno(Cluster->GetDigiIndex(1))-DigiStripno(Cluster->GetDigiIndex(0))==1.)
+  
+  std::pair<Double_t,Double_t> eta_value;
+  Double_t stripno=0.;
+  Int_t 	 NmbOfStrips=0;
+  
+  eta_value = EtaValue(Cluster, stripno, NmbOfStrips);
+  
+  result.first=PosVsEta->GetBinContent((Int_t)ceil(eta_value.first * 200.));           //etadist histogram contains 200 bins.
+  
+  result.second=(PosVsEta->GetBinContent((Int_t)ceil((eta_value.first+eta_value.second) * 200.))
+               - PosVsEta->GetBinContent((Int_t)ceil((eta_value.first-eta_value.second) * 200.)))/2.;
+  
+  return result;
 }
 
 std::pair<Double_t,Double_t> PndSdsChargeWeightingAlgorithms::EtaValue(const PndSdsCluster* Cluster, Double_t &stripno, Int_t &NmbOfStrips)
@@ -259,8 +255,10 @@ std::pair<Double_t,Double_t> PndSdsChargeWeightingAlgorithms::EtaValue(const Pnd
     stripno = DigiStripno(Cluster->GetDigiIndex(0));
     
     result.first=qr/(qr+ql);
-    PndSdsDigiStrip* digil = (PndSdsDigiStrip*)(fDigiArray->At(Cluster->GetDigiIndex(0)));
-    PndSdsDigiStrip* digir = (PndSdsDigiStrip*)(fDigiArray->At(Cluster->GetDigiIndex(1)));
+    
+    //unused??
+    //PndSdsDigiStrip* digil = (PndSdsDigiStrip*)(fDigiArray->At(Cluster->GetDigiIndex(0)));
+    //PndSdsDigiStrip* digir = (PndSdsDigiStrip*)(fDigiArray->At(Cluster->GetDigiIndex(1)));
     
     result.second=sqrt(((ql/(qr+ql))*(1./(qr+ql))*(ql/(qr+ql))*(1./(qr+ql))*cherrr*cherrr)+((qr/(qr+ql))*(1./(qr+ql))*(qr/(qr+ql))*(1./(qr+ql))*cherrl*cherrl));
     return result;

@@ -78,7 +78,6 @@ std::vector<PndSdsPixel> PndSdsCalcPixelDif::GetPixels(Double_t inx, Double_t in
   // 2sigma shall be collected in extra bins minimum 1 bin
   Int_t xtrax = ceil(2.*sigma_x);
   Int_t xtray = ceil(2.*sigma_y);
-  Double_t argu=0;
   for(Int_t i=(Int_t)inx-xtrax;i<(Int_t)outx+1+xtrax;i++)
   {
     DQx=0.;

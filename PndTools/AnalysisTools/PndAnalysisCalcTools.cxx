@@ -305,7 +305,7 @@ Bool_t PndAnalysisCalcTools::P7toPRG(const TVector3 &pos, const TLorentzVector &
   // get theta
   const double theta=p4.Theta();
   if(fVerbose>1)printf("P7toPRG: theta is %g \n",theta);
-  const double tanDip = TMath::Tan(0.5*TMath::Pi() - theta);
+  //const double tanDip = TMath::Tan(0.5*TMath::Pi() - theta); //unused?
   
   //circle center in x-y projection
   const double xc = xp - py/qBc;

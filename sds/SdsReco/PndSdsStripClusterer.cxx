@@ -50,7 +50,7 @@ PndSdsClusterStrip* PndSdsStripClusterer::GetCluster(Int_t i)
   if(0<=i && (Int_t)fClusters.size() < i)
     return fClusters[i];
   else{
-    Fatal("GetCluster","fClusters out of bounds i=%i at size=%i",i,fClusters.size());
+    Fatal("GetCluster","fClusters out of bounds i=%i at size=%zu",i,fClusters.size());
   }
   return NULL;
 }
@@ -60,7 +60,7 @@ PndSdsClusterStrip* PndSdsStripClusterer::GetTopCluster(Int_t i)
   if(0<=i && (Int_t)fTopclusters.size() < i)
     return GetCluster(fTopclusters[i]);
   else{
-    Fatal("GetTopCluster","fTopclusters out of bounds i=%i at size=%i",i,fTopclusters.size());
+    Fatal("GetTopCluster","fTopclusters out of bounds i=%i at size=%zu",i,fTopclusters.size());
   }
   return NULL;
 }
@@ -70,7 +70,7 @@ PndSdsClusterStrip* PndSdsStripClusterer::GetBotCluster(Int_t i)
   if(0<=i && (Int_t)fBotclusters.size() < i)
     return GetCluster(fBotclusters[i]);
   else {
-    Fatal("GetBotCluster","fBotclusters out of bounds i=%i at size=%i",i,fBotclusters.size());
+    Fatal("GetBotCluster","fBotclusters out of bounds i=%i at size=%zu",i,fBotclusters.size());
   }
   return NULL;
 }

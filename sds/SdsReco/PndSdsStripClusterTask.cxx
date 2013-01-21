@@ -294,7 +294,7 @@ void PndSdsStripClusterTask::Exec(Option_t* opt)
   std::vector< Int_t > oneclusterbot;
   std::vector< Int_t > leftDigis;
   Int_t mcindex, clindex, botIndex, topIndex;
-  Int_t detID = FairRootManager::Instance()->GetBranchId(fInBranchName);
+  //Int_t detID = FairRootManager::Instance()->GetBranchId(fInBranchName); //unused??
   Int_t clDetID = FairRootManager::Instance()->GetBranchId(fClustBranchName);
   Double_t mycharge;
   TVector2 meantopPoint, meanbotPoint, onsensorPoint;
@@ -336,7 +336,7 @@ void PndSdsStripClusterTask::Exec(Option_t* opt)
 
       if (FairRunAna::Instance()->IsTimeStamp()){
 		  myCluster->ResetLinks();
-		  for(UInt_t i = 0; i < myCluster->GetClusterSize(); i++){
+		  for(UInt_t i = 0; i < (UInt_t)myCluster->GetClusterSize(); i++){
 			  PndSdsDigiStrip* tempDigi = (PndSdsDigiStrip*)fDigiArray->At(myCluster->GetDigiIndex(i));
 			  myCluster->AddLink(FairLink(tempDigi->GetEntryNr()));
 		  }

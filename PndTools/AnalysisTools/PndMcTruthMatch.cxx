@@ -64,7 +64,7 @@ Bool_t PndMcTruthMatch::MctMatch(TCandidate &c, TCandList &mct, Int_t level)
 		if (mothidx<0 || mothidx>=nmct) return false; 
 		
 		// fetch #daughters from MC truth mother
-		Int_t nd_of_m = mct[mothidx].NDaughters();
+		//Int_t nd_of_m = mct[mothidx].NDaughters();  //unused?
 		
 		// check whether all daughters have been reconstructed correctly
 		// ******** since MCT objects don't have daughter info skipped for now !!! ********

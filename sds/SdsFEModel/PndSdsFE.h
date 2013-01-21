@@ -23,9 +23,10 @@
 
 class PndSdsFE: public TObject {
 public:
-	PndSdsFE(): fFrontEndModel(0), fNumberOfSupportPoints(0), fNumberOfMaxElectons(0), fFunction(0), fMaximumAmplitude(0),fThreshold(0), fToF(0), fEventTime(0),
-	fTimeOffSet(0), fTimeStep(0),fFunctionRange(0), fRand(0), i(0), stepsize(0), fCharge_list(0), fTot_list(0), inter(0), fBaselineEpsilon(1) {
-		GetTimeOffSet();
+	PndSdsFE(): fFrontEndModel(0), fNumberOfSupportPoints(0), fNumberOfMaxElectons(0), fFunction(0), fMaximumAmplitude(0),fThreshold(0), fBaselineEpsilon(1), fToF(0), fEventTime(0),
+	fTimeOffSet(0), fTimeStep(0),fFunctionRange(0), fRand(0), i(0), stepsize(0), fCharge_list(0), fTot_list(0), inter(0) 
+	{
+		CalcTimeOffSet();
 	};
 //	PndSdsFE(double charingtime, double constcurrent, double threshold, double frequency, int verbose);
 	virtual ~PndSdsFE();
@@ -44,7 +45,7 @@ public:
 protected:
 
     double DigitizeTime(double time);
-	double GetTimeOffSet();
+	void CalcTimeOffSet();
     void CreateInterpolatorList();  // Creates the Interpolatorlist for GetTotFromCharge calculation
 	void SaveInterpolatorList(std::vector<double> charge, std::vector<double> tot);
 	void LoadInterpolatorList();

@@ -405,10 +405,10 @@ Double_t PndMvdNoiseProducer::CalcReadoutCycles(Double_t clock)
 
 void PndMvdNoiseProducer::AddDigiStrip(Int_t &noisies, Int_t iPoint, Int_t sensorID, Int_t fe, Int_t chan, Double_t charge)
 {
-  Double_t tempcharge = 0.;
-  Bool_t found = kFALSE;
+  //Double_t tempcharge = 0.;
+  //Bool_t found = kFALSE;
   Int_t detID = -1; // no source mc branch
-  PndSdsDigiStrip* aDigi = 0;
+  //PndSdsDigiStrip* aDigi = 0;
 //  FairMCEventHeader* MCevtHeader = (FairMCEventHeader*)FairRootManager::Instance()->GetObject("MCEventHeader.");
 
 //  if (fTimeOrderedDigi == kFALSE){
@@ -450,8 +450,8 @@ void PndMvdNoiseProducer::AddDigiStrip(Int_t &noisies, Int_t iPoint, Int_t senso
 // -------------------------------------------------------------------------
 void PndMvdNoiseProducer::AddDigiPixel(Int_t &noisies, Int_t iPoint, Int_t sensorID, Int_t fe, Int_t col, Int_t row, Double_t charge)
 {
-  Double_t tempcharge = 0.;
-  Bool_t found = kFALSE;
+  //Double_t tempcharge = 0.;
+  //Bool_t found = kFALSE;
   Int_t detID = -1; //no source mc branch
 
 	  std::vector<Int_t> indices;

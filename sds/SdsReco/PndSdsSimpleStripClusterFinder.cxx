@@ -79,7 +79,7 @@ std::vector< PndSdsClusterStrip* >  PndSdsSimpleStripClusterFinder::SearchCluste
         
         if (onecluster.size()>0)
         {
-          Warning("SearchClusters","a hangover cluster of %i digis",onecluster.size());
+          Warning("SearchClusters","a hangover cluster of %zu digis",onecluster.size());
           AddCluster(onecluster,itSide->first);
           onecluster.clear();
         }

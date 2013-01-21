@@ -48,8 +48,8 @@ class PndSdsPixelDigiPar : public FairParGenericSet
     void SetFeBusClock(Double_t x)      {fFeBusClock = x;}
     void SetChargeConvMethod(Int_t x) {fChargeConvMethod = x;}
 
-    Double_t SetPixelSorterCellWidth(Double_t x) {fPixelSorterCellWidth = x;}
-    Int_t SetPixelSorterNumberOfCells(Int_t x) {fPixelSorterNumberOfCells=x;}
+    void SetPixelSorterCellWidth(Double_t x) {fPixelSorterCellWidth = x;}
+    void SetPixelSorterNumberOfCells(Int_t x) {fPixelSorterNumberOfCells=x;}
     
   private:
     // Pixel Parameters

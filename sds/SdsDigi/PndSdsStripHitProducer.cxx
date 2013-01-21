@@ -224,8 +224,6 @@ void PndSdsStripHitProducer::Exec(Option_t* opt)
     std::cout<<" Nr of Points: "<<nPoints<<std::endl;
   }
 
-  Double_t timestamp = 0;
-  Double_t smearedCharge = 0;
   Int_t iStrip = 0;
   Bool_t selected = kFALSE;
   

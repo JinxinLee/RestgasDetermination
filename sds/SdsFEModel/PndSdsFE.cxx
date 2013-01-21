@@ -51,8 +51,8 @@ double PndSdsFE::GetTotFromCharge(Double_t Charge){
 	double start_exakt=fFunction->GetX(fThreshold,0,fMaximumAmplitude );
 	double stop_exakt=fFunction->GetX(fThreshold,fMaximumAmplitude,fFunction->GetXmax());
 
-	double start=DigitizeTime(fFunction->GetX(fThreshold,0,fMaximumAmplitude)+fTimeOffSet);
-	double stop=DigitizeTime(fFunction->GetX(fThreshold,fMaximumAmplitude,fFunction->GetXmax())+fTimeOffSet);
+	double start=DigitizeTime(start_exakt+fTimeOffSet);
+	double stop=DigitizeTime(stop_exakt+fTimeOffSet);
 //	printf("start exakt:%f   \n",start_exakt);
 //	printf("start 	   :%f   \n",start);
 //	printf("stop exakt:%f    \n",stop_exakt);
@@ -97,7 +97,7 @@ double PndSdsFE::GetTimeStamp(double eventtime, double tof, double charge){
 	return DigitizeTime(GetTimeWalkFromCharge(charge)+eventtime+tof);
 
 }
-double PndSdsFE::GetTimeOffSet(){
+void PndSdsFE::CalcTimeOffSet(){
 	fTimeOffSet = fRand.Uniform(fTimeStep);
 }
 

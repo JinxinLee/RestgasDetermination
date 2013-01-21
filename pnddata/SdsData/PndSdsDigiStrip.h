@@ -86,6 +86,7 @@ class PndSdsDigiStrip : public PndSdsDigi
     		this->PndSdsDigi::operator=(strip);
     		fChannel = strip.GetChannel();
     	}
+    return *this;
     }
     void Print(){
       std::cout << *this;

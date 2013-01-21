@@ -182,7 +182,7 @@ void PndSdsStripCorrelator::CalcLikelihoodAlgo()
     double klein=-1.,ganzklein=-1.;
     int who=-1, whoelse=-1;
     
-    for(int like=0;like<combinations.size();like++)
+    for(int like=0;like<(int)combinations.size();like++)
     {
       if(combinations[like].prob>klein)
       { 
@@ -202,7 +202,7 @@ void PndSdsStripCorrelator::CalcLikelihoodAlgo()
     }
     //    if(combinations[who].prob>fCut)
     //    { // index pairs for the output
-    for (int kk=0; kk<combinations[who].pairlist.size(); ++kk) 
+    for (int kk=0; kk<(int)combinations[who].pairlist.size(); ++kk) 
     {
       fCorrelationList.push_back(make_pair(combinations[who].pairlist[kk].top,combinations[who].pairlist[kk].bot));
       //printf("add correlation [%i|%i] p=%f \n",combinations[who].pairlist[kk].top,combinations[who].pairlist[kk].bot,combinations[who].prob);
@@ -235,8 +235,8 @@ std::vector<PndSdsStripCorrelatorCombi> PndSdsStripCorrelator::getCombinations(s
     double bsum=0.;
     for (int i=0; i< rows; i++) bsum+=matrix[0][i].q_bot;
     for (int i=0; i< rows; i++) q_t[i]=matrix[0][0].q_top - bsum + matrix[0][i].q_bot;
-    double tot=0.;
-    double diag=0.;
+    //double tot=0.; //unused?
+    //double diag=0.; //unused?
     for (int i=0; i< rows; i++)
     {
       combi.pairlist.push_back(PndSdsStripCorrelatorCand(matrix[0][i].top,matrix[0][i].bot,q_t[i],matrix[0][i].q_bot,matrix[0][i].prob));
@@ -245,12 +245,12 @@ std::vector<PndSdsStripCorrelatorCombi> PndSdsStripCorrelator::getCombinations(s
     }
     double prob_full=combi.prob;
     combinations.push_back(combi);
-    double _maxprob = combi.prob;
-    int _maxcombi = 0;
+    //double _maxprob = combi.prob; //unused?
+    //int _maxcombi = 0; //unused?
     for (int i=0; i<rows; ++i)
     { // Recursive call
       std::vector<PndSdsStripCorrelatorCombi> combilist_reduced=getCombinations(getSubMatrix(matrix,1,rows,-1,i),1,rows-1);
-      for (int ii=0; ii<combilist_reduced.size(); ii++) 
+      for (int ii=0; ii<(int)combilist_reduced.size(); ii++) 
       { 
         combilist_reduced[ii].prob*=(1.-prob_full);
       }
@@ -264,8 +264,8 @@ std::vector<PndSdsStripCorrelatorCombi> PndSdsStripCorrelator::getCombinations(s
     double tsum=0.;
     for (int i=0; i< cols; i++) tsum+=matrix[i][0].q_top;
     for (int i=0; i< cols; i++) q_b[i]=matrix[0][0].q_bot - tsum + matrix[i][0].q_top;
-    double tot=0.;
-    double diag=0.;
+    //double tot=0.; //unused?
+    //double diag=0.; //unused?
     for (int i=0; i< cols; i++)
     {
       combi.pairlist.push_back(PndSdsStripCorrelatorCand(matrix[i][0].top,matrix[i][0].bot,matrix[i][0].q_top,q_b[i],matrix[i][0].prob));
@@ -274,12 +274,12 @@ std::vector<PndSdsStripCorrelatorCombi> PndSdsStripCorrelator::getCombinations(s
     }
     double prob_full=combi.prob;
     combinations.push_back(combi);
-    double _maxprob = combi.prob;
-    int _maxcombi = 0;
+    //double _maxprob = combi.prob; //unused?
+    //int _maxcombi = 0; //unused?
     for (int i=0; i<cols; ++i)
     { // Recursive call
       std::vector<PndSdsStripCorrelatorCombi> combilist_reduced=getCombinations(getSubMatrix(matrix,cols,1,i,-1),cols-1,1);
-      for (int ii=0; ii<combilist_reduced.size(); ii++)
+      for (int ii=0; ii<(int)combilist_reduced.size(); ii++)
       {
         combilist_reduced[ii].prob*=(1.-prob_full);
       }
@@ -309,7 +309,7 @@ std::vector<PndSdsStripCorrelatorCombi> PndSdsStripCorrelator::getCombinations(s
     for (int j=0; j<rows; j++)
     { // Recursive call
       std::vector<PndSdsStripCorrelatorCombi> combilist=getCombinations(getSubMatrix(matrix,cols,rows,i,j),cols-1,rows-1);
-      for (int k=0; k<combilist.size(); k++) {
+      for (int k=0; k<(int)combilist.size(); k++) {
         combilist[k].pairlist.push_back(PndSdsStripCorrelatorCand(matrix[i][j]));
         combilist[k].prob*=matrix[i][j].prob;
         combinations.push_back(PndSdsStripCorrelatorCombi(combilist[k].pairlist,combilist[k].prob));

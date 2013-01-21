@@ -15,7 +15,7 @@ PndSdsHit PndSdsChargeWeightedPixelMapping::GetCluster(std::vector<PndSdsDigiPix
 {
 fDigiArray = pixelArray;
 	Double_t col = 0, row = 0, charge = 0;
-	Double_t tempCol = 0, tempRow = 0, tempTime = 0;
+	Double_t tempCol = 0, tempRow = 0;
 	std::vector<Double_t> timeValues;
 	std::vector<Double_t> timeValueErrors;
 
@@ -103,7 +103,7 @@ fDigiArray = pixelArray;
  //std::cout << "-I- PndSdsChargeWeightedPixelMapping Error DPos: " << dpos.x() << " " << dpos.y() << " " << dpos.z() << std::endl;
 
   Double_t meanTime = 0;
-  Double_t meanTimeError = 0;
+  //Double_t meanTimeError = 0;
   Double_t sumVar = 0;
 
   for (UInt_t t = 0; t < timeValues.size(); t++){

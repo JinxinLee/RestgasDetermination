@@ -128,7 +128,8 @@ void PndMvdConvertApvTask::Exec(Option_t* opt)
   std::map<Int_t,std::vector<Int_t> > buffIndex;
   
   Int_t nbox, ch;
-  Int_t rw=-1, sw=-1, botfe=-1;
+  //Int_t rw=-1;
+  Int_t sw=-1, botfe=-1;
   TString detpath=""; 
   Int_t detnameid;
   Int_t stripnum;
@@ -228,7 +229,7 @@ Int_t PndMvdConvertApvTask::CalcBotFakeFE(TString detpath)
       return it->second;
     }
   }
-  //  return -1;
+  return -99999; //return something silly
   
 }
 

@@ -205,11 +205,11 @@ std::vector<PndSdsDigiStrip> PndMvdConvertApv::ReadNext()
 	
 	
 	std::vector<PndSdsDigiStrip> digiList;
-	bool work=true;
+	//bool work=true;
 	 
-	int triggID=0;
+	//int triggID=0;
 	int fe=0;
-	int ts=0;
+	//int ts=0;
 	int frame=0;
 	int ch=0;
 	int l=0;

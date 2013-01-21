@@ -308,8 +308,8 @@ void PndSdsCalcStrip::CalcFeChToStrip(Int_t fe, Int_t channel, Int_t& strip, enu
 //______________________________________________________________________________
 void PndSdsCalcStrip::InjectStripCharge(std::vector<PndSdsStrip>& array, Int_t istrip, Double_t charge)
 {
-  if(istrip<0) {if(fVerboseLevel>2)Warning("InjectStripCharge","",istrip); return;}
-  if(istrip>fNrStrips) {if(fVerboseLevel>2)Warning("InjectStripCharge","",istrip); return;}
+  if(istrip<0) {if(fVerboseLevel>2)Warning("InjectStripCharge","Invalid strip number: %i < 0",istrip); return;}
+  if(istrip>fNrStrips) {if(fVerboseLevel>2)Warning("InjectStripCharge","Invalid strip number: %i > %i",istrip,fNrStrips); return;}
   if(charge==0) return; // cut zero electron charge now, real threshold later
   Double_t smearedQ = SmearCharge(charge);
   if(smearedQ < fThreshold) {if(fVerboseLevel>3)Info("InjectStripCharge","Strip %i, charge %f below threshold %f",istrip,smearedQ,fThreshold); return;}
