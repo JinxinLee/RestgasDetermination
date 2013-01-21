@@ -40,7 +40,7 @@ class PndTrkTracking : public FairTask
   ~PndTrkTracking();
 
 
-  void Cleanup( ){YesClean=true; return;};
+  void Cleanup( ){fYesClean=true; return;};
 
 
   /** Virtual method Exec **/
@@ -50,10 +50,10 @@ class PndTrkTracking : public FairTask
   virtual InitStatus Init();
 
 
-  void NOCleanupMvd( ){YesCleanMvd=false; return;};
+  void NOCleanupMvd( ){fYesCleanMvd=false; return;};
 
 
-  void NoMvdAloneTracking( ){ MvdAloneTracking=false; return;};
+  void NoMvdAloneTracking( ){ fMvdAloneTracking=false; return;};
 
   void SetInputBranchName(
 	char* string1,
@@ -95,27 +95,27 @@ class PndTrkTracking : public FairTask
 	MAXSCITILHITSINTRACK	= 2,   // max SciTil hits in one track.
 	MAXSTTHITS		= 900,
 	MAXSTTHITSINTRACK	= 30,
-	MAXTRACKSPEREVENT	= 200,
+	MAXTRACKSPEREVENT	= 100,
 //	NFIDIVCONFORMAL		= (Short_t) (3.141592654 * 45./0.5),
 	NFIDIVCONFORMAL		= 282,
 	NRDIVCONFORMAL		= 10,
 	NUMBER_STRAWS		= 4542+1; // +1 is because the straw numbers
 					  // start at 1;
 	;
+
   bool
 	doMcComparison,
-	External_Straws[NUMBER_STRAWS],
 	SingleHitListStt[MAXSTTHITS],
 	iplotta,
-	MvdAloneTracking,
-	YesClean,
-	YesCleanMvd,
-	YesSciTil,
-	InclusionListStt[MAXSTTHITS],
-	InclusionListSciTil[MAXSCITILHITS],
-	inMvdTrackCandPixel[MAXMVDPIXELHITS],
-	inMvdTrackCandStrip[MAXMVDSTRIPHITS],
-	TypeConf[MAXTRACKSPEREVENT];
+	fMvdAloneTracking,
+	fYesClean,
+	fYesCleanMvd,
+	fYesSciTil,
+	fInclusionListStt[MAXSTTHITS],
+	fInclusionListSciTil[MAXSCITILHITS],
+	finMvdTrackCandPixel[MAXMVDPIXELHITS],
+	finMvdTrackCandStrip[MAXMVDSTRIPHITS],
+	fTypeConf[MAXTRACKSPEREVENT];
 
   /** object persistence **/
   Bool_t
@@ -134,49 +134,56 @@ class PndTrkTracking : public FairTask
 
 
   Short_t
-	ListHitMvdTrackCand[MAXMVDTRACKSPEREVENT][MAXMVDPIXELHITSINTRACK+MAXMVDSTRIPHITSINTRACK],
-	ListHitTypeMvdTrackCand[MAXMVDTRACKSPEREVENT][MAXMVDPIXELHITSINTRACK+MAXMVDSTRIPHITSINTRACK],
-	ListMvdDSPixelHitNotTrackCand[MAXMVDPIXELHITS],
-	ListMvdDSStripHitNotTrackCand[MAXMVDSTRIPHITS],
-	ListMvdPixelHitsinTrack[MAXTRACKSPEREVENT][MAXMVDPIXELHITSINTRACK],
-	ListMvdStripHitsinTrack[MAXTRACKSPEREVENT][MAXMVDSTRIPHITSINTRACK],
-	ListMvdUSPixelHitNotTrackCand[MAXMVDPIXELHITS],
-	ListMvdUSStripHitNotTrackCand[MAXMVDSTRIPHITS],
-	ListSciTilHitsinTrack[MAXTRACKSPEREVENT][MAXSCITILHITSINTRACK],
-	ListSttParHitsinTrack[MAXTRACKSPEREVENT][MAXSTTHITSINTRACK],
-	ListSttParHits[MAXSTTHITS],
-	ListSttSkewHitsinTrack[MAXTRACKSPEREVENT][MAXSTTHITSINTRACK],
-	ListSttSkewHitsinTrackSolution[MAXTRACKSPEREVENT][MAXSTTHITSINTRACK],
-	ListSttSkewHits[MAXSTTHITS],
-	ListTrackCandHit[MAXTRACKSPEREVENT]
+	fListHitMvdTrackCand[MAXMVDTRACKSPEREVENT][MAXMVDPIXELHITSINTRACK+MAXMVDSTRIPHITSINTRACK],
+	fListHitTypeMvdTrackCand[MAXMVDTRACKSPEREVENT][MAXMVDPIXELHITSINTRACK+MAXMVDSTRIPHITSINTRACK],
+	fListMvdDSPixelHitNotTrackCand[MAXMVDPIXELHITS],
+	fListMvdDSStripHitNotTrackCand[MAXMVDSTRIPHITS],
+	fListMvdPixelHitsinTrack[MAXTRACKSPEREVENT][MAXMVDPIXELHITSINTRACK],
+	fListMvdPixelHitsinTrackSave[MAXTRACKSPEREVENT][MAXMVDPIXELHITSINTRACK],
+	fListMvdStripHitsinTrack[MAXTRACKSPEREVENT][MAXMVDSTRIPHITSINTRACK],
+	fListMvdStripHitsinTrackSave[MAXTRACKSPEREVENT][MAXMVDSTRIPHITSINTRACK],
+	fListMvdUSPixelHitNotTrackCand[MAXMVDPIXELHITS],
+	fListMvdUSStripHitNotTrackCand[MAXMVDSTRIPHITS],
+	fListSciTilHitsinTrack[MAXTRACKSPEREVENT][MAXSCITILHITSINTRACK],
+	fListSttParHitsinTrack[MAXTRACKSPEREVENT][MAXSTTHITSINTRACK],
+	fListSttParHits[MAXSTTHITS],
+	fListSttSkewHitsinTrack[MAXTRACKSPEREVENT][MAXSTTHITSINTRACK],
+	fListSttSkewHitsinTrackSave[MAXTRACKSPEREVENT][MAXSTTHITSINTRACK],
+	fListSttSkewHitsinTrackSolution[MAXTRACKSPEREVENT][MAXSTTHITSINTRACK],
+	fListSttSkewHitsinTrackSolutionSave[MAXTRACKSPEREVENT][MAXSTTHITSINTRACK],
+	fListSttSkewHits[MAXSTTHITS],
+	fListTrackCandHit[MAXTRACKSPEREVENT]
 				[MAXSTTHITSINTRACK+
 				MAXMVDPIXELHITSINTRACK+
 				MAXMVDSTRIPHITSINTRACK+
 				MAXSCITILHITSINTRACK],
   //  type = 0 --> Mvd Pixel;  type = 1 --> Mvd Strip; type = 1 --> Mvd Strip; type = 2 --> Stt Parallel
   //  type = 3 --> Stt Straw; type 1001 --> SciTil;  type -1 -->  noise.
-	ListTrackCandHitType[MAXTRACKSPEREVENT]
+	fListTrackCandHitType[MAXTRACKSPEREVENT]
 				[MAXSTTHITSINTRACK+
 				MAXMVDPIXELHITSINTRACK+
 				MAXMVDSTRIPHITSINTRACK+
 				MAXSCITILHITSINTRACK],
-	nHitMvdTrackCand[MAXMVDTRACKSPEREVENT],
-	nMCTracks,
-	nMvdDSPixelHitNotTrackCand,
-	nMvdDSStripHitNotTrackCand,
-	nMvdPixelHit,
-	nMvdPixelHitsinTrack[MAXTRACKSPEREVENT],
-	nMvdStripHit,
-	nMvdStripHitsinTrack[MAXTRACKSPEREVENT],
-	nMvdTrackCand,
-	nMvdUSPixelHitNotTrackCand,
-	nMvdUSStripHitNotTrackCand,
-	nSciTilHits,
-	nSciTilHitsinTrack[MAXTRACKSPEREVENT],
-	nSttParHitsinTrack[MAXTRACKSPEREVENT],
-	nSttSkewHitsinTrack[MAXTRACKSPEREVENT],
-	nTrackCandHit[MAXTRACKSPEREVENT],
-	TubeID[MAXSTTHITS];
+	fnHitMvdTrackCand[MAXMVDTRACKSPEREVENT],
+	fnMCTracks,
+	fnMvdDSPixelHitNotTrackCand,
+	fnMvdDSStripHitNotTrackCand,
+	fnMvdPixelHit,
+	fnMvdPixelHitsinTrack[MAXTRACKSPEREVENT],
+	fnMvdPixelHitsinTrackSave[MAXTRACKSPEREVENT],
+	fnMvdStripHit,
+	fnMvdStripHitsinTrack[MAXTRACKSPEREVENT],
+	fnMvdStripHitsinTrackSave[MAXTRACKSPEREVENT],
+	fnMvdTrackCand,
+	fnMvdUSPixelHitNotTrackCand,
+	fnMvdUSStripHitNotTrackCand,
+	fnSciTilHits,
+	fnSciTilHitsinTrack[MAXTRACKSPEREVENT],
+	fnSttParHitsinTrack[MAXTRACKSPEREVENT],
+	fnSttSkewHitsinTrack[MAXTRACKSPEREVENT],
+	fnSttSkewHitsinTrackSave[MAXTRACKSPEREVENT],
+	fnTrackCandHit[MAXTRACKSPEREVENT],
+	fTubeID[MAXSTTHITS];
 
 
   int
@@ -186,41 +193,43 @@ class PndTrkTracking : public FairTask
 
 
   Double_t
-	ALFA[MAXTRACKSPEREVENT],
-	BETA[MAXTRACKSPEREVENT],
-	CxMC[MAXMCTRACKS],
-	CyMC[MAXMCTRACKS],
-	Fimin,
-	GAMMA[MAXTRACKSPEREVENT],
-	MCSkewAloneX[MAXSTTHITS],
-	MCSkewAloneY[MAXSTTHITS],
-	MCtruthTrkInfo[15][MAXMCTRACKS],
-	Ox[MAXTRACKSPEREVENT],
-	Oy[MAXTRACKSPEREVENT],
-	posizSciTil[MAXSCITILHITS][3],
-	pSciTilx[MAXSCITILHITS],
-	pSciTily[MAXSCITILHITS],
-	pSciTilz[MAXSCITILHITS],
-	R[MAXTRACKSPEREVENT],
-	refindexMvdPixel[MAXMVDPIXELHITS],
-	refindexMvdStrip[MAXMVDSTRIPHITS],
-	radiaConf[NRDIVCONFORMAL],
-	R_MC[MAXMCTRACKS],
-	SEMILENGTH_STRAIGHT,
-	sigmaXMvdPixel[MAXMVDPIXELHITS],
-	sigmaYMvdPixel[MAXMVDPIXELHITS],
-	sigmaZMvdPixel[MAXMVDPIXELHITS],
-	sigmaXMvdStrip[MAXMVDSTRIPHITS],
-	sigmaYMvdStrip[MAXMVDSTRIPHITS],
-	sigmaZMvdStrip[MAXMVDSTRIPHITS],
-	S_SciTilHitsinTrack[MAXTRACKSPEREVENT][MAXSCITILHITS],
-	XMvdPixel[MAXMVDPIXELHITS],
-	XMvdStrip[MAXMVDSTRIPHITS],
-	YMvdPixel[MAXMVDPIXELHITS],
-	YMvdStrip[MAXMVDSTRIPHITS],
-	ZCENTER_STRAIGHT,
-	ZMvdPixel[MAXMVDPIXELHITS],
-	ZMvdStrip[MAXMVDSTRIPHITS];
+	fALFA[MAXTRACKSPEREVENT],
+	fBETA[MAXTRACKSPEREVENT],
+	fCxMC[MAXMCTRACKS],
+	fCyMC[MAXMCTRACKS],
+	fFimin,
+	fGAMMA[MAXTRACKSPEREVENT],
+	fMCSkewAloneX[MAXSTTHITS],
+	fMCSkewAloneY[MAXSTTHITS],
+	fMCtruthTrkInfo[15][MAXMCTRACKS],
+	fMvdPixelS[MAXTRACKSPEREVENT][MAXMVDPIXELHITS],
+	fMvdStripS[MAXTRACKSPEREVENT][MAXMVDSTRIPHITS],
+	fOx[MAXTRACKSPEREVENT],
+	fOy[MAXTRACKSPEREVENT],
+	fposizSciTil[MAXSCITILHITS][3],
+	fpSciTilx[MAXSCITILHITS],
+	fpSciTily[MAXSCITILHITS],
+	fpSciTilz[MAXSCITILHITS],
+	fR[MAXTRACKSPEREVENT],
+	frefindexMvdPixel[MAXMVDPIXELHITS],
+	frefindexMvdStrip[MAXMVDSTRIPHITS],
+	fradiaConf[NRDIVCONFORMAL],
+	fR_MC[MAXMCTRACKS],
+	fSEMILENGTH_STRAIGHT,
+	fsigmaXMvdPixel[MAXMVDPIXELHITS],
+	fsigmaYMvdPixel[MAXMVDPIXELHITS],
+	fsigmaZMvdPixel[MAXMVDPIXELHITS],
+	fsigmaXMvdStrip[MAXMVDSTRIPHITS],
+	fsigmaYMvdStrip[MAXMVDSTRIPHITS],
+	fsigmaZMvdStrip[MAXMVDSTRIPHITS],
+	fS_SciTilHitsinTrack[MAXTRACKSPEREVENT][MAXSCITILHITS],
+	fXMvdPixel[MAXMVDPIXELHITS],
+	fXMvdStrip[MAXMVDSTRIPHITS],
+	fYMvdPixel[MAXMVDPIXELHITS],
+	fYMvdStrip[MAXMVDSTRIPHITS],
+	fZCENTER_STRAIGHT,
+	fZMvdPixel[MAXMVDPIXELHITS],
+	fZMvdStrip[MAXMVDSTRIPHITS];
 
 //  FairRootManager *ioman;
 
@@ -364,8 +373,8 @@ class PndTrkTracking : public FairTask
 	Double_t *FI0,
 	Double_t *Fi_low_limit,
 	Double_t *Fi_up_limit,
-	Short_t *nSttParHitsinTrack, // input/output
-	Short_t ListSttParHitsinTrack[][MAXSTTHITSINTRACK] // input/output
+	Short_t *fnSttParHitsinTrack, // input/output
+	Short_t fListSttParHitsinTrack[][MAXSTTHITSINTRACK] // input/output
 	);
 
   void EliminateSpuriousSZ(
@@ -374,8 +383,8 @@ class PndTrkTracking : public FairTask
 	Short_t *ListMvdPixelHitsAssociatedToSttTrack,
 	Short_t *nMvdStripHitsAssociatedToSttTrack,
 	Short_t *ListMvdStripHitsAssociatedToSttTrack,
-	Short_t *nSttSkewHitsinTrack,
-	Short_t *ListSttSkewHitsinTrack,
+	Short_t *fnSttSkewHitsinTrack,
+	Short_t *fListSttSkewHitsinTrack,
 	Double_t *S,
 	Double_t *ZED,
 	Double_t *DriftRadius,
@@ -620,8 +629,8 @@ class PndTrkTracking : public FairTask
 
   void RefitMvdStt(
 	Short_t nCandHit,
-	Short_t *ListTrackCandHit,
-	Short_t *ListTrackCandHitType,
+	Short_t *fListTrackCandHit,
+	Short_t *fListTrackCandHitType,
 	Double_t info[][7],
 	Double_t rotationangle,
 	Double_t trajectory_vertex[2],
@@ -631,25 +640,6 @@ class PndTrkTracking : public FairTask
 	Double_t *pGamma,// set at zero always for now
 	bool *status    // fit status; true = successful
 	  );
-
-  void StartFromSciTil(
-	Short_t * Charge,
-	Short_t * FiConformalIndex,
-	Double_t *Fi_final_helix_referenceframe,
-	Double_t *Fi_initial_helix_referenceframe,
-	Double_t * Fi_low_limit,
-	Double_t * Fi_up_limit,
-	Short_t HitsinBoxConformal[][NRDIVCONFORMAL][NFIDIVCONFORMAL],
-	Double_t info[][7],
-	Double_t infoparalConformal[][5],
-	Short_t nBoxConformal[][NFIDIVCONFORMAL],
-	Int_t nSttParHit,
-	Int_t &nSttTrackCand,
-	Short_t * RConformalIndex,
-	Double_t *trajectory_vertex,
-	Double_t *UU,
-	Double_t *VV
-	);
 
   void SeparateInnerOuterParallel(
 
@@ -674,6 +664,30 @@ class PndTrkTracking : public FairTask
 	Short_t *ListOuterHitsLeft,
 	Short_t *nOuterHitsRight,
 	Short_t *ListOuterHitsRight
+	);
+
+  void StartFromSciTil(
+	Short_t * Charge,
+	Short_t * FiConformalIndex,
+	Double_t *Fi_final_helix_referenceframe,
+	Double_t *Fi_initial_helix_referenceframe,
+	Double_t * Fi_low_limit,
+	Double_t * Fi_up_limit,
+	Short_t HitsinBoxConformal[][NRDIVCONFORMAL][NFIDIVCONFORMAL],
+	Double_t info[][7],
+	Double_t infoparalConformal[][5],
+	Short_t nBoxConformal[][NFIDIVCONFORMAL],
+	Int_t nSttParHit,
+	Int_t &nSttTrackCand,
+	Short_t * RConformalIndex,
+	Double_t *trajectory_vertex,
+	Double_t *UU,
+	Double_t *VV
+	);
+
+
+  void StoreMvdHitsS(
+	Short_t nTotalCandidates
 	);
 
   bool SttParalCleanup(
@@ -773,8 +787,6 @@ class PndTrkTracking : public FairTask
 	Short_t *auxListHitsinTrack
 	);
 
-
-  void TemporarySttTubeList(TClonesArray *fSttTuArray);
 
 
 
