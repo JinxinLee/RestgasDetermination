@@ -16,7 +16,7 @@ ClassImp(PndSdsChargeWeightingAlgorithms);
 
 PndSdsChargeWeightingAlgorithms::PndSdsChargeWeightingAlgorithms(TClonesArray* arr) : TObject()
 {
-	fDigiArray = arr;
+  fDigiArray = arr;
         fVerbose=0;
 }
 PndSdsChargeWeightingAlgorithms::~PndSdsChargeWeightingAlgorithms()
@@ -24,9 +24,9 @@ PndSdsChargeWeightingAlgorithms::~PndSdsChargeWeightingAlgorithms()
 }
 
 /*
- returns the (modified) error function
- this is a local (private) function
- */
+returns the (modified) error function
+this is a local (private) function
+*/
 Double_t PndSdsChargeWeightingAlgorithms::Erfmod(Double_t x, Double_t p0, Double_t p1, Double_t p2, Double_t p3)
 {
   return ((TMath::Erf(p0*(x-p1)))*p2+p3);
@@ -56,8 +56,8 @@ std::pair<Double_t,Double_t> PndSdsChargeWeightingAlgorithms::CenterOfGravity(co
   x_g = x_g/chargesum;
   result.first=x_g;
   
-    Int_t chanmax=DigiStripno(Cluster->GetDigiIndex(nrHits-1));
-    Int_t chanmin=DigiStripno(Cluster->GetDigiIndex(0));
+    Double_t chanmax=DigiStripno(Cluster->GetDigiIndex(nrHits-1));
+    Double_t chanmin=DigiStripno(Cluster->GetDigiIndex(0));
     for(Int_t l=0;l<nrHits;++l)     // loop over all hits
     { 
       stripno = DigiStripno(Cluster->GetDigiIndex(l));
@@ -101,7 +101,7 @@ std::pair<Double_t,Double_t> PndSdsChargeWeightingAlgorithms::HeadTail(const Pnd
   // We assume that the digis in each cluster are sorted.
   std::pair<Double_t,Double_t> result;
   Double_t noise = fCalcStrip->GetNoise();
- 
+
   Double_t x_h=DigiStripno(Cluster->GetDigiIndex(0));
   Double_t x_t=DigiStripno(Cluster->GetDigiIndex(nrHits-1));
   
@@ -210,7 +210,7 @@ std::pair<Double_t,Double_t> PndSdsChargeWeightingAlgorithms::Binary(const PndSd
 
 std::pair<Double_t,Double_t> PndSdsChargeWeightingAlgorithms::Eta(const PndSdsCluster* Cluster, const TH1F* PosVsEta)//, const TH1F* pitch3)
 {
-	Int_t nrHits = Cluster->GetClusterSize();
+  Int_t nrHits = Cluster->GetClusterSize();
   
   if(nrHits < 2.){return Binary(Cluster);}
   if(nrHits > 2.){return CenterOfGravity(Cluster);}
@@ -229,7 +229,7 @@ std::pair<Double_t,Double_t> PndSdsChargeWeightingAlgorithms::Eta(const PndSdsCl
     result.first=PosVsEta->GetBinContent(ceil(eta_value.first * 200.));           //etadist histogram contains 200 bins.
     
     result.second=(PosVsEta->GetBinContent(ceil((eta_value.first+eta_value.second) * 200.))
-                   - PosVsEta->GetBinContent(ceil((eta_value.first-eta_value.second) * 200.)))/2.;
+                  - PosVsEta->GetBinContent(ceil((eta_value.first-eta_value.second) * 200.)))/2.;
     
     return result;
     
@@ -239,13 +239,13 @@ std::pair<Double_t,Double_t> PndSdsChargeWeightingAlgorithms::Eta(const PndSdsCl
 std::pair<Double_t,Double_t> PndSdsChargeWeightingAlgorithms::EtaValue(const PndSdsCluster* Cluster, Double_t &stripno, Int_t &NmbOfStrips)
 {
   
-	Int_t nrHits = Cluster->GetClusterSize();
+  Int_t nrHits = Cluster->GetClusterSize();
   std::pair<Double_t,Double_t> result;
   
   if(nrHits==2. && DigiStripno(Cluster->GetDigiIndex(1)) - DigiStripno(Cluster->GetDigiIndex(0))==1.)							// 2 strips fired
   {
     NmbOfStrips=2;
-		Double_t ql=0., qr=0., noise=0., cherrl=0., cherrr=0.;
+    Double_t ql=0., qr=0., noise=0., cherrl=0., cherrr=0.;
     noise = fCalcStrip->GetNoise();
     
     ql = DigiCharge(Cluster->GetDigiIndex(0));
@@ -334,39 +334,39 @@ std::pair<Double_t,Double_t> PndSdsChargeWeightingAlgorithms::AutoSelect(const P
   return HeadTail(Cluster);
 }
 /*
- void PndSdsChargeWeightingAlgorithms::MakedNdEta(const std::vector<PndSdsCluster>& Cluster, RunInfo& info)
- {
- for(Int_t cID=0;cID<Cluster->size();cID++)
- {
- Int_t nrHits = Cluster[cID].GetClusterSize();
- if(nrHits>1)
- {
- Double_t ql=Cluster[cID].GetHit(0).GetCharge()*1.;
- Double_t qr=Cluster[cID].GetHit(nrHits-1).GetCharge()*1.;
- 
- Int_t f=1, o=nrHits-2;
- Double_t xl=Cluster[cID].GetHit(0).GetChannel()*1.;
- while(f<o)							// build groups nearly same charge value
- {
- if(ql<=qr) 						// who is smaller
- {
- ql=ql+Cluster[cID].GetHit(f).GetCharge()*1.;
- ++f;
- }
- if(qr<ql)
- {
- qr=qr+Cluster[cID].GetHit(o).GetCharge()*1.;
- //             xl=xl+Erfmod(sube, p0, p1, p2, p3);
- --o;
- }
- }
- Double_t e = qr/(qr+ql);					// total eta
- info.FilldNdEta(e);
- }
- }
- return;
- }
- */
+void PndSdsChargeWeightingAlgorithms::MakedNdEta(const std::vector<PndSdsCluster>& Cluster, RunInfo& info)
+{
+for(Int_t cID=0;cID<Cluster->size();cID++)
+{
+Int_t nrHits = Cluster[cID].GetClusterSize();
+if(nrHits>1)
+{
+Double_t ql=Cluster[cID].GetHit(0).GetCharge()*1.;
+Double_t qr=Cluster[cID].GetHit(nrHits-1).GetCharge()*1.;
+
+Int_t f=1, o=nrHits-2;
+Double_t xl=Cluster[cID].GetHit(0).GetChannel()*1.;
+while(f<o)							// build groups nearly same charge value
+{
+if(ql<=qr) 						// who is smaller
+{
+ql=ql+Cluster[cID].GetHit(f).GetCharge()*1.;
+++f;
+}
+if(qr<ql)
+{
+qr=qr+Cluster[cID].GetHit(o).GetCharge()*1.;
+//             xl=xl+Erfmod(sube, p0, p1, p2, p3);
+--o;
+}
+}
+Double_t e = qr/(qr+ql);					// total eta
+info.FilldNdEta(e);
+}
+}
+return;
+}
+*/
 
 Double_t PndSdsChargeWeightingAlgorithms::DigiCharge(Int_t digiIndex)
 {
@@ -387,10 +387,10 @@ Double_t PndSdsChargeWeightingAlgorithms::DigiChargeError(Int_t digiIndex)
 
 Int_t PndSdsChargeWeightingAlgorithms::DigiStripno(Int_t digiIndex)
 {
-	Int_t strip;
-	SensorSide side;
-	PndSdsDigiStrip* myDigi = (PndSdsDigiStrip*)fDigiArray->At(digiIndex);
-	fCalcStrip->CalcFeChToStrip(myDigi->GetFE(), myDigi->GetChannel(), strip, side);
+  Int_t strip;
+  SensorSide side;
+  PndSdsDigiStrip* myDigi = (PndSdsDigiStrip*)fDigiArray->At(digiIndex);
+  fCalcStrip->CalcFeChToStrip(myDigi->GetFE(), myDigi->GetChannel(), strip, side);
   return strip;
 }
 
