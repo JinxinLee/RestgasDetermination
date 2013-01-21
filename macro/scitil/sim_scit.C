@@ -13,12 +13,12 @@
   FairRunSim *fRun = new FairRunSim();
   
   
-  TString inFile3= "/d/panda02/urqmd_smm/pbarC_3_GeV.root";
+  TString inFile3= "pbarC_3_GeV.root";
 
   // set the MC version used
   // ------------------------
   
-  fRun->SetName("TGeant4");
+  fRun->SetName("TGeant3");
   
   
  
@@ -42,11 +42,27 @@
 
   
   FairDetector *SciT = new PndSciT("SCIT",kTRUE);
-  SciT->SetGeometryFileName("SciTil_Barrel_woPCB.root");
+  SciT->SetGeometryFileName("barrel-SciTil_18122012.root");//SciTil_Barrel_woPCB.root");
   fRun->AddModule(SciT);
  // 
- 
+ PndDrc *Drc = new PndDrc("DIRC", kTRUE);
+  Drc->SetRunCherenkov(kTRUE); // for fast sim Cherenkov -> kFALSE
+  // set reflectivity for the mirror at the bar end, in case of kFALSE reflectivity = 1 = const.
+  Drc->SetMirrorReal(kTRUE);  
+  Drc->SetDetEffAtProduction(kTRUE);
+  Drc->SetStopTime(200.); 
+  Drc->SetVerboseLevel(0);
+  Drc->SetOnlyDirectPho(kFALSE);
+  // put the geometry file you want into the next line:  
+  Drc->SetGeometryFileName("dirc_l0_p0_updated.root"); 
+  fRun->AddModule(Drc);
    
+ PndEmc *Emc = new PndEmc("EMC",kTRUE);
+  Emc->SetGeometryVersion(1);
+  // See PndEmc::SetGeometryVersion() for available geometries and add there new one if necessary
+  Emc->SetStorageOfData(kTRUE);
+  fRun->AddModule(Emc);
+
   // Create and Set Event Generator
   //-------------------------------
   
@@ -72,45 +88,44 @@
 //   primGen->AddGenerator(boxGen);  
   
   
-    
-    PndMultiField *fField= new PndMultiField();
-    PndTransMap *map= new PndTransMap("TransMap", "R");
-    PndDipoleMap *map1= new PndDipoleMap("DipoleMap", "R");
-    PndSolenoidMap *map2= new PndSolenoidMap("SolenoidMap", "R");
-    fField->AddField(map);
-    fField->AddField(map1);
-    fField->AddField(map2);
-    fRun->SetField(fField);
-    
-      /*
-       PndConstField *fMagField=new PndConstField();
-       fMagField->SetField(0, 0 ,20. ); // values are in kG
-       // MinX=-75, MinY=-40,MinZ=-12 ,MaxX=75, MaxY=40 ,MaxZ=124 );  // values are in cm
-       fMagField->SetFieldRegion(-50, 50,-50, 50, -200, 200);
-       fRun->SetField(fMagField);*/
-
-       fRun->SetStoreTraj(kTRUE); // to store particle trajectories 
-    
-       /*FairTrajFilter* trajFilter = FairTrajFilter::Instance();
-	 trajFilter->SetStepSizeCut(0.001); // 1 cm
-	 //  trajFilter->SetVertexCut(-2000., -2000., 4., 2000., 2000., 100.);
-	 // trajFilter->SetMomentumCutP(10e-3); // p_lab > 10 MeV
-	 //  trajFilter->SetEnergyCut(0., 1.02); // 0 < Etot < 1.04 GeV
-	 trajFilter->SetStorePrimaries(kTRUE);
-	 trajFilter->SetStoreSecondaries(kTRUE);*/ // not used for the others.????
-   
-    fRun->Init();
+  // Create and Set Magnetic Field
+  //-------------------------------
+  /*PndMultiField *fField= new PndMultiField("FULL");
+      
+    fRun->SetField(fField);*/
   
-    
+  /*
+    PndConstField *fMagField=new PndConstField();
+    fMagField->SetField(0, 0 ,20. ); // values are in kG
+    // MinX=-75, MinY=-40,MinZ=-12 ,MaxX=75, MaxY=40 ,MaxZ=124 );  // values are in cm
+    fMagField->SetFieldRegion(-50, 50,-50, 50, -200, 200);
+    fRun->SetField(fMagField);*/
+  
+  
+  fRun->SetBeamMom(15);
+  
+  fRun->SetStoreTraj(kTRUE); // to store particle trajectories 
+  
+  /*FairTrajFilter* trajFilter = FairTrajFilter::Instance();
+    trajFilter->SetStepSizeCut(0.001); // 1 cm
+    //  trajFilter->SetVertexCut(-2000., -2000., 4., 2000., 2000., 100.);
+    // trajFilter->SetMomentumCutP(10e-3); // p_lab > 10 MeV
+    //  trajFilter->SetEnergyCut(0., 1.02); // 0 < Etot < 1.04 GeV
+    trajFilter->SetStorePrimaries(kTRUE);
+    trajFilter->SetStoreSecondaries(kTRUE);*/ // not used for the others.????
+  
+  fRun->Init();
+  
+  
   // Fill the Parameter containers for this run
   //-------------------------------------------
   
   FairRuntimeDb *rtdb=fRun->GetRuntimeDb();
-
-  PndMultiFieldPar* fieldPar = (PndMultiFieldPar*) rtdb->getContainer("PndMultiFieldPar");
+  
+  /* PndMultiFieldPar* fieldPar = (PndMultiFieldPar*) rtdb->getContainer("PndMultiFieldPar");
   if ( fField ) { fieldPar->SetParameters(fField); }
   fieldPar->setInputVersion(fRun->GetRunId(),1);
-  fieldPar->setChanged();
+  fieldPar->setChanged();*/
 
   Bool_t kParameterMerged=kTRUE;
   FairParRootFileIo* output=new FairParRootFileIo(kParameterMerged);
@@ -123,7 +138,7 @@
   // -----------------
    
   // Set the number of events
-  Int_t nEvents = 300; 
+  Int_t nEvents = 100; 
   fRun->Run(nEvents);
   
   timer.Stop();
@@ -132,7 +147,7 @@
   Double_t ctime = timer.CpuTime();
   printf("RealTime=%f seconds, CpuTime=%f seconds\n",rtime,ctime);
   delete fRun;
-  exit(0);
+  //exit(0);
 
 }  
   
