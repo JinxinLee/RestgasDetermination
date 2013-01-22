@@ -443,7 +443,7 @@ void PndLmdTrackFinderCATask::Exec(Option_t* opt)
 	  //  if((dirc.Theta()>0.01 && dirc.Mag()>1.) || (dirc.Mag()<0.1 && dirc.Theta()>1.5)){ //in LUMI frame //for point between diff.planes or for point between diff. layes
 	  bool goodDir = true;
 	  if(dirc.Mag()>1.){
-	    if((dirc.Theta()<0.03 && dirc.Theta()>0.05) || fabs(dirc.Phi())>0.25){
+	    if((dirc.Theta()<0.03 || dirc.Theta()>0.05) || fabs(dirc.Phi())>0.25){
 	      goodDir = false;
 	      //  if(fVerbose>6) cout<<" dirc.Mag()>1. && (dirc.Theta()<0.03 && dirc.Theta()>0.05) || fabs(dirc.Phi())>0.25)"<<endl;
 	    }
@@ -502,7 +502,7 @@ void PndLmdTrackFinderCATask::Exec(Option_t* opt)
 	      
 	      bool goodDir = true;
 	      if(dirc2.Mag()>1.){
-		if((dirc2.Theta()<0.03 && dirc2.Theta()>0.05) || fabs(dirc2.Phi())>0.25){
+		if((dirc2.Theta()<0.03 || dirc2.Theta()>0.05) || fabs(dirc2.Phi())>0.25){
 		  goodDir = false;
 		  // if(fVerbose>6) cout<<" dirc2.Mag()>1. && (dirc2.Theta()<0.03 && dirc2.Theta()>0.05) || fabs(dirc2.Phi())>0.25)"<<endl;
 		}
@@ -933,10 +933,10 @@ void PndLmdTrackFinderCATask::Exec(Option_t* opt)
       // myTCand->AddHit(0,hitsd.at(pl).at(id),myHit->GetPosition().Z()); 
     }
     if(fVerbose>3){
-      if((dir.Theta()<0.03 && dir.Theta()>0.05) || fabs(dir.Phi())>0.25)
+      if((dir.Theta()<0.03 || dir.Theta()>0.05) || fabs(dir.Phi())>0.25)
 	cout<<"Ooops, trk-cand has: theta="<<dir.Theta()<<" and phi="<<dir.Phi()<<endl;
       }
-    if((dir.Theta()<0.03 && dir.Theta()>0.05) || fabs(dir.Phi())>0.25) continue; //TEST
+    if((dir.Theta()<0.03 || dir.Theta()>0.05) || fabs(dir.Phi())>0.25) continue; //TEST
     const int numPts = myTCand->GetNHits(); //read how many points in this track
     if(numPts<1) cout<<"!!! Attention HERE is problem: number of hits in trk-cand = "<<numPts<<"!!!"<<endl;
     new((*fTrackCandArray)[NtrkRec]) PndTrackCand(*(myTCand)); //save Track Candidate
