@@ -1,5 +1,6 @@
 #include "glpk.h"
 #include "PndTrkTracking.h"
+#include "PndTrkBoundaryParStraws.h"
 #include "PndTrkChi2Fits.h"
 #include "PndTrkComparisonMCtruth.h"
 #include "PndTrkSttConformalFilling.h"
@@ -478,6 +479,16 @@ if(doMcComparison >=1 ){
  PndSttMapCreator *mapper = new PndSttMapCreator(fSttParameters);
  fSttTubeArray = mapper->FillTubeArray();
  //----------------------------------------------------  end map
+
+// load the array indicating if a straw is exetrnal of not;
+// true -->  it is external; false --> it is internal;
+// remember that the numbering of the STT Straws starts at 1;
+	PndTrkBoundaryParStraws BoundaryParStraws ;
+	fExternal_Straws[0] = false;  // just to be super-safe;
+	for(int i=1;i<= NUMBER_STRAWS;i++){
+		fExternal_Straws[i] = BoundaryParStraws.Set(i);
+	}
+
 
 //    get   the MCTrack  array
 
@@ -1025,7 +1036,7 @@ void PndTrkTracking::Exec(Option_t* opt) {
 	}
 
  //  printout of the Stt hits;
- if (istampa >= 1 ) fPrint.stampaSttHits(i,ipunto,dradius,WDX,WDY,WDZ,puntator,pSttTube);
+ if (istampa >= 1 ) fPrint.stampaSttHits(i,ipunto,dradius,WDX,WDY,WDZ,puntator,pSttTube,tubeID);
 
   }  //   end of for( i= 0; i< nSttHit; i++)
 
@@ -1348,6 +1359,8 @@ if(istampa>0){
 
 int iconta=0;
  for(iParHit=0; iParHit<nSttParHit + 1 -  MINIMUMHITSPERTRACK ; iParHit++) {
+	if( ! fInclusionListStt[fListSttParHits[iParHit]] )  continue;
+	if( !fExternal_Straws[fTubeID[fListSttParHits[iParHit]]] ) continue; // only seeds at the external boundary of the STT
 
 	if( nSttTrackCand >= MAXTRACKSPEREVENT) {
 		cout<<"from PndTrkTracking :  # n. Tracks found so far = "
@@ -1355,7 +1368,6 @@ int iconta=0;
 		 <<MAXTRACKSPEREVENT<<"); exiting from || hit loop.\n";
 		break;
 	}
-	if( ! fInclusionListStt[fListSttParHits[iParHit]] )  continue;
 iconta++;
 	// inputs for the FindTrackInXYProjection class;
 	input.iHit = iParHit;// seed hit in the PARALLEL number scheme; it is negative for SciTil Hits.
