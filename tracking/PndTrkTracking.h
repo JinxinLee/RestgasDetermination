@@ -105,6 +105,7 @@ class PndTrkTracking : public FairTask
 
   bool
 	doMcComparison,
+	fExternal_Straws[NUMBER_STRAWS],
 	SingleHitListStt[MAXSTTHITS],
 	iplotta,
 	fMvdAloneTracking,
