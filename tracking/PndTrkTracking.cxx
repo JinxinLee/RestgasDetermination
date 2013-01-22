@@ -993,6 +993,8 @@ void PndTrkTracking::Exec(Option_t* opt) {
 	// right way to extract the corrisponding MC point.
 	ipunto= pSttHit->GetRefIndex();
 	tubeID = pSttHit->GetTubeID();
+	// fTubeID[i] = STT tubeID correspondint to the hit number i ;
+	fTubeID[i] = tubeID;
 	pSttTube = (PndSttTube *) fSttTubeArray->At(tubeID);
 	TVector3 center = pSttTube->GetPosition();
 	// drift radius
@@ -1430,7 +1432,6 @@ iconta++;
 	fnSttSkewHitsinTrack[i]=0;
 
  }  // end for(i=0; i<nSttTrackCand;i++)
-
 
 //-------------- stampa
  if(istampa>=2){
