@@ -34,9 +34,11 @@ using std::map;
 
 #include "TROOT.h"
 #include "TRint.h"
+#include "TFile.h"
 #include "TVector3.h"
 #include "TRandom.h"
 #include "TRotation.h"
+#include "TNtuple.h"
 #include "Math/Vector3D.h"
 using ROOT::Math::XYZVector;
 
@@ -254,7 +256,7 @@ int main(int argc, char *argv[])
   // .x Geo.C 
   // .x Screen.C
   // 
-  if (ioption==2) manager->Print(geo);
+  if (ioption==1) manager->Print(geo);
   //
   // the intention is to play around with routines.
   // there hast to come another geo output after propagation...
@@ -433,7 +435,9 @@ int main(int argc, char *argv[])
 
   //fstream out;
   //out.open("debug.dat",std::ios::out);
-  
+  TFile *f = new TFile("test_simple_mirror_sheet.root","RECREATE");
+  TNtuple *ntuple = new TNtuple("ntuple","test_simple_mitrror_sheet data","x:y:t:irefl:iside_refl");  
+
 
   //int icnt1=0;
   
@@ -442,7 +446,17 @@ int main(int argc, char *argv[])
   int icnt_lost     = 0;
   int icnt_absorbed = 0;
 
-
+  cout<<kBlack<<endl;
+  cout<<kOrange-7<<endl;
+  cout<<kRed<<endl;
+  cout<<kOrange-3<<endl;
+  cout<<kYellow<<endl;
+  cout<<kGreen<<endl;
+  cout<<kBlue<<endl;
+  cout<<kViolet<<endl;
+  cout<<kGray+2<<endl;
+  cout<<kGray<<endl;
+  
   
   list<PndDrcPhoton>::iterator iph;
   for(iph=list_photon.begin(); iph != list_photon.end(); ++iph) 
@@ -499,7 +513,7 @@ int main(int argc, char *argv[])
 	  //int irefl;// = (*iph).Reflections()-1; // -1 for mirror
 	  //irefl/=5;
 
-	  irefl=iside_refl;
+	  //irefl=iside_refl;
 	  
 	  irefl=irefl%10;
 	  
@@ -531,8 +545,13 @@ int main(int argc, char *argv[])
 	    //	  scr<<"    t->SetMarkerColor("
 	    //<<(*iph).ColorNumber((*iph).Wavelength())
 	    //<<");"<<endl;
-	    scr<<"    t->SetMarkerSize(1);"<<endl;
+	    scr<<"    t->SetMarkerSize(0.5);"<<endl;
 	    scr<<"    t->Draw();"<<endl;
+
+	    //out<<xx<<" "<<yy<<" "<<(*iph).Time()<<endl;
+	    ntuple->Fill(xx,yy,(*iph).Time(),irefl,iside_refl);
+	    
+
 	  }
 	  
 	}
@@ -550,6 +569,7 @@ int main(int argc, char *argv[])
       
     }
   //out.close();
+  f->Write();
   
   
   scr<<"}"<<endl;

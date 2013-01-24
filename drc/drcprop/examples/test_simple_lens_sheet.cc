@@ -33,9 +33,11 @@ using std::map;
 //#include <cmath>
 
 #include "TROOT.h"
+#include "TFile.h"
 #include "TRint.h"
 #include "TVector3.h"
 #include "TRandom.h"
+#include "TNtuple.h"
 #include "TRotation.h"
 #include "Math/Vector3D.h"
 using ROOT::Math::XYZVector;
@@ -88,9 +90,9 @@ int main(int argc, char *argv[])
   //int focus_option = 3; // focussing downstream cylindrical mirror
   
   
-  //int ioption = 1; // 1=cherenkov, 2=testbeam
+  int ioption = 1; // 1=cherenkov, 2=testbeam
   //int ioption = 3; // grid
-  int ioption =4;// line
+  //int ioption =4;// line
   
   int top_option = 0; // 0 with expansion volume, 1 without expansion volume
   // top_option=1 writes times versus x into the Screen.C file.
@@ -143,7 +145,7 @@ int main(int argc, char *argv[])
   // downstream mirror
   if (focus_option == 0 || focus_option == 1)
     {
-      sheet.Surface("side6")->SetReflectivity(PndDrcOptReflSilver());      
+      sheet.Surface("side6")->SetReflectivity(PndDrcOptReflPerfect());      
     }
 
   opt_system.AddDevice(sheet);
@@ -153,7 +155,7 @@ int main(int argc, char *argv[])
       PndDrcOptLens mirror(half_width,half_thick,10/2,9999,mirror_radius,0,-1); // spherical mirror
       mirror.SetOptMaterial(PndDrcOptMatLithotecQ0());
       mirror.SetName("mirror");
-      mirror.Surface("side6")->SetReflectivity(PndDrcOptReflSilver()); // the mirror
+      mirror.Surface("side6")->SetReflectivity(PndDrcOptReflPerfect()); // the mirror
       mirror.AddTransform(Transform3D(XYZVector(0,0, 2*half_length+10/2)));
       mirror.SetPrintColor(2);  
       opt_system.AddDevice(mirror);
@@ -164,7 +166,7 @@ int main(int argc, char *argv[])
       PndDrcOptCylLens mirror(half_thick,half_width,10/2,9999,mirror_radius);
       mirror.SetOptMaterial(PndDrcOptMatLithotecQ0());
       mirror.SetName("mirror");
-      mirror.Surface("side6")->SetReflectivity(PndDrcOptReflSilver()); // the mirror
+      mirror.Surface("side6")->SetReflectivity(PndDrcOptReflPerfect()); // the mirror
       mirror.AddTransform(Transform3D(XYZVector(0,0, 2*half_length+10/2)));
       mirror.AddTransform(Transform3D(RotationZ(-kPi/2)));
       mirror.SetPrintColor(2);  
@@ -281,7 +283,7 @@ int main(int argc, char *argv[])
   // enable geometry print into Geo.C
   //
   fstream geo;
-  geo.open("Geo.C",std::ios::out);
+  geo.open("GeoTOP3.C",std::ios::out);
   geo<<"{"<<endl;
   geo<<"    TCanvas *c1 = new TCanvas(\"c1\"); "<<endl;
   if ( ((TROOT*)gROOT)->GetVersionInt() < 51600)
@@ -301,7 +303,7 @@ int main(int argc, char *argv[])
   // .x Geo.C 
   // .x Screen.C
   // 
-  if (ioption==2) manager->Print(geo);
+  if (ioption==1) manager->Print(geo);
   //
   // the intention is to play around with routines.
   // there hast to come another geo output after propagation...
@@ -313,10 +315,38 @@ int main(int argc, char *argv[])
   XYZVector dir(0,1,1); 
   double   beta = 0.80;//0.684;
   bool photons_exist = false;
+
+  int p[20000];
+  for (int i=0; i<20000;i++) p[i]=0;
   
+  fstream in;
+  //in.open("debug.dat",std::ios::in);
+  in.open("test_simple_lens_sheet_isiderefl_eq10_x_lt200.dat",std::ios::in);
+  int itmp;
+  while(in)
+  {
+    in>>itmp;
+    p[itmp]=1;
+   }
+    
+
+
+
   if (ioption==1)
     {
-      photons_exist = manager->Cerenkov(pos,dir,beta,100000,1.e16,440,450); // generate photons
+      photons_exist = manager->Cerenkov(pos,dir,beta,10000); // generate photons
+
+      list<PndDrcPhoton> list_photon = manager->PhotonList();  // get list
+      list<PndDrcPhoton>::iterator iph;
+      itmp=0;
+      for(iph=list_photon.begin(); iph != list_photon.end(); ++iph) 
+	{
+	  itmp++;
+	  
+	  if (p[itmp]!=1) (*iph).SetPrintFlag(false);
+	  (*iph).SetListLimit(1000);
+	}
+      manager->SetPhotonList(list_photon,"sheet");
     }
   else if (ioption==3)
     {
@@ -374,7 +404,7 @@ int main(int argc, char *argv[])
       photons_exist=true;
       manager->SetPhotonList(list_photon,"sheet");
     }
-  if (ioption==4)  
+  else if (ioption==4)  
     {
       TRandom ran;
       list<PndDrcPhoton> list_photon;
@@ -448,6 +478,8 @@ int main(int argc, char *argv[])
   
   geo<<"}"<<endl;     // here it is...
 
+  //fstream out;
+  //out.open("debug.dat",std::ios::out);
   fstream scr;
   scr.open("ScreenTOP3.C",std::ios::out);
   scr<<"{"<<endl;
@@ -475,8 +507,9 @@ int main(int argc, char *argv[])
 
   list<PndDrcPhoton> list_photon = manager->PhotonList();  // get list
 
-  //fstream out;
-  //out.open("debug.dat",std::ios::out);
+  TFile *f = new TFile("test_simple_lens_sheet.root","RECREATE");
+  TNtuple *ntuple = new TNtuple("ntuple","test_simple_lens_sheet data","x:y:t:irefl:iside_refl");  
+
   
 
   //int icnt1=0;
@@ -485,18 +518,65 @@ int main(int argc, char *argv[])
   int icnt_flying   = 0;
   int icnt_lost     = 0;
   int icnt_absorbed = 0;
+  int cnt=0;
+  
   list<PndDrcPhoton>::iterator iph;
   for(iph=list_photon.begin(); iph != list_photon.end(); ++iph) 
     {
+      cnt++;
+      
       if      ((*iph).Fate()==Drc::kPhotMeasured) 
 	{
 	  icnt_measured++;
 	  double xx=(*iph).Position().X();
 	  double yy=(*iph).Position().Y();
 
-	  int irefl = (*iph).Reflections()-1; // -1 for mirror
-	  cout<<irefl<<endl;
+	  //int irefl = (*iph).Reflections()-1; // -1 for mirror
+	  //cout<<irefl<<endl;
 	  //irefl/=10;
+	  //irefl=irefl%10;
+	  int irefl=0,iside_refl=0;
+	  
+
+
+	  list<const PndDrcSurfAbs*> surf = (*iph).SurfaceList();
+	  list<const PndDrcSurfAbs*>::iterator isu;
+
+
+
+	  int down = 0;
+	  for(isu=surf.begin(); isu != surf.end(); ++isu) 
+	    {
+	      cout<<icnt_measured<<" "<<(*isu)->Name()<<" "<<endl;
+
+
+	      //if ((*isu)->Name()=="adown") down=1;
+	      if (/*down==1 &&*/
+	      ((*isu)->Name()=="side5" || 
+	       (*isu)->Name()=="side2" ||
+	       (*isu)->Name()=="side3" ||
+	       (*isu)->Name()=="side4")) 
+	      {
+		irefl ++;
+	      }
+	      
+
+	      if (/*down==1 &&*/
+		  (/*(*isu)->Name()=="aside1" ||*/ 
+		   (*isu)->Name()=="side3" ||
+		   (*isu)->Name()=="side5" /*||
+					      (*isu)->Name()=="aside4"*/)) 
+		{
+		  iside_refl++;
+		  /*if ((*isu)->Name()=="aside2" ||
+		    (*isu)->Name()=="aside3")*/
+		  //cout<<icnt_measured<<" "<<iside_refl<<" "<<(*isu)->Name()<<" "<<endl;
+		}
+	    }
+	  //irefl = iside_refl;
+	  
+	  //irefl=iside_refl;
+	  
 	  irefl=irefl%10;
 	  
 	  int icol=29;
@@ -522,6 +602,11 @@ int main(int argc, char *argv[])
 	  //<<");"<<endl;
 	  scr<<"    t->SetMarkerSize(0.5);"<<endl;
 	  scr<<"    t->Draw();"<<endl;
+	  cout<<irefl<<" "<<iside_refl<<endl;
+	  
+	    ntuple->Fill(xx,yy,(*iph).Time(),irefl,iside_refl);
+	    //if (iside_refl==10 && abs((*iph).Position().X())>200) out<<cnt<<endl;
+	    
 	}
       else if ((*iph).Fate()==Drc::kPhotFlying)   {icnt_flying++;}
       else if ((*iph).Fate()==Drc::kPhotAbsorbed) {icnt_absorbed++;}
@@ -538,6 +623,7 @@ int main(int argc, char *argv[])
     }
   //out.close();
   
+  f->Write();
 
   scr<<"}"<<endl;
   scr.close();
