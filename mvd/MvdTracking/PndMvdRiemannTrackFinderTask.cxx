@@ -143,13 +143,13 @@ void PndMvdRiemannTrackFinderTask::Exec(Option_t* opt)
   trackFinder.FindTracks();
 
 
-  std::cout << "Found Tracks: " << trackFinder.NTracks() << " in event no. " << fEventNr++ << std::endl;
-  std::cout << "----------------" << std::endl;
+  if (fVerbose > 0) std::cout << " -I- PndMvdRiemannTrackFinderTask::Exec : Found Tracks: " << trackFinder.NTracks() << " in event no. " << fEventNr++ << std::endl;
+  if (fVerbose > 0) std::cout << " -I- PndMvdRiemannTrackFinderTask::Exec : ----------------" << std::endl;
 
 
   for (int i = 0; i < trackFinder.NTracks(); i++){
 	  PndTrackCand* myCand = new ((*fTrackCandArray)[i])PndTrackCand(trackFinder.GetTrackCand(i));
-	  std::cout << "Track " << i << std::endl;
+	  if (fVerbose > 0) std::cout << "Track " << i << std::endl;
 	  myCand->CalcTimeStamp();
 	  if (fVerbose > 0)trackFinder.GetTrack(i).Print();
 	  //PndRiemannTrack myTrack = trackFinder.GetTrack(i);
