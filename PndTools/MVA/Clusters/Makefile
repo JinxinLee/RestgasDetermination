@@ -19,11 +19,15 @@ exampleCluster: % : %.cpp PndMvaCluster
 	$(CXX) $(CCFLAGS) $(INCLUDE) $(HDR) -c $< -o ../build/$@.o
 	@echo "Done building:" $@
 
-PndMvaSOMTrain:% : %.cpp
+PndSomNode:% : %.cpp
 	$(CXX) $(CCFLAGS) $(INCLUDE) $(HDR) -c $< -o ../build/$@.o
 	@echo "Done building:" $@
 
-somTrain: % : %.cpp PndMvaSOMTrain
+PndMvaSOMTrainer:% : %.cpp PndSomNode
+	$(CXX) $(CCFLAGS) $(INCLUDE) $(HDR) -c $< -o ../build/$@.o
+	@echo "Done building:" $@
+
+somTrain: % : %.cpp PndMvaSOMTrainer
 	$(CXX) $(CCFLAGS) $(INCLUDE) $(HDR) -c $< -o ../build/$@.o
 	@echo "Done building:" $@
 

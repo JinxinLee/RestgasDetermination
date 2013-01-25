@@ -166,8 +166,8 @@ examples: PndMvaUtil PndMvaDataSet PndMvaClassifier Classifiers
 	build/PndMvaTools.o -o build/bdtClassify
 
 # Build SOM train example
-	$(CXX) $(CCFLAGS) $(LIBS) build/PndMvaSOMTrain.o build/PndMvaTrainer.o build/PndMvaDataSet.o \
-	build/PndMvaVarPCATransform.o build/PndMvaUtil.o build/somTrain.o -o build/somTrain
+	$(CXX) $(CCFLAGS) $(LIBS) build/PndMvaSOMTrainer.o build/PndMvaTrainer.o build/PndMvaDataSet.o \
+	build/PndSomNode.o build/PndMvaVarPCATransform.o build/PndMvaUtil.o build/somTrain.o -o build/somTrain
 
 clean:
 	rm -f *~ *.o build/*
