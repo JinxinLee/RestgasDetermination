@@ -101,7 +101,6 @@ class PndTrkTracking : public FairTask
 	NRDIVCONFORMAL		= 10,
 	NUMBER_STRAWS		= 4542+1; // +1 is because the straw numbers
 					  // start at 1;
-	;
 
   bool
 	doMcComparison,
@@ -186,7 +185,6 @@ class PndTrkTracking : public FairTask
 	fnTrackCandHit[MAXTRACKSPEREVENT],
 	fTubeID[MAXSTTHITS];
 
-
   int
 	fNevents_to_plot,
 	istampa,
@@ -216,7 +214,7 @@ class PndTrkTracking : public FairTask
 	frefindexMvdStrip[MAXMVDSTRIPHITS],
 	fradiaConf[NRDIVCONFORMAL],
 	fR_MC[MAXMCTRACKS],
-	fSEMILENGTH_STRAIGHT,
+	SEMILENGTH_STRAIGHT,
 	fsigmaXMvdPixel[MAXMVDPIXELHITS],
 	fsigmaYMvdPixel[MAXMVDPIXELHITS],
 	fsigmaZMvdPixel[MAXMVDPIXELHITS],
@@ -228,7 +226,7 @@ class PndTrkTracking : public FairTask
 	fXMvdStrip[MAXMVDSTRIPHITS],
 	fYMvdPixel[MAXMVDPIXELHITS],
 	fYMvdStrip[MAXMVDSTRIPHITS],
-	fZCENTER_STRAIGHT,
+	ZCENTER_STRAIGHT,
 	fZMvdPixel[MAXMVDPIXELHITS],
 	fZMvdStrip[MAXMVDSTRIPHITS];
 
@@ -384,9 +382,8 @@ class PndTrkTracking : public FairTask
 	Short_t *ListMvdPixelHitsAssociatedToSttTrack,
 	Short_t *nMvdStripHitsAssociatedToSttTrack,
 	Short_t *ListMvdStripHitsAssociatedToSttTrack,
-	Short_t *nSttSkewHitsinTrack,
-	Short_t *ListSkewHitsinTrack,
-	Short_t *ListSkewHitsinTrackSolution,
+	Short_t *fnSttSkewHitsinTrack,
+	Short_t *fListSttSkewHitsinTrack,
 	Double_t *S,
 	Double_t *ZED,
 	Double_t *DriftRadius,
@@ -643,6 +640,25 @@ class PndTrkTracking : public FairTask
 	bool *status    // fit status; true = successful
 	  );
 
+  void StartFromSciTil(
+	Short_t * Charge,
+	Short_t * FiConformalIndex,
+	Double_t *Fi_final_helix_referenceframe,
+	Double_t *Fi_initial_helix_referenceframe,
+	Double_t * Fi_low_limit,
+	Double_t * Fi_up_limit,
+	Short_t HitsinBoxConformal[][NRDIVCONFORMAL][NFIDIVCONFORMAL],
+	Double_t info[][7],
+	Double_t infoparalConformal[][5],
+	Short_t nBoxConformal[][NFIDIVCONFORMAL],
+	Int_t nSttParHit,
+	Int_t &nSttTrackCand,
+	Short_t * RConformalIndex,
+	Double_t *trajectory_vertex,
+	Double_t *UU,
+	Double_t *VV
+	);
+
   void SeparateInnerOuterParallel(
 
 	// input
@@ -668,30 +684,6 @@ class PndTrkTracking : public FairTask
 	Short_t *ListOuterHitsRight
 	);
 
-  void StartFromSciTil(
-	Short_t * Charge,
-	Short_t * FiConformalIndex,
-	Double_t *Fi_final_helix_referenceframe,
-	Double_t *Fi_initial_helix_referenceframe,
-	Double_t * Fi_low_limit,
-	Double_t * Fi_up_limit,
-	Short_t HitsinBoxConformal[][NRDIVCONFORMAL][NFIDIVCONFORMAL],
-	Double_t info[][7],
-	Double_t infoparalConformal[][5],
-	Short_t nBoxConformal[][NFIDIVCONFORMAL],
-	Int_t nSttParHit,
-	Int_t &nSttTrackCand,
-	Short_t * RConformalIndex,
-	Double_t *trajectory_vertex,
-	Double_t *UU,
-	Double_t *VV
-	);
-
-
-  void StoreMvdHitsS(
-	Short_t nTotalCandidates
-	);
-
   bool SttParalCleanup(
 	Double_t GAP,
 	Double_t Oxx,
@@ -710,6 +702,10 @@ class PndTrkTracking : public FairTask
 	Double_t RStrawDetMax
 	);
 
+
+  void StoreMvdHitsS(
+	Short_t nTotalCandidates
+	);
 
   bool SttSkewCleanup(
 	Double_t GAP,
