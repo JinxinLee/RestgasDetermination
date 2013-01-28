@@ -71,9 +71,9 @@ class PndFtofHitProducerIdeal : public FairTask
   void Reset();
   
   void ProduceHits();
-TGeoHMatrix GetTransformation (std::string detName) const;
-void GetLocalHitPoints(PndFtofPoint* myPoint, FairGeoVector& myHitIn,FairGeoVector& myInL);
-TVector3 GetSensorDimensions(std::string detName) const;
+/* TGeoHMatrix GetTransformation (std::string detName) const; */
+/* void GetLocalHitPoints(PndFtofPoint* myPoint, FairGeoVector& myHitIn,FairGeoVector& myInL); */
+/* TVector3 GetSensorDimensions(std::string detName) const; */
   ClassDef(PndFtofHitProducerIdeal,3);
 
 };

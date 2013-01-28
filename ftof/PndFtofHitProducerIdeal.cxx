@@ -11,6 +11,7 @@
 #include "PndFtofHitProducerIdeal.h"
 #include "PndFtofHit.h"
 #include "TGeoBBox.h"
+#include "TGeoBBox.h"
 //#include "PndFtofHitInfo.h"
 #include "PndFtofPoint.h"
 #include "FairRunAna.h"
@@ -73,12 +74,6 @@ InitStatus PndFtofHitProducerIdeal::Init()
   fHitArray = new TClonesArray("PndFtofHit");
   ioman->Register("FtofHit", "Ftof", fHitArray, kTRUE);
 
-  //std::cout << "-I- PndFtofHitProducerIdeal: Intialisation successfull" << std::endl;
-  //return kSUCCESS;
-
-
-
-
   std::cout << "-I- PndFtofHitProducerIdeal: Intialisation successfull" << std::endl;
   return kSUCCESS;
 }
@@ -133,7 +128,7 @@ void PndFtofHitProducerIdeal::Exec(Option_t* opt)
 
       // MCTrack ID
       trackID = point->GetTrackID();
-
+      /* // original part commented out because not working properly
       FairGeoVector posCInL, posCOut, meanPos, meanPosL;
       Double_t ZLoc;Double_t Ztdc[3];
       Double_t DistZ[3];
@@ -206,7 +201,7 @@ void PndFtofHitProducerIdeal::Exec(Option_t* opt)
       TVector3 dpos; 
 
       dpos.SetXYZ(3.,0.25,fabs(Ztdc[2]-point->GetZin()));
-
+      
       // coord. of the center of the slab in lab.c.s
       // z coord. determined by measuring t1-t2
       // at each side of the bar
@@ -214,13 +209,27 @@ void PndFtofHitProducerIdeal::Exec(Option_t* opt)
 			posCInL.getY(), 
 			Ztdc[2]);
       //point->Position(pos);
-   
+      */  // end of old part
+
+      // Stefano's part
+      TVector3 position(0,0,0), dpos(0,0,0), fPosHit(0,0,0), fDPosHit(0,0,0);
+      TGeoNode *ftofNode = (TGeoNode*)gGeoManager->FindNode(point->GetX(), point->GetY(), point->GetZ()); 
+
+      //retrieving size of the scintillator rod
+      fDPosHit[0] = ((TGeoBBox*)ftofNode->GetVolume()->GetShape())->GetDX();
+      fDPosHit[1] = ((TGeoBBox*)ftofNode->GetVolume()->GetShape())->GetDY();
+      fDPosHit[2] = ((TGeoBBox*)ftofNode->GetVolume()->GetShape())->GetDZ();
       
-      time = point->GetTime();
+      // retrieving center of the scintillator rod
+      TGeoMatrix *ftofMat = (TGeoMatrix*)gGeoManager->GetCurrentMatrix();
+      const Double_t *ftofPos = ftofMat->GetTranslation();
+      fPosHit.SetXYZ(ftofPos[0], ftofPos[1], ftofPos[2]);
       
-      t1 = 0.080;//100 ps time resolution
-      smear(time,t1);
- 
+      //Filling values     
+      position.SetXYZ(ftofPos[0],  gRandom->Gaus(point->GetY(), 10.),  ftofPos[2]);  // smearing of 10 cm of McPoint
+      dpos.    SetXYZ(fDPosHit[0],                              10.,  fDPosHit[2]);
+      time = gRandom->Gaus(point->GetTime(), 0.1); //100 ps time resolution
+      
       // Create new hit
       new ((*fHitArray)[iPoint]) PndFtofHit(trackID, detID, 
 					   point->GetDetName(),time, t1, 
@@ -241,6 +250,7 @@ void PndFtofHitProducerIdeal::Exec(Option_t* opt)
   
 
 }
+/* // useless
 // -------------------------------------------------------------------------
 void PndFtofHitProducerIdeal::smear(Double_t& time, Double_t& fdt)
 {
@@ -336,5 +346,5 @@ TVector3 PndFtofHitProducerIdeal::GetSensorDimensions(std::string detName) const
  	 
  	  return result;
  	}
-
+*/
 ClassImp(PndFtofHitProducerIdeal)

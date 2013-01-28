@@ -214,9 +214,7 @@ Bool_t PndFtof::ProcessHits(FairVolume* vol)
 	       fdist,fPLin,fPLout);
 
         PndStack* stack = (PndStack*) gMC->GetStack();
-	// that has to be replaced by 
-	// the corresponding KFTOF
-        stack->AddPoint(kTOF);
+        stack->AddPoint(kFTOF);
 	
         ResetParameters();
       }
