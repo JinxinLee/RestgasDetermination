@@ -41,7 +41,7 @@ using std::string;
 PndFts::PndFts()
   : fTrackID(0), fVolumeID(0), fPos(0,0,0,0), fPosIn(0,0,0,0), fPosOut(0,0,0,0), fPosInLocal(0,0,0,0), fPosOutLocal(0,0,0,0), 
     fMomIn(0,0,0,0), fMomOut(0,0,0,0), fTime(0), fLength(0), fELoss(0), fMass(0), fIsInitialized(kFALSE), fPosIndex(0),
-    fFtsCollection(0), fpostot(0,0,0,0), fpostotin(0,0,0,0), fpostotout(0,0,0,0), fPassNodes(new TObjArray()), valid(kFALSE), fGeoType(0)
+    fFtsCollection(0), fpostot(0,0,0,0), fpostotin(0,0,0,0), fpostotout(0,0,0,0), fPassNodes(), valid(kFALSE), fGeoType(0)
 {
     fFtsCollection = new TClonesArray("PndFtsPoint");
     fVerboseLevel = 0;
@@ -54,7 +54,7 @@ PndFts::PndFts()
 PndFts::PndFts(const char* name, Bool_t active)
   : FairDetector(name, active), fTrackID(0), fVolumeID(0), fPos(0,0,0,0), fPosIn(0,0,0,0), fPosOut(0,0,0,0), fPosInLocal(0,0,0,0), fPosOutLocal(0,0,0,0), 
     fMomIn(0,0,0,0), fMomOut(0,0,0,0), fTime(0), fLength(0), fELoss(0), fMass(0), fIsInitialized(kFALSE), fPosIndex(0),
-    fFtsCollection(0), fpostot(0,0,0,0), fpostotin(0,0,0,0), fpostotout(0,0,0,0), fPassNodes(new TObjArray()), valid(kFALSE), fGeoType(0)
+    fFtsCollection(0), fpostot(0,0,0,0), fpostotin(0,0,0,0), fpostotout(0,0,0,0), fPassNodes(), valid(kFALSE), fGeoType(0)
 {
   fFtsCollection = new TClonesArray("PndFtsPoint");
   fVerboseLevel = 0;
@@ -267,17 +267,17 @@ Bool_t  PndFts::ProcessHits(FairVolume* vol)
 
 
          //CHECK map creator-------------------------------------------------
-         PndFtsMapCreator *mapper = new PndFtsMapCreator(fGeoType);
+         //PndFtsMapCreator *mapper = new PndFtsMapCreator(fGeoType);
 	  Int_t tubeID=0;
 	 //testTubeID=tube number as in the geometry file....
 	 //we need to calculate the real number in order to have a different
 	 //number for each tube (also for up and down short tubes)
-	 Int_t testTubeID = mapper->GetTubeIDFromPath(gMC->CurrentVolPath());
-	 Int_t chamberID=mapper->GetChamberIDFromPath(gMC->CurrentVolPath());
-	 Int_t layerID=mapper->GetLayerID(chamberID,testTubeID,gMC->CurrentVolPath());
+	 Int_t testTubeID = fMapper->GetTubeIDFromPath(gMC->CurrentVolPath());
+	 Int_t chamberID=fMapper->GetChamberIDFromPath(gMC->CurrentVolPath());
+	 Int_t layerID=fMapper->GetLayerID(chamberID,testTubeID,gMC->CurrentVolPath());
 	 //std::cout<<"LAYERID==========="<<layerID<<std::endl;
 	 //tubeID=at each tube corresponds only one id number.....
-	 tubeID = mapper->GetTubeIDTot(chamberID,layerID,testTubeID,gMC->CurrentVolPath());
+	 tubeID = fMapper->GetTubeIDTot(chamberID,layerID,testTubeID,gMC->CurrentVolPath());
 	 //std::cout<<"PndFts.cxx. chamber, tube ID = "<<chamberID<<" "<<tubeID<<" "<<testTubeID<<std::endl;
 	 ////----------------------------------------------------------------
 
@@ -454,7 +454,9 @@ void PndFts::ConstructGeometry()
   par->setChanged();
   par->setInputVersion(fRun->GetRunId(),1);
   ProcessNodes ( volList );
-  
+
+  fMapper = new PndFtsMapCreator(fGeoType);
+ 
 }
 // -------------------------------------------------------------------------
 

@@ -14,6 +14,7 @@
 #include "PndGeoFtsPar.h"
 #include "FairRun.h"  
 #include "PndFtsPoint.h"
+#include "PndFtsMapCreator.h"
 
 #include <string>
 #include <sstream>
@@ -134,7 +135,7 @@ class PndFts : public FairDetector
   Bool_t valid;
   Int_t fGeoType;
 
-
+  PndFtsMapCreator *fMapper; //!
 
   /** Private method AddHit
    **
