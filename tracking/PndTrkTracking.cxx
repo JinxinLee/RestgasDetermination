@@ -12,7 +12,6 @@
 #include "PndTrkMergeSort.h"
 #include "PndTrkPlotMacros.h"
 #include "PndTrkPrintouts.h"
-
 #include "PndSttHit.h"
 #include "PndSciTHit.h"
 #include "PndSttPoint.h"
