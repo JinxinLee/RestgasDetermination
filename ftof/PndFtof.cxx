@@ -53,7 +53,10 @@ using std::ostringstream;
 
 // -----   Default constructor   -------------------------------------------
 PndFtof::PndFtof()
-  : FairDetector(), fFtofCollection(0)
+  : FairDetector(), fFtofCollection(0),
+    fListOfSensitives(), par(), fTrackID(-1),  fVolumeID(-1), fEventID(-1), fPosIn(), fMomIn(), fPosOut(), fMomOut(),
+    fPLout(0), fPLin(0), fTime(0),  fLength(0), fELoss(0), fPosIndex(-1), fpdgCode(-1), 
+    SiId(0), CId(0), alId(0), beId(0), CpipeId(0), fcharge(0), fmass(0), fdist(0)
 {
   fFtofCollection        = new TClonesArray("PndFtofPoint");
   fVerboseLevel = 0;
@@ -66,7 +69,10 @@ PndFtof::PndFtof()
 
 // -----   Standard constructor   ------------------------------------------
 PndFtof::PndFtof(const char* name, Bool_t active)
-  : FairDetector(name, active), fFtofCollection(0)
+  : FairDetector(name, active), fFtofCollection(0),
+    fListOfSensitives(), par(), fTrackID(-1),  fVolumeID(-1), fEventID(-1), fPosIn(), fMomIn(), fPosOut(), fMomOut(),
+    fPLout(0), fPLin(0), fTime(0),  fLength(0), fELoss(0), fPosIndex(-1), fpdgCode(-1), 
+    SiId(0), CId(0), alId(0), beId(0), CpipeId(0), fcharge(0), fmass(0), fdist(0)
 {
     fFtofCollection        = new TClonesArray("PndFtofPoint");
     fVerboseLevel = 0;
@@ -85,9 +91,6 @@ PndFtof::~PndFtof() {
     fFtofCollection->Delete();
     delete fFtofCollection;
   }
-
-
- 
   
 }
 // -------------------------------------------------------------------------
@@ -112,8 +115,6 @@ void PndFtof::Initialize() {
     std::cout<<" -E- No gGeoManager in PndFtof::Initialize()!"<<std::endl;
     abort();
   }
- 
-  
   
 }
 // -------------------------------------------------------------------------
@@ -128,20 +129,10 @@ void PndFtof::BeginEvent(){
 
 Bool_t PndFtof::ProcessHits(FairVolume* vol) 
 {
+  if (gMC->TrackCharge()==0) return kTRUE; // skip neutrals
   
-  TString nam2 = gMC->CurrentVolName();   
-	 
-
-  Double_t beta, gamma;	TString nam;
-  ostringstream FullName,matName;
- 
-  Int_t medId =  gMC->CurrentMedium();
   TVector3 radt;
   
-
-  //if (nam2.Contains("Ftof") )cout<<"Energy Loss  "<<endl;
-  
-
     if ( gMC->IsTrackEntering() ) 
       {
 	fELoss  = 0.;
@@ -153,7 +144,7 @@ Bool_t PndFtof::ProcessHits(FairVolume* vol)
 	fpdgCode = gMC->TrackPid(); 
 	gMC->TrackPosition(fPosIn);
 	gMC->TrackMomentum(fMomIn);
-
+	fTrackID  = gMC->GetStack()->GetCurrentTrackNumber();
       }
 
     // Sum energy loss for all steps in the active volume
@@ -165,63 +156,41 @@ Bool_t PndFtof::ProcessHits(FairVolume* vol)
     TLorentzVector PL; 
     gMC->TrackMomentum(PL);
 	 
-	 if ( (gMC->IsTrackExiting()    ||
-	       gMC->IsTrackStop()       ||
-	       gMC->IsTrackDisappeared() ))//&& gMC->TrackCharge()  ) 
+    if ( (gMC->IsTrackExiting()    ||
+	  gMC->IsTrackStop()       ||
+	  gMC->IsTrackDisappeared() )) 
       {
-	fTrackID  = gMC->GetStack()->GetCurrentTrackNumber();
-	 Int_t cp=-1;
-	 //TString nam2 = gMC->CurrentVolOffName(1);  
-	  gMC->CurrentVolOffID(1,cp) ;
-	  
-
-	  fVolumeID = vol->getMCid();
-	 
-	 
-	  
-	  //Int_t cp=-1;
-	  Int_t fVolid = gMC->CurrentVolID(cp);
-	  Int_t nSiL = -1;
-	  
-	 
-	 
-	  FullName <<gMC->CurrentVolPath();
- 
-	 
-	  nam = FullName.str();
-	  
-	  
-	   gMC->TrackPosition(fPosOut);
-	  gMC->TrackMomentum(fMomOut);
-
-	 
-
-	if (fELoss == 0. ) return kFALSE;
-    
-	radt= fPosOut.Vect();
-	fdist=radt.Perp();
-
-	fPLin =fMomIn.P();
-	
-	fPLout = fMomOut.P();
-
-	AddHit(fTrackID, fEventID,fVolumeID, FullName.str(),
-	       TVector3(fPosIn.X(),   fPosIn.Y(),   fPosIn.Z()),
-	       TVector3(fMomIn.Px(),  fMomIn.Py(),  fMomIn.Pz()),
-	       TVector3(fPosOut.X(),  fPosOut.Y(),  fPosOut.Z()),
-	       TVector3(fMomOut.Px(), fMomOut.Py(), fMomOut.Pz()),
-	      fTime, fLength,fELoss,fcharge,fmass,fpdgCode,
-	       fdist,fPLin,fPLout);
-
-        PndStack* stack = (PndStack*) gMC->GetStack();
-        stack->AddPoint(kFTOF);
+	Int_t TrNo=gMC->GetStack()->GetCurrentTrackNumber();
+	if ( (TrNo == fTrackID) && (fELoss >0.) )
+	  {
+	    Int_t cp=-1;
+	    gMC->CurrentVolOffID(1,cp) ;
+	    fVolumeID = vol->getMCid();
+	    Int_t fVolid = gMC->CurrentVolID(cp);
+	    TString FullName = gMC->CurrentVolPath();
+	    
+	    gMC->TrackPosition(fPosOut);
+	    gMC->TrackMomentum(fMomOut);
+	    
+	    radt= fPosOut.Vect();
+	    fdist=radt.Perp();
+	    fPLin =fMomIn.P();
+	    fPLout = fMomOut.P();
+	    
+	    AddHit(fTrackID, fEventID,fVolumeID, FullName,
+		   TVector3(fPosIn.X(),   fPosIn.Y(),   fPosIn.Z()),
+		   TVector3(fMomIn.Px(),  fMomIn.Py(),  fMomIn.Pz()),
+		   TVector3(fPosOut.X(),  fPosOut.Y(),  fPosOut.Z()),
+		   TVector3(fMomOut.Px(), fMomOut.Py(), fMomOut.Pz()),
+		   fTime, fLength, fELoss, fcharge, fmass, fpdgCode,
+		   fdist,fPLin,fPLout);
+	    
+	    PndStack* stack = (PndStack*) gMC->GetStack();
+	    stack->AddPoint(kFTOF);
+	  }
 	
         ResetParameters();
       }
-	 
-	 
-
-    //return kTRUE;
   
    return kTRUE;
 
@@ -271,9 +240,8 @@ void PndFtof::Print() const {
 
 // -----   Public method Reset   ----------------------------------------------
 void PndFtof::Reset() {
-   fFtofCollection->Clear();
-
- 
+  if (fFtofCollection) fFtofCollection->Delete();
+  
   fPosIndex = 0;
 }
 // ----------------------------------------------------------------------------
@@ -469,7 +437,7 @@ PndFtofPoint* PndFtof::AddHit(Int_t trackID, Int_t evtID, Int_t detID, TString d
 			    TVector3 pos, TVector3 mom,
 			    TVector3 posout, 
 			    TVector3 momout,
-			   Double_t time,
+			    Double_t time,
 			    Double_t length, 
 			    Double_t eLoss,
 			    Double_t charge, Double_t mass,
@@ -480,24 +448,9 @@ PndFtofPoint* PndFtof::AddHit(Int_t trackID, Int_t evtID, Int_t detID, TString d
   Int_t size = clref.GetEntriesFast();
   return new(clref[size]) PndFtofPoint(trackID, evtID,detID, detName,pos, mom, 
 				      posout, momout,
-				      time, length, eLoss,charge, 
+				      fTime, length, eLoss,charge, 
 				      mass,pdgCode,
 				      dist,PLin,PLout);
  }
-
-
-
-// ----
-
-
-
-
-
-// ----
-
-
-
-// ----
-
 
 ClassImp(PndFtof)

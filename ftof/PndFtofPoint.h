@@ -59,8 +59,6 @@ class PndFtofPoint : public FairMCPoint
   
 
   /** Accessors **/
-  //Int_t    GetTrackID()    const { return fTrackID; }; 
-  Int_t    GetEventID()    const { return fEventID; };
   Int_t    GetVolumeID() const { return fVolumeID; };
   Double_t GetXin()          const { return fXin; };
   Double_t GetYin()          const { return fYin; };
@@ -85,9 +83,6 @@ class PndFtofPoint : public FairMCPoint
   
   TString GetDetName() const { return fDetName;};
   Double_t GetMass() const { return fmass; };
-  //Double_t GetTime()       const { return fTime; };
-  // Double_t GetLength()     const { return fLength; };
-  //Double_t GetEnergyLoss() const { return fELoss; };
   
   void PositionIn(TVector3& pos)   { pos.SetXYZ(fXin, fYin, fZin); };
   void MomentumIn(TVector3& mom)   { mom.SetXYZ(fPxin, fPyin, fPzin); };
@@ -99,41 +94,29 @@ class PndFtofPoint : public FairMCPoint
  
   
   /** Modifiers **/
-  //void SetTrackID(Int_t id)          { fTrackID    = id; } ;
-  void SetEventID(Int_t id)          { fEventID    = id; };
-  //void SetTime(Double_t tof)        { fTime       = tof; };
-  //void SetLength(Double_t length)    { fLength     = length; };
-  //void SetEnergyLoss(Double_t eLoss) { fELoss      = eLoss; };
   
   void SetPositionIn(const TVector3& pos);
   void SetMomentumIn(const TVector3& mom);
   void SetPositionOut(const TVector3& pos);
   void SetMomentumOut(const TVector3& mom);
-
- 
-
-   
+  
    
   /** Output to screen **/
   virtual void Print(const Option_t* opt) const;
 
 
  protected:
-  Int_t fEventID;               // Event ID
- 
-  Double_t fPLin, fPLout;    //  momentum
-  Int_t fTrackID ; 
-  Double_t  fTime , fLength ,fELoss ,fmass,fcharge;
   
-  Double_t  fXin, fYin, fZin;
-  Double_t  fPxin,fPyin,fPzin;
-  Double_t  fXout, fYout, fZout;
-  Double_t  fPxout,fPyout,fPzout, fdist;
+  Double32_t fPLin, fPLout;    //  momentum
+  Double32_t  fmass, fcharge;
+  Double32_t  fXin, fYin, fZin;
+  Double32_t  fPxin,fPyin,fPzin;
+  Double32_t  fXout, fYout, fZout;
+  Double32_t  fPxout,fPyout,fPzout, fdist;
  
   TString fDetName;
   
   Int_t fVolumeID,fpdgCode;
-  
   
   ClassDef(PndFtofPoint,1)
 
