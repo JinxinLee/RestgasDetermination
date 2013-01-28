@@ -1534,23 +1534,20 @@ InitStatus PndBarrelTrackFinder::Init() {
   fDetName[0] = "MVD Pixel";
   fDetName[1] = "MVD Strip";
   fDetName[2] = "STT";
-  fDetName[3] = "TPC";
-  fDetName[4] = "GEM";
+  fDetName[3] = "GEM";
 
   fHitArrayName[0] = "MVDHitsPixel";
   fHitArrayName[1] = "MVDHitsStrip";
   fHitArrayName[2] = "STTHit";
-  fHitArrayName[3] = "TPCHit";
-  fHitArrayName[4] = "GEMHit";
+  fHitArrayName[3] = "GEMHit";
 
   fDetType[0] = kMVDHitsPixel;// FIXME: Use FairRootManager::Instance()->GetBranchId()
   fDetType[1] = kMVDHitsStrip;// FIXME: Use FairRootManager::Instance()->GetBranchId()
   fDetType[2] = kSttHit;
-  fDetType[3] = kTpcCluster;
-  fDetType[4] = kGemHit;
+  fDetType[3] = kGemHit;
 
 
-  for ( Int_t idet = 0 ; idet < 5 ; idet++ ) {
+  for ( Int_t idet = 0 ; idet < 4 ; idet++ ) {
     if ( fIncludeDet[idet] == kTRUE ) {
       fHitArray[idet] = (TClonesArray*) ioman->GetObject(fHitArrayName[idet].Data());
       
@@ -1571,7 +1568,7 @@ InitStatus PndBarrelTrackFinder::Init() {
 
   std::cout << "-I- " << GetName() << ": Initialization successfull" << std::endl;
   std::cout << "-I- " << GetName() << ": Looking for tracks in " << flush;
-  for ( Int_t idet = 0 ; idet < 5 ; idet++ ) {
+  for ( Int_t idet = 0 ; idet < 4 ; idet++ ) {
     if ( fIncludeDet[idet] == kFALSE ) continue;
     cout << fDetName[idet].Data() << ", ";
   }

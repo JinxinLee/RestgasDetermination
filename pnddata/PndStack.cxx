@@ -216,7 +216,7 @@ void PndStack::FillTrackArray() {
 	new( (*fTracks)[fNTracks]) PndMCTrack(GetParticle(iPart));
       fIndexMap[iPart] = fNTracks;
       // --> Set the number of points in the detectors for this track
-      for (Int_t iDet=kDCH; iDet<=kHYP; iDet++) {
+      for (Int_t iDet=kRICH; iDet<=kHYP; iDet++) {
 	pair<Int_t, Int_t> a(iPart, iDet);
 	track->SetNPoints(iDet, fPointsMap[a]);
       }
@@ -470,7 +470,7 @@ void PndStack::SelectTracks() {
     if(eKin < 0.0) eKin=0.0; // sometimes due to different PDG masses between ROOT and G4!!!!!!
     // --> Calculate number of points
     Int_t nPoints = 0;
-    for (Int_t iDet=kDCH; iDet<=kHYP; iDet++) {
+    for (Int_t iDet=kRICH; iDet<=kHYP; iDet++) {
       pair<Int_t, Int_t> a(i, iDet);
       if ( fPointsMap.find(a) != fPointsMap.end() )
 	nPoints += fPointsMap[a];

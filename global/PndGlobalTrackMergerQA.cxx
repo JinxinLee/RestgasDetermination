@@ -181,9 +181,7 @@ void PndGlobalTrackMergerQA::Exec(Option_t* opt) {
 
     if ( mcTrack->GetNPoints(kMVD) +
 	 mcTrack->GetNPoints(kSTT) +
-	 mcTrack->GetNPoints(kTPC) +
-	 mcTrack->GetNPoints(kGEM) +
-	 mcTrack->GetNPoints(kDCH) < 3 )
+	 mcTrack->GetNPoints(kGEM) < 3 )
       continue;
 
     TVector3 mcVertex = mcTrack->GetStartVertex();

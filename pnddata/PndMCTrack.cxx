@@ -121,10 +121,10 @@ Int_t  PndMCTrack::GetNPoints(DetectorId detId) const {
   if      ( detId == kDRC ) return ( (fPoints  & (3 <<  0) ) >>  0 );
   else if ( detId == kMDT ) return ( (fPoints  & (3 <<  2) ) >>  2 );
   else if ( detId == kMVD ) return ( (fPoints  & (3 <<  4) ) >>  4 );
-  else if ( detId == kDCH ) return ( (fPoints  & (3 <<  6) ) >>  6 );
+  else if ( detId == kRICH) return ( (fPoints  & (3 <<  6) ) >>  6 );
   else if ( detId == kEMC ) return ( (fPoints  & (3 <<  8) ) >>  8 ); 
   else if ( detId == kSTT ) return ( (fPoints  & (3 << 10) ) >> 10 );
-  else if ( detId == kTPC ) return ( (fPoints  & (3 << 12) ) >> 12 );
+  else if ( detId == kFTOF) return ( (fPoints  & (3 << 12) ) >> 12 );
   else if ( detId == kTOF ) return ( (fPoints  & (3 << 14) ) >> 14 );
   else if ( detId == kGEM ) return ( (fPoints  & (3 << 16) ) >> 16 );
   else if ( detId == kDSK ) return ( (fPoints  & (3 << 18) ) >> 18 );
@@ -160,7 +160,7 @@ void PndMCTrack::SetNPoints(Int_t iDet, Int_t  nPoints) {
     fPoints = ( fPoints & ( ~ (  3 << 4 ) ) )  |  ( nPoints <<  4 );
   }
 
-  else if ( iDet == kDCH ) {
+  else if ( iDet == kRICH ) {
     if      ( nPoints < 0 ) nPoints = 0;
     else if ( nPoints > 3 ) nPoints = 3;
     fPoints = ( fPoints & ( ~ ( 3 <<  6 ) ) )  |  ( nPoints <<  6);
@@ -178,7 +178,7 @@ void PndMCTrack::SetNPoints(Int_t iDet, Int_t  nPoints) {
     fPoints = ( fPoints & ( ~ ( 3 << 10 ) ) )  |  ( nPoints << 10 );
   }
 
-  else if ( iDet == kTPC ) {
+  else if ( iDet == kFTOF ) {
     if      ( nPoints < 0 ) nPoints = 0;
     else if ( nPoints > 3 ) nPoints = 3;
     fPoints = ( fPoints & ( ~ ( 3 << 12 ) ) )  |  ( nPoints << 12 );
