@@ -42,10 +42,10 @@
 
   
   FairDetector *SciT = new PndSciT("SCIT",kTRUE);
-  SciT->SetGeometryFileName("barrel-SciTil_18122012.root");//SciTil_Barrel_woPCB.root");
+  SciT->SetGeometryFileName("BarrelScitil_Copy.root");//barrel-SciTil_18122012.root");//SciTil_Barrel_woPCB.root");
   fRun->AddModule(SciT);
  // 
- PndDrc *Drc = new PndDrc("DIRC", kTRUE);
+   PndDrc *Drc = new PndDrc("DIRC", kTRUE);
   Drc->SetRunCherenkov(kTRUE); // for fast sim Cherenkov -> kFALSE
   // set reflectivity for the mirror at the bar end, in case of kFALSE reflectivity = 1 = const.
   Drc->SetMirrorReal(kTRUE);  
@@ -56,12 +56,13 @@
   // put the geometry file you want into the next line:  
   Drc->SetGeometryFileName("dirc_l0_p0_updated.root"); 
   fRun->AddModule(Drc);
-   
+  
  PndEmc *Emc = new PndEmc("EMC",kTRUE);
   Emc->SetGeometryVersion(1);
   // See PndEmc::SetGeometryVersion() for available geometries and add there new one if necessary
   Emc->SetStorageOfData(kTRUE);
   fRun->AddModule(Emc);
+  
 
   // Create and Set Event Generator
   //-------------------------------
