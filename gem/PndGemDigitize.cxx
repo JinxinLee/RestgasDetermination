@@ -152,7 +152,7 @@ void PndGemDigitize::Exec(Option_t* opt) {
   cout << "--- has " << fDigis->GetEntriesFast() << " digis made from " << fPoints->GetEntriesFast() << " points" << endl;
   cout << "---------------> Put them in output buffer" << endl;
   for ( Int_t idigi = 0 ; idigi < fDigis->GetEntriesFast() ; idigi++ ) {
-    adigi = dynamic_cast<PndGemDigi*>(fDigis->At(idigi));
+    adigi = new PndGemDigi(*(dynamic_cast<PndGemDigi*>(fDigis->At(idigi))));
     adigi->SetTimeStamp(adigi->GetTimeStamp()+EventTime);
     fDataBuffer->FillNewData(adigi,adigi->GetTimeStamp()+EventTime,10.);
   }
@@ -518,7 +518,7 @@ InitStatus PndGemDigitize::Init() {
 
   // Register output array StsDigi
   fDigis = new TClonesArray("PndGemDigi",10000);
-  ioman->Register("GEMDigiNormal", "Digital response in GEM", fDigis, kTRUE);
+//  ioman->Register("GEMDigiNormal", "Digital response in GEM", fDigis, kTRUE);
 
   // Register output buffer
   fDataBuffer = new PndGemDigiWriteoutBuffer("GEMDigi", "GEM", kTRUE);
@@ -554,14 +554,20 @@ InitStatus PndGemDigitize::ReInit() {
 void PndGemDigitize::Reset() {
   fNPoints = fNFailed = fNOutside = fNMulti = fNDigis = 0;
   fChannelMap.clear();
+
+	std::cout << "-I- PndGemDigitize::Reset before" << std::endl;
   if ( fDigis ) fDigis->Clear();
+
+	std::cout << "-I- PndGemDigitize::Reset after" << std::endl;
   if ( fDigiMatches ) fDigiMatches->Clear();
 }
 // -------------------------------------------------------------------------
 
 // -----   Public method Finish   ------------------------------------------
 void PndGemDigitize::Finish() {
+	std::cout << "-I- PndGemDigitize Finish before" << std::endl;
   if ( fDigis ) fDigis->Clear();
+	std::cout << "-I- PndGemDigitize Finish after" << std::endl;
 
   cout << "-------------------- " << fName.Data() << " : Summary ------------------------" << endl;
   cout << " Events:        " << setw(10) << fTNofEvents << endl;
