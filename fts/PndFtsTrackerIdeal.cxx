@@ -223,7 +223,7 @@ void PndFtsTrackerIdeal::Exec(Option_t * option)
     else charge = 1;
     tcand->setMcTrackId(trackID);
     // prepare track parameters
-    firstHit[trackID]->Position(svtx); // set position to first hit
+    firstPoint[trackID]->Position(svtx); // set position to first hit
     SmearFWD(svtx, fVtxSigma);
     firstPoint[trackID]->Momentum(smom);
     if (fRelative) fMomSigma=fDPoP*smom;
@@ -233,7 +233,7 @@ void PndFtsTrackerIdeal::Exec(Option_t * option)
                                               charge, svtx,
                                               TVector3(1.,0.,0.), TVector3(0.,1.,0.));					 
         
-    lastHit[trackID]->Position(svtx);
+    lastPoint[trackID]->Position(svtx);
     SmearFWD(svtx, fVtxSigma);
     lastPoint[trackID]->Momentum(smom);
     SmearFWD(smom, fMomSigma);
