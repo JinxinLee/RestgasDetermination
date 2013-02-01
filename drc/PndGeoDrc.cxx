@@ -4,6 +4,7 @@
 // Class for geometry of DRC (PandaRoot general case)
 //
 // Created 13/11/07 by A. Cecchi, Ferrara University 
+// Modified by M.Patsyuk in 2010-2013 m.patsyuk@gsi.de
 //
 /////////////////////////////////////////////////////////////
 
@@ -28,8 +29,8 @@ PndGeoDrc::PndGeoDrc() {
   fGlueLayer	= 0.0025; // [cm]
   fGreaseLayer  = 0.1; // [cm] 
 
-  fRadius       = 50.;	      // [cm] Barrel radius
-  fBarHalfThick = 1.7/2.0;//1.7/2.0;    // [cm] bar half thickness
+  fRadius       = 47.6;//50.;	      // [cm] Barrel radius
+  fBarHalfThick = 1.7/2.0;    // [cm] bar half thickness
   fBarBoxZDown  = 130.0;      // [cm] Downstream coordinate of radiator barrel
   fBarBoxZUp    =-120.0;      // [cm] Upstream coordinate of radiator barrel  
   fBarNum       = 5;          // Number of bars within barbox.
@@ -45,7 +46,7 @@ PndGeoDrc::PndGeoDrc() {
   fEVlength     = 30.;        // [cm] Length of expansion volume
   fEVdrop	= 1.;	      // [cm] drop of the EV - inner radius (used only with prism)
   fEVoffset	= 0.;	      // [cm] offset of the EV - outer radius
-  fEVangle	= 30.;	      // [degrees] opening angle of the EV
+  fEVangle	= 45.;	      // [degrees] opening angle of the EV
   fEVbackAngle  = 90.;	      // [degrees] angle between the PD surface and the Z axis, default = 90.
   
   // prism parameters:
@@ -56,7 +57,8 @@ PndGeoDrc::PndGeoDrc() {
   
   fPi            =  TMath::Pi();
   fLside	= (180. - 2.*fPipehAngle - fBarBoxGap/fRadius*(fBarBoxNum/2. - 1.)/fPi*180.)/(fBarBoxNum/2.) * fRadius/ 180.*fPi;
-  fBarWidth	=  fLside/fBarNum;  
+  fBarWidth	=  fLside/fBarNum;
+    
  }
 // -------------------------------------------------------------------------
 
