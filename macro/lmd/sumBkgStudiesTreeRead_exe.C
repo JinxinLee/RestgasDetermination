@@ -124,20 +124,20 @@ int main(int __argc,char *__argv[]) {
   int totSig = tSig_sum->GetEntries();
 
   //try to find upper limit for sumID and ID
-  int maxsumid=1e3;
+  int maxsumid=5e3;
   Long64_t  nmore=1;
   while(nmore>0){
-    maxsumid*=10;
+    maxsumid*=1.1;
     TString condLim = "sumid>";
     condLim+=maxsumid;
     nmore = tBkg_sum->GetEntries(condLim.Data());
   }
   cout<<"(max  SUMid<"<<maxsumid<<")"<<endl;
 
-  int maxid=3e2;
+  int maxid=4e2;
   Long64_t  nmoreid=1;
   while(nmoreid>0){
-    maxid*=10;
+    maxid*=1.1;
     TString condLim2 = "abs(id)>";
     condLim2+=maxid;
     nmoreid = tBkg_sum->GetEntries(condLim2.Data());
@@ -153,10 +153,13 @@ int main(int __argc,char *__argv[]) {
     cond +=isumid;
     Long64_t  nbkg_ch = tBkg_sum->GetEntries(cond.Data());
     //  cout<<" =========== isumid = "<<isumid<<endl;
+    // if(0<1) continue;//TEST
     if(nbkg_ch<1) continue;
     if(nbkg_ch>1){
       glnumCh++;
       cout<<isumid<<": "<<nbkg_ch<<"  ("<<100.*nbkg_ch/totBkg<<" %)"<<endl;
+      if(nbkg_ch<0.01*totBkg) continue;
+      // if(nbkg_ch<totBkg) continue; //TEST
       cout<<"REC incl.: ";
       for(int iid=-maxid;iid<maxid;iid++){
 	//	cout<<"%%%% iid = "<<iid<<endl;
