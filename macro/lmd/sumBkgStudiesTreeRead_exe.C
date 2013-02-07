@@ -149,6 +149,7 @@ int main(int __argc,char *__argv[]) {
   cout<<"sumID: #events(% from tot.bkg), include [particles content]"<<endl;
   int glnumCh=0;
   for(int isumid=10;isumid<maxsumid;isumid++){
+  // for(int isumid=10;isumid<0;isumid++){
     TString cond = "sumid==";
     cond +=isumid;
     Long64_t  nbkg_ch = tBkg_sum->GetEntries(cond.Data());
@@ -310,8 +311,18 @@ int main(int __argc,char *__argv[]) {
     //   cout<<""<<endl;
     // }
   }
-  cout<<" TotSig = "<<totSig <<" TotBkg = "<< totBkg<<" ("<<100.*totBkg/totSig<<" %)"<<" number of Bkg channels: "<<glnumCh<<endl;
+  // double bkgbinomialerr = sqrt(totBkg*(1-totBkg/(totSig+totBkg)))/(totSig+totBkg);
+  // double sigbinomialerr = sqrt(totSig*(1-totSig/(totSig+totBkg)))/(totSig+totBkg);
+  int totEvents = totBkg+totSig;
+  double totEvents_3 = TMath::Power(totEvents,3);
+  double totBkg_2 = TMath::Power(totBkg,2);
+  double totSig_2 = TMath::Power(totSig,2);
+  double bkgbinomialerr = sqrt(totBkg_2*(totEvents+totBkg)/totEvents_3);
+  double sigbinomialerr = sqrt(totSig_2*(totSig+totEvents)/totEvents_3);
+  double bkgbinomialerrpro = 100.*bkgbinomialerr/totSig;
+  cout<<" TotSig = "<<totSig<<" +/- "<<sigbinomialerr<<" TotBkg = "<< totBkg<<"+/-"<<bkgbinomialerr<<" ("<<100.*totBkg/totSig<<" +/- "<<bkgbinomialerrpro<<" %)"<<" number of Bkg channels: "<<glnumCh<<endl;
   cout<<"================================="<<endl;
+  //  return 0;
   //Read of SUM ID info (end) --------------------------------------------------------
   cout<<""<<endl;
   cout<<"---------- particles content --------"<<endl;
