@@ -4,7 +4,7 @@
 // Class for geometry of DRC (PandaRoot general case)
 //
 // Created 13/11/07 by A. Cecchi, Ferrara University 
-// Modified by M.Patsyuk in 2010-2013 m.patsyuk@gsi.de
+// Modified by M.Patsyuk 2010-2013 m.patsyuk@gsi.de
 //
 /////////////////////////////////////////////////////////////
 
