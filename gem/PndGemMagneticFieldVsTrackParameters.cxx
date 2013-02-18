@@ -202,8 +202,8 @@ Int_t PndGemMagneticFieldVsTrackParameters::Fill1StationHistograms() {
     Double_t tMom    = mcMomVec.Mag();
     Double_t tTheta  = mcMomVec.Theta()*TMath::RadToDeg();
 
-    fhThetaVsRadiusVsMomentum[stationNumber]->Fill(tMom,pRadius,   tTheta);
-    fhThetaVsRadiusVsMomentumAll            ->Fill(tMom,pRadius/pZ,tTheta);
+    fhThetaVsRadiusVsMomentum[stationNumber-1]->Fill(tMom,pRadius,   tTheta);
+    fhThetaVsRadiusVsMomentumAll              ->Fill(tMom,pRadius/pZ,tTheta);
 
   }
 }
@@ -229,8 +229,12 @@ Int_t PndGemMagneticFieldVsTrackParameters::Fill2StationsHistograms() {
     Int_t mcTrackId = mcPoint1->GetTrackID();
 
     mcTrack = (PndMCTrack*)fMCTrackArray->At(mcTrackId);
+
+    if ( mcTrack->GetMotherID() != -1 ) continue;
+
     TVector3 mcMomVec = mcTrack->GetMomentum();
     Double_t tMom    = mcMomVec.Mag();
+    Double_t  tPt    = mcMomVec.Pt();
     Double_t pMom    = TMath::RadToDeg()*mcMomVec.Phi() + (mcMomVec.Phi()>=0?0.:360.);
 
     for ( Int_t imcp2 = imcp1+1 ; imcp2 < nofGemPoints ; imcp2++ ) {
@@ -245,8 +249,8 @@ Int_t PndGemMagneticFieldVsTrackParameters::Fill2StationsHistograms() {
 	p2PhiAng = 2.*TMath::Pi() - p2PhiAng;
       p2PhiAng *= TMath::RadToDeg();
 
-      if ( p1PhiAng <  90. && p2PhiAng > 270. ) p2PhiAng -= 90.;
-      if ( p1PhiAng > 270. && p2PhiAng <  90. ) p2PhiAng += 90.;
+      if ( p1PhiAng <  90. && p2PhiAng > 270. ) p2PhiAng -= 360.;
+      if ( p1PhiAng > 270. && p2PhiAng <  90. ) p2PhiAng += 360.;
 
       fhRadiusVsAngle->Fill((p2PhiAng-p1PhiAng)*p1Z/p2Z,p2Radius*p1Z/(p1Radius*p2Z));
 
@@ -264,6 +268,12 @@ Int_t PndGemMagneticFieldVsTrackParameters::Fill2StationsHistograms() {
       }
       if ( histNo == -1 ) continue;
       fhRadiusVsAnglePair[histNo]->Fill((p2PhiAng-p1PhiAng)*p1Z/p2Z,p2Radius*p1Z/(p1Radius*p2Z));
+
+      //      Double_t circRad = TMath::Sqrt( (gemHit2X-gemHit1X)*(gemHit2X-gemHit1X) + (gemHit2Y-gemHit1Y)*(gemHit2Y-gemHit1Y) ) / TMath::Sin(pangle-pangle2) / 2.;
+      fhMomTransVsHRadius[histNo]->Fill(TMath::Abs(TMath::Sqrt((mcPoint2->GetX()-mcPoint1->GetX())*(mcPoint2->GetX()-mcPoint1->GetX())+
+							       (mcPoint2->GetY()-mcPoint1->GetY())*(mcPoint2->GetY()-mcPoint1->GetY())) /
+						   TMath::Sin(TMath::DegToRad()*(p2PhiAng-p1PhiAng)) / 2.),
+					tPt);
 
       if ( mcTrackId != mcPoint2->GetTrackID() ) 
 	continue;
@@ -398,6 +408,13 @@ void PndGemMagneticFieldVsTrackParameters::CreateHistos() {
 						nofPhi1Bins,phi1Bins);
       fHistoList->Add(fhTrackPhiVsHitPhis[crHist]);
       fHistoList->Add(fhTrackPhiVsCalcPhi[crHist]);
+
+
+      fhMomTransVsHRadius[crHist] = new TH2F(Form("fhMomTransVsHRadius_s%d_s%d",istat1+1,istat2+1),
+					     Form("Track MC momentum trans vs track calculated helix radius;radius_{radius} [cm];pt_{MC} [GeV/c]"),
+					     nofDetMomBins,0.,800.,
+					     nofDetMomBins,0.,maxMom/3.);
+      fHistoList->Add(fhMomTransVsHRadius[crHist]);
 
       crHist++;
     }

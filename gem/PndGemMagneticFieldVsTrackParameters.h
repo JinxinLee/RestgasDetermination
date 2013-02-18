@@ -110,6 +110,8 @@ class PndGemMagneticFieldVsTrackParameters : public FairTask
   TF2*  ffMomentumVsPhiDiffVsRadius[10];
   TF1*  ffMomentumVsPhiDiffAll[10];
   TF1*  ffMomentumVsPhiDiff   [10][20];
+  // transverse momentum vs trajectory helix radius
+  TH2F* fhMomTransVsHRadius[10];
   // track phi versus hits phis
   TH3F* fhTrackPhiVsHitPhis   [10];
   TH2F* fhTrackPhiVsCalcPhi   [10];
