@@ -138,6 +138,9 @@ void PndGemDigitize::Exec(Option_t* opt) {
 
   Reset();
 
+  if ( fVerbose )
+    cout << "EVENT " << fTNofEvents << endl;
+
   fTNofEvents++;
 
   if ( fRealisticResponse ) 
@@ -147,16 +150,18 @@ void PndGemDigitize::Exec(Option_t* opt) {
 
   PndGemDigi* adigi;
   Double_t EventTime = FairRootManager::Instance()->GetEventTime();
-  cout << "---------------> Event " << fTNofEvents << endl;
-  cout << "--- at  " << EventTime << " ns" << endl;
-  cout << "--- has " << fDigis->GetEntriesFast() << " digis made from " << fPoints->GetEntriesFast() << " points" << endl;
-  cout << "---------------> Put them in output buffer" << endl;
+  // cout << "---------------> Event " << fTNofEvents << endl;
+  // cout << "--- at  " << EventTime << " ns" << endl;
+  // cout << "--- has " << fDigis->GetEntriesFast() << " digis made from " << fPoints->GetEntriesFast() << " points" << endl;
+  // cout << "---------------> Put them in output buffer" << endl;
   for ( Int_t idigi = 0 ; idigi < fDigis->GetEntriesFast() ; idigi++ ) {
     adigi = dynamic_cast<PndGemDigi*>(fDigis->At(idigi));
     adigi->SetTimeStamp(adigi->GetTimeStamp()+EventTime);
-    fDataBuffer->FillNewData(adigi,adigi->GetTimeStamp()+EventTime,10.);
+    fDataBuffer->FillNewData(adigi,
+			     adigi->GetTimeStamp()+EventTime,
+			     adigi->GetTimeStamp()+EventTime+100.); // 100 ns dead time
   }
-  cout << "------------------------------------------" << endl;
+  //  cout << "------------------------------------------" << endl;
 }
 // -------------------------------------------------------------------------
 
