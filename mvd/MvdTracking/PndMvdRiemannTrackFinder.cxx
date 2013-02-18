@@ -352,7 +352,7 @@ bool PndMvdRiemannTrackFinder::CheckSZ(PndRiemannTrack aTrack)
 	if ((aTrack.getHit(0)->z())>0 )
 		sign=true;
 	else sign=false;
-	if (aTrack.szChi2() > GetMaxSZChi2(r,dip,sign)){
+	if (aTrack.szChi2() > GetMaxSZChi2(r,dip,sign) || aTrack.szChi2() < 0){
 		if (fVerbose > 1) std::cout << "sz-Fit does not match, Chi2: " << aTrack.szChi2() << " max: " << GetMaxSZChi2(r,dip,sign) << std::endl;
 		return false;
 	}

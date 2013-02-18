@@ -373,6 +373,7 @@ PndRiemannTrack::szFit(bool withErrorCalc){
   }
   else {
 	  std::cout << "-E- PndRiemannTrack::szFit() all alpha values 0" << std::endl;
+	  fChi2 = -1;
   }
   if (fVerbose > 1) std::cout << "t, m: " << ft << " +/- " << ftError << " / " << fm << " +/- " << fmError << " Chi2: " << fChi2 << std::endl;
 

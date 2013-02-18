@@ -244,7 +244,7 @@ bool PndRiemannTrackFinder::CheckHitDistance(int hit1, int hit2)
 bool PndRiemannTrackFinder::CheckSZ(PndRiemannTrack aTrack)
 {
 	aTrack.szFit();
-	if (aTrack.szChi2() > fMaxSZChi2){
+	if (aTrack.szChi2() > fMaxSZChi2 || aTrack.szChi2() < 0){
 		if (fVerbose > 1) std::cout << "sz-Fit does not match, Chi2: " << fMaxSZChi2 << std::endl;
 		return false;
 	}
