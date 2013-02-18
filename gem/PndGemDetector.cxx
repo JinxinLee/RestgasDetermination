@@ -17,6 +17,7 @@
 #include "TClonesArray.h"
 #include "TVirtualMC.h"
 #include "TGeoManager.h"
+#include "TGeoPhysicalNode.h"
 
 #include <iostream>
 #include <string>
@@ -266,6 +267,62 @@ void PndGemDetector::ConstructGeometry()
   }else{
     std::cout<< "Geometry format not supported " <<std::endl;
   }
+}
+
+// -------------------------------------------------------------------------
+void PndGemDetector::MisalignDetector()
+{
+  std::cout << "-----------------------------------" << std::endl;
+  std::cout << " M I S A L I G N   D E T E C T O R " << std::endl;
+
+  /*  TGeoPhysicalNode* pn1 = gGeoManager->MakePhysicalNode("/cave_1/Gem_Disks_0/Gem_Disk1_Volume_0/Gem_Disk1_Seg1_Gem1_Sensor_TPCmixture_0");
+  cout << "got the node " << pn1 << endl;
+  cout << "print the orig rot matrix:" << endl;
+  pn1->GetOriginalMatrix()->Print();
+  cout << "print the rot matrix:" << endl;
+  pn1->GetMatrix()->Print();
+  
+  TGeoHMatrix* dummyRot = new TGeoHMatrix();
+  //  dummyRot->RotateZ(90);
+  dummyRot->RotateX(0.3);
+  dummyRot->RotateY(0.1);
+  Double_t trans[3] = {0.,-0.1,-1.123400};
+  dummyRot->SetTranslation(trans);
+ 
+  cout << "dummyRot ---> " << endl;
+  dummyRot->Print();
+
+  cout << "aligning to dummyRot" << endl;
+  pn1->Align(dummyRot); // in Align, if (!newmat&&!newshape)return;*/
+
+  Int_t nofSeg = 2;
+  for ( Int_t ist = 0 ; ist < 3 ; ist++ ) {
+    if ( ist == 2 ) nofSeg = 3;
+    for ( Int_t isg = 0 ; isg < nofSeg ; isg++ ) {
+      for ( Int_t isp = 0 ; isp < 2 ; isp++ ) {
+	TString tName = Form("/cave_1/Gem_Disks_0/Gem_Disk%d_Volume_0/Gem_Disk%d_Seg%d_Gem%d_Sensor_TPCmixture_0",ist+1,ist+1,isg+1,isp*5+1);
+	cout << tName.Data() << endl;	
+	TGeoPhysicalNode* tgpn = gGeoManager->MakePhysicalNode(tName.Data());
+	TGeoHMatrix* tghm = (TGeoHMatrix*)tgpn->GetOriginalMatrix();
+	cout << " * * *  o r i g  * * *  o r i g  * * *  o r i g  * * *  o r i g  * * * " << endl;
+	tghm->Print();
+	tghm->RotateX(gRandom->Gaus(0.,.1));
+	tghm->RotateY(gRandom->Gaus(0.,.1));
+	tghm->RotateZ(gRandom->Gaus(0.,.1));
+	Double_t* trans = tghm->GetTranslation();
+	cout << "trans = " << trans[0] << " " << trans[1] << " " << trans[2] << endl;
+	for ( Int_t ic = 0 ; ic < 3 ; ic++ ) 
+	  trans[0] += gRandom->Gaus(0.,.03);
+	tghm->SetTranslation(trans);
+	cout << " * * * m o v e d * * * m o v e d * * * m o v e d * * * m o v e d * * * " << endl;
+	tghm->Print();
+	cout << " * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * " << endl;
+	tgpn->Align(tghm);
+      }
+    }
+  }
+ 
+  std::cout << "-----------------------------------" << std::endl;
 }
 
 // -------------------------------------------------------------------------

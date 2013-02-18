@@ -114,6 +114,8 @@ class PndGemDetector : public FairDetector
 //   void ConstructASCIIGeometry();
  // void ExpandNode(TGeoNode *fN);
 
+  void MisalignDetector();
+
   void SetExclusiveSensorType(const TString sens);
   void SetRadDamOption(bool val){fUseRadDamOption = val;};
   bool GetRadDamOption() {return fUseRadDamOption;}
