@@ -373,7 +373,7 @@ Int_t PndGemFindHits::FindHits(PndGemSensor* sensor,
   Double_t xHit;
   Double_t yHit;
   Double_t zHit;
-  Double_t dr, dp;
+  Double_t dx, dy, dr, dp;
   TVector3 pos, dpos;
   PndGemDigi* digiF = NULL;
   PndGemDigi* digiB = NULL;
@@ -402,7 +402,7 @@ Int_t PndGemFindHits::FindHits(PndGemSensor* sensor,
       }
       iChanB = digiB->GetChannelNr();
       
-      Int_t sensorDetId = sensor->Intersect(iChanF,iChanB,xHit,yHit,zHit,dr,dp);
+      Int_t sensorDetId = sensor->Intersect(iChanF,iChanB,xHit,yHit,zHit,dx,dy,dr,dp);
       //      cout << "intersecting channels " << iChanF << " and " << iChanB << " gave " << sensorDetId << endl;
       // 	cout << "got the following position from sensor " << sensorDetId << " : (" 
       // 	     << xHit << ", " << yHit << ", " << zHit << ")" << endl;
@@ -415,8 +415,8 @@ Int_t PndGemFindHits::FindHits(PndGemSensor* sensor,
 	     << sensor->GetSensorNr() << endl;
       }
       
-      sigmaX = dp;
-      sigmaY = dr;
+      sigmaX = dx;
+      sigmaY = dy;
 
 //       if ( fUseClusters ) {
 // 	zHit += sensor->GetD()/2.;
@@ -427,6 +427,8 @@ Int_t PndGemFindHits::FindHits(PndGemSensor* sensor,
 
       pos.SetXYZ(xHit, yHit, zHit);
       dpos.SetXYZ(sigmaX, sigmaY, sensor->GetD());
+
+      //      cout << "SETTING ERROR TO " << sigmaX << " " << sigmaY << " " << sensor->GetD() << " at " << zHit << endl;
 
       //      if ( TMath::Abs(xHit) < 2. ) continue;
       

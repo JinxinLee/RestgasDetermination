@@ -692,6 +692,93 @@ Int_t PndGemSensor::Intersect(Double_t iFStrip, Double_t iBStrip, Double_t& xCro
   return -1;
 }
 // -------------------------------------------------------------------------
+
+// -----   Public method Intersect   ---------------------------------------
+Int_t PndGemSensor::Intersect(Double_t iFStrip, Double_t iBStrip, Double_t& xCross, Double_t& yCross, Double_t& zCross,
+			      Double_t& dx, Double_t& dy, Double_t& dr, Double_t& dp) {
+  //  cout << "trying to find intersection of strip " << iFStrip << " and " << iBStrip << endl;
+
+  if ( fType == -1 ) {
+    cout << "not supported anymore" << endl;
+    return -1;
+  }
+  // the hits are on different sides
+  //cout << iFStrip << " of " << fNChannelsFront << " and " << iBStrip << " of " << fNChannelsBack << endl;
+  if ( iFStrip <  fNChannelsFront/2 && iBStrip >= fNChannelsBack/2 ) return -1;
+  if ( iFStrip >= fNChannelsFront/2 && iBStrip <  fNChannelsBack/2 ) return -1;
+  Double_t bs = iBStrip;
+  if ( bs >= fNChannelsBack/2 ) bs -= fNChannelsBack/2;
+  if ( fType == 0 ) { // r phi strips
+    Double_t phi    = fPitch[0]*((Double_t)iFStrip-0.5) / fInnerRadius; // the angle is counted from Y axis
+    Double_t radius = fPitch[1]*((Double_t) bs    -0.5) + fInnerRadius;
+    yCross =  radius*TMath::Cos(phi);
+    xCross = -radius*TMath::Sin(phi);
+    zCross = fPosition[2];
+
+    dp = fPitch[0]*radius/fInnerRadius/TMath::Sqrt(12.);
+    dr = fPitch[1]/TMath::Sqrt(12.);
+    dx = dr*TMath::Abs(TMath::Sin(phi))+dp*TMath::Abs(TMath::Cos(phi));
+    dy = dr*TMath::Abs(TMath::Cos(phi))+dp*TMath::Abs(TMath::Sin(phi));
+
+    if ( Inside(xCross,yCross) )
+      return fDetectorId;
+    else
+      return -1;
+  }
+  if ( fType == 2 ) { // x y strips
+    Int_t nlStrips = (Int_t)(TMath::Ceil((fOuterRadius-fInnerRadius)/fPitch[0]));
+    Int_t nsStrips = (Int_t)(TMath::Ceil(fInnerRadius/fPitch[0]));
+    Double_t x = -666.;
+    yCross = -fOuterRadius+(Double_t(bs)+0.5)*fPitch[1];
+    zCross = fPosition[2];
+
+    if      ( iFStrip < nlStrips )
+      xCross = -fOuterRadius+(Double_t(iFStrip)+0.5)*fPitch[0];
+    else if ( iFStrip < nlStrips+  nsStrips ) {
+      if ( bs <  fNChannelsBack/4 ) return -1;
+      xCross = -fOuterRadius+(Double_t(iFStrip)+0.5)*fPitch[0];
+    }
+    else if ( iFStrip < nlStrips+2*nsStrips ) {
+      if ( bs >= fNChannelsBack/4 ) return -1;
+      xCross = -fOuterRadius+(Double_t(iFStrip-nsStrips)+0.5)*fPitch[0];
+    }
+    else if ( iFStrip < nlStrips+3*nsStrips ) {
+      if ( bs <  fNChannelsBack/4 ) return -1;
+      xCross = -fOuterRadius+(Double_t(iFStrip-nsStrips)+0.5)*fPitch[0];
+    }
+    else if ( iFStrip < nlStrips+4*nsStrips ) {
+      if ( bs >= fNChannelsBack/4 ) return -1;
+      xCross = -fOuterRadius+(Double_t(iFStrip-2*nsStrips)+0.5)*fPitch[0];
+    }
+    else
+      xCross = -fOuterRadius+(Double_t(iFStrip-2*nsStrips)+0.5)*fPitch[0];
+
+    if ( !Inside(xCross,yCross) ) return -1;
+
+    /*
+      Double_t rMax = TMath::Sqrt( (TMath::Abs(xCross)+fPitch[0])*(TMath::Abs(xCross)+fPitch[0])+
+      (TMath::Abs(yCross)+fPitch[1])*(TMath::Abs(yCross)+fPitch[1]) );
+      Double_t rMin = TMath::Sqrt( (TMath::Abs(xCross)-fPitch[0])*(TMath::Abs(xCross)-fPitch[0])+
+      (TMath::Abs(yCross)-fPitch[1])*(TMath::Abs(yCross)-fPitch[1]) );
+`      Double_t phi1 = TMath::ATan( (TMath::Abs(yCross)-fPitch[1])/(TMath::Abs(xCross)+fPitch[0]) );
+      Double_t phi2 = TMath::ATan( (TMath::Abs(yCross)+fPitch[1])/(TMath::Abs(xCross)-fPitch[0]) );
+      dp = TMath::Abs(phi1-phi2);
+      dp = TMath::Tan(dp)*(rMax+rMin)/2./TMath::Sqrt(12.);
+      dr = (rMax-rMin)/TMath::Sqrt(12.);
+      //     if ( dp > 350 ) 
+      //       dp = TMath::Abs(360.-dp);
+      */
+    dx = fPitch[0]/TMath::Sqrt(12.);
+    dy = fPitch[1]/TMath::Sqrt(12.);
+    dr = 0.;
+    dp = 0.;
+
+    return fDetectorId;
+  }
+  
+  return -1;
+}
+// -------------------------------------------------------------------------
  
 
 ClassImp(PndGemSensor)

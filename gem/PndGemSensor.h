@@ -156,6 +156,9 @@ class PndGemSensor : public TNamed
   Int_t Intersect(Double_t iFStrip, Double_t iBStrip, Double_t& xCross, Double_t& yCross, Double_t& zCross,
 		  Double_t& dr, Double_t& dp);
 
+  Int_t Intersect(Double_t iFStrip, Double_t iBStrip, Double_t& xCross, Double_t& yCross, Double_t& zCross,
+		  Double_t& dx, Double_t& dy, Double_t& dr, Double_t& dp);
+
   //Int_t IntersectClusters(Double_t fChan, Double_t bChan, Double_t& xCross, Double_t& yCross, Double_t& zCross);  // not implemented
 
   /** The index of the MCPoint that has caused a combination of
