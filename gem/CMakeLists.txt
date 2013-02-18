@@ -60,6 +60,7 @@ PndGemMagneticFieldVsTrackParameters.cxx
 PndGemDigiWriteoutBuffer.cxx
 PndGemDigiSorterTask.cxx
 PndGemDigiRingSorter.cxx
+PndGemFindHitsAna.cxx
 )
 if(RULE_CHECKER_FOUND)
   CHECK_RULES("${GEM_SRCS}" "${INCLUDE_DIRECTORIES}" GEM_RULES)

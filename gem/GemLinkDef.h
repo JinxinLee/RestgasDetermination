@@ -28,6 +28,8 @@
 #pragma link C++ class PndGemFindTracks+;
 #pragma link C++ class PndGemTrackFinderQA+;
 
+#pragma link C++ class PndGemFindHitsAna+;
+
 #pragma link C++ class PndGemIdealPatternRecoTask+;
 
 #pragma link C++ class PndGemMagneticFieldVsTrackParameters+;
