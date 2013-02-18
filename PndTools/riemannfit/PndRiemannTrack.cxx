@@ -344,6 +344,7 @@ double PndRiemannTrack::dR()
 
 void
 PndRiemannTrack::szFit(bool withErrorCalc){
+	bool allAlphaZero = true;
 	if (fFitDone == false)
 		refit(withErrorCalc);
   unsigned int num=getNumHits();
@@ -356,18 +357,23 @@ PndRiemannTrack::szFit(bool withErrorCalc){
     fHits[i].calcPosOnTrk(this);
     if (fVerbose > 1) std::cout << fHits[i].s() << " " << fHits[i].z() << std::endl;
     g.SetPoint(i,fHits[i].s(),fHits[i].z());
+    if (fHits[i].alpha() != 0)
+    	allAlphaZero = false;
   }
-
-  g.Fit("pol1","Q0"); // << std::endl;
-  TF1* f = g.GetFunction("pol1");
-  //std::cout << "f: " << f << std::endl;
-  ft = f->GetParameter(0);
-  fm = f->GetParameter(1);
-  ftError = f->GetParError(0);
-  fmError = f->GetParError(1);
-  fChi2   = f->GetChisquare();
-  fSZFitDone = true;
-
+  if (!allAlphaZero){
+	  g.Fit("pol1","Q0"); // << std::endl;
+	  TF1* f = g.GetFunction("pol1");
+	  //std::cout << "f: " << f << std::endl;
+	  ft = f->GetParameter(0);
+	  fm = f->GetParameter(1);
+	  ftError = f->GetParError(0);
+	  fmError = f->GetParError(1);
+	  fChi2   = f->GetChisquare();
+	  fSZFitDone = true;
+  }
+  else {
+	  std::cout << "-E- PndRiemannTrack::szFit() all alpha values 0" << std::endl;
+  }
   if (fVerbose > 1) std::cout << "t, m: " << ft << " +/- " << ftError << " / " << fm << " +/- " << fmError << " Chi2: " << fChi2 << std::endl;
 
   return;

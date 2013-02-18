@@ -103,7 +103,7 @@ PndRiemannHit::calcPosOnTrk(PndRiemannTrack* trk){
 //  if (fAlpha < 0)
 //	  fAlpha += TMath::Pi()*2;
   fS=fAlpha*r;
-  if (fVerbose > 1) std::cout<<"z/s "<< fHit->GetZ() << " / " << fS <<std::endl;
+  if (fVerbose > 1) std::cout << "Alpha/r " << fAlpha << "/" << r << "--> z/s "<< fHit->GetZ() << "/" << fS <<std::endl;
 }
 
 double PndRiemannHit::sigmaXY() const
