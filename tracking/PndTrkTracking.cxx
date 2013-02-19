@@ -947,10 +947,11 @@ void PndTrkTracking::Exec(Option_t* opt) {
 
 
 
-// -----------------------more info from Mvd trackcand.
+// -----------------------more info from Mvd trackcand, if Mvd tracking alone is allowed and there
+// 		are Mvd hits;
 
 
- ExtractInfoFromMvdTrackCand();
+if(fMvdAloneTracking && fnMvdPixelHit+fnMvdStripHit>0)  ExtractInfoFromMvdTrackCand();
 
 // -----------------------------------
 
@@ -1359,7 +1360,14 @@ if(istampa>0){
 //   begins the first iteration with more severe cuts on the # hits in track candidate
 
 int iconta=0;
- for(iParHit=0; iParHit<nSttParHit + 1 -  MINIMUMHITSPERTRACK ; iParHit++) {
+ for(iParHit=0; iParHit<nSttParHit ; iParHit++) {
+//--------------------------------------------------
+if(IVOLTE==8){
+	cout<<"cazzo, hit originale n. "<<fListSttParHits[iParHit]<<", fInclusionListStt "<<
+	fInclusionListStt[fListSttParHits[iParHit]]<<", tubeID "<<fTubeID[fListSttParHits[iParHit]]
+	<<", External "<<fExternal_Straws[fTubeID[fListSttParHits[iParHit]]]<<endl;
+}
+//-------------------------------
 	if( ! fInclusionListStt[fListSttParHits[iParHit]] )  continue;
 	if( !fExternal_Straws[fTubeID[fListSttParHits[iParHit]]] ) continue; // only seeds at the external boundary of the STT
 
@@ -1533,7 +1541,7 @@ iconta++;
 
    //  This method matches the Mvd hits to the found tracks.
 
-   MatchMvdHitsToSttTracks2(
+   MatchMvdHitsToSttTracks(
 			keepit,// input and output.
 			delta,
 			highqualitycut,
@@ -5422,9 +5430,9 @@ void PndTrkTracking::MatchMvdHitsToSttTracksagain(
 
 
 
-//------------------------- begin of function  PndTrkTracking::MatchMvdHitsToSttTracks2
+//------------------------- begin of function  PndTrkTracking::MatchMvdHitsToSttTracks
 
-void PndTrkTracking::MatchMvdHitsToSttTracks2(
+void PndTrkTracking::MatchMvdHitsToSttTracks(
 	bool *keepit,
 	Double_t delta,
 	Double_t highqualitycut,
@@ -5440,25 +5448,13 @@ void PndTrkTracking::MatchMvdHitsToSttTracks2(
 {
 	bool specialcase;
 
-	Short_t i,j,j1, j2, imvdcand, jmvdhit, ncont,
-		chosenmix,
-		chosenmix2,
-		ngoodmix,
-		oldN,
-		nn[MAXMVDTRACKSPEREVENT+2],
-		nHighQuality[MAXMVDTRACKSPEREVENT+2],
-		List[MAXMVDTRACKSPEREVENT+2][MAXMVDPIXELHITSINTRACK+MAXMVDSTRIPHITSINTRACK],
-		ListType[MAXMVDTRACKSPEREVENT+2][MAXMVDPIXELHITSINTRACK+MAXMVDSTRIPHITSINTRACK];
+	Short_t i,
+		jmvdhit;
 
 	Double_t angle,
 		anglemax,
 		anglemin,
-		dist,
-		oldtotal,
-		oldtotal2,
-		total,
-		Dist,
-		DIST[MAXMVDTRACKSPEREVENT+1];
+		dist;
 
 
 
@@ -5489,393 +5485,59 @@ void PndTrkTracking::MatchMvdHitsToSttTracks2(
 
 //--------------------
 
-	ngoodmix=0;
-	nn[0]=0;
- for( imvdcand=0; imvdcand<fnMvdTrackCand; imvdcand++){
-	Dist = 0.;
-	ncont=0;
-	nn[ngoodmix]=0;
-	nHighQuality[ngoodmix]=0;
-	for( jmvdhit=0; jmvdhit<fnHitMvdTrackCand[imvdcand]; jmvdhit++){
 
-		if(fListHitTypeMvdTrackCand[imvdcand][jmvdhit]==
-		    FairRootManager::Instance()->GetBranchId(fMvdPixelBranch)){
-			ncont++;
-			angle = atan2(
-			fYMvdPixel[fListHitMvdTrackCand[imvdcand][jmvdhit]]-fOy[i],
-			fXMvdPixel[fListHitMvdTrackCand[imvdcand][jmvdhit]]-fOx[i]
-							);
-			if(angle<0.) angle += 2.*PI;
+ // first try attach the Pixels;
 
-			if( angle>anglemax){
-				angle -= 2.*PI;
-				if( angle>anglemax) angle = anglemax;
-			} else if (angle<anglemin){
-				angle += 2.*PI;
-				if (angle<anglemin) angle = anglemin;
-			}
-			if(angle > anglemin && angle < anglemax)
+	nPixelHitsinTrack[i] = 0;
+	for( jmvdhit=0; jmvdhit<fnMvdPixelHit; jmvdhit++){
+		angle = atan2(fYMvdPixel[jmvdhit]-fOy[i],fXMvdPixel[jmvdhit]-fOx[i]);
+		if(angle<0.) angle += 2.*PI;
+		if( angle>anglemax){
+			angle -= 2.*PI;
+			if( angle>anglemax) angle = anglemax;
+
+		} else if (angle<anglemin){
+			angle += 2.*PI;
+			if (angle<anglemin) angle = anglemin;
+		}
+
+		if(angle > anglemin && angle < anglemax)
+		{
+			dist=fabs( sqrt( (fOx[i]-fXMvdPixel[jmvdhit])* (fOx[i]-fXMvdPixel[jmvdhit])
+			+(fOy[i]-fYMvdPixel[jmvdhit])*(fOy[i]-fYMvdPixel[jmvdhit]))-fR[i]);
+			if(dist<delta)
 			{
-				dist=fabs( sqrt(
-				 (fOx[i]-fXMvdPixel[fListHitMvdTrackCand[imvdcand][jmvdhit]])*
-				 (fOx[i]-fXMvdPixel[fListHitMvdTrackCand[imvdcand][jmvdhit]])
-				+(fOy[i]-fYMvdPixel[fListHitMvdTrackCand[imvdcand][jmvdhit]])*
-				 (fOy[i]-fYMvdPixel[fListHitMvdTrackCand[imvdcand][jmvdhit]]))-fR[i]);
-				if(dist<delta)
-				{
-				     List[ngoodmix][nn[ngoodmix]]=
-					fListHitMvdTrackCand[imvdcand][jmvdhit];
-				     ListType[ngoodmix][nn[ngoodmix]]=
-					FairRootManager::Instance()->GetBranchId(fMvdPixelBranch);
-				     Dist += dist;
-				     if( dist<highqualitycut) nHighQuality[ngoodmix]++;
-				     nn[ngoodmix]++;
-				}
-			}	// end of  if(angle > anglemin)
-
-		} else {// at this point this is a Strip hit; already made sure
-			// earlier in the code that there is no third possibility.
-
-			ncont++;
-			angle = atan2(
-			fYMvdStrip[fListHitMvdTrackCand[imvdcand][jmvdhit]]-fOy[i],
-			fXMvdStrip[fListHitMvdTrackCand[imvdcand][jmvdhit]]-fOx[i]
-							);
-			if(angle<0.) angle += 2.*PI;
-
-			if( angle>anglemax){
-				angle -= 2.*PI;
-				if( angle>anglemax) angle = anglemax;
-			} else if (angle<anglemin){
-				angle += 2.*PI;
-				if (angle<anglemin) angle = anglemin;
-			}
-			if(angle > anglemin && angle < anglemax){
-				dist=fabs( sqrt(
-			 (fOx[i]-fXMvdStrip[fListHitMvdTrackCand[imvdcand][jmvdhit]])*
-			 (fOx[i]-fXMvdStrip[fListHitMvdTrackCand[imvdcand][jmvdhit]])
-			 +(fOy[i]-fYMvdStrip[fListHitMvdTrackCand[imvdcand][jmvdhit]])*
-			 (fOy[i]-fYMvdStrip[fListHitMvdTrackCand[imvdcand][jmvdhit]])) -fR[i]);
-				if(dist<delta)
-				{
-				   List[ngoodmix][nn[ngoodmix]]=
-					fListHitMvdTrackCand[imvdcand][jmvdhit];
-				   ListType[ngoodmix][nn[ngoodmix]]=
-				    FairRootManager::Instance()->GetBranchId(fMvdStripBranch);
-				   Dist += dist;
-				   if( dist<highqualitycut) nHighQuality[ngoodmix]++;
-
-				   nn[ngoodmix]++;
-				}
-			}	// end of   if(angle > anglemin)
-		} // end of    if(fListHitTypeMvdTrackCand[imvdcand][jmvdhit]
-
-	}	// end of   for( jmvdhit=0; jmvdhit<fnHitMvdTrackCand[imvdcand];
-
-
-	if( nn[ngoodmix]>0) {
-		DIST[ngoodmix]=Dist/nn[ngoodmix];
-		ngoodmix++;
-
-
-//--------- stampaggi
-if(istampa>=3 ){cout<<"\tquesto Mvd candidato (n. ngoodmix = "<<ngoodmix-1<<
-	") passa con i seguenti hits :"<<endl;
-
-	for(int icc=0; icc<nn[ngoodmix-1]; icc++){
-		if(ListType[ngoodmix-1][icc]==FairRootManager::Instance()->GetBranchId(fMvdPixelBranch)) {
-			cout<<"\tPixel hit n. "<<List[ngoodmix-1][icc]<<endl;
-		} else if(ListType[ngoodmix-1][icc]==
-			FairRootManager::Instance()->GetBranchId(fMvdStripBranch)){
-			cout<<"\tStrip hit n. "<<List[ngoodmix-1][icc]<<endl;
-		} else{
-			cout<<"\tNoise  (?) , hit tipo "<<ListType[ngoodmix-1][icc]<<endl;
-		}
-	}
-	cout<<endl;
-}
-//------------fine stampaggi
-
-
-
-	}
- }	// end of for( imvdcand=0;imvdcand<fnMvdTrackCand;imvdcand++)
-
-
-//-------  now use the Mvd which are in no Mvd Track Candidate
-
-
-//------- first, the DS (downstream) Mvd hits
-		nn[ngoodmix]=0;
-		DIST[ngoodmix] = 0.;
-		nHighQuality[ngoodmix]=0;
-		for( jmvdhit=0; jmvdhit<fnMvdDSPixelHitNotTrackCand; jmvdhit++){
-
-			angle = atan2(
-				fYMvdPixel[fListMvdDSPixelHitNotTrackCand[jmvdhit]]-fOy[i],
-				fXMvdPixel[fListMvdDSPixelHitNotTrackCand[jmvdhit]]-fOx[i]
-					);
-			if(angle<0.) angle += 2.*PI;
-			if( angle>anglemax){
-				angle -= 2.*PI;
-				if( angle>anglemax) angle = anglemax;
-			} else if (angle<anglemin){
-				angle += 2.*PI;
-				if (angle<anglemin) angle = anglemin;
-			}
-			if(angle > anglemin && angle < anglemax){
-				dist=fabs( sqrt(
-				 (fOx[i]-fXMvdPixel[fListMvdDSPixelHitNotTrackCand[jmvdhit]])*
-				 (fOx[i]-fXMvdPixel[fListMvdDSPixelHitNotTrackCand[jmvdhit]])
-				+(fOy[i]-fYMvdPixel[fListMvdDSPixelHitNotTrackCand[jmvdhit]])*
-				 (fOy[i]-fYMvdPixel[fListMvdDSPixelHitNotTrackCand[jmvdhit]])
-						) -fR[i]);
-				if(dist<delta)
-				{
-					List[ngoodmix][nn[ngoodmix]]=
-					fListMvdDSPixelHitNotTrackCand[jmvdhit];
-					ListType[ngoodmix][nn[ngoodmix]]=
-					 FairRootManager::Instance()->GetBranchId(fMvdPixelBranch);
-					DIST[ngoodmix] += dist;
-					if( dist<highqualitycut) nHighQuality[ngoodmix]++;
-						nn[ngoodmix]++;
-				}
-			}  //  end of     if(angle > anglemin )
-		}	//  end  of for( jmvdhit=0; jmvdhit<fnMvdDSPixelHitNotTrackCand; jmvdhit++)
-
-		for( jmvdhit=0; jmvdhit<fnMvdDSStripHitNotTrackCand; jmvdhit++){
-
-			angle = atan2(
-				fYMvdStrip[fListMvdDSStripHitNotTrackCand[jmvdhit]]-fOy[i],
-				fXMvdStrip[fListMvdDSStripHitNotTrackCand[jmvdhit]]-fOx[i]
-				      );
-			if(angle<0.) angle += 2.*PI;
-			if( angle>anglemax){
-				angle -= 2.*PI;
-				if( angle>anglemax) angle = anglemax;
-			} else if (angle<anglemin){
-				angle += 2.*PI;
-				if (angle<anglemin) angle = anglemin;
-			}
-			if(angle > anglemin && angle < anglemax){
-
-				dist=fabs( sqrt(
-				 (fOx[i]-fXMvdStrip[fListMvdDSStripHitNotTrackCand[jmvdhit]])*
-				 (fOx[i]-fXMvdStrip[fListMvdDSStripHitNotTrackCand[jmvdhit]])
-				+(fOy[i]-fYMvdStrip[fListMvdDSStripHitNotTrackCand[jmvdhit]])*
-				 (fOy[i]-fYMvdStrip[fListMvdDSStripHitNotTrackCand[jmvdhit]])
-					) -fR[i]);
-
-
-				if(dist<delta)
-				{
-					List[ngoodmix][nn[ngoodmix]]=
-					fListMvdDSStripHitNotTrackCand[jmvdhit];
-					ListType[ngoodmix][nn[ngoodmix]]=
-					 FairRootManager::Instance()->GetBranchId(fMvdStripBranch);
-					DIST[ngoodmix] += dist;
-					if( dist<highqualitycut) nHighQuality[ngoodmix]++;
-					nn[ngoodmix]++;
-				}
-			}  //  end of     if(angle > anglemin )
-
-		}	//  end  of for( jmvdhit=0; jmvdhit<fnMvdDSStripHitNotTrackCand; jmvdhit++)
-
-			if( nn[ngoodmix]>0) {
-				DIST[ngoodmix] /= nn[ngoodmix];
-				ngoodmix++;
-//--------- stampaggi
-if(istampa>=3){cout<<"\tevento n. "<<IVOLTE<<" questi Mvd ALONE DS hits passano  :\n"<<endl;
-
-	for(int icc=0; icc<nn[ngoodmix-1]; icc++){
-		if(ListType[ngoodmix-1][icc]==FairRootManager::Instance()->GetBranchId(fMvdPixelBranch)) {
-			cout<<"\tDS Pixel hit n. "<<List[ngoodmix-1][icc]<<endl;
-		} else if(ListType[ngoodmix-1][icc]==
-			FairRootManager::Instance()->GetBranchId(fMvdStripBranch)){
-			cout<<"\tDS Strip hit n. "<<List[ngoodmix-1][icc]<<endl;
-		} else{
-			cout<<"\tNoise (?) , hit tipo "<<ListType[ngoodmix-1][icc]<<endl;
-		}
-	}
-
-}
-//------------fine stampaggi
-			}	// end of if( nn[ngoodmix]>0)
-
-
-
-
-
-
-//--------  now the US (upstream) Mvd hits
-
-		nn[ngoodmix]=0;
-		DIST[ngoodmix] = 0.;
-		nHighQuality[ngoodmix]=0;
-		for( jmvdhit=0; jmvdhit<fnMvdUSPixelHitNotTrackCand; jmvdhit++){
-
-			angle = atan2(
-			fYMvdPixel[fListMvdUSPixelHitNotTrackCand[jmvdhit]]-fOy[i],
-					fXMvdPixel[fListMvdUSPixelHitNotTrackCand[jmvdhit]]-fOx[i]
-							);
-			if(angle<0.) angle += 2.*PI;
-			if( angle>anglemax){
-				angle -= 2.*PI;
-				if( angle>anglemax) angle = anglemax;
-			} else if (angle<anglemin){
-				angle += 2.*PI;
-				if (angle<anglemin) angle = anglemin;
-			}
-			if(angle > anglemin && angle < anglemax){
-				dist=fabs( sqrt(
-				 (fOx[i]-fXMvdPixel[fListMvdUSPixelHitNotTrackCand[jmvdhit]])*
-				 (fOx[i]-fXMvdPixel[fListMvdUSPixelHitNotTrackCand[jmvdhit]])
-				+(fOy[i]-fYMvdPixel[fListMvdUSPixelHitNotTrackCand[jmvdhit]])*
-				 (fOy[i]-fYMvdPixel[fListMvdUSPixelHitNotTrackCand[jmvdhit]])
-						) -fR[i]);
-				if(dist<delta)
-				{
-					List[ngoodmix][nn[ngoodmix]]=
-						fListMvdUSPixelHitNotTrackCand[jmvdhit];
-					ListType[ngoodmix][nn[ngoodmix]]=
-					 FairRootManager::Instance()->GetBranchId(fMvdPixelBranch);
-					DIST[ngoodmix] += dist;
-					if( dist<highqualitycut) nHighQuality[ngoodmix]++;
-						nn[ngoodmix]++;
-				}
-			}  //  end of     if(angle > anglemin )
-
-		}	//  end  of for( jmvdhit=0; jmvdhit<fnMvdUSPixelHitNotTrackCand; jmvdhit++)
-
-		for( jmvdhit=0; jmvdhit<fnMvdUSStripHitNotTrackCand; jmvdhit++){
-
-			angle = atan2(
-				fYMvdStrip[fListMvdUSStripHitNotTrackCand[jmvdhit]]-fOy[i],
-				fXMvdStrip[fListMvdUSStripHitNotTrackCand[jmvdhit]]-fOx[i]
-				      );
-			if(angle<0.) angle += 2.*PI;
-			if( angle>anglemax){
-				angle -= 2.*PI;
-				if( angle>anglemax) angle = anglemax;
-			} else if (angle<anglemin){
-				angle += 2.*PI;
-				if (angle<anglemin) angle = anglemin;
-			}
-			if(angle > anglemin && angle < anglemax){
-
-				dist=fabs( sqrt(
-				 (fOx[i]-fXMvdStrip[fListMvdUSStripHitNotTrackCand[jmvdhit]])*
-				 (fOx[i]-fXMvdStrip[fListMvdUSStripHitNotTrackCand[jmvdhit]])
-				+(fOy[i]-fYMvdStrip[fListMvdUSStripHitNotTrackCand[jmvdhit]])*
-				 (fOy[i]-fYMvdStrip[fListMvdUSStripHitNotTrackCand[jmvdhit]])
-					) -fR[i]);
-
-
-				if(dist<delta)
-				{
-					List[ngoodmix][nn[ngoodmix]]=
-					fListMvdUSStripHitNotTrackCand[jmvdhit];
-					ListType[ngoodmix][nn[ngoodmix]]=
-					 FairRootManager::Instance()->GetBranchId(fMvdStripBranch);
-					DIST[ngoodmix] += dist;
-					if( dist<highqualitycut) nHighQuality[ngoodmix]++;
-					nn[ngoodmix]++;
-				}
-			}  //  end of     if(angle > anglemin )
-
-		}	//  end  of for( jmvdhit=0; jmvdhit<fnMvdUSStripHitNotTrackCand; jmvdhit++)
-
-			if( nn[ngoodmix]>0) {
-				DIST[ngoodmix] /= nn[ngoodmix];
-				ngoodmix++;
-//--------- stampaggi
-if(istampa>=3){cout<<"\tevento n. "<<IVOLTE<<" questi Mvd ALONE US hits passano  :\n"<<endl;
-	if( ngoodmix>0) {
-	for(int icc=0; icc<nn[ngoodmix-1]; icc++){
-		if(ListType[ngoodmix-1][icc]==FairRootManager::Instance()->GetBranchId(fMvdPixelBranch)) {
-			cout<<"\tUS Pixel hit n. "<<List[ngoodmix-1][icc]<<endl;
-		} else if(ListType[ngoodmix-1][icc]==
-			FairRootManager::Instance()->GetBranchId(fMvdStripBranch)){
-			cout<<"\tUS Strip hit n. "<<List[ngoodmix-1][icc]<<endl;
-		} else{
-			cout<<"\tNoise (?) , hit tipo "<<ListType[ngoodmix-1][icc]<<endl;
-		}
-	}
-	}
-
-}
-//------------fine stampaggi
-			}	// end of if( nn[ngoodmix]>0)
-
-
-
-
-//-------  end of using the Mvd which are in no Mvd Track Candidate
-
-
-if(istampa>=3 ){cout<<"da PndTrkTracking : appena prima arbitration, IVOLTE = "<<
-IVOLTE<<", Stt track cand = "<<i<<", ngoodmix = "<<ngoodmix<<endl;}
-
-		if( ngoodmix==1){
-			chosenmix=0;
-			chosenmix2=0;
-		} else if( ngoodmix>1) {
-//--- here the arbitration if there are more than 1 Stt+Mvd hit combination for a given SttTrackCand
-			oldtotal = DIST[0];
-			oldtotal2 = DIST[0];
-			oldN = nHighQuality[0];
-//			oldtotal /= nTotali[0];
-if(istampa>=3 ){cout<<"da PndTrkTracking : goodmix n. 0, total distance (che e' = total distance2) = "<<oldtotal
-				<<", e nHighQuality = "<<nHighQuality[0]<<endl;}
-			chosenmix=0;
-			chosenmix2=0;
-			for(j1=1; j1<ngoodmix;j1++){
-				total = DIST[j1];
-if(istampa>=3){cout<<"da PndTrkTracking :\t goodmix n. "<<j1<<", total distance "<<total
-					<<", e nHighQuality = "<<nHighQuality[j1]<<endl;}
-				if(oldN<nHighQuality[j1]){
-					oldN=nHighQuality[j1];
-					chosenmix2=j1;
-				} else if (oldN==nHighQuality[j1]){
-					if(total<oldtotal2){
-						chosenmix2=j1;
-						oldtotal2=total;
-					}
-				}
-				if(total<oldtotal){
-					oldtotal=total;
-					chosenmix=j1;
-				}
-			}
-		}	// end of  if( ngoodmix==1)
-//--- end of arbitration
-if(istampa>=3 ){cout<<"da PndTrkTracking : fine arbitration, IVOLTE = "<<
-IVOLTE<<", Stt track cand = "<<i<<endl;}
-
-
-
-
-
-	nPixelHitsinTrack[i]=0;
-	nStripHitsinTrack[i]=0;
-	if( ngoodmix>0){
-		chosenmix=chosenmix2;
-		for(j=0;j<nn[chosenmix];j++){
-			if( ListType[chosenmix][j]==
-				FairRootManager::Instance()->GetBranchId(fMvdPixelBranch) ){
-				ListPixelHitsinTrack[i]
-				   [nPixelHitsinTrack[i]]=List[chosenmix][j];
+				ListPixelHitsinTrack[i][nPixelHitsinTrack[i]]=jmvdhit;
 				nPixelHitsinTrack[i]++;
-			} else if(
-			     ListType[chosenmix][j]==
-			     FairRootManager::Instance()->GetBranchId(fMvdStripBranch)){
-				ListStripHitsinTrack[i]
-				   [nStripHitsinTrack[i]]=List[chosenmix][j];
+			}
+		}	// end of  if(angle > anglemin)
+	 }  // end of  for( jmvdhit=0; jmvdhit<fnMvdPixelHits; jmvdhit++)
+
+
+	// then try attach the Strips;
+	nStripHitsinTrack[i] = 0;
+	for( jmvdhit=0; jmvdhit<fnMvdStripHit; jmvdhit++){
+		angle = atan2(fYMvdStrip[jmvdhit]-fOy[i],fXMvdStrip[jmvdhit]-fOx[i]);
+		if(angle<0.) angle += 2.*PI;
+		if( angle>anglemax){
+			angle -= 2.*PI;
+			if( angle>anglemax) angle = anglemax;
+		} else if (angle<anglemin){
+			angle += 2.*PI;
+			if (angle<anglemin) angle = anglemin;
+		}
+
+		if(angle > anglemin && angle < anglemax)
+		{
+			dist=fabs( sqrt( (fOx[i]-fXMvdStrip[jmvdhit])* (fOx[i]-fXMvdStrip[jmvdhit])
+			+(fOy[i]-fYMvdStrip[jmvdhit])*(fOy[i]-fYMvdStrip[jmvdhit]))-fR[i]);
+			if(dist<delta)
+			{
+				ListStripHitsinTrack[i][nStripHitsinTrack[i]]=jmvdhit;
 				nStripHitsinTrack[i]++;
 			}
-		}
-	}	// end of if( ngoodmix>0)
-
+		}	// end of  if(angle > anglemin)
+	}  // end of  for( jmvdhit=0; jmvdhit<fnMvdStripHits; jmvdhit++)
 
  }	// end of for(i=0; i<nSttTrackCand; i++)
 
@@ -5883,7 +5545,7 @@ IVOLTE<<", Stt track cand = "<<i<<endl;}
  return;
 }
 
-//------------------------- end of function  PndTrkTracking::MatchMvdHitsToSttTracks2
+//------------------------- end of function  PndTrkTracking::MatchMvdHitsToSttTracks
 
 
 //------begin function PndTrkTracking::OrderingConformal_Loading_ListTrackCandHit
