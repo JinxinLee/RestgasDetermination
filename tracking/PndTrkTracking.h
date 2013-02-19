@@ -534,6 +534,22 @@ class PndTrkTracking : public FairTask
 
 
 
+  void MatchMvdHitsToSttTracks(
+	bool *keepit,
+	Double_t delta,
+	Double_t highqualitycut,
+	Short_t nSttTrackCand,
+	Double_t *FI0,
+	Double_t *Fifirst,
+	Short_t *CHARGE,
+	Short_t *nPixelHitsinTrack, // output
+	Short_t ListPixelHitsinTrack[][MAXMVDPIXELHITSINTRACK], // output
+	Short_t *nStripHitsinTrack, // output
+	Short_t ListStripHitsinTrack[][MAXMVDSTRIPHITSINTRACK] // output
+	);
+
+
+
   void MatchMvdHitsToSttTracksagain(
 	bool *keepit,
 	bool *Mvdhits,
@@ -550,22 +566,6 @@ class PndTrkTracking : public FairTask
 	Short_t ListStripHitsinTrack[][MAXMVDSTRIPHITSINTRACK] // output
 	);
 
-
-
-
-  void MatchMvdHitsToSttTracks2(
-	bool *keepit,
-	Double_t delta,
-	Double_t highqualitycut,
-	Short_t nSttTrackCand,
-	Double_t *FI0,
-	Double_t *Fifirst,
-	Short_t *CHARGE,
-	Short_t *nPixelHitsinTrack, // output
-	Short_t ListPixelHitsinTrack[][MAXMVDPIXELHITSINTRACK], // output
-	Short_t *nStripHitsinTrack, // output
-	Short_t ListStripHitsinTrack[][MAXMVDSTRIPHITSINTRACK] // output
-	);
 
 
 
