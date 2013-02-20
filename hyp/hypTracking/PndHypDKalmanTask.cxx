@@ -32,7 +32,11 @@
 //#include "PndTpcPoint.h"
 //#include "DemoRecoHit.h"
 //#include "DemoSPHit.h"
-//#include "PndHypRecoSPHit.h"
+#include "../../pnddata/SdsData/PndSdsMCPoint.h"
+#include "../../pnddata/SdsData/PndSdsHit.h"
+#include "../../GenfitTools/recohits/PndSdsRecoHit.h"
+#include "PndGeoHandling.h"
+#include "PndHypRecoSPHit.h"
 #include "PndHypRecoHit.h"
 #include "FairMCPoint.h"
 #include "FairHit.h"
@@ -51,16 +55,17 @@
 
 
 PndHypDKalmanTask::PndHypDKalmanTask()
-  : FairTask("Kalman Filter"), _persistence(kFALSE),_smooth(kFALSE), _evt(0)
+  : FairTask("Kalman Filter"), fPersistence(kFALSE),fSmooth(kFALSE),fUseMVD(false),fEvt(0)
 {
-  _trackBranchName = "Track";
+  fTrackBranchName = "Track";
+ PndGeoHandling::Instance();
 }
 
 
 PndHypDKalmanTask::~PndHypDKalmanTask()
 {
-  if(_pH!=NULL)delete _pH;
-  if(_chi2H!=NULL)delete _chi2H;
+  if(fPH!=NULL)delete fPH;
+  if(fChi2H!=NULL)delete fChi2H;
 }
 
 InitStatus
@@ -76,7 +81,7 @@ PndHypDKalmanTask::Init()
     }
   
   // Get input collection
-  _trackArray=(TClonesArray*) ioman->GetObject(_trackBranchName);
+  fTrackArray=(TClonesArray*) ioman->GetObject(fTrackBranchName);
   
   //if(_trackArray==0)
   //{
@@ -89,29 +94,60 @@ PndHypDKalmanTask::Init()
   //ioman->Register("TrackPreFit","GenFit",_trackArray,_persistence);
  
   // Build hit factory -----------------------------
-  _theRecoHitFactory = new GFRecoHitFactory();
-  std::map<unsigned int,TString>::iterator iter=_hitBranchMap.begin();
-  while(iter!=_hitBranchMap.end()){
-   TClonesArray* ar=(TClonesArray*) ioman->GetObject(iter->second);
-   if(ar==0){
-     Error("PndHypDKalmanTask::Init","point-array %s not found!",iter->second.Data());
-   }
-   else{ 
-     // the next lines is not general because it will work only for CmMCPoints!
-     _theRecoHitFactory->addProducer(iter->first,new GFRecoHitProducer<PndHypHit,PndHypRecoHit>(ar));
-     //FairHit,PndHypDSPHit>(ar));PndHypPoint,PndHypRecoHit
-   }
-  ++iter;
-  }//end loops over hit types
+  fTheRecoHitFactory = new GFRecoHitFactory();
 
+  std::map<unsigned int,TString>::iterator iter=fHitBranchMap.begin();
+  while(iter!=fHitBranchMap.end()){
+
+    TClonesArray* har=(TClonesArray*) ioman->GetObject("HypHit");
+   
+    //cout<<" "<<iter->second<<endl;
+
+    if(har==0){
+      
+      Error("PndHypKalmanTask::Init","Hit array not found");
+    }
+    else{ 
+      
+      if(iter->first==2)fTheRecoHitFactory->addProducer(iter->first,new GFRecoHitProducer<PndHypHit,PndHypRecoSPHit>(har));
+     
+    }
+
+     if(fUseMVD==true){
+       TClonesArray* sar=(TClonesArray*) ioman->GetObject("MVDHit");
+       if(sar==0){
+	 
+	 Error("PndHypKalmanTask::Init","Hit array not found");
+       }
+       else{ 
+	 
+	 if(iter->first==3)fTheRecoHitFactory->addProducer(iter->first,new GFRecoHitProducer<PndSdsHit,PndSdsRecoHit>(sar));
+       }
+     }
+
+    // TClonesArray* ar=(TClonesArray*) ioman->GetObject(iter->second);
+    // if(ar==0){
+    //   Error("PndHypDKalmanTask::Init","point-array %s not found!",iter->second.Data());
+    // }
+    // else{ 
+    //   // the next lines is not general because it will work only for CmMCPoints!
+    //   fTheRecoHitFactory->addProducer(iter->first,new GFRecoHitProducer<PndHypHit,PndHypRecoSPHit>(ar));
+    //   //FairHit,PndHypDSPHit>(ar));PndHypPoint,PndHypRecoHit
+    // }
+    
+    
+    ++iter;
+  }//end loops over hit types
+  
   // setup histograms
-   _pH=new TH1D("pH","p",500,0.02,0.7);
-  _chi2H=new TH1D("chi2H","chi2",100,0,20);
-  _xresH=new TH1D("xres","xres",100,-5,5);
-  _yresH=new TH1D("yres","yres",100,-5,5);
-  _xresFitH=new TH1D("xresfit","xres after fit",100,-5,5);
-  _yresFitH=new TH1D("yresfit","yres after fit",100,-5,5);
-  _pEnd=new TH2D("pEnd","Endpoint",100,-40,40,100,-50,150);
+   fPH=new TH1D("pH","p",500,0.02,0.7);
+  fChi2H=new TH1D("chi2H","chi2",100,0,20);
+  fXresH=new TH1D("xres","xres",100,-5,5);
+  fYresH=new TH1D("yres","yres",100,-5,5);
+  fXresFitH=new TH1D("xresfit","xres after fit",100,-5,5);
+  fYresFitH=new TH1D("yresfit","yres after fit",100,-5,5);
+  fPEnd=new TH2D("pEnd","Endpoint",100,-40,40,100,-50,150);
+ std::cout << "-I- gGeoManager = "<<gGeoManager << std::endl;
 
   return kSUCCESS;
 }
@@ -120,25 +156,25 @@ PndHypDKalmanTask::Init()
 void
 PndHypDKalmanTask::Exec(Option_t* opt)
 {
-  std::cout<<"PndHypDKalmanTask::Exec Event "<<_evt++<<std::endl;
+  std::cout<<"PndHypDKalmanTask::Exec Event "<<fEvt++<<std::endl;
   //Reset output Array
   //if(_trackArray==0) Fatal("PndHypDKalman::Exec)","No TrackArray");
   // _trackArray->Delete();
 
-  Int_t ntracks=_trackArray->GetEntriesFast();
+  Int_t ntracks=fTrackArray->GetEntriesFast();
   
 
   
 
   // Fitting ---------------- can go to another task!
   GFKalman fitter;
-  fitter.setLazy(1); // tell the fitter to skip hits if error occurs  
+  //fitter.setLazy(1); // tell the fitter to skip hits if error occurs  
   fitter.setNumIterations(3);
   for(Int_t itr=0;itr<ntracks;++itr){
-    GFTrack* trk=(GFTrack*)_trackArray->At(itr);
+    GFTrack* trk=(GFTrack*)fTrackArray->At(itr);
     // Load RecoHits 
     try {
-      trk->addHitVector(_theRecoHitFactory->createMany(trk->getCand()));
+      trk->addHitVector(fTheRecoHitFactory->createMany(trk->getCand()));
       std::cout<<trk->getNumHits()<<" hits in track "
 	       <<itr<<std::endl;
     }
@@ -180,18 +216,21 @@ PndHypDKalmanTask::Exec(Option_t* opt)
       // propagate backwards
       GeaneTrackRep* gtrk=dynamic_cast<GeaneTrackRep*>(trk->getTrackRep(0));
       if(gtrk!=NULL)gtrk->setPropDir(-1);
+
       trk->getCardinalRep()->Print();
-      //GFDetPlane pl(TVector3(0,0,0),TVector3(1,0,0),TVector3(0,1,0));
+      GFDetPlane pl(TVector3(0,0,0),TVector3(1,0,0),TVector3(0,1,0));
+
       double p=trk->getTrackRep(0)->getMom().Mag();
-      std::cout<<" momentum "<<p<<std::endl;
+      std::cout<<" momentum "<<p<<" "<<trk->getMom().Mag()<<std::endl;
+      std::cout<<" "<<" N reps "<<trk->getNumReps()<<" chi2red "<<trk->getRedChiSqu()<<std::endl;
       
-      _pH->Fill(p);
+      fPH->Fill(p);
       TVector3 pos=trk->getPos();
-      _pEnd->Fill(pos.X(),pos.Z());
+      fPEnd->Fill(pos.X(),pos.Z());
 
       double chi2=trk->getChiSqu();
-       _chi2H->Fill(chi2);
-      ++_trackcount;
+       fChi2H->Fill(chi2);
+      ++fTrackcount;
 
 
       
@@ -225,33 +264,33 @@ PndHypDKalmanTask::WriteHistograms(const TString& filename){
   // file->mkdir("Kalman");
   // file->cd("Kalman");
   
-  _pH->Write();
-  delete _pH;
-  _pH=NULL;
+  fPH->Write();
+  delete fPH;
+  fPH=NULL;
   
-  _chi2H->Write();
-  delete _chi2H;
-  _chi2H=NULL;
+  fChi2H->Write();
+  delete fChi2H;
+  fChi2H=NULL;
 
-  _xresH->Write();
-  delete _xresH;
-  _xresH=NULL;
+  fXresH->Write();
+  delete fXresH;
+  fXresH=NULL;
 
-  _yresH->Write();
-  delete _yresH;
-  _yresH=NULL;
+  fYresH->Write();
+  delete fYresH;
+  fYresH=NULL;
 
-  _xresFitH->Write();
-  delete _xresFitH;
-  _xresFitH=NULL;
+  fXresFitH->Write();
+  delete fXresFitH;
+  fXresFitH=NULL;
 
-  _yresFitH->Write();
-  delete _yresFitH;
-  _yresFitH=NULL;
+  fYresFitH->Write();
+  delete fYresFitH;
+  fYresFitH=NULL;
 
- _pEnd->Write();
-  delete _pEnd;
-  _pEnd=NULL;
+ fPEnd->Write();
+  delete fPEnd;
+  fPEnd=NULL;
 
   file->Close();delete file;
 

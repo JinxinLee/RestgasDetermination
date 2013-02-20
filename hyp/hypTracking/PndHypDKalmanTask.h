@@ -30,6 +30,7 @@ class GFRecoHitFactory;
 class TH1D;
 class TH2D;
 class TGeoManager; 
+class FairField;
 
 class PndHypDKalmanTask : public FairTask {
 public:
@@ -45,10 +46,11 @@ public:
 
 
   // Modifiers -----------------------
-  void SetTrackBranchName(const TString& name) {_trackBranchName=name;}
-  void AddHitBranch(unsigned int detId, const TString& m){_hitBranchMap[detId]=m;};
-  void SetPersistence(Bool_t opt=kTRUE) {_persistence=opt;}
-  void SetSmooth(Bool_t opt=kTRUE){_smooth=opt;}
+  void SetTrackBranchName(const TString& name) {fTrackBranchName=name;}
+  void AddHitBranch(unsigned int detId, const TString& m){fHitBranchMap[detId]=m;};
+  void SetPersistence(Bool_t opt=kTRUE) {fPersistence=opt;}
+  void SetSmooth(Bool_t opt=kTRUE){fSmooth=opt;}
+  void UseMVD(bool mvd){fUseMVD=mvd;}
 
   // Operations ----------------------
   
@@ -61,31 +63,32 @@ public:
 private:
 
   // Private Data Members ------------
-  TString _trackBranchName;
-  std::map<unsigned int,TString> _hitBranchMap;
-  TClonesArray* _trackArray;
+  TString fTrackBranchName;
+  std::map<unsigned int,TString> fHitBranchMap;
+  TClonesArray* fTrackArray;
   
-  Bool_t _persistence;
+  Bool_t fPersistence;
 
-  GFRecoHitFactory* _theRecoHitFactory;
-  
+  GFRecoHitFactory* fTheRecoHitFactory;
+  FairField* fField;
 
-  TH1D* _pH; // momentum histo;
-  TH1D* _chi2H; // chi2 histo;
-  TH1D* _xresH;
-  TH1D* _yresH;
-  TH1D* _xresFitH;
-  TH1D* _yresFitH;
-  TH2D* _pEnd;
+  TH1D* fPH; // momentum histo;
+  TH1D* fChi2H; // chi2 histo;
+  TH1D* fXresH;
+  TH1D* fYresH;
+  TH1D* fXresFitH;
+  TH1D* fYresFitH;
+  TH2D* fPEnd;
 
-  int _trackcount;
-  Bool_t _smooth;
-  int _evt; // event counter
+  int fTrackcount;
+  Bool_t fSmooth;
+  int fEvt; // event counter
+  bool fUseMVD;
 
   // Private Methods -----------------
 
 public:
-  ClassDef(PndHypDKalmanTask,1)
+  ClassDef(PndHypDKalmanTask,3)
 
 };
 

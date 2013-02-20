@@ -28,13 +28,21 @@
 // Collaborating Class Headers --------
 #include "FairRootManager.h"
 #include "TClonesArray.h"
+#include "FairRunAna.h"
 #include "GFTrack.h"
 #include "TDatabasePDG.h"
-// #include "PndHypHit.h"
+#include "PndHypHit.h"
 #include "FairMCPoint.h"
+#include "../../pnddata/SdsData/PndSdsMCPoint.h"
+#include "../../pnddata/SdsData/PndSdsHit.h"
+#include "../../GenfitTools/recohits/PndSdsRecoHit.h"
+//#include "PndHypRecoHit.h"
+#include "PndHypRecoSPHit.h"
+#include "PndGeoHandling.h"
 
-#include "PndHypRecoHit.h"
-
+#include "FairField.h"
+#include "PndFieldAdaptor.h"
+#include "GFFieldManager.h"
 
 #include "GFRecoHitFactory.h"
 #include "GFKalman.h"
@@ -52,6 +60,7 @@
 #include "LSLTrackRep.h"
 #include "GeaneTrackRep.h"
 #include "FairGeanePro.h"
+
 // Class Member definitions -----------
 
 
@@ -59,6 +68,7 @@ PndHypKalmanTask::PndHypKalmanTask()
   : FairTask("Kalman Filter"), fPersistence(kFALSE)
 {
   fTrackBranchName = "HypTrackCand";
+  //PndGeoHandling::Instance();
 }
 
 
@@ -93,24 +103,48 @@ PndHypKalmanTask::Init()
   // Build hit factory -----------------------------
   fTheRecoHitFactory = new GFRecoHitFactory();
 
-  TClonesArray* ar=(TClonesArray*) ioman->GetObject("HypHit");
-   if(ar==0){
-     Error("PndHypKalmanTask::Init","MVDHit array not found");
-   }
-   else{ 
+  std::map<unsigned int,TString>::iterator iter=fHitBranchMap.begin();
+  
+  while(iter!=fHitBranchMap.end()){
+    
 
-  fTheRecoHitFactory->addProducer(2,new GFRecoHitProducer<PndHypHit,PndHypRecoHit>(ar));
-  
-  
-   }
-   fPro = new FairGeanePro();
+     TClonesArray* har=(TClonesArray*) ioman->GetObject("HypHit");
+   
+    //cout<<" "<<iter->second<<endl;
+
+    if(har==0){
+      
+      Error("PndHypKalmanTask::Init","Hit array not found");
+    }
+    else{ 
+      
+      if(iter->first==2)fTheRecoHitFactory->addProducer(iter->first,new GFRecoHitProducer<PndHypHit,PndHypRecoSPHit>(har));
+     
+    }
+
+    TClonesArray* sar=(TClonesArray*) ioman->GetObject("MVDHit");
+     if(sar==0){
+      
+      Error("PndHypKalmanTask::Init","Hit array not found");
+    }
+    else{ 
+      
+      if(iter->first==3)fTheRecoHitFactory->addProducer(iter->first,new GFRecoHitProducer<PndSdsHit,PndSdsRecoHit>(sar));
+    }
+
+   ++iter;
+  }//end loops over hit types
+
+// create and register output array
+  fTrArray = new TClonesArray("GFTrack"); 
+  ioman->Register("Track","GenFit",fTrArray,fPersistence);
+
+   //fPro = new FairGeanePro();
 
   // setup histograms
   fPH=new TH1D("pH","p",100,0.4,0.6);
   fChi2H=new TH1D("chi2H","chi2",100,0,20);
-  fMassV0=new TH1D("massV0","massV0",100,0,5);
-  fMassETAC=new TH1D("massEta","massEta",100,2.5,3.5);
-  fMasses=new TH1D("masses","masses",100,0,5);
+  
 
   return kSUCCESS;
 }
@@ -121,26 +155,13 @@ PndHypKalmanTask::Exec(Option_t* opt)
 {
   std::cout<<"PndHypKalmanTask::Exec"<<std::endl;
   // Reset output Array
-  //if(fTrackArray==0) Fatal("Kalman::Exec)","No TrackArray");
-  // fTrackArray->Delete();
+  if(fTrArray==0) Fatal("Kalman::Exec)","No TrackArray");
+   fTrArray->Delete();
 
   Int_t ntracks=fTrackArray->GetEntriesFast();
  // Detailed output
-  if(fVerbose>1)std::cout<<" -I- PndMvdKalmanTask: contains "<<ntracks<<" Tracks."<<std::endl;
-  if(fVerbose>2){
-    std::cout<< " Detailed Debug info on the tracks:"<<std::endl;
-    unsigned int detid=12345, index=12345;
-    for(Int_t itr=0;itr<ntracks;++itr){
-      GFTrackCand* trcnd = (GFTrackCand*)fTrackArray->At(itr);
-      std::cout<< "TrackCand no. "<<itr<<" has "<<trcnd->getNHits()<<" hits."<<std::endl;
-      std::cout<<"[ ihit | detid | index";
-      for(unsigned int ihit=0;ihit<trcnd->getNHits();ihit++){
-	trcnd->getHit(ihit,  detid,index);
-	std::cout<<" ]\n[ "<<ihit<<" | "<<detid<<" | "<<index;
-      }
-      std::cout<<" ]"<<std::endl;
-    }
-  }
+ 
+ 
   
   if(ntracks>20){
     std::cout<<"ntracks="<<ntracks<<" Evil Event! skipping"<<std::endl;
@@ -150,42 +171,72 @@ PndHypKalmanTask::Exec(Option_t* opt)
   // Fitting ---------------- can go to another task!
   GFKalman fitter;
 
-  std::vector<TLorentzVector*> particles;
-  std::vector<Int_t> signs;
+  // std::vector<TLorentzVector*> particles;
+  //std::vector<Int_t> signs;
   
   for(Int_t itr=0;itr<ntracks;++itr){
-    std::cout<<"starting track"<<itr<<std::endl;
-    //GFAbsTrackRep* rep = new LSLTrackRep();
-   
 
+    std::cout<<"starting track"<<itr<<std::endl;
+    GFTrackCand* trcnd = (GFTrackCand*)fTrackArray->At(itr);
+    unsigned int detid=12345, index=12345;
+    
+    // setting the magnetic field properly
+     fField= FairRunAna::Instance()->GetField();
+     PndFieldAdaptor* b= new PndFieldAdaptor(fField);
+     GFFieldManager * fb;
+     //fb->getInstance();
+     //fb->init(b);
+
+     GFAbsTrackRep* rep = 0;
+     
+     std::cout<<trcnd->getNHits()<<std::endl;
    // Starting values for guessing
-    Int_t PDGCode= 2212;
-    TVector3 StartPos    = TVector3 (1.0,0.0,0.0);//cmn
+
+    Int_t PDGCode= trcnd->getPdgCode();//2212;
+    TVector3 StartPos    = trcnd->getPosSeed();//TVector3 (1.0,0.0,0.0);//cmn
     TVector3 StartPosErr = TVector3(0,0,0);
-    TVector3 StartMom    = TVector3 (1.,0.,1.);
-    StartMom.SetMagThetaPhi(1.05 , 70.*TMath::Pi()/360. , 0.);
+    TVector3 StartMom    = trcnd->getDirSeed();//TVector3 (1.,0.,1.);
+    //StartMom.SetMagThetaPhi(1.05 , 70.*TMath::Pi()/360. , 0.);
     //   StartMom.SetMag(1.1);
     TVector3 StartMomErr = TVector3(0,0,0);
     TDatabasePDG *fdbPDG= TDatabasePDG::Instance();
     TParticlePDG *fParticle= fdbPDG->GetParticle(PDGCode);
     Double_t  fCharge= fParticle->Charge();
+     // calc momentum projections
+       TVector3 dir=StartMom.Unit();
+       double dxdz=dir.X()/dir.Z();
+       double dydz=dir.Y()/dir.Z();
+    
+       rep=new LSLTrackRep(StartPos.Z(),StartPos.X(),StartPos.Y(),dxdz,dydz,trcnd->getQoverPseed(),
+			   StartPosErr.X(),StartPosErr.Y(),0.1,0.1,0.1,b);//NULL instead of b field
+
     // what to guess here?
-    TVector3 U(1.,0.,0.);
+       /* TVector3 U(1.,0.,0.);
     TVector3 V(0.,1.,0.);
+    
     GFDetPlane start_pl(StartPos,U,V);
     GFAbsTrackRep* rep = new GeaneTrackRep(fPro,
-					 start_pl,StartMom,
-					 StartPosErr,StartMomErr,
-					 fCharge,PDGCode);
+    start_pl,StartMom,
+    					 StartPosErr,StartMomErr,
+    					 fCharge,PDGCode);*/
    
-    GFTrack* trk= new GFTrack(rep);
-    trk->setCandidate(*(GFTrackCand*)fTrackArray->At(itr));
+       //GFTrack* trk= new GFTrack(rep);
+       GFTrack* trk=new((*fTrArray)[fTrArray->GetEntriesFast()]) GFTrack(rep);
+
+    if(trk!=NULL)trk->setCandidate(*(GFTrackCand*)fTrackArray->At(itr));
+   
+    else {
+      std::cout<<" "<< "caca de vaca "<<std::endl;
+      continue;}
+    
+    //std::cout<<" "<< trk->getTrackRep(0)->Print()<<std::endl;
+    //cout<<" "<<trk->Print()<<endl;
+
     //GFTrack* trk=(GFTrack*)fTrackArray->At(itr);
     // Load RecoHits 
 	try {
-	  trk->addHitVector(fTheRecoHitFactory->createMany(trk->getCand()));
-	  std::cout<<trk->getNumHits()<<" hits in track "
-			   <<itr<<std::endl;
+	  trk->addHitVector(fTheRecoHitFactory->createMany(*trcnd));
+	 
     }
 	catch(GFException& e) {
 	  std::cout << e.what();
@@ -210,10 +261,7 @@ PndHypKalmanTask::Exec(Option_t* opt)
       
       fPH->Fill(p);
       
-      TLorentzVector* p4=new TLorentzVector();
-      p4->SetXYZM(p3.X(),p3.Y(),p3.Z(),0.493677);
-      particles.push_back(p4);
-      signs.push_back((Int_t)trk->getTrackRep(0)->getCharge());
+    
 
       Double_t chi2=trk->getChiSqu();
       fChi2H->Fill(chi2);
@@ -224,47 +272,7 @@ PndHypKalmanTask::Exec(Option_t* opt)
 
   std::cout<<"Fitting done"<<std::endl;
 
-  // --- ANALYSIS ---
-  if(particles.size()>20)return;
-  std::cout<<"Starting Analysis"<<std::endl;
 
-
-//   std::vector<TLorentzVector> V0s;
-//   // try to reconstruct V0s
-//   for(Int_t i=0;i<particles.size();++i){
-//     for(Int_t j=i+1;j<particles.size();++j){
-//       TLorentzVector v0=*(particles[i])+*(particles[j]);
-//       V0s.push_back(v0);
-//       if(signs[i]!=signs[j]){
-//         fMassV0->Fill(v0.M());
-//       }
-//     }
-//     delete particles[i];
-//   }
-// 
-//   Double_t mphi=1.020;
-// 
-//   // try to build a etac
-//   for(Int_t i=0;i<V0s.size();++i){
-//     if(fabs(V0s[i].M()-mphi)>0.03)continue;
-//     for(Int_t j=i+1;j<V0s.size();++j){
-//       if(fabs(V0s[j].M()-mphi)>0.03)continue;
-//       TLorentzVector v0=(V0s[i])+(V0s[j]);
-//       fMassETAC->Fill(v0.M());
-//     }
-//   }
-// 
-//   V0s.clear();
-
-
-  // --- "standard" analysis plots
-   for(Int_t i=0;i<particles.size();++i){
-     fMasses->Fill((particles[i])->M());
-   }
- 
-
-  signs.clear();
-  particles.clear();
 
   return;
 }
@@ -288,17 +296,7 @@ PndHypKalmanTask::WriteHistograms(const TString& filename){
   delete fChi2H;
   fChi2H=NULL;
 
-  fMassV0->Write();
-  delete fMassV0;
-  fMassV0=NULL;
-
-  fMassETAC->Write();
-  delete fMassETAC;
-  fMassETAC=NULL;
-
-  fMasses->Write();
-  delete fMasses;
-  fMasses=NULL;
+  
 
   file->Close();
   delete file;

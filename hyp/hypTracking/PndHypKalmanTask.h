@@ -30,6 +30,7 @@ class TClonesArray;
 class GFRecoHitFactory;
 class TH1D;
 class TGeoManager; 
+class FairField;
 
 class PndHypKalmanTask : public FairTask {
 public:
@@ -46,6 +47,7 @@ public:
 
   // Modifiers -----------------------
   void SetTrackBranchName(const TString& name) {fTrackBranchName=name;}
+  void AddHitBranch(unsigned int detId, const TString& m){fHitBranchMap[detId]=m;};
   void SetPersistence(Bool_t opt=kTRUE) {fPersistence=opt;}
   
 
@@ -61,12 +63,13 @@ private:
 
   // Private Data Members ------------
   TClonesArray* fTrackArray;
+TClonesArray* fTrArray;
   TString fTrackBranchName;
-
+  std::map<unsigned int,TString> fHitBranchMap;
   Bool_t fPersistence;
 
   GFRecoHitFactory* fTheRecoHitFactory;
-  
+  FairField* fField;
 
   TH1D* fPH; // momentum histo;
   TH1D* fChi2H; // chi2 histo;
@@ -81,7 +84,7 @@ FairGeanePro *fPro;
   // Private Methods -----------------
 
 public:
-  ClassDef(PndHypKalmanTask,1);
+  ClassDef(PndHypKalmanTask,2);
 
 };
 

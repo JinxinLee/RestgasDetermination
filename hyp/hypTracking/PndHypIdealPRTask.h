@@ -10,15 +10,30 @@
 //
 // Author List:
 //      Sebastian Neubert    TUM            (original author)
-//      adapted by A. Sanchez for HYP purpose
 //
+//      Alicia Sanchez HIM : changed according to hypernuclear project
+//                           requirements
 //-----------------------------------------------------------
 
-#ifndef PNDHYPDPATTERNRECOTASK_HH
-#define PNDHYPDPATTERNRECOTASK_HH
+#ifndef PNDHYPIDEALPRTASK_HH
+#define PNDHYPIDEALPRTASK_HH
 
 // Base Class Headers ----------------
 #include "FairTask.h"
+
+#include "PndMCTrack.h"
+#include "PndGeoHypPar.h"
+#include "PndHypHit.h"
+#include "PndHypPoint.h"
+
+#include "../../pnddata/SdsData/PndSdsMCPoint.h"
+#include "../../pnddata/SdsData/PndSdsHit.h"
+
+#include "GFTrackCand.h"
+
+#include <string>
+#include <vector>
+#include "TH1.h"
 #include<map>
 
 // Collaborating Class Headers -------
@@ -27,68 +42,65 @@
 // Collaborating Class Declarations --
 class TClonesArray;
 class GFRecoHitFactory;
-class AbsBFieldIfc;
-class FairField;
-class FairGeanePro;
 
-class PndHypDPatternRecoTask : public FairTask {
+
+class PndHypIdealPRTask : public FairTask {
 public:
 
   // Constructors/Destructors ---------
-  PndHypDPatternRecoTask();
-  ~PndHypDPatternRecoTask();
+  PndHypIdealPRTask();
+  ~PndHypIdealPRTask();
 
   // Operators
   
 
-  // Accessors -----------------------
-
-
   // Modifiers -----------------------
-  //void SetPointBranchName(const TString& name) {_pointBranchName=name;}
+  //void SetPointBranchName(const TString& name) {fPointBranchName=name;}
   void AddHitBranch(unsigned int detId, const TString& m){fHitBranchNameMap[detId]=m;};
   void SetPersistence(Bool_t opt=kTRUE) {fPersistence=opt;}
-  void SetField(FairField* f){fField=f;}
-  void SetHitFL(Bool_t opt){fMCvalue=opt;}
-  void UseGeane(bool f=true){fUseGeane=f;}
-  void UseMVD(bool mvd){fUseMVD=mvd;}
-  
+
   // Operations ----------------------
   
+    
+  /** Virtual method Init **/
+  //virtual void SetParContainers();
   virtual InitStatus Init();
-
+  virtual InitStatus ReInit();
+    
+  /** Virtual method Exec **/
   virtual void Exec(Option_t* opt);
-
+  
+   void WriteHistograms();
 
 private:
 
   // Private Data Members ------------
   //TString _pointBranchName;
+  TClonesArray* fHitArray;
   TClonesArray* fPointArray;
   TClonesArray* fSdsArray;
   TClonesArray* fTrackArray;
-  TClonesArray* fHitArray;
   TClonesArray* fMcArray;
+  
+  Bool_t fPersistence;
+  
 
   std::map<unsigned int,TString> fHitBranchNameMap;
   std::map<unsigned int,TClonesArray*> fHitBranchMap;
-  int fEventNr;
-  Bool_t fPersistence;
-  Bool_t fUseGeane;
-  bool fUseMVD;
-  Bool_t fMCvalue;
+  std::map<Int_t, GFTrackCand*> fTrackCandMap;
+   int fEventNr;
+   TH1D* fPH; // momentum histo;
+   Int_t GetChargeIon(Int_t ion);
+   void AddHitToTrack(Int_t trackID, Int_t detnum, Int_t iHit);
+   void ClearTrackCandMap();
 
   GFRecoHitFactory* fTheRecoHitFactory;
  
-  FairField* fField;
-  FairGeanePro* fGeanePro;
-
   // Private Methods -----------------
+  
+  
 
-Int_t GetChargeIon(Int_t ion);
-
-public:
-  ClassDef(PndHypDPatternRecoTask,3)
+  ClassDef(PndHypIdealPRTask,2)
 
 };
 
