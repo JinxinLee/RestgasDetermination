@@ -28,7 +28,7 @@
 #include "FairHit.h"
 #include "LSLTrackRep.h"
 #include "GeaneTrackRep.h"
-#include "DetPlane.h"
+//#include "DetPlane.h"
 #include "PndHypHit.h"
 // Class Member definitions -----------
 

@@ -92,8 +92,8 @@ PndHypRecoHit::PndHypRecoHit(PndHypHit* hit)
   : GFRecoHitIfc<GFPlanarHitPolicy>(fNparHitRep)
 {
 
-  std::cout<<" -I- PndHypRecoHit::PndHypRecoHit(PndHypHit*) called."<<std::endl;
-  std::cout<<*hit<<std::endl;
+  //std::cout<<" -I- PndHypRecoHit::PndHypRecoHit(PndHypHit*) called."<<std::endl;
+  //std::cout<<*hit<<std::endl;
 
    TString id =  hit->GetDetName();
   
