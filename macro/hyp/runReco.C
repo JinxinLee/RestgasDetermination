@@ -5,12 +5,12 @@
   
 // Verbosity level (0=quiet, 1=event level, 2=track level, 3=debug)
   Int_t iVerbose = 1;//iVerbose = 3
-  TString inFile = "sim_pidC.root";
+  TString inFile = "sim_piTr.root";//sim_pidC.root";
   Int_t nEvents = 0;//50000;
-  TString parFile="pidparams.root";//pidparams.root";
-  TString RecoFile = "hypIdealPidreco.root";
+  TString parFile="PiTrparams.root";//pidparams.root";
+  TString RecoFile = "hypIdealreco.root";
   //hypIdealPidreco.root";
-  TString outFile = "HypPidIdrecdos2.root";//HypPidIdrecdos2.root";
+  TString outFile = "HypIdrecdos2.root";//HypPidIdrecdos2.root";
  
  // ---  Now choose concrete engines for the different tasks   -------------
   // ------------------------------------------------------------------------
@@ -46,10 +46,10 @@
 // ------------------------------------------------------------------------
   // ----- Prepare GEANE --------------------------------------------
   // this will load Geant3 and execute setup macros to initialize geometry:
-  //FairGeane *Geane = new FairGeane(inFile);
+  //
   FairGeane *Geane = new FairGeane();
+  //fRun->AddTask(Geane);
   fRun->AddTask(Geane);
-  
   // -----  Parameter database   --------------------------------------------
   
   FairRuntimeDb* rtdb = fRun->GetRuntimeDb();
@@ -71,19 +71,23 @@
    PndHypDPatternRecoTask* DemoPR = new PndHypDPatternRecoTask();
    DemoPR->AddHitBranch(2,"HypHit");
    //DemoPR->AddHitBranch(2,"PndTpcPoint");
-   //  DemoPR->AddHitBranch(3,"MVDPoint");
+   //DemoPR->UseMVD(kTRUE);
+   //DemoPR->AddHitBranch(3,"MVDHit");
    DemoPR->SetPersistence();
    DemoPR->UseGeane();
+   //DemoPR->SetHitFL(kTRUE);//starting fit values from first hit in HYP
+   
    fRun->AddTask(DemoPR);
-
+   
    PndHypDKalmanTask* DemoKalman = new PndHypDKalmanTask();
    DemoKalman->AddHitBranch(2,"HypHit");
    //DemoKalman->AddHitBranch(2,"PndTpcPoint");
-   //  DemoKalman->AddHitBranch(3,"MVDPoint");
-   //DemoKalman->SetPersistence();
+   //DemoKalman->UseMVD(kTRUE);
+   //DemoKalman->AddHitBranch(3,"MVDHit");
+   DemoKalman->SetPersistence();
    
    fRun->AddTask(DemoKalman);
-
+   
   
   
   // =========================================================================
@@ -92,6 +96,7 @@
   // -----   Intialise and run   --------------------------------------------
   fRun->Init();
   
+
   fRun->Run(0,nEvents);
   
   DemoKalman->WriteHistograms(outFile.Data());
