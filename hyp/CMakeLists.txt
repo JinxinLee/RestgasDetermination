@@ -15,6 +15,7 @@ ${CMAKE_SOURCE_DIR}/pnddata
 ${CMAKE_SOURCE_DIR}/pnddata/HypData
 ${CMAKE_SOURCE_DIR}/passive
 ${CMAKE_SOURCE_DIR}/PndTools/riemannfit
+${CMAKE_SOURCE_DIR}/PndTools/generalTools
 ${CMAKE_SOURCE_DIR}/hyp
 ${CMAKE_SOURCE_DIR}/hyp/hypData
 ${CMAKE_SOURCE_DIR}/hyp/hypDigi
@@ -59,6 +60,7 @@ THParticle.cxx
 #hypData/PndHypClusterCand.cxx
 #hypData/PndHypStripCluster.cxx
 hypData/PndHypRecoHit.cxx
+hypData/PndHypRecoSPHit.cxx
 
 hypDigi/PndHypStripHitProducer.cxx
 #hypDigi/PndHypPixelHitProducer.cxx
@@ -89,6 +91,8 @@ hypTracking/PndHypIdealTrackingTask.cxx
 hypTracking/PndHypKalmanTask.cxx
 hypTracking/PndHypDKalmanTask.cxx
 hypTracking/PndHypDPatternRecoTask.cxx
+hypTracking/PndHypIdealPRTask.cxx
+hypTracking/PndFieldAdaptor.cxx
 
 hypPID/PndHypAdvancedPidAlgo.cxx
 hypPID/PndHypPidIdealTask.cxx

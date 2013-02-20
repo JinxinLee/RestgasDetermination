@@ -26,6 +26,7 @@
 #pragma link C++ class PndHypCluster+;
 */
 #pragma link C++ class PndHypRecoHit+;
+#pragma link C++ class PndHypRecoSPHit+;
 //#pragma link C++ class PndHypStripCluster+;
 
 //digi
@@ -63,7 +64,8 @@
 #pragma link C++ class PndHypKalmanTask+;
 #pragma link C++ class PndHypDKalmanTask+;
 #pragma link C++ class PndHypDPatternRecoTask+;
-
+#pragma link C++ class PndHypIdealPRTask+;
+#pragma link C++ class PndFieldAdaptor+;
 
 #pragma link C++ class PndHypAdvancedPidAlgo+;
 #pragma link C++ class PndHypPidIdealTask+;
