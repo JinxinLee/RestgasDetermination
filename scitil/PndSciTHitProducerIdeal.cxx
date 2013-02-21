@@ -114,7 +114,7 @@ Double_t t1 = 0;
   for (Int_t iPoint = 0; iPoint < nPoints; iPoint++) 
     {
       point = (PndSciTPoint*) fPointArray->At(iPoint);
-	std::cout << " Ideal Hit Producer -Point-: " << point << std::endl;
+      if (fVerbose>0) std::cout << " Ideal Hit Producer -Point-: " << point << std::endl;
       if ( ! point) 
 	continue;
 
@@ -163,7 +163,7 @@ Double_t t1 = 0;
  
   
   // Event summary
-  std::cout << "-I- PndSciTHitProducerIdeal: " << nPoints << " SciTPoints, "
+  if (fVerbose>1) std::cout << "-I- PndSciTHitProducerIdeal: " << nPoints << " SciTPoints, "
        << nPoints << " Hits created." << std::endl;
   
 
@@ -190,7 +190,7 @@ void PndSciTHitProducerIdeal::GetLocalHitPoints(PndSciTPoint* myPoint,
   if (fVerbose > 0)
     std::cout << "GetLocalHitPoints" << std::endl;
   TGeoHMatrix trans = GetTransformation(myPoint->GetDetName().Data());
-  std::cout<<" name "<<myPoint->GetDetName().Data()<<std::endl;
+  if (fVerbose > 0) std::cout<<" name "<<myPoint->GetDetName().Data()<<std::endl;
   
   
   Double_t posIn[3];
