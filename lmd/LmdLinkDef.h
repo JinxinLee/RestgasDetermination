@@ -6,15 +6,6 @@
 #pragma link off all classes;
 #pragma link off all functions;
 
-//data
-#pragma link C++ class PndSdsMCPoint+;
-#pragma link C++ class PndSdsDigi+;
-#pragma link C++ class PndSdsStrip+;
-
-//SDS
-#pragma link C++ class PndSdsDetector+;
-#pragma link C++ class PndSdsTask+;
-
 //LMD
 #pragma link C++ class PndLmdDim+;
 #pragma link C++ class PndLmdDetector+;
