@@ -381,7 +381,7 @@ void PndSdsHybridHitProducer::Exec(Option_t* opt)
 		tempPixel->AddLink(FairLink(-1, fEventNr, "EventHeader.", -1));
     }
     fDataBuffer->FillNewData(tempPixel, fChargeConverter->ChargeToDigiValue(fPixelList[iPix].GetCharge())*6 + EventTime, point->GetTime()+EventTime);
-    
+    delete tempPixel;
     if (fVerbose > 0){
       std::cout << "PixelDigi: " << (tempPixel) << std::endl;
       std::cout << "Links in Digi: " << (FairMultiLinkedData)(*tempPixel) << std::endl;
