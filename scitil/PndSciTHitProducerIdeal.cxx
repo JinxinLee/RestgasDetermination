@@ -150,7 +150,7 @@ Double_t t1 = 0;
  
       // Create new hit
       new ((*fHitArray)[iPoint]) PndSciTHit(trackID, detID, 
-					   point->GetDetName(),time, fdt, 
+					   point->GetDetName(),time+FairRootManager::Instance()->GetEventTime(), fdt,
 					   position,dpos,iPoint, 
 					   point->GetEnergyLoss());
 
@@ -161,7 +161,7 @@ Double_t t1 = 0;
 
  
  
-  
+  fHitArray->Sort();
   // Event summary
   if (fVerbose>1) std::cout << "-I- PndSciTHitProducerIdeal: " << nPoints << " SciTPoints, "
        << nPoints << " Hits created." << std::endl;
