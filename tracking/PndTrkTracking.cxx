@@ -1361,13 +1361,6 @@ if(istampa>0){
 
 int iconta=0;
  for(iParHit=0; iParHit<nSttParHit ; iParHit++) {
-//--------------------------------------------------
-if(IVOLTE==8){
-	cout<<"cazzo, hit originale n. "<<fListSttParHits[iParHit]<<", fInclusionListStt "<<
-	fInclusionListStt[fListSttParHits[iParHit]]<<", tubeID "<<fTubeID[fListSttParHits[iParHit]]
-	<<", External "<<fExternal_Straws[fTubeID[fListSttParHits[iParHit]]]<<endl;
-}
-//-------------------------------
 	if( ! fInclusionListStt[fListSttParHits[iParHit]] )  continue;
 	if( !fExternal_Straws[fTubeID[fListSttParHits[iParHit]]] ) continue; // only seeds at the external boundary of the STT
 
