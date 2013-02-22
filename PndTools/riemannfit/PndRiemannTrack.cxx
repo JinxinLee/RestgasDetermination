@@ -344,67 +344,84 @@ double PndRiemannTrack::dR()
 
 void
 PndRiemannTrack::szFit(bool withErrorCalc){
-	bool allAlphaZero = true;
 	if (fFitDone == false)
 		refit(withErrorCalc);
   unsigned int num=getNumHits();
   if (fVerbose > 1) std::cout << "szFit() for " << num << " Points!" << std::endl;
+  if (r() > 0) {
 
-  TGraph g(num);
-  // get s'es and zs
-  for(unsigned int i=0;i<num;++i){
-	if (fVerbose > 1) std::cout << "Point: " << i << ": ";
-    fHits[i].calcPosOnTrk(this);
-    if (fVerbose > 1) std::cout << fHits[i].s() << " " << fHits[i].z() << std::endl;
-    g.SetPoint(i,fHits[i].s(),fHits[i].z());
-    if (fHits[i].alpha() != 0)
-    	allAlphaZero = false;
-  }
-  if (!allAlphaZero){
-	  g.Fit("pol1","Q0"); // << std::endl;
-	  TF1* f = g.GetFunction("pol1");
-	  //std::cout << "f: " << f << std::endl;
-	  ft = f->GetParameter(0);
-	  fm = f->GetParameter(1);
-	  ftError = f->GetParError(0);
-	  fmError = f->GetParError(1);
-	  fChi2   = f->GetChisquare();
+	  TGraph g(num);
+	  // get s'es and zs
+	  for(unsigned int i=0;i<num;++i){
+		if (fVerbose > 1) std::cout << "Point: " << i << ": ";
+		fHits[i].calcPosOnTrk(this);
+		if (fVerbose > 1) std::cout << fHits[i].s() << " " << fHits[i].z() << std::endl;
+		g.SetPoint(i,fHits[i].s(),fHits[i].z());
+
+	  }
+		g.Fit("pol1","Q0"); // << std::endl;
+		  TF1* f = g.GetFunction("pol1");
+		  //std::cout << "f: " << f << std::endl;
+		  ft = f->GetParameter(0);
+		  fm = f->GetParameter(1);
+		  ftError = f->GetParError(0);
+		  fmError = f->GetParError(1);
+		  fChi2   = f->GetChisquare();
+		  fSZFitDone = true;
+  } else {
+	  ft = 0;
+	  fm = 0;
+	  ftError = 0;
+	  fmError = 0;
+	  fChi2   = -1;
 	  fSZFitDone = true;
-  }
-  else {
-	  std::cout << "-E- PndRiemannTrack::szFit() all alpha values 0" << std::endl;
-	  fChi2 = -1;
+	  std::cout << "-E- PndRiemannTrack::calcSZ r == 0: " << *this << std::endl;
   }
   if (fVerbose > 1) std::cout << "t, m: " << ft << " +/- " << ftError << " / " << fm << " +/- " << fmError << " Chi2: " << fChi2 << std::endl;
-
   return;
 }
 
 double
 PndRiemannTrack::calcSZChi2(PndRiemannHit* hit){
   // get s'es and zs
-  unsigned int num=getNumHits();
-  if (fVerbose > 1) std::cout << "szFit(hit) for " << num+1 << " Points!" << std::endl;
-  TGraph g(num+1);
-  for(unsigned int i=0;i<num;++i){
-	if (fVerbose > 1) std::cout << "Point: " << i<< ": ";
-    fHits[i].calcPosOnTrk(this);
-    if (fVerbose > 1) std::cout << fHits[i].s() << " " << fHits[i].z() << std::endl;
-    g.SetPoint(i,fHits[i].s(),fHits[i].z());
-  }
-  if (fVerbose > 1) std::cout << "Additional hit: ";
-  hit->calcPosOnTrk(this);
-  if (fVerbose > 1) std::cout << hit->s() << " " << hit->z() << std::endl;
-  g.SetPoint(num, hit->s(), hit->z());
-  g.Fit("pol1","Q0");
-  TF1* f = g.GetFunction("pol1");
+	TF1* f;
+	if (fFitDone == false)
+		refit ();
+	if (r() > 0) {
+		unsigned int num = getNumHits();
+		if (fVerbose > 1)
+			std::cout << "szChi2Fit(hit) for " << num + 1 << " Points!"
+					<< std::endl;
+		TGraph g(num + 1);
+		for (unsigned int i = 0; i < num; ++i) {
+			if (fVerbose > 1)
+				std::cout << "Point: " << i << ": ";
+			fHits[i].calcPosOnTrk(this);
+			if (fVerbose > 1)
+				std::cout << fHits[i].s() << " " << fHits[i].z() << std::endl;
+			g.SetPoint(i, fHits[i].s(), fHits[i].z());
+		}
+		if (fVerbose > 1)
+			std::cout << "Additional hit: ";
+		hit->calcPosOnTrk(this);
+		if (fVerbose > 1)
+			std::cout << hit->s() << " " << hit->z() << std::endl;
+		g.SetPoint(num, hit->s(), hit->z());
+		g.Fit("pol1", "Q0");
+		f = g.GetFunction("pol1");
 
-//  fChi2 = chis;
-  if (fVerbose > 1) std::cout << "t, m: " << f->GetParameter(0) << " +/- " << f->GetParError(0)
-  							  << " / "    << f->GetParameter(1) << " +/- " << f->GetParError(1)
-  							  << "Chi2: " << f->GetChisquare()  << std::endl;
-//  delete(f);
-  return f->GetChisquare();
+		//  fChi2 = chis;
+		if (fVerbose > 1)
+			std::cout << "t, m: " << f->GetParameter(0) << " +/- "
+					<< f->GetParError(0) << " / " << f->GetParameter(1)
+					<< " +/- " << f->GetParError(1) << "Chi2: "
+					<< f->GetChisquare() << std::endl;
+		//  delete(f);
+	} else {
+		std::cout << "-E- PndRiemannTrack::calcSZChi2 r == 0: " << *this << std::endl;
+		return -1;
+	}
+	return f->GetChisquare();
 }
 
 double PndRiemannTrack::calcZPosByS(double s)
