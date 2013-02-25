@@ -1335,7 +1335,7 @@ fprintf(MACRO,
        for( i=0; i< Nhits; i++) {
 
 
-	// exclude multiple hits in the same straw;
+
          if( ! In_Put.InclusionListStt[i] ) continue;
          if( info->at(i*7+5) == 1 ) {     // parallel straws
 fprintf(MACRO,"TEllipse* Paral%d = new TEllipse(%f,%f,%f,%f,0.,360.);\nParal%d->SetFillStyle(0);\nParal%d->Draw();\n",
@@ -2101,7 +2101,7 @@ void PndTrkPlotMacros::WriteMacroParallel_MvdHitsGeneralConformalwithMC(
 	StripV[i] = YMvdStrip->at(i) / gamma;
 	RadiusS[i] = pseudoRadius/gamma;
 
-	if (StripU[i]-RadiusS[i] < xmin)   xmin = PixelU[i]-RadiusS[i];
+	if (StripU[i]-RadiusS[i] < xmin)   xmin = StripU[i]-RadiusS[i];
 	if (StripU[i]+RadiusS[i] > xmax)   xmax = StripU[i]+RadiusS[i];
 	if (StripV[i]-RadiusS[i] < ymin)   ymin = StripV[i]-RadiusS[i];
 	if (StripV[i]+RadiusS[i] > ymax)   ymax = StripV[i]+RadiusS[i];
