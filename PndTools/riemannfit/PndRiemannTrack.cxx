@@ -375,7 +375,7 @@ PndRiemannTrack::szFit(bool withErrorCalc){
 	  fmError = 0;
 	  fChi2   = -1;
 	  fSZFitDone = true;
-	  std::cout << "-E- PndRiemannTrack::calcSZ r == 0: " << *this << std::endl;
+	  if (fVerbose > 1) std::cout << "-E- PndRiemannTrack::calcSZ r == 0: " << *this << std::endl;
   }
   if (fVerbose > 1) std::cout << "t, m: " << ft << " +/- " << ftError << " / " << fm << " +/- " << fmError << " Chi2: " << fChi2 << std::endl;
   return;
