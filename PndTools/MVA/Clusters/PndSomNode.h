@@ -11,8 +11,9 @@
 
 #include <vector>
 #include <string>
+#include <utility>
 
-#define PRINT_SOMNODE_DEBUG 0
+#define PRINT_PND_SOMNODE_DEBUG 1
 
 class PndSomNode
 {
@@ -43,20 +44,20 @@ class PndSomNode
 
   /**
    * Constructor
-   *@param lft Left neighbor.
-   *@param top Top neighbor.
-   *@param rgt Right neighbor.
-   *@param bot Bottom neighbor.
+   *@param lft Left neighbour.
+   *@param top Top neighbour.
+   *@param rgt Right neighbour.
+   *@param bot Bottom neighbour.
    *@param WeightsDim Dimension of the weights.
    */
   PndSomNode(int lft, int top, int rgt, int bot, size_t WeightsDim = 0);
 
   /**
    * Constructor
-   *@param lft Left neighbor.
-   *@param top Top neighbor.
-   *@param rgt Right neighbor.
-   *@param bot Bottom neighbor.
+   *@param lft Left neighbour.
+   *@param top Top neighbour.
+   *@param rgt Right neighbour.
+   *@param bot Bottom neighbour.
    *@param WeightsDim Dimension of the weights.
    *@param label Assigned label to the current node.
    */
@@ -65,10 +66,10 @@ class PndSomNode
   
   /**
    * Constructor
-   *@param lft Left neighbor.
-   *@param top Top neighbor.
-   *@param rgt Right neighbor.
-   *@param bot Bottom neighbor.
+   *@param lft Left neighbour.
+   *@param top Top neighbour.
+   *@param rgt Right neighbour.
+   *@param bot Bottom neighbour.
    *@param label Assigned label to the current node.
    *@param weight Weights of the current node.
    */
@@ -85,7 +86,10 @@ class PndSomNode
   // Assignment
   PndSomNode& operator=(PndSomNode const &oth);
 
-  // Getter and setter
+  /* Currently only on a rectangular grid. */
+  virtual void InitNode();
+
+  // Modifiers:
   inline int  GetLeft() const;
   inline void SetLeft(int val);
 
@@ -104,8 +108,29 @@ class PndSomNode
   inline std::string const& GetLabel() const;
   inline void SetLabel(std::string const& val);
 
+  /**
+   * Get the weights for the current node.
+   *@return The weights of the current node.
+   */
   inline std::vector<float> const& GetWeight() const;
-  inline void SetWeight(std::vector<float> const& val);
+
+  /**
+   * Set weights for the current node.
+   *@param val The vector containing the weight for the current node.
+   */
+  void SetWeight(std::vector<float> const& val);
+
+  /**
+   * Set neigbours for the current node.
+   *@param val The vector containing the neighbour indices.
+   */
+  void SetNeighbours(std::vector< std::pair<size_t, double> > const& val);
+  
+  /**
+   * Get the neigbours of the current node.
+   *@return The neigbours of the current node.
+   */
+  inline std::vector< std::pair<size_t, double> > const& GetNeighbours() const;
 
   inline double GetXPos() const;
   inline void   SetXPos( double xp);
@@ -113,48 +138,60 @@ class PndSomNode
   inline double GetYPos() const;
   inline void   SetYPos( double yp);
 
-#if (PRINT_SOMNODE_DEBUG > 0)
+  /**
+   * Removes all elements from the responsibility list.
+   */
+  void ResetRespList();
+
+  void AddToRespList(size_t idx);
+  void SetRespList(std::vector<size_t> const& val);
+  std::vector<size_t> const& GetRespoList() const;
+
+#if (PRINT_PND_SOMNODE_DEBUG > 0)
   void PrintNode() const;
 #endif
- 
-  // protected:
+
+ protected:
 
  private:
   //_______________ Functions ____________________
   // Clear the internal data structure (reset).
   void ClearInternalStructures();
-
+  
   // Adjust the weights for the current node.
   void AdjustWeights( std::vector<double> const& target,
                       double LearningRate, double Influence);
-
+  
   //___________________ Variables ___________________
-  // Neighbor indices (2D for visualization)
+  // Neighbour indices (2D for visualization)
   int  m_iLeft;
   int  m_iTop;
   int  m_iRight;
   int  m_iBottom;
-
+  
   // Position of the node in the grid cell
   double m_xPos;
   double m_yPos;
-
+  
   // Dimension of the weights
   size_t m_weightDim;
-
+  
   // Label of the current node.
   std::string m_label;
-
+  
   // Weight vector of the current node.
   std::vector<float> m_Weights;
   
-  /* Indices of the actual data point which are under the
-     responsibility of the current node.*/
+  /*
+   * Indices of the actual data point which are under the
+   * responsibility of the current node.
+   */
   std::vector<size_t> m_RespNodeIndex;
+  
+  // <Index, distance> of the neighbours for the current map node.
+  std::vector< std::pair<size_t, double> > m_NeighbourList;
+};// End of class definition
 
-  // Indices of te neighbors for the current map node.
-  std::vector<size_t> m_NeighborList;
-};
 //______________ Inline functions ____________________
 inline int PndSomNode::GetLeft() const
 {
@@ -221,11 +258,6 @@ inline std::vector<float> const& PndSomNode::GetWeight() const
   return this->m_Weights;
 };
 
-inline void PndSomNode::SetWeight(std::vector<float> const& val)
-{
-  this->m_Weights = val;
-};
-
 inline double PndSomNode::GetXPos() const
 {
   return this->m_xPos;
@@ -246,4 +278,8 @@ inline void PndSomNode::SetYPos( double yp)
   this->m_yPos = yp;
 };
 
+inline std::vector< std::pair<size_t, double> > const& PndSomNode::GetNeighbours() const
+{
+  return this->m_NeighbourList;
+};
 #endif// End of interface

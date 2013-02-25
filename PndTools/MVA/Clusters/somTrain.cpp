@@ -68,20 +68,20 @@ int main(int argc, char** argv)
             << std::endl;
   som.InitMap();
   som.TrainBatch();
-  
-#if (PRINT_SOMNODE_DEBUG > 0)
+  som.Calibrate();
+
+#if (PRINT_PND_SOMNODE_DEBUG > 0)
   std::vector<PndSomNode*> const& map = som.GetTheMap();
   
   for(size_t i = 0; i < map.size(); i++) {
     PndSomNode* sn = map[i];
     sn->PrintNode();
   }
-  
   std::cout << " Total number of nodes = " << som.GetNumNodes()
             << " And length is "<< map.size()
             <<'\n';
 #endif
-
+  
   // Clean before quit
   return 0;
 }

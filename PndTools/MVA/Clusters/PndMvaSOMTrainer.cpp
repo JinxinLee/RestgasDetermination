@@ -31,8 +31,9 @@ PndMvaSomTrainer::PndMvaSomTrainer( DataPoints const* const InputData,
                                     size_t numIter,
                                     MapNodeInitType initType,
                                     GridInitType gridInitType)
-  : m_sigmaZero(0),
-    m_lambda(0),
+  : m_sigmaZero(0.00),
+    m_lambda(0.00),
+    m_neighbourhoodRadius(0.00),
     m_MapWidth (mapWidth),
     m_MapHeight(mapHeight),
     m_NumModelVectors(m_MapWidth * mapHeight),
@@ -61,7 +62,7 @@ PndMvaSomTrainer::~PndMvaSomTrainer()
  */
 void PndMvaSomTrainer::InitMap()
 {
-  // Check if the data set is not empty.
+  // Check if the data set is empty.
   assert( m_DataSet->size() != 0 );
 
   // Determine the start radius.
@@ -84,14 +85,39 @@ void PndMvaSomTrainer::InitMap()
 
   // Init per node weight vector.
   switch(m_InitMode) {
-  case RANDOM:// Random numbers
+  case SOM_RANDOM:// Random numbers
     std::cout << "\t<-I-> Init map nodes using Random numbers.\n";
-    InitMap_Random();
+    InitMapnodes_Random();
     break;
-  case RAND_FROM_DATA:// Random vectors selected from data set
+  case SOM_RAND_FROM_DATA:// Random vectors selected from data set
   default:
     std::cout << "\t<-I-> Init map nodes using Points from data set.\n";
-    InitMap_RandomFromData();
+    InitMapnodes_RandomFromData();
+  }
+
+  /*
+   * Populate the neighbour list for all nodes in the map grid.
+   */
+  double distance;
+  for(size_t n = 0; n < m_TheMap.size(); ++n) {
+    // Current node
+    PndSomNode* curr_node = m_TheMap[n];
+    std::vector< std::pair<size_t, double> > neighbours;
+    
+    // Compute the distance to all other map nodes
+    for(size_t p = 0; p < m_TheMap.size(); ++p) {
+      PndSomNode* p_node = m_TheMap[p];
+      // Distance = (dX)^2 + (dY^2)
+      distance = (curr_node->GetXPos() - p_node->GetXPos()) *
+                 (curr_node->GetXPos() - p_node->GetXPos()) +
+                 (curr_node->GetYPos() - p_node->GetYPos()) *
+                 (curr_node->GetYPos() - p_node->GetYPos());
+      
+      // Add to current neigbour list for the current node
+      neighbours.push_back(std::make_pair(p, distance));
+    }
+    // The dist to all other nodes is determind. Add list
+    curr_node->SetNeighbours(neighbours);
   }
 }
 
@@ -100,23 +126,18 @@ void PndMvaSomTrainer::InitMap()
  */
 void PndMvaSomTrainer::InitGridRectAngular()
 {
-  int lfn, rtn, tpn, btn;
-
-  lfn = -1;
   for(size_t r = 0; r < m_MapHeight; ++r) {// rows
-    tpn = r - 1;
-    btn = ( (r + 1) < m_MapHeight )? (r + 1) : -1;
     for(size_t c = 0; c < m_MapWidth; ++c) {// columns
-      rtn = ((lfn + 2) < static_cast<int>(m_MapWidth) )? (lfn + 2) : -1;
-      PndSomNode* node = new PndSomNode(lfn, tpn, rtn, btn);
+      // PndSomNode* node = new PndSomNode(left, top, right, bottom);
+      PndSomNode* node = new PndSomNode(c, r, c+1, r+1);
+      // Init node center
+      node->InitNode();
       // Add the node
       m_TheMap.push_back(node);
-      lfn++;
     }
-    lfn = -1;
   }
   // Debug info
-#if (PRINT_SOMTRAIN_DEBUG_INFO > 0)
+#if (PRINT_PND_SOMTRAIN_DEBUG_INFO > 0)
   printMapGrid();
 #endif
 }
@@ -133,7 +154,7 @@ void PndMvaSomTrainer::InitGridHexagonal()
  * Initialize map nodes using random vectors fetched from the data
  * set.
  */
-void PndMvaSomTrainer::InitMap_RandomFromData()
+void PndMvaSomTrainer::InitMapnodes_RandomFromData()
 {
   // Fetch random examples from the data set.
   TRandom3 rnd;
@@ -148,7 +169,7 @@ void PndMvaSomTrainer::InitMap_RandomFromData()
     PndSomNode *node = m_TheMap[i];
     node->SetWeight(*cur_example);
   }
-#if (PRINT_SOMTRAIN_DEBUG_INFO > 0)
+#if (PRINT_PND_SOMTRAIN_DEBUG_INFO > 0)
   std::cout << " Number of model vectors is " << m_TheMap.size()
             << '\n';
 #endif
@@ -157,7 +178,7 @@ void PndMvaSomTrainer::InitMap_RandomFromData()
 /*
  * Initialize map nodes using vectors with random numbers. 
  */
-void PndMvaSomTrainer::InitMap_Random()
+void PndMvaSomTrainer::InitMapnodes_Random()
 {
   // Non empty data set.
   assert(m_DataSet->size() != 0);
@@ -180,7 +201,7 @@ void PndMvaSomTrainer::InitMap_Random()
     PndSomNode *node = m_TheMap[i];
     node->SetWeight(weight);
   }
-#if (PRINT_SOMTRAIN_DEBUG_INFO > 0)
+#if (PRINT_PND_SOMTRAIN_DEBUG_INFO > 0)
   std::cout << " Number of model vectors is " << m_TheMap.size()
             << '\n';
 #endif
@@ -214,21 +235,120 @@ size_t PndMvaSomTrainer::FindBestMatchingNode(std::vector<float> const& vec)
 }
 
 /**
- * Train map using batch schema.
- *@return Vector containing the map model vectors.
+ * Train map using batch schema. All available data vectors are
+ * presented at once.
  */
 void PndMvaSomTrainer::TrainBatch()
-{}
+{
+  std::cout << "<INFO> Training the map in batch mode.\n";
+
+  // Non empty data set.
+  assert( m_DataSet->size() != 0 );
+  // Initialized map.
+  assert ( m_TheMap.size() != 0 );
+  // Dimension
+  size_t dimension = (m_TheMap[0])->GetNodeDimension();
+
+  /*
+   * Expose the map to all available input (train data points).
+   */
+  size_t mapIndex;// BMU index
+  size_t normCnt;// Number of neighbours
+  double WidthSq;// Width of acceptance
+
+  // Training loop (t_0 ... t_n);
+  for(size_t t = 0; t < m_NumIterations; ++t) {
+    // Reset responsibility lists for all nodes.
+    for(size_t k = 0; k < m_TheMap.size(); ++k) {
+      (*m_TheMap[k]).ResetRespList();
+    }
+    // Calculate the width of the neighbourhood for this step (time).
+    assert(m_lambda > 0.00);
+    m_neighbourhoodRadius = m_sigmaZero * exp( - static_cast<double>(t) / m_lambda);
+    WidthSq = m_neighbourhoodRadius * m_neighbourhoodRadius;
+    // Find BMU and and populate the responsibility lists.
+    for( size_t i = 0; i < m_DataSet->size(); ++i) {
+      std::vector<float> const* currInput = (m_DataSet->at(i)).second;
+      mapIndex = FindBestMatchingNode( *currInput);
+      // Add data point index to the node responsibility list.
+      (m_TheMap[mapIndex])->AddToRespList(i);
+    }
+    /* Map node loop. Visit all nodes and update.*/
+    for(size_t nd = 0; nd < m_TheMap.size(); ++nd) {
+      normCnt = 0;
+      // Current node
+      PndSomNode* curr_node = m_TheMap[nd];
+      std::vector<float> Cr_weight(dimension, 0.00);
+      // Loop through the respo. list
+      std::vector<size_t> const& resList = curr_node->GetRespoList();
+      normCnt += resList.size();
+      for(size_t ev = 0; ev < resList.size(); ++ev) {
+        std::vector<float> const* evt = (m_DataSet->at(resList[ev])).second;
+        // Update
+        for( size_t d = 0; d < evt->size(); ++d) {
+          Cr_weight[d] += evt->at(d);
+        }
+      }
+      // List of the neighbors for the curren map node.
+      std::vector< std::pair<size_t, double> > const& nls = curr_node->GetNeighbours();
+      // Neighbour list loop.
+      for(size_t b = 0; b < nls.size(); ++b) {
+        // If the neighbor inside neighborhood dist.
+        if(nls[b].second < WidthSq) {
+          // The neighbor
+          PndSomNode const* curr_neighb = m_TheMap[b];
+          // The list of data points
+          std::vector<size_t> const& rsl = curr_neighb->GetRespoList();
+          normCnt += rsl.size();
+          // Loop of data points
+          for(size_t ev = 0; ev < rsl.size(); ++ev) {
+            std::vector<float> const* dat = (m_DataSet->at(rsl[ev])).second;
+            // Update
+            for( size_t d = 0; d < dat->size(); ++d) {
+              Cr_weight[d] += dat->at(d);
+            }
+          }
+        }// If inside Ni
+      }// All neighb.
+      // Normalize current node
+      if(normCnt != 0) {
+        for( size_t d = 0; d < Cr_weight.size(); ++d) {
+          Cr_weight[d] = Cr_weight[d] / static_cast<float>(normCnt);
+        }
+      }
+      // Replace weight.
+      curr_node->SetWeight(Cr_weight);
+
+      // Print Debug info in debug mode
+#if (PRINT_PND_SOMTRAIN_DEBUG_INFO > 2)
+      std::cout << " size is "  << nls.size()
+                << " wrSize = " << Cr_weight.size()
+                << " and sqrt width = " << WidthSq
+                << " neighCnt = " << normCnt
+                << std::endl;
+#endif
+    }// Map nodes loop
+  }// End Train loop
+}
 
 /**
- * Train the map using Online scheme.
- *@return Vector containing the map model vectors.
+ * Train the map using Online scheme. Data vectors are presented one
+ * at a time.
  */
 void PndMvaSomTrainer::TrainOnline()
-{}
+{
+  std::cerr << "<ERROR> Online training is not implemented yet.\n"
+            << "\t Either you need to implement it or wait\n";
+}
+
+void PndMvaSomTrainer::Calibrate()
+{
+  std::cout << "<INFO> Calibrating the SOM based on majority counts.\n";
+  
+}
 
 //_____________ DEBUG _________________
-#if (PRINT_SOMTRAIN_DEBUG_INFO > 0)
+#if (PRINT_PND_SOMTRAIN_DEBUG_INFO > 0)
 void PndMvaSomTrainer::printMapGrid() const
 {
   for(size_t i = 0; i < m_TheMap.size(); ++i) {

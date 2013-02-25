@@ -18,21 +18,26 @@ class PndSomNode;
 // ROOT & PANDAroot
 class TRandom3;
 
-//! Data structure of the space points and the map model vectors.
+/* Data structure of the space points and the map model vectors.*/
 typedef std::vector< std::pair<std::string, std::vector<float>*> > DataPoints;
 
+/*
+ * Scheme to initialize the model vector inside each of the map nodes.
+*/
 typedef enum MapNodeInitType{
-  RAND_FROM_DATA = 0, // Select randomly from data vector.
-  RANDOM         = 1  // Use random numbers
+  SOM_RAND_FROM_DATA = 0, // Select randomly from data vector.
+  SOM_RANDOM         = 1  // Use random numbers
 } MapNodeInitType;
-
+/*
+ * Scheme for the shape of the grid.
+*/
 typedef enum GridInitType{
   RECTANGULAR = 0, // Init rectangular grid
   HEXAGONAL   = 1  // Init hexagonal grid
 } GridInitType;
 
-// Debug constants
-#define PRINT_SOMTRAIN_DEBUG_INFO 1
+// Debug constants, 0 = no DEBUG, 1 = DEBUG info
+#define PRINT_PND_SOMTRAIN_DEBUG_INFO 1
 
 class PndMvaSomTrainer
 {
@@ -50,7 +55,7 @@ class PndMvaSomTrainer
    */
   explicit PndMvaSomTrainer( DataPoints const* const InputData,
                              size_t mapWidth, size_t mapHeight, size_t numIter,
-                             MapNodeInitType initType = RAND_FROM_DATA,
+                             MapNodeInitType initType = SOM_RAND_FROM_DATA,
                              GridInitType gridInitType = RECTANGULAR);
   /**
    * Destructor.
@@ -60,21 +65,23 @@ class PndMvaSomTrainer
   /**
    * Initialize the map according to the given scheme.
    */
-  void InitMap();
-
+  virtual void InitMap();
+  
   /**
-   * Train map using batch schema.
-   *@return Vector containing the map model vectors.
+   * Train map using batch schema. All available data vectors are
+   * presented at once.
    */
   virtual void TrainBatch();
-
+  
   /**
-   * Train the map using Online scheme.
-   *@return Vector containing the map model vectors.
+   * Train the map using Online scheme. Data vectors are presented one
+   * at a time.
    */
   virtual void TrainOnline();
 
-  //____________ Getters and Setters
+  virtual void Calibrate();
+
+  //____________ Getters and Setters ______
   //________________________________________
   /**
    *@return The actual SOM.
@@ -91,14 +98,17 @@ class PndMvaSomTrainer
    *@return The total number of map nodes.
    */
   inline size_t GetNumNodes() const;
-
+  
+  /**
+   * Set initial value for sigma.
+   */
   inline void SetSigmaZero(double val);
   inline double GetSigmaZero() const;
 
   inline void SetLambda(double val);
   inline double GetLambda() const;
 
-  inline void SetNodeInitType(MapNodeInitType val = RAND_FROM_DATA);
+  inline void SetNodeInitType(MapNodeInitType val = SOM_RAND_FROM_DATA);
   inline MapNodeInitType GetNodeInitType() const;
 
   inline size_t GetMapHeight() const;
@@ -115,7 +125,7 @@ class PndMvaSomTrainer
  protected:
 
   //_____________ DEBUG _________________
-#if (PRINT_SOMTRAIN_DEBUG_INFO > 0)
+#if (PRINT_PND_SOMTRAIN_DEBUG_INFO > 0)
   void printMapGrid() const;
 #endif
 
@@ -142,12 +152,12 @@ class PndMvaSomTrainer
    * Initialize map nodes using random vectors fetched from the data
    * set.
    */
-  void InitMap_RandomFromData();
+  void InitMapnodes_RandomFromData();
   
   /*
    * Initialize map nodes using vectors with random numbers. 
    */
-  void InitMap_Random();
+  void InitMapnodes_Random();
   
   /*
    * Returns the index of the BMU map node.
@@ -160,14 +170,15 @@ class PndMvaSomTrainer
   //___________________ Variables ___________________
   double m_sigmaZero;//the width of the lattice at time t0
   double m_lambda;// A time constant, determine neighborhood
-
+  double m_neighbourhoodRadius; //the current width of area of influence
+ 
   size_t m_MapWidth;// Width of the map
   size_t m_MapHeight;// Height of the map
   size_t m_NumModelVectors;// Number of map nodes
   size_t m_NumIterations;//Number of iterations for learning.
 
   MapNodeInitType m_InitMode;// Init Scheme
-  GridInitType    m_GridType;// Type of the map grid.
+  GridInitType    m_GridType;// Shape of the map grid.
   std::vector<PndSomNode*> m_TheMap;// The actual map container
   DataPoints const* m_DataSet;// Data points used to train the map.
 };// End of class definition

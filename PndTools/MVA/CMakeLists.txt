@@ -35,6 +35,7 @@ PndMvaVariable.h
 PndMvaClass.h
 PndMvaVarPCATransform.h
 Clusters/PndMvaCluster.h
+Clusters/PndMvaSOMTrainer.h
 KNN/PndStdKnnClassify.h
 KNN/PndPrzWindowClassify.h
 LVQ/PndLVQClassify.h
@@ -59,6 +60,7 @@ PndMvaTrainer.cpp
 PndMvaUtil.cpp
 PndMvaVarPCATransform.cpp
 Clusters/PndMvaCluster.cpp
+Clusters/PndMvaSOMTrainer.cpp
 KNN/PndStdKnnClassify.cpp
 KNN/PndPrzWindowClassify.cpp
 LVQ/PndLVQClassify.cpp
