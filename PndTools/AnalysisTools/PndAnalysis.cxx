@@ -350,7 +350,8 @@ void PndAnalysis::BuildMcCands()
     //pmc->SetMcIdx(size);
     pmc->SetMcIdx(i);
     pmc->SetPos(stvtx);
-    pmc->SetType(part->GetPdgCode());
+    pmc->SetType(part->GetPdgCode()); //now the mass is set to the pdt mean value
+    pmc->SetP4(p4); //we reset to the mc-generator's mass
     pmc->SetMcMotherIdx(mcMotherID);
     
     if(fabs(charge)>0){
