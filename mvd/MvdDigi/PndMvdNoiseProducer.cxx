@@ -398,8 +398,7 @@ Double_t PndMvdNoiseProducer::CalcReadoutCycles(Double_t clock)
       timewindow = 50.; // how many ns do we suppress readout of zeros?
     }
   }
-  if(fVerbose>1);
-  printf(" -I- PndMvdNoiseProducer::CalcReadoutCycles(): %g cycles (%gMHz,%gns)\n",cycles,clock,timewindow);
+  if(fVerbose>1) printf(" -I- PndMvdNoiseProducer::CalcReadoutCycles(): %g cycles (%gMHz,%gns)\n",cycles,clock,timewindow);
   return cycles;
 }
 
