@@ -41,7 +41,7 @@ void runLumiPixel0SimBox(const int nEvents=10, const int startEv=0, const double
   fRun->AddModule(Cave);
 
   FairModule *Pipe= new PndPipe("PIPE");
-  Pipe->SetGeometryFileName("beampipe_201210.root");
+  Pipe->SetGeometryFileName("../macro/lmd/geo/beampipe_201210.root");
   fRun->AddModule(Pipe);
   
 
@@ -109,8 +109,8 @@ void runLumiPixel0SimBox(const int nEvents=10, const int startEv=0, const double
   fBox->SetThetaRange(0.229183, 0.458366); //4 ... 8 mrad
   //fBox->SetThetaRange(0.458366, 0.458366); //!!! 8 mrad
   //fBox->SetThetaRange(0.3, 0.3);//TEST 
-  // fBox->SetPhiRange(0,360.);
-  fBox->SetPhiRange(0.5,359.5); //FOR missed track check
+  fBox->SetPhiRange(0,360.);
+  //  fBox->SetPhiRange(0.5,359.5); //FOR missed track check
   // fBox->SetPhiRange(0.,0.);
   //  fBox->SetPhiRange(0,0);//TEST
   primGen->AddGenerator(fBox); 
