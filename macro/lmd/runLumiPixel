@@ -28,6 +28,6 @@ pbeam=15
     root -l -b -q runLumi4KalmanFitter.C\(${numEv},0,"\"${path}\"",0,1,${mergedHits}\)
     root -l -b -q runLumi5Geane.C\(${numEv},${pbeam},0,"\"${path}\"",0,${mergedHits}\)
 
-    cd ${VMCWORKDIR}/build/bin
+    cd ${VMCWORKDIR}/buildPanda/bin
     ./rec_mc_match -s 0 -n ${numEv} -t ${numTrks} -mom ${pbeam} -npx 1 -mh 0 -v 0 -path ${path}
 # #exit
