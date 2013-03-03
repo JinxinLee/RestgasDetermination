@@ -18,7 +18,7 @@
 #include "PndSciTHit.h"
 #include "PndSttPoint.h"
 #include "PndSttTrack.h"
-#include "PndSttPoint.h"load
+#include "PndSttPoint.h"
 #include "PndSttHelixHit.h"
 #include "PndSttSingleStraw.h"
 #include "PndSttTube.h"
