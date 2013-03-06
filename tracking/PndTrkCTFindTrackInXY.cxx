@@ -916,8 +916,9 @@ Short_t PndTrkCTFindTrackInXY::FindTrackPatterninBoxConformalSpecial(
 			iFi = iFi2;
 		}
 	     bi_index = iR*nfid+iFi;
-	     tri_index = j*nrd*nfid+bi_index;
 	     for (j = 0; j< nBoxConformal[bi_index]; j++){
+		tri_index = j*nrd*nfid+bi_index;
+
 		if(InclusionListStt[HitsinBoxConformal[tri_index]]
 				&&
 			TemporaryInclusionList[ HitsinBoxConformal[tri_index]]
