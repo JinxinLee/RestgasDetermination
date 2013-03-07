@@ -7,6 +7,7 @@
 #include "PndGeoSttPar.h"
 #include "PndMCTrack.h"
 #include "PndTrkPrintouts.h"
+#include "PndTrkVectors.h"
 #include "PndSttTrack.h"
 #include "PndSttTrackFinder.h"
 #include "PndSttTube.h"
@@ -94,17 +95,14 @@ class PndTrkTracking : public FairTask
 	MAXSCITILHITS		= 200, // max SciTil hits total.
 	MAXSCITILHITSINTRACK	= 2,   // max SciTil hits in one track.
 	MAXSTTHITS		= 900,
-	MAXSTTHITSINTRACK	= 30,
+	MAXSTTHITSINTRACK	= 40,
 	MAXTRACKSPEREVENT	= 100,
 //	NFIDIVCONFORMAL		= (Short_t) (3.141592654 * 45./0.5),
 	NFIDIVCONFORMAL		= 282,
-	NRDIVCONFORMAL		= 10,
-	NUMBER_STRAWS		= 4542+1; // +1 is because the straw numbers
-					  // start at 1;
-
+	NRDIVCONFORMAL		= 10
+	;
   bool
 	doMcComparison,
-	fExternal_Straws[NUMBER_STRAWS],
 	SingleHitListStt[MAXSTTHITS],
 	iplotta,
 	fMvdAloneTracking,
@@ -139,9 +137,7 @@ class PndTrkTracking : public FairTask
 	fListMvdDSPixelHitNotTrackCand[MAXMVDPIXELHITS],
 	fListMvdDSStripHitNotTrackCand[MAXMVDSTRIPHITS],
 	fListMvdPixelHitsinTrack[MAXTRACKSPEREVENT][MAXMVDPIXELHITSINTRACK],
-	fListMvdPixelHitsinTrackSave[MAXTRACKSPEREVENT][MAXMVDPIXELHITSINTRACK],
 	fListMvdStripHitsinTrack[MAXTRACKSPEREVENT][MAXMVDSTRIPHITSINTRACK],
-	fListMvdStripHitsinTrackSave[MAXTRACKSPEREVENT][MAXMVDSTRIPHITSINTRACK],
 	fListMvdUSPixelHitNotTrackCand[MAXMVDPIXELHITS],
 	fListMvdUSStripHitNotTrackCand[MAXMVDSTRIPHITS],
 	fListSciTilHitsinTrack[MAXTRACKSPEREVENT][MAXSCITILHITSINTRACK],
@@ -170,10 +166,8 @@ class PndTrkTracking : public FairTask
 	fnMvdDSStripHitNotTrackCand,
 	fnMvdPixelHit,
 	fnMvdPixelHitsinTrack[MAXTRACKSPEREVENT],
-	fnMvdPixelHitsinTrackSave[MAXTRACKSPEREVENT],
 	fnMvdStripHit,
 	fnMvdStripHitsinTrack[MAXTRACKSPEREVENT],
-	fnMvdStripHitsinTrackSave[MAXTRACKSPEREVENT],
 	fnMvdTrackCand,
 	fnMvdUSPixelHitNotTrackCand,
 	fnMvdUSStripHitNotTrackCand,
@@ -182,8 +176,8 @@ class PndTrkTracking : public FairTask
 	fnSttParHitsinTrack[MAXTRACKSPEREVENT],
 	fnSttSkewHitsinTrack[MAXTRACKSPEREVENT],
 	fnSttSkewHitsinTrackSave[MAXTRACKSPEREVENT],
-	fnTrackCandHit[MAXTRACKSPEREVENT],
-	fTubeID[MAXSTTHITS];
+	fnTrackCandHit[MAXTRACKSPEREVENT];
+
 
   int
 	fNevents_to_plot,
@@ -230,7 +224,17 @@ class PndTrkTracking : public FairTask
 	fZMvdPixel[MAXMVDPIXELHITS],
 	fZMvdStrip[MAXMVDSTRIPHITS];
 
-//  FairRootManager *ioman;
+
+
+//---------------------------------------------------------------------------------------------------------------
+ //  definitions of useful arrays; questi dopo devono essere ridotti, ora troppo grossi inutilmente.
+ Double_t
+	SttSkewS[MAXTRACKSPEREVENT][2*MAXSTTHITS],
+	SttSkewZ[MAXTRACKSPEREVENT][2*MAXSTTHITS],
+	SttSkewZDrift[MAXTRACKSPEREVENT][2*MAXSTTHITS],
+	SttSkewZErrorafterTilt[MAXTRACKSPEREVENT][2*MAXSTTHITS];
+//-------------------------------------------------------------------------------------------------
+
 
   FILE
 	* HANDLE,
@@ -493,6 +497,26 @@ class PndTrkTracking : public FairTask
 	);
 
 
+  void LoadSZetc_forSZfit2(
+	Short_t ncand,			// input
+	Short_t nhitsinfit,		// input
+	Double_t * Sskew,		// input
+	Double_t * Zskew,		// input
+	Double_t * ZDriftskew,	// input
+	Double_t * ZErrorafterTiltskew,	// input
+	bool YesGLPKfitSZ,		// input
+
+	Double_t * ErrorDriftRadius,	 // output
+	Double_t * ErrorDriftRadiusbis,	 // output
+	Double_t * DriftRadius,		 // output
+	Double_t * DriftRadiusbis,	 // output
+	Double_t * S,			 // output
+	Double_t * Sbis,		 // output
+	Double_t * ZED,			 // output
+	Double_t * ZEDbis		 // output
+	);
+
+
 
   void LoadSZetc_forSZfit(
 	Short_t ncand,			// input
@@ -520,19 +544,6 @@ class PndTrkTracking : public FairTask
 	);
 
 
-  void MatchMvdHitsToSttTracks(
-	Double_t delta,
-	Short_t nSttTrackCand,
-	Double_t *FI0,
-	Double_t *Fifirst,
-
-	Short_t *nPixelHitsinTrack, // output
-	Short_t ListPixelHitsinTrack[][MAXMVDPIXELHITS], // output
-	Short_t *nStripHitsinTrack, // output
-	Short_t ListStripHitsinTrack[][MAXMVDSTRIPHITS] // output
-	);
-
-
 
   void MatchMvdHitsToSttTracks(
 	bool *keepit,
@@ -547,6 +558,7 @@ class PndTrkTracking : public FairTask
 	Short_t *nStripHitsinTrack, // output
 	Short_t ListStripHitsinTrack[][MAXMVDSTRIPHITSINTRACK] // output
 	);
+
 
 
 
@@ -566,6 +578,22 @@ class PndTrkTracking : public FairTask
 	Short_t ListStripHitsinTrack[][MAXMVDSTRIPHITSINTRACK] // output
 	);
 
+
+
+
+  void MatchMvdHitsToSttTracks2(
+	bool *keepit,
+	Double_t delta,
+	Double_t highqualitycut,
+	Short_t nSttTrackCand,
+	Double_t *FI0,
+	Double_t *Fifirst,
+	Short_t *CHARGE,
+	Short_t *nPixelHitsinTrack, // output
+	Short_t ListPixelHitsinTrack[][MAXMVDPIXELHITSINTRACK], // output
+	Short_t *nStripHitsinTrack, // output
+	Short_t ListStripHitsinTrack[][MAXMVDSTRIPHITSINTRACK] // output
+	);
 
 
 
@@ -702,10 +730,11 @@ class PndTrkTracking : public FairTask
 	Double_t RStrawDetMax
 	);
 
-
   void StoreMvdHitsS(
 	Short_t nTotalCandidates
 	);
+
+
 
   bool SttSkewCleanup(
 	Double_t GAP,
