@@ -9,25 +9,28 @@
 #ifndef PND_SOM_TRAINER_H
 #define PND_SOM_TRAINER_H
 
-// C & C++
+//________________________
 #include <vector>
 
-// Local includes
+//________________________
 class PndSomNode;
 
-// ROOT & PANDAroot
+//________________________
 class TRandom3;
 
-/* Data structure of the space points and the map model vectors.*/
+/**
+ * Data structure of the space points and the map model vectors.
+ */
 typedef std::vector< std::pair<std::string, std::vector<float>*> > DataPoints;
 
-/*
+/**
  * Scheme to initialize the model vector inside each of the map nodes.
-*/
+ */
 typedef enum MapNodeInitType{
   SOM_RAND_FROM_DATA = 0, // Select randomly from data vector.
   SOM_RANDOM         = 1  // Use random numbers
 } MapNodeInitType;
+
 /*
  * Scheme for the shape of the grid.
 */
@@ -37,7 +40,7 @@ typedef enum GridInitType{
 } GridInitType;
 
 // Debug constants, 0 = no DEBUG, 1 = DEBUG info
-#define PRINT_PND_SOMTRAIN_DEBUG_INFO 1
+#define PRINT_PND_SOM_TRAIN_DEBUG_INFO 1
 
 class PndMvaSomTrainer
 {
@@ -79,6 +82,10 @@ class PndMvaSomTrainer
    */
   virtual void TrainOnline();
 
+  /**
+   * Calibrate the map (post labeling). The current implementation
+   * uses the winner takes all scheme.
+   */
   virtual void Calibrate();
 
   //____________ Getters and Setters ______
@@ -104,19 +111,31 @@ class PndMvaSomTrainer
    */
   inline void SetSigmaZero(double val);
   inline double GetSigmaZero() const;
-
+  
+  /**
+   * Set initial value for lambda.
+   */
   inline void SetLambda(double val);
   inline double GetLambda() const;
 
+  /**
+   * Set initialization method.
+   */
   inline void SetNodeInitType(MapNodeInitType val = SOM_RAND_FROM_DATA);
   inline MapNodeInitType GetNodeInitType() const;
 
+  /**
+   * Map size.
+   */
   inline size_t GetMapHeight() const;
   inline void   SetMapHeight(size_t val);
 
   inline size_t GetMapWidth()  const;
   inline void   SetMapWidth(size_t val);
 
+  /**
+   * Number of iteration (epochs, learning steps).
+   */
   inline size_t GetNumIterations() const;
   inline void   SetNumIterations(size_t val);
 
@@ -125,7 +144,7 @@ class PndMvaSomTrainer
  protected:
 
   //_____________ DEBUG _________________
-#if (PRINT_PND_SOMTRAIN_DEBUG_INFO > 0)
+#if (PRINT_PND_SOM_TRAIN_DEBUG_INFO > 0)
   void printMapGrid() const;
 #endif
 
@@ -139,12 +158,12 @@ class PndMvaSomTrainer
   PndMvaSomTrainer& operator=(PndMvaSomTrainer const& oth);/*Assign*/
 
   /*
-   * Init a hexagonal grid.
+   * Init a rectangular grid.
    */
   void InitGridRectAngular();
   
   /*
-   * Init a rectangular grid.
+   * Init a hexagonal grid.
    */
   void InitGridHexagonal();
   

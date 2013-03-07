@@ -9,11 +9,13 @@
 #ifndef PND_SOM_NODE_H
 #define PND_SOM_NODE_H
 
+//________________________
 #include <vector>
 #include <string>
-#include <utility>
+#include <map>
 
-#define PRINT_PND_SOMNODE_DEBUG 1
+//________________________
+#define PRINT_PND_SOM_NODE_DEBUG 0
 
 class PndSomNode
 {
@@ -86,10 +88,16 @@ class PndSomNode
   // Assignment
   PndSomNode& operator=(PndSomNode const &oth);
 
-  /* Currently only on a rectangular grid. */
+  /*
+   * Init the node.
+   * Currently only on a rectangular grid.
+   */
   virtual void InitNode();
 
   // Modifiers:
+  /**
+   * Getter and setters for the neighbours.
+   */
   inline int  GetLeft() const;
   inline void SetLeft(int val);
 
@@ -102,9 +110,15 @@ class PndSomNode
   inline int  GetBottom() const;
   inline void SetBottom(int val);
 
+  /**
+   * Modify node weight dimension
+   */
   inline size_t GetNodeDimension() const;
   inline void   SetNodeDimension( size_t val);
-
+  
+  /**
+   * Modify node label (class name)
+   */
   inline std::string const& GetLabel() const;
   inline void SetLabel(std::string const& val);
 
@@ -132,6 +146,10 @@ class PndSomNode
    */
   inline std::vector< std::pair<size_t, double> > const& GetNeighbours() const;
 
+  /**
+   * Position of the node in the grid. The position is the center
+   * point of each mesh node.
+   */
   inline double GetXPos() const;
   inline void   SetXPos( double xp);
 
@@ -143,11 +161,24 @@ class PndSomNode
    */
   void ResetRespList();
 
+  /**
+   * Modify the node responsibility list
+   */
   void AddToRespList(size_t idx);
   void SetRespList(std::vector<size_t> const& val);
   std::vector<size_t> const& GetRespoList() const;
 
-#if (PRINT_PND_SOMNODE_DEBUG > 0)
+  /**
+   * Modify the node label map. This map contains the labels of
+   * training data for which this node hase been the BMU.
+   */
+  void SetLabelMap(std::map<std::string, size_t> const &val);
+  std::map<std::string, size_t> const& GetLabelMap() const;
+
+  /**
+   * Debug functions
+   */
+#if (PRINT_PND_SOM_NODE_DEBUG > 0)
   void PrintNode() const;
 #endif
 
@@ -158,7 +189,10 @@ class PndSomNode
   // Clear the internal data structure (reset).
   void ClearInternalStructures();
   
-  // Adjust the weights for the current node.
+  /*
+   * Adjust the weights for the current node (not used in the batch
+   * mode).
+   */
   void AdjustWeights( std::vector<double> const& target,
                       double LearningRate, double Influence);
   
@@ -190,6 +224,9 @@ class PndSomNode
   
   // <Index, distance> of the neighbours for the current map node.
   std::vector< std::pair<size_t, double> > m_NeighbourList;
+  
+  // Map holding counts per label
+  std::map<std::string, size_t> m_labelCnts;
 };// End of class definition
 
 //______________ Inline functions ____________________

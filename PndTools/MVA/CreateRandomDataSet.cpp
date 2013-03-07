@@ -40,7 +40,7 @@ int main(int argc, char**argv)
   
   clas.push_back("electron");
   clas.push_back("pion");
-  //  clas.push_back("muon");
+  clas.push_back("muon");
   //clas.push_back("kaon");
   //clas.push_back("proton");
   
