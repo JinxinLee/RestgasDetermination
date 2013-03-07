@@ -84,6 +84,52 @@ void PndTrkPrintouts::stampaSttHits(
 	Double_t *WDY,
 	Double_t *WDZ,
 	FairMCPoint* puntator,
+	PndSttTube * pSttTube
+	)
+{
+
+	Short_t i = iHit;
+
+	cout <<"\tStt iHit "<< i << " e n. punto MC ottenuto con RefIndex = "
+      	<<ipunto<<endl;
+      if(ipunto<0) {
+      	cout<<"hit di background da mixing!\n";
+      	cout <<"             hit wire pos. in middle "   << pSttTube->GetPosition().X() << " " <<
+             pSttTube->GetPosition().Y() << " " << pSttTube->GetPosition().Z() 
+           << "; R = "<<sqrt(pSttTube->GetPosition().X()*pSttTube->GetPosition().X()+
+	   pSttTube->GetPosition().Y()*pSttTube->GetPosition().Y())<<
+	   ", suo drift radius = "<<dradius <<endl;
+      	cout <<"             wire direction, X, Y, Z (Z direction set always positive)"
+      	<< WDX[i]<<"  "<<WDY[i]<<"  "<<WDZ[i] <<endl;
+      } else{
+      cout <<"             hit X, Y, Z space position "   << puntator->GetX() << " " <<
+                       puntator->GetY() << " " << puntator->GetZ()<<endl; 
+      cout <<"             hit wire pos. in middle "   << pSttTube->GetPosition().X() << " " <<
+             pSttTube->GetPosition().Y() << " " << pSttTube->GetPosition().Z() 
+           << "; R = "<<sqrt(pSttTube->GetPosition().X()*pSttTube->GetPosition().X()+
+	   pSttTube->GetPosition().Y()*pSttTube->GetPosition().Y())<<
+	   ", suo drift radius = "<<dradius <<endl;
+      cout <<"             wire direction, X, Y, Z (Z direction set always positive)"
+      << WDX[i]<<"  "<<WDY[i]<<"  "<<WDZ[i] <<endl
+           <<"             this hit belongs to MC track n. "<<puntator->GetTrackID()<<endl;
+      }
+
+ }
+
+//----------end of function PndTrkPrintouts::stampaSttHits
+
+
+
+//----------begin of function PndTrkPrintouts::stampaSttHits2
+
+void PndTrkPrintouts::stampaSttHits2(
+	Short_t iHit,
+	Short_t ipunto,
+	Double_t dradius,
+	Double_t *WDX,
+	Double_t *WDY,
+	Double_t *WDZ,
+	FairMCPoint* puntator,
 	PndSttTube * pSttTube,
 	Short_t tubeID
 	)
@@ -115,10 +161,10 @@ void PndTrkPrintouts::stampaSttHits(
            <<"             this hit belongs to MC track n. "<<puntator->GetTrackID()<<endl;
       }
 
- }
+}
 
 
-//----------end of function PndTrkPrintouts::stampaSttHits
+//----------end of function PndTrkPrintouts::stampaSttHits2
 
 //----------begin of function PndTrkPrintouts::stampetta
 
