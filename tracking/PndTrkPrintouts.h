@@ -52,10 +52,23 @@ class PndTrkPrintouts : public TObject
 	Double_t *WDY,
 	Double_t *WDZ,
 	FairMCPoint* puntator,
+	PndSttTube * pSttTube
+	);
+
+
+
+
+ void stampaSttHits2(
+	Short_t iHit,
+	Short_t ipunto,
+	Double_t dradius,
+	Double_t *WDX,
+	Double_t *WDY,
+	Double_t *WDZ,
+	FairMCPoint* puntator,
 	PndSttTube * pSttTube,
 	Short_t tubeID
 	);
-
 
  void stampetta(
 	int IVOLTE,
