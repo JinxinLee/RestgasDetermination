@@ -6,7 +6,7 @@
 HDR = -I../
 
 # Define targets
-TARGETS = exampleCluster somTrain
+TARGETS = exampleCluster somTrainExample
 
 # all: $(TARGETS)
 default: $(TARGETS)
@@ -27,7 +27,7 @@ PndMvaSOMTrainer:% : %.cpp PndSomNode
 	$(CXX) $(CCFLAGS) $(INCLUDE) $(HDR) -c $< -o ../build/$@.o
 	@echo "Done building:" $@
 
-somTrain: % : %.cpp PndMvaSOMTrainer
+somTrainExample: % : %.cpp PndMvaSOMTrainer
 	$(CXX) $(CCFLAGS) $(INCLUDE) $(HDR) -c $< -o ../build/$@.o
 	@echo "Done building:" $@
 

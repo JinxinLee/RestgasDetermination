@@ -84,7 +84,9 @@ class PndMvaSomTrainer
 
   /**
    * Calibrate the map (post labeling). The current implementation
-   * uses the winner takes all scheme.
+   * uses the winner takes all scheme. The label with the largest
+   * count determines the node label. Note that also a list of all
+   * labels is kept in de node itself.
    */
   virtual void Calibrate();
 

@@ -21,7 +21,7 @@ CCFLAGS += -fdiagnostics-show-option -fdiagnostics-show-location=every-line
 CCFLAGS += -O3 -fopenmp
 # CCFLAGS += -funroll-loops -fsplit-ivs-in-unroller
 # CCFLAGS += -fvariable-expansion-in-unroller
-CCFLAGS += ${FLAGSMACHINE}
+# CCFLAGS += ${FLAGSMACHINE}
 
 INCLUDE = $(shell root-config --cflags) -I./
 
@@ -168,7 +168,7 @@ examples: PndMvaUtil PndMvaDataSet PndMvaClassifier Classifiers
 
 # Build SOM train example
 	$(CXX) $(CCFLAGS) $(LIBS) build/PndMvaSOMTrainer.o build/PndMvaTrainer.o build/PndMvaDataSet.o \
-	build/PndSomNode.o build/PndMvaVarPCATransform.o build/PndMvaUtil.o build/somTrain.o -o build/somTrain
+	build/PndSomNode.o build/PndMvaVarPCATransform.o build/PndMvaUtil.o build/somTrainExample.o -o build/somTrain
 
 clean:
 	rm -f *~ *.o build/*

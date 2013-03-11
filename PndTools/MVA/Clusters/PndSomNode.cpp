@@ -200,6 +200,7 @@ PndSomNode& PndSomNode::operator=(PndSomNode const &oth)
   return (*this);
 }
 
+// Destructor.
 PndSomNode::~PndSomNode()
 {
   ClearInternalStructures();

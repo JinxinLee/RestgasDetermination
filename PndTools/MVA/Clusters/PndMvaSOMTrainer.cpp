@@ -75,6 +75,7 @@ void PndMvaSomTrainer::InitMap()
   // Determine the start radius.
   m_sigmaZero = static_cast <double> (std::max(m_MapWidth, m_MapHeight) )/2.0;
 
+  // Avoid division by zero.
   assert ( m_sigmaZero > 0);
   m_lambda    = static_cast <double> (m_NumIterations) / log(m_sigmaZero);
 
@@ -120,6 +121,7 @@ void PndMvaSomTrainer::InitMap()
     for(size_t p = 0; p < m_TheMap.size(); ++p)
     {
       PndSomNode* p_node = m_TheMap[p];
+
       // Distance = (dX)^2 + (dY^2)
       distance = (curr_node->GetXPos() - p_node->GetXPos()) *
                  (curr_node->GetXPos() - p_node->GetXPos()) +
@@ -167,8 +169,8 @@ void PndMvaSomTrainer::InitGridHexagonal()
 }
 
 /*
- * Initialize map nodes using random vectors fetched from the data
- * set.
+ * Initialize map nodes using random vectors fetched from the train
+ * data set.
  */
 void PndMvaSomTrainer::InitMapnodes_RandomFromData()
 {
@@ -283,6 +285,8 @@ void PndMvaSomTrainer::TrainBatch()
   // Training loop (t_0 ... t_n);
   for(size_t t = 0; t < m_NumIterations; ++t)
   {
+    std::cout << "\t\t<-I-> Starting epoch " << t
+              << '\t' << std::flush;
     // Reset responsibility lists for all nodes.
     for(size_t k = 0; k < m_TheMap.size(); ++k)
     {
@@ -336,7 +340,10 @@ void PndMvaSomTrainer::TrainBatch()
         {
           // The neighbor
           PndSomNode const* curr_neighb = m_TheMap[b];
-          // The list of data points
+          /*
+           * The list of data points (responsibility list of the
+           * current neighbour)
+           */
           std::vector<size_t> const& rsl = curr_neighb->GetRespoList();
           normCnt += rsl.size();
           // Loop of data points
@@ -352,7 +359,7 @@ void PndMvaSomTrainer::TrainBatch()
         }// If inside Ni
       }// All neighb.
 
-      // Normalize current node
+      // Normalize current weight.
       if(normCnt != 0)
       {
         for( size_t d = 0; d < Cr_weight.size(); ++d)
@@ -365,13 +372,15 @@ void PndMvaSomTrainer::TrainBatch()
       
       // Print Debug info in debug mode
 #if (PRINT_PND_SOM_TRAIN_DEBUG_INFO > 2)
-      std::cout << " size is "  << nls.size()
-                << " wrSize = " << Cr_weight.size()
-                << " and sqrt width = " << WidthSq
-                << " neighCnt = " << normCnt
+      std::cout << " size of neighbourhood is "    << nls.size()
+                << " Size of the weight vector = " << Cr_weight.size()
+                << " and sqrt width = "            << WidthSq
+                << " neighCnt = "                  << normCnt
                 << std::endl;
 #endif
     }// Map nodes loop
+    std::cout << "Done."
+              << std::endl;
   }// End Train loop
 }
 
@@ -386,6 +395,11 @@ void PndMvaSomTrainer::TrainOnline()
   exit(EXIT_FAILURE);
 }
 
+/*
+ * Calibrate (label) the map based on winner takes all scheme. Note
+ * that a list of all labels is kept in de node itself. The label with
+ * the largest count determines the node label.
+ */
 void PndMvaSomTrainer::Calibrate()
 {
   std::cout << "<INFO> Calibrating the SOM based on majority counts.\n";
