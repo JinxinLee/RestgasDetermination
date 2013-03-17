@@ -44,14 +44,16 @@ public:
   
   // Modifiers -----------------------
   void SetTrackInBranchName(const TString& name)   { fTrackInBranchName = name;  }  
-  void SetTrackInIDBranchName(const TString& name) { fTrackInIDBranchName = name;  } 
+  void SetTrackInIDBranchName(const TString& name) { fTrackInIDBranchName = name;} 
   void SetTrackOutBranchName(const TString& name)  { fTrackOutBranchName = name; } 
-  void SetMvdBranchName(const TString& name)       { fMvdBranchName = name; }
+  void SetMvdBranchName(const TString& name)       { fMvdBranchName = name;      }
   void SetCentralTrackerBranchName(const TString& name)  { fCentralTrackerBranchName = name; }
   void SetPersistence(Bool_t opt = kTRUE)          { fPersistence = opt;         }
   void SetGeane(Bool_t opt = kTRUE)                { fUseGeane = opt;            } 
   void SetIdealHyp(Bool_t opt = kTRUE)             { fIdealHyp = opt;            }
-  void SetDaf(Bool_t opt = kTRUE)                  { fDaf = opt;            }
+  void SetDaf(Bool_t opt = kTRUE)                  { fDaf = opt;                 }
+  void SetPropagateToIP(Bool_t opt = kTRUE)        { fPropagateToIP = opt;       }
+  void SetPerpPlane(Bool_t opt = kTRUE)            { fPerpPlane = opt;           }
   void SetNumIterations(Int_t num)                 { fNumIt = num;               }
   void SetParticleHypo(TString s); 
   void SetParticleHypo(Int_t h);
@@ -87,6 +89,8 @@ protected:
   Bool_t fSmoothing;             //! Flag to set on smoothing (not used) 
   Bool_t fIdealHyp;              //! Flag to use MC particle hypothesis
   Bool_t fDaf;                   //! Flag to use Deterministic Annealing
+  Bool_t fPropagateToIP;         //! Flag to propagate the parameters to the interaction point (kTRUE)
+  Bool_t fPerpPlane;             //! Flat to use as initial plane the one perpendicular to the track (kFALSE)
   Int_t fNumIt;                  //! Number of iterations
   Int_t fPDGHyp;                 //! Hypothesis
   Int_t fBusyCut;                 //! Skip too busy events with more tracks

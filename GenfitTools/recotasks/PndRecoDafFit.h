@@ -38,6 +38,8 @@ class PndRecoDafFit : public TNamed
   
   // Modifiers -----------------------
   void SetGeane(Bool_t opt = kTRUE)              { fUseGeane = opt;     }
+  void SetPropagateToIP(Bool_t opt = kTRUE)      { fPropagateToIP = opt;}
+  void SetPerpPlane(Bool_t opt = kTRUE)          { fPerpPlane = opt;    }
   void SetNumIterations(Int_t num)               { fNumIt    = num;     } 
   void SetVerbose(Int_t verb)                    { fVerbose  = verb;    }
   void SetMvdBranchName(const TString& name)             { fMvdBranchName = name; }
@@ -58,6 +60,8 @@ private:
   TString fCentralTrackerBranchName;//! Name of the TCA for central tracker
   
   Bool_t fUseGeane;     //! Flag to use Geane 
+  Bool_t fPropagateToIP;//! Flag to propagate to the interaction point
+  Bool_t fPerpPlane;    //! Flag to use as initial plane the one perpendicular to the track 
   Int_t fNumIt;         //! Number of iterations
   Int_t fVerbose;       //! Verbose level
   

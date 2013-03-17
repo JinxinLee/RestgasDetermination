@@ -36,22 +36,16 @@
 #include "FairRuntimeDb.h"
 
 PndRecoKalmanTask::PndRecoKalmanTask(const char* name, Int_t iVerbose)
-: FairTask(name, iVerbose), fPersistence(kFALSE), fPDGHyp(-13)
+: FairTask(name, iVerbose), fTrackInBranchName(""), fTrackInIDBranchName(""),
+fTrackOutBranchName(""), fMvdBranchName(""), fCentralTrackerBranchName(""),
+fFitTrackArray(), fFitter(), fDafFitter(), fPDGHyp(-13),
+fUseGeane(kTRUE), fIdealHyp(kFALSE), fDaf(kFALSE), fPersistence(kTRUE),
+fPropagateToIP(kTRUE), fPerpPlane(kFALSE),
+fNumIt(1), fBusyCut(20)
 {
-  fTrackInBranchName    = ""; 
-  fTrackInIDBranchName  = "";
-  fTrackOutBranchName   = ""; 
-  fMvdBranchName = "";
-  fCentralTrackerBranchName = "";
   fFitTrackArray = new TClonesArray("PndTrack");  
-  fUseGeane = kTRUE;
-  fIdealHyp = kFALSE; 
-  fDaf = kFALSE;
-  fPersistence = kTRUE;
-  fNumIt = 1;
   fFitter = new PndRecoKalmanFit(); 
   fDafFitter = new PndRecoDafFit();
-  fBusyCut=20;
 }
 
 
@@ -65,6 +59,8 @@ PndRecoKalmanTask::Init()
   if (!fDaf)
     {
       fFitter->SetGeane(fUseGeane);
+      fFitter->SetPropagateToIP(fPropagateToIP);
+      fFitter->SetPerpPlane(fPerpPlane);
       fFitter->SetNumIterations(fNumIt); 
       fFitter->SetMvdBranchName(fMvdBranchName);
       fFitter->SetCentralTrackerBranchName(fCentralTrackerBranchName); 
@@ -74,6 +70,8 @@ PndRecoKalmanTask::Init()
   else
     {
       fDafFitter->SetGeane(fUseGeane);
+      fDafFitter->SetPropagateToIP(fPropagateToIP);
+      fDafFitter->SetPerpPlane(fPerpPlane);
       fDafFitter->SetMvdBranchName(fMvdBranchName);
       fDafFitter->SetCentralTrackerBranchName(fCentralTrackerBranchName);
       fDafFitter->SetVerbose(fVerbose);

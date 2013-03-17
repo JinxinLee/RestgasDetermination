@@ -61,12 +61,12 @@
 
 
 PndRecoDafFit::PndRecoDafFit(): TNamed("Genfit", "Fit Tracks"),
-				      fUseGeane(kTRUE), fNumIt(1), fVerbose(0)
+                                      fMvdBranchName(""), fCentralTrackerBranchName(""),
+                                      fUseGeane(kTRUE), fPropagateToIP(kTRUE), fPerpPlane(kFALSE), fNumIt(1), fVerbose(0)
 {
   PndGeoHandling::Instance();
-  fMvdBranchName = "";
-  fCentralTrackerBranchName = "";
 }
+
 Bool_t PndRecoDafFit::Init()
 {
   //Get ROOT Manager
@@ -208,24 +208,26 @@ PndTrack* PndRecoDafFit::Fit(PndTrack *tBefore, Int_t PDG)
   TVector3 StartMomErr(tBefore->GetParamFirst().GetDPx(),tBefore->GetParamFirst().GetDPy(),tBefore->GetParamFirst().GetDPz());
   
   GFAbsTrackRep* rep = 0;
- 
-  // Calculating params at PCA to Origin
-  FairTrackParP par = tBefore->GetParamFirst();
-  Int_t ierr = 0;
-  FairTrackParH *helix = new FairTrackParH(&par, ierr);
-  FairGeanePro *fPro0 = new FairGeanePro();
-  FairTrackParH *fRes= new FairTrackParH();
-  fPro0->SetPoint(TVector3(0,0,0));
-  fPro0->PropagateToPCA(1, -1);
-  Bool_t rc =  fPro0->Propagate(helix, fRes, PDGCode);
-  if (rc)
-    {
-      StartPos.SetXYZ(fRes->GetX(), fRes->GetY(), fRes->GetZ());
-      StartMom.SetXYZ(fRes->GetPx(), fRes->GetPy(), fRes->GetPz());
-      StartPosErr.SetXYZ(fRes->GetDX(), fRes->GetDY(), fRes->GetDZ());
-      StartMomErr.SetXYZ(fRes->GetDPx(), fRes->GetDPy(), fRes->GetDPz());
+
+  if (fPropagateToIP)
+    { 
+      // Calculating params at PCA to Origin
+      FairTrackParP par = tBefore->GetParamFirst();
+      Int_t ierr = 0;
+      FairTrackParH *helix = new FairTrackParH(&par, ierr);
+      FairGeanePro *fPro0 = new FairGeanePro();
+      FairTrackParH *fRes= new FairTrackParH();
+      fPro0->SetPoint(TVector3(0,0,0));
+      fPro0->PropagateToPCA(1, -1);
+      Bool_t rc =  fPro0->Propagate(helix, fRes, PDGCode);
+      if (rc)
+        {
+          StartPos.SetXYZ(fRes->GetX(), fRes->GetY(), fRes->GetZ());
+          StartMom.SetXYZ(fRes->GetPx(), fRes->GetPy(), fRes->GetPz());
+          StartPosErr.SetXYZ(fRes->GetDX(), fRes->GetDY(), fRes->GetDZ());
+          StartMomErr.SetXYZ(fRes->GetDPx(), fRes->GetDPy(), fRes->GetDPz());
+        }
     }
-  
   GFDetPlane start_pl(StartPos, TVector3(1.,0.,0.), TVector3(0.,1.,0.));
   GeaneTrackRep *grep = new GeaneTrackRep(fPro,
 					  start_pl,StartMom,
