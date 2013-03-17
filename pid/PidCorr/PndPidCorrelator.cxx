@@ -535,20 +535,22 @@ InitStatus PndPidCorrelator::Init() {
     }
 	
   // Set Parameters for Emc error matrix 
-  if (fEmcErrorMatrixPar->IsValid())
-    {
-      fEmcErrorMatrix->Init(fEmcErrorMatrixPar->GetParObject());
-      //std::cout<<"PndPidCorrelator: Emc error matrix is read from RTDB"<<std::endl;
-    } else
-    {
-      Int_t emcGeomVersion=fEmcGeoPar->GetGeometryVersion();
-      fEmcErrorMatrix->InitFromFile(emcGeomVersion);
-      fEmcErrorMatrixPar->SetErrorMatrixObject(fEmcErrorMatrix->GetParObject());
-      //std::cout<<"PndPidCorrelator: Emc error matrix is read from file"<<std::endl;
-    }
-    
-  fEmcCalibrator= PndEmcClusterCalibrator::MakeEmcClusterCalibrator(2, 1);	
-  
+  if (fEmcMode>0) 
+  {
+    if (fEmcErrorMatrixPar->IsValid())
+      {
+        fEmcErrorMatrix->Init(fEmcErrorMatrixPar->GetParObject());
+        //std::cout<<"PndPidCorrelator: Emc error matrix is read from RTDB"<<std::endl;
+      } else
+      {
+        Int_t emcGeomVersion=fEmcGeoPar->GetGeometryVersion();
+        fEmcErrorMatrix->InitFromFile(emcGeomVersion);
+        fEmcErrorMatrixPar->SetErrorMatrixObject(fEmcErrorMatrix->GetParObject());
+        //std::cout<<"PndPidCorrelator: Emc error matrix is read from file"<<std::endl;
+      }
+    fEmcCalibrator= PndEmcClusterCalibrator::MakeEmcClusterCalibrator(2, 1);	
+  }
+
   if (fFast)  cout << "-W- PndPidCorrelator::Init: Using fast correlator!!" << endl;
     
   cout << "-I- PndPidCorrelator::Init: Success!" << endl;
@@ -610,14 +612,13 @@ void PndPidCorrelator::Exec(Option_t * option) {
 	      fFscClstCount++;
 	    }
 	}
+      ResetEmcQ();
       cout << " - Number of Clusters for pid: ";
       cout << " EMC: " << fEmcClstCount;
       cout << " FSC: " << fFscClstCount;
     }
   cout<<endl;
 
-  ResetEmcQ();
-  
   if (fTrack)     ConstructChargedCandidate();
   if ((fEmcMode>0)  && (!fFast)) ConstructNeutralCandidate();
   fEventCounter++;
