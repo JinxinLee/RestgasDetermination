@@ -62,7 +62,7 @@ public:
   void SetParContainers();
   virtual void Exec(Option_t* opt);
   
-private:
+protected:
   
   // Private Data Members ------------
   TClonesArray* fTrackArray;      //! Input TCA for PndTrack

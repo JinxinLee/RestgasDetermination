@@ -45,6 +45,8 @@ class PndRecoKalmanFit : public TNamed
   // Operations ---------------------- 
   Bool_t Init();
   PndTrack*  Fit(PndTrack *tBefore, Int_t PDG);
+
+  GFRecoHitFactory* GetRecoHitFactory() { return fTheRecoHitFactory;};
   
 private:
   
