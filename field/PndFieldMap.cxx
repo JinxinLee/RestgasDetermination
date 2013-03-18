@@ -297,11 +297,14 @@ void PndFieldMap::WriteAsciiFile(const char* fileName) {
     for(Int_t iy=0; iy<fNy; iy++) {
       for(Int_t iz=0; iz<fNz; iz++) {
 	index =ix*fNy*fNz + iy*fNz + iz;
-	modul = div(index,iDiv);
-	if ( modul.rem == 0 ) {
-	  Double_t perc = TMath::Nint(100.*index/nTot);
-	  cout << "\b\b\b\b\b\b" << setw(3) << perc << " % " << flush;
-	}
+	if (iDiv!=0)
+	  {
+	    modul = div(index,iDiv);
+	    if ( modul.rem == 0 ) {
+	      Double_t perc = TMath::Nint(100.*index/nTot);
+	      cout << "\b\b\b\b\b\b" << setw(3) << perc << " % " << flush;
+	    }
+	  }
 	mapFile << fBx->At(index)/factor << " " << fBy->At(index)/factor 
 		<< " " << fBz->At(index)/factor << endl;
       } // z-Loop
@@ -467,11 +470,14 @@ void PndFieldMap::ReadAsciiFile(const char* fileName) {
 				   << "I/O Error at " << ix << " "
 				   << iy << " " << iz << endl;
 	index = ix*fNy*fNz + iy*fNz + iz;
-	modul = div(index,iDiv);
-	if ( modul.rem == 0 ) {
-	  Double_t perc = TMath::Nint(100.*index/nTot);
-	  cout << "\b\b\b\b\b\b" << setw(3) << perc << " % " << flush;
-	}
+	if (iDiv!=0)
+	  {
+	    modul = div(index,iDiv);
+	    if ( modul.rem == 0 ) {
+	      Double_t perc = TMath::Nint(100.*index/nTot);
+	      cout << "\b\b\b\b\b\b" << setw(3) << perc << " % " << flush;
+	    }
+	  }
 	//mapFile >> xx>>yy>>zz>>  bx >> by >> bz ;
 	mapFile >>  bx >> by >> bz ;
 	//cout  << " x= " <<xx <<" y= " << yy<<" z= " << zz<<" bx= " <<  bx <<" by= " <<by <<" bz= " << bz<< endl;
