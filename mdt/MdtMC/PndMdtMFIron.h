@@ -19,13 +19,17 @@
 #define PndMdtMFIron_L204 3345
 
 //Muon Filter iron half holes (vertical,horizontal)
-#define PndMdtMFIron_H02_V 520
+#define PndMdtMFIron_H02_V 475
 #define PndMdtMFIron_H02_H 770
-#define PndMdtMFIron_H03_V 520
+#define PndMdtMFIron_H03_V 475
 #define PndMdtMFIron_H03_H 770
-#define PndMdtMFIron_H04_V 520
+#define PndMdtMFIron_H04_V 475
 #define PndMdtMFIron_H04_H 770
-#define PndMdtMFIron_H05_V 520
+#define PndMdtMFIron_H05_V 475
 #define PndMdtMFIron_H05_H 770
-#define PndMdtMFIron_H06_V 520
+#define PndMdtMFIron_H06_V 475
 #define PndMdtMFIron_H06_H 770
+
+//Muon Filter half holes (vertical,horizontal) for pump
+#define PndMdtMFIron_PUMP_V 806
+#define PndMdtMFIron_PUMP_H 120

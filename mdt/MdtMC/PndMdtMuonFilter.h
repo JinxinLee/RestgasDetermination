@@ -19,15 +19,19 @@
 #define PndMdt_SV305 3390
 
 //Muon Filter half holes (vertical,horizontal)
-#define PndMdt_H07_V 520
+#define PndMdt_H07_V 475
 #define PndMdt_H07_H 770
-#define PndMdt_H08_V 520
+#define PndMdt_H08_V 475
 #define PndMdt_H08_H 770
-#define PndMdt_H09_V 520
+#define PndMdt_H09_V 475
 #define PndMdt_H09_H 770
-#define PndMdt_H10_V 520
+#define PndMdt_H10_V 475
 #define PndMdt_H10_H 770
-#define PndMdt_H11_V 520
+#define PndMdt_H11_V 475
 #define PndMdt_H11_H 770
-#define PndMdt_H12_V 520
+#define PndMdt_H12_V 475
 #define PndMdt_H12_H 770
+
+//Muon Filter half holes (vertical,horizontal) for pump
+#define PndMdt_PUMP_V 806
+#define PndMdt_PUMP_H 120

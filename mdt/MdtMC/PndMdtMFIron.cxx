@@ -64,6 +64,12 @@ void PndMdt::PndMdtMFIron()
     TGeoBBox* mfihbox4 = new TGeoBBox("mfihbox4",((Double_t)PndMdtMFIron_H04_H)/10.0,10.0+((Double_t)PndMdtMFIron_Th2)/10.0,((Double_t)PndMdtMFIron_H04_V)/10.0,0);
     TGeoBBox* mfihbox5 = new TGeoBBox("mfihbox5",((Double_t)PndMdtMFIron_H05_H)/10.0,10.0+((Double_t)PndMdtMFIron_Th2)/10.0,((Double_t)PndMdtMFIron_H05_V)/10.0,0);
     TGeoBBox* mfihbox6 = new TGeoBBox("mfihbox6",((Double_t)PndMdtMFIron_H06_H)/10.0,10.0+((Double_t)PndMdtMFIron_Th2)/10.0,((Double_t)PndMdtMFIron_H06_V)/10.0,0);
+    TGeoBBox* mfihboxpmp2 = new TGeoBBox("mfihboxpmp2",((Double_t)PndMdtMFIron_PUMP_H)/10.0,10.0+((Double_t)PndMdtMFIron_Th2)/10.0,((Double_t)PndMdtMFIron_PUMP_V)/10.0,0);
+    TGeoBBox* mfihboxpmp3 = new TGeoBBox("mfihboxpmp3",((Double_t)PndMdtMFIron_PUMP_H)/10.0,10.0+((Double_t)PndMdtMFIron_Th2)/10.0,((Double_t)PndMdtMFIron_PUMP_V)/10.0,0);
+    TGeoBBox* mfihboxpmp4 = new TGeoBBox("mfihboxpmp4",((Double_t)PndMdtMFIron_PUMP_H)/10.0,10.0+((Double_t)PndMdtMFIron_Th2)/10.0,((Double_t)PndMdtMFIron_PUMP_V)/10.0,0);
+    TGeoBBox* mfihboxpmp5 = new TGeoBBox("mfihboxpmp5",((Double_t)PndMdtMFIron_PUMP_H)/10.0,10.0+((Double_t)PndMdtMFIron_Th2)/10.0,((Double_t)PndMdtMFIron_PUMP_V)/10.0,0);
+    TGeoBBox* mfihboxpmp6 = new TGeoBBox("mfihboxpmp6",((Double_t)PndMdtMFIron_PUMP_H)/10.0,10.0+((Double_t)PndMdtMFIron_Th2)/10.0,((Double_t)PndMdtMFIron_PUMP_V)/10.0,0);
+
 
 
 //MdtMF    
@@ -136,7 +142,7 @@ void PndMdt::PndMdtMFIron()
 	for(int j=0; j<8; j++)
 	{
 	    sprintf(buffer,"mfitgcs%i",(8*i)+j);
-	    sprintf(longbuffer,"mfitrd:mfitgt-mfihbox%i:mfitgr%i",i+2,j);
+	    sprintf(longbuffer,"mfitrd:mfitgt-mfihbox%i:mfitgr%i-mfihboxpmp%i:mfitgr%i",i+2,j,i+2,j);
 	    TGeoCompositeShape* mfitgcs = new TGeoCompositeShape(buffer,longbuffer);
 	    sprintf(buffer,"mag%i",600+8*i+j);
 	    TGeoVolume* volume = new TGeoVolume(buffer,mfitgcs,gGeoManager->GetMedium("iron"));

@@ -69,6 +69,12 @@ void PndMdt::PndMdtMuonFilter()
     TGeoBBox* mfhbox5 = new TGeoBBox("mfhbox5",((Double_t)PndMdt_H10_H)/10.0,10.0+((Double_t)PndMdt_SVThickness)/10.0,((Double_t)PndMdt_H10_V)/10.0,0);
     TGeoBBox* mfhbox6 = new TGeoBBox("mfhbox6",((Double_t)PndMdt_H11_H)/10.0,10.0+((Double_t)PndMdt_SVThickness)/10.0,((Double_t)PndMdt_H11_V)/10.0,0);
     TGeoBBox* mfhbox7 = new TGeoBBox("mfhbox7",((Double_t)PndMdt_H12_H)/10.0,10.0+((Double_t)PndMdt_SVThickness)/10.0,((Double_t)PndMdt_H12_V)/10.0,0);
+    TGeoBBox* mfhboxpmp2 = new TGeoBBox("mfhboxpmp2",((Double_t)PndMdt_PUMP_H)/10.0,10.0+((Double_t)PndMdt_SVThickness)/10.0,((Double_t)PndMdt_PUMP_V)/10.0,0);
+    TGeoBBox* mfhboxpmp3 = new TGeoBBox("mfhboxpmp3",((Double_t)PndMdt_PUMP_H)/10.0,10.0+((Double_t)PndMdt_SVThickness)/10.0,((Double_t)PndMdt_PUMP_V)/10.0,0);
+    TGeoBBox* mfhboxpmp4 = new TGeoBBox("mfhboxpmp4",((Double_t)PndMdt_PUMP_H)/10.0,10.0+((Double_t)PndMdt_SVThickness)/10.0,((Double_t)PndMdt_PUMP_V)/10.0,0);
+    TGeoBBox* mfhboxpmp5 = new TGeoBBox("mfhboxpmp5",((Double_t)PndMdt_PUMP_H)/10.0,10.0+((Double_t)PndMdt_SVThickness)/10.0,((Double_t)PndMdt_PUMP_V)/10.0,0);
+    TGeoBBox* mfhboxpmp6 = new TGeoBBox("mfhboxpmp6",((Double_t)PndMdt_PUMP_H)/10.0,10.0+((Double_t)PndMdt_SVThickness)/10.0,((Double_t)PndMdt_PUMP_V)/10.0,0);
+    TGeoBBox* mfhboxpmp7 = new TGeoBBox("mfhboxpmp7",((Double_t)PndMdt_PUMP_H)/10.0,10.0+((Double_t)PndMdt_SVThickness)/10.0,((Double_t)PndMdt_PUMP_V)/10.0,0);
 
 
 //MdtMF    
@@ -144,7 +150,7 @@ void PndMdt::PndMdtMuonFilter()
 	for(int j=0; j<8; j++)
 	{
 	    sprintf(buffer,"mftgcs%i",(8*i)+j);
-	    sprintf(longbuffer,"mftrd:mftgt-mfhbox%i:mftgr%i",i+2,j);
+	    sprintf(longbuffer,"mftrd:mftgt-mfhbox%i:mftgr%i-mfhboxpmp%i:mftgr%i",i+2,j,i+2,j);
 	    TGeoCompositeShape* mftgcs = new TGeoCompositeShape(buffer,longbuffer);
 	    //sprintf(buffer,"muon%i",300+8*i+j);
 	    sprintf(buffer,"MDT%is%il%ib%iw%i", 3, j, i, 0, 0);
