@@ -1,5 +1,5 @@
 // *******************************************************************************
-// MACRO TO PRODUCE THE GEOMETRY ASCII FILE
+// OLD (!!!) MACRO TO PRODUCE THE GEOMETRY ASCII FILE
 // *******************************************************************************
 // if you want to reduce the tube length:
 // - change tubeLength
