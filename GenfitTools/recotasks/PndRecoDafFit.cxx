@@ -228,7 +228,19 @@ PndTrack* PndRecoDafFit::Fit(PndTrack *tBefore, Int_t PDG)
           StartMomErr.SetXYZ(fRes->GetDPx(), fRes->GetDPy(), fRes->GetDPz());
         }
     }
-  GFDetPlane start_pl(StartPos, TVector3(1.,0.,0.), TVector3(0.,1.,0.));
+
+  TVector3 plane_v1, plane_v2;
+  if (fPerpPlane)
+    {
+      plane_v1 = StartMom.Orthogonal();
+      plane_v2 = StartPos.Cross(plane_v1);
+    }
+  else
+    {
+      plane_v1.SetXYZ(1.,0.,0.);
+      plane_v2.SetXYZ(0.,1.,0.);
+    }
+  GFDetPlane start_pl(StartPos, plane_v1, plane_v2);
   GeaneTrackRep *grep = new GeaneTrackRep(fPro,
 					  start_pl,StartMom,
 					  StartPosErr,StartMomErr,
