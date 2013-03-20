@@ -81,19 +81,23 @@ void
 PndRiemannTrack::addHit(PndRiemannHit& hit){
   int nbefore=fHits.size();
   fHits.push_back(hit);
+  std::cout << "fweight before addHit: " << fweight << std::endl;
   //ADDED by ME//
   if ( ftrefit ) {
   fav *= fweight;
   ftrefit = false;
   }
 
-  if (fVerbose > 1) std::cout << "-I- PndRiemannTrack::addHit " << fHits.size() -1 << ": " << hit.x().X() << " " << hit.x().Y() << std::endl;
+  if (fVerbose > 1) std::cout << "-I- PndRiemannTrack::addHit " << fHits.size() -1 << ": " << hit.x().X() << " " << hit.x().Y() << " "
+		  << hit.sigmaX() << " " << hit.sigmaY() << " " << hit.sigmaXY() << std::endl;
   //fav*=(double)nbefore;
   fav[0]+=hit.x().X() /(hit.sigmaXY()*hit.sigmaXY());
   fav[1]+=hit.x().Y() /(hit.sigmaXY()*hit.sigmaXY());;
   fav[2]+=hit.x().Z() /(hit.sigmaXY()*hit.sigmaXY());;
   //fav*=1./(double)(nbefore+1);
   fweight += 1/(hit.sigmaXY()*hit.sigmaXY());
+
+  std::cout << "fweight after addHit: " << fweight << std::endl;
   fFitDone = false;
   fSZFitDone = false;
   fErrorCalcDone = false;
@@ -319,7 +323,7 @@ PndRiemannTrack::orig() const {
 
 double
 PndRiemannTrack::r() const {
-  if(fc==0)return 0;
+//  if(fc==0)return 0;
   //if(fabs(fc)>100)return 0;???????????????????????????
   double a=2.*fn[2];  // modified for paraboloid
   //if(a==0){
@@ -375,7 +379,10 @@ PndRiemannTrack::szFit(bool withErrorCalc){
 	  fmError = 0;
 	  fChi2   = -1;
 	  fSZFitDone = true;
-	  if (fVerbose > 1) std::cout << "-E- PndRiemannTrack::calcSZ r == 0: " << *this << std::endl;
+
+	  if (fVerbose > 0)
+		  std::cout << "-W- PndRiemannTrack::calcSZ r == 0: " << *this << std::endl;
+
   }
   if (fVerbose > 1) std::cout << "t, m: " << ft << " +/- " << ftError << " / " << fm << " +/- " << fmError << " Chi2: " << fChi2 << std::endl;
   return;
@@ -418,7 +425,7 @@ PndRiemannTrack::calcSZChi2(PndRiemannHit* hit){
 					<< f->GetChisquare() << std::endl;
 		//  delete(f);
 	} else {
-		std::cout << "-E- PndRiemannTrack::calcSZChi2 r == 0: " << *this << std::endl;
+		std::cout << "-W- PndRiemannTrack::calcSZChi2 r == 0: " << *this << std::endl;
 		return -1;
 	}
 	return f->GetChisquare();
