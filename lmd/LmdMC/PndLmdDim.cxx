@@ -9,13 +9,20 @@
 
 #include <PndLmdDim.h>
 #include<TGeoMatrix.h>
-
+// //work with DB
+// #include<PndLmdContFact.h>
+// #include<TList.h>
+// #include<PndLmdAlignPar.h>
 PndLmdDim* PndLmdDim::pinstance = 0;
 
 
 #include <TROOT.h>
 PndLmdDim::PndLmdDim()
 {
+
+
+  
+
 	double test_mult_fact = 1.; //100.; // should be 1 when not debuggin code
 	// pi
 	pi = 3.141592654;
@@ -623,7 +630,8 @@ void PndLmdDim::Generate_rootgeom(TGeoVolume& mothervol, bool misaligned){
 						_offset_phi/pi*180., _offset_theta/pi*180., _offset_psi/pi*180.);
 				TGeoCombiTrans* rottrans_plane_offset =
 						new TGeoCombiTrans(_offset_x, _offset_y, _offset_z, rot_plane_offset);
-				rottrans_plane = new TGeoHMatrix(*rottrans_plane * *rottrans_plane_offset);
+				//	rottrans_plane = new TGeoHMatrix(*rottrans_plane * *rottrans_plane_offset);
+				rottrans_plane = new TGeoHMatrix(*rottrans_plane_offset * *rottrans_plane);
 			}
 			for (int imodule = 0; imodule < nmodules; imodule++){ // loop over modules
 				name.str("");
@@ -651,7 +659,7 @@ void PndLmdDim::Generate_rootgeom(TGeoVolume& mothervol, bool misaligned){
 							_offset_phi/pi*180., _offset_theta/pi*180., _offset_psi/pi*180.);
 					TGeoCombiTrans* rottrans_module_offset =
 							new TGeoCombiTrans(_offset_x, _offset_y, _offset_z, rot_module_offset);
-					rottrans_module = new TGeoHMatrix(*rottrans_module * *rottrans_module_offset);
+					rottrans_module = new TGeoHMatrix(*rottrans_module_offset * *rottrans_module);
 				}
 				/*
 				if (ihalf == 0 && iplane == 2 && imodule == 3){
@@ -685,7 +693,7 @@ void PndLmdDim::Generate_rootgeom(TGeoVolume& mothervol, bool misaligned){
 								_offset_phi/pi*180., _offset_theta/pi*180., _offset_psi/pi*180.);
 						TGeoCombiTrans* rottrans_side_offset =
 								new TGeoCombiTrans(_offset_x, _offset_y, _offset_z, rot_side_offset);
-						rottrans_side = new TGeoHMatrix(*rottrans_side * *rottrans_side_offset);
+						rottrans_side = new TGeoHMatrix(*rottrans_side_offset * *rottrans_side);
 					}
 					// glue the HV-MAPS to the cvd surface
 					for (int idie = 0; idie < 2; idie++){ // loop over dies
@@ -787,8 +795,14 @@ void PndLmdDim::Generate_rootgeom(TGeoVolume& mothervol, bool misaligned){
 							new TGeoHMatrix((*rottrans_plane) * (*rottrans_module) * (*rottrans_side));
 				} // loop over the two sides of the modules
 				lmd_vol_plane_->AddNode(lmd_vol_module_, 0, rottrans_module);
+				// transformation_matrices[Generate_key(ihalf, iplane, imodule, -1, -1, -1)] =
+				//   new TGeoHMatrix((*rottrans_plane) * (*rottrans_module));
 			} // loop over modules
 			lmd_vol_half_->AddNode(lmd_vol_plane_, 0, rottrans_plane);
+			// // save the transformation from the lumi reference frame
+			// // into the plane reference frame
+			// transformation_matrices[Generate_key(ihalf, iplane, -1, -1, -1, -1)] =
+			//   new TGeoHMatrix((*rottrans_plane));
 		} // loop over planes
 		lmd_vol_ref_sys->AddNode(lmd_vol_half_, 0, rottrans_no);
 		// save the transformation into the lumi reference frame
@@ -825,6 +839,175 @@ void PndLmdDim::Generate_rootgeom(TGeoVolume& mothervol, bool misaligned){
 		//gGeoMan->Set
 */
 }
+
+
+
+//void PndLmdDim::Create_transformation_matrices_aligned(string filename_in, string filename_out){
+void PndLmdDim::reCreate_transformation_matrices(){
+	// no translation nor rotation
+	TGeoRotation* rot_no = new TGeoRotation("rot_no", 0., 0., 0.); // no rotation
+	TGeoCombiTrans* rottrans_no = new TGeoCombiTrans("rottrans_no", 0., 0.,
+				0., rot_no);
+
+  double _x(0), _y(0), _z(0), _rotphi(0), _rottheta(0), _rotpsi(0);
+  double _offset_x(0), _offset_y(0), _offset_z(0),
+    _offset_phi(0), _offset_theta(0), _offset_psi(0);
+
+  for (int ihalf = 0; ihalf < 2; ihalf++){ // loop over detector halves
+    for (int iplane = 0; iplane < n_planes; iplane++){ // loop over planes
+      // move to the position of the corresponding plane
+      TGeoMatrix* rottrans_plane = new TGeoCombiTrans(0., 0.,plane_pos_z[iplane], rot_no);
+      
+	// Get_offset(ihalf, iplane, -1, -1, -1, -1,
+	// 	   _offset_x, _offset_y, _offset_z, _offset_phi, _offset_theta, _offset_psi);
+	// TGeoRotation* rot_plane_offset = new TGeoRotation("rot_plane_offset",
+	// 						  _offset_phi/pi*180., _offset_theta/pi*180., _offset_psi/pi*180.);
+	// TGeoCombiTrans* rottrans_plane_offset =
+	//   new TGeoCombiTrans(_offset_x, _offset_y, _offset_z, rot_plane_offset);
+	// //	rottrans_plane = new TGeoHMatrix(*rottrans_plane * *rottrans_plane_offset);
+	// rottrans_plane = new TGeoHMatrix(*rottrans_plane_offset * *rottrans_plane);
+      
+      for (int imodule = 0; imodule < nmodules; imodule++){ // loop over modules
+	double angle = delta_phi/2.+ihalf*pi+imodule*delta_phi;
+	double add_z = cvd_disc_even_odd_offset;
+	// the offset of the modules in the upper and lower halfs
+	// are opposite
+	if (((imodule+ihalf)%2)==0) add_z = -add_z;
+	_x = cos(angle)*cvd_disc_dist;
+	_y = sin(angle)*cvd_disc_dist;
+	_z = add_z;
+	_rotphi = 0.;
+	_rottheta = 0.;
+	_rotpsi = angle/pi*180.;
+	TGeoRotation* rot_module = new TGeoRotation("rot_module", _rotphi, _rottheta, _rotpsi);
+	TGeoMatrix* rottrans_module = new TGeoCombiTrans(_x, _y, _z, rot_module);
+	Get_offset(ihalf, iplane, imodule, -1, -1, -1,
+		   _offset_x, _offset_y, _offset_z, _offset_phi, _offset_theta, _offset_psi);
+	// TGeoRotation* rot_module_offset = new TGeoRotation("rot_module_offset",
+	// 						   _offset_phi/pi*180., _offset_theta/pi*180., _offset_psi/pi*180.);
+	//	cout<<"_rot_x: "<<_offset_phi<<" rad"<<endl;
+	TGeoRotation* rot_module_offset = new TGeoRotation("rot_module_offset",0,0,0);
+	// // ///TEST
+	// rot_module_offset->RotateZ(-_offset_psi/pi*180.);
+	// rot_module_offset->RotateY(_offset_theta/pi*180.);
+	// rot_module_offset->RotateX(-_offset_phi/pi*180.);
+
+	rot_module_offset->RotateZ(_offset_psi/pi*180.);
+	rot_module_offset->RotateY(_offset_theta/pi*180.);
+	rot_module_offset->RotateX(_offset_phi/pi*180.);
+	// rot_module_offset->Print();
+
+
+	//	cout<<"_rot_x_theta: "<<_offset_phi/pi*180.<<" degree"<<endl;
+	TGeoCombiTrans* rottrans_module_offset =
+	  new TGeoCombiTrans(_offset_x, _offset_y, _offset_z, rot_module_offset);
+	//	rottrans_module = new TGeoHMatrix(*rottrans_module_offset * *rottrans_module);
+	rottrans_module = new TGeoHMatrix(*rottrans_module * *rottrans_module_offset);
+	for (int iside = 0; iside < 2; iside++){ // loop over the two sides of the modules
+	  // rotation around the y axis for the downstream side
+	  _x = 0.; _y = 0.; _z = 0.;
+	  if (iside == 0) {_rotphi = 0.; _rottheta = 0.; _rotpsi = 0.;}
+	  else {_rotphi = 0.; _rottheta = 180.; _rotpsi = 0.;}
+	  TGeoRotation* rot_side = new TGeoRotation("rot_side", _rotphi, _rottheta, _rotpsi);
+	  TGeoMatrix* rottrans_side = new TGeoCombiTrans(_x, _y, _z, rot_side);
+	  
+	    // Get_offset(ihalf, iplane, imodule, iside, -1, -1,
+	    // 	       _offset_x, _offset_y, _offset_z, _offset_phi, _offset_theta, _offset_psi);
+	    // TGeoRotation* rot_side_offset = new TGeoRotation("rot_side_offset",
+	    // 						     _offset_phi/pi*180., _offset_theta/pi*180., _offset_psi/pi*180.);
+	    // TGeoCombiTrans* rottrans_side_offset =
+	    //   new TGeoCombiTrans(_offset_x, _offset_y, _offset_z, rot_side_offset);
+	    // rottrans_side = new TGeoHMatrix(*rottrans_side_offset * *rottrans_side);
+	    // save the transformation from the lumi reference frame
+	    // into the local cvd side reference frame
+	    transformation_matrices[Generate_key(ihalf, iplane, imodule, iside, -1, -1)] =
+	      new TGeoHMatrix((*rottrans_plane) * (*rottrans_module) * (*rottrans_side));
+	} // loop over the two sides of the modules
+	// transformation_matrices[Generate_key(ihalf, iplane, imodule, -1, -1, -1)] =
+	//       new TGeoHMatrix((*rottrans_plane) * (*rottrans_module));
+      } // loop over modules
+    } // loop over planes
+    // // save the transformation into the lumi reference frame
+    // transformation_matrices[Generate_key(-1, -1, -1, -1, -1, -1)] = new TGeoHMatrix((*lmd_transrot) * (*rottrans_lmd_in_box));
+  } // loop over detector halves
+}
+
+void PndLmdDim::Correct_transformation_matrices(){
+  // Read_transformation_matrices(filename_in,true);//read initial matrices
+
+	// ****************************** loops in the luminosity detector ************************
+	double _offset_x(0), _offset_y(0), _offset_z(0),
+	  _offset_phi(0), _offset_theta(0), _offset_psi(0);
+	for (int ihalf = 0; ihalf < 2; ihalf++){ // loop over detector halves
+	  //TODO: "Transformation matrix not existent!" =\
+	  // TGeoMatrix* rottrans_half = Get_matrix(ihalf, -1, -1 , -1, -1, -1,  false);
+	  // Get_offset(ihalf, -1, -1, -1, -1, -1,
+	  // 	     _offset_x, _offset_y, _offset_z, _offset_phi, _offset_theta, _offset_psi);
+	  // TGeoRotation* rot_half_offset = new TGeoRotation("rot_half_offset",
+	  // 						     _offset_phi/pi*180., _offset_theta/pi*180., _offset_psi/pi*180.);
+	  // TGeoCombiTrans* rottrans_half_offset =
+	  //   new TGeoCombiTrans(_offset_x, _offset_y, _offset_z, rot_half_offset);
+	  // rottrans_half = new TGeoHMatrix(*rottrans_half_offset * *rottrans_half);
+	  
+	  for (int iplane = 0; iplane < n_planes; iplane++){ // loop over planes
+	    // TODO: "Transformation matrix not existent!" =	\
+	    //   cout<<"Correct matrix plane #"<<iplane<<endl;
+	    //   TGeoMatrix* rottrans_plane = Get_matrix(ihalf, iplane, -1 , -1, -1, -1,  false);
+	    // Get_offset(ihalf, iplane, -1, -1, -1, -1,
+	    // 	       _offset_x, _offset_y, _offset_z, _offset_phi, _offset_theta, _offset_psi);
+	    // TGeoRotation* rot_plane_offset = new TGeoRotation("rot_plane_offset",
+	    // 						     _offset_phi/pi*180., _offset_theta/pi*180., _offset_psi/pi*180.);
+	    // TGeoCombiTrans* rottrans_plane_offset =
+	    //   new TGeoCombiTrans(_offset_x, _offset_y, _offset_z, rot_plane_offset);
+	    // rottrans_plane = new TGeoHMatrix(*rottrans_plane_offset * *rottrans_plane);
+	    
+	    for (int imodule = 0; imodule < nmodules; imodule++){ // loop over modules
+	      //TODO: "Transformation matrix not existent!" =\
+	      cout<<"Correct matrix module #"<<imodule<<" "<<ihalf<<iplane<<imodule<<"-1-1-1"<<endl;
+	      TGeoMatrix* rottrans_module = Get_matrix(ihalf, iplane, imodule, -1, -1, -1,  false);
+	      // Get_offset(ihalf, iplane, imodule, -1, -1, -1,
+	      // 		 _offset_x, _offset_y, _offset_z, _offset_phi, _offset_theta, _offset_psi);
+	      // cout<<"offsets:"<<_offset_x<<" "<<_offset_y<<" "<<_offset_z<<" "<<_offset_phi<<" "<<_offset_theta<<" "<<_offset_psi<<endl;
+	      // TGeoRotation* rot_module_offset = new TGeoRotation("rot_module_offset",
+	      // 							 _offset_phi/pi*180., _offset_theta/pi*180., _offset_psi/pi*180.);
+	      // TGeoCombiTrans* rottrans_module_offset =
+	      // 	new TGeoCombiTrans(_offset_x, _offset_y, _offset_z, rot_module_offset);
+	      // rottrans_module = new TGeoHMatrix(*rottrans_module_offset * *rottrans_module);
+	      // //   rottrans_module = new TGeoHMatrix(*rottrans_module * *rottrans_module_offset);
+	      	     	for (int iside = 0; iside < 2; iside++){ // loop over the two sides of the modules
+			  TGeoMatrix* rottrans_side =  Get_matrix(ihalf, iplane, imodule , iside, -1, -1,  false);
+			  Get_offset(ihalf, iplane, imodule, iside, -1, -1,
+				     _offset_x, _offset_y, _offset_z, _offset_phi, _offset_theta, _offset_psi);
+			  cout<<"offsets:"<<_offset_x<<" "<<_offset_y<<" "<<_offset_z<<" "<<_offset_phi<<" "<<_offset_theta<<" "<<_offset_psi<<endl;
+			  TGeoRotation* rot_side_offset = new TGeoRotation("rot_side_offset",
+								 _offset_phi/pi*180., _offset_theta/pi*180., _offset_psi/pi*180.);
+			  TGeoCombiTrans* rottrans_side_offset =
+			    new TGeoCombiTrans(_offset_x, _offset_y, _offset_z, rot_side_offset);
+			  rottrans_side = new TGeoHMatrix(*rottrans_side_offset * *rottrans_side);
+			  //	  rottrans_side = new TGeoHMatrix(*rottrans_side * *rottrans_side_offset);
+
+			  // // save the transformation from the lumi reference frame
+			  // // into the local cvd side reference frame
+			  // transformation_matrices[Generate_key(ihalf, iplane, imodule, iside, -1, -1)] =
+			  //   new TGeoHMatrix((*rottrans_plane) * (*rottrans_module) * (*rottrans_side));
+
+			  // save the transformation from the lumi reference frame
+			  // into the local cvd side reference frame
+			  transformation_matrices[Generate_key(ihalf, iplane, imodule, iside, -1, -1)] =
+			    new TGeoHMatrix((*rottrans_side)); //TODO: ????
+
+
+			} // loop over the two sides of the modules
+	      // transformation_matrices[Generate_key(ihalf, iplane, imodule, -1, -1, -1)] =
+	      // 	new TGeoHMatrix((*rottrans_plane) * (*rottrans_module)); //TODO: ????
+	    } // loop over modules
+	  } // loop over planes
+	  // // save the transformation into the lumi reference frame
+	  // transformation_matrices[Generate_key(-1, -1, -1, -1, -1, -1)] = new TGeoHMatrix((*lmd_transrot) * (*rottrans_lmd_in_box));
+	} // loop over detector halves
+}
+
+
 
 #include <fstream>
 
@@ -930,97 +1113,188 @@ void PndLmdDim::Cleanup(){
 	transformation_matrices_aligned.clear();
 }
 
+void PndLmdDim::Read_DB_offsets(PndLmdAlignPar *lmdalignpar){
+  // ana = FairRun::Instance();
+  // rtdb=ana->GetRuntimeDb();
+  // TList* fAlignParamList = new TList();// alignment params fom DB
+  double fShiftX[40],fShiftY[40],fShiftZ[40];
+  double fRotateX[40],fRotateY[40],fRotateZ[40];
+  // //read params for lumi alignment
+  // PndLmdContFact* thelmdcontfact = (PndLmdContFact*)rtdb->getContFactory("PndLmdContFact");
+  // TList* theAlignLMDContNames = thelmdcontfact->GetAlignParNames();
+  // Info("SetParContainers()","AlignLMD The container names list contains %i entries",theAlignLMDContNames->GetEntries());
+  // TIter cfAlIter(theAlignLMDContNames);
+  // while (TObjString* contname = (TObjString*)cfAlIter()) {
+  //   TString parsetname = contname->String();
+  //   Info("SetParContainers()",parsetname.Data());
+  //   PndLmdAlignPar *lmdalignpar = (PndLmdAlignPar*)(rtdb->getContainer(parsetname.Data()));
+  //   if(!lmdalignpar) Fatal("SetParContainers","No ALIGN parameter found: %s",parsetname.Data());
+  //   fAlignParamList->Add(lmdalignpar); 
+  // }
+
+  // TIter alignparams(fAlignParamList); 
+  // PndLmdAlignPar* lmdalignpar=(PndLmdAlignPar*)alignparams();
+  // //  lmdalignpar->getParams(alignparams);
+  lmdalignpar->Print();
+  if(0==lmdalignpar) { 
+    Error("PndLmdStripClusterTask::SetCalculators()","A ALIGN Parameter Set does not exist properly.");
+  } 
+  else{
+    // cout<<"&&&&& it's from LmdDim &&&&&"<<endl;
+    // lmdalignpar->Print();
+    for(int ik=0;ik<40;ik++){
+      //      cout<<"ik = "<<ik<<endl;
+      fShiftX[ik] = lmdalignpar->GetShiftX(ik);
+      //      cout<<"fShiftX[ik] = "<<fShiftX[ik]<<endl;
+      fShiftY[ik] = lmdalignpar->GetShiftY(ik);
+      fShiftZ[ik] = lmdalignpar->GetShiftZ(ik);
+      fRotateX[ik] = lmdalignpar->GetRotateX(ik);
+      fRotateY[ik] = lmdalignpar->GetRotateY(ik);
+      fRotateZ[ik] = lmdalignpar->GetRotateZ(ik);
+      //      if (fVerbose > 2) cout<<"fShiftX["<<ik<<"]="<<fShiftX[ik]<<" fRotateX["<<ik<<"]="<<fRotateX[ik]
+      //		    <<" fRotateY["<<ik<<"]="<<fRotateY[ik]<<" fRotateZ["<<ik<<"]="<<fRotateZ[ik]<<endl;
+    }
+  }
+  //  lmdalignpar->Print();
+
+  //so far for modules alignment only
+  //TODO: individual sensor and\or die alignment???
+  for (int ihalf = 0; ihalf < 2; ihalf++){ // loop over detector halves
+    for (int iplane = 0; iplane < n_planes; iplane++){ // loop over planes
+      for (int imodule = 0; imodule < nmodules; imodule++){ // loop over modules
+	string key = Generate_key(ihalf, iplane, imodule, -1, -1, -1);
+	int ikey = (ihalf*n_planes*nmodules)+(iplane*nmodules)+imodule;
+	//	cout<<"for: "<<ihalf<<iplane<<imodule<<": ikey="<<ikey<<endl;
+	offsets[key].push_back(fShiftX[ikey]);
+	offsets[key].push_back(fShiftY[ikey]);
+	offsets[key].push_back(fShiftZ[ikey]);
+	offsets[key].push_back(fRotateX[ikey]);
+	offsets[key].push_back(fRotateY[ikey]);
+	offsets[key].push_back(fRotateZ[ikey]);
+
+	string key2 = Generate_key(ihalf, iplane, imodule, 0, -1, -1);//top side
+	//	cout<<"for: "<<ihalf<<iplane<<imodule<<": ikey="<<ikey<<endl;
+	offsets[key2].push_back(fShiftX[ikey]);
+	offsets[key2].push_back(fShiftY[ikey]);
+	offsets[key2].push_back(fShiftZ[ikey]);
+	offsets[key2].push_back(fRotateX[ikey]);
+	offsets[key2].push_back(fRotateY[ikey]);
+	offsets[key2].push_back(fRotateZ[ikey]);
+
+	// //TODO: is it correct???
+	string key3 = Generate_key(ihalf, iplane, imodule, 1, -1, -1);// bottom side
+	offsets[key3].push_back(fShiftX[ikey]);
+	offsets[key3].push_back(fShiftY[ikey]);
+	offsets[key3].push_back(fShiftZ[ikey]);
+	offsets[key3].push_back(fRotateX[ikey]);
+	offsets[key3].push_back(fRotateY[ikey]);
+	offsets[key3].push_back(fRotateZ[ikey]);
+      }
+    }
+  }
+}
+
 void PndLmdDim::Get_offset(int ihalf, int iplane, int imodule, int iside, int idie, int isensor,
 		double& x, double& y, double& z,
 		double& rotphi, double& rottheta, double& rotpsi){
 	string key = Generate_key(ihalf, iplane, imodule, iside, idie, isensor);
+	cout<<"setting Offset for: "<<ihalf<<", "<<iplane<<", "<<imodule<<", "<<iside<<", "<<idie<<", "<<isensor<<endl;
 	itoffset = offsets.find(key);
-	if (itoffset != offsets.end()){
-		x = itoffset->second[0];
-		y = itoffset->second[1];
-		z = itoffset->second[2];
-		rotphi = itoffset->second[3];
-		rottheta = itoffset->second[4];
-		rotpsi = itoffset->second[5];
-	} else {
-		cout << " generating offset for";
-		// the precision of dies containing sensors is requested
-		// when requested offset applies to all sensors
-		// on one side
-		if (ihalf >= 0 && iplane >= 0 && imodule >= 0 && iside >= 0 &&
-				idie < 0 && isensor < 0 ){
-			cout << " one module side " << endl;
-			x = gRandom->Gaus(0, side_offset_x);
-			y = gRandom->Gaus(0, side_offset_y);
-			z = gRandom->Gaus(0, side_offset_z);
-			rottheta = gRandom->Gaus(0, side_tilt_phi);
-			rotphi = gRandom->Gaus(0, side_tilt_theta);
-			rotpsi = gRandom->Gaus(0, side_tilt_psi);
-		}
-		// the precision of cvd discs is requested
-		// when requested offset applies also to the sensors
-		// on both sides
-		if (ihalf >= 0 && iplane >= 0&& imodule >= 0 &&
-				iside < 0 && idie < 0 && isensor < 0){
-			cout << " one module " << endl;
-			x = gRandom->Gaus(0, cvd_offset_x);
-			y = gRandom->Gaus(0, cvd_offset_y);
-			z = gRandom->Gaus(0, cvd_offset_z);
-			rotphi = gRandom->Gaus(0, cvd_tilt_phi);
-			rottheta = gRandom->Gaus(0, cvd_tilt_theta);
-			rotpsi = gRandom->Gaus(0, cvd_tilt_psi);
-			//x = (cvd_offset_x);
-			//y = (cvd_offset_y);
-			//z = (cvd_offset_z);
-			//rotphi = (cvd_tilt_phi);
-			//rottheta = (cvd_tilt_theta);
-			//rotpsi = (cvd_tilt_psi);
-		}
-		// the precision of plane halves containing sensors is requested
-		// when requested offset applies to all modules
-		if (ihalf >= 0 && iplane >= 0 &&
-				imodule < 0 && iside < 0 && idie < 0 && isensor < 0 ){
-			cout << " one plane half " << endl;
-			x = gRandom->Gaus(0, plane_half_offset_x);
-			y = gRandom->Gaus(0, plane_half_offset_y);
-			z = gRandom->Gaus(0, plane_half_offset_z);
-			rottheta = gRandom->Gaus(0, plane_half_tilt_phi);
-			rotphi = gRandom->Gaus(0, plane_half_tilt_theta);
-			rotpsi = gRandom->Gaus(0, plane_half_tilt_psi);
-		}
-		// the precision of halves of planes is requested
-		// when requested offset applies to module supports
-		if (ihalf >= 0 &&
-				iplane < 0 && imodule < 0 && iside < 0 &&
-				idie < 0 && isensor < 0 ){
-			cout << " one half " << endl;
-			x = gRandom->Gaus(0, half_offset_x);
-			y = gRandom->Gaus(0, half_offset_y);
-			z = gRandom->Gaus(0, half_offset_z);
-			rottheta = gRandom->Gaus(0, half_tilt_phi);
-			rotphi = gRandom->Gaus(0, half_tilt_theta);
-			rotpsi = gRandom->Gaus(0, half_tilt_psi);
-		}
-		// the precision of the luminosity detector is requested
-		// when no degrees of freedom are available to the rest
-		if (ihalf < 0 && imodule < 0 && iplane < 0 && iside < 0 &&
-				idie < 0 && isensor < 0 ){
-			cout << " the luminosity detector " << endl;
-			// not implemented yet
-			x = gRandom->Gaus(0, 0);
-			y = gRandom->Gaus(0, 0);
-			z = gRandom->Gaus(0, 0);
-			rottheta = gRandom->Gaus(0, 0);
-			rotphi = gRandom->Gaus(0, 0);
-			rotpsi = gRandom->Gaus(0, 0);
-		}
-		offsets[key].push_back(x);
-		offsets[key].push_back(y);
-		offsets[key].push_back(z);
-		offsets[key].push_back(rotphi);
-		offsets[key].push_back(rottheta);
-		offsets[key].push_back(rotpsi);
-	}
+	// if (itoffset != offsets.end()){
+	// 	x = itoffset->second[0];
+	// 	y = itoffset->second[1];
+	// 	z = itoffset->second[2];
+	// 	rotphi = itoffset->second[3];
+	// 	rottheta = itoffset->second[4];
+	// 	rotpsi = itoffset->second[5];
+	// } else {
+	// 	cout << " generating offset for";
+	// 	// the precision of dies containing sensors is requested
+	// 	// when requested offset applies to all sensors
+	// 	// on one side
+	// 	if (ihalf >= 0 && iplane >= 0 && imodule >= 0 && iside >= 0 &&
+	// 			idie < 0 && isensor < 0 ){
+	// 		cout << " one module side " << endl;
+	// 		x = gRandom->Gaus(0, side_offset_x);
+	// 		y = gRandom->Gaus(0, side_offset_y);
+	// 		z = gRandom->Gaus(0, side_offset_z);
+	// 		rottheta = gRandom->Gaus(0, side_tilt_phi);
+	// 		rotphi = gRandom->Gaus(0, side_tilt_theta);
+	// 		rotpsi = gRandom->Gaus(0, side_tilt_psi);
+	// 	}
+	// 	// the precision of cvd discs is requested
+	// 	// when requested offset applies also to the sensors
+	// 	// on both sides
+	// 	if (ihalf >= 0 && iplane >= 0&& imodule >= 0 &&
+	// 			iside < 0 && idie < 0 && isensor < 0){
+	// 		cout << " one module " << endl;
+	// 		x = gRandom->Gaus(0, cvd_offset_x);
+	// 		y = gRandom->Gaus(0, cvd_offset_y);
+	// 		z = gRandom->Gaus(0, cvd_offset_z);
+	// 		rotphi = gRandom->Gaus(0, cvd_tilt_phi);
+	// 		rottheta = gRandom->Gaus(0, cvd_tilt_theta);
+	// 		rotpsi = gRandom->Gaus(0, cvd_tilt_psi);
+	// 		//x = (cvd_offset_x);
+	// 		//y = (cvd_offset_y);
+	// 		//z = (cvd_offset_z);
+	// 		//rotphi = (cvd_tilt_phi);
+	// 		//rottheta = (cvd_tilt_theta);
+	// 		//rotpsi = (cvd_tilt_psi);
+	// 	}
+	// 	// the precision of plane halves containing sensors is requested
+	// 	// when requested offset applies to all modules
+	// 	if (ihalf >= 0 && iplane >= 0 &&
+	// 			imodule < 0 && iside < 0 && idie < 0 && isensor < 0 ){
+	// 		cout << " one plane half " << endl;
+	// 		x = gRandom->Gaus(0, plane_half_offset_x);
+	// 		y = gRandom->Gaus(0, plane_half_offset_y);
+	// 		z = gRandom->Gaus(0, plane_half_offset_z);
+	// 		rottheta = gRandom->Gaus(0, plane_half_tilt_phi);
+	// 		rotphi = gRandom->Gaus(0, plane_half_tilt_theta);
+	// 		rotpsi = gRandom->Gaus(0, plane_half_tilt_psi);
+	// 	}
+	// 	// the precision of halves of planes is requested
+	// 	// when requested offset applies to module supports
+	// 	if (ihalf >= 0 &&
+	// 			iplane < 0 && imodule < 0 && iside < 0 &&
+	// 			idie < 0 && isensor < 0 ){
+	// 		cout << " one half " << endl;
+	// 		x = gRandom->Gaus(0, half_offset_x);
+	// 		y = gRandom->Gaus(0, half_offset_y);
+	// 		z = gRandom->Gaus(0, half_offset_z);
+	// 		rottheta = gRandom->Gaus(0, half_tilt_phi);
+	// 		rotphi = gRandom->Gaus(0, half_tilt_theta);
+	// 		rotpsi = gRandom->Gaus(0, half_tilt_psi);
+	// 	}
+	// 	// the precision of the luminosity detector is requested
+	// 	// when no degrees of freedom are available to the rest
+	// 	if (ihalf < 0 && imodule < 0 && iplane < 0 && iside < 0 &&
+	// 			idie < 0 && isensor < 0 ){
+	// 		cout << " the luminosity detector " << endl;
+	// 		// not implemented yet
+	// 		x = gRandom->Gaus(0, 0);
+	// 		y = gRandom->Gaus(0, 0);
+	// 		z = gRandom->Gaus(0, 0);
+	// 		rottheta = gRandom->Gaus(0, 0);
+	// 		rotphi = gRandom->Gaus(0, 0);
+	// 		rotpsi = gRandom->Gaus(0, 0);
+	// 	}
+
+
+	  x = itoffset->second[0];
+	  y = itoffset->second[1];
+	  z = itoffset->second[2];
+	  rotphi = itoffset->second[3];
+	  rottheta = itoffset->second[4];
+	  rotpsi = itoffset->second[5];
+
+	  offsets[key].push_back(x);
+	  offsets[key].push_back(y);
+	  offsets[key].push_back(z);
+	  offsets[key].push_back(rotphi);
+	  offsets[key].push_back(rottheta);
+	  offsets[key].push_back(rotpsi);
+	  cout<<"x,y,z,rotphi,rottheta,rotpsi: "<<x<<", "<<y<<", "<<z<<", "<<rotphi<<", "<<rottheta<<", "<<rotpsi<<endl;
 }
 
 void PndLmdDim::Transform_global_to_lmd_local(double& x, double& y, double& z, bool aligned){
@@ -1073,6 +1347,10 @@ TGeoMatrix* PndLmdDim::Get_matrix(int ihalf, int iplane, int imodule, int iside,
 TGeoMatrix* PndLmdDim::Get_matrix_global_to_lmd_local(bool aligned){
 	return Get_matrix(-1,-1,-1,-1,-1,-1, aligned);
 }
+
+// TGeoMatrix* PndLmdDim::Get_matrix_global_to_sector_local(int ihalf, int iplane, int imodule, bool aligned){
+//   return Get_matrix(ihalf, iplane, imodule,-1,-1,-1, aligned);
+// }
 
 TGeoMatrix* PndLmdDim::Get_matrix_lmd_local_to_module_side(int ihalf, int iplane, int imodule, int iside, bool aligned){
 	return Get_matrix(ihalf, iplane, imodule, iside, -1, -1, aligned);

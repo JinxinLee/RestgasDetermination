@@ -28,6 +28,13 @@
 #include <TGeoMatrix.h>
 #include <TVector3.h>
 #include <TMatrixT.h>
+//work with DB
+/* #include<PndLmdContFact.h> */
+/* #include<TList.h> */
+#include<LmdTools/PndLmdAlignPar.h>
+/* #include "FairRuntimeDb.h" */
+/* #include "FairRunAna.h" */
+/* #include "FairRun.h" */
 
 typedef TMatrixT<double> TMatrixD; // hmm funny, should be declared in TMatrixT.h
 
@@ -43,10 +50,14 @@ private:
 	~PndLmdDim();
 	// the navigation paths for the detector geometry are stored here
 	vector<string> nav_paths;
+
+	
 public:
 	static PndLmdDim& Get_instance();
 	static PndLmdDim* Instance();
 
+	//	FairRun* ana;
+	//	FairRuntimeDb* rtdb;
 	// pi
 	double pi;
 	// number of detector planes
@@ -367,6 +378,13 @@ public:
 			double& x, double& y, double& z,
 			double& rotphi, double& rottheta, double& rotpsi);
 
+	//read alignment constants from DB 
+	//Feb 2013: currently DB is ASCII file
+	void Read_DB_offsets(PndLmdAlignPar *lmdalignpar);
+
+	//correct transformation matrices by align
+	void Correct_transformation_matrices();
+	void reCreate_transformation_matrices();
 	// several functions returning the position and orientation of
 	// the luminosity detector
 
@@ -760,6 +778,7 @@ public:
 	// see get matrix
 	TGeoMatrix* Get_matrix_module_side_to_sensor(int ihalf, int iplane, int imodule, int iside, int idie, int isensor, bool aligned = true);
 
+	//	TGeoMatrix* Get_matrix_global_to_sector_local(int ihalf, int iplane, int imodule, bool aligned=true);
 
 	// x, y, z coordinate transformation from the PANDA global reference frame to the
 	// local reference frame of the luminosity monitor
