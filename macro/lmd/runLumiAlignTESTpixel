@@ -16,10 +16,10 @@ da=0
 #TRANS=(0 50 100 150 200 250 300 400 500 600 700 800 900 1000 1500) #mkm
 #TRANS=(600 700 800 900 1000) #mkm
 #TRANS=(0 100 200 300 400 500 600 700 800 900 1000) #mkm
-TRANS=(0 200) #mkm
+TRANS=(200) #mkm
 TRANSN=${#TRANS[@]}
 #ROT=(0 1 3 5 7 9) #mrad
-ROT=(0 3) #mrad
+ROT=(3) #mrad
 ROTN=${#ROT[@]}
 ##ITTER=(1)
 ##ITTERN=${#ITTER[@]}
@@ -69,6 +69,11 @@ root -l -b -q runLumiPixel2bHitMerge.C\(${numEv},0,"\"${path}\""\)
     ./hits_align_pixel -s 0 -n ${numEv} -path ${path} -m 2 -out ${path}/hits_trk_for_alignment_sector2.txt -outhist ${path_res}/hitsRes_before_alignment_sector2.root
     ./hits_align_pixel -s 0 -n ${numEv} -path ${path} -m 3 -out ${path}/hits_trk_for_alignment_sector3.txt -outhist ${path_res}/hitsRes_before_alignment_sector3.root
     ./hits_align_pixel -s 0 -n ${numEv} -path ${path} -m 4 -out ${path}/hits_trk_for_alignment_sector4.txt -outhist ${path_res}/hitsRes_before_alignment_sector4.root
+    ./hits_align_pixel -s 0 -n ${numEv} -path ${path} -m 5 -out ${path}/hits_trk_for_alignment_sector5.txt -outhist ${path_res}/hitsRes_before_alignment_sector5.root
+    ./hits_align_pixel -s 0 -n ${numEv} -path ${path} -m 6 -out ${path}/hits_trk_for_alignment_sector6.txt -outhist ${path_res}/hitsRes_before_alignment_sector6.root
+    ./hits_align_pixel -s 0 -n ${numEv} -path ${path} -m 7 -out ${path}/hits_trk_for_alignment_sector7.txt -outhist ${path_res}/hitsRes_before_alignment_sector7.root
+    ./hits_align_pixel -s 0 -n ${numEv} -path ${path} -m 8 -out ${path}/hits_trk_for_alignment_sector8.txt -outhist ${path_res}/hitsRes_before_alignment_sector8.root
+    ./hits_align_pixel -s 0 -n ${numEv} -path ${path} -m 9 -out ${path}/hits_trk_for_alignment_sector9.txt -outhist ${path_res}/hitsRes_before_alignment_sector9.root
 
     # cd ${path}
     #cat hits_trk_for_alignment_sector0.txt hits_trk_for_alignment_sector1.txt hits_trk_for_alignment_sector2.txt hits_trk_for_alignment_sector3.txt hits_trk_for_alignment_sector4.txt > hits_trk_for_alignment.txt
@@ -83,8 +88,14 @@ root -l -b -q runLumiPixel2bHitMerge.C\(${numEv},0,"\"${path}\""\)
    ./knossos -i ${path}/hits_trk_for_alignment_sector2.txt -o ${path}/LumiAlignConst_sector2.txt -n ${numEv} -r 1 >> ${path_res}/logKnossos2
    ./knossos -i ${path}/hits_trk_for_alignment_sector3.txt -o ${path}/LumiAlignConst_sector3.txt -n ${numEv} -r 1 >> ${path_res}/logKnossos3
    ./knossos -i ${path}/hits_trk_for_alignment_sector4.txt -o ${path}/LumiAlignConst_sector4.txt -n ${numEv} -r 1 >> ${path_res}/logKnossos4
+   ./knossos -i ${path}/hits_trk_for_alignment_sector5.txt -o ${path}/LumiAlignConst_sector5.txt -n ${numEv} -r 1 >> ${path_res}/logKnossos5
+   ./knossos -i ${path}/hits_trk_for_alignment_sector6.txt -o ${path}/LumiAlignConst_sector6.txt -n ${numEv} -r 1 >> ${path_res}/logKnossos6
+   ./knossos -i ${path}/hits_trk_for_alignment_sector7.txt -o ${path}/LumiAlignConst_sector7.txt -n ${numEv} -r 1 >> ${path_res}/logKnossos7
+   ./knossos -i ${path}/hits_trk_for_alignment_sector8.txt -o ${path}/LumiAlignConst_sector8.txt -n ${numEv} -r 1 >> ${path_res}/logKnossos8
+   ./knossos -i ${path}/hits_trk_for_alignment_sector9.txt -o ${path}/LumiAlignConst_sector9.txt -n ${numEv} -r 1 >> ${path_res}/logKnossos9
+
    rm  ${path}/LumiAlignConst.txt
-   cat ${path}/LumiAlignConst_sector0.txt ${path}/LumiAlignConst_sector1.txt ${path}/LumiAlignConst_sector2.txt ${path}/LumiAlignConst_sector3.txt ${path}/LumiAlignConst_sector4.txt > ${path}/LumiAlignConst.txt
+   cat ${path}/LumiAlignConst_sector0.txt ${path}/LumiAlignConst_sector1.txt ${path}/LumiAlignConst_sector2.txt ${path}/LumiAlignConst_sector3.txt ${path}/LumiAlignConst_sector4.txt ${path}/LumiAlignConst_sector5.txt ${path}/LumiAlignConst_sector6.txt ${path}/LumiAlignConst_sector7.txt ${path}/LumiAlignConst_sector8.txt ${path}/LumiAlignConst_sector9.txt > ${path}/LumiAlignConst.txt
 
    # cp ${path}/LumiAlignConst_sector0.txt ${path}/LumiAlignConst.txt
    # head -28 ${path}/LumiAlignConst_sector1.txt >> ${path}/LumiAlignConst.txt
@@ -143,6 +154,11 @@ root -l -b -q runLumiPixel3Finder.C\(${numEv},0,"\"${path}\"",0,"\"CA\"",true,${
     ./hits_align_pixel -s 0 -n ${numEv} -path ${path} -m 2 -out ${path}/hits_trk_for_alignment_sector2_after.txt -outhist ${path_res}/hitsRes_after_alignment_sector2.root
     ./hits_align_pixel -s 0 -n ${numEv} -path ${path} -m 3 -out ${path}/hits_trk_for_alignment_sector3_after.txt -outhist ${path_res}/hitsRes_after_alignment_sector3.root
     ./hits_align_pixel -s 0 -n ${numEv} -path ${path} -m 4 -out ${path}/hits_trk_for_alignment_sector4_after.txt -outhist ${path_res}/hitsRes_after_alignment_sector4.root
+    ./hits_align_pixel -s 0 -n ${numEv} -path ${path} -m 5 -out ${path}/hits_trk_for_alignment_sector5_after.txt -outhist ${path_res}/hitsRes_after_alignment_sector5.root
+    ./hits_align_pixel -s 0 -n ${numEv} -path ${path} -m 6 -out ${path}/hits_trk_for_alignment_sector6_after.txt -outhist ${path_res}/hitsRes_after_alignment_sector6.root
+    ./hits_align_pixel -s 0 -n ${numEv} -path ${path} -m 7 -out ${path}/hits_trk_for_alignment_sector7_after.txt -outhist ${path_res}/hitsRes_after_alignment_sector7.root
+    ./hits_align_pixel -s 0 -n ${numEv} -path ${path} -m 8 -out ${path}/hits_trk_for_alignment_sector8_after.txt -outhist ${path_res}/hitsRes_after_alignment_sector8.root
+    ./hits_align_pixel -s 0 -n ${numEv} -path ${path} -m 9 -out ${path}/hits_trk_for_alignment_sector9_after.txt -outhist ${path_res}/hitsRes_after_alignment_sector9.root
 ##    done
 
 
