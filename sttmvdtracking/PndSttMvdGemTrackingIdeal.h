@@ -3,7 +3,6 @@
 //   
 // ideal tracker using MC id & track info
 // gaussian momentum smearing & fake efficiency included
-// z-momentum & z-coordinate of vertex is smeared with doubled sigma (just a guess)
 //
 // Created: 20.03.2013
 // Modified:
@@ -32,7 +31,7 @@ public:
   void Reset();                    
   void Register();                 
   
-  void SetTrackOutput(TString name = "FTSTrkIdeal") { fTracksArrayName = name; };
+  void SetTrackOutput(TString name = "STTTrkIdeal") { fTracksArrayName = name; };
   
   void SetMomentumSmearing(Double_t sigmax = -1.,Double_t sigmay = -1.,Double_t sigmaz = -1.) { fMomSigma.SetXYZ(fabs(sigmax),fabs(sigmay),fabs(sigmaz)); fRelative=kFALSE; }; // in GeV
   void SetRelativeMomentumSmearing(Double_t dpop = -1.) { fDPoP=fabs(dpop); fRelative=kTRUE;}; // in GeV

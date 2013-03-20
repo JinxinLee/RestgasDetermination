@@ -3,7 +3,6 @@
 //   
 // ideal tracker using MC id & track info
 // gaussian momentum smearing & fake efficiency included
-// z-momentum & z-coordinate of vertex is smeared with doubled sigma (just a guess)
 //
 // Created: 28.01.2011
 // Modified:
