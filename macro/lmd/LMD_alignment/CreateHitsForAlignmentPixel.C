@@ -357,7 +357,7 @@ int main(int __argc,char *__argv[]) {
 	int ihalf, iplane, imodule, iside, idie, isensor;
 	// calculate the plane and sensor on this plane
 	lmddim->Get_sensor_by_id(sensorID, ihalf, iplane, imodule, iside, idie, isensor);
-	trkModules[iHit]=imodule;
+	trkModules[iHit]=ihalf*5+imodule;
       }
       bool flagSector = true;
       if(sectorPos<10){    

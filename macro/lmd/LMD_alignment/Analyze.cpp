@@ -209,17 +209,17 @@ int main(int __argc,char *__argv[]) {
  double sigma_z_moy = 0;
  
  // z_average  
- for (unsigned int jp=0; jp<(nSides*nStation); jp=jp++){
+ for (unsigned int jp=0; jp<nStation; jp=jp++){
  // for (unsigned int jp=0; jp<(nSides*nStation*nSensors); jp=jp++){
    z_moy += zplanes[jp];
    //   cout<<"z_moy["<<jp<<"]="<<z_moy<<endl;
  }
 
- z_moy /= float(nSides*nStation);
+ z_moy /= float(nStation);
  //z_moy /= float(nSides*nStation*nSensors);
  // Error on z_moy
- for (unsigned int jp=0; jp<(nSides*nStation); jp=jp++) sigma_z_moy += (zplanes[jp]-z_moy)*(zplanes[jp]-z_moy);
- sigma_z_moy /= float(nSides*nStation);
+ for (unsigned int jp=0; jp<nStation; jp=jp++) sigma_z_moy += (zplanes[jp]-z_moy)*(zplanes[jp]-z_moy);
+ sigma_z_moy /= float(nStation);
  //for (unsigned int jp=0; jp<(nSides*nStation*nSensors); jp=jp++) sigma_z_moy += (zplanes[jp]-z_moy)*(zplanes[jp]-z_moy);
  // sigma_z_moy /= float(nSides*nStation*nSensors);
  //sigma_z_moy /= 4.;
@@ -239,20 +239,20 @@ int main(int __argc,char *__argv[]) {
  // double off_c = 0.;   
  
 
- double off_x[nSectors];   // Global offsetl
- double shear_x[nSectors]; // Global shearing
+ double off_x[nSectors*nSides];   // Global offsetl
+ double shear_x[nSectors*nSides]; // Global shearing
  
- double off_y[nSectors];  
- double shear_y[nSectors];
+ double off_y[nSectors*nSides];  
+ double shear_y[nSectors*nSides];
  
- double off_z[nSectors];  
- double scale_z[nSectors];
+ double off_z[nSectors*nSides];  
+ double scale_z[nSectors*nSides];
  
- double off_a[nSectors];   
- double off_b[nSectors];   
- double off_c[nSectors];   
+ double off_a[nSectors*nSides];   
+ double off_b[nSectors*nSides];   
+ double off_c[nSectors*nSides];   
  
- for(int jm=0;jm<nSectors;jm++){
+ for(int jm=0;jm<(nSectors*nSides);jm++){
    off_x[jm] = 0;
    shear_x[jm] = 0; 
    
@@ -272,19 +272,20 @@ int main(int __argc,char *__argv[]) {
      for(int jm=0;jm<nSectors;jm++){
        //  int glmod = jh*nStation*nSectors+jp*nSectors+jm;
        int glmod = jp;
-       off_x[jm] += dxin[jh][jp][jm];
+       int js=jh*nSectors+jm;
+       off_x[js] += dxin[jh][jp][jm];
        //       cout<<"dxin["<<jg<<"]["<<ig<<"] = "<<dxin[jg][ig]<<" dyin["<<jg<<"]["<<ig<<"] = "<<dyin[jg][ig]<<endl;
-       shear_x[jm] +=  dxin[jh][jp][jm]*(zplanes[glmod]-z_moy)/sigma_z_moy;
+       shear_x[js] +=  dxin[jh][jp][jm]*(zplanes[glmod]-z_moy)/sigma_z_moy;
        //       cout<<"jh:"<<jh<<" jp:"<<jp<<" jm:"<<jm<<" off_x="<<off_x<<" shear_x = "<<shear_x<<" zplanes ["<<glmod<<"]="<<zplanes[glmod]<<endl;
-       off_y[jm] += dyin[jh][jp][jm];
+       off_y[js] += dyin[jh][jp][jm];
 
-       shear_y[jm] +=  dyin[jh][jp][jm]*(zplanes[glmod]-z_moy)/sigma_z_moy;
-       off_z[jm] += dzin[jh][jp][jm];
-       scale_z[jm] +=  dzin[jh][jp][jm]*(zplanes[glmod]-z_moy)/sigma_z_moy;
+       shear_y[js] +=  dyin[jh][jp][jm]*(zplanes[glmod]-z_moy)/sigma_z_moy;
+       off_z[js] += dzin[jh][jp][jm];
+       scale_z[js] +=  dzin[jh][jp][jm]*(zplanes[glmod]-z_moy)/sigma_z_moy;
        
-       off_a[jm] += dalphain[jh][jp][jm];  
-       off_b[jm] += dbetain[jh][jp][jm];  
-       off_c[jm] += dgammain[jh][jp][jm]; 
+       off_a[js] += dalphain[jh][jp][jm];  
+       off_b[js] += dbetain[jh][jp][jm];  
+       off_c[js] += dgammain[jh][jp][jm]; 
        
 
        // off_x += dxin[jh][jp][jm];
@@ -304,19 +305,19 @@ int main(int __argc,char *__argv[]) {
    }
  }
 
- for(int jm=0;jm<nSectors;jm++){
-   off_x[jm] /= float(nSides*nStation);
-   shear_x[jm] /= float(nSides*nStation); 
+ for(int jm=0;jm<(nSectors*nSides);jm++){
+   off_x[jm] /= float(nStation);
+   shear_x[jm] /= float(nStation); 
    
-   off_y[jm] /= float(nSides*nStation);
-   shear_y[jm] /= float(nSides*nStation);  
+   off_y[jm] /= float(nStation);
+   shear_y[jm] /= float(nStation);  
    
-   off_z[jm] /= float(nSides*nStation);
-   scale_z[jm] /= float(nSides*nStation); 
+   off_z[jm] /= float(nStation);
+   scale_z[jm] /= float(nStation); 
    
-   off_a[jm] /= float(nSides*nStation);
-   off_b[jm] /= float(nSides*nStation);
-   off_c[jm] /= float(nSides*nStation);
+   off_a[jm] /= float(nStation);
+   off_b[jm] /= float(nStation);
+   off_c[jm] /= float(nStation);
    cout<<jm<<": off_x = "<<off_x[jm]<<" shear_x = "<<shear_x[jm]<<" off_y = "<<off_y[jm]<<" shear_y = "<<shear_y[jm]
      <<" off_z = "<<off_z[jm]<<"  scale_z = "<<scale_z[jm]<<" off_a = "<<off_a[jm]<<" off_b = "<<off_b[jm]<<" off_c = "<<off_c[jm]<<endl;
  }
@@ -354,12 +355,13 @@ int main(int __argc,char *__argv[]) {
    for(int jm=0;jm<nSectors;jm++){
      //     int glmod = jh*nStation*nSectors+jp*nSectors+jm;
      int glmod = jp;
+     int js=jh*nSectors+jm;
      // cout<<"["<<jg<<"]["<<ig<<"]"<<endl;
      //    cout<<"IN (x,y,z):"<<dxin[jh][jp][jm]<<" "<<dyin[jh][jp][jm]<<" "<<dzin[jh][jp][jm]<<endl;
      // cout<<"raw: dxin["<<jh<<"]["<<jp<<"]["<<jm<<"]="<<dxin[jh][jp][jm]<<endl;
-     dxin[jh][jp][jm] = dxin[jh][jp][jm]-off_x[jm]-shear_x[jm]*(zplanes[glmod]-z_moy);
-     dyin[jh][jp][jm] = dyin[jh][jp][jm]-off_y[jm]-shear_y[jm]*(zplanes[glmod]-z_moy);
-     dzin[jh][jp][jm] = dzin[jh][jp][jm]-off_z[jm]-scale_z[jm]*(zplanes[glmod]-z_moy);
+     dxin[jh][jp][jm] = dxin[jh][jp][jm]-off_x[js]-shear_x[js]*(zplanes[glmod]-z_moy);
+     dyin[jh][jp][jm] = dyin[jh][jp][jm]-off_y[js]-shear_y[js]*(zplanes[glmod]-z_moy);
+     dzin[jh][jp][jm] = dzin[jh][jp][jm]-off_z[js]-scale_z[js]*(zplanes[glmod]-z_moy);
      // dxin[jh][jp][jm] = dxin[jh][jp][jm]-off_x-shear_x*(zplanes[glmod]-z_moy);
      // dyin[jh][jp][jm] = dyin[jh][jp][jm]-off_y-shear_y*(zplanes[glmod]-z_moy);
      // dzin[jh][jp][jm] = dzin[jh][jp][jm]-off_z-scale_z*(zplanes[glmod]-z_moy);
@@ -368,9 +370,9 @@ int main(int __argc,char *__argv[]) {
      // // cout<<"---------------------------------------"<<endl;
      cout<<"BEFORE correction: ";
      cout<<"dgamma["<<jh<<"]["<<jp<<"]["<<jm<<"]= "<<dgammain[jh][jp][jm]<<endl;
-     dalphain[jh][jp][jm] = dalphain[jh][jp][jm] - off_a[jm];
-     dbetain[jh][jp][jm] = dbetain[jh][jp][jm] - off_b[jm];
-     dgammain[jh][jp][jm] = dgammain[jh][jp][jm] - off_c[jm];
+     dalphain[jh][jp][jm] = dalphain[jh][jp][jm] - off_a[js];
+     dbetain[jh][jp][jm] = dbetain[jh][jp][jm] - off_b[js];
+     dgammain[jh][jp][jm] = dgammain[jh][jp][jm] - off_c[js];
      // dalphain[jh][jp][jm] = dalphain[jh][jp][jm] - off_a;
      // dbetain[jh][jp][jm] = dbetain[jh][jp][jm]   - off_b;
      // dgammain[jh][jp][jm] = dgammain[jh][jp][jm] - off_c;
@@ -450,16 +452,16 @@ TFile* fi = new TFile(outfile,"RECREATE");
     // m_pullHistos->Add(aHisto3);
 
     sprintf(histoName, "mis_before_%d",histID);
-    TH2F* aHisto = new TH2F(histoName, histoName, 20,0,20,1e4, -misal_scales[histID], misal_scales[histID]);
+    TH2F* aHisto = new TH2F(histoName, histoName, nSides*nSectors*nStation,0,nSides*nSectors*nStation,1e4, -misal_scales[histID], misal_scales[histID]);
     m_mis_bef->Add(aHisto);
 
     sprintf(histoName2, "mis_after_%d",histID);
-    // TH2F* aHisto2 = new TH2F(histoName2, histoName2, 20,0,32, 100, -0.05*misal_scales[histID], 0.05*misal_scales[histID]);
-    TH2F* aHisto2 = new TH2F(histoName2, histoName2, 20,0,20, 1e4, -misal_scales[histID], misal_scales[histID]);
+    // TH2F* aHisto2 = new TH2F(histoName2, histoName2, nSides*nSectors*nStation,0,32, 100, -0.05*misal_scales[histID], 0.05*misal_scales[histID]);
+    TH2F* aHisto2 = new TH2F(histoName2, histoName2, nSides*nSectors*nStation,0,nSides*nSectors*nStation, 1e4, -misal_scales[histID], misal_scales[histID]);
     m_mis_aft->Add(aHisto2);
   
     sprintf(histoName4, "mis_diff_%d",histID);
-    TH2F* aHisto4 = new TH2F(histoName4, histoName4, 20,0,20, 1e4, -misal_scales[histID], misal_scales[histID]);
+    TH2F* aHisto4 = new TH2F(histoName4, histoName4, nSides*nSectors*nStation,0,nSides*nSectors*nStation, 1e4, -misal_scales[histID], misal_scales[histID]);
     m_mis_diff->Add(aHisto4);
   
                                                                                 

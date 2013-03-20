@@ -6,7 +6,7 @@
 
 #include <sstream>
 using namespace std;
-void SummaryAlign(TString path="/PANDA/pandaroot/macro/lmd/tmpOutputAlignTMP/results_0mkm_3mrad_20000events", double tr_sc=0, double rt_sc=3)
+void SummaryAlign(TString path="/PANDA/pandaroot/macro/lmd/tmpOutputAlignTMP/results_200mkm_3mrad_10000events", double tr_sc=200, double rt_sc=3)
 {
   //start a PROOF-Lite session
   //  TProof::Open("");
@@ -248,6 +248,166 @@ TFile *fresb3 = new TFile(nameresb3,"READ");
   
   c1.Print(resname_pdf_o); //write canvas and keep the ps file open
 
+
+ TCanvas c3("c3");
+  hmis_b_0->SetTitle("translation x");
+  hmis_b_0->GetXaxis()->SetTitle("module#");
+  hmis_b_0->GetYaxis()->SetTitle("#Delta_{x}, cm");
+  hmis_b_0->SetMarkerStyle(21);
+  hmis_b_0->SetMarkerColor(kGreen-3);
+  hmis_b_0->SetLineColor(kGreen-3);
+  hmis_b_0->SetMarkerSize(2.);
+  //hmis_b_0->SetMaximum(tr_sc*1.1*1e-4);
+  // hmis_b_0->SetMinimum(0.);
+  hmis_b_0->Draw("BOX");
+  //  c3.Print(resname_pdf_o); //write canvas and keep the ps file open
+  hmis_a_0->SetTitle("translation x");
+  hmis_a_0->GetXaxis()->SetTitle("module#");
+  hmis_a_0->GetYaxis()->SetTitle("#Delta_{x}, cm");
+  hmis_a_0->SetMarkerStyle(22);
+  hmis_a_0->SetMarkerColor(kOrange+7);
+  hmis_a_0->SetLineColor(kOrange+7);
+  hmis_a_0->SetMarkerSize(2.);
+  // hmis_a_0->SetMaximum(tr_sc*1.1*1e-4);
+  // hmis_a_0->SetMinimum(0.);
+  hmis_a_0->Draw("BOX;same");
+  c3.Print(resname_pdf_o); //write canvas and keep the ps file open
+
+  TH1D* hconst_b_0 = hmis_b_0->ProjectionY();
+  TH1D* hconst_a_0 = hmis_a_0->ProjectionY();
+  hconst_b_0->SetLineColor(kGreen-3);
+  hconst_a_0->SetLineColor(kOrange+7);
+  hconst_a_0->Draw();
+  hconst_b_0->Draw("same");
+  c3.Print(resname_pdf_o); //write canvas and keep the ps file open
+  hmis_b_1->SetTitle("translation y");
+  hmis_b_1->GetXaxis()->SetTitle("module#");
+  hmis_b_1->GetYaxis()->SetTitle("#Delta_{y}, cm");
+  hmis_b_1->SetMarkerStyle(21);
+  hmis_b_1->SetMarkerColor(kGreen-3);
+  hmis_b_1->SetLineColor(kGreen-3);
+  hmis_b_1->SetMarkerSize(2.);
+  // hmis_b_1->SetMaximum(tr_sc*1.1*1e-4);
+  // hmis_b_1->SetMinimum(0.);
+  hmis_b_1->Draw("BOX");
+  //  c3.Print(resname_pdf_o); //write canvas and keep the ps file open
+  hmis_a_1->SetTitle("translation y");
+  hmis_a_1->GetXaxis()->SetTitle("module#");
+  hmis_a_1->GetYaxis()->SetTitle("#Delta_{y}, cm");
+  hmis_a_1->SetMarkerStyle(22);
+  hmis_a_1->SetMarkerColor(kOrange+7);
+  hmis_a_1->SetLineColor(kOrange+7);
+  hmis_a_1->SetMarkerSize(2.);
+  // hmis_a_1->SetMaximum(tr_sc*1.1*1e-4);
+  // hmis_a_1->SetMinimum(0.);
+  hmis_a_1->Draw("BOX;same");
+  c3.Print(resname_pdf_o); //write canvas and keep the ps file open
+  TH1D* hconst_b_1 = hmis_b_1->ProjectionY();
+  TH1D* hconst_a_1 = hmis_a_1->ProjectionY();
+  hconst_b_1->SetLineColor(kGreen-3);
+  hconst_a_1->SetLineColor(kOrange+7);
+  hconst_a_1->Draw();
+  hconst_b_1->Draw("same");
+  c3.Print(resname_pdf_o); //write canvas and keep the ps file open
+
+  hmis_b_2->SetTitle("translation z");
+  hmis_b_2->GetXaxis()->SetTitle("module#");
+  hmis_b_2->GetYaxis()->SetTitle("#Delta_{z}, cm");
+  hmis_b_2->SetMarkerStyle(21);
+  hmis_b_2->SetMarkerColor(kGreen-3);
+  hmis_b_2->SetLineColor(kGreen-3);
+  hmis_b_2->SetMarkerSize(2.);
+  // hmis_b_2->SetMaximum(tr_sc*1.1*1e-4);
+  // hmis_b_2->SetMinimum(0.);
+  hmis_b_2->Draw("BOX");
+  //  c3.Print(resname_pdf_o); //write canvas and keep the ps file open
+  hmis_a_2->SetTitle("translation z");
+  hmis_a_2->GetXaxis()->SetTitle("module#");
+  hmis_a_2->GetYaxis()->SetTitle("#Delta_{z}, cm");
+  hmis_a_2->SetMarkerStyle(22);
+  hmis_a_2->SetMarkerColor(kOrange+7);
+  hmis_a_2->SetLineColor(kOrange+7);
+  hmis_a_2->SetMarkerSize(2.);
+  // hmis_a_2->SetMaximum(tr_sc*1.1*1e-4);
+  // hmis_a_2->SetMinimum(0.);
+  hmis_a_2->Draw("BOX;same");
+  //  c3.Print(resname_pdf_o); //write canvas and keep the ps file open
+  hmis_b_3->SetTitle("rotation x");
+  hmis_b_3->GetXaxis()->SetTitle("module#");
+  hmis_b_3->GetYaxis()->SetTitle("#Delta_{#alpha}, rad");
+  hmis_b_3->SetMarkerStyle(21);
+  hmis_b_3->SetMarkerColor(kGreen-3);
+  hmis_b_3->SetLineColor(kGreen-3);
+  hmis_b_3->SetMarkerSize(2.);
+  // hmis_b_3->SetMaximum(rt_sc*10.1*1e-3);
+  // hmis_b_3->SetMinimum(0.);
+  hmis_b_3->Draw("BOX");
+  //  c3.Print(resname_pdf_o); //write canvas and keep the ps file open
+  hmis_a_3->SetTitle("rotation x");
+  hmis_a_3->GetXaxis()->SetTitle("module#");
+  hmis_a_3->GetYaxis()->SetTitle("#Delta_{#alpha}, rad");
+  hmis_a_3->SetMarkerStyle(22);
+  hmis_a_3->SetMarkerColor(kOrange+7);
+  hmis_a_3->SetLineColor(kOrange+7);
+  hmis_a_3->SetMarkerSize(2.);
+  // hmis_a_3->SetMaximum(rt_sc*10.1*1e-3);
+  // hmis_a_3->SetMinimum(0.);
+  hmis_a_3->Draw("BOX;same");
+  // c3.Print(resname_pdf_o); //write canvas and keep the ps file open
+  hmis_b_4->SetTitle("rotation y");
+  hmis_b_4->GetXaxis()->SetTitle("module#");
+  hmis_b_4->GetYaxis()->SetTitle("#Delta_{#beta}, rad");
+  hmis_b_4->SetMarkerStyle(21);
+  hmis_b_4->SetMarkerColor(kGreen-3);
+  hmis_b_4->SetLineColor(kGreen-3);
+  hmis_b_4->SetMarkerSize(2.);
+  // hmis_b_4->SetMaximum(rt_sc*10.1*1e-3);
+  // hmis_b_4->SetMinimum(0.);
+  hmis_b_4->Draw("BOX");
+  //  c3.Print(resname_pdf_o); //write canvas and keep the ps file open
+  hmis_a_4->SetTitle("rotation y");
+  hmis_a_4->GetXaxis()->SetTitle("module#");
+  hmis_a_4->GetYaxis()->SetTitle("#Delta_{#beta}, rad");
+  hmis_a_4->SetMarkerStyle(22);
+  hmis_a_4->SetMarkerColor(kOrange+7);
+  hmis_a_4->SetLineColor(kOrange+7);
+  hmis_a_4->SetMarkerSize(2.);
+  // hmis_a_4->SetMaximum(rt_sc*10.1*1e-3);
+  // hmis_a_4->SetMinimum(0.);
+  hmis_a_4->Draw("BOX;same");
+  // c3.Print(resname_pdf_o); //write canvas and keep the ps file open
+  hmis_b_5->SetTitle("rotation z");
+  hmis_b_5->GetXaxis()->SetTitle("module#");
+  hmis_b_5->GetYaxis()->SetTitle("#Delta_{#gamma}, rad");
+  hmis_b_5->SetMarkerStyle(21);
+  hmis_b_5->SetMarkerColor(kGreen-3);
+  hmis_b_5->SetLineColor(kGreen-3);
+  hmis_b_5->SetMarkerSize(2.);
+  // hmis_b_5->SetMaximum(rt_sc*1.1*1e-3);
+  // hmis_b_5->SetMinimum(0.);
+  hmis_b_5->Draw("BOX");
+  //  c3.Print(resname_pdf_o); //write canvas and keep the ps file open
+  hmis_a_5->SetTitle("rotation z");
+  hmis_a_5->GetXaxis()->SetTitle("module#");
+  hmis_a_5->GetYaxis()->SetTitle("#Delta_{#gamma}, rad");
+  hmis_a_5->SetMarkerStyle(22);
+  hmis_a_5->SetMarkerColor(kOrange+7);
+  hmis_a_5->SetLineColor(kOrange+7);
+  hmis_a_5->SetMarkerSize(2.);
+  // hmis_a_5->SetMaximum(rt_sc*1.1*1e-3);
+  // hmis_a_5->SetMinimum(0.);
+  hmis_a_5->Draw("BOX;same");
+
+  c3.Print(resname_pdf_o); //write canvas and keep the ps file open
+
+  TH1D* hconst_b_5 = hmis_b_5->ProjectionY();
+  TH1D* hconst_a_5 = hmis_a_5->ProjectionY();
+  hconst_b_5->SetLineColor(kGreen-3);
+  hconst_a_5->SetLineColor(kOrange+7);
+  hconst_a_5->Draw();
+  hconst_b_5->Draw("same");
+  c3.Print(resname_pdf_o); //write canvas and keep the ps file open
+ 
   TCanvas c2("residualsx");
   // c2.Divide(3,2);
   hresxb0->SetMarkerStyle(6);
@@ -367,143 +527,10 @@ TFile *fresb3 = new TFile(nameresb3,"READ");
   // c4.cd(5);
   hresyb4->Draw("BOX");
   hresya4->Draw("BOX;same");
-  c4.Print(resname_pdf_o); //write canvas and keep the ps file open
-
- TCanvas c3("c3");
-  hmis_b_0->SetTitle("translation x");
-  hmis_b_0->GetXaxis()->SetTitle("module#");
-  hmis_b_0->GetYaxis()->SetTitle("#Delta_{x}, cm");
-  hmis_b_0->SetMarkerStyle(21);
-  hmis_b_0->SetMarkerColor(kGreen-3);
-  hmis_b_0->SetLineColor(kGreen-3);
-  hmis_b_0->SetMarkerSize(2.);
-  //hmis_b_0->SetMaximum(tr_sc*1.1*1e-4);
-  // hmis_b_0->SetMinimum(0.);
-  hmis_b_0->Draw("BOX");
-  //  c3.Print(resname_pdf_o); //write canvas and keep the ps file open
-  hmis_a_0->SetTitle("translation x");
-  hmis_a_0->GetXaxis()->SetTitle("module#");
-  hmis_a_0->GetYaxis()->SetTitle("#Delta_{x}, cm");
-  hmis_a_0->SetMarkerStyle(22);
-  hmis_a_0->SetMarkerColor(kOrange+7);
-  hmis_a_0->SetLineColor(kOrange+7);
-  hmis_a_0->SetMarkerSize(2.);
-  // hmis_a_0->SetMaximum(tr_sc*1.1*1e-4);
-  // hmis_a_0->SetMinimum(0.);
-  hmis_a_0->Draw("BOX;same");
-  c3.Print(resname_pdf_o); //write canvas and keep the ps file open
-  hmis_b_1->SetTitle("translation y");
-  hmis_b_1->GetXaxis()->SetTitle("module#");
-  hmis_b_1->GetYaxis()->SetTitle("#Delta_{y}, cm");
-  hmis_b_1->SetMarkerStyle(21);
-  hmis_b_1->SetMarkerColor(kGreen-3);
-  hmis_b_1->SetLineColor(kGreen-3);
-  hmis_b_1->SetMarkerSize(2.);
-  // hmis_b_1->SetMaximum(tr_sc*1.1*1e-4);
-  // hmis_b_1->SetMinimum(0.);
-  hmis_b_1->Draw("BOX");
-  //  c3.Print(resname_pdf_o); //write canvas and keep the ps file open
-  hmis_a_1->SetTitle("translation y");
-  hmis_a_1->GetXaxis()->SetTitle("module#");
-  hmis_a_1->GetYaxis()->SetTitle("#Delta_{y}, cm");
-  hmis_a_1->SetMarkerStyle(22);
-  hmis_a_1->SetMarkerColor(kOrange+7);
-  hmis_a_1->SetLineColor(kOrange+7);
-  hmis_a_1->SetMarkerSize(2.);
-  // hmis_a_1->SetMaximum(tr_sc*1.1*1e-4);
-  // hmis_a_1->SetMinimum(0.);
-  hmis_a_1->Draw("BOX;same");
-  c3.Print(resname_pdf_o); //write canvas and keep the ps file open
-  hmis_b_2->SetTitle("translation z");
-  hmis_b_2->GetXaxis()->SetTitle("module#");
-  hmis_b_2->GetYaxis()->SetTitle("#Delta_{z}, cm");
-  hmis_b_2->SetMarkerStyle(21);
-  hmis_b_2->SetMarkerColor(kGreen-3);
-  hmis_b_2->SetLineColor(kGreen-3);
-  hmis_b_2->SetMarkerSize(2.);
-  // hmis_b_2->SetMaximum(tr_sc*1.1*1e-4);
-  // hmis_b_2->SetMinimum(0.);
-  hmis_b_2->Draw("BOX");
-  //  c3.Print(resname_pdf_o); //write canvas and keep the ps file open
-  hmis_a_2->SetTitle("translation z");
-  hmis_a_2->GetXaxis()->SetTitle("module#");
-  hmis_a_2->GetYaxis()->SetTitle("#Delta_{z}, cm");
-  hmis_a_2->SetMarkerStyle(22);
-  hmis_a_2->SetMarkerColor(kOrange+7);
-  hmis_a_2->SetLineColor(kOrange+7);
-  hmis_a_2->SetMarkerSize(2.);
-  // hmis_a_2->SetMaximum(tr_sc*1.1*1e-4);
-  // hmis_a_2->SetMinimum(0.);
-  hmis_a_2->Draw("BOX;same");
-  //  c3.Print(resname_pdf_o); //write canvas and keep the ps file open
-  hmis_b_3->SetTitle("rotation x");
-  hmis_b_3->GetXaxis()->SetTitle("module#");
-  hmis_b_3->GetYaxis()->SetTitle("#Delta_{#alpha}, rad");
-  hmis_b_3->SetMarkerStyle(21);
-  hmis_b_3->SetMarkerColor(kGreen-3);
-  hmis_b_3->SetLineColor(kGreen-3);
-  hmis_b_3->SetMarkerSize(2.);
-  // hmis_b_3->SetMaximum(rt_sc*10.1*1e-3);
-  // hmis_b_3->SetMinimum(0.);
-  hmis_b_3->Draw("BOX");
-  //  c3.Print(resname_pdf_o); //write canvas and keep the ps file open
-  hmis_a_3->SetTitle("rotation x");
-  hmis_a_3->GetXaxis()->SetTitle("module#");
-  hmis_a_3->GetYaxis()->SetTitle("#Delta_{#alpha}, rad");
-  hmis_a_3->SetMarkerStyle(22);
-  hmis_a_3->SetMarkerColor(kOrange+7);
-  hmis_a_3->SetLineColor(kOrange+7);
-  hmis_a_3->SetMarkerSize(2.);
-  // hmis_a_3->SetMaximum(rt_sc*10.1*1e-3);
-  // hmis_a_3->SetMinimum(0.);
-  hmis_a_3->Draw("BOX;same");
-  // c3.Print(resname_pdf_o); //write canvas and keep the ps file open
-  hmis_b_4->SetTitle("rotation y");
-  hmis_b_4->GetXaxis()->SetTitle("module#");
-  hmis_b_4->GetYaxis()->SetTitle("#Delta_{#beta}, rad");
-  hmis_b_4->SetMarkerStyle(21);
-  hmis_b_4->SetMarkerColor(kGreen-3);
-  hmis_b_4->SetLineColor(kGreen-3);
-  hmis_b_4->SetMarkerSize(2.);
-  // hmis_b_4->SetMaximum(rt_sc*10.1*1e-3);
-  // hmis_b_4->SetMinimum(0.);
-  hmis_b_4->Draw("BOX");
-  //  c3.Print(resname_pdf_o); //write canvas and keep the ps file open
-  hmis_a_4->SetTitle("rotation y");
-  hmis_a_4->GetXaxis()->SetTitle("module#");
-  hmis_a_4->GetYaxis()->SetTitle("#Delta_{#beta}, rad");
-  hmis_a_4->SetMarkerStyle(22);
-  hmis_a_4->SetMarkerColor(kOrange+7);
-  hmis_a_4->SetLineColor(kOrange+7);
-  hmis_a_4->SetMarkerSize(2.);
-  // hmis_a_4->SetMaximum(rt_sc*10.1*1e-3);
-  // hmis_a_4->SetMinimum(0.);
-  hmis_a_4->Draw("BOX;same");
-  // c3.Print(resname_pdf_o); //write canvas and keep the ps file open
-  hmis_b_5->SetTitle("rotation z");
-  hmis_b_5->GetXaxis()->SetTitle("module#");
-  hmis_b_5->GetYaxis()->SetTitle("#Delta_{#gamma}, rad");
-  hmis_b_5->SetMarkerStyle(21);
-  hmis_b_5->SetMarkerColor(kGreen-3);
-  hmis_b_5->SetLineColor(kGreen-3);
-  hmis_b_5->SetMarkerSize(2.);
-  // hmis_b_5->SetMaximum(rt_sc*1.1*1e-3);
-  // hmis_b_5->SetMinimum(0.);
-  hmis_b_5->Draw("BOX");
-  //  c3.Print(resname_pdf_o); //write canvas and keep the ps file open
-  hmis_a_5->SetTitle("rotation z");
-  hmis_a_5->GetXaxis()->SetTitle("module#");
-  hmis_a_5->GetYaxis()->SetTitle("#Delta_{#gamma}, rad");
-  hmis_a_5->SetMarkerStyle(22);
-  hmis_a_5->SetMarkerColor(kOrange+7);
-  hmis_a_5->SetLineColor(kOrange+7);
-  hmis_a_5->SetMarkerSize(2.);
-  // hmis_a_5->SetMaximum(rt_sc*1.1*1e-3);
-  // hmis_a_5->SetMinimum(0.);
-  hmis_a_5->Draw("BOX;same");
+  //c4.Print(resname_pdf_o); //write canvas and keep the ps file open
   TString resname_pdf_c = resname_pdf+")";
-  c3.Print(resname_pdf_c); //canvas is added to "c3.ps" and ps file is closed
-
+  c4.Print(resname_pdf_c); //canvas is added to "c3.ps" and ps file is closed
+ 
   // ---- Output file ----------------------------------------------------------------
   TString out = resname+".root";
   TFile *f = new TFile(out,"RECREATE");

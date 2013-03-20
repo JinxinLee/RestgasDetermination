@@ -67,14 +67,14 @@ void create_misalignment_lmd_pixel(double dr=0, double da=0, string filename){
       //      if(i==0) dgamma[j][i][m]=0;
       // } 
       //      if(i==0){
-      if(i!=3){
-      	dx[j][i][m] = 0;
-      	dy[j][i][m] = 0;
-      	dz[j][i][m] = 0;
-      	dalpha[j][i][m] = 0;
-      	dbeta[j][i][m] = 0;
-      	dgamma[j][i][m] = 0;
-      }
+      // if(i!=3){
+      // 	dx[j][i][m] = 0;
+      // 	dy[j][i][m] = 0;
+      // 	dz[j][i][m] = 0;
+      // 	dalpha[j][i][m] = 0;
+      // 	dbeta[j][i][m] = 0;
+      // 	dgamma[j][i][m] = 0;
+      // }
       // // else{
       
       // // }
