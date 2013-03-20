@@ -128,7 +128,7 @@
 
 using namespace std;
 int main(int __argc,char *__argv[]) {
-  gROOT->Macro("/home/karavdin/pandaRoot12/macro/lmd/Style_Imported_Style.C");
+  gROOT->Macro("/PANDA/pandaroot/macro/lmd/Style_Imported_Style.C");
   gROOT->SetStyle("Imported_Style"); 
 
   //TODO: read this like params!
@@ -422,8 +422,8 @@ int main(int __argc,char *__argv[]) {
   TH1 *hResMom = new TH1F("hResMom","P_{MC}-P_{rec};#deltaP,GeV/c",1e3,-1e-4,1e-4);
   TH1 *hErrMom = new TH1F("hErrMom","#sigma_{P};#sigmaP,GeV/c",1e3,0,1e-3);
   TH1 *hPullMom = new TH1F("hPullMom","(P_{MC}-P_{rec})/#sigma_{P};",1e3,-1e1,1e1);
-  TH1 *hResTheta = new TH1F("hResTheta","#theta_{MC}-#theta_{rec};#delta#theta,rad",1e3,-1e-2,1e-2);
-  //  TH1 *hResTheta = new TH1F("hResTheta","#theta_{MC}-#theta_{rec};#delta#theta,rad",1e3,-1e-3,1e-3);//TEST
+  //  TH1 *hResTheta = new TH1F("hResTheta","#theta_{MC}-#theta_{rec};#delta#theta,rad",1e3,-1e-2,1e-2);
+  TH1 *hResTheta = new TH1F("hResTheta","#theta_{MC}-#theta_{rec};#delta#theta,rad",1e2,-1e-3,1e-3);//TEST
   TH1 *hErrTheta = new TH1F("hErrTheta","#sigma(#theta_{rec});#sigma,rad",1e3,0,0.01);
   TH1 *hPullTheta = new TH1F("hPullTheta","(#theta_{MC}-#theta_{rec})/#sigma_{#theta};",1e2,-10,10);
   TH1 *hResPhi = new TH1F("hResPhi","#phi_{MC}-#phi_{rec};#delta#phi,rad",2e3,-1.,1.);
