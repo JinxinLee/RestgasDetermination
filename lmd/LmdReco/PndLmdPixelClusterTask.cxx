@@ -22,6 +22,7 @@ PndSdsPixelClusterTask("LMD Clustertisation Task")
   fAlignParamList = new TList();
   readAlign = true;
   flagMS = true;
+
 }
 // -------------------------------------------------------------------------
 
@@ -71,7 +72,9 @@ InitStatus PndLmdPixelClusterTask::Init()
   fStartFunctor = new StopTime();
   
   if(fVerbose>1) fDigiPar->Print();
-  
+  lmddim = PndLmdDim::Instance();
+  SetAlignConst();
+
   std::cout << "-I- PndSdsPixelClusterTask: Initialisation successfull" << std::endl;
   return kSUCCESS;
 }
@@ -87,12 +90,6 @@ void PndLmdPixelClusterTask::SetParContainers()
 	fDigiPar = (PndSdsPixelDigiPar*)(rtdb->getContainer("SDSPixelDigiPar"));
 	rtdb->getContainer("SDSPixelTotDigiPar");
 	
-
-	//Read lmd geo description. still not sure where and how to do it as soon as Init stays in PndSdsPixelClusterTask
-	lmddim = PndLmdDim::Instance();
-	// lmddim -> Read_transformation_matrices("matrices.txt", true);
-	lmddim -> Read_transformation_matrices("matrices_perfect.txt", false);
-
 	PndLmdContFact* themvdcontfact = (PndLmdContFact*)rtdb->getContFactory("PndLmdContFact");
 	//read params for lumi alignment
 	TList* theAlignLMDContNames = themvdcontfact->GetAlignParNames();
@@ -105,34 +102,47 @@ void PndLmdPixelClusterTask::SetParContainers()
 	  if(!lmdalignpar) Fatal("SetParContainers","No ALIGN parameter found: %s",parsetname.Data());
 	  fAlignParamList->Add(lmdalignpar); 
 	}
-	//
+	// //
 	PndSdsPixelClusterTask::SetParContainers();
-
 }
 
 void PndLmdPixelClusterTask::SetAlignConst(){
+
   TIter alignparams(fAlignParamList); 
   PndLmdAlignPar* lmdalignpar=(PndLmdAlignPar*)alignparams();
-  if(0==lmdalignpar) { 
-    Error("PndLmdStripClusterTask::SetCalculators()","A ALIGN Parameter Set does not exist properly.");
-  } 
-  else{
-    //   lmdalignpar->Print();
-    Int_t nsens = lmdalignpar->GetNsensors();
-    Int_t nsides = lmdalignpar->GetNsides();
-    Int_t nplanes = lmdalignpar->GetNplanes();
-    for(int ik=0;ik<nplanes*nsides*nsens;ik++){
-      fShiftX.push_back(lmdalignpar->GetShiftX(ik));
-      fShiftY.push_back(lmdalignpar->GetShiftY(ik));
-      fShiftZ.push_back(lmdalignpar->GetShiftZ(ik));
-      fRotateX.push_back(lmdalignpar->GetRotateX(ik));
-      fRotateY.push_back(lmdalignpar->GetRotateY(ik));
-      fRotateZ.push_back(lmdalignpar->GetRotateZ(ik));
-      if (fVerbose > 2) cout<<"fShiftX["<<ik<<"]="<<fShiftX[ik]<<" fRotateX["<<ik<<"]="<<fRotateX[ik]
-			    <<" fRotateY["<<ik<<"]="<<fRotateY[ik]<<" fRotateZ["<<ik<<"]="<<fRotateZ[ik]<<endl;
-    }
-  }
- if (fVerbose > 2)  lmdalignpar->Print();
+  // //  lmdalignpar->Print();
+  // if(0==lmdalignpar) { 
+  //   Error("PndLmdStripClusterTask::SetCalculators()","A ALIGN Parameter Set does not exist properly.");
+  // } 
+  // else{
+  //   //   lmdalignpar->Print();
+  //   Int_t nsens = lmdalignpar->GetNsensors();
+  //   Int_t nsides = lmdalignpar->GetNsides();
+  //   Int_t nplanes = lmdalignpar->GetNplanes();
+  //   for(int ik=0;ik<nplanes*nsides*nsens;ik++){
+  //     fShiftX.push_back(lmdalignpar->GetShiftX(ik));
+  //     fShiftY.push_back(lmdalignpar->GetShiftY(ik));
+  //     fShiftZ.push_back(lmdalignpar->GetShiftZ(ik));
+  //     fRotateX.push_back(lmdalignpar->GetRotateX(ik));
+  //     fRotateY.push_back(lmdalignpar->GetRotateY(ik));
+  //     fRotateZ.push_back(lmdalignpar->GetRotateZ(ik));
+  //     if (fVerbose > 2) cout<<"fShiftX["<<ik<<"]="<<fShiftX[ik]<<" fRotateX["<<ik<<"]="<<fRotateX[ik]
+  // 			    <<" fRotateY["<<ik<<"]="<<fRotateY[ik]<<" fRotateZ["<<ik<<"]="<<fRotateZ[ik]<<endl;
+  //   }
+  // }
+  // if (fVerbose > 2)
+  // lmdalignpar->Print();
+  // cout<<"*^^^^^* from PixelClusterTask *^^^^^^^*"<<endl;
+  //Read lmd geo description. still not sure where and how to do it as soon as Init stays in PndSdsPixelClusterTask
+  // lmddim -> Read_transformation_matrices("matrices.txt", true);
+  lmddim -> Read_DB_offsets(lmdalignpar);
+  lmddim -> Read_transformation_matrices("matrices_perfect.txt", false);
+  //  lmddim -> Correct_transformation_matrices();
+  lmddim -> reCreate_transformation_matrices();
+  lmddim -> Write_transformation_matrices("matrices_corrected.txt", false);
+
+  lmddim -> Read_transformation_matrices("matrices_perfect.txt", false);
+  lmddim -> Read_transformation_matrices("matrices_corrected.txt", true);
 }
 void PndLmdPixelClusterTask::SetBackMapping()
 {
@@ -166,79 +176,79 @@ void PndLmdPixelClusterTask::SetBranchNames()
   fFolderName = "cbmsim";
 }
 
-void PndLmdPixelClusterTask::combitransToLumiFrame(TVector3& hitPos){
-  //do the transformation from lab frame to LUMI frame (with z-axis perp. to lumi planes)
-  double end_seg_upstream = 360.1; // where bending starts with
-  double r_bend = 5750.; // the bending radius
-  double phi_bend = 40.068e-3; // and the angle of the circle path
-  // const Double_t kRot = phi_bend/3.141*180.;//=2.295727;//2.326; //(deg) //Rotate to dipol
-  const Double_t kRot = phi_bend;//here we need abgle in rad!
-  // the point where both tangents of the straight beam pipe tubes meet is
-  const Double_t kRotUmZ = end_seg_upstream + tan(phi_bend/2.)*r_bend;//476.03; //(cm) //z-point to rotate
-  const Double_t kTransZ = 1130.; //(cm) //move at z-position
-  const Double_t kTransX = (kTransZ - end_seg_upstream - tan(phi_bend/2.)*r_bend)*tan(phi_bend); // 25 (cm) //move at x-position
-  // cout<<"kTransX = "<<kTransX<<" kRotUmZ = "<<kRotUmZ<<" kRot = "<<kRot<<endl;
-  // const Double_t  kHalfFoilThickness  = 0.0075; // Thickness of sensitive foil (cm)
-  // const Double_t  kTransZ = 1130.; //(cm) //move at z-position
-  // const Double_t  kRotUmZ = 476.03; //(cm) //z-point to rotate
-  // const Double_t  kTransX = 25; //(cm) //move at x-position
-  // const Double_t  kRot =  0.040596358401388; // 2.326 degree  = 4.05963584013881024e-02 rad
-  TVector3 LumiTrans(0,0,kRotUmZ);
-  hitPos -=LumiTrans;
-  hitPos.RotateY(-kRot);
-  LumiTrans = TVector3(0,0,kTransZ-kRotUmZ);
-  hitPos -=LumiTrans;
-  // cout<<"!!! NEW HIT position in LUMI frame!!! "<<endl;
-  //  hitPos.Print();
-}
+// void PndLmdPixelClusterTask::combitransToLumiFrame(TVector3& hitPos){
+//   //do the transformation from lab frame to LUMI frame (with z-axis perp. to lumi planes)
+//   double end_seg_upstream = 360.1; // where bending starts with
+//   double r_bend = 5750.; // the bending radius
+//   double phi_bend = 40.068e-3; // and the angle of the circle path
+//   // const Double_t kRot = phi_bend/3.141*180.;//=2.295727;//2.326; //(deg) //Rotate to dipol
+//   const Double_t kRot = phi_bend;//here we need abgle in rad!
+//   // the point where both tangents of the straight beam pipe tubes meet is
+//   const Double_t kRotUmZ = end_seg_upstream + tan(phi_bend/2.)*r_bend;//476.03; //(cm) //z-point to rotate
+//   const Double_t kTransZ = 1130.; //(cm) //move at z-position
+//   const Double_t kTransX = (kTransZ - end_seg_upstream - tan(phi_bend/2.)*r_bend)*tan(phi_bend); // 25 (cm) //move at x-position
+//   // cout<<"kTransX = "<<kTransX<<" kRotUmZ = "<<kRotUmZ<<" kRot = "<<kRot<<endl;
+//   // const Double_t  kHalfFoilThickness  = 0.0075; // Thickness of sensitive foil (cm)
+//   // const Double_t  kTransZ = 1130.; //(cm) //move at z-position
+//   // const Double_t  kRotUmZ = 476.03; //(cm) //z-point to rotate
+//   // const Double_t  kTransX = 25; //(cm) //move at x-position
+//   // const Double_t  kRot =  0.040596358401388; // 2.326 degree  = 4.05963584013881024e-02 rad
+//   TVector3 LumiTrans(0,0,kRotUmZ);
+//   hitPos -=LumiTrans;
+//   hitPos.RotateY(-kRot);
+//   LumiTrans = TVector3(0,0,kTransZ-kRotUmZ);
+//   hitPos -=LumiTrans;
+//   // cout<<"!!! NEW HIT position in LUMI frame!!! "<<endl;
+//   //  hitPos.Print();
+// }
 
-void PndLmdPixelClusterTask::rotateToLumiFrame(TVector3& hitPos){
-  TMatrixD hitMtx(3,3);
-  hitMtx[0][0] = hitPos[0];
-  hitMtx[1][0] = hitPos[1];
-  hitMtx[2][0] = hitPos[2];
-  TMatrixD res = rotateToLumiFrame(hitMtx);
-  hitPos = TVector3(hitMtx(0,0),hitMtx(1,0),hitMtx(2,0));
-}
-TMatrixD PndLmdPixelClusterTask::rotateToLumiFrame(TMatrixD& hitCov){
-  double phi_bend = 40.068e-3; // and the angle of the circle path
-  Double_t sintheta = TMath::Sin(phi_bend);
-  Double_t costheta = TMath::Cos(phi_bend);
-  TMatrixD rot(3,3);// Rotation around Y axis
-  rot[0][0]= costheta;
-  rot[0][1]= 0;
-  rot[0][2]= sintheta;
-  rot[1][0]= 0;
-  rot[1][1]= 1;
-  rot[1][2]= 0;
-  rot[2][0]= -sintheta;
-  rot[2][1]= 0;
-  rot[2][2]= costheta;
-  TMatrixD result = rot;
-  result.T();
-  result*=hitCov;
-  hitCov = result;
-  result*=rot;
-  return result;
-}
+// void PndLmdPixelClusterTask::rotateToLumiFrame(TVector3& hitPos){
+//   TMatrixD hitMtx(3,3);
+//   hitMtx[0][0] = hitPos[0];
+//   hitMtx[1][0] = hitPos[1];
+//   hitMtx[2][0] = hitPos[2];
+//   TMatrixD res = rotateToLumiFrame(hitMtx);
+//   hitPos = TVector3(hitMtx(0,0),hitMtx(1,0),hitMtx(2,0));
+// }
+// TMatrixD PndLmdPixelClusterTask::rotateToLumiFrame(TMatrixD& hitCov){
+//   double phi_bend = 40.068e-3; // and the angle of the circle path
+//   Double_t sintheta = TMath::Sin(phi_bend);
+//   Double_t costheta = TMath::Cos(phi_bend);
+//   TMatrixD rot(3,3);// Rotation around Y axis
+//   rot[0][0]= costheta;
+//   rot[0][1]= 0;
+//   rot[0][2]= sintheta;
+//   rot[1][0]= 0;
+//   rot[1][1]= 1;
+//   rot[1][2]= 0;
+//   rot[2][0]= -sintheta;
+//   rot[2][1]= 0;
+//   rot[2][2]= costheta;
+//   TMatrixD result = rot;
+//   result.T();
+//   result*=hitCov;
+//   hitCov = result;
+//   result*=rot;
+//   return result;
+// }
 
 
-//Correction to hit position due to misalignment of sensor
-//TO DO: find a way do it in global and not hit by hit.
-void PndLmdPixelClusterTask::alignmentCorr(TVector3& hitPos, int ssensID){
-  if(readAlign){
-    SetAlignConst();
-    readAlign = false;
-  }
-  int sensID = ssensID;// aligment only on petal with 4 sensors???
-  cout<<"fShiftX["<<sensID<<"]="<<fShiftX[sensID]<<endl;
-  TVector3 hitPos_loc(hitPos.X(),hitPos.Y(),0.);
-  hitPos_loc -=TVector3(fShiftX[sensID],fShiftY[sensID],fShiftZ[sensID]);
-  double xnew = hitPos_loc.X()+fRotateZ[sensID]*hitPos_loc.Y()-fRotateY[sensID]*hitPos_loc.Z();
-  double ynew = hitPos_loc.Y()-fRotateZ[sensID]*hitPos_loc.X()+fRotateX[sensID]*hitPos_loc.Z();
-  double znew = hitPos_loc.Z()-fRotateY[sensID]*hitPos_loc.X()-fRotateX[sensID]*hitPos_loc.Y();
-  hitPos = TVector3(xnew,ynew,hitPos.Z()+znew);
-}
+// //Correction to hit position due to misalignment of sensor
+// //TO DO: find a way do it in global and not hit by hit.
+// void PndLmdPixelClusterTask::alignmentCorr(TVector3& hitPos, int ssensID){
+//   if(readAlign){
+//     SetAlignConst();
+//     readAlign = false;
+//   }
+//   int sensID = ssensID;// aligment only on petal with 4 sensors???
+//   cout<<"fShiftX["<<sensID<<"]="<<fShiftX[sensID]<<endl;
+//   TVector3 hitPos_loc(hitPos.X(),hitPos.Y(),0.);
+//   hitPos_loc -=TVector3(fShiftX[sensID],fShiftY[sensID],fShiftZ[sensID]);
+//   double xnew = hitPos_loc.X()+fRotateZ[sensID]*hitPos_loc.Y()-fRotateY[sensID]*hitPos_loc.Z();
+//   double ynew = hitPos_loc.Y()-fRotateZ[sensID]*hitPos_loc.X()+fRotateX[sensID]*hitPos_loc.Z();
+//   double znew = hitPos_loc.Z()-fRotateY[sensID]*hitPos_loc.X()-fRotateX[sensID]*hitPos_loc.Y();
+//   hitPos = TVector3(xnew,ynew,hitPos.Z()+znew);
+// }
 
 
 TVector3 PndLmdPixelClusterTask::AddMSErr(TVector3 hpos, TVector3 hposerr){
@@ -365,7 +375,44 @@ void PndLmdPixelClusterTask::Exec(Option_t* opt)
     }
     myHit.SetCov(hitCov);//save value
 
-    //translate to LUMI frame --------------------
+    //Alignment: translate to LMD local (not corrected) frame and back to GLOBAL (corrected) ----------------
+    TVector3 hitPos = myHit.GetPosition();
+    int sensorID = myHit.GetSensorID();
+    int ihalf, iplane, imodule, iside, idie, isensor;
+    lmddim->Get_sensor_by_id(sensorID, ihalf, iplane, imodule, iside, idie, isensor);
+    cout<<"ihalf, iplane, imodule: "<<ihalf<<","<<iplane<<","<<imodule<<endl;
+    cout<<"BEFORE:"<<endl;
+    hitPos.Print();
+    hitCov.Print();
+    // /// TEST
+    // TVector3 hitPosModule = hitPos;
+    // hitPosModule = lmddim->Transform_global_to_lmd_local(hitPos,false,false);
+    // hitPosModule = lmddim->Transform_lmd_local_to_module_side(hitPosModule,ihalf,iplane,imodule,iside, false,false);
+    // cout<<"Module [BEFORE]:("<<ihalf<<","<<iplane<<","<<imodule<<")"<<endl;
+    // hitPosModule.Print();
+    // hitPosModule = lmddim->Transform_module_side_to_sensor(hitPosModule,ihalf,iplane,imodule,iside, idie, isensor, false, false);
+    // hitPosModule = lmddim->Transform_sensor_to_global(hitPosModule,ihalf,iplane,imodule,iside, idie, isensor, false, true);
+    // //    hitPosModule = lmddim->Transform_global_to_lmd_local(hitPos,false,true);
+    // //    hitPosModule = lmddim->Transform_lmd_local_to_module_side(hitPosModule,ihalf,0,imodule,0, false,true);
+    // hitPosModule = lmddim->Transform_global_to_lmd_local(hitPos,false,true);
+    // hitPosModule = lmddim->Transform_lmd_local_to_module_side(hitPosModule,ihalf,0,imodule,0, false,true);
+    // cout<<"Module [AFTER]:("<<ihalf<<","<<0<<","<<imodule<<")"<<endl;
+    // hitPosModule.Print();
+
+    // ///-----------------------
+    
+
+    hitPos = lmddim->Transform_global_to_sensor(hitPos,ihalf,iplane,imodule,iside,idie,isensor,false,false);
+    hitCov = lmddim->Transform_global_to_sensor(hitCov,ihalf,iplane,imodule,iside,idie,isensor,false);
+    hitPos = lmddim->Transform_sensor_to_global(hitPos,ihalf,iplane,imodule,iside,idie,isensor,false,true);
+    hitCov = lmddim->Transform_sensor_to_global(hitCov,ihalf,iplane,imodule,iside,idie,isensor,true);
+    cout<<"AFTER:"<<endl;
+    hitPos.Print();
+    hitCov.Print();
+    myHit.SetPosition(hitPos);//save value
+    myHit.SetCov(hitCov);//save value
+    //Alignment: (END) ---------------------------------------------------------------------------------------
+
     // if(fVerbose>0){
     //   cout<<"Before transl to LUMI frame:"<<endl;
     //myHit.Print();
@@ -382,9 +429,7 @@ void PndLmdPixelClusterTask::Exec(Option_t* opt)
     //   hitCov.Print();
     // }
    
-    // myHit.SetPosition(hitPos);//save value
-    // myHit.SetCov(hitCov);//save value
-    //translate to LUMI frame (END) ---------------
+    
 
     if(fVerbose>0){
       std::cout << " -I-  PndSdsPixelClusterTask::Exec(): Calculated Hit(LUMI frame): " << std::endl;

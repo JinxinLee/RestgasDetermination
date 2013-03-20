@@ -43,13 +43,13 @@ class PndLmdPixelClusterTask : public PndSdsPixelClusterTask
     double fPbeam;
     TVector3 AddMSErr(TVector3 hpos, TVector3 hposerr);
     TList* fAlignParamList;
-    void combitransToLumiFrame(TVector3& hitPos);
-    void rotateToLumiFrame(TVector3& hitPos);
-    TMatrixD rotateToLumiFrame(TMatrixD& hitCov);
-    void alignmentCorr(TVector3& hitPos, int sensID);
+    // void combitransToLumiFrame(TVector3& hitPos);
+    // void rotateToLumiFrame(TVector3& hitPos);
+    // TMatrixD rotateToLumiFrame(TMatrixD& hitCov);
+    // void alignmentCorr(TVector3& hitPos, int sensID);
     void SetAlignConst();
-    vector<double> fShiftX,fShiftY,fShiftZ;
-    vector<double> fRotateX,fRotateY,fRotateZ;
+    /* vector<double> fShiftX,fShiftY,fShiftZ; */
+    /* vector<double> fRotateX,fRotateY,fRotateZ; */
     bool readAlign;
     PndLmdDim* lmddim;
 };
