@@ -42,6 +42,7 @@ link_directories( ${LINK_DIRECTORIES})
 set(STTMVDTRACKING_SRCS
 PndSttMvdTracking.cxx
 PndSttMvdGemTracking.cxx
+PndSttMvdGemTrackingIdeal.cxx
 #PndSttMvdV0PR.cxx
 PndMixBackgroundEvents.cxx
 PndSecondaryTrackFinder.cxx

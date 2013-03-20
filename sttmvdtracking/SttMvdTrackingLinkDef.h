@@ -5,6 +5,7 @@
 #pragma link off all functions;
 #pragma link C++ class PndSttMvdTracking+;
 #pragma link C++ class PndSttMvdGemTracking+;
+#pragma link C++ class PndSttMvdGemTrackingIdeal+;
 // #pragma link C++ class PndSttMvdV0PR+;           
 #pragma link C++ class PndMixBackgroundEvents+;           
 #pragma link C++ class PndSecondaryTrackFinder+;
