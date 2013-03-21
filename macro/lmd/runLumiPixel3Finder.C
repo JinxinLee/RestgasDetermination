@@ -1,6 +1,6 @@
 ///  Method="Follow" - Track-following method, Method="CA" - Cellular Automaton
 ///  missPl=true - use "missing plane" algorithm
-void runLumiPixel3Finder(const int nEvents=1000, const int startEvent=0, TString storePath="tmpOutput", const int verboseLevel=5,  TString Method="Follow", const bool missPl=true, const bool mergedHits=true)
+void runLumiPixel3Finder(const int nEvents=1000, const int startEvent=0, TString storePath="tmpOutput", const int verboseLevel=5,  TString Method="Follow", const bool missPl=true, const bool mergedHits=true, const bool trkcuts=true)
 {
   // ========================================================================
   // Input file (MC events)
@@ -83,7 +83,7 @@ void runLumiPixel3Finder(const int nEvents=1000, const int startEvent=0, TString
   int nplanes = 8;
   double accurF = 0.01;//parameter for trk-finder corridor
   double accurCA = 0.02;//parameter for CA neigboring search
-
+  if(trkcuts!=true) accurCA = 0.1;//misalignment sensors case
   if(mergedHits){
     inHits = "LMDHitsMerged";
     nplanes = 4;
@@ -93,10 +93,13 @@ void runLumiPixel3Finder(const int nEvents=1000, const int startEvent=0, TString
     PndLmdTrackFinderTask* lmdfinder = new PndLmdTrackFinderTask(missPl,inHits,inClusters,inDigis, nsensors);
     lmdfinder->SetInaccuracy(accurF);
     lmdfinder->SetSensPixelFlag(true);
+
   }else{
     if(Method=="CA"){
       PndLmdTrackFinderCATask* lmdfinder = new PndLmdTrackFinderCATask(missPl,accurCA,nsensors,nplanes,inHits,inClusters,inDigis); //for merged hits
       lmdfinder->SetSensPixelFlag(true);
+      //  lmdfinder->SetTrkCandCutsFlag(trkcuts);//value=false for misaligned sensors only TODO: try it with sectors alignment
+      lmdfinder->SetTrkCandCutsFlag(true);
     }
     else{
       cout<<"Method "<<Method<<" doesn't exist!"<<endl;
