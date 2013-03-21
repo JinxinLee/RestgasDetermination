@@ -195,8 +195,8 @@ void PndMvdRiemannTrackFinder::FindTracks()
         
 			}
       
-			actTrack.refit(true);
-			actTrack.szFit(true);
+			actTrack.refit(false);
+			actTrack.szFit(false);
       
 			fTracks.push_back(actTrack);
 			fHitsInTracks.push_back(StartTrack);
