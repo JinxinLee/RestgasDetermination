@@ -77,7 +77,7 @@ class PndSttHit : public FairHit
   // computation of dE/dx
   Double_t ComputedEdx(PndTrack *track, Double_t tuberadius);
 
-	virtual bool equal(FairTimeStamp* data){
+	virtual bool equal(FairTimeStamp* data) const{
 	  PndSttHit* myDigi = dynamic_cast <PndSttHit*> (data);
 	  if (myDigi != 0){
 	    if (fTubeID == myDigi->GetTubeID())

@@ -35,21 +35,8 @@ class PndSdsDigiStrip : public PndSdsDigi
     PndSdsDigiStrip(Int_t index, Int_t detID, Int_t sensorID, Int_t fe, Int_t chan, Double_t charge, Double_t timestamp = -1);
     ~PndSdsDigiStrip(){};
     
-    friend std::ostream& operator<< (std::ostream& out, PndSdsDigiStrip& digi){
-      out << "PndSds DigiStrip in sensor: " << digi.GetSensorID() << " FE: "
-      << digi.GetFE() << " Channel: " << digi.GetChannel()
-      << " charge: " << digi.GetCharge() << " (e or tot)"
-      << " timestamp: "<< digi.GetTimeStamp()
-      << ", from Point(s): ";
-      std::vector<Int_t>indices = digi.GetIndices();
-      for (unsigned int i = 0; i < indices.size(); i++){
-        std::cout << indices[i] << "  ";
-      }
-      std::cout << std::endl;
-      
-      
-      return out;
-    }
+    friend std::ostream& operator<< (std::ostream& out, const PndSdsDigiStrip& digi);
+
     
     //     Int_t GetIndex() const { return fIndex; }
     //     Int_t GetDetID() const { return fDetID;}
@@ -73,6 +60,8 @@ class PndSdsDigiStrip : public PndSdsDigi
     Bool_t operator==(const PndSdsDigiStrip& d2) const;
     //     Bool_t const HasNeighbour(const PndSdsDigiStrip& d2);
 
+    virtual bool equal(FairTimeStamp* data) const;
+
     virtual bool operator<(const PndSdsDigiStrip& myDigi) const{
 		if (fDetID < myDigi.GetDetID()) 		return true;	else if(fDetID > myDigi.GetDetID()) return false;
 		if (fSensorID < myDigi.GetSensorID()) 	return true; 	else if (fSensorID > myDigi.GetSensorID()) return false;
@@ -86,10 +75,21 @@ class PndSdsDigiStrip : public PndSdsDigi
     		this->PndSdsDigi::operator=(strip);
     		fChannel = strip.GetChannel();
     	}
-    return *this;
+    	return *this;
     }
-    void Print(){
-      std::cout << *this;
+
+    std::ostream& Print(std::ostream& out = std::cout) const{
+    	out << GetDetID() << " PndSds DigiStrip in sensor: " << GetSensorID() << " FE: "
+    	      << GetFE() << " Channel: " << GetChannel()
+    	      << " charge: " << GetCharge() << " (e or tot)"
+    	      << " timestamp: "<< GetTimeStamp()
+    	      << ", from Point(s): ";
+    	      std::vector<Int_t>indices = GetIndices();
+    	      for (unsigned int i = 0; i < indices.size(); i++){
+    	        out << indices[i] << "  ";
+    	      }
+    	      out << std::endl;
+    	      return out;
     }
     
     private :

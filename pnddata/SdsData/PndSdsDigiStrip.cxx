@@ -29,7 +29,7 @@ PndSdsDigiStrip::PndSdsDigiStrip(Int_t index, Int_t detID,
 
 Bool_t PndSdsDigiStrip::operator==(const PndSdsDigiStrip& d2) const
 {
-  return (
+	return (
           fDetID==d2.GetDetID()
           && fSensorID==d2.GetSensorID()
           && fFE==d2.GetFE()
@@ -38,6 +38,27 @@ Bool_t PndSdsDigiStrip::operator==(const PndSdsDigiStrip& d2) const
           //           && fMCID==d2.GetMCID()
        //   && fTimeStamp==d2.GetTimeStamp()
           );
+}
+
+bool PndSdsDigiStrip::equal(FairTimeStamp* data) const{
+  PndSdsDigiStrip* myDigi = dynamic_cast <PndSdsDigiStrip*> (data);
+  const PndSdsDigiStrip* const oldData = reinterpret_cast <const PndSdsDigiStrip* const> (this);
+//  std::cout << "PndSdsDigiStrip::equal: New " << *myDigi<< std::endl;
+//  std::cout << "PndSdsDigiStrip::equal: old " << *this << std::endl;
+//  std::cout << "PndSdsDigiStrip::equal: PrintOld ";
+//  Print();
+  std::cout << std::endl << std::endl;
+  if (myDigi != 0){
+    if (fSensorID == myDigi->GetSensorID())
+		if (fFE == myDigi->GetFE())
+			if (fChannel == myDigi->GetChannel())
+					return true;
+  }
+  return false;
+}
+
+std::ostream& operator<< (std::ostream& out, const PndSdsDigiStrip& digi){
+  return digi.Print(out);
 }
 
 ClassImp(PndSdsDigiStrip);

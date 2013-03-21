@@ -61,7 +61,7 @@ class PndSdsDigiPixel : public PndSdsDigi
 		return false;
 	}
 	
-	virtual bool equal(FairTimeStamp* data){
+	virtual bool equal(FairTimeStamp* data) const{
 	  PndSdsDigiPixel* myDigi = dynamic_cast <PndSdsDigiPixel*> (data);
 	  if (myDigi != 0){
 	    if (fSensorID == myDigi->GetSensorID())
