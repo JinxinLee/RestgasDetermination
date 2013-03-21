@@ -37,11 +37,12 @@ std::vector<std::pair<double, PndSdsDigiStrip*> > PndSdsDigiStripWriteoutBuffer:
 		singleResult.first = oldData.first + newData.first;
 	singleResult.second = oldData.second;
 	singleResult.second->AddCharge(newData.second->GetCharge());
-	std::cout << "Modify hit" << std::endl;
+	if (fVerbose > 0) {
+		std::cout << "Modify hit" << std::endl;
 
-	std::cout << "OldData: " << oldData.first << " : " << oldData.second << " NewData: " << newData.first << " : " << newData.second << std::endl;
-	std::cout << "Resulting Data: " << singleResult.first << " : " << singleResult.second << std::endl;
-
+		std::cout << "OldData: " << oldData.first << " : " << oldData.second << " NewData: " << newData.first << " : " << newData.second << std::endl;
+		std::cout << "Resulting Data: " << singleResult.first << " : " << singleResult.second << std::endl;
+	}
 	result.push_back(singleResult);
 	return result;
 }
@@ -59,10 +60,18 @@ double PndSdsDigiStripWriteoutBuffer::FindTimeForData(FairTimeStamp* data)
   std::map<PndSdsDigiStrip, double>::iterator it;
   PndSdsDigiStrip myData = *(PndSdsDigiStrip*)data;
   it = fData_map.find(myData);
+  PndSdsDigiStrip dataInMap;
   if (it == fData_map.end())
     return -1;
-  else
-    return it->second;
+  else {
+  	if (fVerbose > 1) {
+ 	  	std::cout << "Search: " << myData << " Found: ";
+ 	  	dataInMap = it->first;
+ 	  	dataInMap.Print();
+ 	  	std::cout << " Time: " << it->second << std::endl;
+ 	  }
+ 	  return it->second;
+  }
 }
 void PndSdsDigiStripWriteoutBuffer::FillDataMap(FairTimeStamp* data, double activeTime)
 {

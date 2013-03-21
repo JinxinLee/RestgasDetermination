@@ -61,8 +61,11 @@ double PndSdsDigiPixelWriteoutBuffer::FindTimeForData(FairTimeStamp* data)
   it = fData_map.find(myData);
   if (it == fData_map.end())
     return -1;
-  else
+  else{
+  	if (fVerbose > 1)
+	  std::cout << "Search: " << myData << " Found: " << (PndSdsDigiPixel)it->first << " Time: " << it->second << std::endl;
     return it->second;
+  }
 }
 void PndSdsDigiPixelWriteoutBuffer::FillDataMap(FairTimeStamp* data, double activeTime) 
 {
