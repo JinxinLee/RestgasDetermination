@@ -24,8 +24,7 @@ using std::endl;
 
 // -----   Standard constructor   ------------------------------------------
 PndTrackCandDraw::PndTrackCandDraw(const char* TrackCandName, Int_t iVerbose) :
-		FairBoxSetDraw(TrackCandName, iVerbose), fPixPointList(0), fStripPointList(
-				0), fTrackCandList(0), fSttHelixList(0), fGemHitList(0) {
+		FairBoxSetDraw(TrackCandName, iVerbose), fTrackCandList(0){
 }
 // -------------------------------------------------------------------------
 InitStatus PndTrackCandDraw::Init() {

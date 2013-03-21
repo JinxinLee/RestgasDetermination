@@ -50,12 +50,7 @@ protected:
 	  //virtual Int_t GetValue(TObject* obj,Int_t i);
 	  virtual void AddBoxes(FairBoxSet* set, TObject* obj, Int_t i = 0);
 
-
-  TClonesArray *fPixPointList; //!
-  TClonesArray *fStripPointList; //!
   TClonesArray *fTrackCandList; //!
-  TClonesArray *fSttHelixList; //!
-  TClonesArray *fGemHitList; //!
 
   ClassDef(PndTrackCandDraw,1);
 
