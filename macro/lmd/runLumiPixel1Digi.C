@@ -45,7 +45,7 @@ void runLumiPixel1Digi(const int nEvents=10, const int startEvent=0, TString sto
   FairRunAna *fRun= new FairRunAna();
   fRun->SetInputFile(inFile);
   fRun->SetOutputFile(outFile);
-
+  fRun->SetEventMeanTime(50);// TODO: 50 ???
 
   // -----  Parameter database   --------------------------------------------
   FairRuntimeDb* rtdb = fRun->GetRuntimeDb();
