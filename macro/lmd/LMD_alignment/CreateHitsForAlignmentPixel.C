@@ -349,6 +349,9 @@ int main(int __argc,char *__argv[]) {
       double phiMCgl;
       //check if these hits are sutiable for sector aligment
       int trkModules[Ntrkcandhits];
+      int trkHalfs[Ntrkcandhits];
+      int half1;
+      int module1;
       for (Int_t iHit = 0; iHit < Ntrkcandhits; iHit++){
 	PndTrackCandHit candhit = (PndTrackCandHit)(trkcand->GetSortedHit(iHit));
 	Int_t hitID = candhit.GetHitId();
@@ -358,11 +361,20 @@ int main(int __argc,char *__argv[]) {
 	// calculate the plane and sensor on this plane
 	lmddim->Get_sensor_by_id(sensorID, ihalf, iplane, imodule, iside, idie, isensor);
 	trkModules[iHit]=ihalf*5+imodule;
+	trkHalfs[iHit]=ihalf;
+	half1=ihalf;
+	module1=ihalf*5+imodule;
       }
       bool flagSector = true;
       if(sectorPos<10){    
 	for (Int_t iHit = 0; iHit < Ntrkcandhits; iHit++){
 	  if(trkModules[iHit]!=sectorPos) flagSector=false;// TODO: check on diff trkModules[iHit] for alignment between sectors
+	}
+      }
+      else{
+	for (Int_t iHit = 0; iHit < Ntrkcandhits; iHit++){
+	  if(trkHalfs[iHit]!=half1) flagSector=false;// TODO: check on diff trkModules[iHit] for alignment between sectors
+	  if(trkModules[iHit]!=module1) flagSector=false;// TODO: check on diff trkModules[iHit] for alignment between sectors
 	}
       }
 
@@ -452,6 +464,7 @@ int main(int __argc,char *__argv[]) {
 	    output<<glModule<<" "<<endtrk<<endl;
 	  }
 	}
+	output<<" "<<endl;
     }/// end rec-trks
     ///-----------------------------------------------------------------------------------------
   }/// end events
