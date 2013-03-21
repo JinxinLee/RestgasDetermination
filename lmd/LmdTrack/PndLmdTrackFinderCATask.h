@@ -44,6 +44,7 @@ class PndLmdTrackFinderCATask : public FairTask
     void SetInaccuracy(Double_t accu) { dXY = accu; };
     void SetSensStripFlag(bool fS){ flagStipSens = fS; };    
     void SetSensPixelFlag(bool fS){ flagPixelSens = fS; }; 
+    void SetTrkCandCutsFlag(bool fS){ flagTrkCandCuts = fS;};
  private:
    Double_t dXY;
    double d_max;
@@ -63,7 +64,7 @@ class PndLmdTrackFinderCATask : public FairTask
    bool missPlAlgo;
    bool flagStipSens;
    bool flagPixelSens;
-
+   bool flagTrkCandCuts;
     /** Input array of PndSdsDigis and PndSdsHits**/
      TClonesArray* fStripHitArray;
      TClonesArray* fStripClusterArray;
