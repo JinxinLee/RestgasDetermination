@@ -36,87 +36,25 @@ class PndLmdAlignPar : public FairParGenericSet
 		Int_t GetNsensors(){return fsensors;}
 		Int_t GetNsides(){return fsides;}
 		Int_t GetNplanes(){return fplanes;}
+		//for pixel design
+		Int_t GetNhalfs(){return fhalfs;}
+		Int_t GetNmodules(){return fmodules;}
   private:
     //Planes parameters
-    Int_t fsensors;//Number of sensors no one plane [one side]
-    Int_t fsides;//Number of sides [=1 for double-sided sensors]
+    Int_t fsensors;//Number of sensors per module, 1 side
+    Int_t fsides;//Number of sides per module
     Int_t fplanes;//Number of planes
-
+    Int_t fhalfs;
+    Int_t fmodules;//Number of modules per plane half
     //Sensor parameters
     vector<double> fshift_x;
     vector<double> fshift_y;
     vector<double> fshift_z;
     vector<double> frotate_x;
     vector<double> frotate_y;
-    vector<double> frotate_z;
+    vector<double> frotate_z;  
 
-    /* Double_t fshift_x_0_0,fshift_y_0_0,fshift_z_0_0; */
-    /* Double_t fshift_x_0_1,fshift_y_0_1,fshift_z_0_1; */
-    /* Double_t fshift_x_0_2,fshift_y_0_2,fshift_z_0_2; */
-    /* Double_t fshift_x_0_3,fshift_y_0_3,fshift_z_0_3; */
-    /* Double_t fshift_x_0_4,fshift_y_0_4,fshift_z_0_4; */
-    /* Double_t fshift_x_0_5,fshift_y_0_5,fshift_z_0_5; */
-    /* Double_t fshift_x_0_6,fshift_y_0_6,fshift_z_0_6; */
-    /* Double_t fshift_x_0_7,fshift_y_0_7,fshift_z_0_7; */
-    /* Double_t fshift_x_1_0,fshift_y_1_0,fshift_z_1_0; */
-    /* Double_t fshift_x_1_1,fshift_y_1_1,fshift_z_1_1; */
-    /* Double_t fshift_x_1_2,fshift_y_1_2,fshift_z_1_2; */
-    /* Double_t fshift_x_1_3,fshift_y_1_3,fshift_z_1_3; */
-    /* Double_t fshift_x_1_4,fshift_y_1_4,fshift_z_1_4; */
-    /* Double_t fshift_x_1_5,fshift_y_1_5,fshift_z_1_5; */
-    /* Double_t fshift_x_1_6,fshift_y_1_6,fshift_z_1_6; */
-    /* Double_t fshift_x_1_7,fshift_y_1_7,fshift_z_1_7; */
-    /* Double_t fshift_x_2_0,fshift_y_2_0,fshift_z_2_0; */
-    /* Double_t fshift_x_2_1,fshift_y_2_1,fshift_z_2_1; */
-    /* Double_t fshift_x_2_2,fshift_y_2_2,fshift_z_2_2; */
-    /* Double_t fshift_x_2_3,fshift_y_2_3,fshift_z_2_3; */
-    /* Double_t fshift_x_2_4,fshift_y_2_4,fshift_z_2_4; */
-    /* Double_t fshift_x_2_5,fshift_y_2_5,fshift_z_2_5; */
-    /* Double_t fshift_x_2_6,fshift_y_2_6,fshift_z_2_6; */
-    /* Double_t fshift_x_2_7,fshift_y_2_7,fshift_z_2_7; */
-    /* Double_t fshift_x_3_0,fshift_y_3_0,fshift_z_3_0; */
-    /* Double_t fshift_x_3_1,fshift_y_3_1,fshift_z_3_1; */
-    /* Double_t fshift_x_3_2,fshift_y_3_2,fshift_z_3_2; */
-    /* Double_t fshift_x_3_3,fshift_y_3_3,fshift_z_3_3; */
-    /* Double_t fshift_x_3_4,fshift_y_3_4,fshift_z_3_4; */
-    /* Double_t fshift_x_3_5,fshift_y_3_5,fshift_z_3_5; */
-    /* Double_t fshift_x_3_6,fshift_y_3_6,fshift_z_3_6; */
-    /* Double_t fshift_x_3_7,fshift_y_3_7,fshift_z_3_7; */
-
-    /* Double_t frotate_x_0_0,frotate_y_0_0,frotate_z_0_0; */
-    /* Double_t frotate_x_0_1,frotate_y_0_1,frotate_z_0_1; */
-    /* Double_t frotate_x_0_2,frotate_y_0_2,frotate_z_0_2; */
-    /* Double_t frotate_x_0_3,frotate_y_0_3,frotate_z_0_3; */
-    /* Double_t frotate_x_0_4,frotate_y_0_4,frotate_z_0_4; */
-    /* Double_t frotate_x_0_5,frotate_y_0_5,frotate_z_0_5; */
-    /* Double_t frotate_x_0_6,frotate_y_0_6,frotate_z_0_6; */
-    /* Double_t frotate_x_0_7,frotate_y_0_7,frotate_z_0_7; */
-    /* Double_t frotate_x_1_0,frotate_y_1_0,frotate_z_1_0; */
-    /* Double_t frotate_x_1_1,frotate_y_1_1,frotate_z_1_1; */
-    /* Double_t frotate_x_1_2,frotate_y_1_2,frotate_z_1_2; */
-    /* Double_t frotate_x_1_3,frotate_y_1_3,frotate_z_1_3; */
-    /* Double_t frotate_x_1_4,frotate_y_1_4,frotate_z_1_4; */
-    /* Double_t frotate_x_1_5,frotate_y_1_5,frotate_z_1_5; */
-    /* Double_t frotate_x_1_6,frotate_y_1_6,frotate_z_1_6; */
-    /* Double_t frotate_x_1_7,frotate_y_1_7,frotate_z_1_7; */
-    /* Double_t frotate_x_2_0,frotate_y_2_0,frotate_z_2_0; */
-    /* Double_t frotate_x_2_1,frotate_y_2_1,frotate_z_2_1; */
-    /* Double_t frotate_x_2_2,frotate_y_2_2,frotate_z_2_2; */
-    /* Double_t frotate_x_2_3,frotate_y_2_3,frotate_z_2_3; */
-    /* Double_t frotate_x_2_4,frotate_y_2_4,frotate_z_2_4; */
-    /* Double_t frotate_x_2_5,frotate_y_2_5,frotate_z_2_5; */
-    /* Double_t frotate_x_2_6,frotate_y_2_6,frotate_z_2_6; */
-    /* Double_t frotate_x_2_7,frotate_y_2_7,frotate_z_2_7; */
-    /* Double_t frotate_x_3_0,frotate_y_3_0,frotate_z_3_0; */
-    /* Double_t frotate_x_3_1,frotate_y_3_1,frotate_z_3_1; */
-    /* Double_t frotate_x_3_2,frotate_y_3_2,frotate_z_3_2; */
-    /* Double_t frotate_x_3_3,frotate_y_3_3,frotate_z_3_3; */
-    /* Double_t frotate_x_3_4,frotate_y_3_4,frotate_z_3_4; */
-    /* Double_t frotate_x_3_5,frotate_y_3_5,frotate_z_3_5; */
-    /* Double_t frotate_x_3_6,frotate_y_3_6,frotate_z_3_6; */
-    /* Double_t frotate_x_3_7,frotate_y_3_7,frotate_z_3_7; */
-  
-    ClassDef(PndLmdAlignPar,5);
+    ClassDef(PndLmdAlignPar,6);
   };
 
 #endif /* !PNDSDSSTRIPDIGIPAR_H*/
