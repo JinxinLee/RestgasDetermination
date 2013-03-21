@@ -64,8 +64,10 @@ void runLumiPixel2Reco(const int nEvents=10, const int startEvent=0, TString sto
   rtdb->setFirstInput(parInput1);
 
   // alignment parameter file
-  TString alignparFile = "lumi.align.par";//perfect!
-  //  TString alignparFile = "lumi.misalign.par";//misalignment! 
+  //  TString alignparFile = "lumi.align.par";//perfect! OLD
+  //  TString alignparFile = "lumi.misalign.par";//misalignment!  OLD
+  TString alignparFile = "lumi.align_pixel_ideal.par";//perfect
+  //  TString alignparFile = "lumi.misalign_pixel.par";//misalign
   FairParAsciiFileIo* parInput2 = new FairParAsciiFileIo();
   parInput2->open(alignparFile.Data(),"in");
   rtdb->setSecondInput(parInput2);
