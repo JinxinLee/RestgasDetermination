@@ -8,6 +8,7 @@
 #include "FairBoxSet.h"
 //#include "TClonesArray.h"
 #include "TObjArray.h"
+#include "TObjString.h"
 #include "TEveManager.h"
 #include "TEveBoxSet.h"
 #include "GFTrackCand.h"
@@ -33,44 +34,15 @@ InitStatus PndTrackCandDraw::Init() {
 	if (fVerbose > 1)
 		cout << "PndTrackCandDraw::Init()" << endl;
 	fManager = FairRootManager::Instance();
-	fPixPointList = (TClonesArray *) fManager->GetObject("MVDHitsPixel");
-	fStripPointList = (TClonesArray *) fManager->GetObject("MVDHitsStrip");
-	fSttHelixList = (TClonesArray *) fManager->GetObject("SttHelixHit");
-	fGemHitList = (TClonesArray*) fManager->GetObject("GEMHit");
-	if (fPixPointList == 0) {
-		cout
-				<< "PndTrackCandDraw::Init()  branch MVDHitsPixel Not found! Task will be deactivated "
-				<< endl;
-		//SetActive(kFALSE);
-	}
-	if (fStripPointList == 0) {
-		cout
-				<< "PndTrackCandDraw::Init()  branch MVDHitsStrip Not found! Task will be deactivated "
-				<< endl;
-		//SetActive(kFALSE);
-	}
-	if (fSttHelixList == 0) {
-		cout
-				<< "PndTrackCandDraw::Init()  branch SttHelixList Not found! Task will be deactivated "
-				<< endl;
-		//SetActive(kFALSE);
-	}
-	if (fGemHitList == 0) {
-		cout
-				<< "PndTrackCandDraw::Init()  branch GemHitList Not found! Task will be deactivated "
-				<< endl;
-		//SetActive(kFALSE);
-	}
-	if (fVerbose > 2) {
-		cout << "PndTrackCandDraw::Init() get pix points list" << fPixPointList
-				<< endl;
-		cout << "PndTrackCandDraw::Init() get strip points list"
-				<< fStripPointList << endl;
-		cout << "PndTrackCandDraw::Init() get stt helix list" << fSttHelixList
-				<< endl;
-		cout << "PndTrackCandDraw::Init() get gem hit list" << fGemHitList
-				<< endl;
+	TList* branchNames = fManager->GetBranchNameList();
 
+	TIter next(branchNames);
+	TObjString* brName;
+	while ((brName = (TObjString*)next())){
+		TClonesArray *array = (TClonesArray *) fManager->GetObject(brName->GetString().Data());
+		if (array == 0){
+			std::cout << "-I- PndTrackCandDraw::Init() branch " << brName->GetString().Data() << " not found!" << std::endl;
+		}
 	}
 	fq = 0;
 
@@ -126,16 +98,6 @@ void PndTrackCandDraw::AddBoxesPndTrackCand(FairBoxSet* set, TObject* obj, Int_t
 		std::cout << " color: " << i << std::endl;
 		set->DigitValue(i);
 	}
-
-//	std::cout << "Hits inside: ";
-//	for (Int_t j = 0; j < pndtc->GetNHits(); j++){
-//		PndTrackCandHit hit = pndtc->GetSortedHit(j);
-//		std::cout << hit.GetDetId() << "/" << hit.GetHitId() << " ";
-//		TVector3 point = GetVector(hit.GetDetId(), hit.GetHitId());
-//		set->AddBox(point.X(), point.Y(), point.Z());
-//		set->DigitValue(i);
-//	}
-//	std::cout << std::endl;
 }
 
 TVector3 PndTrackCandDraw::GetVector(Int_t detId, Int_t hitId) {
@@ -143,28 +105,12 @@ TVector3 PndTrackCandDraw::GetVector(Int_t detId, Int_t hitId) {
 	FairRootManager* ioman = FairRootManager::Instance();
 	TString branchName = ioman->GetBranchName(detId);
 	TClonesArray* data = (TClonesArray*) (ioman->GetObject(branchName));
-	if (branchName == "MVDHitsStrip" || branchName == "MVDHitsPixel" || branchName == "SttHelixHit" || branchName == "GEMHit") {
-		p = (FairHit*) data->At(hitId);
-//		if (detId == kMVDHitsPixel)
-//		{
-//			p = (FairHit *) fPixPointList->At(hitId);
-//		}
-//		else if (detId == kMVDHitsStrip)
-//		{
-//			p = (FairHit *) fStripPointList->At(hitId);
-//		}
-//		else if (detId == kSttHelixHit){
-//			p = (FairHit *) fSttHelixList->At(hitId);
-//		}
-//		else if (detId == kGemHit){
-//			p = (FairHit *) fGemHitList->At(hitId);
-//		}
+
+	p = (FairHit*) data->At(hitId);
+	if (p != 0) {
 		std::cout << "Hit in " << branchName << "(" << p->GetX() << "/" << p->GetY() << "/" << p->GetZ() << ")" << std::endl;
 		return (TVector3(p->GetX(), p->GetY(), p->GetZ()));
-	} else
-		std::cout
-				<< "-E- PndTrackCandDraw::GetVector : Unknown Detector with ID: "
-				<< detId << std::endl;
+	}
 	return TVector3();
 }
 
@@ -172,18 +118,16 @@ TVector3 PndTrackCandDraw::GetVector(FairLink link) {
 	FairHit *p;
 	FairRootManager* ioman = FairRootManager::Instance();
 	TString branchName = ioman->GetBranchName(link.GetType());
-	if (branchName == "MVDHitsStrip" || branchName == "MVDHitsPixel"
-			|| branchName == "SttHelixHit" || branchName == "GemHit") {
-		p = (FairHit*) ioman->GetCloneOfLinkData(link);
+
+	p = (FairHit*) ioman->GetCloneOfLinkData(link);
+
+	if (p != 0) {
 		TVector3 vec(p->GetX(), p->GetY(), p->GetZ());
 		std::cout << "Hit in " << branchName << "Link: " << link << "(" << p->GetX() << "/" << p->GetY() << "/" << p->GetZ() << ")";// << std::endl;
 
 		delete p;
 		return (vec);
-	} else
-		std::cout
-				<< "-E- PndTrackCandDraw::GetVector : Unknown Detector with ID: "
-				<< link << std::endl;
+	}
 	return TVector3();
 
 }

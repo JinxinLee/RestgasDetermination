@@ -44,7 +44,9 @@ PndTrackDraw::PndTrackDraw(const char* name, Bool_t propagate, Int_t iVerbose)
 {
 	 // fPro = new FairGeanePro();
 	  fPndTrackList = 0;
-	  fTrackCandDraw = new PndTrackCandDraw(name, iVerbose);
+	  TString trackCandName(name);
+//	  trackCandName.Append("_TrackCand");
+	  fTrackCandDraw = new PndTrackCandDraw(trackCandName.Data(), iVerbose);
 }
 // -------------------------------------------------------------------------
 InitStatus PndTrackDraw::Init()
@@ -104,7 +106,11 @@ void PndTrackDraw::Exec(Option_t* option)
     FairBoxSet* myBoxSet = fTrackCandDraw->CreateBoxSet();
 
     //fListOfTracks->DestroyElements();
-    fListOfTracks = new TEveElementList("PndTracks","List of PndTracks");
+
+	TString trackName(GetName());
+	trackName.Append("_Track");
+    fListOfTracks = new TEveElementList(trackName.Data(),"List of PndTracks");
+
     gEve->AddElement(fListOfTracks,fEventManager);
 
 	if (FairRunAna::Instance()->IsTimeStamp()) {
