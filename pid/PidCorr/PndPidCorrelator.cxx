@@ -817,7 +817,7 @@ Bool_t PndPidCorrelator::GetTofInfo(FairTrackParH* helix, PndPidCandidate* pidCa
   PndSciTHit *tofHit = NULL; 
   Int_t tofEntries = fTofHit->GetEntriesFast();
   Int_t tofIndex = -1;
-  Float_t tofTof = 0., tofLength = -1000, tofGLength = -1000;
+  Float_t tofTof = 0., tofLength = -1000, tofGLength = -1000, tofLengthTemp = -1000;
   Float_t tofQuality = 1000000;
   
   Float_t chi2 = 0;
@@ -845,7 +845,7 @@ Bool_t PndPidCorrelator::GetTofInfo(FairTrackParH* helix, PndPidCandidate* pidCa
 	  fProVertex->PropagateToPCA(1, -1);
 	  FairTrackParH *fRes2= new FairTrackParH();
 	  Bool_t rc2 =  fProVertex->Propagate(fRes, fRes2, fPidHyp*pidCand->GetCharge());
-	  if (rc2) tofLength = fProVertex->GetLengthAtPCA();
+	  if (rc2) tofLengthTemp = fProVertex->GetLengthAtPCA();
 	}
     
       Float_t dist = (tofPos-vertex).Mag2();
@@ -855,7 +855,7 @@ Bool_t PndPidCorrelator::GetTofInfo(FairTrackParH* helix, PndPidCandidate* pidCa
 	  tofIndex = tt;
 	  tofQuality = dist;
 	  tofTof = tofHit->GetTime();
-	  //tofLength = fabs(phi * track->GetRadius() / TMath::Sin(track->GetMomentum().Theta()));
+	  tofLength = tofLengthTemp; // abs(phi * track->GetRadius() / TMath::Sin(track->GetMomentum().Theta()));
 	}
       if (fDebugMode)
 	{
