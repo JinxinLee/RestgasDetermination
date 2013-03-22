@@ -125,14 +125,14 @@ PndMCResult PndMCMatch::GetMCInfoForward(Int_t start, Int_t stop)
 	for (int i = 0; i < startVec.GetNEntries(); i++){
 		FairLink tempLink(startVec.GetStageId(), i);
 
-		std::cout << "FairLink: " << tempLink << std::endl;
+//		std::cout << "FairLink: " << tempLink << std::endl;
 		PndMCEntry tempEntry(GetMCInfoForwardSingle(tempLink, stop));
 		if (tempEntry.GetNLinks() > 0)
 			if (tempEntry.GetLink(0).GetType() == start)
 				tempEntry.DeleteLink(tempEntry.GetLink(0));
 		tempEntry.SetSource(start);
 		tempEntry.SetPos(i);
-		std::cout << "PndMCEntry: " << tempEntry << std::endl;
+//		std::cout << "PndMCEntry: " << tempEntry << std::endl;
 		result.SetEntry(tempEntry);
 	}
 	//result.RemoveType(start);
@@ -198,21 +198,21 @@ void PndMCMatch::FindStagesPointingToLinks(FairMultiLinkedData links, Int_t stop
 		myNewLinks.SetPersistanceCheck(kFALSE);
 		if (myNewLinks.GetNLinks() == 0){
 			fFinalStageML.AddLink(myLink, true);
-			std::cout << "NewLinks.GetNLinks == 0 " << fFinalStageML << std::endl;
+//			std::cout << "NewLinks.GetNLinks == 0 " << fFinalStageML << std::endl;
 		}
 		else{
 			for (int j = 0; j < myNewLinks.GetNLinks(); j++){
 				if (myNewLinks.GetLink(j).GetType() == (Int_t)stop){
 					fFinalStageML.AddLink(myNewLinks.GetLink(j), true);
-					std::cout << "NewLinks == stopStage " << fFinalStageML << std::endl;
+//					std::cout << "NewLinks == stopStage " << fFinalStageML << std::endl;
 				}
 				else if (myNewLinks.GetLink(j).GetType() > (Int_t)stop){
 					fFinalStageML.AddLink(myLink, true);
-					std::cout << "NewLinks > stopStage " << myNewLinks.GetLink(j).GetType() << " > " << (Int_t)stop << ": " << fFinalStageML << std::endl;
+//					std::cout << "NewLinks > stopStage " << myNewLinks.GetLink(j).GetType() << " > " << (Int_t)stop << ": " << fFinalStageML << std::endl;
 				}
 				else{
 					tempLinks.AddLink(myNewLinks.GetLink(j), true);
-					std::cout << "tempLinks " << tempLinks << std::endl;
+//					std::cout << "tempLinks " << tempLinks << std::endl;
 				}
 			}
 		}
@@ -226,13 +226,13 @@ FairMultiLinkedData PndMCMatch::FindStagesPointingToLink(FairLink link)
 {
 	FairMultiLinkedData result;
 	result.SetPersistanceCheck(kFALSE);
-	std::cout << "FindStagesPointingToLink: " << link << std::endl;
+//	std::cout << "FindStagesPointingToLink: " << link << std::endl;
 	TListIteratorConst iter = fList.find((Int_t)link.GetType());
 	for(;iter!= fList.end(); iter++){
-		std::cout << "FindStagesPointingToLink: " << *(iter->second) << std::endl;
+//		std::cout << "FindStagesPointingToLink: " << *(iter->second) << std::endl;
 		if (iter->second->PosInList(link).GetNLinks() > 0){
 			result.AddLinks(iter->second->PosInList(link), true);
-			std::cout << "Result: " << result << std::endl;
+//			std::cout << "Result: " << result << std::endl;
 		}
 	}
 	return result;
