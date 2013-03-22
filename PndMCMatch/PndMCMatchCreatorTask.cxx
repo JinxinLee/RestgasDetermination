@@ -69,13 +69,13 @@ InitStatus PndMCMatchCreatorTask::Init()
   fMCMatch->InitStage("STTTrack");
   fMCMatch->InitStage("STTTrackCand");
 
-  fMCMatch->InitStage("PndTpcPoint");
-  fMCMatch->InitStage("PndTpcPrimaryCluster");
-  fMCMatch->InitStage("PndTpcDriftedElectron");
-  fMCMatch->InitStage("PndTpcAvalanche");
-  fMCMatch->InitStage("PndTpcSignal");
-  fMCMatch->InitStage("PndTpcDigi");
-  fMCMatch->InitStage("PndTpcCluster");
+//  fMCMatch->InitStage("PndTpcPoint");
+//  fMCMatch->InitStage("PndTpcPrimaryCluster");
+//  fMCMatch->InitStage("PndTpcDriftedElectron");
+//  fMCMatch->InitStage("PndTpcAvalanche");
+//  fMCMatch->InitStage("PndTpcSignal");
+//  fMCMatch->InitStage("PndTpcDigi");
+//  fMCMatch->InitStage("PndTpcCluster");
 
 
   fMCMatch->InitStage("GEMPoint");
@@ -89,6 +89,14 @@ InitStatus PndMCMatchCreatorTask::Init()
   fMCMatch->InitStage("MdtPoint");
   fMCMatch->InitStage("MdtHit");
   fMCMatch->InitStage("MdtTrk");
+
+  fMCMatch->InitStage("ScitPoint");
+  fMCMatch->InitStage("FTSPoint");
+  fMCMatch->InitStage("FTSHit");
+
+  fMCMatch->InitStage("FtofPoint");
+  fMCMatch->InitStage("FtofHit");
+
 
   fMCMatch->InitStage("LheHit");
   fMCMatch->InitStage("LheCandidate");

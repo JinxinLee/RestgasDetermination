@@ -44,7 +44,7 @@ void PndMCIdealTrackFinder::Exec(Option_t* opt)
 	//fMCMatch->CreateArtificialStage(kMCTrack, "", "");
 
 	fMCMatch->CreateArtificialStage("MCTrack");
-	PndMCResult myResult = fMCMatch->GetMCInfo("MCTrack", "MVDHitsStrip");
+	PndMCResult myResult = fMCMatch->GetMCInfo("MCTrack", "GEMHit");
 	std::cout << myResult;
 
 	fTrackCand->Delete();
