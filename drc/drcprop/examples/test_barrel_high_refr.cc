@@ -112,6 +112,17 @@ int main(int argc, char *argv[])
   const double pi=3.1415926535;
 
 
+
+  fstream out1;
+  out1.open("nlak33a.dat",std::ios::out);
+  PndDrcOptMatNLAK33A opt_mat;
+  for (int i=300; i<=700; i++)
+    {
+      out1<<i<<" "<<opt_mat.RefIndex(i)<<endl;
+    }
+  out1.close();
+  
+
   //int focus_opt = 0; // unfocussed
   int focus_opt = 1; // focussed
 
@@ -132,13 +143,15 @@ int main(int argc, char *argv[])
   double radius_lens2;
   double thick_lens2;
   
+  //radius_lens1 = atof(argv[1]);
+  //thick_lens1  = atof(argv[2]);
   
   if (lens_opt==1)
     {
-      radius_lens1  = 72.502;
-      thick_lens1   =   8;
+      radius_lens1  = 73.502;
+      thick_lens1   =   4.5;
       radius_lens2 = -radius_lens1;
-      thick_lens2   = 9; 
+      thick_lens2   = 8;//4; 
       if (focus_opt==0)
 	{
 	  radius_lens1  = 9999.9;
@@ -181,20 +194,20 @@ int main(int argc, char *argv[])
 
 
   PndDrcOptLens lens1(bar_half_w,bar_half_h,thick_lens1/2,radius_lens1,9999,
-			  conical,conical);
+		      conical,conical);
   lens1.SetName("lens1");
   lens1.AddTransform(Transform3D(XYZVector(0,0,-bar_half_l
 					   -thick_lens1/2)));
   //lens1.SetOptMaterial(PndDrcOptMatF2G12());
   lens1.SetOptMaterial(PndDrcOptMatNLAK33A());
-  lens1.Surface("side21")->SetReflectivity(PndDrcOptReflNone());
-  lens1.Surface("side26")->SetReflectivity(PndDrcOptReflNone());
-  lens1.Surface("side31")->SetReflectivity(PndDrcOptReflNone());
-  lens1.Surface("side36")->SetReflectivity(PndDrcOptReflNone());
-  lens1.Surface("side41")->SetReflectivity(PndDrcOptReflNone());
-  lens1.Surface("side46")->SetReflectivity(PndDrcOptReflNone());
-  lens1.Surface("side51")->SetReflectivity(PndDrcOptReflNone());
-  lens1.Surface("side56")->SetReflectivity(PndDrcOptReflNone());
+  //lens1.Surface("side21")->SetReflectivity(PndDrcOptReflNone());
+  //lens1.Surface("side26")->SetReflectivity(PndDrcOptReflNone());
+  //lens1.Surface("side31")->SetReflectivity(PndDrcOptReflNone());
+  //lens1.Surface("side36")->SetReflectivity(PndDrcOptReflNone());
+  //lens1.Surface("side41")->SetReflectivity(PndDrcOptReflNone());
+  //lens1.Surface("side46")->SetReflectivity(PndDrcOptReflNone());
+  //lens1.Surface("side51")->SetReflectivity(PndDrcOptReflNone());
+  //lens1.Surface("side56")->SetReflectivity(PndDrcOptReflNone());
   lens1.SetPrintColor(2);
 
   opt_system.AddDevice(lens1);
@@ -205,14 +218,14 @@ int main(int argc, char *argv[])
   PndDrcOptLens lens2(bar_half_w,bar_half_h,
 		      thick_lens2/2,9999,radius_lens2,
 			     conical,conical);
-  lens2.Surface("side21")->SetReflectivity(PndDrcOptReflNone());
-  lens2.Surface("side26")->SetReflectivity(PndDrcOptReflNone());
-  lens2.Surface("side31")->SetReflectivity(PndDrcOptReflNone());
-  lens2.Surface("side36")->SetReflectivity(PndDrcOptReflNone());
-  lens2.Surface("side41")->SetReflectivity(PndDrcOptReflNone());
-  lens2.Surface("side46")->SetReflectivity(PndDrcOptReflNone());
-  lens2.Surface("side51")->SetReflectivity(PndDrcOptReflNone());
-  lens2.Surface("side56")->SetReflectivity(PndDrcOptReflNone());
+  //lens2.Surface("side21")->SetReflectivity(PndDrcOptReflNone());
+  //lens2.Surface("side26")->SetReflectivity(PndDrcOptReflNone());
+  //lens2.Surface("side31")->SetReflectivity(PndDrcOptReflNone());
+  //lens2.Surface("side36")->SetReflectivity(PndDrcOptReflNone());
+  //lens2.Surface("side41")->SetReflectivity(PndDrcOptReflNone());
+  //lens2.Surface("side46")->SetReflectivity(PndDrcOptReflNone());
+  //lens2.Surface("side51")->SetReflectivity(PndDrcOptReflNone());
+  //lens2.Surface("side56")->SetReflectivity(PndDrcOptReflNone());
   lens2.SetName("lens2");
   lens2.AddTransform(Transform3D(XYZVector(0,0,
 					   -bar_half_l
@@ -302,10 +315,11 @@ int main(int argc, char *argv[])
       geo<<"    TView *view = TView::CreateView(1);"<<endl;
     }
   //geo<<"    view->SetRange(-400,-500,-1050,600,500,-50);"<<endl;
-  geo<<"    view->SetRange(-500,-500,-900,500,500,100);"<<endl;
+  geo<<"    view->SetRange(-500,-500,-1500,500,500,500);"<<endl;
+  //geo<<"    view->SetRange(-500,-500,-900,500,500,100);"<<endl;
   geo<<"    Int_t i;"<<endl;
-  geo<<"    view->SetView(90,90,90,i);"<<endl;
-  for (int i=0; i<15;i++) // 7 or 16
+  geo<<"    view->SetView(90,-90,90,i);"<<endl;
+  for (int i=0; i<6;i++) // 7 or 16
     geo<<"    view->Zoom();"<<endl;
   
   // the following command sets a flag within the manager and all photons from

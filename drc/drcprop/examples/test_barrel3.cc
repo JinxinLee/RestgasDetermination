@@ -115,11 +115,11 @@ int main(int argc, char *argv[])
   //int iopt = 0;// only geometry
   //int iopt = 1;// straight lines
   //int iopt = 2;// C-cone
-  //int iopt = 3;// ???
-  int iopt = 4; // debug
+  int iopt = 3;// ???
+  //int iopt = 4; // debug
 
-  //int lens_opt = 1;  // two thin lenses no air gap
-  int lens_opt = 2; // two lenses, no airgap, 2nd is thick
+  int lens_opt = 1;  // two thin lenses no air gap
+  //int lens_opt = 2; // two lenses, no airgap, 2nd is thick
   //int lens_opt = 3; // two lenses, with airgap
 
  
@@ -136,16 +136,24 @@ int main(int argc, char *argv[])
   double thick_air2; 
   bool   l_air_gap;
   
+
+  //radius_lens1=atof(argv[1]);
+  ////thick_lens1=atof(argv[2]);
+  //radius_lens2b=atof(argv[2]);
+  //thick_lens2 = atof(argv[3]);
+  //thick_air2 = atof(argv[4]);
+  
+  
   
   if (lens_opt==1)
     {
       l_air_gap     = false;
-      radius_lens1  = 30.836;
+      radius_lens1  = 752;//30.836;
       thick_lens1   =   5;
       thick_air1    =   0.0;
-      radius_lens2b =  55.638;
-      radius_lens2a = -30.836;
-      thick_lens2   = 11.6; 
+      radius_lens2b =  179.5;//55.638;
+      radius_lens2a = -radius_lens1;
+      thick_lens2   = 5;//11.6; 
       thick_air2    = 7; 
       if (focus_opt==0)
 	{
@@ -389,10 +397,10 @@ int main(int argc, char *argv[])
       geo<<"    TView *view = TView::CreateView(1);"<<endl;
     }
   //geo<<"    view->SetRange(-400,-500,-1050,600,500,-50);"<<endl;
-  geo<<"    view->SetRange(-500,-500,-900,500,500,100);"<<endl;
+  geo<<"    view->SetRange(-500,-500,-1500,500,500,500);"<<endl;
   geo<<"    Int_t i;"<<endl;
-  geo<<"    view->SetView(90,90,90,i);"<<endl;
-  for (int i=0; i<15;i++) // 7 or 16
+  geo<<"    view->SetView(90,-90,90,i);"<<endl;
+  for (int i=0; i<6;i++) // 7 or 16
     geo<<"    view->Zoom();"<<endl;
   
   // the following command sets a flag within the manager and all photons from
@@ -400,7 +408,7 @@ int main(int argc, char *argv[])
   // .x Geo.C 
   // .x Screen.C
   // 
-  if (iopt==0) manager->Print(geo);
+  if (iopt==0 || iopt==3) manager->Print(geo);
 
   PndDrcPhoton ph;
   ph.SetReflectionLimit(200);
@@ -469,8 +477,6 @@ int main(int argc, char *argv[])
   else if (iopt==3)
     {
       double angle=0;
-      
-      
       for (int i=0; i<30; i++)
 	{
 	  ph.SetDirection(XYZVector(sin(pi/180*angle),0,-cos(pi/180*angle)));
@@ -479,20 +485,8 @@ int main(int argc, char *argv[])
 	  list_photon.push_back(ph);
 	}
       
-      angle=20;
-      
-      
-      for (int i=0; i<30; i++)
-	{
-	  ph.SetDirection(XYZVector(sin(pi/180*angle),0,-cos(pi/180*angle)));
-	  ph.SetPosition(XYZPoint(q0.X()+(q1.X()-q0.X())*i/31.0,0,-399));
-	  ph.SetWavelength(630);
-	  list_photon.push_back(ph);
-	}
       
       angle=10;
-      
-      
       for (int i=0; i<30; i++)
 	{
 	  ph.SetDirection(XYZVector(sin(pi/180*angle),0,-cos(pi/180*angle)));
@@ -500,6 +494,39 @@ int main(int argc, char *argv[])
 	  ph.SetWavelength(630);
 	  list_photon.push_back(ph);
 	}
+
+      angle=20;      
+      for (int i=0; i<30; i++)
+	{
+	  ph.SetDirection(XYZVector(sin(pi/180*angle),0,-cos(pi/180*angle)));
+	  ph.SetPosition(XYZPoint(q0.X()+(q1.X()-q0.X())*i/31.0,0,-399));
+	  ph.SetWavelength(630);
+	  list_photon.push_back(ph);
+	}
+      angle=30;      
+      for (int i=0; i<30; i++)
+	{
+	  ph.SetDirection(XYZVector(sin(pi/180*angle),0,-cos(pi/180*angle)));
+	  ph.SetPosition(XYZPoint(q0.X()+(q1.X()-q0.X())*i/31.0,0,-399));
+	  ph.SetWavelength(630);
+	  list_photon.push_back(ph);
+	}
+      angle=40;      
+      for (int i=0; i<30; i++)
+	{
+	  ph.SetDirection(XYZVector(sin(pi/180*angle),0,-cos(pi/180*angle)));
+	  ph.SetPosition(XYZPoint(q0.X()+(q1.X()-q0.X())*i/31.0,0,-399));
+	  ph.SetWavelength(630);
+	  list_photon.push_back(ph);
+	}
+
+
+
+
+
+
+
+
     }
   else if (iopt==4)
     {
