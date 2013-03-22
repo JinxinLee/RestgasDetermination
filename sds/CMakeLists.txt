@@ -78,6 +78,7 @@ SdsDigi/PndSdsDigiStripRingSorter.cxx
 SdsFEModel/PndSdsFE.cxx
 SdsFEModel/PndSdsFESimple.cxx
 SdsFEModel/PndSdsFEAmpModelSimple.cxx
+SdsFEModel/PndSdsFESimple.cxx
 
 SdsMC/PndSdsDetector.cxx
 SdsMC/PndSdsGeo.cxx
