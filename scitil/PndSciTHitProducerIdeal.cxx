@@ -20,7 +20,7 @@
 
 // -----   Default constructor   -------------------------------------------
 PndSciTHitProducerIdeal::PndSciTHitProducerIdeal() :
-  FairTask("Ideal PndSciT Hit Producer") 
+  FairTask("Ideal PndSciT Hit Producer"), fBranchName(""), fdt(0.1) 
 {
 	fBranchName 	= "SciTPoint";
 
@@ -29,12 +29,10 @@ PndSciTHitProducerIdeal::PndSciTHitProducerIdeal() :
 
 // -----   Default constructor   -------------------------------------------
 PndSciTHitProducerIdeal::PndSciTHitProducerIdeal(Double_t dt) :
-  FairTask("Ideal PndSciT Hit Producer") 
+  FairTask("Ideal PndSciT Hit Producer"), fBranchName(""), fdt(dt)
 {
 	fBranchName 	= "SciTPoint";
 
-	fdt= dt;
-	
 }
 // -------------------------------------------------------------------------
 
