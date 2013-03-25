@@ -226,7 +226,7 @@ void PndFtsTrackerIdeal::Exec(Option_t * option)
     firstPoint[trackID]->Position(svtx); // set position to first hit
     SmearFWD(svtx, fVtxSigma);
     firstPoint[trackID]->Momentum(smom);
-    if (fRelative) fMomSigma=fDPoP*smom;
+    if (fRelative) fMomSigma.SetXYZ(fDPoP*smom.Mag(),fDPoP*smom.Mag(),fDPoP*smom.Mag());
     SmearFWD(smom, fMomSigma);
     FairTrackParP* firstPar=new FairTrackParP(svtx, smom,
                                               fVtxSigma, fMomSigma,

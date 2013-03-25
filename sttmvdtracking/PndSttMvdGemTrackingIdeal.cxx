@@ -227,7 +227,7 @@ void PndSttMvdGemTrackingIdeal::Exec(Option_t * option)
     firstPoint[trackID]->Position(svtx); // set position to first hit
     SmearVector(svtx, fVtxSigma);
     firstPoint[trackID]->Momentum(smom);
-    if (fRelative) fMomSigma=fDPoP*smom;
+    if (fRelative) fMomSigma.SetXYZ(fDPoP*smom.Mag(),fDPoP*smom.Mag(),fDPoP*smom.Mag());
     SmearVector(smom, fMomSigma);
     FairTrackParP* firstPar=new FairTrackParP(svtx, smom,
                                               fVtxSigma, fMomSigma,
