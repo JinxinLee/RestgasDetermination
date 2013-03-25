@@ -98,8 +98,8 @@ void runLumiPixel3Finder(const int nEvents=1000, const int startEvent=0, TString
     if(Method=="CA"){
       PndLmdTrackFinderCATask* lmdfinder = new PndLmdTrackFinderCATask(missPl,accurCA,nsensors,nplanes,inHits,inClusters,inDigis); //for merged hits
       lmdfinder->SetSensPixelFlag(true);
-      //  lmdfinder->SetTrkCandCutsFlag(trkcuts);//value=false for misaligned sensors only TODO: try it with sectors alignment
-      lmdfinder->SetTrkCandCutsFlag(true);
+      lmdfinder->SetTrkCandCutsFlag(trkcuts);//value=false for misaligned sensors only
+      //  lmdfinder->SetTrkCandCutsFlag(true);
     }
     else{
       cout<<"Method "<<Method<<" doesn't exist!"<<endl;

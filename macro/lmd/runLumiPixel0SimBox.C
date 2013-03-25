@@ -1,8 +1,13 @@
 // Panda FullSim macro
 
 //void runLumi0SimBox(const int nEvents=10, const double mom=15, TString storePath="tmpOutput", const int verboseLevel=0, const int particle=-211)
-void runLumiPixel0SimBox(const int nEvents=10, const int startEv=0, const double mom=15, TString storePath="tmpOutput", const int verboseLevel=0, const int particle=-2212, const int trkNum=1, const int seed=3754)
+void runLumiPixel0SimBox(const int nEvents=10, const int startEv=0, const double mom=15, TString storePath="tmpOutput", const int verboseLevel=0, const int particle=-2212, const int trkNum=1, const int seed=63847)
 {
+
+  // ///PROOF lite
+  // TProof::Open("");
+
+
   gRandom->SetSeed(seed);
   TStopwatch timer;
   timer.Start();
@@ -40,9 +45,9 @@ void runLumiPixel0SimBox(const int nEvents=10, const int startEv=0, const double
   //  Cave->SetGeometryFileName("pndcave.geo");
   fRun->AddModule(Cave);
 
-  FairModule *Pipe= new PndPipe("PIPE");
-  Pipe->SetGeometryFileName("../macro/lmd/geo/beampipe_201210.root");
-  fRun->AddModule(Pipe);
+  // FairModule *Pipe= new PndPipe("PIPE");
+  // Pipe->SetGeometryFileName("../macro/lmd/geo/beampipe_201210.root");
+  // fRun->AddModule(Pipe);
   
 
   FairModule *Magnet= new PndMagnet("MAGNET");
@@ -98,17 +103,20 @@ void runLumiPixel0SimBox(const int nEvents=10, const int startEv=0, const double
   // primGen->SetBeamAngularDivergence(0.0003);// sigmaTheta~0.3 mrad
   // primGen->SetBeam(0., 0., 2*0.08, 2*0.08); //sigmaX=sigmaY=0.8 mm ["square"shape of beam ]
   // primGen->SetTarget(0.,0.1); // sigmaZ=1mm, gaus
- 
+
+  // primGen->SetTarget(1050.,0.); //attemp to have different trk topology in lmd
+
   fRun->SetGenerator(primGen);
 
   // Box Generator
   FairBoxGenerator *fBox = new FairBoxGenerator(particle, trkNum);
   fBox->SetPRange(mom,mom);
-  //  fBox->SetThetaRange(0.13,0.7); // 2... 12 mrad
+  fBox->SetThetaRange(0.13,0.7); // 2... 12 mrad
+
   //fBox->SetThetaRange(0.13,0.65); // 2... 11 mrad
-  fBox->SetThetaRange(0.229183, 0.458366); //4 ... 8 mrad
+  //  fBox->SetThetaRange(0.229183, 0.458366); //4 ... 8 mrad
   //fBox->SetThetaRange(0.458366, 0.458366); //!!! 8 mrad
-  //fBox->SetThetaRange(0.3, 0.3);//TEST 
+  //  fBox->SetThetaRange(0., 45.);//TEST 
   fBox->SetPhiRange(0,360.);
   //  fBox->SetPhiRange(0.5,359.5); //FOR missed track check
   // fBox->SetPhiRange(0.,0.);
