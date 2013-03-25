@@ -14,7 +14,7 @@ Program reading data prodused by KNOSSOS and produce the root file with results
 #include "TH2F.h"
 #include "TF1.h"
 #include "TCanvas.h"
-#include "/PANDA/karavdina/myKnossos/constantsLMD.h"
+#include "/panda/karavdina/myKnossos/constantsLMD.h"
 // needed for corditate from\out lumi frame calculation
 #include"PndLmdDim.h"
 using namespace std;
@@ -368,8 +368,8 @@ int main(int __argc,char *__argv[]) {
  
      // // cout<<dxin[jh][jp][jm]<<" "<<dyin[jh][jp][jm]<<" "<<dzin[jh][jp][jm]<<endl;
      // // cout<<"---------------------------------------"<<endl;
-     cout<<"BEFORE correction: ";
-     cout<<"dgamma["<<jh<<"]["<<jp<<"]["<<jm<<"]= "<<dgammain[jh][jp][jm]<<endl;
+     // cout<<"BEFORE correction: ";
+     // cout<<"dgamma["<<jh<<"]["<<jp<<"]["<<jm<<"]= "<<dgammain[jh][jp][jm]<<endl;
      dalphain[jh][jp][jm] = dalphain[jh][jp][jm] - off_a[js];
      dbetain[jh][jp][jm] = dbetain[jh][jp][jm] - off_b[js];
      dgammain[jh][jp][jm] = dgammain[jh][jp][jm] - off_c[js];
@@ -389,12 +389,18 @@ int main(int __argc,char *__argv[]) {
      // dgammain[jh][jp][jm] = rot_in.Z();
 
 
+    
+     cout<<"corr: dxin["<<jh<<"]["<<jp<<"]["<<jm<<"]="<<dxin[jh][jp][jm];
+     cout<<"     dxout["<<jh<<"]["<<jp<<"]["<<jm<<"]="<<dxout[jh][jp][jm];
+     cout<<" dif="<<dxin[jh][jp][jm]+dxout[jh][jp][jm]<<endl;
+     cout<<"corr: dyin["<<jh<<"]["<<jp<<"]["<<jm<<"]="<<dyin[jh][jp][jm];
+     cout<<"     dyout["<<jh<<"]["<<jp<<"]["<<jm<<"]="<<dyout[jh][jp][jm];
+     cout<<" dif="<<dyin[jh][jp][jm]+dyout[jh][jp][jm]<<endl;
      cout<<"corr: dgammain["<<jh<<"]["<<jp<<"]["<<jm<<"]="<<dgammain[jh][jp][jm];
      cout<<"     dgammaout["<<jh<<"]["<<jp<<"]["<<jm<<"]="<<dgammaout[jh][jp][jm];
      cout<<" dif="<<dgammain[jh][jp][jm]+dgammaout[jh][jp][jm]<<endl;
-     // cout<<"corr: dyin["<<jh<<"]["<<jp<<"]["<<jm<<"]="<<dyin[jh][jp][jm];
-     // cout<<"     dyout["<<jh<<"]["<<jp<<"]["<<jm<<"]="<<dyout[jh][jp][jm]<<endl;
-     // cout<<""<<endl;
+     cout<<"corr: dyin["<<jh<<"]["<<jp<<"]["<<jm<<"]="<<dyin[jh][jp][jm];
+     cout<<"     dyout["<<jh<<"]["<<jp<<"]["<<jm<<"]="<<dyout[jh][jp][jm]<<endl;
      cout<<""<<endl;
    }
  }
@@ -416,9 +422,9 @@ TFile* fi = new TFile(outfile,"RECREATE");
   const double offsetY = 0.15;
   const double offsetZ = 0.15;
 
-  const double offsetA = 0.01;
-  const double offsetB = 0.01;
-  const double offsetC = 0.01;
+  const double offsetA = 0.015;
+  const double offsetB = 0.015;
+  const double offsetC = 0.015;
 
 
 
@@ -452,16 +458,16 @@ TFile* fi = new TFile(outfile,"RECREATE");
     // m_pullHistos->Add(aHisto3);
 
     sprintf(histoName, "mis_before_%d",histID);
-    TH2F* aHisto = new TH2F(histoName, histoName, nSides*nSectors*nStation,0,nSides*nSectors*nStation,1e4, -misal_scales[histID], misal_scales[histID]);
+    TH2F* aHisto = new TH2F(histoName, histoName, nSides*nSectors*nStation,0,nSides*nSectors*nStation,1e2, -misal_scales[histID], misal_scales[histID]);
     m_mis_bef->Add(aHisto);
 
     sprintf(histoName2, "mis_after_%d",histID);
     // TH2F* aHisto2 = new TH2F(histoName2, histoName2, nSides*nSectors*nStation,0,32, 100, -0.05*misal_scales[histID], 0.05*misal_scales[histID]);
-    TH2F* aHisto2 = new TH2F(histoName2, histoName2, nSides*nSectors*nStation,0,nSides*nSectors*nStation, 1e4, -misal_scales[histID], misal_scales[histID]);
+    TH2F* aHisto2 = new TH2F(histoName2, histoName2, nSides*nSectors*nStation,0,nSides*nSectors*nStation, 1e2, -misal_scales[histID], misal_scales[histID]);
     m_mis_aft->Add(aHisto2);
   
     sprintf(histoName4, "mis_diff_%d",histID);
-    TH2F* aHisto4 = new TH2F(histoName4, histoName4, nSides*nSectors*nStation,0,nSides*nSectors*nStation, 1e4, -misal_scales[histID], misal_scales[histID]);
+    TH2F* aHisto4 = new TH2F(histoName4, histoName4, nSides*nSectors*nStation,0,nSides*nSectors*nStation, 1e2, -misal_scales[histID], misal_scales[histID]);
     m_mis_diff->Add(aHisto4);
   
                                                                                 

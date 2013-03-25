@@ -6,16 +6,25 @@
 
 #include <sstream>
 using namespace std;
-void SummaryAlign(TString path="/PANDA/pandaroot/macro/lmd/tmpOutputAlignTMP/results_200mkm_3mrad_10000events", double tr_sc=200, double rt_sc=3)
+void SummaryAlign(TString path="/panda/pandaroot/macro/lmd/tmpOutputAlignTMP/", double tr_sc=200, double rt_sc=3, int nTrks)
 {
   //start a PROOF-Lite session
   //  TProof::Open("");
+  TString pathfull = path+"/results_";
+  pathfull+=tr_sc;
+  pathfull+="mkm_";
+  pathfull+=rt_sc;
+  pathfull+="mrad_";
+  pathfull+=nTrks;
+  pathfull+="events";
 
-  TString resname= path+"/ResultsSummary_";
+  TString resname= pathfull+"/ResultsSummary_";
   resname+=tr_sc;
   resname+="um_";
   resname+=rt_sc;
-  resname+="mrad";
+  resname+="mrad_";
+  resname+=nTrks;
+  resname+="simevents";
 
   // TString resthname= path+"/ResTheta_";
   // resthname+=tr_sc;
@@ -24,19 +33,21 @@ void SummaryAlign(TString path="/PANDA/pandaroot/macro/lmd/tmpOutputAlignTMP/res
   // resthname+="mrad.root";
 
   /// Theta resolution--------------------------------------------------------------------------------------  
-  TString name1 = path + "/Lumi_out_MC_and_REC_trks_matches_with_IDs0_dr_";
+  TString name1 = pathfull + "/Lumi_out_MC_and_REC_trks_matches_with_IDs0_dr_";
   name1+=tr_sc;
   name1+="_da_";
   name1+=rt_sc;
   name1+="_before.root";
 
-  TString name2 = path + "/Lumi_out_MC_and_REC_trks_matches_with_IDs0_dr_";
+  TString name2 = pathfull + "/Lumi_out_MC_and_REC_trks_matches_with_IDs0_dr_";
   name2+=tr_sc;
   name2+="_da_";
   name2+=rt_sc;
   name2+="_after.root";
 
-  TString name3 = "/PANDA/pandaroot/macro/lmd/tmpOutputAlignTMP/results_0mkm_0mrad_10000events/Lumi_out_MC_and_REC_trks_matches_with_IDs0_dr_0_da_0_before.root";
+  TString name3 = path + "/results_0mkm_0mrad_";
+  name3+=nTrks;
+  name3+="events/Lumi_out_MC_and_REC_trks_matches_with_IDs0_dr_0_da_0_before.root";
 
   //  TH1F *hbeforetmp;   TH1F *haftertmp;
   TH1F *hbefore;   
@@ -108,16 +119,16 @@ void SummaryAlign(TString path="/PANDA/pandaroot/macro/lmd/tmpOutputAlignTMP/res
   /// END (Theta resolution) ---------------------------------------------------------------
 
   // ///Residuals ------------------------------------------------------------------------------
-  TString nameresb0 = path + "/hitsRes_before_alignment_sector0.root";
-  TString nameresa0 = path + "/hitsRes_after_alignment_sector0.root";
-  TString nameresb1 = path + "/hitsRes_before_alignment_sector1.root";
-  TString nameresa1 = path + "/hitsRes_after_alignment_sector1.root";
-  TString nameresb2 = path + "/hitsRes_before_alignment_sector2.root";
-  TString nameresa2 = path + "/hitsRes_after_alignment_sector2.root";
-  TString nameresb3 = path + "/hitsRes_before_alignment_sector3.root";
-  TString nameresa3 = path + "/hitsRes_after_alignment_sector3.root";
-  TString nameresb4 = path + "/hitsRes_before_alignment_sector4.root";
-  TString nameresa4 = path + "/hitsRes_after_alignment_sector4.root";
+  TString nameresb0 = pathfull + "/hitsRes_before_alignment_sector0.root";
+  TString nameresa0 = pathfull + "/hitsRes_after_alignment_sector0.root";
+  TString nameresb1 = pathfull + "/hitsRes_before_alignment_sector1.root";
+  TString nameresa1 = pathfull + "/hitsRes_after_alignment_sector1.root";
+  TString nameresb2 = pathfull + "/hitsRes_before_alignment_sector2.root";
+  TString nameresa2 = pathfull + "/hitsRes_after_alignment_sector2.root";
+  TString nameresb3 = pathfull + "/hitsRes_before_alignment_sector3.root";
+  TString nameresa3 = pathfull + "/hitsRes_after_alignment_sector3.root";
+  TString nameresb4 = pathfull + "/hitsRes_before_alignment_sector4.root";
+  TString nameresa4 = pathfull + "/hitsRes_after_alignment_sector4.root";
 
   TFile *fresb0 = new TFile(nameresb0,"READ");
   if (fresb0->IsZombie()) {
@@ -195,7 +206,7 @@ TFile *fresb3 = new TFile(nameresb3,"READ");
   // /// END (Residuals) -----------------------------------------------------------------------
 
   ///Misalignment constants -----------------------------------------------------------------
-  TString namemisc = path + "/KnossosResults.root";
+  TString namemisc = pathfull + "/KnossosResults.root";
   TFile *fmisc = new TFile(namemisc,"READ");
   if (fmisc->IsZombie()) {
     std::cout << "!!! Error opening file " <<namemisc<< std::endl;

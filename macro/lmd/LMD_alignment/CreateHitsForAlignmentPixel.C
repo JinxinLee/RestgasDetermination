@@ -319,8 +319,8 @@ int main(int __argc,char *__argv[]) {
     //Load lumi geo params
     PndLmdDim *lmddim = PndLmdDim::Instance();
     // lmddim -> Read_transformation_matrices("matrices.txt", true);
-    lmddim -> Read_transformation_matrices("/PANDA/pandaroot/macro/lmd/matrices_perfect.txt", false);
-    lmddim -> Read_transformation_matrices("/PANDA/pandaroot/macro/lmd/matrices_corrected.txt", true);
+    lmddim -> Read_transformation_matrices("/panda/pandaroot/macro/lmd/matrices_perfect.txt", false);
+    lmddim -> Read_transformation_matrices("/panda/pandaroot/macro/lmd/matrices_corrected.txt", true);
 
   for (Int_t j=0; j<nEvents; j++){
     // Read REC tree -----------------------------------------------------------------
@@ -343,8 +343,9 @@ int main(int __argc,char *__argv[]) {
       Int_t candID = trk_lin->GetTCandID();
       PndTrackCand *trkcand = (PndTrackCand*)trkcand_array->At(candID);
       const int Ntrkcandhits= trkcand->GetNHits();
-      //      if(Ntrkcandhits<4) continue; //!!! TEST with 4 hits tracks only !!!
+      //  if(Ntrkcandhits<4) continue; //!!! TEST with 4 hits tracks only !!!
       if(Ntrkcandhits<3) continue; //!!! TEST with > 2 hits tracks only !!!
+      //      if(Ntrkcandhits<2) continue; //!!! TEST 
       //if(Ntrkcandhits>4) continue; //!!! TEST with single hits  only !!!
       double phiMCgl;
       //check if these hits are sutiable for sector aligment
@@ -389,10 +390,15 @@ int main(int __argc,char *__argv[]) {
 	  int ihalf, iplane, imodule, iside, idie, isensor;
 	  // calculate the plane and sensor on this plane
 	  lmddim->Get_sensor_by_id(sensorID, ihalf, iplane, imodule, iside, idie, isensor);
-	  
-	  //for alignment transform into sector system
+
 	  TVector3 HitPosLoc = lmddim->Transform_global_to_lmd_local(HitPos,false,true);
 	  HitPosLoc = lmddim->Transform_lmd_local_to_module_side(HitPosLoc,ihalf,0,imodule,0, false,true);
+	  
+	  // TVector3 HitPosLoc = lmddim->Transform_global_to_sensor(HitPos, ihalf, iplane, imodule, iside, idie, isensor,false,true);
+	  // HitPosLoc = lmddim->Transform_sensor_to_module_side(HitPosLoc,ihalf,0,imodule,0,idie, isensor,false,false);
+	  // //	  cout<<"ihalf, iplane, imodule, iside: "<<ihalf<<","<<iplane<<","<<imodule<<","<<iside<<endl;
+
+
 
 	  TVector3 mcTop,mcTopOUT;
 	  PndSdsClusterPixel* myCluster = (PndSdsClusterPixel*)(fStripClusterArray->At(myHit->GetClusterIndex()));
@@ -445,15 +451,14 @@ int main(int __argc,char *__argv[]) {
 	  if(sectorPos>10) glModule = ihalf*4*5+(iplane)*5+imodule;// counted per one half
 	  TMatrixD HitErr = myHit->GetCov();
  
-  // TVector3 HitPosLoc = lmddim->Transform_global_to_lmd_local(HitPos,false,true);
-  // // cout<<"1 step (LMD)"<<endl;
-  // // HitPosLoc.Print();
-  // HitPosLoc = lmddim->Transform_lmd_local_to_module_side(HitPosLoc,ihalf,0,imodule,0, false,true);
-  // // cout<<"2 step (sector)"<<endl;
-  // // HitPosLoc.Print();
 
   TMatrixD  HitErrLoc = lmddim->Transform_global_to_lmd_local(HitErr,true);
   HitErrLoc = lmddim->Transform_lmd_local_to_module_side(HitErrLoc,ihalf,0,imodule,0,true);
+
+ // TMatrixD  HitErrLoc = lmddim->Transform_global_to_sensor(HitErr, ihalf, iplane, imodule, iside, idie, isensor,true);
+ //  HitErrLoc = lmddim->Transform_sensor_to_module_side(HitErrLoc,ihalf,0,imodule,0,idie, isensor,false);
+  
+  //  HitErrLoc = lmddim->Transform_lmd_local_to_module_side(HitErrLoc,ihalf,iplane,imodule,0,true);//TEST
   nhits->Fill(HitPos.X(),HitPos.Y(),HitPos.Z(),mcMid.X(),mcMid.Y(),mcMid.Z(),sensorID,ihalf,iplane,imodule,iside,idie,isensor);
 	  int endtrk=1;
 	  if((Ntrkcandhits-iHit)>1) endtrk=0;
