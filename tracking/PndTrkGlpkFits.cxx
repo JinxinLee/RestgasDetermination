@@ -74,6 +74,7 @@ if(istampa>=3){
 
 
      if( nHitsinTrack < 2) {
+	*Type = false ;
         return -1;
      }
 //  use the trick of increasing the rotation angle by 10 degrees in order to obtain always a positive m
@@ -862,7 +863,7 @@ cout<<"cavolo, da sttmvdtracking : nRows = "<<nRows<<", NStructVar = "<<
 	);
 
 
-	if(status != 0) return -5 ;
+	if(status != 0) { *Type=false; return -5 ;}
 
 
 //--------stampaggi
@@ -905,7 +906,7 @@ if(istampa>2) cout<<"Results : m1 = "<<m1_result<<", m2= "<<m2_result<<", q1 = "
 
 //---------  case in which the fit failed
 	if( final_values[0]==0. && final_values[1]==0. && final_values[2]==0. &&final_values[3]==0. )
-		return -10;
+		{ *Type = false; return -10;}
 
 //------------------------  transformation of the result in terms of ALFA, BETA, GAMMA
 
