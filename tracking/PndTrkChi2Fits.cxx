@@ -143,21 +143,25 @@ Short_t PndTrkChi2Fits::FitHelixCylinder(
  }  // end of for(i=0; i<nHitsinTrack; i++)
 
 
-	dete = Suu * S1 - Su * Su;
-	if(fabs(dete) < 1e-10) return -5;   // fit fails;
+ dete = Suu * S1 - Su * Su;
+ if(fabs(dete) < 1e-10) { *Type = false;  return -5;}   // fit fails;
 
-	*emme = (Suv * S1 - Su * Sv)/dete;
-	*qu =  (Suu * Sv - Su * Suv)/dete;
-	// protect the extreme case of q=0 (in principle not possible, it would
-	// correspond to a straight line trajectory in the XY plane;
-	if( fabs(*qu) < 1.e-9 ) {
-		if ((*qu) > 0. ) *qu = 1.e-9 ; else *qu = -1.e-9;
-	}
+ *emme = (Suv * S1 - Su * Sv)/dete;
+ *qu =  (Suu * Sv - Su * Suv)/dete;
+ // protect the extreme case of q=0 (in principle not possible, it would
+ // correspond to a straight line trajectory  y = emme*x  in the XY plane;
+ if( fabs(*qu) < 1.e-9 ) {
+//		if ((*qu) > 0. ) *qu = 1.e-9 ; else *qu = -1.e-9;
+	*Type = false;
+	return -4 ; // fit fails;
+ } else {
+	*Type = true ;  // normal case;
+ }
 
  // calculate the output coefficients of the circumference in XY plane;
 
-	Alfa = (*emme)/(*qu);
-	Beta = -1./(*qu);
+ Alfa = (*emme)/(*qu);
+ Beta = -1./(*qu);
 
 //  now take into account the rotation and correct back; the affected quantities are ALFA and BETA,
 //  (*emme and *qu also but later);
@@ -175,8 +179,6 @@ Short_t PndTrkChi2Fits::FitHelixCylinder(
  // calculate the coefficients taking into account the translation;
  Alfa -=  2.*trajectory_vertex[0];
  Beta -=  2.*trajectory_vertex[1];
-
-
 
 
 // calculate  *emme and *qu using the newly calculated *pAlfa, *pBeta, *pGamma of the
