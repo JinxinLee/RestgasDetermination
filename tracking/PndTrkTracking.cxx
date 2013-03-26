@@ -1,5 +1,6 @@
 #include "glpk.h"
 #include "PndTrkTracking.h"
+#include "PndTrkBoundaryParStraws.h"
 #include "PndTrkChi2Fits.h"
 #include "PndTrkComparisonMCtruth.h"
 #include "PndTrkSttConformalFilling.h"
@@ -53,7 +54,6 @@
 // definition of constants used in this class
 
 // integer constants
-
 #define MAXHITSINCELL		20
 // the following MAXHITSINFIT cannot be too large because the fit
 // crashes 'silently' for too much memory consumption in the character arrays
@@ -480,6 +480,17 @@ if(doMcComparison >=1 ){
  fSttTubeArray = mapper->FillTubeArray();
  //----------------------------------------------------  end map
 
+// load the array indicating if a straw is exetrnal of not;
+// true -->  it is external; false --> it is internal;
+// remember that the numbering of the STT Straws starts at 1;
+	PndTrkBoundaryParStraws BoundaryParStraws ;
+	fExternal_Straws[0] = false;  // just to be super-safe;
+	for(int i=1;i<= NUMBER_STRAWS;i++){
+		fExternal_Straws[i] = BoundaryParStraws.Set(i);
+	}
+ //----------------------------------------------------
+
+
 //    get   the MCTrack  array
 
  fMCTrackArray = (TClonesArray*) ioman->GetObject("MCTrack");
@@ -686,7 +697,7 @@ void PndTrkTracking::Exec(Option_t* opt) {
 	k,
 	kall,
 	l,
-	tubeID,
+//	tubeID,
 	Charge[MAXTRACKSPEREVENT],
 	daTrackFoundaTrackMC[MAXTRACKSPEREVENT],
 	resultFitSZagain[MAXTRACKSPEREVENT],
@@ -814,11 +825,6 @@ void PndTrkTracking::Exec(Option_t* opt) {
 	ZED[MAXSTTHITSINTRACK+MAXMVDPIXELHITSINTRACK
 		+MAXMVDSTRIPHITSINTRACK+MAXSCITILHITSINTRACK];
 
-
-
-//---------------------------------------------------------------------------------------------------------------
-
-
  TVector3
 	ErrMomentum,
 	ErrPosition,
@@ -846,9 +852,9 @@ void PndTrkTracking::Exec(Option_t* opt) {
 
  // the class with all the fits. This is used for the SZ fit.
  bool YesGLPKfitSZ = false;
- PndTrkGlpkFits fit;  YesGLPKfitSZ=true;
+// PndTrkGlpkFits fit;  YesGLPKfitSZ=true;
 // PndTrkLegendreFits fit;
-// PndTrkChi2Fits fit;
+ PndTrkChi2Fits fit;
 
 //  reset the TClones Arrays of the PndTrackCand and PndTrack; it is necessary
 //  to do this for every event at the very beginning of the Exec (those TClones Arrays
@@ -859,7 +865,7 @@ void PndTrkTracking::Exec(Option_t* opt) {
 
 //------------------------------------
 
- IVOLTE++;	
+ IVOLTE++;
 
  if(istampa>0)
 	cout<<endl<<"Entering in PndTrkTrack : evt (starting from 0)  n. "<<IVOLTE<<endl;
@@ -995,8 +1001,10 @@ void PndTrkTracking::Exec(Option_t* opt) {
 	pSttHit = (PndSttHit *) fSttHitArray->At(i);
 	// right way to extract the corrisponding MC point.
 	ipunto= pSttHit->GetRefIndex();
-	tubeID = pSttHit->GetTubeID();
-	pSttTube = (PndSttTube *) fSttTubeArray->At(tubeID);
+//	tubeID = pSttHit->GetTubeID();
+	// fTubeID[i] = STT tubeID correspondint to the hit number i ;
+	fTubeID[i] = pSttHit->GetTubeID();
+	pSttTube = (PndSttTube *) fSttTubeArray->At(fTubeID[i]);
 	TVector3 center = pSttTube->GetPosition();
 	// drift radius
 	Double_t dradius = pSttHit->GetIsochrone();
@@ -1039,7 +1047,7 @@ void PndTrkTracking::Exec(Option_t* opt) {
 	}
 
  //  printout of the Stt hits;
- if (istampa >= 1 ) fPrint.stampaSttHits(i,ipunto,dradius,WDX,WDY,WDZ,puntator,pSttTube);
+ if (istampa >= 1 ) fPrint.stampaSttHits2(i,ipunto,dradius,WDX,WDY,WDZ,puntator,pSttTube,fTubeID[i]);
 
   }  //   end of for( i= 0; i< nSttHit; i++)
 
@@ -1056,6 +1064,7 @@ void PndTrkTracking::Exec(Option_t* opt) {
  MakeInclusionListStt(nSttHit, info);
 
 //-----------------------------------  end of exclusion of straws with multiple hits
+
 
 
 //-------------------------------------------- fetch the SciTil hits
@@ -1360,7 +1369,10 @@ if(istampa>0){
 //   begins the first iteration with more severe cuts on the # hits in track candidate
 
 int iconta=0;
- for(iParHit=0; iParHit<nSttParHit + 1 -  MINIMUMHITSPERTRACK ; iParHit++) {
+// for(iParHit=0; iParHit<nSttParHit + 1 -  MINIMUMHITSPERTRACK ; iParHit++) {
+ for(iParHit=0; iParHit<nSttParHit ; iParHit++) {
+	if( ! fInclusionListStt[fListSttParHits[iParHit]] )  continue;
+	if( !fExternal_Straws[fTubeID[fListSttParHits[iParHit]]] ) continue; // only seeds at the external boundary of the STT
 
 	if( nSttTrackCand >= MAXTRACKSPEREVENT) {
 		cout<<"from PndTrkTracking :  # n. Tracks found so far = "
@@ -1368,7 +1380,6 @@ int iconta=0;
 		 <<MAXTRACKSPEREVENT<<"); exiting from || hit loop.\n";
 		break;
 	}
-	if( ! fInclusionListStt[fListSttParHits[iParHit]] )  continue;
 iconta++;
 	// inputs for the FindTrackInXYProjection class;
 	input.iHit = iParHit;// seed hit in the PARALLEL number scheme; it is negative for SciTil Hits.
@@ -1549,7 +1560,7 @@ iconta++;
 
 //-------------- stampa
  if(istampa>=2){
-	cout<<"dopo MatchMvdHitsToSttTracks, evt. "<<IVOLTE<<endl;
+	cout<<"dopo MatchMvdHitsToSttTracks[1646], evt. "<<IVOLTE<<endl;
 	fPrint.stampetta(
 			IVOLTE,
 			keepit,
@@ -2059,20 +2070,6 @@ MAXMVDPIXELHITSINTRACK,MAXMVDSTRIPHITSINTRACK,MAXSCITILHITSINTRACK,MAXSTTHITSINT
 //-----------------------------------------------------------------------------------------
 //-----------------------------------------------------------------------------------------
 
-
-//----------------------
-
- // store the S info of the Mvd hits given the parameters of the Helix in XY; This info will not change
- // from now on because the radius and center of the Helix in XY won't change;
- // output : fMvdPixelS[MAXTRACKSPEREVENT][MAXMVDPIXELHITS] ;
- // output : fMvdStripS[MAXTRACKSPEREVENT][MAXMVDSTRIPHITS] ;
-
-	StoreMvdHitsS(nTotalCandidates);
-
-
-
-//---------------------
-
 // use the risult just obtained from the fit in XY to do the association of the Skew Straw hits
 
 
@@ -2128,23 +2125,6 @@ MAXMVDPIXELHITSINTRACK,MAXMVDSTRIPHITSINTRACK,MAXSCITILHITSINTRACK,MAXSTTHITSINT
 		fListSttSkewHitsinTrack[ncand][j]=TemporarySkewList[j][0];
 		fListSttSkewHitsinTrackSolution[ncand][j]=TemporarySkewList[j][1];
 	}
-	// save the Skew hit information for the last step of the track finding;
-	// the relevant info is stored in  the   i + ii*MAXSTTHITS location, where i is the Skew hit original
-	// number and ii =0,1 (solution 0 or 1);
-
-	fnSttSkewHitsinTrackSave[ncand] = fnSttSkewHitsinTrack[ncand];
-	for(i=0;i<fnSttSkewHitsinTrack[ncand];i++){
-		fListSttSkewHitsinTrackSave[ncand][i] = fListSttSkewHitsinTrack[ncand][i];
-		fListSttSkewHitsinTrackSolutionSave[ncand][i] = fListSttSkewHitsinTrackSolution[ncand][i];
-		//  save the S information
-		j = fListSttSkewHitsinTrack[ncand][i] + MAXSTTHITS*fListSttSkewHitsinTrackSolution[ncand][i];
-		SttSkewS[ncand][j] = TemporaryS[j] ;
-		SttSkewZ[ncand][j] = TemporaryZ[j] ;
-		SttSkewZDrift[ncand][j] = TemporaryZDrift[j] ;
-		SttSkewZErrorafterTilt[ncand][j] = TemporaryZErrorafterTilt[j] ;
-
-	}
-
 
 //-------------------------------------------  %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 //-------------- stampa
@@ -2208,13 +2188,13 @@ MAXMVDPIXELHITSINTRACK,MAXMVDSTRIPHITSINTRACK,MAXSCITILHITSINTRACK,MAXSTTHITSINT
 
 	// load the quantities needed for the SZ fit;
 
-	LoadSZetc_forSZfit2(
+	LoadSZetc_forSZfit(
 		ncand,	// input
 		nhitsinfit,
-		&SttSkewS[0][0],		// input, Skew hit info;
-		&SttSkewZ[0][0],		// input, Skew hit info;
-		&SttSkewZDrift[0][0],		// input, Skew hit info;
-		&SttSkewZErrorafterTilt[0][0],	// input, Skew hit info;
+		TemporaryS,		// input
+		TemporaryZ,		// input
+		TemporaryZDrift,	// input
+		TemporaryZErrorafterTilt,	// input
 		YesGLPKfitSZ,		// input
 
 		ErrorDriftRadius,	 // output
@@ -2249,12 +2229,31 @@ MAXMVDPIXELHITSINTRACK,MAXMVDSTRIPHITSINTRACK,MAXSCITILHITSINTRACK,MAXSTTHITSINT
  if(istampa>=2){
 	cout<<"\tstampa prima di FitSZspace, [non in Mvd track section] .\n";
 
-fPrint.stampetta(IVOLTE,keepit,&fListMvdPixelHitsinTrack[0][0],
-&fListMvdStripHitsinTrack[0][0],&fListSttParHitsinTrack[0][0],
-&fListSttSkewHitsinTrack[0][0],&fListSciTilHitsinTrack[0][0],fnMvdPixelHitsinTrack,fnMvdStripHitsinTrack,fnSttParHitsinTrack,
-fnSttSkewHitsinTrack,fnSciTilHitsinTrack,nSttTrackCand,
-ncand, // print the candidate  ncand;
-MAXMVDPIXELHITSINTRACK,MAXMVDSTRIPHITSINTRACK,MAXSCITILHITSINTRACK,MAXSTTHITSINTRACK,fR,fOx,fOy,FI0,KAPPA);
+	fPrint.stampetta(
+			IVOLTE,
+			keepit,
+			&fListMvdPixelHitsinTrack[0][0],
+			&fListMvdStripHitsinTrack[0][0],
+			&fListSttParHitsinTrack[0][0],
+			&fListSttSkewHitsinTrack[0][0],
+			&fListSciTilHitsinTrack[0][0],
+			fnMvdPixelHitsinTrack,
+			fnMvdStripHitsinTrack,
+			fnSttParHitsinTrack,
+			fnSttSkewHitsinTrack,
+			fnSciTilHitsinTrack,
+			nSttTrackCand,
+			ncand,	// prints aonly the  ncand-th candidate;
+			MAXMVDPIXELHITSINTRACK,
+			MAXMVDSTRIPHITSINTRACK,
+			MAXSCITILHITSINTRACK,
+			MAXSTTHITSINTRACK,
+			fR,
+			fOx,
+			fOy,
+			FI0,
+			KAPPA
+			);
  }
 //-------------- fine stampa
 //---------------------   here do the fit again in the SZ space if there are Mvd hits.
@@ -5209,170 +5208,6 @@ void PndTrkTracking::LoadSZetc_forSZfit(
 
 
 
-
-//----------begin function PndTrkTracking::LoadSZetc_forSZfit2
-
-
-void PndTrkTracking::LoadSZetc_forSZfit2(
-	Short_t ncand,	// input
-	Short_t nhitsinfit,
-	Double_t * Sskew,		// input, Skew hit info;
-	Double_t * Zskew,		// input, Skew hit info;
-	Double_t * ZDriftskew,	// input, Skew hit info;
-	Double_t * ZErrorafterTiltskew,	// input, Skew hit info;
-	bool YesGLPKfitSZ,		// input
-
-	Double_t * ErrorDriftRadius,	 // output
-	Double_t * ErrorDriftRadiusbis,	 // output
-	Double_t * DriftRadius,		 // output
-	Double_t * DriftRadiusbis,	 // output
-	Double_t * S,			 // output
-	Double_t * Sbis,		 // output
-	Double_t * ZED,			 // output
-	Double_t * ZEDbis		 // output
-	)
-{
- //---------------------   here calculate the S and Z values of Mvd Pixels, Mvd Strips,
- //	 Stt Skew hits and SciTil hits (if present).
-
- //  the difference between S and Sbis, ZED and ZEDbis, DriftRadius and DriftRadiusbis,
- //  ErrorDriftRadius and ErrorDriftRadiusbis, is that S, ZED etc. contain the list of
- //  Pixel+Strips+SciTil + other Skew Stt hits in case Pixel+Strips+SciTil are <= 2; instead
- //  Sbis, ZEDbis etc. contain Pixel+Strips+all Skew Stt hits.
-
-
-	int
-	i,
-	j,
-	k,
-	kall,
-	location;
-
-
-	// the Mvd Pixels hit
-	for(i=0; i< fnMvdPixelHitsinTrack[ncand]; i++){
-		k=fListMvdPixelHitsinTrack[ncand][i];
-		ZEDbis[i] = ZED[i] = fZMvdPixel[k];
-		S[i] = fMvdPixelS[ncand][k];
-		Sbis[i] = S[i];
-		// DriftRadius is set conventionally at -1, for later use in the SZ fit;
-		// the error on the point used in the fit is ErrorDriftRadius and this
-		// is overestimated to be  1cm.
-		DriftRadiusbis[i]=DriftRadius[i]=-1.;
-		if(YesGLPKfitSZ){
-		// the following is the error in case of GLPK fit;
-		 ErrorDriftRadiusbis[i]=ErrorDriftRadius[i]= 1. ;
-		} else{
-		// the following error is conventional for the chi**2 type of fit;
-		 ErrorDriftRadiusbis[i]=ErrorDriftRadius[i]= 0.5 ;
-		}
-	}
-	// the Mvd Strips hit
-	for(j=0, i = fnMvdPixelHitsinTrack[ncand]; j< fnMvdStripHitsinTrack[ncand]; j++){
-		k=fListMvdStripHitsinTrack[ncand][j];
-		ZEDbis[i] = ZED[i] = fZMvdStrip[k];
-		S[i] =fMvdStripS[ncand][k] ;
-		Sbis[i] = S[i] ;
-		// DriftRadius is set conventionally at -1, for later use in the SZ fit;
-		// the error on the point used in the fit is ErrorDriftRadius and this
-		// is overestimated to be  1cm.
-		DriftRadiusbis[i]=DriftRadius[i]=-1.;
-		if(YesGLPKfitSZ){
-		// the following is the error in case of GLPK fit;
-		 ErrorDriftRadiusbis[i]=ErrorDriftRadius[i]= 1. ;
-		} else {
-		// the following error is conventional for the chi**2 type of fit;
-		 ErrorDriftRadiusbis[i]=ErrorDriftRadius[i]= 0.5 ;
-		}
-		i ++;
-	}
-
-	// the SciTil hit ( when they are 2, the fS_SciTilHitsinTrack is already a mean
-	// of the two; then consider only 1 SciTil hit, the first, and make an average
-	// of the two Z positions).
-
-	i = fnMvdPixelHitsinTrack[ncand]+fnMvdStripHitsinTrack[ncand];
-	if(fnSciTilHitsinTrack[ncand]==2){
-		ZED[i]=0.5*(fposizSciTil[fListSciTilHitsinTrack[ncand][0]][2]+
-			fposizSciTil[fListSciTilHitsinTrack[ncand][1]][2]);
-		S[i] = fS_SciTilHitsinTrack[ncand][0];
-		// DriftRadius is set conventionally at -2, for later use in the SZ fit;
-		// the error on the point used in the fit is ErrorDriftRadius and this
-		// is overestimated to be DIMENSIONSCITIL/2.
-		DriftRadius[i]=-2.;
-		ErrorDriftRadius[i]= DIMENSIONSCITIL/2.; ;
-	} else if (fnSciTilHitsinTrack[ncand]==1){
-
-
-		ZED[i]=fposizSciTil[fListSciTilHitsinTrack[ncand][0]][2];
-		S[i] = fS_SciTilHitsinTrack[ncand][0];
-		// DriftRadius is set conventionally at -2, for later use in the SZ fit;
-		// the error on the point used in the fit is ErrorDriftRadius and this
-		// is overestimated to be DIMENSIONSCITIL/2.
-		DriftRadius[i]=-2.;
-		ErrorDriftRadius[i]= DIMENSIONSCITIL/2.; ;
-	}
-
-
-
-	// the Skew Stt hits
-	// the info on TemporaryS, TemporaryZ, TemporaryZDrift, TemporaryZErrorafterTilt  as follows :
-	// if   i  is the (original) Skew Hit number, and ii (0 or 1) is
-	// the solution according to the calculateintersections method ,
-	// then the infos are stored in the   i + ii*MAXSTTHITS location;
-
-	for(j=0;j<fnSttSkewHitsinTrack[ncand]; j++){
-
-		kall = fnMvdPixelHitsinTrack[ncand]+
-			fnMvdStripHitsinTrack[ncand]+j;
-		if( fnSciTilHitsinTrack[ncand] ==2 ){ // in this case only 1 SciTil hit
-						// has been considered above;
-		  i = fnMvdPixelHitsinTrack[ncand]+fnMvdStripHitsinTrack[ncand]+1+j;
-		} else {  // this is the case of 1 or 0 SciTil hits in track; the
-			//  (impossible?) case of > 2 SciTil hits has already been
-			//  prevented early in PndTrkCTFindTrackInXY.
-		  i = fnMvdPixelHitsinTrack[ncand]+fnMvdStripHitsinTrack[ncand]+
-			fnSciTilHitsinTrack[ncand] +j ;
-		}
-		// here :		k = Skew Hit number (original notation),
-		//  fListSttSkewHitsinTrackSolution[ncand][j] = number of the solution
-		// (0 or 1) according to the  calculateintersections method;
-		k=fListSttSkewHitsinTrack[ncand][j];
-		location = ncand*2*MAXSTTHITS +
-			fListSttSkewHitsinTrackSolution[ncand][j]*MAXSTTHITS +
-			fListSttSkewHitsinTrack[ncand][j];
-
-		// calculate the quantities used for the SZ fit only.
-		if(i<nhitsinfit){
-			S[i] = Sskew[location];
-			ZED[i]=Zskew[location];
-			DriftRadius[i]=ZDriftskew[location];
-			ErrorDriftRadius[i]=2.*ZDriftskew[location];  // conventional;
-		}
-		//-----------
-		ZEDbis[kall]=Zskew[location];
-		Sbis[kall]= Sskew[location];
-		DriftRadiusbis[kall]=ZDriftskew[location];
-		// overestimate the error on the Drift Radius used in the SZ  fit.
-		if( fabs(ZDriftskew[location]) >1.e-10) {
-		   ErrorDriftRadiusbis[kall]=ZErrorafterTiltskew[location];
-		} else {
-		   ErrorDriftRadiusbis[kall]=0.5;
-		}
-
-
-	}	//   end of  for(j=0;j<fnSttSkewHitsinTrack[ncand]; j++)
-
-
- return;
-}
-//----------end function PndTrkTracking::LoadSZetc_forSZfit2
-
-
-
-
-
-
 //--------------------------------  begin function   PndTrkTracking::MakeInclusionListStt
 
 
@@ -6952,47 +6787,13 @@ ErrorDriftRadiusconformal[MAXSTTHITSINTRACK+MAXMVDPIXELHITSINTRACK+MAXMVDSTRIPHI
 
 	//  existatus > 0, Type= true --> fit ok, it is a Circle in XY; 
 	//  existatus > 0, Type= false --> fit ok, it is a Straigh Line in XY; 
-	//  existatus < 0, fit failed. 
+	//  existatus < 0, fit failed;  Type was set to false in this case;
 	if( exitstatus > 0 && Type)	*status=true;
 	return;
 }
 
 
 //------------------ end function  PndTrkTracking::RefitMvdStt
-
-
-//------------------ end function  PndTrkTracking::StoreMvdHitsS
-  void PndTrkTracking::StoreMvdHitsS(
-	Short_t nTotalCandidates
-	)
-{
-   Short_t
-		i,
-		k,
-		ncand;
-//  dimensionality :	fMvdPixelS[MAXTRACKSPEREVENT][MAXMVDPIXELHITS],
-//			fMvdStripS[MAXTRACKSPEREVENT][MAXMVDSTRIPHITS];
-
-   for(ncand=0;ncand<nTotalCandidates;ncand++){
-
-	// the Mvd Pixels hit
-	for(i=0; i< fnMvdPixelHitsinTrack[ncand]; i++){
-		k=fListMvdPixelHitsinTrack[ncand][i];
-		fMvdPixelS[ncand][k] = atan2( fYMvdPixel[k]-fOy[ncand],fXMvdPixel[k]-fOx[ncand]);
-		if(fMvdPixelS[ncand][k]<0.) fMvdPixelS[ncand][k] +=2.*PI;
-	}
-	// the Mvd Strip hit
-	for(i=0; i< fnMvdStripHitsinTrack[ncand]; i++){
-		k=fListMvdStripHitsinTrack[ncand][i];
-		fMvdStripS[ncand][k] = atan2( fYMvdStrip[k]-fOy[ncand],fXMvdStrip[k]-fOx[ncand]);
-		if(fMvdStripS[ncand][k]<0.) fMvdStripS[ncand][k] +=2.*PI;
-	}
-   } // end of  for(ncand=0;ncand<nTotalCandidates;ncand++)
-
-	return;
-}
-//------------------ end function  PndTrkTracking::StoreMvdHit
-
 
 
 ClassImp(PndTrkTracking)
