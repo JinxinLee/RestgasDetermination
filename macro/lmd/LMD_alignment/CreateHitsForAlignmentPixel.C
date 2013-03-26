@@ -319,8 +319,16 @@ int main(int __argc,char *__argv[]) {
     //Load lumi geo params
     PndLmdDim *lmddim = PndLmdDim::Instance();
     // lmddim -> Read_transformation_matrices("matrices.txt", true);
+    //  TString mtx_perfect = storePath+"matrices_perfect.txt";
+    //    TString mtx_perfect = "${VMCWORKDIR}/macro/lmd/matrices_perfect.txt";
+
+    TString mtx_corr =  storePath+"/matrices_corrected.txt";
+    //    lmddim -> Read_transformation_matrices(mtx_perfect.Data(), false);
     lmddim -> Read_transformation_matrices("/panda/pandaroot/macro/lmd/matrices_perfect.txt", false);
-    lmddim -> Read_transformation_matrices("/panda/pandaroot/macro/lmd/matrices_corrected.txt", true);
+    lmddim -> Read_transformation_matrices(mtx_corr.Data(), true);
+
+    // 
+    // lmddim -> Read_transformation_matrices("/panda/pandaroot/macro/lmd/matrices_corrected.txt", true);
 
   for (Int_t j=0; j<nEvents; j++){
     // Read REC tree -----------------------------------------------------------------
