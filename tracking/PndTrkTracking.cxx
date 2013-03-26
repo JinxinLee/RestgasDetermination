@@ -550,12 +550,13 @@ if(doMcComparison >=1 ){
 
 //  -------------------------   get the Mvd track candidates
 
- fMvdTrackCandArray = (TClonesArray*) ioman->GetObject("MVDRiemannTrackCand");
- if ( !fMvdTrackCandArray){
-	cout << "-W- PndTrkTracking::Init: " << "No MVD TrackCand Array, return!" <<endl;
-	return kERROR;
+ if ( fMvdAloneTracking ){
+	fMvdTrackCandArray = (TClonesArray*) ioman->GetObject("MVDRiemannTrackCand");
+	if ( !fMvdTrackCandArray){
+		cout << "-W- PndTrkTracking::Init: " << "No MVD TrackCand Array, return!" <<endl;
+		return kERROR;
+	}
  }
-
  cout << "-I- PndTrkTracking: Initialization successfull" << endl;
 
 //  -------------------------   get the Mvd MC points
