@@ -108,7 +108,8 @@ fIcounter=IVOLTE;
 		&Theta  // output parameter of the straight line; Xcos(Theta)+Y*sin(Theta)=R;
 				);
 
- if (result<0) return result;
+ if (result<0) { *Type=false; return result;}
+ 
 
  cosT = cos(Theta);
  sinT = sin(Theta);
