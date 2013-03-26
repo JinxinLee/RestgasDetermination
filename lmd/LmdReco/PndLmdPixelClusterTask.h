@@ -36,6 +36,7 @@ class PndLmdPixelClusterTask : public PndSdsPixelClusterTask
     void SetMSflag(bool fflag){flagMS = fflag;};
     InitStatus Init();
 
+    void SetMtxPath(TString _path){mtxpath = _path;};
     ClassDef(PndLmdPixelClusterTask,3);
 
  private:
@@ -52,6 +53,7 @@ class PndLmdPixelClusterTask : public PndSdsPixelClusterTask
     /* vector<double> fRotateX,fRotateY,fRotateZ; */
     bool readAlign;
     PndLmdDim* lmddim;
+    TString mtxpath;//path to file(s) with geometry matrix
 };
 
 #endif /* LMDCLUSTERTASK_H */
