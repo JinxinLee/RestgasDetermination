@@ -945,25 +945,21 @@ void PndTrkTracking::Exec(Option_t* opt) {
 
 // ------------------------------------------ get info from trackcand  of MVD
 
-  fnMvdTrackCand = fMvdTrackCandArray->GetEntriesFast();
+ if( fMvdAloneTracking ){
+	fnMvdTrackCand = fMvdTrackCandArray->GetEntriesFast();
+	if (fnMvdTrackCand> MAXMVDTRACKSPEREVENT) {
+		cout<<"da PndTrkTracking  :  N. of MvdTrackCand = "<<
+		fnMvdTrackCand<<" and it is > MAXMVDTRACKSPEREVENT (="<<MAXMVDTRACKSPEREVENT
+		<<"),  therefore it is set to "<<MAXMVDTRACKSPEREVENT<<endl;
+		fnMvdTrackCand= MAXMVDTRACKSPEREVENT;
+		ExtractInfoFromMvdTrackCand();
+	}
 
-
- if (fnMvdTrackCand> MAXMVDTRACKSPEREVENT) {
-	cout<<"da PndTrkTracking  :  N. of MvdTrackCand = "<<
-	fnMvdTrackCand<<" and it is > MAXMVDTRACKSPEREVENT (="<<MAXMVDTRACKSPEREVENT
-	<<"),  therefore it is set to "<<MAXMVDTRACKSPEREVENT<<endl;
-	fnMvdTrackCand= MAXMVDTRACKSPEREVENT;
+ } else {
+	fnMvdTrackCand=0;
  }
 
 
-
-
-// -----------------------more info from Mvd trackcand.
-
-
- ExtractInfoFromMvdTrackCand();
-
-// -----------------------------------
 
 
 
