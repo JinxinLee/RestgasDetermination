@@ -1424,17 +1424,11 @@ iconta++;
 
 
  for(i=0; i<nSttTrackCand;i++){
-	// initialization of important arrays used later;
-//	keepit[i]=true;
-
-	//  flag indicating if the skew sector info
-	//  has completed the parameter info;
-	//  a priori this is set false.
 
 	//  set FI0 now; FI0 may be changed later in case there is a SZ fitting
 	FI0[i]=Fi_initial_helix_referenceframe[i];
 
-	// flag of a good fit in SZ space;
+	// flag of a good fit in SZ space; later they will be set at true if fit in SZ is successful;
 	GoodSkewFit[i]=false;
 	fnSttSkewHitsinTrack[i]=0;
 
@@ -1446,30 +1440,11 @@ iconta++;
 	cout<<"from PndTrkTracking, before Ordering, after primo loop sui paralleli.\n";
 	cout<<"\tevt. n. "<<IVOLTE<<", n. di cicli fatti nel primo loop "<<iconta<<endl;
 	fPrint.stampetta(
-			IVOLTE,
-			keepit,
-			&fListMvdPixelHitsinTrack[0][0],
-			&fListMvdStripHitsinTrack[0][0],
-			&fListSttParHitsinTrack[0][0],
-			&fListSttSkewHitsinTrack[0][0],
-			&fListSciTilHitsinTrack[0][0],
-			fnMvdPixelHitsinTrack,
-			fnMvdStripHitsinTrack,
-			fnSttParHitsinTrack,
-			fnSttSkewHitsinTrack,
-			fnSciTilHitsinTrack,
-			nSttTrackCand,
-			-1,	// this means : print all candidates;
-			MAXMVDPIXELHITSINTRACK,
-			MAXMVDSTRIPHITSINTRACK,
-			MAXSCITILHITSINTRACK,
-			MAXSTTHITSINTRACK,
-			fR,
-			fOx,
-			fOy,
-			FI0,
-			KAPPA
-			);
+IVOLTE,keepit,&fListMvdPixelHitsinTrack[0][0],&fListMvdStripHitsinTrack[0][0],
+&fListSttParHitsinTrack[0][0],&fListSttSkewHitsinTrack[0][0],&fListSciTilHitsinTrack[0][0],
+fnMvdPixelHitsinTrack,fnMvdStripHitsinTrack,fnSttParHitsinTrack,fnSttSkewHitsinTrack,
+fnSciTilHitsinTrack,nSttTrackCand,-1,MAXMVDPIXELHITSINTRACK,MAXMVDSTRIPHITSINTRACK,
+MAXSCITILHITSINTRACK,MAXSTTHITSINTRACK,fR,fOx,fOy,FI0,KAPPA);
  }
 //-------------- fine stampa
 
@@ -1559,30 +1534,11 @@ iconta++;
  if(istampa>=2){
 	cout<<"dopo MatchMvdHitsToSttTracks[1646], evt. "<<IVOLTE<<endl;
 	fPrint.stampetta(
-			IVOLTE,
-			keepit,
-			&fListMvdPixelHitsinTrack[0][0],
-			&fListMvdStripHitsinTrack[0][0],
-			&fListSttParHitsinTrack[0][0],
-			&fListSttSkewHitsinTrack[0][0],
-			&fListSciTilHitsinTrack[0][0],
-			fnMvdPixelHitsinTrack,
-			fnMvdStripHitsinTrack,
-			fnSttParHitsinTrack,
-			fnSttSkewHitsinTrack,
-			fnSciTilHitsinTrack,
-			nSttTrackCand,
-			-1,	// this means : print all Candidates;
-			MAXMVDPIXELHITSINTRACK,
-			MAXMVDSTRIPHITSINTRACK,
-			MAXSCITILHITSINTRACK,
-			MAXSTTHITSINTRACK,
-			fR,
-			fOx,
-			fOy,
-			FI0,
-			KAPPA
-			);
+IVOLTE,keepit,&fListMvdPixelHitsinTrack[0][0],&fListMvdStripHitsinTrack[0][0],
+&fListSttParHitsinTrack[0][0],&fListSttSkewHitsinTrack[0][0],&fListSciTilHitsinTrack[0][0],
+fnMvdPixelHitsinTrack,fnMvdStripHitsinTrack,fnSttParHitsinTrack,fnSttSkewHitsinTrack,
+fnSciTilHitsinTrack,nSttTrackCand,-1,MAXMVDPIXELHITSINTRACK,MAXMVDSTRIPHITSINTRACK,
+MAXSCITILHITSINTRACK,MAXSTTHITSINTRACK,fR,fOx,fOy,FI0,KAPPA);
  }
 //-------------- fine stampa
 
@@ -1712,32 +1668,12 @@ iconta++;
 
 //-------------- stampa
  if(istampa>=2){
-	cout<<"\tstampa dopo ordering,    prima di refit.\n";
 	fPrint.stampetta(
-			IVOLTE,
-			keepit,
-			&fListMvdPixelHitsinTrack[0][0],
-			&fListMvdStripHitsinTrack[0][0],
-			&fListSttParHitsinTrack[0][0],
-			&fListSttSkewHitsinTrack[0][0],
-			&fListSciTilHitsinTrack[0][0],
-			fnMvdPixelHitsinTrack,
-			fnMvdStripHitsinTrack,
-			fnSttParHitsinTrack,
-			fnSttSkewHitsinTrack,
-			fnSciTilHitsinTrack,
-			nSttTrackCand,
-			-1,	// this means : print all candidates;
-			MAXMVDPIXELHITSINTRACK,
-			MAXMVDSTRIPHITSINTRACK,
-			MAXSCITILHITSINTRACK,
-			MAXSTTHITSINTRACK,
-			fR,
-			fOx,
-			fOy,
-			FI0,
-			KAPPA
-			);
+IVOLTE,keepit,&fListMvdPixelHitsinTrack[0][0],&fListMvdStripHitsinTrack[0][0],
+&fListSttParHitsinTrack[0][0],&fListSttSkewHitsinTrack[0][0],&fListSciTilHitsinTrack[0][0],
+fnMvdPixelHitsinTrack,fnMvdStripHitsinTrack,fnSttParHitsinTrack,fnSttSkewHitsinTrack,
+fnSciTilHitsinTrack,nSttTrackCand,-1,MAXMVDPIXELHITSINTRACK,MAXMVDSTRIPHITSINTRACK,
+MAXSCITILHITSINTRACK,MAXSTTHITSINTRACK,fR,fOx,fOy,FI0,KAPPA);
  }
 //-------------- fine stampa
 
@@ -1990,31 +1926,13 @@ if(istampa>=2){
 //-------------- stampa
  if(istampa>=2){
 	cout<<"\tstampa dopo il Refit.\n";
+
 	fPrint.stampetta(
-			IVOLTE,
-			keepit,
-			&fListMvdPixelHitsinTrack[0][0],
-			&fListMvdStripHitsinTrack[0][0],
-			&fListSttParHitsinTrack[0][0],
-			&fListSttSkewHitsinTrack[0][0],
-			&fListSciTilHitsinTrack[0][0],
-			fnMvdPixelHitsinTrack,
-			fnMvdStripHitsinTrack,
-			fnSttParHitsinTrack,
-			fnSttSkewHitsinTrack,
-			fnSciTilHitsinTrack,
-			nSttTrackCand,
-			-1, //  print all candidates;
-			MAXMVDPIXELHITSINTRACK,
-			MAXMVDSTRIPHITSINTRACK,
-			MAXSCITILHITSINTRACK,
-			MAXSTTHITSINTRACK,
-			fR,
-			fOx,
-			fOy,
-			FI0,
-			KAPPA
-			);
+IVOLTE,keepit,&fListMvdPixelHitsinTrack[0][0],&fListMvdStripHitsinTrack[0][0],
+&fListSttParHitsinTrack[0][0],&fListSttSkewHitsinTrack[0][0],&fListSciTilHitsinTrack[0][0],
+fnMvdPixelHitsinTrack,fnMvdStripHitsinTrack,fnSttParHitsinTrack,fnSttSkewHitsinTrack,
+fnSciTilHitsinTrack,nSttTrackCand,-1,MAXMVDPIXELHITSINTRACK,MAXMVDSTRIPHITSINTRACK,
+MAXSCITILHITSINTRACK,MAXSTTHITSINTRACK,fR,fOx,fOy,FI0,KAPPA);
  }
 //-------------- fine stampa
 
@@ -2041,16 +1959,21 @@ if(istampa>=2){
 			fnMvdStripHitsinTrack, // input and output
 			fListMvdStripHitsinTrack // input and output
 			);
-
-
-
   } // end of  if(fnMvdPixelHit+fnMvdStripHit>0)
+
+//---------------------
+// check if the track candidate has still at least 2 axial hits;
+  for(ncand=0; ncand< nTotalCandidates; ncand++)
+  {
+	if( fnMvdPixelHitsinTrack[ncand]+fnMvdStripHitsinTrack[ncand]+fnSttParHitsinTrack[ncand]<2) keepit[ncand]=false;
+  }  // end of for(ncand=0; ncand< nTotalCandidates; ncand++)
 //---------------------   %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 
 //-------------- stampa
  if(istampa>=2){
-cout<<"\tstampa dopo il Match Again.\n";fPrint.stampetta(IVOLTE,keepit,&fListMvdPixelHitsinTrack[0][0],
+cout<<"\tstampa dopo il Match Again.\n";
+fPrint.stampetta(IVOLTE,keepit,&fListMvdPixelHitsinTrack[0][0],
 &fListMvdStripHitsinTrack[0][0],&fListSttParHitsinTrack[0][0],
 &fListSttSkewHitsinTrack[0][0],&fListSciTilHitsinTrack[0][0],fnMvdPixelHitsinTrack,fnMvdStripHitsinTrack,fnSttParHitsinTrack,
 fnSttSkewHitsinTrack,fnSciTilHitsinTrack,nSttTrackCand,
@@ -2225,32 +2148,13 @@ MAXMVDPIXELHITSINTRACK,MAXMVDSTRIPHITSINTRACK,MAXSCITILHITSINTRACK,MAXSTTHITSINT
 //-------------- stampa
  if(istampa>=2){
 	cout<<"\tstampa prima di FitSZspace, [non in Mvd track section] .\n";
-
 	fPrint.stampetta(
-			IVOLTE,
-			keepit,
-			&fListMvdPixelHitsinTrack[0][0],
-			&fListMvdStripHitsinTrack[0][0],
-			&fListSttParHitsinTrack[0][0],
-			&fListSttSkewHitsinTrack[0][0],
-			&fListSciTilHitsinTrack[0][0],
-			fnMvdPixelHitsinTrack,
-			fnMvdStripHitsinTrack,
-			fnSttParHitsinTrack,
-			fnSttSkewHitsinTrack,
-			fnSciTilHitsinTrack,
-			nSttTrackCand,
-			ncand,	// prints aonly the  ncand-th candidate;
-			MAXMVDPIXELHITSINTRACK,
-			MAXMVDSTRIPHITSINTRACK,
-			MAXSCITILHITSINTRACK,
-			MAXSTTHITSINTRACK,
-			fR,
-			fOx,
-			fOy,
-			FI0,
-			KAPPA
-			);
+IVOLTE,keepit,&fListMvdPixelHitsinTrack[0][0],&fListMvdStripHitsinTrack[0][0],
+&fListSttParHitsinTrack[0][0],&fListSttSkewHitsinTrack[0][0],&fListSciTilHitsinTrack[0][0],
+fnMvdPixelHitsinTrack,fnMvdStripHitsinTrack,fnSttParHitsinTrack,fnSttSkewHitsinTrack,
+fnSciTilHitsinTrack,nSttTrackCand,ncand,MAXMVDPIXELHITSINTRACK,MAXMVDSTRIPHITSINTRACK,
+MAXSCITILHITSINTRACK,MAXSTTHITSINTRACK,fR,fOx,fOy,FI0,KAPPA);
+
  }
 //-------------- fine stampa
 //---------------------   here do the fit again in the SZ space if there are Mvd hits.
@@ -2499,30 +2403,11 @@ MAXSCITILHITSINTRACK,MAXSTTHITSINTRACK,fR,fOx,fOy,FI0,KAPPA);
  if(istampa>=2){
 	cout<<"\tstampa dopo il Cleanup piccolo\n";
 	fPrint.stampetta(
-			IVOLTE,
-			keepit,
-			&fListMvdPixelHitsinTrack[0][0],
-			&fListMvdStripHitsinTrack[0][0],
-			&fListSttParHitsinTrack[0][0],
-			&fListSttSkewHitsinTrack[0][0],
-			&fListSciTilHitsinTrack[0][0],
-			fnMvdPixelHitsinTrack,
-			fnMvdStripHitsinTrack,
-			fnSttParHitsinTrack,
-			fnSttSkewHitsinTrack,
-			fnSciTilHitsinTrack,
-			nSttTrackCand,
-			-1, // print all the candidates;
-			MAXMVDPIXELHITSINTRACK,
-			MAXMVDSTRIPHITSINTRACK,
-			MAXSCITILHITSINTRACK,
-			MAXSTTHITSINTRACK,
-			fR,
-			fOx,
-			fOy,
-			FI0,
-			KAPPA
-			);
+IVOLTE,keepit,&fListMvdPixelHitsinTrack[0][0],&fListMvdStripHitsinTrack[0][0],
+&fListSttParHitsinTrack[0][0],&fListSttSkewHitsinTrack[0][0],&fListSciTilHitsinTrack[0][0],
+fnMvdPixelHitsinTrack,fnMvdStripHitsinTrack,fnSttParHitsinTrack,fnSttSkewHitsinTrack,
+fnSciTilHitsinTrack,nSttTrackCand,-1,MAXMVDPIXELHITSINTRACK,MAXMVDSTRIPHITSINTRACK,
+MAXSCITILHITSINTRACK,MAXSTTHITSINTRACK,fR,fOx,fOy,FI0,KAPPA);
  }
 //-------------- fine stampa
 
@@ -2544,35 +2429,32 @@ MAXSCITILHITSINTRACK,MAXSTTHITSINTRACK,fR,fOx,fOy,FI0,KAPPA);
 			fnSttParHitsinTrack, // input and output
 			fListSttParHitsinTrack // input and output
 			);
+//-------------------------------
+  for(ncand=0; ncand< nTotalCandidates; ncand++){
+	// check if the track candidate has still at least 2 axial hits;
+	if( fnMvdPixelHitsinTrack[ncand]+fnMvdStripHitsinTrack[ncand]+fnSttParHitsinTrack[ncand]<2){
+		keepit[ncand]=false;
+		continue;
+	}
+
+	// limit the total # Stt hits to MAXSTTHITSINTRACK
+	if( fnSttSkewHitsinTrack[ncand]+fnSttParHitsinTrack[ncand] > MAXSTTHITSINTRACK ) {
+	  if(MAXSTTHITSINTRACK > fnSttSkewHitsinTrack[ncand])
+		fnSttParHitsinTrack[ncand]=MAXSTTHITSINTRACK-fnSttSkewHitsinTrack[ncand];
+	  else fnSttParHitsinTrack[ncand]=0;
+	}
+  }
+//---------------
 
 //-------------- stampa
  if(istampa>=2){
 	cout<<"\tstampa dopo CollectParSttHitsagain\n";
 	fPrint.stampetta(
-			IVOLTE,
-			keepit,
-			&fListMvdPixelHitsinTrack[0][0],
-			&fListMvdStripHitsinTrack[0][0],
-			&fListSttParHitsinTrack[0][0],
-			&fListSttSkewHitsinTrack[0][0],
-			&fListSciTilHitsinTrack[0][0],
-			fnMvdPixelHitsinTrack,
-			fnMvdStripHitsinTrack,
-			fnSttParHitsinTrack,
-			fnSttSkewHitsinTrack,
-			fnSciTilHitsinTrack,
-			nSttTrackCand,
-			-1,	// print all candidates;
-			MAXMVDPIXELHITSINTRACK,
-			MAXMVDSTRIPHITSINTRACK,
-			MAXSCITILHITSINTRACK,
-			MAXSTTHITSINTRACK,
-			fR,
-			fOx,
-			fOy,
-			FI0,
-			KAPPA
-			);
+IVOLTE,keepit,&fListMvdPixelHitsinTrack[0][0],&fListMvdStripHitsinTrack[0][0],
+&fListSttParHitsinTrack[0][0],&fListSttSkewHitsinTrack[0][0],&fListSciTilHitsinTrack[0][0],
+fnMvdPixelHitsinTrack,fnMvdStripHitsinTrack,fnSttParHitsinTrack,fnSttSkewHitsinTrack,
+fnSciTilHitsinTrack,nSttTrackCand,-1,MAXMVDPIXELHITSINTRACK,MAXMVDSTRIPHITSINTRACK,
+MAXSCITILHITSINTRACK,MAXSTTHITSINTRACK,fR,fOx,fOy,FI0,KAPPA);
  }
 //-------------- fine stampa
 
@@ -2583,16 +2465,6 @@ MAXSCITILHITSINTRACK,MAXSTTHITSINTRACK,fR,fOx,fOy,FI0,KAPPA);
 //	fListTrackCandHit, fListTrackCandHitType, fListSttParHitsinTrack, fListSttSkewHitsinTrack
 //	and also at the end the SciTil hit (if present) is added.
 
-//-------------------------------
-  for(ncand=0; ncand< nTotalCandidates; ncand++){
-	// limit the total # Stt hits to MAXSTTHITSINTRACK
-	if( fnSttSkewHitsinTrack[ncand]+fnSttParHitsinTrack[ncand] > MAXSTTHITSINTRACK ) {
-	  if(MAXSTTHITSINTRACK > fnSttSkewHitsinTrack[ncand])
-		fnSttParHitsinTrack[ncand]=MAXSTTHITSINTRACK-fnSttSkewHitsinTrack[ncand];
-	  else fnSttParHitsinTrack[ncand]=0;
-	}
-  }
-//---------------
 
 	Ordering_Loading_ListTrackCandHit(
 		keepit,
@@ -2630,31 +2502,12 @@ MAXSCITILHITSINTRACK,MAXSTTHITSINTRACK,fR,fOx,fOy,FI0,KAPPA);
 //-------------- stampa
  if(istampa>=2){
 	cout<<"\tstampa prima del Cleanup grosso\n";
-	fPrint.stampetta(
-			IVOLTE,
-			keepit,
-			&fListMvdPixelHitsinTrack[0][0],
-			&fListMvdStripHitsinTrack[0][0],
-			&fListSttParHitsinTrack[0][0],
-			&fListSttSkewHitsinTrack[0][0],
-			&fListSciTilHitsinTrack[0][0],
-			fnMvdPixelHitsinTrack,
-			fnMvdStripHitsinTrack,
-			fnSttParHitsinTrack,
-			fnSttSkewHitsinTrack,
-			fnSciTilHitsinTrack,
-			nSttTrackCand,
-			-1,	// print all candidates;
-			MAXMVDPIXELHITSINTRACK,
-			MAXMVDSTRIPHITSINTRACK,
-			MAXSCITILHITSINTRACK,
-			MAXSTTHITSINTRACK,
-			fR,
-			fOx,
-			fOy,
-			FI0,
-			KAPPA
-			);
+fPrint.stampetta(IVOLTE,keepit,&fListMvdPixelHitsinTrack[0][0],
+&fListMvdStripHitsinTrack[0][0],&fListSttParHitsinTrack[0][0],
+&fListSttSkewHitsinTrack[0][0],&fListSciTilHitsinTrack[0][0],fnMvdPixelHitsinTrack,fnMvdStripHitsinTrack,fnSttParHitsinTrack,
+fnSttSkewHitsinTrack,fnSciTilHitsinTrack,nSttTrackCand,
+-1, // print all candidates;
+MAXMVDPIXELHITSINTRACK,MAXMVDSTRIPHITSINTRACK,MAXSCITILHITSINTRACK,MAXSTTHITSINTRACK,fR,fOx,fOy,FI0,KAPPA);
  }
 //-------------- fine stampa
 
