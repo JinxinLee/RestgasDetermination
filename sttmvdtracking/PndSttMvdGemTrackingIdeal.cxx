@@ -150,6 +150,7 @@ void PndSttMvdGemTrackingIdeal::Exec(Option_t * option)
   std::map<Int_t, FairMCPoint*> firstPoint;
   std::map<Int_t, FairMCPoint*> lastPoint;
   std::map<Int_t, PndTrackCand*> candlist;
+  Double_t rho=0., rho2;
   for(Int_t iDet=0;iDet<4;iDet++){
     if (kFALSE == fBranchActive[iDet]) continue; //skip manually switched off detector
     if(fVerbose>4) Info("Exec","Use detector %i",iDet);
@@ -184,12 +185,15 @@ void PndSttMvdGemTrackingIdeal::Exec(Option_t * option)
         if(fVerbose>5) Info("Exec","Create new PndTrack object finished %i",trackID);
       }
       if(fVerbose>5) Info("Exec","add the hit %i to trackcand %i",ih,trackID);
-      cand->AddHit(fBranchIDs[iDet],ih,ghit->GetZ());
-      if(!firstHit[trackID] || firstHit[trackID]->GetZ() > ghit->GetZ()) {
+      rho=ghit->GetX()*ghit->GetX()+ghit->GetY()*ghit->GetY();
+      cand->AddHit(fBranchIDs[iDet],ih,rho);
+      rho2=firstHit[trackID]->GetX()*firstHit[trackID]->GetX()+firstHit[trackID]->GetY()*firstHit[trackID]->GetY();
+      if(!firstHit[trackID] || rho2 > rho ){
         firstHit[trackID]=ghit;
         firstPoint[trackID]=myPoint;
       }
-      if(!lastHit[trackID] || lastHit[trackID]->GetZ() < ghit->GetZ()) {
+      rho2=lastHit[trackID]->GetX()*lastHit[trackID]->GetX()+lastHit[trackID]->GetY()*lastHit[trackID]->GetY();
+      if(!lastHit[trackID] || rho2 < rho ){
         lastHit[trackID]=ghit;
         lastPoint[trackID]=myPoint;
       }
