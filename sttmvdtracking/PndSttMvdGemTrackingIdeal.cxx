@@ -69,7 +69,7 @@ InitStatus PndSttMvdGemTrackingIdeal::Init() {
     return kERROR;
   }
   
-  //FTS
+  //STT
   fMCPoints[0] = (TClonesArray*)fManager->GetObject("STTPoint");
   if ( ! fMCPoints[0] ) {
     std::cout << "-W-  PndSttMvdGemTrackingIdeal::Init: No STTPoint array!" << std::endl;
@@ -187,15 +187,25 @@ void PndSttMvdGemTrackingIdeal::Exec(Option_t * option)
       if(fVerbose>5) Info("Exec","add the hit %i to trackcand %i",ih,trackID);
       rho=ghit->GetX()*ghit->GetX()+ghit->GetY()*ghit->GetY();
       cand->AddHit(fBranchIDs[iDet],ih,rho);
-      rho2=firstHit[trackID]->GetX()*firstHit[trackID]->GetX()+firstHit[trackID]->GetY()*firstHit[trackID]->GetY();
-      if(!firstHit[trackID] || rho2 > rho ){
+      if(!firstHit[trackID]){
         firstHit[trackID]=ghit;
         firstPoint[trackID]=myPoint;
+      } else {
+        rho2=firstHit[trackID]->GetX()*firstHit[trackID]->GetX()+firstHit[trackID]->GetY()*firstHit[trackID]->GetY();
+        if(rho2 > rho ){
+        firstHit[trackID]=ghit;
+        firstPoint[trackID]=myPoint;
+        }
       }
-      rho2=lastHit[trackID]->GetX()*lastHit[trackID]->GetX()+lastHit[trackID]->GetY()*lastHit[trackID]->GetY();
-      if(!lastHit[trackID] || rho2 < rho ){
+      if(!lastHit[trackID]){
         lastHit[trackID]=ghit;
         lastPoint[trackID]=myPoint;
+      } else {
+        rho2=lastHit[trackID]->GetX()*lastHit[trackID]->GetX()+lastHit[trackID]->GetY()*lastHit[trackID]->GetY();
+        if(rho2 < rho ){
+          lastHit[trackID]=ghit;
+          lastPoint[trackID]=myPoint;
+        }
       }
       
       candlist[trackID] = cand; // set
@@ -265,6 +275,7 @@ void PndSttMvdGemTrackingIdeal::Exec(Option_t * option)
   }
   
   if(fVerbose>3) Info("Exec","End eventloop.");
+  return;
 }
 
 //_________________________________________________________________
