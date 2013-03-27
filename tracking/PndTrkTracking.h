@@ -10,6 +10,7 @@
 #include "PndSttTrack.h"
 #include "PndSttTrackFinder.h"
 #include "PndSttTube.h"
+#include "PndTrkVectors.h"
 
 #include "TClonesArray.h"
 #include "TList.h"
@@ -353,8 +354,8 @@ class PndTrkTracking : public FairTask
 
 
   void CollectParSttHitsagain(
-	bool *keepit,
-	bool *Mvdhits,
+	Vec <bool>& keepit,
+	Vec <bool>& Mvdhits,
 	Double_t info[][7],
 	Short_t nSttParHit,
 	Short_t StartTrackCand,
@@ -444,7 +445,7 @@ class PndTrkTracking : public FairTask
 
   void FixDiscontinuitiesFiangleinSZplane(
 	Short_t TemporarynSkewHitsinTrack,
-	Double_t *S,
+	Vec <Double_t> & S,
 	Double_t *Fi_initial_helix_referenceframe,
 	Short_t Charge
 	);
@@ -471,10 +472,10 @@ class PndTrkTracking : public FairTask
 
 
   void LoadPndTrack_TrackCand(
-	bool *keepit,
-	bool *SttSZfit,
+	Vec <bool>& keepit,
+	Vec <bool>& SttSZfit,
 	Short_t nTotalCandidates,
-	Short_t *Charge,
+	Vec <Short_t>& Charge,
 	Int_t nSttTrackCand,
 	Double_t *FI0,
 	Double_t *KAPPA,
@@ -486,21 +487,21 @@ class PndTrkTracking : public FairTask
 
 
   void LoadSZetc_forSZfit(
-	Short_t ncand,			// input
-	Short_t nhitsinfit,		// input
+	Short_t ncand,	// input
+	Short_t nhitsinfit,
 	Double_t * TemporaryS,		// input
 	Double_t * TemporaryZ,		// input
 	Double_t * TemporaryZDrift,	// input
 	Double_t * TemporaryZErrorafterTilt,	// input
 	bool YesGLPKfitSZ,		// input
 
-	Double_t * ErrorDriftRadius,	 // output
+	Vec <Double_t>& ErrorDriftRadius,	 // output
 	Double_t * ErrorDriftRadiusbis,	 // output
-	Double_t * DriftRadius,		 // output
+	Vec <Double_t>& DriftRadius,		 // output
 	Double_t * DriftRadiusbis,	 // output
-	Double_t * S,			 // output
+	Vec <Double_t> & S,			 // output
 	Double_t * Sbis,		 // output
-	Double_t * ZED,			 // output
+	Vec <Double_t>& ZED,			 // output
 	Double_t * ZEDbis		 // output
 	);
 
@@ -513,13 +514,13 @@ class PndTrkTracking : public FairTask
 
 
   void MatchMvdHitsToSttTracks(
-	bool *keepit,
+	Vec<bool> &keepit,
 	Double_t delta,
 	Double_t highqualitycut,
 	Short_t nSttTrackCand,
 	Double_t *FI0,
 	Double_t *Fifirst,
-	Short_t *CHARGE,
+	Vec <Short_t>& CHARGE,
 	Short_t *nPixelHitsinTrack, // output
 	Short_t ListPixelHitsinTrack[][MAXMVDPIXELHITSINTRACK], // output
 	Short_t *nStripHitsinTrack, // output
@@ -530,14 +531,14 @@ class PndTrkTracking : public FairTask
 
 
   void MatchMvdHitsToSttTracksagain(
-	bool *keepit,
-	bool *Mvdhits,
+	Vec <bool>& keepit,
+	Vec <bool>& Mvdhits,
 	Double_t delta,
 	Double_t highqualitycut,
 	Short_t nSttTrackCand,
 	Double_t *FI0,
 	Double_t *Fifirst,
-	Short_t *CHARGE,
+	Vec <Short_t>& CHARGE,
 
 	Short_t *nPixelHitsinTrack, // output
 	Short_t ListPixelHitsinTrack[][MAXMVDPIXELHITSINTRACK], // output
@@ -565,16 +566,16 @@ class PndTrkTracking : public FairTask
 
 
   void OrderingConformal_Loading_ListTrackCandHit(
-	bool *keepit,
+	Vec <bool>& keepit,
 	Short_t ncand,
 	Double_t info[][7],
 	Double_t Trajectory_Start[][2],
-	Short_t *CHARGE,
+	Vec <Short_t>& CHARGE,
 	Double_t SchosenSkew[][MAXSTTHITS]
 	);
 
   void OrderingR_Loading_ListTrackCandHit(
-	bool *keepit,
+	Vec <bool>& keepit,
 	Short_t ncand,
 	Double_t info[][7]
 	);
@@ -611,12 +612,12 @@ class PndTrkTracking : public FairTask
 
 
   void Ordering_Loading_ListTrackCandHit(
-	bool *keepit,
+	Vec <bool>& keepit,
 	Short_t FirstCandidate,
 	Short_t LastCandidate,
 	Double_t info[][7],
 	Double_t Trajectory_Start[][2],
-	Short_t *CHARGE,
+	Vec <Short_t>& CHARGE,
 	Double_t SchosenSkew[][MAXSTTHITS]
 	);
 
