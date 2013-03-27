@@ -149,11 +149,11 @@ int main(int argc, char *argv[])
   TH1D*   hpd_vert        = new TH1D("hpd_vert"   ,"t position (mm)",601,-300,300);
 
 
-
+  // for lens parameter determination use iopt 3 and the following lines
   //radius_lens1=atof(argv[1]);
   //radius_lens2b=atof(argv[2]);
   //thick_lens2 = atof(argv[3]);
-  //thick_air2 = atof(argv[4]);
+  //thick_lens3 = atof(argv[4]);
   
   
   
