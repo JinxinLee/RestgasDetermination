@@ -1808,7 +1808,11 @@ cout<<"Evento n. "<<IVOLTE<<
 //  fine cambio_in_perl.
 
   // initialization;
+
+
  for(int nsc=0; nsc<nSciTilHits; nsc++){
+
+
 	nFromSciTiltoMCTrack->at(nsc)=0;
 	// in a SciTil there may be more than 1 MC hit, here
 	// it is the loop over those.
@@ -1817,7 +1821,7 @@ cout<<"Evento n. "<<IVOLTE<<
 	// the number of the first hit [in the SciTil hit list]
 	// belonging to that tile;
 	// OriginalSciTilList[n][nnn]  is their list; the dimension of
-	// OriginalSciTilList  is nSciTilHits*nSciTilHits when nSciTilHits>0
+	// OriginalSciTilList  is fSciTilMaxNumber*fSciTilMaxNumbe when nSciTilHits>0
 	// (otherwise it is 1*1 ).
 	for(int h=0;h<nHitsInSciTile[nsc];h++){
 		int m=OriginalSciTilList[nsc*fSciTilMaxNumber+h];
