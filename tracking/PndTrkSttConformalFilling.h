@@ -1,6 +1,7 @@
 #ifndef PndTrkSttConformalFilling_H
 #define PndTrkSttConformalFilling_H 1
 
+#include "PndTrkVectors.h"
 // Root includes
 #include "TROOT.h"
 
@@ -20,19 +21,18 @@ class PndTrkSttConformalFilling : public TObject
 
 
   void BoxConformalFilling(
-
-	Short_t *FiConformalIndex,
-	Short_t* HitsinBoxConformal,
+	Vec <Short_t>& FiConformalIndex,
+	Vec <Short_t>& HitsinBoxConformal,
 	bool *InclusionListStt,
 	Double_t infoparalConformal[][5],
 	Short_t *ListSttParHits,
 	Short_t MAXHITSINCELL,
-	Short_t* nBoxConformal,
+	Vec <Short_t>& nBoxConformal,
 	Short_t NFIDIVCONFORMAL,
 	Int_t Nparal,
 	Short_t NRDIVCONFORMAL,
 	Double_t *radiaConf,
-	Short_t *RConformalIndex
+	Vec <Short_t>& RConformalIndex
 	);
 
   void FromXYtoConformal(
