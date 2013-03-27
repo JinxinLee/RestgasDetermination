@@ -1938,6 +1938,7 @@ if(istampa>=2){
 	for(i=0;i<fnSciTilHitsinTrack[ncand];i++){
 		X[j]=fposizSciTil[ fListSciTilHitsinTrack[ncand][i] ][0];
 		Y[j]=fposizSciTil[ fListSciTilHitsinTrack[ncand][i] ][1];
+		j++;
 	}
 
 	FindCharge(
