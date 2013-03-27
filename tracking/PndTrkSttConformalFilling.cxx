@@ -1,4 +1,5 @@
 #include "PndTrkSttConformalFilling.h"
+#include "PndTrkVectors.h"
 #include <cmath>
 #include <iostream>
 // Root includes
@@ -11,18 +12,18 @@ using namespace std;
 //----------begin of function PndTrkSttConformalFilling::BoxConformalFilling
 
 void PndTrkSttConformalFilling::BoxConformalFilling(
-	Short_t *FiConformalIndex,
-	Short_t* HitsinBoxConformal,
+	Vec <Short_t>& FiConformalIndex,
+	Vec <Short_t>& HitsinBoxConformal,
 	bool *InclusionListStt,
 	Double_t infoparalConformal[][5],
 	Short_t *ListSttParHits,
 	Short_t MAXHITSINCELL,
-	Short_t* nBoxConformal,
+	Vec <Short_t>& nBoxConformal,
 	Short_t NFIDIVCONFORMAL,
 	Int_t Nparal,
 	Short_t NRDIVCONFORMAL,
 	Double_t *radiaConf,
-	Short_t *RConformalIndex
+	Vec <Short_t>& RConformalIndex
 						)
 {
 
