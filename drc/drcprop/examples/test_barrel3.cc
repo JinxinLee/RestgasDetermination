@@ -32,6 +32,7 @@ using std::map;
 #include "TRandom.h"
 #include "TRandom1.h"
 #include "TRotation.h"
+#include "TH1D.h"
 #include "TH2F.h"
 #include "TFile.h"
 #include "TRint.h"
@@ -62,7 +63,9 @@ using ROOT::Math::Rotation3D;
 #include "PndDrcOptReflSilver.h"
 #include "PndDrcOptReflNone.h"
 #include "PndDrcOptMatLithotecQ0.h"
+#include "PndDrcOptMatBK7G18.h"
 #include "PndDrcOptMatNLAK33A.h"
+#include "PndDrcOptMatPbF2.h"
 #include "PndDrcOptMatMarcol7.h"
 #include "PndDrcOptMatLLF1.h"
 #include "PndDrcOptMatVacuum.h"
@@ -109,18 +112,13 @@ int main(int argc, char *argv[])
   const double pi=3.1415926535;
 
 
-  //int focus_opt = 0; // unfocussed
-  int focus_opt = 1; // focussed
 
   //int iopt = 0;// only geometry
-  //int iopt = 1;// straight lines
+  int iopt = 1;// straight lines
   //int iopt = 2;// C-cone
-  int iopt = 3;// ???
+  //int iopt = 3;// ???
   //int iopt = 4; // debug
 
-  int lens_opt = 1;  // two thin lenses no air gap
-  //int lens_opt = 2; // two lenses, no airgap, 2nd is thick
-  //int lens_opt = 3; // two lenses, with airgap
 
  
   bool l_fresnel = true;
@@ -129,79 +127,42 @@ int main(int argc, char *argv[])
 
   double radius_lens1;
   double thick_lens1;
-  double thick_air1;
   double radius_lens2b;
   double radius_lens2a;
   double thick_lens2;
-  double thick_air2; 
-  bool   l_air_gap;
-  
+  double thick_lens3; 
+
+  fstream out1;
+  out1.open("pbf2.dat",std::ios::out);
+  PndDrcOptMatPbF2 opt_mat;
+  for (int i=300; i<=700; i++)
+    {
+      out1<<i<<" "<<opt_mat.RefIndex(i)<<endl;
+    }
+  out1.close();
+
+  TFile*  hfile = (TFile*)gROOT->FindObject("test_barrel3.root"); 
+  if (hfile) hfile->Close();
+  hfile = new TFile("test_barrel3.root","RECREATE","Reconstruction of theta_c");
+
+  TH1D*   hpd_hori        = new TH1D("hpd_hori"   ,"x position (mm)",601,-300,300);
+  TH1D*   hpd_vert        = new TH1D("hpd_vert"   ,"t position (mm)",601,-300,300);
+
+
 
   //radius_lens1=atof(argv[1]);
-  ////thick_lens1=atof(argv[2]);
   //radius_lens2b=atof(argv[2]);
   //thick_lens2 = atof(argv[3]);
   //thick_air2 = atof(argv[4]);
   
   
   
-  if (lens_opt==1)
-    {
-      l_air_gap     = false;
-      radius_lens1  = 752;//30.836;
-      thick_lens1   =   5;
-      thick_air1    =   0.0;
-      radius_lens2b =  179.5;//55.638;
-      radius_lens2a = -radius_lens1;
-      thick_lens2   = 5;//11.6; 
-      thick_air2    = 7; 
-      if (focus_opt==0)
-	{
-	  radius_lens1  = 9999.9;
-	  radius_lens2a = 9999.9;
-	  radius_lens2b = 9999.9;
-	}
-    }
-  else if (lens_opt==2)
-    {
-      l_air_gap     = false;
-      radius_lens1  = 49.525;
-      thick_lens1   =   5;
-      thick_air1    =   0.0;
-      radius_lens2b =  75.0;
-      radius_lens2a = -49.525;
-      thick_lens2   = 18; 
-      thick_air2    = 7; 
-      if (focus_opt==0)
-	{
-	  radius_lens1  = 9999.9;
-	  radius_lens2a = 9999.9;
-	  radius_lens2b = 9999.9;
-	}
-    }
-  else if (lens_opt==3)
-    {
-      l_air_gap     = true;
-      radius_lens1  = 152.9;
-      thick_lens1   =   5;
-      thick_air1    =   2;
-      radius_lens2b =   31;
-      radius_lens2a =  -31;
-      thick_lens2   =    5; 
-      thick_air2    =    8; 
-      if (focus_opt==0)
-	{
-	  radius_lens1  = 9999.9;
-	  radius_lens2a = 9999.9;
-	  radius_lens2b = 9999.9;
-	}
-    }
-  else
-    {
-      exit(EXIT_FAILURE);
-    }
-  
-  
+  radius_lens1  =   37;
+  radius_lens2b =   26;
+  thick_lens2   = 1;//11.6; 
+  thick_lens3    =9; 
+  thick_lens1   =   1;
+  radius_lens2a = -radius_lens1;
 
   double bar_half_w = 34/2;
   double bar_half_h = 17/2;
@@ -226,114 +187,64 @@ int main(int argc, char *argv[])
   opt_system.AddDevice(bar);
 
   PndDrcOptLens lens1(bar_half_w,bar_half_h,thick_lens1/2,radius_lens1,9999,
-			  conical,conical);
+		      conical,conical);
   lens1.SetName("lens1");
   lens1.AddTransform(Transform3D(XYZVector(0,0,-400
 					   //-thick_air0
 					   -thick_lens1/2)));
-  lens1.SetOptMaterial(PndDrcOptMatLithotecQ0());
-  //lens1.SetOptMaterial(PndDrcOptMatNLAK33A());
-  //lens1.Surface("side21")->SetReflectivity(PndDrcOptReflNone());
-  //lens1.Surface("side26")->SetReflectivity(PndDrcOptReflNone());
-  //lens1.Surface("side31")->SetReflectivity(PndDrcOptReflNone());
-  //lens1.Surface("side36")->SetReflectivity(PndDrcOptReflNone());
-  //lens1.Surface("side41")->SetReflectivity(PndDrcOptReflNone());
-  //lens1.Surface("side46")->SetReflectivity(PndDrcOptReflNone());
-  //lens1.Surface("side51")->SetReflectivity(PndDrcOptReflNone());
-  //lens1.Surface("side56")->SetReflectivity(PndDrcOptReflNone());
+  lens1.SetOptMaterial(PndDrcOptMatBK7G18());
   lens1.SetPrintColor(2);
   opt_system.AddDevice(lens1);
   //opt_system.CoupleDevice("air0","lens1","side1","side6");
   opt_system.CoupleDevice("bar","lens1","side1","side6");
   
-  PndDrcOptLens air1(bar_half_w,bar_half_h,
-  	     thick_air1/2,-radius_lens2a,-radius_lens1,
-  		 conical,conical);
-  if (l_air_gap)
-    {
-      air1.SetName("air1");
-      air1.AddTransform(Transform3D(XYZVector(0,0,
-					      -400
-					      //-thick_air0
-					      -thick_lens1
-					      -thick_air1/2)));
-      if (iopt==4)
-	{
-	  air1.SetOptMaterial(PndDrcOptMatLithotecQ0());
-	}
-      else
-	{
-	  air1.SetOptMaterial(PndDrcOptMatVacuum());
-	}
-      air1.SetPrintColor(4);
-      opt_system.AddDevice(air1);
-      opt_system.CoupleDevice("lens1","air1","side1","side6");
-    }
   
   
   PndDrcOptLens lens2(bar_half_w,bar_half_h,
-			     thick_lens2/2,radius_lens2b,radius_lens2a,
-			     conical,conical);
-  if (iopt!=4)
-    {
-      lens2.Surface("side21")->SetReflectivity(PndDrcOptReflNone());
-      lens2.Surface("side26")->SetReflectivity(PndDrcOptReflNone());
-      lens2.Surface("side31")->SetReflectivity(PndDrcOptReflNone());
-      lens2.Surface("side36")->SetReflectivity(PndDrcOptReflNone());
-      lens2.Surface("side41")->SetReflectivity(PndDrcOptReflNone());
-      lens2.Surface("side46")->SetReflectivity(PndDrcOptReflNone());
-      lens2.Surface("side51")->SetReflectivity(PndDrcOptReflNone());
-      lens2.Surface("side56")->SetReflectivity(PndDrcOptReflNone());
-    }
+		      thick_lens2/2,radius_lens2b,radius_lens2a,
+		      conical,conical);
   lens2.SetName("lens2");
   lens2.AddTransform(Transform3D(XYZVector(0,0,
 					   -400
 					   //-thick_air0
 					   -thick_lens1
-					   -thick_air1
 					   -thick_lens2/2)));
-  if (iopt==4)
-    {
-      lens2.SetOptMaterial(PndDrcOptMatLithotecQ0());
-    }
-  else
-    {
-      lens2.SetOptMaterial(PndDrcOptMatNLAK33A());
-    }
+  lens2.SetOptMaterial(PndDrcOptMatPbF2());
   lens2.SetPrintColor(3);
   opt_system.AddDevice(lens2);
-  if (l_air_gap)
-    {
-      opt_system.CoupleDevice("air1","lens2","side1","side6");
-    }
-  else
-    {
-      opt_system.CoupleDevice("lens1","lens2","side1","side6");
-    }
+  opt_system.CoupleDevice("lens1","lens2","side1","side6");
   
 
 
-  PndDrcOptLens air2(bar_half_w,bar_half_h,
-			 thick_air2/2,9999,-radius_lens2b,
-			 conical,conical);
-  air2.SetName("air2");
-  air2.AddTransform(Transform3D(XYZVector(0,0,
-					  -400
-					  -thick_lens1
-					  -thick_air1
-					  -thick_lens2
-					  -thick_air2/2)));
-      if (iopt==4)
-	{
-	  air2.SetOptMaterial(PndDrcOptMatLithotecQ0());
-	}
-      else
-	{
-	  air2.SetOptMaterial(PndDrcOptMatVacuum());
-	}
-  air2.SetPrintColor(1);
-  opt_system.AddDevice(air2);
-  opt_system.CoupleDevice("lens2","air2","side1","side6");
+  PndDrcOptLens lens3(bar_half_w,bar_half_h,
+		      thick_lens3/2,9999,-radius_lens2b,
+		      conical,conical);
+  lens3.SetName("lens3");
+  lens3.Surface("side21")->SetReflectivity(PndDrcOptReflNone());
+  lens3.Surface("side26")->SetReflectivity(PndDrcOptReflNone());
+  lens3.Surface("side31")->SetReflectivity(PndDrcOptReflNone());
+  lens3.Surface("side36")->SetReflectivity(PndDrcOptReflNone());
+  lens3.Surface("side41")->SetReflectivity(PndDrcOptReflNone());
+  lens3.Surface("side46")->SetReflectivity(PndDrcOptReflNone());
+  lens3.Surface("side51")->SetReflectivity(PndDrcOptReflNone());
+  lens3.Surface("side56")->SetReflectivity(PndDrcOptReflNone());
+  lens3.AddTransform(Transform3D(XYZVector(0,0,
+					   -400
+					   -thick_lens1
+					   -thick_lens2
+					   -thick_lens3/2)));
+  if (iopt==4)
+    {
+      lens3.SetOptMaterial(PndDrcOptMatLithotecQ0());
+    }
+  else
+    {
+      lens3.SetOptMaterial(PndDrcOptMatBK7G18());
+      //lens3.SetOptMaterial(PndDrcOptMatVacuum());
+    }
+  lens3.SetPrintColor(1);
+  opt_system.AddDevice(lens3);
+  opt_system.CoupleDevice("lens2","lens3","side1","side6");
 
 
   PndDrcOptBrick box(dist_plane,dist_plane,dist_plane/2);
@@ -343,30 +254,27 @@ int main(int argc, char *argv[])
     }
   else
     {
-      box.SetOptMaterial(PndDrcOptMatMarcol7());
+      box.SetOptMaterial(PndDrcOptMatLithotecQ0());
+      //box.SetOptMaterial(PndDrcOptMatMarcol7());
     }
   box.SetName("box");
   box.Surface("side1")->SetPixel();
-  if (iopt!=4)
-    {
-      box.Surface("side2")->SetReflectivity(PndDrcOptReflNone());
-      box.Surface("side3")->SetReflectivity(PndDrcOptReflNone());
-      box.Surface("side4")->SetReflectivity(PndDrcOptReflNone());
-      box.Surface("side5")->SetReflectivity(PndDrcOptReflNone());
-    }
+  box.Surface("side2")->SetReflectivity(PndDrcOptReflNone());
+  box.Surface("side3")->SetReflectivity(PndDrcOptReflNone());
+  box.Surface("side4")->SetReflectivity(PndDrcOptReflNone());
+  box.Surface("side5")->SetReflectivity(PndDrcOptReflNone());
   
   box.AddTransform( Transform3D(XYZVector(0,0,
 					  -400
 					  -thick_lens1
-					  -thick_air1
 					  -thick_lens2
-					  -thick_air2
+					  -thick_lens3
 					  -dist_plane/2)) );
 
 
 
   opt_system.AddDevice(box);
-  opt_system.CoupleDevice("air2","box","side1","side6");
+  opt_system.CoupleDevice("lens3","box","side1","side6");
   
 
 
@@ -399,8 +307,8 @@ int main(int argc, char *argv[])
   //geo<<"    view->SetRange(-400,-500,-1050,600,500,-50);"<<endl;
   geo<<"    view->SetRange(-500,-500,-1500,500,500,500);"<<endl;
   geo<<"    Int_t i;"<<endl;
-  geo<<"    view->SetView(90,-90,90,i);"<<endl;
-  for (int i=0; i<6;i++) // 7 or 16
+  geo<<"    view->SetView(90,-90,0,i);"<<endl;
+  for (int i=0; i<3;i++) // 7 or 16
     geo<<"    view->Zoom();"<<endl;
   
   // the following command sets a flag within the manager and all photons from
@@ -436,6 +344,7 @@ int main(int argc, char *argv[])
 	      double y1 = tan(angle*pi/180);
 	      double x1 = y1;
 	      double step = 0.03*y1/angle;
+	      
 	      for (double y=-y1; y<= y1; y+= step)
 		{
 		  double xx=ran.Uniform(-0.5*slab_width,0.5*slab_width);
@@ -449,6 +358,8 @@ int main(int argc, char *argv[])
 		  ph.SetWavelength(lambda1);
 		  list_photon.push_back(ph);
 		}
+	      
+	      
 	      for (double x=-x1; x<= x1; x+= step)
 		{
 		  double xx=ran.Uniform(-0.5*slab_width,0.5*slab_width);
@@ -462,7 +373,7 @@ int main(int argc, char *argv[])
 		  ph.SetWavelength(lambda1);
 		  list_photon.push_back(ph);
 		}
-	     
+	      
 	    }
 	}
     }
@@ -472,7 +383,7 @@ int main(int argc, char *argv[])
       XYZPoint  pos(0,-18,200);
       XYZVector dir(0,sin(50*pi/180.),cos(50*pi/180.)); 
       double   beta = 0.99;
-      manager->Cerenkov(pos,dir,beta,50000,1e16,300,600,50); // generate photons
+      manager->Cerenkov(pos,dir,beta,5000,1e16,300,600,50); // generate photons
     }
   else if (iopt==3)
     {
@@ -480,8 +391,8 @@ int main(int argc, char *argv[])
       for (int i=0; i<30; i++)
 	{
 	  ph.SetDirection(XYZVector(sin(pi/180*angle),0,-cos(pi/180*angle)));
-	  ph.SetPosition(XYZPoint(q0.X()+(q1.X()-q0.X())*i/31.0,0,-399));
-	  ph.SetWavelength(630);
+	  ph.SetPosition(XYZPoint(q0.X()+(q1.X()-q0.X())*i/31.0,0,-398));
+	  ph.SetWavelength(420);
 	  list_photon.push_back(ph);
 	}
       
@@ -490,8 +401,8 @@ int main(int argc, char *argv[])
       for (int i=0; i<30; i++)
 	{
 	  ph.SetDirection(XYZVector(sin(pi/180*angle),0,-cos(pi/180*angle)));
-	  ph.SetPosition(XYZPoint(q0.X()+(q1.X()-q0.X())*i/31.0,0,-399));
-	  ph.SetWavelength(630);
+	  ph.SetPosition(XYZPoint(q0.X()+(q1.X()-q0.X())*i/31.0,0,-398));
+	  ph.SetWavelength(420);
 	  list_photon.push_back(ph);
 	}
 
@@ -499,24 +410,24 @@ int main(int argc, char *argv[])
       for (int i=0; i<30; i++)
 	{
 	  ph.SetDirection(XYZVector(sin(pi/180*angle),0,-cos(pi/180*angle)));
-	  ph.SetPosition(XYZPoint(q0.X()+(q1.X()-q0.X())*i/31.0,0,-399));
-	  ph.SetWavelength(630);
+	  ph.SetPosition(XYZPoint(q0.X()+(q1.X()-q0.X())*i/31.0,0,-398));
+	  ph.SetWavelength(420);
 	  list_photon.push_back(ph);
 	}
       angle=30;      
       for (int i=0; i<30; i++)
 	{
 	  ph.SetDirection(XYZVector(sin(pi/180*angle),0,-cos(pi/180*angle)));
-	  ph.SetPosition(XYZPoint(q0.X()+(q1.X()-q0.X())*i/31.0,0,-399));
-	  ph.SetWavelength(630);
+	  ph.SetPosition(XYZPoint(q0.X()+(q1.X()-q0.X())*i/31.0,0,-398));
+	  ph.SetWavelength(420);
 	  list_photon.push_back(ph);
 	}
       angle=40;      
       for (int i=0; i<30; i++)
 	{
 	  ph.SetDirection(XYZVector(sin(pi/180*angle),0,-cos(pi/180*angle)));
-	  ph.SetPosition(XYZPoint(q0.X()+(q1.X()-q0.X())*i/31.0,0,-399));
-	  ph.SetWavelength(630);
+	  ph.SetPosition(XYZPoint(q0.X()+(q1.X()-q0.X())*i/31.0,0,-398));
+	  ph.SetWavelength(420);
 	  list_photon.push_back(ph);
 	}
 
@@ -563,12 +474,7 @@ int main(int argc, char *argv[])
   scr.open(sfile.c_str(),std::ios::out);
   scr<<"{"<<endl;
   scr<<"    TCanvas *c1 = new TCanvas(\"c1\"); "<<endl;
-  scr<<"    TH1F *hgr = new TH1F(\"hgr\",\"test_barrel3 ";
-  if (lens_opt == 1) scr<<" lopt=1 ";
-  if (lens_opt == 2) scr<<" lopt=2 ";
-  if (lens_opt == 3) scr<<" lopt=3 ";
-  if (focus_opt== 1) scr<<" focussed \"";
-  if (focus_opt== 0) scr<<" unfocussed \"";
+  scr<<"    TH1F *hgr = new TH1F(\"hgr\",\"test_barrel3 \" ";
   scr<<",500,-300,300);"<<endl;
   scr<<"    hgr->SetStats(0);"<<endl;
   scr<<"    hgr->SetMarkerStyle(20);"<<endl;
@@ -600,6 +506,12 @@ int main(int argc, char *argv[])
 	  
 	  double xx=(*iph).Position().X();
 	  double yy=(*iph).Position().Y();
+
+
+	  hpd_hori->Fill(xx);
+	  hpd_vert->Fill(yy);
+	  
+
 	  scr<<"    TMarker* t = new TMarker("<<xx<<","<<yy<<",20);"<<endl;
 	  scr<<"    t->SetMarkerColor("
 	     <<(*iph).ColorNumber((*iph).Wavelength())
@@ -628,6 +540,9 @@ int main(int argc, char *argv[])
   cout<<" absorbed  photons: "<<icnt_absorbed<<endl;
   cout<<" lost      photons: "<<icnt_lost<<endl;
   
+  hfile->Write();
+
+
   delete manager;
   
 
