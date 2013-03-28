@@ -20,6 +20,7 @@ class PndPidCorrPar : public FairParGenericSet
   Float_t GetDskCut()        { return fDskCut; }; 
   Float_t GetZLastPlane()    { return fZLastPlane; };
   Float_t GetFtofZ()         { return fFtofZ; };
+  Float_t GetFTofCut()       { return fFTofCut; };  
   Float_t GetRichZ()         { return fRichZ; };  
 
   PndPidCorrPar (const char* name="PndPidCorrPar",
@@ -43,10 +44,11 @@ class PndPidCorrPar : public FairParGenericSet
   Float_t fDrcCut;         // cut chi2 for DRC  
   Float_t fDskCut;         // cut chi2 for DSK
   Float_t fZLastPlane;     // position of last point for fwd correlation
-  Float_t fFtofZ;          // Z of Ftof
+  Float_t fFtofZ;          // Z of Ftof 
+  Float_t fFTofCut;        // cut chi2 for FTOF 
   Float_t fRichZ;          // Z of RICH
 
-  ClassDef(PndPidCorrPar, 2);
+  ClassDef(PndPidCorrPar, 3);
 };
 
 #endif

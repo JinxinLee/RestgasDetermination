@@ -1286,6 +1286,7 @@ void PndPidCorrelator::Finish() {
       //TFile *r = TFile::Open(sDir+sFile,"RECREATE");
       r->cd();
       tofCorr->Write();
+      ftofCorr->Write();
       emcCorr->Write(); 
       fscCorr->Write();
       mdtCorr->Write();  
@@ -1295,6 +1296,7 @@ void PndPidCorrelator::Finish() {
       r->Save();
     
       tofCorr->Delete();
+      ftofCorr->Delete();
       emcCorr->Delete(); 
       fscCorr->Delete();
       mdtCorr->Delete();
@@ -1302,6 +1304,7 @@ void PndPidCorrelator::Finish() {
       dskCorr->Delete();
     
       tofCorr = 0;
+      ftofCorr = 0;
       emcCorr = 0; 
       fscCorr = 0;
       mdtCorr = 0;

@@ -384,7 +384,8 @@ DrcRadius:Float_t 49.
 DrcCut:Float_t 0.003
 DskCut:Float_t 0.02
 ZLastPlane:Float_t 747.5
-FtofZ:Float_t 1.
+FtofZ:Float_t 775.
+FTofCut:Float_t 2500.
 RichZ:Float_t 1.
 #################################################################
 #################################################################

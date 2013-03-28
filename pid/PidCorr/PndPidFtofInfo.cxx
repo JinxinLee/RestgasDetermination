@@ -38,18 +38,21 @@ Bool_t PndPidCorrelator::GetFtofInfo(FairTrackParH* helix, PndPidCandidate* pidC
       std::cout << "-W- PndPidCorrelator::GetFtofInfo: Skipping tracks going backward" << std::endl;
       return kFALSE;
     }
-
+ 
+  FairGeanePro *fProTof = new FairGeanePro();
+  if (!fCorrErrorProp) fProTof->PropagateOnlyParameters(); 
   FairGeanePro *fProVertex = new FairGeanePro();
   if (!fCorrErrorProp) fProVertex->PropagateOnlyParameters();
 
   PndFtofHit *tofHit = NULL;
   Int_t tofEntries = fFtofHit->GetEntriesFast();
   Int_t tofIndex = -1;
-  Float_t tofTof = 0., tofLength = -1000, tofGLength = -1000;
+  Float_t tofTof = 0., tofLength = -1000, tofGLength = -1000, tofLengthTemp = -1000;;
   Float_t tofQuality = 1000000;
 
   Float_t chi2 = 0;
   TVector3 vertex(0., 0., 0.);
+  TVector3 vertexrec(0., 0., 0.);
   TVector3 tofPos(0., 0., 0.);
   TVector3 momentum(0., 0., 0.);
   for (Int_t tt = 0; tt<tofEntries; tt++)
@@ -62,25 +65,36 @@ Bool_t PndPidCorrelator::GetFtofInfo(FairTrackParH* helix, PndPidCandidate* pidC
       Float_t propY = helix->GetY() + (fCorrPar->GetFtofZ() - helix->GetZ()) * helix->GetPy() / helix->GetPz();
       Float_t propZ = fCorrPar->GetFtofZ();
       vertex.SetXYZ(propX, propY, propZ);
-
+      
       if (fGeanePro) // Overwrites vertex if Geane is used
-        {
-          fProVertex->SetPoint(TVector3(0,0,0));
-          fProVertex->PropagateToPCA(1, -1);
-          FairTrackParH *fRes= new FairTrackParH();
-          Bool_t rc =  fProVertex->Propagate(helix, fRes, fPidHyp*pidCand->GetCharge());
-          if (rc) tofLength = fProVertex->GetLengthAtPCA();
-        }
+	{ 
+	  fProTof->SetPoint(tofPos);
+	  fProTof->PropagateToPCA(1, 1);
+	  FairTrackParH *fRes= new FairTrackParH();
+	  Bool_t rc =  fProTof->Propagate(helix, fRes, fPidHyp*pidCand->GetCharge());	
+	  if (!rc) continue;
+      
+	  vertex.SetXYZ(fRes->GetX(), fRes->GetY(), fRes->GetZ());
+	  
+	  fProVertex->SetPoint(TVector3(0,0,0));
+	  fProVertex->PropagateToPCA(1, -1);
+	  FairTrackParH *fRes2= new FairTrackParH();
+	  Bool_t rc2 =  fProVertex->Propagate(fRes, fRes2, fPidHyp*pidCand->GetCharge());
+	  //Bool_t rc2 =  fProVertex->Propagate(helix, fRes2, fPidHyp*pidCand->GetCharge());
+	  if (rc2) tofLengthTemp = fProVertex->GetLengthAtPCA(); 
+	  vertexrec.SetXYZ(fRes2->GetX(), fRes2->GetY(), fRes2->GetZ());
+	}
     
       Float_t dist = (tofPos-vertex).Mag2();
       tofGLength = (vertex-helix->GetPosition()).Mag();
-      tofLength += tofGLength;
+      //tofLengthTemp += tofGLength;
 
       if ( tofQuality > dist)
         {
           tofIndex = tt;
           tofQuality = dist;
-          tofTof = tofHit->GetTime();
+          tofTof = tofHit->GetTime(); 
+	  tofLength = tofLengthTemp;
 	  tofGLength = (vertex-helix->GetPosition()).Mag();
 	}
       
@@ -94,7 +108,7 @@ Bool_t PndPidCorrelator::GetFtofInfo(FairTrackParH* helix, PndPidCandidate* pidC
         }
     }
 
-  if ( (tofQuality<fCorrPar->GetTofCut()) || (fIdeal && tofIndex!=-1) )
+  if ( (tofQuality<fCorrPar->GetFTofCut()) || (fIdeal && tofIndex!=-1) )
     {
       pidCand->SetTofQuality(tofQuality);
       pidCand->SetTofStopTime(tofTof);
