@@ -111,7 +111,7 @@ PndTrkTracking::PndTrkTracking() : FairTask("Tracking") {
  fYesClean = false;
  fYesCleanMvd = true;
  fYesSciTil = false ;
- fMvdAloneTracking = true;
+ fMvdAloneTracking = false;
  fNevents_to_plot = 10;
 
 
@@ -130,7 +130,7 @@ PndTrkTracking::PndTrkTracking(Int_t verbose) : FairTask("Tracking") {
  fYesClean = false;
  fYesCleanMvd = true;
  fYesSciTil = false ;
- fMvdAloneTracking = true;
+ fMvdAloneTracking = false;
 
  Initialization_ClassVariables();
  sprintf(fSttBranch,"STTHit");
@@ -148,7 +148,7 @@ PndTrkTracking::PndTrkTracking(int istamp, bool  iplot, bool imc)
  fYesClean = false;
  fYesCleanMvd = true;
  fYesSciTil = false ;
- fMvdAloneTracking = true;
+ fMvdAloneTracking = false;
  Initialization_ClassVariables();
  sprintf(fSttBranch,"STTHit");
  sprintf(fMvdPixelBranch,"MVDHitsPixel");
@@ -168,7 +168,7 @@ PndTrkTracking::PndTrkTracking(int istamp, bool  iplot, bool imc, bool doSciTil)
  fYesClean = false;
  fYesCleanMvd = true;
  fYesSciTil = doSciTil ;
- fMvdAloneTracking = true;
+ fMvdAloneTracking = false;
  Initialization_ClassVariables();
  sprintf(fSttBranch,"STTHit");
  sprintf(fMvdPixelBranch,"MVDHitsPixel");
@@ -494,7 +494,7 @@ if(doMcComparison >=1 ){
 //    get   the MCTrack  array
 
  fMCTrackArray = (TClonesArray*) ioman->GetObject("MCTrack");
- if ( ! fMCTrackArray) 
+ if ( ! fMCTrackArray)
  {
 	cout << "-E- PndTrkTracking::Init: No MCTrack array, return!"
 	   << endl;
