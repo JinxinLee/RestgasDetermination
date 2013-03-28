@@ -7,6 +7,8 @@
 // v1: October, 2011
 // v1.1: January, 2012, jasinski
 // 	- playing around to include the lumi
+// v1.2: March, 2013 including the acceptance relevant modifictations
+//					 including modified bending radius
 //
 // This files is based on the CAD drawing which is available at the PANDA EDMS
 // system (https://edms.cern.ch/project/FAIR-000000770) and which was created by
@@ -43,21 +45,36 @@
 #include<iostream>
 #include<cmath>
 
+using namespace std;
+
 void createRootGeometry_beampipe() {
 
 	// basic constants concerning the path of the beam pipe
 	// downstream of the target
-	const double bend_begin = 360.; // where bending has to start
-	const double bend_radius = 5750.; // bending radius
-	const double bend_angle = 40.068e-3; // bending angle
+	const double bend_begin = 361.; // where bending has to start
+	const double bend_radius = 5700.; // bending radius
+	const double bend_angle = 40.e-3; // bending angle
 	const double bend_end = bend_begin+sin(bend_angle)*bend_radius; // z position of the bend end
+
+	cout << " ******************************************* " << endl;
+	cout << " *              beam pipe creator          * " << endl;
+	cout << " ******************************************* " << endl;
+	cout << "\n\n\t\t 28.03.13 \n " << endl;
+	cout << " \t modified by P.Jasinski \n " << endl;
+
+	cout << " basic beam pipe parameters: " << endl;
+	cout << " \t bending start  " << bend_begin << " cm" << endl;
+	cout << " \t bending end    " << bend_end << " cm" << endl;
+	cout << " \t bending angle  " << bend_angle << " rad" << endl;
+	cout << " \t bending radius " << bend_radius << " cm" << endl;
+
 
 	gROOT->Macro("$VMCWORKDIR/gconfig/rootlogon.C");
 	TString vmcWorkdir = gSystem->Getenv("VMCWORKDIR");
 
 	// if you do not want sensors in your beam pipe,
 	// so a simple beam pipe only, set it to false
-	bool create_sensors = false;
+	bool create_sensors = true;
 	// key z positions are stored in the following vector
 	std::vector< double > sensor_positions;
 
@@ -70,7 +87,7 @@ void createRootGeometry_beampipe() {
 	FairGeoMedia* geoMedia = geoFace->getMedia();
 	FairGeoBuilder* geoBuild = geoLoad->getGeoBuilder();
 
-	std::string str_ti = "Aluminum"; // "titanium" is in Panda software not yet implemented
+	std::string str_ti = "titanium"; // "titanium" is now implemented in the Panda software
 	FairGeoMedium* FairMediumAir = geoMedia->getMedium("air");
 	FairGeoMedium* FairMediumSteel = geoMedia->getMedium("steel");
 	FairGeoMedium* FairMediumTi = geoMedia->getMedium(str_ti.c_str()); //titanium"); not found in media_pnd.geo !
@@ -89,10 +106,10 @@ void createRootGeometry_beampipe() {
 	TFile* fi;
 	TString fGeoFile;
 	if (create_sensors){
-		fGeoFile = "beampipe_201210_active.root";
+		fGeoFile = "beampipe_201303_active.root";
 
 	} else {
-		fGeoFile = "beampipe_201210.root";
+		fGeoFile = "beampipe_201303.root";
 	}
 	fi = new TFile(fGeoFile, "RECREATE");
 
@@ -162,6 +179,12 @@ void createRootGeometry_beampipe() {
 			"VATvalve100a-tv2");
 	TGeoCompositeShape *SVATvalve100 = new TGeoCompositeShape("VATvalve100",
 			"VATvalve100b:trv1+VATvalve1000:trv2+VATvalve100b:trv3");
+
+	// special valve with inner clearance of 110 mm
+	TGeoTube* tv55 = new TGeoTube("tv55", 0., 5.5, 1.35 + delta);
+	TGeoCompositeShape *SVATvalve110 = new TGeoCompositeShape("VATvalve110",
+				"VATvalve100-tv55:trv2-tv55:trv1-tv55:trv3");
+
 
 	// VAT -Gate Valve CF160
 	// width in z is 7.
@@ -457,6 +480,7 @@ void createRootGeometry_beampipe() {
 			new TGeoCombiTrans("trg7", 0., 0., z0 + currentz, r1);
 	trg7->RegisterYourself();
 
+	// cross upstream of the dipole including a transition from CF 63 to CF 100 diameter
 	TGeoCompositeShape *ScrossTSTMPs = new TGeoCompositeShape("crossTSTMPs",
 			"VATvalve63+crossTS+VATvalve100:trg6");
 
@@ -482,6 +506,7 @@ void createRootGeometry_beampipe() {
 	TGeoRotation *dipolerot = new TGeoRotation("dipolerot", 90., dphi / rad,
 			-90.); // rotation to accout for bendig
 	fprintf(stderr, "Rotation due to dipole magnet: %f\n", dphi / rad);
+	cout << " corresponds to " << dphi << " degree " << endl;
 
 	// shifts need to be computed individually
 	// dz = dz0 + s*cos(dphi)    where dx,dz0 is the point where the bended pipe ends
@@ -490,21 +515,28 @@ void createRootGeometry_beampipe() {
 	// TGeoCombiTrans* trpr = new TGeoCombiTrans("trpr", dx, 0., dz, dipolerot); trpr->RegisterYourself();
 	Double_t s = 0.;
 
-	// horizontal pipe, first part
-	Double_t psh1[15] = { 0., 360., 4, 0., 5.0, 7.6, 2.0, 5.0, 7.6, 2.0, 5.0,
-			5.2, 7.1225, 5.0, 5.2, };
+	// dipole pipe, first part
+	Double_t psh1[15] = { 0., 360., 4, 0., 5.0, 7.6, 2.2, 5.0, 7.6, 2.2, 5.0,
+			5.2, 7.2, 5.5, 5.7 };
 	TGeoPcon* Dippip1 = new TGeoPcon("Dippip1", 0., 360., 4);
 	Dippip1->SetDimensions(psh1);
 
-	// horizontal pipe, bent part
-	TGeoTorus *Dippip2 = new TGeoTorus("Dippip2", R, 5.0, 5.2, 0., dphi / rad);
-	//Double_t psh2[24] = { 0., 360., 7, 0., 5.0, 5.2, 5.0225, 5.0, 5.2, 19.3385
-	Double_t psh2[24] = { 0., 360., 7, 0., 6.0, 6.2, 5.0225, 6.0, 6.2, 19.3385,
-			9.0, 9.2, 19.3385, 9.0, 9.3, 439.3572 + 11.1, 9.0, 9.3, 439.3572 + 11.1, 9.0,
-			12.65, 441.7572 + 11.1, 9.0, 12.65, }; //  + 11.1 cm needed with the fit radius by P.Jasinski
+	// dipole pipe, bent part
+	TGeoTorus *Dippip2 = new TGeoTorus("Dippip2", R, 5.5, 5.7, 0., dphi / rad);
+
+	// dipole pipe, straight part
+	Double_t psh21[15] = { 0., 360., 4, 0., 5.5, 5.7, 11., 5.5, 5.7,
+			11., 5.5, 7.6, 13., 5.5, 7.6 };
+	TGeoPcon* Dippip21 = new TGeoPcon("Dippip21", 0., 360., 4);
+	Dippip21->SetDimensions(psh21);
 
 	// horizontal pipe, third part
-	TGeoPcon* Dippip3 = new TGeoPcon("Dippip3", 0., 360., 7);
+	//Double_t psh2[24] = { 0., 360., 7, 0., 5.0, 5.2, 5.0225, 5.0, 5.2, 19.3385
+	Double_t psh2[33] = { 0., 360., 10, 0., 5.5, 7.6, 2., 5.5, 7.6,
+			2., 5.5, 5.7, 5., 5.5, 5.7, 20, 9., 9.3, 320, 9.0,
+			9.3, 340.5, 10.0, 10.3,
+			340.5+98.9, 10., 10.3, 340.5+98.9, 10., 12, 340.5+101.5, 10., 12};
+	TGeoPcon* Dippip3 = new TGeoPcon("Dippip3", 0., 360., 10);
 	Dippip3->SetDimensions(psh2);
 
 	TGeoCombiTrans* trh1 = new TGeoCombiTrans("trh1", R, 0., 7.1225,
@@ -514,18 +546,22 @@ void createRootGeometry_beampipe() {
 			dipolerot);
 	//sensor_positions.push_back(7.1225 + dz0);
 	trh2->RegisterYourself();
+	s = s + 13.;// 7.0775;
+	TGeoCombiTrans* trh21 = new TGeoCombiTrans("trh21", dx0 + s * sin(dphi), 0.,
+			7.1225 + dz0 + s * cos(dphi), dipolerot);
+	trh21->RegisterYourself();
 	s = s + 7.0775;
 	TGeoCombiTrans* trh3 = new TGeoCombiTrans("trh3", dx0 + s * sin(dphi), 0.,
 			7.1225 + dz0 + s * cos(dphi), dipolerot);
 	trh3->RegisterYourself();
-	s = s + 441.7572 + 11.1; // 11.1 cm needed with the fit radius by P.Jasinski
+	s = s + 442;
 	TGeoCombiTrans* trh4 =
 			new TGeoCombiTrans("trh4", 0., 0., z0 + currentz, r1);
 	trh4->RegisterYourself();
 
-	// put it together including VATvalve100
+	// put it together including modified VAT valve
 	TGeoCompositeShape *SDippip = new TGeoCompositeShape("Dippip",
-			"Dippip1+Dippip2:trh1+VATvalve100:trh2+Dippip3:trh3");//"Dippip1+Dippip3:trh3");//"Dippip1+Dippip2:trh1+VATvalve100:trh2+Dippip3:trh3");
+			"Dippip1+Dippip2:trh1+Dippip21:trh2+VATvalve110:trh21+Dippip3:trh3");//"Dippip1+Dippip3:trh3");//"Dippip1+Dippip2:trh1+VATvalve100:trh2+Dippip3:trh3");
 
 	TGeoVolume *VDipolePip = new TGeoVolume("DipolePip", SDippip,
 			gGeoManager->GetMedium("steel"));
