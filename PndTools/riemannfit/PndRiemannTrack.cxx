@@ -81,7 +81,7 @@ void
 PndRiemannTrack::addHit(PndRiemannHit& hit){
   int nbefore=fHits.size();
   fHits.push_back(hit);
-  std::cout << "fweight before addHit: " << fweight << std::endl;
+//  std::cout << "fweight before addHit: " << fweight << std::endl;
   //ADDED by ME//
   if ( ftrefit ) {
   fav *= fweight;
@@ -97,7 +97,7 @@ PndRiemannTrack::addHit(PndRiemannHit& hit){
   //fav*=1./(double)(nbefore+1);
   fweight += 1/(hit.sigmaXY()*hit.sigmaXY());
 
-  std::cout << "fweight after addHit: " << fweight << std::endl;
+//  std::cout << "fweight after addHit: " << fweight << std::endl;
   fFitDone = false;
   fSZFitDone = false;
   fErrorCalcDone = false;
