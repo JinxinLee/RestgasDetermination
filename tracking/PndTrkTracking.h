@@ -56,6 +56,8 @@ class PndTrkTracking : public FairTask
 
   void NoMvdAloneTracking( ){ fMvdAloneTracking=false; return;};
 
+  void YesMvdAloneTracking( ){ fMvdAloneTracking=true; return;};
+
   void SetInputBranchName(
 	char* string1,
 	char* string2,
