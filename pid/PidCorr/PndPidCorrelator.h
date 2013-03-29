@@ -33,6 +33,7 @@
 #include "PndEmcClusterCalibrator.h"
 #include "PndEmcErrorMatrixPar.h"
 #include "PndGeoSttPar.h"
+#include "PndGeoFtsPar.h"
 
 using std::map;
 
@@ -55,7 +56,7 @@ protected:
   TClonesArray* fTofHit;            //! PndTofHit TCA 
   TClonesArray* fTofPoint;          //! PndTofPoint TCA 
   TClonesArray* fFtofHit;           //! PndFtofHit TCA
-  TClonesArray* fFtofPoint;           //! PndFtofPoint TCA 
+  TClonesArray* fFtofPoint;         //! PndFtofPoint TCA 
   TClonesArray* fEmcCluster;        //! PndEmcCluster TCA 
   TClonesArray* fEmcBump;           //! PndEmcBump TCA
   TClonesArray* fEmcDigi;           //! PndEmcDigi TCA
@@ -65,18 +66,21 @@ protected:
   TClonesArray* fDrcPoint;          //! PndDrcBarPoint TCA
   TClonesArray* fDrcHit;            //! PndDrcHit TCA
   TClonesArray* fDskParticle;       //! PndDskParticle TCA  //need to change to PndDskHit in future
-  TClonesArray* fSttHit;            //! PndSttHit/PndSttHelixHit TCA 
+  TClonesArray* fSttHit;            //! PndSttHit TCA  
+  TClonesArray* fFtsHit;            //! PndFtsHit TCA  
  
   PndPidCorrPar* fCorrPar;          //! Correlation parameters
   PndEmcGeoPar* fEmcGeoPar;         //! EMC geometry parameters
   PndEmcErrorMatrixPar* fEmcErrorMatrixPar; //! EMC error matrix parameters
   PndEmcErrorMatrix *fEmcErrorMatrix; //! EMC error matrix 
-  PndGeoSttPar* fSttParameters;     //! STT geometry parameters
+  PndGeoSttPar* fSttParameters;     //! STT geometry parameters 
+  PndGeoFtsPar* fFtsParameters;     //! FTS geometry parameters
   PndEmcAbsClusterCalibrator* fEmcCalibrator;
 
   Short_t fDebugMode;               // Fill ntuples for debug
   Short_t fMvdMode;                 // MVD Mode: 0 no MVD, 1 MvdPoint, (2) MvdHit
-  Short_t fSttMode;                 // STT Mode: 0 no STT, 1 SttPoint,  2  SttHit, (3) SttHelixHit
+  Short_t fSttMode;                 // STT Mode: 0 no STT, 1 SttPoint, (2) SttHit
+  Short_t fFtsMode;                 // FTS Mode: 0 no FTS, 1 FtsPoint, (2) FtsHit
   Short_t fTofMode;                 // TOF Mode: 0 no TOF, 1 -empty-,  (2) TofHit
   Short_t fFtofMode;                // FTOF Mode:0 no FTOF,1 -empty-,  (2) FTofHit
   Short_t fEmcMode;                 // EMC Mode: 0 no EMC, 1 -empty-,  (2) EmcCluster, 3 EmcBumps
@@ -133,6 +137,7 @@ protected:
   Bool_t GetTrackInfo(PndTrack* track, PndPidCandidate* pid); 
   Bool_t GetMvdInfo  (PndTrack* track, PndPidCandidate* pid); 
   Bool_t GetSttInfo  (PndTrack* track, PndPidCandidate* pid);  
+  Bool_t GetFtsInfo  (PndTrack* track, PndPidCandidate* pid);  
   Bool_t GetTofInfo  (FairTrackParH* helix, PndPidCandidate* pid);  
   Bool_t GetFtofInfo (FairTrackParH* helix, PndPidCandidate* pid); 
   Bool_t GetEmcInfo  (FairTrackParH* helix, PndPidCandidate* pid);
@@ -174,7 +179,8 @@ public:
   void SetIdealHyp(Bool_t opt = kTRUE)    { fIdealHyp = opt;            }
 
   void SetMvdMode(Short_t mode)	{ fMvdMode = mode; };                 // MVD Mode: 0 no MVD
-  void SetSttMode(Short_t mode)	{ fSttMode = mode; };                 // STT Mode: 0 no STT
+  void SetSttMode(Short_t mode)	{ fSttMode = mode; };                 // STT Mode: 0 no STT 
+  void SetFtsMode(Short_t mode)	{ fFtsMode = mode; };                 // FTS Mode: 0 no FTS
   void SetTofMode(Short_t mode)	{ fTofMode = mode; };                 // TOF Mode: 0 no TOF
   void SetFtofMode(Short_t mode){ fFtofMode = mode; };                // FTOF Mode:0 no FTOF
   void SetEmcMode(Short_t mode)	{ fEmcMode = mode; };                 // EMC Mode: 0 no EMC

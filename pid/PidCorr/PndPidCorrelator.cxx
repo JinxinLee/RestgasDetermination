@@ -48,13 +48,14 @@ PndPidCorrelator::~PndPidCorrelator()
 
 //___________________________________________________________
 PndPidCorrelator::PndPidCorrelator() : 
-  FairTask(), fMcTrack(new TClonesArray()), fTrack(new TClonesArray()), fTrackID(new TClonesArray()), fTrack2(new TClonesArray()), fTrackID2(new TClonesArray()), fPidChargedCand(new TClonesArray()), fPidNeutralCand(new TClonesArray()), fMdtTrack(new TClonesArray()), fMvdHitsStrip(new TClonesArray()), fMvdHitsPixel(new TClonesArray()), fTofHit(new TClonesArray()), fTofPoint(new TClonesArray()), fFtofHit(new TClonesArray()), fFtofPoint(new TClonesArray()), fEmcCluster(new TClonesArray()), fEmcBump(new TClonesArray()), fEmcDigi(new TClonesArray()), fMdtPoint(new TClonesArray()), fMdtHit(new TClonesArray()), fMdtTrk(new TClonesArray()), fDrcPoint(new TClonesArray()), fDrcHit(new TClonesArray()), fDskParticle(new TClonesArray()), fSttHit(new TClonesArray()), 
+  FairTask(), fMcTrack(new TClonesArray()), fTrack(new TClonesArray()), fTrackID(new TClonesArray()), fTrack2(new TClonesArray()), fTrackID2(new TClonesArray()), fPidChargedCand(new TClonesArray()), fPidNeutralCand(new TClonesArray()), fMdtTrack(new TClonesArray()), fMvdHitsStrip(new TClonesArray()), fMvdHitsPixel(new TClonesArray()), fTofHit(new TClonesArray()), fTofPoint(new TClonesArray()), fFtofHit(new TClonesArray()), fFtofPoint(new TClonesArray()), fEmcCluster(new TClonesArray()), fEmcBump(new TClonesArray()), fEmcDigi(new TClonesArray()), fMdtPoint(new TClonesArray()), fMdtHit(new TClonesArray()), fMdtTrk(new TClonesArray()), fDrcPoint(new TClonesArray()), fDrcHit(new TClonesArray()), fDskParticle(new TClonesArray()), fSttHit(new TClonesArray()), fFtsHit(new TClonesArray()), 
   fCorrPar(new PndPidCorrPar()), fEmcGeoPar(new PndEmcGeoPar()), fEmcErrorMatrixPar(new PndEmcErrorMatrixPar()), fEmcErrorMatrix(new PndEmcErrorMatrix()), fSttParameters(new PndGeoSttPar()), fEmcCalibrator(NULL), fEmcClstCount(0), fFscClstCount(0),
   fDebugMode(kFALSE),
   fGeanePro(kTRUE), 
   fMdtRefit(kFALSE),
   fMvdMode(-1),
   fSttMode(-1),
+  fFtsMode(-1),
   fTofMode(-1), 
   fFtofMode(-1),
   fEmcMode(-1),
@@ -97,13 +98,14 @@ PndPidCorrelator::PndPidCorrelator() :
 //___________________________________________________________
 PndPidCorrelator::PndPidCorrelator(const char *name, const char *title) :
   FairTask(name),
-  fMcTrack(new TClonesArray()), fTrack(new TClonesArray()), fTrackID(new TClonesArray()), fTrack2(new TClonesArray()), fTrackID2(new TClonesArray()), fPidChargedCand(new TClonesArray()), fPidNeutralCand(new TClonesArray()), fMdtTrack(new TClonesArray()), fMvdHitsStrip(new TClonesArray()), fMvdHitsPixel(new TClonesArray()), fTofHit(new TClonesArray()), fTofPoint(new TClonesArray()), fFtofHit(new TClonesArray()), fFtofPoint(new TClonesArray()), fEmcCluster(new TClonesArray()), fEmcBump(new TClonesArray()), fEmcDigi(new TClonesArray()), fMdtPoint(new TClonesArray()), fMdtHit(new TClonesArray()), fMdtTrk(new TClonesArray()), fDrcPoint(new TClonesArray()), fDrcHit(new TClonesArray()), fDskParticle(new TClonesArray()), fSttHit(new TClonesArray()), 
+  fMcTrack(new TClonesArray()), fTrack(new TClonesArray()), fTrackID(new TClonesArray()), fTrack2(new TClonesArray()), fTrackID2(new TClonesArray()), fPidChargedCand(new TClonesArray()), fPidNeutralCand(new TClonesArray()), fMdtTrack(new TClonesArray()), fMvdHitsStrip(new TClonesArray()), fMvdHitsPixel(new TClonesArray()), fTofHit(new TClonesArray()), fTofPoint(new TClonesArray()), fFtofHit(new TClonesArray()), fFtofPoint(new TClonesArray()), fEmcCluster(new TClonesArray()), fEmcBump(new TClonesArray()), fEmcDigi(new TClonesArray()), fMdtPoint(new TClonesArray()), fMdtHit(new TClonesArray()), fMdtTrk(new TClonesArray()), fDrcPoint(new TClonesArray()), fDrcHit(new TClonesArray()), fDskParticle(new TClonesArray()), fSttHit(new TClonesArray()), fFtsHit(new TClonesArray()), 
   fCorrPar(new PndPidCorrPar()), fEmcGeoPar(new PndEmcGeoPar()), fEmcErrorMatrixPar(new PndEmcErrorMatrixPar()), fEmcErrorMatrix(new PndEmcErrorMatrix()), fSttParameters(new PndGeoSttPar()), fEmcCalibrator(NULL), fEmcClstCount(0), fFscClstCount(0),
   fDebugMode(kFALSE),
   fGeanePro(kTRUE), 
   fMdtRefit(kFALSE),
   fMvdMode(-1),
-  fSttMode(-1),
+  fSttMode(-1), 
+  fFtsMode(-1),
   fTofMode(-1), 
   fFtofMode(-1),
   fEmcMode(-1),
@@ -216,6 +218,39 @@ InitStatus PndPidCorrelator::Init() {
 	}
     }
   
+  // *** FTS ***
+  if (fFtsMode)
+    {
+      if (fMixMode==kFALSE)
+	{
+	  fFtsHit = (TClonesArray*) fManager->GetObject("FTSHit");
+	  if ( fFtsHit ) 
+	    {
+	      cout << "-I- PndPidCorrelator::Init: Using FTSHit" << endl;
+	      fFtsMode = 2;
+	    }
+	  else
+	    {
+	      cout << "-W- PndPidCorrelator::Init: No FTS hits array! Switching FTS OFF" << endl;
+	      fFtsMode = 0;
+	    } 
+	}
+      else
+	{
+	  fFtsHit = (TClonesArray*) fManager->GetObject("FTSHitMix");
+	  if ( fFtsHit )
+	    {
+	      cout << "-I- PndPidCorrelator::Init: Using FTSHitMix" << endl;
+	      fFtsMode = 2;
+	    }
+	  else
+	    {
+	      cout << "-W- PndPidCorrelator::Init: No FTS hits mix array! Switching FTS OFF" << endl;
+	      fFtsMode = 0;
+	    }
+	}
+    }
+
   // *** MVD ***
   if (fMvdMode)
     {
@@ -579,7 +614,7 @@ void PndPidCorrelator::SetParContainers() {
 
   // Get Stt parameter
   fSttParameters = (PndGeoSttPar*) db->getContainer("PndGeoSttPar");
-
+  fFtsParameters = (PndGeoFtsPar*) db->getContainer("PndGeoFtsPar");
 }
 //______________________________________________________
 void PndPidCorrelator::Exec(Option_t * option) {
@@ -683,7 +718,6 @@ void PndPidCorrelator::ConstructChargedCandidate() {
       {
 	if ( (fTofMode==2) && (fTofHit    ->GetEntriesFast()>0) ) GetTofInfo(helix, pidCand);
 	if ( (fEmcMode>0)  && (fEmcClstCount>0) ) GetEmcInfo(helix, pidCand);
-	// if ( (fEmcMode>0)  && (fFscClstCount>0) ) GetFscInfo(helix, pidCand); // no sense to loop barrel tracks to fsc
 	if ( (fMdtMode>0)  && (fMdtHit    ->GetEntriesFast()>0) ) GetMdtInfo(track, pidCand);  
 	if ( (fDrcMode>0)  && (fDrcHit    ->GetEntriesFast()>0) ) GetDrcInfo(helix, pidCand);
 	if ( (fDskMode>0)  && (fDskParticle->GetEntriesFast()>0)) GetDskInfo(helix, pidCand); 
@@ -717,11 +751,14 @@ void PndPidCorrelator::ConstructChargedCandidate() {
         pidCand->SetTrackBranch(FairRootManager::Instance()->GetBranchId(fTrackBranch2));
 	pidCand->AddLink(FairLink("PndTrack", i));
 	if (!GetTrackInfo(track, pidCand)) continue;
-	GetMvdInfo(track, pidCand);
-	if ( (fFtofMode==2) && (fFtofHit->GetEntriesFast()>0) ) GetFtofInfo(helix, pidCand);
-	if ( (fEmcMode>0)  && (fFscClstCount>0) ) GetFscInfo(helix, pidCand);
-	if ( (fMdtMode>0)  && (fMdtHit    ->GetEntriesFast()>0) ) GetMdtInfo(track, pidCand);
-	
+	if ( (fMvdMode==2) && ((fMvdHitsStrip->GetEntriesFast()+fMvdHitsPixel->GetEntriesFast())>0) ) GetMvdInfo(track, pidCand); 
+	if ( (fFtsMode == 2) && (fFtsHit    ->GetEntriesFast()>0) ) GetFtsInfo(track, pidCand);
+	if (!fFast)
+	  {
+	    if ( (fFtofMode==2) && (fFtofHit->GetEntriesFast()>0) ) GetFtofInfo(helix, pidCand);
+	    if ( (fEmcMode>0)  && (fFscClstCount>0) ) GetFscInfo(helix, pidCand);
+	    if ( (fMdtMode>0)  && (fMdtHit    ->GetEntriesFast()>0) ) GetMdtInfo(track, pidCand);
+	  } // end of fast mode
 	AddChargedCandidate(pidCand);
       }
     }

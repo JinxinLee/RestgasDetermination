@@ -22,6 +22,7 @@ ${CMAKE_SOURCE_DIR}/gem
 ${CMAKE_SOURCE_DIR}/genfit
 ${CMAKE_SOURCE_DIR}/pnddata
 ${CMAKE_SOURCE_DIR}/pnddata/SttData
+${CMAKE_SOURCE_DIR}/pnddata/FtsData
 ${CMAKE_SOURCE_DIR}/pnddata/SciTData
 ${CMAKE_SOURCE_DIR}/pnddata/MdtData
 ${CMAKE_SOURCE_DIR}/pnddata/DrcData
@@ -32,6 +33,7 @@ ${CMAKE_SOURCE_DIR}/pnddata/TrackData
 ${CMAKE_SOURCE_DIR}/ftof
 ${CMAKE_SOURCE_DIR}/stt
 ${CMAKE_SOURCE_DIR}/stt/sttreco
+${CMAKE_SOURCE_DIR}/fts
 ${CMAKE_SOURCE_DIR}/geane
 ${CMAKE_SOURCE_DIR}/trackrep
 ${CMAKE_SOURCE_DIR}/rho
@@ -65,6 +67,7 @@ PidCorr/PndPidCorrelator.cxx
 PidCorr/PndPidTrackInfo.cxx
 PidCorr/PndPidMvdInfo.cxx
 PidCorr/PndPidSttInfo.cxx
+PidCorr/PndPidFtsInfo.cxx
 PidCorr/PndPidFscInfo.cxx
 PidCorr/PndPidFtofInfo.cxx
 PndPidContFact.cxx

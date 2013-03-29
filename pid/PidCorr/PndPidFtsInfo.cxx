@@ -1,38 +1,40 @@
 #include "PndPidCorrelator.h"
-#include "PndSttHit.h"
+#include "PndFtsHit.h"
 
 #include <cmath>
 
 //_________________________________________________________________
-Bool_t PndPidCorrelator::GetSttInfo(PndTrack* track, PndPidCandidate* pidCand) {
- 
+Bool_t PndPidCorrelator::GetFtsInfo(PndTrack* track, PndPidCandidate* pidCand) {
+  
   std::vector<Double_t> dedxvec;
   dedxvec.clear();
 
-  Double_t tuberadius = fSttParameters->GetTubeInRad(); 
-  Int_t sttCounts = 0, sttRawCounts = 0;
+  Double_t tuberadius = fFtsParameters->GetTubeInRad(); 
+  
+  Int_t ftsCounts = 0, ftsRawCounts = 0;
   PndTrackCand trackCand = track->GetTrackCand();
   for (Int_t ii=0; ii<trackCand.GetNHits(); ii++)
     {
       PndTrackCandHit candHit = trackCand.GetSortedHit(ii);
       Double_t dedx = 0.;
 
-      if ( ( candHit.GetDetId()!=FairRootManager::Instance()->GetBranchId("STTHit") && fMixMode==kFALSE) ||
-           ( candHit.GetDetId()!=FairRootManager::Instance()->GetBranchId("STTHitMix") && fMixMode==kTRUE) ) continue;
-      PndSttHit *sttHit = (PndSttHit*) fSttHit->At(candHit.GetHitId());
-      if(!sttHit) continue;
-      sttRawCounts++;
+      if ( ( candHit.GetDetId()!=FairRootManager::Instance()->GetBranchId("FTSHit") && fMixMode==kFALSE) ||
+           ( candHit.GetDetId()!=FairRootManager::Instance()->GetBranchId("FTSHitMix") && fMixMode==kTRUE) ) continue;
+      PndFtsHit *ftsHit = (PndFtsHit*) fFtsHit->At(candHit.GetHitId());
+      if(!ftsHit) continue;
+      ftsRawCounts++;
+      
       // compute dE/dx
-      dedx = sttHit->ComputedEdx(track, tuberadius);
+      //dedx = ftsHit->ComputedEdx(track, tuberadius);
       
       if(dedx != 0)
 	{
 	  dedxvec.push_back(dedx);
-	  sttCounts++;
-	}
+	  ftsCounts++;
+	  }
     }
   
-  if( sttCounts > 0) {
+  if( ftsCounts > 0) {
     // truncated mean
     Double_t perc = 0.70;
     // sort
@@ -40,7 +42,7 @@ Bool_t PndPidCorrelator::GetSttInfo(PndTrack* track, PndPidCandidate* pidCand) {
     
     //truncated mean
     Double_t sum = 0;
-    Int_t endnum = int(floor(sttCounts * perc));
+    Int_t endnum = int(floor(ftsCounts * perc));
      
     // ****************************************
     // CUT on n of hits: to have a meaningful
@@ -53,7 +55,7 @@ Bool_t PndPidCorrelator::GetSttInfo(PndTrack* track, PndPidCandidate* pidCand) {
     }
   } 
 
-  pidCand->SetSttHits(sttRawCounts);
+  pidCand->SetSttHits(ftsRawCounts);
   return kTRUE;
 }
 
