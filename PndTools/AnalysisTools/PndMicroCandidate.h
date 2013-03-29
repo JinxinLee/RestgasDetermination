@@ -77,6 +77,9 @@ class PndMicroCandidate : public VAbsMicroCandidate  //TObject
   Float_t		GetSttMeanDEDX() const { return fSttMeanDEDX; }
   Int_t		        GetSttHits()     const { return fSttHits; }
   //const Int_t* GetSttHitIndexArray()  {return fSttHitIndexArray.GetArray();}
+
+  // GEM
+  Int_t                 GetGemHits()     const { return fGemHits; }
 	
   // TOF
   Float_t		GetTofStopTime()    const { return fTofStopTime; }
@@ -296,10 +299,13 @@ class PndMicroCandidate : public VAbsMicroCandidate  //TObject
   Int_t   	fMvdHits;
   //TArrayI		fMvdHitIndexArray;
 	
-  // STT
+  // STT-FTS
   Float_t 	fSttMeanDEDX;
   Int_t   	fSttHits;
   //TArrayI		fSttHitIndexArray;
+
+  //GEM 
+  Int_t         fGemHits;
 	
   // TOF
   Float_t       fTofStopTime;

@@ -40,6 +40,7 @@ PndMicroCandidate::PndMicroCandidate():
   fMvdHits(0),
   fSttMeanDEDX(0.),
   fSttHits(0),
+  fGemHits(0),
   fTofStopTime(0.),
   fTofM2(0.),
   fTofTrackLength(0.),
@@ -111,6 +112,7 @@ PndMicroCandidate::PndMicroCandidate(Int_t charge, TVector3 &pos, TLorentzVector
   fMvdHits(0),
   fSttMeanDEDX(0.),
   fSttHits(0),
+  fGemHits(0),
   fTofStopTime(0.),
   fTofM2(0.),
   fTofTrackLength(0.),
@@ -187,6 +189,7 @@ PndMicroCandidate::PndMicroCandidate(Int_t charge, TVector3 &pos, TLorentzVector
   fMvdHits(0),
   fSttMeanDEDX(0.),
   fSttHits(0),
+  fGemHits(0),
   fTofStopTime(0.),
   fTofM2(0.),
   fTofTrackLength(0.),
@@ -362,6 +365,7 @@ void PndMicroCandidate::SetDefault()
   fMvdHits = 0;
   fSttMeanDEDX = 0.;
   fSttHits = 0;
+  fGemHits = 0;
   fTofStopTime = 0.;
   fTofM2 = 0.;
   fTofTrackLength = 0.;
