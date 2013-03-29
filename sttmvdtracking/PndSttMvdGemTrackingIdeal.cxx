@@ -185,13 +185,13 @@ void PndSttMvdGemTrackingIdeal::Exec(Option_t * option)
         if(fVerbose>5) Info("Exec","Create new PndTrack object finished %i",trackID);
       }
       if(fVerbose>5) Info("Exec","add the hit %i to trackcand %i",ih,trackID);
-      rho=ghit->GetX()*ghit->GetX()+ghit->GetY()*ghit->GetY();
+      rho=myPoint->GetTime();
       cand->AddHit(fBranchIDs[iDet],ih,rho);
       if(!firstHit[trackID]){
         firstHit[trackID]=ghit;
         firstPoint[trackID]=myPoint;
       } else {
-        rho2=firstHit[trackID]->GetX()*firstHit[trackID]->GetX()+firstHit[trackID]->GetY()*firstHit[trackID]->GetY();
+        rho2=firstPoint[trackID]->GetTime();
         if(rho2 > rho ){
         firstHit[trackID]=ghit;
         firstPoint[trackID]=myPoint;
@@ -201,7 +201,7 @@ void PndSttMvdGemTrackingIdeal::Exec(Option_t * option)
         lastHit[trackID]=ghit;
         lastPoint[trackID]=myPoint;
       } else {
-        rho2=lastHit[trackID]->GetX()*lastHit[trackID]->GetX()+lastHit[trackID]->GetY()*lastHit[trackID]->GetY();
+        rho2=lastPoint[trackID]->GetTime();
         if(rho2 < rho ){
           lastHit[trackID]=ghit;
           lastPoint[trackID]=myPoint;

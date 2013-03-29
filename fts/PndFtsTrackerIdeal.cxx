@@ -183,12 +183,12 @@ void PndFtsTrackerIdeal::Exec(Option_t * option)
         if(fVerbose>5) Info("Exec","Create new PndTrack object finished %i",trackID);
       }
       if(fVerbose>5) Info("Exec","add the hit %i to trackcand %i",ih,trackID);
-      cand->AddHit(fBranchIDs[iDet],ih,ghit->GetZ());
-      if(!firstHit[trackID] || firstHit[trackID]->GetZ() > ghit->GetZ()) {
+      cand->AddHit(fBranchIDs[iDet],ih,myPoint->GetTime());
+      if(!firstHit[trackID] || firstPoint[trackID]->GetTime() > myPoint->GetTime()) {
         firstHit[trackID]=ghit;
         firstPoint[trackID]=myPoint;
       }
-      if(!lastHit[trackID] || lastHit[trackID]->GetZ() < ghit->GetZ()) {
+      if(!lastHit[trackID] || lastPoint[trackID]->GetTime() < myPoint->GetTime()) {
         lastHit[trackID]=ghit;
         lastPoint[trackID]=myPoint;
       }
