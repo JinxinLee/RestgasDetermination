@@ -554,7 +554,7 @@ InitStatus PndPidCorrelator::Init() {
       tofCorr = new TNtuple("tofCorr","TRACK-TOF Correlation",
 			    "track_x:track_y:track_z:track_phi:track_p:track_charge:track_theta:track_z0:tof_x:tof_y:tof_z:tof_phi:chi2:dphi:len:glen");
       ftofCorr = new TNtuple("ftofCorr","TRACK-FTOF Correlation",
-                            "track_x:track_y:track_z:track_phi:track_p:track_charge:track_theta:track_z0:tof_x:tof_y:tof_z:tof_phi:chi2:dphi:len:glen");
+                            "track_x:track_y:track_z:ver_x:ver_y:ver_z:ver_px:ver_py:ver_pz:track_p:track_charge:track_theta:track_z0:tof_x:tof_y:tof_z:chi2:len:glen:tlen");
       emcCorr = new TNtuple("emcCorr","TRACK-EMC Correlation",
 			    "track_x:track_y:track_z:track_phi:track_p:track_charge:track_theta:track_z0:emc_x:emc_y:emc_z:emc_phi:chi2:dphi:emc_ene:glen:emc_mod");
       fscCorr = new TNtuple("fscCorr","TRACK-FSC Correlation",

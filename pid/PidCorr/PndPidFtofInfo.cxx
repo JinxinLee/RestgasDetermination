@@ -42,19 +42,36 @@ Bool_t PndPidCorrelator::GetFtofInfo(FairTrackParH* helix, PndPidCandidate* pidC
   FairGeanePro *fProTof = new FairGeanePro();
   if (!fCorrErrorProp) fProTof->PropagateOnlyParameters(); 
   FairGeanePro *fProVertex = new FairGeanePro();
-  if (!fCorrErrorProp) fProVertex->PropagateOnlyParameters();
+  fProVertex->PropagateOnlyParameters();
 
   PndFtofHit *tofHit = NULL;
   Int_t tofEntries = fFtofHit->GetEntriesFast();
   Int_t tofIndex = -1;
-  Float_t tofTof = 0., tofLength = -1000, tofGLength = -1000, tofLengthTemp = -1000;;
+  Float_t tofTof = 0., tofLength = -1000, tofGLength = -1000, tofTrackLength = -1000;;
   Float_t tofQuality = 1000000;
 
   Float_t chi2 = 0;
-  TVector3 vertex(0., 0., 0.);
-  TVector3 vertexrec(0., 0., 0.);
+  TVector3 vertex(0., 0., -10000.);
+  TVector3 vertexrec(0., 0., -10000.); 
+  TVector3 momrec(0., 0., -10000.);
   TVector3 tofPos(0., 0., 0.);
   TVector3 momentum(0., 0., 0.);
+
+  if (fGeanePro) // Overwrites vertex if Geane is used
+    {
+      // calculates track length from (0,0,0) to last point
+      fProVertex->SetPoint(TVector3(0,0,0));
+      fProVertex->PropagateToPCA(1, -1);
+      FairTrackParH *fRes= new FairTrackParH();
+      Bool_t rc =  fProVertex->Propagate(helix, fRes, fPidHyp*pidCand->GetCharge());
+      if (rc) 
+	{
+	  tofTrackLength = fProVertex->GetLengthAtPCA(); 
+	  vertexrec.SetXYZ(fRes->GetX(), fRes->GetY(), fRes->GetZ()); 
+	  momrec.SetXYZ(fRes->GetPx(), fRes->GetPy(), fRes->GetPz());
+	}
+    }
+  
   for (Int_t tt = 0; tt<tofEntries; tt++)
     {
       tofHit = (PndFtofHit*)fFtofHit->At(tt);
@@ -65,6 +82,7 @@ Bool_t PndPidCorrelator::GetFtofInfo(FairTrackParH* helix, PndPidCandidate* pidC
       Float_t propY = helix->GetY() + (fCorrPar->GetFtofZ() - helix->GetZ()) * helix->GetPy() / helix->GetPz();
       Float_t propZ = fCorrPar->GetFtofZ();
       vertex.SetXYZ(propX, propY, propZ);
+      tofGLength = (vertex-helix->GetPosition()).Mag();
       
       if (fGeanePro) // Overwrites vertex if Geane is used
 	{ 
@@ -73,37 +91,28 @@ Bool_t PndPidCorrelator::GetFtofInfo(FairTrackParH* helix, PndPidCandidate* pidC
 	  FairTrackParH *fRes= new FairTrackParH();
 	  Bool_t rc =  fProTof->Propagate(helix, fRes, fPidHyp*pidCand->GetCharge());	
 	  if (!rc) continue;
-      
-	  vertex.SetXYZ(fRes->GetX(), fRes->GetY(), fRes->GetZ());
-	  
-	  fProVertex->SetPoint(TVector3(0,0,0));
-	  fProVertex->PropagateToPCA(1, -1);
-	  FairTrackParH *fRes2= new FairTrackParH();
-	  Bool_t rc2 =  fProVertex->Propagate(fRes, fRes2, fPidHyp*pidCand->GetCharge());
-	  //Bool_t rc2 =  fProVertex->Propagate(helix, fRes2, fPidHyp*pidCand->GetCharge());
-	  if (rc2) tofLengthTemp = fProVertex->GetLengthAtPCA(); 
-	  vertexrec.SetXYZ(fRes2->GetX(), fRes2->GetY(), fRes2->GetZ());
+	  tofGLength = fProTof->GetLengthAtPCA(); 
+      	  vertex.SetXYZ(fRes->GetX(), fRes->GetY(), fRes->GetZ());
 	}
-    
+      
       Float_t dist = (tofPos-vertex).Mag2();
-      tofGLength = (vertex-helix->GetPosition()).Mag();
-      //tofLengthTemp += tofGLength;
-
+      
       if ( tofQuality > dist)
         {
           tofIndex = tt;
           tofQuality = dist;
           tofTof = tofHit->GetTime(); 
-	  tofLength = tofLengthTemp;
-	  tofGLength = (vertex-helix->GetPosition()).Mag();
+	  tofLength = tofTrackLength+tofGLength;
 	}
       
       if (fDebugMode)
         {
-          Float_t ntuple[] = {vertex.X(), vertex.Y(), vertex.Z(), vertex.Phi(),
+          Float_t ntuple[] = {vertex.X(), vertex.Y(), vertex.Z(),
+			      vertexrec.X(), vertexrec.Y(), vertexrec.Z(), 
+			      momrec.X(), momrec.Y(), momrec.Z(),
                               helix->GetMomentum().Mag(), helix->GetQ(), helix->GetMomentum().Theta(), helix->GetZ(),
-                              tofPos.X(), tofPos.Y(), tofPos.Z(), tofPos.Phi(),
-                              dist, vertex.DeltaPhi(tofPos), tofLength, tofGLength};
+                              tofPos.X(), tofPos.Y(), tofPos.Z(),
+                              dist, tofLength, tofGLength,tofTrackLength};
           ftofCorr->Fill(ntuple);
         }
     }
