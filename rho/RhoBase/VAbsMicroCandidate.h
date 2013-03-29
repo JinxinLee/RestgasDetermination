@@ -67,10 +67,13 @@ class VAbsMicroCandidate : public FairMultiLinkedData
   virtual Int_t		        GetMvdHits() const=0;
   //virtual const Int_t* GetMvdHitIndexArray() =0;
 	
-  // STT
+  // STT-FTS
   virtual Float_t		GetSttMeanDEDX() const=0; 
   virtual Int_t		        GetSttHits() const=0;
   //virtual const Int_t* GetSttHitIndexArray() =0;
+
+  // GEM
+  virtual Int_t                 GetGemHits() const=0;
 	
   // TOF
   virtual Float_t		GetTofStopTime() const =0;

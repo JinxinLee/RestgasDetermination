@@ -73,11 +73,14 @@ class PndPidCandidate : public VAbsMicroCandidate  //TObject
   Int_t		        GetMvdHits()     const { return fMvdHits; }
   //const Int_t* GetMvdHitIndexArray()  {return fMvdHitIndexArray.GetArray();}
 	
-  // STT
+  // STT - FTS
   Float_t		GetSttMeanDEDX() const { return fSttMeanDEDX; }
   Int_t		        GetSttHits()     const { return fSttHits; }
   //const Int_t* GetSttHitIndexArray()  {return fSttHitIndexArray.GetArray();}
-	
+
+  // GEM
+  Int_t		        GetGemHits()     const { return fGemHits; }	
+
   // TOF
   Float_t		GetTofStopTime()    const { return fTofStopTime; }
   Float_t		GetTofM2()          const { return fTofM2; }
@@ -192,7 +195,10 @@ class PndPidCandidate : public VAbsMicroCandidate  //TObject
   void	SetSttMeanDEDX(Double_t val)  { fSttMeanDEDX = (Float_t) val; }
   void	SetSttHits(Int_t val)         { fSttHits = val; }
   //void	SetSttHitIndexArray(Int_t n, Int_t* arr)  { fSttHits=n; fSttHitIndexArray.Set(n,arr);}
-	
+
+  // GEM
+  void	SetGemHits(Int_t val)       { fGemHits = val; }	
+
   // TOF
   void	SetTofStopTime(Double_t val)    { fTofStopTime = (Float_t) val;}
   void	SetTofM2(Double_t val)          { fTofM2 = (Float_t) val;}
@@ -296,8 +302,11 @@ class PndPidCandidate : public VAbsMicroCandidate  //TObject
   Float_t 	fMvdDEDX;
   Int_t   	fMvdHits;
   //TArrayI		fMvdHitIndexArray;
-	
-  // STT
+
+  // GEM
+  Int_t   	fGemHits;
+  
+  // STT-FTS
   Float_t 	fSttMeanDEDX;
   Int_t   	fSttHits;
   //TArrayI		fSttHitIndexArray;
@@ -362,10 +371,8 @@ class PndPidCandidate : public VAbsMicroCandidate  //TObject
   Float_t 	fChiSquared;
   
 
-  ClassDef(PndPidCandidate,4) // Abstract base class for MicroDST candidates
+  ClassDef(PndPidCandidate,5) // Abstract base class for MicroDST candidates
     };
-
-//std::ostream&  operator << (std::ostream& o, const VAbsMicroCandidate&);
 
 #endif                                           
 

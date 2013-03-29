@@ -714,6 +714,7 @@ void PndPidCorrelator::ConstructChargedCandidate() {
     if (!GetTrackInfo(track, pidCand)) continue;
     if ( (fMvdMode==2) && ((fMvdHitsStrip->GetEntriesFast()+fMvdHitsPixel->GetEntriesFast())>0) ) GetMvdInfo(track, pidCand); 
     if ( (fSttMode == 2) && (fSttHit    ->GetEntriesFast()>0) ) GetSttInfo(track, pidCand);
+    GetGemInfo(track, pidCand);
     if (!fFast)
       {
 	if ( (fTofMode==2) && (fTofHit    ->GetEntriesFast()>0) ) GetTofInfo(helix, pidCand);
@@ -752,7 +753,8 @@ void PndPidCorrelator::ConstructChargedCandidate() {
 	pidCand->AddLink(FairLink("PndTrack", i));
 	if (!GetTrackInfo(track, pidCand)) continue;
 	if ( (fMvdMode==2) && ((fMvdHitsStrip->GetEntriesFast()+fMvdHitsPixel->GetEntriesFast())>0) ) GetMvdInfo(track, pidCand); 
-	if ( (fFtsMode == 2) && (fFtsHit    ->GetEntriesFast()>0) ) GetFtsInfo(track, pidCand);
+	if ( (fFtsMode == 2) && (fFtsHit    ->GetEntriesFast()>0) ) GetFtsInfo(track, pidCand); 
+	GetGemInfo(track, pidCand);
 	if (!fFast)
 	  {
 	    if ( (fFtofMode==2) && (fFtofHit->GetEntriesFast()>0) ) GetFtofInfo(helix, pidCand);

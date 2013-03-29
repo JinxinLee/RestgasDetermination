@@ -40,6 +40,7 @@ PndPidCandidate::PndPidCandidate():
   fMvdHits(0),
   fSttMeanDEDX(0.),
   fSttHits(0),
+  fGemHits(0),
   fTofStopTime(0.),
   fTofM2(0.),
   fTofTrackLength(0.),
@@ -110,7 +111,8 @@ PndPidCandidate::PndPidCandidate(Int_t charge, TVector3 &pos, TLorentzVector &p4
   fMvdDEDX(0.),
   fMvdHits(0),
   fSttMeanDEDX(0.),
-  fSttHits(0),
+  fSttHits(0),  
+  fGemHits(0),
   fTofStopTime(0.),
   fTofM2(0.),
   fTofTrackLength(0.),
@@ -185,7 +187,8 @@ PndPidCandidate::PndPidCandidate(Int_t charge, TVector3 &pos, TLorentzVector &p4
   fMvdDEDX(0.),
   fMvdHits(0),
   fSttMeanDEDX(0.),
-  fSttHits(0),
+  fSttHits(0), 
+  fGemHits(0),
   fTofStopTime(0.),
   fTofM2(0.),
   fTofTrackLength(0.),
@@ -361,6 +364,7 @@ void PndPidCandidate::SetDefault()
   fMvdHits = 0;
   fSttMeanDEDX = 0.;
   fSttHits = 0;
+  fGemHits = 0;
   fTofStopTime = 0.;
   fTofM2 = 0.;
   fTofTrackLength = 0.;
