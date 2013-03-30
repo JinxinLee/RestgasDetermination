@@ -62,7 +62,7 @@ class PndTrkLegendreFits : public TObject
 	);
 
   Short_t FitSZspace(
-	Short_t nSkewHitsinTrack,
+	Short_t nHitsinTrack,
 	Double_t *S,
 	Double_t *Z,
 	Double_t *DriftRadius,
@@ -70,7 +70,7 @@ class PndTrkLegendreFits : public TObject
 	Double_t FInot,
 	Short_t NMAX,
 	Double_t *emme,
-	int IVOLTE
+	int PlotNumber
 	);
 
 
