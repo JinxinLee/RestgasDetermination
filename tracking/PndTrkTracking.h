@@ -780,9 +780,6 @@ class PndTrkTracking : public FairTask
 	);
 
 
-
-
-
   ClassDef(PndTrkTracking,1);
 
 };
