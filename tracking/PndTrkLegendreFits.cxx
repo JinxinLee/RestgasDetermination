@@ -109,7 +109,7 @@ fIcounter=IVOLTE;
 				);
 
  if (result<0) { *Type=false; return result;}
- 
+
 
  cosT = cos(Theta);
  sinT = sin(Theta);
