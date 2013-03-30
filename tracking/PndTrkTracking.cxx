@@ -12,6 +12,7 @@
 #include "PndTrkMergeSort.h"
 #include "PndTrkPlotMacros.h"
 #include "PndTrkPrintouts.h"
+#include "PndTrkSttAdjacencies.h"
 
 #include "PndSttHit.h"
 #include "PndSciTHit.h"
@@ -603,7 +604,9 @@ if(doMcComparison >=1 ){
 	}
  }
 
-
+ // load the adjacencies table for the Stt tubes;
+ PndTrkSttAdjacencies  Adjacent;
+ Adjacent.CalculateAdjacentStt(fSttTubeArray);
 
 
  return kSUCCESS;
@@ -1066,7 +1069,6 @@ void PndTrkTracking::Exec(Option_t* opt) {
 	// fTubeID[i] = STT tubeID correspondint to the hit number i ;
 	fTubeID[i] = pSttHit->GetTubeID();
 	pSttTube = (PndSttTube *) fSttTubeArray->At(fTubeID[i]);
-	TVector3 center = pSttTube->GetPosition();
 	// drift radius
 	Double_t dradius = pSttHit->GetIsochrone();
 	// wire direction
@@ -6702,7 +6704,6 @@ ErrorDriftRadiusconformal[MAXSTTHITSINTRACK+MAXMVDPIXELHITSINTRACK+MAXMVDSTRIPHI
 
 
 //------------------ end function  PndTrkTracking::RefitMvdStt
-
 
 ClassImp(PndTrkTracking)
 
