@@ -21,13 +21,15 @@ using namespace std;
 //-----------------------------------------------------------
 
  void PndTrkSttAdjacencies::CalculateAdjacentStt(
-			TClonesArray *SttTubeArray
+			TClonesArray *SttTubeArray, // input; array of the Stt tubes;
+			int nParContigue[4542],  // output; number of contiguous straws (axial Stt);
+			int ListParContiguous[4542][6]  // output list (axial Stt);
 						)
  {
 	int i,j,n, ncontigue;
 
 	int	nParContigue[4542],
-		ListaParContigue[4542][6]; // al massimo ci sono 6 contigue;
+		ListParContiguous[4542][6]; // al massimo ci sono 6 contigue;
 	FILE *HAND = fopen("ListaSttStraw.lis","w");
 
 	double dis2, x[4542], y[4542], z[4542];
@@ -54,7 +56,7 @@ using namespace std;
 			dis2 = ( x[i]-x[j])*( x[i]-x[j]) +
 				(y[i]-y[j])*(y[i]-y[j]);
 			if(dis2>1.1) continue;
-			ListaParContigue[i][nParContigue[i]] = j+1;
+			ListParContiguous[i][nParContigue[i]] = j+1;
 			nParContigue[i]++;
 			if( nParContigue[i]>6 ) { cout<<"Errore ! N contigue Par > 6!!! Exit.\n"; exit(-1);}
 		}
@@ -75,7 +77,7 @@ using namespace std;
 		if( nParContigue[i]>0 ) {
 			fprintf(HAND," lista :");
 			for(n=0;n<nParContigue[i];n++){
-				fprintf(HAND," %d",ListaParContigue[i][n]);
+				fprintf(HAND," %d",ListParContiguous[i][n]);
 			}
 			fprintf(HAND,";\n");
 		} else {
