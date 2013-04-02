@@ -28,9 +28,7 @@ using namespace std;
  {
 	int i,j,n, ncontigue;
 
-	int	nParContigue[4542],
-		ListParContiguous[4542][6]; // al massimo ci sono 6 contigue;
-	FILE *HAND = fopen("ListaSttStraw.lis","w");
+//	FILE *HAND = fopen("ListaSttStraw.lis","w");
 
 	double dis2, x[4542], y[4542], z[4542];
 	TVector3 center[4542], wiredirection[4542];
@@ -61,9 +59,12 @@ using namespace std;
 			if( nParContigue[i]>6 ) { cout<<"Errore ! N contigue Par > 6!!! Exit.\n"; exit(-1);}
 		}
 
+
+/*
 		fprintf(HAND,"Stt straw n. %d ",i+1);
 		fprintf(HAND,", X %g, Y %g, Z %g ",
 		x[i],y[i],z[i]);
+
 		if(wiredirection[i].Z() <0.) {
 			fprintf(HAND," dirX %g , dirY %g , dirZ %g ; straw contigue = %d ;",
 			-wiredirection[i].X(),-wiredirection[i].Y(),-wiredirection[i].Z(),
@@ -74,6 +75,7 @@ using namespace std;
 			nParContigue[i]);
 		}
 
+
 		if( nParContigue[i]>0 ) {
 			fprintf(HAND," lista :");
 			for(n=0;n<nParContigue[i];n++){
@@ -83,9 +85,11 @@ using namespace std;
 		} else {
 			fprintf(HAND,"\n");
 		}
+*/
 	}
 
-	fclose (HAND);
+//	fclose (HAND);
+
  }
 //------------------ end function  PndTrkSttAdjacencies::CalculateAdjacentStt
 
