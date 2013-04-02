@@ -270,8 +270,6 @@ void PndTrkTracking::Initialization_ClassVariables()
 	len = sizeof(fnSttSkewHitsinTrack);
 	memset (fnSttSkewHitsinTrack,0,len);
 
-//  Short_t :
-
 	fnMvdDSPixelHitNotTrackCand=0;
 	fnMvdDSStripHitNotTrackCand=0;
 	fnMvdPixelHit=0;
@@ -306,6 +304,14 @@ void PndTrkTracking::Initialization_ClassVariables()
 
 //  int :
 	fNevents_to_plot = 10;
+
+	len = sizeof(fnParContigue);
+	memset (fnParContigue,0,len);
+
+	len = sizeof(fListParContiguous);
+	memset (fListParContiguous,0,len);
+
+
 //  Double_t :
 
 	fFimin=0.;
@@ -606,7 +612,11 @@ if(doMcComparison >=1 ){
 
  // load the adjacencies table for the Stt tubes;
  PndTrkSttAdjacencies  Adjacent;
- Adjacent.CalculateAdjacentStt(fSttTubeArray);
+ Adjacent.CalculateAdjacentStt(
+	fSttTubeArray,
+	fnParContigue,  // output; number of contiguous straws (axial Stt);
+	fListParContiguous  // output list (axial Stt);
+	);
 
 
  return kSUCCESS;
