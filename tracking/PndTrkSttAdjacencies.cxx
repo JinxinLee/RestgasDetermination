@@ -50,7 +50,7 @@ using namespace std;
 	for (i=0;i< NUMBER_STRAWS; i++){
 		if( fabs(wiredirection[i].Z() -1.) > 1.e-5) continue; // non considero le skew;
 
-		nParContiguous[i]= 0;
+		nParContiguous[i+1]= 0;
 		for(j=0;j<NUMBER_STRAWS; j++){
 			if(j==i) continue;
 			if( fabs(wiredirection[j].Z() -1.) > 1.e-5) continue; // non considero le skew;
@@ -71,18 +71,18 @@ using namespace std;
 		if(wiredirection[i].Z() <0.) {
 			fprintf(HAND," dirX %g , dirY %g , dirZ %g ; straw contigue = %d ;",
 			-wiredirection[i].X(),-wiredirection[i].Y(),-wiredirection[i].Z(),
-			nParContiguous[i]);
+			nParContiguous[i+1]);
 		}else{
 			fprintf(HAND," dirX %g , dirY %g , dirZ %g ; straw contigue = %d ;",
 			wiredirection[i].X(),wiredirection[i].Y(),wiredirection[i].Z(),
-			nParContiguous[i]);
+			nParContiguous[i+1]);
 		}
 
 
-		if( nParContiguous[i]>0 ) {
+		if( nParContiguous[i+1]>0 ) {
 			fprintf(HAND," lista :");
-			for(n=0;n<nParContiguous[i];n++){
-				fprintf(HAND," %d",ListParContiguous[i][n]);
+			for(n=0;n<nParContiguous[i+1];n++){
+				fprintf(HAND," %d",ListParContiguous[i+1][n]);
 			}
 			fprintf(HAND,";\n");
 		} else {
