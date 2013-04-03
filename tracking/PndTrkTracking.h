@@ -102,7 +102,7 @@ class PndTrkTracking : public FairTask
 //	NFIDIVCONFORMAL		= (Short_t) (3.141592654 * 45./0.5),
 	NFIDIVCONFORMAL		= 282,
 	NRDIVCONFORMAL		= 10,
-	NUMBER_STRAWS		= 4542+1; // +1 is because the straw numbers
+	NUMBER_STRAWS		= 4542; // +1 is because the straw numbers
 					  // start at 1;
   bool
 	doMcComparison,
@@ -144,6 +144,7 @@ class PndTrkTracking : public FairTask
 	fListMvdStripHitsinTrack[MAXTRACKSPEREVENT][MAXMVDSTRIPHITSINTRACK],
 	fListMvdUSPixelHitNotTrackCand[MAXMVDPIXELHITS],
 	fListMvdUSStripHitNotTrackCand[MAXMVDSTRIPHITS],
+	fListParContiguous[NUMBER_STRAWS+1][6],
 	fListSciTilHitsinTrack[MAXTRACKSPEREVENT][MAXSCITILHITSINTRACK],
 	fListSttParHitsinTrack[MAXTRACKSPEREVENT][MAXSTTHITSINTRACK],
 	fListSttParHits[MAXSTTHITS],
@@ -173,6 +174,7 @@ class PndTrkTracking : public FairTask
 	fnMvdTrackCand,
 	fnMvdUSPixelHitNotTrackCand,
 	fnMvdUSStripHitNotTrackCand,
+	fnParContiguous[NUMBER_STRAWS+1],
 	fnSciTilHits,
 	fnSciTilHitsinTrack[MAXTRACKSPEREVENT],
 	fnSttParHitsinTrack[MAXTRACKSPEREVENT],
