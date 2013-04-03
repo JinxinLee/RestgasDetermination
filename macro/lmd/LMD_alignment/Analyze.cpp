@@ -74,9 +74,9 @@ int main(int __argc,char *__argv[]) {
 //  gROOT->Reset();
  
 
-  PndLmdDim* lmddim = PndLmdDim::Instance();
-  lmddim -> Read_transformation_matrices("/PANDA/pandaroot/macro/lmd/matrices_perfect.txt", false);
-  lmddim -> Read_transformation_matrices("/PANDA/pandaroot/macro/lmd/matrices_corrected.txt", true);
+  // PndLmdDim* lmddim = PndLmdDim::Instance();
+  // lmddim -> Read_transformation_matrices("/PANDA/pandaroot/macro/lmd/matrices_perfect.txt", false);
+  // lmddim -> Read_transformation_matrices("/PANDA/pandaroot/macro/lmd/matrices_corrected.txt", true);
 
  double dxin[2][4][5],dyin[2][4][5],dzin[2][4][5],dalphain[2][4][5],dbetain[2][4][5],dgammain[2][4][5];
  int ih=0;

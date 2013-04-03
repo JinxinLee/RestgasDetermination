@@ -17,7 +17,6 @@ void SummaryAlign(TString path="/panda/pandaroot/macro/lmd/tmpOutputAlignTMP/", 
   pathfull+="mrad_";
   pathfull+=nTrks;
   pathfull+="events";
-
   TString resname= pathfull+"/ResultsSummary_";
   resname+=tr_sc;
   resname+="um_";

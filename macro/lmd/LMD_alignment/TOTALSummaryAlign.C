@@ -6,10 +6,12 @@
 
 #include <sstream>
 using namespace std;
-void TOTALSummaryAlign(TString pathG="/panda/pandaroot/macro/lmd/tmpOutputAlignTMP/", double tr_sc=0, double rt_sc=1)
+//void TOTALSummaryAlign(TString pathG="/panda/pandaroot/macro/lmd/tmpOutputAlignTMP/", double tr_sc=200, double rt_sc=9)
+void TOTALSummaryAlign(TString pathG="/panda/pandaroot/macro/lmd/tmpOutputAlignDPM/", double tr_sc=200, double rt_sc=3)
 {
   const int nS=8;
-  double TrksSim[nS]={10000, 100000, 200000, 300000, 400000, 500000, 700000, 1000000};
+    double TrksSim[nS]={10000, 100000, 200000, 300000, 400000, 500000, 700000, 1000000};
+  //  double TrksSim[nS]={10, 100, 200, 300, 400, 500, 700, 1000};
   double Trks[nS];
   //How to save data
   TString resname= pathG+"/ResultsTOTALSummary_";
@@ -240,9 +242,9 @@ void TOTALSummaryAlign(TString pathG="/panda/pandaroot/macro/lmd/tmpOutputAlignT
   grstat->SetMarkerStyle(22);
   grstat->SetMarkerSize(2.5);
   grstat->Draw("APL");
-  grstat->GetYaxis()->SetTitle("Average number of rec. trks per sector");
+  //  grstat->GetYaxis()->SetTitle("Average number of rec. trks per sector");
   grstat->GetXaxis()->SetTitle("Number of sim. trks");
-  grstat->SetTitle("Average number of rec. trks per sector");
+  grstat->SetTitle("Average number of rec. trks per sector (used in Knossos)");
   c1.Print(resname_pdf_o); //write canvas and keep the ps file open
   c1.Clear();
   //put together missalignment consts results
@@ -293,7 +295,7 @@ void TOTALSummaryAlign(TString pathG="/panda/pandaroot/macro/lmd/tmpOutputAlignT
 
 
   TMultiGraph *mgr_theta = new TMultiGraph();
-  mgr_theta->Add(gr_theta_b);
+  //  mgr_theta->Add(gr_theta_b);
   mgr_theta->Add(gr_theta_r);
   mgr_theta->Add(gr_theta_a);
 
@@ -316,7 +318,7 @@ void TOTALSummaryAlign(TString pathG="/panda/pandaroot/macro/lmd/tmpOutputAlignT
   gr_theta_rms_r->SetMarkerColor(15); 
   gr_theta_rms_r->SetMarkerSize(2.5); 
   TMultiGraph *mgr_theta_rms = new TMultiGraph();
-  mgr_theta_rms->Add(gr_theta_rms_b);
+  //  mgr_theta_rms->Add(gr_theta_rms_b);
   mgr_theta_rms->Add(gr_theta_rms_r);
   mgr_theta_rms->Add(gr_theta_rms_a);
   mgr_theta_rms->Draw("AP");
