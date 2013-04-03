@@ -19,9 +19,12 @@ class PndTrkSttAdjacencies
 
  void CalculateAdjacentStt(
 	// in this geametry there are 4542 Stt Straws (axial and skew);
-		TClonesArray *SttTubeArray, // input; Stt tube position TClonesArray;
-		int nParContigue[4542],  // output; number of contiguous straws (axial Stt);
-		int ListParContiguous[4542][6]  // output list (axial Stt); maximum 6 adjacencies;
+		const Short_t NUMBER_STRAWS,  // number of Stt Straws in total;
+		TClonesArray *SttTubeArray, // input; array of the Stt tubes;
+		Short_t *nParContiguous,  // output; number of contiguous straws (axial Stt);
+				// NUMBER_STRAWS+1 because the numbering scheme for the Stt straws goes
+				//  from 1 to NUMBER_STRAWS included;
+		Short_t ListParContiguous[][6]  // output list (axial Stt);
 			);
 
   ClassDef(PndTrkSttAdjacencies,1);
