@@ -9,6 +9,7 @@
 #pragma link C++ class PndTrkCleanup+;
 #pragma link C++ class PndTrkComparisonMCtruth+;
 #pragma link C++ class PndTrkCTFindTrackInXY+;
+#pragma link C++ class PndTrkCTFindTrackInXY2+;
 #pragma link C++ class PndTrkCTGeometryCalculations+;
 #pragma link C++ class PndTrkGlpkFits+;
 #pragma link C++ class PndTrkLegendreFits+;
