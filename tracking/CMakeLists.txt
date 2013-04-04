@@ -52,6 +52,7 @@ PndTrkChi2Fits.cxx
 PndTrkCleanup.cxx
 PndTrkComparisonMCtruth.cxx
 PndTrkCTFindTrackInXY.cxx
+PndTrkCTFindTrackInXY2.cxx
 PndTrkCTGeometryCalculations.cxx
 PndTrkGlpkFits.cxx
 PndTrkLegendreFits.cxx
