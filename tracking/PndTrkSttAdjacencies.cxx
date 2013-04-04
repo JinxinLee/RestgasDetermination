@@ -36,7 +36,9 @@ using namespace std;
 	double
 		dis2,
 		x[NUMBER_STRAWS],
+		Xwiredirection[NUMBER_STRAWS],
 		y[NUMBER_STRAWS],
+		Ywiredirection[NUMBER_STRAWS],
 		z[NUMBER_STRAWS],
 		Zwiredirection[NUMBER_STRAWS];
 
@@ -48,6 +50,8 @@ using namespace std;
 		x[i-1] = pSttTube->GetPosition().X();
 		y[i-1] = pSttTube->GetPosition().Y();
 		z[i-1] = pSttTube->GetPosition().Z();
+		Xwiredirection[i-1] = pSttTube->GetWireDirection().X();
+		Ywiredirection[i-1] = pSttTube->GetWireDirection().Y();
 		Zwiredirection[i-1] = pSttTube->GetWireDirection().Z();
 	}
 
@@ -67,6 +71,33 @@ using namespace std;
 			if( nParContiguous[i+1]>6 ) { cout<<"Errore ! N contigue Par > 6!!! Exit.\n"; exit(-1);}
 		}
 
+
+/*
+		fprintf(HAND,"Stt straw n. %d ",i+1);
+		fprintf(HAND,", X %g, Y %g, Z %g ",
+		x[i],y[i],z[i]);
+
+		if(Zwiredirection[i] <0.) {
+			fprintf(HAND," dirX %g , dirY %g , dirZ %g ; straw contigue = %d ;",
+			-Xwiredirection[i],-Ywiredirection[i],Zwiredirection[i],
+			nParContiguous[i+1]);
+		}else{
+			fprintf(HAND," dirX %g , dirY %g , dirZ %g ; straw contigue = %d ;",
+			Xwiredirection[i],Ywiredirection[i],Zwiredirection[i],
+			nParContiguous[i+1]);
+		}
+
+
+		if( nParContiguous[i+1]>0 ) {
+			fprintf(HAND," lista :");
+			for(n=0;n<nParContiguous[i+1];n++){
+				fprintf(HAND," %d",ListParContiguous[i+1][n]);
+			}
+			fprintf(HAND,";\n");
+		} else {
+			fprintf(HAND,"\n");
+		}
+*/
 
 	}
 
