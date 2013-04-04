@@ -19,10 +19,6 @@ PndLmdDim* PndLmdDim::pinstance = 0;
 #include <TROOT.h>
 PndLmdDim::PndLmdDim()
 {
-
-
-  
-
 	double test_mult_fact = 1.; //100.; // should be 1 when not debuggin code
 	// pi
 	pi = 3.141592654;
@@ -141,7 +137,8 @@ PndLmdDim::PndLmdDim()
 	// position of the inner rib
 	pos_rib = 36.4;
 	// beam pipe radius at entrance
-	rad_entrance = 9. + 1.;	// beam pipe radius at exit
+	rad_entrance = 9. + 1.;
+	// beam pipe radius at exit
 	rad_exit = 4.5;
 	// beam pipe separating non interacting paricles
 	rad_pipe = 3.5;
@@ -316,7 +313,7 @@ void PndLmdDim::Generate_rootgeom(TGeoVolume& mothervol, bool misaligned){
 	// ************ create the luminosity monitor box ***********
 	// create the bounding box
 	double tube_upstream_length = 33.3/2.;
-	double tube_upstream_rad_out = 9.;
+	double tube_upstream_rad_out = 9. + 1.;
 	double tube_upstream_rad_in = tube_upstream_rad_out - 0.2;
 
 	// create a vacuum around the luminosity detector
@@ -405,7 +402,7 @@ void PndLmdDim::Generate_rootgeom(TGeoVolume& mothervol, bool misaligned){
 	// 20 mu thick kapton foil cone
 	double cone_height = 32./2.;
 	double cone_r_in_upstream = 24.4/2.;
-	double cone_r_in_downstream = 8./2.;
+	double cone_r_in_downstream = 7./2.;
 	double cone_thickness = 0.002;
 	TGeoCone* lmd_capton_cone = new TGeoCone("lmd_capton_cone",
 			cone_height, cone_r_in_upstream,
@@ -417,6 +414,20 @@ void PndLmdDim::Generate_rootgeom(TGeoVolume& mothervol, bool misaligned){
 			fgGeoMan->GetMedium("kapton"));
 	vlum_CaptonCone->SetLineColor(kRed);//39);
 	lmd_vol_vac->AddNode(vlum_CaptonCone, 0, lmd_trans_cap_co);
+	// 10 mu thick kapton foil aluminum coating
+	cone_r_in_upstream = cone_r_in_upstream+cone_thickness;
+	cone_r_in_downstream = cone_r_in_downstream+cone_thickness;
+	cone_thickness = 0.001;
+	TGeoCone* lmd_al_cone = new TGeoCone("lmd_al_cone",
+			cone_height, cone_r_in_upstream,
+			cone_r_in_upstream+cone_thickness/2.,
+			cone_r_in_downstream, cone_r_in_downstream+cone_thickness/2.);
+	//TGeoCombiTrans* lmd_trans_cap_co = new TGeoCombiTrans("lmd_trans_cap_co", 0., 0., 2*tube_upstream_length+box_thickness + cone_height, rot_no);
+	//lmd_trans_cap_co->RegisterYourself();
+	TGeoVolume *vlum_AlCone = new TGeoVolume("vlum_AlCone", lmd_al_cone,
+			fgGeoMan->GetMedium("Aluminum"));
+	vlum_AlCone->SetLineColor(kGray);//39);
+	lmd_vol_vac->AddNode(vlum_AlCone, 0, lmd_trans_cap_co);
 	// beam pipe to shield the sensors
 	double pipe_inner_r_in = 7./2.;
 	double pipe_inner_length = 50./2.;
