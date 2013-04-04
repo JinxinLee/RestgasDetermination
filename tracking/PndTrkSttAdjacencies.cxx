@@ -48,12 +48,12 @@ using namespace std;
 
 
 	for (i=0;i< NUMBER_STRAWS; i++){
-		if( fabs(wiredirection[i].Z() -1.) > 1.e-5) continue; // non considero le skew;
+		if( fabs(wiredirection[i].Z() -1.) > 1.e-5) continue; // for now I don't consider the skews;
 
 		nParContiguous[i+1]= 0;
 		for(j=0;j<NUMBER_STRAWS; j++){
 			if(j==i) continue;
-			if( fabs(wiredirection[j].Z() -1.) > 1.e-5) continue; // non considero le skew;
+			if( fabs(wiredirection[j].Z() -1.) > 1.e-5) continue; // for now I don't consider the skews;
 			dis2 = ( x[i]-x[j])*( x[i]-x[j]) +
 				(y[i]-y[j])*(y[i]-y[j]);
 			if(dis2>1.1) continue;
