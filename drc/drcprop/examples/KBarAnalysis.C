@@ -73,7 +73,8 @@ KBarAnalysis::KBarAnalysis( Int_t n_mcp )//: _n_mcp(n_mcp) // initialize const v
   _effiMode = false;
 
 
-  _effi = new DetEffi::DetEffi();
+  //_effi = new DetEffi::DetEffi();
+  _effi = new DetEffi();
 
 
   _fishtank_width  = unknown;
