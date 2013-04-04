@@ -20,6 +20,9 @@ test_test.cc
 test_titti.cc
 test_top.cc
 
+test_barrel4.cc			JLAB 2013: check if shape of EV has influence on measured photons.
+
+
 mppc.cc                     light catcher for a MPPC
 
 prototype.cc                beamtest simulation with prism and (backward) lens options
