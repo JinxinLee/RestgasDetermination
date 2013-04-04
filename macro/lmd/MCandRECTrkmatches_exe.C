@@ -536,6 +536,7 @@ int main(int __argc,char *__argv[]) {
 			    30,0,30,5e2,0,50.);
   TNtuple *nrecpointall = new TNtuple("nrecpointall","recpointAll","xrecbp:yrecbp:zrecbp:xrec:yrec:zrec:xseed:yseed:zseed:chi2");
   TNtuple *nrecdirall = new TNtuple("nrecdirall","recdirAll","pxrecbp:pyrecbp:pzrecbp:dirxrec:diryrec:dirzrec:dirxseed:diryseed:dirzseed");
+  TNtuple *nsectors = new TNtuple("nsectors","sectors","thetares:sector");
   TH2I *hnhits = new TH2I("hnhits","# rec hits vs. # sim hits; sim; rec",100,0,100,100,0,100);
   //Load lumi geo params
   PndLmdDim *lmddim = PndLmdDim::Instance();
@@ -629,7 +630,7 @@ int main(int __argc,char *__argv[]) {
       PndTrack *trkpnd;
       Int_t candID;
       PndTrackCand *trkcand;
-     
+      Int_t trkSensor;
 	trk = (PndLinTrack*)rec_trk->At(iN);
 	trk->GetPar(linpar);
 	hLumiTrkA->Fill(linpar[1]); 
@@ -667,6 +668,11 @@ int main(int __argc,char *__argv[]) {
 	    //  MCtrkID.push_back(-111);
 	    continue;
 	  }
+	int sensorID = myHit->GetSensorID();
+	int ihalf, iplane, imodule, iside, idie, isensor;
+	// calculate the plane and sensor on this plane
+	lmddim->Get_sensor_by_id(sensorID, ihalf, iplane, imodule, iside, idie, isensor);
+	trkSensor = ihalf*5+imodule;
 	  // if (astripdigi->GetIndex(0) == -1) continue; // sort out noise
 	  PndSdsMCPoint* MCPoint = (PndSdsMCPoint*)(true_points->At(astripdigi->GetIndex(0)));
 	  MCpointMom = sqrt(MCPoint->GetPx()*MCPoint->GetPx()+MCPoint->GetPy()*MCPoint->GetPy()+MCPoint->GetPz()*MCPoint->GetPz());
@@ -924,6 +930,7 @@ int main(int __argc,char *__argv[]) {
 	hErrMom->Fill(errMomRecBP);
 	hPullMom->Fill(resMom/errMomRecBP);
 	hResTheta->Fill(resTheta);
+	nsectors->Fill(resTheta,trkSensor);
 	hErrTheta->Fill(err_lyambda);
 	hPullTheta->Fill(resTheta/err_lyambda);
 	hResPhi->Fill(resPhi);
@@ -1715,6 +1722,7 @@ int main(int __argc,char *__argv[]) {
  ntuprecTrk->Write();
  ntupMCTrk->Write();
  hnhits->Write();
+ nsectors->Write();
  f->Close();
  cout<<"Number of events with low number of hits (less then 3 per trk): "<<glBadEv<<endl;
  cout<<"Number of trks where GEANE failed: "<<glBADGEANE<<endl;
