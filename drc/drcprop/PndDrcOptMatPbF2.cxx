@@ -89,7 +89,7 @@ PndDrcOptMatPbF2& PndDrcOptMatPbF2::operator=(const PndDrcOptMatPbF2& mat)
 double PndDrcOptMatPbF2::RefIndex(const double lambda) const
 {
 
-  if (lambda<0) return 1.52; // average value.
+  if (lambda<0) return 1.75; // @550nm
 
   double lam2 = lambda/1000 * lambda/1000; // um2
 
