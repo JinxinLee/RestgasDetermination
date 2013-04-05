@@ -54,10 +54,23 @@ CreateLambdaGeometry()
 	TGeoVolumeAssembly* smallRing = new TGeoVolumeAssembly("SmallRing");
 
 //	lambdaDisk->AddNode(largeSensorVolume,0,trc1);
-	TGeoShape* largeSensorShape  = new TGeoTrd1("StripSensorActiveLargeShape", 3.4593/2, 1.9936/2,0.03/2, 5.5665/2);
+//	TGeoShape* largeSensorShape  = new TGeoTrd1("StripSensorActiveLargeShape", 3.4593/2, 1.9936/2,0.03/2, 5.5665/2);
+	Double_t points [16];
+	points[0] = -1.7297;		points[1] = 2.7833;
+	points[2] = 1.7297; 		points[3] = 2.7833;
+	points[4] = 0.9968; 		points[5] = -2.7833;
+	points[6] = -0.9968; 		points[7] = -2.7833;
+
+	points[8] = -1.7297; 		points[9] = 2.7833;
+	points[10] = 1.7297; 		points[11] = 2.7833;
+	points[12] = 0.9968; 		points[13] = -2.7833;
+	points[14] = -0.9968; 		points[15] = -2.7833;
+
+	TGeoShape* largeSensorShape  = new TGeoArb8("StripSensorActiveLargeShape", 0.03/2, points);
 	TGeoVolume* largeSensorVolume = new TGeoVolume("StripSensorActiveLargeTrap",largeSensorShape,gGeoMan->GetMedium("silicon"));
 
-	TGeoRotation rotSensor("rotSensor",0,90,0);
+//	TGeoRotation rotSensor("rotSensor",0,90,0);
+	TGeoRotation rotSensor("rotSensor",0,0,0);
 	TGeoTranslation transLargeSensor(0,(14.8669 + 5.5665)/2,0);
 	TGeoCombiTrans combined1(transLargeSensor, rotSensor);
 
@@ -69,7 +82,19 @@ CreateLambdaGeometry()
 		largeRing->AddNode(largeSensorVolume, i, new TGeoHMatrix(sens));
 	}
 
-	TGeoShape* smallSensorShape = new TGeoTrd1("StripSensorActiveSmallShape", 1.9579/2, 0.5529/2, 0.03/2, 5.3358/2);
+	Double_t pointsSmall [16];
+	pointsSmall[0] = -1.9579/2;		pointsSmall[1] = 5.3358/2;
+	pointsSmall[2] = 1.9579/2; 		pointsSmall[3] = 5.3358/2;
+	pointsSmall[4] = 0.5529/2; 		pointsSmall[5] = -5.3358/2;
+	pointsSmall[6] = -0.5529/2; 		pointsSmall[7] = -5.3358/2;
+
+	pointsSmall[8] = -1.9579/2;		pointsSmall[9] = 5.3358/2;
+	pointsSmall[10] = 1.9579/2; 	pointsSmall[11] = 5.3358/2;
+	pointsSmall[12] = 0.5529/2; 	pointsSmall[13] = -5.3358/2;
+	pointsSmall[14] = -0.5529/2; 	pointsSmall[15] = -5.3358/2;
+
+//	TGeoShape* smallSensorShape = new TGeoTrd1("StripSensorActiveSmallShape", 1.9579/2, 0.5529/2, 0.03/2, 5.3358/2);
+	TGeoShape* smallSensorShape = new TGeoArb8("StripSensorActiveSmallShape", 0.03/2, pointsSmall);
 	TGeoVolume* smallSensorVolume = new TGeoVolume("StripSensorActiveSmallTrap", smallSensorShape, gGeoMan->GetMedium("silicon"));
 
 	TGeoTranslation transSmallSensor(0,5.3358/2+2.1,0);
@@ -158,6 +183,7 @@ CreateLambdaGeometry()
 	  top->Write();
 	  fi->Close();
 	//   gGeoManager->Export(outfile);
+	  gGeoManager->SetVisLevel(30);
 	  top->Draw("ogl"); 
 }
 	
