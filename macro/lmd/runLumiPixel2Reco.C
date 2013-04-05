@@ -1,4 +1,4 @@
-void runLumiPixel2Reco(const int nEvents=10, const int startEvent=0, TString storePath="tmpOutput", const int verboseLevel=0, bool useMSerr=true)
+void runLumiPixel2Reco(const int nEvents=10, const int startEvent=0, TString storePath="tmpOutput", const int verboseLevel=0, bool useMSerr=true, bool misalign=false)
 {
   // ========================================================================
   // Input file (MC events)
@@ -67,7 +67,10 @@ void runLumiPixel2Reco(const int nEvents=10, const int startEvent=0, TString sto
   //  TString alignparFile = "lumi.align.par";//perfect! OLD
   //  TString alignparFile = "lumi.misalign.par";//misalignment!  OLD
   //  TString alignparFile = "lumi.align_pixel_ideal.par";//perfect
-  TString alignparFile = storePath+"/lumi.misalign_pixel.par";//misalign
+  TString alignparFile;
+  if(misalign) alignparFile = storePath+"/lumi.misalign_pixel.par";//misalign
+  else alignparFile = "lumi.align_pixel_ideal.par";//perfect
+ 
   FairParAsciiFileIo* parInput2 = new FairParAsciiFileIo();
   parInput2->open(alignparFile.Data(),"in");
   rtdb->setSecondInput(parInput2);
