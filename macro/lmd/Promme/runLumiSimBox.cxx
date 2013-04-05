@@ -38,11 +38,11 @@
 */
 //#include<.h>
 
-int nEvents = 10000; // number of primary events
-double mom = 15; // beam momentum
+int nEvents = 100000; // number of primary events
+double mom = 1.5; // beam momentum
 double mom_spread = 1e-4; // HESR momentum resolution (relative to mom)
-double dx = 0.; // displacement of the primary vertex in x
-double dy = 0.; // displacement of the primary vertex in y
+double dx = -0.; // displacement of the primary vertex in x
+double dy = -0.; // displacement of the primary vertex in y
 double phi_low = 0;
 double phi_high = 360.;
 double theta_low = 2.5e-3/3.141 *180.; //2.5 mrad
@@ -71,13 +71,16 @@ void runLumiSimBox()
   gSystem->Load("libSds");
   gSystem->Load("libLmd");
   FairRunSim *fRun = new FairRunSim();
-  std::cout<<"All libraries succsesfully loaded!"<<std::endl;
+  std::cout<<"All libraries successfully loaded!"<<std::endl;
 
   //set the MC version used
   fRun->SetName("TGeant4");
   //fRun->SetName("TGeant3");
 
   fRun->SetOutputFile(simOutput);
+
+  fRun->SetRadMapRegister(true);
+  fRun->SetRadLenRegister(true);
   std::cout << "$VMCWORKDIR is " << getenv("VMCWORKDIR") << " ." << std::endl;
 
   /*
@@ -110,12 +113,12 @@ void runLumiSimBox()
   //Pipe->SetGeometryFileName("pipebeamtarget.geo");
   //fRun->AddModule(Pipe);
 
-  //FairModule *Pipe= new PndPipe("PIPE");
-  //Pipe->SetGeometryFileName("../macro/lmd/geo/beampipe_201210.root");// with lumi beam pipe
+  FairModule *Pipe= new PndPipe("PIPE");
+  Pipe->SetGeometryFileName("beampipe_201303.root");// with lumi beam pipe
   //Pipe->SetGeometryFileName("beampipe_201202_no_lmd_pipe.root");
   //Pipe->SetGeometryFileName("beampipe_201112.root");
   //Pipe->SetGeometryFileName("../macro/lmd/geo/HV_MAPS-Design.root");
-  //fRun->AddModule(Pipe);
+  fRun->AddModule(Pipe);
 
   /*FairDetector *Stt= new PndStt("STT", kFALSE);
   Stt->SetGeometryFileName("straws_skewed_blocks.geo");
@@ -148,7 +151,7 @@ void runLumiSimBox()
   Lum->SetExclusiveSensorType("LumActive");  //ignore MVD
   //Lum->SetGeometryFileName("../macro/lmd/geo/F0-Design.root"); //!!!
   Lum->SetGeometryFileName("HV_MAPS-Design.root"); //!!!
-  //Lum->SetGeometryFileName("beampipe_201210_active.root");
+  //Lum->SetGeometryFileName("beampipe_201303_active.root");
   //Lum->SetGeometryFileName("../macro/lmd/geo/beampipe_201205_w_sensors.root"); //!!!
 
   //  Lum->SetGeometryFileName("../macro/lmd/geo/MyTest-Dipol-Design.root"); //!!!
@@ -247,12 +250,12 @@ void runLumiSimBox()
   fRun->SetBeamMom(mom);
   PndMultiField *fField= new PndMultiField();
 
-  //PndTransMap *map_t = new PndTransMap("TransMap_v1", "R");
-  //PndDipoleMap *map_d1 = new PndDipoleMap("DipoleMap1_v1", "R");
-  //PndDipoleMap *map_d2 = new PndDipoleMap("DipoleMap2_v1", "R");
-  PndTransMap *map_t = new PndTransMap("TransMap", "R");
-  PndDipoleMap *map_d1 = new PndDipoleMap("DipoleMap1", "R");
-  PndDipoleMap *map_d2 = new PndDipoleMap("DipoleMap2", "R");
+  PndTransMap *map_t = new PndTransMap("TransMap_v1", "R");
+  PndDipoleMap *map_d1 = new PndDipoleMap("DipoleMap1_v1", "R");
+  PndDipoleMap *map_d2 = new PndDipoleMap("DipoleMap2_v1", "R");
+  //PndTransMap *map_t = new PndTransMap("TransMap", "R");
+  //PndDipoleMap *map_d1 = new PndDipoleMap("DipoleMap1", "R");
+  //PndDipoleMap *map_d2 = new PndDipoleMap("DipoleMap2", "R");
   PndSolenoidMap *map_s1 = new PndSolenoidMap("SolenoidMap1", "R");
   PndSolenoidMap *map_s2 = new PndSolenoidMap("SolenoidMap2", "R");
   PndSolenoidMap *map_s3 = new PndSolenoidMap("SolenoidMap3", "R");

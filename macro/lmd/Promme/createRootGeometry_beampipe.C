@@ -74,7 +74,7 @@ void createRootGeometry_beampipe() {
 
 	// if you do not want sensors in your beam pipe,
 	// so a simple beam pipe only, set it to false
-	bool create_sensors = true;
+	bool create_sensors = false;
 	// key z positions are stored in the following vector
 	std::vector< double > sensor_positions;
 

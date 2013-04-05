@@ -61,6 +61,10 @@ add_executable(resolution_and_acceptance Resolution_and_acceptance.cxx)
 #-lParBase)
 target_link_libraries(resolution_and_acceptance ${ROOT_LIBRARIES} LmdTesting Lmd Sds Geane Geom Proof MathMore TrkBase FairTools PndData VMC EG GeomPainter generalTools Base GeoBase FairDB ParBase)
 
+add_executable(radiation radiation.cxx)
+target_link_libraries(radiation ${ROOT_LIBRARIES} Lmd Sds Geane Geom Proof MathMore TrkBase FairTools PndData VMC EG GeomPainter generalTools Base GeoBase FairDB ParBase)
+
+
 add_executable(check_particle_path Check_particle_path.C)
 target_link_libraries(check_particle_path ${ROOT_LIBRARIES} LmdTesting Lmd Sds Geane Geom Proof MathMore TrkBase FairTools PndData VMC EG GeomPainter generalTools Base GeoBase FairDB ParBase)
 
