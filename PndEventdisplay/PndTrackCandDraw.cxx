@@ -15,7 +15,6 @@
 #include "PndTrackCand.h"
 #include "PndTrackCandHit.h"
 #include "FairRootManager.h"
-#include "PndLhePidTrack.h"
 
 #include "PndDetectorList.h"
 #include <iostream>
@@ -60,15 +59,10 @@ void PndTrackCandDraw::AddBoxes(FairBoxSet* set, TObject* obj, Int_t i) {
 
 void PndTrackCandDraw::AddBoxesTrackCand(FairBoxSet* set, TObject* obj, Int_t i) {
 	GFTrackCand *tc;
-	PndLhePidTrack *pidtc;
 
 	if (0 == strcmp(obj->ClassName(), "GFTrackCand")) {
 		tc = (GFTrackCand *) obj;
 		std::cout << "fTrackCandList is full of GFTrackCands" << std::endl;
-	} else if (0 == strcmp(obj->ClassName(), "PndLhePidTrack")) {
-		pidtc = (PndLhePidTrack *) fTrackCandList->At(i);
-		std::cout << "fTrackCandList is full of PndLhePidTracks" << std::endl;
-		AddBoxesPndTrackCand(set, pidtc->GetTrackCand(), i);
 	} else {
 		std::cout << "fTrackCandList is full of UNKNOWN " << obj->ClassName()
 				<< "?" << std::endl;
