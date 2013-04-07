@@ -33,10 +33,10 @@ Bool_t PndPidCorrelator::GetFscInfo(FairTrackParH* helix, PndPidCandidate* pidCa
   }
   Double_t Z_last_plane = 747.5;
   if(helix->GetZ() < Z_last_plane)
-  {
-	  std::cout << "-W- PndPidCorrelator::GetFscInfo :: Skipping barrel tracks propagation in forward direction" << std::endl;
-	  return kFALSE;
-  }
+    {
+      if (fVerbose>0) std::cout << "-W- PndPidCorrelator::GetFscInfo :: Skipping barrel tracks propagation in forward direction" << std::endl;
+      return kFALSE;
+    }
   FairGeanePro *fProFsc = new FairGeanePro();
   if (!fCorrErrorProp) fProFsc->PropagateOnlyParameters();
   //---

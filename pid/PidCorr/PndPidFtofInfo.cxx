@@ -29,7 +29,7 @@ Bool_t PndPidCorrelator::GetFtofInfo(FairTrackParH* helix, PndPidCandidate* pidC
  
   if(helix->GetZ() <  fCorrPar->GetZLastPlane())
     {
-      std::cout << "-W- PndPidCorrelator::GetFtofInfo: Skipping tracks not reaching the last FTS layer" << std::endl;
+      if (fVerbose>0) std::cout << "-W- PndPidCorrelator::GetFtofInfo: Skipping tracks not reaching the last FTS layer" << std::endl;
       return kFALSE;
     }
   
@@ -123,8 +123,13 @@ Bool_t PndPidCorrelator::GetFtofInfo(FairTrackParH* helix, PndPidCandidate* pidC
       pidCand->SetTofStopTime(tofTof);
       pidCand->SetTofTrackLength(tofLength);
       pidCand->SetTofIndex(tofIndex);
+      if (tofLength>0.)
+	{
+	  // mass^2 = p^2 * ( 1/beta^2 - 1 )
+	  Float_t mass2 = helix->GetMomentum().Mag()*helix->GetMomentum().Mag()*(30.*30.*tofTof*tofTof/tofLength/tofLength-1.);
+	  pidCand->SetTofM2(mass2);
+	}
     }
-
-
+  
   return kTRUE;
 }

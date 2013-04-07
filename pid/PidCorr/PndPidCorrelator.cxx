@@ -743,6 +743,27 @@ void PndPidCorrelator::ConstructChargedCandidate() {
 	    if (trackID->GetNCorrTrackId()>0)
 	      {
 		pidCand->SetMcIndex(trackID->GetCorrTrackID());
+		if (fIdealHyp)
+		  {
+		    PndMCTrack *mcTrack = (PndMCTrack*)fMcTrack->At(trackID->GetCorrTrackID());
+		    if ( ! mcTrack ) 
+		      {
+			fPidHyp = 211;
+			cout << "-I- PndPidCorrelator::ConstructChargedCandidate: PndMCTrack does not exist!! (why?) -> let's try with pion hyp " << endl;
+		      }
+		    else
+		      {
+			fPidHyp = abs(mcTrack->GetPdgCode());
+		      }
+		    if (fPidHyp>=100000000)
+		      {
+			fPidHyp = 211;
+			std::cout << "-I- PndPidCorrelator::ConstructChargedCandidate: Track is an ion (PDGCode>100000000) -> let's try with pion hyp" << std::endl;
+		      }
+		    
+		    if ( abs(fPidHyp)==13 ) fPidHyp = -13;
+		    if ( abs(fPidHyp)==11 ) fPidHyp = -11;
+		  }
 	      }
 	  } else { // added for PndAnalysis, TODO: remove after Fairlinks work with Associators
 	  PndTrackCand trackCand = track->GetTrackCand();
@@ -912,6 +933,12 @@ Bool_t PndPidCorrelator::GetTofInfo(FairTrackParH* helix, PndPidCandidate* pidCa
       pidCand->SetTofStopTime(tofTof);
       pidCand->SetTofTrackLength(tofLength);
       pidCand->SetTofIndex(tofIndex);
+      if (tofLength>0.)
+	{
+	  // mass^2 = p^2 * ( 1/beta^2 - 1 )
+	  Float_t mass2 = helix->GetMomentum().Mag()*helix->GetMomentum().Mag()*(30.*30.*tofTof*tofTof/tofLength/tofLength-1.);
+	  pidCand->SetTofM2(mass2);
+	}
     }
   
   return kTRUE;
@@ -1181,29 +1208,29 @@ Bool_t PndPidCorrelator::GetDrcInfo(FairTrackParH* helix, PndPidCandidate* pidCa
   Float_t vertex_z = -1000;
   TVector3 drcPos(0., 0., 0.);
   TVector3 momentum(0., 0., 0.);
+
+  if (fGeanePro) // Overwrites vertex if Geane is used
+    {     
+      fProDrc->PropagateToVolume("BarrelDIRC",0,1);
+      vertex.SetXYZ(-10000, -10000, -10000); // reset vertex
+      FairTrackParH *fRes= new FairTrackParH();
+      Bool_t rc =  fProDrc->Propagate(helix, fRes, fPidHyp*pidCand->GetCharge()); 	
+      if (!rc) return kFALSE;
+      vertex.SetXYZ(fRes->GetX(), fRes->GetY(), 0.);
+      vertex_z = fRes->GetZ();
+      drcGLength = fProDrc->GetLengthAtPCA();
+      if (drcGLength<25.) return kFALSE;  // additional cut on extrapolation distance to avoid fake correlations
+    }
+  
   for (Int_t dd = 0; dd<drcEntries; dd++)
     {
       drcHit = (PndDrcHit*)fDrcHit->At(dd); 
       if ( fIdeal && ( ((PndDrcBarPoint*)fDrcPoint->At(drcHit->GetRefIndex()))->GetTrackID() !=pidCand->GetMcIndex()) ) continue;
       drcHit->Position(drcPos);
-    
-      if (fGeanePro) // Overwrites vertex if Geane is used
-	{
-     
-	  fProDrc->PropagateToVolume("BarrelDIRC",0,1);
-	  vertex.SetXYZ(-10000, -10000, -10000); // reset vertex
-	  FairTrackParH *fRes= new FairTrackParH();
-	  Bool_t rc =  fProDrc->Propagate(helix, fRes, fPidHyp*pidCand->GetCharge()); 	
-	  if (!rc) continue;
-	  vertex.SetXYZ(fRes->GetX(), fRes->GetY(), 0.);
-	  vertex_z = fRes->GetZ();
-	  drcGLength = fProDrc->GetLengthAtPCA();
-	}
-    
+      
       Float_t dphi = vertex.DeltaPhi(drcPos);
       Float_t dist = dphi * dphi;
-    
-      if ( (drcQuality > dist) && (drcGLength<25.) ) // additional cut on extrapoaltion distance to avoit fake correations
+      if (drcQuality > dist)
 	{
 	  drcIndex = dd;
 	  drcQuality = dist;
@@ -1250,28 +1277,26 @@ Bool_t PndPidCorrelator::GetDskInfo(FairTrackParH* helix, PndPidCandidate* pidCa
   TVector3 vertex(0., 0., 0.);
   TVector3 dskPos(0., 0., 0.);
   TVector3 momentum(0., 0., 0.);
+
+  if (fGeanePro) // Overwrites vertex if Geane is used
+    {     
+      fProDsk->PropagateToVolume("Plate",0,1);
+      vertex.SetXYZ(-10000, -10000, -10000); // reset vertex
+      FairTrackParH *fRes= new FairTrackParH();
+      Bool_t rc =  fProDsk->Propagate(helix, fRes, fPidHyp*pidCand->GetCharge());
+      if (!rc) return kFALSE;
+      vertex.SetXYZ(fRes->GetX(), fRes->GetY(), fRes->GetZ());
+      dskGLength = fProDsk->GetLengthAtPCA();
+      x_p = fRes->GetMomentum().Mag();
+    }
+  
   for (Int_t dd = 0; dd<dskEntries; dd++)
     {
       dskParticle = (PndDskParticle*)fDskParticle->At(dd);
       if ( fIdeal && (dskParticle->GetTrackID() !=pidCand->GetMcIndex()) ) continue;
       dskParticle->Position(dskPos);
-    
-      if (fGeanePro) // Overwrites vertex if Geane is used
-	{
       
-	  fProDsk->PropagateToVolume("Plate",0,1);
-	  vertex.SetXYZ(-10000, -10000, -10000); // reset vertex
-	  FairTrackParH *fRes= new FairTrackParH();
-	  Bool_t rc =  fProDsk->Propagate(helix, fRes, fPidHyp*pidCand->GetCharge());
-	  if (!rc) continue;
-	  vertex.SetXYZ(fRes->GetX(), fRes->GetY(), fRes->GetZ());
-	  dskGLength = fProDsk->GetLengthAtPCA();
-	  x_p = fRes->GetMomentum().Mag();
-	}
-    
-    
-      Float_t dist = (vertex-dskPos).Mag2();
-    
+      Float_t dist = (vertex-dskPos).Mag2();    
       if ( dskQuality > dist)
 	{
 	  dskIndex = dd;
