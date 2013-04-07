@@ -1,4 +1,4 @@
-run_digi_complete(TString FileName="test"){
+void run_digi_complete(TString FileName="test"){
   // ========================================================================
   // Verbosity level (0=quiet, 1=event level, 2=track level, 3=debug)
 
@@ -110,12 +110,29 @@ run_digi_complete(TString FileName="test"){
   fRun->AddTask(ftsHitProducer);
  
   // -----   GEM hit producers   ---------------------------------
+
+  // Ideal case
+
   Int_t verboseLevel = 0;
   PndGemDigitize* gemDigitize = new PndGemDigitize("GEM Digitizer", verboseLevel);
   fRun->AddTask(gemDigitize);
 
   PndGemFindHits* gemFindHits = new PndGemFindHits("GEM Hit Finder", verboseLevel);
   fRun->AddTask(gemFindHits);
+
+  // Realistic case
+
+//  Int_t verboseLevel = 0;
+//  PndGemDigitize* gemDigitize = new PndGemDigitize("GEM Digitizer", verboseLevel);
+//  gemDigitize->SetRealisticResponse(kTRUE);
+//  fRun->AddTask(gemDigitize);
+//
+//  PndGemFindClusters* gemFindClusters = new PndGemFindClusters("GEM Find Clusters");
+//  fRun->AddTask(gemFindClusters);
+//
+//  PndGemFindHits* gemFindHits = new PndGemFindHits("GEM Hit Finder", verboseLevel);
+//  gemFindHits->SetUseClusters();
+//  fRun->AddTask(gemFindHits);
 
   // -----   Ftof hit producers   ---------------------------
   PndFtofHitProducerIdeal* ftofhit = new PndFtofHitProducerIdeal();

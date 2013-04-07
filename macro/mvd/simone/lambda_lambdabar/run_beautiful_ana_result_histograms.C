@@ -20,10 +20,10 @@ void ctauhistogramm(TH1F* histo, TString savefile)
 	  std::stringstream virtualString;
 	  virtualString<< "c#tau = ";
 	  virtualString<< TMath::Abs(1/fExpo->GetParameter("Slope"));
-	  virtualString<< "+-";
+	  virtualString<< "#pm";
 
-			  std::cout << "blubb " << fExpo->GetParNumber("Slope") << std::endl;
-	 // virtualString<< TMaht::Abs(1/fExpo->GetParError(fExpo->GetParNumber("Slope")));
+	 // std::cout << " blubb " << fExpo->GetParError(fExpo->GetParNumber("Slope"))<< std::endl;
+	  virtualString<<TMath::Abs(1/fExpo->GetParameter("Slope"))*TMath::Abs(1/fExpo->GetParameter("Slope"))*fExpo->GetParError(fExpo->GetParNumber("Slope"));
 	  virtualString<< " cm";
 	  TString bTagisGreaterThanSTRING = virtualString.str();
 
