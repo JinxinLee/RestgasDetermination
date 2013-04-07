@@ -30,9 +30,6 @@ DskData/PndDskParticle.cxx
 DskData/PndDskTrackPoint.cxx
 DskData/PndDskFLGHit.cxx
 
-#DrpcData/PndDrpcPoint.cxx
-#DrpcData/PndDrpcPointLite.cxx
-
 DrcData/PndDrcPDPoint.cxx 
 DrcData/PndDrcBarPoint.cxx
 DrcData/PndDrcHit.cxx
@@ -55,13 +52,6 @@ SttData/PndSttHit.cxx
 SttData/PndSttHitInfo.cxx  
 SttData/PndSttPoint.cxx  
 SttData/PndSttTrack.cxx
-
-#TofData/PndTofHit.cxx
-#TofData/PndTofPoint.cxx
-
-
-#RpcData/PndRpcPoint.cxx
-#RpcData/PndRpcHit.cxx
 
 FtsData/PndFtsPoint.cxx
 FtsData/PndFtsHit.cxx
