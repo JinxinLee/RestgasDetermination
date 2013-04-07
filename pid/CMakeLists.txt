@@ -71,6 +71,7 @@ PidCorr/PndPidGemInfo.cxx
 PidCorr/PndPidFtsInfo.cxx
 PidCorr/PndPidFscInfo.cxx
 PidCorr/PndPidFtofInfo.cxx
+PidCorr/PndPidMdtInfo.cxx
 PndPidContFact.cxx
 
 ###### Associator

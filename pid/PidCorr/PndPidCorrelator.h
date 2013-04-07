@@ -36,6 +36,7 @@
 #include "PndGeoFtsPar.h"
 
 using std::map;
+using std::vector;
 
 class TGeant3;
 class PndPidCorrelator : public FairTask {
@@ -95,6 +96,12 @@ protected:
   Double_t fMvdPath;                // MVD path crossed by the particle
   Int_t fMvdHitCount;               // Number of mvd hits
     
+  map<Int_t, vector<Int_t> >mapMdtBarrel;  // map of MDT barrel hits
+  map<Int_t, vector<Int_t> >mapMdtEndcap;  // map of MDT endcap+muon filter hits
+  map<Int_t, vector<Int_t> >mapMdtForward; // map of MDT forward hits
+  Float_t mdtLayerPos[3][20];              // position of MDT layers
+  Float_t mdtIronThickness[3][20];         // thickness of iron layers
+
   map<Int_t, Bool_t> fClusterList;  // List of clusters correlated to tracks
   map<Int_t, Double_t> fClusterQ;   // List of emc quaity correlated to clusters
   TString fTrackBranch;             //  options to choose PndTrack branches
@@ -102,7 +109,6 @@ protected:
   TString fTrackBranch2;            //  options to choose 2nd PndTrack branches
   TString fTrackIDBranch2;          //  options to choose 2nd PndTrackID branches
   TString fTrackOutBranch;          //  options to choose output branch
-  Bool_t fVerbose;                  // Switch ON/OFF debug messages 
   Bool_t fSimulation;               // Switch simulation diagnostic
   Bool_t fGeanePro;                 // Use GEANE propagation 
   Bool_t fMdtRefit;                 // Use MDT Kalman refit propagation
@@ -129,7 +135,7 @@ protected:
   
   void ConstructChargedCandidate();
   void ConstructNeutralCandidate();
-   
+
   PndPidCandidate* AddChargedCandidate(PndPidCandidate* cand); 
   PndPidCandidate* AddNeutralCandidate(PndPidCandidate* cand); 
   PndTrack* AddMdtTrack(PndTrack* track);
@@ -146,7 +152,12 @@ protected:
   Bool_t GetMdtInfo  (PndTrack* track, PndPidCandidate* pid);   
   Bool_t GetDrcInfo  (FairTrackParH* helix, PndPidCandidate* pid); 
   Bool_t GetDskInfo  (FairTrackParH* helix, PndPidCandidate* pid);
- 
+  Bool_t GetMdt2Info (FairTrackParH* helix, PndPidCandidate* pid); 
+  Bool_t GetFMdtInfo (FairTrackParP* helix, PndPidCandidate* pid);
+
+  Bool_t MdtMapping();  // Mapping of MDT hits
+  Bool_t MdtGeometry(); // Mapping of MDT geometry
+
 public:
 
   virtual void Exec(Option_t * option);
@@ -155,7 +166,7 @@ public:
   void Register();
   void Reset(); 
   void ResetEmcQ();
-   
+
   PndPidCorrelator(const char *name, const char *title="Pnd Task");
   PndPidCorrelator();
   virtual ~PndPidCorrelator();
@@ -170,7 +181,6 @@ public:
   void SetInputIDBranch(TString branch)   { fTrackIDBranch = branch; };	 
   void SetInputIDBranch2(TString branch)  { fTrackIDBranch2 = branch; };
   void SetOutputBranch(TString branch)    { fTrackOutBranch = branch; };
-  void SetVerbose(Bool_t verb)            { fVerbose = verb  ;};
   void SetSimulation(Bool_t sim)          { fSimulation = sim; };
   void SetIdeal(Bool_t id)                { fIdeal = id; }; 
   void SetFast(Bool_t fast)               { fFast = fast; };
@@ -193,7 +203,7 @@ public:
   virtual void SetParContainers();
   virtual void Finish();
 
-ClassDef(PndPidCorrelator,1)   // PndPidCorrelator
+ClassDef(PndPidCorrelator,2)   // PndPidCorrelator
 
 };
 

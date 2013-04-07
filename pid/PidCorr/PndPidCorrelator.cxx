@@ -66,7 +66,6 @@ PndPidCorrelator::PndPidCorrelator() :
   fPidHyp(0),
   fIdealHyp(kFALSE), 
   fFast(kFALSE),
-  fVerbose(kFALSE),
   fSimulation(kFALSE),
   fIdeal(kFALSE), 
   fCorrErrorProp(kTRUE),
@@ -84,7 +83,10 @@ PndPidCorrelator::PndPidCorrelator() :
   sFile(""),
   fGeoH(NULL),
   fClusterList(), 
-  fClusterQ()
+  fClusterQ(),
+  mapMdtBarrel(),
+  mapMdtEndcap(),
+  mapMdtForward()
 {
   //---
   fPidChargedCand = new TClonesArray("PndPidCandidate");
@@ -92,6 +94,15 @@ PndPidCorrelator::PndPidCorrelator() :
   sDir = "./";
   sFile = "./pidcorrelator.root";
   fGeoH = PndGeoHandling::Instance();
+  
+  // Resetting MDT geometry parameters
+  for (Int_t mm=0; mm<3; mm++)
+    for (Int_t ll=0; ll<20;ll++)
+      {
+	mdtLayerPos[mm][ll] = -1;
+	mdtIronThickness[mm][ll] = -1;
+      }
+  
   Reset();
 }
 
@@ -116,7 +127,6 @@ PndPidCorrelator::PndPidCorrelator(const char *name, const char *title) :
   fPidHyp(0),
   fIdealHyp(kFALSE), 
   fFast(kFALSE),
-  fVerbose(kFALSE),
   fSimulation(kFALSE),
   fIdeal(kFALSE), 
   fCorrErrorProp(kTRUE),
@@ -134,7 +144,10 @@ PndPidCorrelator::PndPidCorrelator(const char *name, const char *title) :
   sFile(""),
   fGeoH(NULL),
   fClusterList(), 
-  fClusterQ()
+  fClusterQ(),
+  mapMdtBarrel(),
+  mapMdtEndcap(),
+  mapMdtForward()
 {
   //---
   fPidChargedCand = new TClonesArray("PndPidCandidate");
@@ -142,6 +155,15 @@ PndPidCorrelator::PndPidCorrelator(const char *name, const char *title) :
   sDir = "./";
   sFile = "./pidcorrelator.root";
   fGeoH = PndGeoHandling::Instance(); 
+  
+  // Resetting MDT geometry parameters
+  for (Int_t mm=0; mm<3; mm++)
+    for (Int_t ll=0; ll<20;ll++)
+      {
+	mdtLayerPos[mm][ll] = -1;
+	mdtIronThickness[mm][ll] = -1;
+      }
+  
   Reset();
 }
 
@@ -539,6 +561,15 @@ InitStatus PndPidCorrelator::Init() {
       return kFATAL;
     }
   
+  if (fMdtMode>0)
+    {
+      if (!MdtGeometry())
+	{
+	  cout << "-W- PndPidCorrelator::Init: No MDT geometry ???" << endl;
+	  fMdtMode = 0;
+	}
+    }
+  
   if   (fMdtRefit)
     {
       fFitter = new PndRecoKalmanFit();
@@ -560,7 +591,7 @@ InitStatus PndPidCorrelator::Init() {
       fscCorr = new TNtuple("fscCorr","TRACK-FSC Correlation",
 			    "track_x:track_y:track_z:track_phi:track_p:track_charge:track_theta:track_z0:emc_x:emc_y:emc_z:emc_phi:chi2:dphi:emc_ene:glen:emc_mod");
       mdtCorr = new TNtuple("mdtCorr","TRACK-MDT Correlation",
-			    "track_x:track_y:track_z:track_phi:track_p:track_charge:track_theta:track_z0:mdt_x:mdt_y:mdt_z:mdt_phi:chi2:mdt_mod:dphi:glen:mdt_count:nhits");
+			    "track_x:track_y:track_z:track_dx:track_dy:track_dz:track_phi:track_p:track_charge:track_theta:track_z0:mdt_x:mdt_y:mdt_z:mdt_phi:mdt_p:chi2:mdt_mod:dphi:glen:mdt_count:nhits");
       drcCorr = new TNtuple("drcCorr","TRACK-DRC Correlation",
 			    "track_x:track_y:track_z:track_phi:track_p:track_charge:track_theta:track_z0:drc_x:drc_y:drc_phi:chi2:drc_thetac:drc_nphot:dphi:glen:flag");
       dskCorr = new TNtuple("dskCorr","TRACK-DSK Correlation",
@@ -666,7 +697,8 @@ void PndPidCorrelator::ConstructChargedCandidate() {
   //Call Delete() only for too busy events to save Memory
   fPidChargedCand->Delete();
   if (fMdtRefit) fMdtTrack->Delete();
- 
+  if (fMdtMode>0) MdtMapping();
+  
   Int_t nTracks = fTrack->GetEntriesFast();
   for (Int_t i = 0; i < nTracks; i++) {
     PndTrack* track = (PndTrack*) fTrack->At(i);
@@ -733,7 +765,7 @@ void PndPidCorrelator::ConstructChargedCandidate() {
 	PndTrack* track = (PndTrack*) fTrack2->At(i);
 	Int_t ierr = 0;
 	FairTrackParP par = track->GetParamLast();
-	if ((par.GetMomentum().Mag()<0.1) || (par.GetMomentum().Mag()>15.) )continue;
+	if ((par.GetMomentum().Mag()<0.1) || (par.GetMomentum().Mag()>20.) )continue;
 	FairTrackParH *helix = new FairTrackParH(&par, ierr);
       
 	PndPidCandidate* pidCand =  new PndPidCandidate();
@@ -780,7 +812,8 @@ void PndPidCorrelator::ConstructChargedCandidate() {
 	  {
 	    if ( (fFtofMode==2) && (fFtofHit->GetEntriesFast()>0) ) GetFtofInfo(helix, pidCand);
 	    if ( (fEmcMode>0)  && (fFscClstCount>0) ) GetFscInfo(helix, pidCand);
-	    if ( (fMdtMode>0)  && (fMdtHit    ->GetEntriesFast()>0) ) GetMdtInfo(track, pidCand);
+	    //if ( (fMdtMode>0)  && (fMdtHit    ->GetEntriesFast()>0) ) GetMdtInfo(track, pidCand);
+	    if (mapMdtForward.size()>0)  GetFMdtInfo(&par, pidCand);
 	  } // end of fast mode
 	AddChargedCandidate(pidCand);
       }
@@ -1097,6 +1130,7 @@ Bool_t PndPidCorrelator::GetMdtInfo(PndTrack* track, PndPidCandidate* pidCand) {
   
   Float_t chi2 = 0;
   TVector3 vertex(0., 0., 0.);
+  TVector3 vertexD(0., 0., 0.);
   TVector3 mdtPos(0., 0., 0.);
   TVector3 momentum(0., 0., 0.);
   for (Int_t mm = 0; mm<mdtEntries; mm++)
@@ -1112,11 +1146,13 @@ Bool_t PndPidCorrelator::GetMdtInfo(PndTrack* track, PndPidCandidate* pidCand) {
 	  fProMdt->SetPoint(mdtPos);
 	  fProMdt->PropagateToPCA(1, 1);
 	  vertex.SetXYZ(-10000, -10000, -10000); // reset vertex
+	  vertexD.SetXYZ(-10000, -10000, -10000); // reset vertex
 	  FairTrackParH *fRes= new FairTrackParH();
 	  Bool_t rc =  fProMdt->Propagate(helix, fRes, fPidHyp*pidCand->GetCharge()); 
 	  if (!rc) continue;
 	  mdtTempMom = fRes->GetMomentum().Mag();  
 	  vertex.SetXYZ(fRes->GetX(), fRes->GetY(), fRes->GetZ());
+	  vertexD.SetXYZ(fRes->GetDX(), fRes->GetDY(), fRes->GetDZ());
 	  mdtGLength = fProMdt->GetLengthAtPCA();
 	}
     
@@ -1154,9 +1190,10 @@ Bool_t PndPidCorrelator::GetMdtInfo(PndTrack* track, PndPidCandidate* pidCand) {
 	}
       if (fDebugMode)
 	{
-	  Float_t ntuple[] = {vertex.X(), vertex.Y(), vertex.Z(), vertex.Phi(), 
+	  Float_t ntuple[] = {vertex.X(), vertex.Y(), vertex.Z(),
+			      vertexD.X(), vertexD.Y(), vertexD.Z(), vertex.Phi(), 
 			      helix->GetMomentum().Mag(), helix->GetQ(), helix->GetMomentum().Theta(), helix->GetZ(),
-			      mdtPos.X(), mdtPos.Y(), mdtPos.Z(), mdtPos.Phi(),
+			      mdtPos.X(), mdtPos.Y(), mdtPos.Z(), mdtPos.Phi(), mdtTempMom,
 			      dist, mdtHit->GetModule(), vertex.DeltaPhi(mdtPos), mdtGLength, mdtLayer, mdtHits};
 	  mdtCorr->Fill(ntuple);
 	}
@@ -1390,6 +1427,9 @@ void PndPidCorrelator::Reset() {
   fFscClstCount = 0;
   fClusterList.clear();
   fClusterQ.clear();
+  mapMdtBarrel.clear();
+  mapMdtEndcap.clear();
+  mapMdtForward.clear();
 }
 
 //_________________________________________________________________
