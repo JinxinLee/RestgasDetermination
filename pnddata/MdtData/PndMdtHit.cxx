@@ -30,4 +30,11 @@ PndMdtHit::~PndMdtHit()
 {
 } 
 
+// -----   Public method Print   -------------------------------------------
+void PndMdtHit::Print(const Option_t* opt) const {
+  std::cout << "Mdt hit in detector: Module " << GetModule() << " Sector " << GetSector() << " Layer " << GetLayerID() << " Box " << GetBox() << " Wire " << GetWire() << " Strip " << GetStrip() << " at ("
+       << fX << ", " << fY << ", " << fZ << ") cm " 
+       << ", Point " << fRefIndex << std::endl;
+}
+
 ClassImp(PndMdtHit)

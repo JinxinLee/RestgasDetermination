@@ -17,7 +17,7 @@ class PndMdtHit : public FairHit {
   virtual ~PndMdtHit();
   
   /** Output to screen (not yet implemented) **/
-  virtual void Print(const Option_t* opt = 0) const {;}
+  virtual void Print(const Option_t* opt = 0) const;
   
   
   /** Public method Clear
