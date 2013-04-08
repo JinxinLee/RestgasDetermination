@@ -119,7 +119,7 @@ void PndFtofHitProducerIdeal::Exec(Option_t* opt)
   for (Int_t iPoint = 0; iPoint < nPoints; iPoint++) 
     {
       point = (PndFtofPoint*) fPointArray->At(iPoint);
-	std::cout << " Ideal Hit Producer -Point-: " << point << std::endl;
+      if (fVerbose>0) std::cout << " Ideal Hit Producer -Point-: " << point << std::endl;
       if ( ! point) 
 	continue;
 
@@ -245,7 +245,7 @@ void PndFtofHitProducerIdeal::Exec(Option_t* opt)
  
   
   // Event summary
-  std::cout << "-I- PndFtofHitProducerIdeal: " << nPoints << " FtofPoints, "
+  if (fVerbose>0) std::cout << "-I- PndFtofHitProducerIdeal: " << nPoints << " FtofPoints, "
        << nPoints << " Hits created." << std::endl;
   
 
