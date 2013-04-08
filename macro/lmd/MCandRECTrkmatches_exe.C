@@ -535,7 +535,7 @@ int main(int __argc,char *__argv[]) {
  TH2 *hchi2nTrkCand = new TH2F("hchi2nTrkCand"," ;Number of trk-cand;#chi^2",
 			    30,0,30,5e2,0,50.);
   TNtuple *nrecpointall = new TNtuple("nrecpointall","recpointAll","xrecbp:yrecbp:zrecbp:xrec:yrec:zrec:xseed:yseed:zseed:chi2");
-  TNtuple *nrecdirall = new TNtuple("nrecdirall","recdirAll","pxrecbp:pyrecbp:pzrecbp:dirxrec:diryrec:dirzrec:dirxseed:diryseed:dirzseed");
+  TNtuple *nrecdirall = new TNtuple("nrecdirall","recdirAll","dxmc:dymc:dzmc:dxrecbp:dyrecbp:dzrecbp:dirxrec:diryrec:dirzrec:dirxseed:diryseed:dirzseed");
   TNtuple *nsectors = new TNtuple("nsectors","sectors","thetares:sector");
   TH2I *hnhits = new TH2I("hnhits","# rec hits vs. # sim hits; sim; rec",100,0,100,100,0,100);
   //Load lumi geo params
@@ -966,7 +966,7 @@ int main(int __argc,char *__argv[]) {
 	nrecpointall->Fill(pos_prop_geane_trk.X(),pos_prop_geane_trk.Y(),pos_prop_geane_trk.Z(),
 			   pos_rec_trk.X(),pos_rec_trk.Y(),pos_rec_trk.Z(),
 			   posSeed.X(),posSeed.Y(),posSeed.Z(),chi2);
-	nrecdirall->Fill(MomRecBP.X(),MomRecBP.Y(),MomRecBP.Z(),
+	nrecdirall->Fill(MomMC.X()/MomMC.Mag(),MomMC.Y()/MomMC.Mag(),MomMC.Z()/MomMC.Mag(),MomRecBP.X()/MomRecBP.Mag(),MomRecBP.Y()/MomRecBP.Mag(),MomRecBP.Z()/MomRecBP.Mag(),
 			 dir_rec_trk.X(),dir_rec_trk.Y(),dir_rec_trk.Z(),
 			 dirSeed.X(),dirSeed.Y(),dirSeed.Z());
 	///==================================
