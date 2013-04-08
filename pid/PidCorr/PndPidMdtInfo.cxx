@@ -146,14 +146,14 @@ Bool_t PndPidCorrelator::GetFMdtInfo(FairTrackParP* helix, PndPidCandidate* pidC
   TVector3 momentum(0., 0., 0.);
   TVector3 vertex(0., 0., 0.);
   TVector3 vertexD(0., 0., 0.);
-  Float_t propZ = mdtLayerPos[2][0] ; 
-  Float_t propX = helix->GetX() + (propZ - helix->GetZ()) * helix->GetPx() / helix->GetPz();
-  Float_t propY = helix->GetY() + (propZ - helix->GetZ()) * helix->GetPy() / helix->GetPz();
+  Float_t prop0Z = mdtLayerPos[2][0] ; 
+  Float_t prop0X = helix->GetX() + (prop0Z - helix->GetZ()) * helix->GetPx() / helix->GetPz();
+  Float_t prop0Y = helix->GetY() + (prop0Z - helix->GetZ()) * helix->GetPy() / helix->GetPz();
  
-  vertex.SetXYZ(propX, propY, propZ);
+  vertex.SetXYZ(prop0X, prop0Y, prop0Z);
   mdtGLength = (vertex-helix->GetPosition()).Mag();
   
-  if (fGeanePro && !fIdeal) // Overwrites vertex if Geane is used
+  if (kFALSE) //(fGeanePro && !fIdeal) // Overwrites vertex if Geane is used
     { 
       TVector3 jj(1,0,0), kk(0,1,0);
       fProMdt->PropagateFromPlane(jj, kk);
@@ -175,7 +175,7 @@ Bool_t PndPidCorrelator::GetFMdtInfo(FairTrackParP* helix, PndPidCandidate* pidC
     }
   
   vector<Int_t>vecMdt0 = mapMdtForward[0]; // hit in layer0
-  
+  TVector3 oldPos(0., 0., 0.);
   for (Int_t mm0 = 0; mm0< vecMdt0.size(); mm0++)
     {
       mdtHit = (PndMdtHit*)fMdtHit->At(vecMdt0[mm0]);
@@ -187,10 +187,12 @@ Bool_t PndPidCorrelator::GetFMdtInfo(FairTrackParP* helix, PndPidCandidate* pidC
         {
           mdtIndex = mm0;
           mdtQuality = dist;
+	  oldPos = mdtPos;
 	}
-      Int_t mdtLayer = 0, mdtHits = 1;
+      
       if (fDebugMode)
         {
+	  Int_t mdtLayer = 0, mdtHits = 1; // dummy values to fill the ntuple
 	  Float_t ntuple[] = {vertex.X(), vertex.Y(), vertex.Z(),
 			      vertexD.X(), vertexD.Y(), vertexD.Z(),
 			      vertex.Phi(), 
@@ -199,15 +201,65 @@ Bool_t PndPidCorrelator::GetFMdtInfo(FairTrackParP* helix, PndPidCandidate* pidC
 			      dist, mdtHit->GetModule(), vertex.DeltaPhi(mdtPos), mdtGLength, mdtLayer, mdtHits};
           mdtCorr->Fill(ntuple);
 	}
-    }
-
+    } // end of layer0 loop
+  
   if ( (mdtQuality<fCorrPar->GetMdtCut()) || (fIdeal && mdtIndex!=-1) )
-    {
-      
+    {    
       pidCand->SetMuoQuality(mdtQuality);
       pidCand->SetMuoIndex(mdtIndex);
       pidCand->SetMuoModule(4);
       pidCand->SetMuoMomentumIn(momentum.Mag());
+      
+      // MUON TRACKING
+      Int_t layerCount = 0, lastLayer = 0, mdtHits = 1;
+      Float_t ironDist = 0.;
+      
+      for (Int_t ll=1; ll<17; ll++)
+	{
+	  vector<Int_t>vecMdt = mapMdtForward[ll]; // hit in layer ll
+	  if (vecMdt.size()==0) continue;
+	  
+	  // extrapolation w/o genfit
+	  Float_t propZ = mdtLayerPos[2][ll] ; 
+	  Float_t propX = helix->GetX() + (propZ - helix->GetZ()) * helix->GetPx() / helix->GetPz();
+	  Float_t propY = helix->GetY() + (propZ - helix->GetZ()) * helix->GetPy() / helix->GetPz();	  
+	  vertex.SetXYZ(propX, propY, propZ);
+	  
+	  Float_t mdtLQuality = 1000000, corrDist = -1, corrHitDist = -1;
+	  Int_t mdtLIndex = -1, hitLCounts = 0, layerMult = 0; 
+	  TVector3 corrPos(0., 0., 0.); 
+	  for (Int_t mm = 0; mm< vecMdt.size(); mm++)
+	    {
+	      mdtHit = (PndMdtHit*)fMdtHit->At(vecMdt[mm]);
+	      if ( fIdeal && ( ((PndMdtPoint*)fMdtPoint->At(mdtHit->GetRefIndex()))->GetTrackID() !=pidCand->GetMcIndex()) ) continue;
+	      mdtHit->Position(mdtPos);
+	      Float_t dist = (mdtPos-vertex).Mag2();
+	      Float_t hitDist = (mdtPos-oldPos).Mag2();
+	      if ( (corrDist<0) || (dist<corrDist) )
+		{
+		  mdtLIndex = vecMdt[mm];
+		  corrDist = dist;
+		  corrHitDist = hitDist;
+		  corrPos = mdtPos;		 
+		}
+	      if ( (dist>0.) && (TMath::Sqrt(dist) < 20) ) layerMult++;	      
+	    } // end of mdtHit loop per layer
+	  
+	  if ( (corrDist>0.) && (TMath::Sqrt(corrDist) < 20) )
+	    {
+	      ironDist = ironDist + mdtIronThickness[2][ll] * TMath::Sqrt(corrHitDist)/(mdtLayerPos[2][ll] - mdtLayerPos[2][lastLayer]);
+	      mdtHits = mdtHits + layerMult;
+	      layerCount++;
+	      lastLayer = ll;
+	      oldPos = corrPos; // reset position for next mdt layer 
+	    }
+	  
+	} // end of internal layers loop
+
+      //pidCand->SetMuoNumberOfLayers(layerCount);
+      pidCand->SetMuoNumberOfLayers(lastLayer);
+      pidCand->SetMuoIron(ironDist);
+      pidCand->SetMuoHits(mdtHits);
     } 
   
   return kTRUE;
