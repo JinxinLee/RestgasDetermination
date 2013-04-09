@@ -275,7 +275,7 @@ void PndGemDetector::MisalignDetector()
   std::cout << "-----------------------------------" << std::endl;
   std::cout << " M I S A L I G N   D E T E C T O R " << std::endl;
 
-  /*  TGeoPhysicalNode* pn1 = gGeoManager->MakePhysicalNode("/cave_1/Gem_Disks_0/Gem_Disk1_Volume_0/Gem_Disk1_Seg1_Gem1_Sensor_TPCmixture_0");
+  /*  TGeoPhysicalNode* pn1 = gGeoManager->MakePhysicalNode("/cave_1/Gem_Disks_0/Gem_Disk1_Volume_0/Gem_Disk1_Seg1_Gem1_Sensor_GEMmixture_0");
   cout << "got the node " << pn1 << endl;
   cout << "print the orig rot matrix:" << endl;
   pn1->GetOriginalMatrix()->Print();
@@ -300,7 +300,7 @@ void PndGemDetector::MisalignDetector()
     if ( ist == 2 ) nofSeg = 3;
     for ( Int_t isg = 0 ; isg < nofSeg ; isg++ ) {
       for ( Int_t isp = 0 ; isp < 2 ; isp++ ) {
-	TString tName = Form("/cave_1/Gem_Disks_0/Gem_Disk%d_Volume_0/Gem_Disk%d_Seg%d_Gem%d_Sensor_TPCmixture_0",ist+1,ist+1,isg+1,isp*5+1);
+	TString tName = Form("/cave_1/Gem_Disks_0/Gem_Disk%d_Volume_0/Gem_Disk%d_Seg%d_Gem%d_Sensor_GEMmixture_0",ist+1,ist+1,isg+1,isp*5+1);
 	cout << tName.Data() << endl;	
 	TGeoPhysicalNode* tgpn = gGeoManager->MakePhysicalNode(tName.Data());
 	TGeoHMatrix* tghm = (TGeoHMatrix*)tgpn->GetOriginalMatrix();
