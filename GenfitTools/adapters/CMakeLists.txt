@@ -30,6 +30,7 @@ link_directories( ${LINK_DIRECTORIES})
 
 set(GFADAPTER_SRCS 
 PndGenfitAdapters.cxx
+PndGenfitField.cxx
 )
 
 if(RULE_CHECKER_FOUND)
