@@ -1311,16 +1311,7 @@ STTelectronics     -2  28.0855  15.9994  14.  8.  2.20  1  2
 // ----- Caution with putting materials below that line -----
 // The next materials must specify additional parameters!
 
-// 90/10 , 70/30 etc are volume or mol percentages (its the same for gases)!!!
-
-// Neon CO2 (90/10)
-
 AUTONULL
-
-TPCmixture	3  20.1797 12.0107 15.9994  10. 6. 8.  0.0009222269   0.8049456004 0.0532325947 0.1418218049
-		1 1   20. 0.001 
-		99. 0.5 0.0001 0.00001 
-		0
 
 vacuum2 1 1.e-16 1.e-16 1.e-16
 		0 1 30. .001
