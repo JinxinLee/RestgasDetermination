@@ -21,7 +21,7 @@ void create4StationsGem()
   const TString  kLayerName [kNofLayers] = {"WindowF_kapton","WindowF_aluminium",
 					    "space",
 					    "CathodeF_kapton","CathodeF_aluminium",
-					    "Gem1_Sensor_TPCmixture",
+					    "Gem1_Sensor_GEMmixture",
 					    "Gem1F_copper","Gem1_kapton","Gem1B_copper",
 					    "space",
 					    "Gem2F_copper","Gem2_kapton","Gem2B_copper",
@@ -35,7 +35,7 @@ void create4StationsGem()
 					    "Gem5F_copper","Gem5_kapton","Gem5B_copper",
 					    "space",
 					    "Gem6F_copper","Gem6_kapton","Gem6B_copper",
-					    "Gem6_Sensor_TPCmixture",
+					    "Gem6_Sensor_GEMmixture",
 					    "CathodeB_aluminium","CathodeB_kapton",
 					    "space",
 					    "WindowB_aluminium","WindowB_kapton"};
@@ -117,9 +117,6 @@ void create4StationsGem()
   FairGeoMedium *CbmMediumCopper    = Media->getMedium("copper");
   FairGeoMedium *CbmMediumKapton    = Media->getMedium("kapton");
   FairGeoMedium *CbmMediumArCO2     = Media->getMedium("GEMmixture");
-  cout << "tpc mixture" << endl;
-  FairGeoMedium *CbmTPCmixture      = Media->getMedium("TPCmixture");
-  cout << "dont like the media?" << endl;
 
   Int_t nmed=geobuild->createMedium(CbmMediumAir);
   nmed=geobuild->createMedium(CbmMediumPWO);
@@ -128,9 +125,6 @@ void create4StationsGem()
   nmed=geobuild->createMedium(CbmMediumCopper);
   nmed=geobuild->createMedium(CbmMediumKapton);
   nmed=geobuild->createMedium(CbmMediumArCO2);
-  cout << "or maybe here?" << endl;
-  nmed=geobuild->createMedium(CbmTPCmixture);
-  cout << "but it works" << endl;
 
   TGeoManager* gGeoMan = (TGeoManager*)gROOT->FindObject("FAIRGeom");
 
