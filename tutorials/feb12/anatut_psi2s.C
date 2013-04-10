@@ -14,7 +14,7 @@ int SelectPdgCode(TCandList &mct, TCandList &l)
 	PndMcTruthMatch mcm;
 	
 	if (l.GetLength()>0) pdgcode = l[0].PdgCode();
-	for (int ii=0;ii<l.GetLength();++ii)
+	for (int ii=l.GetLength()-1;ii>=0;--ii)
 	{
 		if (!mcm.MctMatch(l[ii],mct))
 		{
@@ -92,7 +92,7 @@ void anatut_psi2s(int nevts=0)
 	if (nevts==0) nevts= theAnalysis->GetEntries();
 	
 	// *** TCandLists for the analysis
-	TCandList all, chrg, mctrk, el, eplus, eminus, piplus, piminus, jpsi, psi2s;
+	TCandList all, chrg, mctrk, muplus, muminus, piplus, piminus, jpsi, psi2s;
 	
 	// *** Mass selector for the jpsi cands
 	TPidMassSelector *jpsiMassSel=new TPidMassSelector("jpsi",3.096,1.0);
@@ -114,12 +114,12 @@ void anatut_psi2s(int nevts=0)
 		theAnalysis->FillList(mctrk,"McTruth");
 			
 		// *** Select with no PID info ('All'); type and mass are set 		
-		theAnalysis->FillList(eplus, "ElectronAllPlus");
-		theAnalysis->FillList(eminus, "ElectronAllMinus");
+		theAnalysis->FillList(muplus, "MuonAllPlus");
+		theAnalysis->FillList(muminus, "MuonAllMinus");
 		theAnalysis->FillList(piplus, "PionAllPlus");
 		theAnalysis->FillList(piminus, "PionAllMinus");
 		
-		jpsi.Combine(eplus, eminus);
+		jpsi.Combine(muplus, muminus);
 		
 		// *** do the truth match for jpsi
 		mcm.SetType(jpsi,"J/psi");
@@ -184,13 +184,13 @@ void anatut_psi2s(int nevts=0)
 			
 			TCandidate *jfit = fitter.FittedCand(*(psi2s[j].Daughter(0)));
 			
-			TCandidate *epfit = fitter.FittedCand(*(psi2s[j].Daughter(0)->Daughter(0)));
-			TCandidate *emfit = fitter.FittedCand(*(psi2s[j].Daughter(0)->Daughter(1)));
+			TCandidate *mupfit = fitter.FittedCand(*(psi2s[j].Daughter(0)->Daughter(0)));
+			TCandidate *mumfit = fitter.FittedCand(*(psi2s[j].Daughter(0)->Daughter(1)));
 			
-			TLorentzVector tlvepf = epfit->P4();
-			TLorentzVector tlvemf = emfit->P4();
+			TLorentzVector tlvmupf = mupfit->P4();
+			TLorentzVector tlvmumf = mumfit->P4();
 			
-			hjpsim_4cf->Fill((tlvepf+tlvemf).M());
+			hjpsim_4cf->Fill((tlvmupf+tlvmumf).M());
 		}		
 		
 		// do mass constraint fit
@@ -206,13 +206,13 @@ void anatut_psi2s(int nevts=0)
 		}		
 		
 		// *** do MC truth match for PID type
-		SelectPdgCode(mctrk, eplus);
-		SelectPdgCode(mctrk, eminus);
+		SelectPdgCode(mctrk, muplus);
+		SelectPdgCode(mctrk, muminus);
 		SelectPdgCode(mctrk, piplus);
 		SelectPdgCode(mctrk, piminus);
 				
 		// *** all combinatorics again with true PID
-		jpsi.Combine(eplus, eminus);
+		jpsi.Combine(muplus, muminus);
 		for (j=0;j<jpsi.GetLength();++j) hjpsim_tpid->Fill( jpsi[j].M() );
 		//jpsi.Select(jpsiMassSel);
 		
@@ -220,12 +220,12 @@ void anatut_psi2s(int nevts=0)
 		for (j=0;j<psi2s.GetLength();++j) hpsim_tpid->Fill( psi2s[j].M() );
 		
 		// *** and again with PidAlgoEmcBayes and loose selection
-		theAnalysis->FillList(eplus, "ElectronLoosePlus","PidAlgoEmcBayes");
-		theAnalysis->FillList(eminus, "ElectronLooseMinus","PidAlgoEmcBayes");
-		theAnalysis->FillList(piplus, "PionLoosePlus","PidAlgoEmcBayes");
-		theAnalysis->FillList(piminus, "PionLooseMinus","PidAlgoEmcBayes");
+		theAnalysis->FillList(muplus, "MuonLoosePlus","PidAlgoMvd;PidAlgoStt");
+		theAnalysis->FillList(muminus, "MuonLooseMinus","PidAlgoMvd;PidAlgoStt");
+		theAnalysis->FillList(piplus, "PionLoosePlus","PidAlgoMvd;PidAlgoStt");
+		theAnalysis->FillList(piminus, "PionLooseMinus","PidAlgoMvd;PidAlgoStt");
 		
-		jpsi.Combine(eplus, eminus);
+		jpsi.Combine(muplus, muminus);
 		for (j=0;j<jpsi.GetLength();++j) hjpsim_lpid->Fill( jpsi[j].M() );
 		//jpsi.Select(jpsiMassSel);
 		
