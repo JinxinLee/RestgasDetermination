@@ -75,11 +75,11 @@ add_executable(createRootGeometry_lmd_HV_MAPS create_Lmd_HV_MAPS.C)
 #-lMuch -lBase -lField -lMCStack -lPassive -lGeoBase
 #-lParBase)
 #target_link_libraries(bkg_rec_mc_match ${ROOT_LIBRARIES} genfit genfitAdapters trackrep RecoHits Stt Fts Geane Geom Proof TrkBase FairTools PndData VMC EG GeomPainter generalTools Base GeoBase FairDB ParBase Minuit)
-target_link_libraries(rec_mc_match ${ROOT_LIBRARIES} Lmd GeoBase ParBase Sds  Geom TrkBase  VMC EG GeomPainter generalTools FairTools MathMore FairDB Base trackrep genfitAdapters genfit  RecoHits Stt Fts LmdReco LmdTrk  SdsReco Geane Proof PndData  Minuit)
+##target_link_libraries(rec_mc_match ${ROOT_LIBRARIES} Lmd GeoBase ParBase Sds  Geom TrkBase  VMC EG GeomPainter generalTools FairTools MathMore FairDB Base trackrep genfitAdapters genfit  RecoHits Stt Fts LmdReco LmdTrk  SdsReco Geane Proof PndData  Minuit)
 #target_link_libraries(sum_bkg_rec_mc_match ${ROOT_LIBRARIES})
 #target_link_libraries(hits_align ${ROOT_LIBRARIES}  Lmd LmdTrk Sds SdsReco Geane Geom Proof TrkBase FairTools PndData VMC EG GeomPainter generalTools Base GeoBase FairDB ParBase MathMore genfit genfitAdapters trackrep Minuit genfit genfitAdapters trackrep RecoHits Stt Fts)
  #target_link_libraries(hits_study ${ROOT_LIBRARIES} genfit genfitAdapters trackrep RecoHits Stt Fts Lmd LmdReco LmdTrk Sds SdsReco Geane Geom Proof TrkBase FairTools PndData VMC EG GeomPainter generalTools Base GeoBase FairDB ParBase MathMore Minuit)
 ##target_link_libraries(createRootGeometry_lmd_HV_MAPS ${ROOT_LIBRARIES} Lmd Sds Geane Geom Proof TrkBase FairTools PndData VMC EG GeomPainter generalTools Base GeoBase FairDB ParBase MathMore Minuit)
 
 target_link_libraries(createRootGeometry_lmd_HV_MAPS ${ROOT_LIBRARIES} Lmd  GeoBase ParBase  Sds  Geom Proof  PndData TrkBase VMC EG GeomPainter generalTools FairTools MathMore FairDB Base)
-
+target_link_libraries(rec_mc_match ${ROOT_LIBRARIES}  Lmd GeoBase ParBase Geom PndData TrkBase  VMC EG GeomPainter generalTools FairTools  LmdReco LmdTrk Geane trackrep RecoHits genfitAdapters genfit SdsReco Sds Stt Fts Proof MathMore Minuit FairDB Base ) 
