@@ -38,7 +38,7 @@ ${CMAKE_SOURCE_DIR}/lmd/LmdMC
 ${CMAKE_SOURCE_DIR}/lmd/LmdDigi
 ${CMAKE_SOURCE_DIR}/lmd/LmdReco
 ${CMAKE_SOURCE_DIR}/lmd/LmdTrack
-3${CMAKE_SOURCE_DIR}/lmd/LmdTools
+${CMAKE_SOURCE_DIR}/lmd/LmdTools
 ${CMAKE_SOURCE_DIR}/lmd
 ${CMAKE_SOURCE_DIR}/genfit
 ${CMAKE_SOURCE_DIR}/GenfitTools/trackrep
@@ -70,19 +70,16 @@ add_executable(sum_bkg_rec_mc_match sumBkgStudies_MCmatch_withSignal_exe.C)
 add_executable(hits_align CreateHitsForAlignment.C)
 add_executable(createRootGeometry_lmd_HV_MAPS create_Lmd_HV_MAPS.C)	
 add_executable(hits_study HitsResolution.C)
-add_executable(dpm_out_check GenInfoDPMgen.C)
-add_executable(bkg_gen_info BkgStudies_GenInfo_exe.C)
-
 # loading of libraries in the correct order is important!
 # (-lSts -lGen -lRich -lTrd -lTof -lMvd -lGlobal -lKF -lDilept
 #-lMuch -lBase -lField -lMCStack -lPassive -lGeoBase
 #-lParBase)
-target_link_libraries(bkg_rec_mc_match  ${ROOT_LIBRARIES} genfit genfitAdapters trackrep RecoHits Stt Fts Lmd LmdTrk LmdReco Sds SdsReco Geane Geom Proof TrkBase FairTools PndData VMC EG GeomPainter generalTools Base GeoBase FairDB ParBase MathMore Minuit)
-target_link_libraries(rec_mc_match ${ROOT_LIBRARIES} genfit genfitAdapters trackrep RecoHits Stt Fts Lmd LmdTrk LmdReco Sds SdsReco Geane Geom Proof TrkBase FairTools PndData VMC EG GeomPainter generalTools Base GeoBase FairDB ParBase MathMore Minuit)
+target_link_libraries(bkg_rec_mc_match ${ROOT_LIBRARIES} genfit genfitAdapters trackrep RecoHits Stt Fts Geane Geom Proof TrkBase FairTools PndData VMC EG GeomPainter generalTools Base GeoBase FairDB ParBase Minuit)
+target_link_libraries(rec_mc_match ${ROOT_LIBRARIES} genfit genfitAdapters trackrep RecoHits Stt Fts Lmd LmdReco LmdTrk Sds SdsReco Geane Geom Proof TrkBase FairTools PndData VMC EG GeomPainter generalTools Base GeoBase FairDB ParBase MathMore Minuit)
 target_link_libraries(sum_bkg_rec_mc_match ${ROOT_LIBRARIES})
 target_link_libraries(hits_align ${ROOT_LIBRARIES}  Lmd LmdTrk Sds SdsReco Geane Geom Proof TrkBase FairTools PndData VMC EG GeomPainter generalTools Base GeoBase FairDB ParBase MathMore genfit genfitAdapters trackrep Minuit genfit genfitAdapters trackrep RecoHits Stt Fts)
- target_link_libraries(hits_study ${ROOT_LIBRARIES} genfit genfitAdapters trackrep RecoHits Stt Fts Lmd LmdTrk Sds SdsReco Geane Geom Proof TrkBase FairTools PndData VMC EG GeomPainter generalTools Base GeoBase FairDB ParBase MathMore Minuit)
-#target_link_libraries(createRootGeometry_lmd_HV_MAPS ${ROOT_LIBRARIES} genfit genfitAdapters trackrep RecoHits Stt Fts Lmd LmdTrk Sds SdsReco Geane Geom Proof TrkBase FairTools PndData VMC EG GeomPainter generalTools Base GeoBase FairDB ParBase MathMore Minuit)
-target_link_libraries(createRootGeometry_lmd_HV_MAPS ${ROOT_LIBRARIES} Lmd Sds Geane Geom Proof TrkBase FairTools PndData VMC EG GeomPainter generalTools Base GeoBase FairDB ParBase MathMore Minuit)
-target_link_libraries(dpm_out_check ${ROOT_LIBRARIES} Geane Geom Proof TrkBase FairTools PndData VMC EG GeomPainter generalTools Base GeoBase FairDB ParBase)
-target_link_libraries(bkg_gen_info ${ROOT_LIBRARIES})
+ target_link_libraries(hits_study ${ROOT_LIBRARIES} genfit genfitAdapters trackrep RecoHits Stt Fts Lmd LmdReco LmdTrk Sds SdsReco Geane Geom Proof TrkBase FairTools PndData VMC EG GeomPainter generalTools Base GeoBase FairDB ParBase MathMore Minuit)
+##target_link_libraries(createRootGeometry_lmd_HV_MAPS ${ROOT_LIBRARIES} Lmd Sds Geane Geom Proof TrkBase FairTools PndData VMC EG GeomPainter generalTools Base GeoBase FairDB ParBase MathMore Minuit)
+
+target_link_libraries(createRootGeometry_lmd_HV_MAPS ${ROOT_LIBRARIES} Lmd  GeoBase ParBase  Sds  Geom Proof  PndData TrkBase VMC EG GeomPainter generalTools FairTools MathMore FairDB Base)
+
