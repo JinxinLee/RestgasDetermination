@@ -1,7 +1,7 @@
 // Panda FullSim macro
 
 //void runLumi0SimBox(const int nEvents=10, const double mom=15, TString storePath="tmpOutput", const int verboseLevel=0, const int particle=-211)
-void runLumiPixel0SimBox(const int nEvents=10, const int startEv=0, const double mom=15, TString storePath="tmpOutput", const int verboseLevel=0, const int particle=-2212, const int trkNum=1, const int seed=63847)
+void runLumiPixel0SimBox(const int nEvents=10, const int startEv=0, const double mom=15, TString storePath="tmpOutput", const int verboseLevel=0, const int particle=-2212, const int trkNum=1, const int seed=0)
 {
 
   // ///PROOF lite
@@ -9,6 +9,7 @@ void runLumiPixel0SimBox(const int nEvents=10, const int startEv=0, const double
 
 
   gRandom->SetSeed(seed);
+  //gRandom->SetSeed(0);
   TStopwatch timer;
   timer.Start();
   gDebug=0;
@@ -111,16 +112,17 @@ void runLumiPixel0SimBox(const int nEvents=10, const int startEv=0, const double
   // Box Generator
   FairBoxGenerator *fBox = new FairBoxGenerator(particle, trkNum);
   fBox->SetPRange(mom,mom);
-  fBox->SetThetaRange(0.13,0.7); // 2... 12 mrad
+  //  fBox->SetThetaRange(0.13,0.7); // 2... 12 mrad
 
   //fBox->SetThetaRange(0.13,0.65); // 2... 11 mrad
-  //  fBox->SetThetaRange(0.229183, 0.458366); //4 ... 8 mrad
+  // fBox->SetThetaRange(0.229183, 0.458366); //4 ... 8 mrad
   //fBox->SetThetaRange(0.458366, 0.458366); //!!! 8 mrad
   //  fBox->SetThetaRange(0., 45.);//TEST 
   fBox->SetPhiRange(0,360.);
   //  fBox->SetPhiRange(0.5,359.5); //FOR missed track check
-  // fBox->SetPhiRange(0.,0.);
-  //  fBox->SetPhiRange(0,0);//TEST
+  //  fBox->SetPhiRange(0.,20.);//!!! TEST
+  //  fBox->SetThetaRange(0.344,0.344); //!!! TEST ~ 6 mrad
+  //fBox->SetPhiRange(0,0);//TEST
   primGen->AddGenerator(fBox); 
 
   
