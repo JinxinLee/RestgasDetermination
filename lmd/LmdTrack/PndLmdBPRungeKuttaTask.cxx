@@ -1,5 +1,5 @@
 // -------------------------------------------------------------------------
-// -----       PndLmdBPRungeKuttaTask header file        -----
+// -----       PndLmdBPRungeKuttaTask cource file        -----
 // -----                  Created 08/04/13  by A.Karavdina    -----
 // -------------------------------------------------------------------------
 
@@ -322,7 +322,9 @@ void PndLmdBPRungeKuttaTask::Exec(Option_t* opt)
     	  gErrPos = g2ErrPos;
     	  gErrMom = g2ErrMom;
     	}
-    	gErrPos.Print();
+	if(fVerbose>2){
+	  gErrPos.Print();
+	}
     	g3Pos = g2Pos;
     	g3Mom = g2Mom;
     	g3ErrPos = g2ErrPos;
