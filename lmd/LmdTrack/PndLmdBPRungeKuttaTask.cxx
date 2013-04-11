@@ -347,7 +347,7 @@ void PndLmdBPRungeKuttaTask::Exec(Option_t* opt)
 
       Bool_t isProp = true;
       FairTrackParH *fRes = new (clref1[size1]) FairTrackParH(gPos, gMom, gErrPos, gErrMom, fCharge);
-      fRes->CalCov();
+      //   fRes->CalCov();
       //Runge-Kutta(END) --------------------------------
 
 
