@@ -63,6 +63,8 @@ PndLmdTrackFinderCATask::PndLmdTrackFinderCATask(const bool missPl, const double
   d_max = setdmax; 
   nSensPP = innSensPP;
   nP = innP;
+  flagStipSens = false;
+  flagPixelSens = false;
   //   dXY = 0.01;//TEST
 }
 
