@@ -1,0 +1,233 @@
+#!/bin/bash
+PANDAROOT=/panda/pandaroot
+PANDAROOTmy=/panda/karavdina
+# #----------------------------------------------------------------------
+path=${PANDAROOT}/macro/lmd/tmpOutputAlignTMP
+mkdir ${path}
+if [ ! -r  ${path}/MCsamples ]; then
+mkdir ${path}/MCsamples
+fi
+if [ ! -r  ${path}/misalignConsts ]; then
+    mkdir ${path}/misalignConsts
+fi
+numTrks=1
+mergedHits=true
+#numEv=1000
+pbeam=15
+#dr=10
+#da=0
+NEV=(10000 100000 200000 300000 500000 700000 1000000)
+#NEV=(10000)
+NEVN=${#NEV[@]}
+#TRANS=(0 50 100 150 200 250 300 400 500 600 700 800 900 1000 1500) #mkm
+#TRANS=(600 700 800 900 1000) #mkm
+#TRANS=(0 100 200 300 400 500 600 700 800 900 1000) #mkm
+TRANS=(450 500) #mkm
+#TRANS=(400) #mkm
+TRANSN=${#TRANS[@]}
+ROT=(0 1 3 5 7) #mrad
+#ROT=(0) #mrad
+ROTN=${#ROT[@]}
+useMSerr=true
+##ITTER=(1)
+##ITTERN=${#ITTER[@]}
+ for (( jr=0;jr<$ROTN;jr++)); do
+for (( jt=0;jt<$TRANSN;jt++)); do
+     for(( jn=0;jn<$NEVN;jn++));do
+      numEv=${NEV[${jn}]}
+     dr=${TRANS[${jt}]}
+     da=${ROT[${jr}]}
+     path_res=${path}/results_${dr}mkm_${da}mrad_${numEv}events
+     mkdir ${path_res}
+     cd ${PANDAROOT}/macro/lmd/
+    ## cp matrices_perfect.txt ${path}/matrices_perfect.txt
+##Full sim & rec
+seedsim=$RANDOM
+## check maybe MC file was generated already
+if [ ! -r  ${path}/MCsamples/Lumi_MC_0_${numEv}events.root ]; then
+    root -l -b -q runLumiPixel0SimBox.C\(${numEv},0,${pbeam},"\"${path}\"",0,-2212,${numTrks}\)
+	cp ${path}/Lumi_MC_0.root ${path}/MCsamples/Lumi_MC_0_${numEv}events.root
+	cp ${path}/Lumi_Params_0.root ${path}/MCsamples/Lumi_Params_0_${numEv}events.root
+else
+    cp ${path}/MCsamples/Lumi_MC_0_${numEv}events.root ${path}/Lumi_MC_0.root
+    cp ${path}/MCsamples/Lumi_Params_0_${numEv}events.root ${path}/Lumi_Params_0.root
+fi
+
+rm ${path}/lumi.misalign_pixel.par
+##check maybe misalignment file already exist
+if [ ! -r  ${path}/misalignConsts/lumi.misalign_pixel_${dr}mkm_${da}mrad.par ]; then
+    root -l -b -q LMD_alignment/create_misalignment_lmd_pixel.C\(${dr},${da},"\"${path}/lumi.misalign_pixel.par\""\)
+    cp ${path}/lumi.misalign_pixel.par ${path}/misalignConsts/lumi.misalign_pixel_${dr}mkm_${da}mrad.par
+else
+    cp ${path}/misalignConsts/lumi.misalign_pixel_${dr}mkm_${da}mrad.par ${path}/lumi.misalign_pixel.par
+fi
+#root -l -b -q runLumiPixel0SimBox.C\(${numEv},0,${pbeam},"\"${path}\"",0,-2212,${numTrks}\)
+#root -l -b -q LMD_alignment/create_misalignment_lmd_pixel.C\(${dr},${da},"\"${PANDAROOT}/macro/lmd/lumi.misalign_pixel.par\""\)
+
+root -l -b -q runLumiPixel1Digi.C\(${numEv},0,"\"${path}\""\)
+root -l -b -q runLumiPixel2Reco.C\(${numEv},0,"\"${path}\"",0,${useMSerr},true\)
+### Merge hits
+root -l -b -q runLumiPixel2bHitMerge.C\(${numEv},0,"\"${path}\""\)
+# ### CA can use merged or single(not merged) hits
+# ### change "CA" --> "Follow" if you want to use Trk-Following as trk-search algorithm
+# ### NB: Trk-Following can't use single(not merged) hits!
+# ### change true --> false if you don't want to use missing search algorithm
+  trkCuts=false
+  root -l -b -q runLumiPixel3Finder.C\(${numEv},0,"\"${path}\"",0,"\"CA\"",true,${mergedHits},${trkCuts}\)
+   
+ ##Miniut
+    root -l -b -q runLumiPixel4Fitter.C\(${numEv},0,"\"${path}\"",0,${mergedHits}\)
+### or Kalman Fillter
+### root -l -b -q runLumi4KalmanFitter.C\(${numEv},0,"\"${path}\"",0,1,${mergedHits}\)
+    root -l -b -q runLumi5Geane.C\(${numEv},${pbeam},0,"\"${path}\"",0,${mergedHits}\)
+
+    cd ${VMCWORKDIR}/buildPanda/bin
+    ./rec_mc_match -s 0 -n ${numEv} -t ${numTrks} -mom ${pbeam} -npx 1 -mh 0 -v 0 -path ${path}
+    mv ${path}/Lumi_out_MC_and_REC_trks_matches_with_IDs0.root  ${path_res}/Lumi_out_MC_and_REC_trks_matches_with_IDs0_dr_${dr}_da_${da}_before.root 
+
+   ##alignment iterations
+  ##  for (( it=0;it<$ITTERN;it++)); do
+##	nit=${ITTER[${it}]}
+	rm  ${path}/hits_trk_for_alignment*
+   ##obtain info about hits for alignment
+##	./hits_align_pixel -s 0 -n ${numEv} -path ${path} -m 99 -out ${path}/hits_trk_for_alignment.txt -outhist ${path_res}/hitsRes_before_alignment_${nit}itter.root
+
+    ./hits_align_pixel -s 0 -n ${numEv} -path ${path} -m 0 -out ${path}/hits_trk_for_alignment_sector0.txt -outhist ${path_res}/hitsRes_before_alignment_sector0.root
+    ./hits_align_pixel -s 0 -n ${numEv} -path ${path} -m 1 -out ${path}/hits_trk_for_alignment_sector1.txt -outhist ${path_res}/hitsRes_before_alignment_sector1.root
+    ./hits_align_pixel -s 0 -n ${numEv} -path ${path} -m 2 -out ${path}/hits_trk_for_alignment_sector2.txt -outhist ${path_res}/hitsRes_before_alignment_sector2.root
+    ./hits_align_pixel -s 0 -n ${numEv} -path ${path} -m 3 -out ${path}/hits_trk_for_alignment_sector3.txt -outhist ${path_res}/hitsRes_before_alignment_sector3.root
+    ./hits_align_pixel -s 0 -n ${numEv} -path ${path} -m 4 -out ${path}/hits_trk_for_alignment_sector4.txt -outhist ${path_res}/hitsRes_before_alignment_sector4.root
+    ./hits_align_pixel -s 0 -n ${numEv} -path ${path} -m 5 -out ${path}/hits_trk_for_alignment_sector5.txt -outhist ${path_res}/hitsRes_before_alignment_sector5.root
+    ./hits_align_pixel -s 0 -n ${numEv} -path ${path} -m 6 -out ${path}/hits_trk_for_alignment_sector6.txt -outhist ${path_res}/hitsRes_before_alignment_sector6.root
+    ./hits_align_pixel -s 0 -n ${numEv} -path ${path} -m 7 -out ${path}/hits_trk_for_alignment_sector7.txt -outhist ${path_res}/hitsRes_before_alignment_sector7.root
+    ./hits_align_pixel -s 0 -n ${numEv} -path ${path} -m 8 -out ${path}/hits_trk_for_alignment_sector8.txt -outhist ${path_res}/hitsRes_before_alignment_sector8.root
+    ./hits_align_pixel -s 0 -n ${numEv} -path ${path} -m 9 -out ${path}/hits_trk_for_alignment_sector9.txt -outhist ${path_res}/hitsRes_before_alignment_sector9.root
+
+#     # cd ${path}
+#     #cat hits_trk_for_alignment_sector0.txt hits_trk_for_alignment_sector1.txt hits_trk_for_alignment_sector2.txt hits_trk_for_alignment_sector3.txt hits_trk_for_alignment_sector4.txt > hits_trk_for_alignment.txt
+#    ##do alignment
+   cd ${PANDAROOTmy}/myKnossos
+   rm ${path_res}/logKnossos*
+   cp constantsLMD.h ${path_res}/.
+   #./knossos -i ${path}/hits_trk_for_alignment.txt -o ${path}/LumiAlignConst.txt -n ${numEv} -r 1 >> ${path_res}/logKnossos_${nit}itter
+
+   ./knossos -i ${path}/hits_trk_for_alignment_sector0.txt -o ${path}/LumiAlignConst_sector0.txt -n ${numEv} -r 1 >> ${path_res}/logKnossos0
+   ./knossos -i ${path}/hits_trk_for_alignment_sector1.txt -o ${path}/LumiAlignConst_sector1.txt -n ${numEv} -r 1 >> ${path_res}/logKnossos1
+   ./knossos -i ${path}/hits_trk_for_alignment_sector2.txt -o ${path}/LumiAlignConst_sector2.txt -n ${numEv} -r 1 >> ${path_res}/logKnossos2
+   ./knossos -i ${path}/hits_trk_for_alignment_sector3.txt -o ${path}/LumiAlignConst_sector3.txt -n ${numEv} -r 1 >> ${path_res}/logKnossos3
+   ./knossos -i ${path}/hits_trk_for_alignment_sector4.txt -o ${path}/LumiAlignConst_sector4.txt -n ${numEv} -r 1 >> ${path_res}/logKnossos4
+ ./knossos -i ${path}/hits_trk_for_alignment_sector5.txt -o ${path}/LumiAlignConst_sector5.txt -n ${numEv} -r 1 >> ${path_res}/logKnossos5
+   ./knossos -i ${path}/hits_trk_for_alignment_sector6.txt -o ${path}/LumiAlignConst_sector6.txt -n ${numEv} -r 1 >> ${path_res}/logKnossos6
+   ./knossos -i ${path}/hits_trk_for_alignment_sector7.txt -o ${path}/LumiAlignConst_sector7.txt -n ${numEv} -r 1 >> ${path_res}/logKnossos7
+   ./knossos -i ${path}/hits_trk_for_alignment_sector8.txt -o ${path}/LumiAlignConst_sector8.txt -n ${numEv} -r 1 >> ${path_res}/logKnossos8
+   ./knossos -i ${path}/hits_trk_for_alignment_sector9.txt -o ${path}/LumiAlignConst_sector9.txt -n ${numEv} -r 1 >> ${path_res}/logKnossos9
+
+   rm  ${path}/LumiAlignConst.txt
+   cat ${path}/LumiAlignConst_sector0.txt ${path}/LumiAlignConst_sector1.txt ${path}/LumiAlignConst_sector2.txt ${path}/LumiAlignConst_sector3.txt ${path}/LumiAlignConst_sector4.txt ${path}/LumiAlignConst_sector5.txt ${path}/LumiAlignConst_sector6.txt ${path}/LumiAlignConst_sector7.txt ${path}/LumiAlignConst_sector8.txt ${path}/LumiAlignConst_sector9.txt > ${path}/LumiAlignConst.txt
+
+   # cp ${path}/LumiAlignConst_sector0.txt ${path}/LumiAlignConst.txt
+   # head -28 ${path}/LumiAlignConst_sector1.txt >> ${path}/LumiAlignConst.txt
+   # head -28 ${path}/LumiAlignConst_sector2.txt >> ${path}/LumiAlignConst.txt
+   # head -28 ${path}/LumiAlignConst_sector3.txt >> ${path}/LumiAlignConst.txt
+   # head -28 ${path}/LumiAlignConst_sector4.txt >> ${path}/LumiAlignConst.txt
+
+   #obtain results and write it in new *.par file
+   rm ${path_res}/lumi.misalign_pixel_after.par
+   head -16 ${path}/lumi.misalign_pixel.par >> ${path_res}/lumi.misalign_pixel_after.par
+
+     cd ${VMCWORKDIR}/buildPanda/bin
+   ./analyze_alignment -in ${path}/lumi.misalign_pixel.par -out ${path}/LumiAlignConst.txt -new ${path_res}/lumi.misalign_pixel_after.par -outroot ${path_res}/KnossosResults.root
+
+## change old params for new params
+mv  ${path}/lumi.misalign_pixel.par  ${path_res}/lumi.misalign_pixel_before.par
+
+# ##clean tmp storage place
+rm ${path}/*
+# ##repeat rec with new params
+cp  ${path_res}/lumi.misalign_pixel_after.par ${path}/lumi.misalign_pixel.par
+cd ${PANDAROOT}/macro/lmd/
+##cp matrices_perfect.txt ${path}/matrices_perfect.txt
+##Full sim & rec
+#root -l -b -q runLumiPixel0SimBox.C\(${numEv},0,${pbeam},"\"${path}\"",0,-2212,${numTrks}\)
+##use previous MC file
+cp ${path}/MCsamples/Lumi_MC_0_${numEv}events.root ${path}/Lumi_MC_0.root
+cp ${path}/MCsamples/Lumi_Params_0_${numEv}events.root ${path}/Lumi_Params_0.root
+
+root -l -b -q runLumiPixel1Digi.C\(${numEv},0,"\"${path}\""\)
+##root -l -b -q runLumiPixel2Reco.C\(${numEv},0,"\"${path}\""\)
+root -l -b -q runLumiPixel2Reco.C\(${numEv},0,"\"${path}\"",0,${useMSerr},true\)
+### Merge hits
+root -l -b -q runLumiPixel2bHitMerge.C\(${numEv},0,"\"${path}\""\)
+### CA can use merged or single(not merged) hits
+### change "CA" --> "Follow" if you want to use Trk-Following as trk-search algorithm
+### NB: Trk-Following can't use single(not merged) hits!
+### change true --> false if you don't want to use missing search algorithm
+   ## if [ ${nit} -lt ${ITTERN} ] 
+  ##  then 
+##	trkCuts=false
+  ##  else 
+##	trkCuts=true 
+  ##  fi
+    trkCuts=true 
+root -l -b -q runLumiPixel3Finder.C\(${numEv},0,"\"${path}\"",0,"\"CA\"",true,${mergedHits},${trkCuts}\)
+   
+ ##Miniut
+    root -l -b -q runLumiPixel4Fitter.C\(${numEv},0,"\"${path}\"",0,${mergedHits}\)
+### or Kalman Fillter
+### root -l -b -q runLumi4KalmanFitter.C\(${numEv},0,"\"${path}\"",0,1,${mergedHits}\)
+    root -l -b -q runLumi5Geane.C\(${numEv},${pbeam},0,"\"${path}\"",0,${mergedHits}\)
+
+     cd ${VMCWORKDIR}/buildPanda/bin
+    ./rec_mc_match -s 0 -n ${numEv} -t ${numTrks} -mom ${pbeam} -npx 1 -mh 0 -v 0 -path ${path}
+    mv ${path}/Lumi_out_MC_and_REC_trks_matches_with_IDs0.root  ${path_res}/Lumi_out_MC_and_REC_trks_matches_with_IDs0_dr_${dr}_da_${da}_after.root
+   # ##obtain info about hits for alignment
+    ./hits_align_pixel -s 0 -n ${numEv} -path ${path} -m 0 -out ${path}/hits_trk_for_alignment_sector0_after.txt -outhist ${path_res}/hitsRes_after_alignment_sector0.root
+    ./hits_align_pixel -s 0 -n ${numEv} -path ${path} -m 1 -out ${path}/hits_trk_for_alignment_sector1_after.txt -outhist ${path_res}/hitsRes_after_alignment_sector1.root
+    ./hits_align_pixel -s 0 -n ${numEv} -path ${path} -m 2 -out ${path}/hits_trk_for_alignment_sector2_after.txt -outhist ${path_res}/hitsRes_after_alignment_sector2.root
+    ./hits_align_pixel -s 0 -n ${numEv} -path ${path} -m 3 -out ${path}/hits_trk_for_alignment_sector3_after.txt -outhist ${path_res}/hitsRes_after_alignment_sector3.root
+    ./hits_align_pixel -s 0 -n ${numEv} -path ${path} -m 4 -out ${path}/hits_trk_for_alignment_sector4_after.txt -outhist ${path_res}/hitsRes_after_alignment_sector4.root
+    ./hits_align_pixel -s 0 -n ${numEv} -path ${path} -m 5 -out ${path}/hits_trk_for_alignment_sector5_after.txt -outhist ${path_res}/hitsRes_after_alignment_sector5.root
+    ./hits_align_pixel -s 0 -n ${numEv} -path ${path} -m 6 -out ${path}/hits_trk_for_alignment_sector6_after.txt -outhist ${path_res}/hitsRes_after_alignment_sector6.root
+    ./hits_align_pixel -s 0 -n ${numEv} -path ${path} -m 7 -out ${path}/hits_trk_for_alignment_sector7_after.txt -outhist ${path_res}/hitsRes_after_alignment_sector7.root
+    ./hits_align_pixel -s 0 -n ${numEv} -path ${path} -m 8 -out ${path}/hits_trk_for_alignment_sector8_after.txt -outhist ${path_res}/hitsRes_after_alignment_sector8.root
+    ./hits_align_pixel -s 0 -n ${numEv} -path ${path} -m 9 -out ${path}/hits_trk_for_alignment_sector9_after.txt -outhist ${path_res}/hitsRes_after_alignment_sector9.root
+##    done
+
+
+# # # # # # # # ##obtain summary plots
+# # # # # # # # time root -l -b -q GenAlignEffect.C\(\"${PANDAROOT}/macro/lmd/tmpOutputAlignTMP/results/misalign100mkmDOF111000/\",100,0,1,\"${PANDAROOT}/macro/lmd/tmpOutputAlignTMP/results/Sens\"\)
+    cd ${PANDAROOT}/macro/lmd/LMD_alignment
+    #compare theta resolution hists with reference hist
+    cp ${path}/results_0mkm_0mrad_${numEv}events/Lumi_out_MC_and_REC_trks_matches_with_IDs0_dr_0_da_0_before.root  tuples/.
+    cp ${path_res}/Lumi_out_MC_and_REC_trks_matches_with_IDs0_dr_${dr}_da_${da}_after.root tuples/.
+    root -b -l -q "stat_analyzer.C+(\"Lumi_out_MC_and_REC_trks_matches_with_IDs0_dr_0_da_0_before\", \"Lumi_out_MC_and_REC_trks_matches_with_IDs0_dr_${dr}_da_${da}_after\")" >> ${path_res}/logCOMPAREthetaRes
+    mv stat_Lumi_out_MC_*  ${path_res}/.
+
+    cp ${path_res}/Lumi_out_MC_and_REC_trks_matches_with_IDs0_dr_${dr}_da_${da}_before.root tuples/.
+    root -b -l -q "stat_analyzer.C+(\"Lumi_out_MC_and_REC_trks_matches_with_IDs0_dr_0_da_0_before\", \"Lumi_out_MC_and_REC_trks_matches_with_IDs0_dr_${dr}_da_${da}_before\")" >> ${path_res}/logCOMPAREthetaRes
+
+    #combine all important outputs in one pdf file
+    root -l -b -q SummaryAlign.C\("\"${path}\"",${dr},${da},${numEv}\)  >> ${path_res}/logSummary
+##    cp ${path_res}/ResultsSummary_*.root /PANDA/karavdina/web/data/.
+    cp ${path_res}/ResultsSummary* /panda/myResults/alignmentPixelTEST/BoxGen/separate/.
+ done
+     cd ${PANDAROOT}/macro/lmd/LMD_alignment
+     root -l -b -q TOTALSummaryAlign.C\("\"${path}\"",${dr},${da}\)
+     cp ${path}/ResultsTOTALSummary*   /panda/myResults/alignmentPixelTEST/BoxGen/total_stat/.
+done
+done
+exit
+
+
+
+
+
+
+
+
+
+
+
+
+
+
