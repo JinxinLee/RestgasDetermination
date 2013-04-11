@@ -53,7 +53,8 @@ public:
   void SetTrackBranchName(const TString& name) {fTrackBranchName=name;}
   void SetPersistence(Bool_t opt=kTRUE) {fPersistence=opt;}
 
-
+  void SetGeaneTrkRep(Bool_t val=kTRUE){flGEANE = val;}
+  void SetRKTrkRep(Bool_t val=kTRUE){flRK = val;}
   // Operations ----------------------
 
   virtual InitStatus Init();
@@ -64,6 +65,18 @@ public:
 
 private:
 
+  bool flGEANE; //if true use GEANE representation
+  bool flRK; //if true use Runge-Kutta representation
+
+
+  /* TH1D *hxpull; */
+  /* TH1D *hypull; */
+  /* TH1D *hzpull; */
+  /* TH1D *hpxpull; */
+  /* TH1D *hpypull; */
+  /* TH1D *hpzpull; */
+
+ 
   // Private Data Members ------------
   TClonesArray* fTrackArray;
   // TClonesArray* fGFTrackArray;
