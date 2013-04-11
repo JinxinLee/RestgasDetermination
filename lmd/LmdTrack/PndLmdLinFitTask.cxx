@@ -254,7 +254,8 @@ double PndLmdLinFitTask::distance_perp(double x,double y,double z, double errx,d
 // calculate distance line-point in local coordinates
 double PndLmdLinFitTask::distance_l(double x,double y,double z, double errx,double erry,double errz, double *p) { 
   if((p[1]*p[1]+p[3]*p[3])<1) p[5]=sqrt(1-(p[1]*p[1]+p[3]*p[3]));
-  else p[5]=0.99;
+  //  else p[5]=0.99;
+  else return 1e6;
   Double_t t_min = p[1]*(x-p[0])+p[3]*(y-p[2])+p[5]*(z-p[4]);
   double fdx = TMath::Power((x-(p[0] + p[1]*t_min))/errx,2);
   double fdy = TMath::Power((y-(p[2] + p[3]*t_min))/erry,2);
@@ -338,9 +339,9 @@ double PndLmdLinFitTask::line3Dfit(Int_t nd, TGraph2DErrors* gr, TVector3 posSee
   Double_t ErrY2 = gr->GetErrorY(1);
   Double_t ErrZ2 = gr->GetErrorY(1);
   
-  Double_t errRx = TMath::Hypot(ErrX1,ErrX2);
-  Double_t errRy = TMath::Hypot(ErrY1,ErrY2);
-  Double_t errRz = TMath::Hypot(ErrZ1,ErrZ2);
+  Double_t errRx = 0.1*TMath::Hypot(ErrX1,ErrX2);
+  Double_t errRy = 0.1*TMath::Hypot(ErrY1,ErrY2);
+  Double_t errRz = 0.1*TMath::Hypot(ErrZ1,ErrZ2);
   
   //The default minimizer is Minuit
   TVirtualFitter::SetDefaultFitter("Minuit");
@@ -428,8 +429,8 @@ double PndLmdLinFitTask::line3Dfit(Int_t nd, TGraph2DErrors* gr, TVector3 posSee
        (*covmatrix)(i,j)= min->GetCovarianceMatrixElement(i,j);
      }
    }
-   (*covmatrix)(4,4) =  gr->GetErrorZ(0)*gr->GetErrorZ(0);
-   //  (*covmatrix)(4,4) =  1.;//TEST
+      (*covmatrix)(4,4) =  gr->GetErrorZ(0)*gr->GetErrorZ(0)/12.;
+   //   (*covmatrix)(4,4) =  0.;//TEST
    double dp5_dp1 = fitpar[1]/fitpar[5];
    double dp5_dp3 = fitpar[3]/fitpar[5];
    double errdz2 = pow(dp5_dp1,2)*(*covmatrix)(1,1) + pow(dp5_dp3,2)*(*covmatrix)(3,3) + 
