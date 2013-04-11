@@ -46,8 +46,6 @@ PndLmdGeaneTask::PndLmdGeaneTask() : FairTask("Geane Task for PANDA Lmd"), fEven
 PndLmdGeaneTask::PndLmdGeaneTask(Double_t pBeam,TVector3 IP): FairTask("Geane Task for PANDA Lmd"), fEventNr(0), fUseMVDPoint(false)
 {
   fPbeam = pBeam;
-  // if(fPDGid!=-2212){ //calculate momentum if particle is not antiproton
-  //     }
   cout<<"Beam Momentum for particle with PDGid#"<<fPDGid<<" this run is "<<fPbeam<<endl;
   vtx = IP;
   cout<<"Interaction Point:"<<endl;
@@ -71,12 +69,6 @@ InitStatus PndLmdGeaneTask::Init()
     return kFATAL;
   }
 
-  // // Get input arrays
-  // fMCTracks = (TClonesArray*) ioman->GetObject("MCTrack");
-  // if (!fMCTracks){
-  //   std::cout << "-W- PndLmdGeaneTask::Init: "<< "No MCTrack" << " array!" << std::endl;
-  //   return kERROR;
-  // }
 
   fMCHits = (TClonesArray*) ioman->GetObject("LMDPoint");
   if ( !fMCHits)	{
@@ -90,12 +82,6 @@ InitStatus PndLmdGeaneTask::Init()
     return kERROR;
   }
 
-  // fHits = (TClonesArray*) ioman->GetObject("LMDHitsStrip");
-  // //fHits = (TClonesArray*) ioman->GetObject("LmdHits");
-  // if (!fHits){
-  //   std::cout << "-W- PndLmdGeaneTask::Init: "<< "No Hits" << " array!" << std::endl;
-  //   return kERROR;
-  // }
 
   fTrackParGeane = new TClonesArray("FairTrackParH");
   ioman->Register("GeaneTrackPar","Geane", fTrackParGeane, kTRUE);
@@ -106,14 +92,6 @@ InitStatus PndLmdGeaneTask::Init()
   fTrackParFinal = new TClonesArray("FairTrackParH");
   ioman->Register("GeaneTrackFinal","Geane", fTrackParFinal, kTRUE);
 
-  // fTrackParGeane = new TClonesArray("FairTrackParP");
-  // ioman->Register("GeaneTrackPar","Geane", fTrackParGeane, kTRUE);
-
-  // fTrackParIni = new TClonesArray("FairTrackParP");
-  // ioman->Register("GeaneTrackIni","Geane", fTrackParIni, kTRUE);
-
-  // fTrackParFinal = new TClonesArray("FairTrackParP");
-  // ioman->Register("GeaneTrackFinal","Geane", fTrackParFinal, kTRUE);
 
   fDetName = new TClonesArray("TObjString");
   ioman->Register("DetName", "Geane", fDetName, kTRUE);
@@ -122,10 +100,7 @@ InitStatus PndLmdGeaneTask::Init()
   fGeoH = PndGeoHandling::Instance();
   FairRun* fRun = FairRun::Instance();
   FairRuntimeDb* rtdb = fRun->GetRuntimeDb();
-  // FairBaseParSet* par=(FairBaseParSet*)
-  //   (rtdb->findContainer("FairBaseParSet"));
-  // fPbeam = par->GetBeamMom();
-  //  cout<<"Beam Momentum for this run is "<<fPbeam<<endl;
+ 
   return kSUCCESS;
 }
 // -------------------------------------------------------------------------
@@ -180,19 +155,7 @@ void PndLmdGeaneTask::Exec(Option_t* opt)
       StartMomErr = recTrack->GetDirectionErrVec();
       StartMom = fPbeam*DirVec;
       StartMomErr *=fPbeam;
-      // /// try calculate mometum vector errors
-      // double momerr_x = fPbeam*StartMomErr.X();
-      // double momerr_y = fPbeam*StartMomErr.Y();
-      // double dp5_dp1 = StartMom.X()/StartMom.Z();
-      // double dp5_dp3 = StartMom.Y()/StartMom.Z();
-      // double errdz2 = pow(dp5_dp1*momerr_x,2) + pow(dp5_dp3*momerr_y,2);
-      // double momerr_z = sqrt(errdz2);
-      // cout<<"StartMomErr *=fPbeam "<<endl;
-      // StartMomErr.Print();
-      // StartMomErr.SetXYZ(momerr_x,momerr_y,momerr_z);
-      // cout<<"StartMomErr yyyy"<<endl;
-      // StartMomErr.Print();
-      // //  StartMomErr *=fPbeam;
+    
 
        if(fVerbose>2){
 	 cout<<"------------------------------------------"<<endl;      
@@ -209,41 +172,6 @@ void PndLmdGeaneTask::Exec(Option_t* opt)
       TClonesArray& clref1 = *fTrackParIni;
       Int_t size1 = clref1.GetEntriesFast();
 
-      // ///Pre-Propagate ---------------------------
-      // FairTrackParH *fResPre = new FairTrackParH();
-      // FairTrackParH *fStartPre = new FairTrackParH(StartPos, StartMom, StartPosErr, StartMomErr, fCharge);
-      // //   Double_t deltaZ = -5e-2;//go out of plane for 500 mkm
-      // Double_t deltaZ = 5e-2;//go out of plane for 500 mkm
-      // TVector3 dirCand = DirVec;
-      // TVector3 pointbackprop(StartPos.X()+deltaZ*dirCand.X(),StartPos.Y()+deltaZ*dirCand.Y(),(StartPos.Z()+deltaZ));
-      // fPro->SetPoint(pointbackprop);
-      // fPro->PropagateToPCA(1, +1);
-      // Bool_t rc =  fPro->Propagate(fStartPre, fResPre, PDGCode);
-      // if(fVerbose>2){
-      // 	if(rc) std::cout<<"success in back propagation to point 500 mkm out from 1st plane !"<<std::endl;
-      // 	else std::cout<<" =( no success in back propagation to point 500 mkm out from 1st plane ! =("<<std::endl;
-      // }
-      // if (rc)
-      // 	{
-      // 	  StartPos.SetXYZ(fResPre->GetX(), fResPre->GetY(), fResPre->GetZ());
-      // 	  StartMom.SetXYZ(fResPre->GetPx(), fResPre->GetPy(), fResPre->GetPz());
-      // 	  StartPosErr.SetXYZ(fResPre->GetDX(), fResPre->GetDY(), fResPre->GetDZ());
-      // 	  StartMomErr.SetXYZ(fResPre->GetDPx(), fResPre->GetDPy(), fResPre->GetDPz());
-      // 	  if(fVerbose>2){
-      // 	    cout<<"--------------- AND NOW ---------------------------"<<endl;      
-      // 	    cout<<"StartPos:"<<endl;
-      // 	    StartPos.Print();
-      // 	    cout<<"StartPosErr:"<<endl;
-      // 	    StartPosErr.Print();
-      // 	    cout<<""<<endl;
-      // 	    cout<<"StartMom: "<<StartMom.Mag()<<endl;
-      // 	    StartMom.Print();
-      // 	    cout<<"StartMomErr: "<<StartMomErr.Mag()<<endl;
-      // 	    StartMomErr.Print();     
-      // 	  }
-
-      // 	}
-      // //--------------------------------------------------------------------------------
 
       ///Propagate to the PCA to a space point---------------------------------
       FairTrackParH *fStart = 
@@ -251,22 +179,9 @@ void PndLmdGeaneTask::Exec(Option_t* opt)
       TClonesArray& clref = *fTrackParGeane;
       Int_t size = clref.GetEntriesFast();
       FairTrackParH *fRes = new(clref[size]) FairTrackParH();
-
-      // //test for beam emittance----------------------
-      // PndMCTrack* mctrk = (PndMCTrack*)(fMCTracks->At(i));
-      // TVector3 PosMC = mctrk->GetStartVertex();
-      // vtx = PosMC;
-      // //------------------------------------------------
-
       fPro->SetPoint(vtx);
       fPro->PropagateToPCA(1,-1);// back-propagate to point
 
-      // //back-propagate to line-------------------------
-      // TVector3 extremity1(vtx.X(),vtx.Y(),vtx.Z()-0.1);
-      // TVector3 extremity2(vtx.X(),vtx.Y(),vtx.Z()+0.1);
-      // fPro->SetWire(extremity1, extremity2);
-      // fPro->PropagateToPCA(2,-1);//back-propagate to line
-      // //-----------------------------------------------
      
       Bool_t isProp = fPro->Propagate(fStart, fRes, PDGCode);
       ///----------------------------------------------------------------------
