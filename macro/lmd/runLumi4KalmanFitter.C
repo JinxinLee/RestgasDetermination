@@ -1,4 +1,4 @@
-void runLumi4KalmanFitter(const int nEvents=100000, const int startEvent=0, TString storePath="tmpOutput", const int verboseLevel=0, const int senstype=0, const bool mergedHits=false)
+void runLumi4KalmanFitter(const int nEvents=100000, const int startEvent=0, TString storePath="tmpOutput", const int verboseLevel=0, const int senstype=0, const bool mergedHits=false, TString trkRep="GEANE")
 {
   // ========================================================================
   // Input file (MC events)
@@ -97,6 +97,17 @@ void runLumi4KalmanFitter(const int nEvents=100000, const int startEvent=0, TStr
     
   PndLmdKalmanTask* lmdkalmanfitter = new PndLmdKalmanTask(HitNames, TrackNames);
   lmdkalmanfitter->SetVerbose(verboseLevel);
+  if(trkRep=="GEANE"){
+    lmdkalmanfitter->SetGeaneTrkRep();
+  }
+  else{
+      if(trkRep=="RK"){
+	lmdkalmanfitter->SetRKTrkRep();
+      }
+      else{
+	cout<<"Please, set correct track representation for Kalman Filter task (GEANE or Runge-Kutta). "<<trkRep.Data()<<" is none of them!"<<endl;
+      }
+  }
   fRun->AddTask(lmdkalmanfitter);
 
   rtdb->setOutput(parInput1);
