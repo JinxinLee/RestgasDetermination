@@ -90,7 +90,7 @@ void runLumiPixel2Reco(const int nEvents=10, const int startEvent=0, TString sto
   // ======                       Hit Producers                         ======
   // =========================================================================
   
-  // -----    MVD hit producer   --------------------------------------------
+  // -----    LMD hit producer   --------------------------------------------
  
   Double_t chargecut = 1.e5;
   PndLmdPixelClusterTask* lmdmccls = new PndLmdPixelClusterTask();
@@ -99,19 +99,10 @@ void runLumiPixel2Reco(const int nEvents=10, const int startEvent=0, TString sto
   lmdmccls->SetMSflag(useMSerr);//switch on\off error calculation due to multiple scaterring
   lmdmccls->SetMtxPath(storePath);
   fRun->AddTask(lmdmccls);
-
- // PndMvdPixelClusterTask* mvdClusterizer = new PndMvdPixelClusterTask(chargecut, MCFile);//, slx, sly, sthreshold, snoise);
- // mvdClusterizer->SetVerbose(verboseLevel);
- // fRun->AddTask(mvdClusterizer);
-
-//   FairParRootFileIo* output=new FairParRootFileIo(kTRUE);
-//   output->open(parOutFile.Data());
-//   rtdb->setOutput(output);
   rtdb->setOutput(parInput1);
   rtdb->print();
   // =====                 End of HitProducers                           =====
   // =========================================================================
-//   PndMvdGeoPar* geoPar  = (PndMvdGeoPar*)(rtdb->getContainer("PndMvdGeoPar")); 
   
   // -----   Intialise and run   --------------------------------------------
   fRun->Init();
