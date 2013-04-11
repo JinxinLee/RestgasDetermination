@@ -19,7 +19,7 @@
 //#pragma link C++ class PndLmdTrackCandToGFTrackCandConvertorTask+;
 #pragma link C++ class PndLmdGeaneTask+;
 #pragma link C++ class PndLmdKalmanTask+;
-#pragma link C++ class PndLmdBPRungeKuttaTask+;
+//#pragma link C++ class PndLmdBPRungeKuttaTask+;
 //#pragma link C++ class FairGeaneTrLmd+;
 
 
