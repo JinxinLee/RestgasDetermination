@@ -441,7 +441,7 @@ int main(int __argc,char *__argv[]) {
 
   TH1 *hResLumiTrkPointX = new TH1F("hResLumiTrkPointX","X_{MC}-X_{rec}(near Lumi);#deltaX,cm",1e2,-0.02,0.02);
   TH1 *hResLumiTrkPointY = new TH1F("hResLumiTrkPointY","Y_{MC}-Y_{rec}(near Lumi);#deltaY,cm",1e2,-0.02,0.02);
-  TH1 *hResLumiTrkPointZ = new TH1F("hResLumiTrkPointZ","Z_{MC}-Z_{rec}(near Lumi);#deltaZ,cm",1e2,-0.002,0.002);
+  TH1 *hResLumiTrkPointZ = new TH1F("hResLumiTrkPointZ","Z_{MC}-Z_{rec}(near Lumi);#deltaZ,cm",1e2,-0.02,0.02);
 
   TH1 *hResLumiTrkPointPx = new TH1F("hResLumiTrkPointPx","Px_{MC}-Px_{rec}(near Lumi);#deltaPx, GeV/c",1e2,-0.001,0.001);
   TH1 *hResLumiTrkPointPy = new TH1F("hResLumiTrkPointPy","Py_{MC}-Py_{rec}(near Lumi);#deltaPy, GeV/c",1e2,-0.001,0.001);
@@ -453,7 +453,13 @@ int main(int __argc,char *__argv[]) {
 
   TH1 *hResLumiTrkPointPxPull = new TH1F("hResLumiTrkPointPxPull","(Px_{MC}-Px_{rec})/#sigma;(Px_{MC}-Px_{rec})/#sigma",1e2,-10,10.);
   TH1 *hResLumiTrkPointPyPull = new TH1F("hResLumiTrkPointPyPull","(Py_{MC}-Py_{rec})/#sigma;(Py_{MC}-Py_{rec})/#sigma",1e2,-10,10);
-  TH1 *hResLumiTrkPointPzPull = new TH1F("hResLumiTrkPointPzPullS","(Pz_{MC}-Pz_{rec})/#sigma;(Pz_{MC}-Pz_{rec})/#sigma",1e2,-10,10);
+  TH1 *hResLumiTrkPointPzPull = new TH1F("hResLumiTrkPointPzPull","(Pz_{MC}-Pz_{rec})/#sigma;(Pz_{MC}-Pz_{rec})/#sigma",1e2,-10,10);
+
+  // TH1 *hResLumiTrkTheta = new TH1F("hResLumiTrkTheta","#theta_{MC}-#theta_{rec}(near Lumi);#delta#theta, rad",1e2,-0.001,0.001);
+  //  TH1 *hResLumiTrkPhi = new TH1F("hResLumiTrkPhi","#phi_{MC}-#phi_{rec}(near Lumi);#delta#phi, rad",1e2,-0.01,0.01);
+  TH1 *hResLumiTrkThetaPull = new TH1F("hResLumiTrkThetaPull","(#theta_{MC}-#theta_{rec})/#sigma (near Lumi);#delta#theta, rad",1e2,-10,10);
+  TH1 *hResLumiTrkPhiPull = new TH1F("hResLumiTrkPhiPull","(#phi_{MC}-#phi_{rec})/#sigma (near Lumi);#delta#phi, rad",1e2,-10,10);
+
 
   TH1 *hErrPointX = new TH1F("hErrPointX","#sigma_{X};#sigmaX,cm",1e3,0,1.);
   TH1 *hErrPointY = new TH1F("hErrPointY","#sigma_{Y};#sigmaY,cm",1e3,0,1.);
@@ -462,8 +468,12 @@ int main(int __argc,char *__argv[]) {
   TH1 *hErrPointZ = new TH1F("hErrPointZ","#sigma_{Z};#sigmaZ,cm",1e2,0,0.01);
   TH1 *hPullPointX = new TH1F("hPullPointX","(X_{MC}-X_{rec})/#sigma_{X};(X_{MC}-X_{rec})/#sigma_{X}",1e2,-10,10);
   TH1 *hPullPointY = new TH1F("hPullPointY","(Y_{MC}-Y_{rec})/#sigma_{Y};(Y_{MC}-Y_{rec})/#sigma_{Y}",1e2,-10,10);
-  TH1 *hPullPointZ = new TH1F("hPullPointZ","(Z_{MC}-Z_{rec})/#sigma_{Z};(Z_{MC}-Z_{rec})/#sigma_{Z}",1e2,-10,10);
-  
+  TH1 *hPullPointZ = new TH1F("hPullPointZ","(Z_{MC}-Z_{rec})/#sigma_{Z};(Z_{MC}-Z_{rec})/#sigma_{Z}",1e3,-100,100);
+
+  TH2 *hPullPointXphi = new TH2F("hPullPointXphi","(X_{MC}-X_{rec})/#sigma_{X} vs. #phi;#phi_{MC}, rad;(X_{MC}-X_{rec})/#sigma_{X}",2e1,-355./113,355./113,1e2,-10,10);
+TH2 *hPullPointYphi = new TH2F("hPullPointYphi","(Y_{MC}-Y_{rec})/#sigma_{Y} vs. #phi;#phi_{MC}, rad;(Y_{MC}-Y_{rec})/#sigma_{Y}",2e1,-355./113,355./113,1e2,-10,10);
+ TH2 *hPullPointXtheta = new TH2F("hPullPointXtheta","(X_{MC}-X_{rec})/#sigma_{X} vs. #theta;#theta_{MC}, rad;(X_{MC}-X_{rec})/#sigma_{X}",2e1,0.003, 0.009,1e2,-10,10);
+TH2 *hPullPointYtheta = new TH2F("hPullPointYtheta","(Y_{MC}-Y_{rec})/#sigma_{Y} vs. #theta;#theta_{MC}, rad;(Y_{MC}-Y_{rec})/#sigma_{Y}",2e1,0.003, 0.009,1e2,-10,10);
   TH1 *hResPointPx = new TH1F("hResPointPx","Px_{MC}-Px_{rec};#deltaPx, GeV/c",1e2,-0.01,0.01);
   TH1 *hErrPointPx = new TH1F("hErrPointPx","#sigma_{Px};#sigmaPx, GeV/c",1e3,0,0.01);
   TH1 *hPullPointPx = new TH1F("hPullPointPx","(Px_{MC}-Px_{rec})/#sigma_{Px};(Px_{MC}-Px_{rec})/#sigma_{Px}",1e2,-10,10);
@@ -914,7 +924,11 @@ int main(int __argc,char *__argv[]) {
 	hPullPointX->Fill(PosRec.X()/errX);
 	hPullPointY->Fill(PosRec.Y()/errY);
 	hPullPointZ->Fill(PosRec.Z()/errZ);
-	
+	hPullPointXphi->Fill(phiMC,(PosRec.X()/errX));
+	hPullPointYphi->Fill(phiMC,(PosRec.Y()/errY));
+	hPullPointXtheta->Fill(thetaMC,(PosRec.X()/errX));
+	hPullPointYtheta->Fill(thetaMC,(PosRec.Y()/errY));
+
 	hResPointPx->Fill(MomMC.X()-MomRecBP.X());
 	hResPointPy->Fill(MomMC.Y()-MomRecBP.Y());
 	hResPointPz->Fill(MomMC.Z()-MomRecBP.Z());
@@ -1006,6 +1020,7 @@ int main(int __argc,char *__argv[]) {
 	dirLumiMC *=1./dirLumiMC.Mag();
 	
 	double dz = -zTrue+vtxLumi.Z();//Correct definition Z coord for comparision
+	//	double dz = 0;//TEST
 	double dx = dirLumiMC.X()*dz;
 	double dy = dirLumiMC.Y()*dz;
 	vtxLumiMC += TVector3(dx,dy,dz);
@@ -1013,6 +1028,10 @@ int main(int __argc,char *__argv[]) {
 	hResLumiTrkMom->Fill(dirLumiMC.Mag()-dirLumi.Mag());
 	hResLumiTrkTheta->Fill(dirLumiMC.Theta()-dirLumi.Theta());
 	hResLumiTrkPhi->Fill(dirLumiMC.Phi()-dirLumi.Phi());
+	hResLumiTrkThetaPull->Fill((dirLumiMC.Theta()-dirLumi.Theta())/dirLumiErr.Theta());
+	//	hResLumiTrkPhiPull->Fill(dirLumiMC.Phi()-dirLumi.Phi());
+	hResLumiTrkPhiPull->Fill((dirLumiMC.Phi()-dirLumi.Phi())/dirLumiErr.Phi());
+
 	hResLumiTrkPointX->Fill(vtxLumiMC.X()-vtxLumi.X());
 	hResLumiTrkPointY->Fill(vtxLumiMC.Y()-vtxLumi.Y());
 	hResLumiTrkPointZ->Fill(vtxLumiMC.Z()-vtxLumi.Z());
@@ -1675,6 +1694,8 @@ int main(int __argc,char *__argv[]) {
   hResLumiTrkMom->Write();
   hResLumiTrkTheta->Write();
   hResLumiTrkPhi->Write();
+  hResLumiTrkThetaPull->Write();
+  hResLumiTrkPhiPull->Write();
   hResLumiTrkPointX->Write();
   hResLumiTrkPointY->Write();
   hResLumiTrkPointZ->Write();
@@ -1723,6 +1744,10 @@ int main(int __argc,char *__argv[]) {
  ntupMCTrk->Write();
  hnhits->Write();
  nsectors->Write();
+ hPullPointXphi->Write();
+ hPullPointYphi->Write();
+ hPullPointXtheta->Write();
+ hPullPointYtheta->Write();
  f->Close();
  cout<<"Number of events with low number of hits (less then 3 per trk): "<<glBadEv<<endl;
  cout<<"Number of trks where GEANE failed: "<<glBADGEANE<<endl;
