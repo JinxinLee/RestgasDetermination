@@ -5,29 +5,45 @@
 ## 13/11/2012
 ## A.Karavdina
 ################################################################
-path=${VMCWORKDIR}/macro/lmd/testPixel
-mkdir ${path}
+pbeam=1.5
+momStr=`echo $pbeam | sed -e '{ s/\./_/g; }'`
+path=${VMCWORKDIR}/macro/lmd/testPixel/mom_${momStr}/
+mkdir -p ${path}
+#number of trks per event
 numTrks=1
-mergedHits=false
-numEv=100
-pbeam=15
-    root -l -b -q runLumiPixel0SimBox.C\(${numEv},0,${pbeam},"\"${path}\"",0,-2212,${numTrks}\)
-    root -l -b -q runLumiPixel1Digi.C\(${numEv},0,"\"${path}\""\)
-    root -l -b -q runLumiPixel2Reco.C\(${numEv},0,"\"${path}\""\)
-### Merge hits
-    root -l -b -q runLumiPixel2bHitMerge.C\(${numEv},0,"\"${path}\""\)
-### CA can use merged or single(not merged) hits
-### change "CA" --> "Follow" if you want to use Trk-Following as trk-search algorithm
-### NB: Trk-Following can't use single(not merged) hits!
-### change true --> false if you don't want to use missing search algorithm
-    root -l -b -q runLumiPixel3Finder.C\(${numEv},0,"\"${path}\"",0,"\"CA\"",true,${mergedHits}\)
+#merge hits on sensors from different sides. true=yes
+mergedHits=true
+#number of events
+numEv=1000
+#add multiples scattering error estimation for hits (needed only for trk fit with Minuit). false=no
+useMSerr=false
+# simulation with Box generator
+     root -l -b -q runLumiPixel0SimBox.C\(${numEv},0,${pbeam},"\"${path}\"",0,-2212,${numTrks}\)
 
-    ##Miniut
-   # root -l -b -q runLumiPixel4Fitter.C\(${numEv},0,"\"${path}\"",0,${mergedHits}\)
-    ### or Kalman Fillter
-    root -l -b -q runLumi4KalmanFitter.C\(${numEv},0,"\"${path}\"",0,1,${mergedHits}\)
-    root -l -b -q runLumi5Geane.C\(${numEv},${pbeam},0,"\"${path}\"",0,${mergedHits}\)
+     root -l -b -q runLumiPixel1Digi.C\(${numEv},0,"\"${path}\""\)
 
-    cd ${VMCWORKDIR}/buildPanda/bin
-    ./rec_mc_match -s 0 -n ${numEv} -t ${numTrks} -mom ${pbeam} -npx 1 -mh 0 -v 0 -path ${path}
-# #exit
+     root -l -b -q runLumiPixel2Reco.C\(${numEv},0,"\"${path}\"",0,${useMSerr},false\)
+
+# merge hits
+     root -l -b -q runLumiPixel2bHitMerge.C\(${numEv},0,"\"${path}\""\)
+
+# switch on "missing plane" search algorithm
+	 misspl=true
+# ### change "CA" --> "Follow" if you want to use Trk-Following as trk-search algorithm
+# ### NB: CA can use merged or single(not merged) hits, Trk-Following can't
+     root -l -b -q runLumiPixel3Finder.C\(${numEv},0,"\"${path}\"",0,"\"CA\"",${misspl},${mergedHits}\)
+
+# ### Track fit: Miniut
+# root -l -b -q runLumiPixel4Fitter.C\(${numEv},0,"\"${path}\"",0,${mergedHits}\)
+#  ### or Kalman Fillter with GEANE trk representation
+# ### change "GEANE" --> "RK" if you want to use Runge-Kutta trk.rep.
+root -l -b -q runLumi4KalmanFitter.C\(${numEv},0,"\"${path}\"",0,1,${mergedHits},"\"GEANE\""\) 
+
+# back-propgation GEANE
+ root -l -b -q runLumi5Geane.C\(${numEv},${pbeam},0,"\"${path}\"",0,${mergedHits}\)
+ # ### or Runge-Kutta for back-propagation
+ # root -l -b -q runLumi5RungeKutta.C\(${numEv},${pbeam},0,"\"${path}\"",0,${mergedHits}\)
+
+# compare MC trk params and reconstructed trk params and much more...
+     cd ${VMCWORKDIR}/buildPanda/bin
+     ./rec_mc_match -s 0 -n ${numEv} -t ${numTrks} -mom ${pbeam} -npx 1 -mh 0 -v 0 -path ${path}
