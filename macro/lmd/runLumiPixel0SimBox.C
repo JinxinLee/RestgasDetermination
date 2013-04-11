@@ -115,7 +115,7 @@ void runLumiPixel0SimBox(const int nEvents=10, const int startEv=0, const double
   //  fBox->SetThetaRange(0.13,0.7); // 2... 12 mrad
 
   //fBox->SetThetaRange(0.13,0.65); // 2... 11 mrad
-  // fBox->SetThetaRange(0.229183, 0.458366); //4 ... 8 mrad
+  fBox->SetThetaRange(0.229183, 0.458366); //4 ... 8 mrad
   //fBox->SetThetaRange(0.458366, 0.458366); //!!! 8 mrad
   //  fBox->SetThetaRange(0., 45.);//TEST 
   fBox->SetPhiRange(0,360.);
@@ -145,8 +145,8 @@ void runLumiPixel0SimBox(const int nEvents=10, const int startEv=0, const double
 
 
   PndMultiField *fField= new PndMultiField("FULL"); 
-  //TODO: change FULL to *_v1 maps
-  //  PndMultiField *fField= new PndMultiField();
+  // //TODO: change FULL to *_v1 maps
+  // PndMultiField *fField= new PndMultiField();
   // PndTransMap *map_t = new PndTransMap("TransMap_v1", "R");
   // PndDipoleMap *map_d1 = new PndDipoleMap("DipoleMap1_v1", "R");
   // PndDipoleMap *map_d2 = new PndDipoleMap("DipoleMap2_v1", "R");
