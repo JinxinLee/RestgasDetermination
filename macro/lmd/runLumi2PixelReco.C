@@ -1,4 +1,4 @@
-void runLumi2PixelReco(const int nEvents=10, const int startEvent=0, TString storePath="tmpOutput", const int verboseLevel=0)
+void runLumi2PixelReco(const int nEvents=10, const int startEvent=0, TString storePath="tmpOutput", const int verboseLevel=0, bool useMSerr=true)
 {
   // ========================================================================
   // Input file (MC events)
@@ -91,6 +91,7 @@ void runLumi2PixelReco(const int nEvents=10, const int startEvent=0, TString sto
   PndLmdPixelClusterTask* lmdmccls = new PndLmdPixelClusterTask();
   //  PndLmdIdealClusterTask* lmdmccls = new PndLmdIdealClusterTask();
   lmdmccls->SetVerbose(verboseLevel);
+  lmdmccls->SetMSflag(useMSerr);//switch on\off error calculation due to multiple scaterring
   fRun->AddTask(lmdmccls);
 
  // PndMvdPixelClusterTask* mvdClusterizer = new PndMvdPixelClusterTask(chargecut, MCFile);//, slx, sly, sthreshold, snoise);
