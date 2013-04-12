@@ -550,14 +550,7 @@ void PndGeoHandling::DiveDownToFillSensNamePar(std::vector<std::string> listOfSe
 			fGeoMan->CdDown(iNod);
 			DiveDownToFillSensNamePar(listOfSensitives);
 			nodeName = fGeoMan->GetCurrentNode()->GetName();
-			if (VolumeIsSensitive(nodeName, listOfSensitives)){
-				PndStringSeparator sep(nodeName.Data(), "/");
-				std::vector<std::string> sepString = sep.GetStringVector();
-				if (sepString.size() > 0  && sepString[sepString.size() - 1].find("PartAss") == std::string::npos){
-					TObjString* myName = new TObjString(fGeoMan->GetPath());
-					fSensorNamePar->AddSensorName(myName);
-				}
-			}
+
 			fGeoMan->CdUp();
 		}
 	}
