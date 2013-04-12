@@ -125,6 +125,12 @@ TVector3 PndTrackCandDraw::GetVector(FairLink link) {
 
 }
 
+TVector3 PndTrackCandDraw::GetVector(TObject* obj){
+
+  return TVector3();
+
+}
+
 // -----   Destructor   ----------------------------------------------------
 PndTrackCandDraw::~PndTrackCandDraw() {
 }
