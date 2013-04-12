@@ -136,6 +136,7 @@ void PndGeoHandling::GetSensorNamePar()
 	fRtdb->initContainers(fRunId);
   
 	if (fVerbose > 1){
+		std::cout << "PndGeoHandling::GetSensorNamePar()" << std::endl;
 		fRtdb->Print();
 		fSensorNamePar->Print();
 	}
@@ -196,8 +197,11 @@ void PndGeoHandling::GetGeoManager()
 Int_t PndGeoHandling::GetShortID(TString path)
 {
 	TObjString myPath(path.Data());
-	if (fSensorNamePar != 0)
+	if (fSensorNamePar != 0){
+//		std::cout << "PndGeoHandling::GetShortID: " << std::endl;
+//		fSensorNamePar->Print();
 		return fSensorNamePar->SensorInList(&myPath);
+	}
 	else
 		std::cout << "-E- PndGeoHandling::GetShortID: SensorNamePar is missing!"	<< std::endl;
 	return -1;
@@ -205,8 +209,9 @@ Int_t PndGeoHandling::GetShortID(TString path)
 
 TString PndGeoHandling::GetPath(Int_t shortID)
 {
-	if (fSensorNamePar != 0)
+	if (fSensorNamePar != 0){
 		return (fSensorNamePar->GetSensorName(shortID));
+	}
 	else {
 		std::cout << "-E- PndGeoHandling::GetPath(Int_t shortID): Missing SensorNamePar"	<< std::endl;
 		abort();
@@ -549,7 +554,6 @@ void PndGeoHandling::DiveDownToFillSensNamePar(std::vector<std::string> listOfSe
 		for (Int_t iNod = 0; iNod < currentNode->GetNdaughters(); iNod++) {
 			fGeoMan->CdDown(iNod);
 			DiveDownToFillSensNamePar(listOfSensitives);
-			nodeName = fGeoMan->GetCurrentNode()->GetName();
 
 			fGeoMan->CdUp();
 		}
