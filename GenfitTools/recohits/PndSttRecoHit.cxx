@@ -21,6 +21,7 @@
 
 // Collaborating Class Headers --------
 #include "GeaneTrackRep.h"
+#include "RKTrackRep.h"
 #include "PndSttHit.h"
 #include "PndSttHelixHit.h"
 #include "PndSttTube.h"
@@ -201,6 +202,17 @@ PndSttRecoHit::getHMatrix(const GFAbsTrackRep* stateVector)
     HMatrix[0][4] = 0.;
 
     return HMatrix;
+  }
+  else if (dynamic_cast<const RKTrackRep*>(stateVector) != NULL) { // CHECK this has been added but not tested: if you are not going to use it for testing purposes, please use GeaneTrackRep
+   TMatrixT<double> HMatrix(1,5);
+
+   HMatrix[0][0] = 0.;
+   HMatrix[0][1] = 0.;
+   HMatrix[0][2] = 0.;
+   HMatrix[0][3] = 1.;
+   HMatrix[0][4] = 0.;
+   
+   return HMatrix;
   }
   else {
     std::cerr << "PndSttRecoHit can only handle state"
