@@ -155,6 +155,11 @@ public:
   void GetSensorNamePar();
   void InitRuntimeDb(TString parFileName);
 
+  InitStatus Init(){
+	  fSensorNamePar->FillMap();
+	  return kSUCCESS;
+  }
+
   virtual InitStatus ReInit() {fGeoMan =0;fGeoMan=gGeoManager;return kSUCCESS;}
  
   PndGeoHandling& operator= (const  PndGeoHandling&) {return *this;}

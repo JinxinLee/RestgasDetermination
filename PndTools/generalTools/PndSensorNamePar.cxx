@@ -7,6 +7,7 @@ PndSensorNamePar::PndSensorNamePar(const char* name, const char* title, const ch
   clear();
   fSensorNames = new TObjArray();
   fSensorNames->SetOwner(kTRUE);
+
 }
 
 PndSensorNamePar::PndSensorNamePar(const  PndSensorNamePar& L)
@@ -30,7 +31,7 @@ Bool_t PndSensorNamePar::getParams(FairParamList* list)
 {
   if (!list) return kFALSE;
   if (!list->fillObject("SensorNames",fSensorNames)) return kFALSE;
-
+  FillMap();
   return kTRUE;
 }
 
@@ -41,6 +42,8 @@ Int_t  PndSensorNamePar::AddSensorName(TObjString* name)
 		this->setChanged();
 		FairRun *fRun = FairRun::Instance();
 		this->setInputVersion(fRun->GetRunId(), 1);
+		fMapOfSensorNames[name->GetString()] = fSensorNames->GetEntries() - 1;
+		fMapOfSensorIndizes[fSensorNames->GetEntries() - 1] = name->GetString();
 
 		return fSensorNames->GetEntries() - 1;
 	} else
@@ -54,8 +57,11 @@ void PndSensorNamePar::Print()
 {
     std::cout<<"SensorNames:"<<std::endl;
     std::cout<< "Entries: " << fSensorNames->GetEntries() << std::endl;
-    for (int i = 0; i < fSensorNames->GetEntries(); i++){
-    	TObjString* mySensName = (TObjString*)fSensorNames->At(i);
-    	std::cout << i << ": " << mySensName->GetString().Data() << std::endl;
+//    for (int i = 0; i < fSensorNames->GetEntries(); i++){
+//    	TObjString* mySensName = (TObjString*)fSensorNames->At(i);
+//    	std::cout << i << ": " << mySensName->GetString().Data() << std::endl;
+//    }
+    for (std::map<Int_t, TString>::iterator iter = fMapOfSensorIndizes.begin(); iter != fMapOfSensorIndizes.end(); iter++){
+    	std::cout << iter->first << ": " << iter->second.Data() << std::endl;
     }
 }

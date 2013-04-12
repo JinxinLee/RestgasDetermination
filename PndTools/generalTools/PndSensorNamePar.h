@@ -13,6 +13,7 @@
 #include "TObjString.h"
 
 #include <iostream>
+#include <map>
 
 //! Unique match between SensorID and path in TGeoManager
 class PndSensorNamePar : public FairParGenericSet
@@ -33,24 +34,48 @@ class PndSensorNamePar : public FairParGenericSet
     Int_t AddSensorName(TObjString* name);
 
     Int_t SensorInList(TObjString* name){
+//    	for (int i = 0; i < fSensorNames->GetEntries();i++){
+//    		TObjString* SensName = (TObjString*)fSensorNames->At(i);
+//    		if (SensName->GetString() == name->GetString())
+//    			return i;
+//    	}
+//    	return -1;
+    	std::map<TString, Int_t>::iterator iter;
+    	iter = fMapOfSensorNames.find(name->GetString());
+    	if (iter != fMapOfSensorNames.end())
+    		return iter->second;
+    	else
+    		return -1;
+    }
+
+    void FillMap(){
     	for (int i = 0; i < fSensorNames->GetEntries();i++){
-    		TObjString* SensName = (TObjString*)fSensorNames->At(i);
-    		if (SensName->GetString() == name->GetString())
-    			return i;
-    	}
-    	return -1;
+			TObjString* SensName = (TObjString*)fSensorNames->At(i);
+			std::cout << i << ": " << SensName->GetString().Data() << std::endl;
+			fMapOfSensorNames[SensName->GetString()] = i;
+			fMapOfSensorIndizes[i] = SensName->GetString();
+		}
     }
 
     TString GetSensorName(Int_t index){
-    	if (index < fSensorNames->GetEntries()){
-			TObjString* myString = (TObjString*)fSensorNames->At(index);
-			return myString->GetString();
-    	}
-    	else{
-    		std::cout << "-E- PndSensorNamePar::GetSensorName index " << index
-    				  << " our of bounds: " << fSensorNames->GetEntries() << std::endl;
+//    	if (index < fSensorNames->GetEntries()){
+//			TObjString* myString = (TObjString*)fSensorNames->At(index);
+//			return myString->GetString();
+//    	}
+//    	else{
+//    		std::cout << "-E- PndSensorNamePar::GetSensorName index " << index
+//    				  << " out of bounds: " << fSensorNames->GetEntries() << std::endl;
+//    		return "";
+//    	}
+    	std::map<Int_t, TString>::const_iterator iter;
+    	iter = fMapOfSensorIndizes.find(index);
+    	if (iter != fMapOfSensorIndizes.end()) {
+    		return iter->second;
+    	} else {
+    		std::cout << "-E- PndSensorNamePar::GetSensorName index " << index << " not in list!";
     		return "";
     	}
+
     }
 
     TObjArray* GetSensorNames() const{return fSensorNames;}
@@ -60,6 +85,9 @@ class PndSensorNamePar : public FairParGenericSet
 
   private:
     TObjArray* fSensorNames;
+    std::map<TString, Int_t> fMapOfSensorNames; //!
+    std::map<Int_t, TString> fMapOfSensorIndizes; //!
+
 
 
   ClassDef(PndSensorNamePar,1);
