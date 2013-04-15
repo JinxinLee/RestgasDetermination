@@ -1,4 +1,8 @@
 #include "PndTrkBoundaryParStraws.h"
+#include "PndSttTube.h"
+#include "TClonesArray.h"
+#include "TVector3.h"
+#include <stdlib.h>
 #include <iostream>
 #include <cmath>
 
@@ -9,586 +13,803 @@
 
 using namespace std;
 
+//------------------ begin function  PndTrkBoundaryParStraws::CalculateSpecialRegion
+void  PndTrkBoundaryParStraws::CalculateSpecialRegion(
+	Double_t RSTRAWDETECTORMIN,
+	Double_t APOTEMAMAXINNERPARSTRAW,
+	Double_t APOTEMAMINOUTERPARSTRAW,
+	Double_t VERTICALGAP,
+	Double_t &x,
+	Double_t &y
+	)
+{
+	double a1 = 16., a2 = 23., a3 = 31.86, delta = 2.;
+
+
+	double px, py, qx, qy;
+	double alfa, beta, D, A, B, x1, y1, x2, y2;
+
+	a1 = RSTRAWDETECTORMIN;
+	a2 = APOTEMAMAXINNERPARSTRAW;
+	a3 = APOTEMAMINOUTERPARSTRAW;
+	delta = VERTICALGAP;
+	px = delta/2.;
+	qx = -px;
+	py = (2.*a2-0.5*delta)/sqrt(3.);
+	qy = (-0.5*delta + 2.*a1)/sqrt(3.);
+	
+	beta = -(px*px+py*py+qx*qx+qy*qy)/(py+qy);
+	
+	alfa = (-beta*py-px*px-py*py)/px;
+
+	A = -4.*a3*sqrt(3.) - alfa*sqrt(3.) + beta ;
+	B = 4.*a3*a3+2.*alfa*a3;
+
+	D = A*A-16.*B;
+	if( D <0. ) { cout<<"delta = "<<D<<", stop!\n"; exit(-1);};
+	D = sqrt(D);
+	cout<<"A "<<A<<", B "<<B<<", delta "<<D<<endl;
+	y1 = (-A + D)/8. ;
+	y2 = (-A - D)/8. ;
+
+	x1 = 2.*a3 - sqrt(3.)*y1;
+	x2 = 2.*a3 - sqrt(3.)*y2;
+
+	// il punto nel 1 quadrante ha coordinate (x1,y1);
+	// la soluzione (x2,y2) e' l'intersezione che non interessa;
+
+	cout<<"soluzione 1 , x1 "<<x1<<", y1 "<<y1<<endl;
+	cout<<"soluzione 2 , x2 "<<x2<<", y2 "<<y2<<endl;
+
+	x = x1;
+	y = y1;
+
+	return ;
+
+}
+//------------------ end function  PndTrkBoundaryParStraws::CalculateSpecialRegion
+
+
 
 //----------begin of function PndTrkBoundaryParStraws::Set
 
-bool PndTrkBoundaryParStraws::Set(
-	int straw_number
+void PndTrkBoundaryParStraws::Set(
+	// inputs :
+	Double_t APOTEMAMAXINNERPARSTRAW,
+	Double_t APOTEMAMINOUTERPARSTRAW,
+	Short_t	 NUMBER_STRAWS,
+	Double_t RSTRAWDETECTORMIN,
+	Double_t RSTRAWDETECTORMAX,
+	bool stampa,
+	TClonesArray *SttTubeArray,
+	Double_t STRAWRADIUS,
+	Double_t VERTICALGAP,
+	// outputs :
+	Short_t * StrawCode,
+	Short_t * StrawCode2
 	)
 {
 	// return true for those parallel Straws that are at the boundary
 	// of the Stt central tracker;
 
-	bool tube[4542+1];
-	for(int i=0;i<=4542; i++){
-		tube[i] = false ;
+	// the Stt Straw original number goes from 1 to 4542 included;
+
+
+// StrawCode convention (in the following left or right is looking to the beam from downstream) :
+//   -1 = not a boundary straw;
+//   10= inner axial boundary left;
+//   20= inner axial boundary right;
+//   12= outer VERTICAL (BUT NOT OUTERMOST) axial boundary left;
+//   22= outer VERTICAL (BUT NOT OUTERMOST)  axial boundary right;
+//   13= outermost axial boundary left;
+//   23= outermost axial boundary right;
+
+
+
+	for(int i=0;i<NUMBER_STRAWS; i++){
+		StrawCode[i] = -1 ;
+		StrawCode2[i] = -1 ;
 	}
-	tube[1] = true;
-	tube[2] = true;
-	tube[3] = true;
-	tube[4] = true;
-	tube[5] = true;
-	tube[6] = true;
-	tube[7] = true;
-	tube[8] = true;
-	tube[9] = true;
-	tube[10] = true;
-	tube[11] = true;
-	tube[12] = true;
-	tube[13] = true;
-	tube[14] = true;
-	tube[15] = true;
-	tube[16] = true;
-	tube[17] = true;
-	tube[18] = true;
-	tube[19] = true;
-	tube[20] = true;
-	tube[21] = true;
-	tube[22] = true;
-	tube[23] = true;
-	tube[24] = true;
-	tube[25] = true;
-	tube[26] = true;
-	tube[27] = true;
-	tube[28] = true;
-	tube[29] = true;
-	tube[30] = true;
-	tube[31] = true;
-	tube[32] = true;
-	tube[33] = true;
-	tube[34] = true;
-	tube[35] = true;
-	tube[36] = true;
-	tube[37] = true;
-	tube[38] = true;
-	tube[39] = true;
-	tube[40] = true;
-	tube[41] = true;
-	tube[42] = true;
-	tube[43] = true;
-	tube[44] = true;
-	tube[45] = true;
-	tube[46] = true;
-	tube[47] = true;
-	tube[48] = true;
-	tube[49] = true;
-	tube[50] = true;
-	tube[51] = true;
-	tube[52] = true;
-	tube[53] = true;
-	tube[54] = true;
-	tube[55] = true;
-	tube[56] = true;
-	tube[57] = true;
-	tube[58] = true;
-	tube[59] = true;
-	tube[60] = true;
-	tube[61] = true;
-	tube[62] = true;
-	tube[63] = true;
-	tube[64] = true;
-	tube[65] = true;
-	tube[66] = true;
-	tube[67] = true;
-	tube[68] = true;
-	tube[69] = true;
-	tube[70] = true;
-	tube[71] = true;
-	tube[72] = true;
-	tube[73] = true;
-	tube[74] = true;
-	tube[75] = true;
-	tube[76] = true;
-	tube[77] = true;
-	tube[78] = true;
-	tube[79] = true;
-	tube[80] = true;
-	tube[81] = true;
-	tube[82] = true;
-	tube[83] = true;
-	tube[84] = true;
-	tube[85] = true;
-	tube[86] = true;
-	tube[87] = true;
-	tube[88] = true;
-	tube[89] = true;
-	tube[90] = true;
-	tube[91] = true;
-	tube[92] = true;
-	tube[93] = true;
-	tube[94] = true;
-	tube[95] = true;
-	tube[96] = true;
-	tube[97] = true;
-	tube[98] = true;
-	tube[99] = true;
-	tube[100] = true;
-	tube[101] = true;
-	tube[102] = true;
-	tube[103] = true;
-	tube[104] = true;
-	tube[105] = true;
-	tube[159] = true;
-	tube[160] = true;
-	tube[214] = true;
-	tube[215] = true;
-	tube[272] = true;
-	tube[273] = true;
-	tube[330] = true;
-	tube[331] = true;
-	tube[391] = true;
-	tube[392] = true;
-	tube[452] = true;
-	tube[453] = true;
-	tube[516] = true;
-	tube[517] = true;
-	tube[580] = true;
-	tube[581] = true;
-	tube[647] = true;
-	tube[648] = true;
-	tube[714] = true;
-	tube[715] = true;
-	tube[784] = true;
-	tube[785] = true;
-	tube[854] = true;
-	tube[855] = true;
-	tube[927] = true;
-	tube[928] = true;
-	tube[1000] = true;
-	tube[2745] = true;
-	tube[2850] = true;
-	tube[2851] = true;
-	tube[2956] = true;
-	tube[2957] = true;
-	tube[3065] = true;
-	tube[3066] = true;
-	tube[3174] = true;
-	tube[3175] = true;
-	tube[3211] = true;
-	tube[3250] = true;
-	tube[3286] = true;
-	tube[3287] = true;
-	tube[3323] = true;
-	tube[3362] = true;
-	tube[3398] = true;
-	tube[3399] = true;
-	tube[3434] = true;
-	tube[3435] = true;
-	tube[3436] = true;
-	tube[3437] = true;
-	tube[3438] = true;
-	tube[3474] = true;
-	tube[3475] = true;
-	tube[3476] = true;
-	tube[3477] = true;
-	tube[3478] = true;
-	tube[3513] = true;
-	tube[3514] = true;
-	tube[3549] = true;
-	tube[3550] = true;
-	tube[3551] = true;
-	tube[3552] = true;
-	tube[3553] = true;
-	tube[3589] = true;
-	tube[3590] = true;
-	tube[3591] = true;
-	tube[3592] = true;
-	tube[3593] = true;
-	tube[3628] = true;
-	tube[3629] = true;
-	tube[3630] = true;
-	tube[3631] = true;
-	tube[3662] = true;
-	tube[3663] = true;
-	tube[3664] = true;
-	tube[3665] = true;
-	tube[3666] = true;
-	tube[3667] = true;
-	tube[3668] = true;
-	tube[3669] = true;
-	tube[3700] = true;
-	tube[3701] = true;
-	tube[3702] = true;
-	tube[3703] = true;
-	tube[3704] = true;
-	tube[3705] = true;
-	tube[3706] = true;
-	tube[3707] = true;
-	tube[3738] = true;
-	tube[3739] = true;
-	tube[3740] = true;
-	tube[3741] = true;
-	tube[3742] = true;
-	tube[3743] = true;
-	tube[3774] = true;
-	tube[3775] = true;
-	tube[3776] = true;
-	tube[3777] = true;
-	tube[3778] = true;
-	tube[3779] = true;
-	tube[3780] = true;
-	tube[3781] = true;
-	tube[3812] = true;
-	tube[3813] = true;
-	tube[3814] = true;
-	tube[3815] = true;
-	tube[3816] = true;
-	tube[3817] = true;
-	tube[3818] = true;
-	tube[3819] = true;
-	tube[3850] = true;
-	tube[3851] = true;
-	tube[3852] = true;
-	tube[3853] = true;
-	tube[3854] = true;
-	tube[3855] = true;
-	tube[3856] = true;
-	tube[3882] = true;
-	tube[3883] = true;
-	tube[3884] = true;
-	tube[3885] = true;
-	tube[3886] = true;
-	tube[3887] = true;
-	tube[3888] = true;
-	tube[3889] = true;
-	tube[3915] = true;
-	tube[3916] = true;
-	tube[3917] = true;
-	tube[3918] = true;
-	tube[3919] = true;
-	tube[3920] = true;
-	tube[3921] = true;
-	tube[3922] = true;
-	tube[3948] = true;
-	tube[3949] = true;
-	tube[3950] = true;
-	tube[3951] = true;
-	tube[3952] = true;
-	tube[3953] = true;
-	tube[3954] = true;
-	tube[3955] = true;
-	tube[3981] = true;
-	tube[3982] = true;
-	tube[3983] = true;
-	tube[3984] = true;
-	tube[3985] = true;
-	tube[3986] = true;
-	tube[3987] = true;
-	tube[3988] = true;
-	tube[4014] = true;
-	tube[4015] = true;
-	tube[4016] = true;
-	tube[4017] = true;
-	tube[4018] = true;
-	tube[4019] = true;
-	tube[4020] = true;
-	tube[4021] = true;
-	tube[4047] = true;
-	tube[4048] = true;
-	tube[4049] = true;
-	tube[4050] = true;
-	tube[4051] = true;
-	tube[4052] = true;
-	tube[4053] = true;
-	tube[4054] = true;
-	tube[4055] = true;
-	tube[4076] = true;
-	tube[4077] = true;
-	tube[4078] = true;
-	tube[4079] = true;
-	tube[4080] = true;
-	tube[4081] = true;
-	tube[4082] = true;
-	tube[4083] = true;
-	tube[4084] = true;
-	tube[4085] = true;
-	tube[4106] = true;
-	tube[4107] = true;
-	tube[4108] = true;
-	tube[4109] = true;
-	tube[4110] = true;
-	tube[4111] = true;
-	tube[4112] = true;
-	tube[4113] = true;
-	tube[4114] = true;
-	tube[4115] = true;
-	tube[4136] = true;
-	tube[4137] = true;
-	tube[4138] = true;
-	tube[4139] = true;
-	tube[4140] = true;
-	tube[4141] = true;
-	tube[4142] = true;
-	tube[4143] = true;
-	tube[4144] = true;
-	tube[4145] = true;
-	tube[4166] = true;
-	tube[4167] = true;
-	tube[4168] = true;
-	tube[4169] = true;
-	tube[4170] = true;
-	tube[4171] = true;
-	tube[4172] = true;
-	tube[4173] = true;
-	tube[4174] = true;
-	tube[4175] = true;
-	tube[4196] = true;
-	tube[4197] = true;
-	tube[4198] = true;
-	tube[4199] = true;
-	tube[4200] = true;
-	tube[4201] = true;
-	tube[4202] = true;
-	tube[4203] = true;
-	tube[4204] = true;
-	tube[4205] = true;
-	tube[4226] = true;
-	tube[4227] = true;
-	tube[4228] = true;
-	tube[4229] = true;
-	tube[4230] = true;
-	tube[4231] = true;
-	tube[4232] = true;
-	tube[4233] = true;
-	tube[4234] = true;
-	tube[4235] = true;
-	tube[4236] = true;
-	tube[4250] = true;
-	tube[4251] = true;
-	tube[4252] = true;
-	tube[4253] = true;
-	tube[4254] = true;
-	tube[4255] = true;
-	tube[4256] = true;
-	tube[4257] = true;
-	tube[4258] = true;
-	tube[4259] = true;
-	tube[4260] = true;
-	tube[4261] = true;
-	tube[4275] = true;
-	tube[4276] = true;
-	tube[4277] = true;
-	tube[4278] = true;
-	tube[4279] = true;
-	tube[4280] = true;
-	tube[4281] = true;
-	tube[4282] = true;
-	tube[4283] = true;
-	tube[4284] = true;
-	tube[4285] = true;
-	tube[4286] = true;
-	tube[4300] = true;
-	tube[4301] = true;
-	tube[4302] = true;
-	tube[4303] = true;
-	tube[4304] = true;
-	tube[4305] = true;
-	tube[4306] = true;
-	tube[4307] = true;
-	tube[4308] = true;
-	tube[4309] = true;
-	tube[4310] = true;
-	tube[4311] = true;
-	tube[4325] = true;
-	tube[4326] = true;
-	tube[4327] = true;
-	tube[4328] = true;
-	tube[4329] = true;
-	tube[4330] = true;
-	tube[4331] = true;
-	tube[4332] = true;
-	tube[4333] = true;
-	tube[4334] = true;
-	tube[4335] = true;
-	tube[4336] = true;
-	tube[4350] = true;
-	tube[4351] = true;
-	tube[4352] = true;
-	tube[4353] = true;
-	tube[4354] = true;
-	tube[4355] = true;
-	tube[4356] = true;
-	tube[4357] = true;
-	tube[4358] = true;
-	tube[4359] = true;
-	tube[4360] = true;
-	tube[4361] = true;
-	tube[4375] = true;
-	tube[4376] = true;
-	tube[4377] = true;
-	tube[4378] = true;
-	tube[4379] = true;
-	tube[4380] = true;
-	tube[4381] = true;
-	tube[4382] = true;
-	tube[4383] = true;
-	tube[4384] = true;
-	tube[4385] = true;
-	tube[4386] = true;
-	tube[4387] = true;
-	tube[4388] = true;
-	tube[4389] = true;
-	tube[4390] = true;
-	tube[4391] = true;
-	tube[4392] = true;
-	tube[4393] = true;
-	tube[4394] = true;
-	tube[4395] = true;
-	tube[4396] = true;
-	tube[4397] = true;
-	tube[4398] = true;
-	tube[4399] = true;
-	tube[4400] = true;
-	tube[4401] = true;
-	tube[4402] = true;
-	tube[4403] = true;
-	tube[4404] = true;
-	tube[4405] = true;
-	tube[4406] = true;
-	tube[4407] = true;
-	tube[4408] = true;
-	tube[4409] = true;
-	tube[4410] = true;
-	tube[4411] = true;
-	tube[4412] = true;
-	tube[4413] = true;
-	tube[4414] = true;
-	tube[4415] = true;
-	tube[4416] = true;
-	tube[4417] = true;
-	tube[4418] = true;
-	tube[4419] = true;
-	tube[4420] = true;
-	tube[4421] = true;
-	tube[4422] = true;
-	tube[4423] = true;
-	tube[4424] = true;
-	tube[4425] = true;
-	tube[4426] = true;
-	tube[4427] = true;
-	tube[4428] = true;
-	tube[4429] = true;
-	tube[4430] = true;
-	tube[4431] = true;
-	tube[4432] = true;
-	tube[4433] = true;
-	tube[4434] = true;
-	tube[4435] = true;
-	tube[4436] = true;
-	tube[4437] = true;
-	tube[4438] = true;
-	tube[4439] = true;
-	tube[4440] = true;
-	tube[4441] = true;
-	tube[4442] = true;
-	tube[4443] = true;
-	tube[4444] = true;
-	tube[4445] = true;
-	tube[4446] = true;
-	tube[4447] = true;
-	tube[4448] = true;
-	tube[4449] = true;
-	tube[4450] = true;
-	tube[4451] = true;
-	tube[4452] = true;
-	tube[4453] = true;
-	tube[4454] = true;
-	tube[4455] = true;
-	tube[4456] = true;
-	tube[4457] = true;
-	tube[4458] = true;
-	tube[4459] = true;
-	tube[4460] = true;
-	tube[4461] = true;
-	tube[4462] = true;
-	tube[4463] = true;
-	tube[4464] = true;
-	tube[4465] = true;
-	tube[4466] = true;
-	tube[4467] = true;
-	tube[4468] = true;
-	tube[4469] = true;
-	tube[4470] = true;
-	tube[4471] = true;
-	tube[4472] = true;
-	tube[4473] = true;
-	tube[4474] = true;
-	tube[4475] = true;
-	tube[4476] = true;
-	tube[4477] = true;
-	tube[4478] = true;
-	tube[4479] = true;
-	tube[4480] = true;
-	tube[4481] = true;
-	tube[4482] = true;
-	tube[4483] = true;
-	tube[4484] = true;
-	tube[4485] = true;
-	tube[4486] = true;
-	tube[4487] = true;
-	tube[4488] = true;
-	tube[4489] = true;
-	tube[4490] = true;
-	tube[4491] = true;
-	tube[4492] = true;
-	tube[4493] = true;
-	tube[4494] = true;
-	tube[4495] = true;
-	tube[4496] = true;
-	tube[4497] = true;
-	tube[4498] = true;
-	tube[4499] = true;
-	tube[4500] = true;
-	tube[4501] = true;
-	tube[4502] = true;
-	tube[4503] = true;
-	tube[4504] = true;
-	tube[4505] = true;
-	tube[4506] = true;
-	tube[4507] = true;
-	tube[4508] = true;
-	tube[4509] = true;
-	tube[4510] = true;
-	tube[4511] = true;
-	tube[4512] = true;
-	tube[4513] = true;
-	tube[4514] = true;
-	tube[4515] = true;
-	tube[4516] = true;
-	tube[4517] = true;
-	tube[4518] = true;
-	tube[4519] = true;
-	tube[4520] = true;
-	tube[4521] = true;
-	tube[4522] = true;
-	tube[4523] = true;
-	tube[4524] = true;
-	tube[4525] = true;
-	tube[4526] = true;
-	tube[4527] = true;
-	tube[4528] = true;
-	tube[4529] = true;
-	tube[4530] = true;
-	tube[4531] = true;
-	tube[4532] = true;
-	tube[4533] = true;
-	tube[4534] = true;
-	tube[4535] = true;
-	tube[4536] = true;
-	tube[4537] = true;
-	tube[4538] = true;
-	tube[4539] = true;
-	tube[4540] = true;
-	tube[4541] = true;
-	tube[4542] = true;
-	if( straw_number<= 4542 && tube[straw_number] ) return true; else return false;
+
+
+	SttTubeList(
+	// inputs :
+	SttTubeArray,
+	RSTRAWDETECTORMIN,
+	RSTRAWDETECTORMAX,
+	APOTEMAMAXINNERPARSTRAW,
+	APOTEMAMINOUTERPARSTRAW,
+	VERTICALGAP,
+	STRAWRADIUS,
+	NUMBER_STRAWS,
+	stampa,
+	// outputs :
+	StrawCode,
+	StrawCode2
+	);
+
+	return;
 
 }
-
 //----------end of function PndTrkBoundaryParStraws::Set
 
 
+//------------------ begin function  PndTrkBoundaryParStraws::SttTubeList
+void  PndTrkBoundaryParStraws::SttTubeList(
+	// inputs :
+	TClonesArray *SttTubeArray,
+	Double_t RSTRAWDETECTORMIN,
+	Double_t RSTRAWDETECTORMAX,
+	Double_t APOTEMAMAXINNERPARSTRAW,
+	Double_t APOTEMAMINOUTERPARSTRAW,
+	Double_t VERTICALGAP,
+	Double_t STRAWRADIUS,
+	Short_t NUMBER_STRAWS,
+	bool stampa,
+	// outputs :
+	Short_t *StrawCode, // goes from 0 to NUMBER_STRAWS-1 included;
+	Short_t *StrawCode2 // goes from 0 to NUMBER_STRAWS-1 included;
+					)
+{
+	int	code,
+		i,
+		tubeID;
+	double
+		apotema,
+		Rrr,
+		x,
+		y;
 
+	PndSttTube *pSttTube ;
+	TVector3 center;
+	TVector3 wiredirection;
+
+
+//-----------------------------
+	int num = NUMBER_STRAWS;
+
+// calcolo delle regioni 'speciali';
+
+ CalculateSpecialRegion(
+	RSTRAWDETECTORMIN,
+	APOTEMAMAXINNERPARSTRAW,
+	APOTEMAMINOUTERPARSTRAW,
+	VERTICALGAP,
+	x, // ascissa of intersection point in 1st quadrant;
+	y  // ordinate of intersection point in 1st quadrant;
+	);
+
+
+//---------------------------------
+
+ if(stampa){
+	cout<<"numero totale di tubi "<<num<<endl;
+	// il primo tubo e' il n. 1;
+	tubeID=1;
+	pSttTube = (PndSttTube*) SttTubeArray->At(tubeID);
+	center = pSttTube->GetPosition();
+	wiredirection = pSttTube->GetWireDirection();
+	Rrr = sqrt( center.X()*center.X()+center.Y()*center.Y());
+	cout<<"\tFirst STT straw tubeID;  n.  "<<tubeID<<", centro X "<< center.X()
+	<<", centro Y "<< center.Y()<<", centro Z "<< center.Z()<<", fR = "<<Rrr<<endl;
+	//	double HL = pSttTube->GetHalfLength();
+	// ultimo tubo;
+	tubeID=num;
+	pSttTube = (PndSttTube*) SttTubeArray->At(tubeID);
+	center = pSttTube->GetPosition();
+	wiredirection = pSttTube->GetWireDirection();
+	Rrr = sqrt( center.X()*center.X()+center.Y()*center.Y());
+	cout<<"\tLast STT straw tubeID,  n.  "<<tubeID<<", centro X "<< center.X()
+	<<", centro Y "<< center.Y()<<", centro Z "<< center.Z()<<", fR = "<<Rrr<<endl<<endl;
+ }
+//---------------------------------
+
+
+//  Stt a sinistra (col beam in faccia) -->  + 10 nello StrawCode;
+//  Stt a destra (col beam in faccia) -->  + 20 nello StrawCode;
+
+
+//   Verticali al centro :
+	// abs( X ) < 3 ;
+	// 16 < abs(Y) < 25 -->  inner Stt axial section;
+	// 35 < abs(Y) < 40 -->  outer Stt axial section;
+
+
+	// STT  al bordo verticale centrale;
+	cout<<"\tBOUNDARY Straws : Central Vertical Boundary, axial STT straws Center positions :\n";
+	for(i=1;i<=num;i++){
+		pSttTube = (PndSttTube*) SttTubeArray->At(i);
+		center = pSttTube->GetPosition();
+		wiredirection = pSttTube->GetWireDirection();
+		Rrr = sqrt( center.X()*center.X()+center.Y()*center.Y());
+		// solo STT parallel;
+		if(!(fabs( wiredirection.X() )< 0.00001 && fabs( wiredirection.Y() )< 0.00001))continue;
+		if(fabs(center.X())>3.)  continue;
+		 if(stampa){
+			cout<<"\tSTT straw || tubeID n.  "<<i<<", centro X "<< center.X()
+			<<", centro Y "<< center.Y()<<", centro Z "<< center.Z()<<", fR = "<<Rrr;
+		 }
+		if( center.X() < 0. ) {
+		  if( fabs( center.Y() ) < 30. ) { code = 10;} else {code = 12;};
+		} else {
+		  if( fabs( center.Y() ) < 30. ) { code = 20;} else {code = 22;};
+		}
+
+			if(stampa) cout<<", SttCode = "<<code<<endl;
+
+			if( StrawCode[i-1] > -1  && StrawCode[i-1] != code) { // to this Tube a StrawCode was already previously assigned;
+				// therefore set StrawCode2;
+				StrawCode2[i-1] = code;
+			} else {
+				StrawCode[i-1] = code;
+			}
+
+
+	}  // end for(i=1;i<=num;i++)
+
+
+	// STT  al bordo esterno;
+	if(stampa)cout<<"\n\tExternal Round Boundary || STT straws :\n";
+	for(i=1;i<=num;i++){
+		pSttTube = (PndSttTube*) SttTubeArray->At(i);
+		center = pSttTube->GetPosition();
+		wiredirection = pSttTube->GetWireDirection();
+		Rrr = sqrt( center.X()*center.X()+center.Y()*center.Y());
+		// solo STT parallel;
+		if(!(fabs( wiredirection.X() )< 0.00001 && fabs( wiredirection.Y() )< 0.00001))continue;
+
+		if( Rrr <RSTRAWDETECTORMAX-2*STRAWRADIUS)  continue;
+		if(stampa)cout<<"\tSTT straw || tubeID n.  "<<i<<", centro X "<< center.X()
+		<<", centro Y "<< center.Y()<<", centro Z "<< center.Z()<<", fR = "<<Rrr;
+		if( center.X() < 0. ) {
+			code = 13;
+			if(stampa)cout<<", SttCode = 13\n";
+		} else {
+			code = 23;
+			if(stampa)cout<<", SttCode = 23\n";
+		}
+
+			if( StrawCode[i-1] > -1  && StrawCode[i-1] != code) { // to this Tube a StrawCode was already previously assigned;
+				// therefore set StrawCode2;
+				StrawCode2[i-1] = code;
+			} else {
+				StrawCode[i-1] = code;
+			}
+	}  // end for(i=1;i<=num;i++)
+
+
+	// boundary Inner delle Stt parallele a sinistra;
+
+
+	//  apotema = DISTANZA DA (0,0) del lato dell'esagono;
+
+	// Stt lato inner, del 2 quadrante; code 0 + n*10;
+	apotema = RSTRAWDETECTORMIN;
+	// equazione del bordo : x - sqrt(3)*y +2*apotema = 0 ;
+	if(stampa)cout<<"\n\tInner Boundary (smaller) with code 10; 2nd quadrant || STT straws :\n";
+	double distanza;
+	for(i=1;i<=num;i++){
+		pSttTube = (PndSttTube*) SttTubeArray->At(i);
+		center = pSttTube->GetPosition();
+		wiredirection = pSttTube->GetWireDirection();
+		// solo STT parallel;
+		if(center.X()>0.)  continue;
+		if(!(fabs( wiredirection.X() )< 0.00001 && fabs( wiredirection.Y() )< 0.00001))continue;
+		distanza = fabs(sqrt(3.)*center.Y()-center.X() -2*apotema)/2.;
+		if(distanza>2.*STRAWRADIUS || center.X()< -apotema - 2.*STRAWRADIUS)  continue;
+		Rrr = sqrt( center.X()*center.X()+center.Y()*center.Y());
+		if(stampa)cout<<"\tSTT straw || tubeID n.  "<<i<<", centro X "<< center.X()
+		<<", centro Y "<< center.Y()<<", centro Z "<< center.Z()<<", fR = "<<Rrr
+		<<", SttCode = 10\n";
+		code = 10;
+			if( StrawCode[i-1] > -1  && StrawCode[i-1] != code) { // to this Tube a StrawCode was already previously assigned;
+				// therefore set StrawCode2;
+				StrawCode2[i-1] = code;
+			} else {
+				StrawCode[i-1] = code;
+			}
+	}  // end for(i=1;i<=num;i++)
+
+
+	// Stt lato inner, lato verticale; code 0 + n*10;
+	apotema = RSTRAWDETECTORMIN;
+	// equazione del bordo :  x = -apotema ;
+	if(stampa)cout<<"\n\tInner Vertical Boundary (smaller) with code 10; 2nd-3rd quadrant || STT straws :\n";
+	for(i=1;i<=num;i++){
+		pSttTube = (PndSttTube*) SttTubeArray->At(i);
+		center = pSttTube->GetPosition();
+		wiredirection = pSttTube->GetWireDirection();
+		// solo STT parallel;
+		if(!(fabs( wiredirection.X() )< 0.00001 && fabs( wiredirection.Y() )< 0.00001))continue;
+		if(center.X()>0.)  continue;
+		if(center.X()< -apotema - 2.*STRAWRADIUS)  continue;
+		if(fabs(center.Y())> apotema/sqrt(3.))  continue;
+		Rrr = sqrt( center.X()*center.X()+center.Y()*center.Y());
+		if(stampa)cout<<"\tSTT straw || tubeID n.  "<<i<<", centro X "<< center.X()
+		<<", centro Y "<< center.Y()<<", centro Z "<< center.Z()<<", fR = "<<Rrr
+		<<", SttCode = 10\n";
+		code = 10;
+			if( StrawCode[i-1] > -1  && StrawCode[i-1] != code) { // to this Tube a StrawCode was already previously assigned;
+				// therefore set StrawCode2;
+				StrawCode2[i-1] = code;
+			} else {
+				StrawCode[i-1] = code;
+			}
+	}  // end for(i=1;i<=num;i++)
+
+
+
+	// Stt lato inner, del 3 quadrante; code 0 + n*10;
+	apotema = RSTRAWDETECTORMIN;
+	// equazione del bordo : x + sqrt(3)*y +2*apotema = 0 ;
+	if(stampa)cout<<"\n\tInner Boundary (smaller) with code 10; 3nd quadrant || STT straws :\n";
+	for(i=1;i<=num;i++){
+		pSttTube = (PndSttTube*) SttTubeArray->At(i);
+		center = pSttTube->GetPosition();
+		wiredirection = pSttTube->GetWireDirection();
+		// solo STT parallel;
+		if(center.X()>0.)  continue;
+		if(!(fabs( wiredirection.X() )< 0.00001 && fabs( wiredirection.Y() )< 0.00001))continue;
+		distanza = fabs(-sqrt(3.)*center.Y()-center.X() -2*apotema)/2.;
+		if(distanza>2.*STRAWRADIUS || center.X()< -apotema - 2.*STRAWRADIUS)  continue;
+		Rrr = sqrt( center.X()*center.X()+center.Y()*center.Y());
+		if(stampa)cout<<"\tSTT straw || tubeID n.  "<<i<<", centro X "<< center.X()
+		<<", centro Y "<< center.Y()<<", centro Z "<< center.Z()<<", fR = "<<Rrr
+		<<", SttCode = 10\n";
+		code = 10;
+			if( StrawCode[i-1] > -1  && StrawCode[i-1] != code) { // to this Tube a StrawCode was already previously assigned;
+				// therefore set StrawCode2;
+				StrawCode2[i-1] = code;
+			} else {
+				StrawCode[i-1] = code;
+			}
+	}  // end for(i=1;i<=num;i++)
+
+	//  parte a destra dell'inner Stt boundary; considero la parte a sinistra e cambio il segno a tutte le X;
+
+	// Stt lato inner, del 1 quadrante; code 0 + n*10;
+	apotema = RSTRAWDETECTORMIN;
+	// equazione del bordo : x +  sqrt(3)*y -2*apotema = 0 ;
+	if(stampa)cout<<"\n\tInner Boundary (smaller) with code 20; 1nd quadrant || STT straws :\n";
+	for(i=1;i<=num;i++){
+		pSttTube = (PndSttTube*) SttTubeArray->At(i);
+		center = pSttTube->GetPosition();
+		wiredirection = pSttTube->GetWireDirection();
+		// solo STT parallel;
+		if(center.X()<0.)  continue;
+		if(!(fabs( wiredirection.X() )< 0.00001 && fabs( wiredirection.Y() )< 0.00001))continue;
+		distanza = fabs(sqrt(3.)*center.Y()+center.X() -2*apotema)/2.;
+		if(distanza>2.*STRAWRADIUS || center.X()> apotema + 2.*STRAWRADIUS)  continue;
+		Rrr = sqrt( center.X()*center.X()+center.Y()*center.Y());
+		if(stampa)cout<<"\tSTT straw || tubeID n.  "<<i<<", centro X "<< center.X()
+		<<", centro Y "<< center.Y()<<", centro Z "<< center.Z()<<", fR = "<<Rrr
+		<<", SttCode = 20\n";
+		code = 20;
+			if( StrawCode[i-1] > -1  && StrawCode[i-1] != code) { // to this Tube a StrawCode was already previously assigned;
+				// therefore set StrawCode2;
+				StrawCode2[i-1] = code;
+			} else {
+				StrawCode[i-1] = code;
+			}
+	}  // end for(i=1;i<=num;i++)
+
+
+	// Stt lato inner, lato verticale + n*10;
+	apotema = RSTRAWDETECTORMIN;
+	// equazione del bordo :  x = apotema ;
+	if(stampa)cout<<"\n\tInner Vertical Boundary (smaller) with code 20; 1st-2nd quadrant || STT straws :\n";
+	for(i=1;i<=num;i++){
+		pSttTube = (PndSttTube*) SttTubeArray->At(i);
+		center = pSttTube->GetPosition();
+		wiredirection = pSttTube->GetWireDirection();
+		// solo STT parallel;
+		if(!(fabs( wiredirection.X() )< 0.00001 && fabs( wiredirection.Y() )< 0.00001))continue;
+		if(center.X()<0.)  continue;
+		if(center.X()> apotema + 2.*STRAWRADIUS)  continue;
+		if(fabs(center.Y())> apotema/sqrt(3.))  continue;
+		Rrr = sqrt( center.X()*center.X()+center.Y()*center.Y());
+		if(stampa)cout<<"\tSTT straw || tubeID n.  "<<i<<", centro X "<< center.X()
+		<<", centro Y "<< center.Y()<<", centro Z "<< center.Z()<<", fR = "<<Rrr
+		<<", SttCode = 20\n";
+		code = 20;
+			if( StrawCode[i-1] > -1  && StrawCode[i-1] != code) { // to this Tube a StrawCode was already previously assigned;
+				// therefore set StrawCode2;
+				StrawCode2[i-1] = code;
+			} else {
+				StrawCode[i-1] = code;
+			}
+	}  // end for(i=1;i<=num;i++)
+
+
+
+	// Stt lato inner, del 4 quadrante + n*10;
+	apotema = RSTRAWDETECTORMIN;
+	// equazione del bordo : x -sqrt(3)*y -2*apotema = 0 ;
+	if(stampa)cout<<"\n\tInner Boundary (smaller) with code 20; 4nd quadrant || STT straws :\n";
+	for(i=1;i<=num;i++){
+		pSttTube = (PndSttTube*) SttTubeArray->At(i);
+		center = pSttTube->GetPosition();
+		wiredirection = pSttTube->GetWireDirection();
+		// solo STT parallel;
+		if(center.X()<0.)  continue;
+		if(!(fabs( wiredirection.X() )< 0.00001 && fabs( wiredirection.Y() )< 0.00001))continue;
+		distanza = fabs(-sqrt(3.)*center.Y()+center.X() -2*apotema)/2.;
+		if(distanza>2.*STRAWRADIUS || center.X()> apotema + 2.*STRAWRADIUS)  continue;
+		Rrr = sqrt( center.X()*center.X()+center.Y()*center.Y());
+		if(stampa)cout<<"\tSTT straw || tubeID n.  "<<i<<", centro X "<< center.X()
+		<<", centro Y "<< center.Y()<<", centro Z "<< center.Z()<<", fR = "<<Rrr
+		<<", SttCode = 20\n";
+		code = 20;
+			if( StrawCode[i-1] > -1  && StrawCode[i-1] != code) { // to this Tube a StrawCode was already previously assigned;
+				// therefore set StrawCode2;
+				StrawCode2[i-1] = code;
+			} else {
+				StrawCode[i-1] = code;
+			}
+	}  // end for(i=1;i<=num;i++)
+
+
+//--------------
+
+// la rimanente parte Inner a destra : parte obliqua del 1 quadrante; code 1 + n*10;
+	// Stt lato inner, del 1 quadrante;
+	apotema = APOTEMAMAXINNERPARSTRAW;	// = 23.25 cm;
+	// equazione del bordo : x +  sqrt(3)*y -2*apotema = 0 ;
+	if(stampa)cout<<"\n\tInner Boundary (the larger), the one with code 21; 1nd quadrant || STT straws :\n";
+	for(i=1;i<=num;i++){
+		pSttTube = (PndSttTube*) SttTubeArray->At(i);
+		center = pSttTube->GetPosition();
+		wiredirection = pSttTube->GetWireDirection();
+		// solo STT parallel;
+		if(center.X()<0.)  continue;
+		if(!(fabs( wiredirection.X() )< 0.00001 && fabs( wiredirection.Y() )< 0.00001))continue;
+		distanza = fabs(sqrt(3.)*center.Y()+center.X() -2*apotema)/2.;
+		if(distanza>2.*STRAWRADIUS || center.X()> apotema + 2.*STRAWRADIUS)  continue;
+		Rrr = sqrt( center.X()*center.X()+center.Y()*center.Y());
+		if(stampa)cout<<"\tSTT straw || tubeID n.  "<<i<<", centro X "<< center.X()
+		<<", centro Y "<< center.Y()<<", centro Z "<< center.Z()<<", fR = "<<Rrr
+		<<", SttCode = 21\n";
+		code = 21;
+			if( StrawCode[i-1] > -1  && StrawCode[i-1] != code) { // to this Tube a StrawCode was already previously assigned;
+				// therefore set StrawCode2;
+				StrawCode2[i-1] = code;
+			} else {
+				StrawCode[i-1] = code;
+			}
+	}  // end for(i=1;i<=num;i++)
+
+
+// la rimanente parte Inner a destra : parte verticale a cavallo tra il 1 ed il 4 quadrante; code 1 + n*10;
+	// Stt lato inner, lato verticale;
+	apotema = APOTEMAMAXINNERPARSTRAW;	// = 23.25 cm;
+	// equazione del bordo :  x = apotema ;
+	if(stampa)cout<<"\n\tInner Vertical Boundary (the larger) the one with code 21; 1st-4th quadrant || STT straws :\n";
+	for(i=1;i<=num;i++){
+		pSttTube = (PndSttTube*) SttTubeArray->At(i);
+		center = pSttTube->GetPosition();
+		wiredirection = pSttTube->GetWireDirection();
+		// solo STT parallel;
+		if(!(fabs( wiredirection.X() )< 0.00001 && fabs( wiredirection.Y() )< 0.00001))continue;
+		if(center.X()<0.)  continue;
+		if( fabs(center.X() - apotema) >  2.*STRAWRADIUS )  continue;
+		if(fabs(center.Y())> apotema/sqrt(3.))  continue;
+		Rrr = sqrt( center.X()*center.X()+center.Y()*center.Y());
+		if(stampa)cout<<"\tSTT straw || tubeID n.  "<<i<<", centro X "<< center.X()
+		<<", centro Y "<< center.Y()<<", centro Z "<< center.Z()<<", fR = "<<Rrr
+		<<", SttCode = 21\n";
+		code = 21;
+			if( StrawCode[i-1] > -1  && StrawCode[i-1] != code) { // to this Tube a StrawCode was already previously assigned;
+				// therefore set StrawCode2;
+				StrawCode2[i-1] = code;
+			} else {
+				StrawCode[i-1] = code;
+			}
+	}  // end for(i=1;i<=num;i++)
+
+
+// la rimanente parte Inner a destra : parte obliqua del 4 quadrante; code 1 + n*10;
+	// Stt lato inner, del 4 quadrante;
+	apotema = APOTEMAMAXINNERPARSTRAW;	// = 23.25 cm;
+	// equazione del bordo : x -sqrt(3)*y -2*apotema = 0 ;
+	if(stampa)cout<<"\n\tInner Boundary (the larger) the one with code 21; 4nd quadrant || STT straws :\n";
+	for(i=1;i<=num;i++){
+		pSttTube = (PndSttTube*) SttTubeArray->At(i);
+		center = pSttTube->GetPosition();
+		wiredirection = pSttTube->GetWireDirection();
+		// solo STT parallel;
+		if(center.X()<0.)  continue;
+		if(!(fabs( wiredirection.X() )< 0.00001 && fabs( wiredirection.Y() )< 0.00001))continue;
+		distanza = fabs(-sqrt(3.)*center.Y()+center.X() -2*apotema)/2.;
+		if(distanza>2.*STRAWRADIUS || center.X()> apotema + 2.*STRAWRADIUS)  continue;
+		Rrr = sqrt( center.X()*center.X()+center.Y()*center.Y());
+		if(stampa)cout<<"\tSTT straw || tubeID n.  "<<i<<", centro X "<< center.X()
+		<<", centro Y "<< center.Y()<<", centro Z "<< center.Z()<<", fR = "<<Rrr
+		<<", SttCode = 21\n";
+		code = 21;
+			if( StrawCode[i-1] > -1  && StrawCode[i-1] != code) { // to this Tube a StrawCode was already previously assigned;
+				// therefore set StrawCode2;
+				StrawCode2[i-1] = code;
+			} else {
+				StrawCode[i-1] = code;
+			}
+	}  // end for(i=1;i<=num;i++)
+
+// la rimanente parte Inner a sinistra : parte obliqua del 2 quadrante; code 1 + n*10;
+	// Stt lato inner (the larger) the one with code 11, del 2 quadrante;
+	apotema = APOTEMAMAXINNERPARSTRAW;	// = 23.25 cm;
+	// equazione del bordo : x - sqrt(3)*y +2*apotema = 0 ;
+	if(stampa)cout<<"\n\tInner Boundary (the larger) the one with code 11, 2nd quadrant || STT straws :\n";
+	for(i=1;i<=num;i++){
+		pSttTube = (PndSttTube*) SttTubeArray->At(i);
+		center = pSttTube->GetPosition();
+		wiredirection = pSttTube->GetWireDirection();
+		// solo STT parallel;
+		if(center.X()>0.)  continue;
+		if(!(fabs( wiredirection.X() )< 0.00001 && fabs( wiredirection.Y() )< 0.00001))continue;
+		distanza = fabs(sqrt(3.)*center.Y()-center.X() -2*apotema)/2.;
+		if(distanza>2.*STRAWRADIUS || center.X()< -apotema - 2.*STRAWRADIUS)  continue;
+		Rrr = sqrt( center.X()*center.X()+center.Y()*center.Y());
+		if(stampa)cout<<"\tSTT straw || tubeID n.  "<<i<<", centro X "<< center.X()
+		<<", centro Y "<< center.Y()<<", centro Z "<< center.Z()<<", fR = "<<Rrr
+		<<", SttCode = 11\n";
+		code = 11;
+			if( StrawCode[i-1] > -1  && StrawCode[i-1] != code) { // to this Tube a StrawCode was already previously assigned;
+				// therefore set StrawCode2;
+				StrawCode2[i-1] = code;
+			} else {
+				StrawCode[i-1] = code;
+			}
+	}  // end for(i=1;i<=num;i++)
+
+
+// la rimanente parte Inner a sinistra : parte verticale a cavallo tra il 2 e 3 quadrante; code 1 + n*10;
+	// Stt lato inner, lato verticale (larger) the one with code 11;
+	apotema = APOTEMAMAXINNERPARSTRAW;	// = 23.25 cm;
+	// equazione del bordo :  x = -apotema ;
+	if(stampa)cout<<"\n\tInner Vertical Boundary (the larger) the one with code 11; 2nd-3rd quadrant || STT straws :\n";
+	for(i=1;i<=num;i++){
+		pSttTube = (PndSttTube*) SttTubeArray->At(i);
+		center = pSttTube->GetPosition();
+		wiredirection = pSttTube->GetWireDirection();
+		// solo STT parallel;
+		if(!(fabs( wiredirection.X() )< 0.00001 && fabs( wiredirection.Y() )< 0.00001))continue;
+		if(center.X()>0.)  continue;
+		if( fabs( center.X() + apotema ) > 2.*STRAWRADIUS  )  continue;
+		if(fabs(center.Y())> apotema/sqrt(3.))  continue;
+		Rrr = sqrt( center.X()*center.X()+center.Y()*center.Y());
+		if(stampa)cout<<"\tSTT straw || tubeID n.  "<<i<<", centro X "<< center.X()
+		<<", centro Y "<< center.Y()<<", centro Z "<< center.Z()<<", fR = "<<Rrr
+		<<", SttCode = 11\n";
+		code = 11;
+			if( StrawCode[i-1] > -1  && StrawCode[i-1] != code) { // to this Tube a StrawCode was already previously assigned;
+				// therefore set StrawCode2;
+				StrawCode2[i-1] = code;
+			} else {
+				StrawCode[i-1] = code;
+			}
+	}  // end for(i=1;i<=num;i++)
+
+
+
+// la rimanente parte Inner a sinistra : parte obliqua del 3 quadrante; code 1 + n*10;
+	// Stt lato inner, del 3 quadrante (larger);
+	apotema = APOTEMAMAXINNERPARSTRAW;	// = 23.25 cm;
+	// equazione del bordo : x + sqrt(3)*y +2*apotema = 0 ;
+	if(stampa)cout<<"\n\tInner Boundary 3nd quadrant (the larger) the one with code 11;  || STT straws :\n";
+	for(i=1;i<=num;i++){
+		pSttTube = (PndSttTube*) SttTubeArray->At(i);
+		center = pSttTube->GetPosition();
+		wiredirection = pSttTube->GetWireDirection();
+		// solo STT parallel;
+		if(center.X()>0.)  continue;
+		if(!(fabs( wiredirection.X() )< 0.00001 && fabs( wiredirection.Y() )< 0.00001))continue;
+		distanza = fabs(-sqrt(3.)*center.Y()-center.X() -2*apotema)/2.;
+		if(distanza>2.*STRAWRADIUS || center.X()< -apotema - 2.*STRAWRADIUS)  continue;
+		Rrr = sqrt( center.X()*center.X()+center.Y()*center.Y());
+		if(stampa)cout<<"\tSTT straw || tubeID n.  "<<i<<", centro X "<< center.X()
+		<<", centro Y "<< center.Y()<<", centro Z "<< center.Z()<<", fR = "<<Rrr
+		<<", SttCode = 11\n";
+		code = 11;
+			if( StrawCode[i-1] > -1  && StrawCode[i-1] != code) { // to this Tube a StrawCode was already previously assigned;
+				// therefore set StrawCode2;
+				StrawCode2[i-1] = code;
+			} else {
+				StrawCode[i-1] = code;
+			}
+	}  // end for(i=1;i<=num;i++)
+
+
+
+//--------------------------------------------------------------------------------------------------------------
+
+// la rimanente parte Outer a destra : parte obliqua del 1 quadrante; code 25 per un piccolo tratto che
+// puo' essere investito da tracce che provengono da (0,0) senza aver intersecato prima gli Straws
+// assiali, e code  24 per il resto;
+	// Stt lato inner, del 1 quadrante;
+	apotema = APOTEMAMINOUTERPARSTRAW;	// = 31.86 cm;
+	// equazione del bordo : x +  sqrt(3)*y -2*apotema = 0 ;
+	if(stampa)cout<<"\n\tOuter Boundary (the larger), the one with code 24 or 25; 1nd quadrant || STT straws :\n";
+	for(i=1;i<=num;i++){
+		pSttTube = (PndSttTube*) SttTubeArray->At(i);
+		center = pSttTube->GetPosition();
+		wiredirection = pSttTube->GetWireDirection();
+		// solo STT parallel;
+		if(center.X()<0.)  continue;
+		if(!(fabs( wiredirection.X() )< 0.00001 && fabs( wiredirection.Y() )< 0.00001))continue;
+		distanza = fabs(sqrt(3.)*center.Y()+center.X() -2*apotema)/2.;
+		if(distanza>2.*STRAWRADIUS || center.X()> apotema + 2.*STRAWRADIUS)  continue;
+
+		// condition to belong to the special section;
+		if( center.X() - STRAWRADIUS < x ) { code = 25; } else { code = 24; }
+
+		Rrr = sqrt( center.X()*center.X()+center.Y()*center.Y());
+		if(stampa)cout<<"\tSTT straw || tubeID n.  "<<i<<", centro X "<< center.X()
+		<<", centro Y "<< center.Y()<<", centro Z "<< center.Z()<<", fR = "<<Rrr
+		<<", SttCode = "<<code<<endl;
+			if( StrawCode[i-1] > -1  && StrawCode[i-1] != code) { // to this Tube a StrawCode was already previously assigned;
+				// therefore set StrawCode2;
+				StrawCode2[i-1] = code;
+			} else {
+				StrawCode[i-1] = code;
+			}
+	}  // end for(i=1;i<=num;i++)
+
+
+// la rimanente parte Outer a destra : parte verticale a cavallo tra il 1 ed il 4 quadrante;
+	// Stt lato Outer, lato verticale;
+	apotema = APOTEMAMINOUTERPARSTRAW;	// = 31.86 cm;
+	// equazione del bordo :  x = apotema ;
+	if(stampa)cout<<"\n\tOuter Vertical Boundary (the larger) the one with code 24; 1st-4th quadrant || STT straws :\n";
+	for(i=1;i<=num;i++){
+		pSttTube = (PndSttTube*) SttTubeArray->At(i);
+		center = pSttTube->GetPosition();
+		wiredirection = pSttTube->GetWireDirection();
+		// solo STT parallel;
+		if(!(fabs( wiredirection.X() )< 0.00001 && fabs( wiredirection.Y() )< 0.00001))continue;
+		if(center.X()<0.)  continue;
+		if(fabs( center.X()- apotema ) >  2.*STRAWRADIUS )  continue;
+		if(fabs(center.Y())> apotema/sqrt(3.))  continue;
+		Rrr = sqrt( center.X()*center.X()+center.Y()*center.Y());
+		if(stampa)cout<<"\tSTT straw || tubeID n.  "<<i<<", centro X "<< center.X()
+		<<", centro Y "<< center.Y()<<", centro Z "<< center.Z()<<", fR = "<<Rrr
+		<<", SttCode = 24\n";
+		code = 24;
+			if( StrawCode[i-1] > -1  && StrawCode[i-1] != code) { // to this Tube a StrawCode was already previously assigned;
+				// therefore set StrawCode2;
+				StrawCode2[i-1] = code;
+			} else {
+				StrawCode[i-1] = code;
+			}
+	}  // end for(i=1;i<=num;i++)
+
+
+// la rimanente parte Outer a destra : parte obliqua del 4 quadrante;
+	// Stt lato Outer, del 4 quadrante;
+	apotema = APOTEMAMINOUTERPARSTRAW;	// = 31.86 cm;
+	// equazione del bordo : x -sqrt(3)*y -2*apotema = 0 ;
+	if(stampa)cout<<"\n\tOuter Boundary (the larger) the one with code 24 or 25; 4nd quadrant || STT straws :\n";
+	for(i=1;i<=num;i++){
+		pSttTube = (PndSttTube*) SttTubeArray->At(i);
+		center = pSttTube->GetPosition();
+		wiredirection = pSttTube->GetWireDirection();
+		// solo STT parallel;
+		if(center.X()<0.)  continue;
+		if(!(fabs( wiredirection.X() )< 0.00001 && fabs( wiredirection.Y() )< 0.00001))continue;
+		distanza = fabs(-sqrt(3.)*center.Y()+center.X() -2*apotema)/2.;
+		if(distanza>2.*STRAWRADIUS || center.X()> apotema + 2.*STRAWRADIUS)  continue;
+
+		// condition to belong to the special section;
+		if( center.X() - STRAWRADIUS < x ) { code = 25; } else { code = 24; }
+
+		Rrr = sqrt( center.X()*center.X()+center.Y()*center.Y());
+		if(stampa)cout<<"\tSTT straw || tubeID n.  "<<i<<", centro X "<< center.X()
+		<<", centro Y "<< center.Y()<<", centro Z "<< center.Z()<<", fR = "<<Rrr
+		<<", SttCode = "<<code<<endl;
+			if( StrawCode[i-1] > -1  && StrawCode[i-1] != code) { // to this Tube a StrawCode was already previously assigned;
+				// therefore set StrawCode2;
+				StrawCode2[i-1] = code;
+			} else {
+				StrawCode[i-1] = code;
+			}
+	}  // end for(i=1;i<=num;i++)
+
+// la rimanente parte Outer a sinistra : parte obliqua del 2 quadrante;
+	// Stt lato Outer (the larger) the one with code 12, del 2 quadrante;
+	apotema = APOTEMAMINOUTERPARSTRAW;	// = 31.86 cm;
+	// equazione del bordo : x - sqrt(3)*y +2*apotema = 0 ;
+	if(stampa)cout<<"\n\tOuter Boundary (the larger) the one with code 14 or 15, 2nd quadrant || STT straws :\n";
+	for(i=1;i<=num;i++){
+		pSttTube = (PndSttTube*) SttTubeArray->At(i);
+		center = pSttTube->GetPosition();
+		wiredirection = pSttTube->GetWireDirection();
+		// solo STT parallel;
+		if(center.X()>0.)  continue;
+		if(!(fabs( wiredirection.X() )< 0.00001 && fabs( wiredirection.Y() )< 0.00001))continue;
+		distanza = fabs(sqrt(3.)*center.Y()-center.X() -2*apotema)/2.;
+		if(distanza>2.*STRAWRADIUS || center.X()< -apotema - 2.*STRAWRADIUS)  continue;
+
+		// condition to belong to the special section;
+		if( center.X() + STRAWRADIUS > -x ) { code = 15; } else { code = 14; }
+
+		Rrr = sqrt( center.X()*center.X()+center.Y()*center.Y());
+		if(stampa)cout<<"\tSTT straw || tubeID n.  "<<i<<", centro X "<< center.X()
+		<<", centro Y "<< center.Y()<<", centro Z "<< center.Z()<<", fR = "<<Rrr
+		<<", SttCode = "<<code<<endl;
+			if( StrawCode[i-1] > -1  && StrawCode[i-1] != code) { // to this Tube a StrawCode was already previously assigned;
+				// therefore set StrawCode2;
+				StrawCode2[i-1] = code;
+			} else {
+				StrawCode[i-1] = code;
+			}
+	}  // end for(i=1;i<=num;i++)
+
+
+// la rimanente parte Outer a sinistra : parte verticale a cavallo tra il 2 e 3 quadrante;
+	// Stt lato Outer, lato verticale (larger) the one with code 14;
+	apotema = APOTEMAMINOUTERPARSTRAW;	// = 31.86 cm;
+	// equazione del bordo :  x = -apotema ;
+	if(stampa)cout<<"\n\tOuter Vertical Boundary (the larger) the one with code 12; 2nd-3rd quadrant || STT straws :\n";
+	for(i=1;i<=num;i++){
+		pSttTube = (PndSttTube*) SttTubeArray->At(i);
+		center = pSttTube->GetPosition();
+		wiredirection = pSttTube->GetWireDirection();
+		// solo STT parallel;
+		if(!(fabs( wiredirection.X() )< 0.00001 && fabs( wiredirection.Y() )< 0.00001))continue;
+		if(center.X()>0.)  continue;
+		if(fabs(center.X()+apotema)  > 2.*STRAWRADIUS)  continue;
+		if(fabs(center.Y())> apotema/sqrt(3.))  continue;
+		Rrr = sqrt( center.X()*center.X()+center.Y()*center.Y());
+		if(stampa)cout<<"\tSTT straw || tubeID n.  "<<i<<", centro X "<< center.X()
+		<<", centro Y "<< center.Y()<<", centro Z "<< center.Z()<<", fR = "<<Rrr
+		<<", SttCode = 14\n";
+		code = 14;
+			if( StrawCode[i-1] > -1  && StrawCode[i-1] != code) { // to this Tube a StrawCode was already previously assigned;
+				// therefore set StrawCode2;
+				StrawCode2[i-1] = code;
+			} else {
+				StrawCode[i-1] = code;
+			}
+	}  // end for(i=1;i<=num;i++)
+
+
+
+// la rimanente parte Outer a sinistra : parte obliqua del 3 quadrante;
+	// Stt lato Outer, del 3 quadrante (larger);
+	apotema = APOTEMAMINOUTERPARSTRAW;	// = 31.86 cm;
+	// equazione del bordo : x + sqrt(3)*y +2*apotema = 0 ;
+	if(stampa)cout<<"\n\tOuter Boundary 3nd quadrant (the larger) the one with code 14 or 15;  || STT straws :\n";
+	for(i=1;i<=num;i++){
+		pSttTube = (PndSttTube*) SttTubeArray->At(i);
+		center = pSttTube->GetPosition();
+		wiredirection = pSttTube->GetWireDirection();
+		// solo STT parallel;
+		if(center.X()>0.)  continue;
+		if(!(fabs( wiredirection.X() )< 0.00001 && fabs( wiredirection.Y() )< 0.00001))continue;
+		distanza = fabs(-sqrt(3.)*center.Y()-center.X() -2*apotema)/2.;
+		if(distanza>2.*STRAWRADIUS || center.X()< -apotema - 2.*STRAWRADIUS)  continue;
+
+		// condition to belong to the special section;
+		if( center.X() + STRAWRADIUS > -x ) { code = 15; } else { code = 14; }
+
+		Rrr = sqrt( center.X()*center.X()+center.Y()*center.Y());
+		if(stampa)cout<<"\tSTT straw || tubeID n.  "<<i<<", centro X "<< center.X()
+		<<", centro Y "<< center.Y()<<", centro Z "<< center.Z()<<", fR = "<<Rrr
+		<<", SttCode = "<<code<<endl;
+			if( StrawCode[i-1] > -1 && StrawCode[i-1] != code) { // to this Tube a StrawCode was already previously assigned;
+				// therefore set StrawCode2;
+				StrawCode2[i-1] = code;
+			} else {
+				StrawCode[i-1] = code;
+			}
+	}  // end for(i=1;i<=num;i++)
+
+
+
+
+	return;
+}
+
+//------------------ end function  PndTrkBoundaryParStraws::SttTubeList
 
 
 ClassImp(PndTrkBoundaryParStraws);
