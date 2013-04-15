@@ -254,7 +254,7 @@ void PndEmcHitProducer::Exec(Option_t* opt)
   {
     PndEmcPoint* point  = (PndEmcPoint*) fPointArray->At(iPoint);
 	DetId = point->GetDetectorID();
-	if(fUse_nonuniformity !=0 ){
+	if(fUse_nonuniformity !=0 && (point->GetModule() == 1 || point->GetModule() == 2)){//nonuniformity applied only for the Barrel
 		//light output is z-dependent, so calculate z
 		
 		tmpTCI = fMapper->GetTCI(DetId);
