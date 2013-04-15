@@ -877,12 +877,12 @@ void PndEmc::SetGeometryVersion(const Int_t GeoNumber) {
   switch(GeoNumber){
 
   case 1:
-	SetGeometryFileNameQuadruple("emc_module12.dat","emc_module3_2011_new.root","emc_module4_StraightGeo24.4.root","emc_module5_fsc.root");
+	SetGeometryFileNameQuadruple("emc_module12.dat","emc_module3_2012_new.root","emc_module4_StraightGeo24.4.root","emc_module5_fsc.root");
 	MapperVersion =1;
 	break;
 	  
   case 2:
-	SetGeometryFileNameTriple("emc_module12.dat","emc_module3_2011_new.root","emc_module4_StraightGeo24.4.root");
+	SetGeometryFileNameTriple("emc_module12.dat","emc_module3_2012_new.root","emc_module4_StraightGeo24.4.root");
 	MapperVersion =1;
 	break;
 
@@ -907,7 +907,7 @@ void PndEmc::SetGeometryVersion(const Int_t GeoNumber) {
     break;
 
   case 7:
-    SetGeometryFileName("emc_module3_2011_new.root");
+    SetGeometryFileName("emc_module3_2012_new.root");
 	MapperVersion =4;
     break;
 
@@ -1147,7 +1147,7 @@ void PndEmc::ConstructRootGeometry() {
 			//Moving Proto192 so that beam axis is on bottom right corner of row 49 crystal 21 (X4Y3-7)
 
 		}else{
-			TransRotMatrix = new TGeoCombiTrans(0., 0., 215.2,new TGeoRotation(rotVolume));//distance of the FwEndCap module to the target point was obtained to be around 2152 mm.}
+			TransRotMatrix = new TGeoCombiTrans(0., 0., 213.9,new TGeoRotation(rotVolume));//distance of the FwEndCap module to the target point was obtained to be around 2139 mm.}
 		}
 	}
 	if(Volume == NULL){
