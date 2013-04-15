@@ -254,7 +254,7 @@ PndEmcClusterProperties::LiloWhere(std::vector<Double_t> params)
 	assert(lClusEnergy!=0);
 	
 	const double lOffset=
-		offsetParmA-offsetParmB*exp(-offsetParmC*lClusEnergy);
+		offsetParmA-offsetParmB*exp(-offsetParmC*pow(lClusEnergy,1.171)) * pow(lClusEnergy,-0.534);
 	
 	TVector3 lLiloPoint( 1, 1, 1 );
 	
