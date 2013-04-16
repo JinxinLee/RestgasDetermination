@@ -40,7 +40,14 @@ class  PndGeoDrc : public FairGeoSet {
   double fPhLength;       		    //!< [cm] half length of the prism
   double fPAngle;       		    //!< [degrees] opening angle of the prism
   double fPDrop;       			    //!< [cm] drop of the prism - inner side
-  double fPOffset;	      		    //!< [cm] offset of the prism - outer side  
+  double fPOffset;	      		    //!< [cm] offset of the prism - outer side 
+  
+  // MCP parameters:
+  double fMCPactiveArea;		    //!< [cm] size of the active area of one MCP
+  double fMCPsize;			    //!< [cm] total size of one MCP
+  double fMCPgap;			    //!< [cm] gap between MCPs
+  int    fNpix;				    //!< total number of pixels for one MCP (8 x 8 pixels)
+  double fPixelSize;	 		    //!< [cm] size of one pixel
   
   double fLside;
   double fBarWidth;
@@ -148,6 +155,22 @@ class  PndGeoDrc : public FairGeoSet {
   
   /*! The width of the bar gaps [cm]. */
   Double_t  BarWidth() {return fBarWidth;}
+  
+  /*! The size of an MCP [cm]. */
+  Double_t  McpSize() {return fMCPsize;}
+  
+  /*! The size of the active area of an MCP [cm]. */
+  Double_t  McpActiveArea() {return fMCPactiveArea;}
+  
+  /*! The size of the gap between neighboring MCPs [cm]. */
+  Double_t  McpGap() {return fMCPgap;}
+  
+  /*! The total number of pixels for one MCPs. */
+  Int_t  Npixels() {return fNpix;}
+  
+  /*! The size of one pixel [cm]. */
+  Int_t  PixelSize() {return fPixelSize;}
+  
 
   ClassDef(PndGeoDrc,1) // Class for Drc
 

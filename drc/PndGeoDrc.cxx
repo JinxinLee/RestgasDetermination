@@ -44,7 +44,7 @@ PndGeoDrc::PndGeoDrc() {
   
   // parameters of the EV:
   fEVlength     = 30.;        // [cm] Length of expansion volume
-  fEVdrop	= 1.;	      // [cm] drop of the EV - inner radius (used only with prism)
+  fEVdrop	= 0.7;	      // [cm] drop of the EV - inner radius (used only with prism)
   fEVoffset	= 0.;	      // [cm] offset of the EV - outer radius
   fEVangle	= 45.;	      // [degrees] opening angle of the EV
   fEVbackAngle  = 90.;	      // [degrees] angle between the PD surface and the Z axis, default = 90.
@@ -53,7 +53,14 @@ PndGeoDrc::PndGeoDrc() {
   fPhLength	=  4.5;       // [cm] half length of the prism
   fPAngle	=  30.;       // [degrees] opening angle of the prism
   fPDrop	=  0.5;       // [cm] drop of the prism - inner side
-  fPOffset	=  1.;	      // [cm] offset of the prism - outer side  
+  fPOffset	=  1.;	      // [cm] offset of the prism - outer side 
+  
+  // MCP parameters:
+  fMCPsize	= 5.78;	      // [cm] for geometry Mcp2 and Mcp1, = 5.78 for geometry Mcp2a
+  fMCPactiveArea= 5.3;	      // [cm] 
+  fMCPgap	= 0.1;        // [cm] gap between MCPs
+  fNpix		= 64;	      // [cm] total number of pixel for one MCP (8 x 8)
+  fPixelSize  	= 0.65;	      // [cm] 
   
   fPi            =  TMath::Pi();
   fLside	= (180. - 2.*fPipehAngle - fBarBoxGap/fRadius*(fBarBoxNum/2. - 1.)/fPi*180.)/(fBarBoxNum/2.) * fRadius/ 180.*fPi;
