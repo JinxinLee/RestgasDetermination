@@ -3,11 +3,24 @@
 
 // Root includes
 #include "TROOT.h"
- struct FindTrackInXYProjection2_InputData {
+ struct FindTrackInXYProjection2_InputOutputData {
+	Short_t number_straws; // this is the number of all straws in the Stt detector;
 	Short_t * nParContiguous;
-	Short_t number_straws;
-	Short_t (*ListParContiguous)[6];
+	Short_t (*ListParContiguous)[6]; // this is the list of contiguous TubeID ;
+	Short_t *StrawCode;
+	Short_t *StrawCode2;
+	Short_t *TubeID ;  // TubeID[i] =  Tube ID corresponding to i-th Stt hit;
+	Short_t *SttStrawOn;//  SttStrawOn[i] >= 0 --> it is the Stt hit number corresponding to Stt
+				// i-th Tube ID; tSttStrawOn[i] == -1 --> i-th Stt straw NOT hit;
 
+	Short_t iHit;	// seed hit; it is negative for SciTil Hits.
+	Short_t *ListHitsinTrack;
+	Short_t *nHitsinTrack;
+	Short_t maxstthitsintrack;
+	Short_t minimumhitspertrack;
+
+
+//---
 
 
 
@@ -25,24 +38,24 @@
 	Double_t* GAMMA;
 	Short_t* HitsinBoxConf;
 	int icounter; // counter useful for debugging;
-	Short_t iHit;	// seed hit; it is negative for SciTil Hits.
+//	Short_t iHit;	// seed hit; it is negative for SciTil Hits.
 	bool* InclusionListStt;
 	bool* InclusionListSciTil;
 	Double_t (*info)[7];
 	Double_t (*infoparalConformal)[5];
-	Short_t* ListHitsinTrack;
+//	Short_t* ListHitsinTrack;
 	Short_t* ListSciTilHitsinTrack;
 	Short_t* ListSttParHits;
 	Short_t maxhitsinfit;
 	Short_t maxscitilhitsintrack;
 	Short_t maxstthits;
-	Short_t maxstthitsintrack;
-	Short_t minimumhitspertrack;
+//	Short_t maxstthitsintrack;
+//	Short_t minimumhitspertrack;
 	Short_t minouterhitspertrack;
 	Short_t* nBoxConf;
 	Short_t nFicell; // Fi cell of the seed hit;
 	Short_t nfidivconformal;
-	Short_t *nHitsinTrack;
+//	Short_t *nHitsinTrack;
 	Short_t nRcell;  // R cell of the seed hit;
 	Short_t nrdivconformal;
 	Short_t nSciTilHits;
@@ -121,31 +134,12 @@ class PndTrkCTFindTrackInXY2 : public TObject
 
 
   bool FindTrackInXYProjection(
-	struct FindTrackInXYProjection2_InputData* inputdata
+	struct FindTrackInXYProjection2_InputOutputData* InOut
 	);
 
 
-  Short_t FindTrackPatterninBoxConformal(
-	Short_t *FiConformalIndex,
-	Short_t* HitsinBoxConformal,
-	Short_t ihit, // seed hit;
-	bool *InclusionListStt,
-	Double_t info[][7],
-	Short_t* ListHitsinTrack,
-	Short_t* ListSttParHits,
-	Short_t maxstthitsintracks,
-	Short_t MAXSTTHITS,
-	Short_t MINIMUMHITSPERTRACK,
-	Short_t* nBoxConformal,
-	Short_t nfidivconformal,
-	Short_t nFicell, // Fi cell of the seed hit;
-	Short_t NFiCELLDISTANCE,
-	Short_t Nparal,
-	Short_t nRcell, // R cell of the seed hit;
-	// can be negative beacuse of SciTil hits;
-	Short_t NRCELLDISTANCE,
-	Short_t *RConformalIndex,
-	Short_t nrdivconformal
+  Short_t FindTrackPattern(
+	struct FindTrackInXYProjection2_InputOutputData* InOut
 	);
 
   Short_t FindTrackPatterninBoxConformalSpecial(
