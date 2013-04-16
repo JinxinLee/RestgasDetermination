@@ -513,7 +513,7 @@ if(doMcComparison >=1 ){
 				NUMBER_STRAWS,
 				RSTRAWDETECTORMIN,
 				RSTRAWDETECTORMAX,
-				true,	// printout flag;
+				false,	// printout flag;
 				fSttTubeArray,
 				STRAWRADIUS,
 				VERTICALGAP,
