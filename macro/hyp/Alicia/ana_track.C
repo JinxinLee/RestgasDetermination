@@ -39,8 +39,6 @@ void ana_track(){
   Float_t xp =xpeaks[0];
   Int_t bin = h->GetXaxis()->FindBin(xp);
   Float_t yp = h->GetBinContent(bin);
-              
-  cout<<" fit parameters "<<" Mean "<<xp<<" "<<" sigma "<<yp<<endl;
    
 
   // Creates a Root function based on function fitf above
@@ -69,7 +67,7 @@ void ana_track(){
   Float_t Mean =func->GetParameter(1);
   Float_t sig =func->GetParameter(2);
 
-
+cout<<" fit parameters "<<" Mean "<<Mean<<" "<<" sigma "<<sig<<endl;
 
   // -----   Finish   -------------------------------------------------------
   timer.Stop();
