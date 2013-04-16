@@ -5,24 +5,30 @@ void ctauhistogramm(TH1F* histo, TString savefile)
 	  TF1 *fExpo = new TF1("fExpo","expo",0,100);
 	  fExpo->SetLineColor(kRed);
 	  fExpo->SetLineWidth(2);
-	  histo->Fit("fExpo","QR");
-	  printf("Slope %f", fExpo->GetParameter("Slope"));
+	  histo->Fit("fExpo","RQ");
+	  //printf("Slope %f", fExpo->GetParameter("Slope"));
 	  fExpo->GetParameter("Slope");
 
-	  TPaveText *pt = new TPaveText(7.553879,1.398014,40.38613,4.966407,"");
+
+
+	  std::cout << std::setw(15) << ::std::setprecision( 4 )<< 1/fExpo->GetParameter("Slope") ;
+	  std::cout << std::setw(15)<<  ::std::setprecision( 4 ) << fExpo->GetParError(fExpo->GetParNumber("Slope"));
+	  std::cout << std::setw(15)<<  ::std::setprecision( 4 ) << fExpo->GetChisquare();
+	  std::cout << std::setw(5)<<  fExpo->GetNDF() ;
+	  std::cout << std::setw(15)<<  "="<<fExpo->GetChisquare()/fExpo->GetNDF() ;
+	  std::cout << std::setw(15)<< ::std::setprecision( 4 ) << histo->GetNbinsX() << std::endl;
+
+	  TPaveText *pt = new TPaveText(44.5781,59.32019,104.1472,206.744,"");
 	  pt->UseCurrentStyle();
 	  pt->SetFillColor(kWhite);
 	  pt->SetBorderSize(1);
-	  // pt->AddText("c#tau = " );
 	  TString myString;
-	//  myString=+1/fExpo->GetParameter("Slope");
 
 	  std::stringstream virtualString;
 	  virtualString<< "c#tau = ";
 	  virtualString<< TMath::Abs(1/fExpo->GetParameter("Slope"));
 	  virtualString<< "#pm";
 
-	 // std::cout << " blubb " << fExpo->GetParError(fExpo->GetParNumber("Slope"))<< std::endl;
 	  virtualString<<TMath::Abs(1/fExpo->GetParameter("Slope"))*TMath::Abs(1/fExpo->GetParameter("Slope"))*fExpo->GetParError(fExpo->GetParNumber("Slope"));
 	  virtualString<< " cm";
 	  TString bTagisGreaterThanSTRING = virtualString.str();
@@ -32,10 +38,111 @@ void ctauhistogramm(TH1F* histo, TString savefile)
 	  pt->Draw();
 
 	  gPad->SetLogy();
-	  gPad->Print(savefile,"pdf");  // nicht fuer powerpoint geeignet
+	  //gPad->Print(savefile,"pdf");  // nicht fuer powerpoint geeignet
+	//  gPad->Print(savefile,"eps");
 	//  gPad->Print("result_pictures/fMeanLife.gif","gif");  // ganz gut, aber keine Vektorgrafik
 	//  gPad->Print("result_pictures/fMeanLife.png","png");  // ganz gut, aber keine Vektorgrafik
 	//  gPad->Print("result_pictures/fMeanLife.jpg","jpg");  // schlechte qualitaet
+}
+
+void DrawMVD()
+{
+	Int_t linewidth=3;
+
+	TLine *Disk1 = new TLine(2,0,2,3.656);
+	Disk1->SetLineWidth(linewidth);
+	Disk1->Draw();
+
+	TLine *Disk2 = new TLine(4,0,4,3.656);
+	Disk2->SetLineWidth(linewidth);
+	Disk2->Draw();
+
+	TLine *Disk3 = new TLine(7,0,7,7.393);
+	Disk3->SetLineWidth(linewidth);
+	Disk3->Draw();
+
+	TLine *Disk4 = new TLine(10,0,10,7.393);
+	Disk4->SetLineWidth(linewidth);
+	Disk4->Draw();
+
+	TLine *Disk5 = new TLine(16,0,16,13.115);
+	Disk5->SetLineWidth(linewidth);
+	Disk5->Draw();
+
+	TLine *Disk6 = new TLine(23,0,23,13.115);
+	Disk6->SetLineWidth(linewidth);
+	Disk6->Draw();
+
+	TLine *Barrel1 = new TLine(0,2.5,0.98,2.5);
+	Barrel1->SetLineWidth(linewidth);
+	Barrel1->Draw();
+
+	TLine *Barrel2 = new TLine(0,5,5.78,5);
+	Barrel2->SetLineWidth(linewidth);
+	Barrel2->Draw();
+
+	TLine *Barrel3 = new TLine(0,9.5,13.9,9.5);
+	Barrel3->SetLineWidth(linewidth);
+	Barrel3->Draw();
+
+	TLine *Barrel4 = new TLine(0,13.5,13.9,13.5);
+	Barrel4->SetLineWidth(linewidth);
+	Barrel4->Draw();
+}
+
+void DrawLambdaDiskPosition0()
+{
+	Int_t linewidth=3;
+
+	TLine *LambdaDisk1 = new TLine(40,0,40,13.115);
+	LambdaDisk1->SetLineWidth(linewidth);
+	LambdaDisk1->Draw();
+
+	TLine *LambdaDisk2 = new TLine(60,0,60,13.115);
+	LambdaDisk2->SetLineWidth(linewidth);
+	LambdaDisk2->Draw();
+
+}
+
+void DrawLambdaDiskPosition1()
+{
+	Int_t linewidth=3;
+
+	TLine *LambdaDisk1 = new TLine(37,0,37,13.115);
+	LambdaDisk1->SetLineWidth(linewidth);
+	LambdaDisk1->Draw();
+
+	TLine *LambdaDisk2 = new TLine(43,0,43,13.115);
+	LambdaDisk2->SetLineWidth(linewidth);
+	LambdaDisk2->Draw();
+
+}
+
+void DrawLambdaDiskPosition2()
+{
+	Int_t linewidth=3;
+
+	TLine *LambdaDisk1 = new TLine(57,0,57,13.115);
+	LambdaDisk1->SetLineWidth(linewidth);
+	LambdaDisk1->Draw();
+
+	TLine *LambdaDisk2 = new TLine(63,0,63,13.115);
+	LambdaDisk2->SetLineWidth(linewidth);
+	LambdaDisk2->Draw();
+
+}
+
+void DrawLambdaDiskPosition3()
+{
+	Int_t linewidth=3;
+
+	TLine *LambdaDisk1 = new TLine(77,0,77,13.115);
+	LambdaDisk1->SetLineWidth(linewidth);
+	LambdaDisk1->Draw();
+
+	TLine *LambdaDisk2 = new TLine(83,0,83,13.115);
+	LambdaDisk2->SetLineWidth(linewidth);
+	LambdaDisk2->Draw();
 
 }
 
@@ -62,18 +169,13 @@ void run_beautiful_ana_result_histograms(TString FileName="test"){
   PndFileNameCreator creator(FileName.Data());
 
   std::cout << "creator.GetCustomFileName('ana')" << creator.GetCustomFileName("ana") << std::endl;
-   std::string inFile = creator.GetCustomFileName("ana");
+  std::string inFile = creator.GetCustomFileName("ana");
 
   TFile* f = new TFile(inFile.c_str());
 
   //===========
 
   TCanvas* canvas = new TCanvas("canvas", "Results");
-  // canvas->Divide(4,2);
-
-
-  //  TCanvas* canvas2 = new TCanvas("canvas2", "Results", 1200,600);
-  // canvas2->Divide(4,2);
 
   //===========
 
@@ -132,67 +234,7 @@ void run_beautiful_ana_result_histograms(TString FileName="test"){
 //  gPad->BuildLegend();
 //  gPad->Print("result_pictures/fSHProton.pdf","pdf");
 
-  //===========
-
-
-
-  //===========
-
-  // canvas->cd(2);
-
-  TH1F* fDecayLength= (TH1F*)f->Get("fMeanLifeLambdaCMS");
-  ctauhistogramm(fDecayLength, "result_pictures/LambdaCMS.pdf");
-
-  fDecayLength= (TH1F*)f->Get("fMeanLifeLambdaCMS");
-  ctauhistogramm(fDecayLength, "result_pictures/LambdaBarCMS.pdf");
-
-  fDecayLength= (TH1F*)f->Get("fMeanLifeLambdaLAB");
-  ctauhistogramm(fDecayLength, "result_pictures/LambdaLAB.pdf");
-
-  fDecayLength= (TH1F*)f->Get("fMeanLifeLambdaBarLAB");
-  ctauhistogramm(fDecayLength, "result_pictures/LambdaBarLAB.pdf");
-
-//  fDecayLength->SetLineColor(kBlack);
-//  fMeanLifeLambdaCMS->Draw("");
-//  TF1 *fExpo = new TF1("fExpo","expo",0,100);
-//  fExpo->SetLineColor(kRed);
-//  fExpo->SetLineWidth(2);
-//  fMeanLifeLambdaCMS->Fit("fExpo","QR");
-//  printf("Slope %f", fExpo->GetParameter("Slope"));
-//  fExpo->GetParameter("Slope");
-//
-//  TPaveText *pt = new TPaveText(7.553879,1.398014,40.38613,4.966407,"");
-//  pt->UseCurrentStyle();
-//  pt->SetFillColor(kWhite);
-//  pt->SetBorderSize(1);
-//  // pt->AddText("c#tau = " );
-//  TString myString;
-////  myString=+1/fExpo->GetParameter("Slope");
-//
-//  std::stringstream virtualString;
-//  virtualString<< "c#tau = ";
-//  virtualString<< TMath::Abs(1/fExpo->GetParameter("Slope"));
-//  virtualString<< " cm";
-//  TString bTagisGreaterThanSTRING = virtualString.str();
-//
-//  pt->AddText(bTagisGreaterThanSTRING.Data() );
-//
-//  pt->Draw();
-////pt->AddText(fExpo->GetParameter("Slope"));
-//
-//  gPad->SetLogy();
-//  gPad->Print("result_pictures/fMeanLife.pdf","pdf");  // nicht fuer powerpoint geeignet
-//  gPad->Print("result_pictures/fMeanLife.gif","gif");  // ganz gut, aber keine Vektorgrafik
-//  gPad->Print("result_pictures/fMeanLife.png","png");  // ganz gut, aber keine Vektorgrafik
-//  gPad->Print("result_pictures/fMeanLife.jpg","jpg");  // schlechte qualitaet
-//
-//  gPad->SetLogy(0);
-
-
-
-
-  //===========
-
+  TH2F* fPositionDecayVertexLambdaLambdaBar2D = (TH2F*)f->Get("fPositionDecayVertexLambdaLambdaBar2D");
 
 //  TH1I* fMVDPointsPerTrackProton = (TH1I*)f->Get("fMVDPointsPerTrackProton");
 //  TH1I* fMVDPointsPerTrackProtonWithLambda = (TH1I*)f->Get("fMVDPointsPerTrackProtonWithLambda");
@@ -206,8 +248,8 @@ void run_beautiful_ana_result_histograms(TString FileName="test"){
 //  TH1I* fMVDPointsPerTrackPionminus = (TH1I*)f->Get("fMVDPointsPerTrackPionminus");
 //  TH1I* fMVDPointsPerTrackPionminusWithLambda = (TH1I*)f->Get("fMVDPointsPerTrackPionminusWithLambda");
 //
-//  TH1I* fMVDPointsPerTrackTotal = (TH1I*)f->Get("fMVDPointsPerTrackTotal");
-//  TH1I* fMVDPointsPerTrackTotalWithLambda = (TH1I*)f->Get("fMVDPointsPerTrackTotalWithLambda");
+  TH1I* fMVDPointsPerTrackTotal = (TH1I*)f->Get("fMVDPointsPerTrackTotal");
+  TH1I* fMVDPointsPerTrackTotalWithLambda = (TH1I*)f->Get("fMVDPointsPerTrackTotalWithLambda");
 //
 //  TH1I* fTotalPointsPerTrackAllWithLambda = (TH1I*)f->Get("fTotalPointsPerTrackAllWithLambda");
 //  TH1I* fTotalPointsPerTrackAll = (TH1I*)f->Get("fTotalPointsPerTrackAll");
@@ -252,11 +294,127 @@ void run_beautiful_ana_result_histograms(TString FileName="test"){
 //  gPad->Print("result_pictures/fMVDPointsPerTrackPionminusWithLambda.pdf","pdf");
 //  gPad->Print("result_pictures/fMVDPointsPerTrackPionminusWithLambda.png","png");
 //
-//  fMVDPointsPerTrackTotal->SetMaximum(12000);
-//  fMVDPointsPerTrackTotal->Draw();
-//  gPad->Print("result_pictures/fMVDPointsPerTrackTotal.pdf","pdf");
-//  gPad->Print("result_pictures/fMVDPointsPerTrackTotal.png","png");
-//
+ // fMVDPointsPerTrackTotal->SetMaximum(12000);
+
+
+  TH1F* fDecayLength= (TH1F*)f->Get("fMeanLifeLambdaCMS");
+    TH1F* blubb = fDecayLength->Rebin(2,"blubb");
+    TH1F* blubb1 = fDecayLength->Rebin(2,"blubb1");
+      TH1F* blubb2 = blubb1->Rebin(2,"blubb2");
+      TH1F* blubb3 = blubb2->Rebin(2,"blubb3");
+      TH1F* blubb4 = blubb3->Rebin(2,"blubb4");
+       TH1F* blubb5 = blubb4->Rebin(2,"blubb5");
+        TH1F* blubb6 = blubb5->Rebin(2,"blubb6");
+        TH1F* blubb7 = blubb6->Rebin(2,"blubb7");
+        TH1F* blubb8 = blubb7->Rebin(2,"blubb8");
+
+        std::cout << std::setw(15);
+  	  std::cout << "Slope ";
+  	std::cout << std::setw(15);
+  	  std::cout << "Error ";
+  	std::cout << std::setw(15);
+  	  std::cout<<  "Chi quadrat/NDG ";
+  	std::cout << std::setw(15);
+  	  std::cout<<  "Chi quadrat/NDG ";
+  	std::cout << std::setw(15);
+  	  std::cout << "NBins " << std::endl;
+
+  ctauhistogramm(fDecayLength, "result_pictures/LambdaCMS.eps");
+
+  ctauhistogramm(blubb, "result_pictures/LambdaCMSblubb.eps");
+
+  ctauhistogramm(blubb1, "result_pictures/LambdaCMSblubb1.eps");
+
+  ctauhistogramm(blubb2, "result_pictures/LambdaCMSblubb2.eps");
+
+  ctauhistogramm(blubb3, "result_pictures/LambdaCMSblubb3.eps");
+
+  ctauhistogramm(blubb4, "result_pictures/LambdaCMSblubb4.eps");
+
+   ctauhistogramm(blubb5, "result_pictures/LambdaCMSblubb5.eps");
+
+    ctauhistogramm(blubb6, "result_pictures/LambdaCMSblubb6.eps");
+
+    ctauhistogramm(blubb7, "result_pictures/LambdaCMSblubb7.eps");
+
+    ctauhistogramm(blubb8, "result_pictures/LambdaCMSblubb8.eps");
+
+ // fDecayLength= (TH1F*)f->Get("fMeanLifeLambdaBarCMS");
+  //ctauhistogramm(fDecayLength, "result_pictures/LambdaBarCMS.eps");
+
+  //fDecayLength= (TH1F*)f->Get("fMeanLifeLambdaLAB");
+  //ctauhistogramm(fDecayLength, "result_pictures/LambdaLAB.eps");
+
+  //fDecayLength= (TH1F*)f->Get("fMeanLifeLambdaBarLAB");
+  //ctauhistogramm(fDecayLength, "result_pictures/LambdaBarLAB.eps");
+
+  gPad->SetLogy(0);
+  gPad->SetGrid();
+  gStyle->SetOptStat(110);
+  fMVDPointsPerTrackTotal->Draw();
+
+  gPad->Print("result_pictures/fMVDPointsPerTrackTotal.pdf","pdf");
+  gPad->Print("result_pictures/fMVDPointsPerTrackTotal.eps","eps");
+
+  gPad->SetLogy(0);
+  gPad->SetGrid();
+  gStyle->SetOptStat(110);
+  fMVDPointsPerTrackTotalWithLambda->Draw();
+  gPad->Print("result_pictures/fMVDPointsPerTrackTotalWithLambda.pdf","pdf");
+  gPad->Print("result_pictures/fMVDPointsPerTrackTotalWidthLambda.eps","eps");
+
+  gStyle->SetOptStat(10);
+  fMVDPointsPerTrackTotal->GetXaxis()->SetRange(0,12);
+  fMVDPointsPerTrackTotal->SetLineColor(2);
+  fMVDPointsPerTrackTotal->SetLineWidth(2);
+  fMVDPointsPerTrackTotal->Draw();
+
+  fMVDPointsPerTrackTotalWithLambda->Draw("SAME");
+  fMVDPointsPerTrackTotalWithLambda->SetLineWidth(2);
+
+  gPad->SetGrid();
+
+  TLegend* legend = gPad->BuildLegend(0.5204598,0.5529661,0.9897701,0.7627119);
+  legend->SetFillColor(0);
+
+  fMVDPointsPerTrackTotal->SetTitle("#Hits/Track with and without #Lambda-Disks");
+
+  gPad->Print("result_pictures/fMVDPointsPerTrackTotalcomparison.pdf","pdf");
+  gPad->Print("result_pictures/fMVDPointsPerTrackTotalcomparison.eps","eps");
+
+  TCanvas* canvas3 = new TCanvas("canvas3", "Results", 900,400);
+
+  gPad->SetLogy(0);
+  fPositionDecayVertexLambdaLambdaBar2D->Draw("colz");
+  DrawMVD();
+  DrawLambdaDiskPosition0();
+
+  gPad->Print("result_pictures/PositionDecayVertexLambdaLambdabarPosition0.eps","eps");
+
+  gPad->Clear();
+  fPositionDecayVertexLambdaLambdaBar2D->Draw("colz");
+  DrawMVD();
+  DrawLambdaDiskPosition1();
+  gPad->Print("result_pictures/PositionDecayVertexLambdaLambdabarPosition1.eps","eps");
+
+  gPad->Clear();
+  fPositionDecayVertexLambdaLambdaBar2D->Draw("colz");
+  DrawMVD();
+  DrawLambdaDiskPosition2();
+  gPad->Print("result_pictures/PositionDecayVertexLambdaLambdabarPosition2.eps","eps");
+
+  gPad->Clear();
+  fPositionDecayVertexLambdaLambdaBar2D->Draw("colz");
+  DrawMVD();
+  DrawLambdaDiskPosition3();
+  gPad->Print("result_pictures/PositionDecayVertexLambdaLambdabarPosition3.eps","eps");
+
+
+
+
+
+
+
 //  fMVDPointsPerTrackTotalWithLambda->SetMaximum(12000);
 //  fMVDPointsPerTrackTotalWithLambda->Draw();
 //  gPad->Print("result_pictures/fMVDPointsPerTrackTotalWithLambda.pdf","pdf");
@@ -397,18 +555,8 @@ void run_beautiful_ana_result_histograms(TString FileName="test"){
 
   //===========
 
-  TCanvas* canvas3 = new TCanvas("canvas3", "Results", 1200,600);
-  canvas3->Divide(2,1);
-
-  canvas3->cd(1);
-  fMeanLifeLambdaCMS->Draw("");
-//
-//  canvas3->cd(2);
-//  fTracksPerEvent->Draw("");
-
-
-  TCanvas* canvas2 = new TCanvas("canvas2", "Results", 1200,600);
-  canvas2->Divide(4,2);
+ // TCanvas* canvas2 = new TCanvas("canvas2", "Results", 1200,600);
+ // canvas2->Divide(4,2);
 
 //  canvas2->cd(1);
 //  fMVDPointsPerTrackProton->Draw();
