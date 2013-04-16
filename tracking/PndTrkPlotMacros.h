@@ -95,6 +95,7 @@ struct PndTrkPlotMacros_InputData{
 	Short_t *nSttSkewHitsinTrack;
 	Short_t  nTotalCandidates;
 	Short_t *nTrackCandHit;
+	Short_t number_straws;
 	Double_t *Ox;
 	Double_t *Oy;
 	Short_t *ParalCommonList;
@@ -118,6 +119,9 @@ struct PndTrkPlotMacros_InputData{
 	Double_t *sigmaYMvdPixel;
 	Double_t *sigmaYMvdStrip;
 	Short_t *SkewCommonList;
+	TClonesArray *SttTubeArray;
+	Short_t *StrawCode;
+	Short_t *StrawCode2;
 	Double_t verticalgap;
 	Double_t *XMvdPixel;
 	Double_t *XMvdStrip;
@@ -388,7 +392,15 @@ void DrawHexagonCircleInMacro(
 	);
 // fine cambio_in_perl  ;
 
+ void WriteMacroSttParallel(
+	PndTrkPlotMacros_InputData In_Put
+	);
 
+
+
+ void WriteMacroSttParallelExternal(
+	PndTrkPlotMacros_InputData In_Put
+	);
 
   ClassDef(PndTrkPlotMacros,1);
 
