@@ -2,8 +2,11 @@
 #include "PndTrkCTGeometryCalculations.h"
 #include "FairMCPoint.h"
 
+#include "PndSttTube.h"
 #include "PndMCTrack.h"
 #include "PndTrkVectors.h"
+
+#include "TClonesArray.h"
 
 #include <iostream>
 #include <cmath>
@@ -28,11 +31,11 @@ void PndTrkPlotMacros::disegnaAssiXY(
 {
 // fine cambio_in_perl ;
 
-       fprintf(MACRO,"TGaxis *Assex = new  TGaxis(%f,%f,%f,%f,%f,%f,510);\n",xmin,0.,xmax,0.,xmin,xmax);
+       fprintf(MACRO,"TGaxis *Assex = new  TGaxis(%f,%f,%f,%f,%f,%f,505);\n",xmin,0.,xmax,0.,xmin,xmax);
        fprintf(MACRO,"Assex->SetTitle(\"X\");\n");
        fprintf(MACRO,"Assex->SetTitleOffset(1.5);\n");
        fprintf(MACRO,"Assex->Draw();\n");
-       fprintf(MACRO,"TGaxis *Assey = new  TGaxis(%f,%f,%f,%f,%f,%f,510);\n", 0.,ymin,0.,ymax,ymin,ymax);
+       fprintf(MACRO,"TGaxis *Assey = new  TGaxis(%f,%f,%f,%f,%f,%f,505);\n", 0.,ymin,0.,ymax,ymin,ymax);
        fprintf(MACRO,"Assey->SetTitle(\"Y\");\n");
        fprintf(MACRO,"Assey->SetTitleOffset(1.5);\n");
        fprintf(MACRO,"Assey->Draw();\n");
@@ -518,6 +521,14 @@ void PndTrkPlotMacros::DrawHexagonCircleInMacro(
 
 
 //  marker2 per cambioperl;
+
+
+// plotta 1 volta sola la macro di tutti i Stt axial Tubes esterni;
+ if(IVOLTE==0) {
+	WriteMacroSttParallelExternal(In_Put);
+	WriteMacroSttParallel(In_Put);
+};
+
 
 // calcolo di S degli eventuali hits SciTil presenti nelle tracce trovate.
 
@@ -3512,7 +3523,7 @@ void PndTrkPlotMacros::WriteMacroSttParallelAssociatedHitsandMvdwithMC(
 				myname
 				);
 //--------------
-//	disegna il BiHexagon destro e sinistro delle skew straws.
+//	disegna il BiHexagon destro e sinistro delle outer parallel.
 	sprintf(myname, "OuterPar");
 	DrawHexagonCircleInMacro(
 				VERTICALGAP,
@@ -3754,6 +3765,188 @@ if( MvdPixelCommonList.at(iTrack*In_Put.MAXMVDPIXELHITSINTRACK+k)== ii){
 //--end of function PndTrkPlotMacros::WriteMacroSttParallelAssociatedHitsandMvdwithMC
 
 
+
+//--begin of function PndTrkPlotMacros::WriteMacroSttParallel
+
+ void PndTrkPlotMacros::WriteMacroSttParallel(
+	PndTrkPlotMacros_InputData In_Put
+	){
+//---------- parallel straws Macro now
+      char nome[300], nome2[300];
+      sprintf(nome,"MacroSttParallel");
+      sprintf(nome2,"%s.C",nome);
+      FILE * MACRO = fopen(nome2,"w");
+      fprintf(MACRO,"{\n");
+
+ Double_t RSTRAWDETECTORMAX = In_Put.rstrawdetectormax,
+	RSTRAWDETECTORMIN = In_Put.rstrawdetectormin,
+	VERTICALGAP = In_Put.verticalgap,
+	APOTEMAMAXINNERPARSTRAW = In_Put.apotemamaxinnerparstraw,
+	APOTEMAMINSKEWSTRAW = In_Put.apotemaminskewstraw,
+	APOTEMAMAXSKEWSTRAW = In_Put.apotemamaxskewstraw,
+	APOTEMAMINOUTERPARSTRAW = In_Put.apotemaminouterparstraw;
+
+
+
+      double xmin=-1.3*RSTRAWDETECTORMAX;
+      double xmax=1.3*RSTRAWDETECTORMAX;
+      double ymin=-1.3*RSTRAWDETECTORMAX;
+      double ymax=1.3*RSTRAWDETECTORMAX;
+
+
+       fprintf(MACRO,"TCanvas* my= new TCanvas();\nmy->Range(%f,%f,%f,%f);\n",
+		xmin,ymin,xmax,ymax);
+//	disegna il BiHexagon destro e sinistro delle inner parallel straws.
+
+	char myname[100];
+
+	sprintf(myname, "InnerPar");
+	DrawBiHexagonInMacro(
+				VERTICALGAP,
+				MACRO,
+				RSTRAWDETECTORMIN,
+				APOTEMAMAXINNERPARSTRAW,
+				4,  // color code, 4= blue.
+				myname
+				);
+//--------------
+//	disegna il BiHexagon destro e sinistro delle skew straws.
+	sprintf(myname, "Skew");
+	DrawBiHexagonInMacro(
+				VERTICALGAP,
+				MACRO,
+				APOTEMAMINSKEWSTRAW,
+				APOTEMAMAXSKEWSTRAW,
+				2,  // color code.
+				myname
+				);
+//--------------
+//	disegna il BiHexagon destro e sinistro delle outer parallel.
+	sprintf(myname, "OuterPar");
+	DrawHexagonCircleInMacro(
+				VERTICALGAP,
+				MACRO,
+				APOTEMAMINOUTERPARSTRAW,
+				RSTRAWDETECTORMAX,
+				4,  // color code.
+				myname
+				);
+//--------------
+
+	disegnaAssiXY(MACRO,xmin,xmax,ymin,ymax);
+
+//------------- disegna tutti gli hit paralleli della corteccia esterna;
+       for( int i=0; i< In_Put.number_straws ; i++) {
+		PndSttTube* pSttTube = (PndSttTube*) In_Put.SttTubeArray->At(i+1);
+		TVector3 center = pSttTube->GetPosition();
+		TVector3 wiredirection = pSttTube->GetWireDirection();
+		// solo STT parallel;
+		if(!(fabs( wiredirection.X() )< 0.00001 && fabs( wiredirection.Y() )< 0.00001))continue;
+
+            fprintf(MACRO,
+  "TEllipse* ParalTube%d = new TEllipse(%f,%f,%f,%f,0.,360.);\nParalTube%d->SetFillStyle(0);\nParalTube%d->Draw();\n",
+                     i+1,center.X(),center.Y(),0.5,0.5,i+1,i+1);
+       }
+//------------- hits paralleli spuri
+
+      fprintf(MACRO,"}\n");
+
+
+
+
+}
+//--end of function PndTrkPlotMacros::WriteMacroSttParallel
+
+
+//--begin of function PndTrkPlotMacros::WriteMacroSttParallelExternal
+
+ void PndTrkPlotMacros::WriteMacroSttParallelExternal(
+	PndTrkPlotMacros_InputData In_Put
+	){
+//---------- parallel straws Macro now
+      char nome[300], nome2[300];
+      sprintf(nome,"MacroSttParallelExternal");
+      sprintf(nome2,"%s.C",nome);
+      FILE * MACRO = fopen(nome2,"w");
+      fprintf(MACRO,"{\n");
+
+ Double_t RSTRAWDETECTORMAX = In_Put.rstrawdetectormax,
+	RSTRAWDETECTORMIN = In_Put.rstrawdetectormin,
+	VERTICALGAP = In_Put.verticalgap,
+	APOTEMAMAXINNERPARSTRAW = In_Put.apotemamaxinnerparstraw,
+	APOTEMAMINSKEWSTRAW = In_Put.apotemaminskewstraw,
+	APOTEMAMAXSKEWSTRAW = In_Put.apotemamaxskewstraw,
+	APOTEMAMINOUTERPARSTRAW = In_Put.apotemaminouterparstraw;
+
+
+
+      double xmin=-1.3*RSTRAWDETECTORMAX;
+      double xmax=1.3*RSTRAWDETECTORMAX;
+      double ymin=-1.3*RSTRAWDETECTORMAX;
+      double ymax=1.3*RSTRAWDETECTORMAX;
+
+
+       fprintf(MACRO,"TCanvas* my= new TCanvas();\nmy->Range(%f,%f,%f,%f);\n",
+		xmin,ymin,xmax,ymax);
+//	disegna il BiHexagon destro e sinistro delle inner parallel straws.
+
+	char myname[100];
+
+	sprintf(myname, "InnerPar");
+	DrawBiHexagonInMacro(
+				VERTICALGAP,
+				MACRO,
+				RSTRAWDETECTORMIN,
+				APOTEMAMAXINNERPARSTRAW,
+				4,  // color code, 4= blue.
+				myname
+				);
+//--------------
+//	disegna il BiHexagon destro e sinistro delle skew straws.
+	sprintf(myname, "Skew");
+	DrawBiHexagonInMacro(
+				VERTICALGAP,
+				MACRO,
+				APOTEMAMINSKEWSTRAW,
+				APOTEMAMAXSKEWSTRAW,
+				2,  // color code.
+				myname
+				);
+//--------------
+//	disegna il BiHexagon destro e sinistro delle outer parallel.
+	sprintf(myname, "OuterPar");
+	DrawHexagonCircleInMacro(
+				VERTICALGAP,
+				MACRO,
+				APOTEMAMINOUTERPARSTRAW,
+				RSTRAWDETECTORMAX,
+				4,  // color code.
+				myname
+				);
+//--------------
+
+	disegnaAssiXY(MACRO,xmin,xmax,ymin,ymax);
+
+//------------- disegna tutti gli hit paralleli della corteccia esterna;
+       for( int i=0; i< In_Put.number_straws ; i++) {
+	if( In_Put.StrawCode[i] == 13 ||  In_Put.StrawCode[i] == 23 || In_Put.StrawCode2[i] == 13 ||  In_Put.StrawCode2[i] == 23 ) {
+		PndSttTube* pSttTube = (PndSttTube*) In_Put.SttTubeArray->At(i+1);
+		TVector3 center = pSttTube->GetPosition();
+
+            fprintf(MACRO,
+  "TEllipse* ParalTube%d = new TEllipse(%f,%f,%f,%f,0.,360.);\nParalTube%d->SetFillStyle(0);\nParalTube%d->Draw();\n",
+                     i+1,center.X(),center.Y(),0.5,0.5,i+1,i+1);
+	}
+       }
+//------------- hits paralleli spuri
+
+      fprintf(MACRO,"}\n");
+
+
+
+
+}
+//--end of function PndTrkPlotMacros::WriteMacroSttParallelExternal
 
 
 
