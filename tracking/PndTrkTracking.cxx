@@ -8,6 +8,7 @@
 #include "PndTrkLegendreFits.h"
 #include "PndTrkCleanup.h"
 #include "PndTrkCTFindTrackInXY.h"
+#include "PndTrkCTFindTrackInXY2.h"
 #include "PndTrkCTGeometryCalculations.h"
 #include "PndTrkMergeSort.h"
 #include "PndTrkPlotMacros.h"
@@ -190,8 +191,8 @@ void PndTrkTracking::Initialization_ClassVariables()
 
 
 // booleans :
-	len = sizeof(SingleHitListStt);
-	memset (SingleHitListStt,true,len);
+	len = sizeof(fSingleHitListStt);
+	memset (fSingleHitListStt,true,len);
 
 	len = sizeof(fInclusionListSciTil);
 	memset (fInclusionListSciTil,true,len);
@@ -207,6 +208,7 @@ void PndTrkTracking::Initialization_ClassVariables()
 
 	len = sizeof(fTypeConf);
 	memset (fTypeConf,false,len);
+
 
 // char :
 
@@ -308,6 +310,9 @@ void PndTrkTracking::Initialization_ClassVariables()
 	len = sizeof(fListParContiguous);
 	memset (fListParContiguous,0,len);
 
+	memset (fStrawCode,0,sizeof(fStrawCode));
+
+	memset (fStrawCode,0,sizeof(fStrawCode2));
 //  int :
 	fNevents_to_plot = 10;
 
@@ -430,10 +435,10 @@ void PndTrkTracking::Initialization_ClassVariables()
 
 }
 
-//--------------- end  PndTrkTracking::Initialization_ClassVariables
+//--------------- end of  PndTrkTracking::Initialization_ClassVariables
 
 
-// -----   Public method Init   --------------------------------------------
+//----------------------------------------- begin PndTrkTracking::Init
 
 InitStatus PndTrkTracking::Init() {
 
@@ -487,16 +492,50 @@ if(doMcComparison >=1 ){
  fSttTubeArray = mapper->FillTubeArray();
  //----------------------------------------------------  end map
 
-// load the array indicating if a straw is exetrnal of not;
-// true -->  it is external; false --> it is internal;
-// remember that the numbering of the STT Straws starts at 1;
+
+// load the array indicating if a straw is external of not;
+// remember that the numbering of the STT Straws starts at 1 and goes up to 4542 included;
+
+// StrawCode convention (in the following left or right is looking to the beam from downstream) :
+//   -1 = not a boundary straw;
+//   10= inner axial boundary left;
+//   20= inner axial boundary right;
+//   12= outer left axial Stt : Vertical (BUT NOT OUTERMOST) + inside boundary ;
+//   22= outer right axial Stt : Vertical (BUT NOT OUTERMOST) + inside boundary ;
+//   13= outermost axial boundary left;
+//   23= outermost axial boundary right;
+
 	PndTrkBoundaryParStraws BoundaryParStraws ;
-	fExternal_Straws[0] = false;  // just to be super-safe;
-	for(int i=1;i<= NUMBER_STRAWS;i++){
-		fExternal_Straws[i] = BoundaryParStraws.Set(i);
-	}
+	BoundaryParStraws.Set(
+		// inputs :
+				APOTEMAMAXINNERPARSTRAW,
+				APOTEMAMINOUTERPARSTRAW,
+				NUMBER_STRAWS,
+				RSTRAWDETECTORMIN,
+				RSTRAWDETECTORMAX,
+				true,	// printout flag;
+				fSttTubeArray,
+				STRAWRADIUS,
+				VERTICALGAP,
+		// outputs :
+				fStrawCode,
+				fStrawCode2
+				);
+
+
+
  //----------------------------------------------------
 
+ // load the adjacencies table for the Stt tubes;
+ PndTrkSttAdjacencies  Adjacent;
+ Adjacent.CalculateAdjacentStt(
+	NUMBER_STRAWS,
+	fSttTubeArray,
+	fnParContiguous,  // output; number of contiguous straws (axial Stt);
+	fListParContiguous  // output list (axial Stt);
+	);
+
+//-----------------------------------------
 
 //    get   the MCTrack  array
 
@@ -610,21 +649,12 @@ if(doMcComparison >=1 ){
 	}
  }
 
- // load the adjacencies table for the Stt tubes;
- PndTrkSttAdjacencies  Adjacent;
- Adjacent.CalculateAdjacentStt(
-	NUMBER_STRAWS,
-	fSttTubeArray,
-	fnParContiguous,  // output; number of contiguous straws (axial Stt);
-	fListParContiguous  // output list (axial Stt);
-	);
-
 
  return kSUCCESS;
 
 }
 
-// -------------------------------------------------------------------------
+//----------------------------------------- end of PndTrkTracking::Init
 
 
 
@@ -672,6 +702,7 @@ void PndTrkTracking::Exec(Option_t* opt) {
 	tstatus[MAXTRACKSPEREVENT],
 	tSttSZfit[MAXTRACKSPEREVENT];
 
+
 	Vec <bool>
 	GoodSkewFit(tGoodSkewFit,MAXTRACKSPEREVENT,"GoodSkewFit"),
 	keepit(tkeepit ,MAXTRACKSPEREVENT,"keepit"),
@@ -709,7 +740,10 @@ void PndTrkTracking::Exec(Option_t* opt) {
 	tCharge[MAXTRACKSPEREVENT],
 	tdaTrackFoundaTrackMC[MAXTRACKSPEREVENT],
 	tresultFitSZagain[MAXTRACKSPEREVENT],
-	tstatusflag[MAXTRACKSPEREVENT];
+	tstatusflag[MAXTRACKSPEREVENT],
+	tSttStrawOn[NUMBER_STRAWS];
+
+
 
  Vec <Short_t>
 	nHitsInMCTrack(tnHitsInMCTrack, MAXTRACKSPEREVENT,"nHitsInMCTrack"),
@@ -736,7 +770,11 @@ void PndTrkTracking::Exec(Option_t* opt) {
 	Charge(tCharge,MAXTRACKSPEREVENT,"Charge"),
 	daTrackFoundaTrackMC(tdaTrackFoundaTrackMC,MAXTRACKSPEREVENT,"daTrackFoundaTrackMC"),
 	resultFitSZagain(tresultFitSZagain,MAXTRACKSPEREVENT,"resultFitSZagain"),
-	statusflag(tstatusflag,MAXTRACKSPEREVENT,"statusflag");
+	statusflag(tstatusflag,MAXTRACKSPEREVENT,"statusflag"),
+	SttStrawOn(tSttStrawOn,NUMBER_STRAWS,"SttStrawOn");  //  SttStrawOn[i] >= 0 --> it is the Stt hit number corresponding to Stt
+							// i-th Tube ID; SttStrawOn[i] == -1 --> i-th Stt straw NOT hit;
+
+ memset(tSttStrawOn,-1,sizeof(tSttStrawOn));
 
 //-----------------------------------
 
@@ -1076,9 +1114,11 @@ void PndTrkTracking::Exec(Option_t* opt) {
 	pSttHit = (PndSttHit *) fSttHitArray->At(i);
 	// right way to extract the corrisponding MC point.
 	ipunto= pSttHit->GetRefIndex();
-//	tubeID = pSttHit->GetTubeID();
 	// fTubeID[i] = STT tubeID correspondint to the hit number i ;
+	//	the  STT tubeID  goes from 1 to 4542 inclusive;
 	fTubeID[i] = pSttHit->GetTubeID();
+	//  SttStrawOn is a Short_t used in the XY track pattern finding later; it was initialized at -1;
+	SttStrawOn[ fTubeID[i] - 1 ] = i;
 	pSttTube = (PndSttTube *) fSttTubeArray->At(fTubeID[i]);
 	// drift radius
 	Double_t dradius = pSttHit->GetIsochrone();
@@ -1135,7 +1175,7 @@ void PndTrkTracking::Exec(Option_t* opt) {
 //	fill the inclusion list for Stt, include only first hit for those straws with
 //	multiple hits.
 
- MakeInclusionListStt(nSttHit, info);
+ MakeInclusionListStt(nSttHit, fTubeID, info);
 
 //-----------------------------------  end of exclusion of straws with multiple hits
 
@@ -1311,53 +1351,69 @@ if(istampa>0){
 
  nSttTrackCand=0;    // # tracks found
 
-//-----
+//-------------------------------------------------------------------
  // class that finds the track (Stt hits only) in XY projection
- PndTrkCTFindTrackInXY SttTrackXYFinder;
+ PndTrkCTFindTrackInXY2 SttTrackXYFinder;
 
  //  struct  necessary to pass all the parametrs to the PndTrkCTFindTrackInXY::FindTrackInXYProjection
  //  method. Since these parameters are > 60, cint does NOT accept to pass them in the usual
  //  way (parameters in the calling sequence) to PndTrkCTFindTrackInXY::FindTrackInXYProjection.
- FindTrackInXYProjection_InputData input;
+ FindTrackInXYProjection2_InputOutputData InOut;
 
  // loading those elements of the struct common to all the candidate tracks.
- input.apotemamaxskewstraw = APOTEMAMAXSKEWSTRAW;
- input.deltanr = DELTAnR;
- input.dimensionscitil = DIMENSIONSCITIL;
- input.FiConformalIndex = tFiConformalIndex;
- input.HitsinBoxConf = tHitsinBoxConformal;
- input.InclusionListStt = fInclusionListStt;
- input.InclusionListSciTil = fInclusionListSciTil;
- input.info = info;
- input.infoparalConformal = infoparalConformal;
- input.ListSttParHits = fListSttParHits;
- input.maxhitsinfit = MAXHITSINFIT;
- input.maxscitilhitsintrack = MAXSCITILHITSINTRACK;
- input.maxstthits = MAXSTTHITS;
- input.maxstthitsintrack = MAXSTTHITSINTRACK;
- input.minimumhitspertrack = MINIMUMHITSPERTRACK;
- input.minouterhitspertrack = MINOUTERHITSPERTRACK;
- input.nBoxConf = tnBoxConformal;
- input.nfidivconformal = NFIDIVCONFORMAL;
- input.nrdivconformal = NRDIVCONFORMAL;
- input.nSciTilHits = fnSciTilHits;
- input.nsttparhit = nSttParHit;
- input.posizSciT = fposizSciTil;
- input.radiaConf = fradiaConf;
- input.RConformalIndex = tRConformalIndex;
- input.rstrawdetectormax = RSTRAWDETECTORMAX;
- input.rstrawdetectormin = RSTRAWDETECTORMIN;
- input.strawradius = STRAWRADIUS;
- input.trajectory_vertex = trajectory_vertex;
- input.YesSciTil = fYesSciTil;
+ InOut.StrawCode = fStrawCode; // Short_t array NUMBER_STRAWS large; 
+ InOut.StrawCode2 = fStrawCode2; // Short_t array NUMBER_STRAWS large; 
 
-//----------------------
+ InOut.nParContiguous = fnParContiguous; // array NUMBER_STRAWS large; nParContiguous[i] --> number of contiguous Stt Straws (max = 6);
+ InOut.number_straws = NUMBER_STRAWS;
+ InOut.ListParContiguous = fListParContiguous; // array [NUMBER_STRAWS][6] large; list of Stt Tube ID numbers of the contiguous Stt Straws;
+
+ InOut.TubeID = fTubeID;  // list of Tube ID; fTubeID[i] is Tube Id of i-th Stt hit;
+ InOut.StrawCode = fStrawCode;
+ InOut.SttStrawOn = tSttStrawOn;  //  tSttStrawOn[i] >= 0 --> it is the Stt hit number corresponding to Stt
+				// i-th Tube ID; tSttStrawOn[i] == -1 --> i-th Stt straw NOT hit;
+ InOut.maxstthitsintrack = MAXSTTHITSINTRACK;
+ InOut.minimumhitspertrack = MINIMUMHITSPERTRACK;
 
 
 
 
 
-//----- loop over the SciTil hits first;
+
+
+//-------------------
+ InOut.apotemamaxskewstraw = APOTEMAMAXSKEWSTRAW;
+ InOut.deltanr = DELTAnR;
+ InOut.dimensionscitil = DIMENSIONSCITIL;
+ InOut.FiConformalIndex = tFiConformalIndex;
+ InOut.HitsinBoxConf = tHitsinBoxConformal;
+ InOut.InclusionListStt = fInclusionListStt;
+ InOut.InclusionListSciTil = fInclusionListSciTil;
+ InOut.info = info;
+ InOut.infoparalConformal = infoparalConformal;
+ InOut.ListSttParHits = fListSttParHits;
+ InOut.maxhitsinfit = MAXHITSINFIT;
+ InOut.maxscitilhitsintrack = MAXSCITILHITSINTRACK;
+ InOut.maxstthits = MAXSTTHITS;
+// InOut.maxstthitsintrack = MAXSTTHITSINTRACK;
+// InOut.minimumhitspertrack = MINIMUMHITSPERTRACK;
+ InOut.minouterhitspertrack = MINOUTERHITSPERTRACK;
+ InOut.nBoxConf = tnBoxConformal;
+ InOut.nfidivconformal = NFIDIVCONFORMAL;
+ InOut.nrdivconformal = NRDIVCONFORMAL;
+ InOut.nSciTilHits = fnSciTilHits;
+ InOut.nsttparhit = nSttParHit;
+ InOut.posizSciT = fposizSciTil;
+ InOut.radiaConf = fradiaConf;
+ InOut.RConformalIndex = tRConformalIndex;
+ InOut.rstrawdetectormax = RSTRAWDETECTORMAX;
+ InOut.rstrawdetectormin = RSTRAWDETECTORMIN;
+ InOut.strawradius = STRAWRADIUS;
+ InOut.trajectory_vertex = trajectory_vertex;
+ InOut.YesSciTil = fYesSciTil;
+
+//---------------------------------------------------------------------------------
+
 
 
  //  U and V only for the parallel Stt hits.
@@ -1365,76 +1421,12 @@ if(istampa>0){
  Double_t
 	U[MAXTRACKSPEREVENT][MAXSTTHITSINTRACK],
 	V[MAXTRACKSPEREVENT][MAXSTTHITSINTRACK];
-
  //  variable usedd in the plotting in the Legiandre plot;
- input.icounter=0;
-
- if(fYesSciTil) {
-    for(i=0; i<fnSciTilHits ; i++) {
-	if( nSttTrackCand >= MAXTRACKSPEREVENT ){
-		cout<<"from PndTrkTracking :  # n. Tracks found so far = "
-		<<nSttTrackCand<<" and it is >= MAXTRACKSPEREVENT ( = "
-		 <<MAXTRACKSPEREVENT<<"); exiting from SciTil loop.\n";
-		break ;
-	}
-
-	// inputs for the FindTrackInXYProjection class;
-	input.iHit = -i-1;	// seed hit; it is negative for SciTil Hits.
-	input.nRcell = -1;  // fR cell of the seed hit negative because SciTil hit is outside
-			    // of the Stt system.;
-
-	Fi =  atan2(fposizSciTil[i][1],fposizSciTil[i][0]) ;
-//-----------------
-	if ( Fi < 0. ) Fi += 2.*PI;
-	input.nFicell =  (Short_t) (0.5*NFIDIVCONFORMAL*Fi/PI);
-	if(input.nFicell > NFIDIVCONFORMAL ) {
-		input.nFicell = NFIDIVCONFORMAL;
-	} else if (input.nFicell<0) {
-		input.nFicell = 0;
-	}
-	input.posizSciTilx = fposizSciTil[i][0];
-	input.posizSciTily = fposizSciTil[i][1];
-
-	// outputs from the FindTrackInXYProjection class are stored here;
-	input.ALFA = &fALFA[nSttTrackCand];
-	input.BETA = &fBETA[nSttTrackCand];
-	input.Charge = &Charge[nSttTrackCand];
-	input.Fi_final_helix_referenceframe = &Fi_final_helix_referenceframe[nSttTrackCand];
-	input.Fi_initial_helix_referenceframe = &Fi_initial_helix_referenceframe[nSttTrackCand];
-	input.Fi_low_limit = &Fi_low_limit[nSttTrackCand];
-	input.Fi_up_limit = &Fi_up_limit[nSttTrackCand];
-	input.GAMMA = &fGAMMA[nSttTrackCand];
-	input.ListHitsinTrack = &fListSttParHitsinTrack[nSttTrackCand][0];
-	input.ListSciTilHitsinTrack = &fListSciTilHitsinTrack[nSttTrackCand][0];
-	input.nHitsinTrack = &fnSttParHitsinTrack[nSttTrackCand];
-	input.nSciTilHitsinTrack = &fnSciTilHitsinTrack[nSttTrackCand];
-	input.Oxx = &fOx[nSttTrackCand];
-	input.Oyy = &fOy[nSttTrackCand];
-	input.Rr = &fR[nSttTrackCand];
-	input.S_SciTilHitsinTrack = &fS_SciTilHitsinTrack[nSttTrackCand][0];
-	input.TypeConf = &fTypeConf[nSttTrackCand];
-	input.U = &U[nSttTrackCand][0];
-	input.V = &V[nSttTrackCand][0];
-
-	input.icounter++;  // this is the plot number;
-	outcome = SttTrackXYFinder.FindTrackInXYProjection(&input);
-
-	if(!outcome){
-		continue;
-	}
-	for(j=0; j<fnSttParHitsinTrack[nSttTrackCand]; j++){
-	  fInclusionListStt[fListSttParHitsinTrack[nSttTrackCand][j]] = false;
-	}
-	keepit[nSttTrackCand]=true;
-	nSttTrackCand++;
-
-    } // end of  for(i=0; i<fnSciTilHits ; i++)
+ InOut.icounter=0;
 
 
- }  // end of  if(fYesSciTil)
 
 
-//----- end use the SciTil hits first.
 
 
 
@@ -1443,10 +1435,17 @@ if(istampa>0){
 //   begins the first iteration with more severe cuts on the # hits in track candidate
 
 int iconta=0;
-// for(iParHit=0; iParHit<nSttParHit + 1 -  MINIMUMHITSPERTRACK ; iParHit++) {
  for(iParHit=0; iParHit<nSttParHit ; iParHit++) {
 	if( ! fInclusionListStt[fListSttParHits[iParHit]] )  continue;
-	if( !fExternal_Straws[fTubeID[fListSttParHits[iParHit]]] ) continue; // only seeds at the external boundary of the STT
+	if(!(
+		fmod( fStrawCode[fTubeID[fListSttParHits[iParHit]]-1],10.) == 3 ||
+		fmod(fStrawCode[fTubeID[fListSttParHits[iParHit]]-1],10.) == 0 ||
+		fmod(fStrawCode[fTubeID[fListSttParHits[iParHit]]-1],10.) == 5 ||
+		fmod( fStrawCode2[fTubeID[fListSttParHits[iParHit]]-1],10.) == 3 ||
+		fmod(fStrawCode2[fTubeID[fListSttParHits[iParHit]]-1],10.) == 0 ||
+		fmod(fStrawCode2[fTubeID[fListSttParHits[iParHit]]-1],10.) == 5
+	    )
+	) continue; // only seeds at the external boundary of the STT
 
 	if( nSttTrackCand >= MAXTRACKSPEREVENT) {
 		cout<<"from PndTrkTracking :  # n. Tracks found so far = "
@@ -1455,34 +1454,45 @@ int iconta=0;
 		break;
 	}
 iconta++;
-	// inputs for the FindTrackInXYProjection class;
-	input.iHit = iParHit;// seed hit in the PARALLEL number scheme; it is negative for SciTil Hits.
-	input.nFicell = FiConformalIndex[fListSttParHits[iParHit]];  // Fi cell of the seed hit;
-	input.nRcell = RConformalIndex[fListSttParHits[iParHit]];  // fR cell of the seed hit;
+
+	// InOuts for the FindTrackInXYProjection class;
+	InOut.iHit = fListSttParHits[iParHit];// seed hit; in the Stt hit numbering;
+	InOut.ListHitsinTrack = &fListSttParHitsinTrack[nSttTrackCand][0];
+	InOut.nHitsinTrack = &fnSttParHitsinTrack[nSttTrackCand];
+
+
+
+
+
+
+
+
+	InOut.nFicell = FiConformalIndex[fListSttParHits[iParHit]];  // Fi cell of the seed hit;
+	InOut.nRcell = RConformalIndex[fListSttParHits[iParHit]];  // fR cell of the seed hit;
 
 	// outputs from the FindTrackInXYProjection class are stored here;
-	input.ALFA = &fALFA[nSttTrackCand];
-	input.BETA = &fBETA[nSttTrackCand];
-	input.Charge = &Charge[nSttTrackCand];
-	input.Fi_final_helix_referenceframe = &Fi_final_helix_referenceframe[nSttTrackCand];
-	input.Fi_initial_helix_referenceframe = &Fi_initial_helix_referenceframe[nSttTrackCand];
-	input.Fi_low_limit = &Fi_low_limit[nSttTrackCand];
-	input.Fi_up_limit = &Fi_up_limit[nSttTrackCand];
-	input.GAMMA = &fGAMMA[nSttTrackCand];
-	input.ListHitsinTrack = &fListSttParHitsinTrack[nSttTrackCand][0];
-	input.ListSciTilHitsinTrack = &fListSciTilHitsinTrack[nSttTrackCand][0];
-	input.nHitsinTrack = &fnSttParHitsinTrack[nSttTrackCand];
-	input.nSciTilHitsinTrack = &fnSciTilHitsinTrack[nSttTrackCand];
-	input.Oxx = &fOx[nSttTrackCand];
-	input.Oyy = &fOy[nSttTrackCand];
-	input.Rr = &fR[nSttTrackCand];
-	input.S_SciTilHitsinTrack = &fS_SciTilHitsinTrack[nSttTrackCand][0];
-	input.TypeConf = &fTypeConf[nSttTrackCand];
-	input.U = &U[nSttTrackCand][0];
-	input.V = &V[nSttTrackCand][0];
+	InOut.ALFA = &fALFA[nSttTrackCand];
+	InOut.BETA = &fBETA[nSttTrackCand];
+	InOut.Charge = &Charge[nSttTrackCand];
+	InOut.Fi_final_helix_referenceframe = &Fi_final_helix_referenceframe[nSttTrackCand];
+	InOut.Fi_initial_helix_referenceframe = &Fi_initial_helix_referenceframe[nSttTrackCand];
+	InOut.Fi_low_limit = &Fi_low_limit[nSttTrackCand];
+	InOut.Fi_up_limit = &Fi_up_limit[nSttTrackCand];
+	InOut.GAMMA = &fGAMMA[nSttTrackCand];
+//	InOut.ListHitsinTrack = &fListSttParHitsinTrack[nSttTrackCand][0];
+	InOut.ListSciTilHitsinTrack = &fListSciTilHitsinTrack[nSttTrackCand][0];
+//	InOut.nHitsinTrack = &fnSttParHitsinTrack[nSttTrackCand];
+	InOut.nSciTilHitsinTrack = &fnSciTilHitsinTrack[nSttTrackCand];
+	InOut.Oxx = &fOx[nSttTrackCand];
+	InOut.Oyy = &fOy[nSttTrackCand];
+	InOut.Rr = &fR[nSttTrackCand];
+	InOut.S_SciTilHitsinTrack = &fS_SciTilHitsinTrack[nSttTrackCand][0];
+	InOut.TypeConf = &fTypeConf[nSttTrackCand];
+	InOut.U = &U[nSttTrackCand][0];
+	InOut.V = &V[nSttTrackCand][0];
 
-	input.icounter++;  // this is the plot number;
-	outcome = SttTrackXYFinder.FindTrackInXYProjection(&input);
+	InOut.icounter++;  // this is the plot number;
+	outcome = SttTrackXYFinder.FindTrackInXYProjection(&InOut);
 
 	if(!outcome)  continue;
 
@@ -3459,7 +3469,7 @@ if(istampa>=2){
 	In_Put.KAPPA = KAPPA ;
 	In_Put.keepit = tkeepit ;
 	In_Put.InclusionListSciTil = fInclusionListSciTil ;
-	In_Put.InclusionListStt = SingleHitListStt ;
+	In_Put.InclusionListStt = fSingleHitListStt ;
 
 	In_Put.istampa = istampa ;
 	In_Put.ListMvdPixelHitsinTrack = &fListMvdPixelHitsinTrack[0][0] ;
@@ -3520,6 +3530,7 @@ if(istampa>=2){
 	In_Put.nSttSkewHitsinTrack = fnSttSkewHitsinTrack ;
 	In_Put.nTotalCandidates = nTotalCandidates ;
 	In_Put.nTrackCandHit = fnTrackCandHit ;
+	In_Put.number_straws = NUMBER_STRAWS;
 	In_Put.Ox = fOx ;
 	In_Put.Oy = fOy ;
 	In_Put.ParalCommonList = tParalCommonList ;
@@ -3537,6 +3548,9 @@ if(istampa>=2){
 	In_Put.sigmaYMvdPixel = fsigmaYMvdPixel ;
 	In_Put.sigmaYMvdStrip = fsigmaYMvdStrip ;
 	In_Put.SkewCommonList = tSkewCommonList ;
+	In_Put.SttTubeArray = fSttTubeArray;
+	In_Put.StrawCode = fStrawCode;
+	In_Put.StrawCode2 = fStrawCode2;
 	In_Put.verticalgap = VERTICALGAP ;
 	In_Put.XMvdPixel = fXMvdPixel ;
 	In_Put.XMvdStrip = fXMvdStrip ;
@@ -3895,7 +3909,7 @@ Short_t PndTrkTracking::AssociateSkewHitsToXYTrack(
 	for(i=0; i<nSttParHit; i++){
 		ihit = fListSttParHits[i];
 
-		if( !SingleHitListStt[ihit] ) continue;
+		if( !fSingleHitListStt[ihit] ) continue;
 		angle = atan2(info[ihit][1]-fOy[itrack],info[ihit][0]-fOx[itrack]);
 		if(angle<0.) angle += 2.*PI;
 
@@ -5134,6 +5148,7 @@ void PndTrkTracking::LoadSZetc_forSZfit(
 
 void PndTrkTracking::MakeInclusionListStt(
 	Int_t nSttHit,
+	Short_t * TubeID,
 	Double_t info[][7]
 	)
 {
@@ -5141,10 +5156,14 @@ void PndTrkTracking::MakeInclusionListStt(
  int i,j;
 
 // it needs to be initialized for each event !
+ memset (fSingleHitListStt,true,sizeof(fSingleHitListStt));
+ memset (fInclusionListStt,true,sizeof(fInclusionListStt));
+/*
  for(i=0;i<nSttHit;i++){
 	fInclusionListStt[i] = true;
-	SingleHitListStt[i] = true;
+	fSingleHitListStt[i] = true;
  }
+*/
 
 
 
@@ -5157,11 +5176,13 @@ void PndTrkTracking::MakeInclusionListStt(
 	for(j=i+1; j< nSttHit; j++){
 
 
+//		if(fInclusionListStt[ j ] &&
+//			fabs(info[i][0] - info[j][0])<1.e-20 &&
+//			fabs(info[i][1] - info[j][1])<1.e-20  )
 		if(fInclusionListStt[ j ] &&
-			fabs(info[i][0] - info[j][0])<1.e-20 &&
-			fabs(info[i][1] - info[j][1])<1.e-20  )
+			TubeID[i] == TubeID[j]  )
 		{
-			SingleHitListStt[j]=fInclusionListStt[j]= false ;
+			fSingleHitListStt[j]=fInclusionListStt[j]= false ;
 		}
 	} //  end of  for(j=i+1; j< Nhits;; j++)
 
@@ -6715,6 +6736,7 @@ ErrorDriftRadiusconformal[MAXSTTHITSINTRACK+MAXMVDPIXELHITSINTRACK+MAXMVDSTRIPHI
 
 
 //------------------ end function  PndTrkTracking::RefitMvdStt
+
 
 ClassImp(PndTrkTracking)
 
