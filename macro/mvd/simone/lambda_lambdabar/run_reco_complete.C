@@ -62,14 +62,33 @@ void run_reco_complete(TString FileName="test"){
   mvdmccls->SetVerbose(iVerbose);
   fRun->AddTask(mvdmccls);
 
-  
+  PndSttMvdGemTrackingIdeal* trackStt = new PndSttMvdGemTrackingIdeal();
+  trackStt->SetRelativeMomentumSmearing(0.05);
+  trackStt->SetVertexSmearing(0.05, 0.05, 0.05);
+  trackStt->SetTrackingEfficiency(1.);
+  trackStt->SetTrackOutput("SttMvdGemIdealTrack");
+  fRun->AddTask(trackStt);
+
+  PndRecoKalmanTask* recoKalman = new PndRecoKalmanTask();
+   recoKalman->SetTrackInBranchName("SttMvdGemIdealTrack");
+   //recoKalman->SetTrackInIDBranchName("SttMvdGemIdealTrackID");
+   recoKalman->SetTrackOutBranchName("SttMvdGemGenTrack");
+   recoKalman->SetBusyCut(50); // CHECK to be tuned
+   //recoKalman->SetIdealHyp(kTRUE);
+   //recoKalman->SetNumIterations(3);
+   fRun->AddTask(recoKalman);
+
+
 //  PndMvdRiemannTrackFinderTask* mvdTrackFinderRiemann = new PndMvdRiemannTrackFinderTask();
 //  mvdTrackFinderRiemann->SetVerbose(iVerbose);
 //  //  mvdTrackFinder->SetPersistence(kFALSE); // warum??
-//  mvdTrackFinderRiemann->SetPersistence(kFALSE);
+//  mvdTrackFinderRiemann->SetPersistence(kTRUE);
 //  mvdTrackFinderRiemann->SetMaxDist(0.05);
 //  fRun->AddTask(mvdTrackFinderRiemann);
-//
+
+  
+
+
 //
 //// Unified Pattern Recognition
 //  //==========================================
