@@ -102,12 +102,11 @@ class PndTrkTracking : public FairTask
 //	NFIDIVCONFORMAL		= (Short_t) (3.141592654 * 45./0.5),
 	NFIDIVCONFORMAL		= 282,
 	NRDIVCONFORMAL		= 10,
-	NUMBER_STRAWS		= 4542; // +1 is because the straw numbers
-					  // start at 1;
+	NUMBER_STRAWS		= 4542; // the straw numbers
+				// start at 1 and goes up to 4542 included;
   bool
 	doMcComparison,
-	fExternal_Straws[NUMBER_STRAWS],
-	SingleHitListStt[MAXSTTHITS],
+	fSingleHitListStt[MAXSTTHITS],
 	iplotta,
 	fMvdAloneTracking,
 	fYesClean,
@@ -144,7 +143,7 @@ class PndTrkTracking : public FairTask
 	fListMvdStripHitsinTrack[MAXTRACKSPEREVENT][MAXMVDSTRIPHITSINTRACK],
 	fListMvdUSPixelHitNotTrackCand[MAXMVDPIXELHITS],
 	fListMvdUSStripHitNotTrackCand[MAXMVDSTRIPHITS],
-	fListParContiguous[NUMBER_STRAWS+1][6],
+	fListParContiguous[NUMBER_STRAWS][6],
 	fListSciTilHitsinTrack[MAXTRACKSPEREVENT][MAXSCITILHITSINTRACK],
 	fListSttParHitsinTrack[MAXTRACKSPEREVENT][MAXSTTHITSINTRACK],
 	fListSttParHits[MAXSTTHITS],
@@ -174,12 +173,14 @@ class PndTrkTracking : public FairTask
 	fnMvdTrackCand,
 	fnMvdUSPixelHitNotTrackCand,
 	fnMvdUSStripHitNotTrackCand,
-	fnParContiguous[NUMBER_STRAWS+1],
+	fnParContiguous[NUMBER_STRAWS],
 	fnSciTilHits,
 	fnSciTilHitsinTrack[MAXTRACKSPEREVENT],
 	fnSttParHitsinTrack[MAXTRACKSPEREVENT],
 	fnSttSkewHitsinTrack[MAXTRACKSPEREVENT],
 	fnTrackCandHit[MAXTRACKSPEREVENT],
+	fStrawCode[NUMBER_STRAWS],
+	fStrawCode2[NUMBER_STRAWS],
 	fTubeID[MAXSTTHITS];
 
 
@@ -512,6 +513,7 @@ class PndTrkTracking : public FairTask
 
   void MakeInclusionListStt(
 	Int_t nSttHit,
+	Short_t * TubeID,
 	Double_t info[][7]
 	);
 
@@ -780,6 +782,8 @@ class PndTrkTracking : public FairTask
 	Double_t Fi_up,
 	Short_t *auxListHitsinTrack
 	);
+
+
 
 
   ClassDef(PndTrkTracking,1);
