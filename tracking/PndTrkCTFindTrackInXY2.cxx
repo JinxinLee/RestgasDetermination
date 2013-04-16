@@ -4,6 +4,7 @@
 #include "PndTrkLegendreFits.h"
 #include "PndTrkCTGeometryCalculations.h"
 #include "PndTrkMergeSort.h"
+#include "PndTrkVectors.h"
 #include <iostream>
 #include <cmath>
 
@@ -170,19 +171,19 @@ void PndTrkCTFindTrackInXY2::FindCharge(
 //----------begin of function PndTrkCTFindTrackInXY2::FindTrackInXYProjection
 
 bool PndTrkCTFindTrackInXY2::FindTrackInXYProjection(
-	struct FindTrackInXYProjection2_InputData* in
+	struct FindTrackInXYProjection2_InputOutputData* InOut
 	)
 {
 
  // load the struct members in local variables;
 
- Double_t (*info)[7]=in->info;
- Double_t (*infoparalConformal)[5] = in->infoparalConformal  ;
+ Double_t (*info)[7]=InOut->info;
+ Double_t (*infoparalConformal)[5] = InOut->infoparalConformal  ;
 
  // make a POINTER to an ARRAY[][3] of
  // Double_t and assign value present in the calling sequence of this method;
 
- Double_t (*posizSciTil)[3]=(Double_t (*)[3])in->posizSciT;
+ Double_t (*posizSciTil)[3]=(Double_t (*)[3])InOut->posizSciT;
 
 //---------------
 
@@ -193,10 +194,10 @@ bool PndTrkCTFindTrackInXY2::FindTrackInXYProjection(
 	Nbaux,
 	NN,
 	Nouter,
-	auxListHitsinTrack[in->maxstthits],
-	OutputListHitsinTrack[in->maxstthits],
-	OutputList2HitsinTrack[in->maxstthits],
-	ListHitsinTrackinWhichToSearch[in->maxstthits];
+	auxListHitsinTrack[InOut->maxstthits],
+	OutputListHitsinTrack[InOut->maxstthits],
+	OutputList2HitsinTrack[InOut->maxstthits],
+	ListHitsinTrackinWhichToSearch[InOut->maxstthits];
 
  Short_t
 	flagStt,
@@ -218,33 +219,58 @@ bool PndTrkCTFindTrackInXY2::FindTrackInXYProjection(
 
 
 //----------------
- *(in->nHitsinTrack) = FindTrackPatterninBoxConformal(
-	in->FiConformalIndex,
-	in->HitsinBoxConf,
-	in->iHit, // seed hit in the PARALLEL number scheme; if it is negative it is a SciTil hit.
-	in->InclusionListStt,
-	info,
-	in->ListHitsinTrack,
-	in->ListSttParHits,
-	in->maxstthitsintrack,
-	in->maxstthits,
-	in->minimumhitspertrack,
-	in->nBoxConf,
-	in->nfidivconformal,
-	in->nFicell, // Fi cell of the seed hit;
-	2,   //  distance in Fi cells allowed
-	in->nsttparhit,
-	in->nRcell, // R cell of the seed hit;
-	// can be negative beacuse of SciTil hits;
-	1,   //  distance in R cells allowed
-	in->RConformalIndex,
-	in->nrdivconformal
-			);
 
- if( *(in->nHitsinTrack) < in->minimumhitspertrack ||
-	*(in->nHitsinTrack) > in->maxstthitsintrack) {
-	return false;
+ // find the cluster starting from the seed Stt axial hit; the cluster will not have more than maxstthitsintrack hits;
+
+ *(InOut->nHitsinTrack) = FindTrackPattern( InOut );
+
+
+ // start the selection of the cluster;
+ // requirement of minimum number of hits (the mrequirement of maximum number of hits is already been
+ // fulfilled in FindTrackPattern);
+ if( *(InOut->nHitsinTrack) < InOut->minimumhitspertrack ) return false;
+//------------------------------
+
+ // now check if the cluster is a good one;
+
+
+// StrawCode convention (in the following left or right is looking to the beam from downstream) :
+//   -1 = not a boundary straw;
+//   10= inner axial boundary left;
+//   20= inner axial boundary right;
+//   12= outer VERTICAL (BUT NOT OUTERMOST) axial boundary left;
+//   22= outer VERTICAL (BUT NOT OUTERMOST)  axial boundary right;
+//   13= outermost axial boundary left;
+//   23= outermost axial boundary;  right;
+//   14= outer axial boundary, (innermost), left;
+//   24= outer axial boundary (innermost), right;
+//   15= outer axial boundary, special zone, left;
+//   25= outer axial boundary, special zone, right;
+
+
+ Short_t StrawCode = InOut->StrawCode[ InOut->TubeID[ InOut->iHit ] -1 ] ; // -1 is necessary because
+		//  the Stt Straws go from 1 to 4542 while the corresponding TubeID is from 0
+		//  to 4541;
+ Short_t StrawCode2 = InOut->StrawCode2[ InOut->TubeID[ InOut->iHit ] -1 ] ; // -1 is necessary because
+		//  the Stt Straws go from 1 to 4542 while the corresponding TubeID is from 0
+		//  to 4541;
+
+
+
+ if( StrawCode == 13 || StrawCode == 23 || StrawCode2 == 13 || StrawCode2 == 23 ){
+
+ //  case in which the seed hit is at the Outer Boundary of the Stt system;
+ // use the contiguity of the Stt outer axial hits and require that the track hits the other
+ // boundary of the outer axial section;
+ } else if (StrawCode == 0) {
+ //  case in which the seed hit is at the Inner and Vertical Boundary of the Stt system;
+ } else {
+	cout<<"from FindTrackPattern : this Stt hit is not at the boundary; this cannot be!\n";
  }
+
+//-----------------------------------
+
+
 
 //-----------------------
 
@@ -253,78 +279,78 @@ bool PndTrkCTFindTrackInXY2::FindTrackInXYProjection(
 //   At this point of the code the Stt hits are already ordered from
 //   the outermost to the innermost.
 
- for(j=0, Nouter =0; j<*(in->nHitsinTrack); j++){
-  if(info[ (in->ListHitsinTrack)[j] ][0]*
-	info[ (in->ListHitsinTrack)[j] ][0]+
-	info[ (in->ListHitsinTrack)[j] ][1]*
-	info[ (in->ListHitsinTrack)[j] ][1]
-	< in->apotemamaxskewstraw*in->apotemamaxskewstraw  ) break;
+ for(j=0, Nouter =0; j<*(InOut->nHitsinTrack); j++){
+  if(info[ (InOut->ListHitsinTrack)[j] ][0]*
+	info[ (InOut->ListHitsinTrack)[j] ][0]+
+	info[ (InOut->ListHitsinTrack)[j] ][1]*
+	info[ (InOut->ListHitsinTrack)[j] ][1]
+	< InOut->apotemamaxskewstraw*InOut->apotemamaxskewstraw  ) break;
   Nouter++;
  }
 
- if( Nouter >= in->minouterhitspertrack) {
+ if( Nouter >= InOut->minouterhitspertrack) {
 	for(i=0; i< Nouter;i++){
 	  ListHitsinTrackinWhichToSearch[i]=
-		(in->ListHitsinTrack)[i];
+		(InOut->ListHitsinTrack)[i];
 	}
 
 	for(i=0; i< Nouter;i++){
 	 Naux =  FindTrackPatterninBoxConformalSpecial(
-		in->FiConformalIndex,
-		in->HitsinBoxConf,
-		in->InclusionListStt,
+		InOut->FiConformalIndex,
+		InOut->HitsinBoxConf,
+		InOut->InclusionListStt,
 		info,
 		ListHitsinTrackinWhichToSearch[i], // seed hit.
 		ListHitsinTrackinWhichToSearch,
-		in->ListSttParHits,
-		in->maxstthits,
-		in->minimumhitspertrack,
-		in->nBoxConf,
+		InOut->ListSttParHits,
+		InOut->maxstthits,
+		InOut->minimumhitspertrack,
+		InOut->nBoxConf,
 		1, // NFiCELLDISTANCE
-		in->nfidivconformal,
-		in->nsttparhit,
+		InOut->nfidivconformal,
+		InOut->nsttparhit,
 		Nouter,
 		3, // NRCELLDISTANCE
-		in->nrdivconformal,
+		InOut->nrdivconformal,
 		OutputListHitsinTrack,
-		in->RConformalIndex
+		InOut->RConformalIndex
 			);
 
-	 if( Naux >= in->minouterhitspertrack && Naux > 0.7 * Nouter )  break;
-		 if( Naux >= in->minouterhitspertrack) {
+	 if( Naux >= InOut->minouterhitspertrack && Naux > 0.7 * Nouter )  break;
+		 if( Naux >= InOut->minouterhitspertrack) {
 
 //   further collection of hits in the inner region but this time strictly connected
 //   to the outer ones
 
 //  first the list of non outer hits
-	   for(j=Nouter;j<*(in->nHitsinTrack); j++){
+	   for(j=Nouter;j<*(InOut->nHitsinTrack); j++){
 		ListHitsinTrackinWhichToSearch[j-Nouter] =
-			(in->ListHitsinTrack)[j];
+			(InOut->ListHitsinTrack)[j];
 	   }
 
 	   Nbaux =  FindTrackStrictCollection(
-		in->FiConformalIndex,
-		in->InclusionListStt,
+		InOut->FiConformalIndex,
+		InOut->InclusionListStt,
 		ListHitsinTrackinWhichToSearch[i],   //  seed hit, in ORIGINAL numbering.
 		ListHitsinTrackinWhichToSearch,   //  in ORIGINAL numbering.
-		in->maxstthits,
+		InOut->maxstthits,
 		1,    // NFiCELLDISTANCE
-		in->nfidivconformal,
+		InOut->nfidivconformal,
 	//  n. of hits to search in ListHitsinTrackinWhichToSearch
-		*(in->nHitsinTrack)-Nouter,
+		*(InOut->nHitsinTrack)-Nouter,
 		OutputList2HitsinTrack  // in ORIGINAl hit numbering.
 					);
 //   add the new hits found to the list
 
-	   *(in->nHitsinTrack)=Naux+Nbaux;
-	   if( *(in->nHitsinTrack) >= in->minimumhitspertrack &&
-		*(in->nHitsinTrack) <=in->maxstthitsintrack) {
+	   *(InOut->nHitsinTrack)=Naux+Nbaux;
+	   if( *(InOut->nHitsinTrack) >= InOut->minimumhitspertrack &&
+		*(InOut->nHitsinTrack) <=InOut->maxstthitsintrack) {
 		for(j=0;j<Naux;j++){
-			(in->ListHitsinTrack)[j] =
+			(InOut->ListHitsinTrack)[j] =
 				OutputListHitsinTrack[j];
 		}
 		for(j=0;j<Nbaux;j++){
-			(in->ListHitsinTrack)[Naux+j] =
+			(InOut->ListHitsinTrack)[Naux+j] =
 				OutputList2HitsinTrack[j];
 		}
 		break;
@@ -334,8 +360,8 @@ bool PndTrkCTFindTrackInXY2::FindTrackInXYProjection(
 	}   // end of for(i=0; i< Nouter;i++)
  }    // end of if( Nouter >= minouterhitspertrack)
 
- if( *(in->nHitsinTrack) < in->minimumhitspertrack ||
-  *(in->nHitsinTrack)>in->maxstthitsintrack) {
+ if( *(InOut->nHitsinTrack) < InOut->minimumhitspertrack ||
+  *(InOut->nHitsinTrack)>InOut->maxstthitsintrack) {
 	return false;
  }
 
@@ -343,17 +369,17 @@ bool PndTrkCTFindTrackInXY2::FindTrackInXYProjection(
 
 //  finding the rotation angle for best utilization of the MILP procedure
 
- for(j=0, rotationcos=0., rotationsin=0.; j<*(in->nHitsinTrack); j++){
+ for(j=0, rotationcos=0., rotationsin=0.; j<*(InOut->nHitsinTrack); j++){
 	rotationcos += cos((0.5+
-	(in->FiConformalIndex)[ (in->ListHitsinTrack)[j] ])
-	*2.*PI/in->nfidivconformal) ;
+	(InOut->FiConformalIndex)[ (InOut->ListHitsinTrack)[j] ])
+	*2.*PI/InOut->nfidivconformal) ;
 
 	rotationsin += sin((0.5+
-	in->FiConformalIndex[ (in->ListHitsinTrack)[j] ])
-	*2.*PI/in->nfidivconformal) ;
+	InOut->FiConformalIndex[ (InOut->ListHitsinTrack)[j] ])
+	*2.*PI/InOut->nfidivconformal) ;
  }
- rotationcos /=*(in->nHitsinTrack);
- rotationsin /=*(in->nHitsinTrack);
+ rotationcos /=*(InOut->nHitsinTrack);
+ rotationsin /=*(InOut->nHitsinTrack);
  rotationangle = atan2(rotationsin, rotationcos);
 //  fitting with superfast MILP code
  bool Type;
@@ -361,36 +387,36 @@ bool PndTrkCTFindTrackInXY2::FindTrackInXYProjection(
  int	nFitPoints,
 	offset;
  Double_t
-	Xconformal[1+(*(in->nHitsinTrack))],
-	Yconformal[1+(*(in->nHitsinTrack))],
-	DriftRadiusconformal[1+(*(in->nHitsinTrack))],
-	ErrorDriftRadiusconformal[1+(*(in->nHitsinTrack))];
+	Xconformal[1+(*(InOut->nHitsinTrack))],
+	Yconformal[1+(*(InOut->nHitsinTrack))],
+	DriftRadiusconformal[1+(*(InOut->nHitsinTrack))],
+	ErrorDriftRadiusconformal[1+(*(InOut->nHitsinTrack))];
 
 
- if(in->iHit<0){	// case with a hit in the SciTil
-  aaa = in->posizSciTilx*in->posizSciTilx+in->posizSciTily*in->posizSciTily;
-  Xconformal[0] =in->posizSciTilx/aaa;
-  Yconformal[0] =in->posizSciTily/aaa;
-  ErrorDriftRadiusconformal[0] = in->dimensionscitil/aaa;
+ if(InOut->iHit<0){	// case with a hit in the SciTil
+  aaa = InOut->posizSciTilx*InOut->posizSciTilx+InOut->posizSciTily*InOut->posizSciTily;
+  Xconformal[0] =InOut->posizSciTilx/aaa;
+  Yconformal[0] =InOut->posizSciTily/aaa;
+  ErrorDriftRadiusconformal[0] = InOut->dimensionscitil/aaa;
   DriftRadiusconformal[0]=-1.;  // treat it like it is a Mvd hit.
  // +1 comes from one SciTil hit.
    offset=1;
-   nFitPoints = *(in->nHitsinTrack) + 1;
+   nFitPoints = *(InOut->nHitsinTrack) + 1;
 
  } else {	// no SciTil hit.
    offset=0;
-   nFitPoints = *(in->nHitsinTrack);
- }  // end of  if(in->iHit<0)
+   nFitPoints = *(InOut->nHitsinTrack);
+ }  // end of  if(InOut->iHit<0)
 
 
 
-  for(j=0; j<(*(in->nHitsinTrack)); j++){
-    Xconformal[j+offset] =infoparalConformal[(in->ListHitsinTrack)[j]][0];
-    Yconformal[j+offset] =infoparalConformal[(in->ListHitsinTrack)[j]][1];
+  for(j=0; j<(*(InOut->nHitsinTrack)); j++){
+    Xconformal[j+offset] =infoparalConformal[(InOut->ListHitsinTrack)[j]][0];
+    Yconformal[j+offset] =infoparalConformal[(InOut->ListHitsinTrack)[j]][1];
     ErrorDriftRadiusconformal[j+offset]=
-		infoparalConformal[(in->ListHitsinTrack)[j]][2];
+		infoparalConformal[(InOut->ListHitsinTrack)[j]][2];
     DriftRadiusconformal[j+offset]=
-		infoparalConformal[(in->ListHitsinTrack)[j]][2];
+		infoparalConformal[(InOut->ListHitsinTrack)[j]][2];
   }
 
 
@@ -405,16 +431,16 @@ bool PndTrkCTFindTrackInXY2::FindTrackInXYProjection(
 		DriftRadiusconformal,
 		ErrorDriftRadiusconformal,
 		rotationangle,  //  rotationangle, da mettere
-		in->trajectory_vertex,	//  vertex in (X,Y) of this trajectory
-		in->maxhitsinfit,  //  maximum n. of hits allowed in fast fit
+		InOut->trajectory_vertex,	//  vertex in (X,Y) of this trajectory
+		InOut->maxhitsinfit,  //  maximum n. of hits allowed in fast fit
 		&m,
 		&q,
-		in->ALFA,
-		in->BETA,
-		in->GAMMA,
-		in->TypeConf,
+		InOut->ALFA,
+		InOut->BETA,
+		InOut->GAMMA,
+		InOut->TypeConf,
 		0, // istampa
-		in->icounter //  IVOLTE
+		InOut->icounter //  IVOLTE
 			);
 
 
@@ -422,21 +448,21 @@ bool PndTrkCTFindTrackInXY2::FindTrackInXYProjection(
 
 //  this trasformation is valid even if the equation is a straight line from the fit
 
- *(in->Oxx)= -0.5*(*(in->ALFA));
- *(in->Oyy)= -0.5*(*(in->BETA));
- *(in->Rr)= (*(in->Oxx)) * (*(in->Oxx)) + (*(in->Oyy)) * (*(in->Oyy))-(*(in->GAMMA));
+ *(InOut->Oxx)= -0.5*(*(InOut->ALFA));
+ *(InOut->Oyy)= -0.5*(*(InOut->BETA));
+ *(InOut->Rr)= (*(InOut->Oxx)) * (*(InOut->Oxx)) + (*(InOut->Oyy)) * (*(InOut->Oyy))-(*(InOut->GAMMA));
 
 	// some obvious preliminary cuts
- if( *(in->Rr) < 0. )  return false;
- *(in->Rr)= sqrt( *(in->Rr) );
- aaa = sqrt( (*(in->Oxx)) * (*(in->Oxx)) + (*(in->Oyy)) * (*(in->Oyy))  );
+ if( *(InOut->Rr) < 0. )  return false;
+ *(InOut->Rr)= sqrt( *(InOut->Rr) );
+ aaa = sqrt( (*(InOut->Oxx)) * (*(InOut->Oxx)) + (*(InOut->Oyy)) * (*(InOut->Oyy))  );
 
  // the following is because the circumference is supposed to come from (0,0);
  //   here the factor 0.9 is used in order to be conservative.
- if(aaa< 0.9*in->rstrawdetectormin/2.) return false;
+ if(aaa< 0.9*InOut->rstrawdetectormin/2.) return false;
 
 //   here the factor 0.9 is used in order to be conservative.
- if ( *(in->Rr) + aaa < in->rstrawdetectormin *0.9 ) return false;
+ if ( *(InOut->Rr) + aaa < InOut->rstrawdetectormin *0.9 ) return false;
 
 //---------------------------
 
@@ -468,39 +494,39 @@ bool PndTrkCTFindTrackInXY2::FindTrackInXYProjection(
  // associated to this track cand.
 
 
- if(in->YesSciTil){
-	//   *(in->nSciTilHitsinTrack)    is the n. of SciTil hit associated to this track.
-	*(in->nSciTilHitsinTrack)= AssociateSciTilHit(
-	in->dimensionscitil,
-	in->S_SciTilHitsinTrack,// output; S on the lateral face of the Helix
+ if(InOut->YesSciTil){
+	//   *(InOut->nSciTilHitsinTrack)    is the n. of SciTil hit associated to this track.
+	*(InOut->nSciTilHitsinTrack)= AssociateSciTilHit(
+	InOut->dimensionscitil,
+	InOut->S_SciTilHitsinTrack,// output; S on the lateral face of the Helix
 	 // of the SciTil hit (if present).
-	in->InclusionListSciTil,
-	in->ListSciTilHitsinTrack,
-	in->maxscitilhitsintrack,
-	in->nSciTilHits,
-	*(in->Oxx),
-	*(in->Oyy),
+	InOut->InclusionListSciTil,
+	InOut->ListSciTilHitsinTrack,
+	InOut->maxscitilhitsintrack,
+	InOut->nSciTilHits,
+	*(InOut->Oxx),
+	*(InOut->Oyy),
 	posizSciTil,
-	*(in->Rr)
+	*(InOut->Rr)
 				);
 
  // even though it should be impossible in principle, EXCLUDE the possibility of having more
  // than TWO SciTil hits belonging to a track;
 
-	if( *(in->nSciTilHitsinTrack) >0 ){
+	if( *(InOut->nSciTilHitsinTrack) >0 ){
 	  // even though it should be impossible in principle, EXCLUDE
 	  // the possibility of having more
 	  // than TWO SciTil hits belonging to a track;
-	  if( *(in->nSciTilHitsinTrack) > 2 ) *(in->nSciTilHitsinTrack)=2;
+	  if( *(InOut->nSciTilHitsinTrack) > 2 ) *(InOut->nSciTilHitsinTrack)=2;
 
-	  for(j=0;j<*(in->nSciTilHitsinTrack);j++){
-		(in->InclusionListSciTil)[(in->ListSciTilHitsinTrack)[j]]
+	  for(j=0;j<*(InOut->nSciTilHitsinTrack);j++){
+		(InOut->InclusionListSciTil)[(InOut->ListSciTilHitsinTrack)[j]]
 			=false;
 	  }
 	}
 
  }else{
-	*(in->nSciTilHitsinTrack)=0;
+	*(InOut->nSciTilHitsinTrack)=0;
  } // end of if(YesSciTil)
 
 
@@ -508,31 +534,31 @@ bool PndTrkCTFindTrackInXY2::FindTrackInXYProjection(
 // treat differently the case in which the track has radius < rstrawdetectormax/2
 // and the other case.
 
- if( *(in->Rr) < in->rstrawdetectormax/2){
+ if( *(InOut->Rr) < InOut->rstrawdetectormax/2){
 	GeomCalculator.FindingParallelTrackAngularRange(
-		*(in->Oxx),
-		*(in->Oyy),
-		*(in->Rr),
+		*(InOut->Oxx),
+		*(InOut->Oyy),
+		*(InOut->Rr),
 		1,  // this is supposed to be the charge, irrelevant here if it is +1 or -1.
-		in->Fi_low_limit,
-		in->Fi_up_limit,
+		InOut->Fi_low_limit,
+		InOut->Fi_up_limit,
 		&flagStt,
-		in->rstrawdetectormin,
-		in->rstrawdetectormax
+		InOut->rstrawdetectormin,
+		InOut->rstrawdetectormax
 		);
 
 	NN =  TrkAssociatedParallelHitsToHelix5(
 		auxListHitsinTrack,              //  this is the output
-		in->InclusionListStt,
-		*(in->Fi_low_limit),
-		*(in->Fi_up_limit),
+		InOut->InclusionListStt,
+		*(InOut->Fi_low_limit),
+		*(InOut->Fi_up_limit),
 		info,
-		in->ListSttParHits,
-		in->nsttparhit,
-		*(in->Oxx),
-		*(in->Oyy),
-		*(in->Rr),
-		in->strawradius
+		InOut->ListSttParHits,
+		InOut->nsttparhit,
+		*(InOut->Oxx),
+		*(InOut->Oyy),
+		*(InOut->Rr),
+		InOut->strawradius
 				);
 
 
@@ -540,39 +566,39 @@ bool PndTrkCTFindTrackInXY2::FindTrackInXYProjection(
 
 	NN =  TrkAssociatedParallelHitsToHelixQuater(
 		auxListHitsinTrack,	//  this is the output
-		in->deltanr,
-		in->FiConformalIndex,
-		in->HitsinBoxConf,
-		in->InclusionListStt,
+		InOut->deltanr,
+		InOut->FiConformalIndex,
+		InOut->HitsinBoxConf,
+		InOut->InclusionListStt,
 		info,
 		infoparalConformal,
-		in->ListHitsinTrack,
+		InOut->ListHitsinTrack,
 		m,
-		in->maxstthits,
-		in->nBoxConf,
-		in->nfidivconformal,
-		*(in->nHitsinTrack),
-		in->nsttparhit,
-		in->nrdivconformal,
-		*(in->Oxx),
-		*(in->Oyy),
+		InOut->maxstthits,
+		InOut->nBoxConf,
+		InOut->nfidivconformal,
+		*(InOut->nHitsinTrack),
+		InOut->nsttparhit,
+		InOut->nrdivconformal,
+		*(InOut->Oxx),
+		*(InOut->Oyy),
 		q,
-		in->radiaConf,
-		in->RConformalIndex,
-		*(in->Rr),
-		in->rstrawdetectormin,
+		InOut->radiaConf,
+		InOut->RConformalIndex,
+		*(InOut->Rr),
+		InOut->rstrawdetectormin,
 		status,
-		in->strawradius
+		InOut->strawradius
 			);
 
  } // end of  if( Rr < rstrawdetectormax/2)
 
- if( NN < in->minimumhitspertrack || NN>in->maxstthitsintrack) return false;
+ if( NN < InOut->minimumhitspertrack || NN>InOut->maxstthitsintrack) return false;
 
- *(in->nHitsinTrack)=NN;
+ *(InOut->nHitsinTrack)=NN;
 
- for(i=0; i< *(in->nHitsinTrack);i++){
-	(in->ListHitsinTrack)[i]=auxListHitsinTrack[i];
+ for(i=0; i< *(InOut->nHitsinTrack);i++){
+	(InOut->ListHitsinTrack)[i]=auxListHitsinTrack[i];
  }
 
 
@@ -583,20 +609,20 @@ bool PndTrkCTFindTrackInXY2::FindTrackInXYProjection(
 	// sign of the  charge. See Gianluigi's Logbook page 290.
 
 	Double_t
-		X[*(in->nHitsinTrack)],
-		Y[*(in->nHitsinTrack)];
+		X[*(InOut->nHitsinTrack)],
+		Y[*(InOut->nHitsinTrack)];
 
-	for(i=0;i<*(in->nHitsinTrack);i++){
-		X[i]=info[(in->ListHitsinTrack)[i]][0];
-		Y[i]=info[(in->ListHitsinTrack)[i]][1];
+	for(i=0;i<*(InOut->nHitsinTrack);i++){
+		X[i]=info[(InOut->ListHitsinTrack)[i]][0];
+		Y[i]=info[(InOut->ListHitsinTrack)[i]][1];
 	}
 	FindCharge(
-		*(in->Oxx),
-		*(in->Oyy),
-		*(in->nHitsinTrack),
+		*(InOut->Oxx),
+		*(InOut->Oyy),
+		*(InOut->nHitsinTrack),
 		X,
 		Y,
-		in->Charge
+		InOut->Charge
 		);
 
 
@@ -616,30 +642,30 @@ bool PndTrkCTFindTrackInXY2::FindTrackInXYProjection(
 	// tracks.
 
  OrderingParallel(
-		*(in->Charge),
-		in->Fi_initial_helix_referenceframe,//output
-		in->Fi_final_helix_referenceframe,// output
+		*(InOut->Charge),
+		InOut->Fi_initial_helix_referenceframe,//output
+		InOut->Fi_final_helix_referenceframe,// output
 		info,
-		in->ListHitsinTrack,
-		*(in->nHitsinTrack),
-		*(in->Oxx),
-		*(in->Oyy),
-		in->U,
-		in->V
+		InOut->ListHitsinTrack,
+		*(InOut->nHitsinTrack),
+		*(InOut->Oxx),
+		*(InOut->Oyy),
+		InOut->U,
+		InOut->V
 			);
 
 //   finding the FI angular range (in the laboratory frame) spanned by this parallel track
 
  GeomCalculator.FindingParallelTrackAngularRange(
-		*(in->Oxx),
-		*(in->Oyy),
-		*(in->Rr),
-		*(in->Charge),
-		in->Fi_low_limit,
-		in->Fi_up_limit,
+		*(InOut->Oxx),
+		*(InOut->Oyy),
+		*(InOut->Rr),
+		*(InOut->Charge),
+		InOut->Fi_low_limit,
+		InOut->Fi_up_limit,
 		&flagStt,
-		in->rstrawdetectormin,
-		in->rstrawdetectormax
+		InOut->rstrawdetectormin,
+		InOut->rstrawdetectormax
 					);
 
 
@@ -659,149 +685,80 @@ bool PndTrkCTFindTrackInXY2::FindTrackInXYProjection(
 
 
 
-//----------begin of function PndTrkCTFindTrackInXY2::FindTrackPatterninBoxConformal
+//----------begin of function PndTrkCTFindTrackInXY2::FindTrackPattern
 
-Short_t PndTrkCTFindTrackInXY2::FindTrackPatterninBoxConformal(
-	Short_t *FiConformalIndex,
-	Short_t* HitsinBoxConformal,
-	Short_t ihit, // seed hit;
-	bool *InclusionListStt,
-	Double_t info[][7],
-	Short_t* ListHitsinTrack,
-	Short_t* ListSttParHits,
-	Short_t maxstthitsintrack,
-	Short_t maxstthits,
-	Short_t minimumhitspertrack,
-	Short_t* nBoxConformal,
-	Short_t nfid,  // divisions in Fi in conformal;
-	Short_t nFicell, // Fi cell of the seed hit;
-	Short_t NFiCELLDISTANCE,
-	Short_t Nparal,
-	Short_t nRcell, // R cell of the seed hit;
-	// can be negative beacuse of SciTil hits;
-	Short_t NRCELLDISTANCE,
-	Short_t *RConformalIndex,
-	Short_t nrd  // divisions in R in conformal;
+Short_t PndTrkCTFindTrackInXY2::FindTrackPattern(
+	struct FindTrackInXYProjection2_InputOutputData* InOut
 			)
 {
 
- bool
-	status,
-	TemporaryInclusionList[maxstthits];
+
 
  Short_t
-	bi_index,
-	i,
-	j,
-	iFi,
-	iR,
-	nRmin,
-	nRmax,
-	nRemainingHits,
-	nHitsinTrack,
-	tri_index,
-	auxIndex[maxstthits],
-	Remaining[maxstthits];
+		ContiguousTube,
+		CurrentTube,
+		i,
+		tCurrentListofTubes[ InOut->maxstthitsintrack ];  // current list of tubes forming the cluster;
 
- Short_t iFi2;
-
- Double_t auxRvalues[maxstthits];
-
-
-//   ihit        is the hit number in the PARALLEL number scheme
-
- for(i=0, nRemainingHits=0; i<Nparal; i++){
-
-	if( i != ihit && InclusionListStt[  ListSttParHits[i]   ] ) {   //  Inclusion of the
-				//  parallel hit straws already used in other tracks
-				//  remember the index of InclusionListStt is in the
-				//  ORIGINAL scheme of hits
-		TemporaryInclusionList[ ListSttParHits[i]  ]= true;
-		Remaining[nRemainingHits]= i;   //  index of the PARALLEL hit
-		nRemainingHits++;
-	} else {
-		TemporaryInclusionList[ ListSttParHits[i]  ]= false;
-	}
- }
-
- if( nRemainingHits < minimumhitspertrack )    return 0;
-
-
-//  cells of the seed hit
-
- if(ihit>=0){
-	nHitsinTrack=1;
-	ListHitsinTrack[0]=  ListSttParHits[ihit] ;
-	i = 0;
- } else {
-	nHitsinTrack=0;
-	i = -1;
- }
-
- status=true;
-
-
- while( nRemainingHits > 0 &&  i < nHitsinTrack && status) {
-
-
-	if (nRcell - NRCELLDISTANCE < 0 ) {
-		nRmin = 0;
-	}  else {
-		nRmin = nRcell - NRCELLDISTANCE;
-	}
-	if (nRcell + NRCELLDISTANCE >= nrd ) {
-		nRmax = nrd-1;
-	}  else {
-		nRmax = nRcell + NRCELLDISTANCE;
-	}
+ Vec <Short_t>
+		CurrentListofTubes(tCurrentListofTubes, InOut->maxstthitsintrack, "CurrentListofTubes");
 
 
 
-    for( iR= nRmin ; iR<= nRmax && status ; iR++){
-      for(iFi2=nFicell-NFiCELLDISTANCE;iFi2<=nFicell+NFiCELLDISTANCE && status;iFi2++){
-		if ( iFi2 < 0 )  {
-			iFi = nfid + iFi2;
-		} else if ( iFi2 >= nfid) {
-			iFi = iFi2  - nfid;
-		}  else {
-			iFi = iFi2;
+// the following is a necessary initialization every time a new cluster is searched starting from a given seed hit;
+
+ bool tAlreadyConsidered[ InOut->number_straws ] ;   // for each Stt Straw;
+ memset ( tAlreadyConsidered,false, sizeof( tAlreadyConsidered ));
+ Vec<bool> AlreadyConsidered(tAlreadyConsidered,InOut->number_straws,"AlreadyConsidered");
+
+
+ // algorithm of clusterization by proximity only;
+
+ Short_t nHitsinTrack = 1;
+ Short_t nHitsAnalyzed = 0;
+ InOut->ListHitsinTrack[0] = InOut->iHit;
+ CurrentListofTubes[0] = InOut->TubeID[ InOut->iHit ];
+ bool	go = true;
+
+
+ // nParContiguous[i] is the number of contiguous straws to the i-th straw (therefore the dimension
+ //	is nParContiguous[4542+1] since nParContiguous[4542] = contiguous of straw n. 4542;
+ // ListParContiguous is the List in TubeID contiguous to a given Tube number;
+ // it MUST be used as follows : ListParContiguous[ j ][i] = the TubeID of the (i+1)th contiguous straw
+ //	to the j-th straw (tube number); therefore the dimension is ListParContiguous[4542+1][6];
+ while(nHitsAnalyzed < nHitsinTrack && go){	// main loop;
+	CurrentTube = CurrentListofTubes[nHitsAnalyzed];
+	AlreadyConsidered[ CurrentTube-1 ] = true;
+	nHitsAnalyzed++;
+
+	for(i=0;i< InOut->nParContiguous[ CurrentTube ] ; i++ ) {
+		// SttStrawOn is -1 if the Tube was not hit, it is the Stt Hit number in opposite case;
+		ContiguousTube = InOut->ListParContiguous[ CurrentTube ][i];
+
+		if( AlreadyConsidered[ ContiguousTube-1 ])continue;
+
+		if ( InOut->SttStrawOn[ ContiguousTube-1 ] > -1 ){
+
+			if( nHitsinTrack == InOut->maxstthitsintrack ){
+				go = false;
+				break;
+			}  // end of  if( nHitsinTrack
+
+			//  CurrentListofHits is the List of Stt HIT numbers belonging to the present cluster;
+			InOut->ListHitsinTrack[nHitsinTrack] = InOut->SttStrawOn[ ContiguousTube -1 ] ;
+			CurrentListofTubes[nHitsinTrack] = ContiguousTube ;
+			AlreadyConsidered[ ContiguousTube-1 ] = true;
+			nHitsinTrack ++ ;
 		}
-	 bi_index = iR*nfid+iFi;
-	 for (j = 0; j< nBoxConformal[bi_index]; j++){
-	    tri_index = j*nrd*nfid+bi_index;
-	    if( InclusionListStt[ HitsinBoxConformal[tri_index] ]
-					&&
-		 TemporaryInclusionList[HitsinBoxConformal[tri_index]]) {
-			// hit number in the ORIGINAL straws scheme
-			ListHitsinTrack[nHitsinTrack]=HitsinBoxConformal[tri_index] ;
-			nHitsinTrack++;
-		if( nHitsinTrack >= maxstthitsintrack){
-		 // finish the search
-		 status=false; // finish all outer loops as well.
-		 break ;
-		}
-		TemporaryInclusionList[HitsinBoxConformal[tri_index]]= false;
-		nRemainingHits--;
-	    } // end of if( InclusionListStt[  ListSttParHits[...]]
-         }// end of  for (j = 0; j< ....
-      }  // end of  for( iFi2 = nFicell - NFiCELLDISTANCE ;
-    }	// end of  for( iR= nRmin ; iR<= nRmax ; iR++)
-//----------------
-    i++;
-    if(i<maxstthitsintrack){
-	nRcell = RConformalIndex[ListHitsinTrack[i]];
-	nFicell = FiConformalIndex[ListHitsinTrack[i]];
-    }
-   }    //  end      while ( nRemainingHits > 0 && i < nHitsinTrack)
+	}   // end of for(i=0;i< InOut->n ...
+ }   // end of while(nRemaining > 0)
 
-
-
-    return nHitsinTrack;
+ return nHitsinTrack;
 
 }
 
 
-//----------end of function PndTrkCTFindTrackInXY2::FindTrackPatterninBoxConformal
+//----------end of function PndTrkCTFindTrackInXY2::FindTrackPattern
 
 
 
