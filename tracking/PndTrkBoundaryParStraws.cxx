@@ -156,9 +156,13 @@ void  PndTrkBoundaryParStraws::SttTubeList(
 		tubeID;
 	double
 		apotema,
+		dist_x,
+		dist_y,
 		Rrr,
 		x,
-		y;
+		y,
+		xcircle,
+		ycircle;
 
 	PndSttTube *pSttTube ;
 	TVector3 center;
@@ -167,6 +171,8 @@ void  PndTrkBoundaryParStraws::SttTubeList(
 
 //-----------------------------
 	int num = NUMBER_STRAWS;
+
+	STRAWRADIUS += 0.005; // take into account the 30 micron Mylar thickness;
 
 // calcolo delle regioni 'speciali';
 
@@ -254,11 +260,52 @@ void  PndTrkBoundaryParStraws::SttTubeList(
 		pSttTube = (PndSttTube*) SttTubeArray->At(i);
 		center = pSttTube->GetPosition();
 		wiredirection = pSttTube->GetWireDirection();
-		Rrr = sqrt( center.X()*center.X()+center.Y()*center.Y());
 		// solo STT parallel;
 		if(!(fabs( wiredirection.X() )< 0.00001 && fabs( wiredirection.Y() )< 0.00001))continue;
 
-		if( Rrr <RSTRAWDETECTORMAX-2*STRAWRADIUS)  continue;
+		// add also 30 micron of Mylar in the calculation;
+		xcircle = sqrt( RSTRAWDETECTORMAX*RSTRAWDETECTORMAX - center.Y()*center.Y() );
+		ycircle = sqrt( RSTRAWDETECTORMAX*RSTRAWDETECTORMAX - center.X()*center.X() );
+		dist_x = fabs(center.X()) + 3.5 * STRAWRADIUS  ;
+		dist_y = fabs(center.Y()) + 3.5 * STRAWRADIUS  ;
+		if( dist_x  < xcircle && dist_y < ycircle )  continue; // this is not a Outer Stt Straw on the boundary;
+		// special exclusions :
+		if( i == 3628 || i==3514||i==3513 || i==3399 || i==3631 || i==3738 || i==3743 ||
+		    i==3850||  i== 3855 || i== 3949|| i==3954 || i==4048) continue;
+
+
+		if( i == 3856 || i==3948||i==3955 || i==4047 || i==4045 || i==4137 || i==4144 ||
+		    i==4227) continue;
+
+		if( i == 4055 || i==4136||i==4145 || i==4226 ) continue;
+		if( i == 4235 || i==4301||i==4310 || i==4376 ) continue;
+		if( i == 4236 || i==4300||i==4311 || i==4375 ) continue;
+		if( 4386 <= i && i<=4393 ) continue;
+		if( 4422 <= i && i<=4429 ) continue;
+		if( 4440 <= i && i<=4447 ) continue;
+		if( 4476 <= i && i<=4483 ) continue;
+		if( i == 3883 || i==3921||i==3982 || i==4020 ) continue;
+		if( i == 3434 || i==3478 ||i==3549 || i== 3593 ) continue;
+		if( i == 3211 || i==3250||i==3323 || i==3362 ) continue;
+		if( i == 3438 || i==3474||i==3553 || i==3589 ) continue;
+		if( i == 3669 || i==3700||i==3781 || i== 3812 ) continue;
+		if( i == 3888 || i==3916||i==3987 || i==4015 ) continue;
+		if( 4084 <= i && i<=4085 ) continue;
+		if( 4106 <= i && i<=4107 ) continue;
+		if( 4174 <= i && i<=4175 ) continue;
+		if( 4196 <= i && i<=4197 ) continue;
+
+		if( 4260 <= i && i<=4261 ) continue;
+		if( 4275 <= i && i<=4276 ) continue;
+		if( 4335 <= i && i<=4336 ) continue;
+		if( 4350 <= i && i<=4351 ) continue;
+
+		if( 4404 <= i && i<=4407 ) continue;
+		if( 4408 <= i && i<=4411 ) continue;
+		if( 4458 <= i && i<=4461 ) continue;
+		if( 4462 <= i && i<=4465 ) continue;
+
+
 		if(stampa)cout<<"\tSTT straw || tubeID n.  "<<i<<", centro X "<< center.X()
 		<<", centro Y "<< center.Y()<<", centro Z "<< center.Z()<<", fR = "<<Rrr;
 		if( center.X() < 0. ) {
