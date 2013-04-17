@@ -128,8 +128,8 @@
 
 using namespace std;
 int main(int __argc,char *__argv[]) {
-  gROOT->Macro("/PANDA/pandaroot/macro/lmd/Style_Imported_Style.C");
-  gROOT->SetStyle("Imported_Style"); 
+  //gROOT->Macro("/PANDA/pandaroot/macro/lmd/Style_Imported_Style.C");
+  // gROOT->SetStyle("Imported_Style"); 
 
   //TODO: read this like params!
   //  const int nEvents=500000;
@@ -880,19 +880,27 @@ TH2 *hPullPointYtheta = new TH2F("hPullPointYtheta","(Y_{MC}-Y_{rec})/#sigma_{Y}
 	///------------------------------------------------------------------------------------
 	
 	/// Read track-parameters after back-propagation ---------------------------------------
-	Double_t thetaBP = TMath::Pi()/2. - lyambda;
-	Double_t err_lyambda = fRes->GetDLambda();
-	// Double_t err_lyambda = errMom.Theta();
-	Double_t phiBP = fRes->GetPhi();
-	Double_t err_phi = fRes->GetDPhi();
-	Double_t errMomRecBP = fRes->GetDQp();
-	TVector3 MomRecBP = fRes->GetMomentum();
-
+	//TODO: problem with covarance matrix in FairTrackParH???
 
 	Double_t errPx = fRes->GetDPx();
 	Double_t errPy = fRes->GetDPy();
 	Double_t errPz = fRes->GetDPz();
-	
+	TVector3 errMomBP(errPx,errPy,errPz);
+
+	Double_t thetaBP = TMath::Pi()/2. - lyambda;
+	Double_t err_lyambda = fRes->GetDLambda();
+	if(err_lyambda==0) err_lyambda = errMomBP.Theta();
+	// Double_t err_lyambda = errMom.Theta();
+	Double_t phiBP = fRes->GetPhi();
+	Double_t err_phi = fRes->GetDPhi();
+	if(err_phi==0) err_phi=errMomBP.Phi();
+	Double_t errMomRecBP = fRes->GetDQp();
+
+
+	TVector3 MomRecBP = fRes->GetMomentum();
+
+
+
 	Double_t resTheta = thetaBP-thetaMC;
 
 	double resMom = MomRecBP.Mag()-MomMC.Mag();
@@ -912,22 +920,22 @@ TH2 *hPullPointYtheta = new TH2F("hPullPointYtheta","(Y_{MC}-Y_{rec})/#sigma_{Y}
 	Double_t errPCA = TMath::Sqrt(errX*errX+errY*errY+errZ*errZ);
 	hErrDCA->Fill(errPCA);
 	hPullDCA->Fill(PosRec.Mag()/errPCA);
-	hPointXY->Fill(PosRec.X(), PosRec.Y());
-	hPointXYcut->Fill(PosRec.X(), PosRec.Y());
-	hResPointZ->Fill(PosRec.Z());
+	hPointXY->Fill(-PosRec.X(), -PosRec.Y());
+	hPointXYcut->Fill(-PosRec.X(), -PosRec.Y());
+	hResPointZ->Fill(-PosRec.Z());
 	hErrPointX->Fill(errX);
 	hErrPointY->Fill(errY);
 	hErrLinPointX->Fill(errXlin);
 	hErrLinPointY->Fill(errYlin);
 	hErrPointXY->Fill(errX,errY);
 	hErrPointZ->Fill(errZ);
-	hPullPointX->Fill(PosRec.X()/errX);
-	hPullPointY->Fill(PosRec.Y()/errY);
-	hPullPointZ->Fill(PosRec.Z()/errZ);
-	hPullPointXphi->Fill(phiMC,(PosRec.X()/errX));
-	hPullPointYphi->Fill(phiMC,(PosRec.Y()/errY));
-	hPullPointXtheta->Fill(thetaMC,(PosRec.X()/errX));
-	hPullPointYtheta->Fill(thetaMC,(PosRec.Y()/errY));
+	hPullPointX->Fill(-PosRec.X()/errX);
+	hPullPointY->Fill(-PosRec.Y()/errY);
+	hPullPointZ->Fill(-PosRec.Z()/errZ);
+	hPullPointXphi->Fill(phiMC,(-PosRec.X()/errX));
+	hPullPointYphi->Fill(phiMC,(-PosRec.Y()/errY));
+	hPullPointXtheta->Fill(thetaMC,(-PosRec.X()/errX));
+	hPullPointYtheta->Fill(thetaMC,(-PosRec.Y()/errY));
 
 	hResPointPx->Fill(MomMC.X()-MomRecBP.X());
 	hResPointPy->Fill(MomMC.Y()-MomRecBP.Y());
