@@ -24,9 +24,9 @@ using namespace std;
 		const Short_t NUMBER_STRAWS,  // number of Stt Straws in total;
 		TClonesArray *SttTubeArray, // input; array of the Stt tubes;
 		Short_t *nParContiguous,  // output; number of contiguous straws (axial Stt);
-				// NUMBER_STRAWS+1 because the numbering scheme for the Stt straws goes
+				// NUMBER_STRAWS even if the numbering scheme for the Stt straws goes
 				//  from 1 to NUMBER_STRAWS included;
-		Short_t ListParContiguous[][6]  // output list (axial Stt);
+		Short_t ListParContiguous[][6]  // output list (axial Stt); first dimension is NUMBER_STRAWS;
 						)
  {
 	int i,j,n, ncontigue;
@@ -66,9 +66,9 @@ using namespace std;
 			dis2 = ( x[i]-x[j])*( x[i]-x[j]) +
 				(y[i]-y[j])*(y[i]-y[j]);
 			if(dis2>1.1) continue;
-			ListParContiguous[i+1][nParContiguous[i+1]] = j+1;
-			nParContiguous[i+1]++;
-			if( nParContiguous[i+1]>6 ) { cout<<"Errore ! N contigue Par > 6!!! Exit.\n"; exit(-1);}
+			ListParContiguous[i][nParContiguous[i]] = j+1;
+			nParContiguous[i]++;
+			if( nParContiguous[i]>6 ) { cout<<"Errore ! N contigue Par > 6!!! Exit.\n"; exit(-1);}
 		}
 
 
@@ -80,18 +80,18 @@ using namespace std;
 		if(Zwiredirection[i] <0.) {
 			fprintf(HAND," dirX %g , dirY %g , dirZ %g ; straw contigue = %d ;",
 			-Xwiredirection[i],-Ywiredirection[i],Zwiredirection[i],
-			nParContiguous[i+1]);
+			nParContiguous[i]);
 		}else{
 			fprintf(HAND," dirX %g , dirY %g , dirZ %g ; straw contigue = %d ;",
 			Xwiredirection[i],Ywiredirection[i],Zwiredirection[i],
-			nParContiguous[i+1]);
+			nParContiguous[i]);
 		}
 
 
-		if( nParContiguous[i+1]>0 ) {
+		if( nParContiguous[i]>0 ) {
 			fprintf(HAND," lista :");
-			for(n=0;n<nParContiguous[i+1];n++){
-				fprintf(HAND," %d",ListParContiguous[i+1][n]);
+			for(n=0;n<nParContiguous[i];n++){
+				fprintf(HAND," %d",ListParContiguous[i][n]);
 			}
 			fprintf(HAND,";\n");
 		} else {
