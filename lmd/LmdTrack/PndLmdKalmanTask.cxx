@@ -81,7 +81,8 @@ PndLmdKalmanTask::PndLmdKalmanTask()
   // hpzpull = new TH1D("hpzpull","pz/#sigma_{pz}",1e2,-10,10.);
   flGEANE = false;
   flRK = false;
-}
+  fscaleP = 1;
+  fscaleM = 1;}
 
 PndLmdKalmanTask::PndLmdKalmanTask(TString HitBranch, TString TrackBranch)
   : FairTask("Kalman Filter"), fPersistence(kFALSE)
@@ -91,6 +92,8 @@ PndLmdKalmanTask::PndLmdKalmanTask(TString HitBranch, TString TrackBranch)
   PndGeoHandling::Instance();
   flGEANE = false;
   flRK = false;
+  fscaleP = 1;
+  fscaleM = 1;
 }
 
 PndLmdKalmanTask::~PndLmdKalmanTask()
@@ -125,8 +128,11 @@ PndLmdKalmanTask::Init()
   fSdsHitsArray=(TClonesArray*) ioman->GetObject(fSdsHitBranchName);
 
   //Set output collection
-  fTrackFittedArray = new TClonesArray("PndLinTrack");
-  ioman->Register("LMDTrack", "PndLmd", fTrackFittedArray, kTRUE);
+  // fTrackFittedArray = new TClonesArray("PndLinTrack");
+  // ioman->Register("LMDTrack", "PndLmd", fTrackFittedArray, kTRUE);
+  
+  fTrackFittedArray = new TClonesArray("PndTrack");
+  ioman->Register("LMDPndTrack", "PndLmd", fTrackFittedArray, kTRUE);
 
   // Build hit factory -----------------------------
   fTheRecoHitFactory = new GFRecoHitFactory();
@@ -206,7 +212,7 @@ PndLmdKalmanTask::Exec(Option_t* opt)
        std::cout<<"vv:"<<std::endl;
        vv.Print();
      }
-     GFDetPlane start_pl(oo,uu,vv);
+ 
 
 
      GFTrackCand* GFtrkCand = PndTrackCand2GenfitTrackCand(trackCand);
@@ -216,7 +222,10 @@ PndLmdKalmanTask::Exec(Option_t* opt)
      TVector3 StartPosErr(sqrt(hitCov[0][0]),sqrt(hitCov[1][1]),sqrt(hitCov[2][2]));
      TVector3 StartDirErr(0.1*(sqrt(hitCov[0][0])),0.1*(sqrt(hitCov[1][1])),0.1*sqrt(hitCov[2][2]));//TODO: check this assumption (2*sigma_{x}/20cm)
      TVector3 StartMomErr=fPbeam*StartDirErr;
-
+     //initial errors for Kalman must be large: this is usually done in order to give a low weight to the prefit
+      StartPosErr *=fscaleP;
+      StartMomErr *=fscaleM;
+     //     StartMomErr *=1;
     if(fVerbose>2){
       unsigned int detid=12345, index=12345;
       std::cout<< "GFTrackCand no. "<<itr<<" has "<<GFtrkCand->getNHits()<<" hits."<<std::endl;
@@ -263,49 +272,51 @@ PndLmdKalmanTask::Exec(Option_t* opt)
 
     ///GEANE track rep --------------------
     if(flGEANE){
-      if(fVerbose>1)
-	std::cout<<"GeaneTrackRep will be used for track representation"<<std::endl;
-      //TODO:  to initilaze   GeaneTrackRep one has to do "propagation". Why???
-      FairTrackParH *fStart = new FairTrackParH(StartPos, StartMom, StartPosErr, StartMomErr, fCharge);
-      FairTrackParH *fRes = new FairTrackParH();
-      Double_t deltaZ = -5e-4;//go out of plane for 5mkm
-      TVector3 dirCand = GFtrkCand->getDirSeed();
-      if(fVerbose>1){
-	std::cout<<" ---- dirCand ---- "<<std::endl;
-	dirCand.Print();
-    }
-    TVector3 pointbackprop(StartPos.X()+deltaZ*dirCand.X(),StartPos.Y()+deltaZ*dirCand.Y(),(StartPos.Z()+deltaZ));
-    fPro->SetPoint(pointbackprop);
-    fPro->PropagateToPCA(1, -1);
-    Bool_t rc =  fPro->Propagate(fStart, fRes, fPDGCode);
-    if(fVerbose>1){
-    if(rc) std::cout<<"success in back propagation to init GeaneTrackRep !"<<std::endl;
-    else std::cout<<" =( no success in back propagation to init GeaneTrackRep ! =("<<std::endl;
-    }
-    if (rc)
-      {
-    	StartPos.SetXYZ(fRes->GetX(), fRes->GetY(), fRes->GetZ());
-    	StartMom.SetXYZ(fRes->GetPx(), fRes->GetPy(), fRes->GetPz());
-    	StartPosErr.SetXYZ(fRes->GetDX(), fRes->GetDY(), fRes->GetDZ());
-    	StartMomErr.SetXYZ(fRes->GetDPx(), fRes->GetDPy(), fRes->GetDPz());
-      }
-    if(fVerbose>1){
-      std::cout<<"*** AFTER ***"<<std::endl;
-      std::cout<<"StartPos:"<<std::endl;
-      StartPos.Print();
-      std::cout<<"StartPosErr:"<<std::endl;
-      StartPosErr.Print();
-      std::cout<<"StartMom:"<<std::endl;
-      StartMom.Print();
-      std::cout<<"StartMomErr:"<<std::endl;
-      StartMomErr.Print();
-    }
-    rep = new GeaneTrackRep(fPro,
+    //   if(fVerbose>1)
+    // 	std::cout<<"GeaneTrackRep will be used for track representation"<<std::endl;
+    //   //TODO:  to initilaze   GeaneTrackRep one has to do "propagation". Why???
+    //   FairTrackParH *fStart = new FairTrackParH(StartPos, StartMom, StartPosErr, StartMomErr, fCharge);
+    //   FairTrackParH *fRes = new FairTrackParH();
+    //   Double_t deltaZ = -5e-4;//go out of plane for 5mkm
+    //   TVector3 dirCand = GFtrkCand->getDirSeed();
+    //   if(fVerbose>1){
+    // 	std::cout<<" ---- dirCand ---- "<<std::endl;
+    // 	dirCand.Print();
+    // }
+    // TVector3 pointbackprop(StartPos.X()+deltaZ*dirCand.X(),StartPos.Y()+deltaZ*dirCand.Y(),(StartPos.Z()+deltaZ));
+    // fPro->SetPoint(pointbackprop);
+    // fPro->PropagateToPCA(1, -1);
+    // Bool_t rc =  fPro->Propagate(fStart, fRes, fPDGCode);
+    // if(fVerbose>1){
+    // if(rc) std::cout<<"success in back propagation to init GeaneTrackRep !"<<std::endl;
+    // else std::cout<<" =( no success in back propagation to init GeaneTrackRep ! =("<<std::endl;
+    // }
+    // if (rc)
+    //   {
+    // 	StartPos.SetXYZ(fRes->GetX(), fRes->GetY(), fRes->GetZ());
+    // 	StartMom.SetXYZ(fRes->GetPx(), fRes->GetPy(), fRes->GetPz());
+    // 	StartPosErr.SetXYZ(fRes->GetDX(), fRes->GetDY(), fRes->GetDZ());
+    // 	StartMomErr.SetXYZ(fRes->GetDPx(), fRes->GetDPy(), fRes->GetDPz());
+    //   }
+    // if(fVerbose>1){
+    //   std::cout<<"*** AFTER ***"<<std::endl;
+    //   std::cout<<"StartPos:"<<std::endl;
+    //   StartPos.Print();
+    //   std::cout<<"StartPosErr:"<<std::endl;
+    //   StartPosErr.Print();
+    //   std::cout<<"StartMom:"<<std::endl;
+    //   StartMom.Print();
+    //   std::cout<<"StartMomErr:"<<std::endl;
+    //   StartMomErr.Print();
+    // }
+      GFDetPlane start_pl(StartPos,uu,vv);//
+      rep = new GeaneTrackRep(fPro,
 			    start_pl,StartMom,
 			    StartPosErr,StartMomErr,
 			    fCharge,fPDGCode);
     }
     ///GEANE track rep (END) --------------------
+
 
     GFTrack* trk= new GFTrack(rep);
     trk->setCandidate(*GFtrkCand);
@@ -351,69 +362,106 @@ PndLmdKalmanTask::Exec(Option_t* opt)
     }
     trkPnd->SetTrackCand(*trackCand);
     trkPnd->SetRefIndex(itr);//TODO: check is it correct set RefIn like ID of trk-cand???
-    // --- Save as Lin trk ---
-    FairTrackParP fFittedTrkParabolStart = trkPnd->GetParamFirst();
-    TVector3 FinPos(fFittedTrkParabolStart.GetX(),fFittedTrkParabolStart.GetY(),fFittedTrkParabolStart.GetZ());
-    TVector3 FinMom(fFittedTrkParabolStart.GetPx(),fFittedTrkParabolStart.GetPy(),fFittedTrkParabolStart.GetPz());
-    TVector3 FinPosErr(fFittedTrkParabolStart.GetDX(),fFittedTrkParabolStart.GetDY(),fFittedTrkParabolStart.GetDZ());
-    TVector3 FinMomErr(fFittedTrkParabolStart.GetDPx(),fFittedTrkParabolStart.GetDPy(),fFittedTrkParabolStart.GetDPz());
-   
-
-   //-------------------------------------
-    if(flGEANE){
-    //propagate out of middle of plane
-    FairTrackParH *fStartNEW = new FairTrackParH(FinPos, FinMom, FinPosErr, FinMomErr, fCharge);
-    FairTrackParH *fResNEW = new FairTrackParH();
-    Double_t deltaZ1 = -3.5e-2;//go out of plane for 350 mkm
-    TVector3 dirVec = FinMom*(1./FinMom.Mag());
-    TVector3 pointbackpropNEW(FinPos.X()+deltaZ1*dirVec.X(),FinPos.Y()+deltaZ1*dirVec.Y(),(FinPos.Z()+deltaZ1));
-    fPro->SetPoint(pointbackpropNEW);
-    fPro->PropagateToPCA(1, -1); 
-    Bool_t rcNEW =  fPro->Propagate(fStartNEW, fResNEW, fPDGCode);
-    if(fVerbose>1){
-      if(rcNEW) std::cout<<"=) ! success in final propagation out of 1st plane ! (="<<std::endl;
-      else std::cout<<" =( no success in final propagation out of 1st plane =("<<std::endl;
-    }
-    if (rcNEW)
-      {
-    	FinPos.SetXYZ(fResNEW->GetX(), fResNEW->GetY(), fResNEW->GetZ());
-    	FinMom.SetXYZ(fResNEW->GetPx(), fResNEW->GetPy(), fResNEW->GetPz());
-    	FinPosErr.SetXYZ(fResNEW->GetDX(), fResNEW->GetDY(), fResNEW->GetDZ());
-    	FinMomErr.SetXYZ(fResNEW->GetDPx(), fResNEW->GetDPy(), fResNEW->GetDPz());
-      }
-    }
-
-    if(fVerbose>1){
-      std::cout<<"Trk parameters after fit: "<<std::endl;
-      std::cout<<"Position:"<<std::endl;
-      FinPos.Print();
-      std::cout<<"Position error:"<<std::endl;
-      FinPosErr.Print();
-      std::cout<<"Momentum:"<<std::endl;
-      FinMom.Print();
-      std::cout<<"Momentum Error:"<<std::endl;
-      FinMomErr.Print();
-    }
-
-    TVector3 FinDir = FinMom*(1./FinMom.Mag());
-    TVector3 FinDirErr = FinMomErr*(1./FinMom.Mag());
-    double chi2GF = trk->getChiSqu();
+    trkPnd->SetChi2(trk->getChiSqu());
+    // --- Save as PndTrack---
     TClonesArray& clref = *fTrackFittedArray;
     Int_t size = clref.GetEntriesFast();
-    PndLinTrack *trackfit = new(clref[size]) PndLinTrack("Lumi",FinPos.X(),FinDir.X(),FinPos.Y(),FinDir.Y(),FinPos.Z(),
-							 FinDir.Z(),chi2GF, -1,-1,itr);//TODO: set correct hit id!
-    //    trackfit->Print();
-    GFAbsTrackRep* clone = trk->getCardinalRep()->clone();
-    TMatrixT<double> firstCov = clone->getFirstCov();
-    TMatrixDSym *COVmatrix = new TMatrixDSym(6); //TODO: save full covariance matrix
-    (*COVmatrix)(0,0) = FinPosErr.X()*FinPosErr.X();
-    (*COVmatrix)(1,1) = FinDirErr.X()*FinDirErr.X();
-    (*COVmatrix)(2,2) = FinPosErr.Y()*FinPosErr.Y();
-    (*COVmatrix)(3,3) = FinDirErr.Y()*FinDirErr.Y();
-    (*COVmatrix)(4,4) = FinPosErr.Z()*FinPosErr.Z();
-    (*COVmatrix)(5,5) = FinDirErr.Z()*FinDirErr.Z();
+    PndTrack *trackfit = new(clref[size]) PndTrack(*trkPnd);
+
+ //    // --- Save as Lin trk ---
+ //    FairTrackParP fFittedTrkParabolStart = trkPnd->GetParamFirst();
+ //    TVector3 FinPos(fFittedTrkParabolStart.GetX(),fFittedTrkParabolStart.GetY(),fFittedTrkParabolStart.GetZ());
+ //    TVector3 FinMom(fFittedTrkParabolStart.GetPx(),fFittedTrkParabolStart.GetPy(),fFittedTrkParabolStart.GetPz());
+ //    double covMARS[6][6];
+ //     fFittedTrkParabolStart.GetMARSCov(covMARS);
+ // //    std::cout<<"covMARS:"<<std::endl;
+ // //    std::cout<<"sqrt(covMARS[0][0]) = "<<sqrt(covMARS[0][0])<<" sqrt(covMARS[1][1]) = "<<sqrt(covMARS[1][1])<<" sqrt(covMARS[2][2]) = "<<sqrt(covMARS[2][2])<<std::endl;
+ // // std::cout<<"sqrt(covMARS[3][3]) = "<<sqrt(covMARS[3][3])<<" sqrt(covMARS[4][4]) = "<<sqrt(covMARS[4][4])<<" sqrt(covMARS[5][5]) = "<<sqrt(covMARS[5][5])<<std::endl;
+
+ //    // TVector3 FinPosErr(fFittedTrkParabolStart.GetDX(),fFittedTrkParabolStart.GetDY(),fFittedTrkParabolStart.GetDZ());
+ //    // TVector3 FinMomErr(fFittedTrkParabolStart.GetDPx(),fFittedTrkParabolStart.GetDPy(),fFittedTrkParabolStart.GetDPz());
    
-    trackfit->SetCovarianceMatrix(*COVmatrix);
+
+ //   //-------------------------------------
+ //    // if(flGEANE){
+ //    // //propagate out of middle of plane
+ //    // FairTrackParH *fStartNEW = new FairTrackParH(FinPos, FinMom, FinPosErr, FinMomErr, fCharge);
+ //    // FairTrackParH *fResNEW = new FairTrackParH();
+ //    // Double_t deltaZ1 = -3.5e-2;//go out of plane for 350 mkm
+ //    // TVector3 dirVec = FinMom*(1./FinMom.Mag());
+ //    // TVector3 pointbackpropNEW(FinPos.X()+deltaZ1*dirVec.X(),FinPos.Y()+deltaZ1*dirVec.Y(),(FinPos.Z()+deltaZ1));
+ //    // fPro->SetPoint(pointbackpropNEW);
+ //    // fPro->PropagateToPCA(1, -1); 
+ //    // Bool_t rcNEW =  fPro->Propagate(fStartNEW, fResNEW, fPDGCode);
+ //    // if(fVerbose>1){
+ //    //   if(rcNEW) std::cout<<"=) ! success in final propagation out of 1st plane ! (="<<std::endl;
+ //    //   else std::cout<<" =( no success in final propagation out of 1st plane =("<<std::endl;
+ //    // }
+ //    // if (rcNEW)
+ //    //   {
+ //    // 	FinPos.SetXYZ(fResNEW->GetX(), fResNEW->GetY(), fResNEW->GetZ());
+ //    // 	FinMom.SetXYZ(fResNEW->GetPx(), fResNEW->GetPy(), fResNEW->GetPz());
+ //    // 	FinPosErr.SetXYZ(fResNEW->GetDX(), fResNEW->GetDY(), fResNEW->GetDZ());
+ //    // 	FinMomErr.SetXYZ(fResNEW->GetDPx(), fResNEW->GetDPy(), fResNEW->GetDPz());
+ //    //   }
+ //    // }
+
+ //    if(fVerbose>1){
+ //      std::cout<<"Trk parameters after fit: "<<std::endl;
+ //      std::cout<<"Position:"<<std::endl;
+ //      FinPos.Print();
+ //      // std::cout<<"Position error:"<<std::endl;
+ //      // FinPosErr.Print();
+ //      std::cout<<"Momentum:"<<std::endl;
+ //      FinMom.Print();
+ //      // std::cout<<"Momentum Error:"<<std::endl;
+ //      // FinMomErr.Print();
+ //    }
+
+ //    TVector3 FinDir = FinMom*(1./FinMom.Mag());
+ //    //  TVector3 FinDirErr = FinMomErr*(1./FinMom.Mag());
+ //    double chi2GF = trk->getChiSqu();
+ //    TClonesArray& clref = *fTrackFittedArray;
+ //    Int_t size = clref.GetEntriesFast();
+ //    PndLinTrack *trackfit = new(clref[size]) PndLinTrack("Lumi",FinPos.X(),FinDir.X(),FinPos.Y(),FinDir.Y(),FinPos.Z(),
+ // 							 FinDir.Z(),chi2GF, -1,-1,itr);//TODO: set correct hit id!
+ //  //   //    trackfit->Print();
+ //  //   GFAbsTrackRep* clone = trk->getCardinalRep()->clone();
+ //  //   TMatrixT<double> firstCov = clone->getFirstCov();
+ //  //   std::cout<<" full: cov.matrix"<<std::endl;
+ //  //   firstCov.Print();
+ //  //   std::cout<<"sqrt(firstCov(0,0)) = "<<sqrt(firstCov(0,0))<<" sqrt(firstCov(1,1)) = "<<sqrt(firstCov(1,1))<<" sqrt(firstCov(2,2)) = "<<sqrt(firstCov(2,2))<<std::endl; 
+ //  //   std::cout<<"FinDirErr: "<<std::endl;
+ //  //   FinDirErr.Print(); 
+ //  //   std::cout<<"sqrt(firstCov(3,3)) = "<<sqrt(firstCov(3,3))<<" sqrt(firstCov(4,4)) = "<<sqrt(firstCov(4,4))<<" sqrt(firstCov(5,5)) = "<<sqrt(firstCov(5,5))<<std::endl;
+ //  // std::cout<<"FinPosErr: "<<std::endl;
+ //  //   FinPosErr.Print();
+ //    TMatrixDSym *COVmatrix = new TMatrixDSym(6);
+ //    int iconver[6]={3, 4, 5, 0, 1, 2};
+ //    for(int ji=0; ji<6; ji++){
+ //      for(int ij=0; ij<6; ij++){
+ // 	int km =  iconver[ji];
+ // 	int mk = iconver[ij];
+ // 	double scf=1;
+ // 	if(km<3) scf *= 1/fPbeam;
+ // 	if(mk<3) scf *= 1./fPbeam;
+ // 	(*COVmatrix)(ji,ij) =scf*covMARS[km][mk];
+ //      }
+ //    }
+ //    if(fVerbose>1){
+ //      std::cout<<"Covariance Matrix:"<<std::endl;
+ //      COVmatrix->Print();
+ //    }
+    
+ //    //  std::cout<<" sqrt(((*COVmatrix)(0,0))) = "<<sqrt(((*COVmatrix)(0,0)))<<" sqrt(((*COVmatrix)(3,3))) = "<<sqrt(((*COVmatrix)(3,3)))<<std::endl
+ //    // (*COVmatrix)(0,0) = FinPosErr.X()*FinPosErr.X();
+ //    // (*COVmatrix)(1,1) = FinDirErr.X()*FinDirErr.X();
+ //    // (*COVmatrix)(2,2) = FinPosErr.Y()*FinPosErr.Y();
+ //    // (*COVmatrix)(3,3) = FinDirErr.Y()*FinDirErr.Y();
+ //    // (*COVmatrix)(4,4) = FinPosErr.Z()*FinPosErr.Z();
+ //    // (*COVmatrix)(5,5) = FinDirErr.Z()*FinDirErr.Z();
+   
+ //    trackfit->SetCovarianceMatrix(*COVmatrix);
   }
   if(fVerbose>1)
     std::cout<<"Fitting done"<<std::endl;

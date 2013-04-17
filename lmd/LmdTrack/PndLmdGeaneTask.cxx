@@ -25,6 +25,7 @@
 #include "FairTrackParH.h"
 #include "FairTrackParP.h"
 #include "TDatabasePDG.h"
+#include "PndTrack.h"
 
 // PndSds includes
 #include "PndSdsMCPoint.h"
@@ -76,7 +77,8 @@ InitStatus PndLmdGeaneTask::Init()
     return kERROR;
   }
 
-  fTracks = (TClonesArray*) ioman->GetObject("LMDTrack");
+  //  fTracks = (TClonesArray*) ioman->GetObject("LMDTrack");
+  fTracks = (TClonesArray*) ioman->GetObject("LMDPndTrack");
   if (!fTracks){
     std::cout << "-W- PndLmdGeaneTask::Init: "<< "No Track" << " array!" << std::endl;
     return kERROR;
@@ -144,18 +146,33 @@ void PndLmdGeaneTask::Exec(Option_t* opt)
       int p = 0;
 
       ///Get parameters of real track
-      PndLinTrack* recTrack = (PndLinTrack*)(fTracks->At(i));
-      TString 	DecName = recTrack->GetDetName();
-      if(DecName!="Lumi") continue;
+      //    PndLinTrack* recTrack = (PndLinTrack*)(fTracks->At(i));
+      // TString 	DecName = recTrack->GetDetName();
+      // if(DecName!="Lumi") continue;
 
-      //Vector of particle momentum and starting point
-      TVector3 DirVec =  recTrack->GetDirectionVec();
-      StartPos = recTrack->GetStartVec();
-      StartPosErr = recTrack->GetStartErrVec();
-      StartMomErr = recTrack->GetDirectionErrVec();
-      StartMom = fPbeam*DirVec;
-      StartMomErr *=fPbeam;
+      // //Vector of particle momentum and starting point
+      // TVector3 DirVec =  recTrack->GetDirectionVec();
+      // StartPos = recTrack->GetStartVec();
+      // StartPosErr = recTrack->GetStartErrVec();
+      // StartMomErr = recTrack->GetDirectionErrVec();
+      // StartMom = fPbeam*DirVec;
+      // StartMomErr *=fPbeam;
     
+      PndTrack* recTrack = (PndTrack*)(fTracks->At(i));
+      // TString DecName = recTrack->GetDetName();
+      // if(DecName!="Lumi") continue;
+      FairTrackParP fFittedTrkP = recTrack->GetParamFirst();
+      TVector3 PosRecLMD(fFittedTrkP.GetX(),fFittedTrkP.GetY(),fFittedTrkP.GetZ());
+      TVector3 MomRecLMD(fFittedTrkP.GetPx(),fFittedTrkP.GetPy(),fFittedTrkP.GetPz());
+      double covMARS[6][6];
+      fFittedTrkP.GetMARSCov(covMARS);
+      TVector3 errMomRecLMD(sqrt(covMARS[0][0]),sqrt(covMARS[1][1]),sqrt(covMARS[2][2]));
+      TVector3 errPosRecLMD(sqrt(covMARS[3][3]),sqrt(covMARS[4][4]),sqrt(covMARS[5][5]));
+
+      StartPos = PosRecLMD;
+      StartPosErr = errPosRecLMD;
+      StartMom = MomRecLMD;
+      StartMomErr = errMomRecLMD;
 
        if(fVerbose>2){
 	 cout<<"------------------------------------------"<<endl;      
@@ -174,8 +191,10 @@ void PndLmdGeaneTask::Exec(Option_t* opt)
 
 
       ///Propagate to the PCA to a space point---------------------------------
-      FairTrackParH *fStart = 
-       	 new (clref1[size1]) FairTrackParH(StartPos, StartMom, StartPosErr, StartMomErr, fCharge);
+      int ierr=0;
+      FairTrackParH *fStart = new (clref1[size1]) FairTrackParH(&fFittedTrkP,ierr);
+      // FairTrackParH *fStart = 
+      //  	 new (clref1[size1]) FairTrackParH(StartPos, StartMom, StartPosErr, StartMomErr, fCharge);
       TClonesArray& clref = *fTrackParGeane;
       Int_t size = clref.GetEntriesFast();
       FairTrackParH *fRes = new(clref[size]) FairTrackParH();

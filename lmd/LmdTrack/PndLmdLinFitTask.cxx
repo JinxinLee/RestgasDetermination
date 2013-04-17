@@ -21,6 +21,10 @@
 #include "TrackData/PndTrackCand.h"
 #include "PndSdsHit.h"
 #include "TrackData/PndTrackCandHit.h"
+#include "PndTrack.h"
+#include "FairTrackParP.h"
+#include "FairBaseParSet.h"
+#include "FairRuntimeDb.h"
 
 #include "TFile.h"
 #include "TGeoTrack.h"
@@ -44,6 +48,7 @@
 #include <TLine.h>
 #include <TMultiGraph.h>
 #include <TPolyLine3D.h>
+#include <FairRun.h>
 using namespace ROOT::Math;
 using namespace std;
 
@@ -55,6 +60,10 @@ PndLmdLinFitTask::PndLmdLinFitTask()
   fRecoBranchName = "LMDHitsPixel";
   //  fRecoBranchName = "LmdHits";
   fTruePointBranch = "LMDPoint";  //True Points only for drawing!
+  fPbeam = 0;
+  fPDGCode = -2212; //barp
+  fCharge = -1;//barp
+  PndGeoHandling::Instance();
 }
 PndLmdLinFitTask::PndLmdLinFitTask(TString tTCandBranchName, TString tRecoBranchName)
   : FairTask("3D-Straight-Line-Fit")
@@ -62,6 +71,10 @@ PndLmdLinFitTask::PndLmdLinFitTask(TString tTCandBranchName, TString tRecoBranch
   fTCandBranchName = tTCandBranchName;
   fRecoBranchName = tRecoBranchName;
   fTruePointBranch = "LMDPoint";  //True Points only for drawing!
+  fPbeam = 0;
+  fPDGCode = -2212; //barp
+  fCharge = -1;//barp
+  PndGeoHandling::Instance();
 }
 
 PndLmdLinFitTask::~PndLmdLinFitTask()
@@ -97,8 +110,23 @@ InitStatus PndLmdLinFitTask::Init()
       return kERROR;
     }
 
-  fTrackArray = new TClonesArray("PndLinTrack");
-  ioman->Register("LMDTrack", "PndLmd", fTrackArray, kTRUE);
+  // fTrackArray = new TClonesArray("PndLinTrack");
+  // ioman->Register("LMDTrack", "PndLmd", fTrackArray, kTRUE);
+
+  fTrackArray = new TClonesArray("PndTrack");
+  ioman->Register("LMDPndTrack", "PndLmd", fTrackArray, kTRUE);
+
+
+  //read beam momentum from base
+  FairRun* fRun = FairRun::Instance();
+  FairRuntimeDb* rtdb = fRun->GetRuntimeDb();
+  FairBaseParSet* par=(FairBaseParSet*)
+    (rtdb->findContainer("FairBaseParSet"));
+  fPbeam = par->GetBeamMom();
+  fPDGCode = -2212; //barp
+  fCharge = -1;//barp
+
+  fGeoH = PndGeoHandling::Instance();
 
   std::cout << "-I- PndLmdLinFitTask: Initialisation successfull" << std::endl;
   return kSUCCESS;
@@ -181,14 +209,68 @@ void PndLmdLinFitTask::Exec(Option_t* opt)
     TMatrixDSym *COVmatrix = new TMatrixDSym(6);
     Double_t accuracy = line3Dfit(numPts, &fitme, posSeed, dirSeed, parFit, COVmatrix);
     
-    //  if(accuracy>0 && accuracy<1e3){ 
-    PndLinTrack* trackfit = new PndLinTrack("Lumi", parFit[0], parFit[1], parFit[2], parFit[3], parFit[4], parFit[5], 
-					    accuracy, firstHit, lastHit, track);
-    trackfit->SetCovarianceMatrix(*COVmatrix);
-    new((*fTrackArray)[rec_tkr]) PndLinTrack(*(trackfit)); //save Track
-    TVector3 dirTEST = trackfit->GetDirectionVec();
-    cout<<"dirTEST:"<<endl;
-    dirTEST.Print();
+    // //save as LinTrk
+    // //  if(accuracy>0 && accuracy<1e3){ 
+    // PndLinTrack* trackfit = new PndLinTrack("Lumi", parFit[0], parFit[1], parFit[2], parFit[3], parFit[4], parFit[5], 
+    // 					    accuracy, firstHit, lastHit, track);
+    // trackfit->SetCovarianceMatrix(*COVmatrix);
+    // new((*fTrackArray)[rec_tkr]) PndLinTrack(*(trackfit)); //save Track
+
+    //save as PndTrack
+    TVector3 FitPoint(parFit[0], parFit[2], parFit[4]);
+    TVector3 FitDir(parFit[1], parFit[3], parFit[5]);
+    // FitDir *= 1./FitDir.Mag();
+    TVector3 FitMom =  fPbeam*FitDir;
+    Double_t COVmatrixPosMom[6][6];
+    // int iconver[6]={0, 2, 4, 1, 3, 5};
+    int iconver[6]={3,0,4,1,5,2};
+    for(int ij=0;ij<6;ij++){
+      for(int ji=0;ji<6;ji++){
+	if(ij==1 || ij==3 || ij==5) (*COVmatrix)(ij,ji) *=fPbeam;
+	if(ji==1 || ji==3 || ji==5) (*COVmatrix)(ij,ji) *=fPbeam;
+	int km =  iconver[ij];
+	int mk = iconver[ji];
+	COVmatrixPosMom[km][mk] = (*COVmatrix)(ij,ji);
+
+      }
+    }
+
+    //Read info about 1st plane(sensor)
+    PndTrackCandHit theHit = trcnd->GetSortedHit(0); //get 1st hit
+    Int_t hitID = theHit.GetHitId();
+    int sysID = theHit.GetDetId();
+    PndSdsHit* myHit = (PndSdsHit*)(fRecoArray->At(hitID));
+    Int_t id =  myHit->GetSensorID();
+    // cout<<"myHit id: "<<id<<" sysID: "<<sysID<<endl;
+    // fGeoH->Print();
+    TString path = fGeoH->GetPath(id);
+    TVector3 oo, uu, vv;
+     fGeoH->GetOUVShortId(id, oo,uu,vv);
+     // TVector3 o = oo;
+     TVector3 o = FitPoint;
+     TVector3 dj = uu;
+     TVector3 dk = vv;
+
+     // TVector3 o = (0,0,0);
+     // TVector3 dj = (0,1,0);
+     // TVector3 dk = (1,0,0);
+     cout<<"in PndTracks goes pos:"<<endl;
+     FitPoint.Print();
+     cout<<"in PndTracks goes dir:"<<endl;
+     FitDir.Print();
+
+     FairTrackParP *trkfitp = new  FairTrackParP(FitPoint,FitMom,COVmatrixPosMom,fCharge,o,dj,dk);
+     int flagpndtrk=0;
+     if(accuracy>1e3) flagpndtrk=-1;//quality of track: bad if chi2 is too large
+     int ndf = 2*(trcnd->GetNHits())-4;//number d.o.f
+     int pid = fPDGCode;
+     
+     PndTrack *trackfit = new PndTrack(*trkfitp,*trkfitp, *trcnd,flagpndtrk,accuracy,ndf,pid,track,sysID);//TODO: FairTrackParP at 1st and last point???
+     new((*fTrackArray)[rec_tkr]) PndTrack(*(trackfit)); //save Track
+
+    // // TVector3 dirTEST = trackfit->GetDirectionVec();
+    // // cout<<"dirTEST:"<<endl;
+    // // dirTEST.Print();
     delete trackfit;//TEST
     rec_tkr++;
     //}
@@ -413,7 +495,8 @@ double PndLmdLinFitTask::line3Dfit(Int_t nd, TGraph2DErrors* gr, TVector3 posSee
    fitpar[5]=sqrt(1-fitpar[1]*fitpar[1]-fitpar[3]*fitpar[3]);
    }
    else{
-     fitpar[5]=1;
+     fitpar[5]=0;
+     amin=1e9;
    }
    // double norm_vec = sqrt(fitpar[1]*fitpar[1]+fitpar[3]*fitpar[3]+fitpar[5]*fitpar[5]);
    // double inv_norm_vec =  1./norm_vec;

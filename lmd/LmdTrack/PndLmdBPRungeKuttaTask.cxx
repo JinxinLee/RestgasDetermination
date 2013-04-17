@@ -37,7 +37,7 @@
 #include "PndSdsHit.h"
 //PndLmd includes
 #include "PndLinTrack.h"
-
+#include "PndTrack.h"
 #include <vector>
 #include <map>
 
@@ -89,7 +89,8 @@ InitStatus PndLmdBPRungeKuttaTask::Init()
     return kERROR;
   }
 
-  fTracks = (TClonesArray*) ioman->GetObject("LMDTrack");
+  //  fTracks = (TClonesArray*) ioman->GetObject("LMDTrack");
+  fTracks = (TClonesArray*) ioman->GetObject("LMDPndTrack");
   if (!fTracks){
     std::cout << "-W- PndLmdBPRungeKuttaTask::Init: "<< "No Track" << " array!" << std::endl;
     return kERROR;
@@ -154,20 +155,33 @@ void PndLmdBPRungeKuttaTask::Exec(Option_t* opt)
       int p = 0;
 
       ///Get parameters of real track
-      PndLinTrack* recTrack = (PndLinTrack*)(fTracks->At(i));
-      TString 	DecName = recTrack->GetDetName();
-      if(DecName!="Lumi") continue;
+      //   PndLinTrack* recTrack = (PndLinTrack*)(fTracks->At(i));
+      // TString 	DecName = recTrack->GetDetName();
+      // if(DecName!="Lumi") continue;
 
-      //Vector of particle momentum and starting point
-      TVector3 DirVec =  recTrack->GetDirectionVec();
-      StartPos = recTrack->GetStartVec();
-      StartPosErr = recTrack->GetStartErrVec();
-      double zerradd = hypot(StartPosErr.Z(),5e-04);
-      StartPosErr.SetZ(zerradd);//value for err_z is unknown from fit TODO: why ???
-      StartMomErr = recTrack->GetDirectionErrVec();
-      StartMom = fPbeam*DirVec;
-      StartMomErr *=fPbeam;
+      // //Vector of particle momentum and starting point
+      // TVector3 DirVec =  recTrack->GetDirectionVec();
+      // StartPos = recTrack->GetStartVec();
+      // StartPosErr = recTrack->GetStartErrVec();
+      // double zerradd = hypot(StartPosErr.Z(),5e-04);
+      // StartPosErr.SetZ(zerradd);//value for err_z is unknown from fit TODO: why ???
+      // StartMomErr = recTrack->GetDirectionErrVec();
+      // StartMom = fPbeam*DirVec;
+      // StartMomErr *=fPbeam;
      
+       PndTrack* recTrack = (PndTrack*)(fTracks->At(i));
+       FairTrackParP fFittedTrkP = recTrack->GetParamFirst();
+      TVector3 PosRecLMD(fFittedTrkP.GetX(),fFittedTrkP.GetY(),fFittedTrkP.GetZ());
+      TVector3 MomRecLMD(fFittedTrkP.GetPx(),fFittedTrkP.GetPy(),fFittedTrkP.GetPz());
+      double covMARS[6][6];
+      fFittedTrkP.GetMARSCov(covMARS);
+      TVector3 errMomRecLMD(sqrt(covMARS[0][0]),sqrt(covMARS[1][1]),sqrt(covMARS[2][2]));
+      TVector3 errPosRecLMD(sqrt(covMARS[3][3]),sqrt(covMARS[4][4]),sqrt(covMARS[5][5]));
+
+      StartPos = PosRecLMD;
+      StartPosErr = errPosRecLMD;
+      StartMom = MomRecLMD;
+      StartMomErr = errMomRecLMD;
 
        if(fVerbose>2){
 	 cout<<"------------------------------------------"<<endl;      
@@ -186,68 +200,63 @@ void PndLmdBPRungeKuttaTask::Exec(Option_t* opt)
 
 
       //Runge-Kutta --------------------------------------
-
-    //   TMatrixDSym trkFitCov;
-    //   trkFitCov.ResizeTo(6,6);
-    //   trkFitCov = recTrack->GetCovarianceMatrix();
-    //   cout<<"trkFitCov:"<<endl;
-    //   trkFitCov.Print();
+  
     //   TMatrixT<double> aCov;
     //   aCov.ResizeTo(7,7);
-    // aCov[0][0] = trkFitCov[0][0];
-    // aCov[1][1] = trkFitCov[2][2];
-    // aCov[2][2] = trkFitCov[4][4];
-    // aCov[3][3] = trkFitCov[1][1];
-    // aCov[4][4] = trkFitCov[3][3];
-    // aCov[5][5] = trkFitCov[5][5];
+    // aCov[0][0] = covMARS[0][0];
+    // aCov[1][1] = covMARS[2][2];
+    // aCov[2][2] = covMARS[4][4];
+    // aCov[3][3] = covMARS[1][1];
+    // aCov[4][4] = covMARS[3][3];
+    // aCov[5][5] = covMARS[5][5];
     // aCov[6][6] = 0.;
 
-    // aCov[0][1] = trkFitCov[0][2];
-    // aCov[1][0] = trkFitCov[0][2];
-    // aCov[0][2] = trkFitCov[0][4];
-    // aCov[2][0] = trkFitCov[0][4];
-    // aCov[0][3] = trkFitCov[0][1];
-    // aCov[3][0] = trkFitCov[0][1];
-    // aCov[0][4] = trkFitCov[0][3];
-    // aCov[4][0] = trkFitCov[0][3];
-    // aCov[0][5] = trkFitCov[0][5];
-    // aCov[5][0] = trkFitCov[0][5];
+    // aCov[0][1] = covMARS[0][2];
+    // aCov[1][0] = covMARS[0][2];
+    // aCov[0][2] = covMARS[0][4];
+    // aCov[2][0] = covMARS[0][4];
+    // aCov[0][3] = covMARS[0][1];
+    // aCov[3][0] = covMARS[0][1];
+    // aCov[0][4] = covMARS[0][3];
+    // aCov[4][0] = covMARS[0][3];
+    // aCov[0][5] = covMARS[0][5];
+    // aCov[5][0] = covMARS[0][5];
     // aCov[0][6] = 0.;
     // aCov[6][0] = 0.;
 
 
-    // aCov[1][2] = trkFitCov[2][4];
-    // aCov[2][1] = trkFitCov[2][4];
-    // aCov[1][3] = trkFitCov[2][1];
-    // aCov[3][1] = trkFitCov[2][1];
-    // aCov[1][4] = trkFitCov[2][3];
-    // aCov[4][1] = trkFitCov[2][3];
-    // aCov[1][5] = trkFitCov[2][5];
-    // aCov[5][1] = trkFitCov[2][5];
+    // aCov[1][2] = covMARS[2][4];
+    // aCov[2][1] = covMARS[2][4];
+    // aCov[1][3] = covMARS[2][1];
+    // aCov[3][1] = covMARS[2][1];
+    // aCov[1][4] = covMARS[2][3];
+    // aCov[4][1] = covMARS[2][3];
+    // aCov[1][5] = covMARS[2][5];
+    // aCov[5][1] = covMARS[2][5];
     // aCov[1][6] = 0.;
     // aCov[6][1] = 0.;
 
 
-    // aCov[2][3] = trkFitCov[4][1];
-    // aCov[3][2] = trkFitCov[4][1];
-    // aCov[2][4] = trkFitCov[4][3];
-    // aCov[4][2] = trkFitCov[4][3];
-    // aCov[2][5] = trkFitCov[4][5];
-    // aCov[5][2] = trkFitCov[4][5];
+    // aCov[2][3] = covMARS[4][1];
+    // aCov[3][2] = covMARS[4][1];
+    // aCov[2][4] = covMARS[4][3];
+    // aCov[4][2] = covMARS[4][3];
+    // aCov[2][5] = covMARS[4][5];
+    // aCov[5][2] = covMARS[4][5];
     // aCov[2][6] = 0.;
     // aCov[6][2] = 0.;
 
 
-    // aCov[3][4] = trkFitCov[1][3];
-    // aCov[4][3] = trkFitCov[1][3];
-    // aCov[3][5] = trkFitCov[1][5];
-    // aCov[5][3] = trkFitCov[1][5];
+    // aCov[3][4] = covMARS[1][3];
+    // aCov[4][3] = covMARS[1][3];
+    // aCov[3][5] = covMARS[1][5];
+    // aCov[5][3] = covMARS[1][5];
     // aCov[3][6] = 0.;
     // aCov[6][3] = 0.;
 
 
-    // aCov[4][5] = trkFitCov[3][5];
-    // aCov[5][4] = trkFitCov[3][5];
+    // aCov[4][5] = covMARS[3][5];
+    // aCov[5][4] = covMARS[3][5];
     // aCov[4][6] = 0.;
     // aCov[6][4] = 0.;
 
@@ -255,10 +264,10 @@ void PndLmdBPRungeKuttaTask::Exec(Option_t* opt)
     // aCov[5][6] = 0.;
     // aCov[6][5] = 0.;
 
-      //TODO: use full cov.matrix!
-    // repfi->setCov(aCov);
+
 
       RKTrackRep *repfi = new RKTrackRep(StartPos,StartMom,StartPosErr,StartMomErr,PDGCode);
+      //repfi->setCov(aCov); //TODO: aCov has to be converted in correct variable. see RKTrackRep constructor for calculation diagonal elements
       TVector3 gPos,gMom;
       TMatrixT<double> gCov(7,7);
 

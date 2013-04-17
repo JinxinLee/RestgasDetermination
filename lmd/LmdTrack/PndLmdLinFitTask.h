@@ -22,6 +22,7 @@
 #include "TVector3.h"
 #include "TMatrixTSym.h"
 #include "TMatrixDSym.h"
+#include "PndGeoHandling.h"
 // Collaborating Class Declarations --
 class TClonesArray;
 class TGeoManager;
@@ -75,6 +76,11 @@ protected:
   double line3Dfit(Int_t nd, TGraph2DErrors* gr, Double_t* fitpar, Double_t* fitparErr);
   double line3Dfit(Int_t nd, TGraph2DErrors* gr, TVector3 posSeed, TVector3 dirSeed, Double_t* fitpar, TMatrixDSym *covmatrix);
   //double line3Dfit(Int_t nd, TGraph2DErrors* gr, TVector3 posSeed, TVector3 dirSeed, Double_t* fitpar);
+
+  double fPbeam;
+  double fPDGCode;
+  int fCharge;
+  PndGeoHandling* fGeoH;
 
   ClassDef(PndLmdLinFitTask,1);
 

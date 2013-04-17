@@ -55,6 +55,9 @@ public:
 
   void SetGeaneTrkRep(Bool_t val=kTRUE){flGEANE = val;}
   void SetRKTrkRep(Bool_t val=kTRUE){flRK = val;}
+
+  void SetScalePError(double sc){fscaleP = sc;}
+  void SetScaleMError(double sc){fscaleM = sc;}
   // Operations ----------------------
 
   virtual InitStatus Init();
@@ -68,7 +71,8 @@ private:
   bool flGEANE; //if true use GEANE representation
   bool flRK; //if true use Runge-Kutta representation
 
-
+  double fscaleP;//scale factor for test initial Position errors
+  double fscaleM;//scale factor for test initial Momentum errors
   /* TH1D *hxpull; */
   /* TH1D *hypull; */
   /* TH1D *hzpull; */
