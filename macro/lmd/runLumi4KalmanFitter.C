@@ -1,4 +1,4 @@
-void runLumi4KalmanFitter(const int nEvents=100000, const int startEvent=0, TString storePath="tmpOutput", const int verboseLevel=0, const int senstype=0, const bool mergedHits=false, TString trkRep="GEANE")
+void runLumi4KalmanFitter(const int nEvents=100000, const int startEvent=0, TString storePath="tmpOutput", const int verboseLevel=0, const int senstype=0, const bool mergedHits=false, TString trkRep="GEANE", double scaleP=1, double scaleM=1)
 {
   // ========================================================================
   // Input file (MC events)
@@ -97,6 +97,8 @@ void runLumi4KalmanFitter(const int nEvents=100000, const int startEvent=0, TStr
     
   PndLmdKalmanTask* lmdkalmanfitter = new PndLmdKalmanTask(HitNames, TrackNames);
   lmdkalmanfitter->SetVerbose(verboseLevel);
+  lmdkalmanfitter->SetScalePError(scaleP);
+  lmdkalmanfitter->SetScaleMError(scaleM);
   if(trkRep=="GEANE"){
     lmdkalmanfitter->SetGeaneTrkRep();
   }
