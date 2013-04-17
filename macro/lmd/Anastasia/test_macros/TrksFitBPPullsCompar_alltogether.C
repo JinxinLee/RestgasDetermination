@@ -12,22 +12,22 @@
 #include "TClonesArray.h"
 #include "TFile.h"
 using namespace std;
-void TrksFitBPPullsCompar_alltogether(TString pathName="/panda/pandaroot/macro/lmd/testPixel/09042013/")
+void TrksFitBPPullsCompar_alltogether(TString pathName="/panda/pandaroot/macro/lmd/testPixel/14042013/")
 {
-  // const int nBeamPoints=5;
-  // double p_beam[nBeamPoints]={1.5, 4.06, 8.9, 11.91, 15};
-  const int nBeamPoints=2;
-  double p_beam[nBeamPoints]={1.5, 15};
+  const int nBeamPoints=5;
+  double p_beam[nBeamPoints]={1.5, 4.06, 8.9, 11.91, 15};
+  // const int nBeamPoints=2;
+  // double p_beam[nBeamPoints]={1.5, 15};
  //  const int nMethods=6;
  //  TString Method[nMethods]={"_MINUIT_BPGEANE","_MINUIT_BPRK","_KALMANGEANE_BPGEANE","_KALMANGEANE_BPRK","_KALMANRK_BPGEANE","_KALMANRK_BPRK"};
  // TString MethodName[nMethods]={"MINUIT, BP=GEANE","MINUIT, BP=RK","KALMAN=GEANE, BP=GEANE","KALMAN=GEANE, BP=RK","KALMAN=RK, BP=GEANE","KALMAN=RK, BP=RK"};
- // const int nMethods=2;
- //  TString Method[nMethods]={"_MINUIT_BPGEANE","_MINUIT_BPRK"};
- // TString MethodName[nMethods]={"MINUIT, BP=GEANE","MINUIT, BP=RK"};
+ const int nMethods=2;
+  TString Method[nMethods]={"_MINUIT_BPGEANE","_MINUIT_BPRK"};
+ TString MethodName[nMethods]={"MINUIT, BP=GEANE","MINUIT, BP=RK"};
 
-const int nMethods=4;
- TString Method[nMethods]={"_KALMANGEANE_BPGEANE","_KALMANGEANE_BPRK","_KALMANRK_BPGEANE","_KALMANRK_BPRK"};
- TString MethodName[nMethods]={"KALMAN=GEANE, BP=GEANE","KALMAN=GEANE, BP=RK","KALMAN=RK, BP=GEANE","KALMAN=RK, BP=RK"};
+// const int nMethods=4;
+//  TString Method[nMethods]={"_KALMANGEANE_BPGEANE","_KALMANGEANE_BPRK","_KALMANRK_BPGEANE","_KALMANRK_BPRK"};
+//  TString MethodName[nMethods]={"KALMAN=GEANE, BP=GEANE","KALMAN=GEANE, BP=RK","KALMAN=RK, BP=GEANE","KALMAN=RK, BP=RK"};
 
 
   double PullPx_mean[nMethods][nBeamPoints], PullPx_sigma[nMethods][nBeamPoints], PullPy_mean[nMethods][nBeamPoints], PullPy_sigma[nMethods][nBeamPoints], PullPz_mean[nMethods][nBeamPoints], PullPz_sigma[nMethods][nBeamPoints];
@@ -58,31 +58,33 @@ double ResPx_mean[nMethods][nBeamPoints], ResPx_sigma[nMethods][nBeamPoints], Re
   double erResPx_mean_in[nMethods][nBeamPoints],erResPx_sigma_in[nMethods][nBeamPoints], erResPy_mean_in[nMethods][nBeamPoints], erResPy_sigma_in[nMethods][nBeamPoints], erResPz_mean_in[nMethods][nBeamPoints], erResPz_sigma_in[nMethods][nBeamPoints];
  double erResTheta_mean_in[nMethods][nBeamPoints], erResTheta_sigma_in[nMethods][nBeamPoints], erResPhi_mean_in[nMethods][nBeamPoints], erResPhi_sigma_in[nMethods][nBeamPoints];
 
-
+ TString compfilename = "Lumi_compare_MC_and_REC_trks";
+ //TString compfilename = "Lumi_out_MC_and_REC_trks_matches_with_IDs0";
   for(int ip=0;ip<nBeamPoints;ip++){
     TString fileNameG = pathName+"/mom_";
-    // switch (ip){
-    // case 0: fileNameG+="1_5/Lumi_out_MC_and_REC_trks_matches_with_IDs0";
-    // break;
-    // case 1: fileNameG+="4_06/Lumi_out_MC_and_REC_trks_matches_with_IDs0";
-    // break;
-    // case 2: fileNameG+="8_9/Lumi_out_MC_and_REC_trks_matches_with_IDs0";
-    // break;
-    // case 3: fileNameG+="11_91/Lumi_out_MC_and_REC_trks_matches_with_IDs0";
-    // break;
-    // case 4: fileNameG+="15/Lumi_out_MC_and_REC_trks_matches_with_IDs0";
-    // break;
-    // default: cout << "?????";
-    // break;
-    // }
- switch (ip){
-    case 0: fileNameG+="1_5/Lumi_out_MC_and_REC_trks_matches_with_IDs0";
+    switch (ip){
+    case 0: fileNameG+="1_5/";
     break;
-    case 1: fileNameG+="15/Lumi_out_MC_and_REC_trks_matches_with_IDs0";
+    case 1: fileNameG+="4_06/";
+    break;
+    case 2: fileNameG+="8_9/";
+    break;
+    case 3: fileNameG+="11_91/";
+    break;
+    case 4: fileNameG+="15/";
     break;
     default: cout << "?????";
     break;
     }
+    fileNameG+= compfilename;
+ // switch (ip){
+ //    case 0: fileNameG+="1_5/Lumi_out_MC_and_REC_trks_matches_with_IDs0";
+ //    break;
+ //    case 1: fileNameG+="15/Lumi_out_MC_and_REC_trks_matches_with_IDs0";
+ //    break;
+ //    default: cout << "?????";
+ //    break;
+ //    }
 
   for(int im=0;im<nMethods;im++){
     TString fileName = fileNameG;
@@ -134,7 +136,7 @@ double ResPx_mean[nMethods][nBeamPoints], ResPx_sigma[nMethods][nBeamPoints], Re
   TH1F* hPullPointZ = (TH1F*)fileIN->Get("hPullPointZ");
   TF1 *fPullZ  = new TF1("fitPZ","gaus",-100,100);
   hPullPointZ->Fit(fPullZ,"qr");
-  PullZ_mean[im][ip] = fPullZ->GetParameter(1);
+  PullZ_mean[im][ip] = fabs(fPullZ->GetParameter(1));
   PullZ_sigma[im][ip] = fPullZ->GetParameter(2);
   erPullZ_mean[im][ip] = fPullZ->GetParError(1);
   erPullZ_sigma[im][ip] = fPullZ->GetParError(2);
@@ -172,7 +174,7 @@ double ResPx_mean[nMethods][nBeamPoints], ResPx_sigma[nMethods][nBeamPoints], Re
   PullZ_mean_in[im][ip]=-1000;
   PullZ_sigma_in[im][ip]=-1000;
   if(hResLumiTrkPointZPull->GetRMS()>1e-6){
-    PullZ_mean_in[im][ip] = fPullZ->GetParameter(1);
+    PullZ_mean_in[im][ip] = fabs(fPullZ->GetParameter(1));
     PullZ_sigma_in[im][ip] = fPullZ->GetParameter(2);
     erPullZ_mean_in[im][ip] = fPullZ->GetParError(1);
     erPullZ_sigma_in[im][ip] = fPullZ->GetParError(2);
@@ -260,7 +262,7 @@ TH1F *hResLumiTrkPhiPull = (TH1F*)fileIN->Get("hResLumiTrkPhiPull");
   TH1F* hResPointZ = (TH1F*)fileIN->Get("hResPointZ");
   TF1 *fResZ  = new TF1("fitPZ","gaus",-100,100);
   hResPointZ->Fit(fResZ,"qr");
-  ResZ_mean[im][ip] = fResZ->GetParameter(1);
+  ResZ_mean[im][ip] = fabs(fResZ->GetParameter(1));
   ResZ_sigma[im][ip] = fResZ->GetParameter(2);
   erResZ_mean[im][ip] = fResZ->GetParError(1);
   erResZ_sigma[im][ip] = fResZ->GetParError(2);
@@ -298,7 +300,7 @@ TH1F *hResLumiTrkPhiPull = (TH1F*)fileIN->Get("hResLumiTrkPhiPull");
   ResZ_mean_in[im][ip]=-1000;
   ResZ_sigma_in[im][ip]=-1000;
   if(hResLumiTrkPointZ->GetRMS()>1e-6){
-    ResZ_mean_in[im][ip] = fResZ->GetParameter(1);
+    ResZ_mean_in[im][ip] = fabs(fResZ->GetParameter(1));
     ResZ_sigma_in[im][ip] = fResZ->GetParameter(2);
     erResZ_mean_in[im][ip] = fResZ->GetParError(1);
     erResZ_sigma_in[im][ip] = fResZ->GetParError(2);
@@ -780,28 +782,28 @@ TH1F *hResLumiTrkPhiPull = (TH1F*)fileIN->Get("hResLumiTrkPhiPull");
   TCanvas c1;
   mgPullPx_mean->Draw("AP");  
   mgPullPx_mean->GetXaxis()->SetTitle("momentum, GeV/c");
-  mgPullPx_mean->GetYaxis()->SetTitle("(P^{REC}_{x} - P^{MC}_{x})/#sigma_{Px}, mean");
+  mgPullPx_mean->GetYaxis()->SetTitle("(P^{MC}_{x} - P^{REC}_{x})/#sigma_{Px}, mean");
   leg->Draw();
   perfectmeanval->Draw();
   c1.Print(resname_pdf_o); //write canvas and keep the pdf file open
   c1.Clear();
   mgPullPx_sigma->Draw("AP");
   mgPullPx_sigma->GetXaxis()->SetTitle("momentum, GeV/c");
-  mgPullPx_sigma->GetYaxis()->SetTitle("(P^{REC}_{x} - P^{MC}_{x})/#sigma_{Px}, sigma");
+  mgPullPx_sigma->GetYaxis()->SetTitle("(P^{MC}_{x} - P^{REC}_{x})/#sigma_{Px}, sigma");
   leg->Draw();
   perfectsigmaval->Draw();
   c1.Print(resname_pdf_o); //write canvas and keep the pdf file open
   c1.Clear();
  mgPullPy_mean->Draw("AP");  
  mgPullPy_mean->GetXaxis()->SetTitle("momentum, GeV/c");
- mgPullPy_mean->GetYaxis()->SetTitle("(P^{REC}_{y} - P^{MC}_{y})/#sigma_{Py}, mean");
+ mgPullPy_mean->GetYaxis()->SetTitle("(P^{MC}_{y} - P^{REC}_{y})/#sigma_{Py}, mean");
  leg->Draw();
  perfectmeanval->Draw();
   c1.Print(resname_pdf_o); //write canvas and keep the pdf file open
   c1.Clear();
   mgPullPy_sigma->Draw("AP");
   mgPullPy_sigma->GetXaxis()->SetTitle("momentum, GeV/c");
-  mgPullPy_sigma->GetYaxis()->SetTitle("(P^{REC}_{y} - P^{MC}_{y})/#sigma_{Py}, sigma");
+  mgPullPy_sigma->GetYaxis()->SetTitle("(P^{MC}_{y} - P^{REC}_{y})/#sigma_{Py}, sigma");
   leg->Draw();
   perfectsigmaval->Draw();
   c1.Print(resname_pdf_o); //write canvas and keep the pdf file open
@@ -815,35 +817,35 @@ TH1F *hResLumiTrkPhiPull = (TH1F*)fileIN->Get("hResLumiTrkPhiPull");
   c1.Clear();
   mgPullPz_sigma->Draw("AP");
   mgPullPz_sigma->GetXaxis()->SetTitle("momentum, GeV/c");
-  mgPullPz_sigma->GetYaxis()->SetTitle("(P^{REC}_{z} - P^{MC}_{z})/#sigma_{Pz}, sigma");
+  mgPullPz_sigma->GetYaxis()->SetTitle("(P^{MC}_{z} - P^{REC}_{z})/#sigma_{Pz}, sigma");
   leg->Draw();
   perfectsigmaval->Draw();
   c1.Print(resname_pdf_o); //write canvas and keep the pdf file open
   c1.Clear();
   mgPullX_mean->Draw("AP");  
   mgPullX_mean->GetXaxis()->SetTitle("momentum, GeV/c");
-  mgPullX_mean->GetYaxis()->SetTitle("(X^{REC} - X^{MC})/#sigma_{X}, mean");
+  mgPullX_mean->GetYaxis()->SetTitle("(X^{MC} - X^{REC})/#sigma_{X}, mean");
   leg->Draw();
   perfectmeanval->Draw();
   c1.Print(resname_pdf_o); //write canvas and keep the pdf file open
   c1.Clear();
   mgPullX_sigma->Draw("AP");
   mgPullX_sigma->GetXaxis()->SetTitle("momentum, GeV/c");
-  mgPullX_sigma->GetYaxis()->SetTitle("(X^{REC} - X^{MC})/#sigma_{X}, sigma");
+  mgPullX_sigma->GetYaxis()->SetTitle("(X^{MC} - X^{REC})/#sigma_{X}, sigma");
   leg->Draw();
   perfectsigmaval->Draw();
   c1.Print(resname_pdf_o); //write canvas and keep the pdf file open
   c1.Clear();
   mgPullY_mean->Draw("AP");  
   mgPullY_mean->GetXaxis()->SetTitle("momentum, GeV/c");
-  mgPullY_mean->GetYaxis()->SetTitle("(Y^{REC} - Y^{MC})/#sigma_{Y}, mean");
+  mgPullY_mean->GetYaxis()->SetTitle("(Y^{MC} - Y^{REC})/#sigma_{Y}, mean");
   leg->Draw();
   perfectmeanval->Draw();
   c1.Print(resname_pdf_o); //write canvas and keep the pdf file open
   c1.Clear();
   mgPullY_sigma->Draw("AP");
   mgPullY_sigma->GetXaxis()->SetTitle("momentum, GeV/c");
-  mgPullY_sigma->GetYaxis()->SetTitle("(Y^{REC} - Y^{MC})/#sigma_{Y}, sigma");
+  mgPullY_sigma->GetYaxis()->SetTitle("(Y^{MC} - Y^{REC})/#sigma_{Y}, sigma");
   leg->Draw();
   perfectsigmaval->Draw();
   c1.Print(resname_pdf_o); //write canvas and keep the pdf file open
@@ -851,7 +853,7 @@ TH1F *hResLumiTrkPhiPull = (TH1F*)fileIN->Get("hResLumiTrkPhiPull");
   c1.SetLogy(1);// set log scale
   mgPullZ_mean->Draw("AP");  
   mgPullZ_mean->GetXaxis()->SetTitle("momentum, GeV/c");
-  mgPullZ_mean->GetYaxis()->SetTitle("(Z^{REC} - Z^{MC})/#sigma_{Z}, mean [PCA]");
+  mgPullZ_mean->GetYaxis()->SetTitle("|Z^{MC} - Z^{REC}|/#sigma_{Z}, mean [PCA]");
   //  legsh->Draw();
   perfectmeanval->Draw();
   c1.Print(resname_pdf_o); //write canvas and keep the pdf file open
@@ -859,35 +861,35 @@ TH1F *hResLumiTrkPhiPull = (TH1F*)fileIN->Get("hResLumiTrkPhiPull");
   c1.SetLogy(0);// set norm scale
   mgPullZ_sigma->Draw("AP");
   mgPullZ_sigma->GetXaxis()->SetTitle("momentum, GeV/c");
-  mgPullZ_sigma->GetYaxis()->SetTitle("(Z^{REC} - Z^{MC})/#sigma_{Z}, sigma [PCA]");
+  mgPullZ_sigma->GetYaxis()->SetTitle("(Z^{MC} - Z^{REC})/#sigma_{Z}, sigma [PCA]");
   perfectsigmaval->Draw();
   legsh->Draw();
   c1.Print(resname_pdf_o); //write canvas and keep the pdf file open
   c1.Clear();
   mgPullTheta_mean->Draw("AP");  
   mgPullTheta_mean->GetXaxis()->SetTitle("momentum, GeV/c");
-  mgPullTheta_mean->GetYaxis()->SetTitle("(#theta^{REC} - #theta^{MC})/#sigma_{#theta}, mean [PCA]");
+  mgPullTheta_mean->GetYaxis()->SetTitle("(#theta^{MC} - #theta^{REC})/#sigma_{#theta}, mean [PCA]");
   legsh->Draw();
   perfectmeanval->Draw();
   c1.Print(resname_pdf_o); //write canvas and keep the pdf file open
   c1.Clear();
   mgPullTheta_sigma->Draw("AP");
   mgPullTheta_sigma->GetXaxis()->SetTitle("momentum, GeV/c");
-  mgPullTheta_sigma->GetYaxis()->SetTitle("(#theta^{REC} - #theta^{MC})/#sigma_{#theta}, sigma [PCA]");
+  mgPullTheta_sigma->GetYaxis()->SetTitle("(#theta^{MC} - #theta^{REC})/#sigma_{#theta}, sigma [PCA]");
   legsh->Draw();
   perfectsigmaval->Draw();
   c1.Print(resname_pdf_o); //write canvas and keep the pdf file open
   c1.Clear();
   mgPullPhi_mean->Draw("AP");  
  mgPullPhi_mean->GetXaxis()->SetTitle("momentum, GeV/c");
- mgPullPhi_mean->GetYaxis()->SetTitle("(#phi^{REC} - #phi^{MC})/#sigma_{#phi}, mean [PCA]");
+ mgPullPhi_mean->GetYaxis()->SetTitle("(#phi^{MC} - #phi^{REC})/#sigma_{#phi}, mean [PCA]");
  legsh->Draw();
  perfectmeanval->Draw();
   c1.Print(resname_pdf_o); //write canvas and keep the pdf file open
   c1.Clear();
   mgPullPhi_sigma->Draw("AP");
  mgPullPhi_sigma->GetXaxis()->SetTitle("momentum, GeV/c");
- mgPullPhi_sigma->GetYaxis()->SetTitle("(#phi^{REC} - #phi^{MC})/#sigma_{#phi}, sigma [PCA]");
+ mgPullPhi_sigma->GetYaxis()->SetTitle("(#phi^{MC} - #phi^{REC})/#sigma_{#phi}, sigma [PCA]");
  legsh->Draw();
  perfectsigmaval->Draw();
  c1.Print(resname_pdf_o); //write canvas and keep the pdf file open
@@ -896,49 +898,49 @@ TH1F *hResLumiTrkPhiPull = (TH1F*)fileIN->Get("hResLumiTrkPhiPull");
   //Draw resolution only
   mgResPx_mean->Draw("AP");  
   mgResPx_mean->GetXaxis()->SetTitle("momentum, GeV/c");
-  mgResPx_mean->GetYaxis()->SetTitle("(P^{REC}_{x} - P^{MC}_{x}), mean, MeV/c");
+  mgResPx_mean->GetYaxis()->SetTitle("(P^{MC}_{x} - P^{REC}_{x}), mean, MeV/c");
   leg->Draw();
    
   c1.Print(resname_pdf_o); //write canvas and keep the pdf file open
   c1.Clear();
   mgResPx_sigma->Draw("AP");
   mgResPx_sigma->GetXaxis()->SetTitle("momentum, GeV/c");
-  mgResPx_sigma->GetYaxis()->SetTitle("(P^{REC}_{x} - P^{MC}_{x}), sigma, MeV/c");
+  mgResPx_sigma->GetYaxis()->SetTitle("(P^{MC}_{x} - P^{REC}_{x}), sigma, MeV/c");
   leg->Draw();
    
   c1.Print(resname_pdf_o); //write canvas and keep the pdf file open
   c1.Clear();
  mgResPy_mean->Draw("AP");  
  mgResPy_mean->GetXaxis()->SetTitle("momentum, GeV/c");
- mgResPy_mean->GetYaxis()->SetTitle("(P^{REC}_{y} - P^{MC}_{y}), mean, MeV/c");
+ mgResPy_mean->GetYaxis()->SetTitle("(P^{MC}_{y} - P^{REC}_{y}), mean, MeV/c");
  leg->Draw();
   
   c1.Print(resname_pdf_o); //write canvas and keep the pdf file open
   c1.Clear();
   mgResPy_sigma->Draw("AP");
   mgResPy_sigma->GetXaxis()->SetTitle("momentum, GeV/c");
-  mgResPy_sigma->GetYaxis()->SetTitle("(P^{REC}_{y} - P^{MC}_{y}), sigma, MeV/c");
+  mgResPy_sigma->GetYaxis()->SetTitle("(P^{MC}_{y} - P^{REC}_{y}), sigma, MeV/c");
   leg->Draw();
    
   c1.Print(resname_pdf_o); //write canvas and keep the pdf file open
   c1.Clear();
   mgResPz_mean->Draw("AP");  
   mgResPz_mean->GetXaxis()->SetTitle("momentum, GeV/c");
-  mgResPz_mean->GetYaxis()->SetTitle("(P^{REC}_{z} - P^{MC}_{z}), mean, MeV/c");
+  mgResPz_mean->GetYaxis()->SetTitle("(P^{MC}_{z} - P^{REC}_{z}), mean, MeV/c");
   leg->Draw();
    
   c1.Print(resname_pdf_o); //write canvas and keep the pdf file open
   c1.Clear();
   mgResPz_sigma->Draw("AP");
   mgResPz_sigma->GetXaxis()->SetTitle("momentum, GeV/c");
-  mgResPz_sigma->GetYaxis()->SetTitle("(P^{REC}_{z} - P^{MC}_{z}), sigma, MeV/c");
+  mgResPz_sigma->GetYaxis()->SetTitle("(P^{MC}_{z} - P^{REC}_{z}), sigma, MeV/c");
   leg->Draw();
    
   c1.Print(resname_pdf_o); //write canvas and keep the pdf file open
   c1.Clear();
   mgResX_mean->Draw("AP");  
   mgResX_mean->GetXaxis()->SetTitle("momentum, GeV/c");
-  mgResX_mean->GetYaxis()->SetTitle("(X^{REC} - X^{MC}), mean, cm");
+  mgResX_mean->GetYaxis()->SetTitle("(X^{MC} - X^{REC}), mean, cm");
   leg->Draw();
    
   c1.Print(resname_pdf_o); //write canvas and keep the pdf file open
@@ -946,7 +948,7 @@ TH1F *hResLumiTrkPhiPull = (TH1F*)fileIN->Get("hResLumiTrkPhiPull");
   c1.SetLogy(1);// set log scale
   mgResX_sigma->Draw("AP");
   mgResX_sigma->GetXaxis()->SetTitle("momentum, GeV/c");
-  mgResX_sigma->GetYaxis()->SetTitle("(X^{REC} - X^{MC}), sigma, cm");
+  mgResX_sigma->GetYaxis()->SetTitle("(X^{MC} - X^{REC}), sigma, cm");
   leg->Draw();
    
   c1.Print(resname_pdf_o); //write canvas and keep the pdf file open
@@ -954,7 +956,7 @@ TH1F *hResLumiTrkPhiPull = (TH1F*)fileIN->Get("hResLumiTrkPhiPull");
   c1.SetLogy(0);// set norm scale
   mgResY_mean->Draw("AP");  
   mgResY_mean->GetXaxis()->SetTitle("momentum, GeV/c");
-  mgResY_mean->GetYaxis()->SetTitle("(Y^{REC} - Y^{MC}), mean, cm");
+  mgResY_mean->GetYaxis()->SetTitle("(Y^{MC} - Y^{REC}), mean, cm");
   leg->Draw();
    
   c1.Print(resname_pdf_o); //write canvas and keep the pdf file open
@@ -962,7 +964,7 @@ TH1F *hResLumiTrkPhiPull = (TH1F*)fileIN->Get("hResLumiTrkPhiPull");
   c1.SetLogy(1);// set log scale
   mgResY_sigma->Draw("AP");
   mgResY_sigma->GetXaxis()->SetTitle("momentum, GeV/c");
-  mgResY_sigma->GetYaxis()->SetTitle("(Y^{REC} - Y^{MC}), sigma, cm");
+  mgResY_sigma->GetYaxis()->SetTitle("(Y^{MC} - Y^{REC}), sigma, cm");
   leg->Draw();
    
   c1.Print(resname_pdf_o); //write canvas and keep the pdf file open
@@ -970,7 +972,7 @@ TH1F *hResLumiTrkPhiPull = (TH1F*)fileIN->Get("hResLumiTrkPhiPull");
   c1.SetLogy(1);// set log scale
   mgResZ_mean->Draw("AP");  
   mgResZ_mean->GetXaxis()->SetTitle("momentum, GeV/c");
-  mgResZ_mean->GetYaxis()->SetTitle("(Z^{REC} - Z^{MC}), mean [PCA], cm");
+  mgResZ_mean->GetYaxis()->SetTitle("|Z^{MC} - Z^{REC}|, mean [PCA], cm");
   //  legsh->Draw();
    
   c1.Print(resname_pdf_o); //write canvas and keep the pdf file open
@@ -978,7 +980,7 @@ TH1F *hResLumiTrkPhiPull = (TH1F*)fileIN->Get("hResLumiTrkPhiPull");
   c1.SetLogy(0);// set normal scale
   mgResZ_sigma->Draw("AP");
   mgResZ_sigma->GetXaxis()->SetTitle("momentum, GeV/c");
-  mgResZ_sigma->GetYaxis()->SetTitle("(Z^{REC} - Z^{MC}), sigma [PCA], cm");
+  mgResZ_sigma->GetYaxis()->SetTitle("(Z^{MC} - Z^{REC}), sigma [PCA], cm");
    
   legsh->Draw();
   c1.Print(resname_pdf_o); //write canvas and keep the pdf file open
@@ -986,15 +988,15 @@ TH1F *hResLumiTrkPhiPull = (TH1F*)fileIN->Get("hResLumiTrkPhiPull");
   c1.SetLogy(0);// set norm scale
   mgResTheta_mean->Draw("AP");  
   mgResTheta_mean->GetXaxis()->SetTitle("momentum, GeV/c");
-  mgResTheta_mean->GetYaxis()->SetTitle("(#theta^{REC} - #theta^{MC}), mean [PCA], rad");
+  mgResTheta_mean->GetYaxis()->SetTitle("(#theta^{MC} - #theta^{REC}), mean [PCA], rad");
   legsh->Draw();
    
   c1.Print(resname_pdf_o); //write canvas and keep the pdf file open
   c1.Clear();
-  c1.SetLogy(1);// set log scale
+  //  c1.SetLogy(1);// set log scale
   mgResTheta_sigma->Draw("AP");
   mgResTheta_sigma->GetXaxis()->SetTitle("momentum, GeV/c");
-  mgResTheta_sigma->GetYaxis()->SetTitle("(#theta^{REC} - #theta^{MC}), sigma [PCA], rad");
+  mgResTheta_sigma->GetYaxis()->SetTitle("(#theta^{MC} - #theta^{REC}), sigma [PCA], rad");
   legsh->Draw();
    
   c1.Print(resname_pdf_o); //write canvas and keep the pdf file open
@@ -1002,7 +1004,7 @@ TH1F *hResLumiTrkPhiPull = (TH1F*)fileIN->Get("hResLumiTrkPhiPull");
   c1.SetLogy(0);// set norm scale
   mgResPhi_mean->Draw("AP");  
  mgResPhi_mean->GetXaxis()->SetTitle("momentum, GeV/c");
- mgResPhi_mean->GetYaxis()->SetTitle("(#phi^{REC} - #phi^{MC}), mean [PCA], rad");
+ mgResPhi_mean->GetYaxis()->SetTitle("(#phi^{MC} - #phi^{REC}), mean [PCA], rad");
  legsh->Draw();
   
   c1.Print(resname_pdf_o); //write canvas and keep the pdf file open
@@ -1010,7 +1012,7 @@ TH1F *hResLumiTrkPhiPull = (TH1F*)fileIN->Get("hResLumiTrkPhiPull");
   c1.SetLogy(1);// set log scale
   mgResPhi_sigma->Draw("AP");
  mgResPhi_sigma->GetXaxis()->SetTitle("momentum, GeV/c");
- mgResPhi_sigma->GetYaxis()->SetTitle("(#phi^{REC} - #phi^{MC}), sigma [PCA], rad");
+ mgResPhi_sigma->GetYaxis()->SetTitle("(#phi^{MC} - #phi^{REC}), sigma [PCA], rad");
  legsh->Draw();
   
  // c1.Print(resname_pdf_o); //write canvas and keep the pdf file open
@@ -1019,7 +1021,7 @@ TH1F *hResLumiTrkPhiPull = (TH1F*)fileIN->Get("hResLumiTrkPhiPull");
 
   c1.Print(resname_pdf_c); //write canvas and close the pdf file open
   c1.Clear();
-
+  mgPullPx_mean->Write();
   mgPullPx_sigma->Write();
   mgPullPy_mean->Write();  
   mgPullPy_sigma->Write();
@@ -1048,7 +1050,7 @@ TH1F *hResLumiTrkPhiPull = (TH1F*)fileIN->Get("hResLumiTrkPhiPull");
   mgPullPz_mean_in->Write();  
   mgPullPz_sigma_in->Write();
 
-
+  mgResPx_mean->Write();
  mgResPx_sigma->Write();
   mgResPy_mean->Write();  
   mgResPy_sigma->Write();
