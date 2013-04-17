@@ -9,8 +9,10 @@ using namespace std;
 //void TOTALSummaryAlign(TString pathG="/panda/pandaroot/macro/lmd/tmpOutputAlignTMP/", double tr_sc=200, double rt_sc=9)
 void TOTALSummaryAlign(TString pathG="/panda/pandaroot/macro/lmd/tmpOutputAlignDPM/", double tr_sc=200, double rt_sc=3)
 {
-  const int nS=8;
-    double TrksSim[nS]={10000, 100000, 200000, 300000, 400000, 500000, 700000, 1000000};
+  //  const int nS=8;
+  // double TrksSim[nS]={10000, 100000, 200000, 300000, 400000, 500000, 700000, 1000000};
+  const int nS=7;
+  double TrksSim[nS]={10000, 100000, 200000, 300000, 500000, 700000, 1000000};
   //  double TrksSim[nS]={10, 100, 200, 300, 400, 500, 700, 1000};
   double Trks[nS];
   //How to save data

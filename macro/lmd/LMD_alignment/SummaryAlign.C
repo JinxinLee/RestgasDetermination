@@ -32,13 +32,15 @@ void SummaryAlign(TString path="/panda/pandaroot/macro/lmd/tmpOutputAlignTMP/", 
   // resthname+="mrad.root";
 
   /// Theta resolution--------------------------------------------------------------------------------------  
-  TString name1 = pathfull + "/Lumi_out_MC_and_REC_trks_matches_with_IDs0_dr_";
+  // TString name1 = pathfull + "/Lumi_out_MC_and_REC_trks_matches_with_IDs0_dr_";
+ TString name1 = pathfull + "/Lumi_compare_MC_and_REC_trks_0_dr_";
   name1+=tr_sc;
   name1+="_da_";
   name1+=rt_sc;
   name1+="_before.root";
 
-  TString name2 = pathfull + "/Lumi_out_MC_and_REC_trks_matches_with_IDs0_dr_";
+  //  TString name2 = pathfull + "/Lumi_out_MC_and_REC_trks_matches_with_IDs0_dr_";
+  TString name2 = pathfull + "/Lumi_compare_MC_and_REC_trks_0_dr_";
   name2+=tr_sc;
   name2+="_da_";
   name2+=rt_sc;
@@ -46,7 +48,8 @@ void SummaryAlign(TString path="/panda/pandaroot/macro/lmd/tmpOutputAlignTMP/", 
 
   TString name3 = path + "/results_0mkm_0mrad_";
   name3+=nTrks;
-  name3+="events/Lumi_out_MC_and_REC_trks_matches_with_IDs0_dr_0_da_0_before.root";
+  // name3+="events/Lumi_out_MC_and_REC_trks_matches_with_IDs0_dr_0_da_0_before.root";
+  name3+="events/Lumi_compare_MC_and_REC_trks_0_dr_0_da_0_before.root";
 
   //  TH1F *hbeforetmp;   TH1F *haftertmp;
   TH1F *hbefore;   
