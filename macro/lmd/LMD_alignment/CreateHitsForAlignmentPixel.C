@@ -42,7 +42,7 @@
 #include<PndSdsHit.h>
 #include<PndSdsClusterPixel.h>
 #include<PndSdsDigiPixel.h>
-
+#include<PndTrack.h>
 
 // needed for geane backtracking
 #include<FairRunAna.h>
@@ -230,8 +230,10 @@ int main(int __argc,char *__argv[]) {
   //-----------------------------------------------------------------------------------
   
   //--- Real tracks -------------------------------------------------------------------
-  TClonesArray* rec_trk=new TClonesArray("PndLinTrack");
-  tTrkRec.SetBranchAddress("LMDTrack",&rec_trk);  //Tracks
+  // TClonesArray* rec_trk=new TClonesArray("PndLinTrack");
+  // tTrkRec.SetBranchAddress("LMDTrack",&rec_trk);  //Tracks
+  TClonesArray* rec_trk=new TClonesArray("PndTrack");
+  tTrkRec.SetBranchAddress("LMDPndTrack",&rec_trk);  //Tracks
   //----------------------------------------------------------------------------------  
   
   //--- MC info -----------------------------------------------------------------
@@ -345,10 +347,20 @@ int main(int __argc,char *__argv[]) {
 
     /// Read info about hits from reconstructed tracks ----------------------------------------------------
     for (Int_t iN=0; iN<nRecTrks; iN++){
-      PndLinTrack *trk_lin = (PndLinTrack*)rec_trk->At(iN);
-      TVector3 startlintrk = trk_lin->GetStartVec();
-      TVector3 dirlintrk = trk_lin->GetDirectionVec();
-      Int_t candID = trk_lin->GetTCandID();
+      // PndLinTrack *trk_lin = (PndLinTrack*)rec_trk->At(iN);
+      // TVector3 startlintrk = trk_lin->GetStartVec();
+      // TVector3 dirlintrk = trk_lin->GetDirectionVec();
+      // Int_t candID = trk_lin->GetTCandID();
+      PndTrack *trkpnd = (PndTrack*)rec_trk->At(iN);
+      FairTrackParP fFittedTrkP = trkpnd->GetParamFirst();
+      TVector3 startlintrk(fFittedTrkP.GetX(),fFittedTrkP.GetY(),fFittedTrkP.GetZ());
+      TVector3 dirlintrk(fFittedTrkP.GetPx(),fFittedTrkP.GetPy(),fFittedTrkP.GetPz());
+      // double covMARS[6][6];
+      // fFittedTrkP.GetMARSCov(covMARS);
+      // TVector3 errMomRecLMD(sqrt(covMARS[0][0]),sqrt(covMARS[1][1]),sqrt(covMARS[2][2]));
+      // TVector3 errPosRecLMD(sqrt(covMARS[3][3]),sqrt(covMARS[4][4]),sqrt(covMARS[5][5]));
+      dirlintrk *= 1./dirlintrk.Mag();
+      int candID = trkpnd->GetRefIndex();
       PndTrackCand *trkcand = (PndTrackCand*)trkcand_array->At(candID);
       const int Ntrkcandhits= trkcand->GetNHits();
       //  if(Ntrkcandhits<4) continue; //!!! TEST with 4 hits tracks only !!!
