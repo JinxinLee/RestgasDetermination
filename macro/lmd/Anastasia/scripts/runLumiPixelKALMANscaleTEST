@@ -1,0 +1,61 @@
+#!/bin/bash 
+################################################################
+## script for running sim&rec for LMD
+## [with pixels sensors set-up!]
+## 13/11/2012
+## A.Karavdina
+################################################################
+pbeam=1.5
+momStr=`echo $pbeam | sed -e '{ s/\./_/g; }'`
+path=${VMCWORKDIR}/macro/lmd/testPixel/mom_${momStr}/
+mkdir -p ${path}
+#number of trks per event
+numTrks=1
+#merge hits on sensors from different sides. true=yes
+mergedHits=true
+#number of events
+numEv=10000
+for scaleP in 1000 10000
+do
+    for scaleM in 1
+    do
+	cd ${VMCWORKDIR}/macro/lmd
+# #add multiples scattering error estimation for hits (needed only for trk fit with Minuit). false=no
+# useMSerr=false
+# # simulation with Box generator
+#      root -l -b -q runLumiPixel0SimBox.C\(${numEv},0,${pbeam},"\"${path}\"",0,-2212,${numTrks},3562\)
+
+#      root -l -b -q runLumiPixel1Digi.C\(${numEv},0,"\"${path}\""\)
+
+#      root -l -b -q runLumiPixel2Reco.C\(${numEv},0,"\"${path}\"",0,${useMSerr},false\)
+
+# # merge hits
+#      root -l -b -q runLumiPixel2bHitMerge.C\(${numEv},0,"\"${path}\""\)
+
+# # switch on "missing plane" search algorithm
+# 	 misspl=true
+# # ### change "CA" --> "Follow" if you want to use Trk-Following as trk-search algorithm
+# # ### NB: CA can use merged or single(not merged) hits, Trk-Following can't
+#      root -l -b -q runLumiPixel3Finder.C\(${numEv},0,"\"${path}\"",0,"\"CA\"",${misspl},${mergedHits}\)
+
+# ### Track fit: Miniut
+# root -l -b -q runLumiPixel4Fitter.C\(${numEv},0,"\"${path}\"",0,${mergedHits}\)
+#  ### or Kalman Fillter with GEANE trk representation
+# ### change "GEANE" --> "RK" if you want to use Runge-Kutta trk.rep.
+root -l -b -q runLumi4KalmanFitter.C\(${numEv},0,"\"${path}\"",0,1,${mergedHits},"\"GEANE\"",${scaleP},${scaleM}\) 
+#root -l -b -q runLumi4KalmanFitter.C\(${numEv},0,"\"${path}\"",0,1,${mergedHits},"\"RK\""\) 
+
+# back-propgation GEANE
+ root -l -b -q runLumi5Geane.C\(${numEv},${pbeam},0,"\"${path}\"",0,${mergedHits}\)
+ # ### or Runge-Kutta for back-propagation
+# root -l -b -q runLumi5RungeKutta.C\(${numEv},${pbeam},0,"\"${path}\"",0,${mergedHits}\)
+
+# compare MC trk params and reconstructed trk params and much more...
+     cd ${VMCWORKDIR}/buildPanda/bin
+##     ./rec_mc_match -s 0 -n ${numEv} -t ${numTrks} -mom ${pbeam} -npx 1 -mh 0 -v 0 -path ${path}
+     ./simple_mc_rec_match -s 0 -n ${numEv} -mom ${pbeam} -v 0 -path ${path}
+     scErrPosStr=`echo $scaleP | sed -e '{ s/\./_/g; }'`
+     scErrMomStr=`echo $scaleM | sed -e '{ s/\./_/g; }'`
+     mv ${path}/Lumi_compare_MC_and_REC_trks_0.root ${path}/Lumi_compare_MC_and_REC_trks_scErrPos${scErrPosStr}_scErrMom${scErrMomStr}.root
+    done
+done
