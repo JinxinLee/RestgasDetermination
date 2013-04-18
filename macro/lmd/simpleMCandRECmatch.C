@@ -5,7 +5,7 @@
 //#
 //# to compile it add in "# install #" part of CMakeLists.txt lines:
 //# add_executable(simple_mc_rec_match simpleMCandRECmatch.C)
-//# target_link_libraries(simple_mc_rec_match ${ROOT_LIBRARIES})
+//# target_link_libraries(simple_mc_rec_match ${ROOT_LIBRARIES} Lmd GeoBase ParBase Geom PndData TrkBase  VMC EG GeomPainter generalTools FairTools  LmdReco LmdTrk Geane trackrep RecoHits genfitAdapters genfit SdsReco Sds Stt Fts Proof MathMore Minuit FairDB Base)
 //#
 //# to run it (and see options): 
 //# ${PANDAROOT}/build/bin/./simple_mc_rec_match --help
@@ -400,6 +400,7 @@ int main(int __argc,char *__argv[]) {
       FairTrackParP fFittedTrkP = trkpnd->GetParamFirst();
       TVector3 PosRecLMD(fFittedTrkP.GetX(),fFittedTrkP.GetY(),fFittedTrkP.GetZ());
       TVector3 MomRecLMD(fFittedTrkP.GetPx(),fFittedTrkP.GetPy(),fFittedTrkP.GetPz());
+      MomRecLMD *=Plab/MomRecLMD.Mag();
       double covMARS[6][6];
       fFittedTrkP.GetMARSCov(covMARS);
       TVector3 errMomRecLMD(sqrt(covMARS[0][0]),sqrt(covMARS[1][1]),sqrt(covMARS[2][2]));
@@ -498,6 +499,7 @@ int main(int __argc,char *__argv[]) {
 	double yneu=PosMClmd.Y()+dirMClmd.Y()*deltaZ;
 	double zneu = PosMClmd.Z()+deltaZ;
 	PosMClmd.SetXYZ(xneu,yneu,zneu);
+	MomMClmd = dirMClmd*Plab;
 	hResLumiTrkPointP->Fill((MomMClmd.Mag()-MomRecLMD.Mag()));
 	hResLumiTrkPointPmcPrec->Fill(MomRecLMD.Mag(),MomMClmd.Mag());
 
