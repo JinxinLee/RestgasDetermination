@@ -21,7 +21,7 @@ PndFtsHit::PndFtsHit(Int_t detID, Int_t tubeID, Int_t chamberID, Int_t layerID, 
   fTubeID = tubeID;
   fChamberID = chamberID;
   fLayerID = layerID;
-  fSkew = skew;
+  fSkewed = skew;
   fPulse   = p;
   fIsochrone = isochrone;
   fIsochroneError = isochroneError;
@@ -37,7 +37,7 @@ void PndFtsHit::Clear()
   fTubeID = 0;
   fChamberID = 0;
   fLayerID = 0;
-  fSkew = 0;
+  fSkewed = 0;
   fPulse   = 0;
   fIsochrone = 0.;
   fIsochroneError = 0.;

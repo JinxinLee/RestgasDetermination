@@ -72,6 +72,7 @@ class PndFtsHit : public FairHit
   Int_t GetChamberID() { return fChamberID; }
   void SetLayerID(Int_t layerid) { fLayerID = layerid; }
   Int_t GetLayerID() { return fLayerID; }
+  Int_t GetSkewed() { return fSkewed; }
 
  protected:
 
@@ -90,7 +91,7 @@ class PndFtsHit : public FairHit
   Int_t fTubeID; // CHECK added
   Int_t fChamberID;
   Int_t fLayerID;
-  Int_t fSkew;
+  Int_t fSkewed;
 
  ClassDef(PndFtsHit,1);
 };
