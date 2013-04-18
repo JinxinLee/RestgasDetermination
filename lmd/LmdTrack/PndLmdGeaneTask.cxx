@@ -164,6 +164,7 @@ void PndLmdGeaneTask::Exec(Option_t* opt)
       FairTrackParP fFittedTrkP = recTrack->GetParamFirst();
       TVector3 PosRecLMD(fFittedTrkP.GetX(),fFittedTrkP.GetY(),fFittedTrkP.GetZ());
       TVector3 MomRecLMD(fFittedTrkP.GetPx(),fFittedTrkP.GetPy(),fFittedTrkP.GetPz());
+      MomRecLMD *=fPbeam/MomRecLMD.Mag();
       double covMARS[6][6];
       fFittedTrkP.GetMARSCov(covMARS);
       TVector3 errMomRecLMD(sqrt(covMARS[0][0]),sqrt(covMARS[1][1]),sqrt(covMARS[2][2]));
