@@ -1,5 +1,5 @@
 //################################################################
-//# Macro for summary of Background\Signal study (with simple case: 1 trk per event)
+//# Macro for study difference between MC and REC tracks (with simple case: 1 trk per event)
 //# author: Anastasia Karavdina
 //# date: 14/04/2013
 //#
@@ -500,6 +500,12 @@ int main(int __argc,char *__argv[]) {
 	PosMClmd.SetXYZ(xneu,yneu,zneu);
 	hResLumiTrkPointP->Fill((MomMClmd.Mag()-MomRecLMD.Mag()));
 	hResLumiTrkPointPmcPrec->Fill(MomRecLMD.Mag(),MomMClmd.Mag());
+
+
+	// MomMClmd *=1./MomMClmd.Mag();//TEST
+	// MomRecLMD *=1./MomRecLMD.Mag();//TEST
+	// errMomRecLMD *=1./MomRecLMD.Mag();//TEST
+
 	// cout<<"MomMClmd.Mag() = "<<MomMClmd.Mag()<<" MomRecLMD.Mag() = "<<MomRecLMD.Mag()<<endl;
 	// cout<<" MC - REC = "<<1e3*(MomMClmd.Mag()-MomRecLMD.Mag())<<" MeV"<<endl;
 	///------------------------------------------------------------------------------------
