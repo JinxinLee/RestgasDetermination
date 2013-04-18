@@ -17,6 +17,7 @@ mergedHits=true
 numEv=1000
 # #add multiples scattering error estimation for hits (needed only for trk fit with Minuit). false=no
 useMSerr=false
+#useMSerr=true
 # simulation with Box generator
      root -l -b -q runLumiPixel0SimBox.C\(${numEv},0,${pbeam},"\"${path}\"",0,-2212,${numTrks},3562\)
 
@@ -33,10 +34,12 @@ useMSerr=false
 # ### NB: CA can use merged or single(not merged) hits, Trk-Following can't
      root -l -b -q runLumiPixel3Finder.C\(${numEv},0,"\"${path}\"",0,"\"CA\"",${misspl},${mergedHits}\)
 
-### Track fit: Miniut
- #root -l -b -q runLumiPixel4Fitter.C\(${numEv},0,"\"${path}\"",0,${mergedHits}\)
+# ### Track fit: Miniut
+# ### NB: useMSerr should be _true_ in this case !
+ # root -l -b -q runLumiPixel4Fitter.C\(${numEv},0,"\"${path}\"",0,${mergedHits}\)
 #  ### or Kalman Fillter with GEANE trk representation
 # ### change "GEANE" --> "RK" if you want to use Runge-Kutta trk.rep.
+# ### NB: useMSerr should be _false_ in this case !
 root -l -b -q runLumi4KalmanFitter.C\(${numEv},0,"\"${path}\"",0,1,${mergedHits},"\"GEANE\""\) 
 
 # back-propgation GEANE
