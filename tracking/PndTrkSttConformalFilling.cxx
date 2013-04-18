@@ -47,6 +47,7 @@ void PndTrkSttConformalFilling::BoxConformalFilling(
  // fill the nBoxConformal and the list contained in HitsinBoxConformal with
  // all the axial straw hits;
  for(i = 0; i< Nparal ; i++){
+
 	if( ! InclusionListStt[ ListSttParHits[i] ] ) continue;
 	Fi = atan2(infoparalConformal[ListSttParHits[i]][1],
 		infoparalConformal[ListSttParHits[i]][0]) ;
@@ -73,9 +74,6 @@ void PndTrkSttConformalFilling::BoxConformalFilling(
 	}
 
 
-
-
-
 	bi_index = iR*NFIDIVCONFORMAL+iFi;
 	tri_index = nBoxConformal[bi_index]*NRDIVCONFORMAL*NFIDIVCONFORMAL + bi_index;
 	if( nBoxConformal[bi_index] >= MAXHITSINCELL ){
@@ -89,8 +87,6 @@ void PndTrkSttConformalFilling::BoxConformalFilling(
 	nBoxConformal[bi_index]++;
 	RConformalIndex[ ListSttParHits[i] ]  =  iR;
 	FiConformalIndex[ ListSttParHits[i] ]  =  iFi;
-
-
 
 
 

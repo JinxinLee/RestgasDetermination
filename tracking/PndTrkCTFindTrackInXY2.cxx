@@ -225,6 +225,7 @@ bool PndTrkCTFindTrackInXY2::FindTrackInXYProjection(
  *(InOut->nHitsinTrack) = FindTrackPattern( InOut );
 
 
+
  // start the selection of the cluster;
  // requirement of minimum number of hits (the mrequirement of maximum number of hits is already been
  // fulfilled in FindTrackPattern);
@@ -256,14 +257,26 @@ bool PndTrkCTFindTrackInXY2::FindTrackInXYProjection(
 		//  to 4541;
 
 
-
  if( StrawCode == 13 || StrawCode == 23 || StrawCode2 == 13 || StrawCode2 == 23 ){
 
  //  case in which the seed hit is at the Outer Boundary of the Stt system;
  // use the contiguity of the Stt outer axial hits and require that the track hits the other
  // boundary of the outer axial section;
- } else if (StrawCode == 0) {
- //  case in which the seed hit is at the Inner and Vertical Boundary of the Stt system;
+
+
+ } else if (
+ //  case in which the seed hit is at the Inner and Vertical Boundary of the Stt system and
+ // in the Zone number 5;
+ 	StrawCode == 10 ||StrawCode == 20 || StrawCode == 15 ||StrawCode == 25
+ 	|| StrawCode == 12 ||StrawCode == 22
+		||
+ 	StrawCode2 == 10 ||StrawCode2 == 20
+		 ) {
+
+
+
+
+
  } else {
 	cout<<"from FindTrackPattern : this Stt hit is not at the boundary; this cannot be!\n";
  }
@@ -564,6 +577,9 @@ bool PndTrkCTFindTrackInXY2::FindTrackInXYProjection(
 
  }  else {
 
+
+
+
 	NN =  TrkAssociatedParallelHitsToHelixQuater(
 		auxListHitsinTrack,	//  this is the output
 		InOut->deltanr,
@@ -731,13 +747,14 @@ Short_t PndTrkCTFindTrackInXY2::FindTrackPattern(
 	AlreadyConsidered[ CurrentTube-1 ] = true;
 	nHitsAnalyzed++;
 
-	for(i=0;i< InOut->nParContiguous[ CurrentTube ] ; i++ ) {
+	for(i=0;i< InOut->nParContiguous[ CurrentTube-1 ] ; i++ ) {
 		// SttStrawOn is -1 if the Tube was not hit, it is the Stt Hit number in opposite case;
-		ContiguousTube = InOut->ListParContiguous[ CurrentTube ][i];
+		ContiguousTube = InOut->ListParContiguous[ CurrentTube-1 ][i];
 
 		if( AlreadyConsidered[ ContiguousTube-1 ])continue;
 
 		if ( InOut->SttStrawOn[ ContiguousTube-1 ] > -1 ){
+		if(! InOut->InclusionListStt[ InOut->SttStrawOn[ ContiguousTube-1] ] ) continue;
 
 			if( nHitsinTrack == InOut->maxstthitsintrack ){
 				go = false;
@@ -1276,10 +1293,7 @@ Short_t PndTrkCTFindTrackInXY2::TrkAssociatedParallelHitsToHelixQuater(
 
   for(j=0; j<nHitsinTrack; j++){
     i = ListHitsinTrack[j];
-
-
-    if( FiConformalIndex[i] <  FFimin ) FFimin = FiConformalIndex[i];
-    if( FiConformalIndex[i] >  FFimax ) FFimax = FiConformalIndex[i];
+	
   }  // end of for(j=0; j<nHitsinTrack; j++)
 
 
@@ -1305,6 +1319,7 @@ Short_t PndTrkCTFindTrackInXY2::TrkAssociatedParallelHitsToHelixQuater(
 
 //  finding the boundaries in the Conformal plane. The basic assumption is that the range
 // in Fi is much less that 180 degrees.
+
 
   FFimin -= (Short_t) nfid/Nextra;
   FFimax +=  (Short_t) nfid/Nextra;

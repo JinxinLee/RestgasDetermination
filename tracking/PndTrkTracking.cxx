@@ -1351,6 +1351,7 @@ if(istampa>0){
 
  nSttTrackCand=0;    // # tracks found
 
+
 //-------------------------------------------------------------------
  // class that finds the track (Stt hits only) in XY projection
  PndTrkCTFindTrackInXY2 SttTrackXYFinder;
@@ -1441,9 +1442,11 @@ int iconta=0;
 		fmod( fStrawCode[fTubeID[fListSttParHits[iParHit]]-1],10.) == 3 ||
 		fmod(fStrawCode[fTubeID[fListSttParHits[iParHit]]-1],10.) == 0 ||
 		fmod(fStrawCode[fTubeID[fListSttParHits[iParHit]]-1],10.) == 5 ||
+		fmod( fStrawCode[fTubeID[fListSttParHits[iParHit]]-1],10.) == 2 ||
 		fmod( fStrawCode2[fTubeID[fListSttParHits[iParHit]]-1],10.) == 3 ||
 		fmod(fStrawCode2[fTubeID[fListSttParHits[iParHit]]-1],10.) == 0 ||
-		fmod(fStrawCode2[fTubeID[fListSttParHits[iParHit]]-1],10.) == 5
+		fmod(fStrawCode2[fTubeID[fListSttParHits[iParHit]]-1],10.) == 5 ||
+		fmod(fStrawCode2[fTubeID[fListSttParHits[iParHit]]-1],10.) == 2
 	    )
 	) continue; // only seeds at the external boundary of the STT
 
