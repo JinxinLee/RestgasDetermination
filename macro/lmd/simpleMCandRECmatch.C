@@ -276,7 +276,7 @@ int main(int __argc,char *__argv[]) {
   TH1 *hPullPointPy = new TH1F("hPullPointPy","(Py_{MC}-Py_{REC})/#sigma_{Py};(Py_{MC}-Py_{REC})/#sigma_{Py}",1e2,-10,10);
   
   TH1 *hResPointPz = new TH1F("hResPointPz","Pz_{MC}-Pz_{REC};#deltaPz, GeV/c",1e2,-1e-3,1e-3);
-  TH1 *hErrPointPz = new TH1F("hErrPointPz","#sigma_{Pz};#sigmaPz, GeV/c",1e3,0,1e-1);
+  TH1 *hErrPointPz = new TH1F("hErrPointPz","#sigma_{Pz};#sigmaPz, GeV/c",1e3,0,1e-3);
   TH1 *hPullPointPz = new TH1F("hPullPointPz","(Pz_{MC}-Pz_{REC})/#sigma_{Pz};(Pz_{MC}-Pz_{REC})/#sigma_{Pz}",1e2,-10,10);
 
   TH1 *hResPointX = new TH1F("hResPointX","X_{MC}-X_{REC};#deltaX,cm",1e2,-2.,2.);
@@ -299,8 +299,8 @@ int main(int __argc,char *__argv[]) {
   TH1 *hResLumiTrkPointPx = new TH1F("hResLumiTrkPointPx","Px_{MC}-Px_{REC}(near Lumi);#deltaPx, GeV/c",1e2,-0.01,0.01);
   TH1 *hResLumiTrkPointPy = new TH1F("hResLumiTrkPointPy","Py_{MC}-Py_{REC}(near Lumi);#deltaPy, GeV/c",1e2,-0.01,0.01);
   TH1 *hResLumiTrkPointPz = new TH1F("hResLumiTrkPointPz","Pz_{MC}-Pz_{REC}(near Lumi);#deltaPz, GeV/c",1e2,-0.001,0.001);
-  TH1 *hResLumiTrkPointP = new TH1F("hResLumiTrkPointP","P_{MC}-P_{REC}(near Lumi);#deltaP, GeV/c",1e2,-0.001,0.001);
-  TH2 *hResLumiTrkPointPmcPrec = new TH2F("hResLumiTrkPointPmcPrec","P_{MC} vs. P_{REC}(near Lumi);P_{rec}, GeV/c;P_{mc}, GeV/c",1e2,Plab-0.1,Plab+0.1,1e2,Plab-0.1,Plab+0.1);
+  //  TH1 *hResLumiTrkPointP = new TH1F("hResLumiTrkPointP","P_{MC}-P_{REC}(near Lumi);#deltaP, GeV/c",1e2,-0.001,0.001);
+  //  TH2 *hResLumiTrkPointPmcPrec = new TH2F("hResLumiTrkPointPmcPrec","P_{MC} vs. P_{REC}(near Lumi);P_{rec}, GeV/c;P_{mc}, GeV/c",1e2,Plab-0.1,Plab+0.1,1e2,Plab-0.1,Plab+0.1);
 
  TH1 *hResLumiTrkPointXErr = new TH1F("hResLumiTrkPointXErr","#sigma(X_{REC})(near Lumi);#sigma_{X},cm",1e2,0,0.02);
   TH1 *hResLumiTrkPointYErr = new TH1F("hResLumiTrkPointYErr","#sigma(Y_{REC})(near Lumi);#sigma_{Y},cm",1e2,0,0.02);
@@ -356,6 +356,7 @@ int main(int __argc,char *__argv[]) {
 
       /// Read REC track parameters near IP -----------------------------------
       TVector3 MomRecPCA = fRes->GetMomentum();
+      MomRecPCA *= Plab/MomRecPCA.Mag();
       TVector3 PosRecPCA = fRes->GetPosition();
       Double_t errPx = fRes->GetDPx();
       Double_t errPy = fRes->GetDPy();
@@ -500,8 +501,8 @@ int main(int __argc,char *__argv[]) {
 	double zneu = PosMClmd.Z()+deltaZ;
 	PosMClmd.SetXYZ(xneu,yneu,zneu);
 	MomMClmd = dirMClmd*Plab;
-	hResLumiTrkPointP->Fill((MomMClmd.Mag()-MomRecLMD.Mag()));
-	hResLumiTrkPointPmcPrec->Fill(MomRecLMD.Mag(),MomMClmd.Mag());
+	//	hResLumiTrkPointP->Fill((MomMClmd.Mag()-MomRecLMD.Mag()));
+	//	hResLumiTrkPointPmcPrec->Fill(MomRecLMD.Mag(),MomMClmd.Mag());
 
 
 	// MomMClmd *=1./MomMClmd.Mag();//TEST
@@ -618,8 +619,8 @@ int main(int __argc,char *__argv[]) {
   hResLumiTrkPointPxErr->Write();
   hResLumiTrkPointPyErr->Write();
   hResLumiTrkPointPzErr->Write();
-  hResLumiTrkPointP->Write();
-  hResLumiTrkPointPmcPrec->Write();
+  //  hResLumiTrkPointP->Write();
+  //  hResLumiTrkPointPmcPrec->Write();
   f->Close();
  cout<<"Number of trks where GEANE failed: "<<glBADGEANE<<endl;
 }
