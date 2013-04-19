@@ -43,9 +43,9 @@ useMSerr=false
 root -l -b -q runLumi4KalmanFitter.C\(${numEv},0,"\"${path}\"",0,1,${mergedHits},"\"GEANE\""\) 
 
 # back-propgation GEANE
- #root -l -b -q runLumi5Geane.C\(${numEv},${pbeam},0,"\"${path}\"",0,${mergedHits}\)
+ root -l -b -q runLumi5Geane.C\(${numEv},${pbeam},0,"\"${path}\"",0,${mergedHits}\)
  # ### or Runge-Kutta for back-propagation
-root -l -b -q runLumi5RungeKutta.C\(${numEv},${pbeam},0,"\"${path}\"",0,${mergedHits}\)
+#root -l -b -q runLumi5RungeKutta.C\(${numEv},${pbeam},0,"\"${path}\"",0,${mergedHits}\)
 
 # compare MC trk params and reconstructed trk params and much more...
      cd ${VMCWORKDIR}/buildPanda/bin
