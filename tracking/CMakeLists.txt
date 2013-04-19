@@ -48,6 +48,7 @@ link_directories( ${LINK_DIRECTORIES})
 
 set(TRACKING_SRCS
 PndTrkBoundaryParStraws.cxx
+PndTrkBoundaryParStraws2.cxx
 PndTrkChi2Fits.cxx
 PndTrkCleanup.cxx
 PndTrkComparisonMCtruth.cxx
@@ -59,8 +60,10 @@ PndTrkLegendreFits.cxx
 PndTrkMergeSort.cxx
 PndTrkSttConformalFilling.cxx
 PndTrkPlotMacros.cxx
+PndTrkPlotMacros2.cxx
 PndTrkPrintouts.cxx
 PndTrkTracking.cxx
+PndTrkTracking2.cxx
 PndTrkSttAdjacencies.cxx
 )
 

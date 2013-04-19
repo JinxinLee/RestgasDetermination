@@ -225,7 +225,6 @@ bool PndTrkCTFindTrackInXY2::FindTrackInXYProjection(
  *(InOut->nHitsinTrack) = FindTrackPattern( InOut );
 
 
-
  // start the selection of the cluster;
  // requirement of minimum number of hits (the mrequirement of maximum number of hits is already been
  // fulfilled in FindTrackPattern);
@@ -456,7 +455,6 @@ bool PndTrkCTFindTrackInXY2::FindTrackInXYProjection(
 		InOut->icounter //  IVOLTE
 			);
 
-
  if(status < 0  ) return false;
 
 //  this trasformation is valid even if the equation is a straight line from the fit
@@ -469,6 +467,7 @@ bool PndTrkCTFindTrackInXY2::FindTrackInXYProjection(
  if( *(InOut->Rr) < 0. )  return false;
  *(InOut->Rr)= sqrt( *(InOut->Rr) );
  aaa = sqrt( (*(InOut->Oxx)) * (*(InOut->Oxx)) + (*(InOut->Oyy)) * (*(InOut->Oyy))  );
+
 
  // the following is because the circumference is supposed to come from (0,0);
  //   here the factor 0.9 is used in order to be conservative.
@@ -547,6 +546,7 @@ bool PndTrkCTFindTrackInXY2::FindTrackInXYProjection(
 // treat differently the case in which the track has radius < rstrawdetectormax/2
 // and the other case.
 
+
  if( *(InOut->Rr) < InOut->rstrawdetectormax/2){
 	GeomCalculator.FindingParallelTrackAngularRange(
 		*(InOut->Oxx),
@@ -577,9 +577,6 @@ bool PndTrkCTFindTrackInXY2::FindTrackInXYProjection(
 
  }  else {
 
-
-
-
 	NN =  TrkAssociatedParallelHitsToHelixQuater(
 		auxListHitsinTrack,	//  this is the output
 		InOut->deltanr,
@@ -608,6 +605,7 @@ bool PndTrkCTFindTrackInXY2::FindTrackInXYProjection(
 			);
 
  } // end of  if( Rr < rstrawdetectormax/2)
+
 
  if( NN < InOut->minimumhitspertrack || NN>InOut->maxstthitsintrack) return false;
 
@@ -1293,6 +1291,9 @@ Short_t PndTrkCTFindTrackInXY2::TrkAssociatedParallelHitsToHelixQuater(
 
   for(j=0; j<nHitsinTrack; j++){
     i = ListHitsinTrack[j];
+
+    if( FiConformalIndex[i] <  FFimin ) FFimin = FiConformalIndex[i];
+    if( FiConformalIndex[i] >  FFimax ) FFimax = FiConformalIndex[i];
 	
   }  // end of for(j=0; j<nHitsinTrack; j++)
 
@@ -1323,6 +1324,7 @@ Short_t PndTrkCTFindTrackInXY2::TrkAssociatedParallelHitsToHelixQuater(
 
   FFimin -= (Short_t) nfid/Nextra;
   FFimax +=  (Short_t) nfid/Nextra;
+
 if( FFimax - FFimin > nfid/2 ) {
     cout<<"something fishy is going on in TrkAssociatedParallelHitsToHelixQuater!"
       <<"Range in Fi (rad) is  "<<(FFimax - FFimin)*2.*PI/nfid<<endl;

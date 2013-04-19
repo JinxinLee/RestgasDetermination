@@ -16,47 +16,10 @@ class PndTrkBoundaryParStraws : public TObject
  /** Destructor **/
  ~PndTrkBoundaryParStraws(){};
 
-void  CalculateSpecialRegion(
-	Double_t RSTRAWDETECTORMIN,
-	Double_t APOTEMAMAXINNERPARSTRAW,
-	Double_t APOTEMAMINOUTERPARSTRAW,
-	Double_t VERTICALGAP,
-	Double_t &x,
-	Double_t &y
+
+  bool Set(
+	int straw_number
 	);
-
- void Set(
-	// inputs :
-	Double_t APOTEMAMAXINNERPARSTRAW,
-	Double_t APOTEMAMINOUTERPARSTRAW,
-	Short_t	 NUMBER_STRAWS,
-	Double_t RSTRAWDETECTORMIN,
-	Double_t RSTRAWDETECTORMAX,
-	bool stampa,
-	TClonesArray *SttTubeArray,
-	Double_t STRAWRADIUS,
-	Double_t VERTICALGAP,
-	// outputs :
-	Short_t * StrawCode, // -1 = not a boundary straw;  >0 = boundary straw;
-	Short_t * StrawCode2 // second Code; -1 = not a boundary straw;  >0 =  boundary straw;
-	);
-
-void  SttTubeList(
-	// inputs :
-	TClonesArray *SttTubeArray,
-	Double_t RSTRAWDETECTORMIN,
-	Double_t RSTRAWDETECTORMAX,
-	Double_t APOTEMAMAXINNERPARSTRAW,
-	Double_t APOTEMAMINOUTERPARSTRAW,
-	Double_t VERTICALGAP,
-	Double_t STRAWRADIUS,
-	Short_t NUMBER_STRAWS,
-	bool stampa,
-	// outputs :
-	Short_t *StrawCode,
-	Short_t *StrawCode2
-		);
-
 
 
   ClassDef(PndTrkBoundaryParStraws,1);
