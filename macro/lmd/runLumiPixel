@@ -14,25 +14,23 @@ numTrks=1
 #merge hits on sensors from different sides. true=yes
 mergedHits=true
 #number of events
-numEv=1000
+numEv=10000
 # #add multiples scattering error estimation for hits (needed only for trk fit with Minuit). false=no
 useMSerr=false
 #useMSerr=true
-# simulation with Box generator
-     root -l -b -q runLumiPixel0SimBox.C\(${numEv},0,${pbeam},"\"${path}\"",0,-2212,${numTrks},3562\)
+#simulation with Box generator
+      root -l -b -q runLumiPixel0SimBox.C\(${numEv},0,${pbeam},"\"${path}\"",0,-2212,${numTrks},3562\)
+      root -l -b -q runLumiPixel1Digi.C\(${numEv},0,"\"${path}\""\)
+      root -l -b -q runLumiPixel2Reco.C\(${numEv},0,"\"${path}\"",0,${useMSerr},false\)
 
-     root -l -b -q runLumiPixel1Digi.C\(${numEv},0,"\"${path}\""\)
+#merge hits
+       root -l -b -q runLumiPixel2bHitMerge.C\(${numEv},0,"\"${path}\""\)
 
-     root -l -b -q runLumiPixel2Reco.C\(${numEv},0,"\"${path}\"",0,${useMSerr},false\)
-
-# merge hits
-     root -l -b -q runLumiPixel2bHitMerge.C\(${numEv},0,"\"${path}\""\)
-
-# switch on "missing plane" search algorithm
+#switch on "missing plane" search algorithm
 	 misspl=true
-# ### change "CA" --> "Follow" if you want to use Trk-Following as trk-search algorithm
-# ### NB: CA can use merged or single(not merged) hits, Trk-Following can't
-     root -l -b -q runLumiPixel3Finder.C\(${numEv},0,"\"${path}\"",0,"\"CA\"",${misspl},${mergedHits}\)
+### change "CA" --> "Follow" if you want to use Trk-Following as trk-search algorithm
+### NB: CA can use merged or single(not merged) hits, Trk-Following can't
+    root -l -b -q runLumiPixel3Finder.C\(${numEv},0,"\"${path}\"",5,"\"CA\"",${misspl},${mergedHits}\)
 
 # ### Track fit: Miniut
 # ### NB: useMSerr should be _true_ in this case !
@@ -47,6 +45,9 @@ root -l -b -q runLumi4KalmanFitter.C\(${numEv},0,"\"${path}\"",0,1,${mergedHits}
  # ### or Runge-Kutta for back-propagation
 #root -l -b -q runLumi5RungeKutta.C\(${numEv},${pbeam},0,"\"${path}\"",0,${mergedHits}\)
 
-# compare MC trk params and reconstructed trk params and much more...
-     cd ${VMCWORKDIR}/buildPanda/bin
-     ./simple_mc_rec_match -s 0 -n ${numEv} -mom ${pbeam} -v 0 -path ${path}
+# Quality assurance task
+	root -l -b -q runLumiPixel7QA.C\(${numEv},0,"\"${path}\"",0,${pbeam}\)
+
+# # compare MC trk params and reconstructed trk params and much more...
+#     cd ${VMCWORKDIR}/buildPanda/bin
+#    ./simple_mc_rec_match -s 0 -n ${numEv} -mom ${pbeam} -v 0 -path ${path}
