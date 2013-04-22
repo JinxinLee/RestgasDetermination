@@ -93,7 +93,7 @@ class PndFtsHit : public FairHit
   Int_t fLayerID;
   Int_t fSkewed;
 
- ClassDef(PndFtsHit,1);
+ ClassDef(PndFtsHit,2);
 };
 
 
