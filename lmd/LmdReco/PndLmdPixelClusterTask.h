@@ -40,6 +40,7 @@ class PndLmdPixelClusterTask : public PndSdsPixelClusterTask
     ClassDef(PndLmdPixelClusterTask,3);
 
  private:
+    void FinishEvent();
     bool flagMS;
     double fPbeam;
     TVector3 AddMSErr(TVector3 hpos, TVector3 hposerr);

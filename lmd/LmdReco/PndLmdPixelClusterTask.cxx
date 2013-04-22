@@ -23,12 +23,21 @@ PndSdsPixelClusterTask("LMD Clustertisation Task")
   readAlign = true;
   flagMS = true;
   mtxpath = "";
+  lmddim = NULL;
 }
 // -------------------------------------------------------------------------
 
 // -----   Destructor   ----------------------------------------------------
 PndLmdPixelClusterTask::~PndLmdPixelClusterTask()
 {
+  if (fBackMapping != 0) delete fBackMapping;
+  if (fClusterFinder != 0) delete fClusterFinder;
+  if (fFunctor != 0) delete fFunctor;
+  if(fAlignParamList !=0) delete fAlignParamList;
+
+  if(fStartFunctor !=0) delete fStartFunctor;
+  if(fGeoH!=0) delete fGeoH;
+  if(lmddim!=0 ) lmddim->Cleanup();
 }
 // -------------------------------------------------------------------------
 
@@ -72,8 +81,12 @@ InitStatus PndLmdPixelClusterTask::Init()
   fStartFunctor = new StopTime();
   
   if(fVerbose>1) fDigiPar->Print();
+
+  if(lmddim!=0 ) lmddim->Cleanup();
   lmddim = PndLmdDim::Instance();
   SetAlignConst();
+
+  fGeoH->SetVerbose(fVerbose);
 
   std::cout << "-I- PndSdsPixelClusterTask: Initialisation successfull" << std::endl;
   return kSUCCESS;
@@ -84,6 +97,7 @@ InitStatus PndLmdPixelClusterTask::Init()
 // -----   Initialization  of Parameter Containers -------------------------
 void PndLmdPixelClusterTask::SetParContainers()
 {
+  std::cout<<"PndLmdPixelClusterTask::SetParContainers() "<<std::endl;
   // Get Base Container
 	ana = FairRun::Instance();
 	rtdb=ana->GetRuntimeDb();
@@ -107,36 +121,11 @@ void PndLmdPixelClusterTask::SetParContainers()
 }
 
 void PndLmdPixelClusterTask::SetAlignConst(){
+  std::cout<<"PndLmdPixelClusterTask::SetAlignConst() "<<std::endl;
 
   TIter alignparams(fAlignParamList); 
   PndLmdAlignPar* lmdalignpar=(PndLmdAlignPar*)alignparams();
-  // //  lmdalignpar->Print();
-  // if(0==lmdalignpar) { 
-  //   Error("PndLmdStripClusterTask::SetCalculators()","A ALIGN Parameter Set does not exist properly.");
-  // } 
-  // else{
-  //   //   lmdalignpar->Print();
-  //   Int_t nsens = lmdalignpar->GetNsensors();
-  //   Int_t nsides = lmdalignpar->GetNsides();
-  //   Int_t nplanes = lmdalignpar->GetNplanes();
-  //   for(int ik=0;ik<nplanes*nsides*nsens;ik++){
-  //     fShiftX.push_back(lmdalignpar->GetShiftX(ik));
-  //     fShiftY.push_back(lmdalignpar->GetShiftY(ik));
-  //     fShiftZ.push_back(lmdalignpar->GetShiftZ(ik));
-  //     fRotateX.push_back(lmdalignpar->GetRotateX(ik));
-  //     fRotateY.push_back(lmdalignpar->GetRotateY(ik));
-  //     fRotateZ.push_back(lmdalignpar->GetRotateZ(ik));
-  //     if (fVerbose > 2) cout<<"fShiftX["<<ik<<"]="<<fShiftX[ik]<<" fRotateX["<<ik<<"]="<<fRotateX[ik]
-  // 			    <<" fRotateY["<<ik<<"]="<<fRotateY[ik]<<" fRotateZ["<<ik<<"]="<<fRotateZ[ik]<<endl;
-  //   }
-  // }
-  // if (fVerbose > 2)
-  // lmdalignpar->Print();
-  // cout<<"*^^^^^* from PixelClusterTask *^^^^^^^*"<<endl;
-  //Read lmd geo description. still not sure where and how to do it as soon as Init stays in PndSdsPixelClusterTask
-  // lmddim -> Read_transformation_matrices("matrices.txt", true);
   lmddim -> Read_DB_offsets(lmdalignpar);
-  // TString mtx_perfect =   mtxpath+"matrices_perfect.txt";
   TString mtx_perfect =  "matrices_perfect.txt";
   TString mtx_corr =   mtxpath+"/matrices_corrected.txt";
   lmddim -> Read_transformation_matrices(mtx_perfect.Data(), false);
@@ -145,14 +134,6 @@ void PndLmdPixelClusterTask::SetAlignConst(){
 
   lmddim -> Read_transformation_matrices(mtx_perfect.Data(), false);
   lmddim -> Read_transformation_matrices(mtx_corr.Data(), true);
-
-  // lmddim -> Read_transformation_matrices("matrices_perfect.txt", false);
-  // //  lmddim -> Correct_transformation_matrices();
-  // lmddim -> reCreate_transformation_matrices();
-  // lmddim -> Write_transformation_matrices("matrices_corrected.txt", false);
-
-  // lmddim -> Read_transformation_matrices("matrices_perfect.txt", false);
-  // lmddim -> Read_transformation_matrices("matrices_corrected.txt", true);
 }
 void PndLmdPixelClusterTask::SetBackMapping()
 {
@@ -162,6 +143,7 @@ void PndLmdPixelClusterTask::SetBackMapping()
 
 void PndLmdPixelClusterTask::SetClusterFinder()
 {
+  std::cout<<"PndLmdPixelClusterTask::SetClusterFinder() "<<std::endl;
 	fClusterFinder = new PndLmdSimplePixelClusterFinder(fVerbose);
 }
 
@@ -185,81 +167,6 @@ void PndLmdPixelClusterTask::SetBranchNames()
   fClustBranchName = "LMDPixelClusterCand";
   fFolderName = "cbmsim";
 }
-
-// void PndLmdPixelClusterTask::combitransToLumiFrame(TVector3& hitPos){
-//   //do the transformation from lab frame to LUMI frame (with z-axis perp. to lumi planes)
-//   double end_seg_upstream = 360.1; // where bending starts with
-//   double r_bend = 5750.; // the bending radius
-//   double phi_bend = 40.068e-3; // and the angle of the circle path
-//   // const Double_t kRot = phi_bend/3.141*180.;//=2.295727;//2.326; //(deg) //Rotate to dipol
-//   const Double_t kRot = phi_bend;//here we need abgle in rad!
-//   // the point where both tangents of the straight beam pipe tubes meet is
-//   const Double_t kRotUmZ = end_seg_upstream + tan(phi_bend/2.)*r_bend;//476.03; //(cm) //z-point to rotate
-//   const Double_t kTransZ = 1130.; //(cm) //move at z-position
-//   const Double_t kTransX = (kTransZ - end_seg_upstream - tan(phi_bend/2.)*r_bend)*tan(phi_bend); // 25 (cm) //move at x-position
-//   // cout<<"kTransX = "<<kTransX<<" kRotUmZ = "<<kRotUmZ<<" kRot = "<<kRot<<endl;
-//   // const Double_t  kHalfFoilThickness  = 0.0075; // Thickness of sensitive foil (cm)
-//   // const Double_t  kTransZ = 1130.; //(cm) //move at z-position
-//   // const Double_t  kRotUmZ = 476.03; //(cm) //z-point to rotate
-//   // const Double_t  kTransX = 25; //(cm) //move at x-position
-//   // const Double_t  kRot =  0.040596358401388; // 2.326 degree  = 4.05963584013881024e-02 rad
-//   TVector3 LumiTrans(0,0,kRotUmZ);
-//   hitPos -=LumiTrans;
-//   hitPos.RotateY(-kRot);
-//   LumiTrans = TVector3(0,0,kTransZ-kRotUmZ);
-//   hitPos -=LumiTrans;
-//   // cout<<"!!! NEW HIT position in LUMI frame!!! "<<endl;
-//   //  hitPos.Print();
-// }
-
-// void PndLmdPixelClusterTask::rotateToLumiFrame(TVector3& hitPos){
-//   TMatrixD hitMtx(3,3);
-//   hitMtx[0][0] = hitPos[0];
-//   hitMtx[1][0] = hitPos[1];
-//   hitMtx[2][0] = hitPos[2];
-//   TMatrixD res = rotateToLumiFrame(hitMtx);
-//   hitPos = TVector3(hitMtx(0,0),hitMtx(1,0),hitMtx(2,0));
-// }
-// TMatrixD PndLmdPixelClusterTask::rotateToLumiFrame(TMatrixD& hitCov){
-//   double phi_bend = 40.068e-3; // and the angle of the circle path
-//   Double_t sintheta = TMath::Sin(phi_bend);
-//   Double_t costheta = TMath::Cos(phi_bend);
-//   TMatrixD rot(3,3);// Rotation around Y axis
-//   rot[0][0]= costheta;
-//   rot[0][1]= 0;
-//   rot[0][2]= sintheta;
-//   rot[1][0]= 0;
-//   rot[1][1]= 1;
-//   rot[1][2]= 0;
-//   rot[2][0]= -sintheta;
-//   rot[2][1]= 0;
-//   rot[2][2]= costheta;
-//   TMatrixD result = rot;
-//   result.T();
-//   result*=hitCov;
-//   hitCov = result;
-//   result*=rot;
-//   return result;
-// }
-
-
-// //Correction to hit position due to misalignment of sensor
-// //TO DO: find a way do it in global and not hit by hit.
-// void PndLmdPixelClusterTask::alignmentCorr(TVector3& hitPos, int ssensID){
-//   if(readAlign){
-//     SetAlignConst();
-//     readAlign = false;
-//   }
-//   int sensID = ssensID;// aligment only on petal with 4 sensors???
-//   cout<<"fShiftX["<<sensID<<"]="<<fShiftX[sensID]<<endl;
-//   TVector3 hitPos_loc(hitPos.X(),hitPos.Y(),0.);
-//   hitPos_loc -=TVector3(fShiftX[sensID],fShiftY[sensID],fShiftZ[sensID]);
-//   double xnew = hitPos_loc.X()+fRotateZ[sensID]*hitPos_loc.Y()-fRotateY[sensID]*hitPos_loc.Z();
-//   double ynew = hitPos_loc.Y()-fRotateZ[sensID]*hitPos_loc.X()+fRotateX[sensID]*hitPos_loc.Z();
-//   double znew = hitPos_loc.Z()-fRotateY[sensID]*hitPos_loc.X()-fRotateX[sensID]*hitPos_loc.Y();
-//   hitPos = TVector3(xnew,ynew,hitPos.Z()+znew);
-// }
-
 
 TVector3 PndLmdPixelClusterTask::AddMSErr(TVector3 hpos, TVector3 hposerr){
   if(fVerbose>0) Info("PndLmdPixelClusterTask::AddMSErr","calculation additional errors due to multiple scaterring");
@@ -309,159 +216,160 @@ TVector3 PndLmdPixelClusterTask::AddMSErr(TVector3 hpos, TVector3 hposerr){
 // -----   Public method Exec   --------------------------------------------
 void PndLmdPixelClusterTask::Exec(Option_t* opt)
 {
-  std::vector<PndSdsDigiPixel> DigiPixelArray;
+  // std::cout<<" fEventNr = "<< fEventNr<<std::endl;
   // Reset output array
+  fClusterArray = FairRootManager::Instance()->GetTClonesArray(fClustBranchName);
   if ( ! fClusterArray ) Fatal("Exec", "No ClusterArray");
+  fClusterArray->Delete();
 
-  fGeoH->SetVerbose(fVerbose);
+  fHitArray = FairRootManager::Instance()->GetTClonesArray(fOutBranchName);
+  if ( ! fHitArray ) Fatal("Exec", "No HitArray");
+  fHitArray->Delete();
+
+  std::vector<PndSdsDigiPixel> DigiPixelArray;
+  DigiPixelArray.clear();
 
   Double_t EventTime = FairRootManager::Instance()->GetEventTime();
 
-   if(fVerbose>0) std::cout << "-I- PndSdsPixelClusterTask::Exec EventTime: " << EventTime << std::endl;
+  if(fVerbose>0) std::cout << "-I- PndSdsPixelClusterTask::Exec EventTime: " << EventTime << std::endl;
 
-    if (FairRunAna::Instance()->IsTimeStamp()){
-    	fDigiArray = FairRootManager::Instance()->GetData(fInBranchName, fStartFunctor, EventTime + 10);
-    }
-
-  if ( ! fHitArray ) Fatal("Exec", "No HitArray");
+  // Get input array
+  if (FairRunAna::Instance()->IsTimeStamp()){
+    fDigiArray->Clear();
+    fDigiArray = FairRootManager::Instance()->GetData(fInBranchName, fStartFunctor, EventTime + 10);
+  }
+  else
+    fDigiArray = (TClonesArray*)FairRootManager::Instance()->GetObject(fInBranchName);
 
   Int_t nPoints = fDigiArray->GetEntriesFast();
-  //std::cout << "Points in DigiArray: " << nPoints << std::endl;
+
   // convert from TClonesArray to a std::vector
   for (Int_t iPoint = 0; iPoint < nPoints; iPoint++){
     PndSdsDigiPixel myDigi = *(PndSdsDigiPixel*)(fDigiArray->At(iPoint));
     DigiPixelArray.push_back(myDigi);
+    myDigi.Clear();
   }
   // Retrieve the calculated clusters with the chosen clusterfinder
   std::vector< std::vector< Int_t> > clusters = fClusterFinder->GetClusters(DigiPixelArray);
   if(fVerbose>1) std::cout << " -I-  PndSdsPixelClusterTask::Exec(): We have "<<clusters.size()<<" pixel clusters" << std::endl;
   // store the list
   for (UInt_t i = 0; i < clusters.size(); i++)
-  {
-    PndSdsClusterPixel* tempCluster = new((*fClusterArray)[i]) PndSdsClusterPixel(fInBranchId, clusters[i]);
-
-    if (FairRunAna::Instance()->IsTimeStamp()){
-//		std::cout << "TempCluster: " << *tempCluster << std::endl;
-		tempCluster->ResetLinks();
-		for (UInt_t j = 0; j < clusters[i].size(); j++){
-			PndSdsDigiPixel* tempDigi = (PndSdsDigiPixel*)fDigiArray->At(clusters[i][j]);
-//			std::cout << "TempDigi: " << *tempDigi << std::endl;
-//			std::cout << "EntryNr: ";
-//			tempDigi->GetEntryNr().Print();
-//			std::cout << std::endl;
-			tempCluster->AddLink(FairLink(tempDigi->GetEntryNr()));
-//			std::cout << "Links: " << (FairMultiLinkedData)(*tempCluster) << std::endl;
-		}
+    {
+      PndSdsClusterPixel* tempCluster = new((*fClusterArray)[i]) PndSdsClusterPixel(fInBranchId, clusters[i]);
+      if (FairRunAna::Instance()->IsTimeStamp()){
+	tempCluster->ResetLinks();
+	for (UInt_t j = 0; j < clusters[i].size(); j++){
+	  PndSdsDigiPixel* tempDigi = (PndSdsDigiPixel*)fDigiArray->At(clusters[i][j]);
+	  tempCluster->AddLink(FairLink(tempDigi->GetEntryNr()));
+	  tempDigi->Clear();
+	}
+      }
     }
-  }
   
   // do the backmapping with charge-weight
   for (UInt_t i = 0; i < clusters.size(); i++)
-  {
-    //    if(fVerbose>2) std::cout << clusters[i].size() << " " << std::endl;
-    std::vector<PndSdsDigiPixel> clusterArray;
-    for (UInt_t j=0;j < clusters[i].size();j++)
-    { // convert
-      clusterArray.push_back(DigiPixelArray[clusters[i][j]]);
-    }
+    {
+      //    if(fVerbose>2) std::cout << clusters[i].size() << " " << std::endl;
+      std::vector<PndSdsDigiPixel> clusterArray;
+      for (UInt_t j=0;j < clusters[i].size();j++)
+	{ // convert
+	  clusterArray.push_back(DigiPixelArray[clusters[i][j]]);
+	}
     
-    // mapping with the choosen back mapping
-    PndSdsHit myHit = fBackMapping->GetCluster(clusterArray);
-    myHit.SetClusterIndex(fClusterType,i, 0, fEventNr);
-    TMatrixD hitCov = myHit.GetCov();
-    // hitCov.Print();
-    hitCov(0,0) = 5.56960000000000085e-06; //assuming hit resolution for x-y 23.6 mkm
-    hitCov(1,1) = 5.56960000000000085e-06; //assuming hit resolution for x-y 23.6 mkm
-    hitCov(2,2) = 4.28489999999999954e-08; //assuming hit resolution for z 2.07 mkm
-    //  hitCov(2,2) = 4.28489999999999954e-06; //assuming hit resolution for z 20.07 mkm //TEST
-    
-    //Add multiple scattering error ---------------
-    if(flagMS){
+      // mapping with the choosen back mapping
+      Int_t iHits = fHitArray->GetEntriesFast();
+      //      PndSdsHit *myHit = new((*fHitArray)[iHits]) PndSdsHit(fBackMapping->GetCluster(clusterArray));
+      PndSdsHit myHit = fBackMapping->GetCluster(clusterArray);
+      clusterArray.clear();
+      myHit.SetClusterIndex(fClusterType,i, 0, fEventNr);
       TVector3 hitPos = myHit.GetPosition();
-      TVector3 hitErr(sqrt(hitCov[0][0]),sqrt(hitCov[1][1]),sqrt(hitCov[2][2]));
-      TVector3 hitErrMSadd = AddMSErr(hitPos, hitErr);
-      hitCov[0][0] = TMath::Power(hitErrMSadd.X(),2);
-      hitCov[1][1] = TMath::Power(hitErrMSadd.Y(),2);
-      hitCov[2][2] = TMath::Power(hitErrMSadd.Z(),2);
+      TMatrixD hitCov = myHit.GetCov();
+      hitCov(0,0) = 5.29e-06; //assuming hit resolution for x-y 23 mkm
+      hitCov(1,1) = 5.29e-06; //assuming hit resolution for x-y 23 mkm
+      hitCov(2,2) = 4.28489999999999954e-08; //assuming hit resolution for z 2.07 mkm
+
+      //Add multiple scattering error ---------------
+      if(flagMS){
+	//	TVector3 hitPos = myHit.GetPosition();
+	TVector3 hitErr(sqrt(hitCov[0][0]),sqrt(hitCov[1][1]),sqrt(hitCov[2][2]));
+	TVector3 hitErrMSadd = AddMSErr(hitPos, hitErr);
+	hitCov[0][0] = TMath::Power(hitErrMSadd.X(),2);
+	hitCov[1][1] = TMath::Power(hitErrMSadd.Y(),2);
+	hitCov[2][2] = TMath::Power(hitErrMSadd.Z(),2);
+      }
+      //  myHit.SetCov(hitCov);//save value
+
+      // //Alignment: translate to LMD local (not corrected) frame and back to GLOBAL (corrected) ----------------
+
+      int sensorID = myHit.GetSensorID();
+      int ihalf, iplane, imodule, iside, idie, isensor;
+      lmddim->Get_sensor_by_id(sensorID, ihalf, iplane, imodule, iside, idie, isensor);
+      // // ///-----------------------
+      // // hitPos = lmddim->Transform_global_to_sensor(hitPos,ihalf,iplane,imodule,iside,idie,isensor,false,false);
+      // // hitCov = lmddim->Transform_global_to_sensor(hitCov,ihalf,iplane,imodule,iside,idie,isensor,false);
+      // // hitPos = lmddim->Transform_sensor_to_global(hitPos,ihalf,iplane,imodule,iside,idie,isensor,false,true);
+      // // hitCov = lmddim->Transform_sensor_to_global(hitCov,ihalf,iplane,imodule,iside,idie,isensor,true);
+      // // myHit.SetPosition(hitPos);//save value
+      // // myHit.SetCov(hitCov);//save value
+      // //  TVector3 hitPos1,hitPos2;
+      // //     TMatrixD hitCov1 = hitCov;
+      // //   TMatrixD hitCov2 = hitCov;
+       TVector3 hitPos1(lmddim->Transform_global_to_sensor(hitPos,ihalf,iplane,imodule,iside,idie,isensor,false,false));
+       TVector3 hitPos2(lmddim->Transform_sensor_to_global(hitPos1,ihalf,iplane,imodule,iside,idie,isensor,false,true));
+       TMatrixD hitCov1 = hitCov; TMatrixD hitCov2 = hitCov;
+       lmddim->Transform_global_to_sensor(hitCov,ihalf,iplane,imodule,iside,idie,isensor,false,hitCov1);
+       lmddim->Transform_sensor_to_global(hitCov1,ihalf,iplane,imodule,iside,idie,isensor,true,hitCov2);
+       // TMatrixD hitCov1(lmddim->Transform_global_to_sensor(hitCov,ihalf,iplane,imodule,iside,idie,isensor,false));
+       // TMatrixD hitCov2(lmddim->Transform_sensor_to_global(hitCov1,ihalf,iplane,imodule,iside,idie,isensor,true));
+       myHit.SetPosition(hitPos2);//save value
+       myHit.SetCov(hitCov2);//save value
+      // // hitPos1.Delete();
+      // // hitPos2.Delete();
+       //       delete  hitCov1;
+       //       delete  hitCov2 ;
+      // //Alignment: (END) ---------------------------------------------------------------------------------------   
+
+      if(fVerbose>0){
+	std::cout << " -I-  PndSdsPixelClusterTask::Exec(): Calculated Hit(LUMI frame): " << std::endl;
+	myHit.Print();
+	((FairMultiLinkedData)(myHit)).Print();
+      }
+      TClonesArray& clref = *fHitArray;
+      Int_t size = clref.GetEntriesFast();
+      PndSdsHit *freshHit = new(clref[size]) PndSdsHit(myHit);
+      //myHit.Delete();
+      //      myHit.Clear();
+      //      std::cout<<"fHitArray.size() = "<<sizeof(*fHitArray)<<std::endl;
     }
-    myHit.SetCov(hitCov);//save value
-
-    //Alignment: translate to LMD local (not corrected) frame and back to GLOBAL (corrected) ----------------
-    TVector3 hitPos = myHit.GetPosition();
-    int sensorID = myHit.GetSensorID();
-    int ihalf, iplane, imodule, iside, idie, isensor;
-    lmddim->Get_sensor_by_id(sensorID, ihalf, iplane, imodule, iside, idie, isensor);
-    // cout<<"ihalf, iplane, imodule: "<<ihalf<<","<<iplane<<","<<imodule<<endl;
-    // cout<<"BEFORE:"<<endl;
-    // hitPos.Print();
-    // hitCov.Print();
-    // /// TEST
-    // TVector3 hitPosModule = hitPos;
-    // hitPosModule = lmddim->Transform_global_to_lmd_local(hitPos,false,false);
-    // hitPosModule = lmddim->Transform_lmd_local_to_module_side(hitPosModule,ihalf,iplane,imodule,iside, false,false);
-    // cout<<"Module [BEFORE]:("<<ihalf<<","<<iplane<<","<<imodule<<")"<<endl;
-    // hitPosModule.Print();
-    // hitPosModule = lmddim->Transform_module_side_to_sensor(hitPosModule,ihalf,iplane,imodule,iside, idie, isensor, false, false);
-    // hitPosModule = lmddim->Transform_sensor_to_global(hitPosModule,ihalf,iplane,imodule,iside, idie, isensor, false, true);
-    // //    hitPosModule = lmddim->Transform_global_to_lmd_local(hitPos,false,true);
-    // //    hitPosModule = lmddim->Transform_lmd_local_to_module_side(hitPosModule,ihalf,0,imodule,0, false,true);
-    // hitPosModule = lmddim->Transform_global_to_lmd_local(hitPos,false,true);
-    // hitPosModule = lmddim->Transform_lmd_local_to_module_side(hitPosModule,ihalf,0,imodule,0, false,true);
-    // cout<<"Module [AFTER]:("<<ihalf<<","<<0<<","<<imodule<<")"<<endl;
-    // hitPosModule.Print();
-
-    // ///-----------------------
-    
-
-    hitPos = lmddim->Transform_global_to_sensor(hitPos,ihalf,iplane,imodule,iside,idie,isensor,false,false);
-    hitCov = lmddim->Transform_global_to_sensor(hitCov,ihalf,iplane,imodule,iside,idie,isensor,false);
-    hitPos = lmddim->Transform_sensor_to_global(hitPos,ihalf,iplane,imodule,iside,idie,isensor,false,true);
-    hitCov = lmddim->Transform_sensor_to_global(hitCov,ihalf,iplane,imodule,iside,idie,isensor,true);
-    // cout<<"AFTER:"<<endl;
-    // hitPos.Print();
-    // hitCov.Print();
-    myHit.SetPosition(hitPos);//save value
-    myHit.SetCov(hitCov);//save value
-    //Alignment: (END) ---------------------------------------------------------------------------------------
-
-    // if(fVerbose>0){
-    //   cout<<"Before transl to LUMI frame:"<<endl;
-    //myHit.Print();
-    // }
-    // TVector3 hitPos = myHit.GetPosition();
-    // TMatrixD hitCov = myHit.GetCov();
-    // ///don't want touch BackMapping now
-    // ///Let's work with coordinates in Global frame
-    // hitPos = lmddim->Transform_global_to_lmd_local(hitPos, false, false);
-    // hitCov = lmddim->Transform_global_to_lmd_local(hitCov, false);
-    // if(fVerbose>0){
-    //   cout<<"After Transform_global_to_lmd_local:"<<endl;
-    //   hitPos.Print();
-    //   hitCov.Print();
-    // }
-   
-    
-
-    if(fVerbose>0){
-      std::cout << " -I-  PndSdsPixelClusterTask::Exec(): Calculated Hit(LUMI frame): " << std::endl;
-      myHit.Print();
-      ((FairMultiLinkedData)(myHit)).Print();
-    }
-
-    new ((*fHitArray)[i]) PndSdsHit(myHit);
-  }
+  clusters.clear();
+  DigiPixelArray.clear();
   if(fVerbose>1)std::cout << std::endl;
 
   if(fVerbose>1){
-    std::cout << "-I- PndSdsPixelClusterTask: " << fClusterArray->GetEntriesFast()
-    << " Sds Clusters and " << fHitArray->GetEntriesFast()<<" Hits calculated." << std::endl;
+    std::cout << "-I- PndLmdPixelClusterTask: " << fClusterArray->GetEntriesFast()
+	      << " Sds Clusters and " << fHitArray->GetEntriesFast()<<" Hits calculated." << std::endl;
   }
   fEventNr++;
   fHitArray->Sort();
-  return;
-  
+
+  // fDigiArray->Delete();
+
+  // std::cout<<"lmddim.size() = "<<sizeof(*lmddim)<<std::endl;
+
+  //  std::cout<<"DigiPixelArray.size() = "<<DigiPixelArray.size()<< std::endl;
+  // FinishEvent();
+  //  std::cout<<"size() = "<<sizeof(*this)<<std::endl;
+  return;  
 }
 
+void PndLmdPixelClusterTask::FinishEvent(){
+
+	if (fDigiArray > 0) 	fDigiArray->Delete();
+	if (fHitArray > 0) 	  fHitArray->Delete();
+	if (fClusterArray > 0)  fClusterArray->Delete();
+       	FinishEvents();
+	//std::cout << "-I- PndLmdPixelClusterTask: FinishEvent()" << std::endl;
+}
 
 ClassImp(PndLmdPixelClusterTask);
 
