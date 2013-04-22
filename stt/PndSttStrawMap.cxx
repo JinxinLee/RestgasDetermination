@@ -113,3 +113,6 @@ int PndSttStrawMap::IsSectorBorderStraw(int strawindex) const
 	if (strawindex == endstrawccw) return 1;
 	return 0;
 }
+
+ClassImp(PndSttStrawMap)
+

@@ -11,12 +11,14 @@
 #include <map>
 #include <vector>
 
+#include "TObject.h"
+
 class TClonesArray;
 
 using std::map;
 using std::vector;
 
-class PndSttStrawMap
+class PndSttStrawMap : public TObject
 {
 public:
 
@@ -44,6 +46,8 @@ private:
 
 	vector<double> fSectorStart;
 	vector<double> fSectorEnd;
+
+	ClassDef(PndSttStrawMap,1)
 
 };
 

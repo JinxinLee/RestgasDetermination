@@ -68,6 +68,7 @@ PndSttSignalOverlap.cxx
 PndSttHitWriteoutBuffer.cxx
 PndSttHitRingSorter.cxx
 PndSttHitSorterTask.cxx
+PndSttStrawMap.cxx
 )
 
 if(RULE_CHECKER_FOUND)

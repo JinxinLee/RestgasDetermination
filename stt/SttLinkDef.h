@@ -33,6 +33,7 @@
 #pragma link C++ class PndSttHitWriteoutBuffer+;
 #pragma link C++ class PndSttHitRingSorter+;
 #pragma link C++ class PndSttHitSorterTask+;
+#pragma link C++ class PndSttStrawMap+;
 
 
 #endif
