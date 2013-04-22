@@ -586,8 +586,7 @@ public:
 
 	// get the transformation matrix from PANDA global reference frame to the
 	// sensor reference frame
-	TGeoMatrix& Get_transformation_global_to_sensor(
-			int ihalf, int iplane, int imodule, int iside, int idie, int isensor,  bool aligned = true);
+	TGeoMatrix* Get_transformation_global_to_sensor(int ihalf, int iplane, int imodule, int iside, int idie, int isensor,  bool aligned = true);
 
 	// get the transformation matrix from lumi reference frame to the
 	// sensor reference frame
@@ -610,7 +609,10 @@ public:
 
 	// get the inverse transformation matrix from PANDA global reference frame to the
 	// sensor reference frame
-	TGeoMatrix& Get_transformation_sensor_to_global(
+	/* TGeoMatrix& Get_transformation_sensor_to_global( */
+	/* 		int ihalf, int iplane, int imodule, int iside, int idie, int isensor,  bool aligned = true); */
+
+	TGeoMatrix* Get_transformation_sensor_to_global(
 			int ihalf, int iplane, int imodule, int iside, int idie, int isensor,  bool aligned = true);
 
 	// get the inverse transformation matrix from lmd local reference frame to the
@@ -645,7 +647,7 @@ public:
 
 	// Transform from PANDA global reference frame to the
 	// sensor reference frame
-	TVector3& Transform_global_to_sensor(const TVector3& point,
+	TVector3 Transform_global_to_sensor(const TVector3& point,
 			int ihalf, int iplane, int imodule, int iside, int idie, int isensor, bool isvector = false, bool aligned = true);
 
 	// Transform from lmd local reference frame to the
@@ -669,7 +671,7 @@ public:
 
 	// Transform from PANDA global reference frame to the
 	// sensor reference frame
-	TVector3& Transform_sensor_to_global(const TVector3& point,
+	TVector3 Transform_sensor_to_global(const TVector3& point,
 			int ihalf, int iplane, int imodule, int iside, int idie, int isensor, bool isvector = false, bool aligned = true);
 
 	// Transform from lmd local reference frame to the
@@ -714,8 +716,8 @@ public:
 	// Transform from PANDA global reference frame to the
 	// sensor reference frame
 	// treats only 3 x 3 matrices representing the space
-	TMatrixD& Transform_global_to_sensor(const TMatrixD& matrix,
-			int ihalf, int iplane, int imodule, int iside, int idie, int isensor, bool aligned = true);
+	void Transform_global_to_sensor(const TMatrixD& matrix,
+					int ihalf, int iplane, int imodule, int iside, int idie, int isensor, bool aligned,TMatrixD& res);
 
 	// Transform from the PANDA global reference frame to the
 	// Luminosity reference frame
@@ -743,8 +745,8 @@ public:
 	// Transform from PANDA global reference frame to the
 	// sensor reference frame
 	// treats only 3 x 3 matrices representing the space
-	TMatrixD& Transform_sensor_to_global(const TMatrixD& matrix,
-			int ihalf, int iplane, int imodule, int iside, int idie, int isensor, bool aligned = true);
+	void Transform_sensor_to_global(const TMatrixD& matrix,
+					int ihalf, int iplane, int imodule, int iside, int idie, int isensor, bool aligned,TMatrixD& res);
 
 	// Transform from a ideal sensor to the aligned one
 	// treats only 3 x 3 matrices representing the space

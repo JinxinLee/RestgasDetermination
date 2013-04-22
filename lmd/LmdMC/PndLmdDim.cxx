@@ -276,7 +276,7 @@ void PndLmdDim::Generate_rootgeom(TGeoVolume& mothervol, bool misaligned){
 	FairGeoInterface *geoFace = geoLoad->getGeoInterface();
 	geoFace->setMediaFile("../../geometry/media_pnd.geo");//("${VMCWORKDIR}/geometry/media_pnd.geo");
 	geoFace->readMedia();
-	geoFace->print();
+	//	geoFace->print();
 
 	FairGeoMedia *Media = geoFace->getMedia();
 	FairGeoBuilder *geobuild = geoLoad->getGeoBuilder();
@@ -384,6 +384,8 @@ void PndLmdDim::Generate_rootgeom(TGeoVolume& mothervol, bool misaligned){
 	TGeoVolume *lmd_vol_box = new TGeoVolume("lmd_vol_box", shape_lmd_box,
 				fgGeoMan->GetMedium("steel"));
 	lmd_vol_box->SetLineColor(11);
+	lmd_vol_box->SetVisibility(false);//TEST
+
 	TGeoCombiTrans* comb_trans_lmd_box = new TGeoCombiTrans("comb_trans_lmd_box",
 			0., 0., 2*tube_upstream_length+box_size_z, rot_no);
 	//comb_trans_pipe_upstream->RegisterYourself();
@@ -413,7 +415,7 @@ void PndLmdDim::Generate_rootgeom(TGeoVolume& mothervol, bool misaligned){
 	TGeoVolume *vlum_CaptonCone = new TGeoVolume("vlum_CaptonCone", lmd_capton_cone,
 			fgGeoMan->GetMedium("kapton"));
 	vlum_CaptonCone->SetLineColor(kRed);//39);
-	lmd_vol_vac->AddNode(vlum_CaptonCone, 0, lmd_trans_cap_co);
+	//	lmd_vol_vac->AddNode(vlum_CaptonCone, 0, lmd_trans_cap_co);//TEST without cone!!!
 	// 10 mu thick kapton foil aluminum coating
 	cone_r_in_upstream = cone_r_in_upstream+cone_thickness;
 	cone_r_in_downstream = cone_r_in_downstream+cone_thickness;
@@ -539,7 +541,7 @@ void PndLmdDim::Generate_rootgeom(TGeoVolume& mothervol, bool misaligned){
 	TGeoVolume* lmd_vol_kapton_disc = new TGeoVolume("lmd_vol_kapton_disc",
 							shape_kapton_support, fgGeoMan->GetMedium("kapton"));
 	lmd_vol_kapton_disc->SetLineColor(kRed);
-	lmd_vol_kapton_disc->SetVisibility(false);
+	//	lmd_vol_kapton_disc->SetVisibility(false);
 	// *********************************** HV-MAPS *************************************
 
 	// create basic shapes and their positions
@@ -906,7 +908,7 @@ void PndLmdDim::reCreate_transformation_matrices(){
 	rot_module_offset->RotateZ(_offset_psi/pi*180.);
 	rot_module_offset->RotateY(_offset_theta/pi*180.);
 	rot_module_offset->RotateX(_offset_phi/pi*180.);
-	// rot_module_offset->Print();
+	//	rot_module_offset->Print();
 
 
 	//	cout<<"_rot_x_theta: "<<_offset_phi/pi*180.<<" degree"<<endl;
@@ -974,7 +976,7 @@ void PndLmdDim::Correct_transformation_matrices(){
 	    
 	    for (int imodule = 0; imodule < nmodules; imodule++){ // loop over modules
 	      //TODO: "Transformation matrix not existent!" =\
-	      cout<<"Correct matrix module #"<<imodule<<" "<<ihalf<<iplane<<imodule<<"-1-1-1"<<endl;
+	      // cout<<"Correct matrix module #"<<imodule<<" "<<ihalf<<iplane<<imodule<<"-1-1-1"<<endl;
 	      TGeoMatrix* rottrans_module = Get_matrix(ihalf, iplane, imodule, -1, -1, -1,  false);
 	      // Get_offset(ihalf, iplane, imodule, -1, -1, -1,
 	      // 		 _offset_x, _offset_y, _offset_z, _offset_phi, _offset_theta, _offset_psi);
@@ -989,7 +991,7 @@ void PndLmdDim::Correct_transformation_matrices(){
 			  TGeoMatrix* rottrans_side =  Get_matrix(ihalf, iplane, imodule , iside, -1, -1,  false);
 			  Get_offset(ihalf, iplane, imodule, iside, -1, -1,
 				     _offset_x, _offset_y, _offset_z, _offset_phi, _offset_theta, _offset_psi);
-			  cout<<"offsets:"<<_offset_x<<" "<<_offset_y<<" "<<_offset_z<<" "<<_offset_phi<<" "<<_offset_theta<<" "<<_offset_psi<<endl;
+			  //			  cout<<"offsets:"<<_offset_x<<" "<<_offset_y<<" "<<_offset_z<<" "<<_offset_phi<<" "<<_offset_theta<<" "<<_offset_psi<<endl;
 			  TGeoRotation* rot_side_offset = new TGeoRotation("rot_side_offset",
 								 _offset_phi/pi*180., _offset_theta/pi*180., _offset_psi/pi*180.);
 			  TGeoCombiTrans* rottrans_side_offset =
@@ -1146,7 +1148,7 @@ void PndLmdDim::Read_DB_offsets(PndLmdAlignPar *lmdalignpar){
   // TIter alignparams(fAlignParamList); 
   // PndLmdAlignPar* lmdalignpar=(PndLmdAlignPar*)alignparams();
   // //  lmdalignpar->getParams(alignparams);
-  lmdalignpar->Print();
+  //  lmdalignpar->Print();
   if(0==lmdalignpar) { 
     Error("PndLmdStripClusterTask::SetCalculators()","A ALIGN Parameter Set does not exist properly.");
   } 
@@ -1209,7 +1211,7 @@ void PndLmdDim::Get_offset(int ihalf, int iplane, int imodule, int iside, int id
 		double& x, double& y, double& z,
 		double& rotphi, double& rottheta, double& rotpsi){
 	string key = Generate_key(ihalf, iplane, imodule, iside, idie, isensor);
-	cout<<"setting Offset for: "<<ihalf<<", "<<iplane<<", "<<imodule<<", "<<iside<<", "<<idie<<", "<<isensor<<endl;
+	//	cout<<"setting Offset for: "<<ihalf<<", "<<iplane<<", "<<imodule<<", "<<iside<<", "<<idie<<", "<<isensor<<endl;
 	itoffset = offsets.find(key);
 	// if (itoffset != offsets.end()){
 	// 	x = itoffset->second[0];
@@ -1305,7 +1307,7 @@ void PndLmdDim::Get_offset(int ihalf, int iplane, int imodule, int iside, int id
 	  offsets[key].push_back(rotphi);
 	  offsets[key].push_back(rottheta);
 	  offsets[key].push_back(rotpsi);
-	  cout<<"x,y,z,rotphi,rottheta,rotpsi: "<<x<<", "<<y<<", "<<z<<", "<<rotphi<<", "<<rottheta<<", "<<rotpsi<<endl;
+	  //	  cout<<"x,y,z,rotphi,rottheta,rotpsi: "<<x<<", "<<y<<", "<<z<<", "<<rotphi<<", "<<rottheta<<", "<<rotpsi<<endl;
 }
 
 void PndLmdDim::Transform_global_to_lmd_local(double& x, double& y, double& z, bool aligned){
@@ -1391,7 +1393,31 @@ TGeoMatrix& PndLmdDim::Get_transformation_module_side_to_sensor(
 	return *(new TGeoHMatrix(*matrix));
 }
 
-TGeoMatrix& PndLmdDim::Get_transformation_global_to_sensor(
+// TGeoMatrix& PndLmdDim::Get_transformation_global_to_sensor(
+// 		int ihalf, int iplane, int imodule, int iside, int idie, int isensor,  bool aligned){
+// 	// instead of using the 3 methods to transform between the reference frames
+// 	// pointers to the matrices are retrieved directly in order to gain a little
+// 	// bit of performance (no construction and deletion of new matrices needed)
+// 	TGeoMatrix* matrix1 = Get_matrix(-1, -1, -1, -1, -1, -1, aligned);
+// 	TGeoMatrix* matrix2 = Get_matrix(ihalf, iplane, imodule, iside, -1, -1, aligned);
+// 	TGeoMatrix* matrix3 = Get_matrix(ihalf, iplane, imodule, iside, idie, isensor, aligned);
+// 	if (!matrix1 || !matrix2 || !matrix3) return *(new TGeoHMatrix());
+// 	return *(new TGeoHMatrix((*matrix1) * (*matrix2) * (*matrix3)));
+// }
+
+// TGeoMatrix& PndLmdDim::Get_transformation_global_to_sensor(
+// 		int ihalf, int iplane, int imodule, int iside, int idie, int isensor,  bool aligned){
+// 	// instead of using the 3 methods to transform between the reference frames
+// 	// pointers to the matrices are retrieved directly in order to gain a little
+// 	// bit of performance (no construction and deletion of new matrices needed)
+// 	TGeoMatrix* matrix1 = Get_matrix(-1, -1, -1, -1, -1, -1, aligned);
+// 	TGeoMatrix* matrix2 = Get_matrix(ihalf, iplane, imodule, iside, -1, -1, aligned);
+// 	TGeoMatrix* matrix3 = Get_matrix(ihalf, iplane, imodule, iside, idie, isensor, aligned);
+// 	if (!matrix1 || !matrix2 || !matrix3) return *(new TGeoHMatrix());
+// 	return *(new TGeoHMatrix((*matrix1) * (*matrix2) * (*matrix3)));
+// }
+
+TGeoMatrix* PndLmdDim::Get_transformation_global_to_sensor(
 		int ihalf, int iplane, int imodule, int iside, int idie, int isensor,  bool aligned){
 	// instead of using the 3 methods to transform between the reference frames
 	// pointers to the matrices are retrieved directly in order to gain a little
@@ -1399,8 +1425,8 @@ TGeoMatrix& PndLmdDim::Get_transformation_global_to_sensor(
 	TGeoMatrix* matrix1 = Get_matrix(-1, -1, -1, -1, -1, -1, aligned);
 	TGeoMatrix* matrix2 = Get_matrix(ihalf, iplane, imodule, iside, -1, -1, aligned);
 	TGeoMatrix* matrix3 = Get_matrix(ihalf, iplane, imodule, iside, idie, isensor, aligned);
-	if (!matrix1 || !matrix2 || !matrix3) return *(new TGeoHMatrix());
-	return *(new TGeoHMatrix((*matrix1) * (*matrix2) * (*matrix3)));
+	if (!matrix1 || !matrix2 || !matrix3) return (new TGeoHMatrix());
+	return (new TGeoHMatrix((*matrix1) * (*matrix2) * (*matrix3)));
 }
 
 TGeoMatrix& PndLmdDim::Get_transformation_lmd_local_to_sensor(
@@ -1431,7 +1457,19 @@ TGeoMatrix& PndLmdDim::Get_transformation_sensor_to_module_side(
 	return *(new TGeoHMatrix(matrix->Inverse()));
 }
 
-TGeoMatrix& PndLmdDim::Get_transformation_sensor_to_global(
+// TGeoMatrix& PndLmdDim::Get_transformation_sensor_to_global(
+// 		int ihalf, int iplane, int imodule, int iside, int idie, int isensor,  bool aligned){
+// 	// instead of using the 3 methods to transform between the reference frames
+// 	// pointers to the matrices are retrieved directly in order to gain a little
+// 	// bit of performance (no construction and deletion of new matrices needed)
+// 	TGeoMatrix* matrix1 = Get_matrix(-1, -1, -1, -1, -1, -1, aligned);
+// 	TGeoMatrix* matrix2 = Get_matrix(ihalf, iplane, imodule, iside, -1, -1, aligned);
+// 	TGeoMatrix* matrix3 = Get_matrix(ihalf, iplane, imodule, iside, idie, isensor, aligned);
+// 	if (!matrix1 || !matrix2 || !matrix3) return *(new TGeoHMatrix());
+// 	return *(new TGeoHMatrix(((*matrix1) * (*matrix2) * (*matrix3)).Inverse()));
+// }
+
+TGeoMatrix* PndLmdDim::Get_transformation_sensor_to_global(
 		int ihalf, int iplane, int imodule, int iside, int idie, int isensor,  bool aligned){
 	// instead of using the 3 methods to transform between the reference frames
 	// pointers to the matrices are retrieved directly in order to gain a little
@@ -1439,8 +1477,8 @@ TGeoMatrix& PndLmdDim::Get_transformation_sensor_to_global(
 	TGeoMatrix* matrix1 = Get_matrix(-1, -1, -1, -1, -1, -1, aligned);
 	TGeoMatrix* matrix2 = Get_matrix(ihalf, iplane, imodule, iside, -1, -1, aligned);
 	TGeoMatrix* matrix3 = Get_matrix(ihalf, iplane, imodule, iside, idie, isensor, aligned);
-	if (!matrix1 || !matrix2 || !matrix3) return *(new TGeoHMatrix());
-	return *(new TGeoHMatrix(((*matrix1) * (*matrix2) * (*matrix3)).Inverse()));
+	if (!matrix1 || !matrix2 || !matrix3) return (new TGeoHMatrix());
+	return (new TGeoHMatrix(((*matrix1) * (*matrix2) * (*matrix3)).Inverse()));
 }
 
 TGeoMatrix& PndLmdDim::Get_transformation_sensor_to_lmd_local(
@@ -1454,17 +1492,23 @@ TGeoMatrix& PndLmdDim::Get_transformation_sensor_to_lmd_local(
 TGeoMatrix& PndLmdDim::Get_transformation_sensor_to_sensor_aligned(
 		int ihalf, int iplane, int imodule, int iside, int idie, int isensor){
 	// to do: optimize like in Get_transformation_sensor_to_global
-	TGeoMatrix& matrix = Get_transformation_sensor_to_global(ihalf, iplane, imodule, iside, idie, isensor, false);
-	TGeoMatrix& matrix_aligned = Get_transformation_global_to_sensor(ihalf, iplane, imodule, iside, idie, isensor, true);
-	return *(new TGeoHMatrix(matrix*matrix_aligned));
+  //  TGeoMatrix& matrix = Get_transformation_sensor_to_global(ihalf, iplane, imodule, iside, idie, isensor, false);
+  TGeoMatrix* matrix = Get_transformation_sensor_to_global(ihalf, iplane, imodule, iside, idie, isensor, false);
+  // TGeoMatrix& matrix_aligned = Get_transformation_global_to_sensor(ihalf, iplane, imodule, iside, idie, isensor, true);
+  TGeoMatrix* matrix_aligned = Get_transformation_global_to_sensor(ihalf, iplane, imodule, iside, idie, isensor, true);
+  //return *(new TGeoHMatrix(matrix*matrix_aligned));
+  return *(new TGeoHMatrix((*matrix)*(*matrix_aligned)));
 }
 
 TGeoMatrix& PndLmdDim::Get_transformation_sensor_aligned_to_sensor(
 		int ihalf, int iplane, int imodule, int iside, int idie, int isensor){
 	// to do: optimize like in Get_transformation_sensor_to_global
-	TGeoMatrix& matrix_aligned = Get_transformation_sensor_to_global(ihalf, iplane, imodule, iside, idie, isensor, true);
-	TGeoMatrix& matrix = Get_transformation_global_to_sensor(ihalf, iplane, imodule, iside, idie, isensor, false);
-	return *(new TGeoHMatrix(matrix_aligned*matrix));
+  //  TGeoMatrix& matrix_aligned = Get_transformation_sensor_to_global(ihalf, iplane, imodule, iside, idie, isensor, true);
+  TGeoMatrix* matrix_aligned = Get_transformation_sensor_to_global(ihalf, iplane, imodule, iside, idie, isensor, true);
+  // TGeoMatrix& matrix = Get_transformation_global_to_sensor(ihalf, iplane, imodule, iside, idie, isensor, false);
+  TGeoMatrix* matrix = Get_transformation_global_to_sensor(ihalf, iplane, imodule, iside, idie, isensor, false);
+  //	  	return *(new TGeoHMatrix(matrix_aligned*matrix));
+  return *(new TGeoHMatrix((*matrix_aligned)*(*matrix)));
 }
 
 TVector3& PndLmdDim::Transform_global_to_lmd_local(const TVector3& point, bool isvector, bool aligned){
@@ -1476,6 +1520,8 @@ TVector3& PndLmdDim::Transform_global_to_lmd_local(const TVector3& point, bool i
 	else matrix.MasterToLocal(master, local);
 	return *(new TVector3(local));
 }
+
+
 
 TVector3& PndLmdDim::Transform_lmd_local_to_module_side(const TVector3& point,
 		int ihalf, int iplane, int imodule, int iside, bool isvector, bool aligned){
@@ -1499,16 +1545,47 @@ TVector3& PndLmdDim::Transform_module_side_to_sensor(const TVector3& point,
 	return *(new TVector3(local));
 }
 
-TVector3& PndLmdDim::Transform_global_to_sensor(const TVector3& point,
+// TVector3& PndLmdDim::Transform_global_to_sensor(const TVector3& point,
+// 		int ihalf, int iplane, int imodule, int iside, int idie, int isensor, bool isvector, bool aligned){
+//   //	TGeoMatrix& matrix = Get_transformation_global_to_sensor(ihalf, iplane, imodule, iside, idie, isensor, aligned);
+// 	TGeoMatrix* matrix = Get_transformation_global_to_sensor(ihalf, iplane, imodule, iside, idie, isensor, aligned);
+// 	double master[3];
+// 	point.GetXYZ(master);
+// 	double local[3];
+// 	//	if (isvector) matrix.MasterToLocalVect(master, local);
+// 	//	else matrix.MasterToLocal(master, local);
+// 	if (isvector) matrix->MasterToLocalVect(master, local);
+// 	else matrix->MasterToLocal(master, local);
+// 	delete matrix;
+// 	return *(new TVector3(local));
+// }
+
+TVector3 PndLmdDim::Transform_global_to_sensor(const TVector3& point,
 		int ihalf, int iplane, int imodule, int iside, int idie, int isensor, bool isvector, bool aligned){
-	TGeoMatrix& matrix = Get_transformation_global_to_sensor(ihalf, iplane, imodule, iside, idie, isensor, aligned);
-	double master[3];
-	point.GetXYZ(master);
-	double local[3];
-	if (isvector) matrix.MasterToLocalVect(master, local);
-	else matrix.MasterToLocal(master, local);
-	return *(new TVector3(local));
+  TGeoMatrix* matrix = Get_transformation_global_to_sensor(ihalf, iplane, imodule, iside, idie, isensor, aligned);
+  double master[3];
+  point.GetXYZ(master);
+  double local[3];
+  if (isvector) matrix->MasterToLocalVect(master, local);
+  else matrix->MasterToLocal(master, local);
+  delete matrix;
+  return TVector3(local);
 }
+
+// void PndLmdDim::Transform_global_to_sensor(const TVector3& point,
+// 					   int ihalf, int iplane, int imodule, int iside, int idie, int isensor, bool isvector, bool aligned, TVector3& res){
+//   //	TGeoMatrix& matrix = Get_transformation_global_to_sensor(ihalf, iplane, imodule, iside, idie, isensor, aligned);
+// 	TGeoMatrix* matrix = Get_transformation_global_to_sensor(ihalf, iplane, imodule, iside, idie, isensor, aligned);
+// 	double master[3];
+// 	point.GetXYZ(master);
+// 	double local[3];
+// 	// if (isvector) matrix.MasterToLocalVect(master, local);
+// 	// else matrix.MasterToLocal(master, local);
+// 	if (isvector) matrix->MasterToLocalVect(master, local);
+// 	else matrix->MasterToLocal(master, local);
+// 	res = TVector3(local);
+// 	delete matrix;
+// }
 
 
 TVector3& PndLmdDim::Transform_lmd_local_to_global(const TVector3& point, bool isvector, bool aligned){
@@ -1557,16 +1634,18 @@ TVector3& PndLmdDim::Transform_sensor_to_module_side(const TVector3& point,
 	return *(new TVector3(master));
 }
 
-TVector3& PndLmdDim::Transform_sensor_to_global(const TVector3& point,
+
+TVector3 PndLmdDim::Transform_sensor_to_global(const TVector3& point,
 		int ihalf, int iplane, int imodule, int iside, int idie, int isensor, bool isvector, bool aligned){
 	// I think Local to Master calculation is faster than the getter of the inverse matrix
-	TGeoMatrix& matrix = Get_transformation_global_to_sensor(ihalf, iplane, imodule, iside, idie, isensor, aligned);
+  TGeoMatrix* matrix = Get_transformation_global_to_sensor(ihalf, iplane, imodule, iside, idie, isensor, aligned);
 	double local[3];
 	point.GetXYZ(local);
 	double master[3];
-	if (isvector) matrix.LocalToMasterVect(local, master);
-	else matrix.LocalToMaster(local, master);
-	return *(new TVector3(master));
+	if (isvector) matrix->LocalToMasterVect(local, master);
+	else matrix->LocalToMaster(local, master);
+	delete matrix;
+	return TVector3(master);
 }
 
 TVector3& PndLmdDim::Transform_sensor_to_lmd_local(const TVector3& point,
@@ -1624,16 +1703,17 @@ TMatrixD& PndLmdDim::Transform_module_side_to_sensor(const TMatrixD& matrix,
 	return *(new TMatrixD(rotmatrix*matrix*rotmatrix.T()));
 }
 
-TMatrixD& PndLmdDim::Transform_global_to_sensor(const TMatrixD& matrix,
-		int ihalf, int iplane, int imodule, int iside, int idie, int isensor, bool aligned){
-	TMatrixD rotmatrix(3,3,
-			Get_transformation_global_to_sensor(
-					ihalf, iplane, imodule, iside, idie, isensor, aligned).GetRotationMatrix());
-	return *(new TMatrixD(rotmatrix*matrix*rotmatrix.T()));
+void PndLmdDim::Transform_global_to_sensor(const TMatrixD& matrix,
+						int ihalf, int iplane, int imodule, int iside, int idie, int isensor, bool aligned,TMatrixD& res){
+	TGeoMatrix* geoMtx = Get_transformation_global_to_sensor(ihalf, iplane, imodule, iside, idie, isensor, aligned);
+	TMatrixD rotmatrix(3,3,geoMtx->GetRotationMatrix());
+	res = TMatrixD(rotmatrix*matrix*rotmatrix.T());
+	delete geoMtx;
 }
 
 TMatrixD& PndLmdDim::Transform_lmd_local_to_sensor(const TMatrixD& matrix,
 		int ihalf, int iplane, int imodule, int iside, int idie, int isensor, bool aligned){
+
 	TMatrixD rotmatrix(3,3,
 			Get_transformation_lmd_local_to_sensor(
 					ihalf, iplane, imodule, iside, idie, isensor, aligned).GetRotationMatrix());
@@ -1662,12 +1742,13 @@ TMatrixD& PndLmdDim::Transform_sensor_to_module_side(const TMatrixD& matrix,
 	return *(new TMatrixD(rotmatrix*matrix*rotmatrix.T()));
 }
 
-TMatrixD& PndLmdDim::Transform_sensor_to_global(const TMatrixD& matrix,
-		int ihalf, int iplane, int imodule, int iside, int idie, int isensor, bool aligned){
-	TMatrixD rotmatrix(3,3,
-			Get_transformation_sensor_to_global(
-					ihalf, iplane, imodule, iside, idie, isensor, aligned).GetRotationMatrix());
-	return *(new TMatrixD(rotmatrix*matrix*rotmatrix.T()));
+
+void PndLmdDim::Transform_sensor_to_global(const TMatrixD& matrix,
+					   int ihalf, int iplane, int imodule, int iside, int idie, int isensor, bool aligned,TMatrixD& res){
+  TGeoMatrix *geoMtx = Get_transformation_sensor_to_global(ihalf, iplane, imodule, iside, idie, isensor, aligned);
+  TMatrixD rotmatrix(3,3,geoMtx->GetRotationMatrix());
+  res = TMatrixD(rotmatrix*matrix*rotmatrix.T());
+  delete geoMtx;
 }
 
 TMatrixD& PndLmdDim::Transform_sensor_to_lmd_local(const TMatrixD& matrix,
