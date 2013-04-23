@@ -21,8 +21,10 @@ time root -l -b -q runLumi2Reco.C\(${numEv},0,"\"${path}\"",0,${addMS}\)
 ### cange false --> true if you want ro use missing search algorithm
 time root -l -b -q runLumi3Finder.C\(${numEv},0,"\"${path}\"",0,"\"CA\"",true\)
 ### Minuit
+## NB: addMS=true for Kalman Fillter!
 time root -l -b -q runLumi4Fitter.C\(${numEv},0,"\"${path}\""\)
 ### or Kalman Fillter
+## NB: addMS=false for Kalman Fillter!
 # time root -l -b -q runLumi4KalmanFitter.C\(${numEv},0,"\"${path}\"",0,0\)
 time root -l -b -q runLumi5Geane.C\(${numEv},${pbeam},0,"\"${path}\""\)
 exit
