@@ -51,7 +51,6 @@ class PndSensorNamePar : public FairParGenericSet
     void FillMap(){
     	for (int i = 0; i < fSensorNames->GetEntries();i++){
 			TObjString* SensName = (TObjString*)fSensorNames->At(i);
-			std::cout << i << ": " << SensName->GetString().Data() << std::endl;
 			fMapOfSensorNames[SensName->GetString()] = i;
 			fMapOfSensorIndizes[i] = SensName->GetString();
 		}
