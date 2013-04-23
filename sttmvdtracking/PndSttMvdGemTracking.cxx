@@ -245,6 +245,7 @@ InitStatus PndSttMvdGemTracking::Init() {
   
   // GEANE propagation to volume
   fPro = new FairGeanePro();
+  if (fVerbose==0) fPro->SetPrintErrors(kFALSE);
 
 
   // STT mapper

@@ -191,6 +191,7 @@ Bool_t PndRecoKalmanFit::Init()
   if (fUseGeane)
     {
       fPro = new FairGeanePro();
+      if (fVerbose==0) fPro->SetPrintErrors(kFALSE);
     }
   else
     {
@@ -235,6 +236,7 @@ PndTrack* PndRecoKalmanFit::Fit(PndTrack *tBefore, Int_t PDG)
       Int_t ierr = 0;
       FairTrackParH *helix = new FairTrackParH(&par, ierr);
       FairGeanePro *fPro0 = new FairGeanePro();
+      if (fVerbose==0) fPro0->SetPrintErrors(kFALSE);
       FairTrackParH *fRes= new FairTrackParH();
       fPro0->SetPoint(TVector3(0,0,0));
       fPro0->PropagateToPCA(1, -1);
