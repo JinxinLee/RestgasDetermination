@@ -220,8 +220,12 @@ private:
 	TH1* hists_theta_rec_diff[nplanes][nsensors_per_plane];
 	TH1* hists_theta_rec_diff_rel[nplanes][nsensors_per_plane];
 
-	//TRotation inv_lmdrotation;
-	//TVector3 inv_lmdtranslation;
+	// histograms for geane tests
+	TH2* hist_theta_diff_prop_true;
+	TH2* hist_theta_diff_prop_true_o_theta;
+
+	TRotation inv_lmdrotation;
+	TVector3 inv_lmdtranslation;
 
 	TFile* hist_output_file;
 

@@ -37,6 +37,11 @@
 #include "TGaxis.h"
 //#include "PndLmdDim.h"
 
+// GenFit includes
+#include "RKTrackRep.h"
+#include "GFFieldManager.h"
+#include "GFPandaField.h"
+
 #include <vector>
 #include <map>
 
@@ -158,6 +163,8 @@ InitStatus PndLmdPerformanceTask::Init() {
 	// fPbeam = par->GetBeamMom();
 	//  cout<<"Beam Momentum for this run is "<<fPbeam<<endl;
 
+	GFFieldManager::getInstance()->init(new GFPandaField());
+
 	std::cout << " Setting up histograms in PndLmdPerformanceTask ";
 	flush(std::cout);
 
@@ -191,6 +198,7 @@ InitStatus PndLmdPerformanceTask::Init() {
 	   	TGaxis::SetMaxDigits(3);
 	}
 
+	if (!hist_output_file) SetHistFilename("_hists.root");
 	hist_output_file->cd();
 
 	hist_angular_distr_gen = new TH2F("hist_angular_distr_gen",
@@ -287,179 +295,205 @@ InitStatus PndLmdPerformanceTask::Init() {
 	cout << " constructing histograms for " << nplanes << " planes with "
 			<< nsensors_per_plane << " sensors per plane " << endl;
 
-	for (int iplane = 0; iplane < nplanes; iplane++) {
-		stringstream hist_name;
-		stringstream hist_title;
+	stringstream hist_name;
+	stringstream hist_title;
+	for (int _iplane = 0; _iplane < nplanes; _iplane++) {
 
-		hist_name << "hist_xy_plane_" << iplane;
-		hist_title << "xy hit distribution plane " << iplane;
-		hist_xy[iplane] = new TH2F(hist_name.str().c_str(),
+		hist_name .str("");
+		hist_title.str("");
+
+		hist_name << "hist_xy_plane_" << _iplane;
+		hist_title << "xy hit distribution plane " << _iplane;
+		hist_xy[_iplane] = new TH2F(hist_name.str().c_str(),
 				hist_title.str().c_str(), 100, -10, 10, 100, -10, 10);
-		hist_xy[iplane]->Draw();
-		hist_xy[iplane]->GetXaxis()->SetTitle("X [cm]");
-		hist_xy[iplane]->GetYaxis()->SetTitle("Y [cm]");
+		hist_xy[_iplane]->Draw();
+		hist_xy[_iplane]->GetXaxis()->SetTitle("X [cm]");
+		hist_xy[_iplane]->GetYaxis()->SetTitle("Y [cm]");
 
 		hist_name .str("");
 		hist_title.str("");
 
-		hist_name << "hist_theta_init_plane_" << iplane;
-		hist_title << "initial #Theta distribution plane " << iplane;
-		hist_theta_init[iplane] = new TH2F(hist_name.str().c_str(),
+		hist_name << "hist_theta_init_plane_" << _iplane;
+		hist_title << "initial #Theta distribution plane " << _iplane;
+		hist_theta_init[_iplane] = new TH2F(hist_name.str().c_str(),
 				hist_title.str().c_str(), 150, 0, 15e-3, 360, -3.141, +3.141);
-		hist_theta_init[iplane]->Draw();
-		hist_theta_init[iplane]->GetXaxis()->SetTitle("#Theta [rad]");
-		hist_theta_init[iplane]->GetYaxis()->SetTitle("#Phi [rad]");
+		hist_theta_init[_iplane]->Draw();
+		hist_theta_init[_iplane]->GetXaxis()->SetTitle("#Theta [rad]");
+		hist_theta_init[_iplane]->GetYaxis()->SetTitle("#Phi [rad]");
 
 		hist_name .str("");
 		hist_title.str("");
 
-		hist_name << "hist_theta_in_plane_" << iplane;
-		hist_title << "#Theta distribution at plane " << iplane;
-		hist_theta_in[iplane] = new TH2F(hist_name.str().c_str(),
+		hist_name << "hist_theta_in_plane_" << _iplane;
+		hist_title << "#Theta distribution at plane " << _iplane;
+		hist_theta_in[_iplane] = new TH2F(hist_name.str().c_str(),
 				hist_title.str().c_str(), 200, 0, 20e-3, 360, -3.141, +3.141);
-		hist_theta_in[iplane]->Draw();
-		hist_theta_in[iplane]->GetXaxis()->SetTitle("#Theta [rad]");
-		hist_theta_in[iplane]->GetYaxis()->SetTitle("#Phi [rad]");
+		hist_theta_in[_iplane]->Draw();
+		hist_theta_in[_iplane]->GetXaxis()->SetTitle("#Theta [rad]");
+		hist_theta_in[_iplane]->GetYaxis()->SetTitle("#Phi [rad]");
 
 		hist_name .str("");
 		hist_title.str("");
 
-		hist_name << "hist_rec_theta_with_plane_" << iplane;
-		hist_title << "#Theta reconstructed distribution with plane " << iplane;
-		hist_theta_rec[iplane] = new TH2F(hist_name.str().c_str(),
+		hist_name << "hist_rec_theta_with_plane_" << _iplane;
+		hist_title << "#Theta reconstructed distribution with plane " << _iplane;
+		hist_theta_rec[_iplane] = new TH2F(hist_name.str().c_str(),
 				hist_title.str().c_str(), 200, 0, 20e-3, 360, -3.141, +3.141);
-		hist_theta_rec[iplane]->Draw();
-		hist_theta_rec[iplane]->GetXaxis()->SetTitle("#Theta [rad]");
-		hist_theta_rec[iplane]->GetYaxis()->SetTitle("#Phi [rad]");
+		hist_theta_rec[_iplane]->Draw();
+		hist_theta_rec[_iplane]->GetXaxis()->SetTitle("#Theta [rad]");
+		hist_theta_rec[_iplane]->GetYaxis()->SetTitle("#Phi [rad]");
 
 		hist_name .str("");
 		hist_title.str("");
 
-		hist_name << "hist_theta_diff_in_plane_" << iplane;
-		hist_title << "#Delta#Theta distribution at plane " << iplane;
-		hist_theta_diff[iplane] = new TH2F(hist_name.str().c_str(),
+		hist_name << "hist_theta_diff_in_plane_" << _iplane;
+		hist_title << "#Delta#Theta distribution at plane " << _iplane;
+		hist_theta_diff[_iplane] = new TH2F(hist_name.str().c_str(),
 				hist_title.str().c_str(), 100, -20e-5, 20e-5, 360, -3.141, +3.141);
-		hist_theta_diff[iplane]->Draw();
-		hist_theta_diff[iplane]->GetXaxis()->SetTitle("#Delta#Theta [rad]");
-		hist_theta_diff[iplane]->GetYaxis()->SetTitle("#Phi [rad]");
+		hist_theta_diff[_iplane]->Draw();
+		hist_theta_diff[_iplane]->GetXaxis()->SetTitle("#Delta#Theta [rad]");
+		hist_theta_diff[_iplane]->GetYaxis()->SetTitle("#Phi [rad]");
 
 		hist_name .str("");
 		hist_title.str("");
 
-		hist_name << "hist_theta_rec_diff_in_plane_" << iplane;
-		hist_title << "#Delta#Theta reco distribution at plane " << iplane;
-		hist_theta_rec_diff[iplane] = new TH2F(hist_name.str().c_str(),
+		hist_name << "hist_theta_rec_diff_in_plane_" << _iplane;
+		hist_title << "#Delta#Theta reco distribution at plane " << _iplane;
+		hist_theta_rec_diff[_iplane] = new TH2F(hist_name.str().c_str(),
 				hist_title.str().c_str(), 100, -20e-5, 20e-5, 360, -3.141, +3.141);
-		hist_theta_rec_diff[iplane]->Draw();
-		hist_theta_rec_diff[iplane]->GetXaxis()->SetTitle("#Delta#Theta [rad]");
-		hist_theta_rec_diff[iplane]->GetYaxis()->SetTitle("#Phi [rad]");
+		hist_theta_rec_diff[_iplane]->Draw();
+		hist_theta_rec_diff[_iplane]->GetXaxis()->SetTitle("#Delta#Theta [rad]");
+		hist_theta_rec_diff[_iplane]->GetYaxis()->SetTitle("#Phi [rad]");
 
 		hist_name .str("");
 		hist_title.str("");
 
-		hist_name << "hist_theta_diff_rel_in_plane_" << iplane;
-		hist_title << "#Delta#Theta/#Theta distribution at plane " << iplane;
-		hist_theta_diff_rel[iplane] = new TH2F(hist_name.str().c_str(),
+		hist_name << "hist_theta_diff_rel_in_plane_" << _iplane;
+		hist_title << "#Delta#Theta/#Theta distribution at plane " << _iplane;
+		hist_theta_diff_rel[_iplane] = new TH2F(hist_name.str().c_str(),
 				hist_title.str().c_str(), 100, -1, 1, 360, -3.141, +3.141);
-		hist_theta_diff_rel[iplane]->Draw();
-		hist_theta_diff_rel[iplane]->GetXaxis()->SetTitle("#Delta#Theta/#Theta");
-		hist_theta_diff_rel[iplane]->GetYaxis()->SetTitle("#Phi [rad]");
+		hist_theta_diff_rel[_iplane]->Draw();
+		hist_theta_diff_rel[_iplane]->GetXaxis()->SetTitle("#Delta#Theta/#Theta");
+		hist_theta_diff_rel[_iplane]->GetYaxis()->SetTitle("#Phi [rad]");
 
 		hist_name .str("");
 		hist_title.str("");
 
-		hist_name << "hist_theta_rec_diff_rel_in_plane_" << iplane;
-		hist_title << "#Delta#Theta/#Theta reco distribution at plane " << iplane;
-		hist_theta_rec_diff_rel[iplane] = new TH2F(hist_name.str().c_str(),
+		hist_name << "hist_theta_rec_diff_rel_in_plane_" << _iplane;
+		hist_title << "#Delta#Theta/#Theta reco distribution at plane " << _iplane;
+		hist_theta_rec_diff_rel[_iplane] = new TH2F(hist_name.str().c_str(),
 				hist_title.str().c_str(), 100, -1, 1, 360, -3.141, +3.141);
-		hist_theta_rec_diff_rel[iplane]->Draw();
-		hist_theta_rec_diff_rel[iplane]->GetXaxis()->SetTitle("#Delta#Theta/#Theta");
-		hist_theta_rec_diff_rel[iplane]->GetYaxis()->SetTitle("#Phi [rad]");
+		hist_theta_rec_diff_rel[_iplane]->Draw();
+		hist_theta_rec_diff_rel[_iplane]->GetXaxis()->SetTitle("#Delta#Theta/#Theta");
+		hist_theta_rec_diff_rel[_iplane]->GetYaxis()->SetTitle("#Phi [rad]");
 
 		// loop over sensors per plane which are enumerated linearly
-		for (int isensor = 0; isensor < nsensors_per_plane; isensor++) {
+		for (int _isensor = 0; _isensor < nsensors_per_plane; _isensor++) {
 			hist_name .str("");
 			hist_title.str("");
 
-			hist_name << "hist_xy_plane_" << iplane << "_sensor_" << isensor;
-			hist_title << "xy hit distribution plane " << iplane << " sensor "
-					<< isensor;
-			hists_xy[iplane][isensor] = new TH2F(hist_name.str().c_str(),
+			hist_name << "hist_xy_plane_" << _iplane << "_sensor_" << _isensor;
+			hist_title << "xy hit distribution plane " << _iplane << " sensor "
+					<< _isensor;
+			hists_xy[_iplane][_isensor] = new TH2F(hist_name.str().c_str(),
 					hist_title.str().c_str(), 100, -10, 10, 100, -10, 10);
-			hists_xy[iplane][isensor]->Draw();
-			hists_xy[iplane][isensor]->GetXaxis()->SetTitle("X [cm]");
-			hists_xy[iplane][isensor]->GetYaxis()->SetTitle("Y [cm]");
+			hists_xy[_iplane][_isensor]->Draw();
+			hists_xy[_iplane][_isensor]->GetXaxis()->SetTitle("X [cm]");
+			hists_xy[_iplane][_isensor]->GetYaxis()->SetTitle("Y [cm]");
 
 			hist_name .str("");
 			hist_title.str("");
 
-			hist_name << "hist_xy_local_plane_" << iplane << "_sensor_" << isensor;
-			hist_title << "xy local hit distribution plane " << iplane << " sensor "
-					<< isensor;
-			hists_xy_local[iplane][isensor] = new TH2F(hist_name.str().c_str(),
+			hist_name << "hist_xy_local_plane_" << _iplane << "_sensor_" << _isensor;
+			hist_title << "xy local hit distribution plane " << _iplane << " sensor "
+					<< _isensor;
+			hists_xy_local[_iplane][_isensor] = new TH2F(hist_name.str().c_str(),
 					hist_title.str().c_str(), 100, -2, 2, 100, -2, 2);
-			hists_xy_local[iplane][isensor]->Draw();
-			hists_xy_local[iplane][isensor]->GetXaxis()->SetTitle("X [cm]");
-			hists_xy_local[iplane][isensor]->GetYaxis()->SetTitle("Y [cm]");
+			hists_xy_local[_iplane][_isensor]->Draw();
+			hists_xy_local[_iplane][_isensor]->GetXaxis()->SetTitle("X [cm]");
+			hists_xy_local[_iplane][_isensor]->GetYaxis()->SetTitle("Y [cm]");
 
-			hist_name << "hist_theta_init_plane_" << iplane << "_sensor_"
-					<< isensor;
-			hist_title << "initial #Theta distribution plane " << iplane
-					<< " sensor " << isensor;
-			hists_theta_init[iplane][isensor] = new TH1F(
+			hist_name << "hist_theta_init_plane_" << _iplane << "_sensor_"
+					<< _isensor;
+			hist_title << "initial #Theta distribution plane " << _iplane
+					<< " sensor " << _isensor;
+			hists_theta_init[_iplane][_isensor] = new TH1F(
 					hist_name.str().c_str(), hist_title.str().c_str(), 150, 0,
 					15e-3);
-			hists_theta_init[iplane][isensor]->Draw();
-			hists_theta_init[iplane][isensor]->GetXaxis()->SetTitle(
+			hists_theta_init[_iplane][_isensor]->Draw();
+			hists_theta_init[_iplane][_isensor]->GetXaxis()->SetTitle(
 					"#Theta [rad]");
-			hists_theta_init[iplane][isensor]->GetYaxis()->SetTitle("entries");
+			hists_theta_init[_iplane][_isensor]->GetYaxis()->SetTitle("entries");
 
 			hist_name .str("");
 			hist_title.str("");
 
-			hist_name << "hist_theta_in_plane_" << iplane << "_sensor_"
-					<< isensor;
-			hist_title << "#Theta distribution at plane " << iplane
-					<< " sensor " << isensor;
-			hists_theta_in[iplane][isensor] = new TH1F(hist_name.str().c_str(),
+			hist_name << "hist_theta_in_plane_" << _iplane << "_sensor_"
+					<< _isensor;
+			hist_title << "#Theta distribution at plane " << _iplane
+					<< " sensor " << _isensor;
+			hists_theta_in[_iplane][_isensor] = new TH1F(hist_name.str().c_str(),
 					hist_title.str().c_str(), 200, 0, 20e-3);
-			hists_theta_in[iplane][isensor]->Draw();
-			hists_theta_in[iplane][isensor]->GetXaxis()->SetTitle(
+			hists_theta_in[_iplane][_isensor]->Draw();
+			hists_theta_in[_iplane][_isensor]->GetXaxis()->SetTitle(
 					"#Theta [rad]");
-			hists_theta_in[iplane][isensor]->GetYaxis()->SetTitle("entries");
+			hists_theta_in[_iplane][_isensor]->GetYaxis()->SetTitle("entries");
 
 			hist_name .str("");
 			hist_title.str("");
 
-			hist_name << "hist_theta_diff_in_plane_" << iplane << "_sensor_"
-					<< isensor;
-			hist_title << "#Delta#Theta distribution at plane " << iplane
-					<< " sensor " << isensor;
-			hists_theta_diff[iplane][isensor] = new TH1F(
+			hist_name << "hist_theta_diff_in_plane_" << _iplane << "_sensor_"
+					<< _isensor;
+			hist_title << "#Delta#Theta distribution at plane " << _iplane
+					<< " sensor " << _isensor;
+			hists_theta_diff[_iplane][_isensor] = new TH1F(
 					hist_name.str().c_str(), hist_title.str().c_str(), 100,
 					-20e-5, 20e-5);
-			hists_theta_diff[iplane][isensor]->Draw();
-			hists_theta_diff[iplane][isensor]->GetXaxis()->SetTitle(
+			hists_theta_diff[_iplane][_isensor]->Draw();
+			hists_theta_diff[_iplane][_isensor]->GetXaxis()->SetTitle(
 					"#Delta#Theta [rad]");
-			hists_theta_diff[iplane][isensor]->GetYaxis()->SetTitle("entries");
+			hists_theta_diff[_iplane][_isensor]->GetYaxis()->SetTitle("entries");
 
 			hist_name .str("");
 			hist_title.str("");
 
-			hist_name << "hist_theta_diff_rel_in_plane_" << iplane
-					<< "_sensor_" << isensor;
+			hist_name << "hist_theta_diff_rel_in_plane_" << _iplane
+					<< "_sensor_" << _isensor;
 			hist_title << "#Delta#Theta/#Theta distribution at plane "
-					<< iplane << " sensor " << isensor;
-			hists_theta_diff_rel[iplane][isensor] = new TH1F(
+					<< _iplane << " sensor " << _isensor;
+			hists_theta_diff_rel[_iplane][_isensor] = new TH1F(
 					hist_name.str().c_str(), hist_title.str().c_str(), 100, -1,
 					1);
-			hists_theta_diff_rel[iplane][isensor]->Draw();
-			hists_theta_diff_rel[iplane][isensor]->GetXaxis()->SetTitle(
+			hists_theta_diff_rel[_iplane][_isensor]->Draw();
+			hists_theta_diff_rel[_iplane][_isensor]->GetXaxis()->SetTitle(
 					"#Delta#Theta/#Theta");
-			hists_theta_diff_rel[iplane][isensor]->GetYaxis()->SetTitle(
+			hists_theta_diff_rel[_iplane][_isensor]->GetYaxis()->SetTitle(
 					"entries");
 		}
 	}
+
+	hist_name .str("");
+	hist_title.str("");
+
+	hist_name << "hist_theta_diff_prop_true";
+	hist_title << "#Delta#Theta true distribution (Error by Geane back propagation) ";
+	hist_theta_diff_prop_true = new TH2F(hist_name.str().c_str(),
+			hist_title.str().c_str(), 300, -10e-5, 10e-5, 360, -3.141, +3.141);
+	hist_theta_diff_prop_true->Draw();
+	hist_theta_diff_prop_true->GetXaxis()->SetTitle("#Delta#Theta [rad]");
+	hist_theta_diff_prop_true->GetYaxis()->SetTitle("#Phi [rad]");
+
+	hist_name .str("");
+	hist_title.str("");
+
+	hist_name << "hist_theta_diff_prop_true_o_theta";
+	hist_title << "#Delta#Theta true distribution (Error by Geane back propagation) ";
+	hist_theta_diff_prop_true_o_theta = new TH2F(hist_name.str().c_str(),
+			hist_title.str().c_str(), 300, -10e-5, 10e-5, 200, 2.e-3, 10.e-3);
+	hist_theta_diff_prop_true_o_theta->Draw();
+	hist_theta_diff_prop_true_o_theta->GetXaxis()->SetTitle("#Delta#Theta [rad]");
+	hist_theta_diff_prop_true_o_theta->GetYaxis()->SetTitle("#Theta [rad]");
+
 
 	std::cout << " done " << std::endl;
 
@@ -470,9 +504,9 @@ InitStatus PndLmdPerformanceTask::Init() {
 	// -0.040200    0.000000    0.999192    Tz = 1049.770390
 	// The matrix is a rotation around y of around 0.04025 radian
 	// TRotation inv_lmdrotation;
-	//inv_lmdrotation.RotateY(-0.04025);
-	//inv_lmdrotation.RotateY(-40.068e-3);
-	//inv_lmdtranslation.SetXYZ(-26.2461, 0.000000, -1130.);
+	inv_lmdrotation.RotateY(-0.04025);
+	inv_lmdrotation.RotateY(-40.068e-3);
+	inv_lmdtranslation.SetXYZ(-26.2461, 0.000000, -1130.);
 
 	fgGeoMan = (TGeoManager*) gROOT->FindObject("FAIRGeom");
 	if (!fgGeoMan) cout << "Error: could not find the geometry manager!" << endl;
@@ -582,6 +616,7 @@ void PndLmdPerformanceTask::Exec(Option_t* opt) {
 
 	int nHits = true_points->GetEntriesFast();
 	int nSdsHits = 0;
+	//cout << " hits " << nHits << endl;
 	for (Int_t iHit = 0; iHit < nHits; iHit++) {
 		PndSdsMCPoint* mcpoint = (PndSdsMCPoint*) true_points->At(iHit);
 		PndMCTrack *mctrk =
@@ -589,12 +624,71 @@ void PndLmdPerformanceTask::Exec(Option_t* opt) {
 		if (mctrk->IsGeneratorCreated()) { // take only anti-protons from the generator
 			if (mcpoint) {
 				TVector3 _mcpoint((mcpoint->GetPosition())); // position at the sensor entrance
+				//cout << " momentum " << mctrk->GetMomentum().Mag();
+				//cout << " momentum difference " << (mctrk->GetMomentum().Mag() - fTrackMCVectMapInit[0].Mag())/fTrackMCVectMapInit[0].Mag();
+				//cout << " Energy loss " << mcpoint->GetEnergyLoss() << endl;
 				TVector3 _mctrack(mcpoint->GetPx(), mcpoint->GetPy(),
 						mcpoint->GetPz()); // momentum of the track at the entrance
 				// variables used for conversion via root geometries
 				//double glob_pt[3] = {mcpoint->GetX(), mcpoint->GetY(), mcpoint->GetZ() + 1.e-4};
 				//double loc_pt[3] = {0,0,0};
-				if (0) {
+				if (0) { // perform some geane tests
+					if (mcpoint->GetSensorID() > 7) return;
+					TVector3 StartPos, StartPosErr, StartMom, StartMomErr, StartO, StartU, StartV;
+					//TVector3 DirVec =  _momrec.Unit();
+					//cout << " here " << ihere++ << endl;
+					StartMom = _mctrack;//.Unit()*1.5*(1.-1.e-3);//_momrec.Unit()*itmominit.Mag();
+					TVector3 move_upstream_vect(0,0,-0.1);
+					StartPos = _mcpoint + move_upstream_vect ;
+					StartPosErr = TVector3(50.e-4, 50.e-4, 50.e-4);// TVector3(50.e-4, 50.e-4, 50.e-4); // 50 mu like pitch size
+					StartMomErr = _mctrack.Mag()*1e-3;//_momrec.Unit()*fPbeam*1e-3; //_momrec.Unit()*fPbeam*1e-3; // some estimate
+					//cout << " start mom     " << StartMom.X() << '\t' << StartMom.Y() << '\t' << StartMom.Z() << '\t' << endl;
+					//cout << " start mom err " << StartMomErr.X() << '\t' << StartMomErr.Y() << '\t' << StartMomErr.Z() << '\t' << endl;
+					//cout << " start pos     " << StartPos.X() << '\t' << StartPos.Y() << '\t' << StartPos.Z() << '\t' << endl;
+					//cout << " start pos err " << StartPosErr.X() << '\t' << StartPosErr.Y() << '\t' << StartPosErr.Z() << '\t' << endl;
+					int PDGCode = -2212;
+					TVector3 _vtx(0.,0.,0.); // point to find the closest approach to
+					TVector3 gPos(0.,0.,0.); // point of closest approach
+					TVector3 gMom(0.,0.,0.); // momentum at that point
+					if (0) {// geane methods implemented by turany
+						//if (fievent > 100000) return; // debugging
+						//if (_mctrack.Phi() < 0.09 || _mctrack.Phi() > 0.1) return;
+						//cout << " here " << ihere++ << endl;
+						FairTrackParH *fStart = new FairTrackParH(StartPos, StartMom, StartPosErr, StartMomErr, -1);
+						FairTrackParH *fRes = new FairTrackParH();
+						//cout << " here " << ihere++ << endl;
+						fPro->SetPoint(_vtx);
+						fPro->PropagateToPCA(1,-1);
+						//  fPro->BackTrackToVertex();
+						Bool_t isProp = fPro->Propagate(fStart, fRes, PDGCode);
+						if (!isProp){
+							cout << " Warning in PndLmdPerformanceTask::Exec(): propagation failed! " << endl;
+						}
+						gPos.SetXYZ(fRes->GetX(),fRes->GetY(),fRes->GetZ());
+						gMom.SetXYZ(fRes->GetPx(),fRes->GetPy(),fRes->GetPz());
+						//_momrec = gMom;
+						delete fStart;
+						delete fRes;
+					} else { // genfit Runge Kutta Nystroem algorithm
+						RKTrackRep* trackrep = new RKTrackRep(StartPos, StartMom, StartPosErr, StartMomErr, PDGCode);
+						trackrep->extrapolateToPoint(_vtx, gPos, gMom);
+					}
+					if (fTrackMCVectMapInit.size() > 0){
+						double theta_lmd_true = gMom.Theta();
+						double theta_true = fTrackMCVectMapInit[0].Theta(); // reference momentum direction
+						TVector3 _mcpoint_rot = inv_lmdtranslation + _mcpoint;
+						_mcpoint_rot = inv_lmdrotation * _mcpoint_rot;
+						//if (-2.4 < _mcpoint_rot.Phi() && _mcpoint_rot.Phi() < -2.3){
+							hist_theta_diff_prop_true->Fill(theta_lmd_true - theta_true, fTrackMCVectMapInit[0].Phi());// _mcpoint_rot.Phi());// fTrackMCVectMapInit[0].Phi());
+							hist_theta_diff_prop_true_o_theta->Fill(theta_lmd_true - theta_true, theta_true);
+						//}
+						if (fTrackMCVectMapInit.size() > 1 && verbose){
+							cout << " Warning in PndLmdPerformanceTask::Exec(): more than 1 IP MC anti proton found -> using first found" << endl;
+						}
+					}
+					return;
+				}
+				if (1) {
 					//const double* current_point = fgGeoMan->GetCurrentPoint();
 					//cout << current_point[0] << " " << current_point[1] << " " << current_point[2] << endl;
 					TGeoNode* node =
@@ -712,25 +806,25 @@ void PndLmdPerformanceTask::Exec(Option_t* opt) {
 				ptheta_in = _mctrack.Theta();
 				pphi_in = _mctrack.Phi();
 
-				TVector3& _mcpoint_mod =
+				const TVector3& _mcpoint_mod =
 						lmddim->Transform_lmd_local_to_module_side(_mcpoint,
 								ihalf, iplane, imodule, iside, false, false);
 				x_in_mod = _mcpoint_mod.X();
 				y_in_mod = _mcpoint_mod.Y();
 				z_in_mod = _mcpoint_mod.Z();
-				TVector3& _mcpoint_sens =
+				const TVector3& _mcpoint_sens =
 						lmddim->Transform_global_to_sensor(mcpoint->GetPosition(),
 								ihalf, iplane, imodule, iside, idie, isensor, false, false);
 				x_in_sens = _mcpoint_sens.X(); // reference frame on the sensor
 				y_in_sens = _mcpoint_sens.Y();
 				z_in_sens = _mcpoint_sens.Z();
-				TVector3& _mcpoint_sens_al =
+				const TVector3& _mcpoint_sens_al =
 						lmddim->Transform_global_to_sensor(mcpoint->GetPosition(),
 								ihalf, iplane, imodule, iside, idie, isensor, false, true);
 				x_in_sens_al = _mcpoint_sens_al.X(); // reference frame on the sensor
 				y_in_sens_al = _mcpoint_sens_al.Y();
 				z_in_sens_al = _mcpoint_sens_al.Z();
-				TVector3& _mcpoint_aligned =
+				const TVector3& _mcpoint_aligned =
 						lmddim->Transform_global_to_lmd_local(mcpoint->GetPosition(), false, true);
 				x_in_aligned = _mcpoint_aligned.X(); // reference frame on the module surface
 				y_in_aligned = _mcpoint_aligned.Y(); // aligned coordinates in the lumi frame
@@ -816,14 +910,14 @@ void PndLmdPerformanceTask::Exec(Option_t* opt) {
 						cout << " Warning in PndLmdPerformanceTask::Exec(): more than 1 IP MC anti proton hit in the plane 0 found -> using first found" << endl;
 					}
 					// find partners in other planes
-					for (int iplane = 1; iplane < nplanes; iplane++){
-						itplane2 = fTrackPlaneHitMap.find(iplane);
+					for (int _iplane = 1; _iplane < nplanes; _iplane++){
+						itplane2 = fTrackPlaneHitMap.find(_iplane);
 						if (itplane2 != fTrackPlaneHitMap.end()){
 							// reconstruct the vector between the first plane and that one
 							if ((*itplane2).second.size() > 0){
 								TVector3 point2 = (*itplane2).second[0];
 								if ((*itplane2).second.size() > 1 && verbose){
-									cout << " Warning in PndLmdPerformanceTask::Exec(): more than 1 IP MC anti proton hit in the plane "<< iplane <<" found -> using first found" << endl;
+									cout << " Warning in PndLmdPerformanceTask::Exec(): more than 1 IP MC anti proton hit in the plane "<< _iplane <<" found -> using first found" << endl;
 								}
 								TVector3 _momrec = point2 - point1;
 								//int ihere(0);
@@ -838,6 +932,8 @@ void PndLmdPerformanceTask::Exec(Option_t* opt) {
 									StartPos = point1;
 									StartPosErr = TVector3(50.e-4, 50.e-4, 50.e-4);// TVector3(50.e-4, 50.e-4, 50.e-4); // 50 mu like pitch size
 									StartMomErr = _momrec.Unit()*fPbeam*1e-3; //_momrec.Unit()*fPbeam*1e-3; // some estimate
+									TVector3 _vtx(0.,0.,0.); //
+									int PDGCode = -2212;
 									//cout << " start mom     " << StartMom.X() << '\t' << StartMom.Y() << '\t' << StartMom.Z() << '\t' << endl;
 									//cout << " start mom err " << StartMomErr.X() << '\t' << StartMomErr.Y() << '\t' << StartMomErr.Z() << '\t' << endl;
 									//cout << " start pos     " << StartPos.X() << '\t' << StartPos.Y() << '\t' << StartPos.Z() << '\t' << endl;
@@ -845,24 +941,33 @@ void PndLmdPerformanceTask::Exec(Option_t* opt) {
 									FairTrackParH *fStart = new FairTrackParH(StartPos, StartMom, StartPosErr, StartMomErr, -1);
 									FairTrackParH *fRes = new FairTrackParH();
 									//cout << " here " << ihere++ << endl;
-									TVector3 _vtx(0.,0.,0.); //
-									fPro->SetPoint(_vtx);
-									fPro->PropagateToPCA(1,-1);
-									//  fPro->BackTrackToVertex();
-									int PDGCode = -2212;
-									Bool_t isProp = fPro->Propagate(fStart, fRes, PDGCode);
-									if (!isProp){
-										cout << " Warning in PndLmdPerformanceTask::Exec(): propagation failed! " << endl;
+									TVector3 gPos(0.,0.,0.);
+									TVector3 gMom(0.,0.,0.);
+									if (0){ // use geane back propagation else ...
+										fPro->SetPoint(_vtx);
+										fPro->PropagateToPCA(1,-1);
+										//  fPro->BackTrackToVertex();
+										Bool_t isProp = fPro->Propagate(fStart, fRes, PDGCode);
+										if (!isProp){
+											cout << " Warning in PndLmdPerformanceTask::Exec(): propagation failed! " << endl;
+										}
+										gPos.SetXYZ(fRes->GetX(),fRes->GetY(),fRes->GetZ());
+										gMom.SetXYZ(fRes->GetPx(),fRes->GetPy(),fRes->GetPz());
+
+										delete fStart;
+										delete fRes;
+									} else { // ... use Runge-Kutta algorithm
+
+										RKTrackRep* trackrep = new RKTrackRep(StartPos, StartMom, StartPosErr, StartMomErr, PDGCode);
+										trackrep->extrapolateToPoint(_vtx, gPos, gMom);
+
 									}
-									TVector3 gPos(fRes->GetX(),fRes->GetY(),fRes->GetZ());
-									TVector3 gMom(fRes->GetPx(),fRes->GetPy(),fRes->GetPz());
+
 									_momrec = gMom;
-									delete fStart;
-									delete fRes;
 								}
-								hist_theta_rec[iplane]->Fill(_momrec.Theta(), _momrec.Phi());
-								hist_theta_rec_diff[iplane]->Fill(_momrec.Theta() - itmominit.Theta(), itmominit.Phi());
-								hist_theta_rec_diff_rel[iplane]->Fill((_momrec.Theta() - itmominit.Theta())/itmominit.Theta(), itmominit.Phi());
+								hist_theta_rec[_iplane]->Fill(_momrec.Theta(), _momrec.Phi());
+								hist_theta_rec_diff[_iplane]->Fill(_momrec.Theta() - itmominit.Theta(), itmominit.Phi());
+								hist_theta_rec_diff_rel[_iplane]->Fill((_momrec.Theta() - itmominit.Theta())/itmominit.Theta(), itmominit.Phi());
 								if (!accepted){ // fill the following histograms only once per event
 									hist_angular_distr_acc->Fill(itmominit.Theta(), itmominit.Phi());
 									hist_theta_over_mom_acc->Fill(itmominit.Mag(), itmominit.Theta());
@@ -1147,165 +1252,165 @@ void PndLmdPerformanceTask::Finish() {
 				<< endl;
 	canvas_properties_per_sensor.Divide(10, 10);
 
-	for (int iplane = 0; iplane < nplanes; iplane++) {
-		canvas_properties_per_plane.cd(iplane + 1);
-		hist_xy[iplane]->Draw("COLZ");
+	for (int _iplane = 0; _iplane < nplanes; _iplane++) {
+		canvas_properties_per_plane.cd(_iplane + 1);
+		hist_xy[_iplane]->Draw("COLZ");
 	}
 	canvas_properties_per_plane.Print("Resolution_acceptance_results.ps(");
-	for (int iplane = 0; iplane < nplanes; iplane++) {
-		for (int isensor = 0; isensor < nsensors_per_plane; isensor++) {
-			canvas_properties_per_sensor.cd(isensor + 1);
-			hists_xy[iplane][isensor]->Draw("COLZ");
+	for (int _iplane = 0; _iplane < nplanes; _iplane++) {
+		for (int _isensor = 0; _isensor < nsensors_per_plane; _isensor++) {
+			canvas_properties_per_sensor.cd(_isensor + 1);
+			hists_xy[_iplane][_isensor]->Draw("COLZ");
 		}
 		canvas_properties_per_sensor.Print("Resolution_acceptance_results.ps(");
 	}
-	for (int iplane = 0; iplane < nplanes; iplane++) {
-		for (int isensor = 0; isensor < nsensors_per_plane; isensor++) {
-			canvas_properties_per_sensor.cd(isensor + 1);
-			hists_xy_local[iplane][isensor]->Draw("COLZ");
+	for (int _iplane = 0; _iplane < nplanes; _iplane++) {
+		for (int _isensor = 0; _isensor < nsensors_per_plane; _isensor++) {
+			canvas_properties_per_sensor.cd(_isensor + 1);
+			hists_xy_local[_iplane][_isensor]->Draw("COLZ");
 		}
 		canvas_properties_per_sensor.Print("Resolution_acceptance_results.ps(");
 	}
 
-	for (int iplane = 0; iplane < nplanes; iplane++) {
-		canvas_properties_per_plane.cd(iplane + 1);
-		hist_theta_init[iplane]->Draw("COLZ");
+	for (int _iplane = 0; _iplane < nplanes; _iplane++) {
+		canvas_properties_per_plane.cd(_iplane + 1);
+		hist_theta_init[_iplane]->Draw("COLZ");
 	}
-	for (int iplane = 0; iplane < nplanes; iplane++) {
-		canvas_properties_per_plane.cd(iplane + 1);
-		hist_theta_rec[iplane]->Draw("COLZ");
+	for (int _iplane = 0; _iplane < nplanes; _iplane++) {
+		canvas_properties_per_plane.cd(_iplane + 1);
+		hist_theta_rec[_iplane]->Draw("COLZ");
 	}
 	canvas_properties_per_plane.Print("Resolution_acceptance_results.ps(");
-	for (int iplane = 0; iplane < nplanes; iplane++) {
-		for (int isensor = 0; isensor < nsensors_per_plane; isensor++) {
-			canvas_properties_per_sensor.cd(isensor + 1);
-			hists_theta_init[iplane][isensor]->Draw();
+	for (int _iplane = 0; _iplane < nplanes; _iplane++) {
+		for (int _isensor = 0; _isensor < nsensors_per_plane; _isensor++) {
+			canvas_properties_per_sensor.cd(_isensor + 1);
+			hists_theta_init[_iplane][_isensor]->Draw();
 			canvas_properties_per_sensor.cd(nsensors_per_plane+1);
-			if (isensor > 0)
-				hists_theta_init[iplane][isensor]->Draw("same E");
+			if (_isensor > 0)
+				hists_theta_init[_iplane][_isensor]->Draw("same E");
 			else
-				hists_theta_init[iplane][isensor]->Draw("E");
-			//hists_theta_init[iplane][isensor]->SetLineColor(
-			//		kAzure - 9 + isensor);
+				hists_theta_init[_iplane][_isensor]->Draw("E");
+			//hists_theta_init[_iplane][_isensor]->SetLineColor(
+			//		kAzure - 9 + _isensor);
 		}
 		canvas_properties_per_sensor.Print("Resolution_acceptance_results.ps(");
 	}
-	for (int isensor = 0; isensor < nsensors_per_plane; isensor++) {
-		canvas_properties_per_sensor.cd(isensor + 1);
-		for (int iplane = 0; iplane < nplanes; iplane++) {
-			if (iplane > 0)
-				hists_theta_init[iplane][isensor]->Draw("same");
+	for (int _isensor = 0; _isensor < nsensors_per_plane; _isensor++) {
+		canvas_properties_per_sensor.cd(_isensor + 1);
+		for (int _iplane = 0; _iplane < nplanes; _iplane++) {
+			if (_iplane > 0)
+				hists_theta_init[_iplane][_isensor]->Draw("same");
 			else
-				hists_theta_init[iplane][isensor]->Draw();
-			hists_theta_init[iplane][isensor]->SetLineColor(kGray + iplane);
+				hists_theta_init[_iplane][_isensor]->Draw();
+			hists_theta_init[_iplane][_isensor]->SetLineColor(kGray + _iplane);
 		}
 	}
 	canvas_properties_per_sensor.cd(nsensors_per_plane+1);
 	gPad->Clear();
 	canvas_properties_per_sensor.Print("Resolution_acceptance_results.ps(");
 
-	for (int iplane = 0; iplane < nplanes; iplane++) {
-		canvas_properties_per_plane.cd(iplane + 1);
-		hist_theta_in[iplane]->Draw("COLZ");
+	for (int _iplane = 0; _iplane < nplanes; _iplane++) {
+		canvas_properties_per_plane.cd(_iplane + 1);
+		hist_theta_in[_iplane]->Draw("COLZ");
 	}
 	canvas_properties_per_plane.Print("Resolution_acceptance_results.ps(");
-	for (int iplane = 0; iplane < nplanes; iplane++) {
-		for (int isensor = 0; isensor < nsensors_per_plane; isensor++) {
-			canvas_properties_per_sensor.cd(isensor + 1);
-			hists_theta_in[iplane][isensor]->Draw();
+	for (int _iplane = 0; _iplane < nplanes; _iplane++) {
+		for (int _isensor = 0; _isensor < nsensors_per_plane; _isensor++) {
+			canvas_properties_per_sensor.cd(_isensor + 1);
+			hists_theta_in[_iplane][_isensor]->Draw();
 			canvas_properties_per_sensor.cd(nsensors_per_plane+1);
-			if (isensor > 0)
-				hists_theta_in[iplane][isensor]->Draw("same E");
+			if (_isensor > 0)
+				hists_theta_in[_iplane][_isensor]->Draw("same E");
 			else
-				hists_theta_in[iplane][isensor]->Draw("E");
-			//hists_theta_in[iplane][isensor]->SetLineColor(kAzure - 9 + isensor);
+				hists_theta_in[_iplane][_isensor]->Draw("E");
+			//hists_theta_in[_iplane][_isensor]->SetLineColor(kAzure - 9 + _isensor);
 		}
 		canvas_properties_per_sensor.Print("Resolution_acceptance_results.ps(");
 	}
-	for (int isensor = 0; isensor < nsensors_per_plane; isensor++) {
-		canvas_properties_per_sensor.cd(isensor + 1);
-		for (int iplane = 0; iplane < nplanes; iplane++) {
-			if (iplane > 0)
-				hists_theta_in[iplane][isensor]->Draw("same");
+	for (int _isensor = 0; _isensor < nsensors_per_plane; _isensor++) {
+		canvas_properties_per_sensor.cd(_isensor + 1);
+		for (int _iplane = 0; _iplane < nplanes; _iplane++) {
+			if (_iplane > 0)
+				hists_theta_in[_iplane][_isensor]->Draw("same");
 			else
-				hists_theta_in[iplane][isensor]->Draw();
-			hists_theta_in[iplane][isensor]->SetLineColor(kGray + iplane);
+				hists_theta_in[_iplane][_isensor]->Draw();
+			hists_theta_in[_iplane][_isensor]->SetLineColor(kGray + _iplane);
 		}
 	}
 	canvas_properties_per_sensor.cd(nsensors_per_plane+1);
 	gPad->Clear();
 	canvas_properties_per_sensor.Print("Resolution_acceptance_results.ps(");
 
-	for (int iplane = 0; iplane < nplanes; iplane++) {
-		canvas_properties_per_plane.cd(iplane + 1);
-		hist_theta_diff[iplane]->Draw("COLZ");
+	for (int _iplane = 0; _iplane < nplanes; _iplane++) {
+		canvas_properties_per_plane.cd(_iplane + 1);
+		hist_theta_diff[_iplane]->Draw("COLZ");
 	}
 	canvas_properties_per_plane.Print("Resolution_acceptance_results.ps(");
-	for (int iplane = 0; iplane < nplanes; iplane++) {
-		canvas_properties_per_plane.cd(iplane + 1);
-		hist_theta_rec_diff[iplane]->Draw("COLZ");
+	for (int _iplane = 0; _iplane < nplanes; _iplane++) {
+		canvas_properties_per_plane.cd(_iplane + 1);
+		hist_theta_rec_diff[_iplane]->Draw("COLZ");
 	}
 	canvas_properties_per_plane.Print("Resolution_acceptance_results.ps(");
-	for (int iplane = 0; iplane < nplanes; iplane++) {
-		for (int isensor = 0; isensor < nsensors_per_plane; isensor++) {
-			canvas_properties_per_sensor.cd(isensor + 1);
-			hists_theta_diff[iplane][isensor]->Draw();
+	for (int _iplane = 0; _iplane < nplanes; _iplane++) {
+		for (int _isensor = 0; _isensor < nsensors_per_plane; _isensor++) {
+			canvas_properties_per_sensor.cd(_isensor + 1);
+			hists_theta_diff[_iplane][_isensor]->Draw();
 			canvas_properties_per_sensor.cd(nsensors_per_plane+1);
-			if (isensor > 0)
-				hists_theta_diff[iplane][isensor]->Draw("same E");
+			if (_isensor > 0)
+				hists_theta_diff[_iplane][_isensor]->Draw("same E");
 			else
-				hists_theta_diff[iplane][isensor]->Draw("E");
-			//hists_theta_diff[iplane][isensor]->SetLineColor(
-			//		kAzure - 9 + isensor);
+				hists_theta_diff[_iplane][_isensor]->Draw("E");
+			//hists_theta_diff[_iplane][_isensor]->SetLineColor(
+			//		kAzure - 9 + _isensor);
 		}
 		canvas_properties_per_sensor.Print("Resolution_acceptance_results.ps(");
 	}
-	for (int isensor = 0; isensor < nsensors_per_plane; isensor++) {
-		canvas_properties_per_sensor.cd(isensor + 1);
-		for (int iplane = 0; iplane < nplanes; iplane++) {
-			if (iplane > 0)
-				hists_theta_diff[iplane][isensor]->Draw("same");
+	for (int _isensor = 0; _isensor < nsensors_per_plane; _isensor++) {
+		canvas_properties_per_sensor.cd(_isensor + 1);
+		for (int _iplane = 0; _iplane < nplanes; _iplane++) {
+			if (_iplane > 0)
+				hists_theta_diff[_iplane][_isensor]->Draw("same");
 			else
-				hists_theta_diff[iplane][isensor]->Draw();
-			hists_theta_diff[iplane][isensor]->SetLineColor(kGray + iplane);
+				hists_theta_diff[_iplane][_isensor]->Draw();
+			hists_theta_diff[_iplane][_isensor]->SetLineColor(kGray + _iplane);
 		}
 	}
 	canvas_properties_per_sensor.cd(nsensors_per_plane+1);
 	gPad->Clear();
 	canvas_properties_per_sensor.Print("Resolution_acceptance_results.ps(");
 
-	for (int iplane = 0; iplane < nplanes; iplane++) {
-		canvas_properties_per_plane.cd(iplane + 1);
-		hist_theta_diff_rel[iplane]->Draw("COLZ");
+	for (int _iplane = 0; _iplane < nplanes; _iplane++) {
+		canvas_properties_per_plane.cd(_iplane + 1);
+		hist_theta_diff_rel[_iplane]->Draw("COLZ");
 	}
 	canvas_properties_per_plane.Print("Resolution_acceptance_results.ps(");
-	for (int iplane = 0; iplane < nplanes; iplane++) {
-		canvas_properties_per_plane.cd(iplane + 1);
-		hist_theta_rec_diff_rel[iplane]->Draw("COLZ");
+	for (int _iplane = 0; _iplane < nplanes; _iplane++) {
+		canvas_properties_per_plane.cd(_iplane + 1);
+		hist_theta_rec_diff_rel[_iplane]->Draw("COLZ");
 	}
 	canvas_properties_per_plane.Print("Resolution_acceptance_results.ps(");
-	for (int iplane = 0; iplane < nplanes; iplane++) {
-		for (int isensor = 0; isensor < nsensors_per_plane; isensor++) {
-			canvas_properties_per_sensor.cd(isensor + 1);
-			hists_theta_diff_rel[iplane][isensor]->Draw();
+	for (int _iplane = 0; _iplane < nplanes; _iplane++) {
+		for (int _isensor = 0; _isensor < nsensors_per_plane; _isensor++) {
+			canvas_properties_per_sensor.cd(_isensor + 1);
+			hists_theta_diff_rel[_iplane][_isensor]->Draw();
 			canvas_properties_per_sensor.cd(nsensors_per_plane+1);
-			if (isensor > 0)
-				hists_theta_diff_rel[iplane][isensor]->Draw("same E");
+			if (_isensor > 0)
+				hists_theta_diff_rel[_iplane][_isensor]->Draw("same E");
 			else
-				hists_theta_diff_rel[iplane][isensor]->Draw("E");
-			//hists_theta_diff_rel[iplane][isensor]->SetLineColor(
-			//		kAzure - 9 + isensor);
+				hists_theta_diff_rel[_iplane][_isensor]->Draw("E");
+			//hists_theta_diff_rel[_iplane][_isensor]->SetLineColor(
+			//		kAzure - 9 + _isensor);
 		}
 		canvas_properties_per_sensor.Print("Resolution_acceptance_results.ps(");
 	}
-	for (int isensor = 0; isensor < nsensors_per_plane; isensor++) {
-		canvas_properties_per_sensor.cd(isensor + 1);
-		for (int iplane = 0; iplane < nplanes; iplane++) {
-			if (iplane > 0)
-				hists_theta_diff_rel[iplane][isensor]->Draw("same");
+	for (int _isensor = 0; _isensor < nsensors_per_plane; _isensor++) {
+		canvas_properties_per_sensor.cd(_isensor + 1);
+		for (int _iplane = 0; _iplane < nplanes; _iplane++) {
+			if (_iplane > 0)
+				hists_theta_diff_rel[_iplane][_isensor]->Draw("same");
 			else
-				hists_theta_diff_rel[iplane][isensor]->Draw();
-			hists_theta_diff_rel[iplane][isensor]->SetLineColor(kGray + iplane);
+				hists_theta_diff_rel[_iplane][_isensor]->Draw();
+			hists_theta_diff_rel[_iplane][_isensor]->SetLineColor(kGray + _iplane);
 		}
 	}
 	canvas_properties_per_sensor.cd(nsensors_per_plane+1);
