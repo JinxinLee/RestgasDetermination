@@ -63,18 +63,19 @@ void runLumi2Reco(const int nEvents=1, const int startEvent=0, TString storePath
 //   parInput1->open(parFile.Data(),"in");
   rtdb->setFirstInput(parInput1);
 
-  // alignment parameter file
-  //  TString alignparFile = "/data/FAIRsorf/pandaroot/trunk/macro/lmd/lumi.misalign.par";//mialignmented sensors!
-  TString alignparFile = "lumi.align.par";//perfect!
-  //  TString alignparFile = storePath+"/lumi.misalign.par";//mialignmented sensors!
-  FairParAsciiFileIo* parInput2 = new FairParAsciiFileIo();
-  parInput2->open(alignparFile.Data(),"in");
-  rtdb->setSecondInput(parInput2);
-  /*Bool_t kParameterMerged=kTRUE;
-  FairParRootFileIo* output=new FairParRootFileIo(kParameterMerged);
-  output->open(parOutFile);
-  rtdb->setOutput(output);
-*/  
+  //alignment isn't running for strips anymore =(
+//   // alignment parameter file
+//   //  TString alignparFile = "/data/FAIRsorf/pandaroot/trunk/macro/lmd/lumi.misalign.par";//mialignmented sensors!
+//   TString alignparFile = "lumi.align.par";//perfect!
+//   //  TString alignparFile = storePath+"/lumi.misalign.par";//mialignmented sensors!
+//   FairParAsciiFileIo* parInput2 = new FairParAsciiFileIo();
+//   parInput2->open(alignparFile.Data(),"in");
+//   rtdb->setSecondInput(parInput2);
+//   /*Bool_t kParameterMerged=kTRUE;
+//   FairParRootFileIo* output=new FairParRootFileIo(kParameterMerged);
+//   output->open(parOutFile);
+//   rtdb->setOutput(output);
+// */  
 // fRun->LoadGeometry();
   // ------------------------------------------------------------------------
 
