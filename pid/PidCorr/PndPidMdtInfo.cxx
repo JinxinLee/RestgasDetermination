@@ -203,7 +203,7 @@ Bool_t PndPidCorrelator::GetFMdtInfo(FairTrackParP* helix, PndPidCandidate* pidC
 	}
     } // end of layer0 loop
   
-  if ( (mdtQuality<fCorrPar->GetMdtCut()) || (fIdeal && mdtIndex!=-1) )
+  if ( (mdtQuality<fCorrPar->GetFMdtCut()) || (fIdeal && mdtIndex!=-1) )
     {    
       pidCand->SetMuoQuality(mdtQuality);
       pidCand->SetMuoIndex(mdtIndex);

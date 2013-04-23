@@ -22,7 +22,8 @@ class PndPidCorrPar : public FairParGenericSet
   Float_t GetFtofZ()         { return fFtofZ; };
   Float_t GetFTofCut()       { return fFTofCut; };  
   Float_t GetRichZ()         { return fRichZ; };  
-
+  Float_t GetFMdtCut()       { return fFMdtCut; }; 
+ 
   PndPidCorrPar (const char* name="PndPidCorrPar",
 		 const char* title="Pid correlation parameter",
 		 const char* context="TestDefaultContext");
@@ -39,7 +40,7 @@ class PndPidCorrPar : public FairParGenericSet
   Float_t fEmc12Radius;    // radius EMC12 detector (barrel)
   Float_t fEmc12Cut;       // cut chi2 for EMC12
   Float_t fMdtRadius;      // radius MDT detector
-  Float_t fMdtCut;         // cut chi2 for MDT  
+  Float_t fMdtCut;         // cut chi2 for MDT 
   Float_t fDrcRadius;      // radius DRC detector
   Float_t fDrcCut;         // cut chi2 for DRC  
   Float_t fDskCut;         // cut chi2 for DSK
@@ -47,7 +48,8 @@ class PndPidCorrPar : public FairParGenericSet
   Float_t fFtofZ;          // Z of Ftof 
   Float_t fFTofCut;        // cut chi2 for FTOF 
   Float_t fRichZ;          // Z of RICH
-
+  Float_t fFMdtCut;        // cut chi2 for FWD MDT 
+  
   ClassDef(PndPidCorrPar, 3);
 };
 

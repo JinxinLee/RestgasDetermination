@@ -18,4 +18,5 @@ ZLastPlane:Float_t 747.5
 FtofZ:Float_t 775.
 FTofCut:Float_t 2500.
 RichZ:Float_t 1.
+FMdtCut:Float_t 36.
 #################################################################
