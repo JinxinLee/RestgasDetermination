@@ -276,7 +276,7 @@ int main(int __argc,char *__argv[]) {
   TH1 *hPullPointPy = new TH1F("hPullPointPy","(Py_{MC}-Py_{REC})/#sigma_{Py};(Py_{MC}-Py_{REC})/#sigma_{Py}",1e2,-10,10);
   
   TH1 *hResPointPz = new TH1F("hResPointPz","Pz_{MC}-Pz_{REC};#deltaPz, GeV/c",1e2,-1e-3,1e-3);
-  TH1 *hErrPointPz = new TH1F("hErrPointPz","#sigma_{Pz};#sigmaPz, GeV/c",1e3,0,1e-3);
+  TH1 *hErrPointPz = new TH1F("hErrPointPz","#sigma_{Pz};#sigmaPz, GeV/c",1e3,0,1e-2);
   TH1 *hPullPointPz = new TH1F("hPullPointPz","(Pz_{MC}-Pz_{REC})/#sigma_{Pz};(Pz_{MC}-Pz_{REC})/#sigma_{Pz}",1e2,-10,10);
 
   TH1 *hResPointX = new TH1F("hResPointX","X_{MC}-X_{REC};#deltaX,cm",1e2,-2.,2.);
@@ -319,6 +319,7 @@ int main(int __argc,char *__argv[]) {
   TH1 *hResLumiTrkThetaPull = new TH1F("hResLumiTrkThetaPull","(#theta_{MC}-#theta_{REC})/#sigma (near Lumi);#delta#theta, rad",1e2,-10,10);
   TH1 *hResLumiTrkPhiPull = new TH1F("hResLumiTrkPhiPull","(#phi_{MC}-#phi_{REC})/#sigma (near Lumi);#delta#phi, rad",1e2,-10,10);
 
+  TH2 *hMCidRefID = new TH2I("hMCidRefID","; MCid; RefID",100,0,100,100,0,100);
 
   int glBADGEANE=0;
   //  int glBadEv = 0;
@@ -440,6 +441,7 @@ int main(int __argc,char *__argv[]) {
 	  continue;
 	PndSdsMCPoint* MCPoint = (PndSdsMCPoint*)(true_points->At(astripdigi->GetIndex(0)));
 	int MCidTOP = MCPoint->GetTrackID();
+	hMCidRefID->Fill(MCidTOP,myHit->GetRefIndex());
 	if(iHit<1){
 	  MCPointHit = MCPoint;
 	  MCid = MCidTOP;
@@ -621,6 +623,7 @@ int main(int __argc,char *__argv[]) {
   hResLumiTrkPointPzErr->Write();
   //  hResLumiTrkPointP->Write();
   //  hResLumiTrkPointPmcPrec->Write();
+  hMCidRefID->Write();
   f->Close();
  cout<<"Number of trks where GEANE failed: "<<glBADGEANE<<endl;
 }
