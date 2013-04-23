@@ -345,7 +345,7 @@ int main(int __argc,char *__argv[]) {
     if(verboseLevel>0)  
       cout<<"Event #"<<j<<" has "<<nParticles<<" true particles, "<<" out of it "<<nRecHits<<" hits, "<<nTrkCandidates
 	  <<" trk-cands, "<<numTrk<<" tracks and "<<nGeaneTrks<<" geane Trks!"<<endl;
-    if(nParticles!=nMCtracks) continue;
+    //    if(nParticles!=nMCtracks) continue;
     for (Int_t iN=0; iN<nGeaneTrks; iN++){// loop over all reconstructed trks
       FairTrackParH *fRes = (FairTrackParH*)geaneArray->At(iN);
       Double_t lyambda = fRes->GetLambda();
