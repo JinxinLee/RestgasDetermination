@@ -45,12 +45,11 @@ class PndGlobalIdealTrackMerger : public FairTask
   /** Public modifiers **/
   void SetVerbose(const Int_t& verbose) { fVerbose = verbose; };
 
-  void UseMvdSttTpcGemDch(const Bool_t useMvd, const Bool_t useStt, const Bool_t useTpc, const Bool_t useGem, const Bool_t useDch) {
+  void UseMvdSttGemFts(const Bool_t useMvd, const Bool_t useStt, const Bool_t useGem, const Bool_t useFts) {
     fIncludeDet[0] = useMvd;
     fIncludeDet[1] = useStt;
-    fIncludeDet[2] = useTpc;
-    fIncludeDet[3] = useGem;
-    fIncludeDet[4] = useDch;
+    fIncludeDet[2] = useGem;
+    fIncludeDet[3] = useFts;
   };
 
  private:
@@ -59,11 +58,11 @@ class PndGlobalIdealTrackMerger : public FairTask
   TClonesArray*       fMCTrackArray;
   std::vector<Bool_t> fMCTrackSeen;
 
-  /** Tracks in different detectors: MVD, STT, TPC, GEM, DCH **/
-  Bool_t                           fIncludeDet[5];
-  TClonesArray*                    fTrackArray[5];
+  /** Tracks in different detectors: MVD, STT, GEM, FTS **/
+  Bool_t                           fIncludeDet[4];
+  TClonesArray*                    fTrackArray[4];
   std::vector<std::vector<Int_t> > fMCDetTracks;
-  TString fDetName[5];
+  TString fDetName[4];
 
   /** Output array of global tracks **/
   TClonesArray* fGlobalTrackArray;     	    ///< Output array of PndTrackCands 

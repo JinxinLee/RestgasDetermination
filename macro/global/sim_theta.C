@@ -57,10 +57,6 @@ void sim_theta(Int_t nEvents=1000, Int_t pid=13, Double_t theta=5., Int_t nStati
   if ( nStations == 4 ) 
     Stt->SetGeometryFileName("straws_skewed_blocks_pipe_120cm.geo");
   fRun->AddModule(Stt);
-  //-------------------------  TPC       -----------------
-//   FairDetector *Tpc = new PndTpcDetector("TPC", kTRUE);
-//   Tpc->SetGeometryFileName("tpc.geo");
-//   fRun->AddModule(Tpc);
   //-------------------------  GEM       -----------------
   FairDetector *Gem = new PndGemDetector("GEM", kTRUE);
   Gem->SetGeometryFileName(Form("gem_%dStations.root",nStations));
@@ -69,23 +65,21 @@ void sim_theta(Int_t nEvents=1000, Int_t pid=13, Double_t theta=5., Int_t nStati
   PndDrc *Drc = new PndDrc("DIRC", kTRUE);
   Drc->SetRunCherenkov(kFALSE); // for fast sim Cherenkov -> kFALSE
   fRun->AddModule(Drc);
-  //-------------------------  DCH       -----------------
-  FairDetector *Dch = new PndDchDetector("DCH", kTRUE);
-  Dch->SetGeometryFileName("dch.root"); 
-  fRun->AddModule(Dch);
   //-------------------------  EMC       -----------------
   PndEmc *Emc = new PndEmc("EMC",kTRUE);
-  Emc->SetGeometryFileNameDouble("emc_module1245.dat","emc_module3new.root");
-  fRun->AddModule(Emc);  
+  Emc->SetGeometryVersion(1); 
+  Emc->SetStorageOfData(kFALSE);
+  fRun->AddModule(Emc);
   //-------------------------  TOF       -----------------  
-  FairDetector *Tof = new PndTof("TOF",kTRUE);
-  Tof->SetGeometryFileName("tofbarrel.geo");
-  fRun->AddModule(Tof);
+  FairDetector *FTof = new PndFtof("FTOF",kTRUE);
+  FTof->SetGeometryFileName("ftofwall.root");
+  fRun->AddModule(FTof);
   //-------------------------  MDT       -----------------
   PndMdt *Muo = new PndMdt("MDT",kTRUE);
-  Muo->SetBarrel("torino");
-  Muo->SetEndcap("torino");
-  Muo->SetMuonFilter("torino");
+  Muo->SetBarrel("fast");
+  Muo->SetEndcap("fast");
+  Muo->SetMuonFilter("fast");
+  Muo->SetForward("fast");
   Muo->SetMdtMagnet(kTRUE);
   Muo->SetMdtMFIron(kTRUE);
   fRun->AddModule(Muo);

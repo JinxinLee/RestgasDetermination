@@ -45,10 +45,6 @@ void sim_all(Int_t nEvents=100, Int_t pid=13, Float_t p1=1.0, Float_t p2=-1){
   FairDetector *Stt= new PndStt("STT", kTRUE);
   Stt->SetGeometryFileName("straws_skewed_blocks_pipe_120cm.geo");
   fRun->AddModule(Stt);
-  //-------------------------  TPC       -----------------
-//   FairDetector *Tpc = new PndTpcDetector("TPC", kTRUE);
-//   Tpc->SetGeometryFileName("tpc.geo");
-//   fRun->AddModule(Tpc);
   //-------------------------  GEM       -----------------
   FairDetector *Gem = new PndGemDetector("GEM", kTRUE);
   Gem->SetGeometryFileName("gem_3Stations.root");
@@ -57,10 +53,6 @@ void sim_all(Int_t nEvents=100, Int_t pid=13, Float_t p1=1.0, Float_t p2=-1){
   PndDrc *Drc = new PndDrc("DIRC", kTRUE);
   Drc->SetRunCherenkov(kFALSE); // for fast sim Cherenkov -> kFALSE
   fRun->AddModule(Drc);
-  //-------------------------  DCH       -----------------
-  FairDetector *Dch = new PndDchDetector("DCH", kTRUE);
-  Dch->SetGeometryFileName("dch.root"); 
-  fRun->AddModule(Dch);
   //-------------------------  EMC       -----------------
   PndEmc *Emc = new PndEmc("EMC",kTRUE);
   Emc->SetGeometryFileNameDouble("emc_module1245.dat","emc_module3new.root");

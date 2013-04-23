@@ -59,7 +59,6 @@ void globT_theta(Int_t pid = 13, Double_t theta = 5., Int_t nStations = 3) {
   rtdb->setSecondInput(parIo1);
   // ##################################################################   MERGE
   PndGlobalIdealTrackMerger* trackMerger = new PndGlobalIdealTrackMerger(iVerbose);
-  trackMerger->UseMvdSttTpcGemDch(kTRUE,kTRUE,kFALSE,kTRUE,kTRUE);
   fRun->AddTask(trackMerger);
 
   PndGlobalTrackMergerQA* trackMergerQA = new PndGlobalTrackMergerQA(iVerbose);

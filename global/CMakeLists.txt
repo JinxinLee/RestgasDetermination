@@ -21,11 +21,8 @@ ${CMAKE_SOURCE_DIR}/pnddata/SdsData
 ${CMAKE_SOURCE_DIR}/stt
 ${CMAKE_SOURCE_DIR}/stt/sttreco
 ${CMAKE_SOURCE_DIR}/pnddata/SttData
-${CMAKE_SOURCE_DIR}/tpc/tpcreco
 ${CMAKE_SOURCE_DIR}/gem
 ${CMAKE_SOURCE_DIR}/pnddata/GemData
-${CMAKE_SOURCE_DIR}/dch/DchData
-${CMAKE_SOURCE_DIR}/dch/DchFitting
 ${CMAKE_SOURCE_DIR}/pnddata/TrackData
 ${CMAKE_SOURCE_DIR}/genfit
 ${CMAKE_SOURCE_DIR}/recotasks

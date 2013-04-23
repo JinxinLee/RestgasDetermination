@@ -85,33 +85,6 @@ void digi_all() {
   PndSttHitProducerIdeal* sttHitProducer = new PndSttHitProducerIdeal();
     //PndSttHitProducerRealFast* sttHitProducer = new PndSttHitProducerRealFast();
   fRun->AddTask(sttHitProducer);
-  // ##################################################################   TPC
-  /* // -----   TPC cluster producers   ----------------------------------
-  PndTpcClusterizerTask* tpcClusterizer = new PndTpcClusterizerTask();
-  // tpcClusterizer->SetPersistence();
-  fRun->AddTask(tpcClusterizer);
-  // ------------------------------------------------------------------
-  PndTpcDriftTask* tpcDrifter = new PndTpcDriftTask();
-  // tpcDrifter->SetPersistence();
-  tpcDrifter->SetDistort(false);
-  fRun->AddTask(tpcDrifter);
-  // ------------------------------------------------------------------
-  PndTpcGemTask* tpcGem = new PndTpcGemTask();
-  //tpcGem->SetPersistence();
-  fRun->AddTask(tpcGem);
-  // ------------------------------------------------------------------
-  PndTpcPadResponseTask* tpcPadResponse = new PndTpcPadResponseTask();
-  tpcPadResponse->SetPersistence();
-  fRun->AddTask(tpcPadResponse);
-  // ------------------------------------------------------------------
-  PndTpcElectronicsTask* tpcElec = new PndTpcElectronicsTask();
-  tpcElec->SetPersistence();
-  fRun->AddTask(tpcElec);
-  // ------------------------------------------------------------------
-  PndTpcClusterFinderTask* tpcCF = new PndTpcClusterFinderTask();
-  tpcCF->SetPersistence();
-  tpcCF->timeslice(20); // = 4 sample times = 100ns @ 40MHz
-  fRun->AddTask(tpcCF);*/
   // ##################################################################   GEM
   // -----   GEM digi producer   --------------------------------------
   Int_t verboseLevel = 0;
@@ -120,15 +93,6 @@ void digi_all() {
   // -----   GEM hit producer   ---------------------------------------
   PndGemFindHits* gemFindHits = new PndGemFindHits("GEM Hit Finder", verboseLevel);
   fRun->AddTask(gemFindHits);
-  // ##################################################################   DCH
-  // -----   DCH digi producer   --------------------------------------
-  PndDchDigiProducer* digiProducer= new PndDchDigiProducer();
-  digiProducer->SetVerbose(0);
-  fRun->AddTask(digiProducer);
-  // -----   DCH hit producer   ---------------------------------------
-  PndDchCylinderHitProducer* cylHitProducer= new PndDchCylinderHitProducer();
-  cylHitProducer->SetVerbose(0);
-  fRun->AddTask(cylHitProducer);
   // ##################################################################
 
   // -----   Intialise and run   --------------------------------------------

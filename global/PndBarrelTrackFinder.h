@@ -82,7 +82,7 @@ class PndBarrelTrackFinder : public FairTask
   /** Execution **/
   virtual void Exec(Option_t* opt);
 
-  void UseMvdSttTpcGem(const Bool_t useMvd, const Bool_t useStt, const Bool_t useTpc, const Bool_t useGem); 
+  void UseMvdSttGem   (const Bool_t useMvd, const Bool_t useStt, const Bool_t useGem); 
 
  private:
 
@@ -95,11 +95,11 @@ class PndBarrelTrackFinder : public FairTask
   std::vector<Int_t>    fHitVectDI;
   std::vector<Int_t>    fHitVectHN;
 
-  Bool_t        fIncludeDet[5];
-  TClonesArray* fHitArray  [5];
-  TString       fDetName   [5];
-  Int_t         fDetType   [5];
-  TString       fHitArrayName[5];
+  Bool_t        fIncludeDet[4];
+  TClonesArray* fHitArray  [4];
+  TString       fDetName   [4];
+  Int_t         fDetType   [4];
+  TString       fHitArrayName[4];
 
   /** Output array of global tracks **/
   TClonesArray* fBarrelTrackArray;     	    ///< Output array of PndTrackCands 

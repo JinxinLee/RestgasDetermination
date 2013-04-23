@@ -45,22 +45,21 @@ class PndBarrelTrackFinderQA : public FairTask
   /** Public modifiers **/
   void SetVerbose(const Int_t& verbose) { fVerbose = verbose; };
 
-  void UseMvdSttTpcGem(const Bool_t useMvd, const Bool_t useStt, const Bool_t useTpc, const Bool_t useGem) {
+  void UseMvdSttGem(const Bool_t useMvd, const Bool_t useStt, const Bool_t useGem) {
     fIncludeDet[0] = useMvd;
     fIncludeDet[1] = useStt;
-    fIncludeDet[2] = useTpc;
-    fIncludeDet[3] = useGem;
+    fIncludeDet[2] = useGem;
   };
 
  private:
 
   /** Arrays of MC information **/
   TClonesArray*       fMCTrackArray;
-  TClonesArray*       fMCPointArray[4];
+  TClonesArray*       fMCPointArray[3];
   TClonesArray*       fBarrelTrackArray;
-  Bool_t              fIncludeDet[4];
+  Bool_t              fIncludeDet[3];
 
-  TString fDetName[4];
+  TString fDetName[3];
 
   /** Event counter **/
   Int_t fTNofEvents;  ///< event counter
@@ -120,17 +119,16 @@ class PndBarrelTrackFinderQA : public FairTask
   TH2F* fhTheResVsMomPhi;
   TH2F* fhTheResVsMomThe;
 
-  TH2F* fhNofDetPntsVsMagFoundHist[4];
-  TH2F* fhNofDetPntsVsPhiFoundHist[4];
-  TH2F* fhNofDetPntsVsTheFoundHist[4];
-  TH2F* fhNofDetPntsVsMagNotFdHist[4];
-  TH2F* fhNofDetPntsVsPhiNotFdHist[4];
-  TH2F* fhNofDetPntsVsTheNotFdHist[4];
+  TH2F* fhNofDetPntsVsMagFoundHist[3];
+  TH2F* fhNofDetPntsVsPhiFoundHist[3];
+  TH2F* fhNofDetPntsVsTheFoundHist[3];
+  TH2F* fhNofDetPntsVsMagNotFdHist[3];
+  TH2F* fhNofDetPntsVsPhiNotFdHist[3];
+  TH2F* fhNofDetPntsVsTheNotFdHist[3];
 
   TH2F* fhNofMvdPixsVsThetaHist;
   TH2F* fhNofMvdStrsVsThetaHist;
   TH2F* fhNofSttHitsVsThetaHist;
-  TH2F* fhNofTpcHitsVsThetaHist;
   TH2F* fhNofGemHitsVsThetaHist;
 
   void CreateHistos();

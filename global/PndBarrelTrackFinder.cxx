@@ -55,7 +55,7 @@ using std::map;
 
 // -----   Default constructor   ------------------------------------------
 PndBarrelTrackFinder::PndBarrelTrackFinder() : FairTask("Barrel Track Finder", 1) {
-  for ( Int_t idet = 0 ; idet < 5 ; idet++ ) {
+  for ( Int_t idet = 0 ; idet < 4 ; idet++ ) {
     fIncludeDet  [idet] = kFALSE;
     fHitArray    [idet] = NULL;
     fDetName     [idet] = "";
@@ -96,7 +96,7 @@ PndBarrelTrackFinder::PndBarrelTrackFinder() : FairTask("Barrel Track Finder", 1
 // -----   Standard constructor   ------------------------------------------
 PndBarrelTrackFinder::PndBarrelTrackFinder(Int_t iVerbose) 
   : FairTask("Barrel Track Finder", iVerbose) { 
-  for ( Int_t idet = 0 ; idet < 5 ; idet++ ) {
+  for ( Int_t idet = 0 ; idet < 4 ; idet++ ) {
     fIncludeDet[idet] = kFALSE;
     fHitArray  [idet] = NULL;
     fDetName     [idet] = "";
@@ -137,7 +137,7 @@ PndBarrelTrackFinder::PndBarrelTrackFinder(Int_t iVerbose)
 // -----   Constructor with name   -----------------------------------------
 PndBarrelTrackFinder::PndBarrelTrackFinder(const char* name, Int_t iVerbose) 
   : FairTask(name, iVerbose) { 
-  for ( Int_t idet = 0 ; idet < 5 ; idet++ ) {
+  for ( Int_t idet = 0 ; idet < 4 ; idet++ ) {
     fIncludeDet[idet] = kFALSE;
     fHitArray  [idet] = NULL;
     fDetName     [idet] = "";
@@ -183,12 +183,11 @@ PndBarrelTrackFinder::~PndBarrelTrackFinder() {
 // -------------------------------------------------------------------------
 
 // -------------------------------------------------------------------------
-void PndBarrelTrackFinder::UseMvdSttTpcGem(const Bool_t useMvd, const Bool_t useStt, const Bool_t useTpc, const Bool_t useGem) {
+void PndBarrelTrackFinder::UseMvdSttGem(const Bool_t useMvd, const Bool_t useStt, const Bool_t useGem) {
   fIncludeDet[0] = useMvd;
   fIncludeDet[1] = useMvd;
   fIncludeDet[2] = useStt;
-  fIncludeDet[3] = useTpc;
-  fIncludeDet[4] = useGem;
+  fIncludeDet[3] = useGem;
 };
 // -------------------------------------------------------------------------
 
@@ -204,10 +203,10 @@ void PndBarrelTrackFinder::Exec(Option_t* opt) {
   Int_t nofCreatedTracks = 0;
 
   Int_t nofHits = 0;
-  Int_t firstDH[5];
+  Int_t firstDH[4];
   
   // putting hits into one common array
-  for ( Int_t idet = 0 ; idet < 5 ; idet++ ) {
+  for ( Int_t idet = 0 ; idet < 4 ; idet++ ) {
     firstDH[idet] = nofHits;
     if ( fIncludeDet[idet] == kTRUE ) {
       nofHits += fHitArray[idet]->GetEntriesFast();
@@ -241,7 +240,7 @@ void PndBarrelTrackFinder::Exec(Option_t* opt) {
       detHit = (PndSdsHit*)fHitArray[fHitDetId[hitN]]->At(fHitDetNo[hitN]);
     else                    if ( fHitDetId[hitN] == 2 )
       detHit = (PndSttHit*)fHitArray[fHitDetId[hitN]]->At(fHitDetNo[hitN]);
-    else                    if ( fHitDetId[hitN] == 4 )
+    else                    if ( fHitDetId[hitN] == 3 )
       detHit = (PndGemHit*)fHitArray[fHitDetId[hitN]]->At(fHitDetNo[hitN]);
     
     if ( fVerbose > 3 ) {
@@ -1071,7 +1070,7 @@ void   PndBarrelTrackFinder::PrintTracks() {
 
   if ( fTracksVector.size() > 0 ) {
     cout << "          --------- " << flush;
-    for ( Int_t idet = 0 ; idet < 5 ; idet++ ) {
+    for ( Int_t idet = 0 ; idet < 4 ; idet++ ) {
       if ( fIncludeDet[idet] == kTRUE ) {
 	cout << "\033[" << 91+idet << "m" 
 	     << fDetName[idet].Data() 
@@ -1276,7 +1275,7 @@ Int_t  PndBarrelTrackFinder::WriteTracks() {
     
     PndTrackCand* trackCand = new((*fBarrelTrackCandArray)[nofCreatedTracks]) PndTrackCand();
 
-    std::vector<Int_t> trackHitsPerDet(5,0);
+    std::vector<Int_t> trackHitsPerDet(4,0);
     for ( Int_t ihit = 0 ; ihit < fTracksVector[itr].trackHitD.size() ; ihit++ ) {
       trackHitsPerDet[fTracksVector[itr].trackHitD[ihit]] += 1;
       Double_t tempPos = TMath::Sqrt(fTracksVector[itr].trackHits[ihit]->GetX()*fTracksVector[itr].trackHits[ihit]->GetX()+
@@ -1305,7 +1304,7 @@ Int_t  PndBarrelTrackFinder::WriteTracks() {
 							 TVector3(1.,0.,0.),
 							 TVector3(0.,1.,0.));					 
     TVector3 tempVect1(trackHitsPerDet[0],trackHitsPerDet[1],trackHitsPerDet[2]);
-    TVector3 tempVect2(trackHitsPerDet[3],trackHitsPerDet[4],1.); 
+    TVector3 tempVect2(trackHitsPerDet[3],-1.,-1.); 
 
     //    FairTrackParP*	    lastPar = new FairTrackParP(trackPosition,trackMomentum,
     FairTrackParP*	    lastPar = new FairTrackParP(tempVect1,tempVect2,

@@ -97,17 +97,17 @@ void tracks_BARREL_1000(char* type="proof", Int_t nofFiles = 1, TString proofNam
   //fRun->AddTask(gemHitProducer);
   
   // ##################################################################
-  /*  
+  
   PndBarrelTrackFinder* barrelTF = new PndBarrelTrackFinder();
   barrelTF->SetVerbose(0);
-  barrelTF->UseMvdSttTpcGem(kTRUE,kTRUE,kFALSE,kTRUE);
+  barrelTF->UseMvdSttGem(kTRUE,kTRUE,kTRUE);
   fRun->AddTask(barrelTF);
-    
-   PndBarrelTrackFinderQA* barrelQA = new PndBarrelTrackFinderQA();
-   barrelQA->SetVerbose(0);
-   barrelQA->UseMvdSttTpcGem(kTRUE,kTRUE,kFALSE,kTRUE);
-   fRun->AddTask(barrelQA);
-  */
+  
+  PndBarrelTrackFinderQA* barrelQA = new PndBarrelTrackFinderQA();
+  barrelQA->SetVerbose(0);
+  barrelQA->UseMvdSttGem(kTRUE,kTRUE,kTRUE);
+  fRun->AddTask(barrelQA);
+  
   // -----   Intialise and run   --------------------------------------------
   fRun->Init();
 

@@ -99,34 +99,6 @@ void digi_BARREL(Int_t nEvents, Int_t nparts = 33, Int_t pid = 13, Int_t nStatio
     //PndSttHitProducerRealFast* sttHitProducer = new PndSttHitProducerRealFast();
   fRun->AddTask(sttHitProducer);
 
-  // ##################################################################   TPC
-  /* // -----   TPC cluster producers   ----------------------------------
-  PndTpcClusterizerTask* tpcClusterizer = new PndTpcClusterizerTask();
-  // tpcClusterizer->SetPersistence();
-  fRun->AddTask(tpcClusterizer);
-  // ------------------------------------------------------------------
-  PndTpcDriftTask* tpcDrifter = new PndTpcDriftTask();
-  // tpcDrifter->SetPersistence();
-  tpcDrifter->SetDistort(false);
-  fRun->AddTask(tpcDrifter);
-  // ------------------------------------------------------------------
-  PndTpcGemTask* tpcGem = new PndTpcGemTask();
-  //tpcGem->SetPersistence();
-  fRun->AddTask(tpcGem);
-  // ------------------------------------------------------------------
-  PndTpcPadResponseTask* tpcPadResponse = new PndTpcPadResponseTask();
-  tpcPadResponse->SetPersistence();
-  fRun->AddTask(tpcPadResponse);
-  // ------------------------------------------------------------------
-  PndTpcElectronicsTask* tpcElec = new PndTpcElectronicsTask();
-  tpcElec->SetPersistence();
-  fRun->AddTask(tpcElec);
-  // ------------------------------------------------------------------
-  PndTpcClusterFinderTask* tpcCF = new PndTpcClusterFinderTask();
-  tpcCF->SetPersistence();
-  tpcCF->timeslice(20); // = 4 sample times = 100ns @ 40MHz
-  fRun->AddTask(tpcCF);*/
-
   // ##################################################################   GEM
   // -----   GEM digi producer   --------------------------------------
   Int_t verboseLevel = 0;
@@ -140,31 +112,19 @@ void digi_BARREL(Int_t nEvents, Int_t nparts = 33, Int_t pid = 13, Int_t nStatio
   //PndGemIdealHitProducer* gemHitProducer = new PndGemIdealHitProducer("GEM Ideal hit producer", verboseLevel);
   //fRun->AddTask(gemHitProducer);
 
-  // ##################################################################   DCH
-  // -----   DCH digi producer   --------------------------------------
-  PndDchDigiProducer* digiProducer= new PndDchDigiProducer();
-  digiProducer->SetVerbose(0);
-  fRun->AddTask(digiProducer);
-  // -----   DCH hit producer   ---------------------------------------
-  PndDchCylinderHitProducer* cylHitProducer= new PndDchCylinderHitProducer();
-  cylHitProducer->SetVerbose(0);
-  fRun->AddTask(cylHitProducer);
   // ##################################################################
 
   PndBarrelTrackFinder* barrelTF = new PndBarrelTrackFinder();
   barrelTF->SetVerbose(0);
-  barrelTF->UseMvdSttTpcGem(kTRUE,kTRUE,kFALSE,kTRUE);
+  barrelTF->UseMvdSttGem(kTRUE,kTRUE,kTRUE);
   fRun->AddTask(barrelTF);
   
   PndBarrelTrackFinderQA* barrelQA = new PndBarrelTrackFinderQA();
   barrelQA->SetVerbose(0);
-  barrelQA->UseMvdSttTpcGem(kTRUE,kTRUE,kFALSE,kTRUE);
+  barrelQA->UseMvdSttGem(kTRUE,kTRUE,kTRUE);
   fRun->AddTask(barrelQA);
 
-//   PndFitMCCircle* tempFMC = new PndFitMCCircle();
-//   tempFMC->SetVerbose(0);
-//   tempFMC->UseMvdSttTpcGem(kTRUE,kTRUE,kFALSE,kTRUE);
-  //fRun->AddTask(tempFMC);
+  // ##################################################################
 
   // -----   Intialise and run   --------------------------------------------
   fRun->Init();

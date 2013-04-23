@@ -52,7 +52,6 @@ void globT_all() {
   rtdb->setSecondInput(parIo1);
   // ##################################################################   MERGE
   PndGlobalIdealTrackMerger* trackMerger = new PndGlobalIdealTrackMerger(iVerbose);
-  trackMerger->UseMvdSttTpcGemDch(kTRUE,kTRUE,kFALSE,kTRUE,kTRUE);//TRUE);
   fRun->AddTask(trackMerger);
 
   PndGlobalTrackMergerQA* trackMergerQA = new PndGlobalTrackMergerQA(iVerbose);

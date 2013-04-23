@@ -94,17 +94,6 @@ void locT_theta(Int_t pid = 13, Double_t theta = 5., Int_t nStations = 3) {
   PndGemTrackFinderQA* gemTrackFinderQA = new PndGemTrackFinderQA();
   gemTrackFinderQA->SetVerbose(0);
   fRun->AddTask(gemTrackFinderQA);
-  // ##################################################################   DCH
-  // -----   DCH ideal tracking  --------------------------------------
-  PndDchFindTracks* dchFinderTask = new PndDchFindTracks("PndDchFindTracks");
-  dchFinderTask->SetUseHitOrDigi("chit");
-  dchFinderTask->SetVerbose(0);
-  fRun->AddTask(dchFinderTask);
-  // ------------------------------------------------------------------  
-  PndDchTrackFinderIdealCylHit* dchMcTrackFinder = new  PndDchTrackFinderIdealCylHit();
-  dchMcTrackFinder->SetVerbose(0);  
-  dchMcTrackFinder->SetPrimary(0);  // 1 = Only primary tracks are processed, 0 = all (default)
-  dchFinderTask->UseFinder(dchMcTrackFinder);
   // ################################################################## 
 
   // -----   Intialise and run   --------------------------------------------

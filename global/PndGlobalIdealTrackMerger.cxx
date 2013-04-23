@@ -38,7 +38,7 @@ using std::map;
 PndGlobalIdealTrackMerger::PndGlobalIdealTrackMerger() : FairTask("Global Ideal Track Merger", 1) {
   fMCTrackArray  = NULL;
   //  fMCTrackSeen   = NULL;
-  for ( Int_t idet = 0 ; idet < 5 ; idet++ ) {
+  for ( Int_t idet = 0 ; idet < 4 ; idet++ ) {
     fIncludeDet[idet] = kFALSE;
     fTrackArray[idet] = NULL;
   }
@@ -54,7 +54,7 @@ PndGlobalIdealTrackMerger::PndGlobalIdealTrackMerger(Int_t iVerbose)
   : FairTask("Global Ideal Track Merger", iVerbose) {
   fMCTrackArray  = NULL;
   //  fMCTrackSeen   = NULL;
-  for ( Int_t idet = 0 ; idet < 5 ; idet++ ) {
+  for ( Int_t idet = 0 ; idet < 4 ; idet++ ) {
     fIncludeDet[idet] = kFALSE;
     fTrackArray[idet] = NULL;
   }
@@ -107,16 +107,14 @@ InitStatus PndGlobalIdealTrackMerger::Init() {
   
   fDetName[0] = "MVD";
   fDetName[1] = "STT";
-  fDetName[2] = "TPC";
-  fDetName[3] = "GEM";
-  fDetName[4] = "DCH";
-  TString trArrayName[5] = {"MVDIdealTrackCand",
+  fDetName[2] = "GEM";
+  fDetName[3] = "FTS";
+  TString trArrayName[4] = {"MVDIdealTrackCand",
 			    "STTFoundTrack",
-			    "TPCTrackCand",
 			    "GEMTrack",
-			    "DCHTrackCand"};
+			    "FTSTrackCand"};
 
-  for ( Int_t idet = 0 ; idet < 5 ; idet++ ) {
+  for ( Int_t idet = 0 ; idet < 4 ; idet++ ) {
     if ( fIncludeDet[idet] == kTRUE ) {
       fTrackArray[idet] = (TClonesArray*) ioman->GetObject(trArrayName[idet].Data());    // Get Mvd track Array
       
@@ -138,7 +136,7 @@ InitStatus PndGlobalIdealTrackMerger::Init() {
 
   std::cout << "-I- " << GetName() << ": Initialization successfull" << std::endl;
   std::cout << "-I- " << GetName() << ": Merging tracks from " << flush;
-  for ( Int_t idet = 0 ; idet < 5 ; idet++ ) {
+  for ( Int_t idet = 0 ; idet < 4 ; idet++ ) {
     if ( fIncludeDet[idet] == kFALSE ) continue;
     cout << fDetName[idet].Data() << ", ";
   }
@@ -172,7 +170,7 @@ void PndGlobalIdealTrackMerger::Exec(Option_t* opt) {
 
   Int_t nofMCTracks = fMCTrackArray->GetEntriesFast();
 
-  std::vector<Int_t> trackSeen (5,-1);
+  std::vector<Int_t> trackSeen (4,-1);
 
   fMCDetTracks.resize(nofMCTracks);
   fMCTrackSeen.resize(nofMCTracks);
@@ -185,7 +183,7 @@ void PndGlobalIdealTrackMerger::Exec(Option_t* opt) {
   Int_t nofTracks;
   Int_t mcTrId;
 
-  for ( Int_t idet = 0 ; idet < 5 ; idet++ ) {
+  for ( Int_t idet = 0 ; idet < 4 ; idet++ ) {
     if ( fIncludeDet[idet] == kTRUE ) {
       nofTracks = fTrackArray[idet]->GetEntriesFast();
       if ( fVerbose > 1 ) 
@@ -232,7 +230,7 @@ void PndGlobalIdealTrackMerger::Exec(Option_t* opt) {
     if ( fVerbose > 1 ) 
       cout << "TRACK " << itr << " has " << flush;
 
-    for ( Int_t idet = 0 ; idet < 5 ; idet++ ) {
+    for ( Int_t idet = 0 ; idet < 4 ; idet++ ) {
       if ( fMCDetTracks[itr][idet] == -1 ) continue;
       TString arrayName = fTrackArray[idet]->GetName();
 

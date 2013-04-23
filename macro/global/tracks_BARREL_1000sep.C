@@ -111,15 +111,14 @@ void tracks_BARREL_1000sep(char* type="proof", Int_t nofFiles = 1, TString proof
   
   PndBarrelTrackFinder* barrelTF = new PndBarrelTrackFinder();
   barrelTF->SetVerbose(0);
-  barrelTF->UseMvdSttTpcGem(kTRUE,kTRUE,kFALSE,kTRUE);
+  barrelTF->UseMvdSttGem(kTRUE,kTRUE,kTRUE);
   fRun->AddTask(barrelTF);
   
-  /*
   PndBarrelTrackFinderQA* barrelQA = new PndBarrelTrackFinderQA();
   barrelQA->SetVerbose(0);
-  barrelQA->UseMvdSttTpcGem(kTRUE,kTRUE,kFALSE,kTRUE);
+  barrelQA->UseMvdSttGem(kTRUE,kTRUE,kTRUE);
   fRun->AddTask(barrelQA);
-  */
+
   // -----   Intialise and run   --------------------------------------------
   fRun->Init();
 

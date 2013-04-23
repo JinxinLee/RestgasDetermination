@@ -38,7 +38,7 @@ using std::map;
 PndBarrelTrackFinderQA::PndBarrelTrackFinderQA() : FairTask("QA task for Barrel Track Finder", 1) {
   fMCTrackArray  = NULL;
   fBarrelTrackArray = NULL;
-  for ( Int_t idet = 0 ; idet < 4 ; idet++ ) {
+  for ( Int_t idet = 0 ; idet < 3 ; idet++ ) {
     fIncludeDet[idet] = kFALSE;
     fMCPointArray[idet] = NULL;
     fDetName[idet] = "";
@@ -100,7 +100,7 @@ PndBarrelTrackFinderQA::PndBarrelTrackFinderQA() : FairTask("QA task for Barrel 
   fhTheResVsMomPhi = NULL;
   fhTheResVsMomThe = NULL;
   
-  for ( Int_t idet = 0 ; idet < 4 ; idet++ ) {
+  for ( Int_t idet = 0 ; idet < 3 ; idet++ ) {
     fhNofDetPntsVsMagFoundHist[idet] = NULL;
     fhNofDetPntsVsPhiFoundHist[idet] = NULL;
     fhNofDetPntsVsTheFoundHist[idet] = NULL;
@@ -112,7 +112,6 @@ PndBarrelTrackFinderQA::PndBarrelTrackFinderQA() : FairTask("QA task for Barrel 
   fhNofMvdPixsVsThetaHist = NULL;
   fhNofMvdStrsVsThetaHist = NULL;
   fhNofSttHitsVsThetaHist = NULL;
-  fhNofTpcHitsVsThetaHist = NULL;
   fhNofGemHitsVsThetaHist = NULL;
 }
 // -------------------------------------------------------------------------
@@ -122,7 +121,7 @@ PndBarrelTrackFinderQA::PndBarrelTrackFinderQA(Int_t iVerbose)
   : FairTask("QA task for Barrel Track Finder", iVerbose) {
   fMCTrackArray  = NULL;
   fBarrelTrackArray = NULL;
-  for ( Int_t idet = 0 ; idet < 4 ; idet++ ) {
+  for ( Int_t idet = 0 ; idet < 3 ; idet++ ) {
     fIncludeDet[idet] = kFALSE;
     fMCPointArray[idet] = NULL;
     fDetName[idet] = "";
@@ -184,7 +183,7 @@ PndBarrelTrackFinderQA::PndBarrelTrackFinderQA(Int_t iVerbose)
   fhTheResVsMomPhi = NULL;
   fhTheResVsMomThe = NULL;
   
-  for ( Int_t idet = 0 ; idet < 4 ; idet++ ) {
+  for ( Int_t idet = 0 ; idet < 3 ; idet++ ) {
     fhNofDetPntsVsMagFoundHist[idet] = NULL;
     fhNofDetPntsVsPhiFoundHist[idet] = NULL;
     fhNofDetPntsVsTheFoundHist[idet] = NULL;
@@ -196,7 +195,6 @@ PndBarrelTrackFinderQA::PndBarrelTrackFinderQA(Int_t iVerbose)
   fhNofMvdPixsVsThetaHist = NULL;
   fhNofMvdStrsVsThetaHist = NULL;
   fhNofSttHitsVsThetaHist = NULL;
-  fhNofTpcHitsVsThetaHist = NULL;
   fhNofGemHitsVsThetaHist = NULL;
 }
 // -------------------------------------------------------------------------
@@ -248,14 +246,12 @@ InitStatus PndBarrelTrackFinderQA::Init() {
   
   fDetName[0] = "Mvd";
   fDetName[1] = "Stt";
-  fDetName[2] = "Tpc";
-  fDetName[3] = "Gem";
-  TString trArrayName[4] = {"MVDPoint",
+  fDetName[2] = "Gem";
+  TString trArrayName[3] = {"MVDPoint",
 			    "STTPoint",
-			    "TPCPoint",
 			    "GEMPoint"};
   
-  for ( Int_t idet = 0 ; idet < 4 ; idet++ ) {
+  for ( Int_t idet = 0 ; idet < 3 ; idet++ ) {
     if ( fIncludeDet[idet] == kTRUE ) {
       fMCPointArray[idet] = (TClonesArray*) ioman->GetObject(trArrayName[idet].Data());    // Get Mvd track Array
       
@@ -270,7 +266,7 @@ InitStatus PndBarrelTrackFinderQA::Init() {
   
   std::cout << "-I- " << GetName() << ": Initialization successfull" << std::endl;
   std::cout << "-I- " << GetName() << ": Tracks created in " << flush;
-  for ( Int_t idet = 0 ; idet < 4 ; idet++ ) {
+  for ( Int_t idet = 0 ; idet < 3 ; idet++ ) {
     if ( fIncludeDet[idet] == kFALSE ) continue;
     cout << fDetName[idet].Data() << ", ";
   }
@@ -306,19 +302,19 @@ void PndBarrelTrackFinderQA::Exec(Option_t* opt) {
   Int_t nofBarrelTracks = fBarrelTrackArray->GetEntriesFast();
     
   std::vector<Int_t> nofPoints(nofMCTracks,0);
-  Int_t nofDetTrPoints[1000][4];
+  Int_t nofDetTrPoints[1000][3];
   if ( nofMCTracks > 1000 ) 
     cout << " will have problem, more than 1000 mc tracks (" << nofMCTracks << ")" << endl;
   //  std::vector<std::vector<Int_t>> nofDetTrPoints;
   for ( Int_t ipt = 0 ; ipt < 1000 ; ipt++ )
-    for ( Int_t idet = 0 ; idet < 4 ; idet++ ) 
+    for ( Int_t idet = 0 ; idet < 3 ; idet++ ) 
       nofDetTrPoints[ipt][idet] = 0;
 
   std::vector<Bool_t> ghostTrack(nofBarrelTracks,kTRUE);
   std::vector<Bool_t> multiTrack(nofMCTracks,kFALSE);  
 
   FairMCPoint* mcPoint;
-  for ( Int_t idet = 0 ; idet < 4 ; idet++ ) {
+  for ( Int_t idet = 0 ; idet < 3 ; idet++ ) {
     if ( fIncludeDet[idet] == kTRUE ) {
       Int_t npoint = fMCPointArray[idet]->GetEntriesFast();
       for ( Int_t ipoint = 0 ; ipoint < npoint ; ipoint++ ) {
@@ -450,20 +446,19 @@ void PndBarrelTrackFinderQA::Exec(Option_t* opt) {
 	fhNofMvdPixsVsThetaHist->Fill(mcThe,parLast.GetPosition().X());
 	fhNofMvdStrsVsThetaHist->Fill(mcThe,parLast.GetPosition().Y());
 	fhNofSttHitsVsThetaHist->Fill(mcThe,parLast.GetPosition().Z());
-	fhNofTpcHitsVsThetaHist->Fill(mcThe,parLast.GetMomentum().X());
 	fhNofGemHitsVsThetaHist->Fill(mcThe,parLast.GetMomentum().Y());
       }
     }
 
     if ( matchingRecoTrack == -1 ) {
-      for ( Int_t idet = 0 ; idet < 4 ; idet++ ) {
+      for ( Int_t idet = 0 ; idet < 3 ; idet++ ) {
 	fhNofDetPntsVsMagNotFdHist[idet]->Fill(mcMag,nofDetTrPoints[itm][idet]);
 	fhNofDetPntsVsPhiNotFdHist[idet]->Fill(mcPhi,nofDetTrPoints[itm][idet]);
 	fhNofDetPntsVsTheNotFdHist[idet]->Fill(mcThe,nofDetTrPoints[itm][idet]);
       }
     }
     else {
-      for ( Int_t idet = 0 ; idet < 4 ; idet++ ) {
+      for ( Int_t idet = 0 ; idet < 3 ; idet++ ) {
 	fhNofDetPntsVsMagFoundHist[idet]->Fill(mcMag,nofDetTrPoints[itm][idet]);
 	fhNofDetPntsVsPhiFoundHist[idet]->Fill(mcPhi,nofDetTrPoints[itm][idet]);
 	fhNofDetPntsVsTheFoundHist[idet]->Fill(mcThe,nofDetTrPoints[itm][idet]);
@@ -616,16 +611,14 @@ void PndBarrelTrackFinderQA::CreateHistos() {
   fhNofMvdPixsVsThetaHist = new TH2F("fhNofMvdPixsVsThetaHist","Number of Mvd Pixel Hits vs theta;theta [deg];nof hits",180,0.,180.,41,-0.5,40.5);
   fhNofMvdStrsVsThetaHist = new TH2F("fhNofMvdStrsVsThetaHist","Number of Mvd Strip Hits vs theta;theta [deg];nof hits",180,0.,180.,41,-0.5,40.5);
   fhNofSttHitsVsThetaHist = new TH2F("fhNofSttHitsVsThetaHist","Number of Stt Hits vs theta;theta [deg];nof hits",180,0.,180.,41,-0.5,40.5);
-  fhNofTpcHitsVsThetaHist = new TH2F("fhNofTpcHitsVsThetaHist","Number of Tpc Hits vs theta;theta [deg];nof hits",180,0.,180.,41,-0.5,40.5);
   fhNofGemHitsVsThetaHist = new TH2F("fhNofGemHitsVsThetaHist","Number of Gem Hits vs theta;theta [deg];nof hits",180,0.,180.,41,-0.5,40.5);
 
   fHistoList->Add(fhNofMvdPixsVsThetaHist);
   fHistoList->Add(fhNofMvdStrsVsThetaHist);
   fHistoList->Add(fhNofSttHitsVsThetaHist);
-  fHistoList->Add(fhNofTpcHitsVsThetaHist);
   fHistoList->Add(fhNofGemHitsVsThetaHist);
 
-  for ( Int_t idet = 0 ; idet < 4 ; idet++ ) {
+  for ( Int_t idet = 0 ; idet < 3 ; idet++ ) {
     fhNofDetPntsVsMagFoundHist[idet] = new TH2F(Form("fhNof%sPntsVsMagFoundHist",fDetName[idet].Data()),
 						Form("Number of %s points vs magnitude, for found tracks",fDetName[idet].Data()),
 						200,0.,20.,41,-0.5,40.5);
