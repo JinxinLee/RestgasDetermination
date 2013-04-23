@@ -1,3 +1,4 @@
+#!/bin/bash
 ################################################################
 ## script for running sim&rec for LMD
 ## [with strip sensors set-up!]
@@ -5,16 +6,15 @@
 ## A.Karavdina
 ################################################################
 
-#!/bin/bash     
 path=${VMCWORKDIR}/macro/lmd/testStrip
 mkdir ${path}
 numTrks=1
 numEv=1000
 #take into account multiple scattering in hit errors calculation
 addMS=true
-pbeam=15
+pbeam=1.5
 
-time root -l -b -q runLumi0SimBox.C\(${numEv},${pbeam},"\"${path}\"",0,-2212,${numTrks}\)
+time root -l -b -q runLumi0SimBox.C\(${numEv},0,${pbeam},"\"${path}\"",0,-2212,${numTrks}\)
 time root -l -b -q runLumi1Digi.C\(${numEv},0,"\"${path}\""\)
 time root -l -b -q runLumi2Reco.C\(${numEv},0,"\"${path}\"",0,${addMS}\)
 ### change "CA" --> "Follow" if you want to use Trk-Following as trk-search algorithm
