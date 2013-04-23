@@ -46,14 +46,14 @@ class PndLmdStripClusterTask : public PndSdsStripClusterTask
  private:
 
     bool flagMS;
-    TList* fAlignParamList;
+    //   TList* fAlignParamList;
     Double_t fPbeam;
     void combitransToLumiFrame(TVector3& hitPos);
     void rotateToLumiFrame(TVector3& hitPos);
     TMatrixD rotateToLumiFrame(TMatrixD& hitCov);
-    void alignmentCorr(TVector3& hitPos, int sensID);
-    double fShiftX[32],fShiftY[32],fShiftZ[32];
-    double fRotateX[32],fRotateY[32],fRotateZ[32];
+    /* void alignmentCorr(TVector3& hitPos, int sensID); */
+    /* double fShiftX[32],fShiftY[32],fShiftZ[32]; */
+    /* double fRotateX[32],fRotateY[32],fRotateZ[32]; */
 };
 
 #endif /* LMDCLUSTERTASK_H */

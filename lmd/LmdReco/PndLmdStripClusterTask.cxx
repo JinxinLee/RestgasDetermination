@@ -29,7 +29,7 @@ PndLmdStripClusterTask::PndLmdStripClusterTask() :
   PndSdsStripClusterTask("LMD Strip Clusterisation Task")
 {
   fGeoH = PndGeoHandling::Instance();
-  fAlignParamList = new TList();
+  // fAlignParamList = new TList();
   flagMS = true;
 }
 
@@ -137,17 +137,17 @@ void PndLmdStripClusterTask::SetParContainers()
     }
   }//while 
 
-  //read params for lumi alignment
-  TList* theAlignLMDContNames = themvdcontfact->GetAlignParNames();
-  Info("SetParContainers()","AlignLMD The container names list contains %i entries",theAlignLMDContNames->GetEntries());
-  TIter cfAlIter(theAlignLMDContNames);
-  while (TObjString* contname = (TObjString*)cfAlIter()) {
-    TString parsetname = contname->String();
-    Info("SetParContainers()",parsetname.Data());
-    PndLmdAlignPar *lmdalignpar = (PndLmdAlignPar*)(rtdb->getContainer(parsetname.Data()));
-    if(!lmdalignpar) Fatal("SetParContainers","No ALIGN parameter found: %s",parsetname.Data());
-    fAlignParamList->Add(lmdalignpar); 
-  }
+  // //read params for lumi alignment
+  // TList* theAlignLMDContNames = themvdcontfact->GetAlignParNames();
+  // Info("SetParContainers()","AlignLMD The container names list contains %i entries",theAlignLMDContNames->GetEntries());
+  // TIter cfAlIter(theAlignLMDContNames);
+  // while (TObjString* contname = (TObjString*)cfAlIter()) {
+  //   TString parsetname = contname->String();
+  //   Info("SetParContainers()",parsetname.Data());
+  //   PndLmdAlignPar *lmdalignpar = (PndLmdAlignPar*)(rtdb->getContainer(parsetname.Data()));
+  //   if(!lmdalignpar) Fatal("SetParContainers","No ALIGN parameter found: %s",parsetname.Data());
+  //   fAlignParamList->Add(lmdalignpar); 
+  // }
   PndSdsStripClusterTask::SetParContainers();
 }
 
@@ -185,25 +185,25 @@ void PndLmdStripClusterTask::SetCalculators()
     } 
   }
 
-  TIter alignparams(fAlignParamList); 
-  PndLmdAlignPar* lmdalignpar=(PndLmdAlignPar*)alignparams();
-  if(0==lmdalignpar) { 
-    Error("PndLmdStripClusterTask::SetCalculators()","A ALIGN Parameter Set does not exist properly.");
-  } 
-  else{
-    //   lmdalignpar->Print();
-    for(int ik=0;ik<32;ik++){
-      fShiftX[ik] = lmdalignpar->GetShiftX(ik);
-      fShiftY[ik] = lmdalignpar->GetShiftY(ik);
-      fShiftZ[ik] = lmdalignpar->GetShiftZ(ik);
-      fRotateX[ik] = lmdalignpar->GetRotateX(ik);
-      fRotateY[ik] = lmdalignpar->GetRotateY(ik);
-      fRotateZ[ik] = lmdalignpar->GetRotateZ(ik);
-      if (fVerbose > 2) cout<<"fShiftX["<<ik<<"]="<<fShiftX[ik]<<" fRotateX["<<ik<<"]="<<fRotateX[ik]
-			    <<" fRotateY["<<ik<<"]="<<fRotateY[ik]<<" fRotateZ["<<ik<<"]="<<fRotateZ[ik]<<endl;
-    }
-  }
-  lmdalignpar->Print();
+  // TIter alignparams(fAlignParamList); 
+  // PndLmdAlignPar* lmdalignpar=(PndLmdAlignPar*)alignparams();
+  // if(0==lmdalignpar) { 
+  //   Error("PndLmdStripClusterTask::SetCalculators()","A ALIGN Parameter Set does not exist properly.");
+  // } 
+  // else{
+  //   //   lmdalignpar->Print();
+  //   for(int ik=0;ik<32;ik++){
+  //     fShiftX[ik] = lmdalignpar->GetShiftX(ik);
+  //     fShiftY[ik] = lmdalignpar->GetShiftY(ik);
+  //     fShiftZ[ik] = lmdalignpar->GetShiftZ(ik);
+  //     fRotateX[ik] = lmdalignpar->GetRotateX(ik);
+  //     fRotateY[ik] = lmdalignpar->GetRotateY(ik);
+  //     fRotateZ[ik] = lmdalignpar->GetRotateZ(ik);
+  //     if (fVerbose > 2) cout<<"fShiftX["<<ik<<"]="<<fShiftX[ik]<<" fRotateX["<<ik<<"]="<<fRotateX[ik]
+  // 			    <<" fRotateY["<<ik<<"]="<<fRotateY[ik]<<" fRotateZ["<<ik<<"]="<<fRotateZ[ik]<<endl;
+  //   }
+  // }
+  // lmdalignpar->Print();
 }
 
 TVector3 PndLmdStripClusterTask::AddMSErr(TVector3 hpos, TVector3 hposerr){
@@ -543,16 +543,16 @@ TMatrixD PndLmdStripClusterTask::rotateToLumiFrame(TMatrixD& hitCov){
 }
 
 
-//Correction to hit position due to misalignment of sensor
-//TO DO: find a way do it in global and not hit by hit.
-void PndLmdStripClusterTask::alignmentCorr(TVector3& hitPos, int sensID){
-  TVector3 hitPos_loc(hitPos.X(),hitPos.Y(),0.);
-  hitPos_loc -=TVector3(fShiftX[sensID],fShiftY[sensID],fShiftZ[sensID]);
-  double xnew = hitPos_loc.X()+fRotateZ[sensID]*hitPos_loc.Y()-fRotateY[sensID]*hitPos_loc.Z();
-  double ynew = hitPos_loc.Y()-fRotateZ[sensID]*hitPos_loc.X()+fRotateX[sensID]*hitPos_loc.Z();
-  double znew = hitPos_loc.Z()-fRotateY[sensID]*hitPos_loc.X()-fRotateX[sensID]*hitPos_loc.Y();
-  hitPos = TVector3(xnew,ynew,hitPos.Z()+znew);
-}
+// //Correction to hit position due to misalignment of sensor
+// //TO DO: find a way do it in global and not hit by hit.
+// void PndLmdStripClusterTask::alignmentCorr(TVector3& hitPos, int sensID){
+//   TVector3 hitPos_loc(hitPos.X(),hitPos.Y(),0.);
+//   hitPos_loc -=TVector3(fShiftX[sensID],fShiftY[sensID],fShiftZ[sensID]);
+//   double xnew = hitPos_loc.X()+fRotateZ[sensID]*hitPos_loc.Y()-fRotateY[sensID]*hitPos_loc.Z();
+//   double ynew = hitPos_loc.Y()-fRotateZ[sensID]*hitPos_loc.X()+fRotateX[sensID]*hitPos_loc.Z();
+//   double znew = hitPos_loc.Z()-fRotateY[sensID]*hitPos_loc.X()-fRotateX[sensID]*hitPos_loc.Y();
+//   hitPos = TVector3(xnew,ynew,hitPos.Z()+znew);
+// }
 
 Bool_t PndLmdStripClusterTask::Backmap( TVector2 meantopPoint, Double_t meantoperr, TVector2 meanbotPoint, Double_t meanboterr,
                                        TVector3 &hitPos, TMatrixD &hitCov, Int_t &sensorID)
