@@ -88,5 +88,13 @@ void Config()
 		usrcuts);   
 
   gMC3->SetECut(gcalpha);
+
+  TGeoMedium *m=gGeoManager->GetMedium("air");
+  m->SetParam(6, 0.005); // epsil
+  TGeoMedium *m2=gGeoManager->GetMedium("FscScint");
+  m2->SetParam(6, 0.005); // epsil
+  TGeoMedium *m3=gGeoManager->GetMedium("lead");
+  m3->SetParam(6, 0.005); // epsil
+
 }
 
