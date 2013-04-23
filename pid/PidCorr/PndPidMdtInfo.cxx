@@ -144,16 +144,16 @@ Bool_t PndPidCorrelator::GetFMdtInfo(FairTrackParP* helix, PndPidCandidate* pidC
   Float_t chi2 = 0;
   TVector3 mdtPos(0., 0., 0.);
   TVector3 momentum(0., 0., 0.);
-  TVector3 vertex(0., 0., 0.);
-  TVector3 vertexD(0., 0., 0.);
+  TVector3 vertex(0., 0., 0.); 
+  TVector3 vertexD(0., 0., 0.);  
   Float_t prop0Z = mdtLayerPos[2][0] ; 
   Float_t prop0X = helix->GetX() + (prop0Z - helix->GetZ()) * helix->GetPx() / helix->GetPz();
   Float_t prop0Y = helix->GetY() + (prop0Z - helix->GetZ()) * helix->GetPy() / helix->GetPz();
- 
+  
   vertex.SetXYZ(prop0X, prop0Y, prop0Z);
   mdtGLength = (vertex-helix->GetPosition()).Mag();
   
-  if (kFALSE) //(fGeanePro && !fIdeal) // Overwrites vertex if Geane is used
+  if (fGeanePro && !fIdeal) // Overwrites vertex if Geane is used
     { 
       TVector3 jj(1,0,0), kk(0,1,0);
       fProMdt->PropagateFromPlane(jj, kk);
