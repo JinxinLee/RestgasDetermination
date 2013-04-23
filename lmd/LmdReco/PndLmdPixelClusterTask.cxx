@@ -316,17 +316,12 @@ void PndLmdPixelClusterTask::Exec(Option_t* opt)
       // //   TMatrixD hitCov2 = hitCov;
        TVector3 hitPos1(lmddim->Transform_global_to_sensor(hitPos,ihalf,iplane,imodule,iside,idie,isensor,false,false));
        TVector3 hitPos2(lmddim->Transform_sensor_to_global(hitPos1,ihalf,iplane,imodule,iside,idie,isensor,false,true));
-       TMatrixD hitCov1 = hitCov; TMatrixD hitCov2 = hitCov;
-       lmddim->Transform_global_to_sensor(hitCov,ihalf,iplane,imodule,iside,idie,isensor,false,hitCov1);
-       lmddim->Transform_sensor_to_global(hitCov1,ihalf,iplane,imodule,iside,idie,isensor,true,hitCov2);
-       // TMatrixD hitCov1(lmddim->Transform_global_to_sensor(hitCov,ihalf,iplane,imodule,iside,idie,isensor,false));
-       // TMatrixD hitCov2(lmddim->Transform_sensor_to_global(hitCov1,ihalf,iplane,imodule,iside,idie,isensor,true));
+       //       TMatrixD hitCov1 = hitCov; TMatrixD hitCov2 = hitCov;
+
+       TMatrixD hitCov1(lmddim->Transform_global_to_sensor(hitCov,ihalf,iplane,imodule,iside,idie,isensor,false));
+       TMatrixD hitCov2(lmddim->Transform_sensor_to_global(hitCov1,ihalf,iplane,imodule,iside,idie,isensor,true));
        myHit.SetPosition(hitPos2);//save value
        myHit.SetCov(hitCov2);//save value
-      // // hitPos1.Delete();
-      // // hitPos2.Delete();
-       //       delete  hitCov1;
-       //       delete  hitCov2 ;
       // //Alignment: (END) ---------------------------------------------------------------------------------------   
 
       if(fVerbose>0){
