@@ -1770,7 +1770,7 @@ Short_t PndTrkCTFindTrackInXY::TrkAssociatedParallelHitsToHelix5(
 	if ( fabs(Rr - distance ) > NTIMES*STRAWRADIUS )  continue;
 	if(angle<Fi_low) angle += 2.*PI;
 	if(angle>Fi_up) continue;
-	auxListHitsinTrack[nAssociatedHits]= i;
+	auxListHitsinTrack[nAssociatedHits]= ListSttParHits[i];
 	nAssociatedHits++; 
   } // end for(i=0; i<NhitsParallel;i++)
 
