@@ -1,0 +1,48 @@
+/*
+ * PndLmdDataInterface.cxx
+ *
+ *  Created on: Apr 17, 2013
+ *      Author: steve
+ */
+
+#include "PndLmdDataInterface.h"
+
+ClassImp(PndLmdDataInterface)
+
+PndLmdDataInterface::PndLmdDataInterface() {
+  // TODO Auto-generated constructor stub
+  p_lab = 0.0;
+}
+
+PndLmdDataInterface::PndLmdDataInterface(double p_lab_) {
+  // TODO Auto-generated constructor stub
+  p_lab = p_lab_;
+}
+
+PndLmdDataInterface::~PndLmdDataInterface() {
+  // TODO Auto-generated destructor stub
+}
+
+int PndLmdDataInterface::getNumEvents() const {
+  return num_events;
+}
+
+double PndLmdDataInterface::getLabMomentum() const {
+  return p_lab;
+}
+
+TString& PndLmdDataInterface::getName() {
+  return name;
+}
+
+void PndLmdDataInterface::setNumEvents(int num_events_) {
+  num_events = num_events_;
+}
+
+void PndLmdDataInterface::setLabMomentum(double p_lab_) {
+  p_lab = p_lab_;
+}
+
+int PndLmdDataInterface::addFileToList(TString filepath) {
+  return filepath_list.insert(filepath).second;
+}

@@ -39,8 +39,7 @@ class TGeant3;
 
 // some design constants of the LUMI detector
 const int nplanes(4);
-const int nsensors_per_plane(100);//(12);
-const int nmdules_per_plane(10);
+const int nsensors_per_plane(8);//(12);
 
 class PndLmdPerformanceTask: public FairTask {
 public:

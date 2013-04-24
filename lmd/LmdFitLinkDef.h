@@ -1,18 +1,23 @@
-// $Id: LmdTrkLinkDef.h,v 1.0 M. Michel$
-
 #ifdef __CINT__
 
 #pragma link off all globals;
 #pragma link off all classes;
 #pragma link off all functions;
 
-
-//tracking
-#pragma link C++ class cs_th+;
-#pragma link C++ class PndLmdLumiFit+;
-
-
-
+#pragma link C++ class PndLmdLumiFitResult;
+#pragma link C++ class PndLmdLumiFitOptions;
+#pragma link C++ class PndLmdDataInterface;
+#pragma link C++ class PndLmdDataBase;
+#pragma link C++ class PndLmdData;
+#pragma link C++ class PndLmdAcceptance;
+#pragma link C++ class PndLmdLumiHelper;
+#pragma link C++ class std::vector < PndLmdData* >+;
+#pragma link C++ class std::vector < PndLmdAcceptance* >+;
+#pragma link C++ class std::vector < PndLmdLumiFitOptions* >+;
+#pragma link C++ class PndLmdResultPlotter;
+#pragma link C++ class std::map<PndLmdAcceptance*, std::vector<PndLmdLumiFitResult*> >+;
+#pragma link C++ class std::map<PndLmdAcceptance*, std::vector<PndLmdLumiFitResult*> >::iterator;
+#pragma link C++ class std::vector < PndLmdResultPlotter::graph_bundle_1D >+;
+#pragma link C++ class PndLmdResultPlotter::acceptance_bundle_1D;
 
 #endif
-
