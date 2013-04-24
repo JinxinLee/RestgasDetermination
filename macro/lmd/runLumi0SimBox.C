@@ -132,23 +132,24 @@ void runLumi0SimBox(const int nEvents=10000, const int startEv=0, const double m
   //reading the new field map in the old format
   fRun->SetBeamMom(mom);
 
-  PndMultiField *fField= new PndMultiField();
+  //  PndMultiField *fField= new PndMultiField();
+  PndMultiField *fField= new PndMultiField("FULL"); 
+
+  // PndTransMap *map_t = new PndTransMap("TransMap_v1", "R");
+  // PndDipoleMap *map_d1 = new PndDipoleMap("DipoleMap1_v1", "R");
+  // PndDipoleMap *map_d2 = new PndDipoleMap("DipoleMap2_v1", "R");
+  // PndSolenoidMap *map_s1 = new PndSolenoidMap("SolenoidMap1", "R");
+  // PndSolenoidMap *map_s2 = new PndSolenoidMap("SolenoidMap2", "R");
+  // PndSolenoidMap *map_s3 = new PndSolenoidMap("SolenoidMap3", "R");
+  // PndSolenoidMap *map_s4 = new PndSolenoidMap("SolenoidMap4", "R");
   
-  PndTransMap *map_t = new PndTransMap("TransMap_v1", "R");
-  PndDipoleMap *map_d1 = new PndDipoleMap("DipoleMap1_v1", "R");
-  PndDipoleMap *map_d2 = new PndDipoleMap("DipoleMap2_v1", "R");
-  PndSolenoidMap *map_s1 = new PndSolenoidMap("SolenoidMap1", "R");
-  PndSolenoidMap *map_s2 = new PndSolenoidMap("SolenoidMap2", "R");
-  PndSolenoidMap *map_s3 = new PndSolenoidMap("SolenoidMap3", "R");
-  PndSolenoidMap *map_s4 = new PndSolenoidMap("SolenoidMap4", "R");
-  
-  fField->AddField(map_t);
-  fField->AddField(map_d1);
-  fField->AddField(map_d2);
-  fField->AddField(map_s1);
-  fField->AddField(map_s2);
-  fField->AddField(map_s3);
-  fField->AddField(map_s4);
+  // fField->AddField(map_t);
+  // fField->AddField(map_d1);
+  // fField->AddField(map_d2);
+  // fField->AddField(map_s1);
+  // fField->AddField(map_s2);
+  // fField->AddField(map_s3);
+  // fField->AddField(map_s4);
   
   fRun->SetField(fField);
   
