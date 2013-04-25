@@ -135,13 +135,13 @@ chargeconv_method:Int_t 0
 #################################################################
 # threshold set to 6 sigma (noise rate ~ DPM signals rate)
 [SDSPixelDigiPar]
-dimX:Double_t 0.01
-dimY:Double_t 0.01
+dimX:Double_t 0.008
+dimY:Double_t 0.008
 threshold:Double_t 500
 noise:Double_t 200
 QCloudSigma:Double_t 0.0008
-FECols:Int_t 208
-FERows:Int_t 208
+FECols:Int_t 250
+FERows:Int_t 250
 ClustRad:Double_t 1.8
 chargeconv_method:Int_t 0
 fe_BusClock:Double_t 155.52
