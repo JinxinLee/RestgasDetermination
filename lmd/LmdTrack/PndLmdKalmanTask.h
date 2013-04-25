@@ -111,6 +111,7 @@ private:
   Double_t fCharge;
   // PndLinTrack* GenfitTrack2PndLinTrack(const GFTrack* tr);
   GFFieldManager *gfMagField;
+
 //public:
   ClassDef(PndLmdKalmanTask,1);
 
