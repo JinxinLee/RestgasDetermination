@@ -78,7 +78,8 @@ private:
   TH1D* fYresH;
   TH1D* fXresFitH;
   TH1D* fYresFitH;
-  TH2D* fPEnd;
+  TH1D* fPEnd;
+  TH1D* fPull;
 
   int fTrackcount;
   Bool_t fSmooth;
@@ -88,7 +89,7 @@ private:
   // Private Methods -----------------
 
 public:
-  ClassDef(PndHypDKalmanTask,3)
+  ClassDef(PndHypDKalmanTask,4)
 
 };
 
