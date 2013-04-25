@@ -144,23 +144,8 @@ void PndLmdGeaneTask::Exec(Option_t* opt)
     //  cout<<"PndLmdGeaneTask::Exec for track#"<<i<<endl;
       TVector3 StartPos, StartPosErr, StartMom, StartMomErr, StartO, StartU, StartV;
       int p = 0;
-
-      ///Get parameters of real track
-      //    PndLinTrack* recTrack = (PndLinTrack*)(fTracks->At(i));
-      // TString 	DecName = recTrack->GetDetName();
-      // if(DecName!="Lumi") continue;
-
-      // //Vector of particle momentum and starting point
-      // TVector3 DirVec =  recTrack->GetDirectionVec();
-      // StartPos = recTrack->GetStartVec();
-      // StartPosErr = recTrack->GetStartErrVec();
-      // StartMomErr = recTrack->GetDirectionErrVec();
-      // StartMom = fPbeam*DirVec;
-      // StartMomErr *=fPbeam;
     
       PndTrack* recTrack = (PndTrack*)(fTracks->At(i));
-      // TString DecName = recTrack->GetDetName();
-      // if(DecName!="Lumi") continue;
       FairTrackParP fFittedTrkP = recTrack->GetParamFirst();
       TVector3 PosRecLMD(fFittedTrkP.GetX(),fFittedTrkP.GetY(),fFittedTrkP.GetZ());
       TVector3 MomRecLMD(fFittedTrkP.GetPx(),fFittedTrkP.GetPy(),fFittedTrkP.GetPz());
@@ -190,21 +175,86 @@ void PndLmdGeaneTask::Exec(Option_t* opt)
       TClonesArray& clref1 = *fTrackParIni;
       Int_t size1 = clref1.GetEntriesFast();
 
+      ///Propagate to the PCA (a space point) in 7 steps ---------------------------------
+      //Comment: seems back propagation in one step (for 11 m) is too much
+      //try do smooth it by small steps, which follow mag.field
+      const int nstep=7;
+      double zbend[nstep]={661, 660.5, 660., 659, 319, 316, 220};//entarance and exit mag.field
+      FairTrackParP *fStartPst = new FairTrackParP(fFittedTrkP);
+      for(int js=0;js<nstep;js++){
+	TVector3 stStartPos(fStartPst->GetX(),fStartPst->GetY(),fStartPst->GetZ());
+	//propagate to virtual plane@PCA
+	TVector3 spacePoint(0,0,zbend[js]);
+	fPro->SetPoint(spacePoint);
+	fPro->BackTrackToVirtualPlaneAtPCA(1); //1 = pca to point
+	FairTrackParP *fResPst = new FairTrackParP();
+	Bool_t isProp = fPro->Propagate(fStartPst, fResPst, PDGCode);
 
-      ///Propagate to the PCA to a space point---------------------------------
+	// //propagate plane-to-plane
+	// TVector3 ist(fStartPst->GetIVer());
+	// TVector3 jst(fStartPst->GetJVer());
+	// TVector3 kst(fStartPst->GetKVer());
+	// if(fVerbose>2){
+	//   cout<<"current : step#"<<js<<endl;
+	//   stStartPos.Print();
+	//   // cout<<"ist:"<<endl;
+	//   // ist.Print();
+	//   // cout<<"jst:"<<endl;
+	//   // jst.Print();
+	//   // cout<<"kst:"<<endl;
+	//   // kst.Print();
+	// }
+	
+	// TVector3 oc = (0,0,zbend[js]);
+	// TVector3 dj(1.,0.,0.);
+	// TVector3 dk(0.,1.,0.);
+	// dj.SetMag(1);
+	// dk.SetMag(1);
+	// //   	fPro->PropagateFromPlane(dj, dk);
+	// fPro->PropagateFromPlane(jst, kst);//1st detector plane
+	// fPro->PropagateToPlane(oc,dj,dk);//virtual plane at fixed z
+	// fPro->setBackProp();
+	// FairTrackParP *fResPst = new FairTrackParP();
+	// Bool_t isProp = fPro->Propagate(fStartPst, fResPst, PDGCode);
+
+	if(fVerbose>2){
+	  if(isProp) cout<<"Propagation is OK"<<endl;
+	  else cout<<"Propagation failed!"<<endl;
+	  cout<<"RESULT:"<<endl;
+	  //	  fResPst->Print();
+	  TVector3 finPos(fResPst->GetX(),fResPst->GetY(),fResPst->GetZ());
+	  finPos.Print();
+	}
+	fStartPst = fResPst;
+      }
+      ///and now Propagate to the PCA (a space point) in one step ---------------------------------
       int ierr=0;
-      FairTrackParH *fStart = new (clref1[size1]) FairTrackParH(&fFittedTrkP,ierr);
-      // FairTrackParH *fStart = 
-      //  	 new (clref1[size1]) FairTrackParH(StartPos, StartMom, StartPosErr, StartMomErr, fCharge);
+      FairTrackParH *fStart = new (clref1[size1]) FairTrackParH(fStartPst,ierr);
       TClonesArray& clref = *fTrackParGeane;
       Int_t size = clref.GetEntriesFast();
       FairTrackParH *fRes = new(clref[size]) FairTrackParH();
       fPro->SetPoint(vtx);
       fPro->PropagateToPCA(1,-1);// back-propagate to point
-
-     
       Bool_t isProp = fPro->Propagate(fStart, fRes, PDGCode);
+      // ///----------------------------------------------------------------------
+      delete  fStartPst;
       ///----------------------------------------------------------------------
+
+      // ///Propagate to the PCA (a space point) in one step ---------------------------------
+      // int ierr=0;
+      // FairTrackParH *fStart = new (clref1[size1]) FairTrackParH(&fFittedTrkP,ierr);
+      // // FairTrackParH *fStart = 
+      // //  	 new (clref1[size1]) FairTrackParH(StartPos, StartMom, StartPosErr, StartMomErr, fCharge);
+      // TClonesArray& clref = *fTrackParGeane;
+      // Int_t size = clref.GetEntriesFast();
+      // FairTrackParH *fRes = new(clref[size]) FairTrackParH();
+      // fPro->SetPoint(vtx);
+      // fPro->PropagateToPCA(1,-1);// back-propagate to point
+      // Bool_t isProp = fPro->Propagate(fStart, fRes, PDGCode);
+      // ///----------------------------------------------------------------------
+
+    
+
 
       // ///Forwars propagate to the 1st plane to a space point---------------------------------
       // PndMCTrack* mctrk = (PndMCTrack*)(fMCTracks->At(i));
