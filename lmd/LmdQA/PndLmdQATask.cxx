@@ -325,13 +325,15 @@ InitStatus PndLmdQATask::Init()
       Error("PndLmdQATask::Init","digi-array not found!");
       return kERROR;
     }
-
+  double thetarange[2]={0.001,0.01};
+  double thetam =  thetarange[0];
+  if(fPlab<5) thetam =  thetarange[1];
   //Near IP
   hResMom = new TH1F("hResMom","P_{MC}-P_{REC};#deltaP,GeV/c",1e3,-1e-4,1e-4);
   //  hErrMom = new TH1F("hErrMom","#sigma_{P};#sigmaP,GeV/c",1e3,0,1e-3);
   //  hPullMom = new TH1F("hPullMom","(P_{MC}-P_{REC})/#sigma_{P};",1e3,-1e1,1e1);
-  hResTheta = new TH1F("hResTheta","#theta_{MC}-#theta_{REC};#delta#theta,rad",1e2,-1e-3,1e-3);//TEST
-  hErrTheta = new TH1F("hErrTheta","#sigma(#theta_{REC});#sigma,rad",1e3,0,0.01);
+  hResTheta = new TH1F("hResTheta","#theta_{MC}-#theta_{REC};#delta#theta,rad",1e2,-thetam,thetam);//TEST
+  hErrTheta = new TH1F("hErrTheta","#sigma(#theta_{REC});#sigma,rad",1e3,0,10*thetam);
    hPullTheta = new TH1F("hPullTheta","(#theta_{MC}-#theta_{REC})/#sigma_{#theta};",1e2,-10,10);
    hResPhi = new TH1F("hResPhi","#phi_{MC}-#phi_{REC};#delta#phi,rad",2e3,-1.,1.);
    hErrPhi = new TH1F("hErrPhi","#sigma(#phi_{REC});#sigma,rad",1e3,0,0.1);
@@ -354,7 +356,7 @@ InitStatus PndLmdQATask::Init()
    hResPointY = new TH1F("hResPointY","Y_{MC}-Y_{REC};#deltaY,cm",1e2,-2.,2.);
    hPullPointY = new TH1F("hPullPointY","(Y_{MC}-Y_{REC})/#sigma_{Y};(Y_{MC}-Y_{REC})/#sigma_{Y}",1e2,-10,10);
    hResPointZ = new TH1F("hResPointZ","Z_{MC}-Z_{REC};#deltaZ,cm",1e3,-0.15,0.15);
-   hPullPointZ = new TH1F("hPullPointZ","(Z_{MC}-Z_{REC})/#sigma_{Z};(Z_{MC}-Z_{REC})/#sigma_{Z}",1e3,-100,100);
+   hPullPointZ = new TH1F("hPullPointZ","(Z_{MC}-Z_{REC})/#sigma_{Z};(Z_{MC}-Z_{REC})/#sigma_{Z}",1e2,-10,10);
 
   //Near 1st LMD plane
    hhits = new TH1I("hhits","number of hits in trk",7,0,7);
