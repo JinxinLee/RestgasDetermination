@@ -254,14 +254,18 @@ int main(int __argc,char *__argv[]) {
   
   cout<<"And we'll make some hists"<<endl;
   //--- Output histogram -----------------------------------------------------
+  double thetarange[2]={0.001,0.01};
+  double thetam =  thetarange[0];
+  if(Plab<5) thetam =  thetarange[1];
 
   //Near IP
   TH1 *hResMom = new TH1F("hResMom","P_{MC}-P_{REC};#deltaP,GeV/c",1e3,-1e-4,1e-4);
   TH1 *hErrMom = new TH1F("hErrMom","#sigma_{P};#sigmaP,GeV/c",1e3,0,1e-3);
   TH1 *hPullMom = new TH1F("hPullMom","(P_{MC}-P_{REC})/#sigma_{P};",1e3,-1e1,1e1);
   //  TH1 *hResTheta = new TH1F("hResTheta","#theta_{MC}-#theta_{REC};#delta#theta,rad",1e3,-1e-2,1e-2);
-  TH1 *hResTheta = new TH1F("hResTheta","#theta_{MC}-#theta_{REC};#delta#theta,rad",1e2,-1e-3,1e-3);//TEST
-  TH1 *hErrTheta = new TH1F("hErrTheta","#sigma(#theta_{REC});#sigma,rad",1e3,0,0.01);
+  TH1 *hResTheta = new TH1F("hResTheta","#theta_{MC}-#theta_{REC};#delta#theta,rad",1e2,-thetam,thetam);//TEST
+  TH2 *hThetaResTheta = new TH2F("hThetaResTheta","#theta_{MC}-#theta_{REC};#theta,rad;#delta#theta,rad",1e2,0,1e-2,1e2,-thetam,thetam);//TEST
+  TH1 *hErrTheta = new TH1F("hErrTheta","#sigma(#theta_{REC});#sigma,rad",1e3,0,10*thetam);
   TH1 *hPullTheta = new TH1F("hPullTheta","(#theta_{MC}-#theta_{REC})/#sigma_{#theta};",1e2,-10,10);
   TH1 *hResPhi = new TH1F("hResPhi","#phi_{MC}-#phi_{REC};#delta#phi,rad",2e3,-1.,1.);
   TH1 *hErrPhi = new TH1F("hErrPhi","#sigma(#phi_{REC});#sigma,rad",1e3,0,0.1);
@@ -284,7 +288,7 @@ int main(int __argc,char *__argv[]) {
   TH1 *hResPointY = new TH1F("hResPointY","Y_{MC}-Y_{REC};#deltaY,cm",1e2,-2.,2.);
   TH1 *hPullPointY = new TH1F("hPullPointY","(Y_{MC}-Y_{REC})/#sigma_{Y};(Y_{MC}-Y_{REC})/#sigma_{Y}",1e2,-10,10);
   TH1 *hResPointZ = new TH1F("hResPointZ","Z_{MC}-Z_{REC};#deltaZ,cm",1e3,-0.15,0.15);
-  TH1 *hPullPointZ = new TH1F("hPullPointZ","(Z_{MC}-Z_{REC})/#sigma_{Z};(Z_{MC}-Z_{REC})/#sigma_{Z}",1e3,-100,100);
+  TH1 *hPullPointZ = new TH1F("hPullPointZ","(Z_{MC}-Z_{REC})/#sigma_{Z};(Z_{MC}-Z_{REC})/#sigma_{Z}",1e2,-10,10);
 
   //Near 1st LMD plane
   TH1 *hhits = new TH1I("hhits","number of hits in trk",7,0,7);
@@ -483,6 +487,7 @@ int main(int __argc,char *__argv[]) {
 	hPullPointZ->Fill((PosMCpca.Z()-PosRecPCA.Z())/errPosRecPCA.Z());
 
 	hResTheta->Fill(MomMCpca.Theta()-MomRecPCA.Theta());
+	hThetaResTheta->Fill(MomMCpca.Theta(),(MomMCpca.Theta()-MomRecPCA.Theta()));
 	hResPhi->Fill(MomMCpca.Phi()-MomRecPCA.Phi());
 	hPullTheta->Fill((MomMCpca.Theta()-MomRecPCA.Theta())/err_lyambda);
 	hPullPhi->Fill((MomMCpca.Phi()-MomRecPCA.Phi())/err_phi);
@@ -624,6 +629,7 @@ int main(int __argc,char *__argv[]) {
   //  hResLumiTrkPointP->Write();
   //  hResLumiTrkPointPmcPrec->Write();
   hMCidRefID->Write();
+  hThetaResTheta->Write();
   f->Close();
  cout<<"Number of trks where GEANE failed: "<<glBADGEANE<<endl;
 }
