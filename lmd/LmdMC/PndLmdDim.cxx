@@ -1606,7 +1606,7 @@ TVector3 PndLmdDim::Transform_sensor_aligned_to_sensor(const TVector3& point,
 TMatrixD PndLmdDim::Transform_global_to_lmd_local(const TMatrixD& matrix, bool aligned){
 	TMatrixD rotmatrix(3,3,
 			Get_transformation_global_to_lmd_local(aligned).GetRotationMatrix());
-	return TMatrixD(rotmatrix*matrix*rotmatrix.T());
+	return TMatrixD(rotmatrix*TMatrixD(matrix,TMatrixD::kMultTranspose,rotmatrix));
 }
 
 TMatrixD PndLmdDim::Transform_lmd_local_to_module_side(const TMatrixD& matrix,
@@ -1614,7 +1614,7 @@ TMatrixD PndLmdDim::Transform_lmd_local_to_module_side(const TMatrixD& matrix,
 	TMatrixD rotmatrix(3,3,
 			Get_transformation_lmd_local_to_module_side(
 					ihalf, iplane, imodule, iside, aligned).GetRotationMatrix());
-	return TMatrixD(rotmatrix*matrix*rotmatrix.T());
+	return TMatrixD(rotmatrix*TMatrixD(matrix,TMatrixD::kMultTranspose,rotmatrix));
 }
 
 TMatrixD PndLmdDim::Transform_module_side_to_sensor(const TMatrixD& matrix,
@@ -1622,7 +1622,7 @@ TMatrixD PndLmdDim::Transform_module_side_to_sensor(const TMatrixD& matrix,
 	TMatrixD rotmatrix(3,3,
 			Get_transformation_module_side_to_sensor(
 					ihalf, iplane, imodule, iside, idie, isensor, aligned).GetRotationMatrix());
-	return TMatrixD(rotmatrix*matrix*rotmatrix.T());
+	return TMatrixD(rotmatrix*TMatrixD(matrix,TMatrixD::kMultTranspose,rotmatrix));
 }
 
 TMatrixD PndLmdDim::Transform_global_to_sensor(const TMatrixD& matrix,
@@ -1630,7 +1630,7 @@ TMatrixD PndLmdDim::Transform_global_to_sensor(const TMatrixD& matrix,
 	TMatrixD rotmatrix(3,3,
 			Get_transformation_global_to_sensor(
 					ihalf, iplane, imodule, iside, idie, isensor, aligned).GetRotationMatrix());
-	return TMatrixD(rotmatrix*matrix*rotmatrix.T());
+	return TMatrixD(rotmatrix*TMatrixD(matrix,TMatrixD::kMultTranspose,rotmatrix));
 }
 
 TMatrixD PndLmdDim::Transform_lmd_local_to_sensor(const TMatrixD& matrix,
@@ -1638,13 +1638,13 @@ TMatrixD PndLmdDim::Transform_lmd_local_to_sensor(const TMatrixD& matrix,
 	TMatrixD rotmatrix(3,3,
 			Get_transformation_lmd_local_to_sensor(
 					ihalf, iplane, imodule, iside, idie, isensor, aligned).GetRotationMatrix());
-	return TMatrixD(rotmatrix*matrix*rotmatrix.T());
+	return TMatrixD(rotmatrix*TMatrixD(matrix,TMatrixD::kMultTranspose,rotmatrix));
 }
 
 TMatrixD PndLmdDim::Transform_lmd_local_to_global(const TMatrixD& matrix, bool aligned){
 	TMatrixD rotmatrix(3,3,
 			Get_transformation_lmd_local_to_global(aligned).GetRotationMatrix());
-	return TMatrixD(rotmatrix*matrix*rotmatrix.T());
+	return TMatrixD(rotmatrix*TMatrixD(matrix,TMatrixD::kMultTranspose,rotmatrix));
 }
 
 TMatrixD PndLmdDim::Transform_module_side_to_lmd_local(const TMatrixD& matrix,
@@ -1652,7 +1652,7 @@ TMatrixD PndLmdDim::Transform_module_side_to_lmd_local(const TMatrixD& matrix,
 	TMatrixD rotmatrix(3,3,
 			Get_transformation_module_side_to_lmd_local(
 					ihalf, iplane, imodule, iside, aligned).GetRotationMatrix());
-	return TMatrixD(rotmatrix*matrix*rotmatrix.T());
+	return TMatrixD(rotmatrix*TMatrixD(matrix,TMatrixD::kMultTranspose,rotmatrix));
 }
 
 TMatrixD PndLmdDim::Transform_sensor_to_module_side(const TMatrixD& matrix,
@@ -1660,7 +1660,7 @@ TMatrixD PndLmdDim::Transform_sensor_to_module_side(const TMatrixD& matrix,
 	TMatrixD rotmatrix(3,3,
 			Get_transformation_sensor_to_module_side(
 					ihalf, iplane, imodule, iside, idie, isensor, aligned).GetRotationMatrix());
-	return TMatrixD(rotmatrix*matrix*rotmatrix.T());
+	return TMatrixD(rotmatrix*TMatrixD(matrix,TMatrixD::kMultTranspose,rotmatrix));
 }
 
 TMatrixD PndLmdDim::Transform_sensor_to_global(const TMatrixD& matrix,
@@ -1668,7 +1668,7 @@ TMatrixD PndLmdDim::Transform_sensor_to_global(const TMatrixD& matrix,
 	TMatrixD rotmatrix(3,3,
 			Get_transformation_sensor_to_global(
 					ihalf, iplane, imodule, iside, idie, isensor, aligned).GetRotationMatrix());
-	return TMatrixD(rotmatrix*matrix*rotmatrix.T());
+	return TMatrixD(rotmatrix*TMatrixD(matrix,TMatrixD::kMultTranspose,rotmatrix));
 }
 
 TMatrixD PndLmdDim::Transform_sensor_to_lmd_local(const TMatrixD& matrix,
@@ -1676,21 +1676,21 @@ TMatrixD PndLmdDim::Transform_sensor_to_lmd_local(const TMatrixD& matrix,
 	TMatrixD rotmatrix(3,3,
 			Get_transformation_sensor_to_lmd_local(
 					ihalf, iplane, imodule, iside, idie, isensor, aligned).GetRotationMatrix());
-	return TMatrixD(rotmatrix*matrix*rotmatrix.T());
+	return TMatrixD(rotmatrix*TMatrixD(matrix,TMatrixD::kMultTranspose,rotmatrix));
 }
 
 TMatrixD PndLmdDim::Transform_sensor_to_sensor_aligned(const TMatrixD& matrix,
 		int ihalf, int iplane, int imodule, int iside, int idie, int isensor){
 	TMatrixD rotmatrix(3,3,
 			Get_transformation_sensor_to_sensor_aligned(ihalf, iplane, imodule, iside, idie, isensor).GetRotationMatrix());
-	return TMatrixD(rotmatrix*matrix*rotmatrix.T());
+	return TMatrixD(rotmatrix*TMatrixD(matrix,TMatrixD::kMultTranspose,rotmatrix));
 }
 
 TMatrixD PndLmdDim::Transform_sensor_aligned_to_sensor(const TMatrixD& matrix,
 		int ihalf, int iplane, int imodule, int iside, int idie, int isensor){
 	TMatrixD rotmatrix(3,3,
 			Get_transformation_sensor_aligned_to_sensor(ihalf, iplane, imodule, iside, idie, isensor).GetRotationMatrix());
-	return TMatrixD(rotmatrix*matrix*rotmatrix.T());
+	return TMatrixD(rotmatrix*TMatrixD(matrix,TMatrixD::kMultTranspose,rotmatrix));
 }
 
 //
