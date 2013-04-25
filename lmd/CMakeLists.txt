@@ -211,6 +211,13 @@ set_target_properties(LmdTool PROPERTIES ${FAIRROOT_LIBRARY_PROPERTIES})
 #Model framework needs c++11 because of shared_ptrs which are part of std there
 add_definitions(-W -Wall -Wextra -pedantic -std=c++0x)
 
+#ok this only works if the external packages were build to an external
+#location. sep12 packages or higher require this though!
+set(MODEL_INCLUDE_DIRECTORIES
+${SIMPATH}/include
+)
+
+include_directories( ${MODEL_INCLUDE_DIRECTORIES})
 ########################### create libModel  ##################################
 set(LMDTRK_SRCS
 
@@ -233,12 +240,10 @@ LmdFit/ExponentialModel1D.cxx
 LmdFit/PolynomialModel1D.cxx
 )
 
-add_definitions(-W -Wall -Wextra -pedantic -std=c++0x)
-
 set (LMD_RULECHECKER_SRCS ${LMD_RULECHECKER_SRCS} ${LMDTRK_SRCS})
 
 if(RULE_CHECKER_FOUND)
-  CHECK_RULES("${LMD_RULECHECKER_SRCS}" "${INCLUDE_DIRECTORIES}" LMD_RULES)
+  CHECK_RULES("${LMD_RULECHECKER_SRCS}" "${MODEL_INCLUDE_DIRECTORIES}" LMD_RULES)
 endif(RULE_CHECKER_FOUND)
 
 
@@ -248,6 +253,8 @@ CHANGE_FILE_EXTENSION(*.cxx *.h LMDTRK_HEADERS "${LMDTRK_SRCS}")
 
 add_library(Model SHARED ${LMDTRK_SRCS})
 
+
+include_directories( ${INCLUDE_DIRECTORIES})
 
 ########################### create libLmdFit ##################################
 set(LMDTRK_SRCS
