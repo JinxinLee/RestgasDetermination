@@ -29,6 +29,7 @@
 #include "FairRootManager.h"
 #include "TClonesArray.h"
 #include "GFTrack.h"
+#include "GFTrackCand.h"
 //#include "PndTpcPoint.h"
 //#include "DemoRecoHit.h"
 //#include "DemoSPHit.h"
@@ -146,7 +147,8 @@ PndHypDKalmanTask::Init()
   fYresH=new TH1D("yres","yres",100,-5,5);
   fXresFitH=new TH1D("xresfit","xres after fit",100,-5,5);
   fYresFitH=new TH1D("yresfit","yres after fit",100,-5,5);
-  fPEnd=new TH2D("pEnd","Endpoint",100,-40,40,100,-50,150);
+  fPEnd=new TH1D("pPre","Endpoint",500,0.02,0.7);
+  fPull=new TH1D("pPull","Pull",500,-0.3,0.3);
  std::cout << "-I- gGeoManager = "<<gGeoManager << std::endl;
 
   return kSUCCESS;
@@ -169,9 +171,11 @@ PndHypDKalmanTask::Exec(Option_t* opt)
   // Fitting ---------------- can go to another task!
   GFKalman fitter;
   //fitter.setLazy(1); // tell the fitter to skip hits if error occurs  
-  fitter.setNumIterations(3);
+  fitter.setNumIterations(1);
   for(Int_t itr=0;itr<ntracks;++itr){
     GFTrack* trk=(GFTrack*)fTrackArray->At(itr);
+    GFTrackCand trcnd = trk->getCand();
+
     // Load RecoHits 
     try {
       trk->addHitVector(fTheRecoHitFactory->createMany(trk->getCand()));
@@ -218,15 +222,32 @@ PndHypDKalmanTask::Exec(Option_t* opt)
       if(gtrk!=NULL)gtrk->setPropDir(-1);
 
       trk->getCardinalRep()->Print();
-      GFDetPlane pl(TVector3(0,0,0),TVector3(1,0,0),TVector3(0,1,0));
+      
+      // ------- Propagation to prim vertex ---------
+	
+      GFDetPlane pl(TVector3(0,0,-55.0),TVector3(1,0,0),TVector3(0,1,0));
 
+      TVector3 p3=trk->getTrackRep(0)->getMom(pl);
+      //--------------------------------------------
+      
       double p=trk->getTrackRep(0)->getMom().Mag();
-      std::cout<<" momentum "<<p<<" "<<trk->getMom().Mag()<<std::endl;
+
+      std::cout<<" momentum "<<p3.Mag()<<" "<<trk->getMom().Mag()<<std::endl;
       std::cout<<" "<<" N reps "<<trk->getNumReps()<<" chi2red "<<trk->getRedChiSqu()<<std::endl;
       
-      fPH->Fill(p);
+      //INFO: Changing the EPSIL param to 
+      //0.05 (HYPsilicon, HYPdiamond, HYPcarbon--> materials in geo  file)
+      //propagation to prim vertex works smoothly for 500 ev.
+      //no dedx modification from media file is needed
+
+      fPH->Fill(p3.Mag());
+
+      fPEnd->Fill(-1/(trcnd.getQoverPseed()));
+
+      fPull->Fill((-1/(trcnd.getQoverPseed()))-p);
+
       TVector3 pos=trk->getPos();
-      fPEnd->Fill(pos.X(),pos.Z());
+      //fPEnd->Fill(pos.X(),pos.Z());
 
       double chi2=trk->getChiSqu();
        fChi2H->Fill(chi2);
@@ -291,6 +312,10 @@ PndHypDKalmanTask::WriteHistograms(const TString& filename){
  fPEnd->Write();
   delete fPEnd;
   fPEnd=NULL;
+
+ fPull->Write();
+  delete fPull;
+  fPull=NULL;
 
   file->Close();delete file;
 
