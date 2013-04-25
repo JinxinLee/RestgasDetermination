@@ -267,13 +267,12 @@ void PndLmdBPRungeKuttaTask::Exec(Option_t* opt)
 
 
 
-      RKTrackRep *repfi = new RKTrackRep(StartPos,StartMom,StartPosErr,StartMomErr,PDGCode);
+    
       //repfi->setCov(aCov); //TODO: aCov has to be converted in correct variable. see RKTrackRep constructor for calculation diagonal elements
-      TVector3 gPos,gMom;
-      TMatrixT<double> gCov(7,7);
-
-      int nstep=7;
-      double zstep = 1124/nstep;
+     
+      //Propagate from 12m to 2m with small steps (if onve can call 6m as as small step =\)
+      const int nstep=7;
+      //      double zstep = 1124/nstep;
       TVector3 g3Pos = StartPos;
       TVector3 g3Mom = StartMom;
       TVector3 g3ErrPos =StartPosErr;
@@ -282,7 +281,7 @@ void PndLmdBPRungeKuttaTask::Exec(Option_t* opt)
       //   for(int js=1;js<nstep;js++){
       //Comment: seems back propagation in one step (for 11 m) is too much, while it's divided only on steps 1m size within Runge-Kutta
       //try do smooth it by small step
-      double zbend[7]={661, 660.5, 660., 659, 319, 316, 220};//entarance and exit mag.field
+      double zbend[nstep]={661, 660.5, 660., 659, 319, 316, 220};//entarance and exit mag.field
       for(int js=0;js<nstep;js++){
 	if(fVerbose>2){
 	  cout<<"current : step#"<<js<<endl;
@@ -293,8 +292,8 @@ void PndLmdBPRungeKuttaTask::Exec(Option_t* opt)
     	RKTrackRep *repfi3 = new RKTrackRep(g3Pos,g3Mom,g3ErrPos,g3ErrMom,PDGCode);
 	double znew = zbend[js];
       	TVector3 vtx2 (0,0,znew);
-      	TVector3 u(0,1,0);
-      	TVector3 v(-1,0,0);
+      	TVector3 u(1,0,0);
+      	TVector3 v(0,1,0);
       	GFDetPlane pl(vtx2,u,v);
       
       	TMatrixT<double> cov2;
@@ -302,6 +301,7 @@ void PndLmdBPRungeKuttaTask::Exec(Option_t* opt)
     	TVector3 g2ErrPos,g2ErrMom;
       	repfi3->getPosMomCov(pl, g2Pos, g2Mom, cov2);
 
+	//TODO: use full covariance matrix and not only diagonal elements
     	if(cov2[0][0]!=0){
     	  g2ErrPos.SetXYZ(sqrt(cov2[0][0]),sqrt(cov2[1][1]),sqrt(cov2[2][2]));
     	  g2ErrMom.SetXYZ(sqrt(cov2[3][3]),sqrt(cov2[4][4]),sqrt(cov2[5][5]));
@@ -312,52 +312,59 @@ void PndLmdBPRungeKuttaTask::Exec(Option_t* opt)
     	  g2ErrPos = StartPosErr;
     	  g2ErrMom = StartMomErr;
     	}
-	if(fVerbose>2){
-	  cout<<"current Mom: "<<endl;
-	  g2Mom.Print();
-	}
-    	RKTrackRep *repfi2 = new RKTrackRep(g2Pos,g2Mom,g2ErrPos,g2ErrMom,PDGCode);
-    	repfi2->extrapolateToPoint(vtx,gPos,gMom,gCov);
-	if(fVerbose>2){
-    	cout<<"if try we go to IP now, gPos:"<<endl;
-      	gPos.Print();
-	}
+	// if(fVerbose>2){
+	//   cout<<"current Mom: "<<endl;
+	//   g2Mom.Print();
+	// }
+    	// RKTrackRep *repfi2 = new RKTrackRep(g2Pos,g2Mom,g2ErrPos,g2ErrMom,PDGCode);
+    	// repfi2->extrapolateToPoint(vtx,gPos,gMom,gCov);
+	// if(fVerbose>2){
+    	// cout<<"if try we go to IP now, gPos:"<<endl;
+      	// gPos.Print();
+	// }
 	
-    	if(gCov[0][0]!=0){
-    	  gErrPos.SetXYZ(sqrt(gCov[0][0]),sqrt(gCov[1][1]),sqrt(gCov[2][2]));
-    	  gErrMom.SetXYZ(sqrt(gCov[3][3]),sqrt(gCov[4][4]),sqrt(gCov[5][5]));
-    	  gErrMom *=fPbeam;
-    	}
-    	else{
-    	  gErrPos = g2ErrPos;
-    	  gErrMom = g2ErrMom;
-    	}
-	if(fVerbose>2){
-	  gErrPos.Print();
-	}
+    	// if(gCov[0][0]!=0){
+    	//   gErrPos.SetXYZ(sqrt(gCov[0][0]),sqrt(gCov[1][1]),sqrt(gCov[2][2]));
+    	//   gErrMom.SetXYZ(sqrt(gCov[3][3]),sqrt(gCov[4][4]),sqrt(gCov[5][5]));
+    	//   gErrMom *=fPbeam;
+    	// }
+    	// else{
+    	//   gErrPos = g2ErrPos;
+    	//   gErrMom = g2ErrMom;
+    	// }
+	// if(fVerbose>2){
+	//   gErrPos.Print();
+	// }
     	g3Pos = g2Pos;
     	g3Mom = g2Mom;
     	g3ErrPos = g2ErrPos;
     	g3ErrMom = g2ErrMom;
-    	gMom*=fPbeam;
+	//	gMom*=fPbeam;
 	//      	hxresstep->Fill(znew,gPos.X());
+	//	delete repfi2;
+	delete repfi3;
       }
-      //cout<<"... and now ..."<<endl;
-      // TVector3 gIPos,gIMom;
-      // TMatrixT<double> gICov(7,7);
-      // repfi->extrapolateToPoint(vtx,gIPos,gIMom,gICov);
-      // TVector3 gIErrPos(sqrt(gICov[0][0]),sqrt(gICov[1][1]),sqrt(gICov[2][2]));
-      // TVector3 gIErrMom(sqrt(gICov[3][3]),sqrt(gICov[4][4]),sqrt(gICov[5][5]));
-      // cout<<"simple 11 m Back-Propagation:"<<endl;
-      // gIPos.Print();
-      // gIErrPos.Print();
-      // gIMom.Print();
-      // gIErrMom.Print();
-      // hxresstep->Fill(StartPos.Z(), gIPos.X());
-
+      
+      //And now propagate 2m 
+      RKTrackRep *repfi = new RKTrackRep(g3Pos,g3Mom,g3ErrPos,g3ErrMom,PDGCode);
+      TVector3 gPos,gMom;
+      TMatrixT<double> gCov(7,7);
+      repfi->extrapolateToPoint(vtx,gPos,gMom);
+      //RKTrackRep doesn't contain extrapolateToPoint method with cov.mtx calculation
+      //the trick is to construct a GFDetPlane(poca, dirInPoca)
+      //and the extrapolate again to that DetPlane
+      //with the extrapolate function that gives you state and covariance prediction.  [Johannes Rauch]
+      TVector3 gDir = gMom;
+      gDir *= (1./gMom.Mag());
+      GFDetPlane plv(gPos,gDir);
+      repfi->getPosMomCov(plv, gPos, gMom, gCov);
+      gErrPos.SetXYZ(sqrt(gCov[0][0]),sqrt(gCov[1][1]),sqrt(gCov[2][2]));
+      gErrMom.SetXYZ(sqrt(gCov[3][3]),sqrt(gCov[4][4]),sqrt(gCov[5][5]));
+      //gErrMom *=fPbeam;
       Bool_t isProp = true;
       FairTrackParH *fRes = new (clref1[size1]) FairTrackParH(gPos, gMom, gErrPos, gErrMom, fCharge);
       //   fRes->CalCov();
+      delete repfi;
       //Runge-Kutta(END) --------------------------------
 
 
