@@ -12,7 +12,7 @@
 #include "TClonesArray.h"
 #include "TFile.h"
 using namespace std;
-void TrksFitBPPullsCompar_alltogether(TString pathName="/panda/pandaroot/macro/lmd/testPixel/14042013/")
+void TrksFitBPPullsCompar_alltogether(TString pathName="/panda/pandaroot/macro/lmd/testPixel/26042013/")
 {
   const int nBeamPoints=5;
   double p_beam[nBeamPoints]={1.5, 4.06, 8.9, 11.91, 15};
@@ -21,9 +21,9 @@ void TrksFitBPPullsCompar_alltogether(TString pathName="/panda/pandaroot/macro/l
  //  const int nMethods=6;
  //  TString Method[nMethods]={"_MINUIT_BPGEANE","_MINUIT_BPRK","_KALMANGEANE_BPGEANE","_KALMANGEANE_BPRK","_KALMANRK_BPGEANE","_KALMANRK_BPRK"};
  // TString MethodName[nMethods]={"MINUIT, BP=GEANE","MINUIT, BP=RK","KALMAN=GEANE, BP=GEANE","KALMAN=GEANE, BP=RK","KALMAN=RK, BP=GEANE","KALMAN=RK, BP=RK"};
- const int nMethods=2;
+  const int nMethods=2;
   TString Method[nMethods]={"_MINUIT_BPGEANE","_MINUIT_BPRK"};
- TString MethodName[nMethods]={"MINUIT, BP=GEANE","MINUIT, BP=RK"};
+  TString MethodName[nMethods]={"MINUIT, BP=GEANE","MINUIT, BP=RK"};
 
 // const int nMethods=4;
 //  TString Method[nMethods]={"_KALMANGEANE_BPGEANE","_KALMANGEANE_BPRK","_KALMANRK_BPGEANE","_KALMANRK_BPRK"};
@@ -136,7 +136,7 @@ double ResPx_mean[nMethods][nBeamPoints], ResPx_sigma[nMethods][nBeamPoints], Re
   TH1F* hPullPointZ = (TH1F*)fileIN->Get("hPullPointZ");
   TF1 *fPullZ  = new TF1("fitPZ","gaus",-100,100);
   hPullPointZ->Fit(fPullZ,"qr");
-  PullZ_mean[im][ip] = fabs(fPullZ->GetParameter(1));
+  PullZ_mean[im][ip] = fPullZ->GetParameter(1);
   PullZ_sigma[im][ip] = fPullZ->GetParameter(2);
   erPullZ_mean[im][ip] = fPullZ->GetParError(1);
   erPullZ_sigma[im][ip] = fPullZ->GetParError(2);
@@ -174,7 +174,7 @@ double ResPx_mean[nMethods][nBeamPoints], ResPx_sigma[nMethods][nBeamPoints], Re
   PullZ_mean_in[im][ip]=-1000;
   PullZ_sigma_in[im][ip]=-1000;
   if(hResLumiTrkPointZPull->GetRMS()>1e-6){
-    PullZ_mean_in[im][ip] = fabs(fPullZ->GetParameter(1));
+    PullZ_mean_in[im][ip] = fPullZ->GetParameter(1);
     PullZ_sigma_in[im][ip] = fPullZ->GetParameter(2);
     erPullZ_mean_in[im][ip] = fPullZ->GetParError(1);
     erPullZ_sigma_in[im][ip] = fPullZ->GetParError(2);
@@ -262,7 +262,7 @@ TH1F *hResLumiTrkPhiPull = (TH1F*)fileIN->Get("hResLumiTrkPhiPull");
   TH1F* hResPointZ = (TH1F*)fileIN->Get("hResPointZ");
   TF1 *fResZ  = new TF1("fitPZ","gaus",-100,100);
   hResPointZ->Fit(fResZ,"qr");
-  ResZ_mean[im][ip] = fabs(fResZ->GetParameter(1));
+  ResZ_mean[im][ip] = fResZ->GetParameter(1);
   ResZ_sigma[im][ip] = fResZ->GetParameter(2);
   erResZ_mean[im][ip] = fResZ->GetParError(1);
   erResZ_sigma[im][ip] = fResZ->GetParError(2);
@@ -300,7 +300,7 @@ TH1F *hResLumiTrkPhiPull = (TH1F*)fileIN->Get("hResLumiTrkPhiPull");
   ResZ_mean_in[im][ip]=-1000;
   ResZ_sigma_in[im][ip]=-1000;
   if(hResLumiTrkPointZ->GetRMS()>1e-6){
-    ResZ_mean_in[im][ip] = fabs(fResZ->GetParameter(1));
+    ResZ_mean_in[im][ip] = fResZ->GetParameter(1);
     ResZ_sigma_in[im][ip] = fResZ->GetParameter(2);
     erResZ_mean_in[im][ip] = fResZ->GetParError(1);
     erResZ_sigma_in[im][ip] = fResZ->GetParError(2);
@@ -850,7 +850,8 @@ TH1F *hResLumiTrkPhiPull = (TH1F*)fileIN->Get("hResLumiTrkPhiPull");
   perfectsigmaval->Draw();
   c1.Print(resname_pdf_o); //write canvas and keep the pdf file open
   c1.Clear();
-  c1.SetLogy(1);// set log scale
+  //    c1.SetLogy(1);// set log scale
+  c1.SetLogy(0);// set norm scale
   mgPullZ_mean->Draw("AP");  
   mgPullZ_mean->GetXaxis()->SetTitle("momentum, GeV/c");
   mgPullZ_mean->GetYaxis()->SetTitle("|Z^{MC} - Z^{REC}|/#sigma_{Z}, mean [PCA]");
@@ -946,6 +947,7 @@ TH1F *hResLumiTrkPhiPull = (TH1F*)fileIN->Get("hResLumiTrkPhiPull");
   c1.Print(resname_pdf_o); //write canvas and keep the pdf file open
   c1.Clear();
   c1.SetLogy(1);// set log scale
+  //  c1.SetLogy(0);// set norm scale
   mgResX_sigma->Draw("AP");
   mgResX_sigma->GetXaxis()->SetTitle("momentum, GeV/c");
   mgResX_sigma->GetYaxis()->SetTitle("(X^{MC} - X^{REC}), sigma, cm");
@@ -969,7 +971,7 @@ TH1F *hResLumiTrkPhiPull = (TH1F*)fileIN->Get("hResLumiTrkPhiPull");
    
   c1.Print(resname_pdf_o); //write canvas and keep the pdf file open
   c1.Clear();
-  c1.SetLogy(1);// set log scale
+  c1.SetLogy(0);// set log scale
   mgResZ_mean->Draw("AP");  
   mgResZ_mean->GetXaxis()->SetTitle("momentum, GeV/c");
   mgResZ_mean->GetYaxis()->SetTitle("|Z^{MC} - Z^{REC}|, mean [PCA], cm");
@@ -981,15 +983,15 @@ TH1F *hResLumiTrkPhiPull = (TH1F*)fileIN->Get("hResLumiTrkPhiPull");
   mgResZ_sigma->Draw("AP");
   mgResZ_sigma->GetXaxis()->SetTitle("momentum, GeV/c");
   mgResZ_sigma->GetYaxis()->SetTitle("(Z^{MC} - Z^{REC}), sigma [PCA], cm");
-   
   legsh->Draw();
   c1.Print(resname_pdf_o); //write canvas and keep the pdf file open
   c1.Clear();
+
   c1.SetLogy(0);// set norm scale
   mgResTheta_mean->Draw("AP");  
   mgResTheta_mean->GetXaxis()->SetTitle("momentum, GeV/c");
   mgResTheta_mean->GetYaxis()->SetTitle("(#theta^{MC} - #theta^{REC}), mean [PCA], rad");
-  legsh->Draw();
+  leg->Draw();
    
   c1.Print(resname_pdf_o); //write canvas and keep the pdf file open
   c1.Clear();
@@ -997,7 +999,7 @@ TH1F *hResLumiTrkPhiPull = (TH1F*)fileIN->Get("hResLumiTrkPhiPull");
   mgResTheta_sigma->Draw("AP");
   mgResTheta_sigma->GetXaxis()->SetTitle("momentum, GeV/c");
   mgResTheta_sigma->GetYaxis()->SetTitle("(#theta^{MC} - #theta^{REC}), sigma [PCA], rad");
-  legsh->Draw();
+  leg->Draw();
    
   c1.Print(resname_pdf_o); //write canvas and keep the pdf file open
   c1.Clear();
@@ -1005,7 +1007,7 @@ TH1F *hResLumiTrkPhiPull = (TH1F*)fileIN->Get("hResLumiTrkPhiPull");
   mgResPhi_mean->Draw("AP");  
  mgResPhi_mean->GetXaxis()->SetTitle("momentum, GeV/c");
  mgResPhi_mean->GetYaxis()->SetTitle("(#phi^{MC} - #phi^{REC}), mean [PCA], rad");
- legsh->Draw();
+ leg->Draw();
   
   c1.Print(resname_pdf_o); //write canvas and keep the pdf file open
   c1.Clear();
@@ -1013,7 +1015,7 @@ TH1F *hResLumiTrkPhiPull = (TH1F*)fileIN->Get("hResLumiTrkPhiPull");
   mgResPhi_sigma->Draw("AP");
  mgResPhi_sigma->GetXaxis()->SetTitle("momentum, GeV/c");
  mgResPhi_sigma->GetYaxis()->SetTitle("(#phi^{MC} - #phi^{REC}), sigma [PCA], rad");
- legsh->Draw();
+ leg->Draw();
   
  // c1.Print(resname_pdf_o); //write canvas and keep the pdf file open
  // c1.Clear();
