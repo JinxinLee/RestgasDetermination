@@ -411,12 +411,12 @@ int main(int __argc,char *__argv[]) {
 	  // calculate the plane and sensor on this plane
 	  lmddim->Get_sensor_by_id(sensorID, ihalf, iplane, imodule, iside, idie, isensor);
 
-	  TVector3 HitPosLoc = lmddim->Transform_global_to_lmd_local(HitPos,false,true);
-	  HitPosLoc = lmddim->Transform_lmd_local_to_module_side(HitPosLoc,ihalf,0,imodule,0, false,true);
+	  TVector3 HitPosLoc(lmddim->Transform_global_to_lmd_local(HitPos,false,true));
+	  HitPosLoc = TVector3(lmddim->Transform_lmd_local_to_module_side(HitPosLoc,ihalf,0,imodule,0, false,true));
 	  
 	  // TVector3 HitPosLoc = lmddim->Transform_global_to_sensor(HitPos, ihalf, iplane, imodule, iside, idie, isensor,false,true);
 	  // HitPosLoc = lmddim->Transform_sensor_to_module_side(HitPosLoc,ihalf,0,imodule,0,idie, isensor,false,false);
-	  // //	  cout<<"ihalf, iplane, imodule, iside: "<<ihalf<<","<<iplane<<","<<imodule<<","<<iside<<endl;
+	  // cout<<"ihalf, iplane, imodule, iside: "<<ihalf<<","<<iplane<<","<<imodule<<","<<iside<<endl;
 
 
 
@@ -434,8 +434,8 @@ int main(int __argc,char *__argv[]) {
 
 	  mcTop = MCPoint->GetPosition(); 
 	  mcTopOUT = MCPoint->GetPositionOut();
-	  mcTop = lmddim->Transform_global_to_lmd_local(mcTop, false, true);
-	  mcTopOUT = lmddim->Transform_global_to_lmd_local(mcTopOUT, false, true);
+	  mcTop = TVector3(lmddim->Transform_global_to_lmd_local(mcTop, false, true));
+	  mcTopOUT = TVector3(lmddim->Transform_global_to_lmd_local(mcTopOUT, false, true));
 	  TVector3 mcMid = mcTop+(mcTopOUT-mcTop)*0.5;
 	  TVector3 ResRecMC = HitPos - mcMid;
 	
@@ -470,11 +470,14 @@ int main(int __argc,char *__argv[]) {
 	  int glModule = iplane;// for alignment inside one sector
 	  if(sectorPos>10) glModule = ihalf*4*5+(iplane)*5+imodule;// counted per one half
 	  TMatrixD HitErr = myHit->GetCov();
- 
-
-  TMatrixD  HitErrLoc = lmddim->Transform_global_to_lmd_local(HitErr,true);
-  HitErrLoc = lmddim->Transform_lmd_local_to_module_side(HitErrLoc,ihalf,0,imodule,0,true);
-
+	  // cout<<"HitErr:"<<endl;
+	  // HitErr.Print();
+	  TMatrixD  HitErrLoc(lmddim->Transform_global_to_lmd_local(HitErr,true));
+	  // cout<<"HitErrLoc:"<<endl;
+	  // HitErrLoc.Print();
+	  HitErrLoc = (lmddim->Transform_lmd_local_to_module_side(HitErrLoc,ihalf,0,imodule,0,true));
+	  // cout<<"HitErrLoc:"<<endl;
+	  // HitErrLoc.Print();
  // TMatrixD  HitErrLoc = lmddim->Transform_global_to_sensor(HitErr, ihalf, iplane, imodule, iside, idie, isensor,true);
  //  HitErrLoc = lmddim->Transform_sensor_to_module_side(HitErrLoc,ihalf,0,imodule,0,idie, isensor,false);
   
@@ -485,7 +488,8 @@ int main(int __argc,char *__argv[]) {
 	  if(flagSector && output>0){
 	    output<<HitPosLoc.X()<<" "<<sqrt(HitErrLoc(0,0))<<" ";
 	    output<<HitPosLoc.Y()<<" "<<sqrt(HitErrLoc(1,1))<<" ";
-	    output<<HitPosLoc.Z()<<" "<<sqrt(HitErrLoc(2,2))<<" ";
+	    //    output<<HitPosLoc.Z()<<" "<<sqrt(HitErrLoc(2,2))<<" ";
+	    output<<HitPosLoc.Z()<<" "<<0<<" "; //isn't used in Knossos
 	    output<<glModule<<" "<<endtrk<<endl;
 	  }
 	}
