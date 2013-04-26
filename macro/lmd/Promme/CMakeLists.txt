@@ -78,8 +78,8 @@ target_link_libraries(createRootGeometry_beampipe ${ROOT_LIBRARIES} Geom GeoBase
 #add_executable(createRootGeometry_lmd_HV_MAPS create_Lmd_HV_MAPS.C)
 #target_link_libraries(createRootGeometry_lmd_HV_MAPS ${ROOT_LIBRARIES} LmdTesting Geane Geom Proof TrkBase FairTools PndData VMC EG GeomPainter generalTools Base GeoBase FairDB ParBase)
 
-#add_executable(interpolate_fieldmaps interpolate_fieldmaps.cxx)
-#target_link_libraries(interpolate_fieldmaps ${ROOT_LIBRARIES} Base Field Passive Geom GeoBase)
+add_executable(interpolate_fieldmaps interpolate_fieldmaps.cxx)
+target_link_libraries(interpolate_fieldmaps ${ROOT_LIBRARIES} Base Field Passive Geom GeoBase)
 
 #add_executable(lumi_simbox runLumiSimBox.cxx)
 #target_link_libraries(lumi_simbox ${ROOT_LIBRARIES} Lmd Sds Base ParBase Field Passive Geom GeoBase Gen Pluto PndData TrkBase generalTools MathMore)

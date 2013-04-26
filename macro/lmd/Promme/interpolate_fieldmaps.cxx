@@ -36,7 +36,7 @@ using namespace std;
 // Moreover in case of setting a string of
 // length > 0
 // files are stored in the $VMCWORKDIR/input/ folder
-const string name_modification = "_v1";
+const string name_modification = "";
 
 vector<string> fieldmapnames;
 

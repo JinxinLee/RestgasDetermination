@@ -207,6 +207,7 @@ PndLmdDim::PndLmdDim()
 
 PndLmdDim::PndLmdDim(const PndLmdDim & instance)
 {
+	if (!instance.box_thickness) cout << " fix for pedantic compiler will never appear on cout " << endl;
 }
 
 
@@ -274,7 +275,8 @@ void PndLmdDim::Generate_rootgeom(TGeoVolume& mothervol, bool misaligned){
 		cout << " creating FairGeoLoader instance " << endl;
 	}
 	FairGeoInterface *geoFace = geoLoad->getGeoInterface();
-	geoFace->setMediaFile("../../geometry/media_pnd.geo");//("${VMCWORKDIR}/geometry/media_pnd.geo");
+	string dir = getenv("VMCWORKDIR");
+	geoFace->setMediaFile((dir+"/geometry/media_pnd.geo").c_str());//("${VMCWORKDIR}/geometry/media_pnd.geo");
 	geoFace->readMedia();
 	//geoFace->print();
 
@@ -303,6 +305,7 @@ void PndLmdDim::Generate_rootgeom(TGeoVolume& mothervol, bool misaligned){
 	nmed = geobuild->createMedium(FairMediumSilicon);
 	nmed = geobuild->createMedium(FairMediumDiamond);
 	nmed = geobuild->createMedium(FairMediumVacuum);
+	if (!nmed) cout << " fix for pedantic compiler line " << endl;
 
 	// no translation nor rotation
 	TGeoRotation* rot_no = new TGeoRotation("rot_no", 0., 0., 0.); // no rotation
@@ -583,6 +586,9 @@ void PndLmdDim::Generate_rootgeom(TGeoVolume& mothervol, bool misaligned){
 			-maps_height + maps_passive_bottom, 0., rot_no);
 	combtrans_maps_passive_bottom->RegisterYourself();
 
+	if (!lmd_box_outer || !lmd_box_inner || !lmd_box_rib || !box_hole_upstream || !box_hole_downstream || !shape_cvd_disc || !shape_cvd_cutout_inner || !shape_cvd_disc_cut_side || !shape_kapton_disc || !shape_kapton_cutout_inner || !shape_kapton_disc || !shape_kapton_cutout_inner || !shape_kapton_disc_cut_side || !shape_maps_active_centered || !shape_maps_passive_left || !shape_maps_passive_right || !shape_maps_passive_top || !shape_maps_passive_bottom)
+		cout << " pedantic compiler together with root geometries sucks " << endl;
+
 	TGeoCompositeShape
 			*shape_maps_passive =
 					new TGeoCompositeShape(
@@ -617,7 +623,7 @@ void PndLmdDim::Generate_rootgeom(TGeoVolume& mothervol, bool misaligned){
 		_offset_phi(0), _offset_theta(0), _offset_psi(0);
 	unsigned int sensor_id(0);
 	unsigned int module_id(0);
-	for (int ihalf = 0; ihalf < 2; ihalf++){ // loop over detector halves
+	for (unsigned int ihalf = 0; ihalf < 2; ihalf++){ // loop over detector halves
 		// in order do be able to displace the detector halves those are introduced as
 		// separate volume assemblies
 		name.str("");
@@ -626,7 +632,7 @@ void PndLmdDim::Generate_rootgeom(TGeoVolume& mothervol, bool misaligned){
 		uniqueid << "_" << ihalf;
 		TGeoVolumeAssembly* lmd_vol_half_ = new TGeoVolumeAssembly(name.str().c_str());
 		//mothervol.AddNode(lmd_vol_half_, 0, rottrans_no);
-		for (int iplane = 0; iplane < n_planes; iplane++){ // loop over planes
+		for (unsigned int iplane = 0; iplane < n_planes; iplane++){ // loop over planes
 			name.str("");
 			name << nav_paths[3] << iplane;
 			uniqueid.str("");
@@ -645,7 +651,7 @@ void PndLmdDim::Generate_rootgeom(TGeoVolume& mothervol, bool misaligned){
 				//	rottrans_plane = new TGeoHMatrix(*rottrans_plane * *rottrans_plane_offset);
 				rottrans_plane = new TGeoHMatrix(*rottrans_plane_offset * *rottrans_plane);
 			}
-			for (int imodule = 0; imodule < nmodules; imodule++){ // loop over modules
+			for (unsigned int imodule = 0; imodule < nmodules; imodule++){ // loop over modules
 				name.str("");
 				name << nav_paths[4] << imodule;
 				uniqueid.str("");
@@ -686,7 +692,7 @@ void PndLmdDim::Generate_rootgeom(TGeoVolume& mothervol, bool misaligned){
 				//						shape_cvd_support, fgGeoMan->GetMedium("HYPdiamond"));
 				lmd_vol_module_->AddNode(lmd_vol_cvd_disc, module_id, rottrans_no);
 				module_id++;
-				for (int iside = 0; iside < 2; iside++){ // loop over the two sides of the modules
+				for (unsigned int iside = 0; iside < 2; iside++){ // loop over the two sides of the modules
 					name.str("");
 					name << nav_paths[5] << iside;
 					uniqueid.str("");
@@ -708,7 +714,7 @@ void PndLmdDim::Generate_rootgeom(TGeoVolume& mothervol, bool misaligned){
 						rottrans_side = new TGeoHMatrix(*rottrans_side_offset * *rottrans_side);
 					}
 					// glue the HV-MAPS to the cvd surface
-					for (int idie = 0; idie < 2; idie++){ // loop over dies
+					for (unsigned int idie = 0; idie < 2; idie++){ // loop over dies
 						name.str("");
 						name << nav_paths[6] << idie;
 						uniqueid.str("");
@@ -717,7 +723,7 @@ void PndLmdDim::Generate_rootgeom(TGeoVolume& mothervol, bool misaligned){
 						// rotation to the cut side of the cvd_disc
 						// the origin is the inner edge
 						const double _sinhalf = sin (delta_phi/2.);
-						const double _coshalf = cos (delta_phi/2.);
+						//const double _coshalf = cos (delta_phi/2.);
 						const double _edge_y = -_sinhalf*inner_rad;
 						// angle between the edge and the half of the cvd disc
 						const double _edgeangle = asin(-_edge_y/cvd_disc_rad);
@@ -729,7 +735,7 @@ void PndLmdDim::Generate_rootgeom(TGeoVolume& mothervol, bool misaligned){
 						TGeoRotation* rot_die = new TGeoRotation("rot_die", _rotphi, _rottheta, _rotpsi);
 						TGeoCombiTrans* rottrans_die = new TGeoCombiTrans(_x, _y, _z, rot_die);
 						// construct now the sensors on the two dies
-						for (int isensor = 0; isensor < 3; isensor++){ // loop over sensors
+						for (unsigned int isensor = 0; isensor < 3; isensor++){ // loop over sensors
 							// the 0th die is oriented at the inner edge
 							_x = maps_width + maps_width * 2. * isensor;
 							_y = maps_height;
@@ -776,18 +782,18 @@ void PndLmdDim::Generate_rootgeom(TGeoVolume& mothervol, bool misaligned){
 									new TGeoHMatrix((*rottrans_die) * (*rottrans_sensor));
 
 							if (0) { // some tests for debugging
-								int _sensor_id = Get_sensor_id(ihalf, iplane, imodule, iside, idie, isensor);
+								unsigned int _sensor_id = Get_sensor_id(ihalf, iplane, imodule, iside, idie, isensor);
 								if (sensor_id != _sensor_id){
 									cout << " wrong sensor id " << _sensor_id << " != " << sensor_id << endl;
 								}
 								int _ihalf, _iplane, _imodule, _iside, _idie, _isensor;
 								Get_sensor_by_id(sensor_id, _ihalf, _iplane, _imodule, _iside, _idie, _isensor);
-								if (ihalf != _ihalf) cout << " wrong half " << _ihalf << endl;
-								if (iplane != _iplane) cout << " wrong plane " << _iplane << endl;
-								if (imodule != _imodule) cout << " wrong module " << _imodule << endl;
-								if (iside != _iside) cout << " wrong side " << _iside << endl;
-								if (idie != _idie) cout << " wrong die " << _idie << endl;
-								if (isensor != _isensor) cout << " wrong sensor " << _isensor << endl;
+								if ((signed)ihalf != _ihalf) cout << " wrong half " << _ihalf << endl;
+								if ((signed)iplane != _iplane) cout << " wrong plane " << _iplane << endl;
+								if ((signed)imodule != _imodule) cout << " wrong module " << _imodule << endl;
+								if ((signed)iside != _iside) cout << " wrong side " << _iside << endl;
+								if ((signed)idie != _idie) cout << " wrong die " << _idie << endl;
+								if ((signed)isensor != _isensor) cout << " wrong sensor " << _isensor << endl;
 							}
 							sensor_id++;
 						} // loop over sensors
@@ -858,15 +864,15 @@ void PndLmdDim::Generate_rootgeom(TGeoVolume& mothervol, bool misaligned){
 void PndLmdDim::reCreate_transformation_matrices(){
 	// no translation nor rotation
 	TGeoRotation* rot_no = new TGeoRotation("rot_no", 0., 0., 0.); // no rotation
-	TGeoCombiTrans* rottrans_no = new TGeoCombiTrans("rottrans_no", 0., 0.,
-				0., rot_no);
+	//TGeoCombiTrans* rottrans_no = new TGeoCombiTrans("rottrans_no", 0., 0.,
+	//			0., rot_no);
 
   double _x(0), _y(0), _z(0), _rotphi(0), _rottheta(0), _rotpsi(0);
   double _offset_x(0), _offset_y(0), _offset_z(0),
     _offset_phi(0), _offset_theta(0), _offset_psi(0);
 
-  for (int ihalf = 0; ihalf < 2; ihalf++){ // loop over detector halves
-    for (int iplane = 0; iplane < n_planes; iplane++){ // loop over planes
+  for (unsigned int ihalf = 0; ihalf < 2; ihalf++){ // loop over detector halves
+    for (unsigned int iplane = 0; iplane < n_planes; iplane++){ // loop over planes
       // move to the position of the corresponding plane
       TGeoMatrix* rottrans_plane = new TGeoCombiTrans(0., 0.,plane_pos_z[iplane], rot_no);
       
@@ -879,7 +885,7 @@ void PndLmdDim::reCreate_transformation_matrices(){
 	// //	rottrans_plane = new TGeoHMatrix(*rottrans_plane * *rottrans_plane_offset);
 	// rottrans_plane = new TGeoHMatrix(*rottrans_plane_offset * *rottrans_plane);
       
-      for (int imodule = 0; imodule < nmodules; imodule++){ // loop over modules
+      for (unsigned int imodule = 0; imodule < nmodules; imodule++){ // loop over modules
 	double angle = delta_phi/2.+ihalf*pi+imodule*delta_phi;
 	double add_z = cvd_disc_even_odd_offset;
 	// the offset of the modules in the upper and lower halfs
@@ -950,8 +956,8 @@ void PndLmdDim::Correct_transformation_matrices(){
 	// ****************************** loops in the luminosity detector ************************
 	double _offset_x(0), _offset_y(0), _offset_z(0),
 	  _offset_phi(0), _offset_theta(0), _offset_psi(0);
-	for (int ihalf = 0; ihalf < 2; ihalf++){ // loop over detector halves
-	  //TODO: "Transformation matrix not existent!" =\
+	for (unsigned int ihalf = 0; ihalf < 2; ihalf++){ // loop over detector halves
+	  //TODO: "Transformation matrix not existent!" =
 	  // TGeoMatrix* rottrans_half = Get_matrix(ihalf, -1, -1 , -1, -1, -1,  false);
 	  // Get_offset(ihalf, -1, -1, -1, -1, -1,
 	  // 	     _offset_x, _offset_y, _offset_z, _offset_phi, _offset_theta, _offset_psi);
@@ -961,8 +967,8 @@ void PndLmdDim::Correct_transformation_matrices(){
 	  //   new TGeoCombiTrans(_offset_x, _offset_y, _offset_z, rot_half_offset);
 	  // rottrans_half = new TGeoHMatrix(*rottrans_half_offset * *rottrans_half);
 	  
-	  for (int iplane = 0; iplane < n_planes; iplane++){ // loop over planes
-	    // TODO: "Transformation matrix not existent!" =	\
+	  for (unsigned int iplane = 0; iplane < n_planes; iplane++){ // loop over planes
+	    // TODO: "Transformation matrix not existent!" =
 	    //   cout<<"Correct matrix plane #"<<iplane<<endl;
 	    //   TGeoMatrix* rottrans_plane = Get_matrix(ihalf, iplane, -1 , -1, -1, -1,  false);
 	    // Get_offset(ihalf, iplane, -1, -1, -1, -1,
@@ -973,10 +979,10 @@ void PndLmdDim::Correct_transformation_matrices(){
 	    //   new TGeoCombiTrans(_offset_x, _offset_y, _offset_z, rot_plane_offset);
 	    // rottrans_plane = new TGeoHMatrix(*rottrans_plane_offset * *rottrans_plane);
 	    
-	    for (int imodule = 0; imodule < nmodules; imodule++){ // loop over modules
-	      //TODO: "Transformation matrix not existent!" =\
+	    for (unsigned int imodule = 0; imodule < nmodules; imodule++){ // loop over modules
+	      //TODO: "Transformation matrix not existent!" =
 	      // cout<<"Correct matrix module #"<<imodule<<" "<<ihalf<<iplane<<imodule<<"-1-1-1"<<endl;
-	      TGeoMatrix* rottrans_module = Get_matrix(ihalf, iplane, imodule, -1, -1, -1,  false);
+	      //TGeoMatrix* rottrans_module = Get_matrix(ihalf, iplane, imodule, -1, -1, -1,  false);
 	      // Get_offset(ihalf, iplane, imodule, -1, -1, -1,
 	      // 		 _offset_x, _offset_y, _offset_z, _offset_phi, _offset_theta, _offset_psi);
 	      // cout<<"offsets:"<<_offset_x<<" "<<_offset_y<<" "<<_offset_z<<" "<<_offset_phi<<" "<<_offset_theta<<" "<<_offset_psi<<endl;
@@ -986,7 +992,7 @@ void PndLmdDim::Correct_transformation_matrices(){
 	      // 	new TGeoCombiTrans(_offset_x, _offset_y, _offset_z, rot_module_offset);
 	      // rottrans_module = new TGeoHMatrix(*rottrans_module_offset * *rottrans_module);
 	      // //   rottrans_module = new TGeoHMatrix(*rottrans_module * *rottrans_module_offset);
-	      	     	for (int iside = 0; iside < 2; iside++){ // loop over the two sides of the modules
+	      	     	for (unsigned int iside = 0; iside < 2; iside++){ // loop over the two sides of the modules
 			  TGeoMatrix* rottrans_side =  Get_matrix(ihalf, iplane, imodule , iside, -1, -1,  false);
 			  Get_offset(ihalf, iplane, imodule, iside, -1, -1,
 				     _offset_x, _offset_y, _offset_z, _offset_phi, _offset_theta, _offset_psi);
@@ -1035,6 +1041,8 @@ void PndLmdDim::Read_transformation_matrices(string filename, bool aligned){
 		delete(it_transformation_matrices->second);
 	}
 	matrices->clear();
+	string dir = getenv("VMCWORKDIR");
+	if (filename == "") filename = dir+"/input/trafo_matrices_lmd.dat";
 	ifstream file(filename.c_str());
 	int matrices_counter(0);
 	if (file.is_open()){
@@ -1043,7 +1051,7 @@ void PndLmdDim::Read_transformation_matrices(string filename, bool aligned){
 			string key;
 			getline (file, key);
 			//cout << "next key " << key << endl;
-			char newline;
+			//char newline;
 			if (file.good()){
 				// generate rotation and translation matrices with it
 				// error treatment is not foreseen yet
@@ -1171,9 +1179,9 @@ void PndLmdDim::Read_DB_offsets(PndLmdAlignPar *lmdalignpar){
 
   //so far for modules alignment only
   //TODO: individual sensor and\or die alignment???
-  for (int ihalf = 0; ihalf < 2; ihalf++){ // loop over detector halves
-    for (int iplane = 0; iplane < n_planes; iplane++){ // loop over planes
-      for (int imodule = 0; imodule < nmodules; imodule++){ // loop over modules
+  for (unsigned int ihalf = 0; ihalf < 2; ihalf++){ // loop over detector halves
+    for (unsigned int iplane = 0; iplane < n_planes; iplane++){ // loop over planes
+      for (unsigned int imodule = 0; imodule < nmodules; imodule++){ // loop over modules
 	string key = Generate_key(ihalf, iplane, imodule, -1, -1, -1);
 	int ikey = (ihalf*n_planes*nmodules)+(iplane*nmodules)+imodule;
 	//	cout<<"for: "<<ihalf<<iplane<<imodule<<": ikey="<<ikey<<endl;

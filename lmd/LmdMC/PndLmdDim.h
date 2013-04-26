@@ -11,6 +11,9 @@
  *
  *  Created on: Oct 5, 2012
  *      Author: promme
+ *
+ *      To use transformation functions you have to call Read_Transformation_matrices
+ *
  */
 
 #ifndef PNDLMDDIM_H_
@@ -46,7 +49,10 @@ private:
 	TGeoManager* fgGeoMan;
 	PndLmdDim();
 	PndLmdDim(const PndLmdDim& instance);
-	PndLmdDim& operator=(const PndLmdDim& instance){return *this;}
+	PndLmdDim& operator=(const PndLmdDim& instance){
+		this->box_size_x = instance.box_size_x; // to get rid from pedantic warnings
+		return *this;
+	}
 	~PndLmdDim();
 	// the navigation paths for the detector geometry are stored here
 	vector<string> nav_paths;
@@ -219,7 +225,7 @@ public:
 	// the mechanical alignment precision is defined as an offset of and tilt around
 	// the middle of the cvd diamond.
 	// Values are standard deviation.
-	// first comes translation than rotation\
+	// first comes translation than rotation
 	// translations along z as well as rotations around x and y are
 	// negligible for dies glued on a cvd diamond
 	// rotation around z is not working yet
@@ -287,7 +293,7 @@ public:
 	bool Is_valid_idcall(int ihalf, int iplane = 0, int imodule = 0, int iside = 0, int idie = 0, int isensor = 0){
 		if (ihalf   < 0 || ihalf   >= 2)
 			return false;
-		if (iplane  < 0 || iplane  >= n_planes)
+		if (iplane  < 0 || (unsigned)iplane  >= n_planes)
 			return false;
 		if (imodule < 0 || imodule >= n_cvd_discs)
 			return false;
@@ -367,7 +373,9 @@ public:
 	// read transformation matrices from a given file
 	// aligned and not aligned are two separate maps
 	// containing the description of the detector positions
-	void Read_transformation_matrices(string filename, bool aligned = true);
+	// if not filename is specified matrices are searched in
+	// VMCWORKDIR/input/matrices.txt
+	void Read_transformation_matrices(string filename = "", bool aligned = true);
 
 	// write transformation matrices from a given file
 	// aligned and not aligned are two separate maps
@@ -401,6 +409,7 @@ public:
 		x = pos_x;
 		y = pos_y;
 		z = pos_z;
+		if (misaligned) rotx += 0; // pedantic compiler fix
 	}
 /*
 	// the local system is where the first plane is at xyz = 0 and

@@ -38,8 +38,9 @@ class PndSdsCluster;
 class TGeant3;
 
 // some design constants of the LUMI detector
-const int nplanes(4);
-const int nsensors_per_plane(8);//(12);
+const unsigned int nplanes(4);
+const unsigned int nsensors_per_plane(100);//(12);
+const unsigned int nmdules_per_plane(10);
 
 class PndLmdPerformanceTask: public FairTask {
 public:
@@ -235,7 +236,7 @@ private:
 	void ProduceHits();
 
 	double last_percent;
-	unsigned int fnevents;
+	int fnevents;
 	unsigned int fievent;
 	// draw a progress bar only when the length changes significantly
 	void DrawProgressBar(int len, double percent);

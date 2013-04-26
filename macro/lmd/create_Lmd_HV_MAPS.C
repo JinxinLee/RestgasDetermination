@@ -32,7 +32,6 @@
 #include<sstream>
 
 //using namespace LmdDim;
-
 // to check the position and dimensions
 // one may enable a beam pipe dummy to be displayed
 const bool show_beam_pipe_dummy = true;
@@ -114,12 +113,16 @@ void create_HV_MAPS(bool misalign = false) {
 	  //gSystem->Load("libPndData");
 	  //gSystem->Load("libPassive");
 
-	  TString outfile= "geo/HV_MAPS-Design.root";
+	  string dir = getenv("VMCWORKDIR");
+	  //string moveto = dir + "/input/" + fileName + ".dat";
+	  //system(("mv "+fileName+".dat"+" "+moveto).c_str());
+
+	  TString outfile= dir+"/geometry/HV_MAPS-Design.root";
 	  TFile* fi = new TFile(outfile,"RECREATE");
 
 	  FairGeoLoader* geoLoad = new FairGeoLoader("TGeo","FairGeoLoader");
 	  FairGeoInterface *geoFace = geoLoad->getGeoInterface();
-	  geoFace->setMediaFile("../../geometry/media_pnd.geo");
+	  geoFace->setMediaFile((dir+"/geometry/media_pnd.geo").c_str());
 	  geoFace->readMedia();
 	  geoFace->print();
 
@@ -141,10 +144,11 @@ void create_HV_MAPS(bool misalign = false) {
 	  // for testing purposes
 	  lmddim.Generate_rootgeom(*top, misalign);
 	  //lmddim.Write_transformation_matrices("matrices.txt", false);
-	  if (!misalign)
-		  lmddim.Write_transformation_matrices("matrices_perfect.txt", false);
-	  else
-		  lmddim.Write_transformation_matrices("matrices.txt", false);
+	  //if (!misalign)
+		//  lmddim.Write_transformation_matrices("matrices_perfect.txt", misalign);
+	  //else
+		//  lmddim.Write_transformation_matrices("matrices.txt", misalign);
+	  lmddim.Write_transformation_matrices(dir+"/input/trafo_matrices_lmd.dat", misalign); // generate standard matrices in VMCWORKDIR/input
 
 	  //lmddim.Read_transformation_matrices("matrices.txt", true);
 	  //lmddim.Write_transformation_matrices("matrices_aligned.txt", true);

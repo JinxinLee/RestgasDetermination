@@ -153,11 +153,13 @@ InitStatus PndLmdPerformanceTask::Init() {
 	fPro = new FairGeanePro();
 	//fPro->PropagateToPCA(1, -1);
 	fGeoH = PndGeoHandling::Instance();
-	FairRun* fRun = FairRun::Instance();
-	FairRuntimeDb* rtdb = fRun->GetRuntimeDb();
+	//FairRun* fRun = FairRun::Instance();
+	//FairRuntimeDb* rtdb = fRun->GetRuntimeDb();
 	lmddim = PndLmdDim::Instance();
-	lmddim -> Read_transformation_matrices("matrices.txt", true);
-	lmddim -> Read_transformation_matrices("matrices_perfect.txt", false);
+	lmddim -> Read_transformation_matrices("",true);
+	lmddim -> Read_transformation_matrices("",false);
+	//lmddim -> Read_transformation_matrices("matrices.txt", true);
+	//lmddim -> Read_transformation_matrices("matrices_perfect.txt", false);
 	// FairBaseParSet* par=(FairBaseParSet*)
 	//   (rtdb->findContainer("FairBaseParSet"));
 	// fPbeam = par->GetBeamMom();
@@ -297,7 +299,7 @@ InitStatus PndLmdPerformanceTask::Init() {
 
 	stringstream hist_name;
 	stringstream hist_title;
-	for (int _iplane = 0; _iplane < nplanes; _iplane++) {
+	for (unsigned int _iplane = 0; _iplane < nplanes; _iplane++) {
 
 		hist_name .str("");
 		hist_title.str("");
@@ -388,7 +390,7 @@ InitStatus PndLmdPerformanceTask::Init() {
 		hist_theta_rec_diff_rel[_iplane]->GetYaxis()->SetTitle("#Phi [rad]");
 
 		// loop over sensors per plane which are enumerated linearly
-		for (int _isensor = 0; _isensor < nsensors_per_plane; _isensor++) {
+		for (unsigned int _isensor = 0; _isensor < nsensors_per_plane; _isensor++) {
 			hist_name .str("");
 			hist_title.str("");
 
@@ -598,7 +600,7 @@ void PndLmdPerformanceTask::Exec(Option_t* opt) {
 	for (Int_t iParticle = 0; iParticle < nParticles; iParticle++) {
 		// if(nParticles!=4) continue;
 		PndMCTrack *mctrk = (PndMCTrack*) true_tracks->At(iParticle);
-		Int_t mcID = mctrk->GetPdgCode();
+		//Int_t mcID = mctrk->GetPdgCode();
 		if (mctrk->IsGeneratorCreated()) {//mcID == -2212) {
 			npbar++;
 			//  if(nParticles!=4) cout<<"For event #"<<j<<" mcID="<<mcID<<endl;
