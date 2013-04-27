@@ -284,9 +284,11 @@ void PndLmdPixelClusterTask::Exec(Option_t* opt)
       myHit.SetClusterIndex(fClusterType,i, 0, fEventNr);
       TVector3 hitPos = myHit.GetPosition();
       TMatrixD hitCov = myHit.GetCov();
-      hitCov(0,0) = 5.29e-06; //assuming hit resolution for x-y 23 mkm
-      hitCov(1,1) = 5.29e-06; //assuming hit resolution for x-y 23 mkm
-      hitCov(2,2) = 4.28489999999999954e-08; //assuming hit resolution for z 2.07 mkm
+      // hitCov(0,0) = 5.29e-06; //assuming hit resolution for x-y 23 mkm
+      // hitCov(1,1) = 5.29e-06; //assuming hit resolution for x-y 23 mkm
+      hitCov(0,0) = 2.25e-06; //assuming hit resolution for x-y 15 mkm
+      hitCov(1,1) = 2.25e-06; //assuming hit resolution for x-y 15 mkm
+      hitCov(2,2) = 4.28489999999999954e-08; //assuming hit resolution for z 2.07 mkm NB: isn't used in Trk rec.
 
       //Add multiple scattering error ---------------
       if(flagMS){
