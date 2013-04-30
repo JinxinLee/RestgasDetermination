@@ -98,6 +98,24 @@ PndSttTube * PndSttMapCreator::GetTubeFromTubeID(Int_t tubeid) {
   return NULL;
 }
 
+TString PndSttMapCreator::GetNameFromPath(TString path) {
+  if(fGeoType == 1) return GetNameFromPathGeoType1(path);
+  return "";
+}
+
+TString PndSttMapCreator::GetPathFromTubeID(Int_t tubeid,  Bool_t isCopy) {
+  if(fGeoType == 1) return GetPathFromTubeIDGeoType1(tubeid, isCopy);
+  return "";
+}
+
+
+PndSttTube * PndSttMapCreator::GetTubeFromParametersToFill(PndSttTubeParameters *parms) {
+  if(fGeoType == 1) return GetTubeFromParametersToFillGeoType1(parms);
+ return NULL;
+}
+
+
+
 // fill the tube map at the beginning of the run
 TClonesArray * PndSttMapCreator::FillTubeArray() {
   if(fGeoType == 1) return FillTubeArrayGeoType1();
