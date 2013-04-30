@@ -12,8 +12,9 @@
 #include <vector>
 
 #include "TObject.h"
+#include "TClonesArray.h"
 
-class TClonesArray;
+class PndSttTube;
 
 using std::map;
 using std::vector;
@@ -23,6 +24,7 @@ class PndSttStrawMap : public TObject
 public:
 
 	PndSttStrawMap();
+	PndSttStrawMap(TClonesArray* const stt_tube_array);
 
 	const vector<int>& GetStrawRow(int sector, int row) const {return (fStrawIndex.find(sector))->second.at(row);}
 	const vector<vector<int> >& GetStrawSector(int sector) const {return (fStrawIndex.find(sector))->second;}
@@ -35,14 +37,24 @@ public:
 	bool IsEdgeStraw(int strawindex) const;
 	int IsSectorBorderStraw(int strawindex) const;
 
-	void GenerateStrawMap(const TClonesArray* const stt_tube_array);
+	bool IsAxialStraw(int strawindex) const {return fAxialStraw.at(strawindex);}
+	bool IsSkewedStraw(int strawindex) const {return !(fAxialStraw.at(strawindex));}
+
+	PndSttTube* GetTube(int strawindex) const {return (PndSttTube*)fTubeArray->At(strawindex);}
+
+	void GenerateStrawMap(TClonesArray* const stt_tube_array);
 
 private:
+
+	void GenerateAngles();
 
 	map<int, vector< vector<int> > > fStrawIndex;
 	vector<int> fSectorOfStraw;
 	vector<int> fRowOfStraw;
+	vector<bool> fAxialStraw;
 	bool fStrawMapInitialized;
+
+	TClonesArray* fTubeArray;
 
 	vector<double> fSectorStart;
 	vector<double> fSectorEnd;

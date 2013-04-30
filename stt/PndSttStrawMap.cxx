@@ -19,7 +19,19 @@ using std::endl;
 using std::vector;
 
 PndSttStrawMap::PndSttStrawMap()
-: fStrawMapInitialized(false)
+: fStrawMapInitialized(false), fTubeArray(0)
+{
+	GenerateAngles();
+}
+
+PndSttStrawMap::PndSttStrawMap(TClonesArray* const stt_tube_array)
+: fStrawMapInitialized(false), fTubeArray(0)
+{
+	GenerateAngles();
+	GenerateStrawMap(stt_tube_array);
+}
+
+void PndSttStrawMap::GenerateAngles()
 {
 	fSectorStart.push_back(1.57);
 	fSectorEnd.push_back(2.62);
@@ -35,19 +47,26 @@ PndSttStrawMap::PndSttStrawMap()
 	fSectorEnd.push_back(1.57);
 }
 
-void PndSttStrawMap::GenerateStrawMap(const TClonesArray* const stt_tube_array)
+void PndSttStrawMap::GenerateStrawMap(TClonesArray* const stt_tube_array)
 {
+	fTubeArray = stt_tube_array;
+
 	vector<int> currentRow;
 	int sector = 0;
 	int lastsector = 0;
 	int row = 0;
 	fSectorOfStraw.push_back(-1);
 	fRowOfStraw.push_back(-1);
-	cout << "Generating straw map for " << stt_tube_array->GetEntriesFast() << " straws." << endl;
-	for (int i = 1; i < stt_tube_array->GetEntriesFast(); i++) {
+	fAxialStraw.push_back(false);
+	cout << "Generating straw map for " << fTubeArray->GetEntriesFast() << " straws." << endl;
+	for (int i = 1; i < fTubeArray->GetEntriesFast(); i++) {
 		cout << "Finding tube." << endl;
-		PndSttTube* tube = (PndSttTube*)(stt_tube_array->At(i));
+		PndSttTube* tube = GetTube(i);
 		cout << "Tube address: " << tube << endl;
+		bool isaxial = (tube->GetWireDirection().Theta() < 0.001);
+		cout << "Axial Straw: " << isaxial << endl;
+		cout << "Wire Direction: ";
+		tube->GetWireDirection().Print();
 		double phi = tube->GetPosition().Phi();
 		cout << "Phi: " << phi << endl;
 		if (phi < 0) phi += 2*TMath::Pi();
@@ -67,6 +86,7 @@ void PndSttStrawMap::GenerateStrawMap(const TClonesArray* const stt_tube_array)
 		currentRow.push_back(i);
 		fSectorOfStraw.push_back(sector);
 		fRowOfStraw.push_back(row);
+		fAxialStraw.push_back(isaxial);
 		cout << "Straw " << i << " added to " << sector << ", " << row << endl;
 	}
 	fStrawIndex[lastsector].push_back(currentRow);
