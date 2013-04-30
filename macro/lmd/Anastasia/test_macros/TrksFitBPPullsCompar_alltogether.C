@@ -18,18 +18,18 @@ void TrksFitBPPullsCompar_alltogether(TString pathName="/panda/pandaroot/macro/l
   double p_beam[nBeamPoints]={1.5, 4.06, 8.9, 11.91, 15};
   // const int nBeamPoints=2;
   // double p_beam[nBeamPoints]={1.5, 15};
- //  const int nMethods=6;
- //  TString Method[nMethods]={"_MINUIT_BPGEANE","_MINUIT_BPRK","_KALMANGEANE_BPGEANE","_KALMANGEANE_BPRK","_KALMANRK_BPGEANE","_KALMANRK_BPRK"};
- // TString MethodName[nMethods]={"MINUIT, BP=GEANE","MINUIT, BP=RK","KALMAN=GEANE, BP=GEANE","KALMAN=GEANE, BP=RK","KALMAN=RK, BP=GEANE","KALMAN=RK, BP=RK"};
-  const int nMethods=2;
-  TString Method[nMethods]={"_MINUIT_BPGEANE","_MINUIT_BPRK"};
-  TString MethodName[nMethods]={"MINUIT, BP=GEANE","MINUIT, BP=RK"};
+  const int nMethods=6;
+  TString Method[nMethods]={"_MINUIT_BPGEANE","_MINUIT_BPRK","_KALMANGEANE_BPGEANE","_KALMANGEANE_BPRK","_KALMANRK_BPGEANE","_KALMANRK_BPRK"};
+ TString MethodName[nMethods]={"MINUIT, BP=GEANE","MINUIT, BP=RK","KALMAN=GEANE, BP=GEANE","KALMAN=GEANE, BP=RK","KALMAN=RK, BP=GEANE","KALMAN=RK, BP=RK"};
+  // const int nMethods=2;
+  // TString Method[nMethods]={"_MINUIT_BPGEANE","_MINUIT_BPRK"};
+  // TString MethodName[nMethods]={"MINUIT, BP=GEANE","MINUIT, BP=RK"};
 
 // const int nMethods=4;
 //  TString Method[nMethods]={"_KALMANGEANE_BPGEANE","_KALMANGEANE_BPRK","_KALMANRK_BPGEANE","_KALMANRK_BPRK"};
 //  TString MethodName[nMethods]={"KALMAN=GEANE, BP=GEANE","KALMAN=GEANE, BP=RK","KALMAN=RK, BP=GEANE","KALMAN=RK, BP=RK"};
 
-
+ double Eff[nMethods][nBeamPoints];
   double PullPx_mean[nMethods][nBeamPoints], PullPx_sigma[nMethods][nBeamPoints], PullPy_mean[nMethods][nBeamPoints], PullPy_sigma[nMethods][nBeamPoints], PullPz_mean[nMethods][nBeamPoints], PullPz_sigma[nMethods][nBeamPoints];
   double PullX_mean[nMethods][nBeamPoints], PullX_sigma[nMethods][nBeamPoints],PullY_mean[nMethods][nBeamPoints], PullY_sigma[nMethods][nBeamPoints],PullZ_mean[nMethods][nBeamPoints], PullZ_sigma[nMethods][nBeamPoints];
   double PullTheta_mean[nMethods][nBeamPoints], PullTheta_sigma[nMethods][nBeamPoints], PullPhi_mean[nMethods][nBeamPoints], PullPhi_sigma[nMethods][nBeamPoints];
@@ -343,16 +343,28 @@ TH1F *hResLumiTrkPhiPull = (TH1F*)fileIN->Get("hResLumiTrkPhiPull");
   erResPhi_sigma_in[im][ip] = fResPhi->GetParError(2);
   //****************************************
 
+
+  //Eff
+  TH1F *hhits= (TH1F*)fileIN->Get("hhits");
+  double Nrec =  hhits->GetEntries();
+  TNtuple *nBadTrks = (TNtuple*)fileIN->Get("nBadTrks");
+  double NbadRec = nBadTrks->GetEntries();
+  Eff[im][ip] = (Nrec-NbadRec)/1e5;
+    //TODO: theta resolution???
+  //  TH2F*hThetaResTheta = (TH2F*)fileIN->Get("hThetaResTheta");
   }//methods
   }//pbeam
 
   //Creat and fill graphs with pbeam dependence
+  TGraphErrors *gEff[nMethods];
   TGraphErrors *gPullPx_mean[nMethods], *gPullPx_sigma[nMethods], *gPullPy_mean[nMethods], *gPullPy_sigma[nMethods], *gPullPz_mean[nMethods], *gPullPz_sigma[nMethods];
   TGraphErrors *gPullX_mean[nMethods], *gPullX_sigma[nMethods], *gPullY_mean[nMethods], *gPullY_sigma[nMethods], *gPullZ_mean[nMethods], *gPullZ_sigma[nMethods];
   TGraphErrors *gPullTheta_mean[nMethods], *gPullTheta_sigma[nMethods], *gPullPhi_mean[nMethods], *gPullPhi_sigma[nMethods];
  TGraphErrors *gPullTheta_mean_in[nMethods], *gPullTheta_sigma_in[nMethods], *gPullPhi_mean_in[nMethods], *gPullPhi_sigma_in[nMethods];
   TGraphErrors *gPullX_mean_in[nMethods], *gPullX_sigma_in[nMethods], *gPullY_mean_in[nMethods], *gPullY_sigma_in[nMethods], *gPullZ_mean_in[nMethods], *gPullZ_sigma_in[nMethods];
   TGraphErrors *gPullPx_mean_in[nMethods], *gPullPx_sigma_in[nMethods], *gPullPy_mean_in[nMethods], *gPullPy_sigma_in[nMethods], *gPullPz_mean_in[nMethods], *gPullPz_sigma_in[nMethods];
+
+  TMultiGraph *mgEff = new TMultiGraph("mgEff",""); 
 
   TMultiGraph *mgPullPx_mean = new TMultiGraph("mgPullPx_mean",""); TMultiGraph *mgPullPx_sigma = new TMultiGraph("mgPullPx_sigma","");
   TMultiGraph *mgPullPy_mean = new TMultiGraph("mgPullPy_mean",""); TMultiGraph *mgPullPy_sigma = new TMultiGraph("mgPullPy_sigma","");
@@ -373,6 +385,13 @@ TH1F *hResLumiTrkPhiPull = (TH1F*)fileIN->Get("hResLumiTrkPhiPull");
   TMultiGraph *mgPullPhi_mean_in = new TMultiGraph("mgPullPhi_mean_in",""); TMultiGraph *mgPullPhi_sigma_in = new TMultiGraph("mgPullPhi_sigma_in","");
 
   for(int im=0;im<nMethods;im++){
+    gEff[im] = new TGraphErrors(nBeamPoints,p_beam,Eff[im],0,0);
+    gEff[im]->SetMarkerStyle(20+im);
+    gEff[im]->SetMarkerColor(im+1);
+    gEff[im]->SetMarkerSize(2.0);
+    mgEff->Add(gEff[im],"LP");
+
+
     gPullPx_mean[im] = new TGraphErrors(nBeamPoints,p_beam,PullPx_mean[im],0,erPullPx_mean[im]);
     gPullPx_sigma[im] = new TGraphErrors(nBeamPoints,p_beam,PullPx_sigma[im],0,erPullPx_sigma[im]);
     gPullPx_mean[im]->SetMarkerStyle(20+im);
@@ -754,7 +773,7 @@ TH1F *hResLumiTrkPhiPull = (TH1F*)fileIN->Get("hResLumiTrkPhiPull");
  TString resname_root = resname+".root";
   TFile *fout = new TFile(resname_root,"RECREATE");
 
-  TLegend *leg = new TLegend(0.7,0.65,0.98,0.97);
+  TLegend *leg = new TLegend(0.7,0.6,0.98,0.99);
   leg->SetFillColor(0);
   //   leg->SetHeader("The Legend Title");
   for(int im=0;im<nMethods;im++){
@@ -763,7 +782,7 @@ TH1F *hResLumiTrkPhiPull = (TH1F*)fileIN->Get("hResLumiTrkPhiPull");
     leg->AddEntry(gPullPx_mean_in[im],MethodName_ext1,"lep");
     leg->AddEntry(gPullPx_mean[im],MethodName_ext2,"lep");
   }
-  TLegend *legsh = new TLegend(0.7,0.77,0.98,0.97);
+  TLegend *legsh = new TLegend(0.7,0.65,0.98,0.97);
   legsh->SetFillColor(0);
   //   leg->SetHeader("The Legend Title");
   for(int im=0;im<nMethods;im++){
@@ -780,6 +799,13 @@ TH1F *hResLumiTrkPhiPull = (TH1F*)fileIN->Get("hResLumiTrkPhiPull");
   perfectsigmaval->SetLineWidth(2);
 
   TCanvas c1;
+  mgEff->Draw("AP"); 
+  mgEff->GetXaxis()->SetTitle("momentum, GeV/c");
+  mgEff->GetYaxis()->SetTitle("Eff");
+  leg->Draw();
+  c1.Print(resname_pdf_o); //write canvas and keep the pdf file open
+  c1.Clear();
+
   mgPullPx_mean->Draw("AP");  
   mgPullPx_mean->GetXaxis()->SetTitle("momentum, GeV/c");
   mgPullPx_mean->GetYaxis()->SetTitle("(P^{MC}_{x} - P^{REC}_{x})/#sigma_{Px}, mean");
@@ -864,34 +890,34 @@ TH1F *hResLumiTrkPhiPull = (TH1F*)fileIN->Get("hResLumiTrkPhiPull");
   mgPullZ_sigma->GetXaxis()->SetTitle("momentum, GeV/c");
   mgPullZ_sigma->GetYaxis()->SetTitle("(Z^{MC} - Z^{REC})/#sigma_{Z}, sigma [PCA]");
   perfectsigmaval->Draw();
-  legsh->Draw();
+  leg->Draw();
   c1.Print(resname_pdf_o); //write canvas and keep the pdf file open
   c1.Clear();
   mgPullTheta_mean->Draw("AP");  
   mgPullTheta_mean->GetXaxis()->SetTitle("momentum, GeV/c");
   mgPullTheta_mean->GetYaxis()->SetTitle("(#theta^{MC} - #theta^{REC})/#sigma_{#theta}, mean [PCA]");
-  legsh->Draw();
+  leg->Draw();
   perfectmeanval->Draw();
   c1.Print(resname_pdf_o); //write canvas and keep the pdf file open
   c1.Clear();
   mgPullTheta_sigma->Draw("AP");
   mgPullTheta_sigma->GetXaxis()->SetTitle("momentum, GeV/c");
   mgPullTheta_sigma->GetYaxis()->SetTitle("(#theta^{MC} - #theta^{REC})/#sigma_{#theta}, sigma [PCA]");
-  legsh->Draw();
+  leg->Draw();
   perfectsigmaval->Draw();
   c1.Print(resname_pdf_o); //write canvas and keep the pdf file open
   c1.Clear();
   mgPullPhi_mean->Draw("AP");  
  mgPullPhi_mean->GetXaxis()->SetTitle("momentum, GeV/c");
  mgPullPhi_mean->GetYaxis()->SetTitle("(#phi^{MC} - #phi^{REC})/#sigma_{#phi}, mean [PCA]");
- legsh->Draw();
+ leg->Draw();
  perfectmeanval->Draw();
   c1.Print(resname_pdf_o); //write canvas and keep the pdf file open
   c1.Clear();
   mgPullPhi_sigma->Draw("AP");
  mgPullPhi_sigma->GetXaxis()->SetTitle("momentum, GeV/c");
  mgPullPhi_sigma->GetYaxis()->SetTitle("(#phi^{MC} - #phi^{REC})/#sigma_{#phi}, sigma [PCA]");
- legsh->Draw();
+ leg->Draw();
  perfectsigmaval->Draw();
  c1.Print(resname_pdf_o); //write canvas and keep the pdf file open
   c1.Clear();
@@ -983,7 +1009,7 @@ TH1F *hResLumiTrkPhiPull = (TH1F*)fileIN->Get("hResLumiTrkPhiPull");
   mgResZ_sigma->Draw("AP");
   mgResZ_sigma->GetXaxis()->SetTitle("momentum, GeV/c");
   mgResZ_sigma->GetYaxis()->SetTitle("(Z^{MC} - Z^{REC}), sigma [PCA], cm");
-  legsh->Draw();
+  leg->Draw();
   c1.Print(resname_pdf_o); //write canvas and keep the pdf file open
   c1.Clear();
 
@@ -1080,6 +1106,7 @@ TH1F *hResLumiTrkPhiPull = (TH1F*)fileIN->Get("hResLumiTrkPhiPull");
   mgResPy_sigma_in->Write();
   mgResPz_mean_in->Write();  
   mgResPz_sigma_in->Write();
+  mgEff->Write();
   //  legsh->Write();
   leg->Write();
   fout->Write();
