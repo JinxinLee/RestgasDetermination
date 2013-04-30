@@ -264,7 +264,7 @@ int main(int __argc,char *__argv[]) {
   TH1 *hPullMom = new TH1F("hPullMom","(P_{MC}-P_{REC})/#sigma_{P};",1e3,-1e1,1e1);
   //  TH1 *hResTheta = new TH1F("hResTheta","#theta_{MC}-#theta_{REC};#delta#theta,rad",1e3,-1e-2,1e-2);
   TH1 *hResTheta = new TH1F("hResTheta","#theta_{MC}-#theta_{REC};#delta#theta,rad",1e2,-thetam,thetam);//TEST
-  TH2 *hThetaResTheta = new TH2F("hThetaResTheta","#theta_{MC}-#theta_{REC};#theta,rad;#delta#theta,rad",1e2,0,1e-2,1e2,-thetam,thetam);//TEST
+  TH2 *hThetaResTheta = new TH2F("hThetaResTheta","#theta_{MC}-#theta_{REC};#theta,rad;#delta#theta,rad",2e1,0,1e-2,1e2,-thetam,thetam);//TEST
   TH1 *hErrTheta = new TH1F("hErrTheta","#sigma(#theta_{REC});#sigma,rad",1e3,0,10*thetam);
   TH1 *hPullTheta = new TH1F("hPullTheta","(#theta_{MC}-#theta_{REC})/#sigma_{#theta};",1e2,-10,10);
   TH1 *hResPhi = new TH1F("hResPhi","#phi_{MC}-#phi_{REC};#delta#phi,rad",2e3,-1.,1.);
@@ -323,7 +323,7 @@ int main(int __argc,char *__argv[]) {
   TH1 *hResLumiTrkThetaPull = new TH1F("hResLumiTrkThetaPull","(#theta_{MC}-#theta_{REC})/#sigma (near Lumi);#delta#theta, rad",1e2,-10,10);
   TH1 *hResLumiTrkPhiPull = new TH1F("hResLumiTrkPhiPull","(#phi_{MC}-#phi_{REC})/#sigma (near Lumi);#delta#phi, rad",1e2,-10,10);
 
-  TH2 *hMCidRefID = new TH2I("hMCidRefID","; MCid; RefID",100,0,100,100,0,100);
+  //  TH2 *hMCidRefID = new TH2I("hMCidRefID","; MCid; RefID",100,0,100,100,0,100);
 
   TNtuple *nBadTrks = new TNtuple("nBadTrks","Info about _bad_ rec.tracks ","xrec:yrec:zrec:pxrec:pyrec:pzrec:nrechits:xmc:ymc:zmc:pxmc:pymc:pzmc:mvID");
 
@@ -448,7 +448,7 @@ int main(int __argc,char *__argv[]) {
 	  continue;
 	PndSdsMCPoint* MCPoint = (PndSdsMCPoint*)(true_points->At(astripdigi->GetIndex(0)));
 	int MCidTOP = MCPoint->GetTrackID();
-	hMCidRefID->Fill(MCidTOP,myHit->GetRefIndex());
+	//	hMCidRefID->Fill(MCidTOP,myHit->GetRefIndex());
 	if(iHit<1){
 	  MCPointHit = MCPoint;
 	  MCid = MCidTOP;
@@ -635,7 +635,7 @@ int main(int __argc,char *__argv[]) {
   hResLumiTrkPointPzErr->Write();
   //  hResLumiTrkPointP->Write();
   //  hResLumiTrkPointPmcPrec->Write();
-  hMCidRefID->Write();
+  //  hMCidRefID->Write();
   hThetaResTheta->Write();
   nBadTrks->Write();
   f->Close();
