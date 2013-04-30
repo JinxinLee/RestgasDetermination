@@ -358,6 +358,7 @@ int main(int __argc,char *__argv[]) {
       if(lyambda==0){
 	cout<<"GEANE didn't propagate this trk!"<<endl;
 	glBADGEANE++;
+	nBadTrks->Fill(1e6,1e6,1e6,1e6,1e6,1e6,1e6,1e6,1e6,1e6,1e6,1e6,1e6,1e6);
       }
       if(lyambda==0) continue;
 
