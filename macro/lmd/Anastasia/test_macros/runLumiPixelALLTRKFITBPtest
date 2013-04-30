@@ -9,8 +9,8 @@ pathG=${VMCWORKDIR}/macro/lmd/testPixel/26042013/
 mkdir -p ${pathG}
 scaleP=1
 scaleM=1
-#MOM=(15 1.5 4.06 8.9 11.91) #GeV
-MOM=(1.5 4.06 8.9 11.91) #GeV
+MOM=(1.5 4.06 8.9 11.91 15) #GeV
+#MOM=(1.5 4.06 8.9 11.91) #GeV
 MOMN=${#MOM[@]}
   for (( jp=0;jp<$MOMN;jp++)); do
       pbeam=${MOM[${jp}]}
