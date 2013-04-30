@@ -325,6 +325,8 @@ int main(int __argc,char *__argv[]) {
 
   TH2 *hMCidRefID = new TH2I("hMCidRefID","; MCid; RefID",100,0,100,100,0,100);
 
+  TNtuple *nBadTrks = new TNtuple("nBadTrks","Info about _bad_ rec.tracks ","xrec:yrec:zrec:pxrec:pyrec:pzrec:nrechits:xmc:ymc:zmc:pxmc:pymc:pzmc:mvID");
+
   int glBADGEANE=0;
   //  int glBadEv = 0;
   //  int glNoisehit = 0;// total number of noise hits
@@ -361,6 +363,7 @@ int main(int __argc,char *__argv[]) {
 
       /// Read REC track parameters near IP -----------------------------------
       TVector3 MomRecPCA = fRes->GetMomentum();
+      TVector3 MomRecPCAnotnorm = MomRecPCA;
       MomRecPCA *= Plab/MomRecPCA.Mag();
       TVector3 PosRecPCA = fRes->GetPosition();
       Double_t errPx = fRes->GetDPx();
@@ -465,6 +468,7 @@ int main(int __argc,char *__argv[]) {
 	/// Read MC track parameters near IP ------------------------------------
 	PndMCTrack *mctrk =(PndMCTrack*) true_tracks->At(MCid);
 	Int_t mcID = mctrk->GetPdgCode();
+	int mvID = mctrk->GetMotherID();
 	TVector3 MomMCpca = mctrk->GetMomentum();
 	TVector3 PosMCpca = mctrk->GetStartVertex();
 	Double_t thetaMC = MomMCpca.Theta();
@@ -491,6 +495,9 @@ int main(int __argc,char *__argv[]) {
 	hResPhi->Fill(MomMCpca.Phi()-MomRecPCA.Phi());
 	hPullTheta->Fill((MomMCpca.Theta()-MomRecPCA.Theta())/err_lyambda);
 	hPullPhi->Fill((MomMCpca.Phi()-MomRecPCA.Phi())/err_phi);
+	//TNtuple *nBadTrks = new TNtuple("nBadTrks","Info about _bad_ rec.tracks ","xrec:yrec:zrec:pxrec:pyrec:pzrec:nrechits:xmc:ymc:zmc:pxmc:pymc:pzmc");
+	if(fabs(MomRecPCAnotnorm.Mag()-Plab)>0.1*Plab) 
+	  nBadTrks->Fill(PosRecPCA.X(),PosRecPCA.Y(),PosRecPCA.Z(),MomRecPCAnotnorm.X(),MomRecPCAnotnorm.Y(),MomRecPCAnotnorm.Z(),Ntrkcandhits,PosMCpca.X(),PosMCpca.Y(),PosMCpca.Z(),MomMCpca.X(),MomMCpca.Y(),MomMCpca.Z(),mvID);
 
 	//Near 1st LMD plane
 	/// Read MC track parameters near LMD ------------------------------------
@@ -630,6 +637,7 @@ int main(int __argc,char *__argv[]) {
   //  hResLumiTrkPointPmcPrec->Write();
   hMCidRefID->Write();
   hThetaResTheta->Write();
+  nBadTrks->Write();
   f->Close();
  cout<<"Number of trks where GEANE failed: "<<glBADGEANE<<endl;
 }
