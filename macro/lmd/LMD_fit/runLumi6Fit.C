@@ -10,7 +10,7 @@
 #include "PndLmdLumiFitResult.h"
 #include "PndLmdConstants.h"*/
 
-#include "../../lmd/LmdFit/PndLmdConstants.h"
+#include "../../../lmd/LmdFit/PndLmdConstants.h"
 
 /*
 #include "TLatex.h"
@@ -53,7 +53,7 @@ void runLumi6Fit(TString input_file_dir, const double mom, int nEvents = -1,
 	// ------------------------------------------------------------------------
 
 	gROOT->Macro("$VMCWORKDIR/gconfig/rootlogon.C");
-    gSystem->Load("libLumiFit");
+  gSystem->Load("libLmdFit");
 	//-lRooFit –lRooFitCore -lMinuit
 	/*gSystem->Load("libRooFit");
 	gSystem->Load("libRooFitCore");
@@ -83,7 +83,7 @@ void runLumi6Fit(TString input_file_dir, const double mom, int nEvents = -1,
 	std::vector<PndLmdData*> my_lmd_data_vec;
 
 	double data_range_low = 0.5;
-	double data_range_high = 16.0;
+	double data_range_high = 20.0;
 
 	for (int i = 10; i < 11; i = i + 1) {
 		PndLmdData *data = new PndLmdData(f, nEvents, mom, i * 10, 50, data_range_low,
@@ -96,8 +96,8 @@ void runLumi6Fit(TString input_file_dir, const double mom, int nEvents = -1,
 	std::vector<PndLmdAcceptance*> my_lmd_acc_vec;
 
 	for (int i = 10; i < 11; i = i + 1) {
-		PndLmdAcceptance *acc1 = new PndLmdAcceptance(f, nEvents, mom, i * 10, 50, 1.0,
-				15.0, -C_PI, C_PI, 0);
+		PndLmdAcceptance *acc1 = new PndLmdAcceptance(f, nEvents, mom, i * 10, 50, data_range_low,
+				data_range_high, -C_PI, C_PI, 0);
 		//PndLmdAcceptance *acc2 = new PndLmdAcceptance(f, mom, i * 10, 50, 1.0,
 		//		15.0, -C_PI, C_PI, 1);
 

@@ -7,7 +7,7 @@ void makeLumiFitPlots(TString path) {
   // ------------------------------------------------------------------------
 
   gROOT->Macro("$VMCWORKDIR/gconfig/rootlogon.C");
-  gSystem->Load("libLumiFit");
+  gSystem->Load("libLmdFit");
 
   PndLmdResultPlotter plotter;
 
@@ -18,7 +18,7 @@ void makeLumiFitPlots(TString path) {
    gStyle->SetPadLeftMargin(0.14);
    gStyle->SetPadRightMargin(0.1);*/
 
-  plotter.setThetaPlotRange(1.0, 12.0);
+  plotter.setThetaPlotRange(1.0, 18.0);
   //plotter.setTextLeftPos(0.20);
   //plotter.setTextTopPos(0.98);
   //plotter.setTextSpacing(0.08);
