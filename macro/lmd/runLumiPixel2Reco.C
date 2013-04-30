@@ -48,8 +48,10 @@ void runLumiPixel2Reco(const int nEvents=10, const int startEvent=0, TString sto
 
   // -----   Reconstruction run   -------------------------------------------
   FairRunAna *fRun= new FairRunAna();
-  fRun->SetInputFile(DigiFile);
-  fRun->AddFriend(MCFile);
+  fRun->SetInputFile(MCFile);
+  fRun->AddFriend(DigiFile);
+  // fRun->SetInputFile(DigiFile);
+  // fRun->AddFriend(MCFile);
   fRun->SetOutputFile(outFile);
   // ------------------------------------------------------------------------
 
