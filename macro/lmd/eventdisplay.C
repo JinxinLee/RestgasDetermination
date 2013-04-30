@@ -32,7 +32,7 @@ eventdisplay(TString storePath="tmpOutput")
 
   FairEventManager *fMan= new FairEventManager();
 
-  FairMCTracks *Track =  new FairMCTracks ("Monte-Carlo Tracks");
+  FairMCTracks *Track =  new FairMCTracks ("GeoTracks");
   fMan->AddTask(Track);
   FairMCPointDraw *MvdPoints =   new FairMCPointDraw ("LMDPoint",kBlue,kFullSquare);
   fMan->AddTask(MvdPoints);

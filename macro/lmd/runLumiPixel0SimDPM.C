@@ -149,7 +149,7 @@ const int verboseLevel=0)
   
   fRun->SetField(fField);
   
-  if(nEvents<101)
+  if(nEvents<450)
     fRun->SetStoreTraj(kTRUE); // toggle this for use with EVE
   else
     fRun->SetStoreTraj(kFALSE);
