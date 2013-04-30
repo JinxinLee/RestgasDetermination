@@ -8,8 +8,7 @@
 class PndGeoSttPar : public FairParGenericSet 
 {
  public:
-  TObjArray            *fGeoSensNodes; // List of FairGeoNodes for sensitive volumes
-  TObjArray            *fGeoPassNodes; // List of FairGeoNodes for sensitive volumes
+  TObjArray            *fTubeParams;
   Int_t                 fGeoType;
   Double_t              fTubeInRad, fTubeOutRad;
   
@@ -20,13 +19,12 @@ class PndGeoSttPar : public FairParGenericSet
   void clear(void);
   void putParams(FairParamList*);
   Bool_t getParams(FairParamList*);
-  TObjArray             *GetGeoSensitiveNodes(){return fGeoSensNodes;}
-  TObjArray             *GetGeoPassiveNodes(){return fGeoPassNodes;}
-  
+    TObjArray             *GetTubeParameters() { return fTubeParams; } 
+
   // additional function for geometry
   void                  SetGeometryType(Int_t geoType) { fGeoType = geoType; }
   void                  SetTubeInRad(Double_t inrad)   { fTubeInRad = inrad; }
-  void                SetTubeOutRad(Double_t outrad) { fTubeOutRad = outrad; }
+  void                  SetTubeOutRad(Double_t outrad) { fTubeOutRad = outrad; }
   Int_t                 GetGeometryType() { return (Int_t)    fGeoType;};
   Double_t              GetTubeInRad()    { return (Double_t) fTubeInRad;};
   Double_t              GetTubeOutRad()   { return (Double_t) fTubeOutRad;};

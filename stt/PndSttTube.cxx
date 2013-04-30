@@ -5,9 +5,9 @@
 PndSttTube::PndSttTube()
  :fCenPosition(TVector3(0,0,0)),
   fRotationMatrix(TMatrixT<double>(3,3)),
-  fRadIn(0),
-  fRadOut(0),
-  fHalfLength(0)
+  fTubeParms(new PndSttTubeParameters()),
+  fRadIn(-1),
+  fRadOut(-1)
 {
   fRotationMatrix[0][0] = -1.;
   fRotationMatrix[0][1] = -1.;
@@ -25,24 +25,26 @@ PndSttTube::PndSttTube()
 PndSttTube::PndSttTube(PndSttTube &tube)
   :fCenPosition(tube.GetPosition()),
    fRotationMatrix(TMatrixT<double>(3,3)),
+    fTubeParms(tube.GetTubeParameters()),
    fRadIn(tube.GetRadIn()),
-   fRadOut(tube.GetRadOut()),
-   fHalfLength(tube.GetHalfLength())
+   fRadOut(tube.GetRadOut())
+
 { 
   fRotationMatrix.ResizeTo(3,3);
   fRotationMatrix = tube.GetRotationMatrix();
 }
 
-PndSttTube::PndSttTube(Double_t x, Double_t y, Double_t z,
+PndSttTube::PndSttTube(PndSttTubeParameters *parms,
+		       Double_t x, Double_t y, Double_t z,
 		       Double_t r11, Double_t r12, Double_t r13,
 		       Double_t r21, Double_t r22, Double_t r23,
 		       Double_t r31, Double_t r32, Double_t r33,
-		       Double_t radin, Double_t radout, Double_t hl) 
+		       Double_t radin, Double_t radout)
   :fCenPosition(TVector3(x,y,z)),
-  fRotationMatrix(TMatrixT<double>(3,3)),
-  fRadIn(radin),
-  fRadOut(radout),
-  fHalfLength(hl)
+   fRotationMatrix(TMatrixT<double>(3,3)),
+   fTubeParms(parms),
+   fRadIn(radin),
+   fRadOut(radout)
 {
 
   //  fCenPosition.SetXYZ(x,y,z);
@@ -62,6 +64,7 @@ PndSttTube::PndSttTube(Double_t x, Double_t y, Double_t z,
 
 }
 
+
 PndSttTube::~PndSttTube(){
   fCenPosition.Delete();
   fRotationMatrix.Delete();
@@ -80,13 +83,21 @@ Double_t PndSttTube::GetRadOut() {
   return fRadOut; }
 
 Double_t PndSttTube::GetHalfLength() { 
-  return fHalfLength; }
+  return fTubeParms->GetHalfLength();
+}
+
+Int_t PndSttTube::GetTubeID() {
+  return fTubeParms->GetTubeID();
+}
 
 TVector3 PndSttTube::GetWireDirection(){
   return TVector3(fRotationMatrix[0][2], 
 		  fRotationMatrix[1][2], 
 		  fRotationMatrix[2][2]);}
 
+PndSttTubeParameters *PndSttTube::GetTubeParameters() {
+ return fTubeParms;
+}
 
 ClassImp(PndSttTube)
     

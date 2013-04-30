@@ -5,8 +5,10 @@
 #include <map>
 #include "TObject.h"
 
+class PndSttTubeParameters;
 class PndSttTube; 
 class PndGeoSttPar;
+class FairGeoNode;
 
 class PndSttMapCreator : public TObject
 {
@@ -16,27 +18,22 @@ class PndSttMapCreator : public TObject
   PndSttMapCreator(Int_t geoType);
   PndSttMapCreator(PndGeoSttPar *par); 
   ~PndSttMapCreator();
-
-  // general functions
+  
   void SetGeneralParameters();
-
-  // general functions, to be specified depending on geo type
-  Int_t GetTubeIDFromPath(TString path);
+  
+  // TO BE IMPLEMENTED WITH GEO TYPE n
+  PndSttTubeParameters *CreateTubeParameters(FairGeoNode *pnode);
+  Int_t FillSttTubeParameters(PndGeoSttPar *par, TList* volList);
+  
+  TClonesArray* FillTubeArray();
   Int_t GetTubeIDFromName(TString name);
-  PndSttTube * GetTubeFromTubeID(Int_t tubeid);
-  TClonesArray * FillTubeArray();
-  TString GetNameFromTubeID(Int_t tubeid);
+  PndSttTube * GetTubeFromParametersToFill(PndSttTubeParameters *parms);
+  TString GetPathFromTubeID(Int_t tubeid, Bool_t isCopy);
+  TString GetNameFromPath(TString path);
+  Int_t GetTubeIDFromPath(TString path);
+    PndSttTube * GetTubeFromTubeID(Int_t tubeid);
 
  private:
-
-  // geometry type 1 specific functions
-  Int_t GetTubeIDFromPathGeoType1(TString path);
-  Int_t GetTubeIDFromNameGeoType1(TString name);
-  TString GetNameFromPathGeoType1(TString path);
-  TString GetNameFromTubeIDGeoType1(Int_t tubeid, Bool_t isCopy);
-  PndSttTube * GetTubeFromTubeIDGeoType1(Int_t tubeid);
-  PndSttTube * GetTubeFromTubeIDToFillGeoType1(Int_t tubeid);
-  TClonesArray* FillTubeArrayGeoType1();
  
   Int_t fGeoType;
   PndGeoSttPar *fSttParameters;
@@ -48,10 +45,22 @@ class PndSttMapCreator : public TObject
   PndSttMapCreator(const  PndSttMapCreator& L);
   PndSttMapCreator& operator= (const  PndSttMapCreator&) {return *this;};
 
+  // GEO TYPE 1
+  PndSttTubeParameters *CreateTubeParametersGeoType1(FairGeoNode *pnode);
+  Int_t FillSttTubeParametersGeoType1(PndGeoSttPar *par, TList* volList);
+  TClonesArray* FillTubeArrayGeoType1();
+  TString GetNameFromPathGeoType1(TString path);
+  Int_t GetTubeIDFromNameGeoType1(TString name);
+  PndSttTube * GetTubeFromParametersToFillGeoType1(PndSttTubeParameters *parms);
+  TString GetPathFromTubeIDGeoType1(Int_t tubeid, Bool_t isCopy);
+  Int_t GetTubeIDFromPathGeoType1(TString path);
+  PndSttTube * GetTubeFromTubeIDGeoType1(Int_t tubeid);
+
  protected:
-
+  
+  
   ClassDef(PndSttMapCreator,1) 
-
-};
+    
+    };
 
 #endif

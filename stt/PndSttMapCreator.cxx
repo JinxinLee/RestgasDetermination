@@ -1,4 +1,18 @@
+/////////////////////////////////////////////////////////////
+// PndSttMapCreator
+//
+// Class to create the STT map:
+// usage: add to your task Init function:
+// PndSttMapCreator *mapper = new PndSttMapCreator(fSttParameters);
+// fTubeArray = mapper->FillTubeArray();
+// with fSttParameters = PndGeoSttPar from params.root file
+//
+// authors: Lia Lavezzi - INFN Pavia 
+//                        [changed to TGeoManager (2013)]
+/////////////////////////////////////////////////////////////
+
 #include "PndSttMapCreator.h"
+#include "PndSttTubeParameters.h"
 #include "PndSttTube.h"
 #include "PndGeoSttPar.h"
 
@@ -7,6 +21,7 @@
 #include "FairGeoVector.h"
 #include "FairGeoRotation.h"
 #include "FairGeoTube.h"
+#include "FairRun.h"
 
 #include "TGeoTube.h"
 #include "TVector3.h"
@@ -15,6 +30,9 @@
 #include "TGeoVolume.h"
 #include "TGeoTube.h"
 #include "TClonesArray.h"
+#include "TGeoManager.h"
+#include "TGeoVolume.h"
+#include "TList.h"
 
 #include <iostream>
 
@@ -23,28 +41,43 @@ using namespace std;
 PndSttMapCreator::PndSttMapCreator(){}
 
 // to use in PndStt
-PndSttMapCreator::PndSttMapCreator(Int_t geoType){
-  fGeoType = geoType;
-  if(fGeoType != 1) cout << "geometry not supported by map" << endl; // CHECK
-}
+PndSttMapCreator::PndSttMapCreator(Int_t geoType) {
 
-// crete geometry from parameters file
-PndSttMapCreator::PndSttMapCreator(PndGeoSttPar *sttPar)
-{
-  fSttParameters = sttPar;
+  fGeoType = geoType;
+  if(fGeoType != 1) cout << "-E- PndSttMapCreator: geometry not supported by map" << endl; // CHECK
+ 
+  if(!gGeoManager) cout << "-E- PndSttMapCreator: no geo manager " << endl; // CHECK
   // set general par
   SetGeneralParameters();
+
+}
+
+
+// crete geometry from parameters file
+PndSttMapCreator::PndSttMapCreator(PndGeoSttPar *sttPar) {
+  fSttParameters = sttPar;
+
+  if(!gGeoManager) cout << "-E- PndSttMapCreator: no geo manager " << endl; // CHECK
+  
   // choose geometry type
   fGeoType = sttPar->GetGeometryType(); // classic, optimized, average, detailed, CAD
 
-  if(fGeoType != 1) cout << "geometry not supported by map" << endl; // CHECK
+  if(fGeoType != 1) cout << "-E- PndSttMapCreator: geometry not supported by map" << endl; // CHECK
+  // set general par
+  SetGeneralParameters();
 }
 
 PndSttMapCreator::~PndSttMapCreator(){}
 
 void PndSttMapCreator::SetGeneralParameters() {   //  CHECK whether it depends on geometry or not
-  fTubeInRad = fSttParameters->GetTubeInRad();   // tube inner radius
-  fTubeOutRad = fSttParameters->GetTubeOutRad(); // tube outer radius
+  if(fGeoType == 1) {
+    fTubeInRad = 0.5; // tube inner radius cm
+    fTubeOutRad = 0.001; // tube outer radius cm CHECK why not: fTubeInRad + 0.001
+  }
+  else {
+    fTubeInRad = -1;
+    fTubeOutRad = -1;
+  }
 }
 
 // during simulation
@@ -71,42 +104,21 @@ TClonesArray * PndSttMapCreator::FillTubeArray() {
   return NULL;
 }
 
-TString PndSttMapCreator::GetNameFromTubeID(Int_t tubeid) {
-  PndSttTube *tube = GetTubeFromTubeID(tubeid);
-  if(!tube) return "NULL";        
- 
-  return tube->GetName();
-  //   if(fGeoType == 1) return GetNameFromTubeIDGeoType1(tubeid); // this can' t work without the difference copy/solo anymore
+// fill the tube map at the beginning of the run
+Int_t PndSttMapCreator::FillSttTubeParameters(PndGeoSttPar *par, TList* volList ) {
+  if(fGeoType == 1) return FillSttTubeParametersGeoType1(par, volList);
+  return -1;
 }
 
-// ===== GEO TYPE 1 =====
-// sensitive volume is gas 
-// when reading the parameters we use stt01tube to retrieve geometrical information
-
-// OK
+PndSttTubeParameters *PndSttMapCreator::CreateTubeParameters(FairGeoNode *pnode) {
+  if(fGeoType == 1) return CreateTubeParametersGeoType1(pnode);
+  return NULL;
+}
+// ------------------- simulation ----------------------------------------------------
 // during simulation
 Int_t PndSttMapCreator::GetTubeIDFromPathGeoType1(TString path){
   TString tmpstring = GetNameFromPathGeoType1(path);
   return GetTubeIDFromNameGeoType1(tmpstring);
-}
-
-// OK
-Int_t PndSttMapCreator::GetTubeIDFromNameGeoType1(TString name){
-  // two possibilities: we DON' T CARE and just take the XXX part
-  // copy : stt01tube#XXX  --> XXX
-  // solo : stt01tubeXXX --> XXX   
- 
-  TString tmpstring = name;
-
-  if(tmpstring.Contains("#")) {
-    int start = tmpstring.Index("#") + 1;
-    tmpstring = tmpstring(start, tmpstring.Sizeof());
-  } 
-  else{
-    int start = tmpstring.Index("e") + 1;
-    tmpstring = tmpstring(start, tmpstring.Sizeof());
-  }
-  return tmpstring.Atoi();
 }
 
 // OK
@@ -140,132 +152,242 @@ TString PndSttMapCreator::GetNameFromPathGeoType1(TString path){
 }
 
 // OK
-// name "#"
-TString PndSttMapCreator::GetNameFromTubeIDGeoType1(Int_t tubeid, Bool_t isCopy) {
+Int_t PndSttMapCreator::GetTubeIDFromNameGeoType1(TString name){
+  // two possibilities: we DON' T CARE and just take the XXX part
+  // copy : stt01tube#XXX  --> XXX
+  // solo : stt01tubeXXX --> XXX   
+ 
+  TString tmpstring = name;
 
-  // two possibilities:
-  // copy : XXX --> stt01tube#XXX  
-  // solo : XXX --> stt01tubeXXX
-
-  TString tmpstring; 
-  tmpstring += tubeid ;
-
-  if(isCopy == kTRUE) {
-    tmpstring.Prepend("stt01tube#");
+  if(tmpstring.Contains("#")) {
+    int start = tmpstring.Index("#") + 1;
+    tmpstring = tmpstring(start, tmpstring.Sizeof());
+  } 
+  else{
+    int start = tmpstring.Index("e") + 1;
+    tmpstring = tmpstring(start, tmpstring.Sizeof());
   }
-  else {
-    tmpstring.Prepend("stt01tube");
-  }
-  return tmpstring;
-
+  return tmpstring.Atoi();
 }
 
-// OK
-PndSttTube * PndSttMapCreator::GetTubeFromTubeIDGeoType1(Int_t tubeid) {
-
-  TObjArray *geoPassNodes = fSttParameters->GetGeoPassiveNodes();
-
-  Bool_t isCopy = copy_map[tubeid];
-  TString tubename  = GetNameFromTubeIDGeoType1(tubeid, isCopy);
-  FairGeoNode *pnode  = (FairGeoNode*) geoPassNodes->FindObject(tubename);
+Int_t PndSttMapCreator::FillSttTubeParametersGeoType1(PndGeoSttPar *par, TList* volList ) {
+  fSttParameters = par;
   
-  if(!pnode) {
-    cout << "PndSttMapCreator::GetTubeFromTubeIDGeoType1: tube " << tubename << " not found (nor as a copy)" << endl; 
-    return NULL;
+  fSttParameters->SetGeometryType(fGeoType);
+  fSttParameters->SetTubeInRad(fTubeInRad);
+  fSttParameters->SetTubeOutRad(fTubeOutRad);
+
+
+  // store geo parameter
+  TObjArray *pararray = fSttParameters->GetTubeParameters();
+  
+  TListIter iter(volList);
+  
+  FairGeoNode* node   = NULL;
+  FairGeoVolume *aVol=NULL;
+  int tubecounter = 0;
+  PndSttTubeParameters *parms = new PndSttTubeParameters();
+  pararray->AddLast(parms); // add this to have correspondence index <-> tubeid
+  while( (node = (FairGeoNode*) iter.Next()) ) {
+    if ( node->isSensitive()  ) continue;
+    TString nodename = node->GetName();
+    if(!nodename.Contains("stt01tube")) continue;
+    tubecounter++; 
+
+    parms = CreateTubeParameters(node);
+    pararray->AddLast(parms);
   }
-      
-  FairGeoTransform *lab = pnode->getLabTransform();
+
+  return tubecounter;
+}
+
+PndSttTubeParameters *PndSttMapCreator::CreateTubeParametersGeoType1(FairGeoNode *pnode) {
+  TString nodename = pnode->getName();
+  Int_t tubeID = GetTubeIDFromNameGeoType1(nodename);
+
+  FairGeoTransform  *lab = pnode->getLabTransform();
   FairGeoVector     tra = lab->getTransVector();
   FairGeoRotation   rot = lab->getRotMatrix();
-  
-  // geometrical info
-  double x = tra.getX()/10.; // in cm
-  double y = tra.getY()/10.; // in cm
-  double z = tra.getZ()/10.; // in cm
-  double r[3][3];
-  for(int i = 0; i < 3; i++)for(int j = 0; j < 3; j++) r[i][j] = rot.getElement(i,j);
-  
   TGeoVolume* rootvol = pnode->getRootVolume();
-  TGeoTube *tube = (TGeoTube*) rootvol->GetShape();
-  Double_t halflength = tube->GetDz(); // in cm
+  TGeoTube *gtube = (TGeoTube*) rootvol->GetShape();
+  Double_t halflength = gtube->GetDz(); // in cm
   
-  // sets up the correspondence int (tubeID) <--> int (1 = copy/0 = solo)
-  //  copy_map[key] = alloc
-  copy_map[tubeid] = isCopy;
+  PndSttTubeParameters *parms = new PndSttTubeParameters(tubeID, halflength);
+  return parms;
 
-  return new PndSttTube((float)x,(float)y,(float)z,  
-		    r[0][0],r[0][1],r[0][2],
-		    r[1][0],r[1][1],r[1][2],
-		    r[2][0],r[2][1],r[2][2],
-		    fTubeInRad, fTubeOutRad, halflength);
 }
 
-// OK
-PndSttTube * PndSttMapCreator::GetTubeFromTubeIDToFillGeoType1(Int_t tubeid) {
-
-  TObjArray *geoPassNodes = fSttParameters->GetGeoPassiveNodes();
-
-  Bool_t isCopy = kTRUE;
-
-  // try as if it was a copy stt01tube#XXX
-  TString  tubename = GetNameFromTubeIDGeoType1(tubeid, isCopy);
-  FairGeoNode *pnode = (FairGeoNode*) geoPassNodes->FindObject(tubename);
-  
-  if(!pnode) { // try as if it was a solo stt01tubeXXX
-    isCopy = kFALSE;
-    tubename = GetNameFromTubeIDGeoType1(tubeid, isCopy);
-    pnode = (FairGeoNode*) geoPassNodes->FindObject(tubename);
-  }
-
-  if(!pnode) {
-    cout << "PndSttMapCreator::GetTubeFromTubeIDToFillGeoType1: tube " << tubename << " not found (nor as a copy)" << endl; 
-    return NULL;
-  }
-      
-  FairGeoTransform *lab = pnode->getLabTransform();
-  FairGeoVector     tra = lab->getTransVector();
-  FairGeoRotation   rot = lab->getRotMatrix();
-  
-  // geometrical info
-  double x = tra.getX()/10.; // in cm
-  double y = tra.getY()/10.; // in cm
-  double z = tra.getZ()/10.; // in cm
-  double r[3][3];
-  for(int i = 0; i < 3; i++)for(int j = 0; j < 3; j++) r[i][j] = rot.getElement(i,j);
-  
-  TGeoVolume* rootvol = pnode->getRootVolume();
-  TGeoTube *tube = (TGeoTube*) rootvol->GetShape();
-  Double_t halflength = tube->GetDz(); // in cm
-  
-  // sets up the correspondence int (tubeID) <--> int (1 = copy/0 = solo)
-  //  copy_map[key] = alloc
-  copy_map[tubeid] = isCopy;
-
-  return new PndSttTube((float)x,(float)y,(float)z,  
-		    r[0][0],r[0][1],r[0][2],
-		    r[1][0],r[1][1],r[1][2],
-		    r[2][0],r[2][1],r[2][2],
-		    fTubeInRad, fTubeOutRad, halflength);
-}
-
+// --------------------------------------------------------------------------------
 TClonesArray* PndSttMapCreator::FillTubeArrayGeoType1() { 
+  TObjArray *pararray = fSttParameters->GetTubeParameters();
   
-  TObjArray *geoPassNodes = fSttParameters->GetGeoPassiveNodes();
   TClonesArray *tubeArray = new TClonesArray("PndSttTube");
   tubeArray->Delete();
-  for(int i = 0; i < geoPassNodes->GetEntriesFast(); i++) {
-    FairGeoNode *pnode = (FairGeoNode*) geoPassNodes->At(i);
-    if(!pnode) continue;
-    TString tubename = pnode->GetName();
-    if(!tubename.Contains("stt01tube")) continue;
-    Int_t tubeID = GetTubeIDFromNameGeoType1(tubename);
 
-    PndSttTube *stttube = GetTubeFromTubeIDToFillGeoType1(tubeID); 
+  for(int i = 0; i < pararray->GetEntries(); i++) {
+    PndSttTubeParameters *parms = (PndSttTubeParameters*) pararray->At(i);
+    int tubeID = parms->GetTubeID();
+    PndSttTube *stttube = GetTubeFromParametersToFillGeoType1(parms);
+    if(!stttube) continue;
     // correspondance position in TCA <-> tubeID
     new((*tubeArray)[tubeID]) PndSttTube(*stttube);
   }
 
   return tubeArray;
+}
+
+PndSttTube * PndSttMapCreator::GetTubeFromParametersToFillGeoType1(PndSttTubeParameters *parms) {
+
+  Int_t tubeid = parms->GetTubeID();
+  if(tubeid == -1) {
+    cout << "PndSttMapCreator::GetTubeFromParametersToFillGeoType1: tube " << tubeid << " not found (nor as a copy)" << endl;
+    return NULL;
+  }
+
+  gGeoManager->cd("/cave_1/stt01assembly_0");
+  TGeoNode *assembly_node = gGeoManager->GetCurrentNode();
+  double local[3] = {0., 0., 0.}, master[3];
+  assembly_node->LocalToMaster(local, master);
+  TVector3 assembly_position(master[0], master[1], master[2]);
+
+
+  Bool_t isCopy = kTRUE;
+
+  // try as if it was a copy stt01tube#XXX
+  TString  path = GetPathFromTubeIDGeoType1(tubeid, isCopy);
+ 
+  bool ispath = gGeoManager->CheckPath(path); 
+  if(ispath == kFALSE) {                        // try as if it was a solo stt01tubeXXX
+    isCopy = kFALSE;
+    path = GetPathFromTubeIDGeoType1(tubeid, isCopy);
+    ispath = gGeoManager->CheckPath(path);
+  }
+  if(ispath == kFALSE) {   
+    cout << "PndSttMapCreator::GetTubeFromParametersToFillGeoType1: tube " << tubeid << " not found (nor as a copy)" << endl; 
+    return NULL;
+  }
+
+  gGeoManager->cd(path);
+  TGeoNode* tube_node = gGeoManager->GetCurrentNode();
+  tube_node->LocalToMaster(local, master);
+  TVector3 tube_position(master[0], master[1], master[2]);
+  tube_position += assembly_position; 
+
+  // tube_position.Print();
+
+  
+  // geometrical info
+  double x = tube_position.X();
+  double y = tube_position.Y();
+  double z = tube_position.Z();
+
+  TGeoMatrix *mat = tube_node->GetMatrix();
+  Double_t const *rotation = mat->GetRotationMatrix();
+
+  double r[3][3];
+  int irot = 0, i = 0, j = 0;
+  for(i = 0; i < 3; i++) {
+    for(j = 0; j < 3; j++) {
+      r[i][j] = rotation[irot];
+      irot++;
+    }
+  }
+
+  // sets up the correspondence int (tubeID) <--> int (1 = copy/0 = solo)
+  //  copy_map[key] = alloc
+  copy_map[tubeid] = isCopy;
+
+  return new PndSttTube(parms,
+			(float)x,(float)y,(float)z,  
+			r[0][0],r[0][1],r[0][2],
+			r[1][0],r[1][1],r[1][2],
+			r[2][0],r[2][1],r[2][2],
+			fSttParameters->GetTubeInRad(), fSttParameters->GetTubeOutRad());
+
+}
+
+PndSttTube * PndSttMapCreator::GetTubeFromTubeIDGeoType1(Int_t tubeid) {
+
+  Bool_t isCopy = copy_map[tubeid];
+
+
+  gGeoManager->cd("/cave_1/stt01assembly_0");
+  TGeoNode *assembly_node = gGeoManager->GetCurrentNode();
+  double local[3] = {0.,  0., 0.}, master[3];
+  assembly_node->LocalToMaster(local, master);
+  TVector3 assembly_position(master[0], master[1], master[2]);
+
+
+  // try as if it was a copy stt01tube#XXX
+  TString  path = GetPathFromTubeIDGeoType1(tubeid, isCopy);
+ 
+  bool ispath = gGeoManager->CheckPath(path); 
+ 
+  if(ispath == kFALSE) {   
+    cout << "PndSttMapCreator::GetTubeFromTubeIDGeoType1: tube " << tubeid << " not found (nor as a copy)" << endl; 
+    return NULL;
+  }
+
+  gGeoManager->cd(path);
+  TGeoNode* tube_node = gGeoManager->GetCurrentNode();
+  tube_node->LocalToMaster(local, master);
+  TVector3 tube_position(master[0], master[1], master[2]);
+  tube_position += assembly_position; 
+
+  // tube_position.Print();
+
+  
+  // geometrical info
+  double x = tube_position.X();
+  double y = tube_position.Y();
+  double z = tube_position.Z();
+
+  TGeoMatrix *mat = tube_node->GetMatrix();
+  Double_t const *rotation = mat->GetRotationMatrix();
+
+  double r[3][3];
+  int irot = 0, i = 0, j = 0;
+  for(i = 0; i < 3; i++) {
+    for(j = 0; j < 3; j++) {
+      r[i][j] = rotation[irot];
+      irot++;
+    }
+  }
+
+  TObjArray *parmsarray = fSttParameters->GetTubeParameters();
+  PndSttTubeParameters *parms = (PndSttTubeParameters*) parmsarray->At(tubeid); // CHECK
+
+
+  return new PndSttTube(parms,
+			(float)x,(float)y,(float)z,  
+			r[0][0],r[0][1],r[0][2],
+			r[1][0],r[1][1],r[1][2],
+			r[2][0],r[2][1],r[2][2],
+			fSttParameters->GetTubeInRad(), fSttParameters->GetTubeOutRad());
+
+}
+
+
+// name as in geo file: from path "_" to name "#"
+TString PndSttMapCreator::GetPathFromTubeIDGeoType1(Int_t tubeid,  Bool_t isCopy) {
+ 
+  // two possibilities:
+  // stt01tube#XXX  --> copy : /cave_1/stt01assembly_0/stt01tube_XXX/stt01gas_1     --> stt01tube#XXX
+  // stt01tubeXXX   --> solo : /cave_1/stt01assembly_0/stt01tubeXXX_0/stt01gasXXX_0 --> stt01tubeXXX
+
+  TString tmpstring; 
+  tmpstring += tubeid ;
+
+  if(isCopy == kTRUE) tmpstring.Prepend("_");
+  else tmpstring.Append("_0");
+  tmpstring.Prepend("stt01tube");
+  
+  TString cavename;
+  cavename = "/cave_1/stt01assembly_0/";
+  tmpstring.Prepend(cavename);
+  
+  
+  return tmpstring;
 }
 
 ClassImp(PndSttMapCreator)

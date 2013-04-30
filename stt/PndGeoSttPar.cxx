@@ -9,13 +9,12 @@ using namespace std;
 
 ClassImp(PndGeoSttPar)
 
-PndGeoSttPar::PndGeoSttPar(const char* name,const char* title,const char* context)
+  PndGeoSttPar::PndGeoSttPar(const char* name,const char* title,const char* context)
     : FairParGenericSet(name,title,context), 
-  fGeoSensNodes(new TObjArray()),
-  fGeoPassNodes(new TObjArray()),
-  fGeoType(-1),
-  fTubeInRad(0), 
-  fTubeOutRad(0)
+      fTubeParams(new TObjArray()),
+      fGeoType(-1),
+      fTubeInRad(0), 
+      fTubeOutRad(0)
 {
 }
 
@@ -24,8 +23,7 @@ PndGeoSttPar::~PndGeoSttPar(void)
 }
 
 PndGeoSttPar::PndGeoSttPar(PndGeoSttPar& par) :
-  fGeoSensNodes(par.GetGeoSensitiveNodes()),
-  fGeoPassNodes(par.GetGeoPassiveNodes()),
+  fTubeParams(par.GetTubeParameters()),
   fGeoType(par.GetGeometryType()),
   fTubeInRad(par.GetTubeInRad()), 
   fTubeOutRad(par.GetTubeOutRad())
@@ -34,15 +32,14 @@ PndGeoSttPar::PndGeoSttPar(PndGeoSttPar& par) :
 
 void PndGeoSttPar::clear(void) 
 {
-    if(fGeoSensNodes) delete fGeoSensNodes;
-    if(fGeoPassNodes) delete fGeoPassNodes;
+    if(fTubeParams) delete fTubeParams;
 }
+
 
 void PndGeoSttPar::putParams(FairParamList* l) 
 {
   if (!l) return;
-  l->addObject("FairGeoNodes Sensitive List", fGeoSensNodes);
-  l->addObject("FairGeoNodes Passive List", fGeoPassNodes); 
+  l->addObject("PndSttTubs List", fTubeParams); 
   l->add("Tube_Inner_Radius", fTubeInRad);
   l->add("Tube_Outer_Radius", fTubeOutRad);
   l->add("Geometry_Type", fGeoType);
@@ -51,8 +48,7 @@ void PndGeoSttPar::putParams(FairParamList* l)
 Bool_t PndGeoSttPar::getParams(FairParamList* l) 
 {
     if (!l) return kFALSE;
-    if (!l->fillObject("FairGeoNodes Sensitive List", fGeoSensNodes)) return kFALSE;
-    if (!l->fillObject("FairGeoNodes Passive List", fGeoPassNodes)) return kFALSE; 
+    if (!l->fillObject("PndSttTubs Listt", fTubeParams)) return kFALSE; 
     if (!l->fill("Tube_Inner_Radius", &fTubeInRad) )  return kFALSE;
     if (!l->fill("Tube_Outer_Radius", &fTubeOutRad)) return kFALSE;
     if (!l->fill("Geometry_Type", &fGeoType)) return kFALSE;

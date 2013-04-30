@@ -170,20 +170,16 @@ Bool_t  PndStt::ProcessHits(FairVolume* vol)
 	    fLength = gMC->TrackLength();
 	    gMC->TrackPosition(fPos);
 	    gMC->TrackMomentum(fMomIn);
-	    gMC->TrackPosition(fpostotin);// da cancellare
-	    Double_t globalPos[3] = {0., 0., 0.}; // stt1 modified
-	    Double_t localPos[3] = {0., 0., 0.}; // stt1 modified
+	    gMC->TrackPosition(fpostotin); // CHECK delete this?
+	    Double_t globalPos[3] = {0., 0., 0.};
+	    Double_t localPos[3] = {0., 0., 0.}; 
 	    
 	    globalPos[0] = fPos.X();
 	    globalPos[1] = fPos.Y();
 	    globalPos[2] = fPos.Z();
 	    
-	
 	    gMC->Gmtod(globalPos, localPos, 1);
 	    fPosInLocal.SetXYZM(localPos[0], localPos[1], localPos[2], 0.0);
-	    
-	    
-	    
 	}
 
       
@@ -197,13 +193,13 @@ Bool_t  PndStt::ProcessHits(FairVolume* vol)
 	{
 	  fInFlag = kFALSE;
 	  fTrackID  = gMC->GetStack()->GetCurrentTrackNumber();
-	  fVolumeID = kSTT;//vol->getMCid();
-	  fMass = gMC->TrackMass();   // mass (GeV)
+	  fVolumeID = kSTT;                // vol->getMCid();
+	  fMass = gMC->TrackMass();        // mass (GeV)
 	  gMC->TrackPosition(fPosOut);
 	  gMC->TrackMomentum(fMomOut);
-	  gMC->TrackPosition(fpostotout);// da cancellare
-	  Double_t globalPos[3] = {0., 0., 0.}; // stt1 modified
-	  Double_t localPos[3] = {0., 0., 0.}; // stt1 modified
+	  gMC->TrackPosition(fpostotout);  // CHECK (delete this?)
+	  Double_t globalPos[3] = {0., 0., 0.}; 
+	  Double_t localPos[3] = {0., 0., 0.}; 
 	  
 	  gMC->Gdtom(localPos, globalPos, 1);
 	  
@@ -216,96 +212,14 @@ Bool_t  PndStt::ProcessHits(FairVolume* vol)
 	  gMC->Gmtod(globalPos, localPos, 1);
 	  fPosOutLocal.SetXYZM(localPos[0], localPos[1], localPos[2], 0.0);
 	  
-	  
-	  // string basename("stt1tube");
-	  string basename;
-	  TString volumename;
-	  string
-	    hashmark("#"),
-	    volName,
-	    fullName,
-	    number,
-	    specialname,
-	    volPath(gMC->CurrentVolPath()),
-	    volPath2(gMC->CurrentVolPath());
-	  
-	  volumename = volPath;
-	  volName = GetStringPart(volPath, 3, '/');
-	  number = GetStringPart(volName, 1, '_');	
-	  
-	  Int_t start =volPath2.find("stt01tube",0);
-	  specialname = volPath2.substr(start,volPath2.find("_",start)-start);
+	  fpostot.SetXYZM((fpostotin.X() +  fpostotout.X())/2., (fpostotin.Y() + fpostotout.Y())/2., (fpostotin.Z() + fpostotout.Z())/2.,0.0);  // CHECK (delete this?)
 
-	  if(volumename.Contains("stt01")) basename = "stt01tube";
-// 	  if(volumename.Contains("stt02")) basename = "stt02tube";
-// 	  if(volumename.Contains("stt03")) basename = "stt03tube";
-// 	  if(volumename.Contains("stt04")) basename = "stt04tube";
-// 	  if(volumename.Contains("stt05")) basename = "stt05tube";
-// 	  if(volumename.Contains("stt06")) basename = "stt06tube";
-// 	  if(volumename.Contains("stt07")) basename = "stt07tube";
-// 	  if(volumename.Contains("stt08")) basename = "stt08tube";
-// 	  if(volumename.Contains("stt09")) basename = "stt09tube";
-// 	  if(volumename.Contains("stt10")) basename = "stt10tube";
-// 	  if(volumename.Contains("stt11")) basename = "stt11tube";
-// 	  if(volumename.Contains("stt12")) basename = "stt12tube";
-// 	  if(volumename.Contains("stt13")) basename = "stt13tube";
-// 	  if(volumename.Contains("stt14")) basename = "stt14tube";
-// 	  if(volumename.Contains("stt15")) basename = "stt15tube";
-	  
-	  fullName = basename + hashmark + number;
-	  
-	  //  cout << "volname: " << volName <<  " " << volumename << endl;
-	  // 	    cout << "number: " << number << endl;
-	  //      cout << gMC->CurrentVolPath() << endl;
-	  // 	    cout << "fullname: " << fullName << endl;
- 	
-	  FairGeoNode 
-	    *volnode = dynamic_cast<FairGeoNode*> (fPassNodes->FindObject(fullName.c_str()));
-	    
-	  if(number=="0") {
-	    volnode = dynamic_cast<FairGeoNode*> (fPassNodes->FindObject(specialname.c_str()));
-	    //cout<<">>>>"<<endl;
-	    //cout<<"special "<<specialname.c_str()<<endl;
-	  }
-	    
-	  if (!volnode)
-	    {
-	      cout << "-I- PndStt: No volume " << fullName.c_str() << " found in geometry container."  << endl;
-	      return kFALSE;
-	    }
-	    
+	  // CHECK -----------------------------------------------------------
+	  PndSttMapCreator *mapper = new PndSttMapCreator(fGeoType);
+	  Int_t tubeID = mapper->GetTubeIDFromPath(gMC->CurrentVolPath());
+	  // -----------------------------------------------------------------
 
-
-	  //   cout << "positionc: " << fPos.X() << " " << fPos.Y() << " " << fPos.Z() << endl;	// da cancellare
-	  //    cout << "position: " << fpostot.X() << " " << fpostot.Y() << " " << fpostot.Z() << endl;
-	  
-	  // if(sqrt(fPosInLocal.X()*fPosInLocal.X() + fPosInLocal.Y()*fPosInLocal.Y()) < 0.45) {
-	  // 	      cout << "position in : " << sqrt(fPosInLocal.X()*fPosInLocal.X() + fPosInLocal.Y()*fPosInLocal.Y()) << endl;
-	  // 	    }
-	  // 	    if(sqrt(fPosOutLocal.X()*fPosOutLocal.X() + fPosOutLocal.Y()*fPosOutLocal.Y()) < 0.45)  {
-	  // 	      cout << "position out: " << sqrt(fPosOutLocal.X()*fPosOutLocal.X() + fPosOutLocal.Y()*fPosOutLocal.Y()) << endl;
-
-	  // 	    }
- 	//for ex2
-	fpostot.SetXYZM((fpostotin.X() +  fpostotout.X())/2., (fpostotin.Y() + fpostotout.Y())/2., (fpostotin.Z() + fpostotout.Z())/2.,0.0); // da cancellare
-	//for GFKalman
-	//fpostot.SetXYZM(fpostotout.X(), fpostotout.Y(), fpostotout.Z(), 0.0);
-
-
-	  //  cout << "in : " << fpostotin.X() << " " << fpostotin.Y() << " " << fpostotin.Z() << endl;
-	  // 	    cout << "out: " << fpostotout.X() << " " << fpostotout.Y() << " " << fpostotout.Z() << endl;
-	  // 	    cout << "tot: " << fpostot.X() << " " << fpostot.Y() << " " << fpostot.Z() << endl;
-	  // 	    cout << (fpostotin.X() +  fpostotout.X())/2. << " " << (fpostotin.Y() + fpostotout.Y())/2. << " " << (fpostotin.Z() + fpostotout.Z())/2. << endl;
-
-	// CHECK -----------------------------------------------------------
-	PndSttMapCreator *mapper = new PndSttMapCreator(fGeoType);
-	Int_t tubeID = mapper->GetTubeIDFromPath(gMC->CurrentVolPath());
-	//	cout << gMC->CurrentVolPath() << endl;
-	//	cout << "tubeID " << tubeID << " " << mapper->GetNameFromTubeID(tubeID) << endl;
-	//	cout << fPos.X() << " " << fPos.Y() << " " << fPos.Z() << endl;
-	// -----------------------------------------------------------------
-
-	AddHit(fTrackID, fVolumeID, tubeID,
+	  AddHit(fTrackID, fVolumeID, tubeID,
 	       TVector3(fpostot.X(), fpostot.Y(), fpostot.Z()),
 	       TVector3(fPosInLocal.X(),   fPosInLocal.Y(),   fPosInLocal.Z()),
 	       TVector3(fPosOutLocal.X(),  fPosOutLocal.Y(),  fPosOutLocal.Z()),
@@ -427,40 +341,22 @@ void PndStt::ConstructGeometry()
   Bool_t rc = geoFace->readSet(Geo);
   if (rc) Geo->create(geoLoad->getGeoBuilder());
 
+  // store geo parameter with PndSttMapCreator
   TList* volList = Geo->getListOfVolumes();
-
-  // store geo parameter
   FairRun *fRun = FairRun::Instance();
   FairRuntimeDb *rtdb= FairRun::Instance()->GetRuntimeDb();
   PndGeoSttPar* par=(PndGeoSttPar*)(rtdb->getContainer("PndGeoSttPar"));
-  TObjArray *fSensNodes = par->GetGeoSensitiveNodes();
-  fPassNodes = par->GetGeoPassiveNodes();
-
   TListIter iter(volList);
-  FairGeoNode* node   = NULL;
-  FairGeoVolume *aVol=NULL;
-  
-  
-  while( (node = (FairGeoNode*)iter.Next()) ) {
-      aVol = dynamic_cast<FairGeoVolume*> ( node );
-       if ( node->isSensitive()  ) {
-           fSensNodes->AddLast( aVol );
-       }else{
-           fPassNodes->AddLast( aVol );
-       }
-  }
+  // CHECK 
+  if(GetGeometryFileName().Contains("straws_skewed_blocks_35cm_pipe.geo")) fGeoType = 1; 
+  else cout << "-E- STT: this geometry is not supported now" << endl;
 
-  // CHECK to be changed: put a dependance on which file ------
-  // is used, for the moment let' s keep it this way!
-  fGeoType = 1; // CHECK
-  par->SetGeometryType(fGeoType);
-  par->SetTubeInRad(0.5);    // cm
-  par->SetTubeOutRad(0.001); // cm
-  // ----------------------------------------------------------
-
+  PndSttMapCreator *mapper = new PndSttMapCreator(fGeoType);
+  int tubecounter =  mapper->FillSttTubeParameters(par, volList);
+  cout << "-I- STT total number of tubes: " << tubecounter << endl;
   par->setChanged();
   par->setInputVersion(fRun->GetRunId(),1);
-
+  
   ProcessNodes ( volList );
   
 }
