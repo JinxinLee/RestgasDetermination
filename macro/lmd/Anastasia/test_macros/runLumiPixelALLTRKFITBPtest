@@ -42,10 +42,10 @@ MOMN=${#MOM[@]}
 
 
 #     ### or Kalman Fillter with GEANE
-root -l -b -q runLumi4KalmanFitter.C\(${numEv},0,"\"${path}\"",0,1,${mergedHits},"\"GEANE\"",$scaleP,$scaleM\) 
+root -l -b -q runLumi4KalmanFitter.C\(${numEv},0,"\"${path}\"",0,1,${mergedHits},"\"GEANE\"",$scaleP,$scaleM\) &> ${path}/logKALMANGEANE
 
 #    use GEANE for back-propagation
-   root -l -b -q runLumi5Geane.C\(${numEv},${pbeam},0,"\"${path}\"",0,${mergedHits}\)
+   root -l -b -q runLumi5Geane.C\(${numEv},${pbeam},0,"\"${path}\"",0,${mergedHits}\) ${path}/logBPGEANE
 	cd ${VMCWORKDIR}/buildPanda/bin
 	./simple_mc_rec_match -s 0 -n ${numEv} -mom ${pbeam} -v 0 -path ${path}
   mv ${path}/Lumi_compare_MC_and_REC_trks_0.root  ${path}/Lumi_compare_MC_and_REC_trks_KALMANGEANE_BPGEANE.root 
