@@ -209,105 +209,109 @@ set_target_properties(LmdTool PROPERTIES ${FAIRROOT_LIBRARY_PROPERTIES})
 # ${FAIRROOT_LIBRARY_PROPERTIES})
 
 #Model framework needs c++11 because of shared_ptrs which are part of std there
-add_definitions(-W -Wall -Wextra -pedantic -std=c++0x)
+#add_definitions(-W -Wall -Wextra -std=c++0x)
 
 #ok this only works if the external packages were build to an external
 #location. sep12 packages or higher require this though!
-set(MODEL_INCLUDE_DIRECTORIES
-${SIMPATH}/include
-)
-
-include_directories( ${MODEL_INCLUDE_DIRECTORIES})
-########################### create libModel  ##################################
-set(LMDTRK_SRCS
-
-LmdFit/Model.cxx 
-LmdFit/Model1D.cxx
-LmdFit/Model2D.cxx 
-LmdFit/ModelParameterHandler.cxx 
-LmdFit/ModelParSet.cxx 
-LmdFit/ModelPar.cxx
-LmdFit/AdditionModel1D.cxx 
-LmdFit/NumericConvolutionModel1D.cxx 
-LmdFit/NumericConvolutionModel2D.cxx
-LmdFit/ProductModel1D.cxx
-LmdFit/Parametrization.cxx 
-LmdFit/ParametrizationModel.cxx 
-LmdFit/ParametrizationProxy.cxx 
-LmdFit/GaussianModel1D.cxx 
-LmdFit/DoubleGaussianModel1D.cxx 
-LmdFit/ExponentialModel1D.cxx 
-LmdFit/PolynomialModel1D.cxx
-)
-
-set (LMD_RULECHECKER_SRCS ${LMD_RULECHECKER_SRCS} ${LMDTRK_SRCS})
-
-if(RULE_CHECKER_FOUND)
-  CHECK_RULES("${LMD_RULECHECKER_SRCS}" "${MODEL_INCLUDE_DIRECTORIES}" LMD_RULES)
-endif(RULE_CHECKER_FOUND)
-
-
-# fill list of header files from list of source files
-# by exchanging the file extension
-CHANGE_FILE_EXTENSION(*.cxx *.h LMDTRK_HEADERS "${LMDTRK_SRCS}")
-
-add_library(Model SHARED ${LMDTRK_SRCS})
-
-
-include_directories( ${INCLUDE_DIRECTORIES})
-
-########################### create libLmdFit ##################################
-set(LMDTRK_SRCS
-
-LmdFit/PndLmdDataInterface.cxx 
-LmdFit/PndLmdDataBase.cxx 
-LmdFit/PndLmdAcceptance.cxx 
-LmdFit/PndLmdData.cxx
-LmdFit/PndLmdResolution.cxx 
-LmdFit/PndLmdLumiFitOptions.cxx 
-LmdFit/PndLmdLumiFitResult.cxx
-LmdFit/PndLmdLumiHelper.cxx 
-LmdFit/PndLmdDPMMTModel1D.cxx 
-LmdFit/PndLmdDPMAngModel1D.cxx 
-LmdFit/PndLmdDPMMTModel2D.cxx 
-LmdFit/PndLmdDPMModelParametrization.cxx 
-LmdFit/PndLmdLumiModelFitter.cxx 
-LmdFit/PndLmdModelFactory.cxx 
-LmdFit/PndLmdSmearingGaussianModelParametrization1D.cxx
-LmdFit/PndLmdROOTDataModel1D.cxx 
-LmdFit/PndLmdSmearingDoubleGaussianModelParametrization1D.cxx 
-LmdFit/PndLmdResultPlotter.cxx
-)
-set (LMD_RULECHECKER_SRCS ${LMD_RULECHECKER_SRCS} ${LMDTRK_SRCS})
-
-set(LMDFITDICT_HEADERS
-LmdFit/PndLmdLumiFitResult.h
-LmdFit/PndLmdLumiFitOptions.h 
-LmdFit/PndLmdDataInterface.h
-LmdFit/PndLmdDataBase.h
-LmdFit/PndLmdData.h
-LmdFit/PndLmdAcceptance.h
-LmdFit/PndLmdLumiHelper.h 
-LmdFit/PndLmdResultPlotter.h
-)
-
-if(RULE_CHECKER_FOUND)
-  CHECK_RULES("${LMD_RULECHECKER_SRCS}" "${INCLUDE_DIRECTORIES}" LMD_RULES)
-endif(RULE_CHECKER_FOUND)
-
-
-# fill list of header files from list of source files
-# by exchanging the file extension
-CHANGE_FILE_EXTENSION(*.cxx *.h LMDTRK_HEADERS "${LMDTRK_SRCS}")
-set(LMDTRK_LINKDEF  LmdFitLinkDef.h)
-set(LMDTRK_DICTIONARY ${CMAKE_CURRENT_BINARY_DIR}/LmdFitDict.cxx)
-
-ROOT_GENERATE_DICTIONARY("${LMDFITDICT_HEADERS}" "${LMDTRK_LINKDEF}" "${LMDTRK_DICTIONARY}" "${INCLUDE_DIRECTORIES}")
-SET(LMDTRK_SRCS ${LMDTRK_SRCS} ${LMDTRK_DICTIONARY})
-
-add_library(LmdFit SHARED ${LMDTRK_SRCS})
-target_link_libraries(LmdFit Model ${ROOT_LIBRARIES})
-set_target_properties(LmdFit PROPERTIES ${FAIRROOT_LIBRARY_PROPERTIES})
+#set(MODEL_INCLUDE_DIRECTORIES
+#${SIMPATH}/include
+#)
+#
+#include_directories( ${MODEL_INCLUDE_DIRECTORIES})
+############################ create libModel  ##################################
+#set(LMDTRK_SRCS
+#
+#LmdFit/Model.cxx 
+#LmdFit/Model1D.cxx
+#LmdFit/IntegralStrategy1D.cxx
+#LmdFit/IntegralStrategyGSL1D.cxx
+#LmdFit/IntegralStrategySR1D.cxx
+#LmdFit/Model2D.cxx 
+#LmdFit/ModelParameterHandler.cxx 
+#LmdFit/ModelParSet.cxx 
+#LmdFit/ModelPar.cxx
+#LmdFit/ModelFitInterface.cxx
+#LmdFit/AdditionModel1D.cxx 
+#LmdFit/NumericConvolutionModel1D.cxx 
+#LmdFit/NumericConvolutionModel2D.cxx
+#LmdFit/ProductModel1D.cxx
+#LmdFit/Parametrization.cxx 
+#LmdFit/ParametrizationModel.cxx 
+#LmdFit/ParametrizationProxy.cxx 
+#LmdFit/GaussianModel1D.cxx 
+#LmdFit/DoubleGaussianModel1D.cxx 
+#LmdFit/ExponentialModel1D.cxx 
+#LmdFit/PolynomialModel1D.cxx
+#)
+#
+#set (LMD_RULECHECKER_SRCS ${LMD_RULECHECKER_SRCS} ${LMDTRK_SRCS})
+#
+#if(RULE_CHECKER_FOUND)
+#  CHECK_RULES("${LMD_RULECHECKER_SRCS}" "${MODEL_INCLUDE_DIRECTORIES}" LMD_RULES)
+#endif(RULE_CHECKER_FOUND)
+#
+#
+## fill list of header files from list of source files
+## by exchanging the file extension
+#CHANGE_FILE_EXTENSION(*.cxx *.h LMDTRK_HEADERS "${LMDTRK_SRCS}")
+#
+#add_library(Model SHARED ${LMDTRK_SRCS})
+#
+#
+#include_directories( ${INCLUDE_DIRECTORIES})
+#
+############################ create libLmdFit ##################################
+#set(LMDTRK_SRCS
+#
+#LmdFit/PndLmdDataInterface.cxx 
+#LmdFit/PndLmdDataBase.cxx 
+#LmdFit/PndLmdAcceptance.cxx 
+#LmdFit/PndLmdData.cxx
+#LmdFit/PndLmdResolution.cxx 
+#LmdFit/PndLmdLumiFitOptions.cxx 
+#LmdFit/PndLmdLumiFitResult.cxx
+#LmdFit/PndLmdLumiHelper.cxx 
+#LmdFit/PndLmdDPMMTModel1D.cxx 
+#LmdFit/PndLmdDPMAngModel1D.cxx 
+#LmdFit/PndLmdDPMMTModel2D.cxx 
+#LmdFit/PndLmdDPMModelParametrization.cxx 
+#LmdFit/PndROOTModelFitter.cxx 
+#LmdFit/PndLmdModelFactory.cxx 
+#LmdFit/PndLmdSmearingGaussianModelParametrization1D.cxx
+#LmdFit/PndLmdROOTDataModel1D.cxx 
+#LmdFit/PndLmdSmearingDoubleGaussianModelParametrization1D.cxx 
+#LmdFit/PndLmdResultPlotter.cxx
+#)
+#set (LMD_RULECHECKER_SRCS ${LMD_RULECHECKER_SRCS} ${LMDTRK_SRCS})
+#
+#set(LMDFITDICT_HEADERS
+#LmdFit/PndLmdLumiFitResult.h
+#LmdFit/PndLmdLumiFitOptions.h 
+#LmdFit/PndLmdDataInterface.h
+#LmdFit/PndLmdDataBase.h
+#LmdFit/PndLmdData.h
+#LmdFit/PndLmdAcceptance.h
+#LmdFit/PndLmdLumiHelper.h 
+#LmdFit/PndLmdResultPlotter.h
+#)
+#
+#if(RULE_CHECKER_FOUND)
+#  CHECK_RULES("${LMD_RULECHECKER_SRCS}" "${INCLUDE_DIRECTORIES}" LMD_RULES)
+#endif(RULE_CHECKER_FOUND)
+#
+#
+## fill list of header files from list of source files
+## by exchanging the file extension
+#CHANGE_FILE_EXTENSION(*.cxx *.h LMDTRK_HEADERS "${LMDTRK_SRCS}")
+#set(LMDTRK_LINKDEF  LmdFitLinkDef.h)
+#set(LMDTRK_DICTIONARY ${CMAKE_CURRENT_BINARY_DIR}/LmdFitDict.cxx)
+#
+#ROOT_GENERATE_DICTIONARY("${LMDFITDICT_HEADERS}" "${LMDTRK_LINKDEF}" "${LMDTRK_DICTIONARY}" "${INCLUDE_DIRECTORIES}")
+#SET(LMDTRK_SRCS ${LMDTRK_SRCS} ${LMDTRK_DICTIONARY})
+#
+#add_library(LmdFit SHARED ${LMDTRK_SRCS})
+#target_link_libraries(LmdFit Model ${ROOT_LIBRARIES})
+#set_target_properties(LmdFit PROPERTIES ${FAIRROOT_LIBRARY_PROPERTIES})
 
 
 
