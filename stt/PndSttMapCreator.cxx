@@ -1,4 +1,4 @@
-/////////////////////////////////////////////////////////////
+ /////////////////////////////////////////////////////////////
 // PndSttMapCreator
 //
 // Class to create the STT map:
@@ -31,6 +31,7 @@
 #include "TGeoTube.h"
 #include "TClonesArray.h"
 #include "TGeoManager.h"
+#include "TGeoMatrix.h"
 #include "TGeoVolume.h"
 #include "TList.h"
 
@@ -38,12 +39,14 @@
 
 using namespace std;
 
-PndSttMapCreator::PndSttMapCreator(){}
+PndSttMapCreator::PndSttMapCreator() :  fGeoType(-1), fSttParameters(new PndGeoSttPar()), fTubeInRad(0), fTubeOutRad(0) {
+  copy_map.clear();
+}
 
 // to use in PndStt
-PndSttMapCreator::PndSttMapCreator(Int_t geoType) {
+PndSttMapCreator::PndSttMapCreator(Int_t geoType) : fGeoType(geoType), fSttParameters(new PndGeoSttPar()), fTubeInRad(0), fTubeOutRad(0) {
+  copy_map.clear();
 
-  fGeoType = geoType;
   if(fGeoType != 1) cout << "-E- PndSttMapCreator: geometry not supported by map" << endl; // CHECK
  
   if(!gGeoManager) cout << "-E- PndSttMapCreator: no geo manager " << endl; // CHECK
@@ -52,10 +55,8 @@ PndSttMapCreator::PndSttMapCreator(Int_t geoType) {
 
 }
 
-
 // crete geometry from parameters file
-PndSttMapCreator::PndSttMapCreator(PndGeoSttPar *sttPar) {
-  fSttParameters = sttPar;
+PndSttMapCreator::PndSttMapCreator(PndGeoSttPar *sttPar): fGeoType(-1), fSttParameters(sttPar), fTubeInRad(0), fTubeOutRad(0) {
 
   if(!gGeoManager) cout << "-E- PndSttMapCreator: no geo manager " << endl; // CHECK
   
