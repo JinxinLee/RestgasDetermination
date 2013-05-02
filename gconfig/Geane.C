@@ -3,7 +3,13 @@
 
 void Config()
 {
- 
+  TGeoMedium *m=gGeoManager->GetMedium("air");
+  if(m != NULL)  m->SetParam(6, 0.005); // epsil
+  TGeoMedium *m2=gGeoManager->GetMedium("FscScint");
+  if(m2 != NULL) m2->SetParam(6, 0.005); // epsil
+  TGeoMedium *m3=gGeoManager->GetMedium("lead");
+  if(m3 != NULL) m3->SetParam(6, 0.005); // epsil
+
   gMC3= new  TGeant3TGeo("C++ Interface to Geant3");
   cout << "-I- G3Config: Geant3 with TGeo has been created for Geane."
        << endl;
@@ -88,13 +94,6 @@ void Config()
 		usrcuts);   
 
   gMC3->SetECut(gcalpha);
-
-  TGeoMedium *m=gGeoManager->GetMedium("air");
-  m->SetParam(6, 0.005); // epsil
-  TGeoMedium *m2=gGeoManager->GetMedium("FscScint");
-  m2->SetParam(6, 0.005); // epsil
-  TGeoMedium *m3=gGeoManager->GetMedium("lead");
-  m3->SetParam(6, 0.005); // epsil
 
 }
 
