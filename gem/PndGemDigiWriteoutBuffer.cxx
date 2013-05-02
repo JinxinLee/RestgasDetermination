@@ -12,14 +12,17 @@ ClassImp(PndGemDigiWriteoutBuffer);
 #include "PndGemDigi.h"
 
 
-PndGemDigiWriteoutBuffer::PndGemDigiWriteoutBuffer():FairWriteoutBuffer() {
+PndGemDigiWriteoutBuffer::PndGemDigiWriteoutBuffer()
+  : FairWriteoutBuffer()
+{
 
 	// TODO Auto-generated constructor stub
 
 }
 
 
-PndGemDigiWriteoutBuffer::PndGemDigiWriteoutBuffer(TString branchName, TString folderName, Bool_t persistance): FairWriteoutBuffer(branchName, "PndGemDigi", folderName, persistance)
+PndGemDigiWriteoutBuffer::PndGemDigiWriteoutBuffer(TString branchName, TString folderName, Bool_t persistance)
+  : FairWriteoutBuffer(branchName, "PndGemDigi", folderName, persistance)
 {
 }
 

@@ -29,7 +29,7 @@ public:
 	virtual void EraseDataFromDataMap(FairTimeStamp* data);
 protected:	
 
-	std::map<PndGemDigi, double> fData_map;
+	std::map<PndGemDigi, double> fData_map; //!
 	
 	ClassDef(PndGemDigiWriteoutBuffer, 1);
 };

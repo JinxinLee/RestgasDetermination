@@ -70,14 +70,11 @@ class PndGemDigitize : public FairTask
 
  private:
 
-  //  FairGeoStsPar*     fGeoPar;       /** Geometry parameter container **/
-  //  PndGemDigiPar*    fDigiPar;      /** Digitisation parameter container **/
-  //  PndGemDigiScheme* fDigiScheme;   /** Digitisation scheme **/
   PndGemDigiPar* fDigiPar;
   TClonesArray*     fPoints;       /** Input array of PndGemPoint **/
   TClonesArray*     fDigis;        /** Output array of PndGemDigi **/
   TClonesArray*     fDigiMatches;  /** Output array of PndGemDigiMatches**/
-  Int_t             fNPoints;     
+  Int_t             fNPoints;
   Int_t             fNFailed;
   Int_t             fNOutside;
   Int_t             fNMulti;
@@ -96,10 +93,10 @@ class PndGemDigitize : public FairTask
  
   Bool_t fRealisticResponse;
 
-  TClonesArray* fHitOutsideArray;
+  TClonesArray* fHitOutsideArray; 
 
   Bool_t fSaveOutsideHits; /** whether to save the hits **/
-
+			       
   PndGemDigiWriteoutBuffer* fDataBuffer;
   Bool_t fTimeOrderedDigi;
 

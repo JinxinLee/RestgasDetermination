@@ -54,6 +54,7 @@ PndGemDigitize::PndGemDigitize()
     fDigis(NULL),
     fDigiMatches(NULL),
     fSaveOutsideHits(kFALSE),
+    fHitOutsideArray(NULL),
     fRealisticResponse(kFALSE),
     fTNofEvents(0),
     fTNofPoints(0),
@@ -76,6 +77,7 @@ PndGemDigitize::PndGemDigitize(Int_t iVerbose)
     fDigis(NULL),
     fDigiMatches(NULL),
     fSaveOutsideHits(kFALSE),
+    fHitOutsideArray(NULL),
     fRealisticResponse(kFALSE),
     fTNofEvents(0),
     fTNofPoints(0),
@@ -98,6 +100,7 @@ PndGemDigitize::PndGemDigitize(const char* name, Int_t iVerbose)
     fDigis(NULL),
     fDigiMatches(NULL),
     fSaveOutsideHits(kFALSE),
+    fHitOutsideArray(NULL),
     fRealisticResponse(kFALSE),
     fTNofEvents(0),
     fTNofPoints(0),
@@ -158,8 +161,8 @@ void PndGemDigitize::Exec(Option_t* opt) {
     adigi = dynamic_cast<PndGemDigi*>(fDigis->At(idigi));
     adigi->SetTimeStamp(adigi->GetTimeStamp()+EventTime);
     fDataBuffer->FillNewData(adigi,
-			     adigi->GetTimeStamp()+EventTime,
-			     adigi->GetTimeStamp()+EventTime+100.); // 100 ns dead time
+     			     adigi->GetTimeStamp()+EventTime,
+     			     adigi->GetTimeStamp()+EventTime+100.); // 100 ns dead time
   }
   //  cout << "------------------------------------------" << endl;
 }
