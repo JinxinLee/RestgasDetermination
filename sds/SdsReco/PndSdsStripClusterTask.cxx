@@ -34,7 +34,8 @@
 
 // -----   Default constructor   -------------------------------------------
 PndSdsStripClusterTask::PndSdsStripClusterTask() :
-PndSdsTask("SDS Strip Clustertisation Task")
+  PndSdsTask("SDS Strip Clustertisation Task"),
+  fDigiPar(0)
 {
   fChargeCut = 1.e8; // this reset dynamically
   fDigiParameterList = new TList();
@@ -70,7 +71,8 @@ PndSdsTask("SDS Strip Clustertisation Task")
 
 // -----   Named constructor   -------------------------------------------
 PndSdsStripClusterTask::PndSdsStripClusterTask(const char* name) :
-PndSdsTask(name)
+  PndSdsTask(name),
+  fDigiPar(0)
 {
   // TODO: fChargeCut in parameter database??
   fChargeCut = 1.e8; // this ist really large and shall have no effect
