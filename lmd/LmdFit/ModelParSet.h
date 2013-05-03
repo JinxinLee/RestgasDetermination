@@ -17,7 +17,7 @@
 //using std::tr1::shared_ptr;
 
 class ModelParSet {
-private:
+public:
 	/**
 	 * Small structure defining the comparison operator used in the map
 	 * #model_par_map. Will return true only if this model parameter is equal to
@@ -31,6 +31,7 @@ private:
 		}
 	};
 
+private:
 	/**
 	 * Map containing all the model parameters which are unique, independent
 	 * and belong to this model.
