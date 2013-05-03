@@ -8,11 +8,8 @@
 #include "PndLmdAcceptance.h"
 #include "PndLmdLumiFitOptions.h"
 #include "PndLmdLumiFitResult.h"
-#include "PndLmdConstants.h"*/
+#include "PndLmdConstants.h"
 
-#include "../../../lmd/LmdFit/PndLmdConstants.h"
-
-/*
 #include "TLatex.h"
 #include "TStopwatch.h"
 #include "TGraphErrors.h"
@@ -87,7 +84,7 @@ void runLumi6Fit(TString input_file_dir, const double mom, int nEvents = -1,
 
 	for (int i = 10; i < 11; i = i + 1) {
 		PndLmdData *data = new PndLmdData(f, nEvents, mom, i * 10, 50, data_range_low,
-				data_range_high, -C_PI, C_PI, generated_luminosity_per_event);
+				data_range_high, -TMath::Pi(), TMath::Pi(), generated_luminosity_per_event);
     // sry about this nasty constructor... 
 		my_lmd_data_vec.push_back(data);
 		//lumifit_helper.registerData(data);
@@ -97,7 +94,7 @@ void runLumi6Fit(TString input_file_dir, const double mom, int nEvents = -1,
 
 	for (int i = 10; i < 11; i = i + 1) {
 		PndLmdAcceptance *acc1 = new PndLmdAcceptance(f, nEvents, mom, i * 10, 50, data_range_low,
-				data_range_high, -C_PI, C_PI, 0);
+				data_range_high, -TMath::Pi(), TMath::Pi(), 0);
 		//PndLmdAcceptance *acc2 = new PndLmdAcceptance(f, mom, i * 10, 50, 1.0,
 		//		15.0, -C_PI, C_PI, 1);
 
@@ -141,7 +138,7 @@ void runLumi6Fit(TString input_file_dir, const double mom, int nEvents = -1,
 	}
 
 // -----   LumiFitter   ---------------------------------------------------
-	std::cout << "Performing Luminosity Fits....\n";
+	std::cout << "\nPerforming Luminosity Fits....\n";
 
 	for (int i = 0; i < my_lmd_data_vec.size(); i++) {
 		for (int j = 0; j < my_lmd_acc_vec.size(); j++) {

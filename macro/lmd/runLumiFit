@@ -1,0 +1,28 @@
+#!/bin/bash 
+########################################################################
+## script for running luminosity fitting/extraction procedure for LMD
+########################################################################
+
+# lab momentum of the beam antiprotons
+pbeam=1.5
+# directory of the data generated with dpm
+echo Enter path to directory which contains the elastic scattering data:
+read elastic_data_path
+echo "Elastic Data Path: ${elastic_data_path}!"
+# directory of data generated with box generator (for acceptance calculation)
+echo "Enter path to directory which contains the box gen data (optional):"
+read acceptance_data_path
+echo "Acceptance Data Path: ${acceptance_data_path}!"
+#number of events used for the fitting procedure
+numEv=50000
+
+# run lumi fit macro
+# the last parameter is the generated luminosity per event which has is calculated in
+# the DPM generator (N = L * cross_section => generated luminosity = 1/cross_section)
+# atm the plotting macro will generate wrong differnce values if this value is not
+# specified!
+root -l -b -q 'LMD_fit/runLumi6Fit.C("'${elastic_data_path}'", '${pbeam}', '${numEv}', "'${acceptance_data_path}'", 0.001148229231)'
+
+# run the plotting macro that will generate an overview canvas with different used fit
+# options
+root -l -b -q 'LMD_fit/makeLumiFitPlots.C("'${elastic_data_path}'")'
