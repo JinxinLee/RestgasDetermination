@@ -8,7 +8,7 @@
 #include "NumericConvolutionModel2D.h"
 
 NumericConvolutionModel2D::NumericConvolutionModel2D(
-    std::shared_ptr<Model2D> first_, std::shared_ptr<Model2D> second_) {
+    shared_ptr<Model2D> first_, shared_ptr<Model2D> second_) {
   first = first_;
   second = second_;
 

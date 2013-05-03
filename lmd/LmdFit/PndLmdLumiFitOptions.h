@@ -8,10 +8,9 @@
 #ifndef PNDLMDLUMIFITOPTIONS_H_
 #define PNDLMDLUMIFITOPTIONS_H_
 
-#include "PndLmdConstants.h"
-
-#include "TString.h"
 #include "TObject.h"
+#include "TString.h"
+#include "TMath.h"
 
 /**
  * \brief This class contains the various fit options which are independent of the fit model itself.
@@ -85,8 +84,8 @@ public:
    */
   PndLmdLumiFitOptions(unsigned long bit_flag_options, int smearing_type_,
       int acc_intpol_type_, double plab, double theta_fit_range_low_,
-      double theta_fit_range_high_, double phi_fit_range_low_ = -C_PI,
-      double phi_fit_range_high_ = C_PI);
+      double theta_fit_range_high_, double phi_fit_range_low_ = -TMath::Pi(),
+      double phi_fit_range_high_ = TMath::Pi());
 
   /**
    * Constructor

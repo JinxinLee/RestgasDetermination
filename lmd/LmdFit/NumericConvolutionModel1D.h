@@ -14,9 +14,9 @@ class NumericConvolutionModel1D : public Model1D {
 private:
 	unsigned int divisions;
 
-	std::shared_ptr<Model1D> first, second;
+	shared_ptr<Model1D> first, second;
 public:
-	NumericConvolutionModel1D(std::shared_ptr<Model1D> first_, std::shared_ptr<Model1D> second_);
+	NumericConvolutionModel1D(shared_ptr<Model1D> first_, shared_ptr<Model1D> second_);
 
     void initModelParameters();
 

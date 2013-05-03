@@ -9,8 +9,8 @@
 
 #include <iostream>
 
-AdditionModel1D::AdditionModel1D(std::shared_ptr<Model1D> first_,
-    std::shared_ptr<Model1D> second_) {
+AdditionModel1D::AdditionModel1D(shared_ptr<Model1D> first_,
+    shared_ptr<Model1D> second_) {
   first = first_;
   second = second_;
 

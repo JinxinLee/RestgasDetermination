@@ -10,7 +10,7 @@
 #include <iostream>
 
 NumericConvolutionModel1D::NumericConvolutionModel1D(
-    std::shared_ptr<Model1D> first_, std::shared_ptr<Model1D> second_) {
+    shared_ptr<Model1D> first_, shared_ptr<Model1D> second_) {
   first = first_;
   second = second_;
   addModelToList(first);
@@ -28,7 +28,7 @@ double NumericConvolutionModel1D::eval(double *x) const {
   double xx[3], val = 0.0;
   double division_width = second->getDomainRange() / 2.0 / divisions;
   double xprimea, xprimem, xprimeb;
-  double checksum = 0.0;
+  //double checksum = 0.0;
   /*std::cout << "x0= " << x[0] << " | domain range:"
       << second->getDomainLowerBound() << "-"
       << second->getDomainLowerBound() + second->getDomainRange() << " | "

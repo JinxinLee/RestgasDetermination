@@ -13,10 +13,10 @@
 class DoubleGaussianModel1D: public Model1D {
 private:
 	double num_sigmas;
-    std::shared_ptr<ModelPar> gauss_mean;
-	std::shared_ptr<ModelPar> gauss_sigma_1;
-	std::shared_ptr<ModelPar> gauss_sigma_2;
-	std::shared_ptr<ModelPar> gauss_ratio_12;
+    shared_ptr<ModelPar> gauss_mean;
+	shared_ptr<ModelPar> gauss_sigma_1;
+	shared_ptr<ModelPar> gauss_sigma_2;
+	shared_ptr<ModelPar> gauss_ratio_12;
 public:
 	DoubleGaussianModel1D();
 	virtual ~DoubleGaussianModel1D();

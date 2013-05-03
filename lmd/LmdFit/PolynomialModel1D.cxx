@@ -10,6 +10,7 @@
 
 #include <cmath>
 #include <limits>
+#include "stdio.h"
 
 PolynomialModel1D::PolynomialModel1D(unsigned int order_) {
   // TODO Auto-generated constructor stub
@@ -33,7 +34,7 @@ void PolynomialModel1D::initModelParameters() {
 
 double PolynomialModel1D::eval(double *x) const {
   double val = 0.0;
-  for(int i = 0; i < poly_factors.size(); i++) {
+  for(unsigned int i = 0; i < poly_factors.size(); i++) {
     val += poly_factors[i]->getValue() * std::pow(x[0], i);
   }
   return val;

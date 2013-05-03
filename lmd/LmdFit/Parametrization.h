@@ -24,8 +24,7 @@ class ModelPar;
  * function has to be overwritten and implement the actual parametrization
  * behaviour.
  */
-class Parametrization: public std::enable_shared_from_this<
-    Parametrization> {
+class Parametrization {
 protected:
   /**
    * Usually parameterizations require other parameters which have to be defined
@@ -35,14 +34,12 @@ protected:
    * ModelPar objects are saved. Once this occurs a relinking of the parameters
    * will guarantee a single instance of this common superior parameter.
    */
-  std::vector<std::shared_ptr<ModelPar> > dependency_parameters;
+  std::vector<shared_ptr<ModelPar> > dependency_parameters;
 
   ModelParSet &model_par_set;
 
 public:
   Parametrization(ModelParSet &model_par_set_);
-
-  std::shared_ptr<Parametrization> getSharedPointer();
 
   virtual ~Parametrization();
 

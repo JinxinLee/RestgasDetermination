@@ -13,8 +13,8 @@
 class GaussianModel1D: public Model1D {
 private:
 	double num_sigmas;
-	std::shared_ptr<ModelPar> gauss_sigma;
-	std::shared_ptr<ModelPar> gauss_mean;
+	shared_ptr<ModelPar> gauss_sigma;
+	shared_ptr<ModelPar> gauss_mean;
 
 public:
 	/**

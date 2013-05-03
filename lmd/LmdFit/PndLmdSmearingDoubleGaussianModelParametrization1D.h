@@ -8,18 +8,18 @@
 #ifndef PNDLMDSMEARINGDOUBLEGAUSSIANMODELPARAMETRIZATION1D_H_
 #define PNDLMDSMEARINGDOUBLEGAUSSIANMODELPARAMETRIZATION1D_H_
 
-#include <memory>
+#include <tr1/memory>
 
 class Model1D;
 class ModelPar;
 
-using std::shared_ptr;
+using std::tr1::shared_ptr;
 
 class PndLmdSmearingDoubleGaussianModelParametrization1D {
 private:
   shared_ptr<ModelPar> p_lab;
 public:
-  PndLmdSmearingDoubleGaussianModelParametrization1D(std::shared_ptr<Model1D> model);
+  PndLmdSmearingDoubleGaussianModelParametrization1D(shared_ptr<Model1D> model);
   virtual ~PndLmdSmearingDoubleGaussianModelParametrization1D();
 };
 

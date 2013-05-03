@@ -6,10 +6,10 @@
  */
 
 #include "PndLmdDPMAngModel1D.h"
-#include "PndLmdConstants.h"
+
+#include <iostream>
 
 #include "TMath.h"
-#include <iostream>
 
 PndLmdDPMAngModel1D::PndLmdDPMAngModel1D() {
   // TODO Auto-generated constructor stub
@@ -22,7 +22,7 @@ PndLmdDPMAngModel1D::~PndLmdDPMAngModel1D() {
 
 double PndLmdDPMAngModel1D::getMomentumTransferFromTheta(
     const double theta) const {
-  double gtan = gamma->getValue() * TMath::Tan(theta / 1000.);
+  //double gtan = gamma->getValue() * TMath::Tan(theta / 1000.);
 
   // ultrarelativistic approximation (actually for protons this is would start at about 15GeV
   // or even higher so really bad approximation in our case)
@@ -121,7 +121,7 @@ double PndLmdDPMAngModel1D::eval(double *x) const {
   double p2 = getInterferencePart(x);
   double p3 = getHadronicPart(x);
 
-  return (p1 + p2 + p3);
+  return luminosity->getValue()*(p1 + p2 + p3);
 }
 
 double PndLmdDPMAngModel1D::coulombHadronDifference(double *x) const {
@@ -133,5 +133,5 @@ double PndLmdDPMAngModel1D::coulombHadronDifference(double *x) const {
 }
 
 void PndLmdDPMAngModel1D::updateDomain() {
-  setDomain(0, C_PI);
+  setDomain(0, TMath::Pi());
 }

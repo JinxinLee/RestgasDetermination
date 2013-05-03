@@ -6,9 +6,9 @@
  */
 
 #include "DoubleGaussianModel1D.h"
-#include "PndLmdConstants.h"
 
-#include <cmath>
+#define _USE_MATH_DEFINES
+#include "math.h"
 #include <iostream>
 DoubleGaussianModel1D::DoubleGaussianModel1D() {
   num_sigmas = 5.0;
@@ -29,12 +29,12 @@ void DoubleGaussianModel1D::initModelParameters() {
 double DoubleGaussianModel1D::eval(double *x) const {
   // double gauss smearing function
   return gauss_ratio_12->getValue() / (gauss_ratio_12->getValue() + 1.0)
-      / (gauss_sigma_1->getValue() * sqrt(2.0 * C_PI))
+      / (gauss_sigma_1->getValue() * sqrt(2.0 * M_PI))
       * exp(
           -(pow(x[0] - gauss_mean->getValue(), 2.0)
               / (2.0 * gauss_sigma_1->getValue() * gauss_sigma_1->getValue())))
       + 1.0 / (gauss_ratio_12->getValue() + 1.0)
-          / (gauss_sigma_2->getValue() * sqrt(2.0 * C_PI))
+          / (gauss_sigma_2->getValue() * sqrt(2.0 * M_PI))
           * exp(
               -(pow(x[0] - gauss_mean->getValue(), 2.0)
                   / (2.0 * gauss_sigma_2->getValue() * gauss_sigma_2->getValue())));

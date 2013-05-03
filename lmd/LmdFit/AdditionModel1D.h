@@ -12,11 +12,11 @@
 
 class AdditionModel1D: public Model1D {
 private:
-  std::shared_ptr<Model1D> first;
-  std::shared_ptr<Model1D> second;
+  shared_ptr<Model1D> first;
+  shared_ptr<Model1D> second;
 
 public:
-  AdditionModel1D(std::shared_ptr<Model1D> first_, std::shared_ptr<Model1D> second_);
+  AdditionModel1D(shared_ptr<Model1D> first_, shared_ptr<Model1D> second_);
   virtual ~AdditionModel1D();
 
   void initModelParameters();

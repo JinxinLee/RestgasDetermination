@@ -10,7 +10,11 @@
 
 #include <string>
 #include <set>
-#include <memory>
+
+//#include <boost/shared_ptr.hpp>
+#include <tr1/memory>
+using std::tr1::shared_ptr;
+//using std::tr1::shared_ptr;
 
 class ModelPar {
 private:
@@ -25,7 +29,7 @@ private:
    * connection to itself to update parameters that are used directly within a
    * model.
    */
-  std::set<std::shared_ptr<ModelPar>> connections;
+  std::set<shared_ptr<ModelPar> > connections;
 
 public:
   ModelPar();
@@ -58,9 +62,9 @@ public:
    * be updated via the specified parametrization in the corresponding handler
    * instance.
    */
-  void setConnectionTo(const std::shared_ptr<ModelPar> &model_par);
+  void setConnectionTo(const shared_ptr<ModelPar> &model_par);
 
-  std::set<std::shared_ptr<ModelPar>>& getParameterConnections();
+  std::set<shared_ptr<ModelPar> >& getParameterConnections();
 
 };
 

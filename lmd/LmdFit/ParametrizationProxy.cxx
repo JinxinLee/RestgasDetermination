@@ -9,7 +9,7 @@
 
 ParametrizationProxy::ParametrizationProxy() {
   // TODO Auto-generated constructor stub
-  state = parametrization_state::NONE;
+  state = NONE;
 }
 
 ParametrizationProxy::~ParametrizationProxy() {
@@ -17,30 +17,30 @@ ParametrizationProxy::~ParametrizationProxy() {
 }
 
 bool ParametrizationProxy::hasParametrization() const {
-  if(state == parametrization_state::PARAMETRIZATION)
+  if(state == PARAMETRIZATION)
     return true;
   return false;
 }
 bool ParametrizationProxy::hasParametrizationModel() const {
-  if(state == parametrization_state::PARAMETRIZATION_MODEL)
+  if(state == PARAMETRIZATION_MODEL)
     return true;
   return false;
 }
 
-void ParametrizationProxy::setParametrization(std::shared_ptr<Parametrization> parametrization_) {
+void ParametrizationProxy::setParametrization(shared_ptr<Parametrization> parametrization_) {
   parametrization_model.reset();
   parametrization = parametrization_;
-  state = parametrization_state::PARAMETRIZATION;
+  state = PARAMETRIZATION;
 }
-void ParametrizationProxy::setParametrizationModel(std::shared_ptr<ParametrizationModel> parametrization_model_) {
+void ParametrizationProxy::setParametrizationModel(shared_ptr<ParametrizationModel> parametrization_model_) {
   parametrization.reset();
   parametrization_model = parametrization_model_;
-  state = parametrization_state::PARAMETRIZATION_MODEL;
+  state = PARAMETRIZATION_MODEL;
 }
 
-const std::shared_ptr<Parametrization>& ParametrizationProxy::getParametrization() const {
+const shared_ptr<Parametrization>& ParametrizationProxy::getParametrization() const {
   return parametrization;
 }
-const std::shared_ptr<ParametrizationModel>& ParametrizationProxy::getParametrizationModel() const {
+const shared_ptr<ParametrizationModel>& ParametrizationProxy::getParametrizationModel() const {
   return parametrization_model;
 }

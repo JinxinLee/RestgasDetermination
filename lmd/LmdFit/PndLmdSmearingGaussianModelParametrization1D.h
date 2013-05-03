@@ -12,12 +12,12 @@
 
 class PndLmdSmearingGaussianModelParametrization1D: public Parametrization {
 private:
-  std::shared_ptr<ModelPar> p_lab;
-  std::shared_ptr<ModelPar> gauss_sigma;
-  std::shared_ptr<ModelPar> gauss_mean;
+  shared_ptr<ModelPar> p_lab;
+  shared_ptr<ModelPar> gauss_sigma;
+  shared_ptr<ModelPar> gauss_mean;
 
 public:
-  PndLmdSmearingGaussianModelParametrization1D(ModelParSet &model_par_set);
+  PndLmdSmearingGaussianModelParametrization1D(ModelParSet &model_par_set_);
   virtual ~PndLmdSmearingGaussianModelParametrization1D();
 
   void initParameters();

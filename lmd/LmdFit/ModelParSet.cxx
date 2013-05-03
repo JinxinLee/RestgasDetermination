@@ -23,7 +23,7 @@ unsigned int ModelParSet::getNumberOfParameters() const {
 
 unsigned int ModelParSet::getNumberOfFreeParameters() const {
   unsigned int nfree = 0;
-  for (std::map<std::string, std::shared_ptr<ModelPar>, stringcomp>::const_iterator it =
+  for (std::map<std::string, shared_ptr<ModelPar>, stringcomp>::const_iterator it =
       model_par_map.begin(); it != model_par_map.end(); it++) {
     if (!it->second->isParameterFixed())
       nfree++;
@@ -37,7 +37,7 @@ void ModelParSet::printInfo() const {
   int counter = 0;
   std::cout << "************************************************************"
       << std::endl;
-  for (std::map<std::string, std::shared_ptr<ModelPar>, stringcomp>::const_iterator it =
+  for (std::map<std::string, shared_ptr<ModelPar>, stringcomp>::const_iterator it =
       model_par_map.begin(); it != model_par_map.end(); it++) {
     std::cout << "------------------------------------------------------------"
         << std::endl;
@@ -55,19 +55,19 @@ void ModelParSet::printInfo() const {
       << std::endl;
 }
 
-const std::shared_ptr<ModelPar> ModelParSet::addModelParameter(
+const shared_ptr<ModelPar> ModelParSet::addModelParameter(
     std::string name_, double value_, bool fixed_) {
   if (modelParameterExists(name_)) {
     std::cout << "Warning: This model parameter " << name_
         << " already exists. Returning existing value reference!" << std::endl;
   } else {
-    model_par_map[name_] = std::shared_ptr<ModelPar>(
+    model_par_map[name_] = shared_ptr<ModelPar>(
         new ModelPar(name_, value_, fixed_));
   }
   return model_par_map[name_];
 }
 
-void ModelParSet::addModelParameter(std::shared_ptr<ModelPar> model_par) {
+void ModelParSet::addModelParameter(shared_ptr<ModelPar> model_par) {
   model_par_map[model_par->getName()] = model_par;
 }
 
@@ -83,13 +83,13 @@ int ModelParSet::setModelParameterValue(const std::string &name_,
   }
 }
 
-void ModelParSet::reassignParameter(std::shared_ptr<ModelPar> model_par) {
+void ModelParSet::reassignParameter(shared_ptr<ModelPar> model_par) {
   model_par_map.erase(model_par->getName());
   addModelParameter(model_par);
 }
 
 bool ModelParSet::modelParameterExists(
-    const std::shared_ptr<ModelPar> &model_par) const {
+    const shared_ptr<ModelPar> &model_par) const {
   return modelParameterExists(model_par->getName());
 }
 
@@ -104,7 +104,7 @@ bool ModelParSet::modelParameterExists(const std::string &name_) const {
 int ModelParSet::addModelParameters(ModelParSet &daughter_model_par_set) {
   int num_pars_reassigned = 0;
   // loop over all parameters to be added
-  for (std::map<std::string, std::shared_ptr<ModelPar>, stringcomp>::const_iterator it =
+  for (std::map<std::string, shared_ptr<ModelPar>, stringcomp>::const_iterator it =
       daughter_model_par_set.getModelParameterMap().begin();
       it != daughter_model_par_set.getModelParameterMap().end(); it++) {
     // only superior/global parameters are passed onto the parent models
@@ -127,7 +127,7 @@ const double& ModelParSet::getModelParameterValue(
   return model_par_map.at(name_)->getValue();
 }
 
-std::shared_ptr<ModelPar> ModelParSet::getModelParameter(
+shared_ptr<ModelPar> ModelParSet::getModelParameter(
     const std::string &name_) {
   if (!modelParameterExists(name_)) {
     addModelParameter(name_);
@@ -135,23 +135,8 @@ std::shared_ptr<ModelPar> ModelParSet::getModelParameter(
   return model_par_map.at(name_);
 }
 
-const std::shared_ptr<ModelPar> ModelParSet::getFreeModelParameter(
-    const int index) {
-  int counter = 0;
-  for (std::map<std::string, std::shared_ptr<ModelPar>, stringcomp>::const_iterator it =
-      model_par_map.begin(); it != model_par_map.end(); it++) {
-    if (!it->second->isParameterFixed()) {
-      counter++;
-      if (counter == index) {
-        return it->second;
-      }
-    }
-  }
-  return model_par_map.end()->second;
-}
-
 int ModelParSet::checkParameters() const {
-  for (std::map<std::string, std::shared_ptr<ModelPar>, stringcomp>::const_iterator it =
+  for (std::map<std::string, shared_ptr<ModelPar>, stringcomp>::const_iterator it =
       model_par_map.begin(); it != model_par_map.end(); it++) {
     if (!it->second->isSet()) {
       return 1;
@@ -161,7 +146,7 @@ int ModelParSet::checkParameters() const {
 }
 
 bool ModelParSet::checkSuperiorParameters() const {
-  for (std::map<std::string, std::shared_ptr<ModelPar>, stringcomp>::const_iterator it =
+  for (std::map<std::string, shared_ptr<ModelPar>, stringcomp>::const_iterator it =
       model_par_map.begin(); it != model_par_map.end(); it++) {
     if (it->second->isSuperior() && !it->second->isSet())
       return false;
@@ -169,15 +154,15 @@ bool ModelParSet::checkSuperiorParameters() const {
   return true;
 }
 
-void ModelParSet::getModelParameters(double *pars) const {
-  int counter = 0;
-  for (std::map<std::string, std::shared_ptr<ModelPar>, stringcomp>::const_iterator it =
+std::vector<shared_ptr<ModelPar> > ModelParSet::getFreeModelParameters() const {
+	std::vector<shared_ptr<ModelPar> > free_parameters;
+  for (std::map<std::string, shared_ptr<ModelPar>, stringcomp>::const_iterator it =
       model_par_map.begin(); it != model_par_map.end(); it++) {
     if (!it->second->isParameterFixed()) {
-      pars[counter] = it->second->getValue();
-      counter++;
+    	free_parameters.push_back(it->second);
     }
   }
+  return free_parameters;
 }
 
 void ModelParSet::freeModelParameter(const std::string &name_) {
@@ -186,8 +171,8 @@ void ModelParSet::freeModelParameter(const std::string &name_) {
   }
 }
 
-void ModelParSet::freeAllModelParameter() {
-  for (std::map<std::string, std::shared_ptr<ModelPar>, stringcomp>::const_iterator it =
+void ModelParSet::freeAllModelParameters() {
+  for (std::map<std::string, shared_ptr<ModelPar>, stringcomp>::const_iterator it =
       model_par_map.begin(); it != model_par_map.end(); it++) {
     if (!it->second->isSuperior()) {
       it->second->setParameterFixed(false);
@@ -195,20 +180,6 @@ void ModelParSet::freeAllModelParameter() {
   }
 }
 
-std::map<std::string, std::shared_ptr<ModelPar>, ModelParSet::stringcomp>& ModelParSet::getModelParameterMap() {
+std::map<std::string, shared_ptr<ModelPar>, ModelParSet::stringcomp>& ModelParSet::getModelParameterMap() {
   return model_par_map;
-}
-
-void ModelParSet::updateModelParameters(const double *pars) {
-  int counter = 0;
-  // first overwrite the corresponding parameter values
-  // loop over the parameter set and update all the free parameters with these values
-  for (std::map<std::string, std::shared_ptr<ModelPar>, stringcomp>::iterator it =
-      model_par_map.begin(); it != model_par_map.end(); it++) {
-    // if parameter is free
-    if (!it->second->isParameterFixed()) {
-      it->second->setValue(pars[counter]);
-      counter++;
-    }
-  }
 }

@@ -24,7 +24,7 @@ PndLmdResolution::PndLmdResolution(double plab, int theta_res_bins_,
   theta_mc_range_low = theta_mc_range_low_;
   theta_mc_range_high = theta_mc_range_high_;
 
-  TH2D *theta_res_vs_theta_mc = new TH2D("theta_res_vs_theta_mc", "",
+  theta_res_vs_theta_mc = new TH2D("theta_res_vs_theta_mc", "",
       theta_res_bins, theta_res_range_low, theta_res_range_high, theta_mc_bins,
       theta_mc_range_low, theta_mc_range_high);
 }

@@ -6,9 +6,9 @@
  */
 
 #include "GaussianModel1D.h"
-#include "PndLmdConstants.h"
 
-#include <cmath>
+#define _USE_MATH_DEFINES
+#include "math.h"
 
 GaussianModel1D::GaussianModel1D() {
   initModelParameters();
@@ -31,7 +31,7 @@ double GaussianModel1D::eval(double *x) const {
   return exp(
       -pow(x[0] - gauss_mean->getValue(), 2.0)
           / (2.0 * gauss_sigma->getValue() * gauss_sigma->getValue()))
-      / (gauss_sigma->getValue() * sqrt(2.0 * C_PI));
+      / (gauss_sigma->getValue() * sqrt(2.0 * M_PI));
 }
 
 void GaussianModel1D::updateDomain() {

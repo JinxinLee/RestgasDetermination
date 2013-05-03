@@ -25,20 +25,20 @@ public:
   PndLmdModelFactory();
   ~PndLmdModelFactory();
 
-  std::shared_ptr<Model1D> generate1DResolutionModel(
+  shared_ptr<Model1D> generate1DResolutionModel(
       PndLmdLumiFitOptions *fit_options);
 
   /**
    * 1D Model generator method
    * @param fit_options are the options which model will be built and returned
    */
-  std::shared_ptr<Model1D> generate1DModel(PndLmdLumiFitOptions *fit_options,
+  shared_ptr<Model1D> generate1DModel(PndLmdLumiFitOptions *fit_options,
       double plab, PndLmdAcceptance *acceptance = 0);
   /**
    * 2D Model generator method
    * @param fit_options are the options which model will be built and returned
    */
-  Model2D& generate2DModel(PndLmdLumiFitOptions *fit_options);
+  /*Model2D& generate2DModel(PndLmdLumiFitOptions *fit_options);*/
 };
 
 #endif /* PNDLMDMODELFACTORY_H_ */

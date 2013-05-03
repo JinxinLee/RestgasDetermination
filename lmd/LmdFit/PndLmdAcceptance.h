@@ -8,7 +8,6 @@
 #ifndef PNDLMDACCEPTANCE_H_
 #define PNDLMDACCEPTANCE_H_
 
-#include "PndLmdConstants.h"
 #include "PndLmdDataBase.h"
 
 // these includes are necessary for ROOT IO
@@ -39,17 +38,12 @@ private:
 
   TEfficiency* t_acceptance_1d;
 
-  RooDataHist* roo_acceptance_1d;
-  RooDataHist* roo_acceptance_2d;
-
-  void makeRooFitAcceptances();
-
   void makeName();
 
 public:
   PndLmdAcceptance(TFile *f_, int num_events_, double plab_, int th_bins_ = 30,
       int phi_bins_ = 30, double th_range_low_ = 0.0, double th_range_high_ =
-          14.0, double phi_range_low_ = -C_PI, double phi_range_high_ = C_PI,
+          14.0, double phi_range_low_ = -TMath::Pi(), double phi_range_high_ = TMath::Pi(),
       double acceptance_threshold_ = 0.95);
   PndLmdAcceptance();
 
@@ -59,9 +53,6 @@ public:
 
   TEfficiency* getAcceptance1D(bool is_raw) const;
   TEfficiency* getAcceptance2D() const;
-
-  RooDataHist* getRooFitAcceptance1D() const;
-  RooDataHist* getRooFitAcceptance2D() const;
 
   TH2D* getMCHist();
   TH2D* getRecoHist();

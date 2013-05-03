@@ -8,9 +8,9 @@
 #ifndef GAUSSIANMODEL2D_H_
 #define GAUSSIANMODEL2D_H_
 
-#include "MultiModel2D.h"
+#include "Model2D.h"
 
-class GaussianModel2D: public MultiModel2D {
+class GaussianModel2D: public Model2D {
 private:
 	enum gaussian_model_types_2D {
 		SINGLE_GAUSSIAN_2D,

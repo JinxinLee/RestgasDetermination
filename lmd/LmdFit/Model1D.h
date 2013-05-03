@@ -10,20 +10,17 @@
 
 #include "Model.h"
 
+class IntegralStrategy1D;
+
 class Model1D: public Model {
 private:
   std::pair<double, double> domain_bounds;
-  static Model1D* current_model;
+  IntegralStrategy1D *integral_strategy;
 
 public:
   Model1D();
   virtual ~Model1D();
 
-  static double gsl_func_wrapper(double x, void *p) {
-    return current_model->evaluate(&x);
-  }
-
-  double GSL_Integral(double xlow, double xhigh, double precision);
   double Integral(double xlow, double xhigh, double precision);
 
   /**

@@ -50,7 +50,7 @@ void ModelPar::setValue(double value_) {
     // there is an exception:
     // is fixed and is connected to another parameter
     // and that connection partner has changed
-    if (!locked) {
+    if (!locked || !fixed) {
       value = value_;
     }
   }
@@ -77,10 +77,10 @@ void ModelPar::setSuperior(bool superior_) {
   superior = superior_;
 }
 
-void ModelPar::setConnectionTo(const std::shared_ptr<ModelPar> &model_par) {
+void ModelPar::setConnectionTo(const shared_ptr<ModelPar> &model_par) {
   connections.insert(model_par);
 }
 
-std::set<std::shared_ptr<ModelPar> >& ModelPar::getParameterConnections() {
+std::set<shared_ptr<ModelPar> >& ModelPar::getParameterConnections() {
   return connections;
 }

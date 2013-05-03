@@ -10,10 +10,13 @@
 
 #include <map>
 
-#include "PndLmdConstants.h"
 #include "PndLmdDataBase.h"
 
-class PndLmdLumiModelFitter;
+#ifndef __CINT__
+#include "PndLmdModelFactory.h"
+#endif /* __CINT __ */
+
+class PndROOTModelFitter;
 class PndLmdLumiFitResult;
 class PndLmdLumiFitOptions;
 class PndLmdAcceptance;
@@ -31,58 +34,67 @@ class TF2;
  */
 class PndLmdData: public PndLmdDataBase {
 private:
-  std::map<PndLmdAcceptance*, std::vector<PndLmdLumiFitResult*> > fit_map;
+	std::map<PndLmdAcceptance*, std::vector<PndLmdLumiFitResult*> > fit_map;
 
 #ifndef __CINT__
-  PndLmdLumiModelFitter *fitter;
+	PndROOTModelFitter *fitter;
+	PndLmdModelFactory signal_model_fac;
 #endif /* __CINT __ */
 
-  /** In case this is a simulation a reference value for the luminosity can be used */
-  double luminosity_ref;
+	/** In case this is a simulation a reference value for the luminosity can be used */
+	double luminosity_ref;
+
+#ifndef __CINT__
+	void fillFitData(shared_ptr<Model1D> model1d,
+			PndLmdLumiFitOptions *fit_options);
+#endif /* __CINT __ */
+
+	std::pair<double, double> calcRange(
+			PndLmdLumiFitOptions *fit_options);
+
 public:
-  PndLmdData(TFile *f_, int num_events_, double plab_,
-      int elastic_th_bins_ = 30, int elastic_phi_bins_ = 30,
-      double elastic_th_range_low_ = 0.0, double elastic_th_range_high_ = 14.0,
-      double elastic_phi_range_low_ = -C_PI, double elastic_phi_range_high_ =
-          C_PI, double generated_luminosity_per_event = -1.0);
-  PndLmdData();
+	PndLmdData(TFile *f_, int num_events_, double plab_,
+			int elastic_th_bins_ = 30, int elastic_phi_bins_ = 30,
+			double elastic_th_range_low_ = 0.0, double elastic_th_range_high_ = 14.0,
+			double elastic_phi_range_low_ = -TMath::Pi(),
+			double elastic_phi_range_high_ = TMath::Pi(),
+			double generated_luminosity_per_event = -1.0);
+	PndLmdData();
 
-  ~PndLmdData();
-  // getter methods
+	~PndLmdData();
+	// getter methods
 
-  void saveToRootFile();
+	void saveToRootFile();
 
-  double getReferenceLuminosity() const;
-  void setReferenceLuminosity(double luminosity_ref_);
+	double getReferenceLuminosity() const;
+	void setReferenceLuminosity(double luminosity_ref_);
 
-  double getBinningFactor(PndLmdLumiFitOptions *fit_opt) const;
+	double getBinningFactor(PndLmdLumiFitOptions *fit_opt) const;
 
-  //void makeCorrectedGraph(TF1 *func, TH1D* hist);
+	//void makeCorrectedGraph(TF1 *func, TH1D* hist);
 
-  TH1D* getMeasuredHist1D(PndLmdLumiFitOptions* fit_options) const;
-  TH2D* getMeasuredHist2D(PndLmdLumiFitOptions* fit_options) const;
+	TH1D* getMeasuredHist1D(PndLmdLumiFitOptions* fit_options) const;
+	TH2D* getMeasuredHist2D(PndLmdLumiFitOptions* fit_options) const;
 
-  RooDataHist* getMeasuredDataHist(PndLmdLumiFitOptions* fit_options) const;
+	/**
+	 * Function carrying out a fit with the specified fit options to this data instance.
+	 * @params lmd_acc pointer to #PndLmdAcceptance required for acceptance fitting.
+	 * In case no acceptance correction should be performed set this value to 0.
+	 * @params fit_options pointer to #PndLmdLumiFitOptions object carrying all necessary fit preferences.
+	 * @returns pointer to #PndLmdLumiFitResult containing relevant information such as the fitted function and the luminosity and its errors.
+	 */
+	PndLmdLumiFitResult* Fit(PndLmdAcceptance* lmd_acc,
+			PndLmdLumiFitOptions* fit_options);
 
-  /**
-   * Function carrying out a fit with the specified fit options to this data instance.
-   * @params lmd_acc pointer to #PndLmdAcceptance required for acceptance fitting.
-   * In case no acceptance correction should be performed set this value to 0.
-   * @params fit_options pointer to #PndLmdLumiFitOptions object carrying all necessary fit preferences.
-   * @returns pointer to #PndLmdLumiFitResult containing relevant information such as the fitted function and the luminosity and its errors.
-   */
-  PndLmdLumiFitResult* Fit(PndLmdAcceptance* lmd_acc,
-      PndLmdLumiFitOptions* fit_options);
+	std::map<PndLmdAcceptance*, std::vector<PndLmdLumiFitResult*> >& getFitMap();
 
-  std::map<PndLmdAcceptance*, std::vector<PndLmdLumiFitResult*> >& getFitMap();
+	std::vector<PndLmdAcceptance*> getListOfAcceptances();
 
-  std::vector<PndLmdAcceptance*> getListOfAcceptances();
-
-  PndLmdLumiFitResult* getFitResult(PndLmdAcceptance* lmd_acc,
-      PndLmdLumiFitOptions* fit_options);
-  std::vector<PndLmdLumiFitResult*> getFitResults(PndLmdAcceptance* lmd_acc);
-  std::vector<std::pair<PndLmdAcceptance*, PndLmdLumiFitResult*> > getFitResults(
-      PndLmdLumiFitOptions* fit_options);
+	PndLmdLumiFitResult* getFitResult(PndLmdAcceptance* lmd_acc,
+			PndLmdLumiFitOptions* fit_options);
+	std::vector<PndLmdLumiFitResult*> getFitResults(PndLmdAcceptance* lmd_acc);
+	std::vector<std::pair<PndLmdAcceptance*, PndLmdLumiFitResult*> > getFitResults(
+			PndLmdLumiFitOptions* fit_options);
 
 ClassDef(PndLmdData,1)
 };

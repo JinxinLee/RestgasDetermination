@@ -6,7 +6,8 @@
  */
 
 #include "PndLmdDPMMTModel2D.h"
-#include "PndLmdConstants.h"
+
+#include "TMath.h"
 
 PndLmdDPMMTModel2D::PndLmdDPMMTModel2D() {
 	getModelParameterSet().addModelParameters(dpm_model_1d.getModelParameterSet());
@@ -17,5 +18,5 @@ PndLmdDPMMTModel2D::~PndLmdDPMMTModel2D() {
 }
 
 double PndLmdDPMMTModel2D::eval(double *x) const {
-	return dpm_model_1d.eval(x) / (2.0 * C_PI);
+	return dpm_model_1d.eval(x) / (2.0 * TMath::Pi());
 }

@@ -11,6 +11,7 @@
 #include <vector>
 
 #include "TString.h"
+#include "TDatabasePDG.h"
 
 class PndLmdAcceptance;
 class PndLmdData;
@@ -32,6 +33,7 @@ class PndLmdLumiHelper {
     - inform: how to make the things faster... threads via std::threads or boost::threads
       and then really how to speed up things on a cluster via openmpi??*/
 private:
+	TDatabasePDG *pdg;
 	std::vector<PndLmdData*> registered_data;
 	std::vector<PndLmdAcceptance*> registered_acceptances;
 
@@ -44,6 +46,7 @@ public:
     enum acceptance_mode {
         FULL, GEOMETRY_ONLY, NO_BACKTRACKING
     };
+    PndLmdLumiHelper();
 
 	int registerData(PndLmdData* data);
 	int registerData(std::vector<PndLmdData*> &data_vec);

@@ -9,7 +9,7 @@
 
 #include <iostream>
 
-ProductModel1D::ProductModel1D(std::shared_ptr<Model1D> first_, std::shared_ptr<Model1D> second_) {
+ProductModel1D::ProductModel1D(shared_ptr<Model1D> first_, shared_ptr<Model1D> second_) {
 	first = first_;
 	second = second_;
 

@@ -8,19 +8,15 @@
 #ifndef PNDLMDDATABASE_H_
 #define PNDLMDDATABASE_H_
 
-#include "PndLmdConstants.h"
 #include "PndLmdDataInterface.h"
 
+#include "TMath.h"
 #include "TFile.h"
 #include "TH1D.h"
 #include "TH2D.h"
 #include "TF1.h"
 #include "TF2.h"
 #include "TTree.h"
-
-#include "RooRealVar.h"
-#include "RooDataHist.h"
-#include "RooDataSet.h"
 
 class PndLmdLumiFitResult;
 class PndLmdLumiFitOptions;
@@ -64,22 +60,6 @@ protected:
 	/** Root file where data is written to. */
 	TFile *f;
 
-	/** RooFit theta variable */
-	RooRealVar* roo_theta_var;
-	/** RooFit phi variable */
-	RooRealVar* roo_phi_var;
-
-	/** RooFit histogram for binned fits */
-	RooDataHist* roo_data_hist_mc_1d;
-	RooDataHist* roo_data_hist_mc_acc_1d;
-	RooDataHist* roo_data_hist_reco_1d;
-	RooDataHist* roo_data_hist_mc_2d;
-	RooDataHist* roo_data_hist_mc_acc_2d;
-	RooDataHist* roo_data_hist_reco_2d;
-
-	/** RooFit data set for unbinned fits */
-	RooDataSet* roo_data_set;
-
 	/** ROOT 1D histogram for mc truth theta values. In case of a simulation this exists. */
 	TH1D* mc_1d;
 	/** ROOT 1D histogram for accepted (reconstruction was successful) mc truth theta values. In case of a simulation this exists. */
@@ -112,7 +92,7 @@ public:
 	/** Standard constructor taking all binning information as parameters */
 	PndLmdDataBase(TFile*, int num_events_, double plab_, int th_bins_ = 50, int phi_bins_ = 50,
 			double th_range_low_ = 0.0, double th_range_high_ = 14.0,
-			double phi_range_low_ = -C_PI, double phi_range_high_ = C_PI);
+			double phi_range_low_ = -TMath::Pi(), double phi_range_high_ = TMath::Pi());
 
 	virtual ~PndLmdDataBase();
 
@@ -130,19 +110,13 @@ public:
 	double getTRangeLow() const;
 	double getTRangeHigh() const;
 
-	RooRealVar* getRooThetaVar() const;
-	RooRealVar* getRooPhiVar() const;
-
 
 	// other helper methods
 	double getMomentumTransferFromTheta(double theta) const;
 	void makeDir();
 	virtual void saveToRootFile();
 
-	void makeUnbinnedDataSet(TTree*);
 	void setUnbinnedRecoData(TTree* reco_tree);
-	void makeRooFitDataHists();
-	RooDataSet* getUnbinnedData() const;
 	TTree* getUnbinnedRecoData() const;
 
 	void fillHistograms(std::vector<std::pair<lmd_values, lmd_values> > &event_data);

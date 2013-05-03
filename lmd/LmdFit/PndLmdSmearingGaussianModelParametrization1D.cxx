@@ -8,8 +8,8 @@
 #include "PndLmdSmearingGaussianModelParametrization1D.h"
 
 PndLmdSmearingGaussianModelParametrization1D::PndLmdSmearingGaussianModelParametrization1D(
-    ModelParSet &model_par_set) :
-    Parametrization(model_par_set) {
+    ModelParSet &model_par_set_) :
+    Parametrization(model_par_set_) {
   initParameters();
 }
 

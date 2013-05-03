@@ -32,7 +32,7 @@ PndLmdLumiFitOptions::PndLmdLumiFitOptions(unsigned long bit_flag_options,
 
   // calculate t range
   PndLmdDPMAngModel1D model;
-  std::shared_ptr<Parametrization> para(
+  shared_ptr<Parametrization> para(
       new PndLmdDPMModelParametrization(model.getModelParameterSet()));
   model.getModelParameterHandler().registerParametrizations(
       model.getModelParameterSet(), para);

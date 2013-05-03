@@ -12,8 +12,8 @@
 
 class ExponentialModel1D: public Model1D {
   private:
-    std::shared_ptr<ModelPar> amplitude;
-    std::shared_ptr<ModelPar> exp_factor;
+    shared_ptr<ModelPar> amplitude;
+    shared_ptr<ModelPar> exp_factor;
 
   public:
     ExponentialModel1D();

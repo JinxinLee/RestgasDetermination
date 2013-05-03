@@ -13,7 +13,7 @@
 #include "AdditionModel1D.h"
 
 PndLmdSmearingDoubleGaussianModelParametrization1D::PndLmdSmearingDoubleGaussianModelParametrization1D(
-    std::shared_ptr<Model1D> model) {
+    shared_ptr<Model1D> model) {
   p_lab = model->getModelParameterSet().addModelParameter("p_lab");
   p_lab->setSuperior(true);
 

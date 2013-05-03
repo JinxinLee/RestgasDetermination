@@ -8,7 +8,7 @@
 #include "ParametrizationModel.h"
 #include "Model.h"
 
-ParametrizationModel::ParametrizationModel(std::shared_ptr<Model> model_) :
+ParametrizationModel::ParametrizationModel(shared_ptr<Model> model_) :
   model(model_) {
 }
 
@@ -20,14 +20,14 @@ void ParametrizationModel::parametrize(double *x) {
   model_par->setValue(model->evaluate(x));
 }
 
-void ParametrizationModel::setModelPar(std::shared_ptr<ModelPar> model_par_) {
+void ParametrizationModel::setModelPar(shared_ptr<ModelPar> model_par_) {
   model_par = model_par_;
 }
 
-const std::shared_ptr<ModelPar> ParametrizationModel::getModelPar() const {
+const shared_ptr<ModelPar> ParametrizationModel::getModelPar() const {
   return model_par;
 }
 
-std::shared_ptr<Model> ParametrizationModel::getModel() {
+shared_ptr<Model> ParametrizationModel::getModel() {
   return model;
 }

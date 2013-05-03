@@ -11,10 +11,6 @@ Parametrization::Parametrization(ModelParSet &model_par_set_) :
     model_par_set(model_par_set_) {
 }
 
-std::shared_ptr<Parametrization> Parametrization::getSharedPointer() {
-  return shared_from_this();
-}
-
 Parametrization::~Parametrization() {
   // TODO Auto-generated destructor stub
 }

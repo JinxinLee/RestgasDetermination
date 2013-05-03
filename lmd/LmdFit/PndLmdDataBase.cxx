@@ -16,10 +16,6 @@
 #include "TF2.h"
 #include "TFile.h"
 
-#include "RooRealVar.h"
-#include "RooDataHist.h"
-#include "RooDataSet.h"
-
 ClassImp(PndLmdDataBase)
 
 PndLmdDataBase::PndLmdDataBase() {
@@ -95,18 +91,6 @@ PndLmdDataBase::PndLmdDataBase(TFile *f_, int num_events_, double plab_,
   reco_2d->Sumw2();
 
   reco_unbinned = NULL;
-
-  roo_theta_var = new RooRealVar("th", "th", th_range_low, th_range_high);
-  roo_phi_var = new RooRealVar("phi", "phi", phi_range_low, phi_range_high);
-
-  roo_data_hist_mc_1d = NULL;
-  roo_data_hist_mc_acc_1d = NULL;
-  roo_data_hist_reco_1d = NULL;
-  roo_data_hist_mc_2d = NULL;
-  roo_data_hist_mc_acc_2d = NULL;
-  roo_data_hist_reco_2d = NULL;
-
-  roo_data_set = NULL;
 }
 
 PndLmdDataBase::~PndLmdDataBase() {
@@ -139,7 +123,7 @@ bool PndLmdDataBase::operator!=(const PndLmdDataBase &lmd_data_base) const {
 
 double PndLmdDataBase::getMomentumTransferFromTheta(double theta) const {
   PndLmdDPMAngModel1D model;
-  std::shared_ptr<Parametrization> para(
+  shared_ptr<Parametrization> para(
       new PndLmdDPMModelParametrization(model.getModelParameterSet()));
   model.getModelParameterHandler().registerParametrizations(
       model.getModelParameterSet(), para);
@@ -169,13 +153,6 @@ void PndLmdDataBase::makeDir() {
 }
 
 void PndLmdDataBase::saveToRootFile() {
-}
-
-RooRealVar* PndLmdDataBase::getRooThetaVar() const {
-  return roo_theta_var;
-}
-RooRealVar* PndLmdDataBase::getRooPhiVar() const {
-  return roo_phi_var;
 }
 
 int PndLmdDataBase::getThBins() const {
@@ -213,38 +190,11 @@ double PndLmdDataBase::getTRangeHigh() const {
   return t_range_high;
 }
 
-void PndLmdDataBase::makeRooFitDataHists() {
-  roo_data_hist_mc_1d = new RooDataHist("data_hist_mc_1d",
-      "RooFit Theta-Distribution MC", *roo_theta_var, mc_1d);
-  roo_data_hist_mc_acc_1d = new RooDataHist("data_hist_mc_acc_1d",
-      "RooFit Theta-Distribution MC acc", *roo_theta_var, mc_acc_1d);
-  roo_data_hist_reco_1d = new RooDataHist("data_hist_reco_1d",
-      "RooFit Theta-Distribution Reco", *roo_theta_var, reco_1d);
-  roo_data_hist_mc_2d = new RooDataHist("data_hist_mc_2d",
-      "RooFit Theta-Phi-Distribution MC",
-      RooArgList(*roo_theta_var, *roo_phi_var), mc_2d);
-  roo_data_hist_mc_acc_2d = new RooDataHist("data_hist_mc_acc_2d",
-      "RooFit Theta-Phi-Distribution MC acc",
-      RooArgList(*roo_theta_var, *roo_phi_var), mc_acc_2d);
-  roo_data_hist_reco_2d = new RooDataHist("data_hist_reco_2d",
-      "RooFit Theta-Phi-Distribution Reco",
-      RooArgList(*roo_theta_var, *roo_phi_var), reco_2d);
-}
-
 void PndLmdDataBase::setUnbinnedRecoData(TTree* reco_tree) {
   reco_unbinned = reco_tree;
 }
 TTree* PndLmdDataBase::getUnbinnedRecoData() const {
   return reco_unbinned;
-}
-
-void PndLmdDataBase::makeUnbinnedDataSet(TTree* t) {
-  roo_data_set = new RooDataSet("udata", "unbinned data set", t,
-      *roo_theta_var);
-}
-
-RooDataSet* PndLmdDataBase::getUnbinnedData() const {
-  return roo_data_set;
 }
 
 void PndLmdDataBase::fillHistograms(

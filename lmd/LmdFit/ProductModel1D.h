@@ -12,10 +12,10 @@
 
 class ProductModel1D: public Model1D {
 private:
-  std::shared_ptr<Model1D> first, second;
+  shared_ptr<Model1D> first, second;
 public:
-  ProductModel1D(std::shared_ptr<Model1D> first_,
-      std::shared_ptr<Model1D> second_);
+  ProductModel1D(shared_ptr<Model1D> first_,
+      shared_ptr<Model1D> second_);
 
   void initModelParameters();
 

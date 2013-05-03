@@ -8,11 +8,16 @@
 #ifndef PARAMETRIZATIONMODEL_H_
 #define PARAMETRIZATIONMODEL_H_
 
-#include <memory>
+//#include <boost/shared_ptr.hpp>
+#include <tr1/memory>
 
 class Model;
 class ModelPar;
 class ModelParSet;
+
+//using boost::shared_ptr;
+using std::tr1::shared_ptr;
+//using std::shared_ptr;
 
 /**
  * A #ParametrizationModel is a special type of #Model. It functions as a
@@ -23,18 +28,18 @@ class ModelParSet;
  */
 class ParametrizationModel {
 private:
-  std::shared_ptr<Model> model;
-  std::shared_ptr<ModelPar> model_par;
+  shared_ptr<Model> model;
+  shared_ptr<ModelPar> model_par;
 public:
-  ParametrizationModel(std::shared_ptr<Model> model_);
+  ParametrizationModel(shared_ptr<Model> model_);
   virtual ~ParametrizationModel();
 
   void parametrize(double *x);
 
-  void setModelPar(std::shared_ptr<ModelPar> model_par_);
-  const std::shared_ptr<ModelPar> getModelPar() const;
+  void setModelPar(shared_ptr<ModelPar> model_par_);
+  const shared_ptr<ModelPar> getModelPar() const;
 
-  std::shared_ptr<Model> getModel();
+  shared_ptr<Model> getModel();
 };
 
 #endif /* PARAMETRIZATIONMODEL_H_ */

@@ -13,7 +13,7 @@
 class PolynomialModel1D: public Model1D {
   private:
     unsigned int order;
-    std::vector<std::shared_ptr<ModelPar> > poly_factors;
+    std::vector<shared_ptr<ModelPar> > poly_factors;
 
   public:
     PolynomialModel1D(unsigned int order_);
