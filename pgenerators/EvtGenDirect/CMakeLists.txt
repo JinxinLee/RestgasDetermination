@@ -6,10 +6,9 @@ set(INCLUDE_DIRECTORIES
 ${ROOT_INCLUDE_DIR} 
 ${CLHEP_BASE_DIR}/include
 ${CLHEP_INCLUDE_DIR}
-${CMAKE_SOURCE_DIR}/base 
+${BASE_INCLUDE_DIRECTORIES} 
 ${CMAKE_SOURCE_DIR}/pgenerators/EvtGen
 ${CMAKE_SOURCE_DIR}/pgenerators/EvtGenDirect
-${CMAKE_SOURCE_DIR}/fairtools
 )
 
 include_directories( ${INCLUDE_DIRECTORIES})

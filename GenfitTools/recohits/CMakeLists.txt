@@ -5,14 +5,11 @@
 set(INCLUDE_DIRECTORIES
 ${ROOT_INCLUDE_DIR} 
 ${CLHEP_INCLUDE_DIR}
-${CMAKE_SOURCE_DIR}/fairtools
-${CMAKE_SOURCE_DIR}/base
-${CMAKE_SOURCE_DIR}/parbase
+${BASE_INCLUDE_DIRECTORIES} 
 ${CMAKE_SOURCE_DIR}/GenfitTools/trackrep
 ${CMAKE_SOURCE_DIR}/GenfitTools/trackrep/GeaneTrackRep
 ${CMAKE_SOURCE_DIR}/GenfitTools/trackrep/LSLtrackRep
 ${CMAKE_SOURCE_DIR}/GenfitTools/trackrep/RKTrackRep
-${CMAKE_SOURCE_DIR}/base
 ${CMAKE_SOURCE_DIR}/genfit
 ${CMAKE_SOURCE_DIR}/trackbase
 ${CMAKE_SOURCE_DIR}/pnddata

@@ -5,12 +5,9 @@
 set(INCLUDE_DIRECTORIES
 ${ROOT_INCLUDE_DIR} 
 #put here all directories where header files are located
-${PANDAROOT_SOURCE_DIR}/fairtools
-${PANDAROOT_SOURCE_DIR}/base
+${BASE_INCLUDE_DIRECTORIES} 
 ${PANDAROOT_SOURCE_DIR}/pnddata
 ${PANDAROOT_SOURCE_DIR}/pnddata/RichData
-${PANDAROOT_SOURCE_DIR}/parbase
-${PANDAROOT_SOURCE_DIR}/geobase
 ${PANDAROOT_SOURCE_DIR}/rich
 )
 

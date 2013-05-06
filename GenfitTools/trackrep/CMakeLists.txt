@@ -5,6 +5,7 @@
 set(INCLUDE_DIRECTORIES
 ${ROOT_INCLUDE_DIR} 
 ${CLHEP_INCLUDE_DIR}
+${BASE_INCLUDE_DIRECTORIES} 
 ${CMAKE_SOURCE_DIR}/GenfitTools/trackrep
 ${CMAKE_SOURCE_DIR}/GenfitTools/trackrep/GeaneTrackRep
 ${CMAKE_SOURCE_DIR}/GenfitTools/trackrep/LSLtrackRep
