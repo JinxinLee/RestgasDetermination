@@ -106,7 +106,8 @@ PndFsmStt::respond(PndFsmTrack *t)
     result->setdtheta(dtheta(t));
 
      // now the dEdx information
-    double mass = _fdbPDG->GetParticle(t->pdt())->Mass();   //***************************************
+    TParticlePDG* part = _fdbPDG->GetParticle(t->pdt());
+    double mass = (part) ? part->Mass() : t->p4().M();
     double p=t->p4().Vect().Mag();
     
     // overall resolution for the dEdx measurement

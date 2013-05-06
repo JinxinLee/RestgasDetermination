@@ -12,7 +12,7 @@
 
 //CBM class headers
 #include "FairRootManager.h"
-#include "FairRunAna.h"
+//#include "FairRunAna.h"
 #include "FairRuntimeDb.h"
 #include "PndMCTrack.h"
 #include "PndStack.h"
@@ -21,16 +21,16 @@
 #include "PndFastSim.h"
 
 //Rho includes
-#include "RhoBase/TCandidate.h"
-#include "RhoBase/TSimpleVertex.h"
-#include "RhoBase/TRho.h"
-#include "PndMicroCandidate.h"
+#include "RhoBase/RhoCandidate.h"
+//#include "RhoBase/TSimpleVertex.h"
+//#include "RhoBase/TRho.h"
+#include "PndPidCandidate.h"
 #include "PidData/PndPidCandidate.h"
 #include "PidData/PndPidProbability.h"
 #include "PndEventInfo.h"
-#include "RhoBase/TCandList.h"
-#include "RhoTools/TEventShape.h"
-#include "RhoBase/TFactory.h"
+#include "RhoBase/RhoCandList.h"
+//#include "RhoTools/TEventShape.h"
+#include "RhoBase/RhoFactory.h"
 
 //ROOT class headers
 #include "TClonesArray.h"
@@ -67,7 +67,7 @@ PndFastSim::PndFastSim() :
   fVb=0;
   fGenSplitOffs=false;
   fPropagate=false;
-  fdbPdg = TRho::Instance()->GetPDG();
+  fdbPdg = TDatabasePDG::Instance();
 }
 // -------------------------------------------------------------------------
 
@@ -97,20 +97,20 @@ PndFastSim::~PndFastSim() {
 void PndFastSim::Register() {
   //---
 
-  fMcCandidates = new TClonesArray("TCandidate");
+  fMcCandidates = new TClonesArray("RhoCandidate");
   FairRootManager::Instance()->Register("PndMcTracks","FastSim", fMcCandidates, kTRUE);
 
-  //fPndCandidates = new TClonesArray("TCandidate");
+  //fPndCandidates = new TClonesArray("RhoCandidate");
   //FairRootManager::Instance()->Register("PndCandidates","FastSim", fPndCandidates, kTRUE);
 
-  //fChargedCandidates = new TClonesArray("TCandidate");
+  //fChargedCandidates = new TClonesArray("RhoCandidate");
   //FairRootManager::Instance()->Register("PndChargedCandidates","FastSim", fChargedCandidates, kTRUE);
 
-  //fNeutralCandidates = new TClonesArray("TCandidate");
+  //fNeutralCandidates = new TClonesArray("RhoCandidate");
   //FairRootManager::Instance()->Register("PndNeutralCandidates","FastSim", fNeutralCandidates, kTRUE);
 
-  //fMicroCandidates = new TClonesArray("PndMicroCandidate");
-  //FairRootManager::Instance()->Register("PndMicroCandidates","FastSim", fMicroCandidates, kTRUE);
+  //fMicroCandidates = new TClonesArray("PndPidCandidate");
+  //FairRootManager::Instance()->Register("PndPidCandidates","FastSim", fMicroCandidates, kTRUE);
 
 
   fPidChargedCand = new TClonesArray("PndPidCandidate");
@@ -368,7 +368,7 @@ void PndFastSim::Exec(Option_t* opt)
   if (fVb)cout <<"number of tracks **** "<< nTracks <<endl;
   
   
-  TCandList l;
+  RhoCandList l;
   TLorentzVector McSumP4(0,0,0,0);
   TVector3 McAvgVtx(0,0,0);
   
@@ -388,15 +388,16 @@ void PndFastSim::Exec(Option_t* opt)
     TVector3 stvtx(t->Vx(),t->Vy(),t->Vz());
 
     //TLorentzVector vtx(stvtx,t->T());
-    
-    double charge=fdbPdg->GetParticle(t->GetPdgCode())->Charge();
+    TParticlePDG* part = fdbPdg->GetParticle(t->GetPdgCode());
+    double charge(0);//safety against unknown pdgcodes, might scrw up the charge
+    if(part) charge=part->Charge();
     if (fabs(charge)>2) charge/=3.;
 
     PndFsmTrack *ft=new PndFsmTrack(p4,stvtx,stvtx,charge,t->GetPdgCode(),iPoint+1);
     //PndFsmTrack ft(p4,stvtx,stvtx,charge,t->GetPdgCode(),iPoint+1);
 
     // store a plain copy of the mc track to the file
-    TCandidate *pmc=new (mctracks[mcsize]) TCandidate(ft->p4(),ft->charge());
+    RhoCandidate *pmc=new (mctracks[mcsize]) RhoCandidate(ft->p4(),ft->charge());
     pmc->SetMcIdx(iPoint);
     pmc->SetPos(ft->startVtx());
     pmc->SetType(t->GetPdgCode());
@@ -414,11 +415,11 @@ void PndFastSim::Exec(Option_t* opt)
     
     // smear and cut the track according to the detector setup
     if (smearTrack(ft)) {
-      TSimpleVertex *svtx=new TSimpleVertex(ft->startVtx());
+        RhoVector3Err *svtx=new RhoVector3Err(ft->startVtx());
       
-      //TCandidate *tcand;
+      //RhoCandidate *tcand;
       
-      //PndMicroCandidate *micro;
+      //PndPidCandidate *micro;
       TLorentzVector miclv=ft->p4();
       TVector3 pos=ft->startVtx();
       
@@ -435,7 +436,7 @@ void PndFastSim::Exec(Option_t* opt)
       }
       
       /*
-      micro=new (microCandidates[miccandsize]) PndMicroCandidate((Int_t)ft->charge(),pos,miclv);
+      micro=new (microCandidates[miccandsize]) PndPidCandidate((Int_t)ft->charge(),pos,miclv);
 
       micro->SetMcIndex(iPoint);
       micro->SetMvdDEDX( ft->detResponse()->MvddEdx() );
@@ -517,9 +518,9 @@ void PndFastSim::Exec(Option_t* opt)
 	  
 	  /*
       if (fabs(ft->charge())>1e-6) 
-        tcand=new (chrgCandidates[chcandsize]) TCandidate(ft->p4(),ft->charge(),svtx);
+        tcand=new (chrgCandidates[chcandsize]) RhoCandidate(ft->p4(),ft->charge(),svtx);
       else 
-        tcand=new (neutCandidates[neucandsize]) TCandidate(ft->p4(),ft->charge(),svtx);
+        tcand=new (neutCandidates[neucandsize]) RhoCandidate(ft->p4(),ft->charge(),svtx);
 
 	  
       // the likelihood values;
@@ -561,12 +562,12 @@ void PndFastSim::Exec(Option_t* opt)
         tcand->SetMass(0.0);
 	  */
 		
-      TCandidate tcand(ft->p4(),ft->charge(),svtx);
+      RhoCandidate tcand(ft->p4(),ft->charge(),svtx);
 		
       l.Add(tcand);
     
       /*	
-      tcand=new (pndCandidates[pndcandsize]) TCandidate(ft->p4(),ft->charge(),svtx);
+      tcand=new (pndCandidates[pndcandsize]) RhoCandidate(ft->p4(),ft->charge(),svtx);
       
       tcand->SetMcIdx(iPoint);
       tcand->SetPidInfo(pidinfo);
@@ -600,7 +601,7 @@ void PndFastSim::Exec(Option_t* opt)
         {
           TLorentzVector lv=ft->p4();
           TVector3 fPos(0.,0.,0.);
-          TSimpleVertex *svtx2=new TSimpleVertex(fPos);
+          RhoVector3Err *svtx2=new RhoVector3Err(fPos);
           
           double mom   = fspo[type][0]->GetRandom();
           double dphi  = fspo[type][1]->GetRandom();
@@ -612,8 +613,8 @@ void PndFastSim::Exec(Option_t* opt)
           lv.SetE(lv.P());
           
           /*
-          PndMicroCandidate *micro=new (microCandidates[microCandidates.GetEntriesFast()])
-              PndMicroCandidate(0,fPos,lv);
+          PndPidCandidate *micro=new (microCandidates[microCandidates.GetEntriesFast()])
+              PndPidCandidate(0,fPos,lv);
           micro->SetMcIndex(-1);
           */
           
@@ -624,7 +625,7 @@ void PndFastSim::Exec(Option_t* opt)
 		  pidProb = new (neutProbs[neucandsize]) PndPidProbability(); 
 		  pidCand->SetMcIndex(-1);
 		  
-          TCandidate tCand(lv,0.0,svtx2);
+          RhoCandidate tCand(lv,0.0,svtx2);
           tCand.SetMcIdx(-1);
           tCand.SetType(22);
           nNeutral++;
@@ -633,7 +634,7 @@ void PndFastSim::Exec(Option_t* opt)
           l.Add(tCand);          
           
           delete svtx2;
-          //tcand=new (pndCandidates[pndCandidates.GetEntriesFast()]) TCandidate(lv,0.0);
+          //tcand=new (pndCandidates[pndCandidates.GetEntriesFast()]) RhoCandidate(lv,0.0);
           //tcand->SetMcIdx(-1);
           
         } // split off loop
@@ -653,10 +654,10 @@ void PndFastSim::Exec(Option_t* opt)
   eventInfo->SetCharged(nCharged);
   eventInfo->SetNeutrals(nNeutral);
   
-  TEventShape shape(l);
-  eventInfo->SetEventShape(shape);
+//  TEventShape shape(l);
+//  eventInfo->SetEventShape(shape);
   
-  TFactory::Instance()->Reset();
+  RhoFactory::Instance()->Reset();
 
 }
 // -------------------------------------------------------------------------

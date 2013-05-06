@@ -205,33 +205,36 @@ PndFsmCmpDet::respond(PndFsmTrack *t) {
   
   // invoke parameterised vertex/momentum resolution 
   // (this will overwrite dp, dtheta, dphi and dV)
-  if ( _parFile ) 
-    // haven't done neutral particles yet
-    if ( fabs(t->charge())>1e-8 ) {
-      double p=t->p4().Vect().Mag();
-      double theta=t->p4().Vect().Theta()*180/M_PI;
-      int pid=abs(t->pdt());
-      // cut off slow and out of theta range particles
-      // (this avoids floating point exceptions)
-      detected &= ( p > _mom0[pid]->GetVal() );
-      detected &= ( theta >= _tht0->GetVal() );
-      detected &= ( theta <= _tht1->GetVal() );
+    if ( _parFile ) {
+        // haven't done neutral particles yet
+        if ( fabs(t->charge())>1e-8 ) {
+            int pid=abs(t->pdt());
+            if ( pid==11 || pid==13 || pid==211 || pid==321 || pid==2212) {
+                double p=t->p4().Vect().Mag();
+                double theta=t->p4().Vect().Theta()*180/M_PI;
+                // cut off slow and out of theta range particles
+                // (this avoids floating point exceptions)
+                detected &= ( p > _mom0[pid]->GetVal() );
+                detected &= ( theta >= _tht0->GetVal() );
+                detected &= ( theta <= _tht1->GetVal() );
 
-      if (detected) {
-        dtheta = eval(_tht[pid], theta) * _thtScale[pid]->Eval(p) * _thtResMulti * 3.1416/180;
-        dphi = eval(_phi[pid], theta) * _phiScale[pid]->Eval(p) * _phiResMulti * 3.1416/180;
-        dp = eval(_mom[pid], theta) * _momScale[pid]->Eval(p) * _momResMulti * p;
+                if (detected) {
+                    dtheta = eval(_tht[pid], theta) * _thtScale[pid]->Eval(p) * _thtResMulti * 3.1416/180;
+                    dphi = eval(_phi[pid], theta) * _phiScale[pid]->Eval(p) * _phiResMulti * 3.1416/180;
+                    dp = eval(_mom[pid], theta) * _momScale[pid]->Eval(p) * _momResMulti * p;
 
-        dVx = eval(_d0[pid], theta) * _d0Scale[pid]->Eval(p) * _d0ResMulti;
-        dVy = eval(_d0[pid], theta) * _d0Scale[pid]->Eval(p) * _d0ResMulti;
-        dVz = eval(_z0[pid], theta) * _z0Scale[pid]->Eval(p) * _z0ResMulti;
+                    dVx = eval(_d0[pid], theta) * _d0Scale[pid]->Eval(p) * _d0ResMulti;
+                    dVy = eval(_d0[pid], theta) * _d0Scale[pid]->Eval(p) * _d0ResMulti;
+                    dVz = eval(_z0[pid], theta) * _z0Scale[pid]->Eval(p) * _z0ResMulti;
 
-        dtheta=1/(dtheta*dtheta);
-        dphi=1/(dphi*dphi);
-        dp=1/(dp*dp);
-      }
+                    dtheta=1/(dtheta*dtheta);
+                    dphi=1/(dphi*dphi);
+                    dp=1/(dp*dp);
+                }
+            }
+        }
     }
-
+  
   for (FsmAbsDetList::iterator iter=fSubtractDetList.begin();iter!=fSubtractDetList.end(); iter++) {
     PndFsmResponse* resp=(*iter)->respond(t);
 

@@ -1,6 +1,6 @@
 // *******
 // Macro for converting simulated/reconstructed
-// data to PndMicroCandidates/TCandidates
+// data to PndPidCandidates/TCandidates
 // as input for analysis
 // parameters: 
 //     recofn=filename of reco file

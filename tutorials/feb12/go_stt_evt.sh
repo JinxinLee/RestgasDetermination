@@ -1,6 +1,6 @@
 # This script runs PandaRoot macros for the full Sim with
 # STT as Tracker
-# usage: ./go_tpc_evtgen.sh <momentum> <nEvents>
+# usage: ./go_tpc_evtgen.sh <nEvents> <resonance> <channel> <momentum> 
 # (06/2009 R. Kliemt)
 
 # make data directory, if not there. all data file go there, makes them easier to move around

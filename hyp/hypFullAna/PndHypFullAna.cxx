@@ -33,13 +33,12 @@ for Hypernuclei.
 #include "LSLTrackRep.h"
 
 //RHO stuff
-#include "RhoBase/TCandidate.h"
-#include "PndMicroCandidate.h"
-#include "RhoBase/VAbsMicroCandidate.h"
-#include "RhoBase/TCandList.h"
-#include "RhoBase/TCandListIterator.h"
-#include "RhoSelector/TPidSelector.h"
-#include "RhoBase/TFactory.h"
+#include "RhoBase/RhoCandidate.h"
+#include "PndPidCandidate.h"
+#include "FairRecoCandidate.h"
+#include "RhoBase/RhoCandList.h"
+#include "RhoBase/RhoCandListIterator.h"
+#include "RhoBase/RhoFactory.h"
 		
 		
 using std::cout;
@@ -83,7 +82,7 @@ InitStatus PndHypFullAna::Init() {
  fGe = (TClonesArray*) ioman->GetObject("HypGePoint");
 
   fChargedArray = (TClonesArray*) ioman->GetObject("PndChargedCandidates");
-  fMicroArray = (TClonesArray*) ioman->GetObject("PndMicroCandidates");
+  fMicroArray = (TClonesArray*) ioman->GetObject("PndPidCandidates");
   
   if ( !fChargedArray && !fMicroArray) {
     cout << "-W- PndHypFullAna	::Init: "
@@ -131,20 +130,20 @@ InitStatus PndHypFullAna::Init() {
   
   // **** create and configure the selectors/filters we'd like to use later
   //
-  //chargedSel = new TPidChargedSelector;
-  neutralSel = new TPidNeutralSelector;
-  plusSel    = new TPidPlusSelector;
-  minusSel   = new TPidMinusSelector;
+  //chargedSel = new RhoChargedParticleSelector;
+  neutralSel = new RhoNeutralParticleSelector;
+  plusSel    = new RhoPlusParticleSelector;
+  minusSel   = new RhoMinusParticleSelector;
   
   // **** mass selectors for the resonances/composites
   //
  
-  piSel   = new TPidSimplePionSelector();
+  piSel   = new RhoSimplePionSelector();
   piSel->SetCriterion("veryLoose");
-  pSel    = new TPidSimpleProtonSelector();
+  pSel    = new RhoSimpleProtonSelector();
   pSel->SetCriterion("veryLoose");
     
-  LambMSel  = new TPidMassSelector("LambSelector" , 1.115 , 0.04);
+  LambMSel  = new RhoMassParticleSelector("LambSelector" , 1.115 , 0.04);
   
  
   evcount=0;
@@ -170,7 +169,7 @@ void PndHypFullAna::SetParContainers() {
 // -----   Public method Exec   --------------------------------------------
 void PndHypFullAna::Exec(Option_t* opt) {
 
-  TFactory::Instance()->Reset();
+  RhoFactory::Instance()->Reset();
   
   if (!(++evcount%100)) cout <<"evt "<<evcount<<endl;
   //cout <<"evt "<<evcount<<endl;++evcount;
@@ -178,14 +177,14 @@ void PndHypFullAna::Exec(Option_t* opt) {
   
   // **** create all the particle lists we'll need for rebuilding the decay tree
   //
-  TCandList neutralCands,chargedCands, plusCands,minusCands;
+  RhoCandList neutralCands,chargedCands, plusCands,minusCands;
 
-  TCandList kpCands,kmCands,piCands,ppiCands;
+  RhoCandList kpCands,kmCands,piCands,ppiCands;
 
-  TCandList xiCands,nonOvCands,dsCands,ds0Cands,ppCands;
+  RhoCandList xiCands,nonOvCands,dsCands,ds0Cands,ppCands;
   std::map<Int_t,Float_t > mapp;
 
-  //TCandidate *tc;
+  //RhoCandidate *tc;
   
 
   // **** loop over all Candidates and add them to the list allCands
@@ -194,8 +193,8 @@ void PndHypFullAna::Exec(Option_t* opt) {
   //neutralCands.Cleanup();
   
   for (Int_t i1=0; i1<fMicroArray->GetEntriesFast(); i1++){
-    PndMicroCandidate *mic = (PndMicroCandidate *)fMicroArray->At(i1);
-    TCandidate tc(*mic,i1);
+    PndPidCandidate *mic = (PndPidCandidate *)fMicroArray->At(i1);
+    RhoCandidate tc(*mic,i1);
     TLorentzVector l=tc.P4();
     TVector3 p=tc.Pos();
     //cout<<" micro to tcaaand "<<tc.GetCharge()<<endl;
@@ -233,8 +232,8 @@ void PndHypFullAna::Exec(Option_t* opt) {
   
   xiCands.Combine(ppiCands,minusCands);
   
-  TCandidate *t4;
-  TCandListIterator itX(xiCands);
+  RhoCandidate *t4;
+  RhoCandListIterator itX(xiCands);
   while (t4=itX.Next()) 
     {
       ximass->Fill(t4->Mass());
@@ -261,9 +260,9 @@ void PndHypFullAna::Exec(Option_t* opt) {
   //      before using the mass selectors
   //
  
-    	TCandidate *t2;
+    	RhoCandidate *t2;
 	
-	TCandListIterator iterP(piCands);
+	RhoCandListIterator iterP(piCands);
 	while (t2=iterP.Next()) 
 	{
 	  //ppimass->Fill(l.P());//tc->Mass());
@@ -292,9 +291,9 @@ void PndHypFullAna::Exec(Option_t* opt) {
 	
 	for (int k=0;k<npi;k++)
 	  {
-	    TCandidate pion=piCands[k];
+	    RhoCandidate pion=piCands[k];
 	  
-	    PndHypHit*  hp=(PndHypHit*)fMcCands->At((pion.GetMicroCandidate().GetMvdHits())-1);
+	    PndHypHit*  hp=(PndHypHit*)fMcCands->At((pion.GetRecoCandidate().GetMvdHits())-1);
 	    PndHypPoint* pop=(PndHypPoint*)fMc->At(hp->GetRefIndex());
 	    if(pop==0)continue;
 	    
@@ -307,8 +306,8 @@ void PndHypFullAna::Exec(Option_t* opt) {
 	//cout<<" dsCands.GetLength() "<<dsCands.GetLength()<<endl;
 	
 	int dsi=dsCands.GetLength();
-	TCandidate *t3;
-	TCandListIterator itP(dsCands);
+	RhoCandidate *t3;
+	RhoCandListIterator itP(dsCands);
 	while (t3=itP.Next()) 
 	{
 	  //ppimass->Fill(l.P());//tc->Mass());
@@ -325,7 +324,7 @@ void PndHypFullAna::Exec(Option_t* opt) {
 	
 /*	for (int k=0;k<npi;k++)
 	  {
-	    TCandidate pion=piCands[k];
+	    RhoCandidate pion=piCands[k];
 	    
 	    TLorentzVector v4=pion.P4(); 
 	    TVector3 v3 = v4.Vect(); 
@@ -370,9 +369,9 @@ void PndHypFullAna::Exec(Option_t* opt) {
 	
 	if(dsi==1){
 	  //if(npi==1){
-	  //TCandidate pi=piCands[0];
-	  TCandidate pi=dsCands[0];
-	  //TCandidate pp=piminusCands[jj];
+	  //RhoCandidate pi=piCands[0];
+	  RhoCandidate pi=dsCands[0];
+	  //RhoCandidate pp=piminusCands[jj];
 	  TLorentzVector vpim=pi.P4();
 	  TVector3 pi3v = vpim.Vect();
 	  //cout<<ii<<" "<<pi3v.Mag()<<endl;
@@ -386,8 +385,8 @@ void PndHypFullAna::Exec(Option_t* opt) {
 	  {
 	    for (ii=0;ii<dsi-1;ii++)
 	      {	
-		//TCandidate pi=piCands[ii];
-		TCandidate pi=dsCands[ii];
+		//RhoCandidate pi=piCands[ii];
+		RhoCandidate pi=dsCands[ii];
 		//cout<<" charge pion "<<pi.GetCharge()<<endl;
 		
 		TLorentzVector vpim=pi.P4();
@@ -395,14 +394,14 @@ void PndHypFullAna::Exec(Option_t* opt) {
 
 		for (jj=ii+1;jj<dsi;jj++)
 		  {
-		    //TCandidate pp=piCands[jj];
-		    TCandidate pp=dsCands[jj];
+		    //RhoCandidate pp=piCands[jj];
+		    RhoCandidate pp=dsCands[jj];
 		    
 		    TLorentzVector vpp=pp.P4(); 
 		    TVector3 pp3v = vpp.Vect(); 
 		    //VAbsMicroCandidate cm;
 		    //cm = pi.GetMicroCandidate();
-		    hit=(PndHypHit*)fMcCands->At((pi.GetMicroCandidate().GetMvdHits())-1);
+		    hit=(PndHypHit*)fMcCands->At((pi.GetRecoCandidate().GetMvdHits())-1);
 		    po=(PndHypPoint*)fMc->At(hit->GetRefIndex());
 		    if(po==0)continue;
 		   

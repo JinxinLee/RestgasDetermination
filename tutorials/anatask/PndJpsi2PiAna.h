@@ -8,7 +8,7 @@
 
 class TH1F;
 
-class TPidMassSelector;
+class RhoMassParticleSelector;
 
 class PndJpsi2PiAna : public PndAnaTask
 {
@@ -33,7 +33,7 @@ class PndJpsi2PiAna : public PndAnaTask
   
   // **** mass selectors for the resonances/composites
   //
-  TPidMassSelector *jpsiMSel;
+  RhoMassParticleSelector *jpsiMSel;
 
   /**book all the histograms**/
   TH1F *jpsimass;

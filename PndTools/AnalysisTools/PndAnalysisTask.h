@@ -10,83 +10,85 @@ class TClonesArray;
 class TObjectArray;
 class TH1F;
 
-class TPidChargedSelector;
-class TPidNeutralSelector;
-class TPidPlusSelector;
-class TPidMinusSelector;
-class TPidMassSelector;
-class TPidSimpleKaonSelector;
-class TPidSimplePionSelector;
+#include "RhoSelector/RhoMassParticleSelector.h"
+#include "RhoSelector/RhoNeutralParticleSelector.h"
+#include "RhoSelector/RhoPlusParticleSelector.h"
+#include "RhoSelector/RhoMinusParticleSelector.h"
+#include "RhoSelector/RhoSimpleElectronSelector.h"
+#include "RhoSelector/RhoSimpleKaonSelector.h"
+#include "RhoSelector/RhoSimpleMuonSelector.h"
+#include "RhoSelector/RhoSimplePionSelector.h"
+#include "RhoSelector/RhoSimpleProtonSelector.h"
 
 class PndAnalysisTask : public FairTask
 {
 
- public:
-	typedef std::map<Int_t, Float_t> mapper;
+  public:
+    typedef std::map<Int_t, Float_t> mapper;
 
-  /** Default constructor **/  
-  PndAnalysisTask();
-
-
-  /** Destructor **/
-  ~PndAnalysisTask();
+    /** Default constructor **/
+    PndAnalysisTask();
 
 
-  /** Virtual method Init **/
-  virtual InitStatus Init();
+    /** Destructor **/
+    ~PndAnalysisTask();
 
 
-  /** Virtual method Exec **/
-  virtual void Exec(Option_t* opt);
+    /** Virtual method Init **/
+    virtual InitStatus Init();
 
-  virtual void Finish();
-  //void CreateStructure();
 
- protected:
+    /** Virtual method Exec **/
+    virtual void Exec(Option_t* opt);
 
-  int evcount;
+    virtual void Finish();
+    //void CreateStructure();
 
-  
+  protected:
 
-  // **** some basic selectors
-  //
-  //TPidChargedSelector *chargedSel;
-  TPidNeutralSelector *neutralSel;
-  TPidPlusSelector    *plusSel;
-  TPidMinusSelector   *minusSel;
-  
-  // **** mass selectors for the resonances/composites
-  //
-  TPidMassSelector *phiMSel;
-  TPidMassSelector *pi0MSel;
-  TPidMassSelector *dsMSel;
-  TPidSimpleKaonSelector *kSel;
-  TPidSimplePionSelector *piSel;
+    int evcount;
 
-  /**book all the histograms**/
-  TH1F *phimass;
-  TH1F *pi0mass;
-  TH1F *dsmass; 
-  TH1F *ds0mass;
-  TH1F *ppmass;
 
-  TH1F *nmult;
 
- private: 
-   
-  /** Input array of TpcLheTrack **/
-  TClonesArray* fChargedArray;
-  TClonesArray* fNeutralArray;
- 
- 
-  /** Geo file to use **/
+    // **** some basic selectors
+    //
+    //RhoChargedParticleSelector *chargedSel;
+    RhoNeutralParticleSelector* neutralSel;
+    RhoPlusParticleSelector*    plusSel;
+    RhoMinusParticleSelector*   minusSel;
 
-	/** Get parameter containers **/
-	virtual void SetParContainers();
+    // **** mass selectors for the resonances/composites
+    //
+    RhoMassParticleSelector* phiMSel;
+    RhoMassParticleSelector* pi0MSel;
+    RhoMassParticleSelector* dsMSel;
+    RhoSimpleKaonSelector* kSel;
+    RhoSimplePionSelector* piSel;
 
- 
-  ClassDef(PndAnalysisTask,1);
-  
+    /**book all the histograms**/
+    TH1F* phimass;
+    TH1F* pi0mass;
+    TH1F* dsmass;
+    TH1F* ds0mass;
+    TH1F* ppmass;
+
+    TH1F* nmult;
+
+  private:
+
+    /** Input array of TpcLheTrack **/
+    TClonesArray* fChargedArray;
+    TClonesArray* fNeutralArray;
+
+
+    /** Geo file to use **/
+
+    /** Get parameter containers **/
+    virtual void SetParContainers();
+
+
+    ClassDef(PndAnalysisTask,1);
+
 };
 
 #endif

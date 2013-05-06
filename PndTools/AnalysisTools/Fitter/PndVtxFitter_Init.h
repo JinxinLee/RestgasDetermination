@@ -34,4 +34,4 @@ const unsigned KF_DUMP_MEASUREMENT = 0;
 const unsigned KF_DUMP_CORE_MATRIX = 1;
 const unsigned KF_DUMP_FITTED      = 2;
 
-#endif  
+#endif

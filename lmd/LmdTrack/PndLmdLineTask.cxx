@@ -116,7 +116,7 @@ void PndLmdLineTask::Exec(Option_t* opt)
    Int_t ntcand=fTCandArray->GetEntriesFast();
   
   // Detailed output
-  if(fVerbose>1)std::cout<<" -I- PndLmdLineTask: contains "<<ntcand<<" TCandidates"<<std::endl;
+  if(fVerbose>1)std::cout<<" -I- PndLmdLineTask: contains "<<ntcand<<" RhoCandidates"<<std::endl;
   if(fVerbose>2){
     std::cout<< " Detailed Debug info on the candidates:"<<std::endl;
     unsigned int detid=12345, index=12345;

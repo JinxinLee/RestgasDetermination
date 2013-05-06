@@ -8,8 +8,6 @@
 #pragma link C++ enum Mva_MethodType;
 
 //_______________________________
-#pragma link C++ class  PndPidCandidate+;
-#pragma link C++ class  PndPidProbability+;
 #pragma link C++ class  PndPidCorrPar+;
 #pragma link C++ class  PndPidMvdPar+;
 #pragma link C++ class  PndPidCorrelator+;

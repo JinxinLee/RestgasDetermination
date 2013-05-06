@@ -24,10 +24,10 @@ void ana_d0d0b_micro(TString fname="dsds_10k.evt.root",int num=0)
     // **** for every event, a TCLonesArray with the candidates is stored in cbmsim
     //
     TClonesArray *fMcCands=new TClonesArray("TCandidate");
-	TClonesArray *fMicro=new TClonesArray("PndMicroCandidate");
+	TClonesArray *fMicro=new TClonesArray("PndPidCandidate");
     
     t->SetBranchAddress("PndMcTracks",&fMcCands);
-	t->SetBranchAddress("PndMicroCandidates",&fMicro);
+	t->SetBranchAddress("PndPidCandidates",&fMicro);
     
     TCandidate *tc;
     
@@ -88,8 +88,8 @@ void ana_d0d0b_micro(TString fname="dsds_10k.evt.root",int num=0)
 		//    
 		
 		for (i1=0; i1<fMicro->GetEntriesFast(); i1++){
-			//PndMicroCandidate *mic = (PndMicroCandidate *)fMicro->At(i1);
-			TCandidate tc2(*((PndMicroCandidate*)fMicro->At(i1)),i1);
+			//PndPidCandidate *mic = (PndMicroCandidate *)fMicro->At(i1);
+			TCandidate tc2(*((PndPidCandidate*)fMicro->At(i1)),i1);
 			if (abs(tc2.Charge())>0.01)chrg.Add(tc2);
 			else neut.Add(tc2);
 		}

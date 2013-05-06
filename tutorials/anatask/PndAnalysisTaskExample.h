@@ -10,13 +10,13 @@ class TClonesArray;
 class TObjectArray;
 class TH1F;
 
-class TPidChargedSelector;
-class TPidNeutralSelector;
-class TPidPlusSelector;
-class TPidMinusSelector;
-class TPidMassSelector;
-class TPidSimpleKaonSelector;
-class TPidSimplePionSelector;
+class RhoChargedParticleSelector;
+class RhoNeutralParticleSelector;
+class RhoPlusParticleSelector;
+class RhoMinusParticleSelector;
+class RhoMassParticleSelector;
+class RhoSimpleKaonSelector;
+class RhoSimplePionSelector;
 
 class PndAnalysisTaskExample : public FairTask
 {
@@ -50,18 +50,18 @@ class PndAnalysisTaskExample : public FairTask
 
   // **** some basic selectors
   //
-  //TPidChargedSelector *chargedSel;
-  TPidNeutralSelector *neutralSel;
-  TPidPlusSelector    *plusSel;
-  TPidMinusSelector   *minusSel;
+  //RhoChargedParticleSelector *chargedSel;
+  RhoNeutralParticleSelector *neutralSel;
+  RhoPlusParticleSelector    *plusSel;
+  RhoMinusParticleSelector   *minusSel;
   
   // **** mass selectors for the resonances/composites
   //
-  TPidMassSelector *phiMSel;
-  TPidMassSelector *pi0MSel;
-  TPidMassSelector *dsMSel;
-  TPidSimpleKaonSelector *kSel;
-  TPidSimplePionSelector *piSel;
+  RhoMassParticleSelector *phiMSel;
+  RhoMassParticleSelector *pi0MSel;
+  RhoMassParticleSelector *dsMSel;
+  RhoSimpleKaonSelector *kSel;
+  RhoSimplePionSelector *piSel;
 
   /**book all the histograms**/
   TH1F *phimass;

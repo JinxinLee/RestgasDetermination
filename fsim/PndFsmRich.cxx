@@ -99,7 +99,8 @@ PndFsmRich::respond(PndFsmTrack *t)
   
   if (wasDetected && fabs(t->charge())>1e-8)
   {
-    double mass = _fdbPDG->GetParticle(t->pdt())->Mass();   //***************************************
+    TParticlePDG* part = _fdbPDG->GetParticle(t->pdt());
+    double mass = (part) ? part->Mass() : t->p4().M();
     double theta = t->p4().Theta();
     double p=t->p4().Vect().Mag();
     double ctht=cos(theta);
@@ -201,7 +202,8 @@ PndFsmRich::detected(PndFsmTrack *t) const
     return t->hitMapResponse(FsmDetEnum::Drc);
   } else {
     int lundId=abs(t->pdt());
-    double mass = _fdbPDG->GetParticle(t->pdt())->Mass();   //***************************************
+    TParticlePDG* part = _fdbPDG->GetParticle(lundId);
+    double mass = (part) ? part->Mass() : t->p4().M();
     //    double mass = t->pdt()->mass();
     double p_cerenkov_min=mass/sqrt(_nRefrac*_nRefrac - 1.0);
     

@@ -2,7 +2,7 @@ rootlogon()
 {
   gROOT->LoadMacro("$VMCWORKDIR/gconfig/basiclibs.C");
   basiclibs();
-  
+
   // Load Panda libraries
   if(isLibrary("libDpmEvtGen"))gSystem->Load("libDpmEvtGen");
   if(isLibrary("libpythia8"))gSystem->Load("libpythia8");
@@ -71,6 +71,6 @@ Bool_t isLibrary(const char* libName)
 {
   if (TString(gSystem->DynamicPathName(libName, kTRUE)) != TString(""))
     return kTRUE;
-  else  
+  else
     return kFALSE;
-}    
+}

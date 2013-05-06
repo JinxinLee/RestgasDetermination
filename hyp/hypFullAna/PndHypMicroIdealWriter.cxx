@@ -2,7 +2,7 @@
 Class PndHypMicroWriter
 
 Collects Micro infromation from Reconstruction and
-writes out PndMicroCandidates
+writes out PndPidCandidates
 
 Author: K.Goetzen, GSI, 06/2008
 modified by A. Sanchez for hyp purpose
@@ -37,13 +37,13 @@ modified by A. Sanchez for hyp purpose
 #include <string>
 #include <iostream>
 
-#include "RhoBase/TCandidate.h"
-#include "PndMicroCandidate.h"
+#include "RhoBase/RhoCandidate.h"
+#include "PndPidCandidate.h"
 #include "RhoTools/TEventShape.h"
-#include "RhoBase/TCandList.h"
+#include "RhoBase/RhoCandList.h"
 #include "PndEventInfo.h"
-#include "RhoBase/TFactory.h"
-#include "RhoBase/TRho.h"
+#include "RhoBase/RhoFactory.h"
+//#include "RhoBase/TRho.h"
 
 using std::cout;
 using std::endl;
@@ -124,16 +124,16 @@ InitStatus PndHypMicroIdealWriter::Init()
   }
 */
   
-  // fChargedCandidates = new TClonesArray("TCandidate");
+  // fChargedCandidates = new TClonesArray("RhoCandidate");
 //   FairRootManager::Instance()->Register("PndChargedCandidates","FullSim", fChargedCandidates, kTRUE);
   
-//   fNeutralCandidates = new TClonesArray("TCandidate");
+//   fNeutralCandidates = new TClonesArray("RhoCandidate");
 //   FairRootManager::Instance()->Register("PndNeutralCandidates","FullSim", fNeutralCandidates, kTRUE);
   
-//   fMcCandidates = new TClonesArray("TCandidate");
+//   fMcCandidates = new TClonesArray("RhoCandidate");
 //   FairRootManager::Instance()->Register("PndMcTracks","FullSim", fMcCandidates, kTRUE);
 
-  fMicroIdealCandidates = new TClonesArray("PndMicroCandidate");
+  fMicroIdealCandidates = new TClonesArray("PndPidCandidate");
   FairRootManager::Instance()->Register("PndMicroIdealCandidates","FullSim", fMicroIdealCandidates, kTRUE);
 
 //   fEventInfo = new TClonesArray("PndEventInfo");
@@ -199,7 +199,7 @@ void PndHypMicroIdealWriter::Exec(Option_t* opt)
 //   TClonesArray &mctracks 	    = *fMcCandidates;
   TClonesArray &microCandidates = *fMicroIdealCandidates;
  
-  //TCandList l;
+  //RhoCandList l;
   
   TLorentzVector McSumP4(0,0,0,0);
   TVector3 McAvgVtx(0,0,0);
@@ -256,8 +256,8 @@ void PndHypMicroIdealWriter::Exec(Option_t* opt)
     
     // propagate(lv,vtx,myrep->getCharge());
     
-    // create the TCandidate (keep this for the time being)
-    //TCandidate *tcand=new (chrgCandidates[chcandsize]) TCandidate(lv,myrep->getCharge());
+    // create the RhoCandidate (keep this for the time being)
+    //RhoCandidate *tcand=new (chrgCandidates[chcandsize]) RhoCandidate(lv,myrep->getCharge());
     
     //tcand->SetPos(vtx);
     
@@ -295,7 +295,7 @@ void PndHypMicroIdealWriter::Exec(Option_t* opt)
     //cout<<" numhits "<<numhits<<endl;
   // create the PndMicroIdealCandidate
     
-    PndMicroCandidate *micro=new (microCandidates[micsize]) PndMicroCandidate((Int_t)myrep->getCharge(),vtx,lv,mat);//myrep->getCharge()
+    PndPidCandidate *micro=new (microCandidates[micsize]) PndPidCandidate((Int_t)myrep->getCharge(),vtx,lv,mat);//myrep->getCharge()
     
     
     

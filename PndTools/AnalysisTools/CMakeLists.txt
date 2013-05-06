@@ -8,6 +8,7 @@ ${CMAKE_SOURCE_DIR}/field
 ${CMAKE_SOURCE_DIR}/trackbase 
 ${CMAKE_SOURCE_DIR}/pnddata
 ${CMAKE_SOURCE_DIR}/pnddata/TrackData
+${CMAKE_SOURCE_DIR}/pnddata/PidData
 ${CMAKE_SOURCE_DIR}/pid
 ${CMAKE_SOURCE_DIR}/pid/PidData
 ${CMAKE_SOURCE_DIR}/passive
@@ -37,10 +38,10 @@ ${ROOT_LIBRARY_DIR}
  
 link_directories( ${LINK_DIRECTORIES})
 
-set(AnalysisTools_SRCS
+set(AnalysisTools_SRCS 
 #PndMicroWriter.cxx
-PndSimplePidInfo.cxx
-PndMicroCandidate.cxx
+#PndSimplePidInfo.cxx
+#PndMicroCandidate.cxx
 PndEventInfo.cxx
 PndEventReader.cxx
 PndPidListMaker.cxx
@@ -58,11 +59,11 @@ PndAnaPidSelector.cxx
 PndAnaContFact.cxx
 PndAnaSelectorPar.cxx
 PndMcTruthMatch.cxx
+PndGoodTrackSelector.cxx
 Fitter/PndVtxFitterParticle.cxx
 Fitter/PndVtxFitter_Init.cxx
 Fitter/PndVtxFitterError.cxx
 Fitter/PndVtxFitter.cxx
-Fitter/PndMassFitter.cxx
 Fitter/Pnd4CFitter.cxx
 Fitter/PndKinVtxFitter.cxx
 Fitter/PndKinFitter.cxx

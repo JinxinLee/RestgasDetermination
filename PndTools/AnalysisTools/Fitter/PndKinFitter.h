@@ -2,27 +2,26 @@
 #define PndKinFitter_H
 //////////////////////////////////////////////////////////////////////////
 //                                                                      //
-// PndKinFitter			  					//
+// PndKinFitter                 //
 //                                                                      //
-// V. Jha 2010	FZ Juelich                                              //
+// V. Jha 2010  FZ Juelich                                              //
 //                                                                      //
 //////////////////////////////////////////////////////////////////////////
 
-#include "RhoTools/VAbsFitter.h"
-#include "PndKinFitter.h"
-#include "RhoBase/TCandList.h"
+#include "RhoBase/RhoFitterBase.h"
+#include "RhoBase/RhoCandList.h"
 #include "TVector3.h"
 #include "TMatrixDSym.h"
 #include "TMatrixD.h"
 #include "TLorentzVector.h"
 #include "TDecompLU.h"
 
-class TCandidate;
- 
-class PndKinFitter : public VAbsFitter
+class RhoCandidate;
+
+class PndKinFitter : public RhoFitterBase
 {
-public:
-    PndKinFitter( const TCandidate& b) ;
+  public:
+    PndKinFitter( RhoCandidate& b) ;
     virtual ~PndKinFitter();
 
     void Add4MomConstraint(TLorentzVector lv);
@@ -31,70 +30,60 @@ public:
     void AddTotMomConstraint(double momentum);
     void AddMassConstraint(double mass);
     void Fit();
+    void FitAll() {Fatal("PndKinFitter::FitAll()","Not applicable. Please use Fit().");};
 
-    double GlobalChi2() {return fGlobChi2;}
-    double  Chi2Diff() {return fChi2Diff;}
+    double Chi2Diff() {return fChi2Diff;}
     double GetPull() {return fPull;}
-    int Getdof() {return fdgf;} 
- // int GetNiter() {return nIter;}
+    double Chi2Contribution ( const RhoCandidate& ) const {Error("PndKinFitter::Chi2Contribution","No chi2 contribution available.");return -9999.;};
 
-private:
-  void SetMatrices();
-  void ZeroMatrices();
- void ReadMatrix(); 
- void ReadKinMatrix();
- void ReadMassKinMatrix();
- void Read4MomKinMatrix();
- void ReadMomKinMatrix();
- void ReadTotEKinMatrix();
- void ReadTotMomKinMatrix();
-  void Solve();
-  void SetOutput();
+  private:
+    void SetMatrices();
+    void ZeroMatrices();
+    void ReadMatrix();
+    void ReadKinMatrix();
+    void ReadMassKinMatrix();
+    void Read4MomKinMatrix();
+    void ReadMomKinMatrix();
+    void ReadTotEKinMatrix();
+    void ReadTotMomKinMatrix();
+    void Solve();
+    void SetOutput();
 
-  TCandList  fDaughters;
+    TMatrixD fAl0; //original parameters
+    TMatrixD fAl1;  //fitted parameters
+    TMatrixD fV_al0;//Covariance matrix for original parameters
+    TMatrixD fV_al1;//Covariance matrix for original parameters
 
-  TMatrixD al0; //original parameters
-   TMatrixD al1;  //fitted parameters
-  TMatrixD V_al0;//Covariance matrix for original parameters
-   TMatrixD V_al1;//Covariance matrix for original parameters
+    TMatrixD fmD;      //Matrix of constraint derivitives
+    TMatrixD fmE;      // Matrix of vertex constraints
+    TMatrixD fmd;      //Vector of evaluated constraints
+    TMatrixD fmPull;
 
-  TMatrixD mD;      //Matrix of constraint derivitives
-  TMatrixD mE;      // Matrix of vertex constraints
-  TMatrixD md;      //Vector of evaluated constraints
-  TMatrixD mPull;
+    Int_t fNvar; //Number of variables (=4 for 4 vector)
+    Int_t fNpar; //Number of parameters=Npart*fNvar
+    Int_t fNcon; //Number of constraints
+    Int_t fNc; // countNumber of constraints added
+    Int_t fNiter; // Number of times Solve has been called
+    Int_t fNunKnown; // Number of unknowns
+    Int_t fNumCon; // Number of constraints ...
 
-  Int_t fNvar; //Number of variables (=4 for 4 vector)
-  Int_t fNpar; //Number of parameters=Npart*fNvar
-  Int_t fNcon; //Number of constraints
-  Int_t fNc; // countNumber of constraints added
-  Int_t fNiter; // Number of times Solve has been called
-  Int_t fNunKnown; // Number of unknowns
-  Int_t NumCon; // Number of constraints ...
+    double fMass;
+    TLorentzVector flmm;
+    TVector3 fmm;
+    double fEc;
+    double fMom;
 
-  void FindAndAddGenericDaughters(TCandidate *head);
+    int f4MomConstraint;
+    int fMomConstraint;
+    int fTotEConstraint;
+    int fMassConstraint;
+    int fTotMomConstraint;
 
-  double fMass;
-  TLorentzVector flmm;
-  TVector3 fmm;
-  double fEc;
-  double fMom;
-
-  int f4MomConstraint;
-  int fMomConstraint;
-  int fTotEConstraint;
-  int fMassConstraint;
-  int fTotMomConstraint;
+    double         fChi2Diff;
+    double         fPull;
 
 
-  double         fGlobChi2;
-  double         fChi2Diff;
-  double         fPull;
-  int            fnDof;
-  double         fchiSquare;
-  int            fdgf;
-
-  
-  ClassDef(PndKinFitter,1) 
+    ClassDef(PndKinFitter,1)
 };
 
-#endif 
+#endif

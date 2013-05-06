@@ -22,10 +22,9 @@
 #include <iostream>
 
 // RHO stuff
-#include "TPidSelector.h"
-#include "TCandidate.h"
-#include "RhoHistogram/TTuple.h"
-#include "TFactory.h"
+#include "RhoCandidate.h"
+#include "RhoHistogram/RhoTuple.h"
+#include "RhoFactory.h"
 
 // Analysis Tools
 #include "PndSoftTriggerTask.h"
@@ -153,8 +152,8 @@ InitStatus PndSoftTriggerTask::Init()
 	
 	
 	
-	ntp=new TTuple("ntp","the J/psi ntuple");
-	ntp2=new TTuple("ntp2","the psi(2S) ntuple");
+	ntp=new RhoTuple("ntp","the J/psi ntuple");
+	ntp2=new RhoTuple("ntp2","the psi(2S) ntuple");
 	
 	// **** mass selector and McTruthMatcher
 	//
@@ -210,7 +209,7 @@ void PndSoftTriggerTask::Exec(Option_t* opt)
 		timer->Stop();
 		cout <<"  t="<< timer->CpuTime();		
 		timer->Start();
-		cout <<"  Cand Watermark = "<<TFactory::Instance()->GetCandidateWatermark();
+        cout <<"  Cand Watermark = "<<RhoFactory::Instance()->GetCandidateWatermark();
 		cout <<" allmax:"<<chmax;
 		cout <<" chmax:"<<chmax;
 		cout <<" neutmax:"<<neutmax;
@@ -221,11 +220,11 @@ void PndSoftTriggerTask::Exec(Option_t* opt)
 	
 	// **** create all the particle lists we'll need for rebuilding the decay tree
 	//
-	//TCandList eplus, eminus, piplus, piminus, jpsi, psi, mctrk;   
+	//RhoCandList eplus, eminus, piplus, piminus, jpsi, psi, mctrk;   
 	 
-	TCandList all, chrg, neut, mctrk;	
-    TCandList ep, em, mup, mum, pip, pim, kp, km, pp, pm;
-	TCandList Jpsi, D0, D0b, Dpm, Dm, Ds, Dsb, Lamc, Lamcb, Phi;
+	RhoCandList all, chrg, neut, mctrk;	
+    RhoCandList ep, em, mup, mum, pip, pim, kp, km, pp, pm;
+	RhoCandList Jpsi, D0, D0b, Dpm, Dm, Ds, Dsb, Lamc, Lamcb, Phi;
 	
 	// *** the MC Truth objects
 
@@ -283,29 +282,29 @@ void PndSoftTriggerTask::Exec(Option_t* opt)
 	// *** J/psi->l+ l- cominatorics 
 	Jpsi.Combine(ep, em);
 	Jpsi.CombineAndAppend(mup, mum);
-	mcm->SetType(Jpsi,"J/psi");
+	Jpsi.SetType("J/psi");
 	
 	// *** D0 -> K- pi+ cominatorics 
-	D0.Combine(km, pip); mcm->SetType(D0,"D0");
-	D0b.Combine(kp,pim); mcm->SetType(D0b,"anti-D0");
+	D0.Combine(km, pip); D0.SetType("D0");
+	D0b.Combine(kp,pim); D0b.SetType("anti-D0");
 	D0.Append(D0b);
 				
 	// *** D+ -> K- pi+ pi+ cominatorics 
-	Dpm.Combine(km, pip, pip); mcm->SetType(Dpm,"D+");
-	Dm.Combine(kp,pim,pim); mcm->SetType(Dm,"D-");
+	Dpm.Combine(km, pip, pip); Dpm.SetType("D+");
+	Dm.Combine(kp,pim,pim); Dm.SetType("D-");
 	Dpm.Append(Dm);
 	
 	// *** Ds+ -> K+ K- pi+ cominatorics 
-	Ds.Combine(kp, km, pip); mcm->SetType(Ds,"D_s+");
-	Dsb.Combine(kp, km, pim); mcm->SetType(Dsb,"D_s-");
+	Ds.Combine(kp, km, pip); Ds.SetType("D_s+");
+	Dsb.Combine(kp, km, pim); Dsb.SetType("D_s-");
 	Ds.Append(Dsb);
 	
 	// *** phi -> K+ K- cominatorics 
 	Phi.Combine(km, kp);
 	
 	// *** Lambda_c -> p K- pi+ cominatorics 
-	Lamc.Combine(pp, km, pip); mcm->SetType(Lamc,"Lambda_c+");
-	Lamcb.Combine(pm, kp, pim); mcm->SetType(Lamcb,"anti-Lambda_c-");
+	Lamc.Combine(pp, km, pip); Lamc.SetType("Lambda_c+");
+	Lamcb.Combine(pm, kp, pim); Lamcb.SetType("anti-Lambda_c-");
 	Lamc.Append(Lamcb);
 	
 	// how many combinations are selected?
@@ -367,9 +366,9 @@ void PndSoftTriggerTask::Exec(Option_t* opt)
 		double gamma = Dpm[j].P4().Gamma();
 		
 		// determine pseudo vertex
-		PndVtxPoca poca(Dpm[j]);
+		PndVtxPoca poca;
 		TVector3 vtx;
-		poca.GetPocaVtx(vtx);
+		double pocaquality = poca.GetPocaVtx(vtx,Dpm[j]);
 		
 		// decay length
 		h_d0_l->Fill(vtx.Mag()/(beta*gamma));
@@ -477,7 +476,7 @@ void PndSoftTriggerTask::ConfigureHistos(TH1F *hall, TH1F *htrue, TH1F *hsel)
 
 // -------------------------------------------------------------------------
 
-void PndSoftTriggerTask::FillMassHisto(TH1F* h, TCandList &l)
+void PndSoftTriggerTask::FillMassHisto(TH1F* h, RhoCandList &l)
 {
 	Int_t i=0;
 	for (i=0;i<l.GetLength();++i)
@@ -487,7 +486,7 @@ void PndSoftTriggerTask::FillMassHisto(TH1F* h, TCandList &l)
 }
 // -------------------------------------------------------------------------
 
-int PndSoftTriggerTask::RemoveDoubles(TCandList &l, double limit)
+int PndSoftTriggerTask::RemoveDoubles(RhoCandList &l, double limit)
 {
 	int i,j;
 	int rem=0;
@@ -519,7 +518,7 @@ int PndSoftTriggerTask::RemoveDoubles(TCandList &l, double limit)
 
 
 // -------------------------------------------------------------------------
-void PndSoftTriggerTask::PrintList(TCandList &l, int max)
+void PndSoftTriggerTask::PrintList(RhoCandList &l, int max)
 {
 	int N=l.GetLength();
 	if (N>max) N=max;
@@ -532,7 +531,7 @@ void PndSoftTriggerTask::PrintList(TCandList &l, int max)
 
 // -------------------------------------------------------------------------
 
-void PndSoftTriggerTask::SelectPid(int type, int pdg, int chrg, TCandList &l, TCandList &lpid, double cut)
+void PndSoftTriggerTask::SelectPid(int type, int pdg, int chrg, RhoCandList &l, RhoCandList &lpid, double cut)
 {
 	lpid.Cleanup();
 			
@@ -540,7 +539,7 @@ void PndSoftTriggerTask::SelectPid(int type, int pdg, int chrg, TCandList &l, TC
 	{
 		if (fabs(l[j].Charge()-double(chrg))<0.001 && l[j].GetPidInfo(type)>=cut)
 		{
-			//TCandidate c(l[j]);
+          //RhoCandidate c(l[j]);
 			//c.SetMass(pdgmass[type]);
 			lpid.Put(l[j]);
 		}		
@@ -550,7 +549,7 @@ void PndSoftTriggerTask::SelectPid(int type, int pdg, int chrg, TCandList &l, TC
 
 // -------------------------------------------------------------------------
 
-int PndSoftTriggerTask::SelectPdgCode(TCandList &mct, TCandList &l)
+int PndSoftTriggerTask::SelectPdgCode(RhoCandList &mct, RhoCandList &l)
 {
 	int removed = 0;
 	int pdgcode=0;

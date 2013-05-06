@@ -91,6 +91,11 @@ TrackData/PndTrackCand.cxx
 TrackData/PndTrack.cxx
 TrackData/PndTrackID.cxx
 #TrackData/PndVertex.cxx
+
+PidData/PndPidCandidate.cxx
+PidData/PndPidProbability.cxx
+
+FairRecoCandidate.cxx
 )
 
 if(RULE_CHECKER_FOUND)

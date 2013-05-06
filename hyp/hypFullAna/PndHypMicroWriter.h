@@ -2,7 +2,7 @@
 Class PndHypMicroWriter
 
 Collects Micro infromation from Reconstruction and
-writes out PndMicroCandidates
+writes out PndPidCandidates
 
 Author: K.Goetzen, GSI, 06/2008
 

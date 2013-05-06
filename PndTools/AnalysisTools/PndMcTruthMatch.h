@@ -1,8 +1,8 @@
 //////////////////////////////////////////////////////////////////////////
 //                                                                      //
-// PndMcTruthMatch	                                                  //
+// PndMcTruthMatch                                                    //
 //                                                                      //
-// Provide Truth matching of complete trees.	                        //
+// Provide Truth matching of complete trees.                          //
 //                                                                      //
 // Author: K.Goetzen, GSI,     23.02.12                    //
 //                                                                      //
@@ -12,28 +12,23 @@
 #ifndef PNDMCTRUTHMATCH_H
 #define PNDMCTRUTHMATCH_H
 
-#include "RhoBase/TCandidate.h"
-#include "RhoBase/TCandList.h"
-#include "RhoBase/VAbsMicroCandidate.h"
+#include "RhoBase/RhoCandidate.h"
+#include "RhoBase/RhoCandList.h"
+#include "PndPidCandidate.h"
 
 class TParticlePDG;
 
 class PndMcTruthMatch
 {
-public:
-	// contstructor
- 	PndMcTruthMatch(){};
-	// destructor
-	~PndMcTruthMatch(){};
+  public:
+    // contstructor
+    PndMcTruthMatch() {};
+    // destructor
+    ~PndMcTruthMatch() {};
     
-    // Set the type for a TCandList
-    void   SetType(TCandList &l, const TParticlePDG* pdt );
-    void   SetType(TCandList &l, const char* name );
-    void   SetType(TCandList &l, int pdgcode );
+    Bool_t MctMatch(RhoCandidate& c, RhoCandList& mct, Int_t level = 2, bool verbose=false);
 
-	Bool_t MctMatch(TCandidate &c, TCandList &mct, Int_t level = 2); 
-  	
-  	ClassDef(PndMcTruthMatch,1);	
+    ClassDef(PndMcTruthMatch,1);
 };
 
 #endif

@@ -92,7 +92,11 @@
 #pragma link C++ class PndTrackCandHit+;
 //#pragma link C++ class PndVertex+;
 
+#pragma link C++ class PndPidCandidate+;
+#pragma link C++ class PndPidProbability+;
 
+#pragma link C++ class FairRecoCandidate;
+#pragma link C++ function operator << ( ostream &, const FairRecoCandidate & );
 
 #endif
 

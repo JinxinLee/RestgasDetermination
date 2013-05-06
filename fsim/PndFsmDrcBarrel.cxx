@@ -110,7 +110,8 @@ PndFsmDrcBarrel::respond(PndFsmTrack *t)
   
   if (wasDetected && fabs(t->charge())>1e-8)
   {
-    double mass =_fdbPDG->GetParticle(t->pdt())->Mass();
+    TParticlePDG* part = _fdbPDG->GetParticle(t->pdt());
+    double mass = (part) ? part->Mass() : t->p4().M();
     double theta = t->p4().Theta();
     double p=t->p4().Vect().Mag();
     double stht=sin(theta);
@@ -239,7 +240,8 @@ PndFsmDrcBarrel::detected(PndFsmTrack *t) const
   else 
   {
     int    lundId = abs(t->pdt());
-    double mass   = _fdbPDG->GetParticle(lundId)->Mass();   
+    TParticlePDG* part = _fdbPDG->GetParticle(lundId);
+    double mass = (part) ? part->Mass() : t->p4().M();
     double theta  = t->p4().Theta();
     double p      = t->p4().Vect().Mag();
     double p_t    = t->p4().Vect().Pt();

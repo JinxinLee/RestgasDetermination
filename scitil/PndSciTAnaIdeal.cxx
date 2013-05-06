@@ -14,13 +14,13 @@
 
 #include "../PndTools/riemannfit/PndRiemannHit.h"
 
-#include "RhoBase/TCandidate.h"
-#include "PndMicroCandidate.h"
+#include "RhoBase/RhoCandidate.h"
+#include "PndPidCandidate.h"
 #include "RhoTools/TEventShape.h"
-#include "RhoBase/TCandList.h"
+#include "RhoBase/RhoCandList.h"
 
-#include "RhoBase/TFactory.h"
-#include "RhoBase/TRho.h"
+#include "RhoBase/RhoFactory.h"
+//#include "RhoBase/TRho.h"
 
 #include "FairRunAna.h"
 #include "FairRuntimeDb.h"
@@ -431,7 +431,7 @@ void PndSciTAnaIdeal::Exec(Option_t* opt)
 	  trig->SetP(momV);*/
 
 	Int_t micsize = fMicroCandidates->GetEntriesFast();
-	PndMicroCandidate *micro= new ((*fMicroCandidates)[micsize]) PndMicroCandidate((Int_t)fQ,
+	PndPidCandidate *micro= new ((*fMicroCandidates)[micsize]) PndPidCandidate((Int_t)fQ,
 										  pos1,lv);
 	micro->SetFirstHit(pos1);
 	micro->SetLastHit(pos2);

@@ -28,6 +28,12 @@
 //   TH1D TransformHisto(TH2*,min,max)
 //     T.Stockmanns, 2009
 //     transforming from a 2D plot in a 1D plot, using the root sorting of the bins
+//   plothistosfromfile(TString filename = "histos.root", TString ext=".ps", Int_t divx=2, Int_t divy=2, Int_t pix = 300)
+//     R.Kliemt, 2012
+//     Plots histograms from a root file to, e.g., a pdf. Several pages are created
+//   TString InitDefaultRun(TString filetag)
+//     R.Kliemt, 2011
+//     Initialize a default named set of files and a FairRunAna object
 
 
 #include <TLatex.h>
@@ -144,6 +150,44 @@ void BetterStatBox( TPad* pad ){
 //  
 //  return legend;
 //}
+
+void ImproveDefaultStyle()
+{
+  gStyle->SetOptFit ( 1011 );
+  gStyle->SetPaperSize(20,26);
+  gStyle->SetPadTopMargin(0.14);
+  gStyle->SetPadRightMargin(0.05);
+  gStyle->SetPadBottomMargin(0.14);
+  gStyle->SetPadLeftMargin(0.14);
+  gStyle->SetTextFont(22);//changed to bold (R.K.)
+  gStyle->SetTextSize(0.08);
+  gStyle->SetLabelFont(22,"x");//changed to bold (R.K.)
+  gStyle->SetLabelFont(22,"y");//changed to bold (R.K.)
+  gStyle->SetLabelFont(22,"z");//changed to bold (R.K.)
+  gStyle->SetLabelSize(0.05,"x");
+  gStyle->SetTitleSize(0.06,"x");
+  gStyle->SetLabelSize(0.05,"y");
+  gStyle->SetTitleSize(0.06,"y");
+  gStyle->SetLabelSize(0.05,"z");
+  gStyle->SetTitleSize(0.06,"z");
+  // use bold lines and markers
+  gStyle->SetMarkerStyle(8);
+  gStyle->SetHistLineWidth(1.85);//1.85);
+  gStyle->SetLineStyleString(2,"[12 12]"); // postscript dashes
+
+  // do not display any of the standard histogram decorations
+  gStyle->SetOptTitle(1);
+  gStyle->SetOptStat(1);
+  gStyle->SetOptFit(1);
+  
+  // put tick marks on top and RHS of plots
+  gStyle->SetPadTickX(1);
+  gStyle->SetPadTickY(1);
+  
+  //R.K. avoid clumsy axis lables
+  gStyle->SetNdivisions(509); // default root value is 510
+
+}
 
 void LoadPandaStyle(void)
 {
@@ -282,7 +326,8 @@ TH1D TransformHisto(TH2* h2, double min, double max)
 plothistosfromfile(TString filename = "histos.root", TString ext=".ps", Int_t divx=2, Int_t divy=2, Int_t pix = 300)
 { // Plot all histograms into a ps file
   // works with TH1, TH2, & TProfile
-  LoadPandaStyle();
+  //LoadPandaStyle();
+  set_nicer_2d_plot_style();
   TFile* file = new TFile(filename.Data());
   if (!file) {cout<<"File \""<<filename.Data()<<"\" is not there..."<<endl;return;}
   TCanvas* can = new TCanvas();
@@ -351,6 +396,7 @@ plothistosfromfile(TString filename = "histos.root", TString ext=".ps", Int_t di
   TString convertcmd = "test -r ps2pdf && ps2pdf ";
   convertcmd += pic.Data();
   gSystem->Exec(convertcmd.Data());
+  delete can;
   return;
 }
 

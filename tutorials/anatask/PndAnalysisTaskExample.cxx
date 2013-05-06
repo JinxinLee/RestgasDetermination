@@ -22,11 +22,10 @@ of J/Psi: Dipak
 #include <iostream>
 
 //RHO stuff
-#include "RhoBase/TCandidate.h"
-#include "RhoBase/TCandList.h"
-#include "RhoBase/TCandListIterator.h"
-#include "RhoSelector/TPidSelector.h"
-#include "RhoBase/TFactory.h"
+#include "RhoBase/RhoCandidate.h"
+#include "RhoBase/RhoCandList.h"
+#include "RhoBase/RhoCandListIterator.h"
+#include "RhoBase/RhoFactory.h"
 		
 		
 using std::cout;
@@ -91,20 +90,20 @@ InitStatus PndAnalysisTaskExample::Init() {
   
   // **** create and configure the selectors/filters we'd like to use later
   //
-  //chargedSel = new TPidChargedSelector;
-  neutralSel = new TPidNeutralSelector;
-  plusSel    = new TPidPlusSelector;
-  minusSel   = new TPidMinusSelector;
+  //chargedSel = new RhoChargedParticleSelector;
+  neutralSel = new RhoNeutralParticleSelector;
+  plusSel    = new RhoPlusParticleSelector;
+  minusSel   = new RhoMinusParticleSelector;
   
   // **** mass selectors for the resonances/composites
   //
-  phiMSel       = new TPidMassSelector("phiSelector" , 1.0195 , 0.01);
-  pi0MSel       = new TPidMassSelector("pi0Selector" , 0.135  , 0.005);
-  dsMSel        = new TPidMassSelector("dsSelector"  , 1.9685 , 0.01);
+  phiMSel       = new RhoMassParticleSelector("phiSelector" , 1.0195 , 0.01);
+  pi0MSel       = new RhoMassParticleSelector("pi0Selector" , 0.135  , 0.005);
+  dsMSel        = new RhoMassParticleSelector("dsSelector"  , 1.9685 , 0.01);
 
-  kSel    = new TPidSimpleKaonSelector();
+  kSel    = new RhoSimpleKaonSelector();
   kSel->SetCriterion("loose");
-  piSel   = new TPidSimplePionSelector();
+  piSel   = new RhoSimplePionSelector();
   piSel->SetCriterion("veryLoose");
  
   evcount=0;
@@ -130,20 +129,20 @@ void PndAnalysisTaskExample::SetParContainers() {
 // -----   Public method Exec   --------------------------------------------
 void PndAnalysisTaskExample::Exec(Option_t* opt) {
 
-  TFactory::Instance()->Reset();
+  RhoFactory::Instance()->Reset();
   
   if (!(++evcount%100)) cout <<"evt "<<evcount<<endl;
   
   // **** create all the particle lists we'll need for rebuilding the decay tree
   //
-  TCandList neutralCands,chargedCands, plusCands,minusCands;
+  RhoCandList neutralCands,chargedCands, plusCands,minusCands;
 
-  TCandList kpCands,kmCands,piCands;
+  RhoCandList kpCands,kmCands,piCands;
 
-  TCandList phiCands,pi0Cands,dsCands,ds0Cands,ppCands;
+  RhoCandList phiCands,pi0Cands,dsCands,ds0Cands,ppCands;
 
 
-  TCandidate *tc;
+  RhoCandidate *tc;
   
   // **** loop over all Candidates and add them to the list allCands
   //    
@@ -151,12 +150,12 @@ void PndAnalysisTaskExample::Exec(Option_t* opt) {
   neutralCands.Cleanup();
   
   for (Int_t i1=0; i1<fChargedArray->GetEntriesFast(); i1++){
-    tc = (TCandidate *)fChargedArray->At(i1);
+    tc = (RhoCandidate *)fChargedArray->At(i1);
     chargedCands.Add(*tc);
   }
   
   for (Int_t i1=0; i1<fNeutralArray->GetEntriesFast(); i1++){
-    tc = (TCandidate *)fNeutralArray->At(i1);
+    tc = (RhoCandidate *)fNeutralArray->At(i1);
     neutralCands.Add(*tc);
   }
   
@@ -181,26 +180,26 @@ void PndAnalysisTaskExample::Exec(Option_t* opt) {
   //
   phiCands.Combine(kpCands,kmCands);
     
-  TCandListIterator iterPhi(phiCands);
+  RhoCandListIterator iterPhi(phiCands);
   while (tc=iterPhi.Next()) phimass->Fill(tc->M());
   phiCands.Select(phiMSel);
   
   dsCands.Combine(phiCands,piCands);
 
-  TCandListIterator iterDs(dsCands);
+  RhoCandListIterator iterDs(dsCands);
   while (tc=iterDs.Next()) dsmass->Fill(tc->M()); 
   dsCands.Select(dsMSel);
     
   pi0Cands.Combine(neutralCands,neutralCands);
 
-  TCandListIterator iterPi0(pi0Cands);
+  RhoCandListIterator iterPi0(pi0Cands);
   while (tc=iterPi0.Next()) pi0mass->Fill(tc->M()); 
   pi0Cands.Select(pi0MSel);
     
 
   ds0Cands.Combine(dsCands,pi0Cands);
 
-  TCandListIterator iterDs0(ds0Cands);
+  RhoCandListIterator iterDs0(ds0Cands);
   while (tc=iterDs0.Next()) ds0mass->Fill(tc->M());  
 
   ppCands.Combine(ds0Cands,dsCands);
@@ -210,7 +209,7 @@ void PndAnalysisTaskExample::Exec(Option_t* opt) {
   //      different ways; RemoveClones removes double candidates based on the same final states
   ppCands.RemoveClones();
     
-  TCandListIterator iterPp(ppCands);
+  RhoCandListIterator iterPp(ppCands);
   while (tc=iterPp.Next()) ppmass->Fill(tc->M());  
    
 

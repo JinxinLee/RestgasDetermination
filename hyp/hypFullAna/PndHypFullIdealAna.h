@@ -15,14 +15,14 @@ class TClonesArray;
 class TObjectArray;
 class TH1F;class TH2F;
 
-class TPidChargedSelector;
-class TPidNeutralSelector;
-class TPidPlusSelector;
-class TPidMinusSelector;
-class TPidMassSelector;
-class TPidSimpleKaonSelector;
-class TPidSimplePionSelector;
-class TPidSimpleProtonSelector;
+class RhoChargedParticleSelector;
+class RhoNeutralParticleSelector;
+class RhoPlusParticleSelector;
+class RhoMinusParticleSelector;
+class RhoMassParticleSelector;
+class RhoSimpleKaonSelector;
+class RhoSimplePionSelector;
+class RhoSimpleProtonSelector;
 
 class PndHypFullIdealAna : public FairTask
 {
@@ -61,20 +61,20 @@ class PndHypFullIdealAna : public FairTask
 
   // **** some basic selectors
   //
-  //TPidChargedSelector *chargedSel;
-  TPidNeutralSelector *neutralSel;
-  TPidPlusSelector    *plusSel;
-  TPidMinusSelector   *minusSel;
+  //RhoChargedParticleSelector *chargedSel;
+  RhoNeutralParticleSelector *neutralSel;
+  RhoPlusParticleSelector    *plusSel;
+  RhoMinusParticleSelector   *minusSel;
   
   // **** mass selectors for the resonances/composites
   //
-  TPidMassSelector *phiMSel;
-  TPidMassSelector *pi0MSel;
-  TPidMassSelector *dsMSel;
-  TPidMassSelector *LambMSel;
-  TPidSimpleKaonSelector *kSel;
-  TPidSimplePionSelector *piSel;
-  TPidSimpleProtonSelector *pSel;
+  RhoMassParticleSelector *phiMSel;
+  RhoMassParticleSelector *pi0MSel;
+  RhoMassParticleSelector *dsMSel;
+  RhoMassParticleSelector *LambMSel;
+  RhoSimpleKaonSelector *kSel;
+  RhoSimplePionSelector *piSel;
+  RhoSimpleProtonSelector *pSel;
   
   /**book all the histograms**/
   TH2F *hvtx2[10];

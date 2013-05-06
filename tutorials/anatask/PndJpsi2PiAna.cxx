@@ -11,12 +11,12 @@ of J/Psi: Dipak
 #include "FairRootManager.h"
 
 // Rho
-#include "TPidSelector.h"
-#include "TCandidate.h"
-#include "TCandList.h"
-#include "VAbsMicroCandidate.h"
+#include "RhoCandidate.h"
+#include "RhoCandList.h"
+#include "FairRecoCandidate.h"
 
 #include "Fitter/Pnd4CFitter.h"
+#include "RhoMassParticleSelector.h"
 
 // Root
 #include "TH1F.h"
@@ -59,7 +59,7 @@ InitStatus PndJpsi2PiAna::Init()
 	
 	mcmass=new TH1F("mmc","mmc",200,0,4.0);
 	
-	jpsiMSel=new TPidMassSelector("jpsi",3.1,0.2);
+	jpsiMSel=new RhoMassParticleSelector("jpsi",3.1,0.2);
     
     fEvtCount=0;
     
@@ -76,7 +76,7 @@ void PndJpsi2PiAna::Exec(Option_t* opt)
     
 	GetEvent();
 	
-	TCandList ep, em, pip, pim, jpsi, pp, mc;
+    RhoCandList ep, em, pip, pim, jpsi, pp, mc;
 	
 	FillList(ep,"ElectronVeryLoosePlus");
 	FillList(em,"ElectronVeryLooseMinus");
@@ -113,11 +113,11 @@ void PndJpsi2PiAna::Exec(Option_t* opt)
 			
 			fitter.FitConserveMasses();
 			
-			TCandidate *ppfit=const_cast<TCandidate*>(fitter.FittedCand(pp[j]));
+            RhoCandidate *ppfit=pp[j].GetFit();
 			ppmassf->Fill(ppfit->M());
 			
-			TCandidate *epfit=const_cast<TCandidate*>(fitter.FittedCand(*(pp[j].Daughter(0)->Daughter(0))) );
-			TCandidate *emfit=const_cast<TCandidate*>(fitter.FittedCand(*(pp[j].Daughter(0)->Daughter(1))) );
+            RhoCandidate *epfit=(pp[j].Daughter(0)->Daughter(0))->GetFit();
+            RhoCandidate *emfit=(pp[j].Daughter(0)->Daughter(1))->GetFit();
 			
 			TLorentzVector sum=epfit->P4()+emfit->P4();
 			

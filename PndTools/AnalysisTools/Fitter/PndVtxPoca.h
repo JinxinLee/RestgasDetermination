@@ -2,30 +2,27 @@
 #define PNDVTXPOCA_H
 //////////////////////////////////////////////////////////////////////////
 //                                                                      //
-// PndVtxPoca			  		                                          			//
+// PndVtxPoca                                                           //
 //                                                                      //
-// Author: R. Kliemt 2010 			                              	        //
+// Author: R. Kliemt 2010                                               //
 // idea taken from PndKinVtxFitter::GetStartVtx()                            //
 // extended for multiple tracks                                         //
 //                                                                      //
 //////////////////////////////////////////////////////////////////////////
 
-#include "RhoTools/VAbsFitter.h"
-#include "RhoBase/TCandList.h"
+#include "RhoBase/RhoCandidate.h"
 #include "TVector3.h"
 
-class TCandidate;
-
-class PndVtxPoca : public VAbsFitter
-  {
+class PndVtxPoca
+{
   public:
-    PndVtxPoca( const TCandidate& b) ;
-    virtual ~PndVtxPoca();// {if(fHeadOfTree) delete fHeadOfTree;}
-    void Fit(){std::cout<<"PndVtxPoca::Fit() -- this is an empty function -- "<<std::endl;};
-    Double_t GetPocaVtx(TVector3 &vertex);
-    Double_t GetPoca(TVector3 &vertex,TCandidate* a, TCandidate* b);
-    
-    ClassDef(PndVtxPoca,1) //A poca Vertex Finder
-  };
+    PndVtxPoca() ;
+    virtual ~PndVtxPoca();
+    Double_t GetPocaVtx(TVector3& vertex, RhoCandidate& composite);
+  private:
+    Double_t GetPoca(TVector3& vertex,RhoCandidate* a, RhoCandidate* b);
 
-#endif 
+    ClassDef(PndVtxPoca,1) //A poca Vertex Finder
+};
+
+#endif

@@ -11,12 +11,12 @@ class TObjectArray;
 class TH1F;
 class TH2F;
 
-class TPidMassSelector;
+class RhoMassParticleSelector;
 class PndAnalysis;
-class TCandList;
+class RhoCandList;
 class PndMcTruthMatch;
 class TStopwatch;
-class TTuple;
+class RhoTuple;
 
 
 class PndSoftTriggerTask : public FairTask
@@ -64,11 +64,11 @@ class PndSoftTriggerTask : public FairTask
 	
  private: 
 	
-	void FillMassHisto(TH1F* h, TCandList &l);
-	int  SelectPdgCode(TCandList &mct, TCandList &l);
-	void PrintList(TCandList &l, int max=10);
-	int  RemoveDoubles(TCandList &l, double limit=0.0001);
-	void SelectPid(int type, int pdg, int chrg, TCandList &l, TCandList &lpid, double cut=0.2);
+	void FillMassHisto(TH1F* h, RhoCandList &l);
+	int  SelectPdgCode(RhoCandList &mct, RhoCandList &l);
+	void PrintList(RhoCandList &l, int max=10);
+	int  RemoveDoubles(RhoCandList &l, double limit=0.0001);
+	void SelectPid(int type, int pdg, int chrg, RhoCandList &l, RhoCandList &lpid, double cut=0.2);
 	void ConfigureHistos(TH1F *hall, TH1F *htrue, TH1F *hsel); 
 
 	PndMcTruthMatch *mcm;
@@ -124,8 +124,8 @@ class PndSoftTriggerTask : public FairTask
 	TH1F *h_lamcsel;
 	
 	
-	TTuple *ntp;
-	TTuple *ntp2;
+	RhoTuple *ntp;
+	RhoTuple *ntp2;
 	
 /*	TH1F *hjpsimass;
 	TH1F *hpsimass;*/

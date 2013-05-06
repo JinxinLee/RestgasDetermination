@@ -6,14 +6,15 @@
 class FairContainer;
 //class FairParIo;
 
-class PndAnaContFact : public FairContFact {
-public:
-  PndAnaContFact();
-  ~PndAnaContFact();
-  FairParSet* createContainer(FairContainer* c);
-private:
-  void setAllContainers();
-  ClassDef(PndAnaContFact,1); // Factory for all libAnalysis parameter containers
+class PndAnaContFact : public FairContFact
+{
+  public:
+    PndAnaContFact();
+    ~PndAnaContFact();
+    FairParSet* createContainer(FairContainer* c);
+  private:
+    void setAllContainers();
+    ClassDef(PndAnaContFact,1); // Factory for all libAnalysis parameter containers
 };
 
 #endif  /* !ANACONTFACT_H */

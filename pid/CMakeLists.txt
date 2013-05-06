@@ -27,6 +27,7 @@ ${CMAKE_SOURCE_DIR}/pnddata/DskData
 ${CMAKE_SOURCE_DIR}/pnddata/SdsData
 ${CMAKE_SOURCE_DIR}/pnddata/GemData
 ${CMAKE_SOURCE_DIR}/pnddata/TrackData
+${CMAKE_SOURCE_DIR}/pnddata/PidData
 ${CMAKE_SOURCE_DIR}/ftof
 ${CMAKE_SOURCE_DIR}/stt
 ${CMAKE_SOURCE_DIR}/stt/sttreco
@@ -57,8 +58,6 @@ ${ROOT_LIBRARY_DIR}
 link_directories( ${LINK_DIRECTORIES})
 
 set(Pid_SRCS
-PidData/PndPidCandidate.cxx
-PidData/PndPidProbability.cxx
 PidCorr/PndPidCorrPar.cxx
 PidCorr/PndPidCorrelator.cxx
 PidCorr/PndPidTrackInfo.cxx
@@ -92,8 +91,6 @@ if(RULE_CHECKER_FOUND)
 endif(RULE_CHECKER_FOUND)
 
 set(Pid_HEADERS
-PidData/PndPidCandidate.h
-PidData/PndPidProbability.h
 PidCorr/PndPidCorrPar.h
 PidCorr/PndPidCorrelator.h
 PndPidContFact.h

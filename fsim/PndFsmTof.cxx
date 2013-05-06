@@ -99,7 +99,8 @@ PndFsmTof::respond(PndFsmTrack *t)
   
   if (wasDetected && fabs(t->charge())>0.999)
   {
-    double mass =_fdbPDG->GetParticle(t->pdt())->Mass();
+    TParticlePDG* part = _fdbPDG->GetParticle(t->pdt());
+    double mass = (part) ? part->Mass() : t->p4().M();
     double theta = t->p4().Theta();
     double p=t->p4().Vect().Mag();
     double stht=sin(theta);
@@ -207,7 +208,8 @@ PndFsmTof::detected(PndFsmTrack *t) const
   {
 
     int    lundId = abs(t->pdt());
-    double mass   = _fdbPDG->GetParticle(lundId)->Mass();   
+    TParticlePDG* part = _fdbPDG->GetParticle(lundId);
+    double mass = (part) ? part->Mass() : t->p4().M();
     double theta  = t->p4().Theta();
     double p      = t->p4().Vect().Mag();
     double p_t    = t->p4().Vect().Pt();

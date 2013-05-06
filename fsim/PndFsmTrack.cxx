@@ -23,12 +23,15 @@
 //-----------------------
 #include "PndFsmTrack.h"
 #include "PndFsmResponse.h"
-#include "RhoBase/TRho.h"
+//#include "RhoBase/TRho.h"
 //#include "FastSimApp/FsmHitMap.hh"
 //#include "FsmDetTypes.hh"
 #include "TDatabasePDG.h"
 #include "TParticlePDG.h"
 #include "TMatrixD.h"
+#include "FairRunAna.h"
+#include "FairRunSim.h"
+#include "FairField.h"
 //-------------
 // C Headers --
 //-------------
@@ -98,7 +101,15 @@ void PndFsmTrack::HelixRep(TVector3 reference) {
     // calculate helix track representation (as in TFitParams.h)
     reference=_startVtx-fReference;
     double tandip=p4().Pz()/p4().Perp();
-    double a=-2.99792458e-3*TRho::Instance()->GetMagnetField()*charge();
+    double pnt[3], Bf[3];
+    pnt[0]=fReference.X(); pnt[1]=fReference.Y(); pnt[2]=fReference.Z(); 
+    if(FairRun::Instance()->IsAna()){
+      FairRunAna::Instance()->GetField()->GetFieldValue(pnt, Bf); //[kGs]
+    }else{
+      FairRunSim::Instance()->GetField()->GetFieldValue(pnt, Bf); //[kGs]
+    }
+      
+    double a=-2.99792458e-3*Bf[2]*charge();
     double omega=a/p4().Perp();
     // construct helix center (1/omega=R)
     TVector3 center = reference + (1/omega)*(TVector3( -p4().Y(), p4().X(), 0).Unit());
@@ -133,7 +144,14 @@ void PndFsmTrack::Propagate(TVector3 origin, double deltaError) {
   origin-=fReference;
   // calculate p4 and start vertex at point
   // on helix track closest to origin
-  double a=2.99792458e-3*TRho::Instance()->GetMagnetField();
+  double pnt[3], Bf[3];
+  pnt[0]=fReference.X(); pnt[1]=fReference.Y(); pnt[2]=fReference.Z(); 
+    if(FairRun::Instance()->IsAna()){
+      FairRunAna::Instance()->GetField()->GetFieldValue(pnt, Bf); //[kGs]
+    }else{
+      FairRunSim::Instance()->GetField()->GetFieldValue(pnt, Bf); //[kGs]
+    }
+  double a=2.99792458e-3*Bf[2];
   double R=1/GetHelixOmega();
   double pt=-a*R*charge();
   double s0=sin(GetHelixPhi0());
