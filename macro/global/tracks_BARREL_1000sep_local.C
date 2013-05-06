@@ -1,4 +1,4 @@
-void tracks_BARREL_1000sep(char* type="proof", Int_t nofFiles = 1, TString proofName="") {
+void tracks_BARREL_1000sep_local(Int_t nofFiles = 1) {
 
   Int_t nparts = 22;
   Int_t pid = 13;
@@ -26,8 +26,8 @@ void tracks_BARREL_1000sep(char* type="proof", Int_t nofFiles = 1, TString proof
   TString outFile = Form("tracks_%dPart_n%d.root",nparts,nEvents);
 
   // ----  Load libraries   -------------------------------------------------
-  gROOT->LoadMacro("$VMCWORKDIR/gconfig/rootlogon.C");
-  rootlogon();
+    gROOT->LoadMacro("$VMCWORKDIR/gconfig/rootlogon.C");
+    rootlogon();
   TString sysFile = gSystem->Getenv("VMCWORKDIR");
   // ------------------------------------------------------------------------
 
@@ -43,7 +43,7 @@ void tracks_BARREL_1000sep(char* type="proof", Int_t nofFiles = 1, TString proof
   // ------------------------------------------------------------------------
 
   // -----   Digitization run   -------------------------------------------
-  FairRunAna *fRun= new FairRunAna(type,proofName.Data());
+  FairRunAna *fRun= new FairRunAna();
   fRun->SetOutputFile(outFile.Data());
   //  fRun->SetProofParName("$VMCWORKDIR/gconfig/libFairRoot3.par");
   //  fRun->GetProof()->SetParameter("PROOF_PacketizerStrategy", (Int_t)0);
@@ -108,7 +108,7 @@ void tracks_BARREL_1000sep(char* type="proof", Int_t nofFiles = 1, TString proof
   //fRun->AddTask(gemHitProducer);
   
   // ##################################################################
-  
+
   PndBarrelTrackFinder* barrelTF = new PndBarrelTrackFinder();
   barrelTF->SetVerbose(0);
   barrelTF->UseMvdSttGem(kTRUE,kTRUE,kTRUE);
@@ -118,7 +118,7 @@ void tracks_BARREL_1000sep(char* type="proof", Int_t nofFiles = 1, TString proof
   barrelQA->SetVerbose(0);
   barrelQA->UseMvdSttGem(kTRUE,kTRUE,kTRUE);
   fRun->AddTask(barrelQA);
-
+  
   // -----   Intialise and run   --------------------------------------------
   fRun->Init();
 
