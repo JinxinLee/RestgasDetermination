@@ -243,7 +243,7 @@ TClonesArray* PndSttMapCreator::FillTubeArrayGeoType1() {
   TClonesArray *tubeArray = new TClonesArray("PndSttTube");
   tubeArray->Delete();
 
-  for(int i = 0; i < pararray->GetEntries(); i++) {
+  for(int i = 1; i < pararray->GetEntries(); i++) {
     PndSttTubeParameters *parms = (PndSttTubeParameters*) pararray->At(i);
     int tubeID = parms->GetTubeID();
     PndSttTube *stttube = GetTubeFromParametersToFillGeoType1(parms);
@@ -259,7 +259,7 @@ PndSttTube * PndSttMapCreator::GetTubeFromParametersToFillGeoType1(PndSttTubePar
 
   Int_t tubeid = parms->GetTubeID();
   if(tubeid == -1) {
-    cout << "PndSttMapCreator::GetTubeFromParametersToFillGeoType1: tube " << tubeid << " not found (nor as a copy)" << endl;
+    cout << "PndSttMapCreator::GetTubeFromParametersToFillGeoType1 (tubeid): tube " << tubeid << " not found (nor as a copy)" << endl;
     return NULL;
   }
 
@@ -282,7 +282,7 @@ PndSttTube * PndSttMapCreator::GetTubeFromParametersToFillGeoType1(PndSttTubePar
     ispath = gGeoManager->CheckPath(path);
   }
   if(ispath == kFALSE) {   
-    cout << "PndSttMapCreator::GetTubeFromParametersToFillGeoType1: tube " << tubeid << " not found (nor as a copy)" << endl; 
+    cout << "PndSttMapCreator::GetTubeFromParametersToFillGeoType1 (ispath): tube " << tubeid << " not found (nor as a copy)" << endl; 
     return NULL;
   }
 
@@ -343,7 +343,7 @@ PndSttTube * PndSttMapCreator::GetTubeFromTubeIDGeoType1(Int_t tubeid) {
   bool ispath = gGeoManager->CheckPath(path); 
  
   if(ispath == kFALSE) {   
-    cout << "PndSttMapCreator::GetTubeFromTubeIDGeoType1: tube " << tubeid << " not found (nor as a copy)" << endl; 
+    cout << "PndSttMapCreator::GetTubeFromTubeIDGeoType1 (ispath): tube " << tubeid << " not found (nor as a copy)" << endl; 
     return NULL;
   }
 
