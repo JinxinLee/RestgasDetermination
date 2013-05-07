@@ -177,45 +177,38 @@ void PndLmdGeaneTask::Exec(Option_t* opt)
 
       ///Propagate to the PCA (a space point) in 7 steps ---------------------------------
       //Comment: seems back propagation in one step (for 11 m) is too much
-      //try do smooth it by small steps, which follow mag.field
+      //try smoothing it by small steps, which follow mag.field
       const int nstep=7;
       double zbend[nstep]={661, 660.5, 660., 659, 319, 316, 220};//entarance and exit mag.field
       FairTrackParP *fStartPst = new FairTrackParP(fFittedTrkP);
       for(int js=0;js<nstep;js++){
 	TVector3 stStartPos(fStartPst->GetX(),fStartPst->GetY(),fStartPst->GetZ());
-	//propagate to virtual plane@PCA
-	TVector3 spacePoint(0,0,zbend[js]);
-	fPro->SetPoint(spacePoint);
-	fPro->BackTrackToVirtualPlaneAtPCA(1); //1 = pca to point
-	FairTrackParP *fResPst = new FairTrackParP();
-	Bool_t isProp = fPro->Propagate(fStartPst, fResPst, PDGCode);
+	// //propagate to virtual plane@PCA
+	// TVector3 spacePoint(0,0,zbend[js]);
+	// fPro->SetPoint(spacePoint);
+	// fPro->BackTrackToVirtualPlaneAtPCA(1); //1 = pca to point
+	// FairTrackParP *fResPst = new FairTrackParP();
+	// Bool_t isProp = fPro->Propagate(fStartPst, fResPst, PDGCode);
 
-	// //propagate plane-to-plane
-	// TVector3 ist(fStartPst->GetIVer());
-	// TVector3 jst(fStartPst->GetJVer());
-	// TVector3 kst(fStartPst->GetKVer());
+	//propagate plane-to-plane
+	TVector3 ist(fStartPst->GetIVer());
+	TVector3 jst(fStartPst->GetJVer());
+	TVector3 kst(fStartPst->GetKVer());
 	// if(fVerbose>2){
 	//   cout<<"current : step#"<<js<<endl;
 	//   stStartPos.Print();
-	//   // cout<<"ist:"<<endl;
-	//   // ist.Print();
-	//   // cout<<"jst:"<<endl;
-	//   // jst.Print();
-	//   // cout<<"kst:"<<endl;
-	//   // kst.Print();
 	// }
-	
-	// TVector3 oc = (0,0,zbend[js]);
-	// TVector3 dj(1.,0.,0.);
-	// TVector3 dk(0.,1.,0.);
-	// dj.SetMag(1);
-	// dk.SetMag(1);
-	// //   	fPro->PropagateFromPlane(dj, dk);
-	// fPro->PropagateFromPlane(jst, kst);//1st detector plane
-	// fPro->PropagateToPlane(oc,dj,dk);//virtual plane at fixed z
-	// fPro->setBackProp();
-	// FairTrackParP *fResPst = new FairTrackParP();
-	// Bool_t isProp = fPro->Propagate(fStartPst, fResPst, PDGCode);
+	TVector3 oc(0,0,zbend[js]);
+	TVector3 dj(1.,0.,0.);
+	TVector3 dk(0.,1.,0.);
+	dj.SetMag(1);
+	dk.SetMag(1);
+	//   	fPro->PropagateFromPlane(dj, dk);
+	fPro->PropagateFromPlane(jst, kst);//1st detector plane
+	fPro->PropagateToPlane(oc,dj,dk);//virtual plane at fixed z
+	fPro->setBackProp();
+	FairTrackParP *fResPst = new FairTrackParP();
+	Bool_t isProp = fPro->Propagate(fStartPst, fResPst, PDGCode);
 
 	if(fVerbose>2){
 	  if(isProp) cout<<"Propagation is OK"<<endl;
