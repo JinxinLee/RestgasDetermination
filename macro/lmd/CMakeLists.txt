@@ -6,10 +6,7 @@ set(INCLUDE_DIRECTORIES
 ${ROOT_INCLUDE_DIR}
 ${GEANT3_INCLUDE_DIR}
 ${CLHEP_INCLUDE_DIR}
-${CMAKE_SOURCE_DIR}/fairtools
-${CMAKE_SOURCE_DIR}/geobase
-${CMAKE_SOURCE_DIR}/parbase
-${CMAKE_SOURCE_DIR}/base
+${BASE_INCLUDE_DIRECTORIES}  
 ${CMAKE_SOURCE_DIR}/field
 ${CMAKE_SOURCE_DIR}/pnddata
 ${CMAKE_SOURCE_DIR}/pnddata/GemData
@@ -82,6 +79,6 @@ add_executable(createRootGeometry_lmd_HV_MAPS create_Lmd_HV_MAPS.C)
  #target_link_libraries(hits_study ${ROOT_LIBRARIES} genfit genfitAdapters trackrep RecoHits Stt Fts Lmd LmdReco LmdTrk Sds SdsReco Geane Geom Proof TrkBase FairTools PndData VMC EG GeomPainter generalTools Base GeoBase FairDB ParBase MathMore Minuit)
 ##target_link_libraries(createRootGeometry_lmd_HV_MAPS ${ROOT_LIBRARIES} Lmd Sds Geane Geom Proof TrkBase FairTools PndData VMC EG GeomPainter generalTools Base GeoBase FairDB ParBase MathMore Minuit)
 
-target_link_libraries(createRootGeometry_lmd_HV_MAPS ${ROOT_LIBRARIES} Lmd  GeoBase ParBase  Sds  Geom Proof  PndData TrkBase VMC EG GeomPainter generalTools FairTools MathMore FairDB Base)
+target_link_libraries(createRootGeometry_lmd_HV_MAPS ${ROOT_LIBRARIES} Lmd  GeoBase ParBase Sds  Geom Proof  PndData TrkBase VMC EG GeomPainter generalTools FairTools MathMore FairDB Base)
 #target_link_libraries(rec_mc_match ${ROOT_LIBRARIES}  Lmd GeoBase ParBase Geom PndData TrkBase  VMC EG GeomPainter generalTools FairTools  LmdReco LmdTrk Geane trackrep RecoHits genfitAdapters genfit SdsReco Sds Stt Fts Proof MathMore Minuit FairDB Base ) 
 target_link_libraries(simple_mc_rec_match ${ROOT_LIBRARIES} Lmd GeoBase ParBase Geom PndData TrkBase  VMC EG GeomPainter generalTools FairTools  LmdReco LmdTrk Geane trackrep RecoHits genfitAdapters genfit SdsReco Sds Stt Fts Proof MathMore Minuit FairDB Base)
