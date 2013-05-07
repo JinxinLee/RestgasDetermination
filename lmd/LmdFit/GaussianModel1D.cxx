@@ -10,7 +10,7 @@
 #define _USE_MATH_DEFINES
 #include "math.h"
 
-GaussianModel1D::GaussianModel1D() {
+GaussianModel1D::GaussianModel1D(std::string name_) : Model1D(name_) {
   initModelParameters();
   num_sigmas = 5.0;
 }

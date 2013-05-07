@@ -18,7 +18,7 @@ private:
   IntegralStrategy1D *integral_strategy;
 
 public:
-  Model1D();
+  Model1D(std::string name_);
   virtual ~Model1D();
 
   double Integral(double xlow, double xhigh, double precision);

@@ -18,11 +18,11 @@ private:
 
 public:
 	/**
-	 * The default constructor which will be indirectly used by the user through
-	 * #PndLmdLumiModelROOT
-	 * @param plab required for a full model description
+	 * The constructor for creating a normalized gaussian model in 1D
+	 * (normal distribution).
+	 * @params name_ will be set as the name of this model. Make sure this will be unique!
 	 * */
-	GaussianModel1D();
+	GaussianModel1D(std::string name_);
 
 	virtual ~GaussianModel1D();
 

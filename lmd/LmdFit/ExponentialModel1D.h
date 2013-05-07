@@ -16,7 +16,7 @@ class ExponentialModel1D: public Model1D {
     shared_ptr<ModelPar> exp_factor;
 
   public:
-    ExponentialModel1D();
+    ExponentialModel1D(std::string name_);
     virtual ~ExponentialModel1D();
 
     double eval(double *x) const;

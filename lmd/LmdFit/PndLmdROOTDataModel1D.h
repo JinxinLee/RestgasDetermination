@@ -33,7 +33,7 @@ class PndLmdROOTDataModel1D: public Model1D {
       CONSTANT, LINEAR, SPLINE
     } intpol_type;
 
-    PndLmdROOTDataModel1D(TEfficiency *acceptance_, interpolation_type type_);
+    PndLmdROOTDataModel1D(std::string name_, TEfficiency *acceptance_, interpolation_type type_);
     virtual ~PndLmdROOTDataModel1D();
 
     void initModelParameters();

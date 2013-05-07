@@ -16,7 +16,7 @@ class PolynomialModel1D: public Model1D {
     std::vector<shared_ptr<ModelPar> > poly_factors;
 
   public:
-    PolynomialModel1D(unsigned int order_);
+    PolynomialModel1D(std::string name_, unsigned int order_);
     virtual ~PolynomialModel1D();
 
     double eval(double *x) const;

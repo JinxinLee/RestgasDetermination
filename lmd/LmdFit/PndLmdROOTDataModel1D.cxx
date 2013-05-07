@@ -13,9 +13,9 @@
 #include "TGraphAsymmErrors.h"
 #include "TCanvas.h"
 
-PndLmdROOTDataModel1D::PndLmdROOTDataModel1D(TEfficiency *acceptance_,
-		interpolation_type type_) :
-		acceptance(acceptance_) {
+PndLmdROOTDataModel1D::PndLmdROOTDataModel1D(std::string name_,
+		TEfficiency *acceptance_, interpolation_type type_) :
+		Model1D(name_), acceptance(acceptance_) {
 
 	TCanvas can;
 	acceptance->Draw();

@@ -6,16 +6,19 @@
  */
 
 #include "GaussianModel2D.h"
-#include "PndLmdConstants.h"
 
-GaussianModel2D::GaussianModel2D(gaussian_model_types_2D type) {
+GaussianModel2D::GaussianModel2D(std::string name_,
+		gaussian_model_types_2D type) :
+		Model2D(name_) {
 	num_sigmas = 5.0;
 	model_type = type;
 
 	if (model_type == SINGLE_GAUSSIAN_2D) {
 		this(&single_gaussian_2D);
-		gauss_var1_sigma = getModelParameterSet().addModelParameter("gauss_var1_sigma");
-		gauss_var2_sigma = getModelParameterSet().addModelParameter("gauss_var2_sigma");
+		gauss_var1_sigma = getModelParameterSet().addModelParameter(
+				"gauss_var1_sigma");
+		gauss_var2_sigma = getModelParameterSet().addModelParameter(
+				"gauss_var2_sigma");
 
 	} else if (model_type == DOUBLE_GAUSSIAN_2D) {
 		this(&double_gaussian_2D);
@@ -43,8 +46,7 @@ void GaussianModel2D::updateDomain() {
 double GaussianModel2D::single_gaussian_2D(double *x) const {
 	return exp(
 			-(x[0] * x[0] / (2.0 * gauss_var1_sigma * gauss_var1_sigma)
-					+ x[1] * x[1]
-							/ (2.0 * gauss_var2_sigma * gauss_var2_sigma)))
+					+ x[1] * x[1] / (2.0 * gauss_var2_sigma * gauss_var2_sigma)))
 			/ (gauss_var1_sigma * gauss_var2_sigma * 2.0 * C_PI);
 }
 

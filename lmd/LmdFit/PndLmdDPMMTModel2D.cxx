@@ -9,8 +9,10 @@
 
 #include "TMath.h"
 
-PndLmdDPMMTModel2D::PndLmdDPMMTModel2D() {
-	getModelParameterSet().addModelParameters(dpm_model_1d.getModelParameterSet());
+PndLmdDPMMTModel2D::PndLmdDPMMTModel2D(std::string name_) :
+		Model2D(name_), dpm_model_1d("dpm_mt_1d") {
+	getModelParameterSet().addModelParameters(
+			dpm_model_1d.getModelParameterSet());
 }
 
 PndLmdDPMMTModel2D::~PndLmdDPMMTModel2D() {

@@ -12,16 +12,16 @@
 
 class ProductModel1D: public Model1D {
 private:
-  shared_ptr<Model1D> first, second;
+	shared_ptr<Model1D> first, second;
 public:
-  ProductModel1D(shared_ptr<Model1D> first_,
-      shared_ptr<Model1D> second_);
+	ProductModel1D(std::string name_, shared_ptr<Model1D> first_,
+			shared_ptr<Model1D> second_);
 
-  void initModelParameters();
+	void initModelParameters();
 
-  double eval(double *x) const;
+	double eval(double *x) const;
 
-  void updateDomain();
+	void updateDomain();
 };
 
 #endif /* PRODUCTMODEL1D_H_ */

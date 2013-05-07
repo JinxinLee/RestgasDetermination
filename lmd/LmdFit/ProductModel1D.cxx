@@ -9,7 +9,9 @@
 
 #include <iostream>
 
-ProductModel1D::ProductModel1D(shared_ptr<Model1D> first_, shared_ptr<Model1D> second_) {
+ProductModel1D::ProductModel1D(std::string name_, shared_ptr<Model1D> first_,
+		shared_ptr<Model1D> second_) :
+		Model1D(name_) {
 	first = first_;
 	second = second_;
 
@@ -28,8 +30,9 @@ double ProductModel1D::eval(double *x) const {
 void ProductModel1D::updateDomain() {
 	// first we need to check if user defined a domain for his models
 	if (first->getDomainRange() == 0 || second->getDomainRange() == 0) {
-		std::cout << "Warning: Some of the models used for the multiplication have not"
-				" defined any domains!" << std::endl;
+		std::cout
+				<< "Warning: Some of the models used for the multiplication have not"
+						" defined any domains!" << std::endl;
 	} else {
 		setDomain(std::max(first->getDomain().first, second->getDomain().first),
 				std::min(first->getDomain().second, second->getDomain().second));

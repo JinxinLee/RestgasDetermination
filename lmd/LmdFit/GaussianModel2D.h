@@ -22,7 +22,7 @@ private:
 	double &gauss_var2_sigma;
 
 public:
-	GaussianModel2D(gaussian_model_types_2D type);
+	GaussianModel2D(std::string name_, gaussian_model_types_2D type);
 	virtual ~GaussianModel2D();
 
 	void updateDomain();

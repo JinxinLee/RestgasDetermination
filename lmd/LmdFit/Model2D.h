@@ -16,7 +16,7 @@ private:
 	std::pair<double, double> var2_domain_bounds;
 
 public:
-	Model2D();
+	Model2D(std::string name_);
 	virtual ~Model2D();
 
 	double getVar1DomainRange();

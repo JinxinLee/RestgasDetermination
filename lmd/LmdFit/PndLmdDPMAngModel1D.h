@@ -12,7 +12,7 @@
 
 class PndLmdDPMAngModel1D: public PndLmdDPMMTModel1D {
   public:
-    PndLmdDPMAngModel1D();
+    PndLmdDPMAngModel1D(std::string name_);
     virtual ~PndLmdDPMAngModel1D();
 
     double getMomentumTransferFromTheta(const double theta) const;

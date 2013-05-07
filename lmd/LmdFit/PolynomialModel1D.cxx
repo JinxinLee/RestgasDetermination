@@ -12,35 +12,34 @@
 #include <limits>
 #include "stdio.h"
 
-PolynomialModel1D::PolynomialModel1D(unsigned int order_) {
-  // TODO Auto-generated constructor stub
-  order = order_;
-  initModelParameters();
+PolynomialModel1D::PolynomialModel1D(std::string name_, unsigned int order_) :
+		Model1D(name_) {
+	// TODO Auto-generated constructor stub
+	order = order_;
+	initModelParameters();
 }
 
 PolynomialModel1D::~PolynomialModel1D() {
-  // TODO Auto-generated destructor stub
+	// TODO Auto-generated destructor stub
 }
 
-
 void PolynomialModel1D::initModelParameters() {
-  poly_factors.clear();
-  for(unsigned int i = 0; i < order+1; i++) {
-    char c[30];
-    sprintf(c, "poly_poly_factor_%u", i);
-    poly_factors.push_back(getModelParameterSet().addModelParameter(c));
-  }
+	poly_factors.clear();
+	for (unsigned int i = 0; i < order + 1; i++) {
+		char c[30];
+		sprintf(c, "poly_poly_factor_%u", i);
+		poly_factors.push_back(getModelParameterSet().addModelParameter(c));
+	}
 }
 
 double PolynomialModel1D::eval(double *x) const {
-  double val = 0.0;
-  for(unsigned int i = 0; i < poly_factors.size(); i++) {
-    val += poly_factors[i]->getValue() * std::pow(x[0], static_cast<int>(i));
-  }
-  return val;
+	double val = 0.0;
+	for (unsigned int i = 0; i < poly_factors.size(); i++) {
+		val += poly_factors[i]->getValue() * std::pow(x[0], static_cast<int>(i));
+	}
+	return val;
 }
 
 void PolynomialModel1D::updateDomain() {
-  setDomain(std::numeric_limits<int>::min(),
-      std::numeric_limits<int>::max());
+	setDomain(std::numeric_limits<int>::min(), std::numeric_limits<int>::max());
 }

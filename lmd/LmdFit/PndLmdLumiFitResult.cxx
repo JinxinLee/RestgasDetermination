@@ -49,31 +49,31 @@ double PndLmdLumiFitResult::getLuminosityError() const {
 }
 
 double PndLmdLumiFitResult::getChiSquare() const {
-  return chi2;
+	return chi2;
 }
 unsigned int PndLmdLumiFitResult::getNDF() const {
-  return ndf;
+	return ndf;
 }
 
 double PndLmdLumiFitResult::getParameterValue(std::string name_) const {
-  if(parameters.find(name_) == parameters.end()) {
-	  std::cout<<"ERROR: requesting value of an unknown parameter!" << std::endl;
-	  return 0.0;
-  }
-  return parameters.find(name_)->second.first;
+	if (parameters.find(name_) == parameters.end()) {
+		std::cout << "ERROR: requesting value of parameter " << name_
+				<< " which is unknown!" << std::endl;
+		return 0.0;
+	}
+	return parameters.find(name_)->second.first;
 }
-
-
 
 void PndLmdLumiFitResult::setChiSquare(double chi2_) {
-  chi2 = chi2_;
+	chi2 = chi2_;
 }
 void PndLmdLumiFitResult::setNDF(unsigned int ndf_) {
-  ndf = ndf_;
+	ndf = ndf_;
 }
 
-void PndLmdLumiFitResult::addParameterValue(std::string name_, double value_, double value_error_) {
-  parameters[name_] = std::make_pair(value_, value_error_);
+void PndLmdLumiFitResult::addParameterValue(std::string name_, double value_,
+		double value_error_) {
+	parameters[name_] = std::make_pair(value_, value_error_);
 }
 
 void PndLmdLumiFitResult::setLuminosity(double luminosity_) {
@@ -85,7 +85,6 @@ void PndLmdLumiFitResult::setLuminositySysError(double luminosity_sys_err_) {
 void PndLmdLumiFitResult::setLuminosityStatError(double luminosity_stat_err_) {
 	luminosity_stat_err = luminosity_stat_err_;
 }
-
 
 bool PndLmdLumiFitResult::checkFitOptions(
 		PndLmdLumiFitOptions *fit_options_) const {

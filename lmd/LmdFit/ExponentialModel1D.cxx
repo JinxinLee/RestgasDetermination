@@ -11,7 +11,7 @@
 #include <cmath>
 #include <limits>
 
-ExponentialModel1D::ExponentialModel1D() {
+ExponentialModel1D::ExponentialModel1D(std::string name_) : Model1D(name_) {
   initModelParameters();
 }
 

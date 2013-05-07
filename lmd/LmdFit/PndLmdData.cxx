@@ -218,9 +218,6 @@ PndLmdLumiFitResult* PndLmdData::Fit(PndLmdAcceptance *lmd_acc,
 		model1d->getModelParameterSet().setModelParameterValue("luminosity",
 				lumi_start);
 
-		// set free parameters
-		model1d->getModelParameterSet().freeModelParameter("luminosity");
-
 		// set model
 		fitter->setModel(model1d);
 
@@ -233,7 +230,7 @@ PndLmdLumiFitResult* PndLmdData::Fit(PndLmdAcceptance *lmd_acc,
 		}
 
 		// store fit results
-		std::cout << "Saving results..." << std::endl;
+		std::cout << "Adding fit result to storage..." << std::endl;
 
 		fit_result = new PndLmdLumiFitResult(fit_options);
 
@@ -255,8 +252,7 @@ PndLmdLumiFitResult* PndLmdData::Fit(PndLmdAcceptance *lmd_acc,
 
 		fit_result->setNDF(
 				fitter->getNumberOfDataPoints() - fitter->getROOTMinimizer()->NFree());
-	}
-	else { // user wants to use ROOFIT
+	} else { // user wants to use ROOFIT
 		// ok do roofit stuff here
 	}
 

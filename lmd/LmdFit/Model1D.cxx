@@ -8,8 +8,8 @@
 #include "Model1D.h"
 #include "IntegralStrategyGSL1D.h"
 
-Model1D::Model1D() :
-    Model(1) {
+Model1D::Model1D(std::string name_) :
+    Model(name_, 1) {
 	integral_strategy = new IntegralStrategyGSL1D();
 }
 

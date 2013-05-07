@@ -43,7 +43,7 @@ private:
   std::set<shared_ptr<Parametrization> > updating_parametrizations;
 
 public:
-  ModelParameterHandler();
+  ModelParameterHandler(std::string model_name_);
   virtual ~ModelParameterHandler();
 
   ModelParSet& getModelParameterSet();

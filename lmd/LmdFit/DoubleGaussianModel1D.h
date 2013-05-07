@@ -18,7 +18,7 @@ private:
 	shared_ptr<ModelPar> gauss_sigma_2;
 	shared_ptr<ModelPar> gauss_ratio_12;
 public:
-	DoubleGaussianModel1D();
+	DoubleGaussianModel1D(std::string name_);
 	virtual ~DoubleGaussianModel1D();
 
     void initModelParameters();

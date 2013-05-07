@@ -14,7 +14,8 @@
 #include "TMath.h"
 #include "TDatabasePDG.h"
 
-PndLmdDPMMTModel1D::PndLmdDPMMTModel1D() {
+PndLmdDPMMTModel1D::PndLmdDPMMTModel1D(std::string name_) :
+		Model1D(name_) {
 	// here a bunch of parameters, which are constants, will be set
 	init();
 	initModelParameters();
@@ -31,7 +32,7 @@ void PndLmdDPMMTModel1D::init() {
 	M = pdg->GetParticle(-2212)->Mass();
 	pi = TMath::Pi();
 	hbarc2 = 0.389379;
-	alpha = 1./137.036;
+	alpha = 1. / 137.036;
 }
 
 void PndLmdDPMMTModel1D::initModelParameters() {
@@ -86,8 +87,7 @@ double PndLmdDPMMTModel1D::getRawInterferencePart(double *x) const {
 	double delta = alpha * (0.577 + logdd1 + dd2 * logdd2 + 2.0 * del);
 
 	double int_part = alpha * sigma_tot->getValue()
-			* pow(getProtonDipoleFormFactor(t), 2.0)
-			* exp(0.5 * b->getValue() * t)
+			* pow(getProtonDipoleFormFactor(t), 2.0) * exp(0.5 * b->getValue() * t)
 			* (rho->getValue() * cos(delta) + sin(delta)) / beta->getValue()
 			/ TMath::Abs(t); //Exact version as dpm states
 
@@ -102,8 +102,8 @@ double PndLmdDPMMTModel1D::getRawHadronicPart(double *x) const {
 	double had_part = A1->getValue()
 			* pow(
 					exp(t / (2.0 * T1->getValue()))
-							- A2->getValue() * exp(t / (2.0 * T2->getValue())),
-					2.0) + A3->getValue() * exp(t / T2->getValue());
+							- A2->getValue() * exp(t / (2.0 * T2->getValue())), 2.0)
+			+ A3->getValue() * exp(t / T2->getValue());
 
 	return had_part;
 }
@@ -112,7 +112,7 @@ double PndLmdDPMMTModel1D::eval(double *x) const {
 	double p1 = getRawCoulombPart(x);
 	double p2 = getRawInterferencePart(x);
 	double p3 = getRawHadronicPart(x);
-	return luminosity->getValue()*(p1 + p2 + p3);
+	return luminosity->getValue() * (p1 + p2 + p3);
 }
 
 void PndLmdDPMMTModel1D::updateDomain() {

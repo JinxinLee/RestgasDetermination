@@ -7,7 +7,8 @@
 
 #include "Model.h"
 
-Model::Model(unsigned int dimension_) {
+Model::Model(std::string name_, unsigned int dimension_) :
+		model_par_handler(name_) {
 	dimension = dimension_;
 }
 
@@ -22,8 +23,7 @@ double Model::multiply(shared_ptr<Model> m1, shared_ptr<Model> m2,
 	return m1->evaluate(x) * m2->evaluate(x);
 }
 
-double Model::add(shared_ptr<Model> m1, shared_ptr<Model> m2,
-		double *x) const {
+double Model::add(shared_ptr<Model> m1, shared_ptr<Model> m2, double *x) const {
 	return m1->evaluate(x) + m2->evaluate(x);
 }
 
@@ -41,26 +41,12 @@ unsigned int Model::getDimension() const {
 	return dimension;
 }
 
-ModelParSet& Model::getModelParameterSet() {
-	return model_par_handler.getModelParameterSet();
+std::string Model::getName() const {
+	return name;
 }
 
-std::vector<shared_ptr<ModelPar> > Model::getListOfFreeModelParameters() {
-	std::vector<shared_ptr<ModelPar> > free_model_parameters;
-	// call getListOfFreeModelParameters functions for all submodels
-	for (unsigned int i = 0; i < submodel_list.size(); i++) {
-		std::vector<shared_ptr<ModelPar> > free_submodel_parameters =
-				submodel_list[i]->getListOfFreeModelParameters();
-		free_model_parameters.insert(free_model_parameters.end(),
-				free_submodel_parameters.begin(), free_submodel_parameters.end());
-	}
-	// then insert all free model parameters that really appear in this model
-	std::vector<shared_ptr<ModelPar> > free_submodel_parameters =
-			getModelParameterSet().getFreeModelParameters();
-	free_model_parameters.insert(free_model_parameters.end(),
-			free_submodel_parameters.begin(), free_submodel_parameters.end());
-
-	return free_model_parameters;
+ModelParSet& Model::getModelParameterSet() {
+	return model_par_handler.getModelParameterSet();
 }
 
 void Model::executeParametrizationModels(double *x) {

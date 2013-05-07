@@ -7,7 +7,7 @@
 
 #include "Model2D.h"
 
-Model2D::Model2D() : Model(2) {
+Model2D::Model2D(std::string name_) : Model(name_, 2) {
 	// TODO Auto-generated constructor stub
 }
 

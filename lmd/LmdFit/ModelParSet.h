@@ -12,6 +12,7 @@
 
 #include <map>
 #include <vector>
+#include <string>
 //#include <tr1/memory>
 
 //using std::tr1::shared_ptr;
@@ -26,20 +27,30 @@ public:
 	 * on a name comparison.
 	 */
 	struct stringcomp {
-		bool operator()(const std::string& lhs, const std::string& rhs) const {
-			return lhs.compare(rhs) < 0;
+		bool operator()(const std::pair<std::string, std::string>& lhs
+				, const std::pair<std::string, std::string>& rhs) const {
+			if (lhs.first.compare(rhs.first) < 0) {
+				return true;
+			} else if (lhs.first.compare(rhs.first) == 0) {
+				return lhs.second.compare(rhs.second) < 0;
+			} else {
+				return false;
+			}
 		}
 	};
 
 private:
+	std::string model_name;
+
 	/**
 	 * Map containing all the model parameters which are unique, independent
 	 * and belong to this model.
 	 */
-	std::map<std::string, shared_ptr<ModelPar>, stringcomp> model_par_map;
+	std::map<std::pair<std::string, std::string>, shared_ptr<ModelPar>
+			, stringcomp> model_par_map;
 
 public:
-	ModelParSet();
+	ModelParSet(std::string model_name_);
 	virtual ~ModelParSet();
 
 	/**
@@ -81,6 +92,17 @@ public:
 	 */
 	int addModelParameters(ModelParSet &daughter_model_par_set);
 
+	/**
+	 * Attempts to add all parameters of the model parameter set addition, to the
+	 * current model parameter set. In contrast to #addModelParameters the model
+	 * parameters will be added with the complete key pair, so model+modelpar
+	 * name. Hence this functions is used to construct the full model parameter
+	 * set of a composite model.
+	 * TODO: throw an exception if some model parameter is duplicate
+	 * @param addition model parameter set that will be added
+	 */
+	void addModelParameterSet(ModelParSet& addition);
+
 	int setModelParameterValue(const std::string &name_, double value_);
 
 	/**
@@ -93,6 +115,8 @@ public:
 
 	void freeModelParameter(const std::string &name_);
 
+	void freeModelParameter(const std::pair<std::string, std::string> &name_pair_);
+
 	/**
 	 * This function frees all non-superior parameters of this model.
 	 */
@@ -104,7 +128,8 @@ public:
 
 	std::vector<shared_ptr<ModelPar> > getFreeModelParameters() const;
 
-	std::map<std::string, shared_ptr<ModelPar>, stringcomp>& getModelParameterMap();
+	std::map<std::pair<std::string, std::string>, shared_ptr<ModelPar>
+			, stringcomp>& getModelParameterMap();
 };
 
 #endif /* MODELPARSET_H_ */

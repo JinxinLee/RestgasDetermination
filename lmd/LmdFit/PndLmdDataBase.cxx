@@ -122,7 +122,7 @@ bool PndLmdDataBase::operator!=(const PndLmdDataBase &lmd_data_base) const {
 }
 
 double PndLmdDataBase::getMomentumTransferFromTheta(double theta) const {
-  PndLmdDPMAngModel1D model;
+  PndLmdDPMAngModel1D model("dpm_angular_1d");
   shared_ptr<Parametrization> para(
       new PndLmdDPMModelParametrization(model.getModelParameterSet()));
   model.getModelParameterHandler().registerParametrizations(

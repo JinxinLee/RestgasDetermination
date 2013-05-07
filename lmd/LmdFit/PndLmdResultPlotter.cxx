@@ -328,6 +328,9 @@ TGraphErrors* PndLmdResultPlotter::createGraphFromFitResult(
 		std::cout << "Error: not all parameters have been set!" << std::endl;
 	}
 
+	// now just overwrite all parameters in the model from the fit result
+	model_factory.initializeModelFromFitResult(model, fit_res);
+
 	// ok just evaluate the function at 500 points in the range
 	std::pair<double, double> plot_range = calculatePlotRange(data,
 			fit_res->getLumiFitOptions());
@@ -339,7 +342,7 @@ TGraphErrors* PndLmdResultPlotter::createGraphFromFitResult(
 		graph->SetPoint(
 				i,
 				x,
-				fit_res->getLuminosity() * model->evaluate(&x)
+				model->evaluate(&x)
 						* data->getBinningFactor(fit_res->getLumiFitOptions()));
 		graph->SetPointError(i, 0, 0);
 	}

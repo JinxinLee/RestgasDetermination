@@ -14,9 +14,10 @@ class NumericConvolutionModel2D: public Model2D {
 private:
 	unsigned int divisions;
 
-    shared_ptr<Model2D> first, second;
+	shared_ptr<Model2D> first, second;
 public:
-	NumericConvolutionModel2D(shared_ptr<Model2D> first_, shared_ptr<Model2D> second_);
+	NumericConvolutionModel2D(std::string name_, shared_ptr<Model2D> first_,
+			shared_ptr<Model2D> second_);
 	virtual ~NumericConvolutionModel2D();
 
 	double eval(double *x) const;

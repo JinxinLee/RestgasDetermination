@@ -11,6 +11,7 @@
 #include "ModelParameterHandler.h"
 
 #include <set>
+#include <string>
 //#include <memory>
 
 //using std::shared_ptr;
@@ -23,6 +24,8 @@
  */
 class Model {
 private:
+	std::string name;
+
   unsigned int dimension;
 
   /**
@@ -49,7 +52,7 @@ public:
   /**
    * see #Model description
    */
-  Model(unsigned int dimension_);
+  Model(std::string name_, unsigned int dimension_);
   virtual ~Model();
 
   void executeParametrizationModels(double *x);
@@ -83,12 +86,20 @@ public:
 
   /**
    * Returns the number of dimensions of this Model
+   *
+   * @returns the number of dimensions of this model
    */
   unsigned int getDimension() const;
 
-  ModelParSet& getModelParameterSet();
+  /**
+   * Get name of this model. The model name can only be set by the constructor!
+   * The unique naming of models is important for automated parameter handling.
+   *
+   * @returns the name of this model
+   */
+  std::string getName() const;
 
-  std::vector<shared_ptr<ModelPar> > getListOfFreeModelParameters();
+  ModelParSet& getModelParameterSet();
 
   ModelParameterHandler& getModelParameterHandler();
 

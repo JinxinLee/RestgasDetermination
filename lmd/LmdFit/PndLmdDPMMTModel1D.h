@@ -27,75 +27,76 @@ using std::tr1::shared_ptr;
 
 class PndLmdDPMMTModel1D: public Model1D {
 protected:
-  // constants
-  double pi;
-  double hbarc2;
-  double alpha;
-  double M;
+	// constants
+	double pi;
+	double hbarc2;
+	double alpha;
+	double M;
 
-  /**
-   * References to the values of the parameters used in the DPM description
-   * of the cross section that are constants or are actually parameters in
-   * the fit
-   */
-  //strictly fixed parameters
-  shared_ptr<ModelPar> p_lab;
-  shared_ptr<ModelPar> luminosity;
-  shared_ptr<ModelPar> E_lab;
-  shared_ptr<ModelPar> S;
-  shared_ptr<ModelPar> pcm2;
-  shared_ptr<ModelPar> gamma;
-  shared_ptr<ModelPar> beta;
-  shared_ptr<ModelPar> beta_lab_cms;
-  //possibly free fit parameters
-  shared_ptr<ModelPar> sigma_tot;
-  shared_ptr<ModelPar> b;
-  shared_ptr<ModelPar> rho;
-  shared_ptr<ModelPar> A1;
-  shared_ptr<ModelPar> A2;
-  shared_ptr<ModelPar> A3;
-  shared_ptr<ModelPar> T1;
-  shared_ptr<ModelPar> T2;
+	/**
+	 * References to the values of the parameters used in the DPM description
+	 * of the cross section that are constants or are actually parameters in
+	 * the fit
+	 */
+	//strictly fixed parameters
+	shared_ptr<ModelPar> p_lab;
+	shared_ptr<ModelPar> luminosity;
+	shared_ptr<ModelPar> E_lab;
+	shared_ptr<ModelPar> S;
+	shared_ptr<ModelPar> pcm2;
+	shared_ptr<ModelPar> gamma;
+	shared_ptr<ModelPar> beta;
+	shared_ptr<ModelPar> beta_lab_cms;
+	//possibly free fit parameters
+	shared_ptr<ModelPar> sigma_tot;
+	shared_ptr<ModelPar> b;
+	shared_ptr<ModelPar> rho;
+	shared_ptr<ModelPar> A1;
+	shared_ptr<ModelPar> A2;
+	shared_ptr<ModelPar> A3;
+	shared_ptr<ModelPar> T1;
+	shared_ptr<ModelPar> T2;
 
-  /**
-   *  initializes the above parameters of the DPM cross section that are absolutely fixed
-   * (so not dependent on the beam momentum for example)
-   */
-  void init();
+	/**
+	 *  initializes the above parameters of the DPM cross section that are
+	 *  absolutely fixed (so not dependent on the beam momentum for example)
+	 */
+	void init();
 
-  void updateDomainFromPars(double *par);
+	void updateDomainFromPars(double *par);
 
 public:
-  /**
-   * In the constructor that creates a fully defined pure signal cross section model of LMD
-   * @param type specifies the model type (see #lmd_signal_model_type)
-   */
-  PndLmdDPMMTModel1D();
+	/**
+	 * In the constructor that creates a fully defined pure signal cross section
+	 * model of LMD
+	 * @param name_ is the name of the model. Make sure that it is unique.
+	 */
+	PndLmdDPMMTModel1D(std::string name_);
 
-  ~PndLmdDPMMTModel1D();
+	~PndLmdDPMMTModel1D();
 
-  virtual void initModelParameters();
+	virtual void initModelParameters();
 
-  /** @returns parameter b of DPM model cross section */
-  double getB() const;
-  /** @returns parameter rho of DPM model cross section */
-  double getRho() const;
-  /** @returns parameter sigma total of DPM model cross section */
-  double getSigmaTotal() const;
+	/** @returns parameter b of DPM model cross section */
+	double getB() const;
+	/** @returns parameter rho of DPM model cross section */
+	double getRho() const;
+	/** @returns parameter sigma total of DPM model cross section */
+	double getSigmaTotal() const;
 
-  double getDelta(const double t) const;
+	double getDelta(const double t) const;
 
-  double getProtonDipoleFormFactor(const double t) const;
+	double getProtonDipoleFormFactor(const double t) const;
 
-  double getRawCoulombPart(double *x) const;
+	double getRawCoulombPart(double *x) const;
 
-  double getRawInterferencePart(double *x) const;
+	double getRawInterferencePart(double *x) const;
 
-  double getRawHadronicPart(double *x) const;
+	double getRawHadronicPart(double *x) const;
 
-  virtual double eval(double *x) const;
+	virtual double eval(double *x) const;
 
-  virtual void updateDomain();
+	virtual void updateDomain();
 };
 
 #endif /* PNDLMDDPMMTMODEL1D_H_ */

@@ -9,6 +9,7 @@
 
 #include "Math/Factory.h"
 #include "Math/Functor.h"
+#include "TMath.h"
 
 PndROOTModelFitter::PndROOTModelFitter() {
 	std::cout << "Initializing Minuit Minimizer..." << std::endl;
@@ -33,7 +34,10 @@ const ROOT::Math::Minimizer* PndROOTModelFitter::getROOTMinimizer() const {
 
 int PndROOTModelFitter::minimize() {
 	std::cout << "Setting up fit..." << std::endl;
+	min->Clear();
 	// create function wrapper for minmizer  a IMultiGenFunction type
+	std::cout << "Number of free parameters in fit: "
+			<< getFreeParameterList().size() << std::endl;
 	ROOT::Math::Functor fc(this, &PndROOTModelFitter::chi2,
 			getFreeParameterList().size());
 	min->SetFunction(fc);
@@ -41,13 +45,14 @@ int PndROOTModelFitter::minimize() {
 	// Set the free variables to be minimized!
 	for (unsigned int i = 0; i < getFreeParameterList().size(); i++) {
 		min->SetVariable(i, getFreeParameterList()[i]->getName(),
-				getFreeParameterList()[i]->getValue(), 0.01 * getFreeParameterList()[i]->getValue());
+				getFreeParameterList()[i]->getValue(),
+				TMath::Abs(0.01 * getFreeParameterList()[i]->getValue()));
 	}
 	std::cout << "Finished setting up fit!" << std::endl;
 
 	std::cout << "Performing fit..." << std::endl;
 	int error_code = 0;
-	if(!min->Minimize())
+	if (!min->Minimize())
 		error_code = 1;
 	std::cout << "Fit done!" << std::endl;
 	return error_code;

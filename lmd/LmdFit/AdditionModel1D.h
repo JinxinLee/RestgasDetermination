@@ -16,7 +16,7 @@ private:
   shared_ptr<Model1D> second;
 
 public:
-  AdditionModel1D(shared_ptr<Model1D> first_, shared_ptr<Model1D> second_);
+  AdditionModel1D(std::string name_, shared_ptr<Model1D> first_, shared_ptr<Model1D> second_);
   virtual ~AdditionModel1D();
 
   void initModelParameters();

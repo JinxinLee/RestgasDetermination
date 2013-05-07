@@ -7,6 +7,7 @@
 
 #include "PndLmdModelFactory.h"
 #include "PndLmdLumiFitOptions.h"
+#include "PndLmdLumiFitResult.h"
 #include "PndLmdAcceptance.h"
 #include "PndLmdDPMMTModel1D.h"
 #include "PndLmdDPMAngModel1D.h"
@@ -31,7 +32,8 @@ PndLmdModelFactory::~PndLmdModelFactory() {
 shared_ptr<Model1D> PndLmdModelFactory::generate1DResolutionModel(
 		PndLmdLumiFitOptions *fit_options) {
 	if (1 == fit_options->getSmearingModelType()) {
-		shared_ptr<Model1D> gauss(new DoubleGaussianModel1D());
+		shared_ptr<Model1D> gauss(
+				new DoubleGaussianModel1D("smearing_double_gaussian_1d"));
 		// ok that part is a little different the following class will just do all
 		// of the parametrization stuff for the double gaussian, instead of writing
 		// it all down in here...
@@ -40,7 +42,7 @@ shared_ptr<Model1D> PndLmdModelFactory::generate1DResolutionModel(
 		return gauss;
 	} else //(0 == fit_options->getSmearingModelType())
 	{
-		shared_ptr<Model1D> gauss(new GaussianModel1D());
+		shared_ptr<Model1D> gauss(new GaussianModel1D("smearing_gaussian_1d"));
 		shared_ptr<Parametrization> smear_parametrization(
 				new PndLmdSmearingGaussianModelParametrization1D(
 						gauss->getModelParameterSet()));
@@ -55,10 +57,34 @@ shared_ptr<Model1D> PndLmdModelFactory::generate1DModel(
 		PndLmdAcceptance *acceptance) {
 	shared_ptr<Model1D> current_model;
 	if (fit_options->isFitRaw()) {
-		current_model.reset(new PndLmdDPMMTModel1D());
-
+		current_model.reset(new PndLmdDPMMTModel1D("dpm_mt_1d"));
+		// set free parameters
+		current_model->getModelParameterSet().freeModelParameter(
+				std::make_pair("dpm_mt_1d", "luminosity"));
+		if (fit_options->getFreeParametersCode() & (1 << (0)))
+			current_model->getModelParameterSet().freeModelParameter(
+					std::make_pair("dpm_mt_1d", "sigma_tot"));
+		if (fit_options->getFreeParametersCode() & (1 << (1)))
+			current_model->getModelParameterSet().freeModelParameter(
+					std::make_pair("dpm_mt_1d", "rho"));
+		if (fit_options->getFreeParametersCode() & (1 << (2)))
+			current_model->getModelParameterSet().freeModelParameter(
+					std::make_pair("dpm_mt_1d", "b"));
 	} else {
-		current_model.reset(new PndLmdDPMAngModel1D());
+		current_model.reset(new PndLmdDPMAngModel1D("dpm_angular_1d"));
+		// finally set all parameters free according to the fit options
+		// set free parameters
+		current_model->getModelParameterSet().freeModelParameter(
+				std::make_pair("dpm_angular_1d", "luminosity"));
+		if (fit_options->getFreeParametersCode() & (1 << (0)))
+			current_model->getModelParameterSet().freeModelParameter(
+					std::make_pair("dpm_angular_1d", "sigma_tot"));
+		if (fit_options->getFreeParametersCode() & (1 << (1)))
+			current_model->getModelParameterSet().freeModelParameter(
+					std::make_pair("dpm_angular_1d", "rho"));
+		if (fit_options->getFreeParametersCode() & (1 << (2)))
+			current_model->getModelParameterSet().freeModelParameter(
+					std::make_pair("dpm_angular_1d", "b"));
 	}
 
 	shared_ptr<Parametrization> dpm_parametrization(
@@ -77,11 +103,12 @@ shared_ptr<Model1D> PndLmdModelFactory::generate1DModel(
 				intpol_type = PndLmdROOTDataModel1D::SPLINE;
 			}
 			shared_ptr<Model1D> acc(
-					new PndLmdROOTDataModel1D(
+					new PndLmdROOTDataModel1D("acceptance_1d",
 							acceptance->getAcceptance1D(fit_options->isFitRaw()),
 							intpol_type));
 
-			current_model.reset(new ProductModel1D(current_model, acc));
+			current_model.reset(
+					new ProductModel1D("acceptance_corrected_1d", current_model, acc));
 		} else {
 			std::cout
 					<< "ERROR: requesting an acceptance corrected model without an acceptance object!"
@@ -92,8 +119,8 @@ shared_ptr<Model1D> PndLmdModelFactory::generate1DModel(
 	if (fit_options->isSmearingOn()) { // with resolution smearing
 		// ok since we have smearing on, generate smearing model
 		current_model.reset(
-				new NumericConvolutionModel1D(current_model,
-						generate1DResolutionModel(fit_options)));
+				new NumericConvolutionModel1D("smeared_acceptance_corrected_1d",
+						current_model, generate1DResolutionModel(fit_options)));
 	}
 
 	// every model has superior parameters which have to be set by the user
@@ -109,7 +136,24 @@ shared_ptr<Model1D> PndLmdModelFactory::generate1DModel(
 				<< std::endl;
 		current_model->getModelParameterSet().printInfo();
 	}
+
 	return current_model;
+}
+
+void PndLmdModelFactory::initializeModelFromFitResult(shared_ptr<Model1D> model,
+		PndLmdLumiFitResult *fit_result) {
+
+	std::vector<shared_ptr<ModelPar> > free_model_pars =
+			model->getModelParameterSet().getFreeModelParameters();
+	for (unsigned int i = 0; i < free_model_pars.size(); i++) {
+		if (0 == free_model_pars[i]->getName().compare("luminosity")) {
+			model->getModelParameterSet().setModelParameterValue("luminosity",
+					fit_result->getLuminosity());
+		} else {
+			free_model_pars[i]->setValue(
+					fit_result->getParameterValue(free_model_pars[i]->getName()));
+		}
+	}
 }
 
 /*Model2D& PndLmdModelFactory::generate2DModel(
