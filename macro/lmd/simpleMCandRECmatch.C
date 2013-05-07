@@ -497,8 +497,10 @@ int main(int __argc,char *__argv[]) {
 	hPullTheta->Fill((MomMCpca.Theta()-MomRecPCA.Theta())/err_lyambda);
 	hPullPhi->Fill((MomMCpca.Phi()-MomRecPCA.Phi())/err_phi);
 	//TNtuple *nBadTrks = new TNtuple("nBadTrks","Info about _bad_ rec.tracks ","xrec:yrec:zrec:pxrec:pyrec:pzrec:nrechits:xmc:ymc:zmc:pxmc:pymc:pzmc");
-	if(fabs(MomRecPCAnotnorm.Mag()-Plab)>0.1*Plab) 
+	if(fabs(MomRecPCAnotnorm.Mag()-Plab)>0.1*Plab){
 	  nBadTrks->Fill(PosRecPCA.X(),PosRecPCA.Y(),PosRecPCA.Z(),MomRecPCAnotnorm.X(),MomRecPCAnotnorm.Y(),MomRecPCAnotnorm.Z(),Ntrkcandhits,PosMCpca.X(),PosMCpca.Y(),PosMCpca.Z(),MomMCpca.X(),MomMCpca.Y(),MomMCpca.Z(),mvID);
+	  cout<<"Event #"<<j<<" contains BAD trk"<<endl;
+	}
 
 	//Near 1st LMD plane
 	/// Read MC track parameters near LMD ------------------------------------
