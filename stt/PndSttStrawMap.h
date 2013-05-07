@@ -40,6 +40,9 @@ public:
 	bool IsAxialStraw(int strawindex) const {return fAxialStraw.at(strawindex);}
 	bool IsSkewedStraw(int strawindex) const {return !(fAxialStraw.at(strawindex));}
 
+	bool IsAxialRow(int rowindex) const;
+	bool IsSkewedRow(int rowindex) const;
+
 	PndSttTube* GetTube(int strawindex) const {return (PndSttTube*)fTubeArray->At(strawindex);}
 
 	void GenerateStrawMap(TClonesArray* const stt_tube_array);

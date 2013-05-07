@@ -134,5 +134,20 @@ int PndSttStrawMap::IsSectorBorderStraw(int strawindex) const
 	return 0;
 }
 
+bool PndSttStrawMap::IsAxialRow(int rowindex) const
+{
+	//only works if all straws in one row are of the same type
+	//which is the case for the current geometry
+	return IsAxialStraw(GetStrawRow(0, rowindex).at(0));
+}
+
+bool PndSttStrawMap::IsSkewedRow(int rowindex) const
+{
+	//only works if all straws in one row are of the same type
+	//which is the case for the current geometry
+	return IsSkewedStraw(GetStrawRow(0, rowindex).at(0));
+}
+
+
 ClassImp(PndSttStrawMap)
 
