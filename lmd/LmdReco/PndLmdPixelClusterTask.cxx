@@ -179,12 +179,13 @@ TVector3 PndLmdPixelClusterTask::AddMSErr(TVector3 hpos, TVector3 hposerr){
   TLorentzVector LorMom(0, 0, fPbeam, Ebeam);
   Double_t beta = LorMom.Beta();
   Double_t X_to_X0 = 0.00306;//for one plane: flexcable+(HV-MAPS)+cooling disk+(HV-MAPS)+flexcable
-  X_to_X0 -= 0.00053;//-(HV-MAPS)
-  Double_t thetaMS = 13.6*1e-3*TMath::Sqrt(X_to_X0)/(beta*fPbeam);
+   X_to_X0 -= 2*0.00053;//-(HV-MAPS)
+   // Double_t thetaMS = 13.6*1e-3*TMath::Sqrt(X_to_X0)/(beta*fPbeam);
+   Double_t thetaMS = 13.6*1e-3*TMath::Sqrt(X_to_X0)*(1+0.038*TMath::Log(X_to_X0))/(beta*fPbeam);
   //-----------------------------------------------------------
 
   //TO DO: use parameters from geometry info for LUMI
-  Double_t d1 = 20.; 
+  Double_t d1 = 15.; 
   Double_t d2 = 10.; 
   double xerr,yerr;
   xerr = hposerr.X();
@@ -196,19 +197,19 @@ TVector3 PndLmdPixelClusterTask::AddMSErr(TVector3 hpos, TVector3 hposerr){
   if(zhit>1160 && zhit<1170) num=3;
 
   
-  // cout<<"Plane #"<<num<<" before: zhit="<<zhit<<" xerr = "<<xerr<<" yerr = "<<yerr<<endl;
+  //cout<<"Plane #"<<num<<" before: zhit="<<zhit<<" xerr = "<<xerr<<" yerr = "<<yerr<<endl;
  
   double sigmaMS;
   for(int j=0;j<num;j++){
     // sigmaMS = 2*(j+1)*d*thetaMS;
     double d=d2;
-    if(j==0) d=d2;
+    if(j==0) d=d1;
     sigmaMS = (j+1)*d*thetaMS;
     xerr = TMath::Hypot(xerr,sigmaMS);
     yerr = TMath::Hypot(yerr,sigmaMS); 
     //  cout<<"num:"<<num<<" j="<<j<<" d = "<<d<<endl;
   }
-  // cout<<" num:"<<num<<"(Z="<<zhit<<") xerr="<<xerr<<" yerr="<<yerr<<endl;
+  //  cout<<" num:"<<num<<"(Z="<<zhit<<") xerr="<<xerr<<" yerr="<<yerr<<endl;
   TVector3 res(xerr,yerr,hposerr.Z());
   return res;
 };
