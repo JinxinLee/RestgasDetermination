@@ -1,11 +1,11 @@
 //################################################################
-//# Macro for summary of Background\Signal study (with simple case: 1 trk per event)
+//# Macro for study difference between MC and REC tracks (with simple case: 1 trk per event)
 //# author: Anastasia Karavdina
 //# date: 14/04/2013
 //#
 //# to compile it add in "# install #" part of CMakeLists.txt lines:
 //# add_executable(simple_mc_rec_match simpleMCandRECmatch.C)
-//# target_link_libraries(simple_mc_rec_match ${ROOT_LIBRARIES})
+//# target_link_libraries(simple_mc_rec_match ${ROOT_LIBRARIES} Lmd GeoBase ParBase Geom PndData TrkBase  VMC EG GeomPainter generalTools FairTools  LmdReco LmdTrk Geane trackrep RecoHits genfitAdapters genfit SdsReco Sds Stt Fts Proof MathMore Minuit FairDB Base)
 //#
 //# to run it (and see options): 
 //# ${PANDAROOT}/build/bin/./simple_mc_rec_match --help
@@ -254,14 +254,18 @@ int main(int __argc,char *__argv[]) {
   
   cout<<"And we'll make some hists"<<endl;
   //--- Output histogram -----------------------------------------------------
+  double thetarange[2]={0.001,0.01};
+  double thetam =  thetarange[0];
+  if(Plab<5) thetam =  thetarange[1];
 
   //Near IP
   TH1 *hResMom = new TH1F("hResMom","P_{MC}-P_{REC};#deltaP,GeV/c",1e3,-1e-4,1e-4);
   TH1 *hErrMom = new TH1F("hErrMom","#sigma_{P};#sigmaP,GeV/c",1e3,0,1e-3);
   TH1 *hPullMom = new TH1F("hPullMom","(P_{MC}-P_{REC})/#sigma_{P};",1e3,-1e1,1e1);
   //  TH1 *hResTheta = new TH1F("hResTheta","#theta_{MC}-#theta_{REC};#delta#theta,rad",1e3,-1e-2,1e-2);
-  TH1 *hResTheta = new TH1F("hResTheta","#theta_{MC}-#theta_{REC};#delta#theta,rad",1e2,-1e-3,1e-3);//TEST
-  TH1 *hErrTheta = new TH1F("hErrTheta","#sigma(#theta_{REC});#sigma,rad",1e3,0,0.01);
+  TH1 *hResTheta = new TH1F("hResTheta","#theta_{MC}-#theta_{REC};#delta#theta,rad",1e2,-thetam,thetam);//TEST
+  TH2 *hThetaResTheta = new TH2F("hThetaResTheta","#theta_{MC}-#theta_{REC};#theta,rad;#delta#theta,rad",2e1,0,1e-2,1e2,-thetam,thetam);//TEST
+  TH1 *hErrTheta = new TH1F("hErrTheta","#sigma(#theta_{REC});#sigma,rad",1e3,0,10*thetam);
   TH1 *hPullTheta = new TH1F("hPullTheta","(#theta_{MC}-#theta_{REC})/#sigma_{#theta};",1e2,-10,10);
   TH1 *hResPhi = new TH1F("hResPhi","#phi_{MC}-#phi_{REC};#delta#phi,rad",2e3,-1.,1.);
   TH1 *hErrPhi = new TH1F("hErrPhi","#sigma(#phi_{REC});#sigma,rad",1e3,0,0.1);
@@ -276,7 +280,7 @@ int main(int __argc,char *__argv[]) {
   TH1 *hPullPointPy = new TH1F("hPullPointPy","(Py_{MC}-Py_{REC})/#sigma_{Py};(Py_{MC}-Py_{REC})/#sigma_{Py}",1e2,-10,10);
   
   TH1 *hResPointPz = new TH1F("hResPointPz","Pz_{MC}-Pz_{REC};#deltaPz, GeV/c",1e2,-1e-3,1e-3);
-  TH1 *hErrPointPz = new TH1F("hErrPointPz","#sigma_{Pz};#sigmaPz, GeV/c",1e3,0,1e-1);
+  TH1 *hErrPointPz = new TH1F("hErrPointPz","#sigma_{Pz};#sigmaPz, GeV/c",1e3,0,1e-2);
   TH1 *hPullPointPz = new TH1F("hPullPointPz","(Pz_{MC}-Pz_{REC})/#sigma_{Pz};(Pz_{MC}-Pz_{REC})/#sigma_{Pz}",1e2,-10,10);
 
   TH1 *hResPointX = new TH1F("hResPointX","X_{MC}-X_{REC};#deltaX,cm",1e2,-2.,2.);
@@ -284,7 +288,7 @@ int main(int __argc,char *__argv[]) {
   TH1 *hResPointY = new TH1F("hResPointY","Y_{MC}-Y_{REC};#deltaY,cm",1e2,-2.,2.);
   TH1 *hPullPointY = new TH1F("hPullPointY","(Y_{MC}-Y_{REC})/#sigma_{Y};(Y_{MC}-Y_{REC})/#sigma_{Y}",1e2,-10,10);
   TH1 *hResPointZ = new TH1F("hResPointZ","Z_{MC}-Z_{REC};#deltaZ,cm",1e3,-0.15,0.15);
-  TH1 *hPullPointZ = new TH1F("hPullPointZ","(Z_{MC}-Z_{REC})/#sigma_{Z};(Z_{MC}-Z_{REC})/#sigma_{Z}",1e3,-100,100);
+  TH1 *hPullPointZ = new TH1F("hPullPointZ","(Z_{MC}-Z_{REC})/#sigma_{Z};(Z_{MC}-Z_{REC})/#sigma_{Z}",1e2,-10,10);
 
   //Near 1st LMD plane
   TH1 *hhits = new TH1I("hhits","number of hits in trk",7,0,7);
@@ -299,8 +303,8 @@ int main(int __argc,char *__argv[]) {
   TH1 *hResLumiTrkPointPx = new TH1F("hResLumiTrkPointPx","Px_{MC}-Px_{REC}(near Lumi);#deltaPx, GeV/c",1e2,-0.01,0.01);
   TH1 *hResLumiTrkPointPy = new TH1F("hResLumiTrkPointPy","Py_{MC}-Py_{REC}(near Lumi);#deltaPy, GeV/c",1e2,-0.01,0.01);
   TH1 *hResLumiTrkPointPz = new TH1F("hResLumiTrkPointPz","Pz_{MC}-Pz_{REC}(near Lumi);#deltaPz, GeV/c",1e2,-0.001,0.001);
-  TH1 *hResLumiTrkPointP = new TH1F("hResLumiTrkPointP","P_{MC}-P_{REC}(near Lumi);#deltaP, GeV/c",1e2,-0.001,0.001);
-  TH2 *hResLumiTrkPointPmcPrec = new TH2F("hResLumiTrkPointPmcPrec","P_{MC} vs. P_{REC}(near Lumi);P_{rec}, GeV/c;P_{mc}, GeV/c",1e2,Plab-0.1,Plab+0.1,1e2,Plab-0.1,Plab+0.1);
+  //  TH1 *hResLumiTrkPointP = new TH1F("hResLumiTrkPointP","P_{MC}-P_{REC}(near Lumi);#deltaP, GeV/c",1e2,-0.001,0.001);
+  //  TH2 *hResLumiTrkPointPmcPrec = new TH2F("hResLumiTrkPointPmcPrec","P_{MC} vs. P_{REC}(near Lumi);P_{rec}, GeV/c;P_{mc}, GeV/c",1e2,Plab-0.1,Plab+0.1,1e2,Plab-0.1,Plab+0.1);
 
  TH1 *hResLumiTrkPointXErr = new TH1F("hResLumiTrkPointXErr","#sigma(X_{REC})(near Lumi);#sigma_{X},cm",1e2,0,0.02);
   TH1 *hResLumiTrkPointYErr = new TH1F("hResLumiTrkPointYErr","#sigma(Y_{REC})(near Lumi);#sigma_{Y},cm",1e2,0,0.02);
@@ -319,6 +323,9 @@ int main(int __argc,char *__argv[]) {
   TH1 *hResLumiTrkThetaPull = new TH1F("hResLumiTrkThetaPull","(#theta_{MC}-#theta_{REC})/#sigma (near Lumi);#delta#theta, rad",1e2,-10,10);
   TH1 *hResLumiTrkPhiPull = new TH1F("hResLumiTrkPhiPull","(#phi_{MC}-#phi_{REC})/#sigma (near Lumi);#delta#phi, rad",1e2,-10,10);
 
+  //  TH2 *hMCidRefID = new TH2I("hMCidRefID","; MCid; RefID",100,0,100,100,0,100);
+
+  TNtuple *nBadTrks = new TNtuple("nBadTrks","Info about _bad_ rec.tracks ","xrec:yrec:zrec:pxrec:pyrec:pzrec:nrechits:xmc:ymc:zmc:pxmc:pymc:pzmc:mvID");
 
   int glBADGEANE=0;
   //  int glBadEv = 0;
@@ -344,18 +351,21 @@ int main(int __argc,char *__argv[]) {
     if(verboseLevel>0)  
       cout<<"Event #"<<j<<" has "<<nParticles<<" true particles, "<<" out of it "<<nRecHits<<" hits, "<<nTrkCandidates
 	  <<" trk-cands, "<<numTrk<<" tracks and "<<nGeaneTrks<<" geane Trks!"<<endl;
-    if(nParticles!=nMCtracks) continue;
+    //    if(nParticles!=nMCtracks) continue;
     for (Int_t iN=0; iN<nGeaneTrks; iN++){// loop over all reconstructed trks
       FairTrackParH *fRes = (FairTrackParH*)geaneArray->At(iN);
       Double_t lyambda = fRes->GetLambda();
       if(lyambda==0){
 	cout<<"GEANE didn't propagate this trk!"<<endl;
 	glBADGEANE++;
+	nBadTrks->Fill(1e6,1e6,1e6,1e6,1e6,1e6,1e6,1e6,1e6,1e6,1e6,1e6,1e6,1e6);
       }
       if(lyambda==0) continue;
 
       /// Read REC track parameters near IP -----------------------------------
       TVector3 MomRecPCA = fRes->GetMomentum();
+      TVector3 MomRecPCAnotnorm = MomRecPCA;
+      MomRecPCA *= Plab/MomRecPCA.Mag();
       TVector3 PosRecPCA = fRes->GetPosition();
       Double_t errPx = fRes->GetDPx();
       Double_t errPy = fRes->GetDPy();
@@ -400,6 +410,7 @@ int main(int __argc,char *__argv[]) {
       FairTrackParP fFittedTrkP = trkpnd->GetParamFirst();
       TVector3 PosRecLMD(fFittedTrkP.GetX(),fFittedTrkP.GetY(),fFittedTrkP.GetZ());
       TVector3 MomRecLMD(fFittedTrkP.GetPx(),fFittedTrkP.GetPy(),fFittedTrkP.GetPz());
+      MomRecLMD *=Plab/MomRecLMD.Mag();
       double covMARS[6][6];
       fFittedTrkP.GetMARSCov(covMARS);
       TVector3 errMomRecLMD(sqrt(covMARS[0][0]),sqrt(covMARS[1][1]),sqrt(covMARS[2][2]));
@@ -438,6 +449,7 @@ int main(int __argc,char *__argv[]) {
 	  continue;
 	PndSdsMCPoint* MCPoint = (PndSdsMCPoint*)(true_points->At(astripdigi->GetIndex(0)));
 	int MCidTOP = MCPoint->GetTrackID();
+	//	hMCidRefID->Fill(MCidTOP,myHit->GetRefIndex());
 	if(iHit<1){
 	  MCPointHit = MCPoint;
 	  MCid = MCidTOP;
@@ -457,6 +469,7 @@ int main(int __argc,char *__argv[]) {
 	/// Read MC track parameters near IP ------------------------------------
 	PndMCTrack *mctrk =(PndMCTrack*) true_tracks->At(MCid);
 	Int_t mcID = mctrk->GetPdgCode();
+	int mvID = mctrk->GetMotherID();
 	TVector3 MomMCpca = mctrk->GetMomentum();
 	TVector3 PosMCpca = mctrk->GetStartVertex();
 	Double_t thetaMC = MomMCpca.Theta();
@@ -479,9 +492,13 @@ int main(int __argc,char *__argv[]) {
 	hPullPointZ->Fill((PosMCpca.Z()-PosRecPCA.Z())/errPosRecPCA.Z());
 
 	hResTheta->Fill(MomMCpca.Theta()-MomRecPCA.Theta());
+	hThetaResTheta->Fill(MomMCpca.Theta(),(MomMCpca.Theta()-MomRecPCA.Theta()));
 	hResPhi->Fill(MomMCpca.Phi()-MomRecPCA.Phi());
 	hPullTheta->Fill((MomMCpca.Theta()-MomRecPCA.Theta())/err_lyambda);
 	hPullPhi->Fill((MomMCpca.Phi()-MomRecPCA.Phi())/err_phi);
+	//TNtuple *nBadTrks = new TNtuple("nBadTrks","Info about _bad_ rec.tracks ","xrec:yrec:zrec:pxrec:pyrec:pzrec:nrechits:xmc:ymc:zmc:pxmc:pymc:pzmc");
+	if(fabs(MomRecPCAnotnorm.Mag()-Plab)>0.1*Plab) 
+	  nBadTrks->Fill(PosRecPCA.X(),PosRecPCA.Y(),PosRecPCA.Z(),MomRecPCAnotnorm.X(),MomRecPCAnotnorm.Y(),MomRecPCAnotnorm.Z(),Ntrkcandhits,PosMCpca.X(),PosMCpca.Y(),PosMCpca.Z(),MomMCpca.X(),MomMCpca.Y(),MomMCpca.Z(),mvID);
 
 	//Near 1st LMD plane
 	/// Read MC track parameters near LMD ------------------------------------
@@ -498,8 +515,15 @@ int main(int __argc,char *__argv[]) {
 	double yneu=PosMClmd.Y()+dirMClmd.Y()*deltaZ;
 	double zneu = PosMClmd.Z()+deltaZ;
 	PosMClmd.SetXYZ(xneu,yneu,zneu);
-	hResLumiTrkPointP->Fill((MomMClmd.Mag()-MomRecLMD.Mag()));
-	hResLumiTrkPointPmcPrec->Fill(MomRecLMD.Mag(),MomMClmd.Mag());
+	MomMClmd = dirMClmd*Plab;
+	//	hResLumiTrkPointP->Fill((MomMClmd.Mag()-MomRecLMD.Mag()));
+	//	hResLumiTrkPointPmcPrec->Fill(MomRecLMD.Mag(),MomMClmd.Mag());
+
+
+	// MomMClmd *=1./MomMClmd.Mag();//TEST
+	// MomRecLMD *=1./MomRecLMD.Mag();//TEST
+	// errMomRecLMD *=1./MomRecLMD.Mag();//TEST
+
 	// cout<<"MomMClmd.Mag() = "<<MomMClmd.Mag()<<" MomRecLMD.Mag() = "<<MomRecLMD.Mag()<<endl;
 	// cout<<" MC - REC = "<<1e3*(MomMClmd.Mag()-MomRecLMD.Mag())<<" MeV"<<endl;
 	///------------------------------------------------------------------------------------
@@ -610,8 +634,11 @@ int main(int __argc,char *__argv[]) {
   hResLumiTrkPointPxErr->Write();
   hResLumiTrkPointPyErr->Write();
   hResLumiTrkPointPzErr->Write();
-  hResLumiTrkPointP->Write();
-  hResLumiTrkPointPmcPrec->Write();
+  //  hResLumiTrkPointP->Write();
+  //  hResLumiTrkPointPmcPrec->Write();
+  //  hMCidRefID->Write();
+  hThetaResTheta->Write();
+  nBadTrks->Write();
   f->Close();
  cout<<"Number of trks where GEANE failed: "<<glBADGEANE<<endl;
 }
