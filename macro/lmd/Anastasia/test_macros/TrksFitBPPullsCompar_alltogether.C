@@ -12,7 +12,7 @@
 #include "TClonesArray.h"
 #include "TFile.h"
 using namespace std;
-void TrksFitBPPullsCompar_alltogether(TString pathName="/panda/pandaroot/macro/lmd/testPixel/26042013/")
+void TrksFitBPPullsCompar_alltogether(TString pathName="/panda/curpandaroot/macro/lmd/testPixel/30042013/")
 {
   const int nBeamPoints=5;
   double p_beam[nBeamPoints]={1.5, 4.06, 8.9, 11.91, 15};
@@ -385,29 +385,39 @@ TH1F *hResLumiTrkPhiPull = (TH1F*)fileIN->Get("hResLumiTrkPhiPull");
   TMultiGraph *mgPullPhi_mean_in = new TMultiGraph("mgPullPhi_mean_in",""); TMultiGraph *mgPullPhi_sigma_in = new TMultiGraph("mgPullPhi_sigma_in","");
 
   for(int im=0;im<nMethods;im++){
+    int markerstsh=20;
+    if(im>3) markerstsh=29;
+    int markerstshadd=4;
+    if(im==3) markerstshadd=32-23;
+    if(im==4) markerstshadd=27-29-4;
+    if(im==5) markerstshadd=28-29-5;
+    //    if(im>3) markerstshadd=-3;
+    int matkercolsh = 1;
+    if(im>4) matkercolsh = 2;
     gEff[im] = new TGraphErrors(nBeamPoints,p_beam,Eff[im],0,0);
-    gEff[im]->SetMarkerStyle(20+im);
-    gEff[im]->SetMarkerColor(im+1);
+    gEff[im]->SetMarkerStyle(markerstsh+im);
+    gEff[im]->SetMarkerColor(im+matkercolsh);
     gEff[im]->SetMarkerSize(2.0);
     mgEff->Add(gEff[im],"LP");
 
 
     gPullPx_mean[im] = new TGraphErrors(nBeamPoints,p_beam,PullPx_mean[im],0,erPullPx_mean[im]);
     gPullPx_sigma[im] = new TGraphErrors(nBeamPoints,p_beam,PullPx_sigma[im],0,erPullPx_sigma[im]);
-    gPullPx_mean[im]->SetMarkerStyle(20+im);
-    gPullPx_sigma[im]->SetMarkerStyle(20+im);
-    gPullPx_mean[im]->SetMarkerColor(im+1);
-    gPullPx_sigma[im]->SetMarkerColor(im+1);
+
+    gPullPx_mean[im]->SetMarkerStyle(markerstsh+im);
+    gPullPx_sigma[im]->SetMarkerStyle(markerstsh+im);
+    gPullPx_mean[im]->SetMarkerColor(im+matkercolsh);
+    gPullPx_sigma[im]->SetMarkerColor(im+matkercolsh);
     gPullPx_mean[im]->SetMarkerSize(2.0);
     gPullPx_sigma[im]->SetMarkerSize(2.0);
     mgPullPx_mean->Add(gPullPx_mean[im],"LP");
     mgPullPx_sigma->Add(gPullPx_sigma[im],"LP");
     gPullPx_mean_in[im] = new TGraphErrors(nBeamPoints,p_beam,PullPx_mean_in[im],0,erPullPx_mean_in[im]);
     gPullPx_sigma_in[im] = new TGraphErrors(nBeamPoints,p_beam,PullPx_sigma_in[im],0,erPullPx_sigma_in[im]);
-    gPullPx_mean_in[im]->SetMarkerStyle(24+im);
-    gPullPx_sigma_in[im]->SetMarkerStyle(24+im);
-    gPullPx_mean_in[im]->SetMarkerColor(im+5);
-    gPullPx_sigma_in[im]->SetMarkerColor(im+5);
+    gPullPx_mean_in[im]->SetMarkerStyle(markerstshadd+markerstsh+im);
+    gPullPx_sigma_in[im]->SetMarkerStyle(markerstshadd+markerstsh+im);
+    gPullPx_mean_in[im]->SetMarkerColor(im+matkercolsh);
+    gPullPx_sigma_in[im]->SetMarkerColor(im+matkercolsh);
     gPullPx_mean_in[im]->SetMarkerSize(2.0);
     gPullPx_sigma_in[im]->SetMarkerSize(2.0);
     mgPullPx_mean->Add(gPullPx_mean_in[im],"LP");
@@ -415,20 +425,20 @@ TH1F *hResLumiTrkPhiPull = (TH1F*)fileIN->Get("hResLumiTrkPhiPull");
 
     gPullPy_mean[im] = new TGraphErrors(nBeamPoints,p_beam,PullPy_mean[im],0,erPullPy_mean[im]);
     gPullPy_sigma[im] = new TGraphErrors(nBeamPoints,p_beam,PullPy_sigma[im],0,erPullPy_sigma[im]);
-    gPullPy_mean[im]->SetMarkerStyle(20+im);
-    gPullPy_sigma[im]->SetMarkerStyle(20+im);
-    gPullPy_mean[im]->SetMarkerColor(im+1);
-    gPullPy_sigma[im]->SetMarkerColor(im+1);
+    gPullPy_mean[im]->SetMarkerStyle(markerstsh+im);
+    gPullPy_sigma[im]->SetMarkerStyle(markerstsh+im);
+    gPullPy_mean[im]->SetMarkerColor(im+matkercolsh);
+    gPullPy_sigma[im]->SetMarkerColor(im+matkercolsh);
     gPullPy_mean[im]->SetMarkerSize(2.0);
     gPullPy_sigma[im]->SetMarkerSize(2.0);
     mgPullPy_mean->Add(gPullPy_mean[im],"LP");
     mgPullPy_sigma->Add(gPullPy_sigma[im],"LP");
     gPullPy_mean_in[im] = new TGraphErrors(nBeamPoints,p_beam,PullPy_mean_in[im],0,erPullPy_mean_in[im]);
     gPullPy_sigma_in[im] = new TGraphErrors(nBeamPoints,p_beam,PullPy_sigma_in[im],0,erPullPy_sigma_in[im]);
-    gPullPy_mean_in[im]->SetMarkerStyle(24+im);
-    gPullPy_sigma_in[im]->SetMarkerStyle(24+im);
-    gPullPy_mean_in[im]->SetMarkerColor(im+5);
-    gPullPy_sigma_in[im]->SetMarkerColor(im+5);
+    gPullPy_mean_in[im]->SetMarkerStyle(markerstshadd+markerstsh+im);
+    gPullPy_sigma_in[im]->SetMarkerStyle(markerstshadd+markerstsh+im);
+    gPullPy_mean_in[im]->SetMarkerColor(im+matkercolsh);
+    gPullPy_sigma_in[im]->SetMarkerColor(im+matkercolsh);
     gPullPy_mean_in[im]->SetMarkerSize(2.0);
     gPullPy_sigma_in[im]->SetMarkerSize(2.0);
     mgPullPy_mean->Add(gPullPy_mean_in[im],"LP");
@@ -436,20 +446,20 @@ TH1F *hResLumiTrkPhiPull = (TH1F*)fileIN->Get("hResLumiTrkPhiPull");
 
     gPullPz_mean[im] = new TGraphErrors(nBeamPoints,p_beam,PullPz_mean[im],0,erPullPz_mean[im]);
     gPullPz_sigma[im] = new TGraphErrors(nBeamPoints,p_beam,PullPz_sigma[im],0,erPullPz_sigma[im]);
-    gPullPz_mean[im]->SetMarkerStyle(20+im);
-    gPullPz_sigma[im]->SetMarkerStyle(20+im);
-    gPullPz_mean[im]->SetMarkerColor(im+1);
-    gPullPz_sigma[im]->SetMarkerColor(im+1);
+    gPullPz_mean[im]->SetMarkerStyle(markerstsh+im);
+    gPullPz_sigma[im]->SetMarkerStyle(markerstsh+im);
+    gPullPz_mean[im]->SetMarkerColor(im+matkercolsh);
+    gPullPz_sigma[im]->SetMarkerColor(im+matkercolsh);
     gPullPz_mean[im]->SetMarkerSize(2.0);
     gPullPz_sigma[im]->SetMarkerSize(2.0);
     mgPullPz_mean->Add(gPullPz_mean[im],"LP");
     mgPullPz_sigma->Add(gPullPz_sigma[im],"LP");
     gPullPz_mean_in[im] = new TGraphErrors(nBeamPoints,p_beam,PullPz_mean_in[im],0,erPullPz_mean_in[im]);
     gPullPz_sigma_in[im] = new TGraphErrors(nBeamPoints,p_beam,PullPz_sigma_in[im],0,erPullPz_sigma_in[im]);
-    gPullPz_mean_in[im]->SetMarkerStyle(24+im);
-    gPullPz_sigma_in[im]->SetMarkerStyle(24+im);
-    gPullPz_mean_in[im]->SetMarkerColor(im+5);
-    gPullPz_sigma_in[im]->SetMarkerColor(im+5);
+    gPullPz_mean_in[im]->SetMarkerStyle(markerstshadd+markerstsh+im);
+    gPullPz_sigma_in[im]->SetMarkerStyle(markerstshadd+markerstsh+im);
+    gPullPz_mean_in[im]->SetMarkerColor(im+matkercolsh);
+    gPullPz_sigma_in[im]->SetMarkerColor(im+matkercolsh);
     gPullPz_mean_in[im]->SetMarkerSize(2.0);
     gPullPz_sigma_in[im]->SetMarkerSize(2.0);
     mgPullPz_mean->Add(gPullPz_mean_in[im],"LP");
@@ -457,18 +467,18 @@ TH1F *hResLumiTrkPhiPull = (TH1F*)fileIN->Get("hResLumiTrkPhiPull");
 
     gPullX_mean[im] = new TGraphErrors(nBeamPoints,p_beam,PullX_mean[im],0,erPullX_mean[im]);
     gPullX_sigma[im] = new TGraphErrors(nBeamPoints,p_beam,PullX_sigma[im],0,erPullX_sigma[im]);
-    gPullX_mean[im]->SetMarkerStyle(20+im);
-    gPullX_sigma[im]->SetMarkerStyle(20+im);
-    gPullX_mean[im]->SetMarkerColor(im+1);
-    gPullX_sigma[im]->SetMarkerColor(im+1);
+    gPullX_mean[im]->SetMarkerStyle(markerstsh+im);
+    gPullX_sigma[im]->SetMarkerStyle(markerstsh+im);
+    gPullX_mean[im]->SetMarkerColor(im+matkercolsh);
+    gPullX_sigma[im]->SetMarkerColor(im+matkercolsh);
     gPullX_mean[im]->SetMarkerSize(2.0);
     gPullX_sigma[im]->SetMarkerSize(2.0);
     gPullX_mean_in[im] = new TGraphErrors(nBeamPoints,p_beam,PullX_mean_in[im],0,erPullX_mean_in[im]);
     gPullX_sigma_in[im] = new TGraphErrors(nBeamPoints,p_beam,PullX_sigma_in[im],0,erPullX_sigma_in[im]);
-    gPullX_mean_in[im]->SetMarkerStyle(24+im);
-    gPullX_sigma_in[im]->SetMarkerStyle(24+im);
-    gPullX_mean_in[im]->SetMarkerColor(im+5);
-    gPullX_sigma_in[im]->SetMarkerColor(im+5);
+    gPullX_mean_in[im]->SetMarkerStyle(markerstshadd+markerstsh+im);
+    gPullX_sigma_in[im]->SetMarkerStyle(markerstshadd+markerstsh+im);
+    gPullX_mean_in[im]->SetMarkerColor(im+matkercolsh);
+    gPullX_sigma_in[im]->SetMarkerColor(im+matkercolsh);
     gPullX_mean_in[im]->SetMarkerSize(2.0);
     gPullX_sigma_in[im]->SetMarkerSize(2.0); 
     mgPullX_mean->Add(gPullX_mean_in[im],"LP");
@@ -478,20 +488,20 @@ TH1F *hResLumiTrkPhiPull = (TH1F*)fileIN->Get("hResLumiTrkPhiPull");
   
     gPullY_mean[im] = new TGraphErrors(nBeamPoints,p_beam,PullY_mean[im],0,erPullY_mean[im]);
     gPullY_sigma[im] = new TGraphErrors(nBeamPoints,p_beam,PullY_sigma[im],0,erPullY_sigma[im]);
-    gPullY_mean[im]->SetMarkerStyle(20+im);
-    gPullY_sigma[im]->SetMarkerStyle(20+im);
-    gPullY_mean[im]->SetMarkerColor(im+1);
-    gPullY_sigma[im]->SetMarkerColor(im+1);
+    gPullY_mean[im]->SetMarkerStyle(markerstsh+im);
+    gPullY_sigma[im]->SetMarkerStyle(markerstsh+im);
+    gPullY_mean[im]->SetMarkerColor(im+matkercolsh);
+    gPullY_sigma[im]->SetMarkerColor(im+matkercolsh);
     gPullY_mean[im]->SetMarkerSize(2.0);
     gPullY_sigma[im]->SetMarkerSize(2.0);
     mgPullY_mean->Add(gPullY_mean[im],"LP");
     mgPullY_sigma->Add(gPullY_sigma[im],"LP");
     gPullY_mean_in[im] = new TGraphErrors(nBeamPoints,p_beam,PullY_mean_in[im],0,erPullY_mean_in[im]);
     gPullY_sigma_in[im] = new TGraphErrors(nBeamPoints,p_beam,PullY_sigma_in[im],0,erPullY_sigma_in[im]);
-    gPullY_mean_in[im]->SetMarkerStyle(24+im);
-    gPullY_sigma_in[im]->SetMarkerStyle(24+im);
-    gPullY_mean_in[im]->SetMarkerColor(im+5);
-    gPullY_sigma_in[im]->SetMarkerColor(im+5);
+    gPullY_mean_in[im]->SetMarkerStyle(markerstshadd+markerstsh+im);
+    gPullY_sigma_in[im]->SetMarkerStyle(markerstshadd+markerstsh+im);
+    gPullY_mean_in[im]->SetMarkerColor(im+matkercolsh);
+    gPullY_sigma_in[im]->SetMarkerColor(im+matkercolsh);
     gPullY_mean_in[im]->SetMarkerSize(2.0);
     gPullY_sigma_in[im]->SetMarkerSize(2.0);
     mgPullY_mean->Add(gPullY_mean_in[im],"LP");
@@ -500,10 +510,10 @@ TH1F *hResLumiTrkPhiPull = (TH1F*)fileIN->Get("hResLumiTrkPhiPull");
 
     gPullZ_mean[im] = new TGraphErrors(nBeamPoints,p_beam,PullZ_mean[im],0,erPullZ_mean[im]);
     gPullZ_sigma[im] = new TGraphErrors(nBeamPoints,p_beam,PullZ_sigma[im],0,erPullZ_sigma[im]);
-    gPullZ_mean[im]->SetMarkerStyle(20+im);
-    gPullZ_sigma[im]->SetMarkerStyle(20+im);
-    gPullZ_mean[im]->SetMarkerColor(im+1);
-    gPullZ_sigma[im]->SetMarkerColor(im+1);
+    gPullZ_mean[im]->SetMarkerStyle(markerstsh+im);
+    gPullZ_sigma[im]->SetMarkerStyle(markerstsh+im);
+    gPullZ_mean[im]->SetMarkerColor(im+matkercolsh);
+    gPullZ_sigma[im]->SetMarkerColor(im+matkercolsh);
     gPullZ_mean[im]->SetMarkerSize(2.0);
     gPullZ_sigma[im]->SetMarkerSize(2.0);
     mgPullZ_mean->Add(gPullZ_mean[im],"LP");
@@ -512,10 +522,10 @@ TH1F *hResLumiTrkPhiPull = (TH1F*)fileIN->Get("hResLumiTrkPhiPull");
 
     gPullTheta_mean[im] = new TGraphErrors(nBeamPoints,p_beam,PullTheta_mean[im],0,erPullTheta_mean[im]);
     gPullTheta_sigma[im] = new TGraphErrors(nBeamPoints,p_beam,PullTheta_sigma[im],0,erPullTheta_sigma[im]);
-    gPullTheta_mean[im]->SetMarkerStyle(20+im);
-    gPullTheta_sigma[im]->SetMarkerStyle(20+im);
-    gPullTheta_mean[im]->SetMarkerColor(im+1);
-    gPullTheta_sigma[im]->SetMarkerColor(im+1);
+    gPullTheta_mean[im]->SetMarkerStyle(markerstsh+im);
+    gPullTheta_sigma[im]->SetMarkerStyle(markerstsh+im);
+    gPullTheta_mean[im]->SetMarkerColor(im+matkercolsh);
+    gPullTheta_sigma[im]->SetMarkerColor(im+matkercolsh);
     gPullTheta_mean[im]->SetMarkerSize(2.0);
     gPullTheta_sigma[im]->SetMarkerSize(2.0);
     mgPullTheta_mean->Add(gPullTheta_mean[im],"LP");
@@ -523,10 +533,10 @@ TH1F *hResLumiTrkPhiPull = (TH1F*)fileIN->Get("hResLumiTrkPhiPull");
 
     gPullTheta_mean_in[im] = new TGraphErrors(nBeamPoints,p_beam,PullTheta_mean_in[im],0,erPullTheta_mean_in[im]);
     gPullTheta_sigma_in[im] = new TGraphErrors(nBeamPoints,p_beam,PullTheta_sigma_in[im],0,erPullTheta_sigma_in[im]);
-    gPullTheta_mean_in[im]->SetMarkerStyle(24+im);
-    gPullTheta_sigma_in[im]->SetMarkerStyle(24+im);
-    gPullTheta_mean_in[im]->SetMarkerColor(im+5);
-    gPullTheta_sigma_in[im]->SetMarkerColor(im+5);
+    gPullTheta_mean_in[im]->SetMarkerStyle(markerstshadd+markerstsh+im);
+    gPullTheta_sigma_in[im]->SetMarkerStyle(markerstshadd+markerstsh+im);
+    gPullTheta_mean_in[im]->SetMarkerColor(im+matkercolsh);
+    gPullTheta_sigma_in[im]->SetMarkerColor(im+matkercolsh);
     gPullTheta_mean_in[im]->SetMarkerSize(2.0);
     gPullTheta_sigma_in[im]->SetMarkerSize(2.0);
     mgPullTheta_mean->Add(gPullTheta_mean_in[im],"LP");
@@ -535,10 +545,10 @@ TH1F *hResLumiTrkPhiPull = (TH1F*)fileIN->Get("hResLumiTrkPhiPull");
 
     gPullPhi_mean[im] = new TGraphErrors(nBeamPoints,p_beam,PullPhi_mean[im],0,erPullPhi_mean[im]);
     gPullPhi_sigma[im] = new TGraphErrors(nBeamPoints,p_beam,PullPhi_sigma[im],0,erPullPhi_sigma[im]);
-    gPullPhi_mean[im]->SetMarkerStyle(20+im);
-    gPullPhi_sigma[im]->SetMarkerStyle(20+im);
-    gPullPhi_mean[im]->SetMarkerColor(im+1);
-    gPullPhi_sigma[im]->SetMarkerColor(im+1);
+    gPullPhi_mean[im]->SetMarkerStyle(markerstsh+im);
+    gPullPhi_sigma[im]->SetMarkerStyle(markerstsh+im);
+    gPullPhi_mean[im]->SetMarkerColor(im+matkercolsh);
+    gPullPhi_sigma[im]->SetMarkerColor(im+matkercolsh);
     gPullPhi_mean[im]->SetMarkerSize(2.0);
     gPullPhi_sigma[im]->SetMarkerSize(2.0);
     mgPullPhi_mean->Add(gPullPhi_mean[im],"LP");
@@ -546,10 +556,10 @@ TH1F *hResLumiTrkPhiPull = (TH1F*)fileIN->Get("hResLumiTrkPhiPull");
 
     gPullPhi_mean_in[im] = new TGraphErrors(nBeamPoints,p_beam,PullPhi_mean_in[im],0,erPullPhi_mean_in[im]);
     gPullPhi_sigma_in[im] = new TGraphErrors(nBeamPoints,p_beam,PullPhi_sigma_in[im],0,erPullPhi_sigma_in[im]);
-    gPullPhi_mean_in[im]->SetMarkerStyle(24+im);
-    gPullPhi_sigma_in[im]->SetMarkerStyle(24+im);
-    gPullPhi_mean_in[im]->SetMarkerColor(im+5);
-    gPullPhi_sigma_in[im]->SetMarkerColor(im+5);
+    gPullPhi_mean_in[im]->SetMarkerStyle(markerstshadd+markerstsh+im);
+    gPullPhi_sigma_in[im]->SetMarkerStyle(markerstshadd+markerstsh+im);
+    gPullPhi_mean_in[im]->SetMarkerColor(im+matkercolsh);
+    gPullPhi_sigma_in[im]->SetMarkerColor(im+matkercolsh);
     gPullPhi_mean_in[im]->SetMarkerSize(2.0);
     gPullPhi_sigma_in[im]->SetMarkerSize(2.0);
     mgPullPhi_mean->Add(gPullPhi_mean_in[im],"LP");
@@ -557,10 +567,10 @@ TH1F *hResLumiTrkPhiPull = (TH1F*)fileIN->Get("hResLumiTrkPhiPull");
    
     // gPullZ_mean_in[im] = new TGraphErrors(nBeamPoints,p_beam,PullZ_mean_in[im],0,erPullZ_mean_in[im]);
     // gPullZ_sigma_in[im] = new TGraphErrors(nBeamPoints,p_beam,PullZ_sigma_in[im],0,erPullZ_sigma_in[im]);
-    // gPullZ_mean_in[im]->SetMarkerStyle(20+im);
-    // gPullZ_sigma_in[im]->SetMarkerStyle(20+im);
-    // gPullZ_mean_in[im]->SetMarkerColor(im+1);
-    // gPullZ_sigma_in[im]->SetMarkerColor(im+1);
+    // gPullZ_mean_in[im]->SetMarkerStyle(markerstsh+im);
+    // gPullZ_sigma_in[im]->SetMarkerStyle(markerstsh+im);
+    // gPullZ_mean_in[im]->SetMarkerColor(im+matkercolsh);
+    // gPullZ_sigma_in[im]->SetMarkerColor(im+matkercolsh);
     // gPullZ_mean_in[im]->SetMarkerSize(2.0);
     // gPullZ_sigma_in[im]->SetMarkerSize(2.0);
     // mgPullZ_mean_in->Add(gPullZ_mean_in[im],"LP");
@@ -591,22 +601,32 @@ TH1F *hResLumiTrkPhiPull = (TH1F*)fileIN->Get("hResLumiTrkPhiPull");
   TMultiGraph *mgResPz_mean_in = new TMultiGraph("mgResPz_mean_in",""); TMultiGraph *mgResPz_sigma_in = new TMultiGraph("mgResPz_sigma_in","");
 
   for(int im=0;im<nMethods;im++){
+    int markerstsh=20;
+    if(im>3) markerstsh=29;
+    int markerstshadd=4;
+    if(im==3) markerstshadd=32-23;
+    if(im==4) markerstshadd=27-29-4;
+    if(im==5) markerstshadd=28-29-5;
+    //    if(im>3) markerstshadd=-3;
+    int matkercolsh = 1;
+    if(im>4) matkercolsh = 2;
+
     gResPx_mean[im] = new TGraphErrors(nBeamPoints,p_beam,ResPx_mean[im],0,erResPx_mean[im]);
     gResPx_sigma[im] = new TGraphErrors(nBeamPoints,p_beam,ResPx_sigma[im],0,erResPx_sigma[im]);
-    gResPx_mean[im]->SetMarkerStyle(20+im);
-    gResPx_sigma[im]->SetMarkerStyle(20+im);
-    gResPx_mean[im]->SetMarkerColor(im+1);
-    gResPx_sigma[im]->SetMarkerColor(im+1);
+    gResPx_mean[im]->SetMarkerStyle(markerstsh+im);
+    gResPx_sigma[im]->SetMarkerStyle(markerstsh+im);
+    gResPx_mean[im]->SetMarkerColor(im+matkercolsh);
+    gResPx_sigma[im]->SetMarkerColor(im+matkercolsh);
     gResPx_mean[im]->SetMarkerSize(2.0);
     gResPx_sigma[im]->SetMarkerSize(2.0);
     mgResPx_mean->Add(gResPx_mean[im],"LP");
     mgResPx_sigma->Add(gResPx_sigma[im],"LP");
     gResPx_mean_in[im] = new TGraphErrors(nBeamPoints,p_beam,ResPx_mean_in[im],0,erResPx_mean_in[im]);
     gResPx_sigma_in[im] = new TGraphErrors(nBeamPoints,p_beam,ResPx_sigma_in[im],0,erResPx_sigma_in[im]);
-    gResPx_mean_in[im]->SetMarkerStyle(24+im);
-    gResPx_sigma_in[im]->SetMarkerStyle(24+im);
-    gResPx_mean_in[im]->SetMarkerColor(im+5);
-    gResPx_sigma_in[im]->SetMarkerColor(im+5);
+    gResPx_mean_in[im]->SetMarkerStyle(markerstshadd+markerstsh+im);
+    gResPx_sigma_in[im]->SetMarkerStyle(markerstshadd+markerstsh+im);
+    gResPx_mean_in[im]->SetMarkerColor(im+matkercolsh);
+    gResPx_sigma_in[im]->SetMarkerColor(im+matkercolsh);
     gResPx_mean_in[im]->SetMarkerSize(2.0);
     gResPx_sigma_in[im]->SetMarkerSize(2.0);
     mgResPx_mean->Add(gResPx_mean_in[im],"LP");
@@ -614,20 +634,20 @@ TH1F *hResLumiTrkPhiPull = (TH1F*)fileIN->Get("hResLumiTrkPhiPull");
 
     gResPy_mean[im] = new TGraphErrors(nBeamPoints,p_beam,ResPy_mean[im],0,erResPy_mean[im]);
     gResPy_sigma[im] = new TGraphErrors(nBeamPoints,p_beam,ResPy_sigma[im],0,erResPy_sigma[im]);
-    gResPy_mean[im]->SetMarkerStyle(20+im);
-    gResPy_sigma[im]->SetMarkerStyle(20+im);
-    gResPy_mean[im]->SetMarkerColor(im+1);
-    gResPy_sigma[im]->SetMarkerColor(im+1);
+    gResPy_mean[im]->SetMarkerStyle(markerstsh+im);
+    gResPy_sigma[im]->SetMarkerStyle(markerstsh+im);
+    gResPy_mean[im]->SetMarkerColor(im+matkercolsh);
+    gResPy_sigma[im]->SetMarkerColor(im+matkercolsh);
     gResPy_mean[im]->SetMarkerSize(2.0);
     gResPy_sigma[im]->SetMarkerSize(2.0);
     mgResPy_mean->Add(gResPy_mean[im],"LP");
     mgResPy_sigma->Add(gResPy_sigma[im],"LP");
     gResPy_mean_in[im] = new TGraphErrors(nBeamPoints,p_beam,ResPy_mean_in[im],0,erResPy_mean_in[im]);
     gResPy_sigma_in[im] = new TGraphErrors(nBeamPoints,p_beam,ResPy_sigma_in[im],0,erResPy_sigma_in[im]);
-    gResPy_mean_in[im]->SetMarkerStyle(24+im);
-    gResPy_sigma_in[im]->SetMarkerStyle(24+im);
-    gResPy_mean_in[im]->SetMarkerColor(im+5);
-    gResPy_sigma_in[im]->SetMarkerColor(im+5);
+    gResPy_mean_in[im]->SetMarkerStyle(markerstshadd+markerstsh+im);
+    gResPy_sigma_in[im]->SetMarkerStyle(markerstshadd+markerstsh+im);
+    gResPy_mean_in[im]->SetMarkerColor(im+matkercolsh);
+    gResPy_sigma_in[im]->SetMarkerColor(im+matkercolsh);
     gResPy_mean_in[im]->SetMarkerSize(2.0);
     gResPy_sigma_in[im]->SetMarkerSize(2.0);
     mgResPy_mean->Add(gResPy_mean_in[im],"LP");
@@ -635,20 +655,20 @@ TH1F *hResLumiTrkPhiPull = (TH1F*)fileIN->Get("hResLumiTrkPhiPull");
 
     gResPz_mean[im] = new TGraphErrors(nBeamPoints,p_beam,ResPz_mean[im],0,erResPz_mean[im]);
     gResPz_sigma[im] = new TGraphErrors(nBeamPoints,p_beam,ResPz_sigma[im],0,erResPz_sigma[im]);
-    gResPz_mean[im]->SetMarkerStyle(20+im);
-    gResPz_sigma[im]->SetMarkerStyle(20+im);
-    gResPz_mean[im]->SetMarkerColor(im+1);
-    gResPz_sigma[im]->SetMarkerColor(im+1);
+    gResPz_mean[im]->SetMarkerStyle(markerstsh+im);
+    gResPz_sigma[im]->SetMarkerStyle(markerstsh+im);
+    gResPz_mean[im]->SetMarkerColor(im+matkercolsh);
+    gResPz_sigma[im]->SetMarkerColor(im+matkercolsh);
     gResPz_mean[im]->SetMarkerSize(2.0);
     gResPz_sigma[im]->SetMarkerSize(2.0);
     mgResPz_mean->Add(gResPz_mean[im],"LP");
     mgResPz_sigma->Add(gResPz_sigma[im],"LP");
     gResPz_mean_in[im] = new TGraphErrors(nBeamPoints,p_beam,ResPz_mean_in[im],0,erResPz_mean_in[im]);
     gResPz_sigma_in[im] = new TGraphErrors(nBeamPoints,p_beam,ResPz_sigma_in[im],0,erResPz_sigma_in[im]);
-    gResPz_mean_in[im]->SetMarkerStyle(24+im);
-    gResPz_sigma_in[im]->SetMarkerStyle(24+im);
-    gResPz_mean_in[im]->SetMarkerColor(im+5);
-    gResPz_sigma_in[im]->SetMarkerColor(im+5);
+    gResPz_mean_in[im]->SetMarkerStyle(markerstshadd+markerstsh+im);
+    gResPz_sigma_in[im]->SetMarkerStyle(markerstshadd+markerstsh+im);
+    gResPz_mean_in[im]->SetMarkerColor(im+matkercolsh);
+    gResPz_sigma_in[im]->SetMarkerColor(im+matkercolsh);
     gResPz_mean_in[im]->SetMarkerSize(2.0);
     gResPz_sigma_in[im]->SetMarkerSize(2.0);
     mgResPz_mean->Add(gResPz_mean_in[im],"LP");
@@ -656,18 +676,18 @@ TH1F *hResLumiTrkPhiPull = (TH1F*)fileIN->Get("hResLumiTrkPhiPull");
 
     gResX_mean[im] = new TGraphErrors(nBeamPoints,p_beam,ResX_mean[im],0,erResX_mean[im]);
     gResX_sigma[im] = new TGraphErrors(nBeamPoints,p_beam,ResX_sigma[im],0,erResX_sigma[im]);
-    gResX_mean[im]->SetMarkerStyle(20+im);
-    gResX_sigma[im]->SetMarkerStyle(20+im);
-    gResX_mean[im]->SetMarkerColor(im+1);
-    gResX_sigma[im]->SetMarkerColor(im+1);
+    gResX_mean[im]->SetMarkerStyle(markerstsh+im);
+    gResX_sigma[im]->SetMarkerStyle(markerstsh+im);
+    gResX_mean[im]->SetMarkerColor(im+matkercolsh);
+    gResX_sigma[im]->SetMarkerColor(im+matkercolsh);
     gResX_mean[im]->SetMarkerSize(2.0);
     gResX_sigma[im]->SetMarkerSize(2.0);
     gResX_mean_in[im] = new TGraphErrors(nBeamPoints,p_beam,ResX_mean_in[im],0,erResX_mean_in[im]);
     gResX_sigma_in[im] = new TGraphErrors(nBeamPoints,p_beam,ResX_sigma_in[im],0,erResX_sigma_in[im]);
-    gResX_mean_in[im]->SetMarkerStyle(24+im);
-    gResX_sigma_in[im]->SetMarkerStyle(24+im);
-    gResX_mean_in[im]->SetMarkerColor(im+5);
-    gResX_sigma_in[im]->SetMarkerColor(im+5);
+    gResX_mean_in[im]->SetMarkerStyle(markerstshadd+markerstsh+im);
+    gResX_sigma_in[im]->SetMarkerStyle(markerstshadd+markerstsh+im);
+    gResX_mean_in[im]->SetMarkerColor(im+matkercolsh);
+    gResX_sigma_in[im]->SetMarkerColor(im+matkercolsh);
     gResX_mean_in[im]->SetMarkerSize(2.0);
     gResX_sigma_in[im]->SetMarkerSize(2.0); 
     mgResX_mean->Add(gResX_mean_in[im],"LP");
@@ -677,20 +697,20 @@ TH1F *hResLumiTrkPhiPull = (TH1F*)fileIN->Get("hResLumiTrkPhiPull");
   
     gResY_mean[im] = new TGraphErrors(nBeamPoints,p_beam,ResY_mean[im],0,erResY_mean[im]);
     gResY_sigma[im] = new TGraphErrors(nBeamPoints,p_beam,ResY_sigma[im],0,erResY_sigma[im]);
-    gResY_mean[im]->SetMarkerStyle(20+im);
-    gResY_sigma[im]->SetMarkerStyle(20+im);
-    gResY_mean[im]->SetMarkerColor(im+1);
-    gResY_sigma[im]->SetMarkerColor(im+1);
+    gResY_mean[im]->SetMarkerStyle(markerstsh+im);
+    gResY_sigma[im]->SetMarkerStyle(markerstsh+im);
+    gResY_mean[im]->SetMarkerColor(im+matkercolsh);
+    gResY_sigma[im]->SetMarkerColor(im+matkercolsh);
     gResY_mean[im]->SetMarkerSize(2.0);
     gResY_sigma[im]->SetMarkerSize(2.0);
     mgResY_mean->Add(gResY_mean[im],"LP");
     mgResY_sigma->Add(gResY_sigma[im],"LP");
     gResY_mean_in[im] = new TGraphErrors(nBeamPoints,p_beam,ResY_mean_in[im],0,erResY_mean_in[im]);
     gResY_sigma_in[im] = new TGraphErrors(nBeamPoints,p_beam,ResY_sigma_in[im],0,erResY_sigma_in[im]);
-    gResY_mean_in[im]->SetMarkerStyle(24+im);
-    gResY_sigma_in[im]->SetMarkerStyle(24+im);
-    gResY_mean_in[im]->SetMarkerColor(im+5);
-    gResY_sigma_in[im]->SetMarkerColor(im+5);
+    gResY_mean_in[im]->SetMarkerStyle(markerstshadd+markerstsh+im);
+    gResY_sigma_in[im]->SetMarkerStyle(markerstshadd+markerstsh+im);
+    gResY_mean_in[im]->SetMarkerColor(im+matkercolsh);
+    gResY_sigma_in[im]->SetMarkerColor(im+matkercolsh);
     gResY_mean_in[im]->SetMarkerSize(2.0);
     gResY_sigma_in[im]->SetMarkerSize(2.0);
     mgResY_mean->Add(gResY_mean_in[im],"LP");
@@ -699,10 +719,10 @@ TH1F *hResLumiTrkPhiPull = (TH1F*)fileIN->Get("hResLumiTrkPhiPull");
 
     gResZ_mean[im] = new TGraphErrors(nBeamPoints,p_beam,ResZ_mean[im],0,erResZ_mean[im]);
     gResZ_sigma[im] = new TGraphErrors(nBeamPoints,p_beam,ResZ_sigma[im],0,erResZ_sigma[im]);
-    gResZ_mean[im]->SetMarkerStyle(20+im);
-    gResZ_sigma[im]->SetMarkerStyle(20+im);
-    gResZ_mean[im]->SetMarkerColor(im+1);
-    gResZ_sigma[im]->SetMarkerColor(im+1);
+    gResZ_mean[im]->SetMarkerStyle(markerstsh+im);
+    gResZ_sigma[im]->SetMarkerStyle(markerstsh+im);
+    gResZ_mean[im]->SetMarkerColor(im+matkercolsh);
+    gResZ_sigma[im]->SetMarkerColor(im+matkercolsh);
     gResZ_mean[im]->SetMarkerSize(2.0);
     gResZ_sigma[im]->SetMarkerSize(2.0);
     mgResZ_mean->Add(gResZ_mean[im],"LP");
@@ -711,20 +731,20 @@ TH1F *hResLumiTrkPhiPull = (TH1F*)fileIN->Get("hResLumiTrkPhiPull");
 
     gResTheta_mean[im] = new TGraphErrors(nBeamPoints,p_beam,ResTheta_mean[im],0,erResTheta_mean[im]);
     gResTheta_sigma[im] = new TGraphErrors(nBeamPoints,p_beam,ResTheta_sigma[im],0,erResTheta_sigma[im]);
-    gResTheta_mean[im]->SetMarkerStyle(20+im);
-    gResTheta_sigma[im]->SetMarkerStyle(20+im);
-    gResTheta_mean[im]->SetMarkerColor(im+1);
-    gResTheta_sigma[im]->SetMarkerColor(im+1);
+    gResTheta_mean[im]->SetMarkerStyle(markerstsh+im);
+    gResTheta_sigma[im]->SetMarkerStyle(markerstsh+im);
+    gResTheta_mean[im]->SetMarkerColor(im+matkercolsh);
+    gResTheta_sigma[im]->SetMarkerColor(im+matkercolsh);
     gResTheta_mean[im]->SetMarkerSize(2.0);
     gResTheta_sigma[im]->SetMarkerSize(2.0);
     mgResTheta_mean->Add(gResTheta_mean[im],"LP");
     mgResTheta_sigma->Add(gResTheta_sigma[im],"LP");
     gResTheta_mean_in[im] = new TGraphErrors(nBeamPoints,p_beam,ResTheta_mean_in[im],0,erResTheta_mean_in[im]);
     gResTheta_sigma_in[im] = new TGraphErrors(nBeamPoints,p_beam,ResTheta_sigma_in[im],0,erResTheta_sigma_in[im]);
-    gResTheta_mean_in[im]->SetMarkerStyle(24+im);
-    gResTheta_sigma_in[im]->SetMarkerStyle(24+im);
-    gResTheta_mean_in[im]->SetMarkerColor(im+5);
-    gResTheta_sigma_in[im]->SetMarkerColor(im+5);
+    gResTheta_mean_in[im]->SetMarkerStyle(markerstshadd+markerstsh+im);
+    gResTheta_sigma_in[im]->SetMarkerStyle(markerstshadd+markerstsh+im);
+    gResTheta_mean_in[im]->SetMarkerColor(im+matkercolsh);
+    gResTheta_sigma_in[im]->SetMarkerColor(im+matkercolsh);
     gResTheta_mean_in[im]->SetMarkerSize(2.0);
     gResTheta_sigma_in[im]->SetMarkerSize(2.0);
     mgResTheta_mean->Add(gResTheta_mean_in[im],"LP");
@@ -733,20 +753,20 @@ TH1F *hResLumiTrkPhiPull = (TH1F*)fileIN->Get("hResLumiTrkPhiPull");
 
     gResPhi_mean[im] = new TGraphErrors(nBeamPoints,p_beam,ResPhi_mean[im],0,erResPhi_mean[im]);
     gResPhi_sigma[im] = new TGraphErrors(nBeamPoints,p_beam,ResPhi_sigma[im],0,erResPhi_sigma[im]);
-    gResPhi_mean[im]->SetMarkerStyle(20+im);
-    gResPhi_sigma[im]->SetMarkerStyle(20+im);
-    gResPhi_mean[im]->SetMarkerColor(im+1);
-    gResPhi_sigma[im]->SetMarkerColor(im+1);
+    gResPhi_mean[im]->SetMarkerStyle(markerstsh+im);
+    gResPhi_sigma[im]->SetMarkerStyle(markerstsh+im);
+    gResPhi_mean[im]->SetMarkerColor(im+matkercolsh);
+    gResPhi_sigma[im]->SetMarkerColor(im+matkercolsh);
     gResPhi_mean[im]->SetMarkerSize(2.0);
     gResPhi_sigma[im]->SetMarkerSize(2.0);
     mgResPhi_mean->Add(gResPhi_mean[im],"LP");
     mgResPhi_sigma->Add(gResPhi_sigma[im],"LP");
     gResPhi_mean_in[im] = new TGraphErrors(nBeamPoints,p_beam,ResPhi_mean_in[im],0,erResPhi_mean_in[im]);
     gResPhi_sigma_in[im] = new TGraphErrors(nBeamPoints,p_beam,ResPhi_sigma_in[im],0,erResPhi_sigma_in[im]);
-    gResPhi_mean_in[im]->SetMarkerStyle(24+im);
-    gResPhi_sigma_in[im]->SetMarkerStyle(24+im);
-    gResPhi_mean_in[im]->SetMarkerColor(im+5);
-    gResPhi_sigma_in[im]->SetMarkerColor(im+5);
+    gResPhi_mean_in[im]->SetMarkerStyle(markerstshadd+markerstsh+im);
+    gResPhi_sigma_in[im]->SetMarkerStyle(markerstshadd+markerstsh+im);
+    gResPhi_mean_in[im]->SetMarkerColor(im+matkercolsh);
+    gResPhi_sigma_in[im]->SetMarkerColor(im+matkercolsh);
     gResPhi_mean_in[im]->SetMarkerSize(2.0);
     gResPhi_sigma_in[im]->SetMarkerSize(2.0);
     mgResPhi_mean->Add(gResPhi_mean_in[im],"LP");
@@ -754,10 +774,10 @@ TH1F *hResLumiTrkPhiPull = (TH1F*)fileIN->Get("hResLumiTrkPhiPull");
    
     // gResZ_mean_in[im] = new TGraphErrors(nBeamPoints,p_beam,ResZ_mean_in[im],0,erResZ_mean_in[im]);
     // gResZ_sigma_in[im] = new TGraphErrors(nBeamPoints,p_beam,ResZ_sigma_in[im],0,erResZ_sigma_in[im]);
-    // gResZ_mean_in[im]->SetMarkerStyle(20+im);
-    // gResZ_sigma_in[im]->SetMarkerStyle(20+im);
-    // gResZ_mean_in[im]->SetMarkerColor(im+1);
-    // gResZ_sigma_in[im]->SetMarkerColor(im+1);
+    // gResZ_mean_in[im]->SetMarkerStyle(markerstsh+im);
+    // gResZ_sigma_in[im]->SetMarkerStyle(markerstsh+im);
+    // gResZ_mean_in[im]->SetMarkerColor(im+matkercolsh);
+    // gResZ_sigma_in[im]->SetMarkerColor(im+matkercolsh);
     // gResZ_mean_in[im]->SetMarkerSize(2.0);
     // gResZ_sigma_in[im]->SetMarkerSize(2.0);
     // mgResZ_mean_in->Add(gResZ_mean_in[im],"LP");
@@ -773,7 +793,8 @@ TH1F *hResLumiTrkPhiPull = (TH1F*)fileIN->Get("hResLumiTrkPhiPull");
  TString resname_root = resname+".root";
   TFile *fout = new TFile(resname_root,"RECREATE");
 
-  TLegend *leg = new TLegend(0.7,0.6,0.98,0.99);
+  //TLegend *leg = new TLegend(0.7,0.6,0.98,0.99);
+TLegend *leg = new TLegend(0.7,0.2,0.98,0.7);
   leg->SetFillColor(0);
   //   leg->SetHeader("The Legend Title");
   for(int im=0;im<nMethods;im++){
@@ -783,6 +804,7 @@ TH1F *hResLumiTrkPhiPull = (TH1F*)fileIN->Get("hResLumiTrkPhiPull");
     leg->AddEntry(gPullPx_mean[im],MethodName_ext2,"lep");
   }
   TLegend *legsh = new TLegend(0.7,0.65,0.98,0.97);
+  //  TLegend *legsh = new TLegend(0.7,0.35,0.98,0.9);
   legsh->SetFillColor(0);
   //   leg->SetHeader("The Legend Title");
   for(int im=0;im<nMethods;im++){
@@ -809,70 +831,70 @@ TH1F *hResLumiTrkPhiPull = (TH1F*)fileIN->Get("hResLumiTrkPhiPull");
   mgPullPx_mean->Draw("AP");  
   mgPullPx_mean->GetXaxis()->SetTitle("momentum, GeV/c");
   mgPullPx_mean->GetYaxis()->SetTitle("(P^{MC}_{x} - P^{REC}_{x})/#sigma_{Px}, mean");
-  leg->Draw();
+  //leg->Draw();
   perfectmeanval->Draw();
   c1.Print(resname_pdf_o); //write canvas and keep the pdf file open
   c1.Clear();
   mgPullPx_sigma->Draw("AP");
   mgPullPx_sigma->GetXaxis()->SetTitle("momentum, GeV/c");
   mgPullPx_sigma->GetYaxis()->SetTitle("(P^{MC}_{x} - P^{REC}_{x})/#sigma_{Px}, sigma");
-  leg->Draw();
+  //leg->Draw();
   perfectsigmaval->Draw();
   c1.Print(resname_pdf_o); //write canvas and keep the pdf file open
   c1.Clear();
  mgPullPy_mean->Draw("AP");  
  mgPullPy_mean->GetXaxis()->SetTitle("momentum, GeV/c");
  mgPullPy_mean->GetYaxis()->SetTitle("(P^{MC}_{y} - P^{REC}_{y})/#sigma_{Py}, mean");
- leg->Draw();
+ //leg->Draw();
  perfectmeanval->Draw();
   c1.Print(resname_pdf_o); //write canvas and keep the pdf file open
   c1.Clear();
   mgPullPy_sigma->Draw("AP");
   mgPullPy_sigma->GetXaxis()->SetTitle("momentum, GeV/c");
   mgPullPy_sigma->GetYaxis()->SetTitle("(P^{MC}_{y} - P^{REC}_{y})/#sigma_{Py}, sigma");
-  leg->Draw();
+  //leg->Draw();
   perfectsigmaval->Draw();
   c1.Print(resname_pdf_o); //write canvas and keep the pdf file open
   c1.Clear();
   mgPullPz_mean->Draw("AP");  
   mgPullPz_mean->GetXaxis()->SetTitle("momentum, GeV/c");
   mgPullPz_mean->GetYaxis()->SetTitle("(P^{REC}_{z} - P^{MC}_{z})/#sigma_{Pz}, mean");
-  leg->Draw();
+  //leg->Draw();
   perfectmeanval->Draw();
   c1.Print(resname_pdf_o); //write canvas and keep the pdf file open
   c1.Clear();
   mgPullPz_sigma->Draw("AP");
   mgPullPz_sigma->GetXaxis()->SetTitle("momentum, GeV/c");
   mgPullPz_sigma->GetYaxis()->SetTitle("(P^{MC}_{z} - P^{REC}_{z})/#sigma_{Pz}, sigma");
-  leg->Draw();
+  //leg->Draw();
   perfectsigmaval->Draw();
   c1.Print(resname_pdf_o); //write canvas and keep the pdf file open
   c1.Clear();
   mgPullX_mean->Draw("AP");  
   mgPullX_mean->GetXaxis()->SetTitle("momentum, GeV/c");
   mgPullX_mean->GetYaxis()->SetTitle("(X^{MC} - X^{REC})/#sigma_{X}, mean");
-  leg->Draw();
+  //leg->Draw();
   perfectmeanval->Draw();
   c1.Print(resname_pdf_o); //write canvas and keep the pdf file open
   c1.Clear();
   mgPullX_sigma->Draw("AP");
   mgPullX_sigma->GetXaxis()->SetTitle("momentum, GeV/c");
   mgPullX_sigma->GetYaxis()->SetTitle("(X^{MC} - X^{REC})/#sigma_{X}, sigma");
-  leg->Draw();
+  //leg->Draw();
   perfectsigmaval->Draw();
   c1.Print(resname_pdf_o); //write canvas and keep the pdf file open
   c1.Clear();
   mgPullY_mean->Draw("AP");  
   mgPullY_mean->GetXaxis()->SetTitle("momentum, GeV/c");
   mgPullY_mean->GetYaxis()->SetTitle("(Y^{MC} - Y^{REC})/#sigma_{Y}, mean");
-  leg->Draw();
+  //leg->Draw();
   perfectmeanval->Draw();
   c1.Print(resname_pdf_o); //write canvas and keep the pdf file open
   c1.Clear();
   mgPullY_sigma->Draw("AP");
   mgPullY_sigma->GetXaxis()->SetTitle("momentum, GeV/c");
   mgPullY_sigma->GetYaxis()->SetTitle("(Y^{MC} - Y^{REC})/#sigma_{Y}, sigma");
-  leg->Draw();
+  //leg->Draw();
   perfectsigmaval->Draw();
   c1.Print(resname_pdf_o); //write canvas and keep the pdf file open
   c1.Clear();
@@ -890,34 +912,34 @@ TH1F *hResLumiTrkPhiPull = (TH1F*)fileIN->Get("hResLumiTrkPhiPull");
   mgPullZ_sigma->GetXaxis()->SetTitle("momentum, GeV/c");
   mgPullZ_sigma->GetYaxis()->SetTitle("(Z^{MC} - Z^{REC})/#sigma_{Z}, sigma [PCA]");
   perfectsigmaval->Draw();
-  leg->Draw();
+  //leg->Draw();
   c1.Print(resname_pdf_o); //write canvas and keep the pdf file open
   c1.Clear();
   mgPullTheta_mean->Draw("AP");  
   mgPullTheta_mean->GetXaxis()->SetTitle("momentum, GeV/c");
   mgPullTheta_mean->GetYaxis()->SetTitle("(#theta^{MC} - #theta^{REC})/#sigma_{#theta}, mean [PCA]");
-  leg->Draw();
+  //leg->Draw();
   perfectmeanval->Draw();
   c1.Print(resname_pdf_o); //write canvas and keep the pdf file open
   c1.Clear();
   mgPullTheta_sigma->Draw("AP");
   mgPullTheta_sigma->GetXaxis()->SetTitle("momentum, GeV/c");
   mgPullTheta_sigma->GetYaxis()->SetTitle("(#theta^{MC} - #theta^{REC})/#sigma_{#theta}, sigma [PCA]");
-  leg->Draw();
+  //leg->Draw();
   perfectsigmaval->Draw();
   c1.Print(resname_pdf_o); //write canvas and keep the pdf file open
   c1.Clear();
   mgPullPhi_mean->Draw("AP");  
  mgPullPhi_mean->GetXaxis()->SetTitle("momentum, GeV/c");
  mgPullPhi_mean->GetYaxis()->SetTitle("(#phi^{MC} - #phi^{REC})/#sigma_{#phi}, mean [PCA]");
- leg->Draw();
+ //leg->Draw();
  perfectmeanval->Draw();
   c1.Print(resname_pdf_o); //write canvas and keep the pdf file open
   c1.Clear();
   mgPullPhi_sigma->Draw("AP");
  mgPullPhi_sigma->GetXaxis()->SetTitle("momentum, GeV/c");
  mgPullPhi_sigma->GetYaxis()->SetTitle("(#phi^{MC} - #phi^{REC})/#sigma_{#phi}, sigma [PCA]");
- leg->Draw();
+ //leg->Draw();
  perfectsigmaval->Draw();
  c1.Print(resname_pdf_o); //write canvas and keep the pdf file open
   c1.Clear();
@@ -926,49 +948,49 @@ TH1F *hResLumiTrkPhiPull = (TH1F*)fileIN->Get("hResLumiTrkPhiPull");
   mgResPx_mean->Draw("AP");  
   mgResPx_mean->GetXaxis()->SetTitle("momentum, GeV/c");
   mgResPx_mean->GetYaxis()->SetTitle("(P^{MC}_{x} - P^{REC}_{x}), mean, MeV/c");
-  leg->Draw();
+  //leg->Draw();
    
   c1.Print(resname_pdf_o); //write canvas and keep the pdf file open
   c1.Clear();
   mgResPx_sigma->Draw("AP");
   mgResPx_sigma->GetXaxis()->SetTitle("momentum, GeV/c");
   mgResPx_sigma->GetYaxis()->SetTitle("(P^{MC}_{x} - P^{REC}_{x}), sigma, MeV/c");
-  leg->Draw();
+  //leg->Draw();
    
   c1.Print(resname_pdf_o); //write canvas and keep the pdf file open
   c1.Clear();
  mgResPy_mean->Draw("AP");  
  mgResPy_mean->GetXaxis()->SetTitle("momentum, GeV/c");
  mgResPy_mean->GetYaxis()->SetTitle("(P^{MC}_{y} - P^{REC}_{y}), mean, MeV/c");
- leg->Draw();
+ //leg->Draw();
   
   c1.Print(resname_pdf_o); //write canvas and keep the pdf file open
   c1.Clear();
   mgResPy_sigma->Draw("AP");
   mgResPy_sigma->GetXaxis()->SetTitle("momentum, GeV/c");
   mgResPy_sigma->GetYaxis()->SetTitle("(P^{MC}_{y} - P^{REC}_{y}), sigma, MeV/c");
-  leg->Draw();
+  //leg->Draw();
    
   c1.Print(resname_pdf_o); //write canvas and keep the pdf file open
   c1.Clear();
   mgResPz_mean->Draw("AP");  
   mgResPz_mean->GetXaxis()->SetTitle("momentum, GeV/c");
   mgResPz_mean->GetYaxis()->SetTitle("(P^{MC}_{z} - P^{REC}_{z}), mean, MeV/c");
-  leg->Draw();
+  //leg->Draw();
    
   c1.Print(resname_pdf_o); //write canvas and keep the pdf file open
   c1.Clear();
   mgResPz_sigma->Draw("AP");
   mgResPz_sigma->GetXaxis()->SetTitle("momentum, GeV/c");
   mgResPz_sigma->GetYaxis()->SetTitle("(P^{MC}_{z} - P^{REC}_{z}), sigma, MeV/c");
-  leg->Draw();
+  //leg->Draw();
    
   c1.Print(resname_pdf_o); //write canvas and keep the pdf file open
   c1.Clear();
   mgResX_mean->Draw("AP");  
   mgResX_mean->GetXaxis()->SetTitle("momentum, GeV/c");
   mgResX_mean->GetYaxis()->SetTitle("(X^{MC} - X^{REC}), mean, cm");
-  leg->Draw();
+  //leg->Draw();
    
   c1.Print(resname_pdf_o); //write canvas and keep the pdf file open
   c1.Clear();
@@ -977,7 +999,7 @@ TH1F *hResLumiTrkPhiPull = (TH1F*)fileIN->Get("hResLumiTrkPhiPull");
   mgResX_sigma->Draw("AP");
   mgResX_sigma->GetXaxis()->SetTitle("momentum, GeV/c");
   mgResX_sigma->GetYaxis()->SetTitle("(X^{MC} - X^{REC}), sigma, cm");
-  leg->Draw();
+  //leg->Draw();
    
   c1.Print(resname_pdf_o); //write canvas and keep the pdf file open
   c1.Clear();
@@ -985,7 +1007,7 @@ TH1F *hResLumiTrkPhiPull = (TH1F*)fileIN->Get("hResLumiTrkPhiPull");
   mgResY_mean->Draw("AP");  
   mgResY_mean->GetXaxis()->SetTitle("momentum, GeV/c");
   mgResY_mean->GetYaxis()->SetTitle("(Y^{MC} - Y^{REC}), mean, cm");
-  leg->Draw();
+  //leg->Draw();
    
   c1.Print(resname_pdf_o); //write canvas and keep the pdf file open
   c1.Clear();
@@ -993,7 +1015,7 @@ TH1F *hResLumiTrkPhiPull = (TH1F*)fileIN->Get("hResLumiTrkPhiPull");
   mgResY_sigma->Draw("AP");
   mgResY_sigma->GetXaxis()->SetTitle("momentum, GeV/c");
   mgResY_sigma->GetYaxis()->SetTitle("(Y^{MC} - Y^{REC}), sigma, cm");
-  leg->Draw();
+  //leg->Draw();
    
   c1.Print(resname_pdf_o); //write canvas and keep the pdf file open
   c1.Clear();
@@ -1009,7 +1031,7 @@ TH1F *hResLumiTrkPhiPull = (TH1F*)fileIN->Get("hResLumiTrkPhiPull");
   mgResZ_sigma->Draw("AP");
   mgResZ_sigma->GetXaxis()->SetTitle("momentum, GeV/c");
   mgResZ_sigma->GetYaxis()->SetTitle("(Z^{MC} - Z^{REC}), sigma [PCA], cm");
-  leg->Draw();
+  //leg->Draw();
   c1.Print(resname_pdf_o); //write canvas and keep the pdf file open
   c1.Clear();
 
@@ -1017,7 +1039,7 @@ TH1F *hResLumiTrkPhiPull = (TH1F*)fileIN->Get("hResLumiTrkPhiPull");
   mgResTheta_mean->Draw("AP");  
   mgResTheta_mean->GetXaxis()->SetTitle("momentum, GeV/c");
   mgResTheta_mean->GetYaxis()->SetTitle("(#theta^{MC} - #theta^{REC}), mean [PCA], rad");
-  leg->Draw();
+  //leg->Draw();
    
   c1.Print(resname_pdf_o); //write canvas and keep the pdf file open
   c1.Clear();
@@ -1025,7 +1047,7 @@ TH1F *hResLumiTrkPhiPull = (TH1F*)fileIN->Get("hResLumiTrkPhiPull");
   mgResTheta_sigma->Draw("AP");
   mgResTheta_sigma->GetXaxis()->SetTitle("momentum, GeV/c");
   mgResTheta_sigma->GetYaxis()->SetTitle("(#theta^{MC} - #theta^{REC}), sigma [PCA], rad");
-  leg->Draw();
+  //leg->Draw();
    
   c1.Print(resname_pdf_o); //write canvas and keep the pdf file open
   c1.Clear();
@@ -1033,7 +1055,7 @@ TH1F *hResLumiTrkPhiPull = (TH1F*)fileIN->Get("hResLumiTrkPhiPull");
   mgResPhi_mean->Draw("AP");  
  mgResPhi_mean->GetXaxis()->SetTitle("momentum, GeV/c");
  mgResPhi_mean->GetYaxis()->SetTitle("(#phi^{MC} - #phi^{REC}), mean [PCA], rad");
- leg->Draw();
+ //leg->Draw();
   
   c1.Print(resname_pdf_o); //write canvas and keep the pdf file open
   c1.Clear();
@@ -1041,7 +1063,7 @@ TH1F *hResLumiTrkPhiPull = (TH1F*)fileIN->Get("hResLumiTrkPhiPull");
   mgResPhi_sigma->Draw("AP");
  mgResPhi_sigma->GetXaxis()->SetTitle("momentum, GeV/c");
  mgResPhi_sigma->GetYaxis()->SetTitle("(#phi^{MC} - #phi^{REC}), sigma [PCA], rad");
- leg->Draw();
+ //leg->Draw();
   
  // c1.Print(resname_pdf_o); //write canvas and keep the pdf file open
  // c1.Clear();
