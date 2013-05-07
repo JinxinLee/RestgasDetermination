@@ -389,6 +389,7 @@ void PndLmdDim::Generate_rootgeom(TGeoVolume& mothervol, bool misaligned){
 				fgGeoMan->GetMedium("steel"));
 	lmd_vol_box->SetLineColor(11);
 	//lmd_vol_box->SetVisibility(false);//TEST
+	lmd_vol_box->SetTransparency(20);
 	TGeoCombiTrans* comb_trans_lmd_box = new TGeoCombiTrans("comb_trans_lmd_box",
 			0., 0., 2*tube_upstream_length+box_size_z, rot_no);
 	//comb_trans_pipe_upstream->RegisterYourself();
@@ -418,7 +419,7 @@ void PndLmdDim::Generate_rootgeom(TGeoVolume& mothervol, bool misaligned){
 	TGeoVolume *vlum_CaptonCone = new TGeoVolume("vlum_CaptonCone", lmd_capton_cone,
 			fgGeoMan->GetMedium("kapton"));
 	vlum_CaptonCone->SetLineColor(kRed);//39);
-	lmd_vol_vac->AddNode(vlum_CaptonCone, 0, lmd_trans_cap_co);//TEST without cone!!!
+	lmd_vol_vac->AddNode(vlum_CaptonCone, 0, lmd_trans_cap_co);//TEST with/without cone!!!
 	// 10 mu thick kapton foil aluminum coating
 	cone_r_in_upstream = cone_r_in_upstream+cone_thickness;
 	cone_r_in_downstream = cone_r_in_downstream+cone_thickness;
@@ -432,7 +433,7 @@ void PndLmdDim::Generate_rootgeom(TGeoVolume& mothervol, bool misaligned){
 	TGeoVolume *vlum_AlCone = new TGeoVolume("vlum_AlCone", lmd_al_cone,
 			fgGeoMan->GetMedium("Aluminum"));
 	vlum_AlCone->SetLineColor(kGray);//39);
-	lmd_vol_vac->AddNode(vlum_AlCone, 0, lmd_trans_cap_co);
+	lmd_vol_vac->AddNode(vlum_AlCone, 0, lmd_trans_cap_co);//TEST with/without cone!!!
 	// beam pipe to shield the sensors
 	double pipe_inner_r_in = 7./2.;
 	double pipe_inner_length = 50./2.;
