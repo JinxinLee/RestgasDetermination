@@ -22,6 +22,7 @@
 #include "TGraphAsymmErrors.h"
 #include "TMultiGraph.h"
 #include "TH1D.h"
+#include "TH2D.h"
 #include "TF1.h"
 #include "TLatex.h"
 #include "TString.h"
@@ -485,8 +486,8 @@ void PndLmdResultPlotter::fillSinglePad(TCanvas *c,
 }
 
 void PndLmdResultPlotter::fillAcceptanceInPad(
-		acceptance_bundle_1D acceptance_bundle) {
-	TGraphAsymmErrors *acceptance = acceptance_bundle.acceptance;
+		acceptance_bundle acc_bundle) {
+	TGraphAsymmErrors *acceptance = acc_bundle.acceptance_1d;
 
 	acceptance->Draw("AP");
 	acceptance->GetXaxis()->SetTitle("#Theta [mrad]");
@@ -509,9 +510,32 @@ void PndLmdResultPlotter::fillAcceptanceInPad(
 	line->Draw();
 }
 
+void PndLmdResultPlotter::fill2DAcceptanceInPad(
+		acceptance_bundle acc_bundle) {
+	TH2D *acceptance = acc_bundle.acceptance_2d;
+
+	acceptance->Draw("COLZ");
+	acceptance->GetXaxis()->SetTitle("#Theta [mrad]");
+	acceptance->GetYaxis()->SetTitle("#Phi [rad]");
+	acceptance->GetXaxis()->SetTitleSize(text_size2);
+	acceptance->GetYaxis()->SetTitleSize(text_size2);
+	acceptance->GetXaxis()->SetLabelSize(text_size2);
+	acceptance->GetYaxis()->SetLabelSize(text_size2);
+	acceptance->GetYaxis()->SetTitleOffset(1.1);
+
+	if (theta_plot_range_low < theta_plot_range_high) {
+		acceptance->GetXaxis()->SetRangeUser(theta_plot_range_low,
+				theta_plot_range_high);
+	}
+	acceptance->SetMarkerColor(kRed);
+	acceptance->SetMarkerStyle(20);
+
+	gPad->Update();
+}
+
 TCanvas* PndLmdResultPlotter::makeOverviewCanvas(
 		std::vector<PndLmdResultPlotter::graph_bundle_1D> &graph_bundles,
-		acceptance_bundle_1D &acceptance_bundle) {
+		acceptance_bundle &acc_bundle) {
 	TCanvas *c = new TCanvas("c", "c", 1000, 700);
 	c->Divide(3, 2);
 
@@ -541,24 +565,34 @@ TCanvas* PndLmdResultPlotter::makeOverviewCanvas(
 		}
 	}
 	c->cd(5);
-	fillAcceptanceInPad(acceptance_bundle);
+	fillAcceptanceInPad(acc_bundle);
+	if (acc_bundle.is_angular) {
+		c->cd(6);
+		fill2DAcceptanceInPad(acc_bundle);
+	}
 	return c;
 }
 
-PndLmdResultPlotter::acceptance_bundle_1D PndLmdResultPlotter::makeAcceptanceBundle1D(
+PndLmdResultPlotter::acceptance_bundle PndLmdResultPlotter::makeAcceptanceBundle(
 		PndLmdAcceptance* acc, bool is_momentum_transfer) {
-	acceptance_bundle_1D acceptance_bundle;
-	acceptance_bundle.plab = acc->getLabMomentum();
+	acceptance_bundle acc_bundle;
+	acc_bundle.plab = acc->getLabMomentum();
 
 	TEfficiency *eff = acc->getAcceptance1D(is_momentum_transfer); // false = angular acceptance
 	TCanvas c;
 	eff->Draw();
 	c.Update();
-	acceptance_bundle.acceptance = new TGraphAsymmErrors(*eff->GetPaintedGraph());
+	acc_bundle.acceptance_1d = new TGraphAsymmErrors(
+			*eff->GetPaintedGraph());
+	if (!is_momentum_transfer) {
+		eff = acc->getAcceptance2D();
+		eff->Draw("COLZ");
+		c.Update();
+		acc_bundle.acceptance_2d = new TH2D(*(TH2D*)eff->GetPaintedHistogram());
+	}
+	acc_bundle.is_angular = !is_momentum_transfer;
 
-	acceptance_bundle.is_angular = !is_momentum_transfer;
-
-	return acceptance_bundle;
+	return acc_bundle;
 }
 
 /*

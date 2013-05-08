@@ -18,6 +18,7 @@ class PndLmdLumiFitResult;
 class PndLmdLumiFitOptions;
 
 class TH1D;
+class TH2D;
 class TGraph;
 class TGraphErrors;
 class TGraphAsymmErrors;
@@ -42,8 +43,9 @@ public:
 		PndLmdLumiFitOptions* fit_options;
 	};
 
-	struct acceptance_bundle_1D {
-		TGraphAsymmErrors *acceptance;
+	struct acceptance_bundle {
+		TGraphAsymmErrors *acceptance_1d;
+		TH2D *acceptance_2d;
 		double plab;
 		bool is_angular;
 	};
@@ -102,13 +104,15 @@ public:
 	std::vector<PndLmdResultPlotter::graph_bundle_1D> makeGraphBundles1D(
 			PndLmdData *data, PndLmdAcceptance* acc);
 
-	acceptance_bundle_1D makeAcceptanceBundle1D(PndLmdAcceptance* acc,
+	acceptance_bundle makeAcceptanceBundle(PndLmdAcceptance* acc,
 			bool is_momentum_transfer = false);
 
 	std::pair<double, double> calulateLumiRelDiff(double lumi, double lumi_err,
 			double lumi_ref);
 
-	void fillAcceptanceInPad(acceptance_bundle_1D acceptance_bundle);
+	void fillAcceptanceInPad(acceptance_bundle acceptance_bundle);
+
+	void fill2DAcceptanceInPad(acceptance_bundle acceptance_bundle);
 
 	void fillSinglePad(TCanvas *c, graph_bundle_1D graph_bundle, bool log_scale,
 			bool labels_on = true);
@@ -118,7 +122,7 @@ public:
 
 	TCanvas* makeOverviewCanvas(
 			std::vector<PndLmdResultPlotter::graph_bundle_1D> &graph_bundles,
-			acceptance_bundle_1D &acceptance_bundle);
+			acceptance_bundle &acceptance_bundle);
 
 	void makeComparisonCanvas(
 			TString name,
