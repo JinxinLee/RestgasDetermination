@@ -183,10 +183,10 @@ Bool_t PndEmc::ProcessHits(FairVolume* vol) {
 	//determination of SubunitRow and SubunitCol:
 	if (copyNoSub >= 1 && copyNoSub <= 10){       // the middle row of 10 HalfSubunits
 	  SubunitRow = 0;
-	  SubunitCol = pow(-1,1+(copyNoSub-1)/5)*(4+(copyNoSub-1)%5);
+	  SubunitCol = (int) pow(-1.,1+(copyNoSub-1)/5)*(4+(copyNoSub-1)%5);
 	}       
 	else if (copyNoSub > 11 && copyNoSub < 24){ // the upper and lower pipe-region row of 14 HalfSubunits
-	  SubunitRow = pow(-1,(copyNoSub-11)/7)*2;
+	  SubunitRow = (int) pow(-1.,(copyNoSub-11)/7)*2;
 	  SubunitCol = ((copyNoSub-11)%7)-3;
 	}
 	else if ((copyNoSub >= 25 && copyNoSub <= 27) || copyNoSub==57 || copyNoSub==58){ // the outermost left column of 5 HalfSubunits
@@ -205,135 +205,135 @@ Bool_t PndEmc::ProcessHits(FairVolume* vol) {
 	    SubunitRow = RestOfHalfSubunitRowNo[0];
 	  else
 	    SubunitRow = -RestOfHalfSubunitRowNo[0];
-	  SubunitCol = pow(-1,copyNoSub-1)*RestOfHalfSubunitColNo[0];
+	  SubunitCol = (int) pow(-1.,copyNoSub-1)*RestOfHalfSubunitColNo[0];
 	}
 	else if (copyNoSub == 29 || copyNoSub == 38 || copyNoSub == 46 || copyNoSub == 55) { // 4 single peripheral half Subunits
 	  if (copyNoSub <= 38)
 	    SubunitRow = RestOfHalfSubunitRowNo[1];
 	  else
 	    SubunitRow = -RestOfHalfSubunitRowNo[1];
-	  SubunitCol = pow(-1,copyNoSub)*RestOfHalfSubunitColNo[1];  
+	  SubunitCol = (int) pow(-1.,copyNoSub)*RestOfHalfSubunitColNo[1];  
 	}
 	else if (copyNoSub == 30 || copyNoSub == 37 || copyNoSub == 47 || copyNoSub == 54) { // 4 single peripheral half Subunits
 	  if (copyNoSub <= 37)
 	    SubunitRow = RestOfHalfSubunitRowNo[2];
 	  else 
 	    SubunitRow = -RestOfHalfSubunitRowNo[2];
-	  SubunitCol = pow(-1,copyNoSub-1)*RestOfHalfSubunitColNo[2];
+	  SubunitCol = (int) pow(-1.,copyNoSub-1)*RestOfHalfSubunitColNo[2];
 	}
 	else if (copyNoSub == 31 || copyNoSub == 36 || copyNoSub == 48 || copyNoSub == 53) { // 4 single peripheral half Subunits
 	  if (copyNoSub <= 36)
 	    SubunitRow = RestOfHalfSubunitRowNo[3];
 	  else
 	    SubunitRow = -RestOfHalfSubunitRowNo[3];
-	  SubunitCol = pow(-1,copyNoSub)*RestOfHalfSubunitColNo[3];
+	  SubunitCol = (int) pow(-1.,copyNoSub)*RestOfHalfSubunitColNo[3];
 	}
 	else if (copyNoSub == 32 || copyNoSub == 35 || copyNoSub == 49 || copyNoSub == 52) { // 4 single peripheral half Subunits
 	  if (copyNoSub <= 35)
 	    SubunitRow = RestOfHalfSubunitRowNo[4];
 	  else
 	    SubunitRow = -RestOfHalfSubunitRowNo[4];
-	  SubunitCol = pow(-1,copyNoSub-1)*RestOfHalfSubunitColNo[4];
+	  SubunitCol = (int) pow(-1.,copyNoSub-1)*RestOfHalfSubunitColNo[4];
 	}
 	else if (copyNoSub == 33 || copyNoSub == 34 || copyNoSub == 50 || copyNoSub == 51) { // 4 single peripheral half Subunits
 	  if (copyNoSub <= 34)
 	    SubunitRow = RestOfHalfSubunitRowNo[5];
 	  else
 	    SubunitRow = -RestOfHalfSubunitRowNo[5];
-	  SubunitCol = pow(-1,copyNoSub)*RestOfHalfSubunitColNo[5];
+	  SubunitCol = (int) pow(-1.,copyNoSub)*RestOfHalfSubunitColNo[5];
 	}
 	else if (copyNoSub >= 61 && copyNoSub <= 74){ // the middle column of full Subunits
-	  SubunitRow = pow(-1,(copyNoSub-61)/7)*((copyNoSub - 61)%7 + 3);
+	  SubunitRow = (int) pow(-1.,(copyNoSub-61)/7)*((copyNoSub - 61)%7 + 3);
 	  SubunitCol = 0;
 	} 
 	else if (copyNoSub%100 >= 1 && copyNoSub%100 <= 5){ // rest of the full Subunits
 	  if (copyNoSub/100 == 1 || copyNoSub/100 == 4){
 	    SubunitRow = 1;
-	    SubunitCol = pow(-1,1+copyNoSub/100)*(3 + copyNoSub%100);
+	    SubunitCol = (int) pow(-1.,1+copyNoSub/100)*(3 + copyNoSub%100);
 	  }
 	  else {//here necessarily: copyNoSub/100 == 2 || copyNoSub/100 == 3
 	    SubunitRow = -1;
-	    SubunitCol = pow(-1,copyNoSub/100)*(3 + copyNoSub%100);
+	    SubunitCol = (int) pow(-1.,copyNoSub/100)*(3 + copyNoSub%100);
 	  }  
 	}
 	else if (copyNoSub%100 >= 6 && copyNoSub%100 <= 11){ // rest of the full Subunits
 	  if (copyNoSub/100 == 1 || copyNoSub/100 == 4){
 	    SubunitRow = 2;
-	    SubunitCol = pow(-1,1+copyNoSub/100)*(2 + copyNoSub%100 - 5);
+	    SubunitCol = (int) pow(-1.,1+copyNoSub/100)*(2 + copyNoSub%100 - 5);
 	  }
 	  else {//here necessarily: copyNoSub/100 == 2 || copyNoSub/100 == 3
 	    SubunitRow = -2;
-	    SubunitCol = pow(-1,copyNoSub/100)*(2 + copyNoSub%100 - 5);
+	    SubunitCol = (int) pow(-1.,copyNoSub/100)*(2 + copyNoSub%100 - 5);
 	  }  
 	}      
 	else if (copyNoSub%100 >= 12 && copyNoSub%100 <= 19){ // rest of the full Subunits
 	  if (copyNoSub/100 == 1 || copyNoSub/100 == 4){
 	    SubunitRow = 3;
-	    SubunitCol = pow(-1,1+copyNoSub/100)*(copyNoSub%100 - 11);
+	    SubunitCol = (int) pow(-1.,1+copyNoSub/100)*(copyNoSub%100 - 11);
 	  }
 	  else {//here necessarily: copyNoSub/100 == 2 || copyNoSub/100 == 3
 	    SubunitRow = -3;
-	    SubunitCol = pow(-1,copyNoSub/100)*(copyNoSub%100 - 11);
+	    SubunitCol = (int) pow(-1.,copyNoSub/100)*(copyNoSub%100 - 11);
 	  }  
 	}
 	else if (copyNoSub%100 >= 20 && copyNoSub%100 <= 27){ // rest of the full Subunits
 	  if (copyNoSub/100 == 1 || copyNoSub/100 == 4){
 	    SubunitRow = 4;
-	    SubunitCol = pow(-1,1+copyNoSub/100)*(copyNoSub%100 - 19);
+	    SubunitCol = (int) pow(-1.,1+copyNoSub/100)*(copyNoSub%100 - 19);
 	  }
 	  else {//here necessarily: copyNoSub/100 == 2 || copyNoSub/100 == 3
 	    SubunitRow = -4;
-	    SubunitCol = pow(-1,copyNoSub/100)*(copyNoSub%100 - 19);
+	    SubunitCol = (int) pow(-1.,copyNoSub/100)*(copyNoSub%100 - 19);
 	  }  
 	}
 	else if (copyNoSub%100 >= 28 && copyNoSub%100 <= 34){ // rest of the full Subunits
 	  if (copyNoSub/100 == 1 || copyNoSub/100 == 4){
 	    SubunitRow = 5;
-	    SubunitCol = pow(-1,1+copyNoSub/100)*(copyNoSub%100 - 27);
+	    SubunitCol = (int) pow(-1.,1+copyNoSub/100)*(copyNoSub%100 - 27);
 	  }
 	  else {//here necessarily: copyNoSub/100 == 2 || copyNoSub/100 == 3
 	    SubunitRow = -5;
-	    SubunitCol = pow(-1,copyNoSub/100)*(copyNoSub%100 - 27);
+	    SubunitCol = (int) pow(-1.,copyNoSub/100)*(copyNoSub%100 - 27);
 	  }  
 	}
 	else if (copyNoSub%100 >= 35 && copyNoSub%100 <= 40){ // rest of the full Subunits
 	  if (copyNoSub/100 == 1 || copyNoSub/100 == 4){
 	     SubunitRow = 6;
-	     SubunitCol = pow(-1,1+copyNoSub/100)*(copyNoSub%100 - 34);
+	     SubunitCol = (int) pow(-1.,1+copyNoSub/100)*(copyNoSub%100 - 34);
 	  }
 	  else {//here necessarily: copyNoSub/100 == 2 || copyNoSub/100 == 3
 	     SubunitRow = -6;
-	     SubunitCol = pow(-1,copyNoSub/100)*(copyNoSub%100 - 34);
+	     SubunitCol = (int) pow(-1.,copyNoSub/100)*(copyNoSub%100 - 34);
 	  }  
 	}
 	else if (copyNoSub%100 >= 41 && copyNoSub%100 <= 45){ // rest of the full Subunits
 	  if (copyNoSub/100 == 1 || copyNoSub/100 == 4){
 	    SubunitRow = 7;
-	    SubunitCol = pow(-1,1+copyNoSub/100)*(copyNoSub%100 - 40);
+	    SubunitCol = (int) pow(-1.,1+copyNoSub/100)*(copyNoSub%100 - 40);
 	  }
 	  else {//here necessarily: copyNoSub/100 == 2 || copyNoSub/100 == 3
 	    SubunitRow = -7;
-	    SubunitCol = pow(-1,copyNoSub/100)*(copyNoSub%100 - 40);
+	    SubunitCol = (int) pow(-1.,copyNoSub/100)*(copyNoSub%100 - 40);
 	  }  
 	}
 	else if (copyNoSub%100 >= 46 && copyNoSub%100 <= 49){ // rest of the full Subunits
 	  if (copyNoSub/100 == 1 || copyNoSub/100 == 4){
 	    SubunitRow = 8;
-	    SubunitCol = pow(-1,1+copyNoSub/100)*(copyNoSub%100 - 45);
+	    SubunitCol = (int) pow(-1.,1+copyNoSub/100)*(copyNoSub%100 - 45);
 	  }
 	  else {//here necessarily: copyNoSub/100 == 2 || copyNoSub/100 == 3
 	    SubunitRow = -8;
-	    SubunitCol = pow(-1,copyNoSub/100)*(copyNoSub%100 - 45);
+	    SubunitCol = (int) pow(-1.,copyNoSub/100)*(copyNoSub%100 - 45);
 	  }  
 	}
 	else if (copyNoSub%100 == 50 ){ // rest of the full Subunits
 	  if (copyNoSub/100 == 1 || copyNoSub/100 == 4){
 	    SubunitRow = 9;
-	    SubunitCol = pow(-1,1+copyNoSub/100);
+	    SubunitCol = (int) pow(-1.,1+copyNoSub/100);
 	  }
 	  else {//here necessarily: copyNoSub/100 == 2 || copyNoSub/100 == 3
 	    SubunitRow = -9;
-	    SubunitCol = pow(-1,copyNoSub/100);
+	    SubunitCol = (int) pow(-1.,copyNoSub/100);
 	  }  
 	}
 	
@@ -1621,6 +1621,5 @@ void PndEmc::SetSpecialPhysicsCuts(){
   }
 }
 // ----
-
 
 ClassImp(PndEmc)
