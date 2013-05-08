@@ -37,6 +37,8 @@ InitStatus PndMCIdealTrackFinder::Init()
 
   	 fTrackCand = new TClonesArray("PndTrackCand");
   	 ioman->Register("PndIdealTrackCand", "MC", fTrackCand, kTRUE);
+
+  	 return kSUCCESS;
 }
 
 void PndMCIdealTrackFinder::Exec(Option_t* opt)
