@@ -80,6 +80,8 @@ public:
   void calcStartStopAlpha();
   double calcAlpha(PndRiemannHit* myHit);
 
+  void calcSForHits();
+
   int calcIntersection(PndRiemannTrack& track, TVector3& p1, TVector3& p2);
 
   void sortHits(){ std::sort(fHits.begin(), fHits.end());}

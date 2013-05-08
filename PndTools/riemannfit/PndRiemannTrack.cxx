@@ -305,6 +305,8 @@ PndRiemannTrack::refit(bool withErrorCalc)
   fSZFitDone = false;
   ftrefit = true;
 
+  calcSForHits();
+
   sortHits();
   calcStartStopAlpha();
 }
@@ -351,18 +353,25 @@ PndRiemannTrack::szFit(bool withErrorCalc){
 	if (fFitDone == false)
 		refit(withErrorCalc);
   unsigned int num=getNumHits();
+  fVerbose=2;
   if (fVerbose > 1) std::cout << "szFit() for " << num << " Points!" << std::endl;
   if (r() > 0) {
 
 	  TGraph g(num);
 	  // get s'es and zs
+	  int j=0;
 	  for(unsigned int i=0;i<num;++i){
-		if (fVerbose > 1) std::cout << "Point: " << i << ": ";
+		if (fVerbose > 1) std::cout << "Point: " << i << ": " << fHits[i].hit()->GetEntryNr() << " ";
+		if (fHits[i].hit()->GetEntryNr().GetType() == FairRootManager::Instance()->GetBranchId("STTHit")){
+			std::cout << std::endl;
+			continue;
+		}
 		fHits[i].calcPosOnTrk(this);
 		if (fVerbose > 1) std::cout << fHits[i].s() << " " << fHits[i].z() << std::endl;
-		g.SetPoint(i,fHits[i].s(),fHits[i].z());
-
+		g.SetPoint(j,fHits[i].s(),fHits[i].z());
+		j++;
 	  }
+	  g.Set(j);
 		g.Fit("pol1","Q0"); // << std::endl;
 		  TF1* f = g.GetFunction("pol1");
 		  //std::cout << "f: " << f << std::endl;
@@ -370,7 +379,7 @@ PndRiemannTrack::szFit(bool withErrorCalc){
 		  fm = f->GetParameter(1);
 		  ftError = f->GetParError(0);
 		  fmError = f->GetParError(1);
-		  fChi2   = f->GetChisquare();
+		  fChi2   = f->GetChisquare()/f->GetNDF();
 		  fSZFitDone = true;
   } else {
 	  ft = 0;
@@ -385,35 +394,40 @@ PndRiemannTrack::szFit(bool withErrorCalc){
 
   }
   if (fVerbose > 1) std::cout << "t, m: " << ft << " +/- " << ftError << " / " << fm << " +/- " << fmError << " Chi2: " << fChi2 << std::endl;
+  fVerbose=0;
   return;
 }
 
 double
 PndRiemannTrack::calcSZChi2(PndRiemannHit* hit){
   // get s'es and zs
-	TF1* f;
+	TF1* f = 0;
+	fVerbose = 2;
 	if (fFitDone == false)
 		refit ();
 	if (r() > 0) {
 		unsigned int num = getNumHits();
 		if (fVerbose > 1)
-			std::cout << "szChi2Fit(hit) for " << num + 1 << " Points!"
-					<< std::endl;
+			std::cout << "szChi2Fit(hit) for " << num + 1 << " Points!"	<< std::endl;
 		TGraph g(num + 1);
+		int j = 0;
 		for (unsigned int i = 0; i < num; ++i) {
-			if (fVerbose > 1)
-				std::cout << "Point: " << i << ": ";
+			if (fHits[i].hit()->GetEntryNr().GetType() == FairRootManager::Instance()->GetBranchId("STTHit")){
+				continue;
+			}
 			fHits[i].calcPosOnTrk(this);
 			if (fVerbose > 1)
-				std::cout << fHits[i].s() << " " << fHits[i].z() << std::endl;
-			g.SetPoint(i, fHits[i].s(), fHits[i].z());
+				std::cout << "Point: " << j << ": " << fHits[i].hit()->GetEntryNr() << " " <<  fHits[i].s() << " " << fHits[i].z() << std::endl;
+			g.SetPoint(j, fHits[i].s(), fHits[i].z());
+			j++;
 		}
 		if (fVerbose > 1)
 			std::cout << "Additional hit: ";
 		hit->calcPosOnTrk(this);
 		if (fVerbose > 1)
 			std::cout << hit->s() << " " << hit->z() << std::endl;
-		g.SetPoint(num, hit->s(), hit->z());
+		g.SetPoint(j, hit->s(), hit->z());
+		g.Set(j+1);
 		g.Fit("pol1", "Q0");
 		f = g.GetFunction("pol1");
 
@@ -423,12 +437,13 @@ PndRiemannTrack::calcSZChi2(PndRiemannHit* hit){
 					<< f->GetParError(0) << " / " << f->GetParameter(1)
 					<< " +/- " << f->GetParError(1) << "Chi2: "
 					<< f->GetChisquare() << std::endl;
+
+		return f->GetChisquare() / f->GetNDF();
 		//  delete(f);
 	} else {
 		std::cout << "-W- PndRiemannTrack::calcSZChi2 r == 0: " << *this << std::endl;
 		return -1;
 	}
-	return f->GetChisquare();
 }
 
 double PndRiemannTrack::calcZPosByS(double s)
@@ -788,6 +803,13 @@ double PndRiemannTrack::calcAlpha(PndRiemannHit* myHit)
 	return myVector.Phi();
 }
 
+void PndRiemannTrack::calcSForHits(){
+	for (int i = 0; i < fHits.size(); i++){
+		fHits[i].calcPosOnTrk(this);
+	}
+	sortHits();
+}
+
 // only after szFit!
 double
 PndRiemannTrack::dip() {
@@ -987,6 +1009,6 @@ void PndRiemannTrack::PrintHits()
 {
 	std::cout << "-I- PndRiemannTrack::PrintHits:" << std::endl;
 	for (int i = 0; i < fHits.size(); i++){
-		std::cout << i << ": " << fHits[i].x().X() << " " << fHits[i].x().Y() << " " << fHits[i].z() << " s: " << fHits[i].s() << std::endl;
+		std::cout << i << ": " << fHits[i].hit()->GetEntryNr() << " : "<< fHits[i].x().X() << " " << fHits[i].x().Y() << " " << fHits[i].z() << " s: " << fHits[i].s() << std::endl;
 	}
 }

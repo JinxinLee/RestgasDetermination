@@ -6,7 +6,7 @@
 ClassImp(PndRiemannTrackFinder);
 
 PndRiemannTrackFinder::PndRiemannTrackFinder(): fMaxPlaneDist(1), fMaxSZDist(1), fMaxSZChi2(1),
-fMinPointDist(1), fUseZeroPos(true), fCurvDiff(0.05), fDipDiff(0.05),fMinNumberOfHits(4), fVerbose(0), fMagField(2.0)
+fMinPointDist(1), fUseZeroPos(false), fCurvDiff(0.05), fDipDiff(0.05),fMinNumberOfHits(4), fVerbose(0), fMagField(2.0)
 {
 	if (fUseZeroPos){
 		TVector3 pos(0.0,0.0,0.0);
@@ -288,8 +288,8 @@ PndRiemannTrack PndRiemannTrackFinder::CreateRiemannTrack(std::vector<Int_t> aHi
 		PndRiemannHit hit(fHits[aHits[i]], aHits[i]);
 		result.addHit(hit);
 	}
-	result.refit();
-	result.szFit();
+	result.refit(false);
+	result.szFit(false);
 	return result;
 }
 
@@ -499,7 +499,8 @@ bool PndRiemannTrackFinder::TrackExists(std::vector<Int_t> hitsInTrack){
 	bool oneNumberEqual = false;
 
 	//if (fVerbose > 2) std::cout << "TrackExists: fHitsInTrack.size: " << fHitsInTracks.size() << std::endl;
-	for (int i = 0; (i < fHitsInTracks.size()); i++){														//run through tracks in trackList
+	int i = 0;
+	for (i = 0; (i < fHitsInTracks.size()); i++){														//run through tracks in trackList
 		for (int k = 0; (k < hitsInTrack.size()&&(result == true)); k++){									//run through all hits in test track
 			for (int j = 0; (j < fHitsInTracks[i].size()) && (oneNumberEqual == false); j++){				//run through all hits in selected track
 				//if (fVerbose > 2) std::cout << hitsInTrack[k] << " ?= " << fHitsInTracks[i][j] << std::endl;
@@ -511,7 +512,12 @@ bool PndRiemannTrackFinder::TrackExists(std::vector<Int_t> hitsInTrack){
 			oneNumberEqual = false;
 		}
 		if (result == true) {
-			if (fVerbose > 1) std::cout << "Track exists already!" << std::endl;
+			if (fVerbose > 1){
+				std::cout << "Track exists already!" << std::endl;
+				for (int l = 0; l < fHitsInTracks[i].size(); l++)
+					std::cout << " " << fHitsInTracks[i][l];
+				std::cout << std::endl;
+			}
 			return true;
 		}
 		result = true;
