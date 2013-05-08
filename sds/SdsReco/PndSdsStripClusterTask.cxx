@@ -549,7 +549,7 @@ void PndSdsStripClusterTask::FillClusterFinders()
   for (Int_t iDigi = 0; iDigi < fDigiArray->GetEntriesFast(); iDigi++)
   { // sort digis by sensor name and stripnumber
     myDigi = (PndSdsDigiStrip*)(fDigiArray->At(iDigi));
-    if(fVerbose>2) {std::cout<<"Digi "<<iDigi<<" "; myDigi->Print();}
+    if(fVerbose>2) {std::cout<<"Digi "<<iDigi<<" "; myDigi->Print(); std::cout << fGeoH->GetPath(myDigi->GetSensorID()) << std::endl;}
     sensorID = myDigi->GetSensorID();
     tester=SelectSensorParams(sensorID);
     if (kFALSE==tester) continue; // Invalid parameters, skip here.
