@@ -13,6 +13,7 @@
 #include "FairTrackParP.h"
 #include "PndDetectorList.h"
 #include "FairTimeStamp.h"
+#include "TRef.h"
 
 
 class PndTrack : public FairTimeStamp{
@@ -36,6 +37,8 @@ public:
     void SetRefIndex(TString branch, Int_t i)        { fRefIndex=i; SetLink(FairLink(branch, i)); }
     void SetRefIndex(Int_t i){fRefIndex = i;}
 	void SetTrackCand(const PndTrackCand& cand) { fTrackCand = cand; };
+	void SetTrackCandRef(PndTrackCand* candPointer){ fRefToPndTrackCand = candPointer; }
+	PndTrackCand* GetPndTrackCandViaRef(){ return (PndTrackCand*)fRefToPndTrackCand.GetObject();}
 	
 	PndTrackCand GetTrackCand()      { return fTrackCand; }
 	PndTrackCand* GetTrackCandPtr()  { return &fTrackCand; }
@@ -47,6 +50,7 @@ private:
 	FairTrackParP fTrackParamLast;
 
 	PndTrackCand fTrackCand;
+	TRef fRefToPndTrackCand;
 
 	Int_t fPidHypo;
 	Int_t fFlag;
