@@ -51,7 +51,8 @@ void PndMCIdealTrackFinder::Exec(Option_t* opt)
 
 	for (int trackIndex = 0; trackIndex < myResult.GetNEntries(); trackIndex++){
 		PndMCEntry myEntry = myResult.GetEntry(trackIndex);
-		if (myEntry.GetNLinks() > 1){
+		myEntry.RemoveType(FairRootManager::Instance()->GetBranchId("MCTrack"));
+		if (myEntry.GetNLinks() > 0){
 			PndTrackCand* myTrackCand = new((*fTrackCand)[fTrackCand->GetEntriesFast()]) PndTrackCand;
 			for (int entryIndex = 0; entryIndex < myEntry.GetNLinks(); entryIndex++)
 				if (myEntry.GetLink(entryIndex).GetType() > 0)
