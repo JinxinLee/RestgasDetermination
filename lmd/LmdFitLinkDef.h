@@ -18,6 +18,6 @@
 #pragma link C++ class std::map<PndLmdAcceptance*, std::vector<PndLmdLumiFitResult*> >+;
 #pragma link C++ class std::map<PndLmdAcceptance*, std::vector<PndLmdLumiFitResult*> >::iterator;
 #pragma link C++ class std::vector < PndLmdResultPlotter::graph_bundle_1D >+;
-#pragma link C++ class PndLmdResultPlotter::acceptance_bundle_1D;
+#pragma link C++ class PndLmdResultPlotter::acceptance_bundle;
 
 #endif
