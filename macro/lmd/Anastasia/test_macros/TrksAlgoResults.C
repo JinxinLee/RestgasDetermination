@@ -18,59 +18,59 @@ using namespace std;
 void TrksAlgoResults(TString storePath="/home/karavdin/datastorage/TrackPerformancePixel/1000000/")
 {
 
-  gROOT->Macro("/home/karavdin/pandaRoot12/macro/lmd/Style_Imported_Style.C");
+  gROOT->Macro("/panda/pandaroot/macro/lmd/Anastasia/test_macros/Style_Imported_Style.C");
   gROOT->SetStyle("Imported_Style"); 
-
+  const int numTrks = 9;
   // double Ntrks[8]={1,2,3,4,5,10,15,20};
-  double Ntrks[7]={1,2,3,4,5,10,15};
-  double eNtrks[7]={0,0,0,0,0,0,0};
+  double Ntrks[numTrks]={1,2,3,4,5,7,10,15,20};
+  double eNtrks[numTrks]={0,0,0,0,0,0,0};
   //Track-Follow
-  double reconstF[7];//number of reconstructed tracks
-  double ghostF_I[7]; //percent of ghost tracks
-  double missedF_I[7]; //percent of missed tracks
-  double ghostF_II[7]; //percent of ghost tracks
-  double missedF_II[7]; //percent of missed tracks
+  double reconstF[numTrks];//number of reconstructed tracks
+  double ghostF_I[numTrks]; //percent of ghost tracks
+  double missedF_I[numTrks]; //percent of missed tracks
+  double ghostF_II[numTrks]; //percent of ghost tracks
+  double missedF_II[numTrks]; //percent of missed tracks
 
-  double ghostF_I_mean[7]; //average of ghost tracks
-  double missedF_I_mean[7]; //average of missed tracks
-  double ghostF_II_mean[7]; //average of ghost tracks
-  double missedF_II_mean[7]; //average of missed tracks
-  double ghostF_I_rms[7]; //rms average of ghost tracks
-  double missedF_I_rms[7]; //rms average of missed tracks
-  double ghostF_II_rms[7]; //rms average of ghost tracks
-  double missedF_II_rms[7]; //rms average of missed tracks
-  double goodF_I_mean[7]; //average of good tracks
-  double goodF_II_mean[7]; //average of good tracks
+  double ghostF_I_mean[numTrks]; //average of ghost tracks
+  double missedF_I_mean[numTrks]; //average of missed tracks
+  double ghostF_II_mean[numTrks]; //average of ghost tracks
+  double missedF_II_mean[numTrks]; //average of missed tracks
+  double ghostF_I_rms[numTrks]; //rms average of ghost tracks
+  double missedF_I_rms[numTrks]; //rms average of missed tracks
+  double ghostF_II_rms[numTrks]; //rms average of ghost tracks
+  double missedF_II_rms[numTrks]; //rms average of missed tracks
+  double goodF_I_mean[numTrks]; //average of good tracks
+  double goodF_II_mean[numTrks]; //average of good tracks
 
 
   //time spent per 1 trk reconstruction , ms
-  //double timeF[7]={7.73,8.97,10.41,11.71,13.95,24.46,39.42};// strip, 15 GeV
-  //double timeF[7]={7.75,9.14,10.76,12.42,14.05,24.02,43.3};// strip, 1.5 GeV
-  double timeF[7]={7.5,9.11,10.84,12.16,13.94,22.05,30.3};// pixel, 15 GeV
+  //double timeF[numTrks]={7.73,8.97,10.41,11.71,13.95,24.46,39.42};// strip, 15 GeV
+  //double timeF[numTrks]={7.75,9.14,10.76,12.42,14.05,24.02,43.3};// strip, 1.5 GeV
+  double timeF[numTrks]={7.5,9.11,10.84,12.16,13.94,22.05,30.3};// pixel, 15 GeV
   //Cellular Automaton
-  double reconstCA[7];//number of reconstructed tracks
-  double ghostCA_I[7]; //percent of ghost tracks
-  double missedCA_I[7]; //percent of missed tracks
-  double ghostCA_II[7]; //percent of ghost tracks
-  double missedCA_II[7]; //percent of missed tracks
+  double reconstCA[numTrks];//number of reconstructed tracks
+  double ghostCA_I[numTrks]; //percent of ghost tracks
+  double missedCA_I[numTrks]; //percent of missed tracks
+  double ghostCA_II[numTrks]; //percent of ghost tracks
+  double missedCA_II[numTrks]; //percent of missed tracks
 
-  double ghostCA_I_mean[7]; //average of ghost tracks
-  double missedCA_I_mean[7]; //average of missed tracks
-  double ghostCA_II_mean[7]; //average of ghost tracks
-  double missedCA_II_mean[7]; //average of missed tracks
-  double ghostCA_I_rms[7]; //rms average of ghost tracks
-  double missedCA_I_rms[7]; //rms average of missed tracks
-  double ghostCA_II_rms[7]; //rms average of ghost tracks
-  double missedCA_II_rms[7]; //rms average of missed tracks
-  double goodCA_I_mean[7]; //average of good tracks
-  double goodCA_II_mean[7]; //average of good tracks
+  double ghostCA_I_mean[numTrks]; //average of ghost tracks
+  double missedCA_I_mean[numTrks]; //average of missed tracks
+  double ghostCA_II_mean[numTrks]; //average of ghost tracks
+  double missedCA_II_mean[numTrks]; //average of missed tracks
+  double ghostCA_I_rms[numTrks]; //rms average of ghost tracks
+  double missedCA_I_rms[numTrks]; //rms average of missed tracks
+  double ghostCA_II_rms[numTrks]; //rms average of ghost tracks
+  double missedCA_II_rms[numTrks]; //rms average of missed tracks
+  double goodCA_I_mean[numTrks]; //average of good tracks
+  double goodCA_II_mean[numTrks]; //average of good tracks
 
 
   //time spent per 1 trk reconstruction , ms
-  // double timeCA[7]={7.98,9.43,11.39,13.77,17.76,72.49,371.08};//strip, 15 GeV/c
-  //  double timeCA[7]={7.99,9.76,11.76,14.08,18.44,77.7,420.63};//strip, 1.5 GeV/c
-    double timeCA[7]={7.86,9.59,11.53,13.58,15.91,32.69,62.59};//pixel, 15 GeV/c
-  for(int iNtrk=0;iNtrk<7;iNtrk++){
+  // double timeCA[numTrks]={7.98,9.43,11.39,13.77,17.76,72.49,371.08};//strip, 15 GeV/c
+  //  double timeCA[numTrks]={7.99,9.76,11.76,14.08,18.44,77.7,420.63};//strip, 1.5 GeV/c
+    double timeCA[numTrks]={7.86,9.59,11.53,13.58,15.91,32.69,62.59};//pixel, 15 GeV/c
+  for(int iNtrk=0;iNtrk<numTrks;iNtrk++){
     // // ///STRIP -----------------------------------------------------------------
     // TString fileCAname=storePath+"/Lumi_out_MC_and_REC_trks_matches_with_IDs0";
     // fileCAname+="_CA_";
@@ -99,10 +99,10 @@ void TrksAlgoResults(TString storePath="/home/karavdin/datastorage/TrackPerforma
     fileFname+="trks_";
     fileCAname+="mergedHits_true_";
     fileFname+="mergedHits_true_";
-    fileCAname+="addMS_false_KalmanFillter_";
-    fileFname+="addMS_false_KalmanFillter_";
-    //fileCAname+="addMS_true_MinuitFit_";
-    //fileFname+="addMS_true_MinuitFit_";
+    // fileCAname+="addMS_false_KalmanFillter_";
+    // fileFname+="addMS_false_KalmanFillter_";
+    fileCAname+="addMS_true_MinuitFit_";
+    fileFname+="addMS_true_MinuitFit_";
     fileCAname+="15.root";
     fileFname+="15.root";
     ///PIXEL -----------------------------------------------------------------
@@ -264,11 +264,11 @@ void TrksAlgoResults(TString storePath="/home/karavdin/datastorage/TrackPerforma
 
 
   }
-  TGraph *grSpeedCA = new TGraph(7,Ntrks,timeCA);
+  TGraph *grSpeedCA = new TGraph(numTrks,Ntrks,timeCA);
   grSpeedCA->SetMarkerStyle(20);
   grSpeedCA->SetMarkerColor(2);
   grSpeedCA->SetMarkerSize(1.2);
-  TGraph *grSpeedF = new TGraph(7,Ntrks,timeF);
+  TGraph *grSpeedF = new TGraph(numTrks,Ntrks,timeF);
   grSpeedF->SetMarkerStyle(20);
   grSpeedF->SetMarkerColor(4);
   grSpeedF->SetMarkerSize(1.2);
@@ -277,11 +277,11 @@ void TrksAlgoResults(TString storePath="/home/karavdin/datastorage/TrackPerforma
   mgSpeed->Add(grSpeedF);
  
 
-  // TGraph *grRecCA = new TGraph(7,Ntrks,reconstCA);
+  // TGraph *grRecCA = new TGraph(numTrks,Ntrks,reconstCA);
   // grRecCA->SetMarkerStyle(20);
   // grRecCA->SetMarkerColor(2);
   // grRecCA->SetMarkerSize(1.2);
-  // TGraph *grRecF = new TGraph(7,Ntrks,reconstF);
+  // TGraph *grRecF = new TGraph(numTrks,Ntrks,reconstF);
   // grRecF->SetMarkerStyle(20);
   // grRecF->SetMarkerColor(4);
   // grRecF->SetMarkerSize(1.2);
@@ -289,20 +289,20 @@ void TrksAlgoResults(TString storePath="/home/karavdin/datastorage/TrackPerforma
   // mgTotRec->Add(grRecCA);
   // mgTotRec->Add(grRecF);
 
-  TGraph *grRecCA_I = new TGraph(7,Ntrks,goodCA_I_mean);
+  TGraph *grRecCA_I = new TGraph(numTrks,Ntrks,goodCA_I_mean);
   grRecCA_I->SetMarkerStyle(20);
   grRecCA_I->SetMarkerColor(2);
   grRecCA_I->SetMarkerSize(1.2);
-  TGraph *grRecF_I = new TGraph(7,Ntrks,goodF_I_mean);
+  TGraph *grRecF_I = new TGraph(numTrks,Ntrks,goodF_I_mean);
   grRecF_I->SetMarkerStyle(20);
   grRecF_I->SetMarkerColor(4);
   grRecF_I->SetMarkerSize(1.2);
   
-  TGraph *grRecCA_II = new TGraph(7,Ntrks,goodCA_II_mean);
+  TGraph *grRecCA_II = new TGraph(numTrks,Ntrks,goodCA_II_mean);
   grRecCA_II->SetMarkerStyle(21);
   grRecCA_II->SetMarkerColor(2);
   grRecCA_II->SetMarkerSize(1.2);
-  TGraph *grRecF_II = new TGraph(7,Ntrks,goodF_II_mean);
+  TGraph *grRecF_II = new TGraph(numTrks,Ntrks,goodF_II_mean);
   grRecF_II->SetMarkerStyle(21);
   grRecF_II->SetMarkerColor(4);
   grRecF_II->SetMarkerSize(1.2);
@@ -313,19 +313,19 @@ void TrksAlgoResults(TString storePath="/home/karavdin/datastorage/TrackPerforma
   mgTotRec->Add(grRecF_I);
   mgTotRec->Add(grRecF_II);
 
-  TGraph *grMissCA_I = new TGraph(7,Ntrks,missedCA_I);
+  TGraph *grMissCA_I = new TGraph(numTrks,Ntrks,missedCA_I);
   grMissCA_I->SetMarkerStyle(20);
   grMissCA_I->SetMarkerColor(2);
   grMissCA_I->SetMarkerSize(1.2);
-  TGraph *grMissF_I = new TGraph(7,Ntrks,missedF_I);
+  TGraph *grMissF_I = new TGraph(numTrks,Ntrks,missedF_I);
   grMissF_I->SetMarkerStyle(20);
   grMissF_I->SetMarkerColor(4);
   grMissF_I->SetMarkerSize(1.2);
-  TGraph *grMissCA_II = new TGraph(7,Ntrks,missedCA_II);
+  TGraph *grMissCA_II = new TGraph(numTrks,Ntrks,missedCA_II);
   grMissCA_II->SetMarkerStyle(21);
   grMissCA_II->SetMarkerColor(2);
   grMissCA_II->SetMarkerSize(1.2);
-  TGraph *grMissF_II = new TGraph(7,Ntrks,missedF_II);
+  TGraph *grMissF_II = new TGraph(numTrks,Ntrks,missedF_II);
   grMissF_II->SetMarkerStyle(21);
   grMissF_II->SetMarkerColor(4);
   grMissF_II->SetMarkerSize(1.2);
@@ -336,19 +336,19 @@ void TrksAlgoResults(TString storePath="/home/karavdin/datastorage/TrackPerforma
   mgMissed->Add(grMissF_II);
  
 
-  TGraph *grGhostCA_I = new TGraph(7,Ntrks,ghostCA_I);
+  TGraph *grGhostCA_I = new TGraph(numTrks,Ntrks,ghostCA_I);
   grGhostCA_I->SetMarkerStyle(20);
   grGhostCA_I->SetMarkerColor(2);
   grGhostCA_I->SetMarkerSize(1.2);
-  TGraph *grGhostF_I = new TGraph(7,Ntrks,ghostF_I);
+  TGraph *grGhostF_I = new TGraph(numTrks,Ntrks,ghostF_I);
   grGhostF_I->SetMarkerStyle(20);
   grGhostF_I->SetMarkerColor(4);
   grGhostF_I->SetMarkerSize(1.2);
-  TGraph *grGhostCA_II = new TGraph(7,Ntrks,ghostCA_II);
+  TGraph *grGhostCA_II = new TGraph(numTrks,Ntrks,ghostCA_II);
   grGhostCA_II->SetMarkerStyle(21);
   grGhostCA_II->SetMarkerColor(2);
   grGhostCA_II->SetMarkerSize(1.2);
-  TGraph *grGhostF_II = new TGraph(7,Ntrks,ghostF_II);
+  TGraph *grGhostF_II = new TGraph(numTrks,Ntrks,ghostF_II);
   grGhostF_II->SetMarkerStyle(21);
   grGhostF_II->SetMarkerColor(4);
   grGhostF_II->SetMarkerSize(1.2);
@@ -359,36 +359,36 @@ void TrksAlgoResults(TString storePath="/home/karavdin/datastorage/TrackPerforma
   mgGhost->Add(grGhostF_II);
 
 
-  TGraphErrors *grMissCA_value_I = new TGraphErrors(7,Ntrks,missedCA_I_mean,eNtrks,missedCA_I_rms);
+  TGraphErrors *grMissCA_value_I = new TGraphErrors(numTrks,Ntrks,missedCA_I_mean,eNtrks,missedCA_I_rms);
   grMissCA_value_I->SetMarkerStyle(20);
   grMissCA_value_I->SetMarkerColor(2);
   grMissCA_value_I->SetMarkerSize(1.2);
-  TGraphErrors *grMissCA_value_II = new TGraphErrors(7,Ntrks,missedCA_II_mean,eNtrks,missedCA_II_rms);
+  TGraphErrors *grMissCA_value_II = new TGraphErrors(numTrks,Ntrks,missedCA_II_mean,eNtrks,missedCA_II_rms);
   grMissCA_value_II->SetMarkerStyle(21);
   grMissCA_value_II->SetMarkerColor(2);
   grMissCA_value_II->SetMarkerSize(1.2);
-  TGraphErrors *grGhostCA_value_I = new TGraphErrors(7,Ntrks,ghostCA_I_mean,eNtrks,ghostCA_I_rms);
+  TGraphErrors *grGhostCA_value_I = new TGraphErrors(numTrks,Ntrks,ghostCA_I_mean,eNtrks,ghostCA_I_rms);
   grGhostCA_value_I->SetMarkerStyle(20);
   grGhostCA_value_I->SetMarkerColor(2);
   grGhostCA_value_I->SetMarkerSize(1.2);
-  TGraphErrors *grGhostCA_value_II = new TGraphErrors(7,Ntrks,ghostCA_II_mean,eNtrks,ghostCA_II_rms);
+  TGraphErrors *grGhostCA_value_II = new TGraphErrors(numTrks,Ntrks,ghostCA_II_mean,eNtrks,ghostCA_II_rms);
   grGhostCA_value_II->SetMarkerStyle(21);
   grGhostCA_value_II->SetMarkerColor(2);
   grGhostCA_value_II->SetMarkerSize(1.2);
 
-  TGraphErrors *grMissF_value_I = new TGraphErrors(7,Ntrks,missedF_I_mean,eNtrks,missedF_I_rms);
+  TGraphErrors *grMissF_value_I = new TGraphErrors(numTrks,Ntrks,missedF_I_mean,eNtrks,missedF_I_rms);
   grMissF_value_I->SetMarkerStyle(20);
   grMissF_value_I->SetMarkerColor(4);
   grMissF_value_I->SetMarkerSize(1.2);
-  TGraphErrors *grMissF_value_II = new TGraphErrors(7,Ntrks,missedF_II_mean,eNtrks,missedF_II_rms);
+  TGraphErrors *grMissF_value_II = new TGraphErrors(numTrks,Ntrks,missedF_II_mean,eNtrks,missedF_II_rms);
   grMissF_value_II->SetMarkerStyle(21);
   grMissF_value_II->SetMarkerColor(4);
   grMissF_value_II->SetMarkerSize(1.2);
-  TGraphErrors *grGhostF_value_I = new TGraphErrors(7,Ntrks,ghostF_I_mean,eNtrks,ghostF_I_rms);
+  TGraphErrors *grGhostF_value_I = new TGraphErrors(numTrks,Ntrks,ghostF_I_mean,eNtrks,ghostF_I_rms);
   grGhostF_value_I->SetMarkerStyle(20);
   grGhostF_value_I->SetMarkerColor(4);
   grGhostF_value_I->SetMarkerSize(1.2);
-  TGraphErrors *grGhostF_value_II = new TGraphErrors(7,Ntrks,ghostF_II_mean,eNtrks,ghostF_II_rms);
+  TGraphErrors *grGhostF_value_II = new TGraphErrors(numTrks,Ntrks,ghostF_II_mean,eNtrks,ghostF_II_rms);
   grGhostF_value_II->SetMarkerStyle(21);
   grGhostF_value_II->SetMarkerColor(4);
   grGhostF_value_II->SetMarkerSize(1.2);
