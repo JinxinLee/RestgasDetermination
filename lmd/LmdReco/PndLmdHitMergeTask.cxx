@@ -15,11 +15,15 @@
 #include "PndSdsHit.h"
 #include "PndSdsMergedHit.h"
 
+#include "TH2D.h"
+
 // -----   Default constructor   -------------------------------------------
 PndLmdHitMergeTask::PndLmdHitMergeTask() :
 FairTask("LMD Hit Merging Task")
 {
   fHitBranchName = "LMDHitsPixel";
+  hdxdy = new TH2D("hdxdy","; #deltax, #mum; #deltay, #mum",4e2,-100,100,4e2,-100,100);
+  hdz = new TH1D("hdz",";#deltaz, #mum",2e3,-1000,1000);
 }
 
 // -----   Named constructor   -------------------------------------------
@@ -27,6 +31,9 @@ PndLmdHitMergeTask::PndLmdHitMergeTask(const char* name) :
 FairTask(name)
 {
   fHitBranchName = "LMDHitsPixel";
+  hdxdy = new TH2D("hdxdy","; #deltax, #mum; #deltay, #mum",4e2,-100,100,4e2,-100,100);
+  hdz = new TH1D("hdz",";#deltaz, #mum",2e3,-1000,1000);
+
 }
 
 // -----   Destructor   ----------------------------------------------------
@@ -114,26 +121,34 @@ void PndLmdHitMergeTask::Exec(Option_t* opt)
     int sensor_id1 = myHit1->GetSensorID();
     int ihalf1,iplane1,imodule1,iside1,idie1,isensor1;
     lmddim->Get_sensor_by_id(sensor_id1,ihalf1,iplane1,imodule1,iside1,idie1,isensor1);
-    if (fVerbose > 4){
-      std::cout<<"HIT1(sensor_id1,ihalf1,iplane1,imodule1,iside1,idie1,isensor1):"<<std::endl;
-      std::cout<<sensor_id1<<", "<<ihalf1<<", "<<iplane1<<", "<<imodule1<<", "<<iside1<<", "<<idie1<<", "<<isensor1<<std::endl;
-      myHit1->Print();
-    }
+  
     for(Int_t jHit = iHit+1; jHit < fHitArray->GetEntriesFast(); jHit++){ //check other hits
       PndSdsHit* myHit2 = (PndSdsHit*)(fHitArray->At(jHit));
       int sensor_id2 = myHit2->GetSensorID();
       int ihalf2,iplane2,imodule2,iside2,idie2,isensor2;
       lmddim->Get_sensor_by_id(sensor_id2,ihalf2,iplane2,imodule2,iside2,idie2,isensor2);
-      if (fVerbose > 4){
-	    std::cout<<"HIT2(sensor_id2,ihalf2,iplane2,imodule2,iside2,idie2,isensor2):"<<std::endl;
-	    std::cout<<sensor_id2<<", "<<ihalf2<<", "<<iplane2<<", "<<imodule2<<", "<<iside2<<", "<<idie2<<", "<<isensor2<<std::endl;
-	    myHit2->Print();
-	  }
+     
       //more cleaver check by plane, side and half check
-      //   if(iplane1==iplane2 && ihalf1==ihalf2 && imodule1==imodule2 && iside1!=iside2){
-      if(fabs((myHit1->GetZ())-(myHit2->GetZ()))<0.1 ){  //actually same Hit: merge
-	if(fabs((myHit1->GetX())-(myHit2->GetX()))<0.016 && fabs((myHit1->GetY())-(myHit2->GetY()))<0.016){
+      if(iplane1==iplane2 && ihalf1==ihalf2 && imodule1==imodule2 && iside1!=iside2){  //actually same Hit from diff. sides: merge
+	double dz = (myHit1->GetZ())-(myHit2->GetZ());
+	hdz->Fill(1e4*dz);
+      //    if(fabs(dz)<0.1 ){  //actually same Hit: merge
+	//	if(fabs((myHit1->GetX())-(myHit2->GetX()))<0.016 && fabs((myHit1->GetY())-(myHit2->GetY()))<0.016){
+	double dx = (myHit1->GetX())-(myHit2->GetX());
+	double dy = (myHit1->GetY())-(myHit2->GetY());
+	hdxdy->Fill(1e4*dx,1e4*dy);
+	if(fabs(dx)<0.0075 && fabs(dy)<0.0075){ //3*sigma_dx, sigma_dx=25mkm
 	  if (fVerbose > 2){
+	    if (fVerbose > 4){
+	      std::cout<<"HIT1(sensor_id1,ihalf1,iplane1,imodule1,iside1,idie1,isensor1):"<<std::endl;
+	      std::cout<<sensor_id1<<", "<<ihalf1<<", "<<iplane1<<", "<<imodule1<<", "<<iside1<<", "<<idie1<<", "<<isensor1<<std::endl;
+	      myHit1->Print();
+	    }
+	    if (fVerbose > 4){
+	      std::cout<<"HIT2(sensor_id2,ihalf2,iplane2,imodule2,iside2,idie2,isensor2):"<<std::endl;
+	      std::cout<<sensor_id2<<", "<<ihalf2<<", "<<iplane2<<", "<<imodule2<<", "<<iside2<<", "<<idie2<<", "<<isensor2<<std::endl;
+	      myHit2->Print();
+	    }
 	    std::cout<<"----- We are going to merge HITS: -----"<<std::endl;
 	    myHit1->Print();
 	    std::cout<<".... AND ...."<<std::endl;

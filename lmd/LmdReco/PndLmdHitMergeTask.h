@@ -14,6 +14,7 @@
 #include <string>
 #include <vector>
 
+#include "TH2D.h"
 class TClonesArray;
 
 class PndLmdHitMergeTask : public FairTask
@@ -44,7 +45,8 @@ class PndLmdHitMergeTask : public FairTask
     TString fHitBranchName;
 
     PndLmdDim* lmddim;
-    
+    TH2* hdxdy;
+    TH1* hdz;
     ClassDef(PndLmdHitMergeTask,0);
     
   };
