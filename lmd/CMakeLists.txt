@@ -121,16 +121,14 @@ set(LMDTRK_SRCS
 
 LmdTrack/PndLmdTrackFinderTask.cxx
 LmdTrack/PndLmdTrackFinderCATask.cxx
-#LmdTrack/PndLmdMCPointTrackFinderTask.cxx
 LmdTrack/PndLmdLinFitTask.cxx
 LmdTrack/PndLmdLineTask.cxx
-#LmdTrack/PndLmdMCPointLinFitTask.cxx
 LmdTrack/PndLmdIdealFitTask.cxx
 LmdTrack/PndLinTrack.cxx
-#LmdTrack/PndLmdTrackCandToGFTrackCandConvertorTask.cxx
 LmdTrack/PndLmdKalmanTask.cxx
 LmdTrack/PndLmdGeaneTask.cxx
 LmdTrack/PndLmdBPRungeKuttaTask.cxx	
+LmdTrack/PndLmdTrksFilterTask.cxx
 )
 set (LMD_RULECHECKER_SRCS ${LMD_RULECHECKER_SRCS} ${LMDTRK_SRCS})
 
