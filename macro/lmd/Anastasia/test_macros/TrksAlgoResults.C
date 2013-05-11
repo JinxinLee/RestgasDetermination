@@ -15,7 +15,7 @@ using namespace std;
 
 //void TrksAlgoResults(TString storePath="StripSensors/1e4_events/noHitsNumberCheck")
 //void TrksAlgoResults(TString storePath="/home/karavdin/datastorage/TrackPerformanceStrip/1000000/")
-void TrksAlgoResults(TString storePath="/home/karavdin/datastorage/TrackPerformancePixel/1000000/")
+void TrksAlgoResults(TString storePath="${VMCWORKDIR}/macro/lmd/tmpOutnewDesign/")
 {
 
   gROOT->Macro("/panda/pandaroot/macro/lmd/Anastasia/test_macros/Style_Imported_Style.C");
@@ -252,11 +252,11 @@ void TrksAlgoResults(TString storePath="/home/karavdin/datastorage/TrackPerforma
     timeCA[iNtrk]=20*1000*double(timeCA[iNtrk])/reconstCA[iNtrk];
     timeF[iNtrk]= 20*1000*double(timeF[iNtrk])/reconstF[iNtrk];
 
-    cout<<"nsimTrk = "<<nsimTrk<<" nrecF = "<<nrecF<<" nrecCA = "<<nrecCA<<endl;
+    cout<<"nsimTrk = "<<nsimTrk<<" (with "<<Ntrks[iNtrk]<<" trks/ev) nrecF = "<<nrecF<<" nrecCA = "<<nrecCA<<endl;
     cout<<"(I:based on phi&theta diff between MC and REC), (II:based on hit info)"<<endl;
-    cout<<" nmissF_I = "<<nmissF_I<<" nmissCA_I = "<<nmissCA_I<<endl;
+    //    cout<<" nmissF_I = "<<nmissF_I<<" nmissCA_I = "<<nmissCA_I<<endl;
     cout<<" nmissF_II = "<<nmissF_II<<" nmissCA_II = "<<nmissCA_II<<endl;
-    cout<<" nghostF_I = "<<nghostF_I<<" nghostCA_I = "<<nghostCA_I<<endl;
+    //    cout<<" nghostF_I = "<<nghostF_I<<" nghostCA_I = "<<nghostCA_I<<endl;
     cout<<" nghostF_II = "<<nghostF_II<<" nghostCA_II = "<<nghostCA_II<<endl;
     cout<<" timeF = "<<timeF[iNtrk]<<" timeCA = "<<timeCA[iNtrk]<<endl;
     cout<<"***************************************"<<endl;
@@ -308,9 +308,9 @@ void TrksAlgoResults(TString storePath="/home/karavdin/datastorage/TrackPerforma
   grRecF_II->SetMarkerSize(1.2);
 
   TMultiGraph *mgTotRec = new TMultiGraph("mgRecTrks","Good RecTrks;N^{trk}_{MC};N^{trk}_{Rec}");
-  mgTotRec->Add(grRecCA_I);
+  // mgTotRec->Add(grRecCA_I);
   mgTotRec->Add(grRecCA_II);
-  mgTotRec->Add(grRecF_I);
+  //mgTotRec->Add(grRecF_I);
   mgTotRec->Add(grRecF_II);
 
   TGraph *grMissCA_I = new TGraph(numTrks,Ntrks,missedCA_I);
@@ -330,8 +330,8 @@ void TrksAlgoResults(TString storePath="/home/karavdin/datastorage/TrackPerforma
   grMissF_II->SetMarkerColor(4);
   grMissF_II->SetMarkerSize(1.2);
   TMultiGraph *mgMissed = new TMultiGraph("mgMissed","Missed;N^{trk}_{MC};events with missed trks, %");
-  mgMissed->Add(grMissCA_I);
-  mgMissed->Add(grMissF_I);
+  //  mgMissed->Add(grMissCA_I);
+  // mgMissed->Add(grMissF_I);
   mgMissed->Add(grMissCA_II);
   mgMissed->Add(grMissF_II);
  
@@ -353,8 +353,8 @@ void TrksAlgoResults(TString storePath="/home/karavdin/datastorage/TrackPerforma
   grGhostF_II->SetMarkerColor(4);
   grGhostF_II->SetMarkerSize(1.2);
   TMultiGraph *mgGhost = new TMultiGraph("mgGhost","Ghost;N^{trk}_{MC};events with ghost trks, %");
-  mgGhost->Add(grGhostCA_I);
-  mgGhost->Add(grGhostF_I);
+  //mgGhost->Add(grGhostCA_I);
+  // mgGhost->Add(grGhostF_I);
   mgGhost->Add(grGhostCA_II);
   mgGhost->Add(grGhostF_II);
 
@@ -400,9 +400,9 @@ void TrksAlgoResults(TString storePath="/home/karavdin/datastorage/TrackPerforma
   mgMissedMean->Add(grMissF_value_II);
 
   TMultiGraph *mgGhostMean = new TMultiGraph("mgGhostMean","Ghost;N^{trk}_{MC};average number of ghost trks");
-  mgGhostMean->Add(grGhostCA_value_I);
+  // mgGhostMean->Add(grGhostCA_value_I);
   mgGhostMean->Add(grGhostCA_value_II);
-  mgGhostMean->Add(grGhostF_value_I);
+  //  mgGhostMean->Add(grGhostF_value_I);
   mgGhostMean->Add(grGhostF_value_II);
 
   TString fileOUTname=storePath+"/TrksAlgoResults.root";
@@ -428,11 +428,15 @@ void TrksAlgoResults(TString storePath="/home/karavdin/datastorage/TrackPerforma
 
   //  TPad* info = new TPad("info","information",0,0,0.3,0.5);
   //  info->Draw();
-  latex.DrawLatex(3.9,0.8,"#it{Cellular Automaton (Trks matching)}");
-  latex.DrawLatex(3.9,0.75,"#it{Cellular Automaton (Hits matching)}");
-  latex.DrawLatex(3.9,0.7,"#it{Trk-Following (Trks matching)}");
-  latex.DrawLatex(3.9,0.65,"#it{Trk-Following (Hits matching)}");
-  
+  //  latex.DrawLatex(3.9,0.8,"#it{Cellular Automaton (Trks matching)}");
+  //  latex.DrawLatex(3.9,0.75,"#it{Cellular Automaton (Hits matching)}");
+  //  latex.DrawLatex(3.9,0.7,"#it{Trk-Following (Trks matching)}");
+  //latex.DrawLatex(3.9,0.65,"#it{Trk-Following (Hits matching)}");
+
+    latex.DrawLatex(3.9,0.75,"#it{Cellular Automaton}");
+    latex.DrawLatex(3.9,0.7,"#it{Cellular Automaton (hits&trk search missed)}");
+    latex.DrawLatex(3.9,0.65,"#it{Trk-Following}");
+    latex.DrawLatex(3.9,0.6,"#it{Trk-Following (hits&trk search missed)}");
   TMarker caI(1.2, 0.9, 20);
   caI.SetMarkerColor(2);
   caI.SetMarkerSize(1.2); 
@@ -441,7 +445,7 @@ void TrksAlgoResults(TString storePath="/home/karavdin/datastorage/TrackPerforma
   caII.SetMarkerSize(1.2);
   // caI.DrawMarker(1.2,1.1);
   // caII.DrawMarker(1.2,1.0);
-  caI.DrawMarker(3.4,0.8);
+  caI.DrawMarker(3.4,0.7);
   caII.DrawMarker(3.4,0.75);
 
 
@@ -453,7 +457,7 @@ void TrksAlgoResults(TString storePath="/home/karavdin/datastorage/TrackPerforma
   fII.SetMarkerSize(1.2);
   // fI.DrawMarker(1.2,0.8);
   // fII.DrawMarker(1.2,0.7);
-  fI.DrawMarker(3.4,0.7);
+  fI.DrawMarker(3.4,0.6);
   fII.DrawMarker(3.4,0.65);
 
   // latex.DrawLatex(.2,.8,longstring);

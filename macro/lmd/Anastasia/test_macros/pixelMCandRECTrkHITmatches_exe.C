@@ -300,7 +300,7 @@ int main(int __argc,char *__argv[]) {
   TH2 * hallPhiTheta = new TH2F("hallPhiTheta","#phi & #theta for all MC",50,2e-3,10e-3,100,-355./113,355./113);
 
   TNtuple *ntuprecTrk = new TNtuple("ntuprecTrk","Info about reconstructed trks: goodTrk [0=good,+1=ghost]","x:y:z:mom:theta:phi:goodTrk");
-  TNtuple *ntupMCTrk = new TNtuple("ntupMCTrk","Info about simulated trks: goodTrk [0=good, -1=missed]","x:y:z:mom:theta:phi:goodTrk:nMChits:nREChits");
+  TNtuple *ntupMCTrk = new TNtuple("ntupMCTrk","Info about simulated trks: goodTrk [0=good, -1=missed in trk search, -2=little amount hits]","x:y:z:mom:theta:phi:goodTrk:nMChits:nREChits");
 
   TH1 *hResMom = new TH1F("hResMom","P_{MC}-P_{rec};#deltaP,GeV/c",1e3,-1e-4,1e-4);
   TH1 *hErrMom = new TH1F("hErrMom","#sigma_{P};#sigmaP,GeV/c",1e3,0,1e-3);
@@ -368,10 +368,10 @@ int main(int __argc,char *__argv[]) {
     if(nParticles!=nMCtracks) continue;
     hnhits->Fill(nMCHits,nRecHits);
     if(nRecHits<3*nMCtracks) glBadEv++;
-    double chi2Cont[5*numTrk];
-    double ndiffIDCont[5*numTrk];
+    //    double chi2Cont[5*numTrk];
+    //    double ndiffIDCont[5*numTrk];
    
-    if(nTrkCandidates>numTrk) cout<<"Event #"<<j<<" has "<<nTrkCandidates<<" trk-cands and "<<numTrk<<" tracks!"<<endl;
+    //  if(nTrkCandidates>numTrk) cout<<"Event #"<<j<<" has "<<nTrkCandidates<<" trk-cands and "<<numTrk<<" tracks!"<<endl;
 
 
 
@@ -426,10 +426,8 @@ int main(int __argc,char *__argv[]) {
 
     int goodRectrk=0;//for missed trk-search
     for (Int_t iN=0; iN<nGeaneTrks; iN++){// loop over all reconstructed trks
-
-    
-      vector<int> MCtrkID; //arrray of hits MCid
-      Int_t diffIDs=1;
+      if(verboseLevel>3)  cout<<"GEANEtrk#"<<iN<<endl;
+      
       FairTrackParH *fRes = (FairTrackParH*)geaneArray->At(iN);
       ///get rid from most probably ghost track ------------
       TVector3 PosRec = fRes->GetPosition();
@@ -443,50 +441,64 @@ int main(int __argc,char *__argv[]) {
       Double_t lyambda = fRes->GetLambda();
       if(lyambda==0){
 	cout<<"GEANE didn't propagate this trk!"<<endl;
-	cout<<"Event #"<<j<<" diffIDs = "<<diffIDs<<endl;
+	//	cout<<"Event #"<<j<<" diffIDs = "<<diffIDs<<endl;
 	glBADGEANE++;
       }
       if(lyambda==0) continue;
      
       PndTrack *trkpnd = (PndTrack*)rec_trk->At(iN);
+      // if(verboseLevel>5) 
+      // trkpnd->Print();
       double chi2 = trkpnd->GetChi2();
       hchi2->Fill(chi2);
       int candID = trkpnd->GetRefIndex();
+      //if(verboseLevel>5) cout<<"candID = "<<candID<<endl;
       PndTrackCand *trkcand = (PndTrackCand*)trkcand_array->At(candID);    
-      const int Ntrkcandhits= trkcand->GetNHits();
-      PndSdsMCPoint* MCPointHit;
-	
+      const int Ntrkcandhits = trkcand->GetNHits();
+      //    PndSdsMCPoint* MCPointHit;
+      int MCtrkID[Ntrkcandhits]; //arrray of hits MCid
+      for (Int_t iHit = 0; iHit < Ntrkcandhits; iHit++){ 
+	MCtrkID[iHit]=9999;
+      }
+      Int_t diffIDs=1;
 	//Matching between MC & Rec on hits level-----------------------------------
       for (Int_t iHit = 0; iHit < Ntrkcandhits; iHit++){ // loop over rec.hits
 	PndTrackCandHit candhit = (PndTrackCandHit)(trkcand->GetSortedHit(iHit));
 	Int_t hitID = candhit.GetHitId();
+	// if(verboseLevel>5)
+	//   cout<<" hitID = "<<hitID<<endl;
 	//	PndSdsHit* myHit = (PndSdsHit*)(rechit_array->At(hitID));
-	PndSdsMergedHit* myHit = (PndSdsMergedHit*)(rechit_array->At(iHit));
+	PndSdsMergedHit* myHit = (PndSdsMergedHit*)(rechit_array->At(hitID));
 	int mcrefbot = myHit->GetSecondMCHit();
 	if(mcrefbot>0){
 	  PndSdsMCPoint* MCPointBot = (PndSdsMCPoint*)(true_points->At(mcrefbot));
 	  int MCtrkid = MCPointBot->GetTrackID();
-	  if(MCtrkid>-1)
-	    MCtrkID.push_back(MCtrkid);
+	  //	  if(MCtrkid>-1)
+	    MCtrkID[iHit]=MCtrkid;
 	}
 	int mcreftop = myHit->GetRefIndex();
 	if(mcreftop>0){
 	  PndSdsMCPoint* MCPointTop = (PndSdsMCPoint*)(true_points->At(mcreftop));
 	  int MCtrkid = MCPointTop->GetTrackID();
-	  if(MCtrkid>-1)
-	    MCtrkID.push_back(MCtrkid);
+	  //	  if(MCtrkid>-1)
+	    MCtrkID[iHit]=MCtrkid;
 	}
       }
 
-
-      if(verboseLevel>1) cout<<""<<endl;
+      if(verboseLevel>3){
+	cout<<"Before sorting: ";
+	for(Int_t n=0; n<Ntrkcandhits; n++)
+	  cout<<" "<<MCtrkID[n];
+	cout<<""<<endl;
+      }
+      //    if(verboseLevel>1) cout<<""<<endl;
       //   Sorting MC IDs ---------------------------------------- 
       Int_t k, x;
       bool ch=false; //Was element changed? 
       Int_t nch = 0; //How many times?
-      for(Int_t n=0; n<MCtrkID.size(); n++) { // n - current position
+      for(Int_t n=0; n<Ntrkcandhits; n++) { // n - current position
 	k=n; x=MCtrkID[n];
-	for(Int_t m=n+1; m<MCtrkID.size(); m++)	// find the least element
+	for(Int_t m=n+1; m<Ntrkcandhits; m++)	// find the least element
 	  if (MCtrkID[m]<x){
 	    k=m; x=MCtrkID[m];	        // k - index for the least element
 	    ch=true; nch++;
@@ -494,7 +506,14 @@ int main(int __argc,char *__argv[]) {
 	MCtrkID[k] = MCtrkID[n]; MCtrkID[n] = x; // change position between the least and current elements
       }
       ///--------------------------------------------------------------------------
-      
+
+      if(verboseLevel>3){
+	cout<<"After sorting: ";
+	for(Int_t n=0; n<Ntrkcandhits; n++)
+	  cout<<" "<<MCtrkID[n];
+	cout<<""<<endl;
+      }
+
       /// Counting number of diff MC ids ----------------------------------------      
       Int_t prevID = MCtrkID[0];
       for(int nk=0;nk<nParticles;nk++){
@@ -502,7 +521,7 @@ int main(int __argc,char *__argv[]) {
 	  MCtrk[nk]=MCtrk[nk]+1;
       }
       diffIDs = 1;
-      for(Int_t n=1; n<MCtrkID.size(); n++){ 
+      for(Int_t n=1; n<Ntrkcandhits; n++){ 
 	if(prevID<MCtrkID[n]){
 	  diffIDs++;
 	  prevID=MCtrkID[n];
@@ -513,7 +532,7 @@ int main(int __argc,char *__argv[]) {
 	}
       }
     
-      ndiffIDCont[iN]=diffIDs;
+      //      ndiffIDCont[iN]=diffIDs;
       hDiffIDs->Fill(diffIDs);
       hntrkcandvsIDs->Fill(diffIDs,nTrkCandidates);
       hnhitsvsIDs->Fill(diffIDs,Ntrkcandhits);
@@ -533,23 +552,20 @@ int main(int __argc,char *__argv[]) {
 
 	prevID = MCtrkID[0];
 	int diffCount=0;
-	for(Int_t n=0; n<MCtrkID.size(); n++) {
-	if(verboseLevel>1)	  cout<<" "<<MCtrkID[n];
-	  //	  if(MCtrkID[n]>-1){
-	    countMC_IDs[diffCount]++;
-	    if(prevID<MCtrkID[n]){
-	      diffCount++;
-	      prevID=MCtrkID[n];
-	    }
-	    //	  }
+	for(Int_t n=0; n<Ntrkcandhits; n++) {
+	  if(prevID<MCtrkID[n]){
+	    diffCount++;
+	    prevID=MCtrkID[n];
+	  }
+	  countMC_IDs[diffCount]++;
 	}
-	if(verboseLevel>1)	cout<<""<<endl;
+	//	if(verboseLevel>1)	cout<<""<<endl;
 	int maxID=countMC_IDs[0];
 	int posIDmax=0;
 	for(int kn=0;kn<diffIDs;kn++){
-	  hMCtrkPer->Fill(100*double(countMC_IDs[kn])/MCtrkID.size());
-	  //	  cout<<"countMC_IDs["<<kn<<"]="<<countMC_IDs[kn]<<" 0.7*MCtrkID.size() = "<<0.7*MCtrkID.size()<<endl;
-	  if(countMC_IDs[kn]>0.65*MCtrkID.size()){ //more then 65% of hits come from the same MC id
+	  hMCtrkPer->Fill(100*double(countMC_IDs[kn])/Ntrkcandhits);
+	  cout<<"countMC_IDs["<<kn<<"]="<<countMC_IDs[kn]<<" 0.65*Ntrkcandhits = "<<0.65*Ntrkcandhits<<endl;
+	  if(countMC_IDs[kn]>0.65*Ntrkcandhits){ //more then 65% of hits come from the same MC id
 	    goodTrk[iN] = true;
 	    ghostTrk[iN] = false;
 	  }
@@ -564,7 +580,7 @@ int main(int __argc,char *__argv[]) {
 	}
 	prevID = MCtrkID[0];
 	diffCount=0;
-	for(Int_t n=0; n<MCtrkID.size(); n++) {
+	for(Int_t n=0; n<Ntrkcandhits; n++) {
 	  if(diffCount==posIDmax) RECtrkMCid[iN] = prevID;
 	  if(prevID<MCtrkID[n]){
 	    diffCount++;
@@ -613,7 +629,7 @@ int main(int __argc,char *__argv[]) {
 	double resMom = MomMC.Mag()-MomRecBP.Mag();
 	hgoodTheta->Fill(thetaMC);
 	hgoodPhi->Fill(phiMC);
-	
+	hgoodPhiTheta->Fill(thetaMC,phiMC);
 	hMCThetaResTheta->Fill(thetaMC,thetaMC-thetaBP);
 	hMCPhiResPhi->Fill(phiMC,phiMC-phiBP);
 	hResPointX->Fill(-PosRec.X());
@@ -649,15 +665,15 @@ int main(int __argc,char *__argv[]) {
 	///Let's checked for good tracks by phi\theta definition ------------------
 
 	for(Int_t jk=0; jk< nParticles;jk++){
-	  PndMCTrack *mctrk =(PndMCTrack*) true_tracks->At(jk);
-	  Int_t mcID = mctrk->GetPdgCode();
-	  if(mcID==-2212){
-	    TVector3 MomMC = mctrk->GetMomentum();
-	    double diffTheta=fabs(MomMC.Theta()-thetaBP)/err_lyambda;
-	    double diffPhi=fabs(MomMC.Phi()-phiBP)/err_phi;
+	  PndMCTrack *mctrk0 =(PndMCTrack*) true_tracks->At(jk);
+	  Int_t mcID0 = mctrk0->GetPdgCode();
+	  if(mcID0==-2212){
+	    TVector3 MomMC0 = mctrk0->GetMomentum();
+	    double diffTheta=fabs(MomMC0.Theta()-thetaBP)/err_lyambda;
+	    double diffPhi=fabs(MomMC0.Phi()-phiBP)/err_phi;
 
-	    if(fabs(MomMC.Phi())<0.14 || fabs(MomMC.Phi())>3){ //for #phi near edge reconstructed angle can differ
-	      double phiMC1 = -MomMC.Phi();
+	    if(fabs(MomMC0.Phi())<0.14 || fabs(MomMC0.Phi())>3){ //for #phi near edge reconstructed angle can differ
+	      double phiMC1 = -MomMC0.Phi();
 	      double diffPhi2=fabs(phiMC1-phiBP)/err_phi;
 	      if(diffPhi2<diffPhi) diffPhi = diffPhi2;
 	    }
@@ -670,7 +686,7 @@ int main(int __argc,char *__argv[]) {
 	///==================================
       }
       ///-------------------------------------------------------------------------------------
-      MCtrkID.clear();
+      //  MCtrkID.clear();
     }
   
     /// (I) missed\ghost tracks are defined on Phi\Theta difference between MC&REC trks
@@ -679,9 +695,9 @@ int main(int __argc,char *__argv[]) {
     if((nGeaneTrks-goodRectrk)>0) hntrkghost_I->Fill(nGeaneTrks-goodRectrk);
     if(verboseLevel>0){
     cout<<nMCtracks<<" trks per event were simulated and "<<nGeaneTrks<<" were reconstructed"<<endl;
-    cout<<"-- (I) dPhi\dTheta -------------------------"<<endl;
-    cout<<"Good trks: "<<goodRectrk<<" missed: "<<nMCtracks-goodRectrk<<" ghost: "<<nGeaneTrks-goodRectrk<<endl;
-    cout<<"--------------------------------"<<endl;
+    // cout<<"-- (I) dPhi&dTheta -------------------------"<<endl;
+    // cout<<"Good trks: "<<goodRectrk<<" missed: "<<nMCtracks-goodRectrk<<" ghost: "<<nGeaneTrks-goodRectrk<<endl;
+    // cout<<"--------------------------------"<<endl;
     }
     /// (II) missed\ghost tracks are defined on hits information
     int goodRecII=0, ghostRecII=0;
@@ -707,30 +723,48 @@ int main(int __argc,char *__argv[]) {
     hntrkgood_II->Fill(goodRecII);
     if(ghostRecII>0) hntrkghost_II->Fill(ghostRecII);
     if((nMCtracks-goodRecII)>0){ 
-      hntrkmissed_II->Fill(nMCtracks-goodRecII);
-    }
-    
-    for(int imc=0;imc<nParticles;imc++){//MC trks
-      bool missTrk=true;
-      for(int irec=0;irec<nGeaneTrks;irec++){//RECids assigment
-	int mc_comp = RECtrkMCid[irec];
-	if(mc_comp==imc) missTrk=false;
+
+      hntrkmissed_I->Fill(nMCtracks-goodRecII);
+      int nMCmissedTrkSearch=0;
+      for(int imc=0;imc<nParticles;imc++){//MC trks
+	bool missTrk=true;
+	for(int irec=0;irec<nGeaneTrks;irec++){//RECids assigment
+	  int mc_comp = RECtrkMCid[irec];
+	  if(mc_comp==imc) missTrk=false;
+	}
+	PndMCTrack *mctrk =(PndMCTrack*) true_tracks->At(imc);
+	TVector3 MomMC = mctrk->GetMomentum();
+	TVector3 PosMC = mctrk->GetStartVertex();
+	int trkQ=0;
+	if(missTrk && MCtksREChits[imc]>2) trkQ=-1;
+	else 
+	  if(missTrk && MCtksREChits[imc]<3)
+	    trkQ=-2;
+
+	ntupMCTrk->Fill(PosMC.X(),PosMC.Y(),PosMC.Z(),MomMC.Mag(),MomMC.Theta(),MomMC.Phi(),trkQ,MCtksSIMhits[imc],MCtksREChits[imc]);
+	if(verboseLevel>3) cout<<"#REChits = "<<MCtksREChits[imc]<<endl;
+	if(missTrk && MCtksREChits[imc]>2) nMCmissedTrkSearch++;
       }
-      
-      PndMCTrack *mctrk =(PndMCTrack*) true_tracks->At(imc);
-      TVector3 MomMC = mctrk->GetMomentum();
-      TVector3 PosMC = mctrk->GetStartVertex();
-      int trkQ;
-      if(missTrk) trkQ=-1;
-      else trkQ=0;
-      ntupMCTrk->Fill(PosMC.X(),PosMC.Y(),PosMC.Z(),MomMC.Mag(),MomMC.Theta(),MomMC.Phi(),trkQ,MCtksSIMhits[imc],MCtksREChits[imc]);
+      if(nMCmissedTrkSearch>0) hntrkmissed_II->Fill(nMCmissedTrkSearch); //missed by track search only and not because it wasn't enought hits!
+    }
+    else{
+      for(int imc=0;imc<nParticles;imc++){//MC trks
+	PndMCTrack *mctrk =(PndMCTrack*) true_tracks->At(imc);
+	TVector3 MomMC = mctrk->GetMomentum();
+	TVector3 PosMC = mctrk->GetStartVertex();
+	int trkQ = 0;
+	ntupMCTrk->Fill(PosMC.X(),PosMC.Y(),PosMC.Z(),MomMC.Mag(),MomMC.Theta(),MomMC.Phi(),trkQ,MCtksSIMhits[imc],MCtksREChits[imc]);
+      }
     }
 
     if(verboseLevel>0){
+      if((nMCtracks-goodRecII)>0){//TEST only about missed trks
+	cout<<"-- Ev#"<<j<<endl;
       cout<<"-- (II) Hits matching -------------------------"<<endl;
       cout<<"Good trks: "<<goodRecII<<" missed: "<<nMCtracks-goodRecII<<" ghost: "<<ghostRecII<<endl;
       cout<<"--------------------------------"<<endl;
       cout<<" "<<endl;
+      }
     }
     //  cout<<"number of good: "<<goodRecII<<" number of missed: "<<nMCtracks-goodRecII<<" number of ghost: "<<ghostRecII<<endl;
     ///-------------------------------------------------------------------------------------
