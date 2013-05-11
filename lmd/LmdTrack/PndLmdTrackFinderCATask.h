@@ -1,6 +1,6 @@
 // -------------------------------------------------------------------------
-// -----                      PndLmdTrackFinderTask                    -----
-// -----                  Created 22/10/09  by M. Michel               -----
+// -----            PndLmdTrackFinderCATask                    -----
+// -----       Created 18/05/11  by A. Karavdina              -----
 // -------------------------------------------------------------------------
 
 
@@ -77,7 +77,11 @@ class PndLmdTrackFinderCATask : public FairTask
      void Reset();
      void ProduceHits();
      TH1D *hdist;
-     TH2D *htheta;
+     TH2D *htthetatphi;
+     TH2D *hthetaphi;
+     //     TH1D *hcosPSI;
+     //     TH2D *htheta;
+     //     TH2D *htime;
      PndLmdDim* lmddim;
 
   ClassDef(PndLmdTrackFinderCATask,2);

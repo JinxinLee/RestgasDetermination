@@ -34,7 +34,11 @@ PndLmdTrackFinderCATask::PndLmdTrackFinderCATask() :
   dXY = 0.5;
   d_max = 0.01;
   hdist = new TH1D("hdist","distance from common point",1e4,0,10.);
-  htheta = new TH2D("htheta",";length;#theta angle",1e3,0,25,1e3,0,3.15);
+  htthetatphi = new TH2D("htthetatphi",";tg#theta;tg#phi",1e3,0,10,1e3,-10,10);
+  hthetaphi = new TH2D("hthetaphi",";#theta;#phi",1e3,0,1.,1e3,-3.15,3.15);
+  /// hcosPSI = new TH1D("hcosPSI","breaking angle",1e3,-1.5,1.5);
+  //  htheta = new TH2D("htheta",";length;#theta angle",1e3,0,25,1e3,0,3.15);
+  //  htime = new TH2D("htime",";time distance;time angle",1e2,0,10,1e2,0,10);
   nSensPP = 8;
   nP = 4;
   flagStipSens = false;
@@ -59,7 +63,11 @@ PndLmdTrackFinderCATask::PndLmdTrackFinderCATask(const bool missPl, const double
   
   dXY = 0.5;
   hdist = new TH1D("hdist","distance from common point",1e3,0,1.);
-  htheta = new TH2D("htheta",";length;#theta angle",1e3,0,25,1e3,0,3.15);
+  htthetatphi = new TH2D("htthetatphi",";tg#theta;tg#phi",1e3,0,10,1e3,-10,10);
+  hthetaphi = new TH2D("hthetaphi",";#theta;#phi",1e3,0,1.,1e3,-3.15,3.15);
+  //  hcosPSI = new TH1D("hcosPSI","breaking angle",1e3,-1.5,1.5);
+  //  htheta = new TH2D("htheta",";length;#theta angle",1e3,0,25,1e3,0,3.15);
+  //  htime = new TH2D("htime",";time distance, ns;time angle,ns",5e3,0,5e3,5e3,0,5e3);
   d_max = setdmax; 
   nSensPP = innSensPP;
   nP = innP;
@@ -74,7 +82,13 @@ PndLmdTrackFinderCATask::PndLmdTrackFinderCATask(const bool missPl, const double
 
 // -----   Destructor   ----------------------------------------------------
 PndLmdTrackFinderCATask::~PndLmdTrackFinderCATask()
-{}
+{
+  if(fVerbose<2) {
+    delete hdist;
+    delete htthetatphi;
+    delete hthetaphi;
+  }
+}
 // -------------------------------------------------------------------------
 
 // -----   Initialization  of Parameter Containers -------------------------
@@ -217,7 +231,7 @@ bool PndLmdTrackFinderCATask::SortHitsByZ(std::vector< std::vector< std::pair<In
   for (Int_t iHit = 0; iHit < nStripHits; iHit++){
     Double_t tmp = ((PndSdsHit*) (fStripHitArray->At(iHit)))->GetZ();
     bool newZ = true;
-    for(Int_t idet = 0; idet < detZ.size(); idet++){
+    for(unsigned int idet = 0; idet < detZ.size(); idet++){
       //  if(tmp == detZ.at(idet)){ //check if already found
       //   cout<<"tmp = "<<tmp<<" detZ.at(idet) = "<<detZ.at(idet)
       //	  <<" fabs(tmp-detZ.at(idet))="<<fabs(tmp-detZ.at(idet))<<endl;
@@ -231,7 +245,7 @@ bool PndLmdTrackFinderCATask::SortHitsByZ(std::vector< std::vector< std::pair<In
 
       //sort positions
       Int_t pos=-1;
-      for(Int_t idet = detZ.size()-1; idet >= 0; idet--){
+      for(int idet = detZ.size()-1; idet >= 0; idet--){
         if(tmp < detZ.at(idet))
           pos=idet;
       }
@@ -239,7 +253,7 @@ bool PndLmdTrackFinderCATask::SortHitsByZ(std::vector< std::vector< std::pair<In
         Double_t swap = detZ.at(pos);
         detZ.at(pos) = tmp;
         tmp = swap;
-        for(Int_t i=pos+1; i<detZ.size(); i++){
+        for(unsigned int i=pos+1; i<detZ.size(); i++){
           swap = detZ.at(i);
           detZ.at(i) = tmp;
           tmp = swap;
@@ -254,7 +268,7 @@ bool PndLmdTrackFinderCATask::SortHitsByZ(std::vector< std::vector< std::pair<In
     PndSdsHit* myHit = (PndSdsHit*)(fStripHitArray->At(iHit));
 
     Double_t z = myHit->GetZ();
-    for(Int_t idet = 0; idet < detZ.size(); idet++){ //planes
+    for(unsigned int idet = 0; idet < detZ.size(); idet++){ //planes
      
       // if( z == detZ.at(idet) ){
       if( fabs(z-detZ.at(idet))<9. ){ //[for using with Dipole]
@@ -269,7 +283,7 @@ bool PndLmdTrackFinderCATask::SortHitsByZ(std::vector< std::vector< std::pair<In
   //   cout << "Hits: " << nStripHits << endl;
    if(fVerbose>2) {
      cout << "Hits: " << nStripHits << " in " << detZ.size() << " plane(s)." << endl;
-     for(Int_t idet = 0; idet < detZ.size(); idet++)
+     for(unsigned int idet = 0; idet < detZ.size(); idet++)
        cout << "Plane: "<< idet <<" DiscHits: "<< hitsd.at(idet).size() <<endl;
    }
 
@@ -282,6 +296,7 @@ bool PndLmdTrackFinderCATask::SortHitsByZ(std::vector< std::vector< std::pair<In
 // -----   Public method Init   --------------------------------------------
 InitStatus PndLmdTrackFinderCATask::Init()
 {
+
   lmddim = PndLmdDim::Instance();
   // lmddim -> Read_transformation_matrices("matrices.txt", true);
   lmddim -> Read_transformation_matrices("matrices_perfect.txt", false);
@@ -330,11 +345,11 @@ InitStatus PndLmdTrackFinderCATask::Init()
 // -----   Public method Exec   --------------------------------------------
 void PndLmdTrackFinderCATask::Exec(Option_t* opt)
 {
-  TStopwatch *timer_exec = new TStopwatch();
-  if(fVerbose>2){
-    timer_exec->Start();
-    cout << "Evt started--------------"<<endl<<endl;
-  }
+  // TStopwatch *timer_exec = new TStopwatch();
+  // if(fVerbose>0){
+  //   timer_exec->Start();
+  //   cout << "Evt started--------------"<<endl<<endl;
+  // }
   
   // Reset output array
   if ( ! fTrackCandArray )
@@ -361,250 +376,261 @@ void PndLmdTrackFinderCATask::Exec(Option_t* opt)
     return;
   }
 
-  // for(Int_t iHit = 0; iHit < nStripHits; iHit++){
-  //   PndSdsHit* myHit = (PndSdsHit*)(fStripHitArray->At(iHit));
-  //   Int_t sensid = myHit->GetSensorID(); // Sensors: 1..32
-  //   Int_t planeid = floor((sensid)/8.); //8 sensors/plane => Planes: 0..3
-  //   hitsd.at(planeid).push_back(iHit);
-  // }
-
-  // Int_t nPlanes=0;
-  // for(Int_t iPlane = 0; iPlane < 4; iPlane++){
-  //   if(hitsd.at(iPlane).size()>0) nPlanes++;
-  // }
-  // if(nPlanes<3){
-  //   if(fVerbose>2) cout << "Evt finsihed: too less planes-----"<<endl<<endl;
-  //   return;
-  // }
   
   //print hits (debug)
   TVector3 start, tmp, vec, dstart, dvec; //temp-vars
   if(fVerbose>2){
     for(Int_t iPlane = 0; iPlane < nP; iPlane++){
       if(hitsd.at(iPlane).size()>0){
-	for (Int_t i=0; i<hitsd.at(iPlane).size(); i++){
+	for (unsigned int i=0; i<hitsd.at(iPlane).size(); i++){
 	  PndSdsHit *hit=(PndSdsHit*)fStripHitArray->At(hitsd.at(iPlane).at(i));
 	  cout<<"Plane"<<iPlane<<" Hit=("<<hit->GetX()<<", "<<hit->GetY()<<", "<<hit->GetZ()<<") with err=("
-	      <<hit->GetDx()<<", "<<hit->GetDy()<<", "<<hit->GetDz()<<")"<<endl;
+	      <<hit->GetDx()<<", "<<hit->GetDy()<<", "<<hit->GetDz()<<")"<<", MChitID = "<<hit->GetRefIndex()<<endl;
 	}
       }
     }
   }
-  
+
+    // cout<<"array preparation: "<<endl;
+    // timer_array->Print();
+    // timer_array->Stop();
+
   // TStopwatch *timer_cook_cells = new TStopwatch();
-  // timer_cook_cells->Start();
-  int Npoints=0;
-  const int nplanes = nP;
-  int NpointsI[nplanes];
-  int cell_arr_size=0;
-  for(int i=0;i<nplanes;i++){
-    NpointsI[i]=hitsd.at(i).size();
-    if(i>0) cell_arr_size+= NpointsI[i]* NpointsI[i-1];
-    if(i>1) cell_arr_size+= NpointsI[i]* NpointsI[i-2];
-    if(i>2) cell_arr_size+= NpointsI[i]* NpointsI[i-3];
-    //  if(i>3) cell_arr_size+= NpointsI[i]* NpointsI[i-4];
-    if(hitsd.at(i).size()>Npoints)
-      Npoints=hitsd.at(i).size();
+  // if(fVerbose>0){
+  //   timer_cook_cells->Start();
+  // }
+  //  int Npoints=0;
+  const unsigned int nplanes = nP;
+  // unsigned int NpointsI[nplanes];
+  std::vector<unsigned int> NpointsI;
+  //  int cell_arr_size=0;
+  for(unsigned int i=0;i<nplanes;i++){
+    NpointsI.push_back(hitsd.at(i).size());
   }
-  //  cell_arr_size++;
-  if(fVerbose>4) cout<<"Number of possible cells = "<<cell_arr_size<<endl;
-  // if(NpointsI[nplanes-1]>NpointsI[0] || NpointsI[nplanes-2]>NpointsI[0]) cell_arr_size*=10000;
-  //  if(cell_arr_size>1100) return;
-  if(cell_arr_size>100000) cell_arr_size*=0.5;
   ///Build all cells  
-  std::vector< std::vector<Double_t> > cells(11,vector<double>(cell_arr_size));
+  //  std::vector< std::vector<Double_t> > cells(11,std::vector<double>(cell_arr_size));
+  //  std::vector< std::vector<double> > cells(11,std::vector<double>());//= new std::vector< std::vector<Double_t> > cells(11,std::vector<double>());
+  std::vector<double> cells0;//x0
+  std::vector<double> cells1;//y0
+  std::vector<double> cells2;//z0
+  std::vector<double> cells3;//x1
+  std::vector<double> cells4;//y1
+  std::vector<double> cells5;//z1
+  std::vector<unsigned int> cells6;//hit0 id
+  std::vector<unsigned int> cells7;//hit1 id
+  std::vector<unsigned int> cells8;//hit0 plane
+  std::vector<unsigned int> cells9;//hit1 plane
+  std::vector<unsigned int> cells10;//pos.value
  
   int count = 0;
-  for(int j=0;j<(nplanes-1);j++){
-    int maxI = NpointsI[j];
-    int maxK1 = NpointsI[j+1];
-    int maxK2 = 0;
-    int maxK3 = 0;
-    if(j<(nplanes-2)) maxK2 = NpointsI[j+2];
-    if(j<(nplanes-3)) maxK3 = NpointsI[j+3];
-    int maxK = maxK1; 
+  for(unsigned int j=0;j<(nplanes-1);j++){
+    unsigned int maxI = NpointsI[j];
+    unsigned int maxK1 = NpointsI[j+1];
+    unsigned int maxK2 = 0;
+    unsigned int maxK3 = 0;
+    if(j<(nplanes-2)){
+      maxK2 = NpointsI[j+2];
+    }
+    else{
+      if(j<(nplanes-3)) maxK3 = NpointsI[j+3];
+    }
+    unsigned int maxK = maxK1; 
     if(maxK2>maxK) maxK=maxK2;
     if(maxK3>maxK) maxK=maxK3;
     // if(fVerbose>4) cout<<" maxI[j] = "<<maxI<<" maxK1[j+1] = "<<maxK1<<" maxK2[j+2] = "<<maxK2<<endl;
     // cout<<"j="<<j<<endl;
-    for(int i=0; i<maxI;i++){ //Assume number of hits is not equal on each plane!
-      //  cout<<"i="<<i<<endl;
-      for(int k=0; k<maxK;k++){
-	//	cout<<"k="<<k<<endl;
-	//	if(hitsd.at(j-1).size()==0 || hitsd.at(j).size()==0) continue;
-	PndSdsHit *hit0=(PndSdsHit*)fStripHitArray->At(hitsd.at(j).at(i));
-	double x0 = hit0->GetX(); double y0 = hit0->GetY(); double z0 = hit0->GetZ();
+    for(unsigned int i=0; i<maxI;i++){ //Assume number of hits is not equal on each plane!
+      PndSdsHit *hit0=(PndSdsHit*)fStripHitArray->At(hitsd.at(j).at(i));
+      double x0 = hit0->GetX(); double y0 = hit0->GetY(); double z0 = hit0->GetZ();
+      for(unsigned int k=0; k<maxK;k++){
 	if(k<maxK1){
 	  PndSdsHit *hit1=(PndSdsHit*)fStripHitArray->At(hitsd.at(j+1).at(k));
-	  // if(fVerbose>4)
-	  //   cout<<"check hits between "<<j<<" and "<<j+1<<" planes"<<endl;
 	  double x1 = hit1->GetX(); double y1 = hit1->GetY(); double z1 = hit1->GetZ();
-	  TVector3 dirc(x1-x0,y1-y0,z1-z0);
-	  // dirc *= 1./dirc.Mag();
-	  ///dTheta of cells to reduce wrong combination
-	  htheta->Fill(dirc.Mag(),dirc.Theta());
-	  //  if((dirc.Theta()>0.01 && dirc.Mag()>1.) || (dirc.Mag()<0.1 && dirc.Theta()>1.5)){ //in LUMI frame //for point between diff.planes or for point between diff. layes
 	  bool goodDir = true;
-	  if(dirc.Mag()>1.){
-	    if(flagTrkCandCuts && ((dirc.Theta()<0.03 || dirc.Theta()>0.05) || fabs(dirc.Phi())>0.25)){
+	  if(flagTrkCandCuts){
+	    double xvec = x1-x0; 	  double yvec = y1-y0; 	  double zvec = z1-z0;
+	    double tgPhi = yvec/xvec;
+	    if(tgPhi<0) tgPhi*=-1;
+	    if(tgPhi>0.25){
 	      goodDir = false;
-	      //  if(fVerbose>6) cout<<" dirc.Mag()>1. && (dirc.Theta()<0.03 && dirc.Theta()>0.05) || fabs(dirc.Phi())>0.25)"<<endl;
+	    }
+	    else{
+	      double tgTheta = sqrt(xvec*xvec+yvec*yvec)/zvec;
+	      if(tgTheta<0.03 || tgTheta>0.05){
+		goodDir = false;
+	      }
 	    }
 	  }
-	  else{
-	    //  if(dirc.Theta()>0.5){
-	    if(dirc.Theta()>2){
-	      goodDir = false;
-	      //   if(fVerbose>6) cout<<" dirc.Mag()<1.&& dirc.Theta()>0.5"<<endl;
-	    }
+	  if(fVerbose>4){	 
+	    double xvec = x1-x0; 	  double yvec = y1-y0; 	  double zvec = z1-z0;
+	    double tgPhi = yvec/xvec;
+	    double tgTheta = sqrt(xvec*xvec+yvec*yvec)/zvec;
+	    htthetatphi->Fill(tgTheta,tgPhi);
+	    if(!goodDir)
+	      cout<<"BAD cell between #"<<(j)<<"."<<i<<" and #"<<(j+1)<<"."<<k<<endl;
+       	    else
+	      cout<<"GOOD CELL #"<<count<<" [between #"<<(j)<<"."<<i<<" and #"<<j+1<<"."<<k<<endl;
 	  }
-	 
-	if(!goodDir){ //in LUMI frame //for point between diff.planes or for point between diff. layes
-	  // if(0>1){ //TEST
-	    if(fVerbose>4){
-	      cout<<"For cell between #"<<(j)<<"."<<i<<" and #"<<(j+1)<<"."<<k;
-	      cout<<" dirc.Theta() = "<<dirc.Theta()<<" dirc.Phi() = "<<dirc.Phi()<<endl;
-	    }
-	  } 
-	  else{
-	    if(fVerbose>4){
-	      cout<<"GOOD CELL #"<<count<<" [between #"<<(j)<<"."<<i<<" and #"<<j+1<<"."<<k<<"]:";
-	      cout<<" dirc.Theta() = "<<dirc.Theta()<<" dirc.Phi() = "<<dirc.Phi()<<endl;
-	    }
-	    cells.at(0).at(count) = x0;
-	    cells.at(1).at(count) = y0;
-	    cells.at(2).at(count) = z0;
-	    cells.at(3).at(count) = x1;
-	    cells.at(4).at(count) = y1;
-	    cells.at(5).at(count) = z1;
-	    cells.at(6).at(count) = i;
-	    cells.at(7).at(count) = k;
-	    cells.at(8).at(count) = j;
-	    cells.at(9).at(count) = j+1;
-	    cells.at(10).at(count) = 0;
-	    count++;
-	  }
+	  cells0.push_back(x0);
+	  cells1.push_back(y0);
+	  cells2.push_back(z0);
+	  cells3.push_back(x1);
+	  cells4.push_back(y1);
+	  cells5.push_back(z1);
+	  cells6.push_back(i);
+	  cells7.push_back(k);
+	  cells8.push_back(j);
+	  cells9.push_back(j+1);
+	  cells10.push_back(0);
+	  count++;
 	}
-
+      
 	if(missPlAlgo){
 	  //  for(int jp=2;jp<4;jp++){//skip one or two layres 
-	  for(int jp=2;jp<3;jp++){//skip one layres 
+	  for(unsigned int jp=2;jp<3;jp++){//skip one layres 
 	    if(j>=(nplanes-jp)) continue;
 	    if(k<hitsd.at(j+jp).size()){
 	      PndSdsHit *hit2=(PndSdsHit*)fStripHitArray->At(hitsd.at(j+jp).at(k));
-	      // if(fVerbose>4)
-	      //   cout<<"check hits between "<<j<<" and "<<j+jp<<" planes"<<endl;
 	      double x2 = hit2->GetX(); double y2 = hit2->GetY(); double z2 = hit2->GetZ();
-	      TVector3 dirc2(x2-x0,y2-y0,z2-z0);
-	      //     dirc2 *= 1./dirc2.Mag();
-	      ///dTheta of cells to reduce wrong combination
-	      //    if(dirc2.Theta()>0.01){ //in LUMI frame
-	      htheta->Fill(dirc2.Mag(),dirc2.Theta());
-	      //	      if((dirc2.Theta()>0.01 && dirc2.Mag()>1.) || (dirc2.Mag()<0.1 && dirc2.Theta()>1.5)){ //in LUMI frame //for point between diff.planes or for point between diff. layes
-	      //  if((dirc2.Theta()<0.03 && dirc2.Theta()>0.05 && fabs(dirc2.Phi())>0.25 && dirc2.Mag()>1.) || (dirc2.Mag()<0.1 && dirc2.Theta()>0.5)){ //in LUMI frame //for point between diff.planes or for point between diff. layes
-	      
+
 	      bool goodDir = true;
-	      if(dirc2.Mag()>1.){
-		  if(flagTrkCandCuts && ((dirc2.Theta()<0.03 || dirc2.Theta()>0.05) || fabs(dirc2.Phi())>0.25)){
-		    goodDir = false;
-		    // if(fVerbose>6) cout<<" dirc2.Mag()>1. && (dirc2.Theta()<0.03 && dirc2.Theta()>0.05) || fabs(dirc2.Phi())>0.25)"<<endl;
-		}
-	      }
-	      else{
-		//	if(dirc2.Theta()>0.5){
-		if(dirc2.Theta()>2){
-		  //  if(fVerbose>6) cout<<" dirc2.Mag()<1.&& dirc2.Theta()>0.5"<<endl;
+	      if(flagTrkCandCuts){
+		double xvec = x2-x0; 	  double yvec = y2-y0; 	  double zvec = z2-z0;
+		double tgPhi = yvec/xvec;
+		if(tgPhi<0) tgPhi*=-1;
+		if(tgPhi>0.25){
 		  goodDir = false;
 		}
-	      }
-
-
-	    if(!goodDir){ //
-	      //   if(0>1){ //TEST
-		if(fVerbose>4){
-		  cout<<"For cell between #"<<(j)<<"."<<i<<" and #"<<(j+jp)<<"."<<k;
-		  cout<<" dirc2.Theta() = "<<dirc2.Theta()<<" dirc2.Phi() = "<<dirc2.Phi()<<endl;
+		else{
+		  double tgTheta = sqrt(xvec*xvec+yvec*yvec)/zvec;
+		  if(tgTheta<0.03 || tgTheta>0.05){
+		    goodDir = false;
+		  }
 		}
-	      } 
-	      else{
-		if(fVerbose>4){
-		  cout<<"GOOD CELL #"<<count<<" [between #"<<(j)<<"."<<i<<" and #"<<j+jp<<"."<<k<<"]:";
-		  cout<<" dirc2.Theta() = "<<dirc2.Theta()<<" dirc2.Phi() = "<<dirc2.Phi()<<endl;
-		}
-		cells.at(0).at(count) = x0;
-		cells.at(1).at(count) = y0;
-		cells.at(2).at(count) = z0;
-		cells.at(3).at(count) = x2;
-		cells.at(4).at(count) = y2;
-		cells.at(5).at(count) = z2;
-		cells.at(6).at(count) = i;
-		cells.at(7).at(count) = k;
-		cells.at(8).at(count) = j;
-		cells.at(9).at(count) = j+jp;
-		cells.at(10).at(count) = 0;
-		count++;
-		// cout<<"CELL saved!"<<endl;
 	      }
+	      if(fVerbose>4){
+		double xvec = x2-x0; 	  double yvec = y2-y0; 	  double zvec = z2-z0;
+		double tgPhi = yvec/xvec;
+		double tgTheta = sqrt(xvec*xvec+yvec*yvec)/zvec;
+		htthetatphi->Fill(tgTheta,tgPhi);
+		if(!goodDir)
+		  cout<<"BAD cell between #"<<(j)<<"."<<i<<" and #"<<(j+jp)<<"."<<k<<endl;
+		else
+		  cout<<"GOOD CELL #"<<count<<" [between #"<<(j)<<"."<<i<<" and #"<<j+jp<<"."<<k<<endl;
+	      }
+	      cells0.push_back(x0);
+	      cells1.push_back(y0);
+	      cells2.push_back(z0);
+	      cells3.push_back(x2);
+	      cells4.push_back(y2);
+	      cells5.push_back(z2);
+	      cells6.push_back(i);
+	      cells7.push_back(k);
+	      cells8.push_back(j);
+	      cells9.push_back(j+jp);
+	      cells10.push_back(0);
+
+	      count++;
+	      // cout<<"CELL saved!"<<endl;
 	    }
 	  }
 	}
       }
- 
     }
   }
  // if(fVerbose>4)
  //   cout<<"Number of good cells:"<<count<<endl;
-  //  cout<<"finished cells building!"<<endl;
-  for(int icell=0;icell<11;icell++)
-    cells.at(icell).erase(cells.at(icell).begin()+count,cells.at(icell).end());
+  //  cout<<"finished cells building!"<<endl
+  // for(int icell=0;icell<11;icell++)
+  //   cells.at(icell).erase(cells.at(icell).begin()+count,cells.at(icell).end());
   // if(fVerbose>4)
   //   cout<<"Number of cells after cleaning:"<<cells.at(0).size()<<endl;
-
-  // timer_cook_cells->Stop();
-  // Double_t rtime_cook_cells = timer_cook_cells->RealTime();
-  // Double_t ctime_cook_cells = timer_cook_cells->CpuTime();
-  // cout << "Real time for Cells cooking:" << rtime_cook_cells << " s, CPU time " << ctime_cook_cells << " s" << endl;
+  // if(fVerbose>0){
+  //   timer_cook_cells->Stop();
+  //   Double_t rtime_cook_cells = timer_cook_cells->RealTime();
+  //   Double_t ctime_cook_cells = timer_cook_cells->CpuTime();
+  //   cout << "Real time for Cells cooking:" << rtime_cook_cells << " s, CPU time " << ctime_cook_cells << " s" << endl;
+  // }
 
   // TStopwatch *timer_neighbors_cells = new TStopwatch();
-  // timer_cook_cells->Start();
+  // if(fVerbose>0)
+  //   timer_cook_cells->Start();
+
   //Find neighbors between cells
-  vector<int> connect;//save position connected cells
+  vector<unsigned int> connect;//save position connected cells
   // for(int itter=0; itter<1; itter++){
-  for(int ic=0; ic<cells.at(0).size(); ic++){
-    for(int jc=0; jc<cells.at(0).size(); jc++){
-      // if(fVerbose>4)
-      // 	cout<<"Cells #"<<ic<<" and #"<<jc<<" under check now"<<endl;
-      if(ic==jc) continue; 
-    // for(int jc=(cells.at(0).size()-1); jc >= 0; jc--){
-      if(fabs(cells.at(9).at(ic)-cells.at(8).at(jc))>1e-1) continue;
-      if(fabs(cells.at(7).at(ic)-cells.at(6).at(jc))>1e-1) continue;
-      // if(fVerbose>4)
-      // 	cout<<" still Cells #"<<ic<<" and #"<<jc<<" under check now"<<endl;
-      //   cout<<"we are checking now: "<<ic<<" and "<<jc<<" cells"<<endl;
+  for(int ic=0; ic<cells0.size(); ic++){
+    //    for(int jc=0; jc<cells0.size(); jc++){
+    for(int jc=ic+1; jc<cells0.size(); jc++){
+      // if(fabs(cells9.at(ic)-cells8.at(jc))>1e-1) continue;
+      // if(fabs(cells7.at(ic)-cells6.at(jc))>1e-1) continue;
+      if((cells9.at(ic))!=(cells8.at(jc))) continue;
+      if((cells7.at(ic))!=(cells6.at(jc))) continue;
+
 	    /// v - vector of track direction
 	    /// w - vector between middle point and another end of cell
 	    /// d= [v,w]/|v| - distance
 	    /// [v,w]=(v_y*w_z-v_z*w_y, v_z*w_x-v_x*w_z,v_x*w_y-v_y*w_x)
 	    /// |v|=sqrt(v_x^2+v_y^2+v_z^2)
 	 
-	    double x0 = cells.at(0).at(ic); double y0 = cells.at(1).at(ic); double z0 = cells.at(2).at(ic);
-	    double x1 = cells.at(3).at(jc); double y1 = cells.at(4).at(jc); double z1 = cells.at(5).at(jc);
-	    double xt = cells.at(3).at(ic); double yt = cells.at(4).at(ic); double zt = cells.at(5).at(ic);
-	    ///v(x1-x0,y1-y0,z1-z0)
-	    ///w(x0-xt,y0-yt,z0-zt)
+	    double x0 = cells0.at(ic); double y0 = cells1.at(ic); double z0 = cells2.at(ic);
+	    double x1 = cells3.at(jc); double y1 = cells4.at(jc); double z1 = cells5.at(jc);
+	    double xt = cells3.at(ic); double yt = cells4.at(ic); double zt = cells5.at(ic);
+
+	    double dx10 = (x1-x0); double dy10 = (y1-y0); 	double dz10 = (z1-z0);
+	    double dx0t = (x0-xt);  double dy0t = (y0-yt);    double dz0t = (z0-zt);
+
+	    double d_x2 = pow((dy10*dz0t-dz10*dy0t),2);
+	    double d_y2 = pow((dz10*dx0t-dx10*dz0t),2);
+	    double d_z2 = pow((dx10*dy0t-dy10*dx0t),2);
 	    
-	    double d_x =(y1-y0)*(z0-zt)-(z1-z0)*(y0-yt);
-	    double d_y =(z1-z0)*(x0-xt)-(x1-x0)*(z0-zt);
-	    double d_z =(x1-x0)*(y0-yt)-(y1-y0)*(x0-xt);
-	    
-	    double norm_v = sqrt(pow((x1-x0),2)+pow((y1-y0),2)+pow((z1-z0),2));
-	    double d = sqrt(d_x*d_x+d_y*d_y+d_z*d_z)/norm_v;
-	    hdist->Fill(d);
+	    //	    double norm_v = sqrt(pow((x1-x0),2)+pow((y1-y0),2)+pow((z1-z0),2));
+	    double norm_v = dz10;
+	    if(10*dx10 > dz10){
+	    double dx10_2 = (x1-x0)*(x1-x0); double dy10_2 = (y1-y0)*(y1-y0); double dz10_2 = (z1-z0)*(z1-z0);
+	    norm_v = sqrt(dx10_2+dy10_2+dz10_2);
+	    }
+	    double d = sqrt(d_x2+d_y2+d_z2)/norm_v;
+	    // timerD.Stop();
+
+	    // Double_t rtimeD = 1e9*(timerD.RealTime());
+	    // Double_t ctimeD = 1e9*(timerD.CpuTime());
+	    // cout<<"Timer for distance calculation: real "<<rtimeD<<" s, CPU "<<ctimeD<<endl;
+	    // cout<<"distance = "<<d<<endl;
+	    //	    timerD.Reset();
+	    if(fVerbose>1) hdist->Fill(d);
+
+	    // TStopwatch timerA;
+	    // timerA.Start();
+	 
+	    // // double x0 = cells.at(0).at(ic); double y0 = cells.at(1).at(ic); double z0 = cells.at(2).at(ic);
+	    // // double x1 = cells.at(3).at(jc); double y1 = cells.at(4).at(jc); double z1 = cells.at(5).at(jc);
+	    // // double xt = cells.at(3).at(ic); double yt = cells.at(4).at(ic); double zt = cells.at(5).at(ic);
+	    // double Ax = cells.at(3).at(ic) - cells.at(0).at(ic);  
+	    // double Ay = cells.at(4).at(ic) - cells1.at(ic); 
+	    // double Az = cells.at(5).at(ic) - cells.at(2).at(ic); 
+	    // double Bx = cells.at(3).at(jc) - cells.at(3).at(ic);  
+	    // double By = cells.at(4).at(jc) - cells.at(4).at(ic); 
+	    // double Bz = cells.at(5).at(jc) - cells.at(5).at(ic); 
+	    // double AB = Ax*Bx+Ay*By+Az*Bz;
+	    // double Amag = sqrt(Ax*Ax+Ay*Ay+Az*Az);
+	    // double Bmag = sqrt(Bx*Bx+By*By+Bz*Bz);
+	    // double cosPsi = AB/(Amag*Bmag);
+	    // //	    double cosPsi = AB/double(Az*Bz);
+	    // timerA.Stop();
+	    // hcosPSI->Fill(cosPsi);
+
+	    // Double_t rtimeA = 1e9*(timerA.RealTime());
+	    // Double_t ctimeA = 1e9*(timerA.CpuTime());
+	    // htime->Fill(rtimeD,rtimeA);
+	    //	    timerA.Reset();
+	    //	     cout<<"Timer for angle calculation: real "<<rtimeA<<" s, CPU "<<ctimeA<<endl;
+	    // cout<<"cosPsi = "<<cosPsi<<endl;
 	    if(d<d_max){
 	      // if(fVerbose>4)
 	      // 	cout<<"BINGO! Cells #"<<ic<<" and #"<<jc<<endl;
 	      //  if(int(cells.at(10).at(ic))==int(cells.at(10).at(jc))){
-		cells.at(10).at(jc)++;
+		cells10.at(jc)++;
 		connect.push_back(ic);
 		connect.push_back(jc);
 		//  }
@@ -615,74 +641,84 @@ void PndLmdTrackFinderCATask::Exec(Option_t* opt)
 	    }
 	    else{
 	      if(fVerbose>4)
-		cout<<"Cells #"<<ic<<" and #"<<jc<<" aren't connected, because d = "<<d<<" >= dmax!"<<endl;
+		cout<<"Cells #"<<ic<<" and #"<<jc<<" aren't connected, because d = "<<d<<" >="<<d_max<<endl;
 	    }
     }
   }
 
   /// Set counters values -----
-  const int cellsSize = cells.at(0).size();
-  int pv_new[cellsSize];
-  for(int icv=0;icv<cellsSize;icv++)
-    pv_new[icv]=0;
+  const unsigned int cellsSize = cells0.size();
+  //  int pv_new[cellsSize];
+  std::vector<unsigned int> pv_new;
+  for(unsigned int icv=0;icv<cellsSize;icv++)
+    pv_new.push_back(0);
 
-  for(int itter=0;itter<2*nplanes;itter++){
-    for(int con=0;con<connect.size();){
-      int con1 = connect[con];
-      int con2 = connect[con+1];
-      if(cells.at(10).at(con1)==cells.at(10).at(con2) && pv_new[con2]==cells.at(10).at(con2)){
-	pv_new[con1] = cells.at(10).at(con1);
-	pv_new[con2] = cells.at(10).at(con2)+1;
+  for(unsigned int itter=0;itter<2*nplanes;itter++){
+  //  for(unsigned int itter=0;itter<nplanes;itter++){
+    for(unsigned int con=0;con<connect.size();){
+      unsigned int con1 = connect[con];
+      unsigned int con2 = connect[con+1];
+      if(cells10.at(con1)==cells10.at(con2) && pv_new[con2]==cells10.at(con2)){
+	pv_new[con1] = cells10.at(con1);
+	pv_new[con2] = cells10.at(con2)+1;
       }
-      con++;
-      con++;
+      // con++;
+      // con++;
+      con+=2;
     }
-    for(int icv=0;icv<cellsSize;icv++)
-      cells.at(10).at(icv) = pv_new[icv];
+    for(unsigned int icv=0;icv<cellsSize;icv++)
+      cells10.at(icv) = pv_new[icv];
   }
   ///--------------------------
 
   //  }
-  // timer_neighbors_cells->Stop();
-  // Double_t rtime_neighbors_cells = timer_neighbors_cells->RealTime();
-  // Double_t ctime_neighbors_cells = timer_neighbors_cells->CpuTime();
-  // cout << "Real time for neighbors between cells search :" << rtime_neighbors_cells << " s, CPU time " << ctime_neighbors_cells << " s" << endl;
+  // if(fVerbose>0){
+  //   timer_neighbors_cells->Stop();
+  //   Double_t rtime_neighbors_cells = timer_neighbors_cells->RealTime();
+  //   Double_t ctime_neighbors_cells = timer_neighbors_cells->CpuTime();
+  //   cout << "Real time for neighbors between cells search :" << rtime_neighbors_cells << " s, CPU time " << ctime_neighbors_cells << " s" << endl;
+  // }
  // if(fVerbose>4)
  //   cout<<"Number of connected cells "<<connect.size()<<endl;
   if(fVerbose>4){
     cout<<"connect:"<<endl;
-    for(int con=0;con<connect.size();){
-      int con1 = connect[con];
-      int con2 = connect[con+1];
-      cout<<" "<<connect[con]<<"("<<cells.at(10).at(con1)<<") "<<connect[con+1]<<"("<<cells.at(10).at(con2)<<") "<<endl;
+    for(unsigned int con=0;con<connect.size();){
+      unsigned int con1 = connect[con];
+      unsigned int con2 = connect[con+1];
+      cout<<" "<<connect[con]<<"("<<cells10.at(con1)<<") "<<connect[con+1]<<"("<<cells10.at(con2)<<") "<<endl;
       con++;
       con++;
     }
   }
 
   // TStopwatch *timer_build_trk_combinations = new TStopwatch();
-  // timer_build_trk_combinations->Start();
+  // if(fVerbose>0)
+  //   timer_build_trk_combinations->Start();
+
+  // TStopwatch *timer_build_all_trk_combinations = new TStopwatch();
+  // if(fVerbose>0)
+  //   timer_build_all_trk_combinations->Start();
 
   //Build track from cells combination --------------------------------
 
   //find max number of cells in a track
-  int pcmax = 0;
-  for(int cid=1;cid<cells.at(10).size();cid++){
-    int tag_cur = cells.at(10).at(cid);
+  unsigned int pcmax = 0;
+  for(unsigned int cid=1;cid<cells10.size();cid++){
+    unsigned int tag_cur = cells10.at(cid);
     if(tag_cur>pcmax) pcmax = tag_cur;
   }
   if(fVerbose>4) cout<<"track can contain "<<pcmax<<"+1 cells"<<endl;
-  const int trk_arr_size = pcmax+1;
+  const unsigned int trk_arr_size = pcmax+1;
   //  const int trk_arr_size = pcmax+2;
   std::vector< std::vector<int> > trk_cells(trk_arr_size);
   int trk_count=-1;
-  for(int newpcmax=pcmax;newpcmax>0;newpcmax--){// loop over possible number of cells in trk
-    int cur_max_tag = newpcmax;
+  for(unsigned int newpcmax=pcmax;newpcmax>0;newpcmax--){// loop over possible number of cells in trk
+    unsigned int cur_max_tag = newpcmax;
     if(fVerbose>4) cout<<"Now we are looking for trk with max "<<cur_max_tag+1<<" cells"<<endl;
     bool newtrk=true;
     for(int con=connect.size()-1;con>=0;){// loop over all connections between cells
       bool nextloop=false;
-      int con1,con2;
+      unsigned int con1,con2;
       int curr_arr;
       if(newtrk){// here we check both cells
 	//check last array in trk_cells was filled by data
@@ -712,7 +748,7 @@ void PndLmdTrackFinderCATask::Exec(Option_t* opt)
 	con--;
 	con1 = connect[con];
 	con--;
-	if((cells.at(10).at(con2))==cur_max_tag) nextloop=true;
+	if((cells10.at(con2))==cur_max_tag) nextloop=true;
       }
       else{// here we check only one cell, another one is already known
 	con2 = con1; //trk should be connected to cell from previous part
@@ -731,10 +767,10 @@ void PndLmdTrackFinderCATask::Exec(Option_t* opt)
       while(cur_max_tag>0){// here we know cell_con2 and cell_con1
 	// cout<<"cells.at(10).at("<<con2<<") = "<<cells.at(10).at(con2)<<endl;
 	// cout<<"cells.at(10).at("<<con1<<") = "<<cells.at(10).at(con1)<<endl;
-	if((cells.at(10).at(con2))==cur_max_tag){
+	if((cells10.at(con2))==cur_max_tag){
 	  //  cout<<"cur_max_tag = "<<cur_max_tag<<endl;
 	  cur_max_tag -=1;
-	  if((cells.at(10).at(con1))==cur_max_tag){// difference in tags = 1
+	  if((cells10.at(con1))==cur_max_tag){// difference in tags = 1
 	    //  cout<<"cur_max_tag = "<<cur_max_tag<<endl;
 	    // cur_max_tag -=1;
 	    // trk_cells.at(cur_max_tag+2).at(trk_count)=con2;
@@ -795,98 +831,129 @@ void PndLmdTrackFinderCATask::Exec(Option_t* opt)
     //    cout<<"newpcmax = "<<newpcmax<<endl;
   }
   
-  //fillter -----------------------------------------------
-  if(fVerbose>4) cout<<"--- fillter trk-cand array: "<<endl;
-  if(fVerbose>4) cout<<" Attention each trk candidate contain repeated cell, but smaller cells number will be deleted!"<<endl;
-  vector<int> cell_parts;
+  // if(fVerbose>0){
+  //   timer_build_all_trk_combinations->Stop();
+  //   Double_t rtime_build_all_trk_combinations = timer_build_all_trk_combinations->RealTime();
+  //   Double_t ctime_build_all_trk_combinations = timer_build_all_trk_combinations->CpuTime();
+  //   cout << "Real time for build all trk combinations :" << rtime_build_all_trk_combinations << " s, CPU time " << ctime_build_all_trk_combinations << " s" << endl;
+  // }
+
+  //TEST: no filter
   vector<bool> trk_accept;
-  for(int itrk=0;itrk<trk_cells.at(0).size();itrk++){
-    int maxcellnum = trk_arr_size;
-    int curr_arr=trk_arr_size;
-    while(curr_arr>0){
-      curr_arr--;
-      if(fVerbose>4) cout<<" we have: trk_cells.at("<<curr_arr<<").at("<<itrk<<")="<<trk_cells.at(curr_arr).at(itrk)<<endl;
-      if(trk_cells.at(curr_arr).at(itrk)<0) maxcellnum--;
-    }
-    cell_parts.push_back(maxcellnum);
-    if(maxcellnum>0) trk_accept.push_back(true);
-    else trk_accept.push_back(false);
-    //    trk_accept.push_back(true);
-    if(fVerbose>4) cout<<" with:"<<maxcellnum<<" cells"<<endl;
+  for(unsigned int itrk=0;itrk<trk_cells.at(0).size();itrk++){
+    trk_accept.push_back(true);
   }
+  //   TEST: no filter end---
+  // //filter -----------------------------------------------
+  // // TStopwatch *timer_filter_trk_combinations = new TStopwatch();
+  // // if(fVerbose>0)
+  // //   timer_filter_trk_combinations->Start();
+
+  // if(fVerbose>4) cout<<"--- fillter trk-cand array: "<<endl;
+  // if(fVerbose>4) cout<<" Attention each trk candidate with repeated cells, but smaller cells number will be deleted!"<<endl;
+  // vector<unsigned int> cell_parts;
+  // vector<bool> trk_accept;
+  // for(unsigned int itrk=0;itrk<trk_cells.at(0).size();itrk++){
+  //   int maxcellnum = trk_arr_size;
+  //   int curr_arr=trk_arr_size;
+  //   while(curr_arr>0){
+  //     curr_arr--;
+  //     if(fVerbose>4) cout<<" we have: trk_cells.at("<<curr_arr<<").at("<<itrk<<")="<<trk_cells.at(curr_arr).at(itrk)<<endl;
+  //     if(trk_cells.at(curr_arr).at(itrk)<0) maxcellnum--;
+  //   }
+  //   cell_parts.push_back(maxcellnum);
+  //   if(maxcellnum>0) trk_accept.push_back(true);
+  //   else trk_accept.push_back(false);
+  //   if(fVerbose>4) cout<<" with:"<<maxcellnum<<" cells"<<endl;
+  // }
   
-  for(int itrc=0;itrc<cell_parts.size();itrc++){
-    if(!trk_accept[itrc]) continue;
-    for(int itrc2=0;itrc2<cell_parts.size();itrc2++){
-      if(!trk_accept[itrc2]) continue;
-      if(cell_parts[itrc]<cell_parts[itrc2]){
-	int count_re=0;
-	//reject trk-cand with smaller number of cells and similar cells
-	int curr_arr=trk_arr_size;
-	while(curr_arr>0){
-	  curr_arr--;
-	  if(trk_cells.at(curr_arr).at(itrc)<0 || trk_cells.at(curr_arr).at(itrc2)<0) continue;
-	  if(trk_cells.at(curr_arr).at(itrc)==trk_cells.at(curr_arr).at(itrc2))
-	    count_re++;
-	}
-	if(count_re>0.3*cell_parts[itrc]){
-	  trk_accept[itrc]=false;
-	  if(fVerbose>4){
-	    // cout<<"Delete: trk-cand#"<<itrc<<" because of trk_cells.at("<<curr_arr<<").at("<<itrc<<"):"
-	    // 	<<trk_cells.at(curr_arr).at(itrc)<<endl;
-	    cout<<"Delete: trk-cand#"<<itrc
-		<<" because it contains ("<<count_re<<") more then 30% cells from trk-cand#"<<itrc2<<endl;
-	  }
-	}
-      }
-    }
-  }
+  // for(int itrc=(cell_parts.size()-1);itrc>=0;itrc--){
+  //   if(!trk_accept[itrc]) continue;
+  //   int cup=itrc-1;
+  //   for(int itrc2=cup;itrc2>=0;itrc2--){
+  //     if(!trk_accept[itrc]) break;
+  //     if(!trk_accept[itrc2]) continue;
+  //     //      cout<<"compare trk#"<<itrc<<" and #"<<itrc2<<endl;
 
-  for(int itrc=0;itrc<(cell_parts.size()/2);itrc++){
-    for(int itrc2=(cell_parts.size()/2);itrc2<cell_parts.size();itrc2++){
-      if(cell_parts[itrc]==cell_parts[itrc2]){
-	//reject trk-cand with the same number of cells and similar cells
-	int count_re=0;
-	int curr_arr=trk_arr_size;
-	while(curr_arr>0){
-	  curr_arr--;
-	  if(trk_cells.at(curr_arr).at(itrc)<0 || trk_cells.at(curr_arr).at(itrc2)<0) continue;
-	  if(trk_cells.at(curr_arr).at(itrc)==trk_cells.at(curr_arr).at(itrc2)){
-	    count_re++;
-	  }
-	}
-	if(count_re>0.7*cell_parts[itrc]){
-	  trk_accept[itrc]=false;
-	  if(fVerbose>4){
-	    cout<<"Delete: trk-cand#"<<itrc<<" because it contains("
-		<<count_re<<") more then 70% of cells from trk-cand#"<<itrc2<<endl;
-	  }
-	}
-      }
-    }
-  }
+  //     if(cell_parts[itrc]<cell_parts[itrc2]){
+  // 	unsigned int count_re=0;
+  // 	//reject trk-cand with smaller number of cells and similar cells
+  // 	int curr_arr=trk_arr_size;
+  // 	while(curr_arr>0){
+  // 	  curr_arr--;
+  // 	  if(trk_cells.at(curr_arr).at(itrc)<0 || trk_cells.at(curr_arr).at(itrc2)<0) continue;
+  // 	  if(trk_cells.at(curr_arr).at(itrc)==trk_cells.at(curr_arr).at(itrc2))
+  // 	    count_re++;
+  // 	}
+  // 	if(count_re>0.55*cell_parts[itrc]){
+  // 	  trk_accept[itrc]=false;
+  // 	  if(fVerbose>4){
+  // 	    // cout<<"Delete: trk-cand#"<<itrc<<" because of trk_cells.at("<<curr_arr<<").at("<<itrc<<"):"
+  // 	    // 	<<trk_cells.at(curr_arr).at(itrc)<<endl;
+  // 	    cout<<"Delete: trk-cand#"<<itrc
+  // 		<<" because it contains ("<<count_re<<") more then 55% cells from trk-cand#"<<itrc2<<endl;
+  // 	  }
+  // 	}
+  //     }
+  //   }
+  // }
 
+  // for(int itrc=(cell_parts.size()-1);itrc>=0;itrc--){
+  //     for(int itrc2=itrc-1;itrc2>=0;itrc2--){
+  // 	//	if(itc==itrc2) continue;
+  //     if(cell_parts[itrc]==cell_parts[itrc2]){
+  // 	//reject trk-cand with the same number of cells and similar cells
+  // 	int count_re=0;
+  // 	int curr_arr=trk_arr_size;
+  // 	while(curr_arr>0){
+  // 	  curr_arr--;
+  // 	  if(trk_cells.at(curr_arr).at(itrc)<0 || trk_cells.at(curr_arr).at(itrc2)<0) continue;
+  // 	  if(trk_cells.at(curr_arr).at(itrc)==trk_cells.at(curr_arr).at(itrc2)){
+  // 	    count_re++;
+  // 	  }
+  // 	}
+  // 	if(count_re>0.9*cell_parts[itrc]){
+  // 	  trk_accept[itrc]=false;
+  // 	  if(fVerbose>4){
+  // 	    cout<<"Delete: trk-cand#"<<itrc<<" because it contains("
+  // 		<<count_re<<") more then 90% of cells from trk-cand#"<<itrc2<<endl;
+  // 	  }
+  // 	}
+  //     }
+  //   }
+  // }
+  // //filter(end)------------------------------------------------
+
+  // if(fVerbose>0){
+  // timer_filter_trk_combinations->Stop();
   // timer_build_trk_combinations->Stop();
+  // Double_t rtime_filter_trk_combinations = timer_filter_trk_combinations->RealTime();
+  // Double_t ctime_filter_trk_combinations = timer_filter_trk_combinations->CpuTime();
+  // cout << "Real time for filtering trk combinations :" << rtime_filter_trk_combinations << " s, CPU time " << ctime_filter_trk_combinations << " s" << endl;
+  // }
+  // if(fVerbose>0){
+  //   //  timer_build_trk_combinations->Stop();
   // Double_t rtime_build_trk_combinations = timer_build_trk_combinations->RealTime();
   // Double_t ctime_build_trk_combinations = timer_build_trk_combinations->CpuTime();
-  // cout << "Real time for build trk combinations :" << rtime_build_trk_combinations << " s, CPU time " << ctime_build_trk_combinations << " s" << endl;
-
+  // cout << "Real time for build&filter trk combinations :" << rtime_build_trk_combinations << " s, CPU time " << ctime_build_trk_combinations << " s" << endl;
+  // }
   // TStopwatch *timer_save_trks = new TStopwatch();
-  // timer_save_trks->Start();
+  // if(fVerbose>0)
+  //   timer_save_trks->Start();
   //save trk-cands ----------------------------------------
   int NtrkRec = 0;
   //  for(int itrk=0;itrk<trk_cells.at(pcmax).size();itrk++){
-  for(int itrk=0;itrk<trk_accept.size();itrk++){
-    if(!trk_accept[itrk]) continue;
+  for(unsigned int itrk=0;itrk<trk_accept.size();itrk++){
+    if(!trk_accept[itrk]) continue; // filter
     PndTrackCand *myTCand = new PndTrackCand();
     bool firstHit=true;
     TVector3 dir;
-    for(int icell=0;icell<trk_arr_size;icell++){
+    for(unsigned int icell=0;icell<trk_arr_size;icell++){
       int cellNum = trk_cells.at(icell).at(itrk);
       if(cellNum<0) continue;
       if(firstHit){//fill trk-cand seed
-	int id = cells.at(6).at(cellNum);
-	int pl = cells.at(8).at(cellNum);
+	int id = cells6.at(cellNum);
+	int pl = cells8.at(cellNum);
 	if(fVerbose>3) cout<<"Trk uses hit#"<<id<<" from pl#"<<pl<<endl;
 	PndSdsHit* myHit = (PndSdsHit*)(fStripHitArray->At(hitsd.at(pl).at(id)));
 	PndSdsClusterStrip* myCluster =  (PndSdsClusterStrip*)(fStripClusterArray->At(myHit->GetClusterIndex()));
@@ -894,17 +961,17 @@ void PndLmdTrackFinderCATask::Exec(Option_t* opt)
 	myTCand->AddHit(astripdigi->GetDetID(),hitsd.at(pl).at(id),myHit->GetPosition().Z()); 
 	//	myTCand->AddHit(0,hitsd.at(pl).at(id),myHit->GetPosition().Z()); 
 
-	double startX = cells.at(0).at(cellNum);
-	double startY = cells.at(1).at(cellNum);
-	double startZ = cells.at(2).at(cellNum);
+	double startX = cells0.at(cellNum);
+	double startY = cells1.at(cellNum);
+	double startZ = cells2.at(cellNum);
 	TVector3 posSeed(startX,startY,startZ);
 	int cellNumNext=trk_cells.at(icell+1).at(itrk);
 	if(cellNumNext<0){//next plane is missing
 	  cellNumNext=trk_cells.at(icell+2).at(itrk);
 	}
-	double dirX = cells.at(3).at(cellNumNext)-cells.at(0).at(cellNum);
-	double dirY = cells.at(4).at(cellNumNext)-cells.at(1).at(cellNum);
-	double dirZ = cells.at(5).at(cellNumNext)-cells.at(2).at(cellNum);
+	double dirX = cells3.at(cellNumNext)-cells0.at(cellNum);
+	double dirY = cells4.at(cellNumNext)-cells1.at(cellNum);
+	double dirZ = cells5.at(cellNumNext)-cells2.at(cellNum);
 	dir.SetXYZ(dirX,dirY,dirZ);
 	if(fVerbose>3)
 	  cout<<"Trk-cand direction is taking based on "<<dir.Mag()<<" cm"<<endl;
@@ -926,8 +993,8 @@ void PndLmdTrackFinderCATask::Exec(Option_t* opt)
 	myTCand->setTrackSeed(posSeed,dir,-1);
 	firstHit=false;
       }
-      int id = cells.at(7).at(cellNum);
-      int pl = cells.at(9).at(cellNum);
+      unsigned int id = cells7.at(cellNum);
+      unsigned int pl = cells9.at(cellNum);
       if(fVerbose>3) cout<<"Trk uses hit#"<<id<<" from pl#"<<pl<<endl;
       PndSdsHit* myHit = (PndSdsHit*)(fStripHitArray->At(hitsd.at(pl).at(id)));
       PndSdsClusterStrip* myCluster =  (PndSdsClusterStrip*)(fStripClusterArray->At(myHit->GetClusterIndex()));
@@ -939,32 +1006,58 @@ void PndLmdTrackFinderCATask::Exec(Option_t* opt)
       if(flagTrkCandCuts && ((dir.Theta()<0.03 || dir.Theta()>0.05) || fabs(dir.Phi())>0.25))
 	cout<<"Ooops, trk-cand has: theta="<<dir.Theta()<<" and phi="<<dir.Phi()<<endl;
       }
+    hthetaphi->Fill(dir.Theta(),dir.Phi());
     if(flagTrkCandCuts && ((dir.Theta()<0.03 || dir.Theta()>0.05) || fabs(dir.Phi())>0.25)) continue; //TEST
-    const int numPts = myTCand->GetNHits(); //read how many points in this track
-    if(numPts<1) cout<<"!!! Attention HERE is problem: number of hits in trk-cand = "<<numPts<<"!!!"<<endl;
+    const unsigned int numPts = myTCand->GetNHits(); //read how many points in this track
+    if(numPts<3) cout<<"!!! Attention HERE is problem: number of hits in trk-cand = "<<numPts<<"!!!"<<endl;
+    if(numPts<3) continue; //TEST
     new((*fTrackCandArray)[NtrkRec]) PndTrackCand(*(myTCand)); //save Track Candidate
     //    new((*fTrackCandArrayTemp)[NtrkRec]) PndTrackCand(*(myTCand)); //save Track Candidate
     NtrkRec++;
     if(fVerbose>3) cout<<"Ntrk No. "<<NtrkRec<<endl;
     delete myTCand;
   }
-  // timer_save_trks->Stop();
-  // Double_t rtime_save_trks = timer_save_trks->RealTime();
-  // Double_t ctime_save_trks = timer_save_trks->CpuTime();
-  // cout << "Real time for save trks :" << rtime_save_trks << " s, CPU time " << ctime_save_trks << " s" << endl;
+  // if(fVerbose>0){
+  //   timer_save_trks->Stop();
+  //   Double_t rtime_save_trks = timer_save_trks->RealTime();
+  //   Double_t ctime_save_trks = timer_save_trks->CpuTime();
+  //   cout << "Real time for save trks :" << rtime_save_trks << " s, CPU time " << ctime_save_trks << " s" << endl;
+  // }  
   
+  // //  erase cells;
+  // for(int icell=0;icell<11;icell++)
+  //   cells.at(icell).erase(cells.at(icell).begin(),cells.at(icell).end());
+  cells0.erase(cells0.begin(),cells0.end());
+  cells1.erase(cells1.begin(),cells1.end());
+  cells2.erase(cells2.begin(),cells2.end());
+  cells3.erase(cells3.begin(),cells3.end());
+  cells4.erase(cells4.begin(),cells4.end());
+  cells5.erase(cells5.begin(),cells5.end());
+  cells6.erase(cells6.begin(),cells6.end());
+  cells7.erase(cells7.begin(),cells7.end());
+  cells8.erase(cells8.begin(),cells8.end());
+  cells9.erase(cells9.begin(),cells9.end());
+  cells10.erase(cells10.begin(),cells10.end());
+  hitsd.erase(hitsd.begin(),hitsd.end());
+  // if(fVerbose>0){
+  //   timer_exec->Stop();
+  //   Double_t rtime_exec = timer_exec->RealTime();
+  //   Double_t ctime_exec = timer_exec->CpuTime();
+  //   cout << "Real time for Exec:" << rtime_exec << " s, CPU time " << ctime_exec << " s" << endl;
+  // }
   if(fVerbose>2){
     Int_t ntcandFin=fTrackCandArray->GetEntriesFast();
     cout<<"Number of Trk-Cands is "<<ntcandFin<<endl;
-    timer_exec->Stop();
-    Double_t rtime_exec = timer_exec->RealTime();
-    Double_t ctime_exec = timer_exec->CpuTime();
-    cout << "Real time for Exec:" << rtime_exec << " s, CPU time " << ctime_exec << " s" << endl;
-    cout << endl;
     cout<< "Evt finsihed--------------"<<endl<<endl;
+    cout << endl;
   }
-
-  
+ // delete timer_exec;
+ // delete timer_save_trks;
+ // delete timer_build_trk_combinations;
+ // delete timer_filter_trk_combinations;
+ // delete timer_build_all_trk_combinations;
+ // delete timer_neighbors_cells;
+ // delete timer_cook_cells;
 }
 
 Double_t PndLmdTrackFinderCATask::GetTrackCurvature(PndMCTrack* myTrack)
@@ -982,5 +1075,5 @@ Double_t PndLmdTrackFinderCATask::GetTrackDip(PndMCTrack* myTrack)
 
 
 // -------------------------------------------------------------------------
-ClassImp(PndLmdTrackFinderCATask);
+ClassImp(PndLmdTrackFinderCATask)
 
