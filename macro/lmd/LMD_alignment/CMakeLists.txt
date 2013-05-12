@@ -64,5 +64,5 @@ link_directories( ${LINK_DIRECTORIES})
 add_executable(hits_align_pixel CreateHitsForAlignmentPixel.C)
 add_executable(analyze_alignment Analyze.cpp)
 
-target_link_libraries(hits_align_pixel ${ROOT_LIBRARIES} genfit genfitAdapters trackrep RecoHits Stt Fts Lmd LmdReco LmdTrk Sds SdsReco Geane Geom Proof TrkBase FairTools PndData VMC EG GeomPainter generalTools Base GeoBase FairDB ParBase MathMore Minuit)
-target_link_libraries(analyze_alignment ${ROOT_LIBRARIES} genfit genfitAdapters trackrep RecoHits Stt Fts Lmd LmdReco LmdTrk Sds SdsReco Geane Geom Proof TrkBase FairTools PndData VMC EG GeomPainter generalTools Base GeoBase FairDB ParBase MathMore Minuit)
+target_link_libraries(hits_align_pixel -lrt ${ROOT_LIBRARIES} genfit genfitAdapters trackrep RecoHits Stt Fts Lmd LmdReco LmdTrk Sds SdsReco Geane Geom Proof TrkBase FairTools PndData VMC EG GeomPainter generalTools Base GeoBase FairDB ParBase MathMore Minuit)
+target_link_libraries(analyze_alignment -lrt ${ROOT_LIBRARIES} genfit genfitAdapters trackrep RecoHits Stt Fts Lmd LmdReco LmdTrk Sds SdsReco Geane Geom Proof TrkBase FairTools PndData VMC EG GeomPainter generalTools Base GeoBase FairDB ParBase MathMore Minuit)
