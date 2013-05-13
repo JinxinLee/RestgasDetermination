@@ -364,25 +364,26 @@ void PndAnalysis::BuildMcCands()
   Int_t mcMotherID = -1;
 
   // Get the Candidates
-
+  //cout<<"fMcTracks="<<fMcTracks<<" size="<<fMcTracks->GetEntriesFast()<<endl;
+  Int_t mothermap[fMcTracks->GetEntriesFast()]; // maps used and unused indices
   for ( Int_t i=0; i<fMcTracks->GetEntriesFast(); i++ ) {
     PndMCTrack* part = ( PndMCTrack* ) fMcTracks->At ( i );
+    mothermap[i]=-1;
+    
     //if (part->GetMotherID()!=-1) continue;
-
     if ( fVerbose>2 ) {
       std::cout<<"Build MC cand: ";
       part->Print ( i );
     }
 
-    mcMotherID = part->GetMotherID();
-
-    if ( mcMotherID<0 ) {
-      mcMotherID=part->GetSecondMotherID();
-    } // shadowed particle IDs
-
     TLorentzVector p4 = part->Get4Momentum();
-    // cut at 100 MeV to skip showers from being stored!
-    if(p4.Energy()<0.1) continue;
+    TVector3 startv = part->GetStartVertex();
+    // cut at 100 MeV to skip showers from being stored -> Bad idea
+    //if(part->IsGeneratorCreated()==0 && p4.Energy()<0.1) continue;
+    // better cut tracks _starting_ too far away for realistic tracking
+    if(startv.Perp() > 40.) continue;
+    if(startv.z() > 195.&& startv.Perp() > 17.5) continue;
+    //printf("PndAnalysis::BuildMcCands(): i=%i  mother=%i \tE=%3.2g  \tm=%3.2g  \tp=%3.2g  \tpid=%i  \ttStart=%3.2g  \tcreated=%i decayed=%i \tpinter %p\n",i,mcMotherID,p4.E(),p4.M(),p4.P(),part->GetPdgCode(),part->GetStartTime(),part->IsGeneratorCreated(),part->IsGeneratorDecayed(),part);
     TVector3    stvtx = part->GetStartVertex();
     TParticlePDG* ppdg = fPdg->GetParticle ( part->GetPdgCode() );
     double charge=0.0;
@@ -406,13 +407,29 @@ void PndAnalysis::BuildMcCands()
     //fMcCands->Add(pmc);
     //or
     RhoCandidate* pmc=new ( ( *fMcCands ) [size] ) RhoCandidate ( p4,charge );
-
+    mothermap[i]=size;
     //pmc->SetMcIdx(size);
     pmc->SetMcIdx ( i );
     pmc->SetPos ( stvtx );
     pmc->SetType ( part->GetPdgCode() ); //this overwrites our generator's mass information
     pmc->SetP4 ( p4 );
-    pmc->SetMcMotherIdx ( mcMotherID );
+        mcMotherID = part->GetMotherID();
+    if ( mcMotherID<0 ) {
+      mcMotherID=part->GetSecondMotherID();
+    } // shadowed particle IDs
+    if(mcMotherID>=i ||  mothermap[mcMotherID]>size ||  mothermap[mcMotherID]<0) {
+      if ( fVerbose ) Info( "BuildMcCands","mc mother index problem, skipping");
+      continue;
+    }
+    RhoCandidate* aMother= ( RhoCandidate* ) fMcCands->At ( mothermap[mcMotherID] );
+    if ( 0 == aMother ) {
+      if ( fVerbose ) Info("BuildMcCands","Mother not existant");
+      continue;
+    }
+    //printf("PndAnalysis::BuildMcCands(): Add mother link: motherid=%i, daughterid=%i, daugher energy = %.2gGeV\n",mcMotherID,i,aMcCand->GetEnergy());
+    pmc->SetMotherLink ( aMother , false); // This adds the mother-daughter and daughter-mother relation
+
+    //pmc->SetMcMotherIdx ( mcMotherID );
 
 //    if(fabs(charge)>0) {
 //      Bool_t rc = PndAnalysisCalcTools::FillHelixParams(pmc, kTRUE);
@@ -426,27 +443,29 @@ void PndAnalysis::BuildMcCands()
 
   }
 
-  // iterate again to set mother relations
-  for ( int i=0; i<fMcCands->GetEntriesFast(); i++ ) {
-    RhoCandidate* aMcCand= ( RhoCandidate* ) fMcCands->At ( i );
-    mcMotherID=aMcCand->GetMcMotherIdx();
-
-    if ( mcMotherID<0 ) {
-      continue;
-    }
-
-    RhoCandidate* aMother= ( RhoCandidate* ) fMcCands->At ( mcMotherID );
-
-    if ( 0 == aMother ) {
-      continue;
-    }
-    //printf("PndAnalysis::BuildMcCands(): Add mother link: motherid=%i, daughterid=%i, daugher energy = %.2gGeV\n",mcMotherID,i,aMcCand->GetEnergy());
-    aMcCand->SetMotherLink ( aMother ); // This adds the mother-daughter and daughter-mother relation
-  }
-
-  if ( fVerbose ) {
-    std::cout <<"-I- PndAnalysis::BuildMcCands: found ="<<fMcCands->GetEntriesFast() <<std::endl;
-  }
+//   cout<<"fMcCands="<<fMcCands<<" size="<<fMcCands->GetEntriesFast()<<endl;
+// 
+//   // iterate again to set mother relations
+//   for ( int i=0; i<fMcCands->GetEntriesFast(); i++ ) {
+//     RhoCandidate* aMcCand= ( RhoCandidate* ) fMcCands->At ( i );
+//     mcMotherID=aMcCand->GetMcMotherIdx();
+// 
+//     if ( mcMotherID<0 ) {
+//       continue;
+//     }
+// 
+//     RhoCandidate* aMother= ( RhoCandidate* ) fMcCands->At ( mcMotherID );
+// 
+//     if ( 0 == aMother ) {
+//       continue;
+//     }
+//     //printf("PndAnalysis::BuildMcCands(): Add mother link: motherid=%i, daughterid=%i, daugher energy = %.2gGeV\n",mcMotherID,i,aMcCand->GetEnergy());
+//     aMcCand->SetMotherLink ( aMother , false); // This adds the mother-daughter and daughter-mother relation
+//   }
+// 
+//   if ( fVerbose ) {
+//     std::cout <<"-I- PndAnalysis::BuildMcCands: found ="<<fMcCands->GetEntriesFast() <<std::endl;
+//   }
 
 }
 

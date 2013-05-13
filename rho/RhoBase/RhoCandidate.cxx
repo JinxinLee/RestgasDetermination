@@ -631,7 +631,7 @@ RhoCandidate::Set ( Double_t mass,
 
 
 void
-RhoCandidate::SetMotherLink ( RhoCandidate* m )
+RhoCandidate::SetMotherLink ( RhoCandidate* m , bool verbose)
 {
   assert ( m!=0 ); // what kind of mother is it ?!
 
@@ -652,7 +652,7 @@ RhoCandidate::SetMotherLink ( RhoCandidate* m )
 
   // ... and the mother's daughter link
   //fTheMother->fDaughters.push_back(this);
-  fTheMother->AddDaughterLinkSimple ( this );
+  fTheMother->AddDaughterLinkSimple ( this , verbose);
   // No markers set. MC candidates will not be "combined".
 
   // special for MC trees
@@ -938,7 +938,7 @@ RhoCandidate::AddDaughterLink ( const RhoCandidate* cand )
 }
 
 void
-RhoCandidate::AddDaughterLinkSimple ( const RhoCandidate* cand )
+RhoCandidate::AddDaughterLinkSimple ( const RhoCandidate* cand , bool verbose)
 {
   //assert( cand!=0 );
 
@@ -950,7 +950,7 @@ RhoCandidate::AddDaughterLinkSimple ( const RhoCandidate* cand )
   SetCharge ( Charge() +cand->Charge() );
 
   if (fNDaug>=5) {
-    cerr << "RhoCandidate::AddDaughterLinkSimple: Can not add more than 5 daughters." << endl;
+   if(verbose) cerr << "RhoCandidate::AddDaughterLinkSimple: Can not add more than 5 daughters." << endl;
     return;
   }
 

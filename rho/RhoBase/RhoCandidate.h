@@ -413,7 +413,7 @@ class RhoCandidate : public TObject
 
     // Add a daughter link
     // **** put to public K Goetzen
-    void AddDaughterLinkSimple ( const RhoCandidate* );
+    void AddDaughterLinkSimple ( const RhoCandidate*, bool verbose=true );
 
     void SetPidInfo ( double* pidinfo=0 );
     void SetPidInfo ( int hypo, double value );
@@ -432,7 +432,7 @@ class RhoCandidate : public TObject
     void SetDecayVtx ( RhoVector3Err*  theVtx ) ;
 
     // Sets the mother link
-    void SetMotherLink ( RhoCandidate* m );
+    void SetMotherLink ( RhoCandidate* m , bool verbose=true );
 
     // Drop the mother link
     void DropMotherLink();
