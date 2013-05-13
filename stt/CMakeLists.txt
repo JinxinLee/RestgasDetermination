@@ -59,6 +59,7 @@ PndSttHitProducerRealFull.cxx
 PndSttHelixHitProducer.cxx
 PndSttTrackFinderReal.cxx
 PndSttMapCreator.cxx
+PndSttGeometryMap.cxx
 PndSttTube.cxx
 PndSttTubeParameters.cxx
 PndSttSignalOverlap.cxx

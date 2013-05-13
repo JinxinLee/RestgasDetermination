@@ -15,6 +15,7 @@
 #include "PndSttTubeParameters.h"
 #include "PndSttTube.h"
 #include "PndGeoSttPar.h"
+#include "PndSttGeometryMap.h"
 
 #include "FairGeoNode.h"
 #include "FairGeoTransform.h"
@@ -252,6 +253,8 @@ TClonesArray* PndSttMapCreator::FillTubeArrayGeoType1() {
     new((*tubeArray)[tubeID]) PndSttTube(*stttube);
   }
 
+  PndSttGeometryMap *map = new PndSttGeometryMap(tubeArray, fGeoType);
+  map->FillGeometryParameters();
   return tubeArray;
 }
 

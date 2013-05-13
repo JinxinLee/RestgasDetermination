@@ -4,6 +4,7 @@
 #include "TVector3.h"
 #include "TMatrixT.h"
 #include "TObject.h" 
+#include "TArrayI.h"
 #include "PndSttTubeParameters.h"
 
 class PndSttTubeParameters;
@@ -33,12 +34,37 @@ class PndSttTube : public TObject
   TVector3 GetWireDirection();
   PndSttTubeParameters *GetTubeParameters();
   Int_t GetTubeID();
+  void SetSectorID(int id);
+  void SetLayerID(int id);
+  int GetLayerID();
+  int GetSectorID();
+  void SetNeighborings(TArrayI neighborings);
+  TArrayI GetNeighborings();
+  Int_t GetNeighboring(int i);
+  Double_t GetDistance(PndSttTube *tube);
 
+  void SetSectorLimitFlag(Bool_t flag = kTRUE) { fSectorLimit = flag; }
+  void SetLayerLimitFlag(Bool_t flag = kTRUE) { fLayerLimit = flag; }
+  bool IsLayerLimit() { return fLayerLimit; }
+  int IsSectorLimit()  { return fSectorLimit; }
+  
+  bool IsParallel() {
+    return (GetWireDirection().Z() == 1);
+  }
+
+  bool IsSkew() {
+    return !(GetWireDirection().Z() == 1);
+  } 
+ 
  private:
   PndSttTubeParameters *fTubeParms;
   TVector3 fCenPosition;
   TMatrixT<double> fRotationMatrix;
   Double_t fRadIn, fRadOut;
+  Int_t fSectorID, fLayerID;
+  TArrayI fNeighborings;
+  Bool_t fLayerLimit, fSectorLimit;
+ 
   ClassDef(PndSttTube,1);
 };
 

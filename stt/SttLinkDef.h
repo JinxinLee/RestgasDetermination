@@ -35,6 +35,7 @@
 #pragma link C++ class PndSttHitRingSorter+;
 #pragma link C++ class PndSttHitSorterTask+;
 #pragma link C++ class PndSttStrawMap+;
+#pragma link C++ class PndSttGeometryMap+;
 
 
 #endif
