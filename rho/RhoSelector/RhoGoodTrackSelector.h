@@ -20,8 +20,7 @@ class RhoGoodTrackSelector : public RhoParticleSelectorBase
 
   public:
     // Default constructor installs the currently accepted general setting
-    RhoGoodTrackSelector ( const char* name="RhoGoodTrackSelector", Int_t nh=6400, Double_t pt=0., Double_t chipm=0.0, Double_t d=0., Double_t z=0., Bool_t qc=kFALSE );
-
+    RhoGoodTrackSelector ( const char* name="RhoGoodTrackSelector" );
     //Destructor
     virtual ~RhoGoodTrackSelector();
 
@@ -30,50 +29,46 @@ class RhoGoodTrackSelector : public RhoParticleSelectorBase
     virtual Bool_t Accept ( RhoCandidate& b );
     virtual Bool_t Accept ( FairRecoCandidate& b );
     virtual void PrintOn ( std::ostream& o=std::cout ) const;
-    void SetHits ( Int_t min, Int_t max=65535 ) {
-      fNHitsMin = min;
-      fNHitsMax = max;
-    }
-    void SetMomentum ( Double_t pmin, Double_t pmax=1.E8 ) {
+
+//    void SetNHitsCut ( Int_t min, Int_t max=65535 ) {
+//      fNHitsMin = min;
+//      fNHitsMax = max;
+//      fCutHits=kTRUE;
+//    }
+    void SetMomentumCut ( Double_t pmin, Double_t pmax=1.E8 ) {
       fPMin = pmin;
       fPMax = pmax;
+      fCutMom=kTRUE;
     }
-    void SetPt ( Double_t ptmin, Double_t ptmax=1.E8 ) {
+    void SetPtCut ( Double_t ptmin, Double_t ptmax=1.E8 ) {
       fPtMin = ptmin;
       fPtMax = ptmax;
+      fCutPt=kTRUE;
     }
-    void SetFit ( Double_t chipm, Double_t chi=0.0, Int_t n=0 ) {
+    void SetFitCut ( Double_t chipm, Double_t chi=0.0 ) {
       fChisqProbMin = chipm;
       fChisqMax = chi;
-      fNDof = n;
+      fCutFit=kTRUE;
     }
-    void SetPrimaryVertex ( Double_t d, Double_t zmin, Double_t zmax ) {
+    void SetPrimaryVertexCut ( Double_t d, Double_t zmin, Double_t zmax ) {
       fDocaMax = d;
       fZMin = zmin;
       fZMax = zmax;
+      fCutVtx=kTRUE;
     }
-    void SetPhi ( Double_t min, Double_t max ) {
-      fPhiMin = min;
-      fPhiMax = max;
-    }
-    void SetTheta ( Double_t min, Double_t max ) {
-      fThetaMin = min;
-      fThetaMax = max;
-    }
-    void SetLength ( Double_t min, Double_t max ) {
-      fLengthMin = min;
-      fLengthMax = max;
-    }
+    
   private:
-    Int_t fNHitsMin;  // Number of hits: total
-    Int_t fNHitsMax;  // Number of hits: total
+//    Int_t fNHitsMin;  // Number of hits: total
+//    Int_t fNHitsMax;  // Number of hits: total
     Double_t fPMin, fPMax, fPtMin, fPtMax;    // Momentum cuts (abs. value)
     Double_t fChisqProbMin, fChisqMax;    // Fit chi-square probability
-    Int_t fNDof;          // Number degrees of freedom
     Double_t fDocaMax;        // Distance of closest approach
     Double_t fZMin, fZMax;      // Closest z approach to beam spot
-    Double_t fPhiMin, fPhiMax, fThetaMin, fThetaMax;// Angular cuts at poca
-    Double_t fLengthMin, fLengthMax;    // Track length
+    Bool_t fCutFit;
+    Bool_t fCutVtx;
+    Bool_t fCutMom;
+    Bool_t fCutPt;
+//    Bool_t fCutHits;
 
   public:
     ClassDef( RhoGoodTrackSelector,1 )  // Track selector

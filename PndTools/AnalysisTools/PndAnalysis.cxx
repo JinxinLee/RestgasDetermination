@@ -482,7 +482,7 @@ Bool_t PndAnalysis::PropagateToZAxis ( RhoCandidate* cand )
     return kFALSE;
   }
 
-  PndPidCandidate* pidCand = static_cast<PndPidCandidate*> ( &cand->GetRecoCandidate() );
+  PndPidCandidate* pidCand = (PndPidCandidate*)cand->GetRecoCandidate();
 
   PndTrack* track = ( PndTrack* ) fTracks->At ( pidCand->GetTrackIndex() );
 
@@ -507,7 +507,7 @@ Bool_t PndAnalysis::PropagateToPoint ( RhoCandidate* cand, TVector3* mypoint )
     return kFALSE;
   }
 
-  PndPidCandidate* pidCand = static_cast<PndPidCandidate*> ( &cand->GetRecoCandidate() );
+  PndPidCandidate* pidCand = (PndPidCandidate*)cand->GetRecoCandidate();
 
   PndTrack* track = ( PndTrack* ) fTracks->At ( pidCand->GetTrackIndex() );
 
@@ -529,7 +529,7 @@ FairTrackParP PndAnalysis::GetFirstPar ( RhoCandidate* cand )
     return dummy;
   }
 
-  PndPidCandidate* pidCand = static_cast<PndPidCandidate*> ( &cand->GetRecoCandidate() );
+  PndPidCandidate* pidCand = (PndPidCandidate*)cand->GetRecoCandidate();
 
   PndTrack* track = ( PndTrack* ) fTracks->At ( pidCand->GetTrackIndex() );
 

@@ -367,7 +367,7 @@ class RhoCandidate : public TObject
     void SetFast ( Bool_t yesno ) { fFastMode = yesno; }
     Bool_t IsFast() const { return fFastMode; }
 
-    FairRecoCandidate& GetRecoCandidate() const { return *fMicroCand; }
+    FairRecoCandidate* GetRecoCandidate() const { return fMicroCand; }
 
     RhoCandidate* Combine ( const RhoCandidate& c );
     //************** added Combine for more candidates K.Goetzen, 05/2008

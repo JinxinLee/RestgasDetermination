@@ -36,6 +36,7 @@
 #pragma link C++ class RhoEventInfo;
 #pragma link C++ function operator << ( ostream &, const RhoEventInfo & );
 #pragma link C++ class RhoEventShape;
+#pragma link C++ class RhoEventShapes;
 
 #pragma link C++ class RhoFactory;
 //#pragma link C++ class TSmartPointer;

@@ -538,7 +538,7 @@ void PndSimpleAnalysis::Exec(Option_t* opt)
           if ( (off+k)>=fMaxEntries ) { continue; }
           float* theArF=curdump->fNtpFArrays[j];
 
-          PndPidCandidate* mic=(PndPidCandidate*)(&(cur->fList[k].GetRecoCandidate()));
+          PndPidCandidate* mic=(PndPidCandidate*)((cur->fList[k].GetRecoCandidate()));
 
           // set default
           theArF[off+k]=0.0;

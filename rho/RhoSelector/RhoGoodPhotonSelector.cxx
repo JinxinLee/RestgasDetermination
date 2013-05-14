@@ -66,7 +66,7 @@ Bool_t RhoGoodPhotonSelector::Accept ( RhoCandidate& b )
   // quality of a reconstructed charged track
 
   if ( &b == 0 ) { return kFALSE; }
-  FairRecoCandidate* tmppoint = & ( b.GetRecoCandidate() );
+  FairRecoCandidate* tmppoint = b.GetRecoCandidate();
   PndPidCandidate* tmp2 = ( PndPidCandidate* ) tmppoint;
   if ( !Accept ( *tmp2 ) ) { return kFALSE; }
   SetTypeAndMass ( b );
