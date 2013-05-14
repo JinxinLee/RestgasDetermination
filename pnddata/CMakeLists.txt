@@ -19,7 +19,7 @@ ${CMAKE_SOURCE_DIR}/base
  
 link_directories( ${LINK_DIRECTORIES})
 
-set(PNDDATA_SRCS
+set(SRCS
 PndStack.cxx 
 PndMCTrack.cxx
 
@@ -98,25 +98,89 @@ PidData/PndPidProbability.cxx
 FairRecoCandidate.cxx
 )
 
-if(RULE_CHECKER_FOUND)
-  CHECK_RULES("${PNDDATA_SRCS}" "${INCLUDE_DIRECTORIES}" PNDDATA_RULES)
-endif(RULE_CHECKER_FOUND)
+set(HEADERS
+PndStack.h 
+PndMCTrack.h
 
-# fill list of header files from list of source files
-# by exchanging the file extension
-CHANGE_FILE_EXTENSION(*.cxx *.h PNDDATA_HEADERS "${PNDDATA_SRCS}")
-SET( PNDDATA_HEADERS ${PNDDATA_HEADERS} HypData/PndHypStrip.h PndDetectorList.h )
+DskData/PndDskCerenkov.h
+DskData/PndDskParticle.h
+DskData/PndDskTrackPoint.h
+DskData/PndDskFLGHit.h
 
-set(PNDDATA_LINKDEF  PndDataLinkDef.h)
-set(PNDDATA_DICTIONARY ${CMAKE_CURRENT_BINARY_DIR}/PndDataDict.cxx) 
+DrcData/PndDrcPDPoint.h 
+DrcData/PndDrcBarPoint.h
+DrcData/PndDrcHit.h
+DrcData/PndDrcPDHit.h
+DrcData/PndDrcDigi.h
 
-ROOT_GENERATE_DICTIONARY("${PNDDATA_HEADERS}" "${PNDDATA_LINKDEF}" "${PNDDATA_DICTIONARY}" "${INCLUDE_DIRECTORIES}")
+GemData/PndGemMCPoint.h
+GemData/PndGemDigi.h
+GemData/PndGemHit.h
 
-SET(PNDDATA_SRCS ${PNDDATA_SRCS} ${PNDDATA_DICTIONARY})
+MdtData/PndMdtPoint.h
+MdtData/PndMdtDigi.h
+MdtData/PndMdtCluster.h
+MdtData/PndMdtHit.h
+MdtData/PndMdtTrk.h
 
-add_library(PndData SHARED ${PNDDATA_SRCS})
-target_link_libraries(PndData ${ROOT_LIBRARIES})
-set_target_properties(PndData PROPERTIES ${FAIRROOT_LIBRARY_PROPERTIES})
-################ install ###################
-install(TARGETS PndData DESTINATION ${CMAKE_BINARY_DIR}/lib)
+SttData/PndSttGeomPoint.h
+SttData/PndSttHelixHit.h
+SttData/PndSttHit.h  
+SttData/PndSttHitInfo.h  
+SttData/PndSttPoint.h  
+SttData/PndSttTrack.h
 
+FtsData/PndFtsPoint.h
+FtsData/PndFtsHit.h
+
+HypData/PndHypCluster.h
+HypData/PndHypDigi.h
+HypData/PndHypDigiStrip.h
+HypData/PndHypHit.h
+HypData/PndHypHitInfo.h
+HypData/PndHypPidCand.h
+HypData/PndHypPoint.h
+HypData/PndHypStrip.h
+
+SdsData/PndSdsMCPoint.h
+SdsData/PndSdsDigi.h
+SdsData/PndSdsPixel.h
+SdsData/PndSdsDigiPixel.h
+SdsData/PndSdsStrip.h
+SdsData/PndSdsDigiStrip.h
+SdsData/PndSdsCluster.h
+SdsData/PndSdsClusterPixel.h
+SdsData/PndSdsClusterStrip.h
+SdsData/PndSdsHit.h
+#SdsData/PndSdsHitInfo.h
+SdsData/PndSdsPidCand.h
+SdsData/PndSdsRadDamHit.h
+SdsData/PndSdsDigiPixelMCInfo.h
+
+RichData/PndRichPoint.h
+ 
+MvdData/PndMvdApvHit.h
+MvdData/PndMvdPidCand.h
+MvdData/PndMvdRadDamHit.h
+
+SciTData/PndSciTPoint.h
+SciTData/PndSciTHit.h
+
+TrackData/PndTrackCandHit.h
+TrackData/PndTrackCand.h
+TrackData/PndTrack.h
+TrackData/PndTrackID.h
+#TrackData/PndVertex.h
+
+PidData/PndPidCandidate.h
+PidData/PndPidProbability.h
+
+FairRecoCandidate.h
+)
+
+set(LINKDEF  PndDataLinkDef.h)
+set(LIBRARY_NAME PndData)
+
+set(DEPENDENCIES Base GeoBase TrkBase)
+
+GENERATE_LIBRARY()

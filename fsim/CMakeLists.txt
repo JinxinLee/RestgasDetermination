@@ -26,7 +26,7 @@ ${ROOT_LIBRARY_DIR}
  
 link_directories( ${LINK_DIRECTORIES})
 
-set(fsim_SRCS
+set(SRCS
 PndFastSim.cxx
 PndFsmTrack.cxx
 PndFsmResponse.cxx
@@ -59,7 +59,7 @@ PndFsmRandom.cxx
 #PndEventLoop.cxx
 )
 
-set(fsim_HEADERS
+set(HEADERS
 #ArgList.h
 FsmDetTypes.h
 PndFastSim.h
@@ -94,25 +94,9 @@ PndFsmRandom.h
 #PndEventLoop.h
 )
 
-if(RULE_CHECKER_FOUND)
-  CHECK_RULES("${fsim_SRCS}" "${INCLUDE_DIRECTORIES}" FSIM_RULES)
-endif(RULE_CHECKER_FOUND)
+set(LINKDEF fsimLinkDef.h)
+set(LIBRARY_NAME fsim)
 
+set(DEPENDENCIES Base ParBase PndData AnalysisTools)
 
-#CHANGE_FILE_EXTENSION(*.cxx *.h fsim_HEADERS "${Rho_SRCS}")
-
-#set (fsim_HEADERS ${fsim_HEADERS} ArgList.h FsmDetTypes.h StrTok.h)
-
-set(fsim_LINKDEF fsimLinkDef.h)
-set(fsim_DICTIONARY ${CMAKE_CURRENT_BINARY_DIR}/fsimDict.cxx) 
-
-ROOT_GENERATE_DICTIONARY("${fsim_HEADERS}" "${fsim_LINKDEF}" "${fsim_DICTIONARY}" "${INCLUDE_DIRECTORIES}")
-
-
-set(fsim_SRCS ${fsim_SRCS} ${fsim_DICTIONARY})
-
-add_library(fsim SHARED ${fsim_SRCS})
-target_link_libraries(fsim ${ROOT_LIBRARIES})
-set_target_properties(fsim PROPERTIES ${FAIRROOT_LIBRARY_PROPERTIES})
-################ install ###################
-install(TARGETS fsim DESTINATION ${CMAKE_BINARY_DIR}/lib)
+GENERATE_LIBRARY()

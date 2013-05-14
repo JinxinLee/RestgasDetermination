@@ -29,30 +29,17 @@ ${ROOT_LIBRARY_DIR}
  
 link_directories( ${LINK_DIRECTORIES})
 
-set(STT_SRCS
+set(SRCS
 #PndSttPatternRecoTask.cxx
 #PndSttPatternRecoTask2.cxx
 #PndSttKalmanTask.cxx
 #PndSttKalmanTask2.cxx
 #WirepointHitPolicy.cxx
 )
-if(RULE_CHECKER_FOUND)
-  CHECK_RULES("${STT_SRCS}" "${INCLUDE_DIRECTORIES}" STTRECO_RULES)
-endif(RULE_CHECKER_FOUND)
 
-# fill list of header files from list of source files
-# by exchanging the file extension
-CHANGE_FILE_EXTENSION(*.cxx *.h STT_HEADERS "${STT_SRCS}")
+set(LINKDEF  SttRecoLinkDef.h)
+set(LIBRARY_NAME SttReco)
 
-set(STT_LINKDEF  SttRecoLinkDef.h)
-set(STT_DICTIONARY ${CMAKE_CURRENT_BINARY_DIR}/PndSttRecoDict.cxx) 
+set(DEPENDENCIES Base GeoBase ParBase PndData TrkBase Geane RecoHits)
 
-ROOT_GENERATE_DICTIONARY("${STT_HEADERS}" "${STT_LINKDEF}" "${STT_DICTIONARY}" "${INCLUDE_DIRECTORIES}")
-
-SET(STT_SRCS ${STT_SRCS} ${STT_DICTIONARY})
-
-add_library(SttReco SHARED ${STT_SRCS})
-target_link_libraries(SttReco ${ROOT_LIBRARIES})
-set_target_properties(SttReco PROPERTIES ${FAIRROOT_LIBRARY_PROPERTIES})
-################ install ###################
-install(TARGETS SttReco DESTINATION ${CMAKE_BINARY_DIR}/lib)
+GENERATE_LIBRARY()

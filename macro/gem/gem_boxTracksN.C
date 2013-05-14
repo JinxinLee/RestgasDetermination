@@ -6,7 +6,7 @@ Int_t gem_boxTracksN(Int_t nStations, Int_t nparts, Int_t nEvents = 1000, Int_t 
   }
 
   // ----  Load libraries   -------------------------------------------------
-  gROOT->Macro("$VMCWORKDIR/gconfig/rootlogon.C");
+  // gROOT->Macro("$VMCWORKDIR/gconfig/rootlogon.C");
   TString sysFile = gSystem->Getenv("VMCWORKDIR");
 
   // Input file (MC events)

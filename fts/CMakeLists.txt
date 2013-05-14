@@ -22,7 +22,7 @@ ${ROOT_LIBRARY_DIR}
  
 link_directories( ${LINK_DIRECTORIES})
 
-set(FTS_SRCS
+set(SRCS
 PndGeoFtsPar.cxx
 PndGeoFts.cxx
 PndFtsDigiPar.cxx
@@ -39,23 +39,9 @@ PndFtsHitProducerRealFull.cxx
 PndFtsTrackerIdeal.cxx
 )
 
-if(RULE_CHECKER_FOUND)
-  CHECK_RULES("${FTS_SRCS}" "${INCLUDE_DIRECTORIES}" FTS_RULES)
-endif(RULE_CHECKER_FOUND)
+set(LINKDEF  FtsLinkDef.h)
+set(LIBRARY_NAME Fts)
 
-# fill list of header files from list of source files
-# by exchanging the file extension
-CHANGE_FILE_EXTENSION(*.cxx *.h FTS_HEADERS "${FTS_SRCS}")
+set(DEPENDENCIES Base GeoBase ParBase PndData TrkBase)
 
-set(FTS_LINKDEF  FtsLinkDef.h)
-set(FTS_DICTIONARY ${CMAKE_CURRENT_BINARY_DIR}/PndFtsDict.cxx) 
-
-ROOT_GENERATE_DICTIONARY("${FTS_HEADERS}" "${FTS_LINKDEF}" "${FTS_DICTIONARY}" "${INCLUDE_DIRECTORIES}")
-
-SET(FTS_SRCS ${FTS_SRCS} ${FTS_DICTIONARY})
-
-add_library(Fts SHARED ${FTS_SRCS})
-target_link_libraries(Fts ${ROOT_LIBRARIES})
-set_target_properties(Fts PROPERTIES ${FAIRROOT_LIBRARY_PROPERTIES})
-################ install ###################
-install(TARGETS Fts DESTINATION ${CMAKE_BINARY_DIR}/lib)
+GENERATE_LIBRARY()

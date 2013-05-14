@@ -31,9 +31,7 @@ ${ROOT_LIBRARY_DIR}
 
 link_directories( ${LINK_DIRECTORIES})
 
-
-########################### create libGem ######################################
-set(GEM_SRCS
+set(SRCS
 PndGemDetector.cxx
 PndGemSmearingTask.cxx
 PndGemContFact.cxx
@@ -59,29 +57,10 @@ PndGemDigiSorterTask.cxx
 PndGemDigiRingSorter.cxx
 PndGemFindHitsAna.cxx
 )
-if(RULE_CHECKER_FOUND)
-  CHECK_RULES("${GEM_SRCS}" "${INCLUDE_DIRECTORIES}" GEM_RULES)
-endif(RULE_CHECKER_FOUND)
 
-# fill list of header files from list of source files
-# by exchanging the file extension
-CHANGE_FILE_EXTENSION(*.cxx *.h GEM_HEADERS "${GEM_SRCS}")
-# SET(GEM_SRCS ${GEM_SRCS} ${DIGI_SRCS})
-# SET(GEM_HEADERS ${GEM_HEADERS} ${DIGI_HEADERS})
+set(LINKDEF  GemLinkDef.h)
+set(LIBRARY_NAME Gem)
 
-set(GEM_LINKDEF  GemLinkDef.h)
-set(GEM_DICTIONARY ${CMAKE_CURRENT_BINARY_DIR}/GemDict.cxx)
+set(DEPENDENCIES Base ParBase PndData TrkBase RecoHits Geane)
 
-ROOT_GENERATE_DICTIONARY("${GEM_HEADERS}" "${GEM_LINKDEF}" "${GEM_DICTIONARY}" "${INCLUDE_DIRECTORIES}")
-SET(GEM_SRCS ${GEM_SRCS} ${GEM_DICTIONARY})
-
-add_library(Gem SHARED ${GEM_SRCS})
-target_link_libraries(Gem ${ROOT_LIBRARIES})
-set_target_properties(Gem PROPERTIES ${FAIRROOT_LIBRARY_PROPERTIES})
-
-################################## install #####################################
-install(TARGETS Gem DESTINATION ${CMAKE_BINARY_DIR}/lib)
-# install(TARGETS GemReco DESTINATION ${CMAKE_BINARY_DIR}/lib)
-# install(TARGETS GemTrk DESTINATION ${CMAKE_BINARY_DIR}/lib)
-
-
+GENERATE_LIBRARY()

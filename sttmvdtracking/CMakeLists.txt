@@ -36,7 +36,7 @@ ${GLPK_LIB_DIR}
  
 link_directories( ${LINK_DIRECTORIES})
 
-set(STTMVDTRACKING_SRCS
+set(SRCS
 PndSttMvdTracking.cxx
 PndSttMvdGemTracking.cxx
 PndSttMvdGemTrackingIdeal.cxx
@@ -46,23 +46,9 @@ PndSecondaryTrackFinder.cxx
 PndLambdaIM.cxx
 )
 
-if(RULE_CHECKER_FOUND)
-  CHECK_RULES("${STTMVDTRACKING_SRCS}" "${INCLUDE_DIRECTORIES}" STTMVDTRACKING_RULES)
-endif(RULE_CHECKER_FOUND)
+set(LINKDEF  SttMvdTrackingLinkDef.h)
+set(LIBRARY_NAME SttMvdTracking)
 
-# fill list of header files from list of source files
-# by exchanging the file extension
-CHANGE_FILE_EXTENSION(*.cxx *.h STTMVDTRACKING_HEADERS "${STTMVDTRACKING_SRCS}")
+set(DEPENDENCIES Base GeoBase ParBase PndData TrkBase Geane Gem Stt)
 
-set(STTMVDTRACKING_LINKDEF  SttMvdTrackingLinkDef.h)
-set(STTMVDTRACKING_DICTIONARY ${CMAKE_CURRENT_BINARY_DIR}/PndSttMvdTrackingDict.cxx) 
-
-ROOT_GENERATE_DICTIONARY("${STTMVDTRACKING_HEADERS}" "${STTMVDTRACKING_LINKDEF}" "${STTMVDTRACKING_DICTIONARY}" "${INCLUDE_DIRECTORIES}")
-
-SET(STTMVDTRACKING_SRCS ${STTMVDTRACKING_SRCS} ${STTMVDTRACKING_DICTIONARY})
-
-add_library(SttMvdTracking SHARED ${STTMVDTRACKING_SRCS})
-target_link_libraries(SttMvdTracking ${ROOT_LIBRARIES}  ${GLPK_LIB_DIR}/libglpk.so)
-set_target_properties(SttMvdTracking PROPERTIES ${FAIRROOT_LIBRARY_PROPERTIES})
-################ install ###################
-install(TARGETS SttMvdTracking DESTINATION ${CMAKE_BINARY_DIR}/lib)
+GENERATE_LIBRARY()

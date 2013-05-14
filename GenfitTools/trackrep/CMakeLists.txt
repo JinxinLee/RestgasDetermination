@@ -25,7 +25,7 @@ ${ROOT_LIBRARY_DIR}
 link_directories( ${LINK_DIRECTORIES})
 
 
-set(TRACKREP_SRCS 
+set(SRCS 
 GeaneTrackRep/GeaneTrackRep.cxx
 LSLtrackRep/LSLTrackRep.cxx
 LSLtrackRep/LSLEQM.cxx
@@ -33,27 +33,9 @@ LSLtrackRep/Nystrom.cxx
 RKTrackRep/RKTrackRep.cxx
 )
 
-if(RULE_CHECKER_FOUND)
-  CHECK_RULES("${TRACKREP_SRCS}" "${INCLUDE_DIRECTORIES}" TRACKREP_RULES)
-endif(RULE_CHECKER_FOUND)
+set(LINKDEF  trackrepLinkDef.h)
+set(LIBRARY_NAME trackrep)
 
-# fill list of header files from list of source files
-# by exchanging the file extension
-CHANGE_FILE_EXTENSION(*.cxx *.h TRACKREP_HEADERS "${TRACKREP_SRCS}")
+set(DEPENDENCIES Geane TrkBase)
 
-
-set(TRACKREP_LINKDEF  trackrepLinkDef.h)
-set(TRACKREP_DICTIONARY ${CMAKE_CURRENT_BINARY_DIR}/trackrepDict.cxx) 
-
-
-ROOT_GENERATE_DICTIONARY("${TRACKREP_HEADERS}" "${TRACKREP_LINKDEF}" "${TRACKREP_DICTIONARY}" "${INCLUDE_DIRECTORIES}")
-
-SET(TRACKREP_SRCS_ALL ${TRACKREP_SRCS} ${TRACKREP_DICTIONARY})
-
-SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -DOLDVMC")
-
-add_library(trackrep SHARED ${TRACKREP_SRCS_ALL})
-target_link_libraries(trackrep ${ROOT_LIBRARIES})
-set_target_properties(trackrep PROPERTIES ${FAIRROOT_LIBRARY_PROPERTIES})
-################ install ###################
-install(TARGETS trackrep DESTINATION ${CMAKE_BINARY_DIR}/lib)
+GENERATE_LIBRARY()

@@ -25,7 +25,7 @@ ${ROOT_LIBRARY_DIR}
  
 link_directories( ${LINK_DIRECTORIES})
 
-set(Rho_SRCS 
+set(SRCS 
 RhoConstraints/RhoMassConstraint.cxx 
 RhoConstraints/RhoPointingConstraint.cxx 
 RhoConstraints/RhoBeamConstraint.cxx 
@@ -74,28 +74,11 @@ RhoHistogram/RhoColumn.cxx
 RhoHistogram/RhoTuple.cxx
 
 RhoBase/RhoConstraint.cxx 
-
-
 )
-set (Rho_RULECHECKER_SRCS ${Rho_SRCS})
 
-if(RULE_CHECKER_FOUND)
-  CHECK_RULES("${Rho_RULECHECKER_SRCS}" "${INCLUDE_DIRECTORIES}" RHO_RULES)
-endif(RULE_CHECKER_FOUND)
+set(LINKDEF  Rho_LinkDef.h)
+set(LIBRARY_NAME Rho)
 
-# fill list of header files from list of source files
-# by exchanging the file extension
-CHANGE_FILE_EXTENSION(*.cxx *.h Rho_HEADERS "${Rho_SRCS}")
+set(DEPENDENCIES Base)
 
-set(Rho_LINKDEF  Rho_LinkDef.h)
-set(Rho_DICTIONARY ${CMAKE_CURRENT_BINARY_DIR}/RhoDict.cxx) 
-
-ROOT_GENERATE_DICTIONARY("${Rho_HEADERS}" "${Rho_LINKDEF}" "${Rho_DICTIONARY}" "${INCLUDE_DIRECTORIES}")
-
-SET(Rho_SRCS ${Rho_SRCS} ${Rho_DICTIONARY})
-
-add_library(Rho SHARED ${Rho_SRCS})
-target_link_libraries(Rho ${ROOT_LIBRARIES})
-set_target_properties(Rho PROPERTIES ${FAIRROOT_LIBRARY_PROPERTIES})
-################ install ###################
-install(TARGETS Rho DESTINATION ${CMAKE_BINARY_DIR}/lib)
+GENERATE_LIBRARY()

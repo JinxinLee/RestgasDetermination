@@ -23,7 +23,7 @@ ${ROOT_LIBRARY_DIR}
 link_directories( ${LINK_DIRECTORIES})
 # ###################################
 # Set HEADER files
-SET (MVA_HEADERS
+SET (HEADERS
 PndMvaClassifier.h
 PndMvaDataSet.h
 PndMvaTrainer.h
@@ -50,7 +50,7 @@ TMVA_MCL/PndMultiClassBdtClassify.h
 )
 
 # Set SOURCE files
-SET (MVA_SRCS
+SET (SRCS
 PndMvaClassifier.cpp
 PndMvaDataSet.cpp
 PndMvaTrainer.cpp
@@ -81,29 +81,13 @@ If(${ROOT_VERSION_NUMBER} LESS 52800)
    MESSAGE("-- <MVA_WARN> ROOT version is too old for Muliclass support.")
 Else(${ROOT_VERSION_NUMBER} LESS 52800)
    MESSAGE("-- <MVA_INFO> Building MVA with multiClass.")
-   SET(MVA_HEADERS ${MVA_HEADERS} ${TMVA_ALG_HEADR})
-   SET(MVA_SRCS ${MVA_SRCS} ${TMVA_ALG_SOURCE})
+   SET(HEADERS ${HEADERS} ${TMVA_ALG_HEADR})
+   SET(SRCS ${SRCS} ${TMVA_ALG_SOURCE})
 EndIf(${ROOT_VERSION_NUMBER} LESS 52800)
 
-# ###################################
-# if(RULE_CHECKER_FOUND)
-#  CHECK_RULES("${MVA_SRCS}" "${INCLUDE_DIRECTORIES}" MVA_RULES)
-# endif(RULE_CHECKER_FOUND)
+set(LINKDEF  MVALinkDef.h)
+set(LIBRARY_NAME Mva)
 
-# fill list of header files from list of source files
-# by exchanging the file extension
-# CHANGE_FILE_EXTENSION(*.cpp *.cxx *.h *.hpp MVA_HEADERS "${MVA_SRCS}")
+set(DEPENDENCIES Base ParBase PndData generalTools Stt Fts)
 
-set(MVA_LINKDEF  MVALinkDef.h)
-set(MVA_DICTIONARY ${CMAKE_CURRENT_BINARY_DIR}/MVADict.cxx) 
-
-ROOT_GENERATE_DICTIONARY("${MVA_HEADERS}" "${MVA_LINKDEF}" "${MVA_DICTIONARY}" "${INCLUDE_DIRECTORIES}")
-
-SET(MVA_SRCS ${MVA_SRCS} ${MVA_DICTIONARY})
-
-add_library(Mva SHARED ${MVA_SRCS})
-target_link_libraries(Mva ${ROOT_LIBRARIES})
-set_target_properties(Mva PROPERTIES ${FAIRROOT_LIBRARY_PROPERTIES})
-
-################ install ###################
-install(TARGETS Mva DESTINATION ${CMAKE_BINARY_DIR}/lib)
+GENERATE_LIBRARY()

@@ -12,8 +12,8 @@ void sim_BARREL_1000sep(Int_t fileId = 0, Int_t nEvents=1000, Int_t pid=13, Int_
   timer.Start();
   gDebug=0;
   // Load basic libraries
-  gROOT->LoadMacro("$VMCWORKDIR/gconfig/rootlogon.C");
-  rootlogon();
+  // gROOT->LoadMacro("$VMCWORKDIR/gconfig/rootlogon.C");
+  // rootlogon();
 
   TString parOutput  = Form("params_22Part_n%d_f%d_sep.root",nEvents,fileId);
   TString outputFile = Form("points_22Part_n%d_f%d_sep.root",nEvents,fileId);

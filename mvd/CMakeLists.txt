@@ -52,7 +52,7 @@ link_directories( ${LINK_DIRECTORIES})
 
 
 ########################### create libMvd ######################################
-set(MVD_SRCS
+set(SRCS
 
 
 MvdTools/PndMvdContFact.cxx
@@ -89,26 +89,17 @@ MvdDAQ/PndMvdBoxMap.cxx
 MvdDAQ/PndMvdConvertApvTask.cxx
 MvdDAQ/PndMvdCreateDefaultApvMap.cxx
 )
-set (MVD_RULECHECKER_SRCS ${MVD_SRCS})
 
-# fill list of header files from list of source files
-# by exchanging the file extension
-CHANGE_FILE_EXTENSION(*.cxx *.h MVD_HEADERS "${MVD_SRCS}")
-# SET(MVD_SRCS ${MVD_SRCS} ${DIGI_SRCS})
-# SET(MVD_HEADERS ${MVD_HEADERS} ${DIGI_HEADERS})
+set(LINKDEF  MvdLinkDef.h)
+set(LIBRARY_NAME Mvd)
 
-set(MVD_LINKDEF  MvdLinkDef.h)
-set(MVD_DICTIONARY ${CMAKE_CURRENT_BINARY_DIR}/MvdDict.cxx)
+set(DEPENDENCIES Base GeoBase ParBase PndData generalTools RecoHits
+Geane Lmd Sds TrkBase)
 
-ROOT_GENERATE_DICTIONARY("${MVD_HEADERS}" "${MVD_LINKDEF}" "${MVD_DICTIONARY}" "${INCLUDE_DIRECTORIES}")
-SET(MVD_SRCS ${MVD_SRCS} ${MVD_DICTIONARY})
-
-add_library(Mvd SHARED ${MVD_SRCS})
-target_link_libraries(Mvd ${ROOT_LIBRARIES})
-set_target_properties(Mvd PROPERTIES ${FAIRROOT_LIBRARY_PROPERTIES})
+GENERATE_LIBRARY()
 
 ########################### create libMvdReco ##################################
-set(MVDRECO_SRCS
+set(SRCS
 MvdReco/PndMvdClusterTask.cxx
 MvdReco/PndMvdPixelClusterTask.cxx
 MvdReco/PndMvdIdealClusterTask.cxx
@@ -125,28 +116,17 @@ MvdTools/PndMvdAnaRadDam.cxx
 MvdTools/PndMvdRadDamIonizingTask.cxx
 
 )
-set (MVD_RULECHECKER_SRCS ${MVD_RULECHECKER_SRCS} ${MVDRECO_SRCS})
 
-#if(RULE_CHECKER_FOUND)
-#  CHECK_RULES("${MVD_RULECHECKER_SRCS}" "${INCLUDE_DIRECTORIES}" MVD_RULES)
-#endif(RULE_CHECKER_FOUND)
+set(LINKDEF  MvdRecoLinkDef.h)
+set(LIBRARY_NAME MvdReco)
 
+set(DEPENDENCIES Base GeoBase ParBase PndData generalTools RecoHits
+Geane Lmd Sds SdsReco TrkBase)
 
-# fill list of header files from list of source files
-# by exchanging the file extension
-CHANGE_FILE_EXTENSION(*.cxx *.h MVDRECO_HEADERS "${MVDRECO_SRCS}")
-set(MVDRECO_LINKDEF  MvdRecoLinkDef.h)
-set(MVDRECO_DICTIONARY ${CMAKE_CURRENT_BINARY_DIR}/MvdRecoDict.cxx)
-
-ROOT_GENERATE_DICTIONARY("${MVDRECO_HEADERS}" "${MVDRECO_LINKDEF}" "${MVDRECO_DICTIONARY}" "${INCLUDE_DIRECTORIES}")
-SET(MVDRECO_SRCS ${MVDRECO_SRCS} ${MVDRECO_DICTIONARY})
-
-add_library(MvdReco SHARED ${MVDRECO_SRCS})
-target_link_libraries(MvdReco ${ROOT_LIBRARIES})
-set_target_properties(MvdReco PROPERTIES ${FAIRROOT_LIBRARY_PROPERTIES})
+GENERATE_LIBRARY()
 
 ########################### create libMvdTrk ##################################
-set(MVDTRK_SRCS
+set(SRCS
 
 MvdPid/PndMvdPidIdealTask.cxx
 MvdPid/PndMvdIdealPidAlgo.cxx
@@ -177,28 +157,11 @@ MvdTracking/LinFit/TtAliTask.cxx
 MvdTracking/LinFit/TtCracowTask.cxx
 
 )
-Set (MVD_RULECHECKER_SRCS ${MVD_RULECHECKER_SRCS} ${MVDTRK_SRCS})
 
-if(RULE_CHECKER_FOUND)
-  CHECK_RULES("${MVD_RULECHECKER_SRCS}" "${INCLUDE_DIRECTORIES}" MVD_RULES)
-endif(RULE_CHECKER_FOUND)
+set(LINKDEF  MvdTrkLinkDef.h)
+set(LIBRARY_NAME MvdTrk)
 
+set(DEPENDENCIES Base GeoBase ParBase PndData generalTools RecoHits
+riemann Geane Lmd Sds TrkBase)
 
-# fill list of header files from list of source files
-# by exchanging the file extension
-CHANGE_FILE_EXTENSION(*.cxx *.h MVDTRK_HEADERS "${MVDTRK_SRCS}")
-set(MVDTRK_LINKDEF  MvdTrkLinkDef.h)
-set(MVDTRK_DICTIONARY ${CMAKE_CURRENT_BINARY_DIR}/MvdTrkDict.cxx)
-
-ROOT_GENERATE_DICTIONARY("${MVDTRK_HEADERS}" "${MVDTRK_LINKDEF}" "${MVDTRK_DICTIONARY}" "${INCLUDE_DIRECTORIES}")
-SET(MVDTRK_SRCS ${MVDTRK_SRCS} ${MVDTRK_DICTIONARY})
-
-add_library(MvdTrk SHARED ${MVDTRK_SRCS})
-target_link_libraries(MvdTrk ${ROOT_LIBRARIES})
-set_target_properties(MvdTrk PROPERTIES ${FAIRROOT_LIBRARY_PROPERTIES})
-
-################################## install #####################################
-install(TARGETS Mvd DESTINATION ${CMAKE_BINARY_DIR}/lib)
-install(TARGETS MvdReco DESTINATION ${CMAKE_BINARY_DIR}/lib)
-install(TARGETS MvdTrk DESTINATION ${CMAKE_BINARY_DIR}/lib)
-
+GENERATE_LIBRARY()

@@ -30,7 +30,7 @@ ${ROOT_LIBRARY_DIR}
  
 link_directories( ${LINK_DIRECTORIES})
 
-set(MDT_SRCS
+set(SRCS
 MdtMC/PndGeoMdtPar.cxx
 MdtMC/PndMdt.cxx
 MdtMC/PndMdtMagnet.cxx
@@ -49,24 +49,9 @@ MdtReco/PndMdtRecoPar.cxx
 PndMdtContFact.cxx
 )
 
-if(RULE_CHECKER_FOUND)
-  CHECK_RULES("${MDT_SRCS}" "${INCLUDE_DIRECTORIES}" MDT_RULES)
-endif(RULE_CHECKER_FOUND)
+set(LINKDEF  MdtLinkDef.h)
+set(LIBRARY_NAME Mdt)
 
-# fill list of header files from list of source files
-# by exchanging the file extension
-CHANGE_FILE_EXTENSION(*.cxx *.h MDT_HEADERS "${MDT_SRCS}")
+set(DEPENDENCIES Base GeoBase ParBase PndData Geane)
 
-set(MDT_LINKDEF  MdtLinkDef.h)
-set(MDT_DICTIONARY ${CMAKE_CURRENT_BINARY_DIR}/PndMdtDict.cxx) 
-
-ROOT_GENERATE_DICTIONARY("${MDT_HEADERS}" "${MDT_LINKDEF}" "${MDT_DICTIONARY}" "${INCLUDE_DIRECTORIES}")
-
-SET(MDT_SRCS ${MDT_SRCS} ${MDT_DICTIONARY})
-
-add_library(Mdt SHARED ${MDT_SRCS})
-target_link_libraries(Mdt ${ROOT_LIBRARIES})
-set_target_properties(Mdt PROPERTIES ${FAIRROOT_LIBRARY_PROPERTIES})
-
-################ install ###################
-install(TARGETS Mdt DESTINATION ${CMAKE_BINARY_DIR}/lib)
+GENERATE_LIBRARY()

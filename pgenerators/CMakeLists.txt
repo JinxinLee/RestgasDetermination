@@ -19,7 +19,7 @@ ${ROOT_LIBRARY_DIR}
  
 link_directories( ${LINK_DIRECTORIES})
 
-set(PGEN_SRCS
+set(SRCS
 PndRestGas.cxx
 PndDpmGenerator.cxx
 PndEvtGenGenerator.cxx
@@ -39,23 +39,9 @@ PndGiBuuDecayerAbs.cxx
 PndGiBuuJPsiEE.cxx
 )
 
-if(RULE_CHECKER_FOUND)
-  CHECK_RULES("${PGEN_SRCS}" "${INCLUDE_DIRECTORIES}" PGEN_RULES)
-endif(RULE_CHECKER_FOUND)
+set(LINKDEF  PGenLinkDef.h)
+set(LIBRARY_NAME PGen)
 
-# fill list of header files from list of source files
-# by exchanging the file extension
-CHANGE_FILE_EXTENSION(*.cxx *.h PGEN_HEADERS "${PGEN_SRCS}")
+set(DEPENDENCIES )
 
-set(PGEN_LINKDEF  PGenLinkDef.h)
-set(PGEN_DICTIONARY ${CMAKE_CURRENT_BINARY_DIR}/PndPGenDict.cxx) 
-
-ROOT_GENERATE_DICTIONARY("${PGEN_HEADERS}" "${PGEN_LINKDEF}" "${PGEN_DICTIONARY}" "${INCLUDE_DIRECTORIES}")
-
-SET(PGEN_SRCS ${PGEN_SRCS} ${PGEN_DICTIONARY})
-
-add_library(PGen SHARED ${PGEN_SRCS})
-target_link_libraries(PGen ${ROOT_LIBRARIES})
-set_target_properties(PGen PROPERTIES ${FAIRROOT_LIBRARY_PROPERTIES})
-################ install ###################
-install(TARGETS PGen DESTINATION ${CMAKE_BINARY_DIR}/lib)
+GENERATE_LIBRARY()

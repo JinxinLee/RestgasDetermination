@@ -47,7 +47,7 @@ ${GLPK_LIB_DIR}
  
 link_directories( ${LINK_DIRECTORIES})
 
-set(TRACKING_SRCS
+set(SRCS
 PndTrkBoundaryParStraws.cxx
 PndTrkBoundaryParStraws2.cxx
 PndTrkChi2Fits.cxx
@@ -89,23 +89,9 @@ TrkSecondary/PndTrkLegendreTask.cxx
 TrkStructure/PndTrkQATask.cxx
 )
 
-if(RULE_CHECKER_FOUND)
-  CHECK_RULES("${TRACKING_SRCS}" "${INCLUDE_DIRECTORIES}" TRACKING_RULES)
-endif(RULE_CHECKER_FOUND)
+set(LINKDEF  TrackingLinkDef.h)
+set(LIBRARY_NAME Tracking)
 
-# fill list of header files from list of source files
-# by exchanging the file extension
-CHANGE_FILE_EXTENSION(*.cxx *.h TRACKING_HEADERS "${TRACKING_SRCS}")
+set(DEPENDENCIES Base ParBase PndData Stt TrkBase)
 
-set(TRACKING_LINKDEF  TrackingLinkDef.h)
-set(TRACKING_DICTIONARY ${CMAKE_CURRENT_BINARY_DIR}/PndTrackingDict.cxx) 
-
-ROOT_GENERATE_DICTIONARY("${TRACKING_HEADERS}" "${TRACKING_LINKDEF}" "${TRACKING_DICTIONARY}" "${INCLUDE_DIRECTORIES}")
-
-SET(TRACKING_SRCS ${TRACKING_SRCS} ${TRACKING_DICTIONARY})
-
-add_library(Tracking SHARED ${TRACKING_SRCS})
-target_link_libraries(Tracking ${ROOT_LIBRARIES} ${GLPK_LIB_DIR}/libglpk.so)
-set_target_properties(Tracking PROPERTIES ${FAIRROOT_LIBRARY_PROPERTIES})
-################ install ###################
-install(TARGETS Tracking DESTINATION ${CMAKE_BINARY_DIR}/lib)
+GENERATE_LIBRARY()

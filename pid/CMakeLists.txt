@@ -57,7 +57,7 @@ ${ROOT_LIBRARY_DIR}
  
 link_directories( ${LINK_DIRECTORIES})
 
-set(Pid_SRCS
+set(SRCS
 PidCorr/PndPidCorrPar.cxx
 PidCorr/PndPidCorrelator.cxx
 PidCorr/PndPidTrackInfo.cxx
@@ -86,11 +86,7 @@ PidClassifier/PndPidEmcBayesAssociatorTask.cxx
 PidClassifier/PndPidMvdPar.cxx
 )
 
-if(RULE_CHECKER_FOUND)
-  CHECK_RULES("${Pid_SRCS}" "${INCLUDE_DIRECTORIES}" Pid_RULES)
-endif(RULE_CHECKER_FOUND)
-
-set(Pid_HEADERS
+set(HEADERS
 PidCorr/PndPidCorrPar.h
 PidCorr/PndPidCorrelator.h
 PndPidContFact.h
@@ -111,16 +107,10 @@ PidClassifier/PndPidEmcBayesAssociatorTask.h
 PidClassifier/PndPidMvdPar.h
 )
 
-set(Pid_LINKDEF PidLinkDef.h)
-set(Pid_DICTIONARY ${CMAKE_CURRENT_BINARY_DIR}/PidDict.cxx) 
+set(LINKDEF PidLinkDef.h)
+set(LIBRARY_NAME Pid)
 
-ROOT_GENERATE_DICTIONARY("${Pid_HEADERS}" "${Pid_LINKDEF}" "${Pid_DICTIONARY}" "${INCLUDE_DIRECTORIES}")
+set(DEPENDENCIES Base GeoBase ParBase RecoTasks generalTools Mva Emc
+Ftof Fts Geane PndData Stt TrkBase)
 
-
-set(Pid_SRCS ${Pid_SRCS} ${Pid_DICTIONARY})
-
-add_library(Pid SHARED ${Pid_SRCS})
-target_link_libraries(Pid ${ROOT_LIBRARIES})
-set_target_properties(Pid PROPERTIES ${FAIRROOT_LIBRARY_PROPERTIES})
-################ install ###################
-install(TARGETS Pid DESTINATION ${CMAKE_BINARY_DIR}/lib)
+GENERATE_LIBRARY()

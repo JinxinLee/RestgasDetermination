@@ -36,8 +36,7 @@ ${ROOT_LIBRARY_DIR}
 
 link_directories( ${LINK_DIRECTORIES})
 
-
-set(RECOTASKS_SRCS 
+set(SRCS 
 PndRecoKalmanFit.cxx
 PndRecoDafFit.cxx
 PndRecoKalmanTask.cxx
@@ -46,30 +45,10 @@ PrimSelector.cxx
 PndGFTrackToPndTrackConvertorTask.cxx
 )
 
-if(RULE_CHECKER_FOUND)
-  CHECK_RULES("${RECOTASKS_SRCS}" "${INCLUDE_DIRECTORIES}" RECOTASKS_RULES)
-endif(RULE_CHECKER_FOUND)
+set(LINKDEF  RecoTasksLinkDef.h)
+set(LIBRARY_NAME RecoTasks)
 
-CHANGE_FILE_EXTENSION(*.cxx *.h RECOTASKS_HEADERS "${RECOTASKS_SRCS}")
+set(DEPENDENCIES Base ParBase PndData generalTools Stt Fts TrkBase
+Geane RecoHits genfitAdapters)
 
-# fill list of header files from list of source files
-# by exchanging the file extension
-#CHANGE_FILE_EXTENSION(*.cxx *.h RECOTASKS_HEADERS "${RECOTASKS_SRCS}")
-
-
-set(RECOTASKS_LINKDEF  RecoTasksLinkDef.h)
-set(RECOTASKS_DICTIONARY ${CMAKE_CURRENT_BINARY_DIR}/RecoTasksDict.cxx)
-
-
-ROOT_GENERATE_DICTIONARY("${RECOTASKS_HEADERS}" "${RECOTASKS_LINKDEF}" "${RECOTASKS_DICTIONARY}" "${INCLUDE_DIRECTORIES}")
-
-SET(RECOTASKS_SRCS ${RECOTASKS_SRCS} ${RECOTASKS_DICTIONARY})
-
-#SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -DOLDVMC")
-
-
-add_library(RecoTasks SHARED ${RECOTASKS_SRCS})
-target_link_libraries(RecoTasks ${ROOT_LIBRARIES})
-set_target_properties(RecoTasks PROPERTIES ${FAIRROOT_LIBRARY_PROPERTIES})
-################ install ###################
-install(TARGETS RecoTasks DESTINATION ${CMAKE_BINARY_DIR}/lib)
+GENERATE_LIBRARY()

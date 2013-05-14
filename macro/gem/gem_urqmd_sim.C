@@ -75,10 +75,6 @@ void gem_urqmd_sim(Int_t nEvents = 100, TString urqmdString = "pbarC_15_GeV", in
   //Drc->SetGeometryFileName("dirc.geo");
 //   fRun->AddModule(Drc);
 
-//  FairDetector *Dch = new PndDchDetector("DCH", kTRUE);
-//  Dch->SetGeometryFileName("dch.root");
-//   fRun->AddModule(Dch);
-
   FairDetector *Gem = new PndGemDetector("GEM", kTRUE);
   Gem->SetGeometryFileName("gem_4Stations.root");
   Gem->SetVerboseLevel(verboseLevel);

@@ -21,31 +21,15 @@ ${ROOT_LIBRARY_DIR}
 
 link_directories( ${LINK_DIRECTORIES})
 
-set(DSK_SRCS
+set(SRCS
 DskMC/PndDsk.cxx
 DskMC/PndGeoDskFLG.cxx
 DskMC/PndDskFLGHitProducerIdeal.cxx
 )
 
-if(RULE_CHECKER_FOUND)
-  CHECK_RULES("${DSK_SRCS}" "${INCLUDE_DIRECTORIES}" DSK_RULES)
-endif(RULE_CHECKER_FOUND)
+set(LINKDEF DskLinkDef.h)
+set(LIBRARY_NAME Dsk)
 
-# fill list of header files from list of source files
-# by exchanging the file extension
-CHANGE_FILE_EXTENSION(*.cxx *.h DSK_HEADERS "${DSK_SRCS}")
+set(DEPENDENCIES Base GeoBase ParBase PndData)
 
-set(DSK_LINKDEF DskLinkDef.h)
-set(DSK_DICTIONARY ${CMAKE_CURRENT_BINARY_DIR}/PndDskDict.cxx)
-
-ROOT_GENERATE_DICTIONARY("${DSK_HEADERS}" "${DSK_LINKDEF}" "${DSK_DICTIONARY}" "${INCLUDE_DIRECTORIES}")
-
-SET(DSK_SRCS ${DSK_SRCS} ${DSK_DICTIONARY})
-
-add_library(Dsk SHARED ${DSK_SRCS})
-target_link_libraries(Dsk ${ROOT_LIBRARIES})
-set_target_properties(Dsk PROPERTIES ${FAIRROOT_LIBRARY_PROPERTIES})
-
-
-################ install ###################
-install(TARGETS Dsk DESTINATION ${CMAKE_BINARY_DIR}/lib)
+GENERATE_LIBRARY()

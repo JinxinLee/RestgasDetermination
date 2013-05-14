@@ -22,7 +22,7 @@ ${ROOT_LIBRARY_DIR}
  
 link_directories( ${LINK_DIRECTORIES})
 
-set(SCIT_SRCS
+set(SRCS
 PndGeoSciT.cxx 
 PndSciT.cxx 
 PndGeoSciTPar.cxx 
@@ -32,23 +32,9 @@ PndSciTHitProducerIdeal.cxx
 #PndSciTMassTrig.cxx
 )
 
-if(RULE_CHECKER_FOUND)
-  CHECK_RULES("${SCIT_SRCS}" "${INCLUDE_DIRECTORIES}" SCIT_RULES)
-endif(RULE_CHECKER_FOUND)
+set(LINKDEF  SciTLinkDef.h)
+set(LIBRARY_NAME SciT)
 
-# fill list of header files from list of source files
-# by exchanging the file extension
-CHANGE_FILE_EXTENSION(*.cxx *.h SCIT_HEADERS "${SCIT_SRCS}")
+set(DEPENDENCIES Base GeoBase ParBase PndData Hyp AnalysisTools)
 
-set(SCIT_LINKDEF  SciTLinkDef.h)
-set(SCIT_DICTIONARY ${CMAKE_CURRENT_BINARY_DIR}/PndSciTDict.cxx) 
-
-ROOT_GENERATE_DICTIONARY("${SCIT_HEADERS}" "${SCIT_LINKDEF}" "${SCIT_DICTIONARY}" "${INCLUDE_DIRECTORIES}")
-
-SET(SCIT_SRCS ${SCIT_SRCS} ${SCIT_DICTIONARY})
-
-add_library(SciT SHARED ${SCIT_SRCS})
-target_link_libraries(SciT ${ROOT_LIBRARIES})
-set_target_properties(SciT PROPERTIES ${FAIRROOT_LIBRARY_PROPERTIES})
-################ install ###################
-install(TARGETS SciT DESTINATION ${CMAKE_BINARY_DIR}/lib)
+GENERATE_LIBRARY()

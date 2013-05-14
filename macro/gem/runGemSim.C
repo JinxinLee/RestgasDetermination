@@ -77,10 +77,6 @@ void runGemSim(Int_t nEvents = 10,int verboseLevel = 0)
   //Drc->SetGeometryFileName("dirc.geo");
 //   fRun->AddModule(Drc);
 
-//  FairDetector *Dch = new PndDchDetector("DCH", kTRUE);
-//  Dch->SetGeometryFileName("dch.root");
-//   fRun->AddModule(Dch);
-
   FairDetector *Gem = new PndGemDetector("GEM", kTRUE);
   Gem->SetGeometryFileName("gem.root");
   Gem->SetVerboseLevel(verboseLevel);

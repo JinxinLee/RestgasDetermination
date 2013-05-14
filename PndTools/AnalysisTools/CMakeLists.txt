@@ -38,7 +38,7 @@ ${ROOT_LIBRARY_DIR}
  
 link_directories( ${LINK_DIRECTORIES})
 
-set(AnalysisTools_SRCS 
+set(SRCS 
 #PndMicroWriter.cxx
 #PndSimplePidInfo.cxx
 #PndMicroCandidate.cxx
@@ -73,23 +73,9 @@ Fitter/PndVtxPRG.cxx
 StrTok.cxx
 )
 
-if(RULE_CHECKER_FOUND)
-  CHECK_RULES("${AnalysisTools_SRCS}" "${INCLUDE_DIRECTORIES}" AnalysisTools_RULES)
-endif(RULE_CHECKER_FOUND)
+set(LINKDEF AnalysisToolsLinkDef.h)
+set(LIBRARY_NAME AnalysisTools)
 
-CHANGE_FILE_EXTENSION(*.cxx *.h AnalysisTools_HEADERS "${AnalysisTools_SRCS}")
-set(AnalysisTools_HEADERS ${AnalysisTools_HEADERS} ArgList.h)
+set(DEPENDENCIES Base Emc Geane ParBase Pid PndData TrkBase)
 
-set(AnalysisTools_LINKDEF AnalysisToolsLinkDef.h)
-set(AnalysisTools_DICTIONARY ${CMAKE_CURRENT_BINARY_DIR}/AnalysisToolsDict.cxx) 
-
-ROOT_GENERATE_DICTIONARY("${AnalysisTools_HEADERS}" "${AnalysisTools_LINKDEF}" "${AnalysisTools_DICTIONARY}" "${INCLUDE_DIRECTORIES}")
-
-
-set(AnalysisTools_SRCS ${AnalysisTools_SRCS} ${AnalysisTools_DICTIONARY})
-
-add_library(AnalysisTools SHARED ${AnalysisTools_SRCS})
-target_link_libraries(AnalysisTools ${ROOT_LIBRARIES})
-set_target_properties(AnalysisTools PROPERTIES ${FAIRROOT_LIBRARY_PROPERTIES})
-################ install ###################
-install(TARGETS AnalysisTools DESTINATION ${CMAKE_BINARY_DIR}/lib)
+GENERATE_LIBRARY()

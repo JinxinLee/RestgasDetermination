@@ -20,7 +20,7 @@ ${ROOT_LIBRARY_DIR}
  
 link_directories( ${LINK_DIRECTORIES})
 
-set(GENERALTOOLS_SRCS
+set(SRCS
 PndFileNameCreator.cxx
 PndStringSeparator.cxx
 PndGeoHandling.cxx
@@ -31,19 +31,9 @@ PndEventCounterTask.cxx
 PndTrackArrayMerger.cxx
 )
 
-# fill list of header files from list of source files
-# by exchanging the file extension
-CHANGE_FILE_EXTENSION(*.cxx *.h GENERALTOOLS_HEADERS "${GENERALTOOLS_SRCS}")
+set(LINKDEF  generalToolsLinkDef.h)
+set(LIBRARY_NAME generalTools)
 
-set(GENERALTOOLS_LINKDEF  generalToolsLinkDef.h)
-set(GENERALTOOLS_DICTIONARY ${CMAKE_CURRENT_BINARY_DIR}/generalToolsDict.cxx) 
+set(DEPENDENCIES Base ParBase PndData)
 
-ROOT_GENERATE_DICTIONARY("${GENERALTOOLS_HEADERS}" "${GENERALTOOLS_LINKDEF}" "${GENERALTOOLS_DICTIONARY}" "${INCLUDE_DIRECTORIES}")
-
-SET(GENERALTOOLS_SRCS ${GENERALTOOLS_SRCS} ${GENERALTOOLS_DICTIONARY})
-
-add_library(generalTools SHARED ${GENERALTOOLS_SRCS})
-target_link_libraries(generalTools ${ROOT_LIBRARIES})
-set_target_properties(generalTools PROPERTIES ${FAIRROOT_LIBRARY_PROPERTIES})
-################ install ###################
-install(TARGETS generalTools DESTINATION ${CMAKE_BINARY_DIR}/lib)
+GENERATE_LIBRARY()

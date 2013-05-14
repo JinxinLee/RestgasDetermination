@@ -70,12 +70,6 @@ Int_t gem_sim(Int_t nStations, Double_t momentum = 15., Int_t nEvents = 1000, in
   Gem->SetVerboseLevel(0);
   fRun->AddModule(Gem);
   
-  FairDetector *Dch = new PndDchDetector("DCH", kTRUE);
-  Dch->SetGeometryFileName("dch.root");
-  Dch->SetVerboseLevel(0);
-  fRun->AddModule(Dch);
-  
-  
   // Event generator
   FairPrimaryGenerator* primGen = new FairPrimaryGenerator();
   fRun->SetGenerator(primGen);

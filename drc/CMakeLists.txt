@@ -21,7 +21,7 @@ ${ROOT_LIBRARY_DIR}
  
 link_directories( ${LINK_DIRECTORIES})
 
-set(DRC_SRCS
+set(SRCS
 PndGeoDrc.cxx 
 PndDrc.cxx 
 PndGeoDrcPar.cxx 
@@ -33,23 +33,9 @@ PndDrcDigiPar.cxx
 PndDrcDigitize.cxx
 )
 
-if(RULE_CHECKER_FOUND)
-  CHECK_RULES("${DRC_SRCS}" "${INCLUDE_DIRECTORIES}" DRC_RULES)
-endif(RULE_CHECKER_FOUND)
+set(LINKDEF  DrcLinkDef.h)
+set(LIBRARY_NAME Drc)
 
-# fill list of header files from list of source files
-# by exchanging the file extension
-CHANGE_FILE_EXTENSION(*.cxx *.h DRC_HEADERS "${DRC_SRCS}")
+set(DEPENDENCIES Base GeoBase ParBase PndData)
 
-set(DRC_LINKDEF  DrcLinkDef.h)
-set(DRC_DICTIONARY ${CMAKE_CURRENT_BINARY_DIR}/PndDrcDict.cxx) 
-
-ROOT_GENERATE_DICTIONARY("${DRC_HEADERS}" "${DRC_LINKDEF}" "${DRC_DICTIONARY}" "${INCLUDE_DIRECTORIES}")
-
-SET(DRC_SRCS ${DRC_SRCS} ${DRC_DICTIONARY})
-
-add_library(Drc SHARED ${DRC_SRCS})
-target_link_libraries(Drc ${ROOT_LIBRARIES})
-set_target_properties(Drc PROPERTIES ${FAIRROOT_LIBRARY_PROPERTIES})
-################ install ###################
-install(TARGETS Drc DESTINATION ${CMAKE_BINARY_DIR}/lib)
+GENERATE_LIBRARY()

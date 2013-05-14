@@ -35,7 +35,7 @@ ${GLPK_LIB_DIR}
  
 link_directories( ${LINK_DIRECTORIES})
 
-set(STT_SRCS
+set(SRCS
 PndSttMatchTracks.cxx 		
 PndGeoStt.cxx    			
 PndStt.cxx   			
@@ -70,23 +70,9 @@ PndSttHitSorterTask.cxx
 PndSttStrawMap.cxx
 )
 
-if(RULE_CHECKER_FOUND)
-  CHECK_RULES("${STT_SRCS}" "${INCLUDE_DIRECTORIES}" STT_RULES)
-endif(RULE_CHECKER_FOUND)
+set(LINKDEF  SttLinkDef.h)
+set(LIBRARY_NAME Stt)
 
-# fill list of header files from list of source files
-# by exchanging the file extension
-CHANGE_FILE_EXTENSION(*.cxx *.h STT_HEADERS "${STT_SRCS}")
+set(DEPENDENCIES Base GeoBase ParBase PndData TrkBase Geane Minuit)
 
-set(STT_LINKDEF  SttLinkDef.h)
-set(STT_DICTIONARY ${CMAKE_CURRENT_BINARY_DIR}/PndSttDict.cxx) 
-
-ROOT_GENERATE_DICTIONARY("${STT_HEADERS}" "${STT_LINKDEF}" "${STT_DICTIONARY}" "${INCLUDE_DIRECTORIES}")
-
-SET(STT_SRCS ${STT_SRCS} ${STT_DICTIONARY})
-
-add_library(Stt SHARED ${STT_SRCS})
-target_link_libraries(Stt ${ROOT_LIBRARIES} ${GLPK_LIB_DIR}/libglpk.so)
-set_target_properties(Stt PROPERTIES ${FAIRROOT_LIBRARY_PROPERTIES})
-################ install ###################
-install(TARGETS Stt DESTINATION ${CMAKE_BINARY_DIR}/lib)
+GENERATE_LIBRARY()

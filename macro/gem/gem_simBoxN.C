@@ -9,8 +9,8 @@ Int_t gem_simBoxN(Int_t nStations, Int_t nparts, Int_t nEvents = 1000, Int_t pdg
   timer.Start();
   gDebug=0;
   // Load basic libraries
-  gROOT->LoadMacro("$VMCWORKDIR/gconfig/rootlogon.C");
-  rootlogon();
+  // gROOT->LoadMacro("$VMCWORKDIR/gconfig/rootlogon.C");
+  // rootlogon();
 
   //FileNames
   TString OutputFile;
@@ -69,12 +69,6 @@ Int_t gem_simBoxN(Int_t nStations, Int_t nparts, Int_t nEvents = 1000, Int_t pdg
   Gem->SetGeometryFileName(Form("gem_%dStations.root",nStations));
   Gem->SetVerboseLevel(0);
   fRun->AddModule(Gem);
-  
-  FairDetector *Dch = new PndDchDetector("DCH", kTRUE);
-  Dch->SetGeometryFileName("dch.root");
-  Dch->SetVerboseLevel(0);
-  fRun->AddModule(Dch);
-  
   
   // Event generator
   FairPrimaryGenerator* primGen = new FairPrimaryGenerator();

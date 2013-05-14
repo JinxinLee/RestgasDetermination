@@ -18,12 +18,12 @@
 
 //data
 /*#pragma link C++ class PndHypCluster+;
-#pragma link C++ class PndHypDigiPixel+;
-#pragma link C++ class PndHypPixel+;
-#pragma link C++ class PndHypDigiStrip+;
-#pragma link C++ class PndHypStrip+;
+//#pragma link C++ class PndHypDigiPixel+;
+//#pragma link C++ class PndHypPixel+;
+//#pragma link C++ class PndHypDigiStrip+;
+//#pragma link C++ class PndHypStrip+;
 //#pragma link C++ class PndHypGeoMappingPar+;
-#pragma link C++ class PndHypCluster+;
+//#pragma link C++ class PndHypCluster+;
 */
 #pragma link C++ class PndHypRecoHit+;
 #pragma link C++ class PndHypRecoSPHit+;

@@ -19,7 +19,7 @@ ${ROOT_LIBRARY_DIR}
 
 link_directories( ${LINK_DIRECTORIES})
 
-set(PNDRICH_SRCS
+set(SRCS
 #Put here your sourcefiles
 PndRich.cxx
 PndRichContFact.cxx
@@ -27,20 +27,9 @@ PndRichGeo.cxx
 PndRichGeoPar.cxx
 )
 
-# fill list of header files from list of source files
-# by exchanging the file extension
-CHANGE_FILE_EXTENSION(*.cxx *.h PNDRICH_HEADERS "${PNDRICH_SRCS}")
+set(LINKDEF RichLinkDef.h)
+set(LIBRARY_NAME Rich)
 
-set(PNDRICH_LINKDEF RichLinkDef.h)
-set(PNDRICH_DICTIONARY ${CMAKE_CURRENT_BINARY_DIR}/PndRichDict.cxx) 
+set(DEPENDENCIES Base PndData GeoBase ParBase)
 
-ROOT_GENERATE_DICTIONARY("${PNDRICH_HEADERS}" "${PNDRICH_LINKDEF}" "${PNDRICH_DICTIONARY}" "${INCLUDE_DIRECTORIES}")
-
-set(PNDRICH_SRCS ${PNDRICH_SRCS} ${PNDRICH_DICTIONARY})
-
-add_library(Rich SHARED ${PNDRICH_SRCS})
-target_link_libraries(Rich ${ROOT_LIBRARIES})
-set_target_properties(Rich PROPERTIES  ${FAIRROOT_LIBRARY_PROPERTIES})
-
-################ install ###################
-install(TARGETS Rich DESTINATION ${CMAKE_BINARY_DIR}/lib)
+GENERATE_LIBRARY()

@@ -38,7 +38,7 @@ ${ROOT_LIBRARY_DIR}
  
 link_directories( ${LINK_DIRECTORIES})
 
-set(BUFFERS_SRCS
+set(SRCS
 #PndRingSorterT.cxx
 #PndWriteoutBufferT.cxx
 #PndWriteoutBuffer.cxx
@@ -46,19 +46,9 @@ set(BUFFERS_SRCS
 
 )
 
-# fill list of header files from list of source files
-# by exchanging the file extension
-CHANGE_FILE_EXTENSION(*.cxx *.h BUFFERS_HEADERS "${BUFFERS_SRCS}")
+set(LINKDEF  buffersLinkDef.h)
+set(LIBRARY_NAME buffers)
 
-set(BUFFERS_LINKDEF  buffersLinkDef.h)
-set(BUFFERS_DICTIONARY ${CMAKE_CURRENT_BINARY_DIR}/buffersDict.cxx) 
+set(DEPENDENCIES Base generalTools PndData)
 
-ROOT_GENERATE_DICTIONARY("${BUFFERS_HEADERS}" "${BUFFERS_LINKDEF}" "${BUFFERS_DICTIONARY}" "${INCLUDE_DIRECTORIES}")
-
-SET(BUFFERS_SRCS ${BUFFERS_SRCS} ${BUFFERS_DICTIONARY})
-
-add_library(buffers SHARED ${BUFFERS_SRCS})
-target_link_libraries(buffers ${ROOT_LIBRARIES})
-set_target_properties(buffers PROPERTIES ${FAIRROOT_LIBRARY_PROPERTIES})
-################ install ###################
-install(TARGETS buffers DESTINATION ${CMAKE_BINARY_DIR}/lib)
+GENERATE_LIBRARY()

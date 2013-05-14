@@ -36,7 +36,7 @@ ${ROOT_LIBRARY_DIR}
 link_directories( ${LINK_DIRECTORIES})
 
 
-set(RECOHITS_SRCS 
+set(SRCS 
 PndGemRecoHit.cxx
 PndMdtRecoHit.cxx
 PndSdsRecoHit.cxx
@@ -47,30 +47,9 @@ PndFtsRecoHitProducer.cxx
 PndHitRecoHit.cxx
 )
 
-if(RULE_CHECKER_FOUND)
-  CHECK_RULES("${RECOHITS_SRCS}" "${INCLUDE_DIRECTORIES}" RECOHITS_RULES)
-endif(RULE_CHECKER_FOUND)
+set(LINKDEF  RecoHitsLinkDef.h)
+set(LIBRARY_NAME RecoHits)
 
-CHANGE_FILE_EXTENSION(*.cxx *.h RECOHITS_HEADERS "${RECOHITS_SRCS}")
+set(DEPENDENCIES Base ParBase PndData generalTools Stt Fts genfit trackrep)
 
-# fill list of header files from list of source files
-# by exchanging the file extension
-#CHANGE_FILE_EXTENSION(*.cxx *.h RECOHITS_HEADERS "${RECOHITS_SRCS}")
-
-
-set(RECOHITS_LINKDEF  RecoHitsLinkDef.h)
-set(RECOHITS_DICTIONARY ${CMAKE_CURRENT_BINARY_DIR}/RecoHitsDict.cxx)
-
-
-ROOT_GENERATE_DICTIONARY("${RECOHITS_HEADERS}" "${RECOHITS_LINKDEF}" "${RECOHITS_DICTIONARY}" "${INCLUDE_DIRECTORIES}")
-
-SET(RECOHITS_SRCS ${RECOHITS_SRCS} ${RECOHITS_DICTIONARY})
-
-#SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -DOLDVMC")
-
-
-add_library(RecoHits SHARED ${RECOHITS_SRCS})
-target_link_libraries(RecoHits ${ROOT_LIBRARIES})
-set_target_properties(RecoHits PROPERTIES ${FAIRROOT_LIBRARY_PROPERTIES})
-################ install ###################
-install(TARGETS RecoHits DESTINATION ${CMAKE_BINARY_DIR}/lib)
+GENERATE_LIBRARY()

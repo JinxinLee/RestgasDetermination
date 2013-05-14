@@ -16,7 +16,7 @@ ${ROOT_LIBRARY_DIR}
  
 link_directories( ${LINK_DIRECTORIES})
 
-set(PASSIVE_SRCS
+set(SRCS
 PndCave.cxx            
 PndGeoCave.cxx        
 PndGeoMagnet.cxx      
@@ -29,23 +29,9 @@ PndPipe.cxx
 PndTarget.cxx 
 )
 
-if(RULE_CHECKER_FOUND)
-  CHECK_RULES("${PASSIVE_SRCS}" "${INCLUDE_DIRECTORIES}" PASSIVE_RULES)
-endif(RULE_CHECKER_FOUND)
+set(LINKDEF  PassiveLinkDef.h)
+set(LIBRARY_NAME Passive)
 
-# fill list of header files from list of source files
-# by exchanging the file extension
-CHANGE_FILE_EXTENSION(*.cxx *.h PASSIVE_HEADERS "${PASSIVE_SRCS}")
+set(DEPENDENCIES Base GeoBase ParBase)
 
-set(PASSIVE_LINKDEF  PassiveLinkDef.h)
-set(PASSIVE_DICTIONARY ${CMAKE_CURRENT_BINARY_DIR}/PndPassiveDict.cxx) 
-
-ROOT_GENERATE_DICTIONARY("${PASSIVE_HEADERS}" "${PASSIVE_LINKDEF}" "${PASSIVE_DICTIONARY}" "${INCLUDE_DIRECTORIES}")
-
-SET(PASSIVE_SRCS ${PASSIVE_SRCS} ${PASSIVE_DICTIONARY})
-
-add_library(Passive SHARED ${PASSIVE_SRCS})
-target_link_libraries(Passive ${ROOT_LIBRARIES})
-set_target_properties(Passive PROPERTIES ${FAIRROOT_LIBRARY_PROPERTIES})
-################ install ###################
-install(TARGETS Passive DESTINATION ${CMAKE_BINARY_DIR}/lib)
+GENERATE_LIBRARY()

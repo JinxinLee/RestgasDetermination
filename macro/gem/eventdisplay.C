@@ -36,7 +36,6 @@ eventdisplay()
 //  FairMCPointDraw *TofSciFPoint= new FairMCPointDraw ("TofSciFPoint",kTeal, kFullSquare);
 //  FairMCPointDraw *MuoPoint =    new FairMCPointDraw ("MuoPoint",kAzure, kFullSquare);
 //  FairMCPointDraw *PndDrcPoint = new FairMCPointDraw ("PndDrcPoint",kViolet, kFullSquare);
-//  FairMCPointDraw *PndDchPoint = new FairMCPointDraw ("PndDchPoint",kPink, kFullSquare);
 //   FairMCPointDraw *PndTpcPoint = new FairMCPointDraw ("PndTpcPoint",kCyan,  kFullSquare);
 //  FairMCPointDraw *PndSTTPoint = new FairMCPointDraw ("STTPoint",kMagenta, kFullSquare);
 
@@ -49,7 +48,6 @@ eventdisplay()
 //  fMan->AddTask( TofSciFPoint);
 //  fMan->AddTask( MuoPoint);
 //  fMan->AddTask( PndDrcPoint);
-//  fMan->AddTask( PndDchPoint);
 //   fMan->AddTask( PndTpcPoint);
 //  fMan->AddTask( PndSTTPoint);
 

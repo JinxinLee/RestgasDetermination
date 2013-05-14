@@ -32,7 +32,7 @@ ${ROOT_LIBRARY_DIR}
  
 link_directories( ${LINK_DIRECTORIES})
 
-set(PNDEVEDISP_SRCS
+set(SRCS
 PndTrackCandDraw.cxx
 PndTrackDraw.cxx
 PndSttMCPointDraw.cxx
@@ -40,24 +40,10 @@ PndMvdDigiPixelDraw.cxx
 PndSttIsochroneDraw.cxx
 )
 
-if(RULE_CHECKER_FOUND)
-  CHECK_RULES("${PNDEVEDISP_SRCS}" "${INCLUDE_DIRECTORIES}" PNDEVEDISP_RULES)
-endif(RULE_CHECKER_FOUND)
+set(LINKDEF PndEventDisplayLinkDef.h)
+set(LIBRARY_NAME PndEventDisplay)
 
-# fill list of header files from list of source files
-# by exchanging the file extension
-CHANGE_FILE_EXTENSION(*.cxx *.h PNDEVEDISP_HEADERS "${PNDEVEDISP_SRCS}")
+set(DEPENDENCIES Base EventDisplay generalTools MCMatch Geane
+ParBase PndData Sds Stt)
 
-set(PNDEVEDISP_LINKDEF PndEventDisplayLinkDef.h)
-set(PNDEVEDISP_DICTIONARY ${CMAKE_CURRENT_BINARY_DIR}/PndEventDisplayDict.cxx) 
-
-ROOT_GENERATE_DICTIONARY("${PNDEVEDISP_HEADERS}" "${PNDEVEDISP_LINKDEF}" "${PNDEVEDISP_DICTIONARY}" "${INCLUDE_DIRECTORIES}")
-
-
-set(PNDEVEDISP_SRCS ${PNDEVEDISP_SRCS} ${PNDEVEDISP_DICTIONARY})
-
-add_library(PndEventDisplay SHARED ${PNDEVEDISP_SRCS})
-target_link_libraries(PndEventDisplay ${ROOT_LIBRARIES})
-set_target_properties(PndEventDisplay PROPERTIES ${FAIRROOT_LIBRARY_PROPERTIES})
-################ install ###################
-install(TARGETS PndEventDisplay DESTINATION ${CMAKE_BINARY_DIR}/lib)
+GENERATE_LIBRARY()

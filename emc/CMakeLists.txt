@@ -26,7 +26,7 @@ ${ROOT_LIBRARY_DIR}
  
 link_directories( ${LINK_DIRECTORIES})
 
-set(EMC_SRCS
+set(SRCS
 EmcData/PndEmcPoint.cxx
 EmcData/PndEmcApdPoint.cxx
 EmcData/PndEmcHit.cxx  
@@ -118,23 +118,9 @@ EmcDigi/PndEmcFileCrystalCalibrator.cxx
 EmcDigi/PndEmcSimCrystalCalibrator.cxx
 )
 
-if(RULE_CHECKER_FOUND)
-  CHECK_RULES("${EMC_SRCS}" "${INCLUDE_DIRECTORIES}" EMC_RULES)
-endif(RULE_CHECKER_FOUND)
+set(LINKDEF  EmcLinkDef.h)
+set(LIBRARY_NAME Emc)
 
-# fill list of header files from list of source files
-# by exchanging the file extension
-CHANGE_FILE_EXTENSION(*.cxx *.h EMC_HEADERS "${EMC_SRCS}")
+set(DEPENDENCIES Base GeoBase ParBase PndData Passive)
 
-set(EMC_LINKDEF  EmcLinkDef.h)
-set(EMC_DICTIONARY ${CMAKE_CURRENT_BINARY_DIR}/PndEmcDict.cxx) 
-
-ROOT_GENERATE_DICTIONARY("${EMC_HEADERS}" "${EMC_LINKDEF}" "${EMC_DICTIONARY}" "${INCLUDE_DIRECTORIES}")
-
-SET(EMC_SRCS ${EMC_SRCS} ${EMC_DICTIONARY})
-
-add_library(Emc SHARED ${EMC_SRCS})
-target_link_libraries(Emc ${ROOT_LIBRARIES})
-set_target_properties(Emc PROPERTIES ${FAIRROOT_LIBRARY_PROPERTIES})
-################ install ###################
-install(TARGETS Emc DESTINATION ${CMAKE_BINARY_DIR}/lib)
+GENERATE_LIBRARY()

@@ -17,8 +17,8 @@
   Int_t nEvents = 0;
  
   // ----  Load libraries   -------------------------------------------------
-  gROOT->LoadMacro("$VMCWORKDIR/gconfig/rootlogon.C");
-  rootlogon();
+  //  gROOT->LoadMacro("$VMCWORKDIR/gconfig/rootlogon.C");
+  //  rootlogon();
   TString sysFile = gSystem->Getenv("VMCWORKDIR");
   // ------------------------------------------------------------------------
   // In general, the following parts need not be touched

@@ -32,7 +32,7 @@ ${ROOT_LIBRARY_DIR}
 link_directories( ${LINK_DIRECTORIES})
 
 ######################### create libLumi #####################################
-set(LUMI_SRCS
+set(SRCS
 LumiMC/PndLumi.cxx
 LumiMC/PndLumiGeo.cxx 
 LumiMC/PndLumiGeoPar.cxx
@@ -62,20 +62,9 @@ LumiTracking/PndLumiLinFitPar.cxx
 LumiTracking/PndLumiTrackFitter.cxx
 )
 
-# fill list of header files from list of source files
-# by exchanging the file extension
-CHANGE_FILE_EXTENSION(*.cxx *.h LUMI_HEADERS "${LUMI_SRCS}")
+set(LINKDEF  LumiLinkDef.h)
+set(LIBRARY_NAME Lumi)
 
-set(LUMI_LINKDEF  LumiLinkDef.h)
-set(LUMI_DICTIONARY ${CMAKE_CURRENT_BINARY_DIR}/PndLumiDict.cxx) 
+set(DEPENDENCIES Base GeoBase ParBase PndData Lmd)
 
-ROOT_GENERATE_DICTIONARY("${LUMI_HEADERS}" "${LUMI_LINKDEF}" "${LUMI_DICTIONARY}" "${INCLUDE_DIRECTORIES}")
-
-SET(LUMI_SRCS ${LUMI_SRCS} ${LUMI_DICTIONARY})
-
-add_library(Lumi SHARED ${LUMI_SRCS})
-target_link_libraries(Lumi ${ROOT_LIBRARIES})
-set_target_properties(Lumi PROPERTIES ${FAIRROOT_LIBRARY_PROPERTIES})
-
-################ install ###################
-install(TARGETS Lumi DESTINATION ${CMAKE_BINARY_DIR}/lib)
+GENERATE_LIBRARY()

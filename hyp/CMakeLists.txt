@@ -39,7 +39,7 @@ ${ROOT_LIBRARY_DIR}
  
 link_directories( ${LINK_DIRECTORIES})
 
-set(HYP_SRCS
+set(SRCS
 PndGeoHyp.cxx 
 PndHyp.cxx 
 PndGeoHypPar.cxx 
@@ -97,23 +97,10 @@ hypPID/PndHypPidIdealTask.cxx
 
 )
 
-if(RULE_CHECKER_FOUND)
-  CHECK_RULES("${HYP_SRCS}" "${INCLUDE_DIRECTORIES}" HYP_RULES)
-endif(RULE_CHECKER_FOUND)
+set(LINKDEF  HypLinkDef.h)
+set(LIBRARY_NAME Hyp)
 
-# fill list of header files from list of source files
-# by exchanging the file extension
-CHANGE_FILE_EXTENSION(*.cxx *.h HYP_HEADERS "${HYP_SRCS}")
+set(DEPENDENCIES Base GeoBase ParBase PndData TrkBase AnalysisTools
+generalTools Geane)
 
-set(HYP_LINKDEF  HypLinkDef.h)
-set(HYP_DICTIONARY ${CMAKE_CURRENT_BINARY_DIR}/PndHypDict.cxx) 
-
-ROOT_GENERATE_DICTIONARY("${HYP_HEADERS}" "${HYP_LINKDEF}" "${HYP_DICTIONARY}" "${INCLUDE_DIRECTORIES}")
-
-SET(HYP_SRCS ${HYP_SRCS} ${HYP_DICTIONARY})
-
-add_library(Hyp SHARED ${HYP_SRCS})
-target_link_libraries(Hyp ${ROOT_LIBRARIES})
-set_target_properties(Hyp PROPERTIES ${FAIRROOT_LIBRARY_PROPERTIES})
-################ install ###################
-install(TARGETS Hyp DESTINATION ${CMAKE_BINARY_DIR}/lib)
+GENERATE_LIBRARY()

@@ -34,7 +34,7 @@ ${ROOT_LIBRARY_DIR}
  
 link_directories( ${LINK_DIRECTORIES})
 
-set(MCMATCH_SRCS
+set(SRCS
 PndMCMatch.cxx
 PndMCMatchCreatorTask.cxx
 PndMCMatchLoaderTask.cxx
@@ -49,26 +49,15 @@ PndMCTrackEnumAssociator.cxx
 PndMCDataCrawler.cxx
 )
 
-# fill list of header files from list of source files
-# by exchanging the file extension
-CHANGE_FILE_EXTENSION(*.cxx *.h MCMATCH_HEADERS "${MCMATCH_SRCS}")
+set(LINKDEF  PndMCMatchLinkDef.h)
+set(LIBRARY_NAME MCMatch)
 
-set(MCMATCH_LINKDEF  PndMCMatchLinkDef.h)
-set(MCMATCH_DICTIONARY ${CMAKE_CURRENT_BINARY_DIR}/PndMCMatchDict.cxx) 
+set(DEPENDENCIES Base riemann Emc ParBase PndData)
 
-ROOT_GENERATE_DICTIONARY("${MCMATCH_HEADERS}" "${MCMATCH_LINKDEF}" "${MCMATCH_DICTIONARY}" "${INCLUDE_DIRECTORIES}")
-
-SET(MCMATCH_SRCS ${MCMATCH_SRCS} ${MCMATCH_DICTIONARY})
-
-add_library(MCMatch SHARED ${MCMATCH_SRCS})
-target_link_libraries(MCMatch ${ROOT_LIBRARIES})
-set_target_properties(MCMatch PROPERTIES ${FAIRROOT_LIBRARY_PROPERTIES})
-################ install ###################
-install(TARGETS MCMatch DESTINATION ${CMAKE_BINARY_DIR}/lib)
+GENERATE_LIBRARY()
 
 ########################### create libMCMatchExamples ##################################
-
-set(MCMATCHEXAMPLES_SRCS
+set(SRCS
 examples/PndMCTestMomentumCompare.cxx
 examples/PndMCTestHitCompare.cxx
 examples/PndMCIdealTrackFinder.cxx
@@ -78,17 +67,9 @@ examples/PndMCTestDataCrawler.cxx
 examples/PndMCTimebasedPatternRecoQuality.cxx
 )
 
-CHANGE_FILE_EXTENSION(*.cxx *.h MCMATCHEXAMPLES_HEADERS "${MCMATCHEXAMPLES_SRCS}")
+set(LINKDEF  PndMCMatchExamplesLinkDef.h)
+set(LIBRARY_NAME MCMatchExamples)
 
-set(MCMATCHEXAMPLES_LINKDEF  PndMCMatchExamplesLinkDef.h)
-set(MCMATCHEXAMPLES_DICTIONARY ${CMAKE_CURRENT_BINARY_DIR}/PndMCMatchExamplesDict.cxx) 
+set(DEPENDENCIES Base MCMatch)
 
-ROOT_GENERATE_DICTIONARY("${MCMATCHEXAMPLES_HEADERS}" "${MCMATCHEXAMPLES_LINKDEF}" "${MCMATCHEXAMPLES_DICTIONARY}" "${INCLUDE_DIRECTORIES}")
-
-SET(MCMATCHEXAMPLES_SRCS ${MCMATCHEXAMPLES_SRCS} ${MCMATCHEXAMPLES_DICTIONARY})
-
-add_library(MCMatchExamples SHARED ${MCMATCHEXAMPLES_SRCS})
-target_link_libraries(MCMatchExamples ${ROOT_LIBRARIES})
-set_target_properties(MCMatchExamples PROPERTIES ${FAIRROOT_LIBRARY_PROPERTIES})
-################ install ###################
-install(TARGETS MCMatchExamples DESTINATION ${CMAKE_BINARY_DIR}/lib)
+GENERATE_LIBRARY()

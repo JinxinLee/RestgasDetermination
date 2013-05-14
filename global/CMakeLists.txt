@@ -39,9 +39,7 @@ ${ROOT_LIBRARY_DIR}
 
 link_directories( ${LINK_DIRECTORIES})
 
-
-########################### create libGlobal ######################################
-set(GLOBAL_SRCS
+set(SRCS
 PndGlobalIdealTrackMerger.cxx
 PndGlobalTrackMergerQA.cxx
 PndGlobalTrackFitQA.cxx
@@ -52,29 +50,10 @@ PndBarrelTrackFinder.cxx
 PndBarrelTrackFinderQA.cxx
 #PndFitMCCircle.cxx
 )
-if(RULE_CHECKER_FOUND)
-  CHECK_RULES("${GLOBAL_SRCS}" "${INCLUDE_DIRECTORIES}" GLOBAL_RULES)
-endif(RULE_CHECKER_FOUND)
 
-# fill list of header files from list of source files
-# by exchanging the file extension
-CHANGE_FILE_EXTENSION(*.cxx *.h GLOBAL_HEADERS "${GLOBAL_SRCS}")
-# SET(GLOBAL_SRCS ${GLOBAL_SRCS} ${DIGI_SRCS})
-# SET(GLOBAL_HEADERS ${GLOBAL_HEADERS} ${DIGI_HEADERS})
+set(LINKDEF  GlobalLinkDef.h)
+set(LIBRARY_NAME Global)
 
-set(GLOBAL_LINKDEF  GlobalLinkDef.h)
-set(GLOBAL_DICTIONARY ${CMAKE_CURRENT_BINARY_DIR}/GlobalDict.cxx)
+set(DEPENDENCIES Base ParBase PndData TrkBase Gem Stt)
 
-ROOT_GENERATE_DICTIONARY("${GLOBAL_HEADERS}" "${GLOBAL_LINKDEF}" "${GLOBAL_DICTIONARY}" "${INCLUDE_DIRECTORIES}")
-SET(GLOBAL_SRCS ${GLOBAL_SRCS} ${GLOBAL_DICTIONARY})
-
-add_library(Global SHARED ${GLOBAL_SRCS})
-target_link_libraries(Global ${ROOT_LIBRARIES})
-set_target_properties(Global PROPERTIES ${FAIRROOT_LIBRARY_PROPERTIES})
-
-################################## install #####################################
-install(TARGETS Global DESTINATION ${CMAKE_BINARY_DIR}/lib)
-# install(TARGETS GlobalReco DESTINATION ${CMAKE_BINARY_DIR}/lib)
-# install(TARGETS GlobalTrk DESTINATION ${CMAKE_BINARY_DIR}/lib)
-
-
+GENERATE_LIBRARY()
