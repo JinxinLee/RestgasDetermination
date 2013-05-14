@@ -28,6 +28,11 @@ PndTrkConformalTransform::PndTrkConformalTransform(double x, double y, double de
 PndTrkConformalTransform::~PndTrkConformalTransform() { }
 // -------------------------------------------------------------------------
 
+void PndTrkConformalTransform::SetOrigin(double x, double y, double delta){
+  SetTranslation(x, y);
+  SetRotation(delta);
+}
+
 void PndTrkConformalTransform::SetTranslation(double x, double y) {
   fTrasl.Set(x, y);
 }

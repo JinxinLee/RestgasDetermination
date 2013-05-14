@@ -134,6 +134,8 @@ InitStatus PndTrkLegendreTask::Init() {
   legendre->SetUpLegendreHisto();
   legendre->SetUpZoomHisto();
 
+  conform = new PndTrkConformalTransform();
+
   return kSUCCESS;
 
 }
@@ -176,10 +178,10 @@ void PndTrkLegendreTask::Exec(Option_t* opt) {
 
   cout << "*********************** " << fEventCounter << " ***********************" << endl;
   // CHECK delete this ---
-//   if(fEventCounter == 525) {
-//     fEventCounter++;
-//     return;
-//   }
+  //   if(fEventCounter == 525) {
+  //     fEventCounter++;
+  //     return;
+  //   }
   // ---
 
   // CHECK : it may happen that the hit of a track generate more than one track; e.g.
@@ -213,8 +215,8 @@ void PndTrkLegendreTask::Exec(Option_t* opt) {
 
   // translation and rotation - CHECK no rotation now
   Double_t delta = 0, trasl[2] = {0., 0.};
-  PndTrkConformalTransform conform(trasl[0], trasl[1], delta);
-  PndTrkConformalHitList *conformalhitlist = new PndTrkConformalHitList(trasl[0], trasl[1], delta);
+  conform->SetOrigin(trasl[0], trasl[1], delta);
+  //  PndTrkConformalHitList *conformalhitlist = new PndTrkConformalHitList(trasl[0], trasl[1], delta);
 
   //   //-----------------------------------------------
   //   // loop on stt hits
@@ -235,23 +237,7 @@ void PndTrkLegendreTask::Exec(Option_t* opt) {
   //   ComputeTraAndRot(refhit, delta, trasl);
   //-----------------------------------------------
 
-  // FILL ONCE FOR ALL THE CONFORMAL HIT LIST 
-  for(int jhit = 0; jhit < mvdpixhitlist->GetNofHits(); jhit++) {
-    PndTrkHit *hit = mvdpixhitlist->GetHit(jhit);
-    PndTrkConformalHit * chit = conform.GetConformalHit(hit);
-    conformalhitlist->AddHit(chit);    
-  }
-  for(int jhit = 0; jhit < mvdstrhitlist->GetNofHits(); jhit++) {
-    PndTrkHit *hit = mvdstrhitlist->GetHit(jhit);
-    PndTrkConformalHit * chit = conform.GetConformalHit(hit);
-    conformalhitlist->AddHit(chit);    
-  }
-  for(int jhit = 0; jhit < stthitlist->GetNofHits(); jhit++) {
-    PndTrkHit *hit = stthitlist->GetHit(jhit);
-    if(hit->IsSttSkew()) continue;
-    PndTrkConformalHit * chit = conform.GetConformalSttHit(hit);
-    conformalhitlist->AddHit(chit);    
-  }
+  PndTrkConformalHitList conformalhitlist = FillConformalHitList();
 
   int maxpeak = 1000;
   int ipeak = 0;
@@ -290,9 +276,9 @@ void PndTrkLegendreTask::Exec(Option_t* opt) {
 	// cout << "already used III" << endl;  // CHECK
 	continue;
       }
-      PndTrkConformalHit * chit = conform.GetConformalHit(hit);
+      PndTrkConformalHit * chit = conform->GetConformalHit(hit);
       legendre->FillLegendreHisto(chit->GetU(), chit->GetV(), chit->GetIsochrone());
-      //      conformalhitlist->AddHit(chit);    
+      //      conformalhitlist.AddHit(chit);    
       if(fDisplayOn) {
  	DrawConfHit(chit->GetU(), chit->GetV(), chit->GetIsochrone());
       }
@@ -305,9 +291,9 @@ void PndTrkLegendreTask::Exec(Option_t* opt) {
 	// cout << "already used III" << endl;   // CHECK
 	continue; 
       }
-      PndTrkConformalHit * chit = conform.GetConformalHit(hit);
+      PndTrkConformalHit * chit = conform->GetConformalHit(hit);
       legendre->FillLegendreHisto(chit->GetU(), chit->GetV(), chit->GetIsochrone());
-      //      conformalhitlist->AddHit(chit);    
+      //      conformalhitlist.AddHit(chit);    
       if(fDisplayOn) {
  	DrawConfHit(chit->GetU(), chit->GetV(), chit->GetIsochrone());
       }
@@ -321,9 +307,9 @@ void PndTrkLegendreTask::Exec(Option_t* opt) {
       }
       if(hit->IsSttSkew()) continue;
       double conformal[3];
-      PndTrkConformalHit * chit = conform.GetConformalSttHit(hit);
+      PndTrkConformalHit * chit = conform->GetConformalSttHit(hit);
       legendre->FillLegendreHisto(chit->GetU(), chit->GetV(), chit->GetIsochrone());
-      //      conformalhitlist->AddHit(chit);    
+      //      conformalhitlist.AddHit(chit);    
       if(fDisplayOn) {
  	DrawConfHit(chit->GetU(), chit->GetV(), chit->GetIsochrone());
       }
@@ -334,7 +320,7 @@ void PndTrkLegendreTask::Exec(Option_t* opt) {
       char goOnChar;
       //      cin >> goOnChar;
       DrawLegendreHisto();
-      cout << "LEGENDRE (nof conf hits = " <<  conformalhitlist->GetNofHits() << ")" << endl;
+      cout << "LEGENDRE (nof conf hits = " <<  conformalhitlist.GetNofHits() << ")" << endl;
       display->cd();
       //      cin >> goOnChar;
       display->Update();
@@ -373,9 +359,9 @@ void PndTrkLegendreTask::Exec(Option_t* opt) {
     legendre->SetUpZoomHisto(theta_max, r_max, 3, 0.005);
     //    cout << "THETA/R " << theta_max << " " << r_max << " maxpeak " << maxpeak << endl;
     // drwa all conformal hits
-    // cout << "DRAW ALL CONF " << conformalhitlist->GetNofHits() << endl;
-    for(int ihit = 0; ihit < conformalhitlist->GetNofHits(); ihit++) {
-      PndTrkConformalHit *chit = conformalhitlist->GetHit(ihit);
+    // cout << "DRAW ALL CONF " << conformalhitlist.GetNofHits() << endl;
+    for(int ihit = 0; ihit < conformalhitlist.GetNofHits(); ihit++) {
+      PndTrkConformalHit *chit = conformalhitlist.GetHit(ihit);
       legendre->FillZoomHisto(chit->GetU(), chit->GetV(), chit->GetIsochrone());
     }
     if(alreadythere == true) {
@@ -412,12 +398,12 @@ void PndTrkLegendreTask::Exec(Option_t* opt) {
     if(method == 0) {
       // ADD HIT IN CONFORMAL PLANE WITH DISTANCE CRITERION
       // cost x + sint y - r = 0 -> |cost x0 + sint y0 - r|
-      //    cout << "CONFORMALHITLIST " << conformalhitlist->GetNofHits() << endl;
-      for(int ihit = 0; ihit < conformalhitlist->GetNofHits(); ihit++) {
+      //    cout << "CONFORMALHITLIST " << conformalhitlist.GetNofHits() << endl;
+      for(int ihit = 0; ihit < conformalhitlist.GetNofHits(); ihit++) {
 	double ct = TMath::Cos(theta_max * TMath::DegToRad());
 	double st = TMath::Sin(theta_max * TMath::DegToRad());
 
-	PndTrkConformalHit *chit = conformalhitlist->GetHit(ihit);
+	PndTrkConformalHit *chit = conformalhitlist.GetHit(ihit);
 
 	// double dist1 = TMath::Abs(chit->GetV() + (ct/st) * chit->GetU() - r_max/st)/TMath::Sqrt((ct/st) * (ct/st) + 1);
 	double dist = TMath::Abs(chit->GetV() - fitm * chit->GetU() - fitq)/TMath::Sqrt(fitm *fitm + 1);
@@ -613,11 +599,11 @@ void PndTrkLegendreTask::Exec(Option_t* opt) {
 	}
       }
 
-      for(int ihit = 0; ihit < conformalhitlist->GetNofHits(); ihit++) {
+      for(int ihit = 0; ihit < conformalhitlist.GetNofHits(); ihit++) {
 	double ct = TMath::Cos(theta_max * TMath::DegToRad());
 	double st = TMath::Sin(theta_max * TMath::DegToRad());
       
-	PndTrkConformalHit *chit = conformalhitlist->GetHit(ihit);
+	PndTrkConformalHit *chit = conformalhitlist.GetHit(ihit);
       
 	double dist = TMath::Abs(chit->GetV() - fitm * chit->GetU() - fitq)/TMath::Sqrt(fitm *fitm + 1);
       
@@ -659,14 +645,14 @@ void PndTrkLegendreTask::Exec(Option_t* opt) {
     // RETRY LEGENDRE WITH ALSO PIXEL AND STRIP 
     // -------------------------------------------------------
     legendre->ResetLegendreHisto();
-    // conformalhitlist->ResetTo(trasl[0], trasl[1], delta);
+    // conformalhitlist.ResetTo(trasl[0], trasl[1], delta);
 
     for(int ihit = 0; ihit < cluster.GetNofHits(); ihit++) {
       PndTrkHit *hit = cluster.GetHit(ihit);
       double conformal[3];
-      PndTrkConformalHit * chit = conform.GetConformalSttHit(hit);
+      PndTrkConformalHit * chit = conform->GetConformalSttHit(hit);
       legendre->FillLegendreHisto(chit->GetU(), chit->GetV(), chit->GetIsochrone());
-      //      conformalhitlist->AddHit(chit);    
+      //      conformalhitlist.AddHit(chit);    
     }
     
     for(int jhit = 0; jhit < mvdpixhitlist->GetNofHits(); jhit++) {
@@ -675,9 +661,9 @@ void PndTrkLegendreTask::Exec(Option_t* opt) {
 	//  cout << "already used III" << endl;   // CHECK
 	continue; 
       }
-      PndTrkConformalHit * chit = conform.GetConformalHit(hit);
+      PndTrkConformalHit * chit = conform->GetConformalHit(hit);
       legendre->FillLegendreHisto(chit->GetU(), chit->GetV(), chit->GetIsochrone());
-      //      conformalhitlist->AddHit(chit);    
+      //      conformalhitlist.AddHit(chit);    
     }
      
     for(int jhit = 0; jhit < mvdstrhitlist->GetNofHits(); jhit++) {
@@ -686,17 +672,17 @@ void PndTrkLegendreTask::Exec(Option_t* opt) {
 	// cout << "already used III" << endl;   // CHECK
 	continue; 
       }
-      PndTrkConformalHit * chit = conform.GetConformalHit(hit);
+      PndTrkConformalHit * chit = conform->GetConformalHit(hit);
       legendre->FillLegendreHisto(chit->GetU(), chit->GetV(), chit->GetIsochrone());
-      //      conformalhitlist->AddHit(chit);    
+      //      conformalhitlist.AddHit(chit);    
     }
      
     maxpeak = legendre->ExtractLegendreMaximum(theta_max, r_max);
     //cout << "THETA/R MVD " << theta_max << " " << r_max <<  " maxpeak " << maxpeak << endl;
     legendre->SetUpZoomHisto(theta_max, r_max, 3, 0.005);
 
-    for(int ihit = 0; ihit < conformalhitlist->GetNofHits(); ihit++) {
-      PndTrkConformalHit *chit = conformalhitlist->GetHit(ihit);
+    for(int ihit = 0; ihit < conformalhitlist.GetNofHits(); ihit++) {
+      PndTrkConformalHit *chit = conformalhitlist.GetHit(ihit);
       legendre->FillZoomHisto(chit->GetU(), chit->GetV(), chit->GetIsochrone());
     }
     maxpeak = legendre->ExtractZoomMaximum(theta_max, r_max);
@@ -729,8 +715,8 @@ void PndTrkLegendreTask::Exec(Option_t* opt) {
     // 	double conformal[3];
 
     // 	PndTrkConformalHit *chit = NULL;
-    // 	if(hit->GetDetectorID() == FairRootManager::Instance()->GetBranchId(fSttBranch)) chit = conform.GetConformalSttHit(hit);
-    // 	else chit = conform.GetConformalHit(hit);
+    // 	if(hit->GetDetectorID() == FairRootManager::Instance()->GetBranchId(fSttBranch)) chit = conform->GetConformalSttHit(hit);
+    // 	else chit = conform->GetConformalHit(hit);
 
     // 	double xi1 = chit->GetU() + fitm * chit->GetIsochrone()/ TMath::Sqrt(fitm * fitm + 1);
     // 	double yi1 = chit->GetV() - chit->GetIsochrone() / TMath::Sqrt(fitm * fitm + 1);
@@ -1016,8 +1002,8 @@ void PndTrkLegendreTask::Exec(Option_t* opt) {
 	double conformal[3];
 
 	PndTrkConformalHit *chit = NULL;
-	if(hit->GetDetectorID() == FairRootManager::Instance()->GetBranchId(fSttBranch)) chit = conform.GetConformalSttHit(hit);
-	else chit = conform.GetConformalHit(hit);
+	if(hit->GetDetectorID() == FairRootManager::Instance()->GetBranchId(fSttBranch)) chit = conform->GetConformalSttHit(hit);
+	else chit = conform->GetConformalHit(hit);
 
 	double xi1 = chit->GetU() + fitm * chit->GetIsochrone()/ TMath::Sqrt(fitm * fitm + 1);
 	double yi1 = chit->GetV() - chit->GetIsochrone() / TMath::Sqrt(fitm * fitm + 1);
@@ -1747,7 +1733,6 @@ void PndTrkLegendreTask::Exec(Option_t* opt) {
   }
   
   delete clusterlist;
-  delete conformalhitlist;
   delete stthitlist;
   delete mvdpixhitlist; 
   delete mvdstrhitlist;
@@ -1757,6 +1742,31 @@ void PndTrkLegendreTask::Exec(Option_t* opt) {
 
 
 // ============================================================================================
+
+PndTrkConformalHitList PndTrkLegendreTask::FillConformalHitList() {
+  PndTrkConformalHitList conformalhitlist(conform->GetTranslation().X(), conform->GetTranslation().Y(), conform->GetRotation());
+    
+  // FILL ONCE FOR ALL THE CONFORMAL HIT LIST 
+  for(int jhit = 0; jhit < mvdpixhitlist->GetNofHits(); jhit++) {
+    PndTrkHit *hit = mvdpixhitlist->GetHit(jhit);
+    PndTrkConformalHit * chit = conform->GetConformalHit(hit);
+    conformalhitlist.AddHit(chit);    
+  }
+  for(int jhit = 0; jhit < mvdstrhitlist->GetNofHits(); jhit++) {
+    PndTrkHit *hit = mvdstrhitlist->GetHit(jhit);
+    PndTrkConformalHit * chit = conform->GetConformalHit(hit);
+    conformalhitlist.AddHit(chit);    
+  }
+  for(int jhit = 0; jhit < stthitlist->GetNofHits(); jhit++) {
+    PndTrkHit *hit = stthitlist->GetHit(jhit);
+    if(hit->IsSttSkew()) continue;
+    PndTrkConformalHit * chit = conform->GetConformalSttHit(hit);
+    conformalhitlist.AddHit(chit);    
+  }
+
+  return conformalhitlist;
+}
+
 void PndTrkLegendreTask::ComputeTraAndRot(PndTrkHit *hit, Double_t &delta, Double_t trasl[2]) {
 
   trasl[0] = hit->GetPosition().X();

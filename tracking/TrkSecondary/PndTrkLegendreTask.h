@@ -17,6 +17,7 @@
 #include "PndTrkCluster.h"
 #include "PndTrkClusterList.h"
 #include "PndTrkTrack.h"
+#include "PndTrkConformalHitList.h"
 
 // ROOT
 #include "TH2F.h"
@@ -29,6 +30,7 @@ class TClonesArray;
 class TObjectArray;
 class TSpectrum2;
 class PndTrkLegendreTransform;
+class PndTrkConformalTransform;
 class PndTrkLegendreTask : public FairTask {
  
  public:
@@ -53,6 +55,7 @@ class PndTrkLegendreTask : public FairTask {
 
   void Initialize();
 
+  PndTrkConformalHitList FillConformalHitList();
 
   void  ComputeTraAndRot(PndTrkHit *hit, Double_t &delta, Double_t trasl[2]);
 
@@ -125,6 +128,10 @@ class PndTrkLegendreTask : public FairTask {
   //  TSpectrum2 *s;
   PndTrkLegendreTransform *legendre;
   Bool_t fPersistence, fUseMVDPix, fUseMVDStr, fUseSTT;
+
+
+
+  PndTrkConformalTransform *conform;
 
   ClassDef(PndTrkLegendreTask,1);
   
