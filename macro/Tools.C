@@ -368,6 +368,12 @@ plothistosfromfile(TString filename = "histos.root", TString ext=".ps", Int_t di
       TH1* his = (TH1*)key->ReadObj();
       his->GetXaxis()->SetNoExponent(); // put exponents to numbers directly
       his->GetYaxis()->SetNoExponent(); // put exponents to numbers directly
+      TString options(his->GetOption());
+      if(options.Contains("log")){
+        gPad->SetLogy();
+        options.ReplaceAll("log","");
+        his->SetOption(options.Data());
+      }
       his->Draw();
     }else if(keyclass.Contains("TH2"))
     {
@@ -375,14 +381,31 @@ plothistosfromfile(TString filename = "histos.root", TString ext=".ps", Int_t di
       TH2* his2 = (TH2*)key->ReadObj();
       his2->GetXaxis()->SetNoExponent(); // put exponents to numbers directly
       his2->GetYaxis()->SetNoExponent(); // put exponents to numbers directly
-      //DrawNice2DHisto(his2);
-      his2->Draw("colz");
+      TString options(his->GetOption());
+      if(options.Contains("log")){
+        gPad->SetLogz();
+        options.ReplaceAll("log","");
+        his->SetOption(options.Data());
+      }
+      if(options.Contains("nice")){
+        options.ReplaceAll("nice","");
+        his->SetOption(options.Data());
+        DrawNice2DHisto(his2);
+      } else {
+        his2->Draw("colz");
+      }
     }else if(keyclass.Contains("TProfile"))
     {
       //cout<<"try plotting a TH2"<<endl;
       TProfile* hpro = (TProfile*)key->ReadObj();
       hpro->GetXaxis()->SetNoExponent(); // put exponents to numbers directly
       hpro->GetYaxis()->SetNoExponent(); // put exponents to numbers directly
+      TString options(hpro->GetOption());
+      if(options.Contains("log")){
+        gPad->SetLogy();
+        options.ReplaceAll("log","");
+        hpro->SetOption(options.Data());
+      }
       hpro->Draw();
     } else continue;
     
