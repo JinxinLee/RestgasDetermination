@@ -1,0 +1,53 @@
+/** PndTrkHitList
+ ** 
+ ** @author Lia Lavezzi 
+ **/
+
+#ifndef PNDTRKHITLIST_H
+#define PNDTRKHITLIST_H 1
+
+#include "TVector3.h"
+#include "PndTrkHit.h"
+#include "FairHit.h"
+
+#include <iostream>
+#include <cmath>
+#include <vector>
+#include <iterator>
+#include <algorithm>
+
+#define MAXNOFHITS 1000  // CHECK consistency
+
+class PndTrkHitList : public TObject
+{
+
+ public:    
+
+  PndTrkHitList();
+  ~PndTrkHitList();    
+
+  // CHECK private?
+  void AddHit(Int_t hitID, Int_t detID, Bool_t used, Int_t iregion, TVector3& pos);
+  void AddHit(Int_t hitID, Int_t detID, Bool_t used, Int_t iregion, Int_t tubeID, TVector3& pos, Double_t isochrone);
+  void AddHit(Int_t hitID, Int_t detID, Bool_t used, Int_t iregion, Int_t sensorID, TVector3& pos);
+  
+  void AddTCA(Int_t detID, TClonesArray *array);
+
+  virtual void AddHit(Int_t hitid, Int_t detid, FairHit *hit);
+
+  PndTrkHit *GetHit(int index);
+  
+  inline Int_t  GetNofHits() { return hitlist.size(); }
+  
+  void Print();
+  void Draw(Color_t color = kBlack);
+
+ protected:
+
+  std::vector<PndTrkHit> hitlist;
+
+  ClassDef(PndTrkHitList,1);
+};
+
+
+#endif

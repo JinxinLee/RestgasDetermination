@@ -1,0 +1,54 @@
+#ifndef PNDTRKLEGENDRETRANSFORM_H
+#define PNDTRKLEGENDRETRANSFORM_H
+
+#include "TMath.h"
+#include "TH2F.h"
+
+class PndTrkLegendreTransform : public TObject {
+  
+ public:
+  
+  PndTrkLegendreTransform();
+  ~PndTrkLegendreTransform();
+  
+  void SetUpLegendreHisto();
+  void SetUpLegendreHisto(double thetaNofBin, double thetaMin, double thetaMax, double rNofBin, double rMin, double rMax);
+  void SetUpZoomHisto(double theta, double r, double deltatheta, double deltar);
+  void SetUpZoomHisto();
+
+  void ResetLegendreHisto();
+  void ResetZoomHisto();
+
+  void FillHisto(TH2F *histo, double thetamin, double thetamax, double x, double y, double radius);
+  void FillLegendreHisto(double x, double y, double radius);
+  void FillZoomHisto(double x, double y, double radius);
+ 
+/*   void SetDeltaThetaSteppingRad(double deltathetarad) { fDeltaThetaRad = deltathetarad; } */
+/*   void SetDeltaThetaSteppingDeg(double deltathetadeg) { fDeltaThetaRad = TMath::DegToRad() * deltathetadeg;  } */
+  void ApplyThresholdLegendreHisto(double threshold);
+
+  int ExtractLegendreMaximum(double &theta_max, double &r_max);
+  int ExtractZoomMaximum(double &theta_max, double &r_max);
+  int ExtractMaximumFromHisto(TH2F *histo, double &theta_max, double &r_max);
+
+  void ExtractLineParameters(double theta, double r, double &slope, double &intercept);
+  void ExtractLegendreSingleLineParameters(double &slope, double &intercept);
+  void ExtractZoomSingleLineParameters(double &slope, double &intercept);
+
+  void DeleteZoneAroundXYLegendre(double x, double y);
+  void DeleteZoneAroundXYZoom(double x, double y);
+  void DeleteZoneAroundXY(TH2F *histo, double x, double y);
+  
+
+  void Draw();
+  void DrawZoom();
+ 
+ private:
+  Double_t fThetaNofBin, fThetaMin, fThetaMax, fRNofBin, fRMin, fRMax; //, fDeltaThetaRad;
+  Double_t fThetaMinZoom, fThetaMaxZoom, fRMinZoom, fRMaxZoom;
+ TH2F * fhLegendre,  * fhLegendreZoom;
+  ClassDef(PndTrkLegendreTransform, 1)
+};
+
+
+#endif

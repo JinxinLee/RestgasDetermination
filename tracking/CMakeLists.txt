@@ -26,7 +26,11 @@ ${CMAKE_SOURCE_DIR}/gem
 ${CMAKE_SOURCE_DIR}/pnddata/GemData 
 ${CMAKE_SOURCE_DIR}/geane 
 ${CMAKE_SOURCE_DIR}/tracking
-
+${CMAKE_SOURCE_DIR}/PndTools/generalTools/
+${CMAKE_SOURCE_DIR}/tracking/TrkSecondary
+${CMAKE_SOURCE_DIR}/tracking/TrkStructure
+${CMAKE_SOURCE_DIR}/tracking/TrkAlgo
+${CMAKE_SOURCE_DIR}/tracking/TrkData
 )
 
 include_directories( ${INCLUDE_DIRECTORIES})
@@ -62,6 +66,27 @@ PndTrkPrintouts.cxx
 PndTrkTracking.cxx
 PndTrkTracking2.cxx
 PndTrkSttAdjacencies.cxx
+#
+TrkAlgo/PndTrkLegendreTransform.cxx
+TrkAlgo/PndTrkConformalTransform.cxx
+TrkAlgo/PndTrkTools.cxx
+TrkAlgo/PndTrkClean.cxx
+TrkAlgo/PndTrkFitter.cxx
+#
+TrkData/PndTrkHit.cxx
+TrkData/PndTrkSkewHit.cxx
+TrkData/PndTrkHitList.cxx
+TrkData/PndTrkSdsHitList.cxx
+TrkData/PndTrkSttHitList.cxx
+TrkData/PndTrkCluster.cxx
+TrkData/PndTrkClusterList.cxx
+TrkData/PndTrkTrack.cxx
+TrkData/PndTrkConformalHit.cxx
+TrkData/PndTrkConformalHitList.cxx
+#
+TrkSecondary/PndTrkLegendreTask.cxx
+#
+TrkStructure/PndTrkQATask.cxx
 )
 
 if(RULE_CHECKER_FOUND)
