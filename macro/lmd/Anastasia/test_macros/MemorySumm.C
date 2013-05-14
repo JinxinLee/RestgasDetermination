@@ -1,4 +1,4 @@
-void MemorySumm(TString pathName="/panda/pandaroot/macro/lmd/testPixel/memory/mom_15/")
+void MemorySumm(TString pathName="/panda/curpandaroot/macro/lmd/testPixel/memory/mom_1_5/")
 {
   TString fcomname = pathName;
   fcomname+="FairRunInfo_Lumi_";
@@ -99,6 +99,7 @@ void MemorySumm(TString pathName="/panda/pandaroot/macro/lmd/testPixel/memory/mo
 
 
   TCanvas c1;
+  //  c1.PaintDate();
   hVmemMC->Draw();
   hVmemMC->SetMinimum(300);
   hVmemMC->SetMaximum(8000);
@@ -113,6 +114,8 @@ void MemorySumm(TString pathName="/panda/pandaroot/macro/lmd/testPixel/memory/mo
   hVmemBPRK->Draw("same");
   hVmemBPG->Draw("same");
   leg->Draw();
+
+  c1.Print("VMEM.root");
   c1.Print("VMEM.pdf");
   c1.Print("VMEM.jpg");
 }
