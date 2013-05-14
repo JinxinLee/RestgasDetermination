@@ -32,7 +32,7 @@ PndLmdTrackFinderCATask::PndLmdTrackFinderCATask() :
   fDigiBranchStrip = "LMDStripDigis";
   
   dXY = 0.5;
-  d_max = 0.01;
+  rule_max = 1e-6;
   hdist = new TH1D("hdist","distance from common point",1e4,0,10.);
   hcosPSI = new TH1D("hcosPSI","",1e4,0,1e-4);
   htthetatphi = new TH2D("htthetatphi",";tg#theta;tg#phi",1e3,0,10,1e3,-10,10);
@@ -70,7 +70,7 @@ PndLmdTrackFinderCATask::PndLmdTrackFinderCATask(const bool missPl, const double
   //  hcosPSI = new TH1D("hcosPSI","breaking angle",1e3,-1.5,1.5);
   //  htheta = new TH2D("htheta",";length;#theta angle",1e3,0,25,1e3,0,3.15);
   //  htime = new TH2D("htime",";time distance, ns;time angle,ns",5e3,0,5e3,5e3,0,5e3);
-  d_max = setdmax; 
+  rule_max = setdmax; 
   nSensPP = innSensPP;
   nP = innP;
   flagStipSens = false;//default
@@ -628,8 +628,9 @@ void PndLmdTrackFinderCATask::Exec(Option_t* opt)
 	    //	    timerA.Reset();
 	    //	     cout<<"Timer for angle calculation: real "<<rtimeA<<" s, CPU "<<ctimeA<<endl;
 	    // cout<<"cosPsi = "<<cosPsi<<endl;
-	    //	    if(d<d_max){
-	    if((1-cosPsi)<1e-5){// 1e-5 OK for 1.5 GeV; 1e-6 OK for 15 GeV
+	    //	    if(d<rule_max){
+	    //	    if((1-cosPsi)<1e-5){// 1e-5 OK for 1.5 GeV;
+	    if((1-cosPsi)<rule_max){// 1e-5 OK for 15 GeV;
 	      // if(fVerbose>4)
 	      // 	cout<<"BINGO! Cells #"<<ic<<" and #"<<jc<<endl;
 	      //  if(int(cells.at(10).at(ic))==int(cells.at(10).at(jc))){
@@ -644,7 +645,7 @@ void PndLmdTrackFinderCATask::Exec(Option_t* opt)
 	    }
 	    else{
 	      if(fVerbose>4)
-		//	cout<<"Cells #"<<ic<<" and #"<<jc<<" aren't connected, because d = "<<d<<" >="<<d_max<<endl;
+		//	cout<<"Cells #"<<ic<<" and #"<<jc<<" aren't connected, because d = "<<d<<" >="<<rule_max<<endl;
 		cout<<"Cells #"<<ic<<" and #"<<jc<<" aren't connected, because  cosPsi = "<<cosPsi<<endl;
 	    }
     }
@@ -848,12 +849,13 @@ void PndLmdTrackFinderCATask::Exec(Option_t* opt)
   //   trk_accept.push_back(true);
   // }
   // //   TEST: no filter end---
+
   //filter -----------------------------------------------
   // TStopwatch *timer_filter_trk_combinations = new TStopwatch();
   // if(fVerbose>0)
   //   timer_filter_trk_combinations->Start();
 
-  if(fVerbose>4) cout<<"--- fillter trk-cand array: "<<endl;
+  if(fVerbose>4) cout<<"--- filter trk-cand array: "<<endl;
   if(fVerbose>4) cout<<" Attention each trk candidate with repeated cells, but smaller cells number will be deleted!"<<endl;
   vector<unsigned int> cell_parts;
   vector<bool> trk_accept;

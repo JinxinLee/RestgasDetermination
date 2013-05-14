@@ -47,7 +47,7 @@ class PndLmdTrackFinderCATask : public FairTask
     void SetTrkCandCutsFlag(bool fS){ flagTrkCandCuts = fS;};
  private:
    Double_t dXY;
-   double d_max;
+   double rule_max;
    int nSensPP;//number of sensors on one plane
    int nP;//number of planes
    bool SortHitsByDet(std::vector< std::vector< std::pair<Int_t,bool> > > &hitsd, Int_t nStripHits);
