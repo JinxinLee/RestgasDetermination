@@ -79,6 +79,7 @@ class PndLmdTrackFinderCATask : public FairTask
      TH1D *hdist;
      TH2D *htthetatphi;
      TH2D *hthetaphi;
+     TH1D *hcosPSI;
      //     TH1D *hcosPSI;
      //     TH2D *htheta;
      //     TH2D *htime;

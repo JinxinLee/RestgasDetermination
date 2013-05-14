@@ -34,6 +34,7 @@ PndLmdTrackFinderCATask::PndLmdTrackFinderCATask() :
   dXY = 0.5;
   d_max = 0.01;
   hdist = new TH1D("hdist","distance from common point",1e4,0,10.);
+  hcosPSI = new TH1D("hcosPSI","",1e4,0,1e-4);
   htthetatphi = new TH2D("htthetatphi",";tg#theta;tg#phi",1e3,0,10,1e3,-10,10);
   hthetaphi = new TH2D("hthetaphi",";#theta;#phi",1e3,0,1.,1e3,-3.15,3.15);
   /// hcosPSI = new TH1D("hcosPSI","breaking angle",1e3,-1.5,1.5);
@@ -65,6 +66,7 @@ PndLmdTrackFinderCATask::PndLmdTrackFinderCATask(const bool missPl, const double
   hdist = new TH1D("hdist","distance from common point",1e3,0,1.);
   htthetatphi = new TH2D("htthetatphi",";tg#theta;tg#phi",1e3,0,10,1e3,-10,10);
   hthetaphi = new TH2D("hthetaphi",";#theta;#phi",1e3,0,1.,1e3,-3.15,3.15);
+  hcosPSI= new TH1D("hcosPSI","",1e4,0,1e-4);
   //  hcosPSI = new TH1D("hcosPSI","breaking angle",1e3,-1.5,1.5);
   //  htheta = new TH2D("htheta",";length;#theta angle",1e3,0,25,1e3,0,3.15);
   //  htime = new TH2D("htime",";time distance, ns;time angle,ns",5e3,0,5e3,5e3,0,5e3);
@@ -567,38 +569,38 @@ void PndLmdTrackFinderCATask::Exec(Option_t* opt)
       if((cells9.at(ic))!=(cells8.at(jc))) continue;
       if((cells7.at(ic))!=(cells6.at(jc))) continue;
 
-	    /// v - vector of track direction
-	    /// w - vector between middle point and another end of cell
-	    /// d= [v,w]/|v| - distance
-	    /// [v,w]=(v_y*w_z-v_z*w_y, v_z*w_x-v_x*w_z,v_x*w_y-v_y*w_x)
-	    /// |v|=sqrt(v_x^2+v_y^2+v_z^2)
+	    // /// v - vector of track direction
+	    // /// w - vector between middle point and another end of cell
+	    // /// d= [v,w]/|v| - distance
+	    // /// [v,w]=(v_y*w_z-v_z*w_y, v_z*w_x-v_x*w_z,v_x*w_y-v_y*w_x)
+	    // /// |v|=sqrt(v_x^2+v_y^2+v_z^2)
 	 
-	    double x0 = cells0.at(ic); double y0 = cells1.at(ic); double z0 = cells2.at(ic);
-	    double x1 = cells3.at(jc); double y1 = cells4.at(jc); double z1 = cells5.at(jc);
-	    double xt = cells3.at(ic); double yt = cells4.at(ic); double zt = cells5.at(ic);
+	    // double x0 = cells0.at(ic); double y0 = cells1.at(ic); double z0 = cells2.at(ic);
+	    // double x1 = cells3.at(jc); double y1 = cells4.at(jc); double z1 = cells5.at(jc);
+	    // double xt = cells3.at(ic); double yt = cells4.at(ic); double zt = cells5.at(ic);
 
-	    double dx10 = (x1-x0); double dy10 = (y1-y0); 	double dz10 = (z1-z0);
-	    double dx0t = (x0-xt);  double dy0t = (y0-yt);    double dz0t = (z0-zt);
+	    // double dx10 = (x1-x0); double dy10 = (y1-y0); 	double dz10 = (z1-z0);
+	    // double dx0t = (x0-xt);  double dy0t = (y0-yt);    double dz0t = (z0-zt);
 
-	    double d_x2 = pow((dy10*dz0t-dz10*dy0t),2);
-	    double d_y2 = pow((dz10*dx0t-dx10*dz0t),2);
-	    double d_z2 = pow((dx10*dy0t-dy10*dx0t),2);
+	    // double d_x2 = pow((dy10*dz0t-dz10*dy0t),2);
+	    // double d_y2 = pow((dz10*dx0t-dx10*dz0t),2);
+	    // double d_z2 = pow((dx10*dy0t-dy10*dx0t),2);
 	    
-	    //	    double norm_v = sqrt(pow((x1-x0),2)+pow((y1-y0),2)+pow((z1-z0),2));
-	    double norm_v = dz10;
-	    if(10*dx10 > dz10){
-	    double dx10_2 = (x1-x0)*(x1-x0); double dy10_2 = (y1-y0)*(y1-y0); double dz10_2 = (z1-z0)*(z1-z0);
-	    norm_v = sqrt(dx10_2+dy10_2+dz10_2);
-	    }
-	    double d = sqrt(d_x2+d_y2+d_z2)/norm_v;
-	    // timerD.Stop();
+	    // //	    double norm_v = sqrt(pow((x1-x0),2)+pow((y1-y0),2)+pow((z1-z0),2));
+	    // double norm_v = dz10;
+	    // if(10*dx10 > dz10){
+	    // double dx10_2 = (x1-x0)*(x1-x0); double dy10_2 = (y1-y0)*(y1-y0); double dz10_2 = (z1-z0)*(z1-z0);
+	    // norm_v = sqrt(dx10_2+dy10_2+dz10_2);
+	    // }
+	    // double d = sqrt(d_x2+d_y2+d_z2)/norm_v;
+	    // // timerD.Stop();
 
-	    // Double_t rtimeD = 1e9*(timerD.RealTime());
-	    // Double_t ctimeD = 1e9*(timerD.CpuTime());
-	    // cout<<"Timer for distance calculation: real "<<rtimeD<<" s, CPU "<<ctimeD<<endl;
-	    // cout<<"distance = "<<d<<endl;
-	    //	    timerD.Reset();
-	    if(fVerbose>1) hdist->Fill(d);
+	    // // Double_t rtimeD = 1e9*(timerD.RealTime());
+	    // // Double_t ctimeD = 1e9*(timerD.CpuTime());
+	    // // cout<<"Timer for distance calculation: real "<<rtimeD<<" s, CPU "<<ctimeD<<endl;
+	    // // cout<<"distance = "<<d<<endl;
+	    // //	    timerD.Reset();
+	    // if(fVerbose>1) hdist->Fill(d);
 
 	    // TStopwatch timerA;
 	    // timerA.Start();
@@ -606,19 +608,19 @@ void PndLmdTrackFinderCATask::Exec(Option_t* opt)
 	    // // double x0 = cells.at(0).at(ic); double y0 = cells.at(1).at(ic); double z0 = cells.at(2).at(ic);
 	    // // double x1 = cells.at(3).at(jc); double y1 = cells.at(4).at(jc); double z1 = cells.at(5).at(jc);
 	    // // double xt = cells.at(3).at(ic); double yt = cells.at(4).at(ic); double zt = cells.at(5).at(ic);
-	    // double Ax = cells.at(3).at(ic) - cells.at(0).at(ic);  
-	    // double Ay = cells.at(4).at(ic) - cells1.at(ic); 
-	    // double Az = cells.at(5).at(ic) - cells.at(2).at(ic); 
-	    // double Bx = cells.at(3).at(jc) - cells.at(3).at(ic);  
-	    // double By = cells.at(4).at(jc) - cells.at(4).at(ic); 
-	    // double Bz = cells.at(5).at(jc) - cells.at(5).at(ic); 
-	    // double AB = Ax*Bx+Ay*By+Az*Bz;
-	    // double Amag = sqrt(Ax*Ax+Ay*Ay+Az*Az);
-	    // double Bmag = sqrt(Bx*Bx+By*By+Bz*Bz);
-	    // double cosPsi = AB/(Amag*Bmag);
-	    // //	    double cosPsi = AB/double(Az*Bz);
-	    // timerA.Stop();
-	    // hcosPSI->Fill(cosPsi);
+	    double Ax = cells3.at(ic) - cells0.at(ic);  
+	    double Ay = cells4.at(ic) - cells1.at(ic); 
+	    double Az = cells5.at(ic) - cells2.at(ic); 
+	    double Bx = cells3.at(jc) - cells3.at(ic);  
+	    double By = cells4.at(jc) - cells4.at(ic); 
+	    double Bz = cells5.at(jc) - cells5.at(ic); 
+	    double AB = Ax*Bx+Ay*By+Az*Bz;
+	    double Amag = sqrt(Ax*Ax+Ay*Ay+Az*Az);
+	    double Bmag = sqrt(Bx*Bx+By*By+Bz*Bz);
+	    double cosPsi = AB/(Amag*Bmag);
+	    //	    double cosPsi = AB/double(Az*Bz);
+	    //  timerA.Stop();
+	    if(fVerbose>1)  hcosPSI->Fill(1-cosPsi);
 
 	    // Double_t rtimeA = 1e9*(timerA.RealTime());
 	    // Double_t ctimeA = 1e9*(timerA.CpuTime());
@@ -626,7 +628,8 @@ void PndLmdTrackFinderCATask::Exec(Option_t* opt)
 	    //	    timerA.Reset();
 	    //	     cout<<"Timer for angle calculation: real "<<rtimeA<<" s, CPU "<<ctimeA<<endl;
 	    // cout<<"cosPsi = "<<cosPsi<<endl;
-	    if(d<d_max){
+	    //	    if(d<d_max){
+	    if((1-cosPsi)<1e-5){// 1e-5 OK for 1.5 GeV; 1e-6 OK for 15 GeV
 	      // if(fVerbose>4)
 	      // 	cout<<"BINGO! Cells #"<<ic<<" and #"<<jc<<endl;
 	      //  if(int(cells.at(10).at(ic))==int(cells.at(10).at(jc))){
@@ -641,7 +644,8 @@ void PndLmdTrackFinderCATask::Exec(Option_t* opt)
 	    }
 	    else{
 	      if(fVerbose>4)
-		cout<<"Cells #"<<ic<<" and #"<<jc<<" aren't connected, because d = "<<d<<" >="<<d_max<<endl;
+		//	cout<<"Cells #"<<ic<<" and #"<<jc<<" aren't connected, because d = "<<d<<" >="<<d_max<<endl;
+		cout<<"Cells #"<<ic<<" and #"<<jc<<" aren't connected, because  cosPsi = "<<cosPsi<<endl;
 	    }
     }
   }
@@ -838,91 +842,91 @@ void PndLmdTrackFinderCATask::Exec(Option_t* opt)
   //   cout << "Real time for build all trk combinations :" << rtime_build_all_trk_combinations << " s, CPU time " << ctime_build_all_trk_combinations << " s" << endl;
   // }
 
-  //TEST: no filter
-  vector<bool> trk_accept;
-  for(unsigned int itrk=0;itrk<trk_cells.at(0).size();itrk++){
-    trk_accept.push_back(true);
-  }
-  //   TEST: no filter end---
-  // //filter -----------------------------------------------
-  // // TStopwatch *timer_filter_trk_combinations = new TStopwatch();
-  // // if(fVerbose>0)
-  // //   timer_filter_trk_combinations->Start();
-
-  // if(fVerbose>4) cout<<"--- fillter trk-cand array: "<<endl;
-  // if(fVerbose>4) cout<<" Attention each trk candidate with repeated cells, but smaller cells number will be deleted!"<<endl;
-  // vector<unsigned int> cell_parts;
+  // //TEST: no filter
   // vector<bool> trk_accept;
   // for(unsigned int itrk=0;itrk<trk_cells.at(0).size();itrk++){
-  //   int maxcellnum = trk_arr_size;
-  //   int curr_arr=trk_arr_size;
-  //   while(curr_arr>0){
-  //     curr_arr--;
-  //     if(fVerbose>4) cout<<" we have: trk_cells.at("<<curr_arr<<").at("<<itrk<<")="<<trk_cells.at(curr_arr).at(itrk)<<endl;
-  //     if(trk_cells.at(curr_arr).at(itrk)<0) maxcellnum--;
-  //   }
-  //   cell_parts.push_back(maxcellnum);
-  //   if(maxcellnum>0) trk_accept.push_back(true);
-  //   else trk_accept.push_back(false);
-  //   if(fVerbose>4) cout<<" with:"<<maxcellnum<<" cells"<<endl;
+  //   trk_accept.push_back(true);
   // }
+  // //   TEST: no filter end---
+  //filter -----------------------------------------------
+  // TStopwatch *timer_filter_trk_combinations = new TStopwatch();
+  // if(fVerbose>0)
+  //   timer_filter_trk_combinations->Start();
+
+  if(fVerbose>4) cout<<"--- fillter trk-cand array: "<<endl;
+  if(fVerbose>4) cout<<" Attention each trk candidate with repeated cells, but smaller cells number will be deleted!"<<endl;
+  vector<unsigned int> cell_parts;
+  vector<bool> trk_accept;
+  for(unsigned int itrk=0;itrk<trk_cells.at(0).size();itrk++){
+    int maxcellnum = trk_arr_size;
+    int curr_arr=trk_arr_size;
+    while(curr_arr>0){
+      curr_arr--;
+      if(fVerbose>4) cout<<" we have: trk_cells.at("<<curr_arr<<").at("<<itrk<<")="<<trk_cells.at(curr_arr).at(itrk)<<endl;
+      if(trk_cells.at(curr_arr).at(itrk)<0) maxcellnum--;
+    }
+    cell_parts.push_back(maxcellnum);
+    if(maxcellnum>0) trk_accept.push_back(true);
+    else trk_accept.push_back(false);
+    if(fVerbose>4) cout<<" with:"<<maxcellnum<<" cells"<<endl;
+  }
   
-  // for(int itrc=(cell_parts.size()-1);itrc>=0;itrc--){
-  //   if(!trk_accept[itrc]) continue;
-  //   int cup=itrc-1;
-  //   for(int itrc2=cup;itrc2>=0;itrc2--){
-  //     if(!trk_accept[itrc]) break;
-  //     if(!trk_accept[itrc2]) continue;
-  //     //      cout<<"compare trk#"<<itrc<<" and #"<<itrc2<<endl;
+  for(int itrc=(cell_parts.size()-1);itrc>=0;itrc--){
+    if(!trk_accept[itrc]) continue;
+    int cup=itrc-1;
+    for(int itrc2=cup;itrc2>=0;itrc2--){
+      if(!trk_accept[itrc]) break;
+      if(!trk_accept[itrc2]) continue;
+      //      cout<<"compare trk#"<<itrc<<" and #"<<itrc2<<endl;
 
-  //     if(cell_parts[itrc]<cell_parts[itrc2]){
-  // 	unsigned int count_re=0;
-  // 	//reject trk-cand with smaller number of cells and similar cells
-  // 	int curr_arr=trk_arr_size;
-  // 	while(curr_arr>0){
-  // 	  curr_arr--;
-  // 	  if(trk_cells.at(curr_arr).at(itrc)<0 || trk_cells.at(curr_arr).at(itrc2)<0) continue;
-  // 	  if(trk_cells.at(curr_arr).at(itrc)==trk_cells.at(curr_arr).at(itrc2))
-  // 	    count_re++;
-  // 	}
-  // 	if(count_re>0.55*cell_parts[itrc]){
-  // 	  trk_accept[itrc]=false;
-  // 	  if(fVerbose>4){
-  // 	    // cout<<"Delete: trk-cand#"<<itrc<<" because of trk_cells.at("<<curr_arr<<").at("<<itrc<<"):"
-  // 	    // 	<<trk_cells.at(curr_arr).at(itrc)<<endl;
-  // 	    cout<<"Delete: trk-cand#"<<itrc
-  // 		<<" because it contains ("<<count_re<<") more then 55% cells from trk-cand#"<<itrc2<<endl;
-  // 	  }
-  // 	}
-  //     }
-  //   }
-  // }
+      if(cell_parts[itrc]<cell_parts[itrc2]){
+  	unsigned int count_re=0;
+  	//reject trk-cand with smaller number of cells and similar cells
+  	int curr_arr=trk_arr_size;
+  	while(curr_arr>0){
+  	  curr_arr--;
+  	  if(trk_cells.at(curr_arr).at(itrc)<0 || trk_cells.at(curr_arr).at(itrc2)<0) continue;
+  	  if(trk_cells.at(curr_arr).at(itrc)==trk_cells.at(curr_arr).at(itrc2))
+  	    count_re++;
+  	}
+  	if(count_re>0.55*cell_parts[itrc]){
+  	  trk_accept[itrc]=false;
+  	  if(fVerbose>4){
+  	    // cout<<"Delete: trk-cand#"<<itrc<<" because of trk_cells.at("<<curr_arr<<").at("<<itrc<<"):"
+  	    // 	<<trk_cells.at(curr_arr).at(itrc)<<endl;
+  	    cout<<"Delete: trk-cand#"<<itrc
+  		<<" because it contains ("<<count_re<<") more then 55% cells from trk-cand#"<<itrc2<<endl;
+  	  }
+  	}
+      }
+    }
+  }
 
-  // for(int itrc=(cell_parts.size()-1);itrc>=0;itrc--){
-  //     for(int itrc2=itrc-1;itrc2>=0;itrc2--){
-  // 	//	if(itc==itrc2) continue;
-  //     if(cell_parts[itrc]==cell_parts[itrc2]){
-  // 	//reject trk-cand with the same number of cells and similar cells
-  // 	int count_re=0;
-  // 	int curr_arr=trk_arr_size;
-  // 	while(curr_arr>0){
-  // 	  curr_arr--;
-  // 	  if(trk_cells.at(curr_arr).at(itrc)<0 || trk_cells.at(curr_arr).at(itrc2)<0) continue;
-  // 	  if(trk_cells.at(curr_arr).at(itrc)==trk_cells.at(curr_arr).at(itrc2)){
-  // 	    count_re++;
-  // 	  }
-  // 	}
-  // 	if(count_re>0.9*cell_parts[itrc]){
-  // 	  trk_accept[itrc]=false;
-  // 	  if(fVerbose>4){
-  // 	    cout<<"Delete: trk-cand#"<<itrc<<" because it contains("
-  // 		<<count_re<<") more then 90% of cells from trk-cand#"<<itrc2<<endl;
-  // 	  }
-  // 	}
-  //     }
-  //   }
-  // }
-  // //filter(end)------------------------------------------------
+  for(int itrc=(cell_parts.size()-1);itrc>=0;itrc--){
+      for(int itrc2=itrc-1;itrc2>=0;itrc2--){
+  	//	if(itc==itrc2) continue;
+      if(cell_parts[itrc]==cell_parts[itrc2]){
+  	//reject trk-cand with the same number of cells and similar cells
+  	int count_re=0;
+  	int curr_arr=trk_arr_size;
+  	while(curr_arr>0){
+  	  curr_arr--;
+  	  if(trk_cells.at(curr_arr).at(itrc)<0 || trk_cells.at(curr_arr).at(itrc2)<0) continue;
+  	  if(trk_cells.at(curr_arr).at(itrc)==trk_cells.at(curr_arr).at(itrc2)){
+  	    count_re++;
+  	  }
+  	}
+  	if(count_re>0.9*cell_parts[itrc]){
+  	  trk_accept[itrc]=false;
+  	  if(fVerbose>4){
+  	    cout<<"Delete: trk-cand#"<<itrc<<" because it contains("
+  		<<count_re<<") more then 90% of cells from trk-cand#"<<itrc2<<endl;
+  	  }
+  	}
+      }
+    }
+  }
+  //filter(end)------------------------------------------------
 
   // if(fVerbose>0){
   // timer_filter_trk_combinations->Stop();
