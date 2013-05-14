@@ -280,10 +280,10 @@ int main(int __argc,char *__argv[]) {
   TH1 *hDiffIDs = new TH1I("hDiffIDs","Number of track-candidates with hits from diff. MC-track;N_{IDs}",10,0,10);
   TH1 *hntrkcand = new TH1F("hntrkcand","Number of track-candidates per event;N_{trk-cand}",100,0,100);
   TH1 *hntrk = new TH1F("hntrk","Number of tracks per event;N_{trk}",100,0,100);
-  TH1 *hntrkmissed_I = new TH1F("hntrkmissed_I","Number of missed tracks per event (#phi, #theta trks);N_{trk}",30,0,30);
+  TH1 *hntrkmissed_I = new TH1F("hntrkmissed_I","Number of missed tracks per event (hits matching, hit+trk search losses);N_{trk}",30,0,30);
   TH1 *hntrkgood_I = new TH1F("hntrkgood_I","Number of good tracks per event (#phi, #theta trks);N_{trk}",30,0,30);
   TH1 *hntrkghost_I = new TH1F("hntrkghost_I","Number of ghost tracks per event (#phi, #theta trks);N_{trk}",30,0,30);
-  TH1 *hntrkmissed_II = new TH1F("hntrkmissed_II","Number of missed tracks per event (hits matching);N_{trk}",30,0,30);
+  TH1 *hntrkmissed_II = new TH1F("hntrkmissed_II","Number of missed tracks per event (hits matching, trk search losses);N_{trk}",30,0,30);
   TH1 *hntrkgood_II = new TH1F("hntrkgood_II","Number of good tracks per event (hits matching);N_{trk}",30,0,30);
   TH1 *hntrkghost_II = new TH1F("hntrkghost_II","Number of ghost tracks per event (hits matching);N_{trk}",30,0,30);
   TH2 *hntrkmissedPhiTheta = new TH2F("hntrkmissedPhiTheta",";#delta#theta/#sigma#theta;#delta#phi/#sigma#phi",1000,0,100,1000,0,100);
@@ -466,24 +466,32 @@ int main(int __argc,char *__argv[]) {
 	PndTrackCandHit candhit = (PndTrackCandHit)(trkcand->GetSortedHit(iHit));
 	Int_t hitID = candhit.GetHitId();
 	// if(verboseLevel>5)
+	//   cout<<" "<<endl;
 	//   cout<<" hitID = "<<hitID<<endl;
 	//	PndSdsHit* myHit = (PndSdsHit*)(rechit_array->At(hitID));
 	PndSdsMergedHit* myHit = (PndSdsMergedHit*)(rechit_array->At(hitID));
 	int mcrefbot = myHit->GetSecondMCHit();
 	if(mcrefbot>0){
+	  if(verboseLevel>5)
+	    cout<<" "<<hitID<<"("<<mcrefbot;
 	  PndSdsMCPoint* MCPointBot = (PndSdsMCPoint*)(true_points->At(mcrefbot));
 	  int MCtrkid = MCPointBot->GetTrackID();
 	  //	  if(MCtrkid>-1)
 	    MCtrkID[iHit]=MCtrkid;
 	}
 	int mcreftop = myHit->GetRefIndex();
+
 	if(mcreftop>0){
+	  if(verboseLevel>5)
+	    cout<<", "<<mcreftop<<")";
 	  PndSdsMCPoint* MCPointTop = (PndSdsMCPoint*)(true_points->At(mcreftop));
 	  int MCtrkid = MCPointTop->GetTrackID();
 	  //	  if(MCtrkid>-1)
 	    MCtrkID[iHit]=MCtrkid;
 	}
       }
+      if(verboseLevel>5)
+	cout<<" "<<endl;
 
       if(verboseLevel>3){
 	cout<<"Before sorting: ";
@@ -522,6 +530,7 @@ int main(int __argc,char *__argv[]) {
       }
       diffIDs = 1;
       for(Int_t n=1; n<Ntrkcandhits; n++){ 
+	if(MCtrkID[n]>9998) break;
 	if(prevID<MCtrkID[n]){
 	  diffIDs++;
 	  prevID=MCtrkID[n];
@@ -553,6 +562,7 @@ int main(int __argc,char *__argv[]) {
 	prevID = MCtrkID[0];
 	int diffCount=0;
 	for(Int_t n=0; n<Ntrkcandhits; n++) {
+	  if(MCtrkID[n]>9998) break;
 	  if(prevID<MCtrkID[n]){
 	    diffCount++;
 	    prevID=MCtrkID[n];
@@ -564,13 +574,16 @@ int main(int __argc,char *__argv[]) {
 	int posIDmax=0;
 	for(int kn=0;kn<diffIDs;kn++){
 	  hMCtrkPer->Fill(100*double(countMC_IDs[kn])/Ntrkcandhits);
-	  cout<<"countMC_IDs["<<kn<<"]="<<countMC_IDs[kn]<<" 0.65*Ntrkcandhits = "<<0.65*Ntrkcandhits<<endl;
+	  if(verboseLevel>3)  cout<<"countMC_IDs["<<kn<<"]="<<countMC_IDs[kn]<<" 0.65*Ntrkcandhits = "<<0.65*Ntrkcandhits<<endl;
 	  if(countMC_IDs[kn]>0.65*Ntrkcandhits){ //more then 65% of hits come from the same MC id
 	    goodTrk[iN] = true;
 	    ghostTrk[iN] = false;
 	  }
 	  else{
-	    if(!goodTrk[iN]) ghostTrk[iN] = true;
+	    if(!goodTrk[iN]){
+	      ghostTrk[iN] = true;
+	      //	      cout<<" aaaaa!"<<iN<< " is ghost trk !aaaa"<<endl;
+	    }
 	  }
 	  
 	  if(countMC_IDs[kn]>maxID){ 
@@ -691,7 +704,7 @@ int main(int __argc,char *__argv[]) {
   
     /// (I) missed\ghost tracks are defined on Phi\Theta difference between MC&REC trks
     hntrkgood_I->Fill(goodRectrk);
-    if((nMCtracks-goodRectrk)>0) hntrkmissed_I->Fill(nMCtracks-goodRectrk);
+    //    if((nMCtracks-goodRectrk)>0) hntrkmissed_I->Fill(nMCtracks-goodRectrk);
     if((nGeaneTrks-goodRectrk)>0) hntrkghost_I->Fill(nGeaneTrks-goodRectrk);
     if(verboseLevel>0){
     cout<<nMCtracks<<" trks per event were simulated and "<<nGeaneTrks<<" were reconstructed"<<endl;
@@ -700,14 +713,36 @@ int main(int __argc,char *__argv[]) {
     // cout<<"--------------------------------"<<endl;
     }
     /// (II) missed\ghost tracks are defined on hits information
+    //check maybe this rec. trk has repeated assignment to MC trk
+    int RECassigMC[nGeaneTrks];//how many time MCid from this RECtrk meet in other RECtrks
+    for (Int_t iN=0; iN<nGeaneTrks; iN++)
+      RECassigMC[iN]=1;
+    
+    for (Int_t iN=0; iN<nGeaneTrks; iN++){
+      int mc_i = RECtrkMCid[iN];
+      for (Int_t jN=(iN+1); jN<nGeaneTrks; jN++){
+	int mc_j = RECtrkMCid[jN];
+	if(mc_i==mc_j){
+	  RECassigMC[iN]++;
+	  if(verboseLevel>3) cout<<"rec.trks #"<<iN<<" and #"<<jN<< "were assigned to one MC trk =|"<<endl;
+	}
+      }
+    }
+
     int goodRecII=0, ghostRecII=0;
     for (Int_t iN=0; iN<nGeaneTrks; iN++){
+      if(RECassigMC[iN]>1){
+	//	if(verboseLevel>3)   cout<<"ja, ja for MC id from trk#"<<iN<<" was found in more then 1 MCid!"<<endl;
+	goodTrk[iN]=false;
+	ghostTrk[iN]=true;
+      }
       int trkType = -1;
       if(goodTrk[iN]){
 	goodRecII++;
 	trkType = 0;
       }
       if(ghostTrk[iN]){
+	cout<<"AND finaly trk#"<<iN<<" was defined as ghost oO"<<endl;
 	ghostRecII++;
 	trkType = +1;
       }
@@ -758,8 +793,8 @@ int main(int __argc,char *__argv[]) {
     }
 
     if(verboseLevel>0){
-      if((nMCtracks-goodRecII)>0){//TEST only about missed trks
-	cout<<"-- Ev#"<<j<<endl;
+      if((nMCtracks-goodRecII)>0 || ghostRecII>0){//TEST only about missed or ghost trks
+       cout<<"-- Ev#"<<j<<endl;
       cout<<"-- (II) Hits matching -------------------------"<<endl;
       cout<<"Good trks: "<<goodRecII<<" missed: "<<nMCtracks-goodRecII<<" ghost: "<<ghostRecII<<endl;
       cout<<"--------------------------------"<<endl;

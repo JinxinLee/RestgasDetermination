@@ -15,7 +15,7 @@ using namespace std;
 
 //void TrksAlgoResults(TString storePath="StripSensors/1e4_events/noHitsNumberCheck")
 //void TrksAlgoResults(TString storePath="/home/karavdin/datastorage/TrackPerformanceStrip/1000000/")
-void TrksAlgoResults(TString storePath="${VMCWORKDIR}/macro/lmd/tmpOutnewDesign/")
+void TrksAlgoResults(TString storePath="${VMCWORKDIR}/macro/lmd/tmpOutnewDesign/noFilterInCA_4aTaskForAll/mom_1_5/")
 {
 
   gROOT->Macro("/panda/pandaroot/macro/lmd/Anastasia/test_macros/Style_Imported_Style.C");
@@ -101,10 +101,8 @@ void TrksAlgoResults(TString storePath="${VMCWORKDIR}/macro/lmd/tmpOutnewDesign/
     fileFname+="mergedHits_true_";
     // fileCAname+="addMS_false_KalmanFillter_";
     // fileFname+="addMS_false_KalmanFillter_";
-    fileCAname+="addMS_true_MinuitFit_";
-    fileFname+="addMS_true_MinuitFit_";
-    fileCAname+="15.root";
-    fileFname+="15.root";
+    fileCAname+="addMS_true_MinuitFit.root";
+    fileFname+="addMS_true_MinuitFit.root";
     ///PIXEL -----------------------------------------------------------------
 
     TFile *fileCA = new TFile(fileCAname,"READ");
@@ -254,8 +252,8 @@ void TrksAlgoResults(TString storePath="${VMCWORKDIR}/macro/lmd/tmpOutnewDesign/
 
     cout<<"nsimTrk = "<<nsimTrk<<" (with "<<Ntrks[iNtrk]<<" trks/ev) nrecF = "<<nrecF<<" nrecCA = "<<nrecCA<<endl;
     cout<<"(I:based on phi&theta diff between MC and REC), (II:based on hit info)"<<endl;
-    //    cout<<" nmissF_I = "<<nmissF_I<<" nmissCA_I = "<<nmissCA_I<<endl;
-    cout<<" nmissF_II = "<<nmissF_II<<" nmissCA_II = "<<nmissCA_II<<endl;
+    cout<<"(hit lost+trk lost): nmissF_I  = "<<nmissF_I<<" nmissCA_I = "<<nmissCA_I<<endl;
+    cout<<"(only trk lost    ): nmissF_II = "<<nmissF_II<<" nmissCA_II = "<<nmissCA_II<<endl;
     //    cout<<" nghostF_I = "<<nghostF_I<<" nghostCA_I = "<<nghostCA_I<<endl;
     cout<<" nghostF_II = "<<nghostF_II<<" nghostCA_II = "<<nghostCA_II<<endl;
     cout<<" timeF = "<<timeF[iNtrk]<<" timeCA = "<<timeCA[iNtrk]<<endl;
@@ -330,8 +328,8 @@ void TrksAlgoResults(TString storePath="${VMCWORKDIR}/macro/lmd/tmpOutnewDesign/
   grMissF_II->SetMarkerColor(4);
   grMissF_II->SetMarkerSize(1.2);
   TMultiGraph *mgMissed = new TMultiGraph("mgMissed","Missed;N^{trk}_{MC};events with missed trks, %");
-  //  mgMissed->Add(grMissCA_I);
-  // mgMissed->Add(grMissF_I);
+  mgMissed->Add(grMissCA_I);
+  mgMissed->Add(grMissF_I);
   mgMissed->Add(grMissCA_II);
   mgMissed->Add(grMissF_II);
  
@@ -405,6 +403,15 @@ void TrksAlgoResults(TString storePath="${VMCWORKDIR}/macro/lmd/tmpOutnewDesign/
   //  mgGhostMean->Add(grGhostF_value_I);
   mgGhostMean->Add(grGhostF_value_II);
 
+  TLegend *leg = new TLegend(0.12,0.6,0.85,0.8);
+  leg->SetFillColor(0);
+  leg->SetTextFont(42);
+  leg->SetTextSize(0.05);
+  leg->AddEntry(grMissCA_value_I,"CA (hits&trk-search)","lep");
+  leg->AddEntry(grMissF_value_I,"Follow (hits&trk-search)","lep");
+  leg->AddEntry(grMissCA_value_II,"CA (trk-search)","lep");
+  leg->AddEntry(grMissF_value_II,"Follow (trk-search)","lep");
+
   TString fileOUTname=storePath+"/TrksAlgoResults.root";
   TString fileOUTnamepdf=storePath+"/TrksAlgoResults.pdf";
   TFile *fileOUT = new TFile(fileOUTname,"RECREATE");
@@ -416,10 +423,13 @@ void TrksAlgoResults(TString storePath="${VMCWORKDIR}/macro/lmd/tmpOutnewDesign/
     //  #left| #frac{1}{1 - #Delta#alpha} #right|^{2} (1+cos^{2}#theta)";
 
   mgSpeed->Draw("A");
-  TLatex latex;
-  latex.SetTextSize(0.035);
-  latex.SetTextAlign(12);  //align at center
- 
+
+  leg->Draw();
+  // TLatex latex;
+  // latex.SetTextSize(0.035);
+  // latex.SetTextAlign(12);  //align at center
+
+  
   // latex.DrawLatex(1.8,2.1,"#it{Cellular Automaton (Trks matching)}");
   // latex.DrawLatex(1.8,2.0,"#it{Cellular Automaton (Hits matching)}");
   // latex.DrawLatex(1.8,1.8,"#it{Trk-Following (Trks matching)}");
@@ -433,32 +443,32 @@ void TrksAlgoResults(TString storePath="${VMCWORKDIR}/macro/lmd/tmpOutnewDesign/
   //  latex.DrawLatex(3.9,0.7,"#it{Trk-Following (Trks matching)}");
   //latex.DrawLatex(3.9,0.65,"#it{Trk-Following (Hits matching)}");
 
-    latex.DrawLatex(3.9,0.75,"#it{Cellular Automaton}");
-    latex.DrawLatex(3.9,0.7,"#it{Cellular Automaton (hits&trk search missed)}");
-    latex.DrawLatex(3.9,0.65,"#it{Trk-Following}");
-    latex.DrawLatex(3.9,0.6,"#it{Trk-Following (hits&trk search missed)}");
-  TMarker caI(1.2, 0.9, 20);
-  caI.SetMarkerColor(2);
-  caI.SetMarkerSize(1.2); 
-  TMarker caII(1.2, 0.85, 21);
-  caII.SetMarkerColor(2);
-  caII.SetMarkerSize(1.2);
-  // caI.DrawMarker(1.2,1.1);
-  // caII.DrawMarker(1.2,1.0);
-  caI.DrawMarker(3.4,0.7);
-  caII.DrawMarker(3.4,0.75);
+  //   latex.DrawLatex(3.9,0.75,"#it{Cellular Automaton}");
+  //   latex.DrawLatex(3.9,0.7,"#it{Cellular Automaton (hits&trk search missed)}");
+  //   latex.DrawLatex(3.9,0.65,"#it{Trk-Following}");
+  //   latex.DrawLatex(3.9,0.6,"#it{Trk-Following (hits&trk search missed)}");
+  // TMarker caI(1.2, 0.9, 20);
+  // caI.SetMarkerColor(2);
+  // caI.SetMarkerSize(1.2); 
+  // TMarker caII(1.2, 0.85, 21);
+  // caII.SetMarkerColor(2);
+  // caII.SetMarkerSize(1.2);
+  // // caI.DrawMarker(1.2,1.1);
+  // // caII.DrawMarker(1.2,1.0);
+  // caI.DrawMarker(3.4,0.7);
+  // caII.DrawMarker(3.4,0.75);
 
 
-  TMarker fI(1.2, 0.9, 20);
-  fI.SetMarkerColor(4);
-  fI.SetMarkerSize(1.2); 
-  TMarker fII(1.2, 0.85, 21);
-  fII.SetMarkerColor(4);
-  fII.SetMarkerSize(1.2);
-  // fI.DrawMarker(1.2,0.8);
-  // fII.DrawMarker(1.2,0.7);
-  fI.DrawMarker(3.4,0.6);
-  fII.DrawMarker(3.4,0.65);
+  // TMarker fI(1.2, 0.9, 20);
+  // fI.SetMarkerColor(4);
+  // fI.SetMarkerSize(1.2); 
+  // TMarker fII(1.2, 0.85, 21);
+  // fII.SetMarkerColor(4);
+  // fII.SetMarkerSize(1.2);
+  // // fI.DrawMarker(1.2,0.8);
+  // // fII.DrawMarker(1.2,0.7);
+  // fI.DrawMarker(3.4,0.6);
+  // fII.DrawMarker(3.4,0.65);
 
   // latex.DrawLatex(.2,.8,longstring);
   c1->cd(4);
@@ -469,8 +479,10 @@ void TrksAlgoResults(TString storePath="${VMCWORKDIR}/macro/lmd/tmpOutnewDesign/
   mgGhost->Draw("APL");
   c1->cd(2);
   mgMissedMean->Draw("APL");
+  mgMissedMean->GetYaxis()->SetLimits(0,1.5);
   c1->cd(5);
   mgGhostMean->Draw("APL");
+  mgGhostMean->GetYaxis()->SetLimits(0,1.5);
   c1->Write();
   mgSpeed->Write();
   mgTotRec->Write();
@@ -478,6 +490,7 @@ void TrksAlgoResults(TString storePath="${VMCWORKDIR}/macro/lmd/tmpOutnewDesign/
   mgGhost->Write();
   mgMissedMean->Write();
   mgGhostMean->Write();
+  leg->Write();
   fileOUT->Close();
   c1->SaveAs(fileOUTnamepdf);
 }
