@@ -135,6 +135,7 @@ void PndLmdTrksFilterTask::Exec(Option_t* opt)
   int trksH3[gll];//hits on pl#3
   vector<unsigned int> trkHn;//number of hits in trk
   vector<bool> trk_accept;
+  //  vector<bool> stopch; //if trks were checked by chi2 there is no need to check them futher
   vector<double> vchi2;
   int mcidtop[4][gll];
   int mcidbot[4][gll];
@@ -154,6 +155,7 @@ void PndLmdTrksFilterTask::Exec(Option_t* opt)
     double chi2 = trkpnd->GetChi2();
     vchi2.push_back(chi2);
     trk_accept.push_back(true);
+    //  stopch.push_back(false);
     int candID = trkpnd->GetRefIndex();
     PndTrackCand *trkcand = (PndTrackCand*)fTrkCandArray->At(candID);    
     const unsigned int Ntrkcandhits= trkcand->GetNHits();
@@ -210,14 +212,17 @@ void PndLmdTrksFilterTask::Exec(Option_t* opt)
       }
       if(mcidbot[iplane][i]>0 && mcidtop[iplane][i]>0){
 	if(mcidtop[iplane][i]!=mcidbot[iplane][i])
-	  cout<<"Attention! mcidtop!=mcidbot: for trk#"<<i<<" "<<mcidtop[iplane][i]<<" "<<mcidbot[iplane][i]<<endl;
+	  if(fVerbose>4)	  cout<<"Attention! mcidtop!=mcidbot: for trk#"<<i<<" "<<mcidtop[iplane][i]<<" "<<mcidbot[iplane][i]<<endl;
       }
     }
   }
   //compare trks on hit level
+  for(int ittr=0;ittr<2;ittr++){//repeat comparision twice to avoid accepting trk twice due to different check
   for (unsigned int i = 0; i<gll;i++){ 
+    //   if(stopch[i]) continue;
     if(!trk_accept[i]) continue;
     for (unsigned int j = i+1; j<gll;j++){ 
+      //    if(stopch[j]) continue;
       if(!trk_accept[j]) continue;
     int coundduphit=4;//count dublicate hits
       if(trksH0[i]!=trksH0[j]) coundduphit--;
@@ -250,6 +255,8 @@ void PndLmdTrksFilterTask::Exec(Option_t* opt)
 	      trk_accept[i]=true;
 	      trk_accept[j]=false;
 	    }
+	    // stopch[i]=true;
+	    // stopch[j]=true;
 	  }
 	}
 	if(fVerbose>4){
@@ -261,6 +268,8 @@ void PndLmdTrksFilterTask::Exec(Option_t* opt)
       }
     }
   }
+  }
+
   //save good trks
   int rec_trk=0;
   for (unsigned int i = 0; i<gll;i++){ 
@@ -278,7 +287,7 @@ void PndLmdTrksFilterTask::Exec(Option_t* opt)
   //some MC infor for check ------
   if(rec_trk!=7){ //test with 7 trks/event
   const int numHITS = fHitArray->GetEntriesFast();
-  cout<<"MC trks in rec.Hits:"<<endl;
+ if(fVerbose>2)   cout<<"MC trks in rec.Hits:"<<endl;
   int plprev=0;
   for(int iHit = 0;iHit<numHITS;iHit++){
     PndSdsMergedHit* myHit = (PndSdsMergedHit*)(fHitArray->At(iHit));
@@ -286,25 +295,25 @@ void PndLmdTrksFilterTask::Exec(Option_t* opt)
     int ihalf,iplane,imodule,iside,idie,isensor;
     lmddim->Get_sensor_by_id(sensid,ihalf,iplane,imodule,iside,idie,isensor);
     if(iplane!=plprev){
-      cout<<""<<endl;
+   if(fVerbose>2)     cout<<""<<endl;
       plprev = iplane;
     }
-    cout<<"pl"<<iplane<<": ";
+    if(fVerbose>2)   cout<<"pl"<<iplane<<": ";
     int mcrefbot = myHit->GetSecondMCHit();
       if(mcrefbot>0){
       PndSdsMCPoint* MCPointBot = (PndSdsMCPoint*)(fMCHitArray->At(mcrefbot));
       int MCtrkid = MCPointBot->GetTrackID();
-      cout<<MCtrkid<<" ("<<mcrefbot<<")";
+     if(fVerbose>2)   cout<<MCtrkid<<" ("<<mcrefbot<<")";
       }
       int mcreftop = myHit->GetRefIndex();
       if(mcreftop>0){
       PndSdsMCPoint* MCPointTop = (PndSdsMCPoint*)(fMCHitArray->At(mcreftop));
       int MCtrkid = MCPointTop->GetTrackID();
-      cout<<MCtrkid<<" ("<<mcreftop<<")";
+     if(fVerbose>2)   cout<<MCtrkid<<" ("<<mcreftop<<")";
       }
-      cout<<";   ";
+     if(fVerbose>2)   cout<<";   ";
   }
-  cout<<""<<endl;
+  if(fVerbose>2)  cout<<""<<endl;
   }
   //end MC info -----------------------
 
