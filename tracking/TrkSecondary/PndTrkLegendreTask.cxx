@@ -170,6 +170,9 @@ void PndTrkLegendreTask::Initialize() {
     mvdstrhitlist->AddTCA(FairRootManager::Instance()->GetBranchId(fMvdStripBranch), fMvdStripHitArray);
     mvdstrhitlist->InstanciateStrip();
   }
+
+  conformalhitlist = new PndTrkConformalHitList();
+
 }
 
 void PndTrkLegendreTask::Exec(Option_t* opt) {
@@ -177,12 +180,13 @@ void PndTrkLegendreTask::Exec(Option_t* opt) {
   fTrackCandArray->Delete();
 
   cout << "*********************** " << fEventCounter << " ***********************" << endl;
-  // CHECK delete this ---
-  //   if(fEventCounter == 525) {
-  //     fEventCounter++;
-  //     return;
-  //   }
-  // ---
+   // CHECK delete this ---
+  //     if(fEventCounter == 126 || fEventCounter == 526) {
+  //        fEventCounter++;
+  //        return;
+  //      }
+   // ---
+  fEventCounter++;
 
   // CHECK : it may happen that the hit of a track generate more than one track; e.g.
   // some of them are associated together to form a track, some are left out. If later the left outs
@@ -192,9 +196,6 @@ void PndTrkLegendreTask::Exec(Option_t* opt) {
   // fitted again with the mvd in the legendre plane, will give an existing peak.
   // This results in an infinite loop ---> FIX IT! (how: timeout? better hit-to-cluster association? 
   // forbidden peak positions in legendre transform?)
-  
-
-  fEventCounter++;
 
   Initialize();
 
@@ -203,20 +204,18 @@ void PndTrkLegendreTask::Exec(Option_t* opt) {
   cout << "number of mvdstr hits " << fMvdStripHitArray->GetEntriesFast() << endl;
 
   if(fDisplayOn)  {
-
     Refresh();
     char goOnChar;
     // cout << "Start?";
     //  cin >> goOnChar;
     display->Update();
     display->Modified();
-     cout << " STARTING" << endl;
+    cout << " STARTING" << endl;
   }
 
   // translation and rotation - CHECK no rotation now
   Double_t delta = 0, trasl[2] = {0., 0.};
   conform->SetOrigin(trasl[0], trasl[1], delta);
-  //  PndTrkConformalHitList *conformalhitlist = new PndTrkConformalHitList(trasl[0], trasl[1], delta);
 
   //   //-----------------------------------------------
   //   // loop on stt hits
@@ -237,7 +236,8 @@ void PndTrkLegendreTask::Exec(Option_t* opt) {
   //   ComputeTraAndRot(refhit, delta, trasl);
   //-----------------------------------------------
 
-  PndTrkConformalHitList conformalhitlist = FillConformalHitList();
+  Int_t nchits = FillConformalHitList();
+  //  if(nchits == 0) return; // CHECK 
 
   int maxpeak = 1000;
   int ipeak = 0;
@@ -260,67 +260,21 @@ void PndTrkLegendreTask::Exec(Option_t* opt) {
 
     cout << "@@@@ PEAK No. " << ipeak << " @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@" << endl;
     ipeak++;
+
     //  cout << "RESETTING LEGENDRE HISTO" << endl;
     legendre->ResetLegendreHisto();
     if(fDisplayOn) {
       RefreshConf();
       DrawGeometryConf(-0.07, 0.07, -0.07, 0.07);
     }
-  cout << "%%%%%%%%%%%%%%%%%%%% XY FINDER %%%%%%%%%%%%%%%%%%%%%%%%%%" << endl;
-
-    // PIXEL
-    for(int jhit = 0; jhit < mvdpixhitlist->GetNofHits(); jhit++) {
-      PndTrkHit *hit = mvdpixhitlist->GetHit(jhit);
-      break; // NOT USED NOW ******* CHECK    
-      if(hit->IsUsed()) { 
-	// cout << "already used III" << endl;  // CHECK
-	continue;
-      }
-      PndTrkConformalHit * chit = conform->GetConformalHit(hit);
-      legendre->FillLegendreHisto(chit->GetU(), chit->GetV(), chit->GetIsochrone());
-      //      conformalhitlist.AddHit(chit);    
-      if(fDisplayOn) {
- 	DrawConfHit(chit->GetU(), chit->GetV(), chit->GetIsochrone());
-      }
-    }
-    // STRIP
-    for(int jhit = 0; jhit < mvdstrhitlist->GetNofHits(); jhit++) {
-      PndTrkHit *hit = mvdstrhitlist->GetHit(jhit);
-      break;   // NOT USED NOW ******* CHECK      
-      if(hit->IsUsed()) { 
-	// cout << "already used III" << endl;   // CHECK
-	continue; 
-      }
-      PndTrkConformalHit * chit = conform->GetConformalHit(hit);
-      legendre->FillLegendreHisto(chit->GetU(), chit->GetV(), chit->GetIsochrone());
-      //      conformalhitlist.AddHit(chit);    
-      if(fDisplayOn) {
- 	DrawConfHit(chit->GetU(), chit->GetV(), chit->GetIsochrone());
-      }
-    }
-    // STT PARALLEL
-    for(int jhit = 0; jhit < stthitlist->GetNofHits(); jhit++) {
-      PndTrkHit *hit = stthitlist->GetHit(jhit);
-      if(hit->IsUsed()) { 
-	//	 cout << "already used III" << endl;  // CHECK
-	continue; 
-      }
-      if(hit->IsSttSkew()) continue;
-      double conformal[3];
-      PndTrkConformalHit * chit = conform->GetConformalSttHit(hit);
-      legendre->FillLegendreHisto(chit->GetU(), chit->GetV(), chit->GetIsochrone());
-      //      conformalhitlist.AddHit(chit);    
-      if(fDisplayOn) {
- 	DrawConfHit(chit->GetU(), chit->GetV(), chit->GetIsochrone());
-      }
-    }
-
+    cout << "%%%%%%%%%%%%%%%%%%%% XY FINDER %%%%%%%%%%%%%%%%%%%%%%%%%%" << endl;
+    FillLegendreHisto(0);
 
     if(fDisplayOn) {
       char goOnChar;
       //      cin >> goOnChar;
       DrawLegendreHisto();
-      cout << "LEGENDRE (nof conf hits = " <<  conformalhitlist.GetNofHits() << ")" << endl;
+      cout << "LEGENDRE (nof conf hits = " <<  conformalhitlist->GetNofHits() << ")" << endl;
       display->cd();
       //      cin >> goOnChar;
       display->Update();
@@ -358,10 +312,8 @@ void PndTrkLegendreTask::Exec(Option_t* opt) {
     // ZOOM LEGENDRE HISTO
     legendre->SetUpZoomHisto(theta_max, r_max, 3, 0.005);
     //    cout << "THETA/R " << theta_max << " " << r_max << " maxpeak " << maxpeak << endl;
-    // drwa all conformal hits
-    // cout << "DRAW ALL CONF " << conformalhitlist.GetNofHits() << endl;
-    for(int ihit = 0; ihit < conformalhitlist.GetNofHits(); ihit++) {
-      PndTrkConformalHit *chit = conformalhitlist.GetHit(ihit);
+    for(int ihit = 0; ihit < conformalhitlist->GetNofHits(); ihit++) {
+      PndTrkConformalHit *chit = conformalhitlist->GetHit(ihit);
       legendre->FillZoomHisto(chit->GetU(), chit->GetV(), chit->GetIsochrone());
     }
     if(alreadythere == true) {
@@ -394,265 +346,21 @@ void PndTrkLegendreTask::Exec(Option_t* opt) {
     // 0 conformal: mvd and stt in conformal plane
     // 1 real: mvd and stt in real plane
     // 2 mixed: mvd in real/stt in conformal plane
-    int method = 0;
-    if(method == 0) {
-      // ADD HIT IN CONFORMAL PLANE WITH DISTANCE CRITERION
-      // cost x + sint y - r = 0 -> |cost x0 + sint y0 - r|
-      //    cout << "CONFORMALHITLIST " << conformalhitlist.GetNofHits() << endl;
-      for(int ihit = 0; ihit < conformalhitlist.GetNofHits(); ihit++) {
-	double ct = TMath::Cos(theta_max * TMath::DegToRad());
-	double st = TMath::Sin(theta_max * TMath::DegToRad());
-
-	PndTrkConformalHit *chit = conformalhitlist.GetHit(ihit);
-
-	// double dist1 = TMath::Abs(chit->GetV() + (ct/st) * chit->GetU() - r_max/st)/TMath::Sqrt((ct/st) * (ct/st) + 1);
-	double dist = TMath::Abs(chit->GetV() - fitm * chit->GetU() - fitq)/TMath::Sqrt(fitm *fitm + 1);
-      
-	int hitID = chit->GetHitID();
-	int detID = chit->GetDetectorID();
-
-	// CHECK limits
-	double distlimit = 0;
-	if(detID == FairRootManager::Instance()->GetBranchId(fMvdPixelBranch)) distlimit = 0.003;
-	else if(detID == FairRootManager::Instance()->GetBranchId(fMvdStripBranch)) distlimit = 0.003;
-	else if(detID == FairRootManager::Instance()->GetBranchId(fSttBranch)) {
-	  if(chit->GetIsochrone() > 1.e-4) distlimit = 6 * chit->GetIsochrone();
-	  else distlimit = 0.001;
-	}
-	//      distlimit = 0.01;
-	// ---------------------------
-    
-	if(dist < distlimit) {
-	  
-	  //	cout << "ADDED " << hitID << " " << detID << " " << dist << " " << distlimit << endl;
-	 
-	  if(fDisplayOn) {
-	    if(chit->GetIsochrone() > 0) {
-	      TArc *arc = new TArc(chit->GetU(), chit->GetV(), chit->GetIsochrone());
-	      arc->SetFillStyle(0);
-	      arc->SetLineColor(5);
-	      display->cd(2);
-	      arc->Draw("SAME");
-	    }
-	    else {
-	      TMarker *mrk;
-	      if(detID == FairRootManager::Instance()->GetBranchId(fMvdPixelBranch)) mrk = new TMarker(chit->GetU(), chit->GetV(), 21);
-	      else if(detID == FairRootManager::Instance()->GetBranchId(fMvdStripBranch)) mrk = new TMarker(chit->GetU(), chit->GetV(), 25);
-	      mrk->SetMarkerColor(5);
-	      display->cd(2);
-	      mrk->Draw("SAME");
-	    }
-	  }
-
-	  PndTrkHit *hit;
-	  if(detID == FairRootManager::Instance()->GetBranchId(fMvdPixelBranch)) {
-	    hit = mvdpixhitlist->GetHit(hitID);
-	  }
-	  else if(detID == FairRootManager::Instance()->GetBranchId(fMvdStripBranch)) {
-	    hit = mvdstrhitlist->GetHit(hitID);
-	  }
-	  else if(detID == FairRootManager::Instance()->GetBranchId(fSttBranch)) {
-	    hit = stthitlist->GetHit(hitID);
-	  }
-
-	  // ********** CHECK ***********
-	  // if you put "is used" the efficiency beecomes much lower!
-	  // DO NOT: 	if(!hit->IsUsed())
-	  cluster.AddHit(hit);
-	
-	}
-	//      else cout << "DISCARDED " << hitID << " " << detID << " " << dist << " " << distlimit << endl;
-
-      }
-    }
-    else if (method == 1) {
-      // ADD HIT IN REAL PLANE WITH DISTANCE CRITERION
-      // sqrt((xc - x)**2 + (yc - y)**2) < distlim
-
-      // CHECK if this needs to be kept --> change xc0 to xc etc
-      // center and radius
-      Double_t xc0, yc0, xcrot0, ycrot0, R0;
-      ycrot0 = 1 / (2 * fitq);
-      xcrot0 = - fitm * ycrot0;
-      R0 =  sqrt(xcrot0 * xcrot0 + ycrot0 * ycrot0);
-      // re-rotation and re-traslation of xc and yc
-      // rotation    
-      xc0 = TMath::Cos(delta)*xcrot0 - TMath::Sin(delta)*ycrot0;
-      yc0 = TMath::Sin(delta)*xcrot0 + TMath::Cos(delta)*ycrot0;
-      // traslation
-      xc0 = xc0 + trasl[0];
-      yc0 = yc0 + trasl[1];
-      // .........................................................
-      if(fDisplayOn) {
-	TArc *arc = new TArc(xc0, yc0, R0);
-	arc->SetFillStyle(0);
-	arc->SetLineColor(5);
-	display->cd(1);
-	arc->Draw("SAME");
-      }
-      for(int ihit = 0; ihit < stthitlist->GetNofHits(); ihit++) {
-	PndTrkHit *hit = stthitlist->GetHit(ihit);
-	if(hit->IsSttSkew()) continue;
-	double dist = fabs(R0 - TMath::Sqrt((hit->GetPosition().X() - xc0) * (hit->GetPosition().X() - xc0) + (hit->GetPosition().Y() - yc0) * (hit->GetPosition().Y() - yc0)));
-	//      cout << ihit << " dist " << dist << endl;
-	// CHECK limits
-	double distlimit = 1.5 * 0.5;
-	if(dist < distlimit){ 
-	  //	cout << "ADD HIT " << ihit << " " << hit->GetHitID() << endl;
-	  cluster.AddHit(hit);
-	  if(fDisplayOn) {
-	    TArc *arc = new TArc(hit->GetPosition().X(), hit->GetPosition().Y(), hit->GetIsochrone());
-	    arc->SetFillStyle(0);
-	    arc->SetLineColor(5);
-	    display->cd(1);
-	    arc->Draw("SAME");
-	  }
-	}
-      }
-      for(int ihit = 0; ihit < mvdpixhitlist->GetNofHits(); ihit++) {
-	PndTrkHit *hit = mvdpixhitlist->GetHit(ihit);
-	double dist = fabs(R0 - TMath::Sqrt((hit->GetPosition().X() - xc0) * (hit->GetPosition().X() - xc0) + (hit->GetPosition().Y() - yc0) * (hit->GetPosition().Y() - yc0)));
-	// CHECK limits
-	double distlimit = 0.5;
-	if(dist < distlimit)  {
-	  cluster.AddHit(hit);
-	  if(fDisplayOn) {
-	    TMarker *mrk = new TMarker(hit->GetPosition().X(), hit->GetPosition().Y(), 21);
-	    mrk->SetMarkerColor(5);
-	    display->cd(1);
-	    mrk->Draw("SAME");
-	  }
-	}
-      }
-      for(int ihit = 0; ihit < mvdstrhitlist->GetNofHits(); ihit++) {
-	PndTrkHit *hit = mvdstrhitlist->GetHit(ihit);
-	double dist = fabs(R0 - TMath::Sqrt((hit->GetPosition().X() - xc0) * (hit->GetPosition().X() - xc0) + (hit->GetPosition().Y() - yc0) * (hit->GetPosition().Y() - yc0)));
-	// CHECK limits
-	double distlimit = 0.5;
-	if(dist < distlimit){ 
-	  cluster.AddHit(hit);
-	  if(fDisplayOn) {
-	    TMarker *mrk = new TMarker(hit->GetPosition().X(), hit->GetPosition().Y(), 25);
-	    mrk->SetMarkerColor(5);
-	    display->cd(1);
-	    mrk->Draw("SAME");
-	  }
-	}
-      }
-    }
-    else if(method == 2) {
-      // CHECK 
-      // ADD HIT IN MIXED MODE REAL P. FOR MVD & CONFORMAL P. FOR STT,
-      // WITH DISTANCE CRITERION
-      // real: fabs(R - sqrt((xc - x)**2 + (yc - y)**2)) < distlim
-      // cofn: cost x + sint y - r = 0 -> |cost x0 + sint y0 - r|
-
-      // CHECK if this needs to be kept --> change xc0 to xc etc
-      // center and radius
-      Double_t xc0, yc0, xcrot0, ycrot0, R0;
-      ycrot0 = 1 / (2 * fitq);
-      xcrot0 = - fitm * ycrot0;
-      R0 =  sqrt(xcrot0 * xcrot0 + ycrot0 * ycrot0);
-      // re-rotation and re-traslation of xc and yc
-      // rotation    
-      xc0 = TMath::Cos(delta)*xcrot0 - TMath::Sin(delta)*ycrot0;
-      yc0 = TMath::Sin(delta)*xcrot0 + TMath::Cos(delta)*ycrot0;
-      // traslation 
-      xc0 = xc0 + trasl[0]; 
-      yc0 = yc0 + trasl[1]; 
-      // .........................................................
-      if(fDisplayOn) {
-	TArc *arc = new TArc(xc0, yc0, R0);
-	arc->SetFillStyle(0);
-	arc->SetLineColor(5);
-	display->cd(1);
-	arc->Draw("SAME");
-      }
-      for(int ihit = 0; ihit < mvdpixhitlist->GetNofHits(); ihit++) {
-	PndTrkHit *hit = mvdpixhitlist->GetHit(ihit);
-	double dist = fabs(R0 - TMath::Sqrt((hit->GetPosition().X() - xc0) * (hit->GetPosition().X() - xc0) + (hit->GetPosition().Y() - yc0) * (hit->GetPosition().Y() - yc0)));
-	// CHECK limits
-	double distlimit = 0.5;
-	if(dist < distlimit)  {
-	  cluster.AddHit(hit);
-	  if(fDisplayOn) {
-	    TMarker *mrk = new TMarker(hit->GetPosition().X(), hit->GetPosition().Y(), 21);
-	    mrk->SetMarkerColor(5);
-	    display->cd(1);
-	    mrk->Draw("SAME");
-	  }
-	}
-      }
-      for(int ihit = 0; ihit < mvdstrhitlist->GetNofHits(); ihit++) {
-	PndTrkHit *hit = mvdstrhitlist->GetHit(ihit);
-	double dist = fabs(R0 - TMath::Sqrt((hit->GetPosition().X() - xc0) * (hit->GetPosition().X() - xc0) + (hit->GetPosition().Y() - yc0) * (hit->GetPosition().Y() - yc0)));
-	// CHECK limits
-	double distlimit = 0.5;
-	if(dist < distlimit){ 
-	  cluster.AddHit(hit);
-	  if(fDisplayOn) {
-	    TMarker *mrk = new TMarker(hit->GetPosition().X(), hit->GetPosition().Y(), 25);
-	    mrk->SetMarkerColor(5);
-	    display->cd(1);
-	    mrk->Draw("SAME");
-	  }
-	}
-      }
-
-      for(int ihit = 0; ihit < conformalhitlist.GetNofHits(); ihit++) {
-	double ct = TMath::Cos(theta_max * TMath::DegToRad());
-	double st = TMath::Sin(theta_max * TMath::DegToRad());
-      
-	PndTrkConformalHit *chit = conformalhitlist.GetHit(ihit);
-      
-	double dist = TMath::Abs(chit->GetV() - fitm * chit->GetU() - fitq)/TMath::Sqrt(fitm *fitm + 1);
-      
-	int hitID = chit->GetHitID();
-	int detID = chit->GetDetectorID();
-      
-	// CHECK limits
-	if(detID != FairRootManager::Instance()->GetBranchId(fSttBranch)) continue;
-	double distlimit = 0;
-	if(chit->GetIsochrone() > 1.e-4) distlimit = 6 * chit->GetIsochrone();
-	else distlimit = 0.001;
-	// ---------------------------
-      
-	if(dist < distlimit) {
-	
-	  //	cout << "ADDED " << hitID << " " << detID << " " << dist << " " << distlimit << endl;
-	
-	  if(fDisplayOn) {
-	    TArc *arc = new TArc(chit->GetU(), chit->GetV(), chit->GetIsochrone());
-	    arc->SetFillStyle(0);
-	    arc->SetLineColor(5);
-	    display->cd(2);
-	    arc->Draw("SAME");
-	  }
-	
-	PndTrkHit *hit = stthitlist->GetHit(hitID);
-
-	// ********** CHECK ***********
-	// if you put "is used" the efficiency beecomes much lower!
-	// DO NOT: 	if(!hit->IsUsed())
-	cluster.AddHit(hit);
-      }
-    }
-    //      else cout << "DISCARDED " << hitID << " " << detID << " " << dist << " " << distlimit << endl;
-  }
-
+    int method = 2;
+    cluster = CreateClusterByDistance(method, fitm, fitq);
 
 
     // RETRY LEGENDRE WITH ALSO PIXEL AND STRIP 
     // -------------------------------------------------------
     legendre->ResetLegendreHisto();
-    // conformalhitlist.ResetTo(trasl[0], trasl[1], delta);
+    // conformalhitlist->ResetTo(trasl[0], trasl[1], delta);
 
     for(int ihit = 0; ihit < cluster.GetNofHits(); ihit++) {
       PndTrkHit *hit = cluster.GetHit(ihit);
       double conformal[3];
       PndTrkConformalHit * chit = conform->GetConformalSttHit(hit);
       legendre->FillLegendreHisto(chit->GetU(), chit->GetV(), chit->GetIsochrone());
-      //      conformalhitlist.AddHit(chit);    
+      //      conformalhitlist->AddHit(chit);    
     }
     
     for(int jhit = 0; jhit < mvdpixhitlist->GetNofHits(); jhit++) {
@@ -663,7 +371,7 @@ void PndTrkLegendreTask::Exec(Option_t* opt) {
       }
       PndTrkConformalHit * chit = conform->GetConformalHit(hit);
       legendre->FillLegendreHisto(chit->GetU(), chit->GetV(), chit->GetIsochrone());
-      //      conformalhitlist.AddHit(chit);    
+      //      conformalhitlist->AddHit(chit);    
     }
      
     for(int jhit = 0; jhit < mvdstrhitlist->GetNofHits(); jhit++) {
@@ -674,15 +382,15 @@ void PndTrkLegendreTask::Exec(Option_t* opt) {
       }
       PndTrkConformalHit * chit = conform->GetConformalHit(hit);
       legendre->FillLegendreHisto(chit->GetU(), chit->GetV(), chit->GetIsochrone());
-      //      conformalhitlist.AddHit(chit);    
+      //      conformalhitlist->AddHit(chit);    
     }
      
     maxpeak = legendre->ExtractLegendreMaximum(theta_max, r_max);
     //cout << "THETA/R MVD " << theta_max << " " << r_max <<  " maxpeak " << maxpeak << endl;
     legendre->SetUpZoomHisto(theta_max, r_max, 3, 0.005);
 
-    for(int ihit = 0; ihit < conformalhitlist.GetNofHits(); ihit++) {
-      PndTrkConformalHit *chit = conformalhitlist.GetHit(ihit);
+    for(int ihit = 0; ihit < conformalhitlist->GetNofHits(); ihit++) {
+      PndTrkConformalHit *chit = conformalhitlist->GetHit(ihit);
       legendre->FillZoomHisto(chit->GetU(), chit->GetV(), chit->GetIsochrone());
     }
     maxpeak = legendre->ExtractZoomMaximum(theta_max, r_max);
@@ -1080,19 +788,8 @@ void PndTrkLegendreTask::Exec(Option_t* opt) {
     }
   
     // center and radius
-    Double_t xc, yc, xcrot, ycrot, R;
-    ycrot = 1 / (2 * fitq);
-    xcrot = - fitm * ycrot;
-    R =  sqrt(xcrot * xcrot + ycrot * ycrot);
-  
-    // re-rotation and re-traslation of xc and yc
-    // rotation    
-    xc = TMath::Cos(delta)*xcrot - TMath::Sin(delta)*ycrot;
-    yc = TMath::Sin(delta)*xcrot + TMath::Cos(delta)*ycrot;
-    // traslation
-    xc = xc + trasl[0];
-    yc = yc + trasl[1];
-    //    cout << xc << " " << yc << " " << R << " " << xcrot << " " << ycrot << " " << endl;
+    Double_t xc, yc, R;
+    FromConformalToRealTrack(fitm, fitq, xc, yc, R);
     cout << "XR, YC, R: " << xc << " " << yc << " " << R << endl;
 
     PndTrkTrack *track = new PndTrkTrack(&cluster, xc, yc, R);
@@ -1743,39 +1440,386 @@ void PndTrkLegendreTask::Exec(Option_t* opt) {
 
 // ============================================================================================
 
-PndTrkConformalHitList PndTrkLegendreTask::FillConformalHitList() {
-  PndTrkConformalHitList conformalhitlist(conform->GetTranslation().X(), conform->GetTranslation().Y(), conform->GetRotation());
+Int_t PndTrkLegendreTask::FillConformalHitList() {
+
+  conformalhitlist->SetConformalTransform(conform);
     
   // FILL ONCE FOR ALL THE CONFORMAL HIT LIST 
   for(int jhit = 0; jhit < mvdpixhitlist->GetNofHits(); jhit++) {
     PndTrkHit *hit = mvdpixhitlist->GetHit(jhit);
     PndTrkConformalHit * chit = conform->GetConformalHit(hit);
-    conformalhitlist.AddHit(chit);    
+    conformalhitlist->AddHit(chit);    
   }
   for(int jhit = 0; jhit < mvdstrhitlist->GetNofHits(); jhit++) {
     PndTrkHit *hit = mvdstrhitlist->GetHit(jhit);
     PndTrkConformalHit * chit = conform->GetConformalHit(hit);
-    conformalhitlist.AddHit(chit);    
+    conformalhitlist->AddHit(chit);    
   }
   for(int jhit = 0; jhit < stthitlist->GetNofHits(); jhit++) {
     PndTrkHit *hit = stthitlist->GetHit(jhit);
     if(hit->IsSttSkew()) continue;
     PndTrkConformalHit * chit = conform->GetConformalSttHit(hit);
-    conformalhitlist.AddHit(chit);    
+    conformalhitlist->AddHit(chit);    
   }
 
-  return conformalhitlist;
+  return conformalhitlist->GetNofHits();
+}
+
+void PndTrkLegendreTask::FillLegendreHisto(Int_t mode)
+{
+  // mode 0 STT alone
+  //      1 STT + MVD
+  for(int ihit = 0; ihit < conformalhitlist->GetNofHits(); ihit++) {
+    PndTrkConformalHit *chit = conformalhitlist->GetHit(ihit);
+    if(mode == 0 && chit->GetDetectorID() != FairRootManager::Instance()->GetBranchId(fSttBranch)) continue;   
+    PndTrkHit *hit = chit->GetHit();
+    if(hit->IsUsed()) continue;
+    legendre->FillLegendreHisto(chit->GetU(), chit->GetV(), chit->GetIsochrone());
+    if(fDisplayOn) {
+      DrawConfHit(chit->GetU(), chit->GetV(), chit->GetIsochrone());
+    }
+  }
 }
 
 void PndTrkLegendreTask::ComputeTraAndRot(PndTrkHit *hit, Double_t &delta, Double_t trasl[2]) {
-
+  
   trasl[0] = hit->GetPosition().X();
   trasl[1] = hit->GetPosition().Y();
-
+  
   delta = TMath::ATan2(hit->GetPosition().Y() - 0., hit->GetPosition().X() - 0.); // CHECK 
   
 }
+ 
+ 
+PndTrkCluster PndTrkLegendreTask::CreateClusterByConfDistance(double fitm, double fitq) {
+  
+  PndTrkCluster cluster;
+  // ADD HIT IN CONFORMAL PLANE WITH DISTANCE CRITERION
+  // cost x + sint y - r = 0 -> |cost x0 + sint y0 - r|
+  //    cout << "CONFORMALHITLIST " << conformalhitlist->GetNofHits() << endl;
+  for(int ihit = 0; ihit < conformalhitlist->GetNofHits(); ihit++) {
+    PndTrkConformalHit *chit = conformalhitlist->GetHit(ihit);
+    double dist = chit->GetDistanceFromTrack(fitm, fitq);
+    int hitID = chit->GetHitID();
+    int detID = chit->GetDetectorID();
+    
+    // CHECK limits
+    double distlimit = 0;
+    if(detID == FairRootManager::Instance()->GetBranchId(fMvdPixelBranch)) distlimit = 0.003;
+    else if(detID == FairRootManager::Instance()->GetBranchId(fMvdStripBranch)) distlimit = 0.003;
+    else if(detID == FairRootManager::Instance()->GetBranchId(fSttBranch)) {
+      if(chit->GetIsochrone() > 1.e-4) distlimit = 6 * chit->GetIsochrone();
+      else distlimit = 0.001;
+    }
+    // ---------------------------
+    Bool_t accept = kFALSE;
+  
 
+    if(dist < distlimit) {
+      if(fDisplayOn) {
+	if(chit->GetIsochrone() > 0) {
+	  TArc *arc = new TArc(chit->GetU(), chit->GetV(), chit->GetIsochrone());
+	  arc->SetFillStyle(0);
+	  arc->SetLineColor(5);
+	  display->cd(2);
+	  arc->Draw("SAME");
+	}
+	else {
+	  TMarker *mrk;
+	  if(detID == FairRootManager::Instance()->GetBranchId(fMvdPixelBranch)) mrk = new TMarker(chit->GetU(), chit->GetV(), 21);
+	  else if(detID == FairRootManager::Instance()->GetBranchId(fMvdStripBranch)) mrk = new TMarker(chit->GetU(), chit->GetV(), 25);
+	  mrk->SetMarkerColor(5);
+	  display->cd(2);
+	  mrk->Draw("SAME");
+	}
+      }
+
+      PndTrkHit *hit;
+      if(detID == FairRootManager::Instance()->GetBranchId(fMvdPixelBranch)) {
+	hit = mvdpixhitlist->GetHit(hitID);
+      }
+      else if(detID == FairRootManager::Instance()->GetBranchId(fMvdStripBranch)) {
+	hit = mvdstrhitlist->GetHit(hitID);
+      }
+      else if(detID == FairRootManager::Instance()->GetBranchId(fSttBranch)) {
+	hit = stthitlist->GetHit(hitID);
+      }
+    
+      // ********** CHECK ***********
+      // if you put "is used" the efficiency beecomes much lower!
+      // DO NOT: 	if(!hit->IsUsed())
+      cluster.AddHit(hit);
+       accept = kTRUE;
+
+    }
+    
+    //      else cout << "DISCARDED " << hitID << " " << detID << " " << dist << " " << distlimit << endl;
+  }
+
+  return cluster;
+}
+
+PndTrkCluster PndTrkLegendreTask::CreateClusterByRealDistance(double xc0, double yc0, double R0) {
+  // ADD HIT IN REAL PLANE WITH DISTANCE CRITERION
+  // sqrt((xc - x)**2 + (yc - y)**2) < distlim
+  PndTrkCluster cluster;
+
+  // .........................................................
+  if(fDisplayOn) {
+    TArc *arc = new TArc(xc0, yc0, R0);
+    arc->SetFillStyle(0);
+    arc->SetLineColor(5);
+    display->cd(1);
+    arc->Draw("SAME");
+  }
+  for(int ihit = 0; ihit < stthitlist->GetNofHits(); ihit++) {
+    PndTrkHit *hit = stthitlist->GetHit(ihit);
+    if(hit->IsSttSkew()) continue;
+    double dist = hit->GetXYDistanceFromTrack(xc0, yc0, R0);
+    //      cout << ihit << " dist " << dist << endl;
+    // CHECK limits
+    double distlimit = 1.5 * 0.5;
+    if(dist < distlimit){ 
+      //  cout << "TRACK  "  << xc0  << " " << yc0 << " " << R0 << endl;
+      //  cout << "ADD HIT " << dist << " " << distlimit << " " << hit->GetHitID() << endl;
+      cluster.AddHit(hit);
+      if(fDisplayOn) {
+	TArc *arc = new TArc(hit->GetPosition().X(), hit->GetPosition().Y(), hit->GetIsochrone());
+	arc->SetFillStyle(0);
+	arc->SetLineColor(5);
+	display->cd(1);
+	arc->Draw("SAME");
+      }
+    }
+  }
+  for(int ihit = 0; ihit < mvdpixhitlist->GetNofHits(); ihit++) {
+    PndTrkHit *hit = mvdpixhitlist->GetHit(ihit);
+    double dist = hit->GetXYDistanceFromTrack(xc0, yc0, R0);
+    // CHECK limits
+    double distlimit = 0.5;
+    if(dist < distlimit)  {
+      cluster.AddHit(hit);
+      if(fDisplayOn) {
+	TMarker *mrk = new TMarker(hit->GetPosition().X(), hit->GetPosition().Y(), 21);
+	mrk->SetMarkerColor(5);
+	display->cd(1);
+	mrk->Draw("SAME");
+      }
+    }
+  }
+  for(int ihit = 0; ihit < mvdstrhitlist->GetNofHits(); ihit++) {
+    PndTrkHit *hit = mvdstrhitlist->GetHit(ihit);
+    double dist = hit->GetXYDistanceFromTrack(xc0, yc0, R0);
+    // CHECK limits
+    double distlimit = 0.5;
+    if(dist < distlimit){ 
+      cluster.AddHit(hit);
+      if(fDisplayOn) {
+	TMarker *mrk = new TMarker(hit->GetPosition().X(), hit->GetPosition().Y(), 25);
+	mrk->SetMarkerColor(5);
+	display->cd(1);
+	mrk->Draw("SAME");
+      }
+    }
+  }
+  return cluster;
+
+}
+
+PndTrkCluster PndTrkLegendreTask::CreateClusterByMixedDistance(double fitm, double fitq) {
+  
+  PndTrkCluster cluster;
+  double delta = conformalhitlist->GetConformalTransform()->GetRotation();
+  // CHECK 
+  // ADD HIT IN MIXED MODE REAL P. FOR MVD & CONFORMAL P. FOR STT,
+  // WITH DISTANCE CRITERION
+  // real: fabs(R - sqrt((xc - x)**2 + (yc - y)**2)) < distlim
+  // cofn: cost x + sint y - r = 0 -> |cost x0 + sint y0 - r|
+
+  // CHECK if this needs to be kept --> change xc0 to xc etc
+  // center and radius
+  Double_t xc0, yc0, R0;
+  FromConformalToRealTrack(fitm, fitq, xc0, yc0, R0);
+  // .........................................................
+  if(fDisplayOn) {
+    TArc *arc = new TArc(xc0, yc0, R0);
+    arc->SetFillStyle(0);
+    arc->SetLineColor(5);
+    display->cd(1);
+    arc->Draw("SAME");
+  }
+  for(int ihit = 0; ihit < mvdpixhitlist->GetNofHits(); ihit++) {
+    PndTrkHit *hit = mvdpixhitlist->GetHit(ihit);
+    double dist = hit->GetXYDistanceFromTrack(xc0, yc0, R0);
+    // CHECK limits
+    double distlimit = 0.5;
+    if(dist < distlimit)  {
+      cluster.AddHit(hit);
+      if(fDisplayOn) {
+	TMarker *mrk = new TMarker(hit->GetPosition().X(), hit->GetPosition().Y(), 21);
+	mrk->SetMarkerColor(5);
+	display->cd(1);
+	mrk->Draw("SAME");
+      }
+    }
+  }
+  for(int ihit = 0; ihit < mvdstrhitlist->GetNofHits(); ihit++) {
+    PndTrkHit *hit = mvdstrhitlist->GetHit(ihit);
+    double dist = hit->GetXYDistanceFromTrack(xc0, yc0, R0);
+    // CHECK limits
+    double distlimit = 0.5;
+    if(dist < distlimit){ 
+      cluster.AddHit(hit);
+      if(fDisplayOn) {
+	TMarker *mrk = new TMarker(hit->GetPosition().X(), hit->GetPosition().Y(), 25);
+	mrk->SetMarkerColor(5);
+	display->cd(1);
+	mrk->Draw("SAME");
+      }
+    }
+  }
+
+  for(int ihit = 0; ihit < conformalhitlist->GetNofHits(); ihit++) {
+    PndTrkConformalHit *chit = conformalhitlist->GetHit(ihit);
+    double dist = chit->GetDistanceFromTrack(fitm, fitq);
+    
+    int hitID = chit->GetHitID();
+    int detID = chit->GetDetectorID();
+    
+    // CHECK limits
+    if(detID != FairRootManager::Instance()->GetBranchId(fSttBranch)) continue;
+    double distlimit = 0;
+    if(chit->GetIsochrone() > 1.e-4) distlimit = 6 * chit->GetIsochrone();
+    else distlimit = 0.001;
+    // ---------------------------
+      
+    if(dist < distlimit) {
+	
+      //	cout << "ADDED " << hitID << " " << detID << " " << dist << " " << distlimit << endl;
+	
+      if(fDisplayOn) {
+	TArc *arc = new TArc(chit->GetU(), chit->GetV(), chit->GetIsochrone());
+	arc->SetFillStyle(0);
+	arc->SetLineColor(5);
+	display->cd(2);
+	arc->Draw("SAME");
+      }
+	
+      PndTrkHit *hit = stthitlist->GetHit(hitID);
+
+      // ********** CHECK ***********
+      // if you put "is used" the efficiency beecomes much lower!
+      // DO NOT: 	if(!hit->IsUsed())
+      cluster.AddHit(hit);
+    }
+  }
+  return cluster;
+}
+
+PndTrkCluster PndTrkLegendreTask::CreateClusterByDistance(Int_t mode, double fitm, double fitp) {
+  PndTrkCluster cluster;
+
+  // mode: -------------------------------------------
+  // 0 all conformal: pix conf - str conf - stt conf
+  // 1 all real:      pix real - str real - stt real
+  // 2 mix:           pix real - str real - stt conf
+  double stt_distlimit, mvdpix_distlimit, mvdstr_distlimit;
+  if(mode == 0) {
+    mvdpix_distlimit = 0.003;
+    mvdstr_distlimit = 0.003;
+    stt_distlimit = 0.001;
+    //      if(chit->GetIsochrone() > 1.e-4) distlimit = 6 * chit->GetIsochrone();
+  }
+  else if(mode == 1) {
+    mvdpix_distlimit = 0.5; // CHECK limits
+    mvdstr_distlimit = 0.5; // CHECK limits
+    stt_distlimit = 1.5 * 0.5; // CHECK limits
+  }
+  else {
+    mvdpix_distlimit = 0.5; // CHECK limits
+    mvdstr_distlimit = 0.5; // CHECK limits
+    stt_distlimit = 0.001;
+    //      if(chit->GetIsochrone() > 1.e-4) distlimit = 6 * chit->GetIsochrone();
+  }
+  // --------------------------------------------------
+  Double_t x0, y0, R;
+  if(mode != 0) FromConformalToRealTrack(fitm, fitp, x0, y0, R);
+  // cout << "TRACK  "  << x0  << " " << y0 << " " << R << endl;
+  for(int ihit = 0; ihit < conformalhitlist->GetNofHits(); ihit++) {
+    PndTrkConformalHit *chit = conformalhitlist->GetHit(ihit);
+    PndTrkHit *hit = chit->GetHit();
+    double dist = 1000;
+    int detID = chit->GetDetectorID();
+    
+    if(detID == FairRootManager::Instance()->GetBranchId(fMvdPixelBranch) || detID == FairRootManager::Instance()->GetBranchId(fMvdStripBranch)) {
+      if(mode == 0) dist = chit->GetDistanceFromTrack(fitm, fitp);
+      else dist = hit->GetXYDistanceFromTrack(x0, y0, R);
+    }
+    else if(detID == FairRootManager::Instance()->GetBranchId(fSttBranch)) {
+      if(mode == 1) dist = hit->GetXYDistanceFromTrack(x0, y0, R);
+      else dist = chit->GetDistanceFromTrack(fitm, fitp);
+    }
+
+    // limits  
+    Bool_t accept = kFALSE;
+    if(detID == FairRootManager::Instance()->GetBranchId(fMvdPixelBranch) && dist < mvdpix_distlimit) accept = kTRUE;
+    else if(detID == FairRootManager::Instance()->GetBranchId(fMvdStripBranch) && dist < mvdstr_distlimit) accept = kTRUE;
+    else if(detID == FairRootManager::Instance()->GetBranchId(fSttBranch)) {
+      if(mode != 1) {
+	if(chit->GetIsochrone() > 1.e-4) stt_distlimit = 6 * chit->GetIsochrone(); // CHECK limit
+	else  stt_distlimit = 0.001; // CHECK limits
+      }
+      if(dist < stt_distlimit) {
+	//	 cout << "STT DIST " << dist << " " << stt_distlimit << endl;
+	accept = kTRUE;
+      }
+      //      cout << "STT DIST " << dist << " " << stt_distlimit << endl;     
+  }
+    //    cout << "hit " << hit->GetHitID() << " " << hit->GetDetectorID() << " got " << accept <<  endl; 
+
+    if(accept == kTRUE && fDisplayOn) {
+      display->cd(1);
+      if(detID == FairRootManager::Instance()->GetBranchId(fSttBranch)) {
+	TArc *arc = new TArc(hit->GetPosition().X(), hit->GetPosition().Y(), hit->GetIsochrone());
+	arc->SetFillStyle(0);
+	arc->SetLineColor(5);
+	arc->Draw("SAME");
+      }
+      else {
+	TMarker *mrk;
+	if(detID == FairRootManager::Instance()->GetBranchId(fMvdPixelBranch)) mrk = new TMarker(hit->GetPosition().X(), hit->GetPosition().Y(), 21);
+	else if(detID == FairRootManager::Instance()->GetBranchId(fMvdStripBranch)) mrk = new TMarker(hit->GetPosition().X(), hit->GetPosition().Y(), 25);
+	mrk->SetMarkerColor(5);
+	mrk->Draw("SAME");
+      }
+    }
+    
+    // ********** CHECK ***********
+    // if you put "is used" the efficiency beecomes much lower!
+    // DO NOT: 	if(!hit->IsUsed())
+    if(accept == kTRUE) {
+      //      cout << "ADDING TO CLUSTER" << endl;
+      cluster.AddHit(hit);
+    }
+  }
+  return cluster;
+}
+
+void PndTrkLegendreTask::FromConformalToRealTrack(double fitm, double fitp, double &x0, double &y0, double &R) {
+ // CHECK if this needs to be kept --> change xc0 to xc etc
+  // center and radius
+  Double_t xcrot0, ycrot0;
+  ycrot0 = 1 / (2 * fitp);
+  xcrot0 = - fitm * ycrot0;
+  R =  sqrt(xcrot0 * xcrot0 + ycrot0 * ycrot0);
+  // re-rotation and re-traslation of xc and yc
+  // rotation    
+  x0 = TMath::Cos(conformalhitlist->GetConformalTransform()->GetRotation())*xcrot0 - TMath::Sin(conformalhitlist->GetConformalTransform()->GetRotation())*ycrot0;
+  y0 = TMath::Sin(conformalhitlist->GetConformalTransform()->GetRotation())*xcrot0 + TMath::Cos(conformalhitlist->GetConformalTransform()->GetRotation())*ycrot0;
+  // traslation 
+  x0 += conformalhitlist->GetConformalTransform()->GetTranslation().X();
+  y0 += conformalhitlist->GetConformalTransform()->GetTranslation().Y();
+}
 
 void PndTrkLegendreTask::DrawGeometry() {
   if(hxy == NULL)  hxy = new TH2F("hxy", "xy plane", 100, -43, 43, 100, -43, 43);

@@ -20,11 +20,11 @@ class PndTrkConformalHit : public TObject
   PndTrkConformalHit();
   PndTrkConformalHit(PndTrkHit *hit, double u, double v, double rd);
   PndTrkConformalHit(PndTrkHit *hit, double u, double v);
- ~PndTrkConformalHit();    
+  ~PndTrkConformalHit();    
 
   // inline get
- inline Int_t    GetHitID()          { return fHit->GetHitID(); }
- inline Int_t    GetDetectorID()     { return fHit->GetDetectorID(); } 
+  inline Int_t    GetHitID()          { return fHit->GetHitID(); }
+  inline Int_t    GetDetectorID()     { return fHit->GetDetectorID(); } 
 
   inline TVector2 GetPosition()       { return fPosition; }
   inline Double_t GetU()              { return fPosition.X(); }
@@ -32,6 +32,8 @@ class PndTrkConformalHit : public TObject
   inline Double_t GetIsochrone()      { return fIsochrone; }
   inline PndTrkHit * GetHit() { return fHit; }
 
+  double GetDistanceFromTrack(double fitm, double fitp);
+ 
   // info
   void Draw(Color_t color);
   void Print();

@@ -55,12 +55,20 @@ class PndTrkLegendreTask : public FairTask {
 
   void Initialize();
 
-  PndTrkConformalHitList FillConformalHitList();
+  Int_t FillConformalHitList();
+  void FillLegendreHisto(Int_t mode);
 
   void  ComputeTraAndRot(PndTrkHit *hit, Double_t &delta, Double_t trasl[2]);
 
   PndTrkCluster CreateSttCluster(PndTrkHit *firsthit);
   Bool_t IsSttAssociate(PndTrkHit *hit1, PndTrkHit *hit2);
+
+  PndTrkCluster CreateClusterByConfDistance(double fitm, double fitq);
+  PndTrkCluster CreateClusterByRealDistance(double xc0, double yc0, double R0);
+  PndTrkCluster CreateClusterByMixedDistance(double fitm, double fitq);
+  PndTrkCluster CreateClusterByDistance(Int_t mode, double fitm, double fitq);
+
+  void FromConformalToRealTrack(double fitm, double fitp, double &x0, double &y0, double &R);
 
 
 
@@ -132,6 +140,8 @@ class PndTrkLegendreTask : public FairTask {
 
 
   PndTrkConformalTransform *conform;
+  PndTrkConformalHitList *conformalhitlist;
+
 
   ClassDef(PndTrkLegendreTask,1);
   

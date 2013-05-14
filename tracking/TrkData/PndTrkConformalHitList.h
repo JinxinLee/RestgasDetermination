@@ -8,6 +8,7 @@
 
 #include "TVector3.h"
 #include "PndTrkConformalHit.h"
+#include "PndTrkConformalTransform.h"
 #include "FairHit.h"
 
 #include <iostream>
@@ -24,28 +25,26 @@ class PndTrkConformalHitList : public TObject
  public:    
 
   PndTrkConformalHitList();
-  PndTrkConformalHitList(double x, double y, double delta);
+  PndTrkConformalHitList(PndTrkConformalTransform *conformal);
  ~PndTrkConformalHitList();    
 
   // CHECK private?
   void AddHit(PndTrkConformalHit *chit); 
   PndTrkConformalHit *GetHit(int index);
 
-  void ResetTo(double x, double y, double delta);
+  void Reset();
 
-  void SetTranslation(double x, double y);
-  void SetRotation(double delta); 
-
+  void SetConformalTransform(PndTrkConformalTransform *conformal) { fConformal = conformal; }
+  PndTrkConformalTransform  *GetConformalTransform() { return fConformal; }
   inline Int_t  GetNofHits() { return hitlist.size(); }
   
   void Print();
   void Draw(Color_t color = kBlack);
-
+ 
  protected:
 
   std::vector<PndTrkConformalHit *> hitlist;
-  TVector2 fTrasl;
-  Double_t fAngle;
+  PndTrkConformalTransform *fConformal;
 
   ClassDef(PndTrkConformalHitList,1);
 };

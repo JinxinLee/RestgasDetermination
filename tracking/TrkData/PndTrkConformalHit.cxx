@@ -25,6 +25,11 @@ PndTrkConformalHit::PndTrkConformalHit(PndTrkHit *hit, double u, double v) : fHi
 
 PndTrkConformalHit::~PndTrkConformalHit() {}
 
+
+double PndTrkConformalHit::GetDistanceFromTrack(double fitm, double fitp) {
+  return TMath::Abs(fPosition.Y() - fitm * fPosition.X() - fitp)/TMath::Sqrt(fitm *fitm + 1);
+}
+
 void PndTrkConformalHit::Draw(Color_t color) {
 
   TMarker *mrk = NULL;

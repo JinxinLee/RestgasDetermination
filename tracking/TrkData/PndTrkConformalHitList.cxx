@@ -12,10 +12,10 @@
 using namespace std;
 
 
-PndTrkConformalHitList::PndTrkConformalHitList() : fTrasl(0., 0.), fAngle(0) {
+PndTrkConformalHitList::PndTrkConformalHitList() : fConformal(new PndTrkConformalTransform()) {
   hitlist.resize(0);
 }
-PndTrkConformalHitList::PndTrkConformalHitList(double x, double y, double delta) : fTrasl(x, y), fAngle(delta) {
+PndTrkConformalHitList::PndTrkConformalHitList(PndTrkConformalTransform *conformal) : fConformal(conformal) {
   hitlist.resize(0);
 }
  
@@ -23,9 +23,8 @@ PndTrkConformalHitList::~PndTrkConformalHitList() {}
 
 // ----------------------------------------------------
 
-void PndTrkConformalHitList::ResetTo(double x, double y, double delta) {
-  fTrasl.Set(x, y);
-  fAngle = delta;
+void PndTrkConformalHitList::Reset() {
+  fConformal = NULL;
   hitlist.resize(0);
 }
 
@@ -35,15 +34,6 @@ void PndTrkConformalHitList::AddHit(PndTrkConformalHit *chit) {
 
 PndTrkConformalHit *PndTrkConformalHitList::GetHit(int index) {
   return hitlist[index];
-}
-
-
-void PndTrkConformalHitList::SetTranslation(double x, double y) {
-  fTrasl.Set(x, y);
-}
-
-void PndTrkConformalHitList::SetRotation(double delta){
-  fAngle = delta;
 }
 
 

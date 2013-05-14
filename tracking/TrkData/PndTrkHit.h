@@ -65,7 +65,7 @@ class PndTrkHit : public FairTimeStamp
   Double_t GetDistance(TVector3 frompoint);
   Double_t GetXYDistance(PndTrkHit *fromhit);
   Double_t GetXYDistance(TVector3 frompoint);
-
+  Double_t GetXYDistanceFromTrack(double x0, double y0, double R);
   // info
   void Draw(Color_t color);
   void Print();

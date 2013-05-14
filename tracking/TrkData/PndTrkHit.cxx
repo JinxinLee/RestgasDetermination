@@ -73,6 +73,9 @@ Double_t PndTrkHit::GetXYDistance(TVector3 frompoint) {
   return (position - frompoint).Perp();
 }
 
+Double_t PndTrkHit::GetXYDistanceFromTrack(double x0, double y0, double R) {
+  return fabs(R - TMath::Sqrt((fPosition.X() - x0) * (fPosition.X() - x0) + (fPosition.Y() - y0) * (fPosition.Y() - y0)));
+}
 
 void PndTrkHit::Draw(Color_t color) {
   //  cout << "draw "<< fIRegion << endl;
