@@ -2022,8 +2022,5 @@ PndTrkCluster PndTrkLegendreTask::CleanUpSkewHitList(PndTrkCluster *skewhitlist)
 }
 
 
-
-
-
 ClassImp(PndTrkLegendreTask)
 
