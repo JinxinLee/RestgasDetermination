@@ -136,6 +136,8 @@ InitStatus PndTrkLegendreTask::Init() {
 
   conform = new PndTrkConformalTransform();
 
+  tools = new PndTrkTools();
+
   return kSUCCESS;
 
 }
@@ -346,7 +348,7 @@ void PndTrkLegendreTask::Exec(Option_t* opt) {
     // 0 conformal: mvd and stt in conformal plane
     // 1 real: mvd and stt in real plane
     // 2 mixed: mvd in real/stt in conformal plane
-    int method = 2;
+    int method = 0;
     cluster = CreateClusterByDistance(method, fitm, fitq);
 
 
@@ -695,13 +697,7 @@ void PndTrkLegendreTask::Exec(Option_t* opt) {
 
     // FIT WITH LEAST SQUARE STRAIGHT LINE
     // -------------------------------------------------------
-    Double_t Suu, Su, Sv, Suv, S1;
   
-    Su = 0.;
-    Sv = 0.;
-    Suu = 0.;
-    Suv = 0.;
-    S1 = 0.;
     double fitm2, fitq2;
     PndTrkFitter fitter;
     for(int ihit = 0; ihit < cluster.GetNofHits(); ihit++) 
@@ -719,21 +715,12 @@ void PndTrkLegendreTask::Exec(Option_t* opt) {
 	double xi2 = chit->GetU() - fitm * chit->GetIsochrone() / TMath::Sqrt(fitm * fitm + 1);
 	double yi2 = chit->GetV() + chit->GetIsochrone()/ TMath::Sqrt(fitm * fitm + 1);
 
-	//	cout << "conformal " << fitm << " " << chit->GetU() << " " << chit->GetV() << " " << chit->GetIsochrone() << endl;
-	//	cout << xi1 << " " << xi2  << " " << yi1 << " " << yi2 << endl;
 	double xi = 0, yi = 0;
 
 	fabs(yi1 - (fitm * xi1 + fitq)) < fabs(yi2 - (fitm * xi2 + fitq)) ? (yi = yi1, xi = xi1) : (yi = yi2, xi = xi2);
 
 	double sigma =  chit->GetIsochrone();
 	fitter.SetPointToFit(xi, yi, sigma);
-	// 	Su += xi/(sigma * sigma);
-	// 	Sv += yi/(sigma * sigma);
-    
-	// 	Suv += xi * yi/(sigma * sigma);
-	// 	Suu += xi* xi/(sigma * sigma);
-	
-	// 	S1 += 1./(sigma * sigma);
 
 	if(fDisplayOn) {
 	  display->cd(2);
@@ -741,12 +728,7 @@ void PndTrkLegendreTask::Exec(Option_t* opt) {
 	  mrk->Draw("SAME");
 	} 
       }
-    //     Double_t den = Suu * S1 - Su * Su;
-    //     if(den == 0) cout << "DEN == 0" << endl; // CHECK
-    
-    //     fitm2 = (Suv * S1 - Su * Sv)/den;
-    //     fitq2 =  (Suu * Sv - Su * Suv)/den;
-     
+ 
     fitter.StraightLineFit(fitm2, fitq2);
      
 
@@ -805,356 +787,14 @@ void PndTrkLegendreTask::Exec(Option_t* opt) {
     // SKEWED ASSOCIATION ********* CHECK *********
     // -------------------------------------------------------
     cout << "%%%%%%%%%%%%%%%%%%%% ZFINDER %%%%%%%%%%%%%%%%%%%%%%%%%%" << endl;
-    PndTrkTools tools;
+
     if(fDisplayOn) {
       RefreshZ();
       DrawZGeometry(2);
     }
-    PndTrkCluster skewhitlist;
+    PndTrkCluster skewhitlist = CreateSkewHitList(track);
+    skewhitlist = CleanUpSkewHitList(&skewhitlist);
 
-    double phimin = 400, phimax = -1, zmin = 1000, zmax = -1;
-    for(int ihit = 0; ihit < stthitlist->GetNofHits(); ihit++) {
-      PndTrkHit *hit = stthitlist->GetHit(ihit);	
-      //  if(hit->IsUsed()) { 
-      //  cout << "already used IV" << endl;
-      //  continue; 
-      //  }
-      if(hit->IsSttSkew() == kFALSE) continue;
-   
-      int tubeID = hit->GetTubeID();
-      PndSttTube *tube = (PndSttTube*) fTubeArray->At(tubeID);
-   
-      TVector3 wireDirection = tube->GetWireDirection();
-      Double_t halflength = tube->GetHalfLength();
-      
-      TVector3 first  = tube->GetPosition() + wireDirection * halflength; // CHECK
-      TVector3 second = tube->GetPosition() - wireDirection * halflength; // CHECK
-      //    if(fDisplayOn) {
-      // 	char goOnChar;
-      //      	display->cd(1);
-      // 	TLine *l = new TLine(first.X(), first.Y(), second.X(), second.Y());
-      // 	l->SetLineColor(kBlue);
-      // 	l->Draw("SAME");
-      // 	display->Update();
-      // 	display->Modified();
-      // 	cin >> goOnChar;   
-      //       }
-      double m1 = (first - second).Y()/(first - second).X();
-      double q1 = first.Y() - m1 * first.X();
-      
-      // ----> FIND TWO INTERSECTIONS FOR EACH SKEW TUBE <---
-
-      // 1. compute intersection between the track circle and the wire
-      TVector2 intersection1, intersection2;
-      Int_t nofintersections = tools.ComputeSegmentCircleIntersection(TVector2(first.X(), first.Y()), TVector2(second.X(), second.Y()), xc, yc, R, intersection1, intersection2);
-      
-      if(nofintersections == 0) continue;
-      if(nofintersections >= 2) {
-	cout << "ERROR: MORE THAN 1 INTERSECTION!!" << endl;
-	continue; // CHECK
-      }
-    
-      if(fDisplayOn) {
-	char goOnChar;
-     	display->cd(1);
-	TLine *l = new TLine(first.X(), first.Y(), second.X(), second.Y());
-	l->SetLineColor(kBlue);
-	l->Draw("SAME");
-
-	TMarker *mrk = new TMarker(intersection1.X(), intersection1.Y(), 20);
-	mrk->SetMarkerColor(kBlue);
-	mrk->Draw("SAME");
-
-	display->Update();
-	display->Modified();
-
-
-	//	cin >> goOnChar;   
-      }
-  
-
-      // 2. find the tangent to the track in the intersection point
-      // tangent approximation
-      TVector2 tangent = tools.ComputeTangentInPoint(xc, yc, intersection1);
-       
-      // 3. rotate clockwise the tangent/point/(wire, not explicitely)
-      // in order to have the wire parallel to the x axis;
-      // then translate everything to have the wire ON the x axis
-      double beta = wireDirection.Phi();
-      if(beta < 0) beta += TMath::Pi();
-      // ... rotate the tangent
-      double rtx = TMath::Cos(beta) * tangent.X() + TMath::Sin(beta) * tangent.Y();
-      double rty = TMath::Cos(beta) * tangent.Y() - TMath::Sin(beta) * tangent.X();
-      TVector2 rottangent(rtx, rty);
-      rottangent = rottangent.Unit();
-      // ... rotate the point
-      double rx = TMath::Cos(beta) * intersection1.X() + TMath::Sin(beta) * intersection1.Y();
-      double ry = TMath::Cos(beta) * intersection1.Y() - TMath::Sin(beta) * intersection1.X();
-       
-      // translation
-      Double_t deltay = ry;
-      rty -= deltay;
-      ry -= deltay;
-
-      // rotm, rotp
-      Double_t rotm = rottangent.Y()/rottangent.X();
-      Double_t rotp = ry - rotm * rx;
-
-      // ellipsis
-      double a = hit->GetIsochrone() * TMath::Cos(SKEW_ANGLE); // CHECK skew angle hard coded
-      double b = hit->GetIsochrone();
-
-      // center of ellipsis
-      Double_t x0a, x0b, y0;
-      y0 = 0.;
-      x0a = (-rotp + TMath::Sqrt(b * b + a * a * rotm * rotm)) / rotm;
-      x0b = (-rotp - TMath::Sqrt(b * b + a * a * rotm * rotm)) / rotm;
- 
-      // intersection point
-      double intxa = (x0a * b * b - rotm * rotp * a * a) / (b * b + rotm * rotm * a * a);
-      double intya = rotm * intxa + rotp;
-      double intxb = (x0b * b * b - rotm * rotp * a * a) / (b * b + rotm * rotm * a * a);
-      double intyb = rotm * intxb + rotp;
-   
-      // 4. retraslate/rerotate all back to the original plane
-      // retranslate
-      y0 += deltay; 
-      intya  += deltay; 
-      intyb  += deltay; 
-   
-      // rerotate
-      double x0anew = TMath::Cos(beta) * x0a - TMath::Sin(beta) * y0;
-      double y0anew = TMath::Cos(beta) * y0 + TMath::Sin(beta) * x0a;
-      double x0bnew = TMath::Cos(beta) * x0b - TMath::Sin(beta) * y0;
-      double y0bnew = TMath::Cos(beta) * y0 + TMath::Sin(beta) * x0b;
-   
-      double intxanew = TMath::Cos(beta) * intxa - TMath::Sin(beta) * intya;
-      double intyanew = TMath::Cos(beta) * intya + TMath::Sin(beta) * intxa;
-      double intxbnew = TMath::Cos(beta) * intxb - TMath::Sin(beta) * intyb;
-      double intybnew = TMath::Cos(beta) * intyb + TMath::Sin(beta) * intxb;
-   
-      intxa = intxanew;
-      intya = intyanew;
-      intxb = intxbnew;
-      intyb = intybnew;
-
-      // now we have x0a, y0a, center of the 1st ellipse
-      // and x0b, y0b, center of the 2nd ellipse
-      x0a = x0anew;
-      double y0a = y0anew;
-      x0b = x0bnew;
-      double y0b = y0bnew;
-
-      if(fDisplayOn) {
-	char goOnChar;
-	display->cd(1);
-
-	TEllipse *ell1 = new TEllipse(x0a, y0a, a, b, 0, 360, -beta);
-	ell1->SetFillStyle(0);
-	ell1->SetLineColor(4);
-	ell1->Draw("SAME");
-	TEllipse *ell2 = new TEllipse(x0b, y0b, a, b, 0, 360, -beta);
-	ell2->SetFillStyle(0);
-	ell2->SetLineColor(6);
-	ell2->Draw("SAME");
-
-	TMarker *mrkinta = new TMarker(intxa, intya, 20);
-	mrkinta->SetMarkerColor(4);
-	mrkinta->Draw("SAME");
-	TMarker *mrkintb = new TMarker(intxb, intyb, 20);
-	mrkintb->SetMarkerColor(6);
-	mrkintb->Draw("SAME");
-	//	 cin >> goOnChar;   
-      }
-
-      // 5. calculate z coordinate for each intersection
-       
-      // calculate z0a, z0b of the center of the ellipse
-      Double_t t = ((x0a + y0a) - (first.X() + first.Y())) /  ((second.X() - first.X()) + (second.Y() - first.Y()));
-      Double_t z0a = first.Z() + (second.Z() - first.Z()) * t;
-      //    cout << "0 : calculate t, z0a " << t << " " << z0a << endl;
- 
-      t = ((x0b + y0b) - (first.X() + first.Y())) /  ((second.X() - first.X()) + (second.Y() - first.Y()));
-      Double_t z0b = first.Z() + (second.Z() - first.Z()) * t;
- 
-      TVector3 center1(x0a, y0a, z0a);
-      TVector3 center2(x0b, y0b, z0b);
-      if(fDisplayOn) {
-	char goOnChar;
-	display->cd(3);
-	//	cout << "COMPUTE Z COORDINATE" << endl;
-	RefreshZ();
-	DrawZGeometry();
-	TLine *linezx = new TLine(first.X(), first.Z(), second.X(), second.Z());
-	linezx->Draw("SAME");
-	TMarker *mrkza = new TMarker(x0a, z0a, 20);
-	mrkza->SetMarkerColor(4);
-	mrkza->Draw("SAME");
-	TMarker *mrkzb = new TMarker(x0b, z0b, 20);
-	mrkzb->SetMarkerColor(6);
-	mrkzb->Draw("SAME");
-	//	 cin >> goOnChar;   
-      }
-
-      // calculate the z of the intersection ON the ellipse (CHECK this step calculations!)
-      double dx = intxa - x0a;
-      double dy = intya - y0a;
-      TVector3 dxdy(dx, dy, 0.0);
-
-      TVector3 tfirst = first + dxdy;
-      TVector3 tsecond = second + dxdy;
-
-      t = ((intxa + intya) - (tfirst.X() + tfirst.Y())) /  ((tsecond.X() - tfirst.X()) + (tsecond.Y() - tfirst.Y()));
-      double intza = tfirst.Z() + (tsecond.Z() - tfirst.Z()) * t;
-      if(fDisplayOn) {
-	char goOnChar;
-	display->cd(3);
-	TLine *linezx1 = new TLine(tfirst.X(), tfirst.Z(), tsecond.X(), tsecond.Z());
-	linezx1->SetLineStyle(1);
-	linezx1->Draw("SAME");
-	TMarker *mrkza1 = new TMarker(intxa, intza, 20);
-	mrkza1->SetMarkerColor(kBlue - 9);
-	mrkza1->Draw("SAME");
-	// cin >> goOnChar;   
-      }
-
-      tfirst = first - dxdy;
-      tsecond = second - dxdy;
-
-      t = ((intxb + intyb) - (tfirst.X() + tfirst.Y())) /  ((tsecond.X() - tfirst.X()) + (tsecond.Y() - tfirst.Y()));
-      double intzb = tfirst.Z() + (tsecond.Z() - tfirst.Z()) * t;
- 
-      TVector3 fin_intersection1(intxa, intya, intza);
-      TVector3 fin_intersection2(intxb, intyb, intzb);
-
-      if(fDisplayOn) {
-	char goOnChar;
-	display->cd(3);
-	TLine *linezx2 = new TLine(tfirst.X(), tfirst.Z(), tsecond.X(), tsecond.Z());
-	linezx2->SetLineStyle(1);
-	linezx2->Draw("SAME");
-	TMarker *mrkzb1 = new TMarker(intxb, intzb, 20);
-	mrkzb1->SetMarkerColor(kMagenta - 7);
-	mrkzb1->Draw("SAME");
-	//	 cin >> goOnChar;   
-      }
-      //        int1.SetXYZ(intxa, intya, intza);
-      //        int2.SetXYZ(intxb, intyb, intzb);
-      //        errz = fabs(intza - intzb)/2.   ;
-   
-      // CHECK to be changed
-      int trackID = 1;
-      double phi1 = track->ComputePhi(fin_intersection1);
-      double phi2 = track->ComputePhi(fin_intersection2);
-
-      PndTrkSkewHit *skewhit = new PndTrkSkewHit(*hit, trackID, center1, fin_intersection1, phi1, center2, fin_intersection2, phi2, a, b, -1, beta);
-      //      skewhit->Print();
-      skewhitlist.AddHit(skewhit);
-
-      //      cout << "ADD " << skewhit->GetHitID() << " " << skewhit->GetDetectorID() << endl;
-      // CHECK ~~~~~~~~~~~~~~~~~~~~~~~~~~~
-      //        cout << "PHI - " << "phi2 " << phi1 << " phi2: " << phi2 << endl;
-      //        cout << "Z - " << fin_intersection1.Z() << " " << fin_intersection2.Z() << endl;
-      if(phi1 < phimin) phimin = phi1;
-      if(phi2 < phimin) phimin = phi2;
-      if(fin_intersection1.Z() < zmin) zmin = fin_intersection1.Z();
-      if(fin_intersection2.Z() < zmin) zmin = fin_intersection2.Z();
-      
-      if(phi1 > phimax) phimax = phi1;
-      if(phi2 > phimax) phimax = phi2;
-      if(fin_intersection1.Z() > zmax) zmax = fin_intersection1.Z();
-      if(fin_intersection2.Z() > zmax) zmax = fin_intersection2.Z();
-      // ~~~~~~~~~~~~~~~~~~~~~~~~~~~ CHECK
-    }
-    //     cout << "PHI: " << phimin << " " << phimax << endl;
-    //     cout << "Z  : " << zmin << " " << zmax << endl;
-
-    // DISPLAY ----------------------------
-    if(fDisplayOn) {
-      char goOnChar;
-      display->cd(4);
-      phimin -= 30;
-      phimax += 30;
-      zmin -= 13;
-      zmax += 13;
-      DrawZGeometry(2, phimin, phimax, zmin, zmax);
-      hzphi->SetXTitle("#phi");
-      hzphi->SetYTitle("#z");
-      hzphi->Draw();
-      display->Update();
-      display->Modified();  
-   
-     
-      for(int ihit = 0; ihit < skewhitlist.GetNofHits(); ihit++) {
-	PndTrkSkewHit *skewhit = (PndTrkSkewHit*) skewhitlist.GetHit(ihit);
-	if(!skewhit) continue;
-
-	TVector3 fin_intersection1 = skewhit->GetIntersection1();
-	TVector3 fin_intersection2 = skewhit->GetIntersection2();
-
-	double phi1 = skewhit->GetPhi1();
-	double phi2 = skewhit->GetPhi2();
-
-	TLine *linezphi = new TLine(phi1, fin_intersection1.Z(), phi2, fin_intersection2.Z());
-	// TLine *linezphi = new TLine(fin_intersection1.Z(), phi1, fin_intersection2.Z(), phi2);
-	linezphi->SetLineStyle(1);
-	linezphi->Draw("SAME");
-
-	TMarker *mrkzphi1 = new TMarker(phi1, fin_intersection1.Z(), 20);
-	// TMarker *mrkzphi1 = new TMarker(fin_intersection1.Z(), phi1, 20);
-
-	mrkzphi1->SetMarkerColor(kBlue - 9);
-	mrkzphi1->Draw("SAME");
-	
-	TMarker *mrkzphi2 = new TMarker(phi2, fin_intersection2.Z(), 20);
-	//	 TMarker *mrkzphi2 = new TMarker(fin_intersection2.Z(), phi2, 20);
-	mrkzphi2->SetMarkerColor(kMagenta - 7);
-	mrkzphi2->Draw("SAME");
-      }
-      display->Update();
-      display->Modified();  
-      //      cin >> goOnChar;   
-    }
-    // DISPLAY ----------------------------
- 
-    // 6. FIRST CLEANING of the track skewed associations
-    // find most probable z - CHECK what happens if a track is very fwd peaked?
-    //                        TRY WITH DELTA z = COST
-    //    cout  << "##################### FIND MOST PROBABLE Z" << endl; 
-    TH1F hz("hz", "z",  (zmax - zmin)/10., zmin, zmax); // CHECK
-    for(int ihit = 0; ihit < skewhitlist.GetNofHits(); ihit++) {
-      PndTrkSkewHit *skewhit = (PndTrkSkewHit*) skewhitlist.GetHit(ihit);
-      if(!skewhit) continue;
-      TVector3 fin_intersection1 = skewhit->GetIntersection1();
-      TVector3 fin_intersection2 = skewhit->GetIntersection2();
-      hz.Fill(fin_intersection1.Z());
-      hz.Fill(fin_intersection2.Z());
-    }
-    int maxbinz = hz.GetMaximumBin();
-    double mostprobZ = hz.GetBinCenter(maxbinz);
-    //    cout << mostprobZ << endl;
-    
-    // delete hits too far away ..........   
-    //    cout  << "##################### DELETE HITS" << endl; 
-    PndTrkCluster tmpskewhitlist;
-    for(int ihit = 0; ihit < skewhitlist.GetNofHits(); ihit++) {
-      PndTrkSkewHit *skewhit = (PndTrkSkewHit*) skewhitlist.GetHit(ihit);
-      if(!skewhit) continue;
-      TVector3 fin_intersection1 = skewhit->GetIntersection1();
-      TVector3 fin_intersection2 = skewhit->GetIntersection2();
-      double phi1 = skewhit->GetPhi1();
-      double phi2 = skewhit->GetPhi2();
-      
-      if(fabs(fin_intersection1.Z() - mostprobZ) > 30. && fabs(fin_intersection2.Z() - mostprobZ) > 30.) {
-	// 	cout << "THROW AWAY " << ihit << " " << fabs(fin_intersection1.Z() - mostprobZ) << "  " << fabs(fin_intersection2.Z() - mostprobZ) << endl;
-	continue;
-      }
-      skewhit->SetSortVariable((phi1 + phi2)/2.);
-      tmpskewhitlist.AddHit(skewhit);
-    }
-    skewhitlist = tmpskewhitlist;
-    skewhitlist.Sort();
-    // ................................   
     int iz = -1, jz = -1; 
     //   cout  << "##################### CHOOSE Z" << endl; 
 
@@ -1436,10 +1076,7 @@ void PndTrkLegendreTask::Exec(Option_t* opt) {
 
 }
 
-
-
 // ============================================================================================
-
 Int_t PndTrkLegendreTask::FillConformalHitList() {
 
   conformalhitlist->SetConformalTransform(conform);
@@ -2013,6 +1650,380 @@ void PndTrkLegendreTask::LightCluster(PndTrkCluster *cluster) {
   display->Update();
   display->Modified();
 }
+
+// ================================== ZFINDER
+PndTrkCluster PndTrkLegendreTask::CreateSkewHitList(PndTrkTrack *track) {
+
+  double xc = track->GetCenter().X();
+  double yc = track->GetCenter().Y();
+  double R = track->GetRadius();
+  PndTrkCluster skewhitlist;
+
+    double phimin = 400, phimax = -1, zmin = 1000, zmax = -1;
+    for(int ihit = 0; ihit < stthitlist->GetNofHits(); ihit++) {
+      PndTrkHit *hit = stthitlist->GetHit(ihit);	
+      //  if(hit->IsUsed()) { 
+      //  cout << "already used IV" << endl;
+      //  continue; 
+      //  }
+      if(hit->IsSttSkew() == kFALSE) continue;
+   
+      int tubeID = hit->GetTubeID();
+      PndSttTube *tube = (PndSttTube*) fTubeArray->At(tubeID);
+   
+      TVector3 wireDirection = tube->GetWireDirection();
+      Double_t halflength = tube->GetHalfLength();
+      
+      TVector3 first  = tube->GetPosition() + wireDirection * halflength; // CHECK
+      TVector3 second = tube->GetPosition() - wireDirection * halflength; // CHECK
+      //    if(fDisplayOn) {
+      // 	char goOnChar;
+      //      	display->cd(1);
+      // 	TLine *l = new TLine(first.X(), first.Y(), second.X(), second.Y());
+      // 	l->SetLineColor(kBlue);
+      // 	l->Draw("SAME");
+      // 	display->Update();
+      // 	display->Modified();
+      // 	cin >> goOnChar;   
+      //       }
+      double m1 = (first - second).Y()/(first - second).X();
+      double q1 = first.Y() - m1 * first.X();
+      
+      // 1. compute intersection between the track circle and the wire
+      TVector2 intersection1, intersection2;
+      Int_t nofintersections = tools->ComputeSegmentCircleIntersection(TVector2(first.X(), first.Y()), TVector2(second.X(), second.Y()), xc, yc, R, intersection1, intersection2);
+      
+      if(nofintersections == 0) continue;
+      if(nofintersections >= 2) {
+	cout << "ERROR: MORE THAN 1 INTERSECTION!!" << endl;
+	continue; // CHECK
+      }
+    
+      if(fDisplayOn) {
+	char goOnChar;
+     	display->cd(1);
+	TLine *l = new TLine(first.X(), first.Y(), second.X(), second.Y());
+	l->SetLineColor(kBlue);
+	l->Draw("SAME");
+
+	TMarker *mrk = new TMarker(intersection1.X(), intersection1.Y(), 20);
+	mrk->SetMarkerColor(kBlue);
+	mrk->Draw("SAME");
+
+	display->Update();
+	display->Modified();
+
+
+	//	cin >> goOnChar;   
+      }
+  
+
+      // 2. find the tangent to the track in the intersection point
+      // tangent approximation
+      TVector2 tangent = tools->ComputeTangentInPoint(xc, yc, intersection1);
+       
+      // 3. rotate clockwise the tangent/point/(wire, not explicitely)
+      // in order to have the wire parallel to the x axis;
+      // then translate everything to have the wire ON the x axis
+      double beta = wireDirection.Phi();
+      if(beta < 0) beta += TMath::Pi();
+      // ... rotate the tangent
+      double rtx = TMath::Cos(beta) * tangent.X() + TMath::Sin(beta) * tangent.Y();
+      double rty = TMath::Cos(beta) * tangent.Y() - TMath::Sin(beta) * tangent.X();
+      TVector2 rottangent(rtx, rty);
+      rottangent = rottangent.Unit();
+      // ... rotate the point
+      double rx = TMath::Cos(beta) * intersection1.X() + TMath::Sin(beta) * intersection1.Y();
+      double ry = TMath::Cos(beta) * intersection1.Y() - TMath::Sin(beta) * intersection1.X();
+       
+      // translation
+      Double_t deltay = ry;
+      rty -= deltay;
+      ry -= deltay;
+
+      // rotm, rotp
+      Double_t rotm = rottangent.Y()/rottangent.X();
+      Double_t rotp = ry - rotm * rx;
+
+      // ellipsis
+      double a = hit->GetIsochrone() * TMath::Cos(SKEW_ANGLE); // CHECK skew angle hard coded
+      double b = hit->GetIsochrone();
+
+      // center of ellipsis
+      Double_t x0a, x0b, y0;
+      y0 = 0.;
+      x0a = (-rotp + TMath::Sqrt(b * b + a * a * rotm * rotm)) / rotm;
+      x0b = (-rotp - TMath::Sqrt(b * b + a * a * rotm * rotm)) / rotm;
+ 
+      // intersection point
+      double intxa = (x0a * b * b - rotm * rotp * a * a) / (b * b + rotm * rotm * a * a);
+      double intya = rotm * intxa + rotp;
+      double intxb = (x0b * b * b - rotm * rotp * a * a) / (b * b + rotm * rotm * a * a);
+      double intyb = rotm * intxb + rotp;
+   
+      // 4. retraslate/rerotate all back to the original plane
+      // retranslate
+      y0 += deltay; 
+      intya  += deltay; 
+      intyb  += deltay; 
+   
+      // rerotate
+      double x0anew = TMath::Cos(beta) * x0a - TMath::Sin(beta) * y0;
+      double y0anew = TMath::Cos(beta) * y0 + TMath::Sin(beta) * x0a;
+      double x0bnew = TMath::Cos(beta) * x0b - TMath::Sin(beta) * y0;
+      double y0bnew = TMath::Cos(beta) * y0 + TMath::Sin(beta) * x0b;
+   
+      double intxanew = TMath::Cos(beta) * intxa - TMath::Sin(beta) * intya;
+      double intyanew = TMath::Cos(beta) * intya + TMath::Sin(beta) * intxa;
+      double intxbnew = TMath::Cos(beta) * intxb - TMath::Sin(beta) * intyb;
+      double intybnew = TMath::Cos(beta) * intyb + TMath::Sin(beta) * intxb;
+   
+      intxa = intxanew;
+      intya = intyanew;
+      intxb = intxbnew;
+      intyb = intybnew;
+
+      // now we have x0a, y0a, center of the 1st ellipse
+      // and x0b, y0b, center of the 2nd ellipse
+      x0a = x0anew;
+      double y0a = y0anew;
+      x0b = x0bnew;
+      double y0b = y0bnew;
+
+      if(fDisplayOn) {
+	char goOnChar;
+	display->cd(1);
+
+	TEllipse *ell1 = new TEllipse(x0a, y0a, a, b, 0, 360, -beta);
+	ell1->SetFillStyle(0);
+	ell1->SetLineColor(4);
+	ell1->Draw("SAME");
+	TEllipse *ell2 = new TEllipse(x0b, y0b, a, b, 0, 360, -beta);
+	ell2->SetFillStyle(0);
+	ell2->SetLineColor(6);
+	ell2->Draw("SAME");
+
+	TMarker *mrkinta = new TMarker(intxa, intya, 20);
+	mrkinta->SetMarkerColor(4);
+	mrkinta->Draw("SAME");
+	TMarker *mrkintb = new TMarker(intxb, intyb, 20);
+	mrkintb->SetMarkerColor(6);
+	mrkintb->Draw("SAME");
+	//	 cin >> goOnChar;   
+      }
+
+      // 5. calculate z coordinate for each intersection
+       
+      // calculate z0a, z0b of the center of the ellipse
+      Double_t t = ((x0a + y0a) - (first.X() + first.Y())) /  ((second.X() - first.X()) + (second.Y() - first.Y()));
+      Double_t z0a = first.Z() + (second.Z() - first.Z()) * t;
+      //    cout << "0 : calculate t, z0a " << t << " " << z0a << endl;
+ 
+      t = ((x0b + y0b) - (first.X() + first.Y())) /  ((second.X() - first.X()) + (second.Y() - first.Y()));
+      Double_t z0b = first.Z() + (second.Z() - first.Z()) * t;
+ 
+      TVector3 center1(x0a, y0a, z0a);
+      TVector3 center2(x0b, y0b, z0b);
+      if(fDisplayOn) {
+	char goOnChar;
+	display->cd(3);
+	//	cout << "COMPUTE Z COORDINATE" << endl;
+	RefreshZ();
+	DrawZGeometry();
+	TLine *linezx = new TLine(first.X(), first.Z(), second.X(), second.Z());
+	linezx->Draw("SAME");
+	TMarker *mrkza = new TMarker(x0a, z0a, 20);
+	mrkza->SetMarkerColor(4);
+	mrkza->Draw("SAME");
+	TMarker *mrkzb = new TMarker(x0b, z0b, 20);
+	mrkzb->SetMarkerColor(6);
+	mrkzb->Draw("SAME");
+	//	 cin >> goOnChar;   
+      }
+
+      // calculate the z of the intersection ON the ellipse (CHECK this step calculations!)
+      double dx = intxa - x0a;
+      double dy = intya - y0a;
+      TVector3 dxdy(dx, dy, 0.0);
+
+      TVector3 tfirst = first + dxdy;
+      TVector3 tsecond = second + dxdy;
+
+      t = ((intxa + intya) - (tfirst.X() + tfirst.Y())) /  ((tsecond.X() - tfirst.X()) + (tsecond.Y() - tfirst.Y()));
+      double intza = tfirst.Z() + (tsecond.Z() - tfirst.Z()) * t;
+      if(fDisplayOn) {
+	char goOnChar;
+	display->cd(3);
+	TLine *linezx1 = new TLine(tfirst.X(), tfirst.Z(), tsecond.X(), tsecond.Z());
+	linezx1->SetLineStyle(1);
+	linezx1->Draw("SAME");
+	TMarker *mrkza1 = new TMarker(intxa, intza, 20);
+	mrkza1->SetMarkerColor(kBlue - 9);
+	mrkza1->Draw("SAME");
+	// cin >> goOnChar;   
+      }
+
+      tfirst = first - dxdy;
+      tsecond = second - dxdy;
+
+      t = ((intxb + intyb) - (tfirst.X() + tfirst.Y())) /  ((tsecond.X() - tfirst.X()) + (tsecond.Y() - tfirst.Y()));
+      double intzb = tfirst.Z() + (tsecond.Z() - tfirst.Z()) * t;
+ 
+      TVector3 fin_intersection1(intxa, intya, intza);
+      TVector3 fin_intersection2(intxb, intyb, intzb);
+
+      if(fDisplayOn) {
+	char goOnChar;
+	display->cd(3);
+	TLine *linezx2 = new TLine(tfirst.X(), tfirst.Z(), tsecond.X(), tsecond.Z());
+	linezx2->SetLineStyle(1);
+	linezx2->Draw("SAME");
+	TMarker *mrkzb1 = new TMarker(intxb, intzb, 20);
+	mrkzb1->SetMarkerColor(kMagenta - 7);
+	mrkzb1->Draw("SAME");
+	//	 cin >> goOnChar;   
+      }
+      //        int1.SetXYZ(intxa, intya, intza);
+      //        int2.SetXYZ(intxb, intyb, intzb);
+      //        errz = fabs(intza - intzb)/2.   ;
+   
+      // CHECK to be changed
+      int trackID = 1;
+      double phi1 = track->ComputePhi(fin_intersection1);
+      double phi2 = track->ComputePhi(fin_intersection2);
+
+      PndTrkSkewHit *skewhit = new PndTrkSkewHit(*hit, trackID, center1, fin_intersection1, phi1, center2, fin_intersection2, phi2, a, b, -1, beta);
+      //      skewhit->Print();
+      skewhitlist.AddHit(skewhit);
+
+   
+    }
+    //     cout << "PHI: " << phimin << " " << phimax << endl;
+    //     cout << "Z  : " << zmin << " " << zmax << endl;
+
+
+    return skewhitlist;
+}
+ 
+ 
+PndTrkCluster PndTrkLegendreTask::CleanUpSkewHitList(PndTrkCluster *skewhitlist) {
+
+
+  // 6. FIRST CLEANING of the track skewed associations
+  // find most probable z - CHECK what happens if a track is very fwd peaked?
+  //                        TRY WITH DELTA z = COST
+  //    cout  << "##################### FIND MOST PROBABLE Z" << endl; 
+  double phimin = 400, phimax = -1, zmin = 1000, zmax = -1;
+
+  for(int ihit = 0; ihit < skewhitlist->GetNofHits(); ihit++) {
+    PndTrkSkewHit *skewhit = (PndTrkSkewHit*) skewhitlist->GetHit(ihit);
+    if(!skewhit) continue;
+    TVector3 fin_intersection1 = skewhit->GetIntersection1();
+    TVector3 fin_intersection2 = skewhit->GetIntersection2();
+
+    double phi1 = skewhit->GetPhi1();
+    double phi2 = skewhit->GetPhi2();
+
+    if(phi1 < phimin) phimin = phi1;
+    if(phi2 < phimin) phimin = phi2;
+    if(fin_intersection1.Z() < zmin) zmin = fin_intersection1.Z();
+    if(fin_intersection2.Z() < zmin) zmin = fin_intersection2.Z();
+      
+    if(phi1 > phimax) phimax = phi1;
+    if(phi2 > phimax) phimax = phi2;
+    if(fin_intersection1.Z() > zmax) zmax = fin_intersection1.Z();
+    if(fin_intersection2.Z() > zmax) zmax = fin_intersection2.Z();
+    // ~~~~~~~~~~~~~~~~~~~~~~~~~~~ CHECK
+  }
+  //     cout << "PHI: " << phimin << " " << phimax << endl;
+  //     cout << "Z  : " << zmin << " " << zmax << endl;
+
+  // DISPLAY ----------------------------
+  if(fDisplayOn) {
+    char goOnChar;
+    display->cd(4);
+    phimin -= 30;
+    phimax += 30;
+    zmin -= 13;
+    zmax += 13;
+    DrawZGeometry(2, phimin, phimax, zmin, zmax);
+    hzphi->SetXTitle("#phi");
+    hzphi->SetYTitle("#z");
+    hzphi->Draw();
+    display->Update();
+    display->Modified();  
+   
+     
+    for(int ihit = 0; ihit < skewhitlist->GetNofHits(); ihit++) {
+      PndTrkSkewHit *skewhit = (PndTrkSkewHit*) skewhitlist->GetHit(ihit);
+      if(!skewhit) continue;
+
+      TVector3 fin_intersection1 = skewhit->GetIntersection1();
+      TVector3 fin_intersection2 = skewhit->GetIntersection2();
+
+      double phi1 = skewhit->GetPhi1();
+      double phi2 = skewhit->GetPhi2();
+
+      TLine *linezphi = new TLine(phi1, fin_intersection1.Z(), phi2, fin_intersection2.Z());
+      // TLine *linezphi = new TLine(fin_intersection1.Z(), phi1, fin_intersection2.Z(), phi2);
+      linezphi->SetLineStyle(1);
+      linezphi->Draw("SAME");
+
+      TMarker *mrkzphi1 = new TMarker(phi1, fin_intersection1.Z(), 20);
+      // TMarker *mrkzphi1 = new TMarker(fin_intersection1.Z(), phi1, 20);
+
+      mrkzphi1->SetMarkerColor(kBlue - 9);
+      mrkzphi1->Draw("SAME");
+	
+      TMarker *mrkzphi2 = new TMarker(phi2, fin_intersection2.Z(), 20);
+      //	 TMarker *mrkzphi2 = new TMarker(fin_intersection2.Z(), phi2, 20);
+      mrkzphi2->SetMarkerColor(kMagenta - 7);
+      mrkzphi2->Draw("SAME");
+    }
+    display->Update();
+    display->Modified();  
+    //      cin >> goOnChar;   
+  }
+  // DISPLAY ----------------------------
+
+  TH1F hz("hz", "z",  (zmax - zmin)/10., zmin, zmax); // CHECK
+  for(int ihit = 0; ihit < skewhitlist->GetNofHits(); ihit++) {
+    PndTrkSkewHit *skewhit = (PndTrkSkewHit*) skewhitlist->GetHit(ihit);
+    if(!skewhit) continue;
+    TVector3 fin_intersection1 = skewhit->GetIntersection1();
+    TVector3 fin_intersection2 = skewhit->GetIntersection2();
+    hz.Fill(fin_intersection1.Z());
+    hz.Fill(fin_intersection2.Z());
+  }
+  int maxbinz = hz.GetMaximumBin();
+  double mostprobZ = hz.GetBinCenter(maxbinz);
+  //    cout << mostprobZ << endl;
+    
+  // delete hits too far away ..........   
+  //    cout  << "##################### DELETE HITS" << endl; 
+  PndTrkCluster tmpskewhitlist;
+  for(int ihit = 0; ihit < skewhitlist->GetNofHits(); ihit++) {
+    PndTrkSkewHit *skewhit = (PndTrkSkewHit*) skewhitlist->GetHit(ihit);
+    if(!skewhit) continue;
+    TVector3 fin_intersection1 = skewhit->GetIntersection1();
+    TVector3 fin_intersection2 = skewhit->GetIntersection2();
+    double phi1 = skewhit->GetPhi1();
+    double phi2 = skewhit->GetPhi2();
+      
+    if(fabs(fin_intersection1.Z() - mostprobZ) > 30. && fabs(fin_intersection2.Z() - mostprobZ) > 30.) {
+      // 	cout << "THROW AWAY " << ihit << " " << fabs(fin_intersection1.Z() - mostprobZ) << "  " << fabs(fin_intersection2.Z() - mostprobZ) << endl;
+      continue;
+    }
+    skewhit->SetSortVariable((phi1 + phi2)/2.);
+    tmpskewhitlist.AddHit(skewhit);
+  }
+  tmpskewhitlist.Sort();
+  return tmpskewhitlist;
+}
+
+
+
+
 
 ClassImp(PndTrkLegendreTask)
 

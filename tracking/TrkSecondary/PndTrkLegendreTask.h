@@ -67,8 +67,10 @@ class PndTrkLegendreTask : public FairTask {
   PndTrkCluster CreateClusterByRealDistance(double xc0, double yc0, double R0);
   PndTrkCluster CreateClusterByMixedDistance(double fitm, double fitq);
   PndTrkCluster CreateClusterByDistance(Int_t mode, double fitm, double fitq);
+  PndTrkCluster CreateSkewHitList(PndTrkTrack *track);
 
   void FromConformalToRealTrack(double fitm, double fitp, double &x0, double &y0, double &R);
+  PndTrkCluster CleanUpSkewHitList(PndTrkCluster *skewhitlist);
 
 
 
@@ -141,6 +143,7 @@ class PndTrkLegendreTask : public FairTask {
 
   PndTrkConformalTransform *conform;
   PndTrkConformalHitList *conformalhitlist;
+    PndTrkTools *tools;
 
 
   ClassDef(PndTrkLegendreTask,1);
