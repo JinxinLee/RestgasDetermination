@@ -86,6 +86,9 @@ void QAmacro_stt_3()
     cout << " Test Failed" << endl;
     cout << " Not Ok " << endl;         
   }
+
+  delete fRun;
+  
   timer.Stop();
   Double_t rtime = timer.RealTime();
   Double_t ctime = timer.CpuTime();
