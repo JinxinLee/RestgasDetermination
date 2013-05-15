@@ -112,7 +112,7 @@ void QAmacro_stt_1()
   fRun->SetGenerator(primGen);
   
   // Box Generator
-  FairBoxGenerator* boxGenMuM = new FairBoxGenerator(13, 3); // 13 = muon -; 1 = multipl.
+  FairBoxGenerator* boxGenMuM = new FairBoxGenerator(13, 2); // 13 = muon -; 1 = multipl.
   boxGenMuM->SetPRange(1.,1.); // GeV/c //setPRange vs setPtRange
   boxGenMuM->SetPhiRange(0, 360); // Azimuth angle range [degree]
   boxGenMuM->SetThetaRange(20, 140); // Polar angle in lab system range [degree]
@@ -122,7 +122,7 @@ void QAmacro_stt_1()
  
 
   // Box Generator
-  FairBoxGenerator* boxGenMuP = new FairBoxGenerator(-13, 3); // -13 = muon +; 1 = multipl.
+  FairBoxGenerator* boxGenMuP = new FairBoxGenerator(-13, 2); // -13 = muon +; 1 = multipl.
   boxGenMuP->SetPRange(1.,1.); // GeV/c //setPRange vs setPtRange
   boxGenMuP->SetPhiRange(0, 360); // Azimuth angle range [degree]
   boxGenMuP->SetThetaRange(20, 140); // Polar angle in lab system range [degree]
