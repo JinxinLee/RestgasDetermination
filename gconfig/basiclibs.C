@@ -22,8 +22,8 @@ void basiclibs()
   gSystem->Load("libGeomPainter");
   gSystem->Load("libVMC");
   gSystem->Load("libEG");
-  // gSystem->Load("libEGPythia6");
-  // gSystem->Load("libPythia6");  
+  gSystem->Load("libEGPythia6");
+  gSystem->Load("libPythia6");  
   gSystem->Load("libPhysics");
   gSystem->Load("libNet");  
   gSystem->Load("libTree"); 
