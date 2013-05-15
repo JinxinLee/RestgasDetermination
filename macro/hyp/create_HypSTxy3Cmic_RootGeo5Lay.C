@@ -79,7 +79,7 @@ void create_HypSTxy3Cmic_RootGeo5Lay()
 
 
   //TString outfile= "../../geometry/HYPST_assexy3C5Lay_test.root";
-   TString outfile= "../../geometry/HYPST_assexy3C5Lay_mvd.root";
+   TString outfile= "../../geometry/HYPST_assexy3C5Lay.root";
    TFile* fi = new TFile(outfile,"RECREATE");  
   
   FairGeoLoader* geoLoad = new FairGeoLoader("TGeo","FairGeoLoader");
@@ -110,8 +110,8 @@ void create_HypSTxy3Cmic_RootGeo5Lay()
   gGeoMan->SetTopVolume(top);
 
   TGeoVolume *complex = new TGeoVolumeAssembly("complex");
-  TGeoVolume *outer = new TGeoVolumeAssembly("outer");
-  TGeoVolume *inner = new TGeoVolumeAssembly("inner");
+  //TGeoVolume *outer = new TGeoVolumeAssembly("outer");
+  //TGeoVolume *inner = new TGeoVolumeAssembly("inner");
 
     //936.4335456774155
     const Int_t max = 80;   // max. number of stations
@@ -182,7 +182,7 @@ void create_HypSTxy3Cmic_RootGeo5Lay()
     double ang;
     ang = 180*TMath::ASin(17.7/135)/pi;
     
-    LayO = new TGeoBBox("stglOTile",side ,side ,0.03);
+    /* LayO = new TGeoBBox("stglOTile",side ,side ,0.03);
   
     LayAO = new TGeoVolume("outer_stglSi",LayO, gGeoMan->GetMedium("HYPsilicon"));
 
@@ -230,7 +230,7 @@ void create_HypSTxy3Cmic_RootGeo5Lay()
     }
     Double_t dx_bboxa, dy_bboxa, dz_bboxa, phi_curra;  
  
-    for(Int_t it = 0; it < 26; it ++){       //outer strip structure 26 layers 35 mm
+    for(Int_t it = 0; it < 24; it ++){       //outer strip structure 26 layers 35 mm
     
        phi_curra = (it+1)*((2*ang)*pi)/180.;   
        rotO->SetAngles(0,0,0);
@@ -245,6 +245,7 @@ void create_HypSTxy3Cmic_RootGeo5Lay()
        
        
      }
+    */
 
 
     TGeoBBox *BoxSi[80];
@@ -628,7 +629,7 @@ void create_HypSTxy3Cmic_RootGeo5Lay()
     trc4->SetName("transpipe");
     trc4->RegisterYourself();
 
-    TGeoCombiTrans* trc5 = new TGeoCombiTrans(0., 0., 0., new TGeoRotation ());
+    /*  TGeoCombiTrans* trc5 = new TGeoCombiTrans(0., 0., 0., new TGeoRotation ());
 
     trc5->SetName("transouter");
     trc5->RegisterYourself();
@@ -636,14 +637,14 @@ void create_HypSTxy3Cmic_RootGeo5Lay()
     TGeoCombiTrans* trc6 = new TGeoCombiTrans(0., 0., 0., new TGeoRotation ());
 
     trc6->SetName("transinner");
-    trc6->RegisterYourself();
+    trc6->RegisterYourself();*/
 
     complex->AddNode(hyppipe, 0,trc4);
-    complex->AddNode(outer, 0,trc5);
-    complex->AddNode(inner, 0,trc6);
+    /*  complex->AddNode(outer, 0,trc5);
+	complex->AddNode(inner, 0,trc6);*/
 
     //top->AddNode(complex,0,new TGeoCombiTrans(0., 0., -76.5, new TGeoRotation ()));
-    top->AddNode(complex,0,new TGeoCombiTrans(0., 0., -17.5, new TGeoRotation ()));
+    top->AddNode(complex,0,new TGeoCombiTrans(0., 0., -55.5, new TGeoRotation ()));
     
     gGeoMan->CloseGeometry();
     top->Write();
