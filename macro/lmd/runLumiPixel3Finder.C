@@ -1,6 +1,6 @@
 ///  Method="Follow" - Track-following method, Method="CA" - Cellular Automaton
 ///  missPl=true - use "missing plane" algorithm
-void runLumiPixel3Finder(const int nEvents=1000, const int startEvent=0, TString storePath="tmpOutput", const int verboseLevel=5,  TString Method="Follow", const bool missPl=true, const bool mergedHits=true, const bool trkcuts=true)
+void runLumiPixel3Finder(const int nEvents=1000, const int startEvent=0, TString storePath="tmpOutput", const int verboseLevel=5,  TString Method="Follow", const bool missPl=true, const bool mergedHits=true, const bool trkcuts=true, const double psirule=1e-6)
 {
   // ========================================================================
   // Input file (MC events)
@@ -82,8 +82,21 @@ void runLumiPixel3Finder(const int nEvents=1000, const int startEvent=0, TString
   int nsensors = 100;
   int nplanes = 8;
   double accurF = 0.01;//parameter for trk-finder corridor
-  double accurCA = 0.02;//parameter for CA neigboring search
-  if(trkcuts!=true) accurCA = 0.1;//misalignment sensors case
+  double accurCA = 1e-6;//parameter for CA neigboring search (breaking angle)
+  accurCA = psirule;//TEST
+  // //set accurCA for diff Pbeam cases ---------------------------------------------
+  //  double accCAv[5]={??,??,??,??,??};
+  // if(pbeam<1.6) accurCA = 1e-5;
+  // else{
+  //   if(pbeam<4.07) accurCA = 1e-5;
+  //   else{
+  //     if(pbeam<9) accurCA = 1e-5;
+  //     else 
+  // 	accurCA = 1e-6;
+  //   }
+  // }
+  // //------------------------------------------------------------------------------------------
+  if(trkcuts!=true) accurCA = 1e-3;//misalignment sensors case (TODO: study it in multiple trks case)
   if(mergedHits){
     inHits = "LMDHitsMerged";
     nplanes = 4;
