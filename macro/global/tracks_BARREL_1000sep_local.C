@@ -22,7 +22,7 @@ void tracks_BARREL_1000sep_local(Int_t nofFiles = 1, Int_t nofEvents=1000) {
   TString parFile  = Form("%s/params_22Part_n%d_f0_sep.root",workDir.Data(),nofEvents);
 
   // Output file
-  TString outFile = Form("tracks_%dPart_n%d.root",nparts,nofEvents);
+  TString outFile = Form("tracks_%dPart_n%d.root",nparts,nEvents);
 
   // ----  Load libraries   -------------------------------------------------
   //    gROOT->LoadMacro("$VMCWORKDIR/gconfig/rootlogon.C");

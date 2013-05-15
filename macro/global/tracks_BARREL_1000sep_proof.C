@@ -1,4 +1,4 @@
-void tracks_BARREL_1000sep_proof(Int_t nofFiles = 1, TString proofName="") {
+void tracks_BARREL_1000sep_proof(Int_t nofFiles = 1, Int_t nofEvents=1000, TString proofName="") {
 
   Int_t nparts = 22;
   Int_t pid = 13;
@@ -6,7 +6,7 @@ void tracks_BARREL_1000sep_proof(Int_t nofFiles = 1, TString proofName="") {
 
   Int_t nEvents = 0;
 
-  nEvents = nofFiles*1000;
+  nEvents = nofFiles*nofEvents;
   TString workDir = gSystem->WorkingDirectory();
 
   if ( nStations != 3 && nStations != 4 ) {
@@ -19,15 +19,14 @@ void tracks_BARREL_1000sep_proof(Int_t nofFiles = 1, TString proofName="") {
   Int_t iVerbose = 0;
 
   // Parameter file
-  TString parFile  = Form("%s/params_22Part_n1000_f0_sep.root",workDir.Data());
-  //"params_%dPart_n1000.root",workDir.Data(),nparts);
+  TString parFile  = Form("%s/params_22Part_n%d_f0_sep.root",workDir.Data(),nofEvents);
 
   // Output file
   TString outFile = Form("tracks_%dPart_n%d.root",nparts,nEvents);
 
   // ----  Load libraries   -------------------------------------------------
-  gROOT->LoadMacro("$VMCWORKDIR/gconfig/rootlogon.C");
-  rootlogon();
+  //  gROOT->LoadMacro("$VMCWORKDIR/gconfig/rootlogon.C");
+  //  rootlogon();
   TString sysFile = gSystem->Getenv("VMCWORKDIR");
   // ------------------------------------------------------------------------
 
@@ -48,9 +47,9 @@ void tracks_BARREL_1000sep_proof(Int_t nofFiles = 1, TString proofName="") {
   //  fRun->SetProofParName("$VMCWORKDIR/gconfig/libFairRoot3.par");
   //  fRun->GetProof()->SetParameter("PROOF_PacketizerStrategy", (Int_t)0);
   
-  fRun->SetInputFile(Form("file://%s/points_%dPart_n1000_f%d_sep.root",workDir.Data(),nparts,0));
+  fRun->SetInputFile(Form("file://%s/points_%dPart_n%d_f%d_sep.root",workDir.Data(),nparts,nofEvents,0));
   for ( Int_t ifile = 1 ; ifile < nofFiles ; ifile++ )
-    fRun->AddFile   (Form("file://%s/points_%dPart_n1000_f%d_sep.root",workDir.Data(),nparts,ifile));
+    fRun->AddFile   (Form("file://%s/points_%dPart_n%d_f%d_sep.root",workDir.Data(),nparts,nofEvents,ifile));
   // ------------------------------------------------------------------------
 
   // -----  Parameter database   --------------------------------------------
@@ -63,7 +62,7 @@ void tracks_BARREL_1000sep_proof(Int_t nofFiles = 1, TString proofName="") {
   TList* fnamelist = new TList();
 
   for ( Int_t ifile = 0 ; ifile < nofFiles ; ifile++ )
-    fnamelist->Add(new TObjString(Form("%s/params_%dPart_n1000_f%d_sep.root",workDir.Data(),nparts,ifile)));
+    fnamelist->Add(new TObjString(Form("%s/params_%dPart_n%d_f%d_sep.root",workDir.Data(),nparts,nofEvents,ifile)));
 
   //  parInput1->open(parFile.Data());
   parInput1->open(fnamelist);       
