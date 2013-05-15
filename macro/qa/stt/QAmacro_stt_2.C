@@ -31,11 +31,6 @@ void QAmacro_stt_2()
   fRun->SetOutputFile(outFile);
   // ------------------------------------------------------------------------
  
-  // ----- Prepare GEANE --------------------------------------------
-  FairGeane *Geane = new FairGeane();
-  fRun->AddTask(Geane);
-  // ------------------------------------------------------------------------
-
   FairRuntimeDb* rtdb = fRun->GetRuntimeDb();
   FairParRootFileIo* parInput1 = new FairParRootFileIo();
   parInput1->open(parFile.Data());
