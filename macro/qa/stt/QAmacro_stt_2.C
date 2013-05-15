@@ -1,6 +1,4 @@
-// TEST 2: full reconstruction, i.e. digi fast + reco + kalman
-// #include "/home/lavezzi/test_dev/original/trunk3/pnddata/PndDetectorList.h"
-// void QAmacro_stt_2(){
+// TEST 2: digitization
 void QAmacro_stt_2()
 {
   TStopwatch timer;
@@ -25,7 +23,7 @@ void QAmacro_stt_2()
   TString parFile = "testparams.root";
 
   // Output file
-  TString outFile = "testcomplete.root";
+  TString outFile = "testdigi.root";
 
   // -----   Reconstruction run   -------------------------------------------
   FairRunAna *fRun = new FairRunAna();
@@ -42,39 +40,31 @@ void QAmacro_stt_2()
   FairParRootFileIo* parInput1 = new FairParRootFileIo();
   parInput1->open(parFile.Data());
   rtdb->setFirstInput(parInput1);
-    
-  // -----   STT analysis tasks   --------------------------------------------
+  
+  // Digitisation file (ascii)
+  TString digiFile = "all.par";
+  TString allDigiFile = gSystem->Getenv("VMCWORKDIR");
+  allDigiFile += "/macro/params/";
+  allDigiFile += digiFile;
+  FairParAsciiFileIo* parIo1 = new FairParAsciiFileIo();
+  parIo1->open(allDigiFile.Data(),"in");
+  rtdb->setSecondInput(parIo1);
+
+  // -----   MDV digi producers   ---------------------------------
+  PndMvdDigiTask* mvddigi = new PndMvdDigiTask();
+  mvddigi->SetVerbose(iVerbose);
+  fRun->AddTask(mvddigi);
+
+  PndMvdClusterTask* mvdmccls = new PndMvdClusterTask();
+  mvdmccls->SetVerbose(iVerbose);
+  fRun->AddTask(mvdmccls);
+
+  // -----   STT reconstruction tasks   --------------------------------------------
   // digitize ....
   PndSttHitProducerRealFast* sttHitProducer = new PndSttHitProducerRealFast();
   // sttHitProducer->SetVerbose(3); // debug = print each evt num
   fRun->AddTask(sttHitProducer);
 
-  // trackfinding ....
-  PndSttTrackFinderIdeal* sttTrackFinder = new PndSttTrackFinderIdeal(iVerbose);
-  PndSttFindTracks* sttFindTracks = new PndSttFindTracks("Track Finder", "FairTask", sttTrackFinder, iVerbose);
-  sttFindTracks->AddHitCollectionName("STTHit", "STTPoint");
-  fRun->AddTask(sttFindTracks);
-
-  // trackmatching ....
-  PndSttMatchTracks* sttTrackMatcher = new PndSttMatchTracks("Match tracks", "STT", iVerbose);
-  sttTrackMatcher->AddHitCollectionName("STTHit", "STTPoint");
-  fRun->AddTask(sttTrackMatcher);  
-
-  // trackfitting ....
-  PndSttTrackFitter* sttTrackFitter = new PndSttHelixTrackFitter(iVerbose);
-  PndSttFitTracks* sttFitTracks = new PndSttFitTracks("STT Track Fitter", "FairTask", sttTrackFitter); 
-  sttFitTracks->AddHitCollectionName("STTHit");
-  fRun->AddTask(sttFitTracks);
-
-  // helix hit production ....
-  PndSttHelixHitProducer* sttHHProducer = new PndSttHelixHitProducer();
-  fRun->AddTask(sttHHProducer);
-
-  // kalman ...
-  PndSttPatternRecoTask2* STTPR = new PndSttPatternRecoTask2();
-  fRun->AddTask(STTPR);
-  PndSttKalmanTask2 *Kalman = new PndSttKalmanTask2();
-  fRun->AddTask(Kalman); 
 
   // -----   Initialize and run   --------------------------------------------
   fRun->Init();
@@ -90,7 +80,7 @@ void QAmacro_stt_2()
     cout << " Test Failed" << endl;
     cout << " Not Ok " << endl;         
   }
- timer.Stop();
+  timer.Stop();
   Double_t rtime = timer.RealTime();
   Double_t ctime = timer.CpuTime();
   printf("RealTime=%f seconds, CpuTime=%f seconds\n",rtime,ctime);
