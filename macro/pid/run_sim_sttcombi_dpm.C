@@ -7,8 +7,8 @@ run_sim_sttcombi_dpm(Int_t nEvents=10, Float_t mom = 5., Int_t mode =1, UInt_t s
   gDebug=0;
   // Load basic libraries
   // If it does not work,  please check the path of the libs and put it by hands
-  gROOT->LoadMacro("$VMCWORKDIR/gconfig/rootlogon.C");
-  rootlogon();
+  //  gROOT->LoadMacro("$VMCWORKDIR/gconfig/rootlogon.C");
+  //  rootlogon();
   
   TString digiFile = "all.par";
   TString parFile = "params_sttcombi.root";

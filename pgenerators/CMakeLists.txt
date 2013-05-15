@@ -42,6 +42,6 @@ PndGiBuuJPsiEE.cxx
 set(LINKDEF  PGenLinkDef.h)
 set(LIBRARY_NAME PGen)
 
-set(DEPENDENCIES )
+set(DEPENDENCIES Base DpmEvtGen)
 
 GENERATE_LIBRARY()
