@@ -12,7 +12,7 @@ set(LINK_DIRECTORIES
  
 link_directories( ${LINK_DIRECTORIES})
 
-set(SRCS
+set(PHOTOS_SRCS
 phcork.F
 phint1.F
 phint.F
@@ -51,8 +51,14 @@ photwo.F
 phtype.F
 )
 
-set(LIBRARY_NAME Photos)
+if(RULE_CHECKER_FOUND) 
+  CHECK_RULES("${PHOTOSDIRECT_SRCS}" "${INCLUDE_DIRECTORIES}" PHOTOSDIRECT_RULES) 
+endif(RULE_CHECKER_FOUND) 
 
-set(DEPENDENCIES)
+add_library(Photos SHARED ${PHOTOS_SRCS}) 
+target_link_libraries(Photos ${Fortran_UseLib}) 
+set_target_properties(Photos PROPERTIES ${FAIRROOT_LIBRARY_PROPERTIES}) 
+set_target_properties(Photos PROPERTIES LINK_FLAGS "-fPIC") 
 
-GENERATE_LIBRARY()
+################ install ################### 
+install(TARGETS Photos DESTINATION ${CMAKE_BINARY_DIR}/lib)
