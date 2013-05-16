@@ -17,7 +17,7 @@ void Style_Imported_Style()
 
    TStyle *tmpStyle = new TStyle("Imported_Style", "Imported from canvas eff phi and theta");
    tmpStyle->SetNdivisions(505, "x");
-   tmpStyle->SetNdivisions(509, "y");
+   tmpStyle->SetNdivisions(505, "y");
    tmpStyle->SetNdivisions(510, "z");
    tmpStyle->SetAxisColor(1, "x");
    tmpStyle->SetAxisColor(1, "y");
@@ -37,12 +37,12 @@ void Style_Imported_Style()
    tmpStyle->SetTickLength(0.03, "x");
    tmpStyle->SetTickLength(0.03, "y");
    tmpStyle->SetTickLength(0.03, "z");
-   tmpStyle->SetTitleOffset(1, "x");
-   tmpStyle->SetTitleOffset(1, "y");
-   tmpStyle->SetTitleOffset(1, "z");
+   tmpStyle->SetTitleOffset(0.85, "x");
+   tmpStyle->SetTitleOffset(0.85, "y");
+   tmpStyle->SetTitleOffset(0.85, "z");
    tmpStyle->SetTitleSize(0.05, "x");
    tmpStyle->SetTitleSize(0.05, "y");
-   tmpStyle->SetTitleSize(0.035, "z");
+   tmpStyle->SetTitleSize(0.05, "z");
    tmpStyle->SetTitleColor(1, "x");
    tmpStyle->SetTitleColor(1, "y");
    tmpStyle->SetTitleColor(1, "z");
@@ -55,18 +55,20 @@ void Style_Imported_Style()
    tmpStyle->SetOptLogx(0);
    tmpStyle->SetOptLogy(0);
    tmpStyle->SetOptLogz(0);
-   tmpStyle->SetOptDate(4);
    tmpStyle->SetOptStat(111111);
    tmpStyle->SetOptTitle(kTRUE);
    tmpStyle->SetOptFit(0);
    tmpStyle->SetNumberContours(20);
-   tmpStyle->GetAttDate()->SetTextFont(62);
-   tmpStyle->GetAttDate()->SetTextSize(0.025);
-   tmpStyle->GetAttDate()->SetTextAngle(0);
-   tmpStyle->GetAttDate()->SetTextAlign(11);
-   tmpStyle->GetAttDate()->SetTextColor(1);
-   tmpStyle->SetDateX(0.01);
-   tmpStyle->SetDateY(0.01);
+   ///uncomment this if you want to print date in bottom of Canvas -----------------
+   //  tmpStyle->SetOptDate(4);
+   // tmpStyle->GetAttDate()->SetTextFont(62);
+   // tmpStyle->GetAttDate()->SetTextSize(0.025);
+   // tmpStyle->GetAttDate()->SetTextAngle(0);
+   // tmpStyle->GetAttDate()->SetTextAlign(11);
+   // tmpStyle->GetAttDate()->SetTextColor(1);
+   // tmpStyle->SetDateX(0.01);
+   // tmpStyle->SetDateY(0.01);
+   ///---------------------------------------------------------------------------------------------------
    tmpStyle->SetEndErrorSize(2);
    tmpStyle->SetErrorX(0.5);
    tmpStyle->SetFuncColor(2);
@@ -102,12 +104,12 @@ void Style_Imported_Style()
    tmpStyle->SetCanvasDefX(10);
    tmpStyle->SetCanvasDefY(10);
    tmpStyle->SetPadColor(0);
-   tmpStyle->SetPadBorderSize(2);
+   tmpStyle->SetPadBorderSize(1);
    tmpStyle->SetPadBorderMode(0);
    tmpStyle->SetPadBottomMargin(0.1);
-   tmpStyle->SetPadTopMargin(0.1);
+   tmpStyle->SetPadTopMargin(0.02);
    tmpStyle->SetPadLeftMargin(0.1);
-   tmpStyle->SetPadRightMargin(0.1);
+   tmpStyle->SetPadRightMargin(0.02);
    tmpStyle->SetPadGridX(kFALSE);
    tmpStyle->SetPadGridY(kFALSE);
    tmpStyle->SetPadTickX(0);
