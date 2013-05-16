@@ -9,8 +9,6 @@ ${CMAKE_SOURCE_DIR}/trackbase
 ${CMAKE_SOURCE_DIR}/pnddata
 ${CMAKE_SOURCE_DIR}/pnddata/TrackData
 ${CMAKE_SOURCE_DIR}/pnddata/PidData
-${CMAKE_SOURCE_DIR}/pid
-${CMAKE_SOURCE_DIR}/pid/PidData
 ${CMAKE_SOURCE_DIR}/passive
 ${CMAKE_SOURCE_DIR}/tpc
 ${CMAKE_SOURCE_DIR}/lhetrack
@@ -76,6 +74,6 @@ StrTok.cxx
 set(LINKDEF AnalysisToolsLinkDef.h)
 set(LIBRARY_NAME AnalysisTools)
 
-set(DEPENDENCIES Base Emc Geane ParBase Pid PndData TrkBase Rho)
+set(DEPENDENCIES Base Emc Geane ParBase PndData TrkBase Rho)
 
 GENERATE_LIBRARY()
