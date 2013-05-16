@@ -76,6 +76,6 @@ StrTok.cxx
 set(LINKDEF AnalysisToolsLinkDef.h)
 set(LIBRARY_NAME AnalysisTools)
 
-set(DEPENDENCIES Base Emc Geane ParBase Pid PndData TrkBase)
+set(DEPENDENCIES Base Emc Geane ParBase Pid PndData TrkBase Rho)
 
 GENERATE_LIBRARY()
