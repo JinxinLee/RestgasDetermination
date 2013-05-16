@@ -13,7 +13,6 @@
 
 #include "TDatabasePDG.h"
 #include "RhoBase/RhoParticleSelectorBase.h"
-//#include "RhoBase/TRho.h"
 #include "RhoBase/RhoCandidate.h"
 #include "FairRecoCandidate.h"
 #include "RhoBase/RhoCandList.h"
@@ -93,15 +92,16 @@ void RhoParticleSelectorBase::SetCriterion ( criterion crit )
 
 void RhoParticleSelectorBase::Select ( RhoCandList& l )
 {
-  RhoCandList tmp ( l );
-  Select ( tmp,l );
+  l.Select(this);
+  //  RhoCandList tmp ( l );
+  //  Select ( tmp,l );
 }
 
 void RhoParticleSelectorBase::Select ( RhoCandList& in, RhoCandList& out )
 {
   out.Cleanup();
   Int_t n = in.GetLength();
-  for ( Int_t i=0; i<n; ++i ) {
+  for ( Int_t i=0; i<n; i++ ) {
     RhoCandidate& c = in[i];
     
     if ( Accept ( c ) ) { 

@@ -28,9 +28,6 @@ using std::endl;
 #include "PndPidProbability.h"
 #include "PndPidListMaker.h"
 
-//#include "TEventShape.h"
-//#include "PndEventInfo.h"
-
 ClassImp(PndAnaTask);
 
 PndAnaTask::PndAnaTask() :

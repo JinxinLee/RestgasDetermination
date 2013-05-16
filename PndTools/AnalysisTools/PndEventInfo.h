@@ -16,7 +16,6 @@
 #include "TVector3.h"
 #include "TLorentzVector.h"
 #include "RhoMath/RhoVector3Err.h"
-//#include "RhoTools/TEventShape.h"
 
 #include "RhoEventShape.h"
 

@@ -55,9 +55,9 @@ Bool_t PndMcTruthMatch::MctMatch ( RhoCandidate& c, RhoCandList& mct, Int_t leve
     }
 
     // fetch the mother index from the first daughter's mct match object
-    Int_t dau0idx = c.Daughter ( 0 )->GetMcIdx();
+    Int_t dau0MCidx = c.Daughter ( 0 )->GetMcIdx();
 
-    Int_t mothidx = mct[dau0idx].GetMcMotherIdx();
+    Int_t mothidx = 0;//mct[dau0MCidx].GetMcMotherIdx();
 
     // check whether mother index is in range
     if ( mothidx<0 || mothidx>=nmct ) {
@@ -76,10 +76,10 @@ Bool_t PndMcTruthMatch::MctMatch ( RhoCandidate& c, RhoCandList& mct, Int_t leve
     for ( Int_t i=1; i<nd; ++i ) {
       Int_t dauidx = c.Daughter ( i )->GetMcIdx();
 
-      if ( mct[dauidx].GetMcMotherIdx() != mothidx ) {
-        if(verbose) Info("PndMcTruthMatch::MctMatch","rejected by not matching mother ids in daughters");
-        return false;
-      }
+     // if ( mct[dauidx].GetMcMotherIdx() != mothidx ) {
+ //       if(verbose) Info("PndMcTruthMatch::MctMatch","rejected by not matching mother ids in daughters");
+      //  return false;
+     // }
     }
 
     // set c's mct index to that one of all daughters mother idx

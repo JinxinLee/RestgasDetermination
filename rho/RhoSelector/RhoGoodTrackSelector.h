@@ -23,12 +23,8 @@ class RhoGoodTrackSelector : public RhoParticleSelectorBase
     RhoGoodTrackSelector ( const char* name="RhoGoodTrackSelector" );
     //Destructor
     virtual ~RhoGoodTrackSelector();
-
-    //operations
-    virtual void SetCriterion ( const char* crit ) = 0;
-    virtual Bool_t Accept ( RhoCandidate& b );
-    virtual Bool_t Accept ( FairRecoCandidate& b );
     virtual void PrintOn ( std::ostream& o=std::cout ) const;
+
 
 //    void SetNHitsCut ( Int_t min, Int_t max=65535 ) {
 //      fNHitsMin = min;
@@ -45,7 +41,7 @@ class RhoGoodTrackSelector : public RhoParticleSelectorBase
       fPtMax = ptmax;
       fCutPt=kTRUE;
     }
-    void SetFitCut ( Double_t chipm, Double_t chi=0.0 ) {
+    void SetFitCut (  Double_t chi=1e9, Double_t chipm=0.0) {
       fChisqProbMin = chipm;
       fChisqMax = chi;
       fCutFit=kTRUE;
@@ -56,7 +52,13 @@ class RhoGoodTrackSelector : public RhoParticleSelectorBase
       fZMax = zmax;
       fCutVtx=kTRUE;
     }
-    
+  
+  protected:
+    //operations
+    virtual void SetCriterion ( const char* crit ) {};
+    virtual Bool_t Accept ( RhoCandidate& b );
+    virtual Bool_t Accept ( FairRecoCandidate& b );
+ 
   private:
 //    Int_t fNHitsMin;  // Number of hits: total
 //    Int_t fNHitsMax;  // Number of hits: total

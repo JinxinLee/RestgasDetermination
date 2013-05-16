@@ -13,7 +13,6 @@
 
 #include "RhoSelector/RhoGoodPhotonSelector.h"
 
-//#include "RhoBase/TRho.h"
 #include "RhoBase/RhoCandidate.h"
 
 ClassImp ( RhoGoodPhotonSelector )

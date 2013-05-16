@@ -24,7 +24,6 @@
 #include "RhoTools/RhoTotalMomentum.h"
 #include <assert.h>
 #include <math.h>
-//#include "RhoBase/TRho.h"
 #include "RhoBase/RhoCandList.h"
 #include "RhoBase/RhoCandListIterator.h"
 #include "TLorentzVector.h"

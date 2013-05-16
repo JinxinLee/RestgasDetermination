@@ -15,13 +15,8 @@
 #include "TDatabasePDG.h"
 
 #include "RhoSelector/RhoSimpleKaonSelector.h"
-//#include "RhoBase/TRho.h"
 #include "RhoBase/RhoCandidate.h"
 #include "FairRecoCandidate.h"
-//#include "RhoManager/TEventManager.h"
-//#include "RhoManager/TAssociator.h"
-
-
 
 
 

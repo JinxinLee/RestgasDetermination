@@ -50,7 +50,6 @@ Author: K.Goetzen, GSI, 06/2008
 #include "RhoSelector/RhoSimplePionSelector.h"
 #include "RhoSelector/RhoSimpleProtonSelector.h"
 #include "RhoBase/RhoFactory.h"
-//#include "RhoBase/TRho.h"
 #include "PndPidCandidate.h"
 #include "PndPidProbability.h"
 

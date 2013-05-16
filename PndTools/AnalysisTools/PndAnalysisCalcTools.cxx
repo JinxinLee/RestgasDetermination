@@ -18,7 +18,6 @@
 #include "FairRecoCandidate.h"
 
 //RHO stuff
-//#include "TRho.h"
 #include "RhoFactory.h"
 #include "RhoCandidate.h"
 #include "RhoCandList.h"

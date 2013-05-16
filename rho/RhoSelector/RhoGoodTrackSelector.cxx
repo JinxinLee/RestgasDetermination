@@ -28,7 +28,12 @@ TBuffer& operator>> ( TBuffer& buf, RhoGoodTrackSelector *&obj )
 using namespace std;
 
 RhoGoodTrackSelector::RhoGoodTrackSelector ( const char* name) :
-  RhoParticleSelectorBase ( name,"pi-" )
+  RhoParticleSelectorBase ( name,"pi-" ),
+  fCutFit(kFALSE),
+  fCutVtx(kFALSE),
+  fCutMom(kFALSE),
+  fCutPt(kFALSE)
+
 {
 }
 
@@ -43,7 +48,7 @@ Bool_t RhoGoodTrackSelector::Accept ( RhoCandidate& b )
 
   if ( &b == 0 ) { return kFALSE; }
   if ( !Accept ( *(b.GetRecoCandidate()) ) ) { return kFALSE; }
-  SetTypeAndMass ( b );
+  //SetTypeAndMass ( b );
 
   return kTRUE;
 }
@@ -54,7 +59,6 @@ Bool_t RhoGoodTrackSelector::Accept ( FairRecoCandidate& cand )
   // quality of a reconstructed charged track
   if ( &cand == 0 ) { return kFALSE; }
   if ( cand.GetCharge() == 0 ) { return kFALSE; }
-
 //  // Cut on number of hits and distance from inner to outer layer
 //   if (fCutHits) {
 //     Int_t nhits = cand.GetNHits();     // Get the number of hits
@@ -67,6 +71,7 @@ Bool_t RhoGoodTrackSelector::Accept ( FairRecoCandidate& cand )
     if ( p.Mag()  <  fPMin ) { return kFALSE; }
     if ( p.Mag()  >  fPMax ) { return kFALSE; }
   }
+
   if (fCutPt){
     if ( p.Perp() <  fPtMin ) { return kFALSE; }
     if ( p.Perp() >  fPtMax ) { return kFALSE; }
@@ -76,7 +81,7 @@ Bool_t RhoGoodTrackSelector::Accept ( FairRecoCandidate& cand )
   // Cut on quality of fit
   if (fCutFit){
     Float_t chiq = cand.GetChiSquared();
-    if ( chiq  < fChisqMax ) { return kFALSE; }
+    if ( chiq  > fChisqMax ) { return kFALSE; }
     Float_t ndf = cand.GetDegreesOfFreedom();
     if ( TMath::Prob(chiq,ndf) < fChisqProbMin ) { return kFALSE; }
   }
@@ -88,6 +93,7 @@ Bool_t RhoGoodTrackSelector::Accept ( FairRecoCandidate& cand )
     if ( v.Z()  > fZMax ) { return kFALSE; }
     if ( v.Z()  < fZMin ) { return kFALSE; }
   }
+
   return kTRUE;
 }
 

@@ -14,13 +14,10 @@ using std::endl;
 
 #include "RhoBase/RhoCandidate.h"
 #include "RhoBase/RhoCandList.h"
-//#include "PndPidCandidate.h"
 #include "PndPidProbability.h"
 #include "RhoBase/RhoParticleSelectorBase.h"
-//#include "PndPidCandidate.h"
 #include "RhoBase/RhoFactory.h"
 #include "FairRecoCandidate.h"
-//#include "RhoTools/TEventShape.h"
 #include "PndPidListMaker.h"
 #include "PndEventInfo.h"
 

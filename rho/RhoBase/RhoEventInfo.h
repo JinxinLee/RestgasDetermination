@@ -20,7 +20,6 @@
 #include "TObject.h"
 #include "TVector3.h"
 #include "RhoBase/RhoCandidate.h"
-//#include "RhoBase/VAbsVertex.h"
 #include "RhoMath/RhoVector3Err.h"
 
 #include "RhoBase/RhoEventShape.h"

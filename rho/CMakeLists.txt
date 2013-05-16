@@ -6,8 +6,8 @@ set(INCLUDE_DIRECTORIES
 ${ROOT_INCLUDE_DIR} 
 ${BASE_INCLUDE_DIRECTORIES} 
 ${CMAKE_SOURCE_DIR}/field 
-${CMAKE_SOURCE_DIR}/pnddata 
-${CMAKE_SOURCE_DIR}/pnddata/PidData 
+${CMAKE_SOURCE_DIR}/pnddata # put FairRecoCandidate to fairbase at some point
+${CMAKE_SOURCE_DIR}/pnddata/PidData # CAUTION we have a PANDA specific access: RhoGoodPhotonSelector auses PndPidCandidate
 ${CMAKE_SOURCE_DIR}/rho/RhoBase
 ${CMAKE_SOURCE_DIR}/rho/RhoMath
 ${CMAKE_SOURCE_DIR}/rho/RhoSelector
@@ -79,6 +79,6 @@ RhoBase/RhoConstraint.cxx
 set(LINKDEF  Rho_LinkDef.h)
 set(LIBRARY_NAME Rho)
 
-set(DEPENDENCIES Base)
+set(DEPENDENCIES Base PndData)
 
 GENERATE_LIBRARY()

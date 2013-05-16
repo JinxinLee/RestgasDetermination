@@ -15,7 +15,6 @@
 
 #include "PndAnaPidSelector.h"
 
-//#include "RhoBase/TRho.h"
 #include "RhoBase/RhoCandidate.h"
 #include "FairRecoCandidate.h"
 

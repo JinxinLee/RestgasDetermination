@@ -14,7 +14,6 @@
 #include <cmath>
 #include "TDatabasePDG.h"
 
-//#include "RhoBase/TRho.h"
 #include "RhoBase/RhoCandidate.h"
 #include "RhoBase/RhoCandList.h"
 

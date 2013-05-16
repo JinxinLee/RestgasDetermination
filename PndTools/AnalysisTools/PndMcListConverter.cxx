@@ -23,7 +23,6 @@ Converts the MCTracks to a TCA holding RhoCandidates
 
 //RHO stuff
 #include "RhoBase/RhoCandidate.h"
-//#include "RhoBase/TRho.h"
 
 
 using std::cout;

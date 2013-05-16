@@ -22,7 +22,6 @@
 #include "TVector3.h"
 #include "RhoMath/RhoVector3Err.h"
 #include "TLorentzVector.h"
-//#include "RhoBase/TConstraint.h"
 #include "TObject.h"
 #include "RhoBase/RhoCandList.h"
 #include "FairRecoCandidate.h"
@@ -91,7 +90,7 @@ class RhoCandidate : public TObject
     // added by K Goetzen
     double fPidLH[30];
     int    fMcIdx;
-    int    fMcMotherIdx;
+
   private:
     Double_t fChi2;
     RhoCandidate* fFit; //! pointer, objects created by RhoFactory
@@ -411,9 +410,6 @@ class RhoCandidate : public TObject
                          Int_t charge,const TParticlePDG* hypo,
                          RhoVector3Err* dVtx );
 
-    // Add a daughter link
-    // **** put to public K Goetzen
-    void AddDaughterLinkSimple ( const RhoCandidate*, bool verbose=true );
 
     void SetPidInfo ( double* pidinfo=0 );
     void SetPidInfo ( int hypo, double value );
@@ -422,23 +418,23 @@ class RhoCandidate : public TObject
 
     void SetMcIdx ( int idx ) {fMcIdx=idx;}
     int GetMcIdx() {return fMcIdx;}
-    void SetMcMotherIdx ( int idx ) {fMcMotherIdx=idx;}
-    int GetMcMotherIdx() {return fMcMotherIdx;}
-
 
     Bool_t IsLocal() const { return kTRUE; }
 
     // Set the decay vertex - operators can do that
     void SetDecayVtx ( RhoVector3Err*  theVtx ) ;
 
-    // Sets the mother link
+    // Sets the mother link and adds a daughter link in the mother
     void SetMotherLink ( RhoCandidate* m , bool verbose=true );
 
     // Drop the mother link
     void DropMotherLink();
 
-    // Add a daughter link
+    // Add a daughter link and set the daughters mother link
     void AddDaughterLink ( const RhoCandidate* );
+
+    // Add a daughter link without touching the daughters
+    void AddDaughterLinkSimple ( const RhoCandidate*, bool verbose=true );
 
     // Remove a daughter
     void RemoveDaughter ( RhoCandidate* );

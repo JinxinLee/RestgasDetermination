@@ -17,9 +17,6 @@
 
 #include "PndVtxFitter_Init.h"
 
-//#include "FairRootManager.h"
-//#include "FairTask.h"
-
 class PndVtxFitterParticle : public TObject
 {
   public:

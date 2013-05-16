@@ -13,7 +13,6 @@
 //////////////////////////////////////////////////////////////////////////
 
 #include "RhoSelector/RhoSimpleVertexSelector.h"
-//#include "RhoBase/TRho.h"
 #include "RhoBase/RhoCandidate.h"
 #include "FairRunAna.h"
 #include "FairField.h"

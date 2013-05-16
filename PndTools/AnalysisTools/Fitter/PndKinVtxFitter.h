@@ -9,7 +9,6 @@
 //////////////////////////////////////////////////////////////////////////
 
 #include "RhoBase/RhoFitterBase.h"
-//#include "PndKinVtxFitter.h"
 #include "RhoBase/RhoCandList.h"
 
 #include "TVector3.h"

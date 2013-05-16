@@ -15,11 +15,7 @@
 #include "TObject.h"
 #include "TVectorD.h"
 #include "TMath.h"
-//#include "RhoTools/TOperatorBase.h"
 #include "RhoCandidate.h"
-//class TParticlePDG;
-//class RhoCandidate;
-//class TVertex;
 
 class RhoFitterBase: public TObject // TOperatorBase
 {

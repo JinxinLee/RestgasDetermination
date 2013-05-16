@@ -57,7 +57,6 @@ RhoCandidate::RhoCandidate() :
   SetUid();
   SetPidInfo ( 0 );
   SetMcIdx ( -1 );
-  SetMcMotherIdx ( -1 );
   for ( int i=0; i<30; i++ ) { fPidLH[i]=-999999.;}
   for ( int i=0; i<MATRIXSIZE; i++ ) { fErrP7[i] = 0.; }
 }
@@ -86,7 +85,6 @@ RhoCandidate::RhoCandidate ( const TLorentzVector& v, Double_t charge, RhoVector
   SetUid();
   SetPidInfo ( 0 );
   SetMcIdx ( -1 );
-  SetMcMotherIdx ( -1 );
   for ( int i=0; i<30; i++ ) { fPidLH[i]=-999999.;}
   for ( int i=0; i<MATRIXSIZE; i++ ) { fErrP7[i] = 0.; }
 }
@@ -153,7 +151,6 @@ RhoCandidate::RhoCandidate ( const TVector3& v, const TParticlePDG* pdt, RhoVect
   SetUid();
   SetPidInfo ( 0 );
   SetMcIdx ( -1 );
-  SetMcMotherIdx ( -1 );
   for ( int i=0; i<30; i++ ) {fPidLH[i]=-999999.; }
   for ( int i=0; i<MATRIXSIZE; i++ ) { fErrP7[i] = 0.; }
 }
@@ -211,7 +208,6 @@ RhoCandidate::RhoCandidate ( const RhoCandidate& o )
   }
 
   fMcIdx=o.fMcIdx;
-  fMcMotherIdx=o.fMcMotherIdx;
 
   //FIXME Do we want to carry these status flags?
   fChi2 = 0 ;
@@ -263,7 +259,6 @@ RhoCandidate::RhoCandidate ( FairRecoCandidate& a, Int_t n, RhoVector3Err* vp, B
   SetPidInfo ( 4,a.GetProtonPidLH() );
 
   SetMcIdx ( a.GetMcIndex() );
-  SetMcMotherIdx ( -10 ); // STE: It needs some update, maybe
 }
 
 
@@ -336,7 +331,6 @@ RhoCandidate::operator = ( const RhoCandidate& o )
   }
 
   fMcIdx=o.fMcIdx;
-  fMcMotherIdx=o.fMcMotherIdx;
 
   return *this;
 }

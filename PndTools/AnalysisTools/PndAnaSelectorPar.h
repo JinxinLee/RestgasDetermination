@@ -5,7 +5,6 @@
 #define PNDANASELECTORPAR_H
 
 #include <TVector2.h>
-// #include <TString.h>
 #include <TObjString.h>
 
 #include "FairParGenericSet.h"

@@ -37,8 +37,8 @@ RhoCandList::RhoCandList ( RhoCandList& l )
   fFast = l.fFast;
 
   Cleanup();
-  const Int_t n = l.GetNumberOfTracks();
-  for ( int i=0; i<n; ++i ) {
+  const Int_t n = l.GetLength();
+  for ( int i=0; i<n; i++ ) {
     Put ( *l.Get ( i ) );
   }
 }
@@ -131,7 +131,7 @@ Int_t RhoCandList::Remove ( RhoCandidate& c )
 {
   Int_t nRemoved = 0;
   Int_t n = GetNumberOfTracks();
-  for ( Int_t i=0; i<n; ++i ) {
+  for ( Int_t i=0; i<n; i++ ) {
     RhoCandidate* b = Get ( i );
     if ( b->Equals ( c ) ) {
       fOwnList->RemoveAt ( i );
@@ -146,7 +146,7 @@ Int_t RhoCandList::RemoveFamily ( RhoCandidate& c )
 {
   Int_t nRemoved = 0;
   Int_t n = GetNumberOfTracks();
-  for ( Int_t i=0; i<n; ++i ) {
+  for ( Int_t i=0; i<n; i++ ) {
     RhoCandidate* b = Get ( i );
     if ( b->Overlaps ( c ) ) {
       fOwnList->RemoveAt ( i );
@@ -161,7 +161,7 @@ Int_t RhoCandList::RemoveClones()
 {
   Int_t nRemoved = 0;
   Int_t n = GetNumberOfTracks();
-  for ( Int_t i=0; i<n-1; ++i ) {
+  for ( Int_t i=0; i<n-1; i++ ) {
     RhoCandidate* b = Get ( i );
     if ( b==0 ) { continue; }
     for ( Int_t j=i+1; j<n; ++j ) {
@@ -181,7 +181,7 @@ Int_t RhoCandList::OccurrencesOf ( RhoCandidate& c )
 {
   Int_t nCand = 0;
   const Int_t n = GetNumberOfTracks();
-  for ( Int_t i=0; i<n; ++i ) {
+  for ( Int_t i=0; i<n; i++ ) {
     RhoCandidate* b = Get ( i );
     if ( b->Equals ( c ) ) { nCand++; }
   }
@@ -192,7 +192,7 @@ Double_t RhoCandList::GetTotalEnergy ( Double_t emin )
 {
   Double_t e = 0.0;
   const Int_t n = GetNumberOfTracks();
-  for ( Int_t i=0; i<n; ++i ) {
+  for ( Int_t i=0; i<n; i++ ) {
     RhoCandidate* c = Get ( i );
     Double_t energy = c->Energy();
     if ( energy > emin ) { e += energy; }
@@ -204,7 +204,7 @@ TVector3 RhoCandList::GetTotalMomentum ( Double_t pmin )
 {
   TVector3 p ( 0.0,0.0,0.0 );
   const Int_t n = GetNumberOfTracks();
-  for ( Int_t i=0; i<n; ++i ) {
+  for ( Int_t i=0; i<n; i++ ) {
     RhoCandidate* c = Get ( i );
     TVector3 p3 = c->P3();
     if ( p3.Mag() > pmin ) { p = p + p3; }
@@ -215,7 +215,7 @@ TVector3 RhoCandList::GetTotalMomentum ( Double_t pmin )
 void RhoCandList::Boost ( const TVector3& p )
 {
   const Int_t n = GetNumberOfTracks();
-  for ( Int_t i=0; i<n; ++i ) {
+  for ( Int_t i=0; i<n; i++ ) {
     Get ( i )->Boost ( p );
   }
 }
@@ -236,7 +236,7 @@ void RhoCandList::PrintOn ( std::ostream& o ) const
 void RhoCandList::Remainder ( RhoCandList& l )
 {
   const Int_t n = l.GetNumberOfTracks();
-  for ( int i=0; i<n; ++i ) {
+  for ( int i=0; i<n; i++ ) {
     const RhoCandidate* c = l.Get ( i );
     if ( c->GetMarker() !=0 ) { fOwnList->RemoveAt ( i ); }
   }
@@ -250,7 +250,7 @@ void RhoCandList::operator = ( const RhoCandList& l )
 
   Cleanup();
   const Int_t n = l.GetNumberOfTracks();
-  for ( int i=0; i<n; ++i ) {
+  for ( int i=0; i<n; i++ ) {
     Put ( *l.GetConst ( i ) );
   }
 }
@@ -319,11 +319,11 @@ void RhoCandList::CombineAndAppend ( RhoCandList& l1, RhoCandList& l2,RhoVertexS
   int i1,i2;
   int st2;
 
-  for ( i1=0; i1<len1; ++i1 ) {
+  for ( i1=0; i1<len1; i1++ ) {
     st2=0;
     if ( &l1==&l2 ) { st2=i1+1; }
 
-    for ( i2=st2; i2<len2; ++i2 ) {
+    for ( i2=st2; i2<len2; i2++ ) {
       if ( l1[i1].Overlaps ( l2[i2] ) ) { continue; }
 
       vl=l1[i1].P4() +l2[i2].P4();
@@ -370,18 +370,18 @@ void RhoCandList::CombineAndAppend ( RhoCandList& l1, RhoCandList& l2, RhoCandLi
   int i1,i2,i3;
   int st2,st3;
 
-  for ( i1=0; i1<len1; ++i1 ) {
+  for ( i1=0; i1<len1; i1++ ) {
     st2=0;
     if ( &l2==&l1 ) { st2=i1+1; }
 
-    for ( i2=st2; i2<len2; ++i2 ) {
+    for ( i2=st2; i2<len2; i2++ ) {
       if ( l1[i1].Overlaps ( l2[i2] ) ) { continue; }
 
       st3=0;
       if ( &l3==&l2 ) { st3=i2+1; }
       else if ( &l3==&l1 ) { st3=i1+1; }
 
-      for ( i3=st3; i3<len3; ++i3 ) {
+      for ( i3=st3; i3<len3; i3++ ) {
         if ( l3[i3].Overlaps ( l2[i2] ) || l3[i3].Overlaps ( l1[i1] ) ) { continue; }
 
         vl=l1[i1].P4() +l2[i2].P4() +l3[i3].P4();
@@ -425,18 +425,18 @@ void RhoCandList::CombineAndAppend ( RhoCandList& l1, RhoCandList& l2, RhoCandLi
   int i1,i2,i3,i4;
   int st2,st3,st4;
 
-  for ( i1=0; i1<len1; ++i1 ) {
+  for ( i1=0; i1<len1; i1++ ) {
     st2=0;
     if ( &l2==&l1 ) { st2=i1+1; }
 
-    for ( i2=st2; i2<len2; ++i2 ) {
+    for ( i2=st2; i2<len2; i2++ ) {
       if ( l1[i1].Overlaps ( l2[i2] ) ) { continue; }
 
       st3=0;
       if ( &l3==&l2 ) { st3=i2+1; }
       else if ( &l3==&l1 ) { st3=i1+1; }
 
-      for ( i3=st3; i3<len3; ++i3 ) {
+      for ( i3=st3; i3<len3; i3++ ) {
         if ( l3[i3].Overlaps ( l2[i2] ) || l3[i3].Overlaps ( l1[i1] ) ) { continue; }
 
         st4=0;
@@ -444,7 +444,7 @@ void RhoCandList::CombineAndAppend ( RhoCandList& l1, RhoCandList& l2, RhoCandLi
         else if ( &l4==&l2 ) { st4=i2+1; }
         else if ( &l4==&l1 ) { st4=i1+1; }
 
-        for ( i4=st4; i4<len4; ++i4 ) {
+        for ( i4=st4; i4<len4; i4++ ) {
           if ( l4[i4].Overlaps ( l3[i3] ) || l4[i4].Overlaps ( l2[i2] ) || l4[i4].Overlaps ( l1[i1] ) ) { continue; }
 
           vl=l1[i1].P4() +l2[i2].P4() +l3[i3].P4() +l4[i4].P4();
@@ -492,18 +492,18 @@ void RhoCandList::CombineAndAppend ( RhoCandList& l1, RhoCandList& l2, RhoCandLi
   int i1,i2,i3,i4,i5;
   int st2,st3,st4,st5;
 
-  for ( i1=0; i1<len1; ++i1 ) {
+  for ( i1=0; i1<len1; i1++ ) {
     st2=0;
     if ( &l2==&l1 ) { st2=i1+1; }
 
-    for ( i2=st2; i2<len2; ++i2 ) {
+    for ( i2=st2; i2<len2; i2++ ) {
       if ( l1[i1].Overlaps ( l2[i2] ) ) { continue; }
 
       st3=0;
       if ( &l3==&l2 ) { st3=i2+1; }
       else if ( &l3==&l1 ) { st3=i1+1; }
 
-      for ( i3=st3; i3<len3; ++i3 ) {
+      for ( i3=st3; i3<len3; i3++ ) {
         if ( l3[i3].Overlaps ( l2[i2] ) || l3[i3].Overlaps ( l1[i1] ) ) { continue; }
 
         st4=0;
@@ -511,7 +511,7 @@ void RhoCandList::CombineAndAppend ( RhoCandList& l1, RhoCandList& l2, RhoCandLi
         else if ( &l4==&l2 ) { st4=i2+1; }
         else if ( &l4==&l1 ) { st4=i1+1; }
 
-        for ( i4=st4; i4<len4; ++i4 ) {
+        for ( i4=st4; i4<len4; i4++ ) {
           if ( l4[i4].Overlaps ( l3[i3] ) || l4[i4].Overlaps ( l2[i2] ) || l4[i4].Overlaps ( l1[i1] ) ) { continue; }
 
           st5=0;
@@ -520,7 +520,7 @@ void RhoCandList::CombineAndAppend ( RhoCandList& l1, RhoCandList& l2, RhoCandLi
           else if ( &l5==&l2 ) { st5=i2+1; }
           else if ( &l5==&l1 ) { st5=i1+1; }
 
-          for ( i5=st5; i5<len5; ++i5 ) {
+          for ( i5=st5; i5<len5; i5++ ) {
             if ( l5[i5].Overlaps ( l4[i4] ) || l5[i5].Overlaps ( l3[i3] )
                  || l5[i5].Overlaps ( l2[i2] ) || l5[i5].Overlaps ( l1[i1] ) ) { continue; }
 
@@ -581,7 +581,7 @@ void RhoCandList::Select ( RhoCandList& l, Bool_t ( *selfunc ) ( RhoCandidate& )
 {
   Cleanup();
   const Int_t n = l.GetNumberOfTracks();
-  for ( Int_t i=0; i<n; ++i ) {
+  for ( Int_t i=0; i<n; i++ ) {
     RhoCandidate* c = Get ( i );
     if ( selfunc ( *c ) ) {
       Put ( *c );
@@ -594,7 +594,7 @@ void RhoCandList::Select ( RhoCandList& l, Bool_t ( *selfunc ) ( RhoCandidate& )
 void RhoCandList::Select ( RhoParticleSelectorBase* pidmgr )
 {
   const Int_t n = GetNumberOfTracks();
-  for ( Int_t i=0; i<n; ++i ) {
+  for ( Int_t i=0; i<n; i++ ) {
     RhoCandidate* c = Get ( i );
     if ( !pidmgr->Accept ( *c ) ) { fOwnList->RemoveAt ( i ); }
   }
@@ -607,7 +607,7 @@ void RhoCandList::Select ( RhoCandList& l, RhoParticleSelectorBase* pidmgr )
 {
   Cleanup();
   const Int_t n = l.GetNumberOfTracks();
-  for ( Int_t i=0; i<n; ++i ) {
+  for ( Int_t i=0; i<n; i++ ) {
     RhoCandidate* c = l.Get ( i );
     if ( pidmgr->Accept ( *c ) ) {
       Put ( *c );
@@ -618,7 +618,7 @@ void RhoCandList::Select ( RhoCandList& l, RhoParticleSelectorBase* pidmgr )
 void RhoCandList::Append ( RhoCandList& l, RhoParticleSelectorBase* pidmgr )
 {
   const Int_t n = l.GetNumberOfTracks();
-  for ( Int_t i=0; i<n; ++i ) {
+  for ( Int_t i=0; i<n; i++ ) {
     RhoCandidate* c = l.Get ( i );
     if ( 0==pidmgr || pidmgr->Accept ( *c ) ) {
       Put ( *c );

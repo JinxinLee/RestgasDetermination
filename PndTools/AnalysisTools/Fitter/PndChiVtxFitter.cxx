@@ -1,7 +1,6 @@
 #include <iostream>
 #include "PndChiVtxFitter.h"
 #include "RhoBase/RhoCandListIterator.h"
-//#include "RhoBase/TRho.h"
 #include "RhoBase/RhoFactory.h"
 #include "TDecompLU.h"
 #include "TMatrixD.h"

@@ -13,7 +13,6 @@
 #include <assert.h>
 
 #include "RhoBase/RhoFitterBase.h"
-//#include "RhoTools/TOpClone.h"
 #include "RhoBase/RhoFactory.h"
 
 
