@@ -72,6 +72,7 @@ class PndTrkLegendreTask : public FairTask {
   void FromConformalToRealTrack(double fitm, double fitp, double &x0, double &y0, double &R);
   PndTrkCluster CleanUpSkewHitList(PndTrkCluster *skewhitlist);
 
+  void RegisterTrack(PndTrkTrack *track);
 
 
   Bool_t fDisplayOn;

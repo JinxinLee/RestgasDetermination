@@ -1030,34 +1030,7 @@ void PndTrkLegendreTask::Exec(Option_t* opt) {
 
     // TRANSFORM TO PNDTRACK AND PNDTRACKCAND
     // -------------------------------------------------------
-   
-
-    PndTrack *finaltrack = track->ConvertToPndTrack();
-
-    TClonesArray& clref1 = *fTrackArray;
-    Int_t size = clref1.GetEntriesFast();
-    PndTrack *outputtrack = new(clref1[size]) PndTrack(finaltrack->GetParamFirst(), finaltrack->GetParamLast(), finaltrack->GetTrackCand());
-
-    TClonesArray& clref2 = *fTrackCandArray;
-    size = clref2.GetEntriesFast();
-    PndTrackCand *outputtrackcand = new(clref2[size]) PndTrackCand(finaltrack->GetTrackCand());
-
-    cout << "MOM FIRST: TOT, PT, PL " << outputtrack->GetParamFirst().GetMomentum().Mag() << " " << outputtrack->GetParamFirst().GetMomentum().Perp() << " " << outputtrack->GetParamFirst().GetMomentum().Z() << endl;
-   cout << "MOM LAST: TOT, PT, PL " << outputtrack->GetParamLast().GetMomentum().Mag() << " " << outputtrack->GetParamLast().GetMomentum().Perp() << " " << outputtrack->GetParamLast().GetMomentum().Z() << endl;
-   if(fDisplayOn) {
-      char goOnChar;
-      display->cd(1);
-      Refresh();
- 
-      track->Draw(kRed);
-      display->Update();
-      display->Modified();
-
-      cout << "X, Y, R " << track->GetCenter().X() << " " << track->GetCenter().Y() << " " << track->GetRadius() << endl;
-      cout << "Z0, TANL " << track->GetZ0() << " " << track->GetTanL() << endl;
-      cout << "CHARGE " <<  track->GetCharge() << endl;
-      //      cin >> goOnChar;
-    }
+    RegisterTrack(track);
     cout << "MAXPEAK " << maxpeak << endl;
   }
   if(fDisplayOn) {
@@ -2019,6 +1992,38 @@ PndTrkCluster PndTrkLegendreTask::CleanUpSkewHitList(PndTrkCluster *skewhitlist)
   }
   tmpskewhitlist.Sort();
   return tmpskewhitlist;
+}
+
+
+
+void PndTrkLegendreTask::RegisterTrack(PndTrkTrack *track) {
+  PndTrack *finaltrack = track->ConvertToPndTrack();
+
+  TClonesArray& clref1 = *fTrackArray;
+  Int_t size = clref1.GetEntriesFast();
+  PndTrack *outputtrack = new(clref1[size]) PndTrack(finaltrack->GetParamFirst(), finaltrack->GetParamLast(), finaltrack->GetTrackCand());
+
+  TClonesArray& clref2 = *fTrackCandArray;
+  size = clref2.GetEntriesFast();
+  PndTrackCand *outputtrackcand = new(clref2[size]) PndTrackCand(finaltrack->GetTrackCand());
+
+  cout << "MOM FIRST: TOT, PT, PL " << outputtrack->GetParamFirst().GetMomentum().Mag() << " " << outputtrack->GetParamFirst().GetMomentum().Perp() << " " << outputtrack->GetParamFirst().GetMomentum().Z() << endl;
+  cout << "MOM LAST: TOT, PT, PL " << outputtrack->GetParamLast().GetMomentum().Mag() << " " << outputtrack->GetParamLast().GetMomentum().Perp() << " " << outputtrack->GetParamLast().GetMomentum().Z() << endl;
+  if(fDisplayOn) {
+    char goOnChar;
+    display->cd(1);
+    Refresh();
+ 
+    track->Draw(kRed);
+    display->Update();
+    display->Modified();
+
+    cout << "X, Y, R " << track->GetCenter().X() << " " << track->GetCenter().Y() << " " << track->GetRadius() << endl;
+    cout << "Z0, TANL " << track->GetZ0() << " " << track->GetTanL() << endl;
+    cout << "CHARGE " <<  track->GetCharge() << endl;
+    //      cin >> goOnChar;
+  }
+
 }
 
 
