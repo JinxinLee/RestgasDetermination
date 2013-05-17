@@ -18,6 +18,7 @@ include_directories( ${INCLUDE_DIRECTORIES})
 
 set(LINK_DIRECTORIES
 ${ROOT_LIBRARY_DIR}
+${GLPK_LIB_DIR}
 )
  
 link_directories( ${LINK_DIRECTORIES})
@@ -32,6 +33,7 @@ PndMvaVariable.h
 PndMvaClass.h
 PndMvaVarPCATransform.h
 Clusters/PndMvaCluster.h
+Clusters/PndSomNode.h
 Clusters/PndMvaSOMTrainer.h
 KNN/PndStdKnnClassify.h
 KNN/PndPrzWindowClassify.h
@@ -57,6 +59,7 @@ PndMvaTrainer.cpp
 PndMvaUtil.cpp
 PndMvaVarPCATransform.cpp
 Clusters/PndMvaCluster.cpp
+Clusters/PndSomNode.cpp
 Clusters/PndMvaSOMTrainer.cpp
 KNN/PndStdKnnClassify.cpp
 KNN/PndPrzWindowClassify.cpp
@@ -85,9 +88,9 @@ Else(${ROOT_VERSION_NUMBER} LESS 52800)
    SET(SRCS ${SRCS} ${TMVA_ALG_SOURCE})
 EndIf(${ROOT_VERSION_NUMBER} LESS 52800)
 
-set(LINKDEF  MVALinkDef.h)
+set(LINKDEF MVALinkDef.h)
 set(LIBRARY_NAME Mva)
 
-set(DEPENDENCIES Base ParBase PndData generalTools Stt Fts)
+set(DEPENDENCIES Base ParBase PndData generalTools Stt Fts TMVA)
 
 GENERATE_LIBRARY()

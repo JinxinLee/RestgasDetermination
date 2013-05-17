@@ -35,6 +35,7 @@ include_directories( ${INCLUDE_DIRECTORIES})
 
 set(LINK_DIRECTORIES
 ${ROOT_LIBRARY_DIR}
+${GLPK_LIB_DIR}
 )
 
 link_directories( ${LINK_DIRECTORIES})
@@ -44,11 +45,8 @@ PndGlobalIdealTrackMerger.cxx
 PndGlobalTrackMergerQA.cxx
 PndGlobalTrackFitQA.cxx
 PndMvdGemTrackFinderOnHits.cxx
-#PndGlobalPrepareKalmanTracks.cxx
-#PndGlobalKalmanTask.cxx
 PndBarrelTrackFinder.cxx
 PndBarrelTrackFinderQA.cxx
-#PndFitMCCircle.cxx
 )
 
 set(LINKDEF  GlobalLinkDef.h)

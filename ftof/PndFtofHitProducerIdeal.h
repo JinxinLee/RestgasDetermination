@@ -50,7 +50,7 @@ class PndFtofHitProducerIdeal : public FairTask
 
   /** Virtual method Exec **/
   virtual void Exec(Option_t* opt);
-  void smear(Double_t& time, Double_t& dt);
+  void smear(Double_t& time, Double_t& dt) {};
 
  private:
   

@@ -50,7 +50,9 @@ protected:
   const std::map<Int_t,Int_t>& Members() const; // Map <detId,digiIndex>
   const TClonesArray* DigiArray() const;
 
-  PndEmcAbsClusterProperty(const  PndEmcAbsClusterProperty& L);
+ PndEmcAbsClusterProperty(const  PndEmcAbsClusterProperty& L) :
+  fMyCluster (L.fMyCluster),
+    fMembers (L.fMembers) {};
   PndEmcAbsClusterProperty &operator=(const PndEmcAbsClusterProperty&) {return *this;};
 
 private:

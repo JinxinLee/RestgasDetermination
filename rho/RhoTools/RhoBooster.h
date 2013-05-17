@@ -85,7 +85,7 @@ class RhoBooster
     //
     // accessors
     //
-    const RhoCandidate& RestParticle() const;
+    const RhoCandidate& RestParticle() const {};
 
     //
     // public member functions
@@ -107,9 +107,9 @@ class RhoBooster
 //                                RhoCandList&,
 //                                BoostSign sign=To );
 
-    TLorentzVector BoostedP4 ( const RhoCandidate& cand, BoostSign sign=To ) const;
-    RhoLorentzVectorErr BoostedError ( const RhoCandidate& cand, BoostSign sign=To ) const;
-    const TLorentzRotation& RotateAndBoost ( BoostSign sign=To ) const;
+    TLorentzVector BoostedP4 ( const RhoCandidate& cand, BoostSign sign=To ) const {};
+    RhoLorentzVectorErr BoostedError ( const RhoCandidate& cand, BoostSign sign=To ) const {};
+    const TLorentzRotation& RotateAndBoost ( BoostSign sign=To ) const {};
 
     RhoCandidate& Boost ( const RhoCandidate& cand,  BoostSign sign ) const;
 

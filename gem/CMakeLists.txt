@@ -27,6 +27,7 @@ include_directories( ${INCLUDE_DIRECTORIES})
 
 set(LINK_DIRECTORIES
 ${ROOT_LIBRARY_DIR}
+#${GLPK_LIB_DIR}
 )
 
 link_directories( ${LINK_DIRECTORIES})
@@ -49,7 +50,6 @@ PndGemTrackFinderIdeal.cxx
 PndGemTrackFinderOnHits.cxx
 PndGemFindTracks.cxx
 PndGemTrackFinderQA.cxx
-#PndGemRecoHit.cxx
 PndGemIdealPatternRecoTask.cxx
 PndGemMagneticFieldVsTrackParameters.cxx
 PndGemDigiWriteoutBuffer.cxx
@@ -61,6 +61,6 @@ PndGemFindHitsAna.cxx
 set(LINKDEF  GemLinkDef.h)
 set(LIBRARY_NAME Gem)
 
-set(DEPENDENCIES Base ParBase PndData TrkBase RecoHits Geane)
+set(DEPENDENCIES Base ParBase PndData TrkBase Geane)
 
 GENERATE_LIBRARY()

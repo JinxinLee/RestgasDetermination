@@ -104,7 +104,7 @@ class PndEmcClusterSimpleCalibrator: public PndEmcAbsClusterCalibrator
 		PndEmcClusterSimpleCalibrator(Int_t version=1);
 		virtual ~PndEmcClusterSimpleCalibrator();
 		
-		void Init();
+		void Init() {};
 		
   // Methods 
 		virtual Double_t Energy(PndEmcCluster *clust, Int_t pid=22);
