@@ -30,7 +30,6 @@ PndDrcHitProducerIdeal.cxx
 PndDrcHitProducerReal.cxx 
 DrawHits.cxx 
 PndDrcDigiPar.cxx
-PndDrcDigitize.cxx
 )
 
 set(LINKDEF  DrcLinkDef.h)
