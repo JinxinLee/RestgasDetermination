@@ -22,8 +22,10 @@
 #pragma link C++ class PndMvdKalmanTask+;
 #pragma link C++ class PndMvdTrackFinderAnaTask+;
 
-#pragma link C++ class PndMvdRiemannTrackFinder+;
+//#pragma link C++ class PndMvdRiemannTrackFinder+;
+#pragma link C++ class PndMvdGemRiemannTrackFinder+;
 #pragma link C++ class PndMvdRiemannTrackFinderTask+;
+#pragma link C++ class PndGemRiemannTrackFinderTask+;
 
 //#pragma link C++ class PndMvdTPCRiemannTrackFinderTask+;
 //#pragma link C++ class PndMvdTPCRiemannTrackFinderTaskCutPar+;

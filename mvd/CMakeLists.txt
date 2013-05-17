@@ -11,7 +11,9 @@ ${CMAKE_SOURCE_DIR}/field
 ${CMAKE_SOURCE_DIR}/pnddata
 ${CMAKE_SOURCE_DIR}/pnddata/MvdData
 ${CMAKE_SOURCE_DIR}/pnddata/SdsData
+${CMAKE_SOURCE_DIR}/pnddata/GemData
 ${CMAKE_SOURCE_DIR}/pnddata/TrackData
+${CMAKE_SOURCE_DIR}/sttmvdtracking
 ${CMAKE_SOURCE_DIR}/passive
 ${CMAKE_SOURCE_DIR}/PndTools/generalTools
 ${CMAKE_SOURCE_DIR}/PndTools/riemannfit
@@ -33,6 +35,7 @@ ${CMAKE_SOURCE_DIR}/sds/SdsDigi
 ${CMAKE_SOURCE_DIR}/sds/SdsReco
 ${CMAKE_SOURCE_DIR}/sds/SdsFEModel
 ${CMAKE_SOURCE_DIR}/sds
+${CMAKE_SOURCE_DIR}/stt
 ${CMAKE_SOURCE_DIR}/genfit
 ${CMAKE_SOURCE_DIR}/trackbase
 ${CMAKE_SOURCE_DIR}/GenfitTools/trackrep/GeaneTrackRep
@@ -138,7 +141,10 @@ MvdTracking/PndMvdKalmanTask.cxx
 MvdTracking/PndMvdTrackFinderAnaTask.cxx
 
 MvdTracking/PndMvdRiemannTrackFinderTask.cxx
-MvdTracking/PndMvdRiemannTrackFinder.cxx
+MvdTracking/PndGemRiemannTrackFinderTask.cxx
+
+#MvdTracking/PndMvdRiemannTrackFinder.cxx
+MvdTracking/PndMvdGemRiemannTrackFinder.cxx
 MvdTracking/PndMvdRiemannVertexFinderTask.cxx
 
 #MvdTracking/PndMvdTpcRiemannCorrelatorTask.cxx
@@ -157,6 +163,7 @@ MvdTracking/LinFit/TtAliTask.cxx
 MvdTracking/LinFit/TtCracowTask.cxx
 
 )
+
 
 set(LINKDEF  MvdTrkLinkDef.h)
 set(LIBRARY_NAME MvdTrk)
