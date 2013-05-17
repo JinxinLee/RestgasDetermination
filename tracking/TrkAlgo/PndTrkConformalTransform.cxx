@@ -46,15 +46,18 @@ void PndTrkConformalTransform::PerformConformalTransformation(double x, double y
   // traslation
   xtrasl = x - fTrasl.X();
   ytrasl = y - fTrasl.Y();
-
-  // CHECK and the rotation??
+  
+  Double_t xrot, yrot;
+  xrot =  TMath::Cos(fAngle) * xtrasl + TMath::Sin(fAngle) * ytrasl;
+  yrot = -TMath::Sin(fAngle) * xtrasl + TMath::Cos(fAngle) * ytrasl;
 
   // change coordinate of the center
-  u = GetXConf(xtrasl, ytrasl, rd);
-  v = GetYConf(xtrasl, ytrasl, rd);
-  rc = GetRConf(xtrasl, ytrasl, rd);
-  
+  u = GetXConf(xrot, yrot, rd);
+  v = GetYConf(xrot, yrot, rd);
+  rc = GetRConf(xrot, yrot, rd);
+
 }
+
 
 PndTrkConformalHit *PndTrkConformalTransform::GetConformalSttHit(PndTrkHit *hit) {
   TVector3 position = hit->GetPosition();
