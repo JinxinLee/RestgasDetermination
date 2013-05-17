@@ -58,7 +58,6 @@ class PndTrkLegendreTask : public FairTask {
   Int_t FillConformalHitList();
   void FillLegendreHisto(Int_t mode);
 
-  void  ComputeTraAndRot(PndTrkHit *hit, Double_t &delta, Double_t trasl[2]);
 
   PndTrkCluster CreateSttCluster(PndTrkHit *firsthit);
   Bool_t IsSttAssociate(PndTrkHit *hit1, PndTrkHit *hit2);
@@ -74,6 +73,15 @@ class PndTrkLegendreTask : public FairTask {
 
   void RegisterTrack(PndTrkTrack *track);
 
+  void  ComputeTraAndRot(PndTrkHit *hit, Double_t &delta, Double_t trasl[2]);
+
+  PndTrkHit *FindSttReferenceHit();
+  PndTrkHit *FindMvdPixelReferenceHit();
+  PndTrkHit *FindMvdStripReferenceHit();
+  PndTrkHit *FindMvdReferenceHit();
+  PndTrkHit *FindReferenceHit();
+
+  void  SearchSecondaryTracks() { fSecondary = kTRUE; }
 
   Bool_t fDisplayOn;
   TH2F *hxy, *hxz, *hzphi;
@@ -120,13 +128,13 @@ class PndTrkLegendreTask : public FairTask {
 
 
   PndGeoSttPar *fSttParameters;  //  CHECK added
-   char	fSttBranch[200],
+  char	fSttBranch[200],
     fMvdPixelBranch[200],
     fMvdStripBranch[200];
 
-   PndSttMapCreator *fMapper;
+  PndSttMapCreator *fMapper;
 
-  Int_t fEventCounter;
+  Int_t fEventCounter, fVerbose;
 
 
   PndTrkSttHitList *stthitlist;
@@ -138,13 +146,13 @@ class PndTrkLegendreTask : public FairTask {
   double  fDeltaThetaRad;
   //  TSpectrum2 *s;
   PndTrkLegendreTransform *legendre;
-  Bool_t fPersistence, fUseMVDPix, fUseMVDStr, fUseSTT;
+  Bool_t fPersistence, fUseMVDPix, fUseMVDStr, fUseSTT, fSecondary;
 
 
 
   PndTrkConformalTransform *conform;
   PndTrkConformalHitList *conformalhitlist;
-    PndTrkTools *tools;
+  PndTrkTools *tools;
 
 
   ClassDef(PndTrkLegendreTask,1);

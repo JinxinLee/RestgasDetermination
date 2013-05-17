@@ -39,7 +39,7 @@
 #include "TMarker.h"
 #include "TSpectrum2.h" 
 #include "TSpectrum.h" 
-
+#include "TStopwatch.h" 
 // tracking 
 #include "PndTrkClusterList.h"
 #include "PndTrkGlpkFits.h"
@@ -51,21 +51,11 @@ using namespace std;
 
 
 // -----   Default constructor   -------------------------------------------
-PndTrkLegendreTask::PndTrkLegendreTask() : FairTask("secondary track finder") { 
-  fVerbose = 0; 
-  fDisplayOn = kFALSE; // TRUE;
-  fPersistence = kTRUE;
-
+PndTrkLegendreTask::PndTrkLegendreTask() : FairTask("secondary track finder"), fVerbose(0), fDisplayOn(kFALSE), fPersistence(kTRUE), fUseMVDPix(kTRUE), fUseMVDStr(kTRUE), fUseSTT(kTRUE), fSecondary(kFALSE) {
   sprintf(fSttBranch,"STTHit");
   sprintf(fMvdPixelBranch,"MVDHitsPixel");
   sprintf(fMvdStripBranch,"MVDHitsStrip");
-
-  fUseMVDPix = kTRUE;
-  fUseMVDStr = kTRUE;
-  fUseSTT = kTRUE;
   PndGeoHandling::Instance();
-
-
 }
 // -------------------------------------------------------------------------
 
@@ -180,7 +170,6 @@ void PndTrkLegendreTask::Initialize() {
 void PndTrkLegendreTask::Exec(Option_t* opt) {
   fTrackArray->Delete();
   fTrackCandArray->Delete();
-
   cout << "*********************** " << fEventCounter << " ***********************" << endl;
    // CHECK delete this ---
   //     if(fEventCounter == 126 || fEventCounter == 526) {
@@ -217,37 +206,49 @@ void PndTrkLegendreTask::Exec(Option_t* opt) {
 
   // translation and rotation - CHECK no rotation now
   Double_t delta = 0, trasl[2] = {0., 0.};
-  conform->SetOrigin(trasl[0], trasl[1], delta);
-
-  //   //-----------------------------------------------
-  //   // loop on stt hits
-  //   int tmphitid = -1;
-  //   Double_t tmpiso = 1.;
-  //   for(int jhit = 0; jhit < stthitlist->GetNofHits(); jhit++) {
-  //       PndTrkHit *hit = stthitlist->GetHit(jhit);
-  //       if(hit->IsUsed()) { cout << "already used V" << endl; continue; }
-  //       if(hit->IsSttSkew()) continue;
-  //       cout << "SEARCH REFERENCE HIT " << hit->GetIsochrone() << " "  << tmpiso << endl;
-  //       if(hit->GetIsochrone() < tmpiso) {
-  // 	tmphitid = jhit;
-  // 	tmpiso = hit->GetIsochrone();
-  //       }
-  //   }   
-  //   PndTrkHit *refhit = stthitlist->GetHit(tmphitid);
-  //   cout << "REFERENCE HIT " << refhit->GetIsochrone() << " " << tmphitid << endl;
-  //   ComputeTraAndRot(refhit, delta, trasl);
-  //-----------------------------------------------
-
-  Int_t nchits = FillConformalHitList();
-  //  if(nchits == 0) return; // CHECK 
+  if(!fSecondary)  {
+    conform->SetOrigin(trasl[0], trasl[1], delta);
+    Int_t nchits = FillConformalHitList();
+    //  if(nchits == 0) return; // CHECK 
+cout << nchits << " " << trasl[0] << " " <<  trasl[1] << " " << delta << endl;
+  }
 
   int maxpeak = 1000;
   int ipeak = 0;
   PndTrkClusterList *clusterlist = new PndTrkClusterList();
   std::vector< std::pair<double, double> > foundpeaks;
 
+
   // LOOP OVER PEAKS UNTILL ITS HEIGHT IS <= 3
+  TStopwatch timer;
+  timer.Start();
+  double time = 0;
   while(maxpeak > 3) {
+ 
+    // TIME
+    if(fDisplayOn == kFALSE) {
+      timer.Stop();
+      time += timer.RealTime();
+      if(time > 1.5) {
+	cerr << time << endl;
+	return;
+      }
+      timer.Start();
+    }
+    //
+
+    if(fSecondary) {
+      // translation and rotation - CHECK
+      PndTrkHit *refhit = FindReferenceHit();
+      cout << "refhit " << refhit << endl;
+      if(refhit == NULL) break;
+      ComputeTraAndRot(refhit, delta, trasl);
+      conform->SetOrigin(trasl[0], trasl[1], delta);
+      Int_t nchits = FillConformalHitList();
+      //  if(nchits == 0) return; // CHECK 
+      cout << nchits << " " << trasl[0] << " " <<  trasl[1] << " " << delta << endl;
+    }
+ 
     PndTrkCluster cluster;
 
     if(fDisplayOn)  {
@@ -265,9 +266,14 @@ void PndTrkLegendreTask::Exec(Option_t* opt) {
 
     //  cout << "RESETTING LEGENDRE HISTO" << endl;
     legendre->ResetLegendreHisto();
+    if(fSecondary) legendre->SetUpLegendreHisto(180, 0, 180, 1000, -1., 1.);
+
+
+
     if(fDisplayOn) {
       RefreshConf();
-      DrawGeometryConf(-0.07, 0.07, -0.07, 0.07);
+      if(fSecondary) DrawGeometryConf(-1., 1., -1., 1.);
+      else   DrawGeometryConf(-0.07, 0.07, -0.07, 0.07);
     }
     cout << "%%%%%%%%%%%%%%%%%%%% XY FINDER %%%%%%%%%%%%%%%%%%%%%%%%%%" << endl;
     FillLegendreHisto(0);
@@ -494,7 +500,8 @@ void PndTrkLegendreTask::Exec(Option_t* opt) {
     PndTrkCluster mvdpixcluster = cluster.GetMvdPixelHitList();
     for(int ihit = 0; ihit < mvdpixcluster.GetNofHits(); ihit++) {
       PndTrkHit *hit = mvdpixcluster.GetHit(ihit);
-      hit->SetSortVariable(hit->GetDistance(TVector3(0., 0., 0)));
+      if(fSecondary) hit->SetSortVariable(hit->GetDistance(TVector3(trasl[0], trasl[1], 0.0)));
+      else hit->SetSortVariable(hit->GetDistance(TVector3(0., 0., 0)));
       int sensorID = hit->GetSensorID();
       int layerID = clean.FindMvdLayer(sensorID);
       if(layerID%2 == 0) rightvotes++;
@@ -504,7 +511,8 @@ void PndTrkLegendreTask::Exec(Option_t* opt) {
     PndTrkCluster mvdstrcluster = cluster.GetMvdStripHitList();
     for(int ihit = 0; ihit < mvdstrcluster.GetNofHits(); ihit++) {
       PndTrkHit *hit = mvdstrcluster.GetHit(ihit);
-      hit->SetSortVariable(hit->GetDistance(TVector3(0., 0., 0)));
+      if(fSecondary) hit->SetSortVariable(hit->GetDistance(TVector3(trasl[0], trasl[1], 0.0)));
+      else hit->SetSortVariable(hit->GetDistance(TVector3(0., 0., 0)));
       int sensorID = hit->GetSensorID();
       int layerID = clean.FindMvdLayer(sensorID);
       if(layerID%2 == 0) rightvotes++;
@@ -518,7 +526,8 @@ void PndTrkLegendreTask::Exec(Option_t* opt) {
       PndSttTube *tube = (PndSttTube*) fTubeArray->At(tubeID);
       layerID = tube->GetLayerID();
       sectorID = tube->GetSectorID();
-      hit->SetSortVariable(1000+layerID);
+      if(fSecondary) hit->SetSortVariable(hit->GetDistance(TVector3(trasl[0], trasl[1], 0.0)));
+      else hit->SetSortVariable(1000+layerID);
       if(sectorID < 3) rightvotes++;
       else leftvotes++;
     }
@@ -577,7 +586,7 @@ void PndTrkLegendreTask::Exec(Option_t* opt) {
       int layerID = clean.FindMvdLayer(sensorID);
       if((leftvotes > rightvotes) && (layerID%2 == 0)) {
 	//	deletioncluster.AddHit(hit);
-	//	cout << "strip DELETED " <<  hit->GetHitID() << endl;
+ 	//	cout << "strip DELETED " <<  hit->GetHitID() << endl;
       }
       else  if((leftvotes < rightvotes) && (layerID%2 != 0)) {
 	//	deletioncluster.AddHit(hit);
@@ -609,7 +618,7 @@ void PndTrkLegendreTask::Exec(Option_t* opt) {
 	//	cout << "stt DELETED " <<  hit->GetHitID() << " " << sectorID << endl;
       }
       else if((leftvotes < rightvotes) && (sectorID >= 3)) {
-	//		deletioncluster.AddHit(hit);
+	// 		deletioncluster.AddHit(hit);
 	//	cout << "stt DELETED " <<  hit->GetHitID() << " " << sectorID << endl;
       }
       // ~~~~~~~~~~~~~~~~~~ check *******************
@@ -781,6 +790,8 @@ void PndTrkLegendreTask::Exec(Option_t* opt) {
       track->Draw(kRed);
       display->Update();
       display->Modified();
+      char goOnChar;
+      //      cin >> goOnChar;
     }
 
 
@@ -1046,7 +1057,10 @@ void PndTrkLegendreTask::Exec(Option_t* opt) {
   delete stthitlist;
   delete mvdpixhitlist; 
   delete mvdstrhitlist;
-
+  timer.Stop();
+  time += timer.RealTime();
+  cerr << "Real time " << time << " s" << endl;
+  
 }
 
 // ============================================================================================
@@ -1090,16 +1104,6 @@ void PndTrkLegendreTask::FillLegendreHisto(Int_t mode)
     }
   }
 }
-
-void PndTrkLegendreTask::ComputeTraAndRot(PndTrkHit *hit, Double_t &delta, Double_t trasl[2]) {
-  
-  trasl[0] = hit->GetPosition().X();
-  trasl[1] = hit->GetPosition().Y();
-  
-  delta = TMath::ATan2(hit->GetPosition().Y() - 0., hit->GetPosition().X() - 0.); // CHECK 
-  
-}
- 
  
 PndTrkCluster PndTrkLegendreTask::CreateClusterByConfDistance(double fitm, double fitq) {
   
@@ -2026,6 +2030,104 @@ void PndTrkLegendreTask::RegisterTrack(PndTrkTrack *track) {
 
 }
 
+
+// ----------------------- FOR SECONDARIES
+PndTrkHit *PndTrkLegendreTask::FindSttReferenceHit()
+{
+
+  if(stthitlist->GetNofHits() == 0) return NULL;
+  // loop on stt hits
+  int tmphitid = -1;
+  Double_t tmpiso = 1.;
+  for(int jhit = 0; jhit < stthitlist->GetNofHits(); jhit++) {
+    PndTrkHit *hit = stthitlist->GetHit(jhit);
+    if(hit->IsUsed()) { cout << "already used V" << endl; continue; }
+    if(hit->IsSttSkew()) continue;
+    if(hit->GetIsochrone() < tmpiso) {
+      tmphitid = jhit;
+      tmpiso = hit->GetIsochrone();
+    }
+  }   
+  if(tmphitid == -1)  return NULL;
+
+  PndTrkHit *refhit = stthitlist->GetHit(tmphitid);
+  cout << "STT REFERENCE HIT " <<  tmphitid << " " << refhit->GetIsochrone() << endl;
+  return refhit;
+}
+
+PndTrkHit *PndTrkLegendreTask::FindMvdPixelReferenceHit()
+{
+  if(mvdpixhitlist->GetNofHits() == 0) return NULL;
+  // loop on mvd pix hits
+  int tmphitid = -1;
+  PndTrkHit *refhit = NULL;
+  for(int jhit = 0; jhit < mvdpixhitlist->GetNofHits(); jhit++) {
+    PndTrkHit *hit = mvdpixhitlist->GetHit(jhit);
+    if(hit->IsUsed()) { 
+      cout << "already used V" << endl; 
+      continue; 
+    }
+    tmphitid = jhit;
+    break;
+  }   
+  if(tmphitid == -1)  return NULL;
+  refhit = mvdpixhitlist->GetHit(tmphitid);
+  cout << "MVD PIXEL REFERENCE HIT " << refhit->GetHitID() << endl;
+  return refhit;
+}
+
+PndTrkHit *PndTrkLegendreTask::FindMvdStripReferenceHit()
+{
+  if(mvdstrhitlist->GetNofHits() == 0) return NULL;
+  // loop on mvd str hits
+  int tmphitid = -1;
+  PndTrkHit *refhit = NULL;
+  for(int jhit = 0; jhit < mvdstrhitlist->GetNofHits(); jhit++) {
+    PndTrkHit *hit = mvdstrhitlist->GetHit(jhit);
+    if(hit->IsUsed()) { 
+      cout << "already used V" << endl; 
+      continue; 
+    }
+    tmphitid = jhit;
+    break;
+  }   
+  if(tmphitid == -1)  return NULL;
+  refhit = mvdstrhitlist->GetHit(tmphitid);
+  cout << "MVD STRIP REFERENCE HIT " << refhit->GetHitID() << endl;
+  return refhit;
+}
+
+PndTrkHit *PndTrkLegendreTask::FindMvdReferenceHit()
+{
+  PndTrkHit *refhit = NULL;
+  refhit = FindMvdStripReferenceHit();
+  // refhit = FindMvdPixelReferenceHit();
+  if(refhit != NULL) return refhit;
+  //  refhit = FindMvdStripReferenceHit();
+  FindMvdPixelReferenceHit();
+  return refhit;
+}
+
+PndTrkHit *PndTrkLegendreTask::FindReferenceHit()
+{
+  PndTrkHit *refhit = NULL;
+  // refhit = FindMvdReferenceHit();
+    refhit = FindSttReferenceHit();
+  if(refhit != NULL) return refhit;
+  // refhit = FindSttReferenceHit();
+    FindMvdReferenceHit();
+
+ return refhit;
+}
+
+void PndTrkLegendreTask::ComputeTraAndRot(PndTrkHit *hit, Double_t &delta, Double_t trasl[2]) {
+  
+  trasl[0] = hit->GetPosition().X();
+  trasl[1] = hit->GetPosition().Y();
+
+  delta = 0.; // TMath::ATan2(hit->GetPosition().Y() - 0., hit->GetPosition().X() - 0.); // CHECK 
+  
+}
 
 ClassImp(PndTrkLegendreTask)
 
