@@ -1,5 +1,5 @@
-#ifndef PNDMVDRIEMANNTRACKFINDER_H_
-#define PNDMVDRIEMANNTRACKFINDER_H_
+#ifndef PNDMVDGEMRIEMANNTRACKFINDER_H_
+#define PNDMVDGEMRIEMANNTRACKFINDER_H_
 
 #include "TClonesArray.h"
 #include "PndRiemannTrackFinder.h"
@@ -8,14 +8,15 @@
 #include "TH2F.h"
 #include <vector>
 
-class PndMvdRiemannTrackFinder : public  PndRiemannTrackFinder
+class PndMvdGemRiemannTrackFinder : public  PndRiemannTrackFinder
 {
 public:
-	PndMvdRiemannTrackFinder();
-	virtual ~PndMvdRiemannTrackFinder();
+	PndMvdGemRiemannTrackFinder();
+	virtual ~PndMvdGemRiemannTrackFinder();
 
 	void FindTracks();										///< Main function to start the riemann track finding
 	void AddHits(TClonesArray* hits, Int_t branchId);
+
 
 	//void SetGeoH(PndGeoHandling geoH){fGeoH=geoH;};
 	void SetCutDistH(TH2F* hist) {fCutDistH=hist;}
@@ -26,7 +27,19 @@ private:
 
 	std::vector<std::vector<Int_t> >  GetStartTracks();
 	bool CheckSZ(PndRiemannTrack aTrack);				///< Tests the results of the sz fit
-	bool CheckRiemannHit(PndRiemannTrack* track, PndRiemannHit* hit);
+	bool CheckRiemannHit(PndRiemannTrack* track, PndRiemannHit* hit, FairHit* fairHit);
+	bool CheckRiemannHitMvd(PndRiemannTrack* track, PndRiemannHit* hit, FairHit* fairHit);
+	bool CheckRiemannHitGem(PndRiemannTrack* track, PndRiemannHit* hit, FairHit* fairHit);
+
+
+
+	int GetLayerGem(FairHit* hit);
+	int GetLayerMvd(FairHit* hit);
+	int GetLayer(TString identifier);
+	void InitLayerMap();
+	void InitLayerMapMvd();
+	void InitLayerMapGem();
+
 
 	TH2F* fCutDistH;  ///< cutting histograms
 	TH2F* fCutChi2H;
@@ -34,6 +47,8 @@ private:
 	double fZClosePar;	///< parameter to separate  forward and backward tracks
 
 	std::vector< std::vector<int> >fLayers; ///< contains layer information of hits
+	std::map<TString, int> fLayerMap; ///< identifier string, assigned layer id
+	int fLastLayerId; ///< last layer Id assigned
 	/*       b - barrel layer;   d - disk layer
 	0 - zero position
 	1 - 1b
@@ -53,7 +68,7 @@ private:
 	std::vector<int> GetTooCloseHitsInLayer(int LayerNumber , int HitNumber ); // searching for too close hits to HitNumber-Hit in layer LayerNumber
 
 public:
-  ClassDef(PndMvdRiemannTrackFinder,1)
+  ClassDef(PndMvdGemRiemannTrackFinder,1)
 };
 
-#endif /*PNDMVDRIEMANNTRACKFINDER_H_*/
+#endif /*PNDMVDGEMRIEMANNTRACKFINDER_H_*/

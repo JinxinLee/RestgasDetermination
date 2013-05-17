@@ -1,21 +1,20 @@
-#ifndef PNDMVDRIEMANNTRACKFINDERTASK_H_
-#define PNDMVDRIEMANNTRACKFINDERTASK_H_
+#ifndef PndGemRiemannTrackFinderTask_H_
+#define PndGemRiemannTrackFinderTask_H_
 
 #include "FairTask.h"
 //#include "PndSdsHit.h"
 #include "TH2F.h"
 #include "PndGeoHandling.h"
-#include "PndGeoSttPar.h"
 
 #include "FairTSBufferFunctional.h"
 
 #include <vector>
 
-class PndMvdRiemannTrackFinderTask : public FairTask
+class PndGemRiemannTrackFinderTask : public FairTask
 {
 public:
-	PndMvdRiemannTrackFinderTask();
-	virtual ~PndMvdRiemannTrackFinderTask();
+	PndGemRiemannTrackFinderTask();
+	virtual ~PndGemRiemannTrackFinderTask();
 
 	 /** Virtual method Init **/
     virtual void SetParContainers();
@@ -75,9 +74,6 @@ private:
 	BinaryFunctor* fStopFunctor;
 	BinaryFunctor* fTimeGapFunctor;
 
-	PndGeoSttPar *fSttParameters;  //  CHECK added
-	TClonesArray *fTubeArray;
-
 	//PndGeoHandling* fGeoH;
 
 
@@ -85,9 +81,9 @@ private:
   void Reset();
   void ProduceHits();
 
-  ClassDef(PndMvdRiemannTrackFinderTask,1);
+  ClassDef(PndGemRiemannTrackFinderTask,1);
 
 
 };
 
-#endif /*PNDMVDRIEMANNTRACKFINDERTASK_H_*/
+#endif /*PndGemRiemannTrackFinderTask_H_*/

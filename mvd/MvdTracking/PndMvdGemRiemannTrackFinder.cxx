@@ -1,23 +1,95 @@
-#include "PndMvdRiemannTrackFinder.h"
+#include "PndMvdGemRiemannTrackFinder.h"
 #include <iostream>
 #include <math.h>
 #include "PndSdsHit.h"
+#include "PndGemHit.h"
 #include "TString.h"
 
-PndMvdRiemannTrackFinder::PndMvdRiemannTrackFinder():PndRiemannTrackFinder(),fZClosePar(0.1)
+
+  ClassImp(PndMvdGemRiemannTrackFinder);
+
+PndMvdGemRiemannTrackFinder::PndMvdGemRiemannTrackFinder():PndRiemannTrackFinder(),fZClosePar(0.1), fLastLayerId(0)
 {
-	fLayers.resize(13);
+	fLayers.resize(22);
 	if (fUseZeroPos)
 		fLayers[0].push_back(0);
 	fGeoH = PndGeoHandling::Instance();
 	fVerbose = 3;
+	InitLayerMap();
 }
 
-PndMvdRiemannTrackFinder::~PndMvdRiemannTrackFinder(){}
+PndMvdGemRiemannTrackFinder::~PndMvdGemRiemannTrackFinder(){}
 
-void PndMvdRiemannTrackFinder::AddHits(TClonesArray* hits, Int_t branchId)
+void PndMvdGemRiemannTrackFinder::InitLayerMap()
 {
-	TString geoPath;
+	InitLayerMapMvd();
+	InitLayerMapGem();
+}
+
+void PndMvdGemRiemannTrackFinder::InitLayerMapMvd()
+{
+	fLayerMap["PixeloBlo1"] = fLastLayerId 						+ 1;
+	fLayerMap["PixeloSdko(Silicon)_1"] = fLastLayerId 			+ 2;	   //naming after MVD2.2
+	fLayerMap["PixeloSdkoco(Silicon)_1"] = fLastLayerId 		+ 2;
+	fLayerMap["PixeloSdko(Silicon)_2"] = fLastLayerId 			+ 3;	   //naming after MVD2.2
+	fLayerMap["PixeloSdkoco(Silicon)_2"] = fLastLayerId 		+ 3;
+	fLayerMap["PixeloSdko(Silicon)_3"] = fLastLayerId 			+ 4;	   //naming after MVD2.2
+	fLayerMap["PixeloSdkoco(Silicon)_3"] = fLastLayerId 		+ 4;
+	fLayerMap["PixeloSdko(Silicon)_4"] = fLastLayerId 			+ 5;	   //naming after MVD2.2
+	fLayerMap["PixeloSdkoco(Silicon)_4"] = fLastLayerId 		+ 5;
+	fLayerMap["PixeloBlo2"] = fLastLayerId 						+ 6;
+	fLayerMap["PixeloLdkoio(Silicon)_1"] = fLastLayerId 		+ 7;	   //naming after MVD2.2
+	fLayerMap["PixeloLdkoco(Silicon)_1"] = fLastLayerId 		+ 7;
+	fLayerMap["PixeloLdkoiio(Silicon)_1"] = fLastLayerId 		+ 8;	   //naming after MVD2.2
+	fLayerMap["PixeloLdkoco(Silicon)_2"] = fLastLayerId 		+ 8;
+	fLayerMap["PixeloLdkoiiio(Silicon)_1"] = fLastLayerId 		+ 9;	   //naming after MVD2.2
+	fLayerMap["PixeloLdkoco(Silicon)_3"] = fLastLayerId 		+ 9;
+	fLayerMap["PixeloLdkoiiio(Silicon)_2"] = fLastLayerId 		+ 10;	   //naming after MVD2.2
+	fLayerMap["PixeloLdkoco(Silicon)_4"] = fLastLayerId 		+ 10;
+	fLayerMap["PixeloLdkoiio(Silicon)_2"] = fLastLayerId 		+ 11;	   //naming after MVD2.2
+	fLayerMap["PixeloLdkoco(Silicon)_5"] = fLastLayerId 		+ 11;
+	fLayerMap["PixeloLdkoio(Silicon)_2"] = fLastLayerId 		+ 12;	   //naming after MVD2.2
+	fLayerMap["PixeloLdkoco(Silicon)_6"] = fLastLayerId 		+ 12;
+	fLayerMap["PixeloLdkoiiio(Silicon)_4"] = fLastLayerId 		+ 13;	   //naming after MVD2.2
+	fLayerMap["PixeloLdkoco(Silicon)_7"] = fLastLayerId 		+ 13;
+	fLayerMap["PixeloLdkoiiio(Silicon)_3"] = fLastLayerId 		+ 14;	   //naming after MVD2.2
+	fLayerMap["PixeloLdkoco(Silicon)_8"] = fLastLayerId 		+ 14;
+
+	fLayerMap["StripoBl3o(Silicon)"] = fLastLayerId 			+ 15;
+	fLayerMap["Fwdo(Silicon)_1"] = fLastLayerId 				+ 16;
+	fLayerMap["StripoBl4o(Silicon)"] = fLastLayerId 			+ 17;
+	//fLayerMap["Fwdo(Silicon)_2")){Layer=10;flag=false;}
+
+	fLayerMap["StripoLdkoTrapSoRingAoSilicon_1"] = fLastLayerId + 18;
+	fLayerMap["StripoLdkoTrapSoRingAoSilicon_2"] = fLastLayerId + 19;
+	fLayerMap["StripoLdkoTrapSoRingBoSilicon_1"] = fLastLayerId + 18;
+	fLayerMap["StripoLdkoTrapSoRingBoSilicon_2"] = fLastLayerId + 19;
+	fLayerMap["StripoLdko5-6oTrapSo(Silicon)_1"] = fLastLayerId + 20;
+
+	fLayerMap["LambdaDisk_1"] = fLastLayerId 					+ 21;
+	fLayerMap["LambdaDisk_2"] = fLastLayerId 					+ 22;
+	fLastLayerId += 22;
+}
+
+void PndMvdGemRiemannTrackFinder::InitLayerMapGem()
+{
+	fLayerMap["Gem_1_1"] = fLastLayerId	+ 1;
+	fLayerMap["Gem_1_2"] = fLastLayerId	+ 2;
+
+	fLayerMap["Gem_2_1"] = fLastLayerId	+ 3;
+	fLayerMap["Gem_2_2"] = fLastLayerId	+ 4;
+
+	fLayerMap["Gem_3_1"] = fLastLayerId	+ 5;
+	fLayerMap["Gem_3_2"] = fLastLayerId	+ 6;
+
+	fLastLayerId += 6;
+
+}
+
+
+void PndMvdGemRiemannTrackFinder::AddHits(TClonesArray* hits, Int_t branchId)
+{
+	FairRootManager* man = FairRootManager::Instance();
   //	PndRiemannTrackFinder::AddHits(hits, branchId);
 	for (int i = 0; i < hits->GetEntries(); i++){
 		FairHit* myHit = (FairHit*)(hits->At(i));
@@ -25,58 +97,20 @@ void PndMvdRiemannTrackFinder::AddHits(TClonesArray* hits, Int_t branchId)
 		FairLink myID;
 		if (myHit->GetEntryNr().GetIndex() < 0){
 			myID = FairLink(branchId, i);
+			myHit->SetEntryNr(myID);
 		}
 		else
 			myID = myHit->GetEntryNr();
 		fMapHitToID[fHits.size()-1]=myID;
 		fMapIDtoHit[myID] = fHits.size()-1;
-		PndSdsHit* tempHit=(PndSdsHit*)(hits->At(i));
-    
-    
-		geoPath=fGeoH->GetPath(tempHit->GetSensorID());
-    
-		//std::cout << "Point " << branchId << "/" << i << " : " << geoPath << std::endl;
-    
-		int Layer=0;
-		bool flag=true;
-    ///////////////////////	getting layer's information
-    if (flag && geoPath.Contains("PixeloBlo1")){Layer=1;flag=false;}
-		if (flag && geoPath.Contains("PixeloSdko(Silicon)_1")){Layer=2;flag=false;}  //naming after MVD2.2
-		if (flag && geoPath.Contains("PixeloSdkoco(Silicon)_1")){Layer=2;flag=false;}
-    if (flag && geoPath.Contains("PixeloSdko(Silicon)_2")){Layer=3;flag=false;}  //naming after MVD2.2
-    if (flag && geoPath.Contains("PixeloSdkoco(Silicon)_2")){Layer=3;flag=false;}
-		if (flag && geoPath.Contains("PixeloSdko(Silicon)_3")){Layer=4;flag=false;}  //naming after MVD2.2
-		if (flag && geoPath.Contains("PixeloSdkoco(Silicon)_3")){Layer=4;flag=false;}
-		if (flag && geoPath.Contains("PixeloSdko(Silicon)_4")){Layer=5;flag=false;}  //naming after MVD2.2
-		if (flag && geoPath.Contains("PixeloSdkoco(Silicon)_4")){Layer=5;flag=false;}
-		if (flag && geoPath.Contains("PixeloBlo2")){Layer=6;flag=false;}
-    if (flag && geoPath.Contains("PixeloLdkoio(Silicon)_1")){Layer=7;flag=false;}  //naming after MVD2.2
-    if (flag && geoPath.Contains("PixeloLdkoco(Silicon)_1")){Layer=7;flag=false;}
-		if (flag && geoPath.Contains("PixeloLdkoiio(Silicon)_1")){Layer=8;flag=false;}  //naming after MVD2.2
-		if (flag && geoPath.Contains("PixeloLdkoco(Silicon)_2")){Layer=8;flag=false;}
-		if (flag && geoPath.Contains("PixeloLdkoiiio(Silicon)_1")){Layer=9;flag=false;}  //naming after MVD2.2
-		if (flag && geoPath.Contains("PixeloLdkoco(Silicon)_3")){Layer=9;flag=false;}
-    if (flag && geoPath.Contains("PixeloLdkoiiio(Silicon)_2")){Layer=10;flag=false;}  //naming after MVD2.2
-    if (flag && geoPath.Contains("PixeloLdkoco(Silicon)_4")){Layer=10;flag=false;}
-		if (flag && geoPath.Contains("PixeloLdkoiio(Silicon)_2")){Layer=11;flag=false;}  //naming after MVD2.2
-		if (flag && geoPath.Contains("PixeloLdkoco(Silicon)_5")){Layer=11;flag=false;}
-    if (flag && geoPath.Contains("PixeloLdkoio(Silicon)_2")){Layer=12;flag=false;}  //naming after MVD2.2
-    if (flag && geoPath.Contains("PixeloLdkoco(Silicon)_6")){Layer=12;flag=false;}
-    if (flag && geoPath.Contains("PixeloLdkoiiio(Silicon)_4")){Layer=13;flag=false;}  //naming after MVD2.2
-    if (flag && geoPath.Contains("PixeloLdkoco(Silicon)_7")){Layer=13;flag=false;}
-		if (flag && geoPath.Contains("PixeloLdkoiiio(Silicon)_3")){Layer=14;flag=false;}  //naming after MVD2.2
-		if (flag && geoPath.Contains("PixeloLdkoco(Silicon)_8")){Layer=14;flag=false;}
-    
-		if (flag && geoPath.Contains("StripoBl3o(Silicon)")){Layer=15;flag=false;}
-		if (flag && geoPath.Contains("Fwdo(Silicon)_1")){Layer=16;flag=false;}
-		if (flag && geoPath.Contains("StripoBl4o(Silicon)")){Layer=17;flag=false;}
-		//if (flag && geoPath.Contains("Fwdo(Silicon)_2")){Layer=10;flag=false;}
-    
-		if (flag && geoPath.Contains("StripoLdkoTrapSoRingAoSilicon_1")){Layer=18;flag=false;}
-		if (flag && geoPath.Contains("StripoLdkoTrapSoRingAoSilicon_2")){Layer=19;flag=false;}
-		if (flag && geoPath.Contains("StripoLdkoTrapSoRingBoSilicon_1")){Layer=18;flag=false;}
-		if (flag && geoPath.Contains("StripoLdkoTrapSoRingBoSilicon_2")){Layer=19;flag=false;}
-		if (flag && geoPath.Contains("StripoLdko5-6oTrapSo(Silicon)_1")){Layer=20;flag=false;}
+
+		int Layer = 0;
+		if (branchId == man->GetBranchId("MVDHitsStrip") || branchId == man->GetBranchId("MVDHitsPixel")){
+			Layer = GetLayerMvd(myHit);
+		} else if (branchId == man->GetBranchId("GEMHit")) {
+			Layer = GetLayerGem(myHit);
+		}
+
     
     //    	if (flag && geoPath.Contains("PixeloBl1ov2-NEW_1")){Layer=1;flag=false;}
     //		if (flag && geoPath.Contains("PixeloSdk-v2-NEW_1")){Layer=2;flag=false;}
@@ -97,18 +131,100 @@ void PndMvdRiemannTrackFinder::AddHits(TClonesArray* hits, Int_t branchId)
 			fLayers.push_back(dummy);
 			fNLayers = fLayers.size();
 		}
-		if (Layer == 0){
-			std::cout << "-E- Unassigned Layer: " << geoPath << std::endl;
-		}
+
     
 		if (fVerbose > 1) std::cout << "fMapHitToId: " << fHits.size() -1 << " : " << myID << " "
-      << tempHit->GetX() << "/" << tempHit->GetY() << "/" << tempHit->GetZ() << " Layer: " << Layer << std::endl;
+      << myHit->GetX() << "/" << myHit->GetY() << "/" << myHit->GetZ() << " Layer: " << Layer << std::endl;
+
 		fLayers[Layer].push_back(fHits.size()-1);  //putting hit in layers array
 	}
 	fNLayers = fLayers.size();
 }
 
-void PndMvdRiemannTrackFinder::FindTracks()
+
+int PndMvdGemRiemannTrackFinder::GetLayer(TString identifier)
+{
+	std::map<TString, int>::iterator layerIter;
+	for (layerIter = fLayerMap.begin(); layerIter != fLayerMap.end(); layerIter++){
+		if(identifier.Contains(layerIter->first)){
+			return layerIter->second;
+		}
+	}
+	return 0;
+}
+
+int PndMvdGemRiemannTrackFinder::GetLayerGem(FairHit* hit)
+{
+	PndGemHit* gemHit = (PndGemHit*)hit;
+
+	TString prefix("Gem_");
+	prefix+=(gemHit->GetStationNr());
+	prefix+=("_");
+	prefix+=(gemHit->GetSensorNr());
+
+	return GetLayer(prefix);
+
+}
+
+int PndMvdGemRiemannTrackFinder::GetLayerMvd(FairHit* hit)
+{
+	PndSdsHit* tempHit = (PndSdsHit*) (hit);
+	TString geoPath = fGeoH->GetPath(tempHit->GetSensorID());
+
+	return GetLayer(geoPath);
+
+//	int Layer = 0;
+//	bool flag = true;
+//	///////////////////////	getting layer's information
+//	if (flag && geoPath.Contains("PixeloBlo1")) {						Layer = 1;	flag = false;}
+//	if (flag && geoPath.Contains("PixeloSdko(Silicon)_1")) {			Layer = 2;	flag = false;}  //naming after MVD2.2
+//	if (flag && geoPath.Contains("PixeloSdkoco(Silicon)_1")) {			Layer = 2;	flag = false;}
+//	if (flag && geoPath.Contains("PixeloSdko(Silicon)_2")) {			Layer = 3;	flag = false;}  //naming after MVD2.2
+//	if (flag && geoPath.Contains("PixeloSdkoco(Silicon)_2")) {			Layer = 3;	flag = false;}
+//	if (flag && geoPath.Contains("PixeloSdko(Silicon)_3")) {			Layer = 4;	flag = false;}  //naming after MVD2.2
+//	if (flag && geoPath.Contains("PixeloSdkoco(Silicon)_3")) {			Layer = 4;	flag = false;}
+//	if (flag && geoPath.Contains("PixeloSdko(Silicon)_4")) {			Layer = 5;	flag = false;}  //naming after MVD2.2
+//	if (flag && geoPath.Contains("PixeloSdkoco(Silicon)_4")) {			Layer = 5;	flag = false;}
+//	if (flag && geoPath.Contains("PixeloBlo2")) {						Layer = 6;	flag = false;}
+//	if (flag && geoPath.Contains("PixeloLdkoio(Silicon)_1")) {			Layer = 7;	flag = false;}  //naming after MVD2.2
+//	if (flag && geoPath.Contains("PixeloLdkoco(Silicon)_1")) {			Layer = 7;	flag = false;}
+//	if (flag && geoPath.Contains("PixeloLdkoiio(Silicon)_1")) {			Layer = 8;	flag = false;}  //naming after MVD2.2
+//	if (flag && geoPath.Contains("PixeloLdkoco(Silicon)_2")) {			Layer = 8;	flag = false;}
+//	if (flag && geoPath.Contains("PixeloLdkoiiio(Silicon)_1")) {		Layer = 9;	flag = false;}  //naming after MVD2.2
+//	if (flag && geoPath.Contains("PixeloLdkoco(Silicon)_3")) {			Layer = 9;	flag = false;}
+//	if (flag && geoPath.Contains("PixeloLdkoiiio(Silicon)_2")) {		Layer = 10;	flag = false;}  //naming after MVD2.2
+//	if (flag && geoPath.Contains("PixeloLdkoco(Silicon)_4")) {			Layer = 10;	flag = false;}
+//	if (flag && geoPath.Contains("PixeloLdkoiio(Silicon)_2")) {			Layer = 11;	flag = false;}  //naming after MVD2.2
+//	if (flag && geoPath.Contains("PixeloLdkoco(Silicon)_5")) {			Layer = 11;	flag = false;}
+//	if (flag && geoPath.Contains("PixeloLdkoio(Silicon)_2")) {			Layer = 12;	flag = false;}  //naming after MVD2.2
+//	if (flag && geoPath.Contains("PixeloLdkoco(Silicon)_6")) {			Layer = 12;	flag = false;}
+//	if (flag && geoPath.Contains("PixeloLdkoiiio(Silicon)_4")) {		Layer = 13;	flag = false;}  //naming after MVD2.2
+//	if (flag && geoPath.Contains("PixeloLdkoco(Silicon)_7")) {			Layer = 13;	flag = false;}
+//	if (flag && geoPath.Contains("PixeloLdkoiiio(Silicon)_3")) {		Layer = 14;	flag = false;}  //naming after MVD2.2
+//	if (flag && geoPath.Contains("PixeloLdkoco(Silicon)_8")) {			Layer = 14;	flag = false;}
+//
+//	if (flag && geoPath.Contains("StripoBl3o(Silicon)")) {				Layer = 15;	flag = false;}
+//	if (flag && geoPath.Contains("Fwdo(Silicon)_1")) {					Layer = 16;	flag = false;}
+//	if (flag && geoPath.Contains("StripoBl4o(Silicon)")) {				Layer = 17;	flag = false;}
+//	//if (flag && geoPath.Contains("Fwdo(Silicon)_2")){Layer=10;flag=false;}
+//
+//	if (flag && geoPath.Contains("StripoLdkoTrapSoRingAoSilicon_1")) {	Layer = 18;	flag = false;}
+//	if (flag && geoPath.Contains("StripoLdkoTrapSoRingAoSilicon_2")) {	Layer = 19;	flag = false;}
+//	if (flag && geoPath.Contains("StripoLdkoTrapSoRingBoSilicon_1")) {	Layer = 18;	flag = false;}
+//	if (flag && geoPath.Contains("StripoLdkoTrapSoRingBoSilicon_2")) {	Layer = 19;	flag = false;}
+//	if (flag && geoPath.Contains("StripoLdko5-6oTrapSo(Silicon)_1")) {	Layer = 20;	flag = false;}
+//
+//	if (flag && geoPath.Contains("LambdaDisk_1")) {						Layer = 21;	flag = false;}
+//	if (flag && geoPath.Contains("LambdaDisk_2")) {						Layer = 22;	flag = false;}
+//
+//	if (Layer == 0){
+//		std::cout << "-E- Unassigned Layer: " << geoPath << std::endl;
+//	}
+//
+//	return Layer;
+}
+
+void PndMvdGemRiemannTrackFinder::FindTracks()
 {
 	std::vector<std::vector<Int_t> > Tracks = GetStartTracks();				//Get the possible track seeds
   std::vector<int> tooClose;
@@ -126,6 +242,8 @@ void PndMvdRiemannTrackFinder::FindTracks()
 			std::cout << "------------------------------------" << std::endl;
 			std::cout << "Start Plane from Points: " << fMapHitToID[StartTrack[0]] << " "
 					  << fMapHitToID[StartTrack[1]] << " "  << fMapHitToID[StartTrack[2]] << std::endl;
+
+			std::cout << "Start Plane from Points: " << StartTrack[0] << " " << StartTrack[1] << " "  << StartTrack[2] << std::endl;
 		}
 		if (TrackExists(StartTrack) == true){
 			if (fVerbose > 1) std::cout << "Track exists already!" << std::endl;
@@ -166,7 +284,7 @@ void PndMvdRiemannTrackFinder::FindTracks()
         
 				PndRiemannHit actHit(fHits[testHit], testHit);
         
-				if (CheckRiemannHit(&actTrack, &actHit) != true) continue;
+				if (CheckRiemannHit(&actTrack, &actHit, fHits[testHit]) != true) continue;
         
 				StartTrack.push_back(testHit);
         
@@ -189,7 +307,7 @@ void PndMvdRiemannTrackFinder::FindTracks()
 				if (fVerbose > 1) std::cout << "Too Close Point " << hits[ind] << ": " << fMapHitToID[hits[ind]];
 				if (CheckHitInTrack(StartTrack, hits[ind])) continue;
 				PndRiemannHit actHit(fHits[hits[ind]]);
-				if (CheckRiemannHit(&actTrack, &actHit)!= true) continue;
+				if (CheckRiemannHit(&actTrack, &actHit, fHits[hits[ind]])!= true) continue;
 				StartTrack.push_back(hits[ind]);
 				actTrack.addHit(actHit);
         
@@ -210,13 +328,13 @@ void PndMvdRiemannTrackFinder::FindTracks()
 							<< std::endl;
 			}
       
-			if (fVerbose > 0) std::cout << "Hits in Track: " << StartTrack.size() << std::endl;
+			if (fVerbose > 1) std::cout << "Hits in Track: " << StartTrack.size() << std::endl;
 			for (unsigned int i = 0; i < StartTrack.size(); i++)
 			{
-				if (fVerbose > 0)
+				if (fVerbose > 1)
 					std::cout << " " << fMapHitToID[StartTrack[i]];
 			}
-			if (fVerbose > 0) {
+			if (fVerbose > 1) {
 				TVectorD myOrig = actTrack.orig();
 				std::cout << " numHits: " << actTrack.getNumHits() << std::endl;
 				std::cout << " curv: " << 1/actTrack.r() << "+/-" << actTrack.dR()/(actTrack.r() * actTrack.r())
@@ -238,7 +356,9 @@ void PndMvdRiemannTrackFinder::FindTracks()
 				myTrackCand.AddHit(fMapHitToID[TrackHits[p].hitID()], TrackHits[p].s());
 			}
 		}
-		fTrackCand.push_back(myTrackCand);
+		FairMultiLinkedData gemHits = myTrackCand.GetLinksWithType(FairRootManager::Instance()->GetBranchId("GEMHit"));
+		if (gemHits.GetNLinks() == 0 || gemHits.GetNLinks() > 3)
+			fTrackCand.push_back(myTrackCand);
     
 		std::pair<double,double> CurvDip(1/fTracks[n].r(),fTracks[n].dip());
 		fCurvAndDipOfCand.push_back(CurvDip);
@@ -257,7 +377,7 @@ void PndMvdRiemannTrackFinder::FindTracks()
   
 }
 
-std::vector< std::vector<Int_t> > PndMvdRiemannTrackFinder::GetStartTracks()
+std::vector< std::vector<Int_t> > PndMvdGemRiemannTrackFinder::GetStartTracks()
 {
 	std::vector<Int_t> actCandidates;
 	std::vector<std::vector<Int_t> > Tracks;
@@ -283,7 +403,8 @@ std::vector< std::vector<Int_t> > PndMvdRiemannTrackFinder::GetStartTracks()
               for (unsigned int thirdInLayer = 0; thirdInLayer < fLayers[ThirdLayer].size(); thirdInLayer++){
                 int third=fLayers[ThirdLayer][thirdInLayer];
                 //if ((fHits[second]->GetZ())*(fHits[third]->GetZ())<0 && fabs(fHits[second]->GetZ())>fZClosePar && fabs(fHits[third]->GetZ())>fZClosePar) {/*printf("Diff Sign of Points  z1=%e  z2=%e \n",fHits[first]->GetZ(),fHits[second]->GetZ());*/ continue;} //my// check the same direction on z axis
-                //if (fVerbose > 1) std::cout << "Checking Points: " << first << " " << second << " " << third << std::endl;
+                if (fVerbose > 1) std::cout << "Checking Points for Start Triplet: " << first << " " << second << " " << third << std::endl;
+
                 if (CheckHitDistance(first, third)!= true){tooCloseFirst.push_back(third); continue;}
                 if (CheckHitDistance(second, third)!= true){tooCloseSecond.push_back(third); continue;}///<---------
                 if (CheckHitInSameSensor(first, third)==true)continue;
@@ -343,7 +464,7 @@ std::vector< std::vector<Int_t> > PndMvdRiemannTrackFinder::GetStartTracks()
 	return Tracks;
 }
 
-bool PndMvdRiemannTrackFinder::CheckSZ(PndRiemannTrack aTrack)
+bool PndMvdGemRiemannTrackFinder::CheckSZ(PndRiemannTrack aTrack)
 {
 	aTrack.szFit(false);
 	double r = aTrack.r();
@@ -359,7 +480,53 @@ bool PndMvdRiemannTrackFinder::CheckSZ(PndRiemannTrack aTrack)
 	return true;
 }
 
-bool PndMvdRiemannTrackFinder::CheckRiemannHit(PndRiemannTrack* track, PndRiemannHit* hit)
+bool PndMvdGemRiemannTrackFinder::CheckRiemannHit(PndRiemannTrack* track, PndRiemannHit* hit, FairHit* fairHit)
+{
+	if (fairHit->GetEntryNr().GetType() == FairRootManager::Instance()->GetBranchId("MVDHitsStrip") ||
+		fairHit->GetEntryNr().GetType() == FairRootManager::Instance()->GetBranchId("MVDHitsPixel")	){
+		return CheckRiemannHitMvd(track, hit, fairHit);
+	} else if (fairHit->GetEntryNr().GetType() == FairRootManager::Instance()->GetBranchId("GEMHit")) {
+		return CheckRiemannHitGem(track, hit, fairHit);
+	} else {
+		std::cout << "-E- PndMvdRIemannTrackFinder::CheckRiemannHit: Detector " << FairRootManager::Instance()->GetBranchName(fairHit->GetEntryNr().GetType()) <<
+				" not supported!" << std::endl;
+	}
+	return false;
+}
+
+bool PndMvdGemRiemannTrackFinder::CheckRiemannHitGem(PndRiemannTrack* track, PndRiemannHit* hit, FairHit* fairHit)
+{
+	double dist = track->dist(hit);
+	double maxDist = 1;
+	double szDist = track->szDist(hit);
+	double maxSZDist = 10;
+	double szChi2 = track->calcSZChi2(hit);
+	double maxSZChi2 = 25;
+	double r = track->r();
+	double dip=track->dip();
+	bool sign;
+	if ((track->getHit(1)->z())>0 )
+		sign=true;
+	else sign=false;
+	if (fVerbose > 1) std::cout << ": dist " << dist << " szDist " << szDist << " szChi2 " << szChi2 << std::endl;
+  
+	if (fabs(dist) > maxDist){
+		if (fVerbose > 1) std::cout << "dist larger than " << maxDist << std::endl;
+		return false;
+	}
+
+	if (szChi2 > maxSZChi2){
+		if (fVerbose > 1) std::cout << " SZ Chi2 too big! Cut at: " << maxSZChi2 << std::endl;
+		return false;
+	}
+	if (fabs(szDist) > maxSZDist){
+		if (fVerbose > 1) std::cout << "SZ Dist too big! Cut at: " << maxSZDist << std::endl;
+		return false;
+	}
+	return true;
+}
+
+bool PndMvdGemRiemannTrackFinder::CheckRiemannHitMvd(PndRiemannTrack* track, PndRiemannHit* hit, FairHit* fairHit)
 {
 	double dist = track->dist(hit);
 	double szDist = track->szDist(hit);
@@ -371,11 +538,12 @@ bool PndMvdRiemannTrackFinder::CheckRiemannHit(PndRiemannTrack* track, PndRieman
 		sign=true;
 	else sign=false;
 	if (fVerbose > 1) std::cout << ": dist " << dist << " szDist " << szDist << " szChi2 " << szChi2 << std::endl;
-  
+
 	if (fabs(dist) > GetMaxPlaneDist(r,dip,sign)){
 		if (fVerbose > 1) std::cout << "dist larger than " << GetMaxPlaneDist(r,dip,sign) << std::endl;
 		return false;
 	}
+
 	if (szChi2 > GetMaxSZChi2(r,dip,sign)){
 		if (fVerbose > 1) std::cout << " SZ Chi2 too big! Cut at: " << GetMaxSZChi2(r,dip,sign) << std::endl;
 		return false;
@@ -387,7 +555,7 @@ bool PndMvdRiemannTrackFinder::CheckRiemannHit(PndRiemannTrack* track, PndRieman
 	return true;
 }
 
-std::vector<int> PndMvdRiemannTrackFinder::GetTooCloseHitsInLayer(int LayerNumber , int HitNumber )
+std::vector<int> PndMvdGemRiemannTrackFinder::GetTooCloseHitsInLayer(int LayerNumber , int HitNumber )
 {
 	std::vector<int> result;
 	int testN;
@@ -403,7 +571,7 @@ std::vector<int> PndMvdRiemannTrackFinder::GetTooCloseHitsInLayer(int LayerNumbe
   
 }
 ////////////////////////////////////
-double PndMvdRiemannTrackFinder::GetMaxPlaneDist(double radius, double dip , bool sign)
+double PndMvdGemRiemannTrackFinder::GetMaxPlaneDist(double radius, double dip , bool sign)
 {
 	double Pt=((radius/100)*2*3*1E8)/1E9;
 	double Theta;
@@ -435,7 +603,7 @@ double PndMvdRiemannTrackFinder::GetMaxPlaneDist(double radius, double dip , boo
     return fMaxPlaneDist;
 }
 
-double PndMvdRiemannTrackFinder::GetMaxSZChi2(double radius, double dip , bool sign)
+double PndMvdGemRiemannTrackFinder::GetMaxSZChi2(double radius, double dip , bool sign)
 {
 	double Pt=((radius/100)*2*3*1E8)/1E9;
 	double Theta;

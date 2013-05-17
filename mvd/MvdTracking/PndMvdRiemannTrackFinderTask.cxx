@@ -16,7 +16,9 @@
 
 // PndMvd includes
 #include "PndTrackCand.h"
-#include "PndMvdRiemannTrackFinder.h"
+#include "PndMvdSttGemRiemannTrackFinder.h"
+
+#include "PndSttMapCreator.h"
 
 
 PndMvdRiemannTrackFinderTask::PndMvdRiemannTrackFinderTask() :
@@ -31,6 +33,8 @@ PndMvdRiemannTrackFinderTask::~PndMvdRiemannTrackFinderTask()
 
 void PndMvdRiemannTrackFinderTask::SetParContainers()
 {
+  FairRuntimeDb* rtdb = FairRunAna::Instance()->GetRuntimeDb();
+  fSttParameters = (PndGeoSttPar*) rtdb->getContainer("PndGeoSttPar");
 }
 
 InitStatus PndMvdRiemannTrackFinderTask::ReInit()
@@ -62,6 +66,8 @@ InitStatus PndMvdRiemannTrackFinderTask::Init()
 	  std::cout << "-W- PndMvdRiemannTrackFinderTask::Init: " << "No Branch Names given with AddHitBranch(TString branchName)! Standard BranchNames taken!" << std::endl;
 	  fHitBranch.push_back("MVDHitsPixel");
 	  fHitBranch.push_back("MVDHitsStrip");
+	  fHitBranch.push_back("STTHit");
+	  fHitBranch.push_back("GEMHit");
   }
 
   for (int i = 0; i < (int)fHitBranch.size(); i++){
@@ -82,6 +88,9 @@ InitStatus PndMvdRiemannTrackFinderTask::Init()
 
   fStopFunctor= new StopTime();
   fTimeGapFunctor = new TimeGap();
+
+  PndSttMapCreator *mapper = new PndSttMapCreator(fSttParameters);
+  fTubeArray = mapper->FillTubeArray();
 
   std::cout << "-I- PndMvdRiemannTrackFinderTask: Initialisation successfull" << std::endl;
   fInitDone = kTRUE;
@@ -108,6 +117,7 @@ void PndMvdRiemannTrackFinderTask::AddHitBranch(TString branchName)
 void PndMvdRiemannTrackFinderTask::Exec(Option_t* opt)
 {
 
+	SetVerbose(3);
   // Reset output array
   if ( ! fTrackCandArray )
     Fatal("Exec", "No trackCandArray");
@@ -116,18 +126,20 @@ void PndMvdRiemannTrackFinderTask::Exec(Option_t* opt)
   fTrackArray->Delete();
  // fRiemannTrackArray->Delete();
 
-  PndMvdRiemannTrackFinder trackFinder;
+  PndMvdSttGemRiemannTrackFinder trackFinder;
   trackFinder.SetVerbose(fVerbose);
+  trackFinder.SetSttTubeArray(fTubeArray);
 
   FillHitArray();
 
   FairRootManager *ioman = FairRootManager::Instance();
 
- // std::cout << std::endl;
-//  std::cout << "------------- event " << fEventNr << "----------------" << std::endl;
+  std::cout << std::endl;
+  std::cout << "------------- event " << fEventNr << "----------------" << std::endl;
 
   for (int i = 0; i < (int)fHitBranch.size(); i++){
 	  trackFinder.AddHits(fHitArray[i], ioman->GetBranchId(fHitBranch[i]));
+	  std::cout << "TrackFinder.AddHits: " << ioman->GetBranchId(fHitBranch[i]) << std::endl;
   }
   trackFinder.SetMaxSZChi2(fMaxSZChi2);
   trackFinder.SetMinPointDist(fMinPointDist);
@@ -149,16 +161,32 @@ void PndMvdRiemannTrackFinderTask::Exec(Option_t* opt)
 
   for (int i = 0; i < trackFinder.NTracks(); i++){
 	  PndTrackCand* myCand = new ((*fTrackCandArray)[i])PndTrackCand(trackFinder.GetTrackCand(i));
-	  if (fVerbose > 0) std::cout << "Track " << i << std::endl;
+//	  if (fVerbose > 1)
+//	  {
+//		  std::cout << "Track " << i << std::endl;
+//		  std::cout << "Links: ";
+//		  ((FairMultiLinkedData*) myCand)->Print();
+//		  std::cout << std::endl;
+//	  }
+
 	  myCand->CalcTimeStamp();
-	  if (fVerbose > 0)trackFinder.GetTrack(i).Print();
+//	  if (fVerbose > 1)
+//		  trackFinder.GetTrack(i).Print();
 	  //PndRiemannTrack myTrack = trackFinder.GetTrack(i);
 
 	  PndTrack* myTrack = new ((*fTrackArray)[i])PndTrack(trackFinder.GetPndTrack(i, fB));
-	  myTrack->SetTimeStamp(myCand->GetTimeStamp());
-	  myTrack->SetTimeStampError(myCand->GetTimeStampError());
+	  if (myCand->GetTimeStamp() == 0){
+		  myTrack->SetTimeStamp(0.0001 * (i+1));
+		  myCand->SetTimeStamp(0.0001 * (i+1));
+
+	  } else {
+		  myTrack->SetTimeStamp(myCand->GetTimeStamp());
+		  myTrack->SetTimeStampError(myCand->GetTimeStampError());
+	  }
 	  myTrack->SetLink(FairLink("MVDRiemannTrackCand", i));
-	  if (fVerbose > 0) {
+	  myTrack->SetTrackCandRef(myCand);
+
+	  if (fVerbose > 1) {
 		  std::cout << i << ": ";
 		  myTrack->Print();
 	  }
@@ -171,6 +199,17 @@ void PndMvdRiemannTrackFinderTask::Exec(Option_t* opt)
   }
   fTrackCandArray->Sort();
   fTrackArray->Sort();
+
+  for (int i = 0; i < fTrackCandArray->GetEntriesFast(); i++){
+	  PndTrackCand* myCand =(PndTrackCand*)fTrackCandArray->At(i);
+	  if (fVerbose > 1)
+	  {
+		  std::cout << "Track " << i << std::endl;
+		  std::cout << "Links: ";
+		  ((FairMultiLinkedData*) myCand)->Print();
+		  std::cout << std::endl;
+	  }
+  }
 }
 
 void PndMvdRiemannTrackFinderTask::FinishEvent()
