@@ -14,10 +14,7 @@
 #pragma link C++ class  PndDrcHitProducerReal+;
 #pragma link C++ class  DrawHits+;
 #pragma link C++ class  PndDrcDigiPar+;
-#pragma link C++ class  PndDrcDigitize+;
 
-
-  
 
 
 
