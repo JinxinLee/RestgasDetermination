@@ -13,6 +13,8 @@ ${CMAKE_SOURCE_DIR}/pnddata
 ${CMAKE_SOURCE_DIR}/pnddata/SttData
 ${CMAKE_SOURCE_DIR}/trackbase
 ${CMAKE_SOURCE_DIR}/pnddata/TrackData
+${CMAKE_SOURCE_DIR}/PndTools/riemannfit
+${CMAKE_SOURCE_DIR}/PndTools/generalTools
 ${CMAKE_SOURCE_DIR}/field 
 ${CMAKE_SOURCE_DIR}/stt
 ${CMAKE_SOURCE_DIR}/sttmvdtracking
@@ -44,6 +46,7 @@ PndSttMvdGemTrackingIdeal.cxx
 PndMixBackgroundEvents.cxx
 PndSecondaryTrackFinder.cxx
 PndLambdaIM.cxx
+PndMvdSttGemRiemannTrackFinder.cxx
 )
 
 set(LINKDEF  SttMvdTrackingLinkDef.h)

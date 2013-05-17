@@ -11,5 +11,7 @@
 #pragma link C++ class PndSecondaryTrackFinder+;
 #pragma link C++ class PndLambdaIM+;
 
+#pragma link C++ class PndMvdSttGemRiemannTrackFinder+;
+
 #endif
 
