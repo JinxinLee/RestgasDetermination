@@ -49,7 +49,7 @@
 
 void Tools()
 {
-  cout<<"pandaroot/macro/mvd/Tools.C loaded. Enjoy it."<<endl;
+  cout<<"pandaroot/macro/run/Tools.C loaded. Enjoy it."<<endl;
   return;
 }
 
@@ -438,7 +438,7 @@ void LoadManySimFiles(TString treename="cbmsim")
 
 TString InitDefaultRun(TString filetag)
 {
-  cout << "-I- Using InitDefaultRun() from macro/mvd/Tools.C with the sim file " << filetag.Data() << endl;
+  cout << "-I- Using InitDefaultRun() from macro/run/Tools.C with the sim file " << filetag.Data() << endl;
   FairRunAna* fRun = new FairRunAna();
   FairRuntimeDb* rtdb = fRun->GetRuntimeDb();
   

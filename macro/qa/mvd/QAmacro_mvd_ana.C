@@ -15,7 +15,7 @@ void QAmacro_mvd_ana()
   Bool_t test1=kTRUE, test2=kTRUE, test3=kTRUE;  
   gROOT->Macro("$VMCWORKDIR/gconfig/rootlogon.C");
   
-  gROOT->LoadMacro("$VMCWORKDIR/macro/mvd/Tools.C");
+  gROOT->LoadMacro("$VMCWORKDIR/macro/run/Tools.C");
   LoadPandaStyle();
 
   // -----   Timer   --------------------------------------------------------
