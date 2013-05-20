@@ -33,10 +33,6 @@ void QAmacro_stt_3()
   fRun->SetOutputFile(outFile);
   // ------------------------------------------------------------------------
  
-  // ----- Prepare GEANE --------------------------------------------
-  FairGeane *Geane = new FairGeane();
-  fRun->AddTask(Geane);
-  // ------------------------------------------------------------------------
 
   FairRuntimeDb* rtdb = fRun->GetRuntimeDb();
   FairParRootFileIo* parInput1 = new FairParRootFileIo();
@@ -51,13 +47,6 @@ void QAmacro_stt_3()
   FairParAsciiFileIo* parIo1 = new FairParAsciiFileIo();
   parIo1->open(allDigiFile.Data(),"in");
   rtdb->setSecondInput(parIo1);
-
-  // -----   MDV PR ----------------------------------------------
-  PndMvdRiemannTrackFinderTask* mvdTrackFinder = new PndMvdRiemannTrackFinderTask();
-  mvdTrackFinder->SetVerbose(iVerbose);
-  mvdTrackFinder->SetMaxDist(0.05);
-  mvdTrackFinder->SetPersistence(kFALSE);
-  fRun->AddTask(mvdTrackFinder);
 
   // -----   STT reconstruction -----------------------------------
   // trackfinding ....
