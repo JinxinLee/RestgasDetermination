@@ -64,6 +64,10 @@ run_fast(Int_t nEvents = 1000 )
   primGen->DoTracking(kFALSE);
 	
 	
+ //---------------------Create and Set the Field(s)---------- 
+  PndMultiField *fField= new PndMultiField("FULL");
+  fRun->SetField(fField);
+
   //-------- Setup the Fast Simulation Task  --------------
   //-------------------------------------------------------
   PndFastSim* fastSim = new PndFastSim();

@@ -63,6 +63,10 @@ QAmacro_fastsim_1(Int_t nEvents = 1000 )
   // ------------- switch off the transport of particles
   primGen->DoTracking(kFALSE);
 	
+ //---------------------Create and Set the Field(s)---------- 
+  PndMultiField *fField= new PndMultiField("FULL");
+  fRun->SetField(fField);
+
 	
   //-------- Setup the Fast Simulation Task  --------------
   //-------------------------------------------------------

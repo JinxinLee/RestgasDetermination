@@ -103,11 +103,17 @@ void PndFsmTrack::HelixRep(TVector3 reference) {
     double tandip=p4().Pz()/p4().Perp();
     double pnt[3], Bf[3];
     pnt[0]=fReference.X(); pnt[1]=fReference.Y(); pnt[2]=fReference.Z(); 
-    if(FairRun::Instance()->IsAna()){
-      FairRunAna::Instance()->GetField()->GetFieldValue(pnt, Bf); //[kGs]
-    }else{
-      FairRunSim::Instance()->GetField()->GetFieldValue(pnt, Bf); //[kGs]
-    }
+  FairField* theField=0;
+  if(FairRun::Instance()->IsAna()){
+    theField=FairRunAna::Instance()->GetField();
+//    FairRunAna::Instance()->GetField()->GetFieldValue(pnt, Bf); //[kGs]
+  }else{
+    theField=FairRunSim::Instance()->GetField();
+//    FairRunSim::Instance()->GetField()->GetFieldValue(pnt, Bf); //[kGs]
+  }
+  if(theField==0) Fatal("PndFsmTrack::HelixRep()","Magnetic Field pointer missing. Set your field!"); 
+    theField->GetFieldValue(pnt, Bf); //[kGs]
+    
       
     double a=-2.99792458e-3*Bf[2]*charge();
     double omega=a/p4().Perp();
@@ -146,11 +152,16 @@ void PndFsmTrack::Propagate(TVector3 origin, double deltaError) {
   // on helix track closest to origin
   double pnt[3], Bf[3];
   pnt[0]=fReference.X(); pnt[1]=fReference.Y(); pnt[2]=fReference.Z(); 
-    if(FairRun::Instance()->IsAna()){
-      FairRunAna::Instance()->GetField()->GetFieldValue(pnt, Bf); //[kGs]
-    }else{
-      FairRunSim::Instance()->GetField()->GetFieldValue(pnt, Bf); //[kGs]
-    }
+  FairField* theField=0;
+  if(FairRun::Instance()->IsAna()){
+    theField=FairRunAna::Instance()->GetField();
+//    FairRunAna::Instance()->GetField()->GetFieldValue(pnt, Bf); //[kGs]
+  }else{
+    theField=FairRunSim::Instance()->GetField();
+//    FairRunSim::Instance()->GetField()->GetFieldValue(pnt, Bf); //[kGs]
+  }
+  if(theField==0) Fatal("PndFsmTrack::HelixRep()","Magnetic Field pointer missing. Set your field!"); 
+  theField->GetFieldValue(pnt, Bf); //[kGs]
   double a=2.99792458e-3*Bf[2];
   double R=1/GetHelixOmega();
   double pt=-a*R*charge();
