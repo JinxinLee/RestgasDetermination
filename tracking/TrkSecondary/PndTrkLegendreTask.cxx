@@ -272,6 +272,9 @@ void PndTrkLegendreTask::Exec(Option_t* opt) {
     cout << "@@@@ PEAK No. " << ipeak << " @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@" << endl;
     ipeak++;
 
+    // APPLY LEGENDRE TO STT ALONE
+    // -------------------------------------------------------
+    
     double theta_max, r_max;
     maxpeak = ApplyLegendre(theta_max, r_max);
     if(maxpeak <= 3) break;
@@ -285,8 +288,12 @@ void PndTrkLegendreTask::Exec(Option_t* opt) {
     // 0 conformal: mvd and stt in conformal plane
     // 1 real: mvd and stt in real plane
     // 2 mixed: mvd in real/stt in conformal plane
-    int method = 0;
+    int method = 0; 
     cluster = CreateClusterByDistance(method, fitm, fitq);
+
+    // APPLY LEGENDRE TO CLUSTER + MVD
+    // -------------------------------------------------------
+  
     maxpeak = ApplyLegendre(&cluster, theta_max, r_max);
  
 
@@ -952,7 +959,7 @@ PndTrkCluster PndTrkLegendreTask::CreateClusterByMixedDistance(double fitm, doub
 
 
 Bool_t PndTrkLegendreTask::DoesRealHitBelong(PndTrkHit *hit, double x0, double y0, double R) {
-  double   dist = fRefHit->GetXYDistanceFromTrack(x0, y0, R);
+  double   dist = hit->GetXYDistanceFromTrack(x0, y0, R);
   int detID = hit->GetDetectorID();
   if(detID == FairRootManager::Instance()->GetBranchId(fMvdPixelBranch)) {
     if(dist < fMvdPix_RealDistLimit) return kTRUE;
@@ -995,7 +1002,7 @@ PndTrkCluster PndTrkLegendreTask::CreateClusterByDistance(Int_t mode, double fit
   // 2 mix:           pix real - str real - stt conf
   // --------------------------------------------------
   Double_t x0, y0, R;
-  if(mode != 0) FromConformalToRealTrack(fitm, fitp, x0, y0, R);
+  FromConformalToRealTrack(fitm, fitp, x0, y0, R);
  
   for(int ihit = 0; ihit < conformalhitlist->GetNofHits(); ihit++) {
     PndTrkConformalHit *chit = conformalhitlist->GetHit(ihit);
