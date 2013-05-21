@@ -57,6 +57,7 @@ class PndTrkLegendreTask : public FairTask {
 
   Int_t FillConformalHitList();
   void FillLegendreHisto(Int_t mode);
+  void FillLegendreHisto(PndTrkCluster *cluster);
 
 
   PndTrkCluster CreateSttCluster(PndTrkHit *firsthit);
@@ -80,6 +81,7 @@ class PndTrkLegendreTask : public FairTask {
   PndTrkHit *FindMvdStripReferenceHit();
   PndTrkHit *FindMvdReferenceHit();
   PndTrkHit *FindReferenceHit();
+  PndTrkCluster Cleanup(PndTrkCluster cluster);
 
   void  SearchSecondaryTracks() { fSecondary = kTRUE; }
 
@@ -107,7 +109,11 @@ class PndTrkLegendreTask : public FairTask {
   Bool_t DoesRealHitBelong(PndTrkHit *hit, double x0, double y0, double R);
   Bool_t DoesConfHitBelong(PndTrkConformalHit *hit, double fitm, double fitp);
 
+  void RePrepareLegendre(PndTrkCluster *cluster);
+  void PrepareLegendre();
   Int_t ApplyLegendre(double &theta_max, double &r_max);
+  Int_t ApplyLegendre(PndTrkCluster *cluster, double &theta_max, double &r_max);
+  Int_t ExtractLegendre(Int_t mode, double &theta_max, double &r_max);
 
  private:
 

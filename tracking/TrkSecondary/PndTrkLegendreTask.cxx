@@ -287,354 +287,14 @@ void PndTrkLegendreTask::Exec(Option_t* opt) {
     // 2 mixed: mvd in real/stt in conformal plane
     int method = 0;
     cluster = CreateClusterByDistance(method, fitm, fitq);
-
-
-    // RETRY LEGENDRE WITH ALSO PIXEL AND STRIP 
-    // -------------------------------------------------------
-    legendre->ResetLegendreHisto();
-    // conformalhitlist->ResetTo(trasl[0], trasl[1], delta);
-
-    for(int ihit = 0; ihit < cluster.GetNofHits(); ihit++) {
-      PndTrkHit *hit = cluster.GetHit(ihit);
-      double conformal[3];
-      PndTrkConformalHit * chit = conform->GetConformalSttHit(hit);
-      legendre->FillLegendreHisto(chit->GetU(), chit->GetV(), chit->GetIsochrone());
-      //      conformalhitlist->AddHit(chit);    
-    }
-    
-    for(int jhit = 0; jhit < mvdpixhitlist->GetNofHits(); jhit++) {
-      PndTrkHit *hit = mvdpixhitlist->GetHit(jhit);
-      if(hit->IsUsed()) {
-	//  cout << "already used III" << endl;   // CHECK
-	continue; 
-      }
-      PndTrkConformalHit * chit = conform->GetConformalHit(hit);
-      legendre->FillLegendreHisto(chit->GetU(), chit->GetV(), chit->GetIsochrone());
-      //      conformalhitlist->AddHit(chit);    
-    }
-     
-    for(int jhit = 0; jhit < mvdstrhitlist->GetNofHits(); jhit++) {
-      PndTrkHit *hit = mvdstrhitlist->GetHit(jhit);
-      if(hit->IsUsed()) {
-	// cout << "already used III" << endl;   // CHECK
-	continue; 
-      }
-      PndTrkConformalHit * chit = conform->GetConformalHit(hit);
-      legendre->FillLegendreHisto(chit->GetU(), chit->GetV(), chit->GetIsochrone());
-      //      conformalhitlist->AddHit(chit);    
-    }
-     
-    maxpeak = legendre->ExtractLegendreMaximum(theta_max, r_max);
-    //cout << "THETA/R MVD " << theta_max << " " << r_max <<  " maxpeak " << maxpeak << endl;
-    legendre->SetUpZoomHisto(theta_max, r_max, 3, 0.005);
-
-    for(int ihit = 0; ihit < conformalhitlist->GetNofHits(); ihit++) {
-      PndTrkConformalHit *chit = conformalhitlist->GetHit(ihit);
-      legendre->FillZoomHisto(chit->GetU(), chit->GetV(), chit->GetIsochrone());
-    }
-    maxpeak = legendre->ExtractZoomMaximum(theta_max, r_max);
-    // cout << "THETA/R ZOOM MVD " << theta_max << " " << r_max <<  " maxpeak " << maxpeak << endl;
-
-    if(fDisplayOn) {
-      char goOnChar;
-      DrawLegendreHisto();
-      TMarker *mrk = new TMarker(theta_max, r_max, 23);
-      mrk->Draw("SAME");
-      display->Update();
-      display->Modified();
-      //      cin >> goOnChar;
-    }
-  
-    //   // FIT WITH LEAST SQUARE STRAIGHT LINE
-    //     // -------------------------------------------------------
-    //     Double_t Suu, Su, Sv, Suv, S1;
-  
-    //     Su = 0.;
-    //     Sv = 0.;
-    //     Suu = 0.;
-    //     Suv = 0.;
-    //     S1 = 0.;
-    //     double fitm2, fitq2;
-
-    //     for(int ihit = 0; ihit < cluster.GetNofHits(); ihit++) 
-    //       {
-    // 	PndTrkHit *hit = cluster.GetHit(ihit);
-    // 	double conformal[3];
-
-    // 	PndTrkConformalHit *chit = NULL;
-    // 	if(hit->GetDetectorID() == FairRootManager::Instance()->GetBranchId(fSttBranch)) chit = conform->GetConformalSttHit(hit);
-    // 	else chit = conform->GetConformalHit(hit);
-
-    // 	double xi1 = chit->GetU() + fitm * chit->GetIsochrone()/ TMath::Sqrt(fitm * fitm + 1);
-    // 	double yi1 = chit->GetV() - chit->GetIsochrone() / TMath::Sqrt(fitm * fitm + 1);
-
-    // 	double xi2 = chit->GetU() - fitm * chit->GetIsochrone() / TMath::Sqrt(fitm * fitm + 1);
-    // 	double yi2 = chit->GetV() + chit->GetIsochrone()/ TMath::Sqrt(fitm * fitm + 1);
-
-    // 	cout << "conformal " << fitm << " " << chit->GetU() << " " << chit->GetV() << " " << chit->GetIsochrone() << endl;
-    // 	cout << xi1 << " " << xi2  << " " << yi1 << " " << yi2 << endl;
-    // 	double xi = 0, yi = 0;
-
-    // 	fabs(yi1 - (fitm * xi1 + fitq)) < fabs(yi2 - (fitm * xi2 + fitq)) ? (yi = yi1, xi = xi1) : (yi = yi2, xi = xi2);
-
-    // 	double sigma =  chit->GetIsochrone();
-
-    // 	Su += xi/(sigma * sigma);
-    // 	Sv += yi/(sigma * sigma);
-    
-    // 	Suv += xi * yi/(sigma * sigma);
-    // 	Suu += xi* xi/(sigma * sigma);
-	
-    // 	S1 += 1./(sigma * sigma);
-
-    // 	Double_t den = Suu * S1 - Su * Su;
-    // 	if(den == 0) cout << "DEN == 0" << endl; // CHECK
-	
-    // 	fitm2 = (Suv * S1 - Su * Sv)/den;
-    // 	fitq2 =  (Suu * Sv - Su * Suv)/den;
-
-    // 	if(fDisplayOn) {
-    // 	  display->cd(2);
-    // 	  TMarker *mrk = new TMarker(xi, yi, 6);
-    // 	  mrk->Draw("SAME");
-    // 	}
-    //       }
-
-    //     if(fDisplayOn) {
-    //       char goOnChar;
-    //       display->cd(2);
-    //       TLine *line = new TLine(-0.07, fitq + fitm * (-0.07), 0.07, fitq + fitm * (0.07));
-    //       line->Draw("SAME");
-    //       TLine *line2 = new TLine(-0.07, fitq2 + fitm2 * (-0.07), 0.07, fitq2 + fitm2 * (0.07));
-    //       line2->SetLineColor(2);
-    //       line2->Draw("SAME");
-    
-    //       display->Update();
-    //       display->Modified();
-    //       cin >> goOnChar;	
-    //     }
-
-    //     fitm = fitm2;
-    //     fitq = fitq2;
+    maxpeak = ApplyLegendre(&cluster, theta_max, r_max);
+ 
 
     // CLEANUP
     // -------------------------------------------------------
-    //    CleanCluster(cluster);
-    // cluster->SortMvdPixelByLayerID();
-    //    cluster->SortByLayerID();
-    PndTrkClean clean;
-    int leftvotes = 0;
-    int rightvotes = 0;
-
-    // SET SORT VARIABLE 
-    // MVD PIX PART OF CLUSTER
-    PndTrkCluster mvdpixcluster = cluster.GetMvdPixelHitList();
-    for(int ihit = 0; ihit < mvdpixcluster.GetNofHits(); ihit++) {
-      PndTrkHit *hit = mvdpixcluster.GetHit(ihit);
-      if(fSecondary) hit->SetSortVariable(hit->GetDistance(TVector3(trasl[0], trasl[1], 0.0)));
-      else hit->SetSortVariable(hit->GetDistance(TVector3(0., 0., 0)));
-      int sensorID = hit->GetSensorID();
-      int layerID = clean.FindMvdLayer(sensorID);
-      if(layerID%2 == 0) rightvotes++;
-      else leftvotes++;
-    }
-    // MVD STR PART OF CLUSTER
-    PndTrkCluster mvdstrcluster = cluster.GetMvdStripHitList();
-    for(int ihit = 0; ihit < mvdstrcluster.GetNofHits(); ihit++) {
-      PndTrkHit *hit = mvdstrcluster.GetHit(ihit);
-      if(fSecondary) hit->SetSortVariable(hit->GetDistance(TVector3(trasl[0], trasl[1], 0.0)));
-      else hit->SetSortVariable(hit->GetDistance(TVector3(0., 0., 0)));
-      int sensorID = hit->GetSensorID();
-      int layerID = clean.FindMvdLayer(sensorID);
-      if(layerID%2 == 0) rightvotes++;
-      else leftvotes++;
-    }
-    // STT PARALLEL PART OF CLUSTER
-    PndTrkCluster sttcluster = cluster.GetSttParallelHitList();
-    for(int ihit = 0; ihit < sttcluster.GetNofHits(); ihit++) {
-      PndTrkHit *hit = sttcluster.GetHit(ihit);
-      int layerID = -999, tubeID = hit->GetTubeID(), sectorID = -999;
-      PndSttTube *tube = (PndSttTube*) fTubeArray->At(tubeID);
-      layerID = tube->GetLayerID();
-      sectorID = tube->GetSectorID();
-      if(fSecondary) hit->SetSortVariable(hit->GetDistance(TVector3(trasl[0], trasl[1], 0.0)));
-      else hit->SetSortVariable(1000+layerID);
-      if(sectorID < 3) rightvotes++;
-      else leftvotes++;
-    }
-
-    // cout << "VOTES: LEFT " << leftvotes << " RIGHT " << rightvotes << endl;
-    for(int ihit = 0; ihit < cluster.GetNofHits(); ihit++) {
-      PndTrkHit *hit = cluster.GetHit(ihit);
-      //  cout << "for sorting " << hit->GetDetectorID () << " " << hit->GetHitID() << " " << hit->GetSortVariable() << endl;
-    }
-
-    cluster.Sort();
-    for(int ihit = 0; ihit < cluster.GetNofHits(); ihit++) {
-      PndTrkHit *hit = cluster.GetHit(ihit);
-      // cout << "sorted " << hit->GetDetectorID () << " " << hit->GetHitID() << " " << hit->GetSortVariable() << endl;
-    }
-
-    //    cluster.Print();
-
-    // DELETE HITS
-    PndTrkCluster deletioncluster;
-
-    // LEFT/RIGHT CRITERION ------------------------------------------ NOW OFF
-    // PIXEL
-    mvdpixcluster = cluster.GetMvdPixelHitList();
-    for(int ihit = 0; ihit < mvdpixcluster.GetNofHits(); ihit++) {
-      PndTrkHit *hit = mvdpixcluster.GetHit(ihit);
-      int sensorID = hit->GetSensorID();
-      int layerID = clean.FindMvdLayer(sensorID);
-      //  cout << "pixel sorted " <<  hit->GetHitID() << " " << hit->GetSortVariable() << " " << sensorID << " " << layerID << endl;
-
-
-      if((leftvotes > rightvotes) && (layerID%2 == 0)) {
-	// deletioncluster.AddHit(hit);
-	// cout << "pixel DELETED " <<  hit->GetHitID() << " " << ihit << " " << mvdpixcluster.GetNofHits() << endl;
-      }
-      else  if((leftvotes < rightvotes) && (layerID%2 != 0)) {
-	// deletioncluster.AddHit(hit);
-	// cout << "pixel DELETED " << hit->GetHitID() << " " << ihit << " " << mvdpixcluster.GetNofHits() << endl;
-      }
-
-      if(fDisplayOn) {
-	char goOnChar;
-	display->cd(1);
-	hit->Draw(kGreen);
-	display->Update();
-	display->Modified();
-	cout << "WAITING" << endl;
-	cin >> goOnChar;	
-      }
-    }
-    // STRIP
-    mvdstrcluster = cluster.GetMvdStripHitList();
-    for(int ihit = 0; ihit < mvdstrcluster.GetNofHits(); ihit++) {
-      PndTrkHit *hit = mvdstrcluster.GetHit(ihit);
-      int sensorID = hit->GetSensorID();
-      //  cout << "strip sorted " <<  hit->GetHitID() << " " << hit->GetSortVariable() << " " << sensorID << " " << clean.FindMvdLayer(sensorID) << endl;
-      int layerID = clean.FindMvdLayer(sensorID);
-      if((leftvotes > rightvotes) && (layerID%2 == 0)) {
-	//	deletioncluster.AddHit(hit);
- 	//	cout << "strip DELETED " <<  hit->GetHitID() << endl;
-      }
-      else  if((leftvotes < rightvotes) && (layerID%2 != 0)) {
-	//	deletioncluster.AddHit(hit);
-	//	cout << "strip DELETED " <<  hit->GetHitID() << endl;
-      }
-      if(fDisplayOn) {
-	char goOnChar;
-	display->cd(1);
-	hit->Draw(kBlue);
-	display->Update();
-	display->Modified();
-	//	cin >> goOnChar;	
-      } 
-    }
-
-    // STT PARALLEL
-    sttcluster = cluster.GetSttParallelHitList();
-    for(int ihit = 0; ihit < sttcluster.GetNofHits(); ihit++) {
-      PndTrkHit *hit = sttcluster.GetHit(ihit);
-      int layerID = -999, tubeID = hit->GetTubeID();
-      PndSttTube *tube = (PndSttTube*) fTubeArray->At(tubeID);
-      layerID = tube->GetLayerID();
-      //      cout << "stt sorted " <<  hit->GetHitID() << " " << hit->GetSortVariable() << " " << tubeID << " " << layerID << endl;
-
-      int  sectorID = tube->GetSectorID();
-
-      if((leftvotes > rightvotes) &&  (sectorID < 3)) {
-	//		deletioncluster.AddHit(hit);
-	//	cout << "stt DELETED " <<  hit->GetHitID() << " " << sectorID << endl;
-      }
-      else if((leftvotes < rightvotes) && (sectorID >= 3)) {
-	// 		deletioncluster.AddHit(hit);
-	//	cout << "stt DELETED " <<  hit->GetHitID() << " " << sectorID << endl;
-      }
-      // ~~~~~~~~~~~~~~~~~~ check *******************
-      else { // NEIGHBORING CRITERION ------------------------------------------------ 
-	TArrayI neighboring = tube->GetNeighborings();
-	//	cout << "NEIGHBORING TO TUBE " << tubeID << endl;
-	// 	for(int nhit = 0; nhit < neighboring.GetSize(); nhit++) {
-	// 	  cout << " " << neighboring.At(nhit);
-	// 	}
-	// 	cout << endl;
-
-	int neighboringcounter = 0;
-	for(int ohit = 0; ohit < sttcluster.GetNofHits(); ohit++) {
-	  if(ihit == ohit) continue;	 
-	  PndTrkHit *otherhit = sttcluster.GetHit(ohit);
-	  int otherhitID = otherhit->GetTubeID();
-	  
-	  for(int nhit = 0; nhit < neighboring.GetSize(); nhit++) {
-	    if(otherhitID == neighboring.At(nhit)) neighboringcounter++;
-	  }
-
-	  // 	if(isthere == false) 
-	  // 	  {
-	  // 	    deletioncluster.AddHit(hit);
-	  // 	    cout << "stt DELETEDbis " <<  hit->GetHitID() << " " << sectorID << endl;
-	  // 	  }
-	}
-	//	cout << "hit " << ihit << " has " << neighboringcounter << " NEIGHBORINS" << endl;
-	
-	if(layerID != 0 && layerID != 7 && layerID != 8 && ihit != sttcluster.GetNofHits() - 1 && neighboringcounter == 1) {
-	  //	  cout << "I SHOULD DELETE THIS" << endl;
-	  //  deletioncluster.AddHit(hit);
-	  // OFF FOR NOW: delete if there is just 1 neighboring
-	  //	  cout << "stt DELETED " <<  hit->GetHitID() << " " << sectorID << endl;	 
-	}
-	
-	// ON, delete if there is no neighboring (isolated hit)
-	if(neighboringcounter == 0) {
-	  //	  cout << "I WILL DELETE THIS" << endl;
-	  deletioncluster.AddHit(hit);
-	  //	  cout << "stt DELETED " <<  hit->GetHitID() << " " << sectorID << endl;
-	}
-	
-	if(fDisplayOn) {
-	  char goOnChar;
-	  display->cd(1);
-	  hit->Draw(kCyan);
-	  display->Update();
-	  display->Modified();
-	  //	  cin >> goOnChar;	
-	} 
-      }
-    }
-
-    if(fDisplayOn) {
-      char goOnChar;
-      //      cin >> goOnChar;	
-    } 
-    // ~~~~~~~~~~~~~~~~~~
-
-
-
-    // ACTUAL DELETION OF HITS
-
-    PndTrkCluster finalcluster;
-    for(int ihit = 0; ihit < cluster.GetNofHits(); ihit++) {
-      PndTrkHit *hit = cluster.GetHit(ihit);
-      bool stop = false;
-      for(int jhit = 0; jhit < deletioncluster.GetNofHits(); jhit++) {
-	PndTrkHit *dhit = deletioncluster.GetHit(jhit);
-	if(hit == dhit) {
-	  // ********** CHECK ***********
-	  //	  cout << "trhrow in again" << endl;
-	  //	  dhit->SetUsedFlag(0);
-	  stop = true;
-	  break;
-	}
-      }
-      if(!stop) finalcluster.AddHit(hit);
-    }
-    cluster = finalcluster;
-
-    //    cluster.Print();
-
+    PndTrkCluster cleancluster = Cleanup(cluster);
+    cluster = cleancluster;
+ 
 
     // FIT WITH LEAST SQUARE STRAIGHT LINE
     // -------------------------------------------------------
@@ -993,7 +653,7 @@ void PndTrkLegendreTask::Exec(Option_t* opt) {
   delete mvdstrhitlist;
   timer.Stop();
   time += timer.RealTime();
-  cerr << "Real time " << time << " s" << endl;
+  cerr << fEventCounter << " Real time " << time << " s" << endl;
   
 }
 
@@ -1038,6 +698,32 @@ void PndTrkLegendreTask::FillLegendreHisto(Int_t mode)
     }
   }
 }
+ 
+void PndTrkLegendreTask::FillLegendreHisto(PndTrkCluster *cluster)
+{
+  // ---------------------------------------------------------------
+  for(int ihit = 0; ihit < cluster->GetNofHits(); ihit++) {
+    PndTrkHit *hit = cluster->GetHit(ihit);
+    double conformal[3];
+    PndTrkConformalHit * chit = conform->GetConformalSttHit(hit);
+    legendre->FillLegendreHisto(chit->GetU(), chit->GetV(), chit->GetIsochrone());
+    //      conformalhitlist->AddHit(chit);    
+  }
+    
+  // add mvd hits to stt cluster
+  for(int ihit = 0; ihit < conformalhitlist->GetNofHits(); ihit++) {
+    PndTrkConformalHit *chit = conformalhitlist->GetHit(ihit);
+    if(chit->GetDetectorID() == FairRootManager::Instance()->GetBranchId(fSttBranch)) continue;   
+    PndTrkHit *hit = chit->GetHit();
+    if(hit->IsUsed()) continue;
+    legendre->FillLegendreHisto(chit->GetU(), chit->GetV(), chit->GetIsochrone());
+    if(fDisplayOn) {
+      DrawConfHit(chit->GetU(), chit->GetV(), chit->GetIsochrone());
+    }
+  }
+}
+ 
+
  
 PndTrkCluster PndTrkLegendreTask::CreateClusterByConfDistance(double fitm, double fitq) {
   
@@ -2064,7 +1750,23 @@ void PndTrkLegendreTask::ComputeTraAndRot(PndTrkHit *hit, Double_t &delta, Doubl
   
 }
 
-Int_t  PndTrkLegendreTask::ApplyLegendre(double &theta_max, double &r_max) {
+
+void PndTrkLegendreTask::RePrepareLegendre(PndTrkCluster *cluster) {
+
+  //    cout << "RESETTING LEGENDRE HISTO" << endl;
+  legendre->ResetLegendreHisto();
+  if(fSecondary) legendre->SetUpLegendreHisto(180, 0, 180, 1000, -1., 1.);
+ 
+  if(fDisplayOn) {
+    RefreshConf();
+    if(fSecondary) DrawGeometryConf(-1., 1., -1., 1.);
+    else   DrawGeometryConf(-0.07, 0.07, -0.07, 0.07);
+  }
+  // cout << "%%%%%%%%%%%%%%%%%%%% XY FINDER %%%%%%%%%%%%%%%%%%%%%%%%%%" << endl;
+  FillLegendreHisto(cluster);
+}
+
+void PndTrkLegendreTask::PrepareLegendre() {
 
   //    cout << "RESETTING LEGENDRE HISTO" << endl;
   legendre->ResetLegendreHisto();
@@ -2077,7 +1779,21 @@ Int_t  PndTrkLegendreTask::ApplyLegendre(double &theta_max, double &r_max) {
   }
   cout << "%%%%%%%%%%%%%%%%%%%% XY FINDER %%%%%%%%%%%%%%%%%%%%%%%%%%" << endl;
   FillLegendreHisto(0);
+}
 
+Int_t PndTrkLegendreTask::ApplyLegendre(double &theta_max, double &r_max) {
+  PrepareLegendre();
+  return ExtractLegendre(0, theta_max, r_max);
+}
+
+Int_t PndTrkLegendreTask::ApplyLegendre(PndTrkCluster *cluster, double &theta_max, double &r_max) {
+  RePrepareLegendre(cluster);
+  return ExtractLegendre(1, theta_max, r_max);
+}
+
+
+
+Int_t  PndTrkLegendreTask::ExtractLegendre(Int_t mode, double &theta_max, double &r_max) {
   if(fDisplayOn) {
     char goOnChar;
     //      cin >> goOnChar;
@@ -2094,38 +1810,43 @@ Int_t  PndTrkLegendreTask::ApplyLegendre(double &theta_max, double &r_max) {
   //  legendre->ApplyThresholdLegendreHisto(0.3);
   int  maxpeak = legendre->ExtractLegendreMaximum(theta_max, r_max);
 
-  if(maxpeak <= 3) {
-    cout << "MAXPEAK " << maxpeak <<  ", BREAK NOW! "  << endl;
-    return maxpeak;
-  }
   bool alreadythere = false;
-  for(int ialready = 0; ialready < fFoundPeaks.size(); ialready++) {
-    std::pair<double, double> foundthetar = fFoundPeaks.at(ialready);
-    double foundtheta = foundthetar.first;
-    double foundr = foundthetar.second;
-    // IF THIS PEAK WAS ALREADY FOUND, DELETE THE PEAK AND GO ON (TO AVOID INFINITE LOOPS)
-    if(theta_max == foundtheta && r_max == foundr) {
-      legendre->DeleteZoneAroundXYLegendre(theta_max, r_max);
-      maxpeak = legendre->ExtractLegendreMaximum(theta_max, r_max);
-      alreadythere = true;
-      cout << "OH NO! THIS PEAK IS ALREADY THERE" << endl;
-      return -1;
+  if(mode == 0) {
+
+    if(maxpeak <= 3) {
+      cout << "MAXPEAK " << maxpeak <<  ", BREAK NOW! "  << endl;
+      return maxpeak;
+    }
+  
+    for(int ialready = 0; ialready < fFoundPeaks.size(); ialready++) {
+      std::pair<double, double> foundthetar = fFoundPeaks.at(ialready);
+      double foundtheta = foundthetar.first;
+      double foundr = foundthetar.second;
+      // IF THIS PEAK WAS ALREADY FOUND, DELETE THE PEAK AND GO ON (TO AVOID INFINITE LOOPS)
+      if(theta_max == foundtheta && r_max == foundr) {
+	legendre->DeleteZoneAroundXYLegendre(theta_max, r_max);
+	maxpeak = legendre->ExtractLegendreMaximum(theta_max, r_max);
+	alreadythere = true;
+	cout << "OH NO! THIS PEAK IS ALREADY THERE" << endl;
+	return -1;
+      }
+    }
+    
+    if(alreadythere == false) {
+      std::pair<double, double> tr(theta_max, r_max);
+      fFoundPeaks.push_back(tr);
     }
   }
-    
-  if(alreadythere == false) {
-    std::pair<double, double> tr(theta_max, r_max);
-    fFoundPeaks.push_back(tr);
-  }
-
   // ZOOM LEGENDRE HISTO
   legendre->SetUpZoomHisto(theta_max, r_max, 3, 0.005);
   //   cout << "THETA/R " << theta_max << " " << r_max << " maxpeak " << maxpeak << endl;
+
   for(int ihit = 0; ihit < conformalhitlist->GetNofHits(); ihit++) {
     PndTrkConformalHit *chit = conformalhitlist->GetHit(ihit);
     legendre->FillZoomHisto(chit->GetU(), chit->GetV(), chit->GetIsochrone());
   }
-  if(alreadythere == true) {
+
+  if(mode == 0 && alreadythere == true) {
     cout << "THIS PEAK IS ALREADY THERE" << endl;
     legendre->DeleteZoneAroundXYZoom(theta_max, r_max);
   }
@@ -2149,6 +1870,229 @@ Int_t  PndTrkLegendreTask::ApplyLegendre(double &theta_max, double &r_max) {
   return maxpeak;
 }
 
+
+PndTrkCluster PndTrkLegendreTask::Cleanup(PndTrkCluster cluster) {
+  
+  // CLEANUP
+  // -------------------------------------------------------
+  //    CleanCluster(cluster);
+  // cluster->SortMvdPixelByLayerID();
+  //    cluster->SortByLayerID();
+  PndTrkClean clean;
+  int leftvotes = 0;
+  int rightvotes = 0;
+
+  TVector2 trasl = conform->GetTranslation();
+  Double_t angle = conform->GetRotation();
+
+  // SET SORT VARIABLE 
+  // MVD PIX PART OF CLUSTER
+  PndTrkCluster mvdpixcluster = cluster.GetMvdPixelHitList();
+  for(int ihit = 0; ihit < mvdpixcluster.GetNofHits(); ihit++) {
+    PndTrkHit *hit = mvdpixcluster.GetHit(ihit);
+    if(fSecondary) hit->SetSortVariable(hit->GetDistance(TVector3(trasl.X(), trasl.Y(), angle)));
+    else hit->SetSortVariable(hit->GetDistance(TVector3(0., 0., 0)));
+    int sensorID = hit->GetSensorID();
+    int layerID = clean.FindMvdLayer(sensorID);
+    if(layerID%2 == 0) rightvotes++;
+    else leftvotes++;
+  }
+  // MVD STR PART OF CLUSTER
+  PndTrkCluster mvdstrcluster = cluster.GetMvdStripHitList();
+  for(int ihit = 0; ihit < mvdstrcluster.GetNofHits(); ihit++) {
+    PndTrkHit *hit = mvdstrcluster.GetHit(ihit);
+    if(fSecondary) hit->SetSortVariable(hit->GetDistance(TVector3(trasl.X(), trasl.Y(), angle)));
+    else hit->SetSortVariable(hit->GetDistance(TVector3(0., 0., 0)));
+    int sensorID = hit->GetSensorID();
+    int layerID = clean.FindMvdLayer(sensorID);
+    if(layerID%2 == 0) rightvotes++;
+    else leftvotes++;
+  }
+  // STT PARALLEL PART OF CLUSTER
+  PndTrkCluster sttcluster = cluster.GetSttParallelHitList();
+  for(int ihit = 0; ihit < sttcluster.GetNofHits(); ihit++) {
+    PndTrkHit *hit = sttcluster.GetHit(ihit);
+    int layerID = -999, tubeID = hit->GetTubeID(), sectorID = -999;
+    PndSttTube *tube = (PndSttTube*) fTubeArray->At(tubeID);
+    layerID = tube->GetLayerID();
+    sectorID = tube->GetSectorID();
+    if(fSecondary) hit->SetSortVariable(hit->GetDistance(TVector3(trasl.X(), trasl.Y(), angle)));
+    else hit->SetSortVariable(1000+layerID);
+    if(sectorID < 3) rightvotes++;
+    else leftvotes++;
+  }
+
+  // cout << "VOTES: LEFT " << leftvotes << " RIGHT " << rightvotes << endl;
+  for(int ihit = 0; ihit < cluster.GetNofHits(); ihit++) {
+    PndTrkHit *hit = cluster.GetHit(ihit);
+    //  cout << "for sorting " << hit->GetDetectorID () << " " << hit->GetHitID() << " " << hit->GetSortVariable() << endl;
+  }
+
+  cluster.Sort();
+  for(int ihit = 0; ihit < cluster.GetNofHits(); ihit++) {
+    PndTrkHit *hit = cluster.GetHit(ihit);
+    // cout << "sorted " << hit->GetDetectorID () << " " << hit->GetHitID() << " " << hit->GetSortVariable() << endl;
+  }
+
+  //    cluster.Print();
+
+  // DELETE HITS
+  PndTrkCluster deletioncluster;
+
+  // LEFT/RIGHT CRITERION ------------------------------------------ NOW OFF
+  // PIXEL
+  mvdpixcluster = cluster.GetMvdPixelHitList();
+  for(int ihit = 0; ihit < mvdpixcluster.GetNofHits(); ihit++) {
+    PndTrkHit *hit = mvdpixcluster.GetHit(ihit);
+    int sensorID = hit->GetSensorID();
+    int layerID = clean.FindMvdLayer(sensorID);
+    //  cout << "pixel sorted " <<  hit->GetHitID() << " " << hit->GetSortVariable() << " " << sensorID << " " << layerID << endl;
+
+
+    if((leftvotes > rightvotes) && (layerID%2 == 0)) {
+      // deletioncluster.AddHit(hit);
+      // cout << "pixel DELETED " <<  hit->GetHitID() << " " << ihit << " " << mvdpixcluster.GetNofHits() << endl;
+    }
+    else  if((leftvotes < rightvotes) && (layerID%2 != 0)) {
+      // deletioncluster.AddHit(hit);
+      // cout << "pixel DELETED " << hit->GetHitID() << " " << ihit << " " << mvdpixcluster.GetNofHits() << endl;
+    }
+
+    if(fDisplayOn) {
+      char goOnChar;
+      display->cd(1);
+      hit->Draw(kGreen);
+      display->Update();
+      display->Modified();
+      cout << "WAITING" << endl;
+      cin >> goOnChar;	
+    }
+  }
+  // STRIP
+  mvdstrcluster = cluster.GetMvdStripHitList();
+  for(int ihit = 0; ihit < mvdstrcluster.GetNofHits(); ihit++) {
+    PndTrkHit *hit = mvdstrcluster.GetHit(ihit);
+    int sensorID = hit->GetSensorID();
+    //  cout << "strip sorted " <<  hit->GetHitID() << " " << hit->GetSortVariable() << " " << sensorID << " " << clean.FindMvdLayer(sensorID) << endl;
+    int layerID = clean.FindMvdLayer(sensorID);
+    if((leftvotes > rightvotes) && (layerID%2 == 0)) {
+      //	deletioncluster.AddHit(hit);
+      //	cout << "strip DELETED " <<  hit->GetHitID() << endl;
+    }
+    else  if((leftvotes < rightvotes) && (layerID%2 != 0)) {
+      //	deletioncluster.AddHit(hit);
+      //	cout << "strip DELETED " <<  hit->GetHitID() << endl;
+    }
+    if(fDisplayOn) {
+      char goOnChar;
+      display->cd(1);
+      hit->Draw(kBlue);
+      display->Update();
+      display->Modified();
+      //	cin >> goOnChar;	
+    } 
+  }
+
+  // STT PARALLEL
+  sttcluster = cluster.GetSttParallelHitList();
+  for(int ihit = 0; ihit < sttcluster.GetNofHits(); ihit++) {
+    PndTrkHit *hit = sttcluster.GetHit(ihit);
+    int layerID = -999, tubeID = hit->GetTubeID();
+    PndSttTube *tube = (PndSttTube*) fTubeArray->At(tubeID);
+    layerID = tube->GetLayerID();
+    //      cout << "stt sorted " <<  hit->GetHitID() << " " << hit->GetSortVariable() << " " << tubeID << " " << layerID << endl;
+
+    int  sectorID = tube->GetSectorID();
+
+    if((leftvotes > rightvotes) &&  (sectorID < 3)) {
+      //		deletioncluster.AddHit(hit);
+      //	cout << "stt DELETED " <<  hit->GetHitID() << " " << sectorID << endl;
+    }
+    else if((leftvotes < rightvotes) && (sectorID >= 3)) {
+      // 		deletioncluster.AddHit(hit);
+      //	cout << "stt DELETED " <<  hit->GetHitID() << " " << sectorID << endl;
+    }
+    // ~~~~~~~~~~~~~~~~~~ check *******************
+    else { // NEIGHBORING CRITERION ------------------------------------------------ 
+      TArrayI neighboring = tube->GetNeighborings();
+      //	cout << "NEIGHBORING TO TUBE " << tubeID << endl;
+      // 	for(int nhit = 0; nhit < neighboring.GetSize(); nhit++) {
+      // 	  cout << " " << neighboring.At(nhit);
+      // 	}
+      // 	cout << endl;
+
+      int neighboringcounter = 0;
+      for(int ohit = 0; ohit < sttcluster.GetNofHits(); ohit++) {
+	if(ihit == ohit) continue;	 
+	PndTrkHit *otherhit = sttcluster.GetHit(ohit);
+	int otherhitID = otherhit->GetTubeID();
+	  
+	for(int nhit = 0; nhit < neighboring.GetSize(); nhit++) {
+	  if(otherhitID == neighboring.At(nhit)) neighboringcounter++;
+	}
+
+	// 	if(isthere == false) 
+	// 	  {
+	// 	    deletioncluster.AddHit(hit);
+	// 	    cout << "stt DELETEDbis " <<  hit->GetHitID() << " " << sectorID << endl;
+	// 	  }
+      }
+      //	cout << "hit " << ihit << " has " << neighboringcounter << " NEIGHBORINS" << endl;
+	
+      if(layerID != 0 && layerID != 7 && layerID != 8 && ihit != sttcluster.GetNofHits() - 1 && neighboringcounter == 1) {
+	//	  cout << "I SHOULD DELETE THIS" << endl;
+	//  deletioncluster.AddHit(hit);
+	// OFF FOR NOW: delete if there is just 1 neighboring
+	//	  cout << "stt DELETED " <<  hit->GetHitID() << " " << sectorID << endl;	 
+      }
+	
+      // ON, delete if there is no neighboring (isolated hit)
+      if(neighboringcounter == 0) {
+	//	  cout << "I WILL DELETE THIS" << endl;
+	deletioncluster.AddHit(hit);
+	//	  cout << "stt DELETED " <<  hit->GetHitID() << " " << sectorID << endl;
+      }
+	
+      if(fDisplayOn) {
+	char goOnChar;
+	display->cd(1);
+	hit->Draw(kCyan);
+	display->Update();
+	display->Modified();
+	//	  cin >> goOnChar;	
+      } 
+    }
+  }
+
+  if(fDisplayOn) {
+    char goOnChar;
+    //      cin >> goOnChar;	
+  } 
+  // ~~~~~~~~~~~~~~~~~~
+
+
+
+  // ACTUAL DELETION OF HITS
+
+  PndTrkCluster finalcluster;
+  for(int ihit = 0; ihit < cluster.GetNofHits(); ihit++) {
+    PndTrkHit *hit = cluster.GetHit(ihit);
+    bool stop = false;
+    for(int jhit = 0; jhit < deletioncluster.GetNofHits(); jhit++) {
+      PndTrkHit *dhit = deletioncluster.GetHit(jhit);
+      if(hit == dhit) {
+	// ********** CHECK ***********
+	//	  cout << "trhrow in again" << endl;
+	//	  dhit->SetUsedFlag(0);
+	stop = true;
+	break;
+      }
+    }
+    if(!stop) finalcluster.AddHit(hit);
+  }
+
+  return finalcluster;
+}
 
 ClassImp(PndTrkLegendreTask)
 
