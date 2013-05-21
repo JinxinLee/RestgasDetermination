@@ -104,6 +104,8 @@ class PndTrkLegendreTask : public FairTask {
   void DontUseMvdStr() { fUseMVDStr = kFALSE; }
   void DontUseStt()    { fUseSTT = kFALSE; }
 
+  Bool_t DoesRealHitBelong(PndTrkHit *hit, double x0, double y0, double R);
+  Bool_t DoesConfHitBelong(PndTrkConformalHit *hit, double fitm, double fitp);
 
  private:
 
@@ -153,6 +155,10 @@ class PndTrkLegendreTask : public FairTask {
   PndTrkConformalTransform *conform;
   PndTrkConformalHitList *conformalhitlist;
   PndTrkTools *tools;
+
+  PndTrkHit *fRefHit;
+
+  Double_t fMvdPix_RealDistLimit, fMvdStr_RealDistLimit, fStt_RealDistLimit,  fMvdPix_ConfDistLimit, fMvdStr_ConfDistLimit, fStt_ConfDistLimit; 
 
 
   ClassDef(PndTrkLegendreTask,1);

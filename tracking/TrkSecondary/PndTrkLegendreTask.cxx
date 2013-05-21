@@ -51,7 +51,7 @@ using namespace std;
 
 
 // -----   Default constructor   -------------------------------------------
-PndTrkLegendreTask::PndTrkLegendreTask() : FairTask("secondary track finder"), fVerbose(0), fDisplayOn(kFALSE), fPersistence(kTRUE), fUseMVDPix(kTRUE), fUseMVDStr(kTRUE), fUseSTT(kTRUE), fSecondary(kFALSE) {
+PndTrkLegendreTask::PndTrkLegendreTask() : FairTask("secondary track finder"), fVerbose(0), fDisplayOn(kFALSE), fPersistence(kTRUE), fUseMVDPix(kTRUE), fUseMVDStr(kTRUE), fUseSTT(kTRUE), fSecondary(kFALSE), fMvdPix_RealDistLimit(1000), fMvdStr_RealDistLimit(1000), fStt_RealDistLimit(1000), fMvdPix_ConfDistLimit(1000), fMvdStr_ConfDistLimit(1000), fStt_ConfDistLimit(1000) {
   sprintf(fSttBranch,"STTHit");
   sprintf(fMvdPixelBranch,"MVDHitsPixel");
   sprintf(fMvdStripBranch,"MVDHitsStrip");
@@ -71,6 +71,13 @@ PndTrkLegendreTask::~PndTrkLegendreTask() {
 InitStatus PndTrkLegendreTask::Init() {
   
   fEventCounter = 0;
+
+  fMvdPix_RealDistLimit = 0.5; // CHECK limits
+  fMvdStr_RealDistLimit = 0.5; // CHECK limits
+  fStt_RealDistLimit =  1.5 * 0.5; // CHECK limits
+  fMvdPix_ConfDistLimit = 0.003; // CHECK limits
+  fMvdStr_ConfDistLimit = 0.003; // CHECK limits
+  fStt_ConfDistLimit =  0.001; // CHECK limits
 
   // Get RootManager
   FairRootManager* ioman = FairRootManager::Instance();
@@ -210,7 +217,7 @@ void PndTrkLegendreTask::Exec(Option_t* opt) {
     conform->SetOrigin(trasl[0], trasl[1], delta);
     Int_t nchits = FillConformalHitList();
     //  if(nchits == 0) return; // CHECK 
-cout << nchits << " " << trasl[0] << " " <<  trasl[1] << " " << delta << endl;
+    // cout << nchits << " " << trasl[0] << " " <<  trasl[1] << " " << delta << endl;
   }
 
   int maxpeak = 1000;
@@ -238,11 +245,12 @@ cout << nchits << " " << trasl[0] << " " <<  trasl[1] << " " << delta << endl;
     //
 
     if(fSecondary) {
+
       // translation and rotation - CHECK
-      PndTrkHit *refhit = FindReferenceHit();
-      cout << "refhit " << refhit << endl;
-      if(refhit == NULL) break;
-      ComputeTraAndRot(refhit, delta, trasl);
+      fRefHit = FindReferenceHit();
+      cout << "refhit " << fRefHit << endl;
+      if(fRefHit == NULL) return;
+      ComputeTraAndRot(fRefHit, delta, trasl);
       conform->SetOrigin(trasl[0], trasl[1], delta);
       Int_t nchits = FillConformalHitList();
       //  if(nchits == 0) return; // CHECK 
@@ -574,7 +582,8 @@ cout << nchits << " " << trasl[0] << " " <<  trasl[1] << " " << delta << endl;
 	hit->Draw(kGreen);
 	display->Update();
 	display->Modified();
-	//	cin >> goOnChar;	
+	cout << "WAITING" << endl;
+	cin >> goOnChar;	
       }
     }
     // STRIP
@@ -775,7 +784,8 @@ cout << nchits << " " << trasl[0] << " " <<  trasl[1] << " " << delta << endl;
       char goOnChar;
       display->cd(1);
       LightCluster(&cluster);
-      //      cin >> goOnChar;
+      cout << "waiting 2 " << endl;
+      cin >> goOnChar;
     }
   
     // center and radius
@@ -791,7 +801,8 @@ cout << nchits << " " << trasl[0] << " " <<  trasl[1] << " " << delta << endl;
       display->Update();
       display->Modified();
       char goOnChar;
-      //      cin >> goOnChar;
+      cout << "waiting 3 " << endl;
+      cin >> goOnChar;
     }
 
 
@@ -1330,6 +1341,42 @@ PndTrkCluster PndTrkLegendreTask::CreateClusterByMixedDistance(double fitm, doub
   return cluster;
 }
 
+
+Bool_t PndTrkLegendreTask::DoesRealHitBelong(PndTrkHit *hit, double x0, double y0, double R) {
+  double   dist = fRefHit->GetXYDistanceFromTrack(x0, y0, R);
+  int detID = hit->GetDetectorID();
+  if(detID == FairRootManager::Instance()->GetBranchId(fMvdPixelBranch)) {
+    if(dist < fMvdPix_RealDistLimit) return kTRUE;
+  }
+  else if(detID == FairRootManager::Instance()->GetBranchId(fMvdStripBranch)) {
+    if(dist < fMvdStr_RealDistLimit) return kTRUE;
+  }
+  else if(detID == FairRootManager::Instance()->GetBranchId(fSttBranch)) {
+    if(dist < fStt_RealDistLimit) return kTRUE;
+  }
+  return kFALSE;
+}
+  
+
+Bool_t PndTrkLegendreTask::DoesConfHitBelong(PndTrkConformalHit *chit, double fitm, double fitp) {
+  double dist = chit->GetDistanceFromTrack(fitm, fitp);
+  int detID = chit->GetDetectorID();
+  if(detID == FairRootManager::Instance()->GetBranchId(fMvdPixelBranch)) {
+    if(dist < fMvdPix_ConfDistLimit) return kTRUE;
+  }
+  else if(detID == FairRootManager::Instance()->GetBranchId(fMvdStripBranch)) {
+    if(dist < fMvdStr_ConfDistLimit) return kTRUE;
+  }
+  else if(detID == FairRootManager::Instance()->GetBranchId(fSttBranch)) {
+    if(chit->GetIsochrone() > 1.e-4) {
+      if(dist < (6 * chit->GetIsochrone())) return kTRUE; 
+    } 
+    else if(dist < fStt_ConfDistLimit) return kTRUE;
+  }
+  
+ return kFALSE;
+}
+
 PndTrkCluster PndTrkLegendreTask::CreateClusterByDistance(Int_t mode, double fitm, double fitp) {
   PndTrkCluster cluster;
 
@@ -1337,63 +1384,28 @@ PndTrkCluster PndTrkLegendreTask::CreateClusterByDistance(Int_t mode, double fit
   // 0 all conformal: pix conf - str conf - stt conf
   // 1 all real:      pix real - str real - stt real
   // 2 mix:           pix real - str real - stt conf
-  double stt_distlimit, mvdpix_distlimit, mvdstr_distlimit;
-  if(mode == 0) {
-    mvdpix_distlimit = 0.003;
-    mvdstr_distlimit = 0.003;
-    stt_distlimit = 0.001;
-    //      if(chit->GetIsochrone() > 1.e-4) distlimit = 6 * chit->GetIsochrone();
-  }
-  else if(mode == 1) {
-    mvdpix_distlimit = 0.5; // CHECK limits
-    mvdstr_distlimit = 0.5; // CHECK limits
-    stt_distlimit = 1.5 * 0.5; // CHECK limits
-  }
-  else {
-    mvdpix_distlimit = 0.5; // CHECK limits
-    mvdstr_distlimit = 0.5; // CHECK limits
-    stt_distlimit = 0.001;
-    //      if(chit->GetIsochrone() > 1.e-4) distlimit = 6 * chit->GetIsochrone();
-  }
   // --------------------------------------------------
   Double_t x0, y0, R;
   if(mode != 0) FromConformalToRealTrack(fitm, fitp, x0, y0, R);
-  // cout << "TRACK  "  << x0  << " " << y0 << " " << R << endl;
+ 
   for(int ihit = 0; ihit < conformalhitlist->GetNofHits(); ihit++) {
     PndTrkConformalHit *chit = conformalhitlist->GetHit(ihit);
     PndTrkHit *hit = chit->GetHit();
-    double dist = 1000;
-    int detID = chit->GetDetectorID();
-    
-    if(detID == FairRootManager::Instance()->GetBranchId(fMvdPixelBranch) || detID == FairRootManager::Instance()->GetBranchId(fMvdStripBranch)) {
-      if(mode == 0) dist = chit->GetDistanceFromTrack(fitm, fitp);
-      else dist = hit->GetXYDistanceFromTrack(x0, y0, R);
-    }
-    else if(detID == FairRootManager::Instance()->GetBranchId(fSttBranch)) {
-      if(mode == 1) dist = hit->GetXYDistanceFromTrack(x0, y0, R);
-      else dist = chit->GetDistanceFromTrack(fitm, fitp);
-    }
-
-    // limits  
     Bool_t accept = kFALSE;
-    if(detID == FairRootManager::Instance()->GetBranchId(fMvdPixelBranch) && dist < mvdpix_distlimit) accept = kTRUE;
-    else if(detID == FairRootManager::Instance()->GetBranchId(fMvdStripBranch) && dist < mvdstr_distlimit) accept = kTRUE;
-    else if(detID == FairRootManager::Instance()->GetBranchId(fSttBranch)) {
-      if(mode != 1) {
-	if(chit->GetIsochrone() > 1.e-4) stt_distlimit = 6 * chit->GetIsochrone(); // CHECK limit
-	else  stt_distlimit = 0.001; // CHECK limits
+
+    if(hit == fRefHit) accept = DoesRealHitBelong(hit, x0, y0, R);
+    else {
+      if(mode == 0) accept = DoesConfHitBelong(chit, fitm, fitp); 
+      else if(mode == 1)  accept = DoesRealHitBelong(hit, x0, y0, R);
+      else if(mode == 2) {
+	if(hit->GetDetectorID() == FairRootManager::Instance()->GetBranchId(fSttBranch)) accept = DoesConfHitBelong(chit, fitm, fitp);
+	else  accept = DoesRealHitBelong(hit, x0, y0, R);
       }
-      if(dist < stt_distlimit) {
-	//	 cout << "STT DIST " << dist << " " << stt_distlimit << endl;
-	accept = kTRUE;
-      }
-      //      cout << "STT DIST " << dist << " " << stt_distlimit << endl;     
-  }
-    //    cout << "hit " << hit->GetHitID() << " " << hit->GetDetectorID() << " got " << accept <<  endl; 
+    }
 
     if(accept == kTRUE && fDisplayOn) {
       display->cd(1);
-      if(detID == FairRootManager::Instance()->GetBranchId(fSttBranch)) {
+      if(hit->GetDetectorID() == FairRootManager::Instance()->GetBranchId(fSttBranch)) {
 	TArc *arc = new TArc(hit->GetPosition().X(), hit->GetPosition().Y(), hit->GetIsochrone());
 	arc->SetFillStyle(0);
 	arc->SetLineColor(5);
@@ -1401,20 +1413,20 @@ PndTrkCluster PndTrkLegendreTask::CreateClusterByDistance(Int_t mode, double fit
       }
       else {
 	TMarker *mrk;
-	if(detID == FairRootManager::Instance()->GetBranchId(fMvdPixelBranch)) mrk = new TMarker(hit->GetPosition().X(), hit->GetPosition().Y(), 21);
-	else if(detID == FairRootManager::Instance()->GetBranchId(fMvdStripBranch)) mrk = new TMarker(hit->GetPosition().X(), hit->GetPosition().Y(), 25);
+	if(hit->GetDetectorID() == FairRootManager::Instance()->GetBranchId(fMvdPixelBranch)) mrk = new TMarker(hit->GetPosition().X(), hit->GetPosition().Y(), 21);
+	else if(hit->GetDetectorID() == FairRootManager::Instance()->GetBranchId(fMvdStripBranch)) mrk = new TMarker(hit->GetPosition().X(), hit->GetPosition().Y(), 25);
 	mrk->SetMarkerColor(5);
 	mrk->Draw("SAME");
       }
     }
     
-    // ********** CHECK ***********
-    // if you put "is used" the efficiency beecomes much lower!
-    // DO NOT: 	if(!hit->IsUsed())
-    if(accept == kTRUE) {
-      //      cout << "ADDING TO CLUSTER" << endl;
-      cluster.AddHit(hit);
-    }
+      // ********** CHECK ***********
+      // if you put "is used" the efficiency beecomes much lower!
+      // DO NOT: 	if(!hit->IsUsed())
+      if(accept == kTRUE) {
+	//      cout << "ADDING TO CLUSTER" << endl;
+	cluster.AddHit(hit);
+      }
   }
   return cluster;
 }
@@ -2041,7 +2053,7 @@ PndTrkHit *PndTrkLegendreTask::FindSttReferenceHit()
   Double_t tmpiso = 1.;
   for(int jhit = 0; jhit < stthitlist->GetNofHits(); jhit++) {
     PndTrkHit *hit = stthitlist->GetHit(jhit);
-    if(hit->IsUsed()) { cout << "already used V" << endl; continue; }
+    if(hit->IsUsed()) { cout << "STT hit " << jhit << "already used " << endl; continue; }
     if(hit->IsSttSkew()) continue;
     if(hit->GetIsochrone() < tmpiso) {
       tmphitid = jhit;
@@ -2112,10 +2124,10 @@ PndTrkHit *PndTrkLegendreTask::FindReferenceHit()
 {
   PndTrkHit *refhit = NULL;
   // refhit = FindMvdReferenceHit();
-    refhit = FindSttReferenceHit();
+  refhit = FindSttReferenceHit();
   if(refhit != NULL) return refhit;
   // refhit = FindSttReferenceHit();
-    FindMvdReferenceHit();
+  FindMvdReferenceHit();
 
  return refhit;
 }
