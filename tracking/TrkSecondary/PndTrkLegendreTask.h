@@ -107,6 +107,8 @@ class PndTrkLegendreTask : public FairTask {
   Bool_t DoesRealHitBelong(PndTrkHit *hit, double x0, double y0, double R);
   Bool_t DoesConfHitBelong(PndTrkConformalHit *hit, double fitm, double fitp);
 
+  Int_t ApplyLegendre(double &theta_max, double &r_max);
+
  private:
 
 
@@ -160,6 +162,7 @@ class PndTrkLegendreTask : public FairTask {
 
   Double_t fMvdPix_RealDistLimit, fMvdStr_RealDistLimit, fStt_RealDistLimit,  fMvdPix_ConfDistLimit, fMvdStr_ConfDistLimit, fStt_ConfDistLimit; 
 
+  std::vector< std::pair<double, double> > fFoundPeaks;
 
   ClassDef(PndTrkLegendreTask,1);
   

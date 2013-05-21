@@ -171,7 +171,7 @@ void PndTrkLegendreTask::Initialize() {
   }
 
   conformalhitlist = new PndTrkConformalHitList();
-
+  fFoundPeaks.clear();
 }
 
 void PndTrkLegendreTask::Exec(Option_t* opt) {
@@ -272,90 +272,13 @@ void PndTrkLegendreTask::Exec(Option_t* opt) {
     cout << "@@@@ PEAK No. " << ipeak << " @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@" << endl;
     ipeak++;
 
-    //  cout << "RESETTING LEGENDRE HISTO" << endl;
-    legendre->ResetLegendreHisto();
-    if(fSecondary) legendre->SetUpLegendreHisto(180, 0, 180, 1000, -1., 1.);
-
-
-
-    if(fDisplayOn) {
-      RefreshConf();
-      if(fSecondary) DrawGeometryConf(-1., 1., -1., 1.);
-      else   DrawGeometryConf(-0.07, 0.07, -0.07, 0.07);
-    }
-    cout << "%%%%%%%%%%%%%%%%%%%% XY FINDER %%%%%%%%%%%%%%%%%%%%%%%%%%" << endl;
-    FillLegendreHisto(0);
-
-    if(fDisplayOn) {
-      char goOnChar;
-      //      cin >> goOnChar;
-      DrawLegendreHisto();
-      cout << "LEGENDRE (nof conf hits = " <<  conformalhitlist->GetNofHits() << ")" << endl;
-      display->cd();
-      //      cin >> goOnChar;
-      display->Update();
-      display->Modified();
-    }
-  
-    // FIND MAXIMUM IN LEGENDRE HISTO
     double theta_max, r_max;
-    //  legendre->ApplyThresholdLegendreHisto(0.3);
-    maxpeak = legendre->ExtractLegendreMaximum(theta_max, r_max);
-    if(maxpeak <= 3) {
-      cout << "MAXPEAK " << maxpeak <<  ", BREAK NOW! "<< endl;
-      break;
-    }
-    bool alreadythere = false;
-    for(int ialready = 0; ialready < foundpeaks.size(); ialready++) {
-      std::pair<double, double> foundthetar = foundpeaks.at(ialready);
-      double foundtheta = foundthetar.first;
-      double foundr = foundthetar.second;
-      // IF THIS PEAK WAS ALREADY FOUND, DELETE THE PEAK AND GO ON (TO AVOID INFINITE LOOPS)
-      if(theta_max == foundtheta && r_max == foundr) {
-	legendre->DeleteZoneAroundXYLegendre(theta_max, r_max);
-	maxpeak = legendre->ExtractLegendreMaximum(theta_max, r_max);
-	alreadythere = true;
-	cout << "OH NO! THIS PEAK IS ALREADY THERE" << endl;
-	break;
-      }
-    }
-    
-    if(alreadythere == false) {
-      std::pair<double, double> tr(theta_max, r_max);
-      foundpeaks.push_back(tr);
-    }
-
-    // ZOOM LEGENDRE HISTO
-    legendre->SetUpZoomHisto(theta_max, r_max, 3, 0.005);
-    //    cout << "THETA/R " << theta_max << " " << r_max << " maxpeak " << maxpeak << endl;
-    for(int ihit = 0; ihit < conformalhitlist->GetNofHits(); ihit++) {
-      PndTrkConformalHit *chit = conformalhitlist->GetHit(ihit);
-      legendre->FillZoomHisto(chit->GetU(), chit->GetV(), chit->GetIsochrone());
-    }
-    if(alreadythere == true) {
-      cout << "THIS PEAK IS ALREADY THERE" << endl;
-      legendre->DeleteZoneAroundXYZoom(theta_max, r_max);
-    }
-
-    maxpeak = legendre->ExtractZoomMaximum(theta_max, r_max);
-    //    cout << "THETA/R ZOOM " << theta_max << " " << r_max <<  " maxpeak " << maxpeak << endl;
-
-    if(fDisplayOn) {
-      char goOnChar;
-      display->cd(3);
-      TMarker *mrk = new TMarker(theta_max, r_max, 29);
-      mrk->Draw("SAME");
-      display->cd(4);
-      legendre->DrawZoom();
-      mrk->Draw("SAME");
-      display->Update();
-      display->Modified();
-      //      cin >> goOnChar;
-    }
-  
+    maxpeak = ApplyLegendre(theta_max, r_max);
+    if(maxpeak <= 3) break;
+   
     double fitm, fitq;
     legendre->ExtractLegendreSingleLineParameters(fitm, fitq);
-
+  
     // ADD HITS TO CLUSTER: PIXEL, STRIP AND STT PARALLEL
     // -------------------------------------------------------
     // method of hit-to-track association:
@@ -2140,6 +2063,92 @@ void PndTrkLegendreTask::ComputeTraAndRot(PndTrkHit *hit, Double_t &delta, Doubl
   delta = 0.; // TMath::ATan2(hit->GetPosition().Y() - 0., hit->GetPosition().X() - 0.); // CHECK 
   
 }
+
+Int_t  PndTrkLegendreTask::ApplyLegendre(double &theta_max, double &r_max) {
+
+  //    cout << "RESETTING LEGENDRE HISTO" << endl;
+  legendre->ResetLegendreHisto();
+  if(fSecondary) legendre->SetUpLegendreHisto(180, 0, 180, 1000, -1., 1.);
+ 
+  if(fDisplayOn) {
+    RefreshConf();
+    if(fSecondary) DrawGeometryConf(-1., 1., -1., 1.);
+    else   DrawGeometryConf(-0.07, 0.07, -0.07, 0.07);
+  }
+  cout << "%%%%%%%%%%%%%%%%%%%% XY FINDER %%%%%%%%%%%%%%%%%%%%%%%%%%" << endl;
+  FillLegendreHisto(0);
+
+  if(fDisplayOn) {
+    char goOnChar;
+    //      cin >> goOnChar;
+    DrawLegendreHisto();
+    //    cout << "LEGENDRE (nof conf hits = " <<  conformalhitlist->GetNofHits() << ")" << endl;
+    display->cd();
+    //      cin >> goOnChar;
+    display->Update();
+    display->Modified();
+  }
+  
+  // FIND MAXIMUM IN LEGENDRE HISTO
+
+  //  legendre->ApplyThresholdLegendreHisto(0.3);
+  int  maxpeak = legendre->ExtractLegendreMaximum(theta_max, r_max);
+
+  if(maxpeak <= 3) {
+    cout << "MAXPEAK " << maxpeak <<  ", BREAK NOW! "  << endl;
+    return maxpeak;
+  }
+  bool alreadythere = false;
+  for(int ialready = 0; ialready < fFoundPeaks.size(); ialready++) {
+    std::pair<double, double> foundthetar = fFoundPeaks.at(ialready);
+    double foundtheta = foundthetar.first;
+    double foundr = foundthetar.second;
+    // IF THIS PEAK WAS ALREADY FOUND, DELETE THE PEAK AND GO ON (TO AVOID INFINITE LOOPS)
+    if(theta_max == foundtheta && r_max == foundr) {
+      legendre->DeleteZoneAroundXYLegendre(theta_max, r_max);
+      maxpeak = legendre->ExtractLegendreMaximum(theta_max, r_max);
+      alreadythere = true;
+      cout << "OH NO! THIS PEAK IS ALREADY THERE" << endl;
+      return -1;
+    }
+  }
+    
+  if(alreadythere == false) {
+    std::pair<double, double> tr(theta_max, r_max);
+    fFoundPeaks.push_back(tr);
+  }
+
+  // ZOOM LEGENDRE HISTO
+  legendre->SetUpZoomHisto(theta_max, r_max, 3, 0.005);
+  //   cout << "THETA/R " << theta_max << " " << r_max << " maxpeak " << maxpeak << endl;
+  for(int ihit = 0; ihit < conformalhitlist->GetNofHits(); ihit++) {
+    PndTrkConformalHit *chit = conformalhitlist->GetHit(ihit);
+    legendre->FillZoomHisto(chit->GetU(), chit->GetV(), chit->GetIsochrone());
+  }
+  if(alreadythere == true) {
+    cout << "THIS PEAK IS ALREADY THERE" << endl;
+    legendre->DeleteZoneAroundXYZoom(theta_max, r_max);
+  }
+
+ int maxpeakzoom = legendre->ExtractZoomMaximum(theta_max, r_max);
+  //  cout << "THETA/R ZOOM " << theta_max << " " << r_max <<  " maxpeakzoom " << maxpeakzoom << endl;
+
+  if(fDisplayOn) {
+    char goOnChar;
+    display->cd(3);
+    TMarker *mrk = new TMarker(theta_max, r_max, 29);
+    mrk->Draw("SAME");
+    display->cd(4);
+    legendre->DrawZoom();
+    mrk->Draw("SAME");
+    display->Update();
+    display->Modified();
+    //      cin >> goOnChar;
+  }
+  
+  return maxpeak;
+}
+
 
 ClassImp(PndTrkLegendreTask)
 
