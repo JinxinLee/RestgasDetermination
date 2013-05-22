@@ -353,7 +353,6 @@ PndRiemannTrack::szFit(bool withErrorCalc){
 	if (fFitDone == false)
 		refit(withErrorCalc);
   unsigned int num=getNumHits();
-  fVerbose=2;
   if (fVerbose > 1) std::cout << "szFit() for " << num << " Points!" << std::endl;
   if (r() > 0) {
 
@@ -394,7 +393,6 @@ PndRiemannTrack::szFit(bool withErrorCalc){
 
   }
   if (fVerbose > 1) std::cout << "t, m: " << ft << " +/- " << ftError << " / " << fm << " +/- " << fmError << " Chi2: " << fChi2 << std::endl;
-  fVerbose=0;
   return;
 }
 
@@ -402,7 +400,6 @@ double
 PndRiemannTrack::calcSZChi2(PndRiemannHit* hit){
   // get s'es and zs
 	TF1* f = 0;
-	fVerbose = 2;
 	if (fFitDone == false)
 		refit ();
 	if (r() > 0) {
