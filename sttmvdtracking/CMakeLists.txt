@@ -52,6 +52,6 @@ PndMvdSttGemRiemannTrackFinder.cxx
 set(LINKDEF  SttMvdTrackingLinkDef.h)
 set(LIBRARY_NAME SttMvdTracking)
 
-set(DEPENDENCIES Base GeoBase ParBase PndData TrkBase Geane Gem Stt)
+set(DEPENDENCIES Base GeoBase ParBase PndData TrkBase Geane Gem Stt riemann)
 
 GENERATE_LIBRARY()
