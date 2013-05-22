@@ -393,8 +393,9 @@ int main(int __argc,char *__argv[]) {
       MCtksREChits[imctrk]=0;
     }
     for(int irec=0;irec<nRecHits;irec++){
-
 	PndSdsMergedHit* myHit = (PndSdsMergedHit*)(rechit_array->At(irec));
+	///TODO: check both sides hits, but one need to change rule for missed trk due to hits losses,
+	/// since ">2 hit" doesn't work anymore
 	int mcrefbot = myHit->GetSecondMCHit();
 	if(mcrefbot>0){
 	  PndSdsMCPoint* MCPointBot = (PndSdsMCPoint*)(true_points->At(mcrefbot));
@@ -757,7 +758,7 @@ int main(int __argc,char *__argv[]) {
     }
     hntrkgood_II->Fill(goodRecII);
     if(ghostRecII>0) hntrkghost_II->Fill(ghostRecII);
-    if((nMCtracks-goodRecII)>0){ 
+    if((nMCtracks-goodRecII)>0){ //missed trks
 
       hntrkmissed_I->Fill(nMCtracks-goodRecII);
       int nMCmissedTrkSearch=0;
@@ -771,24 +772,35 @@ int main(int __argc,char *__argv[]) {
 	TVector3 MomMC = mctrk->GetMomentum();
 	TVector3 PosMC = mctrk->GetStartVertex();
 	int trkQ=0;
-	if(missTrk && MCtksREChits[imc]>2) trkQ=-1;
-	else 
-	  if(missTrk && MCtksREChits[imc]<3)
+	int minHits = 2;
+	if(MCtksSIMhits[imc]>4)
+	  minHits = 4;
+	if(missTrk){
+	  if(MCtksREChits[imc]>minHits){//missed during trk-search
+	    trkQ=-1;
+	    nMCmissedTrkSearch++;
+	  }
+	  else{//missed due to small amount of hits
 	    trkQ=-2;
-
-	ntupMCTrk->Fill(PosMC.X(),PosMC.Y(),PosMC.Z(),MomMC.Mag(),MomMC.Theta(),MomMC.Phi(),trkQ,MCtksSIMhits[imc],MCtksREChits[imc]);
+	  }
+	  ntupMCTrk->Fill(PosMC.X(),PosMC.Y(),PosMC.Z(),MomMC.Mag(),MomMC.Theta(),MomMC.Phi(),trkQ,MCtksSIMhits[imc],MCtksREChits[imc]);
+	}
 	if(verboseLevel>3) cout<<"#REChits = "<<MCtksREChits[imc]<<endl;
-	if(missTrk && MCtksREChits[imc]>2) nMCmissedTrkSearch++;
       }
       if(nMCmissedTrkSearch>0) hntrkmissed_II->Fill(nMCmissedTrkSearch); //missed by track search only and not because it wasn't enought hits!
     }
     else{
-      for(int imc=0;imc<nParticles;imc++){//MC trks
-	PndMCTrack *mctrk =(PndMCTrack*) true_tracks->At(imc);
-	TVector3 MomMC = mctrk->GetMomentum();
-	TVector3 PosMC = mctrk->GetStartVertex();
-	int trkQ = 0;
-	ntupMCTrk->Fill(PosMC.X(),PosMC.Y(),PosMC.Z(),MomMC.Mag(),MomMC.Theta(),MomMC.Phi(),trkQ,MCtksSIMhits[imc],MCtksREChits[imc]);
+      if((nMCtracks-goodRecII)>0){
+	cout<<"-- Ev#"<<j<<" has "<<(nMCtracks-goodRecII)<<" trk(s)"<<endl;
+      }
+      else{// all trks are found
+	for(int imc=0;imc<nParticles;imc++){//MC trks
+	  PndMCTrack *mctrk =(PndMCTrack*) true_tracks->At(imc);
+	  TVector3 MomMC = mctrk->GetMomentum();
+	  TVector3 PosMC = mctrk->GetStartVertex();
+	  int trkQ = 0;
+	  ntupMCTrk->Fill(PosMC.X(),PosMC.Y(),PosMC.Z(),MomMC.Mag(),MomMC.Theta(),MomMC.Phi(),trkQ,MCtksSIMhits[imc],MCtksREChits[imc]);
+	}
       }
     }
 
