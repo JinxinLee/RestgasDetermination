@@ -59,8 +59,10 @@ PndGeoDrc::PndGeoDrc() {
   fMCPsize	= 5.78;	      // [cm] for geometry Mcp2 and Mcp1, = 5.78 for geometry Mcp2a
   fMCPactiveArea= 5.3;	      // [cm] 
   fMCPgap	= 0.1;        // [cm] gap between MCPs
-  fNpix		= 64;	      // [cm] total number of pixel for one MCP (8 x 8)
+  fNpix		= 8;	      // [cm] number of pixel in one column/row for one MCP (8 x 8)
   fPixelSize  	= 0.65;	      // [cm] 
+  fSigmaCharge  = 0.1;	      // [cm] = 1 mm, sigma of the charge sharing
+  fDeadTime	= 0.001;	      // [ns] dead time of the photodetector
   
   fPi            =  TMath::Pi();
   fLside	= (180. - 2.*fPipehAngle - fBarBoxGap/fRadius*(fBarBoxNum/2. - 1.)/fPi*180.)/(fBarBoxNum/2.) * fRadius/ 180.*fPi;

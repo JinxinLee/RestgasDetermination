@@ -48,6 +48,8 @@ class  PndGeoDrc : public FairGeoSet {
   double fMCPgap;			    //!< [cm] gap between MCPs
   int    fNpix;				    //!< total number of pixels for one MCP (8 x 8 pixels)
   double fPixelSize;	 		    //!< [cm] size of one pixel
+  double fSigmaCharge;			    //!< [cm] sigma of the charge sharing
+  double fDeadTime;			    //!< [ns] dead time of the photon detector
   
   double fLside;
   double fBarWidth;
@@ -169,7 +171,13 @@ class  PndGeoDrc : public FairGeoSet {
   Int_t  Npixels() {return fNpix;}
   
   /*! The size of one pixel [cm]. */
-  Int_t  PixelSize() {return fPixelSize;}
+  Double_t  PixelSize() {return fPixelSize;}
+  
+  /*! The sigma of the charge sharing [cm]. */
+  Double_t SigmaCharge() {return fSigmaCharge;}
+  
+  /*! The dead time of the photon detector [ns]. */
+  Double_t DeadTime() {return fDeadTime;}
   
 
   ClassDef(PndGeoDrc,1) // Class for Drc
