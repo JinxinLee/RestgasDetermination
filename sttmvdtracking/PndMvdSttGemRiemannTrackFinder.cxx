@@ -16,7 +16,7 @@ PndMvdSttGemRiemannTrackFinder::PndMvdSttGemRiemannTrackFinder():PndRiemannTrack
 	if (fUseZeroPos)
 		fLayers[0].push_back(0);
 	fGeoH = PndGeoHandling::Instance();
-	fVerbose = 3;
+	fVerbose = 0;
 	fSttHitsInSectors.resize(6);
 	InitLayerMap();
 }
@@ -207,7 +207,6 @@ int PndMvdSttGemRiemannTrackFinder::GetLayerMvd(FairHit* hit)
 
 void PndMvdSttGemRiemannTrackFinder::FindTracks()
 {
-	fVerbose = 2;
 
 	std::vector<std::vector<Int_t> > Tracks = GetStartTracks();				//Get the possible track seeds
 
