@@ -135,6 +135,7 @@ InitStatus PndTrkQATask::Init() {
 
   fGoodTrack = 0, fBadTrack = 0, fMCReconstructableTrack = 0, fNotReconstructed = 0;
 
+
   return kSUCCESS;
 
 }
@@ -187,6 +188,8 @@ void PndTrkQATask::SetParContainers() {
  
 void PndTrkQATask::Exec(Option_t* opt) {
 
+  fThisGoodTrack = 0, fThisBadTrack = 0, fThisMCReconstructableTrack = 0, fThisNotReconstructed = 0;
+
   // CHECK delete this ---
 //   if(fEventCounter == 525) {
 //     fEventCounter++;
@@ -198,6 +201,7 @@ void PndTrkQATask::Exec(Option_t* opt) {
   fIdealTrackCandArray->Delete();
   Bool_t idealtrackfinder = IdealTrackFinding();
   fMCReconstructableTrack += fIdealTrackCandArray->GetEntriesFast();
+  fThisMCReconstructableTrack += fIdealTrackCandArray->GetEntriesFast();
 
   for(int itrk = 0; itrk < fIdealTrackCandArray->GetEntriesFast(); itrk++) {
       PndTrackCand *mctrkcand = (PndTrackCand*) fIdealTrackCandArray->At(itrk);
@@ -393,16 +397,28 @@ void PndTrkQATask::Exec(Option_t* opt) {
 
 	// CHECK for now:
 	// a track if good if it has more than 80% of mc points assigned to it
-	if(((Double_t) nAssigned/nofmctrackpoints) > 0.8) fGoodTrack++;
-	else fBadTrack++;
+	if(((Double_t) nAssigned/nofmctrackpoints) > 0.8) {
+	  fGoodTrack++;
+	  fThisGoodTrack++;
+	}
+	else {
+	  fBadTrack++;
+	  fThisBadTrack++;
+	}
 	reconstructed = kTRUE;
 	break;
       }
-      if(!reconstructed) fNotReconstructed++;
+      if(!reconstructed) {
+	fNotReconstructed++;
+	fThisNotReconstructed++;
+      }
+
   }
   // CHECK for now:
   // fMCReconstructableTrack are the mc tracks with at least 3 parallel stt point
+  cout << "#### NOW: GOOD = "<< (Double_t) fThisGoodTrack/fThisMCReconstructableTrack << "%, BAD = " << (Double_t) fThisBadTrack/fThisMCReconstructableTrack << "%, MISSED = " << (Double_t) fThisNotReconstructed/fThisMCReconstructableTrack << "%" << endl;
   cout << "======== AFTER THIS EVENT: GOOD = "<< (Double_t) fGoodTrack/fMCReconstructableTrack << "%, BAD = " << (Double_t) fBadTrack/fMCReconstructableTrack << "%, MISSED = " << (Double_t) fNotReconstructed/fMCReconstructableTrack << "%" << endl;
+  
 }
 
 Int_t PndTrkQATask::CheckIfPresent(Int_t trackid) {
