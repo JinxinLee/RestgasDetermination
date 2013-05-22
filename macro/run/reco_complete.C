@@ -49,14 +49,6 @@ void reco_complete()
   rtdb->setSecondInput(parIo1);
 
   // ------------------------------------------------------------------------
-  PndMvdRiemannTrackFinderTask* mvdTrackFinder = new PndMvdRiemannTrackFinderTask();
-  mvdTrackFinder->SetVerbose(iVerbose);
-  mvdTrackFinder->SetMaxDist(0.05);
-  mvdTrackFinder->SetPersistence(kFALSE);
-  fRun->AddTask(mvdTrackFinder);
-
-  // Unified Pattern Recognition 
-  //==========================================
   //  use the constructor with input :
   //      printout flag (int) , plotting flag (bool), MC comparison flag (bool), SciTil.
   PndTrkTracking* tracking = new PndTrkTracking(0,false,false,false);
