@@ -16,7 +16,7 @@
 
 // PndMvd includes
 #include "PndTrackCand.h"
-#include "PndMvdSttGemRiemannTrackFinder.h"
+#include "PndMvdGemRiemannTrackFinder.h"
 
 #include "PndSttMapCreator.h"
 
@@ -126,9 +126,9 @@ void PndMvdRiemannTrackFinderTask::Exec(Option_t* opt)
   fTrackArray->Delete();
  // fRiemannTrackArray->Delete();
 
-  PndMvdSttGemRiemannTrackFinder trackFinder;
+  PndMvdGemRiemannTrackFinder trackFinder;
   trackFinder.SetVerbose(fVerbose);
-  trackFinder.SetSttTubeArray(fTubeArray);
+//  trackFinder.SetSttTubeArray(fTubeArray);
 
   FillHitArray();
 
