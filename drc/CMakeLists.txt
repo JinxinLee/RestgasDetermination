@@ -33,15 +33,10 @@ PndGeoDrcPar.cxx
 PndDrcContFact.cxx 
 PndDrcHitProducerIdeal.cxx 
 PndDrcHitProducerReal.cxx 
-DrawHits.cxx 
-FullReco.cxx
-PndPhoGunT.cxx
-PndDrcDigiPar.cxx
 PndDrcDigiTask.cxx
 PndDrcHitFinder.cxx
-PndDrcRecoLookupMap.cxx
-PndDrcRecoLookup.cxx
-PndKaleidoscop.cxx)
+DrawHits.cxx 
+PndDrcDigiPar.cxx)
 
 
 if(RULE_CHECKER_FOUND)
