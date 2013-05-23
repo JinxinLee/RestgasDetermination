@@ -22,11 +22,12 @@ PndDrcPDPoint::PndDrcPDPoint()
 
 // -----   Standard constructor   ------------------------------------------
 PndDrcPDPoint::PndDrcPDPoint(Int_t trackID, Int_t detID, TVector3 pos, 
-			       TVector3 mom, Double_t tof, Double_t length, Int_t pdgCode, Int_t eventID)
-  :FairMCPoint(trackID,detID,pos,mom, tof, length, 0.0, (UInt_t) eventID),
-  fPdgCode(pdgCode)
+			       TVector3 mom, TVector3 momAtEV, Double_t tof, Double_t length, Int_t pdgCode, Int_t eventID)
+  :FairMCPoint(trackID, detID, pos, mom, tof, length, 0.0, (UInt_t) eventID),
+  fPdgCode(pdgCode),
+  fmomAtEV(momAtEV)
  {
- 
+   SetLink(FairLink("MCTrack", 0)); 
  }
 // -------------------------------------------------------------------------
 

@@ -30,11 +30,13 @@ class PndDrcPDPoint : public FairMCPoint
    *@param detID    Detector ID
    *@param pos      Point coordinates [cm]
    *@param mom      Momentum of track at MCPoint [GeV]
+   *@param momAtEV  Momentum of track at entering the EV [GeV]
    *@param tof      Time since event start [ns]
    *@param length   Track length since creation [cm]
    *@param eLoss    Energy deposit [GeV]
    **/
   PndDrcPDPoint(Int_t trackID, Int_t detID, TVector3 pos, TVector3 mom,
+  		 TVector3 momAtEV,
 		 Double_t tof, Double_t length, Int_t pdgCode, Int_t eventID);
 
 
@@ -47,7 +49,10 @@ class PndDrcPDPoint : public FairMCPoint
 
 
   /** Accessors **/
-  Int_t    GetPdgCode()    const { return fPdgCode;};
+  Int_t    GetPdgCode()    const{ return fPdgCode;    };
+  TVector3 GetMomAtEV()	   const{ return fmomAtEV;    };
+  Int_t    GetDetectorID() const{ return fDetectorID; };
+  
  
   /** Modifiers **/
   void SetPdgCode(Int_t id)          { fPdgCode = id; }; 
@@ -61,6 +66,7 @@ class PndDrcPDPoint : public FairMCPoint
  protected:
 
   Int_t fPdgCode;
+  TVector3 fmomAtEV;
 
 
 
