@@ -99,7 +99,7 @@
   Drc->SetOnlyDirectPho(kFALSE);
   // put the geometry file you want into the next line:  
   //Drc->SetGeometryFileName("dirc_l0_p0.root"); 
-  Drc->SetGeometryFileName("prototype_noLens_noGrease_bigPD_1.root");
+  Drc->SetGeometryFileName("dirc_l0_p0_Mcp2a.root");
   fRun->AddModule(Drc);
   
   // Create and Set Event Generator
