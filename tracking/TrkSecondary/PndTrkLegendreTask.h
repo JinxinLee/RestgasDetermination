@@ -54,6 +54,7 @@ class PndTrkLegendreTask : public FairTask {
 
 
   void Initialize();
+  void Reset();
 
   Int_t FillConformalHitList();
   void FillLegendreHisto(Int_t mode);
@@ -169,6 +170,8 @@ class PndTrkLegendreTask : public FairTask {
   Double_t fMvdPix_RealDistLimit, fMvdStr_RealDistLimit, fStt_RealDistLimit,  fMvdPix_ConfDistLimit, fMvdStr_ConfDistLimit, fStt_ConfDistLimit; 
 
   std::vector< std::pair<double, double> > fFoundPeaks;
+  double fTime;
+  TStopwatch *fTimer;
 
   ClassDef(PndTrkLegendreTask,1);
   

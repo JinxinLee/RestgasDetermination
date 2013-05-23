@@ -188,6 +188,10 @@ void PndTrkQATask::SetParContainers() {
  
 void PndTrkQATask::Exec(Option_t* opt) {
 
+  fIdealTrackCandArray->Delete();
+
+ 
+  // ----------------------------------------------------------------
   fThisGoodTrack = 0, fThisBadTrack = 0, fThisMCReconstructableTrack = 0, fThisNotReconstructed = 0;
 
   // CHECK delete this ---
@@ -198,10 +202,27 @@ void PndTrkQATask::Exec(Option_t* opt) {
 //   // -----
   fEventCounter++;
 
-  fIdealTrackCandArray->Delete();
   Bool_t idealtrackfinder = IdealTrackFinding();
   fMCReconstructableTrack += fIdealTrackCandArray->GetEntriesFast();
   fThisMCReconstructableTrack += fIdealTrackCandArray->GetEntriesFast();
+
+
+  cout << "@@@@@@@@@@@@@@@@@@@@ RECO MAP" << endl;
+  MapMCToReco();
+  cout << "MAPPA " << fMC2RecoMap.size() << endl;
+  std::map<int, std::vector< int > >::iterator it = fMC2RecoMap.begin();
+  while(it != fMC2RecoMap.end()) {
+    int imctrack = it->first; 
+    std::vector<int> asso = it->second;
+    if(asso.at(0) != -1)  cout << "MCtrack " << imctrack << " has " << asso.size() << " associated track(s):";
+    else cout << "MCtrack " << imctrack << " has 0 associated tracks";
+
+    for(int itrk = 0; itrk < asso.size(); itrk++ ) cout << " " << asso.at(itrk);
+    cout << endl;
+  it++;
+  }
+  cout << "@@@@@@@@@@@@@@@@@@@@ RECO MAP" << endl;
+
 
   for(int itrk = 0; itrk < fIdealTrackCandArray->GetEntriesFast(); itrk++) {
       PndTrackCand *mctrkcand = (PndTrackCand*) fIdealTrackCandArray->At(itrk);
@@ -646,5 +667,40 @@ Bool_t PndTrkQATask::IdealTrackFinding() {
     }
 
 }
+
+
+void PndTrkQATask::MapMCToReco()
+{
+// INDEX in IdealTrackCandArray <---> fTrackArray entries
+//  std::map< int, std::vector<int> > fMC2RecoMap; 
+  cout << "mc   tracks " << fIdealTrackCandArray->GetEntriesFast() << endl;
+  cout << "reco tracks " << fTrackArray->GetEntriesFast() << endl;
+  fMC2RecoMap.clear();
+  for(int itrk = 0; itrk < fIdealTrackCandArray->GetEntriesFast(); itrk++) {
+    PndTrackCand *mctrkcand = (PndTrackCand*) fIdealTrackCandArray->At(itrk);
+    if(!mctrkcand) continue;
+      Int_t mctrackID = mctrkcand->getMcTrackId();
+      std::vector< int > associatedrecotracks;
+      for(int jtrk = 0; jtrk < fTrackArray->GetEntriesFast(); jtrk++) {
+	PndTrack *trk = (PndTrack*) fTrackArray->At(jtrk);
+	if(!trk) continue;
+	PndTrackID *trkID = (PndTrackID*) fTrackIDArray->At(jtrk);
+	if(!trkID) continue;
+	
+	Int_t recotrackID = trkID->GetCorrTrackID();
+
+	if(recotrackID != mctrackID) continue;
+	associatedrecotracks.push_back(jtrk);
+      }
+      if(associatedrecotracks.size() == 0) associatedrecotracks.push_back(-1);
+      if(associatedrecotracks.at(0) != -1)  cout << "track mc " << itrk << " associated to " << associatedrecotracks.size() << " tracks" << endl;
+      else  cout << "track mc " << itrk << " associated to 0 tracks" << endl;
+      fMC2RecoMap.insert(std::pair< int, std::vector< int > > (itrk, associatedrecotracks));
+  }
+}
+
+
+
+
 ClassImp(PndTrkQATask)
 

@@ -39,7 +39,7 @@ class PndTrkQATask : public FairTask {
   void SetInputTrackBranchName(char* track) {sprintf(fInputTrackBranch,"%s", track);}
   void SetInputTrackIDBranchName(char* trackid) {sprintf(fInputTrackIDBranch,"%s", trackid);}
  
- void Initialize();
+  void Initialize();
   Int_t CheckIfPresent(Int_t trackid);
   Bool_t IdealTrackFinding();
 
@@ -48,7 +48,7 @@ class PndTrkQATask : public FairTask {
   void DontUseMvdStr() { fUseMVDStr = kFALSE; }
   void DontUseStt()    { fUseSTT = kFALSE; }
   void DontUseSttSkew()    { fUseSTTSkew = kFALSE; }
-
+  void  MapMCToReco();
  private:
 
 #define MAXNOFTRACKS 1000
@@ -89,6 +89,7 @@ class PndTrkQATask : public FairTask {
 
   ClassDef(PndTrkQATask,1);
   Bool_t  fUseMVDPix, fUseMVDStr, fUseSTT, fUseSTTSkew;
+  std::map< int, std::vector<int> > fMC2RecoMap; 
 
 };
 

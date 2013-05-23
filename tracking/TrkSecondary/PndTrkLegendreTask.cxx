@@ -78,6 +78,11 @@ InitStatus PndTrkLegendreTask::Init() {
   fMvdPix_ConfDistLimit = 0.003; // CHECK limits
   fMvdStr_ConfDistLimit = 0.003; // CHECK limits
   fStt_ConfDistLimit =  0.001; // CHECK limits
+  if(fSecondary) {
+     fMvdPix_ConfDistLimit = 0.007; // CHECK limits
+     fMvdStr_ConfDistLimit = 0.007; // CHECK limits
+   }
+   
 
   // Get RootManager
   FairRootManager* ioman = FairRootManager::Instance();
@@ -128,7 +133,8 @@ InitStatus PndTrkLegendreTask::Init() {
   }
 
   legendre = new PndTrkLegendreTransform();
-  legendre->SetUpLegendreHisto();
+  if(fSecondary) legendre->SetUpLegendreHisto(180, 0, 180, 1000, -1., 1.);
+  else legendre->SetUpLegendreHisto();
   legendre->SetUpZoomHisto();
 
   conform = new PndTrkConformalTransform();
@@ -227,20 +233,21 @@ void PndTrkLegendreTask::Exec(Option_t* opt) {
 
 
   // LOOP OVER PEAKS UNTILL ITS HEIGHT IS <= 3
-  TStopwatch timer;
-  timer.Start();
-  double time = 0;
+  fTimer = new TStopwatch();
+  fTimer->Start();
+  fTime = 0;
   while(maxpeak > 3) {
  
     // TIME
     if(fDisplayOn == kFALSE) {
-      timer.Stop();
-      time += timer.RealTime();
-      if(time > 1.5) {
-	cerr << time << endl;
+      fTimer->Stop();
+      fTime += fTimer->RealTime();
+      if(fTime > 1.5) {
+	cerr << fTime << endl;
+	Reset();  
 	return;
       }
-      timer.Start();
+      fTimer->Start();
     }
     //
 
@@ -249,7 +256,10 @@ void PndTrkLegendreTask::Exec(Option_t* opt) {
       // translation and rotation - CHECK
       fRefHit = FindReferenceHit();
       cout << "refhit " << fRefHit << endl;
-      if(fRefHit == NULL) return;
+      if(fRefHit == NULL)  {
+	Reset();  
+	return;
+      }
       ComputeTraAndRot(fRefHit, delta, trasl);
       conform->SetOrigin(trasl[0], trasl[1], delta);
       Int_t nchits = FillConformalHitList();
@@ -653,17 +663,33 @@ void PndTrkLegendreTask::Exec(Option_t* opt) {
     cin >> goOnChar;
     cout << "FINISH" << endl;
   }
-  
+
+  Reset();  
   delete clusterlist;
-  delete stthitlist;
-  delete mvdpixhitlist; 
-  delete mvdstrhitlist;
-  timer.Stop();
-  time += timer.RealTime();
-  cerr << fEventCounter << " Real time " << time << " s" << endl;
+
   
 }
 
+void PndTrkLegendreTask::Reset()
+{
+  
+  if(fDisplayOn) {
+    char goOnChar;
+    display->Update();
+    display->Modified();
+    cout << "Finish? ";
+    cin >> goOnChar;
+    cout << "FINISH" << endl;
+  }
+  
+  delete stthitlist;
+  delete mvdpixhitlist; 
+  delete mvdstrhitlist;
+  fTimer->Stop();
+  fTime += fTimer->RealTime();
+  cerr << fEventCounter << " Real time " << fTime << " s" << endl;
+
+}
 // ============================================================================================
 Int_t PndTrkLegendreTask::FillConformalHitList() {
 
@@ -1762,7 +1788,6 @@ void PndTrkLegendreTask::RePrepareLegendre(PndTrkCluster *cluster) {
 
   //    cout << "RESETTING LEGENDRE HISTO" << endl;
   legendre->ResetLegendreHisto();
-  if(fSecondary) legendre->SetUpLegendreHisto(180, 0, 180, 1000, -1., 1.);
  
   if(fDisplayOn) {
     RefreshConf();
@@ -1777,7 +1802,6 @@ void PndTrkLegendreTask::PrepareLegendre() {
 
   //    cout << "RESETTING LEGENDRE HISTO" << endl;
   legendre->ResetLegendreHisto();
-  if(fSecondary) legendre->SetUpLegendreHisto(180, 0, 180, 1000, -1., 1.);
  
   if(fDisplayOn) {
     RefreshConf();
