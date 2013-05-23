@@ -15,6 +15,8 @@
 #include "FairDetector.h"
 #include "TGraph.h"
 #include "TRandom3.h"
+#include "TArrayI.h"
+#include "PndGeoHandling.h"
 
 //using namespace std;
 
@@ -47,6 +49,12 @@ class PndDrc : public FairDetector
     \param ss
   */
   void StopSecondaries(Bool_t ss = kFALSE){fStopSecondaries = ss;}
+  
+  /*! \brief  Kill charged track by exiting the DIRC to avoid it hitting the large EV.
+    \param sctad
+  */
+  void StopChargedTrackAfterDIRC(Bool_t sctad = kFALSE){fStopChargedTrackAfterDIRC = sctad;}
+  
     
   
   /*! \brief  Kill photons at production point according to the detector efficiency distribution.
@@ -163,7 +171,9 @@ class PndDrc : public FairDetector
    *@param cl2     Target
    *@param offset  Index offset
    **/
-  virtual void CopyClones(TClonesArray* clPD1, TClonesArray* clPD2, TClonesArray* clBar1, TClonesArray* clBar2,  Int_t offset);
+  virtual void CopyClones(TClonesArray* clPD1, TClonesArray* clPD2, TClonesArray* clBar1, TClonesArray* clBar2, /*TClonesArray* clSdsPD1, TClonesArray* clSdsPD2, TClonesArray* clSdsBar1, TClonesArray* clSdsBar2, */ Int_t offset);
+  
+  // Int_t GetSensorId(TString);
 
 
   /** Virtual method Construct geometry
@@ -183,7 +193,8 @@ class PndDrc : public FairDetector
   PndDrcPDPoint* AddHit(Int_t trackID, 
 			Int_t copyNo, 
 			TVector3 pos, 
-			TVector3 mom, 
+			TVector3 mom,
+			TVector3 momAtEV, 
 			Double_t time, 
 			Double_t length, 
 			Int_t pdgCode,
@@ -202,7 +213,6 @@ class PndDrc : public FairDetector
 			    Int_t eventID,
 			    Double_t mass);
 
-
   void SetRunCherenkov(Bool_t ch) { fRunCherenkov = ch; };
 
  private:
@@ -220,12 +230,15 @@ class PndDrc : public FairDetector
   Double_t fhthick;
   Double_t fpipehAngle;
   Double_t fbbGap;
+
   Double_t fbbnum;
   Double_t fbarnum;
   Double_t fphi0;
   Double_t fdphi;
   Double_t flside;
   Double_t fbarwidth;
+  
+  PndGeoHandling* fGeoH; 	//! ///< converter for detector names
  
   Bool_t fRunCherenkov;            //!  Switch ON/OFF Cherenkov propagation
   Int_t          fTrackID;         //!  track index
@@ -243,6 +256,8 @@ class PndDrc : public FairDetector
   TLorentzVector fMom1;
   TLorentzVector fMom2; //! for transport efficiency calculation
   TLorentzVector fPos2; //! for transport efficiency calculation
+  TLorentzVector fPos1;
+  TLorentzVector fMomAtEV;
   Double_t 	 fBarEnd;
   Double_t 	 fMirrorGap;
   
@@ -280,6 +295,9 @@ class PndDrc : public FairDetector
   Int_t 	 fFocusing; 
   Bool_t         fTakeRealReflectivity;
   Bool_t	 fStopSecondaries;
+  Bool_t  	 fStopChargedTrackAfterDIRC;
+  
+  TArrayI        fProc;
 
   PndGeoDrc*     fGeo;             //! Pointer to basic DRC geometry data
 
@@ -288,13 +306,19 @@ class PndDrc : public FairDetector
 
   TClonesArray*  fDrcPDCollection;        //! Hit collection
   TClonesArray*  fDrcBarCollection;        //! Hit collection in the bar
+
   Int_t          fEventID;
+  
+   // js group velocity check    
+  Float_t fTime_out, fTime_in, fLength_in, fLength_out, fPEnergy, fLambda1, fDeltaT;
+  Double32_t     fTrackTime;            
+  // end
   
   // reset all parameters   
   void ResetParameters();
 
   Int_t  fSenId1, fSenId2, fSenIdBar;
-  ClassDef(PndDrc,10)
+  ClassDef(PndDrc,11)
 
 }; 
 
