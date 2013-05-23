@@ -14,16 +14,9 @@
 #pragma link C++ class  PndDrcHitProducerReal+;
 
 #pragma link C++ class  DrawHits+;
-#pragma link C++ class  FullReco+;
 #pragma link C++ class  PndDrcDigiPar+;
 #pragma link C++ class  PndDrcDigiTask+;
 #pragma link C++ class  PndDrcHitFinder+;
-#pragma link C++ class  PndDrcRecoLookup+;
-#pragma link C++ class  PndDrcRecoLookupMap+;
-#pragma link C++ class  PndPhoGunT+;
-#pragma link C++ class  PndKaleidoscop+;  
-
-
 
 #endif
 
