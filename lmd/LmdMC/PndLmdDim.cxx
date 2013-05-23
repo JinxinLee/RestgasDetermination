@@ -144,11 +144,11 @@ PndLmdDim::PndLmdDim()
 	// beam pipe separating non interacting paricles
 	rad_pipe = 3.5;
 	// beam pipe thickness;
-	pipe_thickness = 0.1;
+	//pipe_thickness = 0.1;
 	// cone height of the transition region
-	length_transision = 36.4;
+	//length_transision = 36.4;
 	// length of the inner pipe
-	length_pipe = 50.;
+	//length_pipe = 50.;
 	//*********************************** global parameters *************************************
 	// where bending starts with
 	end_seg_upstream = 361;
@@ -267,6 +267,7 @@ void PndLmdDim::transform_local_sensor()
 #include<TGeoCompositeShape.h>
 #include<TGeoCone.h>
 #include<TGeoBBox.h>
+#include <TGeoPcon.h>
 
 void PndLmdDim::Generate_rootgeom(TGeoVolume& mothervol, bool misaligned){
 	Cleanup();
@@ -292,8 +293,10 @@ void PndLmdDim::Generate_rootgeom(TGeoVolume& mothervol, bool misaligned){
 	FairGeoMedium *FairMediumDiamond = Media->getMedium("HYPdiamond");
 	FairGeoMedium *FairMediumVacuum = Media->getMedium("vacuum");
 	FairGeoMedium *FairMediumKapton = Media->getMedium("kapton");
+	FairGeoMedium *FairMediumCopper = Media->getMedium("copper");
 
-	if (!FairMediumAir || !FairMediumSteel || !FairMediumAl || !FairMediumKapton || !FairMediumSilicon || !FairMediumVacuum) {
+	if (!FairMediumAir || !FairMediumSteel || !FairMediumAl ||
+			!FairMediumKapton || !FairMediumSilicon || !FairMediumVacuum || !FairMediumCopper) {
 		std::cout << " Error: not all media found " << std::endl;
 		return;
 	}
@@ -405,6 +408,13 @@ void PndLmdDim::Generate_rootgeom(TGeoVolume& mothervol, bool misaligned){
 	//	TGeoCombiTrans* lmd_trans_co_fl_up = new TGeoCombiTrans("lmd_trans_co_fl_up", 0., 0., -1.5+50.-delta, r1);
 	//	lmd_trans_co_fl_up->RegisterYourself();
 
+
+	//********************************************* old beam pipe construct **************************
+	/*
+	// for testing purposes, one may shift the cone downstream
+	// and reduce the length of the inner beam pipe respectively
+	double cone_offset = 8.;
+
 	// 20 mu thick kapton foil cone
 	double cone_height = 32./2.;
 	double cone_r_in_upstream = 24.4/2.;
@@ -414,7 +424,7 @@ void PndLmdDim::Generate_rootgeom(TGeoVolume& mothervol, bool misaligned){
 			cone_height, cone_r_in_upstream,
 			cone_r_in_upstream+cone_thickness/2.,
 			cone_r_in_downstream, cone_r_in_downstream+cone_thickness/2.);
-	TGeoCombiTrans* lmd_trans_cap_co = new TGeoCombiTrans("lmd_trans_cap_co", 0., 0., 2*tube_upstream_length+box_thickness + cone_height, rot_no);
+	TGeoCombiTrans* lmd_trans_cap_co = new TGeoCombiTrans("lmd_trans_cap_co", 0., 0., 2*tube_upstream_length+box_thickness + cone_height + cone_offset, rot_no);
 	lmd_trans_cap_co->RegisterYourself();
 	TGeoVolume *vlum_CaptonCone = new TGeoVolume("vlum_CaptonCone", lmd_capton_cone,
 			fgGeoMan->GetMedium("kapton"));
@@ -436,10 +446,10 @@ void PndLmdDim::Generate_rootgeom(TGeoVolume& mothervol, bool misaligned){
 	lmd_vol_vac->AddNode(vlum_AlCone, 0, lmd_trans_cap_co);//TEST with/without cone!!!
 	// beam pipe to shield the sensors
 	double pipe_inner_r_in = 7./2.;
-	double pipe_inner_length = 50./2.;
+	double pipe_inner_length = (50.-cone_offset)/2.;
 	//double pipe_thickness = 0.1;
 	TGeoTube* lmd_beam_pipe = new TGeoTube("lmd_beam_pipe", pipe_inner_r_in, pipe_inner_r_in + pipe_thickness, pipe_inner_length);
-	TGeoCombiTrans* lmd_trans_p = new TGeoCombiTrans("lmd_trans_p", 0., 0., 2*tube_upstream_length+box_thickness + 2*cone_height + pipe_inner_length, rot_no);
+	TGeoCombiTrans* lmd_trans_p = new TGeoCombiTrans("lmd_trans_p", 0., 0., 2*tube_upstream_length+box_thickness + 2*cone_height + pipe_inner_length + cone_offset, rot_no);
 	lmd_trans_p->RegisterYourself();
 	TGeoVolume *vlum_trans_p = new TGeoVolume("vlum_trans_p", lmd_beam_pipe,
 				fgGeoMan->GetMedium("steel"));
@@ -453,11 +463,179 @@ void PndLmdDim::Generate_rootgeom(TGeoVolume& mothervol, bool misaligned){
 			cone_p_r_in_upstream+cone_p_thickness/2.,
 			cone_p_r_in_downstream, cone_p_r_in_downstream+cone_p_thickness/2.);
 	TGeoCombiTrans* lmd_trans_co_do = new TGeoCombiTrans("lmd_trans_co_do", 0., 0.,
-			2*tube_upstream_length+box_thickness + 2*cone_height + 2*pipe_inner_length + cone_p_height, rot_no);
+			2*tube_upstream_length+box_thickness + 2*cone_height + 2*pipe_inner_length + cone_p_height + cone_offset, rot_no);
 	lmd_trans_co_do->RegisterYourself();
 	TGeoVolume *vlum_pipe_inner_cone = new TGeoVolume("vlum_pipe_inner_cone", lmd_cone_downstr,
 				fgGeoMan->GetMedium("steel"));
-	lmd_vol_vac->AddNode(vlum_pipe_inner_cone, 0, lmd_trans_co_do);
+	lmd_vol_vac->AddNode(vlum_pipe_inner_cone, 0, lmd_trans_co_do); */
+	// ***************************** end old beam pipe construct *********************
+
+	// ********************* enhanced beam pipe construct in the box ********************
+
+	/*
+	 * polymide      |\
+	 * aluminum      |\\
+	 *                \\\|\
+	 *                 \\\ \
+	 *                  \\\ \
+	 *                   \\| \ ________
+	 *                   |\|\__________| V2A tube
+	 *                    \____| brass
+	 *
+	 *                    y [cm]
+	 *                    ^
+	 *                    |
+	 *                    |-------> z [cm]
+	 *
+	 *
+	 * nomenclature:
+	 * transistion region consists of an aluminum (AL) / polymide (pol) laminate cone (c)
+	 * with an inner (i) and outer (o) diameter upstream (u) and downstream (d)
+	 * cpoluo = cone polymide upstream outer
+	 * The tube (t) is made of V2A (A2) and starts with a cone to glue the transistion cone to it
+	 * To conduct the EM fields of the non interacting beam a brass (br) ring is inserted
+	 * The opening angle of the cone is 15 degree as determined by HESR
+	 * the tube must have a diameter of 70 mm due to beam acceptance restrictions
+	 */
+
+	double debug_multiplier = 1.;
+	// define where the inner region of the box starts
+	double box_inner_up_z = 2*tube_upstream_length+box_thickness;
+	// 10µm aluminum
+	double cALthick = 0.001 * debug_multiplier;
+	// 20µm polimide
+	double cpolthick = 0.002 * debug_multiplier;
+	// 500µm brass ring
+	double tbrthick = 0.05;
+	// 500µm inner beam pipe
+	double tA2thick = 0.05;
+	double cone_angle = 15./180.*3.1416;
+
+	double cALdiy  = 7./2.;
+	double cALdiz  = 40.-8.;
+	double cALdoy  = cALdiy + cALthick/cos(cone_angle);
+	double cALdoz  = cALdiz;
+	double cpoldiy = cALdoy;
+	double cpoldiz = cALdoz;
+	double cpoldoy = cpoldiy + cpolthick/cos(cone_angle);
+	double cpoldoz = cpoldiz;
+	double cbrdoy  = cALdiy;
+	double cbrdoz  = cALdiz;
+	double cbrdiy  = cbrdoy - tbrthick; // /cos(cone_angle) does not apply here for simplicity;
+	double cbrdiz  = cbrdoz;
+
+	double cALuiy  = cALdiy + cALdiz * tan(cone_angle);
+	double cALuiz  = 0.;
+	double cALuoy  = cALuiy + cALthick/cos(cone_angle);
+	double cALuoz  = cALuiz;
+	double cpoluiy = cALuoy;
+	double cpoluiz = cALuoz;
+	double cpoluoy = cpoluiy + cpolthick/cos(cone_angle);
+	double cpoluoz = cpoluiz;
+
+	double cbruoz = cbrdiz - 0.5;
+	double cbruoy = cbrdoy + 0.5 * tan(cone_angle);
+	double cbruiz = cbruoz;
+	double cbruiy = cbruoy - tbrthick; // /cos(cone_angle) does not apply here for simplicity;
+
+	double cA2diy = cALdiy;
+	double cA2diz = cpoldoz + (cpoldoy-cALdiy)/tan(cone_angle);
+	double cA2uiz = cA2diz - 0.1 / tan(cone_angle);
+	double cA2uiy = cA2diy + 0.1;
+	double cA2uoy = cA2uiy + tA2thick;
+	double cA2uoz = cA2uiz;
+	double cA2doy = cA2diy+ tA2thick;
+	double cA2doz = cA2diz;
+
+	double tbruiz = cbrdiz;
+	double tbruiy = cbrdiy;
+	double tbruoz = cbrdoz;
+	double tbruoy = cbrdoy;
+
+	double tbrdiz = tbruiz + 2.;
+	double tbrdiy = tbruiy;
+	double tbrdoz = tbrdiz;
+	double tbrdoy = tbruoy;
+
+	double tA2uoz = cA2doz;
+	double tA2uoy = cA2doy;
+	double tA2uiz = cA2diz;
+	double tA2uiy = cA2diy;
+
+	double tA2diz = tA2uiz + 50.;
+	double tA2diy = tA2uiy;
+	double tA2doz = tA2uiz;
+	double tA2doy = tA2uoy;
+
+	TGeoCone* lmd_capton_cone = new TGeoCone("lmd_capton_cone",
+				(cpoldoz-cpoluoz)/2., cpoluiy, cpoluoy,
+				cpoldiy, cpoldoy);
+	TGeoCombiTrans* lmd_trans_cap_co = new TGeoCombiTrans("lmd_trans_cap_co", 0., 0., box_inner_up_z + (cpoldoz-cpoluoz)/2., rot_no);
+	lmd_trans_cap_co->RegisterYourself();
+	TGeoVolume *vlum_CaptonCone = new TGeoVolume("vlum_CaptonCone", lmd_capton_cone,
+			fgGeoMan->GetMedium("kapton"));
+	vlum_CaptonCone->SetLineColor(kRed);//39);
+	lmd_vol_vac->AddNode(vlum_CaptonCone, 0, lmd_trans_cap_co);//TEST with/without cone!!!
+
+	// 10 mu thick kapton foil aluminum coating
+	TGeoCone* lmd_al_cone = new TGeoCone("lmd_al_cone",
+			(cALdiz-cALuiz)/2., cALuiy, cALuoy, cALdiy, cALdoy);
+	TGeoVolume *vlum_AlCone = new TGeoVolume("vlum_AlCone", lmd_al_cone,
+			fgGeoMan->GetMedium("Aluminum"));
+	vlum_AlCone->SetLineColor(kGray);//39);
+	lmd_vol_vac->AddNode(vlum_AlCone, 0, lmd_trans_cap_co);//TEST with/without cone!!!
+
+	double lmd_pipe_params[12];
+	lmd_pipe_params[0] = 0.;
+	lmd_pipe_params[1] = 360.;
+	lmd_pipe_params[2] = 3.;
+
+	lmd_pipe_params[3] = cA2uiz;
+	lmd_pipe_params[4] = cA2uiy;
+	lmd_pipe_params[5] = cA2uoy;
+
+	lmd_pipe_params[6] = cA2diz;
+	lmd_pipe_params[7] = cA2diy;
+	lmd_pipe_params[8] = cA2doy;
+
+	lmd_pipe_params[9]  = tA2diz;
+	lmd_pipe_params[10] = tA2diy;
+	lmd_pipe_params[11] = tA2doy;
+
+	TGeoPcon* lmd_V2_pipe = new TGeoPcon(lmd_pipe_params);
+	TGeoVolume* vlum_V2_pipe = new TGeoVolume("vlum_V2_pipe", lmd_V2_pipe, fgGeoMan->GetMedium("steel"));
+	vlum_V2_pipe->SetLineColor(kGray);//39);
+	TGeoCombiTrans* lmd_trans_lmd_V2_pipe =
+			new TGeoCombiTrans("lmd_trans_lmd_V2_pipe", 0., 0., box_inner_up_z, rot_no);
+	lmd_trans_lmd_V2_pipe->RegisterYourself();
+	lmd_vol_vac->AddNode(vlum_V2_pipe, 0, lmd_trans_lmd_V2_pipe);
+
+	double lmd_conductor_params[12];
+	lmd_conductor_params[0] = 0.;
+	lmd_conductor_params[1] = 360.;
+	lmd_conductor_params[2] = 3.;
+
+	lmd_conductor_params[3] = cbruiz;
+	lmd_conductor_params[4] = cbruiy;
+	lmd_conductor_params[5] = cbruoy;
+
+	lmd_conductor_params[6] = cbrdiz;
+	lmd_conductor_params[7] = cbrdiy;
+	lmd_conductor_params[8] = cbrdoy;
+
+	lmd_conductor_params[9]  = tbrdiz;
+	lmd_conductor_params[10] = tbrdiy;
+	lmd_conductor_params[11] = tbrdoy;
+
+	TGeoPcon* lmd_cond_ring = new TGeoPcon(lmd_conductor_params);
+	TGeoVolume* vlum_cond_ring = new TGeoVolume("vlum_cond_ring", lmd_cond_ring, fgGeoMan->GetMedium("steel")); // should be brass
+	vlum_cond_ring->SetLineColor(kYellow);//39);
+	TGeoCombiTrans* lmd_trans_lmd_cond_ring =
+			new TGeoCombiTrans("lmd_trans_lmd_cond_ring", 0., 0., box_inner_up_z, rot_no);
+	lmd_trans_lmd_cond_ring->RegisterYourself();
+	lmd_vol_vac->AddNode(vlum_cond_ring, 0, lmd_trans_lmd_cond_ring);
+
+
 		// flange holding the kapton cone downstream
 	//	TGeoCone* lmd_cone_flange_downstr = new TGeoCone("lmd_cone_flange_downstr", 3.12/2., 3.1, 8.6/2., 3.1, 3.2);
 	//	TGeoCombiTrans* lmd_trans_co_fl_do = new TGeoCombiTrans("lmd_trans_co_fl_do", 0., 0., 50.+23.386+3.12/2., r1);
