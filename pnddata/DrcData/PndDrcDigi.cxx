@@ -1,43 +1,21 @@
-//* $Id: 
-
-// -------------------------------------------------------------------------
-// -----                      PndGemDigi source file                   -----
-// -------------------------------------------------------------------------
 #include "PndDrcDigi.h"
 
-#include <iostream>
-
-using std::cout;
-using std::endl;
-
-
-// copied from GEM C.S. 5.9.2011
-
-// -----   Default constructor   -------------------------------------------
-PndDrcDigi::PndDrcDigi() {
-  fDetectorId   =  0;
-  fPixelNr    =  0;
-}
-// -------------------------------------------------------------------------
-
-
-
-// -----   Standard constructor   ------------------------------------------
-PndDrcDigi::PndDrcDigi(Int_t iDetectorId, Int_t iPixel, Int_t index) {
-
-  AddIndex(index);
-
-  fDetectorId   = iDetectorId;
-  fPixelNr      = iPixel;
+PndDrcDigi::PndDrcDigi() : FairTimeStamp()
+{
   
 }
-// -------------------------------------------------------------------------
+
+PndDrcDigi::PndDrcDigi(std::vector<Int_t> index, Int_t sensorID, Double_t charge, Double_t timeStamp):
+FairTimeStamp(timeStamp), fSensorID(sensorID), fCharge(charge)
+{
+	AddIndex(index);	
+}
+
+PndDrcDigi::PndDrcDigi(Int_t index, Int_t sensorID, Double_t charge, Double_t timestamp):
+FairTimeStamp(timestamp), fSensorID(sensorID), fCharge(charge)
+{
+	AddIndex(index);
+}
 
 
-// -----   Destructor   ----------------------------------------------------
-PndDrcDigi::~PndDrcDigi() { }
-// -------------------------------------------------------------------------
-
-
-
-ClassImp(PndDrcDigi)
+ClassImp(PndDrcDigi);

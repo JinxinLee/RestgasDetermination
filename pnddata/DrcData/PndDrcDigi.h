@@ -1,79 +1,78 @@
+// --------------------------------------------------------
+// ----			PndDrcDigi header file	---
+// ----			Created 19.6.06 by T.Stockmanns ---
+// --------------------------------------------------------
 
-/** PndGemDigi.h
- ** Data class for digital STS information
- ** 
- ** The index of the (first) MCPoint having activated this channel
- ** is accessible via ???? GetMcPointIndex(). 
+/** PndDrcDigi.h
+ *@author T.Stockmanns <t.stockmanns@fz-juelich.de>
+ ** \brief Data class to store the digi output of a pixel module
+ **
+ ** \sa PndDrcDigi.h
  **/
 
-
 #ifndef PNDDRCDIGI_H
-#define PNDDRCDIGI_H 1
+#define PNDDRCDIGI_H
 
+#include "PndDrcDigi.h"
+#include "PndDetectorList.h"
+#include "FairTimeStamp.h"
+#include "TObject.h"
+#include "TString.h"
+#include <iostream>
 #include <vector>
 
-#include "FairMultiLinkedData.h"
 
-#include "PndDetectorList.h"
-
-#include "TObject.h"
-
-
-// copied from GEM C.S. 5.9.2011
-
-class PndDrcDigi : public FairMultiLinkedData
-{
-
- public:
-
-  /** Default constructor **/
-  PndDrcDigi();
-
-
-  /** Constructor from station number, sector number, 
-   ** front/back side and channel number
-   **@param iStation  station number (0-255)
-   **@param iSector   sector number  (0-32767)
-   **@param iSide     0=front side; 1=back side
-   **@param iChannel  channel number
-   **/
-  PndDrcDigi(Int_t iDetectorId, Int_t iPixelNr, Int_t index);
-
-  /** Destructor **/
-  virtual ~PndDrcDigi();
-
-  /** Accessors **/
-  Int_t GetDetectorId() const { return fDetectorId; }
-  Int_t GetPixelNr()  const { return fPixelNr; }
-
-  
-  std::vector<Int_t> GetIndices() const 
-    { 
-      std::vector<Int_t> result; 
-      std::set<FairLink> myLinks = GetLinks();
-      for (std::set<FairLink>::iterator it = myLinks.begin(); 
-	   it != myLinks.end(); it++){
-	result.push_back(it->GetIndex());
-      } 
-      return result; 
-    } 
-
-  Int_t GetNIndices() {return GetNLinks();} 
-  Int_t GetIndex(int i = 0) const{ return GetLink(i).GetIndex();} 
-  
-  void AddIndex(int index)
-  {AddLink(FairLink("DRCPoint", index));} 
-  void AddIndex(std::vector<Int_t> index)
-  {SetLinks(FairMultiLinkedData("DRCPoint", index));} 
-
- private:
-
-  Int_t    fDetectorId;
-  Int_t    fPixelNr;
-  
-
-  ClassDef(PndDrcDigi,1);
-
-};
+class PndDrcDigi : public FairTimeStamp
+  {
+    friend std::ostream& operator<< (std::ostream& out, PndDrcDigi& digi){
+      out << "PndDrcDigi in: " << digi.GetSensorID()
+      << " charge " << digi.GetCharge() << " e"
+      << " timestamp "<< digi.GetTimeStamp()
+      << ", from Point(s) ";
+      std::vector<Int_t>indices = digi.GetIndices();
+      for (unsigned int i = 0; i < indices.size(); i++){
+        out << indices[i] << "  ";
+      }
+      out << std::endl;
+      
+      return out;
+    }
+    
+    public : PndDrcDigi();
+    PndDrcDigi(std::vector<Int_t> index, Int_t sensorID, Double_t charge, Double_t timeStamp);
+    PndDrcDigi(Int_t index, Int_t sensorID, Double_t charge, Double_t timeStamp);
+    
+		~PndDrcDigi(){};
+    
+    void Print() {
+      std::cout << *this;
+    }
+    		
+	Int_t GetSensorID() const { return fSensorID; }
+	Double_t GetCharge()	 const { return fCharge; }	
+	std::vector<Int_t> GetIndices() const { return fIndex;}
+	Int_t GetIndex(int i = 0) const{ return fIndex[i];}
+	Int_t GetNIndices() const { return fIndex.size();}
+	
+	virtual void AddIndex(int index)
+		{
+			fIndex.push_back(index);
+			AddLink(FairLink(fSensorID, index));
+		}
+    
+	virtual void AddIndex(std::vector<Int_t> index)
+		{
+			fIndex = index;
+			AddLinks(FairMultiLinkedData(fSensorID, index));
+		}	
+		  
+    
+    protected:
+    		std::vector<Int_t> fIndex;   // indice of mc points contributing to this digi
+		Int_t fSensorID;             // Geometry ID for sensor volume		
+		Double_t fCharge;            // collected charge
+    
+    ClassDef(PndDrcDigi,1);
+  };
 
 #endif
