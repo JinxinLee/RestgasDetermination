@@ -242,10 +242,10 @@ void PndMdtTrkProducer::SetGeometry() {
 
   
   // Forward
-  version = 0; 
+  version = 1; 
   // Finding geometry version
-  if (gGeoManager->FindVolumeFast("Forward"))    version = 2; // Dubna
-  for (Int_t ll=0; ll<20; ll++)
+  //if (gGeoManager->FindVolumeFast("Forward"))    version = 2; // Dubna not existing right now
+  for (Int_t ll=0; ll<17; ll++)
     { 
       mdtLayerPos[2][ll] = -1;
       sprintf(buffer,"MDT%is%il%ib%iw%i", 4, 0, ll, 0, 0); 
@@ -254,7 +254,7 @@ void PndMdtTrkProducer::SetGeometry() {
 	{
 	  if (version==1)
 	    {
-	      //sprintf(lbuffer,"cave_1/Mdt_1/MdtMuonFilter_1/MdtMuonFilterLayer0%i_1/%s_%i",ll,buffer,300+8*ll);
+	      sprintf(lbuffer,"cave_1/Mdt_1/MdtForward_1/%s_%i",buffer,ll);
 	    }
 	  if (version==2)
 	    { 
@@ -362,6 +362,7 @@ void PndMdtTrkProducer::Exec(Option_t* opt)
 		  layerCount++;
 		  oldPos = corrPos; // reset position for next mdt layer
 		}
+              else break;
 	    } // end of layer loop
 
 	  // Loop over Endcap for hybrid tracklets
@@ -414,6 +415,7 @@ void PndMdtTrkProducer::Exec(Option_t* opt)
 		      maxLayer = (*layer2_iter).first;
 		      oldPos = corrPos; // reset position for next mdt layer
 		    }
+                  else break;
 		} // end of layer loop
 	    }
 	  mdtTrk->SetIronDist(ironDist);
@@ -498,6 +500,7 @@ void PndMdtTrkProducer::Exec(Option_t* opt)
 		  maxLayer = (*layer_iter).first;
 		  oldPos = corrPos; // reset position for next mdt layer
 		}
+              else break;
 	      
 	    } // end of layer loop
 	  mdtTrk->SetIronDist(ironDist);
