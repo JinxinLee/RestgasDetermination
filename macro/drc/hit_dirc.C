@@ -82,10 +82,20 @@
   // =========================================================================
   
   // -----    DRC hit producer   --------------------------------------------
- 
+ /*
   PndDrcHitProducerIdeal* drchit = new PndDrcHitProducerIdeal();
   drchit->SetVerbose(iVerbose);
   fRun->AddTask(drchit);
+ */
+  // -----    DRC Digitization stage ----------------------------------------
+  PndDrcDigiTask* drcdigi = new PndDrcDigiTask();  
+  drcdigi->SetIsDetEfficiency(0); 
+  drcdigi->SetTransportEfficiency(0);
+  drcdigi->SetChargeSharing(kTRUE); 
+  fRun->AddTask(drcdigi);
+  
+  PndDrcHitFinder* hitfind = new PndDrcHitFinder();
+  fRun->AddTask(hitfind);
  
  
   // =====                 End of HitProducers                           =====
