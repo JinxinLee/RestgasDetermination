@@ -133,7 +133,7 @@ InitStatus PndTrkQATask::Init() {
   hContamination = new TH2F("hContamination","contamination = wrongly assigned/nof track hits", 100, 0., 100., 50, 0., 1.1);
   hPurity = new TH2F("hPurity","purity = correctly assigned/nof track hits", 100, 0., 100., 50, 0., 1.1);
 
-  fGoodTrack = 0, fBadTrack = 0, fMCReconstructableTrack = 0, fNotReconstructed = 0;
+  fGoodTrack = 0, fBadTrack = 0, fMCReconstructableTrack = 0, fNotReconstructed = 0, fGhostTrack = 0;
 
 
   return kSUCCESS;
@@ -192,7 +192,7 @@ void PndTrkQATask::Exec(Option_t* opt) {
 
  
   // ----------------------------------------------------------------
-  fThisGoodTrack = 0, fThisBadTrack = 0, fThisMCReconstructableTrack = 0, fThisNotReconstructed = 0;
+  fThisGoodTrack = 0, fThisBadTrack = 0, fThisMCReconstructableTrack = 0, fThisNotReconstructed = 0, fThisGhostTrack = 0;
 
   // CHECK delete this ---
 //   if(fEventCounter == 525) {
@@ -206,240 +206,368 @@ void PndTrkQATask::Exec(Option_t* opt) {
   fMCReconstructableTrack += fIdealTrackCandArray->GetEntriesFast();
   fThisMCReconstructableTrack += fIdealTrackCandArray->GetEntriesFast();
 
+ MapMCToReco();
 
-  cout << "@@@@@@@@@@@@@@@@@@@@ RECO MAP" << endl;
-  MapMCToReco();
-  cout << "MAPPA " << fMC2RecoMap.size() << endl;
-  std::map<int, std::vector< int > >::iterator it = fMC2RecoMap.begin();
-  while(it != fMC2RecoMap.end()) {
-    int imctrack = it->first; 
-    std::vector<int> asso = it->second;
-    if(asso.at(0) != -1)  cout << "MCtrack " << imctrack << " has " << asso.size() << " associated track(s):";
-    else cout << "MCtrack " << imctrack << " has 0 associated tracks";
-
-    for(int itrk = 0; itrk < asso.size(); itrk++ ) cout << " " << asso.at(itrk);
-    cout << endl;
-  it++;
-  }
-  cout << "@@@@@@@@@@@@@@@@@@@@ RECO MAP" << endl;
+ std::map<int, std::vector< int > >::iterator it = fMC2RecoMap.begin();
 
 
-  for(int itrk = 0; itrk < fIdealTrackCandArray->GetEntriesFast(); itrk++) {
-      PndTrackCand *mctrkcand = (PndTrackCand*) fIdealTrackCandArray->At(itrk);
-      if(!mctrkcand) continue;
-      Int_t mctrackID = mctrkcand->getMcTrackId();
-      bool reconstructed = kFALSE;
-      for(int jtrk = 0; jtrk < fTrackArray->GetEntriesFast(); jtrk++) {
-	PndTrack *trk = (PndTrack*) fTrackArray->At(jtrk);
-	if(!trk) continue;
-	PndTrackID *trkID = (PndTrackID*) fTrackIDArray->At(jtrk);
-	if(!trkID) continue;
+ // DELETE THIS ///////////////////////////////////////
+ cout << "@@@@@@@@@@@@@@@@@@@@ RECO MAP" << endl;
+ cout << "MAPPA " << fMC2RecoMap.size() << endl;
+ while(it != fMC2RecoMap.end()) {
+    // take a MC track 
+   int imctrack = it->first; 
+   // take reco associated
+   std::vector<int> asso = it->second;
+   // ... PRINT ............. 
+   if(asso.at(0) != -1)  cout << "MCtrack " << imctrack << " has " << asso.size() << " associated track(s):";
+   else cout << "MCtrack " << imctrack << " has 0 associated tracks";
+   
+   for(int itrk = 0; itrk < asso.size(); itrk++ ) cout << " " << asso.at(itrk);
+   cout << endl;
+   // ........................
+   it++;
+ }
+ cout << "@@@@@@@@@@@@@@@@@@@@ RECO MAP" << endl;
+
+ // /////////////////////////////////////////////////////
+
+
+
+
+ it = fMC2RecoMap.begin();
+
+
+ while(it != fMC2RecoMap.end()) {
+
+   // take a MC track 
+   int imctrack = it->first; 
+   // take reco associated
+   std::vector<int> asso = it->second;
+   // 
+  cout << imctrack << " ASSO(0) " << asso.at(0) << endl;
+   // how many associated?
+   if(asso.at(0) == -1) {
+     fNotReconstructed++;
+     fThisNotReconstructed++;
+     it++;
+     continue;
+   }
+
+   // how many ghosts?
+   if(asso.size() > 1) {
+     fGhostTrack += asso.size() - 1;
+     fThisGhostTrack += asso.size() - 1;
+   }
+   
+   //   
+   cout << "IMCTRACK " << imctrack << " " << asso.size() << endl;
+   // take the MC info
+   PndTrackCand *mctrkcand = (PndTrackCand*) fIdealTrackCandArray->At(imctrack);
+   if(!mctrkcand) continue;
+   Int_t mctrackID = mctrkcand->getMcTrackId();
+    
+   int nofmctrackpoints   = mctrkcand->GetNHits();
+   int nofmctracksttpoints = mctrkcand->GetNHitsDet(FairRootManager::Instance()->GetBranchId(fSttBranch));
+   int nofmctracksttskewpoints = 0, nofmctracksttparalpoints = 0;
+   int nofmctrackmvdpixpoints = mctrkcand->GetNHitsDet(FairRootManager::Instance()->GetBranchId(fMvdPixelBranch));
+   int nofmctrackmvdstrpoints = mctrkcand->GetNHitsDet(FairRootManager::Instance()->GetBranchId(fMvdStripBranch));
+
+   // 
+  cout << "nofmctrackpoints " << nofmctrackpoints << endl;
+   for(Int_t ihit = 0; ihit < nofmctrackpoints; ihit++) {
+     PndTrackCandHit mccandhit = mctrkcand->GetSortedHit(ihit);
+     Int_t hitID1 = mccandhit.GetHitId();
+     Int_t detID1 = mccandhit.GetDetId();
+
+
+     if(!fUseMVDPix && detID1 == FairRootManager::Instance()->GetBranchId(fMvdPixelBranch)) continue;
+     if(!fUseMVDStr && detID1 == FairRootManager::Instance()->GetBranchId(fMvdStripBranch)) continue;
+     if(!fUseSTT && detID1 == FairRootManager::Instance()->GetBranchId(fSttBranch)) continue;
+
+
+     // count skew ---------------------------
+     if(detID1 == FairRootManager::Instance()->GetBranchId(fSttBranch)) {
+       PndSttHit *stthit = (PndSttHit*) fSttHitArray->At(hitID1);
+       int tubeID = stthit->GetTubeID();
+       PndSttTube *tube = (PndSttTube*) fTubeArray->At(tubeID);
+       if(tube->IsSkew()) nofmctracksttskewpoints++;
+     }
+     nofmctracksttparalpoints = nofmctracksttpoints - nofmctracksttskewpoints;
+     // ---------------------------------------
 	
-	Int_t recotrackID = trkID->GetCorrTrackID();
+   }
 
-	if(recotrackID != mctrackID) continue;
+   // switch some detectors off ............
+   if(!fUseMVDPix) {
+     nofmctrackpoints -= nofmctrackmvdpixpoints;
+     nofmctrackmvdpixpoints = 0;
+   }
+   if(!fUseMVDStr) {
+     nofmctrackpoints -= nofmctrackmvdstrpoints;
+     nofmctrackmvdstrpoints = 0;
+   }
+   if(!fUseSTT) {	
+     nofmctrackpoints -= nofmctracksttpoints;
+     nofmctracksttpoints = 0;
+   }
+   else if(!fUseSTTSkew) {                                   // CHECK 
+     nofmctrackpoints -= nofmctracksttskewpoints;            // CHECK 
+     nofmctracksttskewpoints = 0;                            // CHECK 
+     nofmctracksttpoints -= nofmctracksttskewpoints;         // CHECK 
+   }
+   //   
+   cout << "nofmctrackpoints " << nofmctrackpoints << endl;
 
-	PndTrackCand *trkcand = trk->GetTrackCandPtr();
-    	if(!trkcand) continue;
+   Int_t nAssigned = 0, nNotAssigned = 0, nWrong = 0;
+   Int_t nAssignedStt = 0, nNotAssignedStt = 0, nWrongStt = 0;
+   Int_t nAssignedSttSkew = 0, nNotAssignedSttSkew = 0, nWrongSttSkew = 0;
+   Int_t nAssignedSttParal = 0, nNotAssignedSttParal = 0, nWrongSttParal = 0;
+   Int_t nAssignedMvdPixel = 0, nNotAssignedMvdPixel = 0, nWrongMvdPixel = 0;
+   Int_t nAssignedMvdStrip = 0, nNotAssignedMvdStrip = 0, nWrongMvdStrip = 0;
+   int nofrecotrackpoints = 0;
+   int nofrecotracksttpoints = 0;
+   int nofrecotracksttskewpoints = 0, nofrecotracksttparalpoints = 0;
+   int nofrecotrackmvdpixpoints = 0;
+   int nofrecotrackmvdstrpoints = 0;
+   int jrecotrack = 0;
 
-	int nofmctrackpoints   = mctrkcand->GetNHits();
-	int nofmctracksttpoints = mctrkcand->GetNHitsDet(FairRootManager::Instance()->GetBranchId(fSttBranch));
-	int nofmctracksttskewpoints = 0, nofmctracksttparalpoints = 0;
-	int nofmctrackmvdpixpoints = mctrkcand->GetNHitsDet(FairRootManager::Instance()->GetBranchId(fMvdPixelBranch));
-	int nofmctrackmvdstrpoints = mctrkcand->GetNHitsDet(FairRootManager::Instance()->GetBranchId(fMvdStripBranch));
-	int nofrecotrackpoints = trkcand->GetNHits();
-	int nofrecotracksttpoints = trkcand->GetNHitsDet(FairRootManager::Instance()->GetBranchId(fSttBranch));
-	int nofrecotracksttskewpoints = 0, nofrecotracksttparalpoints = 0;
-	int nofrecotrackmvdpixpoints = trkcand->GetNHitsDet(FairRootManager::Instance()->GetBranchId(fMvdPixelBranch));
-	int nofrecotrackmvdstrpoints = trkcand->GetNHitsDet(FairRootManager::Instance()->GetBranchId(fMvdStripBranch));
+   //  
+   cout << "ASSOCIATED " << asso.size() << endl;
+     
+   for(int itrk = 0; itrk < asso.size(); itrk++) {
+     
+     Int_t nTmpAssigned = 0, nTmpNotAssigned = 0, nTmpWrong = 0;
+     Int_t nTmpAssignedStt = 0, nTmpNotAssignedStt = 0, nTmpWrongStt = 0;
+     Int_t nTmpAssignedSttSkew = 0, nTmpNotAssignedSttSkew = 0, nTmpWrongSttSkew = 0;
+     Int_t nTmpAssignedSttParal = 0, nTmpNotAssignedSttParal = 0, nTmpWrongSttParal = 0;
+     Int_t nTmpAssignedMvdPixel = 0, nTmpNotAssignedMvdPixel = 0, nTmpWrongMvdPixel = 0;
+     Int_t nTmpAssignedMvdStrip = 0, nTmpNotAssignedMvdStrip = 0, nTmpWrongMvdStrip = 0;
 
-	cout << "POINTS MC " << endl;
-	cout << nofmctrackpoints << " " << nofmctracksttpoints << " " << nofmctrackmvdpixpoints << " " << nofmctrackmvdstrpoints << endl;
-	cout << "POINTS RECO " << endl;
-	cout << nofrecotrackpoints << " " << nofrecotracksttpoints << " " << nofrecotrackmvdpixpoints << " " << nofrecotrackmvdstrpoints << endl;
+    
 
-	// count reco skew ---------------------------
-	for(Int_t ihit = 0; ihit < nofrecotrackpoints; ihit++) {
-	  PndTrackCandHit candhit = trkcand->GetSortedHit(ihit);
-	  Int_t hitID = candhit.GetHitId();
-	  Int_t detID = candhit.GetDetId();
-	  if(detID == FairRootManager::Instance()->GetBranchId(fSttBranch)) {
-	    PndSttHit *stthit = (PndSttHit*) fSttHitArray->At(hitID);
-	    int tubeID = stthit->GetTubeID();
-	    PndSttTube *tube = (PndSttTube*) fTubeArray->At(tubeID);
-	    if(tube->GetWireDirection().Z() != 1.) nofrecotracksttskewpoints++;
-	    else nofrecotracksttparalpoints++;
-	  }
-	}
-	// ---------------------------------------------
-
-	Int_t nAssigned = 0, nNotAssigned = 0, nWrong = 0;
-	Int_t nAssignedStt = 0, nNotAssignedStt = 0, nWrongStt = 0;
-	Int_t nAssignedSttSkew = 0, nNotAssignedSttSkew = 0, nWrongSttSkew = 0;
-	Int_t nAssignedSttParal = 0, nNotAssignedSttParal = 0, nWrongSttParal = 0;
-	Int_t nAssignedMvdPixel = 0, nNotAssignedMvdPixel = 0, nWrongMvdPixel = 0;
-	Int_t nAssignedMvdStrip = 0, nNotAssignedMvdStrip = 0, nWrongMvdStrip = 0;
-
+     int jtrk = asso.at(itrk);
+     cout << "JTRK  " << jtrk << endl;
+     PndTrack *trk = (PndTrack*) fTrackArray->At(jtrk);
+     if(!trk) continue;
+     PndTrackID *trkID = (PndTrackID*) fTrackIDArray->At(jtrk);
+     if(!trkID) continue;
 	
-	for(Int_t ihit = 0; ihit < nofmctrackpoints; ihit++) {
-	  PndTrackCandHit mccandhit = mctrkcand->GetSortedHit(ihit);
-	  Int_t hitID1 = mccandhit.GetHitId();
-	  Int_t detID1 = mccandhit.GetDetId();
-	  bool correct = kFALSE, skewed = kFALSE;
+     Int_t recotrackID = trkID->GetCorrTrackID();
+     if(recotrackID != mctrackID) cout << "ERROR " << endl;
 
-	  if(!fUseMVDPix && detID1 == FairRootManager::Instance()->GetBranchId(fMvdPixelBranch)) continue;
-	  if(!fUseMVDStr && detID1 == FairRootManager::Instance()->GetBranchId(fMvdStripBranch)) continue;
-	  if(!fUseSTT && detID1 == FairRootManager::Instance()->GetBranchId(fSttBranch)) continue;
+     PndTrackCand *trkcand = trk->GetTrackCandPtr();
+     if(!trkcand) continue;
 
+     int noftmprecotrackpoints = trkcand->GetNHits();
+     int noftmprecotracksttpoints = trkcand->GetNHitsDet(FairRootManager::Instance()->GetBranchId(fSttBranch));
+     int noftmprecotracksttskewpoints = 0, noftmprecotracksttparalpoints = 0;
+     int noftmprecotrackmvdpixpoints = trkcand->GetNHitsDet(FairRootManager::Instance()->GetBranchId(fMvdPixelBranch));
+     int noftmprecotrackmvdstrpoints = trkcand->GetNHitsDet(FairRootManager::Instance()->GetBranchId(fMvdStripBranch));
+     
+ //     // 
+//      cout << "POINTS MC " << endl;
+//      cout << nofmctrackpoints << " " << nofmctracksttpoints << " " << nofmctrackmvdpixpoints << " " << nofmctrackmvdstrpoints << endl;
+//
+      cout << "POINTS RECO " << endl;
+//
+      cout << noftmprecotrackpoints << " " << noftmprecotracksttpoints << " " << noftmprecotrackmvdpixpoints << " " << noftmprecotrackmvdstrpoints << endl;
 
-	  // count skew ---------------------------
-	  if(detID1 == FairRootManager::Instance()->GetBranchId(fSttBranch)) {
-	    PndSttHit *stthit = (PndSttHit*) fSttHitArray->At(hitID1);
-	    int tubeID = stthit->GetTubeID();
-	    PndSttTube *tube = (PndSttTube*) fTubeArray->At(tubeID);
-	    if(tube->GetWireDirection().Z() != 1.) {
-	      nofmctracksttskewpoints++;
-	      skewed = kTRUE;
-	    }
-	  }
-	  nofmctracksttparalpoints = nofmctracksttpoints - nofmctracksttskewpoints;
-	  // ---------------------------------------
+     // loop over reco hits ---------------------------
+     for(Int_t ihit = 0; ihit < noftmprecotrackpoints; ihit++) {
+       PndTrackCandHit candhit = trkcand->GetSortedHit(ihit);
+       Int_t hitID = candhit.GetHitId();
+       Int_t detID = candhit.GetDetId();
+       cout << "ihti " << ihit << endl;
+       FairHit *hit = NULL;
+       if(detID == FairRootManager::Instance()->GetBranchId(fMvdPixelBranch)) {
+	 if(!fUseMVDPix) continue;
+	 hit = (PndSdsHit*) fMvdPixelHitArray->At(hitID);
+	 if(hit->GetRefIndex() == -1) {
+	   nTmpWrongMvdPixel++;
+	   nTmpWrong++;
+	 }
+	 else {	 PndSdsMCPoint *pnt = (PndSdsMCPoint*) fMvdPointArray->At(hit->GetRefIndex());
+	   if(pnt->GetTrackID() == mctrackID) {
+	     nTmpAssignedMvdPixel++;
+	     nTmpAssigned++;
+	   }
+	   else {
+	     nTmpWrongMvdPixel++;
+	     nTmpWrong++;
+	   }
+	 }
+       }
+       else if(detID == FairRootManager::Instance()->GetBranchId(fMvdStripBranch)) {
+	 if(!fUseMVDStr) continue;
+	 hit = (PndSdsHit*) fMvdStripHitArray->At(hitID);
+	 if(hit->GetRefIndex() == -1) {
+	   nTmpWrongMvdStrip++;
+	    nTmpWrong++;
+	 }
+	 else {
+	   PndSdsMCPoint *pnt = (PndSdsMCPoint*) fMvdPointArray->At(hit->GetRefIndex());
+	   if(pnt->GetTrackID() == mctrackID) {
+	     nTmpAssignedMvdStrip++;
+	     nTmpAssigned++;
+	   }   
+	   else  {
+	     nTmpWrongMvdStrip++;
+	     nTmpWrong++;
+	   }
+	 }
+       }
+       else if(detID == FairRootManager::Instance()->GetBranchId(fSttBranch)) {
 
-	  for(Int_t jhit = 0; jhit < nofrecotrackpoints; jhit++) {
-	    PndTrackCandHit candhit = trkcand->GetSortedHit(jhit);
-	    Int_t hitID2 = candhit.GetHitId();
-	    Int_t detID2 = candhit.GetDetId();
+	 hit = (PndSttHit*) fSttHitArray->At(hitID);
+	 if(hit->GetRefIndex() == -1) {
+	   nTmpWrongStt++;
+	   nTmpWrong++;
+	 }
+	 else {
+	   PndSttPoint *pnt = (PndSttPoint*) fSttPointArray->At(hit->GetRefIndex());
+	   int tubeID = ((PndSttHit*) hit)->GetTubeID();
+	   PndSttTube *tube = (PndSttTube*) fTubeArray->At(tubeID);
+	   if(tube->IsSkew()) noftmprecotracksttskewpoints++;
+	   else noftmprecotracksttparalpoints++;
+	   
+	   if(pnt->GetTrackID() == mctrackID) {
+	     nTmpAssignedStt++;
+	     nTmpAssigned++;
+	     if(tube->IsSkew()) nTmpAssignedSttSkew++;
+	     else nTmpAssignedSttParal++;
+	   }
+	   else {
+	     nTmpWrongStt++;
+	     nTmpWrong++;
+	     if(tube->IsSkew()) nTmpWrongSttSkew++; 
+	     else nTmpWrongSttParal++;
+	   }
+	 }
+       }
+     
+     cout << "done" << endl;
+     }
+     nTmpNotAssigned = nofmctrackpoints - nTmpAssigned;
+     nTmpNotAssignedMvdPixel = nofmctrackmvdpixpoints - nTmpAssignedMvdPixel;
+     nTmpNotAssignedMvdStrip = nofmctrackmvdstrpoints - nTmpAssignedMvdStrip; 
+     nTmpNotAssignedStt = nofmctracksttpoints - nTmpAssignedStt;
+     nTmpNotAssignedSttSkew = nofmctracksttskewpoints - nTmpAssignedSttSkew;
+     nTmpNotAssignedSttParal = nofmctracksttparalpoints - nTmpAssignedSttParal;
 
-	    if(hitID1 != hitID2) continue;
-	    if(detID1 != detID2) continue;
-	    nAssigned++;
-	    if(detID1 == FairRootManager::Instance()->GetBranchId(fSttBranch)){
-	      nAssignedStt++;
-	      if(skewed) nAssignedSttSkew++;
-	      else nAssignedSttParal++;
-	    }
-	    else if(detID1 == FairRootManager::Instance()->GetBranchId(fMvdPixelBranch)) nAssignedMvdPixel++;
-	    else if(detID1 == FairRootManager::Instance()->GetBranchId(fMvdStripBranch)) nAssignedMvdStrip++;
-	    correct = kTRUE;
-	    cout << "point " <<  hitID1 << " " << detID1 << " assigned" << endl;
-	    
-	  }
-	  if(!correct) {
-	    cout << "point " <<  hitID1 << " " << detID1 << " not assigned" << endl;
-	    nNotAssigned++;
-	    if(detID1 == FairRootManager::Instance()->GetBranchId(fSttBranch)) {
-	      nNotAssignedStt++;
-	      if(skewed) nNotAssignedSttSkew++;
-	      else nNotAssignedSttParal++;
-	      // ------------------------
-	    }
-	    else if(detID1 == FairRootManager::Instance()->GetBranchId(fMvdPixelBranch)) nNotAssignedMvdPixel++;
-	    else if(detID1 == FairRootManager::Instance()->GetBranchId(fMvdStripBranch)) nNotAssignedMvdStrip++;
-	  }
-	}
-	//	nofmctrackpoints -= nofskew; // CHECK!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! 
-	//	nofmctracksttpoints -= nofskew; // CHECK!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+     // PICK THIS if it has an higher number of assigned hits
+     //                     OR 
+     // if that number is equal, if it is cleaner
 
-	// switch some detectors off ............
-	if(!fUseMVDPix) {
-	  nofmctrackpoints -= nofmctrackmvdpixpoints;
-	  nofmctrackmvdpixpoints = 0;
-	}
-	if(!fUseMVDStr) {
-	  nofmctrackpoints -= nofmctrackmvdstrpoints;
-	  nofmctrackmvdstrpoints = 0;
-	}
-	if(!fUseSTT) {	
-	  nofmctrackpoints -= nofmctracksttpoints;
-	  nofmctracksttpoints = 0;
-	}
-	else if(!fUseSTTSkew) {                                   // CHECK 
-	  nofmctrackpoints -= nofmctracksttskewpoints;            // CHECK 
-	  nofmctracksttskewpoints = 0;                            // CHECK 
-	  nofmctracksttpoints -= nofmctracksttskewpoints;         // CHECK 
-	}
-	// ......................................
+   //   cout << "TMP " << nTmpAssigned << " " << nAssigned << endl;
+     if((nTmpAssigned > nAssigned) || (nTmpAssigned == nAssigned && nTmpWrong < nWrong)) {
+          
 
-	if(nofmctrackpoints > 0) {
-	  hEfficiency->Fill(nofmctrackpoints, (Double_t) nAssigned/nofmctrackpoints);
-	  hInefficiency->Fill(nofmctrackpoints, (Double_t) nNotAssigned/nofmctrackpoints);
-	}
+       nAssigned    = nTmpAssigned;
+       nNotAssigned = nTmpNotAssigned;
+       nWrong       = nTmpWrong;
+       nAssignedStt     = nTmpAssignedStt;
+       nNotAssignedStt  = nTmpNotAssignedStt;
+       nWrongStt        = nTmpWrongStt;
+       nAssignedSttSkew    = nTmpAssignedSttSkew;
+       nNotAssignedSttSkew = nTmpNotAssignedSttSkew;
+       nWrongSttSkew       = nTmpWrongSttSkew;
+       nAssignedSttParal    = nTmpAssignedSttParal;
+       nNotAssignedSttParal = nTmpNotAssignedSttParal;
+       nWrongSttParal       = nTmpWrongSttParal;
+       nAssignedMvdPixel    = nTmpAssignedMvdPixel;
+       nNotAssignedMvdPixel = nTmpNotAssignedMvdPixel;
+       nWrongMvdPixel       = nTmpWrongMvdPixel;
+       nAssignedMvdStrip    = nTmpAssignedMvdStrip;
+       nNotAssignedMvdStrip = nTmpNotAssignedMvdStrip;
+       nWrongMvdStrip       = nTmpWrongMvdStrip;
+       nofrecotrackpoints         = noftmprecotrackpoints;
+       nofrecotracksttpoints      = noftmprecotracksttpoints;
+       nofrecotracksttskewpoints  = noftmprecotracksttskewpoints;
+       nofrecotracksttparalpoints = noftmprecotracksttparalpoints;
+       nofrecotrackmvdpixpoints   = noftmprecotrackmvdpixpoints;
+       nofrecotrackmvdstrpoints   = noftmprecotrackmvdstrpoints;
+       jrecotrack = jtrk;
+     }
 
-	if(nofmctracksttpoints > 0) {
-	  hEfficiencyStt->Fill(nofmctracksttpoints, (Double_t) nAssignedStt/nofmctracksttpoints);
-	  hInefficiencyStt->Fill(nofmctracksttpoints, (Double_t) nNotAssignedStt/nofmctracksttpoints);
-	}
-	if(nofmctracksttskewpoints > 0) {
-	  hEfficiencySttSkew->Fill(nofmctracksttskewpoints, (Double_t) nAssignedSttSkew/nofmctracksttskewpoints);
-	  hInefficiencySttSkew->Fill(nofmctracksttskewpoints, (Double_t) nNotAssignedSttSkew/nofmctracksttskewpoints);
-	}
-
-	if(nofmctracksttparalpoints > 0) {
-	  hEfficiencySttParal->Fill(nofmctracksttparalpoints, (Double_t) nAssignedSttParal/nofmctracksttparalpoints);
-	hInefficiencySttParal->Fill(nofmctracksttparalpoints, (Double_t) nNotAssignedSttParal/nofmctracksttparalpoints);
-	}
-
-	if(nofmctrackmvdpixpoints > 0) {
-	  hEfficiencyMvdPixel->Fill(nofmctrackmvdpixpoints, (Double_t) nAssignedMvdPixel/nofmctrackmvdpixpoints);
-	  hInefficiencyMvdPixel->Fill(nofmctrackmvdpixpoints, (Double_t) nNotAssignedMvdPixel/nofmctrackmvdpixpoints);	
-	}
-
-	if(nofmctrackmvdstrpoints > 0) {
-	  hEfficiencyMvdStrip->Fill(nofmctrackmvdstrpoints, (Double_t) nAssignedMvdStrip/nofmctrackmvdstrpoints);
-	  hInefficiencyMvdStrip->Fill(nofmctrackmvdstrpoints, (Double_t) nNotAssignedMvdStrip/nofmctrackmvdstrpoints);
-	}
-
-	nWrong = nofrecotrackpoints - nAssigned;
-	nWrongStt      = nofrecotracksttpoints - nAssignedStt;
-	nWrongSttSkew  = nofrecotracksttskewpoints - nAssignedSttSkew;
-	nWrongSttParal = nofrecotracksttparalpoints - nAssignedSttParal;
-	nWrongMvdPixel = nofrecotrackmvdpixpoints - nAssignedMvdPixel;
-	nWrongMvdStrip = nofrecotrackmvdstrpoints - nAssignedMvdStrip;
-
-	if(nofrecotrackpoints > 0) {
-	  hContamination->Fill(nofrecotrackpoints, (Double_t) nWrong/nofrecotrackpoints);
-	  hPurity->Fill(nofrecotrackpoints, (Double_t) nAssigned/nofrecotrackpoints);
-	}
-
-// 	hContaminationStt->Fill(nofrecotracksttpoints, (Double_t) nWrongStt/nofrecotracksttpoints);
-// 	hContaminationSttSkew  ->Fill(nofrecotracksttskewpoints, (Double_t) nWrongSttSkew  /nofrecotracksttskewpoints);
-// 	hContaminationSttParal->Fill(nofrecotracksttparalpoints, (Double_t) nWrongSttParal/nofrecotracksttparalpoints);
-// 	hContaminationMvdPixel->Fill(nofrecotrackmvdpixpoints, (Double_t) nWrongMvdPixel/nofrecotrackmvdpixpoints);
-// 	hContaminationMvdStrip->Fill(nofrecotrackmvdstrpoints, (Double_t) nWrongMvdStrip/nofrecotrackmvdstrpoints);
-
-
-
-	cout << "TRACK " << jtrk << " MCTRACK " << itrk << " " << endl;
-	cout << "total " << nofrecotrackpoints << " mctotal " << nofmctrackpoints << endl;
-	cout << "assigned " <<  nAssigned <<  " not assigned " << nNotAssigned << " wrong " << nWrong << endl;
-	if((nAssigned + nNotAssigned) != nofmctrackpoints) cout << "ERROR 1" << endl;
-	if((nAssigned + nWrong) != nofrecotrackpoints) cout << "ERROR 2" << endl;
-	if((nAssignedSttSkew + nAssignedSttParal) != nAssignedStt) cout << "ERROR 3" << endl;
-
-	// CHECK for now:
-	// a track if good if it has more than 80% of mc points assigned to it
-	if(((Double_t) nAssigned/nofmctrackpoints) > 0.8) {
-	  fGoodTrack++;
-	  fThisGoodTrack++;
-	}
-	else {
-	  fBadTrack++;
-	  fThisBadTrack++;
-	}
-	reconstructed = kTRUE;
-	break;
-      }
-      if(!reconstructed) {
-	fNotReconstructed++;
-	fThisNotReconstructed++;
-      }
-
-  }
-  // CHECK for now:
-  // fMCReconstructableTrack are the mc tracks with at least 3 parallel stt point
-  cout << "#### NOW: GOOD = "<< (Double_t) fThisGoodTrack/fThisMCReconstructableTrack << "%, BAD = " << (Double_t) fThisBadTrack/fThisMCReconstructableTrack << "%, MISSED = " << (Double_t) fThisNotReconstructed/fThisMCReconstructableTrack << "%" << endl;
-  cout << "======== AFTER THIS EVENT: GOOD = "<< (Double_t) fGoodTrack/fMCReconstructableTrack << "%, BAD = " << (Double_t) fBadTrack/fMCReconstructableTrack << "%, MISSED = " << (Double_t) fNotReconstructed/fMCReconstructableTrack << "%" << endl;
+   }
   
+   cout << "POINTS MC " << endl;
+   cout << nofmctrackpoints << " " << nofmctracksttpoints << " " << nofmctrackmvdpixpoints << " " << nofmctrackmvdstrpoints << endl;
+   cout << "POINTS RECO " << endl;
+   cout << nofrecotrackpoints << " " << nofrecotracksttpoints << " " << nofrecotrackmvdpixpoints << " " << nofrecotrackmvdstrpoints << endl;
+
+// EFFICIENCY one reco for one mc
+   if(nofmctrackpoints > 0) {
+     hEfficiency->Fill(nofmctrackpoints, (Double_t) nAssigned/nofmctrackpoints);
+     hInefficiency->Fill(nofmctrackpoints, (Double_t) nNotAssigned/nofmctrackpoints);
+   }
+
+   if(nofmctracksttpoints > 0) {
+     hEfficiencyStt->Fill(nofmctracksttpoints, (Double_t) nAssignedStt/nofmctracksttpoints);
+     hInefficiencyStt->Fill(nofmctracksttpoints, (Double_t) nNotAssignedStt/nofmctracksttpoints);
+   }
+   if(nofmctracksttskewpoints > 0) {
+     hEfficiencySttSkew->Fill(nofmctracksttskewpoints, (Double_t) nAssignedSttSkew/nofmctracksttskewpoints);
+     hInefficiencySttSkew->Fill(nofmctracksttskewpoints, (Double_t) nNotAssignedSttSkew/nofmctracksttskewpoints);
+   }
+
+   if(nofmctracksttparalpoints > 0) {
+     hEfficiencySttParal->Fill(nofmctracksttparalpoints, (Double_t) nAssignedSttParal/nofmctracksttparalpoints);
+     hInefficiencySttParal->Fill(nofmctracksttparalpoints, (Double_t) nNotAssignedSttParal/nofmctracksttparalpoints);
+   }
+
+   if(nofmctrackmvdpixpoints > 0) {
+     hEfficiencyMvdPixel->Fill(nofmctrackmvdpixpoints, (Double_t) nAssignedMvdPixel/nofmctrackmvdpixpoints);
+     hInefficiencyMvdPixel->Fill(nofmctrackmvdpixpoints, (Double_t) nNotAssignedMvdPixel/nofmctrackmvdpixpoints);	
+   }
+
+   if(nofmctrackmvdstrpoints > 0) {
+     hEfficiencyMvdStrip->Fill(nofmctrackmvdstrpoints, (Double_t) nAssignedMvdStrip/nofmctrackmvdstrpoints);
+     hInefficiencyMvdStrip->Fill(nofmctrackmvdstrpoints, (Double_t) nNotAssignedMvdStrip/nofmctrackmvdstrpoints);
+   }
+
+
+   // CONTAMINATION/PURITY one reco for one mc  
+   if(nofrecotrackpoints > 0) {
+     hContamination->Fill(nofrecotrackpoints, (Double_t) nWrong/nofrecotrackpoints);
+     hPurity->Fill(nofrecotrackpoints, (Double_t) nAssigned/nofrecotrackpoints);
+   }
+   
+   // 	hContaminationStt->Fill(nofrecotracksttpoints, (Double_t) nWrongStt/nofrecotracksttpoints);
+   // 	hContaminationSttSkew  ->Fill(nofrecotracksttskewpoints, (Double_t) nWrongSttSkew  /nofrecotracksttskewpoints);
+   // 	hContaminationSttParal->Fill(nofrecotracksttparalpoints, (Double_t) nWrongSttParal/nofrecotracksttparalpoints);
+   // 	hContaminationMvdPixel->Fill(nofrecotrackmvdpixpoints, (Double_t) nWrongMvdPixel/nofrecotrackmvdpixpoints);
+   // 	hContaminationMvdStrip->Fill(nofrecotrackmvdstrpoints, (Double_t) nWrongMvdStrip/nofrecotrackmvdstrpoints);
+
+
+
+   cout << "TRACK " << jrecotrack << " MCTRACK " << imctrack << " " << endl;
+   cout << "total " << nofrecotrackpoints << " mctotal " << nofmctrackpoints << endl;
+   cout << "assigned " <<  nAssigned <<  " not assigned " << nNotAssigned << " wrong " << nWrong << endl;
+   if((nAssigned + nNotAssigned) != nofmctrackpoints) cout << "ERROR 1" << endl;
+   if((nAssigned + nWrong) != nofrecotrackpoints) cout << "ERROR 2" << endl;
+   if((nAssignedSttSkew + nAssignedSttParal) != nAssignedStt) cout << "ERROR 3" << endl;
+ 
+   // CHECK for now:
+   // a track if good if it has more than 80% of mc points assigned to it
+   if(((Double_t) nAssigned/nofmctrackpoints) > 0.8) {
+     fGoodTrack++;
+     fThisGoodTrack++;
+   }
+   else {
+     fBadTrack++;
+     fThisBadTrack++;
+   }
+   cout << "HERE" << endl;
+   it++;
+ }
+ 
+ // CHECK for now:
+ // fMCReconstructableTrack are the mc tracks with at least 3 parallel stt point
+ cout << "#### NOW: GOOD = "<< (Double_t) fThisGoodTrack/fThisMCReconstructableTrack << "%, BAD = " << (Double_t) fThisBadTrack/fThisMCReconstructableTrack << "%, MISSED = " << (Double_t) fThisNotReconstructed/fThisMCReconstructableTrack << "%" << endl;
+ cout << "======== AFTER THIS EVENT: GOOD = "<< (Double_t) fGoodTrack/fMCReconstructableTrack << "%, BAD = " << (Double_t) fBadTrack/fMCReconstructableTrack << "%, MISSED = " << (Double_t) fNotReconstructed/fMCReconstructableTrack << "%" << endl;
+ 
 }
 
 Int_t PndTrkQATask::CheckIfPresent(Int_t trackid) {
