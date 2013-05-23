@@ -148,7 +148,7 @@ InitStatus PndDrcDigiTask::Init()
 // -----   Execution of Task   ---------------------------------------------
 void PndDrcDigiTask::Exec(Option_t* option)
 {
-
+  Reset();
   if ( ! fDrcDigiArray ) Fatal("Exec", "No Photon DigiArray");
   fDrcDigiArray->Delete();
   nevents++;
@@ -281,7 +281,7 @@ void PndDrcDigiTask::ProcessPhotonPoint()
 	//usually sensors have origin in the middle, let's move it to the left lower corner:
      	TVector3 posLshifted;
      	posLshifted.SetXYZ(posL.X()+sensorDim.X(), posL.Y()+sensorDim.Y(), posL.Z()+sensorDim.Z());
-     	std::cout<<"-I- PndDrcDigiTask: local shifted position: x = "<<posLshifted.X()<<", y = "<<posLshifted.Y()<<", z = "<<posLshifted.Z()<<std::endl;
+     	//std::cout<<"-I- PndDrcDigiTask: local shifted position: x = "<<posLshifted.X()<<", y = "<<posLshifted.Y()<<", z = "<<posLshifted.Z()<<std::endl;
      	//std::cout<<" find out the pixelStep: posLshifted/fPixelStep = "<<posLshifted.X()/fPixelStep<<std::endl;
 	 
      	// calculate the number of the fired pixel
@@ -293,6 +293,8 @@ void PndDrcDigiTask::ProcessPhotonPoint()
      	//cout<<"fMcpActiveArea = "<<fMcpActiveArea<<", fPixelSize = "<<fPixelSize<<", fNpix = "<<fNpix<<endl;
      	fDetectorID = Ppt->GetDetectorID() * 100 + NpixelLocal;
      	//cout<<"det ID = "<<fDetectorID<<endl;
+	
+	if(fDetectorID == 34040) {cout<<"pixel 34040 has hit: x = "<<xP<<", y = "<<yP<<endl;}
 	 
 	Double_t time=Ppt->GetTime();
      	Smear(time,fSigmat);
@@ -302,6 +304,7 @@ void PndDrcDigiTask::ProcessPhotonPoint()
        		//PndDrcDigi* aNewDigi = AddDrcDigi(fDetectorID, fPixelID, k ,fTime, fTimeError); // k - MC array index
        		//PndDrcDigi* aNewDigi = AddDrcDigi(k, fDetectorID, 0., fTime); // k - MC array index
 		ActivatePixel(fDetectorID, fTime, k);
+		//ActivatePixel(fDetectorID, fTime, k);
      	}
      
      	if(fChargeSharing == kTRUE){
@@ -315,38 +318,38 @@ void PndDrcDigiTask::ProcessPhotonPoint()
 		
 		// left pixel
      		distance =  posLshifted.X() - TMath::Floor(posLshifted.X()/fPixelStep)*fPixelStep; //[cm]
-		cout<<"left dist = "<<distance<<endl;
+		//cout<<"left dist = "<<distance<<endl;
      		if(exp(- distance/fPixelSigma) > gRandom->Uniform(0.,1.) && exp(- distance/fPixelSigma) > fThreshold){
-			cout<<"!! prob = "<<exp(- distance/fPixelSigma)<<endl;
+			//cout<<"!! prob = "<<exp(- distance/fPixelSigma)<<endl;
 			if((Ncol-1) > 0){
-				ActivatePixel(Ncol-1+Nrow*fNpix, fTime, k);
+				ActivatePixel(Ppt->GetDetectorID() * 100 +Ncol-1+Nrow*fNpix, fTime, k);	
 			}
 		}
      		// right pixel
      		distance =  TMath::Ceil(posLshifted.X()/fPixelStep)*fPixelStep - posLshifted.X();
-		cout<<"right dist = "<<distance<<endl;
+		//cout<<"right dist = "<<distance<<endl;
      		if(exp(- distance/fPixelSigma) > gRandom->Uniform(0.,1.) && exp(- distance/fPixelSigma) > fThreshold){
-			cout<<"!! prob = "<<exp(- distance/fPixelSigma)<<endl;
+			//cout<<"!! prob = "<<exp(- distance/fPixelSigma)<<endl;
 			if(Ncol+1 < fNpix){
-				ActivatePixel(Ncol+1+Nrow*fNpix, fTime, k);
+				ActivatePixel(Ppt->GetDetectorID() * 100 +Ncol+1+Nrow*fNpix, fTime, k);	
 			}
 		}
      		// lower pixel
      		distance =  posLshifted.Y() - TMath::Floor(posLshifted.Y()/fPixelStep)*fPixelStep;
-		cout<<"bottom dist = "<<distance<<endl;
+		//cout<<"bottom dist = "<<distance<<endl;
      		if(exp(- distance/fPixelSigma) > gRandom->Uniform(0.,1.) && exp(- distance/fPixelSigma) > fThreshold){
-			cout<<"!! prob = "<<exp(- distance/fPixelSigma)<<endl;
+			//cout<<"!! prob = "<<exp(- distance/fPixelSigma)<<endl;
 			if(Nrow-1 > 0){
-				ActivatePixel(Ncol+(Nrow-1)*fNpix, fTime, k);
+				ActivatePixel(Ppt->GetDetectorID() * 100 +Ncol+(Nrow-1)*fNpix, fTime, k);
 			}
 		}
      		// upper pixel
      		distance =  TMath::Ceil(posLshifted.Y()/fPixelStep)*fPixelStep - posLshifted.Y();
-     		cout<<"upper dist = "<<distance<<endl;
+     		//cout<<"upper dist = "<<distance<<endl;
 		if(exp(- distance/fPixelSigma) > gRandom->Uniform(0.,1.) && exp(- distance/fPixelSigma) > fThreshold){
-			cout<<"!! prob = "<<exp(- distance/fPixelSigma)<<endl;
+			//cout<<"!! prob = "<<exp(- distance/fPixelSigma)<<endl;
 			if(Nrow+1 < fNpix){
-				ActivatePixel(Ncol+(Nrow+1)*fNpix, fTime, k);
+				ActivatePixel(Ppt->GetDetectorID() * 100 +Ncol+(Nrow+1)*fNpix, fTime, k);
 			}
 		}
 		
@@ -356,11 +359,12 @@ void PndDrcDigiTask::ProcessPhotonPoint()
 		corner.SetXYZ(TMath::Floor(posLshifted.X()/fPixelStep)*fPixelStep,
 			      TMath::Ceil(posLshifted.Y()/fPixelStep)*fPixelStep,0.);
         	distance = (point-corner).Mag();
-		cout<<"upper left dist = "<<distance<<endl;
+		//cout<<"upper left dist = "<<distance<<endl;
 		if(exp(-distance/fPixelSigma) > gRandom->Uniform(0.,1.) && exp(- distance/fPixelSigma) > fThreshold){
-			cout<<"!! prob = "<<exp(- distance/fPixelSigma)<<endl;
+			//cout<<"!! prob = "<<exp(- distance/fPixelSigma)<<endl;
 			if(Ncol-1 > 0 && Nrow+1 < fNpix){
-				ActivatePixel(Ncol-1+(Nrow+1)*fNpix, fTime, k);
+				ActivatePixel(Ppt->GetDetectorID() * 100 +Ncol-1+(Nrow+1)*fNpix, fTime, k);
+				
 			}
 		}
 		
@@ -368,11 +372,11 @@ void PndDrcDigiTask::ProcessPhotonPoint()
 		corner.SetXYZ(TMath::Floor(posLshifted.X()/fPixelStep)*fPixelStep,
 		              TMath::Floor(posLshifted.Y()/fPixelStep)*fPixelStep,0.);
         	distance = (point-corner).Mag();
-		cout<<"bottom left dist = "<<distance<<endl;
+		//cout<<"bottom left dist = "<<distance<<endl;
 		if(exp(-distance/fPixelSigma) > gRandom->Uniform(0.,1.) && exp(- distance/fPixelSigma) > fThreshold){
-			cout<<"!! prob = "<<exp(- distance/fPixelSigma)<<endl;
+			//cout<<"!! prob = "<<exp(- distance/fPixelSigma)<<endl;
 			if(Ncol-1 > 0 && Nrow-1 > 0){
-				ActivatePixel(Ncol-1+(Nrow-1)*fNpix, fTime, k);
+				ActivatePixel(Ppt->GetDetectorID() * 100 +Ncol-1+(Nrow-1)*fNpix, fTime, k);
 			}
 		}
 		
@@ -380,11 +384,11 @@ void PndDrcDigiTask::ProcessPhotonPoint()
 		corner.SetXYZ(TMath::Ceil(posLshifted.X()/fPixelStep)*fPixelStep,
 		              TMath::Floor(posLshifted.Y()/fPixelStep)*fPixelStep,0.);
         	distance = (point-corner).Mag();
-		cout<<"bottom right dist = "<<distance<<endl;
+		//cout<<"bottom right dist = "<<distance<<endl;
 		if(exp(-distance/fPixelSigma) > gRandom->Uniform(0.,1.) && exp(- distance/fPixelSigma) > fThreshold){
-			cout<<"!! prob = "<<exp(- distance/fPixelSigma)<<endl;
+			//cout<<"!! prob = "<<exp(- distance/fPixelSigma)<<endl;
 			if(Ncol+1 < fNpix && Nrow-1 > 0){
-				ActivatePixel(Ncol+1+(Nrow-1)*fNpix, fTime, k);
+				ActivatePixel(Ppt->GetDetectorID() * 100 +Ncol+1+(Nrow-1)*fNpix, fTime, k);
 			}
 		}
 		
@@ -392,11 +396,11 @@ void PndDrcDigiTask::ProcessPhotonPoint()
 		corner.SetXYZ(TMath::Ceil(posLshifted.X()/fPixelStep)*fPixelStep,
 		              TMath::Ceil(posLshifted.Y()/fPixelStep)*fPixelStep,0.);
         	distance = (point-corner).Mag();
-		cout<<"upper right dist = "<<distance<<endl;
+		//cout<<"upper right dist = "<<distance<<endl;
 		if(exp(-distance/fPixelSigma) > gRandom->Uniform(0.,1.) && exp(- distance/fPixelSigma) > fThreshold){
-			cout<<"!! prob = "<<exp(- distance/fPixelSigma)<<endl;
+			//cout<<"!! prob = "<<exp(- distance/fPixelSigma)<<endl;
 			if(Ncol+1 < fNpix && Nrow+1 < fNpix){
-				ActivatePixel(Ncol+1+(Nrow+1)*fNpix, fTime, k);
+				ActivatePixel(Ppt->GetDetectorID() * 100 +Ncol+1+(Nrow+1)*fNpix, fTime, k);
 			}
 		}
 		
@@ -411,22 +415,25 @@ void PndDrcDigiTask::ProcessPhotonPoint()
 void PndDrcDigiTask::ActivatePixel(Int_t sensorDetId, Double_t signalTime, Int_t k) {
 // in case when the same pixel was fired by two different photons this function takes care of which hits from that pixel to write  
   //Int_t sensorDetId;
+  //cout<<"-I- ActivatePixel: time = "<<signalTime<<endl;
   if ( fPixelMap.find(sensorDetId) == fPixelMap.end() ) {
     // pixel not yet active, create new digi
     
-    //	cout << fNDigis << " : " << sensorDetId << " " << channelNumber << endl;
+    	//cout <<"there is no such pixel (case 1) - "<< fNDigis << " : " << sensorDetId << " " << signalTime << endl;
     
     new ((*fDrcDigiArray)[fNDigis]) PndDrcDigi(k, sensorDetId, 0., signalTime);
 
     fPixelMap[sensorDetId] = fNDigis;
     fNDigis++;
   }
-  else {
+  else {    
     // if there was already hit in this pixel...
+    //cout<<" there is a hit in the same pixel already (case 2)"<<endl;
     Int_t iDigi = fPixelMap[sensorDetId];
     PndDrcDigi* ddigi = dynamic_cast<PndDrcDigi*>(fDrcDigiArray->At(iDigi));
     // ... check the time difference with another one in the same pixel
     if(fabs(ddigi->GetTimeStamp() - signalTime) > fDeadTime){
+      //cout<<"time difference = %% "<<fabs(ddigi->GetTimeStamp() - signalTime)<<endl;
       new ((*fDrcDigiArray)[fNDigis]) PndDrcDigi(k, sensorDetId, 0., signalTime);
 
       fPixelMap[sensorDetId] = fNDigis;
@@ -435,7 +442,7 @@ void PndDrcDigiTask::ActivatePixel(Int_t sensorDetId, Double_t signalTime, Int_t
     
     //ddigi->AddCharge(signalHeight);
 
-    //	cout << "another mc point to this digi, last one " << ddigi->GetIndex(ddigi->GetNIndices()-1) << ", now adding " << iPoint << endl;
+    	//cout << "another mc point to this digi, last one " << ddigi->GetIndex(ddigi->GetNIndices()-1) << ", now adding " << k << endl;
     //ddigi->AddIndex(iPoint);
   }
 }
