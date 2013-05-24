@@ -133,7 +133,7 @@ InitStatus PndTrkQATask::Init() {
   hContamination = new TH2F("hContamination","contamination = wrongly assigned/nof track hits", 100, 0., 100., 50, 0., 1.1);
   hPurity = new TH2F("hPurity","purity = correctly assigned/nof track hits", 100, 0., 100., 50, 0., 1.1);
 
-  fGoodTrack = 0, fBadTrack = 0, fMCReconstructableTrack = 0, fNotReconstructed = 0, fGhostTrack = 0;
+  fGoodTrack = 0, fBadTrack = 0, fMCReconstructableTrack = 0, fNotReconstructed = 0, fGhostTrack = 0, fRecoTrack = 0;
 
 
   return kSUCCESS;
@@ -192,7 +192,7 @@ void PndTrkQATask::Exec(Option_t* opt) {
 
  
   // ----------------------------------------------------------------
-  fThisGoodTrack = 0, fThisBadTrack = 0, fThisMCReconstructableTrack = 0, fThisNotReconstructed = 0, fThisGhostTrack = 0;
+  fThisGoodTrack = 0, fThisBadTrack = 0, fThisMCReconstructableTrack = 0, fThisNotReconstructed = 0, fThisGhostTrack = 0, fThisRecoTrack = 0;
 
   // CHECK delete this ---
 //   if(fEventCounter == 525) {
@@ -244,8 +244,8 @@ void PndTrkQATask::Exec(Option_t* opt) {
    int imctrack = it->first; 
    // take reco associated
    std::vector<int> asso = it->second;
-   // 
-  cout << imctrack << " ASSO(0) " << asso.at(0) << endl;
+  
+  
    // how many associated?
    if(asso.at(0) == -1) {
      fNotReconstructed++;
@@ -260,8 +260,6 @@ void PndTrkQATask::Exec(Option_t* opt) {
      fThisGhostTrack += asso.size() - 1;
    }
    
-   //   
-   cout << "IMCTRACK " << imctrack << " " << asso.size() << endl;
    // take the MC info
    PndTrackCand *mctrkcand = (PndTrackCand*) fIdealTrackCandArray->At(imctrack);
    if(!mctrkcand) continue;
@@ -273,8 +271,6 @@ void PndTrkQATask::Exec(Option_t* opt) {
    int nofmctrackmvdpixpoints = mctrkcand->GetNHitsDet(FairRootManager::Instance()->GetBranchId(fMvdPixelBranch));
    int nofmctrackmvdstrpoints = mctrkcand->GetNHitsDet(FairRootManager::Instance()->GetBranchId(fMvdStripBranch));
 
-   // 
-  cout << "nofmctrackpoints " << nofmctrackpoints << endl;
    for(Int_t ihit = 0; ihit < nofmctrackpoints; ihit++) {
      PndTrackCandHit mccandhit = mctrkcand->GetSortedHit(ihit);
      Int_t hitID1 = mccandhit.GetHitId();
@@ -316,8 +312,6 @@ void PndTrkQATask::Exec(Option_t* opt) {
      nofmctracksttskewpoints = 0;                            // CHECK 
      nofmctracksttpoints -= nofmctracksttskewpoints;         // CHECK 
    }
-   //   
-   cout << "nofmctrackpoints " << nofmctrackpoints << endl;
 
    Int_t nAssigned = 0, nNotAssigned = 0, nWrong = 0;
    Int_t nAssignedStt = 0, nNotAssignedStt = 0, nWrongStt = 0;
@@ -332,8 +326,6 @@ void PndTrkQATask::Exec(Option_t* opt) {
    int nofrecotrackmvdstrpoints = 0;
    int jrecotrack = 0;
 
-   //  
-   cout << "ASSOCIATED " << asso.size() << endl;
      
    for(int itrk = 0; itrk < asso.size(); itrk++) {
      
@@ -347,7 +339,6 @@ void PndTrkQATask::Exec(Option_t* opt) {
     
 
      int jtrk = asso.at(itrk);
-     cout << "JTRK  " << jtrk << endl;
      PndTrack *trk = (PndTrack*) fTrackArray->At(jtrk);
      if(!trk) continue;
      PndTrackID *trkID = (PndTrackID*) fTrackIDArray->At(jtrk);
@@ -368,17 +359,14 @@ void PndTrkQATask::Exec(Option_t* opt) {
  //     // 
 //      cout << "POINTS MC " << endl;
 //      cout << nofmctrackpoints << " " << nofmctracksttpoints << " " << nofmctrackmvdpixpoints << " " << nofmctrackmvdstrpoints << endl;
-//
-      cout << "POINTS RECO " << endl;
-//
-      cout << noftmprecotrackpoints << " " << noftmprecotracksttpoints << " " << noftmprecotrackmvdpixpoints << " " << noftmprecotrackmvdstrpoints << endl;
+//       cout << "POINTS RECO " << endl;
+//       cout << noftmprecotrackpoints << " " << noftmprecotracksttpoints << " " << noftmprecotrackmvdpixpoints << " " << noftmprecotrackmvdstrpoints << endl;
 
      // loop over reco hits ---------------------------
      for(Int_t ihit = 0; ihit < noftmprecotrackpoints; ihit++) {
        PndTrackCandHit candhit = trkcand->GetSortedHit(ihit);
        Int_t hitID = candhit.GetHitId();
        Int_t detID = candhit.GetDetId();
-       cout << "ihti " << ihit << endl;
        FairHit *hit = NULL;
        if(detID == FairRootManager::Instance()->GetBranchId(fMvdPixelBranch)) {
 	 if(!fUseMVDPix) continue;
@@ -446,7 +434,6 @@ void PndTrkQATask::Exec(Option_t* opt) {
 	 }
        }
      
-     cout << "done" << endl;
      }
      nTmpNotAssigned = nofmctrackpoints - nTmpAssigned;
      nTmpNotAssignedMvdPixel = nofmctrackmvdpixpoints - nTmpAssignedMvdPixel;
@@ -459,7 +446,6 @@ void PndTrkQATask::Exec(Option_t* opt) {
      //                     OR 
      // if that number is equal, if it is cleaner
 
-   //   cout << "TMP " << nTmpAssigned << " " << nAssigned << endl;
      if((nTmpAssigned > nAssigned) || (nTmpAssigned == nAssigned && nTmpWrong < nWrong)) {
           
 
@@ -565,8 +551,8 @@ void PndTrkQATask::Exec(Option_t* opt) {
  
  // CHECK for now:
  // fMCReconstructableTrack are the mc tracks with at least 3 parallel stt point
- cout << "#### NOW: GOOD = "<< (Double_t) fThisGoodTrack/fThisMCReconstructableTrack << "%, BAD = " << (Double_t) fThisBadTrack/fThisMCReconstructableTrack << "%, MISSED = " << (Double_t) fThisNotReconstructed/fThisMCReconstructableTrack << "%" << endl;
- cout << "======== AFTER THIS EVENT: GOOD = "<< (Double_t) fGoodTrack/fMCReconstructableTrack << "%, BAD = " << (Double_t) fBadTrack/fMCReconstructableTrack << "%, MISSED = " << (Double_t) fNotReconstructed/fMCReconstructableTrack << "%" << endl;
+ cout << "#### NOW: GOOD = "<< 100. *  fThisGoodTrack/fThisMCReconstructableTrack << "%, BAD = " << 100. *  fThisBadTrack/fThisMCReconstructableTrack << "%, MISSED = " << 100. *  fThisNotReconstructed/fThisMCReconstructableTrack << "%, GHOSTS " << 100. *  fThisGhostTrack/fThisRecoTrack << "%" << endl;
+ cout << "======== AFTER THIS EVENT: GOOD = "<< 100. *  fGoodTrack/fMCReconstructableTrack << "%, BAD = " << 100. *  fBadTrack/fMCReconstructableTrack << "%, MISSED = " << 100. *  fNotReconstructed/fMCReconstructableTrack << "%, GHOSTS " << 100. *  fGhostTrack/fRecoTrack << "%"  << endl;
  
 }
 
@@ -804,6 +790,9 @@ void PndTrkQATask::MapMCToReco()
   cout << "mc   tracks " << fIdealTrackCandArray->GetEntriesFast() << endl;
   cout << "reco tracks " << fTrackArray->GetEntriesFast() << endl;
   fMC2RecoMap.clear();
+  fRecoTrack += fTrackArray->GetEntriesFast();
+  fThisRecoTrack += fTrackArray->GetEntriesFast();
+
   for(int itrk = 0; itrk < fIdealTrackCandArray->GetEntriesFast(); itrk++) {
     PndTrackCand *mctrkcand = (PndTrackCand*) fIdealTrackCandArray->At(itrk);
     if(!mctrkcand) continue;

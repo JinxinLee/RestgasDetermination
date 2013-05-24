@@ -85,7 +85,7 @@ class PndTrkQATask : public FairTask {
 
   TH2F *hEfficiency, *hEfficiencyStt, *hEfficiencySttSkew, *hEfficiencySttParal, *hEfficiencyMvdPixel, *hEfficiencyMvdStrip, *hInefficiency, *hInefficiencyStt, *hInefficiencySttSkew, *hInefficiencySttParal, *hInefficiencyMvdPixel, *hInefficiencyMvdStrip, *hContamination, *hPurity;
 
-  Int_t fGoodTrack, fBadTrack, fMCReconstructableTrack, fNotReconstructed, fGhostTrack, fThisGoodTrack, fThisBadTrack, fThisMCReconstructableTrack, fThisNotReconstructed, fThisGhostTrack;
+  Int_t fGoodTrack, fBadTrack, fMCReconstructableTrack, fNotReconstructed, fRecoTrack, fGhostTrack, fThisGoodTrack, fThisBadTrack, fThisMCReconstructableTrack, fThisNotReconstructed, fThisGhostTrack, fThisRecoTrack;
 
   ClassDef(PndTrkQATask,1);
   Bool_t  fUseMVDPix, fUseMVDStr, fUseSTT, fUseSTTSkew;
