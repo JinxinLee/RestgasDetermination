@@ -51,12 +51,20 @@ using namespace std;
 
 
 // -----   Default constructor   -------------------------------------------
-PndTrkLegendreTask::PndTrkLegendreTask() : FairTask("secondary track finder"), fVerbose(0), fDisplayOn(kFALSE), fPersistence(kTRUE), fUseMVDPix(kTRUE), fUseMVDStr(kTRUE), fUseSTT(kTRUE), fSecondary(kFALSE), fMvdPix_RealDistLimit(1000), fMvdStr_RealDistLimit(1000), fStt_RealDistLimit(1000), fMvdPix_ConfDistLimit(1000), fMvdStr_ConfDistLimit(1000), fStt_ConfDistLimit(1000) {
+PndTrkLegendreTask::PndTrkLegendreTask() : FairTask("secondary track finder", 0), fDisplayOn(kFALSE), fPersistence(kTRUE), fUseMVDPix(kTRUE), fUseMVDStr(kTRUE), fUseSTT(kTRUE), fSecondary(kFALSE), fMvdPix_RealDistLimit(1000), fMvdStr_RealDistLimit(1000), fStt_RealDistLimit(1000), fMvdPix_ConfDistLimit(1000), fMvdStr_ConfDistLimit(1000), fStt_ConfDistLimit(1000) {
   sprintf(fSttBranch,"STTHit");
   sprintf(fMvdPixelBranch,"MVDHitsPixel");
   sprintf(fMvdStripBranch,"MVDHitsStrip");
   PndGeoHandling::Instance();
 }
+
+PndTrkLegendreTask::PndTrkLegendreTask(int verbose) : FairTask("secondary track finder", verbose), fDisplayOn(kFALSE), fPersistence(kTRUE), fUseMVDPix(kTRUE), fUseMVDStr(kTRUE), fUseSTT(kTRUE), fSecondary(kFALSE), fMvdPix_RealDistLimit(1000), fMvdStr_RealDistLimit(1000), fStt_RealDistLimit(1000), fMvdPix_ConfDistLimit(1000), fMvdStr_ConfDistLimit(1000), fStt_ConfDistLimit(1000) {
+  sprintf(fSttBranch,"STTHit");
+  sprintf(fMvdPixelBranch,"MVDHitsPixel");
+  sprintf(fMvdStripBranch,"MVDHitsStrip");
+  PndGeoHandling::Instance();
+}
+
 // -------------------------------------------------------------------------
 
 // -----   Destructor   ----------------------------------------------------
@@ -178,12 +186,15 @@ void PndTrkLegendreTask::Initialize() {
 
   conformalhitlist = new PndTrkConformalHitList();
   fFoundPeaks.clear();
+
+
+
 }
 
 void PndTrkLegendreTask::Exec(Option_t* opt) {
   fTrackArray->Delete();
   fTrackCandArray->Delete();
-  cout << "*********************** " << fEventCounter << " ***********************" << endl;
+  if(fVerbose > 0) cout << "*********************** " << fEventCounter << " ***********************" << endl;
    // CHECK delete this ---
   //     if(fEventCounter == 126 || fEventCounter == 526) {
   //        fEventCounter++;
@@ -202,11 +213,11 @@ void PndTrkLegendreTask::Exec(Option_t* opt) {
   // forbidden peak positions in legendre transform?)
 
   Initialize();
-
+  if(fVerbose > 1) {
   cout << "number of stt    hits " << fSttHitArray->GetEntriesFast() << endl;
   cout << "number of mvdpix hits " << fMvdPixelHitArray->GetEntriesFast() << endl;
   cout << "number of mvdstr hits " << fMvdStripHitArray->GetEntriesFast() << endl;
-
+  }
   if(fDisplayOn)  {
     Refresh();
     char goOnChar;
@@ -243,7 +254,7 @@ void PndTrkLegendreTask::Exec(Option_t* opt) {
       fTimer->Stop();
       fTime += fTimer->RealTime();
       if(fTime > 1.5) {
-	cerr << fTime << endl;
+	 if(fVerbose > 0) cerr << fTime << endl;
 	Reset();  
 	return;
       }
@@ -255,7 +266,7 @@ void PndTrkLegendreTask::Exec(Option_t* opt) {
 
       // translation and rotation - CHECK
       fRefHit = FindReferenceHit();
-      cout << "refhit " << fRefHit << endl;
+        if(fVerbose > 1) cout << "refhit " << fRefHit << endl;
       if(fRefHit == NULL)  {
 	Reset();  
 	return;
@@ -264,7 +275,7 @@ void PndTrkLegendreTask::Exec(Option_t* opt) {
       conform->SetOrigin(trasl[0], trasl[1], delta);
       Int_t nchits = FillConformalHitList();
       //  if(nchits == 0) return; // CHECK 
-      cout << nchits << " " << trasl[0] << " " <<  trasl[1] << " " << delta << endl;
+      if(fVerbose > 1)   cout << nchits << " " << trasl[0] << " " <<  trasl[1] << " " << delta << endl;
     }
  
     PndTrkCluster cluster;
@@ -279,7 +290,7 @@ void PndTrkLegendreTask::Exec(Option_t* opt) {
       display->Modified();
     }
 
-    cout << "@@@@ PEAK No. " << ipeak << " @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@" << endl;
+    if(fVerbose > 1)   cout << "@@@@ PEAK No. " << ipeak << " @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@" << endl;
     ipeak++;
 
     // APPLY LEGENDRE TO STT ALONE
@@ -317,7 +328,7 @@ void PndTrkLegendreTask::Exec(Option_t* opt) {
     // -------------------------------------------------------
   
     double fitm2, fitq2;
-    PndTrkFitter fitter;
+    PndTrkFitter fitter(fVerbose);
     for(int ihit = 0; ihit < cluster.GetNofHits(); ihit++) 
       {
 	PndTrkHit *hit = cluster.GetHit(ihit);
@@ -372,12 +383,12 @@ void PndTrkLegendreTask::Exec(Option_t* opt) {
 
     // -------------------------------------------------------
     if(cluster.GetNofHits() > 3) {
-      cout << "ADDING CLUSTER WITH " << cluster.GetNofHits() << " hits " << endl;
+      if(fVerbose > 1)   cout << "ADDING CLUSTER WITH " << cluster.GetNofHits() << " hits " << endl;
       clusterlist->AddCluster(cluster);
     }
     else {
       maxpeak = -1;  
-      cout << "MAXPEAK " << maxpeak << endl;
+      if(fVerbose > 1) cout << "MAXPEAK " << maxpeak << endl;
       continue;
     }
     if(fDisplayOn) {
@@ -391,7 +402,7 @@ void PndTrkLegendreTask::Exec(Option_t* opt) {
     // center and radius
     Double_t xc, yc, R;
     FromConformalToRealTrack(fitm, fitq, xc, yc, R);
-    cout << "XR, YC, R: " << xc << " " << yc << " " << R << endl;
+   if(fVerbose > 1)  cout << "XR, YC, R: " << xc << " " << yc << " " << R << endl;
 
     PndTrkTrack *track = new PndTrkTrack(&cluster, xc, yc, R);
 
@@ -408,7 +419,7 @@ void PndTrkLegendreTask::Exec(Option_t* opt) {
 
     // SKEWED ASSOCIATION ********* CHECK *********
     // -------------------------------------------------------
-    cout << "%%%%%%%%%%%%%%%%%%%% ZFINDER %%%%%%%%%%%%%%%%%%%%%%%%%%" << endl;
+   if(fVerbose > 1)  cout << "%%%%%%%%%%%%%%%%%%%% ZFINDER %%%%%%%%%%%%%%%%%%%%%%%%%%" << endl;
 
     if(fDisplayOn) {
       RefreshZ();
@@ -653,7 +664,7 @@ void PndTrkLegendreTask::Exec(Option_t* opt) {
     // TRANSFORM TO PNDTRACK AND PNDTRACKCAND
     // -------------------------------------------------------
     RegisterTrack(track);
-    cout << "MAXPEAK " << maxpeak << endl;
+   if(fVerbose > 1)  cout << "MAXPEAK " << maxpeak << endl;
   }
   if(fDisplayOn) {
     char goOnChar;
@@ -687,7 +698,7 @@ void PndTrkLegendreTask::Reset()
   delete mvdstrhitlist;
   fTimer->Stop();
   fTime += fTimer->RealTime();
-  cerr << fEventCounter << " Real time " << fTime << " s" << endl;
+   if(fVerbose > 0) cerr << fEventCounter << " Real time " << fTime << " s" << endl;
 
 }
 // ============================================================================================
@@ -1665,9 +1676,11 @@ void PndTrkLegendreTask::RegisterTrack(PndTrkTrack *track) {
   size = clref2.GetEntriesFast();
   PndTrackCand *outputtrackcand = new(clref2[size]) PndTrackCand(finaltrack->GetTrackCand());
 
-  cout << "MOM FIRST: TOT, PT, PL " << outputtrack->GetParamFirst().GetMomentum().Mag() << " " << outputtrack->GetParamFirst().GetMomentum().Perp() << " " << outputtrack->GetParamFirst().GetMomentum().Z() << endl;
-  cout << "MOM LAST: TOT, PT, PL " << outputtrack->GetParamLast().GetMomentum().Mag() << " " << outputtrack->GetParamLast().GetMomentum().Perp() << " " << outputtrack->GetParamLast().GetMomentum().Z() << endl;
-  if(fDisplayOn) {
+  if(fVerbose > 1) {
+    cout << "MOM FIRST: TOT, PT, PL " << outputtrack->GetParamFirst().GetMomentum().Mag() << " " << outputtrack->GetParamFirst().GetMomentum().Perp() << " " << outputtrack->GetParamFirst().GetMomentum().Z() << endl;
+    cout << "MOM LAST: TOT, PT, PL " << outputtrack->GetParamLast().GetMomentum().Mag() << " " << outputtrack->GetParamLast().GetMomentum().Perp() << " " << outputtrack->GetParamLast().GetMomentum().Z() << endl;
+  }
+    if(fDisplayOn) {
     char goOnChar;
     display->cd(1);
     Refresh();
@@ -1695,7 +1708,9 @@ PndTrkHit *PndTrkLegendreTask::FindSttReferenceHit()
   Double_t tmpiso = 1.;
   for(int jhit = 0; jhit < stthitlist->GetNofHits(); jhit++) {
     PndTrkHit *hit = stthitlist->GetHit(jhit);
-    if(hit->IsUsed()) { cout << "STT hit " << jhit << "already used " << endl; continue; }
+    if(hit->IsUsed()) { 
+      if(fVerbose > 1) cout << "STT hit " << jhit << "already used " << endl; 
+      continue; }
     if(hit->IsSttSkew()) continue;
     if(hit->GetIsochrone() < tmpiso) {
       tmphitid = jhit;
@@ -1705,7 +1720,7 @@ PndTrkHit *PndTrkLegendreTask::FindSttReferenceHit()
   if(tmphitid == -1)  return NULL;
 
   PndTrkHit *refhit = stthitlist->GetHit(tmphitid);
-  cout << "STT REFERENCE HIT " <<  tmphitid << " " << refhit->GetIsochrone() << endl;
+  if(fVerbose > 1) cout << "STT REFERENCE HIT " <<  tmphitid << " " << refhit->GetIsochrone() << endl;
   return refhit;
 }
 
@@ -1718,7 +1733,7 @@ PndTrkHit *PndTrkLegendreTask::FindMvdPixelReferenceHit()
   for(int jhit = 0; jhit < mvdpixhitlist->GetNofHits(); jhit++) {
     PndTrkHit *hit = mvdpixhitlist->GetHit(jhit);
     if(hit->IsUsed()) { 
-      cout << "already used V" << endl; 
+      if(fVerbose > 1) cout << "already used V" << endl; 
       continue; 
     }
     tmphitid = jhit;
@@ -1726,7 +1741,7 @@ PndTrkHit *PndTrkLegendreTask::FindMvdPixelReferenceHit()
   }   
   if(tmphitid == -1)  return NULL;
   refhit = mvdpixhitlist->GetHit(tmphitid);
-  cout << "MVD PIXEL REFERENCE HIT " << refhit->GetHitID() << endl;
+   if(fVerbose > 1) cout << "MVD PIXEL REFERENCE HIT " << refhit->GetHitID() << endl;
   return refhit;
 }
 
@@ -1739,7 +1754,7 @@ PndTrkHit *PndTrkLegendreTask::FindMvdStripReferenceHit()
   for(int jhit = 0; jhit < mvdstrhitlist->GetNofHits(); jhit++) {
     PndTrkHit *hit = mvdstrhitlist->GetHit(jhit);
     if(hit->IsUsed()) { 
-      cout << "already used V" << endl; 
+       if(fVerbose > 1) cout << "already used V" << endl; 
       continue; 
     }
     tmphitid = jhit;
@@ -1747,7 +1762,7 @@ PndTrkHit *PndTrkLegendreTask::FindMvdStripReferenceHit()
   }   
   if(tmphitid == -1)  return NULL;
   refhit = mvdstrhitlist->GetHit(tmphitid);
-  cout << "MVD STRIP REFERENCE HIT " << refhit->GetHitID() << endl;
+   if(fVerbose > 1) cout << "MVD STRIP REFERENCE HIT " << refhit->GetHitID() << endl;
   return refhit;
 }
 
@@ -1794,7 +1809,7 @@ void PndTrkLegendreTask::RePrepareLegendre(PndTrkCluster *cluster) {
     if(fSecondary) DrawGeometryConf(-1., 1., -1., 1.);
     else   DrawGeometryConf(-0.07, 0.07, -0.07, 0.07);
   }
-  // cout << "%%%%%%%%%%%%%%%%%%%% XY FINDER %%%%%%%%%%%%%%%%%%%%%%%%%%" << endl;
+  // cout << "%%%%%%%%%%%%%%%%%%%% XY FINDE %%%%%%%%%%%%%%%%%%%%%%%%%%" << endl;
   FillLegendreHisto(cluster);
 }
 
@@ -1808,7 +1823,7 @@ void PndTrkLegendreTask::PrepareLegendre() {
     if(fSecondary) DrawGeometryConf(-1., 1., -1., 1.);
     else   DrawGeometryConf(-0.07, 0.07, -0.07, 0.07);
   }
-  cout << "%%%%%%%%%%%%%%%%%%%% XY FINDER %%%%%%%%%%%%%%%%%%%%%%%%%%" << endl;
+  if(fVerbose > 1) cout << "%%%%%%%%%%%%%%%%%%%% XY FINDER %%%%%%%%%%%%%%%%%%%%%%%%%%" << endl;
   FillLegendreHisto(0);
 }
 
@@ -1845,7 +1860,7 @@ Int_t  PndTrkLegendreTask::ExtractLegendre(Int_t mode, double &theta_max, double
   if(mode == 0) {
 
     if(maxpeak <= 3) {
-      cout << "MAXPEAK " << maxpeak <<  ", BREAK NOW! "  << endl;
+      if(fVerbose > 1) cout << "MAXPEAK " << maxpeak <<  ", BREAK NOW! "  << endl;
       return maxpeak;
     }
   
@@ -1858,7 +1873,7 @@ Int_t  PndTrkLegendreTask::ExtractLegendre(Int_t mode, double &theta_max, double
 	legendre->DeleteZoneAroundXYLegendre(theta_max, r_max);
 	maxpeak = legendre->ExtractLegendreMaximum(theta_max, r_max);
 	alreadythere = true;
-	cout << "OH NO! THIS PEAK IS ALREADY THERE" << endl;
+	if(fVerbose > 0) cout << "OH NO! THIS PEAK IS ALREADY THERE" << endl;
 	return -1;
       }
     }
@@ -1878,7 +1893,7 @@ Int_t  PndTrkLegendreTask::ExtractLegendre(Int_t mode, double &theta_max, double
   }
 
   if(mode == 0 && alreadythere == true) {
-    cout << "THIS PEAK IS ALREADY THERE" << endl;
+     cout << "THIS PEAK IS ALREADY THERE" << endl;
     legendre->DeleteZoneAroundXYZoom(theta_max, r_max);
   }
 

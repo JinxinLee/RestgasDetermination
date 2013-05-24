@@ -17,14 +17,19 @@ using namespace std;
 
 
 // -----   Default constructor   -------------------------------------------
-PndTrkFitter::PndTrkFitter() : fSx(0), fSy(0), fSxy(0), fSxx(0), fS1(0)
+PndTrkFitter::PndTrkFitter() : fVerbose(0), fSx(0), fSy(0), fSxy(0), fSxx(0), fS1(0)
 {
   fX.clear();
   fY.clear();
   fSigma.clear();
 }
 // -------------------------------------------------------------------------
-
+PndTrkFitter::PndTrkFitter(int verbose) : fVerbose(verbose), fSx(0), fSy(0), fSxy(0), fSxx(0), fS1(0)
+{
+  fX.clear();
+  fY.clear();
+  fSigma.clear();
+}
 // -----   Destructor   ----------------------------------------------------
 PndTrkFitter::~PndTrkFitter() { 
 
@@ -51,7 +56,7 @@ Bool_t PndTrkFitter::StraightLineFit(Double_t &fitm, Double_t &fitp) {
  
   int nofPoints = fX.size();
   if(nofPoints == 0) {
-    cout << "PndTrkFitter::StraightLineFit: no points to fit! fill the array with PndTrkFitter::SetPointToFit()" << endl;
+    if(fVerbose > 1) cout << "PndTrkFitter::StraightLineFit: no points to fit! fill the array with PndTrkFitter::SetPointToFit()" << endl;
     Reset();
     return kFALSE; // CHECK
   }
@@ -68,7 +73,7 @@ Bool_t PndTrkFitter::StraightLineFit(Double_t &fitm, Double_t &fitp) {
   
   Double_t den = fSxx * fS1 - fSx * fSx;
   if(den == 0) {
-    cout << "PndTrkFitter:StraightLineFit: DEN == 0" << endl; // CHECK
+    if(fVerbose > 1) cout << "PndTrkFitter:StraightLineFit: DEN == 0" << endl; // CHECK
     Reset();
     return kFALSE;
   }

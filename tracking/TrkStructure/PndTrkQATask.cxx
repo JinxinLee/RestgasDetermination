@@ -46,22 +46,25 @@ using namespace std;
 
 
 // -----   Default constructor   -------------------------------------------
-PndTrkQATask::PndTrkQATask() : FairTask("QA plots") {
-  fVerbose = 0; 
-  fPersistence = kTRUE;
+PndTrkQATask::PndTrkQATask() : FairTask("QA plots", 0), fPersistence(kTRUE), fUseMVDPix(kTRUE), fUseMVDStr(kTRUE), fUseSTT(kTRUE), fUseSTTSkew(kTRUE) {
+
+  sprintf(fSttBranch,"STTHit");
+  sprintf(fMvdPixelBranch,"MVDHitsPixel");
+  sprintf(fMvdStripBranch,"MVDHitsStrip");
+  sprintf(fInputTrackBranch,"Track");
+  sprintf(fInputTrackIDBranch,"TrackID");
+}
+
+// -------------------------------------------------------------------------
+PndTrkQATask::PndTrkQATask(int verbose) : FairTask("QA plots", verbose), fPersistence(kTRUE), fUseMVDPix(kTRUE), fUseMVDStr(kTRUE), fUseSTT(kTRUE), fUseSTTSkew(kTRUE) {
+
   sprintf(fSttBranch,"STTHit");
   sprintf(fMvdPixelBranch,"MVDHitsPixel");
   sprintf(fMvdStripBranch,"MVDHitsStrip");
   sprintf(fInputTrackBranch,"Track");
   sprintf(fInputTrackIDBranch,"TrackID");
 
-  fUseMVDPix = kTRUE;
-  fUseMVDStr = kTRUE;
-  fUseSTT = kTRUE;
-  fUseSTTSkew = kTRUE;
 }
-
-// -------------------------------------------------------------------------
 
 // -----   Destructor   ----------------------------------------------------
 PndTrkQATask::~PndTrkQATask() { 
@@ -211,26 +214,26 @@ void PndTrkQATask::Exec(Option_t* opt) {
  std::map<int, std::vector< int > >::iterator it = fMC2RecoMap.begin();
 
 
- // DELETE THIS ///////////////////////////////////////
- cout << "@@@@@@@@@@@@@@@@@@@@ RECO MAP" << endl;
- cout << "MAPPA " << fMC2RecoMap.size() << endl;
- while(it != fMC2RecoMap.end()) {
-    // take a MC track 
-   int imctrack = it->first; 
-   // take reco associated
-   std::vector<int> asso = it->second;
-   // ... PRINT ............. 
-   if(asso.at(0) != -1)  cout << "MCtrack " << imctrack << " has " << asso.size() << " associated track(s):";
-   else cout << "MCtrack " << imctrack << " has 0 associated tracks";
+//  // DELETE THIS ///////////////////////////////////////
+//  cout << "@@@@@@@@@@@@@@@@@@@@ RECO MAP" << endl;
+//  cout << "MAPPA " << fMC2RecoMap.size() << endl;
+//  while(it != fMC2RecoMap.end()) {
+//     // take a MC track 
+//    int imctrack = it->first; 
+//    // take reco associated
+//    std::vector<int> asso = it->second;
+//    // ... PRINT ............. 
+//    if(asso.at(0) != -1)  cout << "MCtrack " << imctrack << " has " << asso.size() << " associated track(s):";
+//    else cout << "MCtrack " << imctrack << " has 0 associated tracks";
    
-   for(int itrk = 0; itrk < asso.size(); itrk++ ) cout << " " << asso.at(itrk);
-   cout << endl;
-   // ........................
-   it++;
- }
- cout << "@@@@@@@@@@@@@@@@@@@@ RECO MAP" << endl;
+//    for(int itrk = 0; itrk < asso.size(); itrk++ ) cout << " " << asso.at(itrk);
+//    cout << endl;
+//    // ........................
+//    it++;
+//  }
+//  cout << "@@@@@@@@@@@@@@@@@@@@ RECO MAP" << endl;
 
- // /////////////////////////////////////////////////////
+//  // /////////////////////////////////////////////////////
 
 
 
@@ -478,11 +481,12 @@ void PndTrkQATask::Exec(Option_t* opt) {
 
    }
   
-   cout << "POINTS MC " << endl;
-   cout << nofmctrackpoints << " " << nofmctracksttpoints << " " << nofmctrackmvdpixpoints << " " << nofmctrackmvdstrpoints << endl;
-   cout << "POINTS RECO " << endl;
-   cout << nofrecotrackpoints << " " << nofrecotracksttpoints << " " << nofrecotrackmvdpixpoints << " " << nofrecotrackmvdstrpoints << endl;
-
+   if(fVerbose > 1) {
+     cout << "POINTS MC " << endl;
+     cout << nofmctrackpoints << " " << nofmctracksttpoints << " " << nofmctrackmvdpixpoints << " " << nofmctrackmvdstrpoints << endl;
+     cout << "POINTS RECO " << endl;
+     cout << nofrecotrackpoints << " " << nofrecotracksttpoints << " " << nofrecotrackmvdpixpoints << " " << nofrecotrackmvdstrpoints << endl;
+   }
 // EFFICIENCY one reco for one mc
    if(nofmctrackpoints > 0) {
      hEfficiency->Fill(nofmctrackpoints, (Double_t) nAssigned/nofmctrackpoints);
@@ -528,13 +532,17 @@ void PndTrkQATask::Exec(Option_t* opt) {
 
 
 
-   cout << "TRACK " << jrecotrack << " MCTRACK " << imctrack << " " << endl;
-   cout << "total " << nofrecotrackpoints << " mctotal " << nofmctrackpoints << endl;
-   cout << "assigned " <<  nAssigned <<  " not assigned " << nNotAssigned << " wrong " << nWrong << endl;
+   if(fVerbose > 1) {
+     
+     cout << "TRACK " << jrecotrack << " MCTRACK " << imctrack << " " << endl;
+     cout << "total " << nofrecotrackpoints << " mctotal " << nofmctrackpoints << endl;
+     cout << "assigned " <<  nAssigned <<  " not assigned " << nNotAssigned << " wrong " << nWrong << endl;
+   }
+   
    if((nAssigned + nNotAssigned) != nofmctrackpoints) cout << "ERROR 1" << endl;
    if((nAssigned + nWrong) != nofrecotrackpoints) cout << "ERROR 2" << endl;
    if((nAssignedSttSkew + nAssignedSttParal) != nAssignedStt) cout << "ERROR 3" << endl;
- 
+   
    // CHECK for now:
    // a track if good if it has more than 80% of mc points assigned to it
    if(((Double_t) nAssigned/nofmctrackpoints) > 0.8) {
@@ -545,15 +553,19 @@ void PndTrkQATask::Exec(Option_t* opt) {
      fBadTrack++;
      fThisBadTrack++;
    }
-   cout << "HERE" << endl;
+ 
    it++;
  }
  
  // CHECK for now:
  // fMCReconstructableTrack are the mc tracks with at least 3 parallel stt point
- cout << "#### NOW: GOOD = "<< 100. *  fThisGoodTrack/fThisMCReconstructableTrack << "%, BAD = " << 100. *  fThisBadTrack/fThisMCReconstructableTrack << "%, MISSED = " << 100. *  fThisNotReconstructed/fThisMCReconstructableTrack << "%, GHOSTS " << 100. *  fThisGhostTrack/fThisRecoTrack << "%" << endl;
- cout << "======== AFTER THIS EVENT: GOOD = "<< 100. *  fGoodTrack/fMCReconstructableTrack << "%, BAD = " << 100. *  fBadTrack/fMCReconstructableTrack << "%, MISSED = " << 100. *  fNotReconstructed/fMCReconstructableTrack << "%, GHOSTS " << 100. *  fGhostTrack/fRecoTrack << "%"  << endl;
- 
+
+ if(fVerbose > 0) {
+   if(fThisRecoTrack == 0 || fThisMCReconstructableTrack == 0) cout << "#### NOW: Recontructed Tracks " << fThisRecoTrack << " MC Reconstructable Tracks " << fThisMCReconstructableTrack << endl;
+   else cout << "#### NOW: GOOD = "<< 100. *  fThisGoodTrack/fThisMCReconstructableTrack << "%, BAD = " << 100. *  fThisBadTrack/fThisMCReconstructableTrack << "%, MISSED = " << 100. *  fThisNotReconstructed/fThisMCReconstructableTrack << "%, GHOSTS " << 100. *  fThisGhostTrack/fThisRecoTrack << "%" << endl;
+   if(fRecoTrack == 0 || fMCReconstructableTrack == 0) cout << "TOTAL: Recontructed Tracks " << fRecoTrack << " MC Reconstructable Tracks " << fMCReconstructableTrack << endl;
+   else cout << "======== AFTER THIS EVENT: GOOD = "<< 100. *  fGoodTrack/fMCReconstructableTrack << "%, BAD = " << 100. *  fBadTrack/fMCReconstructableTrack << "%, MISSED = " << 100. *  fNotReconstructed/fMCReconstructableTrack << "%, GHOSTS " << 100. *  fGhostTrack/fRecoTrack << "%"  << endl;
+ } 
 }
 
 Int_t PndTrkQATask::CheckIfPresent(Int_t trackid) {
@@ -565,7 +577,7 @@ Int_t PndTrkQATask::CheckIfPresent(Int_t trackid) {
 
 Bool_t PndTrkQATask::IdealTrackFinding() {
   fIdealTrackCandArray->Delete();
-  cout << "IDEAL" << endl;
+  //  cout << "IDEAL" << endl;
   // Initialise control counters
   Int_t nNoMCTrack    = 0;
   Int_t nNoTrack      = 0;
@@ -616,7 +628,7 @@ Bool_t PndTrkQATask::IdealTrackFinding() {
      if (!pMCpt) continue; 
      mcTrackIndex = pMCpt->GetTrackID(); 
      hitMap[mcTrackIndex][0]++;
-     cout << "MVD ON " << mcTrackIndex << " " << endl;
+     if(fVerbose > 2)  cout << "MVD ON " << mcTrackIndex << " " << endl;
    }
   
  for (Int_t ipnt = 0; ipnt < nSttPoints; ipnt++) 
@@ -633,7 +645,7 @@ Bool_t PndTrkQATask::IdealTrackFinding() {
 
       mcTrackIndex = pMCpt->GetTrackID();  
       hitMap[mcTrackIndex][1]++;
-      cout << "STT ON " << mcTrackIndex << " " << endl;
+       if(fVerbose > 2) cout << "STT ON " << mcTrackIndex << " " << endl;
     }
   // --------------------------------------------------------------------
 
@@ -669,7 +681,7 @@ Bool_t PndTrkQATask::IdealTrackFinding() {
 
       pTrckCand = new((*fIdealTrackCandArray)[nTracks]) PndTrackCand(); 
       pTrckCand->setMcTrackId(iMCTrack);
-      cout << "iMCTrack " << iMCTrack << endl;
+
       correlationMap[nTracks] = iMCTrack;
       trackMap[iMCTrack] = nTracks++;
 
@@ -787,8 +799,8 @@ void PndTrkQATask::MapMCToReco()
 {
 // INDEX in IdealTrackCandArray <---> fTrackArray entries
 //  std::map< int, std::vector<int> > fMC2RecoMap; 
-  cout << "mc   tracks " << fIdealTrackCandArray->GetEntriesFast() << endl;
-  cout << "reco tracks " << fTrackArray->GetEntriesFast() << endl;
+  if(fVerbose > 2) cout << "mc   tracks " << fIdealTrackCandArray->GetEntriesFast() << endl;
+  if(fVerbose > 2) cout << "reco tracks " << fTrackArray->GetEntriesFast() << endl;
   fMC2RecoMap.clear();
   fRecoTrack += fTrackArray->GetEntriesFast();
   fThisRecoTrack += fTrackArray->GetEntriesFast();
@@ -810,8 +822,12 @@ void PndTrkQATask::MapMCToReco()
 	associatedrecotracks.push_back(jtrk);
       }
       if(associatedrecotracks.size() == 0) associatedrecotracks.push_back(-1);
-      if(associatedrecotracks.at(0) != -1)  cout << "track mc " << itrk << " associated to " << associatedrecotracks.size() << " tracks" << endl;
-      else  cout << "track mc " << itrk << " associated to 0 tracks" << endl;
+    
+      if(fVerbose > 2) {
+	if(associatedrecotracks.at(0) != -1)  cout << "track mc " << itrk << " associated to " << associatedrecotracks.size() << " tracks" << endl;
+	else  cout << "track mc " << itrk << " associated to 0 tracks" << endl;
+      }
+
       fMC2RecoMap.insert(std::pair< int, std::vector< int > > (itrk, associatedrecotracks));
   }
 }

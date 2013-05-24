@@ -161,7 +161,7 @@ TVector3 PndTrkTrack::ComputeMomentumAtPosition(TVector3 position, TVector3 &new
   TVector3 momentum(-999, -999, -999);
   newposition = position;
   if(fCharge == 0) {
-    cout << "ComputeMomentumAtPos: CHARGE = 0!" << endl;
+    // cout << "ComputeMomentumAtPos: CHARGE = 0!" << endl;
     return momentum;
   }
 
@@ -170,7 +170,7 @@ TVector3 PndTrkTrack::ComputeMomentumAtPosition(TVector3 position, TVector3 &new
   TVector2 myrad = center - pos;
   double distance = TMath::Abs(myrad.Mod() - fRadius);
   if(distance > 0.5) {
-    cout << "ComputeMomentumAtPosition: POINT NOT ON THE TRACK " << distance << endl;
+    // cout << "ComputeMomentumAtPosition: POINT NOT ON THE TRACK " << distance << endl;
     // return momentum;  // CHECK
     // alternative
     // CHECK

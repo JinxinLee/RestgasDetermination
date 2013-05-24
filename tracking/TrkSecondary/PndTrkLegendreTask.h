@@ -37,6 +37,7 @@ class PndTrkLegendreTask : public FairTask {
   
   /** Default constructor **/
   PndTrkLegendreTask();
+  PndTrkLegendreTask(int verbose);
 
 
   /** Destructor **/
@@ -145,7 +146,7 @@ class PndTrkLegendreTask : public FairTask {
 
   PndSttMapCreator *fMapper;
 
-  Int_t fEventCounter, fVerbose;
+  Int_t fEventCounter; // , fVerbose;
 
 
   PndTrkSttHitList *stthitlist;

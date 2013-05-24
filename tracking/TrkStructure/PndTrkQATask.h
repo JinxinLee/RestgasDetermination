@@ -21,6 +21,7 @@ class PndTrkQATask : public FairTask {
   
   /** Default constructor **/
   PndTrkQATask();
+  PndTrkQATask(int verbose);
 
 
   /** Destructor **/
