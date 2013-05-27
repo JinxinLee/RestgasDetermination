@@ -24,9 +24,9 @@ void idealcomplete(int level = 2){
   // Output file
   TString outFile = "testideal.root";
   
-  // ----  Load libraries   ------------------------------------------------
-  gROOT->LoadMacro("$VMCWORKDIR/gconfig/rootlogon.C");
-  rootlogon();
+  //   // ----  Load libraries   ------------------------------------------------
+  //   gROOT->LoadMacro("$VMCWORKDIR/gconfig/rootlogon.C");
+  //   rootlogon();
 
   // -----   Timer   --------------------------------------------------------
   TStopwatch timer;

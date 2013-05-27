@@ -18,9 +18,9 @@
   // Output file
   TString outFile = "testreco.root";
   
-  // ----  Load libraries   ------------------------------------------------
-  gROOT->LoadMacro("$VMCWORKDIR/gconfig/rootlogon.C");
-  rootlogon();
+  //   // ----  Load libraries   ------------------------------------------------
+  //   gROOT->LoadMacro("$VMCWORKDIR/gconfig/rootlogon.C");
+  //   rootlogon();
 
   // -----   Timer   --------------------------------------------------------
   TStopwatch timer;
@@ -38,7 +38,18 @@
   FairParRootFileIo* parInput1 = new FairParRootFileIo();
   parInput1->open(parFile.Data());
   rtdb->setFirstInput(parInput1);
- 
+
+  cout << "@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@" << endl;
+  cout << "@@@@@@@@@@@@@@@@@@@@@@@ WARNING: @@@@@@@@@@@@@@@@@@@@@@@@@" << endl;
+  cout << "@@                                                      @@" << endl;
+  cout << "@@ this is an old version of the reconstruction code.   @@" << endl;
+  cout << "@@              You should not use this!                @@" << endl;
+  cout << "@@                                                      @@" << endl;
+  cout << "@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@" << endl;
+  cout << "@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@" << endl;
+
+
+
   // TRACK FINDING =============================================================================
   // OUTPUT: PndTrackCand                    -> STTTrackCand
   //         PndSttHelixHit (if switched on) -> STTPRHelixHit

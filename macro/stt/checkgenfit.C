@@ -2,8 +2,8 @@
   gROOT->Reset();
   TStopwatch timer;
   timer.Start();
-  gROOT->LoadMacro("$VMCWORKDIR/gconfig/rootlogon.C");
-  rootlogon();
+//   gROOT->LoadMacro("$VMCWORKDIR/gconfig/rootlogon.C");
+//   rootlogon();
   
   TFile filekalman("testgenfit.root");
   TTree *treekal = (TTree*) filekalman.Get("cbmsim");

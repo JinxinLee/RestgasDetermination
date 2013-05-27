@@ -5,8 +5,8 @@
   timer.Start();
   gDebug=0;
   // Load basic libraries
-  gROOT->LoadMacro("$VMCWORKDIR/gconfig/rootlogon.C");
-  rootlogon();//basic libraries
+//   gROOT->LoadMacro("$VMCWORKDIR/gconfig/rootlogon.C");
+//   rootlogon();//basic libraries
 
   FairRunSim *fRun = new FairRunSim();
   

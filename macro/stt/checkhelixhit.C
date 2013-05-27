@@ -2,8 +2,8 @@
   gROOT->Reset();
   TStopwatch timer;
   timer.Start();
-  gROOT->LoadMacro("$VMCWORKDIR/gconfig/rootlogon.C");
-  rootlogon();
+//   gROOT->LoadMacro("$VMCWORKDIR/gconfig/rootlogon.C");
+//   rootlogon();
   
   // MCpoints
   TFile filerun("testrun.root");

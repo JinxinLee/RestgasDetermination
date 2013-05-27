@@ -15,10 +15,10 @@
   TString inFile3 = "testreco.root";
   TString parFile = "testparams.root"; 
   
-  // ----  Load libraries   -------------------------------------------------
-  gROOT->LoadMacro("$VMCWORKDIR/gconfig/rootlogon.C");
-  rootlogon();
-  // ------------------------------------------------------------------------
+//   // ----  Load libraries   -------------------------------------------------
+//   gROOT->LoadMacro("$VMCWORKDIR/gconfig/rootlogon.C");
+//   rootlogon();
+//   // ------------------------------------------------------------------------
 
   // -----   Timer   --------------------------------------------------------
   TStopwatch timer;

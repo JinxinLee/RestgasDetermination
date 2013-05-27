@@ -18,10 +18,10 @@
   // In general, the following parts need not be touched
   // ========================================================================
 
-  // ----  Load libraries   -------------------------------------------------
-  gROOT->LoadMacro("$VMCWORKDIR/gconfig/rootlogon.C");
-  rootlogon();
-  // ------------------------------------------------------------------------
+//   // ----  Load libraries   -------------------------------------------------
+//   gROOT->LoadMacro("$VMCWORKDIR/gconfig/rootlogon.C");
+//   rootlogon();
+//   // ------------------------------------------------------------------------
 
   // -----   Timer   --------------------------------------------------------
   TStopwatch timer;
@@ -32,7 +32,7 @@
   FairRunAna *fRun = new FairRunAna();
   fRun->SetInputFile(inFile);
   fRun->SetOutputFile(outFile);
-  fRun->LoadGeometry();
+
   // ------------------------------------------------------------------------
 
   // -----   STT analysis tasks   --------------------------------------------
