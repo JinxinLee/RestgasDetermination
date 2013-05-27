@@ -512,7 +512,7 @@ void PndLmdDim::Generate_rootgeom(TGeoVolume& mothervol, bool misaligned){
 	double cone_angle = 15./180.*3.1416;
 
 	double cALdiy  = 7./2.;
-	double cALdiz  = 40.-8.;
+	double cALdiz  = 40.;
 	double cALdoy  = cALdiy + cALthick/cos(cone_angle);
 	double cALdoz  = cALdiz;
 	double cpoldiy = cALdoy;
@@ -1589,7 +1589,7 @@ TGeoHMatrix PndLmdDim::Get_transformation_global_to_sensor(
 	TGeoMatrix* matrix2 = Get_matrix(ihalf, iplane, imodule, iside, -1, -1, aligned);
 	TGeoMatrix* matrix3 = Get_matrix(ihalf, iplane, imodule, iside, idie, isensor, aligned);
 	if (!matrix1 || !matrix2 || !matrix3) return TGeoHMatrix();
-	return TGeoHMatrix((*matrix1) * (*matrix2) * (*matrix3));
+	return TGeoHMatrix(((*matrix1) * (*matrix2)) * (*matrix3));
 }
 
 TGeoHMatrix PndLmdDim::Get_transformation_lmd_local_to_sensor(
@@ -1714,12 +1714,12 @@ TVector3 PndLmdDim::Transform_lmd_local_to_global(const TVector3& point, bool is
 TVector3 PndLmdDim::Transform_lmd_local_to_sensor(const TVector3& point,
 		int ihalf, int iplane, int imodule, int iside, int idie, int isensor, bool isvector, bool aligned){
 	const TGeoHMatrix& matrix = Get_transformation_lmd_local_to_sensor(ihalf, iplane, imodule, iside, idie, isensor, aligned);
-	double local[3];
-	point.GetXYZ(local);
 	double master[3];
-	if (isvector) matrix.LocalToMasterVect(local, master);
-	else matrix.LocalToMaster(local, master);
-	return TVector3(master);
+	point.GetXYZ(master);
+	double local[3];
+	if (isvector) matrix.MasterToLocalVect(master, local);
+	else matrix.MasterToLocal(master, local);
+	return TVector3(local);
 }
 
 TVector3 PndLmdDim::Transform_module_side_to_lmd_local(const TVector3& point,
