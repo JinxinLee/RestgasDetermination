@@ -17,7 +17,7 @@
 #include <string>
 #include <vector>
 #include "TH2.h"
-
+#include "TNtuple.h"
 class TClonesArray;
 
 class PndLmdTrackFinderCATask : public FairTask
@@ -45,6 +45,7 @@ class PndLmdTrackFinderCATask : public FairTask
     void SetSensStripFlag(bool fS){ flagStipSens = fS; };    
     void SetSensPixelFlag(bool fS){ flagPixelSens = fS; }; 
     void SetTrkCandCutsFlag(bool fS){ flagTrkCandCuts = fS;};
+    void FinishTask();
  private:
    Double_t dXY;
    double rule_max;
@@ -77,7 +78,8 @@ class PndLmdTrackFinderCATask : public FairTask
      void Reset();
      void ProduceHits();
      TH1D *hdist;
-     TH2D *htthetatphi;
+     TNtuple *htthetatphiTrk;
+     TNtuple *htthetatphiCells;
      TH2D *hthetaphi;
      TH1D *hcosPSI;
      //     TH1D *hcosPSI;

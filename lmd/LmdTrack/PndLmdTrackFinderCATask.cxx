@@ -35,8 +35,10 @@ PndLmdTrackFinderCATask::PndLmdTrackFinderCATask() :
   rule_max = 1e-6;
   hdist = new TH1D("hdist","distance from common point",1e4,0,10.);
   hcosPSI = new TH1D("hcosPSI","",1e4,0,1e-4);
-  htthetatphi = new TH2D("htthetatphi",";tg#theta;tg#phi",1e3,0,10,1e3,-10,10);
-  hthetaphi = new TH2D("hthetaphi",";#theta;#phi",1e3,0,1.,1e3,-3.15,3.15);
+  //  htthetatphi = new TNtuple("htthetatphi","ntthetatphi","tg_theta:tg_phi");
+  htthetatphiTrk = new TNtuple("htthetatphiTrk","ntthetatphiTrk","tg_theta:tg_phi:nHits");
+  htthetatphiCells = new TNtuple("htthetatphiCells","ntthetatphiCells","tg_theta:tg_phi:x0:y0:z0:x1:y1:z1");
+  //  hthetaphi = new TH2D("hthetaphi",";#theta;#phi",1e3,0,1.,1e3,-3.15,3.15);
   /// hcosPSI = new TH1D("hcosPSI","breaking angle",1e3,-1.5,1.5);
   //  htheta = new TH2D("htheta",";length;#theta angle",1e3,0,25,1e3,0,3.15);
   //  htime = new TH2D("htime",";time distance;time angle",1e2,0,10,1e2,0,10);
@@ -64,8 +66,10 @@ PndLmdTrackFinderCATask::PndLmdTrackFinderCATask(const bool missPl, const double
   
   dXY = 0.5;
   hdist = new TH1D("hdist","distance from common point",1e3,0,1.);
-  htthetatphi = new TH2D("htthetatphi",";tg#theta;tg#phi",1e3,0,10,1e3,-10,10);
-  hthetaphi = new TH2D("hthetaphi",";#theta;#phi",1e3,0,1.,1e3,-3.15,3.15);
+  //  htthetatphi = new TH2D("htthetatphi",";tg#theta;tg#phi",1e3,0,10,1e3,-10,10);
+  htthetatphiTrk = new TNtuple("htthetatphiTrk","ntthetatphiTrk","tg_theta:tg_phi:nHits");
+  htthetatphiCells = new TNtuple("htthetatphiCells","ntthetatphiCells","tg_theta:tg_phi:x0:y0:z0:x1:y1:z1");
+  //  hthetaphi = new TH2D("hthetaphi",";#theta;#phi",1e3,0,1.,1e3,-3.15,3.15);
   hcosPSI= new TH1D("hcosPSI","",1e4,0,1e-4);
   //  hcosPSI = new TH1D("hcosPSI","breaking angle",1e3,-1.5,1.5);
   //  htheta = new TH2D("htheta",";length;#theta angle",1e3,0,25,1e3,0,3.15);
@@ -85,11 +89,14 @@ PndLmdTrackFinderCATask::PndLmdTrackFinderCATask(const bool missPl, const double
 // -----   Destructor   ----------------------------------------------------
 PndLmdTrackFinderCATask::~PndLmdTrackFinderCATask()
 {
-  if(fVerbose<2) {
-    delete hdist;
-    delete htthetatphi;
-    delete hthetaphi;
-  }
+
+  // if(fVerbose<2) {
+  //   delete hdist;
+  //   delete htthetatphi;
+  //   delete hthetaphi;
+  // }
+  // else{
+  // }
 }
 // -------------------------------------------------------------------------
 
@@ -362,6 +369,12 @@ void PndLmdTrackFinderCATask::Exec(Option_t* opt)
     if(fVerbose>2) cout << "Evt finsihed: too less hits-----"<<endl<<endl;
     return;
   }
+  //  if(fVerbose>9){ 
+    if(nStripHits!=4){
+      cout << "!!! TEST cuts on CA cells Evt finsihed: too many hits-----"<<endl<<endl;
+      return;
+    }
+    //  }
   std::vector< std::vector<Int_t> > hitsd(nP); //hit'ids splitted by detectorplane
   // std::vector< std::vector< std::pair<Int_t,bool> > > hitsd(4);
   bool resSortHits;
@@ -448,43 +461,57 @@ void PndLmdTrackFinderCATask::Exec(Option_t* opt)
 	if(k<maxK1){
 	  PndSdsHit *hit1=(PndSdsHit*)fStripHitArray->At(hitsd.at(j+1).at(k));
 	  double x1 = hit1->GetX(); double y1 = hit1->GetY(); double z1 = hit1->GetZ();
-	  bool goodDir = true;
-	  if(flagTrkCandCuts){
-	    double xvec = x1-x0; 	  double yvec = y1-y0; 	  double zvec = z1-z0;
-	    double tgPhi = yvec/xvec;
-	    if(tgPhi<0) tgPhi*=-1;
-	    if(tgPhi>0.25){
-	      goodDir = false;
-	    }
-	    else{
-	      double tgTheta = sqrt(xvec*xvec+yvec*yvec)/zvec;
-	      if(tgTheta<0.03 || tgTheta>0.05){
-		goodDir = false;
-	      }
-	    }
-	  }
+	  ////// TEST tgTh vs. tgPhi cells -------------------
 	  if(fVerbose>4){	 
 	    double xvec = x1-x0; 	  double yvec = y1-y0; 	  double zvec = z1-z0;
 	    double tgPhi = yvec/xvec;
 	    double tgTheta = sqrt(xvec*xvec+yvec*yvec)/zvec;
-	    htthetatphi->Fill(tgTheta,tgPhi);
-	    if(!goodDir)
-	      cout<<"BAD cell between #"<<(j)<<"."<<i<<" and #"<<(j+1)<<"."<<k<<endl;
-       	    else
-	      cout<<"GOOD CELL #"<<count<<" [between #"<<(j)<<"."<<i<<" and #"<<j+1<<"."<<k<<endl;
+	    htthetatphiCells->Fill(tgTheta,tgPhi,x0,y0,z0,x1,y1,z1);
 	  }
-	  cells0.push_back(x0);
-	  cells1.push_back(y0);
-	  cells2.push_back(z0);
-	  cells3.push_back(x1);
-	  cells4.push_back(y1);
-	  cells5.push_back(z1);
-	  cells6.push_back(i);
-	  cells7.push_back(k);
-	  cells8.push_back(j);
-	  cells9.push_back(j+1);
-	  cells10.push_back(0);
-	  count++;
+	  //////-----------------------------------------------------
+
+
+
+	  // bool goodDir = true;
+	  // if(flagTrkCandCuts){
+	  //   double xvec = x1-x0; 	  double yvec = y1-y0; 	  double zvec = z1-z0;
+	  //   double tgPhi = yvec/xvec;
+	  //   if(tgPhi<0) tgPhi*=-1;
+	  //   if(tgPhi>0.25){
+	  //     goodDir = false;
+	  //   }
+	  //   else{
+	  //     double tgTheta = sqrt(xvec*xvec+yvec*yvec)/zvec;
+	  //     if(tgTheta<0.03 || tgTheta>0.05){
+	  // 	goodDir = false;
+	  //     }
+	  //   }
+	  // }
+	  // if(fVerbose>4){	 
+	  //   double xvec = x1-x0; 	  double yvec = y1-y0; 	  double zvec = z1-z0;
+	  //   double tgPhi = yvec/xvec;
+	  //   double tgTheta = sqrt(xvec*xvec+yvec*yvec)/zvec;
+	  //   htthetatphi->Fill(tgTheta,tgPhi);
+	  //   if(!goodDir)
+	  //     cout<<"BAD cell between #"<<(j)<<"."<<i<<" and #"<<(j+1)<<"."<<k
+	  // 	  <<" (tgTheta,tgPhi)=("<<tgTheta<<","<<tgPhi<<")"<<endl;
+       	  //   else
+	  //     cout<<"GOOD CELL #"<<count<<" between #"<<(j)<<"."<<i<<" and #"<<j+1<<"."<<k<<endl;
+	  // }
+	  // if(goodDir){
+	    cells0.push_back(x0);
+	    cells1.push_back(y0);
+	    cells2.push_back(z0);
+	    cells3.push_back(x1);
+	    cells4.push_back(y1);
+	    cells5.push_back(z1);
+	    cells6.push_back(i);
+	    cells7.push_back(k);
+	    cells8.push_back(j);
+	    cells9.push_back(j+1);
+	    cells10.push_back(0);
+	    count++;
+	    //	  }
 	}
       
 	if(missPlAlgo){
@@ -494,32 +521,39 @@ void PndLmdTrackFinderCATask::Exec(Option_t* opt)
 	    if(k<hitsd.at(j+jp).size()){
 	      PndSdsHit *hit2=(PndSdsHit*)fStripHitArray->At(hitsd.at(j+jp).at(k));
 	      double x2 = hit2->GetX(); double y2 = hit2->GetY(); double z2 = hit2->GetZ();
-
-	      bool goodDir = true;
-	      if(flagTrkCandCuts){
-		double xvec = x2-x0; 	  double yvec = y2-y0; 	  double zvec = z2-z0;
-		double tgPhi = yvec/xvec;
-		if(tgPhi<0) tgPhi*=-1;
-		if(tgPhi>0.25){
-		  goodDir = false;
-		}
-		else{
-		  double tgTheta = sqrt(xvec*xvec+yvec*yvec)/zvec;
-		  if(tgTheta<0.03 || tgTheta>0.05){
-		    goodDir = false;
-		  }
-		}
-	      }
-	      if(fVerbose>4){
+	      if(fVerbose>4){	 
 		double xvec = x2-x0; 	  double yvec = y2-y0; 	  double zvec = z2-z0;
 		double tgPhi = yvec/xvec;
 		double tgTheta = sqrt(xvec*xvec+yvec*yvec)/zvec;
-		htthetatphi->Fill(tgTheta,tgPhi);
-		if(!goodDir)
-		  cout<<"BAD cell between #"<<(j)<<"."<<i<<" and #"<<(j+jp)<<"."<<k<<endl;
-		else
-		  cout<<"GOOD CELL #"<<count<<" [between #"<<(j)<<"."<<i<<" and #"<<j+jp<<"."<<k<<endl;
+		htthetatphiCells->Fill(tgTheta,tgPhi,x0,y0,z0,x2,y2,z2);
 	      }
+	      // bool goodDir = true;
+	      // if(flagTrkCandCuts){
+	      // 	double xvec = x2-x0; 	  double yvec = y2-y0; 	  double zvec = z2-z0;
+	      // 	double tgPhi = yvec/xvec;
+	      // 	if(tgPhi<0) tgPhi*=-1;
+	      // 	if(tgPhi>0.25){
+	      // 	  goodDir = false;
+	      // 	}
+	      // 	else{
+	      // 	  double tgTheta = sqrt(xvec*xvec+yvec*yvec)/zvec;
+	      // 	  if(tgTheta<0.03 || tgTheta>0.05){
+	      // 	    goodDir = false;
+	      // 	  }
+	      // 	}
+	      // }
+	      // if(fVerbose>4){
+	      // 	double xvec = x2-x0; 	  double yvec = y2-y0; 	  double zvec = z2-z0;
+	      // 	double tgPhi = yvec/xvec;
+	      // 	double tgTheta = sqrt(xvec*xvec+yvec*yvec)/zvec;
+	      // 	htthetatphi->Fill(tgTheta,tgPhi);
+	      // 	if(!goodDir)
+	      // 	  cout<<"BAD cell between #"<<(j)<<"."<<i<<" and #"<<(j+jp)<<"."<<k
+	      // 	      <<" (tgTheta,tgPhi)=("<<tgTheta<<","<<tgPhi<<")"<<endl;
+	      // 	else
+	      // 	  cout<<"GOOD CELL #"<<count<<" [between #"<<(j)<<"."<<i<<" and #"<<j+jp<<"."<<k<<endl;
+	      // }
+	      // if(goodDir){
 	      cells0.push_back(x0);
 	      cells1.push_back(y0);
 	      cells2.push_back(z0);
@@ -533,6 +567,7 @@ void PndLmdTrackFinderCATask::Exec(Option_t* opt)
 	      cells10.push_back(0);
 
 	      count++;
+	      //    }
 	      // cout<<"CELL saved!"<<endl;
 	    }
 	  }
@@ -646,7 +681,7 @@ void PndLmdTrackFinderCATask::Exec(Option_t* opt)
 	    else{
 	      if(fVerbose>4)
 		//	cout<<"Cells #"<<ic<<" and #"<<jc<<" aren't connected, because d = "<<d<<" >="<<rule_max<<endl;
-		cout<<"Cells #"<<ic<<" and #"<<jc<<" aren't connected, because  cosPsi = "<<cosPsi<<endl;
+		cout<<"Cells #"<<ic<<" and #"<<jc<<" aren't connected, because  (1-cosPsi) = "<<1-cosPsi<<endl;
 	    }
     }
   }
@@ -1012,9 +1047,16 @@ void PndLmdTrackFinderCATask::Exec(Option_t* opt)
       if(flagTrkCandCuts && ((dir.Theta()<0.03 || dir.Theta()>0.05) || fabs(dir.Phi())>0.25))
 	cout<<"Ooops, trk-cand has: theta="<<dir.Theta()<<" and phi="<<dir.Phi()<<endl;
       }
-    hthetaphi->Fill(dir.Theta(),dir.Phi());
-    if(flagTrkCandCuts && ((dir.Theta()<0.03 || dir.Theta()>0.05) || fabs(dir.Phi())>0.25)) continue; //TEST
+    //   hthetaphi->Fill(dir.Theta(),dir.Phi());
     const unsigned int numPts = myTCand->GetNHits(); //read how many points in this track
+    if(fVerbose>4) htthetatphiTrk->Fill(dir.Theta(),dir.Phi(),numPts);
+    bool cutTrkCand=false;
+    if(flagTrkCandCuts){
+      double thCentr = dir.Theta()-0.0402;
+      if(fabs(thCentr)>0.011 || fabs(dir.Phi())>0.25) cutTrkCand=true;
+    }
+    if(cutTrkCand) continue;
+    //    if(flagTrkCandCuts && ((dir.Theta()<0.03 || dir.Theta()>0.05) || fabs(dir.Phi())>0.25)) continue; //TEST
     if(numPts<3) cout<<"!!! Attention HERE is problem: number of hits in trk-cand = "<<numPts<<"!!!"<<endl;
     if(numPts<3) continue; //TEST
     new((*fTrackCandArray)[NtrkRec]) PndTrackCand(*(myTCand)); //save Track Candidate
@@ -1078,8 +1120,19 @@ Double_t PndLmdTrackFinderCATask::GetTrackDip(PndMCTrack* myTrack)
   TVector3 p= myTrack->GetMomentum();
   return (p.Mag()/TMath::Sqrt(p.Px()*p.Px() + p.Py()*p.Py()));
 }
-
-
+void PndLmdTrackFinderCATask::FinishTask(){
+  cout<<"!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! HO-HO!!!!"<<endl;
+  // TFile *fout = new TFile("/panda/pandaroot/macro/lmd/tmpOutnewDesign/CA_MultipleTrksCheck/mom_1_5/1trks/tgthetatgpgi_CAcells_1_5GeV_noSecondaries.root","RECREATE");
+  if(fVerbose>4){
+    //   htthetatphi->Print();
+    TTree *nout1 = htthetatphiTrk->CloneTree();
+    nout1->Write();
+    TTree *nout2 = htthetatphiCells->CloneTree();
+    nout2->Write();
+  }
+  // fout->Write();
+  // fout->Close();
+}
 // -------------------------------------------------------------------------
 ClassImp(PndLmdTrackFinderCATask)
 
