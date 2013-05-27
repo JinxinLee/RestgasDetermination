@@ -571,8 +571,8 @@ if(doMcComparison >=1 ){
 
  fMvdMCPointArray = (TClonesArray*) ioman->GetObject("MVDPoint");
  if ( !fMvdMCPointArray){
-	cout << "-W- PndTrkTracking::Init: " << "No MVD MC Point Array, return!" <<endl;
-	return kERROR;
+	cout << "-W- PndTrkTracking::Init: " << "No MVD MC Point Array!" <<endl;
+//	return kERROR;
  }
  cout << "-I- PndTrkTracking: Initialization successfull" << endl;
 
