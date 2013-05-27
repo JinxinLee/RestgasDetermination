@@ -148,6 +148,7 @@ InitStatus PndTrkLegendreTask::Init() {
   conform = new PndTrkConformalTransform();
 
   tools = new PndTrkTools();
+  fFitter = new PndTrkFitter(fVerbose);
 
   return kSUCCESS;
 
@@ -328,7 +329,8 @@ void PndTrkLegendreTask::Exec(Option_t* opt) {
     // -------------------------------------------------------
   
     double fitm2, fitq2;
-    PndTrkFitter fitter(fVerbose);
+    fFitter->Reset();
+
     for(int ihit = 0; ihit < cluster.GetNofHits(); ihit++) 
       {
 	PndTrkHit *hit = cluster.GetHit(ihit);
@@ -349,7 +351,7 @@ void PndTrkLegendreTask::Exec(Option_t* opt) {
 	fabs(yi1 - (fitm * xi1 + fitq)) < fabs(yi2 - (fitm * xi2 + fitq)) ? (yi = yi1, xi = xi1) : (yi = yi2, xi = xi2);
 
 	double sigma =  chit->GetIsochrone();
-	fitter.SetPointToFit(xi, yi, sigma);
+	fFitter->SetPointToFit(xi, yi, sigma);
 
 	if(fDisplayOn) {
 	  display->cd(2);
@@ -358,7 +360,7 @@ void PndTrkLegendreTask::Exec(Option_t* opt) {
 	} 
       }
  
-    fitter.StraightLineFit(fitm2, fitq2);
+    fFitter->StraightLineFit(fitm2, fitq2);
      
 
     if(fDisplayOn) {
@@ -432,7 +434,7 @@ void PndTrkLegendreTask::Exec(Option_t* opt) {
     //   cout  << "##################### CHOOSE Z" << endl; 
 
     // 7. select which intersection is the most likely and add it to z fitting
-    fitter.Reset();
+    fFitter->Reset();
     for(int ihit = 0; ihit < skewhitlist.GetNofHits() - 1; ihit++) {
       PndTrkSkewHit *skewhit1 = (PndTrkSkewHit*) skewhitlist.GetHit(ihit);
       if(!skewhit1) continue;
@@ -467,7 +469,7 @@ void PndTrkLegendreTask::Exec(Option_t* opt) {
       }
       //      cout << "end with " << ihit << " " << jhit << ": " << iz << " " << jz << endl;
 
-      	fitter.SetPointToFit(phi1[iz], fin_intersection1[iz].Z(), 1.);// (fin_intersection1[0].Z() + fin_intersection1[1].Z())/2.); // CHECK sigma?
+      	fFitter->SetPointToFit(phi1[iz], fin_intersection1[iz].Z(), 1.);// (fin_intersection1[0].Z() + fin_intersection1[1].Z())/2.); // CHECK sigma?
 
 	// CHECK
 	if(iz == 0) skewhit1->SetPosition(skewhit1->GetIntersection1());
@@ -475,7 +477,7 @@ void PndTrkLegendreTask::Exec(Option_t* opt) {
 
 	// CHECK last point?
 	if(ihit == skewhitlist.GetNofHits() - 2) {
-	  fitter.SetPointToFit(phi2[jz], fin_intersection2[jz].Z(), 1.);// (fin_intersection2[0].Z() + fin_intersection2[1].Z())/2.); // CHECK sigma?
+	  fFitter->SetPointToFit(phi2[jz], fin_intersection2[jz].Z(), 1.);// (fin_intersection2[0].Z() + fin_intersection2[1].Z())/2.); // CHECK sigma?
 
 	// CHECK
 	if(jz == 0) skewhit2->SetPosition(skewhit2->GetIntersection1());
@@ -521,13 +523,13 @@ void PndTrkLegendreTask::Exec(Option_t* opt) {
 	  display->Modified();  
 	  //	cin >> goOnChar;   
 	}
-     fitter.SetPointToFit(phi, position.Z(), 0.1); // CHECK ERROR 
+     fFitter->SetPointToFit(phi, position.Z(), 0.1); // CHECK ERROR 
     }
     // ===================================
 
 
     Double_t ml, pl;
-    Bool_t straightlinefit = fitter.StraightLineFit(ml, pl);
+    Bool_t straightlinefit = fFitter->StraightLineFit(ml, pl);
 
 
     // CHECK the following fit: if it fails, put the hits into play again?
@@ -560,70 +562,9 @@ void PndTrkLegendreTask::Exec(Option_t* opt) {
 	fabs(intersection1.Z() - calcz1) <  fabs(intersection2.Z() - calcz2) ? skewhit->SetPosition(intersection1) : skewhit->SetPosition(intersection2);
 
       }
- 
 
-      // 9. ++++++++++++++++++++ REFITTING Z-PHI
-      fitter.Reset();
-      for(int ihit = 0; ihit < skewhitlist.GetNofHits(); ihit++) {
-	PndTrkSkewHit *skewhit = (PndTrkSkewHit*) skewhitlist.GetHit(ihit);
-	if(!skewhit) continue;
-	TVector3 position = skewhit->GetPosition();
-	double phi = track->ComputePhi(position);
-	fitter.SetPointToFit(phi, position.Z(), 0.1);
- 
-	if(fDisplayOn) {
-	  char goOnChar;
-	  display->cd(4);
-	  TMarker *mrkfoundzphi1 = new TMarker(phi, position.Z(), 20);
-	  mrkfoundzphi1->SetMarkerColor(kBlue);
-	  mrkfoundzphi1->Draw("SAME");
-	  display->cd(3);
-	  mrkfoundzphi1->Draw("SAME");
-
-	}
-      }
   
-      // ADD MVD POINTS ==================== RECHECK
-      for(int ihit = 0; ihit < mvdcluster->GetNofHits(); ihit++) {
-	//      cout << ihit << " TROVATO " << endl;
-	PndTrkHit *hit = mvdcluster->GetHit(ihit);
-	if(hit->GetDetectorID() != FairRootManager::Instance()->GetBranchId(fMvdPixelBranch) && hit->GetDetectorID() != FairRootManager::Instance()->GetBranchId(fMvdStripBranch)) continue;
-	TVector3 position = hit->GetPosition();
-	double phi = track->ComputePhi(position);
-	//      cout << ihit << " TROVATO " << phi << " " << position.Z() << endl;
-
-	if(fDisplayOn) {
-	  char goOnChar;
-	  display->cd(4);
-	  TMarker *mrkfoundzphi = new TMarker(phi, position.Z(), 21);
-	  mrkfoundzphi->SetMarkerColor(kOrange);
-	  mrkfoundzphi->Draw("SAME");
-	  display->Update();
-	  display->Modified();  
-	  //	cin >> goOnChar;   
-	}
-	fitter.SetPointToFit(phi, position.Z(), 0.1); // CHECK ERROR 
-      }
-      // ===================================
-      fitter.StraightLineFit(ml, pl);
-
-
-      if(fDisplayOn) {
-	char goOnChar;
-	display->cd(4);
-	TLine *l22 = new  TLine(-1000, -1000 * ml + pl, 1000, 1000 * ml + pl);
-	l22->SetLineColor(3);
-	l22->Draw("SAME");
-	display->cd(3);
-	l22->Draw("SAME");
-	display->Update();
-	display->Modified();  
-	//      cin >> goOnChar;   
-      }
-      // ++++++++++++++++++++++++++++++++++
-
-
-      // 10. add skewedhitlist to cluster of the track and 
+      // 9. add skewedhitlist to cluster of the track
       // fill the last two (missing) parameters
       for(int ihit = 0; ihit < trkcluster->GetNofHits(); ihit++) {
 	PndTrkHit *hit = trkcluster->GetHit(ihit);	
@@ -631,10 +572,23 @@ void PndTrkLegendreTask::Exec(Option_t* opt) {
 	hit->SetSortVariable(phi);
       }
       trkcluster->Sort();
+
+      // 10. z-phi refit
+      Bool_t zfit = ZPhiFit(track, ml, pl);
+
+
+      // 11. fill the last two (missing) parameters
+
       track->ComputeCharge();
       //  tanl = -q ml (180/pi) /R: See PndTrkTrack.h for an explanation
-      track->SetTanL(- track->GetCharge() * ml * (180./TMath::Pi())/R);
-      track->SetZ0(pl);
+      if(zfit) {
+	track->SetTanL(- track->GetCharge() * ml * (180./TMath::Pi())/R);
+	track->SetZ0(pl);
+      }
+      else { // CHECK put these in default
+	track->SetTanL(-999);
+	track->SetZ0(-999);
+      } 
       //   cout << "GET TANL " << ml << " " << R << " " << track->GetTanL() << endl;
 
       // test -------------------------------------------------------
@@ -655,7 +609,7 @@ void PndTrkLegendreTask::Exec(Option_t* opt) {
 	}
       }
     }
-    else {
+    else { // CHECK put these in default
       track->SetTanL(-999);
       track->SetZ0(-999);
     }
@@ -2139,6 +2093,63 @@ PndTrkCluster PndTrkLegendreTask::Cleanup(PndTrkCluster cluster) {
 
   return finalcluster;
 }
+   
+
+Bool_t PndTrkLegendreTask::ZPhiFit(PndTrkTrack *track, double &fitm, double &fitp)
+{  
+  fFitter->Reset();
+
+  PndTrkCluster *cluster = track->GetCluster();
+  for(int ihit = 0; ihit < cluster->GetNofHits(); ihit++) {
+    PndTrkHit *hit = cluster->GetHit(ihit);	
+    if(hit->IsSttParallel()) continue; // CHECK IsSttParrallel will be changed
+	
+	
+    TVector3 position = hit->GetPosition();
+    double phi = track->ComputePhi(position); // CHECK put this into PndTrkHit?
+    fFitter->SetPointToFit(phi, position.Z(), 0.1);
+	
+    if(fDisplayOn) {
+      char goOnChar;
+      display->cd(4);
+      TMarker *mrkfoundzphi = NULL;
+      if(hit->GetDetectorID() == FairRootManager::Instance()->GetBranchId(fMvdPixelBranch) || hit->GetDetectorID() == FairRootManager::Instance()->GetBranchId(fMvdStripBranch)) {
+	mrkfoundzphi = new TMarker(phi, position.Z(), 21);
+	mrkfoundzphi->SetMarkerColor(kOrange);
+      }
+      else if(hit->GetDetectorID() == FairRootManager::Instance()->GetBranchId(fSttBranch)) {
+	mrkfoundzphi  = new TMarker(phi, position.Z(), 20);
+	mrkfoundzphi->SetMarkerColor(kBlue);
+      }
+      mrkfoundzphi->Draw("SAME");
+      display->cd(3);
+      mrkfoundzphi->Draw("SAME");
+
+    }
+  }
+  // ===================================
+  bool fit =  fFitter->StraightLineFit(fitm, fitp);
+
+  if(fit) {
+    if(fDisplayOn) {
+      char goOnChar;
+      display->cd(4);
+      TLine *l22 = new  TLine(-1000, -1000 * fitm + fitp, 1000, 1000 * fitm  + fitp);
+      l22->SetLineColor(3);
+      l22->Draw("SAME");
+      display->cd(3);
+      l22->Draw("SAME");
+      display->Update();
+      display->Modified();  
+      //      cin >> goOnChar;   
+    }
+  }
+  // ++++++++++++++++++++++++++++++++++
+
+  return fit;
+}
+
+
 
 ClassImp(PndTrkLegendreTask)
 

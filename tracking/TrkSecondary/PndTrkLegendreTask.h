@@ -18,6 +18,7 @@
 #include "PndTrkClusterList.h"
 #include "PndTrkTrack.h"
 #include "PndTrkConformalHitList.h"
+#include "PndTrkFitter.h"
 
 // ROOT
 #include "TH2F.h"
@@ -117,6 +118,9 @@ class PndTrkLegendreTask : public FairTask {
   Int_t ApplyLegendre(PndTrkCluster *cluster, double &theta_max, double &r_max);
   Int_t ExtractLegendre(Int_t mode, double &theta_max, double &r_max);
 
+
+  Bool_t ZPhiFit(PndTrkTrack *track, double &fitm, double &fitp);
+
  private:
 
 
@@ -173,7 +177,7 @@ class PndTrkLegendreTask : public FairTask {
   std::vector< std::pair<double, double> > fFoundPeaks;
   double fTime;
   TStopwatch *fTimer;
-
+  PndTrkFitter *fFitter;
   ClassDef(PndTrkLegendreTask,1);
   
 };
