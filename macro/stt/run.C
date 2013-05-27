@@ -21,10 +21,8 @@
 
   // -----   Magnetic field   -------------------------------------------
   // Constant Field
-  PndConstField *fMagField = new PndConstField();
-  fMagField->SetField(0., 0. ,20. ); // values are in kG
-  fMagField->SetFieldRegion(-50, 50,-50, 50, -50, 120);// values are in cm (xmin,xmax,ymin,ymax,zmin,zmax)
-  fRun->SetField(fMagField);
+  PndMultiField *fField= new PndMultiField("FULL");
+  fRun->SetField(fField);
   // --------------------------------------------------------------------
 
   // Set Material file Name

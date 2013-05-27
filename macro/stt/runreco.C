@@ -51,46 +51,24 @@
 
 
   // TRACK FINDING =============================================================================
-  // OUTPUT: PndTrackCand                    -> STTTrackCand
-  //         PndSttHelixHit (if switched on) -> STTPRHelixHit
   // trackfinding ....
-  //  PndSttTrackFinderIdeal* sttTrackFinder = new PndSttTrackFinderIdeal(iVerbose);
-  PndSttTrackFinderReal* sttTrackFinder = new PndSttTrackFinderReal(0);
-  PndSttFindTracks* sttFindTracks = new PndSttFindTracks("Track Finder", "FairTask", sttTrackFinder, iVerbose);
-  sttFindTracks->AddHitCollectionName("STTHit", "STTPoint");
-  //  sttFindTracks->SetHelixHitProduction(); // if you want helix hit to be produced by PR uncomment this (STTPRHelixHit)
-  fRun->AddTask(sttFindTracks);
+  PndTrkTracking* tracking = new PndTrkTracking(0,false,false,false);
+  // tracking->SetInputBranchName("STTHit","MVDHitsPixel","MVDHitsStrip");
+  tracking->NoMvdAloneTracking();
+  fRun->AddTask(tracking);
+  
+  PndMCTrackAssociator* trackMC = new PndMCTrackAssociator();
+  trackMC->SetTrackInBranchName("SttMvdTrack");
+  trackMC->SetTrackOutBranchName("SttMvdTrackID");
+  fRun->AddTask(trackMC);
 
-  // trackmatching ....
-  PndSttMatchTracks* sttTrackMatcher = new PndSttMatchTracks("Match tracks", "STT", iVerbose);
-  sttTrackMatcher->AddHitCollectionName("STTHit", "STTPoint");
-  fRun->AddTask(sttTrackMatcher);  
-
-  // TRACK FITTING =============================================================================
-  // OUTPUT: PndSttTrack                    -> STTTrack
-  //         PndSttHelixHit                 -> SttHelixHit
-  // trackfitting ....
-  PndSttTrackFitter* sttTrackFitter = new PndSttHelixTrackFitter(iVerbose);
-  PndSttFitTracks* sttFitTracks = new PndSttFitTracks("STT Track Fitter", "FairTask", sttTrackFitter); 
-  sttFitTracks->AddHitCollectionName("STTHit");
-  fRun->AddTask(sttFitTracks);
-
-  // helix hit production (this task only works if called after PndSttFitTracks!) ....
-  PndSttHelixHitProducer* sttHHProducer = new PndSttHelixHitProducer();
-  fRun->AddTask(sttHHProducer);
  
-  // QA plots if you want them
-  //  PndSttTrackFitterQATask* qaFit = new PndSttTrackFitterQATask();
-  //  fRun->AddTask(qaFit);
 
   // -----   Intialise and run   --------------------------------------------
   fRun->Init();
   fRun->Run(0, nEvents);
   // fRun->Run(15, 20);
   // ------------------------------------------------------------------------
-
-  // sttHHProducer->WriteHistograms();
-  // qaFit->WriteHistograms();
 
   // -----   Finish   -------------------------------------------------------
   timer.Stop();
