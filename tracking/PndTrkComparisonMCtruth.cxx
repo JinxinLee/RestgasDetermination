@@ -257,6 +257,8 @@ using namespace std;
 
 	for(i=0; i<nMvdPixelHitsinTrack->at(jexp); i++){
 		nindex = jexp*MAXMVDPIXELHITSINTRACK + i;
+
+
 		enne = FromPixeltoMCTrack->at( ListMvdPixelHitsinTrack->at(nindex) ) ;
 		if(enne<0) continue;   //  hit not associated to any MC track; noise hit.
 
@@ -668,7 +670,12 @@ int PndTrkComparisonMCtruth::ComparisonwithMC(
 
 // ---------------------------------------------  get MC Points of  MVD
 
- nMvdMCPoint = fMvdMCPointArray->GetEntriesFast();
+ if( fMvdMCPointArray){
+	nMvdMCPoint = fMvdMCPointArray->GetEntriesFast();
+ } else {
+	nMvdMCPoint = 0;
+ }
+
   if(nMvdMCPoint>MAXMVDMCPOINTS) {
 	cout<<"from PndTracking, nMvdMCPoint = "<<nMvdMCPoint
 	<<" and it is > the maximum number allowed ("<<MAXMVDMCPOINTS<<
@@ -687,10 +694,23 @@ int PndTrkComparisonMCtruth::ComparisonwithMC(
 
 	// non cambiare le seguenti righe
 	// perche' vengono processate da modificaPndTrkComparisonMCtruth.pl
-   Int_t	FromPixeltoMCTra[nMvdPixelHit],
-		FromStriptoMCTra[nMvdStripHit];
- Vec <Int_t> FromPixeltoMCTrack(FromPixeltoMCTra,nMvdPixelHit,"FromPixeltoMCTrack");
- Vec <Int_t> FromStriptoMCTrack(FromStriptoMCTra,nMvdStripHit,"FromStriptoMCTrack");
+ int dimensioneP, dimensioneS;
+ if( nMvdPixelHit==0 ){
+	dimensioneP =1;
+ } else {
+	dimensioneP =nMvdPixelHit;
+ }
+
+ if( nMvdStripHit ==0 ){
+	dimensioneS =1;
+ } else {
+	dimensioneS =nMvdStripHit;
+ }
+
+   Int_t	FromPixeltoMCTra[dimensioneP],
+		FromStriptoMCTra[dimensioneS];
+ Vec <Int_t> FromPixeltoMCTrack(FromPixeltoMCTra,dimensioneP,"FromPixeltoMCTrack");
+ Vec <Int_t> FromStriptoMCTrack(FromStriptoMCTra,dimensioneS,"FromStriptoMCTrack");
 	// fine processamento;
 
  // inizio cambio_in_perl
@@ -1611,6 +1631,7 @@ void PndTrkComparisonMCtruth::MvdMatchedSpurioustoTrackCand(
 	    if( daTrackFoundaTrackMC->at(j)> -1){
 		for(i=0;i<nMvdPixelHit;i++){
 			if(!includePixel[j *tmp_dim2+ i]) continue;
+
 			if( daTrackFoundaTrackMC->at(j)==FromPixeltoMCTrack->at(i) ){
 				index = j*nMvdPixelHit+nMCMvdPixelAlone->at(j);
 				MCMvdPixelAloneList->at(index)=i;
