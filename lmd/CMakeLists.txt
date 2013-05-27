@@ -146,7 +146,8 @@ LmdTrack/PndLinTrack.cxx
 #LmdTrack/PndLmdTrackCandToGFTrackCandConvertorTask.cxx
 LmdTrack/PndLmdKalmanTask.cxx
 LmdTrack/PndLmdGeaneTask.cxx
-LmdTrack/PndLmdBPRungeKuttaTask.cxx	
+LmdTrack/PndLmdBPRungeKuttaTask.cxx
+LmdTrack/PndLmdTrksFilterTask.cxx
 )
 set (LMD_RULECHECKER_SRCS ${LMD_RULECHECKER_SRCS} ${LMDTRK_SRCS})
 
