@@ -19,6 +19,7 @@ ENDMACRO()
 
 
 set(INCLUDE_DIRECTORIES
+${SIMPATH}/include
 ${ROOT_INCLUDE_DIR}
 ${GEANT3_INCLUDE_DIR}
 ${CLHEP_INCLUDE_DIR}
@@ -61,13 +62,14 @@ include_directories( ${INCLUDE_DIRECTORIES})
 
 set(LINK_DIRECTORIES
 ${ROOT_LIBRARY_DIR}
+${GLPK_LIB_DIR}
 )
 
 link_directories( ${LINK_DIRECTORIES})
 
 
 ########################### create libLmd ######################################
-set(LMD_SRCS
+set(SRCS
 
 LmdMC/PndLmdDim.cxx
 LmdTools/PndLmdContFact.cxx
@@ -77,31 +79,22 @@ LmdDigi/PndLmdHybridHitProducer.cxx
 LmdDigi/PndLmdStripHitProducer.cxx
 LmdDigi/PndLmdHitProducerIdeal.cxx
 LmdDigi/PndLmdDigiTask.cxx 
-LmdDigi/PndLmdNoiseProducer.cxx 
+LmdDigi/PndLmdNoiseProducer.cxx
 LmdMC/PndLmdDetector.cxx
 LmdMC/PndLmdGeo.cxx
 
 )
-set (LMD_RULECHECKER_SRCS ${LMD_SRCS})
 
-# fill list of header files from list of source files
-# by exchanging the file extension
-CHANGE_FILE_EXTENSION(*.cxx *.h LMD_HEADERS "${LMD_SRCS}")
-# SET(MVD_SRCS ${MVD_SRCS} ${DIGI_SRCS})
-# SET(MVD_HEADERS ${MVD_HEADERS} ${DIGI_HEADERS})
+set(LINKDEF  LmdLinkDef.h)
+set(LIBRARY_NAME Lmd)
 
-set(LMD_LINKDEF  LmdLinkDef.h)
-set(LMD_DICTIONARY ${CMAKE_CURRENT_BINARY_DIR}/LmdDict.cxx)
+set(DEPENDENCIES Base ParBase GeoBase TrkBase Geane Hyp Sds PndData
+genfitAdapters RecoHits generalTools trackrep Rho)
 
-ROOT_GENERATE_DICTIONARY("${LMD_HEADERS}" "${LMD_LINKDEF}" "${LMD_DICTIONARY}" "${INCLUDE_DIRECTORIES}")
-SET(LMD_SRCS ${LMD_SRCS} ${LMD_DICTIONARY})
-
-add_library(Lmd SHARED ${LMD_SRCS})
-target_link_libraries(Lmd ${ROOT_LIBRARIES})
-set_target_properties(Lmd PROPERTIES ${FAIRROOT_LIBRARY_PROPERTIES})
+GENERATE_LIBRARY()
 
 ########################### create libLmdReco ##################################
-set(LMDRECO_SRCS
+set(SRCS
 
 LmdReco/PndLmdStripClusterTask.cxx
 LmdReco/PndLmdPixelClusterTask.cxx
@@ -112,149 +105,67 @@ LmdReco/PndSdsMergedHit.cxx
 #LmdReco/PndLmdIdealRecoTask.cxx
 #LmdMC/PndLmdDim.cxx
 )
-set (LMD_RULECHECKER_SRCS ${LMD_RULECHECKER_SRCS} ${LMDRECO_SRCS})
 
-#if(RULE_CHECKER_FOUND)
-#  CHECK_RULES("${MVD_RULECHECKER_SRCS}" "${INCLUDE_DIRECTORIES}" MVD_RULES)
-#endif(RULE_CHECKER_FOUND)
+set(LINKDEF  LmdRecoLinkDef.h)
+set(LIBRARY_NAME LmdReco)
 
+set(DEPENDENCIES Base ParBase GeoBase TrkBase Geane Hyp Sds PndData
+genfitAdapters RecoHits generalTools Lmd)
 
-# fill list of header files from list of source files
-# by exchanging the file extension
-CHANGE_FILE_EXTENSION(*.cxx *.h LMDRECO_HEADERS "${LMDRECO_SRCS}")
-set(LMDRECO_LINKDEF  LmdRecoLinkDef.h)
-set(LMDRECO_DICTIONARY ${CMAKE_CURRENT_BINARY_DIR}/LmdRecoDict.cxx)
-
-ROOT_GENERATE_DICTIONARY("${LMDRECO_HEADERS}" "${LMDRECO_LINKDEF}" "${LMDRECO_DICTIONARY}" "${INCLUDE_DIRECTORIES}")
-SET(LMDRECO_SRCS ${LMDRECO_SRCS} ${LMDRECO_DICTIONARY})
-
-add_library(LmdReco SHARED ${LMDRECO_SRCS})
-target_link_libraries(LmdReco ${ROOT_LIBRARIES})
-set_target_properties(LmdReco PROPERTIES ${FAIRROOT_LIBRARY_PROPERTIES})
+GENERATE_LIBRARY()
 
 ########################### create libLmdTrk ##################################
-set(LMDTRK_SRCS
+set(SRCS
 
 LmdTrack/PndLmdTrackFinderTask.cxx
 LmdTrack/PndLmdTrackFinderCATask.cxx
-#LmdTrack/PndLmdMCPointTrackFinderTask.cxx
 LmdTrack/PndLmdLinFitTask.cxx
 LmdTrack/PndLmdLineTask.cxx
-#LmdTrack/PndLmdMCPointLinFitTask.cxx
 LmdTrack/PndLmdIdealFitTask.cxx
 LmdTrack/PndLinTrack.cxx
-#LmdTrack/PndLmdTrackCandToGFTrackCandConvertorTask.cxx
 LmdTrack/PndLmdKalmanTask.cxx
 LmdTrack/PndLmdGeaneTask.cxx
-LmdTrack/PndLmdBPRungeKuttaTask.cxx
+LmdTrack/PndLmdBPRungeKuttaTask.cxx	
 LmdTrack/PndLmdTrksFilterTask.cxx
 )
-set (LMD_RULECHECKER_SRCS ${LMD_RULECHECKER_SRCS} ${LMDTRK_SRCS})
 
-if(RULE_CHECKER_FOUND)
-  CHECK_RULES("${LMD_RULECHECKER_SRCS}" "${INCLUDE_DIRECTORIES}" LMD_RULES)
-endif(RULE_CHECKER_FOUND)
+set(LINKDEF  LmdTrkLinkDef.h)
+set(LIBRARY_NAME LmdTrk)
 
+set(DEPENDENCIES Base ParBase GeoBase TrkBase Geane Hyp Sds PndData
+genfitAdapters RecoHits generalTools Lmd)
 
-# fill list of header files from list of source files
-# by exchanging the file extension
-CHANGE_FILE_EXTENSION(*.cxx *.h LMDTRK_HEADERS "${LMDTRK_SRCS}")
-set(LMDTRK_LINKDEF  LmdTrkLinkDef.h)
-set(LMDTRK_DICTIONARY ${CMAKE_CURRENT_BINARY_DIR}/LmdTrkDict.cxx)
-
-ROOT_GENERATE_DICTIONARY("${LMDTRK_HEADERS}" "${LMDTRK_LINKDEF}" "${LMDTRK_DICTIONARY}" "${INCLUDE_DIRECTORIES}")
-SET(LMDTRK_SRCS ${LMDTRK_SRCS} ${LMDTRK_DICTIONARY})
-
-add_library(LmdTrk SHARED ${LMDTRK_SRCS})
-target_link_libraries(LmdTrk ${ROOT_LIBRARIES})
-set_target_properties(LmdTrk PROPERTIES ${FAIRROOT_LIBRARY_PROPERTIES})
-
+GENERATE_LIBRARY()
 
 ########################### create libLmdTools ##################################
-set(LMDTOOLS_SRCS
+set(SRCS
 
 LmdQA/PndLmdQATask.cxx
 )
-set (LMD_RULECHECKER_SRCS ${LMD_RULECHECKER_SRCS} ${LMDTOOLS_SRCS})
 
-if(RULE_CHECKER_FOUND)
-  CHECK_RULES("${LMD_RULECHECKER_SRCS}" "${INCLUDE_DIRECTORIES}" LMD_RULES)
-endif(RULE_CHECKER_FOUND)
+set(LINKDEF  LmdToolLinkDef.h)
+set(LIBRARY_NAME LmdTool)
 
+set(DEPENDENCIES Base ParBase GeoBase TrkBase Geane Hyp Sds PndData
+genfitAdapters RecoHits generalTools Lmd)
 
-# fill list of header files from list of source files
-# by exchanging the file extension
-CHANGE_FILE_EXTENSION(*.cxx *.h LMDTOOLS_HEADERS "${LMDTOOLS_SRCS}")
-set(LMDTOOLS_LINKDEF  LmdToolLinkDef.h)
-set(LMDTOOLS_DICTIONARY ${CMAKE_CURRENT_BINARY_DIR}/LmdToolDict.cxx)
-
-ROOT_GENERATE_DICTIONARY("${LMDTOOLS_HEADERS}" "${LMDTOOLS_LINKDEF}" "${LMDTOOLS_DICTIONARY}" "${INCLUDE_DIRECTORIES}")
-SET(LMDTOOLS_SRCS ${LMDTOOLS_SRCS} ${LMDTOOLS_DICTIONARY})
-
-add_library(LmdTool SHARED ${LMDTOOLS_SRCS})
-target_link_libraries(LmdTool ${ROOT_LIBRARIES})
-set_target_properties(LmdTool PROPERTIES ${FAIRROOT_LIBRARY_PROPERTIES})
-
-# ################################ create libLmdTesting ##########################
-# set(LMDTEST_SRCS
-# LmdTrack/PndLmdPerformanceTask.cxx
-# )
-
-# set (LMD_RULECHECKER_SRCS ${LMD_RULECHECKER_SRCS} ${LMDTEST_SRCS})
-
-# if(RULE_CHECKER_FOUND)
-#   CHECK_RULES("${LMD_RULECHECKER_SRCS}" "${INCLUDE_DIRECTORIES}"
-# LMD_RULES)
-# endif(RULE_CHECKER_FOUND)
-
-# # fill list of header files from list of source files
-# # by exchanging the file extension
-# CHANGE_FILE_EXTENSION(*.cxx *.h LMDTEST_HEADERS "${LMDTEST_SRCS}")
-# set(LMDTEST_LINKDEF  LmdTestsLinkDef.h)
-# set(LMDTEST_DICTIONARY ${CMAKE_CURRENT_BINARY_DIR}/LmdTestsDict.cxx)
-
-# ROOT_GENERATE_DICTIONARY("${LMDTEST_HEADERS}" "${LMDTEST_LINKDEF}"
-# "${LMDTEST_DICTIONARY}" "${INCLUDE_DIRECTORIES}")
-# SET(LMDTEST_SRCS ${LMDTEST_SRCS} ${LMDTEST_DICTIONARY})
-
-# add_library(LmdTesting SHARED ${LMDTEST_SRCS})
-# target_link_libraries(LmdTesting ${ROOT_LIBRARIES})
-# set_target_properties(LmdTesting PROPERTIES
-# ${FAIRROOT_LIBRARY_PROPERTIES})
+GENERATE_LIBRARY()
 
 
 ########################### create libModel  ##################################
-#Model framework needs c++11 because of shared_ptrs which are part of std there
-#add_definitions(-W -Wall -Wextra -std=c++0x)
+# modeling framework (completely independent of ROOT)
 
 HEADER_DIRECTORIES(MODEL_INCLUDE_DIRECTORIES LmdFit/ModelFramework)
-
-#message(STATUS "MODEL_INCLUDE_DIRECTORIES=${MODEL_INCLUDE_DIRECTORIES}")
 
 include_directories(${MODEL_INCLUDE_DIRECTORIES})
 
 
 FILE(GLOB_RECURSE MODEL_SRCS  LmdFit/ModelFramework/*.cxx)
 
-#set (LMD_RULECHECKER_SRCS ${LMD_RULECHECKER_SRCS} ${MODEL_SRCS})
-#
-#if(RULE_CHECKER_FOUND)
-#  CHECK_RULES("${LMD_RULECHECKER_SRCS}" "${MODEL_INCLUDE_DIRECTORIES}" LMD_RULES)
-#endif(RULE_CHECKER_FOUND)
-#
-#
-## fill list of header files from list of source files
-## by exchanging the file extension
-#CHANGE_FILE_EXTENSION(*.cxx *.h LMDTRK_HEADERS "${MODEL_SRCS}")
-
 add_library(Model SHARED ${MODEL_SRCS})
 
 
-
 ########################### create libLmdFit ##################################
-
-#ok this only works if the external packages were build to an external
-#location. sep12 packages or higher require this though!
 
 HEADER_DIRECTORIES(TEMP_INCLUDE_DIRECTORIES LmdFit/LumiImpl)
 set(LMDFIT_INCLUDE_DIRECTORIES
@@ -267,9 +178,7 @@ include_directories( ${LMDFIT_INCLUDE_DIRECTORIES})
 
 FILE(GLOB_RECURSE LMDFIT_SRCS LmdFit/LumiImpl/*.cxx)
 
-set (LMD_RULECHECKER_SRCS ${LMD_RULECHECKER_SRCS} ${LMDFIT_SRCS})
-
-set(LMDFITDICT_HEADERS
+set(HEADERS
 LmdFit/ModelFramework/fit/ModelFitResult.h
 LmdFit/LumiImpl/fit/PndLmdLumiFitResult.h
 LmdFit/LumiImpl/fit/PndLmdLumiFitOptions.h 
@@ -282,31 +191,9 @@ LmdFit/LumiImpl/PndLmdLumiHelper.h
 LmdFit/LumiImpl/PndLmdResultPlotter.h
 )
 
-if(RULE_CHECKER_FOUND)
-  CHECK_RULES("${LMD_RULECHECKER_SRCS}" "${INCLUDE_DIRECTORIES}" LMD_RULES)
-endif(RULE_CHECKER_FOUND)
+set(LINKDEF  LmdFitLinkDef.h)
+set(LIBRARY_NAME LmdFit)
 
+set(DEPENDENCIES PndData Lmd LmdTool Model)
 
-# fill list of header files from list of source files
-# by exchanging the file extension
-CHANGE_FILE_EXTENSION(*.cxx *.h LMDFIT_HEADERS "${LMDFIT_SRCS}")
-set(LMDFIT_LINKDEF  LmdFitLinkDef.h)
-set(LMDFIT_DICTIONARY ${CMAKE_CURRENT_BINARY_DIR}/LmdFitDict.cxx)
-
-ROOT_GENERATE_DICTIONARY("${LMDFITDICT_HEADERS}" "${LMDFIT_LINKDEF}" "${LMDFIT_DICTIONARY}" "${INCLUDE_DIRECTORIES}")
-SET(LMDFIT_SRCS ${LMDFIT_SRCS} ${LMDFIT_DICTIONARY})
-
-add_library(LmdFit SHARED ${LMDFIT_SRCS})
-target_link_libraries(LmdFit Model ${ROOT_LIBRARIES})
-set_target_properties(LmdFit PROPERTIES ${FAIRROOT_LIBRARY_PROPERTIES})
-
-
-
-################################## install #####################################
-install(TARGETS Lmd DESTINATION ${CMAKE_BINARY_DIR}/lib)
-install(TARGETS LmdReco DESTINATION ${CMAKE_BINARY_DIR}/lib)
-install(TARGETS LmdTrk DESTINATION ${CMAKE_BINARY_DIR}/lib)
-install(TARGETS LmdTool DESTINATION ${CMAKE_BINARY_DIR}/lib)
-install(TARGETS Model DESTINATION ${CMAKE_BINARY_DIR}/lib)
-install(TARGETS LmdFit DESTINATION ${CMAKE_BINARY_DIR}/lib)
-#install(TARGETS LmdTesting DESTINATION ${CMAKE_BINARY_DIR}/lib)
+GENERATE_LIBRARY()
