@@ -156,7 +156,8 @@ PndEmcXClMoments::Lat() const
 	}
 	Double_t e1 = (*fEnergyDistribution)[n1].deposited_energy;
 	Double_t e2 = (*fEnergyDistribution)[n2].deposited_energy;
-	Double_t lat = redmoment/(redmoment+25.0*(e1+e2));
+	Double_t r0 = 2.5;//cm, the average distance between crystals
+	Double_t lat = redmoment/(redmoment+r0*r0*(e1+e2));
 	
 	return lat;
 }
