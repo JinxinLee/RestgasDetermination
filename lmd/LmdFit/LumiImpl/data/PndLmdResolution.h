@@ -26,10 +26,17 @@ public:
 			double th_slice_range_high_, double phi_slice_range_low_,
 			double phi_slice_range_high_, PndLmdFit::lmd_dimension th_dimension_,
 			PndLmdFit::lmd_dimension phi_dimension_);
+	PndLmdResolution();
 	virtual ~PndLmdResolution();
+
+	double getThetaSliceMean() const;
+	double getPhiSliceMean() const;
 
 	TH1D* getResolutionHistogram1D();
 	TH2D* getResolutionHistogram2D();
+
+	void saveToRootFile();
+	virtual void makeName();
 
 	void fillHistograms(
 			std::vector<std::pair<PndLmdFit::lmd_values, PndLmdFit::lmd_values> > &event_data);

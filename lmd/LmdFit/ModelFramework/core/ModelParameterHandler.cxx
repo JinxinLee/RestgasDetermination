@@ -70,7 +70,7 @@ void ModelParameterHandler::registerUpdaters() {
 
 	// now register new updaters
 	// loop over the model par set
-	/* for (std::map<std::string, shared_ptr<ModelPar>, stringcomp>::iterator it =
+	/* for (std::map<std::string, shared_ptr<ModelPar>, stringpair_comp>::iterator it =
 	 model_par_map.begin(); it != model_par_map.end(); it++) {
 	 // only free parameters may have changed an generate changes in others
 	 if (!it->second->isParameterFixed()) {
@@ -106,7 +106,8 @@ void ModelParameterHandler::registerParametrization(
 
 void ModelParameterHandler::registerParametrizations(
 		ModelParSet &model_par_set_, shared_ptr<Parametrization> parametrization) {
-	for (std::map<std::pair<std::string, std::string>, shared_ptr<ModelPar>, ModelParSet::stringcomp>::iterator it =
+	for (std::map<std::pair<std::string, std::string>, shared_ptr<ModelPar>
+			, ModelStructs::stringpair_comp>::iterator it =
 			model_par_set_.getModelParameterMap().begin();
 			it != model_par_set_.getModelParameterMap().end(); it++) {
 		registerParametrization(it->second, parametrization);
@@ -133,7 +134,8 @@ void ModelParameterHandler::registerParametrizationModel(
 void ModelParameterHandler::registerParametrizationModels(
 		ModelParSet &model_par_set_,
 		shared_ptr<ParametrizationModel> parametrization_model) {
-	for (std::map<std::pair<std::string, std::string>, shared_ptr<ModelPar>, ModelParSet::stringcomp>::iterator it =
+	for (std::map<std::pair<std::string, std::string>, shared_ptr<ModelPar>
+			, ModelStructs::stringpair_comp>::iterator it =
 			model_par_set_.getModelParameterMap().begin();
 			it != model_par_set_.getModelParameterMap().end(); it++) {
 		registerParametrizationModel(it->second, parametrization_model);

@@ -294,7 +294,7 @@ double PndLmdResultPlotter::calculateYPos(double line, double text_toppos_,
 }
 
 std::pair<double, double> PndLmdResultPlotter::calculatePlotRange(
-		PndLmdData *data, PndLmdLumiFitOptions *fit_options) {
+		PndLmdData *data, const PndLmdLumiFitOptions *fit_options) {
 	double range_low;
 	double range_high;
 	if (fit_options->isFitRaw()) {

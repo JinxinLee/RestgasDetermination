@@ -61,12 +61,12 @@ public:
 	double getReferenceLuminosity() const;
 	void setReferenceLuminosity(double luminosity_ref_);
 
-	double getBinningFactor(PndLmdLumiFitOptions *fit_opt) const;
+	double getBinningFactor(const PndLmdLumiFitOptions *fit_opt) const;
 
 	//void makeCorrectedGraph(TF1 *func, TH1D* hist);
 
-	TH1D* getMeasuredHist1D(PndLmdLumiFitOptions* fit_options) const;
-	TH2D* getMeasuredHist2D(PndLmdLumiFitOptions* fit_options) const;
+	TH1D* getMeasuredHist1D(const PndLmdLumiFitOptions* fit_options) const;
+	TH2D* getMeasuredHist2D(const PndLmdLumiFitOptions* fit_options) const;
 
 	/**
 	 * Function carrying out a fit with the specified fit options to this data instance.

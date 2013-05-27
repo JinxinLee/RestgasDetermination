@@ -42,7 +42,7 @@ public:
 		double ref_lumi;
 		combined_values lumi_values;
 		double chi2;
-		PndLmdLumiFitOptions* fit_options;
+		const PndLmdLumiFitOptions* fit_options;
 	};
 
 	struct acceptance_bundle {
@@ -86,7 +86,7 @@ private:
 			PndLmdAcceptance *acc, PndLmdData *data);
 
 	std::pair<double, double> calculatePlotRange(PndLmdData *data,
-			PndLmdLumiFitOptions *fit_options);
+			const PndLmdLumiFitOptions *fit_options);
 
 public:
 	PndLmdResultPlotter();

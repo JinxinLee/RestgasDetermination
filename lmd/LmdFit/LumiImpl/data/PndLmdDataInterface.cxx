@@ -77,6 +77,17 @@ void PndLmdDataInterface::setLabMomentum(double p_lab_) {
 	p_lab = p_lab_;
 }
 
+void PndLmdDataInterface::makeDir() {
+	TDirectory *dir = f->GetDirectory(getName());
+	if (dir) {
+		dir->cd();
+	} else {
+		f->cd();
+		f->mkdir(getName());
+		f->cd(getName());
+	}
+}
+
 int PndLmdDataInterface::addFileToList(TString filepath) {
 	return filepath_list.insert(filepath).second;
 }

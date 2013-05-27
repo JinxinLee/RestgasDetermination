@@ -9,6 +9,7 @@
 #define MODELPARSET_H_
 
 #include "ModelPar.h"
+#include "ModelStructs.h"
 
 #include <map>
 #include <vector>
@@ -18,27 +19,6 @@
 //using std::tr1::shared_ptr;
 
 class ModelParSet {
-public:
-	/**
-	 * Small structure defining the comparison operator used in the map
-	 * #model_par_map. Will return true only if this model parameter is equal to
-	 * the parameter. It is used when concatenating multiple ModelPar objects to
-	 * avoid having multiple instances of the same parameter. The check is based
-	 * on a name comparison.
-	 */
-	struct stringcomp {
-		bool operator()(const std::pair<std::string, std::string>& lhs
-				, const std::pair<std::string, std::string>& rhs) const {
-			if (lhs.first.compare(rhs.first) < 0) {
-				return true;
-			} else if (lhs.first.compare(rhs.first) == 0) {
-				return lhs.second.compare(rhs.second) < 0;
-			} else {
-				return false;
-			}
-		}
-	};
-
 private:
 	std::string model_name;
 
@@ -47,7 +27,7 @@ private:
 	 * and belong to this model.
 	 */
 	std::map<std::pair<std::string, std::string>, shared_ptr<ModelPar>
-			, stringcomp> model_par_map;
+			, ModelStructs::stringpair_comp> model_par_map;
 
 public:
 	ModelParSet(std::string model_name_);
@@ -129,7 +109,7 @@ public:
 	std::vector<shared_ptr<ModelPar> > getFreeModelParameters() const;
 
 	std::map<std::pair<std::string, std::string>, shared_ptr<ModelPar>
-			, stringcomp>& getModelParameterMap();
+			, ModelStructs::stringpair_comp>& getModelParameterMap();
 };
 
 #endif /* MODELPARSET_H_ */

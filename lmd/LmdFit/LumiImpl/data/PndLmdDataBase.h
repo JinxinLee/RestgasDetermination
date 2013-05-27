@@ -66,7 +66,6 @@ public:
 
 
 	// other helper methods
-	void makeDir();
 	virtual void saveToRootFile();
 
 	void setUnbinnedRecoData(TTree* reco_tree);

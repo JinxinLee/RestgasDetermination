@@ -14,7 +14,9 @@
 #include "PndLmdModelFactory.h"
 #include "PndLmdDPMAngModel1D.h"
 #include "PndLmdDPMModelParametrization.h"
-#include "ModelFitResult.h"
+#include "PndLmdLumiFitResult.h"
+
+#include "ModelStructs.h"
 
 #include <iostream>
 
@@ -26,7 +28,7 @@
 #include "TChain.h"
 #include "TClonesArray.h"
 #include "TH1D.h"
-#include "TF1.h"
+#include "TGraphErrors.h"
 #include "TCanvas.h"
 
 #include "FairTrackParH.h"
@@ -372,8 +374,34 @@ void PndLmdLumiHelper::fillData(double plab, TString dir_path,
 	clearRegisters(data_mode);
 }
 
-ModelFitResult determineResolutionForSlice(PndLmdResolution* lmd_resolution,
-		const PndLmdLumiFitOptions *fit_options) {
+std::map<std::string, TGraphErrors*, ModelStructs::string_comp> PndLmdLumiHelper::generateGraphsFromFitResults(
+		std::vector<std::pair<double, ModelFitResult> > &fit_results) {
+
+	std::map<std::string, TGraphErrors*, ModelStructs::string_comp> return_map;
+
+	if (0 < fit_results.size()) {
+		std::set<ModelFitResult::fit_parameter> &fit_parameters =
+				fit_results[0].second.getFitParameters();
+		for (std::set<ModelFitResult::fit_parameter>::iterator it =
+				fit_parameters.begin(); it != fit_parameters.end(); it++) {
+			return_map[it->name] = new TGraphErrors(fit_results.size());
+		}
+
+		for (unsigned int i = 0; i < fit_results.size(); i++) {
+			std::set<ModelFitResult::fit_parameter> &temp_fit_parameters =
+					fit_results[i].second.getFitParameters();
+			for (std::set<ModelFitResult::fit_parameter>::iterator it =
+					temp_fit_parameters.begin(); it != temp_fit_parameters.end(); it++) {
+				return_map[it->name]->SetPoint(i, fit_results[i].first, it->value);
+				return_map[it->name]->SetPointError(i, 0.0, it->error);
+			}
+		}
+	}
+	return return_map;
+}
+
+ModelFitResult PndLmdLumiHelper::determineResolutionForSlice(
+		PndLmdResolution* lmd_resolution, const PndLmdLumiFitOptions *fit_options) {
 	PndLmdModelFactory model_factory; // construct model factory
 	// specify which of type of smearing model we want to generate
 
@@ -449,9 +477,9 @@ ModelFitResult determineResolutionForSlice(PndLmdResolution* lmd_resolution,
 	fit_result.setChiSquare(fitter.chi2(fitter.getROOTMinimizer()->X()));
 
 	for (unsigned int i = 0; i < fitter.getROOTMinimizer()->NDim(); i++) {
-			fit_result.addFitParameter(fitter.getROOTMinimizer()->VariableName(i),
-					fitter.getROOTMinimizer()->X()[i],
-					fitter.getROOTMinimizer()->Errors()[i]);
+		fit_result.addFitParameter(fitter.getROOTMinimizer()->VariableName(i),
+				fitter.getROOTMinimizer()->X()[i],
+				fitter.getROOTMinimizer()->Errors()[i]);
 	}
 
 	fit_result.setNDF(
@@ -462,45 +490,31 @@ ModelFitResult determineResolutionForSlice(PndLmdResolution* lmd_resolution,
 
 void PndLmdLumiHelper::determineResolution(
 		std::vector<PndLmdResolution*> &lmd_resolutions,
-		const PndLmdLumiFitOptions *fit_options) {
+		const PndLmdLumiFitOptions *fit_options,
+		unsigned int parametrization_level) {
 
-	/*
-	 * The idea would be to cut down the dimensionality of the problem
-	 * by using the parametrization models. So models that describe the
-	 * evolution of parameters of the parent model.
-	 * In this case:
-	 * We have three variables on which the parameters of the smearing models
-	 * can depend "plab, theta, phi". Generate/simulate box gen data for the
-	 * required ranges of these variables and create the resolution objects.
-	 * Fit each of these resolution objects with the base smearing model, which
-	 * returns fit results for the parameters of this model.
-	 *
-	 * 1) Then for a fixed beam momentum and phi (so cut out a "slice" in these two
-	 * variables), plot the parameters of the model and fit them with an
-	 * appropriate "parametrization model". Do this for all slices...
-	 * Then we have again a set of parameters which depend only on phi and plab.
-	 * keep doing this procedure until there are no more remaining variables!
-	 *
-	 * 2) Another way to perform such a dimensionality breakdown, would be to
-	 * isolate two variables at a time instead of just one at a time. This means
-	 * that for each parameter of the raw smearing model (gaussians) for example
-	 * "sigma" or "mean" we would have a 2D histogram along theta and phi, which
-	 * has to be fitted with an appropriate 2D "parametrization" model.
-	 *
-	 * So once one of these two methods have been chosen. The deepest
-	 * parametrization model (in this case for plab) would set parameters of his
-	 * parent parametrization and so on...
-	 * gauss(plabmodel(plab, thetamodel(theta, phimodel(phi, params))))
-	 *
-	 * I think this is the best (probably only) way to handle this complex
-	 * parametrization. TODO is if there is a way to generalize this so that
-	 * this procedure can be applied to any kind of model that exists
-	 * (assuming this model has a structure as described above).
-	 */
+	std::vector<std::pair<double, ModelFitResult> > fit_results;
 
+	char cname[50];
+	ModelFitResult fit_result;
 
 	for (unsigned int index_resolution = 0;
 			index_resolution < lmd_resolutions.size(); index_resolution++) {
-		determineResolutionForSlice(lmd_resolutions[index_resolution], fit_options);
+		fit_result = determineResolutionForSlice(lmd_resolutions[index_resolution],
+										fit_options);
+		fit_results.push_back(
+				std::make_pair(
+						lmd_resolutions[index_resolution]->getThetaSliceMean(),
+						fit_result));
+
+		sprintf(cname, "theta_mean=%f-phi_mean=%f",
+				lmd_resolutions[index_resolution]->getThetaSliceMean(),
+				lmd_resolutions[index_resolution]->getPhiSliceMean());
+
+		lmd_resolutions[index_resolution]->saveToRootFile();
+		PndLmdLumiFitResult lmd_fit_result(fit_options, &fit_result);
+		lmd_fit_result.Write("fit_result");
 	}
+
+	generateGraphsFromFitResults(fit_results);
 }

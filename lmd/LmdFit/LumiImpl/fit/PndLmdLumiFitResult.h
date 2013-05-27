@@ -16,7 +16,6 @@
 class PndLmdLumiFitOptions;
 class ModelFitResult;
 
-
 /**
  * \brief This class contains the fit result information and most importantly the luminosity and its errors!!
  *
@@ -24,15 +23,17 @@ class ModelFitResult;
  * that were obtained by the fitting procedure.
  *
  */
-class PndLmdLumiFitResult : public TObject {
+class PndLmdLumiFitResult: public TObject {
 private:
 	double luminosity_sys_err;
 
-	PndLmdLumiFitOptions *fit_options;
+	const PndLmdLumiFitOptions *fit_options;
 	ModelFitResult *model_fit_result;
 
 public:
-	PndLmdLumiFitResult(PndLmdLumiFitOptions *fit_options_);
+	PndLmdLumiFitResult(const PndLmdLumiFitOptions *fit_options_);
+	PndLmdLumiFitResult(const PndLmdLumiFitOptions *fit_options_,
+			ModelFitResult *fit_result_);
 	PndLmdLumiFitResult();
 	~PndLmdLumiFitResult();
 
@@ -53,9 +54,9 @@ public:
 
 	bool checkFitOptions(PndLmdLumiFitOptions *fit_options_) const;
 
-	PndLmdLumiFitOptions* getLumiFitOptions() const;
+	const PndLmdLumiFitOptions* getLumiFitOptions() const;
 
-	ClassDef(PndLmdLumiFitResult,1)
+ClassDef(PndLmdLumiFitResult,1)
 };
 
 #endif /* PNDLMDLUMIFITRESULT_H_ */

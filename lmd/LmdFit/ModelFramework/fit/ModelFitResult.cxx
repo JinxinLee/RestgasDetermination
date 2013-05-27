@@ -49,14 +49,15 @@ const ModelFitResult::fit_parameter& ModelFitResult::getFitParameter(
 	return *fit_parameters.find(fp);
 }
 
-int ModelFitResult::getFitStatus() const
-{
-    return fit_status;
+std::set<ModelFitResult::fit_parameter>& ModelFitResult::getFitParameters() {
+	return fit_parameters;
 }
 
-void ModelFitResult::setFitStatus(int fit_status_)
-{
-    fit_status = fit_status_;
+int ModelFitResult::getFitStatus() const {
+	return fit_status;
 }
 
+void ModelFitResult::setFitStatus(int fit_status_) {
+	fit_status = fit_status_;
+}
 

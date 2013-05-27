@@ -43,7 +43,7 @@ public:
 private:
 	int fit_status;
 	unsigned int ndf;
-	std::set<fit_parameter> fit_parameters;
+	std::set<ModelFitResult::fit_parameter> fit_parameters;
 	double chi2;
 
 public:
@@ -56,7 +56,8 @@ public:
 	void setNDF(unsigned int ndf_);
 
 	void addFitParameter(std::string name_, double value_, double error_);
-	const fit_parameter& getFitParameter(std::string name_) const;
+	const ModelFitResult::fit_parameter& getFitParameter(std::string name_) const;
+	std::set<ModelFitResult::fit_parameter>& getFitParameters();
 	int getFitStatus() const;
 	void setFitStatus(int fit_status_);
 };

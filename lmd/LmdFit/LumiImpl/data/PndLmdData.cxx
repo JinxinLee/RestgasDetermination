@@ -57,7 +57,7 @@ void PndLmdData::setReferenceLuminosity(double luminosity_ref_) {
 	luminosity_ref = luminosity_ref_;
 }
 
-double PndLmdData::getBinningFactor(PndLmdLumiFitOptions *fit_opt) const {
+double PndLmdData::getBinningFactor(const PndLmdLumiFitOptions *fit_opt) const {
 	if (fit_opt->isFitRaw())
 		return t_dimension.bin_size;
 	double bin_factor = th_dimension.bin_size;
@@ -226,7 +226,7 @@ PndLmdLumiFitResult* PndLmdData::Fit(PndLmdAcceptance *lmd_acc,
 	return fit_result;
 }
 
-TH1D* PndLmdData::getMeasuredHist1D(PndLmdLumiFitOptions *fit_options) const {
+TH1D* PndLmdData::getMeasuredHist1D(const PndLmdLumiFitOptions *fit_options) const {
 	if (fit_options->isFitRaw()) {
 		if (fit_options->isSmearingOn()) {
 			if (fit_options->isAcceptanceCorrOn()) {
@@ -268,7 +268,7 @@ TH1D* PndLmdData::getMeasuredHist1D(PndLmdLumiFitOptions *fit_options) const {
 	}
 }
 
-TH2D* PndLmdData::getMeasuredHist2D(PndLmdLumiFitOptions *fit_options) const {
+TH2D* PndLmdData::getMeasuredHist2D(const PndLmdLumiFitOptions *fit_options) const {
 	if (fit_options->isSmearingOn()) {
 		if (fit_options->isAcceptanceCorrOn()) {
 			return reco_2d;

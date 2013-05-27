@@ -9,10 +9,14 @@
 #include "PndLmdLumiFitOptions.h"
 #include "ModelFitResult.h"
 
-
 ClassImp(PndLmdLumiFitResult)
 
-PndLmdLumiFitResult::PndLmdLumiFitResult(PndLmdLumiFitOptions *fit_options_) :
+PndLmdLumiFitResult::PndLmdLumiFitResult(const PndLmdLumiFitOptions *fit_options_,
+		ModelFitResult *fit_result_) :
+		fit_options(fit_options_), model_fit_result(fit_result_) {
+	//model_fit_result = new ModelFitResult(*fit_result);
+}
+PndLmdLumiFitResult::PndLmdLumiFitResult(const PndLmdLumiFitOptions *fit_options_) :
 		fit_options(fit_options_) {
 	model_fit_result = new ModelFitResult();
 }
@@ -69,6 +73,6 @@ bool PndLmdLumiFitResult::checkFitOptions(
 	return (*fit_options == *fit_options_);
 }
 
-PndLmdLumiFitOptions* PndLmdLumiFitResult::getLumiFitOptions() const {
+const PndLmdLumiFitOptions* PndLmdLumiFitResult::getLumiFitOptions() const {
 	return fit_options;
 }

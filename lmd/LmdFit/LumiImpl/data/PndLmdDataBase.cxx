@@ -113,17 +113,6 @@ void PndLmdDataBase::makeName() {
 	getName() += cname;
 }
 
-void PndLmdDataBase::makeDir() {
-	TDirectory *dir = f->GetDirectory(getName());
-	if (dir) {
-		dir->cd();
-	} else {
-		f->cd();
-		f->mkdir(getName());
-		f->cd(getName());
-	}
-}
-
 void PndLmdDataBase::saveToRootFile() {
 }
 

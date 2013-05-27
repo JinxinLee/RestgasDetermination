@@ -24,7 +24,7 @@ unsigned int ModelParSet::getNumberOfParameters() const {
 unsigned int ModelParSet::getNumberOfFreeParameters() const {
 	unsigned int nfree = 0;
 	for (std::map<std::pair<std::string, std::string>, shared_ptr<ModelPar>
-			, stringcomp>::const_iterator it = model_par_map.begin();
+			, ModelStructs::stringpair_comp>::const_iterator it = model_par_map.begin();
 			it != model_par_map.end(); it++) {
 		if (!it->second->isParameterFixed())
 			nfree++;
@@ -39,7 +39,7 @@ void ModelParSet::printInfo() const {
 	std::cout << "************************************************************"
 			<< std::endl;
 	for (std::map<std::pair<std::string, std::string>, shared_ptr<ModelPar>
-			, stringcomp>::const_iterator it = model_par_map.begin();
+			, ModelStructs::stringpair_comp>::const_iterator it = model_par_map.begin();
 			it != model_par_map.end(); it++) {
 		std::cout << "------------------------------------------------------------"
 				<< std::endl;
@@ -83,9 +83,9 @@ int ModelParSet::setModelParameterValue(const std::string &name_,
 		// we did not find the parameter to be defined in this model, but if it is
 		// superior/global then we have to check only for the name of the parameter
 		for (std::map<std::pair<std::string, std::string>, shared_ptr<ModelPar>
-					, stringcomp>::const_iterator it = model_par_map.begin();
-					it != model_par_map.end(); it++) {
-			if(it->first.second.compare(name_) == 0) {
+				, ModelStructs::stringpair_comp>::const_iterator it = model_par_map.begin();
+				it != model_par_map.end(); it++) {
+			if (it->first.second.compare(name_) == 0) {
 				it->second->setValue(value_);
 				return 0;
 			}
@@ -119,7 +119,7 @@ int ModelParSet::addModelParameters(ModelParSet &daughter_model_par_set) {
 	int num_pars_reassigned = 0;
 	// loop over all parameters to be added
 	for (std::map<std::pair<std::string, std::string>, shared_ptr<ModelPar>
-			, stringcomp>::const_iterator it =
+			, ModelStructs::stringpair_comp>::const_iterator it =
 			daughter_model_par_set.getModelParameterMap().begin();
 			it != daughter_model_par_set.getModelParameterMap().end(); it++) {
 		// superior/global parameters are special
@@ -127,7 +127,7 @@ int ModelParSet::addModelParameters(ModelParSet &daughter_model_par_set) {
 			// loop over all parameters that are already in the set
 			bool found = false;
 			for (std::map<std::pair<std::string, std::string>, shared_ptr<ModelPar>
-					, ModelParSet::stringcomp>::const_iterator model_it =
+					, ModelStructs::stringpair_comp>::const_iterator model_it =
 					model_par_map.begin(); model_it != model_par_map.end(); model_it++) {
 				// check if this element already exists in this map
 				if (model_it->first.second.compare(it->first.second) == 0) {
@@ -186,7 +186,7 @@ shared_ptr<ModelPar> ModelParSet::getModelParameter(const std::string &name_) {
 
 int ModelParSet::checkParameters() const {
 	for (std::map<std::pair<std::string, std::string>, shared_ptr<ModelPar>
-			, stringcomp>::const_iterator it = model_par_map.begin();
+			, ModelStructs::stringpair_comp>::const_iterator it = model_par_map.begin();
 			it != model_par_map.end(); it++) {
 		if (!it->second->isSet()) {
 			return 1;
@@ -197,7 +197,7 @@ int ModelParSet::checkParameters() const {
 
 bool ModelParSet::checkSuperiorParameters() const {
 	for (std::map<std::pair<std::string, std::string>, shared_ptr<ModelPar>
-			, stringcomp>::const_iterator it = model_par_map.begin();
+			, ModelStructs::stringpair_comp>::const_iterator it = model_par_map.begin();
 			it != model_par_map.end(); it++) {
 		if (it->second->isSuperior() && !it->second->isSet())
 			return false;
@@ -208,7 +208,7 @@ bool ModelParSet::checkSuperiorParameters() const {
 std::vector<shared_ptr<ModelPar> > ModelParSet::getFreeModelParameters() const {
 	std::vector<shared_ptr<ModelPar> > free_parameters;
 	for (std::map<std::pair<std::string, std::string>, shared_ptr<ModelPar>
-			, stringcomp>::const_iterator it = model_par_map.begin();
+			, ModelStructs::stringpair_comp>::const_iterator it = model_par_map.begin();
 			it != model_par_map.end(); it++) {
 		if (!it->second->isParameterFixed()) {
 			free_parameters.push_back(it->second);
@@ -239,7 +239,7 @@ void ModelParSet::freeModelParameter(
 
 void ModelParSet::freeAllModelParameters() {
 	for (std::map<std::pair<std::string, std::string>, shared_ptr<ModelPar>
-			, stringcomp>::const_iterator it = model_par_map.begin();
+			, ModelStructs::stringpair_comp>::const_iterator it = model_par_map.begin();
 			it != model_par_map.end(); it++) {
 		if (!it->second->isSuperior()) {
 			it->second->setParameterFixed(false);
@@ -248,6 +248,6 @@ void ModelParSet::freeAllModelParameters() {
 }
 
 std::map<std::pair<std::string, std::string>, shared_ptr<ModelPar>
-		, ModelParSet::stringcomp>& ModelParSet::getModelParameterMap() {
+		, ModelStructs::stringpair_comp>& ModelParSet::getModelParameterMap() {
 	return model_par_map;
 }
