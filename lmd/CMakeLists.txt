@@ -174,9 +174,9 @@ ${MODEL_INCLUDE_DIRECTORIES}
 ${SIMPATH}/include
 )
 
-include_directories( ${LMDFIT_INCLUDE_DIRECTORIES})
+include_directories(${LMDFIT_INCLUDE_DIRECTORIES})
 
-FILE(GLOB_RECURSE LMDFIT_SRCS LmdFit/LumiImpl/*.cxx)
+set(SRCS ${LMDFIT_SRCS})
 
 set(HEADERS
 LmdFit/ModelFramework/fit/ModelFitResult.h
