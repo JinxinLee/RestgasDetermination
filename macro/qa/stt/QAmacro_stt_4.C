@@ -3,8 +3,8 @@ void QAmacro_stt_4()
 {
   TStopwatch timer;
   timer.Start();
-  gROOT->LoadMacro("$VMCWORKDIR/gconfig/rootlogon.C");
-  rootlogon();
+  //   gROOT->LoadMacro("$VMCWORKDIR/gconfig/rootlogon.C");
+  //   rootlogon();
 
   Bool_t fTest = kTRUE;
   Int_t kindOftest[9];

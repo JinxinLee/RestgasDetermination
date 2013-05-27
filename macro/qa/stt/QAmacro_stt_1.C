@@ -8,9 +8,8 @@ void QAmacro_stt_1()
   TStopwatch timer;
   timer.Start();
 
-  gROOT->LoadMacro("$VMCWORKDIR/gconfig/rootlogon.C");
-  rootlogon();
-  gRandom->SetSeed();
+  //   gROOT->LoadMacro("$VMCWORKDIR/gconfig/rootlogon.C");
+  //   rootlogon();  gRandom->SetSeed();
 
   Bool_t fTest=kFALSE;
 
@@ -167,6 +166,6 @@ void QAmacro_stt_1()
   Double_t rtime = timer.RealTime();
   Double_t ctime = timer.CpuTime();
   printf("RealTime=%f seconds, CpuTime=%f seconds\n",rtime,ctime);
-  exit(0); 
+  // exit(0); 
 }  
   
