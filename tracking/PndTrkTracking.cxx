@@ -544,15 +544,16 @@ if(doMcComparison >=1 ){
  fMvdPixelHitArray = (TClonesArray*) ioman->GetObject(fMvdPixelBranch);
 //  fMvdPixelHitArray = (TClonesArray*) ioman->GetObject("MVDHitsPixel");
  if ( !fMvdPixelHitArray){
-	cout << "-W- PndTrkTracking::Init: " << "No MVD Pixel hitArray, return!" <<endl;
-	return kERROR;
+	cout << "-W- PndTrkTracking::Init: " << "No MVD Pixel hitArray!" <<endl;
+
+//	return kERROR;
  }
  fMvdStripHitArray = (TClonesArray*) ioman->GetObject(fMvdStripBranch);
 //  fMvdStripHitArray = (TClonesArray*) ioman->GetObject("MVDHitsStrip");
 
  if ( !fMvdStripHitArray){
-	cout << "-W- PndTrkTracking::Init: " << "No MVD Strip hitArray, return!" <<endl;
-	return kERROR;
+	cout << "-W- PndTrkTracking::Init: " << "No MVD Strip hitArray!" <<endl;
+//	return kERROR;
  }
 
 //  -------------------------   get the Mvd track candidates
@@ -953,8 +954,18 @@ void PndTrkTracking::Exec(Option_t* opt) {
 
 // -------------------------------------  fetch info from MVD
 
- fnMvdPixelHit = fMvdPixelHitArray->GetEntriesFast();
- fnMvdStripHit = fMvdStripHitArray->GetEntriesFast();
+ if( fMvdPixelHitArray ) {
+	fnMvdPixelHit = fMvdPixelHitArray->GetEntriesFast();
+ } else {
+ 	fnMvdPixelHit = 0;
+ }
+
+ if( fMvdStripHitArray ) {
+	fnMvdStripHit = fMvdStripHitArray->GetEntriesFast();
+ } else {
+	fnMvdStripHit = 0;
+ }
+
  if(fnMvdPixelHit>MAXMVDPIXELHITS){
 	cout<<"from PndTrkTracking, fnMvdPixelHit is > maximum allowed ("
 	<<MAXMVDPIXELHITS<<") and therefore is set to "
@@ -1044,7 +1055,7 @@ void PndTrkTracking::Exec(Option_t* opt) {
 //---------------------------------------------   fetching the STT  MC points
  nSttMCPoint = fSttPointArray->GetEntriesFast();
  if (nSttMCPoint ==0){
-	if (istampa >= 1) cout<<"da PndTrkTracking  :  N. di Stt MC points = 0"<<endl<<endl;
+	cout<<"da PndTrkTracking  :  N. di Stt MC points = 0"<<endl<<endl;
 //	return;
  } else  if( nSttMCPoint>MAXSTTHITS){
 	cout<<"da PndTrkTracking  :  N. di Stt MC points = "<<nSttMCPoint
@@ -1056,7 +1067,7 @@ void PndTrkTracking::Exec(Option_t* opt) {
 
  nSttHit = fSttHitArray->GetEntriesFast();
  if (nSttHit ==0){
-	if (istampa >= 1) cout<<"da PndTrkTracking  :  N. di Stt Hits = 0, return!"<<endl<<endl;
+	cout<<"da PndTrkTracking  :  N. di Stt Hits = 0, return!"<<endl<<endl;
 	return;
  } else if (nSttHit> MAXSTTHITS) {
 	cout<<"da PndTrkTracking  :  N. di Stt Hits = "<<nSttHit
