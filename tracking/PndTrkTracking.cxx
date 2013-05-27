@@ -1735,6 +1735,7 @@ MAXSCITILHITSINTRACK,MAXSTTHITSINTRACK,fR,fOx,fOy,FI0,KAPPA);
 				fnMvdPixelHitsinTrack[ncand]+
 				fnMvdStripHitsinTrack[ncand]
 					] = BigList[ncand][i];
+
 			if( info[BigList[ncand][i]][5] < 2.){
 				// parallel Stt hit.
 				fListTrackCandHitType[ncand][i+
