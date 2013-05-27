@@ -280,12 +280,12 @@ int main(int __argc,char *__argv[]) {
   TH1 *hDiffIDs = new TH1I("hDiffIDs","Number of track-candidates with hits from diff. MC-track;N_{IDs}",10,0,10);
   TH1 *hntrkcand = new TH1F("hntrkcand","Number of track-candidates per event;N_{trk-cand}",100,0,100);
   TH1 *hntrk = new TH1F("hntrk","Number of tracks per event;N_{trk}",100,0,100);
-  TH1 *hntrkmissed_I = new TH1F("hntrkmissed_I","Number of missed tracks per event (hits matching, hit+trk search losses);N_{trk}",30,0,30);
-  TH1 *hntrkgood_I = new TH1F("hntrkgood_I","Number of good tracks per event (#phi, #theta trks);N_{trk}",30,0,30);
-  TH1 *hntrkghost_I = new TH1F("hntrkghost_I","Number of ghost tracks per event (#phi, #theta trks);N_{trk}",30,0,30);
-  TH1 *hntrkmissed_II = new TH1F("hntrkmissed_II","Number of missed tracks per event (hits matching, trk search losses);N_{trk}",30,0,30);
+  TH1 *hntrkmissed_I = new TH1F("hntrkmissed_I","Number of missed tracks per event (hit losses);N_{trk}",30,0,30);
+  // TH1 *hntrkgood_I = new TH1F("hntrkgood_I","Number of good tracks per event (#phi, #theta trks);N_{trk}",30,0,30);
+  TH1 *hntrkghost_I = new TH1F("hntrkghost_I","Number of ghost tracks per event (hits mixture);N_{trk}",30,0,30);
+  TH1 *hntrkmissed_II = new TH1F("hntrkmissed_II","Number of missed tracks per event (trk search losses);N_{trk}",30,0,30);
   TH1 *hntrkgood_II = new TH1F("hntrkgood_II","Number of good tracks per event (hits matching);N_{trk}",30,0,30);
-  TH1 *hntrkghost_II = new TH1F("hntrkghost_II","Number of ghost tracks per event (hits matching);N_{trk}",30,0,30);
+  TH1 *hntrkghost_II = new TH1F("hntrkghost_II","Number of ghost tracks per event  (repeated trk);N_{trk}",30,0,30);
   TH2 *hntrkmissedPhiTheta = new TH2F("hntrkmissedPhiTheta",";#delta#theta/#sigma#theta;#delta#phi/#sigma#phi",1000,0,100,1000,0,100);
   TH2 *hntrkcandvsIDs = new TH2F("hntrkcandvsIDs","Number of track-candidates per event vs Number of track-candidates with hits from diff. MC-track;N_{IDs};N_{trk-cand}",10,0,10,100,0,100);
   TH2 *hntrkcandvsMC = new TH2F("hntrkcandvsMC","Number of per event vs. Number of simulated tracks; N_{MC};N_{trk-cand}",100,0,100,100,0,100);
@@ -299,8 +299,8 @@ int main(int __argc,char *__argv[]) {
   TH2 * hgoodPhiTheta = new TH2F("hgoodPhiTheta","#phi and #thete for good track-candidates",50,2e-3,10e-3,100,-355./113,355./113);
   TH2 * hallPhiTheta = new TH2F("hallPhiTheta","#phi & #theta for all MC",50,2e-3,10e-3,100,-355./113,355./113);
 
-  TNtuple *ntuprecTrk = new TNtuple("ntuprecTrk","Info about reconstructed trks: goodTrk [0=good,+1=ghost]","x:y:z:mom:theta:phi:goodTrk");
-  TNtuple *ntupMCTrk = new TNtuple("ntupMCTrk","Info about simulated trks: goodTrk [0=good, -1=missed in trk search, -2=little amount hits]","x:y:z:mom:theta:phi:goodTrk:nMChits:nREChits");
+  TNtuple *ntuprecTrk = new TNtuple("ntuprecTrk","Info about reconstructed trks: goodTrk [0=good,+1=ghost from hit mixture, +2=similar as other trk]","x:y:z:mom:theta:phi:goodTrk");
+  TNtuple *ntupMCTrk = new TNtuple("ntupMCTrk","Info about simulated trks: goodTrk [0=good, -1=missed in trk search, -2=little amount hits]","x:y:z:mom:theta:phi:goodTrk:nMChits:nREChits:nDoubleMChits");
 
   TH1 *hResMom = new TH1F("hResMom","P_{MC}-P_{rec};#deltaP,GeV/c",1e3,-1e-4,1e-4);
   TH1 *hErrMom = new TH1F("hErrMom","#sigma_{P};#sigmaP,GeV/c",1e3,0,1e-3);
@@ -336,13 +336,15 @@ int main(int __argc,char *__argv[]) {
   
   TNtuple *nsectors = new TNtuple("nsectors","sectors","thetares:sector");
   TH2I *hnhits = new TH2I("hnhits","# rec hits vs. # sim hits; sim; rec",100,0,100,100,0,100);
+  ///
+ TNtuple *ntupTrkFit = new TNtuple("ntupTrkFit","Info about reconstructed trks: trk-cand vs. trk after fit","xtc:ytc:ztc:thtc:phitc:xtf:ytf:ztf:thtf:phitf:chi2");
 
   TH1 *hMCtrkPer = new TH1F("hMCtrkPer","% of MCTrk in one rec.trk",1e3,0,110);
   //Load lumi geo params
   PndLmdDim *lmddim = PndLmdDim::Instance();
   lmddim -> Read_transformation_matrices("/panda/pandaroot/input/trafo_matrices_lmd.dat", false);
   int glBADGEANE=0;
-  int glBadEv = 0;
+  //  int glBadEv = 0;
   int glNoisehit = 0;// total number of noise hits
   for (Int_t j=0; j<nEvents; j++){
     tTrkRec.GetEntry(j);
@@ -362,12 +364,43 @@ int main(int __argc,char *__argv[]) {
     const int nTrkCandidates = trkcand_array->GetEntriesFast();
     const int nRecTrks = rec_trk->GetEntriesFast();
     if(verboseLevel>0)  
-      cout<<"Event #"<<j<<" has "<<nParticles<<" true particles, "<<" out of it "<<nRecHits<<" hits, "<<nTrkCandidates
+      cout<<"%%%%%! Event #"<<j<<" has "<<nParticles<<" true particles, "<<" out of it "<<nRecHits<<" hits, "<<nTrkCandidates
 	  <<" trk-cands, "<<numTrk<<" tracks and "<<nGeaneTrks<<" geane Trks!"<<endl;
     hnRecnMC->Fill(nParticles,nGeaneTrks);
     if(nParticles!=nMCtracks) continue;
+    bool secondMC=false;
+    for(int imc=0;imc<nParticles;imc++){//check that we don't have any secondaries here
+      PndMCTrack *mctrk =(PndMCTrack*) true_tracks->At(imc);
+      int motherID = mctrk->GetMotherID();
+      if(motherID>=0){
+	if(verboseLevel>0) cout<<"this event contains secondaries, for simplisity skip it."<<endl;
+	secondMC=true;
+      }
+    }
+    if(secondMC) continue;
     hnhits->Fill(nMCHits,nRecHits);
-    if(nRecHits<3*nMCtracks) glBadEv++;
+
+    ///Compare trk-cand vs. trk-fit -----------------------------
+    // TNtuple *ntupTrkFit = new TNtuple("ntupTrkFit","Info about reconstructed trks: trk-cand vs. trk after fit","xtc:ytc:ztc:thtc:phitc:xtf:ytf:ztf:thtf:phitf:chi2");
+    for (Int_t iN=0; iN<nGeaneTrks; iN++){// loop over all reconstructed trks
+      PndTrack *trkpnd = (PndTrack*)rec_trk->At(iN);
+      double chi2 = trkpnd->GetChi2();
+      FairTrackParP fFittedTrkP = trkpnd->GetParamFirst();
+      TVector3 PosRecLMD(fFittedTrkP.GetX(),fFittedTrkP.GetY(),fFittedTrkP.GetZ());
+      TVector3 MomRecLMD(fFittedTrkP.GetPx(),fFittedTrkP.GetPy(),fFittedTrkP.GetPz());
+      MomRecLMD *=Plab/MomRecLMD.Mag();
+
+      int candID = trkpnd->GetRefIndex();
+      PndTrackCand *trkcand = (PndTrackCand*)trkcand_array->At(candID);    
+      TVector3 PosRecCandLMD = trkcand->getPosSeed();
+      TVector3 MomRecCandLMD = trkcand->getDirSeed();
+      MomRecCandLMD *=Plab/MomRecCandLMD.Mag();
+      ntupTrkFit->Fill(PosRecCandLMD.X(),PosRecCandLMD.Y(),PosRecCandLMD.Z(),MomRecCandLMD.Theta(),MomRecCandLMD.Phi(),
+		       PosRecLMD.X(),PosRecLMD.Y(),PosRecLMD.Z(),MomRecLMD.Theta(),MomRecLMD.Phi(),chi2);
+    }
+    ///-------------------------------------------------------------------
+
+    //  if(nRecHits<3*nMCtracks) glBadEv++;
     //    double chi2Cont[5*numTrk];
     //    double ndiffIDCont[5*numTrk];
    
@@ -377,8 +410,10 @@ int main(int __argc,char *__argv[]) {
 
     /// Chech how many MC hits has MC trk ----------------------------
     int MCtksSIMhits[nParticles];
+    int MCDoubleHits[nParticles];
     for(int imctrk=0;imctrk<nParticles;imctrk++){
       MCtksSIMhits[imctrk]=0;
+      MCDoubleHits[imctrk]=0;
     }
     for(int imc=0;imc<nMCHits;imc++){
 	  PndSdsMCPoint* MCPoint = (PndSdsMCPoint*)(true_points->At(imc));
@@ -392,23 +427,45 @@ int main(int __argc,char *__argv[]) {
     for(int imctrk=0;imctrk<nParticles;imctrk++){
       MCtksREChits[imctrk]=0;
     }
+    if(verboseLevel>7)
+      cout<<"    ** ALL REChits are made from MChits: "<<endl;//start MC hit content
     for(int irec=0;irec<nRecHits;irec++){
 	PndSdsMergedHit* myHit = (PndSdsMergedHit*)(rechit_array->At(irec));
 	///TODO: check both sides hits, but one need to change rule for missed trk due to hits losses,
 	/// since ">2 hit" doesn't work anymore
 	int mcrefbot = myHit->GetSecondMCHit();
+	int MCtrkidbot,MCtrkidtop;
 	if(mcrefbot>0){
 	  PndSdsMCPoint* MCPointBot = (PndSdsMCPoint*)(true_points->At(mcrefbot));
 	  int MCtrkid = MCPointBot->GetTrackID();
+	  if(MCtrkid<0) break;//TODO: how it is possible???
 	  MCtksREChits[MCtrkid]++;
+	  MCtrkidbot=MCtrkid;
+	  if(verboseLevel>7)
+	    cout<<" "<<MCtrkid<<"(MChitID="<<mcrefbot<<",z="<<MCPointBot->GetZ()<<")";
 	}
 	int mcreftop = myHit->GetRefIndex();
 	if(mcreftop>0){
 	  PndSdsMCPoint* MCPointTop = (PndSdsMCPoint*)(true_points->At(mcreftop));
 	  int MCtrkid = MCPointTop->GetTrackID();
+	  if(MCtrkid<0) break; //TODO: how it is possible???
 	  MCtksREChits[MCtrkid]++;
+	  MCtrkidtop=MCtrkid;  
+	  if(verboseLevel>7)
+	    cout<<" "<<MCtrkid<<"(MChitID="<<mcreftop<<",z="<<MCPointTop->GetZ()<<")";
 	}
+	if(mcreftop>0 && mcrefbot>0){
+	  if(MCtrkidtop==MCtrkidbot){
+	    MCDoubleHits[MCtrkidbot]++;
+	  }
+	  else{
+	    if(verboseLevel>7)  cout<<"        REChit No."<<irec<<"contain MCid: "<<MCtrkidtop<<", "<<MCtrkidbot<<" !"<<endl;
+	  }
+	}
+	if(verboseLevel>7)
+	  cout<<" "<<endl;//next hit content
     }
+
     ///------------------------------------------------------------------------------
 
     /// Set MC ID for each track ----------------------------------------------------
@@ -427,21 +484,19 @@ int main(int __argc,char *__argv[]) {
 
     int goodRectrk=0;//for missed trk-search
     for (Int_t iN=0; iN<nGeaneTrks; iN++){// loop over all reconstructed trks
-      if(verboseLevel>3)  cout<<"GEANEtrk#"<<iN<<endl;
+      //    if(verboseLevel>3)  cout<<"GEANEtrk#"<<iN<<endl;
       
       FairTrackParH *fRes = (FairTrackParH*)geaneArray->At(iN);
-      ///get rid from most probably ghost track ------------
       TVector3 PosRec = fRes->GetPosition();
-      double pca_lim = 1.;//=10*sigma_Xpca~10*{0.093,0.11,0.12,0.22,0.55};
-      if(Plab<5) pca_lim = 2.;
-      if(Plab<2) pca_lim = 5.;
-      if(fabs(PosRec.X())>pca_lim && fabs(PosRec.Y())>pca_lim) continue; // PCA_x and PCA_y should be < 10sigmaX
-
-     
-      ///get rid from most probably ghost track (END) ---
+      // ///get rid from most probably ghost track ------------
+      // double pca_lim = 1.;//=10*sigma_Xpca~10*{0.093,0.11,0.12,0.22,0.55};
+      // if(Plab<5) pca_lim = 2.;
+      // if(Plab<2) pca_lim = 5.;
+      // if(fabs(PosRec.X())>pca_lim && fabs(PosRec.Y())>pca_lim) continue; // PCA_x and PCA_y should be < 10sigmaX
+      // ///get rid from most probably ghost track (END) ---
       Double_t lyambda = fRes->GetLambda();
       if(lyambda==0){
-	cout<<"GEANE didn't propagate this trk!"<<endl;
+	cout<<"GEANE didn't propagate "<<iN<<" trk!"<<endl;
 	//	cout<<"Event #"<<j<<" diffIDs = "<<diffIDs<<endl;
 	glBADGEANE++;
       }
@@ -463,6 +518,9 @@ int main(int __argc,char *__argv[]) {
       }
       Int_t diffIDs=1;
 	//Matching between MC & Rec on hits level-----------------------------------
+      bool emergExit=false;
+      if(verboseLevel>7)
+	cout<<"    *** REChits in one trk are made from MChits: "<<endl;//start MC hit content
       for (Int_t iHit = 0; iHit < Ntrkcandhits; iHit++){ // loop over rec.hits
 	PndTrackCandHit candhit = (PndTrackCandHit)(trkcand->GetSortedHit(iHit));
 	Int_t hitID = candhit.GetHitId();
@@ -473,33 +531,48 @@ int main(int __argc,char *__argv[]) {
 	PndSdsMergedHit* myHit = (PndSdsMergedHit*)(rechit_array->At(hitID));
 	int mcrefbot = myHit->GetSecondMCHit();
 	if(mcrefbot>0){
-	  if(verboseLevel>5)
-	    cout<<" "<<hitID<<"("<<mcrefbot;
+	  // if(verboseLevel>5)
+	  //   cout<<" "<<hitID<<"("<<mcrefbot;
 	  PndSdsMCPoint* MCPointBot = (PndSdsMCPoint*)(true_points->At(mcrefbot));
 	  int MCtrkid = MCPointBot->GetTrackID();
+	  if(MCtrkid<0){
+	    emergExit=true;
+	    break;//TODO: how it is possible???
+	  }
 	  //	  if(MCtrkid>-1)
 	    MCtrkID[iHit]=MCtrkid;
+	    if(verboseLevel>7)
+	      cout<<" "<<MCtrkid;
 	}
 	int mcreftop = myHit->GetRefIndex();
 
 	if(mcreftop>0){
-	  if(verboseLevel>5)
-	    cout<<", "<<mcreftop<<")";
+	  // if(verboseLevel>5)
+	  //   cout<<", "<<mcreftop<<")";
 	  PndSdsMCPoint* MCPointTop = (PndSdsMCPoint*)(true_points->At(mcreftop));
 	  int MCtrkid = MCPointTop->GetTrackID();
+	  if(MCtrkid<0){ 
+	    emergExit=true;
+	    break;//TODO: how it is possible???
+	  }
 	  //	  if(MCtrkid>-1)
 	    MCtrkID[iHit]=MCtrkid;
+	    if(verboseLevel>7)
+	      cout<<" "<<MCtrkid;
 	}
+	if(verboseLevel>7)
+	  cout<<" "<<endl;//next hit content
       }
-      if(verboseLevel>5)
-	cout<<" "<<endl;
+      if(emergExit) continue;
+      // if(verboseLevel>5)
+      // 	cout<<" "<<endl;
 
-      if(verboseLevel>3){
-	cout<<"Before sorting: ";
-	for(Int_t n=0; n<Ntrkcandhits; n++)
-	  cout<<" "<<MCtrkID[n];
-	cout<<""<<endl;
-      }
+      // if(verboseLevel>3){
+      // 	cout<<"Before sorting: ";
+      // 	for(Int_t n=0; n<Ntrkcandhits; n++)
+      // 	  cout<<" "<<MCtrkID[n];
+      // 	cout<<""<<endl;
+      // }
       //    if(verboseLevel>1) cout<<""<<endl;
       //   Sorting MC IDs ---------------------------------------- 
       Int_t k, x;
@@ -516,12 +589,12 @@ int main(int __argc,char *__argv[]) {
       }
       ///--------------------------------------------------------------------------
 
-      if(verboseLevel>3){
-	cout<<"After sorting: ";
-	for(Int_t n=0; n<Ntrkcandhits; n++)
-	  cout<<" "<<MCtrkID[n];
-	cout<<""<<endl;
-      }
+      // if(verboseLevel>3){
+      // 	cout<<"After sorting: ";
+      // 	for(Int_t n=0; n<Ntrkcandhits; n++)
+      // 	  cout<<" "<<MCtrkID[n];
+      // 	cout<<""<<endl;
+      // }
 
       /// Counting number of diff MC ids ----------------------------------------      
       Int_t prevID = MCtrkID[0];
@@ -703,19 +776,23 @@ int main(int __argc,char *__argv[]) {
       //  MCtrkID.clear();
     }
   
-    /// (I) missed\ghost tracks are defined on Phi\Theta difference between MC&REC trks
-    hntrkgood_I->Fill(goodRectrk);
-    //    if((nMCtracks-goodRectrk)>0) hntrkmissed_I->Fill(nMCtracks-goodRectrk);
-    if((nGeaneTrks-goodRectrk)>0) hntrkghost_I->Fill(nGeaneTrks-goodRectrk);
-    if(verboseLevel>0){
-    cout<<nMCtracks<<" trks per event were simulated and "<<nGeaneTrks<<" were reconstructed"<<endl;
-    // cout<<"-- (I) dPhi&dTheta -------------------------"<<endl;
-    // cout<<"Good trks: "<<goodRectrk<<" missed: "<<nMCtracks-goodRectrk<<" ghost: "<<nGeaneTrks-goodRectrk<<endl;
-    // cout<<"--------------------------------"<<endl;
-    }
+    // /// (I) missed\ghost tracks are defined on Phi\Theta difference between MC&REC trks
+    // hntrkgood_I->Fill(goodRectrk);
+    // //    if((nMCtracks-goodRectrk)>0) hntrkmissed_I->Fill(nMCtracks-goodRectrk);
+    // if((nGeaneTrks-goodRectrk)>0) hntrkghost_I->Fill(nGeaneTrks-goodRectrk);
+    // if(verboseLevel>0){
+    // cout<<nMCtracks<<" trks per event were simulated and "<<nGeaneTrks<<" were reconstructed"<<endl;
+    // // cout<<"-- (I) dPhi&dTheta -------------------------"<<endl;
+    // // cout<<"Good trks: "<<goodRectrk<<" missed: "<<nMCtracks-goodRectrk<<" ghost: "<<nGeaneTrks-goodRectrk<<endl;
+    // // cout<<"--------------------------------"<<endl;
+    // }
+
+
     /// (II) missed\ghost tracks are defined on hits information
-    //check maybe this rec. trk has repeated assignment to MC trk
-    int RECassigMC[nGeaneTrks];//how many time MCid from this RECtrk meet in other RECtrks
+    /// GHOST ----------------------------------------------------------------------------------------------------------------------------------------------------------------------
+    ///check repeated assignment to one MC trk (maybe one MC trk rec. trk was assigned  to several REC trk) ---------------------------------
+    //NB: it's only quantity and _ NOT_ quality check. 1st REC trk will be called GOOD and 2nd and others GHOST
+    int RECassigMC[nGeaneTrks];//how many time MCid from this RECtrk met in other RECtrks
     for (Int_t iN=0; iN<nGeaneTrks; iN++)
       RECassigMC[iN]=1;
     
@@ -725,29 +802,37 @@ int main(int __argc,char *__argv[]) {
 	int mc_j = RECtrkMCid[jN];
 	if(mc_i==mc_j){
 	  RECassigMC[iN]++;
-	  if(verboseLevel>3) cout<<"rec.trks #"<<iN<<" and #"<<jN<< "were assigned to one MC trk =|"<<endl;
+	  if(verboseLevel>3) cout<<"GHOST?!: rec.trks #"<<iN<<" and #"<<jN<< "were assigned to one MC trk =|"<<endl;
 	}
       }
     }
+    ///END check repeated assignment to one MC trk ------------------------------------------------------------------------------------------------------------------
 
-    int goodRecII=0, ghostRecII=0;
-    for (Int_t iN=0; iN<nGeaneTrks; iN++){
-      if(RECassigMC[iN]>1){
-	//	if(verboseLevel>3)   cout<<"ja, ja for MC id from trk#"<<iN<<" was found in more then 1 MCid!"<<endl;
+    int goodRecII=0, ghostRecI=0, ghostRecII=0;
+    for (Int_t iN=0; iN<nGeaneTrks; iN++){ //ghost/good trk determination
+      int trkType = -1;
+      if(RECassigMC[iN]>1){ //one RECtrk was already called GOOD for this MCid -> all next are GHOSTs
 	goodTrk[iN]=false;
 	ghostTrk[iN]=true;
+	trkType = +2;
+	ghostRecI++;
       }
-      int trkType = -1;
+
+     
       if(goodTrk[iN]){
+	if(verboseLevel>7) cout<<"... RECtrk#"<<iN<<" was defined as GOOD ..."<<endl;
 	goodRecII++;
 	trkType = 0;
       }
       if(ghostTrk[iN]){
-	cout<<"AND finaly trk#"<<iN<<" was defined as ghost oO"<<endl;
-	ghostRecII++;
-	trkType = +1;
+	if(verboseLevel>7) cout<<"... RECtrk#"<<iN<<" was defined as GHOST ..."<<endl;
+	if(trkType<0){
+	  trkType = +1;
+	  ghostRecII++;
+	}
       }
-
+      if(trkType<0) 
+	cout<<"Ooops, RECtrk isn't GOOD and isn't GHOST!!!"<<endl;
       FairTrackParH *fRes = (FairTrackParH*)geaneArray->At(iN);
       Double_t lyambda = fRes->GetLambda();
       Double_t thetaBP = TMath::Pi()/2. - lyambda;
@@ -758,10 +843,14 @@ int main(int __argc,char *__argv[]) {
     }
     hntrkgood_II->Fill(goodRecII);
     if(ghostRecII>0) hntrkghost_II->Fill(ghostRecII);
-    if((nMCtracks-goodRecII)>0){ //missed trks
+    if(ghostRecI>0) hntrkghost_I->Fill(ghostRecI);
+    ///END GHOST--------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
-      hntrkmissed_I->Fill(nMCtracks-goodRecII);
+    /// MISSED ------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+    if((nMCtracks-goodRecII)>0){ //missed trks
+     
       int nMCmissedTrkSearch=0;
+      int nMCmissedLossHits=0;
       for(int imc=0;imc<nParticles;imc++){//MC trks
 	bool missTrk=true;
 	for(int irec=0;irec<nGeaneTrks;irec++){//RECids assigment
@@ -772,45 +861,65 @@ int main(int __argc,char *__argv[]) {
 	TVector3 MomMC = mctrk->GetMomentum();
 	TVector3 PosMC = mctrk->GetStartVertex();
 	int trkQ=0;
+	/// if MC trk was missed, justify why 
 	int minHits = 2;
-	if(MCtksSIMhits[imc]>4)
-	  minHits = 4;
+	if(MCDoubleHits[imc]>0){// track contains double hits
+	  if(MCDoubleHits[imc]<2){//only one plane contains double hits,
+	    minHits = 3;//to avoid situation like this:  *- ** -- --
+	    //this should be fine: ** *- *- *-
+	  }
+	  else{
+	    if(MCDoubleHits[imc]==2){//only two planes contains double hits
+	      minHits = 4;// to adoid situation like: ** ** -- -- .
+	    }
+	    else{ // 3 and more planes contains double hits
+	      minHits = 4;
+	    }
+	  }
+	}
+
 	if(missTrk){
 	  if(MCtksREChits[imc]>minHits){//missed during trk-search
+	    if(verboseLevel>7){
+	      cout<<" --- MCtrk#"<<imc<<" was defined as MISSED during trk-search (#MChits="<<MCtksREChits[imc]
+				   <<" with limit>"<<minHits<<")"<<endl;
+	      if(MCDoubleHits[imc]>0) cout<<"         NB:this MCtrk contains "<<MCDoubleHits[imc]<<" double hits!"<<endl;
+	    }
 	    trkQ=-1;
 	    nMCmissedTrkSearch++;
 	  }
 	  else{//missed due to small amount of hits
+	    nMCmissedLossHits++;
 	    trkQ=-2;
+	    if(verboseLevel>7) cout<<" --- MCtrk#"<<imc<<" was defined as MISSED due to little amount of hits (#MChits="
+				   <<MCtksREChits[imc]<<" with limit>"<<minHits<<")"<<endl;
 	  }
-	  ntupMCTrk->Fill(PosMC.X(),PosMC.Y(),PosMC.Z(),MomMC.Mag(),MomMC.Theta(),MomMC.Phi(),trkQ,MCtksSIMhits[imc],MCtksREChits[imc]);
+	  ntupMCTrk->Fill(PosMC.X(),PosMC.Y(),PosMC.Z(),MomMC.Mag(),MomMC.Theta(),MomMC.Phi(),trkQ,MCtksSIMhits[imc],MCtksREChits[imc],MCDoubleHits[imc]);
+	  //	  cout<<"trk was marked ad missed, reason trkQ="<<trkQ<<endl;
 	}
-	if(verboseLevel>3) cout<<"#REChits = "<<MCtksREChits[imc]<<endl;
+	//	if(verboseLevel>3) cout<<"#REChits = "<<MCtksREChits[imc]<<endl;
       }
       if(nMCmissedTrkSearch>0) hntrkmissed_II->Fill(nMCmissedTrkSearch); //missed by track search only and not because it wasn't enought hits!
+      if(nMCmissedLossHits>0) hntrkmissed_I->Fill(nMCmissedLossHits);//missed during hit rec
     }
-    else{
-      if((nMCtracks-goodRecII)>0){
-	cout<<"-- Ev#"<<j<<" has "<<(nMCtracks-goodRecII)<<" trk(s)"<<endl;
-      }
-      else{// all trks are found
-	for(int imc=0;imc<nParticles;imc++){//MC trks
-	  PndMCTrack *mctrk =(PndMCTrack*) true_tracks->At(imc);
-	  TVector3 MomMC = mctrk->GetMomentum();
-	  TVector3 PosMC = mctrk->GetStartVertex();
-	  int trkQ = 0;
-	  ntupMCTrk->Fill(PosMC.X(),PosMC.Y(),PosMC.Z(),MomMC.Mag(),MomMC.Theta(),MomMC.Phi(),trkQ,MCtksSIMhits[imc],MCtksREChits[imc]);
-	}
+    else{ //fill ntuple with recontruted MCtrks
+      for(int imc=0;imc<nParticles;imc++){//MC trks
+	PndMCTrack *mctrk =(PndMCTrack*) true_tracks->At(imc);
+	TVector3 MomMC = mctrk->GetMomentum();
+	TVector3 PosMC = mctrk->GetStartVertex();
+	int trkQ = 0;
+	ntupMCTrk->Fill(PosMC.X(),PosMC.Y(),PosMC.Z(),MomMC.Mag(),MomMC.Theta(),MomMC.Phi(),trkQ,MCtksSIMhits[imc],MCtksREChits[imc],MCDoubleHits[imc]);
       }
     }
+    /// END MISSED -----------------------------------------------------------------------------------------------------------------------------------------------------------------
 
     if(verboseLevel>0){
       if((nMCtracks-goodRecII)>0 || ghostRecII>0){//TEST only about missed or ghost trks
-       cout<<"-- Ev#"<<j<<endl;
-      cout<<"-- (II) Hits matching -------------------------"<<endl;
-      cout<<"Good trks: "<<goodRecII<<" missed: "<<nMCtracks-goodRecII<<" ghost: "<<ghostRecII<<endl;
-      cout<<"--------------------------------"<<endl;
-      cout<<" "<<endl;
+	cout<<"-- Ev#"<<j<<endl;
+	cout<<"-- (II) Hits matching -------------------------"<<endl;
+	cout<<"Good trks: "<<goodRecII<<" missed: "<<nMCtracks-goodRecII<<" ghost: "<<ghostRecII<<endl;
+	cout<<"--------------------------------"<<endl;
+	cout<<" "<<endl;
       }
     }
     //  cout<<"number of good: "<<goodRecII<<" number of missed: "<<nMCtracks-goodRecII<<" number of ghost: "<<ghostRecII<<endl;
@@ -1094,7 +1203,7 @@ int main(int __argc,char *__argv[]) {
  hntrkghost_I->Write();
  hntrkmissed_II->Write();
  hntrkghost_II->Write();
- hntrkgood_I->Write();
+ // hntrkgood_I->Write();
  hntrkgood_II->Write();
  heffPhiTheta->Write();
  ntuprecTrk->Write();
@@ -1102,8 +1211,9 @@ int main(int __argc,char *__argv[]) {
  hnhits->Write();
  nsectors->Write();
  hMCtrkPer->Write();
+ ntupTrkFit->Write();
  f->Close();
- cout<<"Number of events with low number of hits (less then 3 per trk): "<<glBadEv<<endl;
+ // cout<<"Number of events with low number of hits (less then 3 per trk): "<<glBadEv<<endl;
  cout<<"Number of trks where GEANE failed: "<<glBADGEANE<<endl;
  cout<<"Total number of noise hits = "<<glNoisehit<<endl;
 }
