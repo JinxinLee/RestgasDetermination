@@ -34,7 +34,7 @@ PndDrcHitFinder.cxx
 DrawHits.cxx 
 PndDrcDigiPar.cxx)
 
-set(DRC_LINKDEF  DrcLinkDef.h)
+set(LINKDEF  DrcLinkDef.h)
 set(LIBRARY_NAME Drc) 
 
 set(DEPENDENCIES Base GeoBase ParBase PndData)
