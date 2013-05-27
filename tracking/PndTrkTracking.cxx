@@ -1712,6 +1712,7 @@ MAXSCITILHITSINTRACK,MAXSTTHITSINTRACK,fR,fOx,fOy,FI0,KAPPA);
 			   Charge[ncand],  // input
 			   tListHits  // output
 						);
+
 			//  constructing the ordered new Track  Candidate now and loading
 			//  the (now ordered) X and Y lists for the hits in this track.
 			for(i=0; i< fnMvdPixelHitsinTrack[ncand]+
