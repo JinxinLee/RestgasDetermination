@@ -378,7 +378,73 @@ int main(int __argc,char *__argv[]) {
       }
     }
     if(secondMC) continue;
-    hnhits->Fill(nMCHits,nRecHits);
+   
+    /// Chech how many MC hits has MC trk ----------------------------
+    int MCtksSIMhits[nParticles];
+    int MCDoubleHits[nParticles];
+    for(int imctrk=0;imctrk<nParticles;imctrk++){
+      MCtksSIMhits[imctrk]=0;
+      MCDoubleHits[imctrk]=0;
+    }
+    for(int imc=0;imc<nMCHits;imc++){
+	  PndSdsMCPoint* MCPoint = (PndSdsMCPoint*)(true_points->At(imc));
+	  int MCtrk = MCPoint->GetTrackID();
+	  MCtksSIMhits[MCtrk]++;
+    }
+    ///------------------------------------------------------------------------------
+
+    /// Chech how many REC hits has MC trk ----------------------------
+    int MCtksREChits[nParticles];
+    for(int imctrk=0;imctrk<nParticles;imctrk++){
+      MCtksREChits[imctrk]=0;
+    }
+    if(verboseLevel>7)
+      cout<<"    ** ALL REChits are made from MChits: "<<endl;//start MC hit content
+    bool fMCnegative = false;
+    for(int irec=0;irec<nRecHits;irec++){
+	PndSdsMergedHit* myHit = (PndSdsMergedHit*)(rechit_array->At(irec));
+	///TODO: check both sides hits, but one need to change rule for missed trk due to hits losses,
+	/// since ">2 hit" doesn't work anymore
+	int mcrefbot = myHit->GetSecondMCHit();
+	int MCtrkidbot,MCtrkidtop;
+	if(mcrefbot>0){
+	  PndSdsMCPoint* MCPointBot = (PndSdsMCPoint*)(true_points->At(mcrefbot));
+	  int MCtrkid = MCPointBot->GetTrackID();
+	  if(MCtrkid<0) fMCnegative=true;//TODO: how it is possible???
+	  MCtksREChits[MCtrkid]++;
+	  MCtrkidbot=MCtrkid;
+	  if(verboseLevel>7)
+	    cout<<" "<<MCtrkid<<"(MChitID="<<mcrefbot<<",z="<<MCPointBot->GetZ()<<")";
+	}
+	int mcreftop = myHit->GetRefIndex();
+	if(mcreftop>0){
+	  PndSdsMCPoint* MCPointTop = (PndSdsMCPoint*)(true_points->At(mcreftop));
+	  int MCtrkid = MCPointTop->GetTrackID();
+	  if(MCtrkid<0) fMCnegative=true;//TODO: how it is possible???
+	  MCtksREChits[MCtrkid]++;
+	  MCtrkidtop=MCtrkid;  
+	  if(verboseLevel>7)
+	    cout<<" "<<MCtrkid<<"(MChitID="<<mcreftop<<",z="<<MCPointTop->GetZ()<<")";
+	}
+	if(mcreftop>0 && mcrefbot>0){
+	  if(MCtrkidtop==MCtrkidbot){
+	    MCDoubleHits[MCtrkidbot]++;
+	  }
+	  else{
+	    if(verboseLevel>7)  cout<<"        REChit No."<<irec<<"contain MCid: "<<MCtrkidtop<<", "<<MCtrkidbot<<" !"<<endl;
+	  }
+	}
+	if(verboseLevel>7)
+	  cout<<" "<<endl;//next hit content
+    }
+    if(fMCnegative){
+      if(verboseLevel>7) cout<<"bad event, skip it!"<<endl;
+    }
+    if(fMCnegative) continue;
+    ///------------------------------------------------------------------------------
+
+
+ hnhits->Fill(nMCHits,nRecHits);
 
     ///Compare trk-cand vs. trk-fit -----------------------------
     // TNtuple *ntupTrkFit = new TNtuple("ntupTrkFit","Info about reconstructed trks: trk-cand vs. trk after fit","xtc:ytc:ztc:thtc:phitc:xtf:ytf:ztf:thtf:phitf:chi2");
@@ -407,66 +473,6 @@ int main(int __argc,char *__argv[]) {
     //  if(nTrkCandidates>numTrk) cout<<"Event #"<<j<<" has "<<nTrkCandidates<<" trk-cands and "<<numTrk<<" tracks!"<<endl;
 
 
-
-    /// Chech how many MC hits has MC trk ----------------------------
-    int MCtksSIMhits[nParticles];
-    int MCDoubleHits[nParticles];
-    for(int imctrk=0;imctrk<nParticles;imctrk++){
-      MCtksSIMhits[imctrk]=0;
-      MCDoubleHits[imctrk]=0;
-    }
-    for(int imc=0;imc<nMCHits;imc++){
-	  PndSdsMCPoint* MCPoint = (PndSdsMCPoint*)(true_points->At(imc));
-	  int MCtrk = MCPoint->GetTrackID();
-	  MCtksSIMhits[MCtrk]++;
-    }
-    ///------------------------------------------------------------------------------
-
-    /// Chech how many REC hits has MC trk ----------------------------
-    int MCtksREChits[nParticles];
-    for(int imctrk=0;imctrk<nParticles;imctrk++){
-      MCtksREChits[imctrk]=0;
-    }
-    if(verboseLevel>7)
-      cout<<"    ** ALL REChits are made from MChits: "<<endl;//start MC hit content
-    for(int irec=0;irec<nRecHits;irec++){
-	PndSdsMergedHit* myHit = (PndSdsMergedHit*)(rechit_array->At(irec));
-	///TODO: check both sides hits, but one need to change rule for missed trk due to hits losses,
-	/// since ">2 hit" doesn't work anymore
-	int mcrefbot = myHit->GetSecondMCHit();
-	int MCtrkidbot,MCtrkidtop;
-	if(mcrefbot>0){
-	  PndSdsMCPoint* MCPointBot = (PndSdsMCPoint*)(true_points->At(mcrefbot));
-	  int MCtrkid = MCPointBot->GetTrackID();
-	  if(MCtrkid<0) break;//TODO: how it is possible???
-	  MCtksREChits[MCtrkid]++;
-	  MCtrkidbot=MCtrkid;
-	  if(verboseLevel>7)
-	    cout<<" "<<MCtrkid<<"(MChitID="<<mcrefbot<<",z="<<MCPointBot->GetZ()<<")";
-	}
-	int mcreftop = myHit->GetRefIndex();
-	if(mcreftop>0){
-	  PndSdsMCPoint* MCPointTop = (PndSdsMCPoint*)(true_points->At(mcreftop));
-	  int MCtrkid = MCPointTop->GetTrackID();
-	  if(MCtrkid<0) break; //TODO: how it is possible???
-	  MCtksREChits[MCtrkid]++;
-	  MCtrkidtop=MCtrkid;  
-	  if(verboseLevel>7)
-	    cout<<" "<<MCtrkid<<"(MChitID="<<mcreftop<<",z="<<MCPointTop->GetZ()<<")";
-	}
-	if(mcreftop>0 && mcrefbot>0){
-	  if(MCtrkidtop==MCtrkidbot){
-	    MCDoubleHits[MCtrkidbot]++;
-	  }
-	  else{
-	    if(verboseLevel>7)  cout<<"        REChit No."<<irec<<"contain MCid: "<<MCtrkidtop<<", "<<MCtrkidbot<<" !"<<endl;
-	  }
-	}
-	if(verboseLevel>7)
-	  cout<<" "<<endl;//next hit content
-    }
-
-    ///------------------------------------------------------------------------------
 
     /// Set MC ID for each track ----------------------------------------------------
     Int_t nRecGEANEtrk = 0;
@@ -862,21 +868,24 @@ int main(int __argc,char *__argv[]) {
 	TVector3 PosMC = mctrk->GetStartVertex();
 	int trkQ=0;
 	/// if MC trk was missed, justify why 
-	int minHits = 2;
-	if(MCDoubleHits[imc]>0){// track contains double hits
-	  if(MCDoubleHits[imc]<2){//only one plane contains double hits,
-	    minHits = 3;//to avoid situation like this:  *- ** -- --
-	    //this should be fine: ** *- *- *-
-	  }
-	  else{
-	    if(MCDoubleHits[imc]==2){//only two planes contains double hits
-	      minHits = 4;// to adoid situation like: ** ** -- -- .
-	    }
-	    else{ // 3 and more planes contains double hits
-	      minHits = 4;
-	    }
-	  }
-	}
+	int minHits = MCDoubleHits[imc]+2;
+	if(MCDoubleHits[imc]==4) minHits -=1; 
+	// if(MCDoubleHits[imc]>0){// track contains double hits
+	//   minHits = MCDoubleHits[imc]+3;
+	//   // minHits = MCDoubleHits[imc]*2+1;
+	//   // if(MCDoubleHits[imc]<2){//only one plane contains double hits,
+	//   //   minHits = 3;//to avoid situation like this:  *- ** -- --
+	//   //   //this should be fine: ** *- *- *-
+	//   // }
+	//   // else{
+	//   //   if(MCDoubleHits[imc]==2){//only two planes contains double hits
+	//   //     minHits = 4;// to adoid situation like: ** ** -- -- .
+	//   //   }
+	//   //   else{ // 3 and more planes contains double hits
+	//   //     minHits = 4;
+	//   //   }
+	//   // }
+	// }
 
 	if(missTrk){
 	  if(MCtksREChits[imc]>minHits){//missed during trk-search
