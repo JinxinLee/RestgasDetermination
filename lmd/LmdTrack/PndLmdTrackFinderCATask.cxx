@@ -369,12 +369,12 @@ void PndLmdTrackFinderCATask::Exec(Option_t* opt)
     if(fVerbose>2) cout << "Evt finsihed: too less hits-----"<<endl<<endl;
     return;
   }
-  //  if(fVerbose>9){ 
-    if(nStripHits!=4){
-      cout << "!!! TEST cuts on CA cells Evt finsihed: too many hits-----"<<endl<<endl;
-      return;
-    }
-    //  }
+  // //  if(fVerbose>9){ 
+  //   if(nStripHits!=4){
+  //     cout << "!!! TEST cuts on CA cells Evt finsihed: too many hits-----"<<endl<<endl;
+  //     return;
+  //   }
+  //   //  }
   std::vector< std::vector<Int_t> > hitsd(nP); //hit'ids splitted by detectorplane
   // std::vector< std::vector< std::pair<Int_t,bool> > > hitsd(4);
   bool resSortHits;
