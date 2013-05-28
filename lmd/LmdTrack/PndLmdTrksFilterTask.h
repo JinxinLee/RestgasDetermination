@@ -19,7 +19,7 @@
 #include "TH2.h"
 #include "TH1.h"
 #include "PndLmdDim.h"
-
+#include "TNtuple.h"
 // Collaborating Class Declarations --
 class TClonesArray;
 class TGeoManager;
@@ -52,8 +52,9 @@ protected:
   TString fTrkCandName;
   TString fTrkName;
   TString fTrkOutName;
-int fEventNr;
+  int fEventNr;
   PndLmdDim* lmddim;
+  TNtuple *htthetatphiTrk;
   ClassDef(PndLmdTrksFilterTask,1);
 };
 

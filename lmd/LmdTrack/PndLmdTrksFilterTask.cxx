@@ -112,7 +112,9 @@ InitStatus PndLmdTrksFilterTask::Init()
   //     Error("PndLmdTrksFilterTask::Init","digi-array not found!");
   //     return kERROR;
   //   }
+
   lmddim = PndLmdDim::Instance();
+  htthetatphiTrk = new TNtuple("htthetatphiTrk","ntthetatphiTrk","tg_theta:tg_phi");
   return kSUCCESS;
 }
 // -------------------------------------------------------------------------
@@ -152,9 +154,20 @@ void PndLmdTrksFilterTask::Exec(Option_t* opt)
   //fill vectors with trks hits
   for (unsigned int i = 0; i<gll;i++){ 
     PndTrack* trkpnd = (PndTrack*)(fTrkArray->At(i));
+    bool dirOK=true;
+    // //check theta&phi-----
+    FairTrackParP fFittedTrkP = trkpnd->GetParamFirst();
+    TVector3 MomRecLMD(fFittedTrkP.GetPx(),fFittedTrkP.GetPy(),fFittedTrkP.GetPz());
+    MomRecLMD *=1./MomRecLMD.Mag();
+    double thetaCent=MomRecLMD.Theta()-0.0402;
+    htthetatphiTrk->Fill(MomRecLMD.Theta(),MomRecLMD.Phi());
+    //    if(abs(thetaCent)>0.010 || abs(MomRecLMD.Phi())>0.22) dirOK=false;
+    if(abs(thetaCent)>0.020 || abs(MomRecLMD.Phi())>0.3) dirOK=false; //wide enought, but still should cut smth
+    // //--------------------------
+
     double chi2 = trkpnd->GetChi2();
     vchi2.push_back(chi2);
-    trk_accept.push_back(true);
+    trk_accept.push_back(dirOK);
     //  stopch.push_back(false);
     int candID = trkpnd->GetRefIndex();
     PndTrackCand *trkcand = (PndTrackCand*)fTrkCandArray->At(candID);    
@@ -216,6 +229,7 @@ void PndLmdTrksFilterTask::Exec(Option_t* opt)
       }
     }
   }
+
   //compare trks on hit level
   for(int ittr=0;ittr<2;ittr++){//repeat comparision twice to avoid accepting trk twice due to different check
   for (unsigned int i = 0; i<gll;i++){ 
@@ -284,38 +298,38 @@ void PndLmdTrksFilterTask::Exec(Option_t* opt)
     }
   }
   if(fVerbose>2) cout<<"Ev#"<<fEventNr<<": "<<rec_trk<<" trks saved out of "<<gll<<endl;
-  //some MC infor for check ------
-  if(rec_trk!=7){ //test with 7 trks/event
-  const int numHITS = fHitArray->GetEntriesFast();
- if(fVerbose>2)   cout<<"MC trks in rec.Hits:"<<endl;
-  int plprev=0;
-  for(int iHit = 0;iHit<numHITS;iHit++){
-    PndSdsMergedHit* myHit = (PndSdsMergedHit*)(fHitArray->At(iHit));
-    Int_t sensid = myHit->GetSensorID();
-    int ihalf,iplane,imodule,iside,idie,isensor;
-    lmddim->Get_sensor_by_id(sensid,ihalf,iplane,imodule,iside,idie,isensor);
-    if(iplane!=plprev){
-   if(fVerbose>2)     cout<<""<<endl;
-      plprev = iplane;
-    }
-    if(fVerbose>2)   cout<<"pl"<<iplane<<": ";
-    int mcrefbot = myHit->GetSecondMCHit();
-      if(mcrefbot>0){
-      PndSdsMCPoint* MCPointBot = (PndSdsMCPoint*)(fMCHitArray->At(mcrefbot));
-      int MCtrkid = MCPointBot->GetTrackID();
-     if(fVerbose>2)   cout<<MCtrkid<<" ("<<mcrefbot<<")";
-      }
-      int mcreftop = myHit->GetRefIndex();
-      if(mcreftop>0){
-      PndSdsMCPoint* MCPointTop = (PndSdsMCPoint*)(fMCHitArray->At(mcreftop));
-      int MCtrkid = MCPointTop->GetTrackID();
-     if(fVerbose>2)   cout<<MCtrkid<<" ("<<mcreftop<<")";
-      }
-     if(fVerbose>2)   cout<<";   ";
-  }
-  if(fVerbose>2)  cout<<""<<endl;
-  }
-  //end MC info -----------------------
+  // //some MC infor for check ------
+ //  if(rec_trk!=7){ //test with 7 trks/event
+ //  const int numHITS = fHitArray->GetEntriesFast();
+ // if(fVerbose>2)   cout<<"MC trks in rec.Hits:"<<endl;
+ //  int plprev=0;
+ //  for(int iHit = 0;iHit<numHITS;iHit++){
+ //    PndSdsMergedHit* myHit = (PndSdsMergedHit*)(fHitArray->At(iHit));
+ //    Int_t sensid = myHit->GetSensorID();
+ //    int ihalf,iplane,imodule,iside,idie,isensor;
+ //    lmddim->Get_sensor_by_id(sensid,ihalf,iplane,imodule,iside,idie,isensor);
+ //    if(iplane!=plprev){
+ //   if(fVerbose>2)     cout<<""<<endl;
+ //      plprev = iplane;
+ //    }
+ //    if(fVerbose>2)   cout<<"pl"<<iplane<<": ";
+ //    int mcrefbot = myHit->GetSecondMCHit();
+ //      if(mcrefbot>0){
+ //      PndSdsMCPoint* MCPointBot = (PndSdsMCPoint*)(fMCHitArray->At(mcrefbot));
+ //      int MCtrkid = MCPointBot->GetTrackID();
+ //     if(fVerbose>2)   cout<<MCtrkid<<" ("<<mcrefbot<<")";
+ //      }
+ //      int mcreftop = myHit->GetRefIndex();
+ //      if(mcreftop>0){
+ //      PndSdsMCPoint* MCPointTop = (PndSdsMCPoint*)(fMCHitArray->At(mcreftop));
+ //      int MCtrkid = MCPointTop->GetTrackID();
+ //     if(fVerbose>2)   cout<<MCtrkid<<" ("<<mcreftop<<")";
+ //      }
+ //     if(fVerbose>2)   cout<<";   ";
+ //  }
+ //  if(fVerbose>2)  cout<<""<<endl;
+ //  }
+ //  //end MC info -----------------------
 
   if(fVerbose>2) cout<<"PndLmdTrksFilterTask::Exec END!"<<endl;
   fEventNr++;
@@ -323,6 +337,8 @@ void PndLmdTrksFilterTask::Exec(Option_t* opt)
 
 void PndLmdTrksFilterTask::FinishTask()
 {
+  TTree *nout1 = htthetatphiTrk->CloneTree();
+  nout1->Write();
 }
 
 ClassImp(PndLmdTrksFilterTask);
