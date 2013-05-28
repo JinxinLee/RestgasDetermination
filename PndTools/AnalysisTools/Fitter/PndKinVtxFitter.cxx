@@ -335,27 +335,32 @@ void PndKinVtxFitter::SetOutput(RhoCandidate* head)
 
   }
 
-  // For the composite particle ..............................
-// Include neutrals particles not involved in vertex fit e.g. gamma and pi0
-  double fpx=0,fpy=0,fpz=0,fe=0;
-  for (int k=0; k<nd; k++) {
-    fpx+= al0[k*7+0][0]-a*(vtx_ex[1][0]*sumA/a - al0[k*7+5][0]);
-    fpy+= al0[k*7+1][0]+a*(vtx_ex[0][0]*sumA/a - al0[k*7+4][0]);
-    fpz+= al0[k*7+2][0];
-    fe += al0[k*7+3][0];
-  }
-  //         double TotE=(fpx*fpx+fpy*fpy+fpz*fpz+fe*fe);
-  //double fM=sqrt(fe*fe-(fpx*fpx+fpy*fpy*fpz*fpz));
-  TLorentzVector sum(fpx,fpy,fpz,fe);
-  //          TLorentzVector sum;
-  //          sum.SetXYZM(fpx,fpy,fpz,fM);
-  TVector3 vtx(vtx_ex[0][0],vtx_ex[1][0],vtx_ex[2][0]);
-  //fHeadOfTree->SetP7(vtx,sum);
-  head->SetP7(vtx,sum); //[ralfk:01.12.11 Try to make it a leaf-by-leaf fit]
+///[ralfk:28.5.2013] Use flat Fourmomentum sum from RhoFitterBase
+//
+//  // For the composite particle ..............................
+//// Include neutrals particles not involved in vertex fit e.g. gamma and pi0
+//  double fpx=0,fpy=0,fpz=0,fe=0;
+//  for (int k=0; k<nd; k++) {
+//    fpx+= al0[k*7+0][0]-a*(vtx_ex[1][0]*sumA/a - al0[k*7+5][0]);
+//    fpy+= al0[k*7+1][0]+a*(vtx_ex[0][0]*sumA/a - al0[k*7+4][0]);
+//    fpz+= al0[k*7+2][0];
+//    fe += al0[k*7+3][0];
+//  }
+// //         double TotE=(fpx*fpx+fpy*fpy+fpz*fpz+fe*fe);
+//  //double fM=sqrt(fe*fe-(fpx*fpx+fpy*fpy*fpz*fpz));
+//  TLorentzVector sum(fpx,fpy,fpz,fe);
+//  //          TLorentzVector sum;
+//  //          sum.SetXYZM(fpx,fpy,fpz,fM);
+//  TVector3 vtx(vtx_ex[0][0],vtx_ex[1][0],vtx_ex[2][0]);
+//  //fHeadOfTree->SetP7(vtx,sum);
+//  head->SetP7(vtx,sum); //[ralfk:01.12.11 Try to make it a leaf-by-leaf fit]
+//  //fHeadOfTree->SetCov7(covC); //New covariance matrix
+//  head->SetCov7(covC); //New covariance matrix //[ralfk:01.12.11]
+
+  SetFourMomentumByDaughters(head);
+  
   if(fVerbose) { cout<<"Final vertex Position is"<<vtx_ex[0][0]<<" "<<vtx_ex[1][0]<<" "<<vtx_ex[2][0]<<endl; }
   if(fVerbose) { cout<<"Final Momenta are "<<al0[0][0]<<" "<<al1[1][0]<<" "<<al1[2][0]<<endl; }
-  //fHeadOfTree->SetCov7(covC); //New covariance matrix
-  head->SetCov7(covC); //New covariance matrix //[ralfk:01.12.11]
 }
 
 
