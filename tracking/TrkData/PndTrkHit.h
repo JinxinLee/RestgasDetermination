@@ -34,8 +34,9 @@ class PndTrkHit : public FairTimeStamp
 
   // CHECK add other set
   void SetIsochrone(Double_t isochrone)      { fIsochrone = isochrone; }
-  void SetSortVariable(Double_t sortvar)      { fSortVariable = sortvar; } 
+  void SetSortVariable(Double_t sortvar)     { fSortVariable = sortvar; } 
   void SetPosition(TVector3 pos)             {fPosition = pos; }
+  void SetPhi(Double_t phi)                  { fPhi = phi; }
 
   void SetUsedFlag(Bool_t used) { fUsed = used; }
 
@@ -50,6 +51,7 @@ class PndTrkHit : public FairTimeStamp
   inline Int_t    GetIRegion()        { return fIRegion; }
   inline Bool_t   IsRegion(Int_t iregion) { return iregion == fIRegion; }
   inline Double_t GetSortVariable()   { return fSortVariable; } 
+  inline Double_t GetPhi()            { return fPhi; }
 
   // is stt
   inline Bool_t IsSttParallel() { return fIRegion == INNER_LEFT || fIRegion == OUTER_LEFT || fIRegion == INNER_RIGHT || fIRegion == OUTER_RIGHT; }
@@ -76,7 +78,7 @@ class PndTrkHit : public FairTimeStamp
   TVector3 fPosition;
   Double_t fIsochrone;
   Double_t fSortVariable; // variable for sorting
-
+  Double_t fPhi;
 
   ClassDef(PndTrkHit,1);
 };

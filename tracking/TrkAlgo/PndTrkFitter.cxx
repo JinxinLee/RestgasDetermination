@@ -84,5 +84,46 @@ Bool_t PndTrkFitter::StraightLineFit(Double_t &fitm, Double_t &fitp) {
   return kTRUE; 
 
 }
+
+Bool_t PndTrkFitter::ConstrainedStraightLineFit(Double_t x0, Double_t y0, Double_t &fitm, Double_t &fitp) {
+ 
+  // cout << "xoy0 " << x0 << " " << y0 << endl;
+
+  int nofPoints = fX.size();
+  if(nofPoints == 0) {
+    if(fVerbose > 1) cout << "PndTrkFitter::StraightLineFit: no points to fit! fill the array with PndTrkFitter::SetPointToFit()" << endl;
+    Reset();
+    return kFALSE; // CHECK
+  }
+
+  //  cout << "fittinh " << nofPoints << endl;
+  for(int ipnt = 0; ipnt < nofPoints; ipnt++)  
+    { 
+      // cout << fX[ipnt] << " " << fY[ipnt] << " " << fSigma[ipnt] << endl;
+      fSx += fX[ipnt]/(fSigma[ipnt] * fSigma[ipnt]);
+      fSy +=  fY[ipnt]/(fSigma[ipnt] * fSigma[ipnt]);
+      
+      fSxy += fX[ipnt] * fY[ipnt]/(fSigma[ipnt] * fSigma[ipnt]);
+      fSxx += fX[ipnt]* fX[ipnt]/(fSigma[ipnt] * fSigma[ipnt]);
+      
+      fS1 += 1./(fSigma[ipnt] * fSigma[ipnt]);
+    }
+  
+  Double_t den = 2 * x0 * fSx - fSxx - x0 * x0 * fS1;
+  if(den == 0) {
+    if(fVerbose > 1) cout << "PndTrkFitter:StraightLineFit: DEN == 0" << endl; // CHECK
+    Reset();
+    return kFALSE;
+  }
+  
+  
+  fitm =  (y0 * fSx + x0 * fSy - fSxy - x0 * y0 * fS1)/den;
+  
+  fitp =  y0 - fitm * x0;
+  Reset();
+  return kTRUE; 
+
+}
+
 ClassImp(PndTrkFitter)
 

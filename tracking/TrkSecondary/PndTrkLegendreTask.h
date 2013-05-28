@@ -119,7 +119,8 @@ class PndTrkLegendreTask : public FairTask {
   Int_t ExtractLegendre(Int_t mode, double &theta_max, double &r_max);
 
 
-  Bool_t ZPhiFit(PndTrkTrack *track, double &fitm, double &fitp);
+  Bool_t ZPhiFit(int iter, PndTrkCluster *cluster, double &fitm, double &fitp);
+  PndTrkCluster* CleanupZPhiFit(PndTrkCluster *cluster, double fitm, double fitp);
 
  private:
 

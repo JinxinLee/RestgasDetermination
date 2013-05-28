@@ -213,12 +213,22 @@ void PndTrkLegendreTask::Exec(Option_t* opt) {
   // This results in an infinite loop ---> FIX IT! (how: timeout? better hit-to-cluster association? 
   // forbidden peak positions in legendre transform?)
 
+//   // CHECK THIS!
+//   if(fSttHitArray->GetEntriesFast() < 3) {
+//     Reset();  
+//     return;
+//   }
+  
   Initialize();
   if(fVerbose > 1) {
   cout << "number of stt    hits " << fSttHitArray->GetEntriesFast() << endl;
   cout << "number of mvdpix hits " << fMvdPixelHitArray->GetEntriesFast() << endl;
   cout << "number of mvdstr hits " << fMvdStripHitArray->GetEntriesFast() << endl;
   }
+
+  
+
+
   if(fDisplayOn)  {
     Refresh();
     char goOnChar;
@@ -511,6 +521,7 @@ void PndTrkLegendreTask::Exec(Option_t* opt) {
       if(hit->GetDetectorID() != FairRootManager::Instance()->GetBranchId(fMvdPixelBranch) && hit->GetDetectorID() != FairRootManager::Instance()->GetBranchId(fMvdStripBranch)) continue;
       TVector3 position = hit->GetPosition();
       double phi = track->ComputePhi(position);
+      hit->SetPhi(phi);
       //      cout << ihit << " TROVATO " << phi << " " << position.Z() << endl;
 
 	if(fDisplayOn) {
@@ -570,17 +581,26 @@ void PndTrkLegendreTask::Exec(Option_t* opt) {
 	PndTrkHit *hit = trkcluster->GetHit(ihit);	
 	double phi = track->ComputePhi(hit->GetPosition()); // CHECK is it neede to recalculate it?
 	hit->SetSortVariable(phi);
+	hit->SetPhi(phi);
+
       }
       trkcluster->Sort();
+      track->ComputeCharge();
 
       // 10. z-phi refit
-      Bool_t zfit = ZPhiFit(track, ml, pl);
+      Bool_t zfit = ZPhiFit(0, trkcluster, ml, pl);
+      //      cout << "zfit1 on " << trkcluster->GetNofHits() << " hits/ " << zfit << " " << ml << " " << pl << " tanl " << - track->GetCharge() * ml * (180./TMath::Pi())/R << endl;
 
+      PndTrkCluster *tmpcluster = CleanupZPhiFit(trkcluster, ml, pl);
+      trkcluster = tmpcluster;
+      
+      zfit = ZPhiFit(1, trkcluster, ml, pl);
+      //      cout << "zfit2 on " << trkcluster->GetNofHits() << " hits/ " << zfit << " "  << ml << " " << pl << " tanl " << - track->GetCharge() * ml * (180./TMath::Pi())/R << endl;
 
       // 11. fill the last two (missing) parameters
 
-      track->ComputeCharge();
       //  tanl = -q ml (180/pi) /R: See PndTrkTrack.h for an explanation
+     
       if(zfit) {
 	track->SetTanL(- track->GetCharge() * ml * (180./TMath::Pi())/R);
 	track->SetZ0(pl);
@@ -1501,7 +1521,6 @@ PndTrkCluster PndTrkLegendreTask::CreateSkewHitList(PndTrkTrack *track) {
     return skewhitlist;
 }
  
- 
 PndTrkCluster PndTrkLegendreTask::CleanUpSkewHitList(PndTrkCluster *skewhitlist) {
 
 
@@ -2095,47 +2114,91 @@ PndTrkCluster PndTrkLegendreTask::Cleanup(PndTrkCluster cluster) {
 }
    
 
-Bool_t PndTrkLegendreTask::ZPhiFit(PndTrkTrack *track, double &fitm, double &fitp)
-{  
-  fFitter->Reset();
+PndTrkCluster* PndTrkLegendreTask::CleanupZPhiFit(PndTrkCluster *cluster, double fitm, double fitp) {
 
-  PndTrkCluster *cluster = track->GetCluster();
+  PndTrkCluster *cleancluster = new PndTrkCluster();
   for(int ihit = 0; ihit < cluster->GetNofHits(); ihit++) {
     PndTrkHit *hit = cluster->GetHit(ihit);	
+    if(hit->IsSttParallel()) {
+      cleancluster->AddHit(hit);
+      continue; // CHECK IsSttParrallel will be changed
+    }
+
+    TVector3 position = hit->GetPosition();
+    double phi = hit->GetPhi();
+
+    // d = | m x - y + p | / sqrt(m**2 + 1)
+    double distance = fabs(fitm * phi -  position.Z()  + fitp )/sqrt(fitm * fitm + 1);
+    //    cout << "distance " << hit->GetHitID() << " " << distance << endl;
+    if(distance < 5) cleancluster->AddHit(hit);
+  }
+  //  cout << "cleancluster " << cleancluster->GetNofHits () << endl;
+  return cleancluster;
+}
+
+
+Bool_t PndTrkLegendreTask::ZPhiFit(int iter, PndTrkCluster *cluster, double &fitm, double &fitp)
+{  
+  fFitter->Reset();
+  PndTrkHit *hit = NULL;
+  PndTrkHit *refhit = NULL;
+  double refiso = 1000;
+  for(int ihit = 0; ihit < cluster->GetNofHits(); ihit++) {
+    hit = cluster->GetHit(ihit);	
     if(hit->IsSttParallel()) continue; // CHECK IsSttParrallel will be changed
 	
 	
     TVector3 position = hit->GetPosition();
-    double phi = track->ComputePhi(position); // CHECK put this into PndTrkHit?
-    fFitter->SetPointToFit(phi, position.Z(), 0.1);
-	
+    double phi = hit->GetPhi(); 
+    //    fFitter->SetPointToFit(phi, position.Z(), 0.1);
+
+
+
+    // CHECK refhit stuff
+    if(hit->GetDetectorID() == FairRootManager::Instance()->GetBranchId(fMvdPixelBranch) || hit->GetDetectorID() == FairRootManager::Instance()->GetBranchId(fMvdStripBranch)) {
+     if(iter == 1) refhit = hit;
+      fFitter->SetPointToFit(phi, position.Z(), 0.001);
+    }
+    else if(hit->GetDetectorID() == FairRootManager::Instance()->GetBranchId(fSttBranch)) {
+      if(iter == 1 && refhit == NULL && hit->GetIsochrone() < refiso) refhit = hit; 
+      fFitter->SetPointToFit(phi, position.Z(), 0.1);
+    }
+    
     if(fDisplayOn) {
       char goOnChar;
       display->cd(4);
       TMarker *mrkfoundzphi = NULL;
       if(hit->GetDetectorID() == FairRootManager::Instance()->GetBranchId(fMvdPixelBranch) || hit->GetDetectorID() == FairRootManager::Instance()->GetBranchId(fMvdStripBranch)) {
 	mrkfoundzphi = new TMarker(phi, position.Z(), 21);
-	mrkfoundzphi->SetMarkerColor(kOrange);
+	if(iter == 0)   mrkfoundzphi->SetMarkerColor(kOrange);
+	else mrkfoundzphi->SetMarkerColor(4);
       }
       else if(hit->GetDetectorID() == FairRootManager::Instance()->GetBranchId(fSttBranch)) {
 	mrkfoundzphi  = new TMarker(phi, position.Z(), 20);
-	mrkfoundzphi->SetMarkerColor(kBlue);
-      }
+	if(iter == 0)   mrkfoundzphi->SetMarkerColor(kGreen);
+   	else mrkfoundzphi->SetMarkerColor(4);
+   }
       mrkfoundzphi->Draw("SAME");
-      display->cd(3);
-      mrkfoundzphi->Draw("SAME");
+      //      display->cd(3);
+      //      mrkfoundzphi->Draw("SAME");
 
     }
   }
   // ===================================
-  bool fit =  fFitter->StraightLineFit(fitm, fitp);
+  bool fit = kFALSE;
+   if(iter == 0) fit = fFitter->StraightLineFit(fitm, fitp);
+   else {
+     if(refhit != NULL) fit = fFitter->ConstrainedStraightLineFit(refhit->GetPhi(), refhit->GetPosition().Z(), fitm, fitp);
+     else fit = fFitter->StraightLineFit(fitm, fitp);
+   }
 
   if(fit) {
     if(fDisplayOn) {
       char goOnChar;
       display->cd(4);
       TLine *l22 = new  TLine(-1000, -1000 * fitm + fitp, 1000, 1000 * fitm  + fitp);
-      l22->SetLineColor(3);
+      if(iter == 0)     l22->SetLineColor(3);
+      else   l22->SetLineColor(4);
       l22->Draw("SAME");
       display->cd(3);
       l22->Draw("SAME");

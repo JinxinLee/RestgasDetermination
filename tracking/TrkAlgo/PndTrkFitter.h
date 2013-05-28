@@ -16,7 +16,8 @@ class PndTrkFitter : public TObject {
   void Reset();
   Bool_t SetPointToFit(double x, double y, double sigma);
   Bool_t StraightLineFit(Double_t &fitm, Double_t &fitp);
-  void SetVerbose(int ver) { fVerbose = ver; } 
+  Bool_t ConstrainedStraightLineFit(Double_t x0, Double_t y0, Double_t &fitm, Double_t &fitp);
+ void SetVerbose(int ver) { fVerbose = ver; } 
 
  private:
 
