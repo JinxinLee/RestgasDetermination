@@ -106,6 +106,8 @@ PndLmdDim::PndLmdDim()
 	maps_active_width   = 2.0  / 2. - maps_passive_left - maps_passive_right;
 	maps_active_height  = 2.0  / 2. - maps_passive_top  - maps_passive_bottom;
 
+	maps_active_pixel_size = 0.008; // 80µm pixel size
+
 	maps_width  = maps_passive_left + maps_active_width  + maps_passive_right ;
 	maps_height = maps_passive_top  + maps_active_height + maps_passive_bottom;
 
@@ -1497,6 +1499,22 @@ void PndLmdDim::Get_offset(int ihalf, int iplane, int imodule, int iside, int id
 //	  cout<<"x,y,z,rotphi,rottheta,rotpsi: "<<x<<", "<<y<<", "<<z<<", "<<rotphi<<", "<<rottheta<<", "<<rotpsi<<endl;
 }
 
+TVector3 PndLmdDim::Decode_hit(const int sensorID,
+		const double column, const double row, const bool aligned){
+
+	// an additional offset of about 0.5 pixels in x and 2 pixels in y
+	// seems to appear during digitization via SDS class
+	// this is taken here into account
+	double x = (column - 250./2. + .5) *  maps_active_pixel_size + maps_passive_left * 2. ;
+	double y = (row - 250./2. - 2.) * maps_active_pixel_size + maps_passive_bottom * 2.;
+	TVector3 hit(x, y, 0.);
+	int ihalf, iplane, imodule, iside, idie, isensor;
+	Get_sensor_by_id(sensorID, ihalf, iplane, imodule, iside, idie, isensor);
+	//hit = Transform_sensor_to_lmd_local(hit, ihalf, iplane, imodule, iside, idie, isensor, aligned);
+	//hit =
+	return Transform_sensor_to_global(hit, ihalf, iplane, imodule, iside, idie, isensor, false, aligned);
+}
+
 void PndLmdDim::Transform_global_to_lmd_local(double& x, double& y, double& z, bool aligned){
 	const TGeoHMatrix& matrix = Get_transformation_global_to_lmd_local(aligned);
 	double from[3] = {x,y,z};
@@ -1760,7 +1778,7 @@ TVector3 PndLmdDim::Transform_sensor_to_global(const TVector3& point,
 
 TVector3 PndLmdDim::Transform_sensor_to_lmd_local(const TVector3& point,
 		int ihalf, int iplane, int imodule, int iside, int idie, int isensor, bool isvector, bool aligned){
-	const TGeoHMatrix& matrix = Get_transformation_sensor_to_lmd_local(ihalf, iplane, imodule, iside, idie, isensor, aligned);
+	const TGeoHMatrix& matrix = Get_transformation_lmd_local_to_sensor(ihalf, iplane, imodule, iside, idie, isensor, aligned);
 	double local[3];
 	point.GetXYZ(local);
 	double master[3];
@@ -1783,6 +1801,21 @@ TVector3 PndLmdDim::Transform_sensor_to_sensor_aligned(const TVector3& point,
 TVector3 PndLmdDim::Transform_sensor_aligned_to_sensor(const TVector3& point,
 		int ihalf, int iplane, int imodule, int iside, int idie, int isensor, bool isvector){
 	const TGeoHMatrix& matrix = Get_transformation_sensor_aligned_to_sensor(ihalf, iplane, imodule, iside, idie, isensor);
+	double master[3];
+	point.GetXYZ(master);
+	double local[3];
+	if (isvector) matrix.MasterToLocalVect(master, local);
+	else matrix.MasterToLocal(master, local);
+	return TVector3(local);
+}
+
+TVector3 PndLmdDim::Transform_sensor_to_sensor(const TVector3& point,
+		int ihalf_from, int iplane_from, int imodule_from, int iside_from, int idie_from, int isensor_from,
+		int ihalf_to, int iplane_to, int imodule_to, int iside_to, int idie_to, int isensor_to,
+		bool isvector, bool aligned){
+	const TGeoHMatrix& matrix_from = Get_transformation_sensor_to_lmd_local(ihalf_from, iplane_from, imodule_from, iside_from, idie_from, isensor_from, aligned);
+	const TGeoHMatrix& matrix_to   = Get_transformation_lmd_local_to_sensor(ihalf_to, iplane_to, imodule_to, iside_to, idie_to, isensor_to, aligned);
+	TGeoHMatrix matrix(matrix_from*matrix_to);
 	double master[3];
 	point.GetXYZ(master);
 	double local[3];
@@ -1879,6 +1912,34 @@ TMatrixD PndLmdDim::Transform_sensor_aligned_to_sensor(const TMatrixD& matrix,
 	TMatrixD rotmatrix(3,3,
 			Get_transformation_sensor_aligned_to_sensor(ihalf, iplane, imodule, iside, idie, isensor).GetRotationMatrix());
 	return TMatrixD(rotmatrix*TMatrixD(matrix,TMatrixD::kMultTranspose,rotmatrix));
+}
+
+TMatrixD PndLmdDim::Transform_sensor_to_sensor(const TMatrixD& matrix,
+		int ihalf_from, int iplane_from, int imodule_from, int iside_from, int idie_from, int isensor_from,
+		int ihalf_to, int iplane_to, int imodule_to, int iside_to, int idie_to, int isensor_to, bool aligned){
+	TMatrixD rotmatrix(3,3,
+			(Get_transformation_sensor_to_lmd_local(ihalf_from, iplane_from, imodule_from, iside_from, idie_from, isensor_from, aligned)*
+			Get_transformation_lmd_local_to_sensor(ihalf_to, iplane_to, imodule_to, iside_to, idie_to, isensor_to, aligned)).GetRotationMatrix());
+	return TMatrixD(rotmatrix*TMatrixD(matrix,TMatrixD::kMultTranspose,rotmatrix));
+}
+
+void PndLmdDim::Test_matrices(){
+	//TVector3 from(1.,2.,3.);
+	//TVector3 to = Transform_global_to_lmd_local(from);
+	//to = Transform_lmd_local_to_global(to);
+	//if ((from-to).Mag() > 1e7) cout << " error " << endl;
+	for (unsigned int ihalf = 0; ihalf < 1; ihalf++)
+		for (unsigned int iplane = 0; iplane < n_planes; iplane++)
+			for (unsigned int imodule = 0; imodule < n_cvd_discs; imodule++)
+				for (unsigned int iside = 0; iside < 1; iside++)
+					for (unsigned int idie = 0; idie < 2; idie++)
+						for (unsigned int isensor = 0; isensor < 3; isensor++){
+							if (idie == 1 && isensor == 2) continue;
+							TVector3 from_sens(1.,2.,3.);
+							TVector3 to_sens = Transform_global_to_sensor(from_sens, ihalf, iplane, imodule, iside, idie, isensor);
+							to_sens = Transform_sensor_to_global(to_sens, ihalf, iplane, imodule, iside, idie, isensor);
+							if ((from_sens-to_sens).Mag() > 1e7) cout << " error " << endl;
+						}
 }
 
 //

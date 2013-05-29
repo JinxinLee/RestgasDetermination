@@ -210,6 +210,8 @@ public:
 	double maps_active_width;
 	double maps_active_height;
 
+	double maps_active_pixel_size; // pixel size NOT half of it
+
 	double maps_width;
 	double maps_height;
 
@@ -411,6 +413,16 @@ public:
 		z = pos_z;
 		if (misaligned) rotx += 0; // pedantic compiler fix
 	}
+
+	// decoding a digital hit by the position of the sensor given by the sensor ID
+	// and the row and column entry
+	// parameters of MC geometry input are used to determine the position of
+	// the active area within the sensor volume
+	// The hit point is returned in the panda global reference frame
+	// needs transformation matrices to determine the position
+	// column and row can be also the mean from a cluster and therefore
+	// not an integer
+	TVector3 Decode_hit(const int sensorID, const double column, const double row, const bool aligned = true);
 /*
 	// the local system is where the first plane is at xyz = 0 and
 	// the detector is oriented along z
@@ -694,6 +706,12 @@ public:
 	TVector3 Transform_sensor_aligned_to_sensor(const TVector3& point,
 			int ihalf, int iplane, int imodule, int iside, int idie, int isensor, bool isvector = false);
 
+	// Transform from one sensor to an other
+	TVector3 Transform_sensor_to_sensor(const TVector3& point,
+			int ihalf_from, int iplane_from, int imodule_from, int iside_from, int idie_from, int isensor_from,
+			int ihalf_to, int iplane_to, int imodule_to, int iside_to, int idie_to, int isensor_to,
+			bool isvector = false, bool aligned = true);
+
 	// ************************* 3d matrix rotations ***************************************
 
 	// Transform from the PANDA global reference frame to the
@@ -765,6 +783,12 @@ public:
 	TMatrixD Transform_sensor_aligned_to_sensor(const TMatrixD& matrix,
 			int ihalf, int iplane, int imodule, int iside, int idie, int isensor);
 
+	// Transform from one sensor to an other
+	// treats only 3 x 3 matrices representing the space
+	TMatrixD Transform_sensor_to_sensor(const TMatrixD& matrix,
+			int ihalf_from, int iplane_from, int imodule_from, int iside_from, int idie_from, int isensor_from,
+			int ihalf_to, int iplane_to, int imodule_to, int iside_to, int idie_to, int isensor_to, bool aligned = true);
+
 
 	// *************************
 
@@ -817,6 +841,9 @@ public:
 	// to store those into a file please use
 	// Write_transformation_matrices(filename, false);
 	void Generate_rootgeom(TGeoVolume& mothervol, bool misaligned = false);
+
+	// small function to test some transformation matrices and methods
+	void Test_matrices();
 
 };
 
