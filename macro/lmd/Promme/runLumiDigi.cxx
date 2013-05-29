@@ -1,4 +1,4 @@
-void runLumiDigi(const int nEvents=0, TString storePath=".", const int verboseLevel=7, const int pitch=1)
+void runLumiDigi(const int verboseLevel=0, const int pitch=1)
 {
   // -----   Timer   --------------------------------------------------------
   TStopwatch timer;
@@ -12,12 +12,10 @@ void runLumiDigi(const int nEvents=0, TString storePath=".", const int verboseLe
   gSystem->Load("libLmdTrk");
 
   // Input file (MC events)
-  TString inFile=storePath+"/Lumi_MC";
-  //inFile += startEvent;
+  TString inFile="Lumi_MC";
   inFile += ".root";
   // Parameter file
-  TString parFile=storePath+"/Lumi_Params";
-  //parFile += startEvent;
+  TString parFile="Lumi_Params";
   parFile += ".root";
 
   // Parameter file
@@ -36,8 +34,7 @@ void runLumiDigi(const int nEvents=0, TString storePath=".", const int verboseLe
   // In general, the following parts need not be touched
   // ========================================================================
   // Output file
-  TString outFile = storePath+"/Lumi_digi";
-  //outFile += startEvent;
+  TString outFile = "Lumi_digi";
   outFile += ".root";
   std::cout << "DigiFileName: " << outFile.Data() << std::endl;
 
@@ -45,7 +42,7 @@ void runLumiDigi(const int nEvents=0, TString storePath=".", const int verboseLe
   FairRunAna *fRun= new FairRunAna();
   fRun->SetInputFile(inFile);
   fRun->SetOutputFile(outFile);
-
+  fRun->SetEventMeanTime(50);// TODO: 50 ???
 
   // -----  Parameter database   --------------------------------------------
   FairRuntimeDb* rtdb = fRun->GetRuntimeDb();
@@ -89,7 +86,7 @@ void runLumiDigi(const int nEvents=0, TString storePath=".", const int verboseLe
 //                               topFE, botFE, nrFEChannels,
 //                               threshold, noise);
 
-  PndLmdStripHitProducer* lmdStripProd = new PndLmdStripHitProducer();
+  PndLmdHybridHitProducer* lmdStripProd = new PndLmdHybridHitProducer();
   //  PndLmdStripHitProducerDif* ssdStripProd = new PndLmdStripHitProducerDif(); //TEST
   lmdStripProd->SetVerbose(verboseLevel);
   fRun->AddTask(lmdStripProd);
@@ -116,7 +113,7 @@ void runLumiDigi(const int nEvents=0, TString storePath=".", const int verboseLe
   
   // -----   Intialise and run   --------------------------------------------
   fRun->Init();
-  fRun->Run(0,nEvents);
+  fRun->Run(0,1000000);
   rtdb->saveOutput();
   rtdb->print();
 

@@ -38,15 +38,15 @@
 */
 //#include<.h>
 
-int nEvents = 1000; // number of primary events
-double mom = 15.; // beam momentum
+int nEvents = 1000000; // number of primary events
+double mom = 15; // beam momentum
 double mom_spread = 1e-4; // HESR momentum resolution (relative to mom)
 double dx = -0.; // displacement of the primary vertex in x
 double dy = -0.; // displacement of the primary vertex in y
 double phi_low = 0;
 double phi_high = 360.;
-double theta_low = 0.;// 2.5e-3/3.141 *180.; //2.5 mrad
-double theta_high = 0.;// 10.e-3/3.141 *180.; //10 mrad
+double theta_low = 3.e-3/3.141 *180.; //2.5 mrad
+double theta_high = 10.e-3/3.141 *180.; //10 mrad
 TString storePath="."; //tmpOutput";
 const int particle=-2212; // particle id (-2212 = antiproton)
 
@@ -113,12 +113,12 @@ void runLumiSimBox()
   //Pipe->SetGeometryFileName("pipebeamtarget.geo");
   //fRun->AddModule(Pipe);
 
-  //FairModule *Pipe= new PndPipe("PIPE");
-  //Pipe->SetGeometryFileName("beampipe_201303.root");// with lumi beam pipe
+  FairModule *Pipe= new PndPipe("PIPE");
+  Pipe->SetGeometryFileName("beampipe_201303.root");// with lumi beam pipe
   //Pipe->SetGeometryFileName("beampipe_201202_no_lmd_pipe.root");
   //Pipe->SetGeometryFileName("beampipe_201112.root");
   //Pipe->SetGeometryFileName("../macro/lmd/geo/HV_MAPS-Design.root");
-  //fRun->AddModule(Pipe);
+  fRun->AddModule(Pipe);
 
   /*FairDetector *Stt= new PndStt("STT", kFALSE);
   Stt->SetGeometryFileName("straws_skewed_blocks.geo");
@@ -150,8 +150,9 @@ void runLumiSimBox()
   PndLmdDetector *Lum = new PndLmdDetector("LUM", kTRUE);
   Lum->SetExclusiveSensorType("LumActive");  //ignore MVD
   //Lum->SetGeometryFileName("../macro/lmd/geo/F0-Design.root"); //!!!
-  //Lum->SetGeometryFileName("HV_MAPS-Design.root"); //!!!
-  Lum->SetGeometryFileName("beampipe_201303_active.root");
+  //Lum->SetGeometryFileName("HV_MAPS-Design_mod.root"); //!!!
+  Lum->SetGeometryFileName("HV_MAPS-Design_mod_cone.root");
+  //Lum->SetGeometryFileName("beampipe_201303_active.root");
   //Lum->SetGeometryFileName("../macro/lmd/geo/beampipe_201205_w_sensors.root"); //!!!
 
   //  Lum->SetGeometryFileName("../macro/lmd/geo/MyTest-Dipol-Design.root"); //!!!
