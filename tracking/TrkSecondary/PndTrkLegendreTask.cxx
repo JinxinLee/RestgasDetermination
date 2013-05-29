@@ -338,6 +338,7 @@ void PndTrkLegendreTask::Exec(Option_t* opt) {
     // FIT WITH LEAST SQUARE STRAIGHT LINE
     // -------------------------------------------------------
   
+
     double fitm2, fitq2;
     fFitter->Reset();
 
@@ -593,15 +594,25 @@ void PndTrkLegendreTask::Exec(Option_t* opt) {
 
       PndTrkCluster *tmpcluster = CleanupZPhiFit(trkcluster, ml, pl);
       trkcluster = tmpcluster;
-      
-      zfit = ZPhiFit(1, trkcluster, ml, pl);
-      //      cout << "zfit2 on " << trkcluster->GetNofHits() << " hits/ " << zfit << " "  << ml << " " << pl << " tanl " << - track->GetCharge() * ml * (180./TMath::Pi())/R << endl;
 
+      if(fDisplayOn) {
+	char goOnChar;
+	display->cd(4);
+	DrawZGeometry();
+	hzphi->SetXTitle("#phi");
+	hzphi->SetYTitle("#z");
+	hzphi->Draw();
+	display->Update();
+	display->Modified();  
+      }
+
+      zfit = ZPhiFit(1, trkcluster, ml, pl);
+    
       // 11. fill the last two (missing) parameters
 
       //  tanl = -q ml (180/pi) /R: See PndTrkTrack.h for an explanation
      
-      if(zfit) {
+  if(zfit) {
 	track->SetTanL(- track->GetCharge() * ml * (180./TMath::Pi())/R);
 	track->SetZ0(pl);
       }
@@ -2130,7 +2141,13 @@ PndTrkCluster* PndTrkLegendreTask::CleanupZPhiFit(PndTrkCluster *cluster, double
     // d = | m x - y + p | / sqrt(m**2 + 1)
     double distance = fabs(fitm * phi -  position.Z()  + fitp )/sqrt(fitm * fitm + 1);
     //    cout << "distance " << hit->GetHitID() << " " << distance << endl;
-    if(distance < 5) cleancluster->AddHit(hit);
+
+    if(hit->GetDetectorID() == FairRootManager::Instance()->GetBranchId(fMvdPixelBranch) || hit->GetDetectorID() == FairRootManager::Instance()->GetBranchId(fMvdStripBranch)) {
+      if(distance < 1) cleancluster->AddHit(hit);
+    }
+    else if(hit->GetDetectorID() == FairRootManager::Instance()->GetBranchId(fSttBranch)) {
+      if(distance < 5) cleancluster->AddHit(hit);
+    }
   }
   //  cout << "cleancluster " << cleancluster->GetNofHits () << endl;
   return cleancluster;
@@ -2139,6 +2156,20 @@ PndTrkCluster* PndTrkLegendreTask::CleanupZPhiFit(PndTrkCluster *cluster, double
 
 Bool_t PndTrkLegendreTask::ZPhiFit(int iter, PndTrkCluster *cluster, double &fitm, double &fitp)
 {  
+
+  if(iter != 0) {
+    if(fDisplayOn) {
+      char goOnChar;
+      display->cd(3);
+      DrawZGeometry();
+      hzphi->SetXTitle("#phi");
+      hzphi->SetYTitle("#z");
+      hzphi->Draw();
+      display->Update();
+      display->Modified();  
+    }
+  }
+    
   fFitter->Reset();
   PndTrkHit *hit = NULL;
   PndTrkHit *refhit = NULL;
@@ -2151,22 +2182,20 @@ Bool_t PndTrkLegendreTask::ZPhiFit(int iter, PndTrkCluster *cluster, double &fit
     TVector3 position = hit->GetPosition();
     double phi = hit->GetPhi(); 
     //    fFitter->SetPointToFit(phi, position.Z(), 0.1);
-
-
-
+   
     // CHECK refhit stuff
     if(hit->GetDetectorID() == FairRootManager::Instance()->GetBranchId(fMvdPixelBranch) || hit->GetDetectorID() == FairRootManager::Instance()->GetBranchId(fMvdStripBranch)) {
-     if(iter == 1) refhit = hit;
+     if(iter != 0) refhit = hit;
       fFitter->SetPointToFit(phi, position.Z(), 0.001);
     }
     else if(hit->GetDetectorID() == FairRootManager::Instance()->GetBranchId(fSttBranch)) {
-      if(iter == 1 && refhit == NULL && hit->GetIsochrone() < refiso) refhit = hit; 
+      if(iter != 0 && refhit == NULL && hit->GetIsochrone() < refiso) refhit = hit; 
       fFitter->SetPointToFit(phi, position.Z(), 0.1);
     }
     
     if(fDisplayOn) {
       char goOnChar;
-      display->cd(4);
+      if(iter == 0) display->cd(4);
       TMarker *mrkfoundzphi = NULL;
       if(hit->GetDetectorID() == FairRootManager::Instance()->GetBranchId(fMvdPixelBranch) || hit->GetDetectorID() == FairRootManager::Instance()->GetBranchId(fMvdStripBranch)) {
 	mrkfoundzphi = new TMarker(phi, position.Z(), 21);
@@ -2195,16 +2224,16 @@ Bool_t PndTrkLegendreTask::ZPhiFit(int iter, PndTrkCluster *cluster, double &fit
   if(fit) {
     if(fDisplayOn) {
       char goOnChar;
-      display->cd(4);
+      if(iter != 0)  display->cd(4);
       TLine *l22 = new  TLine(-1000, -1000 * fitm + fitp, 1000, 1000 * fitm  + fitp);
       if(iter == 0)     l22->SetLineColor(3);
-      else   l22->SetLineColor(4);
+      else  if(iter == 1)  l22->SetLineColor(4);
       l22->Draw("SAME");
       display->cd(3);
       l22->Draw("SAME");
       display->Update();
       display->Modified();  
-      //      cin >> goOnChar;   
+           cin >> goOnChar;   
     }
   }
   // ++++++++++++++++++++++++++++++++++
@@ -2212,7 +2241,95 @@ Bool_t PndTrkLegendreTask::ZPhiFit(int iter, PndTrkCluster *cluster, double &fit
   return fit;
 }
 
+double PndTrkLegendreTask::ComputeZRediduals(PndTrkCluster *cluster, double fitm, double fitp) {
 
+  TH1F hresiduals("hresiduals", "residuals in z", 20, -5, 5);
 
-ClassImp(PndTrkLegendreTask)
+  for(int ihit = 0; ihit < cluster->GetNofHits(); ihit++) {
+    PndTrkHit *hit = cluster->GetHit(ihit);	
+    
+    if(hit->GetDetectorID() != FairRootManager::Instance()->GetBranchId(fSttBranch)) continue;
+    if(hit->IsSttParallel()) continue;
+    
+    TVector3 position = hit->GetPosition();
+    double phi = hit->GetPhi();
+    
+    
+    double distance = fitm * phi  + fitp - position.Z();
+
+    hresiduals.Fill(distance);
+  }
+
+  if(fDisplayOn)  {
+    display->cd(4);
+    char goOnChar;
+    cout << "residuals";
+    cin >> goOnChar;
+    hresiduals.Draw();
+    display->Update();
+    display->Modified();
+     cin >> goOnChar;
+ }
+  return hresiduals.GetMean();
+}
+
+double PndTrkLegendreTask::CorrectZ(PndTrkCluster *cluster, double deltaz, double fitm, double fitp) {
+
+  for(int ihit = 0; ihit < cluster->GetNofHits(); ihit++) {
+    PndTrkHit *hit = cluster->GetHit(ihit);	
+    
+    if(hit->GetDetectorID() != FairRootManager::Instance()->GetBranchId(fSttBranch)) continue;
+    if(hit->IsSttParallel()) continue;
+    
+    TVector3 position = hit->GetPosition();
+    double newz = position.Z() - deltaz;
+    
+    
+    int tubeID = hit->GetTubeID();
+    PndSttTube *tube = (PndSttTube*) fTubeArray->At(tubeID);
+   
+    TVector3 wireDirection = tube->GetWireDirection();
+    Double_t halflength = tube->GetHalfLength();
+      
+    TVector3 first  = tube->GetPosition() + wireDirection * halflength; // CHECK
+    TVector3 second = tube->GetPosition() - wireDirection * halflength; // CHECK
+    
+    double m, p;
+    double newx = position.X();
+    double newy = position.Y();
+    if((second.X() - first.X()) != 0) {
+      m = (second.Z() - first.Z())/(second.X() - first.X());
+      p = position.Z() - m * position.X();
+      newx = (newz - p)/m;
+    }
+
+    if((second.Y() - first.Y()) != 0) {
+      
+      m = (second.Z() - first.Z())/(second.Y() - first.Y());
+      p = position.Z() - m * position.Y();
+      newy = (newz - p)/m;
+    }
+
+    hit->SetPosition(TVector3(newx, newy, newz));
+
+    if(fDisplayOn)  {
+      display->cd(1);
+      char goOnChar;
+      cout << endl;
+      cout << "SEE IT" ;
+      TMarker *mrk = new TMarker(newx, newy, 6);
+      mrk->SetMarkerColor(kOrange);
+      mrk->Draw("SAME");
+      display->Update();
+      display->Modified();
+      
+      cout << "old " << position.X() << " " << position.Y() << " " << position.Z() << endl;
+      cout << "new " << newx << " " << newy << " " << newz << endl;
+
+      cin >> goOnChar;
+    }
+    
+  }
+}
+  ClassImp(PndTrkLegendreTask)
 

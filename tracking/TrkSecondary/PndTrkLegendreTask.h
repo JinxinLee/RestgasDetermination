@@ -121,6 +121,8 @@ class PndTrkLegendreTask : public FairTask {
 
   Bool_t ZPhiFit(int iter, PndTrkCluster *cluster, double &fitm, double &fitp);
   PndTrkCluster* CleanupZPhiFit(PndTrkCluster *cluster, double fitm, double fitp);
+  double ComputeZRediduals(PndTrkCluster *cluster, double fitm, double fitp);
+  double CorrectZ(PndTrkCluster *cluster, double deltaz, double fitm, double fitp);
 
  private:
 
