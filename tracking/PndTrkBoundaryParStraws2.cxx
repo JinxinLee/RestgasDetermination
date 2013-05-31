@@ -15,7 +15,7 @@ using namespace std;
 
 //------------------ begin function  PndTrkBoundaryParStraws2::CalculateSpecialRegion
 void  PndTrkBoundaryParStraws2::CalculateSpecialRegion(
-	Double_t RSTRAWDETECTORMIN,
+	Double_t APOTEMASTRAWDETECTORMIN,
 	Double_t APOTEMAMAXINNERPARSTRAW,
 	Double_t APOTEMAMINOUTERPARSTRAW,
 	Double_t VERTICALGAP,
@@ -29,7 +29,7 @@ void  PndTrkBoundaryParStraws2::CalculateSpecialRegion(
 	double px, py, qx, qy;
 	double alfa, beta, D, A, B, x1, y1, x2, y2;
 
-	a1 = RSTRAWDETECTORMIN;
+	a1 = APOTEMASTRAWDETECTORMIN;
 	a2 = APOTEMAMAXINNERPARSTRAW;
 	a3 = APOTEMAMINOUTERPARSTRAW;
 	delta = VERTICALGAP;
@@ -78,7 +78,7 @@ void PndTrkBoundaryParStraws2::Set(
 	Double_t APOTEMAMAXINNERPARSTRAW,
 	Double_t APOTEMAMINOUTERPARSTRAW,
 	Short_t	 NUMBER_STRAWS,
-	Double_t RSTRAWDETECTORMIN,
+	Double_t APOTEMASTRAWDETECTORMIN,
 	Double_t RSTRAWDETECTORMAX,
 	bool stampa,
 	TClonesArray *SttTubeArray,
@@ -115,7 +115,7 @@ void PndTrkBoundaryParStraws2::Set(
 	SttTubeList(
 	// inputs :
 	SttTubeArray,
-	RSTRAWDETECTORMIN,
+	APOTEMASTRAWDETECTORMIN,
 	RSTRAWDETECTORMAX,
 	APOTEMAMAXINNERPARSTRAW,
 	APOTEMAMINOUTERPARSTRAW,
@@ -138,7 +138,7 @@ void PndTrkBoundaryParStraws2::Set(
 void  PndTrkBoundaryParStraws2::SttTubeList(
 	// inputs :
 	TClonesArray *SttTubeArray,
-	Double_t RSTRAWDETECTORMIN,
+	Double_t APOTEMASTRAWDETECTORMIN,
 	Double_t RSTRAWDETECTORMAX,
 	Double_t APOTEMAMAXINNERPARSTRAW,
 	Double_t APOTEMAMINOUTERPARSTRAW,
@@ -177,7 +177,7 @@ void  PndTrkBoundaryParStraws2::SttTubeList(
 // calcolo delle regioni 'speciali';
 
  CalculateSpecialRegion(
-	RSTRAWDETECTORMIN,
+	APOTEMASTRAWDETECTORMIN,
 	APOTEMAMAXINNERPARSTRAW,
 	APOTEMAMINOUTERPARSTRAW,
 	VERTICALGAP,
@@ -331,7 +331,7 @@ void  PndTrkBoundaryParStraws2::SttTubeList(
 	//  apotema = DISTANZA DA (0,0) del lato dell'esagono;
 
 	// Stt lato inner, del 2 quadrante; code 0 + n*10;
-	apotema = RSTRAWDETECTORMIN;
+	apotema = APOTEMASTRAWDETECTORMIN;
 	// equazione del bordo : x - sqrt(3)*y +2*apotema = 0 ;
 	if(stampa)cout<<"\n\tInner Boundary (smaller) with code 10; 2nd quadrant || STT straws :\n";
 	double distanza;
@@ -359,7 +359,7 @@ void  PndTrkBoundaryParStraws2::SttTubeList(
 
 
 	// Stt lato inner, lato verticale; code 0 + n*10;
-	apotema = RSTRAWDETECTORMIN;
+	apotema = APOTEMASTRAWDETECTORMIN;
 	// equazione del bordo :  x = -apotema ;
 	if(stampa)cout<<"\n\tInner Vertical Boundary (smaller) with code 10; 2nd-3rd quadrant || STT straws :\n";
 	for(i=1;i<=num;i++){
@@ -387,7 +387,7 @@ void  PndTrkBoundaryParStraws2::SttTubeList(
 
 
 	// Stt lato inner, del 3 quadrante; code 0 + n*10;
-	apotema = RSTRAWDETECTORMIN;
+	apotema = APOTEMASTRAWDETECTORMIN;
 	// equazione del bordo : x + sqrt(3)*y +2*apotema = 0 ;
 	if(stampa)cout<<"\n\tInner Boundary (smaller) with code 10; 3nd quadrant || STT straws :\n";
 	for(i=1;i<=num;i++){
@@ -415,7 +415,7 @@ void  PndTrkBoundaryParStraws2::SttTubeList(
 	//  parte a destra dell'inner Stt boundary; considero la parte a sinistra e cambio il segno a tutte le X;
 
 	// Stt lato inner, del 1 quadrante; code 0 + n*10;
-	apotema = RSTRAWDETECTORMIN;
+	apotema = APOTEMASTRAWDETECTORMIN;
 	// equazione del bordo : x +  sqrt(3)*y -2*apotema = 0 ;
 	if(stampa)cout<<"\n\tInner Boundary (smaller) with code 20; 1nd quadrant || STT straws :\n";
 	for(i=1;i<=num;i++){
@@ -442,7 +442,7 @@ void  PndTrkBoundaryParStraws2::SttTubeList(
 
 
 	// Stt lato inner, lato verticale + n*10;
-	apotema = RSTRAWDETECTORMIN;
+	apotema = APOTEMASTRAWDETECTORMIN;
 	// equazione del bordo :  x = apotema ;
 	if(stampa)cout<<"\n\tInner Vertical Boundary (smaller) with code 20; 1st-2nd quadrant || STT straws :\n";
 	for(i=1;i<=num;i++){
@@ -470,7 +470,7 @@ void  PndTrkBoundaryParStraws2::SttTubeList(
 
 
 	// Stt lato inner, del 4 quadrante + n*10;
-	apotema = RSTRAWDETECTORMIN;
+	apotema = APOTEMASTRAWDETECTORMIN;
 	// equazione del bordo : x -sqrt(3)*y -2*apotema = 0 ;
 	if(stampa)cout<<"\n\tInner Boundary (smaller) with code 20; 4nd quadrant || STT straws :\n";
 	for(i=1;i<=num;i++){
