@@ -260,4 +260,95 @@ void PndTrkPrintouts::stampetta(
 
 
 
+//----------begin of function PndTrkPrintouts::stampetta2
+
+void PndTrkPrintouts::stampetta2(
+	bool *keepit,
+	Short_t *ListMvdPixelHitsinTrack,
+	Short_t *ListMvdStripHitsinTrack,
+	Short_t *ListSttParHitsinTrack,
+	Short_t *ListSttSkewHitsinTrack,
+	Short_t *ListSciTilHitsinTrack,
+	Short_t *nMvdPixelHitsinTrack,
+	Short_t *nMvdStripHitsinTrack,
+	Short_t *nSttParHitsinTrack,
+	Short_t *nSttSkewHitsinTrack,
+	Short_t *nSciTilHitsinTrack,
+	Short_t nTotalCand,
+	Short_t Cand,
+	int MAXMVDPIXELHITSINTRACK,
+	int MAXMVDSTRIPHITSINTRACK,
+	int MAXSCITILHITSINTRACK,
+	int MAXSTTHITSINTRACK,
+	Double_t *R,
+	Double_t *Ox,
+	Double_t *Oy,
+	Double_t *FI0,
+	Double_t *KAPPA
+	)
+{
+	int i,j, nend, start;
+
+ if(Cand<0)
+ {
+	// print all candidates;
+	start = 0;
+	nend = nTotalCand;
+ } else {
+	// print only the particular candidate Cand;
+	start = Cand;
+	nend = Cand+1;
+ }
+
+	cout<<"inizia stampetta ---------------------------\n";
+	   cout<<"\tn. SttTrackCand totali = "
+	   <<nTotalCand<<endl;
+      for(  i= start; i< nend; i++){
+	   cout<<"\tcandidate n. "<<i<<", keepit = "<<keepit[i]<<", Ox "<<Ox[i]
+	   <<", Oy "<<Oy[i]<<", R "<<R[i]<<", FI0 "<<FI0[i]<<", KAPPA "<<KAPPA[i]<<endl;
+	   cout<<"-----------------\n";
+      	if(!keepit[i]) continue;
+	   cout<<" --------------------------------------\n"<<
+	   "	SttTrackCand n.  "<<i<<";  n. Hits in Pixels associati = "
+	   <<nMvdPixelHitsinTrack[i]<<"   e loro lista \n";
+	   for(j=0; j<nMvdPixelHitsinTrack[i];j++){
+		cout<<"\t\tMvd Pixel Hit n. "<<
+		     ListMvdPixelHitsinTrack[i*MAXMVDPIXELHITSINTRACK+j]<<endl;
+	   }
+           cout<<" --------------------------------------\n"<<
+	   "	SttTrackCand n.  "<<i<<";  n. Hits in Strips associati = "
+	   <<nMvdStripHitsinTrack[i]<<"   e loro lista \n";
+	   for(j=0; j<nMvdStripHitsinTrack[i];j++){
+	        cout<<"\t\tMvd Strip Hit n. "<<
+		     ListMvdStripHitsinTrack[i*MAXMVDSTRIPHITSINTRACK+j]<<endl;
+	   }
+           cout<<" --------------------------------------\n"<<
+	   "	SttTrackCand n.  "<<i<<";  n. || Hits in Stt in Track = "
+	   <<nSttParHitsinTrack[i]<<"   e loro lista \n";
+	   for(j=0; j<nSttParHitsinTrack[i];j++){
+	        cout<<"\t\t|| Stt Hit n. "<<
+		     ListSttParHitsinTrack[i*MAXSTTHITSINTRACK+j]<<endl;
+	   }
+           cout<<" --------------------------------------\n"<<
+	   "	SttTrackCand n.  "<<i<<";  n. skew Hits in Stt Track = "
+	   <<nSttSkewHitsinTrack[i]<<"   e loro lista \n";
+	   for(j=0; j<nSttSkewHitsinTrack[i];j++){
+	        cout<<"\t\tskew Stt Hit n. "<<
+		     ListSttSkewHitsinTrack[i*MAXSTTHITSINTRACK+j]<<endl;
+	   }
+           cout<<" --------------------------------------\n"<<
+	   "	SttTrackCand n.  "<<i<<";  n. SciTil Hits in Stt Track = "
+	   <<nSciTilHitsinTrack[i]<<"   e loro lista \n";
+	   for(j=0; j<nSciTilHitsinTrack[i];j++){
+	        cout<<"\t\tscitil Hit n. "<<
+		     ListSciTilHitsinTrack[i*MAXSCITILHITSINTRACK+j]<<endl;
+	   }
+      }// end of   for(  i= start; i< nend; i++)
+
+	cout<<"---------------fine stampetta----------------------"<<endl<<endl;
+	return;
+
+}
+//----------end of function PndTrkPrintouts::stampetta2
+
 ClassImp(PndTrkPrintouts);

@@ -74,6 +74,7 @@ Short_t PndTrkChi2Fits::FitHelixCylinder(
  // they still need to be rotated.
 
  // modify the input values for the translation :
+
  Alfa = (*pAlfa) + 2.*trajectory_vertex[0];
  Beta = (*pBeta) + 2.*trajectory_vertex[1];
 
@@ -93,6 +94,7 @@ Short_t PndTrkChi2Fits::FitHelixCylinder(
  for(i=0;i<nHitsinTrack; i++){
 	Xp[i] =  Xconformal[ i ] *cose + Yconformal[ i ]*sine;
 	Yp[i] = -Xconformal[ i ] *sine + Yconformal[ i ]*cose;
+
 
  }
 //--------------------
@@ -179,7 +181,6 @@ Short_t PndTrkChi2Fits::FitHelixCylinder(
  // calculate the coefficients taking into account the translation;
  Alfa -=  2.*trajectory_vertex[0];
  Beta -=  2.*trajectory_vertex[1];
-
 
 // calculate  *emme and *qu using the newly calculated *pAlfa, *pBeta, *pGamma of the
 // circular trajectory in XY. Assuming also that *pGamma ~ 0, that is, the circumference

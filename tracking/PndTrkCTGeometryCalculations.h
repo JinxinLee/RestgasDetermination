@@ -134,6 +134,22 @@ class PndTrkCTGeometryCalculations : public TObject
 	);
 
 
+void  FindingParallelTrackAngularRange2(
+	Double_t oX,	// input;
+	Double_t oY,	// input;
+	Double_t Rma,	// Rmax of cylindrical volume intersected by track;
+	Double_t Rmi,	// Rmin of cylindrical volume intersected by track;
+	Double_t Rr,	// input;
+	Double_t *Fi_low_limit,	// output; Fi (in XY Helix frame) lower limit using
+		// the Stt detector minimum/maximum radius
+		// Fi_low_limit is ALWAYS between 0. and 2PI;
+	Double_t *Fi_up_limit,	// output;	// Fi (in XY Helix frame) upper limit using
+		// the Stt detector maximum/minimum radius
+		// Fi_up_limit is ALWAYS > Fi_low_limit and
+		// possibly > 2PI;
+	Short_t * status	// output;
+	);
+
   Short_t FindIntersectionsOuterCircle(
 	Double_t Oxx,
 	Double_t Oyy,

@@ -1,5 +1,6 @@
 #include "PndTrkLegendreFits.h"
 #include "PndTrkTracking.h"
+#include "PndTrkMergeSort.h"
 #include <cmath>
 #include <iostream>
 // Root includes
@@ -159,6 +160,132 @@ fIcounter=IVOLTE;
 //----------end of function PndTrkLegendreFits::FitHelixCylinder
 
 
+
+
+
+//----------begin of function PndTrkLegendreFits::FitHelixCylinder2
+
+Short_t PndTrkLegendreFits::FitHelixCylinder2(
+	Double_t * Cosine,
+	Short_t LEGIANDRE_NTHETADIV,	// input, the theta divisions;
+	Short_t LEGIANDRE_NRADIUSDIV,	// input, the theta divisions;
+	Short_t nHitsinTrack,
+	Double_t *Xconformal,
+	Double_t *Yconformal,
+	Double_t *DriftRadiusconformal,
+	Double_t *ErrorDriftRadiusconformal,
+	Double_t rotationangle,
+	Double_t *Sinus,
+	Double_t THETAMAX,
+	Double_t THETAMIN,
+	Double_t trajectory_vertex[2],
+	Short_t NMAX,
+	Double_t *emme,
+	Double_t *qu,
+	Double_t *pAlfa,
+	Double_t *pBeta,
+	Double_t *pGamma,
+	bool *Type,
+	int istampa,
+	int IVOLTE
+	)
+{
+
+
+ Double_t
+	cosT,
+	sinT,
+	R,	// output parameter of the straight line; Xcos(Theta)+Y*sin(Theta)=R;
+	Theta;  // output parameter of the straight line; Xcos(Theta)+Y*sin(Theta)=R;
+
+ fIcounter=IVOLTE;
+
+/*
+ LoadMatrix_FindMaximum(
+		nHitsinTrack,			// input
+		Xconformal,			// X position (in conformal or SZ or whatever);
+		Yconformal,			// Y position (in conformal or SZ or whatever);
+		DriftRadiusconformal,		// negative if Mvd hit or similar;
+		ErrorDriftRadiusconformal,	// for the Mvd this is the Radius of the circumference
+						// translated with the Conformal transformation,
+						// which is, in the XY space : a) centered on the Pixel
+						// or Strip; with radius = 0.01 cm --> therefore encompassing
+						// completely the Pixel or Stip hit.
+
+		&R,	// output parameter of the straight line; Xcos(Theta)+Y*sin(Theta)=R;
+		&Theta  // output parameter of the straight line; Xcos(Theta)+Y*sin(Theta)=R;
+			);
+
+
+*/
+ LoadMatrix_FindMaximum2(
+		Cosine,				// input,  the precalculated values of cosine;
+		LEGIANDRE_NTHETADIV,		// input, the theta divisions;
+		LEGIANDRE_NRADIUSDIV,		// input, the radius divisions;
+		nHitsinTrack,			// input
+		Sinus,				// input, the precalculated values of sinus;
+		THETAMAX,
+		THETAMIN,
+		Xconformal,			// X position (in conformal or SZ or whatever);
+		Yconformal,			// Y position (in conformal or SZ or whatever);
+		DriftRadiusconformal,		// negative if Mvd hit or similar;
+		ErrorDriftRadiusconformal,	// for the Mvd this is the Radius of the circumference
+						// translated with the Conformal transformation,
+						// which is, in the XY space : a) centered on the Pixel
+						// or Strip; with radius = 0.01 cm --> therefore encompassing
+						// completely the Pixel or Stip hit.
+
+		&R,	// output parameter of the straight line; X*cos(Theta)+Y*sin(Theta)=R;
+		&Theta  // output parameter of the straight line; X*cos(Theta)+Y*sin(Theta)=R;
+			);
+
+
+ cosT = cos(Theta);
+ sinT = sin(Theta);
+
+ //------------------------- final summary of the fit results; load output variables;
+
+ *pGamma = 0.;
+
+ // R != 0 --> normal case : the trajectory is a circle in XY passing for the origin;
+ if( fabs( R ) > 1.e-10) {
+	*pAlfa = -cosT/R;
+	*pBeta = -sinT/R;
+	*Type=true;
+ } else {
+ // in this case the trajectory is a straight line :     Y*sin(Theta) + X*cos(Theta) = 0
+ // in XY;
+	*Type=false;
+	return 1; // the fit did not fail anyway, so return value>0 ;
+ }
+
+
+
+// now take into account the displacement and correct
+ *pGamma += (trajectory_vertex[0]*trajectory_vertex[0]+
+		trajectory_vertex[1]*trajectory_vertex[1]
+		-*pAlfa*trajectory_vertex[0]-*pBeta*trajectory_vertex[1]);
+ *pAlfa -=  2.*trajectory_vertex[0];
+ *pBeta -=  2.*trajectory_vertex[1];
+
+
+// calculate  *emme and *qu using the newly calculated *pAlfa, *pBeta, *pGamma of the
+// circular trajectory in XY. Assuming also that *pGamma ~ 0, that is the circumference
+// goes thru the origin.
+
+ if( abs(*pBeta)>1e-10) {
+ // normal case of a straight line in UV that can be put in the    V = m*U +q  form;
+	*emme = -(*pAlfa)/(*pBeta);
+	*qu  = -1./(*pBeta);
+	return 1;
+  } else {
+	*emme = -(*pAlfa)/1e-10;
+	*qu  = -1./1e-10;
+	return 99;
+ }
+
+}
+//----------end of function PndTrkLegendreFits::FitHelixCylinder2
 
 //----------begin of function PndTrkLegendreFits::FitSZspace
 
@@ -329,7 +456,7 @@ Short_t PndTrkLegendreFits::FitSZspace(
 
 //----------end of function PndTrkLegendreFits::FitSZspace
 
-//----------end of function PndTrkLegendreFits::LoadMatrix_FindMaximum
+//----------begin of function PndTrkLegendreFits::LoadMatrix_FindMaximum
 int PndTrkLegendreFits::LoadMatrix_FindMaximum(
 	Short_t nHitsinTrack,			// input
 	Double_t *X,			// X position (in conformal or SZ or whatever);
@@ -457,6 +584,172 @@ int PndTrkLegendreFits::LoadMatrix_FindMaximum(
  //----------end of function PndTrkLegendreFits::LoadMatrix_FindMaximum
 
 
+
+
+//----------end of function PndTrkLegendreFits::LoadMatrix_FindMaximum2
+void PndTrkLegendreFits::LoadMatrix_FindMaximum2(
+	Double_t * Cosine,
+	Short_t LEGIANDRE_NTHETADIV,	// input, the theta divisions; Theta goes from 0 to 2*PI;
+	Short_t LEGIANDRE_NRADIUSDIV,	// input, the R divisions;
+	Short_t nHitsinTrack,		// input
+	Double_t * Sinus,		// input, the precalculated values of sinus;
+	Double_t THETAMAX,		// input, maximum of Theta range (usually 2PI radians);
+	Double_t THETAMIN,		// input, minimum of Theta range (usually 0 radians);
+	Double_t *X,			// X position (in conformal or SZ or whatever);
+	Double_t *Y,			// Y position (in conformal or SZ or whatever);
+	Double_t *DriftRadius,		// negative if Mvd hit or similar;
+	Double_t *ErrorDriftRadiusconformal,	// for the Mvd this is the Radius of the circumference
+						// translated with the Conformal transformation,
+						// which is, in the XY space : a) centered on the Pixel
+						// or Strip; with radius = 0.01 cm --> therefore encompassing
+						// completely the Pixel or Stip hit.
+
+
+	Double_t *Rout,	// output parameter of the straight line; Xcos(Theta)+Y*sin(Theta)=R;
+	Double_t *Thetaout  // output parameter of the straight line; Xcos(Theta)+Y*sin(Theta)=R;
+					)
+{
+
+ const int MAXCONTENT= 30000;
+
+
+
+ bool	previously_filled[LEGIANDRE_NRADIUSDIV][LEGIANDRE_NTHETADIV];
+ memset(previously_filled,false,sizeof(previously_filled));
+
+ Short_t
+	i,
+	IndexR,
+	IndexT,
+	iRMax,
+	iTMax,
+	j,
+	List_filled_cells_IndexR[nHitsinTrack*LEGIANDRE_NTHETADIV],
+	List_filled_cells_IndexT[nHitsinTrack*LEGIANDRE_NTHETADIV],
+	maxval,
+	n_filled_cells;
+
+ Int_t	Matrix[LEGIANDRE_NRADIUSDIV][LEGIANDRE_NTHETADIV];
+
+
+ Double_t
+	DeltaR,
+	Drift[nHitsinTrack],
+	HistoRmax,
+	R,
+	Theta;
+
+
+ PndTrkMergeSort MergerSorter;
+
+
+ //  initialization of the Matrix that will be loaded with points;
+
+ size_t len;
+ len = sizeof(Matrix);
+ memset (Matrix,0,len);
+ // the following HistoRmax corresponds to 1/R**2 in XY plane with R=40 (approximately
+ // the radius of a outer axial Stt hit).
+ HistoRmax = 0.000625;
+
+
+ // find the maximum R of the 'histogram';
+ for (i=0; i<nHitsinTrack; i++){
+	R = sqrt(X[i]*X[i]+Y[i]*Y[i]);
+
+	if( DriftRadius[i]<0. ) {  // this is a Mvd point; the Pixel/Strip
+		// in the Conformal plane is approximately contained in
+		// a circle centered in X[i], Y[i] of radius ErrorDriftRadiusconformal[i];
+		if(HistoRmax < R){ HistoRmax=R+ErrorDriftRadiusconformal[i]; }
+		Drift[i] = 0;
+	} else {	// this is a Stt axial hit;
+		// take into consideration also the drift radius;
+		R += DriftRadius[i];
+		if(HistoRmax < R){ HistoRmax=R; }
+		Drift[i] = DriftRadius[i];
+	}
+ }  // end of for (i=0; nHitsinTrack; i++)
+ DeltaR = (HistoRmax-fRMin)/LEGIANDRE_NRADIUSDIV;
+
+ // fill the Matrix;
+
+
+ // the Theta (angle with respect to the center of the straw tube center)
+ // is the angle generated uniformly between 0 1nd 360; 
+
+ // LEGIANDRE_NTHETADIV is a Short_t const MULTIPLE OF 2, defined in PndTrkTracking2.h; it is the divisions of
+ // the full 360 degrees angle;
+
+
+ n_filled_cells = 0;
+ for (i=0; i<nHitsinTrack; i++){
+	// for now the number of Theta generated are one per Theta bin;
+	for(j=0;j<LEGIANDRE_NTHETADIV;j++) {
+		// generate the Theta in the middle of the bin; from 0. to 360 degrees;
+		R = X[i]*Cosine[j] + Y[i]*Sinus[j]+Drift[i];
+		IndexR = (Short_t) ((fabs(R)-fRMin)/DeltaR);
+		if(IndexR>=LEGIANDRE_NRADIUSDIV) IndexR=LEGIANDRE_NRADIUSDIV-1;
+		// the following is an essential calculation for Theta,
+		// because it changes by 180 degrees when
+		//  X[i]*Cosine[j] + Y[i]*sin(Theta)+DriftRadius[i]<0;
+		if( R <0.) {
+			IndexT = j + LEGIANDRE_NTHETADIV /2 ;
+			if( IndexT >= LEGIANDRE_NTHETADIV ) IndexT -= LEGIANDRE_NTHETADIV;
+			if( IndexT >= LEGIANDRE_NTHETADIV ) IndexT = LEGIANDRE_NTHETADIV;
+		} else {
+			IndexT = j;
+		}
+
+
+
+
+		if( ! previously_filled[IndexR][IndexT] ){
+			previously_filled[IndexR][IndexT]= true;
+			n_filled_cells ++;
+			List_filled_cells_IndexR[n_filled_cells-1] = IndexR;
+			List_filled_cells_IndexT[n_filled_cells-1] = IndexT;
+			Matrix[IndexR][IndexT]=0;
+		}
+
+		Matrix[IndexR][IndexT]++;
+	}
+
+ }  // end of for (i=0; nHitsinTrack; i++)
+
+
+ Short_t	index_array[n_filled_cells];
+ Int_t		input_array[n_filled_cells];
+
+ for(i=0;i<n_filled_cells;i++){
+ 	IndexR = List_filled_cells_IndexR[i];
+ 	IndexT = List_filled_cells_IndexT[i];
+ 	input_array[i] =  Matrix[IndexR][IndexT];
+	index_array[i] = i;
+ } // end of for(i=0;i<n_filled_cells;i++)
+ // find maximum in the Matrix by sorting first (from lower to bigger) and then taking the last element;
+
+
+
+ MergerSorter.Merge_Sort3(
+		n_filled_cells,
+		input_array,
+		index_array
+			);
+
+ iRMax = List_filled_cells_IndexR[ index_array[n_filled_cells-1] ];
+ iTMax = List_filled_cells_IndexT[ index_array[n_filled_cells-1] ];
+
+ // the found parameters;
+ *Rout = (iRMax+0.5) *DeltaR + fRMin;
+ // to be coherent with the formula adopted for the straight line :  X*cos(theta) + Y*sin(theta) = R
+ // it is necessary to take the complementary angle (consequently the PI/4 -    );
+ *Thetaout = (iTMax+0.5) *(THETAMAX-THETAMIN)/LEGIANDRE_NTHETADIV + THETAMIN;
+
+
+
+ return ;
+}
+ //----------end of function PndTrkLegendreFits::LoadMatrix_FindMaximum2
 
 ClassImp(PndTrkLegendreFits)
 

@@ -1,5 +1,6 @@
 #include "PndTrkCleanup.h"
 #include "PndTrkCTGeometryCalculations.h"
+#include "PndTrkVectors.h"
 #include <iostream>
 #include <cmath>
 
@@ -7,6 +8,7 @@
 // Root includes
 #include "TROOT.h"
 
+#define MAX_NOT_CONNECTED  1
 
 using namespace std;
 
@@ -177,7 +179,7 @@ void PndTrkCleanup::SeparateInnerOuterParallel(
 	Short_t nHits,
 	Short_t *ListHits,
 	Double_t info[][7],
-	Double_t RStrawDetInnerParMax,
+	Double_t R_STT_INNER_PAR_MAX,
 
 	// output
 	Short_t *nInnerHits,
@@ -214,7 +216,7 @@ void PndTrkCleanup::SeparateInnerOuterParallel(
 			 info[ListHits[ihit]][1]*info[ListHits[ihit]][1]);
 		// the value 2.*RStrawDetectorParMax/sqrt(3.) is because RStrawDetectorParMax
 		// is an Apotema !
-		if(r>RStrawDetInnerParMax ){	// outer Parallel hit.
+		if(r>R_STT_INNER_PAR_MAX ){	// outer Parallel hit.
 			ListOuterHits[ *nOuterHits ] = ListHits[ihit];
 			(*nOuterHits)++;
 			if(info[ListHits[ihit]][0]<0.){
@@ -243,6 +245,71 @@ void PndTrkCleanup::SeparateInnerOuterParallel(
 //----------end of function PndTrkCleanup::SeparateInnerOuterParallel
 
 
+
+
+//----------begin of function PndTrkCleanup::SeparateInnerOuterRightLeftAxialStt
+
+void PndTrkCleanup::SeparateInnerOuterRightLeftAxialStt(
+
+	// input
+	Double_t info[][7],
+	Short_t *ListHits,
+	Short_t nHits,
+	Double_t R_STT_INNER_PAR_MAX,
+
+	// output
+
+	Short_t *ListInnerHitsLeft,
+	Short_t *ListInnerHitsRight,
+	Short_t *ListOuterHitsLeft,
+	Short_t *ListOuterHitsRight,
+	Short_t *nInnerHitsLeft,
+	Short_t *nInnerHitsRight,
+	Short_t *nOuterHitsLeft,
+	Short_t *nOuterHitsRight
+	)
+{
+
+	Short_t ihit;
+
+	Double_t r;
+
+//   separation of inner Parallel Stt hits from outer Parallel Stt hits.
+
+	*nInnerHitsLeft=0;
+	*nInnerHitsRight=0;
+	*nOuterHitsLeft=0;
+	*nOuterHitsRight=0;
+	for(ihit=0  ;ihit<nHits;ihit++){
+		r = sqrt( info[ListHits[ihit]][0]*info[ListHits[ihit]][0] +
+			 info[ListHits[ihit]][1]*info[ListHits[ihit]][1]);
+		// the value 2.*RStrawDetectorParMax/sqrt(3.) is because RStrawDetectorParMax
+		// is an Apotema !
+		if(r>R_STT_INNER_PAR_MAX ){	// outer Parallel hit.
+			if(info[ListHits[ihit]][0]<0.){
+				ListOuterHitsLeft[ *nOuterHitsLeft ] = ListHits[ihit];
+				(*nOuterHitsLeft)++;
+			} else {
+				ListOuterHitsRight[ *nOuterHitsRight ] = ListHits[ihit];
+				(*nOuterHitsRight)++;
+			}
+		}else{
+			if(info[ListHits[ihit]][0]<0.){
+				ListInnerHitsLeft[ *nInnerHitsLeft ] = ListHits[ihit];
+				(*nInnerHitsLeft)++;
+			} else {
+				ListInnerHitsRight[ *nInnerHitsRight ] = ListHits[ihit];
+				(*nInnerHitsRight)++;
+			}
+		} // end of if(r>R_STT_INNER_PAR_MAX )
+	}  // end of for(ihit=0  ;ihit<nHits;ihit++)
+
+
+	return;
+}
+
+
+//----------end of function PndTrkCleanup::SeparateInnerOuterRightLeftAxialStt
 
 
 
@@ -1637,6 +1704,146 @@ if(istampa>1) cout<<"uscito da SttSkewCleanup true\n";
 
 //----------end of function PndTrkCleanup::TrackCleanup
 
+//----------begin of function PndTrkCleanup::XYCleanup
+bool PndTrkCleanup::XYCleanup(
+	Double_t info[][7],
+	Short_t (*ListParContiguous)[6],
+	Short_t *nParContiguous,
+	Short_t *StrawCode,
+	Short_t *StrawCode2,
+	Short_t *TubeID,
+
+	Short_t *ListHits,
+	Short_t nHits,
+	Double_t R_STT_INNER_PAR_MAX
+				)
+{
+
+   bool	connected;
+
+   Short_t
+	i,
+	j,
+	not_connected,
+	tListInnerHitsLeft[nHits],
+	tListInnerHitsRight[nHits],
+	tListOuterHitsLeft[nHits],
+	tListOuterHitsRight[nHits],
+	tube,
+	tube_next,
+	nInnerHitsLeft,
+	nInnerHitsRight,
+	nOuterHitsLeft,
+	nOuterHitsRight;
+
+   Vec <Short_t>
+	ListInnerHitsLeft(tListInnerHitsLeft,nHits,"ListInnerHitsLeft"),
+	ListInnerHitsRight(tListInnerHitsRight,nHits,"ListInnerHitsRight"),
+	ListOuterHitsLeft(tListOuterHitsLeft,nHits,"ListOuterHitsLeft"),
+	ListOuterHitsRight(tListOuterHitsRight,nHits,"ListOuterHitsRight");
+
+   //  separate the inner axial Stt hits from outer axial Stt hits,
+   //  right (looking into the beam) from left;
+
+   SeparateInnerOuterRightLeftAxialStt(
+
+	// input
+	info,
+	ListHits,
+	nHits,
+	R_STT_INNER_PAR_MAX,
+
+	// output
+
+	tListInnerHitsLeft,
+	tListInnerHitsRight,
+	tListOuterHitsLeft,
+	tListOuterHitsRight,
+	&nInnerHitsLeft,
+	&nInnerHitsRight,
+	&nOuterHitsLeft,
+	&nOuterHitsRight
+   );
+
+ // check continuity between first hit in inner axial hit list and the last inner axial;
+ // left and right;
+
+   not_connected = 0;
+
+ // Left Inner;
+   for(i=0;i<nInnerHitsLeft-1;i++){
+   	tube = TubeID[ ListInnerHitsLeft[i] ];
+	tube_next = TubeID[ ListInnerHitsLeft[i+1] ];
+	for(j=0;j<nParContiguous[ tube-1 ];j++){
+		if( tube_next == ListParContiguous[ tube-1 ][j] ){
+			connected = true;
+			break;
+		}
+	}
+	if(!connected) {
+		not_connected ++;
+		if( not_connected > MAX_NOT_CONNECTED) return false;
+	} // end of  if(!connected)
+   }  // end of for(i=0;i<nInnerHitsLeft;i++
+
+
+ // Left Outer;
+   for(i=0;i<nOuterHitsLeft-1;i++){
+   	tube = TubeID[ ListOuterHitsLeft[i] ];
+	tube_next = TubeID[ ListOuterHitsLeft[i+1] ];
+	for(j=0;j<nParContiguous[ tube-1 ];j++){
+		if( tube_next == ListParContiguous[ tube-1 ][j] ){
+			connected = true;
+			break;
+		}
+	}
+	if(!connected) {
+		not_connected ++;
+		if( not_connected > MAX_NOT_CONNECTED) return false;
+	} // end of  if(!connected)
+   }  // end of for(i=0;i<nOuterHitsLeft;i++
+
+
+
+
+ // Right Inner;
+   for(i=0;i<nInnerHitsRight-1;i++){
+   	tube = TubeID[ ListInnerHitsRight[i] ];
+	tube_next = TubeID[ ListInnerHitsRight[i+1] ];
+	for(j=0;j<nParContiguous[ tube-1 ];j++){
+		if( tube_next == ListParContiguous[ tube-1 ][j] ){
+			connected = true;
+			break;
+		}
+	}
+	if(!connected) {
+		not_connected ++;
+		if( not_connected > MAX_NOT_CONNECTED) return false;
+	} // end of  if(!connected)
+   }  // end of for(i=0;i<nInnerHitsRight;i++
+
+
+ // Right Outer;
+   for(i=0;i<nOuterHitsRight-1;i++){
+   	tube = TubeID[ ListOuterHitsRight[i] ];
+	tube_next = TubeID[ ListOuterHitsRight[i+1] ];
+	for(j=0;j<nParContiguous[ tube-1 ];j++){
+		if( tube_next == ListParContiguous[ tube - 1 ][j] ){
+			connected = true;
+			break;
+		}
+	}
+	if(!connected) {
+		not_connected ++;
+		if( not_connected > MAX_NOT_CONNECTED) return false;
+	} // end of  if(!connected)
+   }  // end of for(i=0;i<nOuterHitsRight;i++
+
+
+
+	return true;
+}
+//----------end of function PndTrkCleanup::XYCleanup
 
 
 ClassImp(PndTrkCleanup);

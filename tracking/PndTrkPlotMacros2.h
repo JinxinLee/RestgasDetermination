@@ -9,6 +9,7 @@
 
 
 struct PndTrkPlotMacros2_InputData{
+	Double_t apotemastrawdetectormin;
 	Double_t apotemamaxinnerparstraw;
 	Double_t apotemamaxskewstraw;
 	Double_t apotemaminouterparstraw;
@@ -104,7 +105,6 @@ struct PndTrkPlotMacros2_InputData{
 	Double_t *R;
 	Double_t *radiaConf;
 	Double_t rstrawdetectormax;
-	Double_t rstrawdetectormin;
 	Double_t *SchosenSkew;
 
 
@@ -235,7 +235,7 @@ void DrawHexagonCircleInMacro(
 	Vec <Short_t> *nTrackCandHit,
 	Vec <Double_t> *posizSciTil,
 	Double_t RSTRAWDETECTORMAX,
-	Double_t RSTRAWDETECTORMIN,
+	Double_t APOTEMASTRAWDETECTORMIN,
 	Double_t VERTICALGAP,
 	Vec <Double_t> *XMvdPixel,
 	Vec <Double_t> *XMvdStrip,
@@ -271,7 +271,7 @@ void DrawHexagonCircleInMacro(
 	Vec <Double_t> *primoangolo,
 	Vec <Double_t> *R,
 	Double_t RSTRAWDETECTORMAX,
-	Double_t RSTRAWDETECTORMIN,
+	Double_t APOTEMASTRAWDETECTORMIN,
 	Vec <Double_t> *sigmaXMvdPixel,
 	Vec <Double_t> *sigmaXMvdStrip,
 	Vec <Double_t> *sigmaYMvdPixel,
@@ -312,7 +312,7 @@ void DrawHexagonCircleInMacro(
 	Vec <Double_t> *primoangolo,
 	Vec <Double_t> *R,
 	Double_t RSTRAWDETECTORMAX,
-	Double_t RSTRAWDETECTORMIN,
+	Double_t APOTEMASTRAWDETECTORMIN,
 	Vec <Double_t> *sigmaXMvdPixel,
 	Vec <Double_t> *sigmaXMvdStrip,
 	Vec <Double_t> *sigmaYMvdPixel,
@@ -353,7 +353,7 @@ void DrawHexagonCircleInMacro(
 	Vec <Double_t> *primoangolo,
 	Vec <Double_t> *R,
 	Double_t RSTRAWDETECTORMAX,
-	Double_t RSTRAWDETECTORMIN,
+	Double_t APOTEMASTRAWDETECTORMIN,
 	Vec <Double_t> *sigmaXMvdPixel,
 	Vec <Double_t> *sigmaXMvdStrip,
 	Vec <Double_t> *sigmaYMvdPixel,

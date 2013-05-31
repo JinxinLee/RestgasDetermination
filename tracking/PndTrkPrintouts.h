@@ -98,6 +98,32 @@ class PndTrkPrintouts : public TObject
 
 
 
+
+ void stampetta2(
+	bool *keepit,
+	Short_t *ListMvdPixelHitsinTrack,
+	Short_t *ListMvdStripHitsinTrack,
+	Short_t *ListSttParHitsinTrack,
+	Short_t *ListSttSkewHitsinTrack,
+	Short_t *ListSciTilHitsinTrack,
+	Short_t *nMvdPixelHitsinTrack,
+	Short_t *nMvdStripHitsinTrack,
+	Short_t *nSttParHitsinTrack,
+	Short_t *nSttSkewHitsinTrack,
+	Short_t *nSciTilHitsinTrack,
+	Short_t nTotalCand,
+	Short_t Cand,
+	int MAXMVDPIXELHITSINTRACK,
+	int MAXMVDSTRIPHITSINTRACK,
+	int MAXSCITILHITSINTRACK,
+	int MAXSTTHITSINTRACK,
+	Double_t *R,
+	Double_t *Ox,
+	Double_t *Oy,
+	Double_t *FI0,
+	Double_t *KAPPA
+	);
+
   ClassDef(PndTrkPrintouts,1);
 
 };
