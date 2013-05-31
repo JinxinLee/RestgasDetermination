@@ -66,6 +66,7 @@ PndTrkPrintouts.cxx
 PndTrkTracking.cxx
 PndTrkTracking2.cxx
 PndTrkSttAdjacencies.cxx
+PndTrkSttClusterFinder.cxx
 #
 TrkAlgo/PndTrkLegendreTransform.cxx
 TrkAlgo/PndTrkConformalTransform.cxx
