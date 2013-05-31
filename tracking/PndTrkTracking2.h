@@ -13,6 +13,7 @@
 #include "PndTrkVectors.h"
 
 #include "TClonesArray.h"
+#include "TStopwatch.h"
 #include "TList.h"
 #include "TH1.h"
 #include "TH1F.h"
@@ -56,7 +57,15 @@ class PndTrkTracking2 : public FairTask
 
   void NoMvdAloneTracking( ){ fMvdAloneTracking=false; return;};
 
-  void YesMvdAloneTracking( ){ fMvdAloneTracking=true; return;};
+
+  void PrintTime()
+  {
+  	cout<<"\nMy calculation of the time is :";
+  	cout << " real time " << frtime2 << " sec., CPU time " << fctime2 
+  	<< " seconds." << endl << endl;
+  	return;
+
+  };
 
   void SetInputBranchName(
 	char* string1,
@@ -77,6 +86,8 @@ class PndTrkTracking2 : public FairTask
   /** set persistence flag **/
   void SetPersistence(Bool_t persistence) { fPersistence = persistence; }
 
+  void YesMvdAloneTracking( ){ fMvdAloneTracking=true; return;};
+
 
   //  write out the histograms
   void WriteHistograms();
@@ -85,9 +96,14 @@ class PndTrkTracking2 : public FairTask
 
  private:
 
+// divisions of the Theta angle range [0, 90  degrees );
+#define	BOCA_90DEGREES_DIVISIONS	 180
 
   static const Short_t
-//	MAXMCTRACKS		= 1000,
+	LEGIANDRE_NRADIUSDIV	= 100,
+	LEGIANDRE_NTHETADIV	= 2* BOCA_90DEGREES_DIVISIONS ,  // divisions  of the Theta angle range [0, 2*PI radians);
+//	LEGIANDRE_NRADIUSDIV	= 100,
+//	LEGIANDRE_NTHETADIV	= 360,
 	MAXMCTRACKS		= 100,
 	MAXMVDPIXELHITS		= 500,
 	MAXMVDPIXELHITSINTRACK	= 10,
@@ -104,6 +120,12 @@ class PndTrkTracking2 : public FairTask
 	NRDIVCONFORMAL		= 10,
 	NUMBER_STRAWS		= 4542; // the straw numbers
 				// start at 1 and goes up to 4542 included;
+
+  static const Double_t
+	THETAMIN		= 0.,
+	THETAMAX		= 2.*3.141592654;
+
+
   bool
 	doMcComparison,
 	fSingleHitListStt[MAXSTTHITS],
@@ -189,12 +211,13 @@ class PndTrkTracking2 : public FairTask
 	istampa,
 	IVOLTE ;
 
-
   Double_t
 	fALFA[MAXTRACKSPEREVENT],
 	fBETA[MAXTRACKSPEREVENT],
+	fCosine[LEGIANDRE_NTHETADIV],
 	fCxMC[MAXMCTRACKS],
 	fCyMC[MAXMCTRACKS],
+	fDELTATHETA,
 	fFimin,
 	fGAMMA[MAXTRACKSPEREVENT],
 	fMCSkewAloneX[MAXSTTHITS],
@@ -218,6 +241,7 @@ class PndTrkTracking2 : public FairTask
 	fsigmaXMvdStrip[MAXMVDSTRIPHITS],
 	fsigmaYMvdStrip[MAXMVDSTRIPHITS],
 	fsigmaZMvdStrip[MAXMVDSTRIPHITS],
+	fSinus[LEGIANDRE_NTHETADIV],
 	fS_SciTilHitsinTrack[MAXTRACKSPEREVENT][MAXSCITILHITS],
 	fXMvdPixel[MAXMVDPIXELHITS],
 	fXMvdStrip[MAXMVDSTRIPHITS],
@@ -226,6 +250,19 @@ class PndTrkTracking2 : public FairTask
 	ZCENTER_STRAIGHT,
 	fZMvdPixel[MAXMVDPIXELHITS],
 	fZMvdStrip[MAXMVDSTRIPHITS];
+
+//----------------------- real, cputime stuff;
+
+  Double_t
+	fctime,
+	fctime2,
+	frtime,
+	frtime2;
+  TStopwatch
+	ftimer,
+	ftimer2;
+//--------------------------------
+
 
 //  FairRootManager *ioman;
 
@@ -356,6 +393,8 @@ class PndTrkTracking2 : public FairTask
 	// the n. of hits that should be present.
 	);
 
+ void CalculateSinandCosin(
+	);
 
 
   void CollectParSttHitsagain(
@@ -414,24 +453,6 @@ class PndTrkTracking2 : public FairTask
 	Short_t  * Charge
 	);
 
-
-
-  void  FindingParallelTrackAngularRange(
-	Double_t oX,
-	Double_t oY,
-	Double_t Rr,
-	Short_t  Charge,
-	Double_t *Fi_low_limit,	// Fi (in XY Helix frame) lower limit using
-		// the Stt detector minimum/maximum radius
-		// Fi_low_limit is ALWAYS between 0. and 2PI
-	Double_t *Fi_up_limit,	// Fi (in XY Helix frame) upper limit using
-		// the Stt detector maximum/minimum radius
-		// Fi_up_limit is ALWAYS > Fi_low_limit and
-		// possibly > 2PI.
-	Short_t * status,
-	Double_t Rmin,	// Rmin of cylindrical volume intersected by track;
-	Double_t Rmax	// Rmax of cylindrical volume intersected by track;
-	);
 
 
 
@@ -626,8 +647,6 @@ class PndTrkTracking2 : public FairTask
 	Vec <Short_t>& CHARGE,
 	Double_t SchosenSkew[][MAXSTTHITS]
 	);
-
-
   void RefitMvdStt(
 	Short_t nCandHit,
 	Short_t *fListTrackCandHit,
