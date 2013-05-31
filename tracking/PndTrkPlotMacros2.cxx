@@ -483,7 +483,7 @@ void PndTrkPlotMacros2::DrawHexagonCircleInMacro(
  Vec<Double_t> R(In_Put.R,In_Put.MAXTRACKSPEREVENT,"R") ;
 
 	Double_t RSTRAWDETECTORMAX = In_Put.rstrawdetectormax;
-	Double_t RSTRAWDETECTORMIN = In_Put.rstrawdetectormin;
+	Double_t APOTEMASTRAWDETECTORMIN = In_Put.apotemastrawdetectormin;
 
  Vec<Double_t> sigmaXMvdPixel(In_Put.sigmaXMvdPixel,In_Put.MAXMVDPIXELHITS,"sigmaXMvdPixel") ;
  Vec<Double_t> sigmaXMvdStrip(In_Put.sigmaXMvdStrip,In_Put.MAXMVDSTRIPHITS,"sigmaXMvdStrip") ;
@@ -738,7 +738,7 @@ void PndTrkPlotMacros2::DrawHexagonCircleInMacro(
 	&primoangolo,
 	&R,
 	RSTRAWDETECTORMAX,
-	RSTRAWDETECTORMIN,
+	APOTEMASTRAWDETECTORMIN,
 	&sigmaXMvdPixel,
 	&sigmaXMvdStrip,
 	&sigmaYMvdPixel,
@@ -780,7 +780,7 @@ void PndTrkPlotMacros2::DrawHexagonCircleInMacro(
 	&primoangolo,
 	&R,
 	RSTRAWDETECTORMAX,
-	RSTRAWDETECTORMIN,
+	APOTEMASTRAWDETECTORMIN,
 	&sigmaXMvdPixel,
 	&sigmaXMvdStrip,
 	&sigmaYMvdPixel,
@@ -823,7 +823,7 @@ void PndTrkPlotMacros2::DrawHexagonCircleInMacro(
 	&primoangolo,
 	&R,
 	RSTRAWDETECTORMAX,
-	RSTRAWDETECTORMIN,
+	APOTEMASTRAWDETECTORMIN,
 	&sigmaXMvdPixel,
 	&sigmaXMvdStrip,
 	&sigmaYMvdPixel,
@@ -868,7 +868,7 @@ void PndTrkPlotMacros2::DrawHexagonCircleInMacro(
 		&nTrackCandHit,
 		&posizSciTil,
 	RSTRAWDETECTORMAX,
-	RSTRAWDETECTORMIN,
+	APOTEMASTRAWDETECTORMIN,
 	VERTICALGAP,
 		&XMvdPixel,
 		&XMvdStrip,
@@ -925,7 +925,7 @@ void PndTrkPlotMacros2::WriteMacroAllHitsRestanti(
 	Vec <Short_t> * nTrackCandHit,
 	Vec <Double_t> * posizSciTil,
 	Double_t RSTRAWDETECTORMAX,
-	Double_t RSTRAWDETECTORMIN,
+	Double_t APOTEMASTRAWDETECTORMIN,
 	Double_t VERTICALGAP,
 	Vec <Double_t> * XMvdPixel,
 	Vec <Double_t> * XMvdStrip,
@@ -1019,7 +1019,7 @@ void PndTrkPlotMacros2::WriteMacroAllHitsRestanti(
 	DrawBiHexagonInMacro(
 				VERTICALGAP,
 				MACRO,
-				RSTRAWDETECTORMIN,
+				APOTEMASTRAWDETECTORMIN,
 				APOTEMAMAXINNERPARSTRAW,
 				4,  // color code, 4= blue.
 				myname
@@ -1124,7 +1124,7 @@ void PndTrkPlotMacros2::WriteMacroParallelHitsGeneral(
 	Vec <Double_t> * primoangolo,
 	Vec <Double_t> * R,
 	Double_t RSTRAWDETECTORMAX,
-	Double_t RSTRAWDETECTORMIN,
+	Double_t APOTEMASTRAWDETECTORMIN,
 	Vec <Double_t> * sigmaXMvdPixel,
 	Vec <Double_t> * sigmaXMvdStrip,
 	Vec <Double_t> * sigmaYMvdPixel,
@@ -1191,7 +1191,7 @@ void PndTrkPlotMacros2::WriteMacroParallelHitsGeneral(
 	DrawBiHexagonInMacro(
 				VERTICALGAP,
 				MACRO,
-				RSTRAWDETECTORMIN,
+				APOTEMASTRAWDETECTORMIN,
 				APOTEMAMAXINNERPARSTRAW,
 				4,  // color code, 4= blue.
 				myname
@@ -1314,7 +1314,7 @@ fprintf(MACRO,
 	DrawBiHexagonInMacro(
 				VERTICALGAP,
 				MACRO,
-				RSTRAWDETECTORMIN,
+				APOTEMASTRAWDETECTORMIN,
 				APOTEMAMAXINNERPARSTRAW,
 				4,  // color code, 4= blue.
 				myname
@@ -1578,7 +1578,7 @@ void PndTrkPlotMacros2::WriteMacroParallelHitsGeneralConformalwithMC(
 	Vec <Double_t> * primoangolo,
 	Vec <Double_t> * R,
 	Double_t RSTRAWDETECTORMAX,
-	Double_t RSTRAWDETECTORMIN,
+	Double_t APOTEMASTRAWDETECTORMIN,
 	Vec <Double_t> * sigmaXMvdPixel,
 	Vec <Double_t> * sigmaXMvdStrip,
 	Vec <Double_t> * sigmaYMvdPixel,
@@ -1712,7 +1712,7 @@ void PndTrkPlotMacros2::WriteMacroParallelHitsGeneralConformalwithMC(
 
        fprintf(MACRO,
  "TEllipse* Griglia%d = new TEllipse(0.,0.,%f,%f,0.,360.);\nGriglia%d->SetLineColor(4);\nGriglia%d->Draw();\n",
-        In_Put.NRDIVCONFORMAL,1./RSTRAWDETECTORMIN,1./RSTRAWDETECTORMIN,
+        In_Put.NRDIVCONFORMAL,1./APOTEMASTRAWDETECTORMIN,1./APOTEMASTRAWDETECTORMIN,
 	   In_Put.NRDIVCONFORMAL,In_Put.NRDIVCONFORMAL);
 
        for( i=In_Put.NRDIVCONFORMAL-1; i>=0 ; i--) {
@@ -1727,8 +1727,8 @@ void PndTrkPlotMacros2::WriteMacroParallelHitsGeneralConformalwithMC(
             ff = i*2.*PI/In_Put.NFIDIVCONFORMAL;
             x1=cos(ff)/RSTRAWDETECTORMAX;
             y1=sin(ff)/RSTRAWDETECTORMAX;
-            x2=cos(ff)/RSTRAWDETECTORMIN;
-            y2=sin(ff)/RSTRAWDETECTORMIN;
+            x2=cos(ff)/APOTEMASTRAWDETECTORMIN;
+            y2=sin(ff)/APOTEMASTRAWDETECTORMIN;
             fprintf(MACRO,
 "TLine* Seg%d = new TLine(%f,%f,%f,%f);\nSeg%d->SetLineColor(4);\nSeg%d->Draw();\n",
                      i,x1,y1,x2,y2,i,i);
@@ -1958,7 +1958,7 @@ void PndTrkPlotMacros2::WriteMacroParallel_MvdHitsGeneralConformalwithMC(
 	Vec <Double_t> * primoangolo,
 	Vec <Double_t> * R,
 	Double_t RSTRAWDETECTORMAX,
-	Double_t RSTRAWDETECTORMIN,
+	Double_t APOTEMASTRAWDETECTORMIN,
 	Vec <Double_t> * sigmaXMvdPixel,
 	Vec <Double_t> * sigmaXMvdStrip,
 	Vec <Double_t> * sigmaYMvdPixel,
@@ -2154,7 +2154,7 @@ void PndTrkPlotMacros2::WriteMacroParallel_MvdHitsGeneralConformalwithMC(
 
        fprintf(MACRO,
  "TEllipse* Griglia%d = new TEllipse(0.,0.,%f,%f,0.,360.);\nGriglia%d->SetLineColor(4);\nGriglia%d->Draw();\n",
-        In_Put.NRDIVCONFORMAL,1./RSTRAWDETECTORMIN,1./RSTRAWDETECTORMIN,
+        In_Put.NRDIVCONFORMAL,1./APOTEMASTRAWDETECTORMIN,1./APOTEMASTRAWDETECTORMIN,
 	   In_Put.NRDIVCONFORMAL,In_Put.NRDIVCONFORMAL);
 
        for( i=In_Put.NRDIVCONFORMAL-1; i>=0 ; i--) {
@@ -2169,8 +2169,8 @@ void PndTrkPlotMacros2::WriteMacroParallel_MvdHitsGeneralConformalwithMC(
             ff = i*2.*PI/In_Put.NFIDIVCONFORMAL;
             x1=cos(ff)/RSTRAWDETECTORMAX;
             y1=sin(ff)/RSTRAWDETECTORMAX;
-            x2=cos(ff)/RSTRAWDETECTORMIN;
-            y2=sin(ff)/RSTRAWDETECTORMIN;
+            x2=cos(ff)/APOTEMASTRAWDETECTORMIN;
+            y2=sin(ff)/APOTEMASTRAWDETECTORMIN;
             fprintf(MACRO,
 "TLine* Seg%d = new TLine(%f,%f,%f,%f);\nSeg%d->SetLineColor(4);\nSeg%d->Draw();\n",
                      i,x1,y1,x2,y2,i,i);
@@ -3455,7 +3455,7 @@ void PndTrkPlotMacros2::WriteMacroSttParallelAssociatedHitsandMvdwithMC(
  Vec<Double_t> R(In_Put.R,In_Put.MAXTRACKSPEREVENT,"R") ;
 
 	Double_t RSTRAWDETECTORMAX = In_Put.rstrawdetectormax;
-	Double_t RSTRAWDETECTORMIN = In_Put.rstrawdetectormin;
+	Double_t APOTEMASTRAWDETECTORMIN = In_Put.apotemastrawdetectormin;
 
  Vec<Double_t> sigmaXMvdPixel(In_Put.sigmaXMvdPixel,In_Put.MAXMVDPIXELHITS,"sigmaXMvdPixel") ;
  Vec<Double_t> sigmaXMvdStrip(In_Put.sigmaXMvdStrip,In_Put.MAXMVDSTRIPHITS,"sigmaXMvdStrip") ;
@@ -3506,7 +3506,7 @@ void PndTrkPlotMacros2::WriteMacroSttParallelAssociatedHitsandMvdwithMC(
 	DrawBiHexagonInMacro(
 				VERTICALGAP,
 				MACRO,
-				RSTRAWDETECTORMIN,
+				APOTEMASTRAWDETECTORMIN,
 				APOTEMAMAXINNERPARSTRAW,
 				4,  // color code, 4= blue.
 				myname
@@ -3779,7 +3779,7 @@ if( MvdPixelCommonList.at(iTrack*In_Put.MAXMVDPIXELHITSINTRACK+k)== ii){
       fprintf(MACRO,"{\n");
 
  Double_t RSTRAWDETECTORMAX = In_Put.rstrawdetectormax,
-	RSTRAWDETECTORMIN = In_Put.rstrawdetectormin,
+	APOTEMASTRAWDETECTORMIN = In_Put.apotemastrawdetectormin,
 	VERTICALGAP = In_Put.verticalgap,
 	APOTEMAMAXINNERPARSTRAW = In_Put.apotemamaxinnerparstraw,
 	APOTEMAMINSKEWSTRAW = In_Put.apotemaminskewstraw,
@@ -3804,7 +3804,7 @@ if( MvdPixelCommonList.at(iTrack*In_Put.MAXMVDPIXELHITSINTRACK+k)== ii){
 	DrawBiHexagonInMacro(
 				VERTICALGAP,
 				MACRO,
-				RSTRAWDETECTORMIN,
+				APOTEMASTRAWDETECTORMIN,
 				APOTEMAMAXINNERPARSTRAW,
 				4,  // color code, 4= blue.
 				myname
@@ -3871,7 +3871,7 @@ if( MvdPixelCommonList.at(iTrack*In_Put.MAXMVDPIXELHITSINTRACK+k)== ii){
       fprintf(MACRO,"{\n");
 
  Double_t RSTRAWDETECTORMAX = In_Put.rstrawdetectormax,
-	RSTRAWDETECTORMIN = In_Put.rstrawdetectormin,
+	APOTEMASTRAWDETECTORMIN = In_Put.apotemastrawdetectormin,
 	VERTICALGAP = In_Put.verticalgap,
 	APOTEMAMAXINNERPARSTRAW = In_Put.apotemamaxinnerparstraw,
 	APOTEMAMINSKEWSTRAW = In_Put.apotemaminskewstraw,
@@ -3896,7 +3896,7 @@ if( MvdPixelCommonList.at(iTrack*In_Put.MAXMVDPIXELHITSINTRACK+k)== ii){
 	DrawBiHexagonInMacro(
 				VERTICALGAP,
 				MACRO,
-				RSTRAWDETECTORMIN,
+				APOTEMASTRAWDETECTORMIN,
 				APOTEMAMAXINNERPARSTRAW,
 				4,  // color code, 4= blue.
 				myname

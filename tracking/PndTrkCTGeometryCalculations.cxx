@@ -7,6 +7,7 @@
 #include "TROOT.h"
 
 #define PI		3.141592654
+#define two_pi		6.283185307
 
 using namespace std;
 
@@ -35,7 +36,7 @@ Double_t PndTrkCTGeometryCalculations::CalculateArcLength(
 		dis = theta2-theta1;
 	}
 
-	if(dis<0.) dis += 2.*PI;
+	if(dis<0.) dis += two_pi;
 	if(dis<0.) dis =0.;
 
 	dis *= Rr;
@@ -292,7 +293,7 @@ void PndTrkCTGeometryCalculations::CalculateSandZ(
 
 //--------------------------
         S[ii] = atan2(POINTS1[j+1]-Oyy, POINTS1[j]-Oxx) ;  // atan2 returns radians in (-pi and +pi]
-        if( S[ii] < 0.) S[ii] += 2.*PI;
+        if( S[ii] < 0.) S[ii] += two_pi;
 
 
 	Z[ii] = POINTS1[j+2];
@@ -342,8 +343,8 @@ void PndTrkCTGeometryCalculations::ChooseEntranceExitbis(
 		for( i=0;i<nIntersections;i++){
 		  fi[i] = atan2(YintersectionList[i]-Oyy,
 				XintersectionList[i]-Oxx);
-		  if( fi[i] < 0.) fi[i]  += 2.*PI;
-		  if( fi[i] > FiStart) fi[i]  -= 2.*PI;
+		  if( fi[i] < 0.) fi[i]  += two_pi;
+		  if( fi[i] > FiStart) fi[i]  -= two_pi;
 		  if( fi[i] > FiStart) fi[i] = FiStart;
 		  auxIndex[i]=i;
 		} // end of for( i=0;i<nIntersections[j];i++)
@@ -359,8 +360,8 @@ void PndTrkCTGeometryCalculations::ChooseEntranceExitbis(
 		for( i=0;i<nIntersections;i++){
 		  fi[i] = atan2(YintersectionList[i]-Oyy,
 				XintersectionList[i]-Oxx);
-		  if( fi[i] < 0.) fi[i]  += 2.*PI;
-		  if( fi[i] < FiStart) fi[i]  += 2.*PI;
+		  if( fi[i] < 0.) fi[i]  += two_pi;
+		  if( fi[i] < FiStart) fi[i]  += two_pi;
 		  if( fi[i] < FiStart) fi[i] += FiStart;
 		  auxIndex[i]=i;
 		} // end of for( i=0;i<nIntersections;i++)
@@ -412,9 +413,9 @@ Double_t PndTrkCTGeometryCalculations::Dist_SZ(
 		return -ZED;
 	}
 
-//	gap = fabs(2.*PI/KAPPA);
+//	gap = fabs(two_pi/KAPPA);
 	
-	aaa = (KAPPA*ZED)/(2.*PI);
+	aaa = (KAPPA*ZED)/two_pi;
 	if( aaa<-2147483648.) {
 		*nrounds = -2147483647;
 	} else if (aaa > 2147483647.) {
@@ -423,7 +424,7 @@ Double_t PndTrkCTGeometryCalculations::Dist_SZ(
 		*nrounds = (Int_t) aaa;
 	}
 
-	dis_segments = 2.*PI*Rr/sqrt(1.+KAPPA*KAPPA*Rr*Rr); // distance between
+	dis_segments = two_pi*Rr/sqrt(1.+KAPPA*KAPPA*Rr*Rr); // distance between
 						// two consecutive segments
 						//  of trajectory.
 
@@ -617,7 +618,7 @@ void  PndTrkCTGeometryCalculations::FindingParallelTrackAngularRange(
 
 	if( (! intersection_inner) && (! intersection_outer) ){
 		*Fi_low_limit = 0.;
-		*Fi_up_limit = 2.*PI;
+		*Fi_up_limit = two_pi;
 		*status = 1;
 		return;
 	}
@@ -637,8 +638,7 @@ void  PndTrkCTGeometryCalculations::FindingParallelTrackAngularRange(
 		fi = acos(cosfi);
 	}
 
-
-	if( Charge < 0.){ // this particle rotates counterclockwise when looking into the beam
+	if( Charge < 0){ // this particle rotates counterclockwise when looking into the beam
 		if( intersection_outer && intersection_inner){
 			*Fi_low_limit=FI0 + fi;
 			*Fi_up_limit= FI0 +Fi;
@@ -646,7 +646,7 @@ void  PndTrkCTGeometryCalculations::FindingParallelTrackAngularRange(
 		} else if (intersection_inner) {
 			*Fi_low_limit=FI0 + fi;
 			*Fi_up_limit= FI0 - fi;
-		} else {
+		} else {  // case with intersection_outer=true; intersection_inner=false;
 			*Fi_low_limit=FI0 - Fi;
 			*Fi_up_limit= FI0 + Fi;
 		}	// end of    if( intersection_outer && intersection_inner
@@ -662,7 +662,7 @@ void  PndTrkCTGeometryCalculations::FindingParallelTrackAngularRange(
 		} else if (intersection_inner) {
 			*Fi_low_limit=FI0 + fi;	// must invert because low limit must be < up limit
 			*Fi_up_limit= FI0 - fi;
-		} else {
+		} else {  // case with intersection_outer=true; intersection_inner=false;
 			*Fi_low_limit=FI0 - Fi;
 			*Fi_up_limit= FI0 + Fi;
 		}	// end of    if( intersection_outer && intersection_inner
@@ -671,27 +671,23 @@ void  PndTrkCTGeometryCalculations::FindingParallelTrackAngularRange(
 	}	// end of  if( Charge < 0.)
 
 
-
-
 	if(*Fi_low_limit<0.) {
-		*Fi_low_limit=fmod(*Fi_low_limit,2.*PI);
-		*Fi_low_limit += 2.*PI;
-	} else if (*Fi_low_limit>=2.*PI){
-		*Fi_low_limit=fmod(*Fi_low_limit,2.*PI);
+		*Fi_low_limit=fmod(*Fi_low_limit,two_pi);
+		*Fi_low_limit += two_pi;
+	} else if (*Fi_low_limit>=two_pi){
+		*Fi_low_limit=fmod(*Fi_low_limit,two_pi);
 	}
 	if(*Fi_up_limit<0.) {
-		*Fi_up_limit=fmod(*Fi_up_limit,2.*PI);
-		*Fi_up_limit += 2.*PI;
-	} else if (*Fi_up_limit>=2.*PI){
-		*Fi_up_limit=fmod(*Fi_up_limit,2.*PI);
+		*Fi_up_limit=fmod(*Fi_up_limit,two_pi);
+		*Fi_up_limit += two_pi;
+	} else if (*Fi_up_limit>=two_pi){
+		*Fi_up_limit=fmod(*Fi_up_limit,two_pi);
 	}
 
 	//	Modify *Fi_up_limit by adding
 	//	2PI if it is the case, in order to make *Fi_up_limit > *Fi_low_limit.
-	if( *Fi_up_limit < *Fi_low_limit ) *Fi_up_limit += 2.*PI;
+	if( *Fi_up_limit < *Fi_low_limit ) *Fi_up_limit += two_pi;
 	if( *Fi_up_limit < *Fi_low_limit ) *Fi_up_limit = *Fi_low_limit;
-
-	*status = 0;
 
 
 
@@ -701,6 +697,157 @@ void  PndTrkCTGeometryCalculations::FindingParallelTrackAngularRange(
 
 //---------- end of  function PndTrkCTGeometryCalculations::FindingParallelTrackAngularRange
 
+
+
+
+//----------start  function PndTrkCTGeometryCalculations::FindingParallelTrackAngularRange2
+
+void  PndTrkCTGeometryCalculations::FindingParallelTrackAngularRange2(
+	Double_t oX,	// input;
+	Double_t oY,	// input;
+	Double_t Rma,	// Rmax of cylindrical volume intersected by track;
+	Double_t Rmi,	// Rmin of cylindrical volume intersected by track;
+	Double_t Rr,	// input; radius of trajectory;
+	Double_t Fi_low_limit[2],	// output; Fi (in XY Helix frame) lower limit using
+		// the Stt detector minimum/maximum radius
+		// Fi_low_limit is ALWAYS between 0. and 2PI;
+	Double_t Fi_up_limit[2],	// output; Fi (in XY Helix frame) upper limit using
+		// the Stt detector maximum/minimum radius
+		// Fi_up_limit is ALWAYS > Fi_low_limit and
+		// possibly > 2PI;
+	Short_t * status	// output;
+	)
+{
+// -------------- calculate the maximum fi and minimum fi spanned by this track,
+
+// see logbook pag.270; by using the Rmin and Rmax of the straw detector.
+// this function works also when circular trajectory in XY doesn't pass through (0,0).
+
+	bool	intersection_inner,
+		intersection_outer;
+	Double_t	teta1,
+			teta2,
+			tetavertex,
+			a,
+			cosT,
+			cost,
+			cosFi,
+			cosfi,
+			Fi,
+			fi,
+			FI0,
+			Px,
+			Py,
+			tmp;
+
+
+	// Fi_low_limit is an array of dimensionality 2;
+	// Fi_up_limit is an array of dimensionality 2;
+	// Fi_low_limit[0], Fi_up_limit[0] is the solution (radians) corresponding to the intersection
+	//	on the RIGHT side, in the XY projection of the trajectory [looking into the beam] with respect
+	//	to the segment joining the Center of the Helix with the origin (0,0);
+	// Fi_low_limit[1], Fi_up_limit[1] is the solution corresponding to the LEFT intersection; in case
+	//			there is no second solution it is set at -100.; 
+	// the charge is not considered here; the two solution are just determined by the intersection of the trajectory
+	// circle with the inner and outer boundary of the STT detector system;
+
+	// the trajectory NEEDS NOT to come from the origin ;
+
+	// Fi_low_limit is ALWAY between 0 and 2PI radians;
+	// Fi_up_limit  is ALWAYS bigger than Fi_low_limit (not necessarily < 2PI), in radians;
+
+	Rma += 1. ; // add a safety margin.
+	Rmi -= 1. ; // add a safety margin.
+
+	a = sqrt(oX*oX+oY*oY);
+
+	//  preliminary condition
+	if(a + Rr <= Rmi )	// in this case there might be hits at radius < Rmi.
+		 { *status = -1 ;return;}
+	if( a >= Rr + Rma || Rr >= a + Rma)  // in this case there can be no hits with radius < Rma.
+		 { *status = -2;return;}
+
+	if( a - Rr >= Rmi ) intersection_inner = false; else intersection_inner = true;
+
+	if( a + Rr <= Rma || a - Rr >= Rma  )
+		 intersection_outer = false; else intersection_outer = true;
+
+	if( (! intersection_inner) && (! intersection_outer) ){
+		// in this case the trajectory is contained completely between the inner
+		// and outer regions of the STT;
+		Fi_low_limit[0] = 0.;
+		Fi_up_limit[0] = two_pi;
+		*status = 1;
+		return;
+	}
+
+//	now the calculation
+
+	FI0 = atan2(-oY,-oX);
+	if( intersection_outer ){
+		cosFi = (a*a + Rr*Rr - Rma*Rma)/(2.*Rr*a);
+		if(cosFi<-1.) cosFi=-1.; else if(cosFi>1.) cosFi=1.;
+		Fi = acos(cosFi);
+	}
+
+	if( intersection_inner ){
+		cosfi = (a*a + Rr*Rr - Rmi*Rmi)/(2.*Rr*a);
+		if(cosfi<-1.) cosfi=-1.; else if(cosfi>1.) cosfi=1.;
+		fi = acos(cosfi);
+	}
+
+	if( intersection_outer && intersection_inner){
+
+			Fi_low_limit[1] = FI0 - Fi;
+			Fi_up_limit[1]  = FI0 - fi;
+
+			Fi_low_limit[0] = FI0 + fi;
+			Fi_up_limit[0]  = FI0 + Fi;
+
+	} else if (intersection_inner) {
+			Fi_low_limit[0] = FI0 + fi;
+			Fi_up_limit[0]  = FI0 - fi;
+
+			Fi_low_limit[1] = -100.;
+			Fi_up_limit[1]  = -100.;
+		} else {  // case with intersection_outer=true; intersection_inner=false;
+			Fi_low_limit[0]=FI0 - Fi;
+			Fi_up_limit[0]= FI0 + Fi;
+
+			Fi_low_limit[1] = -100.;
+			Fi_up_limit[1]  = -100.;
+	}	// end of    if( intersection_outer && intersection_inner
+
+	for(int i=0; i<2; i++){
+	 if( Fi_low_limit[i]<-99.) continue;
+	 if(Fi_low_limit[i]<0.) {
+		Fi_low_limit[i]=fmod(Fi_low_limit[i],two_pi);
+		Fi_low_limit[i] += two_pi;
+	 } else if (Fi_low_limit[i]>=two_pi){
+		Fi_low_limit[i]=fmod(Fi_low_limit[i],two_pi);
+	 }
+	 if(Fi_up_limit[i]<0.) {
+		Fi_up_limit[i]=fmod(Fi_up_limit[i],two_pi);
+		Fi_up_limit[i] += two_pi;
+	 } else if (Fi_up_limit[i]>=two_pi){
+		Fi_up_limit[i]=fmod(Fi_up_limit[i],two_pi);
+	 }
+
+	 //	Modify *Fi_up_limit by adding
+	 //	2PI if it is the case, in order to make *Fi_up_limit > *Fi_low_limit.
+	 if( Fi_up_limit[i] < Fi_low_limit[i] ) Fi_up_limit[i] += two_pi;
+	 if( Fi_up_limit[i] < Fi_low_limit[i] ) Fi_up_limit[i] = Fi_low_limit[i];
+	}	// end of for(int i=0; i<2; i++)
+	*status = 0;
+
+
+
+
+      return;
+}
+
+
+//---------- end of  function PndTrkCTGeometryCalculations::FindingParallelTrackAngularRange2
 
 
 //----------begin of function PndTrkCTGeometryCalculations::FindIntersectionsOuterCircle
@@ -823,7 +970,7 @@ Short_t PndTrkCTGeometryCalculations::FindTrackEntranceExitbiHexagonLeft(
 
 //-------- the starting point of the track.
 	FiStart = atan2( Start[1]-Oyy,Start[0]-Oxx);
-	if(FiStart<0.) FiStart+= 2.*PI;
+	if(FiStart<0.) FiStart+= two_pi;
 	if(FiStart<0.) FiStart =0.;
 
 	// this method selects the entrance and exit points of the trajectory among all
@@ -932,7 +1079,7 @@ Short_t PndTrkCTGeometryCalculations::FindTrackEntranceExitbiHexagonRight(
 
 //-------- the starting point of the track.
 	FiStart = atan2( Start[1]-Oyy,Start[0]-Oxx);
-	if(FiStart<0.) FiStart+= 2.*PI;
+	if(FiStart<0.) FiStart+= two_pi;
 	if(FiStart<0.) FiStart =0.;
 
 	// this method selects the entrance and exit points of the trajectory among all
@@ -1058,7 +1205,7 @@ Short_t PndTrkCTGeometryCalculations::FindTrackEntranceExitHexagonCircleLeft(
 	if(nIntersections<2) return -1;
 
 	FiStart = atan2( Start[1]-Oyy,Start[0]-Oxx);
-	if(FiStart<0.) FiStart+= 2.*PI;
+	if(FiStart<0.) FiStart+= two_pi;
 	if(FiStart<0.) FiStart =0.;
 
 	// this method selects the entrance and exit points of the trajectory among all
@@ -1181,7 +1328,7 @@ Short_t PndTrkCTGeometryCalculations::FindTrackEntranceExitHexagonCircleRight(
 	if(nIntersections<2) return -1;
 
 	FiStart = atan2( Start[1]-Oyy,Start[0]-Oxx);
-	if(FiStart<0.) FiStart+= 2.*PI;
+	if(FiStart<0.) FiStart+= two_pi;
 	if(FiStart<0.) FiStart =0.;
 
 	// this method selects the entrance and exit points of the trajectory among all
@@ -1976,31 +2123,31 @@ bool PndTrkCTGeometryCalculations::IsInsideArc(
 
 
 	f1 = atan2(Ycross[0]-Oyy, Xcross[0]-Oxx);
-	if(f1<0.) f1+= 2.*PI;
+	if(f1<0.) f1+= two_pi;
 	if(f1<0.) f1= 0.;
 	f2 = atan2(Ycross[1]-Oyy, Xcross[1]-Oxx);
-	if(f2<0.) f2+= 2.*PI;
+	if(f2<0.) f2+= two_pi;
 	if(f2<0.) f2= 0.;
 
 
 
 	if(Charge<0){
-		if(f1 > f2 ) f2 +=2.*PI;
+		if(f1 > f2 ) f2 +=two_pi;
 		if(f1 > f2 ) f2 = f1;
 		if( f>f1){
 			if(f<f2) return true; else return false;
 		} else {
-			f +=2.*PI;
+			f +=two_pi;
 			if(f<f1) f= f1;
 			if(f<f2) return true; else return false;
 		}
 	} else {  // Charge > 0.
-		if(f1 < f2 ) f1 +=2.*PI;
+		if(f1 < f2 ) f1 +=two_pi;
 		if(f1 < f2 ) f1 = f2;
 		if( f>f2){
 			if(f<f1) return true; else return false;
 		} else {
-			f +=2.*PI;
+			f +=two_pi;
 			if(f<f2) f= f2;
 			if(f<f1) return true; else return false;
 		}

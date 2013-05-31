@@ -64,6 +64,27 @@ void SeparateInnerOuterParallel(
 	);
 
 
+void SeparateInnerOuterRightLeftAxialStt(
+
+	// input
+	Double_t info[][7],
+	Short_t *ListHits,
+	Short_t nHits,
+	Double_t RStrawDetInnerParMax,
+
+	// output
+
+	Short_t *ListInnerHitsLeft,
+	Short_t *ListInnerHitsRight,
+	Short_t *ListOuterHitsLeft,
+	Short_t *ListOuterHitsRight,
+	Short_t *nInnerHitsLeft,
+	Short_t *nInnerHitsRight,
+	Short_t *nOuterHitsLeft,
+	Short_t *nOuterHitsRight
+	);
+
+
  bool SttParalCleanup(
 	Double_t ApotemaInnerParMax,
 	Double_t ApotemaMinOuterPar,
@@ -139,7 +160,17 @@ bool SttSkewCleanup(
 	Double_t ZCENTER_STRAIGHT
 	);
 
-
+ bool XYCleanup(
+	Double_t info[][7],
+	Short_t (*ListParContiguous)[6],
+	Short_t *nParContiguous,
+	Short_t *StrawCode,
+	Short_t *StrawCode2,
+	Short_t *TubeID,
+	Short_t *ListHits,
+	Short_t nHits,
+	Double_t RStrawDetInnerParMax
+		);
 
 
   ClassDef(PndTrkCleanup,1);
