@@ -114,7 +114,7 @@ InitStatus PndLmdTrksFilterTask::Init()
   //   }
 
   lmddim = PndLmdDim::Instance();
-  htthetatphiTrk = new TNtuple("htthetatphiTrk","ntthetatphiTrk","tg_theta:tg_phi");
+  htthetatphiTrkFit = new TNtuple("htthetatphiTrkFit","ntthetatphiTrk","tg_theta:tg_phi");
   return kSUCCESS;
 }
 // -------------------------------------------------------------------------
@@ -160,9 +160,9 @@ void PndLmdTrksFilterTask::Exec(Option_t* opt)
     TVector3 MomRecLMD(fFittedTrkP.GetPx(),fFittedTrkP.GetPy(),fFittedTrkP.GetPz());
     MomRecLMD *=1./MomRecLMD.Mag();
     double thetaCent=MomRecLMD.Theta()-0.0402;
-    htthetatphiTrk->Fill(MomRecLMD.Theta(),MomRecLMD.Phi());
+    htthetatphiTrkFit->Fill(MomRecLMD.Theta(),MomRecLMD.Phi());
     //    if(abs(thetaCent)>0.010 || abs(MomRecLMD.Phi())>0.22) dirOK=false;
-    if(abs(thetaCent)>0.020 || abs(MomRecLMD.Phi())>0.3) dirOK=false; //wide enought, but still should cut smth
+    // if(abs(thetaCent)>0.020 || abs(MomRecLMD.Phi())>0.3) dirOK=false; //wide enought, but still should cut smth
     // //--------------------------
 
     double chi2 = trkpnd->GetChi2();
@@ -279,6 +279,18 @@ void PndLmdTrksFilterTask::Exec(Option_t* opt)
 	  if(trk_accept[i]) cout<<" trk#"<<i<<" accepted"<<endl;
 	  if(trk_accept[j]) cout<<" trk#"<<j<<" accepted"<<endl;
 	}
+      }//if 2 and more hits are similar
+      else{
+	if(coundduphit>0 && trkHn[i]==3 && trkHn[j]==3){// if 1 hit is similar
+	  if(vchi2[i]>vchi2[j]){
+	    trk_accept[i]=false;
+	    trk_accept[j]=true;
+	  }
+	  else{
+	    trk_accept[i]=true;
+	    trk_accept[j]=false;
+	  }
+	}// if 1 hit is similar
       }
     }
   }
@@ -337,7 +349,7 @@ void PndLmdTrksFilterTask::Exec(Option_t* opt)
 
 void PndLmdTrksFilterTask::FinishTask()
 {
-  TTree *nout1 = htthetatphiTrk->CloneTree();
+  TTree *nout1 = htthetatphiTrkFit->CloneTree();
   nout1->Write();
 }
 

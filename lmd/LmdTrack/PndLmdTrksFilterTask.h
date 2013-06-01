@@ -54,7 +54,7 @@ protected:
   TString fTrkOutName;
   int fEventNr;
   PndLmdDim* lmddim;
-  TNtuple *htthetatphiTrk;
+  TNtuple *htthetatphiTrkFit;
   ClassDef(PndLmdTrksFilterTask,1);
 };
 
