@@ -300,7 +300,7 @@ int main(int __argc,char *__argv[]) {
   TH2 * hallPhiTheta = new TH2F("hallPhiTheta","#phi & #theta for all MC",50,2e-3,10e-3,100,-355./113,355./113);
 
   TNtuple *ntuprecTrk = new TNtuple("ntuprecTrk","Info about reconstructed trks: goodTrk [0=good,+1=ghost from hit mixture, +2=similar as other trk]","x:y:z:mom:theta:phi:goodTrk");
-  TNtuple *ntupMCTrk = new TNtuple("ntupMCTrk","Info about simulated trks: goodTrk [0=good, -1=missed in trk search, -2=little amount hits if MChits>0]","x:y:z:mom:theta:phi:goodTrk:nMChits:nREChits:nDoubleMChits");
+  TNtuple *ntupMCTrk = new TNtuple("ntupMCTrk","Info about simulated trks: goodTrk [0=good, -1=missed in trk search, -2=little amount hits if MChits>0, -3=no MChits]","x:y:z:mom:theta:phi:goodTrk:nMChits:nREChits:nDoubleMChits");
 
   TH1 *hResMom = new TH1F("hResMom","P_{MC}-P_{rec};#deltaP,GeV/c",1e3,-1e-4,1e-4);
   TH1 *hErrMom = new TH1F("hErrMom","#sigma_{P};#sigmaP,GeV/c",1e3,0,1e-3);
@@ -903,6 +903,9 @@ int main(int __argc,char *__argv[]) {
 	      trkQ=-2;
 	      if(verboseLevel>7) cout<<" --- MCtrk#"<<imc<<" was defined as MISSED due to little amount of hits (#MChits="
 				     <<MCtksREChits[imc]<<" with limit>"<<minHits<<")"<<endl;
+	    }
+	    else{
+	      trkQ=-3;
 	    }
 	  }
 	  ntupMCTrk->Fill(PosMC.X(),PosMC.Y(),PosMC.Z(),MomMC.Mag(),MomMC.Theta(),MomMC.Phi(),trkQ,MCtksSIMhits[imc],MCtksREChits[imc],MCDoubleHits[imc]);
