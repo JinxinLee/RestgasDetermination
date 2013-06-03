@@ -159,10 +159,15 @@ HEADER_DIRECTORIES(MODEL_INCLUDE_DIRECTORIES LmdFit/ModelFramework)
 
 include_directories(${MODEL_INCLUDE_DIRECTORIES})
 
+include_directories(/usr/X11R6/include/)
+link_directories(/usr/X11R6/lib)
+SET(EXTRA_LIBS GL X11 GLU glut)
 
 FILE(GLOB_RECURSE MODEL_SRCS  LmdFit/ModelFramework/*.cxx)
 
 add_library(Model SHARED ${MODEL_SRCS})
+
+TARGET_LINK_LIBRARIES(Model gsl)
 
 
 ########################### create libLmdFit ##################################
