@@ -36,6 +36,7 @@ class PndTrkHitList : public TObject
   virtual void AddHit(Int_t hitid, Int_t detid, FairHit *hit);
 
   PndTrkHit *GetHit(int index);
+  std::vector<PndTrkHit> GetHitList();
   
   inline Int_t  GetNofHits() { return hitlist.size(); }
   

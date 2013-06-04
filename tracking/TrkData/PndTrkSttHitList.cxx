@@ -30,9 +30,13 @@ PndTrkSttHitList* PndTrkSttHitList::Instanciate() {
   fInstance = this;
 }
 
-PndTrkSttHitList::PndTrkSttHitList() : PndTrkHitList(), fTubeArray(NULL) {}
+PndTrkSttHitList::PndTrkSttHitList() : PndTrkHitList(), fTubeArray(NULL) {
+  hitmap.clear();
+}
 
-PndTrkSttHitList::PndTrkSttHitList(TClonesArray *tubearray) : PndTrkHitList(), fTubeArray(tubearray) {}
+PndTrkSttHitList::PndTrkSttHitList(TClonesArray *tubearray) : PndTrkHitList(), fTubeArray(tubearray) { 
+   hitmap.clear();
+}
  
 PndTrkSttHitList::~PndTrkSttHitList() { 
 fInstance = 0;
@@ -73,9 +77,82 @@ void PndTrkSttHitList::AddHit(Int_t hitid, Int_t detid, FairHit *hit) {
   }
 
   PndTrkHitList::AddHit(hitid, detid, 0, iregion, tubeID, position, ((PndSttHit *) hit)->GetIsochrone()); // CHECK iregion
+  
+  
+  std::map< int , int > ::iterator it;
+  int isec = tube->GetSectorID();
+  hitmap.insert( std::pair<int , int > (isec, hitlist.size() - 1));
+
 }
 
 
 
+void PndTrkSttHitList::PrintSectors() {
+
+  for(int isec = 0; isec  < 6; isec++) {
+    cout << "SECTOR " << isec << ": ";
+
+
+    std::pair < std::multimap< int, int >::iterator, std::multimap < int, int >::iterator> ret;
+    ret = hitmap.equal_range(isec);
+    for (std::multimap< int, int >::iterator it = ret.first; it != ret.second; ++it)
+      std::cout << ' ' << it->second;
+    cout << endl;
+  }
+  
+  //   for(int isec = 0; isec  < 6; isec++) {
+  //     cout << "SECTOR " << isec << ": ";
+  //     it =  hitmap.find(isec);
+  //     if(it == hitmap.end()) continue;
+  //     std::vector< int > listofhits = it->second;
+  //     for(int ihit = 0; ihit < listofhits.size() ;  ihit++) {
+  //       cout << " " << hitlist.at(listofhits[ihit]).GetHitID();
+  //     }
+  //     cout << endl;
+  //  }
+}
+
+
+int PndTrkSttHitList::GetNofHitsInSector(int isec) {
+  std::pair < std::multimap< int, int >::iterator, std::multimap < int, int >::iterator> ret;
+  ret = hitmap.equal_range(isec);
+  int counter = 0;
+  for (std::multimap< int, int >::iterator it = ret.first; it != ret.second; ++it) counter++; // CHECK
+  return counter; 
+
+
+}
+
+std::vector< PndTrkHit* > PndTrkSttHitList::GetHitListFromSector(int isec) { 
+
+  std::vector< PndTrkHit* > thissector;
+
+  std::pair < std::multimap< int, int >::iterator, std::multimap < int, int >::iterator> ret;
+  ret = hitmap.equal_range(isec);
+  for (std::multimap< int, int >::iterator it = ret.first; it != ret.second; ++it) {
+    PndTrkHit *hit = &hitlist[it->second];
+    //   cout << "hit " << hit->GetHitID() << endl;
+    thissector.push_back(hit);
+  }
+  return thissector;
+}
+
+PndTrkHit *PndTrkSttHitList::GetHitFromSector(int ihit, int isec) {
+  std::vector< PndTrkHit* > listofhits = GetHitListFromSector(isec);
+  return listofhits.at(ihit);
+}
+
+void PndTrkSttHitList::PrintSector(int isec) { 
+ std::vector< PndTrkHit* > listofhits = GetHitListFromSector(isec);
+   cout << "Sector " << isec << ": ";
+   for (int ihit = 0; ihit < listofhits.size(); ihit++) cout << " " << (listofhits.at(ihit))->GetHitID();
+   cout << endl;
+}
+
+void PndTrkSttHitList::DrawSector(int isec, Color_t color) {
+  
+   std::vector< PndTrkHit* > listofhits = GetHitListFromSector(isec);
+   for (int ihit = 0; ihit < listofhits.size(); ihit++) (listofhits.at(ihit))->Draw(color);
+}
 ClassImp(PndTrkSttHitList)
  
