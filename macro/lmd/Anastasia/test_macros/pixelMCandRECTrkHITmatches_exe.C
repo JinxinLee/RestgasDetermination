@@ -338,7 +338,7 @@ int main(int __argc,char *__argv[]) {
   TH2I *hnhits = new TH2I("hnhits","# rec hits vs. # sim hits; sim; rec",100,0,100,100,0,100);
   ///
  TNtuple *ntupTrkFit = new TNtuple("ntupTrkFit","Info about reconstructed trks: trk-cand vs. trk after fit","xtc:ytc:ztc:thtc:phitc:xtf:ytf:ztf:thtf:phitf:chi2");
-
+ // TNtuple *ntupTrkSteps = new TNtuple("ntupTrkSteps","Info about reconstructed trks: trk-cand vs. trk after fit vs. GEANE trk","thtc:phitc:thtf:phitf:chi2:thgeane:phgeane");
   TH1 *hMCtrkPer = new TH1F("hMCtrkPer","% of MCTrk in one rec.trk",1e3,0,110);
   //Load lumi geo params
   PndLmdDim *lmddim = PndLmdDim::Instance();
@@ -908,10 +908,9 @@ int main(int __argc,char *__argv[]) {
 	      trkQ=-3;
 	    }
 	  }
-	  ntupMCTrk->Fill(PosMC.X(),PosMC.Y(),PosMC.Z(),MomMC.Mag(),MomMC.Theta(),MomMC.Phi(),trkQ,MCtksSIMhits[imc],MCtksREChits[imc],MCDoubleHits[imc]);
-	  
 	  //	  cout<<"trk was marked ad missed, reason trkQ="<<trkQ<<endl;
 	}
+	ntupMCTrk->Fill(PosMC.X(),PosMC.Y(),PosMC.Z(),MomMC.Mag(),MomMC.Theta(),MomMC.Phi(),trkQ,MCtksSIMhits[imc],MCtksREChits[imc],MCDoubleHits[imc]);
 	//	if(verboseLevel>3) cout<<"#REChits = "<<MCtksREChits[imc]<<endl;
       }
       if(nMCmissedTrkSearch>0) hntrkmissed_II->Fill(nMCmissedTrkSearch); //missed by track search only and not because it wasn't enought hits!
