@@ -26,64 +26,87 @@ Bool_t PndMcTruthMatch::MctMatch ( RhoCandidate& c, RhoCandList& mct, Int_t leve
   Int_t nmct = mct.GetLength();
 
   if ( 0==nd ) { // final state particle
-    Int_t mcidx = c.GetMcIdx();
-
-    if ( mcidx<0 || mcidx>=nmct ) {
-      if(verbose) Info("PndMcTruthMatch::MctMatch","rejected final state by out-of-bound mcID (%i conflicts with [0;%i])",mcidx,nmct);
+    RhoCandidate* mccnd = c.GetMcTruth();
+    if ( !mccnd ) {
+      if(verbose) Info("PndMcTruthMatch::MctMatch","rejected final state by nonexistent mc truth pointer");
       return false;
     }
-
-    if ( mct[mcidx].PdgCode() == pdg ) {
+    if ( mccnd->PdgCode() == pdg ) {
       if(verbose) Info("PndMcTruthMatch::MctMatch","accepted final state by PDG code (pdg=%i)",pdg);
       return true;
     } else {
-      if(verbose) Info("PndMcTruthMatch::MctMatch","rejected final state by PDG Code (pdg=%i|%i)",pdg, mct[mcidx].PdgCode());
+      if(verbose) Info("PndMcTruthMatch::MctMatch","rejected final state by PDG Code (pdg=%i|mcpdg=%i)",pdg, mccnd->PdgCode());
       return false;
     }
-  } else { // need to match a decay tree
+  } 
+    
     // check recursively whether all daughter trees match
     for ( Int_t i=0; i<nd; ++i ) if ( !MctMatch ( * ( c.Daughter ( i ) ), mct, level, verbose ) ) {
       if(verbose) Info("PndMcTruthMatch::MctMatch","rejected composite (pdg=%i) by non-matching daughter: idau=%i",pdg,i);
       return false;
-      }
+    }
 
     // ***
-    // *** MATCH LEVEL 0: only PID of leaves are matched
+    // *** MATCH LEVEL 0 reached: only PID of final state particles are matched
     // ***
     if ( 0==level ) {
       return true;
     }
 
-    // fetch the mother index from the first daughter's mct match object
-    Int_t dau0MCidx = c.Daughter ( 0 )->GetMcIdx();
-
-    Int_t mothidx = 0;//mct[dau0MCidx].GetMcMotherIdx();
-
-    // check whether mother index is in range
-    if ( mothidx<0 || mothidx>=nmct ) {
-      if(verbose) Info("PndMcTruthMatch::MctMatch","rejected by out-of-bound mother mcID");
+    // reset mc truth pointer
+    RhoCandidate* mccnd = c.GetMcTruth();
+    if(mccnd) {
+        if(verbose) Warning("PndMcTruthMatch::MctMatch","Existing MC truth found. Will reset it now.");
+        c.SetMcTruth(0);
+        //return false;
+    }
+    
+    // find this particle's truth in the mc decay tree
+    RhoCandidate* dauzero = c.Daughter(0);
+    if (!dauzero) {
+      if(verbose) Info("PndMcTruthMatch::MctMatch","rejected by not existing daughter zero");
       return false;
     }
-
-    // fetch #daughters from MC truth mother
-    //Int_t nd_of_m = mct[mothidx].NDaughters();  //unused?
-
-    // check whether all daughters have been reconstructed correctly
-    // ******** since MCT objects don't have daughter info skipped for now !!! ********
-    //if (nd!=nd_of_m) return false;
-
-    // check whether the mothers of all daughters are the same
-    for ( Int_t i=1; i<nd; ++i ) {
-      Int_t dauidx = c.Daughter ( i )->GetMcIdx();
-
-     // if ( mct[dauidx].GetMcMotherIdx() != mothidx ) {
- //       if(verbose) Info("PndMcTruthMatch::MctMatch","rejected by not matching mother ids in daughters");
-      //  return false;
-     // }
+    RhoCandidate* mcdauzero = dauzero->GetMcTruth();
+    if (!mcdauzero) {
+      if(verbose) Info("PndMcTruthMatch::MctMatch","rejected by not existing MC truth of daughter zero");
+      return false;
     }
-
-    // set c's mct index to that one of all daughters mother idx
-    c.SetMcIdx ( mothidx );
+    RhoCandidate* mcdauzeromother=mcdauzero->TheMother();
+    if (!mcdauzeromother) {
+      if(verbose) Info("PndMcTruthMatch::MctMatch","rejected by not existing mother of MC truth of daughter zero");
+      return false;
+    }
+    
+    //now check the tree structure:
+    //  first daughter number
+    if( c.NDaughters() != mcdauzeromother->NDaughters() ){
+      if(verbose) Info("PndMcTruthMatch::MctMatch","rejected by differing daughter count: cand:%i mc:%i",c.NDaughters(),mcdauzeromother->NDaughters());
+      return false;
+    }
+    //  now if all daughters MC-Mother is the same
+    for(int idau=1;idau<nd;idau++){
+      // look if all daughters mc mothers are the same
+      RhoCandidate* dau = c.Daughter(idau)->GetMcTruth();
+      if (!dau) {
+        if(verbose) Info("PndMcTruthMatch::MctMatch","rejected by not existing daughter %i",idau);
+        return false;
+      }      
+      RhoCandidate* mcdau = dau->GetMcTruth();
+      if (!mcdau) {
+        if(verbose) Info("PndMcTruthMatch::MctMatch","rejected by not existing MC truth of daughter %i",idau);
+        return false;
+      }
+      RhoCandidate* mcdaumother=mcdau->TheMother();
+      if (!mcdaumother) {
+        if(verbose) Info("PndMcTruthMatch::MctMatch","rejected by not existing mother of MC truth of daughter %i",idau);
+        return false;
+      }
+      if(mcdaumother!=mcdauzeromother){
+        if(verbose) Info("PndMcTruthMatch::MctMatch","rejected by mc mother of daughter %i is different to mc mother of daughter zero -> Tree does not match",idau);
+        return false;
+      }
+    }
 
     // ***
     // *** MATCH LEVEL 1: PID of the leaves and tree topology are matched
@@ -93,8 +116,8 @@ Bool_t PndMcTruthMatch::MctMatch ( RhoCandidate& c, RhoCandList& mct, Int_t leve
     }
 
     // check whether all daughter's mother has correct PDG code
-    if ( pdg != mct[mothidx].PdgCode() ) {
-      if(verbose) Info("PndMcTruthMatch::MctMatch","rejected by nonmatching mother %i by (pdgcode|mcpdgcode) (%i|%i)",mothidx,pdg,mct[mothidx].PdgCode());
+    if ( pdg != mcdauzeromother->PdgCode() ) {
+      if(verbose) Info("PndMcTruthMatch::MctMatch","rejected by nonmatching pdg code in tree (pdgcode|mcpdgcode) (%i|%i)",pdg,mcdauzeromother->PdgCode());
       return false;
     }
 
@@ -102,7 +125,6 @@ Bool_t PndMcTruthMatch::MctMatch ( RhoCandidate& c, RhoCandList& mct, Int_t leve
     // *** MATCH LEVEL 2: PID of leaves, tree topology and intermediate particle types are matched
     // ***
     return true;  // c's tree matches!
-  }
 }
 
 

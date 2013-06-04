@@ -128,7 +128,7 @@ void PndMcListConverter::Exec(Option_t* opt)
 
     RhoCandidate* pmc=new (ref[size]) RhoCandidate(p4,charge);
 
-    pmc->SetMcIdx(size);
+    pmc->SetMcTruth(0);// Mc truth has no truth object....
     pmc->SetPos(stvtx);
     pmc->SetType(part->GetPdgCode());//mass is overwirtten internally
     pmc->SetP4(p4);//reset to generator output

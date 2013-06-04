@@ -63,7 +63,7 @@ class FairRecoCandidate : public FairMultiLinkedData
   //virtual Float_t		GetTrackLength() const =0;
   virtual Int_t    	GetDegreesOfFreedom() const =0;
   virtual Int_t    	GetFitStatus() const =0;
-  //virtual Float_t  	GetProbability() const =0;
+  //Float_t  	GetProbability() {return TMath::Prob(GetChiSquared(),GetDegreesOfFreedom());};
   virtual Float_t  	GetChiSquared() const =0;
 	    
   //PID

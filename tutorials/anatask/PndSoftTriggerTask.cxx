@@ -524,7 +524,7 @@ void PndSoftTriggerTask::PrintList(RhoCandList &l, int max)
 	if (N>max) N=max;
 	for (int j=0;j<N;++j)
 	{
-		cout <<l[j]<<" PDG:"<<l[j].PdgCode()<<" MC:"<<l[j].GetMcIdx()<<endl;
+		cout <<l[j]<<" PDG:"<<l[j].PdgCode()<<" MC pointer:"<<l[j].GetMcTruth()<<endl;
 	}
 	cout <<endl;
 }
@@ -561,14 +561,14 @@ int PndSoftTriggerTask::SelectPdgCode(RhoCandList &mct, RhoCandList &l)
 	
 	for (int ii=l.GetLength();ii>=0;--ii)
 	{
-		Int_t idx = l[ii].GetMcIdx();
-		if (idx<0 || idx >= nmct || mct[idx].PdgCode()!=pdgcode)
-		
-//		if (!mcm.MctMatch(l[ii],mct))
-		{
-			l.Remove(l[ii]);
-			removed++;
-		}
+		RhoCandidate* mccand = l[ii].GetMcTruth();
+        
+		if (mccand)
+          if(mccand->PdgCode()==pdgcode)
+//      if (mcm.MctMatch(l[ii],mct))
+            continue; //don't remove if good mctruth
+		l.Remove(l[ii]);
+		removed++;
 	}
 	return removed;
 }

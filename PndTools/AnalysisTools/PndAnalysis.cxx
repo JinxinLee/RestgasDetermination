@@ -408,7 +408,7 @@ void PndAnalysis::BuildMcCands()
     RhoCandidate* pmc=new ( ( *fMcCands ) [size] ) RhoCandidate ( p4,charge );
     mothermap[i]=size;
     //pmc->SetMcIdx(size);
-    pmc->SetMcIdx ( i );
+    //pmc->SetMcIdx ( 0 ); // no truth object for mctruth
     pmc->SetPos ( stvtx );
     pmc->SetType ( part->GetPdgCode() ); //this overwrites our generator's mass information
     pmc->SetP4 ( p4 );

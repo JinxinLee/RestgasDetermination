@@ -780,7 +780,8 @@ void PndSimpleAnalysis::Exec(Option_t* opt)
           break;
 
           case 510:
-            theArI[k+off]=cur->fList[k].GetMcIdx();
+            Error("PndSimpleAnalysis::Exec","case 510 requested and MC truth handling changed! Please fix it.");
+            //theArI[k+off]=cur->fList[k].GetMcIdx();
             break;
 
           case 515: // determine the best pid level

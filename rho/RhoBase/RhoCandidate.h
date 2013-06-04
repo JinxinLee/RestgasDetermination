@@ -89,10 +89,14 @@ class RhoCandidate : public TObject
 
     // added by K Goetzen
     double fPidLH[30];
-    int    fMcIdx;
-
+ 
   private:
     Double_t fChi2;
+   
+    //[ralfk:may2013] changed mc truth access to direct pointers
+    //int    fMcIdx;
+    RhoCandidate* fMcTruth;//! pointer, objects created by RhoFactory
+
     RhoCandidate* fFit; //! pointer, objects created by RhoFactory
     // the params
     Char_t   fCharge;             // The electrical charge
@@ -416,8 +420,11 @@ class RhoCandidate : public TObject
     double GetPidInfo ( int hypo );
     const double* GetPidInfo() const;
 
-    void SetMcIdx ( int idx ) {fMcIdx=idx;}
-    int GetMcIdx() {return fMcIdx;}
+    //[ralfk:may2013] changed mc truth access to direct pointers
+    //void SetMcIdx ( int idx ) {fMcIdx=idx;}
+    //int GetMcIdx() {return fMcIdx;}
+    void SetMcTruth ( RhoCandidate* mct ) {fMcTruth=mct;}
+    RhoCandidate* GetMcTruth() {return fMcTruth;}
 
     Bool_t IsLocal() const { return kTRUE; }
 

@@ -398,7 +398,7 @@ void PndFastSim::Exec(Option_t* opt)
 
     // store a plain copy of the mc track to the file
     RhoCandidate *pmc=new (mctracks[mcsize]) RhoCandidate(ft->p4(),ft->charge());
-    pmc->SetMcIdx(iPoint);
+    pmc->SetMcTruth(pmc);;
     pmc->SetPos(ft->startVtx());
     pmc->SetType(t->GetPdgCode());
     // write some ideal pid lhs
@@ -626,7 +626,6 @@ void PndFastSim::Exec(Option_t* opt)
 		  pidCand->SetMcIndex(-1);
 		  
           RhoCandidate tCand(lv,0.0,svtx2);
-          tCand.SetMcIdx(-1);
           tCand.SetType(22);
           nNeutral++;
 

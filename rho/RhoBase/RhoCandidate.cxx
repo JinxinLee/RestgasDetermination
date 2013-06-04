@@ -51,12 +51,12 @@ RhoCandidate::RhoCandidate() :
   fNDaug ( 0 ),
   fNCons ( 0 ),
   fChi2 ( 0 ),
+  fMcTruth ( 0 ),
   fFit ( 0 )
 {
   fMarker[0] = fMarker[1] = fMarker[2] = fMarker[3] = 0;
   SetUid();
   SetPidInfo ( 0 );
-  SetMcIdx ( -1 );
   for ( int i=0; i<30; i++ ) { fPidLH[i]=-999999.;}
   for ( int i=0; i<MATRIXSIZE; i++ ) { fErrP7[i] = 0.; }
 }
@@ -77,6 +77,7 @@ RhoCandidate::RhoCandidate ( const TLorentzVector& v, Double_t charge, RhoVector
   fNDaug ( 0 ),
   fNCons ( 0 ),
   fChi2 ( 0 ),
+  fMcTruth ( 0 ),
   fFit ( 0 )
 {
   fMarker[0] = fMarker[1] = fMarker[2] = fMarker[3] = 0;
@@ -84,7 +85,6 @@ RhoCandidate::RhoCandidate ( const TLorentzVector& v, Double_t charge, RhoVector
   SetP7 ( ( vp!=0 ? *((TVector3*)vp) : TVector3 ( 0.,0.,0. ) ), v );
   SetUid();
   SetPidInfo ( 0 );
-  SetMcIdx ( -1 );
   for ( int i=0; i<30; i++ ) { fPidLH[i]=-999999.;}
   for ( int i=0; i<MATRIXSIZE; i++ ) { fErrP7[i] = 0.; }
 }
@@ -142,6 +142,7 @@ RhoCandidate::RhoCandidate ( const TVector3& v, const TParticlePDG* pdt, RhoVect
   fNDaug ( 0 ),
   fNCons ( 0 ),
   fChi2 ( 0 ),
+  fMcTruth ( 0 ),
   fFit ( 0 )
 {
   fMarker[0] = fMarker[1] = fMarker[2] = fMarker[3] = 0;
@@ -150,7 +151,6 @@ RhoCandidate::RhoCandidate ( const TVector3& v, const TParticlePDG* pdt, RhoVect
   SetType ( pdt );
   SetUid();
   SetPidInfo ( 0 );
-  SetMcIdx ( -1 );
   for ( int i=0; i<30; i++ ) {fPidLH[i]=-999999.; }
   for ( int i=0; i<MATRIXSIZE; i++ ) { fErrP7[i] = 0.; }
 }
@@ -207,7 +207,7 @@ RhoCandidate::RhoCandidate ( const RhoCandidate& o )
     fPidLH[i]=o.fPidLH[i];
   }
 
-  fMcIdx=o.fMcIdx;
+  fMcTruth=o.fMcTruth;
 
   //FIXME Do we want to carry these status flags?
   fChi2 = 0 ;
@@ -232,6 +232,7 @@ RhoCandidate::RhoCandidate ( FairRecoCandidate& a, Int_t n, RhoVector3Err* vp, B
   fNDaug ( 0 ),
   fNCons ( 0 ),
   fChi2 ( 0 ),
+  fMcTruth ( 0 ),
   fFit ( 0 )
 {
   fMarker[0] = fMarker[1] = fMarker[2] = fMarker[3] = 0;
@@ -258,7 +259,7 @@ RhoCandidate::RhoCandidate ( FairRecoCandidate& a, Int_t n, RhoVector3Err* vp, B
   SetPidInfo ( 3,a.GetKaonPidLH() );
   SetPidInfo ( 4,a.GetProtonPidLH() );
 
-  SetMcIdx ( a.GetMcIndex() );
+//  SetMcTruth ( a.GetMcTruth() ); // set the MCTuth object when building the mc list
 }
 
 
@@ -330,7 +331,7 @@ RhoCandidate::operator = ( const RhoCandidate& o )
     fPidLH[i]=o.fPidLH[i];
   }
 
-  fMcIdx=o.fMcIdx;
+  fMcTruth=o.fMcTruth;
 
   return *this;
 }

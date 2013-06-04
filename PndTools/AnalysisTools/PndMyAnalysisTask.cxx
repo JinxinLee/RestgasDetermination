@@ -272,9 +272,10 @@ void PndMyAnalysisTask::Exec(Option_t* opt)
     hpsim_nopid->Fill( psi2s[j].M() );
     if (mcm->MctMatch(psi2s[j], mctrk)) {
       hpsim_ftm->Fill( psi2s[j].M() );
-
-      const RhoCandidate* truePsi = mctrk.GetConst(psi2s[j].GetMcIdx());
-      const RhoCandidate* trueJ   = mctrk.GetConst(psi2s[j].Daughter(0)->GetMcIdx());
+       
+      ///TODO  recheck the MC truth access! Is the truth list available?
+      const RhoCandidate* truePsi = psi2s[j].GetMcTruth();
+      const RhoCandidate* trueJ   = psi2s[j].Daughter(0)->GetMcTruth();
 
       hjpsim_diff->Fill(trueJ->M()-psi2s[j].Daughter(0)->M());
       hpsim_diff->Fill(truePsi->M()-psi2s[j].M());
@@ -426,14 +427,12 @@ int PndMyAnalysisTask::SelectPdgCode(RhoCandList& mct, RhoCandList& l)
   if (l.GetLength()>0) { pdgcode = l[0].PdgCode(); }
 
   for (int ii=0; ii<l.GetLength(); ++ii) {
-    Int_t idx = l[ii].GetMcIdx();
-    if (idx<0 || idx >= nmct || mct[idx].PdgCode()!=pdgcode)
-
-//    if (!mcm.MctMatch(l[ii],mct))
-    {
-      l.Remove(l[ii]);
-      removed++;
-    }
+    RhoCandidate* mccnd = l[ii].GetMcTruth();
+    if (mccnd)
+      if(mccnd->PdgCode()==pdgcode)
+        continue; // we skip if things are allright and remove if not
+    l.Remove(l[ii]);
+    removed++;
   }
   return removed;
 }
