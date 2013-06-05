@@ -299,8 +299,31 @@ int main(int __argc,char *__argv[]) {
   TH2 * hgoodPhiTheta = new TH2F("hgoodPhiTheta","#phi and #thete for good track-candidates",50,2e-3,10e-3,100,-355./113,355./113);
   TH2 * hallPhiTheta = new TH2F("hallPhiTheta","#phi & #theta for all MC",50,2e-3,10e-3,100,-355./113,355./113);
 
-  TNtuple *ntuprecTrk = new TNtuple("ntuprecTrk","Info about reconstructed trks: goodTrk [0=good,+1=ghost from hit mixture, +2=similar as other trk]","x:y:z:mom:theta:phi:goodTrk");
-  TNtuple *ntupMCTrk = new TNtuple("ntupMCTrk","Info about simulated trks: goodTrk [0=good, -1=missed in trk search, -2=little amount hits if MChits>0, -3=no MChits]","x:y:z:mom:theta:phi:goodTrk:nMChits:nREChits:nDoubleMChits");
+  // TNtuple *ntuprecTrk = new TNtuple("ntuprecTrk","Info about reconstructed trks: goodTrk [0=good,+1=ghost from hit mixture, +2=similar as other trk]","x:y:z:mom:theta:phi:goodTrk");
+  // TNtuple *ntupMCTrk = new TNtuple("ntupMCTrk","Info about simulated trks: goodTrk [0=good, -1=missed in trk search, -2=little amount hits if MChits>0, -3=no MChits]","x:y:z:mom:theta:phi:goodTrk:nMChits:nREChits:nDoubleMChits");
+
+  TTree *tRECMCtrks = new TTree("tRECMC","Rec trks vs. MC trks (trkstREC:0=good,+1=ghost from hit mix,+2=similar as other trk,-1=trk-search losses,-2=little amount of hits,-3=no MC hits, -10=trk wasn't back-propag); trkstMC: 0=primary, >0 =secondary");
+  Double_t glXrecLMD,glYrecLMD,glZrecLMD,glThetarecLMD,glPhirecLMD;
+  Double_t glXrec,glYrec,glZrec,glThetarec,glPhirec;
+  Double_t glXmc,glYmc,glZmc,glThetamc,glPhimc;
+  Int_t trkRECStatus; Int_t trkMCStatus;
+  tRECMCtrks->Branch("xrec",&glXrec);
+  tRECMCtrks->Branch("yrec",&glYrec);
+  tRECMCtrks->Branch("zrec",&glZrec);
+  tRECMCtrks->Branch("thetarec",&glThetarec);
+  tRECMCtrks->Branch("phirec",&glPhirec);
+  tRECMCtrks->Branch("xrecLMD",&glXrecLMD);
+  tRECMCtrks->Branch("yrecLMD",&glYrecLMD);
+  tRECMCtrks->Branch("zrecLMD",&glZrecLMD);
+  tRECMCtrks->Branch("thetarecLMD",&glThetarecLMD);
+  tRECMCtrks->Branch("phirecLMD",&glPhirecLMD);
+  tRECMCtrks->Branch("xmc",&glXmc);
+  tRECMCtrks->Branch("ymc",&glYmc);
+  tRECMCtrks->Branch("zmc",&glZmc);
+  tRECMCtrks->Branch("thetamc",&glThetamc);
+  tRECMCtrks->Branch("phimc",&glPhimc);
+  tRECMCtrks->Branch("trkstREC",&trkRECStatus);
+  tRECMCtrks->Branch("trkstMC",&trkMCStatus);
 
   TH1 *hResMom = new TH1F("hResMom","P_{MC}-P_{rec};#deltaP,GeV/c",1e3,-1e-4,1e-4);
   TH1 *hErrMom = new TH1F("hErrMom","#sigma_{P};#sigmaP,GeV/c",1e3,0,1e-3);
@@ -340,6 +363,8 @@ int main(int __argc,char *__argv[]) {
  TNtuple *ntupTrkFit = new TNtuple("ntupTrkFit","Info about reconstructed trks: trk-cand vs. trk after fit","xtc:ytc:ztc:thtc:phitc:xtf:ytf:ztf:thtf:phitf:chi2");
  // TNtuple *ntupTrkSteps = new TNtuple("ntupTrkSteps","Info about reconstructed trks: trk-cand vs. trk after fit vs. GEANE trk","thtc:phitc:thtf:phitf:chi2:thgeane:phgeane");
   TH1 *hMCtrkPer = new TH1F("hMCtrkPer","% of MCTrk in one rec.trk",1e3,0,110);
+
+  //  TTree *hrecmc
   //Load lumi geo params
   PndLmdDim *lmddim = PndLmdDim::Instance();
   lmddim -> Read_transformation_matrices("/panda/pandaroot/input/trafo_matrices_lmd.dat", false);
@@ -367,7 +392,7 @@ int main(int __argc,char *__argv[]) {
       cout<<"%%%%%! Event #"<<j<<" has "<<nParticles<<" true particles, "<<" out of it "<<nRecHits<<" hits, "<<nTrkCandidates
 	  <<" trk-cands, "<<numTrk<<" tracks and "<<nGeaneTrks<<" geane Trks!"<<endl;
     hnRecnMC->Fill(nParticles,nGeaneTrks);
-    if(nParticles!=nMCtracks) continue;
+    //  if(nParticles!=nMCtracks) continue;
     bool secondMC=false;
     for(int imc=0;imc<nParticles;imc++){//check that we don't have any secondaries here
       PndMCTrack *mctrk =(PndMCTrack*) true_tracks->At(imc);
@@ -377,7 +402,7 @@ int main(int __argc,char *__argv[]) {
 	secondMC=true;
       }
     }
-    if(secondMC) continue;
+    //   if(secondMC) continue;
    
     /// Chech how many MC hits has MC trk ----------------------------
     int MCtksSIMhits[nParticles];
@@ -506,7 +531,7 @@ int main(int __argc,char *__argv[]) {
 	//	cout<<"Event #"<<j<<" diffIDs = "<<diffIDs<<endl;
 	glBADGEANE++;
       }
-      if(lyambda==0) continue;
+      //    if(lyambda==0) continue;
      
       PndTrack *trkpnd = (PndTrack*)rec_trk->At(iN);
       // if(verboseLevel>5) 
@@ -816,6 +841,7 @@ int main(int __argc,char *__argv[]) {
 
     int goodRecII=0, ghostRecI=0, ghostRecII=0;
     for (Int_t iN=0; iN<nGeaneTrks; iN++){ //ghost/good trk determination
+
       int trkType = -1;
       if(RECassigMC[iN]>1){ //one RECtrk was already called GOOD for this MCid -> all next are GHOSTs
 	goodTrk[iN]=false;
@@ -837,15 +863,53 @@ int main(int __argc,char *__argv[]) {
 	  ghostRecII++;
 	}
       }
-      if(trkType<0) 
+      if(trkType<0){
 	cout<<"Ooops, RECtrk isn't GOOD and isn't GHOST!!!"<<endl;
+	trkType=-10;
+      }
+      //    if(trkType<0) continue; //GEANE didn't propagate this track
       FairTrackParH *fRes = (FairTrackParH*)geaneArray->At(iN);
       Double_t lyambda = fRes->GetLambda();
+      if(lyambda==0)
+	trkType=-10;
+	//	cout<<"GEANE didn't propagate "<<iN<<" trk!"<<endl;
       Double_t thetaBP = TMath::Pi()/2. - lyambda;
       Double_t phiBP = fRes->GetPhi();
       TVector3 MomRecBP = fRes->GetMomentum();
       TVector3 PosBP = fRes->GetPosition();
-      ntuprecTrk->Fill(PosBP.X(),PosBP.Y(),PosBP.Z(),MomRecBP.Mag(),thetaBP,phiBP,trkType);
+      //  ntuprecTrk->Fill(PosBP.X(),PosBP.Y(),PosBP.Z(),MomRecBP.Mag(),thetaBP,phiBP,trkType);
+      //Fill tree with rec vs. mc trk info ------------------------------------------------
+      glXrec = PosBP.X();      glYrec = PosBP.Y();       glZrec = PosBP.Z();
+      glThetarec = thetaBP;       glPhirec = phiBP;
+      PndTrack *trkpnd = (PndTrack*)rec_trk->At(iN);
+      FairTrackParP fFittedTrkP = trkpnd->GetParamFirst();
+      TVector3 PosRecLMD(fFittedTrkP.GetX(),fFittedTrkP.GetY(),fFittedTrkP.GetZ());
+      TVector3 MomRecLMD(fFittedTrkP.GetPx(),fFittedTrkP.GetPy(),fFittedTrkP.GetPz());
+      MomRecLMD *=Plab/MomRecLMD.Mag();
+      glXrecLMD =  PosRecLMD.X();       glYrecLMD =  PosRecLMD.Y();       glZrecLMD =  PosRecLMD.Z();
+      glThetarecLMD = MomRecLMD.Theta(); glPhirecLMD = MomRecLMD.Phi();
+      trkRECStatus = trkType;
+      if(trkType>0){
+	glXmc= -9999; glYmc =-9999; glZmc = -9999; glThetamc =-9999; glPhimc = -9999;
+	trkMCStatus = -9999;
+      }
+      else{
+	int MCidforREC = RECtrkMCid[iN];
+	//	if(!goodTrk[iN]) continue;
+	PndMCTrack *mctrk =(PndMCTrack*) true_tracks->At(MCidforREC);
+	//Int_t mcID = mctrk->GetPdgCode();
+	TVector3 MomMC = mctrk->GetMomentum();
+	glThetamc  = MomMC.Theta();
+	glPhimc = MomMC.Phi();
+	TVector3 StartMC = mctrk->GetStartVertex();
+	glXmc= StartMC.X(); glYmc = StartMC.Y(); glZmc = StartMC.Z();
+	int movID = mctrk->GetMotherID();
+	if(movID<0) trkMCStatus=0;
+	else
+	  trkMCStatus=+1;
+      } 
+      tRECMCtrks->Fill();
+      //(end) Fill tree with rec vs. mc trk info ---------------------------------------
     }
     hntrkgood_II->Fill(goodRecII);
     if(ghostRecII>0) hntrkghost_II->Fill(ghostRecII);
@@ -864,6 +928,7 @@ int main(int __argc,char *__argv[]) {
 	  if(mc_comp==imc) missTrk=false;
 	}
 	PndMCTrack *mctrk =(PndMCTrack*) true_tracks->At(imc);
+	int movID = mctrk->GetMotherID();
 	TVector3 MomMC = mctrk->GetMomentum();
 	TVector3 PosMC = mctrk->GetStartVertex();
 	int trkQ=0;
@@ -909,22 +974,36 @@ int main(int __argc,char *__argv[]) {
 	    }
 	  }
 	  //	  cout<<"trk was marked ad missed, reason trkQ="<<trkQ<<endl;
+
+	  //Fill tree with rec vs. mc trk info for missed trks ------------------------------------------------
+	  glXrec = -9999;      glYrec = -9999;     glZrec = -9999;
+	  glThetarec = -9999;       glPhirec = -9999;
+	  glXrecLMD = -9999;      glYrecLMD = -9999;       glZrecLMD = -9999;
+	  glThetarecLMD = -9999;       glPhirecLMD = -9999;
+	  trkRECStatus = trkQ;     
+	  glXmc= PosMC.X(); glYmc = PosMC.Y(); glZmc = PosMC.Z();
+	  glThetamc = MomMC.Theta();       glPhimc = MomMC.Phi();
+	  if(movID<0) trkMCStatus=0;
+	  if(movID>0) trkMCStatus=+1;
+	  tRECMCtrks->Fill();
+	//(end) Fill tree with rec vs. mc trk info for missed trks ---------------------------------------
 	}
-	ntupMCTrk->Fill(PosMC.X(),PosMC.Y(),PosMC.Z(),MomMC.Mag(),MomMC.Theta(),MomMC.Phi(),trkQ,MCtksSIMhits[imc],MCtksREChits[imc],MCDoubleHits[imc]);
-	//	if(verboseLevel>3) cout<<"#REChits = "<<MCtksREChits[imc]<<endl;
+	//	ntupMCTrk->Fill(PosMC.X(),PosMC.Y(),PosMC.Z(),MomMC.Mag(),MomMC.Theta(),MomMC.Phi(),trkQ,MCtksSIMhits[imc],MCtksREChits[imc],MCDoubleHits[imc]);
+
       }
       if(nMCmissedTrkSearch>0) hntrkmissed_II->Fill(nMCmissedTrkSearch); //missed by track search only and not because it wasn't enought hits!
       if(nMCmissedLossHits>0) hntrkmissed_I->Fill(nMCmissedLossHits);//missed during hit rec
+     
     }
-    else{ //fill ntuple with recontruted MCtrks
-      for(int imc=0;imc<nParticles;imc++){//MC trks
-	PndMCTrack *mctrk =(PndMCTrack*) true_tracks->At(imc);
-	TVector3 MomMC = mctrk->GetMomentum();
-	TVector3 PosMC = mctrk->GetStartVertex();
-	int trkQ = 0;
-	ntupMCTrk->Fill(PosMC.X(),PosMC.Y(),PosMC.Z(),MomMC.Mag(),MomMC.Theta(),MomMC.Phi(),trkQ,MCtksSIMhits[imc],MCtksREChits[imc],MCDoubleHits[imc]);
-      }
-    }
+    // else{ //fill ntuple with recontruted MCtrks
+    //   for(int imc=0;imc<nParticles;imc++){//MC trks
+    // 	PndMCTrack *mctrk =(PndMCTrack*) true_tracks->At(imc);
+    // 	TVector3 MomMC = mctrk->GetMomentum();
+    // 	TVector3 PosMC = mctrk->GetStartVertex();
+    // 	int trkQ = 0;
+    // 	ntupMCTrk->Fill(PosMC.X(),PosMC.Y(),PosMC.Z(),MomMC.Mag(),MomMC.Theta(),MomMC.Phi(),trkQ,MCtksSIMhits[imc],MCtksREChits[imc],MCDoubleHits[imc]);
+    //   }
+    // }
     /// END MISSED -----------------------------------------------------------------------------------------------------------------------------------------------------------------
 
     if(verboseLevel>0){
@@ -1220,12 +1299,13 @@ int main(int __argc,char *__argv[]) {
  // hntrkgood_I->Write();
  hntrkgood_II->Write();
  heffPhiTheta->Write();
- ntuprecTrk->Write();
- ntupMCTrk->Write();
+ // ntuprecTrk->Write();
+ // ntupMCTrk->Write();
  hnhits->Write();
  nsectors->Write();
  hMCtrkPer->Write();
  ntupTrkFit->Write();
+ tRECMCtrks->Write();
  f->Close();
  // cout<<"Number of events with low number of hits (less then 3 per trk): "<<glBadEv<<endl;
  cout<<"Number of trks where GEANE failed: "<<glBADGEANE<<endl;
