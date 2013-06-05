@@ -159,9 +159,8 @@ void PndLmdTrksFilterTask::Exec(Option_t* opt)
     FairTrackParP fFittedTrkP = trkpnd->GetParamFirst();
     TVector3 MomRecLMD(fFittedTrkP.GetPx(),fFittedTrkP.GetPy(),fFittedTrkP.GetPz());
     MomRecLMD *=1./MomRecLMD.Mag();
-    double thetaCent=MomRecLMD.Theta()-0.0402;
-    htthetatphiTrkFit->Fill(MomRecLMD.Theta(),MomRecLMD.Phi());
-    //    if(abs(thetaCent)>0.010 || abs(MomRecLMD.Phi())>0.22) dirOK=false;
+    double thetaCent=MomRecLMD.Theta()-0.040;
+    if(abs(thetaCent)>0.011 || abs(MomRecLMD.Phi())>0.25) dirOK=false;
     // if(abs(thetaCent)>0.020 || abs(MomRecLMD.Phi())>0.3) dirOK=false; //wide enought, but still should cut smth
     // //--------------------------
 
@@ -305,6 +304,12 @@ void PndLmdTrksFilterTask::Exec(Option_t* opt)
 	    <<mcidtop[0][i]<<", "<<mcidtop[1][i]<<", "<<mcidtop[2][i]<<", "<<mcidtop[3][i]<<")"<<endl;
       }
       PndTrack* trkpnd = (PndTrack*)(fTrkArray->At(i));
+      // // //check theta&phi-----
+      // FairTrackParP fFittedTrkP = trkpnd->GetParamFirst();
+      // TVector3 MomRecLMD(fFittedTrkP.GetPx(),fFittedTrkP.GetPy(),fFittedTrkP.GetPz());
+      // MomRecLMD *=1./MomRecLMD.Mag();
+      // double thetaCent=MomRecLMD.Theta()-0.0402;
+      // htthetatphiTrkFit->Fill(MomRecLMD.Theta(),MomRecLMD.Phi());
       new((*fTrkOutArray)[rec_trk]) PndTrack(*(trkpnd)); //save Track
       rec_trk++;
     }
