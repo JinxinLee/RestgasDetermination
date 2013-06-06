@@ -733,7 +733,7 @@ Int_t PndTrkLegendreSecTask::FillConformalHitList(int isec) {
   else {
     for(int jhit = 0; jhit < stthitlist->GetNofHitsInSector(isec); jhit++) {
       PndTrkHit *hit = stthitlist->GetHitFromSector(jhit, isec);
-      cout << "fil conformal " << hit->GetHitID() << " " << hit->GetDetectorID() << endl;
+      //      cout << "fil conformal " << hit->GetHitID() << " " << hit->GetDetectorID() << endl;
       if(hit->IsSttSkew()) continue;
       PndTrkConformalHit * chit = conform->GetConformalSttHit(hit);
       conformalhitlist->AddHit(chit);    
