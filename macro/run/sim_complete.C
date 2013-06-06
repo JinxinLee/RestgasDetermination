@@ -33,6 +33,7 @@ sim_complete(Int_t nEvents = 10, TString  SimEngine ="TGeant3", Float_t mom = 7.
   FairRunSim *fRun = new FairRunSim();
   fRun->SetName(SimEngine.Data() );
   fRun->SetOutputFile(OutputFile.Data());
+  fRun->SetWriteRunInfoFile(kFALSE);
   fRun->SetBeamMom(BeamMomentum);
   fRun->SetMaterials(MediaFile.Data());
   FairRuntimeDb *rtdb=fRun->GetRuntimeDb();
