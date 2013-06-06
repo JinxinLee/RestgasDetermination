@@ -213,11 +213,11 @@ void PndTrkLegendreTask::Exec(Option_t* opt) {
   // This results in an infinite loop ---> FIX IT! (how: timeout? better hit-to-cluster association? 
   // forbidden peak positions in legendre transform?)
 
-//   // CHECK THIS!
-//   if(fSttHitArray->GetEntriesFast() < 3) {
-//     Reset();  
-//     return;
-//   }
+  // CHECK THIS!
+  if(fSttHitArray->GetEntriesFast() < 3) {
+    Reset();  
+    return;
+  }
   
   Initialize();
   if(fVerbose > 1) {
@@ -678,13 +678,15 @@ void PndTrkLegendreTask::Reset()
     cout << "FINISH" << endl;
   }
   
-  delete stthitlist;
-  delete mvdpixhitlist; 
-  delete mvdstrhitlist;
-  fTimer->Stop();
-  fTime += fTimer->RealTime();
+  if(stthitlist) delete stthitlist;
+  if(mvdpixhitlist)  delete mvdpixhitlist; 
+  if(mvdstrhitlist)  delete mvdstrhitlist;
+  if(fTimer) {
+    fTimer->Stop();
+    fTime += fTimer->RealTime();
+    
    if(fVerbose > 0) cerr << fEventCounter << " Real time " << fTime << " s" << endl;
-
+  }
 }
 // ============================================================================================
 Int_t PndTrkLegendreTask::FillConformalHitList() {

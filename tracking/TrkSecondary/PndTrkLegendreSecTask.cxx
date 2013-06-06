@@ -185,7 +185,7 @@ void PndTrkLegendreSecTask::Initialize() {
     mvdstrhitlist->InstanciateStrip();
   }
 
-  conformalhitlist = new PndTrkConformalHitList();
+//   conformalhitlist = new PndTrkConformalHitList();
   fFoundPeaks.clear();
 
   //  stthitlist->PrintSectors();
@@ -213,11 +213,11 @@ void PndTrkLegendreSecTask::Exec(Option_t* opt) {
   // This results in an infinite loop ---> FIX IT! (how: timeout? better hit-to-cluster association? 
   // forbidden peak positions in legendre transform?)
 
-//   // CHECK THIS!
-//   if(fSttHitArray->GetEntriesFast() < 3) {
-//     Reset();  
-//     return;
-//   }
+  // CHECK THIS!
+  if(fSttHitArray->GetEntriesFast() < 3) {
+    //     Reset();  
+    return;
+  }
   
   Initialize();
   if(fVerbose > 1) {
@@ -230,6 +230,7 @@ void PndTrkLegendreSecTask::Exec(Option_t* opt) {
 
   for(int isec = 0; isec < 6; isec++) {
     if(stthitlist->GetNofHitsInSector(isec) == 0) continue;
+    conformalhitlist = new PndTrkConformalHitList();
     if(fDisplayOn)  {
       Refresh();
       char goOnChar;
@@ -281,8 +282,8 @@ void PndTrkLegendreSecTask::Exec(Option_t* opt) {
       fTime += fTimer->RealTime();
       if(fTime > 1.5) {
 	 if(fVerbose > 0) cerr << fTime << endl;
-	Reset();  
-	return;
+	 // 	Reset();  // CHECK
+	break; //	return; //  CHECK
       }
       fTimer->Start();
     }
@@ -294,8 +295,8 @@ void PndTrkLegendreSecTask::Exec(Option_t* opt) {
       fRefHit = FindSttReferenceHit(isec);
         if(fVerbose > 1) cout << "refhit " << fRefHit << endl;
       if(fRefHit == NULL)  {
-	Reset();  
-	return;
+	// 	Reset();  // CHECK
+	break; //	return; //  CHECK
       }
       ComputeTraAndRot(fRefHit, delta, trasl);
       conform->SetOrigin(trasl[0], trasl[1], delta);
@@ -444,238 +445,237 @@ void PndTrkLegendreSecTask::Exec(Option_t* opt) {
       cin >> goOnChar;
     }
     
-  }
-  }
-//     // SKEWED ASSOCIATION ********* CHECK *********
-//     // -------------------------------------------------------
-//    if(fVerbose > 1)  cout << "%%%%%%%%%%%%%%%%%%%% ZFINDER %%%%%%%%%%%%%%%%%%%%%%%%%%" << endl;
+ 
+    // SKEWED ASSOCIATION ********* CHECK *********
+    // -------------------------------------------------------
+   if(fVerbose > 1)  cout << "%%%%%%%%%%%%%%%%%%%% ZFINDER %%%%%%%%%%%%%%%%%%%%%%%%%%" << endl;
 
-//     if(fDisplayOn) {
-//       RefreshZ();
-//       DrawZGeometry(2);
-//     }
-//     PndTrkCluster skewhitlist = CreateSkewHitList(track);
-//     skewhitlist = CleanUpSkewHitList(&skewhitlist);
+    if(fDisplayOn) {
+      RefreshZ();
+      DrawZGeometry(2);
+    }
+    PndTrkCluster skewhitlist = CreateSkewHitList(track);
+    skewhitlist = CleanUpSkewHitList(&skewhitlist);
 
-//     int iz = -1, jz = -1; 
-//     //   cout  << "##################### CHOOSE Z" << endl; 
+    int iz = -1, jz = -1; 
+    //   cout  << "##################### CHOOSE Z" << endl; 
 
-//     // 7. select which intersection is the most likely and add it to z fitting
-//     fFitter->Reset();
-//     for(int ihit = 0; ihit < skewhitlist.GetNofHits() - 1; ihit++) {
-//       PndTrkSkewHit *skewhit1 = (PndTrkSkewHit*) skewhitlist.GetHit(ihit);
-//       if(!skewhit1) continue;
-//       TVector3 fin_intersection1[2] = {skewhit1->GetIntersection1(), skewhit1->GetIntersection2()};
-//       double phi1[2] = {skewhit1->GetPhi1(), skewhit1->GetPhi2()};
+    // 7. select which intersection is the most likely and add it to z fitting
+    fFitter->Reset();
+    for(int ihit = 0; ihit < skewhitlist.GetNofHits() - 1; ihit++) {
+      PndTrkSkewHit *skewhit1 = (PndTrkSkewHit*) skewhitlist.GetHit(ihit);
+      if(!skewhit1) continue;
+      TVector3 fin_intersection1[2] = {skewhit1->GetIntersection1(), skewhit1->GetIntersection2()};
+      double phi1[2] = {skewhit1->GetPhi1(), skewhit1->GetPhi2()};
       
-//       int jhit = ihit + 1;
-//       PndTrkSkewHit *skewhit2 = (PndTrkSkewHit*) skewhitlist.GetHit(jhit);
-//       if(!skewhit2) continue;
-//       TVector3 fin_intersection2[2] = {skewhit2->GetIntersection1(), skewhit2->GetIntersection2()};
-//       double phi2[2] = {skewhit2->GetPhi1(), skewhit2->GetPhi2()};
+      int jhit = ihit + 1;
+      PndTrkSkewHit *skewhit2 = (PndTrkSkewHit*) skewhitlist.GetHit(jhit);
+      if(!skewhit2) continue;
+      TVector3 fin_intersection2[2] = {skewhit2->GetIntersection1(), skewhit2->GetIntersection2()};
+      double phi2[2] = {skewhit2->GetPhi1(), skewhit2->GetPhi2()};
       
-//       //     cout << "start from " << ihit << " " << jhit << ": " << iz << " " << jz << endl;
-//       if(jz != -1) {
-// 	iz = jz;
-// 	double distance = fabs(fin_intersection1[iz].Z() - fin_intersection2[0].Z());
-// 	jz = 0;
-// 	// 11 22
-// 	fabs(fin_intersection1[iz].Z() - fin_intersection2[1].Z()) < distance ? (distance = fabs(fin_intersection1[iz].Z() - fin_intersection2[1].Z()), jz = 1) : distance;
-//       }
-//       else {
-// 	// 11 21      
-// 	double distance = fabs(fin_intersection1[0].Z() - fin_intersection2[0].Z());
-// 	iz = 0;
-// 	jz = 0;
-// 	// 11 22
-// 	fabs(fin_intersection1[0].Z() - fin_intersection2[1].Z()) < distance ? (distance = fabs(fin_intersection1[0].Z() - fin_intersection2[1].Z()), iz = 0, jz = 1 ): distance;
-// 	// 12 21
-// 	fabs(fin_intersection1[1].Z() - fin_intersection2[0].Z()) < distance ? (distance = fabs(fin_intersection1[1].Z() - fin_intersection2[0].Z()), iz = 1, jz = 0) : distance;
-// 	// 12 22
-// 	fabs(fin_intersection1[1].Z() - fin_intersection2[1].Z()) < distance ? (distance = fabs(fin_intersection1[1].Z() - fin_intersection2[1].Z()), iz = 1, jz = 1): distance;
-//       }
-//       //      cout << "end with " << ihit << " " << jhit << ": " << iz << " " << jz << endl;
+      //     cout << "start from " << ihit << " " << jhit << ": " << iz << " " << jz << endl;
+      if(jz != -1) {
+	iz = jz;
+	double distance = fabs(fin_intersection1[iz].Z() - fin_intersection2[0].Z());
+	jz = 0;
+	// 11 22
+	fabs(fin_intersection1[iz].Z() - fin_intersection2[1].Z()) < distance ? (distance = fabs(fin_intersection1[iz].Z() - fin_intersection2[1].Z()), jz = 1) : distance;
+      }
+      else {
+	// 11 21      
+	double distance = fabs(fin_intersection1[0].Z() - fin_intersection2[0].Z());
+	iz = 0;
+	jz = 0;
+	// 11 22
+	fabs(fin_intersection1[0].Z() - fin_intersection2[1].Z()) < distance ? (distance = fabs(fin_intersection1[0].Z() - fin_intersection2[1].Z()), iz = 0, jz = 1 ): distance;
+	// 12 21
+	fabs(fin_intersection1[1].Z() - fin_intersection2[0].Z()) < distance ? (distance = fabs(fin_intersection1[1].Z() - fin_intersection2[0].Z()), iz = 1, jz = 0) : distance;
+	// 12 22
+	fabs(fin_intersection1[1].Z() - fin_intersection2[1].Z()) < distance ? (distance = fabs(fin_intersection1[1].Z() - fin_intersection2[1].Z()), iz = 1, jz = 1): distance;
+      }
+      //      cout << "end with " << ihit << " " << jhit << ": " << iz << " " << jz << endl;
 
-//       	fFitter->SetPointToFit(phi1[iz], fin_intersection1[iz].Z(), 1.);// (fin_intersection1[0].Z() + fin_intersection1[1].Z())/2.); // CHECK sigma?
+      	fFitter->SetPointToFit(phi1[iz], fin_intersection1[iz].Z(), 1.);// (fin_intersection1[0].Z() + fin_intersection1[1].Z())/2.); // CHECK sigma?
 
-// 	// CHECK
-// 	if(iz == 0) skewhit1->SetPosition(skewhit1->GetIntersection1());
-// 	else skewhit1->SetPosition(skewhit1->GetIntersection2());
+	// CHECK
+	if(iz == 0) skewhit1->SetPosition(skewhit1->GetIntersection1());
+	else skewhit1->SetPosition(skewhit1->GetIntersection2());
 
-// 	// CHECK last point?
-// 	if(ihit == skewhitlist.GetNofHits() - 2) {
-// 	  fFitter->SetPointToFit(phi2[jz], fin_intersection2[jz].Z(), 1.);// (fin_intersection2[0].Z() + fin_intersection2[1].Z())/2.); // CHECK sigma?
+	// CHECK last point?
+	if(ihit == skewhitlist.GetNofHits() - 2) {
+	  fFitter->SetPointToFit(phi2[jz], fin_intersection2[jz].Z(), 1.);// (fin_intersection2[0].Z() + fin_intersection2[1].Z())/2.); // CHECK sigma?
 
-// 	// CHECK
-// 	if(jz == 0) skewhit2->SetPosition(skewhit2->GetIntersection1());
-// 	else skewhit2->SetPosition(skewhit2->GetIntersection2());
-// 	}
+	// CHECK
+	if(jz == 0) skewhit2->SetPosition(skewhit2->GetIntersection1());
+	else skewhit2->SetPosition(skewhit2->GetIntersection2());
+	}
 	
 	
-// 	if(fDisplayOn) {
-// 	  char goOnChar;
-// 	  display->cd(4);
-// 	  TMarker *mrkfoundzphi1 = new TMarker(phi1[iz], fin_intersection1[iz].Z(), 20);
-// 	  mrkfoundzphi1->SetMarkerColor(kYellow);
-// 	  mrkfoundzphi1->Draw("SAME");
+	if(fDisplayOn) {
+	  char goOnChar;
+	  display->cd(4);
+	  TMarker *mrkfoundzphi1 = new TMarker(phi1[iz], fin_intersection1[iz].Z(), 20);
+	  mrkfoundzphi1->SetMarkerColor(kYellow);
+	  mrkfoundzphi1->Draw("SAME");
 
-// 	  TMarker *mrkfoundzphi2 = new TMarker(phi2[jz], fin_intersection2[jz].Z(), 20);
-// 	  mrkfoundzphi2->SetMarkerColor(kYellow);
-// 	  mrkfoundzphi2->Draw("SAME");
+	  TMarker *mrkfoundzphi2 = new TMarker(phi2[jz], fin_intersection2[jz].Z(), 20);
+	  mrkfoundzphi2->SetMarkerColor(kYellow);
+	  mrkfoundzphi2->Draw("SAME");
 
-// 	  display->Update();
-// 	  display->Modified();  
-// 	  //	cin >> goOnChar;   
-// 	}
-//     }
-
-
-//     // ADD MVD POINTS ==================== RECHECK
-//     PndTrkCluster *mvdcluster = track->GetCluster();
-//     for(int ihit = 0; ihit < mvdcluster->GetNofHits(); ihit++) {
-//       //      cout << ihit << " TROVATO " << endl;
-//       PndTrkHit *hit = mvdcluster->GetHit(ihit);
-//       if(hit->GetDetectorID() != FairRootManager::Instance()->GetBranchId(fMvdPixelBranch) && hit->GetDetectorID() != FairRootManager::Instance()->GetBranchId(fMvdStripBranch)) continue;
-//       TVector3 position = hit->GetPosition();
-//       double phi = track->ComputePhi(position);
-//       hit->SetPhi(phi);
-//       //      cout << ihit << " TROVATO " << phi << " " << position.Z() << endl;
-
-// 	if(fDisplayOn) {
-// 	  char goOnChar;
-// 	  display->cd(4);
-// 	  TMarker *mrkfoundzphi = new TMarker(phi, position.Z(), 21);
-// 	  mrkfoundzphi->SetMarkerColor(kOrange);
-// 	  mrkfoundzphi->Draw("SAME");
-// 	  display->Update();
-// 	  display->Modified();  
-// 	  //	cin >> goOnChar;   
-// 	}
-//      fFitter->SetPointToFit(phi, position.Z(), 0.1); // CHECK ERROR 
-//     }
-//     // ===================================
+	  display->Update();
+	  display->Modified();  
+	  //	cin >> goOnChar;   
+	}
+    }
 
 
-//     Double_t ml, pl;
-//     Bool_t straightlinefit = fFitter->StraightLineFit(ml, pl);
+    // ADD MVD POINTS ==================== RECHECK
+    PndTrkCluster *mvdcluster = track->GetCluster();
+    for(int ihit = 0; ihit < mvdcluster->GetNofHits(); ihit++) {
+      //      cout << ihit << " TROVATO " << endl;
+      PndTrkHit *hit = mvdcluster->GetHit(ihit);
+      if(hit->GetDetectorID() != FairRootManager::Instance()->GetBranchId(fMvdPixelBranch) && hit->GetDetectorID() != FairRootManager::Instance()->GetBranchId(fMvdStripBranch)) continue;
+      TVector3 position = hit->GetPosition();
+      double phi = track->ComputePhi(position);
+      hit->SetPhi(phi);
+      //      cout << ihit << " TROVATO " << phi << " " << position.Z() << endl;
+
+	if(fDisplayOn) {
+	  char goOnChar;
+	  display->cd(4);
+	  TMarker *mrkfoundzphi = new TMarker(phi, position.Z(), 21);
+	  mrkfoundzphi->SetMarkerColor(kOrange);
+	  mrkfoundzphi->Draw("SAME");
+	  display->Update();
+	  display->Modified();  
+	  //	cin >> goOnChar;   
+	}
+     fFitter->SetPointToFit(phi, position.Z(), 0.1); // CHECK ERROR 
+    }
+    // ===================================
 
 
-//     // CHECK the following fit: if it fails, put the hits into play again?
-//     if(straightlinefit = kTRUE) {
+    Double_t ml, pl;
+    Bool_t straightlinefit = fFitter->StraightLineFit(ml, pl);
 
-//       if(fDisplayOn) {
-// 	char goOnChar;
-// 	display->cd(4);
-// 	TLine *l222 = new TLine(-1000, -1000 * ml + pl, 1000, 1000 * ml + pl);
-// 	l222->Draw("SAME");
-// 	display->cd(3);
-// 	l222->Draw("SAME");
-// 	display->Update();
-// 	display->Modified();  
-// 	//      cin >> goOnChar;   
-//       }
 
-//       PndTrkCluster *trkcluster = track->GetCluster();
-//       // 8. last association z --> HIT: fill position and add to cluster ???? CHECK
-//       for(int ihit = 0; ihit < skewhitlist.GetNofHits(); ihit++) {
-// 	PndTrkSkewHit *skewhit = (PndTrkSkewHit*) skewhitlist.GetHit(ihit);
-// 	trkcluster->AddHit(skewhit);
-// 	TVector3 intersection1 = skewhit->GetIntersection1();
-// 	double phi1 = track->ComputePhi(intersection1);
-// 	double calcz1 = ml * phi1 + pl;
-// 	TVector3 intersection2 = skewhit->GetIntersection2();
-// 	double phi2 = track->ComputePhi(intersection2);
-// 	double calcz2 = ml * phi2 + pl;
+    // CHECK the following fit: if it fails, put the hits into play again?
+    if(straightlinefit = kTRUE) {
+
+      if(fDisplayOn) {
+	char goOnChar;
+	display->cd(4);
+	TLine *l222 = new TLine(-1000, -1000 * ml + pl, 1000, 1000 * ml + pl);
+	l222->Draw("SAME");
+	display->cd(3);
+	l222->Draw("SAME");
+	display->Update();
+	display->Modified();  
+	//      cin >> goOnChar;   
+      }
+
+      PndTrkCluster *trkcluster = track->GetCluster();
+      // 8. last association z --> HIT: fill position and add to cluster ???? CHECK
+      for(int ihit = 0; ihit < skewhitlist.GetNofHits(); ihit++) {
+	PndTrkSkewHit *skewhit = (PndTrkSkewHit*) skewhitlist.GetHit(ihit);
+	trkcluster->AddHit(skewhit);
+	TVector3 intersection1 = skewhit->GetIntersection1();
+	double phi1 = track->ComputePhi(intersection1);
+	double calcz1 = ml * phi1 + pl;
+	TVector3 intersection2 = skewhit->GetIntersection2();
+	double phi2 = track->ComputePhi(intersection2);
+	double calcz2 = ml * phi2 + pl;
       
-// 	fabs(intersection1.Z() - calcz1) <  fabs(intersection2.Z() - calcz2) ? skewhit->SetPosition(intersection1) : skewhit->SetPosition(intersection2);
+	fabs(intersection1.Z() - calcz1) <  fabs(intersection2.Z() - calcz2) ? skewhit->SetPosition(intersection1) : skewhit->SetPosition(intersection2);
 
-//       }
+      }
 
   
-//       // 9. add skewedhitlist to cluster of the track
-//       // fill the last two (missing) parameters
-//       for(int ihit = 0; ihit < trkcluster->GetNofHits(); ihit++) {
-// 	PndTrkHit *hit = trkcluster->GetHit(ihit);	
-// 	double phi = track->ComputePhi(hit->GetPosition()); // CHECK is it neede to recalculate it?
-// 	hit->SetSortVariable(phi);
-// 	hit->SetPhi(phi);
+      // 9. add skewedhitlist to cluster of the track
+      // fill the last two (missing) parameters
+      for(int ihit = 0; ihit < trkcluster->GetNofHits(); ihit++) {
+	PndTrkHit *hit = trkcluster->GetHit(ihit);	
+	double phi = track->ComputePhi(hit->GetPosition()); // CHECK is it neede to recalculate it?
+	hit->SetSortVariable(phi);
+	hit->SetPhi(phi);
 
-//       }
-//       trkcluster->Sort();
-//       track->ComputeCharge();
+      }
+      trkcluster->Sort();
+      track->ComputeCharge();
 
-//       // 10. z-phi refit
-//       Bool_t zfit = ZPhiFit(0, trkcluster, ml, pl);
-//       //      cout << "zfit1 on " << trkcluster->GetNofHits() << " hits/ " << zfit << " " << ml << " " << pl << " tanl " << - track->GetCharge() * ml * (180./TMath::Pi())/R << endl;
+      // 10. z-phi refit
+      Bool_t zfit = ZPhiFit(0, trkcluster, ml, pl);
+      //      cout << "zfit1 on " << trkcluster->GetNofHits() << " hits/ " << zfit << " " << ml << " " << pl << " tanl " << - track->GetCharge() * ml * (180./TMath::Pi())/R << endl;
 
-//       PndTrkCluster *tmpcluster = CleanupZPhiFit(trkcluster, ml, pl);
-//       trkcluster = tmpcluster;
+      PndTrkCluster *tmpcluster = CleanupZPhiFit(trkcluster, ml, pl);
+      trkcluster = tmpcluster;
 
-//       if(fDisplayOn) {
-// 	char goOnChar;
-// 	display->cd(4);
-// 	DrawZGeometry();
-// 	hzphi->SetXTitle("#phi");
-// 	hzphi->SetYTitle("#z");
-// 	hzphi->Draw();
-// 	display->Update();
-// 	display->Modified();  
-//       }
+      if(fDisplayOn) {
+	char goOnChar;
+	display->cd(4);
+	DrawZGeometry();
+	hzphi->SetXTitle("#phi");
+	hzphi->SetYTitle("#z");
+	hzphi->Draw();
+	display->Update();
+	display->Modified();  
+      }
 
-//       zfit = ZPhiFit(1, trkcluster, ml, pl);
+      zfit = ZPhiFit(1, trkcluster, ml, pl);
     
-//       // 11. fill the last two (missing) parameters
+      // 11. fill the last two (missing) parameters
 
-//       //  tanl = -q ml (180/pi) /R: See PndTrkTrack.h for an explanation
+      //  tanl = -q ml (180/pi) /R: See PndTrkTrack.h for an explanation
      
-//   if(zfit) {
-// 	track->SetTanL(- track->GetCharge() * ml * (180./TMath::Pi())/R);
-// 	track->SetZ0(pl);
-//       }
-//       else { // CHECK put these in default
-// 	track->SetTanL(-999);
-// 	track->SetZ0(-999);
-//       } 
-//       //   cout << "GET TANL " << ml << " " << R << " " << track->GetTanL() << endl;
+  if(zfit) {
+	track->SetTanL(- track->GetCharge() * ml * (180./TMath::Pi())/R);
+	track->SetZ0(pl);
+      }
+      else { // CHECK put these in default
+	track->SetTanL(-999);
+	track->SetZ0(-999);
+      } 
+      //   cout << "GET TANL " << ml << " " << R << " " << track->GetTanL() << endl;
 
-//       // test -------------------------------------------------------
-//       PndTrkCluster *trkcluster2 = track->GetCluster();
-//       // trkcluster2->Print();
+      // test -------------------------------------------------------
+      PndTrkCluster *trkcluster2 = track->GetCluster();
+      // trkcluster2->Print();
 
-//       if(fDisplayOn) {
-// 	char goOnChar;
-// 	display->cd(1);
-// 	Refresh();
-// 	for(int ihit = 0; ihit < trkcluster2->GetNofHits(); ihit++) {
-// 	  PndTrkHit *hit = trkcluster2->GetHit(ihit);
-// 	  hit->Draw(kMagenta);
+      if(fDisplayOn) {
+	char goOnChar;
+	display->cd(1);
+	Refresh();
+	for(int ihit = 0; ihit < trkcluster2->GetNofHits(); ihit++) {
+	  PndTrkHit *hit = trkcluster2->GetHit(ihit);
+	  hit->Draw(kMagenta);
 	
-// 	  display->Update();
-// 	  display->Modified();  
-// 	  //	cin >> goOnChar;   
-// 	}
-//       }
-//     }
-//     else { // CHECK put these in default
-//       track->SetTanL(-999);
-//       track->SetZ0(-999);
-//     }
-//     // ------------------------------------------------------- end test
+	  display->Update();
+	  display->Modified();  
+	  //	cin >> goOnChar;   
+	}
+      }
+    }
+    else { // CHECK put these in default
+      track->SetTanL(-999);
+      track->SetZ0(-999);
+    }
+    // ------------------------------------------------------- end test
 
-//     // TRANSFORM TO PNDTRACK AND PNDTRACKCAND
-//     // -------------------------------------------------------
-//     RegisterTrack(track);
-//    if(fVerbose > 1)  cout << "MAXPEAK " << maxpeak << endl;
-//   }
-//   if(fDisplayOn) {
-//     char goOnChar;
-//     display->Update();
-//     display->Modified();
-//     cout << "Finish? ";
-//     cin >> goOnChar;
-//     cout << "FINISH" << endl;
-//   }
-
+    // TRANSFORM TO PNDTRACK AND PNDTRACKCAND
+    // -------------------------------------------------------
+    RegisterTrack(track);
+   if(fVerbose > 1)  cout << "MAXPEAK " << maxpeak << endl;
+  }
+  if(fDisplayOn) {
+    char goOnChar;
+    display->Update();
+    display->Modified();
+    cout << "Finish? ";
+    cin >> goOnChar;
+    cout << "FINISH" << endl;
+  }
+}
   Reset();  
   delete clusterlist;
   
@@ -694,12 +694,15 @@ void PndTrkLegendreSecTask::Reset()
     cout << "FINISH" << endl;
   }
   
-  delete stthitlist;
-  delete mvdpixhitlist; 
-  delete mvdstrhitlist;
-  fTimer->Stop();
-  fTime += fTimer->RealTime();
+  if(stthitlist) delete stthitlist;
+  if(mvdpixhitlist)  delete mvdpixhitlist; 
+  if(mvdstrhitlist)  delete mvdstrhitlist;
+  if(fTimer) {
+    fTimer->Stop();
+    fTime += fTimer->RealTime();
+    
    if(fVerbose > 0) cerr << fEventCounter << " Real time " << fTime << " s" << endl;
+  }
 
 }
 // ============================================================================================
