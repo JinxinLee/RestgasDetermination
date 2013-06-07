@@ -1,0 +1,1 @@
+/home/mgaluska/bin/PndFtsSelbst/PndFtsMomentumQA.h

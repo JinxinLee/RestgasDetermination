@@ -29,6 +29,10 @@ class PndFtsTube : public TObject
   Double_t GetHalfLength();
   TVector3 GetWireDirection();
 
+  bool IsSkew() {
+    return (0.!=GetWireDirection().X()) || (0.!=GetWireDirection().Y()); // TODO CHECK IF THIS IS CORRECT
+  }
+
  private:
 
   TVector3 fCenPosition;

@@ -139,10 +139,14 @@ void PndFtsTrackerIdeal::Exec(Option_t * option)
       std::cout<<"fMCPoints["<<iii<<"] with the name "<<fMCPoints[iii]->GetName()<<" and contains "<<fMCPoints[iii]->GetEntriesFast()<<" entries."<<std::endl;
     }
   }
+
+  // Do we have hits in the FTS?
   if(fHits[0]->GetEntriesFast() == 0) {
     if(fVerbose>3) Info("Exec","Skip the event, since we have no hits in FTS");
     return;
   }
+
+
   FairHit* ghit = NULL;
   std::map<Int_t, FairHit*> firstHit;
   std::map<Int_t, FairHit*> lastHit;
@@ -150,9 +154,12 @@ void PndFtsTrackerIdeal::Exec(Option_t * option)
   std::map<Int_t, FairMCPoint*> firstPoint;
   std::map<Int_t, FairMCPoint*> lastPoint;
   std::map<Int_t, PndTrackCand*> candlist;
+
+  // Detector loop
   for(Int_t iDet=0;iDet<4;iDet++){
     if (kFALSE == fBranchActive[iDet]) continue; //skip manually switched off detector
     if(fVerbose>4) Info("Exec","Use detector %i",iDet);
+    // Hit loop
     for (Int_t ih = 0; ih < fHits[iDet]->GetEntriesFast(); ih++) {
       ghit = (FairHit*) fHits[iDet]->At(ih);
       if(!ghit) {
@@ -161,7 +168,7 @@ void PndFtsTrackerIdeal::Exec(Option_t * option)
       }
       Int_t mchitid=ghit->GetRefIndex();
       if(mchitid<0) {
-        if(fVerbose>3) Error("Exec","Have a mcHit %i",mchitid);
+        if(fVerbose>3) Error("Exec","Have a negative mcHit %i",mchitid);
         continue;
       }
       myPoint = (FairMCPoint*)(fMCPoints[iDet]->At(mchitid));
@@ -170,7 +177,9 @@ void PndFtsTrackerIdeal::Exec(Option_t * option)
       if(trackID<0) continue;
       
       if(fVerbose>5) Info("Exec","Have a Hit %i at Track index %i",ih,trackID);
-      
+
+      // Continue Construction of a track candidate (start with FTS hits)
+      // Track candidates and corresponding MC track index are saved in a map
       PndTrackCand* cand=candlist[trackID];
       if(NULL==cand){
         if(0!=iDet){
@@ -180,22 +189,25 @@ void PndFtsTrackerIdeal::Exec(Option_t * option)
         if(fVerbose>5) Info("Exec","Create new PndTrack object %i",trackID);
         cand=new PndTrackCand();
         cand->setMcTrackId(trackID);
-        if(fVerbose>5) Info("Exec","Create new PndTrack object finished %i",trackID);
+        if(fVerbose>5) Info("Exec","Creating new PndTrack object finished %i",trackID);
       }
       if(fVerbose>5) Info("Exec","add the hit %i to trackcand %i",ih,trackID);
       cand->AddHit(fBranchIDs[iDet],ih,myPoint->GetTime());
+      // Figure out if the current hit is the earliest in the event
       if(!firstHit[trackID] || firstPoint[trackID]->GetTime() > myPoint->GetTime()) {
         firstHit[trackID]=ghit;
         firstPoint[trackID]=myPoint;
       }
+      // or the latest one
       if(!lastHit[trackID] || lastPoint[trackID]->GetTime() < myPoint->GetTime()) {
         lastHit[trackID]=ghit;
         lastPoint[trackID]=myPoint;
       }
       
       candlist[trackID] = cand; // set
-    }
-  }
+    }// end loop over hits
+  }// end loop over detectors
+  // now we have track candidates
   if(fVerbose>3) Info("Exec","Insert to TCA (depending on efficiency)");
   
   // re-iterate and select by efficiency & number of hits

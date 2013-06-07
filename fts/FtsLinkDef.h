@@ -3,8 +3,8 @@
 #pragma link off all globals;
 #pragma link off all classes;
 #pragma link off all functions;
-#pragma link C++ class PndGeoFtsPar;           
-#pragma link C++ class PndGeoFts;    
+#pragma link C++ class PndGeoFtsPar;
+#pragma link C++ class PndGeoFts;
 #pragma link C++ class PndFtsDigiPar;
 #pragma link C++ class PndFtsHitInfo+;
 #pragma link C++ class PndFts+;
@@ -17,5 +17,7 @@
 #pragma link C++ class PndFtsHitProducerIdeal+;
 #pragma link C++ class PndFtsHitProducerRealFull+;
 #pragma link C++ class PndFtsTrackerIdeal+;
+#pragma link C++ class PndFtsTrackerHough+;
+#pragma link C++ class PndFtsMomentumQA+;
 #endif
 
