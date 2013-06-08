@@ -17,7 +17,7 @@
 #pragma link C++ class PndFtsHitProducerIdeal+;
 #pragma link C++ class PndFtsHitProducerRealFull+;
 #pragma link C++ class PndFtsTrackerIdeal+;
-#pragma link C++ class PndFtsTrackerHough+;
-#pragma link C++ class PndFtsMomentumQA+;
+//#pragma link C++ class PndFtsTrackerHough+;
+//#pragma link C++ class PndFtsMomentumQA+;
 #endif
 

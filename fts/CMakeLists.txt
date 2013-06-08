@@ -37,8 +37,8 @@ PndFtsHitProducerRealFast.cxx
 PndFtsHitProducerIdeal.cxx
 PndFtsHitProducerRealFull.cxx
 PndFtsTrackerIdeal.cxx
-PndFtsTrackerHough.cxx
-PndFtsMomentumQA.cxx
+#PndFtsTrackerHough.cxx
+#PndFtsMomentumQA.cxx
 )
 
 set(LINKDEF  FtsLinkDef.h)
