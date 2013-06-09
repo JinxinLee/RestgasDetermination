@@ -30,7 +30,7 @@ class PndFtsTube : public TObject
   TVector3 GetWireDirection();
 
   bool IsSkew() {
-    return (0.!=GetWireDirection().X()) || (0.!=GetWireDirection().Y()); // TODO CHECK IF THIS IS CORRECT
+    return (0.!=GetWireDirection().X());
   }
 
  private:
