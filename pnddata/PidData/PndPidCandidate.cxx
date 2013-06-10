@@ -83,7 +83,7 @@ PndPidCandidate::PndPidCandidate():
   fMuoHits(0),
   fMuoIndex(-1),
   fDegreesOfFreedom(0),
-  fFitStatus(0),
+  fFitStatus(-1),
   fChiSquared(0.)		
 {	
   SetDefault();
@@ -155,7 +155,7 @@ PndPidCandidate::PndPidCandidate(Int_t charge, TVector3 &pos, TLorentzVector &p4
   fMuoHits(0),
   fMuoIndex(-1),
   fDegreesOfFreedom(0),
-  fFitStatus(0),
+  fFitStatus(-1),
   fChiSquared(0.)
 {
   SetDefault();
@@ -231,7 +231,7 @@ PndPidCandidate::PndPidCandidate(Int_t charge, TVector3 &pos, TLorentzVector &p4
   fMuoHits(0),
   fMuoIndex(-1),
   fDegreesOfFreedom(0),
-  fFitStatus(0),
+  fFitStatus(-1),
   fChiSquared(0.)
 {
   SetDefault();
