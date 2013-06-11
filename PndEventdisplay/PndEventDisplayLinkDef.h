@@ -6,6 +6,7 @@
 
 #pragma link C++ class  PndTrackCandDraw;
 #pragma link C++ class  PndTrackDraw;
+#pragma link C++ class  PndDrcAccuDigiPixelDraw;
 #pragma link C++ class  PndSttMCPointDraw;
 #pragma link C++ class  PndMvdDigiPixelDraw;
 #pragma link C++ class  PndSttIsochroneDraw;

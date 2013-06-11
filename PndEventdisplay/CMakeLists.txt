@@ -14,10 +14,12 @@ ${CMAKE_SOURCE_DIR}/genfit
 ${CMAKE_SOURCE_DIR}/lhetrack
 ${CMAKE_SOURCE_DIR}/eventdisplay
 ${CMAKE_SOURCE_DIR}/pnddata
+${CMAKE_SOURCE_DIR}/pnddata/DrcData
 ${CMAKE_SOURCE_DIR}/pnddata/SttData
 ${CMAKE_SOURCE_DIR}/pnddata/TrackData
 ${CMAKE_SOURCE_DIR}/pnddata/MvdData
 ${CMAKE_SOURCE_DIR}/pnddata/SdsData
+${CMAKE_SOURCE_DIR}/drc
 ${CMAKE_SOURCE_DIR}/mvd/MvdDigi
 ${CMAKE_SOURCE_DIR}/sds/SdsDigi
 ${CMAKE_SOURCE_DIR}/stt
@@ -36,6 +38,7 @@ link_directories( ${LINK_DIRECTORIES})
 set(SRCS
 PndTrackCandDraw.cxx
 PndTrackDraw.cxx
+PndDrcAccuDigiPixelDraw.cxx
 PndSttMCPointDraw.cxx
 PndMvdDigiPixelDraw.cxx
 PndSttIsochroneDraw.cxx
@@ -45,6 +48,6 @@ set(LINKDEF PndEventDisplayLinkDef.h)
 set(LIBRARY_NAME PndEventDisplay)
 
 set(DEPENDENCIES Base EventDisplay generalTools MCMatch Geane
-ParBase PndData Sds Stt)
+ParBase PndData Drc Sds Stt)
 
 GENERATE_LIBRARY()
