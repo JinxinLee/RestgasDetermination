@@ -13,11 +13,13 @@ ${ROOT_INCLUDE_DIR}
 ${GLPK_INCLUDE_DIR}
 ${BASE_INCLUDE_DIRECTORIES} 
 ${CMAKE_SOURCE_DIR}/pnddata 
+${CMAKE_SOURCE_DIR}/pnddata/FtsData
 ${CMAKE_SOURCE_DIR}/pnddata/SttData
 ${CMAKE_SOURCE_DIR}/pnddata/SciTData
 ${CMAKE_SOURCE_DIR}/trackbase
 ${CMAKE_SOURCE_DIR}/pnddata/TrackData
 ${CMAKE_SOURCE_DIR}/field 
+${CMAKE_SOURCE_DIR}/fts
 ${CMAKE_SOURCE_DIR}/stt
 ${CMAKE_SOURCE_DIR}/sttmvdtracking
 ${CMAKE_SOURCE_DIR}/mvd/MvdTracking
