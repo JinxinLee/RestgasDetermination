@@ -21,7 +21,7 @@ public:
 
 	void initModelParameters();
 
-	double eval(double *x) const;
+	double eval(const double *x) const;
 
 	void updateDomain();
 };

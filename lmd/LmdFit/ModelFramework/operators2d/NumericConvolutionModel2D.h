@@ -20,7 +20,7 @@ public:
 			shared_ptr<Model2D> second_);
 	virtual ~NumericConvolutionModel2D();
 
-	double eval(double *x) const;
+	double eval(const double *x) const;
 };
 
 #endif /* NUMERICCONVOLUTIONMODEL2D_H_ */

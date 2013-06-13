@@ -66,14 +66,14 @@ double PndLmdDPMMTModel1D::getProtonDipoleFormFactor(const double t) const {
 	return pow((1.0 + getDelta(t)), -2.0);
 }
 
-double PndLmdDPMMTModel1D::getRawCoulombPart(double *x) const {
+double PndLmdDPMMTModel1D::getRawCoulombPart(const double *x) const {
 	double p1 = 4.0 * pi * alpha * alpha
 			* pow(getProtonDipoleFormFactor(x[0]), 4.0) * hbarc2
 			/ pow(beta->getValue() * x[0], 2.0); //Coulomb part
 	return p1;
 }
 
-double PndLmdDPMMTModel1D::getRawInterferencePart(double *x) const {
+double PndLmdDPMMTModel1D::getRawInterferencePart(const double *x) const {
 	// we need the next line because if user wants to fit t spectrum it is plotted for positive t
 	// so x[0] will contain positive t number
 	// however in case of theta fitting the t is automatically calculated to be negative
@@ -94,7 +94,7 @@ double PndLmdDPMMTModel1D::getRawInterferencePart(double *x) const {
 	return int_part;
 }
 
-double PndLmdDPMMTModel1D::getRawHadronicPart(double *x) const {
+double PndLmdDPMMTModel1D::getRawHadronicPart(const double *x) const {
 	/*double p3 = par[1] * par[1] * (1.0 + pow(par[3], 2.0))
 	 * exp(1.0 * par[2] * t) / 16. / pi * hbarc2 * jaco; //E760, typical*/
 	double t = -TMath::Abs(x[0]);
@@ -108,7 +108,7 @@ double PndLmdDPMMTModel1D::getRawHadronicPart(double *x) const {
 	return had_part;
 }
 
-double PndLmdDPMMTModel1D::eval(double *x) const {
+double PndLmdDPMMTModel1D::eval(const double *x) const {
 	double p1 = getRawCoulombPart(x);
 	double p2 = getRawInterferencePart(x);
 	double p3 = getRawHadronicPart(x);

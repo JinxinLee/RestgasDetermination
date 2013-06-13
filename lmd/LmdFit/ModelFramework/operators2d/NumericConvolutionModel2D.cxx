@@ -24,7 +24,7 @@ NumericConvolutionModel2D::~NumericConvolutionModel2D() {
 	// TODO Auto-generated destructor stub
 }
 
-double NumericConvolutionModel2D::eval(double *x) const {
+double NumericConvolutionModel2D::eval(const double *x) const {
 	double xx[2], xprime[2], val = 0.0;
 	double division_width_var1 = second->getVar1DomainRange() / divisions;
 	double range_low_var1 = second->getVar1DomainLowerBound();

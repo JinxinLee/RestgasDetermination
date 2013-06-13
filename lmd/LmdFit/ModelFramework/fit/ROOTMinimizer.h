@@ -1,0 +1,29 @@
+/*
+ * ROOTMinimizer.h
+ *
+ *  Created on: Jan 21, 2013
+ *      Author: steve
+ */
+
+#ifndef ROOTMINIMIZER_H_
+#define ROOTMINIMIZER_H_
+
+#include "ModelMinimizer.h"
+#include "Model1D.h"
+
+#include "Math/Minimizer.h"
+
+class ROOTMinimizer: public ModelMinimizer {
+private:
+	ROOT::Math::Minimizer* min;
+
+	int minimize();
+
+public:
+	ROOTMinimizer(ModelControlParameter &control_param_);
+	virtual ~ROOTMinimizer();
+
+	const ROOT::Math::Minimizer* getROOTMinimizer() const;
+};
+
+#endif /* ROOTMINIMIZER_H_ */

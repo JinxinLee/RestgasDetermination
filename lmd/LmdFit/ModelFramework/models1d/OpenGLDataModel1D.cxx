@@ -42,7 +42,7 @@ OpenGLDataModel1D::~OpenGLDataModel1D() {
 void OpenGLDataModel1D::initModelParameters() {
 }
 
-double OpenGLDataModel1D::eval(double *x) const {
+double OpenGLDataModel1D::eval(const double *x) const {
 	// so here what we need to do is first find out the closest control points to the current position
 	/*glMap1f(GL_MAP1_VERTEX_3, 0.0, 1.0, 3, 1, &ctrlpoints[index of first closest point...][0]);// linear "spline"
 	// then use these points to build the spline of a given order (probably need to make it multimodel1d again)

@@ -16,6 +16,7 @@
 
 class PndLmdData;
 class PndLmdAcceptance;
+class PndLmdResolution;
 class PndLmdLumiFitResult;
 class PndLmdLumiFitOptions;
 
@@ -39,10 +40,9 @@ public:
 		TGraphErrors *model;
 		TH1D* data_hist;
 		double plab;
-		double ref_lumi;
-		combined_values lumi_values;
-		double chi2;
 		const PndLmdLumiFitOptions* fit_options;
+		bool is_resolution;
+		std::vector<std::pair<TString, int> > labels;
 	};
 
 	struct acceptance_bundle {
@@ -70,7 +70,6 @@ private:
 	double title_offset_x;
 	double title_offset_y;
 
-	void unifyPlotRange(TH1D* hist, TGraph *graph);
 
 	std::pair<double, double> determinePlotRange(
 			std::map<TString, std::vector<combined_values> > &result_map);
@@ -85,7 +84,7 @@ private:
 	TGraphErrors* createGraphFromFitResult(PndLmdLumiFitResult *fit_res,
 			PndLmdAcceptance *acc, PndLmdData *data);
 
-	std::pair<double, double> calculatePlotRange(PndLmdData *data,
+	std::pair<double, double> calculatePlotRange(PndLmdDataInterface *data,
 			const PndLmdLumiFitOptions *fit_options);
 
 public:
@@ -106,9 +105,23 @@ public:
 	void setTitleOffsetY(double title_offset_y_);
 
 	std::vector<PndLmdData*> getDataFromPath(TString path);
+	std::map<std::string, std::vector<PndLmdResolution*>,
+			ModelStructs::string_comp> getFittedResolutionFromPath(TString path);
+
+	TGraphErrors* createSmearingGraphFromFitResult(PndLmdLumiFitResult *fit_res,
+			PndLmdResolution *res_data);
+
+	std::map<std::string, TGraphErrors*, ModelStructs::string_comp> generateGraphsFromFitResults(
+			std::map<double, ModelFitResult*> &fit_results);
+
+	std::map<TString, std::vector<PndLmdLumiHelper::lmd_graph*> > getResolutionModelGraphsFromPath(
+			TString path, unsigned int level = 0);
 
 	std::vector<PndLmdResultPlotter::graph_bundle_1D> makeGraphBundles1D(
 			PndLmdData *data, PndLmdAcceptance* acc);
+
+	std::vector<PndLmdResultPlotter::graph_bundle_1D> makeResolutionGraphBundles1D(
+			std::vector<PndLmdResolution*> &res_vec);
 
 	acceptance_bundle makeAcceptanceBundle(PndLmdAcceptance* acc,
 			bool is_momentum_transfer = false);
@@ -129,6 +142,12 @@ public:
 	TCanvas* makeOverviewCanvas(
 			std::vector<PndLmdResultPlotter::graph_bundle_1D> &graph_bundles,
 			acceptance_bundle &acceptance_bundle);
+
+	void makeResolutionSummaryPlots(TString input_file_dir);
+
+	void makeResolutionBooky(std::map<std::string, std::vector<PndLmdResolution*>,
+			ModelStructs::string_comp> &res_map,
+			TString filename);
 
 	void makeComparisonCanvas(
 			TString name,

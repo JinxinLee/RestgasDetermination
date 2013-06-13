@@ -113,11 +113,12 @@ public:
 	PndLmdFit::lmd_dimension getTDimension() const;
 	PndLmdFit::lmd_dimension getThetaDimension() const;
 	PndLmdFit::lmd_dimension getPhiDimension() const;
+	TFile* getFile() const;
 
 	void setNumEvents(int num_events_);
 	void setLabMomentum(double p_lab_);
 
-	void makeDir();
+	virtual void makeDir();
 	virtual void makeName() =0;
 	virtual void saveToRootFile() =0;
 	int addFileToList(TString filepath);

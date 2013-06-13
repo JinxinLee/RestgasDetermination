@@ -11,12 +11,14 @@
 #ifndef __CINT__
 #include "ModelFitResult.h"
 #include "ModelStructs.h"
+#include "Chi2Estimator.h"
 #endif /* __CINT __ */
 
 #include <vector>
 #include <map>
 
 #include "TString.h"
+#include "TGraphErrors.h"
 #include "TDatabasePDG.h"
 
 class PndLmdAcceptance;
@@ -28,7 +30,7 @@ class PndLmdLumiFitOptions;
 class TFile;
 class TVector3;
 class TH1D;
-class TGraphErrors;
+class TH2D;
 
 /**
  * \brief This class contains a few functions helping the user with some basics.
@@ -48,6 +50,19 @@ public:
 	enum data_type {
 		DATA, ACCEPTANCE, RESOLUTION
 	};
+
+	struct lmd_graph: public TObject {
+		TString parameter_name;
+		TGraphErrors* data;
+		ModelFitResult* fit_result;
+
+		double phi_slice_mean;
+		double theta_slice_mean;
+		double plab;
+
+	ClassDef(lmd_graph, 1);
+	};
+
 private:
 	TDatabasePDG *pdg;
 	std::vector<PndLmdData*> registered_data;
@@ -78,49 +93,66 @@ public:
 					"Lumi_Track_*.root");
 
 #ifndef __CINT__
-	std::map<std::string, TGraphErrors*, ModelStructs::string_comp> generateGraphsFromFitResults(
-			std::vector<std::pair<double, ModelFitResult> > &fit_results);
+	void fillFitData1D(ModelEstimator &estimator, TH1D* hist_1d,
+			std::pair<double, double> &fit_range , bool with_integral_scaling = true);
 
-	ModelFitResult determineResolutionForSlice(PndLmdResolution* lmd_resolution,
+	void fillFitData2D(TH2D* hist_2d, std::pair<double, double> &fit_range_x
+			, std::pair<double, double> &fit_range_y);
+
+	void removePointsAboveChi2(
+			std::map<std::string, TGraphErrors*, ModelStructs::string_comp> &graph_map
+			, double chi2);
+
+
+	std::vector<PndLmdLumiHelper::lmd_graph> generateLmdGraphsFromFitResults(
+			std::vector<ModelFitResult*> &fit_results);
+
+	void fitResolutionForSlice(PndLmdResolution* lmd_resolution,
 			const PndLmdLumiFitOptions *fit_options);
+
+	std::map<double, ModelFitResult*> checkFitParameters(
+			const std::map<PndLmdResolution*, ModelFitResult*> &fit_results) const;
 #endif /* __CINT __ */
 
+	std::vector<PndLmdResolution*> getFittedResolutionsFromPath(TFile *f);
+	std::vector<PndLmdLumiHelper::lmd_graph*> getResolutionModelResultsFromFile(
+			TFile* f);
+
 	/**
-	 * The idea would be to cut down the dimensionality of the problem
-	 * by using the parametrization models. So models that describe the
-	 * evolution of parameters of the parent model.
-	 * In this case:
-	 * We have three variables on which the parameters of the smearing models
-	 * can depend "plab, theta, phi". Generate/simulate box gen data for the
-	 * required ranges of these variables and create the resolution objects.
+	 * This function determines and saves the parameters of the
+	 * resolution/smearing function that is later on used for the luminosity fit.
+	 *
+	 * The idea is to cut down the dimensionality of the problem by using the
+	 * parametrization models. So models that describe the evolution of
+	 * parameters of the parent model.
+	 *
+	 * More precisely:
 	 * Fit each of these resolution objects with the base smearing model, which
-	 * returns fit results for the parameters of this model.
+	 * returns fit results for the parameters of this model. Then for all of the
+	 * parameters of the smearing model exist values for the dimensionality of
+	 * the problem (for the lmd case: plab, theta and phi).
 	 *
-	 * 1) Then for a fixed beam momentum and phi (so cut out a "slice" in these two
-	 * variables), plot the parameters of the model and fit them with an
-	 * appropriate "parametrization model". Do this for all slices...
-	 * Then we have again a set of parameters which depend only on phi and plab.
-	 * keep doing this procedure until there are no more remaining variables!
+	 * Next for fixed values of all dimensions variables, except one, the model
+	 * parameters are parametrized with so called parametrization models.
+	 * These have their own parameters again, which are then parametrized as a
+	 * function of the next dimension variable, and so on...
 	 *
-	 * 2) Another way to perform such a dimensionality breakdown, would be to
-	 * isolate two variables at a time instead of just one at a time. This means
-	 * that for each parameter of the raw smearing model (gaussians) for example
-	 * "sigma" or "mean" we would have a 2D histogram along theta and phi, which
-	 * has to be fitted with an appropriate 2D "parametrization" model.
-	 *
-	 * So once one of these two methods have been chosen. The deepest
-	 * parametrization model (in this case for plab) would set parameters of his
-	 * parent parametrization and so on...
-	 * gauss(plabmodel(plab, thetamodel(theta, phimodel(phi, params))))
+	 * So in the case for lmd:
+	 * gauss(gauss_params(phi; phi_params(theta; theta_params(plab; plab_params))))
 	 *
 	 * I think this is the best (probably only) way to handle this complex
-	 * parametrization. TODO is if there is a way to generalize this so that
+	 * parametrization. Finally these parameters are save to a file, that can be
+	 * read in later for actual fits with the smearing model.
+	 *
+	 * TODO is if there is a way to generalize this so that
 	 * this procedure can be applied to any kind of model that exists
 	 * (assuming this model has a structure as described above).
+	 * maybe generate the parametrization model code from a string
 	 */
-	void determineResolution(std::vector<PndLmdResolution*> &lmd_resolutions,
-			const PndLmdLumiFitOptions *fit_options,
-			unsigned int parametrization_level);
-};
+	void fitSmearingModelToResolutions(
+			std::vector<PndLmdResolution*> &lmd_resolutions,
+			const PndLmdLumiFitOptions *fit_options);
+}
+;
 
 #endif /* PNDLMDLUMIHELPER_H_ */

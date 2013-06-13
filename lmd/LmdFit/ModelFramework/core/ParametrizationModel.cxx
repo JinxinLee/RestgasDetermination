@@ -16,7 +16,7 @@ ParametrizationModel::~ParametrizationModel() {
   // TODO Auto-generated destructor stub
 }
 
-void ParametrizationModel::parametrize(double *x) {
+void ParametrizationModel::parametrize(const double *x) {
   model_par->setValue(model->evaluate(x));
 }
 

@@ -143,16 +143,21 @@ shared_ptr<Model1D> PndLmdModelFactory::generate1DModel(
 
 void PndLmdModelFactory::initializeModelFromFitResult(shared_ptr<Model1D> model,
 		PndLmdLumiFitResult *fit_result) {
-
-	std::vector<shared_ptr<ModelPar> > free_model_pars =
-			model->getModelParameterSet().getFreeModelParameters();
-	for (unsigned int i = 0; i < free_model_pars.size(); i++) {
-		if (0 == free_model_pars[i]->getName().compare("luminosity")) {
-			model->getModelParameterSet().setModelParameterValue("luminosity",
-					fit_result->getLuminosity());
-		} else {
-			free_model_pars[i]->setValue(
-					fit_result->getModelFitResult()->getFitParameter(free_model_pars[i]->getName()).value);
+	std::set<ModelStructs::minimization_parameter> &fit_params =
+			fit_result->getModelFitResult()->getFitParameters();
+	for (std::set<ModelStructs::minimization_parameter>::iterator it =
+			fit_params.begin(); it != fit_params.end(); it++) {
+		if (model->getModelParameterSet().modelParameterExists(it->name)) {
+			shared_ptr<ModelPar> model_par =
+					model->getModelParameterSet().getModelParameter(it->name);
+			bool was_fixed = false;
+			if (model_par->isParameterFixed()) {
+				was_fixed = true;
+				model_par->setParameterFixed(false);
+			}
+			model_par->setValue(it->value);
+			if (was_fixed)
+				model_par->setParameterFixed(true);
 		}
 	}
 }

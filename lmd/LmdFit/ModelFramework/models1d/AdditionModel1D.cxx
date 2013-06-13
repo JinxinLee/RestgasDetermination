@@ -26,7 +26,7 @@ void AdditionModel1D::initModelParameters() {
 
 }
 
-double AdditionModel1D::eval(double *x) const {
+double AdditionModel1D::eval(const double *x) const {
   return add(first, second, x);
 }
 

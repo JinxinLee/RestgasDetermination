@@ -10,6 +10,10 @@
 
 #include "PndLmdDataInterface.h"
 
+#include <set>
+
+class PndLmdLumiFitResult;
+
 class TH1D;
 class TH2D;
 class TFile;
@@ -20,6 +24,8 @@ private:
 	double phi_slice_range_low, phi_slice_range_high;
 	TH1D *theta_res;
 	TH2D *theta_res_vs_phi_res;
+
+	std::set<PndLmdLumiFitResult*> fit_set;
 
 public:
 	PndLmdResolution(TFile* f_, int num_events_, double plab, double th_slice_range_low_,
@@ -37,9 +43,14 @@ public:
 
 	void saveToRootFile();
 	virtual void makeName();
+	void makeDir();
+	void cdToParentDirectory();
 
 	void fillHistograms(
 			std::vector<std::pair<PndLmdFit::lmd_values, PndLmdFit::lmd_values> > &event_data);
+
+	std::set<PndLmdLumiFitResult*> getFitResults() const;
+	int addFitResult(PndLmdLumiFitResult* fit_result_);
 
 ClassDef(PndLmdResolution,1)
 };

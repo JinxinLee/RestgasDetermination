@@ -7,6 +7,8 @@
 
 #include "PndLmdResolution.h"
 
+#include "PndLmdLumiFitResult.h"
+
 #include <iostream>
 
 #include "TH1D.h"
@@ -69,6 +71,39 @@ void PndLmdResolution::makeName() {
 	getName() += cname;
 }
 
+void PndLmdResolution::makeDir() {
+	char phi_dirname[100];
+	sprintf(phi_dirname, "%i_%f_%f_%f", phi_dimension.bins,
+			phi_dimension.range_low, phi_dimension.range_high, getPhiSliceMean());
+	char theta_dirname[100];
+	sprintf(theta_dirname, "%i_%f_%f_%f", th_dimension.bins,
+			th_dimension.range_low, th_dimension.range_high, getThetaSliceMean());
+	f->cd();
+	TDirectory *phidir = gDirectory->GetDirectory(phi_dirname);
+	if (phidir) {
+		phidir->cd();
+	} else {
+		f->cd();
+		gDirectory->mkdir(phi_dirname);
+		gDirectory->cd(phi_dirname);
+	}
+	TDirectory *thetadir = gDirectory->GetDirectory(theta_dirname);
+	if (thetadir) {
+		thetadir->cd();
+	} else {
+		gDirectory->mkdir(theta_dirname);
+		gDirectory->cd(theta_dirname);
+	}
+}
+
+void PndLmdResolution::cdToParentDirectory() {
+	char phi_dirname[100];
+	sprintf(phi_dirname, "%i_%f_%f_%f", phi_dimension.bins,
+			phi_dimension.range_low, phi_dimension.range_high, getPhiSliceMean());
+	f->cd();
+	gDirectory->cd(phi_dirname);
+}
+
 void PndLmdResolution::saveToRootFile() {
 	std::cout << "Saving " << getName() << " to file..." << std::endl;
 
@@ -82,11 +117,11 @@ void PndLmdResolution::fillHistograms(
 	if (1 == event_data.size()) {
 		std::pair<PndLmdFit::lmd_values, PndLmdFit::lmd_values> data = event_data[0];
 		if (data.first.reconstructed && data.second.reconstructed) {
-			if (th_slice_range_low < data.first.theta
-					&& th_slice_range_high > data.first.theta) {
-				theta_res->Fill(1000. * (data.second.theta - data.first.theta));
+			if (th_slice_range_low < 1000. * data.first.theta
+					&& th_slice_range_high > 1000. * data.first.theta) {
 				if (phi_slice_range_low < data.first.phi
 						&& phi_slice_range_high > data.first.phi) {
+					theta_res->Fill(1000. * (data.second.theta - data.first.theta));
 					theta_res_vs_phi_res->Fill(
 							1000. * (data.second.theta - data.first.theta),
 							data.second.phi - data.first.phi);
@@ -98,4 +133,12 @@ void PndLmdResolution::fillHistograms(
 				<< "Warning: Current event contains more than 1 track pair! This is not allowed! Skipping event!"
 				<< std::endl;
 	}
+}
+
+std::set<PndLmdLumiFitResult*> PndLmdResolution::getFitResults() const {
+	return fit_set;
+}
+
+int PndLmdResolution::addFitResult(PndLmdLumiFitResult* fit_result_) {
+	return fit_set.insert(fit_result_).second;
 }

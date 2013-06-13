@@ -37,7 +37,7 @@ public:
 	 * @returns value of the response function at the specified theta value with
 	 * the given theta sigma
 	 */
-	double eval(double *x) const;
+	double eval(const double *x) const;
 
 	void updateDomain();
 };

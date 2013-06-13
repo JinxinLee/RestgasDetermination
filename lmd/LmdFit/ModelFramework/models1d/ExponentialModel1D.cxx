@@ -24,7 +24,7 @@ void ExponentialModel1D::initModelParameters() {
   exp_factor = getModelParameterSet().addModelParameter("exp_exp_factor");
 }
 
-double ExponentialModel1D::eval(double *x) const {
+double ExponentialModel1D::eval(const double *x) const {
   return amplitude->getValue() * exp(exp_factor->getValue() * x[0]);
 }
 

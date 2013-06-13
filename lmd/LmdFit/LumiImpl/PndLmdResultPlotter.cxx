@@ -12,6 +12,7 @@
 #include "PndLmdLumiFitResult.h"
 #include "PndLmdData.h"
 #include "PndLmdAcceptance.h"
+#include "PndLmdResolution.h"
 
 #include <iostream>
 #include <vector>
@@ -129,32 +130,7 @@ std::vector<PndLmdData*> PndLmdResultPlotter::getDataFromPath(TString path) {
 	return vec_lmd_data;
 }
 
-void PndLmdResultPlotter::unifyPlotRange(TH1D* hist, TGraph *graph) {
-	double hist_x_min, hist_x_max;
-	double graph_x_min, graph_x_max;
 
-	hist_x_min = hist->GetXaxis()->GetXmin();
-	hist_x_max = hist->GetXaxis()->GetXmax();
-
-	graph_x_min = graph->GetXaxis()->GetXmin();
-	graph_x_max = graph->GetXaxis()->GetXmax();
-
-	if (hist_x_min < graph_x_min) {
-		hist->GetXaxis()->SetRangeUser(graph_x_min, hist_x_max);
-		hist_x_min = graph_x_min;
-	} else if (hist_x_min > graph_x_min) {
-		graph->GetXaxis()->SetRangeUser(hist_x_min, graph_x_max);
-		graph_x_min = hist_x_min;
-	}
-
-	if (hist_x_max > graph_x_max) {
-		hist->GetXaxis()->SetRangeUser(hist_x_min, graph_x_max);
-		hist_x_max = graph_x_max;
-	} else if (hist_x_max < graph_x_max) {
-		graph->GetXaxis()->SetRangeUser(graph_x_min, hist_x_max);
-		graph_x_max = hist_x_max;
-	}
-}
 
 std::pair<double, double> PndLmdResultPlotter::determinePlotRange(
 		std::map<TString, std::vector<combined_values> > &result_map) {
@@ -294,7 +270,7 @@ double PndLmdResultPlotter::calculateYPos(double line, double text_toppos_,
 }
 
 std::pair<double, double> PndLmdResultPlotter::calculatePlotRange(
-		PndLmdData *data, const PndLmdLumiFitOptions *fit_options) {
+		PndLmdDataInterface *data, const PndLmdLumiFitOptions *fit_options) {
 	double range_low;
 	double range_high;
 	if (fit_options->isFitRaw()) {
@@ -349,6 +325,44 @@ TGraphErrors* PndLmdResultPlotter::createGraphFromFitResult(
 	return graph;
 }
 
+TGraphErrors* PndLmdResultPlotter::createSmearingGraphFromFitResult(
+		PndLmdLumiFitResult *fit_res, PndLmdResolution *res_data) {
+	unsigned int num_evaluations = 500;
+
+	TGraphErrors* graph = new TGraphErrors(num_evaluations);
+
+	PndLmdModelFactory model_factory;
+	shared_ptr<Model1D> model = model_factory.generate1DResolutionModel(
+			fit_res->getLumiFitOptions());
+	if (model->init()) {
+		std::cout << "Error: not all parameters have been set!" << std::endl;
+	}
+
+	// now just overwrite all parameters in the model from the fit result
+	model_factory.initializeModelFromFitResult(model, fit_res);
+
+	// all parameters of the smearing model have to be freed otherwise the
+	// parametrization model will overwrite the values during the evaluation
+	model->getModelParameterSet().freeAllModelParameters();
+
+	// ok just evaluate the function at 500 points in the range
+	//std::pair<double, double> plot_range = calculatePlotRange(res_data,
+	//		fit_res->getLumiFitOptions());
+	std::pair<double, double> plot_range = std::make_pair(
+			res_data->getThetaDimension().range_low,
+			res_data->getThetaDimension().range_high);
+
+	double stepsize = (plot_range.second - plot_range.first) / num_evaluations;
+	double x;
+	for (unsigned int i = 0; i < num_evaluations; i++) {
+		x = plot_range.first + stepsize * i;
+		graph->SetPoint(i, x,
+				model->evaluate(&x) * res_data->getThetaDimension().bin_size);
+		graph->SetPointError(i, 0, 0);
+	}
+	return graph;
+}
+
 std::vector<PndLmdResultPlotter::graph_bundle_1D> PndLmdResultPlotter::makeGraphBundles1D(
 		PndLmdData *data, PndLmdAcceptance* acc) {
 	std::vector<PndLmdResultPlotter::graph_bundle_1D> return_vector;
@@ -367,8 +381,8 @@ std::vector<PndLmdResultPlotter::graph_bundle_1D> PndLmdResultPlotter::makeGraph
 
 		for (unsigned int i = 0; i < fit_res.size(); i++) {
 			graph_bundle_1D lmd_graph_bundle;
+			lmd_graph_bundle.is_resolution = false;
 			lmd_graph_bundle.plab = momentum;
-			lmd_graph_bundle.lumi_values.lumiref = lumi_ref;
 			lmd_graph_bundle.fit_options = fit_res[i]->getLumiFitOptions();
 
 			TH1D* hist = data->getMeasuredHist1D(fit_res[i]->getLumiFitOptions());
@@ -380,11 +394,60 @@ std::vector<PndLmdResultPlotter::graph_bundle_1D> PndLmdResultPlotter::makeGraph
 			lmd_graph_bundle.data_hist = hist;
 			lmd_graph_bundle.model = model;
 
-			lmd_graph_bundle.chi2 = fit_res[i]->getRedChiSquare();
-			lmd_graph_bundle.lumi_values.lumival = fit_res[i]->getLuminosity();
-			lmd_graph_bundle.lumi_values.lumierr = fit_res[i]->getLuminosityError();
+			char cc[30];
+			sprintf(cc, "p_{lab} = %.1f GeV", lmd_graph_bundle.plab);
+			lmd_graph_bundle.labels.push_back(std::make_pair(TString(cc), 1));
+			sprintf(cc, "#chi^{2}/NDF = %.2f", fit_res[i]->getRedChiSquare());
+			lmd_graph_bundle.labels.push_back(std::make_pair(TString(cc), 1));
+			sprintf(cc, "lumi. diff. = %.2f #pm %.2f",
+					fit_res[i]->getLuminosity() - lumi_ref,
+					sqrt(pow(fit_res[i]->getLuminosityError(), 2.0) + pow(0.0, 2.0)));
+			lmd_graph_bundle.labels.push_back(std::make_pair(TString(cc), 1));
+			sprintf(
+					cc,
+					"lumi. rel. diff. = %.2f #pm %.2f %%",
+					calulateLumiRelDiff(fit_res[i]->getLuminosity(),
+							fit_res[i]->getLuminosityError(), lumi_ref).first,
+					calulateLumiRelDiff(fit_res[i]->getLuminosity(),
+							fit_res[i]->getLuminosityError(), lumi_ref).second);
+			lmd_graph_bundle.labels.push_back(std::make_pair(TString(cc), 2));
 
 			return_vector.push_back(lmd_graph_bundle);
+		}
+	}
+	return return_vector;
+}
+
+std::vector<PndLmdResultPlotter::graph_bundle_1D> PndLmdResultPlotter::makeResolutionGraphBundles1D(
+		std::vector<PndLmdResolution*> &res_vec) {
+
+	std::vector<PndLmdResultPlotter::graph_bundle_1D> return_vector;
+
+	for (unsigned int i = 0; i < res_vec.size(); i++) {
+		const std::set<PndLmdLumiFitResult*> &fit_set = res_vec[i]->getFitResults();
+		if (fit_set.size() > 0) {
+			graph_bundle_1D graph_bundle;
+			graph_bundle.data_hist = res_vec[i]->getResolutionHistogram1D();
+			graph_bundle.plab = res_vec[i]->getLabMomentum();
+
+			for (std::set<PndLmdLumiFitResult*>::iterator fit_result =
+					fit_set.begin(); fit_result != fit_set.end(); fit_result++) {
+				graph_bundle.model = createSmearingGraphFromFitResult(*fit_result,
+						res_vec[i]);
+
+				graph_bundle.is_resolution = true;
+				graph_bundle.fit_options = (*fit_result)->getLumiFitOptions();
+
+				char cc[30];
+				sprintf(cc, "p_{lab} = %.1f GeV", graph_bundle.plab);
+				graph_bundle.labels.push_back(std::make_pair(TString(cc), 1));
+				sprintf(cc, "#chi^{2}/NDF = %.2f", (*fit_result)->getRedChiSquare());
+				graph_bundle.labels.push_back(std::make_pair(TString(cc), 1));
+				sprintf(cc, "#bar{#Theta}_{MC} = %.2f mrad",
+						res_vec[i]->getThetaSliceMean());
+				graph_bundle.labels.push_back(std::make_pair(TString(cc), 1));
+			}
+			return_vector.push_back(graph_bundle);
 		}
 	}
 	return return_vector;
@@ -401,6 +464,7 @@ void PndLmdResultPlotter::fillSinglePad(TCanvas *c,
 		TH1D* hist = graph_bundle.data_hist;
 		char ytitle[50];
 		hist->SetTitle("");
+
 		if (graph_bundle.fit_options->isFitRaw()) {
 			if (theta_plot_range_low < theta_plot_range_high) {
 				hist->GetXaxis()->SetRangeUser(
@@ -412,16 +476,19 @@ void PndLmdResultPlotter::fillSinglePad(TCanvas *c,
 			hist->GetXaxis()->SetTitle("t [GeV^{2}/c^{2}]");
 			sprintf(ytitle, "# of events / %.3e GeV^{2}/c^{2}",
 					hist->GetXaxis()->GetBinWidth(1));
-
 		} else {
 			if (theta_plot_range_low < theta_plot_range_high) {
 				hist->GetXaxis()->SetRangeUser(theta_plot_range_low,
 						theta_plot_range_high);
 			}
-			hist->GetXaxis()->SetTitle("#Theta [mrad]");
+			if (graph_bundle.is_resolution)
+				hist->GetXaxis()->SetTitle("#Delta#Theta [mrad]");
+			else
+				hist->GetXaxis()->SetTitle("#Theta [mrad]");
 			sprintf(ytitle, "# of events / %.3e mrad",
 					hist->GetXaxis()->GetBinWidth(1));
 		}
+
 		hist->GetYaxis()->SetTitle(ytitle);
 
 		hist->GetYaxis()->SetTitleFont(text_font);
@@ -447,43 +514,14 @@ void PndLmdResultPlotter::fillSinglePad(TCanvas *c,
 		gPad->Update();
 
 		if (labels_on) {
-			char cmom[30];
-			sprintf(cmom, "p_{lab} = %.1f GeV", graph_bundle.plab);
-			TLatex *momlabel = new TLatex(text_leftpos * gPad->GetUxmax(),
-					calculateYPos(1.0, text_toppos, text_spacing, log_scale), cmom);
-
-			char cc[30];
-			sprintf(cc, "#chi^{2}/NDF = %.2f", graph_bundle.chi2);
-			TLatex *labelchi2 = new TLatex(text_leftpos * gPad->GetUxmax(),
-					calculateYPos(2.0, text_toppos, text_spacing, log_scale), cc);
-
-			double lumi = graph_bundle.lumi_values.lumival;
-			double lumi_err = graph_bundle.lumi_values.lumierr;
-			double lumi_ref = graph_bundle.lumi_values.lumiref;
-
-			char cld[30];
-			sprintf(cld, "lumi. diff. = %.2f #pm %.2f", lumi - lumi_ref,
-					sqrt(pow(lumi_err, 2.0) + pow(0.0, 2.0)));
-			TLatex *labellumidiff = new TLatex(text_leftpos * gPad->GetUxmax(),
-					calculateYPos(3.0, text_toppos, text_spacing, log_scale), cld);
-
-			char *clrd = new char[30];
-			sprintf(clrd, "lumi. rel. diff. = %.2f #pm %.2f %%",
-					calulateLumiRelDiff(lumi, lumi_err, lumi_ref).first,
-					calulateLumiRelDiff(lumi, lumi_err, lumi_ref).second);
-			TLatex *labellumireldiff = new TLatex(text_leftpos * gPad->GetUxmax(),
-					calculateYPos(4.0, text_toppos, text_spacing, log_scale), clrd);
-
-			momlabel->SetTextSize(text_size);
-			labelchi2->SetTextSize(text_size);
-			labellumidiff->SetTextSize(text_size);
-			labellumireldiff->SetTextSize(text_size);
-			labellumireldiff->SetTextColor(2);
-
-			momlabel->Draw();
-			labelchi2->Draw();
-			labellumidiff->Draw();
-			labellumireldiff->Draw();
+			for (unsigned int i = 0; i < graph_bundle.labels.size(); i++) {
+				TLatex *label = new TLatex(text_leftpos * gPad->GetUxmax(),
+						calculateYPos(1.0 * i, text_toppos, text_spacing, log_scale),
+						graph_bundle.labels[i].first);
+				label->SetTextSize(text_size);
+				label->SetTextColor(graph_bundle.labels[i].second);
+				label->Draw();
+			}
 		}
 	}
 }
@@ -594,6 +632,80 @@ PndLmdResultPlotter::acceptance_bundle PndLmdResultPlotter::makeAcceptanceBundle
 
 	return acc_bundle;
 }
+
+
+
+
+void PndLmdResultPlotter::makeResolutionSummaryPlots(TString input_file_dir) {
+	std::map<TString, std::vector<PndLmdLumiHelper::lmd_graph*> > graphs =
+			getResolutionModelGraphsFromPath(input_file_dir, 0);
+	for (std::map<TString, std::vector<PndLmdLumiHelper::lmd_graph*> >::const_iterator it =
+			graphs.begin(); it != graphs.end(); it++) {
+		TCanvas c("c", it->first, 1000, 700);
+		c.Divide(3, 3);
+		for (unsigned int i = 0; i < it->second.size(); i++) {
+			c.cd(i + 1);
+			it->second[i]->data->SetTitle(it->second[i]->parameter_name);
+			it->second[i]->data->Draw("A*");
+		}
+		c.cd();
+		TLatex title(0.2, 0.33, it->first);
+		title.SetTextSize(0.05);
+		title.Draw();
+		c.SaveAs(TString("resolution_parameters_vs_theta_") + it->first + ".pdf");
+	}
+}
+
+void PndLmdResultPlotter::makeResolutionBooky(
+		std::map<std::string, std::vector<PndLmdResolution*>,
+				ModelStructs::string_comp> &res_map, TString filename) {
+
+	for (std::map<std::string, std::vector<PndLmdResolution*>,
+			ModelStructs::string_comp>::iterator it = res_map.begin();
+			it != res_map.end(); it++) {
+
+		std::vector<PndLmdResultPlotter::graph_bundle_1D> graph_bundles =
+				makeResolutionGraphBundles1D(it->second);
+
+		TCanvas c("res_overview", "res_overview", 1000, 700);
+		c.Divide(4, 3);
+		unsigned int stepsize = 3;
+		c.Print(filename + "_overview_" + TString(it->first) + ".pdf["); // No actual print, just open file
+		for (unsigned int i = 0; i < graph_bundles.size(); i = i + stepsize) {
+			c.cd(i / stepsize % 12 + 1);
+			fillSinglePad(&c, graph_bundles[i], false, true);
+			if (i / stepsize % 12 + 1 == 12 || i >= graph_bundles.size() - 1) {
+				if (i >= graph_bundles.size() - 1) {
+					// clear remaining pads
+					for (unsigned int temp = i / stepsize % 12 + 2; temp <= 12; temp++) {
+						c.cd(temp)->Clear();
+					}
+				}
+				c.cd();
+				TLatex title(0.25, 0.33, it->first.c_str());
+				title.SetTextSize(0.05);
+				title.Draw();
+				c.Print(filename + "_overview_" + TString(it->first) + ".pdf"); // actually print canvas to file
+			}
+		}
+		c.Print(filename + "_overview_" + TString(it->first) + ".pdf]");
+
+		TCanvas c1("res_booky", "res_booky", 1000, 700);
+		c1.SetTitle(it->first.c_str());
+		c1.Print(filename + "_booky_" + TString(it->first) + ".pdf["); // No actual print, just open file
+		for (unsigned int i = 0; i < graph_bundles.size(); i++) {
+			fillSinglePad(&c1, graph_bundles[i], false, true);
+			c1.cd();
+			TLatex title(0.2, 0.5, it->first.c_str());
+			title.SetTextSize(0.05);
+			title.Draw();
+			c1.Print(filename + "_booky_" + TString(it->first) + ".pdf"); // actually print canvas to file
+		}
+		c1.Print(filename + "_booky_" + TString(it->first) + ".pdf]");
+	}
+}
+
+
 
 /*
  void make2DExampleOverviewCanvas(TString name, PndLmdData *data,

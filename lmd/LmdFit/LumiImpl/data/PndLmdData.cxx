@@ -6,9 +6,10 @@
  */
 #include "PndLmdData.h"
 #include "PndLmdAcceptance.h"
-#include "PndROOTModelFitter.h"
+#include "ROOTMinimizer.h"
 #include "PndLmdLumiFitResult.h"
 #include "PndLmdLumiFitOptions.h"
+#include "PndLmdLumiHelper.h"
 
 #include "TH1D.h"
 #include "TH2D.h"
@@ -31,7 +32,6 @@ PndLmdData::PndLmdData(TFile *f_, int num_events_, double plab_,
 	//fit_map =
 	//		new std::map<PndLmdLumiModel*, std::vector<PndLmdLumiFitResult*> >();
 
-	fitter = new PndROOTModelFitter();
 	luminosity_ref = generated_luminosity_per_event_ * num_events_;
 	makeDir();
 }
@@ -154,8 +154,11 @@ PndLmdLumiFitResult* PndLmdData::Fit(PndLmdAcceptance *lmd_acc,
 		shared_ptr<Model1D> model1d = signal_model_fac.generate1DModel(fit_options,
 				getLabMomentum(), lmd_acc);
 
+		// create chi2 estimator
+		Chi2Estimator chi2_est;
+
 		// set model
-		fitter->setModel(model1d);
+		chi2_est.setModel(model1d);
 
 		std::pair<double, double> fit_range = std::make_pair(
 				fit_options->getThetaFitRangeLow(), fit_options->getThetaFitRangeHigh());
@@ -163,8 +166,9 @@ PndLmdLumiFitResult* PndLmdData::Fit(PndLmdAcceptance *lmd_acc,
 			fit_range = std::make_pair(
 						fit_options->getTFitRangeLow(), fit_options->getTFitRangeHigh());
 
-		// fill data to the fitter
-		fitter->fillFitData1D(getMeasuredHist1D(fit_options), fit_range);
+		// fill data to the estimator
+		PndLmdLumiHelper helper;
+		helper.fillFitData1D(chi2_est, getMeasuredHist1D(fit_options), fit_range);
 
 		// set value for binning constant
 		double binning_factor = 1.0;
@@ -175,7 +179,7 @@ PndLmdLumiFitResult* PndLmdData::Fit(PndLmdAcceptance *lmd_acc,
 			if (fit_options->getFitDimension())
 				binning_factor *= phi_dimension.bin_size;
 		}
-		fitter->setBinningFactor(binning_factor);
+		chi2_est.setBinningFactor(binning_factor);
 
 		// now set better starting lumi value
 		std::pair<double, double> range = calcRange(fit_options);
@@ -191,8 +195,10 @@ PndLmdLumiFitResult* PndLmdData::Fit(PndLmdAcceptance *lmd_acc,
 		model1d->getModelParameterSet().setModelParameterValue("luminosity",
 				lumi_start);
 
+		// create minimizer instance with control parameter
+    ROOTMinimizer fitter(chi2_est);
 
-		int fit_status = fitter->doFit();
+		int fit_status = fitter.doMinimization();
 		// call minimization procedure
 		if (fit_status) {
 			std::cout
@@ -207,17 +213,18 @@ PndLmdLumiFitResult* PndLmdData::Fit(PndLmdAcceptance *lmd_acc,
 		fit_result = new PndLmdLumiFitResult(fit_options);
 		fit_result->setFitStatus(fit_status);
 
-		fit_result->setChiSquare(fitter->chi2(fitter->getROOTMinimizer()->X()));
+		// in case we have a likelihood we have to create a new chi2 estimator...
+		fit_result->setChiSquare(chi2_est.evaluate(fitter.getROOTMinimizer()->X()));
 
-		for (unsigned int i = 0; i < fitter->getROOTMinimizer()->NDim(); i++) {
+		for (unsigned int i = 0; i < fitter.getROOTMinimizer()->NDim(); i++) {
 				fit_result->addFitParameter(
-						fitter->getROOTMinimizer()->VariableName(i),
-						fitter->getROOTMinimizer()->X()[i],
-						fitter->getROOTMinimizer()->Errors()[i]);
+						fitter.getROOTMinimizer()->VariableName(i),
+						fitter.getROOTMinimizer()->X()[i],
+						fitter.getROOTMinimizer()->Errors()[i]);
 		}
 
 		fit_result->setNDF(
-				fitter->getNumberOfDataPoints() - fitter->getROOTMinimizer()->NFree());
+				chi2_est.getNumberOfDataPoints() - fitter.getROOTMinimizer()->NFree());
 	} else { // user wants to use ROOFIT
 		// ok do roofit stuff here
 	}

@@ -16,7 +16,6 @@
 #include "PndLmdModelFactory.h"
 #endif /* __CINT __ */
 
-class PndROOTModelFitter;
 class PndLmdLumiFitResult;
 class PndLmdLumiFitOptions;
 class PndLmdAcceptance;
@@ -37,7 +36,6 @@ private:
 	std::map<PndLmdAcceptance*, std::vector<PndLmdLumiFitResult*> > fit_map;
 
 #ifndef __CINT__
-	PndROOTModelFitter *fitter;
 	PndLmdModelFactory signal_model_fac;
 #endif /* __CINT __ */
 

@@ -5,7 +5,7 @@
 #pragma link off all functions;
 
 #pragma link C++ class ModelFitResult+;
-#pragma link C++ struct ModelFitResult::fit_parameter+;
+#pragma link C++ struct ModelStructs::minimization_parameter+;
 #pragma link C++ class PndLmdLumiFitResult;
 #pragma link C++ class PndLmdLumiFitOptions;
 #pragma link C++ class PndLmdDataInterface;
@@ -17,12 +17,21 @@
 #pragma link C++ class std::vector < PndLmdData* >+;
 #pragma link C++ class std::vector < PndLmdAcceptance* >+;
 #pragma link C++ class std::vector < PndLmdResolution* >+;
+#pragma link C++ class std::map<std::string, std::vector<PndLmdResolution*>, ModelStructs::string_comp>+;
+#pragma link C++ class std::vector<TFile*>+;
 #pragma link C++ class std::vector < PndLmdLumiFitOptions* >+;
+#pragma link C++ class std::vector<std::pair<PndLmdResolution*, PndLmdLumiFitResult*> >+;
+#pragma link C++ class std::pair<PndLmdResolution*, PndLmdLumiFitResult*>+;
 #pragma link C++ class PndLmdResultPlotter;
 #pragma link C++ class std::map<PndLmdAcceptance*, std::vector<PndLmdLumiFitResult*> >+;
 #pragma link C++ class std::map<PndLmdAcceptance*, std::vector<PndLmdLumiFitResult*> >::iterator;
+#pragma link C++ class std::set<PndLmdLumiFitResult*>+;
+#pragma link C++ class std::set<PndLmdLumiFitResult*>::iterator;
 #pragma link C++ class std::vector < PndLmdResultPlotter::graph_bundle_1D >+;
 #pragma link C++ struct PndLmdResultPlotter::acceptance_bundle;
 #pragma link C++ struct PndLmdFit::lmd_dimension+;
+#pragma link C++ class std::vector < PndLmdLumiHelper::lmd_graph* >+;
+#pragma link C++ struct PndLmdLumiHelper::lmd_graph;
+
 
 #endif

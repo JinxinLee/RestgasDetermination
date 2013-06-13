@@ -32,7 +32,7 @@ void PolynomialModel1D::initModelParameters() {
 	}
 }
 
-double PolynomialModel1D::eval(double *x) const {
+double PolynomialModel1D::eval(const double *x) const {
 	double val = 0.0;
 	for (unsigned int i = 0; i < poly_factors.size(); i++) {
 		val += poly_factors[i]->getValue() * std::pow(x[0], static_cast<int>(i));

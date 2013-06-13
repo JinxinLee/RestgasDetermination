@@ -81,19 +81,19 @@ void PndLmdROOTDataModel1D::initModelParameters() {
 
 }
 
-double PndLmdROOTDataModel1D::evaluateConstant(double *x) const {
+double PndLmdROOTDataModel1D::evaluateConstant(const double *x) const {
 	return acceptance->GetEfficiency(acceptance->FindFixBin(x[0]));
 }
 
-double PndLmdROOTDataModel1D::evaluateLinear(double *x) const {
+double PndLmdROOTDataModel1D::evaluateLinear(const double *x) const {
 	return graph->Eval(x[0]);
 }
 
-double PndLmdROOTDataModel1D::evaluateSpline(double *x) const {
+double PndLmdROOTDataModel1D::evaluateSpline(const double *x) const {
 	return graph->Eval(x[0], 0, "S");
 }
 
-double PndLmdROOTDataModel1D::eval(double *x) const {
+double PndLmdROOTDataModel1D::eval(const double *x) const {
 	if (acc_range_low > x[0] || acc_range_high < x[0])
 		return 0.0;
 	return (this->*model_func)(x);

@@ -91,7 +91,7 @@ double PndLmdDPMAngModel1D::getThetaMomentumTransferJacobian(
 					- getMomentumTransferFromTheta(theta - h)) / (2 * h));
 }
 
-double PndLmdDPMAngModel1D::getCoulombPart(double *x) const {
+double PndLmdDPMAngModel1D::getCoulombPart(const double *x) const {
 	double t = getMomentumTransferFromTheta(x[0]);
 	double jaco = getThetaMomentumTransferJacobian(x[0]);
 	double coul_part = getRawCoulombPart(&t) * jaco; //Coulomb part
@@ -99,7 +99,7 @@ double PndLmdDPMAngModel1D::getCoulombPart(double *x) const {
 	return coul_part;
 }
 
-double PndLmdDPMAngModel1D::getInterferencePart(double *x) const {
+double PndLmdDPMAngModel1D::getInterferencePart(const double *x) const {
 	double t = getMomentumTransferFromTheta(x[0]);
 	double jaco = getThetaMomentumTransferJacobian(x[0]);
 
@@ -108,7 +108,7 @@ double PndLmdDPMAngModel1D::getInterferencePart(double *x) const {
 	return int_part;
 }
 
-double PndLmdDPMAngModel1D::getHadronicPart(double *x) const {
+double PndLmdDPMAngModel1D::getHadronicPart(const double *x) const {
 	double t = getMomentumTransferFromTheta(x[0]);
 	double jaco = getThetaMomentumTransferJacobian(x[0]);
 
@@ -117,7 +117,7 @@ double PndLmdDPMAngModel1D::getHadronicPart(double *x) const {
 	return had_part;
 }
 
-double PndLmdDPMAngModel1D::eval(double *x) const {
+double PndLmdDPMAngModel1D::eval(const double *x) const {
 	double p1 = getCoulombPart(x);
 	double p2 = getInterferencePart(x);
 	double p3 = getHadronicPart(x);

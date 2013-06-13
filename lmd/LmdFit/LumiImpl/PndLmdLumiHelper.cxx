@@ -10,7 +10,7 @@
 #include "PndLmdAcceptance.h"
 #include "PndLmdResolution.h"
 #include "PndLmdLumiFitOptions.h"
-#include "PndROOTModelFitter.h"
+#include "ROOTMinimizer.h"
 #include "PndLmdModelFactory.h"
 #include "PndLmdDPMAngModel1D.h"
 #include "PndLmdDPMModelParametrization.h"
@@ -28,6 +28,7 @@
 #include "TChain.h"
 #include "TClonesArray.h"
 #include "TH1D.h"
+#include "TH2D.h"
 #include "TGraphErrors.h"
 #include "TCanvas.h"
 
@@ -374,61 +375,157 @@ void PndLmdLumiHelper::fillData(double plab, TString dir_path,
 	clearRegisters(data_mode);
 }
 
-std::map<std::string, TGraphErrors*, ModelStructs::string_comp> PndLmdLumiHelper::generateGraphsFromFitResults(
-		std::vector<std::pair<double, ModelFitResult> > &fit_results) {
+// create estimators from root objects (hits, graphs...)
 
-	std::map<std::string, TGraphErrors*, ModelStructs::string_comp> return_map;
+void PndLmdLumiHelper::fillFitData1D(ModelEstimator &estimator, TH1D* hist_1d,
+		std::pair<double, double> &fit_range, bool with_integral_scaling) {
 
-	if (0 < fit_results.size()) {
-		std::set<ModelFitResult::fit_parameter> &fit_parameters =
-				fit_results[0].second.getFitParameters();
-		for (std::set<ModelFitResult::fit_parameter>::iterator it =
-				fit_parameters.begin(); it != fit_parameters.end(); it++) {
-			return_map[it->name] = new TGraphErrors(fit_results.size());
+	estimator.clearData();
+
+	std::vector<std::pair<double, double> > bin_range;
+	bin_range.push_back(std::make_pair(0.0, 0.0));
+	for (int i = 1; i <= hist_1d->GetNbinsX(); i++) {
+		ModelStructs::data_point datapoint;
+
+		datapoint.x[0] = hist_1d->GetBinCenter(i);
+		datapoint.z = hist_1d->GetBinContent(i);
+		datapoint.z_error = hist_1d->GetBinError(i);
+
+		if (datapoint.x[0] < fit_range.first || datapoint.x[0] > fit_range.second)
+			continue;
+		if (datapoint.z == 0.0)
+			continue;
+
+		double scale = 1.0;
+		if (with_integral_scaling) {
+			bin_range[0].first = hist_1d->GetBinLowEdge(i);
+			bin_range[0].second = bin_range[0].first + hist_1d->GetBinWidth(i);
+
+			double int_func_real = estimator.getModel()->Integral(bin_range, 0.001);
+			double int_func_approx = estimator.getModel()->evaluate(datapoint.x)
+					* (bin_range[0].second - bin_range[0].first);
+
+			if (int_func_approx > 0.0 && int_func_real > 0.0) {
+				scale = int_func_approx / int_func_real;
+			}
 		}
+		datapoint.scale = scale;
+		datapoint.z = datapoint.z * scale;
 
-		for (unsigned int i = 0; i < fit_results.size(); i++) {
-			std::set<ModelFitResult::fit_parameter> &temp_fit_parameters =
-					fit_results[i].second.getFitParameters();
-			for (std::set<ModelFitResult::fit_parameter>::iterator it =
-					temp_fit_parameters.begin(); it != temp_fit_parameters.end(); it++) {
-				return_map[it->name]->SetPoint(i, fit_results[i].first, it->value);
-				return_map[it->name]->SetPointError(i, 0.0, it->error);
+		estimator.insertData(datapoint);
+	}
+}
+
+void PndLmdLumiHelper::fillFitData2D(TH2D* hist_2d,
+		std::pair<double, double> &fit_range_x
+		, std::pair<double, double> &fit_range_y) {
+
+}
+
+std::vector<PndLmdResolution*> PndLmdLumiHelper::getFittedResolutionsFromPath(
+		TFile* f) {
+	std::vector<PndLmdResolution*> resolutions;
+
+	TIter phidir_next(f->GetListOfKeys());
+	TDirectory *phidir;
+	while ((phidir = (TDirectory*) phidir_next())) {
+		std::cout << "Found dir " << phidir->GetName() << std::endl;
+		std::string phiname(phidir->GetName());
+		gDirectory->cd(phidir->GetName());
+		TIter thetadir_next(gDirectory->GetListOfKeys());
+		TDirectory *thetadir;
+		while ((thetadir = (TDirectory*) thetadir_next())) {
+			std::cout << "Found dir " << thetadir->GetName() << std::endl;
+			PndLmdResolution* resolution;
+			f->GetObject(
+					TString(phiname) + "/" + TString(thetadir->GetName())
+							+ "/lmdresolution", resolution);
+			if (resolution) {
+				std::cout << "adding resolution from " << thetadir->GetName()
+						<< std::endl;
+				resolutions.push_back(resolution);
 			}
 		}
 	}
-	return return_map;
+	return resolutions;
 }
 
-ModelFitResult PndLmdLumiHelper::determineResolutionForSlice(
-		PndLmdResolution* lmd_resolution, const PndLmdLumiFitOptions *fit_options) {
+std::vector<PndLmdLumiHelper::lmd_graph*> PndLmdLumiHelper::getResolutionModelResultsFromFile(
+		TFile* f) {
+	std::vector<PndLmdLumiHelper::lmd_graph*> return_vec;
+
+	f->cd();
+	TIter next(f->GetListOfKeys());
+	PndLmdLumiHelper::lmd_graph *lmd_graph;
+	while ((lmd_graph = (PndLmdLumiHelper::lmd_graph*) next())) {
+		if (lmd_graph) {
+			std::cout << "Found graph " << lmd_graph->GetName() << std::endl;
+			gDirectory->GetObject(lmd_graph->GetName(), lmd_graph);
+			return_vec.push_back(lmd_graph);
+		}
+	}
+	if (return_vec.size() == 0) {
+		std::cout
+				<< "WARNING: The given file does not contain and objects of the required type!"
+				<< std::endl;
+	}
+	return return_vec;
+}
+
+
+std::vector<PndLmdLumiHelper::lmd_graph> PndLmdLumiHelper::generateLmdGraphsFromFitResults(
+		std::vector<ModelFitResult*> &fit_results) {
+
+	std::vector<PndLmdLumiHelper::lmd_graph> return_vec;
+
+/*	if (0 < fit_results.size()) {
+		std::set<ModelStructs::minimization_parameter> &fit_parameters =
+				fit_results[0]->getFitParameters();
+		for (std::set<ModelStructs::minimization_parameter>::iterator it =
+				fit_parameters.begin(); it != fit_parameters.end(); it++) {
+			PndLmdLumiHelper::lmd_graph graph;
+			graph.data = new TGraphErrors(fit_results.size());
+			graph.parameter_name = it->name;
+			graph.plab = ;
+			return_vec.push_back(graph);
+		}
+		int pointcounter = 0;
+		for (std::vector<ModelFitResult*>::iterator fit_res_it =
+				fit_results.begin(); fit_res_it != fit_results.end(); fit_res_it++) {
+			std::set<ModelStructs::minimization_parameter> &temp_fit_parameters =
+					(*fit_res_it)->getFitParameters();
+			for (std::set<ModelStructs::minimization_parameter>::iterator it =
+					temp_fit_parameters.begin(); it != temp_fit_parameters.end(); it++) {
+				return_map[it->name]->SetPoint(pointcounter, fit_res_it->,
+						it->value);
+				return_map[it->name]->SetPointError(pointcounter, 0.0, it->error);
+			}
+			pointcounter++;
+		}
+	}*/
+	return return_vec;
+}
+
+void dothinghere(TFile *f) {
+
+}
+
+void PndLmdLumiHelper::fitResolutionForSlice(PndLmdResolution* lmd_resolution,
+		const PndLmdLumiFitOptions *fit_options) {
 	PndLmdModelFactory model_factory; // construct model factory
 	// specify which of type of smearing model we want to generate
+
+	PndLmdLumiFitResult *res_fit_result;
 
 	// generate the model
 	shared_ptr<Model1D> resolution_model =
 			model_factory.generate1DResolutionModel(fit_options);
 
-	// create Minuit Fitter
-	PndROOTModelFitter fitter;
-
-	// set the resolution model as the active model of the fitter
-	fitter.setModel(resolution_model);
-
-	// now fit the resolution model to the data
-
 	// get histogram
 	TH1D* hist = lmd_resolution->getResolutionHistogram1D();
-
-	// fit over whole histogram range
-	std::pair<double, double> fit_range = std::make_pair(
-			hist->GetXaxis()->GetXmin(), hist->GetXaxis()->GetXmax());
-	// fill data into fitter
-	fitter.fillFitData1D(hist, fit_range, false);
-
-	// set value for binning constant
-	double binning_factor = lmd_resolution->getThetaDimension().bin_size;
-	fitter.setBinningFactor(binning_factor);
+	if (hist->GetEntries() < 1500) {
+		return;
+	}
 
 	// now we have to set good starting values and free parameters
 	// amplitude of gauss is equal to number of events in the histogram
@@ -437,84 +534,144 @@ ModelFitResult PndLmdLumiHelper::determineResolutionForSlice(
 	resolution_model->getModelParameterSet().getModelParameter("gauss_amplitude")->setParameterFixed(
 			false);
 
-	resolution_model->getModelParameterSet().getModelParameter("gauss_mean")->setValue(
-			0.0);
-	resolution_model->getModelParameterSet().getModelParameter("gauss_mean")->setParameterFixed(
-			false);
 	if (0 == fit_options->getSmearingModelType()) { // simple gaussian
+		resolution_model->getModelParameterSet().getModelParameter("gauss_mean")->setValue(
+				0.0);
+		resolution_model->getModelParameterSet().getModelParameter("gauss_mean")->setParameterFixed(
+				false);
 		resolution_model->getModelParameterSet().getModelParameter("gauss_sigma")->setValue(
 				hist->GetRMS());
 		resolution_model->getModelParameterSet().getModelParameter("gauss_sigma")->setParameterFixed(
 				false);
 	} else if (1 == fit_options->getSmearingModelType()) { // double gaussian
 		resolution_model->getModelParameterSet().getModelParameter(
-				"gauss_sigma_narrow")->setValue(hist->GetRMS());
+				"gauss_mean_narrow")->setValue(0.0);
+		resolution_model->getModelParameterSet().getModelParameter(
+				"gauss_mean_narrow")->setParameterFixed(false);
+		resolution_model->getModelParameterSet().getModelParameter(
+				"gauss_mean_wide")->setValue(0.0);
+		resolution_model->getModelParameterSet().getModelParameter(
+				"gauss_mean_wide")->setParameterFixed(false);
+		resolution_model->getModelParameterSet().getModelParameter(
+				"gauss_sigma_narrow")->setValue(hist->GetRMS() * 0.65);
 		resolution_model->getModelParameterSet().getModelParameter(
 				"gauss_sigma_narrow")->setParameterFixed(false);
 
 		resolution_model->getModelParameterSet().getModelParameter(
-				"gauss_sigma_ratio_narrow_wide")->setValue(0.5);
+				"gauss_sigma_ratio_narrow_wide")->setValue(0.6);
 		resolution_model->getModelParameterSet().getModelParameter(
 				"gauss_sigma_ratio_narrow_wide")->setParameterFixed(false);
+
+		/*resolution_model->getModelParameterSet().getModelParameter(
+		 "gauss_sigma_wide")->setValue(hist->GetRMS() * 1.35);
+		 resolution_model->getModelParameterSet().getModelParameter(
+		 "gauss_sigma_wide")->setParameterFixed(false);*/
+
 		resolution_model->getModelParameterSet().getModelParameter(
-				"gauss_ratio_narrow_wide")->setValue(1.0);
+				"gauss_ratio_narrow_wide")->setValue(2.0);
 		resolution_model->getModelParameterSet().getModelParameter(
 				"gauss_ratio_narrow_wide")->setParameterFixed(false);
 	}
 
-	int fit_status = fitter.doFit();
+	// create chi2 estimator
+	Chi2Estimator chi2_est;
+
+	// set the resolution model as the active model of the fitter
+	chi2_est.setModel(resolution_model);
+
+	// fit over whole histogram range
+	std::pair<double, double> fit_range = std::make_pair(
+			hist->GetXaxis()->GetXmin(), hist->GetXaxis()->GetXmax());
+	// fill data into fitter
+	fillFitData1D(chi2_est, hist, fit_range, false);
+
+	// set value for binning constant
+	double binning_factor = lmd_resolution->getThetaDimension().bin_size;
+	chi2_est.setBinningFactor(binning_factor);
+
+	// now fit the resolution model to the data
+	// create Minuit Fitter
+	ROOTMinimizer fitter(chi2_est);
+
+	int fit_status = fitter.doMinimization();
+	std::cout << "fit status: " << fit_status << std::endl;
 	// call minimization procedure
 	if (fit_status) {
 		std::cout << "ERROR: Problem while performing fit. Returning NULL pointer!"
 				<< std::endl;
-
 	}
 
 	// store fit results
-	ModelFitResult fit_result;
-	fit_result.setFitStatus(fit_status);
+	res_fit_result = new PndLmdLumiFitResult(fit_options);
+	res_fit_result->setFitStatus(fit_status);
 
-	fit_result.setChiSquare(fitter.chi2(fitter.getROOTMinimizer()->X()));
+	res_fit_result->setChiSquare(
+			chi2_est.evaluate(fitter.getROOTMinimizer()->X()));
 
 	for (unsigned int i = 0; i < fitter.getROOTMinimizer()->NDim(); i++) {
-		fit_result.addFitParameter(fitter.getROOTMinimizer()->VariableName(i),
+		res_fit_result->addFitParameter(fitter.getROOTMinimizer()->VariableName(i),
 				fitter.getROOTMinimizer()->X()[i],
 				fitter.getROOTMinimizer()->Errors()[i]);
 	}
 
-	fit_result.setNDF(
-			fitter.getNumberOfDataPoints() - fitter.getROOTMinimizer()->NFree());
+	res_fit_result->setNDF(
+			chi2_est.getNumberOfDataPoints() - fitter.getROOTMinimizer()->NFree());
 
-	return fit_result;
+	lmd_resolution->addFitResult(res_fit_result);
 }
 
-void PndLmdLumiHelper::determineResolution(
+void PndLmdLumiHelper::fitSmearingModelToResolutions(
 		std::vector<PndLmdResolution*> &lmd_resolutions,
-		const PndLmdLumiFitOptions *fit_options,
-		unsigned int parametrization_level) {
-
-	std::vector<std::pair<double, ModelFitResult> > fit_results;
-
-	char cname[50];
-	ModelFitResult fit_result;
+		const PndLmdLumiFitOptions *fit_options) {
 
 	for (unsigned int index_resolution = 0;
 			index_resolution < lmd_resolutions.size(); index_resolution++) {
-		fit_result = determineResolutionForSlice(lmd_resolutions[index_resolution],
-										fit_options);
-		fit_results.push_back(
-				std::make_pair(
-						lmd_resolutions[index_resolution]->getThetaSliceMean(),
-						fit_result));
-
-		sprintf(cname, "theta_mean=%f-phi_mean=%f",
-				lmd_resolutions[index_resolution]->getThetaSliceMean(),
-				lmd_resolutions[index_resolution]->getPhiSliceMean());
-
+		lmd_resolutions[index_resolution]->makeDir();
+		fitResolutionForSlice(lmd_resolutions[index_resolution], fit_options);
 		lmd_resolutions[index_resolution]->saveToRootFile();
-		PndLmdLumiFitResult lmd_fit_result(fit_options, &fit_result);
-		lmd_fit_result.Write("fit_result");
 	}
-
-	generateGraphsFromFitResults(fit_results);
 }
+
+bool checkNeighbourhood(ModelStructs::minimization_parameter value,
+		std::vector<ModelStructs::minimization_parameter> &neighbours) {
+	double neighbour_mean = 0.0;
+	for (unsigned int i = 0; i < neighbours.size(); i++) {
+
+	}
+}
+
+std::map<double, ModelFitResult*> PndLmdLumiHelper::checkFitParameters(
+		const std::map<PndLmdResolution*, ModelFitResult*> &fit_results) const {
+	// remove all points that are bogus
+	std::map<double, ModelFitResult*> return_map;
+	// loop over all entries of the map
+	for (std::map<PndLmdResolution*, ModelFitResult*>::const_iterator it =
+			fit_results.begin(); it != fit_results.end(); it++) {
+		std::set<ModelStructs::minimization_parameter> &fit_parameters =
+				it->second->getFitParameters();
+		bool add = true;
+		for (std::set<ModelStructs::minimization_parameter>::iterator fit_param =
+				fit_parameters.begin(); fit_param != fit_parameters.end();
+				fit_param++) {
+			if (fit_param->name.find("red_chi2") < fit_param->name.size()) {
+				if (std::fabs(fit_param->value) > 1.35) {
+					add = false;
+					break;
+				}
+			}
+			if (fit_param->name.find("ratio_narrow_wide") < fit_param->name.size()) {
+				std::cout << fit_param->value << std::endl;
+				if (std::fabs(fit_param->value) < 0.0) {
+					add = false;
+					break;
+				}
+			}
+		}
+		if (add) {
+			return_map.insert(
+					std::make_pair(it->first->getThetaSliceMean(), it->second));
+		}
+	}
+	return return_map;
+}
+

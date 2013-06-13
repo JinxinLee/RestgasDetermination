@@ -88,13 +88,13 @@ public:
 
 	double getProtonDipoleFormFactor(const double t) const;
 
-	double getRawCoulombPart(double *x) const;
+	double getRawCoulombPart(const double *x) const;
 
-	double getRawInterferencePart(double *x) const;
+	double getRawInterferencePart(const double *x) const;
 
-	double getRawHadronicPart(double *x) const;
+	double getRawHadronicPart(const double *x) const;
 
-	virtual double eval(double *x) const;
+	virtual double eval(const double *x) const;
 
 	virtual void updateDomain();
 };

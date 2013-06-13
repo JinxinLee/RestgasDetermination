@@ -24,7 +24,7 @@ class PndLmdROOTDataModel1D: public Model1D {
 	void determineAcceptanceBounds();
 
 	// function pointer used to switch between different algorithms for interpolation
-	typedef double (PndLmdROOTDataModel1D::*function)(double *x) const;
+	typedef double (PndLmdROOTDataModel1D::*function)(const double *x) const;
 
 	function model_func;
 
@@ -38,11 +38,11 @@ class PndLmdROOTDataModel1D: public Model1D {
 
     void initModelParameters();
 
-    double eval(double *x) const;
+    double eval(const double *x) const;
 
-    double evaluateConstant(double *x) const;
-    double evaluateLinear(double *x) const;
-    double evaluateSpline(double *x) const;
+    double evaluateConstant(const double *x) const;
+    double evaluateLinear(const double *x) const;
+    double evaluateSpline(const double *x) const;
 
 	void updateDomain();
 };

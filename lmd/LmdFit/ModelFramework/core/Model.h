@@ -42,9 +42,9 @@ private:
 protected:
 	// certain operations are totally equivalent for the 1d and 2d case
 	// define these here
-	double multiply(shared_ptr<Model> m1, shared_ptr<Model> m2, double *x) const;
+	double multiply(shared_ptr<Model> m1, shared_ptr<Model> m2, const double *x) const;
 
-	double add(shared_ptr<Model> m1, shared_ptr<Model> m2, double *x) const;
+	double add(shared_ptr<Model> m1, shared_ptr<Model> m2, const double *x) const;
 
 	void addModelToList(shared_ptr<Model> model);
 
@@ -55,14 +55,14 @@ public:
 	Model(std::string name_, unsigned int dimension_);
 	virtual ~Model();
 
-	void executeParametrizationModels(double *x);
+	void executeParametrizationModels(const double *x);
 
 	/**
 	 * Called by the #evaluate() function and actually does an evaluation of
 	 * this model with the given parameters. Has to be overwritten by any
 	 * derived class.
 	 */
-	virtual double eval(double *x) const =0;
+	virtual double eval(const double *x) const =0;
 
 	/**
 	 * This function will be called by the fitter when an evaluation at a certain
@@ -70,7 +70,7 @@ public:
 	 * the parameter set connected to this set. Afterwards the normal evaluation
 	 * function of the Model is called (see #eval())
 	 */
-	double evaluate(double *x);
+	double evaluate(const double *x);
 
 	virtual double Integral(std::vector<std::pair<double, double> > &ranges
 			, double precision) =0;

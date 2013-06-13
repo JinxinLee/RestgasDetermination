@@ -56,7 +56,7 @@ public:
 
   void reinitModelParametrizations();
 
-  void executeParametrizationModels(double *x);
+  void executeParametrizationModels(const double *x);
 
 
   void registerParametrization(shared_ptr<ModelPar> model_par, shared_ptr<Parametrization> parametrization);

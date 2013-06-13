@@ -27,7 +27,7 @@ public:
 			interpolation_type type = LINEAR);
 	virtual ~OpenGLDataModel1D();
 
-	double eval(double *x) const;
+	double eval(const double *x) const;
 
   void initModelParameters();
 

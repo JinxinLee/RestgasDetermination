@@ -34,7 +34,7 @@ public:
   ParametrizationModel(shared_ptr<Model> model_);
   virtual ~ParametrizationModel();
 
-  void parametrize(double *x);
+  void parametrize(const double *x);
 
   void setModelPar(shared_ptr<ModelPar> model_par_);
   const shared_ptr<ModelPar> getModelPar() const;

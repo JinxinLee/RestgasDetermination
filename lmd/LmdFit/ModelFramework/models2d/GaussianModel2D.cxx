@@ -33,7 +33,7 @@ void GaussianModel2D::initModelParameters() {
 	gauss_amplitude->setParameterFixed(true);
 }
 
-double GaussianModel2D::eval(double *x) const {
+double GaussianModel2D::eval(const double *x) const {
 	return gauss_amplitude->getValue()
 			* exp(
 					-(pow(x[0] - gauss_mean_var1->getValue(), 2.0)

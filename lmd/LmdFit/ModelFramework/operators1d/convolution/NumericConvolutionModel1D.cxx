@@ -25,7 +25,7 @@ void NumericConvolutionModel1D::initModelParameters() {
 
 }
 
-double NumericConvolutionModel1D::eval(double *x) const {
+double NumericConvolutionModel1D::eval(const double *x) const {
 	double xx[3], val = 0.0;
 	double division_width = second->getDomainRange() / 2.0 / divisions;
 	double xprimea, xprimem, xprimeb;

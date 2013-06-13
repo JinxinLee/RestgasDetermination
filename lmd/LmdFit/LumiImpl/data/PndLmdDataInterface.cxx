@@ -69,6 +69,10 @@ PndLmdFit::lmd_dimension PndLmdDataInterface::getPhiDimension() const {
 	return phi_dimension;
 }
 
+TFile* PndLmdDataInterface::getFile() const {
+	return f;
+}
+
 void PndLmdDataInterface::setNumEvents(int num_events_) {
 	num_events = num_events_;
 }

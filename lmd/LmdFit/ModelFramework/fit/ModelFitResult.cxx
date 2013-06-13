@@ -35,13 +35,13 @@ void ModelFitResult::setNDF(unsigned int ndf_) {
 
 void ModelFitResult::addFitParameter(std::string name_, double value_,
 		double error_) {
-	fit_parameter fp(name_, value_, error_);
+	ModelStructs::minimization_parameter fp(name_, value_, error_);
 	fit_parameters.insert(fp);
 }
 
-const ModelFitResult::fit_parameter& ModelFitResult::getFitParameter(
+const ModelStructs::minimization_parameter& ModelFitResult::getFitParameter(
 		std::string name_) const {
-	fit_parameter fp(name_);
+	ModelStructs::minimization_parameter fp(name_);
 	if (fit_parameters.find(fp) == fit_parameters.end()) {
 		std::cout << "ERROR: requesting value of parameter " << name_
 				<< " which is unknown!" << std::endl;
@@ -49,7 +49,7 @@ const ModelFitResult::fit_parameter& ModelFitResult::getFitParameter(
 	return *fit_parameters.find(fp);
 }
 
-std::set<ModelFitResult::fit_parameter>& ModelFitResult::getFitParameters() {
+std::set<ModelStructs::minimization_parameter>& ModelFitResult::getFitParameters() {
 	return fit_parameters;
 }
 

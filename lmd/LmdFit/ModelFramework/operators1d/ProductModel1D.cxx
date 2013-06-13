@@ -23,7 +23,7 @@ void ProductModel1D::initModelParameters() {
 
 }
 
-double ProductModel1D::eval(double *x) const {
+double ProductModel1D::eval(const double *x) const {
 	return multiply(first, second, x);
 }
 

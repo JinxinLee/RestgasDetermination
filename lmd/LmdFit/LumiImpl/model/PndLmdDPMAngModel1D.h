@@ -19,11 +19,11 @@ class PndLmdDPMAngModel1D: public PndLmdDPMMTModel1D {
 
     double getThetaMomentumTransferJacobian(const double theta) const;
 
-    double getCoulombPart(double *x) const;
+    double getCoulombPart(const double *x) const;
 
-    double getInterferencePart(double *x) const;
+    double getInterferencePart(const double *x) const;
 
-    double getHadronicPart(double *x) const;
+    double getHadronicPart(const double *x) const;
 
     /**
      * @param x theta and phi value, which are stored in x[0] and x[1]
@@ -31,7 +31,7 @@ class PndLmdDPMAngModel1D: public PndLmdDPMMTModel1D {
      * par[1-3] are the parameters of the DPM model and par[4-5] are theta and phi bin sizes of the data
      * @returns cross section value for given theta and phi value, which are stored in x[0] and x[1] and the parameters:
      * par */
-    double eval(double *x) const;
+    double eval(const double *x) const;
 
     double coulombHadronDifference(double *x) const;
 

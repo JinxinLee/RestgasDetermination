@@ -17,13 +17,13 @@ Model::~Model() {
 }
 
 double Model::multiply(shared_ptr<Model> m1, shared_ptr<Model> m2,
-		double *x) const {
+		const double *x) const {
 	if (m1->evaluate(x) == 0.0 || m2->evaluate(x) == 0.0)
 		return 0.0;
 	return m1->evaluate(x) * m2->evaluate(x);
 }
 
-double Model::add(shared_ptr<Model> m1, shared_ptr<Model> m2, double *x) const {
+double Model::add(shared_ptr<Model> m1, shared_ptr<Model> m2, const double *x) const {
 	return m1->evaluate(x) + m2->evaluate(x);
 }
 
@@ -49,7 +49,7 @@ ModelParSet& Model::getModelParameterSet() {
 	return model_par_handler.getModelParameterSet();
 }
 
-void Model::executeParametrizationModels(double *x) {
+void Model::executeParametrizationModels(const double *x) {
 	//first call through all submodels of this model
 	for (unsigned int i = 0; i < submodel_list.size(); i++) {
 		submodel_list[i]->executeParametrizationModels(x);
@@ -59,7 +59,7 @@ void Model::executeParametrizationModels(double *x) {
 	updateDomain();
 }
 
-double Model::evaluate(double *x) {
+double Model::evaluate(const double *x) {
 	executeParametrizationModels(x);
 	return eval(x);
 }

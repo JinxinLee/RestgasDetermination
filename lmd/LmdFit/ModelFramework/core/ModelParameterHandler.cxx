@@ -142,7 +142,7 @@ void ModelParameterHandler::registerParametrizationModels(
 	}
 }
 
-void ModelParameterHandler::executeParametrizationModels(double *x) {
+void ModelParameterHandler::executeParametrizationModels(const double *x) {
 	for (std::map<shared_ptr<ModelPar>, ParametrizationProxy>::iterator it =
 			parametrizations.begin(); it != parametrizations.end(); it++) {
 		if (it->second.hasParametrizationModel()) {
