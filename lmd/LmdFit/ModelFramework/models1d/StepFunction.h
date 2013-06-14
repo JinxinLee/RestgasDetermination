@@ -17,7 +17,7 @@ private:
   bool falling_edge;
 
 public:
-	StepFunction(bool falling_edge_);
+	StepFunction(std::string name_, bool falling_edge_);
 	virtual ~StepFunction();
 
   double eval(const double *x) const;

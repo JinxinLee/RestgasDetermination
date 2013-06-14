@@ -9,10 +9,9 @@
 
 #include <limits>
 
-StepFunction::StepFunction(bool falling_edge_) :
+StepFunction::StepFunction(std::string name_, bool falling_edge_) : Model1D(name_),
 		falling_edge(falling_edge_) {
-	// TODO Auto-generated constructor stub
-
+	initModelParameters();
 }
 
 StepFunction::~StepFunction() {
