@@ -147,15 +147,15 @@ void PndLmdGeaneTask::Exec(Option_t* opt)
     
       PndTrack* recTrack = (PndTrack*)(fTracks->At(i));
       FairTrackParP fFittedTrkP = recTrack->GetParamFirst();
-      //trk fit results with misaligned sensors can be really wierd
-      bool fitResOK = true;
-      if(abs(fFittedTrkP.GetX())>1000 || abs(fFittedTrkP.GetY())>1000 || abs(fFittedTrkP.GetZ())>1000){
-	new((*fTrackParFinal)[counterGeaneTrk]) FairTrackParH(); //save NULL
-	//	new((*fTrackParFinal)[counterGeaneTrk]) FairTrackParP(); //save NULL
-	counterGeaneTrk++;
-	fitResOK = false;
-      }
-      if(!fitResOK)  continue;
+      // //trk fit results with misaligned sensors can be really wierd
+      // bool fitResOK = true;
+      // if(abs(fFittedTrkP.GetX())>1000 || abs(fFittedTrkP.GetY())>1000 || abs(fFittedTrkP.GetZ())>1000){
+      // 	new((*fTrackParFinal)[counterGeaneTrk]) FairTrackParH(); //save NULL
+      // 	//	new((*fTrackParFinal)[counterGeaneTrk]) FairTrackParP(); //save NULL
+      // 	counterGeaneTrk++;
+      // 	fitResOK = false;
+      // }
+      // if(!fitResOK)  continue;
       TVector3 PosRecLMD(fFittedTrkP.GetX(),fFittedTrkP.GetY(),fFittedTrkP.GetZ());
 
       TVector3 MomRecLMD(fFittedTrkP.GetPx(),fFittedTrkP.GetPy(),fFittedTrkP.GetPz());
