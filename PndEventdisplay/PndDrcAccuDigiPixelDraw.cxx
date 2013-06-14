@@ -64,6 +64,10 @@ void PndDrcAccuDigiPixelDraw::ReadAllHits(){
   TFile* f = new TFile(fDigiFile);
   TTree *t=(TTree *) f->Get("cbmsim") ;
   TClonesArray* hit_array=new TClonesArray("PndDrcPDHit");
+  PndDrcPDHit *hit; 
+  TVector3 recoVector,recoLocal;
+  TEveBoxSet* bs;
+  TGeoHMatrix testMatrix;
   t->SetBranchAddress("DrcPDHit",&hit_array);
   for (Int_t j=0; (j<fNdigiEvents || fNdigiEvents==0) && j<t->GetEntriesFast(); j++)
     {
@@ -71,22 +75,20 @@ void PndDrcAccuDigiPixelDraw::ReadAllHits(){
       if(j%100==0) cout<<"Event No "<<j<<"  #entries "<<hit_array->GetEntriesFast()<<endl;
       for (Int_t i=0; i<hit_array->GetEntriesFast(); i++)
 	{
-	  PndDrcPDHit *hit=(PndDrcPDHit*)hit_array->At(i);
-
-	  TVector3 recoVector;
+	  hit=(PndDrcPDHit*)hit_array->At(i);
 	  hit->Position(recoVector);
 	  Int_t detId = hit->GetDetectorID();
 	  Int_t sensorId = detId/100;
 
-	  TVector3 recoLocal = fGeoH->MasterToLocalShortId(recoVector, sensorId);
+	  recoLocal = fGeoH->MasterToLocalShortId(recoVector, sensorId);
 	   
 	  TString detName = Form("pix %d", detId);
-	  TEveBoxSet* bs = CreateNewBoxSet(detName); 
+	  bs = CreateNewBoxSet(detName); 
 	  Float_t pixSize=fGeo->PixelSize();	
 	  bs->AddBox(recoLocal.X()-pixSize/2., recoLocal.Y()-pixSize/2., -0.1);
 	  bs->SetDefWidth(pixSize);
 	  bs->SetDefHeight(pixSize);	  
-	  TGeoHMatrix testMatrix = *(fGeoH->GetMatrixShortId(sensorId));
+	  testMatrix = *(fGeoH->GetMatrixShortId(sensorId));
 	  TEveTrans& et = bs->RefMainTrans();
 	  et.SetFrom(testMatrix);
 	  fHitsArr[detId] = bs;
@@ -132,14 +134,17 @@ void PndDrcAccuDigiPixelDraw::Exec(Option_t* option)
     }
     max -= 0.1*max;
     Float_t hstep =  fBoxHeight/max;
+    TEveBoxSet* topbs = new TEveBoxSet("DrcAccuDigiPixel");
     for (boxSetMapIter it = fHitsArr.begin(); it != fHitsArr.end(); it++){
       it->second->SetPalette(pal);
       it->second->DigitValue(fHitsN[it->first]*colnums/max);
       it->second->SetDefDepth(-0.005-hstep*fHitsN[it->first]);
-      gEve->AddElement(it->second, man);
+      topbs->AddElement(it->second);
     }
+    gEve->AddElement(topbs, man);
   }
   gEve->Redraw3D(kFALSE);
+  
   fFirstEvent = false;
 }
 
