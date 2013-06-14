@@ -160,8 +160,10 @@ void PndLmdTrksFilterTask::Exec(Option_t* opt)
     TVector3 MomRecLMD(fFittedTrkP.GetPx(),fFittedTrkP.GetPy(),fFittedTrkP.GetPz());
     MomRecLMD *=1./MomRecLMD.Mag();
     double thetaCent=MomRecLMD.Theta()-0.040;
-    if(fVerbose<2)
+    if(fVerbose<2){
       if(abs(thetaCent)>0.011 || abs(MomRecLMD.Phi())>0.25) dirOK=false;
+      if(abs(fFittedTrkP.GetX())>1000. || abs(fFittedTrkP.GetY())>1000 || abs(fFittedTrkP.GetZ())>1000) dirOK=false; //misaligned sensors give wierd results
+    }
     // //--------------------------
 
     double chi2 = trkpnd->GetChi2();
