@@ -7,6 +7,8 @@
 
 #include "StepFunction.h"
 
+#include <limits>
+
 StepFunction::StepFunction(bool falling_edge_) :
 		falling_edge(falling_edge_) {
 	// TODO Auto-generated constructor stub
