@@ -304,14 +304,16 @@ int main(int __argc,char *__argv[]) {
 
   TTree *tRECMCtrks = new TTree("tRECMC","Rec trks vs. MC trks (trkstREC:0=good,+1=ghost from hit mix,+2=similar as other trk,-1=trk-search losses,-2=little amount of hits,-3=no MC hits, -10=trk wasn't back-propag); trkstMC: 0=primary, >0 =secondary");
   Double_t glXrecLMD,glYrecLMD,glZrecLMD,glThetarecLMD,glPhirecLMD;
-  Double_t glXrec,glYrec,glZrec,glThetarec,glPhirec;
-  Double_t glXmc,glYmc,glZmc,glThetamc,glPhimc;
+  Double_t glXrec,glYrec,glZrec,glThetarec,glPhirec, glMomrec;
+  Double_t glXmc,glYmc,glZmc,glThetamc,glPhimc, glMommc;
   Int_t trkRECStatus; Int_t trkMCStatus;
+  Double_t glchi2;
   tRECMCtrks->Branch("xrec",&glXrec);
   tRECMCtrks->Branch("yrec",&glYrec);
   tRECMCtrks->Branch("zrec",&glZrec);
   tRECMCtrks->Branch("thetarec",&glThetarec);
   tRECMCtrks->Branch("phirec",&glPhirec);
+  tRECMCtrks->Branch("momrec",&glMomrec);
   tRECMCtrks->Branch("xrecLMD",&glXrecLMD);
   tRECMCtrks->Branch("yrecLMD",&glYrecLMD);
   tRECMCtrks->Branch("zrecLMD",&glZrecLMD);
@@ -322,8 +324,10 @@ int main(int __argc,char *__argv[]) {
   tRECMCtrks->Branch("zmc",&glZmc);
   tRECMCtrks->Branch("thetamc",&glThetamc);
   tRECMCtrks->Branch("phimc",&glPhimc);
+  tRECMCtrks->Branch("mommc",&glMommc);
   tRECMCtrks->Branch("trkstREC",&trkRECStatus);
   tRECMCtrks->Branch("trkstMC",&trkMCStatus);
+  tRECMCtrks->Branch("chi2",&glchi2);
 
   TH1 *hResMom = new TH1F("hResMom","P_{MC}-P_{rec};#deltaP,GeV/c",1e3,-1e-4,1e-4);
   TH1 *hErrMom = new TH1F("hErrMom","#sigma_{P};#sigmaP,GeV/c",1e3,0,1e-3);
@@ -881,7 +885,9 @@ int main(int __argc,char *__argv[]) {
       //Fill tree with rec vs. mc trk info ------------------------------------------------
       glXrec = PosBP.X();      glYrec = PosBP.Y();       glZrec = PosBP.Z();
       glThetarec = thetaBP;       glPhirec = phiBP;
+      glMomrec = MomRecBP.Mag();
       PndTrack *trkpnd = (PndTrack*)rec_trk->At(iN);
+      glchi2 = trkpnd->GetChi2();
       FairTrackParP fFittedTrkP = trkpnd->GetParamFirst();
       TVector3 PosRecLMD(fFittedTrkP.GetX(),fFittedTrkP.GetY(),fFittedTrkP.GetZ());
       TVector3 MomRecLMD(fFittedTrkP.GetPx(),fFittedTrkP.GetPy(),fFittedTrkP.GetPz());
@@ -890,7 +896,7 @@ int main(int __argc,char *__argv[]) {
       glThetarecLMD = MomRecLMD.Theta(); glPhirecLMD = MomRecLMD.Phi();
       trkRECStatus = trkType;
       if(trkType>0){
-	glXmc= -9999; glYmc =-9999; glZmc = -9999; glThetamc =-9999; glPhimc = -9999;
+	glXmc= -9999; glYmc =-9999; glZmc = -9999; glThetamc =-9999; glPhimc = -9999; glMommc = -9999;
 	trkMCStatus = -9999;
       }
       else{
@@ -901,6 +907,7 @@ int main(int __argc,char *__argv[]) {
 	TVector3 MomMC = mctrk->GetMomentum();
 	glThetamc  = MomMC.Theta();
 	glPhimc = MomMC.Phi();
+	glMommc = MomMC.Mag();
 	TVector3 StartMC = mctrk->GetStartVertex();
 	glXmc= StartMC.X(); glYmc = StartMC.Y(); glZmc = StartMC.Z();
 	int movID = mctrk->GetMotherID();
@@ -979,10 +986,10 @@ int main(int __argc,char *__argv[]) {
 	  glXrec = -9999;      glYrec = -9999;     glZrec = -9999;
 	  glThetarec = -9999;       glPhirec = -9999;
 	  glXrecLMD = -9999;      glYrecLMD = -9999;       glZrecLMD = -9999;
-	  glThetarecLMD = -9999;       glPhirecLMD = -9999;
+	  glThetarecLMD = -9999;       glPhirecLMD = -9999; glMomrec = -9999; glchi2=-9999;
 	  trkRECStatus = trkQ;     
 	  glXmc= PosMC.X(); glYmc = PosMC.Y(); glZmc = PosMC.Z();
-	  glThetamc = MomMC.Theta();       glPhimc = MomMC.Phi();
+	  glThetamc = MomMC.Theta();       glPhimc = MomMC.Phi(); glMommc = MomMC.Mag();
 	  if(movID<0) trkMCStatus=0;
 	  if(movID>0) trkMCStatus=+1;
 	  tRECMCtrks->Fill();
