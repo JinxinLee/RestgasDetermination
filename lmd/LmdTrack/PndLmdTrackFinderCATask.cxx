@@ -369,12 +369,12 @@ void PndLmdTrackFinderCATask::Exec(Option_t* opt)
     if(fVerbose>2) cout << "Evt finsihed: too less hits-----"<<endl<<endl;
     return;
   }
-  // //  if(fVerbose>9){ 
-  //   if(nStripHits!=4){
-  //     cout << "!!! TEST cuts on CA cells Evt finsihed: too many hits-----"<<endl<<endl;
-  //     return;
-  //   }
-  //   //  }
+  //  if(fVerbose>9){ 
+    // if(nStripHits!=4){
+    //   cout << "!!! TEST cuts on CA cells Evt finsihed: too many hits-----"<<endl<<endl;
+    //   return;
+    // }
+    //  }
   std::vector< std::vector<Int_t> > hitsd(nP); //hit'ids splitted by detectorplane
   // std::vector< std::vector< std::pair<Int_t,bool> > > hitsd(4);
   bool resSortHits;
@@ -1051,10 +1051,10 @@ void PndLmdTrackFinderCATask::Exec(Option_t* opt)
     const unsigned int numPts = myTCand->GetNHits(); //read how many points in this track
     if(fVerbose>4) htthetatphiTrk->Fill(dir.Theta(),dir.Phi(),numPts);
     bool cutTrkCand=false;
-    if(flagTrkCandCuts){
-      double thCentr = dir.Theta()-0.0402;
-      if(fabs(thCentr)>0.011 || fabs(dir.Phi())>0.25) cutTrkCand=true;
-    }
+    // if(flagTrkCandCuts){
+    //   double thCentr = dir.Theta()-0.0402;
+    //   if(fabs(thCentr)>0.011 || fabs(dir.Phi())>0.25) cutTrkCand=true;
+    // }
     if(cutTrkCand) continue;
     //    if(flagTrkCandCuts && ((dir.Theta()<0.03 || dir.Theta()>0.05) || fabs(dir.Phi())>0.25)) continue; //TEST
     if(numPts<3) cout<<"!!! Attention HERE is problem: number of hits in trk-cand = "<<numPts<<"!!!"<<endl;
