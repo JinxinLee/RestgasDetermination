@@ -68,7 +68,7 @@ public:
    **
    ** Adds a DrcDigi to the DigiCollection
    **/
-  PndDrcDigi* AddDrcDigi(Int_t index, Int_t iDetectorId, Double_t charge, Double_t TimeStamp);
+  PndDrcDigi* AddDrcDigi(Int_t index, Int_t iDetectorId, Double_t charge, Double_t TimeStamp, Int_t csflag);
 
   /** method: FindDrcHitPosition-> finds hit position in PMT plane **/
   void FindDrcHitPosition(Double_t xPoint, Double_t yPoint, Double_t zPoint,
@@ -110,7 +110,7 @@ public:
  /**   Process MC Points **/
   void ProcessPhotonPoint(); 
   void Smear(Double_t& time, Double_t sigt);
-  void ActivatePixel(Int_t sensorDetId, Double_t signalTime, Int_t k);
+  void ActivatePixel(Int_t sensorDetId, Double_t signalTime, Int_t k, Int_t csflag);
   Double_t FuncD1(Double_t x);
   Double_t FuncD3(Double_t x, Double_t y);
   
@@ -136,6 +136,7 @@ public:
   Double_t fPixelSigma;
   Double_t fDeadTime; //[ns]
   Double_t fThreshold; // in % of the total probability of 1 to detect a hit
+  Double_t fTimeGranularity; // granularity of the time signal [ns]
  
   Bool_t fisDetEff;
   Bool_t fisPixel;

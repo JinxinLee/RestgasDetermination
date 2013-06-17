@@ -163,7 +163,7 @@ void PndDrcHitFinder::Exec(Option_t* opt)
     detID = digi->GetSensorID();    
     pixelID = detID - 100*(Int_t)TMath::Floor((Double_t)detID/100.);
     sensorID = detID/100;
-    hitTime = digi->GetTimeStamp();
+    hitTime = digi->GetTime();
         
     // the pixel number shows local coordinates of the hit:
     HitPosLocal.SetXYZ(fPixelStep*((Double_t)(pixelID % fNpix) - (Double_t)(fNpix/2) + 0.5),fPixelStep*(TMath::Floor(((Double_t)pixelID)/((Double_t)fNpix)) - (Double_t)(fNpix/2) + 0.5), 0.);
