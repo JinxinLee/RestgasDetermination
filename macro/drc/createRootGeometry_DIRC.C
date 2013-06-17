@@ -28,7 +28,7 @@ double getX(TVector3 corner1, TVector3 corner2, double yy);
 int findSectorIn(double y, double dphi, double radius, double EVdrop, double hthick);
 int findSectorOut(double y, double dphi_rad, double radiusCornerOut);
 
-void createRootGeometry_DIRC_fsEVdroplens_MCPs(Int_t fFocusingSystem = 0, Bool_t fprizm = kFALSE){ 
+void createRootGeometry_DIRC_fsEVdroplens_MCPs(Int_t fFocusingSystem = 3, Bool_t fprizm = kFALSE){ 
   
   const Double_t pi = 3.1415926535;
 
@@ -402,7 +402,7 @@ void createRootGeometry_DIRC_fsEVdroplens_MCPs(Int_t fFocusingSystem = 0, Bool_t
      CylLens1->SetLineColor(kRed-8);
      CylLens1->SetTransparency(40);
      
-     fdz_lens1 = -(bbox_hlen) + len - (-Rcyl + Rcyl*(1.-TMath::Cos(Acyl)));
+     fdz_lens1 = -(bbox_hlen-barWin_hthick) + len - (-Rcyl + Rcyl*(1.-TMath::Cos(Acyl)));
      
      //Lens2          
      TGeoTranslation *trCyl2 = new TGeoTranslation("trCyl2", 0., Rcyl + Hcyl2 - hthick, 0.);
@@ -418,7 +418,7 @@ void createRootGeometry_DIRC_fsEVdroplens_MCPs(Int_t fFocusingSystem = 0, Bool_t
      
      
      
-     fdz_lens2 = -(bbox_hlen) + len + (hthick - Rcyl*(1.-TMath::Cos(Acyl)) - Hcyl2);
+     fdz_lens2 = -(bbox_hlen-barWin_hthick) + len + (hthick - Rcyl*(1.-TMath::Cos(Acyl)) - Hcyl2);
      fSlabEnd = -bbox_hlen + bbox_shift;
      cout<<"bar ends at = "<<fSlabEnd<<endl;
      
@@ -460,23 +460,23 @@ void createRootGeometry_DIRC_fsEVdroplens_MCPs(Int_t fFocusingSystem = 0, Bool_t
     logicbbS = new TGeoBBox("logicbbS", bbX/2., hthick+boxgap, bbox_hlen-barWin_hthick);
   }
   if(fFocusingSystem == 3){
-    logicbbS = new TGeoBBox("logicbbS", bbX/2., hthick+boxgap, bbox_hlen-barWin_hthick-len/2.);
+    logicbbS = new TGeoBBox("logicbbS", bbX/2., hthick+boxgap, bbox_hlen-barWin_hthick/*-len/2.*/);
   }
   abox = new TGeoVolume("DrcAirBox", logicbbS, gGeoManager->GetMedium("DIRCairNoSens"));
   if(fFocusingSystem == 0 || fFocusingSystem == 1 || fFocusingSystem == 2){ 
     bbox->AddNode(abox, 1, new TGeoCombiTrans(0., 0., barWin_hthick, new TGeoRotation(0)));
   }
   if(fFocusingSystem == 3){
-    bbox->AddNode(abox, 1, new TGeoCombiTrans(0., 0., barWin_hthick+len/2., new TGeoRotation(0)));
+    bbox->AddNode(abox, 1, new TGeoCombiTrans(0., 0., barWin_hthick/*+len/2.*/, new TGeoRotation(0)));
   }
-  abox->SetLineColor(19); // grau
+  abox->SetLineColor(19); // gray
   
   //create windows at the readout end of the bar boxes:
   TGeoBBox* logicBarWin = new  TGeoBBox("logicBarWin", bbX/2., hthick+boxgap, barWin_hthick);
   TGeoVolume* barwin = new TGeoVolume("DrcBarboxWindowSensor", logicBarWin, gGeoManager->GetMedium("FusedSil"));
   barwin->SetLineColor(kBlue-4);
   bbox->AddNode(barwin, 1, new TGeoCombiTrans(0.,0.,-bbox_hlen+barWin_hthick,new TGeoRotation(0)));
-  
+  /*
   if(fFocusingSystem == 3){
     TGeoRotation rot_lens3;
     rot_lens3.RotateZ(-90.);
@@ -484,7 +484,7 @@ void createRootGeometry_DIRC_fsEVdroplens_MCPs(Int_t fFocusingSystem = 0, Bool_t
     bbox->AddNode(CylLens1, 1, new TGeoCombiTrans(0., 0., fdz_lens1+2.*barWin_hthick, new TGeoRotation(rot_lens3)));
     bbox->AddNode(CylLens2, 1, new TGeoCombiTrans(0., 0., fdz_lens1+2.*barWin_hthick, new TGeoRotation(rot_lens3)));
   }
-  
+  */
   //create layers of grease at the readout end of the bar boxes, between the  windows and the EV:
   TGeoBBox* logicEVgrease = new  TGeoBBox("logicEVgrease", bbX/2., hthick+boxgap, EVgreaseLayer/2.);
   TGeoVolume* evgrease = new TGeoVolume("DrcEVgrease", logicEVgrease, gGeoManager->GetMedium("OpticalGrease"));  
@@ -556,17 +556,16 @@ void createRootGeometry_DIRC_fsEVdroplens_MCPs(Int_t fFocusingSystem = 0, Bool_t
       abox->AddNode(block1, 1+j, new TGeoCombiTrans(dx, dy, fdz_mirr1, new TGeoRotation (0)));
       abox->AddNode(block2, 1+j, new TGeoCombiTrans(dx, dy, fdz_mirr2, new TGeoRotation (0)));
     }
-    /*if(fFocusingSystem == 3){
+    if(fFocusingSystem == 3){
       TGeoRotation rot_lens3;
       rot_lens3.RotateZ(-90.);
       rot_lens3.RotateY( 90.);               
       abox->AddNode(CylLens1, 1+j, new TGeoCombiTrans(dx, dy, fdz_lens1, new TGeoRotation(rot_lens3)));
       abox->AddNode(CylLens2, 1+j, new TGeoCombiTrans(dx, dy, fdz_lens1, new TGeoRotation(rot_lens3)));
-    }
-    */    
+    }        
     abox->AddNode(bar,  1+j, new TGeoCombiTrans(dx, dy, dz_bar, new TGeoRotation(0)));
     if(fFocusingSystem != 2){ // not a forward mirror
-      abox->AddNode(mirr, 1+j, new TGeoCombiTrans(dx, dy, dz_mirr, new TGeoRotation(0))); //$$$$$$$$$$$$$$$$$
+      abox->AddNode(mirr, 1+j, new TGeoCombiTrans(dx, dy, dz_mirr, new TGeoRotation(0)));
     }
   }
     
