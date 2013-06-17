@@ -47,6 +47,7 @@ PndDrcDigiTask::PndDrcDigiTask()
   
   fPDPointArray   = NULL;
   fDrcDigiArray   = NULL;
+  fVerbose=0;
   
   Reset();
 }
@@ -92,7 +93,8 @@ InitStatus PndDrcDigiTask::Init()
 {
   cout << " ---------- INITIALIZATION ------------" << endl;
   nevents = 0;
-  // Get RootManager
+ 
+ // Get RootManager
   FairRootManager* ioman = FairRootManager::Instance();
   if ( ! ioman ) {
     cout << "-E- PndDrcDigiTask::Init: "
@@ -137,13 +139,9 @@ InitStatus PndDrcDigiTask::Init()
   
   detEffLam = new TH2F("detEffLam","det. eff. as a function of lambda", 900, 100.,1000., 1000,0.,1. );
 
-   
-
-
   cout << "-I- PndDrcDigiTask: Intialization successfull" << endl;  	  
   
-  return kSUCCESS;
-   
+  return kSUCCESS;   
 }
 // -----   Execution of Task   ---------------------------------------------
 void PndDrcDigiTask::Exec(Option_t* option)
@@ -182,16 +180,17 @@ void PndDrcDigiTask::ProcessPhotonPoint()
   PndDrcPDPoint* Ppt=NULL;
   PndMCTrack* tr = NULL;
   
-//Loop over PndDrcPDPoints
+  //Loop over PndDrcPDPoints
   for(Int_t k=0; k < fPDPointArray->GetEntriesFast(); k++) {
   
-  	Ppt = (PndDrcPDPoint*)fPDPointArray->At(k);
+    Ppt = (PndDrcPDPoint*)fPDPointArray->At(k);
        
     Int_t trID= Ppt->GetTrackID();
     tr = (PndMCTrack*)fMCArray->At(trID);
        
     // start vertex of the photon
     TVector3 StartVertex = tr->GetStartVertex();
+    
     // initial momentum of the photon      
     TVector3 PphoInit;
     PphoInit.SetXYZ(tr->GetMomentum().X(), tr->GetMomentum().Y(), tr->GetMomentum().Z());
@@ -200,7 +199,6 @@ void PndDrcDigiTask::ProcessPhotonPoint()
     Int_t NbouncesX, NbouncesY;
     Double_t angleX, angleY;
     NumberOfBounces(StartVertex, PphoInit, &NbouncesX, &NbouncesY, &angleX, &angleY);
-    //cout<<"N bouncesX = "<<NbouncesX<<", NbouncesY = "<<NbouncesY<<", angleX = "<<angleX<<", angleY = "<<angleY<<endl;
       
     Double_t PPx= Ppt->GetPx();
     Double_t PPy= Ppt->GetPy();
@@ -208,70 +206,51 @@ void PndDrcDigiTask::ProcessPhotonPoint()
 
     Double_t etot = sqrt(PPx*PPx + PPy*PPy +PPz*PPz);// in GeV
     Double_t lambda=197.0*2.0*fpi/(etot*1.0E9);//wavelength of photon in nm
-    //cout<<"1. lambda = "<<lambda<<endl;
        
     if(fisDetEff){
-      //cout<<"det eff!!! lam_min = "<<lambda_min<<", lam_max = "<<lambda_max<<endl;
       if (lambda >= lambda_min && lambda < lambda_max) {
         Int_t ilambda=(Int_t)((lambda-lambda_min)/lambda_step);
 	    Double_t rand = gRandom->Rndm();
 	    fDetection = 0;
         if (DetEfficiency[ilambda]*fCollectionEff*fPackingFraction > rand ) fDetection = 1;
-            
 	    detEffLam->Fill(lambda, DetEfficiency[ilambda]*fCollectionEff);
-	    //cout<<"filled lam = "<<lambda<<", eff = "<<DetEfficiency[ilambda]<<endl;
 	  }	 
     }
     if(!fisDetEff){ 
       fDetection=1;
     }
-    //cout<<"fDetection = "<<fDetection<<endl;
+
     //####################################
     // transport efficiency
     // assume that detection efficiency above CAN NOT be used together with transport efficiency
     // Maria Patsyuk
-    //cout<<"do transport eff? "<<fisTransportEff<<", lambda = "<<lambda<<endl;
     if(fisTransportEff){
       if (lambda >= lambda_min_tr && lambda < lambda_max_tr) {
 	    Int_t ilambda=(Int_t)((lambda-lambda_min_tr)/lambda_step_tr); 
 	    Int_t iangleX =(Int_t)(angleX/angle_step_tr);	    
 	    Int_t iangleY =(Int_t)(angleY/angle_step_tr);
-	    //cout<<"iangleX = "<<iangleX<<", iangleY = "<<iangleY<<", ilam = "<<ilambda<<", lambda_points_tr = "<<lambda_points_tr<<endl;          
+
 	    Double_t rand = gRandom->Rndm();
 	    fDetection = 0;
-	    //cout<<"Bounce eff = "<<TransportEfficiency[ilambda]<<endl;
 	    Double_t TotalTrProb = 1.;
-	    //cout<<"before ref prob. angleX = "<<angleX<<", angleY = "<<angleY<<endl;
 	    Double_t ReflectionProbX = TransportEfficiency[ilambda+ iangleX*lambda_points_tr];
 	    Double_t ReflectionProbY = TransportEfficiency[ilambda+ iangleY*lambda_points_tr];
 	    TotalTrProb = pow(ReflectionProbX, (Int_t)NbouncesX)*pow(ReflectionProbY, (Int_t)NbouncesY);
-	    //cout<<"tr eff X = "<<ReflectionProbX<<", tr eff Y = "<<ReflectionProbY<<", total = "<<TotalTrProb<<endl;
 	    if(TotalTrProb > rand) fDetection = 1;
        }
      }
      if(!fisTransportEff && !fisDetEff){ 
        fDetection=1;
      }      
-     //####################################  
-     
 
      if(fDetection==1){
-     
-     	Double_t xP= Ppt->GetX();
-     	Double_t yP= Ppt->GetY();
-     	Double_t zP= Ppt->GetZ();
             
-     	//std::cout<<" -I- PndDrcDigiTask: detName : "<<fGeoH->GetPath(Ppt->GetDetectorID())<<std::endl;
-     	//std::cout<<" -I- PndDrcDigiTask: sensor ID : "<<Ppt->GetDetectorID()<<std::endl;
      	// transform to local sensor system... (mc point has the ID not the path to the volume)
      	TVector3 PptPosition;
-     	PptPosition.SetXYZ(xP, yP, zP);
+	Ppt->Position(PptPosition);
      	TVector3 posL = fGeoH->MasterToLocalShortId(PptPosition,Ppt->GetDetectorID());
 	 
-	//std::cout<<"-I- PndDrcDigiTask: global position: x = "<<xP<<", y = "<<yP<<", z = "<<zP<<std::endl;
-	//std::cout<<"-I- PndDrcDigiTask: local position: x = "<<posL.X()<<", y = "<<posL.Y()<<", z = 	"<<posL.Z()<<std::endl;
-	 
-    	TVector3 sensorDim=GetSensorDimensions(Ppt->GetDetectorID());	
+    	TVector3 sensorDim = GetSensorDimensions(Ppt->GetDetectorID());	
  
      	if (fVerbose > 1){
 	      std::cout << "SensorDimension for: " << Ppt->GetDetectorID() << std::endl;
@@ -281,130 +260,98 @@ void PndDrcDigiTask::ProcessPhotonPoint()
 	//usually sensors have origin in the middle, let's move it to the left lower corner:
      	TVector3 posLshifted;
      	posLshifted.SetXYZ(posL.X()+sensorDim.X(), posL.Y()+sensorDim.Y(), posL.Z()+sensorDim.Z());
-     	//std::cout<<"-I- PndDrcDigiTask: local shifted position: x = "<<posLshifted.X()<<", y = "<<posLshifted.Y()<<", z = "<<posLshifted.Z()<<std::endl;
-     	//std::cout<<" find out the pixelStep: posLshifted/fPixelStep = "<<posLshifted.X()/fPixelStep<<std::endl;
 	 
      	// calculate the number of the fired pixel
      	Int_t Ncol = (Int_t)TMath::Floor(posLshifted.X()/fPixelStep);
      	Int_t Nrow = (Int_t)TMath::Floor(posLshifted.Y()/fPixelStep);
      	Int_t NpixelLocal = Ncol + Nrow  * fNpix;
-     	//cout<<"Ncol = "<<Ncol<<", Nrow = "<<Nrow<<", NpixelLocal = "<<NpixelLocal<<endl;
-     	//cout<<"fPixelGap = "<<fPixelGap<<", sPixelStep = "<<fPixelStep<<endl;
-     	//cout<<"fMcpActiveArea = "<<fMcpActiveArea<<", fPixelSize = "<<fPixelSize<<", fNpix = "<<fNpix<<endl;
+     
      	fDetectorID = Ppt->GetDetectorID() * 100 + NpixelLocal;
-     	//cout<<"det ID = "<<fDetectorID<<endl;
 	 
-	Double_t time=Ppt->GetTime();
-     	Smear(time,fSigmat);	
-     	fTime=(Int_t)(time/fTimeGranularity)*fTimeGranularity;  // time is smeared and digitized = has granularity
-	     
-        if(fChargeSharing == kFALSE){
-       		//PndDrcDigi* aNewDigi = AddDrcDigi(fDetectorID, fPixelID, k ,fTime, fTimeError); // k - MC array index
-       		//PndDrcDigi* aNewDigi = AddDrcDigi(k, fDetectorID, 0., fTime); // k - MC array index
-		ActivatePixel(fDetectorID, fTime, k, 0);
-		//ActivatePixel(fDetectorID, fTime, k);
-     	}
+	//fTime = Ppt->GetTime();
+	fTime=(Int_t)(Ppt->GetTime()/fTimeGranularity)*fTimeGranularity;  // time is smeared and digitized = has granularity
+     	Smear(fTime,fSigmat);
      
-     	if(fChargeSharing == kTRUE){
-	
-		ActivatePixel(fDetectorID, fTime, k, 0);
-		//cout<<"pixel "<<fDetectorID<<" is original: Nrow = "<<Nrow<<", Ncol = "<<Ncol<<endl;
-     		
-		// find fired pixels:
-     		Double_t distance = 999.;
-     		TVector3 corner;
-		TVector3 point;
+	ActivatePixel(fDetectorID, fTime, k, 0);
+
+        if(fChargeSharing == kTRUE){
+	  // find fired pixels:
+	  Double_t distance = 999.;
+	  TVector3 corner;
+	  TVector3 point;
 		
-		// left pixel
-     		distance =  posLshifted.X() - TMath::Floor(posLshifted.X()/fPixelStep)*fPixelStep; //[cm]		
-     		if(exp(- distance/fPixelSigma) > gRandom->Uniform(0.,1.) && exp(- distance/fPixelSigma) > fThreshold){	
-			if((Ncol-1) > 0){
-				ActivatePixel(Ppt->GetDetectorID() * 100 +Ncol-1+Nrow*fNpix, fTime, k, 1);
-				//cout<<"left pixel is activated: distance = "<<distance <<", prob = "<<exp(- distance/fPixelSigma)<<endl;	
-			}
-			distance = 999.;
-		}
-     		// right pixel
-     		distance =  TMath::Ceil(posLshifted.X()/fPixelStep)*fPixelStep - posLshifted.X();		
-     		if(exp(- distance/fPixelSigma) > gRandom->Uniform(0.,1.) && exp(- distance/fPixelSigma) > fThreshold){	
-			if(Ncol+1 < fNpix){
-				ActivatePixel(Ppt->GetDetectorID() * 100 +Ncol+1+Nrow*fNpix, fTime, k, 1);
-				//cout<<"right pixel is activated: distance = "<<distance <<", prob = "<<exp(- distance/fPixelSigma)<<endl;		
-			}
-			distance = 999.;
-		}
-     		// lower pixel
-     		distance =  posLshifted.Y() - TMath::Floor(posLshifted.Y()/fPixelStep)*fPixelStep;		
-     		if(exp(- distance/fPixelSigma) > gRandom->Uniform(0.,1.) && exp(- distance/fPixelSigma) > fThreshold){	
-			if(Nrow-1 > 0){
-				ActivatePixel(Ppt->GetDetectorID() * 100 +Ncol+(Nrow-1)*fNpix, fTime, k, 1);
-				//cout<<"lower pixel is activated: distance = "<<distance <<", prob = "<<exp(- distance/fPixelSigma)<<endl;	
-			}
-			distance = 999.;
-		}
-     		// upper pixel
-     		distance =  TMath::Ceil(posLshifted.Y()/fPixelStep)*fPixelStep - posLshifted.Y();     		
-		if(exp(- distance/fPixelSigma) > gRandom->Uniform(0.,1.) && exp(- distance/fPixelSigma) > fThreshold){	
-			if(Nrow+1 < fNpix){
-				ActivatePixel(Ppt->GetDetectorID() * 100 +Ncol+(Nrow+1)*fNpix, fTime, k, 1);
-				//cout<<"upper pixel is activated: distance = "<<distance <<", prob = "<<exp(- distance/fPixelSigma)<<endl;	
-			}
-			distance = 999.;
-		}
+	  // left pixel
+	  distance =  posLshifted.X() - TMath::Floor(posLshifted.X()/fPixelStep)*fPixelStep; //[cm]
+	  if(exp(- distance/fPixelSigma) > gRandom->Uniform(0.,1.) && exp(- distance/fPixelSigma) > fThreshold){   
+	    if((Ncol-1) > 0){
+	      ActivatePixel(Ppt->GetDetectorID() * 100 +Ncol-1+Nrow*fNpix, fTime, k, 1);	
+	    }
+	  }
+	  // right pixel
+	  distance =  TMath::Ceil(posLshifted.X()/fPixelStep)*fPixelStep - posLshifted.X();	  
+	  if(exp(- distance/fPixelSigma) > gRandom->Uniform(0.,1.) && exp(- distance/fPixelSigma) > fThreshold){    
+	    if(Ncol+1 < fNpix){
+	      ActivatePixel(Ppt->GetDetectorID() * 100 +Ncol+1+Nrow*fNpix, fTime, k, 1);	
+	    }
+	  }
+	  // lower pixel
+	  distance =  posLshifted.Y() - TMath::Floor(posLshifted.Y()/fPixelStep)*fPixelStep;	  
+	  if(exp(- distance/fPixelSigma) > gRandom->Uniform(0.,1.) && exp(- distance/fPixelSigma) > fThreshold){    
+	    if(Nrow-1 > 0){
+	      ActivatePixel(Ppt->GetDetectorID() * 100 +Ncol+(Nrow-1)*fNpix, fTime, k, 1);
+	    }
+	  }
+	  // upper pixel
+	  distance =  TMath::Ceil(posLshifted.Y()/fPixelStep)*fPixelStep - posLshifted.Y();	  
+	  if(exp(- distance/fPixelSigma) > gRandom->Uniform(0.,1.) && exp(- distance/fPixelSigma) > fThreshold){    
+	    if(Nrow+1 < fNpix){
+	      ActivatePixel(Ppt->GetDetectorID() * 100 +Ncol+(Nrow+1)*fNpix, fTime, k, 1);
+	    }
+	  }
 		
-		point.SetXYZ(posLshifted.X(),posLshifted.Y(),0.);
+	  point.SetXYZ(posLshifted.X(),posLshifted.Y(),0.);
 		
-		// upper left pixel
-		corner.SetXYZ(TMath::Floor(posLshifted.X()/fPixelStep)*fPixelStep,
-			      TMath::Ceil(posLshifted.Y()/fPixelStep)*fPixelStep,0.);
-        	distance = (point-corner).Mag();		
-		if(exp(-distance/fPixelSigma) > gRandom->Uniform(0.,1.) && exp(- distance/fPixelSigma) > fThreshold){	
-			if(Ncol-1 > 0 && Nrow+1 < fNpix){
-				ActivatePixel(Ppt->GetDetectorID() * 100 +Ncol-1+(Nrow+1)*fNpix, fTime, k, 1);
-				//cout<<"upper left pixel is activated: distance = "<<distance <<", prob = "<<exp(- distance/fPixelSigma)<<endl;	
-			}
-			distance = 999.;
-		}
+	  // upper left pixel
+	  corner.SetXYZ(TMath::Floor(posLshifted.X()/fPixelStep)*fPixelStep,
+			TMath::Ceil(posLshifted.Y()/fPixelStep)*fPixelStep,0.);
+	  distance = (point-corner).Mag();	  
+	  if(exp(-distance/fPixelSigma) > gRandom->Uniform(0.,1.) && exp(- distance/fPixelSigma) > fThreshold){	    
+	    if(Ncol-1 > 0 && Nrow+1 < fNpix){
+	      ActivatePixel(Ppt->GetDetectorID() * 100 +Ncol-1+(Nrow+1)*fNpix, fTime, k, 1);
+				
+	    }
+	  }
 		
-		// bottom left pixel
-		corner.SetXYZ(TMath::Floor(posLshifted.X()/fPixelStep)*fPixelStep,
-		              TMath::Floor(posLshifted.Y()/fPixelStep)*fPixelStep,0.);
-        	distance = (point-corner).Mag();		
-		if(exp(-distance/fPixelSigma) > gRandom->Uniform(0.,1.) && exp(- distance/fPixelSigma) > fThreshold){	
-			if(Ncol-1 > 0 && Nrow-1 > 0){
-				ActivatePixel(Ppt->GetDetectorID() * 100 +Ncol-1+(Nrow-1)*fNpix, fTime, k, 1);
-				//cout<<"bottom left pixel is activated: distance = "<<distance <<", prob = "<<exp(- distance/fPixelSigma)<<endl;	
-			}
-			distance = 999.;
-		}
+	  // bottom left pixel
+	  corner.SetXYZ(TMath::Floor(posLshifted.X()/fPixelStep)*fPixelStep,
+			TMath::Floor(posLshifted.Y()/fPixelStep)*fPixelStep,0.);
+	  distance = (point-corner).Mag();	 
+	  if(exp(-distance/fPixelSigma) > gRandom->Uniform(0.,1.) && exp(- distance/fPixelSigma) > fThreshold){	    
+	    if(Ncol-1 > 0 && Nrow-1 > 0){
+	      ActivatePixel(Ppt->GetDetectorID() * 100 +Ncol-1+(Nrow-1)*fNpix, fTime, k, 1);
+	    }
+	  }
 		
-		// bottom right pixel
-		corner.SetXYZ(TMath::Ceil(posLshifted.X()/fPixelStep)*fPixelStep,
-		              TMath::Floor(posLshifted.Y()/fPixelStep)*fPixelStep,0.);
-        	distance = (point-corner).Mag();		
-		if(exp(-distance/fPixelSigma) > gRandom->Uniform(0.,1.) && exp(- distance/fPixelSigma) > fThreshold){	
-			if(Ncol+1 < fNpix && Nrow-1 > 0){
-				ActivatePixel(Ppt->GetDetectorID() * 100 +Ncol+1+(Nrow-1)*fNpix, fTime, k, 1);
-				//cout<<"bottom right pixel is activated: distance = "<<distance <<", prob = "<<exp(- distance/fPixelSigma)<<endl;	
-			}
-			distance = 999.;
-		}
+	  // bottom right pixel
+	  corner.SetXYZ(TMath::Ceil(posLshifted.X()/fPixelStep)*fPixelStep,
+			TMath::Floor(posLshifted.Y()/fPixelStep)*fPixelStep,0.);
+	  distance = (point-corner).Mag();	  
+	  if(exp(-distance/fPixelSigma) > gRandom->Uniform(0.,1.) && exp(- distance/fPixelSigma) > fThreshold){	    
+	    if(Ncol+1 < fNpix && Nrow-1 > 0){
+	      ActivatePixel(Ppt->GetDetectorID() * 100 +Ncol+1+(Nrow-1)*fNpix, fTime, k, 1);
+	    }
+	  }
 		
-		// upper right pixel
-		corner.SetXYZ(TMath::Ceil(posLshifted.X()/fPixelStep)*fPixelStep,
-		              TMath::Ceil(posLshifted.Y()/fPixelStep)*fPixelStep,0.);
-        	distance = (point-corner).Mag();		
-		if(exp(-distance/fPixelSigma) > gRandom->Uniform(0.,1.) && exp(- distance/fPixelSigma) > fThreshold){	
-			if(Ncol+1 < fNpix && Nrow+1 < fNpix){
-				ActivatePixel(Ppt->GetDetectorID() * 100 +Ncol+1+(Nrow+1)*fNpix, fTime, k, 1);
-				//cout<<"upper right pixel is activated: distance = "<<distance <<", prob = "<<exp(- distance/fPixelSigma)<<endl;	
-			}
-			distance = 999.;
-		}
-		
-     	} // if charge sharing true     
-     
-     	
+	  // upper right pixel
+	  corner.SetXYZ(TMath::Ceil(posLshifted.X()/fPixelStep)*fPixelStep,
+			TMath::Ceil(posLshifted.Y()/fPixelStep)*fPixelStep,0.);
+	  distance = (point-corner).Mag();	  
+	  if(exp(-distance/fPixelSigma) > gRandom->Uniform(0.,1.) && exp(- distance/fPixelSigma) > fThreshold){	    
+	    if(Ncol+1 < fNpix && Nrow+1 < fNpix){
+	      ActivatePixel(Ppt->GetDetectorID() * 100 +Ncol+1+(Nrow+1)*fNpix, fTime, k, 1);
+	    }
+	  }		
+     	} // if charge sharing true          	
      } // if detection
   } 
 }
@@ -412,35 +359,27 @@ void PndDrcDigiTask::ProcessPhotonPoint()
 // -----   Private method ActivatePixel   -------------------------------
 void PndDrcDigiTask::ActivatePixel(Int_t sensorDetId, Double_t signalTime, Int_t k, Int_t csflag) {
 // in case when the same pixel was fired by two different photons this function takes care of which hits from that pixel to write  
-  //Int_t sensorDetId;
-  //cout<<"-I- ActivatePixel: time = "<<signalTime<<endl;
+
   if ( fPixelMap.find(sensorDetId) == fPixelMap.end() ) {
     // pixel not yet active, create new digi
-    
-    	//cout <<"there is no such pixel (case 1) - "<< fNDigis << " : " << sensorDetId << " " << signalTime << endl;
-    
-    new ((*fDrcDigiArray)[fNDigis]) PndDrcDigi(k, sensorDetId, 0., signalTime, csflag, 0.);
 
+    new ((*fDrcDigiArray)[fNDigis]) PndDrcDigi(k, sensorDetId, 0., signalTime, csflag, 0.);
     fPixelMap[sensorDetId] = fNDigis;
     fNDigis++;
   }
   else {    
     // if there was already hit in this pixel...
-    //cout<<" there is a hit in the same pixel already (case 2)"<<endl;
+
     Int_t iDigi = fPixelMap[sensorDetId];
     PndDrcDigi* ddigi = dynamic_cast<PndDrcDigi*>(fDrcDigiArray->At(iDigi));
     // ... check the time difference with another one in the same pixel
-    if(fabs(ddigi->GetTimeStamp() - signalTime) > fDeadTime){
-      //cout<<"time difference = %% "<<fabs(ddigi->GetTimeStamp() - signalTime)<<endl;
-      new ((*fDrcDigiArray)[fNDigis]) PndDrcDigi(k, sensorDetId, 0., signalTime, csflag, 0.);
 
+    if(fabs(ddigi->GetTimeStamp() - signalTime) > fDeadTime){
+      new ((*fDrcDigiArray)[fNDigis]) PndDrcDigi(k, sensorDetId, 0., signalTime, csflag, 0.);
       fPixelMap[sensorDetId] = fNDigis;
       fNDigis++; 
     }
-    
     //ddigi->AddCharge(signalHeight);
-
-    	//cout << "another mc point to this digi, last one " << ddigi->GetIndex(ddigi->GetNIndices()-1) << ", now adding " << k << endl;
     //ddigi->AddIndex(iPoint);
   }
 }
@@ -452,14 +391,11 @@ void PndDrcDigiTask::NumberOfBounces(TVector3 start, TVector3 dir, Int_t *n1, In
     // calculates the number of bounces in x and y direction and reflection angles in these directions.
         
     Double_t PhiRot = FindPhiRot(start.X(), start.Y());
-    //cout<<"-I- NumberOfBounces: phi rot = "<<PhiRot<<endl;
-    
-    // Photon production point in bar' coordinate system (origin at the corner of the bar):
+
+    // Photon production point in bar' coordinate system (origin at the corner of the bar):   
     TVector3 startBar;
     startBar.SetXYZ(start.X(), start.Y(), start.Z());
-    //cout<<"-I- NumberOfBounces: start.X = "<<start.X()<<", start.Y = "<<start.Y()<<endl;
     startBar.RotateZ(-PhiRot/180.*fpi);
-    //cout<<"-I- NumberOfBounces: startBar.X = "<<startBar.X()<<", startBar.Y = "<<startBar.Y()<<endl;
     
     // Photon momentum in bar' coord system:
     TVector3 PphoB;
@@ -474,10 +410,9 @@ void PndDrcDigiTask::NumberOfBounces(TVector3 start, TVector3 dir, Int_t *n1, In
     if(dir.Theta() >= 3.1415/2.){
       Z0 = -(startBar.Z() -  fzup);
     }
-    //cout<<"-I- NumberOfBounces: Z0 = "<<Z0<<", Theta = "<<PphoB.Theta()/3.1415*180.<<", tan t = "<<tan(PphoB.Theta())<<", phi = "<<PphoB.Phi()/3.1415*180.<<endl;
+    
     X0 = Z0*tan(PphoB.Theta())*cos(PphoB.Phi());
     Y0 = Z0*tan(PphoB.Theta())*sin(PphoB.Phi());
-    //cout<<"-I- NumberOfBounces: X0 = "<<X0<<", Y0 = "<<Y0<<endl;
     
     // Find the number of bounces in each direction       
     Double_t N1, N2;
@@ -485,23 +420,15 @@ void PndDrcDigiTask::NumberOfBounces(TVector3 start, TVector3 dir, Int_t *n1, In
     //flside   = 2.*frad_out*sin(2.*3.1415/16./2.) - (2.*fboxthick) - (2.*fboxgap);
     //flside = (180. - 2.*fpipehAngle - fbbGap/fradius*(fbbnum/2. - 1.)/fpi*180.)/(fbbnum/2.) * fradius/ 180.*fpi;
     //fbarwidth = flside/fbarnum;
-    //cout<<"-I- NumberOfBounces: lside = "<<flside<<", bar width = "<<fbarwidth<<endl;
         
-    //cout<<"fbarnum = "<<fbarnum<<endl;
     // Find which bar in the bar box was hit:
     if(fbarnum > 1){    
       Int_t NhitBar = (Int_t)((0.5*flside + startBar.Y())/fbarwidth)+1;
-      //cout<<"-I- NumberOfBounces: bar "<<NhitBar<<" was hit, "<<((0.5*flside + startBar.Y())/fbarwidth)+1<<endl;
-      //cout<<"-I- NumberOfBounces: start bar Y = "<<startBar.Y()<<endl;
-    
-     //cout<<"-I- NumberOfBounces: start position X = "<< startBar.X() - (fradius-fhthick)<<", Y = "<<startBar.Y() + 0.5*flside-(NhitBar-1)*fbarwidth<<endl;  
       FindOutPoint(X0, startBar.X()-(fradius-fhthick), 		   2.*fhthick, &N1, 0);
       FindOutPoint(Y0, startBar.Y()+0.5*flside-(NhitBar-1)*fbarwidth, fbarwidth, &N2, 0);
-      //cout<<"-I- NumberOfBounces: N1 = "<<N1<<", N2 = "<<N2<<endl;
     }
     
     if(fbarnum == 1 && flside > fbarwidth){
-      //cout<<"second case!!!"<<endl;
       FindOutPoint(X0, startBar.X()-(fradius-fhthick), 		   2.*fhthick, &N1, 0);
       FindOutPoint(Y0, startBar.Y()+0.5*fbarwidth, fbarwidth, &N2, 0);
     }
@@ -520,7 +447,6 @@ void PndDrcDigiTask::NumberOfBounces(TVector3 start, TVector3 dir, Int_t *n1, In
     if(angle2 > fpi/2.){angle2 = fpi - PphoB.Angle(up_down);}
     *alpha1 = angle1;
     *alpha2 = angle2;
-    //cout<<"-I- NumberOfBounces: angle1 = "<<angle1<<", angle2 = "<<angle2<<endl;
 }
 
 //----------------------------------------------------------------------------------------------
@@ -530,8 +456,7 @@ Double_t PndDrcDigiTask::FindPhiRot(Double_t xx, Double_t yy){ // returns [degre
     hit.SetXYZ(xx,yy,0.);
     Double_t startPhi = hit.Phi()/fpi*180.; // [degrees]
     if(startPhi < 0.){startPhi = 360. + hit.Phi()*180./fpi;}
-    //cout<<"-I- FindPhoRot: start phi = "<<startPhi<<endl;    
-    //cout<<"-I- InBarCoordinateSystem: dphi = "<<fDphi<<endl;
+
     Double_t PhiRot = 0.; //[degrees]
     if(startPhi >= 0. && startPhi < 90.){
       PhiRot = TMath::Floor(startPhi/fdphi) *fdphi + fdphi/2.;
@@ -1171,7 +1096,8 @@ void PndDrcDigiTask::SetPhotonDetEffNew(Double_t& fLambdaMin,
 //------------------------------------------------------------------------------------  
 
 Double_t PndDrcDigiTask::FuncD1(Double_t x) {
-// refraction index of fused silica as a function of wavelength
+  
+  // refraction index of fused silica as a function of wavelength
   Double_t par0 = 0.696;
   Double_t par1 = 0.068;
   Double_t par2 = 0.407;
@@ -1186,7 +1112,8 @@ Double_t PndDrcDigiTask::FuncD1(Double_t x) {
 }
 
 Double_t PndDrcDigiTask::FuncD3(Double_t x, Double_t y) {
-// reflection probability according to the scalar theory (PhD Thesis R.Hohler)
+  
+  // reflection probability according to the scalar theory (PhD Thesis R.Hohler)
   Double_t par0 = fRoughness;
   return 1. - pow(4.*3.14159*cos(y)*par0*FuncD1(x)/x,2);
 }
@@ -1196,14 +1123,12 @@ Double_t PndDrcDigiTask::FuncD3(Double_t x, Double_t y) {
 			Double_t& angleStepT, Int_t& lambdaPointsT, Double_t fEfficiency[]){ 
   if (fDetType == 1){
   
-  	//cout<<"-I- SetPhotonTransportEff: lam = "<<lambda<<", angle = "<<angle<<endl;
-  
   	lambdaMinT = 280.;
   	lambdaMaxT = 650.;
   	lambdaStepT = 10.;
   
   	angleStepT = fpi/2./20.;
-	  lambdaPointsT = (lambdaMaxT-lambdaMinT)/1000./0.01+1;//38;
+	lambdaPointsT = (lambdaMaxT-lambdaMinT)/1000./0.01+1;//38;
  
 	  // refraction index of silica:
 	//  TF1 *d1 = new TF1("d1", "sqrt(1 + ([0]*x^2/(x^2-[1]^2)) + ([2]*x^2/(x^2-[3]^2)) + 	([4]*x^2/(x^2-[5]^2)))",lambdaMin/1000.,lambdaMax/1000.);
@@ -1233,13 +1158,7 @@ TVector3 PndDrcDigiTask::GetSensorDimensions(Int_t sensorID)
   gGeoManager->cd(fGeoH->GetPath(sensorID));
   TGeoVolume* actVolume = gGeoManager->GetCurrentVolume();
   TGeoBBox* actBox = (TGeoBBox*)(actVolume->GetShape());
-  TVector3 result;
-  result.SetX(actBox->GetDX());
-  result.SetY(actBox->GetDY());
-  result.SetZ(actBox->GetDZ());
-  
-  //result.Dump();
-  
+  TVector3 result(actBox->GetDX(),actBox->GetDY(),actBox->GetDZ());
   return result;
 } 
 
@@ -1252,7 +1171,7 @@ void PndDrcDigiTask::SetParameters(){
   fCollectionEff=0.65;//Collection Efficiency 
   fPackingFraction=0.80;//Packing Efficiency 
   fRoughness = 0.001; // 10 A
-  fTimeGranularity = 0.089; //[ns] = 89 ps time granularity of the time signal
+  fTimeGranularity = 0.089;// [ns] = 89 ps granularity of the time signal
   
   // basic DIRC parameters:
   fpi            =  TMath::Pi();
@@ -1278,7 +1197,7 @@ void PndDrcDigiTask::SetParameters(){
   fPixelSigma 	 =  fGeo->SigmaCharge();
   fDeadTime 	 =  fGeo->DeadTime(); 
   
-  fThreshold	 =  0.1; // 10% threshold to detect charge shared hits    
+  fThreshold	 =  0.1; // 10% threshold to detect charge shared hits
 }
 //-------------Smear Time------------------------------------
 void PndDrcDigiTask::Smear(Double_t& time, Double_t sigt){
@@ -1298,7 +1217,6 @@ void PndDrcDigiTask::Reset() {
 }
 
 // -------------------------------------------------------------------------
-
 
 // -----   Finish Task   ---------------------------------------------------
 void PndDrcDigiTask::Finish()
