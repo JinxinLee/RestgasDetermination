@@ -45,7 +45,7 @@
 #include<PndSdsClusterPixel.h>
 #include<PndSdsDigiPixel.h>
 #include<PndSdsMergedHit.h>
-
+#include<PndTrack.h>
 // needed for geane backtracking
 #include<FairRunAna.h>
 #include<FairRootManager.h>
@@ -68,7 +68,8 @@ int main(int __argc,char *__argv[]) {
   TString storePath="/data/FAIRsorf/pandaroot/trunk/macro/lmd/tmpOutputBkg";
   double Plab=15.;
   int verboseLevel=0;
-  std::string startStr="", momStr="", nStr="", pathStr="", verbStr="";
+  int writeMC=0;
+  std::string startStr="", momStr="", nStr="", pathStr="", verbStr="",writeMCStr="";
   // decode arguments
   if( __argc>1 && ( strcmp( __argv[1], "-help" ) == 0
 		    || strcmp( __argv[1], "--help" ) == 0 ) ){
@@ -77,8 +78,9 @@ int main(int __argc,char *__argv[]) {
 	      <<"-s start event \n"
 	      <<"-n Number of events \n"
 	      <<"-mom Beam Momentum \n"
-	      <<"-path path to the file(s)"
-	      <<"-v verbose Level (if>0, print out some information)"
+	      <<"-path path to the file(s) \n"
+	      <<"-v verbose Level (if>0, print out some information) \n"
+	      <<"-mc if >1 write ntuple with MC info in root file \n"
 	      <<"Have fun! \n"
 	      << std::endl;
     return 0;
@@ -94,6 +96,11 @@ int main(int __argc,char *__argv[]) {
     if (sw=="-n"){
       optind++;
       nStr = __argv[optind];
+      found=true;
+    }
+    if (sw=="-mc"){
+      optind++;
+      writeMCStr = __argv[optind];
       found=true;
     }
     if (sw=="-path"){
@@ -121,14 +128,14 @@ int main(int __argc,char *__argv[]) {
   while ( (optind < __argc ) && __argv[optind][0]!='-' ) optind++; 
   }
 
-  std::stringstream startSStr(startStr), momSStr(momStr), nSStr(nStr), pathSStr(pathStr), verbSStr(verbStr);
+  std::stringstream startSStr(startStr), momSStr(momStr), nSStr(nStr), pathSStr(pathStr), verbSStr(verbStr),writeMCSStr(writeMCStr);
 
   startSStr >> startEvent;
   momSStr >> Plab;
   nSStr >> nEvents;
   pathSStr >> storePath;
   verbSStr >> verboseLevel;
-
+  writeMCSStr >> writeMC;
   // ----  Load libraries   -------------------------------------------------
   gROOT->Macro("$VMCWORKDIR/gconfig/rootlogon.C");
   gSystem->Load("libLmdTrk");
@@ -236,8 +243,8 @@ int main(int __argc,char *__argv[]) {
   //-----------------------------------------------------------------------------------
   
   //--- Real tracks -------------------------------------------------------------------
-  TClonesArray* rec_trk=new TClonesArray("PndLinTrack");
-  tTrkRec.SetBranchAddress("LMDTrack",&rec_trk);  //Tracks
+  TClonesArray* rec_trk=new TClonesArray("PndTrack");
+  tTrkRec.SetBranchAddress("LMDPndTrack",&rec_trk);  //Tracks
   //----------------------------------------------------------------------------------  
 
   //--- Geane info ------------------------------------------------------------------
@@ -331,7 +338,9 @@ int main(int __argc,char *__argv[]) {
   // tBkg->Branch("errpz",&glerrPzBkg);
   // tBkg->Branch("errp",&glerrPBkg);
 
-  TNtuple *nmcall = new TNtuple("nmcall","mcAll","pdgid:sumpdgid:trkid:nparts:x:y:z:px:py:pz:p:theta:phi:nRecHitsEvent:totCharge");
+  TNtuple *nmcall;
+  if(writeMC>1)  
+    nmcall = new TNtuple("nmcall","mcAll","pdgid:sumpdgid:trkid:nparts:x:y:z:px:py:pz:p:theta:phi:nRecHitsEvent:totCharge");
   // TNtuple *nsdshits = new TNtuple("nsdshits ","sds_hits","sensid:trkid:motherID:x:y:z:charge:p:eloss:time");
 
   TTree *nsdshits= new TTree("nsdshits","variables for reconstructed hits");
@@ -423,35 +432,22 @@ nsdshits->Branch("time",&htime);
       PndMCTrack *mctrk =(PndMCTrack*) true_tracks->At(iN);
       Int_t mcID = mctrk->GetPdgCode();
       if(fabs(mcID)>1e5) continue;
-      // if(verboseLevel==1){
-      // 	if(nGeaneTrks!=0){
-      // 	  if(nParticles==2 && fabs(mcID)==2212){}
-      // 	  else cout<<" "<<mcID;
-      // 	}
-      // }
+     
       int motherid = mctrk->GetMotherID();
       if(motherid<0 && fabs(mcID)<1e5){
 	sumID+=fabs(mcID);
 	if(verboseLevel==1) cout<<" "<<mcID;
       }
-      //   if(verboseLevel>2)   cout<<" sim.Trk #"<<iN<<" PDGid = "<<mcID<<endl;
-      //   if(fabs(mcID)>1e4 || sumID>1e6) continue;
-    
-      //   TDatabasePDG *fdbPDG = TDatabasePDG::Instance();
+     
       TParticlePDG *fParticle = fdbPDG->GetParticle(mcID);
       Double_t  fCharge = fParticle->Charge();
       TotCharge += fCharge;
     }
-    // if(TotCharge!=0){
-    //   cout<<"For Event #"<<j<<" tot. charge = "<<TotCharge<<endl;
-    //   //  continue;
-    // }
+   
     if(verboseLevel==1){
-      //  if(nGeaneTrks!=0 && sumID!=4424 && sumID>10){ 
-	cout<<" "<<endl;
-	cout<<"sumIDs="<<sumID<<endl;
+      cout<<" "<<endl;
+      cout<<"sumIDs="<<sumID<<endl;
 	cout<<" ************************************** "<<endl;
-	// }
     }
     ///-----------------------------------------------------------------------------------------
   
@@ -463,9 +459,10 @@ nsdshits->Branch("time",&htime);
 	TVector3 StartMC = mctrk->GetStartVertex();
 	TVector3 MomMC = mctrk->GetMomentum();
 	int nMChit = mctrk->GetNPoints(kLUMI);
-	nmcall->Fill(mcID,sumID,nParticles,iN,StartMC.X(),StartMC.Y(),StartMC.Z(),
-		     MomMC.X(),MomMC.Y(), MomMC.Z(),
-		     MomMC.Mag(), MomMC.Theta(), MomMC.Phi(),nRecHits,TotCharge);
+	if(writeMC>1) 	
+	  nmcall->Fill(mcID,sumID,nParticles,iN,StartMC.X(),StartMC.Y(),StartMC.Z(),
+		       MomMC.X(),MomMC.Y(), MomMC.Z(),
+		       MomMC.Mag(), MomMC.Theta(), MomMC.Phi(),nRecHits,TotCharge);
 	}
     
     
@@ -476,6 +473,22 @@ nsdshits->Branch("time",&htime);
     glnrectrks = nGeaneTrks;
     glnrechits = rechit_array->GetEntriesFast();
     glSumID = sumID;
+
+    /// Set MC ID for each track ----------------------------------------------------
+    Int_t nRecGEANEtrk = 0;
+    //  int MCtrk[nParticles]; //Number of participation this MCid in rec.tracks
+    int RECtrkMCid[nGeaneTrks];//Assignment MC id to REC trk;
+    // for(int nk=0;nk<nParticles;nk++)
+    //   MCtrk[nk]=0;
+    bool goodTrk[nGeaneTrks];
+    bool ghostTrk[nGeaneTrks];
+    for (Int_t iN=0; iN<nGeaneTrks; iN++){
+      goodTrk[iN] = false;
+      ghostTrk[iN] = false;
+      RECtrkMCid[iN]=-1;
+    }
+	//	int goodRectrk=0;//for missed trk-search
+
     for (Int_t iN=0; iN<nGeaneTrks; iN++){
       Int_t diffIDs=1;
       vector<int> MCtrk;
@@ -505,10 +518,12 @@ nsdshits->Branch("time",&htime);
 	Double_t errPx = fRes->GetDPx();
 	Double_t errPy = fRes->GetDPy();
 	Double_t errPz = fRes->GetDPz();
-
-	PndLinTrack *trk_lin = (PndLinTrack*)rec_trk->At(iN);
-	Int_t candID = trk_lin->GetTCandID();
-	glChi2 = trk_lin->GetChiSquare();
+       
+	//	PndLinTrack *trk_lin = (PndLinTrack*)rec_trk->At(iN);
+	PndTrack *trkpnd = (PndTrack*)rec_trk->At(iN);
+	//	Int_t candID = trkpnd->GetTCandID();
+	int candID = trkpnd->GetRefIndex();
+	glChi2 = trkpnd->GetChi2();
 	PndTrackCand *trkcand = (PndTrackCand*)trkcand_array->At(candID);
 	const int Ntrkcandhits= trkcand->GetNHits();
 	if(verboseLevel>2)  cout<<"Trk #"<<iN<<" has "<<Ntrkcandhits<<" hits"<<endl;
@@ -563,10 +578,7 @@ nsdshits->Branch("time",&htime);
 	  MCtrkIDcount.push_back(1);
 	  if(verboseLevel>1) cout<<MCidTOP<<" ";
 	}
-    
-
-	//	cout<<""<<endl;
-	
+    	
 	Int_t k, x;
 	bool ch=false; //Was element changed? 
 	Int_t nch = 0; //How many times?
@@ -595,215 +607,327 @@ nsdshits->Branch("time",&htime);
 	  }
 	}
 
-	if(diffMChits){//reconstructed trk contains hits from different MC trks
-	  //print information for study
-	  //	  cout<<"======================"<<endl;
-	  //	  cout<<"Number of sim.particles: "<<nParticles<<" number of rec.trks: "<<numTrk<<" number of geane trks: "<<nGeaneTrks<<endl;
-	  //	  for(Int_t n=0; n<MCtrkID.size(); n++) {
-	  //	    cout<<MCtrkID[n]<<" ";
-	  //	  }
-	  //	  cout<<""<<endl;
-	  Int_t prevID = MCtrkID[0];
-	  diffIDs = 1;
-	  bool fillRecTrk=true;
-	
-	  for(Int_t n=1; n<MCtrkID.size(); n++){ 
-	    if(verboseLevel>2)   cout<<MCtrkID[n]<<" =MCtrkID["<<n<<"]"<<endl;
+	/// Set track quality: good or ghost? and assign MC id to rec trk ---------
+	if(diffIDs<2){
+	  RECtrkMCid[iN] = MCtrkID[0];
+	  goodTrk[iN] = true;
+	  ghostTrk[iN] = false;
+	}
+	else{
+	  vector<int> countMC_IDs(diffIDs);
+	  int prevID = MCtrkID[0];
+	  int diffCount=0;
+	  for(Int_t n=0; n<MCtrkID.size(); n++) {
+	    countMC_IDs[diffCount]++;
 	    if(prevID<MCtrkID[n]){
-	      ///Fill MC hists --------------------------------------------------------
-	      PndMCTrack *mctrk =(PndMCTrack*) true_tracks->At(MCtrkID[n]);
-	      Int_t mcID = mctrk->GetPdgCode();
-	      if(fabs(mcID)>1e5) continue;
-	      Int_t mcIDmother = mctrk->GetMotherID();
-	      TVector3 MomMC = mctrk->GetMomentum();
-	      TVector3 StartMC = mctrk->GetStartVertex();
-	   
-	      ///Fill histgs for antiproton------------------------
-	      if(fillRecTrk){
-		if(mcID==-2212 && sumID==4424) {
-      
-		  glThetaSig = MomRec.Theta();
-		  glPhiSig = MomRec.Phi();
-		  glXpcaSig = posRec.X();
-		  glYpcaSig = posRec.Y();
-		  glZpcaSig = posRec.Z();
-		  glPxSig= MomRec.X();
-		  glPySig = MomRec.Y();
-		  glPzSig=MomRec.Z();
-		  // glerrThetaSig = err_lyambda;
-		  // glerrPhiSig = err_phi;
-		  // glerrXpcaSig = errX;
-		  // glerrYpcaSig = errY;
-		  // glerrZpcaSig = errZ;
-		  // glerrPxSig = MomRec.X();
-		  // glerrPySig = MomRec.Y();
-		  // glerrPzSig = MomRec.Z();
-		  glPSig = MomRec.Mag();
-		  //	glerrPSig = errMomRec;
-		  tSig->Fill();
-		  fillRecTrk=false;//put information from reconstructed track only once!
-		}
-		else{
-		  glThetaBkg = MomRec.Theta();
-		  glPhiBkg = MomRec.Phi();
-		  glXpcaBkg = posRec.X();
-		  glYpcaBkg = posRec.Y();
-		  glZpcaBkg = posRec.Z();
-		  glPxBkg= MomRec.X();
-		  glPyBkg = MomRec.Y();
-		  glPzBkg=MomRec.Z();
-		  // glerrThetaBkg = err_lyambda;
-		  // glerrPhiBkg = err_phi;
-		  // glerrXpcaBkg = errX;
-		  // glerrYpcaBkg = errY;
-		  // glerrZpcaBkg = errZ;
-		  // glerrPxBkg = MomRec.X();
-		  // glerrPyBkg = MomRec.Y();
-		  // glerrPzBkg = MomRec.Z();
-		  glPBkg = MomRec.Mag();
-		  //	  glerrPBkg = errMomRec;
-		  glIDBkg = mcID;
-		  glSumIDBkg = sumID;
-		  glMotherIDBkg = mcIDmother;
-		  tBkg->Fill();
-		  fillRecTrk=false;//put information from reconstructed track only once!
-		}
-		glTheta = MomRec.Theta();
-		glPhi = MomRec.Phi();
-		glXpca = posRec.X();
-		glYpca = posRec.Y();
-		glZpca = posRec.Z();
-		glPx= MomRec.X();
-		glPy = MomRec.Y();
-		glPz=MomRec.Z();
-		glerrTheta = err_lyambda;
-		glerrPhi = err_phi;
-		glerrXpca = errX;
-		glerrYpca = errY;
-		glerrZpca = errZ;
-		glerrPx = MomRec.X();
-		glerrPy = MomRec.Y();
-		glerrPz = MomRec.Z();
-		glP = MomRec.Mag();
-		glerrP = errMomRec;
-		glXmc = StartMC.X();
-		glYmc = StartMC.Y();
-		glZmc = StartMC.Z();
-		glPmc = MomMC.Mag();
-		glThetamc = MomMC.Theta();
-		glPhimc = MomMC.Phi();
-		glID = mcID;
-		glMotherID = mcIDmother;
-		tAll->Fill();
-	      }
-	    
-	    ///----------------------------------------------------------------------
-	      diffIDs++;
+	      diffCount++;
 	      prevID=MCtrkID[n];
-	      for(int nk=0;nk<numTrk;nk++){
-		if(MCtrkID[n]==nk)
-		  MCtrk[nk]++;
-	      }
+	    }
+	  }
+	  int maxID=countMC_IDs[0];
+	  int posIDmax=0;
+	  for(int kn=0;kn<diffIDs;kn++){
+	    if(countMC_IDs[kn]>0.65*MCtrkID.size()){ //more then 65% of hits come from the same MC id
+	      goodTrk[iN] = true;
+	      ghostTrk[iN] = false;
+	    }
+	    else{
+	      if(!goodTrk[iN]) ghostTrk[iN] = true;
+	    }
+	    
+	    if(countMC_IDs[kn]>maxID){ 
+	      maxID=countMC_IDs[kn];
+	      posIDmax = kn;
+	    }
+	  }
+	  prevID = MCtrkID[0];
+	  diffCount=0;
+	  for(Int_t n=0; n<MCtrkID.size(); n++) {
+	    if(diffCount==posIDmax) RECtrkMCid[iN] = prevID;
+	    if(prevID<MCtrkID[n]){
+	      diffCount++;
+	      prevID=MCtrkID[n];
 	    }
 	  }
 	}
-	  if(verboseLevel>2) {
-	    cout<<"Trk #"<<iN<<" diffIDs = "<<diffIDs<<endl;
-	    cout<<"MCtrk["<<iN<<"]="<<MCtrk[iN]<<endl;
-	  }
-	//	else{//reconstructed trk contains hits from one MC trks
-	//reconstructed trk contains hits from one MC trks+ 1st Hit information for previous case
-	    ///Fill MC histgs --------------------------------------------------------
-	// if(verboseLevel>2) 
-	//   cout<<"MCtrkID[0]="<<MCtrkID[0]<<endl;
-	    PndMCTrack *mctrk =(PndMCTrack*) true_tracks->At(MCtrkID[0]);
-	    Int_t mcID = mctrk->GetPdgCode();
-	    if(fabs(mcID)>1e5) continue;
+      ///------------------------------------------------------------------------
 
-	    Int_t mcIDmother = mctrk->GetMotherID();
-	    TVector3 MomMC = mctrk->GetMomentum();
-       	    TVector3 StartMC = mctrk->GetStartVertex();
-     
-	    ///Fill histgs for antiproton from el.scattering ---
-	    if(mcID==-2212 && sumID==4424) {
+	/// Comporision MC, trk-candidates and REConstructed tracks --------------------------------------------
+	if(diffIDs>-1){ // All tracks
+	  PndMCTrack *mctrk =(PndMCTrack*) true_tracks->At(RECtrkMCid[iN]);
+	  Int_t mcID = mctrk->GetPdgCode();
+	  if(fabs(mcID)>1e5) continue;
+	  Int_t mcIDmother = mctrk->GetMotherID();
+	  TVector3 MomMC = mctrk->GetMomentum();
+	  TVector3 StartMC = mctrk->GetStartVertex();
+	  if(mcID==-2212 && sumID==4424 &&  goodTrk[iN]) {
+	    glThetaSig = MomRec.Theta();
+	    glPhiSig = MomRec.Phi();
+	    glXpcaSig = posRec.X();
+	    glYpcaSig = posRec.Y();
+	    glZpcaSig = posRec.Z();
+	    glPxSig= MomRec.X();
+	    glPySig = MomRec.Y();
+	    glPzSig=MomRec.Z();
+	    glPSig = MomRec.Mag();
+	    tSig->Fill();
+	  }
+	  else{
+	    glThetaBkg = MomRec.Theta();
+	    glPhiBkg = MomRec.Phi();
+	    glXpcaBkg = posRec.X();
+	    glYpcaBkg = posRec.Y();
+	    glZpcaBkg = posRec.Z();
+	    glPxBkg= MomRec.X();
+	    glPyBkg = MomRec.Y();
+	    glPzBkg=MomRec.Z();
+	    glPBkg = MomRec.Mag();
+	    glIDBkg = mcID;
+	    glSumIDBkg = sumID;
+	    glMotherIDBkg = mcIDmother;
+	    tBkg->Fill();
+	  }
+	  glTheta = MomRec.Theta();
+	  glPhi = MomRec.Phi();
+	  glXpca = posRec.X();
+	  glYpca = posRec.Y();
+	  glZpca = posRec.Z();
+	  glPx= MomRec.X();
+	  glPy = MomRec.Y();
+	  glPz=MomRec.Z();
+	  glerrTheta = err_lyambda;
+	  glerrPhi = err_phi;
+	  glerrXpca = errX;
+	  glerrYpca = errY;
+	  glerrZpca = errZ;
+	  glerrPx = MomRec.X();
+	  glerrPy = MomRec.Y();
+	  glerrPz = MomRec.Z();
+	  glP = MomRec.Mag();
+	  glerrP = errMomRec;
+	  glXmc = StartMC.X();
+	  glYmc = StartMC.Y();
+	  glZmc = StartMC.Z();
+	  glPmc = MomMC.Mag();
+	  glThetamc = MomMC.Theta();
+	  glPhimc = MomMC.Phi();
+	  glID = mcID;
+	  glMotherID = mcIDmother;
+	  tAll->Fill();
+	}
+   
+    // 	if(diffMChits){//reconstructed trk contains hits from different MC trks
+    // 	  //print information for study
+    // 	  //	  cout<<"======================"<<endl;
+    // 	  //	  cout<<"Number of sim.particles: "<<nParticles<<" number of rec.trks: "<<numTrk<<" number of geane trks: "<<nGeaneTrks<<endl;
+    // 	  //	  for(Int_t n=0; n<MCtrkID.size(); n++) {
+    // 	  //	    cout<<MCtrkID[n]<<" ";
+    // 	  //	  }
+    // 	  //	  cout<<""<<endl;
+    // 	  Int_t prevID = MCtrkID[0];
+    // 	  diffIDs = 1;
+    // 	  bool fillRecTrk=true;
+	
+    // 	  //	  for(Int_t n=1; n<MCtrkID.size(); n++){ 
+    // 	  for(Int_t n=1; n<RECtrkMCid.size(); n++){ 
+    // 	    //    if(verboseLevel>2)   cout<<MCtrkID[n]<<" =MCtrkID["<<n<<"]"<<endl;
+    // 	    if(prevID<MCtrkID[n]){
+    // 	      ///Fill MC hists --------------------------------------------------------
+    // 	      //	      PndMCTrack *mctrk =(PndMCTrack*) true_tracks->At(MCtrkID[n]);
+    // 	      PndMCTrack *mctrk =(PndMCTrack*) true_tracks->At(RECtrkMCid[iN]);
+    // 	      Int_t mcID = mctrk->GetPdgCode();
+    // 	      if(fabs(mcID)>1e5) continue;
+    // 	      Int_t mcIDmother = mctrk->GetMotherID();
+    // 	      TVector3 MomMC = mctrk->GetMomentum();
+    // 	      TVector3 StartMC = mctrk->GetStartVertex();
 	   
-	      glThetaSig = MomRec.Theta();
-	      glPhiSig = MomRec.Phi();
-	      glXpcaSig = posRec.X();
-	      glYpcaSig = posRec.Y();
-	      glZpcaSig = posRec.Z();
-	      glPxSig= MomRec.X();
-	      glPySig = MomRec.Y();
-	      glPzSig=MomRec.Z();
-	      // glerrThetaSig = err_lyambda;
-	      // glerrPhiSig = err_phi;
-	      // glerrXpcaSig = errX;
-	      // glerrYpcaSig = errY;
-	      // glerrZpcaSig = errZ;
-		// glerrPxSig = MomRec.X();
-		// glerrPySig = MomRec.Y();
-		// glerrPzSig = MomRec.Z();
-		glPSig = MomRec.Mag();
-		//	glerrPSig = errMomRec;
-		tSig->Fill();
-	    }
-	    else{
-	      glThetaBkg = MomRec.Theta();
-		glPhiBkg = MomRec.Phi();
-		glXpcaBkg = posRec.X();
-		glYpcaBkg = posRec.Y();
-		glZpcaBkg = posRec.Z();
-		glPxBkg= MomRec.X();
-		glPyBkg = MomRec.Y();
-		glPzBkg=MomRec.Z();
-		// glerrThetaBkg = err_lyambda;
-		// glerrPhiBkg = err_phi;
-		// glerrXpcaBkg = errX;
-		// glerrYpcaBkg = errY;
-		// glerrZpcaBkg = errZ;
-		// glerrPxBkg = MomRec.X();
-		// glerrPyBkg = MomRec.Y();
-		// glerrPzBkg = MomRec.Z();
-		glPBkg = MomRec.Mag();
-		//	glerrPBkg = errMomRec;
-		glIDBkg = mcID;
-		glSumIDBkg = sumID;
-		glMotherIDBkg = mcIDmother;
-		tBkg->Fill();
-	    }
-	    glTheta = MomRec.Theta();
-	    glPhi = MomRec.Phi();
-	    glXpca = posRec.X();
-	    glYpca = posRec.Y();
-	    glZpca = posRec.Z();
-	    glPx= MomRec.X();
-	    glPy = MomRec.Y();
-	    glPz=MomRec.Z();
-	    glerrTheta = err_lyambda;
-	    glerrPhi = err_phi;
-	    glerrXpca = errX;
-	    glerrYpca = errY;
-	    glerrZpca = errZ;
-	    glerrPx = MomRec.X();
-	    glerrPy = MomRec.Y();
-	    glerrPz = MomRec.Z();
-	    glP = MomRec.Mag();
-	    glerrP = errMomRec;
-	    glXmc = StartMC.X();
-	    glYmc = StartMC.Y();
-	    glZmc = StartMC.Z();
-	    glPmc = MomMC.Mag();
-	    glThetamc = MomMC.Theta();
-	    glPhimc = MomMC.Phi();
-	    glID = mcID;
-	    glMotherID = mcIDmother;
-	    tAll->Fill();
-	  ///----------------------------------------------------------
-	    //	}
+    // 	      ///Fill histgs for antiproton------------------------
+    // 	      if(fillRecTrk){
+    // 		if(mcID==-2212 && sumID==4424) {
+      
+    // 		  glThetaSig = MomRec.Theta();
+    // 		  glPhiSig = MomRec.Phi();
+    // 		  glXpcaSig = posRec.X();
+    // 		  glYpcaSig = posRec.Y();
+    // 		  glZpcaSig = posRec.Z();
+    // 		  glPxSig= MomRec.X();
+    // 		  glPySig = MomRec.Y();
+    // 		  glPzSig=MomRec.Z();
+    // 		  // glerrThetaSig = err_lyambda;
+    // 		  // glerrPhiSig = err_phi;
+    // 		  // glerrXpcaSig = errX;
+    // 		  // glerrYpcaSig = errY;
+    // 		  // glerrZpcaSig = errZ;
+    // 		  // glerrPxSig = MomRec.X();
+    // 		  // glerrPySig = MomRec.Y();
+    // 		  // glerrPzSig = MomRec.Z();
+    // 		  glPSig = MomRec.Mag();
+    // 		  //	glerrPSig = errMomRec;
+    // 		  tSig->Fill();
+    // 		  fillRecTrk=false;//put information from reconstructed track only once!
+    // 		}
+    // 		else{
+    // 		  glThetaBkg = MomRec.Theta();
+    // 		  glPhiBkg = MomRec.Phi();
+    // 		  glXpcaBkg = posRec.X();
+    // 		  glYpcaBkg = posRec.Y();
+    // 		  glZpcaBkg = posRec.Z();
+    // 		  glPxBkg= MomRec.X();
+    // 		  glPyBkg = MomRec.Y();
+    // 		  glPzBkg=MomRec.Z();
+    // 		  // glerrThetaBkg = err_lyambda;
+    // 		  // glerrPhiBkg = err_phi;
+    // 		  // glerrXpcaBkg = errX;
+    // 		  // glerrYpcaBkg = errY;
+    // 		  // glerrZpcaBkg = errZ;
+    // 		  // glerrPxBkg = MomRec.X();
+    // 		  // glerrPyBkg = MomRec.Y();
+    // 		  // glerrPzBkg = MomRec.Z();
+    // 		  glPBkg = MomRec.Mag();
+    // 		  //	  glerrPBkg = errMomRec;
+    // 		  glIDBkg = mcID;
+    // 		  glSumIDBkg = sumID;
+    // 		  glMotherIDBkg = mcIDmother;
+    // 		  tBkg->Fill();
+    // 		  fillRecTrk=false;//put information from reconstructed track only once!
+    // 		}
+    // 		glTheta = MomRec.Theta();
+    // 		glPhi = MomRec.Phi();
+    // 		glXpca = posRec.X();
+    // 		glYpca = posRec.Y();
+    // 		glZpca = posRec.Z();
+    // 		glPx= MomRec.X();
+    // 		glPy = MomRec.Y();
+    // 		glPz=MomRec.Z();
+    // 		glerrTheta = err_lyambda;
+    // 		glerrPhi = err_phi;
+    // 		glerrXpca = errX;
+    // 		glerrYpca = errY;
+    // 		glerrZpca = errZ;
+    // 		glerrPx = MomRec.X();
+    // 		glerrPy = MomRec.Y();
+    // 		glerrPz = MomRec.Z();
+    // 		glP = MomRec.Mag();
+    // 		glerrP = errMomRec;
+    // 		glXmc = StartMC.X();
+    // 		glYmc = StartMC.Y();
+    // 		glZmc = StartMC.Z();
+    // 		glPmc = MomMC.Mag();
+    // 		glThetamc = MomMC.Theta();
+    // 		glPhimc = MomMC.Phi();
+    // 		glID = mcID;
+    // 		glMotherID = mcIDmother;
+    // 		tAll->Fill();
+    // 	      }
+	    
+    // 	    ///----------------------------------------------------------------------
+    // 	      diffIDs++;
+    // 	      prevID=MCtrkID[n];
+    // 	      for(int nk=0;nk<numTrk;nk++){
+    // 		if(MCtrkID[n]==nk)
+    // 		  MCtrk[nk]++;
+    // 	      }
+    // 	    }
+    // 	  }
+    // 	}
+    // 	  if(verboseLevel>2) {
+    // 	    cout<<"Trk #"<<iN<<" diffIDs = "<<diffIDs<<endl;
+    // 	    cout<<"MCtrk["<<iN<<"]="<<MCtrk[iN]<<endl;
+    // 	  }
+    // 	//	else{//reconstructed trk contains hits from one MC trks
+    // 	//reconstructed trk contains hits from one MC trks+ 1st Hit information for previous case
+    // 	    ///Fill MC histgs --------------------------------------------------------
+    // 	// if(verboseLevel>2) 
+    // 	//   cout<<"MCtrkID[0]="<<MCtrkID[0]<<endl;
+    // 	    PndMCTrack *mctrk =(PndMCTrack*) true_tracks->At(MCtrkID[0]);
+    // 	    Int_t mcID = mctrk->GetPdgCode();
+    // 	    if(fabs(mcID)>1e5) continue;
+
+    // 	    Int_t mcIDmother = mctrk->GetMotherID();
+    // 	    TVector3 MomMC = mctrk->GetMomentum();
+    //    	    TVector3 StartMC = mctrk->GetStartVertex();
+     
+    // 	    ///Fill histgs for antiproton from el.scattering ---
+    // 	    if(mcID==-2212 && sumID==4424) {
+	   
+    // 	      glThetaSig = MomRec.Theta();
+    // 	      glPhiSig = MomRec.Phi();
+    // 	      glXpcaSig = posRec.X();
+    // 	      glYpcaSig = posRec.Y();
+    // 	      glZpcaSig = posRec.Z();
+    // 	      glPxSig= MomRec.X();
+    // 	      glPySig = MomRec.Y();
+    // 	      glPzSig=MomRec.Z();
+    // 	      // glerrThetaSig = err_lyambda;
+    // 	      // glerrPhiSig = err_phi;
+    // 	      // glerrXpcaSig = errX;
+    // 	      // glerrYpcaSig = errY;
+    // 	      // glerrZpcaSig = errZ;
+    // 		// glerrPxSig = MomRec.X();
+    // 		// glerrPySig = MomRec.Y();
+    // 		// glerrPzSig = MomRec.Z();
+    // 		glPSig = MomRec.Mag();
+    // 		//	glerrPSig = errMomRec;
+    // 		tSig->Fill();
+    // 	    }
+    // 	    else{
+    // 	      glThetaBkg = MomRec.Theta();
+    // 		glPhiBkg = MomRec.Phi();
+    // 		glXpcaBkg = posRec.X();
+    // 		glYpcaBkg = posRec.Y();
+    // 		glZpcaBkg = posRec.Z();
+    // 		glPxBkg= MomRec.X();
+    // 		glPyBkg = MomRec.Y();
+    // 		glPzBkg=MomRec.Z();
+    // 		// glerrThetaBkg = err_lyambda;
+    // 		// glerrPhiBkg = err_phi;
+    // 		// glerrXpcaBkg = errX;
+    // 		// glerrYpcaBkg = errY;
+    // 		// glerrZpcaBkg = errZ;
+    // 		// glerrPxBkg = MomRec.X();
+    // 		// glerrPyBkg = MomRec.Y();
+    // 		// glerrPzBkg = MomRec.Z();
+    // 		glPBkg = MomRec.Mag();
+    // 		//	glerrPBkg = errMomRec;
+    // 		glIDBkg = mcID;
+    // 		glSumIDBkg = sumID;
+    // 		glMotherIDBkg = mcIDmother;
+    // 		tBkg->Fill();
+    // 	    }
+    // 	    glTheta = MomRec.Theta();
+    // 	    glPhi = MomRec.Phi();
+    // 	    glXpca = posRec.X();
+    // 	    glYpca = posRec.Y();
+    // 	    glZpca = posRec.Z();
+    // 	    glPx= MomRec.X();
+    // 	    glPy = MomRec.Y();
+    // 	    glPz=MomRec.Z();
+    // 	    glerrTheta = err_lyambda;
+    // 	    glerrPhi = err_phi;
+    // 	    glerrXpca = errX;
+    // 	    glerrYpca = errY;
+    // 	    glerrZpca = errZ;
+    // 	    glerrPx = MomRec.X();
+    // 	    glerrPy = MomRec.Y();
+    // 	    glerrPz = MomRec.Z();
+    // 	    glP = MomRec.Mag();
+    // 	    glerrP = errMomRec;
+    // 	    glXmc = StartMC.X();
+    // 	    glYmc = StartMC.Y();
+    // 	    glZmc = StartMC.Z();
+    // 	    glPmc = MomMC.Mag();
+    // 	    glThetamc = MomMC.Theta();
+    // 	    glPhimc = MomMC.Phi();
+    // 	    glID = mcID;
+    // 	    glMotherID = mcIDmother;
+    // 	    tAll->Fill();
+    // 	  ///----------------------------------------------------------
+    // 	    //	}
+    // }
+    // ///-----------------------------------------------------------------------------------------
     }
-    ///-----------------------------------------------------------------------------------------
   }
-  nmcall->Write();
+  if(writeMC>1) nmcall->Write();
   nsdshits->Write();
   tAll->Write();
   tSig->Write();
