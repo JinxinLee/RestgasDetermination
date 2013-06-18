@@ -27,11 +27,12 @@ TBuffer& operator>> ( TBuffer& buf, RhoFitterBase *&obj )
 #include <iostream>
 using namespace std;
 
-RhoFitterBase::RhoFitterBase ( RhoCandidate& head ) : fVerbose ( kFALSE ), fChi2Map ( 20 ), fChiSquare(-9999), fNDegreesOfFreedom(-9999)
+RhoFitterBase::RhoFitterBase ( RhoCandidate* head ) : fVerbose ( kFALSE ), fChiSquare(-9999), fNDegreesOfFreedom(-9999)
 {
   //fHeadOfTree=CopyCand( head );
   //TODO do we want to copy the trere here and now?
   fHeadOfTree=CopyTree(head);
+  fChi2Map.clear();
 }
 
 RhoFitterBase::~RhoFitterBase()
@@ -42,38 +43,38 @@ RhoFitterBase::RhoFitterBase ( const RhoFitterBase& other ) : fVerbose ( other.f
 {
   //fHeadOfTree=CopyCand(*other.fHeadOfTree);
   //TODO do we want to copy the tree here and now?
-  fHeadOfTree=CopyTree(*other.fHeadOfTree);
+  fHeadOfTree=CopyTree(other.fHeadOfTree);
 }
 
 
 RhoCandidate*
-RhoFitterBase::CopyCand ( RhoCandidate& b )
+RhoFitterBase::CopyCand ( RhoCandidate* b )
 {
   RhoCandidate* newCand = RhoFactory::Instance()->NewCandidate ( b );
   newCand->RemoveAssociations();
-  b.SetFit(newCand);//ready to be modified
+  b->SetFit(newCand);//ready to be modified
   return newCand;
 }
 
 
 RhoCandidate*
-RhoFitterBase::CopyTree ( RhoCandidate& head )
+RhoFitterBase::CopyTree ( RhoCandidate* head )
 {
-  //std::cout<<"\n\tcopy tree "<<head.Uid()<<" "<<&head<<" "<<head.PdgCode()<<" "<<head.NDaughters()<<"...";
+  //std::cout<<"\n\tcopy tree "<<head->Uid()<<" "<<&head<<" "<<head->PdgCode()<<" "<<head->NDaughters()<<"...";
   RhoCandidate* headcopy=CopyCand(head);
   RhoCandidate* daucopy=0;
   RhoCandidate* dau=0;
-  for(Int_t i=0;i<head.NDaughters();i++)
+  for(Int_t i=0;i<head->NDaughters();i++)
   {
-    dau=head.Daughter(i);
+    dau=head->Daughter(i);
     //std::cout<<"  daugter "<<dau->Uid()<<" "<<i<<" "<<dau->PdgCode()<<" at "<<dau<<"  ";
-    if(dau == &head) {
+    if(dau == head) {
       std::cout<<endl<<"*** Candidate is its own mother???  *** \n"<<std::endl;
-      std::cout<<"  print:   "<<head<<std::endl;;
+      std::cout<<"  print:   "<<*head<<std::endl;;
     }
-    assert(dau != &head);
-    if(dau->IsComposite()) daucopy=CopyTree(*dau);
-	else daucopy=CopyCand(*dau);
+    assert(dau != head);
+    if(dau->IsComposite()) daucopy=CopyTree(dau);
+	else daucopy=CopyCand(dau);
 	//std::cout<<"CopyTree: copied candidate "<<dau->Uid()<<std::endl;
     daucopy->SetMotherLink(headcopy); //daughter link is set automatically, too
   }
@@ -83,16 +84,19 @@ RhoFitterBase::CopyTree ( RhoCandidate& head )
 
 
 Double_t
-RhoFitterBase::Chi2Contribution ( const RhoCandidate& b ) const
+RhoFitterBase::Chi2Contribution ( const RhoCandidate* b )
 {
-  //Double_t chi2;
-  return fChi2Map ( b.Uid() ) >=0.0 ? fChi2Map ( b.Uid() ) : -1;
+  if(!b) return -999.;
+  Int_t uid = b->Uid();
+  Double_t chi2=fChi2Map[uid];
+  return chi2 >=0.0 ? chi2 : -1.;
 }
 
 
 void
 RhoFitterBase::Fit()
 {
+  fChi2Map.clear();
   FitNode(fHeadOfTree);
 }
 void

@@ -35,8 +35,8 @@ class RhoSimpleElectronSelector : public RhoParticleSelectorBase
     virtual ~RhoSimpleElectronSelector() {}
 
     //operations
-    virtual Bool_t Accept ( RhoCandidate& b );
-    virtual Bool_t Accept ( FairRecoCandidate& b );
+    virtual Bool_t Accept ( RhoCandidate* b );
+    virtual Bool_t Accept ( FairRecoCandidate* b );
 
 
   public:

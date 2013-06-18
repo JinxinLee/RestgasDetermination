@@ -20,7 +20,7 @@ class RhoCandidate;
 class PndVtxPRG : public RhoFitterBase
 {
   public:
-    PndVtxPRG( RhoCandidate& b) ;
+    PndVtxPRG( RhoCandidate* b) ;
     virtual ~PndVtxPRG();
     void SetExpansionPoint(TVector3 P) {fExpansionPoint=P;}
     void SetNIterations(int i) {fNIterations=i;};

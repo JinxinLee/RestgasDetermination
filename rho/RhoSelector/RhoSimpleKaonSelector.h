@@ -35,8 +35,8 @@ class RhoSimpleKaonSelector : public RhoParticleSelectorBase
     virtual ~RhoSimpleKaonSelector() {}
 
     //operations
-    virtual Bool_t Accept ( RhoCandidate& b );
-    virtual Bool_t Accept ( FairRecoCandidate& b );
+    virtual Bool_t Accept ( RhoCandidate* b );
+    virtual Bool_t Accept ( FairRecoCandidate* b );
 
 
   public:

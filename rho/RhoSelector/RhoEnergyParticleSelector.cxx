@@ -31,16 +31,16 @@ RhoEnergyParticleSelector::RhoEnergyParticleSelector ( const char* name, Double_
   RhoParticleSelectorBase ( name,type ), fCentralValue ( cv ), fWindow ( 0.5*w )
 {}
 
-Bool_t RhoEnergyParticleSelector::Accept ( RhoCandidate& b )
+Bool_t RhoEnergyParticleSelector::Accept ( RhoCandidate* b )
 {
-  if ( &b == 0 ) { return kFALSE; }
+  if ( b == 0 ) { return kFALSE; }
   SetTypeAndMass ( b );
-  return ( fabs ( b.E()-fCentralValue ) <fWindow );
+  return ( fabs ( b->E()-fCentralValue ) <fWindow );
 }
 
-Bool_t RhoEnergyParticleSelector::Accept ( FairRecoCandidate& b )
+Bool_t RhoEnergyParticleSelector::Accept ( FairRecoCandidate* b )
 {
-  if ( &b == 0 ) { return kFALSE; }
-  return ( fabs ( b.GetEnergy()-fCentralValue ) <fWindow );
+  if ( b == 0 ) { return kFALSE; }
+  return ( fabs ( b->GetEnergy()-fCentralValue ) <fWindow );
 }
 

@@ -79,7 +79,7 @@ Bool_t PndAnaPidCombiner::Apply ( RhoCandList& tcl )
   return check;
 }
 
-Bool_t PndAnaPidCombiner::Apply ( RhoCandidate& tc )
+Bool_t PndAnaPidCombiner::Apply ( RhoCandidate* tc )
 {
   // Apply the multiplied pdf's to the RhoCandidate
   // If on of the pdf's is not available, it is skipped
@@ -95,8 +95,8 @@ Bool_t PndAnaPidCombiner::Apply ( RhoCandidate& tc )
   // combine algorithms
   TClonesArray* aTca=0;
   PndPidProbability* aProb=0;
-  Int_t trackIndex = tc.GetTrackNumber();
-  //std::cout<<"PidCombiner: Try RhoCandidate uid:"<<tc.Uid()<<" trknr:"<<trackIndex<<std::endl;
+  Int_t trackIndex = tc->GetTrackNumber();
+  //std::cout<<"PidCombiner: Try RhoCandidate uid:"<<tc->Uid()<<" trknr:"<<trackIndex<<std::endl;
   //std::cout<<tc<<std::endl;
   fPidResult->SetIndex(trackIndex);
   if ( trackIndex<0 ) {
@@ -157,23 +157,23 @@ Bool_t PndAnaPidCombiner::Apply ( RhoCandidate& tc )
   //std::cout<<"PndAnaPisCombiner: scaled = ";  fPidResult->Print();
   // numbering see PndPidListMaker
   // No flux implemented! To come for each Detector!
-  tc.SetPidInfo ( 0,fPidResult->GetElectronPidProb() );
-  tc.SetPidInfo ( 1,fPidResult->GetMuonPidProb() );
-  tc.SetPidInfo ( 2,fPidResult->GetPionPidProb() );
-  tc.SetPidInfo ( 3,fPidResult->GetKaonPidProb() );
-  tc.SetPidInfo ( 4,fPidResult->GetProtonPidProb() );
+  tc->SetPidInfo ( 0,fPidResult->GetElectronPidProb() );
+  tc->SetPidInfo ( 1,fPidResult->GetMuonPidProb() );
+  tc->SetPidInfo ( 2,fPidResult->GetPionPidProb() );
+  tc->SetPidInfo ( 3,fPidResult->GetKaonPidProb() );
+  tc->SetPidInfo ( 4,fPidResult->GetProtonPidProb() );
   //std::cout<<"PndAnaPidCombiner: "<<tc<<std::endl;
   
   return check;
 }
 
-void PndAnaPidCombiner::ApplyFlat ( RhoCandidate& tc )
+void PndAnaPidCombiner::ApplyFlat ( RhoCandidate* tc )
 {
-  tc.SetPidInfo ( 0,1. );
-  tc.SetPidInfo ( 1,1. );
-  tc.SetPidInfo ( 2,1. );
-  tc.SetPidInfo ( 3,1. );
-  tc.SetPidInfo ( 4,1. );
+  tc->SetPidInfo ( 0,1. );
+  tc->SetPidInfo ( 1,1. );
+  tc->SetPidInfo ( 2,1. );
+  tc->SetPidInfo ( 3,1. );
+  tc->SetPidInfo ( 4,1. );
   return;
 }
 

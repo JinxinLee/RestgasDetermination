@@ -199,9 +199,9 @@ void PndMyAnalysisTask::Exec(Option_t* opt)
   // *** do the truth match for jpsi
   jpsi.SetType("J/psi");
   for (j=0; j<jpsi.GetLength(); ++j) {
-    hjpsim_nopid->Fill( jpsi[j].M() );
-    if (mcm->MctMatch(jpsi[j], mctrk)) { hjpsim_ftm->Fill( jpsi[j].M() ); }
-    else { hjpsim_nm->Fill( jpsi[j].M() ); }
+    hjpsim_nopid->Fill( jpsi[j]->M() );
+    if (mcm->MctMatch(jpsi[j], mctrk)) { hjpsim_ftm->Fill( jpsi[j]->M() ); }
+    else { hjpsim_nm->Fill( jpsi[j]->M() ); }
   }
 
   // *** do vertex fitting (J/psi)
@@ -209,7 +209,7 @@ void PndMyAnalysisTask::Exec(Option_t* opt)
     PndKinVtxFitter vtxfitter(jpsi[j]);        // instantiate a vertex fitter
 
     vtxfitter.Fit();
-    const RhoCandidate* jfit = jpsi[j].GetFit();  // access the fitted cand
+    const RhoCandidate* jfit = jpsi[j]->GetFit();  // access the fitted cand
     TVector3 jVtx=jfit->Pos();                         // and the decay vertex position
 
     double chi2_vtx=vtxfitter.GetChi2();            // access chi2 of fit
@@ -222,15 +222,15 @@ void PndMyAnalysisTask::Exec(Option_t* opt)
 
     bool match = mcm->MctMatch(jpsi[j], mctrk);
 
-    //ntp->Fill(jpsi[j].M(),jfit->M(),chi2_vtx,jVtx.X(),jVtx.Y(),jVtx.Z(),match);
+    //ntp->Fill(jpsi[j]->M(),jfit->M(),chi2_vtx,jVtx.X(),jVtx.Y(),jVtx.Z(),match);
 
-    RhoCandidate* ep = jpsi[j].Daughter(0);
-    RhoCandidate* em = jpsi[j].Daughter(1);
+    RhoCandidate* ep = jpsi[j]->Daughter(0);
+    RhoCandidate* em = jpsi[j]->Daughter(1);
 
-    ntp->Column("jpsim",  jpsi[j].M(),      -1.);
-    ntp->Column("jpsitht",  jpsi[j].P4().Theta(), -999.);
-    ntp->Column("jpsip",  jpsi[j].P(),      -1.);
-    ntp->Column("jpsiphi",  jpsi[j].P4().Phi(),   -999.);
+    ntp->Column("jpsim",  jpsi[j]->M(),      -1.);
+    ntp->Column("jpsitht",  jpsi[j]->P4().Theta(), -999.);
+    ntp->Column("jpsip",  jpsi[j]->P(),      -1.);
+    ntp->Column("jpsiphi",  jpsi[j]->P4().Phi(),   -999.);
 
     ntp->Column("eptht",  ep->P4().Theta(),   -999.);
     ntp->Column("epp",    ep->P(),        -1.);
@@ -269,17 +269,17 @@ void PndMyAnalysisTask::Exec(Option_t* opt)
   psi2s.SetType("psi(2S)0");
 
   for (j=0; j<psi2s.GetLength(); ++j) {
-    hpsim_nopid->Fill( psi2s[j].M() );
+    hpsim_nopid->Fill( psi2s[j]->M() );
     if (mcm->MctMatch(psi2s[j], mctrk)) {
-      hpsim_ftm->Fill( psi2s[j].M() );
+      hpsim_ftm->Fill( psi2s[j]->M() );
        
       ///TODO  recheck the MC truth access! Is the truth list available?
-      const RhoCandidate* truePsi = psi2s[j].GetMcTruth();
-      const RhoCandidate* trueJ   = psi2s[j].Daughter(0)->GetMcTruth();
+      const RhoCandidate* truePsi = psi2s[j]->GetMcTruth();
+      const RhoCandidate* trueJ   = psi2s[j]->Daughter(0)->GetMcTruth();
 
-      hjpsim_diff->Fill(trueJ->M()-psi2s[j].Daughter(0)->M());
-      hpsim_diff->Fill(truePsi->M()-psi2s[j].M());
-    } else { hpsim_nm->Fill( psi2s[j].M() ); }
+      hjpsim_diff->Fill(trueJ->M()-psi2s[j]->Daughter(0)->M());
+      hpsim_diff->Fill(truePsi->M()-psi2s[j]->M());
+    } else { hpsim_nm->Fill( psi2s[j]->M() ); }
   }
 
   // *** do 4c fit (initial psi(2S) system)
@@ -290,10 +290,10 @@ void PndMyAnalysisTask::Exec(Option_t* opt)
     double chi2_4c=fitter.GetChi2();
     hpsi_chi2_4c->Fill(chi2_4c);
 
-    const RhoCandidate* jfit = (psi2s[j].Daughter(0))->GetFit();
+    const RhoCandidate* jfit = (psi2s[j]->Daughter(0))->GetFit();
 
-    const RhoCandidate* epfit = (psi2s[j].Daughter(0)->Daughter(0))->GetFit();
-    const RhoCandidate* emfit = (psi2s[j].Daughter(0)->Daughter(1))->GetFit();
+    const RhoCandidate* epfit = (psi2s[j]->Daughter(0)->Daughter(0))->GetFit();
+    const RhoCandidate* emfit = (psi2s[j]->Daughter(0)->Daughter(1))->GetFit();
 
     TLorentzVector tlvepf = epfit->P4();
     TLorentzVector tlvemf = emfit->P4();
@@ -302,16 +302,16 @@ void PndMyAnalysisTask::Exec(Option_t* opt)
 
 
 
-    RhoCandidate* ep = psi2s[j].Daughter(0)->Daughter(0);
-    RhoCandidate* em = psi2s[j].Daughter(0)->Daughter(1);
-    RhoCandidate* pip = psi2s[j].Daughter(1);
-    RhoCandidate* pim = psi2s[j].Daughter(2);
-    RhoCandidate* jpsic = psi2s[j].Daughter(0);
+    RhoCandidate* ep = psi2s[j]->Daughter(0)->Daughter(0);
+    RhoCandidate* em = psi2s[j]->Daughter(0)->Daughter(1);
+    RhoCandidate* pip = psi2s[j]->Daughter(1);
+    RhoCandidate* pim = psi2s[j]->Daughter(2);
+    RhoCandidate* jpsic = psi2s[j]->Daughter(0);
 
     bool match = mcm->MctMatch(psi2s[j], mctrk);
     bool matchj = mcm->MctMatch(*jpsic, mctrk);
 
-    ntp2->Column("psim",    psi2s[j].M(),   -1.);
+    ntp2->Column("psim",    psi2s[j]->M(),   -1.);
     ntp2->Column("fcchi2",  chi2_4c,    9999.);
     ntp2->Column("psimct",   match,     kFALSE);
 
@@ -370,7 +370,7 @@ void PndMyAnalysisTask::Exec(Option_t* opt)
     double chi2_m = mfitter.GetChi2();
     hjpsi_chi2_mf->Fill(chi2_m);
 
-    if (chi2_m<2) { hjpsim_mcf->Fill(jpsi[j].M()); }
+    if (chi2_m<2) { hjpsim_mcf->Fill(jpsi[j]->M()); }
   }
 
   // *** do MC truth match for PID type
@@ -381,12 +381,12 @@ void PndMyAnalysisTask::Exec(Option_t* opt)
 
   // *** all combinatorics again with true PID
   jpsi.Combine(eplus, eminus);
-  for (j=0; j<jpsi.GetLength(); ++j) { hjpsim_tpid->Fill( jpsi[j].M() ); }
+  for (j=0; j<jpsi.GetLength(); ++j) { hjpsim_tpid->Fill( jpsi[j]->M() ); }
 
   //jpsi.Select(jpsiMassSel);
 
   psi2s.Combine(jpsi, piplus, piminus);
-  for (j=0; j<psi2s.GetLength(); ++j) { hpsim_tpid->Fill( psi2s[j].M() ); }
+  for (j=0; j<psi2s.GetLength(); ++j) { hpsim_tpid->Fill( psi2s[j]->M() ); }
 
   // *** and again with PidAlgoEmcBayes and loose selection
   theAnalysis->FillList(eplus, "ElectronLoosePlus","PidAlgoEmcBayes");
@@ -395,13 +395,13 @@ void PndMyAnalysisTask::Exec(Option_t* opt)
   theAnalysis->FillList(piminus, "PionLooseMinus","PidAlgoEmcBayes");
 
   jpsi.Combine(eplus, eminus);
-  for (j=0; j<jpsi.GetLength(); ++j) { hjpsim_lpid->Fill( jpsi[j].M() ); }
+  for (j=0; j<jpsi.GetLength(); ++j) { hjpsim_lpid->Fill( jpsi[j]->M() ); }
 
   //jpsi.Select(jpsiMassSel);
   //SelectMass(jpsi,3.096,1.0);
 
   psi2s.Combine(jpsi, piplus, piminus);
-  for (j=0; j<psi2s.GetLength(); ++j) { hpsim_lpid->Fill( psi2s[j].M() ); }
+  for (j=0; j<psi2s.GetLength(); ++j) { hpsim_lpid->Fill( psi2s[j]->M() ); }
 
 }
 // -------------------------------------------------------------------------
@@ -410,7 +410,7 @@ void PndMyAnalysisTask::FillMassHisto(TH1F* h, RhoCandList& l)
 {
   Int_t i=0;
   for (i=0; i<l.GetLength(); ++i) {
-    h->Fill(l[i].M());
+    h->Fill(l[i]->M());
   }
 }
 
@@ -424,10 +424,10 @@ int PndMyAnalysisTask::SelectPdgCode(RhoCandList& mct, RhoCandList& l)
 
   //PndMcTruthMatch mcm;
 
-  if (l.GetLength()>0) { pdgcode = l[0].PdgCode(); }
+  if (l.GetLength()>0) { pdgcode = l[0]->PdgCode(); }
 
   for (int ii=0; ii<l.GetLength(); ++ii) {
-    RhoCandidate* mccnd = l[ii].GetMcTruth();
+    RhoCandidate* mccnd = l[ii]->GetMcTruth();
     if (mccnd)
       if(mccnd->PdgCode()==pdgcode)
         continue; // we skip if things are allright and remove if not

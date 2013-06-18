@@ -146,6 +146,7 @@ class RhoCandidate : public TObject
 
     /** Copy ctor */
     RhoCandidate ( const RhoCandidate& );
+    //RhoCandidate ( const RhoCandidate* );
 
     // Special constructor from MicroCandidate
     RhoCandidate ( FairRecoCandidate& a, Int_t n, RhoVector3Err* vp=0, Bool_t fast= kFALSE );
@@ -269,6 +270,7 @@ class RhoCandidate : public TObject
     // access to daughters
     Int_t NDaughters() const;
     //RhoCandListIterator DaughterIterator() const;
+    const RhoCandidate* Daughter ( Int_t n ) const;
     RhoCandidate* Daughter ( Int_t n );
     void RemoveAssociations();
 
@@ -307,10 +309,10 @@ class RhoCandidate : public TObject
     Bool_t IsCloneOf ( const RhoCandidate&, Bool_t checkType = kFALSE ) const;
 
     // two Candidates are equal if they share the same Base
-    Bool_t operator== ( const RhoCandidate& ) const;
+    Bool_t operator== ( const RhoCandidate* ) const;
 
     // and different if they don not
-    Bool_t operator!= ( const RhoCandidate& ) const;
+    Bool_t operator!= (  RhoCandidate* ) const;
 
     // this function returns the pointer of the first clone
     // of a given Candidate found in the decay tree of the
@@ -383,14 +385,14 @@ class RhoCandidate : public TObject
     // reconstructed object, or having daughters
     // that are overlapping
 
-    Bool_t Overlaps ( const RhoCandidate& c ) const {
-      return ( ( fMarker[0] & c.fMarker[0] ) !=0 || ( fMarker[1] & c.fMarker[1] ) !=0 ||
-               ( fMarker[2] & c.fMarker[2] ) !=0 || ( fMarker[3] & c.fMarker[3] ) !=0 );
+    Bool_t Overlaps ( const RhoCandidate* c ) const {
+      return ( ( fMarker[0] & c->fMarker[0] ) !=0 || ( fMarker[1] & c->fMarker[1] ) !=0 ||
+               ( fMarker[2] & c->fMarker[2] ) !=0 || ( fMarker[3] & c->fMarker[3] ) !=0 );
     }
 
-    Bool_t Equals ( const RhoCandidate& c ) const {
-      return ( ( fMarker[0] == c.fMarker[0] ) && ( fMarker[1] == c.fMarker[1] ) &&
-               ( fMarker[2] == c.fMarker[2] ) && ( fMarker[3] == c.fMarker[3] ) );
+    Bool_t Equals ( const RhoCandidate* c ) const {
+      return ( ( fMarker[0] == c->fMarker[0] ) && ( fMarker[1] == c->fMarker[1] ) &&
+               ( fMarker[2] == c->fMarker[2] ) && ( fMarker[3] == c->fMarker[3] ) );
     }
 
     UInt_t GetMarker ( UInt_t m=0 ) const {
@@ -424,7 +426,7 @@ class RhoCandidate : public TObject
     //void SetMcIdx ( int idx ) {fMcIdx=idx;}
     //int GetMcIdx() {return fMcIdx;}
     void SetMcTruth ( RhoCandidate* mct ) {fMcTruth=mct;}
-    RhoCandidate* GetMcTruth() {return fMcTruth;}
+    RhoCandidate* GetMcTruth() const {return fMcTruth;}
 
     Bool_t IsLocal() const { return kTRUE; }
 

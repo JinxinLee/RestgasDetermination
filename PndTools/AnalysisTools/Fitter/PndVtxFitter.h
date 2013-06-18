@@ -19,7 +19,7 @@
 class PndVtxFitter : public RhoFitterBase
 {
   public:
-    PndVtxFitter( RhoCandidate& b ) ;
+    PndVtxFitter( RhoCandidate* b ) ;
     virtual ~PndVtxFitter();// {if(fHeadOfTree) delete fHeadOfTree;}
     void FitNode(RhoCandidate* b);
 

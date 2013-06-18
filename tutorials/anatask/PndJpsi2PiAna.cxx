@@ -97,27 +97,27 @@ void PndJpsi2PiAna::Exec(Option_t* opt)
 	
 /*	cout <<jpsi.GetLength();*/
 	
-	for (j=0;j<jpsi.GetLength();++j) jpsimass->Fill(jpsi[j].M());
+	for (j=0;j<jpsi.GetLength();++j) jpsimass->Fill(jpsi[j]->M());
 	//jpsi.Select(jpsiMSel);
 	
-	for (j=0;j<mc.GetLength();++j) mcmass->Fill(mc[j].M());
+	for (j=0;j<mc.GetLength();++j) mcmass->Fill(mc[j]->M());
 	
 	pp.Combine(jpsi,pip,pim);
 		
 	for (j=0;j<pp.GetLength();++j)
 	{
-			ppmass->Fill(pp[j].M());
+			ppmass->Fill(pp[j]->M());
 			
 			//do the 4C fit on the pbar p System
 			Pnd4CFitter fitter(pp[j],ini);
 			
 			fitter.FitConserveMasses();
 			
-            RhoCandidate *ppfit=pp[j].GetFit();
+            RhoCandidate *ppfit=pp[j]->GetFit();
 			ppmassf->Fill(ppfit->M());
 			
-            RhoCandidate *epfit=(pp[j].Daughter(0)->Daughter(0))->GetFit();
-            RhoCandidate *emfit=(pp[j].Daughter(0)->Daughter(1))->GetFit();
+            RhoCandidate *epfit=(pp[j]->Daughter(0)->Daughter(0))->GetFit();
+            RhoCandidate *emfit=(pp[j]->Daughter(0)->Daughter(1))->GetFit();
 			
 			TLorentzVector sum=epfit->P4()+emfit->P4();
 			

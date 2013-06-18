@@ -33,20 +33,20 @@ RhoNeutralParticleSelector::RhoNeutralParticleSelector ( const char* name, const
   RhoParticleSelectorBase ( name,type )
 {}
 
-Bool_t RhoNeutralParticleSelector::Accept ( RhoCandidate& b )
+Bool_t RhoNeutralParticleSelector::Accept ( RhoCandidate* b )
 {
-  if ( &b == 0 ) { return kFALSE; }
-  if ( b.GetCharge() !=0 ) { return kFALSE; }
+  if ( b == 0 ) { return kFALSE; }
+  if ( b->GetCharge() !=0 ) { return kFALSE; }
   SetTypeAndMass ( b );
 
   return kTRUE;
 }
 
-Bool_t RhoNeutralParticleSelector::Accept ( FairRecoCandidate& b )
+Bool_t RhoNeutralParticleSelector::Accept ( FairRecoCandidate* b )
 {
   Bool_t decision = kFALSE;
-  if ( &b == 0 ) { return kFALSE; }
-  if ( b.GetCharge() ==0 ) { decision = kTRUE; }
+  if ( b == 0 ) { return kFALSE; }
+  if ( b->GetCharge() ==0 ) { decision = kTRUE; }
   return decision;
 }
 

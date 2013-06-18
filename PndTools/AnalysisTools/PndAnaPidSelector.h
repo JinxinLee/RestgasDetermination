@@ -28,8 +28,8 @@ class PndAnaPidSelector : public RhoParticleSelectorBase
     virtual ~PndAnaPidSelector() {}
 
     //operations
-    virtual Bool_t Accept(RhoCandidate& b);
-    virtual Bool_t Accept(FairRecoCandidate& b);
+    virtual Bool_t Accept(RhoCandidate* b);
+    virtual Bool_t Accept(FairRecoCandidate* b);
     Bool_t SetCriterion(TString& crit) {return SetSelection(crit);};
     Bool_t SetSelection(TString& crit);
 

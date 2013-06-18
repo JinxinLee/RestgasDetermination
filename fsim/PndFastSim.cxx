@@ -564,7 +564,7 @@ void PndFastSim::Exec(Option_t* opt)
 		
       RhoCandidate tcand(ft->p4(),ft->charge(),svtx);
 		
-      l.Add(tcand);
+      l.Add(&tcand);
     
       /*	
       tcand=new (pndCandidates[pndcandsize]) RhoCandidate(ft->p4(),ft->charge(),svtx);
@@ -630,7 +630,7 @@ void PndFastSim::Exec(Option_t* opt)
           nNeutral++;
 
           
-          l.Add(tCand);          
+          l.Add(&tCand);          
           
           delete svtx2;
           //tcand=new (pndCandidates[pndCandidates.GetEntriesFast()]) RhoCandidate(lv,0.0);

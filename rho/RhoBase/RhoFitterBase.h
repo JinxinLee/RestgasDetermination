@@ -12,6 +12,7 @@
 //                                                                      //
 //////////////////////////////////////////////////////////////////////////
 
+#include<map>
 #include "TObject.h"
 #include "TVectorD.h"
 #include "TMath.h"
@@ -25,7 +26,7 @@ class RhoFitterBase: public TObject // TOperatorBase
     *    constructor
     */
     RhoFitterBase() {};
-    RhoFitterBase ( RhoCandidate& decayTree );
+    RhoFitterBase ( RhoCandidate* decayTree );
     // copy constructor
     RhoFitterBase ( const RhoFitterBase& );
 
@@ -43,12 +44,12 @@ class RhoFitterBase: public TObject // TOperatorBase
     */
 //    const RhoCandidate* FittedCand ( const RhoCandidate& ) const;
 //    RhoCandidate GetFitted ( const RhoCandidate& ) const;
-    double Chi2Contribution ( const RhoCandidate& ) const;
+    double Chi2Contribution ( const RhoCandidate* ) ;
     double GetChi2() const {return fChiSquare;};
     int    GetNdf()  const {return fNDegreesOfFreedom;};
     double GetProb() const {return TMath::Prob(fChiSquare,fNDegreesOfFreedom);};
 
-    inline void SetVerbose() {fVerbose=kTRUE;}
+    inline void SetVerbose(Bool_t v=kTRUE) {fVerbose=v;}
 
   protected:
 
@@ -59,10 +60,10 @@ class RhoFitterBase: public TObject // TOperatorBase
     
     // the clone of the tree.
     RhoCandidate* fHeadOfTree;                      //! uppermost particle composite in tree
-    RhoCandidate* CopyCand ( RhoCandidate& );
-    //Bool_t CopyDaughters ( RhoCandidate& );
-    RhoCandidate* CopyTree ( RhoCandidate& );
-    void InsertChi2 ( const RhoCandidate& bc,const double& chi2 ) {fChi2Map ( bc.Uid() ) = chi2;}
+    RhoCandidate* CopyCand ( RhoCandidate* );
+    //Bool_t CopyDaughters ( RhoCandidate* );
+    RhoCandidate* CopyTree ( RhoCandidate* );
+    void InsertChi2 ( const RhoCandidate* bc,const double chi2 ) {fChi2Map[ bc->Uid()] = chi2;}
     
     //Helpers for final state fitting
     std::vector<RhoCandidate*>   fDaughters;
@@ -75,7 +76,7 @@ class RhoFitterBase: public TObject // TOperatorBase
 
   private:
     // helper function
-    TVectorD fChi2Map; //each particle's contribution to the chi^2
+    std::map<Int_t,Double_t> fChi2Map; //each particle's contribution to the chi^2
     void IterateAndFit(RhoCandidate* b);  // iterate the decay tree and fit each node recoursively
 
     

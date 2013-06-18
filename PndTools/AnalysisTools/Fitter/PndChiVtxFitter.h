@@ -24,7 +24,7 @@ class RhoCandidate;
 class PndChiVtxFitter : public RhoFitterBase
 {
   public:
-    PndChiVtxFitter( RhoCandidate& b) ;
+    PndChiVtxFitter( RhoCandidate* b) ;
     virtual ~PndChiVtxFitter();// {if(fHeadOfTree) delete fHeadOfTree;}
 //   void AddMassConstraint(double mass);
 //   void AddPointingConstraint(TVector3 pVtx);

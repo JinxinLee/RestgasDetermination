@@ -102,8 +102,8 @@ void RhoParticleSelectorBase::Select ( RhoCandList& in, RhoCandList& out )
   out.Cleanup();
   Int_t n = in.GetLength();
   for ( Int_t i=0; i<n; i++ ) {
-    RhoCandidate& c = in[i];
-    
+    RhoCandidate* c = in[i];
+
     if ( Accept ( c ) ) { 
       //printf("selector \"%s\" accepted i=%i\n",fName.Data(),i);
       out.Put ( c ); 
@@ -139,17 +139,17 @@ RhoParticleSelectorBase::CPConjugate ( TParticlePDG* thePart )
 }
 
 void
-RhoParticleSelectorBase::SetTypeAndMass ( RhoCandidate& b )
+RhoParticleSelectorBase::SetTypeAndMass ( RhoCandidate* b )
 {
-  if ( &b == 0 ) { return; }
+  if ( b == 0 ) { return; }
   // Set the particle type
-  if ( b.GetCharge() >0.1 ) {
+  if ( b->GetCharge() >0.1 ) {
     if ( fTypePlus == 0 ) { return; }
-    b.SetType ( fTypePlus );
-    b.SetMass ( fTypePlus->Mass() );
+    b->SetType ( fTypePlus );
+    b->SetMass ( fTypePlus->Mass() );
   } else {
     if ( fTypeMinus == 0 ) { return; }
-    b.SetType ( fTypeMinus );
-    b.SetMass ( fTypeMinus->Mass() );
+    b->SetType ( fTypeMinus );
+    b->SetMass ( fTypeMinus->Mass() );
   }
 }

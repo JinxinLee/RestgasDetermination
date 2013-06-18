@@ -39,7 +39,7 @@ RhoCandList::RhoCandList ( RhoCandList& l )
   Cleanup();
   const Int_t n = l.GetLength();
   for ( int i=0; i<n; i++ ) {
-    Put ( *l.Get ( i ) );
+    Put ( l.Get ( i ) );
   }
 }
 
@@ -72,7 +72,7 @@ Int_t RhoCandList::GetNumberOfTracks() const
   return fOwnList->GetLast() +1;
 }
 
-void RhoCandList::Put ( const RhoCandidate& c, Int_t i )
+void RhoCandList::Put ( const RhoCandidate* c, Int_t i )
 {
   RhoCandidate* newCand = RhoFactory::Instance()->NewCandidate ( c );
   if ( i<0 ) {
@@ -82,9 +82,9 @@ void RhoCandList::Put ( const RhoCandidate& c, Int_t i )
   }
 }
 
-void RhoCandList::InsertAt ( Int_t i, const RhoCandidate& c )
+void RhoCandList::InsertAt ( Int_t i, const RhoCandidate* c )
 {
-  fOwnList->AddAtAndExpand ( ( TObject* ) &c,i );
+  fOwnList->AddAtAndExpand ( ( TObject* ) c,i );
   Put ( c,i );
 }
 
@@ -119,7 +119,7 @@ void RhoCandList::FillFittedList(RhoCandList &fittedlist)
   fittedlist.Cleanup();
   for(int j=0;j<GetNumberOfTracks();j++) {
     aFit = GetConst(j)->GetFit();
-    if(aFit) fittedlist.Add(*aFit);
+    if(aFit) fittedlist.Add(aFit);
   }
   return;
 }
@@ -127,7 +127,7 @@ void RhoCandList::FillFittedList(RhoCandList &fittedlist)
 
 // Compare the marker and remove corresponding entry (MK,12/99)
 // This allows to remove objects in several lists
-Int_t RhoCandList::Remove ( RhoCandidate& c )
+Int_t RhoCandList::Remove ( RhoCandidate* c )
 {
   Int_t nRemoved = 0;
   Int_t n = GetNumberOfTracks();
@@ -142,7 +142,7 @@ Int_t RhoCandList::Remove ( RhoCandidate& c )
   return nRemoved;
 }
 
-Int_t RhoCandList::RemoveFamily ( RhoCandidate& c )
+Int_t RhoCandList::RemoveFamily ( RhoCandidate* c )
 {
   Int_t nRemoved = 0;
   Int_t n = GetNumberOfTracks();
@@ -167,7 +167,7 @@ Int_t RhoCandList::RemoveClones()
     for ( Int_t j=i+1; j<n; ++j ) {
       RhoCandidate* c = Get ( j );
       if ( c==0 ) { continue; }
-      if ( b->Equals ( *c ) ) {
+      if ( b->Equals ( c ) ) {
         fOwnList->RemoveAt ( j );
         nRemoved++;
       }
@@ -177,7 +177,7 @@ Int_t RhoCandList::RemoveClones()
   return nRemoved;
 }
 
-Int_t RhoCandList::OccurrencesOf ( RhoCandidate& c )
+Int_t RhoCandList::OccurrencesOf ( RhoCandidate* c )
 {
   Int_t nCand = 0;
   const Int_t n = GetNumberOfTracks();
@@ -251,13 +251,13 @@ void RhoCandList::operator = ( const RhoCandList& l )
   Cleanup();
   const Int_t n = l.GetNumberOfTracks();
   for ( int i=0; i<n; i++ ) {
-    Put ( *l.GetConst ( i ) );
+    Put ( l.GetConst( i ) );
   }
 }
 
-RhoCandidate& RhoCandList::operator[] ( Int_t i )
+RhoCandidate* RhoCandList::operator[] ( Int_t i )
 {
-  return *Get ( i );
+  return Get(i);
 }
 
 void RhoCandList::SetType ( const TParticlePDG* pdt )
@@ -324,23 +324,23 @@ void RhoCandList::CombineAndAppend ( RhoCandList& l1, RhoCandList& l2,RhoVertexS
     if ( &l1==&l2 ) { st2=i1+1; }
 
     for ( i2=st2; i2<len2; i2++ ) {
-      if ( l1[i1].Overlaps ( l2[i2] ) ) { continue; }
+      if ( l1[i1]->Overlaps ( l2[i2] ) ) { continue; }
 
-      vl=l1[i1].P4() +l2[i2].P4();
-      charge=l1[i1].Charge() +l2[i2].Charge();
+      vl=l1[i1]->P4() +l2[i2]->P4();
+      charge=l1[i1]->Charge() +l2[i2]->Charge();
       if ( selector ) { nearby = selector->Accept ( l1[i1],l2[i2] ); }
       if ( !nearby ) { continue; }
 
       RhoCandidate c ( vl,charge );
-      c.SetCovP4 ( l1[i1].P4Cov() +l2[i2].P4Cov() );
+      c.SetCovP4 ( l1[i1]->P4Cov() +l2[i2]->P4Cov() );
 
-      c.SetMarker ( l1[i1].GetMarker ( 0 ) |l2[i2].GetMarker ( 0 ),0 );
-      c.SetMarker ( l1[i1].GetMarker ( 1 ) |l2[i2].GetMarker ( 1 ),1 );
-      c.SetMarker ( l1[i1].GetMarker ( 2 ) |l2[i2].GetMarker ( 2 ),2 );
-      c.SetMarker ( l1[i1].GetMarker ( 3 ) |l2[i2].GetMarker ( 3 ),3 );
+      c.SetMarker ( l1[i1]->GetMarker ( 0 ) |l2[i2]->GetMarker ( 0 ),0 );
+      c.SetMarker ( l1[i1]->GetMarker ( 1 ) |l2[i2]->GetMarker ( 1 ),1 );
+      c.SetMarker ( l1[i1]->GetMarker ( 2 ) |l2[i2]->GetMarker ( 2 ),2 );
+      c.SetMarker ( l1[i1]->GetMarker ( 3 ) |l2[i2]->GetMarker ( 3 ),3 );
 
-     c.AddDaughterLinkSimple ( & ( l1[i1] ) );
-     c.AddDaughterLinkSimple ( & ( l2[i2] ) );
+     c.AddDaughterLinkSimple(l1[i1]) ;
+     c.AddDaughterLinkSimple(l2[i2]) ;
 
 //       c.AddDaughterLink ( & ( l1[i1] ) );
 //       c.AddDaughterLink ( & ( l2[i2] ) );
@@ -351,7 +351,7 @@ void RhoCandList::CombineAndAppend ( RhoCandList& l1, RhoCandList& l2,RhoVertexS
         c.SetEnergy ( c.E() );
       }
 
-      Put ( c );
+      Put ( &c );
     }
   }
 
@@ -375,37 +375,37 @@ void RhoCandList::CombineAndAppend ( RhoCandList& l1, RhoCandList& l2, RhoCandLi
     if ( &l2==&l1 ) { st2=i1+1; }
 
     for ( i2=st2; i2<len2; i2++ ) {
-      if ( l1[i1].Overlaps ( l2[i2] ) ) { continue; }
+      if ( l1[i1]->Overlaps ( l2[i2] ) ) { continue; }
 
       st3=0;
       if ( &l3==&l2 ) { st3=i2+1; }
       else if ( &l3==&l1 ) { st3=i1+1; }
 
       for ( i3=st3; i3<len3; i3++ ) {
-        if ( l3[i3].Overlaps ( l2[i2] ) || l3[i3].Overlaps ( l1[i1] ) ) { continue; }
+        if ( l3[i3]->Overlaps ( l2[i2] ) || l3[i3]->Overlaps ( l1[i1] ) ) { continue; }
 
-        vl=l1[i1].P4() +l2[i2].P4() +l3[i3].P4();
-        charge=l1[i1].Charge() +l2[i2].Charge() +l3[i3].Charge();
+        vl=l1[i1]->P4() +l2[i2]->P4() +l3[i3]->P4();
+        charge=l1[i1]->Charge() +l2[i2]->Charge() +l3[i3]->Charge();
         if ( selector ) { nearby = selector->Accept ( l1[i1],l2[i2],l3[i3] ); }
         if ( !nearby ) { continue; }
 
         RhoCandidate c ( vl,charge );
-        c.SetCovP4 ( l1[i1].P4Cov() +l2[i2].P4Cov() +l3[i3].P4Cov() );
+        c.SetCovP4 ( l1[i1]->P4Cov() +l2[i2]->P4Cov() +l3[i3]->P4Cov() );
 
-        c.SetMarker ( l1[i1].GetMarker ( 0 ) |l2[i2].GetMarker ( 0 ) |l3[i3].GetMarker ( 0 ),0 );
-        c.SetMarker ( l1[i1].GetMarker ( 1 ) |l2[i2].GetMarker ( 1 ) |l3[i3].GetMarker ( 1 ),1 );
-        c.SetMarker ( l1[i1].GetMarker ( 2 ) |l2[i2].GetMarker ( 2 ) |l3[i3].GetMarker ( 2 ),2 );
-        c.SetMarker ( l1[i1].GetMarker ( 3 ) |l2[i2].GetMarker ( 3 ) |l3[i3].GetMarker ( 3 ),3 );
+        c.SetMarker ( l1[i1]->GetMarker ( 0 ) |l2[i2]->GetMarker ( 0 ) |l3[i3]->GetMarker ( 0 ),0 );
+        c.SetMarker ( l1[i1]->GetMarker ( 1 ) |l2[i2]->GetMarker ( 1 ) |l3[i3]->GetMarker ( 1 ),1 );
+        c.SetMarker ( l1[i1]->GetMarker ( 2 ) |l2[i2]->GetMarker ( 2 ) |l3[i3]->GetMarker ( 2 ),2 );
+        c.SetMarker ( l1[i1]->GetMarker ( 3 ) |l2[i2]->GetMarker ( 3 ) |l3[i3]->GetMarker ( 3 ),3 );
 
-       c.AddDaughterLinkSimple ( & ( l1[i1] ) );
-       c.AddDaughterLinkSimple ( & ( l2[i2] ) );
-       c.AddDaughterLinkSimple ( & ( l3[i3] ) );
+       c.AddDaughterLinkSimple ( l1[i1] );
+       c.AddDaughterLinkSimple ( l2[i2] );
+       c.AddDaughterLinkSimple ( l3[i3] );
 
 //         c.AddDaughterLink ( & ( l1[i1] ) );
 //         c.AddDaughterLink ( & ( l2[i2] ) );
 //         c.AddDaughterLink ( & ( l3[i3] ) );
 
-        Put ( c );
+        Put ( &c );
       }
     }
   }
@@ -430,14 +430,14 @@ void RhoCandList::CombineAndAppend ( RhoCandList& l1, RhoCandList& l2, RhoCandLi
     if ( &l2==&l1 ) { st2=i1+1; }
 
     for ( i2=st2; i2<len2; i2++ ) {
-      if ( l1[i1].Overlaps ( l2[i2] ) ) { continue; }
+      if ( l1[i1]->Overlaps ( l2[i2] ) ) { continue; }
 
       st3=0;
       if ( &l3==&l2 ) { st3=i2+1; }
       else if ( &l3==&l1 ) { st3=i1+1; }
 
       for ( i3=st3; i3<len3; i3++ ) {
-        if ( l3[i3].Overlaps ( l2[i2] ) || l3[i3].Overlaps ( l1[i1] ) ) { continue; }
+        if ( l3[i3]->Overlaps ( l2[i2] ) || l3[i3]->Overlaps ( l1[i1] ) ) { continue; }
 
         st4=0;
         if ( &l4==&l3 ) { st4=i3+1; }
@@ -445,32 +445,32 @@ void RhoCandList::CombineAndAppend ( RhoCandList& l1, RhoCandList& l2, RhoCandLi
         else if ( &l4==&l1 ) { st4=i1+1; }
 
         for ( i4=st4; i4<len4; i4++ ) {
-          if ( l4[i4].Overlaps ( l3[i3] ) || l4[i4].Overlaps ( l2[i2] ) || l4[i4].Overlaps ( l1[i1] ) ) { continue; }
+          if ( l4[i4]->Overlaps ( l3[i3] ) || l4[i4]->Overlaps ( l2[i2] ) || l4[i4]->Overlaps ( l1[i1] ) ) { continue; }
 
-          vl=l1[i1].P4() +l2[i2].P4() +l3[i3].P4() +l4[i4].P4();
-          charge=l1[i1].Charge() +l2[i2].Charge() +l3[i3].Charge() +l4[i4].Charge();
+          vl=l1[i1]->P4() +l2[i2]->P4() +l3[i3]->P4() +l4[i4]->P4();
+          charge=l1[i1]->Charge() +l2[i2]->Charge() +l3[i3]->Charge() +l4[i4]->Charge();
           if ( selector ) { nearby = selector->Accept ( l1[i1],l2[i2],l3[i3],l4[i4] ); }
           if ( !nearby ) { continue; }
 
           RhoCandidate c ( vl,charge );
-          c.SetCovP4 ( l1[i1].P4Cov() +l2[i2].P4Cov() +l3[i3].P4Cov() +l4[i4].P4Cov() );
+          c.SetCovP4 ( l1[i1]->P4Cov() +l2[i2]->P4Cov() +l3[i3]->P4Cov() +l4[i4]->P4Cov() );
 
-          c.SetMarker ( l1[i1].GetMarker ( 0 ) |l2[i2].GetMarker ( 0 ) |l3[i3].GetMarker ( 0 ) |l4[i4].GetMarker ( 0 ),0 );
-          c.SetMarker ( l1[i1].GetMarker ( 1 ) |l2[i2].GetMarker ( 1 ) |l3[i3].GetMarker ( 1 ) |l4[i4].GetMarker ( 1 ),1 );
-          c.SetMarker ( l1[i1].GetMarker ( 2 ) |l2[i2].GetMarker ( 2 ) |l3[i3].GetMarker ( 2 ) |l4[i4].GetMarker ( 2 ),2 );
-          c.SetMarker ( l1[i1].GetMarker ( 3 ) |l2[i2].GetMarker ( 3 ) |l3[i3].GetMarker ( 3 ) |l4[i4].GetMarker ( 3 ),3 );
+          c.SetMarker ( l1[i1]->GetMarker ( 0 ) |l2[i2]->GetMarker ( 0 ) |l3[i3]->GetMarker ( 0 ) |l4[i4]->GetMarker ( 0 ),0 );
+          c.SetMarker ( l1[i1]->GetMarker ( 1 ) |l2[i2]->GetMarker ( 1 ) |l3[i3]->GetMarker ( 1 ) |l4[i4]->GetMarker ( 1 ),1 );
+          c.SetMarker ( l1[i1]->GetMarker ( 2 ) |l2[i2]->GetMarker ( 2 ) |l3[i3]->GetMarker ( 2 ) |l4[i4]->GetMarker ( 2 ),2 );
+          c.SetMarker ( l1[i1]->GetMarker ( 3 ) |l2[i2]->GetMarker ( 3 ) |l3[i3]->GetMarker ( 3 ) |l4[i4]->GetMarker ( 3 ),3 );
 
-          c.AddDaughterLinkSimple ( & ( l1[i1] ) );
-          c.AddDaughterLinkSimple ( & ( l2[i2] ) );
-          c.AddDaughterLinkSimple ( & ( l3[i3] ) );
-          c.AddDaughterLinkSimple ( & ( l4[i4] ) );
+          c.AddDaughterLinkSimple (  l1[i1] );
+          c.AddDaughterLinkSimple (  l2[i2] );
+          c.AddDaughterLinkSimple (  l3[i3] );
+          c.AddDaughterLinkSimple (  l4[i4] );
 
 //           c.AddDaughterLink ( & ( l1[i1] ) );
 //           c.AddDaughterLink ( & ( l2[i2] ) );
 //           c.AddDaughterLink ( & ( l3[i3] ) );
 //           c.AddDaughterLink ( & ( l4[i4] ) );
 
-          Put ( c );
+          Put ( &c );
         }
       }
     }
@@ -497,14 +497,14 @@ void RhoCandList::CombineAndAppend ( RhoCandList& l1, RhoCandList& l2, RhoCandLi
     if ( &l2==&l1 ) { st2=i1+1; }
 
     for ( i2=st2; i2<len2; i2++ ) {
-      if ( l1[i1].Overlaps ( l2[i2] ) ) { continue; }
+      if ( l1[i1]->Overlaps ( l2[i2] ) ) { continue; }
 
       st3=0;
       if ( &l3==&l2 ) { st3=i2+1; }
       else if ( &l3==&l1 ) { st3=i1+1; }
 
       for ( i3=st3; i3<len3; i3++ ) {
-        if ( l3[i3].Overlaps ( l2[i2] ) || l3[i3].Overlaps ( l1[i1] ) ) { continue; }
+        if ( l3[i3]->Overlaps ( l2[i2] ) || l3[i3]->Overlaps ( l1[i1] ) ) { continue; }
 
         st4=0;
         if ( &l4==&l3 ) { st4=i3+1; }
@@ -512,7 +512,7 @@ void RhoCandList::CombineAndAppend ( RhoCandList& l1, RhoCandList& l2, RhoCandLi
         else if ( &l4==&l1 ) { st4=i1+1; }
 
         for ( i4=st4; i4<len4; i4++ ) {
-          if ( l4[i4].Overlaps ( l3[i3] ) || l4[i4].Overlaps ( l2[i2] ) || l4[i4].Overlaps ( l1[i1] ) ) { continue; }
+          if ( l4[i4]->Overlaps ( l3[i3] ) || l4[i4]->Overlaps ( l2[i2] ) || l4[i4]->Overlaps ( l1[i1] ) ) { continue; }
 
           st5=0;
           if ( &l5==&l4 ) { st5=i4+1; }
@@ -521,31 +521,31 @@ void RhoCandList::CombineAndAppend ( RhoCandList& l1, RhoCandList& l2, RhoCandLi
           else if ( &l5==&l1 ) { st5=i1+1; }
 
           for ( i5=st5; i5<len5; i5++ ) {
-            if ( l5[i5].Overlaps ( l4[i4] ) || l5[i5].Overlaps ( l3[i3] )
-                 || l5[i5].Overlaps ( l2[i2] ) || l5[i5].Overlaps ( l1[i1] ) ) { continue; }
+            if ( l5[i5]->Overlaps ( l4[i4] ) || l5[i5]->Overlaps ( l3[i3] )
+                 || l5[i5]->Overlaps ( l2[i2] ) || l5[i5]->Overlaps ( l1[i1] ) ) { continue; }
 
-            vl=l1[i1].P4() +l2[i2].P4() +l3[i3].P4() +l4[i4].P4() +l5[i5].P4();
-            charge=l1[i1].Charge() +l2[i2].Charge() +l3[i3].Charge() +l4[i4].Charge() +l5[i5].Charge();
+            vl=l1[i1]->P4() +l2[i2]->P4() +l3[i3]->P4() +l4[i4]->P4() +l5[i5]->P4();
+            charge=l1[i1]->Charge() +l2[i2]->Charge() +l3[i3]->Charge() +l4[i4]->Charge() +l5[i5]->Charge();
             if ( selector ) { nearby = selector->Accept ( l1[i1],l2[i2],l3[i3],l4[i4],l5[i5] ); }
             if ( !nearby ) { continue; }
 
             RhoCandidate c ( vl,charge );
-            c.SetCovP4 ( l1[i1].P4Cov() +l2[i2].P4Cov() +l3[i3].P4Cov() +l4[i4].P4Cov() +l5[i5].P4Cov() );
+            c.SetCovP4 ( l1[i1]->P4Cov() +l2[i2]->P4Cov() +l3[i3]->P4Cov() +l4[i4]->P4Cov() +l5[i5]->P4Cov() );
 
-            c.SetMarker ( l1[i1].GetMarker ( 0 ) |l2[i2].GetMarker ( 0 )
-                          |l3[i3].GetMarker ( 0 ) |l4[i4].GetMarker ( 0 ) |l5[i5].GetMarker ( 0 ),0 );
-            c.SetMarker ( l1[i1].GetMarker ( 1 ) |l2[i2].GetMarker ( 1 )
-                          |l3[i3].GetMarker ( 1 ) |l4[i4].GetMarker ( 1 ) |l5[i5].GetMarker ( 1 ),1 );
-            c.SetMarker ( l1[i1].GetMarker ( 2 ) |l2[i2].GetMarker ( 2 )
-                          |l3[i3].GetMarker ( 2 ) |l4[i4].GetMarker ( 2 ) |l5[i5].GetMarker ( 2 ),2 );
-            c.SetMarker ( l1[i1].GetMarker ( 3 ) |l2[i2].GetMarker ( 3 )
-                          |l3[i3].GetMarker ( 3 ) |l4[i4].GetMarker ( 3 ) |l5[i5].GetMarker ( 3 ),3 );
+            c.SetMarker ( l1[i1]->GetMarker ( 0 ) |l2[i2]->GetMarker ( 0 )
+                          |l3[i3]->GetMarker ( 0 ) |l4[i4]->GetMarker ( 0 ) |l5[i5]->GetMarker ( 0 ),0 );
+            c.SetMarker ( l1[i1]->GetMarker ( 1 ) |l2[i2]->GetMarker ( 1 )
+                          |l3[i3]->GetMarker ( 1 ) |l4[i4]->GetMarker ( 1 ) |l5[i5]->GetMarker ( 1 ),1 );
+            c.SetMarker ( l1[i1]->GetMarker ( 2 ) |l2[i2]->GetMarker ( 2 )
+                          |l3[i3]->GetMarker ( 2 ) |l4[i4]->GetMarker ( 2 ) |l5[i5]->GetMarker ( 2 ),2 );
+            c.SetMarker ( l1[i1]->GetMarker ( 3 ) |l2[i2]->GetMarker ( 3 )
+                          |l3[i3]->GetMarker ( 3 ) |l4[i4]->GetMarker ( 3 ) |l5[i5]->GetMarker ( 3 ),3 );
 
-            c.AddDaughterLinkSimple ( & ( l1[i1] ) );
-            c.AddDaughterLinkSimple ( & ( l2[i2] ) );
-            c.AddDaughterLinkSimple ( & ( l3[i3] ) );
-            c.AddDaughterLinkSimple ( & ( l4[i4] ) );
-            c.AddDaughterLinkSimple ( & ( l5[i5] ) );
+            c.AddDaughterLinkSimple ( l1[i1] );
+            c.AddDaughterLinkSimple ( l2[i2] );
+            c.AddDaughterLinkSimple ( l3[i3] );
+            c.AddDaughterLinkSimple ( l4[i4] );
+            c.AddDaughterLinkSimple ( l5[i5] );
 
 //             c.AddDaughterLink ( & ( l1[i1] ) );
 //             c.AddDaughterLink ( & ( l2[i2] ) );
@@ -553,7 +553,7 @@ void RhoCandList::CombineAndAppend ( RhoCandList& l1, RhoCandList& l2, RhoCandLi
 //             c.AddDaughterLink ( & ( l4[i4] ) );
 //             c.AddDaughterLink ( & ( l5[i5] ) );
 
-            Put ( c );
+            Put ( &c );
           }
         }
       }
@@ -577,14 +577,14 @@ void RhoCandList::Sort ( int ( *compfunc ) ( const RhoCandidate**, const RhoCand
 }
 
 
-void RhoCandList::Select ( RhoCandList& l, Bool_t ( *selfunc ) ( RhoCandidate& ) )
+void RhoCandList::Select ( RhoCandList& l, Bool_t ( *selfunc ) ( RhoCandidate* ) )
 {
   Cleanup();
   const Int_t n = l.GetNumberOfTracks();
   for ( Int_t i=0; i<n; i++ ) {
     RhoCandidate* c = Get ( i );
-    if ( selfunc ( *c ) ) {
-      Put ( *c );
+    if ( selfunc ( c ) ) {
+      Put ( c );
     }
   }
 }
@@ -596,7 +596,7 @@ void RhoCandList::Select ( RhoParticleSelectorBase* pidmgr )
   const Int_t n = GetNumberOfTracks();
   for ( Int_t i=0; i<n; i++ ) {
     RhoCandidate* c = Get ( i );
-    if ( !pidmgr->Accept ( *c ) ) { fOwnList->RemoveAt ( i ); }
+    if ( !pidmgr->Accept ( c ) ) { fOwnList->RemoveAt ( i ); }
   }
   fOwnList->Compress();
 }
@@ -609,8 +609,8 @@ void RhoCandList::Select ( RhoCandList& l, RhoParticleSelectorBase* pidmgr )
   const Int_t n = l.GetNumberOfTracks();
   for ( Int_t i=0; i<n; i++ ) {
     RhoCandidate* c = l.Get ( i );
-    if ( pidmgr->Accept ( *c ) ) {
-      Put ( *c );
+    if ( pidmgr->Accept ( c ) ) {
+      Put ( c );
     }
   }
 }
@@ -620,8 +620,8 @@ void RhoCandList::Append ( RhoCandList& l, RhoParticleSelectorBase* pidmgr )
   const Int_t n = l.GetNumberOfTracks();
   for ( Int_t i=0; i<n; i++ ) {
     RhoCandidate* c = l.Get ( i );
-    if ( 0==pidmgr || pidmgr->Accept ( *c ) ) {
-      Put ( *c );
+    if ( 0==pidmgr || pidmgr->Accept ( c ) ) {
+      Put ( c );
     }
   }
 }

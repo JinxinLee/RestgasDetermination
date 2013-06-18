@@ -32,17 +32,17 @@ RhoSimpleKaonSelector::RhoSimpleKaonSelector ( const char* name, const char* typ
   RhoParticleSelectorBase ( name,type )
 {}
 
-Bool_t RhoSimpleKaonSelector::Accept ( RhoCandidate& b )
+Bool_t RhoSimpleKaonSelector::Accept ( RhoCandidate* b )
 {
-  if ( &b == 0 ) { return kFALSE; }
+  if ( b == 0 ) { return kFALSE; }
 
   SetTypeAndMass ( b );
 
-  double Le  = b.GetPidInfo ( 0 );
-  double Lmu = b.GetPidInfo ( 1 );
-  double Lpi = b.GetPidInfo ( 2 );
-  double Lk  = b.GetPidInfo ( 3 );
-  double Lp  = b.GetPidInfo ( 4 );
+  double Le  = b->GetPidInfo ( 0 );
+  double Lmu = b->GetPidInfo ( 1 );
+  double Lpi = b->GetPidInfo ( 2 );
+  double Lk  = b->GetPidInfo ( 3 );
+  double Lp  = b->GetPidInfo ( 4 );
 
   if ( fCriterion == loose ) {
     if ( Lk<0.2 ) { return kFALSE; }
@@ -59,7 +59,7 @@ Bool_t RhoSimpleKaonSelector::Accept ( RhoCandidate& b )
   return kTRUE;
 }
 
-Bool_t RhoSimpleKaonSelector::Accept ( FairRecoCandidate& b )
+Bool_t RhoSimpleKaonSelector::Accept ( FairRecoCandidate* b )
 {
   return kFALSE;
 }

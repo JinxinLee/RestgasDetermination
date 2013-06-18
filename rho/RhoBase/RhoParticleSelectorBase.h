@@ -35,8 +35,8 @@ class RhoParticleSelectorBase : public TNamed
     virtual ~RhoParticleSelectorBase();
 
     //operations
-    virtual Bool_t Accept ( RhoCandidate& ) = 0;
-    virtual Bool_t Accept ( FairRecoCandidate& ) = 0;
+    virtual Bool_t Accept ( RhoCandidate* ) = 0;
+    virtual Bool_t Accept ( FairRecoCandidate* ) = 0;
 
     virtual void SetCriterion ( const char* crit );
     void SetCriterion ( criterion crit );
@@ -46,7 +46,7 @@ class RhoParticleSelectorBase : public TNamed
   protected:
     TParticlePDG* CPConjugate ( TParticlePDG* aPart );
 
-    void SetTypeAndMass ( RhoCandidate& b );
+    void SetTypeAndMass ( RhoCandidate* b );
 
     TParticlePDG*  fTypePlus; //!Particle type to accept
     TParticlePDG*  fTypeMinus;  //!Particle type to accept

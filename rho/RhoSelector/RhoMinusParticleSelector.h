@@ -35,8 +35,8 @@ class RhoMinusParticleSelector : public RhoParticleSelectorBase
     virtual ~RhoMinusParticleSelector() {}
 
     //operations
-    virtual Bool_t Accept ( RhoCandidate& b );
-    virtual Bool_t Accept ( FairRecoCandidate& b );
+    virtual Bool_t Accept ( RhoCandidate* b );
+    virtual Bool_t Accept ( FairRecoCandidate* b );
 
     ClassDef ( RhoMinusParticleSelector,1 )  // Negative particle selector
 };

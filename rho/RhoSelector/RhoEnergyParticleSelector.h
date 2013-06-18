@@ -33,8 +33,8 @@ class RhoEnergyParticleSelector : public RhoParticleSelectorBase
     virtual ~RhoEnergyParticleSelector() {}
 
     //operations
-    virtual Bool_t Accept ( RhoCandidate& b );
-    virtual Bool_t Accept ( FairRecoCandidate& b );
+    virtual Bool_t Accept ( RhoCandidate* b );
+    virtual Bool_t Accept ( FairRecoCandidate* b );
 
   private:
     Double_t fCentralValue,fWindow;

@@ -25,7 +25,7 @@ TBuffer& operator>>(TBuffer& buf, Pnd4CFitter *&obj)
   return buf;
 }
 
-Pnd4CFitter::Pnd4CFitter( RhoCandidate& b , TLorentzVector lv) :
+Pnd4CFitter::Pnd4CFitter( RhoCandidate* b , TLorentzVector lv) :
   RhoFitterBase( b ),
   fLv4C(lv),
   fNDau(0),

@@ -188,7 +188,7 @@ bool PndEventReader::FillList(RhoCandList& l, std::string listkey)
     if (fMcCands)
       for (int i1=0; i1<fMcCands->GetEntriesFast(); i1++) {
         RhoCandidate* tc = (RhoCandidate*)fMcCands->At(i1);
-        l.Add(*tc);
+        l.Add(tc);
       }
     return true;
   }
@@ -199,12 +199,12 @@ bool PndEventReader::FillList(RhoCandList& l, std::string listkey)
       FairRecoCandidate* mic = (FairRecoCandidate*)fMicroCands->At(i1);
       RhoCandidate tc(*mic,uid++);
 
-      allCands.Add(tc);
+      allCands.Add(&tc);
 
       if (fabs(tc.Charge())>0.01) {
-        chargedCands.Add(tc);
+        chargedCands.Add(&tc);
       } else {
-        neutralCands.Add(tc);
+        neutralCands.Add(&tc);
       }
     }
   } else if (allCands.GetLength() == 0) { // do only when we didn't read something yet.
@@ -224,8 +224,8 @@ bool PndEventReader::FillList(RhoCandList& l, std::string listkey)
           tc.SetPidInfo(3,neuProb->GetKaonPidProb());
           tc.SetPidInfo(4,neuProb->GetProtonPidProb());
         }
-        neutralCands.Add(tc);
-        allCands.Add(tc);
+        neutralCands.Add(&tc);
+        allCands.Add(&tc);
       }
     if (fChargedCands && chargedCands.GetLength()==0)
       for (int i1=0; i1<fChargedCands->GetEntriesFast(); i1++) {
@@ -240,8 +240,8 @@ bool PndEventReader::FillList(RhoCandList& l, std::string listkey)
           tc.SetPidInfo(3,chProb->GetKaonPidProb());
           tc.SetPidInfo(4,chProb->GetProtonPidProb());
         }
-        chargedCands.Add(tc);
-        allCands.Add(tc);
+        chargedCands.Add(&tc);
+        allCands.Add(&tc);
       }
   }
 

@@ -27,7 +27,7 @@ TBuffer& operator>> ( TBuffer& buf, PndVtxFitter *&obj )
   return buf;
 }
 
-PndVtxFitter::PndVtxFitter ( RhoCandidate& b ) : RhoFitterBase ( b )
+PndVtxFitter::PndVtxFitter ( RhoCandidate* b ) : RhoFitterBase ( b )
 {
   // fHeadOfTree=RhoFactory::Instance()->NewCandidate(b);
   m_mode=0;
@@ -497,23 +497,23 @@ unsigned PndVtxFitter::SetInputMatrix()
   it =new PndVtxFitterParticle;
 
   for ( Int_t i=0; i<fDaughters.GetLength(); i++ ) {
-    RhoCandidate tc=fDaughters[i];
-    //cout <<"charge:"<<tc.GetCharge()<<endl;
-    TMatrixD mat7=tc.Cov7();
+    RhoCandidate* tc=fDaughters[i];
+    //cout <<"charge:"<<tc->GetCharge()<<endl;
+    TMatrixD mat7=tc->Cov7();
 
     tmp_ErrCov=it->GetCovMat ( mat7 );
 
-    tmp_al_0[index* KF_NUM6+0][0] = tc.P4().Px();
-    tmp_al_0[index* KF_NUM6+1][0] = tc.P4().Py();
-    tmp_al_0[index* KF_NUM6+2][0] = tc.P4().Pz();
-    tmp_al_0[index* KF_NUM6+3][0] = tc.Pos().X();
-    tmp_al_0[index* KF_NUM6+4][0] = tc.Pos().Y();
-    tmp_al_0[index* KF_NUM6+5][0] = tc.Pos().Z();
+    tmp_al_0[index* KF_NUM6+0][0] = tc->P4().Px();
+    tmp_al_0[index* KF_NUM6+1][0] = tc->P4().Py();
+    tmp_al_0[index* KF_NUM6+2][0] = tc->P4().Pz();
+    tmp_al_0[index* KF_NUM6+3][0] = tc->Pos().X();
+    tmp_al_0[index* KF_NUM6+4][0] = tc->Pos().Y();
+    tmp_al_0[index* KF_NUM6+5][0] = tc->Pos().Z();
 
     tmp_V_al_0.SetSub ( index*KF_NUM6, tmp_ErrCov ); //Dipak
-    tmp_property[index][0] =  tc.GetCharge() /3;
-    tmp_property[index][1] = tc.P4().M();//get the mass:Dummy value set by hand :Dipak
-    tmp_property[index][2] = -KF_PHOTON_VELOCITY*m_magField*tc.GetCharge() /3;
+    tmp_property[index][0] =  tc->GetCharge() /3;
+    tmp_property[index][1] = tc->P4().M();//get the mass:Dummy value set by hand :Dipak
+    tmp_property[index][2] = -KF_PHOTON_VELOCITY*m_magField*tc->GetCharge() /3;
 
     ++index;
   }
@@ -701,15 +701,15 @@ unsigned PndVtxFitter::SetOutputToRhoCandidate(RhoCandidate* cand)
     double px=m_al_1[index1*KF_NUM6+0][0];
     double py=m_al_1[index1*KF_NUM6+1][0];
     double pz=m_al_1[index1*KF_NUM6+2][0];
-    double m=fDaughters[i].Mass();
+    double m=fDaughters[i]->Mass();
 
     //      cout <<"SetOutputToRhoCandidate"<<px<<" "<<py<<" "<<pz<<" "<<m<<endl;
 
     lv.SetXYZM ( px,py,pz,m );
     sum+=lv;
     
-    fDaughters[i].SetP4(lv);
-    fDaughters[i].SetPos ( foudVertex );
+    fDaughters[i]->SetP4(lv);
+    fDaughters[i]->SetPos ( foudVertex );
 
     index1++;
   }

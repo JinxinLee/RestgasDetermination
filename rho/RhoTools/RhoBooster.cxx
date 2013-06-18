@@ -117,7 +117,7 @@ RhoBooster::BoostTo ( RhoCandList& initialList,
   RhoCandListIterator iter ( initialList );
   RhoCandidate* cand=0;
   while ( cand=iter.Next() ) {
-    boostedList.Add ( Boost ( *cand, To ) );
+    boostedList.Add ( &(Boost ( *cand, To )) );
   }
 }
 
@@ -132,7 +132,7 @@ RhoBooster::BoostFrom ( RhoCandList& initialList,
   RhoCandListIterator iter ( initialList );
   RhoCandidate* cand=0;
   while ( cand=iter.Next() ) {
-    boostedList.Add ( Boost ( *cand, From ) );
+    boostedList.Add ( &(Boost ( *cand, From )) );
   }
 }
 

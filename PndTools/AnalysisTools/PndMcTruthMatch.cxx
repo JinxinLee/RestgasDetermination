@@ -18,15 +18,15 @@
 ClassImp ( PndMcTruthMatch )
 
 
-Bool_t PndMcTruthMatch::MctMatch ( RhoCandidate& c, RhoCandList& mct, Int_t level, bool verbose )
+Bool_t PndMcTruthMatch::MctMatch ( RhoCandidate* c, RhoCandList& mct, Int_t level, bool verbose )
 {
-  Int_t nd  = c.NDaughters();
-  Int_t pdg = c.PdgCode();
+  Int_t nd  = c->NDaughters();
+  Int_t pdg = c->PdgCode();
 
   Int_t nmct = mct.GetLength();
 
   if ( 0==nd ) { // final state particle
-    RhoCandidate* mccnd = c.GetMcTruth();
+    RhoCandidate* mccnd = c->GetMcTruth();
     if ( !mccnd ) {
       if(verbose) Info("PndMcTruthMatch::MctMatch","rejected final state by nonexistent mc truth pointer");
       return false;
@@ -41,7 +41,7 @@ Bool_t PndMcTruthMatch::MctMatch ( RhoCandidate& c, RhoCandList& mct, Int_t leve
   } 
     
     // check recursively whether all daughter trees match
-    for ( Int_t i=0; i<nd; ++i ) if ( !MctMatch ( * ( c.Daughter ( i ) ), mct, level, verbose ) ) {
+    for ( Int_t i=0; i<nd; ++i ) if ( !MctMatch ( * ( c->Daughter ( i ) ), mct, level, verbose ) ) {
       if(verbose) Info("PndMcTruthMatch::MctMatch","rejected composite (pdg=%i) by non-matching daughter: idau=%i",pdg,i);
       return false;
     }
@@ -54,15 +54,15 @@ Bool_t PndMcTruthMatch::MctMatch ( RhoCandidate& c, RhoCandList& mct, Int_t leve
     }
 
     // reset mc truth pointer
-    RhoCandidate* mccnd = c.GetMcTruth();
+    RhoCandidate* mccnd = c->GetMcTruth();
     if(mccnd) {
         if(verbose) Warning("PndMcTruthMatch::MctMatch","Existing MC truth found. Will reset it now.");
-        c.SetMcTruth(0);
+        c->SetMcTruth(0);
         //return false;
     }
     
     // find this particle's truth in the mc decay tree
-    RhoCandidate* dauzero = c.Daughter(0);
+    RhoCandidate* dauzero = c->Daughter(0);
     if (!dauzero) {
       if(verbose) Info("PndMcTruthMatch::MctMatch","rejected by not existing daughter zero");
       return false;
@@ -80,14 +80,14 @@ Bool_t PndMcTruthMatch::MctMatch ( RhoCandidate& c, RhoCandList& mct, Int_t leve
     
     //now check the tree structure:
     //  first daughter number
-    if( c.NDaughters() != mcdauzeromother->NDaughters() ){
-      if(verbose) Info("PndMcTruthMatch::MctMatch","rejected by differing daughter count: cand:%i mc:%i",c.NDaughters(),mcdauzeromother->NDaughters());
+    if( c->NDaughters() != mcdauzeromother->NDaughters() ){
+      if(verbose) Info("PndMcTruthMatch::MctMatch","rejected by differing daughter count: cand:%i mc:%i",c->NDaughters(),mcdauzeromother->NDaughters());
       return false;
     }
     //  now if all daughters MC-Mother is the same
     for(int idau=1;idau<nd;idau++){
       // look if all daughters mc mothers are the same
-      RhoCandidate* dau = c.Daughter(idau)->GetMcTruth();
+      RhoCandidate* dau = c->Daughter(idau)->GetMcTruth();
       if (!dau) {
         if(verbose) Info("PndMcTruthMatch::MctMatch","rejected by not existing daughter %i",idau);
         return false;

@@ -22,7 +22,7 @@ class RhoCandidate;
 class PndKinVtxFitter : public RhoFitterBase
 {
   public:
-    PndKinVtxFitter( RhoCandidate& b) ;
+    PndKinVtxFitter( RhoCandidate* b) ;
     virtual ~PndKinVtxFitter();
     void AddMassConstraint(double mass);
     void AddPointingConstraint(TVector3 pVtx);

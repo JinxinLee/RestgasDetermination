@@ -56,6 +56,20 @@ RhoCandidate* RhoFactory::NewCandidate()
 
 RhoCandidate* RhoFactory::NewCandidate ( const RhoCandidate& c )
 {
+  NewCandidate(&c);
+//  if ( fgCandBuffer==0 ) { fgCandBuffer = new TClonesArray ( "RhoCandidate" ); }
+//  int current = fgCandPointer++;
+//  if ( current>fgCandWatermark ) { fgCandWatermark = current; }
+//  if ( current<fgCandWatermark ) {
+//    RhoCandidate* b = GetCandidate ( current );
+//    b->RemoveAssociations();
+//  }
+//  new ( ( *fgCandBuffer ) [current] ) RhoCandidate ( c );
+//  return GetCandidate ( current );
+}
+
+RhoCandidate* RhoFactory::NewCandidate ( const RhoCandidate* c )
+{
   if ( fgCandBuffer==0 ) { fgCandBuffer = new TClonesArray ( "RhoCandidate" ); }
   int current = fgCandPointer++;
   if ( current>fgCandWatermark ) { fgCandWatermark = current; }
@@ -63,9 +77,10 @@ RhoCandidate* RhoFactory::NewCandidate ( const RhoCandidate& c )
     RhoCandidate* b = GetCandidate ( current );
     b->RemoveAssociations();
   }
-  new ( ( *fgCandBuffer ) [current] ) RhoCandidate ( c );
+  new ( ( *fgCandBuffer ) [current] ) RhoCandidate ( *c );
   return GetCandidate ( current );
 }
+
 
 
 RhoCandidate* RhoFactory::NewCandidate ( TLorentzVector p4,

@@ -26,7 +26,8 @@ class PndMcTruthMatch
     // destructor
     ~PndMcTruthMatch() {};
     
-    Bool_t MctMatch(RhoCandidate& c, RhoCandList& mct, Int_t level = 2, bool verbose=false);
+    Bool_t MctMatch(RhoCandidate& c, RhoCandList& mct, Int_t level = 2, bool verbose=false){ MctMatch(&c,mct,level,verbose); };
+    Bool_t MctMatch(RhoCandidate* c, RhoCandList& mct, Int_t level = 2, bool verbose=false);
 
     ClassDef(PndMcTruthMatch,1);
 };

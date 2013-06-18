@@ -154,12 +154,12 @@ void PndAnalysisTask::Exec(Option_t* opt)
 
   for (Int_t i1=0; i1<fChargedArray->GetEntriesFast(); i1++) {
     tc = (RhoCandidate*)fChargedArray->At(i1);
-    chargedCands.Add(*tc);
+    chargedCands.Add(tc);
   }
 
   for (Int_t i1=0; i1<fNeutralArray->GetEntriesFast(); i1++) {
     tc = (RhoCandidate*)fNeutralArray->At(i1);
-    neutralCands.Add(*tc);
+    neutralCands.Add(tc);
   }
 
   //cout <<"c:"<<chargedCands.GetLength()<<" n:"<<neutralCands.GetLength()<<endl;

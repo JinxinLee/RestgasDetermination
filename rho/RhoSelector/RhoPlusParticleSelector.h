@@ -35,8 +35,8 @@ class RhoPlusParticleSelector : public RhoParticleSelectorBase
     virtual ~RhoPlusParticleSelector() {}
 
     //operations
-    virtual Bool_t Accept ( RhoCandidate& b );
-    virtual Bool_t Accept ( FairRecoCandidate& b );
+    virtual Bool_t Accept ( RhoCandidate* b );
+    virtual Bool_t Accept ( FairRecoCandidate* b );
 
     ClassDef ( RhoPlusParticleSelector,1 )  // Positive particle selector
 };

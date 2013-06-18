@@ -59,36 +59,36 @@ void RhoGoodPhotonSelector::SetCriterion ( const char* c )
   RhoParticleSelectorBase::SetCriterion ( c );
 }
 
-Bool_t RhoGoodPhotonSelector::Accept ( RhoCandidate& b )
+Bool_t RhoGoodPhotonSelector::Accept ( RhoCandidate* b )
 {
   // The RhoGoodPhotonSelector does a selection based on the
   // quality of a reconstructed charged track
 
-  if ( &b == 0 ) { return kFALSE; }
-  FairRecoCandidate* tmppoint = b.GetRecoCandidate();
+  if ( b == 0 ) { return kFALSE; }
+  FairRecoCandidate* tmppoint = b->GetRecoCandidate();
   PndPidCandidate* tmp2 = ( PndPidCandidate* ) tmppoint;
-  if ( !Accept ( *tmp2 ) ) { return kFALSE; }
+  if ( !Accept ( tmp2 ) ) { return kFALSE; }
   SetTypeAndMass ( b );
   return kTRUE;
 }
 
-Bool_t RhoGoodPhotonSelector::Accept ( PndPidCandidate& cand )
+Bool_t RhoGoodPhotonSelector::Accept ( PndPidCandidate* cand )
 {
   // The RhoGoodPhotonSelector does a selection based on the
   // quality of a reconstructed charged track
 
-  if ( &cand == 0 ) { return kFALSE; }
+  if ( cand == 0 ) { return kFALSE; }
 
-  if ( fabs ( cand.GetCharge() ) >0.001 ) { return kFALSE; }
+  if ( fabs ( cand->GetCharge() ) >0.001 ) { return kFALSE; }
 
   // Check EMC energy deposit
-  Float_t emc  = cand.GetEmcCalEnergy();
+  Float_t emc  = cand->GetEmcCalEnergy();
   if ( emc <  fEmcMin ) { return kFALSE; }
   if ( emc >  fEmcMax ) { return kFALSE; }
 
   // Cut on number of crystals
 
-  Int_t nc = cand.GetEmcNumberOfCrystals();
+  Int_t nc = cand->GetEmcNumberOfCrystals();
   if ( nc <  fNcMin ) { return kFALSE; }
   if ( nc >  fNcMax ) { return kFALSE; }
 
@@ -96,7 +96,7 @@ Bool_t RhoGoodPhotonSelector::Accept ( PndPidCandidate& cand )
   // Check LAT
   // ************* at the moment no lateral shape is provided in PandaROOT
   /*
-  Float_t lat  = cand.GetEmcLateralShape();
+  Float_t lat  = cand->GetEmcLateralShape();
   if (lat <= fLatMin) return kFALSE;
   if (lat >  fLatMax) return kFALSE;
   */
@@ -104,7 +104,7 @@ Bool_t RhoGoodPhotonSelector::Accept ( PndPidCandidate& cand )
 
   // Check angular acceptance
 
-  TVector3 p = cand.GetMomentum();
+  TVector3 p = cand->GetMomentum();
   if ( p.Theta() <  fThetaMin ) { return kFALSE; }
   if ( p.Theta() >  fThetaMax ) { return kFALSE; }
 

@@ -137,19 +137,19 @@ Bool_t PndAnaPidSelector::SetSelection ( TString& crit )
 }
 
 
-Bool_t PndAnaPidSelector::Accept ( RhoCandidate& b )
+Bool_t PndAnaPidSelector::Accept ( RhoCandidate* b )
 {
   // Accept or reject one candidate based on it's PID hypothesis, the pid
   // pdf values and the selection criterion.
   // This might be not performant, since each time we access an object to
   // read the criterion value. Is a field of values faster?
 
-  if ( &b == 0 ) {
+  if ( b == 0 ) {
     Error ( "PndAnaPidSelector::Accept","Candiate missing." ); return kFALSE;
   }
   //Info("PndAnaPidSelector::Accept","Request: Q=%g pid=%i crit=%i",fChargeCrit,fPidSelect,fCriterion);
   // too stringent on charge with +-1. ??
-  if ( fChargeCrit!=0 && fChargeCrit!=b.GetCharge() ) {
+  if ( fChargeCrit!=0 && fChargeCrit!=b->GetCharge() ) {
     //std::cout<<"PndAnaPidSelector::Accept: charge reject. fChargeCrit="<<fChargeCrit<<" b.GetCharge()"<<b.GetCharge() <<std::endl;
     return kFALSE;
   }
@@ -159,13 +159,13 @@ Bool_t PndAnaPidSelector::Accept ( RhoCandidate& b )
   } // no PID requested? Fine!
 
   // if e, mu, pi, k or p (but no + or -) is requested we reject neutrals
-  if ( fPidSelect!=99 && fabs ( b.GetCharge() ) <0.001 ) {
+  if ( fPidSelect!=99 && fabs ( b->GetCharge() ) <0.001 ) {
     return kFALSE;
   }
 
   SetTypeAndMass ( b );
 
-  double Lcheck = b.GetPidInfo ( fPidSelect );
+  double Lcheck = b->GetPidInfo ( fPidSelect );
   //std::cout<<"PndAnaPidSelector::Accept: Lcheck="<<Lcheck<<" fPidSelect="<<fPidSelect<<std::endl;
 
   if ( fCriterion == veryLoose ) {
@@ -191,11 +191,11 @@ Bool_t PndAnaPidSelector::Accept ( RhoCandidate& b )
   } else if ( fCriterion == all ) {
     return kTRUE;
   } else if ( fCriterion == best ) {
-    double Le  = b.GetPidInfo ( 0 );
-    double Lmu = b.GetPidInfo ( 1 );
-    double Lpi = b.GetPidInfo ( 2 );
-    double Lk  = b.GetPidInfo ( 3 );
-    double Lp  = b.GetPidInfo ( 4 );
+    double Le  = b->GetPidInfo ( 0 );
+    double Lmu = b->GetPidInfo ( 1 );
+    double Lpi = b->GetPidInfo ( 2 );
+    double Lk  = b->GetPidInfo ( 3 );
+    double Lp  = b->GetPidInfo ( 4 );
 
     if ( Lcheck<Le || Lcheck<Lmu || Lcheck<Lpi || Lcheck<Lk || Lcheck<Lp ) {
       return kFALSE;
@@ -205,7 +205,7 @@ Bool_t PndAnaPidSelector::Accept ( RhoCandidate& b )
   return kTRUE;
 }
 
-Bool_t PndAnaPidSelector::Accept ( FairRecoCandidate& b )
+Bool_t PndAnaPidSelector::Accept ( FairRecoCandidate* b )
 {
   Warning ( "PndAnaPidSelector::Accept(VAbsMicroCandidate&)","No implementation for this. Please use PndAnaPidSelector::Accept(RhoCandidate&)" );
   return kFALSE;

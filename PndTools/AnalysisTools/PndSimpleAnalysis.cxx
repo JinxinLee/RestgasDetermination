@@ -499,7 +499,7 @@ void PndSimpleAnalysis::Exec(Option_t* opt)
     // fill histograms
     // *********************
     if (cur->fHisto.size()>0) {
-      for (j=0; j<cur->GetLength(); j++) { cur->fHisto[0]->Fill(cur->fList[j].M()); }
+      for (j=0; j<cur->GetLength(); j++) { cur->fHisto[0]->Fill(cur->fList[j]->M()); }
     }
 
     // *********************
@@ -537,61 +537,61 @@ void PndSimpleAnalysis::Exec(Option_t* opt)
           if ( (off+k)>=fMaxEntries ) { continue; }
           float* theArF=curdump->fNtpFArrays[j];
 
-          PndPidCandidate* mic=(PndPidCandidate*)((cur->fList[k].GetRecoCandidate()));
+          PndPidCandidate* mic=(PndPidCandidate*)((cur->fList[k]->GetRecoCandidate()));
 
           // set default
           theArF[off+k]=0.0;
 
           switch (key) {
           case 100:
-            theArF[off+k]=cur->fList[k].Px();
+            theArF[off+k]=cur->fList[k]->Px();
             break;
           case 101:
-            theArF[off+k]=cur->fList[k].Py();
+            theArF[off+k]=cur->fList[k]->Py();
             break;
           case 102:
-            theArF[off+k]=cur->fList[k].Pz();
+            theArF[off+k]=cur->fList[k]->Pz();
             break;
           case 103:
-            theArF[off+k]=cur->fList[k].E();
+            theArF[off+k]=cur->fList[k]->E();
             break;
 
           case 104:
-            theArF[off+k]=cur->fList[k].M();
+            theArF[off+k]=cur->fList[k]->M();
             break;
           case 105:
-            theArF[off+k]=cur->fList[k].Charge();
+            theArF[off+k]=cur->fList[k]->Charge();
             break;
 
           case 106:
-            theArF[off+k]=cur->fList[k].Pos().X();
+            theArF[off+k]=cur->fList[k]->Pos().X();
             break;
           case 107:
-            theArF[off+k]=cur->fList[k].Pos().Y();
+            theArF[off+k]=cur->fList[k]->Pos().Y();
             break;
           case 108:
-            theArF[off+k]=cur->fList[k].Pos().Z();
+            theArF[off+k]=cur->fList[k]->Pos().Z();
             break;
 
           case 109:
-            theArF[off+k]=cur->fList[k].GetVect().Phi();
+            theArF[off+k]=cur->fList[k]->GetVect().Phi();
             break;
           case 110:
-            theArF[off+k]=cur->fList[k].GetVect().Theta();
+            theArF[off+k]=cur->fList[k]->GetVect().Theta();
             break;
           case 111:
-            theArF[off+k]=cur->fList[k].GetVect().CosTheta();
+            theArF[off+k]=cur->fList[k]->GetVect().CosTheta();
             break;
           case 112:
-            theArF[off+k]=cur->fList[k].GetVect().Mag();
+            theArF[off+k]=cur->fList[k]->GetVect().Mag();
             break;
           case 113:
-            theArF[off+k]=( fpInit - (cur->fList[k].P4()) ).M();
+            theArF[off+k]=( fpInit - (cur->fList[k]->P4()) ).M();
             break;
 
           case 120:  //  Px in CMS
             if (!cachefilled) {
-              TLorentzVector lv=cur->fList[k].P4();
+              TLorentzVector lv=cur->fList[k]->P4();
               lv.Boost(pInitBoost);
               lvcache.push_back(lv);
             }
@@ -600,7 +600,7 @@ void PndSimpleAnalysis::Exec(Option_t* opt)
 
           case 121: // Py in CMS
             if (!cachefilled) {
-              TLorentzVector lv=cur->fList[k].P4();
+              TLorentzVector lv=cur->fList[k]->P4();
               lv.Boost(pInitBoost);
               lvcache.push_back(lv);
             }
@@ -609,7 +609,7 @@ void PndSimpleAnalysis::Exec(Option_t* opt)
 
           case 122: // Pz in CMS
             if (!cachefilled) {
-              TLorentzVector lv=cur->fList[k].P4();
+              TLorentzVector lv=cur->fList[k]->P4();
               lv.Boost(pInitBoost);
               lvcache.push_back(lv);
             }
@@ -618,7 +618,7 @@ void PndSimpleAnalysis::Exec(Option_t* opt)
 
           case 123: // E in CMS
             if (!cachefilled) {
-              TLorentzVector lv=cur->fList[k].P4();
+              TLorentzVector lv=cur->fList[k]->P4();
               lv.Boost(pInitBoost);
               lvcache.push_back(lv);
             }
@@ -627,7 +627,7 @@ void PndSimpleAnalysis::Exec(Option_t* opt)
 
           case 124: // phi in CMS
             if (!cachefilled) {
-              TLorentzVector lv=cur->fList[k].P4();
+              TLorentzVector lv=cur->fList[k]->P4();
               lv.Boost(pInitBoost);
               lvcache.push_back(lv);
             }
@@ -636,7 +636,7 @@ void PndSimpleAnalysis::Exec(Option_t* opt)
 
           case 125: // theta in CMS
             if (!cachefilled) {
-              TLorentzVector lv=cur->fList[k].P4();
+              TLorentzVector lv=cur->fList[k]->P4();
               lv.Boost(pInitBoost);
               lvcache.push_back(lv);
             }
@@ -645,7 +645,7 @@ void PndSimpleAnalysis::Exec(Option_t* opt)
 
           case 126: // cos theta in CMS
             if (!cachefilled) {
-              TLorentzVector lv=cur->fList[k].P4();
+              TLorentzVector lv=cur->fList[k]->P4();
               lv.Boost(pInitBoost);
               lvcache.push_back(lv);
             }
@@ -654,7 +654,7 @@ void PndSimpleAnalysis::Exec(Option_t* opt)
 
           case 127: // |p| in CMS
             if (!cachefilled) {
-              TLorentzVector lv=cur->fList[k].P4();
+              TLorentzVector lv=cur->fList[k]->P4();
               lv.Boost(pInitBoost);
               lvcache.push_back(lv);
             }
@@ -662,19 +662,19 @@ void PndSimpleAnalysis::Exec(Option_t* opt)
             break;
 
           case 150:
-            theArF[off+k]=cur->fList[k].Daughter(0)->M();
+            theArF[off+k]=cur->fList[k]->Daughter(0)->M();
             break;
           case 151:
-            theArF[off+k]=cur->fList[k].Daughter(1)->M();
+            theArF[off+k]=cur->fList[k]->Daughter(1)->M();
             break;
           case 152:
-            theArF[off+k]=cur->fList[k].Daughter(2)->M();
+            theArF[off+k]=cur->fList[k]->Daughter(2)->M();
             break;
           case 153:
-            theArF[off+k]=cur->fList[k].Daughter(3)->M();
+            theArF[off+k]=cur->fList[k]->Daughter(3)->M();
             break;
           case 154:
-            theArF[off+k]=cur->fList[k].Daughter(4)->M();
+            theArF[off+k]=cur->fList[k]->Daughter(4)->M();
             break;
 
             // PID Info based on PndPidCandidate entries
@@ -715,19 +715,19 @@ void PndSimpleAnalysis::Exec(Option_t* opt)
 
             // PID Info based in RhoCandidate entries... obsolete
             /*
-            case 160: theArF[off+k]=cur->fList[k].GetPidInfo(5); break; // Barrel DIRC tht_c
-            case 161: theArF[off+k]=cur->fList[k].GetPidInfo(6); break; // Disc DIRC tht_c
-            case 162: theArF[off+k]=cur->fList[k].GetPidInfo(7); break; // RICH tht_c
-            case 163: theArF[off+k]=cur->fList[k].GetPidInfo(8); break; // TOF mπ
-            case 164: theArF[off+k]=cur->fList[k].GetPidInfo(9); break; // MVD dEdx
-            case 165: theArF[off+k]=cur->fList[k].GetPidInfo(10); break; // STT dEdx
-            case 166: theArF[off+k]=cur->fList[k].GetPidInfo(11); break; // TPC dEdx
+            case 160: theArF[off+k]=cur->fList[k]->GetPidInfo(5); break; // Barrel DIRC tht_c
+            case 161: theArF[off+k]=cur->fList[k]->GetPidInfo(6); break; // Disc DIRC tht_c
+            case 162: theArF[off+k]=cur->fList[k]->GetPidInfo(7); break; // RICH tht_c
+            case 163: theArF[off+k]=cur->fList[k]->GetPidInfo(8); break; // TOF mπ
+            case 164: theArF[off+k]=cur->fList[k]->GetPidInfo(9); break; // MVD dEdx
+            case 165: theArF[off+k]=cur->fList[k]->GetPidInfo(10); break; // STT dEdx
+            case 166: theArF[off+k]=cur->fList[k]->GetPidInfo(11); break; // TPC dEdx
 
-            case 170: theArF[off+k]=cur->fList[k].GetPidInfo(0); break; // Electron LH
-            case 171: theArF[off+k]=cur->fList[k].GetPidInfo(1); break; // Muon LH
-            case 172: theArF[off+k]=cur->fList[k].GetPidInfo(2); break; // Pion LH
-            case 173: theArF[off+k]=cur->fList[k].GetPidInfo(3); break; // Kaon LH
-            case 174: theArF[off+k]=cur->fList[k].GetPidInfo(4); break; // Proton LH
+            case 170: theArF[off+k]=cur->fList[k]->GetPidInfo(0); break; // Electron LH
+            case 171: theArF[off+k]=cur->fList[k]->GetPidInfo(1); break; // Muon LH
+            case 172: theArF[off+k]=cur->fList[k]->GetPidInfo(2); break; // Pion LH
+            case 173: theArF[off+k]=cur->fList[k]->GetPidInfo(3); break; // Kaon LH
+            case 174: theArF[off+k]=cur->fList[k]->GetPidInfo(4); break; // Proton LH
             */
           }
 
@@ -761,7 +761,7 @@ void PndSimpleAnalysis::Exec(Option_t* opt)
             int dnum=key-501;  //number of the daughter to find index of
 
             // the  dnum-th daughter of our particle
-            RhoCandidate* dauC=cur->fList[k].Daughter(dnum);
+            RhoCandidate* dauC=cur->fList[k]->Daughter(dnum);
             if (0==dauC) { break; }
 
             int lidx=cur->fDauIdx[dnum];
@@ -771,7 +771,7 @@ void PndSimpleAnalysis::Exec(Option_t* opt)
             }
 
             for (k2=0; k2<dld->fList.GetLength(); k2++)
-              if (dauC->IsCloneOf(dld->fList[k2])) {
+              if (dauC->IsCloneOf(*(dld->fList[k2]))) {
                 dauindex=k2+dauoff;
                 k2=1000;
               }
@@ -781,7 +781,7 @@ void PndSimpleAnalysis::Exec(Option_t* opt)
 
           case 510:
             Error("PndSimpleAnalysis::Exec","case 510 requested and MC truth handling changed! Please fix it.");
-            //theArI[k+off]=cur->fList[k].GetMcIdx();
+            //theArI[k+off]=cur->fList[k]->GetMcIdx();
             break;
 
           case 515: // determine the best pid level
@@ -831,10 +831,10 @@ void PndSimpleAnalysis::Exec(Option_t* opt)
             break;
 
           case 520:
-            theArI[k+off]=cur->fList[k].PdgCode();
+            theArI[k+off]=cur->fList[k]->PdgCode();
             break;
 
-            //case 521: theArI[k+off]=cur->fList[k].MotherIdx(); break;
+            //case 521: theArI[k+off]=cur->fList[k]->MotherIdx(); break;
 
           }
 
@@ -942,7 +942,7 @@ void PndSimpleAnalysis::FillGenericLists()
           tcc.SetPidInfo(3,chProb->GetKaonPidProb());
           tcc.SetPidInfo(4,chProb->GetProtonPidProb());
         }
-      chargedCands.Add(tcc);
+      chargedCands.Add(&tcc);
     }
 
   // read the neutral candidates
@@ -962,14 +962,14 @@ void PndSimpleAnalysis::FillGenericLists()
           tcn.SetPidInfo(3,neuProb->GetKaonPidProb());
           tcn.SetPidInfo(4,neuProb->GetProtonPidProb());
         }
-      neutralCands.Add(tcn);
+      neutralCands.Add(&tcn);
     }
 
   // read the mc truth list
   if (fMcArray)
     for (i=0; i<fMcArray->GetEntriesFast(); i++) {
       RhoCandidate* tc = (RhoCandidate*)fMcArray->At(i);
-      mcCands.Add(*tc);
+      mcCands.Add(tc);
     }
 
   for (i=0; i<40; i++) {

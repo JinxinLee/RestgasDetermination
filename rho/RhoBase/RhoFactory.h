@@ -33,6 +33,7 @@ class RhoFactory : public TObject
     static void Reset();
     static RhoCandidate* NewCandidate();
     static RhoCandidate* NewCandidate ( const RhoCandidate& c );
+    static RhoCandidate* NewCandidate ( const RhoCandidate* c );
     static RhoCandidate* NewCandidate ( TLorentzVector p4,
                                         RhoError& p4Err,
                                         RhoCandListIterator& iterDau,

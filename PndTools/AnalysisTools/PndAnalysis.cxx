@@ -173,13 +173,12 @@ void PndAnalysis::Rewind()
 
 Int_t PndAnalysis::GetEvent ( Int_t n )
 {
+  // do a safe cleanup
   fAllCandList.Cleanup();
   fChargedCandList.Cleanup();
   fNeutralCandList.Cleanup();
   fMcCandList.Cleanup();
   RhoFactory::Instance()->Reset();
-
-  fEventRead=false;
 
   if ( n>=0 ) {
     fEvtCount=n+1;
@@ -187,13 +186,31 @@ Int_t PndAnalysis::GetEvent ( Int_t n )
     fEvtCount++;
   }
 
-  if ( fEvtCount<=fChainEntries ) {
-    return fEvtCount;
-  } else {
+  if ( fEvtCount>fChainEntries ) {
     fEvtCount=fChainEntries;
+    if(fVerbose) Info("PndAnalysis::GetEvent()","Maximum number of entried in the file chain reached: %i.",fEvtCount);
+    return fEvtCount;
+  }
+  fRootManager->ReadEvent ( fEvtCount-1 );
+
+  ReadRecoCandidates();
+  BuildMcCands(); 
+  // now fill carged and neutral lists. 
+  // MC association to reconstructed particles done at this point and copying is ok
+  fChargedCandList.Cleanup();
+  fNeutralCandList.Cleanup();
+  for(int ik=0;ik<fAllCandList.GetLength();ik++)
+  {
+    if(fAllCandList[ik]->GetCharge()==0){
+      fNeutralCandList.Add ( fAllCandList[ik] );
+    }else{
+      fChargedCandList.Add ( fAllCandList[ik] );
+    }
   }
 
-  return 0;
+  if(fVerbose) Info("PndAnalysis::GetEvent()","Finished loading event fEvtCount=%i.",fEvtCount);
+  //std::cout<<"PndAnalysis::fAllCandList:   "<<fAllCandList<<std::endl;
+  return fEvtCount;
 }
 
 FairMCEventHeader* PndAnalysis::GetEventHeader()
@@ -211,79 +228,7 @@ FairMCEventHeader* PndAnalysis::GetEventHeader()
 Bool_t PndAnalysis::FillList ( RhoCandList& l, TString listkey, TString pidTcaNames )
 {
   // Reads the specified List for the current event
-  UInt_t _uid=0;
   l.Cleanup();
-
-
-  // when the first list is requested read in the event
-
-  if ( !fEventRead ) {
-    fRootManager->ReadEvent ( fEvtCount-1 );
-    fEventRead=kTRUE;
-  }
-
-  // Get or build Monte-Carlo truth list
-  if ( listkey=="McTruth" ) {
-    if ( fMcCands ) {
-      if ( fBuildMcCands ) {
-        BuildMcCands();
-      }
-
-      for ( Int_t i1=0; i1<fMcCands->GetEntriesFast(); i1++ ) {
-        RhoCandidate* tc = ( RhoCandidate* ) fMcCands->At ( i1 );
-        l.Add ( *tc );
-      }
-
-      return kTRUE;
-    } else {
-      return kFALSE;
-    }
-  }
-
-  if ( fAllCandList.GetLength() == 0 ) { // do only when we didn't read something yet.
-    // removed now compatibility to RhoCandidate readin ... instead read PndPidCandidates
-
-    if ( fNeutralCands && fNeutralCandList.GetLength() ==0 ) {
-      for ( Int_t i1=0; i1<fNeutralCands->GetEntriesFast(); i1++ ) {
-        FairRecoCandidate* mic = ( FairRecoCandidate* ) fNeutralCands->At ( i1 );
-        _uid++; // uid will start from 1
-        RhoCandidate tc ( *mic,_uid );
-        tc.SetTrackNumber ( -1 );//(i1);
-        // TODO: Do we want to set something here? It is neutrals anyway.
-
-        if ( 0!=fNeutralProbability && i1<fNeutralProbability->GetEntriesFast() ) {
-          PndPidProbability* neuProb = ( PndPidProbability* ) fNeutralProbability->At ( i1 );
-
-          if ( neuProb == 0 ) {
-            Error ( "FillList", "Neutral PID Probability object not found, skip setting pid for candidate %i.",i1 );
-            continue;
-          }
-
-          // numbering see PndPidListMaker
-          tc.SetPidInfo ( 0,neuProb->GetElectronPidProb() );
-          tc.SetPidInfo ( 1,neuProb->GetMuonPidProb() );
-          tc.SetPidInfo ( 2,neuProb->GetPionPidProb() );
-          tc.SetPidInfo ( 3,neuProb->GetKaonPidProb() );
-          tc.SetPidInfo ( 4,neuProb->GetProtonPidProb() );
-        }
-
-        fNeutralCandList.Add ( tc );
-        fAllCandList.Add ( tc );
-      }
-    }
-
-    if ( fChargedCands && fChargedCandList.GetLength() ==0 ) {
-      for ( Int_t i2=0; i2<fChargedCands->GetEntriesFast(); i2++ ) {
-        _uid++; // uid will start from (n_neutrals + 1)
-        FairRecoCandidate* mic = ( FairRecoCandidate* ) fChargedCands->At ( i2 );
-        RhoCandidate tc ( *mic,_uid );
-        tc.SetTrackNumber ( i2 );
-        // TODO: Check that no i+1 is requested anymore elsewhere!!!
-        fChargedCandList.Add ( tc );
-        fAllCandList.Add ( tc );
-      }
-    }
-  }
 
   // Set which PID information should be used.
   if ( pidTcaNames!="" ) {
@@ -330,8 +275,20 @@ Bool_t PndAnalysis::FillList ( RhoCandList& l, TString listkey, TString pidTcaNa
     return kTRUE;
   }
 
-  Error ( "FillList", "Unknown list key: %s",listkey.Data() );
+  // Get or build Monte-Carlo truth list
+  if ( listkey=="McTruth" ) {
+    if ( fMcCands ) {
+      for ( Int_t i1=0; i1<fMcCands->GetEntriesFast(); i1++ ) {
+        RhoCandidate* tc = ( RhoCandidate* ) fMcCands->At ( i1 );
+        l.Add ( tc );
+      }
+      return kTRUE;
+    } else {
+      return kFALSE;
+    }
+  }
 
+  Error ( "FillList", "Unknown list key: %s",listkey.Data() );
   return kFALSE;
 }
 
@@ -344,128 +301,141 @@ Int_t PndAnalysis::GetEntries()
   }
 }
 
-void PndAnalysis::BuildMcCands()
+void PndAnalysis::ReadRecoCandidates()
 {
-//   if ( fMcCands->GetEntriesFast() > 100 ) {
-//     fMcCands->Delete();
-//   } // deep cleanup after really busy events
-//   else 
+  UInt_t _uid=0;
+  fAllCandList.Cleanup();
+  fChargedCandList.Cleanup();
+  fNeutralCandList.Cleanup();
+  if ( fNeutralCands ) {
+    for ( Int_t i1=0; i1<fNeutralCands->GetEntriesFast(); i1++ ) {
+        FairRecoCandidate* mic = ( FairRecoCandidate* ) fNeutralCands->At ( i1 );
+        _uid++; // uid will start from 1
+        RhoCandidate tc ( *mic,_uid );
+        tc.SetTrackNumber ( -1 );//(i1);
+        // TODO: Do we want to set something here? It is neutrals anyway.
 
+        if ( 0!=fNeutralProbability && i1<fNeutralProbability->GetEntriesFast() ) {
+          PndPidProbability* neuProb = ( PndPidProbability* ) fNeutralProbability->At ( i1 );
+
+          if ( neuProb == 0 ) {
+            Error ( "FillList", "Neutral PID Probability object not found, skip setting pid for candidate %i.",i1 );
+            continue;
+          }
+
+          // numbering see PndPidListMaker
+          tc.SetPidInfo ( 0,neuProb->GetElectronPidProb() );
+          tc.SetPidInfo ( 1,neuProb->GetMuonPidProb() );
+          tc.SetPidInfo ( 2,neuProb->GetPionPidProb() );
+          tc.SetPidInfo ( 3,neuProb->GetKaonPidProb() );
+          tc.SetPidInfo ( 4,neuProb->GetProtonPidProb() );
+        }
+        fAllCandList.Add ( &tc );
+      }
+    } else {
+      if(fVerbose) Warning("PndAnalysis::ReadRecoCandidates()","No neutral reco array found.");
+    }
+
+    if ( fChargedCands) {
+      for ( Int_t i2=0; i2<fChargedCands->GetEntriesFast(); i2++ ) {
+        _uid++; // uid will start from (n_neutrals + 1)
+        FairRecoCandidate* mic = ( FairRecoCandidate* ) fChargedCands->At ( i2 );
+        RhoCandidate tc ( *mic,_uid );
+        tc.SetTrackNumber ( i2 );
+        // TODO: Check that no i+1 is requested anymore elsewhere!!!
+        fAllCandList.Add ( &tc );
+      }
+    } else {
+      if(fVerbose) Warning("PndAnalysis::ReadRecoCandidates()","No charged reco array found.");
+    }
+  return;
+}
+
+
+RhoCandidate* PndAnalysis::CreateMcCandidate(Int_t mcindex)
+{ // iterative mc candidate and mothers adding
+  // check if it is in the mccand list (private index list) and return pointer in case
+  if(fMcPresenceMap[mcindex]) return fMcPresenceMap[mcindex];
+  if(mcindex>fMcTracks->GetEntriesFast()) return 0;
+  // fetch particle properties
+  PndMCTrack* part = (PndMCTrack*) fMcTracks->At(mcindex);
+  if(!part) return 0;
+  TLorentzVector p4 = part->Get4Momentum();
+  TVector3    stvtx = part->GetStartVertex();
+  TParticlePDG* ppdg = fPdg->GetParticle(part->GetPdgCode());
+  double charge=0.0;
+  if ( ppdg ) {
+    charge=ppdg->Charge();
+  } else if (fVerbose) {
+    cout <<"-W- CreateMcCandidate: strange PDG code:"<<part->GetPdgCode() <<endl;
+  }
+  if ( fabs(charge) >2 ) {
+    charge/=3.;
+  }
+  // create mc candidate
+  Int_t size = fMcCands->GetEntriesFast();
+  RhoCandidate* pmc=new ( (*fMcCands)[size] ) RhoCandidate(p4,charge);
+  pmc->SetPos (stvtx);
+  pmc->SetType (part->GetPdgCode()); //this overwrites our generator's mass information
+  pmc->SetP4 (p4);
+  // put mc candidate to list
+  fMcPresenceMap[mcindex]=pmc; 
+  // ask for mc mother candidate pointer by iteration
+  Int_t mcMotherID = part->GetMotherID();
+  if(mcMotherID<0) mcMotherID=part->GetSecondMotherID(); 
+  if(mcMotherID<0) return pmc;
+  RhoCandidate* aMother=CreateMcCandidate(mcMotherID);
+  if (0 == aMother){
+    if (fVerbose) Info("CreateMcCandidate","Mother not existant, top of tree reached");
+    return pmc;
+  }
+  // do mother link (which is double linking)
+  pmc->SetMotherLink (aMother,false); // This adds the mother-daughter and daughter-mother relation
+  // return pointer to this mc candiate
+  return pmc;
+}
+
+void PndAnalysis::BuildMcCands()
+{ 
+  // Make Monte-carlo truth candidates by the reconstructed particles up to the initial state (if available)
+  if ( !fMcCands ){ 
+    Warning("PndAnalysis::BuildMcCands","No array to store candidates...");
+    return;
+  }
+  if ( !fBuildMcCands ) {
+    if(fVerbose) Info("PndAnalysis::BuildMcCands","No mc to build...");
+    return;
+  }
   if ( fMcCands->GetEntriesFast() != 0 ) {
     fMcCands->Delete();
   }
-
+  // clear index list
+  fMcPresenceMap.clear();
   if ( fMcTracks == 0 ) {
     Error ( "BuildMcCands","MC track Array does not exist." );
     return;
   }
-
-  Int_t mcMotherID = -1;
-
-  // Get the Candidates
-  //cout<<"fMcTracks="<<fMcTracks<<" size="<<fMcTracks->GetEntriesFast()<<endl;
-  Int_t mothermap[fMcTracks->GetEntriesFast()]; // maps used and unused indices
-  for ( Int_t i=0; i<fMcTracks->GetEntriesFast(); i++ ) {
-    PndMCTrack* part = ( PndMCTrack* ) fMcTracks->At ( i );
-    mothermap[i]=-1;
-    
-    //if (part->GetMotherID()!=-1) continue;
-    if ( fVerbose>2 ) {
-      std::cout<<"Build MC cand: ";
-      part->Print ( i );
-    }
-
-    TLorentzVector p4 = part->Get4Momentum();
-    TVector3 startv = part->GetStartVertex();
-    // cut at 100 MeV to skip showers from being stored -> Bad idea
-    //if(part->IsGeneratorCreated()==0 && p4.Energy()<0.1) continue;
-    // better cut tracks _starting_ too far away for realistic tracking
-    if(startv.Perp() > 40.) continue;
-    if(startv.z() > 195.&& startv.Perp() > 17.5) continue;
-    //printf("PndAnalysis::BuildMcCands(): i=%i  mother=%i \tE=%3.2g  \tm=%3.2g  \tp=%3.2g  \tpid=%i  \ttStart=%3.2g  \tcreated=%i decayed=%i \tpinter %p\n",i,mcMotherID,p4.E(),p4.M(),p4.P(),part->GetPdgCode(),part->GetStartTime(),part->IsGeneratorCreated(),part->IsGeneratorDecayed(),part);
-    TVector3    stvtx = part->GetStartVertex();
-    TParticlePDG* ppdg = fPdg->GetParticle ( part->GetPdgCode() );
-    double charge=0.0;
-
-    if ( ppdg ) {
-      charge=ppdg->Charge();
-    } else if ( fVerbose ) {
-      cout <<"-W- PndMcListConverter: strange PDG code:"<<part->GetPdgCode() <<endl;
-    }
-
-    if ( fabs ( charge ) >2 ) {
-      charge/=3.;
-    }
-
-    //TClonesArray& ref = *fMcCands;
-    Int_t size = fMcCands->GetEntriesFast();
-
-    //either
-    //RhoCandidate buffcand(p4,charge);
-    //RhoCandidate *pmc = RhoFactory::Instance()->NewCandidate(buffcand);
-    //fMcCands->Add(pmc);
-    //or
-    RhoCandidate* pmc=new ( ( *fMcCands ) [size] ) RhoCandidate ( p4,charge );
-    mothermap[i]=size;
-    //pmc->SetMcIdx(size);
-    //pmc->SetMcIdx ( 0 ); // no truth object for mctruth
-    pmc->SetPos ( stvtx );
-    pmc->SetType ( part->GetPdgCode() ); //this overwrites our generator's mass information
-    pmc->SetP4 ( p4 );
-        mcMotherID = part->GetMotherID();
-    if ( mcMotherID<0 ) {
-      mcMotherID=part->GetSecondMotherID();
-    } // shadowed particle IDs
-    if(mcMotherID>=i ||  mothermap[mcMotherID]>size ||  mothermap[mcMotherID]<0) {
-      if ( fVerbose ) Info( "BuildMcCands","mc mother index problem, skipping");
+  // loop allCandnds
+  RhoCandidate* truth=0;
+  for(int icand=0;icand<fAllCandList.GetLength();icand++){
+    RhoCandidate* currentcand=fAllCandList.Get(icand);
+    //   get reco candidate
+    FairRecoCandidate* reco = currentcand->GetRecoCandidate();
+    if(!reco) {
+      if (fVerbose) Info("BuildMcCands","reco object to candidate %i (%p) missing.",icand,currentcand);
       continue;
     }
-    RhoCandidate* aMother= ( RhoCandidate* ) fMcCands->At ( mothermap[mcMotherID] );
-    if ( 0 == aMother ) {
-      if ( fVerbose ) Info("BuildMcCands","Mother not existant");
-      continue;
-    }
-    //printf("PndAnalysis::BuildMcCands(): Add mother link: motherid=%i, daughterid=%i, daugher energy = %.2gGeV\n",mcMotherID,i,aMcCand->GetEnergy());
-    pmc->SetMotherLink ( aMother , false); // This adds the mother-daughter and daughter-mother relation
-
-    //pmc->SetMcMotherIdx ( mcMotherID );
-
-//    if(fabs(charge)>0) {
-//      Bool_t rc = PndAnalysisCalcTools::FillHelixParams(pmc, kTRUE);
-//      if(!rc && fVerbose>0) {
-//        Warning("BuildMcCands()","Faild calculation helix parameters");
-//        std::cout<<*pmc<<std::endl;
-//        stvtx.Print();
-//        std::cout<<"Mother pointer: "<<pmc->TheMother()<<std::endl;
-//      }
-//    }
-
+    // get the mctruth
+    Int_t mcidx = reco->GetMcIndex();
+    // call iterative candidate adding with mc truth
+    truth = CreateMcCandidate(mcidx);
+    if(!truth) continue;
+    // now set the truth
+    if(fVerbose)Info("PndAnalysis::BuildMcCands()","Now setting truth (%p) to candidate (uid=%i)",truth,currentcand->Uid());
+    currentcand->SetMcTruth(truth);
+    //if(fVerbose)std::cout<<*currentcand<<std::endl;
   }
-
-//   cout<<"fMcCands="<<fMcCands<<" size="<<fMcCands->GetEntriesFast()<<endl;
-// 
-//   // iterate again to set mother relations
-//   for ( int i=0; i<fMcCands->GetEntriesFast(); i++ ) {
-//     RhoCandidate* aMcCand= ( RhoCandidate* ) fMcCands->At ( i );
-//     mcMotherID=aMcCand->GetMcMotherIdx();
-// 
-//     if ( mcMotherID<0 ) {
-//       continue;
-//     }
-// 
-//     RhoCandidate* aMother= ( RhoCandidate* ) fMcCands->At ( mcMotherID );
-// 
-//     if ( 0 == aMother ) {
-//       continue;
-//     }
-//     //printf("PndAnalysis::BuildMcCands(): Add mother link: motherid=%i, daughterid=%i, daugher energy = %.2gGeV\n",mcMotherID,i,aMcCand->GetEnergy());
-//     aMcCand->SetMotherLink ( aMother , false); // This adds the mother-daughter and daughter-mother relation
-//   }
-// 
-//   if ( fVerbose ) {
-//     std::cout <<"-I- PndAnalysis::BuildMcCands: found ="<<fMcCands->GetEntriesFast() <<std::endl;
-//   }
-
+  //std::cout<<"BuildMcCands():  "<<fAllCandList<<std::endl;
 }
 
 Bool_t PndAnalysis::PropagateToIp ( RhoCandidate* cand )

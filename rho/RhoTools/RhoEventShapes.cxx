@@ -25,7 +25,7 @@ RhoEventShapes::RhoEventShapes(RhoCandList &l, TLorentzVector cms) :
   
   for (i=0;i<l.GetLength();++i)
   {
-    RhoCandidate* cand = &(l[i]);
+    RhoCandidate* cand = l[i];
     TLorentzVector lv(cand->P4());
     int chrg(cand->Charge());
 

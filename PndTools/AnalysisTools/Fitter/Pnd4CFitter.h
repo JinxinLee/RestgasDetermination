@@ -22,7 +22,7 @@ class RhoCandidate;
 class Pnd4CFitter : public RhoFitterBase
 {
   public:
-    Pnd4CFitter( RhoCandidate& b , TLorentzVector lv) ;
+    Pnd4CFitter( RhoCandidate* b , TLorentzVector lv) ;
     virtual ~Pnd4CFitter();// {if(fHeadOfTree) delete fHeadOfTree;}
     void Fit(); // fits final state particles to initial state, States inbetween are modified.
     void FitConserveMasses(); // fits final state particles threemomenta to initial state, States inbetween are modified.

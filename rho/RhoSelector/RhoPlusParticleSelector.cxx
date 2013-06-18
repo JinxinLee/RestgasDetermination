@@ -32,20 +32,20 @@ RhoPlusParticleSelector::RhoPlusParticleSelector ( const char* name, const char*
   RhoParticleSelectorBase ( name,type )
 {}
 
-Bool_t RhoPlusParticleSelector::Accept ( RhoCandidate& b )
+Bool_t RhoPlusParticleSelector::Accept ( RhoCandidate* b )
 {
-  if ( &b == 0 ) { return kFALSE; }
-  if ( b.GetCharge() <0 ) { return kFALSE; }
+  if ( b == 0 ) { return kFALSE; }
+  if ( b->GetCharge() <0 ) { return kFALSE; }
   SetTypeAndMass ( b );
 
   return kTRUE;
 }
 
-Bool_t RhoPlusParticleSelector::Accept ( FairRecoCandidate& b )
+Bool_t RhoPlusParticleSelector::Accept ( FairRecoCandidate* b )
 {
   Bool_t decision = kFALSE;
-  if ( &b == 0 ) { return kFALSE; }
-  if ( b.GetCharge() ==1 ) { decision = kTRUE; }
+  if ( b == 0 ) { return kFALSE; }
+  if ( b->GetCharge() ==1 ) { decision = kTRUE; }
   return decision;
 }
 

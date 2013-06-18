@@ -214,6 +214,65 @@ RhoCandidate::RhoCandidate ( const RhoCandidate& o )
   fFit = 0 ;
 }
 
+// RhoCandidate::RhoCandidate ( const RhoCandidate* o )
+// {
+//   if(!o) Fatal("RhoCandidate::RhoCandidate","Copy constructor got a bad pointer");
+//   fFastMode = o->fFastMode;
+//   fLocked = kFALSE;
+//   fTheMother = 0;
+//   fDecayVtx = o->fDecayVtx;
+//   fPdtEntry = o->fPdtEntry;
+//   fPdgCode  = o->fPdgCode;
+//   fIsAResonance = o->fIsAResonance;
+//   fTrackNumber = o->fTrackNumber;
+//   fUid = o->fUid;
+//   fMicroCand = o->fMicroCand;
+// 
+//   fMarker[0] = o->fMarker[0];
+//   fMarker[1] = o->fMarker[1];
+//   fMarker[2] = o->fMarker[2];
+//   fMarker[3] = o->fMarker[3];
+// 
+//   fCharge    = o->fCharge;
+//   fXposition = o->fXposition;
+//   fYposition = o->fYposition;
+//   fZposition = o->fZposition;
+//   fXmomentum = o->fXmomentum;
+//   fYmomentum = o->fYmomentum;
+//   fZmomentum = o->fZmomentum;
+//   fEnergy    = o->fEnergy;
+// 
+//   if ( !fFastMode ) {
+//     int i;
+//     for ( i=0; i<MATRIXSIZE; i++ ) { fErrP7[i] = o->fErrP7[i]; }
+//   }
+// 
+//   fNDaug = o->fNDaug;
+//   for ( int i=0; i<fNDaug; i++ ) {
+//     fDaughters[i] = o->fDaughters[i];
+//     fDaughters[i]->fTheMother = this;
+//   }
+//   for ( int i=fNDaug; i<MAXNDAU; i++ ) {
+//     fDaughters[i] = NULL;
+//   }
+// 
+//   fNCons = 0;
+// //  if (o->nCons > 0) {
+// //    for (int i=0;i<o->nCons;i++) AddConstraint(*o->fConstraints[i]);
+// //  }
+// 
+//   for ( int i=0; i<30; i++ ) {
+//     fPidLH[i]=o->fPidLH[i];
+//   }
+// 
+//   fMcTruth=o->fMcTruth;
+// 
+//   //FIXME Do we want to carry these status flags?
+//   fChi2 = 0 ;
+//   fFit = 0 ;
+// }
+
+
 // This is the special constructor to bring a RhoCandidate into
 // life from the MicroCandidate
 
@@ -761,14 +820,15 @@ const RhoVector3Err* RhoCandidate::ProductionVtx() const
   else { return 0; }
 }
 
-Bool_t RhoCandidate::operator== ( const RhoCandidate& c ) const
+Bool_t RhoCandidate::operator== ( const RhoCandidate* c ) const
 {
   return Equals ( c ) ;
 }
 
-Bool_t RhoCandidate::operator!= ( const RhoCandidate& c ) const
+Bool_t RhoCandidate::operator!= (  RhoCandidate* c ) const
 {
-  return ( *this!=c ) ;
+  // return ( (*this)!=(*c) ) ;
+  return !Equals(c);
 }
 
 // This comes from the content
@@ -1157,6 +1217,7 @@ void RhoCandidate::PrintOn ( std::ostream& o ) const
   if ( DecayVtx() ) { o << " dcy: "<<*DecayVtx(); }
   o << " PID:";
   for ( int k=0; k<5; k++ ) { o << fPidLH[k] <<","; } // take the first 5 pid entries to check charged p,pi,e,mu,K
+  o << "  mc truth pointer: " <<fMcTruth;  
 }
 
 

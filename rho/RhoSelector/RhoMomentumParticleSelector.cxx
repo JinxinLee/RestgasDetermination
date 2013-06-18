@@ -32,17 +32,17 @@ RhoMomentumParticleSelector::RhoMomentumParticleSelector ( const char* name, Dou
   RhoParticleSelectorBase ( name,type ), fCentralValue ( cv ), fWindow ( 0.5*w )
 {}
 
-Bool_t RhoMomentumParticleSelector::Accept ( RhoCandidate& b )
+Bool_t RhoMomentumParticleSelector::Accept ( RhoCandidate* b )
 {
-  if ( &b == 0 ) { return kFALSE; }
+  if ( b == 0 ) { return kFALSE; }
   SetTypeAndMass ( b );
-  return ( fabs ( b.P()-fCentralValue ) <fWindow );
+  return ( fabs ( b->P()-fCentralValue ) <fWindow );
 }
 
-Bool_t RhoMomentumParticleSelector::Accept ( FairRecoCandidate& b )
+Bool_t RhoMomentumParticleSelector::Accept ( FairRecoCandidate* b )
 {
-  if ( &b == 0 ) { return kFALSE; }
-  return ( fabs ( b.GetMomentum().Mag()-fCentralValue ) <fWindow );
+  if ( b == 0 ) { return kFALSE; }
+  return ( fabs ( b->GetMomentum().Mag()-fCentralValue ) <fWindow );
 }
 
 

@@ -35,8 +35,8 @@ class RhoNeutralParticleSelector : public RhoParticleSelectorBase
     virtual ~RhoNeutralParticleSelector() {}
 
     //operations
-    virtual Bool_t Accept ( RhoCandidate& b );
-    virtual Bool_t Accept ( FairRecoCandidate& b );
+    virtual Bool_t Accept ( RhoCandidate* b );
+    virtual Bool_t Accept ( FairRecoCandidate* b );
 
     ClassDef ( RhoNeutralParticleSelector,1 )  // Neutral particle selector
 };

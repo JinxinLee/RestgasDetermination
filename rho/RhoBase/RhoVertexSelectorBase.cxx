@@ -44,21 +44,21 @@ void RhoVertexSelectorBase::Combine ( RhoCandList& l1, RhoCandList& l2, RhoCandL
     //combination of a list with itself
     for ( Int_t comb_i=0; comb_i<endpos1; ++comb_i ) {
       for ( Int_t comb_k=comb_i+1; comb_k<endpos2; ++comb_k ) {
-        if ( !l1[comb_i].Overlaps ( l2[comb_k] ) ) {
-          vl=l1[comb_i].P4() +l2[comb_k].P4();
-          charge=l1[comb_i].Charge() +l2[comb_k].Charge();
+        if ( !l1[comb_i]->Overlaps ( l2[comb_k] ) ) {
+          vl=l1[comb_i]->P4() +l2[comb_k]->P4();
+          charge=l1[comb_i]->Charge() +l2[comb_k]->Charge();
           nearby = Accept ( l1[comb_i],l2[comb_k] );
           if ( nearby ) {
             //fill list with new candidate
             RhoCandidate c ( vl,charge );
-            c.SetMarker ( l1[comb_i].GetMarker ( 0 ) |l2[comb_k].GetMarker ( 0 ),0 );
-            c.SetMarker ( l1[comb_i].GetMarker ( 1 ) |l2[comb_k].GetMarker ( 1 ),1 );
-            c.SetMarker ( l1[comb_i].GetMarker ( 2 ) |l2[comb_k].GetMarker ( 2 ),2 );
-            c.SetMarker ( l1[comb_i].GetMarker ( 3 ) |l2[comb_k].GetMarker ( 3 ),3 );
+            c.SetMarker ( l1[comb_i]->GetMarker ( 0 ) |l2[comb_k]->GetMarker ( 0 ),0 );
+            c.SetMarker ( l1[comb_i]->GetMarker ( 1 ) |l2[comb_k]->GetMarker ( 1 ),1 );
+            c.SetMarker ( l1[comb_i]->GetMarker ( 2 ) |l2[comb_k]->GetMarker ( 2 ),2 );
+            c.SetMarker ( l1[comb_i]->GetMarker ( 3 ) |l2[comb_k]->GetMarker ( 3 ),3 );
             c.SetPosition ( GetVertex() );
             c.SetVect ( GetMomentum() );
             c.SetE ( c.E() );
-            out.Put ( c );
+            out.Put ( &c );
           }
         }
       }
@@ -67,21 +67,21 @@ void RhoVertexSelectorBase::Combine ( RhoCandList& l1, RhoCandList& l2, RhoCandL
     //combination of 2 different lists
     for ( Int_t comb_i=0; comb_i<endpos1; ++comb_i ) {
       for ( Int_t comb_k=0; comb_k<endpos2; ++comb_k ) {
-        if ( !l1[comb_i].Overlaps ( l2[comb_k] ) ) {
-          vl=l1[comb_i].P4() +l2[comb_k].P4();
-          charge=l1[comb_i].Charge() +l2[comb_k].Charge();
+        if ( !l1[comb_i]->Overlaps ( l2[comb_k] ) ) {
+          vl=l1[comb_i]->P4() +l2[comb_k]->P4();
+          charge=l1[comb_i]->Charge() +l2[comb_k]->Charge();
           nearby = Accept ( l1[comb_i],l2[comb_k] );
           if ( nearby ) {
             //fill list with new candidate
             RhoCandidate c ( vl,charge );
-            c.SetMarker ( l1[comb_i].GetMarker ( 0 ) |l2[comb_k].GetMarker ( 0 ),0 );
-            c.SetMarker ( l1[comb_i].GetMarker ( 1 ) |l2[comb_k].GetMarker ( 1 ),1 );
-            c.SetMarker ( l1[comb_i].GetMarker ( 2 ) |l2[comb_k].GetMarker ( 2 ),2 );
-            c.SetMarker ( l1[comb_i].GetMarker ( 3 ) |l2[comb_k].GetMarker ( 3 ),3 );
+            c.SetMarker ( l1[comb_i]->GetMarker ( 0 ) |l2[comb_k]->GetMarker ( 0 ),0 );
+            c.SetMarker ( l1[comb_i]->GetMarker ( 1 ) |l2[comb_k]->GetMarker ( 1 ),1 );
+            c.SetMarker ( l1[comb_i]->GetMarker ( 2 ) |l2[comb_k]->GetMarker ( 2 ),2 );
+            c.SetMarker ( l1[comb_i]->GetMarker ( 3 ) |l2[comb_k]->GetMarker ( 3 ),3 );
             c.SetPosition ( GetVertex() );
             c.SetVect ( GetMomentum() );
             c.SetE ( c.E() );
-            out.Put ( c );
+            out.Put ( &c );
           }
         }
       }

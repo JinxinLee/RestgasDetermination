@@ -33,9 +33,10 @@ class PndAnaPidCombiner : public TNamed
     void SetDefaults();
     void ClearNames() {fPidArrays.clear(); };
     void Init();
-    Bool_t Apply(RhoCandidate& tc);
+
+    void ApplyFlat(RhoCandidate* tc);
+    Bool_t Apply(RhoCandidate* tc);
     Bool_t Apply(RhoCandList& tcl);
-    void ApplyFlat(RhoCandidate& tc);
 
   private:
     TClonesArray* ReadTCA(const TString& tcaname);

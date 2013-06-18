@@ -293,19 +293,19 @@ PndListProvider::GetCandList(RhoCandList& tcl)
         for (Int_t comb_i=0; comb_i<endpos; ++comb_i) {
           for (Int_t comb_j=comb_i+1; comb_j<endpos; ++comb_j) {
             for (Int_t comb_k=comb_j+1; comb_k<endpos; ++comb_k) {
-              if (    !l1[comb_i].Overlaps( l1[comb_j] )
-                      && !l1[comb_j].Overlaps( l1[comb_k] )
-                      && !l1[comb_i].Overlaps( l1[comb_k] )  ) {
-                vl=l1[comb_i].P4()+l1[comb_j].P4()+l1[comb_k].P4();
-                charge=l1[comb_i].Charge()+l1[comb_j].Charge()+l1[comb_k].Charge();
+              if (    !l1[comb_i]->Overlaps( l1[comb_j] )
+                      && !l1[comb_j]->Overlaps( l1[comb_k] )
+                      && !l1[comb_i]->Overlaps( l1[comb_k] )  ) {
+                vl=l1[comb_i]->P4()+l1[comb_j]->P4()+l1[comb_k]->P4();
+                charge=l1[comb_i]->Charge()+l1[comb_j]->Charge()+l1[comb_k]->Charge();
                 //if (selector) nearby = selector->Accept(l1[comb_i],l2[comb_k]);
                 if (nearby) {
                   //fill list with new candidate
                   RhoCandidate c(vl,charge);
-                  c.SetMarker(l1[comb_i].GetMarker(0)|l1[comb_j].GetMarker(0)|l1[comb_k].GetMarker(0),0);
-                  c.SetMarker(l1[comb_i].GetMarker(1)|l1[comb_j].GetMarker(1)|l1[comb_k].GetMarker(1),1);
-                  c.SetMarker(l1[comb_i].GetMarker(2)|l1[comb_j].GetMarker(2)|l1[comb_k].GetMarker(2),2);
-                  c.SetMarker(l1[comb_i].GetMarker(3)|l1[comb_j].GetMarker(3)|l1[comb_k].GetMarker(3),3);
+                  c.SetMarker(l1[comb_i]->GetMarker(0)|l1[comb_j]->GetMarker(0)|l1[comb_k]->GetMarker(0),0);
+                  c.SetMarker(l1[comb_i]->GetMarker(1)|l1[comb_j]->GetMarker(1)|l1[comb_k]->GetMarker(1),1);
+                  c.SetMarker(l1[comb_i]->GetMarker(2)|l1[comb_j]->GetMarker(2)|l1[comb_k]->GetMarker(2),2);
+                  c.SetMarker(l1[comb_i]->GetMarker(3)|l1[comb_j]->GetMarker(3)|l1[comb_k]->GetMarker(3),3);
                   //if (selector!=0)
                   //{
                   //  c.SetPosition(selector->GetVertex());
@@ -313,11 +313,11 @@ PndListProvider::GetCandList(RhoCandList& tcl)
                   //  c.SetEnergy(c.E());
                   //}
                   // *************** modified by K Goetzen
-                  c.AddDaughterLinkSimple(&(l1[comb_i]));
-                  c.AddDaughterLinkSimple(&(l1[comb_j]));
-                  c.AddDaughterLinkSimple(&(l1[comb_k]));
+                  c.AddDaughterLinkSimple(l1[comb_i]);
+                  c.AddDaughterLinkSimple(l1[comb_j]);
+                  c.AddDaughterLinkSimple(l1[comb_k]);
                   // ****************
-                  fOwnList.Put(c);
+                  fOwnList.Put(&c);
                 } //if nearby
               }// overlap
             }//for k
@@ -329,7 +329,7 @@ PndListProvider::GetCandList(RhoCandList& tcl)
     }
 
     if (fHisto)
-      for (int i=0; i<fOwnList.GetLength(); ++i) { fHisto->Fill(fOwnList[i].Mass()); }
+      for (int i=0; i<fOwnList.GetLength(); ++i) { fHisto->Fill(fOwnList[i]->Mass()); }
 
     if (fMassSel) { fOwnList.Select(fMassSel); }
 
@@ -375,7 +375,7 @@ PndListProvider::GetType()
 void PndListProvider::FillHisto()
 {
   if (fHisto && !fHistoFilled) {
-    for (int i=0; i<fOwnList.GetLength(); ++i) { fHisto->Fill(fOwnList[i].Mass()); }
+    for (int i=0; i<fOwnList.GetLength(); ++i) { fHisto->Fill(fOwnList[i]->Mass()); }
     fHistoFilled=true;
   }
 }

@@ -111,7 +111,7 @@ bool PndAnaTask::FillList(RhoCandList& l, std::string listkey)
       //cout <<"PndAnaTask::FillList: "<<fMcCands->GetEntriesFast()<<" mc cands"<<endl;
       for (int i1=0; i1<fMcCands->GetEntriesFast(); i1++) {
         RhoCandidate* tc = (RhoCandidate*)fMcCands->At(i1);
-        l.Add(*tc);
+        l.Add(tc);
       }
       return true;
     } else { return false; }
@@ -151,8 +151,8 @@ bool PndAnaTask::FillList(RhoCandList& l, std::string listkey)
           tc.SetPidInfo(3,neuProb->GetKaonPidProb());
           tc.SetPidInfo(4,neuProb->GetProtonPidProb());
         }
-        fLNeutralCands.Add(tc);
-        fLAllCands.Add(tc);
+        fLNeutralCands.Add(&tc);
+        fLAllCands.Add(&tc);
       }
 
     if (fChargedCands && fLChargedCands.GetLength()==0) {
@@ -169,8 +169,8 @@ bool PndAnaTask::FillList(RhoCandList& l, std::string listkey)
           tc.SetPidInfo(3,chProb->GetKaonPidProb());
           tc.SetPidInfo(4,chProb->GetProtonPidProb());
         }
-        fLChargedCands.Add(tc);
-        fLAllCands.Add(tc);
+        fLChargedCands.Add(&tc);
+        fLAllCands.Add(&tc);
       }
     }
   }

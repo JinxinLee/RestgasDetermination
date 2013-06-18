@@ -28,8 +28,8 @@ class RhoGoodPhotonSelector : public RhoParticleSelectorBase
 
     //operations
     virtual void SetCriterion ( const char* crit );
-    virtual Bool_t Accept ( RhoCandidate& b );
-    virtual Bool_t Accept ( PndPidCandidate& b );
+    virtual Bool_t Accept ( RhoCandidate* b );
+    virtual Bool_t Accept ( PndPidCandidate* b );
     virtual void PrintOn ( std::ostream& o=std::cout ) const;
     void SetCrystals ( Int_t min, Int_t max ) {
       fNcMin = min;

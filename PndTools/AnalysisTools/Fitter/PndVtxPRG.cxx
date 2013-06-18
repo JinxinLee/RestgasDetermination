@@ -14,7 +14,7 @@ TBuffer& operator>>(TBuffer& buf, PndVtxPRG *&obj)
   return buf;
 }
 
-PndVtxPRG::PndVtxPRG( RhoCandidate& b) :
+PndVtxPRG::PndVtxPRG( RhoCandidate* b) :
   RhoFitterBase(b),
   fDebug(false),
   fNIterations(1),
@@ -218,7 +218,7 @@ Bool_t PndVtxPRG::Calculate()
   fVerbose=false;
   bool debi=fDebug;
   fDebug=false; // temporary silence
-  FitVertexFast(vtx,tmpcov,false);//fast vertex seed (with expansion point used)
+  //FitVertexFast(vtx,tmpcov,false);//fast vertex seed (with expansion point used)
   fDebug=debi;
   fVerbose=verbi;
   if(fVerbose) {std::cout<<" #$# Fit #$# Vertex after fast prefit: "; vtx.Print();}
@@ -428,11 +428,16 @@ Bool_t PndVtxPRG::Calculate()
     if(fDebug) {std::cout<<" #$# Fit #$# CovVV  (det="<<determinant<<") ="; CovVV.Print();}
     //TMatrixD CovVV(TMatrixD::kInverted,WV); // no determinant returned -> No check possible
     TMatrixD uV(CovVV,TMatrixD::kMult,Vpre);
-    //fExpansionPoint=vtx; //
     vtx.SetXYZ(vtx.X()+uV[0][0],vtx.Y()+uV[1][0],vtx.Z()+uV[2][0]);
     if(fDebug) {std::cout<<" #$# Fit #$# Vertex update = "; uV.Print();}
     if(fVerbose) {std::cout<<" #$# Fit #$# Vertex after          "; vtx.Print();}
     if(fVerbose) {std::cout<<" #$# Fit #$# Vertex after (global) "; vtx.Print();}
+
+//     //skip momentim update until the very last iteration
+//     if(iteration < fNIterations-1){
+//       fExpansionPoint=vtx; //
+//       continue;
+//     }
 
     // Calculate Momentum updates & Chi^2
     std::vector<TMatrixD> uq;
@@ -443,7 +448,7 @@ Bool_t PndVtxPRG::Calculate()
       TMatrixD uPi(GI[i],TMatrixD::kMult,U[i]-BtiV);
       // update momenta
       momenta[i]+=TVector3(uPi[0][0],uPi[1][0],uPi[2][0]);
-      if(fVerbose) {std::cout<<" #$# Fit #$# Momenum update "; uPi.Print();}
+      if(fVerbose) {std::cout<<" #$# Fit #$# Momenum update on particle %i"<<i; uPi.Print();}
       //qip[3][i]=momenta[i].Phi();
       // update track parameters at current vertex (phi_0)
       // track param residuals for chisquare
@@ -455,7 +460,8 @@ Bool_t PndVtxPRG::Calculate()
       TMatrixD dqitWi(dq[i],TMatrixD::kTransposeMult,W[i]);
       TMatrixD chis(dqitWi,TMatrixD::kMult,dq[i]);
       chiq+=chis[0][0];
-      InsertChi2(*(fCurrentHead->Daughter(i)),chisquare);
+	  if(fDebug){std::cout<<" #$# Fit #$# Insert Chisquare"<<std::endl;}
+      InsertChi2(fCurrentHead->Daughter(i),chisquare);
     }
     if(chiq>0 && chiq<10000) { chisquare=chiq; }
     else { chisquare = -20; }

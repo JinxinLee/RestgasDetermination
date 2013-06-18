@@ -275,9 +275,9 @@ void PndSoftTriggerTask::Exec(Option_t* opt)
 	h_multn->Fill(neut.GetLength());
 	
 	// fill momentum histos
-	for (j=0;j<all.GetLength();++j) h_mom->Fill(all[j].P());
-	for (j=0;j<chrg.GetLength();++j) h_momc->Fill(chrg[j].P());
-	for (j=0;j<neut.GetLength();++j) h_momn->Fill(neut[j].P());
+	for (j=0;j<all.GetLength();++j) h_mom->Fill(all[j]->P());
+	for (j=0;j<chrg.GetLength();++j) h_momc->Fill(chrg[j]->P());
+	for (j=0;j<neut.GetLength();++j) h_momn->Fill(neut[j]->P());
 	
 	// *** J/psi->l+ l- cominatorics 
 	Jpsi.Combine(ep, em);
@@ -321,11 +321,11 @@ void PndSoftTriggerTask::Exec(Option_t* opt)
 	// ********* J/psi
 	for (j=0;j<Jpsi.GetLength();++j) 
 	{
-		double m=Jpsi[j].M();
+		double m=Jpsi[j]->M();
 		
 		h_jpsi->Fill(m);
 		
-		if (mcm->MctMatch(Jpsi[j], mctrk)) h_jpsit->Fill(m);
+		if (mcm->MctMatch(Jpsi.Get(j), mctrk)) h_jpsit->Fill(m);
 		
 		if (fabs(m-fJMass)<fJMassCut) 
 		{
@@ -340,11 +340,11 @@ void PndSoftTriggerTask::Exec(Option_t* opt)
 	// ********* D0
 	for (j=0;j<D0.GetLength();++j) 
 	{
-		double m=D0[j].M();
+		double m=D0[j]->M();
 		
 		h_d0->Fill(m);
 		
-		if (mcm->MctMatch(D0[j], mctrk)) h_d0t->Fill(m);
+		if (mcm->MctMatch(D0.Get(j), mctrk)) h_d0t->Fill(m);
 		
 		if (fabs(m-fD0Mass)<fD0MassCut ) 
 		{
@@ -358,17 +358,17 @@ void PndSoftTriggerTask::Exec(Option_t* opt)
 	// ********* D+
 	for (j=0;j<Dpm.GetLength();++j) 
 	{
-		double m=Dpm[j].M();
+		double m=Dpm[j]->M();
 		
 		h_dpm->Fill(m);
 		
-		double beta = Dpm[j].P4().Beta();
-		double gamma = Dpm[j].P4().Gamma();
+		double beta = Dpm[j]->P4().Beta();
+		double gamma = Dpm[j]->P4().Gamma();
 		
 		// determine pseudo vertex
 		PndVtxPoca poca;
 		TVector3 vtx;
-		double pocaquality = poca.GetPocaVtx(vtx,Dpm[j]);
+		double pocaquality = poca.GetPocaVtx(vtx,Dpm.Get(j));
 		
 		// decay length
 		h_d0_l->Fill(vtx.Mag()/(beta*gamma));
@@ -379,7 +379,7 @@ void PndSoftTriggerTask::Exec(Option_t* opt)
 		h_d0_pocz->Fill(vtx.Z());
 		
 		// store mc truth matched cands
-		if (mcm->MctMatch(Dpm[j], mctrk)) 
+		if (mcm->MctMatch(Dpm.Get(j), mctrk)) 
 		{
 			h_dpmt->Fill(m);
 			h_d0_pocxm->Fill(vtx.X());
@@ -401,11 +401,11 @@ void PndSoftTriggerTask::Exec(Option_t* opt)
 	// ********* Ds
 	for (j=0;j<Ds.GetLength();++j) 
 	{
-		double m=Ds[j].M();
+		double m=Ds[j]->M();
 		
 		h_ds->Fill(m);
 		
-		if (mcm->MctMatch(Ds[j], mctrk))  h_dst->Fill(m);
+		if (mcm->MctMatch(Ds.Get(j), mctrk))  h_dst->Fill(m);
 		
 		if ( fabs(m-fDsMass)<fDsMassCut ) 
 		{
@@ -419,11 +419,11 @@ void PndSoftTriggerTask::Exec(Option_t* opt)
 	// ********* Phi
 	for (j=0;j<Phi.GetLength();++j) 
 	{
-		double m=Phi[j].M();
+		double m=Phi[j]->M();
 		
 		h_phi->Fill(m);
 		
-		if (mcm->MctMatch(Phi[j], mctrk)) h_phit->Fill(m);
+		if (mcm->MctMatch(Phi.Get(j), mctrk)) h_phit->Fill(m);
 		
 		if (fabs(m-fPhiMass)<fPhiMassCut ) 
 		{
@@ -437,11 +437,11 @@ void PndSoftTriggerTask::Exec(Option_t* opt)
 	// ********* Lam c
 	for (j=0;j<Lamc.GetLength();++j) 
 	{
-		double m=Lamc[j].M();
+		double m=Lamc[j]->M();
 		
 		h_lamc->Fill(m);
 		
-		if ( mcm->MctMatch(Lamc[j], mctrk)) h_lamct->Fill(m);
+		if ( mcm->MctMatch(Lamc.Get(j), mctrk)) h_lamct->Fill(m);
 			
 		if ( fabs(m-fLamcMass)<fLamcMassCut ) 
 		{
@@ -481,7 +481,7 @@ void PndSoftTriggerTask::FillMassHisto(TH1F* h, RhoCandList &l)
 	Int_t i=0;
 	for (i=0;i<l.GetLength();++i)
 	{
-		h->Fill(l[i].M());
+		h->Fill(l[i]->M());
 	}
 }
 // -------------------------------------------------------------------------
@@ -499,14 +499,14 @@ int PndSoftTriggerTask::RemoveDoubles(RhoCandList &l, double limit)
 		for (j=i+1;j<l.GetLength();++j)
 		{
 		  if(!sim && 
-		     fabs(l[i].Px()-l[j].Px())<limit &&
-		     fabs(l[i].Py()-l[j].Py())<limit &&
-		     fabs(l[i].Pz()-l[j].Pz())<limit &&
-		     fabs(l[i].E()-l[j].E())<limit)
+		     fabs(l[i]->Px()-l[j]->Px())<limit &&
+		     fabs(l[i]->Py()-l[j]->Py())<limit &&
+		     fabs(l[i]->Pz()-l[j]->Pz())<limit &&
+		     fabs(l[i]->E()-l[j]->E())<limit)
 		    {
 		      sim=true;
 		    }
-		      //if (similarity(l[i].P4(), l[j].P4())<limit){ sim=true; j=10000;}
+		      //if (similarity(l[i].P4(), l[j]->P4())<limit){ sim=true; j=10000;}
 		}
 		if (sim) {l.Remove(l[i--]); rem++;}
 	}
@@ -524,7 +524,7 @@ void PndSoftTriggerTask::PrintList(RhoCandList &l, int max)
 	if (N>max) N=max;
 	for (int j=0;j<N;++j)
 	{
-		cout <<l[j]<<" PDG:"<<l[j].PdgCode()<<" MC pointer:"<<l[j].GetMcTruth()<<endl;
+		cout <<*(l[j])<<" PDG:"<<l[j]->PdgCode()<<" MC pointer:"<<l[j]->GetMcTruth()<<endl;
 	}
 	cout <<endl;
 }
@@ -537,14 +537,14 @@ void PndSoftTriggerTask::SelectPid(int type, int pdg, int chrg, RhoCandList &l, 
 			
 	for (int j=0;j<l.GetLength();++j)
 	{
-		if (fabs(l[j].Charge()-double(chrg))<0.001 && l[j].GetPidInfo(type)>=cut)
+		if (fabs(l[j]->Charge()-double(chrg))<0.001 && l[j]->GetPidInfo(type)>=cut)
 		{
           //RhoCandidate c(l[j]);
 			//c.SetMass(pdgmass[type]);
 			lpid.Put(l[j]);
 		}		
 	}
-	for (int j=0;j<lpid.GetLength();++j) lpid[j].SetType(pdg);
+	for (int j=0;j<lpid.GetLength();++j) lpid[j]->SetType(pdg);
 }
 
 // -------------------------------------------------------------------------
@@ -557,11 +557,11 @@ int PndSoftTriggerTask::SelectPdgCode(RhoCandList &mct, RhoCandList &l)
 	
 	//PndMcTruthMatch mcm;
 	
-	if (l.GetLength()>0) pdgcode = l[0].PdgCode();
+	if (l.GetLength()>0) pdgcode = l[0]->PdgCode();
 	
 	for (int ii=l.GetLength();ii>=0;--ii)
 	{
-		RhoCandidate* mccand = l[ii].GetMcTruth();
+		RhoCandidate* mccand = l[ii]->GetMcTruth();
         
 		if (mccand)
           if(mccand->PdgCode()==pdgcode)

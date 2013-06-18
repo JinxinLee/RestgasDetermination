@@ -20,7 +20,7 @@ TBuffer& operator>>(TBuffer& buf, PndKinVtxFitter *&obj)
 }
 
 //Include only those constraint which need vertex Info....
-PndKinVtxFitter::PndKinVtxFitter( RhoCandidate& b) :
+PndKinVtxFitter::PndKinVtxFitter( RhoCandidate* b) :
   RhoFitterBase( b )
 {
   fMassConstraint =-1;
@@ -119,7 +119,7 @@ void PndKinVtxFitter::Compute()
   vtx_st[2][0]=startVtx.Z();
   // vtx_st[0][0]=0.0;vtx_st[1][0]=0.0;vtx_st[2][0]=0.0;
   vtx_ex=vtx_st;
-  if(fVerbose) { cout<<"Initial vertex Position is"<<vtx_ex[0][0]<<" "<<vtx_ex[1][0]<<" "<<vtx_ex[2][0]<<endl; }
+  if(fVerbose) { cout<<"Initial vertex Position is "<<vtx_ex[0][0]<<" "<<vtx_ex[1][0]<<" "<<vtx_ex[2][0]<<endl; }
 
   // al1=al0;
   // V_al1=V_al0;
@@ -226,10 +226,8 @@ void PndKinVtxFitter::Compute()
     //     if (j1==0)  {chi2=chi2_new;continue;}
 
     // If Chi^2 change is small then go out of iteration......................
-    if( fabs(chi2[0][0] - chi2_new[0][0]) < 0.01 ) { j1 = j1Max - 1; }
-    chi2 = chi2_new;
-
-    if( (j1+1) == j1Max ) {
+    if( fabs(chi2[0][0] - chi2_new[0][0]) < 0.01 ) {
+      chi2 = chi2_new;
       vtx_ex = vtx_new;
       al0 =al_new;
       //
@@ -246,8 +244,13 @@ void PndKinVtxFitter::Compute()
 
       V_al0 = V_al_new;
       V_vtx = V_vtx_new;
+      if(fVerbose) { cout <<"iteration Number " << " " << j1 <<" final." <<endl; }
+      if(fVerbose) { cout <<" chi2 in iterartion" << " " << chi2[0][0] << " pull="<<fPull<< endl; }
+      break; // that was the final iteration, stop the loop
     }
+    chi2 = chi2_new;
     if(fVerbose) { cout << "iteration Number " << " " << j1 << endl; }
+    if(fVerbose) { cout <<" vertex Position is "<<vtx_new[0][0]<<" "<<vtx_new[1][0]<<" "<<vtx_new[2][0]<<endl; }
     if(fVerbose) { cout << " chi2 in iterartion" << " " << chi2[0][0] << endl; }
   } // end of iteration-loop
 
@@ -293,10 +296,10 @@ void PndKinVtxFitter::SetOutput(RhoCandidate* head)
   for (int k=0; k<nd; k++) {
     //skip locked daughters
     if(fDaughters[k]->IsLocked()) continue;
-    
     a = -0.00299792458*2.0*fDaughters[k]->GetCharge();//TODO BField
     sumA += a;
     TVector3 pos(al0[k*7+4][0],al0[k*7+5][0],al0[k*7+6][0]);
+//std::cout<<" --"<<k<<"-- ("<<pos.x()<<";"<<pos.y()<<";"<<pos.z()<<")"<<std::endl;
     TLorentzVector mom4(al0[k*7+0][0],al0[k*7+1][0],al0[k*7+2][0],al0[k*7+3][0]);
 //better to put daugthers with mass hypothesis .......?? VJ
     TLorentzVector momM;
@@ -359,7 +362,7 @@ void PndKinVtxFitter::SetOutput(RhoCandidate* head)
 
   SetFourMomentumByDaughters(head);
   
-  if(fVerbose) { cout<<"Final vertex Position is"<<vtx_ex[0][0]<<" "<<vtx_ex[1][0]<<" "<<vtx_ex[2][0]<<endl; }
+  if(fVerbose) { cout<<"Final vertex Position is "<<vtx_ex[0][0]<<" "<<vtx_ex[1][0]<<" "<<vtx_ex[2][0]<<endl; }
   if(fVerbose) { cout<<"Final Momenta are "<<al0[0][0]<<" "<<al1[1][0]<<" "<<al1[2][0]<<endl; }
 }
 

@@ -20,6 +20,7 @@ class TDatabasePDG;
 class FairMCEventHeader;
 class PndAnaPidSelector;
 class PndAnaPidCombiner;
+class PndMCTrack;
 //class PndEventInfo;
 
 class TGeant3;
@@ -56,6 +57,8 @@ class PndAnalysis
 
     void Init();
     void BuildMcCands();
+    void ReadRecoCandidates();
+    RhoCandidate* CreateMcCandidate(Int_t mcindex);
     TClonesArray* ReadTCA(TString tcaname);
     Bool_t Propagator(int mode, FairTrackParP& tStart, RhoCandidate* cand,
                       TVector3* point=NULL, Bool_t skipcov=kFALSE);
@@ -71,6 +74,8 @@ class PndAnalysis
     Bool_t             fBuildMcCands;
     static Int_t       fVerbose;
 
+    std::map<int,RhoCandidate*> fMcPresenceMap;
+    
     TDatabasePDG* fPdg;
 
     TClonesArray* fChargedCands;

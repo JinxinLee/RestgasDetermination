@@ -31,14 +31,14 @@ class RhoVertexSelectorBase : public TNamed
     virtual ~RhoVertexSelectorBase();
 
     //operations
-    virtual Bool_t Accept ( RhoCandidate&,RhoCandidate& ) = 0;
-    virtual Bool_t Accept ( RhoCandidate&,RhoCandidate&,RhoCandidate& ) {
+    virtual Bool_t Accept ( RhoCandidate*,RhoCandidate* ) = 0;
+    virtual Bool_t Accept ( RhoCandidate*,RhoCandidate*,RhoCandidate* ) {
       return kTRUE;
     };
-    virtual Bool_t Accept ( RhoCandidate&,RhoCandidate&,RhoCandidate&,RhoCandidate& ) {
+    virtual Bool_t Accept ( RhoCandidate*,RhoCandidate*,RhoCandidate*,RhoCandidate* ) {
       return kTRUE;
     };
-    virtual Bool_t Accept ( RhoCandidate&,RhoCandidate&,RhoCandidate&,RhoCandidate&,RhoCandidate& ) {
+    virtual Bool_t Accept ( RhoCandidate*,RhoCandidate*,RhoCandidate*,RhoCandidate*,RhoCandidate* ) {
       return kTRUE;
     };
     void SetDistanceOfClosestApproach ( Double_t d ) {

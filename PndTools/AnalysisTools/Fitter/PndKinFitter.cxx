@@ -16,7 +16,7 @@ TBuffer& operator>>(TBuffer& buf, PndKinFitter *&obj)
   return buf;
 }
 
-PndKinFitter::PndKinFitter( RhoCandidate& b) :
+PndKinFitter::PndKinFitter( RhoCandidate* b) :
   RhoFitterBase( b )
 {
   f4MomConstraint=-1;

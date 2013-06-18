@@ -46,15 +46,15 @@ class RhoCandList : public TNamed
     Int_t GetLength() const {
       return GetNumberOfTracks();
     }
-    void Add ( const RhoCandidate& c ) {
+    void Add ( const RhoCandidate* c ) {
       Put ( c );
     }
-    void Append ( const RhoCandidate& c ) {
+    void Append ( const RhoCandidate* c ) {
       Put ( c );
     }
     void Append ( RhoCandList& l, RhoParticleSelectorBase* pidmgr=0 );
-    void Put ( const RhoCandidate&, Int_t i = -1 );
-    void InsertAt ( Int_t i, const RhoCandidate& c );
+    void Put ( const RhoCandidate*, Int_t i = -1 );
+    void InsertAt ( Int_t i, const RhoCandidate* c );
 
     void Combine ( RhoCandList& l1, RhoCandList& l2,RhoVertexSelectorBase* s=0 );
     void Combine ( RhoCandList& l1, RhoCandList& l2, RhoCandList& l3,RhoVertexSelectorBase* s=0 );   //added 06/08 K.Goetzen
@@ -72,10 +72,10 @@ class RhoCandList : public TNamed
 
    void Select ( RhoParticleSelectorBase* pidmgr );
     void Select ( RhoCandList& l, RhoParticleSelectorBase* pidmgr );
-    void Select ( RhoCandList& l, Bool_t ( *selfunc ) ( RhoCandidate& ) );
-    Int_t OccurrencesOf ( RhoCandidate& );
-    Int_t Remove ( RhoCandidate& ); // Returns #removed cands
-    Int_t RemoveFamily ( RhoCandidate& ); // Returns #removed cands
+    void Select ( RhoCandList& l, Bool_t ( *selfunc ) ( RhoCandidate* ) );
+    Int_t OccurrencesOf ( RhoCandidate* );
+    Int_t Remove ( RhoCandidate* ); // Returns #removed cands
+    Int_t RemoveFamily ( RhoCandidate* ); // Returns #removed cands
     Int_t RemoveClones(); // Returns #removed cands
     void Reset() {
       SetNumberOfTracks ( 0 );
@@ -100,7 +100,7 @@ class RhoCandList : public TNamed
     void Remainder ( RhoCandList& );
 
     void operator = ( const RhoCandList& );
-    RhoCandidate& operator[] ( Int_t );
+    RhoCandidate* operator[] ( Int_t );
 
     void SetFast ( Bool_t yesno=kTRUE ) {
       fFast = yesno;

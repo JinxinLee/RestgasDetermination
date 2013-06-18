@@ -17,7 +17,7 @@ TBuffer& operator>>(TBuffer& buf, PndChiVtxFitter *&obj)
   return buf;
 }
 
-PndChiVtxFitter::PndChiVtxFitter( RhoCandidate& b) :
+PndChiVtxFitter::PndChiVtxFitter( RhoCandidate* b) :
   RhoFitterBase( b ),
   fMaxIter(3)
 {
@@ -264,7 +264,7 @@ bool PndChiVtxFitter::FindVertex()
     dxm=(tempXm[0][0],tempXm[1][0],tempXm[2][0]);
     chi2contr=dx.Dot(dxm);
     fChi2+=chi2contr;
-    InsertChi2(*(fCurrentNode->Daughter(k)),chi2contr);
+    InsertChi2(fCurrentNode->Daughter(k),chi2contr);
     if(fVerbose) cout << "chi sq" << fChi2 << endl;
     //    xpCov = (-1.0)*xxCov*tempD.GetSub(k*3,(k+1)*3-1,k*3,(k+1)*3-1);
     vtxMom += tempP;

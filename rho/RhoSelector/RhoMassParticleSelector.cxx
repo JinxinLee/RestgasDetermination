@@ -32,16 +32,16 @@ RhoMassParticleSelector::RhoMassParticleSelector ( const char* name, Double_t cv
   RhoParticleSelectorBase ( name,type ), fCentralValue ( cv ), fWindow ( 0.5*w )
 {}
 
-Bool_t RhoMassParticleSelector::Accept ( RhoCandidate& b )
+Bool_t RhoMassParticleSelector::Accept ( RhoCandidate* b )
 {
   if ( &b == 0 ) { return kFALSE; }
   SetTypeAndMass ( b );
-  return ( fabs ( b.GetMass()-fCentralValue ) <fWindow );
+  return ( fabs ( b->GetMass()-fCentralValue ) <fWindow );
 }
 
-Bool_t RhoMassParticleSelector::Accept ( FairRecoCandidate& b )
+Bool_t RhoMassParticleSelector::Accept ( FairRecoCandidate* b )
 {
-  if ( &b == 0 ) { return kFALSE; }
-  return ( fabs ( b.GetLorentzVector().Mag()-fCentralValue ) <fWindow );
+  if ( b == 0 ) { return kFALSE; }
+  return ( fabs ( b->GetLorentzVector().Mag()-fCentralValue ) <fWindow );
 }
 

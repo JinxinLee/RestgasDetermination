@@ -23,11 +23,11 @@ PndVtxPoca::~PndVtxPoca()
 }
 
 
-Double_t PndVtxPoca::GetPocaVtx(TVector3& vertex, RhoCandidate& composite)
+Double_t PndVtxPoca::GetPocaVtx(TVector3& vertex, RhoCandidate* composite)
 {
   vertex.SetXYZ(0.,0.,0.);
-  if ( composite.NDaughters() <  2 ) { return 0.; }
-  if ( composite.NDaughters() == 2 ) { return GetPoca(vertex,composite.Daughter(0),composite.Daughter(1)); }
+  if ( composite->NDaughters() <  2 ) { return 0.; }
+  if ( composite->NDaughters() == 2 ) { return GetPoca(vertex,composite->Daughter(0),composite->Daughter(1)); }
 
   std::vector<Double_t> distances;
   std::vector<TVector3> results;
@@ -35,10 +35,10 @@ Double_t PndVtxPoca::GetPocaVtx(TVector3& vertex, RhoCandidate& composite)
   // TODO do this smarter by using already found vertices ?
   TVector3 theVertex(0.,0.,0.);
   Double_t actualDoca=0.;
-  for(Int_t daug1 =0; daug1<composite.NDaughters(); daug1++) {
-    RhoCandidate* a=composite.Daughter(daug1);
-    for(Int_t daug2=daug1+1; daug2<composite.NDaughters(); daug2++) {
-      RhoCandidate* b=composite.Daughter(daug2);
+  for(Int_t daug1 =0; daug1<composite->NDaughters(); daug1++) {
+    RhoCandidate* a=composite->Daughter(daug1);
+    for(Int_t daug2=daug1+1; daug2<composite->NDaughters(); daug2++) {
+      RhoCandidate* b=composite->Daughter(daug2);
       actualDoca = GetPoca(theVertex,a,b);
       distances.push_back(actualDoca);
       results.push_back(theVertex);
@@ -61,7 +61,7 @@ Double_t PndVtxPoca::GetPocaVtx(TVector3& vertex, RhoCandidate& composite)
   if (sumdocaweigts == 0) { sumdocaweigts=1; }
   vertex*=1./sumdocaweigts;
   //sumdocaweigts = sqrt(sumdocaweigts);
-  return composite.NDaughters()/sumdocaweigts;
+  return composite->NDaughters()/sumdocaweigts;
 }
 
 

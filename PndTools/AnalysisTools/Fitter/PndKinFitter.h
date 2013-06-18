@@ -21,7 +21,7 @@ class RhoCandidate;
 class PndKinFitter : public RhoFitterBase
 {
   public:
-    PndKinFitter( RhoCandidate& b) ;
+    PndKinFitter( RhoCandidate* b) ;
     virtual ~PndKinFitter();
 
     void Add4MomConstraint(TLorentzVector lv);
