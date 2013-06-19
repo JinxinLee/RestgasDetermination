@@ -14,39 +14,45 @@ numTrks=1
 #merge hits on sensors from different sides. true=yes
 mergedHits=true
 #number of events
-numEv=10000
+numEv=100
 # #add multiples scattering error estimation for hits (needed only for trk fit with Minuit). false=no
 useMSerr=false
 #useMSerr=true
 #simulation with Box generator
-      root -l -b -q runLumiPixel0SimBox.C\(${numEv},0,${pbeam},"\"${path}\"",0,-2212,${numTrks},3562\)
-      root -l -b -q runLumiPixel1Digi.C\(${numEv},0,"\"${path}\""\)
-      root -l -b -q runLumiPixel2Reco.C\(${numEv},0,"\"${path}\"",0,${useMSerr},false\)
+     root -l -b -q runLumiPixel0SimBox.C\(${numEv},0,"\"${path}\"",0,-2212,${pbeam},${numTrks},3562\)
+     root -l -b -q runLumiPixel1Digi.C\(${numEv},0,"\"${path}\""\)
+     root -l -b -q runLumiPixel2Reco.C\(${numEv},0,"\"${path}\"",0,${useMSerr},false\)
 
 #merge hits
-       root -l -b -q runLumiPixel2bHitMerge.C\(${numEv},0,"\"${path}\""\)
+     root -l -b -q runLumiPixel2bHitMerge.C\(${numEv},0,"\"${path}\""\)
 
 #switch on "missing plane" search algorithm
 	 misspl=true
 ### change "CA" --> "Follow" if you want to use Trk-Following as trk-search algorithm
 ### NB: CA can use merged or single(not merged) hits, Trk-Following can't
-    root -l -b -q runLumiPixel3Finder.C\(${numEv},0,"\"${path}\"",5,"\"CA\"",${misspl},${mergedHits}\)
+     root -l -b -q runLumiPixel3Finder.C\(${numEv},0,"\"${path}\"",0,"\"CA\"",${misspl},${mergedHits}\)
 
-# ### Track fit: Miniut
-# ### NB: useMSerr should be _true_ in this case !
- # root -l -b -q runLumiPixel4Fitter.C\(${numEv},0,"\"${path}\"",0,${mergedHits}\)
-#  ### or Kalman Fillter with GEANE trk representation
-# ### change "GEANE" --> "RK" if you want to use Runge-Kutta trk.rep.
-# ### NB: useMSerr should be _false_ in this case !
-root -l -b -q runLumi4KalmanFitter.C\(${numEv},0,"\"${path}\"",0,1,${mergedHits},"\"GEANE\""\) 
+#track fit: 
+### Miniut: useMSerr should be _true_ in this case!
+### Kalman Fillter:  useMSerr must be _false_ in this case!  
+### "KalmanGeane" = with GEANE trk representation
+### change "KalmanGeane" --> "KalmanRK" if you want to use Runge-Kutta trk.rep.
+     root -l -b -q runLumiPixel4Fitter.C\(${numEv},0,"\"${path}\"",0,"\"KalmanGeane\"",${mergedHits}\)
 
-# back-propgation GEANE
- root -l -b -q runLumi5Geane.C\(${numEv},${pbeam},0,"\"${path}\"",0,${mergedHits}\)
- # ### or Runge-Kutta for back-propagation
-#root -l -b -q runLumi5RungeKutta.C\(${numEv},${pbeam},0,"\"${path}\"",0,${mergedHits}\)
+#track filter (on number of hits and chi2)
+     root -l -b -q runLumiPixel4aFilter.C\(${numEv},0,"\"${path}\"",0,${mergedHits}\) 
 
-# Quality assurance task
-	root -l -b -q runLumiPixel7QA.C\(${numEv},0,"\"${path}\"",0,${pbeam}\)
+#save filtered results as standart Track array
+     mv ${path}/Lumi_Track_0.root ${path}/Lumi_TrackNotFiltered_0.root 
+     cp ${path}/Lumi_TrackFiltered_0.root ${path}/Lumi_Track_0.root
+
+#back-propgation GEANE
+### change "Geane" --> "RK" if you want to use Runge-Kutta for back-propagation
+     root -l -b -q runLumiPixel5BackProp.C\(${numEv},0,"\"${path}\"",0,"\"Geane\"",${mergedHits},${pbeam}\)
+
+# # Quality assurance task(s)
+# #	root -l -b -q runLumiPixel7QA.C\(${numEv},0,"\"${path}\"",0,${pbeam}\)
+      root -l -b -q runLumiPixel7TrksQA.C\(${numEv},0,"\"${path}\"",0,${pbeam},false\)
 
 # # compare MC trk params and reconstructed trk params and much more...
 #     cd ${VMCWORKDIR}/buildPanda/bin

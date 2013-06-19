@@ -1,4 +1,4 @@
-void runLumiPixel4Fitter(const int nEvents=100000, const int startEvent=0, TString storePath="tmpOutput", const int verboseLevel=0, const bool mergedHits=true)
+void runLumiPixel4Fitter(const int nEvents=100000, const int startEvent=0, TString storePath="tmpOutput", const int verboseLevel=0, const TString Method="KalmanGeane", const bool mergedHits=true)
 {
   // ========================================================================
   // Input file (MC events)
@@ -80,14 +80,48 @@ void runLumiPixel4Fitter(const int nEvents=100000, const int startEvent=0, TStri
   // =========================================================================
   
   // -----  LMD collections names & importain parameters --------------------------------------------
+  TString inTrks="LMDTrackCand";
   TString inHits = "LMDHitsPixel";
   if(mergedHits){
     inHits = "LMDHitsMerged";
   }
-  PndLmdLinFitTask* lmdfit = new PndLmdLinFitTask("LMDTrackCand",inHits);
-  TString tTCandBranchName, TString tRecoBranchName
+  if(Method=="Minuit") {
+  PndLmdLinFitTask* lmdfit = new PndLmdLinFitTask(inTrks,inHits);
+  //  TString tTCandBranchName, TString tRecoBranchName
   lmdfit->SetVerbose(verboseLevel);
+  lmdfit->SetFilterFlag(false);
   fRun->AddTask(lmdfit);
+  }
+  else{
+    // ----- Prepare GEANE --------------------------------------------
+    // this will load Geant3 and execute setup macros to initialize geometry:
+    FairGeane *Geane = new FairGeane();
+    fRun->AddTask(Geane);
+    // ------------------------------------------------------------------------
+    double scaleP=1;
+    double scaleM=1;
+    PndLmdKalmanTask* lmdkalmanfitter = new PndLmdKalmanTask(inHits,inTrks);
+    lmdkalmanfitter->SetVerbose(verboseLevel);
+    lmdkalmanfitter->SetScalePError(scaleP);
+    lmdkalmanfitter->SetScaleMError(scaleM);
+    lmdkalmanfitter->SetFilterFlag(false); 
+    if(Method=="KalmanGeane"){
+     
+      lmdkalmanfitter->SetGeaneTrkRep();
+      fRun->AddTask(lmdkalmanfitter);
+    }
+    else{
+      if(Method=="KalmanRK"){
+	lmdkalmanfitter->SetRKTrkRep();
+	fRun->AddTask(lmdkalmanfitter);
+      }
+      else{
+	cout<<"Method "<<Method.Data()<<" doesn't exist!"<<endl;
+	break;
+      }
+    }
+  }
+  
 
   rtdb->setOutput(parInput1);
   rtdb->print();

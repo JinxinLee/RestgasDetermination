@@ -1,7 +1,7 @@
 // Panda FullSim macro
 
 //void runLumi0SimBox(const int nEvents=10, const double mom=15, TString storePath="tmpOutput", const int verboseLevel=0, const int particle=-211)
-void runLumiPixel0SimBox(const int nEvents=10, const int startEv=0, const double mom=15, TString storePath="tmpOutput", const int verboseLevel=0, const int particle=-2212, const int trkNum=1, const int seed=0)
+void runLumiPixel0SimBox(const int nEvents=10, const int startEv=0, TString storePath="tmpOutput", const int verboseLevel=0, const int particle=-2212, const double mom=15, const int trkNum=1, const int seed=0)
 {
 
   // ///PROOF lite
@@ -46,13 +46,13 @@ void runLumiPixel0SimBox(const int nEvents=10, const int startEv=0, const double
   //  Cave->SetGeometryFileName("pndcave.geo");
   fRun->AddModule(Cave);
 
-  // FairModule *Pipe= new PndPipe("PIPE");
-  // Pipe->SetGeometryFileName("../macro/lmd/geo/beampipe_201210.root");
-  // fRun->AddModule(Pipe);
+  FairModule *Pipe= new PndPipe("PIPE");
+  Pipe->SetGeometryFileName("../macro/lmd/geo/beampipe_201303.root");
+  fRun->AddModule(Pipe);
   
 
   FairModule *Magnet= new PndMagnet("MAGNET");
-  Magnet->SetGeometryFileName("FullSolenoid.root");
+  Magnet->SetGeometryFileName("FullSolenoid_V842.root");
   fRun->AddModule(Magnet);
  
   FairModule *Dipole= new PndMagnet("MAGNET");
@@ -60,42 +60,14 @@ void runLumiPixel0SimBox(const int nEvents=10, const int startEv=0, const double
   fRun->AddModule(Dipole);
 
 
-
-  /*FairDetector *Stt= new PndStt("STT", kFALSE);
-  Stt->SetGeometryFileName("straws_skewed_blocks.geo");
-  fRun->AddModule(Stt);*/
-
-  // FairDetector *Mvd = new PndMvdDetector("MVD", kFALSE);
-  // Mvd->SetGeometryFileName("MVD_v1.0_woPassiveTraps.root");
-  // fRun->AddModule(Mvd);
-  
- /* PndEmc *Emc = new PndEmc("EMC",kFALSE);
-  Emc->SetGeometryFileNameDouble("emc_module1245.dat","emc_module3new.root"); // if you want to use new geometry for FwEndCap
-  fRun->AddModule(Emc);
-  
-  FairDetector *Tof = new PndTof("TOF",kFALSE);
-  Tof->SetGeometryFileName("tofbarrel.geo");
-  fRun->AddModule(Tof);
-
-  FairDetector *Drc = new PndDrc("DIRC", kFALSE);
-  Drc->SetGeometryFileName("dirc.geo"); 
-  fRun->AddModule(Drc);
-
-  PndMdt *Muo = new PndMdt("MDT",kFALSE);
-  Muo->SetGeometryFileName("muopars.root");
-  Muo->SetMdtVersion("torino");
-  fRun->AddModule(Muo);*/
-
-
-
   PndLmdDetector *Lum = new PndLmdDetector("LUM", kTRUE);
   Lum->SetExclusiveSensorType("LumActive");  //ignore MVD
   //  Lum->SetGeometryFileName("../macro/lmd/geo/Test-Dipol-Design.root"); //sensors with trap shape
-  Lum->SetGeometryFileName("../macro/lmd/geo/HV_MAPS-Design.root"); // new sensors
+  Lum->SetGeometryFileName("../macro/lmd/geo/HV_MAPS-Design-29052013.root"); // LMD including box etc
+  //Lum->SetGeometryFileName("../macro/lmd/geo/HV_MAPS-Design-SensorsOnly.root"); // LMD, seonsors only
   Lum->SetVerboseLevel(verboseLevel);
   fRun->AddModule(Lum);
 
-  
   //particle generator
   FairPrimaryGenerator* primGen = new FairPrimaryGenerator();
   // primGen->SmearVertexXY(kTRUE);

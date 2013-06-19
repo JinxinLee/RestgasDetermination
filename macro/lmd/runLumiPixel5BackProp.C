@@ -1,6 +1,4 @@
-///  Method="Follow" - Track-following method, Method="CA" - Cellular Automaton
-///  missPl=true - use "missing plane" algorithm
-void runLumiPixel3Finder(const int nEvents=1000, const int startEvent=0, TString storePath="tmpOutput", const int verboseLevel=5,  TString Method="Follow", const bool missPl=true, const bool mergedHits=true, const bool trkcuts=true, const double psirule=1e-6)
+void runLumiPixel5BackProp(const int nEvents=10, const int startEvent=0, TString storePath="tmpOutput", const int verboseLevel=0, const TString Method="Geane", const bool mergedHits=true, const double mom=15)
 {
   // ========================================================================
   // Input file (MC events)
@@ -10,16 +8,24 @@ void runLumiPixel3Finder(const int nEvents=1000, const int startEvent=0, TString
   TString DigiFile = storePath+"/Lumi_digi_";
   DigiFile += startEvent;
   DigiFile += ".root";
-  TString RecoMergedFile = storePath+"/Lumi_recoMerged_";
-  RecoMergedFile += startEvent;
-  RecoMergedFile += ".root";
-  TString RecoFile = storePath+"/Lumi_reco_";
+  // Digi file
+  TString RecoFile = storePath;
+  if(mergedHits)RecoFile+="/Lumi_recoMerged_";
+  else RecoFile+="/Lumi_reco_";
   RecoFile += startEvent;
   RecoFile += ".root";
+  // TCand file
+  TString CandFile = storePath+"/Lumi_TCand_";
+  CandFile += startEvent;
+  CandFile += ".root";
   // Parameter file
   TString parFile = storePath+"/Lumi_Params_";
   parFile += startEvent;
   parFile += ".root";
+  // Track file
+  TString TrkFile = storePath+"/Lumi_Track_";
+  TrkFile += startEvent;
+  TrkFile += ".root";
 
   // ----  Load libraries   -------------------------------------------------
   gROOT->Macro("$VMCWORKDIR/gconfig/rootlogon.C");
@@ -29,15 +35,19 @@ void runLumiPixel3Finder(const int nEvents=1000, const int startEvent=0, TString
   gSystem->Load("libLmdReco");
   gSystem->Load("libLmdTrk");
   // ------------------------------------------------------------------------
+
+
   // Output file
-    TString outFile = storePath+"/Lumi_TCand_";
+    TString outFile = storePath+"/Lumi_Geane_";
     outFile += startEvent;
     outFile += ".root";
     
     std::cout << "MCFile  : " << MCFile.Data()<< std::endl;
     std::cout << "DigiFile: " << DigiFile.Data()<< std::endl;
     std::cout << "RecoFile: " << RecoFile.Data()<< std::endl;
-    std::cout << "TCandFile: " << outFile.Data()<< std::endl;
+    std::cout << "TCandFile: " << CandFile.Data()<< std::endl;
+    std::cout << "TrackFile: " << TrkFile.Data()<< std::endl;
+    std::cout << "GeaneFile: " << outFile.Data()<< std::endl;
   // ---  Now choose concrete engines for the different tasks   -------------
   // ------------------------------------------------------------------------
 
@@ -48,7 +58,7 @@ void runLumiPixel3Finder(const int nEvents=1000, const int startEvent=0, TString
 
 
 
-  // -----   Timer   --------------------------------------------------------
+  // -----   Timer   ------ --------------------------------------------------
   TStopwatch timer;
   timer.Start();
   // ------------------------------------------------------------------------
@@ -59,7 +69,8 @@ void runLumiPixel3Finder(const int nEvents=1000, const int startEvent=0, TString
   fRun->SetInputFile(MCFile);
   fRun->AddFriend(DigiFile);
   fRun->AddFriend(RecoFile);
-  if(mergedHits) fRun->AddFriend(RecoMergedFile);
+  fRun->AddFriend(CandFile);
+  fRun->AddFriend(TrkFile);
   fRun->SetOutputFile(outFile);
   // ------------------------------------------------------------------------
 
@@ -67,74 +78,48 @@ void runLumiPixel3Finder(const int nEvents=1000, const int startEvent=0, TString
   // -----  Parameter database   --------------------------------------------
   FairRuntimeDb* rtdb = fRun->GetRuntimeDb();
   FairParRootFileIo* parInput1 = new FairParRootFileIo(kTRUE);
-  parInput1->open(parFile.Data(),"UPDATE");
+  parInput1->open(parFile.Data());
   rtdb->setFirstInput(parInput1);
 
 
   // =========================================================================
-  // ======                       Track Finder                          ======
+  // ======                 Back-Propagating                     ======
   // =========================================================================
   
-  // -----  LMD collections names & importain parameters --------------------------------------------
-  TString inHits = "LMDHitsPixel";
-  TString inClusters = "LMDPixelClusterCand";
-  TString inDigis = "LMDPixelDigis";
-  int nsensors = 100;
-  int nplanes = 8;
-  double accurF = 0.01;//parameter for trk-finder corridor
-  double accurCA = 1e-6;//parameter for CA neigboring search (breaking angle)
-  accurCA = psirule;//TEST
-  // //set accurCA for diff Pbeam cases ---------------------------------------------
-  //  double accCAv[5]={??,??,??,??,??};
-  // if(pbeam<1.6) accurCA = 1e-5;
-  // else{
-  //   if(pbeam<4.07) accurCA = 1e-5;
-  //   else{
-  //     if(pbeam<9) accurCA = 1e-5;
-  //     else 
-  // 	accurCA = 1e-6;
-  //   }
-  // }
-  // //------------------------------------------------------------------------------------------
-  if(trkcuts!=true) accurCA = 1e-3;//misalignment sensors case (TODO: study it in multiple trks case)
-  if(mergedHits){
-    inHits = "LMDHitsMerged";
-    nplanes = 4;
+
+  Double_t fpBeam = mom;
+  TVector3 IP(0,0,0);
+  if(Method=="Geane"){
+    FairGeane *Geane = new FairGeane();
+    fRun->AddTask(Geane);
+    PndLmdGeaneTask* lmdgeane = new PndLmdGeaneTask(fpBeam, IP);
+    lmdgeane->SetVerbose(verboseLevel);
+    fRun->AddTask(lmdgeane);
   }
-
-  if(Method=="Follow") {
-    PndLmdTrackFinderTask* lmdfinder = new PndLmdTrackFinderTask(missPl,inHits,inClusters,inDigis, nsensors);
-    lmdfinder->SetInaccuracy(accurF);
-    lmdfinder->SetSensPixelFlag(true);
-
-  }else{
-    if(Method=="CA"){
-      PndLmdTrackFinderCATask* lmdfinder = new PndLmdTrackFinderCATask(missPl,accurCA,nsensors,nplanes,inHits,inClusters,inDigis); //for merged hits
-      lmdfinder->SetSensPixelFlag(true);
-      lmdfinder->SetTrkCandCutsFlag(trkcuts);//value=false for misaligned sensors only
-      //  lmdfinder->SetTrkCandCutsFlag(true);
+  else{
+    if(Method=="RK"){
+      PndLmdBPRungeKuttaTask* lmdbp = new PndLmdBPRungeKuttaTask(fpBeam, IP);
+      lmdbp->SetVerbose(verboseLevel);
+      fRun->AddTask(lmdbp);
     }
     else{
       cout<<"Method "<<Method.Data()<<" doesn't exist!"<<endl;
       break;
     }
   }
-  lmdfinder->SetVerbose(verboseLevel);
-  fRun->AddTask(lmdfinder);
-
-  rtdb->setOutput(parInput1);
-  rtdb->print();
-  // =====                 End of TrackFinding                           =====
+    rtdb->setOutput(parInput1);
+    rtdb->print();
+  // =====                        End of Geane                           =====
   // =========================================================================
 
-  
-  // -----   Intialise and run   --------------------------------------------
+   // -----   Intialise and run   --------------------------------------------
   fRun->Init();
-
+  //  // PndEmcMapper *emcMap = PndEmcMapper::Instance(6);
+  //  PndEmcMapper *emcMap = PndEmcMapper::Instance();
+  // //Geane->SetField(fRun->GetField());
   fRun->Run(0,nEvents);
   // ------------------------------------------------------------------------
-
-  rtdb->saveOutput();
+   rtdb->saveOutput();
   rtdb->print();
   // -----   Finish   -------------------------------------------------------
   timer.Stop();
