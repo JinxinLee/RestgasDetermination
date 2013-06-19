@@ -460,16 +460,18 @@ double PndRiemannTrack::calcZPosByS(double s)
 
 TVector3 PndRiemannTrack::calcPosByS(double s)
 {
-	TVectorD o=orig();
-	const PndRiemannHit* firstHit=getHit(0);
 
-	TVector2 k(firstHit->x().X()-o[0],firstHit->x().Y()-o[1]);
+	TVectorD o = orig();
+	const PndRiemannHit* firstHit = getHit(0);
+
+	TVector2 k(firstHit->x().X() - o[0], firstHit->x().Y() - o[1]);
 	Double_t start_phi = k.Phi();
-	Double_t delta_phi = s/r();
+	Double_t delta_phi = s / r();
 	TVector2 Res2D(r(), 0);
-	Res2D.Rotate(start_phi + delta_phi);
+	TVector2 rotated = Res2D.Rotate(start_phi + delta_phi);
 
-	TVector3 result(Res2D.X(), Res2D.Y(), calcZPosByS(s));
+	TVector3 result(rotated.X() + o[0], rotated.Y() + o[1], calcZPosByS(s));
+
 	return result;
 }
 
@@ -938,22 +940,22 @@ Int_t PndRiemannTrack::getCharge(Double_t B)
 
 FairTrackParP PndRiemannTrack::getTrackParPForHit(Int_t i, Double_t B)
 {
+//		calcSForHits();
 
-	TVector3 hitPos;
-	TVector3 hitPosError;
-	TVector3 momError(2, 2, 2);
-	TVector3 dj(1,0,0);
-	TVector3 dk(0,1,0);
-	TVector3 origin(0, 0, 1);
+		TVector3 hitPos;
+		TVector3 hitPosError;
+		TVector3 momError(2, 2, 2);
+		TVector3 dj(1,0,0);
+		TVector3 dk(0,1,0);
+		TVector3 origin(0, 0, 1);
 
-	getHit(i)->hit()->Position(hitPos);
-	getHit(i)->hit()->PositionError(hitPosError);
-	//std::cout << "Charge: " << getCharge(B) << std::endl;
-	FairTrackParP result(hitPos, getPforHit(i, B), hitPosError, momError, getCharge(B), origin, dj, dk);
-	//std::cout << "TrackParP for Hit " << i << " : ";
-	//result.Print();
-
-	return result;
+		Double_t s = getHit(i)->s();
+		getHit(i)->hit()->Position(hitPos);
+		std::cout << "PndRiemannTrack::getTrackParPForHit hitPos by Hit: "; hitPos.Print();
+		hitPos = calcPosByS(s);
+	//	getHit(i)->hit()->Position(hitPos);
+		getHit(i)->hit()->PositionError(hitPosError);
+		FairTrackParP result(hitPos, getPforHit(i, B), hitPosError, momError, getCharge(B), origin, dj, dk);
 }
 
 PndTrack PndRiemannTrack::getPndTrack(Double_t B)
