@@ -16,7 +16,7 @@ class PndTrkConformalHit : public TObject
 
  public:    
 
-
+  // ctor
   PndTrkConformalHit();
   PndTrkConformalHit(PndTrkHit *hit, double u, double v, double rd);
   PndTrkConformalHit(PndTrkHit *hit, double u, double v);
@@ -37,6 +37,8 @@ class PndTrkConformalHit : public TObject
   // info
   void Draw(Color_t color);
   void Print();
+
+ protected:
 
   // variables
   PndTrkHit *fHit;

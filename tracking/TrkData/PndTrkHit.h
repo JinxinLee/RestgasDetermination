@@ -72,6 +72,7 @@ class PndTrkHit : public FairTimeStamp
   void Draw(Color_t color);
   void Print();
 
+ protected:
   // variables
   Int_t fHitID, fDetectorID, fIRegion, fSensorID; 
   Bool_t fUsed;
