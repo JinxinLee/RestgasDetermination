@@ -29,12 +29,13 @@ Bool_t SorterFunction(PndTrkHit *hit1, PndTrkHit *hit2) {
   return *hit1 < *hit2;
 }
 
-PndTrkCluster::PndTrkCluster() : fIRegion(-1) {
+PndTrkCluster::PndTrkCluster() : fIRegion(-1), fFromPoint(0., 0., 0.) {
   hitlist.clear();
   hitlist.reserve(100); 
 }
  
 PndTrkCluster::~PndTrkCluster() {
+
   hitlist.clear();
 }
 
@@ -583,10 +584,44 @@ Bool_t PndTrkCluster::ComputeCircle(TVector3 v1, TVector3 v2, TVector3 v3, doubl
   return kTRUE;
 }
 // =======================================================================================
-
+Bool_t PndTrkCluster::DoesContain(PndTrkHit *hit) {
+  bool isthere = false;
+  for(int ihit = 0; ihit < GetNofHits(); ihit++) {
+    PndTrkHit *comparehit =   hitlist.at(ihit);
+    (comparehit == hit) ? isthere = true : isthere = false;
+    if(isthere == true) return kTRUE;
+  }
+  return kFALSE;
+}
 
 PndTrkHit *PndTrkCluster::GetHit(int index) {
   return hitlist[index];
+}
+
+Bool_t PndTrkCluster::IsSimilarTo(PndTrkCluster cluster2) {
+  int similarity = 0;
+  for(int ihit = 0; ihit < GetNofHits(); ihit++) {
+    PndTrkHit *hit = hitlist.at(ihit);
+    if(cluster2.DoesContain(hit)) similarity++;
+  }
+  if(((double) similarity/GetNofHits()) > 0.5 || ((double) similarity/cluster2.GetNofHits()) > 0.5) return kTRUE;
+  return kFALSE;
+}
+
+PndTrkCluster PndTrkCluster::MergeTo(PndTrkCluster cluster2) {
+  std::vector<int> tobeadded;
+  for(int ihit = 0; ihit < GetNofHits(); ihit++) {
+    PndTrkHit *hit = hitlist.at(ihit);
+    if(cluster2.DoesContain(hit)) continue;
+    tobeadded.push_back(ihit);
+  }
+
+  for(int ihit = 0; ihit < tobeadded.size(); ihit++) {
+    int hitno = tobeadded.at(ihit);
+    cluster2.AddHit(hitlist.at(hitno));
+  }
+  return cluster2;
+
 }
 
 void PndTrkCluster::Print() {

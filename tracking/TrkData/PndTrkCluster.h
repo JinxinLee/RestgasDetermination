@@ -51,6 +51,9 @@ class PndTrkCluster : public TObject
   void Draw(Color_t color = kBlack);
   void LightUp();
 
+  Bool_t DoesContain(PndTrkHit *hit);
+  Bool_t IsSimilarTo(PndTrkCluster cluster2);
+  PndTrkCluster MergeTo(PndTrkCluster cluster2);
 
   PndTrkCluster GetMvdStripHitList();
   PndTrkCluster GetMvdPixelHitList();
