@@ -76,13 +76,11 @@ public:
 
  /**  Set Photon Detector Parameter **/
 
-  void SetFakeDetEff(Double_t& lambda_min, Double_t& lambda_max,
-                                         Double_t& lambda_step, Double_t efficiency[]);			 
-  void SetPhotonDetEffNew(Double_t& lambda_min, Double_t& lambda_max,
-                                         Double_t& lambda_step, Double_t efficiency[]);
+  void SetFakeDetEff();			 
+  void SetPhotonDetEffNew();
 					 
  /** Set Photon Transport Efficiency **/
-  void SetPhotonTransportEff(Double_t&, Double_t&, Double_t&, Double_t&, Int_t& , Double_t fEfficiency[]);
+  void SetPhotonTransportEff();
  /** Auxiliraly functions **/
  void NumberOfBounces(TVector3, TVector3, Int_t *, Int_t *, Double_t *, Double_t *);
  Double_t FindPhiRot(Double_t, Double_t);
@@ -188,6 +186,14 @@ public:
   Double_t fRoughness; // Surface roughness (bars)
   Int_t fDetection;
   Int_t nevents;
+  
+  //vars for detector and transport efficiency
+  Double_t flambda_min,flambda_max,flambda_step;
+  Double_t fDetEfficiency[800];
+  Double_t fTranspEfficiency[798]; 
+  Double_t flambda_min_tr,flambda_max_tr,flambda_step_tr, fangle_step_tr;
+  Int_t flambda_points_tr;
+ 
   
   /** Set the parameters to the default values. **/
   void SetParameters();
