@@ -222,9 +222,8 @@ void PndSttHitProducerRealFast::Exec(Option_t* opt) {
     pos.SetXYZ(position.X(), position.Y(), position.Z()); 
 
     //    dpos.SetXYZ(innerStrawDiameter / 2., innerStrawDiameter / 2., GetLongitudinalResolution(position.Z()));
-    dpos.SetXYZ(0.5, 0.5, 3.); // per adesso (stessi che in Ideal:
-                               // innerStrawDiameter/2 = 0.5,
-                               // longitudinalResolution = 3.)
+    dpos.SetXYZ(0., 0., 0.); // CHECK will be changed in future
+
     //    cout << "r: " << radius << " err: " << closestDistanceError << endl;
     //cout<<" radius "<<radius<<endl;
 
