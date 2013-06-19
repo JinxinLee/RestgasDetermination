@@ -132,11 +132,11 @@ PndLmdKalmanTask::Init()
   fSdsHitsArray=(TClonesArray*) ioman->GetObject(fSdsHitBranchName);
 
   //Set output collection
-  // fTrackFittedArray = new TClonesArray("PndLinTrack");
-  // ioman->Register("LMDTrack", "PndLmd", fTrackFittedArray, kTRUE);
-  
-  fTrackFittedArray = new TClonesArray("PndTrack");
-  ioman->Register("LMDPndTrack", "PndLmd", fTrackFittedArray, kTRUE);
+  // fTrackTmpArray = new TClonesArray("PndLinTrack");
+  // ioman->Register("LMDTrack", "PndLmd", fTrackTmpArray, kTRUE);
+  fTrackTmpArray = new TClonesArray("PndTrack");
+  fTrkOutArray = new TClonesArray("PndTrack");
+  ioman->Register("LMDPndTrack", "PndLmd", fTrkOutArray, kTRUE);
 
   // Build hit factory -----------------------------
   fTheRecoHitFactory = new GFRecoHitFactory();
@@ -172,16 +172,16 @@ PndLmdKalmanTask::Init()
     std::cout<<"GeaneTrackRep will be used for track representation"<<std::endl;
     fPro = new FairGeanePro();
   }
+  lmddim = PndLmdDim::Instance();
   return kSUCCESS;
- 
 }
 
 
 void
 PndLmdKalmanTask::Exec(Option_t* opt)
 {
-  fTrackFittedArray->Delete();
-
+  fTrackTmpArray->Delete();
+  fTrkOutArray->Delete();
   if(fVerbose>1) std::cout<<"((((((((((((((((((((( PndLmdKalmanTask::Exec )))))))))))))))))))))"<<std::endl;
   Int_t counterGeaneTrk = 0;
   Int_t rec_tkr_count = 0;
@@ -331,7 +331,7 @@ PndLmdKalmanTask::Exec(Option_t* opt)
     trkPnd->SetRefIndex(itr);//TODO: check is it correct set RefIn like ID of trk-cand???
     trkPnd->SetChi2(trk->getChiSqu());
     // --- Save as PndTrack---
-    TClonesArray& clref = *fTrackFittedArray;
+    TClonesArray& clref = *fTrackTmpArray;
     Int_t size = clref.GetEntriesFast();
     PndTrack *trackfit = new(clref[size]) PndTrack(*trkPnd);
 
@@ -340,8 +340,126 @@ PndLmdKalmanTask::Exec(Option_t* opt)
     delete trk;
     //  delete rep;
   }
+
+  // //filter trks based on chi2 and hit comparision --------------
+  // const unsigned int gll = fTrackTmpArray->GetEntriesFast();
+  // int rec_trk=0;
+  // if(flagFilter){
+  //   //    fTrkOutArray->Delete();
+  //     if(fVerbose>4)
+  // 	cout<<"trk filter switched on!"<<endl;
+  //   //go through all tracks
+  //   vector<int> trksH0(gll);//hits on pl#0
+  //   vector<int> trksH1(gll);//hits on pl#1
+  //   vector<int> trksH2(gll);//hits on pl#2
+  //   vector<int> trksH3(gll);//hits on pl#3
+  //   vector<unsigned int> trkHn;//number of hits in trk
+  //   vector<bool> trk_accept;
+  //   vector<double> vchi2;
+  //   for (unsigned int i = 0; i<gll;i++){ 
+  //     trksH0[i]=-1;
+  //     trksH1[i]=-1;
+  //     trksH2[i]=-1;
+  //     trksH3[i]=-1;
+  //   }
+  //   //fill vectors with trks hits
+  //   for (unsigned int i = 0; i<gll;i++){ 
+  //     PndTrack* trkpnd = (PndTrack*)(fTrackTmpArray->At(i));
+  //     double chi2 = trkpnd->GetChi2();
+  //     vchi2.push_back(chi2);
+  //     trk_accept.push_back(true);
+  //     int candID = trkpnd->GetRefIndex();
+  //     PndTrackCand *trkcand = (PndTrackCand*)fTrackArray->At(candID);    
+  //     const unsigned int Ntrkcandhits= trkcand->GetNHits();
+  //     trkHn.push_back(Ntrkcandhits);
+  //     for (Int_t iHit = 0; iHit < Ntrkcandhits; iHit++){ // loop over rec.hits
+  // 	PndTrackCandHit candhit = (PndTrackCandHit)(trkcand->GetSortedHit(iHit));
+  //     Int_t hitID = candhit.GetHitId();
+  //     PndSdsHit* myHit = (PndSdsHit*)(fSdsHitsArray->At(hitID));
+  //     Int_t sensid = myHit->GetSensorID();
+  //     int ihalf,iplane,imodule,iside,idie,isensor;
+  //     lmddim->Get_sensor_by_id(sensid,ihalf,iplane,imodule,iside,idie,isensor);
+  //     if(fVerbose>4){
+  // 	cout<<"trk# "<<i<<" plane#"<<iplane<<endl;
+  //     }
+  //     switch(iplane)
+  // 	{
+  // 	case 0:
+  // 	  trksH0[i]=hitID;
+  // 	case 1:
+  // 	  trksH1[i]=hitID;
+  // 	case 2:
+  // 	  trksH2[i]=hitID;
+  // 	case 3:
+  // 	  trksH3[i]=hitID;
+  // 	}
+  //   }
+  // }
+  // //compare trks on hit level
+  // for (unsigned int i = 0; i<gll;i++){ 
+  //   for (unsigned int j = i+1; j<gll;j++){ 
+  //   int coundduphit=4;//count dublicate hits
+  //     if(trksH0[i]!=trksH0[j]) coundduphit--;
+  //     if(trksH1[i]!=trksH1[j]) coundduphit--;
+  //     if(trksH2[i]!=trksH2[j]) coundduphit--;
+  //     if(trksH3[i]!=trksH3[j]) coundduphit--;
+  //     if(fVerbose>4){
+  // 	cout<<" trk#"<<i<<":"<<trksH0[i]<<" trk#"<<j<<":"<<trksH0[j]<<endl;
+  // 	cout<<" trk#"<<i<<":"<<trksH1[i]<<" trk#"<<j<<":"<<trksH1[j]<<endl;
+  // 	cout<<" trk#"<<i<<":"<<trksH2[i]<<" trk#"<<j<<":"<<trksH2[j]<<endl;
+  // 	cout<<" trk#"<<i<<":"<<trksH3[i]<<" trk#"<<j<<":"<<trksH3[j]<<endl;
+  // 	cout<<" dublicate: "<<coundduphit<<endl;
+  // 	cout<<""<<endl;
+  //     }
+  //     if(coundduphit>2){// if 3 and more hits are similar
+  // 	if(vchi2[i]>vchi2[j]){
+  // 	  if(fVerbose>4){
+  // 	    cout<<" trk#"<<i<<": has "<<trkHn[i]<<"hits;  trk#"<<j<<": has "<<trkHn[j]<<" hits"<<endl;
+  // 	    cout<<" trk#"<<i<<" has chi2="<<vchi2[i]<<" "<<" trk#"<<j<<" has chi2="<<vchi2[j]<<endl;
+  // 	  }
+  // 	  trk_accept[i]=false;
+  // 	  trk_accept[j]=true;
+  // 	}
+  // 	else{
+  // 	  if(fVerbose>4){
+  // 	    cout<<" trk#"<<i<<": has "<<trkHn[i]<<"hits;  trk#"<<j<<": has "<<trkHn[j]<<" hits"<<endl;
+  // 	    cout<<" trk#"<<i<<" has chi2="<<vchi2[i]<<" "<<" trk#"<<j<<" has chi2="<<vchi2[j]<<endl;
+  // 	  }
+  // 	  trk_accept[i]=true;
+  // 	  trk_accept[j]=false;
+  // 	}
+  //     }
+  //   }
+  // }
+  // //save good trks
+  // int rec_trk=0;
+  // for (unsigned int i = 0; i<gll;i++){ 
+  //   if(trk_accept[i]){
+  //     PndTrack* trkpnd = (PndTrack*)(fTrackTmpArray->At(i));
+  //     new((*fTrkOutArray)[rec_trk]) PndTrack(*(trkpnd)); //save Track
+  //     rec_trk++;
+  //   }
+  // }
+  // cout<<rec_trk<<" trks saved out of "<<gll<<endl;
+  // }
+  // else{
+  //   if(fVerbose>4)
+  //     cout<<"trk filter switched off!"<<endl;
+  //   for (unsigned int i = 0; i<gll;i++){ 
+  //     PndTrack* trkpnd = (PndTrack*)(fTrackTmpArray->At(i));
+  //     new((*fTrkOutArray)[rec_trk]) PndTrack(*(trkpnd)); //save Track
+  //     rec_trk++;
+  //   }
+  // }
+  // //filter end ------------------------------------------------------------
+  for (unsigned int i = 0; i<fTrackTmpArray->GetEntriesFast();i++){ 
+    PndTrack* trkpnd = (PndTrack*)(fTrackTmpArray->At(i));
+    TClonesArray& clref = *fTrkOutArray;
+    Int_t size = clref.GetEntriesFast();
+    new(clref[size]) PndTrack(*(trkpnd)); //save Track
+  }
   if(fVerbose>1)
-    std::cout<<"Fitting done"<<std::endl;
+    std::cout<<"Fitting done, result is "<<fTrkOutArray->GetEntriesFast()<<" fitted trks"<<std::endl;
   //rep = NULL;
   return;
 }

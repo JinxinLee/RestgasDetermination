@@ -29,6 +29,7 @@
 #include "GFTrack.h"
 #include "GFFieldManager.h"
 #include "PndGeoHandling.h"
+#include "PndLmdDim.h"
 // Collaborating Class Declarations --
 class TClonesArray;
 class GFRecoHitFactory;
@@ -63,7 +64,7 @@ public:
   virtual InitStatus Init();
 
   virtual void Exec(Option_t* opt);
-
+  virtual void SetFilterFlag(bool val){flagFilter = val;};
   // void WriteHistograms(const TString& filename);
 
 private:
@@ -84,7 +85,8 @@ private:
   // Private Data Members ------------
   TClonesArray* fTrackArray;
   // TClonesArray* fGFTrackArray;
-  TClonesArray* fTrackFittedArray;
+  TClonesArray* fTrackTmpArray;
+  TClonesArray* fTrkOutArray;
   TClonesArray* fTrackParFinal;
   TClonesArray* fSdsHitsArray;
   TString fTrackBranchName;
@@ -111,7 +113,8 @@ private:
   Double_t fCharge;
   // PndLinTrack* GenfitTrack2PndLinTrack(const GFTrack* tr);
   GFFieldManager *gfMagField;
-
+  bool flagFilter;
+  PndLmdDim* lmddim;
 //public:
   ClassDef(PndLmdKalmanTask,1);
 
