@@ -97,7 +97,7 @@ InitStatus PndLmdTrksFilterTask::Init()
     }
 
   fTrkOutArray = new TClonesArray("PndTrack");
-  ioman->Register("LMDPndTrack", "PndLmd", fTrkOutArray, kTRUE);
+  ioman->Register("LMDPndTrack", "PndLmd", fTrkOutArray,kTRUE);
 
   // fClusterArray=(TClonesArray*) ioman->GetObject(fClusterName);
   // if(fClusterArray==0)
@@ -114,7 +114,7 @@ InitStatus PndLmdTrksFilterTask::Init()
   //   }
 
   lmddim = PndLmdDim::Instance();
-  htthetatphiTrkFit = new TNtuple("htthetatphiTrkFit","ntthetatphiTrk","tg_theta:tg_phi");
+  //  htthetatphiTrkFit = new TNtuple("htthetatphiTrkFit","ntthetatphiTrk","tg_theta:tg_phi");
   return kSUCCESS;
 }
 // -------------------------------------------------------------------------
@@ -123,12 +123,13 @@ InitStatus PndLmdTrksFilterTask::Init()
 // -----   Public method Exec   --------------------------------------------
 void PndLmdTrksFilterTask::Exec(Option_t* opt)
 {
+ fTrkOutArray->Delete();
   if(fVerbose>4){
     cout<<""<<endl;
     cout<<"--------- New Event "<<fEventNr<<"--------"<<endl;
  }
  
-  fTrkOutArray->Delete();
+ 
   //go through all tracks
   const unsigned int gll = fTrkArray->GetEntriesFast();
   int trksH0[gll];//hits on pl#0
@@ -162,7 +163,7 @@ void PndLmdTrksFilterTask::Exec(Option_t* opt)
     double thetaCent=MomRecLMD.Theta()-0.040;
     if(fVerbose<2){
       if(abs(thetaCent)>0.011 || abs(MomRecLMD.Phi())>0.25) dirOK=false;
-      if(abs(fFittedTrkP.GetX())>1000. || abs(fFittedTrkP.GetY())>1000 || abs(fFittedTrkP.GetZ())>1000) dirOK=false; //misaligned sensors give wierd results
+      if(abs(fFittedTrkP.GetX())>1000. || abs(fFittedTrkP.GetY())>1000) dirOK=false; //misaligned sensors give wierd results
     }
     // //--------------------------
 
@@ -312,7 +313,7 @@ void PndLmdTrksFilterTask::Exec(Option_t* opt)
       TVector3 MomRecLMD(fFittedTrkP.GetPx(),fFittedTrkP.GetPy(),fFittedTrkP.GetPz());
       MomRecLMD *=1./MomRecLMD.Mag();
       double thetaCent=MomRecLMD.Theta()-0.0402;
-      htthetatphiTrkFit->Fill(MomRecLMD.Theta(),MomRecLMD.Phi());
+      //      htthetatphiTrkFit->Fill(MomRecLMD.Theta(),MomRecLMD.Phi());
       }
       new((*fTrkOutArray)[rec_trk]) PndTrack(*(trkpnd)); //save Track
       rec_trk++;
@@ -358,8 +359,8 @@ void PndLmdTrksFilterTask::Exec(Option_t* opt)
 
 void PndLmdTrksFilterTask::FinishTask()
 {
-  TTree *nout1 = htthetatphiTrkFit->CloneTree();
-  nout1->Write();
+  // TTree *nout1 = htthetatphiTrkFit->CloneTree();
+  // nout1->Write();
 }
 
 ClassImp(PndLmdTrksFilterTask);
