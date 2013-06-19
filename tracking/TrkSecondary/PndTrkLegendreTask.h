@@ -167,7 +167,7 @@ class PndTrkLegendreTask : public FairTask {
   PndTrkLegendreTransform *legendre;
   Bool_t fPersistence, fUseMVDPix, fUseMVDStr, fUseSTT, fSecondary;
 
-
+  Bool_t fInitDone;
 
   PndTrkConformalTransform *conform;
   PndTrkConformalHitList *conformalhitlist;

@@ -51,14 +51,14 @@ using namespace std;
 
 
 // -----   Default constructor   -------------------------------------------
-PndTrkLegendreSecTask::PndTrkLegendreSecTask() : FairTask("secondary track finder", 0), fDisplayOn(kFALSE), fPersistence(kTRUE), fUseMVDPix(kTRUE), fUseMVDStr(kTRUE), fUseSTT(kTRUE), fSecondary(kFALSE), fMvdPix_RealDistLimit(1000), fMvdStr_RealDistLimit(1000), fStt_RealDistLimit(1000), fMvdPix_ConfDistLimit(1000), fMvdStr_ConfDistLimit(1000), fStt_ConfDistLimit(1000) {
+PndTrkLegendreSecTask::PndTrkLegendreSecTask() : FairTask("secondary track finder", 0), fDisplayOn(kFALSE), fPersistence(kTRUE), fUseMVDPix(kTRUE), fUseMVDStr(kTRUE), fUseSTT(kTRUE), fSecondary(kFALSE), fMvdPix_RealDistLimit(1000), fMvdStr_RealDistLimit(1000), fStt_RealDistLimit(1000), fMvdPix_ConfDistLimit(1000), fMvdStr_ConfDistLimit(1000), fStt_ConfDistLimit(1000), fInitDone(kFALSE) {
   sprintf(fSttBranch,"STTHit");
   sprintf(fMvdPixelBranch,"MVDHitsPixel");
   sprintf(fMvdStripBranch,"MVDHitsStrip");
   PndGeoHandling::Instance();
 }
 
-PndTrkLegendreSecTask::PndTrkLegendreSecTask(int verbose) : FairTask("secondary track finder", verbose), fDisplayOn(kFALSE), fPersistence(kTRUE), fUseMVDPix(kTRUE), fUseMVDStr(kTRUE), fUseSTT(kTRUE), fSecondary(kFALSE), fMvdPix_RealDistLimit(1000), fMvdStr_RealDistLimit(1000), fStt_RealDistLimit(1000), fMvdPix_ConfDistLimit(1000), fMvdStr_ConfDistLimit(1000), fStt_ConfDistLimit(1000) {
+PndTrkLegendreSecTask::PndTrkLegendreSecTask(int verbose) : FairTask("secondary track finder", verbose), fDisplayOn(kFALSE), fPersistence(kTRUE), fUseMVDPix(kTRUE), fUseMVDStr(kTRUE), fUseSTT(kTRUE), fSecondary(kFALSE), fMvdPix_RealDistLimit(1000), fMvdStr_RealDistLimit(1000), fStt_RealDistLimit(1000), fMvdPix_ConfDistLimit(1000), fMvdStr_ConfDistLimit(1000), fStt_ConfDistLimit(1000), fInitDone(kFALSE) {
   sprintf(fSttBranch,"STTHit");
   sprintf(fMvdPixelBranch,"MVDHitsPixel");
   sprintf(fMvdStripBranch,"MVDHitsStrip");
@@ -188,6 +188,7 @@ void PndTrkLegendreSecTask::Initialize() {
 //   conformalhitlist = new PndTrkConformalHitList();
   fFoundPeaks.clear();
 
+  fInitDone = kTRUE;
   //  stthitlist->PrintSectors();
 }
 
@@ -694,16 +695,19 @@ void PndTrkLegendreSecTask::Reset()
     cout << "FINISH" << endl;
   }
   
-  if(stthitlist) delete stthitlist;
-  if(mvdpixhitlist)  delete mvdpixhitlist; 
-  if(mvdstrhitlist)  delete mvdstrhitlist;
-  if(fTimer) {
-    fTimer->Stop();
-    fTime += fTimer->RealTime();
-    
-   if(fVerbose > 0) cerr << fEventCounter << " Real time " << fTime << " s" << endl;
+  if(fInitDone) {
+    if(stthitlist) delete stthitlist;
+    if(mvdpixhitlist)  delete mvdpixhitlist; 
+    if(mvdstrhitlist)  delete mvdstrhitlist;
+    if(fTimer) {
+      fTimer->Stop();
+      fTime += fTimer->RealTime();
+      
+      if(fVerbose > 0) cerr << fEventCounter << " Real time " << fTime << " s" << endl;
+    }
   }
 
+  fInitDone = kFALSE;
 }
 // ============================================================================================
 Int_t PndTrkLegendreSecTask::FillConformalHitList(int isec) {
@@ -725,7 +729,15 @@ Int_t PndTrkLegendreSecTask::FillConformalHitList(int isec) {
   if(isec == -1) {
     for(int jhit = 0; jhit < stthitlist->GetNofHits(); jhit++) {
       PndTrkHit *hit = stthitlist->GetHit(jhit);
-      if(hit->IsSttSkew()) continue;
+   //    if(hit->IsSttSkew()) {
+// 	//	continue;
+// 	PndTrkConformalHit * chit = conform->GetConformalHit(hit);
+// 	conformalhitlist->AddHit(chit);    
+//       }
+//       else {
+// 	PndTrkConformalHit * chit = conform->GetConformalSttHit(hit);
+// 	conformalhitlist->AddHit(chit);    
+//       }
       PndTrkConformalHit * chit = conform->GetConformalSttHit(hit);
       conformalhitlist->AddHit(chit);    
     }
@@ -734,7 +746,15 @@ Int_t PndTrkLegendreSecTask::FillConformalHitList(int isec) {
     for(int jhit = 0; jhit < stthitlist->GetNofHitsInSector(isec); jhit++) {
       PndTrkHit *hit = stthitlist->GetHitFromSector(jhit, isec);
       //      cout << "fil conformal " << hit->GetHitID() << " " << hit->GetDetectorID() << endl;
-      if(hit->IsSttSkew()) continue;
+ //      if(hit->IsSttSkew()) {
+// 	//	continue;
+// 	PndTrkConformalHit * chit = conform->GetConformalHit(hit);
+// 	conformalhitlist->AddHit(chit);    
+//       }
+//       else {
+// 	PndTrkConformalHit * chit = conform->GetConformalSttHit(hit);
+// 	conformalhitlist->AddHit(chit);    
+//       }
       PndTrkConformalHit * chit = conform->GetConformalSttHit(hit);
       conformalhitlist->AddHit(chit);    
     }

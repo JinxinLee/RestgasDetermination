@@ -51,14 +51,14 @@ using namespace std;
 
 
 // -----   Default constructor   -------------------------------------------
-PndTrkLegendreTask::PndTrkLegendreTask() : FairTask("secondary track finder", 0), fDisplayOn(kFALSE), fPersistence(kTRUE), fUseMVDPix(kTRUE), fUseMVDStr(kTRUE), fUseSTT(kTRUE), fSecondary(kFALSE), fMvdPix_RealDistLimit(1000), fMvdStr_RealDistLimit(1000), fStt_RealDistLimit(1000), fMvdPix_ConfDistLimit(1000), fMvdStr_ConfDistLimit(1000), fStt_ConfDistLimit(1000) {
+PndTrkLegendreTask::PndTrkLegendreTask() : FairTask("secondary track finder", 0), fDisplayOn(kFALSE), fPersistence(kTRUE), fUseMVDPix(kTRUE), fUseMVDStr(kTRUE), fUseSTT(kTRUE), fSecondary(kFALSE), fMvdPix_RealDistLimit(1000), fMvdStr_RealDistLimit(1000), fStt_RealDistLimit(1000), fMvdPix_ConfDistLimit(1000), fMvdStr_ConfDistLimit(1000), fStt_ConfDistLimit(1000), fInitDone(kFALSE) {
   sprintf(fSttBranch,"STTHit");
   sprintf(fMvdPixelBranch,"MVDHitsPixel");
   sprintf(fMvdStripBranch,"MVDHitsStrip");
   PndGeoHandling::Instance();
 }
 
-PndTrkLegendreTask::PndTrkLegendreTask(int verbose) : FairTask("secondary track finder", verbose), fDisplayOn(kFALSE), fPersistence(kTRUE), fUseMVDPix(kTRUE), fUseMVDStr(kTRUE), fUseSTT(kTRUE), fSecondary(kFALSE), fMvdPix_RealDistLimit(1000), fMvdStr_RealDistLimit(1000), fStt_RealDistLimit(1000), fMvdPix_ConfDistLimit(1000), fMvdStr_ConfDistLimit(1000), fStt_ConfDistLimit(1000) {
+PndTrkLegendreTask::PndTrkLegendreTask(int verbose) : FairTask("secondary track finder", verbose), fDisplayOn(kFALSE), fPersistence(kTRUE), fUseMVDPix(kTRUE), fUseMVDStr(kTRUE), fUseSTT(kTRUE), fSecondary(kFALSE), fMvdPix_RealDistLimit(1000), fMvdStr_RealDistLimit(1000), fStt_RealDistLimit(1000), fMvdPix_ConfDistLimit(1000), fMvdStr_ConfDistLimit(1000), fStt_ConfDistLimit(1000), fInitDone(kFALSE) {
   sprintf(fSttBranch,"STTHit");
   sprintf(fMvdPixelBranch,"MVDHitsPixel");
   sprintf(fMvdStripBranch,"MVDHitsStrip");
@@ -165,7 +165,7 @@ void PndTrkLegendreTask::SetParContainers() {
  
 
 void PndTrkLegendreTask::Initialize() {
-  
+
   stthitlist = new PndTrkSttHitList(fTubeArray);
   mvdpixhitlist = new PndTrkSdsHitList(MVDPIXEL);
   mvdstrhitlist = new PndTrkSdsHitList(MVDSTRIP);
@@ -188,13 +188,14 @@ void PndTrkLegendreTask::Initialize() {
   conformalhitlist = new PndTrkConformalHitList();
   fFoundPeaks.clear();
 
-
+  fInitDone = kTRUE;
 
 }
 
 void PndTrkLegendreTask::Exec(Option_t* opt) {
   fTrackArray->Delete();
   fTrackCandArray->Delete();
+
   if(fVerbose > 0) cout << "*********************** " << fEventCounter << " ***********************" << endl;
    // CHECK delete this ---
   //     if(fEventCounter == 126 || fEventCounter == 526) {
@@ -668,7 +669,7 @@ void PndTrkLegendreTask::Exec(Option_t* opt) {
 
 void PndTrkLegendreTask::Reset()
 {
-  
+ 
   if(fDisplayOn) {
     char goOnChar;
     display->Update();
@@ -677,16 +678,20 @@ void PndTrkLegendreTask::Reset()
     cin >> goOnChar;
     cout << "FINISH" << endl;
   }
-  
-  if(stthitlist) delete stthitlist;
-  if(mvdpixhitlist)  delete mvdpixhitlist; 
-  if(mvdstrhitlist)  delete mvdstrhitlist;
-  if(fTimer) {
-    fTimer->Stop();
-    fTime += fTimer->RealTime();
+
+  if(fInitDone) {
+    if(stthitlist) delete stthitlist;
+    if(mvdpixhitlist)  delete mvdpixhitlist; 
+    if(mvdstrhitlist)  delete mvdstrhitlist;
+    if(fTimer) {
+      fTimer->Stop();
+      fTime += fTimer->RealTime();
     
-   if(fVerbose > 0) cerr << fEventCounter << " Real time " << fTime << " s" << endl;
+      if(fVerbose > 0) cerr << fEventCounter << " Real time " << fTime << " s" << endl;
+    }
   }
+
+  fInitDone = kFALSE;
 }
 // ============================================================================================
 Int_t PndTrkLegendreTask::FillConformalHitList() {

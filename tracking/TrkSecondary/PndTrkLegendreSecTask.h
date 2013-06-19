@@ -165,7 +165,7 @@ class PndTrkLegendreSecTask : public FairTask {
   double  fDeltaThetaRad;
   //  TSpectrum2 *s;
   PndTrkLegendreTransform *legendre;
-  Bool_t fPersistence, fUseMVDPix, fUseMVDStr, fUseSTT, fSecondary;
+  Bool_t fPersistence, fUseMVDPix, fUseMVDStr, fUseSTT, fSecondary, fInitDone;
 
 
 
