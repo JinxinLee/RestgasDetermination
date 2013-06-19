@@ -292,17 +292,21 @@ void PndLmdTrkQTask::Exec(Option_t* opt)
 	//Matching between MC & Rec on hits level-----------------------------------
       bool emergExit=false;
       if(fVerbose>7)
-	cout<<"    *** REChits in one trk are made from MChits: "<<endl;//start MC hit content
+	cout<<"    *** REChits in trk (with "<<Ntrkcandhits<<" hits) are made from MChits: "<<endl;//start MC hit content
       for (Int_t iHit = 0; iHit < Ntrkcandhits; iHit++){ // loop over rec.hits
+	if(fVerbose>7)  cout<<"No."<<iHit<<": ";
 	PndTrackCandHit candhit = (PndTrackCandHit)(trkcand->GetSortedHit(iHit));
 	Int_t hitID = candhit.GetHitId();
 	PndSdsMergedHit* myHit = (PndSdsMergedHit*)(fRecHits->At(hitID));
 	int mcrefbot = myHit->GetSecondMCHit();
-	if(mcrefbot>0){
+	bool badpxbot=false;
+	bool badpxtop=false;
+	if(mcrefbot>=0){
 	  PndSdsMCPoint* MCPointBot = (PndSdsMCPoint*)(fMCHits->At(mcrefbot));
 	  int MCtrkid = MCPointBot->GetTrackID();
 	  if(MCtrkid<0){
 	    emergExit=true;
+	    if(fVerbose>7)  cout<<" "<<MCtrkid<<"!!!";
 	    break;//TODO: how it is possible???
 	  }
 	  //	  if(MCtrkid>-1)
@@ -310,15 +314,20 @@ void PndLmdTrkQTask::Exec(Option_t* opt)
 	    if(fVerbose>7)
 	      cout<<" "<<MCtrkid;
 	}
+	else{
+	  badpxbot=true;
+	  if(fVerbose>7) cout<<" Ooops,  mcrefbot = "<<mcrefbot;
+	}
 	int mcreftop = myHit->GetRefIndex();
 
-	if(mcreftop>0){
+	if(mcreftop>=0){
 	  // if(fVerbose>5)
 	  //   cout<<", "<<mcreftop<<")";
 	  PndSdsMCPoint* MCPointTop = (PndSdsMCPoint*)(fMCHits->At(mcreftop));
 	  int MCtrkid = MCPointTop->GetTrackID();
 	  if(MCtrkid<0){ 
 	    emergExit=true;
+	    if(fVerbose>7)  cout<<" "<<MCtrkid<<"!!!";
 	    break;//TODO: how it is possible???
 	  }
 	  //	  if(MCtrkid>-1)
@@ -326,6 +335,11 @@ void PndLmdTrkQTask::Exec(Option_t* opt)
 	    if(fVerbose>7)
 	      cout<<" "<<MCtrkid;
 	}
+	else{
+	  badpxtop=true;
+	  if(fVerbose>7) cout<<" Ooops,  mcreftop = "<<mcreftop;
+	}
+
 	if(fVerbose>7)
 	  cout<<" "<<endl;//next hit content
       }
@@ -587,7 +601,7 @@ void PndLmdTrkQTask::Exec(Option_t* opt)
 	bool missTrk=true;
 	for(int irec=0;irec<nGeaneTrks;irec++){//RECids assigment
 	  int mc_comp = RECtrkMCid[irec];
-	  if(mc_comp==imc) missTrk=false;
+	  if(mc_comp==imc && goodTrk[irec]) missTrk=false;
 	}
 	PndMCTrack *mctrk =(PndMCTrack*) fMCTracks->At(imc);
 	int movID = mctrk->GetMotherID();
