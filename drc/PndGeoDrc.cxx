@@ -43,8 +43,8 @@ PndGeoDrc::PndGeoDrc() {
   fPipehAngle   = 3.6;	      // [degrees] half of the angle taken by the target pipe
   
   // parameters of the EV:
-  fEVlength     = 30.;        // [cm] Length of expansion volume
-  fEVdrop	= 0.7;	      // [cm] drop of the EV - inner radius (used only with prism)
+  fEVlength     = 20.;//bk30.        // [cm] Length of expansion volume
+  fEVdrop	= 0.;//bk0.7;	      // [cm] drop of the EV - inner radius (used only with prism)
   fEVoffset	= 0.;	      // [cm] offset of the EV - outer radius
   fEVangle	= 45.;	      // [degrees] opening angle of the EV
   fEVbackAngle  = 90.;	      // [degrees] angle between the PD surface and the Z axis, default = 90.
@@ -61,7 +61,7 @@ PndGeoDrc::PndGeoDrc() {
   fMCPgap	= 0.1;        // [cm] gap between MCPs
   fNpix		= 8;	      // [cm] number of pixel in one column/row for one MCP (8 x 8)
   fPixelSize  	= 0.65;	      // [cm] 
-  fSigmaCharge  = 0.1;	      // [cm] = 1 mm, sigma of the charge sharing
+  fSigmaCharge  = 0.03;	      // [cm] = 1 mm, sigma of the charge sharing
   fDeadTime	= 0.0  ;      // [ns] dead time of the photodetector
   
   fPi            =  TMath::Pi();
