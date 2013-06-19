@@ -270,7 +270,7 @@ class RhoCandidate : public TObject
     // access to daughters
     Int_t NDaughters() const;
     //RhoCandListIterator DaughterIterator() const;
-    const RhoCandidate* Daughter ( Int_t n ) const;
+    //const RhoCandidate* Daughter ( Int_t n ) const;
     RhoCandidate* Daughter ( Int_t n );
     void RemoveAssociations();
 
