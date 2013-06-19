@@ -71,9 +71,9 @@ link_directories( ${LINK_DIRECTORIES})
 ########################### create libLmd ######################################
 set(SRCS
 
-LmdMC/PndLmdDim.cxx
 LmdTools/PndLmdContFact.cxx
 LmdTools/PndLmdAlignPar.cxx
+LmdMC/PndLmdDim.cxx
 LmdDigi/PndLmdPixelHitProducerFast.cxx
 LmdDigi/PndLmdHybridHitProducer.cxx
 LmdDigi/PndLmdStripHitProducer.cxx
@@ -89,7 +89,7 @@ set(LINKDEF  LmdLinkDef.h)
 set(LIBRARY_NAME Lmd)
 
 set(DEPENDENCIES Base ParBase GeoBase TrkBase Geane Hyp Sds PndData
-genfitAdapters RecoHits generalTools trackrep Rho)
+genfitAdapters RecoHits generalTools trackrep)
 
 GENERATE_LIBRARY()
 
@@ -140,14 +140,15 @@ GENERATE_LIBRARY()
 ########################### create libLmdTools ##################################
 set(SRCS
 
+LmdQA/PndLmdTrackQ.cxx
+LmdQA/PndLmdTrkQTask.cxx
 LmdQA/PndLmdQATask.cxx
 )
 
 set(LINKDEF  LmdToolLinkDef.h)
 set(LIBRARY_NAME LmdTool)
 
-set(DEPENDENCIES Base ParBase GeoBase TrkBase Geane Hyp Sds PndData
-genfitAdapters RecoHits generalTools Lmd)
+set(DEPENDENCIES Base ParBase GeoBase TrkBase Geane Hyp Sds PndData genfitAdapters RecoHits generalTools Lmd)
 
 GENERATE_LIBRARY()
 
