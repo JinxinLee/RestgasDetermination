@@ -88,8 +88,7 @@ LmdMC/PndLmdGeo.cxx
 set(LINKDEF  LmdLinkDef.h)
 set(LIBRARY_NAME Lmd)
 
-set(DEPENDENCIES Base ParBase GeoBase TrkBase Geane Hyp Sds PndData
-genfitAdapters RecoHits generalTools trackrep)
+set(DEPENDENCIES Base ParBase GeoBase TrkBase Sds PndData)
 
 GENERATE_LIBRARY()
 
@@ -109,8 +108,7 @@ LmdReco/PndSdsMergedHit.cxx
 set(LINKDEF  LmdRecoLinkDef.h)
 set(LIBRARY_NAME LmdReco)
 
-set(DEPENDENCIES Base ParBase GeoBase TrkBase Geane Hyp Sds PndData
-genfitAdapters RecoHits generalTools Lmd)
+set(DEPENDENCIES SdsReco Lmd)
 
 GENERATE_LIBRARY()
 
@@ -132,8 +130,7 @@ LmdTrack/PndLmdTrksFilterTask.cxx
 set(LINKDEF  LmdTrkLinkDef.h)
 set(LIBRARY_NAME LmdTrk)
 
-set(DEPENDENCIES Base ParBase GeoBase TrkBase Geane Hyp Sds PndData
-genfitAdapters RecoHits generalTools Lmd)
+set(DEPENDENCIES genfitAdapters RecoHits TrkBase Geane LmdReco)
 
 GENERATE_LIBRARY()
 
@@ -148,7 +145,7 @@ LmdQA/PndLmdQATask.cxx
 set(LINKDEF  LmdToolLinkDef.h)
 set(LIBRARY_NAME LmdTool)
 
-set(DEPENDENCIES Base ParBase GeoBase TrkBase Geane Hyp Sds PndData genfitAdapters RecoHits generalTools Lmd)
+set(DEPENDENCIES Sds LmdTrk)
 
 GENERATE_LIBRARY()
 
