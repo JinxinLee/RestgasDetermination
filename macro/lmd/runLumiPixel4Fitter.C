@@ -89,7 +89,7 @@ void runLumiPixel4Fitter(const int nEvents=100000, const int startEvent=0, TStri
   PndLmdLinFitTask* lmdfit = new PndLmdLinFitTask(inTrks,inHits);
   //  TString tTCandBranchName, TString tRecoBranchName
   lmdfit->SetVerbose(verboseLevel);
-  lmdfit->SetFilterFlag(false);
+  //  lmdfit->SetFilterFlag(false);
   fRun->AddTask(lmdfit);
   }
   else{
