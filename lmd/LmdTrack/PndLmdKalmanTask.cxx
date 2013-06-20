@@ -317,7 +317,7 @@ PndLmdKalmanTask::Exec(Option_t* opt)
       std::cout<<"*** FITTER EXCEPTION ***"<<std::endl;
       std::cout<<e.what()<<std::endl;
     }
-    if (fVerbose>0) std::cout<<"successful FIT!"<<std::endl;
+    if (fVerbose>1) std::cout<<"successful FIT!"<<std::endl;
   
 
     // --- Get trk in  PndTrack format ---
