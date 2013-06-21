@@ -12,47 +12,54 @@
 using namespace std;
 
 
-PndTrkConformalHitList::PndTrkConformalHitList() : fConformal(new PndTrkConformalTransform()) {
-  hitlist.resize(0);
+PndTrkConformalHitList::PndTrkConformalHitList() : fConformal(new PndTrkConformalTransform()), hitlist(TObjArray()) {}
+
+PndTrkConformalHitList::PndTrkConformalHitList(PndTrkConformalTransform *conformal) : fConformal(conformal), hitlist(TObjArray()) {}
+ 
+PndTrkConformalHitList::PndTrkConformalHitList(const PndTrkConformalHitList& hlist) : fConformal(new PndTrkConformalTransform()) {
+  *this = hlist;
 }
-PndTrkConformalHitList::PndTrkConformalHitList(PndTrkConformalTransform *conformal) : fConformal(conformal) {
-  hitlist.resize(0);
+
+PndTrkConformalHitList::~PndTrkConformalHitList() {}
+
+PndTrkConformalHitList& PndTrkConformalHitList::operator=(const PndTrkConformalHitList& hlist) {
+  hitlist = TObjArray(hlist.hitlist);
+  fConformal = hlist.fConformal;
+  return *this;
 }
  
-PndTrkConformalHitList::~PndTrkConformalHitList() {}
 
 // ----------------------------------------------------
 
 void PndTrkConformalHitList::Reset() {
   fConformal = NULL;
-  hitlist.resize(0);
+  hitlist.Clear();
 }
 
 void PndTrkConformalHitList::AddHit(PndTrkConformalHit *chit) {
-  hitlist.push_back(chit);
+  hitlist.Add(chit);
 }
 
 PndTrkConformalHit *PndTrkConformalHitList::GetHit(int index) {
-  return hitlist[index];
+  return (PndTrkConformalHit*) hitlist[index];
 }
 
 
 void PndTrkConformalHitList::Print() {
 
   cout << "###############################" << endl;
-  std::vector< PndTrkConformalHit * >::iterator itr = hitlist.begin();
-  while(itr != hitlist.end()) {
-    (*itr)->Print();
-    itr++;
+  for(int ihit = 0; ihit < GetNofHits(); ihit++) {
+    PndTrkConformalHit* chit = (PndTrkConformalHit*) hitlist[ihit];
+    chit->Print();
   }
 }
 
+
 void PndTrkConformalHitList::Draw(Color_t color) { 
-  std::vector< PndTrkConformalHit * >::iterator itr = hitlist.begin();
-  while(itr != hitlist.end()) {
-    (*itr)->Draw(color);
-    itr++;
-  }
+   for(int ihit = 0; ihit < GetNofHits(); ihit++) {
+    PndTrkConformalHit* chit = (PndTrkConformalHit*) hitlist[ihit];
+    chit->Draw(color);
+   }
 }
 
 

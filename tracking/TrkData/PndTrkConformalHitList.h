@@ -12,13 +12,14 @@
 #include "FairHit.h"
 
 #include <iostream>
-#include <cmath>
-#include <vector>
-#include <iterator>
-#include <algorithm>
+/* #include <cmath> */
+/* #include <vector> */
+/* #include <iterator> */
+/* #include <algorithm> */
 
 #define MAXNOFHITS 1000  // CHECK consistency
 
+class TObjArray;
 class PndTrkConformalHitList : public TObject
 {
 
@@ -26,8 +27,14 @@ class PndTrkConformalHitList : public TObject
 
   PndTrkConformalHitList();
   PndTrkConformalHitList(PndTrkConformalTransform *conformal);
- ~PndTrkConformalHitList();    
+  PndTrkConformalHitList(const PndTrkConformalHitList& hlist);
+  
+  ~PndTrkConformalHitList();    
+  PndTrkConformalHitList& operator=(const PndTrkConformalHitList& hlist);
 
+
+
+ 
   // CHECK private?
   void AddHit(PndTrkConformalHit *chit); 
   PndTrkConformalHit *GetHit(int index);
@@ -36,16 +43,17 @@ class PndTrkConformalHitList : public TObject
 
   void SetConformalTransform(PndTrkConformalTransform *conformal) { fConformal = conformal; }
   PndTrkConformalTransform  *GetConformalTransform() { return fConformal; }
-  inline Int_t  GetNofHits() { return hitlist.size(); }
+  inline Int_t  GetNofHits() { return hitlist.GetEntriesFast(); }
   
   void Print();
   void Draw(Color_t color = kBlack);
  
  protected:
 
-  std::vector<PndTrkConformalHit *> hitlist;
+  /*   std::vector<PndTrkConformalHit *> hitlist; */
+  TObjArray hitlist;
   PndTrkConformalTransform *fConformal;
-
+  
   ClassDef(PndTrkConformalHitList,1);
 };
 
