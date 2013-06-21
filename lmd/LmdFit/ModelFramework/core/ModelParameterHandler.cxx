@@ -142,6 +142,18 @@ void ModelParameterHandler::registerParametrizationModels(
 	}
 }
 
+ParametrizationProxy ModelParameterHandler::getParametrizationProxyForModelParameter(
+		std::string name_) {
+	if (model_par_set.modelParameterExists(name_)) {
+		return parametrizations[model_par_set.getModelParameter(name_)];
+	} else {
+		std::cout << "ERROR: The requested model parameter " << name_
+				<< " does not exist!" << std::endl;
+		ParametrizationProxy tempproxy;
+	  return tempproxy;
+	}
+}
+
 void ModelParameterHandler::executeParametrizationModels(const double *x) {
 	for (std::map<shared_ptr<ModelPar>, ParametrizationProxy>::iterator it =
 			parametrizations.begin(); it != parametrizations.end(); it++) {
@@ -158,9 +170,31 @@ void ModelParameterHandler::executeParametrizationModels(const double *x) {
 void ModelParameterHandler::updateModelParameters() {
 	// loop over all registered updater parametrizations which
 	// adjust the dependent parameters
-	for (std::set<shared_ptr<Parametrization> >::iterator it =
-			updating_parametrizations.begin(); it != updating_parametrizations.end();
-			it++) {
-		(*it)->parametrize();
+	for (std::map<shared_ptr<ModelPar>, ParametrizationProxy>::iterator it =
+			parametrizations.begin(); it != parametrizations.end(); it++) {
+		if (it->second.hasParametrization()) {
+			it->second.getParametrization()->parametrize();
+		}
+	}
+}
+
+void ModelParameterHandler::initModelParametersFromFitResult(
+		ModelFitResult &fit_result) {
+	const std::set<ModelStructs::minimization_parameter> &fit_params =
+			fit_result.getFitParameters();
+	for (std::set<ModelStructs::minimization_parameter>::const_iterator it =
+			fit_params.begin(); it != fit_params.end(); it++) {
+		if (getModelParameterSet().modelParameterExists(it->name)) {
+			shared_ptr<ModelPar> model_par = getModelParameterSet().getModelParameter(
+					it->name);
+			bool was_fixed = false;
+			if (model_par->isParameterFixed()) {
+				was_fixed = true;
+				model_par->setParameterFixed(false);
+			}
+			model_par->setValue(it->value);
+			if (was_fixed)
+				model_par->setParameterFixed(true);
+		}
 	}
 }

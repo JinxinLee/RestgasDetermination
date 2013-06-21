@@ -121,6 +121,8 @@ void PndLmdResolution::fillHistograms(
 					&& th_slice_range_high > 1000. * data.first.theta) {
 				if (phi_slice_range_low < data.first.phi
 						&& phi_slice_range_high > data.first.phi) {
+					if(1000. * data.first.theta < 2.0)
+					  std::cout<<1000. * (data.second.theta)<<" - "<<1000. * (data.first.theta)<<" = "<<1000. * (data.second.theta - data.first.theta)<<std::endl;
 					theta_res->Fill(1000. * (data.second.theta - data.first.theta));
 					theta_res_vs_phi_res->Fill(
 							1000. * (data.second.theta - data.first.theta),

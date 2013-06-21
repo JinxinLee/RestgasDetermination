@@ -9,18 +9,14 @@
 #include "ROOTMinimizer.h"
 #include "PndLmdLumiFitResult.h"
 #include "PndLmdLumiFitOptions.h"
-#include "PndLmdLumiHelper.h"
+#include "Chi2Estimator.h"
+#include "ROOTDataHelper.h"
+#include "Data.h"
+#include "EstimatorOptions.h"
 
 #include "TH1D.h"
 #include "TH2D.h"
-#include "TF1.h"
-#include "TF2.h"
 #include "TFile.h"
-#include "TTree.h"
-#include "TF1.h"
-#include "Math/WrappedTF1.h"
-#include "Math/GSLIntegrator.h"
-#include "TCanvas.h"
 
 ClassImp(PndLmdData)
 
@@ -128,7 +124,6 @@ std::pair<double, double> PndLmdData::calcRange(
 	return std::make_pair(range_low, range_high);
 }
 
-
 PndLmdLumiFitResult* PndLmdData::Fit(PndLmdAcceptance *lmd_acc,
 		PndLmdLumiFitOptions *fit_options) {
 
@@ -156,30 +151,28 @@ PndLmdLumiFitResult* PndLmdData::Fit(PndLmdAcceptance *lmd_acc,
 
 		// create chi2 estimator
 		Chi2Estimator chi2_est;
-
 		// set model
 		chi2_est.setModel(model1d);
 
+		// create and set data
+		ROOTDataHelper data_helper;
+		chi2_est.setData(
+				data_helper.createBinnedData(getMeasuredHist1D(fit_options)));
+
+		// create estimator options
+		EstimatorOptions est_opt;
 		std::pair<double, double> fit_range = std::make_pair(
-				fit_options->getThetaFitRangeLow(), fit_options->getThetaFitRangeHigh());
-		if(fit_options->isFitRaw())
-			fit_range = std::make_pair(
-						fit_options->getTFitRangeLow(), fit_options->getTFitRangeHigh());
-
-		// fill data to the estimator
-		PndLmdLumiHelper helper;
-		helper.fillFitData1D(chi2_est, getMeasuredHist1D(fit_options), fit_range);
-
-		// set value for binning constant
-		double binning_factor = 1.0;
+				fit_options->getThetaFitRangeLow(),
+				fit_options->getThetaFitRangeHigh());
 		if (fit_options->isFitRaw())
-			binning_factor = t_dimension.bin_size;
-		else {
-			binning_factor = th_dimension.bin_size;
-			if (fit_options->getFitDimension())
-				binning_factor *= phi_dimension.bin_size;
-		}
-		chi2_est.setBinningFactor(binning_factor);
+			fit_range = std::make_pair(fit_options->getTFitRangeLow(),
+					fit_options->getTFitRangeHigh());
+
+		est_opt.setFitRangeX(fit_range);
+		est_opt.setWithIntegralScaling(true);
+
+		// apply estimator options
+		chi2_est.applyEstimatorOptions(est_opt);
 
 		// now set better starting lumi value
 		std::pair<double, double> range = calcRange(fit_options);
@@ -196,7 +189,7 @@ PndLmdLumiFitResult* PndLmdData::Fit(PndLmdAcceptance *lmd_acc,
 				lumi_start);
 
 		// create minimizer instance with control parameter
-    ROOTMinimizer fitter(chi2_est);
+		ROOTMinimizer fitter(chi2_est);
 
 		int fit_status = fitter.doMinimization();
 		// call minimization procedure
@@ -210,21 +203,16 @@ PndLmdLumiFitResult* PndLmdData::Fit(PndLmdAcceptance *lmd_acc,
 		// store fit results
 		std::cout << "Adding fit result to storage..." << std::endl;
 
+		ModelFitResult temp_fit_result = fitter.createModelFitResult();
+		temp_fit_result.setFitStatus(fit_status);
+	  // in case we have a likelihood we have to create a new chi2 estimator...
+		temp_fit_result.setChiSquare(chi2_est.evaluate(fitter.getROOTMinimizer()->X()));
+		temp_fit_result.setNDF(
+				chi2_est.getData()->getNumberOfDataPoints()
+						- fitter.getROOTMinimizer()->NFree());
 		fit_result = new PndLmdLumiFitResult(fit_options);
-		fit_result->setFitStatus(fit_status);
+		fit_result->setModelFitResult(temp_fit_result);
 
-		// in case we have a likelihood we have to create a new chi2 estimator...
-		fit_result->setChiSquare(chi2_est.evaluate(fitter.getROOTMinimizer()->X()));
-
-		for (unsigned int i = 0; i < fitter.getROOTMinimizer()->NDim(); i++) {
-				fit_result->addFitParameter(
-						fitter.getROOTMinimizer()->VariableName(i),
-						fitter.getROOTMinimizer()->X()[i],
-						fitter.getROOTMinimizer()->Errors()[i]);
-		}
-
-		fit_result->setNDF(
-				chi2_est.getNumberOfDataPoints() - fitter.getROOTMinimizer()->NFree());
 	} else { // user wants to use ROOFIT
 		// ok do roofit stuff here
 	}
@@ -233,7 +221,8 @@ PndLmdLumiFitResult* PndLmdData::Fit(PndLmdAcceptance *lmd_acc,
 	return fit_result;
 }
 
-TH1D* PndLmdData::getMeasuredHist1D(const PndLmdLumiFitOptions *fit_options) const {
+TH1D* PndLmdData::getMeasuredHist1D(
+		const PndLmdLumiFitOptions *fit_options) const {
 	if (fit_options->isFitRaw()) {
 		if (fit_options->isSmearingOn()) {
 			if (fit_options->isAcceptanceCorrOn()) {
@@ -275,7 +264,8 @@ TH1D* PndLmdData::getMeasuredHist1D(const PndLmdLumiFitOptions *fit_options) con
 	}
 }
 
-TH2D* PndLmdData::getMeasuredHist2D(const PndLmdLumiFitOptions *fit_options) const {
+TH2D* PndLmdData::getMeasuredHist2D(
+		const PndLmdLumiFitOptions *fit_options) const {
 	if (fit_options->isSmearingOn()) {
 		if (fit_options->isAcceptanceCorrOn()) {
 			return reco_2d;

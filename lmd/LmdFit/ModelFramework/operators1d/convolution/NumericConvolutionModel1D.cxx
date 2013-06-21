@@ -18,7 +18,7 @@ NumericConvolutionModel1D::NumericConvolutionModel1D(std::string name_,
 	addModelToList(second);
 
 	//set some properties of the convolution
-	divisions = 600;
+	divisions = 300;
 }
 
 void NumericConvolutionModel1D::initModelParameters() {
@@ -92,9 +92,12 @@ double NumericConvolutionModel1D::eval(const double *x) const {
 
 void NumericConvolutionModel1D::updateDomain() {
 	// first we need to check if user defined a domain for his models
-	if (first->getDomainRange() == 0 || second->getDomainRange() == 0) {
-		std::cout << "Warning: The models used for the convolution have not"
-				" defined any domains!" << std::endl;
+	if (first->getDomainRange() == 0) {
+		std::cout << "Warning: The domain of the model " << first->getName()
+				<< " used for the convolution is not defined!" << std::endl;
+	} else if (second->getDomainRange() == 0) {
+		std::cout << "Warning: The domain of the model " << second->getName()
+				<< " used for the convolution is not defined!" << std::endl;
 	} else {
 		setDomain(first->getDomain().first + second->getDomain().first,
 				first->getDomain().second + second->getDomain().second);

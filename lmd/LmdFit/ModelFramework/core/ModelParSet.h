@@ -45,6 +45,8 @@ public:
 	 */
 	unsigned int getNumberOfFreeParameters() const;
 
+	bool modelParameterExists(
+			const std::pair<std::string, std::string> &name_) const;
 	bool modelParameterExists(const shared_ptr<ModelPar> &model_par) const;
 	bool modelParameterExists(const std::string &name_) const;
 
@@ -91,11 +93,15 @@ public:
 	 */
 	const double& getModelParameterValue(const std::string &name_) const;
 
+	shared_ptr<ModelPar> getModelParameter(
+			const std::pair<std::string, std::string> &name_);
+
 	shared_ptr<ModelPar> getModelParameter(const std::string &name_);
 
 	void freeModelParameter(const std::string &name_);
 
-	void freeModelParameter(const std::pair<std::string, std::string> &name_pair_);
+	void freeModelParameter(
+			const std::pair<std::string, std::string> &name_pair_);
 
 	/**
 	 * This function frees all non-superior parameters of this model.
@@ -106,7 +112,8 @@ public:
 
 	bool checkSuperiorParameters() const;
 
-	std::vector<shared_ptr<ModelPar> > getFreeModelParameters() const;
+	std::map<std::pair<std::string, std::string>, shared_ptr<ModelPar>
+			, ModelStructs::stringpair_comp> getFreeModelParameters() const;
 
 	std::map<std::pair<std::string, std::string>, shared_ptr<ModelPar>
 			, ModelStructs::stringpair_comp>& getModelParameterMap();

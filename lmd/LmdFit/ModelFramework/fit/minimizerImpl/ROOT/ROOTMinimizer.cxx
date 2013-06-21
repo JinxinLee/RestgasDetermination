@@ -16,7 +16,7 @@ ROOTMinimizer::ROOTMinimizer(ModelControlParameter &control_param_) :
 	std::cout << "Initializing Minuit Minimizer..." << std::endl;
 
 	//Minimize = Migrad+Simplex
-	min = ROOT::Math::Factory::CreateMinimizer("Minuit2", "Combined");
+	min = ROOT::Math::Factory::CreateMinimizer("Minuit2", "Migrad");
 	// set tolerance , etc...
 	min->SetMaxFunctionCalls(100000); // for Minuit/Minuit2
 	min->SetMaxIterations(1000);
@@ -33,6 +33,27 @@ const ROOT::Math::Minimizer* ROOTMinimizer::getROOTMinimizer() const {
 	return min;
 }
 
+ModelFitResult ROOTMinimizer::createModelFitResult() const {
+	ModelFitResult fit_result;
+
+	for (unsigned int i = 0; i < min->NDim(); i++) {
+		std::string model_name;
+		std::string param_name;
+
+		unsigned int colon_index = min->VariableName(i).find(
+				":");
+		model_name = min->VariableName(i).substr(0, colon_index);
+		param_name = min->VariableName(i).substr(colon_index + 1,
+				min->VariableName(i).size() - colon_index);
+
+		fit_result.addFitParameter(
+				std::make_pair(model_name, param_name),
+				min->X()[i],
+				min->Errors()[i]);
+	}
+	return fit_result;
+}
+
 int ROOTMinimizer::minimize() {
 	std::cout << "Setting up fit..." << std::endl;
 	min->Clear();
@@ -46,10 +67,13 @@ int ROOTMinimizer::minimize() {
 	// Set the free variables to be minimized!
 	for (unsigned int i = 0; i < control_param.getParameterList().size(); i++) {
 		double stepsize = TMath::Abs(
-				0.01 * control_param.getParameterList()[i].value);
+				0.1 * control_param.getParameterList()[i].value);
 		if (0.0 == control_param.getParameterList()[i].value)
 			stepsize = 0.001;
-		min->SetVariable(i, control_param.getParameterList()[i].name,
+		min->SetVariable(
+				i,
+				control_param.getParameterList()[i].name.first + ":"
+						+ control_param.getParameterList()[i].name.second,
 				control_param.getParameterList()[i].value, stepsize);
 	}
 	std::cout << "Finished setting up fit!" << std::endl;

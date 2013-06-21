@@ -42,38 +42,28 @@ struct string_comp {
 	}
 };
 
-// data structure
-struct data_point {
-	double x[2]; // max 2 dimensional fits
-	double z;
-	double z_error;
-	double scale;
-};
-
 struct minimization_parameter {
-	std::string name;
+	std::pair<std::string, std::string> name;
 	double value;
 	double error;
 	minimization_parameter() {
-		name = "";
+		name = std::make_pair(std::string(""), std::string(""));
 		value = 0.0;
 		error = 0.0;
 	}
-	minimization_parameter(std::string name_) {
+	minimization_parameter(std::pair<std::string, std::string> name_) {
 		name = name_;
 		value = 0.0;
 		error = 0.0;
 	}
-	minimization_parameter(std::string name_, double value_, double error_) {
+	minimization_parameter(std::pair<std::string, std::string> name_, double value_, double error_) {
 		name = name_;
 		value = value_;
 		error = error_;
 	}
 	bool operator<(const minimization_parameter &rhs) const {
-		if (name.compare(rhs.name) < 0) {
-			return true;
-		}
-		return false;
+		ModelStructs::stringpair_comp compare;
+		return compare(name, rhs.name);
 	}
 };
 

@@ -9,7 +9,9 @@
 #define PNDLMDRESULTPLOTTER_H_
 
 #include "PndLmdLumiHelper.h"
-
+#ifndef __CINT__
+#include "ROOTPlotter.h"
+#endif /* __CINT __ */
 #include <map>
 
 #include "TString.h"
@@ -54,7 +56,9 @@ public:
 
 private:
 	PndLmdLumiHelper lumi_helper;
-
+#ifndef __CINT__
+	ROOTPlotter root_plotter;
+#endif /* __CINT __ */
 	int text_font;
 
 	double theta_plot_range_low;
@@ -69,7 +73,6 @@ private:
 	double label_offset_y;
 	double title_offset_x;
 	double title_offset_y;
-
 
 	std::pair<double, double> determinePlotRange(
 			std::map<TString, std::vector<combined_values> > &result_map);
@@ -86,6 +89,9 @@ private:
 
 	std::pair<double, double> calculatePlotRange(PndLmdDataInterface *data,
 			const PndLmdLumiFitOptions *fit_options);
+
+	std::map<TString, std::vector<PndLmdLumiHelper::lmd_graph> > generateLmdGraphMap(
+			std::vector<PndLmdLumiHelper::lmd_graph> graphs);
 
 public:
 	PndLmdResultPlotter();
@@ -105,17 +111,9 @@ public:
 	void setTitleOffsetY(double title_offset_y_);
 
 	std::vector<PndLmdData*> getDataFromPath(TString path);
-	std::map<std::string, std::vector<PndLmdResolution*>,
-			ModelStructs::string_comp> getFittedResolutionFromPath(TString path);
 
 	TGraphErrors* createSmearingGraphFromFitResult(PndLmdLumiFitResult *fit_res,
 			PndLmdResolution *res_data);
-
-	std::map<std::string, TGraphErrors*, ModelStructs::string_comp> generateGraphsFromFitResults(
-			std::map<double, ModelFitResult*> &fit_results);
-
-	std::map<TString, std::vector<PndLmdLumiHelper::lmd_graph*> > getResolutionModelGraphsFromPath(
-			TString path, unsigned int level = 0);
 
 	std::vector<PndLmdResultPlotter::graph_bundle_1D> makeGraphBundles1D(
 			PndLmdData *data, PndLmdAcceptance* acc);
@@ -139,14 +137,17 @@ public:
 	combined_values createCombinedValue(double x, double lumi, double err,
 			double ref);
 
+	std::map<std::string, std::vector<PndLmdResolution*>,
+			ModelStructs::string_comp> createBookyMap(
+			std::vector<PndLmdResolution*> &res_vec);
+
 	TCanvas* makeOverviewCanvas(
 			std::vector<PndLmdResultPlotter::graph_bundle_1D> &graph_bundles,
 			acceptance_bundle &acceptance_bundle);
 
-	void makeResolutionSummaryPlots(TString input_file_dir);
+	void makeResolutionSummaryPlots(TFile *f);
 
-	void makeResolutionBooky(std::map<std::string, std::vector<PndLmdResolution*>,
-			ModelStructs::string_comp> &res_map,
+	void makeResolutionBooky(std::vector<PndLmdResolution*> &res_vec,
 			TString filename);
 
 	void makeComparisonCanvas(

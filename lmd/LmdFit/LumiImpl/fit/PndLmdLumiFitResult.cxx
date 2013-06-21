@@ -11,12 +11,8 @@
 
 ClassImp(PndLmdLumiFitResult)
 
-PndLmdLumiFitResult::PndLmdLumiFitResult(const PndLmdLumiFitOptions *fit_options_,
-		ModelFitResult *fit_result_) :
-		fit_options(fit_options_), model_fit_result(fit_result_) {
-	//model_fit_result = new ModelFitResult(*fit_result);
-}
-PndLmdLumiFitResult::PndLmdLumiFitResult(const PndLmdLumiFitOptions *fit_options_) :
+PndLmdLumiFitResult::PndLmdLumiFitResult(
+		const PndLmdLumiFitOptions *fit_options_) :
 		fit_options(fit_options_) {
 	model_fit_result = new ModelFitResult();
 }
@@ -56,16 +52,18 @@ void PndLmdLumiFitResult::setFitStatus(int fit_status_) {
 void PndLmdLumiFitResult::setChiSquare(double chi_square_) {
 	model_fit_result->setChiSquare(chi_square_);
 }
-void PndLmdLumiFitResult::addFitParameter(std::string name_, double value_,
-		double error_) {
-	model_fit_result->addFitParameter(name_, value_, error_);
-}
 void PndLmdLumiFitResult::setNDF(double ndf_) {
 	model_fit_result->setNDF(ndf_);
 }
 
 void PndLmdLumiFitResult::setLuminositySysError(double luminosity_sys_err_) {
 	luminosity_sys_err = luminosity_sys_err_;
+}
+
+void PndLmdLumiFitResult::setModelFitResult(ModelFitResult &fit_result) {
+	if (!model_fit_result) {
+		model_fit_result = new ModelFitResult(fit_result);
+	}
 }
 
 bool PndLmdLumiFitResult::checkFitOptions(

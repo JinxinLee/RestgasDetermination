@@ -10,30 +10,31 @@
 
 #include "ModelStructs.h"
 #include "ModelControlParameter.h"
+#include "EstimatorOptions.h"
 
+#include <map>
+#include <vector>
 #include <tr1/memory>
 
+class Data;
 class Model;
 class ModelPar;
 
 using std::tr1::shared_ptr;
 
-class ModelEstimator : public ModelControlParameter {
+class ModelEstimator: public ModelControlParameter {
 private:
 	// list of free parameters
-	std::vector<shared_ptr<ModelPar> > free_parameters;
+	std::map<std::pair<std::string, std::string>, shared_ptr<ModelPar>
+			, ModelStructs::stringpair_comp> free_parameters;
 
 	void insertParameters();
 
 	void updateFreeModelParameters(const double *new_values);
 
 protected:
-	// this is the vector that stores the information for the chi2 calculation
-	std::vector<ModelStructs::data_point> data_points;
-
-	// binning factor
-	double binning_factor;
-
+	// data
+	shared_ptr<Data> data;
 	// model used for fitting
 	shared_ptr<Model> fit_model;
 
@@ -41,21 +42,21 @@ public:
 	ModelEstimator();
 	virtual ~ModelEstimator();
 
-	unsigned int getNumberOfDataPoints() const;
 	const shared_ptr<Model> getModel() const;
-
-	void setBinningFactor(double binning_factor_);
 	void setModel(shared_ptr<Model> new_model);
+
+	const shared_ptr<Data> getData() const;
+	void setData(shared_ptr<Data> new_data);
 
 	std::vector<shared_ptr<ModelPar> >& getFreeParameterList();
 
-	void clearData();
-	void insertData(std::vector<ModelStructs::data_point> &data_points_);
-	void insertData(ModelStructs::data_point &data_point_);
-
 	double evaluate(const double *par);
 
-	// the chisquare function
+	void applyEstimatorOptions(const EstimatorOptions &estimator_options);
+
+	/**
+	 * The estimator function (chi2, likelihood, etc)
+	 */
 	virtual double eval() const =0;
 };
 

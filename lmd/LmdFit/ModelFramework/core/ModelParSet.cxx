@@ -24,8 +24,8 @@ unsigned int ModelParSet::getNumberOfParameters() const {
 unsigned int ModelParSet::getNumberOfFreeParameters() const {
 	unsigned int nfree = 0;
 	for (std::map<std::pair<std::string, std::string>, shared_ptr<ModelPar>
-			, ModelStructs::stringpair_comp>::const_iterator it = model_par_map.begin();
-			it != model_par_map.end(); it++) {
+			, ModelStructs::stringpair_comp>::const_iterator it =
+			model_par_map.begin(); it != model_par_map.end(); it++) {
 		if (!it->second->isParameterFixed())
 			nfree++;
 	}
@@ -39,8 +39,8 @@ void ModelParSet::printInfo() const {
 	std::cout << "************************************************************"
 			<< std::endl;
 	for (std::map<std::pair<std::string, std::string>, shared_ptr<ModelPar>
-			, ModelStructs::stringpair_comp>::const_iterator it = model_par_map.begin();
-			it != model_par_map.end(); it++) {
+			, ModelStructs::stringpair_comp>::const_iterator it =
+			model_par_map.begin(); it != model_par_map.end(); it++) {
 		std::cout << "------------------------------------------------------------"
 				<< std::endl;
 		std::cout << "parameter " << counter << "  (" << it->first.first << ":"
@@ -83,8 +83,8 @@ int ModelParSet::setModelParameterValue(const std::string &name_,
 		// we did not find the parameter to be defined in this model, but if it is
 		// superior/global then we have to check only for the name of the parameter
 		for (std::map<std::pair<std::string, std::string>, shared_ptr<ModelPar>
-				, ModelStructs::stringpair_comp>::const_iterator it = model_par_map.begin();
-				it != model_par_map.end(); it++) {
+				, ModelStructs::stringpair_comp>::const_iterator it =
+				model_par_map.begin(); it != model_par_map.end(); it++) {
 			if (it->first.second.compare(name_) == 0) {
 				it->second->setValue(value_);
 				return 0;
@@ -107,8 +107,12 @@ bool ModelParSet::modelParameterExists(
 }
 
 bool ModelParSet::modelParameterExists(const std::string &name_) const {
-	if (model_par_map.find(std::make_pair(model_name, name_))
-			!= model_par_map.end())
+	return modelParameterExists(std::make_pair(model_name, name_));
+}
+
+bool ModelParSet::modelParameterExists(
+		const std::pair<std::string, std::string> &name_) const {
+	if (model_par_map.find(name_) != model_par_map.end())
 		return true;
 	else {
 		return false;
@@ -177,17 +181,36 @@ const double& ModelParSet::getModelParameterValue(
 	return model_par_map.at(std::make_pair(model_name, name_))->getValue();
 }
 
+shared_ptr<ModelPar> ModelParSet::getModelParameter(
+		const std::pair<std::string, std::string> &name_) {
+	if (!modelParameterExists(name_)) {
+		// ok we should actually throw an exception here
+		// because we can only end up here if user asks from a composite model
+		// for a parameter that does not exist... which is a mistake...
+		std::cout
+				<< "ERROR: The requested parameter "
+				<< name_.first
+				<< ":"
+				<< name_.second
+				<< " does not exist! Return a new parameter of this type which is unused!"
+				<< " As this call is for composite models please make sure that the model "
+				<< "and parameter name are correct." << std::endl;
+		addModelParameter(name_.second);
+	}
+	return model_par_map.at(name_);
+}
+
 shared_ptr<ModelPar> ModelParSet::getModelParameter(const std::string &name_) {
 	if (!modelParameterExists(name_)) {
 		addModelParameter(name_);
 	}
-	return model_par_map.at(std::make_pair(model_name, name_));
+	return getModelParameter(std::make_pair(model_name, name_));
 }
 
 int ModelParSet::checkParameters() const {
 	for (std::map<std::pair<std::string, std::string>, shared_ptr<ModelPar>
-			, ModelStructs::stringpair_comp>::const_iterator it = model_par_map.begin();
-			it != model_par_map.end(); it++) {
+			, ModelStructs::stringpair_comp>::const_iterator it =
+			model_par_map.begin(); it != model_par_map.end(); it++) {
 		if (!it->second->isSet()) {
 			return 1;
 		}
@@ -197,21 +220,23 @@ int ModelParSet::checkParameters() const {
 
 bool ModelParSet::checkSuperiorParameters() const {
 	for (std::map<std::pair<std::string, std::string>, shared_ptr<ModelPar>
-			, ModelStructs::stringpair_comp>::const_iterator it = model_par_map.begin();
-			it != model_par_map.end(); it++) {
+			, ModelStructs::stringpair_comp>::const_iterator it =
+			model_par_map.begin(); it != model_par_map.end(); it++) {
 		if (it->second->isSuperior() && !it->second->isSet())
 			return false;
 	}
 	return true;
 }
 
-std::vector<shared_ptr<ModelPar> > ModelParSet::getFreeModelParameters() const {
-	std::vector<shared_ptr<ModelPar> > free_parameters;
+std::map<std::pair<std::string, std::string>, shared_ptr<ModelPar>
+		, ModelStructs::stringpair_comp> ModelParSet::getFreeModelParameters() const {
+	std::map<std::pair<std::string, std::string>, shared_ptr<ModelPar>
+			, ModelStructs::stringpair_comp> free_parameters;
 	for (std::map<std::pair<std::string, std::string>, shared_ptr<ModelPar>
-			, ModelStructs::stringpair_comp>::const_iterator it = model_par_map.begin();
-			it != model_par_map.end(); it++) {
+			, ModelStructs::stringpair_comp>::const_iterator it =
+			model_par_map.begin(); it != model_par_map.end(); it++) {
 		if (!it->second->isParameterFixed()) {
-			free_parameters.push_back(it->second);
+			free_parameters.insert(*it);
 		}
 	}
 	return free_parameters;
@@ -239,8 +264,8 @@ void ModelParSet::freeModelParameter(
 
 void ModelParSet::freeAllModelParameters() {
 	for (std::map<std::pair<std::string, std::string>, shared_ptr<ModelPar>
-			, ModelStructs::stringpair_comp>::const_iterator it = model_par_map.begin();
-			it != model_par_map.end(); it++) {
+			, ModelStructs::stringpair_comp>::const_iterator it =
+			model_par_map.begin(); it != model_par_map.end(); it++) {
 		if (!it->second->isSuperior()) {
 			it->second->setParameterFixed(false);
 		}

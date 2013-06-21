@@ -5,20 +5,20 @@
  *      Author: steve
  */
 
-#include "StepFunction.h"
+#include "StepFunction1D.h"
 
 #include <limits>
 
-StepFunction::StepFunction(std::string name_, bool falling_edge_) : Model1D(name_),
+StepFunction1D::StepFunction1D(std::string name_, bool falling_edge_) : Model1D(name_),
 		falling_edge(falling_edge_) {
 	initModelParameters();
 }
 
-StepFunction::~StepFunction() {
+StepFunction1D::~StepFunction1D() {
 	// TODO Auto-generated destructor stub
 }
 
-double StepFunction::eval(const double *x) const {
+double StepFunction1D::eval(const double *x) const {
 	if (falling_edge) {
 		if (x[0] < edge->getValue())
 			return amplitude->getValue();
@@ -29,16 +29,16 @@ double StepFunction::eval(const double *x) const {
 	return 0.0;
 }
 
-void StepFunction::initModelParameters() {
+void StepFunction1D::initModelParameters() {
 	amplitude = getModelParameterSet().addModelParameter("amplitude");
 	amplitude->setValue(1.0);
 	amplitude->setParameterFixed(true);
 	edge = getModelParameterSet().addModelParameter("edge");
 }
 
-void StepFunction::updateDomain() {
+void StepFunction1D::updateDomain() {
 	if (falling_edge)
-		setDomain(std::numeric_limits<int>::min(), edge->getValue());
+		setDomain(std::numeric_limits<double>::min(), edge->getValue());
 	else
-		setDomain(edge->getValue(), std::numeric_limits<int>::max());
+		setDomain(edge->getValue(), std::numeric_limits<double>::max());
 }

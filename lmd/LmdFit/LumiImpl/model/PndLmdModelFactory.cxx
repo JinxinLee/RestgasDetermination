@@ -44,11 +44,8 @@ shared_ptr<Model1D> PndLmdModelFactory::generate1DResolutionModel(
 	} else //(0 == fit_options->getSmearingModelType())
 	{
 		shared_ptr<Model1D> gauss(new GaussianModel1D("smearing_gaussian_1d"));
-		shared_ptr<Parametrization> smear_parametrization(
-				new PndLmdSmearingGaussianModelParametrization1D(
-						gauss->getModelParameterSet()));
-		gauss->getModelParameterHandler().registerParametrizations(
-				gauss->getModelParameterSet(), smear_parametrization);
+		PndLmdSmearingGaussianModelParametrization1D gauss_parametrization(
+				gauss);
 		return gauss;
 	}
 }
@@ -139,27 +136,6 @@ shared_ptr<Model1D> PndLmdModelFactory::generate1DModel(
 	}
 
 	return current_model;
-}
-
-void PndLmdModelFactory::initializeModelFromFitResult(shared_ptr<Model1D> model,
-		PndLmdLumiFitResult *fit_result) {
-	std::set<ModelStructs::minimization_parameter> &fit_params =
-			fit_result->getModelFitResult()->getFitParameters();
-	for (std::set<ModelStructs::minimization_parameter>::iterator it =
-			fit_params.begin(); it != fit_params.end(); it++) {
-		if (model->getModelParameterSet().modelParameterExists(it->name)) {
-			shared_ptr<ModelPar> model_par =
-					model->getModelParameterSet().getModelParameter(it->name);
-			bool was_fixed = false;
-			if (model_par->isParameterFixed()) {
-				was_fixed = true;
-				model_par->setParameterFixed(false);
-			}
-			model_par->setValue(it->value);
-			if (was_fixed)
-				model_par->setParameterFixed(true);
-		}
-	}
 }
 
 /*Model2D& PndLmdModelFactory::generate2DModel(

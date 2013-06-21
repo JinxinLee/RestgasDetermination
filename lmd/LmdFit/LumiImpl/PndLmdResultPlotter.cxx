@@ -13,8 +13,10 @@
 #include "PndLmdData.h"
 #include "PndLmdAcceptance.h"
 #include "PndLmdResolution.h"
+#include "ROOTDataHelper.h"
 
 #include <iostream>
+#include <sstream>
 #include <vector>
 #include <string>
 #include <algorithm>
@@ -36,6 +38,11 @@
 #include "TGaxis.h"
 #include "TColor.h"
 #include "TPaletteAxis.h"
+#include <iosfwd>
+#include <ostream>
+
+using std::ostringstream;
+using std::endl;
 
 PndLmdResultPlotter::PndLmdResultPlotter() {
 	text_font = 132;
@@ -129,8 +136,6 @@ std::vector<PndLmdData*> PndLmdResultPlotter::getDataFromPath(TString path) {
 	}
 	return vec_lmd_data;
 }
-
-
 
 std::pair<double, double> PndLmdResultPlotter::determinePlotRange(
 		std::map<TString, std::vector<combined_values> > &result_map) {
@@ -293,9 +298,6 @@ std::pair<double, double> PndLmdResultPlotter::calculatePlotRange(
 
 TGraphErrors* PndLmdResultPlotter::createGraphFromFitResult(
 		PndLmdLumiFitResult *fit_res, PndLmdAcceptance *acc, PndLmdData *data) {
-	unsigned int num_evaluations = 500;
-
-	TGraphErrors* graph = new TGraphErrors(num_evaluations);
 
 	PndLmdModelFactory model_factory;
 	shared_ptr<Model1D> model = model_factory.generate1DModel(
@@ -305,32 +307,24 @@ TGraphErrors* PndLmdResultPlotter::createGraphFromFitResult(
 	}
 
 	// now just overwrite all parameters in the model from the fit result
-	model_factory.initializeModelFromFitResult(model, fit_res);
+	model->getModelParameterHandler().initModelParametersFromFitResult(
+			*fit_res->getModelFitResult());
 
 	// ok just evaluate the function at 500 points in the range
-	std::pair<double, double> plot_range = calculatePlotRange(data,
-			fit_res->getLumiFitOptions());
+	ROOTDataHelper data_helper;
+	ModelVisualizationProperties1D vis_prop(
+			data_helper.createBinnedData(
+					data->getMeasuredHist1D(fit_res->getLumiFitOptions())));
 
-	double stepsize = (plot_range.second - plot_range.first) / num_evaluations;
-	double x;
-	for (unsigned int i = 0; i < num_evaluations; i++) {
-		x = plot_range.first + stepsize * i;
-		graph->SetPoint(
-				i,
-				x,
-				model->evaluate(&x)
-						* data->getBinningFactor(fit_res->getLumiFitOptions()));
-		graph->SetPointError(i, 0, 0);
-	}
-	return graph;
+	vis_prop.setBinningFactor(
+			data->getBinningFactor(fit_res->getLumiFitOptions()));
+	vis_prop.setPlotRange(calculatePlotRange(data, fit_res->getLumiFitOptions()));
+
+	return root_plotter.createGraphFromModel1D(model, vis_prop);
 }
 
 TGraphErrors* PndLmdResultPlotter::createSmearingGraphFromFitResult(
 		PndLmdLumiFitResult *fit_res, PndLmdResolution *res_data) {
-	unsigned int num_evaluations = 500;
-
-	TGraphErrors* graph = new TGraphErrors(num_evaluations);
-
 	PndLmdModelFactory model_factory;
 	shared_ptr<Model1D> model = model_factory.generate1DResolutionModel(
 			fit_res->getLumiFitOptions());
@@ -339,28 +333,21 @@ TGraphErrors* PndLmdResultPlotter::createSmearingGraphFromFitResult(
 	}
 
 	// now just overwrite all parameters in the model from the fit result
-	model_factory.initializeModelFromFitResult(model, fit_res);
+	model->getModelParameterHandler().initModelParametersFromFitResult(
+			*fit_res->getModelFitResult());
 
 	// all parameters of the smearing model have to be freed otherwise the
 	// parametrization model will overwrite the values during the evaluation
 	model->getModelParameterSet().freeAllModelParameters();
 
-	// ok just evaluate the function at 500 points in the range
-	//std::pair<double, double> plot_range = calculatePlotRange(res_data,
-	//		fit_res->getLumiFitOptions());
-	std::pair<double, double> plot_range = std::make_pair(
-			res_data->getThetaDimension().range_low,
-			res_data->getThetaDimension().range_high);
+	ROOTDataHelper data_helper;
+	ModelVisualizationProperties1D vis_prop(
+			data_helper.createBinnedData(res_data->getResolutionHistogram1D()));
+	vis_prop.setPlotRange(
+			std::make_pair(res_data->getThetaDimension().range_low,
+					res_data->getThetaDimension().range_high));
 
-	double stepsize = (plot_range.second - plot_range.first) / num_evaluations;
-	double x;
-	for (unsigned int i = 0; i < num_evaluations; i++) {
-		x = plot_range.first + stepsize * i;
-		graph->SetPoint(i, x,
-				model->evaluate(&x) * res_data->getThetaDimension().bin_size);
-		graph->SetPointError(i, 0, 0);
-	}
-	return graph;
+	return root_plotter.createGraphFromModel1D(model, vis_prop);
 }
 
 std::vector<PndLmdResultPlotter::graph_bundle_1D> PndLmdResultPlotter::makeGraphBundles1D(
@@ -383,9 +370,11 @@ std::vector<PndLmdResultPlotter::graph_bundle_1D> PndLmdResultPlotter::makeGraph
 			graph_bundle_1D lmd_graph_bundle;
 			lmd_graph_bundle.is_resolution = false;
 			lmd_graph_bundle.plab = momentum;
+
 			lmd_graph_bundle.fit_options = fit_res[i]->getLumiFitOptions();
 
 			TH1D* hist = data->getMeasuredHist1D(fit_res[i]->getLumiFitOptions());
+
 			hist->SetTitle("");
 			hist->SetStats(0);
 
@@ -394,7 +383,7 @@ std::vector<PndLmdResultPlotter::graph_bundle_1D> PndLmdResultPlotter::makeGraph
 			lmd_graph_bundle.data_hist = hist;
 			lmd_graph_bundle.model = model;
 
-			char cc[30];
+			char cc[50];
 			sprintf(cc, "p_{lab} = %.1f GeV", lmd_graph_bundle.plab);
 			lmd_graph_bundle.labels.push_back(std::make_pair(TString(cc), 1));
 			sprintf(cc, "#chi^{2}/NDF = %.2f", fit_res[i]->getRedChiSquare());
@@ -633,32 +622,79 @@ PndLmdResultPlotter::acceptance_bundle PndLmdResultPlotter::makeAcceptanceBundle
 	return acc_bundle;
 }
 
+std::map<TString, std::vector<PndLmdLumiHelper::lmd_graph> > PndLmdResultPlotter::generateLmdGraphMap(
+		std::vector<PndLmdLumiHelper::lmd_graph> graphs) {
 
+	std::map<TString, std::vector<PndLmdLumiHelper::lmd_graph> > return_map;
 
+	for (unsigned int i = 0; i < graphs.size(); i++) {
+		TString key(graphs[i].dependency);
+		for (std::map<std::string, double, ModelStructs::string_comp>::const_iterator dependency =
+				graphs[i].remaining_dependencies.begin();
+				dependency != graphs[i].remaining_dependencies.end(); dependency++) {
+			ostringstream strstream;
+			strstream.precision(3);
+			strstream << "_" << dependency->first << "-" << dependency->second;
+			key = key + strstream.str();
+		}
+		return_map[key].push_back(graphs[i]);
+	}
+	return return_map;
+}
 
-void PndLmdResultPlotter::makeResolutionSummaryPlots(TString input_file_dir) {
-	std::map<TString, std::vector<PndLmdLumiHelper::lmd_graph*> > graphs =
-			getResolutionModelGraphsFromPath(input_file_dir, 0);
-	for (std::map<TString, std::vector<PndLmdLumiHelper::lmd_graph*> >::const_iterator it =
+void PndLmdResultPlotter::makeResolutionSummaryPlots(TFile *f) {
+	PndLmdLumiHelper lmd_helper;
+	std::map<TString, std::vector<PndLmdLumiHelper::lmd_graph> > graphs =
+			generateLmdGraphMap(lmd_helper.getResolutionModelResultsFromFile(f));
+	for (std::map<TString, std::vector<PndLmdLumiHelper::lmd_graph> >::iterator it =
 			graphs.begin(); it != graphs.end(); it++) {
 		TCanvas c("c", it->first, 1000, 700);
-		c.Divide(3, 3);
+		if (it->second.size() > 0) {
+			if (it->second[0].fit_options->getSmearingModelType() == 0)
+				c.Divide(2, 2);
+			if (it->second[0].fit_options->getSmearingModelType() == 1)
+				c.Divide(3, 3);
+		}
+		std::cout << "size: " << it->second.size() << std::endl;
 		for (unsigned int i = 0; i < it->second.size(); i++) {
 			c.cd(i + 1);
-			it->second[i]->data->SetTitle(it->second[i]->parameter_name);
-			it->second[i]->data->Draw("A*");
+			it->second[i].graph->SetTitle(
+					TString(it->second[i].parameter_name_stack[1].first) + ":"
+							+ TString(it->second[i].parameter_name_stack[1].second));
+			it->second[i].graph->Draw("A*");
 		}
 		c.cd();
 		TLatex title(0.2, 0.33, it->first);
 		title.SetTextSize(0.05);
 		title.Draw();
-		c.SaveAs(TString("resolution_parameters_vs_theta_") + it->first + ".pdf");
+		c.SaveAs(TString("resolution_parameters_") + it->first + ".pdf");
 	}
 }
 
+std::map<std::string, std::vector<PndLmdResolution*>, ModelStructs::string_comp> PndLmdResultPlotter::createBookyMap(
+		std::vector<PndLmdResolution*> &res_vec) {
+	std::map<std::string, std::vector<PndLmdResolution*>,
+			ModelStructs::string_comp> return_map;
+
+	for (unsigned int i = 0; i < res_vec.size(); i++) {
+		res_vec[i]->getThetaSliceMean();
+		ostringstream strstrm;
+		strstrm.precision(3);
+//		strstrm << "theta_" << res_vec[i]->getThetaSliceMean() << endl;
+//		return_map[strstrm.str()].push_back(res_vec[i]);
+//		std::cout << strstrm.str() << endl;
+		strstrm << "phi_" << res_vec[i]->getPhiSliceMean() << endl;
+		return_map[strstrm.str()].push_back(res_vec[i]);
+//		std::cout << strstrm.str() << endl;
+	}
+	return return_map;
+}
+
 void PndLmdResultPlotter::makeResolutionBooky(
-		std::map<std::string, std::vector<PndLmdResolution*>,
-				ModelStructs::string_comp> &res_map, TString filename) {
+		std::vector<PndLmdResolution*> &res_vec, TString filename) {
+
+	std::map<std::string, std::vector<PndLmdResolution*>,
+			ModelStructs::string_comp> res_map = createBookyMap(res_vec);
 
 	for (std::map<std::string, std::vector<PndLmdResolution*>,
 			ModelStructs::string_comp>::iterator it = res_map.begin();
@@ -704,8 +740,6 @@ void PndLmdResultPlotter::makeResolutionBooky(
 		c1.Print(filename + "_booky_" + TString(it->first) + ".pdf]");
 	}
 }
-
-
 
 /*
  void make2DExampleOverviewCanvas(TString name, PndLmdData *data,

@@ -9,7 +9,7 @@
 #define ROOTMINIMIZER_H_
 
 #include "ModelMinimizer.h"
-#include "Model1D.h"
+#include "ModelFitResult.h"
 
 #include "Math/Minimizer.h"
 
@@ -24,6 +24,8 @@ public:
 	virtual ~ROOTMinimizer();
 
 	const ROOT::Math::Minimizer* getROOTMinimizer() const;
+
+	ModelFitResult createModelFitResult() const;
 };
 
 #endif /* ROOTMINIMIZER_H_ */

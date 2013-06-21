@@ -36,9 +36,6 @@ public:
 	shared_ptr<Model1D> generate1DModel(const PndLmdLumiFitOptions *fit_options,
 			double plab, const PndLmdAcceptance *acceptance = 0);
 
-	void initializeModelFromFitResult(shared_ptr<Model1D> model,
-			PndLmdLumiFitResult *fit_result);
-
 	/**
 	 * 2D Model generator method
 	 * @param fit_options are the options which model will be built and returned

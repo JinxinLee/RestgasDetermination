@@ -13,8 +13,8 @@
 
 #include "TObject.h"
 
-class PndLmdLumiFitOptions;
 class ModelFitResult;
+class PndLmdLumiFitOptions;
 
 /**
  * \brief This class contains the fit result information and most importantly the luminosity and its errors!!
@@ -30,10 +30,9 @@ private:
 	const PndLmdLumiFitOptions *fit_options;
 	ModelFitResult *model_fit_result;
 
+
 public:
 	PndLmdLumiFitResult(const PndLmdLumiFitOptions *fit_options_);
-	PndLmdLumiFitResult(const PndLmdLumiFitOptions *fit_options_,
-			ModelFitResult *fit_result_);
 	PndLmdLumiFitResult();
 	~PndLmdLumiFitResult();
 
@@ -48,9 +47,10 @@ public:
 
 	void setFitStatus(int fit_status_);
 	void setChiSquare(double chi_square_);
-	void addFitParameter(std::string name_, double value_, double error_);
 	void setNDF(double ndf_);
 	void setLuminositySysError(double luminosity_sys_err_);
+
+	void setModelFitResult(ModelFitResult &fit_result);
 
 	bool checkFitOptions(PndLmdLumiFitOptions *fit_options_) const;
 

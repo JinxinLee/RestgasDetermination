@@ -7,8 +7,11 @@
 
 #include "Model.h"
 
+//#include <iostream>
+
 Model::Model(std::string name_, unsigned int dimension_) :
 		model_par_handler(name_) {
+	name = name_;
 	dimension = dimension_;
 }
 
@@ -52,6 +55,8 @@ ModelParSet& Model::getModelParameterSet() {
 void Model::executeParametrizationModels(const double *x) {
 	//first call through all submodels of this model
 	for (unsigned int i = 0; i < submodel_list.size(); i++) {
+	/*	std::cout<<submodel_list[i]<<std::endl;
+		std::cout<<submodel_list[i]->getName()<<std::endl;*/
 		submodel_list[i]->executeParametrizationModels(x);
 	}
 	// loop over all parametrization models...

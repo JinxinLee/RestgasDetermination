@@ -11,10 +11,6 @@
 #include "Parametrization.h"
 #include "ParametrizationModel.h"
 
-//#include <tr1/memory>
-
-//using std::tr1::shared_ptr;
-
 enum parametrization_state {
   NONE, PARAMETRIZATION, PARAMETRIZATION_MODEL
 };

@@ -1,24 +1,24 @@
 /*
- * StepFunction.h
+ * StepFunction1D.h
  *
  *  Created on: Jun 14, 2013
  *      Author: steve
  */
 
-#ifndef STEPFUNCTION_H_
-#define STEPFUNCTION_H_
+#ifndef STEPFUNCTION1D_H_
+#define STEPFUNCTION1D_H_
 
 #include "Model1D.h"
 
-class StepFunction: public Model1D {
+class StepFunction1D: public Model1D {
 private:
   shared_ptr<ModelPar> amplitude;
   shared_ptr<ModelPar> edge;
   bool falling_edge;
 
 public:
-	StepFunction(std::string name_, bool falling_edge_);
-	virtual ~StepFunction();
+	StepFunction1D(std::string name_, bool falling_edge_);
+	virtual ~StepFunction1D();
 
   double eval(const double *x) const;
 
@@ -27,4 +27,4 @@ public:
   void updateDomain();
 };
 
-#endif /* STEPFUNCTION_H_ */
+#endif /* STEPFUNCTION1D_H_ */
