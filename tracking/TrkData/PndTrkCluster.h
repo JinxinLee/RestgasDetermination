@@ -13,20 +13,25 @@
 
 #define MAXNOFHITSINCLUSTER 1000  // CHECK consistency
 
+class TObjArray;
 class PndTrkCluster : public TObject
 {
   
  public:    
 
   PndTrkCluster();
+   // copy ctor
+  PndTrkCluster(const PndTrkCluster& cluster);
   ~PndTrkCluster();    
+  PndTrkCluster& operator=(const PndTrkCluster &cluster);
 
 
   Bool_t operator==(const PndTrkCluster cluster) const; // CHECK this needs to be changed
   //  PndTrkCluster(const PndTrkCluster& cluster);
 
   void AddHit(PndTrkHit *hit);
-  /*   void DeleteHit(PndTrkHit *hit); */
+
+  void DeleteHit(PndTrkHit *hit);
   void DeleteHit(Int_t index);
   void DeleteAllHits();
   
@@ -34,18 +39,11 @@ class PndTrkCluster : public TObject
 
   PndTrkHit *GetHit(int index);
 
-  inline Int_t  GetNofHits() { return hitlist.size(); }
+  inline Int_t  GetNofHits() { return hitlist.GetEntriesFast(); }
   inline Int_t  GetIRegion() { return fIRegion; }
   
-  Int_t SearchHit(PndTrkHit *hit);
-  /*   PndTrkHit SearchHit(Int_t hitID, Int_t detID); */
-  /*   void SortCluster(); */
-  /*   void MergeWithCluster(PndTrkCluster cluster2); */
-  /*   void AccessList(); */
+  PndTrkHit *  SearchHit(PndTrkHit *hit);
  
-  /*   void SortByDistance(TVector3 startpoint); */
-
-  /*   bool DistanceSorting(PndTrkHit &hit1, PndTrkHit &hit2); */
   void Print();
   void PrintList();
   void Draw(Color_t color = kBlack);
@@ -80,11 +78,11 @@ class PndTrkCluster : public TObject
  void AddClusterAndSortFrom(PndTrkCluster *cluster, TVector3 frompoint, TString criterion);
 
  protected:
-    TVector3 fFromPoint;
-    Int_t fIRegion;
-    std::vector< PndTrkHit * > hitlist;
-
-  ClassDef(PndTrkCluster,1);
+ TVector3 fFromPoint;
+ Int_t fIRegion;
+  //  std::vector< PndTrkHit * > hitlist;
+ TObjArray hitlist;
+ ClassDef(PndTrkCluster,1);
 };
 
 

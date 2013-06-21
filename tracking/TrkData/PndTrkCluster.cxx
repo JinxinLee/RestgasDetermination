@@ -29,49 +29,50 @@ Bool_t SorterFunction(PndTrkHit *hit1, PndTrkHit *hit2) {
   return *hit1 < *hit2;
 }
 
-PndTrkCluster::PndTrkCluster() : fIRegion(-1), fFromPoint(0., 0., 0.) {
-  hitlist.clear();
-  hitlist.reserve(100); 
+PndTrkCluster::PndTrkCluster() : fIRegion(-1), fFromPoint(0., 0., 0.), hitlist(TObjArray()) {
 }
  
-PndTrkCluster::~PndTrkCluster() {
-
-  hitlist.clear();
+PndTrkCluster::PndTrkCluster(const PndTrkCluster& cluster) {
+  *this = cluster;
 }
 
+PndTrkCluster::~PndTrkCluster() {
+  hitlist.Clear();
+}
+
+// operator equals
+PndTrkCluster& PndTrkCluster::operator=(const PndTrkCluster &cluster) {
+  fFromPoint = cluster.fFromPoint;
+  fIRegion = cluster.fIRegion;
+ 
+  // hitlist = *((TObjArray*) (&(cluster.hitlist)->Clone()));
+  hitlist = TObjArray(cluster.hitlist);
+  //  hitlist = cluster.hitlist;
+  return *this;
+}
+
+
 Bool_t PndTrkCluster::operator==(PndTrkCluster cluster) const {
-  return hitlist.size() == cluster.GetNofHits(); // CHECK
+  return hitlist.GetEntriesFast() == cluster.GetNofHits(); // CHECK
 }
 
 
 void PndTrkCluster::AddHit(PndTrkHit *hit) {
   // fIRegion = hit->GetIRegion();
-  hitlist.push_back(hit);
+  hitlist.Add(hit);
   hit->SetUsedFlag(1); // CHECK
 }
 
-// void PndTrkCluster::DeleteHit(PndTrkHit *hit) {
-//   Int_t index = SearchHit(hit);
-//   if(index != -1) DeleteHit(index);
-//   else cout << "PndTrkCluster::DeleteHit: trying to delete a hit which is not in this cluster " << hit->GetHitID() << " " << hit->GetDetectorID() << endl;
-// }
+// CHECK if it works, never tried
+void PndTrkCluster::DeleteHit(PndTrkHit *hit) {
+  hit->SetUsedFlag(0);
+  hitlist.Remove(hit);
+}
 
-// CHECK delete does not work fine!
+// CHECK if it works, never tried
 void PndTrkCluster::DeleteHit(Int_t index) {
-  hitlist[index]->SetUsedFlag(0);
-//   std::vector< PndTrkHit * > tmphitlist;
-//   for(int ihit = 0; ihit < index; ihit++) {
-//     cout << ihit << endl;
-//     tmphitlist.push_back(hitlist[ihit]);
-//   }
-//   for(int ihit = index + 1; ihit < hitlist.size(); ihit++)  {
-//     cout << ihit << endl;
-//     tmphitlist.push_back(hitlist[ihit]);
-//   }
-//   hitlist = tmphitlist;
-//   cout << "tmp/hitlist " << hitlist.size() << " " << tmphitlist.size() << endl;
-  hitlist.erase(hitlist.begin() + index);
-
+    PndTrkHit* hit = (PndTrkHit*) hitlist[index];
+  hitlist.RemoveAt(index);
 }
 
 void PndTrkCluster::DeleteAllHits() {
@@ -84,71 +85,66 @@ void PndTrkCluster::DeleteAllHits() {
 
 PndTrkCluster PndTrkCluster::GetMvdStripHitList() {
   PndTrkCluster cluster;
-  std::vector< PndTrkHit* >::iterator itr = hitlist.begin();
-  while(itr != hitlist.end()) {
-    if((*itr)->IsMvdStrip()) {
-      cluster.AddHit((*itr));
-      cluster.SetIRegion(MVDSTRIP);
-      //      cout << "found one" << (*itr)->GetHitID() << endl;
-    }
-    itr++;
+  for(int ihit = 0; ihit < GetNofHits(); ihit++) {
+    PndTrkHit *hit =  (PndTrkHit*) hitlist[ihit];
+      if(hit->IsMvdStrip()) {
+	cluster.AddHit(hit);
+	cluster.SetIRegion(MVDSTRIP);
+	//      cout << "found one" << hit->GetHitID() << endl;
+      }
   }
   return cluster;
 }
 
 PndTrkCluster PndTrkCluster::GetMvdPixelHitList() {
   PndTrkCluster cluster;
-  std::vector< PndTrkHit* >::iterator itr = hitlist.begin();
-  while(itr != hitlist.end()) {
-    if((*itr)->IsMvdPixel()) {
-      cluster.AddHit((*itr));
-      cluster.SetIRegion(MVDPIXEL);
-      //      cout << "found one" << (*itr)->GetHitID() << endl;
-    }
-    itr++;
+  for(int ihit = 0; ihit < GetNofHits(); ihit++) {
+    PndTrkHit *hit =  (PndTrkHit*) hitlist[ihit];
+      if(hit->IsMvdPixel()) {
+	cluster.AddHit(hit);
+	cluster.SetIRegion(MVDPIXEL);
+	//      cout << "found one" << hit->GetHitID() << endl;
+      }
   }
   return cluster;
 }
 
 PndTrkCluster PndTrkCluster::GetMvdHitList() {
   PndTrkCluster cluster;
-  std::vector< PndTrkHit* >::iterator itr = hitlist.begin();
-  while(itr != hitlist.end()) {
-    if((*itr)->IsMvd()) {
-      cluster.AddHit((*itr));
-      cluster.SetIRegion((*itr)->GetIRegion()); 
-      //      cout << "found one" << (*itr)->GetHitID() << endl;
-    }
-    itr++;
+  for(int ihit = 0; ihit < GetNofHits(); ihit++) {
+    PndTrkHit *hit =  (PndTrkHit*) hitlist[ihit];
+      if(hit->IsMvd()) {
+	cluster.AddHit(hit);
+	cluster.SetIRegion(hit->GetIRegion()); 
+	//      cout << "found one" << hit->GetHitID() << endl;
+      }
   }
   return cluster;
 }
 
 PndTrkCluster PndTrkCluster::GetSttParallelHitList()  {
   PndTrkCluster cluster;
-  std::vector< PndTrkHit* >::iterator itr = hitlist.begin();
-  while(itr != hitlist.end()) {
-    if((*itr)->IsSttParallel()) {
-      cluster.AddHit((*itr));
-      cluster.SetIRegion((*itr)->GetIRegion()); 
-      //      cout << "found one" << (*itr)->GetHitID() << endl;
-    }
-    itr++;
+  for(int ihit = 0; ihit < GetNofHits(); ihit++) {
+    PndTrkHit *hit =  (PndTrkHit*) hitlist[ihit];
+      if(hit->IsSttParallel()) {
+	cluster.AddHit(hit);
+	cluster.SetIRegion(hit->GetIRegion()); 
+	//      cout << "found one" << hit->GetHitID() << endl;
+      }
   }
   return cluster;
- }
+}
 
 PndTrkCluster PndTrkCluster::GetSttSkewHitList() 
-   {
+{
   PndTrkCluster cluster;
-  std::vector< PndTrkHit* >::iterator itr = hitlist.begin();
-  while(itr != hitlist.end()) {
-    if((*itr)->IsSttSkew()) {
-      cluster.AddHit((*itr));
-      cluster.SetIRegion((*itr)->GetIRegion()); 
-      //      cout << "found one" << (*itr)->GetHitID() << endl;
-    }
-    itr++;
+  for(int ihit = 0; ihit < GetNofHits(); ihit++) {
+    PndTrkHit *hit =  (PndTrkHit*) hitlist[ihit];
+      if(hit->IsSttSkew()) {
+	cluster.AddHit(hit);
+	cluster.SetIRegion(hit->GetIRegion()); 
+	//      cout << "found one" << hit->GetHitID() << endl;
+      }
   }
   return cluster;
 }
@@ -156,50 +152,26 @@ PndTrkCluster PndTrkCluster::GetSttSkewHitList()
 PndTrkCluster PndTrkCluster::GetSttHitList() 
  {
   PndTrkCluster cluster;
-  std::vector< PndTrkHit* >::iterator itr = hitlist.begin();
-  while(itr != hitlist.end()) {
-    if((*itr)->IsStt()) {
-      cluster.AddHit((*itr));
-      cluster.SetIRegion((*itr)->GetIRegion()); 
-      //      cout << "found one" << (*itr)->GetHitID() << endl;
+  for(int ihit = 0; ihit < GetNofHits(); ihit++) {
+    PndTrkHit *hit =  (PndTrkHit*) hitlist[ihit];
+  if(hit->IsStt()) {
+      cluster.AddHit(hit);
+      cluster.SetIRegion(hit->GetIRegion()); 
+      //      cout << "found one" << hit->GetHitID() << endl;
     }
-    itr++;
   }
   return cluster;
 }
-// =======================================================================================
+// =======================================================================
 
 
 // finds the first instance of the hit in the cluster (there should be only one!)
-Int_t PndTrkCluster::SearchHit(PndTrkHit *hit) {
-
-  std::vector< PndTrkHit * >::iterator itr = hitlist.begin();
-   itr = find(hitlist.begin(), hitlist.end(), hit);
-   if(itr == hitlist.end()) return -1;
-   return itr - hitlist.begin();
+PndTrkHit* PndTrkCluster::SearchHit(PndTrkHit *hit) {
+  return (PndTrkHit*) FindObject(hit);
 }
 
-// PndTrkHit PndTrkCluster::SearchHit(Int_t hitID, Int_t detID) {}
 
-// // CHECK ??? needed?
-// void PndTrkCluster::MergeWithCluster(PndTrkCluster cluster2) {}
-
-// ====================== when you will need this ===================
-// void PndTrkCluster::AccessList() {
-
-//   PndTrkSttHitList *instance1 = PndTrkSttHitList::Instance();
-//   PndTrkSdsHitList *instance2 = PndTrkSdsHitList::InstancePixel();
-//   PndTrkSdsHitList *instance3 = PndTrkSdsHitList::InstanceStrip();
-  
-//   /**
-//      cout << "number of stt    hits " << instance1->GetNofHits() << endl;
-//      cout << "number of mvdpix hits " << instance2->GetNofHits() << endl;
-//      cout << "number of mvdstr hits " << instance3->GetNofHits() << endl;
-//   **/
-
-// }
-
-// ==================================== V SHAPED CLUSTER =================================
+// ==================== V SHAPED CLUSTER ===============
 // finds the extremities (first/last) of the cluster
 // -------------------------------------------------
 // considering the distance from the point frompoint;
@@ -208,49 +180,41 @@ Int_t PndTrkCluster::SearchHit(PndTrkHit *hit) {
 // if there are 0 extremities  -> CHECK             (-> kFALSE)
 // if there are >2 extremities -> CHECK             (-> kFALSE)
 Bool_t PndTrkCluster::FindExtremitiesFrom(TVector3 frompoint, PndTrkHit &firstextremity, PndTrkHit &secondextremity) {
-const  int nhits = MAXNOFHITSINCLUSTER; // hitlist.size(); // CHECK
- int associations[nhits] = {0};
-  std::vector< PndTrkHit * >::iterator itr = hitlist.begin();
-  std::vector< PndTrkHit * >::iterator jtr = hitlist.begin();
-  while(itr != hitlist.end()) {
-    PndTrkHit *hit = *itr;
-    jtr = hitlist.begin();
-    while(jtr != hitlist.end()) {
-      if(itr == jtr) { 
-	jtr++; 
-	continue;
-      }
-      PndTrkHit *hit2 = *jtr;
-      if(hit->GetXYDistance(hit2) < STTPARALDISTANCE) {
-	//	cout << "d/i/j/a " << hit->GetXYDistance(hit2) << " " << itr - hitlist.begin() << " " << jtr - hitlist.begin() << " " << associations[itr - hitlist.begin()] << endl;
-	associations[itr - hitlist.begin()]++;
-      }
-      jtr++;
-    }
-    itr++;
-  } 
+  const  int nhits = MAXNOFHITSINCLUSTER; // hitlist.size(); // CHECK
+  int associations[nhits] = {0};
+  for(int ihit = 0; ihit < GetNofHits(); ihit++) {
+    PndTrkHit *hit1 =  (PndTrkHit*) hitlist[ihit];
+     for(int jhit = 0; jhit < GetNofHits(); jhit++) {
+       if(ihit == jhit) continue;
+       PndTrkHit *hit2 =  (PndTrkHit*) hitlist[jhit];
+
+       if(hit1->GetXYDistance(hit2) < STTPARALDISTANCE) {
+	 associations[ihit]++;
+       }
+     }
+ }
 
   int counter = 0;
   Double_t tmpdistance1 = 1000, tmpdistance2 = -1;
 
-  for(int ihit = 0; ihit < hitlist.size(); ihit++) {
-    //    cout << associations[ihit] << endl;
+  for(int ihit = 0; ihit < GetNofHits(); ihit++) {
     if(associations[ihit] != 1) continue;
     counter++;
-    double distance = hitlist[ihit]->GetXYDistance(frompoint);
+    PndTrkHit *hit =  (PndTrkHit*) hitlist[ihit];
+    double distance = hit->GetXYDistance(frompoint);
     if(distance < tmpdistance1) {
       tmpdistance1 = distance;
-       firstextremity = *hitlist[ihit];
+      firstextremity = *hit;
     }
     
     if(distance > tmpdistance2) {
       tmpdistance2 = distance;
-      secondextremity = *hitlist[ihit];
+      secondextremity = *hit;
     }
   }
-
+  
   if(counter == 2) return kTRUE;
-
+  
   if(counter == 0) cout << "NO EXTREMITY FOUND :-(" << endl;
   if(counter > 2) cout << "TOO MANY EXTREMITIES FOUND :-( " << counter << endl;
   return kFALSE;
@@ -292,18 +256,16 @@ Bool_t PndTrkCluster::CheckClusterAgainsV(TVector3 frompoint,  PndTrkHit *firste
       cout << "TWO POINTS ALIGNED" << endl;
       return kFALSE;
     }
-    std::vector< PndTrkHit * >::iterator itr = hitlist.begin();
     cout << "circle " << x0 << " " << y0 << " " << radius << endl;
 
     int counter = 0;
-    while(itr != hitlist.end()) {
-      PndTrkHit *hit = *itr;
+    for(int ihit = 0; ihit < GetNofHits(); ihit++) {
+      PndTrkHit *hit =  (PndTrkHit*) hitlist[ihit];
       if(fabs(  hit->GetXYDistance(TVector3(x0, y0, 0.)) - radius) > 2) counter++;
-      itr++;
     }
 
-    if(hitlist.size() - counter < 3) cout << "***************** YES ***************** " << counter << " on " << hitlist.size() << endl;
-    else cout << " ********************** NO ******************* " << counter << " " << hitlist.size() << endl;
+    if(GetNofHits() - counter < 3) cout << "***************** YES ***************** " << counter << " on " << GetNofHits() << endl;
+    else cout << " ********************** NO ******************* " << counter << " " << GetNofHits() << endl;
     return kTRUE;
 
   }
@@ -312,22 +274,21 @@ Bool_t PndTrkCluster::CheckClusterAgainsV(TVector3 frompoint,  PndTrkHit *firste
   return kFALSE;
 }
 
-// splits the cluster at the point athit (DOES NOT WORK)
+// CHECK if it works now
 Bool_t PndTrkCluster::SplitAtHit(PndTrkHit *athit, PndTrkCluster &cluster1, PndTrkCluster &cluster2) {
 
-  std::vector< PndTrkHit * >::iterator itr = hitlist.begin();
-  PndTrkHit *tmphit = *itr;
+  PndTrkHit *tmphit =  (PndTrkHit*) hitlist[0];
 
   cluster1.AddHit(athit);
   cluster2.AddHit(athit);
   TVector3 tmpposition = athit->GetPosition();
   PndTrkHit *secondhit = NULL;
+ 
   cout << "CLUS1: " << tmphit->GetHitID() << endl;
-  while(itr != hitlist.end()) {
-    PndTrkHit *hit = *itr;
+  for(int ihit = 0; ihit < GetNofHits(); ihit++) {
+    PndTrkHit *hit =  (PndTrkHit*) hitlist[ihit];
     if(*hit == *athit) {
       cout << "hit == ahit " << endl;
-      itr++;
       continue;
     }
 
@@ -339,36 +300,33 @@ Bool_t PndTrkCluster::SplitAtHit(PndTrkHit *athit, PndTrkCluster &cluster1, PndT
       cout << "CLUS1: " << hit->GetHitID() << endl;
 
     }
-    itr++;
   }
+  
   cout << "CLUS2: " << tmphit->GetHitID() << endl;
 
   tmpposition = athit->GetPosition();
-  while(itr != hitlist.end()) {
-    PndTrkHit *hit = *itr;
-    if(*hit == *athit || *hit == *secondhit) {
-      itr++;
-      continue;
-    }
+  for(int ihit = 0; ihit < GetNofHits(); ihit++) {
+    PndTrkHit *hit =  (PndTrkHit*) hitlist[ihit];
+
+    if(*hit == *athit || *hit == *secondhit) continue;
 
     if(hit->GetXYDistance(tmpposition) < STTPARALDISTANCE) { // CHECK
       cluster2.AddHit(hit);
       tmpposition = hit->GetPosition();
-   cout << "CLUS2: " << hit->GetHitID() << endl;
-   }
-    itr++;
+      cout << "CLUS2: " << hit->GetHitID() << endl;
+    }
   }
   
 
 }
-
+// CHECK??
 // splits the V shaped cluster at the point athit
 // ----------------------------------------------
 // starts from one extremity and stops @ athit,
 // the same for the other extremity.
 Bool_t PndTrkCluster::SplitV(PndTrkHit *athit, PndTrkHit *firstextremity, PndTrkHit* secondextremity, PndTrkCluster &cluster1, PndTrkCluster &cluster2) {
   //  cout << "splitV" << endl;
-  std::vector< PndTrkHit * >::iterator itr = hitlist.begin();
+  
 
   cluster1.AddHit(firstextremity);
   cluster2.AddHit(secondextremity);
@@ -380,47 +338,47 @@ Bool_t PndTrkCluster::SplitV(PndTrkHit *athit, PndTrkHit *firstextremity, PndTrk
   PndTrkHit *hit = NULL, *tmphit = firstextremity;
 
 
- //  cout << "first " << firstextremity->GetHitID() << endl;
-//   cout << "lat " << secondextremity->GetHitID() << endl;
-//   cout << "athit " << athit->GetHitID() << endl;
-//   cout << endl;
+  //  cout << "first " << firstextremity->GetHitID() << endl;
+  //   cout << "lat " << secondextremity->GetHitID() << endl;
+  //   cout << "athit " << athit->GetHitID() << endl;
+  //   cout << endl;
 
-//   cluster1.Print();
-//   cluster2.Print();
+  //   cluster1.Print();
+  //   cluster2.Print();
   for(int iclus = 0; iclus < 2; iclus++) {
-//     cout << "iclus " << iclus << endl;
-//  cluster2.Print();
+    //     cout << "iclus " << iclus << endl;
+    //  cluster2.Print();
     // set all unused
-    while(itr != hitlist.end()) {
-      (*itr)->SetUsedFlag(kFALSE);
-      itr++;
+    for(int ihit = 0; ihit < GetNofHits(); ihit++) {
+      hit =  (PndTrkHit*) hitlist[ihit];
+      hit->SetUsedFlag(kFALSE);
     }
-    itr = hitlist.begin();
+
+
     hit = NULL;
  
     if(iclus == 1) {
       tmpposition = secondextremity->GetPosition();
       tmphit = secondextremity;
     }
+
     double tmpdistance2 = 1000;
     while(!hit || (hit && (hit->GetPosition() - athit->GetPosition()).Perp() > STTPARALDISTANCE)) {
-  //     if(!hit) cout << "here!" << endl;
-//       if(hit) cout << "here " << (hit->GetPosition() - athit->GetPosition()).Perp() << endl;
-      while(itr != hitlist.end()) {
-	hit = *itr;
+      //     if(!hit) cout << "here!" << endl;
+      //       if(hit) cout << "here " << (hit->GetPosition() - athit->GetPosition()).Perp() << endl;
+      for(int ihit = 0; ihit < GetNofHits(); ihit++) {
+	hit =  (PndTrkHit*) hitlist[ihit];
+
 	//	if(hit->IsUsed()) continue;
 	//	cout << "test " << hit->GetHitID() << " " << hit->GetDistance(tmpposition) << endl;
 	cout << (*hit == *firstextremity) << " " << (*hit == *secondextremity) << " " << (*hit == *tmphit) << endl;
 
-	if((iclus == 0 && cluster1.SearchHit(hit) != -1) || (iclus == 1 && cluster2.SearchHit(hit) != -1)) {
+	// CHECK SearchHit
+	if((iclus == 0 && cluster1.SearchHit(hit) != 0) || (iclus == 1 && cluster2.SearchHit(hit) != 0)) {
 	  cout << hit->GetHitID() << " is already there .................." << endl;
-	  itr++;
 	  continue;
 	}
-	if(*hit == *firstextremity || *hit == *secondextremity || *hit == *tmphit) {
-	  itr++;
-	  continue;
-	}
+	if(*hit == *firstextremity || *hit == *secondextremity || *hit == *tmphit) continue;
 
 	if(hit->GetXYDistance(tmpposition) < STTPARALDISTANCE && (hit->GetPosition() - athit->GetPosition()).Perp() < tmpdistance2) { // CHECK
 	//   cout << "add " << hit->GetHitID() << " to  cluster " << iclus + 1 << endl;
@@ -432,9 +390,7 @@ Bool_t PndTrkCluster::SplitV(PndTrkHit *athit, PndTrkHit *firstextremity, PndTrk
 	  tmpdistance2 = (hit->GetPosition() - athit->GetPosition()).Perp();
 	  break;
 	}
-	itr++;
       }
-      itr = hitlist.begin();
     }
     cout << endl;
   }
@@ -456,22 +412,18 @@ Bool_t PndTrkCluster::SplitV(PndTrkHit *athit, PndTrkHit *firstextremity, PndTrk
 }
 
 // =======================================================================================
-// Bool_t PndTrkCluster::SorterFunction(PndTrkHit *hit1, PndTrkHit *hit2) {
 
-// return *hit1 < *hit2;
 
-// }
 
 
 void PndTrkCluster::SortFromHit(PndTrkHit *firstextremity, TString criterion) {
 
   //  cout << "------------------------------------ sorting" << endl;
   fFromPoint = firstextremity->GetPosition();
-  std::vector< PndTrkHit * >::iterator itr = hitlist.begin();
-
   PndTrkHit *hit;
-  while(itr != hitlist.end()) {
-    hit = *itr;
+  for(int ihit = 0; ihit < GetNofHits(); ihit++) {
+    hit = (PndTrkHit*) hitlist[ihit];
+
     if(criterion.CompareTo("xydistance") == 0) {      // CHECK 
       double distance = hit->GetDistance(fFromPoint);
       //   cout << "distance " << distance << endl;
@@ -479,16 +431,15 @@ void PndTrkCluster::SortFromHit(PndTrkHit *firstextremity, TString criterion) {
     }
 
     // cout << hit->GetHitID() << " " << hit->GetDetectorID() << " sort var " << hit->GetSortVariable() << endl;
-    itr++;
   }
-  // sorting
-  sort(hitlist.begin(), hitlist.end(), SorterFunction);
+  // sorting 
+  Sort() ; 
 }
 
 void PndTrkCluster::Sort()
 {
-  sort(hitlist.begin(), hitlist.end(), SorterFunction);
-
+// CHECK each TObject must return IsSortable = kTRUE
+  hitlist.Sort(); // SorterFunction
 }
 
 
@@ -498,43 +449,35 @@ void PndTrkCluster::Sort()
 void PndTrkCluster::AddCluster(PndTrkCluster *cluster) {
   for(int ihit = 0; ihit < cluster->GetNofHits(); ihit++) {
     PndTrkHit *hit = cluster->GetHit(ihit);
-    hitlist.push_back(hit);
+    AddHit(hit);
   }
-
+  
   TString iregion1;
   iregion1 += fIRegion;
   TString iregion2;
   iregion2 += cluster->GetIRegion();
-
-  // iregions
-
-
-
-// fIRegion = 
-
 }
 
 void  PndTrkCluster::AddClusterAndSortFrom(PndTrkCluster *cluster, TVector3 frompoint, TString criterion) {
 
   fFromPoint = frompoint;
-  std::vector< PndTrkHit * >::iterator itr = hitlist.begin();
   PndTrkHit *hit;
+
   for(int ihit = 0; ihit < cluster->GetNofHits(); ihit++) {
     hit = cluster->GetHit(ihit);
-    hitlist.push_back(hit);
+    AddHit(hit);
   }
-
-  while(itr != hitlist.end()) {
-    hit = *itr;
+  
+  for(int ihit = 0; ihit < GetNofHits(); ihit++) {
+    hit = (PndTrkHit* ) hitlist[ihit];
     if(criterion.CompareTo("xydistance") == 0) {      // CHECK 
       double distance = hit->GetDistance(fFromPoint);
       //   cout << "distance " << distance << endl;
       hit->SetSortVariable(distance);
     }
-    itr++;
   }
   // sorting
-  sort(hitlist.begin(), hitlist.end(), SorterFunction);
+  Sort();
   
 
 }
@@ -545,18 +488,17 @@ PndTrkHit * PndTrkCluster::GetPocaTo(TVector3 frompoint) {
   //  cout << "getPocaTo" << endl;
   Double_t tmpdistance = 1000;
   
-  std::vector< PndTrkHit * >::iterator itr = hitlist.begin();
-  PndTrkHit *tmphit = *itr;
+  PndTrkHit *tmphit = (PndTrkHit* ) hitlist[0];
 
-  while(itr != hitlist.end()) {
-    PndTrkHit *hit = *itr;
+  for(int ihit = 0; ihit < GetNofHits(); ihit++) {
+    PndTrkHit *hit = (PndTrkHit* ) hitlist[ihit];
+
     double distance = hit->GetXYDistance(frompoint);
     if(distance < tmpdistance) {
       tmpdistance = distance;
       tmphit = hit;
     }
-    itr++;
-  } 
+  }
   return tmphit;
 }  
 
@@ -586,22 +528,24 @@ Bool_t PndTrkCluster::ComputeCircle(TVector3 v1, TVector3 v2, TVector3 v3, doubl
 // =======================================================================================
 Bool_t PndTrkCluster::DoesContain(PndTrkHit *hit) {
   bool isthere = false;
-  for(int ihit = 0; ihit < GetNofHits(); ihit++) {
-    PndTrkHit *comparehit =   hitlist.at(ihit);
-    (comparehit == hit) ? isthere = true : isthere = false;
-    if(isthere == true) return kTRUE;
-  }
-  return kFALSE;
+  if(hitlist.FindObject(hit) == 0) return kFALSE;
+  return kTRUE;  
+//   for(int ihit = 0; ihit < GetNofHits(); ihit++) {
+//     PndTrkHit *comparehit = (PndTrkHit*)  hitlist[ihit];
+//     (comparehit == hit) ? isthere = true : isthere = false;
+//     if(isthere == true) return kTRUE;
+//   }
+//   return kFALSE;
 }
 
 PndTrkHit *PndTrkCluster::GetHit(int index) {
-  return hitlist[index];
+  return (PndTrkHit*) hitlist[index];
 }
 
 Bool_t PndTrkCluster::IsSimilarTo(PndTrkCluster cluster2) {
   int similarity = 0;
   for(int ihit = 0; ihit < GetNofHits(); ihit++) {
-    PndTrkHit *hit = hitlist.at(ihit);
+    PndTrkHit *hit = (PndTrkHit*) hitlist[ihit];
     if(cluster2.DoesContain(hit)) similarity++;
   }
   if(((double) similarity/GetNofHits()) > 0.5 || ((double) similarity/cluster2.GetNofHits()) > 0.5) return kTRUE;
@@ -611,14 +555,14 @@ Bool_t PndTrkCluster::IsSimilarTo(PndTrkCluster cluster2) {
 PndTrkCluster PndTrkCluster::MergeTo(PndTrkCluster cluster2) {
   std::vector<int> tobeadded;
   for(int ihit = 0; ihit < GetNofHits(); ihit++) {
-    PndTrkHit *hit = hitlist.at(ihit);
+    PndTrkHit *hit = (PndTrkHit*) hitlist[ihit];
     if(cluster2.DoesContain(hit)) continue;
     tobeadded.push_back(ihit);
   }
 
   for(int ihit = 0; ihit < tobeadded.size(); ihit++) {
     int hitno = tobeadded.at(ihit);
-    cluster2.AddHit(hitlist.at(hitno));
+    cluster2.AddHit((PndTrkHit*) hitlist[hitno]);
   }
   return cluster2;
 
@@ -627,11 +571,9 @@ PndTrkCluster PndTrkCluster::MergeTo(PndTrkCluster cluster2) {
 void PndTrkCluster::Print() {
   cout << "###############################" << endl;
   cout << "iregion " << fIRegion << endl;
-  std::vector< PndTrkHit* >::iterator itr;
-  itr = hitlist.begin();
-  while(itr != hitlist.end()) {
-    cout << " " <<  (*itr)->GetHitID() << " " << (*itr)->GetDetectorID() << " " << (*itr)->GetSortVariable() << endl;
-    itr++;
+  for(int ihit = 0; ihit < GetNofHits(); ihit++) {
+    PndTrkHit *hit = (PndTrkHit*) hitlist[ihit];
+    cout << " " <<  hit->GetHitID() << " " << hit->GetDetectorID() << " " << hit->GetSortVariable() << endl;
   }
 }
 
@@ -647,10 +589,9 @@ void PndTrkCluster::PrintList(){
 
 void PndTrkCluster::Draw(Color_t color) { 
   //  cout << "S: " <<  hitlist.size() << endl;
-  std::vector< PndTrkHit* >::iterator itr = hitlist.begin();
-  while(itr != hitlist.end()) {
-    (*itr)->Draw(color);
-    itr++;
+  for(int ihit = 0; ihit < GetNofHits(); ihit++) {
+    PndTrkHit *hit = (PndTrkHit*) hitlist[ihit];
+    hit->Draw(color);
   }
 }
 
