@@ -12,28 +12,32 @@
 #include "TVector3.h"
 #include "PndTrkCluster.h"
 
+class TObjArray;
 class PndTrkClusterList : public TObject
 {
 
  public:    
 
   PndTrkClusterList();
-
+ // copy ctor
+  PndTrkClusterList(const PndTrkClusterList& clist);
   ~PndTrkClusterList();    
+  PndTrkClusterList& operator=(const PndTrkClusterList &clist);
 
-  void AddCluster(PndTrkCluster cluster) ;
+  void AddCluster(PndTrkCluster *cluster) ;
   void DeleteCluster(Int_t index) ;
   
-  inline Int_t  GetNofClusters() { return clusterlist.size(); }
+  inline Int_t  GetNofClusters() { return clusterlist.GetEntriesFast(); }
 
-  PndTrkCluster * GetCluster(Int_t index) { return &clusterlist[index]; }
+  PndTrkCluster * GetCluster(Int_t index) { return (PndTrkCluster*) clusterlist[index]; }
  
   void ReplaceCluster(Int_t index, PndTrkCluster *cluster);
 
    
  protected:
  
-  std::vector< PndTrkCluster > clusterlist;
+  TObjArray clusterlist;
+  // std::vector< PndTrkCluster > clusterlist;
 
   ClassDef(PndTrkClusterList,1);
 };

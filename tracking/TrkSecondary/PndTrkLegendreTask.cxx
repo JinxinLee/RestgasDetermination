@@ -398,7 +398,7 @@ void PndTrkLegendreTask::Exec(Option_t* opt) {
     // -------------------------------------------------------
     if(cluster.GetNofHits() > 3) {
       if(fVerbose > 1)   cout << "ADDING CLUSTER WITH " << cluster.GetNofHits() << " hits " << endl;
-      clusterlist->AddCluster(cluster);
+      clusterlist->AddCluster(&cluster);
     }
     else {
       maxpeak = -1;  
@@ -669,7 +669,6 @@ void PndTrkLegendreTask::Exec(Option_t* opt) {
 
 void PndTrkLegendreTask::Reset()
 {
- 
   if(fDisplayOn) {
     char goOnChar;
     display->Update();
@@ -711,11 +710,20 @@ Int_t PndTrkLegendreTask::FillConformalHitList() {
   }
   for(int jhit = 0; jhit < stthitlist->GetNofHits(); jhit++) {
     PndTrkHit *hit = stthitlist->GetHit(jhit);
-    if(hit->IsSttSkew()) continue;
-    PndTrkConformalHit * chit = conform->GetConformalSttHit(hit);
-    conformalhitlist->AddHit(chit);    
+    //   if(hit->IsSttSkew()) continue;
+    //     PndTrkConformalHit * chit = conform->GetConformalSttHit(hit);
+    //     conformalhitlist->AddHit(chit);    
+   if(hit->IsSttSkew()) {
+     //	continue;
+     PndTrkConformalHit * chit = conform->GetConformalHit(hit);
+     conformalhitlist->AddHit(chit);    
+   }
+   else {
+     PndTrkConformalHit * chit = conform->GetConformalSttHit(hit);
+     conformalhitlist->AddHit(chit);    
+   } 
   }
-
+  
   return conformalhitlist->GetNofHits();
 }
 
