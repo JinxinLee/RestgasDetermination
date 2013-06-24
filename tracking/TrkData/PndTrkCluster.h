@@ -50,9 +50,8 @@ class PndTrkCluster : public TObject
   void LightUp();
 
   Bool_t DoesContain(PndTrkHit *hit);
-  Bool_t IsSimilarTo(PndTrkCluster cluster2);
-  PndTrkCluster MergeTo(PndTrkCluster cluster2);
-
+  Bool_t IsSimilarTo(PndTrkCluster *cluster2);
+  int MergeTo(PndTrkCluster *cluster2);
   PndTrkCluster GetMvdStripHitList();
   PndTrkCluster GetMvdPixelHitList();
   PndTrkCluster GetMvdHitList();

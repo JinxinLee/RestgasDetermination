@@ -26,13 +26,12 @@ class PndTrkClusterList : public TObject
 
   void AddCluster(PndTrkCluster *cluster) ;
   void DeleteCluster(Int_t index) ;
-  
+  void Reset();
   inline Int_t  GetNofClusters() { return clusterlist.GetEntriesFast(); }
 
   PndTrkCluster * GetCluster(Int_t index) { return (PndTrkCluster*) clusterlist[index]; }
  
   void ReplaceCluster(Int_t index, PndTrkCluster *cluster);
-
    
  protected:
  

@@ -46,7 +46,9 @@ void PndTrkClusterList::ReplaceCluster(Int_t index, PndTrkCluster *cluster) {
   clusterlist.AddAt(cluster, index);
 }
  
-
+void PndTrkClusterList::Reset() {
+clusterlist.Clear();
+}
 // merge clusters
 
 ClassImp(PndTrkClusterList)

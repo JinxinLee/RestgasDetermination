@@ -542,35 +542,55 @@ PndTrkHit *PndTrkCluster::GetHit(int index) {
   return (PndTrkHit*) hitlist[index];
 }
 
-Bool_t PndTrkCluster::IsSimilarTo(PndTrkCluster cluster2) {
+Bool_t PndTrkCluster::IsSimilarTo(PndTrkCluster *cluster2) {
   int similarity = 0;
   for(int ihit = 0; ihit < GetNofHits(); ihit++) {
     PndTrkHit *hit = (PndTrkHit*) hitlist[ihit];
-    if(cluster2.DoesContain(hit)) similarity++;
+    if(cluster2->DoesContain(hit)) similarity++;
   }
-  if(((double) similarity/GetNofHits()) > 0.5 || ((double) similarity/cluster2.GetNofHits()) > 0.5) return kTRUE;
+  if(((double) similarity/GetNofHits()) > 0.5 || ((double) similarity/cluster2->GetNofHits()) > 0.5) return kTRUE;
   return kFALSE;
 }
 
-PndTrkCluster PndTrkCluster::MergeTo(PndTrkCluster cluster2) {
+
+int PndTrkCluster::MergeTo(PndTrkCluster *cluster2) {
+  
   std::vector<int> tobeadded;
-  for(int ihit = 0; ihit < GetNofHits(); ihit++) {
-    PndTrkHit *hit = (PndTrkHit*) hitlist[ihit];
-    if(cluster2.DoesContain(hit)) continue;
+  for(int ihit = 0; ihit < cluster2->GetNofHits(); ihit++) {
+    PndTrkHit *hit = cluster2->GetHit(ihit);
+    if(DoesContain(hit)) continue;
     tobeadded.push_back(ihit);
   }
-
+  
   for(int ihit = 0; ihit < tobeadded.size(); ihit++) {
     int hitno = tobeadded.at(ihit);
-    cluster2.AddHit((PndTrkHit*) hitlist[hitno]);
+    PndTrkHit *hit = cluster2->GetHit(hitno);
+    AddHit(hit);
   }
-  return cluster2;
-
+  return GetNofHits();
 }
+
+
+
+// PndTrkCluster PndTrkCluster::MergeTo(PndTrkCluster cluster2) {
+//   std::vector<int> tobeadded;
+//   for(int ihit = 0; ihit < GetNofHits(); ihit++) {
+//     PndTrkHit *hit = (PndTrkHit*) hitlist[ihit];
+//     if(cluster2.DoesContain(hit)) continue;
+//     tobeadded.push_back(ihit);
+//   }
+
+//   for(int ihit = 0; ihit < tobeadded.size(); ihit++) {
+//     int hitno = tobeadded.at(ihit);
+//     cluster2.AddHit((PndTrkHit*) hitlist[hitno]);
+//   }
+//   return cluster2;
+
+// }
 
 void PndTrkCluster::Print() {
   cout << "###############################" << endl;
-  cout << "iregion " << fIRegion << endl;
+  cout << "iregion " << fIRegion << " with nhits " << GetNofHits() << endl;
   for(int ihit = 0; ihit < GetNofHits(); ihit++) {
     PndTrkHit *hit = (PndTrkHit*) hitlist[ihit];
     cout << " " <<  hit->GetHitID() << " " << hit->GetDetectorID() << " " << hit->GetSortVariable() << endl;
