@@ -59,6 +59,12 @@ public:
   double GetIPphi() const{return fPhirec;}
   double GetIPmom() const{return fMomrec;}
 
+  void SetIPerrpoint(double errx, double erry, double errz){ferrXrec=errx;ferrYrec=erry;ferrZrec=errz;}
+  void GetIPerrpoint(TVector3 lmdp){lmdp = TVector3(ferrXrec,ferrYrec,ferrZrec);}
+
+  void SetIPerrmom(double errtheta, double errphi, double errmom){ferrThetarec = errtheta; ferrPhirec = errphi; ferrMomrec = errmom;}
+  void GetIPerrmom(TVector3 lmerrdp){lmerrdp = TVector3(ferrXrec,ferrYrec,ferrZrec);}
+
   void SetMCpoint(double x, double y, double z){fXmc=x;fYmc=y;fZmc=z;}
   void GetMCpoint(TVector3 lmdp){lmdp = TVector3(fXmc,fYmc,fZmc);}
   void SetMCmom(double theta, double phi,double mom){fThetamc = theta; fPhimc = phi; fMommc = mom;}
@@ -71,6 +77,7 @@ public:
  private:
   Double_t fXrecLMD,fYrecLMD,fZrecLMD,fThetarecLMD,fPhirecLMD;
   Double_t fXrec,fYrec,fZrec,fThetarec,fPhirec, fMomrec;
+  Double_t ferrXrec,ferrYrec,ferrZrec,ferrThetarec,ferrPhirec, ferrMomrec;
   Double_t fXmc,fYmc,fZmc,fThetamc,fPhimc, fMommc;
   Double_t fchi2LMD;
   int fTrkRecStatus;// 0 = good,

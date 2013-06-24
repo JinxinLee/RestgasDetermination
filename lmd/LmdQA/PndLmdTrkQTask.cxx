@@ -542,6 +542,20 @@ void PndLmdTrkQTask::Exec(Option_t* opt)
       glXrec = PosBP.X();      glYrec = PosBP.Y();       glZrec = PosBP.Z();
       glThetarec = thetaBP;       glPhirec = phiBP;
       glMomrec = MomRecBP.Mag();
+      Double_t errX = fRes->GetDX();
+      Double_t errY = fRes->GetDY();
+      Double_t errZ = fRes->GetDZ();
+
+	Double_t errPx = fRes->GetDPx();
+	Double_t errPy = fRes->GetDPy();
+	Double_t errPz = fRes->GetDPz();
+	TVector3 errMomBP(errPx,errPy,errPz);
+
+	Double_t err_lyambda = fRes->GetDLambda();
+	//	if(err_lyambda==0) err_lyambda = errMomBP.Theta();
+	Double_t err_phi = fRes->GetDPhi();
+
+
       PndTrack *trkpnd = (PndTrack*)fRecTracks->At(iN);
       glchi2 = trkpnd->GetChi2();
       FairTrackParP fFittedTrkP = trkpnd->GetParamFirst();
@@ -584,6 +598,9 @@ void PndLmdTrkQTask::Exec(Option_t* opt)
       trkqlmd->SetLMDchi2(glchi2);
       trkqlmd->SetIPpoint(glXrec,glYrec,glZrec);
       trkqlmd->SetIPmom(glThetarec,glPhirec,glMomrec);
+      trkqlmd->SetIPerrpoint(errX,errY,errZ);
+      trkqlmd->SetIPerrmom(err_lyambda,err_phi,errMomBP.Mag());
+
       trkqlmd->SetMCpoint(glXmc,glYmc,glZmc);
       trkqlmd->SetMCmom(glThetamc,glPhimc,glMommc);
       trkqlmd->SetSecondary(trkMCStatus);
@@ -664,6 +681,8 @@ void PndLmdTrkQTask::Exec(Option_t* opt)
 	    trkqlmd->SetMCpoint(glXmc,glYmc,glZmc);
 	    trkqlmd->SetMCmom(glThetamc,glPhimc,glMommc);
 	    trkqlmd->SetSecondary(trkMCStatus);
+	    trkqlmd->SetIPerrpoint(-9999,-9999,-9999);
+	    trkqlmd->SetIPerrmom(-9999,-9999,-9999);
 	  }
 	//(end) Fill tree with rec vs. mc trk info for missed trks ---------------------------------------
 	}
