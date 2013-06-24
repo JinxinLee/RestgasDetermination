@@ -1,0 +1,34 @@
+
+This directory contains all packages for EvtGen ....
+Pythia8 and HepMC are part of the external packages.
+
+The CMAKEList.txt files enables/disables sub-components.
+You can disbale Photos and and Pythia8 for EvtGen, but this might not be useful.
+Tauola is disabled by default as it has no relevance for PANDA.
+
+Tauola contains
+* TAUOLA.1.0.7-LHC.tar.gz
+* TAUOLA.1.1.1a-LHC.tar.gz
+* the CMakeList.txt
+* the sub-folder "Tauloa" with softlinks for include files.
+
+Photos contains
+* PHOTOS.3.5.tar.gz
+* PHOTOS.3.52.tar.gz
+* the CMakeList.txt
+* the sub-folder "Photos" with softlinks for include files.
+
+R01-01-00 contains
+* the subversion repository for EvtGen R01-01-00 as of 8.10.2012
+* the CMakeList.txt
+Changes!!: enum EROOR, WARNING, INFO etc collide with logger class from fairsoft.
+
+R01-02-00 contains
+* the stable "release" archive
+* the CMakeList.txt
+TODO Changes!!: enum EROOR, WARNING, INFO etc collide with logger class from fairsoft.
+
+EvtGenDirect contains EvtGenDirect task for PandaRoot
+
+### 
+###find . -name "*.cpp" -exec grep -r -l ERROR {} \; | xargs --max-args=1 sed -i -e 's#ERROR#EVT_ERROR#g'
