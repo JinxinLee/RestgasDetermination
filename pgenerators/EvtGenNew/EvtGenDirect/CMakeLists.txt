@@ -7,13 +7,8 @@ set(INCLUDE_DIRECTORIES
    ${ROOT_INCLUDE_DIR} 
    ${BASE_INCLUDE_DIRECTORIES} 
    ${EVTGEN_INCLUDE_DIR}
-   ${CMAKE_SOURCE_DIR}/pgenerators/EvtGen/EvtGenDirect
+   ${CMAKE_SOURCE_DIR}/pgenerators/EvtGenNew/EvtGenDirect
 )
-
-#   ${CMAKE_SOURCE_DIR}/pgenerators/EvtGen/EvtGen/R01-02-00
-
-#    ${CMAKE_SOURCE_DIR}/base
-#   ${CMAKE_SOURCE_DIR}/fairtools
 
 if(EVTGEN_EXTERNAL)
    add_definitions("-DEVTGEN_EXTERNAL")
