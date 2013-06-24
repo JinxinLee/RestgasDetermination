@@ -566,6 +566,7 @@ void PndLmdTrkQTask::Exec(Option_t* opt)
       glThetarecLMD = MomRecLMD.Theta(); glPhirecLMD = MomRecLMD.Phi();
       trkRECStatus = trkType;
       int glNumMChits=-9999;
+      int glNumDoubleMChits=-9999;
       if(trkType>0){ //TODO: ghost-doubled trks has MC trk!!!
 	glXmc= -9999; glYmc =-9999; glZmc = -9999; glThetamc =-9999; glPhimc = -9999; glMommc = -9999;
 	trkMCStatus = -9999;
@@ -587,6 +588,7 @@ void PndLmdTrkQTask::Exec(Option_t* opt)
 	else
 	  trkMCStatus=+1;
 	glNumMChits = MCtksSIMhits[MCidforREC];
+	glNumDoubleMChits = MCDoubleHits[MCidforREC];
       } 
       //    tRECMCtrks->Fill();
       TClonesArray& clref = *fTrackQ;
@@ -607,6 +609,7 @@ void PndLmdTrkQTask::Exec(Option_t* opt)
       trkqlmd->SetMCmom(glThetamc,glPhimc,glMommc);
       trkqlmd->SetSecondary(trkMCStatus);
       trkqlmd->SetNumMChits(glNumMChits);
+      trkqlmd->SetNumDoubleMChits(glNumDoubleMChits);
       //(end) Fill tree with rec vs. mc trk info ---------------------------------------
     }
     ///END GHOST--------------------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -686,6 +689,7 @@ void PndLmdTrkQTask::Exec(Option_t* opt)
 	    trkqlmd->SetIPerrpoint(-9999,-9999,-9999);
 	    trkqlmd->SetIPerrmom(-9999,-9999,-9999);
 	    trkqlmd->SetNumMChits(MCtksREChits[imc]);
+	    trkqlmd->SetNumDoubleMChits(MCDoubleHits[imc]);
 	  }
 	//(end) Fill tree with rec vs. mc trk info for missed trks ---------------------------------------
 	}

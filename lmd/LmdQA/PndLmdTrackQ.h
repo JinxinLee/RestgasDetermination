@@ -75,6 +75,8 @@ public:
   int GetSecondary() const{return fSecondary;}
   void SetNumMChits(int num){fnumMChits;}
   int GetNumMChits() const{return fnumMChits;}
+ void SetNumDoubleMChits(int num){fnumMCdoublehits;}
+  int GetNumDoubleMChits() const{return fnumMCdoublehits;}
  private:
   Double_t fXrecLMD,fYrecLMD,fZrecLMD,fThetarecLMD,fPhirecLMD;
   Double_t fXrec,fYrec,fZrec,fThetarec,fPhirec, fMomrec;
@@ -82,6 +84,7 @@ public:
   Double_t fXmc,fYmc,fZmc,fThetamc,fPhimc, fMommc;
   Double_t fchi2LMD;
   int fnumMChits;//number of MC hits for MC trk
+  int fnumMCdoublehits;//number of doubled [diff side of one plane] MC hits for MC trk 
   int fTrkRecStatus;// 0 = good,
                               // >0 = ghost: 1 = hit mixture, 2 = doubled trk
                               // <0 = missed: -1=trk-search losses,-2=little amount of hits,-3=no MC hits, -10=trk wasn't back-propag
