@@ -6,29 +6,37 @@ The CMAKEList.txt files enables/disables sub-components.
 You can disbale Photos and and Pythia8 for EvtGen, but this might not be useful.
 Tauola is disabled by default as it has no relevance for PANDA.
 
-Tauola contains
-* TAUOLA.1.0.7-LHC.tar.gz
-* TAUOLA.1.1.1a-LHC.tar.gz
-* the CMakeList.txt
-* the sub-folder "Tauloa" with softlinks for include files.
-
 Photos contains
-* PHOTOS.3.5.tar.gz
-* PHOTOS.3.52.tar.gz
+* PHOTOS.3.52.tar.gz (tested, O.k.)
 * the CMakeList.txt
 * the sub-folder "Photos" with softlinks for include files.
-
-R01-01-00 contains
-* the subversion repository for EvtGen R01-01-00 as of 8.10.2012
-* the CMakeList.txt
-Changes!!: enum EROOR, WARNING, INFO etc collide with logger class from fairsoft.
 
 R01-02-00 contains
 * the stable "release" archive
 * the CMakeList.txt
-TODO Changes!!: enum EROOR, WARNING, INFO etc collide with logger class from fairsoft.
+TODO Changes!!: enum ERROR, WARNING, INFO etc collide with logger class from fairsoft.
+TODO: streamer is commented out in EvtGen repository, but needed for simpleEvtGen etc.
 
 EvtGenDirect contains EvtGenDirect task for PandaRoot
 
-### 
+##########################
+### removed or updated ###
+##########################
+
+R01-01-00 contains (deprecated)
+* the subversion repository for EvtGen R01-01-00 as of 8.10.2012
+* the CMakeList.txt
+Changes!!: enum EROOR, WARNING, INFO etc collide with logger class from fairsoft.
+
+* PHOTOS.3.5.tar.gz (tested, deprecated)
+
+(Tauola is not needed ... thus not included)
+Tauola contains
+* TAUOLA.1.0.7-LHC.tar.gz (tested, o.k.)
+* TAUOLA.1.1.1a-LHC.tar.gz (not tested)
+* the CMakeList.txt
+* the sub-folder "Tauloa" with softlinks for include files.
+
+
+### renaming enums was done with ... (be careful, dangerous)
 ###find . -name "*.cpp" -exec grep -r -l ERROR {} \; | xargs --max-args=1 sed -i -e 's#ERROR#EVT_ERROR#g'
