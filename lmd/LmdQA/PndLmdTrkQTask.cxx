@@ -565,6 +565,7 @@ void PndLmdTrkQTask::Exec(Option_t* opt)
       glXrecLMD =  PosRecLMD.X();       glYrecLMD =  PosRecLMD.Y();       glZrecLMD =  PosRecLMD.Z();
       glThetarecLMD = MomRecLMD.Theta(); glPhirecLMD = MomRecLMD.Phi();
       trkRECStatus = trkType;
+      int glNumMChits=-9999;
       if(trkType>0){ //TODO: ghost-doubled trks has MC trk!!!
 	glXmc= -9999; glYmc =-9999; glZmc = -9999; glThetamc =-9999; glPhimc = -9999; glMommc = -9999;
 	trkMCStatus = -9999;
@@ -585,6 +586,7 @@ void PndLmdTrkQTask::Exec(Option_t* opt)
 	if(movID<0) trkMCStatus=0;
 	else
 	  trkMCStatus=+1;
+	glNumMChits = MCtksSIMhits[MCidforREC];
       } 
       //    tRECMCtrks->Fill();
       TClonesArray& clref = *fTrackQ;
@@ -604,7 +606,7 @@ void PndLmdTrkQTask::Exec(Option_t* opt)
       trkqlmd->SetMCpoint(glXmc,glYmc,glZmc);
       trkqlmd->SetMCmom(glThetamc,glPhimc,glMommc);
       trkqlmd->SetSecondary(trkMCStatus);
-    
+      trkqlmd->SetNumMChits(glNumMChits);
       //(end) Fill tree with rec vs. mc trk info ---------------------------------------
     }
     ///END GHOST--------------------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -662,7 +664,7 @@ void PndLmdTrkQTask::Exec(Option_t* opt)
 	  glXmc= PosMC.X(); glYmc = PosMC.Y(); glZmc = PosMC.Z();
 	  glThetamc = MomMC.Theta();       glPhimc = MomMC.Phi(); glMommc = MomMC.Mag();
 	  if(movID<0) trkMCStatus=0;
-	  if(movID>0) trkMCStatus=+1;
+	  if(movID>=0) trkMCStatus=+1;
 	  //	  tRECMCtrks->Fill();
 	  if(!fWriteAllMC && trkRECStatus==-3){
 	  }
@@ -683,6 +685,7 @@ void PndLmdTrkQTask::Exec(Option_t* opt)
 	    trkqlmd->SetSecondary(trkMCStatus);
 	    trkqlmd->SetIPerrpoint(-9999,-9999,-9999);
 	    trkqlmd->SetIPerrmom(-9999,-9999,-9999);
+	    trkqlmd->SetNumMChits(MCtksREChits[imc]);
 	  }
 	//(end) Fill tree with rec vs. mc trk info for missed trks ---------------------------------------
 	}

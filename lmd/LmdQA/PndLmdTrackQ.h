@@ -73,13 +73,15 @@ public:
   double GetMCmom() const{return fMommc;}
   void SetSecondary(int sec){fSecondary = sec;}
   int GetSecondary() const{return fSecondary;}
-
+  void SetNumMChits(int num){fnumMChits;}
+  int GetNumMChits() const{return fnumMChits;}
  private:
   Double_t fXrecLMD,fYrecLMD,fZrecLMD,fThetarecLMD,fPhirecLMD;
   Double_t fXrec,fYrec,fZrec,fThetarec,fPhirec, fMomrec;
   Double_t ferrXrec,ferrYrec,ferrZrec,ferrThetarec,ferrPhirec, ferrMomrec;
   Double_t fXmc,fYmc,fZmc,fThetamc,fPhimc, fMommc;
   Double_t fchi2LMD;
+  int fnumMChits;//number of MC hits for MC trk
   int fTrkRecStatus;// 0 = good,
                               // >0 = ghost: 1 = hit mixture, 2 = doubled trk
                               // <0 = missed: -1=trk-search losses,-2=little amount of hits,-3=no MC hits, -10=trk wasn't back-propag
