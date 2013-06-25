@@ -30,7 +30,7 @@ set(SRCS
 set(LINKDEF  EvtGenDirectLinkDef.h)
 set(LIBRARY_NAME EvtGenDirect)
 
-set(DEPENDENCIES EvtGen)
+set(DEPENDENCIES EvtGen EvtGenExternal)
 
 GENERATE_LIBRARY()
 
