@@ -19,15 +19,17 @@ class  PndGeoDrc : public FairGeoSet {
   
   double fRadius;                           //!< Barrel radius [cm] (middle of radiator)
   double fBarHalfThick;                     //!< Radiator bars half thickness [cm].
+  double fBarWidth;			    //!< Radiator width [cm].
   double fBarBoxZDown;                      //!< Bar box down stream coordinate [cm].
   double fBarBoxZUp;                        //!< Bar box up   stream coordinate [cm].
-  double fBarGap;			    //!< Half gap between bars [cm].
+  double fBarhGap;			    //!< Half gap between bars [cm].
   double fBarNum;                           //!< Number of bars per barbox.
   double fBoxGap;			    //!< Gap between bar and bar box [cm].
   double fBoxThick;			    //!< Bar box thickness [cm].
     
   double fBarBoxNum;			    //!< Total number of bar boxes in the barrel. 
   double fBarBoxGap; 	      		    //!< Gap between neighboring bar boxes [cm].
+  double fBarBoxAngle;			    //!< Angle between centers of the neighboring bar boxes [degrees].
   double fPipehAngle;			    //!< Half of the phi angle taken by the target pipe [degrees].
   
   double fEVlength;			    //!< Length of Expansion Volume [cm].
@@ -50,10 +52,9 @@ class  PndGeoDrc : public FairGeoSet {
   double fPixelSize;	 		    //!< [cm] size of one pixel
   double fSigmaCharge;			    //!< [cm] sigma of the charge sharing
   double fDeadTime;			    //!< [ns] dead time of the photon detector
-  
+
   double fLside;
-  double fBarWidth;
-  double fPi; 
+  double fpi;
 
   protected:
   char modName[20];  // name of module
@@ -91,6 +92,10 @@ class  PndGeoDrc : public FairGeoSet {
   /*! The DRC barrel bar half thickness.
     \return Half thickness [cm]. */
   Double_t  barHalfThick() {return fBarHalfThick;}
+  
+  /*! The DRC barrel width.
+    \return Width [cm]. */
+  Double_t  BarWidth() {return fBarWidth;}
 
   /*! The DRC barrel bar box downstream coordinate.
     \return Coordinate [cm]. */
@@ -102,7 +107,7 @@ class  PndGeoDrc : public FairGeoSet {
   
   /*! The  half gap between bars.
     \return The BarGap [cm]. */
-  Double_t  barGap() {return fBarGap;}
+  Double_t  barhGap() {return fBarhGap;}
   
   /*! The gap between bars and the bar box.
     \return The Gap [cm]. */
@@ -119,8 +124,11 @@ class  PndGeoDrc : public FairGeoSet {
   /*! The length of the Expansion Volume [cm]. */
   Double_t  EVlen() {return fEVlength;}
 
-  /*! The Gap between neighboring bar boxes [cm]. */
+  /*! The Gap between neighboring bar boxes [degrees]. */
   Double_t  BBoxGap() {return fBarBoxGap;}
+  
+  /*! The angle between centers of the neighboring bar boxes [degrees]. */
+  Double_t  BBoxAngle() {return fBarBoxAngle;}
   
   /*! Total number of bar boxes in the barrel. */
   Double_t  BBoxNum() {return fBarBoxNum;}
@@ -152,12 +160,6 @@ class  PndGeoDrc : public FairGeoSet {
   /*! The opening angle of the Prism [degrees]. */
   Double_t  PrismAngle() {return fPAngle;}
   
-  /*! The width of the bar box with gaps [cm]. */
-  Double_t  Lside() {return fLside;}
-  
-  /*! The width of the bar gaps [cm]. */
-  Double_t  BarWidth() {return fBarWidth;}
-  
   /*! The size of an MCP [cm]. */
   Double_t  McpSize() {return fMCPsize;}
   
@@ -179,8 +181,11 @@ class  PndGeoDrc : public FairGeoSet {
   /*! The dead time of the photon detector [ns]. */
   Double_t DeadTime() {return fDeadTime;}
   
+  /*! The width of the side [cm]. */
+  Double_t Lside() {return fLside;}
+  
 
-  ClassDef(PndGeoDrc,1) // Class for Drc
+  ClassDef(PndGeoDrc,2) // Class for Drc
 
 
 };
