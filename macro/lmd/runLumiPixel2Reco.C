@@ -99,7 +99,8 @@ void runLumiPixel2Reco(const int nEvents=10, const int startEvent=0, TString sto
   //  PndLmdIdealClusterTask* lmdmccls = new PndLmdIdealClusterTask();
   lmdmccls->SetVerbose(verboseLevel);
   lmdmccls->SetMSflag(useMSerr);//switch on\off error calculation due to multiple scaterring
-  lmdmccls->SetMtxPath(storePath);
+  //  lmdmccls->SetMtxPath(storePath);
+  lmdmccls->SetMtxPath("../../../pandaroot/input/");
   fRun->AddTask(lmdmccls);
   rtdb->setOutput(parInput1);
   rtdb->print();
