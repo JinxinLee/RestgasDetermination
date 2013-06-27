@@ -22,7 +22,7 @@ PndSdsPixelClusterTask("LMD Clustertisation Task")
   fAlignParamList = new TList();
   readAlign = true;
   flagMS = true;
-  mtxpath = "";
+  mtxpath = "../../../pandaroot/input/";
   lmddim = NULL;
 }
 // -------------------------------------------------------------------------
@@ -126,7 +126,8 @@ void PndLmdPixelClusterTask::SetAlignConst(){
   TIter alignparams(fAlignParamList); 
   PndLmdAlignPar* lmdalignpar=(PndLmdAlignPar*)alignparams();
   lmddim -> Read_DB_offsets(lmdalignpar);
-  TString mtx_perfect =  "matrices_perfect.txt";
+  //  TString mtx_perfect =  "matrices_perfect.txt";
+  TString mtx_perfect =   mtxpath+"/trafo_matrices_lmd.dat";
   TString mtx_corr =   mtxpath+"/matrices_corrected.txt";
   lmddim -> Read_transformation_matrices(mtx_perfect.Data(), false);
   lmddim -> reCreate_transformation_matrices();
