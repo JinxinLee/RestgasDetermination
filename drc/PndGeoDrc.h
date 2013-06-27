@@ -54,7 +54,7 @@ class  PndGeoDrc : public FairGeoSet {
   double fDeadTime;			    //!< [ns] dead time of the photon detector
 
   double fLside;
-  double fpi;
+  double fPi;
 
   protected:
   char modName[20];  // name of module

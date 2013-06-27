@@ -45,7 +45,7 @@ PndGeoDrc::PndGeoDrc() {
   fBarBoxAngle  = 21.65;
   
   // parameters of the EV:
-  fEVlength     = 30.        // [cm] Length of expansion volume
+  fEVlength     = 30.;        // [cm] Length of expansion volume
   fEVdrop	= 0.7;	      // [cm] drop of the EV - inner radius (used only with prism)
   fEVoffset	= 0.;	      // [cm] offset of the EV - outer radius
   fEVangle	= 45.;	      // [degrees] opening angle of the EV
@@ -67,7 +67,7 @@ PndGeoDrc::PndGeoDrc() {
   fDeadTime	= 0.0  ;      // [ns] dead time of the photodetector
   
   fPi            =  TMath::Pi();
-  fLside	= 2.*fRadius*TMath::Sin((fBarBoxAngle-fBarBoxGap)/180.*fpi/2.)+2.*fBarhGap;
+  fLside	= 2.*fRadius*TMath::Sin((fBarBoxAngle-fBarBoxGap)/180.*fPi/2.)+2.*fBarhGap;
     
  }
 // -------------------------------------------------------------------------
