@@ -80,8 +80,8 @@ PndEvtGenDirect::PndEvtGenDirect(TString particle,TString decfile,Double_t Mom, 
   if(Mom<0) cout << "<I> CMS energy: "<<Mom<<endl;
   cout << "<I> Rnd Seed: "<<Seed<<endl;
   TString work = getenv("VMCWORKDIR");
-  if (defaultDECAY=="") defaultDECAY = work + "/pgenerators/EvtGen/EvtGen/R01-02-00/DECAY_2010.DEC";
-  if (defaultPDL=="") defaultPDL = work + "/pgenerators/EvtGen/EvtGen/R01-02-00/evt.pdl";
+  if (defaultDECAY=="") defaultDECAY = work + "/pgenerators/EvtGenNew/EvtGen/Private/DECAY.DEC";
+  if (defaultPDL=="") defaultPDL = work + "/pgenerators/EvtGenNew/EvtGen/Private/evt.pdl";
 
   //Initialize the generator - read in the decay table and particle properties
   

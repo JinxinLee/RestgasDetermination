@@ -357,7 +357,7 @@ set_target_properties(EvtGen PROPERTIES LINKER_LANGUAGE "Fortran")
 
 if(EVTGEN_EXTERNAL)
    add_library(EvtGenExternal SHARED ${EVTGEN_EXT_SRCS})
-   target_link_libraries(EvtGenExternal ${ROOT_LIBRARIES} ${PHOTOSLIBLIST} ${TAUOLALIBLIST} ${HEPMCLIBLIST} ${PYTHIALIBLIST} ${Fortran_UseLib})
+   target_link_libraries(EvtGenExternal ${ROOT_LIBRARIES} ${PHOTOSLIBLIST} ${TAUOLALIBLIST} ${HEPMCLIBLIST} ${PYTHIALIBLIST} ${Fortran_UseLib} EvtGen)
    set_target_properties(EvtGenExternal PROPERTIES ${FAIRROOT_LIBRARY_PROPERTIES})
    set_target_properties(EvtGenExternal PROPERTIES LINK_FLAGS "-fPIC")
 endif(EVTGEN_EXTERNAL)
