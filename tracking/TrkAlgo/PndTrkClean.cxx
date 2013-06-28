@@ -10,14 +10,22 @@
 #include "PndTrkClean.h"
 
 #include "PndTrkTools.h"
+#include "PndTrkLegendreCluster.h"
+#include "PndSttTube.h"
+
 #include "TArc.h"
 #include <iostream>
 
 
 using namespace std;
 
-PndTrkClean::PndTrkClean() {
+PndTrkClean::PndTrkClean() : fTubeArray(NULL) {
   fGeoH = PndGeoHandling::Instance();
+}
+
+PndTrkClean::PndTrkClean(TClonesArray *tubearray) {
+  fGeoH = PndGeoHandling::Instance();
+  fTubeArray = tubearray;
 }
 
 PndTrkClean::~PndTrkClean() {}
@@ -225,5 +233,232 @@ int PndTrkClean::FindMvdLayer(int sensorID) {
 
   return Layer;
 }
+
+
+Bool_t PndTrkClean::CheckPairOfHits(PndTrkHit *hit1, PndTrkHit *hit2) {
+
+//   cout << "hit1 " << hit1 << endl;
+//   cout << "hit2 " << hit2 << endl;
+  // both mvd
+  if(hit1->IsMvd() && hit2->IsMvd()) {
+    cout << "BOTH MVD " << hit1->GetDistance(hit2) << endl;
+    if(hit1->GetDistance(hit2) < 7) return kTRUE;
+  }
+  
+  // one mvd - one stt
+  else if((hit1->IsMvd() && hit2->IsStt()) || (hit1->IsStt() && hit2->IsMvd())) {
+    cout << "ONE MVD/ONE STT " << hit1->GetXYDistance(hit2) << endl;
+
+
+  // if the stt one is skew -> WRONG for sure!
+    if((hit2->IsStt() && hit2->IsSttSkew()) || (hit1->IsStt() && hit1->IsSttSkew())) return kFALSE;
+    // if parallel:
+    else if(hit1->GetXYDistance(hit2) < 8) return kTRUE;
+  }
+
+  // both stt
+  else if(hit1->IsStt() && hit2->IsStt()) {
+    // one parallel one skew
+    if((hit1->IsSttParallel() && hit2->IsSttSkew()) || (hit2->IsSttParallel() && hit1->IsSttSkew())) {
+      if(hit1->GetXYDistance(hit2) < 3) return kTRUE;
+    }
+    // both parallel
+    else if(hit1->IsSttParallel() && hit2->IsSttParallel()) {
+      PndSttTube *tube1 = (PndSttTube*) fTubeArray->At(hit1->GetTubeID());
+      int layerID1 = tube1->GetLayerID();
+      PndSttTube *tube2 = (PndSttTube*) fTubeArray->At(hit2->GetTubeID());
+      int layerID2 = tube2->GetLayerID();
+      //  
+      //   cout << "layers " << layerID1 << " " << layerID2 << endl;
+
+      // same layer
+      if(layerID1 == tube2->GetLayerID()) return kTRUE;
+      // both inner/outer parallel layers
+      else if((layerID1 < 9 && layerID2 < 9) || (layerID1 > 8 && layerID2 > 8)) {
+	// adjacent layers
+	if(layerID1 == layerID2 - 1) return kTRUE;
+	else if(layerID1 == layerID2 + 1) return kTRUE;
+      }
+      // one inner(outer) one outer(inner)
+      else {
+	// must be on boundaries // CHECK isboundary
+	if(layerID1 == 7 && layerID2 == 16) return kTRUE;
+	else if(layerID1 == 16 && layerID2 == 7) return kTRUE;
+      }
+    }
+    // both skew
+    else if(hit1->IsSttSkew() && hit2->IsSttSkew()) {
+      PndSttTube *tube1 = (PndSttTube*) fTubeArray->At(hit1->GetTubeID());
+      int layerID1 = layerID1;
+      PndSttTube *tube2 = (PndSttTube*) fTubeArray->At(hit2->GetTubeID());
+      int layerID2 = layerID2;
+      // same  layer
+      if(layerID1 == layerID2) return kTRUE;
+      // adjacent layers
+      else if(layerID1 == layerID2 - 1) return kTRUE;
+      else if(layerID1 == layerID2 + 1) return kTRUE;
+    }
+  }
+
+  return kFALSE;
+}
+
+
+// vicinity of hits
+void PndTrkClean::Cleanup2(PndTrkCluster *cluster) {
+  
+  // get most distance point
+  PndTrkHit *disthit = NULL;
+  double tmpdistance = -1;
+  for(int ihit = 0; ihit < cluster->GetNofHits(); ihit++) {
+    PndTrkHit *hit = cluster->GetHit(ihit);
+    double dist = hit->GetXYDistance(TVector3(0., 0., 0.));
+    if(dist > tmpdistance) {
+      disthit = hit;
+      tmpdistance = dist;
+      
+    }
+  }
+  // sort 
+  for(int ihit = 0; ihit < cluster->GetNofHits(); ihit++) {
+    PndTrkHit *hit = cluster->GetHit(ihit);
+    double dist = hit->GetXYDistance(disthit);
+    hit->SetSortVariable(dist);
+  }
+  cluster->Sort();
+  for(int ihit = 0; ihit < cluster->GetNofHits(); ihit++) {
+    PndTrkHit *hit = cluster->GetHit(ihit);
+    //  cout << "sorted hit " << ihit << " " << hit->GetDetectorID() << " " << hit->GetHitID() << " " << hit->GetSortVariable() << " " << hit->IsSortable() << endl;
+
+  }
+  std::vector< int > failedhits, breakpoints;
+  for(int ihit = 0; ihit < cluster->GetNofHits(); ihit++) {
+    PndTrkHit *hit = cluster->GetHit(ihit);
+    PndTrkHit *follow = cluster->GetNextHit(ihit);
+    PndTrkHit *previous = cluster->GetPreviousHit(ihit);
+    //    cout << "pre " << previous << " fol " << follow << endl;
+    Bool_t pre = kTRUE, fol = kTRUE;
+    if(previous != NULL) pre = CheckPairOfHits(previous, hit);
+    if(follow != NULL) fol = CheckPairOfHits(follow, hit);
+    cout << "pre " << pre << " fol " << fol << endl;
+
+    // isolated hit wrong
+    if(pre == kFALSE && fol == kFALSE) {
+      cout << "isolated " << hit->GetDetectorID() << " " << hit->GetHitID() << " " << pre << " " << fol << endl;
+      failedhits.push_back(ihit);
+    }
+    // first hit wrong
+    else if(previous == NULL && fol == kFALSE) {
+      PndTrkHit *follow2 = cluster->GetNextHit(ihit + 1);
+      if(CheckPairOfHits(follow, follow2) == kFALSE) {
+	failedhits.push_back(ihit);
+	cout << "first " << hit->GetDetectorID() << " " << hit->GetHitID() << " " << pre << " " << fol << endl;
+      
+      }
+    }
+    // last hit wrong
+    else if(follow == NULL && pre == kFALSE) {
+      PndTrkHit *previous2 = cluster->GetPreviousHit(ihit - 1);
+      if(CheckPairOfHits(previous, previous2) == kFALSE) {
+	cout << "last " << hit->GetDetectorID() << " " << hit->GetHitID() << " " << pre << " " << fol << endl;
+	failedhits.push_back(ihit);
+      }
+    }
+    // breakpoints
+    else if(pre == kTRUE && fol == kFALSE) {
+      if(find(failedhits.begin(), failedhits.end(), ihit - 1) == failedhits.end())  breakpoints.push_back(ihit);
+    }
+    
+  }
+
+
+    cout << "CLEANUP PROCEDURE " << endl;
+    cout << "failedhits " << failedhits.size() << " breakpoints " << breakpoints.size() << endl;
+}
+
+// SECTORS
+
+int PndTrkClean::CheckSectorDistribution(PndTrkCluster *cluster) {
+  int sectorcounter[6] = {0, 0, 0, 0, 0, 0}; // CHECK hard coded nof sectors
+  for(int ihit = 0; ihit < cluster->GetNofHits(); ihit++) {
+    PndTrkHit *hit = cluster->GetHit(ihit);
+    PndSttTube *tube = (PndSttTube*)  fTubeArray->At(hit->GetTubeID());
+    int sectorID = tube->GetSectorID();
+    sectorcounter[sectorID]++;
+  }
+
+  int tmpsector = -1, tmpcounter = -1;
+  for(int isec = 0; isec < 6; isec++) { // CHECK hard coded nof sectors
+    if(sectorcounter[isec] > tmpcounter) {
+      tmpcounter = sectorcounter[isec];
+      tmpsector  = isec;
+    }
+  }
+  return tmpsector;
+}
+
+PndTrkCluster PndTrkClean::CleanSectors(PndTrkCluster *cluster, int sector) {
+  PndTrkCluster newcluster;
+  for(int ihit = 0; ihit < cluster->GetNofHits(); ihit++) {
+    PndTrkHit *hit = cluster->GetHit(ihit);
+   PndSttTube *tube = (PndSttTube*)  fTubeArray->At(hit->GetTubeID());
+    int sectorID = tube->GetSectorID();
+    if(fabs(sectorID - sector) <  1.2) newcluster.AddHit(hit);
+  }
+  return newcluster;
+}
+
+// MERGING
+
+PndTrkClusterList PndTrkClean::MergeClusters(PndTrkClusterList *clusterlist) {
+  int nmax =  clusterlist->GetNofClusters();
+  
+  cout << "MERGING on " << nmax << endl;
+  std::vector< int> merged;
+  PndTrkClusterList newclusterlist;
+  for(int imax = 0; imax < nmax; imax++) {
+
+    if(find(merged.begin(), merged.end(), imax) != merged.end()) continue;
+
+    PndTrkLegendreCluster *iclus = (PndTrkLegendreCluster*) clusterlist->GetCluster(imax);
+
+    // dont try to merge 1 cluster alone
+    if(nmax < 2) {
+      newclusterlist.AddCluster(iclus);
+      continue;
+    }
+    PndTrkLegendreCluster  *merge = iclus;
+  
+    for(int jmax = imax + 1; jmax < nmax; jmax++) {
+      cout << "COMPARING " << imax << " " << jmax << endl;
+      PndTrkLegendreCluster *jclus = (PndTrkLegendreCluster*) clusterlist->GetCluster(jmax);
+      bool isSimilar = iclus->IsSimilarTo(jclus);
+	    if(isSimilar) {
+	      cout << imax << " is similar to " << jmax << endl;
+	      int nhits = merge->MergeTo(jclus); // CHECK
+	      merged.push_back(jmax);
+	      cout << "MERGING " << iclus->GetNofHits() << " + " << jclus->GetNofHits() << " = " << merge->GetNofHits() << endl;
+	      //	iclus->Print();
+	      //	jclus->Print();
+	      //	merge->Print(); 
+	      cout << "theta/r " << merge->GetTheta() << " " << merge->GetR() << endl;
+	    }
+    }
+
+ 
+    newclusterlist.AddCluster(merge);
+    cout << "ADD CLUSTER " << merge->GetNofHits() << endl;
+  }
+  cout << "FINAL CHECK "<< newclusterlist.GetNofClusters() << endl;
+  for(int iclus = 0; iclus < newclusterlist.GetNofClusters(); iclus++) {
+    PndTrkLegendreCluster *cluster = (PndTrkLegendreCluster* ) newclusterlist.GetCluster(iclus);
+    cluster->Print();
+    cout << "theta-r " << cluster->GetTheta() << " " << cluster->GetR() << endl;
+
+  }
+
+  return  newclusterlist;
+}
+
 ClassImp(PndTrkClean)
  

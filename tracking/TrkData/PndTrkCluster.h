@@ -38,6 +38,8 @@ class PndTrkCluster : public TObject
   void SetIRegion(int iregion) { fIRegion = iregion; }
 
   PndTrkHit *GetHit(int index);
+  PndTrkHit *GetPreviousHit(int index);
+  PndTrkHit *GetNextHit(int index);
 
   inline Int_t  GetNofHits() { return hitlist.GetEntriesFast(); }
   inline Int_t  GetIRegion() { return fIRegion; }
@@ -72,6 +74,8 @@ class PndTrkCluster : public TObject
   void SortFromHit(PndTrkHit *firstextremity, TString criterion);
   friend Bool_t SorterFunction(PndTrkHit *hit1, PndTrkHit *hit2); 
   void Sort();
+  
+  Bool_t IsSorted() { return hitlist.IsSorted(); }
 
  void AddCluster(PndTrkCluster *cluster);
  void AddClusterAndSortFrom(PndTrkCluster *cluster, TVector3 frompoint, TString criterion);

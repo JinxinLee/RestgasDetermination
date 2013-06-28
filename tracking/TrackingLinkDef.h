@@ -32,6 +32,7 @@
 #pragma link C++ class PndTrkSdsHitList+;
 #pragma link C++ class PndTrkSttHitList+;
 #pragma link C++ class PndTrkCluster+;
+#pragma link C++ class PndTrkLegendreCluster+;
 #pragma link C++ class PndTrkClusterList+;
 #pragma link C++ class PndTrkTrack+;
 // #pragma link C++ class PndTrkTrackList+;

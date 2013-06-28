@@ -30,8 +30,8 @@ Bool_t SorterFunction(PndTrkHit *hit1, PndTrkHit *hit2) {
 }
 
 PndTrkCluster::PndTrkCluster() : fIRegion(-1), fFromPoint(0., 0., 0.), hitlist(TObjArray()) {
-}
- 
+} 
+
 PndTrkCluster::PndTrkCluster(const PndTrkCluster& cluster) {
   *this = cluster;
 }
@@ -71,7 +71,7 @@ void PndTrkCluster::DeleteHit(PndTrkHit *hit) {
 
 // CHECK if it works, never tried
 void PndTrkCluster::DeleteHit(Int_t index) {
-    PndTrkHit* hit = (PndTrkHit*) hitlist[index];
+  PndTrkHit* hit = (PndTrkHit*) hitlist[index];
   hitlist.RemoveAt(index);
 }
 
@@ -430,7 +430,6 @@ void PndTrkCluster::SortFromHit(PndTrkHit *firstextremity, TString criterion) {
       hit->SetSortVariable(distance);
     }
 
-    // cout << hit->GetHitID() << " " << hit->GetDetectorID() << " sort var " << hit->GetSortVariable() << endl;
   }
   // sorting 
   Sort() ; 
@@ -438,8 +437,9 @@ void PndTrkCluster::SortFromHit(PndTrkHit *firstextremity, TString criterion) {
 
 void PndTrkCluster::Sort()
 {
-// CHECK each TObject must return IsSortable = kTRUE
-  hitlist.Sort(); // SorterFunction
+  // CHECK each TObject must return IsSortable = kTRUE
+
+  hitlist.Sort(); 
 }
 
 
@@ -541,6 +541,17 @@ Bool_t PndTrkCluster::DoesContain(PndTrkHit *hit) {
 PndTrkHit *PndTrkCluster::GetHit(int index) {
   return (PndTrkHit*) hitlist[index];
 }
+
+PndTrkHit *PndTrkCluster::GetPreviousHit(int index) {
+  if(index == 0) return NULL;
+  return (PndTrkHit*) hitlist[index - 1];
+}
+
+PndTrkHit *PndTrkCluster::GetNextHit(int index) {
+  if(index == GetNofHits() - 1) return NULL;
+  return (PndTrkHit*) hitlist[index + 1];
+}
+
 
 Bool_t PndTrkCluster::IsSimilarTo(PndTrkCluster *cluster2) {
   int similarity = 0;
