@@ -12,6 +12,7 @@
 #include "FairTimeStamp.h"
 #include "TVector3.h"
 #include "PndTrkParameters.h"
+/* #include "TObject.h" */
 
 class PndTrkHit : public FairTimeStamp
 {
@@ -26,6 +27,8 @@ class PndTrkHit : public FairTimeStamp
 
   ~PndTrkHit();    
 
+  virtual Bool_t IsSortable() { return !(fSortVariable == -1); }
+   Int_t Compare(const TObject *hit)  const;
 
   Bool_t operator==(const PndTrkHit & hit1);
   Bool_t operator<(const PndTrkHit & hit1);
@@ -34,7 +37,9 @@ class PndTrkHit : public FairTimeStamp
 
   // CHECK add other set
   void SetIsochrone(Double_t isochrone)      { fIsochrone = isochrone; }
-  void SetSortVariable(Double_t sortvar)     { fSortVariable = sortvar; } 
+  void SetSortVariable(Double_t sortvar)     { fSortVariable = sortvar; }
+
+
   void SetPosition(TVector3 pos)             {fPosition = pos; }
   void SetPhi(Double_t phi)                  { fPhi = phi; }
 
@@ -72,7 +77,6 @@ class PndTrkHit : public FairTimeStamp
   void Draw(Color_t color);
   void Print();
 
- protected:
   // variables
   Int_t fHitID, fDetectorID, fIRegion, fSensorID; 
   Bool_t fUsed;

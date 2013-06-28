@@ -36,8 +36,6 @@ class PndTrkSkewHit : public PndTrkHit
   void Draw(Color_t color);
   void Print();
 
- protected:
-
   // variables
   Int_t fTrackID, fRightIntersection;
   TVector3 fCenter1, fCenter2, fIntersection1,  fIntersection2;

@@ -15,6 +15,7 @@
 // ROOT
 #include "TArc.h"
 #include "TMarker.h"
+#include "TMath.h"
 
 using namespace std;
 
@@ -50,6 +51,22 @@ PndTrkHit::PndTrkHit(Int_t hitID, Int_t detID, Bool_t used, Int_t iregion, Int_t
 PndTrkHit::PndTrkHit(const PndTrkHit &hit) : fHitID(hit.fHitID), fDetectorID(hit.fDetectorID), fUsed(hit.fUsed), fIRegion(hit.fIRegion), fSensorID(hit.fSensorID), fPosition(hit.fPosition), fIsochrone(hit.fIsochrone), fSortVariable(hit.fSortVariable), fPhi(hit.fPhi) {}
 
 PndTrkHit::~PndTrkHit() {}
+
+
+
+
+Int_t PndTrkHit::Compare(const TObject *hit)  const {
+  //  Compare abstract method. Must be overridden if a class wants to be able
+  //  to compare itself with other objects. Must return -1 if this is smaller
+  //  than obj, 0 if objects are equal and 1 if this is larger than obj.
+  if(fSortVariable < ((PndTrkHit*) hit)->fSortVariable) return -1;
+  else if(fSortVariable == ((PndTrkHit*) hit)->fSortVariable) return 0;
+  else return 1;
+}
+
+
+
+
 
 Double_t PndTrkHit::GetDistance(PndTrkHit *fromhit) { 
  TVector3 frompoint = fromhit->GetPosition();
