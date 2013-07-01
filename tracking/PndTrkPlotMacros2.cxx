@@ -371,7 +371,7 @@ void PndTrkPlotMacros2::DrawHexagonCircleInMacro(
  Vec<Double_t> info(In_Put.info,In_Put.MAXSTTHITS*7,"info") ;
 
  Vec<bool> InclusionListSciTil(In_Put.InclusionListSciTil,In_Put.MAXSCITILHITS,"InclusionListSciTil") ;
- Vec<bool> InclusionListStt(In_Put.InclusionListSciTil,In_Put.MAXSTTHITS,"InclusionListSciTil") ;
+ Vec<bool> InclusionListStt(In_Put.InclusionListStt,In_Put.MAXSTTHITS,"InclusionListStt") ;
 	int IVOLTE = In_Put.IVOLTE;
  Vec<Double_t> KAPPA(In_Put.KAPPA,In_Put.MAXTRACKSPEREVENT,"KAPPA") ;
  Vec<bool> keepit(In_Put.keepit,In_Put.MAXTRACKSPEREVENT,"keepit") ;
@@ -1344,7 +1344,6 @@ fprintf(MACRO,
 //--------------
 
        for( i=0; i< Nhits; i++) {
-
 
 
          if( ! In_Put.InclusionListStt[i] ) continue;
@@ -3343,7 +3342,7 @@ void PndTrkPlotMacros2::WriteMacroSttParallelAssociatedHitsandMvdwithMC(
  Vec<Double_t> info(In_Put.info,In_Put.MAXSTTHITS*7,"info") ; // dimensione originale : [MAXSTTHITS][7];
 
  Vec<bool> InclusionListSciTil(In_Put.InclusionListSciTil,In_Put.MAXSCITILHITS,"InclusionListSciTil") ;
- Vec<bool> InclusionListStt(In_Put.InclusionListSciTil,In_Put.MAXSTTHITS,"InclusionListStt") ;
+ Vec<bool> InclusionListStt(In_Put.InclusionListStt,In_Put.MAXSTTHITS,"InclusionListStt") ;
 	int IVOLTE = In_Put.IVOLTE;
  Vec<Double_t> KAPPA(In_Put.KAPPA,In_Put.MAXTRACKSPEREVENT,"KAPPA") ;
  Vec<bool> keepit(In_Put.keepit,In_Put.MAXTRACKSPEREVENT,"keepit") ;
