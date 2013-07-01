@@ -2029,7 +2029,6 @@ MAXSCITILHITSINTRACK,MAXSTTHITSINTRACK,fR,fOx,fOy,FI0,KAPPA);
 
 //	First cleanup based on the absence of Mvd hits
 
-
 	if(fYesCleanMvd){
 
 		// reject the candidate if it is NOT contained in the pipe and
