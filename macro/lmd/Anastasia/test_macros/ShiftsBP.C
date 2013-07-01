@@ -1,0 +1,163 @@
+//void ShiftsBP(TString storePath="/PANDA/pandaroot/macro/lmd/testPixel_sensorsOnly/mom_1_5/"){
+void ShiftsBP(TString storePath="/PANDA/pandaroot/macro/lmd/testPixel_LMDFull/mom_1_5/"){
+
+  // ---- Input file ----------------------------------------------------------------
+  TString in=storePath+"/Lumi_Geane_0.root";
+  TFile *fin = new TFile(in,"READ");
+  // ---------------------------------------------------------------------------------
+
+ // ---- Output file ----------------------------------------------------------------
+  TString out=storePath+"/plotsShiftsBP.root";
+  TFile *fout = new TFile(out,"RECREATE");
+  TString resname_pdf =  storePath+"/plotsShiftsBP.pdf";
+  TString resname_pdf_o = resname_pdf+"(";
+  TString resname_pdf_c = resname_pdf+")";
+  // ---------------------------------------------------------------------------------
+  TTree *tbp = (TTree *)fin->Get("tprop");
+  //  tbp->Print();
+  TH2D *hthz = new TH2D("hthz",";z_{MC}, cm;#theta_{MC}-#theta_{REC}, mrad",600,0,1200,1e2,-5.,5.);
+  tbp->Project("hthz","1e3*(thetamc-thetarec):zmc","thetarec!=0 && abs(zmc-zrec)<100.");
+  hthz->FitSlicesY();
+  hthz_1->SetMinimum(-0.2);
+  hthz_1->SetMaximum(0.2);
+  hthz_1->GetYaxis()->SetTitle("#theta_{MC}-#theta_{REC}, mean [mrad]");
+  TCanvas c1;
+  c1.Divide(2,2);
+  c1.cd(1);
+  hthz_1->Draw();
+  c1.cd(2);
+  hthz_2->SetMinimum(0);
+  hthz_2->SetMaximum(1.5);
+  hthz_2->GetYaxis()->SetTitle("#theta_{MC}-#theta_{REC}, sigma [mrad]");
+  hthz_2->Draw();
+  c1.cd(3);
+  hthz_chi2->Draw();
+  c1.cd(4);
+  hthz->Draw("colz");
+  //  c1.Draw();
+  c1.Write();
+  hthz->Write();
+  c1.Print(resname_pdf_o);
+  TH2D *hxz = new TH2D("hxz",";z_{MC}, cm;x_{MC} - x_{REC}, cm",600,0,1200,1e2,-5.,5.);
+  tbp->Project("hxz","(xmc-xrec):zmc","thetarec!=0 && abs(zmc-zrec)<100.");
+  hxz->FitSlicesY();
+  hxz_1->SetMinimum(-0.1);
+  hxz_1->SetMaximum(0.1);
+  hxz_1->GetYaxis()->SetTitle("x_{MC}-x_{REC}, mean [cm]");
+  TCanvas c2;
+  c2.Divide(2,2);
+  c2.cd(1);
+  hxz_1->Draw();
+  c2.cd(2);
+  hxz_2->SetMinimum(0);
+  hxz_2->SetMaximum(1.);
+  hxz_2->GetYaxis()->SetTitle("x_{MC}-x_{REC}, sigma [cm]");
+  hxz_2->Draw();
+  c2.cd(3);
+  hxz_chi2->Draw();
+  c2.cd(4);
+  hxz->Draw("colz");
+  //  c2.Draw();
+  c2.Write();
+  hxz->Write();
+  c2.Print(resname_pdf_o);
+
+  TH2D *hyz = new TH2D("hyz",";z_{MC}, cm;y_{MC} - y_{REC}, cm",600,0,1200,1e2,-5.,5.);
+  tbp->Project("hyz","(ymc-yrec):zmc","thetarec!=0 && abs(zmc-zrec)<100.");
+  hyz->FitSlicesY();
+  hyz_1->SetMinimum(-0.1);
+  hyz_1->SetMaximum(0.1);
+  hyz_1->GetYaxis()->SetTitle("y_{MC}-y_{REC}, mean [cm]");
+  TCanvas c3;
+  c3.Divide(2,2);
+  c3.cd(1);
+  hyz_1->Draw();
+  c3.cd(2);
+  hyz_2->SetMinimum(0);
+  hyz_2->SetMaximum(1.);
+  hyz_2->GetYaxis()->SetTitle("y_{MC}-y_{REC}, sigma [cm]");
+  hyz_2->Draw();
+  c3.cd(3);
+  hyz_chi2->Draw();
+  c3.cd(4);
+  hyz->Draw("colz");
+  //  c3.Draw();
+  c3.Write();
+  hyz->Write();
+  c3.Print(resname_pdf_o);
+
+  TH2D *hzz = new TH2D("hzz",";z_{MC}, cm;z_{MC} - z_{REC}, cm",600,0,1200,1e2,-1e-2,1e-2);
+  tbp->Project("hzz","(zmc-zrec):zmc","thetarec!=0 && abs(zmc-zrec)<100.");
+  hzz->FitSlicesY();
+  hzz_1->SetMinimum(-0.0001);
+  hzz_1->SetMaximum(0.0001);
+  hzz_1->GetYaxis()->SetTitle("z_{MC}-z_{REC}, mean [cm]");
+  TCanvas c4;
+  c4.Divide(2,2);
+  c4.cd(1);
+  hzz_1->Draw();
+  c4.cd(2);
+  hzz_2->SetMinimum(0);
+  hzz_2->SetMaximum(0.0001);
+  hzz_2->GetYaxis()->SetTitle("z_{MC}-z_{REC}, sigma [cm]");
+  hzz_2->Draw();
+  c4.cd(3);
+  hzz_chi2->Draw();
+  c4.cd(4);
+  hzz->Draw("colz");
+  //  c4.Draw();
+  c4.Write();
+  hzz->Write();
+  c4.Print(resname_pdf_o);
+
+  TH2D *hphz = new TH2D("hphz",";z_{MC}, cm;#phi_{MC} - #phi_{REC}, rad",600,0,1200,1e2,-2e-1,2e-1);
+  tbp->Project("hphz","(phimc-phirec):zmc","thetarec!=0 && abs(zmc-zrec)<100.");
+  hphz->FitSlicesY();
+  hphz_1->SetMinimum(-0.05);
+  hphz_1->SetMaximum(0.05);
+  hphz_1->GetYaxis()->SetTitle("#phi_{MC}-#phi_{REC}, mean [cm]");
+  TCanvas c5;
+  c5.Divide(2,2);
+  c5.cd(1);
+  hphz_1->Draw();
+  c5.cd(2);
+  hphz_2->SetMinimum(0);
+  hphz_2->SetMaximum(0.2);
+  hphz_2->GetYaxis()->SetTitle("#phi_{MC}-#phi_{REC}, sigma [cm]");
+  hphz_2->Draw();
+  c5.cd(3);
+  hphz_chi2->Draw();
+  c5.cd(4);
+  hphz->Draw("colz");
+  //  c5.Draw();
+  c5.Write();
+  hphz->Write();
+  c5.Print(resname_pdf_o);
+
+  TH2D *hmomz = new TH2D("hmomz",";z_{MC}, cm;mom_{MC} - mom_{REC}, keV",600,0,1200,2e1,-1.,1.);
+  tbp->Project("hmomz","1e6*(pmc-prec):zmc","thetarec!=0 && abs(zmc-zrec)<100.");
+  hmomz->FitSlicesY();
+  hmomz_1->SetMinimum(-0.1);
+  hmomz_1->SetMaximum(0.1);
+  hmomz_1->GetYaxis()->SetTitle("mom_{MC}-mom_{REC}, mean [keV]");
+  TCanvas c6;
+  c6.Divide(2,2);
+  c6.cd(1);
+  hmomz_1->Draw();
+  c6.cd(2);
+  hmomz_2->SetMinimum(0);
+  hmomz_2->SetMaximum(0.5);
+  hmomz_2->GetYaxis()->SetTitle("mom_{MC}-mom_{REC}, sigma [keV]");
+  hmomz_2->Draw();
+  c6.cd(3);
+  hmomz_chi2->Draw();
+  c6.cd(4);
+  hmomz->Draw("colz");
+  //  c6.Draw();
+  c6.Write();
+  hmomz->Write();
+  c6.Print(resname_pdf_c);
+
+  fout->Close();
+
+}
