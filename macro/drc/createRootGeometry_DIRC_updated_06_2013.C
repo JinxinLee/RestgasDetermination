@@ -28,7 +28,7 @@ double getX(TVector3 corner1, TVector3 corner2, double yy);
 int findSectorIn(double y, double dphi, double radius, double EVdrop, double hthick);
 int findSectorOut(double y, double dphi_rad, double radiusCornerOut);
 
-void createRootGeometry_DIRC_updated_06_2013(Int_t fFocusingSystem = 0, Bool_t fprizm = kFALSE){ 
+void createRootGeometry_DIRC_updated_06_2013(Int_t fFocusingSystem = 3, Bool_t fprizm = kFALSE){ 
   
   const Double_t pi = 3.1415926535;
 
@@ -42,6 +42,7 @@ void createRootGeometry_DIRC_updated_06_2013(Int_t fFocusingSystem = 0, Bool_t f
   gSystem->Load("libBase");
   gSystem->Load("libPndData");
   gSystem->Load("libPassive");
+  gSystem->Load("libEve");
   
   // variable to achieve the DIRC basic parameters
   PndGeoDrc* fGeo = new PndGeoDrc(); 
@@ -81,7 +82,7 @@ void createRootGeometry_DIRC_updated_06_2013(Int_t fFocusingSystem = 0, Bool_t f
   Double_t fdz_lens1		=  0.; 
   
   //parameters for MCPs:
-  Double_t MCPsize 		= 5.78;//5.9; //[cm] width=height of an MCP
+  Double_t MCPsize 		= 5.76;//5.78;//5.9; //[cm] width=height of an MCP
   Double_t MCPactiveArea	= 5.3; //[cm] width=height of the active area of an MCP
   Double_t MCPgap  		= 0.1; //[cm] gap between MCPs
   Double_t PixelSize 		= 0.65; //[cm] size of a pixel
@@ -99,7 +100,7 @@ void createRootGeometry_DIRC_updated_06_2013(Int_t fFocusingSystem = 0, Bool_t f
   Double_t sob_len      	=  fGeo->EVlen();        // 30. in current version
   Double_t sob_shift    	=  -bbox_hlen + bbox_shift - sob_len; // -150.   
   Double_t sob_angleB		=  fGeo->EVbackAngle();  //90. [degrees] angle of the EV (usually it is 90)
-  Double_t EVdrop		=  0.5;//fGeo->EVdrop();	  //0.7 [cm] drop of the EV - inner radius
+  Double_t EVdrop		=  fGeo->EVdrop();	  //0.7 [cm] drop of the EV - inner radius
   Double_t EVoffset		=  fGeo->EVoffset();	  //0. [cm] offset of the EV - outer radius
   Double_t EVgreaseLayer	=  0.0015;		  //[cm] grease layer thickness btw the bar window and the EV 
   //Double_t sob_angle		=  45.;//fGeo->EVangle();	  //80. [degrees] opening angle of the EV 
@@ -404,7 +405,7 @@ void createRootGeometry_DIRC_updated_06_2013(Int_t fFocusingSystem = 0, Bool_t f
      CylLens1->SetLineColor(kRed-8);
      CylLens1->SetTransparency(40);
      
-     fdz_lens1 = -(bbox_hlen-barWin_hthick) + len - (-Rcyl + Rcyl*(1.-TMath::Cos(Acyl)));
+     fdz_lens1 = -(bbox_hlen - barWin_hthick) + len - (-Rcyl + Rcyl*(1.-TMath::Cos(Acyl)));
      
      //Lens2          
      TGeoTranslation *trCyl2 = new TGeoTranslation("trCyl2", 0., Rcyl + Hcyl2 - hthick, 0.);
@@ -420,7 +421,7 @@ void createRootGeometry_DIRC_updated_06_2013(Int_t fFocusingSystem = 0, Bool_t f
      
      
      
-     fdz_lens2 = -(bbox_hlen-barWin_hthick) + len + (hthick - Rcyl*(1.-TMath::Cos(Acyl)) - Hcyl2);
+     fdz_lens2 = -(bbox_hlen - barWin_hthick) + len + (hthick - Rcyl*(1.-TMath::Cos(Acyl)) - Hcyl2);
      fSlabEnd = -bbox_hlen + bbox_shift;
      cout<<"bar ends at = "<<fSlabEnd<<endl;
      
@@ -462,14 +463,14 @@ void createRootGeometry_DIRC_updated_06_2013(Int_t fFocusingSystem = 0, Bool_t f
     logicbbS = new TGeoBBox("logicbbS", 0.5*barnum*(barwidth+2.*barhgap)+bbSideGap, hthick+boxgap, bbox_hlen-barWin_hthick);
   }
   if(fFocusingSystem == 3){
-    logicbbS = new TGeoBBox("logicbbS", 0.5*barnum*(barwidth+2.*barhgap)+bbSideGap, hthick+boxgap, bbox_hlen-barWin_hthick/*-len/2.*/);
+    logicbbS = new TGeoBBox("logicbbS", 0.5*barnum*(barwidth+2.*barhgap)+bbSideGap, hthick+boxgap, bbox_hlen-barWin_hthick);
   }
   abox = new TGeoVolume("DrcAirBox", logicbbS, gGeoManager->GetMedium("DIRCairNoSens"));
   if(fFocusingSystem == 0 || fFocusingSystem == 1 || fFocusingSystem == 2){ 
     bbox->AddNode(abox, 1, new TGeoCombiTrans(0., 0., barWin_hthick, new TGeoRotation(0)));
   }
   if(fFocusingSystem == 3){
-    bbox->AddNode(abox, 1, new TGeoCombiTrans(0., 0., barWin_hthick/*+len/2.*/, new TGeoRotation(0)));
+    bbox->AddNode(abox, 1, new TGeoCombiTrans(0., 0., barWin_hthick, new TGeoRotation(0)));
   }
   abox->SetLineColor(19); // gray
   
@@ -546,8 +547,8 @@ void createRootGeometry_DIRC_updated_06_2013(Int_t fFocusingSystem = 0, Bool_t f
       dz_bar = len/2.-mirr_hthick;
     }
     if(fFocusingSystem == 3){
-      dz_mirr = bbox_hlen - barWin_hthick -fabs(len)/2. - mirr_hthick;
-      dz_bar = -mirr_hthick;
+      dz_mirr = bbox_hlen - barWin_hthick - mirr_hthick;
+      dz_bar = -mirr_hthick + len/2.;
     }
     if(fFocusingSystem == 1){ // lens
       abox->AddNode(lens1,  1+j, new TGeoCombiTrans(dx, dy, fdz_lens1, new TGeoRotation (0)));
@@ -615,7 +616,7 @@ void createRootGeometry_DIRC_updated_06_2013(Int_t fFocusingSystem = 0, Bool_t f
   }
     
   TGeoCompositeShape *logicEV = new TGeoCompositeShape("logicEV","logicEV1 + logicEV2 + logicEV3 + logicEV4");
-  TGeoVolume* baseEV = new TGeoVolume("DrcEVSensor", logicEV, gGeoManager->GetMedium("FusedSil"));//Marcol82_7_m);  //####################################
+  TGeoVolume* baseEV = new TGeoVolume("DrcEVSensor", logicEV, gGeoManager->GetMedium("Marcol82_7"));//("FusedSil"));//Marcol82_7_m);
   baseEV->SetLineColor(kMagenta+2);
   baseEV->SetTransparency(50);
   vLocalMother->AddNode(baseEV, 1, new TGeoCombiTrans(0.,0.,sob_shift - EVgreaseLayer, new TGeoRotation(0)));
@@ -822,6 +823,7 @@ void createRootGeometry_DIRC_updated_06_2013(Int_t fFocusingSystem = 0, Bool_t f
 
   top->CheckOverlaps(0.0001, "");
   gGeoManager->CheckOverlaps(0.00001,""); // [cm]
+  gGeoManager->SetVisLevel(4);
   //gGeoManager->CheckGeometryFull();
 
   top->Write();
