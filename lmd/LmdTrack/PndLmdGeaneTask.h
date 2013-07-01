@@ -23,6 +23,7 @@
 #include "FairGeanePro.h"
 #include "TMatrixD.h"
 #include "TVector3.h"
+#include "TNtuple.h"
 //#include "PndSdsGeoHandling.h"
 #include "PndGeoHandling.h"
 #include <vector>
@@ -80,6 +81,7 @@ class PndLmdGeaneTask : public FairTask
 
   TClonesArray* fTracks; //Real tracks
   TClonesArray* fHits; //Real hits
+  TNtuple *tprop;//Info for forward-backward propagation
   // Output Data -------
 
 
