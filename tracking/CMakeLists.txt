@@ -82,12 +82,14 @@ TrkData/PndTrkHitList.cxx
 TrkData/PndTrkSdsHitList.cxx
 TrkData/PndTrkSttHitList.cxx
 TrkData/PndTrkCluster.cxx
+TrkData/PndTrkLegendreCluster.cxx 
 TrkData/PndTrkClusterList.cxx
 TrkData/PndTrkTrack.cxx
 TrkData/PndTrkConformalHit.cxx
 TrkData/PndTrkConformalHitList.cxx
 #
 TrkSecondary/PndTrkLegendreTask.cxx
+TrkSecondary/PndTrkLegendreSecTask.cxx 
 #
 TrkStructure/PndTrkQATask.cxx
 )
