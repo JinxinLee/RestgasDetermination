@@ -28,7 +28,7 @@ double getX(TVector3 corner1, TVector3 corner2, double yy);
 int findSectorIn(double y, double dphi, double radius, double EVdrop, double hthick);
 int findSectorOut(double y, double dphi_rad, double radiusCornerOut);
 
-void createRootGeometry_DIRC_updated_06_2013(Int_t fFocusingSystem = 3, Bool_t fprizm = kFALSE){ 
+void createRootGeometry_DIRC_updated_06_2013(Int_t fFocusingSystem = 0, Bool_t fprizm = kFALSE){ 
   
   const Double_t pi = 3.1415926535;
 
@@ -157,7 +157,7 @@ void createRootGeometry_DIRC_updated_06_2013(Int_t fFocusingSystem = 3, Bool_t f
   cout << "geoface readmedia" << endl;
   geoFace->readMedia();
   //cout << "geoface print" << endl;
-  //geoFace->print();
+  geoFace->print();
   //cout << "geoface done" << endl; 
   
   FairGeoMedia *Media =  geoFace->getMedia();
@@ -170,9 +170,9 @@ void createRootGeometry_DIRC_updated_06_2013(Int_t fFocusingSystem = 3, Bool_t f
   FairGeoMedium *DrcCarbonFiber = Media->getMedium("DIRCcarbonFiber");
   FairGeoMedium *DrcFusedSil    = Media->getMedium("FusedSil");
   FairGeoMedium *DrcMirror      = Media->getMedium("Mirror");
-  FairGeoMedium *DrcMarcol82_7  = Media->getMedium("Marcol82-7");
+  FairGeoMedium *DrcMarcol82_7  = Media->getMedium("Marcol82_7");
   FairGeoMedium *DrcNLAK33A     = Media->getMedium("NLAK33A");
-  FairGeoMedium *DrcPhotocathode= Media->getMedium("Photocathode");
+  FairGeoMedium *DrcPhotocathode= Media->getMedium("Photocathode");  
   
   Int_t nmed=geobuild->createMedium(DrcAir);
   nmed=geobuild->createMedium(DrcAirNoSens);
