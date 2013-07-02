@@ -14,7 +14,6 @@ class TH2F;
 #include "RhoSelector/RhoMassParticleSelector.h"
 class PndAnalysis;
 class RhoCandList;
-class PndMcTruthMatch;
 class TStopwatch;
 class RhoTuple;
 
@@ -57,7 +56,6 @@ class PndMyAnalysisTask : public FairTask
     int  SelectPdgCode(RhoCandList& mct, RhoCandList& l);
 
     RhoMassParticleSelector* jpsiMassSel;
-    PndMcTruthMatch* mcm;
 
     /**book all the histograms**/
     TH1F* hjpsim_nopid;

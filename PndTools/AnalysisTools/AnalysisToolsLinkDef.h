@@ -34,7 +34,7 @@
 #pragma link C++ class PndAnaPidSelector+;
 #pragma link C++ class PndAnaContFact+;
 #pragma link C++ class PndAnaSelectorPar+;
-#pragma link C++ class PndMcTruthMatch+;
+//#pragma link C++ class PndMcTruthMatch+;
 #pragma link C++ class PndGoodTrackSelector;
 
 

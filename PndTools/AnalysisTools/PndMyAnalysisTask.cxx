@@ -28,7 +28,6 @@
 // Analysis Tools
 #include "PndMyAnalysisTask.h"
 #include "PndAnalysis.h"
-#include "PndMcTruthMatch.h"
 
 // Fitters
 #include "Pnd4CFitter.h"
@@ -97,7 +96,6 @@ InitStatus PndMyAnalysisTask::Init()
   // **** mass selector and McTruthMatcher
   //
   jpsiMassSel = new RhoMassParticleSelector("jpsiSelector" , 3.097, 0.6);
-  mcm      = new PndMcTruthMatch();
 
   evcount=0;
   epmax=0;
@@ -155,15 +153,11 @@ void PndMyAnalysisTask::Exec(Option_t* opt)
   //
   //RhoCandList eplus, eminus, piplus, piminus, jpsi, psi, mctrk;
 
-  RhoCandList all, chrg, mctrk, el, eplus, eminus, piplus, piminus, jpsi, jpsi2, psi2s;
+  RhoCandList all, chrg, el, eplus, eminus, piplus, piminus, jpsi, jpsi2, psi2s;
   RhoCandList epsel, emsel;
 
   TLorentzVector ini(0, 0, 6.231552, 7.240065);
 
-
-  // *** the MC Truth objects
-
-  theAnalysis->FillList(mctrk,"McTruth");
 
 //  cout <<"    #### mct="<<mctrk.GetLength()<<endl;
 
@@ -174,13 +168,11 @@ void PndMyAnalysisTask::Exec(Option_t* opt)
   theAnalysis->FillList(piminus, "PionAllMinus","PidAlgoEmcBayes");
 
 
-  int nmc = mctrk.GetLength();
   int nep = eplus.GetLength();
   int nem = eminus.GetLength();
   int npip = piplus.GetLength();
   int npim = piminus.GetLength();
 
-  if (nmc>mcmax) { mcmax=nmc; }
   if (nep>epmax) { epmax=nep; }
   if (nem>emmax) { emmax=nem; }
   if (npip>pipmax) { pipmax=npip; }
@@ -200,7 +192,7 @@ void PndMyAnalysisTask::Exec(Option_t* opt)
   jpsi.SetType("J/psi");
   for (j=0; j<jpsi.GetLength(); ++j) {
     hjpsim_nopid->Fill( jpsi[j]->M() );
-    if (mcm->MctMatch(jpsi[j], mctrk)) { hjpsim_ftm->Fill( jpsi[j]->M() ); }
+    if (theAnalysis->McTruthMatch(jpsi[j])) { hjpsim_ftm->Fill( jpsi[j]->M() ); }
     else { hjpsim_nm->Fill( jpsi[j]->M() ); }
   }
 
@@ -220,7 +212,7 @@ void PndMyAnalysisTask::Exec(Option_t* opt)
       hvpos->Fill(jVtx.X(),jVtx.Y());
     }
 
-    bool match = mcm->MctMatch(jpsi[j], mctrk);
+    bool match = theAnalysis->McTruthMatch(jpsi[j]);
 
     //ntp->Fill(jpsi[j]->M(),jfit->M(),chi2_vtx,jVtx.X(),jVtx.Y(),jVtx.Z(),match);
 
@@ -270,7 +262,7 @@ void PndMyAnalysisTask::Exec(Option_t* opt)
 
   for (j=0; j<psi2s.GetLength(); ++j) {
     hpsim_nopid->Fill( psi2s[j]->M() );
-    if (mcm->MctMatch(psi2s[j], mctrk)) {
+    if (theAnalysis->McTruthMatch(psi2s[j])) {
       hpsim_ftm->Fill( psi2s[j]->M() );
        
       ///TODO  recheck the MC truth access! Is the truth list available?
@@ -308,8 +300,8 @@ void PndMyAnalysisTask::Exec(Option_t* opt)
     RhoCandidate* pim = psi2s[j]->Daughter(2);
     RhoCandidate* jpsic = psi2s[j]->Daughter(0);
 
-    bool match = mcm->MctMatch(psi2s[j], mctrk);
-    bool matchj = mcm->MctMatch(*jpsic, mctrk);
+    bool match = theAnalysis->McTruthMatch(psi2s[j]);
+    bool matchj = theAnalysis->McTruthMatch(jpsic);
 
     ntp2->Column("psim",    psi2s[j]->M(),   -1.);
     ntp2->Column("fcchi2",  chi2_4c,    9999.);
@@ -373,11 +365,6 @@ void PndMyAnalysisTask::Exec(Option_t* opt)
     if (chi2_m<2) { hjpsim_mcf->Fill(jpsi[j]->M()); }
   }
 
-  // *** do MC truth match for PID type
-  SelectPdgCode(mctrk, eplus);
-  SelectPdgCode(mctrk, eminus);
-  SelectPdgCode(mctrk, piplus);
-  SelectPdgCode(mctrk, piminus);
 
   // *** all combinatorics again with true PID
   jpsi.Combine(eplus, eminus);

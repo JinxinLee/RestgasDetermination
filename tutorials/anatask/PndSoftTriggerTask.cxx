@@ -29,7 +29,6 @@
 // Analysis Tools
 #include "PndSoftTriggerTask.h"
 #include "PndAnalysis.h"
-#include "PndMcTruthMatch.h"
 
 // Fitters
 #include "Pnd4CFitter.h"
@@ -157,7 +156,6 @@ InitStatus PndSoftTriggerTask::Init()
 	
 	// **** mass selector and McTruthMatcher
 	//
-	mcm      = new PndMcTruthMatch();
   
 	evcount=0;
  	
@@ -222,27 +220,19 @@ void PndSoftTriggerTask::Exec(Option_t* opt)
 	//
 	//RhoCandList eplus, eminus, piplus, piminus, jpsi, psi, mctrk;   
 	 
-	RhoCandList all, chrg, neut, mctrk;	
+	RhoCandList all, chrg, neut;	
     RhoCandList ep, em, mup, mum, pip, pim, kp, km, pp, pm;
 	RhoCandList Jpsi, D0, D0b, Dpm, Dm, Ds, Dsb, Lamc, Lamcb, Phi;
-	
-	// *** the MC Truth objects
-
-	theAnalysis->FillList(mctrk,"McTruth");
 		
-//	cout <<"    #### mct="<<mctrk.GetLength()<<endl;
-	
 	// *** Select with no PID info ('All'); type and mass are set 		
 	theAnalysis->FillList(all ,   "All");
 	theAnalysis->FillList(chrg,   "Charged");
 	theAnalysis->FillList(neut,  "Neutral");
 	
-	int nmc = mctrk.GetLength();
 	int nch = chrg.GetLength();
 	int nneut = neut.GetLength();
 	int nall = all.GetLength();
 	
-	if (nmc>mcmax) mcmax=nmc;
 	if (nch>chmax) chmax=nch;
 	if (nneut>neutmax) neutmax=nneut;
 	if (nall>allmax) allmax=nall;
@@ -325,7 +315,7 @@ void PndSoftTriggerTask::Exec(Option_t* opt)
 		
 		h_jpsi->Fill(m);
 		
-		if (mcm->MctMatch(Jpsi.Get(j), mctrk)) h_jpsit->Fill(m);
+		if (theAnalysis->McTruthMatch(Jpsi.Get(j))) h_jpsit->Fill(m);
 		
 		if (fabs(m-fJMass)<fJMassCut) 
 		{
@@ -344,7 +334,7 @@ void PndSoftTriggerTask::Exec(Option_t* opt)
 		
 		h_d0->Fill(m);
 		
-		if (mcm->MctMatch(D0.Get(j), mctrk)) h_d0t->Fill(m);
+		if (theAnalysis->McTruthMatch(D0.Get(j))) h_d0t->Fill(m);
 		
 		if (fabs(m-fD0Mass)<fD0MassCut ) 
 		{
@@ -379,7 +369,7 @@ void PndSoftTriggerTask::Exec(Option_t* opt)
 		h_d0_pocz->Fill(vtx.Z());
 		
 		// store mc truth matched cands
-		if (mcm->MctMatch(Dpm.Get(j), mctrk)) 
+		if (theAnalysis->McTruthMatch(Dpm.Get(j))) 
 		{
 			h_dpmt->Fill(m);
 			h_d0_pocxm->Fill(vtx.X());
@@ -405,7 +395,7 @@ void PndSoftTriggerTask::Exec(Option_t* opt)
 		
 		h_ds->Fill(m);
 		
-		if (mcm->MctMatch(Ds.Get(j), mctrk))  h_dst->Fill(m);
+		if (theAnalysis->McTruthMatch(Ds.Get(j)))  h_dst->Fill(m);
 		
 		if ( fabs(m-fDsMass)<fDsMassCut ) 
 		{
@@ -423,7 +413,7 @@ void PndSoftTriggerTask::Exec(Option_t* opt)
 		
 		h_phi->Fill(m);
 		
-		if (mcm->MctMatch(Phi.Get(j), mctrk)) h_phit->Fill(m);
+		if (theAnalysis->McTruthMatch(Phi.Get(j))) h_phit->Fill(m);
 		
 		if (fabs(m-fPhiMass)<fPhiMassCut ) 
 		{
@@ -441,7 +431,7 @@ void PndSoftTriggerTask::Exec(Option_t* opt)
 		
 		h_lamc->Fill(m);
 		
-		if ( mcm->MctMatch(Lamc.Get(j), mctrk)) h_lamct->Fill(m);
+		if (theAnalysis->McTruthMatch(Lamc.Get(j))) h_lamct->Fill(m);
 			
 		if ( fabs(m-fLamcMass)<fLamcMassCut ) 
 		{

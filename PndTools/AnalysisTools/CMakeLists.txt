@@ -47,7 +47,7 @@ PndAnaPidCombiner.cxx
 PndAnaPidSelector.cxx
 PndAnaContFact.cxx
 PndAnaSelectorPar.cxx
-PndMcTruthMatch.cxx
+#PndMcTruthMatch.cxx
 PndGoodTrackSelector.cxx
 Fitter/PndVtxFitterParticle.cxx
 Fitter/PndVtxFitter_Init.cxx

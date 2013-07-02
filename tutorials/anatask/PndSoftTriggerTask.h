@@ -14,7 +14,6 @@ class TH2F;
 class RhoMassParticleSelector;
 class PndAnalysis;
 class RhoCandList;
-class PndMcTruthMatch;
 class TStopwatch;
 class RhoTuple;
 
@@ -70,8 +69,6 @@ class PndSoftTriggerTask : public FairTask
 	int  RemoveDoubles(RhoCandList &l, double limit=0.0001);
 	void SelectPid(int type, int pdg, int chrg, RhoCandList &l, RhoCandList &lpid, double cut=0.2);
 	void ConfigureHistos(TH1F *hall, TH1F *htrue, TH1F *hsel); 
-
-	PndMcTruthMatch *mcm;
 	
 	/**book all the histograms**/
 	TH1F *h_mom;
