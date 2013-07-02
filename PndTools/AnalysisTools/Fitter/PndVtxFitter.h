@@ -82,7 +82,7 @@ class PndVtxFitter : public RhoFitterBase
     Int_t       m_necessaryTrackNum;
     Int_t       m_errorFlag;
     Int_t       m_overIterationFlag;
-    Double_t    m_magField;
+//     Double_t    m_magField;
 
     //  TMatrixDSym  m_V_al_0;
     TMatrixD     m_V_al_0;

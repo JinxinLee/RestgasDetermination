@@ -3,6 +3,7 @@
 #include "PndKinVtxFitter.h"
 #include "RhoBase/RhoCandListIterator.h"
 #include "RhoBase/RhoFactory.h"
+#include "RhoCalculationTools.h"
 #include "TDecompLU.h"
 #include "TMatrixD.h"
 #include "TMatrixDSym.h"
@@ -296,7 +297,8 @@ void PndKinVtxFitter::SetOutput(RhoCandidate* head)
   for (int k=0; k<nd; k++) {
     //skip locked daughters
     if(fDaughters[k]->IsLocked()) continue;
-    a = -0.00299792458*2.0*fDaughters[k]->GetCharge();//TODO BField
+    Double_t bField = 0.1*RhoCalculationTools::GetBz(fDaughters[k]->Pos()); // T, assume field in z only
+    a = -0.00299792458*bField*fDaughters[k]->GetCharge();
     sumA += a;
     TVector3 pos(al0[k*7+4][0],al0[k*7+5][0],al0[k*7+6][0]);
 //std::cout<<" --"<<k<<"-- ("<<pos.x()<<";"<<pos.y()<<";"<<pos.z()<<")"<<std::endl;
@@ -450,8 +452,8 @@ void PndKinVtxFitter::ReadKinMatrix()
     double py = al1[kN+1][0];
     double pz = al1[kN+2][0];
     double ch=fDaughters[k]->GetCharge();
-    //double bField = TRho::Instance()->GetMagnetField();  //unused, why?
-    double a = -0.0029979246*ch*2.0; //TODO: is bfield put here manually?
+    Double_t bField = 0.1*RhoCalculationTools::GetBz(fDaughters[k]->Pos()); // T, assume field in z only
+    double a = -0.0029979246*ch*bField;
     double pT_2 = px*px + py*py;
 
     double J = a*(delX*px + delY*py)/pT_2;
@@ -621,7 +623,8 @@ void PndKinVtxFitter::ReadMassKinMatrix()
     double pz = al1p[kN+2][0];
     //    double E = al1p[kN+3][0];
     double E = TMath::Sqrt(px*px+py*py+pz*pz+m[k][0]*m[k][0]);
-    a = -0.00299792458*2.0*fDaughters[k]->GetCharge();//TODO BField
+    Double_t bField = 0.1*RhoCalculationTools::GetBz(fDaughters[k]->Pos()); // T, assume field in z only
+    a = -0.00299792458*bField*fDaughters[k]->GetCharge();//TODO BField
     sumA += a;
     Double_t invE = 1./E;
 
@@ -780,8 +783,6 @@ Float_t PndKinVtxFitter::GetPocaVtx(TVector3& vertex, RhoCandidate* a, RhoCandid
   //  RhoCandidate b=fDaughters[1];
   //  SVtx->SetXYZ( 0.5, 0.5, 1.0 );
 //  SVtx->SetXYZ( 0.0, 0.0, 0.0 );
-  //Float_t bField = TRho::Instance()->GetMagnetField();
-  Double_t bField=2.0;//TODO BField
   // Position vectors
   TVector3 position1 = a->GetPosition();
   TVector3 position2 = b->GetPosition();
@@ -799,16 +800,17 @@ Float_t PndKinVtxFitter::GetPocaVtx(TVector3& vertex, RhoCandidate* a, RhoCandid
   d2.SetZ(0);
   d2*=1.0/pPerp2;
 
-
+  Double_t bField1 = 0.1*RhoCalculationTools::GetBz(position1); // T, assume field in z only
   TVector3 dB(0,0,1.0);
   // Radius and center
-  Double_t rho1 = pPerp1/(0.0029979246*bField); // Radius in cm
+  Double_t rho1 = pPerp1/(0.0029979246*bField1); // Radius in cm
   TVector3 r1=d1.Cross(dB);
   r1 *= -a->Charge()*rho1;
   TVector3 center1 = position1 - r1;
   center1.SetZ(0);
 
-  Double_t rho2 =  pPerp2/(0.0029979246*bField); // Radius in cm
+  Double_t bField2 = 0.1*RhoCalculationTools::GetBz(position2); // T, assume field in z only
+  Double_t rho2 =  pPerp2/(0.0029979246*bField2); // Radius in cm
   TVector3 r2=d2.Cross(dB);
   r2 *= -b->Charge()*rho2;
   TVector3 center2 = position2 - r2;
@@ -888,7 +890,8 @@ void PndKinVtxFitter::TransportToVertex(TMatrixD& a_in, TMatrixD& a_cov_in, TMat
   for(int k=0; k<nd; k++) {
     kN=7*k;
 
-    double a = -0.00299792458*2.0*fDaughters[k]->GetCharge();//TODO BField
+    Double_t bField = 0.1*RhoCalculationTools::GetBz(fDaughters[k]->Pos()); // T, assume field in z only
+    double a = -0.00299792458*bField*fDaughters[k]->GetCharge();
     //   if(fVerbose) cout << "a" << a << endl;
 
     double px=a_in[kN+0][0];
@@ -962,7 +965,8 @@ void PndKinVtxFitter::GetCovariance(TMatrixD& a_cov0, TMatrixD& cov_al_x, TMatri
   for (int k=0; k<nd; k++) {
     kN=k*7;
     jN=k*4;
-    a = -0.00299792458*2.0*fDaughters[k]->GetCharge();//TODO BField
+    Double_t bField = 0.1*RhoCalculationTools::GetBz(fDaughters[k]->Pos()); // T, assume field in z only
+    a = -0.00299792458*bField*fDaughters[k]->GetCharge();
     sumA += a;
     pA[jN][kN]=pA[jN+1][kN+1]=pA[jN+2][kN+2]=pA[jN+3][kN+3]=1;
     pA[jN+1][kN+4]=-a;

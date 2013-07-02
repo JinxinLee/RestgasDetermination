@@ -5,7 +5,7 @@
 #include "TDecompLU.h"
 #include "TMatrixD.h"
 #include "TMatrixDSym.h"
-
+#include "RhoTools/RhoCalculationTools.h"
 using namespace std;
 
 ClassImp(PndKinFitter)
@@ -185,7 +185,8 @@ void PndKinFitter::SetOutput()
   double a;
 
   for (int k=0; k<nd; k++) {
-    a = -0.00299792458*2.0*fDaughters[k]->GetCharge();
+    Double_t bField = 0.1*RhoCalculationTools::GetBz(fDaughters[k]->Pos()); // T, assume field in z only
+    a = -0.00299792458*bField*fDaughters[k]->GetCharge();
     sumA += a;
     m[k][0]=fDaughters[k]->P4().M();
     TVector3 pos(fAl0[k*7+4][0],fAl0[k*7+5][0],fAl0[k*7+6][0]);
@@ -329,7 +330,8 @@ void PndKinFitter::ReadMassKinMatrix()
     double py = al1p[kN+1][0];
     double pz = al1p[kN+2][0];
     double E = TMath::Sqrt(px*px+py*py+pz*pz+m[k][0]*m[k][0]);
-    a = -0.00299792458*2.0*fDaughters[k]->GetCharge();
+    Double_t bField = 0.1*RhoCalculationTools::GetBz(fDaughters[k]->Pos()); // T, assume field in z only
+    a = -0.00299792458*bField*fDaughters[k]->GetCharge();
     Double_t invE = 1./E;
 //....................................................
     fmD[fNc+0][kN+0] = 2.*(Etot*px*invE-Px);

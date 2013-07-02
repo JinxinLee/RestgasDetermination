@@ -16,7 +16,7 @@
 #include "PndVtxFitter_Init.h"
 #include "PndVtxFitterError.h"
 #include "RhoBase/RhoFactory.h"
-
+#include "RhoTools/RhoCalculationTools.h"
 using namespace std;
 
 ClassImp ( PndVtxFitter )
@@ -39,7 +39,7 @@ PndVtxFitter::PndVtxFitter ( RhoCandidate* b ) : RhoFitterBase ( b )
   m_knownVertex=0;
   m_tube=0;
   m_itrk_tube=-1;
-  m_magField=KF_MAGNETIC_FIELD;
+//   m_magField=KF_MAGNETIC_FIELD;
   m_necessaryTrackNum = 2;
 }
 
@@ -498,6 +498,7 @@ unsigned PndVtxFitter::SetInputMatrix()
 
   for ( Int_t i=0; i<fDaughters.GetLength(); i++ ) {
     RhoCandidate* tc=fDaughters[i];
+    Double_t bField = 0.1*RhoCalculationTools::GetBz(fDaughters[i]->Pos()); // T, assume field in z only
     //cout <<"charge:"<<tc->GetCharge()<<endl;
     TMatrixD mat7=tc->Cov7();
 
@@ -511,9 +512,9 @@ unsigned PndVtxFitter::SetInputMatrix()
     tmp_al_0[index* KF_NUM6+5][0] = tc->Pos().Z();
 
     tmp_V_al_0.SetSub ( index*KF_NUM6, tmp_ErrCov ); //Dipak
-    tmp_property[index][0] =  tc->GetCharge() /3;
+    tmp_property[index][0] =  tc->GetCharge() /3;//FIXME: Why charge/3 ??
     tmp_property[index][1] = tc->P4().M();//get the mass:Dummy value set by hand :Dipak
-    tmp_property[index][2] = -KF_PHOTON_VELOCITY*m_magField*tc->GetCharge() /3;
+    tmp_property[index][2] = -KF_PHOTON_VELOCITY*bField*tc->GetCharge() /3; //FIXME: Why charge/3 ??
 
     ++index;
   }

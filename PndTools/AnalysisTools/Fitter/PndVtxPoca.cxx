@@ -68,7 +68,7 @@ Double_t PndVtxPoca::GetPocaVtx(TVector3& vertex, RhoCandidate* composite)
 Double_t PndVtxPoca::GetPoca(TVector3& vertex,RhoCandidate* a, RhoCandidate* b)
 {
   vertex.SetXYZ(0.,0.,0.);
-  Double_t bField = 0.1*PndAnalysisCalcTools::GetBz(vertex); // T, assume field in z only
+  Double_t bField = 0.1*RhoCalculationTools::GetBz(vertex); // T, assume field in z only
   Double_t bc = 0.0029979246*bField;
   TVector3 dB(0,0,1.0);
   TVector3 position1 = a->GetPosition();

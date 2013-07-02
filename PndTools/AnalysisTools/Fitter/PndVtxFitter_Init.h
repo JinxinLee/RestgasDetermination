@@ -26,7 +26,7 @@ const unsigned KF_MAX_TRACK_NUMBER2    = 30;
 const unsigned KF_MAX_ITERATION_NUMBER = 15;
 const double   KF_INIT_CHI2            = 1.0e+30;
 
-const double   KF_MAGNETIC_FIELD       = 2.;
+// const double   KF_MAGNETIC_FIELD       = 2.;
 
 #define KF_WITH_OLD_INTERFACE 1
 #define KF_WITH_BELLE_INTERFACE 1

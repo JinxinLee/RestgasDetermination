@@ -1198,7 +1198,7 @@ RhoCandidate::Origin() const
 
 void RhoCandidate::PrintOn ( std::ostream& o ) const
 {
-  o <<"uid:"<<Uid() <<" trk:"<<GetTrackNumber() << " (" << P4().X() << "," << P4().Y() << "," << P4().Z() << ";" << P4().T() <<  ") " << Charge() << " " << Mass() << " GeV/c2 ";
+  o <<"uid:"<<Uid() <<" trk:"<<GetTrackNumber() << " (" << P4().X() << "," << P4().Y() << "," << P4().Z() << ";" << P4().T() <<  ") " << Charge() <<"e" << " " << Mass() << " GeV/c2 ";
   o.setf ( ios::hex | ios::showbase );
   o << " ("
     << GetMarker ( 3 )
@@ -1212,9 +1212,11 @@ void RhoCandidate::PrintOn ( std::ostream& o ) const
   o.unsetf ( ios::hex | ios::showbase );
 
   // print daughter links
-  o << "d: "<< fNDaug;
+  o << "daughters: "<< fNDaug <<"(";
   for ( int i=0; i<fNDaug; i++ ) { o << " " << fDaughters[i]->Uid(); }
+  o <<")";
   if ( DecayVtx() ) { o << " dcy: "<<*DecayVtx(); }
+  o << " pdg: " <<fPdgCode;
   o << " PID:";
   for ( int k=0; k<5; k++ ) { o << fPidLH[k] <<","; } // take the first 5 pid entries to check charged p,pi,e,mu,K
   o << "  mc truth pointer: " <<fMcTruth;  
