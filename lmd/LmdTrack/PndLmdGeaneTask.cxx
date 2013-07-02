@@ -27,7 +27,8 @@
 #include "FairTrackParP.h"
 #include "TDatabasePDG.h"
 #include "PndTrack.h"
-
+#include "FairRunAna.h"
+#include "PndMultiField.h"
 // PndSds includes
 #include "PndSdsMCPoint.h"
 #include "PndSdsHit.h"
@@ -53,7 +54,25 @@ PndLmdGeaneTask::PndLmdGeaneTask(Double_t pBeam,TVector3 IP): FairTask("Geane Ta
   vtx = IP;
   cout<<"Interaction Point:"<<endl;
   vtx.Print();
-  tprop = new TNtuple("tprop","forward MC vs. backward rec","xrec:yrec:zrec:prec:thetarec:phirec:xmc:ymc:zmc:pmc:thetamc:phimc") ;
+  // tprop = new TNtuple("tprop","forward MC vs. backward rec","xrec:yrec:zrec:prec:thetarec:phirec:xmc:ymc:zmc:pmc:thetamc:phimc") ;
+  tprop = new TTree("tprop","forward MC vs. backward rec with Mag.Field comp@MC point");
+  tprop->Branch("xrec",&fxrec);
+  tprop->Branch("yrec",&fyrec);
+  tprop->Branch("zrec",&fzrec);
+  tprop->Branch("xmc",&fxmc);
+  tprop->Branch("ymc",&fymc);
+  tprop->Branch("zmc",&fzmc);
+  tprop->Branch("thetarec",&fthetarec);
+  tprop->Branch("phirec",&fphirec);
+  tprop->Branch("prec",&fprec);
+  tprop->Branch("thetamc",&fthetamc);
+  tprop->Branch("phimc",&fphimc);
+  tprop->Branch("pmc",&fpmc);
+  tprop->Branch("Bx",&fbx);
+  tprop->Branch("By",&fby);
+  tprop->Branch("Bz",&fbz);
+ 
+
 }
 
 
@@ -114,6 +133,8 @@ InitStatus PndLmdGeaneTask::Init()
   FairRun* fRun = FairRun::Instance();
   FairRuntimeDb* rtdb = fRun->GetRuntimeDb();
  
+  pndField = FairRunAna::Instance()->GetField();
+
   return kSUCCESS;
 }
 // -------------------------------------------------------------------------
@@ -129,6 +150,10 @@ void PndLmdGeaneTask::SetParContainers()
 // -----   Public method Exec   --------------------------------------------
 void PndLmdGeaneTask::Exec(Option_t* opt)
 {
+  // if(fVerbose>5){
+  //   if((fTracks->GetEntries())!=(fMCTracks->GetEntries()))
+  //     return;
+  //     }
   // cout<<"PndLmdGeaneTask::Exec starts!"<<endl;
   std::map<int, std::vector<int> > mcHitMap;//Track ->  MCHits
   fTrackParGeane->Delete();
@@ -191,13 +216,13 @@ void PndLmdGeaneTask::Exec(Option_t* opt)
 	 StartPos.Print();
 	 cout<<"StartPosErr:"<<endl;
 	 StartPosErr.Print();
-	 cout<<""<<endl;
+
 	 cout<<"StartMom: "<<StartMom.Mag()<<endl;
 	 StartMom.Print();
 	 cout<<"StartMomErr: "<<StartMomErr.Mag()<<endl;
 	 StartMomErr.Print();     
-
-	 if(fVerbose>5){ //check results for MC track propagation to LMD plane
+	 cout<<""<<endl;
+	 if(fVerbose>5 &&  (fTracks->GetEntries()==fMCTracks->GetEntries())){ //check results for MC track propagation to LMD plane
 	   FairTrackParP *fStartPst = new FairTrackParP(fFittedTrkP);
 	   TVector3 istLMD(fStartPst->GetIVer());
 	   TVector3 jstLMD(fStartPst->GetJVer());
@@ -225,14 +250,39 @@ void PndLmdGeaneTask::Exec(Option_t* opt)
 	   fPro->PropagateFromPlane(djMC,dkMC);//1st detector plane
 	   fPro->PropagateToPlane(istLMD,jstLMD,kstLMD);//virtual plane at fixed z
 	   Bool_t isPropMC = fPro->Propagate(fStartMC, fResMC, PDGCode);
-	   cout<<" MC-LMD (POINT):"<<endl;
+	   //   cout<<" MC-LMD (POINT):"<<endl;
 	   TVector3 finPosMC(fResMC->GetX(),fResMC->GetY(),fResMC->GetZ());
-	   finPosMC.Print();
-	   cout<<" MC-LMD (DIR):"<<endl;
+	   //finPosMC.Print();
+	   // cout<<" MC-LMD (DIR):"<<endl;
 	   TVector3 finDirMC(fResMC->GetPx(),fResMC->GetPy(),fResMC->GetPz());
-	   finDirMC.Print();
+	   //finDirMC.Print();
 	   if(isPropMC){
-	     tprop->Fill(StartPos.X(),StartPos.Y(),StartPos.Z(),StartMom.Mag(),StartMom.Theta(),StartMom.Phi(),finPosMC.X(),finPosMC.Y(),finPosMC.Z(),finDirMC.Mag(),finDirMC.Theta(),finDirMC.Phi());
+	     double pnt[3]={finPosMC.X(),finPosMC.Y(),finPosMC.Z()}; //Position where to get field strength
+	     double Bf[3]; //result goes here
+	     // retrieve the field from the framework
+	     //    FairField* pndField = FairRunAna::Instance()->GetField();
+	     pndField->Field(pnt, Bf);  //[kGs]
+	     //   cout<<"^^^^ Bf = ("<<Bf[0]<<", "<<Bf[1]<<", "<<Bf[2]<<")"<<endl;
+	     fbx = Bf[0];
+	     fby = Bf[1];
+	     fbz = Bf[2];
+	     fxrec = StartPos.X();
+	     fyrec = StartPos.Y();
+	     fzrec = StartPos.Z();
+	     fprec = StartMom.Mag();
+	     fthetarec = StartMom.Theta();
+	     fphirec = StartMom.Phi();
+	     fxmc = finPosMC.X();
+	     fymc = finPosMC.Y();
+	     fzmc = finPosMC.Z();
+	     fpmc = finDirMC.Mag();
+	     fphimc = finDirMC.Phi();
+	     fthetamc = finDirMC.Theta();
+ //  double fxrec, fyrec, fzrec, fprec, fthetarec, fphirec, fxmc, fymc, fzmc, fpmc, fthetamc, fphimc;
+  // double fbx,fby,fbz;
+
+	     //	     tprop->Fill(StartPos.X(),StartPos.Y(),StartPos.Z(),StartMom.Mag(),StartMom.Theta(),StartMom.Phi(),finPosMC.X(),finPosMC.Y(),finPosMC.Z(),finDirMC.Mag(),finDirMC.Theta(),finDirMC.Phi());
+	     tprop->Fill();
 	   }
 	 }
        }
@@ -288,18 +338,18 @@ void PndLmdGeaneTask::Exec(Option_t* opt)
 	Bool_t isProp = fPro->Propagate(fStartPst, fResPst, PDGCode);
 
 	if(fVerbose>2){
-	  if(isProp) cout<<"Propagation is OK"<<endl;
-	  else cout<<"Propagation failed!"<<endl;
-	  cout<<"RESULT (POINT):"<<endl;
+	  // if(isProp) cout<<"Propagation is OK"<<endl;
+	  // else cout<<"Propagation failed!"<<endl;
+	  //	  cout<<"RESULT (POINT):"<<endl;
 	  //	  fResPst->Print();
 	  TVector3 finPos(fResPst->GetX(),fResPst->GetY(),fResPst->GetZ());
-	  finPos.Print();
-	  cout<<"RESULT (DIR):"<<endl;
+	  //  finPos.Print();
+	  //  cout<<"RESULT (DIR):"<<endl;
 	  TVector3 finDir(fResPst->GetPx(),fResPst->GetPy(),fResPst->GetPz());
-	  finDir.Print();
+	  //	  finDir.Print();
 
 
-	if(fVerbose>5){ //check results for MC track propagation
+	if(fVerbose>5 &&  (fTracks->GetEntries()==fMCTracks->GetEntries())){ //check results for MC track propagation
 	  TVector3 ocMC(0,0,0); //define plane perpendicular to z-axis in IP
 	  TVector3 djMC(1.,0.,0.);
 	  TVector3 dkMC(0.,1.,0.);
@@ -316,14 +366,37 @@ void PndLmdGeaneTask::Exec(Option_t* opt)
       fPro->PropagateToPlane(oc,dj,dk);//virtual plane at fixed z
       Bool_t isPropMC = fPro->Propagate(fStartMC, fResMC, PDGCode);
       if(isProp && isPropMC){
-	cout<<"RESULT MC (POINT):"<<endl;
+	//	cout<<"RESULT MC (POINT):"<<endl;
 	TVector3 finPosMC(fResMC->GetX(),fResMC->GetY(),fResMC->GetZ());
-	finPosMC.Print();
-	cout<<"RESULT MC (DIR):"<<endl;
+	//	finPosMC.Print();
+	//	cout<<"RESULT MC (DIR):"<<endl;
 	TVector3 finDirMC(fResMC->GetPx(),fResMC->GetPy(),fResMC->GetPz());
-	finDirMC.Print();
-	
-	tprop->Fill(finPos.X(),finPos.Y(),finPos.Z(),finDir.Mag(),finDir.Theta(),finDir.Phi(),finPosMC.X(),finPosMC.Y(),finPosMC.Z(),finDirMC.Mag(),finDirMC.Theta(),finDirMC.Phi());
+	//	finDirMC.Print();
+	double pnt[3]={finPosMC.X(),finPosMC.Y(),finPosMC.Z()}; //Position where to get field strength
+	double Bf[3]; //result goes here
+	// retrieve the field from the framework
+
+	pndField->Field(pnt, Bf);  //[kGs]
+	//cout<<"^^^^ Bf = ("<<Bf[0]<<", "<<Bf[1]<<", "<<Bf[2]<<")"<<endl;
+	fbx = Bf[0];
+	fby = Bf[1];
+	fbz = Bf[2];
+	fxrec = finPos.X();
+	fyrec = finPos.Y();
+	fzrec = finPos.Z();
+	fprec = finDir.Mag();
+	fthetarec = finDir.Theta();
+	fphirec = finDir.Phi();
+	fxmc = finPosMC.X();
+	fymc = finPosMC.Y();
+	fzmc = finPosMC.Z();
+	fpmc = finDirMC.Mag();
+	fthetamc = finDirMC.Theta();
+	fphimc = finDirMC.Phi();
+	tprop->Fill();
+ //  double fxrec, fyrec, fzrec, fprec, fthetarec, fphirec, fxmc, fymc, fzmc, fpmc, fthetamc, fphimc;
+  // double fbx,fby,fbz;
+	//	tprop->Fill(finPos.X(),finPos.Y(),finPos.Z(),finDir.Mag(),finDir.Theta(),finDir.Phi(),finPosMC.X(),finPosMC.Y(),finPosMC.Z(),finDirMC.Mag(),finDirMC.Theta(),finDirMC.Phi());
       }
       else{
 	cout<<"Forward propagation for MC failed"<<endl;
@@ -437,16 +510,39 @@ void PndLmdGeaneTask::Exec(Option_t* opt)
       cout<<"gErrMom: "<<gErrMom.Mag()<<endl;
       // cout<<"difference between initial and final momentum error= "<<(StartMomErr.Mag()-gErrMom.Mag())<<endl;
       gErrMom.Print();
-      if(fVerbose>5){
+      if(fVerbose>5 &&  (fTracks->GetEntries()==fMCTracks->GetEntries())){
 	PndMCTrack* mctrk = (PndMCTrack*)(fMCTracks->At(i));
 	TVector3 MomMC = mctrk->GetMomentum();
 	TVector3 PosMC = mctrk->GetStartVertex();
-	cout<<"mcPos:"<<endl;
-	PosMC.Print();
-	cout<<"mcMom: "<<MomMC.Mag()<<endl;
-	MomMC.Print();   
+	// cout<<"mcPos:"<<endl;
+	// PosMC.Print();
+	// cout<<"mcMom: "<<MomMC.Mag()<<endl;
+	// MomMC.Print();   
+
+	double pnt[3]={PosMC.X(),PosMC.Y(),PosMC.Z()}; //Position where to get field strength
+	double Bf[3]; //result goes here
+	// retrieve the field from the framework
+
+	pndField->Field(pnt, Bf);  //[kGs]
+	//cout<<"^^^^ Bf = ("<<Bf[0]<<", "<<Bf[1]<<", "<<Bf[2]<<")"<<endl;
+	fbx = Bf[0];
+	fby = Bf[1];
+	fbz = Bf[2];
+	fxrec = gPos.X();
+	fyrec = gPos.Y();
+	fzrec = gPos.Z();
+	fprec = gMom.Mag();
+	fthetarec = gMom.Theta();
+	fphirec = gMom.Phi();
+	fxmc = PosMC.X();
+	fymc = PosMC.Y();
+	fzmc = PosMC.Z();
+	fpmc = MomMC.Mag();
+	fthetamc = MomMC.Theta();
+	fphimc = MomMC.Phi();
+	tprop->Fill();
 	   //  tprop = new TNtuple("tprop","xrec:yrec:zrec:prec:thetarec:phirec:xmc:ymc:zmc:pmc:thetamc:thetamc") ;
-	tprop->Fill(gPos.X(),gPos.Y(),gPos.Z(),gMom.Mag(),gMom.Theta(),gMom.Phi(),PosMC.X(),PosMC.Y(),PosMC.Z(),MomMC.Mag(),MomMC.Theta(),MomMC.Phi());
+	//	tprop->Fill(gPos.X(),gPos.Y(),gPos.Z(),gMom.Mag(),gMom.Theta(),gMom.Phi(),PosMC.X(),PosMC.Y(),PosMC.Z(),MomMC.Mag(),MomMC.Theta(),MomMC.Phi());
       }
       cout<<"================= %%%% ===================="<<endl;
       }
@@ -483,9 +579,10 @@ void PndLmdGeaneTask::Exec(Option_t* opt)
 
 void PndLmdGeaneTask::Finish()
 {
+  if(fVerbose>5){
     TTree *nout1 = tprop->CloneTree();
     nout1->Write();
-
+  }
     //  tprop->Write();
 }
 

@@ -28,7 +28,7 @@
 #include "PndGeoHandling.h"
 #include <vector>
 #include <map>
-
+#include "PndMultiField.h"
 class TClonesArray;
 class PndSdsCluster;
 //class TGeant3;//GEANE uses Geant3!
@@ -71,7 +71,7 @@ class PndLmdGeaneTask : public FairTask
   Double_t fPbeam;
   Int_t fPDGid;
   TVector3 vtx;
-		
+  FairField *pndField;		
   std::map<int, std::vector<int> > fTrackPixHitIdMap;	 //Track -> PixHitId
   std::map<int, std::vector<int> > fTrackStripHitIdMap;	 //Track -> StripHitId
 
@@ -81,9 +81,14 @@ class PndLmdGeaneTask : public FairTask
 
   TClonesArray* fTracks; //Real tracks
   TClonesArray* fHits; //Real hits
-  TNtuple *tprop;//Info for forward-backward propagation
-  // Output Data -------
 
+  // Output Data -------
+  // TEST with forward-backward propagation ----------------------------
+  TTree *tprop;//Info for forward-backward propagation
+  double fxrec, fyrec, fzrec, fprec, fthetarec, fphirec, fxmc, fymc, fzmc, fpmc, fthetamc, fphimc;
+  double fbx,fby,fbz;
+
+  //----------------------------------------
 
   void Register();
   
