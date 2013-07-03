@@ -29,6 +29,7 @@ include_directories( ${INCLUDE_DIRECTORIES})
 set(LINK_DIRECTORIES
    ${HEPMC_LIB_DIR}
    ${PYTHIA8_LIB_DIR}
+   ${FORTRAN_LIBDIR}
 )
 
 link_directories( ${LINK_DIRECTORIES})

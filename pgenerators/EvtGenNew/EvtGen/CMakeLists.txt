@@ -31,6 +31,7 @@ set(LINK_DIRECTORIES
    ${ROOT_LIBRARY_DIR}
    ${HEPMC_LIB_DIR}
    ${PYTHIA8_LIB_DIR}
+   ${FORTRAN_LIBDIR}
 )
 
 link_directories( ${LINK_DIRECTORIES})
