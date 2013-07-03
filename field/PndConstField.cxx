@@ -156,7 +156,21 @@ Double_t PndConstField::GetBz(Double_t x, Double_t y, Double_t z) {
 }
 // -------------------------------------------------------------------------
 
-
+// -----   GetBxyz components of field  ------------------------------------
+void PndConstField::GetBxyz(const Double_t point[3], Double_t* bField){
+  //This method is added for comatibility with the field maps and to be able to use a mixture of
+  // of maps and constant fields
+   
+   
+   if ( point [0] < fXmin  ||  point [0] > fXmax  ||
+       point [1] < fYmin  ||  point [1] > fYmax  ||
+       point [2] < fZmin  ||  point [2] > fZmax ) {
+      bField[0]=0;     bField[1]=0;    bField[2]=0;
+   }
+   else{
+      bField[0]=fBx;     bField[1]=fBy;    bField[2]=fBz;
+   }
+}
 
 // -----   Screen output   -------------------------------------------------
 void PndConstField::Print() {

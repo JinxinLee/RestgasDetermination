@@ -64,14 +64,24 @@ class PndConstField : public FairField
   void SetField(Double_t bX, Double_t bY, Double_t bZ);
   
 
-  /** Get components of field at a given point 
+  /** Get X component of field at a given point
    ** @param x,y,z   Point coordinates [cm]
    **/
   virtual Double_t GetBx(Double_t x, Double_t y, Double_t z);
+   /** Get Y component of field at a given point
+    ** @param x,y,z   Point coordinates [cm]
+    **/
   virtual Double_t GetBy(Double_t x, Double_t y, Double_t z);
+   /** Get Z component of field at a given point
+    ** @param x,y,z   Point coordinates [cm]
+    **/
   virtual Double_t GetBz(Double_t x, Double_t y, Double_t z);
+   /** Get all components of field at a given point
+    ** @param x,y,z   Point coordinates [cm]
+    **/
+  virtual void GetBxyz(const Double_t point[3], Double_t* bField);
 
-
+   
   /** Accessors to field region **/
   Double_t GetXmin() const { return fXmin; }
   Double_t GetXmax() const { return fXmax; }
