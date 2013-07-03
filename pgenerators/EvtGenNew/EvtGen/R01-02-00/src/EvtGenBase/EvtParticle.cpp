@@ -1154,7 +1154,8 @@ void EvtParticle::makeDaughters(unsigned int ndaugstore, std::vector<EvtId> idVe
     return;
   }
 
-  EvtId idArray[ndaugstore];
+  EvtId* idArray = new EvtId[ndaugstore];
+//  EvtId idArray[ndaugstore];
   unsigned int i;
   for (i = 0; i < ndaugstore; i++) {
     idArray[i] = idVector[i];
@@ -1162,6 +1163,7 @@ void EvtParticle::makeDaughters(unsigned int ndaugstore, std::vector<EvtId> idVe
 
   this->makeDaughters(ndaugstore, idArray);
 
+  delete [] idArray;
 }
 
 void EvtParticle::makeDaughters( unsigned int ndaugstore, EvtId *id){
