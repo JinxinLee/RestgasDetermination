@@ -41,6 +41,7 @@ PndLmdTrackQ::PndLmdTrackQ(): fXrecLMD(0), fYrecLMD(0), fZrecLMD(0),
 			      fThetarecLMD(0), fPhirecLMD(0), fXrec(0), fYrec (0), fZrec(0), 
 			      fThetarec(0), fPhirec(0), fMomrec(0),
 			      fXmc(0), fYmc (0), fZmc (0), fThetamc (0), fPhimc(0), fMommc(0),
+			      fXmcLMD(0), fYmcLMD (0), fZmcLMD (0), fThetamcLMD (0), fPhimcLMD(0), fMommcLMD(0),
 			      fchi2LMD(0), fTrkRecStatus(0), fSecondary(0), fPDGcode(0)
 {
 }
@@ -49,7 +50,8 @@ PndLmdTrackQ::PndLmdTrackQ(double Plab): fXrecLMD(0), fYrecLMD(0), fZrecLMD(0),
 			      fThetarecLMD(0), fPhirecLMD(0), fXrec(0), fYrec (0), fZrec(0), 
 			      fThetarec(0), fPhirec(0), fMomrec(0),
 			      fXmc(0), fYmc (0), fZmc (0), fThetamc (0), fPhimc(0),
-			    fchi2LMD(0), fTrkRecStatus(0), fSecondary(0), fPDGcode(0)
+			      fXmcLMD(0), fYmcLMD (0), fZmcLMD (0), fThetamcLMD (0), fPhimcLMD(0), fMommcLMD(0),
+			      fchi2LMD(0), fTrkRecStatus(0), fSecondary(0), fPDGcode(0)
 {
   fMommc = Plab;
 }

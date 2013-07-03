@@ -154,6 +154,7 @@ void PndLmdTrkQTask::Exec(Option_t* opt)
  Double_t glXrecLMD,glYrecLMD,glZrecLMD,glThetarecLMD,glPhirecLMD;
   Double_t glXrec,glYrec,glZrec,glThetarec,glPhirec, glMomrec;
   Double_t glXmc,glYmc,glZmc,glThetamc,glPhimc, glMommc;
+  Double_t glXmcLMD,glYmcLMD,glZmcLMD,glThetamcLMD,glPhimcLMD, glMommcLMD;
   Int_t trkRECStatus; Int_t trkMCStatus;
   Double_t glchi2;
   int glPDG;
@@ -565,10 +566,13 @@ void PndLmdTrkQTask::Exec(Option_t* opt)
       glXrecLMD =  PosRecLMD.X();       glYrecLMD =  PosRecLMD.Y();       glZrecLMD =  PosRecLMD.Z();
       glThetarecLMD = MomRecLMD.Theta(); glPhirecLMD = MomRecLMD.Phi();
       trkRECStatus = trkType;
+     
+
       int glNumMChits=-9999;
       int glNumDoubleMChits=-9999;
       if(trkType>0){ //TODO: ghost-doubled trks has MC trk!!!
 	glXmc= -9999; glYmc =-9999; glZmc = -9999; glThetamc =-9999; glPhimc = -9999; glMommc = -9999;
+	glXmcLMD = -9999; glYmcLMD =-9999; glZmcLMD = -9999; glThetamcLMD =-9999; glPhimcLMD = -9999; glMommcLMD = -9999;
 	trkMCStatus = -9999;
 	glPDG = -9999;
       }
@@ -589,6 +593,31 @@ void PndLmdTrkQTask::Exec(Option_t* opt)
 	  trkMCStatus=+1;
 	glNumMChits = MCtksSIMhits[MCidforREC];
 	glNumDoubleMChits = MCDoubleHits[MCidforREC];
+
+	//Get MC info in LMD
+	int candID = trkpnd->GetRefIndex();
+	PndTrackCand *trkcand = (PndTrackCand*)fRecCandTracks->At(candID);    
+	
+	PndTrackCandHit candhit = (PndTrackCandHit)(trkcand->GetSortedHit(0));//1st hit info
+	Int_t hitID = candhit.GetHitId();
+	PndSdsMergedHit* myHit = (PndSdsMergedHit*)(fRecHits->At(hitID));
+	int mcrefbot = myHit->GetSecondMCHit();
+	int mcreftop = myHit->GetRefIndex();
+	PndSdsMCPoint* MCPointHit;
+	if(mcreftop>=0){
+	  MCPointHit = (PndSdsMCPoint*)(fMCHits->At(mcreftop));
+	}
+	else{
+	  MCPointHit = (PndSdsMCPoint*)(fMCHits->At(mcrefbot));
+	}
+
+	TVector3 PosMClmd =  MCPointHit->GetPosition();
+	double pxTrue =  MCPointHit->GetPx();
+	double pyTrue =  MCPointHit->GetPy();
+	double pzTrue =  MCPointHit->GetPz();
+	TVector3 MomMClmd(pxTrue,pyTrue,pzTrue);
+	glXmcLMD = PosMClmd.X();      glYmcLMD = PosMClmd.Y();      glZmcLMD = PosMClmd.Z();
+	glThetamcLMD = MomMClmd.Theta();  glPhimcLMD = MomMClmd.Phi();  glMommcLMD = MomMClmd.Mag();
       } 
       //    tRECMCtrks->Fill();
       TClonesArray& clref = *fTrackQ;
@@ -610,6 +639,8 @@ void PndLmdTrkQTask::Exec(Option_t* opt)
       trkqlmd->SetSecondary(trkMCStatus);
       trkqlmd->SetNumMChits(glNumMChits);
       trkqlmd->SetNumDoubleMChits(glNumDoubleMChits);
+      trkqlmd->SetMCpointLMD(glXmcLMD,glYmcLMD,glZmcLMD);
+      trkqlmd->SetMCmomLMD(glThetamcLMD,glPhimcLMD,glMommcLMD);
       //(end) Fill tree with rec vs. mc trk info ---------------------------------------
     }
     ///END GHOST--------------------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -690,6 +721,8 @@ void PndLmdTrkQTask::Exec(Option_t* opt)
 	    trkqlmd->SetIPerrmom(-9999,-9999,-9999);
 	    trkqlmd->SetNumMChits(MCtksREChits[imc]);
 	    trkqlmd->SetNumDoubleMChits(MCDoubleHits[imc]);
+	    trkqlmd->SetMCpointLMD(glXmcLMD,glYmcLMD,glZmcLMD);
+	    trkqlmd->SetMCmomLMD(glThetamcLMD,glPhimcLMD,glMommcLMD);
 	  }
 	//(end) Fill tree with rec vs. mc trk info for missed trks ---------------------------------------
 	}
