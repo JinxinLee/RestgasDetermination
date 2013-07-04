@@ -1,0 +1,81 @@
+{
+  // gStyle->SetCanvasPreferGL(kTRUE);
+  //    TCanvas *glc = new TCanvas("glc", "", 400, 0, 900, 900);
+  //   gROOT->LoadMacro("$VMCWORKDIR/gconfig/rootlogon.C");
+  //   rootlogon();
+  
+  TFile f("testparams.root");
+  FairBaseParSet *parbase = f.Get("FairBaseParSet");
+  PndGeoSttPar *parameters = f.Get("PndGeoSttPar");
+  PndSttMapCreator *mapper = new PndSttMapCreator(parameters);
+  TClonesArray *fTubeArray = mapper->FillTubeArray();
+
+  TCanvas *c = new TCanvas("c", "", 400, 0, 900, 900);
+  TH2F *h2 = new TH2F("h2", "", 100, -42, 42, 100, -42, 42);
+  h2->SetStats(kFALSE);
+  h2->Draw();
+
+  TArc *arc = NULL;
+  TMarker *mrk = NULL;
+  PndSttTube *tube = NULL;
+  int itube = 0;
+  while(itube != -1) {
+    c->Clear();
+    c->Draw();
+    h2->Draw();
+
+
+    // draw all the tubes
+    for(itube = 1; itube < fTubeArray->GetEntriesFast(); itube++) {
+      tube = (PndSttTube*) fTubeArray->At(itube);
+      if(tube->IsParallel()) {
+	arc = new TArc(tube->GetPosition().X(), tube->GetPosition().Y(), 0.5);
+	arc->Draw("SAME");
+      }
+      else {
+	mrk = new TMarker(tube->GetPosition().X(), tube->GetPosition().Y(), 6);
+	mrk->Draw("SAME");
+      }
+    }
+    // ............................
+
+    
+    
+    cout << "WHICH tube do you want to test? [to exit type -1]" << endl;
+    cin >> itube;
+    if(itube == -1) exit(0);
+    cout << "TESTING tube " << itube << endl;
+    tube = (PndSttTube*) fTubeArray.At(itube);
+    if(!tube) {
+      cout << "this tube does not exist" << endl; 
+      continue; 
+    }
+
+    TArrayI neighborings = tube->GetNeighborings();
+    cout << "nof neighboring tubes: " << neighborings->GetSize() << endl;
+    arc = new TArc(tube->GetPosition().X(), tube->GetPosition().Y(), 0.5);
+    arc->SetFillColor(kYellow);
+    arc->Draw("SAME");
+
+    for(int inei = 0; inei < neighborings.GetSize(); inei++) { 
+      tube = (PndSttTube*) fTubeArray.At(neighborings.At(inei));
+      TVector3 position = tube->GetPosition(); 
+      if(tube->IsParallel()) {
+	arc = new TArc(position.X(), position.Y(), 0.5); 
+	arc->SetFillColor(3);
+	arc->Draw("SAME");
+      }
+      else {
+	mrk = new TMarker(position.X(), position.Y(), 6);
+	mrk->SetMarkerColor(3);
+	mrk->Draw("SAME");
+      }
+    }
+
+
+    c->Update();
+    c->Modified();
+  }
+ 
+}
+
