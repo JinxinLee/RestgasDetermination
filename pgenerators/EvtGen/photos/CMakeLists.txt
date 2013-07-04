@@ -8,6 +8,7 @@ set(INCLUDE_DIRECTORIES
 include_directories( ${INCLUDE_DIRECTORIES})
 
 set(LINK_DIRECTORIES
+${FORTRAN_LIBDIR}
 )
  
 link_directories( ${LINK_DIRECTORIES})
