@@ -72,7 +72,7 @@ void createRootGeometry_DIRC_updated_06_2013(Int_t fFocusingSystem = 0, Bool_t f
   Double_t barhgap       	=  fGeo->barhGap();       // 0.01 half gap between bars  
   Double_t boxgap       	=  fGeo->boxGap(); 	  // 0.1 gap between bars and the bar box
   Double_t boxthick		=  fGeo->boxThick();     // 0.05 thickness of the bar box
-  Double_t gluehthick 		=  0.0005;//[cm]	  // glue layer, connects two halfs into one long radiator bar
+  Double_t gluehthick 		=  fGeo->GlueLayer();//0.0005;//[cm]	  // glue layer, connects two halfs into one long radiator bar
   Double_t len          	=  0.;                   // length of the lenses block. see further
   Double_t fSlabEnd		=  0.;			  // [cm] position at which bar in front of EV ends 
   Double_t fdz_mirr1		=  0.;
@@ -92,7 +92,7 @@ void createRootGeometry_DIRC_updated_06_2013(Int_t fFocusingSystem = 0, Bool_t f
   Double_t PDwindowThick 	= 0.1; //[cm]
   Double_t PhCathodeThick 	= 0.0001; //[cm] = 1 um
   Double_t PDsensitiveThick 	= 0.01; //[cm]
-  Double_t PDgreaseLayer 	= 0.1; //[cm]
+  Double_t PDgreaseLayer 	= fGeo->GreaseLayer(); //[cm]
   Double_t hgap 		= 0.5*(MCPsize - MCPactiveArea + MCPgap); // gap btw MCPs
   Double_t step 		= MCPactiveArea + 2.*hgap; // step in which to locate MCPs = 6 for Mcp1, Mcp2; = 5.88 for Mcp2a. This is total size of one MCP with gaps in between
   
@@ -622,10 +622,14 @@ void createRootGeometry_DIRC_updated_06_2013(Int_t fFocusingSystem = 0, Bool_t f
   vLocalMother->AddNode(baseEV, 1, new TGeoCombiTrans(0.,0.,sob_shift - EVgreaseLayer, new TGeoRotation(0)));
 
   // PhotoDetector Basic material - Carbon. It is placed on the back side of the EV to simulate the support structure of the MCPs, the photons are to hit it in gaps between MCPs:
-  TGeoPgon *logicPDbase1 = new TGeoPgon("logicPDbase1",  93.6, 172.8, bbnum/2, 2);
-  TGeoPgon *logicPDbase2 = new TGeoPgon("logicPDbase2", -86.4, 172.8, bbnum/2, 2);
-  TGeoPgon *logicPDbase3 = new TGeoPgon("logicPDbase3",  86.4,   7.2,       1, 2);
-  TGeoPgon *logicPDbase4 = new TGeoPgon("logicPDbase4", -93.6,   7.2,       1, 2);
+  //TGeoPgon *logicPDbase1 = new TGeoPgon("logicPDbase1",  93.6, 172.8, bbnum/2, 2);
+  //TGeoPgon *logicPDbase2 = new TGeoPgon("logicPDbase2", -86.4, 172.8, bbnum/2, 2);
+  //TGeoPgon *logicPDbase3 = new TGeoPgon("logicPDbase3",  86.4,   7.2,       1, 2);
+  //TGeoPgon *logicPDbase4 = new TGeoPgon("logicPDbase4", -93.6,   7.2,       1, 2);
+  TGeoPgon *logicPDbase1 = new TGeoPgon("logicPDbase1",  90.+(phi0-dphi/2.), 180.-2.*(phi0-dphi/2.), bbnum/2, 2);
+  TGeoPgon *logicPDbase2 = new TGeoPgon("logicPDbase2", -90.+(phi0-dphi/2.), 180.-2.*(phi0-dphi/2.), bbnum/2, 2);
+  TGeoPgon *logicPDbase3 = new TGeoPgon("logicPDbase3",  90.-(phi0-dphi/2.), 2.*(phi0-dphi/2.)     ,       1, 2);
+  TGeoPgon *logicPDbase4 = new TGeoPgon("logicPDbase4", -90.-(phi0-dphi/2.), 2.*(phi0-dphi/2.)     ,       1, 2);  
   Double_t rad_delta = (MCPsize-MCPactiveArea)/2./cos(45./180.*pi);
   if(sob_angleB == 90.){       
     logicPDbase1->DefineSection(0, 0.,  radiusMiddleSmall-rad_delta, sob_Rout);
