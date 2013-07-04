@@ -105,7 +105,7 @@ void createRootGeometry_DIRC_sepEV_06_2013(Int_t fFocusingSystem = 0, Bool_t fpr
   Double_t EVgreaseLayer	=  0.0015;		  //[cm] grease layer thickness btw the bar window and the EV 
   //Double_t sob_angle		=  45.;//fGeo->EVangle();	  //80. [degrees] opening angle of the EV 
   Double_t sob_angle		=  atan((5.*step-2.*hthick-EVoffset-EVdrop)/sob_len)/pi*180.;// [degrees] opening angle of the EV  
-  Double_t sob_Rout     	=  (radius + hthick + EVoffset + sob_len*tan(sob_angle/180.*pi));//  [cm] radius in the middle of the section
+  Double_t sob_Rout     	=  (radius + hthick + EVoffset +(MCPsize-MCPactiveArea)+ 2.*boxgap+2.*boxthick +(sob_len + EVgreaseLayer + PDbaseLayer)*tan(sob_angle/180.*pi));//  [cm] radius in the middle of the section
     
   Double_t bbSideGap		=  0.5*( ((barwidth+2.*barhgap)*barnum) - (2.*radius*sin((dphi-bbGapAngle)/180.*pi/2.)+2.*barhgap) );
   Double_t bbX          	=  2.*radius*sin((dphi-bbGapAngle)/180.*pi/2.)+2.*barhgap;  
@@ -134,7 +134,7 @@ void createRootGeometry_DIRC_sepEV_06_2013(Int_t fFocusingSystem = 0, Bool_t fpr
   FairGeoInterface *geoFace = geoLoad->getGeoInterface();
   cout << "geoface setmediafile" << endl;
   geoFace->setMediaFile("../../geometry/media_pnd.geo");
-  cout << "geoface readmedia" << endl;
+  //cout << "geoface readmedia" << endl;
   geoFace->readMedia();
   //cout << "geoface print" << endl;
   //geoFace->print();
@@ -150,7 +150,7 @@ void createRootGeometry_DIRC_sepEV_06_2013(Int_t fFocusingSystem = 0, Bool_t fpr
   FairGeoMedium *DrcCarbonFiber = Media->getMedium("DIRCcarbonFiber");
   FairGeoMedium *DrcFusedSil    = Media->getMedium("FusedSil");
   FairGeoMedium *DrcMirror      = Media->getMedium("Mirror");
-  FairGeoMedium *DrcMarcol82_7  = Media->getMedium("Marcol82-7");
+  FairGeoMedium *DrcMarcol82_7  = Media->getMedium("Marcol82_7");
   FairGeoMedium *DrcNLAK33A     = Media->getMedium("NLAK33A");
   FairGeoMedium *DrcPhotocathode= Media->getMedium("Photocathode");
   
@@ -432,8 +432,26 @@ void createRootGeometry_DIRC_sepEV_06_2013(Int_t fFocusingSystem = 0, Bool_t fpr
   TGeoBBox* logicbbL;
   TGeoVolume *bbox;
   logicbbL = new TGeoBBox("logicbbL", 0.5*barnum*(barwidth+2.*barhgap)+bbSideGap+boxthick, hthick+boxgap+boxthick, bbox_hlen);
+   
+  TGeoTrap* logicPrizmBox = new TGeoTrap("logicPrizmBox",sob_len/2. + PDbaseLayer/2. + EVgreaseLayer/2., 
+    atan(tan(sob_angle/180.*pi)/2.)/pi*180.,	  //2
+    270.,				//3
+    (2.*hthick+EVdrop+EVoffset+(MCPsize-MCPactiveArea)+ 2.*boxgap+2.*boxthick+(sob_len + PDbaseLayer + EVgreaseLayer)*tan(sob_angle*pi/180.))/2., 
+    0.5*(3.*step - MCPgap - (MCPsize - MCPactiveArea))+ boxgap + boxthick,	//4
+    0.5*(3.*step - MCPgap - (MCPsize - MCPactiveArea))+ boxgap + boxthick,	//4
+    0,				//7
+    (2.*hthick+EVdrop+EVoffset+(MCPsize-MCPactiveArea) +2.*boxgap+2.*boxthick)/2., 
+    0.5*(3.*step - MCPgap - (MCPsize - MCPactiveArea))+ boxgap + boxthick,	//8
+    0.5*(3.*step - MCPgap - (MCPsize - MCPactiveArea))+ boxgap + boxthick,	//8
+    0);			//11
+  
+  
+    TGeoTranslation* trprb = new TGeoTranslation("trprb", 0., 0.5*(logicPrizmBox->GetH1()+ logicPrizmBox->GetH2())-hthick-EVdrop-boxthick-boxgap-0.5*(MCPsize-MCPactiveArea), -bbox_hlen-sob_len/2.-PDbaseLayer/2.-EVgreaseLayer/2.);
+    trprb->RegisterYourself();
+    TGeoCompositeShape *cspb = new TGeoCompositeShape("cspb","logicbbL + logicPrizmBox:trprb");
+    //bbox = new TGeoVolume("DrcBarBox", cspb,gGeoManager->GetMedium("DIRCcarbonFiber"));
   bbox = new TGeoVolume("DrcBarBox", logicbbL,gGeoManager->GetMedium("DIRCcarbonFiber")); 
-  bbox->SetLineColor(30); 
+  bbox->SetLineColor(30);
   
   
   TGeoBBox* logicbbS;
@@ -448,6 +466,8 @@ void createRootGeometry_DIRC_sepEV_06_2013(Int_t fFocusingSystem = 0, Bool_t fpr
   TGeoVolume* barwin = new TGeoVolume("DrcBarboxWindowSensor", logicBarWin, gGeoManager->GetMedium("FusedSil"));
   barwin->SetLineColor(kBlue-4);
   bbox->AddNode(barwin, 1, new TGeoCombiTrans(0.,0.,-bbox_hlen+barWin_hthick,new TGeoRotation(0)));
+  
+  
   /*
   if(fFocusingSystem == 3){
     TGeoRotation rot_lens3;
@@ -480,7 +500,7 @@ void createRootGeometry_DIRC_sepEV_06_2013(Int_t fFocusingSystem = 0, Bool_t fpr
  // EVsep->SetTransparency(40);
   
   //PhotoDetector Basic material - Carbon. It is placed on the back side of the EV to simulate the support structure of the MCPs, the photons are to hit it in gaps between MCPs:
-  TGeoBBox* logicPDbase = new TGeoBBox("logicPDbase", 0.5*3.*step/*0.5*barnum*(barwidth+2.*barhgap)-barhgap*/, (2.*hthick+EVdrop+EVoffset+sob_len*tan(sob_angle*pi/180.))/2., PDbaseLayer/2.);
+  TGeoBBox* logicPDbase = new TGeoBBox("logicPDbase", 0.5*3.*step, (2.*hthick+EVdrop+EVoffset+sob_len*tan(sob_angle*pi/180.))/2.+ 0.5*(MCPsize-MCPactiveArea), PDbaseLayer/2.);
   TGeoVolume *pdbase  = new TGeoVolume("DrcPDbase", logicPDbase,  gGeoManager->GetMedium("DIRCcarbonFiber"));
   pdbase->SetLineColor(kGreen-6);
   pdbase->SetTransparency(40);
@@ -512,7 +532,7 @@ void createRootGeometry_DIRC_sepEV_06_2013(Int_t fFocusingSystem = 0, Bool_t fpr
   for(Int_t i=0; i<5; i++){  // loop over y
     for(Int_t j=0; j<3; j++){ // loop over x
       xcurr = -0.5*(3.*step) + 0.5*step+j*step;
-      ycurr = -(2.*hthick+EVdrop+EVoffset+sob_len*tan(sob_angle*pi/180.))/2. + 0.5*step+i*step;
+      ycurr = -(2.*hthick+EVdrop+EVoffset+sob_len*tan(sob_angle*pi/180.))/2. + 0.5*step+i*step - 0.5*(MCPsize-MCPactiveArea);
       TotalNmcp = TotalNmcp+1;
       // put Photo Cathodes
       pdbase->AddNode(phcathode, TotalNmcp, new TGeoCombiTrans(xcurr, ycurr, PDbaseLayer/2.-PDgreaseLayer-PhCathodeThick/2.-PDwindowThick, new TGeoRotation(0)));       
@@ -552,8 +572,8 @@ void createRootGeometry_DIRC_sepEV_06_2013(Int_t fFocusingSystem = 0, Bool_t fpr
   
   // put barboxes into right positions:    
   Double_t dx_bbox, dy_bbox, dz_bbox, phi_curr;      
-  Double_t evLocShift = (Trd->GetH1()+Trd->GetH2())/2.-hthick - 0.5*(MCPsize-MCPactiveArea);
-  Double_t pdLocShift = logicPDbase->GetDY()-hthick - 0.5*(MCPsize-MCPactiveArea);    
+  Double_t evLocShift = (Trd->GetH1()+Trd->GetH2())/2.-hthick - EVdrop;
+  Double_t pdLocShift = logicPDbase->GetDY()-hthick-0.5*(MCPsize-MCPactiveArea);    
   for(Int_t m = 0; m < bbnum; m ++){       
     phi_curr = (90. - phi0 - dphi*m)/180.*pi;    
     if(m > bbnum/2-1){ phi_curr = (90. - phi0 - dphi*m - 2.*pipehAngle)/180.*pi; }
@@ -564,7 +584,7 @@ void createRootGeometry_DIRC_sepEV_06_2013(Int_t fFocusingSystem = 0, Bool_t fpr
     TGeoRotation rot_bbox;    
     rot_bbox.RotateZ( -phi0 - m*dphi - (TMath::Floor(2.*m/bbnum))*(2.*pipehAngle));    
     vLocalMother->AddNode(bbox, m+1, new TGeoCombiTrans(dx_bbox, dy_bbox, dz_bbox, new TGeoRotation(rot_bbox)));
-    vLocalMother->AddNode(evgrease, m+1, new TGeoCombiTrans(dx_bbox, dy_bbox, bbox_zup-EVgreaseLayer/2.,new TGeoRotation(rot_bbox)));    
+   // vLocalMother->AddNode(evgrease, m+1, new TGeoCombiTrans(dx_bbox, dy_bbox, bbox_zup-EVgreaseLayer/2.,new TGeoRotation(rot_bbox)));    
     vLocalMother->AddNode(EVsep, m+1, new TGeoCombiTrans(dx_bbox+evLocShift*cos(phi_curr), dy_bbox+evLocShift*sin(phi_curr), -bbox_hlen+bbox_shift-sob_len/2.-EVgreaseLayer, new TGeoRotation(rot_bbox)));    
     vLocalMother->AddNode(pdbase, m+1, new TGeoCombiTrans(dx_bbox+pdLocShift*cos(phi_curr), dy_bbox+pdLocShift*sin(phi_curr), -bbox_hlen+bbox_shift-sob_len-EVgreaseLayer-PDbaseLayer/2., new TGeoRotation(rot_bbox)));
   }
@@ -615,7 +635,9 @@ void createRootGeometry_DIRC_sepEV_06_2013(Int_t fFocusingSystem = 0, Bool_t fpr
   top->Write();
   fi->Close(); 
   top->Draw("ogl");
-  //pdbase->Draw("ogl"); 
+  //bbox->Draw("ogl"); 
+  //evgrease->Draw("ogl same");
+  
   
   TObjArray *listOfOverlaps = gGeoManager->GetListOfOverlaps();
   cout<<listOfOverlaps->GetEntries()<<endl;
