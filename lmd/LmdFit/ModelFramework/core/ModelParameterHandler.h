@@ -61,9 +61,6 @@ public:
 	void registerParametrizationModel(shared_ptr<ModelPar> model_par,
 			shared_ptr<ParametrizationModel> parametrization_model);
 
-	void registerParametrizationModels(ModelParSet &model_par_set_,
-			shared_ptr<ParametrizationModel> parametrization_model);
-
 	ParametrizationProxy getParametrizationProxyForModelParameter(
 			std::string name_);
 

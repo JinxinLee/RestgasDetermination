@@ -32,6 +32,8 @@ class TVector3;
 class TH1D;
 class TH2D;
 
+using std::tr1::shared_ptr;
+
 /**
  * \brief This class contains a few functions helping the user with some basics.
  *
@@ -61,7 +63,7 @@ public:
 		std::map<unsigned int, std::pair<std::string, std::string> > parameter_name_stack;
 
 		std::map<std::string, double, ModelStructs::string_comp> remaining_dependencies;
-		std::string dependency;
+		TString dependency;
 
 	ClassDef(lmd_graph, 1)
 		;
@@ -83,7 +85,7 @@ private:
 			std::map<
 					double,
 					std::map<std::pair<std::string, std::string>
-							, PndLmdLumiHelper::lmd_graph , ModelStructs::stringpair_comp> > &graph_map
+							, PndLmdLumiHelper::lmd_graph* , ModelStructs::stringpair_comp> > &graph_map
 			, int mode);
 
 public:
@@ -104,12 +106,6 @@ public:
 					"Lumi_Track_*.root");
 
 #ifndef __CINT__
-	void fillFitData1D(ModelEstimator &estimator, TH1D* hist_1d,
-			std::pair<double, double> &fit_range , bool with_integral_scaling = true);
-
-	void fillFitData2D(TH2D* hist_2d, std::pair<double, double> &fit_range_x
-			, std::pair<double, double> &fit_range_y);
-
 	void removePointsAboveChi2(
 			std::map<std::string, TGraphErrors*, ModelStructs::string_comp> &graph_map
 			, double chi2);
@@ -117,26 +113,33 @@ public:
 	void fitResolutionForSlice(PndLmdResolution* lmd_resolution,
 			const PndLmdLumiFitOptions *fit_options);
 
-	void fitParametrizationModelToData(PndLmdLumiHelper::lmd_graph &graph);
+	void fitParametrizationModelToData(PndLmdLumiHelper::lmd_graph *graph);
 
 	std::map<double, ModelFitResult*> checkFitParameters(
 			const std::map<PndLmdResolution*, ModelFitResult*> &fit_results) const;
+
+	int initResolutionParametrizationFromFile(TFile *f,
+			shared_ptr<Model> resolution_model);
 #endif /* __CINT __ */
 
+	std::vector<PndLmdLumiHelper::lmd_graph*> filterLmdGraphs(
+			std::vector<PndLmdLumiHelper::lmd_graph*> &util_lmd_graphs, TString dep);
+
 	std::vector<PndLmdResolution*> getFittedResolutionsFromPath(TFile *f);
-	std::vector<PndLmdLumiHelper::lmd_graph> getResolutionModelResultsFromFile(
+	std::vector<PndLmdLumiHelper::lmd_graph*> getResolutionModelResultsFromFile(
 			TFile* f);
 
-	std::vector<PndLmdLumiHelper::lmd_graph> generateNewLmdGraphs(
-			std::vector<PndLmdLumiHelper::lmd_graph> &util_lmd_graphs);
+	std::vector<PndLmdLumiHelper::lmd_graph*> generateNewLmdGraphs(
+			std::vector<PndLmdLumiHelper::lmd_graph*> &util_lmd_graphs);
 
-	std::vector<PndLmdLumiHelper::lmd_graph> generateLmdGraphs(
+	std::vector<PndLmdLumiHelper::lmd_graph*> generateLmdGraphs(
 			std::vector<PndLmdResolution*> resolutions);
 
-	void saveLmdGraphsToFile(std::vector<PndLmdLumiHelper::lmd_graph>& graph_vec);
+	void saveLmdGraphsToFile(
+			std::vector<PndLmdLumiHelper::lmd_graph*>& graph_vec);
 
 	void fitParametrizationModelToGraphs(
-			std::vector<PndLmdLumiHelper::lmd_graph> &lmd_graphs);
+			std::vector<PndLmdLumiHelper::lmd_graph*> &lmd_graphs);
 
 	/**
 	 * This function determines and saves the parameters of the

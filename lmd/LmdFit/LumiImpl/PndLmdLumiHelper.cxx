@@ -36,9 +36,11 @@
 #include "TCanvas.h"
 
 #include "FairTrackParH.h"
+#include "FairTrackParP.h"
 #include "PndMCTrack.h"
+#include "PndSdsMCPoint.h"
+#include "PndTrack.h"
 
-using std::tr1::shared_ptr;
 
 PndLmdLumiHelper::PndLmdLumiHelper() {
 	pdg = TDatabasePDG::Instance();
@@ -295,67 +297,100 @@ void PndLmdLumiHelper::fillData(double plab, TString dir_path,
 		 * if this is acceptance data or real data etc...
 		 *
 		 */
-		for (int ik = 0; ik < nMCParticles; ik++) {
-			PndMCTrack *mctrk = (PndMCTrack*) true_tracks->At(ik);
-			TLorentzVector lv_mc = mctrk->Get4Momentum();
-			Int_t mcID = mctrk->GetPdgCode();
-			TVector3 MomMC_all = mctrk->GetMomentum();
+		if (acc_mode == NO_BACKTRACKING) {
+			for (int ik = 0; ik < true_points->GetEntriesFast(); ik++) {
+				PndSdsMCPoint *lmd_point = (PndSdsMCPoint*) true_points->At(ik);
+				TVector3 MomMC;
+				TVector3 Pos(lmd_point->GetPosition());
+				lmd_point->Momentum(MomMC);
+				MomMC.RotateY(-0.040);
 
-			if (mcID == -2212 && mctrk->IsGeneratorCreated()) {
-				mc_values.t = -(lv_mc - beam).M2();
-				mc_values.theta = MomMC_all.Theta();
-				mc_values.phi = MomMC_all.Phi();
-				mc_values.reconstructed = true;
-				reco_values.reconstructed = event_accepted;
-				/* if(event_accepted) {
-				 for (Int_t iN = 0; iN < geaneArray->GetEntriesFast(); iN++) {
-				 FairTrackParH *fRes = (FairTrackParH*) geaneArray->At(iN);
-				 TVector3 MomRec = fRes->GetMomentum();
-				 if(MomMC_all.Theta() > 0.014) {
-				 std::cout<<j<<std::endl;
-				 std::cout<<geaneArray->GetEntriesFast()<<std::endl;
-				 MomRec.Print();
-				 MomMC_all.Print();
-				 }
-				 }
-				 }*/
-				event_data.push_back(std::make_pair(mc_values, reco_values));
+				if (Pos.Z() > 1120.0 && Pos.Z() < 1130.0) {
+					if (-2212
+							== ((PndMCTrack*) true_tracks->At(lmd_point->GetTrackID()))->GetPdgCode()) {
+						mc_values.t = 0.0;
+						mc_values.theta = MomMC.Theta();
+						mc_values.phi = MomMC.Phi();
+						mc_values.reconstructed = true;
+						reco_values.reconstructed = event_accepted;
+						event_data.push_back(std::make_pair(mc_values, reco_values));
+					}
+				}
+			}
+		} else {
+			for (int ik = 0; ik < nMCParticles; ik++) {
+				PndMCTrack *mctrk = (PndMCTrack*) true_tracks->At(ik);
+				TLorentzVector lv_mc = mctrk->Get4Momentum();
+				Int_t mcID = mctrk->GetPdgCode();
+				TVector3 MomMC_all = mctrk->GetMomentum();
+
+				if (mcID == -2212 && mctrk->IsGeneratorCreated()) {
+					mc_values.t = -(lv_mc - beam).M2();
+					mc_values.theta = MomMC_all.Theta();
+					mc_values.phi = MomMC_all.Phi();
+					mc_values.reconstructed = true;
+					reco_values.reconstructed = event_accepted;
+					event_data.push_back(std::make_pair(mc_values, reco_values));
+				}
 			}
 		}
 
 		unsigned int pbar_tracks = event_data.size();
-		// loop over geane tracks
-		for (Int_t iN = 0; iN < nRecoParticles; iN++) {
-			///-- Read info about GEANE(reconstructed) tracks--------------------------
-			FairTrackParH *fRes = (FairTrackParH*) geaneArray->At(iN);
-			if (fRes->GetLambda() != 0) {
-				TVector3 MomRec = fRes->GetMomentum();
-				TLorentzVector lv_rec;
-				lv_rec.SetVect(MomRec);
-				lv_rec.SetE(
-						sqrt(MomRec.Mag2() + pow(pdg->GetParticle(-2212)->Mass(), 2.0)));
+		if (acc_mode == NO_BACKTRACKING) {
+			for (Int_t iN = 0; iN < reco_tracks->GetEntriesFast(); iN++) {
+				PndTrack *track = (PndTrack*) reco_tracks->At(iN);
+				FairTrackParP trackpar = track->GetParamFirst();
+				TVector3 MomRec = trackpar.GetMomentum();
+				MomRec.RotateY(-0.040);
 
-				/*
-				 * ok now we should actually go through all entries of the event_data
-				 * vector and find the corresponding mc track, but atm we only accept
-				 * single track events so we'll just check if we have an mc entry
-				 * already. if so we adjust the reco information of that entry,
-				 * otherwise we'll just add all reco tracks with no mc information
-				 */
 				if (0 < pbar_tracks) {
-					event_data[0].second.t = -(lv_rec - beam).M2();
+					event_data[0].second.t = 0.0;
 					event_data[0].second.theta = MomRec.Theta();
 					event_data[0].second.phi = MomRec.Phi();
 					break; // ok we just take the first geane track this part has to be extended
 				} else {
-					reco_values.t = -(lv_rec - beam).M2();
+					reco_values.t = 0.0;
 					reco_values.theta = MomRec.Theta();
 					reco_values.phi = MomRec.Phi();
 					reco_values.reconstructed = true;
 					event_data.push_back(std::make_pair(mc_values, reco_values));
 				}
 			}
+		} else {
+			// loop over geane tracks
+			for (Int_t iN = 0; iN < nRecoParticles; iN++) {
+				///-- Read info about GEANE(reconstructed) tracks--------------------------
+				FairTrackParH *fRes = (FairTrackParH*) geaneArray->At(iN);
+				if (fRes->GetLambda() != 0) {
+					TVector3 MomRec = fRes->GetMomentum();
+					TLorentzVector lv_rec;
+					lv_rec.SetVect(MomRec);
+					lv_rec.SetE(
+							sqrt(MomRec.Mag2() + pow(pdg->GetParticle(-2212)->Mass(), 2.0)));
+
+					/*
+					 * ok now we should actually go through all entries of the event_data
+					 * vector and find the corresponding mc track, but atm we only accept
+					 * single track events so we'll just check if we have an mc entry
+					 * already. if so we adjust the reco information of that entry,
+					 * otherwise we'll just add all reco tracks with no mc information
+					 */
+					if (0 < pbar_tracks) {
+						event_data[0].second.t = -(lv_rec - beam).M2();
+						event_data[0].second.theta = MomRec.Theta();
+						event_data[0].second.phi = MomRec.Phi();
+						break; // ok we just take the first geane track this part has to be extended
+					} else {
+						reco_values.t = -(lv_rec - beam).M2();
+						reco_values.theta = MomRec.Theta();
+						reco_values.phi = MomRec.Phi();
+						reco_values.reconstructed = true;
+						event_data.push_back(std::make_pair(mc_values, reco_values));
+					}
+				}
+			}
 		}
+		//std::cout<<"number of track pairs: "<<event_data.size()<<std::endl;
 
 		for (unsigned int k = 0; k < lmd_vec->size(); k++) {
 			(*lmd_vec)[k]->fillHistograms(event_data);
@@ -376,14 +411,6 @@ void PndLmdLumiHelper::fillData(double plab, TString dir_path,
 	delete (geaneArray);
 
 	clearRegisters(data_mode);
-}
-
-// create estimators from root objects (hits, graphs...)
-
-void PndLmdLumiHelper::fillFitData2D(TH2D* hist_2d,
-		std::pair<double, double> &fit_range_x
-		, std::pair<double, double> &fit_range_y) {
-
 }
 
 std::vector<PndLmdResolution*> PndLmdLumiHelper::getFittedResolutionsFromPath(
@@ -414,9 +441,9 @@ std::vector<PndLmdResolution*> PndLmdLumiHelper::getFittedResolutionsFromPath(
 	return resolutions;
 }
 
-std::vector<PndLmdLumiHelper::lmd_graph> PndLmdLumiHelper::getResolutionModelResultsFromFile(
+std::vector<PndLmdLumiHelper::lmd_graph*> PndLmdLumiHelper::getResolutionModelResultsFromFile(
 		TFile* f) {
-	std::vector<PndLmdLumiHelper::lmd_graph> return_vec;
+	std::vector<PndLmdLumiHelper::lmd_graph*> return_vec;
 
 	f->cd();
 	TIter next(f->GetListOfKeys());
@@ -424,10 +451,10 @@ std::vector<PndLmdLumiHelper::lmd_graph> PndLmdLumiHelper::getResolutionModelRes
 	while ((ptemp_lmd_graph = (PndLmdLumiHelper::lmd_graph*) next())) {
 		if (ptemp_lmd_graph) {
 			std::cout << "Found graph " << ptemp_lmd_graph->GetName() << std::endl;
-			return_vec.push_back(*ptemp_lmd_graph);
+			f->GetObject(ptemp_lmd_graph->GetName(), ptemp_lmd_graph); // without getting it explicitly again it crashes...
+			return_vec.push_back(new PndLmdLumiHelper::lmd_graph(*ptemp_lmd_graph));
 		}
 	}
-
 	if (return_vec.size() == 0) {
 		std::cout
 				<< "WARNING: The given file does not contain any objects of the required type!"
@@ -437,23 +464,25 @@ std::vector<PndLmdLumiHelper::lmd_graph> PndLmdLumiHelper::getResolutionModelRes
 }
 
 void PndLmdLumiHelper::saveLmdGraphsToFile(
-		std::vector<PndLmdLumiHelper::lmd_graph>& graph_vec) {
+		std::vector<PndLmdLumiHelper::lmd_graph*>& graph_vec) {
+
 	for (unsigned int i = 0; i < graph_vec.size(); i++) {
-		TString name(graph_vec[i].dependency);
+		TString name(graph_vec[i]->dependency);
 		std::ostringstream strstream;
 		strstream.precision(3);
 		for (std::map<unsigned int, std::pair<std::string, std::string> >::const_iterator j =
-				graph_vec[i].parameter_name_stack.begin();
-				j != graph_vec[i].parameter_name_stack.end(); j++) {
+				graph_vec[i]->parameter_name_stack.begin();
+				j != graph_vec[i]->parameter_name_stack.end(); j++) {
 			strstream << "_" << j->second.first << "-" << j->second.second;
 		}
 		for (std::map<std::string, double, ModelStructs::string_comp>::const_iterator dependency =
-				graph_vec[i].remaining_dependencies.begin();
-				dependency != graph_vec[i].remaining_dependencies.end(); dependency++) {
+				graph_vec[i]->remaining_dependencies.begin();
+				dependency != graph_vec[i]->remaining_dependencies.end();
+				dependency++) {
 			strstream << "_" << dependency->first << "-" << dependency->second;
 		}
 		name = name + strstream.str();
-		graph_vec[i].Write(name);
+		graph_vec[i]->Write(name);
 	}
 }
 
@@ -461,49 +490,49 @@ void PndLmdLumiHelper::finalizeLmdGraphObjects(
 		std::map<
 				double,
 				std::map<std::pair<std::string, std::string>
-						, PndLmdLumiHelper::lmd_graph , ModelStructs::stringpair_comp> > &graph_map
+						, PndLmdLumiHelper::lmd_graph* , ModelStructs::stringpair_comp> > &graph_map
 		, int mode) {
 
 	bool is_dependent = (graph_map.size() > 0);
 	for (std::map<
 			double,
-			std::map<std::pair<std::string, std::string>, PndLmdLumiHelper::lmd_graph
+			std::map<std::pair<std::string, std::string>, PndLmdLumiHelper::lmd_graph*
 					, ModelStructs::stringpair_comp> >::iterator graphs =
 			graph_map.begin(); graphs != graph_map.end(); graphs++) {
 		for (std::map<std::pair<std::string, std::string>
-				, PndLmdLumiHelper::lmd_graph , ModelStructs::stringpair_comp>::iterator graph =
+				, PndLmdLumiHelper::lmd_graph* , ModelStructs::stringpair_comp>::iterator graph =
 				graphs->second.begin(); graph != graphs->second.end(); graph++) {
 			if (is_dependent) {
 				if (0 == mode) {
-					graph->second.remaining_dependencies["phi"] = graphs->first;
-					graph->second.dependency = "theta";
+					graph->second->remaining_dependencies["phi"] = graphs->first;
+					graph->second->dependency = "theta";
 				} else if (1 == mode) {
-					graph->second.remaining_dependencies["theta"] = graphs->first;
-					graph->second.dependency = "phi";
+					graph->second->remaining_dependencies["theta"] = graphs->first;
+					graph->second->dependency = "phi";
 				}
 			}
 
-			graph->second.graph = new TGraphErrors(graph->second.data.size());
-			for (unsigned int i = 0; i < graph->second.data.size(); i++) {
-				graph->second.graph->SetPoint(i, graph->second.data[i].first,
-						graph->second.data[i].second.value);
-				graph->second.graph->SetPointError(i, 0.0,
-						graph->second.data[i].second.error);
+			graph->second->graph = new TGraphErrors(graph->second->data.size());
+			for (unsigned int i = 0; i < graph->second->data.size(); i++) {
+				graph->second->graph->SetPoint(i, graph->second->data[i].first,
+						graph->second->data[i].second.value);
+				graph->second->graph->SetPointError(i, 0.0,
+						graph->second->data[i].second.error);
 			}
 		}
 	}
 }
 
-std::vector<PndLmdLumiHelper::lmd_graph> PndLmdLumiHelper::generateLmdGraphs(
+std::vector<PndLmdLumiHelper::lmd_graph*> PndLmdLumiHelper::generateLmdGraphs(
 		std::vector<PndLmdResolution*> resolutions) {
 
 	std::map<
 			double,
-			std::map<std::pair<std::string, std::string>, PndLmdLumiHelper::lmd_graph
+			std::map<std::pair<std::string, std::string>, PndLmdLumiHelper::lmd_graph*
 					, ModelStructs::stringpair_comp> > phi_slice_map;
 	std::map<
 			double,
-			std::map<std::pair<std::string, std::string>, PndLmdLumiHelper::lmd_graph
+			std::map<std::pair<std::string, std::string>, PndLmdLumiHelper::lmd_graph*
 					, ModelStructs::stringpair_comp> > theta_slice_map;
 
 	for (unsigned int i = 0; i < resolutions.size(); i++) {
@@ -516,61 +545,84 @@ std::vector<PndLmdLumiHelper::lmd_graph> PndLmdLumiHelper::generateLmdGraphs(
 			for (std::set<ModelStructs::minimization_parameter>::const_iterator fit_param =
 					fit_parameters.begin(); fit_param != fit_parameters.end();
 					fit_param++) {
-				phi_slice_map[resolutions[i]->getPhiSliceMean()][fit_param->name].data.push_back(
+				if (phi_slice_map[resolutions[i]->getPhiSliceMean()][fit_param->name]
+						== 0) {
+					phi_slice_map[resolutions[i]->getPhiSliceMean()][fit_param->name] =
+							new PndLmdLumiHelper::lmd_graph();
+				}
+				phi_slice_map[resolutions[i]->getPhiSliceMean()][fit_param->name]->data.push_back(
 						std::make_pair(resolutions[i]->getThetaSliceMean(), *fit_param));
-				phi_slice_map[resolutions[i]->getPhiSliceMean()][fit_param->name].parameter_name_stack[1] =
+				phi_slice_map[resolutions[i]->getPhiSliceMean()][fit_param->name]->parameter_name_stack[1] =
 						fit_param->name;
-				phi_slice_map[resolutions[i]->getPhiSliceMean()][fit_param->name].fit_options =
+				phi_slice_map[resolutions[i]->getPhiSliceMean()][fit_param->name]->fit_options =
 						(*fit_result)->getLumiFitOptions();
 
-				theta_slice_map[resolutions[i]->getThetaSliceMean()][fit_param->name].data.push_back(
+				if (theta_slice_map[resolutions[i]->getThetaSliceMean()][fit_param->name]
+						== 0) {
+					theta_slice_map[resolutions[i]->getThetaSliceMean()][fit_param->name] =
+							new PndLmdLumiHelper::lmd_graph();
+				}
+				theta_slice_map[resolutions[i]->getThetaSliceMean()][fit_param->name]->data.push_back(
 						std::make_pair(resolutions[i]->getPhiSliceMean(), *fit_param));
-				theta_slice_map[resolutions[i]->getThetaSliceMean()][fit_param->name].parameter_name_stack[1] =
+				theta_slice_map[resolutions[i]->getThetaSliceMean()][fit_param->name]->parameter_name_stack[1] =
 						fit_param->name;
-				theta_slice_map[resolutions[i]->getThetaSliceMean()][fit_param->name].fit_options =
+				theta_slice_map[resolutions[i]->getThetaSliceMean()][fit_param->name]->fit_options =
 						(*fit_result)->getLumiFitOptions();
 			}
+			if (phi_slice_map[resolutions[i]->getPhiSliceMean()][std::make_pair(
+					fit_parameters.begin()->name.first, "chi2")] == 0) {
+				phi_slice_map[resolutions[i]->getPhiSliceMean()][std::make_pair(
+						fit_parameters.begin()->name.first, "chi2")] =
+						new PndLmdLumiHelper::lmd_graph();
+			}
 			phi_slice_map[resolutions[i]->getPhiSliceMean()][std::make_pair(
-					fit_parameters.begin()->name.first, "chi2")].data.push_back(
+					fit_parameters.begin()->name.first, "chi2")]->data.push_back(
 					std::make_pair(
 							resolutions[i]->getThetaSliceMean(),
 							ModelStructs::minimization_parameter(
 									std::make_pair(fit_parameters.begin()->name.first, "chi2"),
 									(*fit_result)->getRedChiSquare(), 0.0)));
 			phi_slice_map[resolutions[i]->getPhiSliceMean()][std::make_pair(
-					fit_parameters.begin()->name.first, "chi2")].parameter_name_stack[1] =
+					fit_parameters.begin()->name.first, "chi2")]->parameter_name_stack[1] =
 					std::make_pair(fit_parameters.begin()->name.first, "chi2");
 			phi_slice_map[resolutions[i]->getPhiSliceMean()][std::make_pair(
-					fit_parameters.begin()->name.first, "chi2")].fit_options =
+					fit_parameters.begin()->name.first, "chi2")]->fit_options =
 					(*fit_result)->getLumiFitOptions();
+
+			if (theta_slice_map[resolutions[i]->getThetaSliceMean()][std::make_pair(
+					fit_parameters.begin()->name.first, "chi2")] == 0) {
+				theta_slice_map[resolutions[i]->getThetaSliceMean()][std::make_pair(
+						fit_parameters.begin()->name.first, "chi2")] =
+						new PndLmdLumiHelper::lmd_graph();
+			}
 			theta_slice_map[resolutions[i]->getThetaSliceMean()][std::make_pair(
-					fit_parameters.begin()->name.first, "chi2")].data.push_back(
+					fit_parameters.begin()->name.first, "chi2")]->data.push_back(
 					std::make_pair(
 							resolutions[i]->getPhiSliceMean(),
 							ModelStructs::minimization_parameter(
 									std::make_pair(fit_parameters.begin()->name.first, "chi2"),
 									(*fit_result)->getRedChiSquare(), 0.0)));
 			theta_slice_map[resolutions[i]->getThetaSliceMean()][std::make_pair(
-					fit_parameters.begin()->name.first, "chi2")].parameter_name_stack[1] =
+					fit_parameters.begin()->name.first, "chi2")]->parameter_name_stack[1] =
 					std::make_pair(fit_parameters.begin()->name.first, "chi2");
 			theta_slice_map[resolutions[i]->getThetaSliceMean()][std::make_pair(
-					fit_parameters.begin()->name.first, "chi2")].fit_options =
+					fit_parameters.begin()->name.first, "chi2")]->fit_options =
 					(*fit_result)->getLumiFitOptions();
 		}
 	}
-// go through map and make TGraph objects
+	// go through map and make TGraph objects
 	finalizeLmdGraphObjects(phi_slice_map, 0);
 	finalizeLmdGraphObjects(theta_slice_map, 1);
 
 	//construct return vector
-	std::vector<PndLmdLumiHelper::lmd_graph> return_vec;
+	std::vector<PndLmdLumiHelper::lmd_graph*> return_vec;
 	for (std::map<
 			double,
-			std::map<std::pair<std::string, std::string>, PndLmdLumiHelper::lmd_graph
+			std::map<std::pair<std::string, std::string>, PndLmdLumiHelper::lmd_graph*
 					, ModelStructs::stringpair_comp> >::iterator graphs =
 			phi_slice_map.begin(); graphs != phi_slice_map.end(); graphs++) {
 		for (std::map<std::pair<std::string, std::string>
-				, PndLmdLumiHelper::lmd_graph , ModelStructs::stringpair_comp>::iterator graph =
+				, PndLmdLumiHelper::lmd_graph* , ModelStructs::stringpair_comp>::iterator graph =
 				graphs->second.begin(); graph != graphs->second.end(); graph++) {
 			return_vec.push_back(graph->second);
 		}
@@ -578,11 +630,11 @@ std::vector<PndLmdLumiHelper::lmd_graph> PndLmdLumiHelper::generateLmdGraphs(
 	}
 	for (std::map<
 			double,
-			std::map<std::pair<std::string, std::string>, PndLmdLumiHelper::lmd_graph
+			std::map<std::pair<std::string, std::string>, PndLmdLumiHelper::lmd_graph*
 					, ModelStructs::stringpair_comp> >::iterator graphs =
 			theta_slice_map.begin(); graphs != theta_slice_map.end(); graphs++) {
 		for (std::map<std::pair<std::string, std::string>
-				, PndLmdLumiHelper::lmd_graph , ModelStructs::stringpair_comp>::iterator graph =
+				, PndLmdLumiHelper::lmd_graph* , ModelStructs::stringpair_comp>::iterator graph =
 				graphs->second.begin(); graph != graphs->second.end(); graph++) {
 			return_vec.push_back(graph->second);
 		}
@@ -591,101 +643,111 @@ std::vector<PndLmdLumiHelper::lmd_graph> PndLmdLumiHelper::generateLmdGraphs(
 	return return_vec;
 }
 
-std::vector<PndLmdLumiHelper::lmd_graph> PndLmdLumiHelper::generateNewLmdGraphs(
-		std::vector<PndLmdLumiHelper::lmd_graph> &util_lmd_graphs) {
+std::vector<PndLmdLumiHelper::lmd_graph*> PndLmdLumiHelper::generateNewLmdGraphs(
+		std::vector<PndLmdLumiHelper::lmd_graph*> &util_lmd_graphs) {
 
-	std::vector<PndLmdLumiHelper::lmd_graph> return_vec;
+	std::map<std::pair<std::string, std::string>, PndLmdLumiHelper::lmd_graph*
+			, ModelStructs::stringpair_comp> slice_map;
 
 	for (unsigned int i = 0; i < util_lmd_graphs.size(); i++) {
-		const std::set<ModelStructs::minimization_parameter> &fit_parameters =
-				util_lmd_graphs[i].fit_result->getFitParameters();
-		for (std::set<ModelStructs::minimization_parameter>::const_iterator fit_param =
-				fit_parameters.begin(); fit_param != fit_parameters.end();
-				fit_param++) {
+		if (util_lmd_graphs[i]->fit_result) {
+			const std::set<ModelStructs::minimization_parameter> &fit_parameters =
+					util_lmd_graphs[i]->fit_result->getFitParameters();
+			for (std::set<ModelStructs::minimization_parameter>::const_iterator fit_param =
+					fit_parameters.begin(); fit_param != fit_parameters.end();
+					fit_param++) {
+				if (slice_map[fit_param->name] == 0) {
+					slice_map[fit_param->name] = new PndLmdLumiHelper::lmd_graph();
+				}
+				slice_map[fit_param->name]->data.push_back(
+						std::make_pair(
+								util_lmd_graphs[i]->remaining_dependencies.begin()->second,
+								*fit_param));
+				slice_map[fit_param->name]->parameter_name_stack =
+						util_lmd_graphs[i]->parameter_name_stack;
+				slice_map[fit_param->name]->parameter_name_stack[util_lmd_graphs[i]->parameter_name_stack.size()
+						+ 1] = fit_param->name;
+				slice_map[fit_param->name]->fit_options =
+						util_lmd_graphs[i]->fit_options;
+				slice_map[fit_param->name]->dependency =
+						util_lmd_graphs[i]->remaining_dependencies.begin()->first;
 
-			std::cout << fit_param->name.first << " " << fit_param->name.second
-					<< std::endl;
+			}
+			if (slice_map[std::make_pair(fit_parameters.begin()->name.first, "chi2")]
+					== 0) {
+				slice_map[std::make_pair(fit_parameters.begin()->name.first, "chi2")] =
+						new PndLmdLumiHelper::lmd_graph();
+			}
+
+			slice_map[std::make_pair(fit_parameters.begin()->name.first, "chi2")]->data.push_back(
+					std::make_pair(
+							util_lmd_graphs[i]->remaining_dependencies.begin()->second,
+							ModelStructs::minimization_parameter(
+									std::make_pair(fit_parameters.begin()->name.first, "chi2"),
+									util_lmd_graphs[i]->fit_result->getChiSquare(), 0.0)));
+			slice_map[std::make_pair(fit_parameters.begin()->name.first, "chi2")]->parameter_name_stack =
+					util_lmd_graphs[i]->parameter_name_stack;
+			slice_map[std::make_pair(fit_parameters.begin()->name.first, "chi2")]->parameter_name_stack[util_lmd_graphs[i]->parameter_name_stack.size()
+					+ 1] = std::make_pair(fit_parameters.begin()->name.first, "chi2");
+			slice_map[std::make_pair(fit_parameters.begin()->name.first, "chi2")]->fit_options =
+					util_lmd_graphs[i]->fit_options;
+			slice_map[std::make_pair(fit_parameters.begin()->name.first, "chi2")]->dependency =
+					util_lmd_graphs[i]->remaining_dependencies.begin()->first;
+
 		}
 	}
 
-	/*
-	 phi_slice_map[resolutions[i]->getPhiSliceMean()][fit_param->name].data.push_back(
-	 std::make_pair(resolutions[i]->getThetaSliceMean(), *fit_param));
-	 phi_slice_map[resolutions[i]->getPhiSliceMean()][fit_param->name].parameter_name_stack[1] =
-	 fit_param->name;
-	 phi_slice_map[resolutions[i]->getPhiSliceMean()][fit_param->name].fit_options =
-	 (*fit_result)->getLumiFitOptions();
+	// go through map and make TGraph objects
+	for (std::map<std::pair<std::string, std::string>
+			, PndLmdLumiHelper::lmd_graph* , ModelStructs::stringpair_comp>::iterator graph =
+			slice_map.begin(); graph != slice_map.end(); graph++) {
 
-	 theta_slice_map[resolutions[i]->getThetaSliceMean()][fit_param->name].data.push_back(
-	 std::make_pair(resolutions[i]->getPhiSliceMean(), *fit_param));
-	 theta_slice_map[resolutions[i]->getThetaSliceMean()][fit_param->name].parameter_name_stack[1] =
-	 fit_param->name;
-	 theta_slice_map[resolutions[i]->getThetaSliceMean()][fit_param->name].fit_options =
-	 (*fit_result)->getLumiFitOptions();
-	 }
-	 phi_slice_map[resolutions[i]->getPhiSliceMean()][std::make_pair(
-	 fit_parameters.begin()->name.first, "chi2")].data.push_back(
-	 std::make_pair(
-	 resolutions[i]->getThetaSliceMean(),
-	 ModelStructs::minimization_parameter(
-	 std::make_pair(fit_parameters.begin()->name.first, "chi2"),
-	 (*fit_result)->getRedChiSquare(), 0.0)));
-	 phi_slice_map[resolutions[i]->getPhiSliceMean()][std::make_pair(
-	 fit_parameters.begin()->name.first, "chi2")].parameter_name_stack[1] =
-	 std::make_pair(fit_parameters.begin()->name.first, "chi2");
-	 phi_slice_map[resolutions[i]->getPhiSliceMean()][std::make_pair(
-	 fit_parameters.begin()->name.first, "chi2")].fit_options =
-	 (*fit_result)->getLumiFitOptions();
-	 theta_slice_map[resolutions[i]->getThetaSliceMean()][std::make_pair(
-	 fit_parameters.begin()->name.first, "chi2")].data.push_back(
-	 std::make_pair(
-	 resolutions[i]->getPhiSliceMean(),
-	 ModelStructs::minimization_parameter(
-	 std::make_pair(fit_parameters.begin()->name.first, "chi2"),
-	 (*fit_result)->getRedChiSquare(), 0.0)));
-	 theta_slice_map[resolutions[i]->getThetaSliceMean()][std::make_pair(
-	 fit_parameters.begin()->name.first, "chi2")].parameter_name_stack[1] =
-	 std::make_pair(fit_parameters.begin()->name.first, "chi2");
-	 theta_slice_map[resolutions[i]->getThetaSliceMean()][std::make_pair(
-	 fit_parameters.begin()->name.first, "chi2")].fit_options =
-	 (*fit_result)->getLumiFitOptions();
-	 }
-	 }
-	 // go through map and make TGraph objects
-	 finalizeLmdGraphObjects(phi_slice_map, 0);
-	 finalizeLmdGraphObjects(theta_slice_map, 1);
+		graph->second->graph = new TGraphErrors(graph->second->data.size());
+		for (unsigned int i = 0; i < graph->second->data.size(); i++) {
+			graph->second->graph->SetPoint(i, graph->second->data[i].first,
+					graph->second->data[i].second.value);
+			graph->second->graph->SetPointError(i, 0.0,
+					graph->second->data[i].second.error);
+		}
+	}
 
-	 //construct return vector
-	 std::vector<PndLmdLumiHelper::lmd_graph> return_vec;
-	 for (std::map<
-	 double,
-	 std::map<std::pair<std::string, std::string>, PndLmdLumiHelper::lmd_graph
-	 , ModelStructs::stringpair_comp> >::iterator graphs =
-	 phi_slice_map.begin(); graphs != phi_slice_map.end(); graphs++) {
-	 for (std::map<std::pair<std::string, std::string>
-	 , PndLmdLumiHelper::lmd_graph , ModelStructs::stringpair_comp>::iterator graph =
-	 graphs->second.begin(); graph != graphs->second.end(); graph++) {
-	 return_vec.push_back(graph->second);
-	 }
+	//construct return vector
+	std::vector<PndLmdLumiHelper::lmd_graph*> return_vec;
+	for (std::map<std::pair<std::string, std::string>
+			, PndLmdLumiHelper::lmd_graph* , ModelStructs::stringpair_comp>::iterator graph =
+			slice_map.begin(); graph != slice_map.end(); graph++) {
+		return_vec.push_back(graph->second);
+	}
 
-	 }*/
+	return return_vec;
+}
 
+std::vector<PndLmdLumiHelper::lmd_graph*> PndLmdLumiHelper::filterLmdGraphs(
+		std::vector<PndLmdLumiHelper::lmd_graph*> &util_lmd_graphs, TString dep) {
+	std::vector<PndLmdLumiHelper::lmd_graph*> return_vec;
+
+	for (unsigned int i = 0; i < util_lmd_graphs.size(); i++) {
+		if (util_lmd_graphs[i]->dependency.EqualTo(dep)) {
+			return_vec.push_back(util_lmd_graphs[i]);
+		}
+	}
+	std::cout << return_vec.size() << std::endl;
 	return return_vec;
 }
 
 void PndLmdLumiHelper::fitParametrizationModelToData(
-		PndLmdLumiHelper::lmd_graph &graph) {
+		PndLmdLumiHelper::lmd_graph *graph) {
 	PndLmdModelFactory model_factory; // construct model factory
-	// specify which of type of smearing model we want to generate
+// specify which of type of smearing model we want to generate
 
-	// generate the model
+// generate the model
 	shared_ptr<Model> model = model_factory.generate1DResolutionModel(
-			graph.fit_options);
+			graph->fit_options);
 
-	// get the model that we have to fit to the data
+// get the model that we have to fit to the data
 	for (std::map<unsigned int, std::pair<std::string, std::string> >::const_iterator parameter_name =
-			graph.parameter_name_stack.begin();
-			parameter_name != graph.parameter_name_stack.end(); parameter_name++) {
+			graph->parameter_name_stack.begin();
+			parameter_name != graph->parameter_name_stack.end(); parameter_name++) {
 		ParametrizationProxy par_proxy =
 				model->getModelParameterHandler().getParametrizationProxyForModelParameter(
 						parameter_name->second.second);
@@ -699,7 +761,7 @@ void PndLmdLumiHelper::fitParametrizationModelToData(
 		}
 	}
 	model->getModelParameterSet().getModelParameter("poly_poly_factor_0")->setValue(
-			graph.graph->GetMean(2));
+			graph->graph->GetMean(2));
 	model->getModelParameterSet().getModelParameter("poly_poly_factor_0")->setParameterFixed(
 			false);
 	model->getModelParameterSet().getModelParameter("poly_poly_factor_1")->setValue(
@@ -709,39 +771,39 @@ void PndLmdLumiHelper::fitParametrizationModelToData(
 
 	model->getModelParameterSet().printInfo();
 
-	// create chi2 estimator
+// create chi2 estimator
 	Chi2Estimator chi2_est;
 
-	// set the resolution model as the active model of the fitter
+// set the resolution model as the active model of the fitter
 	chi2_est.setModel(model);
 
-	// create and set data
+// create and set data
 	ROOTDataHelper data_helper;
-	chi2_est.setData(data_helper.createBinnedData(graph.graph));
+	chi2_est.setData(data_helper.createBinnedData(graph->graph));
 
-	// create estimator options
+// create estimator options
 	EstimatorOptions est_opt;
-	std::pair<double, double> fit_range = std::make_pair(3.0, 7.0);
+	std::pair<double, double> fit_range = std::make_pair(4.0, 7.2);
 	est_opt.setFitRangeX(fit_range);
 	est_opt.setWithIntegralScaling(true);
 
-	// apply estimator options
+// apply estimator options
 	chi2_est.applyEstimatorOptions(est_opt);
 
-	// now fit the resolution model to the data
-	// create Minuit Fitter
+// now fit the resolution model to the data
+// create Minuit Fitter
 	ROOTMinimizer fitter(chi2_est);
 
 	int fit_status = fitter.doMinimization();
 	std::cout << "fit status: " << fit_status << std::endl;
-	// call minimization procedure
+// call minimization procedure
 	if (fit_status) {
 		std::cout << "ERROR: Problem while performing fit. Returning NULL pointer!"
 				<< std::endl;
 		return;
 	}
 
-	// store fit results
+// store fit results
 	ModelFitResult fit_result = fitter.createModelFitResult();
 	fit_result.setFitStatus(fit_status);
 
@@ -750,41 +812,41 @@ void PndLmdLumiHelper::fitParametrizationModelToData(
 			chi2_est.getData()->getNumberOfDataPoints()
 					- fitter.getROOTMinimizer()->NFree());
 
-	graph.fit_result = new ModelFitResult(fit_result);
-
+	graph->fit_result = new ModelFitResult(fit_result);
 }
 
 void PndLmdLumiHelper::fitParametrizationModelToGraphs(
-		std::vector<PndLmdLumiHelper::lmd_graph> &lmd_graphs) {
-	// perform fits
+		std::vector<PndLmdLumiHelper::lmd_graph*> &lmd_graphs) {
+// perform fits
 	for (unsigned int graph_index = 0; graph_index < lmd_graphs.size();
 			graph_index++) {
-		// TODO: we need some kind of check at which stage we are at and which graphs should be fitted...
-		// or if they exist at all...
-		if (lmd_graphs[graph_index].dependency.compare("theta") == 0)
+// TODO: we need some kind of check at which stage we are at and which graphs should be fitted...
+// or if they exist at all...
+		if (lmd_graphs[graph_index]->dependency.EqualTo("theta") == 1) {
 			fitParametrizationModelToData(lmd_graphs[graph_index]);
+		}
 	}
 }
 
 void PndLmdLumiHelper::fitResolutionForSlice(PndLmdResolution* lmd_resolution,
 		const PndLmdLumiFitOptions *fit_options) {
 	PndLmdModelFactory model_factory; // construct model factory
-	// specify which of type of smearing model we want to generate
+// specify which of type of smearing model we want to generate
 
 	PndLmdLumiFitResult *res_fit_result;
 
-	// generate the model
+// generate the model
 	shared_ptr<Model1D> resolution_model =
 			model_factory.generate1DResolutionModel(fit_options);
 
-	// get histogram
+// get histogram
 	TH1D* hist = lmd_resolution->getResolutionHistogram1D();
 	if (hist->GetEntries() < 1500) {
 		return;
 	}
 
-	// now we have to set good starting values and free parameters
-	// amplitude of gauss is equal to number of events in the histogram
+// now we have to set good starting values and free parameters
+// amplitude of gauss is equal to number of events in the histogram
 	resolution_model->getModelParameterSet().getModelParameter("gauss_amplitude")->setValue(
 			hist->GetEntries());
 	resolution_model->getModelParameterSet().getModelParameter("gauss_amplitude")->setParameterFixed(
@@ -829,44 +891,45 @@ void PndLmdLumiHelper::fitResolutionForSlice(PndLmdResolution* lmd_resolution,
 				"gauss_ratio_narrow_wide")->setParameterFixed(false);
 	}
 
-	// create chi2 estimator
+// create chi2 estimator
 	Chi2Estimator chi2_est;
 
-	// set the resolution model as the active model of the fitter
+// set the resolution model as the active model of the fitter
 	chi2_est.setModel(resolution_model);
 
-	// create and set data
+// create and set data
 	ROOTDataHelper data_helper;
 	chi2_est.setData(data_helper.createBinnedData(hist));
 
-	// create estimator options
+// create estimator options
 	EstimatorOptions est_opt;
 	std::pair<double, double> fit_range = std::make_pair(
 			fit_options->getThetaFitRangeLow(), fit_options->getThetaFitRangeHigh());
-	if (fit_options->isFitRaw())
-		fit_range = std::make_pair(fit_options->getTFitRangeLow(),
-				fit_options->getTFitRangeHigh());
-
-	est_opt.setFitRangeX(
-			std::make_pair(hist->GetXaxis()->GetXmin(), hist->GetXaxis()->GetXmax()));
+	if (fit_range.second - fit_range.first > 0.0) {
+		if (fit_range.first < hist->GetXaxis()->GetXmin())
+			fit_range.first = hist->GetXaxis()->GetXmin();
+		if (fit_range.second > hist->GetXaxis()->GetXmax())
+			fit_range.second = hist->GetXaxis()->GetXmax();
+	}
+	est_opt.setFitRangeX(fit_range);
 	est_opt.setWithIntegralScaling(true);
 
-	// apply estimator options
+// apply estimator options
 	chi2_est.applyEstimatorOptions(est_opt);
 
-	// now fit the resolution model to the data
-	// create Minuit Fitter
+// now fit the resolution model to the data
+// create Minuit Fitter
 	ROOTMinimizer fitter(chi2_est);
 
 	int fit_status = fitter.doMinimization();
 	std::cout << "fit status: " << fit_status << std::endl;
-	// call minimization procedure
+// call minimization procedure
 	if (fit_status) {
 		std::cout << "ERROR: Problem while performing fit. Returning NULL pointer!"
 				<< std::endl;
 	}
 
-	// store fit results
+// store fit results
 	ModelFitResult fit_result = fitter.createModelFitResult();
 	fit_result.setFitStatus(fit_status);
 
@@ -877,6 +940,8 @@ void PndLmdLumiHelper::fitResolutionForSlice(PndLmdResolution* lmd_resolution,
 
 	res_fit_result = new PndLmdLumiFitResult(fit_options);
 	res_fit_result->setModelFitResult(fit_result);
+
+	lmd_resolution->addFitResult(res_fit_result);
 }
 
 void PndLmdLumiHelper::fitSmearingModelToResolutions(
@@ -901,9 +966,9 @@ bool checkNeighbourhood(ModelStructs::minimization_parameter value,
 
 std::map<double, ModelFitResult*> PndLmdLumiHelper::checkFitParameters(
 		const std::map<PndLmdResolution*, ModelFitResult*> &fit_results) const {
-	// remove all points that are bogus
+// remove all points that are bogus
 	std::map<double, ModelFitResult*> return_map;
-	// loop over all entries of the map
+// loop over all entries of the map
 	for (std::map<PndLmdResolution*, ModelFitResult*>::const_iterator it =
 			fit_results.begin(); it != fit_results.end(); it++) {
 		const std::set<ModelStructs::minimization_parameter> &fit_parameters =
@@ -934,3 +999,28 @@ std::map<double, ModelFitResult*> PndLmdLumiHelper::checkFitParameters(
 	return return_map;
 }
 
+int PndLmdLumiHelper::initResolutionParametrizationFromFile(TFile *f, shared_ptr<Model> resolution_model) {
+	// TODO: atm this only works for the 1D case
+	std::vector<PndLmdLumiHelper::lmd_graph*> graphs = getResolutionModelResultsFromFile(f);
+	graphs = filterLmdGraphs(graphs, "theta");
+
+	for(unsigned int i = 0; graphs.size(); i++) {
+	// get the model that we have to fit to the data
+		for (std::map<unsigned int, std::pair<std::string, std::string> >::const_iterator parameter_name =
+				graphs[i]->parameter_name_stack.begin();
+				parameter_name != graphs[i]->parameter_name_stack.end(); parameter_name++) {
+			ParametrizationProxy par_proxy =
+					resolution_model->getModelParameterHandler().getParametrizationProxyForModelParameter(
+							parameter_name->second.second);
+			if (par_proxy.hasParametrizationModel()) {
+				resolution_model = par_proxy.getParametrizationModel()->getModel();
+			} else {
+				std::cout
+						<< "ERROR: Not able to obtain parametrization model for parameter "
+						<< parameter_name->second.second << "!" << std::endl;
+			}
+		}
+		resolution_model->getModelParameterHandler().initModelParametersFromFitResult(*graphs[i]->fit_result);
+	}
+	return 0;
+}

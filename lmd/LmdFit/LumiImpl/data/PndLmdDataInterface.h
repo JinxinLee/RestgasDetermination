@@ -33,7 +33,7 @@ struct lmd_values {
 /**
  * Struct which defines a dimension of data.
  */
-struct lmd_dimension {
+struct lmd_dimension : public TObject  {
 	/** the number of bins on this axis/dimension */
 	int bins;
 	/** lower bound on this axis/dimension */
@@ -66,6 +66,7 @@ struct lmd_dimension {
 		bin_size = 0.0;
 		label = 0;
 	}
+	ClassDef(lmd_dimension, 1);
 };
 }
 

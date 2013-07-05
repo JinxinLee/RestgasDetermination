@@ -49,7 +49,7 @@ public:
 	void fillHistograms(
 			std::vector<std::pair<PndLmdFit::lmd_values, PndLmdFit::lmd_values> > &event_data);
 
-	std::set<PndLmdLumiFitResult*> getFitResults() const;
+	const std::set<PndLmdLumiFitResult*>& getFitResults() const;
 	int addFitResult(PndLmdLumiFitResult* fit_result_);
 
 ClassDef(PndLmdResolution,1)

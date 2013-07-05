@@ -203,6 +203,8 @@ public:
 	 */
 	void setFreeParametersOfModel(unsigned int free_parameters_code_);
 
+	void setThetaFitRange(const double fit_range_low_, const double fit_range_high_);
+
 	/**
 	 * Comparison operator. Will return true only if all fit options are equal in value.
 	 */

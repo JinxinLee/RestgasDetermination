@@ -31,10 +31,10 @@
 #pragma link C++ class std::set<PndLmdLumiFitResult*>+;
 #pragma link C++ class std::set<PndLmdLumiFitResult*>::iterator;
 #pragma link C++ class std::vector < PndLmdResultPlotter::graph_bundle_1D >+;
-#pragma link C++ struct PndLmdResultPlotter::acceptance_bundle;
-#pragma link C++ struct PndLmdFit::lmd_dimension+;
-#pragma link C++ class PndLmdLumiHelper::lmd_graph+;
-#pragma link C++ class std::vector < PndLmdLumiHelper::lmd_graph >+;
+#pragma link C++ class PndLmdResultPlotter::acceptance_bundle;
+#pragma link C++ class PndLmdFit::lmd_dimension;
+#pragma link C++ class PndLmdLumiHelper::lmd_graph;
+#pragma link C++ class std::vector < PndLmdLumiHelper::lmd_graph* >;
 
 
 #endif

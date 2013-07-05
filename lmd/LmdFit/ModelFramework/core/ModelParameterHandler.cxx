@@ -131,17 +131,6 @@ void ModelParameterHandler::registerParametrizationModel(
 	}
 }
 
-void ModelParameterHandler::registerParametrizationModels(
-		ModelParSet &model_par_set_,
-		shared_ptr<ParametrizationModel> parametrization_model) {
-	for (std::map<std::pair<std::string, std::string>, shared_ptr<ModelPar>
-			, ModelStructs::stringpair_comp>::iterator it =
-			model_par_set_.getModelParameterMap().begin();
-			it != model_par_set_.getModelParameterMap().end(); it++) {
-		registerParametrizationModel(it->second, parametrization_model);
-	}
-}
-
 ParametrizationProxy ModelParameterHandler::getParametrizationProxyForModelParameter(
 		std::string name_) {
 	if (model_par_set.modelParameterExists(name_)) {

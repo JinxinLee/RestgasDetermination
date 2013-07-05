@@ -14,7 +14,38 @@
 
 PndLmdSmearingDoubleGaussianModelParametrization1D::PndLmdSmearingDoubleGaussianModelParametrization1D(
 		shared_ptr<Model1D> model) {
-	p_lab = model->getModelParameterSet().addModelParameter("p_lab");
+
+	shared_ptr<Model1D> poly_model1(
+			new PolynomialModel1D("gauss_mean_narrow_poly_model_1d", 1));
+	shared_ptr<ParametrizationModel> pm1(new ParametrizationModel(poly_model1));
+	model->getModelParameterHandler().registerParametrizationModel(
+			model->getModelParameterSet().getModelParameter("gauss_mean_narrow"), pm1);
+
+	shared_ptr<Model1D> poly_model2(
+			new PolynomialModel1D("gauss_mean_wide_poly_model_1d", 1));
+	shared_ptr<ParametrizationModel> pm2(new ParametrizationModel(poly_model2));
+	model->getModelParameterHandler().registerParametrizationModel(
+			model->getModelParameterSet().getModelParameter("gauss_mean_wide"), pm2);
+
+	shared_ptr<Model1D> poly_model3(
+			new PolynomialModel1D("gauss_sigma_narrow_poly_model_1d", 1));
+	shared_ptr<ParametrizationModel> pm3(new ParametrizationModel(poly_model3));
+	model->getModelParameterHandler().registerParametrizationModel(
+			model->getModelParameterSet().getModelParameter("gauss_sigma_narrow"), pm3);
+
+	shared_ptr<Model1D> poly_model4(
+			new PolynomialModel1D("gauss_sigma_ratio_narrow_wide_poly_model_1d", 1));
+	shared_ptr<ParametrizationModel> pm4(new ParametrizationModel(poly_model4));
+	model->getModelParameterHandler().registerParametrizationModel(
+			model->getModelParameterSet().getModelParameter("gauss_sigma_ratio_narrow_wide"), pm4);
+
+	shared_ptr<Model1D> poly_model5(
+			new PolynomialModel1D("gauss_ratio_narrow_wide_poly_model_1d", 1));
+	shared_ptr<ParametrizationModel> pm5(new ParametrizationModel(poly_model5));
+	model->getModelParameterHandler().registerParametrizationModel(
+			model->getModelParameterSet().getModelParameter("gauss_ratio_narrow_wide"), pm5);
+
+	/*p_lab = model->getModelParameterSet().addModelParameter("p_lab");
 	p_lab->setSuperior(true);
 
 	shared_ptr<Model1D> poly_model1(
@@ -84,9 +115,12 @@ PndLmdSmearingDoubleGaussianModelParametrization1D::PndLmdSmearingDoubleGaussian
 					poly_model5));
 	shared_ptr<ParametrizationModel> pm5(new ParametrizationModel(add_model3));
 	model->getModelParameterHandler().registerParametrizationModel(
-			model->getModelParameterSet().getModelParameter("gauss_mean_wide"), pm5);
+			model->getModelParameterSet().getModelParameter("gauss_mean_wide"), pm5);*/
 
 }
+
+
+
 
 PndLmdSmearingDoubleGaussianModelParametrization1D::~PndLmdSmearingDoubleGaussianModelParametrization1D() {
 	// TODO Auto-generated destructor stub

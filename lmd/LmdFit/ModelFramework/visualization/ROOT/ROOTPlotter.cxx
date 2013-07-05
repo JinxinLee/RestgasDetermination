@@ -21,7 +21,7 @@ ROOTPlotter::~ROOTPlotter() {
 	// TODO Auto-generated destructor stub
 }
 
-TGraphErrors* ROOTPlotter::createGraphFromModel1D(shared_ptr<Model1D> model,
+TGraphErrors* ROOTPlotter::createGraphFromModel1D(shared_ptr<Model> model,
 		ModelVisualizationProperties1D &visualization_properties) {
 
 	TGraphErrors* graph = new TGraphErrors(

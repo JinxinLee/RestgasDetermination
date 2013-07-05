@@ -414,6 +414,8 @@ std::vector<PndLmdResultPlotter::graph_bundle_1D> PndLmdResultPlotter::makeResol
 
 	for (unsigned int i = 0; i < res_vec.size(); i++) {
 		const std::set<PndLmdLumiFitResult*> &fit_set = res_vec[i]->getFitResults();
+		std::cout << "number of fit results for " << res_vec[i]->getName() << ": "
+				<< fit_set.size() << std::endl;
 		if (fit_set.size() > 0) {
 			graph_bundle_1D graph_bundle;
 			graph_bundle.data_hist = res_vec[i]->getResolutionHistogram1D();
@@ -427,7 +429,7 @@ std::vector<PndLmdResultPlotter::graph_bundle_1D> PndLmdResultPlotter::makeResol
 				graph_bundle.is_resolution = true;
 				graph_bundle.fit_options = (*fit_result)->getLumiFitOptions();
 
-				char cc[30];
+				char cc[50];
 				sprintf(cc, "p_{lab} = %.1f GeV", graph_bundle.plab);
 				graph_bundle.labels.push_back(std::make_pair(TString(cc), 1));
 				sprintf(cc, "#chi^{2}/NDF = %.2f", (*fit_result)->getRedChiSquare());
@@ -435,7 +437,43 @@ std::vector<PndLmdResultPlotter::graph_bundle_1D> PndLmdResultPlotter::makeResol
 				sprintf(cc, "#bar{#Theta}_{MC} = %.2f mrad",
 						res_vec[i]->getThetaSliceMean());
 				graph_bundle.labels.push_back(std::make_pair(TString(cc), 1));
+				if ((*fit_result)->getLumiFitOptions()->getSmearingModelType() == 1) {
+					sprintf(
+							cc,
+							"#sigma_{n} = %.2f mrad",
+							(*fit_result)->getModelFitResult()->getFitParameter(
+									"gauss_sigma_narrow").value);
+					graph_bundle.labels.push_back(std::make_pair(TString(cc), 1));
+					sprintf(
+							cc,
+							"#sigma_{w} = %.2f mrad",
+							(*fit_result)->getModelFitResult()->getFitParameter(
+									"gauss_sigma_narrow").value
+									/ (*fit_result)->getModelFitResult()->getFitParameter(
+											"gauss_sigma_ratio_narrow_wide").value);
+					graph_bundle.labels.push_back(std::make_pair(TString(cc), 1));
+					sprintf(
+							cc,
+							"#mu_{n} = %.2f mrad",
+							(*fit_result)->getModelFitResult()->getFitParameter(
+									"gauss_mean_narrow").value);
+					graph_bundle.labels.push_back(std::make_pair(TString(cc), 1));
+					sprintf(
+							cc,
+							"#mu_{w} = %.2f mrad",
+							(*fit_result)->getModelFitResult()->getFitParameter(
+									"gauss_mean_wide").value);
+					graph_bundle.labels.push_back(std::make_pair(TString(cc), 1));
+					sprintf(
+							cc,
+							"r = %.2f mrad",
+							(*fit_result)->getModelFitResult()->getFitParameter(
+									"gauss_ratio_narrow_wide").value);
+					graph_bundle.labels.push_back(std::make_pair(TString(cc), 1));
+				}
 			}
+			std::cout << "adding " << res_vec[i]->getName() << " to graph bundle..."
+					<< std::endl;
 			return_vector.push_back(graph_bundle);
 		}
 	}
@@ -622,46 +660,113 @@ PndLmdResultPlotter::acceptance_bundle PndLmdResultPlotter::makeAcceptanceBundle
 	return acc_bundle;
 }
 
-std::map<TString, std::vector<PndLmdLumiHelper::lmd_graph> > PndLmdResultPlotter::generateLmdGraphMap(
-		std::vector<PndLmdLumiHelper::lmd_graph> graphs) {
+std::map<TString, std::vector<PndLmdLumiHelper::lmd_graph*> > PndLmdResultPlotter::generateLmdGraphMap(
+		std::vector<PndLmdLumiHelper::lmd_graph*> graphs) {
 
-	std::map<TString, std::vector<PndLmdLumiHelper::lmd_graph> > return_map;
+	std::map<TString, std::vector<PndLmdLumiHelper::lmd_graph*> > return_map;
 
 	for (unsigned int i = 0; i < graphs.size(); i++) {
-		TString key(graphs[i].dependency);
+		TString key(graphs[i]->dependency);
 		for (std::map<std::string, double, ModelStructs::string_comp>::const_iterator dependency =
-				graphs[i].remaining_dependencies.begin();
-				dependency != graphs[i].remaining_dependencies.end(); dependency++) {
+				graphs[i]->remaining_dependencies.begin();
+				dependency != graphs[i]->remaining_dependencies.end(); dependency++) {
+
 			ostringstream strstream;
 			strstream.precision(3);
 			strstream << "_" << dependency->first << "-" << dependency->second;
 			key = key + strstream.str();
 		}
+		std::cout << key << std::endl;
+		std::cout << graphs[i]->fit_result << std::endl;
 		return_map[key].push_back(graphs[i]);
+	}
+	for (std::map<TString, std::vector<PndLmdLumiHelper::lmd_graph*> >::const_iterator it =
+			return_map.begin(); it != return_map.end(); it++) {
+		std::cout << it->first << std::endl;
+		for (unsigned int i = 0; i < it->second.size(); i++) {
+			std::cout << i << " " << it->second[i]->fit_result << std::endl;
+		}
 	}
 	return return_map;
 }
 
 void PndLmdResultPlotter::makeResolutionSummaryPlots(TFile *f) {
 	PndLmdLumiHelper lmd_helper;
-	std::map<TString, std::vector<PndLmdLumiHelper::lmd_graph> > graphs =
+
+	std::map<TString, std::vector<PndLmdLumiHelper::lmd_graph*> > graphs =
 			generateLmdGraphMap(lmd_helper.getResolutionModelResultsFromFile(f));
-	for (std::map<TString, std::vector<PndLmdLumiHelper::lmd_graph> >::iterator it =
+
+	for (std::map<TString, std::vector<PndLmdLumiHelper::lmd_graph*> >::const_iterator it =
+			graphs.begin(); it != graphs.end(); it++) {
+			std::cout << it->first << std::endl;
+			for (unsigned int i = 0; i < it->second.size(); i++) {
+				std::cout << i << " " << it->second[i]->fit_result << std::endl;
+			}
+		}
+
+	for (std::map<TString, std::vector<PndLmdLumiHelper::lmd_graph*> >::const_iterator it =
 			graphs.begin(); it != graphs.end(); it++) {
 		TCanvas c("c", it->first, 1000, 700);
 		if (it->second.size() > 0) {
-			if (it->second[0].fit_options->getSmearingModelType() == 0)
+			if (it->second[0]->fit_options->getSmearingModelType() == 0)
 				c.Divide(2, 2);
-			if (it->second[0].fit_options->getSmearingModelType() == 1)
+			if (it->second[0]->fit_options->getSmearingModelType() == 1)
 				c.Divide(3, 3);
 		}
-		std::cout << "size: " << it->second.size() << std::endl;
 		for (unsigned int i = 0; i < it->second.size(); i++) {
+			std::cout << it->second[i]->fit_result << std::endl;
 			c.cd(i + 1);
-			it->second[i].graph->SetTitle(
-					TString(it->second[i].parameter_name_stack[1].first) + ":"
-							+ TString(it->second[i].parameter_name_stack[1].second));
-			it->second[i].graph->Draw("A*");
+			it->second[i]->graph->SetTitle(
+					TString(it->second[i]->parameter_name_stack[1].first) + ":"
+							+ TString(it->second[i]->parameter_name_stack[1].second));
+			it->second[i]->graph->Draw("A*");
+
+			bool model_exists = true;
+			PndLmdModelFactory model_factory; // construct model factory
+			// specify which of type of smearing model we want to generate
+
+			// generate the model
+			shared_ptr<Model> model = model_factory.generate1DResolutionModel(
+					it->second[i]->fit_options);
+			// get the model that we have to fit to the data
+			for (std::map<unsigned int, std::pair<std::string, std::string> >::const_iterator parameter_name =
+					it->second[i]->parameter_name_stack.begin();
+					parameter_name != it->second[i]->parameter_name_stack.end();
+					parameter_name++) {
+				ParametrizationProxy par_proxy =
+						model->getModelParameterHandler().getParametrizationProxyForModelParameter(
+								parameter_name->second.second);
+				std::cout << "Finding parametrization model for "
+						<< parameter_name->second.second << std::endl;
+
+				if (par_proxy.hasParametrizationModel()) {
+					model = par_proxy.getParametrizationModel()->getModel();
+				} else {
+					std::cout
+							<< "ERROR: Not able to obtain parametrization model for parameter "
+							<< parameter_name->second.second << "!" << std::endl;
+					model_exists = false;
+					break;
+				}
+			}
+
+			if (model_exists && it->second[i]->fit_result) {
+				std::cout << it->second[i]->fit_result << std::endl;
+				std::cout << it->second[i]->fit_result->getChiSquare() << std::endl;
+				model->getModelParameterHandler().initModelParametersFromFitResult(
+						*it->second[i]->fit_result);
+				model->getModelParameterSet().printInfo();
+
+				ROOTDataHelper data_helper;
+
+				ModelVisualizationProperties1D vis_prop(
+						data_helper.createBinnedData(it->second[i]->graph));
+				vis_prop.setPlotRange(std::make_pair(4.0, 7.2));
+				TGraphErrors *model_graph = root_plotter.createGraphFromModel1D(model,
+						vis_prop);
+				model_graph->SetLineColor(2);
+				model_graph->Draw("CSAME");
+			}
 		}
 		c.cd();
 		TLatex title(0.2, 0.33, it->first);
@@ -729,12 +834,13 @@ void PndLmdResultPlotter::makeResolutionBooky(
 		TCanvas c1("res_booky", "res_booky", 1000, 700);
 		c1.SetTitle(it->first.c_str());
 		c1.Print(filename + "_booky_" + TString(it->first) + ".pdf["); // No actual print, just open file
+		std::cout << graph_bundles.size() << std::endl;
 		for (unsigned int i = 0; i < graph_bundles.size(); i++) {
 			fillSinglePad(&c1, graph_bundles[i], false, true);
 			c1.cd();
-			TLatex title(0.2, 0.5, it->first.c_str());
-			title.SetTextSize(0.05);
-			title.Draw();
+			/*TLatex title(0.2, 0.5, it->first.c_str());
+			 title.SetTextSize(0.05);
+			 title.Draw();*/
 			c1.Print(filename + "_booky_" + TString(it->first) + ".pdf"); // actually print canvas to file
 		}
 		c1.Print(filename + "_booky_" + TString(it->first) + ".pdf]");

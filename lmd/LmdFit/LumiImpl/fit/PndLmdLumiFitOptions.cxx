@@ -161,6 +161,12 @@ void PndLmdLumiFitOptions::setFreeParametersOfModel(
 	free_parameters_code = free_parameters_code_;
 }
 
+void PndLmdLumiFitOptions::setThetaFitRange(const double fit_range_low_,
+		const double fit_range_high_) {
+	theta_fit_range_low = fit_range_low_;
+	theta_fit_range_high = fit_range_high_;
+}
+
 bool PndLmdLumiFitOptions::operator==(
 		const PndLmdLumiFitOptions &fit_options) const {
 	if (binary_options != fit_options.getBinaryOptions())

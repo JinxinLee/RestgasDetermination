@@ -90,8 +90,8 @@ private:
 	std::pair<double, double> calculatePlotRange(PndLmdDataInterface *data,
 			const PndLmdLumiFitOptions *fit_options);
 
-	std::map<TString, std::vector<PndLmdLumiHelper::lmd_graph> > generateLmdGraphMap(
-			std::vector<PndLmdLumiHelper::lmd_graph> graphs);
+	std::map<TString, std::vector<PndLmdLumiHelper::lmd_graph*> > generateLmdGraphMap(
+			std::vector<PndLmdLumiHelper::lmd_graph*> graphs);
 
 public:
 	PndLmdResultPlotter();

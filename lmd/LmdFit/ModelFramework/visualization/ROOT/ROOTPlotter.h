@@ -8,7 +8,7 @@
 #ifndef ROOTPLOTTER_H_
 #define ROOTPLOTTER_H_
 
-#include "Model1D.h"
+#include "Model.h"
 #include "ModelVisualizationProperties1D.h"
 
 #include <tr1/memory>
@@ -23,7 +23,7 @@ public:
 	ROOTPlotter();
 	virtual ~ROOTPlotter();
 
-	TGraphErrors* createGraphFromModel1D(shared_ptr<Model1D> model,
+	TGraphErrors* createGraphFromModel1D(shared_ptr<Model> model,
 			ModelVisualizationProperties1D &visualization_properties);
 };
 

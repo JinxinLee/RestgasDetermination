@@ -14,7 +14,7 @@ ClassImp(PndLmdLumiFitResult)
 PndLmdLumiFitResult::PndLmdLumiFitResult(
 		const PndLmdLumiFitOptions *fit_options_) :
 		fit_options(fit_options_) {
-	model_fit_result = new ModelFitResult();
+	model_fit_result = 0;
 }
 
 PndLmdLumiFitResult::PndLmdLumiFitResult() :

@@ -21,6 +21,7 @@ bool ParametrizationProxy::hasParametrization() const {
     return true;
   return false;
 }
+
 bool ParametrizationProxy::hasParametrizationModel() const {
   if(state == PARAMETRIZATION_MODEL)
     return true;
@@ -32,6 +33,7 @@ void ParametrizationProxy::setParametrization(shared_ptr<Parametrization> parame
   parametrization = parametrization_;
   state = PARAMETRIZATION;
 }
+
 void ParametrizationProxy::setParametrizationModel(shared_ptr<ParametrizationModel> parametrization_model_) {
   parametrization.reset();
   parametrization_model = parametrization_model_;
@@ -41,6 +43,7 @@ void ParametrizationProxy::setParametrizationModel(shared_ptr<ParametrizationMod
 const shared_ptr<Parametrization>& ParametrizationProxy::getParametrization() const {
   return parametrization;
 }
+
 const shared_ptr<ParametrizationModel>& ParametrizationProxy::getParametrizationModel() const {
   return parametrization_model;
 }

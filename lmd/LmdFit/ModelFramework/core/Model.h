@@ -123,7 +123,7 @@ public:
 	 * their domains). However for integration speed purposes the domain can be
 	 * shortened to some smaller area, while the outside of this domain is
 	 * numerically compatible with zero. The user is forced to overwrite this
-	 * method to an appropriate domain (see #GaussianModel::updateDomain()).
+	 * method to an appropriate domain (see #GaussianModel1D::updateDomain()).
 	 * Most likely a change in the parameters, will also change the domain, hence
 	 * this method will be called once the parameters have changes.
 	 */
