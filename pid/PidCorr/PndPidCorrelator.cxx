@@ -847,18 +847,20 @@ void PndPidCorrelator::ConstructNeutralCandidate() {
     {
       PndEmcBump* bump;
       PndEmcCluster *clu;
+      Float_t quality = -1.;
       if (fEmcMode==2)
 	{ 
 	  if (fClusterList[i]) continue;
 	  bump = (PndEmcBump*) fEmcCluster->At(i);
 	  clu  = (PndEmcBump*) fEmcCluster->At(i);
+          quality = fClusterQ[i];
 	}
       else if(fEmcMode == 3)
 	{
 	  bump = (PndEmcBump*) fEmcBump->At(i);
 	  if (fClusterList[bump->GetClusterIndex()]) continue; // skip correlated clusters
 	  clu = (PndEmcCluster*)fEmcCluster->At(bump->GetClusterIndex());
-      
+          quality = fClusterQ[bump->GetClusterIndex()];
 	}
     
       TVector3 vtx(0,0,0);
@@ -876,7 +878,7 @@ void PndPidCorrelator::ConstructNeutralCandidate() {
       pidCand->SetEmcModule(bump->GetModule());
       pidCand->SetEmcNumberOfCrystals(bump->NumberOfDigis());
       pidCand->SetEmcNumberOfBumps(clu->NBumps());
-      pidCand->SetEmcQuality(fClusterQ[i]);
+      pidCand->SetEmcQuality(quality);
 
       pidCand->SetEmcClusterZ20(bump->Z20());
       pidCand->SetEmcClusterZ53(bump->Z53());
@@ -986,8 +988,12 @@ void PndPidCorrelator::ResetEmcQ()
 {
   // Fuction to reset all the quality values for emc-track correlation to -1
   fClusterQ.clear();
+  fClusterList.clear();
   for (Int_t ii=0; ii<fEmcCluster->GetEntriesFast(); ii++)
-    fClusterQ[ii] = -1;
+    {
+      fClusterQ[ii] = -1;
+      fClusterList[ii] = kFALSE;
+    }
 }
 
 //_________________________________________________________________
