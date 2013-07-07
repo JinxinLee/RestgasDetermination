@@ -390,7 +390,11 @@ InitStatus PndPidCorrelator::Init() {
 	{
 	  cout << "-W- PndPidCorrelator::Init: No EmcBump array!" << endl;
 	}
-      else fEmcMode = 3;
+      else 
+	{
+	  cout << "-I- PndPidCorrelator::Init: Using EmcBump" << endl;
+	  fEmcMode = 3;
+	}	  
 
       fEmcDigi = (TClonesArray*) fManager->GetObject("EmcDigi");
       if ( ! fEmcDigi)
@@ -871,6 +875,7 @@ void PndPidCorrelator::ConstructNeutralCandidate() {
       pidCand->SetEmcIndex(i);
       pidCand->SetEmcModule(bump->GetModule());
       pidCand->SetEmcNumberOfCrystals(bump->NumberOfDigis());
+      pidCand->SetEmcNumberOfBumps(clu->NBumps());
       pidCand->SetEmcQuality(fClusterQ[i]);
 
       pidCand->SetEmcClusterZ20(bump->Z20());
@@ -1003,7 +1008,7 @@ Bool_t PndPidCorrelator::GetEmcInfo(FairTrackParH* helix, PndPidCandidate* pidCa
   Float_t trackTheta = helix->GetMomentum().Theta()*TMath::RadToDeg();
   
   Int_t emcEntries = fEmcCluster->GetEntriesFast();
-  Int_t emcIndex = -1, emcModuleCorr = -1, emcNCrystals = -1;
+  Int_t emcIndex = -1, emcModuleCorr = -1, emcNCrystals = -1, emcNBumps = -1;
   Float_t emcEloss = 0., emcElossCorr = 0., emcGLength = -1000;
   Float_t emcQuality = 1000000;
   Float_t chi2 = 0;
@@ -1054,6 +1059,7 @@ Bool_t PndPidCorrelator::GetEmcInfo(FairTrackParH* helix, PndPidCandidate* pidCa
 	  emcElossCorr = fEmcCalibrator->Energy(emcHit);
 	  emcModuleCorr = emcModule;
 	  emcNCrystals = emcHit->NumberOfDigis();
+          emcNBumps  = emcHit->NBumps();
 	  Z20 = emcHit->Z20();// Z_{n = 2}^{m = 0}
 	  Z53 = emcHit->Z53();// Z_{n = 5}^{m = 3}
 	  secLatM = emcHit->LatMom();
@@ -1089,6 +1095,7 @@ Bool_t PndPidCorrelator::GetEmcInfo(FairTrackParH* helix, PndPidCandidate* pidCa
     pidCand->SetEmcIndex(emcIndex);
     pidCand->SetEmcModule(emcModuleCorr);
     pidCand->SetEmcNumberOfCrystals(emcNCrystals);
+    pidCand->SetEmcNumberOfBumps(emcNBumps);
     //======= 
     pidCand->SetEmcClusterZ20(Z20);
     pidCand->SetEmcClusterZ53(Z53);
@@ -1108,7 +1115,7 @@ Bool_t PndPidCorrelator::GetMdtInfo(PndTrack* track, PndPidCandidate* pidCand) {
   FairTrackParP par = track->GetParamLast();
   Int_t ierr = 0;
   FairTrackParH *helix = new FairTrackParH(&par, ierr);
-  
+ 
   map<Int_t, Int_t>mapMdtTrk;
   FairGeanePro *fProMdt = new FairGeanePro();
   if (!fCorrErrorProp) fProMdt->PropagateOnlyParameters();
@@ -1150,7 +1157,7 @@ Bool_t PndPidCorrelator::GetMdtInfo(PndTrack* track, PndPidCandidate* pidCand) {
 	  FairTrackParH *fRes= new FairTrackParH();
 	  Bool_t rc =  fProMdt->Propagate(helix, fRes, fPidHyp*pidCand->GetCharge()); 
 	  if (!rc) continue;
-	  mdtTempMom = fRes->GetMomentum().Mag();  
+	  mdtTempMom = fRes->GetMomentum().Mag(); 
 	  vertex.SetXYZ(fRes->GetX(), fRes->GetY(), fRes->GetZ());
 	  vertexD.SetXYZ(fRes->GetDX(), fRes->GetDY(), fRes->GetDZ());
 	  mdtGLength = fProMdt->GetLengthAtPCA();
