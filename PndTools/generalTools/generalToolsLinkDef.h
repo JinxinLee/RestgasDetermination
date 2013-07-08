@@ -12,6 +12,7 @@
 #pragma link C++ class PndBlackBoxTask+;
 #pragma link C++ class PndEventCounterTask+;
 #pragma link C++ class PndTrackArrayMerger+;
+#pragma link C++ class PndMcCloner+;
 
 #endif
 

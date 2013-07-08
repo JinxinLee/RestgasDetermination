@@ -24,6 +24,7 @@ set(SRCS
 PndFileNameCreator.cxx
 PndStringSeparator.cxx
 PndGeoHandling.cxx
+PndMcCloner.cxx
 PndSensorNameContFact.cxx
 PndSensorNamePar.cxx
 PndBlackBoxTask.cxx
