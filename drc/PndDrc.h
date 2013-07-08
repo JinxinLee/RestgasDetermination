@@ -25,6 +25,8 @@ class PndDrcPDPoint;
 class PndDrcBarPoint;
 class FairVolume; 
 class PndGeoDrc;
+class PndDrcEVPoint;
+class TClonesArray;
 
 class PndDrc : public FairDetector 
 {
@@ -117,6 +119,8 @@ class PndDrc : public FairDetector
    ** Initialises detector. Stores volume IDs for DIRC detector and mirror.
    **/
      
+  void MarkReflectionsInsideEV(Bool_t mar=kFALSE) {fMarkReflectionsInsideEV = mar;}
+     
   virtual void Initialize();
 
 
@@ -199,6 +203,18 @@ class PndDrc : public FairDetector
 			Double_t length, 
 			Int_t pdgCode,
 			Int_t eventID);
+			
+  PndDrcEVPoint* AddEVHit(Int_t trackID, 
+			Int_t copyNo, 
+			TVector3 pos, 
+			TVector3 mom, 
+			Double_t time, 
+			Double_t length, 
+			Int_t pdgCode,
+			Int_t eventID,
+                        Double_t timestart,
+                        Double_t timestartEV,
+                        Double_t VeloPhoton);
 
   PndDrcBarPoint* AddBarHit(Int_t trackID, 
 			    Int_t copyNo, 
@@ -248,6 +264,7 @@ class PndDrc : public FairDetector
   TLorentzVector fMom;             //!  momentum
   Double32_t     fTime;            //!  time
   Double32_t     fLength;          //!  length 
+  Double32_t     fLengthEV;
   Double_t       fAngIn;
   Int_t          fNBar;
   Int_t          fPosIndex;                 //! 
@@ -260,6 +277,9 @@ class PndDrc : public FairDetector
   TLorentzVector fMomAtEV;
   Double_t 	 fBarEnd;
   Double_t 	 fMirrorGap;
+  Double_t 	 fTimeAtEVEntrance;
+  Double_t       fTimeStart;
+  Double_t       fVeloPhoton;
   
   // from Initialisation:
   Double_t       fLambda[1000];
@@ -270,6 +290,7 @@ class PndDrc : public FairDetector
   Double_t 	 fLambdaStep;
   Double_t 	 fAngleStep;
   Int_t		 fLambdaPoints;
+  Int_t          fEVreflections;
   
   // used in ProcessHits function:
   Int_t		 fbarID;	   //!  ID number of DrcBarSensors
@@ -296,6 +317,7 @@ class PndDrc : public FairDetector
   Bool_t         fTakeRealReflectivity;
   Bool_t	 fStopSecondaries;
   Bool_t  	 fStopChargedTrackAfterDIRC;
+  Bool_t 	 fMarkReflectionsInsideEV;
   
   TArrayI        fProc;
 
@@ -305,6 +327,7 @@ class PndDrc : public FairDetector
   Double_t       fThetaC;
 
   TClonesArray*  fDrcPDCollection;        //! Hit collection
+  TClonesArray*  fDrcEVCollection;        //! Hit collection
   TClonesArray*  fDrcBarCollection;        //! Hit collection in the bar
 
   Int_t          fEventID;
@@ -318,7 +341,7 @@ class PndDrc : public FairDetector
   void ResetParameters();
 
   Int_t  fSenId1, fSenId2, fSenIdBar;
-  ClassDef(PndDrc,11)
+  ClassDef(PndDrc,12)
 
 }; 
 
