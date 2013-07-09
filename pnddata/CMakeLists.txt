@@ -28,6 +28,7 @@ DskData/PndDskParticle.cxx
 DskData/PndDskTrackPoint.cxx
 DskData/PndDskFLGHit.cxx
 
+DrcData/PndDrcEVPoint.cxx
 DrcData/PndDrcPDPoint.cxx 
 DrcData/PndDrcBarPoint.cxx
 DrcData/PndDrcHit.cxx
@@ -107,6 +108,7 @@ DskData/PndDskParticle.h
 DskData/PndDskTrackPoint.h
 DskData/PndDskFLGHit.h
 
+DrcData/PndDrcEVPoint.h 
 DrcData/PndDrcPDPoint.h 
 DrcData/PndDrcBarPoint.h
 DrcData/PndDrcHit.h
