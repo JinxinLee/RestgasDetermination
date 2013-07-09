@@ -171,6 +171,7 @@ void PndDrcDigiTask::ProcessPhotonPoint()
   PndMCTrack* tr = NULL;
   
   //Loop over PndDrcPDPoints
+  cout<<"-I- PndDrcDigiTask: PD points "<< fPDPointArray->GetEntriesFast() <<endl;
   for(Int_t k=0; k < fPDPointArray->GetEntriesFast(); k++) {
   
     Ppt = (PndDrcPDPoint*)fPDPointArray->At(k);
@@ -1141,12 +1142,12 @@ TVector3 PndDrcDigiTask::GetSensorDimensions(Int_t sensorID)
 void PndDrcDigiTask::SetParameters(){
   fDetType=1; //  Detector Type =1  
   nRefrac=fGeo->nEV();//1.467;  //Refractive index of SOB   
-  fSigmat=0.05;  //Time Resolution is 50 ps ############################
+  fSigmat=0.1;  //Time Resolution is 100 ps ############################
   fVerbose=1;
   fCollectionEff=0.65;//Collection Efficiency 
   fPackingFraction=0.80;//Packing Efficiency 
   fRoughness = 0.001; // 10 A
-  fTimeGranularity = 0.098;// [ns] = 98 ps granularity of the time signal
+  fTimeGranularity = 0.001;// [ns] = 98 ps granularity of the time signal
   
   // basic DIRC parameters:
   fpi            =  TMath::Pi();
