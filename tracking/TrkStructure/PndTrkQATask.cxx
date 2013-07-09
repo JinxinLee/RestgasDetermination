@@ -422,17 +422,19 @@ void PndTrkQATask::Exec(Option_t* opt) {
     Int_t nofmctrackmvdpixpoints = mctrkcand->GetNHitsDet(FairRootManager::Instance()->GetBranchId(fMvdPixelBranch));
     Int_t nofmctrackmvdstrpoints = mctrkcand->GetNHitsDet(FairRootManager::Instance()->GetBranchId(fMvdStripBranch));
 
+    // this loop counts skewed (--> parallel) STT/FTS hits
     for(Int_t ihit = 0; ihit < nofmctrackpoints; ihit++) {
       PndTrackCandHit mccandhit = mctrkcand->GetSortedHit(ihit);
       Int_t hitID1 = mccandhit.GetHitId();
       Int_t detID1 = mccandhit.GetDetId();
-
-
-      if(!fUseMVDPixHits && detID1 == FairRootManager::Instance()->GetBranchId(fMvdPixelBranch)) continue;
-      if(!fUseMVDStrHits && detID1 == FairRootManager::Instance()->GetBranchId(fMvdStripBranch)) continue;
+      
+      
+      //       if(!fUseMVDPixHits && detID1 == FairRootManager::Instance()->GetBranchId(fMvdPixelBranch)) continue;
+      //       if(!fUseMVDStrHits && detID1 == FairRootManager::Instance()->GetBranchId(fMvdStripBranch)) continue;
+      
       if(!fUseSTTHits && detID1 == FairRootManager::Instance()->GetBranchId(fSttBranch)) continue;
       if(!fUseFTSHits && detID1 == FairRootManager::Instance()->GetBranchId(fFtsBranch)) continue;
-
+      
 
       // count skew STT ---------------------------
       if(detID1 == FairRootManager::Instance()->GetBranchId(fSttBranch)) {
@@ -441,20 +443,23 @@ void PndTrkQATask::Exec(Option_t* opt) {
 	PndSttTube *tube = (PndSttTube*) fTubeArrayStt->At(tubeID);
 	if(tube->IsSkew()) nofmctracksttskewpoints++;
       }
-      nofmctracksttparalpoints = nofmctracksttpoints - nofmctracksttskewpoints;
+      //       nofmctracksttparalpoints = nofmctracksttpoints - nofmctracksttskewpoints;
       // ---------------------------------------
 
       // count skew FTS ---------------------------
-      if(detID1 == FairRootManager::Instance()->GetBranchId(fFtsBranch)) {
+      else if(detID1 == FairRootManager::Instance()->GetBranchId(fFtsBranch)) {
 	PndFtsHit *ftshit = (PndFtsHit*) fFtsHitArray->At(hitID1);
 	Int_t tubeID = ftshit->GetTubeID();
 	PndFtsTube *tube = (PndFtsTube*) fTubeArrayFts->At(tubeID);
 	if(tube->IsSkew()) nofmctrackftsskewpoints++;
       }
-      nofmctrackftsparalpoints = nofmctrackftspoints - nofmctrackftsskewpoints;
+      //       nofmctrackftsparalpoints = nofmctrackftspoints - nofmctrackftsskewpoints;
       // ---------------------------------------
 
+      else continue;
     }
+    nofmctracksttparalpoints = nofmctracksttpoints - nofmctracksttskewpoints;
+    nofmctrackftsparalpoints = nofmctrackftspoints - nofmctrackftsskewpoints;
 
     // switch some detectors off ............
     if(!fUseMVDPixHits) {
@@ -591,14 +596,17 @@ void PndTrkQATask::Exec(Option_t* opt) {
 	else if(detID == FairRootManager::Instance()->GetBranchId(fSttBranch)) {
 
 	  hit = (PndSttHit*) fSttHitArray->At(hitID);
+	  Int_t tubeID = ((PndSttHit*) hit)->GetTubeID();
+	  PndSttTube *tube = (PndSttTube*) fTubeArrayStt->At(tubeID);
+
 	  if(hit->GetRefIndex() == -1) {
 	    nTmpWrongStt++;
 	    nTmpWrong++;
+	    if(tube->IsSkew()) nTmpWrongSttSkew++;
+	    else nTmpWrongSttParal++;
 	  }
 	  else {
 	    PndSttPoint *pnt = (PndSttPoint*) fSttPointArray->At(hit->GetRefIndex());
-	    Int_t tubeID = ((PndSttHit*) hit)->GetTubeID();
-	    PndSttTube *tube = (PndSttTube*) fTubeArrayStt->At(tubeID);
 	    if(tube->IsSkew()) noftmprecotracksttskewpoints++;
 	    else noftmprecotracksttparalpoints++;
 
@@ -619,14 +627,16 @@ void PndTrkQATask::Exec(Option_t* opt) {
 	else if(detID == FairRootManager::Instance()->GetBranchId(fFtsBranch)) {
 
 	  hit = (PndFtsHit*) fFtsHitArray->At(hitID);
+	  Int_t tubeID = ((PndFtsHit*) hit)->GetTubeID();
+	  PndFtsTube *tube = (PndFtsTube*) fTubeArrayFts->At(tubeID);
 	  if(hit->GetRefIndex() == -1) {
 	    nTmpWrongFts++;
 	    nTmpWrong++;
+	    if(tube->IsSkew()) nTmpWrongFtsSkew++;
+	    else nTmpWrongFtsParal++;
 	  }
 	  else {
 	    PndFtsPoint *pnt = (PndFtsPoint*) fFtsPointArray->At(hit->GetRefIndex());
-	    Int_t tubeID = ((PndFtsHit*) hit)->GetTubeID();
-	    PndFtsTube *tube = (PndFtsTube*) fTubeArrayFts->At(tubeID);
 	    if(tube->IsSkew()) noftmprecotrackftsskewpoints++;
 	    else noftmprecotrackftsparalpoints++;
 
@@ -705,6 +715,8 @@ void PndTrkQATask::Exec(Option_t* opt) {
 
     }
 
+   
+
     if(fVerbose > 1) {
       cout << "POINTS MC (mc trk, stt, mvd pix, mvd str, fts)" << endl;
       cout << nofmctrackpoints << " " << nofmctracksttpoints << " " << nofmctrackmvdpixpoints << " " << nofmctrackmvdstrpoints << " " << nofmctrackftspoints<< endl;
@@ -780,6 +792,7 @@ void PndTrkQATask::Exec(Option_t* opt) {
       cout << "assigned " <<  nAssigned <<  " not assigned " << nNotAssigned << " wrong " << nWrong << endl;
     }
 
+ 
     if((nAssigned + nNotAssigned) != nofmctrackpoints) cout << "ERROR 1" << endl;
     if((nAssigned + nWrong) != nofrecotrackpoints) cout << "ERROR 2" << endl;
     if((nAssignedSttSkew + nAssignedSttParal) != nAssignedStt) cout << "ERROR 3" << endl;
@@ -969,8 +982,10 @@ Bool_t PndTrkQATask::IdealTrackFinding() {
 
 
 
-    if(fVerbose > 13) cout << "STT: hitMap[iMCTrack][1]=" << hitMap[iMCTrack][1] << endl;
-    if(fVerbose > 13) cout << "FTS: hitMap[iMCTrack][2]=" << hitMap[iMCTrack][2] << endl;
+    if(fVerbose > 13) {
+      cout << "STT: hitMap[iMCTrack][1]=" << hitMap[iMCTrack][1] << endl;
+      cout << "FTS: hitMap[iMCTrack][2]=" << hitMap[iMCTrack][2] << endl;
+    }
 
 
     // Determine whether to accept the track or not (depending on which detector's tracking should be analysed)
@@ -1137,8 +1152,10 @@ void PndTrkQATask::MapMCToReco()
 
   // INDEX in IdealTrackCandArray <---> fTrackArray entries
   //  std::map< Int_t, std::vector<Int_t> > fMC2RecoMap;
-  if(fVerbose > 2) cout << "mc   tracks " << fIdealTrackCandArray->GetEntriesFast() << endl;
-  if(fVerbose > 2) cout << "reco tracks " << fTrackArray->GetEntriesFast() << endl;
+  if(fVerbose > 2) {
+    cout << "mc   tracks " << fIdealTrackCandArray->GetEntriesFast() << endl;
+    cout << "reco tracks " << fTrackArray->GetEntriesFast() << endl;
+  }
 
   // maps mc track id to reco track id
   fMC2RecoMap.clear();
