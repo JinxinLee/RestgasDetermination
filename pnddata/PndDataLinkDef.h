@@ -15,6 +15,7 @@
 #pragma link C++ class PndDskTrackPoint+;
 #pragma link C++ class PndDskFLGHit+;
 
+#pragma link C++ class PndDrcEVPoint+;
 #pragma link C++ class PndDrcPDPoint+;
 #pragma link C++ class PndDrcBarPoint+;
 #pragma link C++ class PndDrcHit+;
