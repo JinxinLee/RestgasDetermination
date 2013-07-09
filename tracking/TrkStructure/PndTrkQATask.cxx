@@ -50,7 +50,7 @@ using namespace std;
 
 
 // -----   Default constructor   -------------------------------------------
-PndTrkQATask::PndTrkQATask() : FairTask("QA plots", 0), fPersistence(kTRUE), fUseMVDPixHits(kTRUE), fUseMVDStrHits(kTRUE), fUseSTTHits(kTRUE), fUseSTTSkewHits(kTRUE), fUseFTSHits(kTRUE), fUseFTSSkewHits(kTRUE), fNFtsPoints(0), fNSttPoints(0), fNMvdPoints(0), fNMCPoints(0), fNFtsHits(0), fNSttHits(0), fNMvdPixHits(0), fNMvdStrHits(0), fNHits(0), fNMCTracks(0), fFtsPointArray(NULL), fFtsHitArray(NULL), fSttPointArray(NULL), fSttHitArray(NULL), fMvdPointArray(NULL), fMvdPixelHitArray(NULL), fMvdStripHitArray(NULL), fMCTrackArray(NULL), fTrackArray(NULL), fTrackCandArray(NULL), fIdealTrackCandArray(NULL), fTubeArrayStt(NULL), fTubeArrayFts(NULL), fTrackIDArray(NULL), fSttParameters(NULL), fFtsParameters(NULL) {
+PndTrkQATask::PndTrkQATask() : FairTask("QA plots", 0), fPersistence(kTRUE), fUseMVDPixHits(kTRUE), fUseMVDStrHits(kTRUE), fUseSTTHits(kTRUE), fUseSTTSkewHits(kTRUE), fUseFTSHits(kTRUE), fUseFTSSkewHits(kTRUE), fNFtsPoints(0), fNSttPoints(0), fNMvdPoints(0), fNMCPoints(0), fNFtsHits(0), fNSttHits(0), fNMvdPixHits(0), fNMvdStrHits(0), fNHits(0), fNMCTracks(0), fFtsPointArray(NULL), fFtsHitArray(NULL), fSttPointArray(NULL), fSttHitArray(NULL), fMvdPointArray(NULL), fMvdPixelHitArray(NULL), fMvdStripHitArray(NULL), fMCTrackArray(NULL), fTrackArray(NULL), fTrackCandArray(NULL), fIdealTrackCandArray(NULL), fTubeArrayStt(NULL), fTubeArrayFts(NULL), fTrackIDArray(NULL), fSttParameters(NULL), fFtsParameters(NULL), fMinimumNofSttHits(3), fMinimumNofFtsHits(6) {
   SetDetectorsToStudy("STT");
   sprintf(fFtsBranch,"FTSHit");
   sprintf(fSttBranch,"STTHit");
@@ -62,7 +62,7 @@ PndTrkQATask::PndTrkQATask() : FairTask("QA plots", 0), fPersistence(kTRUE), fUs
 
 
 // ---------------------------------------------------------
-PndTrkQATask::PndTrkQATask(TString detectorsToStudy, Int_t verbose=0) : FairTask("QA plots", verbose), fPersistence(kTRUE), fUseMVDPixHits(kTRUE), fUseMVDStrHits(kTRUE), fUseSTTHits(kTRUE), fUseSTTSkewHits(kTRUE), fUseFTSHits(kTRUE), fUseFTSSkewHits(kTRUE), fNFtsPoints(0), fNSttPoints(0), fNMvdPoints(0), fNMCPoints(0), fNFtsHits(0), fNSttHits(0), fNMvdPixHits(0), fNMvdStrHits(0), fNHits(0), fNMCTracks(0), fFtsPointArray(NULL), fFtsHitArray(NULL), fSttPointArray(NULL), fSttHitArray(NULL), fMvdPointArray(NULL), fMvdPixelHitArray(NULL), fMvdStripHitArray(NULL), fMCTrackArray(NULL), fTrackArray(NULL), fTrackCandArray(NULL), fIdealTrackCandArray(NULL), fTubeArrayStt(NULL), fTubeArrayFts(NULL), fTrackIDArray(NULL), fSttParameters(NULL), fFtsParameters(NULL) {
+PndTrkQATask::PndTrkQATask(TString detectorsToStudy, Int_t verbose=0) : FairTask("QA plots", verbose), fPersistence(kTRUE), fUseMVDPixHits(kTRUE), fUseMVDStrHits(kTRUE), fUseSTTHits(kTRUE), fUseSTTSkewHits(kTRUE), fUseFTSHits(kTRUE), fUseFTSSkewHits(kTRUE), fNFtsPoints(0), fNSttPoints(0), fNMvdPoints(0), fNMCPoints(0), fNFtsHits(0), fNSttHits(0), fNMvdPixHits(0), fNMvdStrHits(0), fNHits(0), fNMCTracks(0), fFtsPointArray(NULL), fFtsHitArray(NULL), fSttPointArray(NULL), fSttHitArray(NULL), fMvdPointArray(NULL), fMvdPixelHitArray(NULL), fMvdStripHitArray(NULL), fMCTrackArray(NULL), fTrackArray(NULL), fTrackCandArray(NULL), fIdealTrackCandArray(NULL), fTubeArrayStt(NULL), fTubeArrayFts(NULL), fTrackIDArray(NULL), fSttParameters(NULL), fFtsParameters(NULL), fMinimumNofSttHits(3), fMinimumNofFtsHits(6) {
   SetDetectorsToStudy(detectorsToStudy);
   sprintf(fFtsBranch,"FTSHit");
   sprintf(fSttBranch,"STTHit");
@@ -70,8 +70,6 @@ PndTrkQATask::PndTrkQATask(TString detectorsToStudy, Int_t verbose=0) : FairTask
   sprintf(fMvdStripBranch,"MVDHitsStrip");
   sprintf(fInputTrackBranch,"Track");
   sprintf(fInputTrackIDBranch,"TrackID");
-
-
 }
 
 
@@ -81,6 +79,8 @@ void PndTrkQATask::SetDetectorsToStudy(TString detectorsToStudy){
     cout << "PndTrkQATask Ctor WARNING: Unknown Detector Mode! Will use " << detectorsToStudy << " instead of your input " << detectorsToStudy << endl;
   }
   fDetectorsToStudy=detectorsToStudy;
+
+  
 }
 
 // -----   Destructor   ----------------------------------------------------
@@ -800,7 +800,7 @@ void PndTrkQATask::Exec(Option_t* opt) {
   }
 
   // CHECK for now:
-  // fMCReconstructableTrack are the mc tracks which satisfy the criterion in IsMcTrackAcceptable (at least 3 parallel stt points in STT case)
+  // fMCReconstructableTrack are the mc tracks which satisfy the criterion in IsMcTrackAcceptable (at least fMinimumNofXXXHits)
 
   if(fVerbose > 0) {
     if(fThisRecoTrack == 0 || fThisMCReconstructableTrack == 0){
@@ -910,7 +910,7 @@ Bool_t PndTrkQATask::IdealTrackFinding() {
       continue;
     }
 
-    // CHECK do not count stt skew since we need at least 3 hits
+    // CHECK do not count stt skew since we need at least fMinimumNofSttHits hits
     // in xy plane to do the fit in xy -------------------------
     Int_t tubeID = ((PndSttPoint*) pMCpt)->GetTubeID();
     PndSttTube *tube = (PndSttTube*) fTubeArrayStt->At(tubeID);
@@ -1197,13 +1197,13 @@ Bool_t PndTrkQATask::IsMcTrackAcceptable(Int_t iMCTrack, Int_t hitMap[][NOFDETEC
   // The selection criterion depends on which detector's tracking performance is investigated
   if ("STT"==fDetectorsToStudy){
     // CUT CHECK
-    // CHECK cut at least 3 stt parallel MC points
-    // if ((hitMap[iMCTrack][0] + hitMap[iMCTrack][1]) < 3) continue;
-    if(fVerbose > 13) cout << "STT: hitMap[iMCTrack][1]=" << hitMap[iMCTrack][1] << " IsMcTrackAcceptable returns " << !(hitMap[iMCTrack][2] < 3) << endl;
-    return !(hitMap[iMCTrack][1] < 3);
+    // CHECK cut at least fMinimumNofSttHits stt parallel MC points
+    // if ((hitMap[iMCTrack][0] + hitMap[iMCTrack][1]) < fMinimumNofSttHits) continue;
+    if(fVerbose > 13) cout << "STT: hitMap[iMCTrack][1]=" << hitMap[iMCTrack][1] << " IsMcTrackAcceptable returns " << !(hitMap[iMCTrack][2] < fMinimumNofSttHits) << endl;
+    return !(hitMap[iMCTrack][1] < fMinimumNofSttHits);
   } else if ("FTS"==fDetectorsToStudy){
-    if(fVerbose > 13) cout << "FTS: hitMap[iMCTrack][2]=" << hitMap[iMCTrack][2] << " IsMcTrackAcceptable returns " << !(hitMap[iMCTrack][2] < 6) << endl;
-    return !(hitMap[iMCTrack][2] < 6);
+    if(fVerbose > 13) cout << "FTS: hitMap[iMCTrack][2]=" << hitMap[iMCTrack][2] << " IsMcTrackAcceptable returns " << !(hitMap[iMCTrack][2] < fMinimumNofFtsHits) << endl;
+    return !(hitMap[iMCTrack][2] < fMinimumNofFtsHits);
   }
 }
 

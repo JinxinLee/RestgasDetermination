@@ -82,6 +82,10 @@ class PndTrkQATask : public FairTask {
 
   void MapMCToReco();
 
+  void SetMinimumNofSttHits(Int_t nofhits) { fMinimumNofSttHits = nofhits; }
+  void SetMinimumNofFtsHits(Int_t nofhits) { fMinimumNofFtsHits = nofhits; }
+
+
 
  private:
 
@@ -147,7 +151,7 @@ class PndTrkQATask : public FairTask {
   TString fDetectorsToStudy;  // This flag determines which detector's tracking algorithm should be investigated
   Bool_t  fUseMVDPixHits, fUseMVDStrHits, fUseSTTHits, fUseSTTSkewHits, fUseFTSHits, fUseFTSSkewHits; // These determine which detectors' hits should be looked at
   std::map< Int_t, std::vector<Int_t> > fMC2RecoMap;
-
+  Int_t fMinimumNofSttHits, fMinimumNofFtsHits;
 };
 
 #endif
