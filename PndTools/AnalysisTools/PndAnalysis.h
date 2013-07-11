@@ -44,7 +44,9 @@ class PndAnalysis
     //void SetTracksName2(TString s) {fTracksName2 = s;}
     Bool_t PropagateToIp(RhoCandidate* cand);
     Bool_t PropagateToZAxis(RhoCandidate* cand);
-    Bool_t PropagateToPoint(RhoCandidate* cand, TVector3* mypoint);
+    Bool_t PropagateToPoint(RhoCandidate* cand, TVector3 mypoint);
+    Bool_t PropagateToPlane(RhoCandidate* cand, TVector3 origin, TVector3 dj, TVector3 dk);
+
     FairTrackParP GetFirstPar(RhoCandidate* cand);
     Bool_t ResetCandidate(RhoCandidate* cand);
     Bool_t ResetDaughters(RhoCandidate* cand);
@@ -57,6 +59,9 @@ class PndAnalysis
     //track array from a fitter object. [R.K.03'11]
     TClonesArray* GetTrackArrayPointer() const {return fTracks;};
 
+    Bool_t Propagator(int mode, FairTrackParP& tStart, RhoCandidate* cand,
+                      TVector3 point=TVector3(0,0,0), Bool_t skipcov=kFALSE, Bool_t overwrite=kFALSE, TVector3 planej=TVector3(1,0,0), TVector3 planek=TVector3(0,1,0));
+
   private:
 
     void Init();
@@ -64,8 +69,6 @@ class PndAnalysis
     void ReadRecoCandidates();
     RhoCandidate* CreateMcCandidate(Int_t mcindex);
     TClonesArray* ReadTCA(TString tcaname);
-    Bool_t Propagator(int mode, FairTrackParP& tStart, RhoCandidate* cand,
-                      TVector3* point=NULL, Bool_t skipcov=kFALSE);
 
     // Private Member Variables
 

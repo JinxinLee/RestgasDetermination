@@ -893,8 +893,8 @@ RhoCandidate::SetType ( const TParticlePDG* pdt )
   if ( !IsComposite() ) {
 
     // the mass has changed since the type has changed
-    SetMass ( Mass() );
-
+    //SetMass ( Mass() );
+    SetMass(fPdtEntry->Mass());
     // set the charge
     SetCharge ( pdt->Charge()/3. ); // TParticlePDG contains charge in units of |e|/3
   } else {

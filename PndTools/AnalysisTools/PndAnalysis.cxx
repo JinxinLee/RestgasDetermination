@@ -357,6 +357,7 @@ RhoCandidate* PndAnalysis::CreateMcCandidate(Int_t mcindex)
   // check if it is in the mccand list (private index list) and return pointer in case
   if(fMcPresenceMap[mcindex]) return fMcPresenceMap[mcindex];
   if(mcindex>fMcTracks->GetEntriesFast()) return 0;
+  if(mcindex<0) return 0;
   // fetch particle properties
   PndMCTrack* part = (PndMCTrack*) fMcTracks->At(mcindex);
   if(!part) return 0;
@@ -441,7 +442,8 @@ void PndAnalysis::BuildMcCands()
 Bool_t PndAnalysis::PropagateToIp ( RhoCandidate* cand )
 {
   //Propagate from the tracks first parameter set to the POCA from (0,0,0)
-  return PropagateToPoint ( cand, new TVector3 ( 0.,0.,0. ) );
+  TVector3 ip( 0.,0.,0. );
+  return PropagateToPoint ( cand, ip );
 }
 
 Bool_t PndAnalysis::PropagateToZAxis ( RhoCandidate* cand )
@@ -462,10 +464,10 @@ Bool_t PndAnalysis::PropagateToZAxis ( RhoCandidate* cand )
 
   FairTrackParP tStart = track->GetParamFirst();
 
-  return Propagator ( 2,tStart,cand,NULL,kFALSE );
+  return Propagator ( 2,tStart,cand );
 }
 
-Bool_t PndAnalysis::PropagateToPoint ( RhoCandidate* cand, TVector3* mypoint )
+Bool_t PndAnalysis::PropagateToPoint ( RhoCandidate* cand, TVector3 mypoint )
 {
   //Propagate from the tracks first parameter set to the POCA from mypoint
   //The candidate is updated but the track not touched
@@ -487,8 +489,33 @@ Bool_t PndAnalysis::PropagateToPoint ( RhoCandidate* cand, TVector3* mypoint )
 
   FairTrackParP tStart = track->GetParamFirst();
 
-  return Propagator ( 1,tStart,cand,mypoint,kFALSE );
+  return Propagator ( 1,tStart,cand,mypoint );
 }
+
+Bool_t PndAnalysis::PropagateToPlane(RhoCandidate* cand, TVector3 origin, TVector3 dj, TVector3 dk)
+{
+  //Propagate from the tracks first parameter set to a (detector) plane
+  //The candidate is updated but the track not touched
+  //Only the uncorrelated errors are propagated,
+  //TODO: implement a real cov matrix
+  if ( !cand ) {
+    Error ( "PropagateToPlane","Candidate not found: %p",cand );
+    return kFALSE;
+  }
+
+  PndPidCandidate* pidCand = (PndPidCandidate*)cand->GetRecoCandidate();
+
+  PndTrack* track = ( PndTrack* ) fTracks->At ( pidCand->GetTrackIndex() );
+
+  if ( !track ) {
+    Warning ( "PropagateToPlane","Could not find track object of index %d",pidCand->GetTrackIndex() );
+    return kFALSE;
+  }
+
+  FairTrackParP tStart = track->GetParamFirst();
+  return Propagator ( 3,tStart,cand,origin,kFALSE,kFALSE,dj,dk );
+}
+
 
 FairTrackParP PndAnalysis::GetFirstPar ( RhoCandidate* cand )
 {
@@ -555,7 +582,7 @@ Bool_t PndAnalysis::ResetCandidate ( RhoCandidate* cand )
 }
 
 
-Bool_t PndAnalysis::Propagator ( int mode, FairTrackParP& tStart, RhoCandidate* cand, TVector3* mypoint, Bool_t skipcov )
+Bool_t PndAnalysis::Propagator ( int mode, FairTrackParP& tStart, RhoCandidate* cand, TVector3 mypoint, Bool_t skipcov, Bool_t overwrite, TVector3 planej, TVector3 planek )
 {
   //Propagate from the tracks first parameter set to the POCA from mypoint
   //The candidate is updated but the track not touched
@@ -565,8 +592,6 @@ Bool_t PndAnalysis::Propagator ( int mode, FairTrackParP& tStart, RhoCandidate* 
   Bool_t rc = kFALSE;
   static PndVtxFitterParticle covTool; // external tool to convert from a 6x6 (p3,v) cov matrix to the 7x7(p4,v) cov matrix
   FairGeanePro* geaneProp = new FairGeanePro();
-  FairTrackParH* myStart = new FairTrackParH ( tStart );
-  FairTrackParH* myResult = new FairTrackParH();
   Int_t pdgcode = cand->PdgCode();
 
   if ( fVerbose>0 ) {
@@ -590,82 +615,94 @@ Bool_t PndAnalysis::Propagator ( int mode, FairTrackParP& tStart, RhoCandidate* 
     std::cout<<"Start MARS cov: "; errst.Print();
   }
 
-  if ( 1==mode && NULL!=mypoint ) {
+  if ( 1==mode ) { // to point
     geaneProp->BackTrackToVertex(); //set where to propagate
-    geaneProp->SetPoint ( *mypoint );
-  } else if ( 2==mode ) {
+    geaneProp->SetPoint ( mypoint );
+  } else if ( 2==mode ) { // to line
     geaneProp->PropagateToPCA ( 2, -1 );// track back to z axis
     TVector3 ex1 ( 0.,0.,-50. ); // virtual wire of arbitrarily chosen size
     TVector3 ex2 ( 0.,0.,100. );
     geaneProp->SetWire ( ex1,ex2 );
+  } else if ( 3==mode ) { // to plane
+    geaneProp->PropagateToPlane(mypoint,planej,planek);
   } else {
-    Error ( "Propagator()","Use mode 1 with a valid TVector3 pointer or mode 2. (Mode=%i & TVector3*=%p)",mode,mypoint );
+    Error ( "Propagator()","Use mode 1 (to a TVector3) or mode 2 (to z axis) or mode 3 (to plane). (Mode=%i)",mode );
     return kFALSE;
   }
+  
+  if(skipcov) geaneProp->PropagateOnlyParameters();
 
+  FairTrackParH* myResult=0;
   // now we propagate
-  rc = geaneProp->Propagate ( myStart, myResult,pdgcode );
+  if(mode==3){
+    FairTrackParP* tResult = new FairTrackParP();
+    rc = geaneProp->Propagate ( &tStart, tResult,pdgcode );
+    myResult = new FairTrackParH(*tResult);
+  }else{
+    myResult = new FairTrackParH();
+    FairTrackParH* myStart = new FairTrackParH ( tStart );
+    rc = geaneProp->Propagate ( myStart, myResult,pdgcode ); 
+  }
 
   if ( !rc ) {
     if ( fVerbose>0 ) {
       Warning ( "Propagator()","Geane propagation failed" );
     }
-
     return kFALSE;
   }
 
-  TVector3 pos ( myResult->GetX(),myResult->GetY(),myResult->GetZ() ); // I want to be sure...
-
-  //printout for checks
-  TVector3 vecdiff=myStart->GetPosition() - myResult->GetPosition();
-
-  if ( fVerbose>1 ) {
-    std::cout<<"position start     :";
-    myStart->GetPosition().Print();
-    std::cout<<"position ip        :";
-    myResult->GetPosition().Print();
-    std::cout<<"position difference:";
-    vecdiff.Print();
-    vecdiff=myStart->GetMomentum()-myResult->GetMomentum();
-    std::cout<<"momentum start     :";
-    myStart->GetMomentum().Print();
-    std::cout<<"momentum ip        :";
-    myResult->GetMomentum().Print();
-    std::cout<<"momentum difference:";
-    vecdiff.Print();
-  }
-
-  cand->SetPosition ( pos );
-
-  cand->SetP3 ( myResult->GetMomentum() ); // implicitly uses the candidates mass to set P4
   int ierr=0;
   TVector3 di = myResult->GetMomentum();
   di.SetMag ( 1. );
   TVector3 dj = di.Orthogonal();
   TVector3 dk = di.Cross ( dj );
   FairTrackParP* myParab = new FairTrackParP ( myResult, dj, dk, ierr );
-  Double_t globalCov[6][6];
-  myParab->GetMARSCov ( globalCov );
-  TMatrixD err ( 6,6 );
 
-  for ( Int_t ii=0; ii<6; ii++ ) for ( Int_t jj=0; jj<6; jj++ ) {
-      err[ii][jj]=globalCov[ii][jj];
+  TVector3 pos( myResult->GetX(),myResult->GetY(),myResult->GetZ() ); // I want to be sure...
+  cand->SetPosition( pos );
+  cand->SetP3( myResult->GetMomentum() ); // implicitly uses the candidates mass to set P4
+
+  //printout for checks
+  if ( fVerbose>1 ) {
+    TVector3 vecdiff=tStart.GetPosition() - myResult->GetPosition();
+    std::cout<<"position start     :";
+    tStart.GetPosition().Print();
+    std::cout<<"position ip        :";
+    myResult->GetPosition().Print();
+    std::cout<<"position difference:";
+    vecdiff.Print();
+    vecdiff=tStart.GetMomentum()-myResult->GetMomentum();
+    std::cout<<"momentum start     :";
+    tStart.GetMomentum().Print();
+    std::cout<<"momentum ip        :";
+    myResult->GetMomentum().Print();
+    std::cout<<"momentum difference:";
+    vecdiff.Print();
+  }
+ 
+  if(kFALSE==skipcov){
+    Double_t globalCov[6][6];
+    myParab->GetMARSCov ( globalCov );
+    TMatrixD err ( 6,6 );
+
+    for ( Int_t ii=0; ii<6; ii++ ) for ( Int_t jj=0; jj<6; jj++ ) {
+        err[ii][jj]=globalCov[ii][jj];
+      }
+
+    if ( fVerbose>2 ) {
+      std::cout<<"MARS cov (px,py,pz,E,x,y,z): "; err.Print();
     }
 
-  if ( fVerbose>2 ) {
-    std::cout<<"MARS cov (px,py,pz,E,x,y,z): "; err.Print();
+    TLorentzVector lv = cand->P4();
+
+    TMatrixD covPosMom = covTool.GetConverted7 ( covTool.GetFitError ( lv, err ) );
+
+    if ( fVerbose>2 ) {
+      std::cout<<"covPosMom (x,y,z,px,py,pz,E): "; covPosMom.Print();
+    }
+
+    cand->SetCov7 ( covPosMom );
   }
-
-  TLorentzVector lv = cand->P4();
-
-  TMatrixD covPosMom = covTool.GetConverted7 ( covTool.GetFitError ( lv, err ) );
-
-  if ( fVerbose>2 ) {
-    std::cout<<"covPosMom (x,y,z,px,py,pz,E): "; covPosMom.Print();
-  }
-
-  cand->SetCov7 ( covPosMom );
-
 //  rc = PndAnalysisCalcTools::FillHelixParams(cand,skipcov);
 //  if (!rc) {Warning("Propagator()","P7toHelix failed"); return kFALSE;}
 
@@ -693,6 +730,21 @@ Bool_t PndAnalysis::Propagator ( int mode, FairTrackParP& tStart, RhoCandidate* 
   // COMMENT:
   // When taking the Trackparams in the POCA to the z-axis, the SC system from GEANE matches the common helix params easier, i.e:
   // D0 = y_sc and Z0 = sqrt(x_sc^2 + z_sc^2) = z_sc*tan(Lambda)
+
+  if(overwrite){
+    if ( fVerbose>1 ) {
+      Info ( "Propagator  ","overwriting start parameter state with result");
+    }
+    tStart.SetTrackPar(myParab->GetV(), myParab->GetW(),
+                       myParab->GetTV(), myParab->GetTW(),
+                       myParab->GetQp(), myParab->GetCov(),
+                       myParab->GetOrigin(), 
+                       myParab->GetIVer(), 
+                       myParab->GetJVer(), 
+                       myParab->GetKVer(), 
+                       myParab->GetSPU()
+                       );
+  }
 
   if ( fVerbose>1 ) {
     Info ( "Propagator  ","Succsess=%i",rc );

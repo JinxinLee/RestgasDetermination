@@ -32,7 +32,7 @@ set(SRCS
 #PndSimplePidInfo.cxx
 #PndMicroCandidate.cxx
 PndEventInfo.cxx
-PndEventReader.cxx
+#PndEventReader.cxx
 PndPidListMaker.cxx
 PndAnalysis.cxx
 PndAnalysisCalcTools.cxx

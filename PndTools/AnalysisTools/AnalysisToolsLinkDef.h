@@ -19,7 +19,7 @@
 #pragma link C++ class PndVtxPRG;
 #pragma link C++ class Pnd4CFitter;
 #pragma link C++ class PndVtxFitterParticle;
-#pragma link C++ class PndEventReader+;
+//#pragma link C++ class PndEventReader+;
 #pragma link C++ class PndPidListMaker;
 #pragma link C++ class PndAnalysis+;
 #pragma link C++ class PndAnalysisCalcTools+;
