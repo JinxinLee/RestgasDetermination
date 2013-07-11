@@ -31,9 +31,12 @@ class PndDrcHitFinder : public FairTask
 
   /** Default constructor **/
   PndDrcHitFinder();
+
+  /** Standard constructor **/
+  PndDrcHitFinder(Int_t iVerbose);
   
   /** Named constructor **/
-  PndDrcHitFinder(const char* name);
+  PndDrcHitFinder(const char* name, Int_t iVerbose);
 
   /** Destructor **/
   virtual ~PndDrcHitFinder();

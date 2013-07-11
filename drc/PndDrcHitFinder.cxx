@@ -22,7 +22,7 @@
 
 // -----   Default constructor   -------------------------------------------
 PndDrcHitFinder::PndDrcHitFinder() :
-FairTask("SDS Hybrid Hit Producer")
+FairTask("SDS Hybrid Hit Producer", 1)
 {
   
   fPixelHits = 0;
@@ -45,8 +45,30 @@ FairTask("SDS Hybrid Hit Producer")
 }
 // -------------------------------------------------------------------------
 
-PndDrcHitFinder::PndDrcHitFinder(const char* name) :
-FairTask(name)
+PndDrcHitFinder::PndDrcHitFinder(Int_t iVerbose) :
+  FairTask("DrcHitFinder", iVerbose)
+{
+  fPixelHits = 0;
+  fEventNr = 0;    
+  fGeoH = NULL;
+  fGeo = new PndGeoDrc();
+  fDigiPixelMCInfo = kFALSE;  
+  if(fVerbose>0) Info("PndDrcHitFinder","DrcHitFinder created, Parameters will be taken from RTDB");
+
+  fDigiArray   = NULL;
+  fPdHitArray   = NULL;
+  
+  fMCEventHeader = NULL;  
+
+  fPixelSize = fGeo->PixelSize();	//pixel size;  
+  fNpix = fGeo->Npixels();              //pixel rows in one FE
+  fMcpActiveArea = fGeo->McpActiveArea();
+  fPixelGap      =  (fMcpActiveArea - (Double_t)fNpix*fPixelSize) / ((Double_t)fNpix - 1.);
+  fPixelStep     =  fPixelSize + 0.5*fPixelGap;
+}
+
+PndDrcHitFinder::PndDrcHitFinder(const char* name, Int_t iVerbose) :
+FairTask(name, iVerbose)
 {
   fPixelHits = 0;
   fEventNr = 0;    
@@ -61,11 +83,12 @@ FairTask(name)
   fMCEventHeader = NULL;  
 
   fPixelSize = fGeo->PixelSize();	//pixel size;  
-  fNpix = fGeo->Npixels(); //pixel rows in one FE
+  fNpix = fGeo->Npixels();              //pixel rows in one FE
   fMcpActiveArea = fGeo->McpActiveArea();
   fPixelGap      =  (fMcpActiveArea - (Double_t)fNpix*fPixelSize) / ((Double_t)fNpix - 1.);
   fPixelStep     =  fPixelSize + 0.5*fPixelGap;
 }
+
 // -------------------------------------------------------------------------
 
 // -----   Destructor   ----------------------------------------------------
@@ -134,9 +157,7 @@ void PndDrcHitFinder::Exec(Option_t* opt)
   
   Double_t EventTime = FairRootManager::Instance()->GetEventTime();
   
-//  if(fVerbose>0)
-  std::cout << std::endl;
-  std::cout << "-I- PndDrcHitFinder::Exec EventTime: " << EventTime << std::endl;  
+  if(fVerbose>0) std::cout << "-I- PndDrcHitFinder::Exec EventTime: " << EventTime << std::endl;  
   
   //fPDHitList.clear();
   fGeoH->SetVerbose(fVerbose);  
@@ -154,7 +175,7 @@ void PndDrcHitFinder::Exec(Option_t* opt)
   // Loop over PndSdsMCPoints
   Int_t nDigis = fDigiArray->GetEntriesFast();
   
-  std::cout << "-I- PndDrcHitFinder::Exec event number: " << fEventNr <<" has "<<nDigis<<" digis."<< std::endl;
+  if(fVerbose>0) std::cout << "-I- PndDrcHitFinder::Exec event number: " << fEventNr <<" has "<<nDigis<<" digis."<< std::endl;
   
   if(fVerbose>3) Info("Exec","Begin loop for %i points",nDigis);
   for (Int_t iDigi = 0; iDigi < nDigis; iDigi++)
@@ -169,12 +190,7 @@ void PndDrcHitFinder::Exec(Option_t* opt)
     HitPosLocal.SetXYZ(fPixelStep*((Double_t)(pixelID % fNpix) - (Double_t)(fNpix/2) + 0.5),fPixelStep*(TMath::Floor(((Double_t)pixelID)/((Double_t)fNpix)) - (Double_t)(fNpix/2) + 0.5), 0.);
     
     // local coordinates of the hit on the MCP are translated into global ones as the following:
-    HitPosGlobal = fGeoH->LocalToMasterShortId(HitPosLocal, sensorID);
-    
-    //std::cout<<"digi "<<iDigi<<" has the detID = "<<detID<<", MCP number = "<<sensorID<<", pixelID = "<<pixelID<<", row = "<<TMath::Floor(((Double_t)pixelID)/((Double_t)fNpix))<<", col = "<<pixelID % fNpix<<std::endl;
-   
-   //std::cout<<"det id = "<<detID<<", local coordinates: x = "<<fPixelStep*((Double_t)(pixelID % fNpix) - (Double_t)(fNpix/2) + 0.5)<<", y = "<<fPixelStep*(TMath::Floor(((Double_t)pixelID)/((Double_t)fNpix)) - (Double_t)(fNpix/2) + 0.5)<<std::endl;
-   
+    HitPosGlobal = fGeoH->LocalToMasterShortId(HitPosLocal, sensorID);   
     dPosHit.SetXYZ(fPixelSize/2., fPixelSize/2., 0.);   
        	
     PndDrcPDHit*  aNewPDHit = AddDrcPDHit(detID, HitPosGlobal, dPosHit, hitTime, 0., iDigi);    

@@ -55,7 +55,7 @@ PndDrcDigiTask::PndDrcDigiTask()
 // -----   Standard constructor with verbosity level  -------------------------------------------
 
 PndDrcDigiTask::PndDrcDigiTask(Int_t verbose, Int_t det_type) 
-  :FairTask("PndDrcDigiTask")
+  :FairTask("PndDrcDigiTask",verbose)
 {
   fVerbose = verbose;  
   fDetType= det_type; 
@@ -171,7 +171,7 @@ void PndDrcDigiTask::ProcessPhotonPoint()
   PndMCTrack* tr = NULL;
   
   //Loop over PndDrcPDPoints
-  cout<<"-I- PndDrcDigiTask: PD points "<< fPDPointArray->GetEntriesFast() <<endl;
+  if (fVerbose > 0) cout<<"-I- PndDrcDigiTask: PD points "<< fPDPointArray->GetEntriesFast() <<endl;
   for(Int_t k=0; k < fPDPointArray->GetEntriesFast(); k++) {
   
     Ppt = (PndDrcPDPoint*)fPDPointArray->At(k);
@@ -381,6 +381,10 @@ void PndDrcDigiTask::ActivatePixel(Int_t sensorDetId, Double_t signalTime, Int_t
 void PndDrcDigiTask::NumberOfBounces(TVector3 start, TVector3 dir, Int_t *n1, Int_t *n2, Double_t *alpha1, Double_t *alpha2){
     // calculates the number of bounces in x and y direction and reflection angles in these directions.
         
+
+
+
+
     Double_t PhiRot = FindPhiRot(start.X(), start.Y());
 
     // Photon production point in bar' coordinate system (origin at the corner of the bar):   
@@ -1143,7 +1147,6 @@ void PndDrcDigiTask::SetParameters(){
   fDetType=1; //  Detector Type =1  
   nRefrac=fGeo->nEV();//1.467;  //Refractive index of SOB   
   fSigmat=0.1;  //Time Resolution is 100 ps ############################
-  fVerbose=1;
   fCollectionEff=0.65;//Collection Efficiency 
   fPackingFraction=0.80;//Packing Efficiency 
   fRoughness = 0.001; // 10 A
