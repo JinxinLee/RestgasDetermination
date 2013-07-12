@@ -32,9 +32,9 @@
 // PndSds includes
 #include "PndSdsMCPoint.h"
 #include "PndSdsHit.h"
+#include "PndSdsMergedHit.h"
 //PndLmd includes
 #include "PndLinTrack.h"
-
 #include <vector>
 #include <map>
 
@@ -49,6 +49,7 @@ PndLmdGeaneTask::PndLmdGeaneTask() : FairTask("Geane Task for PANDA Lmd"), fEven
 
 PndLmdGeaneTask::PndLmdGeaneTask(Double_t pBeam,TVector3 IP): FairTask("Geane Task for PANDA Lmd"), fEventNr(0), fUseMVDPoint(false)
 {
+  fPDGid=-2212;
   fPbeam = pBeam;
   cout<<"Beam Momentum for particle with PDGid#"<<fPDGid<<" this run is "<<fPbeam<<endl;
   vtx = IP;
@@ -62,12 +63,51 @@ PndLmdGeaneTask::PndLmdGeaneTask(Double_t pBeam,TVector3 IP): FairTask("Geane Ta
   tprop->Branch("xmc",&fxmc);
   tprop->Branch("ymc",&fymc);
   tprop->Branch("zmc",&fzmc);
+  tprop->Branch("xmclmd",&fxmclmd);
+  tprop->Branch("ymclmd",&fymclmd);
+   tprop->Branch("zmclmd",&fzmclmd);
   tprop->Branch("thetarec",&fthetarec);
   tprop->Branch("phirec",&fphirec);
   tprop->Branch("prec",&fprec);
   tprop->Branch("thetamc",&fthetamc);
   tprop->Branch("phimc",&fphimc);
   tprop->Branch("pmc",&fpmc);
+  tprop->Branch("thetamclmd",&fthetamclmd);
+  tprop->Branch("phimclmd",&fphimclmd);
+  tprop->Branch("pmclmd",&fpmclmd);
+  tprop->Branch("xrec_err",&fxrec_err);
+  tprop->Branch("yrec_err",&fyrec_err);
+  tprop->Branch("xmc_err",&fxmc_err);
+  tprop->Branch("ymc_err",&fymc_err);
+  tprop->Branch("xmclmd_err",&fxmclmd_err);
+  tprop->Branch("ymclmd_err",&fymclmd_err);
+ 
+  tprop->Branch("vrec",&fvrec);
+  tprop->Branch("wrec",&fwrec);
+  tprop->Branch("tvrec",&ftvrec);
+  tprop->Branch("twrec",&ftwrec);
+  tprop->Branch("vrec_err",&fvrec_err);
+  tprop->Branch("wrec_err",&fwrec_err);
+  tprop->Branch("tvrec_err",&ftvrec_err);
+  tprop->Branch("twrec_err",&ftwrec_err);
+  tprop->Branch("vmc",&fvmc);
+  tprop->Branch("wmc",&fwmc);
+  tprop->Branch("tvmc",&ftvmc);
+  tprop->Branch("twmc",&ftwmc);
+  tprop->Branch("vmc_err",&fvmc_err);
+  tprop->Branch("wmc_err",&fwmc_err);
+  tprop->Branch("tvmc_err",&ftvmc_err);
+  tprop->Branch("twmc_err",&ftwmc_err);
+  tprop->Branch("twmclmd_err",&ftwmclmd_err);
+  tprop->Branch("vmclmd",&fvmclmd);
+  tprop->Branch("wmclmd",&fwmclmd);
+  tprop->Branch("tvmclmd",&ftvmclmd);
+  tprop->Branch("twmclmd",&ftwmclmd);
+  tprop->Branch("vmclmd_err",&fvmclmd_err);
+  tprop->Branch("wmclmd_err",&fwmclmd_err);
+  tprop->Branch("tvmclmd_err",&ftvmclmd_err);
+  tprop->Branch("twmclmd_err",&ftwmclmd_err);
+
   tprop->Branch("Bx",&fbx);
   tprop->Branch("By",&fby);
   tprop->Branch("Bz",&fbz);
@@ -114,6 +154,19 @@ InitStatus PndLmdGeaneTask::Init()
     return kERROR;
   }
 
+  //Get trk cand [needed only for tests!!!]
+  fRecCandTracks = (TClonesArray*) ioman->GetObject("LMDTrackCand");
+  if ( !fRecCandTracks)	{
+    std::cout << "-W- PndLmdGeaneTask::Init: "<< "No LMDTrackCand [needed only for tests!!!]"<<" array!" << std::endl;
+    return kERROR;
+ }
+
+  //Get rec. hits  [needed only for tests!!!]
+  fRecHits = (TClonesArray*) ioman->GetObject("LMDHitsMerged");
+  if ( !fRecHits)	{
+    std::cout << "-W- PndLmdGeaneTask::Init: "<< "No LMDHitsMerged [needed only for tests!!!]"<<" array!" << std::endl;
+    return kERROR;
+  }
 
   fTrackParGeane = new TClonesArray("FairTrackParH");
   ioman->Register("GeaneTrackPar","Geane", fTrackParGeane, kTRUE);
@@ -180,23 +233,18 @@ void PndLmdGeaneTask::Exec(Option_t* opt)
   int glI = fTracks->GetEntriesFast();
   // cout<<"glI = "<<glI<<endl;
   Int_t counterGeaneTrk = 0;
+
   for (Int_t i = 0; i<glI;i++){ 
+
     //  cout<<"PndLmdGeaneTask::Exec for track#"<<i<<endl;
       TVector3 StartPos, StartPosErr, StartMom, StartMomErr, StartO, StartU, StartV;
       int p = 0;
     
       PndTrack* recTrack = (PndTrack*)(fTracks->At(i));
       FairTrackParP fFittedTrkP = recTrack->GetParamFirst();
-      // //trk fit results with misaligned sensors can be really wierd
-      // bool fitResOK = true;
-      // if(abs(fFittedTrkP.GetX())>1000 || abs(fFittedTrkP.GetY())>1000 || abs(fFittedTrkP.GetZ())>1000){
-      // 	new((*fTrackParFinal)[counterGeaneTrk]) FairTrackParH(); //save NULL
-      // 	//	new((*fTrackParFinal)[counterGeaneTrk]) FairTrackParP(); //save NULL
-      // 	counterGeaneTrk++;
-      // 	fitResOK = false;
-      // }
-      // if(!fitResOK)  continue;
+     
       TVector3 PosRecLMD(fFittedTrkP.GetX(),fFittedTrkP.GetY(),fFittedTrkP.GetZ());
+      if(fFittedTrkP.GetZ()>1130) continue;// TEST: skip trks from 2nd plane. TODO: check are they fine???
       TVector3 MomRecLMD(fFittedTrkP.GetPx(),fFittedTrkP.GetPy(),fFittedTrkP.GetPz());
       MomRecLMD *=fPbeam/MomRecLMD.Mag();//external assumption about mom magnitude
       fFittedTrkP.SetPx(MomRecLMD.X()); fFittedTrkP.SetPy(MomRecLMD.Y()); fFittedTrkP.SetPz(MomRecLMD.Z());
@@ -210,6 +258,68 @@ void PndLmdGeaneTask::Exec(Option_t* opt)
       StartMom = MomRecLMD;
       StartMomErr = errMomRecLMD;
 
+      //Make true2 track from MC info on 1st plane of LMD-----------
+      FairTrackParP *fStartMCLMD = new FairTrackParP();
+      if(fVerbose>5 &&  (fTracks->GetEntries()==fMCTracks->GetEntries())){
+      int candID = recTrack->GetRefIndex();
+      PndTrackCand *trkcand = (PndTrackCand*)fRecCandTracks->At(candID);    
+      PndTrackCandHit candhit = (PndTrackCandHit)(trkcand->GetSortedHit(0));//1st hit info
+      Int_t hitID = candhit.GetHitId();
+      PndSdsMergedHit* myHit = (PndSdsMergedHit*)(fRecHits->At(hitID));
+      int mcrefbot = myHit->GetSecondMCHit();
+      int mcreftop = myHit->GetRefIndex();
+      PndSdsMCPoint* MCPointHit;
+      if(mcreftop>=0){
+	MCPointHit = (PndSdsMCPoint*)(fMCHits->At(mcreftop));
+      }
+      else{
+	MCPointHit = (PndSdsMCPoint*)(fMCHits->At(mcrefbot));
+      }
+      
+      TVector3 PosMClmd =  MCPointHit->GetPosition();
+      double pxTrue =  MCPointHit->GetPx();
+      double pyTrue =  MCPointHit->GetPy();
+      double pzTrue =  MCPointHit->GetPz();
+      TVector3 MomMClmd(pxTrue,pyTrue,pzTrue);
+      TVector3 dirMClmd = MomMClmd;
+      dirMClmd *=1./(MomMClmd.Mag());
+      MomMClmd *=fPbeam/(MomMClmd.Mag());
+      double xMClmdNew =  PosMClmd.X()-(dirMClmd.X()*0.010);
+      double yMClmdNew =  PosMClmd.Y()-(dirMClmd.Y()*0.010);
+      double zMClmdNew  = PosMClmd.Z()-(dirMClmd.Z()*0.010);
+      PosMClmd.SetXYZ(xMClmdNew, yMClmdNew,zMClmdNew);  //shift 100 mkm to adoid adding MC errors during back propagation;
+      TVector3 ocMC(0,0,0); //define plane perpendicular to z-axis in IP
+      TVector3 djMC(1.,0.,0.);
+      TVector3 dkMC(0.,1.,0.);
+      TVector3 PosMClmderr(0.,0.,0.);
+      TVector3 MomMClmderr(0.,0.,0.);
+      fStartMCLMD = new FairTrackParP(PosMClmd, MomMClmd, PosMClmderr, MomMClmderr, fCharge,ocMC,djMC,dkMC);
+      }
+      //-------------------------------------------------------------------------------
+
+      ///Propagate to the PCA (a space point) in 7 steps ---------------------------------
+      //Comment: seems back propagation in one step (for 11 m) is too much
+      //try smoothing it by small steps, which follow mag.field
+      //      const int nstep=7;
+      //      double zbend[nstep]={661, 660.5, 660., 659, 319, 316, 220};//entarance and exit mag.field
+      //TEST for backward and forward propagation: more steps!
+      //      const int nstep=50;
+      //      const int nstep=550;
+      //      const int nstep=4400;
+      const int nstep=50;
+      //      const int nstep=10;
+      vector<double> vxmc(nstep),vymc(nstep),vxmc_err(nstep),vymc_err(nstep),vzmc(nstep),vthetamc(nstep),vphimc(nstep),vpmc(nstep),vvmc(nstep),vwmc(nstep),vtvmc(nstep),vtwmc(nstep),vvmc_err(nstep),vwmc_err(nstep),vtvmc_err(nstep),vtwmc_err(nstep);
+      double zbend[nstep];
+      //      const double z0=661;
+      //      const double z0=1111.;
+      const double z0=fFittedTrkP.GetZ();
+      const double z1=1;
+      const double zstep=(z0-z1)/nstep;
+      for(int js=0;js<nstep;js++){
+	zbend[js]=z0-zstep*js;
+      }
+
+      FairTrackParP *fStartMC = new FairTrackParP();
        if(fVerbose>2){
 	 cout<<"------------------------------------------"<<endl;      
 	 cout<<"StartPos:"<<endl;
@@ -222,6 +332,7 @@ void PndLmdGeaneTask::Exec(Option_t* opt)
 	 cout<<"StartMomErr: "<<StartMomErr.Mag()<<endl;
 	 StartMomErr.Print();     
 	 cout<<""<<endl;
+
 	 if(fVerbose>5 &&  (fTracks->GetEntries()==fMCTracks->GetEntries())){ //check results for MC track propagation to LMD plane
 	   FairTrackParP *fStartPst = new FairTrackParP(fFittedTrkP);
 	   TVector3 istLMD(fStartPst->GetIVer());
@@ -243,171 +354,145 @@ void PndLmdGeaneTask::Exec(Option_t* opt)
 	   PndMCTrack* mctrk = (PndMCTrack*)(fMCTracks->At(i));
 	   TVector3 MomMC = mctrk->GetMomentum();
 	   TVector3 PosMC = mctrk->GetStartVertex();
-	   if(PosMC.Z()>0) cout<<"!! Ahtung: "<<PosMC.Z()<<endl;
-	   FairTrackParP *fStartMC = 
-	     new FairTrackParP(PosMC, MomMC, StartPosErr, StartMomErr, fCharge,ocMC,djMC,dkMC);
-	   FairTrackParP *fResMC = new FairTrackParP();
-	   fPro->PropagateFromPlane(djMC,dkMC);//1st detector plane
-	   fPro->PropagateToPlane(istLMD,jstLMD,kstLMD);//virtual plane at fixed z
-	   Bool_t isPropMC = fPro->Propagate(fStartMC, fResMC, PDGCode);
-	   //   cout<<" MC-LMD (POINT):"<<endl;
-	   TVector3 finPosMC(fResMC->GetX(),fResMC->GetY(),fResMC->GetZ());
-	   //finPosMC.Print();
-	   // cout<<" MC-LMD (DIR):"<<endl;
-	   TVector3 finDirMC(fResMC->GetPx(),fResMC->GetPy(),fResMC->GetPz());
-	   //finDirMC.Print();
-	   if(isPropMC){
-	     double pnt[3]={finPosMC.X(),finPosMC.Y(),finPosMC.Z()}; //Position where to get field strength
-	     double Bf[3]; //result goes here
-	     // retrieve the field from the framework
-	     //    FairField* pndField = FairRunAna::Instance()->GetField();
-	     pndField->Field(pnt, Bf);  //[kGs]
-	     //   cout<<"^^^^ Bf = ("<<Bf[0]<<", "<<Bf[1]<<", "<<Bf[2]<<")"<<endl;
-	     fbx = Bf[0];
-	     fby = Bf[1];
-	     fbz = Bf[2];
-	     fxrec = StartPos.X();
-	     fyrec = StartPos.Y();
-	     fzrec = StartPos.Z();
-	     fprec = StartMom.Mag();
-	     fthetarec = StartMom.Theta();
-	     fphirec = StartMom.Phi();
-	     fxmc = finPosMC.X();
-	     fymc = finPosMC.Y();
-	     fzmc = finPosMC.Z();
-	     fpmc = finDirMC.Mag();
-	     fphimc = finDirMC.Phi();
-	     fthetamc = finDirMC.Theta();
- //  double fxrec, fyrec, fzrec, fprec, fthetarec, fphirec, fxmc, fymc, fzmc, fpmc, fthetamc, fphimc;
-  // double fbx,fby,fbz;
+	   TVector3 MomMCerr(0.,0.,0.);
+	   TVector3 PosMCerr(0.,0.,0.);
+	   if(PosMC.Z()>0){
+	     cout<<"!!! Achtung: "<<PosMC.Z()<<endl;
+	     break;
+	   }
 
-	     //	     tprop->Fill(StartPos.X(),StartPos.Y(),StartPos.Z(),StartMom.Mag(),StartMom.Theta(),StartMom.Phi(),finPosMC.X(),finPosMC.Y(),finPosMC.Z(),finDirMC.Mag(),finDirMC.Theta(),finDirMC.Phi());
-	     tprop->Fill();
+	   fStartMC = new FairTrackParP(PosMC, MomMC, PosMCerr, MomMCerr, fCharge,ocMC,djMC,dkMC);
+	   for(int sj=nstep-1;sj>-1;sj--){
+	     //    cout<<"MC forward: to z="<<zbend[sj]<<endl;
+	     bool isPropMC;
+	     FairTrackParP *fResMC = PropToPlane(fStartMC,zbend[sj],+1,isPropMC);//forward propagation
+	     if(isPropMC){
+	       delete fStartMC;
+	       fStartMC=fResMC;
+	       vxmc[sj]= fResMC->GetX();
+	       vxmc_err[sj] = fResMC->GetDX();
+	       vymc_err[sj] = fResMC->GetDY();
+	       vymc[sj]= fResMC->GetY();
+	       vzmc[sj]= fResMC->GetZ();
+	       TVector3 finDirMC(fResMC->GetPx(),fResMC->GetPy(),fResMC->GetPz());
+	       vpmc[sj]= finDirMC.Mag();
+	       vthetamc[sj]= finDirMC.Theta();
+	       vphimc[sj]= finDirMC.Phi();
+
+	       vvmc[sj] = fResMC->GetV();
+	       vwmc[sj] = fResMC->GetW();
+	       vtvmc[sj] = fResMC->GetTV();
+	       vtwmc[sj] = fResMC->GetTW();
+	       vvmc_err[sj] = fResMC->GetDV();
+	       vwmc_err[sj] = fResMC->GetDW();
+	       vtvmc_err[sj] = fResMC->GetDTV();
+	       vtwmc_err[sj] = fResMC->GetDTW();
+	       //    cout<<"Next step;)"<<endl;
+	     }
+	     else break;
 	   }
 	 }
        }
+       if(abs(fStartMC->GetZ()-fFittedTrkP.GetZ())>10) break;//MC particle wasn't propagated to LMD plane
       TClonesArray& clref1 = *fTrackParIni;
       Int_t size1 = clref1.GetEntriesFast();
 
-      ///Propagate to the PCA (a space point) in 7 steps ---------------------------------
-      //Comment: seems back propagation in one step (for 11 m) is too much
-      //try smoothing it by small steps, which follow mag.field
-      //      const int nstep=7;
-      //      double zbend[nstep]={661, 660.5, 660., 659, 319, 316, 220};//entarance and exit mag.field
-      //TEST for 
-      const int nstep=550;
-      double zbend[nstep];
-      //      const double z0=661;
-      const double z0=1110.;
-      const double z1=11;
-      const double zstep=(z0-z1)/nstep;
-      for(int js=0;js<nstep;js++){
-	zbend[js]=z0-zstep*js;
-      }
-      FairTrackParP *fStartPst = new FairTrackParP(fFittedTrkP);
-      for(int js=0;js<nstep;js++){
-	TVector3 stStartPos(fStartPst->GetX(),fStartPst->GetY(),fStartPst->GetZ());
-	TVector3 MomStartPos(fStartPst->GetPx(),fStartPst->GetPy(),fStartPst->GetPz());
-	MomStartPos *=fPbeam/MomStartPos.Mag();//external assumption about mom magnitude
-	fStartPst->SetPx(MomStartPos.X()); fStartPst->SetPy(MomStartPos.Y()); fStartPst->SetPz(MomStartPos.Z());//correct mom.magnitude
-	// //propagate to virtual plane@PCA
-	// TVector3 spacePoint(0,0,zbend[js]);
-	// fPro->SetPoint(spacePoint);
-	// fPro->BackTrackToVirtualPlaneAtPCA(1); //1 = pca to point
-	// FairTrackParP *fResPst = new FairTrackParP();
-	// Bool_t isProp = fPro->Propagate(fStartPst, fResPst, PDGCode);
-
-	//propagate plane-to-plane
-	TVector3 ist(fStartPst->GetIVer());
-	TVector3 jst(fStartPst->GetJVer());
-	TVector3 kst(fStartPst->GetKVer());
-	// if(fVerbose>2){
-	//   cout<<"current : step#"<<js<<endl;
-	//   stStartPos.Print();
-	// }
-	TVector3 oc(0,0,zbend[js]);
-	TVector3 dj(1.,0.,0.);
-	TVector3 dk(0.,1.,0.);
-	dj.SetMag(1);
-	dk.SetMag(1);
-	//   	fPro->PropagateFromPlane(dj, dk);
-	fPro->PropagateFromPlane(jst, kst);//1st detector plane
-	fPro->PropagateToPlane(oc,dj,dk);//virtual plane at fixed z
-	fPro->setBackProp();
-	FairTrackParP *fResPst = new FairTrackParP();
-	Bool_t isProp = fPro->Propagate(fStartPst, fResPst, PDGCode);
-
-	if(fVerbose>2){
-	  // if(isProp) cout<<"Propagation is OK"<<endl;
-	  // else cout<<"Propagation failed!"<<endl;
-	  //	  cout<<"RESULT (POINT):"<<endl;
-	  //	  fResPst->Print();
-	  TVector3 finPos(fResPst->GetX(),fResPst->GetY(),fResPst->GetZ());
-	  //  finPos.Print();
-	  //  cout<<"RESULT (DIR):"<<endl;
-	  TVector3 finDir(fResPst->GetPx(),fResPst->GetPy(),fResPst->GetPz());
-	  //	  finDir.Print();
-
-
-	if(fVerbose>5 &&  (fTracks->GetEntries()==fMCTracks->GetEntries())){ //check results for MC track propagation
-	  TVector3 ocMC(0,0,0); //define plane perpendicular to z-axis in IP
-	  TVector3 djMC(1.,0.,0.);
-	  TVector3 dkMC(0.,1.,0.);
-	  djMC.SetMag(1);
-	  dkMC.SetMag(1);
-
-      PndMCTrack* mctrk = (PndMCTrack*)(fMCTracks->At(i));
-      TVector3 MomMC = mctrk->GetMomentum();
-      TVector3 PosMC = mctrk->GetStartVertex();
-      FairTrackParP *fStartMC = 
-      	new FairTrackParP(PosMC, MomMC, StartPosErr, StartMomErr, fCharge,ocMC,djMC,dkMC);
-      FairTrackParP *fResMC = new FairTrackParP();
-      fPro->PropagateFromPlane(jst, kst);//1st detector plane
-      fPro->PropagateToPlane(oc,dj,dk);//virtual plane at fixed z
-      Bool_t isPropMC = fPro->Propagate(fStartMC, fResMC, PDGCode);
-      if(isProp && isPropMC){
-	//	cout<<"RESULT MC (POINT):"<<endl;
-	TVector3 finPosMC(fResMC->GetX(),fResMC->GetY(),fResMC->GetZ());
-	//	finPosMC.Print();
-	//	cout<<"RESULT MC (DIR):"<<endl;
-	TVector3 finDirMC(fResMC->GetPx(),fResMC->GetPy(),fResMC->GetPz());
-	//	finDirMC.Print();
-	double pnt[3]={finPosMC.X(),finPosMC.Y(),finPosMC.Z()}; //Position where to get field strength
-	double Bf[3]; //result goes here
-	// retrieve the field from the framework
-
-	pndField->Field(pnt, Bf);  //[kGs]
-	//cout<<"^^^^ Bf = ("<<Bf[0]<<", "<<Bf[1]<<", "<<Bf[2]<<")"<<endl;
-	fbx = Bf[0];
-	fby = Bf[1];
-	fbz = Bf[2];
-	fxrec = finPos.X();
-	fyrec = finPos.Y();
-	fzrec = finPos.Z();
-	fprec = finDir.Mag();
-	fthetarec = finDir.Theta();
-	fphirec = finDir.Phi();
-	fxmc = finPosMC.X();
-	fymc = finPosMC.Y();
-	fzmc = finPosMC.Z();
-	fpmc = finDirMC.Mag();
-	fthetamc = finDirMC.Theta();
-	fphimc = finDirMC.Phi();
-	tprop->Fill();
- //  double fxrec, fyrec, fzrec, fprec, fthetarec, fphirec, fxmc, fymc, fzmc, fpmc, fthetamc, fphimc;
-  // double fbx,fby,fbz;
-	//	tprop->Fill(finPos.X(),finPos.Y(),finPos.Z(),finDir.Mag(),finDir.Theta(),finDir.Phi(),finPosMC.X(),finPosMC.Y(),finPosMC.Z(),finDirMC.Mag(),finDirMC.Theta(),finDirMC.Phi());
-      }
-      else{
-	cout<<"Forward propagation for MC failed"<<endl;
-      }
-	}
-	}
-	if(isProp)
+     
+      FairTrackParP *fStartPst = new FairTrackParP(fFittedTrkP);//REC
+      FairTrackParP *fStartPstMCLMD= new FairTrackParP(*fStartMCLMD);//MC in LMD, should be treated as REC
+      for(int js=1;js<nstep;js++){
+	//	cout<<"step#"<<js<<endl;
+	bool isProp;
+	//	cout<<"REC backward "<<endl;
+	FairTrackParP*  fResPst  = PropToPlane(fStartPst,zbend[js],-1,isProp);//back propagation
+	if(isProp){
+	  delete fStartPst;
 	  fStartPst = fResPst;
+	  if(fVerbose>5){
+	    bool isPropMClmd;
+	    FairTrackParP*  fResPstMCLMD  = PropToPlane(fStartPstMCLMD,zbend[js],-1,isPropMClmd);//back propagation
+	    if(isPropMClmd){
+
+	      TVector3 finPosMCLMD(fResPstMCLMD->GetX(),fResPstMCLMD->GetY(),fResPstMCLMD->GetZ());
+	      TVector3 finDirMCLMD(fResPstMCLMD->GetPx(),fResPstMCLMD->GetPy(),fResPstMCLMD->GetPz());
+
+	      TVector3 finPos(fResPst->GetX(),fResPst->GetY(),fResPst->GetZ());
+	      TVector3 finDir(fResPst->GetPx(),fResPst->GetPy(),fResPst->GetPz());
+
+	      //     double pnt[3]={finPosMC.X(),finPosMC.Y(),finPosMC.Z()}; //Position where to get field strength
+	      double pnt[3]={vxmc[js],vymc[js],vzmc[js]};
+	      double Bf[3]; //result goes here
+	      // retrieve the field from the framework
+	      pndField->Field(pnt, Bf);  //[kGs]
+	      fbx = Bf[0];
+	      fby = Bf[1];
+	      fbz = Bf[2];
+	      fxrec = finPos.X();
+	      fyrec = finPos.Y();
+	      fxrec_err = fResPst->GetDX();
+	      fyrec_err = fResPst->GetDY();
+	      fzrec = finPos.Z();
+	      fprec = finDir.Mag();
+	      fthetarec = finDir.Theta();
+	      fphirec = finDir.Phi();
+	      fxmc = vxmc[js];
+	      fymc = vymc[js];
+	      fzmc = vzmc[js];
+	      fxmc_err = vxmc_err[js];
+	      fymc_err = vymc_err[js];
+	      fpmc = vpmc[js];
+	      fthetamc = vthetamc[js];
+	      fphimc = vphimc[js];
+	    
+
+	      fxmclmd = finPosMCLMD.X();
+	      fymclmd = finPosMCLMD.Y();
+	      fxmclmd_err = fResPstMCLMD->GetDX();
+	      fymclmd_err = fResPstMCLMD->GetDY();
+	      fzmclmd = finPosMCLMD.Z();
+	      fpmclmd = finDirMCLMD.Mag();
+	      fthetamclmd = finDirMCLMD.Theta();
+	      fphimclmd = finDirMCLMD.Phi();
+
+	      fvmc = vvmc[js];
+	      fwmc = vwmc[js];
+	      ftvmc = vtvmc[js];
+	      ftwmc = vtwmc[js];
+	      fvmc_err = vvmc_err[js];
+	      fwmc_err = vwmc_err[js];
+	      ftvmc_err = vtvmc_err[js];
+	      ftwmc_err = vtwmc_err[js];
+
+	      fvrec = fResPst->GetV();
+	      fwrec = fResPst->GetW();
+	      ftvrec = fResPst->GetTV();
+	      ftwrec = fResPst->GetTW();
+	      fvrec_err = fResPst->GetDV();
+	      fwrec_err = fResPst->GetDW();
+	      ftvrec_err = fResPst->GetDTV();
+	      ftwrec_err = fResPst->GetDTW();
+
+	      fvmclmd = fResPstMCLMD->GetV();
+	      fwmclmd = fResPstMCLMD->GetW();
+	      ftvmclmd = fResPstMCLMD->GetTV();
+	      ftwmclmd = fResPstMCLMD->GetTW();
+	      fvmclmd_err = fResPstMCLMD->GetDV();
+	      fwmclmd_err = fResPstMCLMD->GetDW();
+	      ftvmclmd_err = fResPstMCLMD->GetDTV();
+	      ftwmclmd_err = fResPstMCLMD->GetDTW();
+
+	      tprop->Fill();
+	      delete fStartPstMCLMD;
+	      fStartPstMCLMD = fResPstMCLMD;
+     	    }
+	    else
+	      break;
+	  }
+	}
 	else
 	  break;
       }
+
       ///and now Propagate to the PCA (a space point) in one step ---------------------------------
       int ierr=0;
       FairTrackParH *fStart = new (clref1[size1]) FairTrackParH(fStartPst,ierr);
@@ -417,75 +502,11 @@ void PndLmdGeaneTask::Exec(Option_t* opt)
       fPro->SetPoint(vtx);
       fPro->PropagateToPCA(1,-1);// back-propagate to point
       Bool_t isProp = fPro->Propagate(fStart, fRes, PDGCode);
+     
       // ///----------------------------------------------------------------------
       delete  fStartPst;
+     
       ///----------------------------------------------------------------------
-
-      // ///Propagate to the PCA (a space point) in one step ---------------------------------
-      // int ierr=0;
-      // FairTrackParH *fStart = new (clref1[size1]) FairTrackParH(&fFittedTrkP,ierr);
-      // // FairTrackParH *fStart = 
-      // //  	 new (clref1[size1]) FairTrackParH(StartPos, StartMom, StartPosErr, StartMomErr, fCharge);
-      // TClonesArray& clref = *fTrackParGeane;
-      // Int_t size = clref.GetEntriesFast();
-      // FairTrackParH *fRes = new(clref[size]) FairTrackParH();
-      // fPro->SetPoint(vtx);
-      // fPro->PropagateToPCA(1,-1);// back-propagate to point
-      // Bool_t isProp = fPro->Propagate(fStart, fRes, PDGCode);
-      // ///----------------------------------------------------------------------
-
-    
-
-
-      // ///Forwars propagate to the 1st plane to a space point---------------------------------
-      // PndMCTrack* mctrk = (PndMCTrack*)(fMCTracks->At(i));
-      // TVector3 MomMC = mctrk->GetMomentum();
-      // TVector3 PosMC = mctrk->GetStartVertex();
-      // FairTrackParH *fStartMC = 
-      // 	new FairTrackParH(PosMC, MomMC, StartPosErr, StartMomErr, fCharge);
-      // FairTrackParH *fResMC = new FairTrackParH();
-      // fPro->SetPoint(StartPos);
-      // //fPro->PropagateToPCA(1,-1);
-      // fPro->PropagateToPCA(1,1);
-      // Bool_t isProp = fPro->Propagate(fStartMC, fResMC, PDGCode);
-      // ///----------------------------------------------------------------------
-
-
-      // ///Propagate to virtual plane at PCA ------------------------------------
-      // TVector3 oc = (0,0,0);
-      // TVector3 dj(0,1,0);
-      // TVector3 dk(-1,0,0);
-      // FairTrackParP *fStart = 
-      // 	new (clref1[size1]) FairTrackParP(StartPos, StartMom, StartPosErr, StartMomErr, fCharge, oc, dj, dk);
-      // TClonesArray& clref = *fTrackParGeane;
-      // Int_t size = clref.GetEntriesFast();
-      // FairTrackParP *fRes = new(clref[size]) FairTrackParP();
-      // fPro->SetPoint(vtx);
-      // fPro->BackTrackToVirtualPlaneAtPCA(1);
-      // Bool_t isProp =	fPro->Propagate(fStart, fRes, PDGCode);
-      // cout<<"================= %%%% ===================="<<endl;
-      // ///----------------------------------------------------------------------
-
-     // ///Propagate to plane  ------------------------------------
-     //  TVector3 oc = vtx;
-     //  TVector3 dj(0,1,0);
-     //  TVector3 dk(-1,0,0);
-     //  TVector3 v1s(StartPos.X(),StartPos.Y(),0);
-     //  TVector3 v2s(-StartPos.Y(),StartPos.X(),0); 
-     //  FairTrackParP *fStart = 
-     //  	new (clref1[size1]) FairTrackParP(StartPos, StartMom, StartPosErr, StartMomErr, fCharge, StartPos,  v1s,  v2s);
-     //  TClonesArray& clref = *fTrackParGeane;
-     //  Int_t size = clref.GetEntriesFast();
-     //  FairTrackParP *fRes = new(clref[size]) FairTrackParP();
-     
-     //  fPro->PropagateFromPlane(v1s, v2s);
-     //  fPro->PropagateToPlane(oc,dj,dk);
-     //  fPro->setBackProp();
-     //  Bool_t isProp = fPro->Propagate(fStart, fRes, PDGCode);
-     //  cout<<"================= %%%% ===================="<<endl;
-     //  ///----------------------------------------------------------------------
-    
-     
 
       //------- TEST of calculation errors -------
       TVector3 gPos(fRes->GetX(),fRes->GetY(),fRes->GetZ());
@@ -512,6 +533,8 @@ void PndLmdGeaneTask::Exec(Option_t* opt)
       gErrMom.Print();
       if(fVerbose>5 &&  (fTracks->GetEntries()==fMCTracks->GetEntries())){
 	PndMCTrack* mctrk = (PndMCTrack*)(fMCTracks->At(i));
+	int motherID = mctrk->GetMotherID();
+	if(motherID>=0) break;
 	TVector3 MomMC = mctrk->GetMomentum();
 	TVector3 PosMC = mctrk->GetStartVertex();
 	// cout<<"mcPos:"<<endl;
@@ -540,9 +563,22 @@ void PndLmdGeaneTask::Exec(Option_t* opt)
 	fpmc = MomMC.Mag();
 	fthetamc = MomMC.Theta();
 	fphimc = MomMC.Phi();
+
+	FairTrackParH *fStartMClmd = new FairTrackParH(fStartPstMCLMD,ierr);
+	fPro->SetPoint(vtx);
+	fPro->PropagateToPCA(1,-1);// back-propagate to point
+	FairTrackParH *fResMCLMD = new FairTrackParH();
+	Bool_t isPropMC = fPro->Propagate(fStartMClmd, fResMCLMD, PDGCode);
+	TVector3 gPosMC(fResMCLMD->GetX(),fResMCLMD->GetY(),fResMCLMD->GetZ());
+	TVector3 gMomMC(fResMCLMD->GetPx(),fResMCLMD->GetPy(),fResMCLMD->GetPz());
+	fxmclmd = gPosMC.X();
+	fymclmd = gPosMC.Y();
+	fzmclmd = gPosMC.Z();
+	fpmclmd = gMomMC.Mag();
+	fthetamclmd = gMomMC.Theta();
+	fphimclmd = gMomMC.Phi();
 	tprop->Fill();
-	   //  tprop = new TNtuple("tprop","xrec:yrec:zrec:prec:thetarec:phirec:xmc:ymc:zmc:pmc:thetamc:thetamc") ;
-	//	tprop->Fill(gPos.X(),gPos.Y(),gPos.Z(),gMom.Mag(),gMom.Theta(),gMom.Phi(),PosMC.X(),PosMC.Y(),PosMC.Z(),MomMC.Mag(),MomMC.Theta(),MomMC.Phi());
+	delete  fStartPstMCLMD;
       }
       cout<<"================= %%%% ===================="<<endl;
       }
@@ -584,6 +620,30 @@ void PndLmdGeaneTask::Finish()
     nout1->Write();
   }
     //  tprop->Write();
+}
+
+FairTrackParP* PndLmdGeaneTask::PropToPlane(FairTrackParP* fStartPst, double zpos,int dir, bool& isProp){
+	TVector3 stStartPos(fStartPst->GetX(),fStartPst->GetY(),fStartPst->GetZ());
+	if(zpos>1e3){//external assumption about mom magnitude [use it while in BOX and we know mom should be diff]
+	  TVector3 MomStartPos(fStartPst->GetPx(),fStartPst->GetPy(),fStartPst->GetPz());
+	  MomStartPos *=fPbeam/MomStartPos.Mag();
+	  fStartPst->SetPx(MomStartPos.X()); fStartPst->SetPy(MomStartPos.Y()); fStartPst->SetPz(MomStartPos.Z());//correct mom.magnitude
+	}
+	//propagate plane-to-plane
+	TVector3 ist(fStartPst->GetIVer());
+	TVector3 jst(fStartPst->GetJVer());
+	TVector3 kst(fStartPst->GetKVer());
+	TVector3 oc(0,0,zpos);
+	TVector3 dj(1.,0.,0.);
+	TVector3 dk(0.,1.,0.);
+	dj.SetMag(1);
+	dk.SetMag(1);
+	fPro->PropagateFromPlane(jst, kst);//1st detector plane
+	fPro->PropagateToPlane(oc,dj,dk);//virtual plane at fixed z
+	if(dir<0) fPro->setBackProp();
+	FairTrackParP *fResPst = new FairTrackParP();
+	isProp = fPro->Propagate(fStartPst, fResPst,fPDGid);
+	return fResPst;
 }
 
 std::map<int, std::vector<int> > PndLmdGeaneTask::AssignHitsToTracks()

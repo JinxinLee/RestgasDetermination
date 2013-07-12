@@ -24,6 +24,7 @@
 #include "TMatrixD.h"
 #include "TVector3.h"
 #include "TNtuple.h"
+#include "FairTrackParP.h"
 //#include "PndSdsGeoHandling.h"
 #include "PndGeoHandling.h"
 #include <vector>
@@ -58,6 +59,7 @@ class PndLmdGeaneTask : public FairTask
   
   virtual void Finish();
 
+  FairTrackParP* PropToPlane(FairTrackParP* fStartPst, double zpos,int dir,bool& isProp);//propagation between planes
  private:
   TClonesArray* fTrackParGeane;
   TClonesArray* fTrackParIni;
@@ -82,11 +84,20 @@ class PndLmdGeaneTask : public FairTask
   TClonesArray* fTracks; //Real tracks
   TClonesArray* fHits; //Real hits
 
+
+  TClonesArray* fRecHits;   //needed for tests only!
+  TClonesArray* fRecCandTracks;   //needed for tests only!
+
+
   // Output Data -------
   // TEST with forward-backward propagation ----------------------------
   TTree *tprop;//Info for forward-backward propagation
-  double fxrec, fyrec, fzrec, fprec, fthetarec, fphirec, fxmc, fymc, fzmc, fpmc, fthetamc, fphimc;
+  double fxrec, fyrec, fzrec, fprec, fthetarec, fphirec, fxmc, fymc, fzmc, fpmc, fthetamc, fphimc, fxmclmd, fymclmd, fzmclmd, fpmclmd, fthetamclmd, fphimclmd;
+  double fxrec_err, fyrec_err,fxmc_err, fymc_err,  fxmclmd_err, fymclmd_err;
   double fbx,fby,fbz;
+  double fvrec,fwrec,ftvrec,ftwrec,fvrec_err,fwrec_err,ftvrec_err,ftwrec_err;
+  double fvmc,fwmc,ftvmc,ftwmc,fvmc_err,fwmc_err,ftvmc_err,ftwmc_err;
+  double fvmclmd,fwmclmd,ftvmclmd,ftwmclmd,fvmclmd_err,fwmclmd_err,ftvmclmd_err,ftwmclmd_err;
 
   //----------------------------------------
 
