@@ -141,6 +141,13 @@ Int_t PndSttTube::GetNeighboring(int i) {
   return  fNeighborings.At(i);
 }
 
+Bool_t PndSttTube::IsNeighboring(int tubeID) {
+  for(int itube = 0; itube < fNeighborings.GetSize(); itube++) {
+    if(GetNeighboring(itube) == tubeID) return kTRUE;
+  }
+  return kFALSE;
+}
+
 // CHECK this can be written in a better way
 Double_t PndSttTube::GetDistance(PndSttTube *tube) {
   

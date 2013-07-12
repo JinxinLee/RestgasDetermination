@@ -42,6 +42,7 @@ class PndSttTube : public TObject
   TArrayI GetNeighborings();
   Int_t GetNeighboring(int i);
   Double_t GetDistance(PndSttTube *tube);
+  Bool_t IsNeighboring(int tubeID);
 
   void SetSectorLimitFlag(Bool_t flag = kTRUE) { fSectorLimit = flag; }
   void SetLayerLimitFlag(Bool_t flag = kTRUE) { fLayerLimit = flag; }
