@@ -35,17 +35,24 @@ void MissGhostCount(TString path="/panda/pandaroot/macro/lmd/testPixel/mom_1_5/"
     for(int iq=0;iq<nTrksQ;iq++){
       PndLmdTrackQ *trkcur = qtrk->At(iq);
       int trkStat = trkcur->GetTrkRecStatus();
+      int flSecondary = trkcur->GetSecondary();
+      int numMChits =  trkcur->GetNumMChits();
+      int numDoubleMChits = trkcur->GetNumDoubleMChits();
+      int MChitslim = 1;
+      if(numDoubleMChits>0) MChitslim =2;
       if(trkStat==0) good++;
       if(trkStat==1) ghostHit++;
       if(trkStat==2) ghostTrk++;
-      if(trkStat==-1 || trkStat==-10) missTrk++;
-      if(trkStat==-2) missHit++;
+      // if((trkStat==-1 || trkStat==-10) && flSecondary==0 && numMChits>MChitslim) missTrk++;
+      // if(trkStat==-2 && flSecondary==0 && numMChits<=MChitslim) missHit++; 
+      if((trkStat==-1 || trkStat==-10) && flSecondary==0) missTrk++;
+      if(trkStat==-2 && flSecondary==0) missHit++;
     }
-    hntrkmissed_I->Fill(missHit);
-    hntrkmissed_II->Fill(missTrk);
-    hntrkghost_I->Fill(ghostHit);
-    hntrkghost_II->Fill(ghostTrk);
-    hntrkgood_II->Fill(good);
+    if(missHit>0) hntrkmissed_I->Fill(missHit);
+    if(missTrk>0) hntrkmissed_II->Fill(missTrk);
+    if(ghostHit>0) hntrkghost_I->Fill(ghostHit);
+    if(ghostTrk>0) hntrkghost_II->Fill(ghostTrk);
+    if(good>0) hntrkgood_II->Fill(good);
   }
 
 
