@@ -32,7 +32,11 @@ class PndTrkCluster : public TObject
   void AddHit(PndTrkHit *hit);
 
   void DeleteHit(PndTrkHit *hit);
+  void DeleteHitAndCompress(PndTrkHit *hit);
   void DeleteHit(Int_t index);
+  void DeleteHitAndCompress(Int_t index);
+  void DeleteHits(std::vector< int > todelete);
+
   void DeleteAllHits();
   
   void SetIRegion(int iregion) { fIRegion = iregion; }
@@ -44,6 +48,8 @@ class PndTrkCluster : public TObject
   inline Int_t  GetNofHits() { return hitlist.GetEntriesFast(); }
   inline Int_t  GetIRegion() { return fIRegion; }
   
+  Double_t  GetMinimumXYDistanceFromHit(PndTrkHit *hit);
+
   PndTrkHit *  SearchHit(PndTrkHit *hit);
  
   void Print();
@@ -79,6 +85,7 @@ class PndTrkCluster : public TObject
 
  void AddCluster(PndTrkCluster *cluster);
  void AddClusterAndSortFrom(PndTrkCluster *cluster, TVector3 frompoint, TString criterion);
+ void Replace(PndTrkHit *hit);
 
  protected:
  TVector3 fFromPoint;

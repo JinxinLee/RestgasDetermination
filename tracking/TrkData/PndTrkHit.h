@@ -27,6 +27,10 @@ class PndTrkHit : public FairTimeStamp
 
   ~PndTrkHit();    
 
+  virtual Bool_t IsEqual(const TObject* obj) const {
+    return (((PndTrkHit *) obj)->fDetectorID == fDetectorID) && (((PndTrkHit *) obj)->fHitID == fHitID);
+  }
+
   virtual Bool_t IsSortable() { return !(fSortVariable == -1); }
    Int_t Compare(const TObject *hit)  const;
 

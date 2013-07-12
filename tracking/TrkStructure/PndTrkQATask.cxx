@@ -50,7 +50,7 @@ using namespace std;
 
 
 // -----   Default constructor   -------------------------------------------
-PndTrkQATask::PndTrkQATask() : FairTask("QA plots", 0), fPersistence(kTRUE), fUseMVDPixHits(kTRUE), fUseMVDStrHits(kTRUE), fUseSTTHits(kTRUE), fUseSTTSkewHits(kTRUE), fUseFTSHits(kTRUE), fUseFTSSkewHits(kTRUE), fNFtsPoints(0), fNSttPoints(0), fNMvdPoints(0), fNMCPoints(0), fNFtsHits(0), fNSttHits(0), fNMvdPixHits(0), fNMvdStrHits(0), fNHits(0), fNMCTracks(0), fFtsPointArray(NULL), fFtsHitArray(NULL), fSttPointArray(NULL), fSttHitArray(NULL), fMvdPointArray(NULL), fMvdPixelHitArray(NULL), fMvdStripHitArray(NULL), fMCTrackArray(NULL), fTrackArray(NULL), fTrackCandArray(NULL), fIdealTrackCandArray(NULL), fTubeArrayStt(NULL), fTubeArrayFts(NULL), fTrackIDArray(NULL), fSttParameters(NULL), fFtsParameters(NULL), fMinimumNofSttHits(3), fMinimumNofFtsHits(6) {
+PndTrkQATask::PndTrkQATask() : FairTask("QA plots", 0), fPersistence(kTRUE), fUseMVDPixHits(kTRUE), fUseMVDStrHits(kTRUE), fUseSTTHits(kTRUE), fUseSTTSkewHits(kTRUE), fUseFTSHits(kTRUE), fUseFTSSkewHits(kTRUE), fNFtsPoints(0), fNSttPoints(0), fNMvdPoints(0), fNMCPoints(0), fNFtsHits(0), fNSttHits(0), fNMvdPixHits(0), fNMvdStrHits(0), fNHits(0), fNMCTracks(0), fFtsPointArray(NULL), fFtsHitArray(NULL), fSttPointArray(NULL), fSttHitArray(NULL), fMvdPointArray(NULL), fMvdPixelHitArray(NULL), fMvdStripHitArray(NULL), fMCTrackArray(NULL), fTrackArray(NULL), fTrackCandArray(NULL), fIdealTrackCandArray(NULL), fTubeArrayStt(NULL), fTubeArrayFts(NULL), fTrackIDArray(NULL), fSttParameters(NULL), fFtsParameters(NULL), fMinimumNofSttParalHits(3), fMinimumNofSttSkewHits(3), fMaximumNofSttHits(1000), fMinimumNofFtsHits(6), fAccountForMultiHits(kTRUE) {
   SetDetectorsToStudy("STT");
   sprintf(fFtsBranch,"FTSHit");
   sprintf(fSttBranch,"STTHit");
@@ -58,11 +58,14 @@ PndTrkQATask::PndTrkQATask() : FairTask("QA plots", 0), fPersistence(kTRUE), fUs
   sprintf(fMvdStripBranch,"MVDHitsStrip");
   sprintf(fInputTrackBranch,"Track");
   sprintf(fInputTrackIDBranch,"TrackID");
+  fSttTubeIDToMCPointID.clear();
 }
+
+ 
 
 
 // ---------------------------------------------------------
-PndTrkQATask::PndTrkQATask(TString detectorsToStudy, Int_t verbose=0) : FairTask("QA plots", verbose), fPersistence(kTRUE), fUseMVDPixHits(kTRUE), fUseMVDStrHits(kTRUE), fUseSTTHits(kTRUE), fUseSTTSkewHits(kTRUE), fUseFTSHits(kTRUE), fUseFTSSkewHits(kTRUE), fNFtsPoints(0), fNSttPoints(0), fNMvdPoints(0), fNMCPoints(0), fNFtsHits(0), fNSttHits(0), fNMvdPixHits(0), fNMvdStrHits(0), fNHits(0), fNMCTracks(0), fFtsPointArray(NULL), fFtsHitArray(NULL), fSttPointArray(NULL), fSttHitArray(NULL), fMvdPointArray(NULL), fMvdPixelHitArray(NULL), fMvdStripHitArray(NULL), fMCTrackArray(NULL), fTrackArray(NULL), fTrackCandArray(NULL), fIdealTrackCandArray(NULL), fTubeArrayStt(NULL), fTubeArrayFts(NULL), fTrackIDArray(NULL), fSttParameters(NULL), fFtsParameters(NULL), fMinimumNofSttHits(3), fMinimumNofFtsHits(6) {
+PndTrkQATask::PndTrkQATask(TString detectorsToStudy, Int_t verbose=0) : FairTask("QA plots", verbose), fPersistence(kTRUE), fUseMVDPixHits(kTRUE), fUseMVDStrHits(kTRUE), fUseSTTHits(kTRUE), fUseSTTSkewHits(kTRUE), fUseFTSHits(kTRUE), fUseFTSSkewHits(kTRUE), fNFtsPoints(0), fNSttPoints(0), fNMvdPoints(0), fNMCPoints(0), fNFtsHits(0), fNSttHits(0), fNMvdPixHits(0), fNMvdStrHits(0), fNHits(0), fNMCTracks(0), fFtsPointArray(NULL), fFtsHitArray(NULL), fSttPointArray(NULL), fSttHitArray(NULL), fMvdPointArray(NULL), fMvdPixelHitArray(NULL), fMvdStripHitArray(NULL), fMCTrackArray(NULL), fTrackArray(NULL), fTrackCandArray(NULL), fIdealTrackCandArray(NULL), fTubeArrayStt(NULL), fTubeArrayFts(NULL), fTrackIDArray(NULL), fSttParameters(NULL), fFtsParameters(NULL), fMinimumNofSttParalHits(3), fMinimumNofSttSkewHits(3), fMaximumNofSttHits(1000), fMinimumNofFtsHits(6), fAccountForMultiHits(kTRUE) {
   SetDetectorsToStudy(detectorsToStudy);
   sprintf(fFtsBranch,"FTSHit");
   sprintf(fSttBranch,"STTHit");
@@ -70,7 +73,9 @@ PndTrkQATask::PndTrkQATask(TString detectorsToStudy, Int_t verbose=0) : FairTask
   sprintf(fMvdStripBranch,"MVDHitsStrip");
   sprintf(fInputTrackBranch,"Track");
   sprintf(fInputTrackIDBranch,"TrackID");
+  fSttTubeIDToMCPointID.clear();
 }
+
 
 
 void PndTrkQATask::SetDetectorsToStudy(TString detectorsToStudy){
@@ -88,6 +93,8 @@ PndTrkQATask::~PndTrkQATask() {
 
 }
 // -------------------------------------------------------------------------
+
+
 
 
 
@@ -206,7 +213,7 @@ InitStatus PndTrkQATask::Init() {
   hContamination = new TH2F("hContamination","contamination = wrongly assigned/nof track hits", 100, 0., 100., 50, 0., 1.1);
   hPurity = new TH2F("hPurity","purity = correctly assigned/nof track hits", 100, 0., 100., 50, 0., 1.1);
 
-  fGoodTrack = 0, fBadTrack = 0, fMCReconstructableTrack = 0, fNotReconstructed = 0, fGhostTrack = 0, fRecoTrack = 0;
+  fGoodTrack = 0, fBadTrack = 0, fMCReconstructableTrack = 0, fNotReconstructed = 0, fGhostTrack = 0, fRecoTrack = 0, fIgnoredTrack = 0;
 
 
   if(fVerbose > 9) cout << "PndTrkQATask::Init() End \n";
@@ -332,7 +339,9 @@ void PndTrkQATask::ReInitTask() {
   fNMCTracks = fMCTrackArray->GetEntriesFast();
 
   // reset counters to 0
-  fThisGoodTrack = 0, fThisBadTrack = 0, fThisMCReconstructableTrack = 0, fThisNotReconstructed = 0, fThisGhostTrack = 0, fThisRecoTrack = 0;
+  fThisGoodTrack = 0, fThisBadTrack = 0, fThisMCReconstructableTrack = 0, fThisNotReconstructed = 0, fThisGhostTrack = 0, fThisRecoTrack = 0, fThisIgnoredTrack = 0;
+
+  fSttTubeIDToMCPointID.clear();
 }
 
 
@@ -347,7 +356,8 @@ void PndTrkQATask::Exec(Option_t* opt) {
   //   // -----
   fEventCounter++;
 
-
+  int nofdoublehits = FillTubeIDMap();
+  if(fVerbose > 1)  cout << "PndTrkQATask: number of double hit tubes in reconstructable tracks: " << nofdoublehits << endl;
 
   Bool_t idealtrackfinder = IdealTrackFinding();
   fMCReconstructableTrack += fIdealTrackCandArray->GetEntriesFast();
@@ -399,6 +409,17 @@ void PndTrkQATask::Exec(Option_t* opt) {
     if(asso.at(0) == -1) {
       fNotReconstructed++;
       fThisNotReconstructed++;
+
+      // take the MC info
+      PndTrackCand *mctrkcand = (PndTrackCand*) fIdealTrackCandArray->At(imctrack);
+      if(!mctrkcand) continue;
+
+      Int_t nofmctrackpoints   = mctrkcand->GetNHits();
+      Int_t nofmctracksttpoints = mctrkcand->GetNHitsDet(FairRootManager::Instance()->GetBranchId(fSttBranch));
+      cout << "TRACK " << " "<<  nofmctrackpoints << " " << nofmctracksttpoints << endl;
+
+
+
       it++;
       continue;
     }
@@ -599,28 +620,48 @@ void PndTrkQATask::Exec(Option_t* opt) {
 	  Int_t tubeID = ((PndSttHit*) hit)->GetTubeID();
 	  PndSttTube *tube = (PndSttTube*) fTubeArrayStt->At(tubeID);
 
-	  if(hit->GetRefIndex() == -1) {
-	    nTmpWrongStt++;
-	    nTmpWrong++;
-	    if(tube->IsSkew()) nTmpWrongSttSkew++;
-	    else nTmpWrongSttParal++;
-	  }
-	  else {
-	    PndSttPoint *pnt = (PndSttPoint*) fSttPointArray->At(hit->GetRefIndex());
-	    if(tube->IsSkew()) noftmprecotracksttskewpoints++;
-	    else noftmprecotracksttparalpoints++;
-
-	    if(pnt->GetTrackID() == mctrackID) {
-	      nTmpAssignedStt++;
-	      nTmpAssigned++;
-	      if(tube->IsSkew()) nTmpAssignedSttSkew++;
-	      else nTmpAssignedSttParal++;
-	    }
-	    else {
+	  if(fAccountForMultiHits == kFALSE && IsTubeMultiHit(tubeID) == kTRUE) {
+	    Bool_t isgoodhit = CheckIfTrackHitTube(mctrackID, tubeID);
+	    if(isgoodhit == kFALSE) {
 	      nTmpWrongStt++;
 	      nTmpWrong++;
 	      if(tube->IsSkew()) nTmpWrongSttSkew++;
 	      else nTmpWrongSttParal++;
+	    }
+	    else {
+	      nTmpAssignedStt++;
+	      nTmpAssigned++;
+	      if(tube->IsSkew()) nTmpAssignedSttSkew++;
+	      else nTmpAssignedSttParal++;
+	   
+	    }
+	  }
+	  else {
+	    if(hit->GetRefIndex() == -1) {
+	      nTmpWrongStt++;
+	      nTmpWrong++;
+	      if(tube->IsSkew()) nTmpWrongSttSkew++;
+	      else nTmpWrongSttParal++;
+	    }
+	    else {
+	      //	      cout << "checking point " << hit->GetRefIndex() << endl;
+	      PndSttPoint *pnt = (PndSttPoint*) fSttPointArray->At(hit->GetRefIndex());
+	      if(tube->IsSkew()) noftmprecotracksttskewpoints++;
+	      else noftmprecotracksttparalpoints++;
+
+
+	      if(pnt->GetTrackID() == mctrackID) {
+		nTmpAssignedStt++;
+		nTmpAssigned++;
+		if(tube->IsSkew()) nTmpAssignedSttSkew++;
+		else nTmpAssignedSttParal++;
+	      }
+	      else {
+		nTmpWrongStt++;
+		nTmpWrong++;
+		if(tube->IsSkew()) nTmpWrongSttSkew++;
+		else nTmpWrongSttParal++;
+	      }
 	    }
 	  }
 	}
@@ -715,8 +756,8 @@ void PndTrkQATask::Exec(Option_t* opt) {
 
     }
 
-   
 
+ 
     if(fVerbose > 1) {
       cout << "POINTS MC (mc trk, stt, mvd pix, mvd str, fts)" << endl;
       cout << nofmctrackpoints << " " << nofmctracksttpoints << " " << nofmctrackmvdpixpoints << " " << nofmctrackmvdstrpoints << " " << nofmctrackftspoints<< endl;
@@ -800,6 +841,8 @@ void PndTrkQATask::Exec(Option_t* opt) {
 
     // CHECK for now:
     // a track is good if it has more than 80% of mc points assigned to it
+
+
     if(((Double_t) nAssigned/nofmctrackpoints) > 0.8){
       fGoodTrack++;
       fThisGoodTrack++;
@@ -812,6 +855,18 @@ void PndTrkQATask::Exec(Option_t* opt) {
     it++;
   }
 
+
+
+  // if the nof reconstructed tracks is > assigned + ghosts it means
+  // that a track not considered reconstructable has been reconstructed 
+  if(fThisRecoTrack > fThisGoodTrack + fThisGhostTrack) {
+    if(fVerbose > 0) cout << "fThisRecoTrack " << fThisRecoTrack << " fThisMCReconstructableTrack " << fThisMCReconstructableTrack << " fThisGoodTrack " <<  fThisGoodTrack << " fThisGhostTrack " << fThisGhostTrack << endl;
+    fThisIgnoredTrack += (fThisRecoTrack - (fThisGoodTrack + fThisGhostTrack));
+    fIgnoredTrack += (fThisRecoTrack - (fThisGoodTrack + fThisGhostTrack));
+  }
+
+
+
   // CHECK for now:
   // fMCReconstructableTrack are the mc tracks which satisfy the criterion in IsMcTrackAcceptable (at least fMinimumNofXXXHits)
 
@@ -820,13 +875,13 @@ void PndTrkQATask::Exec(Option_t* opt) {
       cout << "#### NOW: Recontructed Tracks " << fThisRecoTrack << " MC Reconstructable Tracks " << fThisMCReconstructableTrack << endl;
     }
     else{
-      cout << "#### NOW: GOOD = "<< 100. *  fThisGoodTrack/fThisMCReconstructableTrack << "%, BAD = " << 100. *  fThisBadTrack/fThisMCReconstructableTrack << "%, MISSED = " << 100. *  fThisNotReconstructed/fThisMCReconstructableTrack << "%, GHOSTS " << 100. *  fThisGhostTrack/fThisRecoTrack << "%" << endl;
+      cout << "#### NOW: GOOD = "<< 100. *  fThisGoodTrack/fThisMCReconstructableTrack << "%, BAD = " << 100. *  fThisBadTrack/fThisMCReconstructableTrack << "%, MISSED = " << 100. *  fThisNotReconstructed/fThisMCReconstructableTrack << "%, GHOSTS " << 100. *  fThisGhostTrack/fThisRecoTrack << "%. [IGNORED " << 100. * fThisIgnoredTrack/fThisRecoTrack << "%]" << endl;
     }
     if(fRecoTrack == 0 || fMCReconstructableTrack == 0){
       cout << "TOTAL: Recontructed Tracks " << fRecoTrack << " MC Reconstructable Tracks " << fMCReconstructableTrack << endl;
     }
     else{
-      cout << "======== AFTER THIS EVENT: GOOD = "<< 100. *  fGoodTrack/fMCReconstructableTrack << "%, BAD = " << 100. *  fBadTrack/fMCReconstructableTrack << "%, MISSED = " << 100. *  fNotReconstructed/fMCReconstructableTrack << "%, GHOSTS " << 100. *  fGhostTrack/fRecoTrack << "%"  << endl;
+      cout << "======== AFTER THIS EVENT: GOOD = "<< 100. *  fGoodTrack/fMCReconstructableTrack << "%, BAD = " << 100. *  fBadTrack/fMCReconstructableTrack << "%, MISSED = " << 100. *  fNotReconstructed/fMCReconstructableTrack << "%, GHOSTS " << 100. *  fGhostTrack/fRecoTrack << "%. [IGNORED " << 100. * fIgnoredTrack/fRecoTrack << "%]" << endl;
     }
   }
 }
@@ -898,8 +953,9 @@ Bool_t PndTrkQATask::IdealTrackFinding() {
   Int_t hitMap[fNMCTracks][NOFDETECTORS];
   for (Int_t iMCTrack = 0; iMCTrack < fNMCTracks; iMCTrack++) {
     hitMap[iMCTrack][0] = 0; // MVD
-    hitMap[iMCTrack][1] = 0; // STT
-    hitMap[iMCTrack][2] = 0; // FTS
+    hitMap[iMCTrack][1] = 0; // STT parallel
+    hitMap[iMCTrack][2] = 0; // STT skew
+    hitMap[iMCTrack][3] = 0; // FTS
   }
 
   // loops over mc points, count points in detectors with hitMap
@@ -912,8 +968,10 @@ Bool_t PndTrkQATask::IdealTrackFinding() {
     }
     mcTrackIndex = pMCpt->GetTrackID();
     hitMap[mcTrackIndex][0]++;
-    if(fVerbose > 2)  cout << "MVD ON " << mcTrackIndex << " " << endl;
+    if(fVerbose > 2)    cout << "MVD ON " << ipnt << " " <<  mcTrackIndex << " " << endl;
   }
+
+
 
   if(fVerbose > 11) cout << "nSttPoints = " << fNSttPoints << endl;
   for (Int_t ipnt = 0; ipnt < fNSttPoints; ipnt++){
@@ -922,17 +980,15 @@ Bool_t PndTrkQATask::IdealTrackFinding() {
       if(fVerbose > 9) cout << "Stt Point " << ipnt << "is skipped because of bad 0 pMCpt" << endl;
       continue;
     }
+    mcTrackIndex = pMCpt->GetTrackID();
 
-    // CHECK do not count stt skew since we need at least fMinimumNofSttHits hits
-    // in xy plane to do the fit in xy -------------------------
     Int_t tubeID = ((PndSttPoint*) pMCpt)->GetTubeID();
     PndSttTube *tube = (PndSttTube*) fTubeArrayStt->At(tubeID);
-    if(tube->GetWireDirection().Z() != 1.) continue;
+    if(tube->IsParallel() == kTRUE)  hitMap[mcTrackIndex][1]++;
+    else hitMap[mcTrackIndex][2]++;
     // -----------------------------------------------
 
-    mcTrackIndex = pMCpt->GetTrackID();
-    hitMap[mcTrackIndex][1]++;
-    if(fVerbose > 2) cout << "STT ON " << mcTrackIndex << " " << endl;
+    if(fVerbose > 2)     cout << "STT ON " << ipnt << " " << mcTrackIndex << " " << tubeID << endl;
   }
 
   if(fVerbose > 11) cout << "fNFtsPoints = " << fNFtsPoints << endl;
@@ -956,7 +1012,7 @@ Bool_t PndTrkQATask::IdealTrackFinding() {
     // -----------------------------------------------
 
     mcTrackIndex = pMCpt->GetTrackID();
-    hitMap[mcTrackIndex][2]++;
+    hitMap[mcTrackIndex][3]++;
     if(fVerbose > 2) cout << "FTS ON " << mcTrackIndex << " " << endl;
   }
   // --------------------------------------------------------------------
@@ -968,11 +1024,9 @@ Bool_t PndTrkQATask::IdealTrackFinding() {
   Int_t nMCacc  = 0;         // STT / FTS accepted MCTracks (according to criterion in IsMcTrackAcceptable)
   Int_t nTracks = 0;         // reconstructable MCTracks
 
-
   for (Int_t iMCTrack = 0; iMCTrack < fNMCTracks; iMCTrack++){
     pMCtr = (PndMCTrack*) fMCTrackArray->At(iMCTrack);
     if ( ! pMCtr ) 	continue;
-
 
 
     // temporary hack, fix this in monte carlo ....
@@ -983,8 +1037,8 @@ Bool_t PndTrkQATask::IdealTrackFinding() {
 
 
     if(fVerbose > 13) {
-      cout << "STT: hitMap[iMCTrack][1]=" << hitMap[iMCTrack][1] << endl;
-      cout << "FTS: hitMap[iMCTrack][2]=" << hitMap[iMCTrack][2] << endl;
+      cout << "STT: hitMap[iMCTrack][1]=" << hitMap[iMCTrack][1] << " hitMap[iMCTrack][2]=" << hitMap[iMCTrack][2] << endl;
+      cout << "FTS: hitMap[iMCTrack][3]=" << hitMap[iMCTrack][3] << endl;
     }
 
 
@@ -1033,7 +1087,7 @@ Bool_t PndTrkQATask::IdealTrackFinding() {
       }
     Int_t counter = pTrckCand->GetNHits();
     pTrckCand->AddHit(FairRootManager::Instance()->GetBranchId(fMvdPixelBranch), iHit, counter);
-
+    //    cout << "added pixel " << iHit << " " << ptIndex << " " << mcTrackIndex  << endl;
   }
 
 
@@ -1067,42 +1121,63 @@ Bool_t PndTrkQATask::IdealTrackFinding() {
 	}
       Int_t counter = pTrckCand->GetNHits();
       pTrckCand->AddHit(FairRootManager::Instance()->GetBranchId(fMvdStripBranch), iHit,  counter);
+      //    cout << "added strip " << iHit << " " << ptIndex << " " << mcTrackIndex  << endl;
 
     }
 
   for (Int_t iHit = 0; iHit < fNSttHits; iHit++)
     {
       pMhitSTT = (PndSttHit*) fSttHitArray->At(iHit);
-
       if (!pMhitSTT) continue;
 
+      Int_t tubeID = pMhitSTT->GetTubeID();
+
       ptIndex = pMhitSTT->GetRefIndex();
-      if (ptIndex < 0) continue;
-      pMCpt =  (PndSttPoint*) fSttPointArray->At(ptIndex);
-      if (!pMCpt) continue;
-      mcTrackIndex = pMCpt->GetTrackID();
 
-      if (mcTrackIndex < 0 || mcTrackIndex > fNMCTracks)
-	{
-	  cout << "-E- MCTrack index out of range. " << mcTrackIndex << " " << fNMCTracks << endl;
-	  nNoMCTrack++;
-	  continue;
-	}
+      // to possibly account for multiple hitsin the same tube
+      TArrayI multihits;
 
-      if (trackMap.find(mcTrackIndex) == trackMap.end()) continue;
+      //      cout << " ADD " << iHit << " "  << ptIndex << " " << tubeID << " " << IsTubeMultiHit(tubeID) << endl;
 
-      idealrecoTrackIndex = trackMap[mcTrackIndex];
-      pTrckCand = (PndTrackCand*) fIdealTrackCandArray->At(idealrecoTrackIndex);
-      if ( ! pTrckCand )
-	{
-	  cout << "-E- No Track pointer. " << iHit << " " << ptIndex
-	       << " " << mcTrackIndex << " " << idealrecoTrackIndex << endl;
-	  nNoTrack++;
-	  continue;
-	}
-      Int_t counter = pTrckCand->GetNHits();
-      pTrckCand->AddHit(FairRootManager::Instance()->GetBranchId(fSttBranch), iHit,  counter);
+      if(fAccountForMultiHits == kTRUE && IsTubeMultiHit(tubeID) == kTRUE) multihits = GetTubeMultiHits(tubeID);
+      else {
+	int size =  multihits.GetSize();
+	multihits.Set(size + 1);
+	multihits.AddAt(ptIndex, size);
+      }
 
+
+  
+      for(int ipnt = 0; ipnt < multihits.GetSize(); ipnt++) {
+	ptIndex = multihits.At(ipnt);
+	
+	if (ptIndex < 0) continue;
+	pMCpt =  (PndSttPoint*) fSttPointArray->At(ptIndex);
+	if (!pMCpt) continue;
+	mcTrackIndex = pMCpt->GetTrackID();
+
+	if (mcTrackIndex < 0 || mcTrackIndex > fNMCTracks)
+	  {
+	    cout << "-E- MCTrack index out of range. " << mcTrackIndex << " " << fNMCTracks << endl;
+	    nNoMCTrack++;
+	    continue;
+	  }
+
+	if (trackMap.find(mcTrackIndex) == trackMap.end()) continue;
+
+	idealrecoTrackIndex = trackMap[mcTrackIndex];
+	pTrckCand = (PndTrackCand*) fIdealTrackCandArray->At(idealrecoTrackIndex);
+	if ( ! pTrckCand )
+	  {
+	    cout << "-E- No Track pointer. " << iHit << " " << ptIndex
+		 << " " << mcTrackIndex << " " << idealrecoTrackIndex << endl;
+	    nNoTrack++;
+	    continue;
+	  }
+	Int_t counter = pTrckCand->GetNHits();
+	pTrckCand->AddHit(FairRootManager::Instance()->GetBranchId(fSttBranch), iHit,  counter);
+	//	cout << "added stt " << iHit << " " << ptIndex << " " << mcTrackIndex  << endl;
+      }
     }
 
   for (Int_t iHit = 0; iHit < fNFtsHits; iHit++)
@@ -1168,7 +1243,7 @@ void PndTrkQATask::MapMCToReco()
     if(!mctrkcand) continue;
     Int_t mctrackID = mctrkcand->getMcTrackId();
     std::vector< Int_t > associatedrecotracks;
-
+    //    cout << mctrkcand->getMcTrackId() << " NOF MC ASSOCIATED PNTS " << mctrkcand->GetNHits() << endl;
     // begin loop over track candidates from tracking algorithm which is under investigation
     for(Int_t jtrk = 0; jtrk < fTrackArray->GetEntriesFast(); jtrk++) {
       PndTrack *trk = (PndTrack*) fTrackArray->At(jtrk);
@@ -1213,14 +1288,17 @@ Bool_t PndTrkQATask::IsMcTrackAcceptable(Int_t iMCTrack, Int_t hitMap[][NOFDETEC
 {
   // The selection criterion depends on which detector's tracking performance is investigated
   if ("STT"==fDetectorsToStudy){
-    // CUT CHECK
-    // CHECK cut at least fMinimumNofSttHits stt parallel MC points
-    // if ((hitMap[iMCTrack][0] + hitMap[iMCTrack][1]) < fMinimumNofSttHits) continue;
-    if(fVerbose > 13) cout << "STT: hitMap[iMCTrack][1]=" << hitMap[iMCTrack][1] << " IsMcTrackAcceptable returns " << !(hitMap[iMCTrack][2] < fMinimumNofSttHits) << endl;
-    return !(hitMap[iMCTrack][1] < fMinimumNofSttHits);
-  } else if ("FTS"==fDetectorsToStudy){
-    if(fVerbose > 13) cout << "FTS: hitMap[iMCTrack][2]=" << hitMap[iMCTrack][2] << " IsMcTrackAcceptable returns " << !(hitMap[iMCTrack][2] < fMinimumNofFtsHits) << endl;
-    return !(hitMap[iMCTrack][2] < fMinimumNofFtsHits);
+    bool hasmorethanminparall = !( hitMap[iMCTrack][1] < fMinimumNofSttParalHits);
+    bool hasmorethanminskew = !( hitMap[iMCTrack][2] < fMinimumNofSttSkewHits);
+    bool haslessthanmax = (hitMap[iMCTrack][1] + hitMap[iMCTrack][2]) < fMaximumNofSttHits;
+    bool fullrequest = hasmorethanminparall && hasmorethanminskew && haslessthanmax; 
+
+    if(fVerbose > 13) cout << "STT for " << iMCTrack << " track: hitMap[iMCTrack][1]= " << hitMap[iMCTrack][1] << " hitMap[iMCTrack][2]= " <<  hitMap[iMCTrack][2] << " IsMcTrackAcceptable returns " << fullrequest << endl;
+    return fullrequest; // CHECK
+  }
+  else if ("FTS"==fDetectorsToStudy){
+    if(fVerbose > 13) cout << "FTS: hitMap[iMCTrack][3]=" << hitMap[iMCTrack][3] << " IsMcTrackAcceptable returns " << !(hitMap[iMCTrack][3] < fMinimumNofFtsHits) << endl;
+    return !(hitMap[iMCTrack][3] < fMinimumNofFtsHits);
   }
 }
 
@@ -1229,6 +1307,85 @@ void PndTrkQATask::FinishTask()
 {
   WriteHistograms();
 }
+
+// stuff to take into account that a tube can be hit twice in --------------
+// the same event and so only one hit is registered
+Int_t PndTrkQATask::FillTubeIDMap() {
+
+  for(int ipnt = 0; ipnt < fSttPointArray->GetEntriesFast(); ipnt++) {
+    PndSttPoint *point = (PndSttPoint*) fSttPointArray->At(ipnt);
+    fSttTubeIDToMCPointID.insert( std::pair<int , int > (point->GetTubeID(), ipnt));
+  }
+  return CleanTubeIDMap();
+}
+
+// delete uniquely assigned tubes from the map
+Int_t PndTrkQATask::CleanTubeIDMap() {
+  int counter = 0;
+
+  std::multimap< int, int >::iterator it = fSttTubeIDToMCPointID.begin();
+  int key = (*it).first;
+
+  cout << "size " << fSttTubeIDToMCPointID.size() << endl;
+  while(it != fSttTubeIDToMCPointID.end()) {
+  key = (*it).first;
+  // std::cout << "There are " << fSttTubeIDToMCPointID.count(key) << " elements with key " << key << endl;
+  while(it != fSttTubeIDToMCPointID.equal_range(key).second) it++;
+  if(fSttTubeIDToMCPointID.count(key) == 1) fSttTubeIDToMCPointID.erase(key);
+  else counter++;
+  }
+
+  // returns the number of multiply hit tubes in this event 
+  return counter;
+}
+
+Bool_t PndTrkQATask::CheckIfTrackHitTube(int thistrack, int tubeID) 
+{
+
+  TArrayI refindices = GetTubeMultiHits(tubeID);
+  for(int iref = 0; iref < refindices.GetSize(); iref++) {
+
+    PndSttPoint *point = (PndSttPoint*) fSttPointArray->At(iref);
+    if(thistrack == point->GetTrackID()) return kTRUE;
+  }
+  return kFALSE;
+
+}
+
+Bool_t PndTrkQATask::CheckRefIndexAgainstMultiHit(int tubeID, int refindex) {
+
+  if(IsTubeMultiHit(tubeID) == kFALSE)  return kTRUE;
+  TArrayI refindices = GetTubeMultiHits(tubeID);
+  for(int iref = 0; iref < refindices.GetSize(); iref++) {
+    if(refindex == refindices.At(iref)) return kTRUE;
+  }
+  return kFALSE;
+
+}
+
+Bool_t PndTrkQATask::IsTubeMultiHit(int tubeID) {
+  return (fSttTubeIDToMCPointID.count(tubeID) > 0);
+}
+
+TArrayI PndTrkQATask::GetTubeMultiHits(int tubeID) {
+  TArrayI array;
+  
+  
+  std::pair< std::multimap< int , int >::iterator, std::multimap< int, int >::iterator > ret;
+  ret = fSttTubeIDToMCPointID.equal_range(tubeID);
+  for (std::multimap< int, int >::iterator it = ret.first; it != ret.second; ++it)
+    {
+      
+      
+      int size = array.GetSize();
+      array.Set(size + 1);
+      array.AddAt((*it).second, size);
+    }
+  return array;
+}
+
+// -------------------------------------------------------------
+
 
 ClassImp(PndTrkQATask)
 

@@ -20,11 +20,13 @@ class PndTrkClean : public TObject {
   ~PndTrkClean();    
 
   int FindMvdLayer(int sensorID);
-  void Cleanup2(PndTrkCluster *cluster);
+  PndTrkClusterList Cleanup2(PndTrkCluster *cluster);
   Bool_t CheckPairOfHits(PndTrkHit *hit1, PndTrkHit *hit2);
   int CheckSectorDistribution(PndTrkCluster *cluster);
   PndTrkCluster CleanSectors(PndTrkCluster *cluster, int sector);
   PndTrkClusterList MergeClusters(PndTrkClusterList *clusterlist);
+  PndTrkClusterList Split(PndTrkCluster *cluster, std::vector< int > breakpoints);
+  Bool_t SplitAtHit(PndTrkCluster *hitlist, PndTrkHit *athit, PndTrkCluster &cluster1, PndTrkCluster &cluster2);
 
 
   

@@ -38,6 +38,7 @@
 // #pragma link C++ class PndTrkTrackList+;
 #pragma link C++ class PndTrkLegendreTask+;
 #pragma link C++ class PndTrkLegendreSecTask+; 
+#pragma link C++ class PndTrkLegendreSecTask2+; 
 #pragma link C++ class PndTrkLegendreTransform+;
 #pragma link C++ class PndTrkConformalTransform+;
 #pragma link C++ class PndTrkConformalHit+;

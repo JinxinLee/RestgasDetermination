@@ -82,15 +82,24 @@ class PndTrkQATask : public FairTask {
 
   void MapMCToReco();
 
-  void SetMinimumNofSttHits(Int_t nofhits) { fMinimumNofSttHits = nofhits; }
+  void SetMinimumNofSttParalHits(Int_t nofhits) { fMinimumNofSttParalHits = nofhits; }
+  void SetMinimumNofSttSkewHits(Int_t nofhits) { fMinimumNofSttSkewHits = nofhits; }
   void SetMinimumNofFtsHits(Int_t nofhits) { fMinimumNofFtsHits = nofhits; }
+  void SetMaximumNofSttHits(Int_t nofhits) { fMaximumNofSttHits = nofhits; }
 
-
+  // multiple hits
+  Int_t FillTubeIDMap();
+  Int_t CleanTubeIDMap();
+  Bool_t CheckRefIndexAgainstMultiHit(int tubeID, int refindex);
+  Bool_t CheckIfTrackHitTube(int thistrack, int tubeID);
+  Bool_t IsTubeMultiHit(int tubeID);
+  TArrayI GetTubeMultiHits(int tubeID);
+  
 
  private:
 
 
-#define NOFDETECTORS 3
+#define NOFDETECTORS 4
   // So far the following detectors are included in this task: MVD, STT, FTS
 
 #define MAXNOFTRACKS 1000
@@ -145,13 +154,15 @@ class PndTrkQATask : public FairTask {
   TH2F *hInefficiencyMvdPixel, *hInefficiencyMvdStrip;
   TH2F *hContamination, *hPurity;
 
-  Int_t fGoodTrack, fBadTrack, fMCReconstructableTrack, fNotReconstructed, fRecoTrack, fGhostTrack, fThisGoodTrack, fThisBadTrack, fThisMCReconstructableTrack, fThisNotReconstructed, fThisGhostTrack, fThisRecoTrack;
+  Int_t fGoodTrack, fBadTrack, fMCReconstructableTrack, fNotReconstructed, fRecoTrack, fGhostTrack, fIgnoredTrack, fThisGoodTrack, fThisBadTrack, fThisMCReconstructableTrack, fThisNotReconstructed, fThisGhostTrack, fThisRecoTrack, fThisIgnoredTrack;
 
   ClassDef(PndTrkQATask,1);
   TString fDetectorsToStudy;  // This flag determines which detector's tracking algorithm should be investigated
   Bool_t  fUseMVDPixHits, fUseMVDStrHits, fUseSTTHits, fUseSTTSkewHits, fUseFTSHits, fUseFTSSkewHits; // These determine which detectors' hits should be looked at
   std::map< Int_t, std::vector<Int_t> > fMC2RecoMap;
-  Int_t fMinimumNofSttHits, fMinimumNofFtsHits;
+  Int_t fMinimumNofFtsHits,  fMinimumNofSttParalHits, fMinimumNofSttSkewHits, fMaximumNofSttHits;
+  std::multimap< int, int > fSttTubeIDToMCPointID;
+  Bool_t fAccountForMultiHits;
 };
 
 #endif

@@ -90,6 +90,7 @@ TrkData/PndTrkConformalHitList.cxx
 #
 TrkSecondary/PndTrkLegendreTask.cxx
 TrkSecondary/PndTrkLegendreSecTask.cxx 
+TrkSecondary/PndTrkLegendreSecTask2.cxx 
 #
 TrkStructure/PndTrkQATask.cxx
 )

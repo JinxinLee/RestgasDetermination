@@ -70,15 +70,37 @@ void PndTrkCluster::DeleteHit(PndTrkHit *hit) {
 }
 
 // CHECK if it works, never tried
+void PndTrkCluster::DeleteHitAndCompress(PndTrkHit *hit) {
+  DeleteHit(hit);
+  hitlist.Compress(); // CHECK
+}
+
+// CHECK if it works, never tried
 void PndTrkCluster::DeleteHit(Int_t index) {
   PndTrkHit* hit = (PndTrkHit*) hitlist[index];
   hitlist.RemoveAt(index);
+  hitlist.Compress(); // CHECK
+}
+
+// CHECK if it works, never tried
+void PndTrkCluster::DeleteHitAndCompress(Int_t index) {
+  DeleteHit(index);
+  hitlist.Compress(); // CHECK
 }
 
 void PndTrkCluster::DeleteAllHits() {
   for(int ihit = 0; ihit < GetNofHits(); ihit++) {
     DeleteHit(ihit);
   }
+  hitlist.Compress();
+}
+
+void PndTrkCluster::DeleteHits(std::vector< int > todelete) {
+  for(int ihit = 0; ihit < todelete.size(); ihit++) {
+    int hitno = todelete[ihit];
+    DeleteHit(hitno);
+  }
+  hitlist.Compress();
 }
 
 // =========================== GET DETECTOR SPECIFIC HIT LIST ============================
@@ -167,7 +189,7 @@ PndTrkCluster PndTrkCluster::GetSttHitList()
 
 // finds the first instance of the hit in the cluster (there should be only one!)
 PndTrkHit* PndTrkCluster::SearchHit(PndTrkHit *hit) {
-  return (PndTrkHit*) FindObject(hit);
+  return (PndTrkHit*) hitlist.FindObject(hit);
 }
 
 
@@ -291,12 +313,15 @@ Bool_t PndTrkCluster::SplitAtHit(PndTrkHit *athit, PndTrkCluster &cluster1, PndT
       cout << "hit == ahit " << endl;
       continue;
     }
-
+    cout << "*** " << hit->GetHitID() << " " << hit->GetXYDistance(tmpposition) << " " << STTPARALDISTANCE << endl; 
     if(hit->GetXYDistance(tmpposition) < STTPARALDISTANCE) { // CHECK
       cluster1.AddHit(hit);
       tmpposition = hit->GetPosition();
-      if(secondhit == NULL) secondhit = hit;
-
+      if(secondhit == NULL) {
+	cout << "secondhit " << endl;
+	secondhit = hit;
+      }
+      else cout << "sechit " << secondhit << endl;
       cout << "CLUS1: " << hit->GetHitID() << endl;
 
     }
@@ -307,8 +332,11 @@ Bool_t PndTrkCluster::SplitAtHit(PndTrkHit *athit, PndTrkCluster &cluster1, PndT
   tmpposition = athit->GetPosition();
   for(int ihit = 0; ihit < GetNofHits(); ihit++) {
     PndTrkHit *hit =  (PndTrkHit*) hitlist[ihit];
-
-    if(*hit == *athit || *hit == *secondhit) continue;
+    cout << "athit " << athit << endl;
+    cout << "hit " << hit << endl;
+    cout << "secondhit " << secondhit <<  endl;
+    if(*hit == *athit) continue;
+    if(*hit == *secondhit) continue;
 
     if(hit->GetXYDistance(tmpposition) < STTPARALDISTANCE) { // CHECK
       cluster2.AddHit(hit);
@@ -538,8 +566,19 @@ Bool_t PndTrkCluster::DoesContain(PndTrkHit *hit) {
 //   return kFALSE;
 }
 
+
+void PndTrkCluster::Replace(PndTrkHit *hit) {
+   PndTrkHit *oldhit = (PndTrkHit*) SearchHit(hit);
+   //   cout << "oldhit " << oldhit << " " << hit << endl;
+   DeleteHitAndCompress(oldhit);
+   AddHit(hit);
+}
+
 PndTrkHit *PndTrkCluster::GetHit(int index) {
-  return (PndTrkHit*) hitlist[index];
+  //  cout << index << " hitlist " << hitlist.GetEntriesFast() << " " << hitlist.GetEntries() << endl;
+  //  cout << hitlist.At(index) << endl;
+
+  return (PndTrkHit*) hitlist.At(index);
 }
 
 PndTrkHit *PndTrkCluster::GetPreviousHit(int index) {
@@ -581,6 +620,23 @@ int PndTrkCluster::MergeTo(PndTrkCluster *cluster2) {
   return GetNofHits();
 }
 
+
+
+
+Double_t  PndTrkCluster::GetMinimumXYDistanceFromHit(PndTrkHit *hit) {
+  double distance = 1000000;
+ //  cout << " from hit " << hit->GetHitID() << " " << hit->GetDetectorID() << endl;
+
+  for(int ihit = 0; ihit < GetNofHits(); ihit++) {
+    PndTrkHit *clushit = GetHit(ihit);
+    double tmpdistance = hit->GetXYDistance(clushit);
+    if(tmpdistance < distance) {
+      distance = tmpdistance;
+      //      cout << " new minimum " << clushit->GetHitID() << " " << clushit->GetDetectorID() << endl;
+    }
+  }
+  return distance;
+}
 
 
 // PndTrkCluster PndTrkCluster::MergeTo(PndTrkCluster cluster2) {
