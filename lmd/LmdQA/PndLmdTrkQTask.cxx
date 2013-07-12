@@ -151,13 +151,15 @@ void PndLmdTrkQTask::Exec(Option_t* opt)
   fTrackQ->Delete();
   // fDetName->Delete();
 
- Double_t glXrecLMD,glYrecLMD,glZrecLMD,glThetarecLMD,glPhirecLMD;
+  Double_t glXrecLMD,glYrecLMD,glZrecLMD,glThetarecLMD,glPhirecLMD;
   Double_t glXrec,glYrec,glZrec,glThetarec,glPhirec, glMomrec;
   Double_t glXmc,glYmc,glZmc,glThetamc,glPhimc, glMommc;
   Double_t glXmcLMD,glYmcLMD,glZmcLMD,glThetamcLMD,glPhimcLMD, glMommcLMD;
   Int_t trkRECStatus; Int_t trkMCStatus;
   Double_t glchi2;
   int glPDG;
+  int glNumMChits;
+  int glNumDoubleMChits;
 
   const int nGeaneTrks = fRecBPTracks->GetEntriesFast();
     const int nParticles = fMCTracks->GetEntriesFast();
@@ -237,6 +239,17 @@ void PndLmdTrkQTask::Exec(Option_t* opt)
     ///Compare trk-cand vs. trk-fit -----------------------------
     // TNtuple *ntupTrkFit = new TNtuple("ntupTrkFit","Info about reconstructed trks: trk-cand vs. trk after fit","xtc:ytc:ztc:thtc:phitc:xtf:ytf:ztf:thtf:phitf:chi2");
     for (Int_t iN=0; iN<nGeaneTrks; iN++){// loop over all reconstructed trks
+      //dummy values
+      glXrecLMD = -9999; glYrecLMD = -9999; glZrecLMD = -9999;glThetarecLMD = -9999;glPhirecLMD = -9999;
+      glXrec = -9999;glYrec = -9999;glZrec = -9999;glThetarec = -9999;glPhirec = -9999; glMomrec = -9999;
+      glXmc = -9999;glYmc = -9999;glZmc = -9999;glThetamc = -9999;glPhimc = -9999; glMommc = -9999;
+      glXmcLMD = -9999;glYmcLMD = -9999;glZmcLMD = -9999;glThetamcLMD = -9999;glPhimcLMD = -9999; glMommcLMD = -9999;
+      trkRECStatus = -9999; trkMCStatus = -9999;
+      glchi2 = -9999;
+      glPDG = -9999;
+      glNumMChits=-9999;
+      glNumDoubleMChits=-9999;
+
       PndTrack *trkpnd = (PndTrack*)fRecTracks->At(iN);
       double chi2 = trkpnd->GetChi2();
       FairTrackParP fFittedTrkP = trkpnd->GetParamFirst();
@@ -568,8 +581,7 @@ void PndLmdTrkQTask::Exec(Option_t* opt)
       trkRECStatus = trkType;
      
 
-      int glNumMChits=-9999;
-      int glNumDoubleMChits=-9999;
+   
       if(trkType>0){ //TODO: ghost-doubled trks has MC trk!!!
 	glXmc= -9999; glYmc =-9999; glZmc = -9999; glThetamc =-9999; glPhimc = -9999; glMommc = -9999;
 	glXmcLMD = -9999; glYmcLMD =-9999; glZmcLMD = -9999; glThetamcLMD =-9999; glPhimcLMD = -9999; glMommcLMD = -9999;
