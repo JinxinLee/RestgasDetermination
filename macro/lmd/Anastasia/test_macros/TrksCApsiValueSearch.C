@@ -15,7 +15,7 @@ using namespace std;
 
 //void TrksAlgoResults(TString storePath="StripSensors/1e4_events/noHitsNumberCheck")
 //void TrksAlgoResults(TString storePath="/home/karavdin/datastorage/TrackPerformanceStrip/1000000/")
-void TrksCApsiValueSearch(TString storePath="${VMCWORKDIR}/macro/lmd/tmpOutnewDesign/noFilterInCA_4aTaskForAll/mom_1_5/")
+void TrksCApsiValueSearch(TString storePath="${VMCWORKDIR}/macro/lmd/tmpOutnewDesign/noFilterInCA_4aTaskForAll/mom_15/")
 {
 
   gROOT->Macro("/panda/pandaroot/macro/lmd/Anastasia/test_macros/Style_Imported_Style.C");
