@@ -33,10 +33,6 @@ PndDrcDigiTask.cxx
 PndDrcHitFinder.cxx
 DrawHits.cxx 
 PndDrcDigiPar.cxx
-PndPhoGun.cxx
-PndDrcRecoLookup.cxx
-PndChPho.cxx
-PndPhoGunT.cxx
 PndDrcLutFill.cxx
 PndDrcLutReco.cxx
 )
