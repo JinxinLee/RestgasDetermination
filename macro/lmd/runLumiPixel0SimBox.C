@@ -31,8 +31,8 @@ void runLumiPixel0SimBox(const int nEvents=10, const int startEv=0, TString stor
   cout<<"All libraries succsesfully loaded!"<<endl;
 
   //set the MC version used
-  fRun->SetName("TGeant4");
-  //  fRun->SetName("TGeant3");//GEANE uses GEANT3!
+    fRun->SetName("TGeant4");
+  //fRun->SetName("TGeant3");//GEANE uses GEANT3!
   
   fRun->SetOutputFile(simOutput);
 
@@ -86,7 +86,7 @@ void runLumiPixel0SimBox(const int nEvents=10, const int startEv=0, TString stor
   fBox->SetPRange(mom,mom);
   //  fBox->SetThetaRange(0.13,0.7); // 2... 12 mrad
 
-  //fBox->SetThetaRange(0.13,0.65); // 2... 11 mrad
+  //  fBox->SetThetaRange(0.13,0.65); // 2... 11 mrad
   fBox->SetThetaRange(0.229183, 0.458366); //4 ... 8 mrad
   //fBox->SetThetaRange(0.458366, 0.458366); //!!! 8 mrad
   //  fBox->SetThetaRange(0., 45.);//TEST 
@@ -116,23 +116,42 @@ void runLumiPixel0SimBox(const int nEvents=10, const int startEv=0, TString stor
   fRun->SetBeamMom(mom);
 
 
-  PndMultiField *fField= new PndMultiField("FULL"); 
+  // PndMultiField *fField= new PndMultiField("FULL"); 
   // //TODO: change FULL to *_v1 maps
-  // PndMultiField *fField= new PndMultiField();
-  // PndTransMap *map_t = new PndTransMap("TransMap_v1", "R");
-  // PndDipoleMap *map_d1 = new PndDipoleMap("DipoleMap1_v1", "R");
-  // PndDipoleMap *map_d2 = new PndDipoleMap("DipoleMap2_v1", "R");
-  // PndSolenoidMap *map_s1 = new PndSolenoidMap("SolenoidMap1", "R");
-  // PndSolenoidMap *map_s2 = new PndSolenoidMap("SolenoidMap2", "R");
-  // PndSolenoidMap *map_s3 = new PndSolenoidMap("SolenoidMap3", "R");
-  // PndSolenoidMap *map_s4 = new PndSolenoidMap("SolenoidMap4", "R");
-  // fField->AddField(map_t);
-  // fField->AddField(map_d1);
-  // fField->AddField(map_d2);
-  // fField->AddField(map_s1);
-  // fField->AddField(map_s2);
-  // fField->AddField(map_s3);
-  // fField->AddField(map_s4);
+
+  // //TEST
+  PndMultiField *fField= new PndMultiField();
+  // // PndTransMap *map_t = new PndTransMap("TransMap_v1", "R");
+  // // PndDipoleMap *map_d1 = new PndDipoleMap("DipoleMap1_v1", "R");
+  // // PndDipoleMap *map_d2 = new PndDipoleMap("DipoleMap2_v1", "R");
+  PndTransMap *map_t = new PndTransMap("TransMap", "R");
+  PndDipoleMap *map_d1 = new PndDipoleMap("DipoleMap1", "R");
+  PndDipoleMap *map_d2 = new PndDipoleMap("DipoleMap2", "R");
+  fField->AddField(map_t);
+  fField->AddField(map_d1);
+  fField->AddField(map_d2);
+  PndSolenoidMap *map_s1 = new PndSolenoidMap("SolenoidMap1", "R");
+  PndSolenoidMap *map_s2 = new PndSolenoidMap("SolenoidMap2", "R");
+  PndSolenoidMap *map_s3 = new PndSolenoidMap("SolenoidMap3", "R");
+  PndSolenoidMap *map_s4 = new PndSolenoidMap("SolenoidMap4", "R");
+  if(mom<3){ //TODO: solenoid mag.field should be standart
+    map_s1->SetScale(0.5);
+    map_s2->SetScale(0.5);
+    map_s3->SetScale(0.5);
+    map_s4->SetScale(0.5);
+  }
+  fField->AddField(map_s1);
+  fField->AddField(map_s2);
+  fField->AddField(map_s3);
+  fField->AddField(map_s4);
+ 
+  // //TEST: const solenoid Mag.Field 
+  // // PndConstField *fSolField=new PndConstField();
+  // // // fSolField->SetField(0,0,20); // values are in kG //for cross-check with results from maps set Bz=2T
+  // // //  fSolField->SetField(0,0,10); // values are in kG //for cross-check with results from maps set Bz=2T
+  // // fSolField->SetField(0,0,1); // values are in T
+  // // fSolField->SetFieldRegion(-240,240,-240,240,-172,283.7); //z range is sum from Solenoid#1-#4 maps
+  // // fField->AddField(fSolField);
   
   fRun->SetField(fField);
   
