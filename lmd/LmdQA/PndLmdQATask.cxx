@@ -347,7 +347,7 @@ InitStatus PndLmdQATask::Init()
    hErrPointPy = new TH1F("hErrPointPy","#sigma_{Py};#sigmaPy, GeV/c",1e3,0,0.01);
    hPullPointPy = new TH1F("hPullPointPy","(Py_{MC}-Py_{REC})/#sigma_{Py};(Py_{MC}-Py_{REC})/#sigma_{Py}",1e2,-10,10);
   
-   hResPointPz = new TH1F("hResPointPz","Pz_{MC}-Pz_{REC};#deltaPz, GeV/c",1e2,-1e-3,1e-3);
+   hResPointPz = new TH1F("hResPointPz","Pz_{MC}-Pz_{REC};#deltaPz, GeV/c",1e2,-1e-4,1e-4);
    hErrPointPz = new TH1F("hErrPointPz","#sigma_{Pz};#sigmaPz, GeV/c",1e3,0,1e-1);
    hPullPointPz = new TH1F("hPullPointPz","(Pz_{MC}-Pz_{REC})/#sigma_{Pz};(Pz_{MC}-Pz_{REC})/#sigma_{Pz}",1e2,-10,10);
 
@@ -360,7 +360,7 @@ InitStatus PndLmdQATask::Init()
 
   //Near 1st LMD plane
    hhits = new TH1I("hhits","number of hits in trk",7,0,7);
-   hchi2 = new TH1F("hchi2","#chi^2 for reconstructed tracks;#chi^2;",1.5e2,0,15.);
+   hchi2 = new TH1F("hchi2","#chi^2 for reconstructed tracks;#chi^2;",1.5e2,-1,15.);
    hResLumiTrkMom = new TH1F("hResLumiTrkMom","P_{MC}-P_{REC}(near Lumi);#deltaP,GeV/c",1e3,-6e-7,6e-7);
    hResLumiTrkTheta = new TH1F("hResLumiTrkTheta","#theta_{MC}-#theta_{REC}(near Lumi);#delta#theta,rad",1e3,-6e-3,6e-3);
    hResLumiTrkPhi = new TH1F("hResLumiTrkPhi","#phi_{MC}-#phi_{REC}(near Lumi);#delta#phi,rad",2e3,-1e-1,1e-1);
@@ -370,7 +370,7 @@ InitStatus PndLmdQATask::Init()
 
    hResLumiTrkPointPx = new TH1F("hResLumiTrkPointPx","Px_{MC}-Px_{REC}(near Lumi);#deltaPx, GeV/c",1e2,-0.01,0.01);
    hResLumiTrkPointPy = new TH1F("hResLumiTrkPointPy","Py_{MC}-Py_{REC}(near Lumi);#deltaPy, GeV/c",1e2,-0.01,0.01);
-   hResLumiTrkPointPz = new TH1F("hResLumiTrkPointPz","Pz_{MC}-Pz_{REC}(near Lumi);#deltaPz, GeV/c",1e2,-0.1,0.1);
+   hResLumiTrkPointPz = new TH1F("hResLumiTrkPointPz","Pz_{MC}-Pz_{REC}(near Lumi);#deltaPz, GeV/c",1e2,-1e-3,1e-3);
 
    hResLumiTrkPointXErr = new TH1F("hResLumiTrkPointXErr","#sigma(X_{REC})(near Lumi);#sigma_{X},cm",1e2,0,0.02);
    hResLumiTrkPointYErr = new TH1F("hResLumiTrkPointYErr","#sigma(Y_{REC})(near Lumi);#sigma_{Y},cm",1e2,0,0.02);
@@ -545,7 +545,8 @@ void PndLmdQATask::ResoAndPulls()
       PndSdsMCPoint* MCPointHit;
       int MCid;
       bool hitmix = false;
-      if(Ntrkcandhits<4) continue; //require trks with hits on all planes
+      //if(Ntrkcandhits<4) continue; //require trks with hits on all planes
+      //      if(Ntrkcandhits>3) continue; //require trks with hits not on all planes
       hhits->Fill(Ntrkcandhits);
       for (Int_t iHit = 0; iHit < Ntrkcandhits; iHit++){ // loop over rec.hits
 	PndTrackCandHit candhit = (PndTrackCandHit)(trkcand->GetSortedHit(iHit));
