@@ -5,7 +5,7 @@
 //
 // Author List:
 //      Mathias Michel
-//
+//      Anastasia Karavdina
 //-----------------------------------------------------------
 
 // This Class' Header ------------------
@@ -20,6 +20,7 @@
 #include "PndLinTrack.h"
 #include "TrackData/PndTrackCand.h"
 #include "PndSdsHit.h"
+#include "PndSdsMergedHit.h"
 #include "TrackData/PndTrackCandHit.h"
 #include "PndTrack.h"
 #include "FairTrackParP.h"
@@ -52,6 +53,13 @@
 using namespace ROOT::Math;
 using namespace std;
 
+PndLmdLinFitTask* PndLmdLinFitTask::fInstance= 0;
+//_____________________________________________________________________________
+PndLmdLinFitTask* PndLmdLinFitTask::Instance()
+{
+  return fInstance;
+}
+
 PndLmdLinFitTask::PndLmdLinFitTask()
   : FairTask("3D-Straight-Line-Fit")
 {
@@ -63,7 +71,15 @@ PndLmdLinFitTask::PndLmdLinFitTask()
   fPbeam = 0;
   fPDGCode = -2212; //barp
   fCharge = -1;//barp
+  fsigmaMS = 0;
   PndGeoHandling::Instance();
+  fInstance=this;
+  //  ttal = new TNtuple("ttal","kink angles","alx0:alx1:alx2:alx3:aly0:aly1:aly2:aly3:npoints") ;
+  ttal = new TNtuple("ttal","kink angles","alx0:alx1:alx2:aly0:aly1:aly2:erralx1:erralx2:erraly1:erraly2:npoints") ;
+ TVirtualFitter::SetDefaultFitter("Minuit");
+  fmin = TVirtualFitter::Fitter(0,15);
+  for(int ih=0;ih<4;ih++)
+    hitMergedfl[ih] = false;
 }
 PndLmdLinFitTask::PndLmdLinFitTask(TString tTCandBranchName, TString tRecoBranchName)
   : FairTask("3D-Straight-Line-Fit")
@@ -74,11 +90,21 @@ PndLmdLinFitTask::PndLmdLinFitTask(TString tTCandBranchName, TString tRecoBranch
   fPbeam = 0;
   fPDGCode = -2212; //barp
   fCharge = -1;//barp
+  fsigmaMS = 0;
   PndGeoHandling::Instance();
+  fInstance=this;
+  //  ttal = new TNtuple("ttal","kink angles","alx0:alx1:alx2:alx3:aly0:aly1:aly2:aly3:npoints") ;
+  ttal = new TNtuple("ttal","kink angles","alx0:alx1:alx2:aly0:aly1:aly2:erralx1:erralx2:erraly1:erraly2:npoints") ;
+  //  ttal = new TNtuple("ttal","kink angles","alx0:alx1:alx2:alx3:erralx0:erralx1:erralx2:aly0:aly1:aly2:aly3:erraly0:erraly1:erraly2") ;
+  TVirtualFitter::SetDefaultFitter("Minuit");
+  fmin = TVirtualFitter::Fitter(0,15);
+  for(int ih=0;ih<4;ih++)
+    hitMergedfl[ih] = false;
 }
 
 PndLmdLinFitTask::~PndLmdLinFitTask()
 {
+  delete  fmin;
   cout<<"PndLmdLinFitTask::~PndLmdLinFitTask()"<<endl;
 }
 
@@ -127,7 +153,23 @@ InitStatus PndLmdLinFitTask::Init()
   fCharge = -1;//barp
 
   fGeoH = PndGeoHandling::Instance();
-
+  //  double totRadLen = 1.5*0.00306;//rad.length of 1 plane
+  // double totRadLen = 0.00306;//rad.length of 1 plane
+  // totRadLen +=0.000175;// +flex-cable
+  double totRadLen = 0.0044;
+  fsigmaMS = ScatteredAngle(totRadLen);
+  // totRadLen +=0.5*0.00306;// + more (half-plane for merged hits)
+  // fsigmaMSmerged = ScatteredAngle(totRadLen);
+  // totRadLen +=0.5*0.00306; //2pl
+  // totRadLen -=0.000175;// -flex-cable
+  // totRadLen -=0.00053;// -HV-MAPS
+  // //  totRadLen +=0.00165;// +CDV diamond
+  // fsigmaMS = ScatteredAngle(totRadLen);
+  // //  fsigmaMScone = ScatteredAngle(0.00027); //rad.length of cone support
+  // double lenConePl = 0.00027+0.5*0.00306; 
+  // //  double lenConePl = 0.00027; 
+  // fsigmaMScone = ScatteredAngle(lenConePl); //rad.length of cone support
+  // //  fsigmaMScone = ScatteredAngle(totRadLen);
   std::cout << "-I- PndLmdLinFitTask: Initialisation successfull" << std::endl;
   return kSUCCESS;
 }
@@ -168,7 +210,7 @@ void PndLmdLinFitTask::Exec(Option_t* opt)
 
   // Fitting ----------------------------------------------------------------------------------
   //  if(fVerbose>1) 
-  std::cout<<" -I- PndLmdLinFitTask: start Fitting "<<std::endl;
+  // std::cout<<" -I- PndLmdLinFitTask: start Fitting "<<std::endl;
   int rec_tkr=0;
   for(Int_t track=0; track<ntcand; track++)
   {
@@ -182,7 +224,7 @@ void PndLmdLinFitTask::Exec(Option_t* opt)
     //   continue;
     // }
     //  if(fVerbose>2) 
-    std::cout << "Track: "<< track<< " Points: "<< numPts <<std::endl;
+    //  std::cout << "Track: "<< track<< " Points: "<< numPts <<std::endl;
     ///--------------------------------------
 
     TGraph2DErrors fitme(numPts); //new graph for fitting
@@ -197,7 +239,9 @@ void PndLmdLinFitTask::Exec(Option_t* opt)
          firstHit=index;
       else if(ihit==numPts-1)
          lastHit=index;
-      PndSdsHit* addHit = (PndSdsHit*) fRecoArray->At(index);
+      //      PndSdsHit* addHit = (PndSdsHit*) fRecoArray->At(index);
+      PndSdsMergedHit* addHit = (PndSdsMergedHit*) fRecoArray->At(index);
+      hitMergedfl[ihit] = addHit->GetIsMerged();
       TVector3 addPos = addHit->GetPosition();
       //      addPos.Print();
       fitme.SetPoint(ihit, addPos.X(), addPos.Y(), addPos.Z());
@@ -205,9 +249,14 @@ void PndLmdLinFitTask::Exec(Option_t* opt)
     }//end of Hits in TCand
 
 
-    Double_t parFit[6]; //fit-parameter
+    // Double_t parFit[6]; //fit-parameter
+    //    TMatrixDSym *COVmatrix = new TMatrixDSym(6);
+    //    TMatrixDSym *COVmatrix = new TMatrixDSym(14);
+    //    TMatrixDSym *COVmatrix = new TMatrixDSym(14);
+    //Double_t accuracy = line3Dfit(numPts, &fitme, posSeed, dirSeed, parFit, COVmatrix); //MS taking into account by hits errors
+    Double_t parFit[15]; //fit-parameter
     TMatrixDSym *COVmatrix = new TMatrixDSym(6);
-    Double_t accuracy = line3Dfit(numPts, &fitme, posSeed, dirSeed, parFit, COVmatrix);
+    Double_t accuracy = line3DfitMS(numPts, &fitme, posSeed, dirSeed, parFit, COVmatrix);//with kink angles
     
     // //save as LinTrk
     // //  if(accuracy>0 && accuracy<1e3){ 
@@ -254,10 +303,10 @@ void PndLmdLinFitTask::Exec(Option_t* opt)
      // TVector3 o = (0,0,0);
      // TVector3 dj = (0,1,0);
      // TVector3 dk = (1,0,0);
-     cout<<"in PndTracks goes pos:"<<endl;
-     FitPoint.Print();
-     cout<<"in PndTracks goes dir:"<<endl;
-     FitDir.Print();
+     // cout<<"in PndTracks goes pos:"<<endl;
+     // FitPoint.Print();
+     // cout<<"in PndTracks goes dir:"<<endl;
+     // FitDir.Print();
 
      FairTrackParP *trkfitp = new  FairTrackParP(FitPoint,FitMom,COVmatrixPosMom,fCharge,o,dj,dk);
      int flagpndtrk=0;
@@ -271,7 +320,7 @@ void PndLmdLinFitTask::Exec(Option_t* opt)
     // // TVector3 dirTEST = trackfit->GetDirectionVec();
     // // cout<<"dirTEST:"<<endl;
     // // dirTEST.Print();
-    delete trackfit;//TEST
+     delete trackfit;//TEST
     rec_tkr++;
     //}
   }// end of TCand's
@@ -366,6 +415,88 @@ void PndLmdLinFitTask::LocalFCN(int &, double *, double & sum, double * par, int
   // par[5] = sqrt(1-par[1]*par[1]-par[3]*par[3]);
 }
 
+// calculate distance line-point in local coordinates
+double PndLmdLinFitTask::distance_MS(double x,double y,double z, double errx,double erry,double errz, double *p, double *zpr) { 
+  if((p[1]*p[1]+p[3]*p[3])<1) p[5]=sqrt(1-(p[1]*p[1]+p[3]*p[3]));
+  //  else p[5]=0.99;
+  else return 1e6;
+
+  //  cout<<"erral = "<<erral<<endl;
+  // for(int crz=0;crz<4;crz++)
+  //   cout<<"zcr["<<crz<<"]="<<zpr[crz]<<endl;
+  double THfunc[4] = {1,1,1,1};
+ 
+  //  Double_t t_min = (z-p[4]);
+  Double_t t_min = p[1]*(x-p[0])+p[3]*(y-p[2])+p[5]*(z-p[4]);
+  for(int iz=0;iz<4;iz++){
+    if(((zpr[0]+t_min)-zpr[iz])<0) THfunc[iz]=0;
+  }
+  //  Double_t t_min = p[1]*(x-p[0])+p[3]*(y-p[2])+(z-p[4]);
+  // double funcX = p[0]+p[1]*t_min+p[6]*(z-zpr[0])*THfunc[0]+p[7]*(z-zpr[1])*THfunc[1]+p[8]*(z-zpr[2])*THfunc[2]+p[9]*(z-zpr[3])*THfunc[3];
+  // double funcY = p[2]+p[3]*t_min+p[10]*(z-zpr[0])*THfunc[0]+p[11]*(z-zpr[1])*THfunc[1]+p[12]*(z-zpr[2])*THfunc[2]+p[13]*(z-zpr[3])*THfunc[3];
+  double funcX = p[0]+p[1]*t_min
+    +p[6]*((zpr[0]+t_min)-zpr[0])*THfunc[0]
+    +p[7]*((zpr[0]+t_min)-zpr[1])*THfunc[1]
+    +p[8]*((zpr[0]+t_min)-zpr[2])*THfunc[2]
+    +p[9]*((zpr[0]+t_min)-zpr[3])*THfunc[3];
+  double funcY = p[2]+p[3]*t_min
+    +p[10]*((zpr[0]+t_min)-zpr[0])*THfunc[0]
+    +p[11]*((zpr[0]+t_min)-zpr[1])*THfunc[1]
+    +p[12]*((zpr[0]+t_min)-zpr[2])*THfunc[2]
+    +p[13]*((zpr[0]+t_min)-zpr[3])*THfunc[3];
+  double fdx = TMath::Power((x-funcX)/errx,2);
+  double fdy = TMath::Power((y-funcY)/erry,2);
+  // double fdz = TMath::Power((z-(p[4] + p[5]*t_min))/errz,2);
+  double fdz = 0;
+  double fchi2 = fdx + fdy +fdz;
+  return fchi2; 
+}
+
+// function to be minimized with kink angle due to multiple scattering
+void PndLmdLinFitTask::LocalFCN_MS(int &, double *, double & sum, double * par, int ) { 
+  TGraph2DErrors * gr = dynamic_cast<TGraph2DErrors*>( (TVirtualFitter::GetFitter())->GetObjectFit());
+  assert(gr != 0);
+  double * x = gr->GetX();
+  double * y = gr->GetY();
+  double * z = gr->GetZ();
+  double * errx = gr->GetEX();
+  double * erry = gr->GetEY();
+  double * errz = gr->GetEZ();
+  int npoints = gr->GetN();
+  sum = 0;
+  //  bool *ffhitMerge = PndLmdLinFitTask::Instance()->hitMergedfl;
+  // double erral_m = PndLmdLinFitTask::Instance()->GetSigmaMSmerged();
+  double erral = PndLmdLinFitTask::Instance()->GetSigmaMS();
+  double errAlreal[4];
+  //  cout<<"erral = "<<erral<<endl;
+  for (int i  = 0; i < npoints; ++i) { 
+    //    errAlreal[i] = erral_m;
+    errAlreal[i] = erral;
+    // if(i>0){
+    //   if(ffhitMerge[i-1]){
+    // 	errAlreal[i] = erral_m;
+    // 	//    	cout<<"prev. Hit was merged: "<<erral_m<<endl;
+    //   }
+    //   else{
+    // 	errAlreal[i] = erral;
+    // 	//    	cout<<"prev. Hit is single: "<<erral<<endl;
+    //   }
+    // }
+    // else
+    //   errAlreal[i] = PndLmdLinFitTask::Instance()->GetSigmaMScone();
+    double zpr[4]={z[0],z[1],z[2],z[2]};
+    if(i>2) zpr[3] = z[3];
+    double chi2 = distance_MS(x[i],y[i],z[i],errx[i],erry[i],errz[i],par,zpr); 
+    sum += chi2;
+  }
+  double fdal = 0;
+  for(int jms=0;jms<npoints-1;jms++){
+    fdal += TMath::Power((par[6+jms]/(errAlreal[jms])),2);
+    fdal += TMath::Power((par[10+jms]/(errAlreal[jms])),2);
+  }
+  sum +=fdal;
+}
+
 double PndLmdLinFitTask::line3Dfit(Int_t nd, TGraph2DErrors* gr, Double_t* fitpar, Double_t* fitparerr)
 {
   Int_t Npoint = gr->GetN();
@@ -378,7 +509,8 @@ double PndLmdLinFitTask::line3Dfit(Int_t nd, TGraph2DErrors* gr, Double_t* fitpa
   min->SetFCN(*LocalFCN);//using local coordinate in FCN
   Double_t arglist[100];
   arglist[0] = 1;
-  min->ExecuteCommand("SET PRINT",arglist,1);
+  //min->ExecuteCommand("SET PRINT",arglist,1); //default print
+  min->ExecuteCommand("SET PRINT",arglist,0);//no output
    
   double pStart[4] = {25.15,0.04,0.09,8.4e-5};
   double pStartErr[4] = {4.5,0.004,4.5,0.004};
@@ -433,7 +565,8 @@ double PndLmdLinFitTask::line3Dfit(Int_t nd, TGraph2DErrors* gr, TVector3 posSee
   min->SetFCN(*LocalFCN);//using local coordinate in FCN
   Double_t arglist[100];
   arglist[0] = 1;
-  min->ExecuteCommand("SET PRINT",arglist,1);
+  //  min->ExecuteCommand("SET PRINT",arglist,1);
+ min->ExecuteCommand("SET PRINT",arglist,0);//no output
 
   if(fVerbose>2){
     cout<<"posSeed:"<<endl;
@@ -521,11 +654,208 @@ double PndLmdLinFitTask::line3Dfit(Int_t nd, TGraph2DErrors* gr, TVector3 posSee
    (*covmatrix)(5,5) = errdz2;
    //  (*covmatrix)(5,5) = 0.01*errdz2/12.;//TEST
    Double_t chi2 = amin/(2.*Npoint-4);
-   cout<<"After fit: Chi^2 = "<<chi2<<endl;
+   //  cout<<"After fit: Chi^2 = "<<chi2<<endl;
    ///-------------------------------------------------------------
   
    return chi2; 
 }
 
+double PndLmdLinFitTask::ScatteredAngle(double radLen){
+  //Calculation of ThetaMS -------------------------------------
+  //Charge & mass of particle
+  Int_t PDGCode = -2212; //barp
+  Double_t fMass = 0.938272046;
+  Double_t Ebeam = TMath::Hypot(fPbeam,fMass);
+  TLorentzVector LorMom(0, 0, fPbeam, Ebeam);
+  Double_t beta = LorMom.Beta();
+  Double_t X_to_X0 =  radLen;
+  //  Double_t X_to_X0 = 0.00306;//for one plane: flexcable+(HV-MAPS)+cooling disk+(HV-MAPS)+flexcable
+  // if(!isMerged){
+  //   X_to_X0 -= 0.00053;//-(HV-MAPS)
+  // }
+  //X_to_X0 -= 2*0.00053;//-(HV-MAPS)
+  //  Double_t thetaMS = 0.2*13.6*1e-3*TMath::Sqrt(X_to_X0)*(1+0.038*TMath::Log(X_to_X0))/(beta*fPbeam);
+  Double_t thetaMS = 13.6*1e-3*TMath::Sqrt(X_to_X0)*(1+0.038*TMath::Log(X_to_X0))/(beta*fPbeam);
+  cout<<"for Pbeam = "<<fPbeam<<" thetaMS="<<thetaMS<<endl;
+  return thetaMS;
+}
+
+//chi2 with kink angles fit [G.Lutz, NIM A273 (1988)]
+double PndLmdLinFitTask::line3DfitMS(Int_t nd, TGraph2DErrors* gr, TVector3 posSeed, TVector3 dirSeed, Double_t* fitpar, TMatrixDSym *covmatrix)
+{
+  if(fVerbose>2) cout<<"PndLmdLinFitTask::line3Dfit with SEED is used (multiple scattering taking into account with kinks)"<<endl;
+  Int_t Npoint = gr->GetN();
+  Double_t ErrX1 = gr->GetErrorX(0);
+  Double_t ErrY1 = gr->GetErrorY(0);
+  Double_t ErrZ1 = gr->GetErrorZ(0);
+  Double_t ErrX2 = gr->GetErrorX(1);
+  Double_t ErrY2 = gr->GetErrorY(1);
+  Double_t ErrZ2 = gr->GetErrorY(1);
+  
+  Double_t errRx = 1*TMath::Hypot(ErrX1,ErrX2);
+  Double_t errRy = 1*TMath::Hypot(ErrY1,ErrY2);
+  Double_t errRz = 1*TMath::Hypot(ErrZ1,ErrZ2);
+  
+  //The default minimizer is Minuit
+  //  fmin->Clear();
+  //  TVirtualFitter::SetDefaultFitter("Minuit");
+  //  TVirtualFitter *min = TVirtualFitter::Fitter(0,12);
+  //  TVirtualFitter *min = TVirtualFitter::Fitter(0,15);
+  fmin->SetObjectFit(gr);
+  fmin->SetFCN(*LocalFCN_MS);
+  Double_t arglist[100];
+  arglist[0] = 1;
+  //  fmin->ExecuteCommand("SET PRINT",arglist,0);//no output
+  fmin->ExecuteCommand("SET PRINT",arglist,1);//output
+
+  if(fVerbose>5){
+    cout<<"Number of hits = "<<Npoint<<endl;
+    cout<<"posSeed:"<<endl;
+    posSeed.Print();
+    cout<<"dirSeed:"<<endl;
+    dirSeed.Print();
+  }
+  double l = 1/dirSeed.Mag();
+  double pStart[14] = {posSeed.X(),l*dirSeed.X(),posSeed.Y(),l*dirSeed.Y(),posSeed.Z(),l*dirSeed.Z(),0,0,0,0,0,0,0,0};
+  // double st3MS = fsigmaMS;
+  double st3MS = 0;// fitting angels on the last plane doesn't make sense
+  double st2MS = fsigmaMS;
+  if(Npoint<4) st2MS=0;
+  double pStartErr[14] = {ErrX1,errRx,ErrY1,errRy,ErrZ1,errRz,fsigmaMS,fsigmaMS,fsigmaMS,fsigmaMS,fsigmaMS,fsigmaMS,fsigmaMS,fsigmaMS};
+
+  if(fVerbose>5){
+    for(int i=0;i<6;i++)
+      cout<<"pStartErr["<<i<<"]="<<pStartErr[i]<<endl;
+  }
+  
+  fmin->SetParameter(0,"x0",pStart[0],pStartErr[0],0,0);
+  fmin->SetParameter(1,"Ax",pStart[1],pStartErr[1],0,0);
+  fmin->SetParameter(2,"y0",pStart[2],pStartErr[2],0,0);
+  fmin->SetParameter(3,"Ay",pStart[3],pStartErr[3],0,0);
+  fmin->SetParameter(4,"z0",pStart[4],0,0,0);
+  fmin->SetParameter(5,"Az",pStart[5],0,0,0);
+  // fmin->SetParameter(4,"z0",pStart[4],pStartErr[4],0,0);
+  // fmin->SetParameter(5,"Az",pStart[5],pStartErr[5],0,0);
+  fmin->SetParameter(6,"al0x",pStart[6],fsigmaMS,0,0);
+  //  fmin->SetParameter(6,"al0x",pStart[6],0,0,0);
+  fmin->SetParameter(7,"al1x",pStart[6],fsigmaMS,0,0);
+  fmin->SetParameter(8,"al2x",pStart[6],st2MS,0,0);
+  fmin->SetParameter(9,"al3x",pStart[6],st3MS,0,0);
+  fmin->SetParameter(10,"al0y",pStart[6],fsigmaMS,0,0);
+  //  fmin->SetParameter(10,"al0y",pStart[6],0,0,0);
+  fmin->SetParameter(11,"al1y",pStart[6],fsigmaMS,0,0);
+  fmin->SetParameter(12,"al2y",pStart[6],st2MS,0,0);
+  fmin->SetParameter(13,"al3y",pStart[6],st3MS,0,0);
+
+
+  // Now ready for minimization step
+  arglist[0] = 3500;
+  arglist[1] = 1.;
+  fmin->ExecuteCommand("MIGRAD", arglist,2);
+  
+  ///Get results ---------------------------------------------
+   int nvpar,nparx; 
+   double amin,edm, errdef;
+   fmin->GetStats(amin,edm,errdef,nvpar,nparx);
+   if(fVerbose>1)
+     fmin->PrintResults(1,amin);
+
+   Double_t fitparerr[14];
+   // get fit parameters
+   for (int i = 0; i <14; ++i){
+      fitpar[i] = fmin->GetParameter(i); 
+      fitparerr[i] = fmin->GetParError(i);
+   }
+  
+  
+   // for(size_t i=0;i<4;i++){
+   //   for(size_t j=0;j<4;j++){
+   for(size_t i=0;i<6;i++){
+     for(size_t j=0;j<6;j++){
+       (*covmatrix)(i,j)= fmin->GetCovarianceMatrixElement(i,j);
+     }
+   }
+
+   //!!!!!!!!!!!!!!!!!! dx, dy and their errors should be corrected since dx = dx0+alx0; dy = dy0+aly0; 
+   // fitpar[1] +=  fitpar[6]+fitpar[7];
+   // fitpar[3] +=  fitpar[10]+fitpar[11];
+   // fitpar[1] +=  fitpar[6]+fitpar[7]+fitpar[8]+fitpar[9];
+   // fitpar[3] +=  fitpar[10]+fitpar[11]+fitpar[12]+fitpar[13];
+   int i_dxal0 = 6-2;//index of alx0 parameter: z0,dz - fixed
+   int i_dyal0 = 10-2-1;//index of aly0 parameter: z0,dz - fixed, alx3 - fixed,
+   if(st2MS==0) i_dyal0 -=1; //alx2 - fixed
+
+   double err_dx_2 = (*covmatrix)(1,1);
+   double err_dy_2 = (*covmatrix)(3,3);
+   // double err_dx_2, err_dy_2;
+   // int Nang = 3;
+   // if(st2MS==0) Nang -=1;
+   int Nang = 2;
+   for(int iadd=0;iadd<Nang;iadd++){
+     fitpar[1] += fitpar[6+iadd];
+     fitpar[3] += fitpar[10+iadd];
+     // err_dx_2+=2*(fmin->GetCovarianceMatrixElement(1,(i_dxal0+iadd)));
+     // err_dy_2+=2*(fmin->GetCovarianceMatrixElement(3,(i_dyal0+iadd)));
+     // // err_dx_2+=2*(fmin->GetCovarianceMatrixElement(1,(i_dyal0+iadd)));
+     // // err_dy_2+=2*(fmin->GetCovarianceMatrixElement(3,(i_dxal0+iadd)));
+     // for(int jadd=0;jadd<Nang;jadd++){
+     //   // // err_dx_2+=(fmin->GetCovarianceMatrixElement(1,(i_dxal0+iadd)));
+     //   // // err_dx_2+=(fmin->GetCovarianceMatrixElement(1,(i_dxal0+jadd)));
+     //   // // err_dy_2+=(fmin->GetCovarianceMatrixElement(3,(i_dyal0+iadd)));
+     //   // // err_dy_2+=(fmin->GetCovarianceMatrixElement(3,(i_dyal0+jadd)));
+     //   err_dx_2+=(fmin->GetCovarianceMatrixElement((i_dxal0+iadd),(i_dxal0+jadd)));
+     //   err_dy_2+=(fmin->GetCovarianceMatrixElement((i_dyal0+iadd),(i_dyal0+jadd)));
+     //   // // err_dx_2+=(fmin->GetCovarianceMatrixElement((i_dyal0+iadd),(i_dyal0+jadd)));
+     //   // // err_dy_2+=(fmin->GetCovarianceMatrixElement((i_dxal0+iadd),(i_dxal0+jadd)));
+     // }
+   }
+   // //   double err_dy_2 = (*covmatrix)(3,3)+(*covmatrix)(i_dyal0,i_dyal0)+2*(*covmatrix)(3,i_dyal0);// fmin->GetCovarianceMatrixElement(i,j);
+   cout<<"Before:   (*covmatrix)(1,1) = "<<(*covmatrix)(1,1)<<endl;
+   cout<<"Before:   (*covmatrix)(3,3) = "<<(*covmatrix)(3,3)<<endl;
+   if(err_dx_2<0) err_dx_2*=-1;
+   (*covmatrix)(1,1)=err_dx_2;
+   if(err_dy_2<0) err_dy_2*=-1;
+   (*covmatrix)(3,3)=err_dy_2;
+   cout<<"After:   (*covmatrix)(1,1) = "<<(*covmatrix)(1,1)<<endl;
+   cout<<"After:   (*covmatrix)(3,3) = "<<(*covmatrix)(3,3)<<endl;
+   // //!!!!!!!!!!!!!!!!!!
+
+   if((fitpar[1]*fitpar[1]+fitpar[3]*fitpar[3])<1.){
+   fitpar[5]=sqrt(1-fitpar[1]*fitpar[1]-fitpar[3]*fitpar[3]);
+   }
+   else{
+     fitpar[5]=0;
+     amin=1e9;
+   }
+  
+   //!!!!!!!!!!!!!!!!!! z0, dz weren't fitted
+   (*covmatrix)(4,4) =  (gr->GetErrorZ(0)*gr->GetErrorZ(0))/12.;
+   double dp5_dp1 = fitpar[1]/fitpar[5];
+   double dp5_dp3 = fitpar[3]/fitpar[5];
+   double errdz2 = pow(dp5_dp1,2)*(*covmatrix)(1,1) + pow(dp5_dp3,2)*(*covmatrix)(3,3) + 
+     2*fabs(dp5_dp1*dp5_dp3*(*covmatrix)(1,3));
+   (*covmatrix)(5,5) = errdz2;
+   //!!!!!!!!!!!!!!!!!!
+
+  
+
+   Double_t chi2 = amin/(2.*Npoint-4);
+   //  cout<<"After fit: Chi^2 = "<<chi2<<endl;
+   ///-------------------------------------------------------------
+   //  ttal = new TNtuple("ttal","kink angles","alx0:alx1:alx2:aly0:aly1:aly2:erralx1:erralx2:erraly1:erraly2:npoints") ;
+   if(fVerbose>2)  ttal->Fill(fitpar[6],fitpar[7],fitpar[8],fitpar[10],fitpar[11],fitpar[12],fitparerr[7],fitparerr[8],fitparerr[11],fitparerr[12],Npoint);
+
+   fmin->Clear();
+   //delete min;
+   return chi2; 
+}
+
+void PndLmdLinFitTask::Finish()
+{
+  if(fVerbose>2){
+    TTree *nout1 = ttal->CloneTree();
+    nout1->Write();
+  }
+}
 
 ClassImp(PndLmdLinFitTask);
