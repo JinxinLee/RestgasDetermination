@@ -34,6 +34,8 @@ DrcData/PndDrcBarPoint.cxx
 DrcData/PndDrcHit.cxx
 DrcData/PndDrcPDHit.cxx
 DrcData/PndDrcDigi.cxx
+DrcData/PndDrcLutNode.cxx
+DrcData/PndDrcLutInfo.cxx
 
 GemData/PndGemMCPoint.cxx
 GemData/PndGemDigi.cxx
@@ -114,6 +116,8 @@ DrcData/PndDrcBarPoint.h
 DrcData/PndDrcHit.h
 DrcData/PndDrcPDHit.h
 DrcData/PndDrcDigi.h
+DrcData/PndDrcLutNode.h
+DrcData/PndDrcLutInfo.h
 
 GemData/PndGemMCPoint.h
 GemData/PndGemDigi.h
