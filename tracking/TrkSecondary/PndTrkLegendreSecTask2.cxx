@@ -2251,7 +2251,8 @@ Int_t  PndTrkLegendreSecTask2::ExtractLegendre(Int_t mode, double &theta_max, do
   int  maxpeak = legendre->ExtractLegendreMaximum(theta_max, r_max);
 
   bool alreadythere = false;
-  if(mode == 0) {
+  //  if(mode == 0) 
+  {
 
     if(maxpeak <= 3) {
       //      if(fVerbose > 1)
