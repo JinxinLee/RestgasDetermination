@@ -180,9 +180,10 @@ TVector3 PndLmdPixelClusterTask::AddMSErr(TVector3 hpos, TVector3 hposerr){
   TLorentzVector LorMom(0, 0, fPbeam, Ebeam);
   Double_t beta = LorMom.Beta();
   Double_t X_to_X0 = 0.00306;//for one plane: flexcable+(HV-MAPS)+cooling disk+(HV-MAPS)+flexcable
-   X_to_X0 -= 2*0.00053;//-(HV-MAPS)
+    X_to_X0 -= 2*0.00053;//-(HV-MAPS)
    // Double_t thetaMS = 13.6*1e-3*TMath::Sqrt(X_to_X0)/(beta*fPbeam);
    Double_t thetaMS = 13.6*1e-3*TMath::Sqrt(X_to_X0)*(1+0.038*TMath::Log(X_to_X0))/(beta*fPbeam);
+   // cout<<"thetaMS = "<<thetaMS<<endl;
   //-----------------------------------------------------------
 
   //TO DO: use parameters from geometry info for LUMI
@@ -301,31 +302,30 @@ void PndLmdPixelClusterTask::Exec(Option_t* opt)
 	hitCov[1][1] = TMath::Power(hitErrMSadd.Y(),2);
 	hitCov[2][2] = TMath::Power(hitErrMSadd.Z(),2);
       }
-      //  myHit.SetCov(hitCov);//save value
+      // cout<<"!!!!!!!!!"<<endl;
+      // hitCov.Print();
+      // cout<<"!!!!!!!!!"<<endl;
+      myHit.SetCov(hitCov);//save value
+      myHit.SetDx(sqrt(hitCov[0][0]));
+      myHit.SetDy(sqrt(hitCov[1][1]));
+      myHit.SetDz(sqrt(hitCov[2][2]));
+
 
       // //Alignment: translate to LMD local (not corrected) frame and back to GLOBAL (corrected) ----------------
-
-      int sensorID = myHit.GetSensorID();
-      int ihalf, iplane, imodule, iside, idie, isensor;
-      lmddim->Get_sensor_by_id(sensorID, ihalf, iplane, imodule, iside, idie, isensor);
-      // // ///-----------------------
-      // // hitPos = lmddim->Transform_global_to_sensor(hitPos,ihalf,iplane,imodule,iside,idie,isensor,false,false);
-      // // hitCov = lmddim->Transform_global_to_sensor(hitCov,ihalf,iplane,imodule,iside,idie,isensor,false);
-      // // hitPos = lmddim->Transform_sensor_to_global(hitPos,ihalf,iplane,imodule,iside,idie,isensor,false,true);
-      // // hitCov = lmddim->Transform_sensor_to_global(hitCov,ihalf,iplane,imodule,iside,idie,isensor,true);
-      // // myHit.SetPosition(hitPos);//save value
-      // // myHit.SetCov(hitCov);//save value
-      // //  TVector3 hitPos1,hitPos2;
-      // //     TMatrixD hitCov1 = hitCov;
-      // //   TMatrixD hitCov2 = hitCov;
-       TVector3 hitPos1(lmddim->Transform_global_to_sensor(hitPos,ihalf,iplane,imodule,iside,idie,isensor,false,false));
-       TVector3 hitPos2(lmddim->Transform_sensor_to_global(hitPos1,ihalf,iplane,imodule,iside,idie,isensor,false,true));
-       //       TMatrixD hitCov1 = hitCov; TMatrixD hitCov2 = hitCov;
-
-       TMatrixD hitCov1(lmddim->Transform_global_to_sensor(hitCov,ihalf,iplane,imodule,iside,idie,isensor,false));
-       TMatrixD hitCov2(lmddim->Transform_sensor_to_global(hitCov1,ihalf,iplane,imodule,iside,idie,isensor,true));
-       myHit.SetPosition(hitPos2);//save value
-       myHit.SetCov(hitCov2);//save value
+      if(readAlign){
+	int sensorID = myHit.GetSensorID();
+	int ihalf, iplane, imodule, iside, idie, isensor;
+	lmddim->Get_sensor_by_id(sensorID, ihalf, iplane, imodule, iside, idie, isensor);
+	TVector3 hitPos1(lmddim->Transform_global_to_sensor(hitPos,ihalf,iplane,imodule,iside,idie,isensor,false,false));
+	TVector3 hitPos2(lmddim->Transform_sensor_to_global(hitPos1,ihalf,iplane,imodule,iside,idie,isensor,false,true));
+	TMatrixD hitCov1(lmddim->Transform_global_to_sensor(hitCov,ihalf,iplane,imodule,iside,idie,isensor,false));
+	TMatrixD hitCov2(lmddim->Transform_sensor_to_global(hitCov1,ihalf,iplane,imodule,iside,idie,isensor,true));
+	myHit.SetPosition(hitPos2);//save value
+	myHit.SetCov(hitCov2);//save value
+	myHit.SetDx(sqrt(hitCov2[0][0]));
+	myHit.SetDy(sqrt(hitCov2[1][1]));
+	myHit.SetDz(sqrt(hitCov2[2][2]));
+      }
       // //Alignment: (END) ---------------------------------------------------------------------------------------   
 
       if(fVerbose>0){

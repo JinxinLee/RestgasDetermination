@@ -34,6 +34,7 @@ class PndLmdPixelClusterTask : public PndSdsPixelClusterTask
     FairRun* ana;
     FairRuntimeDb* rtdb;
     void SetMSflag(bool fflag){flagMS = fflag;};
+    void SetAlignFlag(bool fflag){readAlign = fflag;}
     InitStatus Init();
 
     void SetMtxPath(TString _path){mtxpath = _path;};
