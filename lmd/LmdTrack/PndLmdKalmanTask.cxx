@@ -143,8 +143,11 @@ PndLmdKalmanTask::Init()
 
   TClonesArray* stripar=(TClonesArray*) ioman->GetObject(fSdsHitBranchName);
   if(stripar==0){ //TODO Convention on detector number needed
-    Error("PndLmdKalmanTask::Init","LMDHitsStrip array not found");
+    Error("PndLmdKalmanTask::Init","LMDHitsPixel array not found");
   } else {
+    int detID = ioman->GetBranchId(fSdsHitBranchName);
+    std::cout<<"detID = "<<detID<<std::endl;
+    //    fTheRecoHitFactory->addProducer(ioman->GetBranchId(fSdsHitBranchName),new GFRecoHitProducer<PndSdsHit,PndSdsRecoHit>(stripar));
     fTheRecoHitFactory->addProducer(1,new GFRecoHitProducer<PndSdsHit,PndSdsRecoHit>(stripar));
     std::cout << "*** PndLmdKalmanTask::Init" << "\t" << "fSdsHitBranchName array found" << std::endl;
   }
@@ -173,6 +176,14 @@ PndLmdKalmanTask::Init()
     fPro = new FairGeanePro();
   }
   lmddim = PndLmdDim::Instance();
+
+  // //for test purpose 
+  // fMCHits = (TClonesArray*) ioman->GetObject("LMDPoint");
+  // if ( !fMCHits)	{
+  //   std::cout << "-W- PndLmdGeaneTask::Init: "<< "No LMDPoint"<<" array!" << std::endl;
+  //   return kERROR;
+  // }
+
   return kSUCCESS;
 }
 
@@ -222,6 +233,11 @@ PndLmdKalmanTask::Exec(Option_t* opt)
      GFTrackCand* GFtrkCand = PndTrackCand2GenfitTrackCand(trackCand);
      TVector3 StartPos = GFtrkCand->getPosSeed();
      TVector3 StartDir = GFtrkCand->getDirSeed();
+     // //shift start point out of plane on 300 mkm
+     // double xShift = StartPos.X() - StartDir.X()*0.0300;
+     // double yShift = StartPos.Y() - StartDir.Y()*0.0300;
+     // double zShift = StartPos.Z() - StartDir.Z()*0.0300;
+     // StartPos.SetXYZ(xShift,yShift,zShift);
      TVector3 StartMom  = fPbeam*StartDir;
      TVector3 StartPosErr(sqrt(hitCov[0][0]),sqrt(hitCov[1][1]),sqrt(hitCov[2][2]));
      TVector3 StartDirErr(0.1*(sqrt(hitCov[0][0])),0.1*(sqrt(hitCov[1][1])),0.1*sqrt(hitCov[2][2]));//TODO: check this assumption (2*sigma_{x}/20cm)
