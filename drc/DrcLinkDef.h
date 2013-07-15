@@ -18,5 +18,12 @@
 #pragma link C++ class  PndDrcDigiTask+;
 #pragma link C++ class  PndDrcHitFinder+;
 
+#pragma link C++ class  PndChPho+;
+#pragma link C++ class  PndPhoGun+;
+#pragma link C++ class  PndPhoGunT+;
+#pragma link C++ class  PndDrcLutFill+;
+#pragma link C++ class  PndDrcLutReco+;
+#pragma link C++ class  PndDrcRecoLookup+;
+
 #endif
 

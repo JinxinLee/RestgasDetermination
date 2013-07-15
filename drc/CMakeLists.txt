@@ -32,7 +32,14 @@ PndDrcHitProducerReal.cxx
 PndDrcDigiTask.cxx
 PndDrcHitFinder.cxx
 DrawHits.cxx 
-PndDrcDigiPar.cxx)
+PndDrcDigiPar.cxx
+PndPhoGun.cxx
+PndDrcRecoLookup.cxx
+PndChPho.cxx
+PndPhoGunT.cxx
+PndDrcLutFill.cxx
+PndDrcLutReco.cxx
+)
 
 set(LINKDEF  DrcLinkDef.h)
 set(LIBRARY_NAME Drc) 
