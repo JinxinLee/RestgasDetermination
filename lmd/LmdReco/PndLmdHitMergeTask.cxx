@@ -188,6 +188,7 @@ void PndLmdHitMergeTask::Exec(Option_t* opt)
         PndSdsHit* myHit2 = (PndSdsHit*)(fHitArray->At(mergewithIDs.at(iMerge)));
         x+=myHit2->GetX(); y+=myHit2->GetY(); z+=myHit2->GetZ();
 	tmphit->SetSecondMCHit(myHit2->GetRefIndex()); //!!! works only in case merging 2 hits
+	tmphit->SetIsMerged(true);
       }
       x/=(mergewithIDs.size()+1); y/=(mergewithIDs.size()+1); z/=(mergewithIDs.size()+1);
       tmphit->SetX(x); tmphit->SetY(y); tmphit->SetZ(z);
@@ -195,6 +196,7 @@ void PndLmdHitMergeTask::Exec(Option_t* opt)
     }else{ //dont merge, just use original hit
       //       tmphit = new((*fMergedHitArray)[newHits]) PndSdsHit(*myHit1);
       tmphit = new((*fMergedHitArray)[newHits]) PndSdsMergedHit(*myHit1,-1);
+      tmphit->SetIsMerged(false);
     }
 
     newHits++;

@@ -77,8 +77,11 @@ class PndSdsMergedHit : public PndSdsHit
 
   Int_t     GetSecondMCHit() const { return fsecMC;}
 
+  void SetIsMerged(bool fflag){ fisMerged = fflag;}
+  bool GetIsMerged() const {return fisMerged;}
  private:
   Int_t fsecMC; ///< unique sensor ID
+  bool fisMerged;
   ClassDef(PndSdsMergedHit,1);
 
 };
