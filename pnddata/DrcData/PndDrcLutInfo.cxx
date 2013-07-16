@@ -12,18 +12,86 @@ ClassImp(PndDrcLutInfo)
 // -----   Default constructor   -------------------------------------------
 PndDrcLutInfo::PndDrcLutInfo()
 { 
-  fSize = 0;
+  fAnglesSize = 0;
+  fTimesSize = 0;
+  fPathsSize = 0;
+  fChDiffsSize = 0;
+  
+  fLambda = 0.;
+  fChPartDir = (0.,0.,0.);
+  fChPartPdg = 0;
+  fPhotonStartPosition = (0.,0.,0.);
+  fTime = 0.;
+  fPath = 0.;
+  fChExp = 0.;
+  fChReal = 0.;
 }
 
 
-void PndDrcLutInfo::AddEntrie(Double_t val) {
+void PndDrcLutInfo::AddAngle(Double_t val) {
 
   fAnglesArray.push_back(val);
-  fSize++;
+  fAnglesSize++;
+}
+void PndDrcLutInfo::AddTime(Double_t val) {
+
+  fTimesArray.push_back(val);
+  fTimesSize++;
+}
+void PndDrcLutInfo::AddPath(Double_t val) {
+
+  fPathsArray.push_back(val);
+  fPathsSize++;
+}
+void PndDrcLutInfo::AddChDiff(Double_t val) {
+
+  fChDiffsArray.push_back(val);
+  fChDiffsSize++;
+}
+void PndDrcLutInfo::AddNOfBounces(Double_t val) {
+
+  fNOfBouncesArray.push_back(val);
+  fNOfBouncesSize++;
 }
 
-
-TVector3 PndDrcLutInfo::GetEntrie(Int_t entrie) {
-  return fAnglesArray[entrie];
+void PndDrcLutInfo::SetLambda(Double_t val){
+  fLambda = val;
+}
+void PndDrcLutInfo::SetChPartDir(Double_t x, Double_t y, Double_t z){
+  fChPartDir.SetXYZ(x,y,z);
 }
 
+void PndDrcLutInfo::SetChPartPdg(Int_t val){
+  fChPartPdg = val;
+}
+void PndDrcLutInfo::SetPhotonStartPosition(TVector3 val){
+  fPhotonStartPosition.SetXYZ(val.X(), val.Y(), val.Z());
+}
+void PndDrcLutInfo::SetTime(Double_t val){
+  fTime = val;
+}
+void PndDrcLutInfo::SetPath(Double_t val){
+  fPath = val;
+}
+void PndDrcLutInfo::SetChExp(Double_t val){
+  fChExp = val;
+}
+void PndDrcLutInfo::SetChReal(Double_t val){
+  fChReal = val;
+}
+
+Double_t PndDrcLutInfo::GetAngle(Int_t entry) {
+  return fAnglesArray[entry];
+}
+Double_t PndDrcLutInfo::GetTime(Int_t entry) {
+  return fTimesArray[entry];
+}
+Double_t PndDrcLutInfo::GetPath(Int_t entry) {
+  return fPathsArray[entry];
+}
+Double_t PndDrcLutInfo::GetChDiff(Int_t entry) {
+  return fChDiffsArray[entry];
+}
+Int_t PndDrcLutInfo::GetNOfBounces(Int_t entry) {
+  return fNOfBouncesArray[entry];
+}
