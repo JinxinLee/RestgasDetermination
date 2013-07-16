@@ -12,6 +12,7 @@
 #include "FairTask.h"
 #include "TClonesArray.h"
 #include "PndMCTrack.h"
+#include "PndDrcBarPoint.h"
 #include "PndDrcPDPoint.h"
 #include "PndDrcHit.h"
 #include "PndDrcPDHit.h"
@@ -51,16 +52,18 @@ private:
   Int_t fDetectorID;  
 
   TClonesArray* fMCArray;      // DRC MCPoints in the photon detector
+  TClonesArray *fBarPointArray;
   TClonesArray* fPDPointArray; // DRC points in the photon detector
   TClonesArray* fDigiArray;
   TClonesArray* fPDHitArray;   // DRC Hits in the photon detector
   TClonesArray *fLut;
   TClonesArray *fDrcLutInfoArray;
-  
+
   TFile *fFile; 
   TTree *fTree;
 
   PndMCTrack* fMCTrack;
+  PndDrcBarPoint *fBarPoint;
   PndDrcPDPoint* fPDPoint;
   PndDrcDigi* fDigi;
   PndDrcPDHit* fPDHit;

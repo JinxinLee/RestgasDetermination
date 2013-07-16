@@ -36,6 +36,8 @@ public:
   
   void SetLambda(Double_t val);
   void SetChPartDir(TVector3 val);
+  void SetChPartDirInBar(TVector3 val);
+  void SetChPartDirInBar2(TVector3 val);
   void SetChPartPdg(Int_t val);  
   void SetTime(Double_t val);
   void SetPath(Double_t val);
@@ -51,6 +53,8 @@ public:
   
   Double_t GetLambda()		    {return fLambda;}
   TVector3 GetChPartDir()	    {return fChPartDir;}
+  TVector3 GetChPartDirInBar()	    {return fChPartDirInBar;}
+  TVector3 GetChPartDirInBar2()	    {return fChPartDirInBar2;}
   Int_t    GetChPartPdg()	    {return fChPartPdg;} 
   Double_t GetTime()		    {return fTime;}
   Double_t GetPath()		    {return fPath;}
@@ -70,16 +74,20 @@ protected:
   Int_t fPathsSize;
   Int_t fChDiffsSize;
   Int_t fNOfBouncesSize;
+
   // arrays of values based on the LUT ambiguities:
   std::vector<Double_t> fAnglesArray;
   std::vector<Double_t> fTimesArray;
   std::vector<Double_t> fPathsArray;
   std::vector<Double_t> fChDiffsArray;
-  std::vector<Int_t> fNOfBouncesArray;
+  std::vector<Int_t>    fNOfBouncesArray;
   std::vector<TVector3> fPhotonStartPosition; 
+
   // MC information
   Double_t fLambda;
   TVector3 fChPartDir;
+  TVector3 fChPartDirInBar;
+  TVector3 fChPartDirInBar2;
   Int_t    fChPartPdg;  
   Double_t fTime;
   Double_t fPath;

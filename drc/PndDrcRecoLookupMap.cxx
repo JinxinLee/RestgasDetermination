@@ -113,9 +113,17 @@ InitStatus PndDrcRecoLookupMap::Init()
   if ( ! fHitArray ) {
     cout << "-W- PndDrcRecoLookupMap::Init: "
          << "No DrcHit array!" << endl;
+	 return kERROR;
+	 }
+*/
+
+  // Get digi array
+  fDigiArray = (TClonesArray*) ioman->GetObject("DrcDigi");
+  if ( ! fDigiArray ) {
+    cout << "-W- PndDrcRecoLookupMap::Init: " << "No DrcDigi array!" << endl;
     return kERROR;
   }
-*/
+
   // Get input array
   fPDHitArray = (TClonesArray*) ioman->GetObject("DrcPDHit");
   if ( ! fPDHitArray ) {
@@ -275,7 +283,7 @@ void PndDrcRecoLookupMap::ProcessPhotonHit()
       if(fabs(trMpdg) == 50000050){Mrmass = 0.0; MoSign = -1;}
       Double_t Mrmom = trMr->GetMomentum().Mag();      
       CHexp = acos(sqrt(pow(Mrmom,2) + pow(Mrmass,2))/Mrmom/fGeo->nQuartz());
-      lutinfo.SetChExp(CHexp);
+      lutinfo.SetCherenkovMC(CHexp);
       cout<<"+++++++++++++++++++++++++++"<<endl;
       cout<<"CH expected = "<<CHexp<<endl;
     
@@ -297,20 +305,54 @@ void PndDrcRecoLookupMap::ProcessPhotonHit()
       fPphoPD.SetXYZ(Ppt->GetPx(), Ppt->GetPy(), Ppt->GetPz());
       //cout<<"Photon momentum on the PDplane: "<<endl;
       //fPphoPD.Print();
-           
-      // mother momentum/direction      
-      fPMo.SetXYZ(trMr->GetMomentum().X(), trMr->GetMomentum().Y(), trMr->GetMomentum().Z());
-      //cout<<"mother phi = "<<fPMo.Phi()/3.1415*180.<<endl;            
-      if(fB > 0.){       
-        Double_t PtMo = sqrt(pow(trMr->GetMomentum().X(),2)+pow(trMr->GetMomentum().Y(),2));
-        Double_t Rratio = fR*fR/2./pow((PtMo/0.29979/fB)*100.,2);
-       //Double_t phi_extra = fPMo.Phi() + trMpdg/fabs(trMpdg) * acos(1. - Rratio); // muon - ; proton +
-       Double_t phi_extra = fPMo.Phi() + MoSign * trMpdg/fabs(trMpdg) * acos(1. - Rratio); // muon - ; proton +
-       //fHAngleInBDeg = 0.5 * trMpdg/fabs(trMpdg) * (acos(1. - Rratio) /TMath::Pi())*180.;   
-       fHAngleInBDeg = 0.5 * MoSign * trMpdg/fabs(trMpdg) * (acos(1. - Rratio) /TMath::Pi())*180.;
-       //    cout<<"B = "<<fB<<", R = "<<fR<<", trMpdg = "<<trMpdg<<", half angle in B = "<<fHAngleInBDeg<<endl;
-       fPMo.SetPhi(phi_extra);
-     }
+
+
+      {     
+	// mother momentum/direction      
+	fPMo.SetXYZ(trMr->GetMomentum().X(), trMr->GetMomentum().Y(), trMr->GetMomentum().Z());
+	//cout<<"mother phi = "<<fPMo.Phi()/3.1415*180.<<endl;            
+	if(fB > 0.){       
+	  Double_t PtMo = sqrt(pow(trMr->GetMomentum().X(),2)+pow(trMr->GetMomentum().Y(),2));
+	  Double_t Rratio = fR*fR/2./pow((PtMo/0.29979/fB)*100.,2);
+	  //Double_t phi_extra = fPMo.Phi() + trMpdg/fabs(trMpdg) * acos(1. - Rratio); // muon - ; proton +
+	  Double_t phi_extra = fPMo.Phi() + MoSign * trMpdg/fabs(trMpdg) * acos(1. - Rratio); // muon - ; proton +
+	  //fHAngleInBDeg = 0.5 * trMpdg/fabs(trMpdg) * (acos(1. - Rratio) /TMath::Pi())*180.;   
+	  fHAngleInBDeg = 0.5 * MoSign * trMpdg/fabs(trMpdg) * (acos(1. - Rratio) /TMath::Pi())*180.;
+	  //    cout<<"B = "<<fB<<", R = "<<fR<<", trMpdg = "<<trMpdg<<", half angle in B = "<<fHAngleInBDeg<<endl;
+	  fPMo.SetPhi(phi_extra);
+	}
+	lutinfo.SetChPartDirInBar2(fPMo);
+      }
+
+      {
+	// PndDrcBarPoint * cbarpoint; 
+	// Double_t tdist, distToBarPoint=100;
+	// TVector3 tbarPoint,photonStartVert = tr->GetStartVertex();
+	// for (Int_t bpoint=0; bpoint<fBarPointArray->GetEntriesFast(); bpoint++){
+	//   cbarpoint= (PndDrcBarPoint*)fBarPointArray->At(bpoint);
+	//   cbarpoint->Position(tbarPoint);
+	//   tdist = (photonStartVert-tbarPoint).Mag();
+	//   if(tdist<distToBarPoint){ 
+	//     distToBarPoint = tdist;
+	//     cbarpoint->Momentum(fPMo);
+	//   }
+	// }
+	// lutinfo.SetChPartDirInBar(fPMo);
+
+	PndDrcPDHit* fPDHit = (PndDrcPDHit*)fPDHitArray->At(k);
+  
+	Int_t digiID= fPDHit->GetRefIndex();
+	PndDrcDigi* fDigi = (PndDrcDigi*) fDigiArray->At(digiID);
+
+	Int_t pointID= fDigi->GetIndex(0);
+	PndDrcPDPoint* fPDPoint = (PndDrcPDPoint*)fPDPointArray->At(pointID);
+    
+	PndDrcBarPoint *fBarPoint= (PndDrcBarPoint*)fBarPointArray->At(fPDPoint->GetBarPointID());
+	fBarPoint->Momentum(fPMo);
+
+      }
+
+
       //cout<<"Mother vector (global cs) : "<<endl;
       fPMo.Print();
          
@@ -319,7 +361,7 @@ void PndDrcRecoLookupMap::ProcessPhotonHit()
                               
       // real = generated cherenkov angle
       CHreal = fPphoInit.Angle(fPMo);
-      lutinfo.SetChReal(CHreal);
+      lutinfo.SetCherenkovReal(CHreal);
       //cout<<"CH real (generated) = "<<CHreal<<endl;
     
       Double_t etot = sqrt(pow(fPphoPD.X(),2) + pow(fPphoPD.Y(),2) +pow(fPphoPD.Z(),2));      
@@ -328,7 +370,6 @@ void PndDrcRecoLookupMap::ProcessPhotonHit()
       
       // production point of the photon
       fStartVertex = tr->GetStartVertex();
-      lutinfo.SetPhotonStartPosition(fStartVertex);
       
       //cout<<"start: phi = "<<fStartVertex.Phi()<<endl;
       //fStartVertex.Print();
@@ -365,7 +406,7 @@ void PndDrcRecoLookupMap::ProcessPhotonHit()
       fPzMoBar = fPMoB.Z();
       TVector3 PMoBar;
       PMoBar.SetXYZ(fPxMoBar, fPyMoBar, fPzMoBar); 
-      lutinfo.SetChPartDir(fPxMoBar, fPyMoBar, fPzMoBar);
+      lutinfo.SetChPartDir(PMoBar);
            
       // to find Cherenkov Phi (NOT THETA!!!):
       TVector3 kB;

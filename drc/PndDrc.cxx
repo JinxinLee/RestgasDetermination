@@ -1253,21 +1253,16 @@ Bool_t PndDrc::ProcessHits(FairVolume* vol) {
         fTime=gMC->TrackTime()*1.0e09; // ns
 	fLength = gMC->TrackLength(); // cm ??	
 	TString detPath = gMC->CurrentVolPath();
-	cout<<"+++++++++++++++++++++++++++++++++"<<endl;
-	cout<< "Volume: " << detPath << endl;
-	cout<< "GeoHandling: "<< fGeoH->GetShortID(detPath) <<endl;
-	cout<<"+++++++++++++++++++++++++++++++++"<<endl;    	
+
         AddHit(fTrackID,
-	     fGeoH->GetShortID(detPath),//fCopyNo,
-	     TVector3(fPos.X(),   fPos.Y(),   fPos.Z()),
-	     TVector3(fMom.Px(),  fMom.Py(),  fMom.Pz()),
-	     TVector3(fMomAtEV.Px(), fMomAtEV.Py(), fMomAtEV.Pz()),
-	     fTime,
-	     fLength,
-	     fPdgCode,
-	     fEventID);
+	       fGeoH->GetShortID(detPath),
+	       fPos.Vect(),fMom.Vect(),fMomAtEV.Vect(),
+	       fTime,
+	       fLength,
+	       fPdgCode,
+	       fEventID);
 	gMC->StopTrack();
-       }
+      }
        PndStack* stack = (PndStack*) gMC->GetStack();
        stack->AddPoint(kDRC);
      }
@@ -1748,10 +1743,10 @@ void PndDrc::ConstructOpGeometry()
     //gMC->SetMaterialProperty("PDSurface", "EFFICIENCY", npoints_i, ephoton_i, reflectivity_i);
     //gMC->SetBorderSurface("EVPDSurface", "DrcEVSensor", 1, "DrcPDSensor", 1, "PDSurface");
     
-    if(fMirrorGap > 0.){
-      cout<<"-I- : mirror gap > 0"<<endl;
+    //if(fMirrorGap > 0.){
+    //  cout<<"-I- : mirror gap > 0"<<endl;
       gMC->SetSkinSurface("AirMirrorSurface", "DrcMirr", "MirrSurface");
-    }   
+    // }   
   }            
   cout<<" =======  DRC::ConstructOpGeometry -> Finished! ====== "<< endl;     
 }  
@@ -1768,15 +1763,15 @@ void PndDrc::ConstructOpGeometry()
 
 // -----   Private method AddHit   --------------------------------------------
 PndDrcPDPoint* PndDrc::AddHit(Int_t trackID, Int_t copyNo, TVector3 pos, TVector3 mom, TVector3 momAtEV, Double_t time, Double_t length, Int_t pdgCode, Int_t eventID) {
- 
   TClonesArray& clrefPD = *fDrcPDCollection;
   Int_t size = clrefPD.GetEntriesFast();
   if (fVerboseLevel>1) 
     cout << "-I- PndDrc: Adding Point at (" << pos.X() << ", " << pos.Y() 
 	 << ", " << pos.Z() << ") cm, detector " << copyNo << ", track "
 	 << trackID <<" event "<<eventID << endl;
-  return new(clrefPD[size]) PndDrcPDPoint(trackID, 
+  return new(clrefPD[size]) PndDrcPDPoint(trackID,
 					  copyNo, 
+					  fDrcBarCollection->GetEntriesFast()-1,
 					  pos, 
 					  mom,
 					  momAtEV, 
@@ -1810,7 +1805,6 @@ PndDrcEVPoint* PndDrc::AddEVHit(Int_t trackID, Int_t copyNo, TVector3 pos, TVect
 }
 
 PndDrcBarPoint* PndDrc::AddBarHit(Int_t trackID, Int_t copyNo, TVector3 pos, TVector3 mom, Double_t time, Double_t length, Int_t pdgCode, Double_t angIn, Double_t thetaC, Int_t nBar, Int_t eventID, Double_t mass) {
- 
   TClonesArray& clrefBar = *fDrcBarCollection;
   Int_t size = clrefBar.GetEntriesFast();
   if (fVerboseLevel>1) 

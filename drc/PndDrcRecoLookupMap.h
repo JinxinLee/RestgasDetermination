@@ -27,6 +27,7 @@
 #include "TString.h"
 #include <string>
 #include "PndDrcDigiPar.h"
+#include "PndDrcDigi.h"
 
 #include "TH1.h"
 #include "TH2.h"
@@ -155,6 +156,7 @@ private:
   TClonesArray* fHitArray; // DRC Hits in the bars
   TClonesArray* fPDHitArray; // DRC Hits in the photon detector
   TClonesArray* fMCArray; // DRC Hits in the photon detector
+  TClonesArray *fDigiArray;
 
   //TClonesArray* fChPhoArray; // output array of PndChPho
   TClonesArray *fDrcLutInfoArray;

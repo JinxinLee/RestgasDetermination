@@ -9,7 +9,6 @@
 
 #include "FairRootManager.h"
 #include "PndMCTrack.h"
-#include "PndDrcBarPoint.h"
 #include "PndDrcPDPoint.h"
 #include "PndDrcHit.h"
 #include "PndDrcPDHit.h"
@@ -65,6 +64,14 @@ InitStatus PndDrcLutReco::Init()
     cout << "-W- PndDrcLutReco::Init: " << "No MCTrack array!" << endl;
     return kERROR;
   } 
+
+ // Get bar points array
+  fBarPointArray = (TClonesArray*) ioman->GetObject("DrcBarPoint");
+  if ( ! fBarPointArray ) {
+    cout << "-W- PndDrcLutReco::Init: " << "No DrcBarPoint array!" << endl;
+    return kERROR;
+  }
+
   // Get Photon point array
   fPDPointArray = (TClonesArray*) ioman->GetObject("DrcPDPoint");
   if ( ! fPDPointArray ) {
@@ -116,19 +123,20 @@ void PndDrcLutReco::ProcessPhotonHit()
   fDrcLutInfoArray->Clear();
 
   PndDrcLutInfo lutinfo;
-  TVector3 dir, trackdir;
+  TVector3 dir, momAtZero, momInBar;
   Double_t cangle,tangle;
   Int_t pdgcode;
+  //information retrieved correctly if there is only one primary track
   for(Int_t k=0; k<fMCArray->GetEntriesFast(); k++){
     fMCTrack = (PndMCTrack*)fMCArray->At(k);
     if(fMCTrack->GetMotherID()==-1) {
-      trackdir = fMCTrack->GetMomentum();
+      momAtZero = fMCTrack->GetMomentum();
       pdgcode = fMCTrack->GetPdgCode();
       Double_t Mrmass;
       if(fabs(pdgcode) == 211){Mrmass = 0.139570;}
       if(fabs(pdgcode) == 321){Mrmass = 0.49368;}
 
-      Double_t Mrmom = trackdir.Mag();      
+      Double_t Mrmom = momAtZero.Mag();      
       cangle = acos(sqrt(pow(Mrmom,2) + pow(Mrmass,2))/Mrmom/1.46907);
       break;
     }
@@ -138,31 +146,34 @@ void PndDrcLutReco::ProcessPhotonHit()
   for(Int_t k=0; k<fPDHitArray->GetEntriesFast(); k++) {
    
     fPDHit = (PndDrcPDHit*)fPDHitArray->At(k);
+  
+    Int_t digiID= fPDHit->GetRefIndex();
+    fDigi = (PndDrcDigi*) fDigiArray->At(digiID);
+
+    Int_t pointID= fDigi->GetIndex(0);
+    fPDPoint = (PndDrcPDPoint*)fPDPointArray->At(pointID);
+    
+    fBarPoint= (PndDrcBarPoint*)fBarPointArray->At(fPDPoint->GetBarPointID());
+    fBarPoint->Momentum(momInBar);
+    pdgcode = fBarPoint->GetPdgCode();
+    cangle = fBarPoint->GetThetaC();
+
+    // Int_t trackID= fPDPoint->GetTrackID();
+    // fMCTrack = (PndMCTrack*)fMCArray->At(trackID);
+    // TVector3 vert =  fMCTrack->GetStartVertex();
 
     PndDrcLutNode *node= (PndDrcLutNode*) fLut->At(fPDHit->GetDetectorID());
     Int_t size = node->Entries();
     for(int i=0; i<size; i++){
       dir = node->GetEntry(i);
-      tangle=trackdir.Angle(dir);
+      tangle = momInBar.Angle(dir);
       if(tangle>TMath::Pi()/2.) tangle = TMath::Pi()-tangle;
       lutinfo.AddAngle(cangle - tangle);
     }
-
-    // Int_t digiID= fPDHit->GetRefIndex();
-    // fDigi = (PndDrcDigi*) fDigiArray->At(digiID);
-
-    // Int_t pointID= fDigi->GetIndex(0);
-    // fPDPoint = (PndDrcPDPoint*)fPDPointArray->At(pointID);
-    
-    // Int_t trackID= fPDPoint->GetTrackID();
-
-    // fMCTrack = (PndMCTrack*)fMCArray->At(trackID);
-    // TVector3 dir =  fMCTrack->GetMomentum().Unit();
-    // ((PndDrcLutNode*)(fLut->At(fDigi->GetSensorID())))->AddEntry(dir);
   }
 
-
-  lutinfo.SetChPartDir(trackdir);
+  lutinfo.SetChPartDir(momAtZero);
+  lutinfo.SetChPartDirInBar(momInBar);
   lutinfo.SetChPartPdg(pdgcode);
   lutinfo.SetCherenkovMC(cangle);
   new ((*fDrcLutInfoArray)[fDrcLutInfoArray->GetEntriesFast()]) PndDrcLutInfo(lutinfo);
