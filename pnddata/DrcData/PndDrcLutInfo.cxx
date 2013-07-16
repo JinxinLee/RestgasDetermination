@@ -2,7 +2,8 @@
 // PndDrcLutInfo.h
 //
 // Created on: 13.07.2013
-// Author: R.Dzhygadlo at gsi.de
+// Author  : R.Dzhygadlo at gsi.de
+// Author 2: M.Patsyuk at gsi.de
 // -----------------------------------------
 
 #include "PndDrcLutInfo.h"
@@ -17,10 +18,8 @@ PndDrcLutInfo::PndDrcLutInfo()
   fPathsSize = 0;
   fChDiffsSize = 0;
   
-  fLambda = 0.;
-  fChPartDir = (0.,0.,0.);
+  fLambda = 0.; 
   fChPartPdg = 0;
-  fPhotonStartPosition = (0.,0.,0.);
   fTime = 0.;
   fPath = 0.;
   fChExp = 0.;
@@ -57,15 +56,12 @@ void PndDrcLutInfo::AddNOfBounces(Double_t val) {
 void PndDrcLutInfo::SetLambda(Double_t val){
   fLambda = val;
 }
-void PndDrcLutInfo::SetChPartDir(Double_t x, Double_t y, Double_t z){
-  fChPartDir.SetXYZ(x,y,z);
+void PndDrcLutInfo::SetChPartDir(TVector3 val){
+  fChPartDir = val;
 }
 
 void PndDrcLutInfo::SetChPartPdg(Int_t val){
   fChPartPdg = val;
-}
-void PndDrcLutInfo::SetPhotonStartPosition(TVector3 val){
-  fPhotonStartPosition.SetXYZ(val.X(), val.Y(), val.Z());
 }
 void PndDrcLutInfo::SetTime(Double_t val){
   fTime = val;

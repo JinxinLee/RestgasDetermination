@@ -35,9 +35,8 @@ public:
   void AddNOfBounces(Double_t val);
   
   void SetLambda(Double_t val);
-  void SetChPartDir(Double_t x, Double_t y, Double_t z);
-  void SetChPartPdg(Int_t val);
-  void SetPhotonStartPosition(TVector3 val);
+  void SetChPartDir(TVector3 val);
+  void SetChPartPdg(Int_t val);  
   void SetTime(Double_t val);
   void SetPath(Double_t val);
   void SetChExp(Double_t val);
@@ -52,8 +51,7 @@ public:
   
   Double_t GetLambda()		    {return fLambda;}
   TVector3 GetChPartDir()	    {return fChPartDir;}
-  Int_t    GetChPartPdg()	    {return fChPartPdg;}
-  TVector3 GetPhotonStartPosition() {return fPhotonStartPosition;}
+  Int_t    GetChPartPdg()	    {return fChPartPdg;} 
   Double_t GetTime()		    {return fTime;}
   Double_t GetPath()		    {return fPath;}
   Double_t GetChExp()		    {return fChExp;}
@@ -77,12 +75,12 @@ protected:
   std::vector<Double_t> fTimesArray;
   std::vector<Double_t> fPathsArray;
   std::vector<Double_t> fChDiffsArray;
-  std::vector<Int_t> fNOfBouncesArray;  
+  std::vector<Int_t> fNOfBouncesArray;
+  std::vector<TVector3> fPhotonStartPosition; 
   // MC information
   Double_t fLambda;
   TVector3 fChPartDir;
-  Int_t    fChPartPdg;
-  TVector3 fPhotonStartPosition;
+  Int_t    fChPartPdg;  
   Double_t fTime;
   Double_t fPath;
   Double_t fChExp;
