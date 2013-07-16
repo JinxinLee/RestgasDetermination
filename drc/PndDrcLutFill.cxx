@@ -131,7 +131,7 @@ void PndDrcLutFill::ProcessPhotonHit()
 
     fMCTrack = (PndMCTrack*)fMCArray->At(trackID);
     TVector3 dir =  fMCTrack->GetMomentum().Unit();
-    ((PndDrcLutNode*)(fLut->At(fDigi->GetSensorID())))->AddEntrie(dir);
+    ((PndDrcLutNode*)(fLut->At(fDigi->GetSensorID())))->AddEntry(dir);
   }
 }
 
