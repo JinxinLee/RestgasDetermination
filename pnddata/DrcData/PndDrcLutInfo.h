@@ -39,8 +39,8 @@ public:
   void SetChPartPdg(Int_t val);  
   void SetTime(Double_t val);
   void SetPath(Double_t val);
-  void SetChExp(Double_t val);
-  void SetChReal(Double_t val);
+  void SetCherenkovMC(Double_t val);
+  void SetCherenkovReal(Double_t val);
 
   // Accessors
   Int_t AngleEntries() 		    {return fAnglesSize; }
@@ -54,8 +54,8 @@ public:
   Int_t    GetChPartPdg()	    {return fChPartPdg;} 
   Double_t GetTime()		    {return fTime;}
   Double_t GetPath()		    {return fPath;}
-  Double_t GetChExp()		    {return fChExp;}
-  Double_t GetChReal()		    {return fChReal;}
+  Double_t GetCherenkovMC()		    {return fCherenkovMC;}
+  Double_t GetCherenkovReal()		    {return fCherenkovReal;}
   
   Double_t GetAngle(Int_t entry);
   Double_t GetTime(Int_t entry);
@@ -83,8 +83,8 @@ protected:
   Int_t    fChPartPdg;  
   Double_t fTime;
   Double_t fPath;
-  Double_t fChExp;
-  Double_t fChReal;
+  Double_t fCherenkovMC;
+  Double_t fCherenkovReal;
   
   ClassDef(PndDrcLutInfo,2)
 };

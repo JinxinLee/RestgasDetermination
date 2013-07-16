@@ -112,35 +112,27 @@ void PndDrcLutReco::Exec(Option_t* option)
 //--------------Process Photon Hits-----------------------------------------
 void PndDrcLutReco::ProcessPhotonHit()
 {
+  if ( ! fDrcLutInfoArray ) Fatal("Exec", "No fDrcLutInfoArray");
+  fDrcLutInfoArray->Clear();
+
   PndDrcLutInfo lutinfo;
   TVector3 dir, trackdir;
   Double_t cangle,tangle;
+  Int_t pdgcode;
   for(Int_t k=0; k<fMCArray->GetEntriesFast(); k++){
     fMCTrack = (PndMCTrack*)fMCArray->At(k);
     if(fMCTrack->GetMotherID()==-1) {
-      //std::cout<<"Z "<< fMCTrack->GetStartVertex().Z()<<std::endl;
       trackdir = fMCTrack->GetMomentum();
-      Int_t pdgcode = fMCTrack->GetPdgCode();
+      pdgcode = fMCTrack->GetPdgCode();
       Double_t Mrmass;
       if(fabs(pdgcode) == 211){Mrmass = 0.139570;}
       if(fabs(pdgcode) == 321){Mrmass = 0.49368;}
 
       Double_t Mrmom = trackdir.Mag();      
-      cangle = acos(sqrt(pow(Mrmom,2) + pow(Mrmass,2))/Mrmom/1.47);
-      std::cout<<"cangle  "<< cangle<<std::endl;
+      cangle = acos(sqrt(pow(Mrmom,2) + pow(Mrmass,2))/Mrmom/1.46907);
       break;
     }
   }
-
- // for(Int_t k=0; k<fMCArray->GetEntriesFast(); k++) {
- //    fMCTrack = (PndMCTrack*)fMCArray->At(k);
- //    if(fMCTrack->GetMotherID()==0) {
- //      //std::cout<<"Z "<< fMCTrack->GetStartVertex().Z()<<std::endl;
- //      dir = fMCTrack->GetMomentum(); 
- //      lutinfo.AddEntry(cangle - trackdir.Angle(dir));
-    
- //    }
- //  }
 
   // Loop over PndDrcPDHits
   for(Int_t k=0; k<fPDHitArray->GetEntriesFast(); k++) {
@@ -169,6 +161,10 @@ void PndDrcLutReco::ProcessPhotonHit()
     // ((PndDrcLutNode*)(fLut->At(fDigi->GetSensorID())))->AddEntry(dir);
   }
 
+
+  lutinfo.SetChPartDir(trackdir);
+  lutinfo.SetChPartPdg(pdgcode);
+  lutinfo.SetCherenkovMC(cangle);
   new ((*fDrcLutInfoArray)[fDrcLutInfoArray->GetEntriesFast()]) PndDrcLutInfo(lutinfo);
 }
 

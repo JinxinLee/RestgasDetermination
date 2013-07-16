@@ -22,10 +22,9 @@ PndDrcLutInfo::PndDrcLutInfo()
   fChPartPdg = 0;
   fTime = 0.;
   fPath = 0.;
-  fChExp = 0.;
-  fChReal = 0.;
+  fCherenkovMC = 0.;
+  fCherenkovReal = 0.;
 }
-
 
 void PndDrcLutInfo::AddAngle(Double_t val) {
 
@@ -69,11 +68,11 @@ void PndDrcLutInfo::SetTime(Double_t val){
 void PndDrcLutInfo::SetPath(Double_t val){
   fPath = val;
 }
-void PndDrcLutInfo::SetChExp(Double_t val){
-  fChExp = val;
+void PndDrcLutInfo::SetCherenkovMC(Double_t val){
+  fCherenkovMC = val;
 }
-void PndDrcLutInfo::SetChReal(Double_t val){
-  fChReal = val;
+void PndDrcLutInfo::SetCherenkovReal(Double_t val){
+  fCherenkovReal = val;
 }
 
 Double_t PndDrcLutInfo::GetAngle(Int_t entry) {
