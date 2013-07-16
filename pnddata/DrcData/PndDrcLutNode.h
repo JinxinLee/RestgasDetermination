@@ -29,13 +29,13 @@ public:
   PndDrcLutNode (PndDrcLutNode& node) { *this = node; }  
 
   // Modifiers
-  void AddEntrie(TVector3 dir);
+  void AddEntry(TVector3 dir);
   
   // Accessors
   Int_t Entries() { return fSize; }
   Int_t GetNodeId() { return fNodeId; }
 
-  TVector3 GetEntrie(Int_t entrie);
+  TVector3 GetEntry(Int_t entrie);
 
 protected:
 

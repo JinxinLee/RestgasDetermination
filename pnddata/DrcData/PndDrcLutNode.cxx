@@ -25,17 +25,17 @@ PndDrcLutNode::PndDrcLutNode(Int_t nodeId)
 PndDrcLutNode::PndDrcLutNode(Int_t nodeId, TVector3 dir)
 {  
   fNodeId = nodeId;
-  AddEntrie(dir);
+  AddEntry(dir);
 }
 
-void PndDrcLutNode::AddEntrie(TVector3 dir) {
+void PndDrcLutNode::AddEntry(TVector3 dir) {
 
   fNodeArray.push_back(dir);
   fSize++;
 }
 
 
-TVector3 PndDrcLutNode::GetEntrie(Int_t entrie) {
+TVector3 PndDrcLutNode::GetEntry(Int_t entrie) {
   return fNodeArray[entrie];
 }
 
