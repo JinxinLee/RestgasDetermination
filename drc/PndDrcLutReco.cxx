@@ -115,7 +115,7 @@ void PndDrcLutReco::ProcessPhotonHit()
   PndDrcLutInfo lutinfo;
   TVector3 dir, trackdir;
   Double_t cangle,tangle;
-  for(Int_t k=0; k<fMCArray->GetEntriesFast(); k++) {
+  for(Int_t k=0; k<fMCArray->GetEntriesFast(); k++){
     fMCTrack = (PndMCTrack*)fMCArray->At(k);
     if(fMCTrack->GetMotherID()==-1) {
       //std::cout<<"Z "<< fMCTrack->GetStartVertex().Z()<<std::endl;
@@ -137,7 +137,7 @@ void PndDrcLutReco::ProcessPhotonHit()
  //    if(fMCTrack->GetMotherID()==0) {
  //      //std::cout<<"Z "<< fMCTrack->GetStartVertex().Z()<<std::endl;
  //      dir = fMCTrack->GetMomentum(); 
- //      lutinfo.AddEntrie(cangle - trackdir.Angle(dir));
+ //      lutinfo.AddEntry(cangle - trackdir.Angle(dir));
     
  //    }
  //  }
@@ -150,10 +150,10 @@ void PndDrcLutReco::ProcessPhotonHit()
     PndDrcLutNode *node= (PndDrcLutNode*) fLut->At(fPDHit->GetDetectorID());
     Int_t size = node->Entries();
     for(int i=0; i<size; i++){
-      dir = node->GetEntrie(i);
+      dir = node->GetEntry(i);
       tangle=trackdir.Angle(dir);
       if(tangle>TMath::Pi()/2.) tangle = TMath::Pi()-tangle;
-      lutinfo.AddEntrie(cangle - tangle);
+      lutinfo.AddAngle(cangle - tangle);
     }
 
     // Int_t digiID= fPDHit->GetRefIndex();
@@ -166,7 +166,7 @@ void PndDrcLutReco::ProcessPhotonHit()
 
     // fMCTrack = (PndMCTrack*)fMCArray->At(trackID);
     // TVector3 dir =  fMCTrack->GetMomentum().Unit();
-    // ((PndDrcLutNode*)(fLut->At(fDigi->GetSensorID())))->AddEntrie(dir);
+    // ((PndDrcLutNode*)(fLut->At(fDigi->GetSensorID())))->AddEntry(dir);
   }
 
   new ((*fDrcLutInfoArray)[fDrcLutInfoArray->GetEntriesFast()]) PndDrcLutInfo(lutinfo);
