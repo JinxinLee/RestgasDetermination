@@ -195,7 +195,8 @@ void PndDrcDigiTask::ProcessPhotonPoint()
       TVector3 PphoInit;
       PphoInit.SetXYZ(tr->GetMomentum().X(), tr->GetMomentum().Y(), tr->GetMomentum().Z());
       //calculate the number of bounces: 
-      TVector3 PphoInitBar = fGeoH->MasterToLocalShortId(PphoInit, BarId);
+      // initial direction of the photon in the bar coord system
+      TVector3 PphoInitBar = fGeoH->MasterToLocalShortId(PphoInit, BarId)- fGeoH->MasterToLocalShortId((0.,0.,0.),BarId);
       NumberOfBounces(StartVertex, PphoInitBar, BarId, &NbouncesX, &NbouncesY, &angleX, &angleY);
     }  
       
