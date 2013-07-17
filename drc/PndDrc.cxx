@@ -1015,10 +1015,14 @@ Bool_t PndDrc::ProcessHits(FairVolume* vol) {
       TVector3 StartVertex;
       StartVertex.SetXYZ(fPos2.X(), fPos2.Y(), fPos2.Z());
       //cout<<"production point = "<<fPos2.X()<<", "<< fPos2.Y()<<", "<< fPos2.Z()<<endl;
+      // current volume (should be the radiator bar)
+      TString radPath = gMC->CurrentVolPath(); 
+      Int_t barId =   fGeoH->GetShortID(radPath) ;  
       //calculate the number of bounces:
       Int_t NbouncesX, NbouncesY;
       Double_t angleX, angleY;
-      NumberOfBounces(StartVertex, PphoInit, &NbouncesX, &NbouncesY, &angleX, &angleY);
+      TVector3 PphoInitBar = fGeoH->MasterToLocalShortId(PphoInit, barId);
+      NumberOfBounces(StartVertex, PphoInitBar, barId, &NbouncesX, &NbouncesY, &angleX, &angleY);
       // calculate the bounce probability
       Double_t n_quartz = sqrt(1. + (0.696*lam_tr*lam_tr/(lam_tr*lam_tr-pow(0.068,2))) + (0.407*lam_tr*lam_tr/(lam_tr*lam_tr-pow(0.116,2))) + 0.897*lam_tr*lam_tr/(lam_tr*lam_tr-pow(9.896,2)));
       //cout<<"n_quartz = "<<n_quartz<<endl;
@@ -1323,54 +1327,32 @@ Bool_t PndDrc::ProcessHits(FairVolume* vol) {
 // ---------------------------------------------------------------------------
 
 //------   Find Nubmer of Bounces     --------------------------------------
-void PndDrc::NumberOfBounces(TVector3 start, TVector3 dir, Int_t *n1, Int_t *n2, Double_t *alpha1, Double_t *alpha2){
+void PndDrc::NumberOfBounces(TVector3 start, TVector3 dir, Int_t barId, Int_t *n1, Int_t *n2, Double_t *alpha1, Double_t *alpha2){
+    // start - photon production point in global coord system
+    // dir - photon direction in bar coord system
+    
     // calculates the number of bounces in x and y direction and reflection angles in these directions.
-    
-    Double_t PhiRot = FindPhiRot(start.X(), start.Y());
-    //cout<<"-I- NumberOfBounces: phi rot = "<<PhiRot<<endl;
-    
-    // Photon production point in bar' coordinate system (origin at the corner of the bar):
-    TVector3 startBar;
-    startBar.SetXYZ(start.X(), start.Y(), start.Z());
-    //cout<<"-I- NumberOfBounces: start.X = "<<start.X()<<", start.Y = "<<start.Y()<<endl;
-    startBar.RotateZ(-PhiRot/180.*fpi);
-    //cout<<"-I- NumberOfBounces: startBar.X = "<<startBar.X()<<", startBar.Y = "<<startBar.Y()<<endl;
-    
-    // Photon momentum in bar' coord system:
-    TVector3 PphoB;
-    PphoB = dir.Unit();
-    PphoB.RotateZ(-PhiRot/180.*fpi);
-    
+        
     // Find coordinates of X0, Y0:
     Double_t Z0, X0, Y0;
     if(dir.Theta() < 3.1415/2.){
-      Z0 = -(fabs(fzup) + 2.*fzdown - startBar.Z());
+      Z0 = -(fabs(fzup) + 2.*fzdown - start.Z());
     }
     if(dir.Theta() >= 3.1415/2.){
-      Z0 = -(startBar.Z() -  fzup);
-    }
-    //cout<<"-I- NumberOfBounces: Z0 = "<<Z0<<", Theta = "<<PphoB.Theta()/3.1415*180.<<", tan t = "<<tan(PphoB.Theta())<<", phi = "<<PphoB.Phi()/3.1415*180.<<endl;
-    X0 = Z0*tan(PphoB.Theta())*cos(PphoB.Phi());
-    Y0 = Z0*tan(PphoB.Theta())*sin(PphoB.Phi());
+      Z0 = -(start.Z() -  fzup);
+    }    
+    X0 = Z0*tan(dir.Theta())*cos(dir.Phi());
+    Y0 = Z0*tan(dir.Theta())*sin(dir.Phi());
     //cout<<"-I- NumberOfBounces: X0 = "<<X0<<", Y0 = "<<Y0<<endl;
+    
+    // Find the start position of the photon with respect to the middle of the bar:
+    TVector3 startLocal = fGeoH->MasterToLocalShortId(start, barId);
     
     // Find the number of bounces in each direction       
     Double_t N1, N2;    
-    if(fbarnum > 1){
-      // Find which bar in the bar box was hit:
-      Int_t NhitBar = (Int_t)((0.5*flside + startBar.Y())/fbarwidth)+1;
-      //cout<<"-I- NumberOfBounces: bar "<<NhitBar<<" was hit, "<<((0.5*flside + startBar.Y())/fbarwidth)+1<<endl;
-      //cout<<"-I- NumberOfBounces: start bar Y = "<<startBar.Y()<<endl;
-    
-     //cout<<"-I- NumberOfBounces: start position X = "<< startBar.X() - (fradius-fhthick)<<", Y = "<<startBar.Y() + 0.5*flside-(NhitBar-1)*fbarwidth<<endl;  
-      FindOutPoint(X0, startBar.X()-(fradius-fhthick), 		   2.*fhthick, &N1, 0);
-      FindOutPoint(Y0, startBar.Y()+0.5*flside-(NhitBar-1)*fbarwidth, fbarwidth, &N2, 0);
+    FindOutPoint(X0, startLocal.X() + fbarwidth/2., fbarwidth, &N1, 0);
+    FindOutPoint(Y0, startLocal.Y() + fhthick,      2.*fhthick, &N2, 0);
       //cout<<"-I- NumberOfBounces: N1 = "<<N1<<", N2 = "<<N2<<endl;
-    }
-    if(fbarnum == 1 && flside > fbarwidth){
-      FindOutPoint(X0, startBar.X()-(fradius-fhthick), 		   2.*fhthick, &N1, 0);
-      FindOutPoint(Y0, startBar.Y()+0.5*fbarwidth, fbarwidth, &N2, 0);
-    }
     
     *n1 = (Int_t)N1;
     *n2 = (Int_t)N2;
@@ -1380,36 +1362,13 @@ void PndDrc::NumberOfBounces(TVector3 start, TVector3 dir, Int_t *n1, Int_t *n2,
     up_down.SetXYZ(0.,1.,0.);
     TVector3 left_right;
     left_right.SetXYZ(1.,0.,0.);
-    Double_t angle1 = PphoB.Angle(left_right);
-    if(angle1 > fpi/2.){angle1 = fpi - PphoB.Angle(left_right);}
-    Double_t angle2 = PphoB.Angle(up_down);
-    if(angle2 > fpi/2.){angle2 = fpi - PphoB.Angle(up_down);}
+    Double_t angle1 = dir.Angle(left_right);
+    if(angle1 > fpi/2.){angle1 = fpi - dir.Angle(left_right);}
+    Double_t angle2 = dir.Angle(up_down);
+    if(angle2 > fpi/2.){angle2 = fpi - dir.Angle(up_down);}
     *alpha1 = angle1;
     *alpha2 = angle2;
     //cout<<"-I- NumberOfBounces: angle1 = "<<angle1<<", angle2 = "<<angle2<<endl;
-}
-
-//----------------------------------------------------------------------------------------------
-Double_t PndDrc::FindPhiRot(Double_t xx, Double_t yy){ // returns [degrees]
-
-    TVector3 hit;
-    hit.SetXYZ(xx,yy,0.);
-    Double_t startPhi = hit.Phi()/fpi*180.; // [degrees]
-    if(startPhi < 0.){startPhi = 360. + hit.Phi()*180./fpi;}
-    //cout<<"-I- FindPhoRot: start phi = "<<startPhi<<endl;    
-    //cout<<"-I- InBarCoordinateSystem: dphi = "<<fDphi<<endl;
-    Double_t PhiRot = 0.; //[degrees]
-    if(startPhi >= 0. && startPhi < 90.){
-      PhiRot = TMath::Floor(startPhi/fdphi) *fdphi + fdphi/2.;
-    }
-    if(startPhi >= 90. && startPhi < 270.){
-      PhiRot = 90. + fpipehAngle + TMath::Floor((startPhi-90.-fpipehAngle)/fdphi) *fdphi + fdphi/2.;
-    } 
-    if(startPhi >= 270. && startPhi < 360.){
-      PhiRot = 270. + fpipehAngle + TMath::Floor((startPhi-270.-fpipehAngle)/fdphi) *fdphi + fdphi/2.;
-    }
-    //cout<<"-I- FindPhiRot: PhiRot = "<<PhiRot<<endl;       
-    return PhiRot; // degrees
 }
 
 //----------------------------------------------------------------------------------------------------------

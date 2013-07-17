@@ -189,8 +189,7 @@ class PndDrc : public FairDetector
     std::vector<std::string> fListOfSensitives;  
     bool CheckIfSensitive(std::string name);
     
-    void NumberOfBounces(TVector3, TVector3, Int_t *, Int_t *, Double_t *, Double_t *);
-    Double_t FindPhiRot(Double_t, Double_t);
+    void NumberOfBounces(TVector3, TVector3, Int_t, Int_t *, Int_t *, Double_t *, Double_t *);   
     Double_t FindOutPoint(Double_t, Double_t, Double_t, Double_t*, Bool_t);
 
   PndDrcPDPoint* AddHit(Int_t trackID, 
