@@ -64,7 +64,7 @@ void PndDrcLutInfo::SetChPartDirInBar(TVector3 val){
 }
 
 void PndDrcLutInfo::SetChPartDirInBar2(TVector3 val){
-  fChPartDirInBar = val;
+  fChPartDirInBar2 = val;
 }
 
 void PndDrcLutInfo::SetChPartPdg(Int_t val){
