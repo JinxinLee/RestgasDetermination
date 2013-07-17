@@ -94,7 +94,9 @@ FairTask(name, iVerbose)
 // -----   Destructor   ----------------------------------------------------
 PndDrcHitFinder::~PndDrcHitFinder()
 {
- if (fGeo) delete fGeo;	
+ if (fGeo) delete fGeo;
+ 
+ if (fGeoH) delete fGeoH;	
 }
 // -------------------------------------------------------------------------
 
@@ -193,8 +195,7 @@ void PndDrcHitFinder::Exec(Option_t* opt)
     HitPosGlobal = fGeoH->LocalToMasterShortId(HitPosLocal, sensorID);   
     dPosHit.SetXYZ(fPixelSize/2., fPixelSize/2., 0.);   
        	
-    PndDrcPDHit*  aNewPDHit = AddDrcPDHit(detID, HitPosGlobal, dPosHit, hitTime, 0., iDigi);    
-    
+    PndDrcPDHit*  aNewPDHit = AddDrcPDHit(detID, HitPosGlobal, dPosHit, hitTime, 0., iDigi);     
   }   // Loop over MCPoints
   
  
