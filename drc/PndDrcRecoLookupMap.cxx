@@ -265,8 +265,13 @@ void PndDrcRecoLookupMap::ProcessPhotonHit()
     pdhit = (PndDrcPDHit*)fPDHitArray->At(k);
         
     Int_t mcPDRef= pdhit->GetRefIndex();
+    
     Ppt = (PndDrcPDPoint*)fPDPointArray->At(mcPDRef);
-        
+    
+    PndDrcBarPoint *fBarPoint= (PndDrcBarPoint*)fBarPointArray->At(Ppt->GetBarPointID());
+    fBarId = fBarPoint->GetDetectorID();
+    //cout<<"bar name - "<<fGeoH->GetPath(fBarId)<<endl;
+            
     Int_t trID= Ppt->GetTrackID();
     tr = (PndMCTrack*)fMCArray->At(trID);
     
@@ -315,12 +320,13 @@ void PndDrcRecoLookupMap::ProcessPhotonHit()
       fPphoPD.SetXYZ(Ppt->GetPx(), Ppt->GetPy(), Ppt->GetPz());
       //cout<<"Photon momentum on the PDplane: "<<endl;
       //fPphoPD.Print();
-
-
+      
       {     
 	// mother momentum/direction      
-	fPMo.SetXYZ(trMr->GetMomentum().X(), trMr->GetMomentum().Y(), trMr->GetMomentum().Z());
-	//cout<<"mother phi = "<<fPMo.Phi()/3.1415*180.<<endl;            
+	fPMo.SetXYZ(trMr->GetMomentum().X(), trMr->GetMomentum().Y(), trMr->GetMomentum().Z());	
+	//fPMo.Print();
+	lutinfo.SetChPartDir(fPMo);
+	cout<<"mother phi = "<<fPMo.Phi()/3.1415*180.<<endl;            
 	if(fB > 0.){       
 	  Double_t PtMo = sqrt(pow(trMr->GetMomentum().X(),2)+pow(trMr->GetMomentum().Y(),2));
 	  Double_t Rratio = fR*fR/2./pow((PtMo/0.29979/fB)*100.,2);
@@ -328,47 +334,26 @@ void PndDrcRecoLookupMap::ProcessPhotonHit()
 	  Double_t phi_extra = fPMo.Phi() + MoSign * trMpdg/fabs(trMpdg) * acos(1. - Rratio); // muon - ; proton +
 	  //fHAngleInBDeg = 0.5 * trMpdg/fabs(trMpdg) * (acos(1. - Rratio) /TMath::Pi())*180.;   
 	  fHAngleInBDeg = 0.5 * MoSign * trMpdg/fabs(trMpdg) * (acos(1. - Rratio) /TMath::Pi())*180.;
-	  //    cout<<"B = "<<fB<<", R = "<<fR<<", trMpdg = "<<trMpdg<<", half angle in B = "<<fHAngleInBDeg<<endl;
+	     // cout<<"B = "<<fB<<", R = "<<fR<<", trMpdg = "<<trMpdg<<", half angle in B = "<<fHAngleInBDeg<<endl;
 	  fPMo.SetPhi(phi_extra);
-	}
+	}	
 	lutinfo.SetChPartDirInBar2(fPMo);
       }
 
       {
-	// PndDrcBarPoint * cbarpoint; 
-	// Double_t tdist, distToBarPoint=100;
-	// TVector3 tbarPoint,photonStartVert = tr->GetStartVertex();
-	// for (Int_t bpoint=0; bpoint<fBarPointArray->GetEntriesFast(); bpoint++){
-	//   cbarpoint= (PndDrcBarPoint*)fBarPointArray->At(bpoint);
-	//   cbarpoint->Position(tbarPoint);
-	//   tdist = (photonStartVert-tbarPoint).Mag();
-	//   if(tdist<distToBarPoint){ 
-	//     distToBarPoint = tdist;
-	//     cbarpoint->Momentum(fPMo);
-	//   }
-	// }
-	// lutinfo.SetChPartDirInBar(fPMo);
-
-	PndDrcPDHit* fPDHit = (PndDrcPDHit*)fPDHitArray->At(k);
-  
-	Int_t digiID= fPDHit->GetRefIndex();
-	PndDrcDigi* fDigi = (PndDrcDigi*) fDigiArray->At(digiID);
-
-	Int_t pointID= fDigi->GetIndex(0);
-	PndDrcPDPoint* fPDPoint = (PndDrcPDPoint*)fPDPointArray->At(pointID);
-    
-	PndDrcBarPoint *fBarPoint= (PndDrcBarPoint*)fBarPointArray->At(fPDPoint->GetBarPointID());
 	fBarPoint->Momentum(fPMo);
-	lutinfo.SetChPartDirInBar(fPMo);
-	fBarId = fBarPoint->GetDetectorID();
+	lutinfo.SetChPartDirInBar(fPMo);	
       }
 
 
-      //cout<<"Mother vector (global cs) : "<<endl;
-      fPMo.Print();
+      cout<<"Mother vector (global cs) : "<<endl;
+      TVector3 motherMom = fPMo.Unit();
+      motherMom.Print();
          
       // initial momentum of the photon      
       fPphoInit.SetXYZ(tr->GetMomentum().X(), tr->GetMomentum().Y(), tr->GetMomentum().Z());
+      cout<<"Initial momentum of the photon :"<<endl;
+      fPphoInit.Print();
                               
       // real = generated cherenkov angle
       CHreal = fPphoInit.Angle(fPMo);
@@ -405,20 +390,24 @@ void PndDrcRecoLookupMap::ProcessPhotonHit()
       fkyBar = fPphoB.X();
       fkzBar = fPphoB.Z();
       fPphoB.SetXYZ(fkxBar, fkyBar, fkzBar); 
-      cout<<"photon kX = "<<fkxBar<<", kY = "<<fkyBar<<", kZ = "<<fkzBar<<endl;
+      cout<<"photon momentum in the bar = "<<endl;
+      fPphoB.Print();
+      TVector3 fPpB = (fGeoH->MasterToLocalShortId(fPphoInit, fBarId) - fGeoH->MasterToLocalShortId((0.,0.,0.),fBarId)).Unit();
+      fPpB.Print();
           
       // mother momentum in the bar' (and bar) coord syst:
       fPMoB = fPMo.Unit();
       fPMoB.RotateZ(-fPhiRot); 
-      //cout<<"Mother vector (bar' cs): "<<endl;      
-      //fPMoB.Print();
+      cout<<"Mother vector (bar' cs): "<<endl;      
+      fPMoB.Print();
       fPxMoBar = -fPMoB.Y();
       fPyMoBar = fPMoB.X();
       fPzMoBar = fPMoB.Z();
       TVector3 PMoBar;
-      PMoBar.SetXYZ(fPxMoBar, fPyMoBar, fPzMoBar); 
-      lutinfo.SetChPartDir(PMoBar);
-           
+      PMoBar.SetXYZ(fPxMoBar, fPyMoBar, fPzMoBar);
+      TVector3 PMBar = (fGeoH->MasterToLocalShortId(fPMo, fBarId) - fGeoH->MasterToLocalShortId((0.,0.,0.),fBarId)).Unit();       
+      PMBar.Print();     
+	   
       // to find Cherenkov Phi (NOT THETA!!!):
       TVector3 kB;
       kB.SetXYZ(fkxBar, fkyBar, fkzBar);
@@ -440,7 +429,7 @@ void PndDrcRecoLookupMap::ProcessPhotonHit()
       //cout<<"N Hit Pix = "<<NHitPix<<endl;
       //cout<<"N Amb = "<<NAmb<<endl;
       cout<<"NPixPar = "<<NPixPar<<endl;
-      cout<<"par 0 = "<<par[0]<<endl; // kx 
+/*      cout<<"par 0 = "<<par[0]<<endl; // kx 
       cout<<"par 1 = "<<par[1]<<endl; // ky 
       cout<<"par 2 = "<<par[2]<<endl; // kxB 
       cout<<"par 3 = "<<par[3]<<endl; // kyB 
@@ -468,7 +457,7 @@ void PndDrcRecoLookupMap::ProcessPhotonHit()
       cout<<"par 25= "<<par[25]<<endl; // kyBUB 
       cout<<"par 26= "<<par[26]<<endl; // kxUBU
       cout<<"par 27= "<<par[27]<<endl; // kyUBU         
-     
+*/     
       // fill in NPixPar/2 * 1 ambiguities:
       Double_t kX, kY, kZ;                                  
       std::vector<TVector3> ambig;
@@ -519,7 +508,7 @@ void PndDrcRecoLookupMap::ProcessPhotonHit()
 			lutinfo.AddPath(fPath);
 			lutinfo.AddChDiff(CHreco[8*i+jamb] - CHexp);
 			//cout<<"fkBar = "<<endl;
-			fkBar.Print();
+			//fkBar.Print();
 			lutinfo.AddNOfBounces(NumberOfBounces(fStartVertex, fkBar/*fPphoB*/, fBarId));
 			
 			fkBarXHist->Fill(kX, fPphoB.X()); 
@@ -694,8 +683,8 @@ Int_t PndDrcRecoLookupMap::NumberOfBounces(TVector3 start, TVector3 dir, Int_t b
     // start - photon production point in global coord system
     // dir - photon direction in bar coord system
     
-    cout<<"-I- NumberOfBounces: dir"<<endl;
-    dir.Print();
+    //cout<<"-I- NumberOfBounces: dir"<<endl;
+    //dir.Print();
     //cout<<"-I- NumberOfBounces: start"<<endl;
     //start.Print();   
        

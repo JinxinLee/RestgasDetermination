@@ -28,6 +28,7 @@
 #include <string>
 #include "PndDrcDigiPar.h"
 #include "PndDrcDigi.h"
+#include "PndGeoHandling.h"
 
 #include "TH1.h"
 #include "TH2.h"
@@ -143,8 +144,7 @@ private:
 
  Double_t InBarCoordSyst(TVector3, TVector3 *, TVector3 *, TVector3 *, TVector3 *); 
  Double_t SectorNum(Double_t, Double_t);
- Double_t FindPhiRot(Double_t, Double_t); 
- Int_t NumberOfBounces(TVector3, TVector3);
+ Int_t    NumberOfBounces(TVector3, TVector3, Int_t);
  Double_t FindOutPoint(Double_t, Double_t, Double_t, Double_t *, Bool_t);
  Double_t CherenkovPhi(TVector3, TVector3, Double_t *, Double_t *);
  Double_t RecoAmbigTime(TVector3, TVector3,Double_t *, Bool_t);
@@ -164,7 +164,8 @@ private:
   TList* fHistoList;
   
   PndGeoDrc* fGeo;                 //!< Basic geometry data of barrel DRC.
-
+  PndGeoHandling* fGeoH; //!
+  
   /** Set the parameters to the default values. **/
   void SetDefaultParameters();
     
@@ -200,7 +201,8 @@ private:
   TVector3 fPMoB;  
   TVector3 fPphoInit;
   TVector3 fkBar; 
-  Double_t fWeight; 
+  Double_t fWeight;
+  Int_t	   fBarId; 
   
   Bool_t print;
   
