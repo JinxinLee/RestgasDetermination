@@ -1,11 +1,8 @@
 void pid_complete()
 {
   // Macro created 02/10/2012 by S.Spataro
-  // It loads a reconstruction file and compute ID informations
+  // It loads a reconstruction file and compute PID informations
 
-  gROOT->LoadMacro("$VMCWORKDIR/gconfig/rootlogon.C");  
-  rootlogon();
-  
   // Verbosity level (0=quiet, 1=event level, 2=track level, 3=debug)
   Int_t iVerbose = 0; // just forget about it, for the moment
   
@@ -61,6 +58,9 @@ void pid_complete()
   //corr->SetDebugMode(kTRUE);
   //corr->SetFast(kTRUE);
   fRun->AddTask(corr);
+
+  PndMcCloner *clone = new PndMcCloner();
+  fRun->AddTask(clone);
  
   PndPidIdealAssociatorTask *assMC= new PndPidIdealAssociatorTask();
   fRun->AddTask(assMC);
