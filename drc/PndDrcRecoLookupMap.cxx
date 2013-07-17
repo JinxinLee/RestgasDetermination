@@ -27,6 +27,7 @@
 #include "FairGeoVector.h"
 #include "FairGeoMedium.h"
 #include "FairGeoNode.h"
+
 #include "PndGeoDrcPar.h"
 #include "TFormula.h"
 #include "TMath.h"
@@ -55,7 +56,8 @@ PndDrcRecoLookupMap::PndDrcRecoLookupMap()
 :FairTask("PndDrcRecoLookupMap")
 {
   fGeo = new PndGeoDrc();
-fDigiPar = NULL;  
+  fGeoH=NULL;
+  fDigiPar = NULL;  
 }
 // -----   Standard constructor with verbosity level  -------------------------------------------
 
@@ -64,14 +66,16 @@ PndDrcRecoLookupMap::PndDrcRecoLookupMap(Int_t verbose)
 {
   fVerbose = verbose;  
   fGeo = new PndGeoDrc();
+  fGeoH=NULL;
   fDigiPar = NULL;
 }
 // -----   Destructor   ----------------------------------------------------
 PndDrcRecoLookupMap::~PndDrcRecoLookupMap()
 {
   if (fGeo) delete fGeo;
+  if (fGeoH) delete fGeoH;
   fHistoList->Delete();  
-  delete fHistoList;    
+  delete fHistoList;      
 }
 
 // -----   Initialization   -----------------------------------------------
@@ -184,6 +188,11 @@ void PndDrcRecoLookupMap::SetParContainers() {
   cout<<"read them!"<<endl;
   //cout << "-I- PndDrcRecoLookupMap: Number of hit pixels "<< fDigiPar->GetNHitPixels()<< endl;
   cout << "-I- PndDrcRecoLookupMap: Number of hit pixels "<< fDigiPar->GetNAmbiguities()<< endl;
+  
+  if ( fGeoH == NULL ) fGeoH = PndGeoHandling::Instance();
+  fGeoH->SetParContainers(); 
+  if(fVerbose>1) Info("SetParContainers","done.");
+  return;
 }
 // -------------------------------------------------------------------------
 
@@ -192,7 +201,8 @@ void PndDrcRecoLookupMap::Exec(Option_t* option)
 {
   //if ( ! fChPhoArray ) Fatal("Exec", "No fChPhoArray");
   //fChPhoArray->Clear();
-
+  fGeoH->SetVerbose(fVerbose);
+  
   nevents++;
   fDetectorID = 0;
    
@@ -349,7 +359,8 @@ void PndDrcRecoLookupMap::ProcessPhotonHit()
     
 	PndDrcBarPoint *fBarPoint= (PndDrcBarPoint*)fBarPointArray->At(fPDPoint->GetBarPointID());
 	fBarPoint->Momentum(fPMo);
-
+	lutinfo.SetChPartDirInBar(fPMo);
+	fBarId = fBarPoint->GetDetectorID();
       }
 
 
@@ -477,7 +488,7 @@ void PndDrcRecoLookupMap::ProcessPhotonHit()
 	kZ = -sqrt(1. - pow(kX,2.) - pow(kY,2.));	
 	//cout<<"mom:  x = "<<fPMoB.X()<<",  y = "<<fPMoB.Y()<<", z = "<<fPMoB.Z()<<endl;	
 	fkBar.SetXYZ(kX, kY, kZ);
-	cout<<"photon from LUT in bar' coordinate system: "<<endl;
+	//cout<<"photon from LUT in bar' coordinate system: "<<endl;
 	fkBar.Print();
 		
 	for(Int_t jamb=0; jamb <8; jamb++){
@@ -498,16 +509,18 @@ void PndDrcRecoLookupMap::ProcessPhotonHit()
 			Tamb.push_back(RecoAmbigTime(fkBar, fStartVertex, &fPath, 0));			
 			Path.push_back(fPath);	 
 			Adiff(8*i+jamb) = fkBar.Angle(fPphoB);
-			cout<<"reco ch angle = "<<fkBar.Angle(PMoBar)<<endl;
-			cout<<"number of bounces = "<<NumberOfBounces(fStartVertex, fkxBar/*fPphoB*/)<<endl;	  
-			cout<<"CHdiff = "<<CHdiff(8*i+jamb)<<", CHreco"<<8*i+jamb<<" = "<<CHreco[8*i+jamb]<<endl;
+			//cout<<"reco ch angle = "<<fkBar.Angle(PMoBar)<<endl;
+			//cout<<"number of bounces = "<<NumberOfBounces(fStartVertex, fPphoB, fBarId)<<endl;	  
+			//cout<<"CHdiff = "<<CHdiff(8*i+jamb)<<", CHreco"<<8*i+jamb<<" = "<<CHreco[8*i+jamb]<<endl;
 			
 			//fill lutinfo only with credible information:
 			lutinfo.AddAngle(fkBar.Angle(PMoBar));
 			lutinfo.AddTime(RecoAmbigTime(fkBar, fStartVertex, &fPath, 0));
 			lutinfo.AddPath(fPath);
 			lutinfo.AddChDiff(CHreco[8*i+jamb] - CHexp);
-			//lutinfo.AddNOfBounces(NumberOfBounces(fStartVertex, fkxBar/*fPphoB*/));
+			//cout<<"fkBar = "<<endl;
+			fkBar.Print();
+			lutinfo.AddNOfBounces(NumberOfBounces(fStartVertex, fkBar/*fPphoB*/, fBarId));
 			
 			fkBarXHist->Fill(kX, fPphoB.X()); 
 			fkBarYHist->Fill(kY, fPphoB.Y());				  
@@ -568,8 +581,8 @@ void PndDrcRecoLookupMap::ProcessPhotonHit()
         //#############################################	
 	
 	// fill N bounces for all photons:
-	NboPoints[currPhiTh]->Fill(NumberOfBounces(fStartVertex, fPphoInit));
-	fhNboLam->Fill(flambdah, NumberOfBounces(fStartVertex, fPphoInit));
+	NboPoints[currPhiTh]->Fill(NumberOfBounces(fStartVertex, fPphoB, fBarId));
+	fhNboLam->Fill(flambdah, NumberOfBounces(fStartVertex, fPphoB, fBarId));
 	// fill all the ambiguities with weights:
 	// WEIGHTS ARE BASED ON TIMING!!!!!
 	for(Int_t j=0; j< CHreco.size(); j++){	  	  
@@ -675,83 +688,40 @@ Double_t PndDrcRecoLookupMap::SectorNum(Double_t xhit, Double_t yhit){
    return 18.;
   }
 }
-//----------------------------------------------------------------------------------------------
-Double_t PndDrcRecoLookupMap::FindPhiRot(Double_t xx, Double_t yy){ // returns [degrees]
-
-    TVector3 hit;
-    hit.SetXYZ(xx,yy,0.);
-    Double_t startPhi = hit.Phi()/fpi*180.; // [degrees]
-    if(startPhi < 0.){startPhi = 360. + hit.Phi()*180./fpi;}
-    //cout<<"-I- FindPhoRot: start phi = "<<startPhi<<endl;    
-    //cout<<"-I- InBarCoordinateSystem: dphi = "<<fDphi<<endl;
-    Double_t PhiRot = 0.; //[degrees]
-    if(startPhi >= 0. && startPhi < 90.){
-      PhiRot = TMath::Floor(startPhi/fDphi) *fDphi + fDphi/2.;
-    }
-    if(startPhi >= 90. && startPhi < 270.){
-      PhiRot = 90. + fPipehAngle + TMath::Floor((startPhi-90.-fPipehAngle)/fDphi) *fDphi + fDphi/2.;
-    } 
-    if(startPhi >= 270. && startPhi < 360.){
-      PhiRot = 270. + fPipehAngle + TMath::Floor((startPhi-270.-fPipehAngle)/fDphi) *fDphi + fDphi/2.;
-    }
-    //cout<<"-I- FindPhiRot: PhiRot = "<<PhiRot<<endl;       
-    return PhiRot;
-}
 
 //------   Find Nubmer of Bounces     --------------------------------------
-Int_t PndDrcRecoLookupMap::NumberOfBounces(TVector3 start, TVector3 dir){
+Int_t PndDrcRecoLookupMap::NumberOfBounces(TVector3 start, TVector3 dir, Int_t barId){
+    // start - photon production point in global coord system
+    // dir - photon direction in bar coord system
     
-    Double_t PhiRot = FindPhiRot(start.X(), start.Y());
-    //cout<<"-I- NumberOfBounces: phi rot = "<<PhiRot<<endl;
-    
-    // Photon production point in bar' coordinate system (origin at the corner of the bar):
-    TVector3 startBar;
-    startBar.SetXYZ(start.X(), start.Y(), start.Z());
-    //cout<<"-I- NumberOfBounces: start.X = "<<start.X()<<", start.Y = "<<start.Y()<<endl;
-    startBar.RotateZ(-PhiRot/180.*fpi);
-    //cout<<"-I- NumberOfBounces: startBar.X = "<<startBar.X()<<", startBar.Y = "<<startBar.Y()<<endl;
-    
-    // Photon momentum in bar' coord system:
-    TVector3 PphoB;
-    PphoB = dir.Unit();
-    PphoB.RotateZ(-PhiRot/180.*fpi);
-    
+    cout<<"-I- NumberOfBounces: dir"<<endl;
+    dir.Print();
+    //cout<<"-I- NumberOfBounces: start"<<endl;
+    //start.Print();   
+       
     // Find coordinates of X0, Y0:
     Double_t Z0, X0, Y0;
     if(dir.Theta() < 3.1415/2.){
-      Z0 = -(fabs(fzup) + 2.*fzdown - startBar.Z());
+      Z0 = -(fabs(fzup) + 2.*fzdown - start.Z());
     }
     if(dir.Theta() >= 3.1415/2.){
-      Z0 = -(startBar.Z() -  fzup);
-    }
-    //cout<<"-I- NumberOfBounces: Z0 = "<<Z0<<", Theta = "<<PphoB.Theta()/3.1415*180.<<", tan t = "<<tan(PphoB.Theta())<<", phi = "<<PphoB.Phi()/3.1415*180.<<endl;
-    X0 = Z0*tan(PphoB.Theta())*cos(PphoB.Phi());
-    Y0 = Z0*tan(PphoB.Theta())*sin(PphoB.Phi());
-    //cout<<"-I- NumberOfBounces: X0 = "<<X0<<", Y0 = "<<Y0<<endl;
+      Z0 = -(start.Z() -  fzup);
+    }    
+    X0 = Z0*TMath::Tan(dir.Theta())*TMath::Cos(dir.Phi());
+    Y0 = Z0*TMath::Tan(dir.Theta())*TMath::Sin(dir.Phi());
+    //cout<<"-I- NumberOfBounces: tan th = "<<TMath::Tan(dir.Theta())<<", sin ph = "<<TMath::Sin(dir.Phi())<<", cos ph = "<<TMath::Cos(dir.Phi())<<endl;
+    //cout<<"-I- NumberOfBounces: X0 = "<<X0<<", Y0 = "<<Y0<<", Z0 = "<<Z0<<endl;
     
-    // Find the number of bounces in each direction       
-    Double_t N1, N2;
-    //frad_out = (fR-fHThick)/cos(2.*3.1415/16./2.); // radius at corner - thickness ###
-    //flside   = 2.*frad_out*sin(2.*3.1415/16./2.) - (2.*fboxthick) - (2.*fboxgap);
-    
-    //cout<<"-I- NumberOfBounces: lside = "<<flside<<", bar width = "<<fbarwidth<<endl;
+    // Find the start position of the photon with respect to the middle of the bar:
+    TVector3 startLocal = fGeoH->MasterToLocalShortId(start, barId);
+    //cout<<"-I- NumberOfBounces: Xen = "<<startLocal.X() + fBarWidth/2.<<", Yen = "<<startLocal.Y() + fHThick<<endl;
         
-    if(fBarNum > 1){
-      // Find which bar in the bar box was hit:
-      Int_t NhitBar = (Int_t)((0.5*fLSide + startBar.Y())/fBarWidth)+1;
-      //cout<<"-I- NumberOfBounces: bar "<<NhitBar<<" was hit, "<<((0.5*flside + startBar.Y())/fbarwidth)+1<<endl;
-      //cout<<"-I- NumberOfBounces: start bar Y = "<<startBar.Y()<<endl;
-    
-      //cout<<"-I- NumberOfBounces: start position X = "<< startBar.X() - (fradius-fhthick)<<", Y = "<<startBar.Y() + 0.5*flside-(NhitBar-1)*fbarwidth<<endl;  
-      FindOutPoint(X0, startBar.X()-(fR-fHThick), 		   2.*fHThick, &N1, 0);
-      FindOutPoint(Y0, startBar.Y()+0.5*fLSide-(NhitBar-1)*fBarWidth, fBarWidth, &N2, 0);
-      //cout<<"-I- NumberOfBounces: N1 = "<<N1<<", N2 = "<<N2<<endl;
-    }
-    if(fBarNum == 1 && fLSide > fBarWidth){
-      FindOutPoint(X0, startBar.X()-(fR-fHThick), 		   2.*fHThick, &N1, 0);
-      FindOutPoint(Y0, startBar.Y()+0.5*fBarWidth, fBarWidth, &N2, 0);
-    }
-    
+    // Find the number of bounces in each direction       
+    Double_t N1, N2;   
+    FindOutPoint(X0, startLocal.X() + fBarWidth/2., fBarWidth,  &N1, 0);
+    FindOutPoint(Y0, startLocal.Y() + fHThick,      2.*fHThick, &N2, 0);
+    //cout<<"-I- NumberOfBounces: N1 = "<<N1<<", N2 = "<<N2<<endl;
+   
     return (Int_t)N1+N2;
 }
 
