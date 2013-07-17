@@ -14,6 +14,7 @@
 #include "FairRootManager.h"
 #include "PndDrcDigiTask.h"
 #include "PndDrcPDPoint.h"
+#include "PndDrcBarPoint.h"
 
 #include "PndMCTrack.h"
 #include "FairRunAna.h"
@@ -178,7 +179,10 @@ void PndDrcDigiTask::ProcessPhotonPoint()
        
     Int_t trID= Ppt->GetTrackID();
     tr = (PndMCTrack*)fMCArray->At(trID);
-       
+    
+    PndDrcBarPoint *fBarPoint= (PndDrcBarPoint*)fBarPointArray->At(Ppt->GetBarPointID());
+    Int_t BarId = fBarPoint->GetDetectorID();   
+    
     // start vertex of the photon
     TVector3 StartVertex = tr->GetStartVertex();
     
@@ -188,8 +192,9 @@ void PndDrcDigiTask::ProcessPhotonPoint()
       
     //calculate the number of bounces:
     Int_t NbouncesX, NbouncesY;
-    Double_t angleX, angleY;
-    NumberOfBounces(StartVertex, PphoInit, &NbouncesX, &NbouncesY, &angleX, &angleY);
+    Double_t angleX, angleY;    
+    TVector3 PphoInitBar = fGeoH->MasterToLocalShortId(PphoInit, BarId);
+    NumberOfBounces(StartVertex, PphoInitBar, BarId, &NbouncesX, &NbouncesY, &angleX, &angleY);
       
     Double_t PPx= Ppt->GetPx();
     Double_t PPy= Ppt->GetPy();
@@ -378,55 +383,32 @@ void PndDrcDigiTask::ActivatePixel(Int_t sensorDetId, Double_t signalTime, Int_t
 
 
 //------   Find Nubmer of Bounces     --------------------------------------
-void PndDrcDigiTask::NumberOfBounces(TVector3 start, TVector3 dir, Int_t *n1, Int_t *n2, Double_t *alpha1, Double_t *alpha2){
+void PndDrcDigiTask::NumberOfBounces(TVector3 start, TVector3 dir, Int_t barId, Int_t *n1, Int_t *n2, Double_t *alpha1, Double_t *alpha2){
+    // start - photon production point in global coord system
+    // dir - photon direction in bar coord system
+    
     // calculates the number of bounces in x and y direction and reflection angles in these directions.
         
-
-
-
-
-    Double_t PhiRot = FindPhiRot(start.X(), start.Y());
-
-    // Photon production point in bar' coordinate system (origin at the corner of the bar):   
-    TVector3 startBar;
-    startBar.SetXYZ(start.X(), start.Y(), start.Z());
-    startBar.RotateZ(-PhiRot/180.*fpi);
-    
-    // Photon momentum in bar' coord system:
-    TVector3 PphoB;
-    PphoB = dir.Unit();
-    PphoB.RotateZ(-PhiRot/180.*fpi);
-    
     // Find coordinates of X0, Y0:
     Double_t Z0, X0, Y0;
     if(dir.Theta() < 3.1415/2.){
-      Z0 = -(fabs(fzup) + 2.*fzdown - startBar.Z());
+      Z0 = -(fabs(fzup) + 2.*fzdown - start.Z());
     }
     if(dir.Theta() >= 3.1415/2.){
-      Z0 = -(startBar.Z() -  fzup);
-    }
+      Z0 = -(start.Z() -  fzup);
+    }    
+    X0 = Z0*tan(dir.Theta())*cos(dir.Phi());
+    Y0 = Z0*tan(dir.Theta())*sin(dir.Phi());
+    //cout<<"-I- NumberOfBounces: X0 = "<<X0<<", Y0 = "<<Y0<<endl;
     
-    X0 = Z0*tan(PphoB.Theta())*cos(PphoB.Phi());
-    Y0 = Z0*tan(PphoB.Theta())*sin(PphoB.Phi());
+    // Find the start position of the photon with respect to the middle of the bar:
+    TVector3 startLocal = fGeoH->MasterToLocalShortId(start, barId);
     
     // Find the number of bounces in each direction       
-    Double_t N1, N2;
-    //frad_out = (fradius-fhthick)/cos(2.*3.1415/16./2.); // radius at corner - thickness ###
-    //flside   = 2.*frad_out*sin(2.*3.1415/16./2.) - (2.*fboxthick) - (2.*fboxgap);
-    //flside = (180. - 2.*fpipehAngle - fbbGap/fradius*(fbbnum/2. - 1.)/fpi*180.)/(fbbnum/2.) * fradius/ 180.*fpi;
-    //fbarwidth = flside/fbarnum;
-        
-    // Find which bar in the bar box was hit:
-    if(fbarnum > 1){    
-      Int_t NhitBar = (Int_t)((0.5*flside + startBar.Y())/fbarwidth)+1;
-      FindOutPoint(X0, startBar.X()-(fradius-fhthick), 		   2.*fhthick, &N1, 0);
-      FindOutPoint(Y0, startBar.Y()+0.5*flside-(NhitBar-1)*fbarwidth, fbarwidth, &N2, 0);
-    }
-    
-    if(fbarnum == 1 && flside > fbarwidth){
-      FindOutPoint(X0, startBar.X()-(fradius-fhthick), 		   2.*fhthick, &N1, 0);
-      FindOutPoint(Y0, startBar.Y()+0.5*fbarwidth, fbarwidth, &N2, 0);
-    }
+    Double_t N1, N2;    
+    FindOutPoint(X0, startLocal.X() + fbarwidth/2., fbarwidth, &N1, 0);
+    FindOutPoint(Y0, startLocal.Y() + fhthick,      2.*fhthick, &N2, 0);
+      //cout<<"-I- NumberOfBounces: N1 = "<<N1<<", N2 = "<<N2<<endl;
     
     *n1 = (Int_t)N1;
     *n2 = (Int_t)N2;
@@ -436,12 +418,13 @@ void PndDrcDigiTask::NumberOfBounces(TVector3 start, TVector3 dir, Int_t *n1, In
     up_down.SetXYZ(0.,1.,0.);
     TVector3 left_right;
     left_right.SetXYZ(1.,0.,0.);
-    Double_t angle1 = PphoB.Angle(left_right);
-    if(angle1 > fpi/2.){angle1 = fpi - PphoB.Angle(left_right);}
-    Double_t angle2 = PphoB.Angle(up_down);
-    if(angle2 > fpi/2.){angle2 = fpi - PphoB.Angle(up_down);}
+    Double_t angle1 = dir.Angle(left_right);
+    if(angle1 > fpi/2.){angle1 = fpi - dir.Angle(left_right);}
+    Double_t angle2 = dir.Angle(up_down);
+    if(angle2 > fpi/2.){angle2 = fpi - dir.Angle(up_down);}
     *alpha1 = angle1;
     *alpha2 = angle2;
+    //cout<<"-I- NumberOfBounces: angle1 = "<<angle1<<", angle2 = "<<angle2<<endl;
 }
 
 //----------------------------------------------------------------------------------------------
@@ -1164,8 +1147,8 @@ void PndDrcDigiTask::SetParameters(){
   fbarnum        =  fGeo->barNum();
   fphi0          =  (180.-2.*fpipehAngle)/fbbnum + fpipehAngle;
   fdphi          =  (180.-2.*fpipehAngle)/fbbnum*2.;
-  flside	     =  fGeo->Lside();
-  fbarwidth	     =  fGeo->BarWidth();
+  flside	 =  fGeo->Lside();
+  fbarwidth	 =  fGeo->BarWidth();
   fPixelSize	 =  fGeo->PixelSize();
   fMcpActiveArea =  fGeo->McpActiveArea();
   fNpix          =  fGeo->Npixels();

@@ -82,7 +82,7 @@ public:
  /** Set Photon Transport Efficiency **/
   void SetPhotonTransportEff();
  /** Auxiliraly functions **/
- void NumberOfBounces(TVector3, TVector3, Int_t *, Int_t *, Double_t *, Double_t *);
+ void NumberOfBounces(TVector3, TVector3, Int_t, Int_t *, Int_t *, Double_t *, Double_t *);
  Double_t FindPhiRot(Double_t, Double_t);
  Double_t FindOutPoint(Double_t, Double_t, Double_t, Double_t*, Bool_t);
 
@@ -150,6 +150,7 @@ public:
   Double_t fTime;
   Int_t fRefIndex;
   Int_t fPixelID;//fPDRefIndex;
+  Int_t fBarId;
   
   Int_t             fNDigis;
   TClonesArray*     fDigis;        /** Output array of PndDrcDigi **/
