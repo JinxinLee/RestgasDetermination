@@ -180,21 +180,26 @@ void PndDrcDigiTask::ProcessPhotonPoint()
     Int_t trID= Ppt->GetTrackID();
     tr = (PndMCTrack*)fMCArray->At(trID);
     
-    PndDrcBarPoint *fBarPoint= (PndDrcBarPoint*)fBarPointArray->At(Ppt->GetBarPointID());
-    Int_t BarId = fBarPoint->GetDetectorID();   
-    
-    // start vertex of the photon
-    TVector3 StartVertex = tr->GetStartVertex();
-    
-    // initial momentum of the photon      
-    TVector3 PphoInit;
-    PphoInit.SetXYZ(tr->GetMomentum().X(), tr->GetMomentum().Y(), tr->GetMomentum().Z());
-      
-    //calculate the number of bounces:
     Int_t NbouncesX, NbouncesY;
     Double_t angleX, angleY;    
-    TVector3 PphoInitBar = fGeoH->MasterToLocalShortId(PphoInit, BarId);
-    NumberOfBounces(StartVertex, PphoInitBar, BarId, &NbouncesX, &NbouncesY, &angleX, &angleY);
+    Int_t BarId=-1;
+    if(Ppt->GetBarPointID()!=-1){
+      PndDrcBarPoint *fBarPoint= (PndDrcBarPoint*)fBarPointArray->At(Ppt->GetBarPointID());
+      BarId = fBarPoint->GetDetectorID();
+
+
+      // start vertex of the photon
+      TVector3 StartVertex = tr->GetStartVertex();
+    
+      // initial momentum of the photon      
+      TVector3 PphoInit;
+      PphoInit.SetXYZ(tr->GetMomentum().X(), tr->GetMomentum().Y(), tr->GetMomentum().Z());
+      //calculate the number of bounces: 
+      TVector3 PphoInitBar = fGeoH->MasterToLocalShortId(PphoInit, BarId);
+      NumberOfBounces(StartVertex, PphoInitBar, BarId, &NbouncesX, &NbouncesY, &angleX, &angleY);
+    }  
+      
+  
       
     Double_t PPx= Ppt->GetPx();
     Double_t PPy= Ppt->GetPy();
@@ -206,10 +211,10 @@ void PndDrcDigiTask::ProcessPhotonPoint()
     if(fisDetEff){
       if (lambda >= flambda_min && lambda < flambda_max) {
         Int_t ilambda=(Int_t)((lambda-flambda_min)/flambda_step);
-	    Double_t rand = gRandom->Rndm();
-	    fDetection = 0;
+	Double_t rand = gRandom->Rndm();
+	fDetection = 0;
         if (fDetEfficiency[ilambda]*fCollectionEff*fPackingFraction > rand ) fDetection = 1;
-	    detEffLam->Fill(lambda, fDetEfficiency[ilambda]*fCollectionEff);
+	detEffLam->Fill(lambda, fDetEfficiency[ilambda]*fCollectionEff);
 	  }	 
     }
     if(!fisDetEff){ 
@@ -220,7 +225,7 @@ void PndDrcDigiTask::ProcessPhotonPoint()
     // transport efficiency
     // assume that detection efficiency above CAN NOT be used together with transport efficiency
     // Maria Patsyuk
-    if(fisTransportEff){
+    if(fisTransportEff && BarId != -1){
       if (lambda >= flambda_min_tr && lambda < flambda_max_tr) {
 	    Int_t ilambda=(Int_t)((lambda-flambda_min_tr)/flambda_step_tr); 
 	    Int_t iangleX =(Int_t)(angleX/fangle_step_tr);	    
@@ -235,7 +240,7 @@ void PndDrcDigiTask::ProcessPhotonPoint()
 	    if(TotalTrProb > rand) fDetection = 1;
        }
      }
-     if(!fisTransportEff && !fisDetEff){ 
+     if(!fisTransportEff && BarId != -1 && !fisDetEff){ 
        fDetection=1;
      }      
 
