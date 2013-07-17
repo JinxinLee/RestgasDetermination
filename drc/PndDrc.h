@@ -119,7 +119,6 @@ class PndDrc : public FairDetector
    ** Initialises detector. Stores volume IDs for DIRC detector and mirror.
    **/
      
-  void MarkReflectionsInsideEV(Bool_t mar=kFALSE) {fMarkReflectionsInsideEV = mar;}
      
   virtual void Initialize();
 
@@ -217,7 +216,7 @@ class PndDrc : public FairDetector
                         Double_t VeloPhoton);
 
   PndDrcBarPoint* AddBarHit(Int_t trackID, 
-			    Int_t copyNo, 
+			    Int_t copyNo,			    
 			    TVector3 pos, 
 			    TVector3 mom, 
 			    Double_t time, 
@@ -258,8 +257,8 @@ class PndDrc : public FairDetector
  
   Bool_t fRunCherenkov;            //!  Switch ON/OFF Cherenkov propagation
   Int_t          fTrackID;         //!  track index
-  Int_t          fCurrentTrackID;         //!  track index
-  Int_t          fCopyNo;          //!  volume id
+  Int_t          fCurrentTrackID;         //!  track index  
+  Int_t 	 fBarId;
   TLorentzVector fPos;             //!  position
   TLorentzVector fMom;             //!  momentum
   Double32_t     fTime;            //!  time
@@ -317,7 +316,6 @@ class PndDrc : public FairDetector
   Bool_t         fTakeRealReflectivity;
   Bool_t	 fStopSecondaries;
   Bool_t  	 fStopChargedTrackAfterDIRC;
-  Bool_t 	 fMarkReflectionsInsideEV;
   
   TArrayI        fProc;
 
@@ -341,15 +339,14 @@ class PndDrc : public FairDetector
   void ResetParameters();
 
   Int_t  fSenId1, fSenId2, fSenIdBar;
-  ClassDef(PndDrc,12)
+  ClassDef(PndDrc,11)
 
 }; 
 
 
 
 inline void PndDrc::ResetParameters() {
-  fTrackID = -999; 
-  fCopyNo = -999;
+  fTrackID = -999;   
   fPos.SetXYZT(-999., -999., -999., -999.);
   fMom.SetXYZT(-999., -999., -999., -999.) ;
   fTime = -999;  

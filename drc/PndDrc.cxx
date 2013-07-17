@@ -83,8 +83,7 @@ PndDrc::PndDrc()
     
     fRunCherenkov(kTRUE),            //!  Switch ON/OFF Cherenkov propagation
     fTrackID(-1),         //!  track index
-    fCurrentTrackID(-1),         //!  track index
-    fCopyNo(-1),          //!  volume id
+    fCurrentTrackID(-1),         //!  track index              //!  volume id
     fPos(TLorentzVector(0,0,0)),             //!  position
     fMom(TLorentzVector(0,0,0)),             //!  momentum
     fTime(-1),           //!  time
@@ -191,8 +190,7 @@ PndDrc::PndDrc(const char* name, Bool_t active)
  
     fRunCherenkov(kTRUE),            //!  Switch ON/OFF Cherenkov propagation
     fTrackID(-1),         //!  track index
-    fCurrentTrackID(-1),         //!  track index
-    fCopyNo(-1),          //!  volume id
+    fCurrentTrackID(-1),         //!  track index    
     fPos(TLorentzVector(0,0,0)),             //!  position
     fMom(TLorentzVector(0,0,0)),             //!  momentum
     fTime(-1),           //!  time
@@ -322,7 +320,7 @@ void PndDrc::Initialize() {
     
   cout << "list of sensitives has " << fListOfSensitives.size() << " entries" << endl;
   fGeoH->CreateUniqueSensorId("", fListOfSensitives);
-  //if(fVerboseLevel>0) fGeoH->PrintSensorNames();
+  if(fVerboseLevel>0) fGeoH->PrintSensorNames();
 
   if (fRunCherenkov==kFALSE) cout << " -I- PndDrc: Switching OFF Cherenkov Propagation" << endl;
  
@@ -1114,8 +1112,7 @@ Bool_t PndDrc::ProcessHits(FairVolume* vol) {
    
    // check reflections inside the EV and PD = tagging surfaces:
    //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-/*   if(fMarkReflectionsInsideEV){
-     //if(nam.BeginsWith("DrcEVSensor")) {        
+   /*//if(nam.BeginsWith("DrcEVSensor")) {        
      if(nam.BeginsWith("DrcEVSensor")) {
        Int_t nproc = gMC->StepProcesses(fProc);
        cout<<"-I- PndDrc: "<<endl;
@@ -1131,8 +1128,7 @@ Bool_t PndDrc::ProcessHits(FairVolume* vol) {
 //         }	
        }
       cout<<" current vol name = "<<gMC->CurrentVolName()<<endl;
-     }
-   } // if MarkReflectionsInsideEV              
+     }                 
    //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%     
 */
 
@@ -1210,8 +1206,7 @@ Bool_t PndDrc::ProcessHits(FairVolume* vol) {
         if(fTimeAtEVEntrance ==0.){
 	  fTimeAtEVEntrance= gMC->TrackTime()*1.0e09;
           fLengthEV=gMC->TrackLength();
-	}
-        fCopyNo = vol->getCopyNo();
+	}        
         fTrackID = gMC->GetStack()->GetCurrentTrackNumber(); //track ID     
         gMC->TrackPosition(fPos);
         gMC->TrackMomentum(fMom); // GeV/c	
@@ -1223,7 +1218,7 @@ Bool_t PndDrc::ProcessHits(FairVolume* vol) {
 //cout<<"velocity photon "<<fVeloPhoton<<" length at PD point "<<fTime<<" length at EV "<<fTimeStartEV<<endl;
 
         AddEVHit(fTrackID,
-	     fCopyNo,
+	     0,
 	     TVector3(fPos.X(),   fPos.Y(),   fPos.Z()),
 	     TVector3(fMom.Px(),  fMom.Py(),  fMom.Pz()),
 	     fTime,
@@ -1244,9 +1239,7 @@ Bool_t PndDrc::ProcessHits(FairVolume* vol) {
         if(0==fGeoH) {
           std::cout<<" -E- No PndGeoHandling loaded."<<std::endl;
           abort();
-        }
-                  
-        fCopyNo = vol->getCopyNo();
+        }      
         fTrackID = gMC->GetStack()->GetCurrentTrackNumber(); //track ID     
         gMC->TrackPosition(fPos);
         gMC->TrackMomentum(fMom); // GeV/c	
@@ -1271,7 +1264,7 @@ Bool_t PndDrc::ProcessHits(FairVolume* vol) {
 	//if(num == fbarID){
 	//	Double_t fCharge = gMC->TrackCharge();
 		fTrackID = gMC->GetStack()->GetCurrentTrackNumber();
-		//if(fTrackID!=fCurrentTrackID){//$$$$$$$$$$$$$$$$$$$
+		//if(fTrackID!=fCurrentTrackID){//$$$$$$$$$$$$$$$$$$$		  
 		  fTime  = gMC->TrackTime() * 1.0e09;
 		  fLength = gMC->TrackLength();
   //		Int_t  copyNo = vol->getCopyNo();
@@ -1280,12 +1273,13 @@ Bool_t PndDrc::ProcessHits(FairVolume* vol) {
 		  TString path = gMC->CurrentVolPath();
 		  //cout<<"+++++++++++++++++++++++++++++++++"<<endl;
 		  //cout<< "Volume: " << gMC->CurrentVolPath() << endl;
+		  //cout<< "Det ID = "<<fGeoH->GetShortID(path)<<endl;
 		  //cout<<"+++++++++++++++++++++++++++++++++"<<endl;    
 		  if (fVerboseLevel >1) cout<< "Volume: " << gMC->CurrentVolPath() << endl;
 		  sscanf(path, "/cave_1/BarrelDIRC_0/DrcBarBox_%d/DrcAirBox_0/DrcBarSensor_%d", &s, &b);		
 		  //cout<<"side no.= "<<s<<" bar no.="<<b<<endl;//		
 		  if(s != 0 && s<17){
-		     fNBar = s*10 +b;}                 
+		     fNBar = s*10 + b;}                 
 		  //cout<<"fNBar= "<<fNBar<<endl;  
 		  gMC->TrackMomentum(fMom); // GeV/c		
 		  Double_t Px= fMom.Px();
@@ -1302,7 +1296,7 @@ Bool_t PndDrc::ProcessHits(FairVolume* vol) {
 		  else if (fabs(1./(1.47*(fP/fEnergy))) > 1. ){ fThetaC = -1.;}
 		  else{ fThetaC = acos(1/(1.47*(fP/fEnergy)));} 
 		  AddBarHit(fTrackID,
-			  fCopyNo,
+			  fGeoH->GetShortID(path),		  
 			  TVector3(fPos.X(),   fPos.Y(),   fPos.Z()),
 			  TVector3(fMom.Px(),  fMom.Py(),  fMom.Pz()),
 			  fTime,
@@ -1812,7 +1806,7 @@ PndDrcBarPoint* PndDrc::AddBarHit(Int_t trackID, Int_t copyNo, TVector3 pos, TVe
 	 << ", " << pos.Z() << ") cm, detector " << copyNo << ", track "
 	 << trackID <<" event "<<eventID << endl;
   return new(clrefBar[size]) PndDrcBarPoint(trackID, 
-					    copyNo, 
+					    copyNo,					   
 					    pos, 
 					    mom, 
 					    time, 
