@@ -196,7 +196,7 @@ void PndDrcDigiTask::ProcessPhotonPoint()
       PphoInit.SetXYZ(tr->GetMomentum().X(), tr->GetMomentum().Y(), tr->GetMomentum().Z());
       //calculate the number of bounces: 
       // initial direction of the photon in the bar coord system
-      TVector3 PphoInitBar = fGeoH->MasterToLocalShortId(PphoInit, BarId)- fGeoH->MasterToLocalShortId((0.,0.,0.),BarId);
+      TVector3 PphoInitBar = fGeoH->MasterToLocalShortId(PphoInit, BarId)- fGeoH->MasterToLocalShortId((0.,0.,0.),BarId); // vector
       NumberOfBounces(StartVertex, PphoInitBar, BarId, &NbouncesX, &NbouncesY, &angleX, &angleY);
     }  
       
@@ -250,7 +250,7 @@ void PndDrcDigiTask::ProcessPhotonPoint()
      	// transform to local sensor system... (mc point has the ID not the path to the volume)
      	TVector3 PptPosition;
 	Ppt->Position(PptPosition);
-     	TVector3 posL = fGeoH->MasterToLocalShortId(PptPosition,Ppt->GetDetectorID());
+     	TVector3 posL = fGeoH->MasterToLocalShortId(PptPosition,Ppt->GetDetectorID()); // point
 	 
     	TVector3 sensorDim = GetSensorDimensions(Ppt->GetDetectorID());	
  
@@ -408,7 +408,7 @@ void PndDrcDigiTask::NumberOfBounces(TVector3 start, TVector3 dir, Int_t barId, 
     //cout<<"-I- NumberOfBounces: X0 = "<<X0<<", Y0 = "<<Y0<<endl;
     
     // Find the start position of the photon with respect to the middle of the bar:
-    TVector3 startLocal = fGeoH->MasterToLocalShortId(start, barId);
+    TVector3 startLocal = fGeoH->MasterToLocalShortId(start, barId); // point
     
     // Find the number of bounces in each direction       
     Double_t N1, N2;    
