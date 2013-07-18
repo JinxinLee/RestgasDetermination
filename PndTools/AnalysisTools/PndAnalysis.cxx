@@ -763,14 +763,18 @@ Bool_t PndAnalysis::Propagator ( int mode, FairTrackParP& tStart, RhoCandidate* 
 
 Bool_t PndAnalysis::McTruthMatch(RhoCandidate* cand, Int_t level, bool verbose)
 {
-    MctMatch(cand,fMcCandList,level,verbose);
+    return MctMatch(cand,fMcCandList,level,verbose);
 }
     
-Bool_t PndAnalysis::McTruthMatch(RhoCandList& list, Int_t level, bool verbose)
+Int_t PndAnalysis::McTruthMatch(RhoCandList& list, Int_t level, bool verbose)
 {
+  Int_t ifound = 0;
   for(int icand=0;icand<fAllCandList.GetLength();icand++){
-    MctMatch(list[icand],fMcCandList,level,verbose);
+    if( true == MctMatch(list[icand],fMcCandList,level,verbose) ) {
+      ifound++;
+    }
   }
+  return ifound;
 }
 
 Bool_t PndAnalysis::MctMatch ( RhoCandidate* c, RhoCandList& mct, Int_t level, bool verbose )
