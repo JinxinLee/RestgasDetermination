@@ -56,7 +56,7 @@ PndDsk::PndDsk()
   : fStoreCerenkovs(kTRUE),
     fStoreParticles(kTRUE),
     fStoreTrackPoints(kFALSE),
-    fStoreFLGHits(kTRUE),
+    fStoreFLGHits(kFALSE),
     fCalcPWay(kFALSE),
     fMeasureTotalRefAngle(kFALSE),
     fPDE(1.),
@@ -78,7 +78,7 @@ PndDsk::PndDsk(const char* name, Bool_t active)
     fStoreCerenkovs(kTRUE),
     fStoreParticles(kTRUE),
     fStoreTrackPoints(kFALSE),
-    fStoreFLGHits(kTRUE),
+    fStoreFLGHits(kFALSE),
     fCalcPWay(kFALSE),
     fMeasureTotalRefAngle(kFALSE),
     fPDE(1.),
@@ -197,7 +197,7 @@ PndDsk::Register()
   FairRootManager::Instance()->Register("DskCerenkov",   "Dsk", fDskCerenkovCollection,   fStoreCerenkovs);
   FairRootManager::Instance()->Register("DskParticle",   "Dsk", fDskParticleCollection,   fStoreParticles);
   FairRootManager::Instance()->Register("DskTrackPoints","Dsk", fDskTrackPointCollection, fStoreTrackPoints);
-  FairRootManager::Instance()->Register("PndDskFLGHit",  "Dsk", fDskFLGHitArray,          fStoreFLGHits);
+  FairRootManager::Instance()->Register("DskFLGHit",  "Dsk", fDskFLGHitArray,          fStoreFLGHits);
 }
 // ----------------------------------------------------------------------------
 

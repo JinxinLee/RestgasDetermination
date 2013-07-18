@@ -74,7 +74,7 @@ InitStatus PndFtsHitProducerRealFull::Init() {
   
  // Create and register output array
   fHitInfoArray = new TClonesArray("PndFtsHitInfo");
-  ioman->Register("FTSHitInfo", "FTS", fHitInfoArray, fPersistence);
+  ioman->Register("FTSHitInfo", "FTS", fHitInfoArray, kFALSE);
   
   // CHECK added 
   PndFtsMapCreator *mapper = new PndFtsMapCreator(fFtsParameters);
