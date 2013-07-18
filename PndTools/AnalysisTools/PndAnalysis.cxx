@@ -379,6 +379,7 @@ RhoCandidate* PndAnalysis::CreateMcCandidate(Int_t mcindex)
   pmc->SetPos (stvtx);
   pmc->SetType (part->GetPdgCode()); //this overwrites our generator's mass information
   pmc->SetP4 (p4);
+  pmc->SetTrackNumber(mcindex);
   // put mc candidate to list
   fMcPresenceMap[mcindex]=pmc; 
   // ask for mc mother candidate pointer by iteration
