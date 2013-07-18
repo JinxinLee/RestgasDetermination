@@ -1022,7 +1022,7 @@ Bool_t PndDrc::ProcessHits(FairVolume* vol) {
       Int_t NbouncesX, NbouncesY;
       Double_t angleX, angleY;
       // photon initial direction
-      TVector3 PphoInitBar = fGeoH->MasterToLocalShortId(PphoInit, barId)- fGeoH->MasterToLocalShortId((0.,0.,0.), barId);
+      TVector3 PphoInitBar = fGeoH->MasterToLocalShortId(PphoInit, barId)- fGeoH->MasterToLocalShortId((0.,0.,0.), barId); // vector
       NumberOfBounces(StartVertex, PphoInitBar, barId, &NbouncesX, &NbouncesY, &angleX, &angleY);
       // calculate the bounce probability
       Double_t n_quartz = sqrt(1. + (0.696*lam_tr*lam_tr/(lam_tr*lam_tr-pow(0.068,2))) + (0.407*lam_tr*lam_tr/(lam_tr*lam_tr-pow(0.116,2))) + 0.897*lam_tr*lam_tr/(lam_tr*lam_tr-pow(9.896,2)));
@@ -1347,7 +1347,7 @@ void PndDrc::NumberOfBounces(TVector3 start, TVector3 dir, Int_t barId, Int_t *n
     //cout<<"-I- NumberOfBounces: X0 = "<<X0<<", Y0 = "<<Y0<<endl;
     
     // Find the start position of the photon with respect to the middle of the bar:
-    TVector3 startLocal = fGeoH->MasterToLocalShortId(start, barId);
+    TVector3 startLocal = fGeoH->MasterToLocalShortId(start, barId); // point
     
     // Find the number of bounces in each direction       
     Double_t N1, N2;    
