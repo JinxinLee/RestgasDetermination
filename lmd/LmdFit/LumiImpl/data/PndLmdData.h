@@ -42,7 +42,7 @@ private:
 	/** In case this is a simulation a reference value for the luminosity can be used */
 	double luminosity_ref;
 
-	std::pair<double, double> calcRange(PndLmdLumiFitOptions *fit_options);
+	std::pair<double, double> calcRange(const PndLmdLumiFitOptions *fit_options);
 
 public:
 	PndLmdData(TFile *f_, int num_events_, double plab_,
@@ -74,7 +74,7 @@ public:
 	 * @returns pointer to #PndLmdLumiFitResult containing relevant information such as the fitted function and the luminosity and its errors.
 	 */
 	PndLmdLumiFitResult* Fit(PndLmdAcceptance* lmd_acc,
-			PndLmdLumiFitOptions* fit_options);
+			const PndLmdLumiFitOptions* fit_options);
 
 	std::map<PndLmdAcceptance*, std::vector<PndLmdLumiFitResult*> >& getFitMap();
 

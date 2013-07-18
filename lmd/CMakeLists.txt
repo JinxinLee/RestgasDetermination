@@ -194,6 +194,7 @@ LmdFit/LumiImpl/data/PndLmdAcceptance.h
 LmdFit/LumiImpl/data/PndLmdResolution.h
 LmdFit/LumiImpl/PndLmdLumiHelper.h 
 LmdFit/LumiImpl/PndLmdResultPlotter.h
+LmdFit/LumiImpl/LumiFitStructs.h
 )
 
 set(LINKDEF  LmdFitLinkDef.h)

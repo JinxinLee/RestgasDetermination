@@ -9,6 +9,7 @@
 #pragma link C++ struct ModelStructs::minimization_parameter+;
 #pragma link C++ class std::pair<double, ModelStructs::minimization_parameter>+;
 #pragma link C++ class std::vector<std::pair<double, ModelStructs::minimization_parameter> >+;
+#pragma link C++ class LumiFit::LmdBinaryFitOptions;
 #pragma link C++ class PndLmdLumiFitResult;
 #pragma link C++ class PndLmdLumiFitOptions;
 #pragma link C++ class PndLmdDataInterface;

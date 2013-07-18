@@ -17,8 +17,6 @@ PndLmdSmearingGaussianModelParametrization1D::PndLmdSmearingGaussianModelParamet
 
 	shared_ptr<Model1D> poly_model1(
 			new PolynomialModel1D("gauss_sigma_poly_model_1d", 1));
-	//poly_model1->getModelParameterSet().setModelParameterValue(
-	//		"poly_poly_factor_0", 0.03449);
 	shared_ptr<ParametrizationModel> pm1(new ParametrizationModel(poly_model1));
 	model->getModelParameterHandler().registerParametrizationModel(
 			model->getModelParameterSet().getModelParameter("gauss_sigma"),

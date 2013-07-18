@@ -104,7 +104,7 @@ TEfficiency* PndLmdAcceptance::getAcceptance2D() const {
 
 double** PndLmdAcceptance::getData(PndLmdLumiFitOptions *fit_options) {
 	// ok check if we need raw or angular data and fill array...
-	if (fit_options->isFitRaw()) {
+	if (fit_options->getModelBinaryOptions().isFitRaw()) {
 		for (int i = 0; i < th_dimension.bins; i++) {
 			data[i][0] = t_dimension.range_low + (i + 0.5) * t_dimension.bin_size;
 			data[i][1] = 0.0;

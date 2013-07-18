@@ -67,7 +67,7 @@ void PndLmdLumiFitResult::setModelFitResult(ModelFitResult &fit_result) {
 }
 
 bool PndLmdLumiFitResult::checkFitOptions(
-		PndLmdLumiFitOptions *fit_options_) const {
+		const PndLmdLumiFitOptions *fit_options_) const {
 	return (*fit_options == *fit_options_);
 }
 

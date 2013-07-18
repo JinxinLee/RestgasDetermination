@@ -8,6 +8,8 @@
 #ifndef PNDLMDLUMIFITOPTIONS_H_
 #define PNDLMDLUMIFITOPTIONS_H_
 
+#include "../LumiFitStructs.h" // .. is needed for rootcint to find the header
+
 #include "TObject.h"
 #include "TString.h"
 #include "TMath.h"
@@ -32,14 +34,17 @@
  */
 class PndLmdLumiFitOptions: public TObject {
 private:
-	/** This set of bits specifies all binary fit options will be used (so on-off type options)
-	 * bit 0: 0 = no resolution smearing, 1 = with resolution smearing
-	 * bit 1: 0 = no acceptance corr, 1 = with acceptance corr
-	 * bit 2: 0 = 1d fit, 1 = 2d fit
-	 * bit 3: 0 = use theta-phi data and fit function, 1 = use t (momentum transfer) data and fit function
-	 * bit 4: 0 = ROOT, 1 = ROOFIT
-	 **/
-	unsigned long binary_options;
+	/**
+	 * Binary fit options of the model. See #LumiFit::LmdBinaryFitOptions for a
+	 * detailed description.
+	 */
+	LumiFit::LmdBinaryFitOptions model_binary_options;
+	/**
+	 * Same options as above, to determine which data will be used to fit.
+	 * Default setting will be the same as the #model_binary_options to ensure
+	 * appropriate fitting. However this can be changed with # for test purposes.
+	 */
+	LumiFit::LmdBinaryFitOptions data_binary_options;
 	unsigned int free_parameters_code;
 
 	int smearing_type;
@@ -55,20 +60,14 @@ private:
 
 	void initBinaryOptions(unsigned long bit_flag_options);
 
+	TString resolution_parametrization_file_url;
+
 public:
 	/**
-	 * Constructor
-	 * @param bit_flag_options is a integer number, which is represented a set of binary flags:
-	 *  bit 0: resolution smearing
-	 *  bit 1: acceptance correction
-	 *  bit 2: fit dimension
-	 *  bit 3: use t instead of theta
-	 *  bit 4: fitter type
-	 *  The highest number can therefore be 31 and the lowest 0 (higher numbers than 31 are regarded as 31).
-	 *
+
 	 *  @param smearing_type is a
 	 */
-	PndLmdLumiFitOptions(unsigned long bit_flag_options, int smearing_type_,
+	PndLmdLumiFitOptions(LumiFit::LmdBinaryFitOptions bit_flag_options, int smearing_type_,
 			int acc_intpol_type_);
 
 	/**
@@ -83,7 +82,7 @@ public:
 	 * @param phi_fit_range_low_ used as the new lower fit range for phi
 	 * @param phi_fit_range_high_ used as the new upper fit range for phi
 	 */
-	PndLmdLumiFitOptions(unsigned long bit_flag_options,
+	PndLmdLumiFitOptions(LumiFit::LmdBinaryFitOptions bit_flag_options,
 			unsigned int free_parameters_code_, int smearing_type_,
 			int acc_intpol_type_, double plab, double theta_fit_range_low_,
 			double theta_fit_range_high_, double phi_fit_range_low_ = -TMath::Pi(),
@@ -106,38 +105,22 @@ public:
 	 */
 	std::string getSmearingModelName() const;
 
-	/**
-	 * Get method for the fit dimension (1D or 2D)
-	 * @returns fit dimension (0 = 1d fit, 1 = 2d fit)
-	 */
-	bool getFitDimension() const;
-	/**
-	 * Get method for the fitter type (ROOT or ROOFIT)
-	 * @returns fitter type (0 = ROOT, 1 = ROOFIT)
-	 */
-	bool getFitterType() const;
-	/**
-	 * Checks if resolution smearing is on.
-	 * @returns true if smearing is on, false if off
-	 */
-	bool isSmearingOn() const;
-	/**
-	 * Checks if acceptance correction is on
-	 * @returns true if acceptance correction will be used, false otherwise
-	 */
-	bool isAcceptanceCorrOn() const;
-	/**
-	 * Checks if raw fit mode will be used
-	 * @returns true if t spectrum and function will be used instead of theta, false otherwise
-	 */
-	bool isFitRaw() const;
+
 
 	int getAcceptanceInterpolationType() const;
 	/**
-	 * Get method for the binary fit options
+	 * Get method for the model binary fit options
 	 * @returns integer format of the binary fit options
 	 */
-	unsigned long getBinaryOptions() const;
+	const LumiFit::LmdBinaryFitOptions& getModelBinaryOptions() const;
+	/**
+	 * Get method for the data binary fit options
+	 * @returns integer format of the binary fit options
+	 */
+	const LumiFit::LmdBinaryFitOptions& getDataBinaryOptions() const;
+
+	LumiFit::LmdBinaryFitOptions& getDataBinaryOptions();
+
 	/**
 	 * @returns the code for which parameter is free in the fit
 	 */
@@ -171,31 +154,7 @@ public:
 	void setAcceptanceInterpolationType(int acc_intpol_type_);
 
 	void setSmearingModelType(int smearing_type_);
-	/**
-	 * Setter method for switching between theta and t
-	 * @param use_raw_ specifies if raw (momentum transfer) should be used
-	 */
-	void setFitAsRaw(bool use_raw_);
-	/**
-	 * Setter method for the fit dimension (1D or 2D)
-	 * @param fit_dimension_ is the new fit dimension that will be used
-	 */
-	void setFitDimension(bool fit_dimension_);
-	/**
-	 * Setter method for the fitter type (ROOT or ROOFIT)
-	 * @param fitter_type_ is the new fit type that will be used
-	 */
-	void setFitterType(bool fitter_type_);
-	/**
-	 * Setter method for the smearing mode (0 disabled, 1 enabled)
-	 * @param with_smearing_ is the new fit dimension that will be used
-	 */
-	void setSmearingMode(bool with_smearing_);
-	/**
-	 * Setter method for the acceptance correction mode (0 disabled, 1 enabled)
-	 * @param with_acceptance_corr_ is the new fit dimension that will be used
-	 */
-	void setAcceptanceCorrMode(bool with_acceptance_corr_);
+
 	/**
 	 * This function will set the #free_parameters_code field. This code decides
 	 * which parameters will be set free in the fit later on.
@@ -203,7 +162,8 @@ public:
 	 */
 	void setFreeParametersOfModel(unsigned int free_parameters_code_);
 
-	void setThetaFitRange(const double fit_range_low_, const double fit_range_high_);
+	void setThetaFitRange(const double fit_range_low_,
+			const double fit_range_high_);
 
 	/**
 	 * Comparison operator. Will return true only if all fit options are equal in value.
@@ -220,6 +180,10 @@ public:
 			const PndLmdLumiFitOptions& fit_options);
 
 	TString makeName() const;
+
+	TString getResolutionParametrizationFileUrl() const;
+	void setResolutionParametrizationFileUrl(
+			TString resolution_parametrization_file_url_);
 
 ClassDef(PndLmdLumiFitOptions,1)
 };

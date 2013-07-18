@@ -134,12 +134,20 @@ void ModelParameterHandler::registerParametrizationModel(
 ParametrizationProxy ModelParameterHandler::getParametrizationProxyForModelParameter(
 		std::string name_) {
 	if (model_par_set.modelParameterExists(name_)) {
-		return parametrizations[model_par_set.getModelParameter(name_)];
+		if (parametrizations.find(model_par_set.getModelParameter(name_))
+				!= parametrizations.end()) {
+			return parametrizations[model_par_set.getModelParameter(name_)];
+		} else {
+			std::cout << "ERROR: The requested model parameter " << name_
+					<< " does not have a parametrization!" << std::endl;
+			ParametrizationProxy tempproxy;
+			return tempproxy;
+		}
 	} else {
 		std::cout << "ERROR: The requested model parameter " << name_
 				<< " does not exist!" << std::endl;
 		ParametrizationProxy tempproxy;
-	  return tempproxy;
+		return tempproxy;
 	}
 }
 

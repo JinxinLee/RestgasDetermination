@@ -52,7 +52,7 @@ public:
 
 	void setModelFitResult(ModelFitResult &fit_result);
 
-	bool checkFitOptions(PndLmdLumiFitOptions *fit_options_) const;
+	bool checkFitOptions(const PndLmdLumiFitOptions *fit_options_) const;
 
 	const PndLmdLumiFitOptions* getLumiFitOptions() const;
 

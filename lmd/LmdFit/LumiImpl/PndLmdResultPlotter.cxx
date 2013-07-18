@@ -255,8 +255,8 @@ void PndLmdResultPlotter::makeComparisonCanvas(TString name,
 
 std::pair<double, double> PndLmdResultPlotter::calulateLumiRelDiff(double lumi,
 		double lumi_err, double lumi_ref) {
-	return std::make_pair(100.0 * (lumi - lumi_ref) / lumi,
-			100.0 * lumi_err / lumi);
+	return std::make_pair(100.0 * (lumi - lumi_ref) / lumi_ref,
+			100.0 * lumi_err / lumi_ref);
 }
 
 double PndLmdResultPlotter::calculateYPos(double line, double text_toppos_,
@@ -278,7 +278,7 @@ std::pair<double, double> PndLmdResultPlotter::calculatePlotRange(
 		PndLmdDataInterface *data, const PndLmdLumiFitOptions *fit_options) {
 	double range_low;
 	double range_high;
-	if (fit_options->isFitRaw()) {
+	if (fit_options->getModelBinaryOptions().isFitRaw()) {
 		range_low = data->getTDimension().range_low;
 		range_high = data->getTDimension().range_high;
 		if (fit_options->getTFitRangeLow() > range_low)
@@ -383,23 +383,36 @@ std::vector<PndLmdResultPlotter::graph_bundle_1D> PndLmdResultPlotter::makeGraph
 			lmd_graph_bundle.data_hist = hist;
 			lmd_graph_bundle.model = model;
 
-			char cc[50];
-			sprintf(cc, "p_{lab} = %.1f GeV", lmd_graph_bundle.plab);
-			lmd_graph_bundle.labels.push_back(std::make_pair(TString(cc), 1));
-			sprintf(cc, "#chi^{2}/NDF = %.2f", fit_res[i]->getRedChiSquare());
-			lmd_graph_bundle.labels.push_back(std::make_pair(TString(cc), 1));
-			sprintf(cc, "lumi. diff. = %.2f #pm %.2f",
-					fit_res[i]->getLuminosity() - lumi_ref,
-					sqrt(pow(fit_res[i]->getLuminosityError(), 2.0) + pow(0.0, 2.0)));
-			lmd_graph_bundle.labels.push_back(std::make_pair(TString(cc), 1));
-			sprintf(
-					cc,
-					"lumi. rel. diff. = %.2f #pm %.2f %%",
-					calulateLumiRelDiff(fit_res[i]->getLuminosity(),
-							fit_res[i]->getLuminosityError(), lumi_ref).first,
-					calulateLumiRelDiff(fit_res[i]->getLuminosity(),
-							fit_res[i]->getLuminosityError(), lumi_ref).second);
-			lmd_graph_bundle.labels.push_back(std::make_pair(TString(cc), 2));
+			ostringstream strstream;
+			strstream.precision(2);
+
+			strstream << "p_{lab} = " << lmd_graph_bundle.plab << " GeV";
+			lmd_graph_bundle.labels.push_back(
+					std::make_pair(TString(strstream.str()), 1));
+			strstream.str("");
+
+			strstream << "#chi^{2}/NDF = " << fit_res[i]->getRedChiSquare();
+			lmd_graph_bundle.labels.push_back(
+					std::make_pair(TString(strstream.str()), 1));
+			strstream.str("");
+
+			strstream << "lumi. diff. = " << fit_res[i]->getLuminosity() - lumi_ref
+					<< " #pm "
+					<< sqrt(pow(fit_res[i]->getLuminosityError(), 2.0) + pow(0.0, 2.0));
+			lmd_graph_bundle.labels.push_back(
+					std::make_pair(TString(strstream.str()), 1));
+			strstream.str("");
+
+			strstream
+					<< "lumi. rel. diff. = "
+					<< calulateLumiRelDiff(fit_res[i]->getLuminosity(),
+							fit_res[i]->getLuminosityError(), lumi_ref).first
+					<< " #pm "
+					<< calulateLumiRelDiff(fit_res[i]->getLuminosity(),
+							fit_res[i]->getLuminosityError(), lumi_ref).second << " %";
+			lmd_graph_bundle.labels.push_back(
+					std::make_pair(TString(strstream.str()), 2));
+			strstream.str("");
 
 			return_vector.push_back(lmd_graph_bundle);
 		}
@@ -492,7 +505,7 @@ void PndLmdResultPlotter::fillSinglePad(TCanvas *c,
 		char ytitle[50];
 		hist->SetTitle("");
 
-		if (graph_bundle.fit_options->isFitRaw()) {
+		if (graph_bundle.fit_options->getModelBinaryOptions().isFitRaw()) {
 			if (theta_plot_range_low < theta_plot_range_high) {
 				hist->GetXaxis()->SetRangeUser(
 						-lumi_helper.getMomentumTransferFromTheta(graph_bundle.plab,
@@ -612,30 +625,41 @@ TCanvas* PndLmdResultPlotter::makeOverviewCanvas(
 
 	//draw raw fit first
 	for (unsigned int i = 0; i < graph_bundles.size(); i++) {
-		if (graph_bundles[i].fit_options->getBinaryOptions()
-				== fitop_tmctruth.getBinaryOptions()) {
+		if (graph_bundles[i].fit_options->getModelBinaryOptions().getBinaryOptions()
+				== fitop_tmctruth.getModelBinaryOptions().getBinaryOptions()) {
 			c->cd(1);
 			fillSinglePad(c, graph_bundles[i], 1);
-		} else if (graph_bundles[i].fit_options->getBinaryOptions()
-				== fitop_thmctruth.getBinaryOptions()) {
+		} else if (graph_bundles[i].fit_options->getModelBinaryOptions().getBinaryOptions()
+				== fitop_thmctruth.getModelBinaryOptions().getBinaryOptions()) {
 			c->cd(2);
 			fillSinglePad(c, graph_bundles[i], 1);
-		} else if (graph_bundles[i].fit_options->getBinaryOptions()
-				== fitop_mcacc.getBinaryOptions()) {
-			c->cd(3);
-			fillSinglePad(c, graph_bundles[i], 0);
-		} else if (graph_bundles[i].fit_options->getBinaryOptions()
-				== fitop_normal.getBinaryOptions()) {
-			c->cd(4);
+		} else if (graph_bundles[i].fit_options->getModelBinaryOptions().getBinaryOptions()
+				== fitop_mcacc.getModelBinaryOptions().getBinaryOptions()) {
+			std::cout
+					<< "data options: "
+					<< graph_bundles[i].fit_options->getDataBinaryOptions().getBinaryOptions()
+					<< std::endl;
+			if (graph_bundles[i].fit_options->getDataBinaryOptions().getBinaryOptions()
+					== fitop_mcacc.getModelBinaryOptions().getBinaryOptions()) {
+				c->cd(3);
+				fillSinglePad(c, graph_bundles[i], 0);
+			} else if (graph_bundles[i].fit_options->getDataBinaryOptions().getBinaryOptions()
+					== fitop_normal.getModelBinaryOptions().getBinaryOptions()) {
+				c->cd(4);
+				fillSinglePad(c, graph_bundles[i], 0);
+			}
+		} else if (graph_bundles[i].fit_options->getModelBinaryOptions().getBinaryOptions()
+				== fitop_normal.getModelBinaryOptions().getBinaryOptions()) {
+			c->cd(5);
 			fillSinglePad(c, graph_bundles[i], 0);
 		}
 	}
-	c->cd(5);
+	c->cd(6);
 	fillAcceptanceInPad(acc_bundle);
-	if (acc_bundle.is_angular) {
-		c->cd(6);
-		fill2DAcceptanceInPad(acc_bundle);
-	}
+	/*if (acc_bundle.is_angular) {
+	 c->cd(6);
+	 fill2DAcceptanceInPad(acc_bundle);
+	 }*/
 	return c;
 }
 
@@ -698,11 +722,11 @@ void PndLmdResultPlotter::makeResolutionSummaryPlots(TFile *f) {
 
 	for (std::map<TString, std::vector<PndLmdLumiHelper::lmd_graph*> >::const_iterator it =
 			graphs.begin(); it != graphs.end(); it++) {
-			std::cout << it->first << std::endl;
-			for (unsigned int i = 0; i < it->second.size(); i++) {
-				std::cout << i << " " << it->second[i]->fit_result << std::endl;
-			}
+		std::cout << it->first << std::endl;
+		for (unsigned int i = 0; i < it->second.size(); i++) {
+			std::cout << i << " " << it->second[i]->fit_result << std::endl;
 		}
+	}
 
 	for (std::map<TString, std::vector<PndLmdLumiHelper::lmd_graph*> >::const_iterator it =
 			graphs.begin(); it != graphs.end(); it++) {
@@ -810,7 +834,7 @@ void PndLmdResultPlotter::makeResolutionBooky(
 
 		TCanvas c("res_overview", "res_overview", 1000, 700);
 		c.Divide(4, 3);
-		unsigned int stepsize = 3;
+		unsigned int stepsize = 1;
 		c.Print(filename + "_overview_" + TString(it->first) + ".pdf["); // No actual print, just open file
 		for (unsigned int i = 0; i < graph_bundles.size(); i = i + stepsize) {
 			c.cd(i / stepsize % 12 + 1);

@@ -54,59 +54,18 @@ void PndLmdData::setReferenceLuminosity(double luminosity_ref_) {
 }
 
 double PndLmdData::getBinningFactor(const PndLmdLumiFitOptions *fit_opt) const {
-	if (fit_opt->isFitRaw())
+	if (fit_opt->getModelBinaryOptions().isFitRaw())
 		return t_dimension.bin_size;
 	double bin_factor = th_dimension.bin_size;
-	if (fit_opt->getFitDimension())
+	if (fit_opt->getModelBinaryOptions().getFitDimension())
 		bin_factor *= phi_dimension.bin_size;
 	return bin_factor;
 }
 
-/*void PndLmdData::makeCorrectedGraph(TF1 *func, TH1D* hist) {
- ROOT::Math::WrappedTF1 wf1(*func);
-
- // Create the Integrator
- ROOT::Math::GSLIntegrator ig(ROOT::Math::IntegrationOneDim::kADAPTIVE);
-
- // Set parameters of the integration
- ig.SetFunction(wf1);
- ig.SetRelTolerance(0.001);
-
- TH1D* temp = new TH1D("corrected", "corrected", getThBins(), th_dimension.range_low, th_dimension.range_high);
- for(int i = 0; i < hist->GetXaxis()->GetNbins(); i++) {
- double xlow = hist->GetBinLowEdge(i);
- double xhigh = xlow+hist->GetBinWidth(i);
-
- double int_func_real = ig.Integral(xlow, xhigh);
- double int_func_approx = func->Eval(hist->GetBinCenter(i))*(xhigh-xlow);
-
- double scale = 0.0;
- if(int_func_approx > 0.0) {
- scale = int_func_approx/int_func_real;
- std::cout<<int_func_approx<<" "<<int_func_real<<std::endl;
- }
- temp->Fill(hist->GetBinCenter(i), hist->GetBinContent(i)*scale);
- }
-
- TCanvas *asdf = new TCanvas("asdf", "asdf", 1000, 700);
- asdf->Divide(2,2);
- asdf->cd(1);
- temp->Draw();
- asdf->cd(2);
- hist->Draw();
- asdf->cd(3);
- TH1D* diff = new TH1D(*temp);
- diff->Add(hist, -1.0);
- diff->Draw();
- asdf->Update();
- asdf->SaveAs("testdiff.pdf");
- hist = temp;
- }*/
-
 std::pair<double, double> PndLmdData::calcRange(
-		PndLmdLumiFitOptions *fit_options) {
+		const PndLmdLumiFitOptions *fit_options) {
 	double range_low, range_high;
-	if (fit_options->isFitRaw()) {
+	if (fit_options->getModelBinaryOptions().isFitRaw()) {
 		range_low = t_dimension.range_low;
 		range_high = t_dimension.range_high;
 		if (fit_options->getTFitRangeLow() > t_dimension.range_low)
@@ -125,7 +84,7 @@ std::pair<double, double> PndLmdData::calcRange(
 }
 
 PndLmdLumiFitResult* PndLmdData::Fit(PndLmdAcceptance *lmd_acc,
-		PndLmdLumiFitOptions *fit_options) {
+	const PndLmdLumiFitOptions *fit_options) {
 
 	std::cout << "Attempting to perform fit with following fit options:"
 			<< std::endl;
@@ -144,7 +103,7 @@ PndLmdLumiFitResult* PndLmdData::Fit(PndLmdAcceptance *lmd_acc,
 
 	PndLmdLumiFitResult *fit_result;
 
-	if (fit_options->getFitterType() == 0) { // if user wants to use ROOT/Minuit
+	if (fit_options->getModelBinaryOptions().getFitterType() == 0) { // if user wants to use ROOT/Minuit
 		// create a new model via the factory
 		shared_ptr<Model1D> model1d = signal_model_fac.generate1DModel(fit_options,
 				getLabMomentum(), lmd_acc);
@@ -164,7 +123,7 @@ PndLmdLumiFitResult* PndLmdData::Fit(PndLmdAcceptance *lmd_acc,
 		std::pair<double, double> fit_range = std::make_pair(
 				fit_options->getThetaFitRangeLow(),
 				fit_options->getThetaFitRangeHigh());
-		if (fit_options->isFitRaw())
+		if (fit_options->getModelBinaryOptions().isFitRaw())
 			fit_range = std::make_pair(fit_options->getTFitRangeLow(),
 					fit_options->getTFitRangeHigh());
 
@@ -205,8 +164,9 @@ PndLmdLumiFitResult* PndLmdData::Fit(PndLmdAcceptance *lmd_acc,
 
 		ModelFitResult temp_fit_result = fitter.createModelFitResult();
 		temp_fit_result.setFitStatus(fit_status);
-	  // in case we have a likelihood we have to create a new chi2 estimator...
-		temp_fit_result.setChiSquare(chi2_est.evaluate(fitter.getROOTMinimizer()->X()));
+		// in case we have a likelihood we have to create a new chi2 estimator...
+		temp_fit_result.setChiSquare(
+				chi2_est.evaluate(fitter.getROOTMinimizer()->X()));
 		temp_fit_result.setNDF(
 				chi2_est.getData()->getNumberOfDataPoints()
 						- fitter.getROOTMinimizer()->NFree());
@@ -223,9 +183,9 @@ PndLmdLumiFitResult* PndLmdData::Fit(PndLmdAcceptance *lmd_acc,
 
 TH1D* PndLmdData::getMeasuredHist1D(
 		const PndLmdLumiFitOptions *fit_options) const {
-	if (fit_options->isFitRaw()) {
-		if (fit_options->isSmearingOn()) {
-			if (fit_options->isAcceptanceCorrOn()) {
+	if (fit_options->getDataBinaryOptions().isFitRaw()) {
+		if (fit_options->getDataBinaryOptions().isSmearingOn()) {
+			if (fit_options->getDataBinaryOptions().isAcceptanceCorrOn()) {
 				return t_reco_1d;
 			} else {
 				std::cout
@@ -236,15 +196,15 @@ TH1D* PndLmdData::getMeasuredHist1D(
 				return t_reco_1d;
 			}
 		} else {
-			if (fit_options->isAcceptanceCorrOn()) {
+			if (fit_options->getDataBinaryOptions().isAcceptanceCorrOn()) {
 				return t_mc_acc_1d;
 			} else {
 				return t_mc_1d;
 			}
 		}
 	} else {
-		if (fit_options->isSmearingOn()) {
-			if (fit_options->isAcceptanceCorrOn()) {
+		if (fit_options->getDataBinaryOptions().isSmearingOn()) {
+			if (fit_options->getDataBinaryOptions().isAcceptanceCorrOn()) {
 				return reco_1d;
 			} else {
 				std::cout
@@ -255,7 +215,7 @@ TH1D* PndLmdData::getMeasuredHist1D(
 				return reco_1d;
 			}
 		} else {
-			if (fit_options->isAcceptanceCorrOn()) {
+			if (fit_options->getDataBinaryOptions().isAcceptanceCorrOn()) {
 				return mc_acc_1d;
 			} else {
 				return mc_1d;
@@ -266,8 +226,8 @@ TH1D* PndLmdData::getMeasuredHist1D(
 
 TH2D* PndLmdData::getMeasuredHist2D(
 		const PndLmdLumiFitOptions *fit_options) const {
-	if (fit_options->isSmearingOn()) {
-		if (fit_options->isAcceptanceCorrOn()) {
+	if (fit_options->getDataBinaryOptions().isSmearingOn()) {
+		if (fit_options->getDataBinaryOptions().isAcceptanceCorrOn()) {
 			return reco_2d;
 		} else {
 			std::cout
@@ -278,7 +238,7 @@ TH2D* PndLmdData::getMeasuredHist2D(
 			return reco_2d;
 		}
 	} else {
-		if (fit_options->isAcceptanceCorrOn()) {
+		if (fit_options->getDataBinaryOptions().isAcceptanceCorrOn()) {
 			return mc_acc_2d;
 		} else {
 			return mc_2d;

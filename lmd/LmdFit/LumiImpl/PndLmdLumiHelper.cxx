@@ -41,7 +41,6 @@
 #include "PndSdsMCPoint.h"
 #include "PndTrack.h"
 
-
 PndLmdLumiHelper::PndLmdLumiHelper() {
 	pdg = TDatabasePDG::Instance();
 }
@@ -731,7 +730,8 @@ std::vector<PndLmdLumiHelper::lmd_graph*> PndLmdLumiHelper::filterLmdGraphs(
 			return_vec.push_back(util_lmd_graphs[i]);
 		}
 	}
-	std::cout << return_vec.size() << std::endl;
+	std::cout << "shrunk from " << util_lmd_graphs.size() << " to "
+			<< return_vec.size() << std::endl;
 	return return_vec;
 }
 
@@ -999,28 +999,40 @@ std::map<double, ModelFitResult*> PndLmdLumiHelper::checkFitParameters(
 	return return_map;
 }
 
-int PndLmdLumiHelper::initResolutionParametrizationFromFile(TFile *f, shared_ptr<Model> resolution_model) {
+int PndLmdLumiHelper::initResolutionParametrizationFromFile(TFile *f,
+		shared_ptr<Model> resolution_model) {
 	// TODO: atm this only works for the 1D case
-	std::vector<PndLmdLumiHelper::lmd_graph*> graphs = getResolutionModelResultsFromFile(f);
-	graphs = filterLmdGraphs(graphs, "theta");
+	std::vector<PndLmdLumiHelper::lmd_graph*> allgraphs =
+			getResolutionModelResultsFromFile(f);
+	std::vector<PndLmdLumiHelper::lmd_graph*> graphs = filterLmdGraphs(allgraphs,
+			"theta");
 
-	for(unsigned int i = 0; graphs.size(); i++) {
-	// get the model that we have to fit to the data
+	for (unsigned int i = 0; i < graphs.size(); i++) {
+		shared_ptr<Model> temp_resolution_param_model = resolution_model;
+		bool model_retrieve_success = true;
+		// get the model that we have to fit to the data
 		for (std::map<unsigned int, std::pair<std::string, std::string> >::const_iterator parameter_name =
 				graphs[i]->parameter_name_stack.begin();
-				parameter_name != graphs[i]->parameter_name_stack.end(); parameter_name++) {
+				parameter_name != graphs[i]->parameter_name_stack.end();
+				parameter_name++) {
 			ParametrizationProxy par_proxy =
-					resolution_model->getModelParameterHandler().getParametrizationProxyForModelParameter(
+					temp_resolution_param_model->getModelParameterHandler().getParametrizationProxyForModelParameter(
 							parameter_name->second.second);
 			if (par_proxy.hasParametrizationModel()) {
-				resolution_model = par_proxy.getParametrizationModel()->getModel();
+				temp_resolution_param_model =
+						par_proxy.getParametrizationModel()->getModel();
 			} else {
 				std::cout
 						<< "ERROR: Not able to obtain parametrization model for parameter "
 						<< parameter_name->second.second << "!" << std::endl;
+				model_retrieve_success = false;
+				break;
 			}
 		}
-		resolution_model->getModelParameterHandler().initModelParametersFromFitResult(*graphs[i]->fit_result);
+		if (model_retrieve_success) {
+			resolution_model->getModelParameterHandler().initModelParametersFromFitResult(
+					*graphs[i]->fit_result);
+		}
 	}
 	return 0;
 }
