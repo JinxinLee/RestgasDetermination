@@ -27,7 +27,7 @@ void makeLumiFitPlots(TString path) {
   timer.Start();
   // ------------------------------------------------------------------------
 
-  gROOT->Macro("$VMCWORKDIR/gconfig/rootlogon.C");
+  //gROOT->Macro("$VMCWORKDIR/gconfig/rootlogon.C");
   gSystem->Load("libLmdFit");
 
 
@@ -44,15 +44,15 @@ void makeLumiFitPlots(TString path) {
 
   // overwrite the default theta plot range if possible (if its larger than the max
   // plot range then it has no effect)
-  plotter.setThetaPlotRange(1.0, 18.0);
+  plotter.setThetaPlotRange(0.5, 16.0);
 
   // The plotter has more options for text positioning and tex sizes for which you can
   // overwrite the default values here
-  //plotter.setTextLeftPos(0.20);
+  //plotter.setTextLeftPos(0.55);
   //plotter.setTextTopPos(0.98);
   //plotter.setTextSpacing(0.08);
-  //plotter.setTextSize(0.05);
-  //plotter.setLabelSize(0.05);
+  //plotter.setTextSize(0.06);
+  //plotter.setLabelSize(0.06);
 
   //plotter.setLabelOffsetX(0.007);
   //plotter.setLabelOffsetY(0.007);
@@ -84,6 +84,14 @@ void makeLumiFitPlots(TString path) {
       TCanvas *c = plotter.makeOverviewCanvas(graph_bundles, acc_bundle);
       // create a pdf
       c->SaveAs("fitresults_overview.pdf");
+
+      gStyle->SetPadLeftMargin(0.13);
+      gStyle->SetPadRightMargin(0.03);
+      plotter.setTitleOffsetY(1.13);
+
+      TCanvas *seperate = new TCanvas("canvas", "", 1000, 700);
+      plotter.fillSinglePad(seperate, graph_bundles[4], false, false);
+      seperate->SaveAs("fitresults_reco.root");
     }
   }
   // ================================ END PLOTTING ================================ //

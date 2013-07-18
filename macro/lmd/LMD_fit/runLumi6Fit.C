@@ -16,6 +16,7 @@
  * step2: create fit options that specify every detail about the fit
  * step3: perform the fit and store the results
  */
+
 void runLumi6Fit(TString input_file_dir, const double mom, int nEvents = -1,
 		TString acceptance_file_dir = "", const double generated_luminosity_per_event = -1.0,
 		const int verboseLevel = 0) {
@@ -62,9 +63,9 @@ void runLumi6Fit(TString input_file_dir, const double mom, int nEvents = -1,
   // binning is actually created...
   for (int i = 10; i < 11; i = i + 1) {
     // create data object and push it into the vector
-		PndLmdData *data = new PndLmdData(f, nEvents, mom, i * 10, 50, data_range_low,
-				data_range_high, -TMath::Pi(), TMath::Pi(), generated_luminosity_per_event);
-    // sry about this nasty constructor... 
+    PndLmdFit::lmd_dimension theta(i * 10, data_range_low, data_range_high); // theta dimension
+    PndLmdFit::lmd_dimension phi(50, -TMath::Pi(), TMath::Pi()); // phi dimension
+		PndLmdData *data = new PndLmdData(f, nEvents, mom, theta, phi, generated_luminosity_per_event);
 		my_lmd_data_vec.push_back(data);
 	}
 
@@ -73,9 +74,11 @@ void runLumi6Fit(TString input_file_dir, const double mom, int nEvents = -1,
 	std::vector<PndLmdAcceptance*> my_lmd_acc_vec;
 
 	for (int i = 10; i < 11; i = i + 1) {
-		PndLmdAcceptance *acc1 = new PndLmdAcceptance(f, nEvents, mom, i * 10, 50, data_range_low,
-				data_range_high, -TMath::Pi(), TMath::Pi(), 0);
-		my_lmd_acc_vec.push_back(acc1);
+    PndLmdFit::lmd_dimension theta(i * 20, data_range_low, data_range_high); // theta dimension
+    PndLmdFit::lmd_dimension phi(50, -TMath::Pi(), TMath::Pi()); // phi dimension
+
+		PndLmdAcceptance *acc = new PndLmdAcceptance(f, nEvents, mom, theta, phi, 0);
+		my_lmd_acc_vec.push_back(acc);
 	}
 
 	//register data objects in helper instance 
@@ -83,10 +86,10 @@ void runLumi6Fit(TString input_file_dir, const double mom, int nEvents = -1,
 	lumifit_helper.registerAcceptances(my_lmd_acc_vec);
 
 	// fill all elastic scattering histograms that are registered in the gamma helper object
- 	lumifit_helper.fillHists(mom, input_file_dir, false, PndLmdLumiHelper::FULL);
+ 	lumifit_helper.fillData(mom, input_file_dir, PndLmdLumiHelper::DATA, PndLmdLumiHelper::FULL);
 	// fill all box gen histograms (for acceptance) that are registered in the gamma helper object
-	// note: 3rd argument (true) identifies this data as box gen data
-	lumifit_helper.fillHists(mom, acceptance_file_dir, true, PndLmdLumiHelper::FULL);
+	// note: 3rd argument identifies specifies which kind of data is being read in
+  lumifit_helper.fillData(mom, acceptance_file_dir, PndLmdLumiHelper::ACCEPTANCE, PndLmdLumiHelper::FULL);
   
   // =============================== END STEP 1 =============================== //
   
@@ -115,7 +118,8 @@ void runLumi6Fit(TString input_file_dir, const double mom, int nEvents = -1,
    * -> 1 * 2^0 + 0 * 2^1 + 1 * 2^2 = 5
    * ))
 	 * param 3: smearing_type_ specifies which model is used for the smearing (0 = gaussian, 1 = double gaussian)
-	 * param 4: acc_intpol_type_ specifies the interpolation type of the acceptance (D
+	 * param 4: acc_intpol_type_ specifies the interpolation type of the acceptance (0 =
+   * constant, 1 = linear-spline, 2 = cubic-spline)
 	 * param 5: plab
 	 * param 6: theta_fit_range_low_ used as the new lower fit range for theta
 	 * param 7: theta_fit_range_high_ used as the new upper fit range for theta
@@ -123,19 +127,44 @@ void runLumi6Fit(TString input_file_dir, const double mom, int nEvents = -1,
 	 * param 9: phi_fit_range_high_ used as the new upper fit range for phi <-- optional
    */
   std::vector<PndLmdLumiFitOptions*> fit_options_vec;
+  PndLmdLumiFitOptions *temp_fit_opt;
+
+  double fit_range_low = 4.0;
+  double fit_range_high = 8.0;
+
+  TString resolution_parametrization_file_url = acceptance_file_dir + "/resolution_params_1.root";
   for (double fit_range_low = 1.0; fit_range_low < 1.1; fit_range_low += 0.2) {
-    fit_options_vec.push_back(
-        new PndLmdLumiFitOptions(8, 1, 0, 1, mom, data_range_low,
-          data_range_high));
-    fit_options_vec.push_back(
-        new PndLmdLumiFitOptions(0, 1, 0, 1, mom, data_range_low,
-          data_range_high));
-    fit_options_vec.push_back(
-        new PndLmdLumiFitOptions(2, 1, 0, 1, mom, data_range_low,
-          data_range_high));
-    fit_options_vec.push_back(
-        new PndLmdLumiFitOptions(3, 1, 0, 1, mom, data_range_low,
-          data_range_high));
+    LumiFit::LmdBinaryFitOptions bit_fit_opt(0);
+    bit_fit_opt.setFitAsRaw(true);
+    temp_fit_opt = new PndLmdLumiFitOptions(bit_fit_opt, 0, 0, 1, mom, fit_range_low,
+          fit_range_high);
+    temp_fit_opt->setResolutionParametrizationFileUrl(resolution_parametrization_file_url);
+    fit_options_vec.push_back(temp_fit_opt);
+
+    bit_fit_opt.setFitAsRaw(false);
+    temp_fit_opt = new PndLmdLumiFitOptions(bit_fit_opt, 0, 0, 1, mom, fit_range_low,
+          fit_range_high);
+    temp_fit_opt->setResolutionParametrizationFileUrl(resolution_parametrization_file_url);
+    fit_options_vec.push_back(temp_fit_opt);
+
+    bit_fit_opt.setAcceptanceCorrMode(true);
+    temp_fit_opt = new PndLmdLumiFitOptions(bit_fit_opt, 0, 0, 1, mom, fit_range_low,
+          fit_range_high);
+    temp_fit_opt->setResolutionParametrizationFileUrl(resolution_parametrization_file_url);
+    fit_options_vec.push_back(temp_fit_opt);
+
+    temp_fit_opt = new PndLmdLumiFitOptions(bit_fit_opt, 0, 0, 1, mom, fit_range_low,
+          fit_range_high);
+    temp_fit_opt->setResolutionParametrizationFileUrl(resolution_parametrization_file_url);
+    temp_fit_opt->getDataBinaryOptions().setSmearingMode(true);
+    fit_options_vec.push_back(temp_fit_opt);
+    std::cout<<temp_fit_opt->getDataBinaryOptions().getBinaryOptions()<<std::endl;
+
+    bit_fit_opt.setSmearingMode(true);
+    temp_fit_opt = new PndLmdLumiFitOptions(bit_fit_opt, 0, 0, 1, mom, fit_range_low,
+          fit_range_high);
+    temp_fit_opt->setResolutionParametrizationFileUrl(resolution_parametrization_file_url);
+    fit_options_vec.push_back(temp_fit_opt);
   }
 
   // =============================== END STEP 2 =============================== //
