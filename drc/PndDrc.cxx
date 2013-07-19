@@ -147,8 +147,7 @@ PndDrc::PndDrc()
     fSenId1(0), 
     fSenId2(0), 
     fSenIdBar(0)
-
-{  
+{
   fListOfSensitives.push_back("Sensor");
   if(fVerboseLevel > 0){
     std::cout<<"-I- PndBarrelDIRC: fListOfSensitives contains:";
@@ -165,9 +164,6 @@ PndDrc::PndDrc()
   if ( fGeoH == NULL )
     fGeoH = PndGeoHandling::Instance();
 }
-// -------------------------------------------------------------------------
-
-
 
 // -----   Standard constructor   ------------------------------------------
 PndDrc::PndDrc(const char* name, Bool_t active)
@@ -255,7 +251,6 @@ PndDrc::PndDrc(const char* name, Bool_t active)
     fSenId2(0), 
     fSenIdBar(0)      
 {
-    
     fListOfSensitives.push_back("Sensor");
     if(fVerboseLevel > 0){
       std::cout<<"-I- PndBarrelDIRC: fListOfSensitives contains:";
@@ -274,9 +269,6 @@ PndDrc::PndDrc(const char* name, Bool_t active)
     fGeoH = PndGeoHandling::Instance();
   
 }
-// -------------------------------------------------------------------------
-
-
 
 // -----   Destructor   ----------------------------------------------------
 PndDrc::~PndDrc() {
@@ -300,9 +292,6 @@ PndDrc::~PndDrc() {
   if (fGeo) delete fGeo;
   
 }
-// -------------------------------------------------------------------------
-
-
 
 // -----   Public method Intialize   ---------------------------------------
 void PndDrc::Initialize() {
@@ -901,7 +890,6 @@ void PndDrc::Initialize() {
     fEfficiency[499]=0.68;
     fEfficiency[500]=0.73;
     
-    //fLambda[1000];
     for(Int_t i=0; i<1000; i++){
       fLambda[i] = i;
     }
@@ -918,7 +906,6 @@ void PndDrc::Initialize() {
 	    // total detector efficiency
 	    fEfficiencyR[iBin]=fEfficiency[iBin-200]/100.*fCollectionEff*fPackingFraction;
 	  }
-        //      cout << "efficiency is " << fEfficiency[iBin] << " at " << fLambdaMin+iBin<<endl;
       }   
   
     fDetEff = new TGraph(1000, fLambda,fEfficiencyR);    
@@ -929,8 +916,7 @@ void PndDrc::Initialize() {
 }
 
 // -------------------------------------------------------------------------
-void PndDrc::BeginEvent(){
-  
+void PndDrc::BeginEvent() {
   if (fVerboseLevel >0) cout<<" \n\n>>>>>>>>>>>>>>>>>>>>new event in the Barrel DIRC" <<endl;
   fEventID++;
 }
@@ -939,17 +925,14 @@ void PndDrc::BeginEvent(){
 Bool_t PndDrc::ProcessHits(FairVolume* vol) {
    
   TString nam =vol->GetName();
-  //cout<<"-I- PndDrc: vol nam = "<<nam<<endl;
   Int_t num = vol->getMCid();
        
-   //Register points in the barrel (PndDrcBarPoints)
   fEventID = gMC->CurrentEvent();
   fPdgCode = gMC->TrackPid();
      
   //TLorentzVector fPos, fMom;
   gMC->TrackPosition(fPos);
   
-  //$$$$$$$$$$$$$$$$$$$$$$
   //stop secondaries so that they do not produce Cherenkov photons
   if(fStopSecondaries){
     if(fPdgCode != 50000050){
@@ -960,25 +943,23 @@ Bool_t PndDrc::ProcessHits(FairVolume* vol) {
       }  
     }
   }
-  
+
   // stop the track after the DIRC in radius:
   if(fStopChargedTrackAfterDIRC){
     if(fPdgCode != 50000050 && gMC->IsTrackExiting()==1 && num == fbarID){
-        cout<<"track is exiting the bar!!!"<<endl;
-        gMC->StopTrack();
+      cout<<"track is exiting the bar!!!"<<endl;
+      gMC->StopTrack();
     }
   }
-  //$$$$$$$$$$$$$$$$$$$$$$ 
   
-    
-  if (fPdgCode == 50000050){  
+  if (fPdgCode == 50000050){
     if (fRunCherenkov==kFALSE ) {
       gMC->StopTrack();
       if (fVerboseLevel >0) cout<< "Photon killed" << endl;
     }  
           
     // apply detector efficiency at the production stage:    
-    if(fDetEffAtProduction && fLastTrackID != gMC->GetStack()->GetCurrentTrackNumber()){       
+    if(fDetEffAtProduction && fLastTrackID != gMC->GetStack()->GetCurrentTrackNumber()){
       gMC->TrackMomentum(fMom1);
       Double_t Px= fMom1.Px();
       Double_t Py= fMom1.Py();
@@ -986,22 +967,14 @@ Bool_t PndDrc::ProcessHits(FairVolume* vol) {
       Double_t fP = sqrt(Px*Px + Py*Py +Pz*Pz);
       Double_t lambda=197.0*2.0*fpi/(fP*1.0E9);          
       Double_t ra = frand.Uniform(0., 1.);
-      //cout<<"-I- PndDrc: DET EFF IS APPLIED!!! lam = "<<lambda<<", eff = "<<fDetEff->Eval(lambda)<<", random = "<<ra<<endl;
       if(ra > fDetEff->Eval(lambda)){ 
-        //cout<<"track "<<gMC->GetStack()->GetCurrentTrackNumber()<<" is stopped"<<endl;              
         gMC->StopTrack();	
-      }
-      
-      else{
+      }else{
         nphotons = nphotons + 1;
-        //cout<<"photon number "<<nphotons<<" is produced!!! from track "<<gMC->GetStack()->GetCurrentTrackNumber()<<endl;
       }
-      
     }
     
-    //$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
-    // apply transport efficiency at production stage:
-    // Maria Patsyuk 20.04.2012
+    // apply transport efficiency at production stage (Maria Patsyuk 20.04.2012):
     if(fTransportEffAtProduction && fLastTrackID != gMC->GetStack()->GetCurrentTrackNumber()){
       gMC->TrackMomentum(fMom2);
       // initial momentum of the photon
@@ -1036,52 +1009,33 @@ Bool_t PndDrc::ProcessHits(FairVolume* vol) {
         gMC->StopTrack();	
       }
     }
-    //$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
-        
-	
-/*	
-       //$$$$$$$$$$$$$$$$$$$$$$$$$$$
-       // counting photons:
-       //if(gMC->IsTrackEntering()==1 && num == fbarID && fLastTrackID != gMC->GetStack()->GetCurrentTrackNumber()){ 
-       
-       if(gMC->IsTrackEntering()==1 && num == fbarID){// check how many photons were born 
-       
-       //if(gMC->IsTrackExiting()==1 && num == fbarID && fPos.Z() < -118.5){ //check how many photons reach the read out bar end
-       
-       //if(gMC->IsTrackEntering()==1 && num == fevID && fPos.Z() > -121.){ // check how many photons enter the EV
-       
-       //if(gMC->IsTrackExiting()==1 && num == fevID && fPos.Z() < -150.){ //check how many photons reach the back side of the EV
-       
-       //if(nam.BeginsWith("DrcMcpGrease") && fPos.Z() < -150.05){ // check how many photons are in the middle of grease
-       
-       //if(nam.BeginsWith("DrcPDwindow") && fPos.Z() < -150.15){  // check how many photons are in the middle of the window
-       
-       //if(nam.BeginsWith("DrcPhCathodeSensor")){ // check how many photons are entering the photocathode
-       
-       //if(gMC->IsTrackEntering()==1 && num == fpdID){ // check how many photons get detected
-        nphotons = nphotons + 1;	
-        cout<<"photon number "<<nphotons<<" is produced!!! from track "<<gMC->GetStack()->GetCurrentTrackNumber()<<endl;
-	gMC->StopTrack();
-       }
-*/               
-      //cout<<"photon z coord = "<<fPos.Z()<<endl;      
-      
-      /*      
-      if(fPdgCode == 50000050 && gMC->IsTrackEntering()==1 && num == fevID){
-        gMC->TrackMomentum(fMom1);
-	gMC->TrackPosition(fPos1);
-        cout<<"X, Y, Z: "<<fPos1.X()<<", "<<fPos1.Y()<<", "<<fPos1.Z()<<"; Kx, Ky, Kz: "<<fMom1.Px()*1e+9<<", "<<fMom1.Py()*1e+9<<", "<<fMom1.Pz()*1e+9<<endl;
-      }*/
-      //$$$$$$$$$$$$$$$$$$$$$$$$$$$ 
+        		
+    // // counting photons:
+    // //if(gMC->IsTrackEntering()==1 && num == fbarID && fLastTrackID != gMC->GetStack()->GetCurrentTrackNumber()){      
+    // if(gMC->IsTrackEntering()==1 && num == fbarID){// check how many photons were born      
+    // //if(gMC->IsTrackExiting()==1 && num == fbarID && fPos.Z() < -118.5){ //check how many photons reach the read out bar end     
+    // //if(gMC->IsTrackEntering()==1 && num == fevID && fPos.Z() > -121.){ // check how many photons enter the EV    
+    // //if(gMC->IsTrackExiting()==1 && num == fevID && fPos.Z() < -150.){ //check how many photons reach the back side of the EV     
+    // //if(nam.BeginsWith("DrcMcpGrease") && fPos.Z() < -150.05){ // check how many photons are in the middle of grease    
+    // //if(nam.BeginsWith("DrcPDwindow") && fPos.Z() < -150.15){  // check how many photons are in the middle of the window   
+    // //if(nam.BeginsWith("DrcPhCathodeSensor")){ // check how many photons are entering the photocathode   
+    // //if(gMC->IsTrackEntering()==1 && num == fpdID){ // check how many photons get detected
+    //  nphotons = nphotons + 1;	
+    //  cout<<"photon number "<<nphotons<<" is produced!!! from track "<<gMC->GetStack()->GetCurrentTrackNumber()<<endl;
+    // 	gMC->StopTrack();
+    // }    
+    //cout<<"photon z coord = "<<fPos.Z()<<endl;              
+    // if(fPdgCode == 50000050 && gMC->IsTrackEntering()==1 && num == fevID){
+    //   gMC->TrackMomentum(fMom1);
+    // 	gMC->TrackPosition(fPos1);
+    //   cout<<"X, Y, Z: "<<fPos1.X()<<", "<<fPos1.Y()<<", "<<fPos1.Z()<<"; Kx, Ky, Kz: "<<fMom1.Px()*1e+9<<", "<<fMom1.Py()*1e+9<<", "<<fMom1.Pz()*1e+9<<endl;
+    // }
     
    
-    // "TakeOnlyDirectPho" option:
-    // if photon is exiting the bar - check its direction
+    // "TakeOnlyDirectPho" option: if photon is exiting the bar - check its direction
     if(fTakeDirect){  
       if(gMC->IsTrackExiting()==1){        
         if(num == flens3ID && fPos.Z() < fBarEnd){
-	  //cout<<"fBarEnd = "<<fBarEnd<<endl;
-	  //std::cout<<"Track is exiting the "<<num<<", "<<nam<<std::endl;
 	  gMC->TrackPosition(fPos);
 	  gMC->TrackMomentum(fMom);
 	  if ((fPos.X()*fMom.X() + fPos.Y()*fMom.Y()) < 0.){
@@ -1090,12 +1044,11 @@ Bool_t PndDrc::ProcessHits(FairVolume* vol) {
 	}
       }
     }
-    // "TakeOnlyReflectedPho" option:
-    // if photon is exiting the bar - check its direction
-   if(fTakeReflected){  
+
+    // "TakeOnlyReflectedPho" option: if photon is exiting the bar - check its direction
+    if(fTakeReflected){  
       if(gMC->IsTrackExiting()==1){        
         if(num == flens3ID && fPos.Z() < fBarEnd){
-	  //std::cout<<"Track is exiting the "<<num<<", "<<nam<<std::endl;
 	  gMC->TrackPosition(fPos);
 	  gMC->TrackMomentum(fMom);
 	  if ((fPos.X()*fMom.X() + fPos.Y()*fMom.Y()) > 0.){
@@ -1110,135 +1063,99 @@ Bool_t PndDrc::ProcessHits(FairVolume* vol) {
    }  
       
    if(gMC->IsTrackEntering()==1 && num == fevID && fLastTrackID != gMC->GetStack()->GetCurrentTrackNumber()){     
-     //cout<<"-I- TRACK "<< gMC->GetStack()->GetCurrentTrackNumber()<<" IS ENTERING THE EV"<<endl;
      gMC->TrackMomentum(fMomAtEV); 
-     //cout<<"-I- TRACK Z POSITION = "<<    fPos.Z()<<endl;
    }
    
-   // check reflections inside the EV and PD = tagging surfaces:
-   //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-   /*//if(nam.BeginsWith("DrcEVSensor")) {        
-     if(nam.BeginsWith("DrcEVSensor")) {
-       Int_t nproc = gMC->StepProcesses(fProc);
-       cout<<"-I- PndDrc: "<<endl;
-       for(Int_t i=0; i<nproc; i++){
-         cout<<"track "<<gMC->GetStack()->GetCurrentTrackNumber()
-	    <<" in volume "<<gMC->CurrentVolPath()
-            <<": position ("<<fPos.X()<<", "<<fPos.Y()<<", "<<fPos.Z()<<"),"<<i<<" - "<<fProc[i]
-            <<", "<<TMCProcessName[fProc[i]]<<endl;	   
-//         if(fProc[i] == 39 && fPos.Z() > -150.05){  // 39 = kPCherenkovPhotonReflection [on the wall of EV]	   
-//	   if(fLastTrackID == gMC->GetStack()->GetCurrentTrackNumber()){
-	     
-//	   }
-//         }	
-       }
-      cout<<" current vol name = "<<gMC->CurrentVolName()<<endl;
-     }                 
-   //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%     
-*/
+   // // check reflections inside the EV and PD = tagging surfaces:   
+   // if(nam.BeginsWith("DrcEVSensor")) {
+   //   Int_t nproc = gMC->StepProcesses(fProc);
+   //   cout<<"-I- PndDrc: "<<endl;
+   //   for(Int_t i=0; i<nproc; i++){
+   //     cout<<"track "<<gMC->GetStack()->GetCurrentTrackNumber()
+   // 	   <<" in volume "<<gMC->CurrentVolPath()
+   // 	   <<": position ("<<fPos.X()<<", "<<fPos.Y()<<", "<<fPos.Z()<<"),"<<i<<" - "<<fProc[i]
+   // 	   <<", "<<TMCProcessName[fProc[i]]<<endl;	   
+   //   }
+   //   cout<<" current vol name = "<<gMC->CurrentVolName()<<endl;
+   // }                 
 
-// check glue  
-/*  //if(gMC->IsTrackEntering() && nam.BeginsWith("DrcBarGlue")){
-  if(nam.BeginsWith("DrcBar") && fPos.Z()< -119.){ 
-    Int_t nproc = gMC->StepProcesses(fProc);
-    //cout<<"-I- PndDrc: "<<endl;
-      for(Int_t i=0; i<nproc; i++){
-        //if(fProc[i] > 31 && fProc[i] < 31){
-          cout<<"-I- PndDrc: track "<<gMC->GetStack()->GetCurrentTrackNumber()
-	      <<" in volume "<<gMC->CurrentVolPath()
-              <<": Z position "<<fPos.Z()<<",pz = "<<fMom.Z()<<", "<<i<<" - "<<fProc[i]
-              <<", "<<TMCProcessName[fProc[i]]<<endl;
-        //}
-      }
-   } 
-*/
- // if(nam.BeginsWith("DrcBar") && fPos.Z()< -119.){ 
-  
- // }
+
+   // // check glue  if(gMC->IsTrackEntering() && nam.BeginsWith("DrcBarGlue"))
+   // if(nam.BeginsWith("DrcBar") && fPos.Z()< -119.){ 
+   //   Int_t nproc = gMC->StepProcesses(fProc);
+   //   for(Int_t i=0; i<nproc; i++){
+   //     cout<<"-I- PndDrc: track "<<gMC->GetStack()->GetCurrentTrackNumber()
+   // 	   <<" in volume "<<gMC->CurrentVolPath()
+   // 	   <<": Z position "<<fPos.Z()<<",pz = "<<fMom.Z()<<", "<<i<<" - "<<fProc[i]
+   // 	   <<", "<<TMCProcessName[fProc[i]]<<endl;
+   //   }
+   // } 
 
   
-/*   //$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
-// js group velocity check    
-   if ( gMC->IsTrackEntering() ) 
-     {
-       //cout<<"track is entering!!!"<<endl;
-       fTime_in = gMC->TrackTime() * 1.0e09;
-       fLength_in = gMC->TrackLength();
-       //cout<<"-I- velo check: time in = "<<fTime_in<<", fLength in = "<<fLength_in<<endl;
-     }
+   // // js group velocity check    
+   // if ( gMC->IsTrackEntering() ) 
+   //   {
+   //     fTime_in = gMC->TrackTime() * 1.0e09;
+   //     fLength_in = gMC->TrackLength();
+   //   }
 
-   if ( gMC->IsTrackExiting() ) 
-     {
-       fTime_out = gMC->TrackTime() * 1.0e09;
-       fLength_out = gMC->TrackLength();
-       //cout<<"-I- velo check: time out = "<<fTime_in<<", fLength out = "<<fLength_in<<endl;
-       gMC->TrackMomentum(fMom);	
-       gMC->TrackPosition(fPos);
-       fPEnergy = (sqrt(fMom.X()*fMom.X() + fMom.Y()*fMom.Y() + fMom.Z()*fMom.Z()))*1.0e09;
-       fLambda1 = 197.*2*TMath::Pi()/fPEnergy;
-       fDeltaT = fTime_out - fTime_in;
-       if ((0)&&(fDeltaT>0))
-	 {
-	   cout << "time out: " << fTime_out << ", in: " << fTime_in 
-		<< ", deltaT: " << fTime_out-fTime_in
-		<< ", t0: " << fTrackTime
-		<< ", path out: " << fLength_out << ", in: " << fLength_in 
-		<< ", deltaP: " << fLength_out-fLength_in
-		<< ", velocity: " <<  (fLength_out-fLength_in)/(fTime_out-fTime_in)
-		<< ", energy: " << fPEnergy
-		<< ", lambda: " << fLambda1
-		<< endl;
-	 }       
-       if ((1)&&(fDeltaT>0.01)&&(fPos.Z()<=-119.)&&(fPos.Z()>-120.1))
-	 {
-	   cout 
-	     << fLambda1 << " %% "
-	     <<  (fLength_out-fLength_in)/(fTime_out-fTime_in)
-	     << " %% " <<(fLength_out-fLength_in)
-	     << " %% " <<fDeltaT
-	     //	     << " %% " << fPos.Z() 
-	     << endl;
-	 }       
-     }
-// end      
- */  //$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
+   // if ( gMC->IsTrackExiting() ) 
+   //   {
+   //     fTime_out = gMC->TrackTime() * 1.0e09;
+   //     fLength_out = gMC->TrackLength();
+   //     gMC->TrackMomentum(fMom);	
+   //     gMC->TrackPosition(fPos);
+   //     fPEnergy = (sqrt(fMom.X()*fMom.X() + fMom.Y()*fMom.Y() + fMom.Z()*fMom.Z()))*1.0e09;
+   //     fLambda1 = 197.*2*TMath::Pi()/fPEnergy;
+   //     fDeltaT = fTime_out - fTime_in;
+   //     if ((0)&&(fDeltaT>0))
+   // 	 {
+   // 	   cout << "time out: " << fTime_out << ", in: " << fTime_in 
+   // 		<< ", deltaT: " << fTime_out-fTime_in
+   // 		<< ", t0: " << fTrackTime
+   // 		<< ", path out: " << fLength_out << ", in: " << fLength_in 
+   // 		<< ", deltaP: " << fLength_out-fLength_in
+   // 		<< ", velocity: " <<  (fLength_out-fLength_in)/(fTime_out-fTime_in)
+   // 		<< ", energy: " << fPEnergy
+   // 		<< ", lambda: " << fLambda1
+   // 		<< endl;
+   // 	 }       
+   //     if ((1)&&(fDeltaT>0.01)&&(fPos.Z()<=-119.)&&(fPos.Z()>-120.1))
+   // 	 {
+   // 	   cout 
+   // 	     << fLambda1 << " %% "
+   // 	     <<  (fLength_out-fLength_in)/(fTime_out-fTime_in)
+   // 	     << " %% " <<(fLength_out-fLength_in)
+   // 	     << " %% " <<fDeltaT
+   // 	     << endl;
+   // 	 }       
+   //   }
     
    if(gMC->IsTrackEntering()){     
      if ( gMC->IsNewTrack()==1 ) {
        fTimeStart = gMC->TrackTime()*1.0e09; // charged particle time at entrance of radiator bar
      }         
-     if(nam.BeginsWith("DrcEVSensor")){        
+     if(nam.BeginsWith("DrcEVSensor")){
         if(fTimeAtEVEntrance ==0.){
 	  fTimeAtEVEntrance= gMC->TrackTime()*1.0e09;
           fLengthEV=gMC->TrackLength();
 	}        
         fTrackID = gMC->GetStack()->GetCurrentTrackNumber(); //track ID     
         gMC->TrackPosition(fPos);
-        gMC->TrackMomentum(fMom); // GeV/c	
+        gMC->TrackMomentum(fMom);	
         fTime=gMC->TrackTime()*1.0e09; // ns
 	fLength = gMC->TrackLength(); // cm ??	
-	//cout << ".... Adding hit on the expansion volume " << fTime<<endl;
         fVeloPhoton=fLength/(fTime-fTimeStart);
-//cout<<"velocity photon "<<fVeloPhoton<<" length at PD point "<<fLength<<" length at EV "<<fLengthEV<<endl;
-//cout<<"velocity photon "<<fVeloPhoton<<" length at PD point "<<fTime<<" length at EV "<<fTimeStartEV<<endl;
 
-        AddEVHit(fTrackID,
-	     0,
-	     TVector3(fPos.X(),   fPos.Y(),   fPos.Z()),
-	     TVector3(fMom.Px(),  fMom.Py(),  fMom.Pz()),
-	     fTime,
-	     fLength,
-	     fPdgCode,
-	     fEventID,
-             fTimeStart,
-             fTimeAtEVEntrance,
-             fVeloPhoton);
+        AddEVHit(fTrackID, 0, fPos.Vect(), fMom.Vect(),
+		 fTime, fLength, fPdgCode,
+		 fEventID, fTimeStart, fTimeAtEVEntrance, fVeloPhoton);
+
         fTimeAtEVEntrance = 0.0;
      }
    }   
    
-   if (gMC->IsTrackEntering()==1){
-      //if( num == fpdID){            
+   if (gMC->IsTrackEntering()==1){         
       if (nam.BeginsWith("DrcPDSensor")){ 
       
         if(0==fGeoH) {
@@ -1247,18 +1164,15 @@ Bool_t PndDrc::ProcessHits(FairVolume* vol) {
         }      
         fTrackID = gMC->GetStack()->GetCurrentTrackNumber(); //track ID     
         gMC->TrackPosition(fPos);
-        gMC->TrackMomentum(fMom); // GeV/c	
+        gMC->TrackMomentum(fMom);	
         fTime=gMC->TrackTime()*1.0e09; // ns
 	fLength = gMC->TrackLength(); // cm ??	
 	TString detPath = gMC->CurrentVolPath();
 
-        AddHit(fTrackID,
-	       fGeoH->GetShortID(detPath),
+        AddHit(fTrackID, fGeoH->GetShortID(detPath),
 	       fPos.Vect(),fMom.Vect(),fMomAtEV.Vect(),
-	       fTime,
-	       fLength,
-	       fPdgCode,
-	       fEventID);
+	       fTime, fLength, fPdgCode, fEventID);
+
 	gMC->StopTrack();
       }
        PndStack* stack = (PndStack*) gMC->GetStack();
@@ -1266,57 +1180,36 @@ Bool_t PndDrc::ProcessHits(FairVolume* vol) {
      }
   }else if(gMC->TrackCharge()!=0. && gMC->IsTrackEntering()==1 ){
         if (nam.BeginsWith("DrcBar")) {
-	//if(num == fbarID){
-	//	Double_t fCharge = gMC->TrackCharge();
-		fTrackID = gMC->GetStack()->GetCurrentTrackNumber();
-		//if(fTrackID!=fCurrentTrackID){//$$$$$$$$$$$$$$$$$$$		  
+		fTrackID = gMC->GetStack()->GetCurrentTrackNumber();	  
 		  fTime  = gMC->TrackTime() * 1.0e09;
 		  fLength = gMC->TrackLength();
-  //		Int_t  copyNo = vol->getCopyNo();
 		  Int_t s=0, b=0; //side and bar
 		  fNBar=0;
 		  TString path = gMC->CurrentVolPath();
-		  //cout<<"+++++++++++++++++++++++++++++++++"<<endl;
-		  //cout<< "Volume: " << gMC->CurrentVolPath() << endl;
-		  //cout<< "Det ID = "<<fGeoH->GetShortID(path)<<endl;
-		  //cout<<"+++++++++++++++++++++++++++++++++"<<endl;    
 		  if (fVerboseLevel >1) cout<< "Volume: " << gMC->CurrentVolPath() << endl;
-		  sscanf(path, "/cave_1/BarrelDIRC_0/DrcBarBox_%d/DrcAirBox_0/DrcBarSensor_%d", &s, &b);		
-		  //cout<<"side no.= "<<s<<" bar no.="<<b<<endl;//		
-		  if(s != 0 && s<17){
-		     fNBar = s*10 + b;}                 
-		  //cout<<"fNBar= "<<fNBar<<endl;  
-		  gMC->TrackMomentum(fMom); // GeV/c		
+		  sscanf(path, "/cave_1/BarrelDIRC_0/DrcBarBox_%d/DrcAirBox_0/DrcBarSensor_%d", &s, &b);				
+		  if(s != 0 && s<17) fNBar = s*10 + b;                 
+		  gMC->TrackMomentum(fMom);	
 		  Double_t Px= fMom.Px();
 		  Double_t Py= fMom.Py();
 		  Double_t Pz= fMom.Pz();
 		  Double_t fP = sqrt(Px*Px + Py*Py +Pz*Pz);
 		  fMass = gMC->TrackMass();
 		  Double_t fEnergy = TMath::Sqrt(fP*fP + fMass*fMass); 
-		  //Double_t fAngIn;
 		  if ( fP==0 ) {fAngIn = -1.;}
 		  else if ( fabs(Pz/fP) > 1. ){ fAngIn = -1.;}
 		  else { fAngIn = acos(Pz/fP);}
 		  if ( fP == 0. || fEnergy == 0.){ fThetaC = -1.;}
 		  else if (fabs(1./(1.47*(fP/fEnergy))) > 1. ){ fThetaC = -1.;}
 		  else{ fThetaC = acos(1/(1.47*(fP/fEnergy)));} 
-		  AddBarHit(fTrackID,
-			  fGeoH->GetShortID(path),		  
-			  TVector3(fPos.X(),   fPos.Y(),   fPos.Z()),
-			  TVector3(fMom.Px(),  fMom.Py(),  fMom.Pz()),
-			  fTime,
-			  fLength,
-			  fPdgCode,
-			  fAngIn,
-			  fThetaC,
-			  fNBar,
-			  fEventID,
-			  fMass);
+		  
+		  AddBarHit(fTrackID, fGeoH->GetShortID(path), fPos.Vect(), fMom.Vect(),
+			    fTime, fLength, fPdgCode, fAngIn, fThetaC, fNBar,
+			    fEventID, fMass);
 		  
 		  PndStack* stack = (PndStack*) gMC->GetStack();
        		  stack->AddPoint(kDRC);
 		  fCurrentTrackID=fTrackID;
-		//}//$$$$$$$$$$$$$$	
 	}
   } // if Cherenkov photon
   
@@ -1325,10 +1218,8 @@ Bool_t PndDrc::ProcessHits(FairVolume* vol) {
   return kTRUE; 
 }
 
-// ---------------------------------------------------------------------------
-
-//------   Find Nubmer of Bounces     --------------------------------------
-void PndDrc::NumberOfBounces(TVector3 start, TVector3 dir, Int_t barId, Int_t *n1, Int_t *n2, Double_t *alpha1, Double_t *alpha2){
+//------   Find Nubmer of Bounces     -----------------------------------------
+void PndDrc::NumberOfBounces(TVector3 start, TVector3 dir, Int_t barId, Int_t *n1, Int_t *n2, Double_t *alpha1, Double_t *alpha2) {
     // start - photon production point in global coord system
     // dir - photon direction in bar coord system
     
@@ -1372,8 +1263,8 @@ void PndDrc::NumberOfBounces(TVector3 start, TVector3 dir, Int_t barId, Int_t *n
     //cout<<"-I- NumberOfBounces: angle1 = "<<angle1<<", angle2 = "<<angle2<<endl;
 }
 
-//----------------------------------------------------------------------------------------------------------
-Double_t PndDrc::FindOutPoint(Double_t x0, Double_t xEn, Double_t a, Double_t *NN, Bool_t print){	
+//-----------------------------------------------------------------------------
+Double_t PndDrc::FindOutPoint(Double_t x0, Double_t xEn, Double_t a, Double_t *NN, Bool_t print) {
 	Double_t m=99.;
 	Double_t n=TMath::Floor(x0/a);
 	m = n;		
@@ -1406,27 +1297,19 @@ Double_t PndDrc::FindOutPoint(Double_t x0, Double_t xEn, Double_t a, Double_t *N
 	return xK;
 }
 
-
 // -----   Public method EndOfEvent   -----------------------------------------
 void PndDrc::EndOfEvent() {
   fLastTrackID = -2;
   if (fVerboseLevel)  Print();
   Reset();
 }
-// ----------------------------------------------------------------------------
-
-
 
 // -----   Public method Register   -------------------------------------------
-void PndDrc::Register() {  
+void PndDrc::Register() {
   FairRootManager::Instance()->Register("DrcBarPoint","Drc", fDrcBarCollection, kTRUE);
   FairRootManager::Instance()->Register("DrcEVPoint","Drc", fDrcEVCollection, kTRUE);
   FairRootManager::Instance()->Register("DrcPDPoint","Drc", fDrcPDCollection, kTRUE);
-  
 }
-// ----------------------------------------------------------------------------
-
-
 
 // -----   Public method GetCollection   --------------------------------------
 TClonesArray* PndDrc::GetCollection(Int_t iColl) const {
@@ -1436,10 +1319,6 @@ TClonesArray* PndDrc::GetCollection(Int_t iColl) const {
    
   return NULL;
 }
-// ----------------------------------------------------------------------------
-
-
-
 
 // -----   Public method Print   ----------------------------------------------
 void PndDrc::Print() const {
@@ -1457,9 +1336,6 @@ void PndDrc::Print() const {
    for (Int_t i=0; i<nBarHits; i++) (*fDrcBarCollection)[i]->Print();   
  }
 }
-// ----------------------------------------------------------------------------
-
-
 
 // -----   Public method Reset   ----------------------------------------------
 void PndDrc::Reset() {
@@ -1468,10 +1344,7 @@ void PndDrc::Reset() {
    fDrcBarCollection->Delete();   
    fPosIndex = 0;
 }
-// ----------------------------------------------------------------------------
 
-
-// guarda in FairRootManager::CopyClones
 // -----   Public method CopyClones   -----------------------------------------
 void PndDrc::CopyClones(TClonesArray* clPD1, TClonesArray* clPD2,TClonesArray* clBar1, TClonesArray* clBar2, Int_t offset ) {
   Int_t nPDEntries = clPD1->GetEntriesFast();
@@ -1505,11 +1378,9 @@ void PndDrc::CopyClones(TClonesArray* clPD1, TClonesArray* clPD2,TClonesArray* c
   cout << " -I- PndDrc: " << clBar2->GetEntriesFast() << " merged entries." << endl;
   
 }
-// ----------------------------------------------------------------------------
 
 // -----   Public method ConstructGeometry  -----------------------------------
-void PndDrc::ConstructGeometry()
-{
+void PndDrc::ConstructGeometry() {
   cout<< "                                               " << endl;
   cout<< " =======  DRC::  ConstructGeometry()  ======== " << endl;
   cout<< " ============================================= " << endl;
@@ -1545,8 +1416,7 @@ void PndDrc::ConstructGeometry()
 }
 
 // -----   Public Method Construct Optical Geometry ---------------------------
-void PndDrc::ConstructOpGeometry()
-{
+void PndDrc::ConstructOpGeometry() {
   cout<< " ==================================================== " << endl;
   cout<< " =======  DRC::  ConstructOpticalGeometry()  ======== " << endl; 
   
@@ -1699,21 +1569,20 @@ void PndDrc::ConstructOpGeometry()
     
     //if(fMirrorGap > 0.){
     //  cout<<"-I- : mirror gap > 0"<<endl;
-      gMC->SetSkinSurface("AirMirrorSurface", "DrcMirr", "MirrSurface");
+    gMC->SetSkinSurface("AirMirrorSurface", "DrcMirr", "MirrSurface");
     // }   
   }            
   cout<<" =======  DRC::ConstructOpGeometry -> Finished! ====== "<< endl;     
 }  
 
 // -----   Public method CheckIfSensitive   --------------------------------------
- bool PndDrc::CheckIfSensitive(std::string name)
- {
+bool PndDrc::CheckIfSensitive(std::string name) {
   for (Int_t i = 0; i < fListOfSensitives.size(); i++){
-   if (name.find(fListOfSensitives[i]) != std::string::npos)    
-    return true;
+    if (name.find(fListOfSensitives[i]) != std::string::npos)    
+      return true;
   }
- return false;
- }
+  return false;
+}
 
 // -----   Private method AddHit   --------------------------------------------
 PndDrcPDPoint* PndDrc::AddHit(Int_t trackID, Int_t copyNo, TVector3 pos, TVector3 mom, TVector3 momAtEV, Double_t time, Double_t length, Int_t pdgCode, Int_t eventID) {
@@ -1779,8 +1648,5 @@ PndDrcBarPoint* PndDrc::AddBarHit(Int_t trackID, Int_t copyNo, TVector3 pos, TVe
 					    mass);
   
 }
-
-// ----
-
 
 ClassImp(PndDrc)
