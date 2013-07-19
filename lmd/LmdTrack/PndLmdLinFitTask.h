@@ -15,7 +15,7 @@
 #include "FairTask.h"
 #include <TGraph2D.h>
 #include <TGraph2DErrors.h>
-#include "TNtuple.h"
+#include "TTree.h"
 #include "TVirtualFitter.h"
 // Collaborating Class Headers -------
 #include <map>
@@ -24,6 +24,8 @@
 #include "TMatrixTSym.h"
 #include "TMatrixDSym.h"
 #include "PndGeoHandling.h"
+#include "PndLmdDim.h"
+
 // Collaborating Class Declarations --
 class TClonesArray;
 class TGeoManager;
@@ -94,21 +96,31 @@ protected:
   double line3DfitMS(Int_t nd, TGraph2DErrors* gr, TVector3 posSeed, TVector3 dirSeed, Double_t* fitpar, TMatrixDSym *covmatrix);// fit with kink angle
   //double line3Dfit(Int_t nd, TGraph2DErrors* gr, TVector3 posSeed, TVector3 dirSeed, Double_t* fitpar);
 
-  double GetSigmaMS(){return fsigmaMS;}
-  double GetSigmaMSmerged(){return fsigmaMSmerged;}
-  double GetSigmaMScone(){return fsigmaMScone;}
+  double GetSigmaMS(int side){ if (side<1) return fsigmaMSa;
+    else return fsigmaMSb;}
+  //  double GetSigmaMSmerged(){return fsigmaMSmerged;}
+  //  double GetSigmaMScone(){return fsigmaMScone;}
   double fPbeam;
-  double fsigmaMS;//single hit
-  double fsigmaMSmerged;//merged hit
-  double fsigmaMScone;//hit on 1st plane
+  double fsigmaMSa;//single hit before CVD diamond
+  double fsigmaMSb;//single hit after CVD diamond
+  ///tmp vars for test tree
+  double falx0a,falx0b,falx1a,falx1b,falx2a,falx2b,falx3a,falx3b;
+  double faly0a,faly0b,faly1a,faly1b,faly2a,faly2b,faly3a,faly3b;
+  double ferralx0a,ferralx0b,ferralx1a,ferralx1b,ferralx2a,ferralx2b,ferralx3a,ferralx3b;
+  double ferraly0a,ferraly0b,ferraly1a,ferraly1b,ferraly2a,ferraly2b,ferraly3a,ferraly3b;
+  double fchi2;
+  double fzhit0;
+  int fnpoints;
+  ///END (tmp vars for test tree)
   bool hitMergedfl[4];
   double fPDGCode;
   int fCharge;
   PndGeoHandling* fGeoH;
-  TNtuple *ttal;//for check new FCN function: LocalFCN_MS
+  TTree *ttal;//for check new FCN function: LocalFCN_MS
   /** static pointer to this*/
   static PndLmdLinFitTask* fInstance;
   TVirtualFitter *fmin;
+  PndLmdDim* lmddim;
   ClassDef(PndLmdLinFitTask,1);
 
 };

@@ -71,11 +71,47 @@ PndLmdLinFitTask::PndLmdLinFitTask()
   fPbeam = 0;
   fPDGCode = -2212; //barp
   fCharge = -1;//barp
-  fsigmaMS = 0;
+  fsigmaMSa = 0;
+  fsigmaMSb = 0;
   PndGeoHandling::Instance();
   fInstance=this;
   //  ttal = new TNtuple("ttal","kink angles","alx0:alx1:alx2:alx3:aly0:aly1:aly2:aly3:npoints") ;
-  ttal = new TNtuple("ttal","kink angles","alx0:alx1:alx2:aly0:aly1:aly2:erralx1:erralx2:erraly1:erraly2:npoints") ;
+  //  ttal = new TNtuple("ttal","kink angles","alx0:alx1:alx2:aly0:aly1:aly2:erralx1:erralx2:erraly1:erraly2:npoints") ;
+  ttal = new TTree("ttal","kink angles");
+  ttal->Branch("alx0a",& falx0a);
+  ttal->Branch("alx0b",& falx0b);
+  ttal->Branch("alx1a",& falx1a);
+  ttal->Branch("alx1b",& falx1b);
+  ttal->Branch("alx2a",& falx2a);
+  ttal->Branch("alx2b",& falx2b);
+  ttal->Branch("alx3a",& falx3a);
+  ttal->Branch("alx3b",& falx3b);
+  ttal->Branch("aly0a",& faly0a);
+  ttal->Branch("aly0b",& faly0b);
+  ttal->Branch("aly1a",& faly1a);
+  ttal->Branch("aly1b",& faly1b);
+  ttal->Branch("aly2a",& faly2a);
+  ttal->Branch("aly2b",& faly2b);
+  ttal->Branch("aly3a",& faly3a);
+  ttal->Branch("aly3b",& faly3b);
+ ttal->Branch("erralx0a",& ferralx0a);
+  ttal->Branch("erralx0b",& ferralx0b);
+  ttal->Branch("erralx1a",& ferralx1a);
+  ttal->Branch("erralx1b",& ferralx1b);
+  ttal->Branch("erralx2a",& ferralx2a);
+  ttal->Branch("erralx2b",& ferralx2b);
+  ttal->Branch("erralx3a",& ferralx3a);
+  ttal->Branch("erralx3b",& ferralx3b);
+  ttal->Branch("erraly0a",& ferraly0a);
+  ttal->Branch("erraly0b",& ferraly0b);
+  ttal->Branch("erraly1a",& ferraly1a);
+  ttal->Branch("erraly1b",& ferraly1b);
+  ttal->Branch("erraly2a",& ferraly2a);
+  ttal->Branch("erraly2b",& ferraly2b);
+  ttal->Branch("erraly3a",& ferraly3a);
+  ttal->Branch("erraly3b",& ferraly3b);
+  ttal->Branch("npoints",& fnpoints);
+  ttal->Branch("chi2",& fchi2);
  TVirtualFitter::SetDefaultFitter("Minuit");
   fmin = TVirtualFitter::Fitter(0,15);
   for(int ih=0;ih<4;ih++)
@@ -90,12 +126,52 @@ PndLmdLinFitTask::PndLmdLinFitTask(TString tTCandBranchName, TString tRecoBranch
   fPbeam = 0;
   fPDGCode = -2212; //barp
   fCharge = -1;//barp
-  fsigmaMS = 0;
+  //  fsigmaMS = 0;
+  fsigmaMSa = 0;
+  fsigmaMSb = 0;
   PndGeoHandling::Instance();
   fInstance=this;
   //  ttal = new TNtuple("ttal","kink angles","alx0:alx1:alx2:alx3:aly0:aly1:aly2:aly3:npoints") ;
-  ttal = new TNtuple("ttal","kink angles","alx0:alx1:alx2:aly0:aly1:aly2:erralx1:erralx2:erraly1:erraly2:npoints") ;
+  //  ttal = new TNtuple("ttal","kink angles","alx0:alx1:alx2:aly0:aly1:aly2:erralx1:erralx2:erraly1:erraly2:npoints") ;
   //  ttal = new TNtuple("ttal","kink angles","alx0:alx1:alx2:alx3:erralx0:erralx1:erralx2:aly0:aly1:aly2:aly3:erraly0:erraly1:erraly2") ;
+
+  ttal = new TTree("ttal","kink angles");
+  ttal->Branch("alx0a",& falx0a);
+  ttal->Branch("alx0b",& falx0b);
+  ttal->Branch("alx1a",& falx1a);
+  ttal->Branch("alx1b",& falx1b);
+  ttal->Branch("alx2a",& falx2a);
+  ttal->Branch("alx2b",& falx2b);
+  ttal->Branch("alx3a",& falx3a);
+  ttal->Branch("alx3b",& falx3b);
+  ttal->Branch("aly0a",& faly0a);
+  ttal->Branch("aly0b",& faly0b);
+  ttal->Branch("aly1a",& faly1a);
+  ttal->Branch("aly1b",& faly1b);
+  ttal->Branch("aly2a",& faly2a);
+  ttal->Branch("aly2b",& faly2b);
+  ttal->Branch("aly3a",& faly3a);
+  ttal->Branch("aly3b",& faly3b);
+ ttal->Branch("erralx0a",& ferralx0a);
+  ttal->Branch("erralx0b",& ferralx0b);
+  ttal->Branch("erralx1a",& ferralx1a);
+  ttal->Branch("erralx1b",& ferralx1b);
+  ttal->Branch("erralx2a",& ferralx2a);
+  ttal->Branch("erralx2b",& ferralx2b);
+  ttal->Branch("erralx3a",& ferralx3a);
+  ttal->Branch("erralx3b",& ferralx3b);
+  ttal->Branch("erraly0a",& ferraly0a);
+  ttal->Branch("erraly0b",& ferraly0b);
+  ttal->Branch("erraly1a",& ferraly1a);
+  ttal->Branch("erraly1b",& ferraly1b);
+  ttal->Branch("erraly2a",& ferraly2a);
+  ttal->Branch("erraly2b",& ferraly2b);
+  ttal->Branch("erraly3a",& ferraly3a);
+  ttal->Branch("erraly3b",& ferraly3b);
+  ttal->Branch("npoints",& fnpoints);
+ ttal->Branch("chi2",& fchi2);
+ ttal->Branch("zhit0",&fzhit0);
+
   TVirtualFitter::SetDefaultFitter("Minuit");
   fmin = TVirtualFitter::Fitter(0,15);
   for(int ih=0;ih<4;ih++)
@@ -156,8 +232,14 @@ InitStatus PndLmdLinFitTask::Init()
   //  double totRadLen = 1.5*0.00306;//rad.length of 1 plane
   // double totRadLen = 0.00306;//rad.length of 1 plane
   // totRadLen +=0.000175;// +flex-cable
-  double totRadLen = 0.0044;
-  fsigmaMS = ScatteredAngle(totRadLen);
+  //double totRadLen = 0.0044;
+  double totRadLen = 0.00306;//rad.length of whole plane
+  totRadLen -=0.000175;// -flex-cable
+  totRadLen -=0.00053;// -sensor
+  fsigmaMSb = ScatteredAngle(totRadLen);
+  double totRadLenCable = 2*0.000175;// 2*flex-cable only
+  totRadLenCable +=0.00053;
+  fsigmaMSa = ScatteredAngle(totRadLenCable);
   // totRadLen +=0.5*0.00306;// + more (half-plane for merged hits)
   // fsigmaMSmerged = ScatteredAngle(totRadLen);
   // totRadLen +=0.5*0.00306; //2pl
@@ -170,6 +252,11 @@ InitStatus PndLmdLinFitTask::Init()
   // //  double lenConePl = 0.00027; 
   // fsigmaMScone = ScatteredAngle(lenConePl); //rad.length of cone support
   // //  fsigmaMScone = ScatteredAngle(totRadLen);
+
+  if(lmddim!=0 ) lmddim->Cleanup();
+  lmddim = PndLmdDim::Instance();
+  TString mtx_perfect = "../../../pandaroot/input/trafo_matrices_lmd.dat";
+  lmddim -> Read_transformation_matrices(mtx_perfect.Data(), false);
   std::cout << "-I- PndLmdLinFitTask: Initialisation successfull" << std::endl;
   return kSUCCESS;
 }
@@ -219,6 +306,8 @@ void PndLmdLinFitTask::Exec(Option_t* opt)
     /// Obtain first approximation ----------
     TVector3 posSeed = trcnd->getPosSeed();
     TVector3 dirSeed = trcnd->getDirSeed();
+    posSeed = lmddim->Transform_global_to_lmd_local(posSeed,false,false);
+    dirSeed = lmddim->Transform_global_to_lmd_local(dirSeed,true,false);
     // if(dirSeed.Theta()<3e-2 || dirSeed.Theta()>5e-2 ||  fabs(dirSeed.Phi())>0.3){
     //   if(fVerbose>2) cout<<"Trk-cand doesn't pass throw limit (dirSeed.Theta() = "<<dirSeed.Theta()<<" dirSeed.Phi() = "<<dirSeed.Phi()<<")"<<endl;
     //   continue;
@@ -241,11 +330,27 @@ void PndLmdLinFitTask::Exec(Option_t* opt)
          lastHit=index;
       //      PndSdsHit* addHit = (PndSdsHit*) fRecoArray->At(index);
       PndSdsMergedHit* addHit = (PndSdsMergedHit*) fRecoArray->At(index);
+      cout<<"IsMerged??? "<<addHit->GetIsMerged()<<endl;
       hitMergedfl[ihit] = addHit->GetIsMerged();
+
+
       TVector3 addPos = addHit->GetPosition();
       //      addPos.Print();
-      fitme.SetPoint(ihit, addPos.X(), addPos.Y(), addPos.Z());
-      fitme.SetPointError(ihit, addHit->GetDx(), addHit->GetDy(), addHit->GetDz());
+      // cout<<"BEFORE:"<<endl;
+      // addPos.Print();
+      double xhit = addPos.X();       double yhit = addPos.Y();       double zhit = addPos.Z();
+      //    TVector3 addPosloc = lmddim->Transform_global_to_lmd_local(addPos,false,false);
+      lmddim->Transform_global_to_lmd_local(xhit,yhit,zhit,false);
+      //      addPos.SetXYZ(zhit,yhit,zhit);
+      // cout<<"After:"<<endl;
+      // addPosloc.Print();
+      double errxhit = addHit->GetDx();       double erryhit = addHit->GetDy();       double errzhit = addHit->GetDz();
+      lmddim->Transform_global_to_lmd_local_vect(errxhit,erryhit,errzhit,false);
+      fitme.SetPoint(ihit, xhit,yhit,zhit);
+      fitme.SetPointError(ihit, errxhit,erryhit,errzhit);
+      // fitme.SetPoint(ihit, addPos.X(), addPos.Y(), addPos.Z());
+      // fitme.SetPointError(ihit, addHit->GetDx(), addHit->GetDy(), addHit->GetDz());      
+
     }//end of Hits in TCand
 
 
@@ -253,10 +358,11 @@ void PndLmdLinFitTask::Exec(Option_t* opt)
     //    TMatrixDSym *COVmatrix = new TMatrixDSym(6);
     //    TMatrixDSym *COVmatrix = new TMatrixDSym(14);
     //    TMatrixDSym *COVmatrix = new TMatrixDSym(14);
-    //Double_t accuracy = line3Dfit(numPts, &fitme, posSeed, dirSeed, parFit, COVmatrix); //MS taking into account by hits errors
-    Double_t parFit[15]; //fit-parameter
+
+    Double_t parFit[22]; //fit-parameter
     TMatrixDSym *COVmatrix = new TMatrixDSym(6);
     Double_t accuracy = line3DfitMS(numPts, &fitme, posSeed, dirSeed, parFit, COVmatrix);//with kink angles
+    //Double_t accuracy = line3Dfit(numPts, &fitme, posSeed, dirSeed, parFit, COVmatrix); //MS taking into account by hits errors
     
     // //save as LinTrk
     // //  if(accuracy>0 && accuracy<1e3){ 
@@ -408,6 +514,7 @@ void PndLmdLinFitTask::LocalFCN(int &, double *, double & sum, double * par, int
   int npoints = gr->GetN();
   sum = 0;
   for (int i  = 0; i < npoints; ++i) { 
+
     double chi2 = distance_l(x[i],y[i],z[i],errx[i],erry[i],errz[i],par); 
     //    double chi2 = distance_perp(x[i],y[i],z[i],errx[i],erry[i],errz[i],par); 
     sum += chi2;
@@ -420,34 +527,96 @@ double PndLmdLinFitTask::distance_MS(double x,double y,double z, double errx,dou
   if((p[1]*p[1]+p[3]*p[3])<1) p[5]=sqrt(1-(p[1]*p[1]+p[3]*p[3]));
   //  else p[5]=0.99;
   else return 1e6;
-
+    // cout<<"x,y,z: "<<x<<", "<<y<<", "<<z<<endl;
+    // cout<<"p[4] = "<<p[4]<<endl;MS(
   //  cout<<"erral = "<<erral<<endl;
   // for(int crz=0;crz<4;crz++)
   //   cout<<"zcr["<<crz<<"]="<<zpr[crz]<<endl;
-  double THfunc[4] = {1,1,1,1};
+  double THfunc[8] = {1,1,1,1,1,1,1,1};
  
-  //  Double_t t_min = (z-p[4]);
-  Double_t t_min = p[1]*(x-p[0])+p[3]*(y-p[2])+p[5]*(z-p[4]);
-  for(int iz=0;iz<4;iz++){
-    if(((zpr[0]+t_min)-zpr[iz])<0) THfunc[iz]=0;
+  Double_t t_min = (z-p[4]);
+  //  Double_t t_min = p[1]*(x-p[0])+p[3]*(y-p[2])+p[5]*(z-p[4]);
+  for(int iz=0;iz<8;iz++){
+    if(((p[4]+t_min)-zpr[iz])<0) THfunc[iz]=0;
+    //    cout<<"zpr["<<iz<<"]="<<zpr[iz]<<" (p[4]+t_min) = "<<(p[4]+t_min)<<" THfunc = "<<THfunc[iz]<<endl;
   }
-  //  Double_t t_min = p[1]*(x-p[0])+p[3]*(y-p[2])+(z-p[4]);
-  // double funcX = p[0]+p[1]*t_min+p[6]*(z-zpr[0])*THfunc[0]+p[7]*(z-zpr[1])*THfunc[1]+p[8]*(z-zpr[2])*THfunc[2]+p[9]*(z-zpr[3])*THfunc[3];
-  // double funcY = p[2]+p[3]*t_min+p[10]*(z-zpr[0])*THfunc[0]+p[11]*(z-zpr[1])*THfunc[1]+p[12]*(z-zpr[2])*THfunc[2]+p[13]*(z-zpr[3])*THfunc[3];
-  double funcX = p[0]+p[1]*t_min
-    +p[6]*((zpr[0]+t_min)-zpr[0])*THfunc[0]
-    +p[7]*((zpr[0]+t_min)-zpr[1])*THfunc[1]
-    +p[8]*((zpr[0]+t_min)-zpr[2])*THfunc[2]
-    +p[9]*((zpr[0]+t_min)-zpr[3])*THfunc[3];
-  double funcY = p[2]+p[3]*t_min
-    +p[10]*((zpr[0]+t_min)-zpr[0])*THfunc[0]
-    +p[11]*((zpr[0]+t_min)-zpr[1])*THfunc[1]
-    +p[12]*((zpr[0]+t_min)-zpr[2])*THfunc[2]
-    +p[13]*((zpr[0]+t_min)-zpr[3])*THfunc[3];
+
+  // double funcX = p[0]+p[1]*t_min
+  //   +p[6]*((p[4]+t_min)-zpr[0])*THfunc[0]
+  //   +p[7]*((p[4]+t_min)-zpr[1])*THfunc[1]
+  //   +p[8]*((p[4]+t_min)-zpr[2])*THfunc[2]
+  //   +p[9]*((p[4]+t_min)-zpr[3])*THfunc[3];
+  // double funcY = p[2]+p[3]*t_min
+  //   +p[10]*((p[4]+t_min)-zpr[0])*THfunc[0]
+  //   +p[11]*((p[4]+t_min)-zpr[1])*THfunc[1]
+  //   +p[12]*((p[4]+t_min)-zpr[2])*THfunc[2]
+  //   +p[13]*((p[4]+t_min)-zpr[3])*THfunc[3];
+
+  // double funcX = p[0]+p[1]*t_min
+  //   +(p[6]-p[14])*((p[4]+t_min)-zpr[0])*THfunc[0]
+  //   +(p[7]-p[15])*((p[4]+t_min)-zpr[1])*THfunc[1]
+  //   +(p[8]-p[16])*((p[4]+t_min)-zpr[2])*THfunc[2]
+  //   +(p[9]-p[17])*((p[4]+t_min)-zpr[3])*THfunc[3];
+  // double funcY = p[2]+p[3]*t_min
+  //   +(p[10]-p[18])*((p[4]+t_min)-zpr[0])*THfunc[0]
+  //   +(p[11]-p[19])*((p[4]+t_min)-zpr[1])*THfunc[1]
+  //   +(p[12]-p[20])*((p[4]+t_min)-zpr[2])*THfunc[2]
+  //   +(p[13]-p[21])*((p[4]+t_min)-zpr[3])*THfunc[3];
+  // double funcX = p[0]+p[1]*t_min
+  //   +(-p[6]+p[7])*((p[4]+t_min)-zpr[0])*THfunc[0]
+  //   +(-p[8]+p[9])*((p[4]+t_min)-zpr[1])*THfunc[1]
+  //   +(-p[10]+p[11])*((p[4]+t_min)-zpr[2])*THfunc[2]
+  //   +(-p[12]+p[13])*((p[4]+t_min)-zpr[3])*THfunc[3];
+  // double funcY = p[2]+p[3]*t_min
+  //   +(-p[14]+p[15])*((p[4]+t_min)-zpr[0])*THfunc[0]
+  //   +(-p[16]+p[17])*((p[4]+t_min)-zpr[1])*THfunc[1]
+  //   +(-p[18]+p[19])*((p[4]+t_min)-zpr[2])*THfunc[2]
+  //   +(-p[20]+p[21])*((p[4]+t_min)-zpr[3])*THfunc[3];
+  // double funcX = p[0]+p[1]*t_min
+  //   +(p[6])*((p[4]+t_min)-zpr[0])*THfunc[0]
+  //   +(p[7])*((p[4]+t_min)-zpr[1])*THfunc[1]
+  //   +(p[8])*((p[4]+t_min)-zpr[2])*THfunc[2]
+  //   +(p[9])*((p[4]+t_min)-zpr[3])*THfunc[3]
+  //   +(p[10])*((p[4]+t_min)-zpr[4])*THfunc[4]
+  //   +(p[11])*((p[4]+t_min)-zpr[5])*THfunc[5]
+  //   +(p[12])*((p[4]+t_min)-zpr[6])*THfunc[6]
+  //   +(p[13])*((p[4]+t_min)-zpr[7])*THfunc[7];
+
+  //   double funcY = p[2]+p[3]*t_min
+  //     +(p[14])*((p[4]+t_min)-zpr[0])*THfunc[0]
+  //     +(p[15])*((p[4]+t_min)-zpr[1])*THfunc[1]
+  //     +(p[16])*((p[4]+t_min)-zpr[2])*THfunc[2]
+  //     +(p[17])*((p[4]+t_min)-zpr[3])*THfunc[3]
+  //     +(p[18])*((p[4]+t_min)-zpr[4])*THfunc[4]
+  //     +(p[19])*((p[4]+t_min)-zpr[5])*THfunc[5]
+  //     +(p[20])*((p[4]+t_min)-zpr[6])*THfunc[6]
+  //     +(p[21])*((p[4]+t_min)-zpr[7])*THfunc[7];
+
+ double funcX = p[0]+p[1]*t_min
+   -(p[6])*((p[4]+t_min)-zpr[0])*THfunc[0]
+    +(p[7])*((p[4]+t_min)-zpr[1])*THfunc[1]
+   -(p[8])*((p[4]+t_min)-zpr[2])*THfunc[2]
+   +(p[9])*((p[4]+t_min)-zpr[3])*THfunc[3]
+   -(p[10])*((p[4]+t_min)-zpr[4])*THfunc[4]
+   +(p[11])*((p[4]+t_min)-zpr[5])*THfunc[5]
+   -(p[12])*((p[4]+t_min)-zpr[6])*THfunc[6]
+   +(p[13])*((p[4]+t_min)-zpr[7])*THfunc[7];
+
+    double funcY = p[2]+p[3]*t_min
+      -(p[14])*((p[4]+t_min)-zpr[0])*THfunc[0]
+      +(p[15])*((p[4]+t_min)-zpr[1])*THfunc[1]
+      -(p[16])*((p[4]+t_min)-zpr[2])*THfunc[2]
+      +(p[17])*((p[4]+t_min)-zpr[3])*THfunc[3]
+      -(p[18])*((p[4]+t_min)-zpr[4])*THfunc[4]
+      +(p[19])*((p[4]+t_min)-zpr[5])*THfunc[5]
+      -(p[20])*((p[4]+t_min)-zpr[6])*THfunc[6]
+      +(p[21])*((p[4]+t_min)-zpr[7])*THfunc[7];
+  
+    double funcZ = p[4] + p[5]*t_min;
   double fdx = TMath::Power((x-funcX)/errx,2);
   double fdy = TMath::Power((y-funcY)/erry,2);
-  // double fdz = TMath::Power((z-(p[4] + p[5]*t_min))/errz,2);
-  double fdz = 0;
+  double fdz = TMath::Power((z-funcZ)/errz,2);
+  //double fdz = 0;
   double fchi2 = fdx + fdy +fdz;
   return fchi2; 
 }
@@ -466,33 +635,53 @@ void PndLmdLinFitTask::LocalFCN_MS(int &, double *, double & sum, double * par, 
   sum = 0;
   //  bool *ffhitMerge = PndLmdLinFitTask::Instance()->hitMergedfl;
   // double erral_m = PndLmdLinFitTask::Instance()->GetSigmaMSmerged();
-  double erral = PndLmdLinFitTask::Instance()->GetSigmaMS();
-  double errAlreal[4];
+  double erralA = PndLmdLinFitTask::Instance()->GetSigmaMS(0);
+  double erralB = PndLmdLinFitTask::Instance()->GetSigmaMS(1);
+  //  double errAlreal[4];
   //  cout<<"erral = "<<erral<<endl;
+  // double z1stpl = 74.1;
+  // double zBOX = 1050;
+  double z1stpl = 1123.79;
+  //double plth = 0.020;//middle of plane
+  double plth = 0.;//middle of plane
+  double totRadLen = 0.00306;//rad.length of whole plane
+  double thCVD = 0.01;//half thickness of CVD diamond+sensor
+  double thSens = 0.0050;//thickness of sensor
+  double z_perp[4] = {0.,20.,30.,40.}; //planes positions
+  //  double x0[4] = {25.65,26.5,26.85,27.25};
+  //  double x0[4] = {25.83,26.63,27.05,27.4};
+  double x0[4] = {26.,26.8,27.2,27.6};
+  //  double psi = 2.29183118;//rotation of LMD z-axis, 40 mrad 
+  double psi = 4e-2;//rotation of LMD z-axis, 40 mrad 
+  // double r_bend = 5700.;
+  // // where bending starts with
+  // double end_seg_upstream = 361;
+  double zpr[8];
   for (int i  = 0; i < npoints; ++i) { 
-    //    errAlreal[i] = erral_m;
-    errAlreal[i] = erral;
-    // if(i>0){
-    //   if(ffhitMerge[i-1]){
-    // 	errAlreal[i] = erral_m;
-    // 	//    	cout<<"prev. Hit was merged: "<<erral_m<<endl;
-    //   }
-    //   else{
-    // 	errAlreal[i] = erral;
-    // 	//    	cout<<"prev. Hit is single: "<<erral<<endl;
-    //   }
-    // }
-    // else
-    //   errAlreal[i] = PndLmdLinFitTask::Instance()->GetSigmaMScone();
-    double zpr[4]={z[0],z[1],z[2],z[2]};
-    if(i>2) zpr[3] = z[3];
+    if(z[0]>0.)  z_perp[i]+=0.25;//shifted modules
+    else z_perp[i]-=0.25;
+  int izcur = 0;
+    for(int izpl = 0;izpl<8;izpl++){
+      zpr[izcur] = z_perp[izpl] - thCVD-thSens;
+      izcur++;
+      //  zpr[izcur] = z_perp[izpl] +thCVD;
+      zpr[izcur] = z_perp[izpl]+thCVD;
+      izcur++;
+    }
+  }
+  for (int i  = 0; i < npoints; ++i) {  
     double chi2 = distance_MS(x[i],y[i],z[i],errx[i],erry[i],errz[i],par,zpr); 
     sum += chi2;
   }
   double fdal = 0;
-  for(int jms=0;jms<npoints-1;jms++){
-    fdal += TMath::Power((par[6+jms]/(errAlreal[jms])),2);
-    fdal += TMath::Power((par[10+jms]/(errAlreal[jms])),2);
+  for(int jms=0;jms<npoints-1;jms=jms+2){
+    // double errTot = sqrt(erralA*erralA+erralB*erralB);
+    // fdal += TMath::Power(((par[7+jms]-par[6+jms])/errTot),2);
+    // fdal += TMath::Power(((par[15+jms]-par[14+jms])/errTot),2);
+    fdal += TMath::Power((par[6+jms]/erralA),2);
+    fdal += TMath::Power((par[7+jms]/erralB),2);
+    fdal += TMath::Power((par[14+jms]/erralA),2);
+    fdal += TMath::Power((par[15+jms]/erralB),2);
   }
   sum +=fdal;
 }
@@ -677,12 +866,14 @@ double PndLmdLinFitTask::ScatteredAngle(double radLen){
   //  Double_t thetaMS = 0.2*13.6*1e-3*TMath::Sqrt(X_to_X0)*(1+0.038*TMath::Log(X_to_X0))/(beta*fPbeam);
   Double_t thetaMS = 13.6*1e-3*TMath::Sqrt(X_to_X0)*(1+0.038*TMath::Log(X_to_X0))/(beta*fPbeam);
   cout<<"for Pbeam = "<<fPbeam<<" thetaMS="<<thetaMS<<endl;
+  //  return thetaMS;
   return thetaMS;
 }
 
 //chi2 with kink angles fit [G.Lutz, NIM A273 (1988)]
 double PndLmdLinFitTask::line3DfitMS(Int_t nd, TGraph2DErrors* gr, TVector3 posSeed, TVector3 dirSeed, Double_t* fitpar, TMatrixDSym *covmatrix)
 {
+  const int nparams = 22;
   if(fVerbose>2) cout<<"PndLmdLinFitTask::line3Dfit with SEED is used (multiple scattering taking into account with kinks)"<<endl;
   Int_t Npoint = gr->GetN();
   Double_t ErrX1 = gr->GetErrorX(0);
@@ -716,12 +907,12 @@ double PndLmdLinFitTask::line3DfitMS(Int_t nd, TGraph2DErrors* gr, TVector3 posS
     dirSeed.Print();
   }
   double l = 1/dirSeed.Mag();
-  double pStart[14] = {posSeed.X(),l*dirSeed.X(),posSeed.Y(),l*dirSeed.Y(),posSeed.Z(),l*dirSeed.Z(),0,0,0,0,0,0,0,0};
-  // double st3MS = fsigmaMS;
-  double st3MS = 0;// fitting angels on the last plane doesn't make sense
-  double st2MS = fsigmaMS;
-  if(Npoint<4) st2MS=0;
-  double pStartErr[14] = {ErrX1,errRx,ErrY1,errRy,ErrZ1,errRz,fsigmaMS,fsigmaMS,fsigmaMS,fsigmaMS,fsigmaMS,fsigmaMS,fsigmaMS,fsigmaMS};
+  double pStart[nparams] = {posSeed.X(),l*dirSeed.X(),posSeed.Y(),l*dirSeed.Y(),posSeed.Z(),l*dirSeed.Z(),0,0,0,0,0,0,0,0};
+  double st3MS = fsigmaMSb;
+  //  double st3MS = 0;// fitting angels on the last plane doesn't make sense
+  double st2MS = fsigmaMSb;
+  // if(Npoint<4) st2MS=0;
+  double pStartErr[nparams] = {ErrX1,errRx,ErrY1,errRy,ErrZ1,errRz,fsigmaMSb,fsigmaMSb,fsigmaMSb,fsigmaMSb,fsigmaMSb,fsigmaMSb,fsigmaMSb,fsigmaMSb};
 
   if(fVerbose>5){
     for(int i=0;i<6;i++)
@@ -732,21 +923,70 @@ double PndLmdLinFitTask::line3DfitMS(Int_t nd, TGraph2DErrors* gr, TVector3 posS
   fmin->SetParameter(1,"Ax",pStart[1],pStartErr[1],0,0);
   fmin->SetParameter(2,"y0",pStart[2],pStartErr[2],0,0);
   fmin->SetParameter(3,"Ay",pStart[3],pStartErr[3],0,0);
-  fmin->SetParameter(4,"z0",pStart[4],0,0,0);
+  //  fmin->SetParameter(4,"z0",pStart[4],0,0,0);
   fmin->SetParameter(5,"Az",pStart[5],0,0,0);
-  // fmin->SetParameter(4,"z0",pStart[4],pStartErr[4],0,0);
-  // fmin->SetParameter(5,"Az",pStart[5],pStartErr[5],0,0);
-  fmin->SetParameter(6,"al0x",pStart[6],fsigmaMS,0,0);
-  //  fmin->SetParameter(6,"al0x",pStart[6],0,0,0);
-  fmin->SetParameter(7,"al1x",pStart[6],fsigmaMS,0,0);
-  fmin->SetParameter(8,"al2x",pStart[6],st2MS,0,0);
-  fmin->SetParameter(9,"al3x",pStart[6],st3MS,0,0);
-  fmin->SetParameter(10,"al0y",pStart[6],fsigmaMS,0,0);
-  //  fmin->SetParameter(10,"al0y",pStart[6],0,0,0);
-  fmin->SetParameter(11,"al1y",pStart[6],fsigmaMS,0,0);
-  fmin->SetParameter(12,"al2y",pStart[6],st2MS,0,0);
-  fmin->SetParameter(13,"al3y",pStart[6],st3MS,0,0);
+  fmin->SetParameter(4,"z0",pStart[4],pStartErr[4],0,0);
+  // // fmin->SetParameter(5,"Az",pStart[5],pStartErr[5],0,0);
+  // //  fmin->SetParameter(6,"al0x",pStart[6],fsigmaMSb,0,0);
+  // fmin->SetParameter(6,"al0x",pStart[6],0,0,0);
+  // fmin->SetParameter(7,"al1x",pStart[6],fsigmaMSb,0,0);
+  // fmin->SetParameter(8,"al2x",pStart[6],st2MS,0,0);
+  // fmin->SetParameter(9,"al3x",pStart[6],st3MS,0,0);
+  // fmin->SetParameter(10,"al0y",pStart[6],fsigmaMSb,0,0);
+  // //  fmin->SetParameter(10,"al0y",pStart[6],0,0,0);
+  // fmin->SetParameter(11,"al1y",pStart[6],fsigmaMSb,0,0);
+  // fmin->SetParameter(12,"al2y",pStart[6],st2MS,0,0);
+  // fmin->SetParameter(13,"al3y",pStart[6],st2MS,0,0);
 
+  // fmin->SetParameter(14,"al0xl",pStart[6],fsigmaMSb,0,0);
+  // fmin->SetParameter(15,"al1xl",pStart[6],fsigmaMSb,0,0);
+  // fmin->SetParameter(16,"al2xl",pStart[6],st2MS,0,0);
+  // fmin->SetParameter(17,"al3xl",pStart[6],st3MS,0,0);
+  // fmin->SetParameter(18,"al0yl",pStart[6],fsigmaMSb,0,0);
+  // fmin->SetParameter(19,"al1yl",pStart[6],fsigmaMSb,0,0);
+  // fmin->SetParameter(20,"al2yl",pStart[6],st2MS,0,0);
+  // fmin->SetParameter(21,"al3yl",pStart[6],st3MS,0,0);
+
+
+  fmin->SetParameter(6,"al0x_a",pStart[6],0,0,0);
+  //  fmin->SetParameter(6,"al0x_a",pStart[6],fsigmaMSb,0,0);
+  fmin->SetParameter(7,"al0x_b",pStart[6],fsigmaMSb,0,0);
+  fmin->SetParameter(8,"al1x_a",pStart[6],fsigmaMSb,0,0);
+  fmin->SetParameter(9,"al1x_b",pStart[6],fsigmaMSb,0,0);
+  fmin->SetParameter(10,"al2x_a",pStart[6],fsigmaMSb,0,0);
+  fmin->SetParameter(11,"al2x_b",pStart[6],st2MS,0,0);
+  fmin->SetParameter(12,"al3x_a",pStart[6],st2MS,0,0);
+  fmin->SetParameter(13,"al3x_b",pStart[6],st3MS,0,0);
+
+  fmin->SetParameter(14,"al0y_a",pStart[6],0,0,0);
+  //fmin->SetParameter(14,"al0y_a",pStart[6],fsigmaMSb,0,0);
+  fmin->SetParameter(15,"al0y_b",pStart[6],fsigmaMSb,0,0);
+  fmin->SetParameter(16,"al1y_a",pStart[6],fsigmaMSb,0,0);
+  fmin->SetParameter(17,"al1y_b",pStart[6],fsigmaMSb,0,0);
+  fmin->SetParameter(18,"al2y_a",pStart[6],fsigmaMSb,0,0);
+  fmin->SetParameter(19,"al2y_b",pStart[6],st2MS,0,0);
+  fmin->SetParameter(20,"al3y_a",pStart[6],st2MS,0,0);
+  fmin->SetParameter(21,"al3y_b",pStart[6],st3MS,0,0);
+  // fmin->FixParameter(7);
+  // fmin->FixParameter(9);
+  // fmin->FixParameter(11);
+  // fmin->FixParameter(13);
+  // fmin->FixParameter(15);
+  // fmin->FixParameter(17);
+  // fmin->FixParameter(19);
+  // fmin->FixParameter(21);
+
+  // fmin->FixParameter(6);
+  // fmin->FixParameter(8);
+  // // fmin->FixParameter(10);
+  // // fmin->FixParameter(12);
+  // // fmin->FixParameter(14);
+  // // fmin->FixParameter(16);
+  // fmin->FixParameter(18);
+  // fmin->FixParameter(20);
+
+
+  //  fmin->SetPrecision(1e-5);
 
   // Now ready for minimization step
   arglist[0] = 3500;
@@ -760,9 +1000,9 @@ double PndLmdLinFitTask::line3DfitMS(Int_t nd, TGraph2DErrors* gr, TVector3 posS
    if(fVerbose>1)
      fmin->PrintResults(1,amin);
 
-   Double_t fitparerr[14];
+   Double_t fitparerr[nparams];
    // get fit parameters
-   for (int i = 0; i <14; ++i){
+   for (int i = 0; i <nparams; ++i){
       fitpar[i] = fmin->GetParameter(i); 
       fitparerr[i] = fmin->GetParError(i);
    }
@@ -776,48 +1016,85 @@ double PndLmdLinFitTask::line3DfitMS(Int_t nd, TGraph2DErrors* gr, TVector3 posS
      }
    }
 
-   //!!!!!!!!!!!!!!!!!! dx, dy and their errors should be corrected since dx = dx0+alx0; dy = dy0+aly0; 
-   // fitpar[1] +=  fitpar[6]+fitpar[7];
-   // fitpar[3] +=  fitpar[10]+fitpar[11];
-   // fitpar[1] +=  fitpar[6]+fitpar[7]+fitpar[8]+fitpar[9];
-   // fitpar[3] +=  fitpar[10]+fitpar[11]+fitpar[12]+fitpar[13];
-   int i_dxal0 = 6-2;//index of alx0 parameter: z0,dz - fixed
-   int i_dyal0 = 10-2-1;//index of aly0 parameter: z0,dz - fixed, alx3 - fixed,
-   if(st2MS==0) i_dyal0 -=1; //alx2 - fixed
+   // //!!!!!!!!!!!!!!!!!! dx, dy and their errors should be corrected since dx = dx0+alx0; dy = dy0+aly0; 
+   // // fitpar[1] +=  fitpar[6]+fitpar[7];
+   // // fitpar[3] +=  fitpar[10]+fitpar[11];
+   // // fitpar[1] +=  fitpar[6]+fitpar[7]+fitpar[8]+fitpar[9];
+   // // fitpar[3] +=  fitpar[10]+fitpar[11]+fitpar[12]+fitpar[13];
+   // int i_dxal0 = 6-3;//index of alx0 parameter: z0,dz - fixed, alx0_a - fixed
+   // int i_dyal0 = 14-3-1;//index of aly0 parameter: z0,dz - fixed,  alx0_a - fixed, alx3_b - fixed
+   // if(st2MS==0) i_dyal0 -=1; //alx2_b - fixed
 
-   double err_dx_2 = (*covmatrix)(1,1);
-   double err_dy_2 = (*covmatrix)(3,3);
-   // double err_dx_2, err_dy_2;
-   // int Nang = 3;
-   // if(st2MS==0) Nang -=1;
-   int Nang = 2;
-   for(int iadd=0;iadd<Nang;iadd++){
-     fitpar[1] += fitpar[6+iadd];
-     fitpar[3] += fitpar[10+iadd];
-     // err_dx_2+=2*(fmin->GetCovarianceMatrixElement(1,(i_dxal0+iadd)));
-     // err_dy_2+=2*(fmin->GetCovarianceMatrixElement(3,(i_dyal0+iadd)));
-     // // err_dx_2+=2*(fmin->GetCovarianceMatrixElement(1,(i_dyal0+iadd)));
-     // // err_dy_2+=2*(fmin->GetCovarianceMatrixElement(3,(i_dxal0+iadd)));
-     // for(int jadd=0;jadd<Nang;jadd++){
-     //   // // err_dx_2+=(fmin->GetCovarianceMatrixElement(1,(i_dxal0+iadd)));
-     //   // // err_dx_2+=(fmin->GetCovarianceMatrixElement(1,(i_dxal0+jadd)));
-     //   // // err_dy_2+=(fmin->GetCovarianceMatrixElement(3,(i_dyal0+iadd)));
-     //   // // err_dy_2+=(fmin->GetCovarianceMatrixElement(3,(i_dyal0+jadd)));
-     //   err_dx_2+=(fmin->GetCovarianceMatrixElement((i_dxal0+iadd),(i_dxal0+jadd)));
-     //   err_dy_2+=(fmin->GetCovarianceMatrixElement((i_dyal0+iadd),(i_dyal0+jadd)));
-     //   // // err_dx_2+=(fmin->GetCovarianceMatrixElement((i_dyal0+iadd),(i_dyal0+jadd)));
-     //   // // err_dy_2+=(fmin->GetCovarianceMatrixElement((i_dxal0+iadd),(i_dxal0+jadd)));
-     // }
-   }
+   // double err_dx_2 = (*covmatrix)(1,1);
+   // double err_dy_2 = (*covmatrix)(3,3);
+   // // double err_dx_2, err_dy_2;
+   // // int Nang = 3;
+   // // if(st2MS==0) Nang -=1;
+
+   // int Nang = 2;
+   // for(int iadd=1;iadd<Nang;iadd++){
+   //   cout<<"Add param for b_x: #"<<6+iadd<<" b_y: #"<<14+iadd<<endl;
+   //   cout<<"Errors contribution: x:"<<i_dxal0+iadd<<" y:"<<i_dyal0+iadd<<endl;
+   //   fitpar[1] += fitpar[6+iadd];
+   //   fitpar[3] += fitpar[14+iadd];
+   //   // fitpar[3] += fitpar[10+iadd];
+   //   // fitpar[3] += fitpar[18+iadd];
+   //   err_dx_2+=2*(fmin->GetCovarianceMatrixElement(1,(i_dxal0+iadd)));
+   //   err_dy_2+=2*(fmin->GetCovarianceMatrixElement(3,(i_dyal0+iadd)));
+   //   // err_dx_2+=2*(fmin->GetCovarianceMatrixElement(1,(i_dxal0+6+iadd)));
+   //   // err_dy_2+=2*(fmin->GetCovarianceMatrixElement(3,(i_dyal0+6+iadd)));
+
+   //   for(int jadd=0;jadd<Nang;jadd++){
+   //     err_dx_2+=(fmin->GetCovarianceMatrixElement((i_dxal0+iadd),(i_dxal0+jadd)));
+   //     err_dy_2+=(fmin->GetCovarianceMatrixElement((i_dyal0+iadd),(i_dyal0+jadd)));
+   //     // err_dx_2+=(fmin->GetCovarianceMatrixElement((i_dxal0+6+iadd),(i_dxal0+6+jadd)));
+   //     // err_dy_2+=(fmin->GetCovarianceMatrixElement((i_dyal0+6+iadd),(i_dyal0+6+jadd)));
+   //     // err_dx_2+=(fmin->GetCovarianceMatrixElement((i_dxal0+iadd),(i_dxal0+6+jadd)));
+   //     // err_dy_2+=(fmin->GetCovarianceMatrixElement((i_dyal0+iadd),(i_dyal0+6+jadd)));
+   //     // // // err_dx_2+=(fmin->GetCovarianceMatrixElement((i_dyal0+iadd),(i_dyal0+jadd)));
+   //     // // // err_dy_2+=(fmin->GetCovarianceMatrixElement((i_dxal0+iadd),(i_dxal0+jadd)));
+   //   }
+   // }
+
+
+   //   // fitpar[1] += fitpar[6];
+   //   // fitpar[1] += fitpar[7];
+   //   // fitpar[3] += fitpar[10];
+   //   // fitpar[3] += fitpar[18];
+   //   // //     fitpar[1] += fitpar[7];
+   //   // //     fitpar[3] += fitpar[11];
+   //   // err_dx_2+=2*(fmin->GetCovarianceMatrixElement(1,(i_dxal0)));
+   //   // err_dy_2+=2*(fmin->GetCovarianceMatrixElement(3,(i_dyal0)));
+   //   // // err_dx_2+=2*(fmin->GetCovarianceMatrixElement(1,(i_dxal0+1)));
+   //   // // err_dy_2+=2*(fmin->GetCovarianceMatrixElement(3,(i_dyal0+1)));
+   //   // err_dx_2+=2*(fmin->GetCovarianceMatrixElement(1,(i_dxal0+6)));
+   //   // err_dy_2+=2*(fmin->GetCovarianceMatrixElement(3,(i_dyal0+6)));
+
+
+   //   //   err_dx_2+=(fmin->GetCovarianceMatrixElement((i_dxal0),(i_dxal0)));
+   //   //   err_dy_2+=(fmin->GetCovarianceMatrixElement((i_dyal0),(i_dyal0)));
+   //   //   err_dx_2+=(fmin->GetCovarianceMatrixElement((i_dxal0+6),(i_dxal0+6)));
+   //   //   err_dy_2+=(fmin->GetCovarianceMatrixElement((i_dyal0+6),(i_dyal0+6)));
+   //   //   err_dx_2+=(fmin->GetCovarianceMatrixElement((i_dxal0),(i_dxal0+6)));
+   //   //   err_dy_2+=(fmin->GetCovarianceMatrixElement((i_dyal0),(i_dyal0+6)));
+
+   //   //   // err_dx_2+=(fmin->GetCovarianceMatrixElement((i_dxal0+1),(i_dxal0+1)));
+   //   //   // err_dy_2+=(fmin->GetCovarianceMatrixElement((i_dyal0+1),(i_dyal0+1)));
+   //   //   // err_dx_2+=(fmin->GetCovarianceMatrixElement((i_dxal0+7),(i_dxal0+7)));
+   //   //   // err_dy_2+=(fmin->GetCovarianceMatrixElement((i_dyal0+7),(i_dyal0+7)));
+   //   //   // err_dx_2+=(fmin->GetCovarianceMatrixElement((i_dxal0),(i_dxal0+7)));
+   //   //   // err_dy_2+=(fmin->GetCovarianceMatrixElement((i_dyal0),(i_dyal0+7)));
+
+
    // //   double err_dy_2 = (*covmatrix)(3,3)+(*covmatrix)(i_dyal0,i_dyal0)+2*(*covmatrix)(3,i_dyal0);// fmin->GetCovarianceMatrixElement(i,j);
-   cout<<"Before:   (*covmatrix)(1,1) = "<<(*covmatrix)(1,1)<<endl;
-   cout<<"Before:   (*covmatrix)(3,3) = "<<(*covmatrix)(3,3)<<endl;
-   if(err_dx_2<0) err_dx_2*=-1;
-   (*covmatrix)(1,1)=err_dx_2;
-   if(err_dy_2<0) err_dy_2*=-1;
-   (*covmatrix)(3,3)=err_dy_2;
-   cout<<"After:   (*covmatrix)(1,1) = "<<(*covmatrix)(1,1)<<endl;
-   cout<<"After:   (*covmatrix)(3,3) = "<<(*covmatrix)(3,3)<<endl;
+   // cout<<"Before:   (*covmatrix)(1,1) = "<<(*covmatrix)(1,1)<<endl;
+   // cout<<"Before:   (*covmatrix)(3,3) = "<<(*covmatrix)(3,3)<<endl;
+   // //  if(err_dx_2<0) err_dx_2*=-1;
+   // (*covmatrix)(1,1)=err_dx_2;
+   // // if(err_dy_2<0) err_dy_2*=-1;
+   // (*covmatrix)(3,3)=err_dy_2;
+   // cout<<"After:   (*covmatrix)(1,1) = "<<(*covmatrix)(1,1)<<endl;
+   // cout<<"After:   (*covmatrix)(3,3) = "<<(*covmatrix)(3,3)<<endl;
    // //!!!!!!!!!!!!!!!!!!
 
    if((fitpar[1]*fitpar[1]+fitpar[3]*fitpar[3])<1.){
@@ -843,7 +1120,47 @@ double PndLmdLinFitTask::line3DfitMS(Int_t nd, TGraph2DErrors* gr, TVector3 posS
    //  cout<<"After fit: Chi^2 = "<<chi2<<endl;
    ///-------------------------------------------------------------
    //  ttal = new TNtuple("ttal","kink angles","alx0:alx1:alx2:aly0:aly1:aly2:erralx1:erralx2:erraly1:erraly2:npoints") ;
-   if(fVerbose>2)  ttal->Fill(fitpar[6],fitpar[7],fitpar[8],fitpar[10],fitpar[11],fitpar[12],fitparerr[7],fitparerr[8],fitparerr[11],fitparerr[12],Npoint);
+   if(fVerbose>2){
+     falx0a = fitpar[6];
+     falx1a = fitpar[7];
+     falx2a = fitpar[8];
+     falx3a = fitpar[9];
+     faly0a = fitpar[10];
+     faly1a = fitpar[11];
+     faly2a = fitpar[12];
+     faly3a = fitpar[13];
+     falx0b = fitpar[14];
+     falx1b = fitpar[15];
+     falx2b = fitpar[16];
+     falx3b = fitpar[17];
+     faly0b = fitpar[18];
+     faly1b = fitpar[19];
+     faly2b = fitpar[20];
+     faly3b = fitpar[21];
+     ferralx0a = fitparerr[6];
+     ferralx1a = fitparerr[7];
+     ferralx2a = fitparerr[8];
+     ferralx3a = fitparerr[9];
+     ferraly0a = fitparerr[10];
+     ferraly1a = fitparerr[11];
+     ferraly2a = fitparerr[12];
+     ferraly3a = fitparerr[13];
+     ferralx0b = fitparerr[14];
+     ferralx1b = fitparerr[15];
+     ferralx2b = fitparerr[16];
+     ferralx3b = fitparerr[17];
+     ferraly0b = fitparerr[18];
+     ferraly1b = fitparerr[19];
+     ferraly2b = fitparerr[20];
+     ferraly3b = fitparerr[21];
+     fnpoints = Npoint;
+     fchi2 =  chi2;
+     fzhit0 = (gr->GetZ())[0];
+     ttal->Fill();
+     //ttal->Fill(fitpar[6],fitpar[7],fitpar[8],fitpar[10],fitpar[11],fitpar[12],fitparerr[7],fitparerr[8],fitparerr[11],fitparerr[12],Npoint);
+     //     ttal->Fill((fitpar[6]-fitpar[14]),(fitpar[7]-fitpar[15]),(fitpar[8]-fitpar[16]),(fitpar[10]-fitpar[18]),(fitpar[11]-fitpar[19]),(fitpar[12]-fitpar[20]),
+     //		fitparerr[7],fitparerr[8],fitparerr[11],fitparerr[12],Npoint);
+   }
 
    fmin->Clear();
    //delete min;
