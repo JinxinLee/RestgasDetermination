@@ -1544,34 +1544,29 @@ void PndDrc::ConstructOpGeometry() {
     gMC->SetMaterialProperty("MirrSurface", "REFLECTIVITY", npoints_r, ephoton_r, reflectivity_r);
   } 
   
-  if(fGeo->barNum() > 1){
-    for(Int_t i=0; i<fGeo->barNum(); i++){
-      //gMC->SetBorderSurface("BarAirSurface", "DrcBarSensor", i+1, "DrcAirBox", 0, "BarSurface");
-      if(fFocusing == 1 || fFocusing == 0 || fFocusing == 3){ // lens or no focusing 
-        if(fMirrorGap == 0.){              
-          gMC->SetBorderSurface("BarMirrSurface", "DrcBarSensor", i+1, "DrcMirr", i+1, "MirrSurface");
-	}
-      }
-      if(fFocusing == 1 || fFocusing == 3){
-        //gMC->SetBorderSurface("Lens1AirSurface", "DrcLENS1", i+1, "DrcAirBox", 0, "LensSurface");
-        //gMC->SetBorderSurface("Lens2AirSurface", "DrcLENS2", i+1, "DrcAirBox", 0, "LensSurface");
-        //gMC->SetBorderSurface("Lens3AirSurface", "DrcLENS3", i+1, "DrcAirBox", 0, "LensSurface");
+  for(Int_t i=0; i<fGeo->barNum(); i++){
+    if(fFocusing == 1 || fFocusing == 0 || fFocusing == 3){ // lens or no focusing 
+      if(fMirrorGap == 0.){              
+	gMC->SetBorderSurface("BarMirrSurface", "DrcBarSensor", i+1, "DrcMirr", i+1, "MirrSurface");
       }
     }
+    if(fFocusing == 1 || fFocusing == 3){
+      //gMC->SetBorderSurface("Lens1AirSurface", "DrcLENS1", i+1, "DrcAirBox", 0, "LensSurface");
+      //gMC->SetBorderSurface("Lens2AirSurface", "DrcLENS2", i+1, "DrcAirBox", 0, "LensSurface");
+      //gMC->SetBorderSurface("Lens3AirSurface", "DrcLENS3", i+1, "DrcAirBox", 0, "LensSurface");
+    }
+  }
     
-    gMC->DefineOpSurface("EVSurface", kGlisur, kDielectric_metal, kPolished, 0.0);
-    //gMC->SetMaterialProperty("EVSurface", "REFLECTIVITY", npoints_i, ephoton_i, reflectivity_i);
-    gMC->SetBorderSurface("EVAirSurface", "DrcEVSensor", 1, "BarrelDIRC", 0, "EVSurface"); 
+  gMC->DefineOpSurface("EVSurface", kGlisur, kDielectric_metal, kPolished, 0.0);
+  //gMC->SetMaterialProperty("EVSurface", "REFLECTIVITY", npoints_i, ephoton_i, reflectivity_i);
+  gMC->SetBorderSurface("EVAirSurface", "DrcEVSensor", 1, "BarrelDIRC", 0, "EVSurface"); 
   
-    //gMC->DefineOpSurface("PDSurface", kGlisur, kDielectric_dielectric, kPolished, 0.0);
-    //gMC->SetMaterialProperty("PDSurface", "EFFICIENCY", npoints_i, ephoton_i, reflectivity_i);
-    //gMC->SetBorderSurface("EVPDSurface", "DrcEVSensor", 1, "DrcPDSensor", 1, "PDSurface");
+  //gMC->DefineOpSurface("PDSurface", kGlisur, kDielectric_dielectric, kPolished, 0.0);
+  //gMC->SetMaterialProperty("PDSurface", "EFFICIENCY", npoints_i, ephoton_i, reflectivity_i);
+  //gMC->SetBorderSurface("EVPDSurface", "DrcEVSensor", 1, "DrcPDSensor", 1, "PDSurface");
     
-    //if(fMirrorGap > 0.){
-    //  cout<<"-I- : mirror gap > 0"<<endl;
-    gMC->SetSkinSurface("AirMirrorSurface", "DrcMirr", "MirrSurface");
-    // }   
-  }            
+  gMC->SetSkinSurface("AirMirrorSurface", "DrcMirr", "MirrSurface");          
+ 
   cout<<" =======  DRC::ConstructOpGeometry -> Finished! ====== "<< endl;     
 }  
 
