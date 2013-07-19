@@ -845,6 +845,13 @@ public:
 	// small function to test some transformation matrices and methods
 	void Test_matrices();
 
+	// Draw the Sensors as overlays to an active root pad
+	// Projection in XY is used
+	void Draw_Sensors(int iplane, bool aligned = true, bool lmd_frame = true);
+
+	// Draw one Sensor as an overlay to an active root pad
+	// Projection in XY is used
+	void Draw_Sensor(int ihalf, int iplane, int imodule, int iside, int idie, int isensor, bool aligned = true, bool lmd_frame = true);
 };
 
 

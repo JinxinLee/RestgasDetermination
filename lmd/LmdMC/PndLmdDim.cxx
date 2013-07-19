@@ -1556,6 +1556,7 @@ TGeoMatrix* PndLmdDim::Get_matrix(int ihalf, int iplane, int imodule, int iside,
 	it_transformation_matrices = matrices->find(Generate_key(ihalf, iplane, imodule, iside, idie, isensor));
 	if (it_transformation_matrices == matrices->end()) {
 		cout << " Error in PndLmdDim::Get_matrix: Transformation matrix not existent! " << endl;
+		//cout << ihalf << " " << iplane << " " << imodule << " " << iside << " " << idie << " " << isensor << endl;
 		return NULL;
 	} else {
 		return it_transformation_matrices->second;
@@ -1940,6 +1941,55 @@ void PndLmdDim::Test_matrices(){
 							to_sens = Transform_sensor_to_global(to_sens, ihalf, iplane, imodule, iside, idie, isensor);
 							if ((from_sens-to_sens).Mag() > 1e7) cout << " error " << endl;
 						}
+}
+
+void PndLmdDim::Draw_Sensors(int iplane, bool aligned, bool lmd_frame){
+	/*
+	for (unsigned int ihalf = 0; ihalf < 1; ihalf++)
+	//for (unsigned int iplane = 0; iplane < n_planes; iplane++)
+		for (unsigned int imodule = 0; imodule < n_cvd_discs; imodule++)
+			for (unsigned int iside = 0; iside < 1; iside++)
+				for (unsigned int idie = 0; idie < 2; idie++)
+					for (unsigned int isensor = 0; isensor < 3; isensor++)*/
+	for (unsigned int sensorID = 0; sensorID < 400 ; sensorID++)
+	{
+		//cout << " sensID " << sensorID << endl;
+		int ihalf, _iplane, imodule, iside, idie, isensor;
+		Get_sensor_by_id(sensorID, ihalf, _iplane, imodule, iside, idie, isensor);
+		if (iplane != _iplane) continue;
+		//cout << " " << ihalf << " " << iplane << endl;
+		//if (idie == 1 && isensor == 2) continue;
+		Draw_Sensor(ihalf, iplane, imodule, iside, idie, isensor, aligned, lmd_frame);
+						//TVector3 from_sens(1.,2.,3.);
+						//TVector3 to_sens = Transform_global_to_sensor(from_sens, ihalf, iplane, imodule, iside, idie, isensor);
+						//to_sens = Transform_sensor_to_global(to_sens, ihalf, iplane, imodule, iside, idie, isensor);
+						//if ((from_sens-to_sens).Mag() > 1e7) cout << " error " << endl;
+	}
+}
+
+#include "TPolyLine.h"
+#include "TPad.h"
+void PndLmdDim::Draw_Sensor(int ihalf, int iplane, int imodule, int iside, int idie, int isensor, bool aligned, bool lmd_frame){
+	   Double_t x[5] = {-maps_width,maps_width,maps_width,-maps_width,-maps_width};
+	   Double_t y[5] = {-maps_height,-maps_height,maps_height,maps_height,-maps_height};
+	   for (unsigned int ipoint = 0; ipoint < 5; ipoint++){
+		   TVector3 point(x[ipoint], y[ipoint], 0);
+		   TVector3 point_master;
+		   if (lmd_frame){
+			   point_master = Transform_sensor_to_lmd_local(point, ihalf, iplane, imodule, iside, idie, isensor, false, aligned);
+		   } else {
+			   point_master = Transform_sensor_to_global(point, ihalf, iplane, imodule, iside, idie, isensor, false, aligned);
+		   }
+		   x[ipoint] = point_master.X();
+		   y[ipoint] = point_master.Y();
+	   }
+	   TPolyLine *pline = new TPolyLine(5,x,y);
+	   //pline->SetFillColor(38);
+	   pline->SetLineColor(2);
+	   pline->SetLineWidth(1);
+	   //pline->Draw("f");
+	   pline->Draw();
+	   gPad->Update();
 }
 
 //
