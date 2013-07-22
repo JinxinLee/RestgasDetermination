@@ -1929,13 +1929,13 @@ void PndLmdDim::Test_matrices(){
 	//TVector3 to = Transform_global_to_lmd_local(from);
 	//to = Transform_lmd_local_to_global(to);
 	//if ((from-to).Mag() > 1e7) cout << " error " << endl;
-	for (unsigned int ihalf = 0; ihalf < 1; ihalf++)
+	for (unsigned int ihalf = 0; ihalf < 2; ihalf++)
 		for (unsigned int iplane = 0; iplane < n_planes; iplane++)
-			for (unsigned int imodule = 0; imodule < n_cvd_discs; imodule++)
-				for (unsigned int iside = 0; iside < 1; iside++)
+			for (unsigned int imodule = 0; imodule < nmodules; imodule++)
+				for (unsigned int iside = 0; iside < 2; iside++)
 					for (unsigned int idie = 0; idie < 2; idie++)
 						for (unsigned int isensor = 0; isensor < 3; isensor++){
-							if (idie == 1 && isensor == 2) continue;
+							if (idie == 1 && isensor == 0) continue;
 							TVector3 from_sens(1.,2.,3.);
 							TVector3 to_sens = Transform_global_to_sensor(from_sens, ihalf, iplane, imodule, iside, idie, isensor);
 							to_sens = Transform_sensor_to_global(to_sens, ihalf, iplane, imodule, iside, idie, isensor);
@@ -1944,32 +1944,29 @@ void PndLmdDim::Test_matrices(){
 }
 
 void PndLmdDim::Draw_Sensors(int iplane, bool aligned, bool lmd_frame){
-	/*
-	for (unsigned int ihalf = 0; ihalf < 1; ihalf++)
+
+	for (unsigned int ihalf = 0; ihalf < 2; ihalf++)
 	//for (unsigned int iplane = 0; iplane < n_planes; iplane++)
-		for (unsigned int imodule = 0; imodule < n_cvd_discs; imodule++)
-			for (unsigned int iside = 0; iside < 1; iside++)
+		for (unsigned int imodule = 0; imodule < nmodules; imodule++)
+			for (unsigned int iside = 0; iside < 2; iside++)
 				for (unsigned int idie = 0; idie < 2; idie++)
-					for (unsigned int isensor = 0; isensor < 3; isensor++)*/
-	for (unsigned int sensorID = 0; sensorID < 400 ; sensorID++)
+					for (unsigned int isensor = 0; isensor < 3; isensor++)
+	//for (unsigned int sensorID = 0; sensorID < 400 ; sensorID++)
 	{
 		//cout << " sensID " << sensorID << endl;
-		int ihalf, _iplane, imodule, iside, idie, isensor;
-		Get_sensor_by_id(sensorID, ihalf, _iplane, imodule, iside, idie, isensor);
-		if (iplane != _iplane) continue;
+		//int ihalf, _iplane, imodule, iside, idie, isensor;
+		//Get_sensor_by_id(sensorID, ihalf, _iplane, imodule, iside, idie, isensor);
+		//cout /*<< sensorID*/ << " " << ihalf << " " << iplane << " " << imodule << " " << iside << " " << idie << " " << isensor << endl;
+		//if (iplane != _iplane) continue;
 		//cout << " " << ihalf << " " << iplane << endl;
-		//if (idie == 1 && isensor == 2) continue;
-		Draw_Sensor(ihalf, iplane, imodule, iside, idie, isensor, aligned, lmd_frame);
-						//TVector3 from_sens(1.,2.,3.);
-						//TVector3 to_sens = Transform_global_to_sensor(from_sens, ihalf, iplane, imodule, iside, idie, isensor);
-						//to_sens = Transform_sensor_to_global(to_sens, ihalf, iplane, imodule, iside, idie, isensor);
-						//if ((from_sens-to_sens).Mag() > 1e7) cout << " error " << endl;
+		if (idie == 1 && isensor == 0) continue;
+		TPolyLine* sensor_shape = Get_Sensor_Shape(ihalf, iplane, imodule, iside, idie, isensor, aligned, lmd_frame);
+		if (iside == 1) sensor_shape->SetLineColor(17); else sensor_shape->SetLineColor(13);
+		sensor_shape->Draw();
 	}
 }
 
-#include "TPolyLine.h"
-#include "TPad.h"
-void PndLmdDim::Draw_Sensor(int ihalf, int iplane, int imodule, int iside, int idie, int isensor, bool aligned, bool lmd_frame){
+TPolyLine* PndLmdDim::Get_Sensor_Shape(int ihalf, int iplane, int imodule, int iside, int idie, int isensor, bool aligned, bool lmd_frame){
 	   Double_t x[5] = {-maps_width,maps_width,maps_width,-maps_width,-maps_width};
 	   Double_t y[5] = {-maps_height,-maps_height,maps_height,maps_height,-maps_height};
 	   for (unsigned int ipoint = 0; ipoint < 5; ipoint++){
@@ -1983,13 +1980,14 @@ void PndLmdDim::Draw_Sensor(int ihalf, int iplane, int imodule, int iside, int i
 		   x[ipoint] = point_master.X();
 		   y[ipoint] = point_master.Y();
 	   }
-	   TPolyLine *pline = new TPolyLine(5,x,y);
+	   TPolyLine* pline = new TPolyLine(5,x,y);
 	   //pline->SetFillColor(38);
 	   pline->SetLineColor(2);
 	   pline->SetLineWidth(1);
 	   //pline->Draw("f");
-	   pline->Draw();
-	   gPad->Update();
+	   //pline->Draw();
+	   //gPad->Update();
+	   return pline;
 }
 
 //

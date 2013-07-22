@@ -35,6 +35,7 @@
 /* #include<PndLmdContFact.h> */
 /* #include<TList.h> */
 #include<LmdTools/PndLmdAlignPar.h>
+#include "TPolyLine.h"
 /* #include "FairRuntimeDb.h" */
 /* #include "FairRunAna.h" */
 /* #include "FairRun.h" */
@@ -847,11 +848,15 @@ public:
 
 	// Draw the Sensors as overlays to an active root pad
 	// Projection in XY is used
+	// lmd_frame == true : The Lumi Referenceframe is used
 	void Draw_Sensors(int iplane, bool aligned = true, bool lmd_frame = true);
 
-	// Draw one Sensor as an overlay to an active root pad
+	// Get one Sensor as an polyline to be drawn to an active root pad
 	// Projection in XY is used
-	void Draw_Sensor(int ihalf, int iplane, int imodule, int iside, int idie, int isensor, bool aligned = true, bool lmd_frame = true);
+	// Important -> Do not delete the PolyLine until you are sure that you are
+	// finished with displaying it!
+	// lmd_frame == true : The Lumi Referenceframe is used
+	TPolyLine* Get_Sensor_Shape(int ihalf, int iplane, int imodule, int iside, int idie, int isensor, bool aligned = true, bool lmd_frame = true);
 };
 
 
