@@ -49,6 +49,10 @@ void PndLmdROOTDataModel1D::determineAcceptanceBounds() {
 	int last_bin_index_at_zero = -10;
 	double last_bin = 0.0;
 	double y = 0.0;
+
+	acc_range_low = 0.0;
+	acc_range_high = 20.0;
+
 	//std::cout << "Calculating acceptance bounds!!!!!!!!!!!!!" << std::endl;
 	//std::cout << "Number of bins: " << graph->GetN() << std::endl;
 	for (int i = 0; i < graph->GetN(); i++) {
