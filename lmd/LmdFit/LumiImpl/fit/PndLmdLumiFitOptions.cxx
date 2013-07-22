@@ -8,6 +8,7 @@
 #include "PndLmdLumiFitOptions.h"
 #include "PndLmdDPMAngModel1D.h"
 #include "PndLmdDPMModelParametrization.h"
+#include "PndLmdLumiHelper.h"
 
 #include <iostream>
 
@@ -38,15 +39,10 @@ PndLmdLumiFitOptions::PndLmdLumiFitOptions(
 	phi_fit_range_high = phi_fit_range_high_;
 
 	// calculate t range
-	PndLmdDPMAngModel1D model("dpm_angular_1d");
-	shared_ptr<Parametrization> para(
-			new PndLmdDPMModelParametrization(model.getModelParameterSet()));
-	model.getModelParameterHandler().registerParametrizations(
-			model.getModelParameterSet(), para);
-	model.getModelParameterSet().setModelParameterValue("p_lab", plab);
-	((Model1D*) &model)->init();
-	t_fit_range_low = -model.getMomentumTransferFromTheta(theta_fit_range_low);
-	t_fit_range_high = -model.getMomentumTransferFromTheta(theta_fit_range_high);
+	t_fit_range_low = PndLmdLumiHelper::getMomentumTransferFromTheta(plab,
+			theta_fit_range_low);
+	t_fit_range_high = PndLmdLumiHelper::getMomentumTransferFromTheta(plab,
+			theta_fit_range_high);
 }
 
 PndLmdLumiFitOptions::PndLmdLumiFitOptions() :
