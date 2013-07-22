@@ -40,7 +40,7 @@ private:
 #endif /* __CINT __ */
 
 	/** In case this is a simulation a reference value for the luminosity can be used */
-	double luminosity_ref;
+	double luminosity_per_event;
 
 	std::pair<double, double> calcRange(const PndLmdLumiFitOptions *fit_options);
 
@@ -57,7 +57,7 @@ public:
 	void saveToRootFile();
 
 	double getReferenceLuminosity() const;
-	void setReferenceLuminosity(double luminosity_ref_);
+	void setReferenceLuminosityPerEvent(double luminosity_per_event_);
 
 	double getBinningFactor(const PndLmdLumiFitOptions *fit_opt) const;
 

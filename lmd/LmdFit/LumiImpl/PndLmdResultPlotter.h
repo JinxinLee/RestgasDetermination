@@ -153,6 +153,8 @@ public:
 	void makeComparisonCanvas(
 			TString name,
 			std::map<TString, std::vector<PndLmdResultPlotter::combined_values> >& result_map);
+
+	void plotDPMModelParts();
 };
 
 #endif /* PNDLMDRESULTPLOTTER_H_ */

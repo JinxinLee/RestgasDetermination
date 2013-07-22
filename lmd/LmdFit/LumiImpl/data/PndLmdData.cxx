@@ -28,7 +28,8 @@ PndLmdData::PndLmdData(TFile *f_, int num_events_, double plab_,
 	//fit_map =
 	//		new std::map<PndLmdLumiModel*, std::vector<PndLmdLumiFitResult*> >();
 
-	luminosity_ref = generated_luminosity_per_event_ * num_events_;
+	luminosity_per_event = generated_luminosity_per_event_;
+
 	makeDir();
 }
 PndLmdData::PndLmdData() {
@@ -46,11 +47,11 @@ void PndLmdData::saveToRootFile() {
 }
 
 double PndLmdData::getReferenceLuminosity() const {
-	return luminosity_ref;
+	return luminosity_per_event * getNumEvents();
 }
 
-void PndLmdData::setReferenceLuminosity(double luminosity_ref_) {
-	luminosity_ref = luminosity_ref_;
+void PndLmdData::setReferenceLuminosityPerEvent(double luminosity_per_event_) {
+	luminosity_per_event = luminosity_per_event_;
 }
 
 double PndLmdData::getBinningFactor(const PndLmdLumiFitOptions *fit_opt) const {

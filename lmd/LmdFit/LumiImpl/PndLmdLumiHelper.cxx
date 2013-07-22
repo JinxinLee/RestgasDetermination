@@ -104,6 +104,7 @@ void PndLmdLumiHelper::removeFinished(
 	std::vector<PndLmdDataInterface*>::iterator it = lmd_vec->begin();
 	while (it != lmd_vec->end()) {
 		if (current_event_index == (*it)->getNumEvents()) {
+			(*it)->setNumEvents(current_event_index);
 			lmd_vec->erase(it);
 			it--;
 		}

@@ -714,6 +714,10 @@ std::map<TString, std::vector<PndLmdLumiHelper::lmd_graph*> > PndLmdResultPlotte
 	return return_map;
 }
 
+void PndLmdResultPlotter::plotDPMModelParts() {
+
+}
+
 void PndLmdResultPlotter::makeResolutionSummaryPlots(TFile *f) {
 	PndLmdLumiHelper lmd_helper;
 
