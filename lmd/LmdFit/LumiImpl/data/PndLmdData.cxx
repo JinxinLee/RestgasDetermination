@@ -10,6 +10,7 @@
 #include "PndLmdLumiFitResult.h"
 #include "PndLmdLumiFitOptions.h"
 #include "Chi2Estimator.h"
+#include "PndLmdLumiHelper.h"
 #include "ROOTDataHelper.h"
 #include "Data.h"
 #include "EstimatorOptions.h"
@@ -136,7 +137,8 @@ PndLmdLumiFitResult* PndLmdData::Fit(PndLmdAcceptance *lmd_acc,
 
 		// now set better starting lumi value
 		std::pair<double, double> range = calcRange(fit_options);
-		double integral_data = getMeasuredHist1D(fit_options)->Integral("width");
+		PndLmdLumiHelper lmdhelper;
+		double integral_data = lmdhelper.calcHistIntegral(getMeasuredHist1D(fit_options), range);
 		std::vector<std::pair<double, double> > temp_vec_range;
 		temp_vec_range.push_back(range);
 		double integral_func = model1d->Integral(temp_vec_range, 10e-3);

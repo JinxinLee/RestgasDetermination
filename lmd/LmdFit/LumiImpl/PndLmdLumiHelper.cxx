@@ -413,6 +413,27 @@ void PndLmdLumiHelper::fillData(double plab, TString dir_path,
 	clearRegisters(data_mode);
 }
 
+double PndLmdLumiHelper::calcHistIntegral(TH1D* hist,
+		std::pair<double, double> range) {
+	// ok this is just a rough estimate, but thats all we need for setting
+	// the starting value of the luminosity
+
+	// just determine the bin range over which we have to calculate
+	int bin_low = 1; // first bin is underflow
+	int bin_high = hist->GetNbinsX();
+	for (int i = 0; i < hist->GetNbinsX(); i++) {
+		if (hist->GetBinCenter(i) - hist->GetBinWidth(i) / 2 < range.first
+				&& hist->GetBinCenter(i) + hist->GetBinWidth(i) / 2 > range.first) {
+			bin_low = i;
+		}
+		if (hist->GetBinCenter(i) - hist->GetBinWidth(i) / 2 < range.second
+				&& hist->GetBinCenter(i) + hist->GetBinWidth(i) / 2 > range.second) {
+			bin_high = i;
+		}
+	}
+	return hist->Integral(bin_low, bin_high, "width");
+}
+
 std::vector<PndLmdResolution*> PndLmdLumiHelper::getFittedResolutionsFromPath(
 		TFile* f) {
 	std::vector<PndLmdResolution*> resolutions;

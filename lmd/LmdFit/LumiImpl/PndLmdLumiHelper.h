@@ -105,6 +105,8 @@ public:
 			TString geane_file = "Lumi_Geane_*.root", TString track_file =
 					"Lumi_Track_*.root");
 
+	double calcHistIntegral(TH1D* hist, std::pair<double, double> range);
+
 #ifndef __CINT__
 	void removePointsAboveChi2(
 			std::map<std::string, TGraphErrors*, ModelStructs::string_comp> &graph_map
