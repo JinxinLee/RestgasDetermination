@@ -78,7 +78,7 @@ void ModelEstimator::applyEstimatorOptions(
 						< estimator_options.getFitRangeX().first
 						|| data_point->bin_center_value[0]
 								> estimator_options.getFitRangeX().second) {
-					datapoints[i].setIsPointUsed(false);
+					datapoints[i].setPointUsed(false);
 					continue;
 				}
 				if (data->getDimension() > 1 && estimator_options.isFitRangeYUsed()) {
@@ -86,10 +86,11 @@ void ModelEstimator::applyEstimatorOptions(
 							< estimator_options.getFitRangeY().first
 							|| data_point->bin_center_value[0]
 									> estimator_options.getFitRangeY().second) {
-						datapoints[i].setIsPointUsed(false);
+						datapoints[i].setPointUsed(false);
 						continue;
 					}
 				}
+				datapoints[i].setPointUsed(true);
 			}
 			if (estimator_options.isWithIntegralScaling()) {
 				if (fit_model.get()) {

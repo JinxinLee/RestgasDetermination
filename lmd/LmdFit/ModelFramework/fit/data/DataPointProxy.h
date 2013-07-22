@@ -31,8 +31,8 @@ public:
 	const shared_ptr<DataStructs::unbinned_data_point> getUnbinnedDataPoint() const;
 	void setBinnedDataPoint(shared_ptr<DataStructs::binned_data_point> bdp_);
 	void setUnbinnedDataPoint(shared_ptr<DataStructs::unbinned_data_point> udp_);
-	bool isIsPointUsed() const;
-	void setIsPointUsed(bool is_point_used_);
+	bool isPointUsed() const;
+	void setPointUsed(bool is_point_used_);
 };
 
 #endif /* DATAPOINTPROXY_H_ */

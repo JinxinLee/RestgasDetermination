@@ -10,6 +10,7 @@
 DataPointProxy::DataPointProxy() {
 	// TODO Auto-generated constructor stub
   state = -1;
+  is_point_used = false;
 }
 
 DataPointProxy::~DataPointProxy() {
@@ -43,12 +44,12 @@ void DataPointProxy::setUnbinnedDataPoint(shared_ptr<DataStructs::unbinned_data_
 	udp = udp_;
 }
 
-bool DataPointProxy::isIsPointUsed() const
+bool DataPointProxy::isPointUsed() const
 {
     return is_point_used;
 }
 
-void DataPointProxy::setIsPointUsed(bool is_point_used_)
+void DataPointProxy::setPointUsed(bool is_point_used_)
 {
     is_point_used = is_point_used_;
 }

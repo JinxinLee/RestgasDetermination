@@ -28,7 +28,7 @@ double Chi2Estimator::eval() const {
 	// loop over data
 	for (unsigned int i = 0; i < data_points.size(); i++) {
 		shared_ptr<DataStructs::binned_data_point> data_point;
-		if (data_points[i].isIsPointUsed()) {
+		if (data_points[i].isPointUsed()) {
 			data_point = data_points[i].getBinnedDataPoint();
 			delta = (data_point->z
 					- data->getBinningFactor()
