@@ -27,7 +27,7 @@
 PndSttMvdGemTrackingIdeal::PndSttMvdGemTrackingIdeal():
   FairTask("SttMvdGemTrackingIdeal"), fMCTracks(new TClonesArray()), fTrackCands(new TClonesArray()), fTracks(new TClonesArray()), 
   fTrackIds(new TClonesArray()), fMomSigma(0,0,0), fDPoP(0.), fRelative (kFALSE), fVtxSigma(0,0,0), fEfficiency(1.), 
-  fTracksArrayName("STTTrkIdeal"), pdg(0)  
+  fTracksArrayName("STTTrkIdeal"), pdg(0), fPersistence(kTRUE)
 {
   //---
   fTrackCands = new TClonesArray("PndTrackCand");
@@ -50,8 +50,8 @@ PndSttMvdGemTrackingIdeal::~PndSttMvdGemTrackingIdeal()
 void PndSttMvdGemTrackingIdeal::Register() 
 {
   //---
-  FairRootManager::Instance()->Register(fTracksArrayName,"SttMvdGemIdealTrk", fTracks, kTRUE);
-  FairRootManager::Instance()->Register(fTracksArrayName+"Cand","SttMvdGemIdealTrk", fTrackCands, kTRUE);
+  FairRootManager::Instance()->Register(fTracksArrayName,"SttMvdGemIdealTrk", fTracks, fPersistence);
+  FairRootManager::Instance()->Register(fTracksArrayName+"Cand","SttMvdGemIdealTrk", fTrackCands, fPersistence);
   if(fVerbose>3) Info("Register","Done.");
 }
 
