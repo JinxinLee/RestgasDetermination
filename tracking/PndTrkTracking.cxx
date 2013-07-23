@@ -1055,7 +1055,7 @@ void PndTrkTracking::Exec(Option_t* opt) {
 //---------------------------------------------   fetching the STT  MC points
  nSttMCPoint = fSttPointArray->GetEntriesFast();
  if (nSttMCPoint ==0){
-	cout<<"da PndTrkTracking  :  N. di Stt MC points = 0"<<endl<<endl;
+	if (istampa >= 1) cout<<"da PndTrkTracking  :  N. di Stt MC points = 0"<<endl<<endl;
 //	return;
  } else  if( nSttMCPoint>MAXSTTHITS){
 	cout<<"da PndTrkTracking  :  N. di Stt MC points = "<<nSttMCPoint
@@ -1067,7 +1067,7 @@ void PndTrkTracking::Exec(Option_t* opt) {
 
  nSttHit = fSttHitArray->GetEntriesFast();
  if (nSttHit ==0){
-	cout<<"da PndTrkTracking  :  N. di Stt Hits = 0, return!"<<endl<<endl;
+	if (istampa >= 1) cout<<"da PndTrkTracking  :  N. di Stt Hits = 0, return!"<<endl<<endl;
 	return;
  } else if (nSttHit> MAXSTTHITS) {
 	cout<<"da PndTrkTracking  :  N. di Stt Hits = "<<nSttHit
