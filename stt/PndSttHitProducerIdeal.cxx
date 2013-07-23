@@ -40,7 +40,7 @@ using std::sqrt;
 
 // -----   Default constructor   -------------------------------------------
 PndSttHitProducerIdeal::PndSttHitProducerIdeal() :
-  FairTask("Ideal STT Hit Producer") 
+  FairTask("Ideal STT Hit Producer",0) 
 { 
   fPersistence = kTRUE;
   

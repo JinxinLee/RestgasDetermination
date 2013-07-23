@@ -40,7 +40,7 @@ using std::sqrt;
 
 // -----   Default constructor   -------------------------------------------
 PndFtsHitProducerRealFast::PndFtsHitProducerRealFast():
-  FairTask("Ideal FTS Hit Producer"), fPointArray(new TClonesArray),  fHitArray(new TClonesArray),
+  FairTask("Ideal FTS Hit Producer",0), fPointArray(new TClonesArray),  fHitArray(new TClonesArray),
   fVolumeArray(new TObjArray), fHitInfoArray(new TClonesArray), fevtn(0), fFtsParameters(new PndGeoFtsPar()), 
   fPersistence(kTRUE)
 { 

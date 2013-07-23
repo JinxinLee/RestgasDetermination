@@ -233,10 +233,11 @@ void PndSdsHybridHitProducer::Exec(Option_t* opt)
   
   Double_t EventTime = FairRootManager::Instance()->GetEventTime();
   
-//  if(fVerbose>0)
-  std::cout << std::endl;
-  std::cout << "-I- PndSdsHybridHitProducer::Exec EventTime: " << EventTime << std::endl;
-  
+  if(fVerbose>0)
+    {
+      std::cout << std::endl;
+      std::cout << "-I- PndSdsHybridHitProducer::Exec EventTime: " << EventTime << std::endl;
+    }
   
   fPixelList.clear();
   fGeoH->SetVerbose(fVerbose);  

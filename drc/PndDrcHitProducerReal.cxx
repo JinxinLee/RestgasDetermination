@@ -138,7 +138,7 @@ void PndDrcHitProducerReal::Exec(Option_t* option)
   fPDHitArray->Delete();
   nevents++;
   if (fVerbose > 1) printf("\n\n=====> Event No. %d\n", nevents);
-  std::cout<<"=====> Event No. "<<nevents<<endl; 
+  if (fVerbose > 1) std::cout<<"=====> Event No. "<<nevents<<endl; 
     
   ProcessBarPoint();
   ProcessPhotonPoint();
