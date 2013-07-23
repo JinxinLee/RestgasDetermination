@@ -1,4 +1,4 @@
-void sim(Int_t nEvents=10, TString simFile="sim.root", TString parFile="par.root"){
+void sim(Int_t nEvents=100, TString simFile="sim.root", TString parFile="par.root"){
 
   TStopwatch timer;
   timer.Start();
@@ -51,11 +51,10 @@ void sim(Int_t nEvents=10, TString simFile="sim.root", TString parFile="par.root
   Drc->SetMirrorReal(kTRUE);  
   Drc->StopSecondaries(kTRUE); 
   Drc->SetDetEffAtProduction(kTRUE);
-  //Drc->SetStopTime(100.);
+  Drc->SetStopTime(50.);
   Drc->SetVerboseLevel(0);
   Drc->SetOnlyDirectPho(kFALSE);
-  Drc->SetGeometryFileName("dirc_l4_p0_R2.root");
-  //Drc->SetGeometryFileName("dirc_l0_p0_mirrorGap_Mcp2a_sepEV_06_2013.root");
+  Drc->SetGeometryFileName("dirc_g2_l4.root");
   fRun->AddModule(Drc);  
 
   // Set Random Number seed
@@ -74,8 +73,8 @@ void sim(Int_t nEvents=10, TString simFile="sim.root", TString parFile="par.root
   // Box Generator
   FairBoxGenerator* boxGen = new FairBoxGenerator(211, 1);// 211 = pion, 321 = kaon; 1 = multipl.
   boxGen->SetPRange(1,1);
-  boxGen->SetPhiRange(9.825, 9.825); // Azimuth angle range [degree]
-  boxGen->SetThetaRange(25.,140.);   // Polar a1ngle in lab system range [degree]
+  boxGen->SetPhiRange(10.825, 10.825); // Azimuth angle range [degree]
+  boxGen->SetThetaRange(40.,60.);   // Polar a1ngle in lab system range [degree]
   boxGen->SetXYZ(0.,0.,0.);
   primGen->AddGenerator(boxGen);
 

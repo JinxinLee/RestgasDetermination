@@ -4,24 +4,18 @@
 //           = new TG4RunConfiguration("geomRoot", "QGSP_BERT_EMV+optical", "stepLimiter+specialCuts+specialControls");
 
 // input parameters are:
+// fGeomType = 1 - tank type with 90 degree PD
+// fGeomType = 2 - tank type with curved PD
+// fGeomType = 3 - test type
+
 // fFocusingSystem = 0 - no focusing is used
 // fFocusingSystem = 1 - lens 
 // fFocusingSystem = 2 - forward mirror is used
 // fFocusingSystem = 3 - new lens (no air gap) is used
 // fFocusingSystem = 4 - two component spherical lens is used
-// fprizm = kFALSE - no prism
-// fprizm = kTRUE - prism
 
-// allowed configurations: 
-// fFocusingSystem = 0 && fprizm = kFALSE  output file is in geometry/dirc_l0_p0.root
-// fFocusingSystem = 0 && fprizm = kTRUE   output file is in geometry/dirc_l0_p1.root
-// fFocusingSystem = 1 && fprizm = kFALSE  output file is in geometry/dirc_l1_p0.root
-// fFocusingSystem = 2 && fprizm = kFALSE  output file is in geometry/dirc_l2_p0.root
-// fFocusingSystem = 2 && fprizm = kTRUE   output file is in geometry/dirc_l2_p1.root
-// corresponding .root files with geometry please fone in the geometry directory
 
-// B E F O R E   R U N N I N G   T H E   P R O G R A M
-// C H E C K   T H E   N A M E   O F   T H E   O U T P U T   F I L E ! ! ! 
+// B E F O R E   R U N N I N G   T H E   P R O G R A M   C H E C K   T H E   N A M E   O F   T H E   O U T P U T   F I L E ! ! ! 
 const Double_t pi =  4.*atan(1.);
 
 void getXrange(double dphi, double radiusCornerOut, double radiusCornerIn, double MCPactiveArea, int cas1, int cas2, double ylow, double step, double &x1, double &x2);
@@ -29,7 +23,7 @@ double getX(TVector3 corner1, TVector3 corner2, double yy);
 int findSectorIn(double y, double dphi, double radius, double EVdrop, double hthick);
 int findSectorOut(double y, double dphi_rad, double radiusCornerOut);
 
-void createdirc(Int_t fFocusingSystem = 3, Bool_t fprizm = kFALSE){ 
+void createdirc(Int_t fGeomType = 1, Int_t fFocusingSystem = 4){ 
 
   { // initialization 
     gROOT->Macro("$VMCWORKDIR/gconfig/rootlogon.C");
@@ -42,6 +36,8 @@ void createdirc(Int_t fFocusingSystem = 3, Bool_t fprizm = kFALSE){
     gSystem->Load("libBase");
     gSystem->Load("libPndData");
     gSystem->Load("libPassive");
+
+    TString fGeoFile= Form("../../geometry/dirc_g%d_l%d.root",fGeomType, fFocusingSystem);
   
     // variable to achieve the DIRC basic parameters
     PndGeoDrc* fGeo = new PndGeoDrc(); 
@@ -71,7 +67,7 @@ void createdirc(Int_t fFocusingSystem = 3, Bool_t fprizm = kFALSE){
     Double_t barhgap       	=  fGeo->barhGap();       // 0.01 half gap between bars  
     Double_t boxgap       	=  fGeo->boxGap(); 	  // 0.1 gap between bars and the bar box
     Double_t boxthick		=  fGeo->boxThick();     // 0.05 thickness of the bar box
-    Double_t gluehthick 		=  0.0005;//[cm]	  // glue layer, connects two halfs into one long radiator bar
+    Double_t gluehthick 	=  fGeo->GlueLayer();//	=  0.0005;//[cm]	  // glue layer, connects two halfs into one long radiator bar
     Double_t len          	=  0.;                   // length of the lenses block. see further
     Double_t fSlabEnd		=  0.;			  // [cm] position at which bar in front of EV ends 
     Double_t fdz_mirr1		=  0.;
@@ -91,12 +87,11 @@ void createdirc(Int_t fFocusingSystem = 3, Bool_t fprizm = kFALSE){
     Double_t PDwindowThick 	= 0.1; //[cm]
     Double_t PhCathodeThick 	= 0.0001; //[cm] = 1 um
     Double_t PDsensitiveThick 	= 0.01; //[cm]
-    Double_t PDgreaseLayer 	= 0.1; //[cm]
+    Double_t PDgreaseLayer 	= fGeo->GreaseLayer(); //= 0.1; //[cm]
     Double_t hgap 		= 0.5*(MCPsize - MCPactiveArea + MCPgap); // gap btw MCPs
     Double_t step 		= MCPactiveArea + 2.*hgap; // step in which to locate MCPs = 6 for Mcp1, Mcp2; = 5.88 for Mcp2a. This is total size of one MCP with gaps in between
   
     // EV parameters   
-    bool radEv =  true;
     Double_t sob_len      	=  fGeo->EVlen();        // 30. in current version
     Double_t sob_shift    	=  -bbox_hlen + bbox_shift - sob_len; // -150.   
     Double_t sob_angleB		=  fGeo->EVbackAngle();  //90. [degrees] angle of the EV (usually it is 90)
@@ -134,9 +129,7 @@ void createdirc(Int_t fFocusingSystem = 3, Bool_t fprizm = kFALSE){
     // Rotations:
     TGeoRotation rot1;
     rot1.RotateZ(90.);
-    
-    //TString fGeoFile= Form("../../geometry/dirc_l%d_p%d_mirrorGap_Mcp2a_GG_PC_correctedEVsensor.root",fFocusingSystem, fprizm);
-    TString fGeoFile= Form("../../geometry/dirc_l%d_p%d_R2.root",fFocusingSystem, fprizm);
+
     TFile* fi = new TFile(fGeoFile,"RECREATE");
     cout<<"Output file = "<<fGeoFile<<endl;
     
@@ -162,6 +155,7 @@ void createdirc(Int_t fFocusingSystem = 3, Bool_t fprizm = kFALSE){
     FairGeoMedium *DrcMirror      = Media->getMedium("Mirror");
     FairGeoMedium *DrcMarcol82_7  = Media->getMedium("Marcol82_7");
     FairGeoMedium *DrcNLAK33A     = Media->getMedium("NLAK33A");
+    FairGeoMedium *DrcBK7G18     = Media->getMedium("BK7G18");
     FairGeoMedium *DrcPhotocathode= Media->getMedium("Photocathode");  
   
     Int_t nmed=geobuild->createMedium(DrcAir);
@@ -173,6 +167,7 @@ void createdirc(Int_t fFocusingSystem = 3, Bool_t fprizm = kFALSE){
     nmed=geobuild->createMedium(DrcMirror);
     nmed=geobuild->createMedium(DrcMarcol82_7);
     nmed=geobuild->createMedium(DrcNLAK33A);
+    nmed=geobuild->createMedium(DrcBK7G18);
     nmed=geobuild->createMedium(DrcPhotocathode);
 
   }
@@ -381,7 +376,7 @@ void createdirc(Int_t fFocusingSystem = 3, Bool_t fprizm = kFALSE){
       TGeoTranslation *trCyl2 = new TGeoTranslation("trCyl2", 0., Rcyl + Hcyl2 - len/2., 0.);
       trCyl2->RegisterYourself();
       TGeoCompositeShape *llens2 = new TGeoCompositeShape("llens2", "(CylBox:trCyl2) - Cyl");
-      TGeoVolume* CylLens2 = new TGeoVolume("DrcLENS2Sensor", llens2, gGeoManager->GetMedium("FusedSil"));
+      TGeoVolume* CylLens2 = new TGeoVolume("DrcLENS2Sensor", llens2, gGeoManager->GetMedium("BK7G18")); //FusedSil
       CylLens2->SetLineColor(kRed+2);
       CylLens2->SetTransparency(40);
       // CylLens2->SetLineColor(kCyan+1);
@@ -397,7 +392,7 @@ void createdirc(Int_t fFocusingSystem = 3, Bool_t fprizm = kFALSE){
      
       Double_t hlens1 = 0.3; //[cm] thickness in the middle of the first (focising) (FusedSil) lens      
       Double_t hlens2 = 0.1; //[cm] thickness in the middle of the second (defocusing) (FusedSil) lens           
-      Double_t rlens = 7.35; // [cm]
+      Double_t rlens = 8.35; // [cm]
       Double_t llens =  barwidth/2.; //(bbX/barnum)/2.-bargap;
       len =  hlens1+hlens2;     
      
@@ -432,7 +427,6 @@ void createdirc(Int_t fFocusingSystem = 3, Bool_t fprizm = kFALSE){
   }
  
   // {
-
   //   TGeoVolume *top = gGeoManager->MakeBox("DIRC",gGeoManager->GetMedium("air"),100,100,100);
   //   top->AddNode(CylLens1, 1, new TGeoCombiTrans(0, 0, 0, new TGeoRotation(0)));
   //   top->AddNode(CylLens2, 2, new TGeoCombiTrans(0, 0, 0, new TGeoRotation(0))); 
@@ -461,7 +455,7 @@ void createdirc(Int_t fFocusingSystem = 3, Bool_t fprizm = kFALSE){
   TGeoPcon*   shape = new TGeoPcon("BarrelDIRCShape", 0, 360., 4);
   shape->DefineSection(0, bbox_zdown, 35., 60.);
   shape->DefineSection(1, bbox_zup, 35., 60.);
-  if(radEv){
+  if(fGeomType ==2){
     shape->DefineSection(2, bbox_zup - sob_len +20., 35., sob_Rout+poffset+pheight+EVoffset+1.);
     shape->DefineSection(3, bbox_zup - sob_len - PDbaseLayer - EVgreaseLayer, 35., sob_Rout+poffset+pheight+EVoffset+1.);
   }else{
@@ -556,7 +550,7 @@ void createdirc(Int_t fFocusingSystem = 3, Bool_t fprizm = kFALSE){
       dz_bar = len/2.-mirr_hthick;
     }
     if(fFocusingSystem == 3 || fFocusingSystem == 4){
-      dz_mirr = bbox_hlen - barWin_hthick - mirr_hthick;
+      dz_mirr = bbox_hlen - barWin_hthick - mirr_hthick; // -0.5* mirr_hthick (remove mirrorgap);
       dz_bar = -mirr_hthick +len/2.;
     }
     if(fFocusingSystem == 1){ // lens
@@ -588,9 +582,7 @@ void createdirc(Int_t fFocusingSystem = 3, Bool_t fprizm = kFALSE){
     TGeoPgon* logicEV1s, * logicEV2s, *logicEV3s, * logicEV4s;
     TGeoPgon* logicEV1b, * logicEV2b, *logicEV3b, * logicEV4b;
 
-    Double_t cosFactor1 = cos(pipehAngle/180.*pi)/cos(dphi/180.*pi/2.);  
-    std::cout.precision(20);
-    
+    Double_t cosFactor1 = cos(pipehAngle/180.*pi)/cos(dphi/180.*pi/2.);
     Double_t dR = (radius+hthick+boxgap+boxthick)/cos(dphi/2./180.*pi) - (radius-hthick);
     Double_t xEV = (dR + sob_len*tan(sob_angle/180.*pi))/ (tan(sob_angle/180.*pi) + tan(sob_angleB/180.*pi)); 
     Double_t maxrz;
@@ -601,7 +593,7 @@ void createdirc(Int_t fFocusingSystem = 3, Bool_t fprizm = kFALSE){
       mcptot = MCPsize + MCPgap,
       alpharad = TMath::ATan(mcptot/sob_len),
       steprad, stepz, currz = 0.;    
-    if(radEv){
+    if(fGeomType==2){
       logicEV1 = new TGeoPgon("logicEV1",  90 + pipehAngle, 180 - 2.*pipehAngle, bbnum/2, 7);
       logicEV2 = new TGeoPgon("logicEV2", -90 + pipehAngle, 180 - 2.*pipehAngle, bbnum/2, 7);
       logicEV3 = new TGeoPgon("logicEV3",  90 - pipehAngle-0.02, 2*pipehAngle+0.04, 1, 7); //fix visualization
@@ -735,10 +727,8 @@ void createdirc(Int_t fFocusingSystem = 3, Bool_t fprizm = kFALSE){
       }
     }
     
-    TGeoCompositeShape *logicEV = new TGeoCompositeShape("logicEV","logicEV1 + logicEV3 + logicEV2 + logicEV4"); // 
-    TGeoCompositeShape *logicEVs = new TGeoCompositeShape("logicEVs","logicEV1s + logicEV3s + logicEV2s + logicEV4s"); // 
-    TGeoCompositeShape *logicEVb = new TGeoCompositeShape("logicEVb","logicEV1b + logicEV3b + logicEV2b + logicEV4b"); // 
-    TGeoVolume* baseEV = new TGeoVolume("DrcEVSensor", logicEV, gGeoManager->GetMedium("FusedSil"));//Marcol82_7_m);
+    TGeoCompositeShape *logicEV = new TGeoCompositeShape("logicEV","logicEV1 + logicEV3 + logicEV2 + logicEV4"); //  
+    TGeoVolume* baseEV = new TGeoVolume("DrcEVSensor", logicEV, gGeoManager->GetMedium("FusedSil")); //FusedSil
     baseEV->SetLineColor(kMagenta+2);
     baseEV->SetTransparency(50);
     vLocalMother->AddNode(baseEV, 1, new TGeoCombiTrans(0.,0.,sob_shift - EVgreaseLayer, new TGeoRotation(0)));
@@ -746,16 +736,17 @@ void createdirc(Int_t fFocusingSystem = 3, Bool_t fprizm = kFALSE){
 
   // PhotoDetector Basic material - Carbon. It is placed on the back side of the EV to simulate the support structure of the MCPs, the photons are to hit it in gaps between MCPs:
   TGeoVolume *pdbase;
-  if(radEv){
+  if(fGeomType==2){
+    TGeoCompositeShape *logicEVs = new TGeoCompositeShape("logicEVs","logicEV1s + logicEV3s + logicEV2s + logicEV4s"); // 
+    TGeoCompositeShape *logicEVb = new TGeoCompositeShape("logicEVb","logicEV1b + logicEV3b + logicEV2b + logicEV4b"); //
+
     TGeoCompositeShape *logicEVcover = new TGeoCompositeShape("logicEVcover","logicEVb - logicEVs");
     pdbase = new TGeoVolume("DrcPDbase", logicEVcover, gGeoManager->GetMedium("DIRCcarbonFiber")); //DrcEVcover
     pdbase->SetLineColor(kTeal-8);
 
  // {
-
  //    TGeoVolume *top = gGeoManager->MakeBox("DIRC",gGeoManager->GetMedium("air"),100,100,100);
  //    top->AddNode(pdbase, 1, new TGeoCombiTrans(0, 0, 0, new TGeoRotation(0)));
-
  //    gGeoManager->SetNsegments(1000);
  //    top->Draw("ogl");
  //    return;
@@ -763,12 +754,12 @@ void createdirc(Int_t fFocusingSystem = 3, Bool_t fprizm = kFALSE){
 
     vLocalMother->AddNode(pdbase, 1, new TGeoCombiTrans(0., 0., sob_shift-EVgreaseLayer, new TGeoRotation(0)));
   }else{
-    TGeoPgon *logicPDbase1, *logicPDbase2, *logicPDbase3,  *logicPDbase4;
+    TGeoPgon *logicPDbase1 = new TGeoPgon("logicPDbase1",  90.+(phi0-dphi/2.), 180.-2.*(phi0-dphi/2.), bbnum/2, 2);
+    TGeoPgon *logicPDbase2 = new TGeoPgon("logicPDbase2", -90.+(phi0-dphi/2.), 180.-2.*(phi0-dphi/2.), bbnum/2, 2);
+    TGeoPgon *logicPDbase3 = new TGeoPgon("logicPDbase3",  90.-(phi0-dphi/2.), 2.*(phi0-dphi/2.)     ,       1, 2);
+    TGeoPgon *logicPDbase4 = new TGeoPgon("logicPDbase4", -90.-(phi0-dphi/2.), 2.*(phi0-dphi/2.)     ,       1, 2);  
     Double_t rad_delta = (MCPsize-MCPactiveArea)/2./cos(45./180.*pi);
-    logicPDbase1 = new TGeoPgon("logicPDbase1",  93.6, 172.8, bbnum/2, 2);
-    logicPDbase2 = new TGeoPgon("logicPDbase2", -86.4, 172.8, bbnum/2, 2);
-    logicPDbase3 = new TGeoPgon("logicPDbase3",  86.4,   7.2,       1, 2);
-    logicPDbase4 = new TGeoPgon("logicPDbase4", -93.6,   7.2,       1, 2);
+
     if(sob_angleB == 90.){       
       logicPDbase1->DefineSection(0, 0.,  radiusMiddleSmall-rad_delta, sob_Rout);
       logicPDbase1->DefineSection(1, PDbaseLayer,  radiusMiddleSmall-rad_delta, sob_Rout);           
@@ -780,7 +771,7 @@ void createdirc(Int_t fFocusingSystem = 3, Bool_t fprizm = kFALSE){
       logicPDbase4->DefineSection(1, PDbaseLayer, (radiusMiddleSmall)*cosFactor1-rad_delta, sob_Rout*cosFactor1);
     }
 
-    TGeoCompositeShape *logicPDbase = new TGeoCompositeShape("logicPDbase","logicPDbase1  + logicPDbase2"); //+ logicPDbase3 + logicPDbase4
+    TGeoCompositeShape *logicPDbase = new TGeoCompositeShape("logicPDbase","logicPDbase1  + logicPDbase2 + logicPDbase3 + logicPDbase4");
     pdbase = new TGeoVolume("DrcPDbase", logicPDbase, gGeoManager->GetMedium("DIRCcarbonFiber"));
     pdbase->SetLineColor(kGreen-6);
     if(sob_angleB == 90.){
@@ -788,102 +779,148 @@ void createdirc(Int_t fFocusingSystem = 3, Bool_t fprizm = kFALSE){
     }
   }
   pdbase->SetTransparency(50);
+
+  if(fGeomType==2){
+    Double_t sectorWidth = 0.;    
+    Int_t nmcp = 0;
+    Int_t totalnumbering = 1;
+    TVector3 location;
+    Double_t phi_curr1 = 0.;  
+    for(Int_t m = 0; m < bbnum; m ++){       
+      phi_curr1 = (90. - phi0 - dphi*m)/180.*pi;    
+      if(m > bbnum/2-1){ phi_curr1 = (90. - phi0 - dphi*m - 2.*pipehAngle)/180.*pi; }
   
+      stepz = mcptot*TMath::Sin(alpharad)/2.;
+      steprad =  mcptot*(1-TMath::Cos(alpharad))/2.;
 
-
-  //version 2: place MCPs in local bar coordinate systems:
-  //create a map of MCPs for one sector (in bar c.s.):  
-  Double_t sectorWidth = 0.;    
-  Int_t nmcp = 0;
-  Int_t totalnumbering = 1;
-  TVector3 location;
-  Double_t phi_curr1 = 0.;  
-  for(Int_t m = 0; m < bbnum; m ++){       
-    phi_curr1 = (90. - phi0 - dphi*m)/180.*pi;    
-    if(m > bbnum/2-1){ phi_curr1 = (90. - phi0 - dphi*m - 2.*pipehAngle)/180.*pi; }
-  
-    stepz = mcptot*TMath::Sin(alpharad)/2.;
-    steprad =  mcptot*(1-TMath::Cos(alpharad))/2.;
-
-    // placement of MCPs in one sector
-    for(Int_t nrow=0; nrow < Int_t((sob_Rout-radiusMiddleSmall)/step); nrow++){
+      // placement of MCPs in one sector
+      for(Int_t nrow=0; nrow < Int_t((sob_Rout-radiusMiddleSmall)/step); nrow++){
       
-      TGeoRotation rot_sector;    
-      rot_sector.RotateX((nrow+1)*alpharad*180./pi);
-      rot_sector.RotateZ( -phi0 - m*dphi - (TMath::Floor(2.*m/bbnum))*(2.*pipehAngle));
+	TGeoRotation rot_sector;    
+	rot_sector.RotateX((nrow+1)*alpharad*180./pi);
+	rot_sector.RotateZ( -phi0 - m*dphi - (TMath::Floor(2.*m/bbnum))*(2.*pipehAngle));
 
-      sectorWidth = 2.* (radiusMiddleSmall + step*nrow) * tan(dphi_rad/2.);
-      nmcp = Int_t(sectorWidth/step);
-      xpos = (radiusMiddleSmall + 0.5*mcptot + step*(nrow));
-      for(Int_t ny=0; ny<nmcp; ny++){
+	sectorWidth = 2.* (radiusMiddleSmall + step*nrow) * tan(dphi_rad/2.);
+	nmcp = Int_t(sectorWidth/step);
+	xpos = (radiusMiddleSmall + 0.5*mcptot + step*(nrow));
+	for(Int_t ny=0; ny<nmcp; ny++){
 
 
-	//create pixel plates: one for each MCP:
-	TGeoBBox* logicPD = new TGeoBBox("logicPD", MCPactiveArea/2., MCPactiveArea/2., PDsensitiveThick/2.); 
-	TGeoVolume *pixelholder  = new TGeoVolume("DrcPDSensor", logicPD,  gGeoManager->GetMedium("FusedSil"));
-	pixelholder->SetLineColor(kGreen+1);
+	  //create pixel plates: one for each MCP:
+	  TGeoBBox* logicPD = new TGeoBBox("logicPD", MCPactiveArea/2., MCPactiveArea/2., PDsensitiveThick/2.); 
+	  TGeoVolume *pixelholder  = new TGeoVolume("DrcPDSensor", logicPD,  gGeoManager->GetMedium("FusedSil"));
+	  pixelholder->SetLineColor(kGreen+1);
   
-	// create photo cathodes for each MCP
-	TGeoBBox* logicPhCathode = new TGeoBBox("logicPhCathode", MCPactiveArea/2., MCPactiveArea/2., PhCathodeThick/2.); 
-	TGeoVolume *phcathode  = new TGeoVolume("DrcPhCathodeSensor", logicPhCathode,  gGeoManager->GetMedium("Photocathode"));//("FusedSil"));
-	phcathode->SetLineColor(kGray+1);
+	  // create photo cathodes for each MCP
+	  TGeoBBox* logicPhCathode = new TGeoBBox("logicPhCathode", MCPactiveArea/2., MCPactiveArea/2., PhCathodeThick/2.); 
+	  TGeoVolume *phcathode  = new TGeoVolume("DrcPhCathodeSensor", logicPhCathode,  gGeoManager->GetMedium("Photocathode"));//("FusedSil"));
+	  phcathode->SetLineColor(kGray+1);
   
-	// create Windows for each MCP
-	TGeoBBox* logicWindow = new TGeoBBox("logicWindow", MCPsize/2., MCPsize/2., PDwindowThick/2.); 
-	TGeoVolume *window  = new TGeoVolume("DrcPDwindowSensor", logicWindow,  gGeoManager->GetMedium("FusedSil"));
-	window->SetLineColor(kBlue-4);
+	  // create Windows for each MCP
+	  TGeoBBox* logicWindow = new TGeoBBox("logicWindow", MCPsize/2., MCPsize/2., PDwindowThick/2.); 
+	  TGeoVolume *window  = new TGeoVolume("DrcPDwindowSensor", logicWindow,  gGeoManager->GetMedium("FusedSil"));
+	  window->SetLineColor(kBlue-4);
   
-	// create grease layers between MCP window and the EV back side
-	TGeoBBox* logicMCPgrease = new TGeoBBox("logicMCPgrease", MCPsize/2., MCPsize/2., PDgreaseLayer/2.); 
-	TGeoVolume *mcpgrease  = new TGeoVolume("DrcMcpGreaseSensor", logicMCPgrease, gGeoManager->GetMedium("OpticalGrease"));
-	mcpgrease->SetLineColor(kSpring);
+	  // create grease layers between MCP window and the EV back side
+	  TGeoBBox* logicMCPgrease = new TGeoBBox("logicMCPgrease", MCPsize/2., MCPsize/2., PDgreaseLayer/2.); 
+	  TGeoVolume *mcpgrease  = new TGeoVolume("DrcMcpGreaseSensor", logicMCPgrease, gGeoManager->GetMedium("OpticalGrease"));
+	  mcpgrease->SetLineColor(kSpring);
 
 
-	TGeoBBox *logicMCP = new TGeoBBox("logicMCP", MCPsize/2.+MCPgap/2., MCPsize/2.+MCPgap/2., (PDsensitiveThick+PhCathodeThick+PDwindowThick+PDgreaseLayer)/2.);
-	TGeoVolume *oneMCP = new TGeoVolume("DrcMCP", logicMCP, gGeoManager->GetMedium("DIRCcarbonFiber"));
-	oneMCP->SetLineColor(kBlue);
+	  TGeoBBox *logicMCP = new TGeoBBox("logicMCP", MCPsize/2.+MCPgap/2., MCPsize/2.+MCPgap/2., (PDsensitiveThick+PhCathodeThick+PDwindowThick+PDgreaseLayer)/2.);
+	  TGeoVolume *oneMCP = new TGeoVolume("DrcMCP", logicMCP, gGeoManager->GetMedium("DIRCcarbonFiber"));
+	  oneMCP->SetLineColor(kBlue);
 
-	oneMCP->AddNode(mcpgrease, totalnumbering, new TGeoCombiTrans(0, 0, (PDwindowThick+PhCathodeThick+PDsensitiveThick)/2., new TGeoRotation(0)));
-	oneMCP->AddNode(window, totalnumbering, new TGeoCombiTrans(0, 0, (PhCathodeThick+PDsensitiveThick-PDgreaseLayer)/2., new TGeoRotation(0)));
-	oneMCP->AddNode(phcathode, totalnumbering, new TGeoCombiTrans(0, 0, (PDsensitiveThick-PDgreaseLayer-PDwindowThick)/2., new TGeoRotation(0))); 
-	oneMCP->AddNode(pixelholder, totalnumbering, new TGeoCombiTrans(0, 0, (-PDgreaseLayer-PDwindowThick-PhCathodeThick)/2., new TGeoRotation(0)));
+	  oneMCP->AddNode(mcpgrease, totalnumbering, new TGeoCombiTrans(0, 0, (PDwindowThick+PhCathodeThick+PDsensitiveThick)/2., new TGeoRotation(0)));
+	  oneMCP->AddNode(window, totalnumbering, new TGeoCombiTrans(0, 0, (PhCathodeThick+PDsensitiveThick-PDgreaseLayer)/2., new TGeoRotation(0)));
+	  oneMCP->AddNode(phcathode, totalnumbering, new TGeoCombiTrans(0, 0, (PDsensitiveThick-PDgreaseLayer-PDwindowThick)/2., new TGeoRotation(0))); 
+	  oneMCP->AddNode(pixelholder, totalnumbering, new TGeoCombiTrans(0, 0, (-PDgreaseLayer-PDwindowThick-PhCathodeThick)/2., new TGeoRotation(0)));
 
 
-	ypos = ((-Int_t(nmcp/2.) - 0.5*(nmcp%2))*step + (0.5+ny)*step);
-	location.SetXYZ(xpos-steprad + (logicMCP->GetDZ())*(TMath::Cos(pi/2. - (nrow+1)*alpharad)) ,ypos,0.);
-        location.RotateZ(phi_curr1);
+	  ypos = ((-Int_t(nmcp/2.) - 0.5*(nmcp%2))*step + (0.5+ny)*step);
+	  location.SetXYZ(xpos-steprad + (logicMCP->GetDZ())*(TMath::Cos(pi/2. - (nrow+1)*alpharad)) ,ypos,0.);
+	  location.RotateZ(phi_curr1);
 
-        pdbase->AddNode(oneMCP, totalnumbering, new TGeoCombiTrans(location.X(), location.Y(),stepz - (logicMCP->GetDZ())*(TMath::Sin(pi/2. - (nrow+1)*alpharad))
-								   , new TGeoRotation(rot_sector)));
-	totalnumbering = totalnumbering + 1; 	
+	  pdbase->AddNode(oneMCP, totalnumbering, new TGeoCombiTrans(location.X(), location.Y(),stepz - (logicMCP->GetDZ())*(TMath::Sin(pi/2. - (nrow+1)*alpharad))
+								     , new TGeoRotation(rot_sector)));
+	  totalnumbering = totalnumbering + 1; 	
+	}
+      
+	stepz += mcptot*TMath::Sin((nrow+1)*alpharad)/2. 	+ mcptot*TMath::Sin((nrow+2)*alpharad)/2.;
+	steprad += mcptot*(1-TMath::Cos((nrow+1)*alpharad))/2. + mcptot*(1-TMath::Cos((nrow+2)*alpharad))/2.;
+
       }
-      
-      stepz += mcptot*TMath::Sin((nrow+1)*alpharad)/2. 	+ mcptot*TMath::Sin((nrow+2)*alpharad)/2.;
-      steprad += mcptot*(1-TMath::Cos((nrow+1)*alpharad))/2. + mcptot*(1-TMath::Cos((nrow+2)*alpharad))/2.;
+    }
+  }else{
+    //create pixel plates: one for each MCP:
+    TGeoBBox* logicPD = new TGeoBBox("logicPD", MCPactiveArea/2., MCPactiveArea/2., PDsensitiveThick/2.); 
+    TGeoVolume *pixelholder  = new TGeoVolume("DrcPDSensor", logicPD,  gGeoManager->GetMedium("FusedSil"));
+    pixelholder->SetLineColor(kGreen+1);
+  
+    // create photo cathodes for each MCP
+    TGeoBBox* logicPhCathode = new TGeoBBox("logicPhCathode", MCPactiveArea/2., MCPactiveArea/2., PhCathodeThick/2.); 
+    TGeoVolume *phcathode  = new TGeoVolume("DrcPhCathodeSensor", logicPhCathode,  gGeoManager->GetMedium("Photocathode"));//("FusedSil"));
+    phcathode->SetLineColor(kGray+1);
+  
+    // create Windows for each MCP
+    TGeoBBox* logicWindow = new TGeoBBox("logicWindow", MCPsize/2., MCPsize/2., PDwindowThick/2.); 
+    TGeoVolume *window  = new TGeoVolume("DrcPDwindowSensor", logicWindow,  gGeoManager->GetMedium("FusedSil"));
+    window->SetLineColor(kBlue-4);
+  
+    // create grease layers between MCP window and the EV back side
+    TGeoBBox* logicMCPgrease = new TGeoBBox("logicMCPgrease", MCPsize/2., MCPsize/2., PDgreaseLayer/2.); 
+    TGeoVolume *mcpgrease  = new TGeoVolume("DrcMcpGreaseSensor", logicMCPgrease, gGeoManager->GetMedium("OpticalGrease"));
+    mcpgrease->SetLineColor(kSpring);
 
+    Double_t sectorWidth = 0.;    
+    Int_t nmcp = 0;
+    Int_t totalnumbering = 1;
+    TVector3 location;
+    Double_t phi_curr1 = 0.;  
+    for(Int_t m = 0; m < bbnum; m ++){       
+      phi_curr1 = (90. - phi0 - dphi*m)/180.*pi;    
+      if(m > bbnum/2-1){ phi_curr1 = (90. - phi0 - dphi*m - 2.*pipehAngle)/180.*pi; }   
+      TGeoRotation rot_sector;    
+      rot_sector.RotateZ( -phi0 - m*dphi - (TMath::Floor(2.*m/bbnum))*(2.*pipehAngle));       
+      // placement of MCPs in one sector
+      for(Int_t nrow=0; nrow < Int_t((sob_Rout-radiusMiddleSmall)/step); nrow++){
+	sectorWidth = 2.* (radiusMiddleSmall + step*nrow) * tan(dphi_rad/2.);
+	nmcp = Int_t(sectorWidth/step);
+	xpos = (radiusMiddleSmall + 0.5*MCPactiveArea + step*(nrow));      
+	for(Int_t ny=0; ny<nmcp; ny++){
+	  ypos = ((-Int_t(nmcp/2.) - 0.5*(nmcp%2))*step + (0.5+ny)*step);
+	  location.SetXYZ(xpos,ypos,0.);
+	  location.RotateZ(phi_curr1);
+	  pdbase->AddNode(mcpgrease, totalnumbering, new TGeoCombiTrans(location.X(), location.Y(), PDbaseLayer-PDgreaseLayer/2., new TGeoRotation(rot_sector)));
+	  pdbase->AddNode(window, totalnumbering, new TGeoCombiTrans(location.X(), location.Y(), PDbaseLayer-PDgreaseLayer-PDwindowThick/2., new TGeoRotation(rot_sector)));
+	  pdbase->AddNode(phcathode, totalnumbering, new TGeoCombiTrans(location.X(), location.Y(), PDbaseLayer-PDgreaseLayer-PhCathodeThick/2.-PDwindowThick, new TGeoRotation(rot_sector))); 
+	  pdbase->AddNode(pixelholder, totalnumbering, new TGeoCombiTrans(location.X(), location.Y(), PDbaseLayer-PDgreaseLayer-PhCathodeThick-PDwindowThick-PDsensitiveThick/2., new TGeoRotation(rot_sector)));
+	  totalnumbering = totalnumbering + 1;   
+	}          
+      }            
+    }
+
+    for(Int_t nrow=0; nrow < Int_t((sob_Rout-radiusMiddleSmall)/step); nrow++){
+      for(Int_t nadd = 0; nadd<2; nadd++){
+	xpos = (radiusMiddleSmall*cosFactor1 + 0.5*MCPactiveArea + step*(nrow));
+	location.SetXYZ(xpos,0.,0.);
+	location.RotateZ(pi/2.+pi*nadd);
+	pdbase->AddNode(mcpgrease, totalnumbering, new TGeoCombiTrans(location.X(), location.Y(), PDbaseLayer-PDgreaseLayer/2., new TGeoRotation(0)));
+	pdbase->AddNode(window, totalnumbering, new TGeoCombiTrans(location.X(), location.Y(), PDbaseLayer-PDgreaseLayer-PDwindowThick/2., new TGeoRotation(0)));
+	pdbase->AddNode(phcathode, totalnumbering, new TGeoCombiTrans(location.X(), location.Y(), PDbaseLayer-PDgreaseLayer-PhCathodeThick/2.-PDwindowThick, new TGeoRotation(0))); 
+	pdbase->AddNode(pixelholder, totalnumbering, new TGeoCombiTrans(location.X(), location.Y(), PDbaseLayer-PDgreaseLayer-PhCathodeThick-PDwindowThick-PDsensitiveThick/2., new TGeoRotation(0)));    
+	totalnumbering = totalnumbering + 1;
+      }
     }
   }
-  //return;
-  // for(Int_t nrow=0; nrow < Int_t((sob_Rout-radiusMiddleSmall)/step); nrow++){
-  //   for(Int_t nadd = 0; nadd<2; nadd++){
-  //     xpos = (radiusMiddleSmall*cosFactor1 + 0.5*MCPactiveArea + step*(nrow));
-  //     location.SetXYZ(xpos,0.,0.);
-  //     location.RotateZ(pi/2.+pi*nadd);
-  //     pdbase->AddNode(mcpgrease, totalnumbering, new TGeoCombiTrans(location.X(), location.Y(), PDbaseLayer-PDgreaseLayer/2., new TGeoRotation(0)));
-  //     pdbase->AddNode(window, totalnumbering, new TGeoCombiTrans(location.X(), location.Y(), PDbaseLayer-PDgreaseLayer-PDwindowThick/2., new TGeoRotation(0)));
-  //     pdbase->AddNode(phcathode, totalnumbering, new TGeoCombiTrans(location.X(), location.Y(), PDbaseLayer-PDgreaseLayer-PhCathodeThick/2.-PDwindowThick, new TGeoRotation(0))); 
-  //     pdbase->AddNode(pixelholder, totalnumbering, new TGeoCombiTrans(location.X(), location.Y(), PDbaseLayer-PDgreaseLayer-PhCathodeThick-PDwindowThick-PDsensitiveThick/2., new TGeoRotation(0)));    
-  //     totalnumbering = totalnumbering + 1;
-  //   }
-  // }
 
-    //   gGeoManager->SetTopVisible(); 		
+  // gGeoManager->SetTopVisible(); 		
   // pdbase->Draw("ogl"); return;
 
   gGeoManager->CloseGeometry();
   top->CheckOverlaps(0.0001, "");
   gGeoManager->CheckOverlaps(0.00001,""); // [cm]
-  //gGeoManager->CheckGeometryFull();
+  // gGeoManager->CheckGeometryFull();
   gGeoManager->SetVisLevel(4); 	
       
   top->Write();
