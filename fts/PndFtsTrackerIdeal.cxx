@@ -27,7 +27,7 @@
 PndFtsTrackerIdeal::PndFtsTrackerIdeal():
   FairTask("FTSTrackfinderIdeal"), fMCTracks(new TClonesArray()), fTrackCands(new TClonesArray()), fTracks(new TClonesArray()), 
   fTrackIds(new TClonesArray()), fMomSigma(0,0,0), fDPoP(0.), fRelative (kFALSE), fVtxSigma(0,0,0), fEfficiency(1.), 
-  fTracksArrayName("FTSTrkIdeal"), pdg(0)  
+  fTracksArrayName("FTSTrkIdeal"), pdg(0), fPersistence(kTRUE)
 {
   //---
   fTrackCands = new TClonesArray("PndTrackCand");
@@ -50,8 +50,8 @@ PndFtsTrackerIdeal::~PndFtsTrackerIdeal()
 void PndFtsTrackerIdeal::Register() 
 {
   //---
-  FairRootManager::Instance()->Register(fTracksArrayName,"FTSTrk", fTracks, kTRUE);
-  FairRootManager::Instance()->Register(fTracksArrayName+"Cand","FTSTrk", fTrackCands, kTRUE);
+  FairRootManager::Instance()->Register(fTracksArrayName,"FTSTrk", fTracks, fPersistence);
+  FairRootManager::Instance()->Register(fTracksArrayName+"Cand","FTSTrk", fTrackCands, fPersistence);
   if(fVerbose>3) Info("Register","Done.");
 }
 

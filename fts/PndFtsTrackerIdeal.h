@@ -46,7 +46,9 @@ public:
   void SetFtsActivity(Bool_t act=kTRUE){fBranchActive[0]=act;}
   void SetGemActivity(Bool_t act=kTRUE){fBranchActive[1]=act;}
   void SetMvdActivity(Bool_t act=kTRUE){fBranchActive[2]=act;fBranchActive[3]=act;}
-  
+
+  void SetPersistence(Bool_t persistence) { fPersistence = persistence; }
+
 protected:
   
   void SmearFWD(TVector3 &vec, const TVector3 &sigma); // smearing with doubled sigma in z direction
@@ -67,7 +69,8 @@ protected:
   Bool_t fRelative;            // falg
   TVector3 fVtxSigma;          // Vertex smearing sigma [cm]
   Double_t fEfficiency;        // Tracking efficiency - if (0 <= e < 1), some tracks will be discarded
-  
+  Bool_t  fPersistence;        // Persistence of tracking TCAs
+
   TString fTracksArrayName;     // Branch name where to store the Track candidates
   TDatabasePDG *pdg;            //! Particle DB
   
