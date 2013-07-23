@@ -41,7 +41,7 @@ fTrackOutBranchName(""), fMvdBranchName(""), fCentralTrackerBranchName(""),
 fFitTrackArray(), fFitter(), fDafFitter(), fPDGHyp(-13),
 fUseGeane(kTRUE), fIdealHyp(kFALSE), fDaf(kFALSE), fPersistence(kTRUE),
 fPropagateToIP(kTRUE), fPerpPlane(kFALSE),
-fNumIt(1), fBusyCut(20)
+  fNumIt(1), fBusyCut(20), fTrackRep(0)
 {
   fFitTrackArray = new TClonesArray("PndTrack");  
   fFitter = new PndRecoKalmanFit(); 
@@ -56,6 +56,20 @@ PndRecoKalmanTask::~PndRecoKalmanTask()
 InitStatus
 PndRecoKalmanTask::Init()
 {
+
+  switch (fTrackRep)
+    {
+    case 0:
+      std::cout << " -I- PndRecoKalmanTask:Init :: Using GeaneTrackRep" << std::endl;
+      break;
+    case 1:
+      std::cout << " -I- PndRecoKalmanTask:Init :: Using RKTrackRep" << std::endl;
+      break;
+    default:
+      Error("PndRecoKalmanTask::Init","Not existing Track Representation!!");
+      return kERROR;   
+    }
+  
   if (!fDaf)
     {
       fFitter->SetGeane(fUseGeane);
@@ -65,6 +79,7 @@ PndRecoKalmanTask::Init()
       fFitter->SetMvdBranchName(fMvdBranchName);
       fFitter->SetCentralTrackerBranchName(fCentralTrackerBranchName); 
       fFitter->SetVerbose(fVerbose);
+      fFitter->SetTrackRep(fTrackRep);
       if (!fFitter->Init()) return kFATAL;
     }
   else
@@ -75,6 +90,7 @@ PndRecoKalmanTask::Init()
       fDafFitter->SetMvdBranchName(fMvdBranchName);
       fDafFitter->SetCentralTrackerBranchName(fCentralTrackerBranchName);
       fDafFitter->SetVerbose(fVerbose);
+      fDafFitter->SetTrackRep(fTrackRep);
       if (!fDafFitter->Init()) return kFATAL;
     }
   

@@ -55,6 +55,9 @@
 #include "FairTrackParH.h"
 
 #include "GeaneTrackRep.h"
+#include "RKTrackRep.h"
+#include "GFFieldManager.h"
+#include "PndGenfitField.h"
 #include "FairGeanePro.h"
 
 // Class Member definitions -----------
@@ -62,7 +65,7 @@
 
 PndRecoDafFit::PndRecoDafFit(): TNamed("Genfit", "Fit Tracks"),
                                       fMvdBranchName(""), fCentralTrackerBranchName(""),
-                                      fUseGeane(kTRUE), fPropagateToIP(kTRUE), fPerpPlane(kFALSE), fNumIt(1), fVerbose(0)
+                                      fUseGeane(kTRUE), fPropagateToIP(kTRUE), fPerpPlane(kFALSE), fNumIt(1), fVerbose(0), fTrackRep(0)
 {
   PndGeoHandling::Instance();
 }
@@ -180,6 +183,7 @@ Bool_t PndRecoDafFit::Init()
     }
   
   //fGenFitter.setNumIterations(fNumIt);
+  if (fTrackRep==1) GFFieldManager::getInstance()->init(new PndGenfitField());
   
   std::cout << "===PndRecoDafFit::Init() finished ===================================================" << std::endl;
 
@@ -241,14 +245,31 @@ PndTrack* PndRecoDafFit::Fit(PndTrack *tBefore, Int_t PDG)
       plane_v2.SetXYZ(0.,1.,0.);
     }
   GFDetPlane start_pl(StartPos, plane_v1, plane_v2);
-  GeaneTrackRep *grep = new GeaneTrackRep(fPro,
-					  start_pl,StartMom,
-					  StartPosErr,StartMomErr,
-					  fCharge,PDGCode);
-  grep->setPropDir(1);
-  rep = grep;
+  GFTrack* trk;
+  if (fTrackRep==0)
+    {
+      GeaneTrackRep *grep = new GeaneTrackRep(fPro,
+					      start_pl,StartMom,
+					      StartPosErr,StartMomErr,
+					      fCharge,PDGCode);
+      grep->setPropDir(1);
+      rep = grep;
+    }
+  else if (fTrackRep==1)
+    {
+      RKTrackRep *grep = new RKTrackRep(StartPos, StartMom,
+					StartPosErr, StartMomErr,
+					PDGCode);
+      rep = grep;
+    }
+  else
+    {
+      std::cout << "*** PndRecoDafFit::Exec" << "\t" << "Not existing Track Representation " << fTrackRep << std::endl;
+      return NULL; // any smarted ideas?
+    }
   
-  GFTrack* trk= new GFTrack(rep);
+  trk= new GFTrack(rep);
+  
   PndTrackCand trackCand = tBefore->GetTrackCand();
   trk->setCandidate(*PndTrackCand2GenfitTrackCand(&trackCand));
   

@@ -54,7 +54,7 @@ public:
   void SetDaf(Bool_t opt = kTRUE)                  { fDaf = opt;                 }
   void SetPropagateToIP(Bool_t opt = kTRUE)        { fPropagateToIP = opt;       }
   void SetPerpPlane(Bool_t opt = kTRUE)            { fPerpPlane = opt;           }
-  void SetNumIterations(Int_t num)                 { fNumIt = num;               }
+  void SetTrackRep(Short_t num)                    { fTrackRep = num;            }
   void SetParticleHypo(TString s); 
   void SetParticleHypo(Int_t h);
   void SetBusyCut(Int_t b)                         { fBusyCut=b;                 }
@@ -90,7 +90,8 @@ protected:
   Bool_t fIdealHyp;              //! Flag to use MC particle hypothesis
   Bool_t fDaf;                   //! Flag to use Deterministic Annealing
   Bool_t fPropagateToIP;         //! Flag to propagate the parameters to the interaction point (kTRUE)
-  Bool_t fPerpPlane;             //! Flat to use as initial plane the one perpendicular to the track (kFALSE)
+  Bool_t fPerpPlane;             //! Flag to use as initial plane the one perpendicular to the track (kFALSE)
+  Short_t fTrackRep;             //! (0) GeaneTrackRep, 1 RKTrackRep
   Int_t fNumIt;                  //! Number of iterations
   Int_t fPDGHyp;                 //! Hypothesis
   Int_t fBusyCut;                 //! Skip too busy events with more tracks

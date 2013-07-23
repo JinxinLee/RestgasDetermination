@@ -41,6 +41,7 @@ class PndRecoDafFit : public TNamed
   void SetPropagateToIP(Bool_t opt = kTRUE)      { fPropagateToIP = opt;}
   void SetPerpPlane(Bool_t opt = kTRUE)          { fPerpPlane = opt;    }
   void SetNumIterations(Int_t num)               { fNumIt    = num;     } 
+  void SetTrackRep(Int_t num)                    { fTrackRep    = num;  }
   void SetVerbose(Int_t verb)                    { fVerbose  = verb;    }
   void SetMvdBranchName(const TString& name)             { fMvdBranchName = name; }
   void SetCentralTrackerBranchName(const TString& name)  { fCentralTrackerBranchName = name; }
@@ -63,6 +64,7 @@ private:
   Bool_t fPropagateToIP;//! Flag to propagate to the interaction point
   Bool_t fPerpPlane;    //! Flag to use as initial plane the one perpendicular to the track 
   Int_t fNumIt;         //! Number of iterations
+  Short_t fTrackRep;    //! (0) GeaneTrackRep, 1 RKTrackRep
   Int_t fVerbose;       //! Verbose level
   
   ClassDef(PndRecoDafFit,0);

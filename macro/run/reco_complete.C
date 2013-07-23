@@ -74,6 +74,7 @@ void reco_complete()
   recoKalman->SetBusyCut(50); // CHECK to be tuned
   //recoKalman->SetIdealHyp(kTRUE);
   //recoKalman->SetNumIterations(3);
+  //recoKalman->SetTrackRep(1); // 0 Geane (default), 1 RK
   fRun->AddTask(recoKalman);
 
   PndMCTrackAssociator* trackMC2 = new PndMCTrackAssociator();
@@ -95,6 +96,7 @@ void reco_complete()
   recoKalmanFwd->SetBusyCut(50); // CHECK to be tuned
   //recoKalmanFwd->SetIdealHyp(kTRUE);
   //recoKalmanFwd->SetNumIterations(3);
+  //recoKalmanFwd->SetTrackRep(1); // 0 Geane (default), 1 RK
   fRun->AddTask(recoKalmanFwd);
 
   PndMCTrackAssociator* trackMC3 = new PndMCTrackAssociator();
