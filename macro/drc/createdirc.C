@@ -156,6 +156,7 @@ void createdirc(Int_t fGeomType = 1, Int_t fFocusingSystem = 4){
     FairGeoMedium *DrcMarcol82_7  = Media->getMedium("Marcol82_7");
     FairGeoMedium *DrcNLAK33A     = Media->getMedium("NLAK33A");
     FairGeoMedium *DrcBK7G18     = Media->getMedium("BK7G18");
+    FairGeoMedium *DrcPBF2     = Media->getMedium("PBF2");
     FairGeoMedium *DrcPhotocathode= Media->getMedium("Photocathode");  
   
     Int_t nmed=geobuild->createMedium(DrcAir);
@@ -168,6 +169,7 @@ void createdirc(Int_t fGeomType = 1, Int_t fFocusingSystem = 4){
     nmed=geobuild->createMedium(DrcMarcol82_7);
     nmed=geobuild->createMedium(DrcNLAK33A);
     nmed=geobuild->createMedium(DrcBK7G18);
+    nmed=geobuild->createMedium(DrcPBF2);
     nmed=geobuild->createMedium(DrcPhotocathode);
 
   }
@@ -376,7 +378,7 @@ void createdirc(Int_t fGeomType = 1, Int_t fFocusingSystem = 4){
       TGeoTranslation *trCyl2 = new TGeoTranslation("trCyl2", 0., Rcyl + Hcyl2 - len/2., 0.);
       trCyl2->RegisterYourself();
       TGeoCompositeShape *llens2 = new TGeoCompositeShape("llens2", "(CylBox:trCyl2) - Cyl");
-      TGeoVolume* CylLens2 = new TGeoVolume("DrcLENS2Sensor", llens2, gGeoManager->GetMedium("BK7G18")); //FusedSil
+      TGeoVolume* CylLens2 = new TGeoVolume("DrcLENS2Sensor", llens2, gGeoManager->GetMedium("FusedSil"));
       CylLens2->SetLineColor(kRed+2);
       CylLens2->SetTransparency(40);
       // CylLens2->SetLineColor(kCyan+1);
