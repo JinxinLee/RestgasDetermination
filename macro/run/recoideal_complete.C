@@ -55,6 +55,7 @@ void recoideal_complete()
   trackStt->SetVertexSmearing(0.05, 0.05, 0.05);
   trackStt->SetTrackingEfficiency(1.);
   trackStt->SetTrackOutput("SttMvdGemIdealTrack");
+  trackStt->SetPersistence(kFALSE);
   fRun->AddTask(trackStt);
  
   /* 
@@ -83,6 +84,7 @@ void recoideal_complete()
   trackFts->SetVertexSmearing(0.05, 0.05, 0.05);
   trackFts->SetTrackingEfficiency(1.);
   trackFts->SetTrackOutput("FtsIdealTrack");
+  trackFts->SetPersistence(kFALSE);
   fRun->AddTask(trackFts);
 
   PndRecoKalmanTask* recoKalmanFwd = new PndRecoKalmanTask();

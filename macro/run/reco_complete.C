@@ -56,15 +56,18 @@ void reco_complete()
   tracking->NoMvdAloneTracking();
   // do Cleanup only when there is Mixing;
   // tracking->Cleanup();
+  tracking->SetPersistence(kFALSE);
   fRun->AddTask(tracking);
   
   PndSttMvdGemTracking * SttMvdGemTracking = new PndSttMvdGemTracking(0);
   //SttMvdGemTracking->SetPdgFromMC();
+  SttMvdGemTracking->SetPersistence(kFALSE);
   fRun->AddTask(SttMvdGemTracking);
   
   PndMCTrackAssociator* trackMC = new PndMCTrackAssociator();
   trackMC->SetTrackInBranchName("SttMvdGemTrack");
   trackMC->SetTrackOutBranchName("SttMvdGemTrackID");
+  trackMC->SetPersistence(kFALSE);
   fRun->AddTask(trackMC);
 
   PndRecoKalmanTask* recoKalman = new PndRecoKalmanTask();
@@ -74,7 +77,7 @@ void reco_complete()
   recoKalman->SetBusyCut(50); // CHECK to be tuned
   //recoKalman->SetIdealHyp(kTRUE);
   //recoKalman->SetNumIterations(3);
-  //recoKalman->SetTrackRep(1); // 0 Geane (default), 1 RK
+  recoKalman->SetTrackRep(0); // 0 Geane (default), 1 RK
   fRun->AddTask(recoKalman);
 
   PndMCTrackAssociator* trackMC2 = new PndMCTrackAssociator();
@@ -87,6 +90,7 @@ void reco_complete()
   trackFts->SetVertexSmearing(0.05, 0.05, 0.05);
   trackFts->SetTrackingEfficiency(1.);
   trackFts->SetTrackOutput("FtsIdealTrack");
+  trackFts->SetPersistence(kFALSE);
   fRun->AddTask(trackFts);
 
   PndRecoKalmanTask* recoKalmanFwd = new PndRecoKalmanTask();
@@ -96,7 +100,7 @@ void reco_complete()
   recoKalmanFwd->SetBusyCut(50); // CHECK to be tuned
   //recoKalmanFwd->SetIdealHyp(kTRUE);
   //recoKalmanFwd->SetNumIterations(3);
-  //recoKalmanFwd->SetTrackRep(1); // 0 Geane (default), 1 RK
+  recoKalmanFwd->SetTrackRep(0); // 0 Geane (default), 1 RK
   fRun->AddTask(recoKalmanFwd);
 
   PndMCTrackAssociator* trackMC3 = new PndMCTrackAssociator();
