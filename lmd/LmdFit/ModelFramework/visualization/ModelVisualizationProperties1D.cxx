@@ -7,6 +7,11 @@
 
 #include "ModelVisualizationProperties1D.h"
 
+ModelVisualizationProperties1D::ModelVisualizationProperties1D() : binning_factor(1.0) {
+	// TODO Auto-generated constructor stub
+	evaluations = 500;
+}
+
 ModelVisualizationProperties1D::ModelVisualizationProperties1D(shared_ptr<Data> data) {
 	// TODO Auto-generated constructor stub
 	evaluations = 500;

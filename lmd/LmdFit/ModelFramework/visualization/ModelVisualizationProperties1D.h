@@ -19,6 +19,7 @@ private:
 	double binning_factor;
 
 public:
+	ModelVisualizationProperties1D();
 	ModelVisualizationProperties1D(shared_ptr<Data> data);
 	virtual ~ModelVisualizationProperties1D();
 

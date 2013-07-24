@@ -19,7 +19,7 @@ ClassImp(PndLmdLumiFitOptions)
 PndLmdLumiFitOptions::PndLmdLumiFitOptions(
 		LumiFit::LmdBinaryFitOptions bit_flag_options, int smearing_type_,
 		int acc_intpol_type_) :
-		model_binary_options(bit_flag_options), data_binary_options(
+		model_binary_options(bit_flag_options), dpm_elastic_model_parts(0), data_binary_options(
 				bit_flag_options), smearing_type(smearing_type_), acc_intpol_type(
 				acc_intpol_type_) {
 }
@@ -31,8 +31,9 @@ PndLmdLumiFitOptions::PndLmdLumiFitOptions(
 		double theta_fit_range_high_, double phi_fit_range_low_,
 		double phi_fit_range_high_) :
 		model_binary_options(bit_flag_options), data_binary_options(
-				bit_flag_options), free_parameters_code(free_parameters_code_), smearing_type(
-				smearing_type_), acc_intpol_type(acc_intpol_type_) {
+				bit_flag_options), dpm_elastic_model_parts(0), free_parameters_code(
+				free_parameters_code_), smearing_type(smearing_type_), acc_intpol_type(
+				acc_intpol_type_) {
 	theta_fit_range_low = theta_fit_range_low_;
 	theta_fit_range_high = theta_fit_range_high_;
 	phi_fit_range_low = phi_fit_range_low_;
@@ -121,6 +122,15 @@ TString PndLmdLumiFitOptions::getResolutionParametrizationFileUrl() const {
 	return resolution_parametrization_file_url;
 }
 
+int PndLmdLumiFitOptions::getDpmElasticModelParts() const {
+	return dpm_elastic_model_parts;
+}
+
+void PndLmdLumiFitOptions::setDpmElasticModelParts(
+		int dpm_elastic_model_parts_) {
+	dpm_elastic_model_parts = dpm_elastic_model_parts_;
+}
+
 void PndLmdLumiFitOptions::setResolutionParametrizationFileUrl(
 		TString resolution_parametrization_file_url_) {
 	resolution_parametrization_file_url = resolution_parametrization_file_url_;
@@ -132,24 +142,63 @@ void PndLmdLumiFitOptions::setThetaFitRange(const double fit_range_low_,
 	theta_fit_range_high = fit_range_high_;
 }
 
-bool PndLmdLumiFitOptions::operator==(
-		const PndLmdLumiFitOptions &fit_options) const {
+bool PndLmdLumiFitOptions::operator<(const PndLmdLumiFitOptions &rhs) const {
+	// check binary options first
 	if (model_binary_options.getBinaryOptions()
-			!= fit_options.getModelBinaryOptions().getBinaryOptions())
+			< rhs.getModelBinaryOptions().getBinaryOptions())
+		return true;
+	else if (model_binary_options.getBinaryOptions()
+			> rhs.getModelBinaryOptions().getBinaryOptions())
 		return false;
 	if (data_binary_options.getBinaryOptions()
-			!= fit_options.getDataBinaryOptions().getBinaryOptions())
-		return false;
-	if (theta_fit_range_low != fit_options.getThetaFitRangeLow())
-		return false;
-	if (theta_fit_range_high != fit_options.getThetaFitRangeHigh())
-		return false;
-	if (phi_fit_range_low != fit_options.getPhiFitRangeLow())
-		return false;
-	if (phi_fit_range_high != fit_options.getPhiFitRangeHigh())
+			< rhs.getDataBinaryOptions().getBinaryOptions())
+		return true;
+	else if (data_binary_options.getBinaryOptions()
+			> rhs.getDataBinaryOptions().getBinaryOptions())
 		return false;
 
-	return true;
+	// then fit ranges
+	if (theta_fit_range_low < rhs.getThetaFitRangeLow())
+		return true;
+	else if (theta_fit_range_low > rhs.getThetaFitRangeLow())
+		return false;
+	if (theta_fit_range_high < rhs.getThetaFitRangeHigh())
+		return true;
+	else if (theta_fit_range_high > rhs.getThetaFitRangeHigh())
+		return false;
+	if (phi_fit_range_low < rhs.getPhiFitRangeLow())
+		return true;
+	else if (phi_fit_range_low > rhs.getPhiFitRangeLow())
+		return false;
+	if (phi_fit_range_high < rhs.getPhiFitRangeHigh())
+		return true;
+	else if (phi_fit_range_high > rhs.getPhiFitRangeHigh())
+		return false;
+
+	// other stuff
+	if (acc_intpol_type < rhs.getAcceptanceInterpolationType())
+		return true;
+	else if (acc_intpol_type > rhs.getAcceptanceInterpolationType())
+		return false;
+	if (smearing_type < rhs.getSmearingModelType())
+		return true;
+	else if (smearing_type > rhs.getSmearingModelType())
+		return false;
+	if (free_parameters_code < rhs.getFreeParametersCode())
+		return true;
+	else if (free_parameters_code > rhs.getFreeParametersCode())
+		return false;
+
+	return false;
+}
+
+bool PndLmdLumiFitOptions::operator>(const PndLmdLumiFitOptions &rhs) const {
+	return (rhs < *this);
+}
+
+bool PndLmdLumiFitOptions::operator==(
+		const PndLmdLumiFitOptions &fit_options) const {
+	return ((*this < fit_options) == (*this > fit_options));
 }
 
 bool PndLmdLumiFitOptions::operator!=(

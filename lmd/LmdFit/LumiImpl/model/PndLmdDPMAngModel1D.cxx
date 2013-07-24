@@ -11,8 +11,8 @@
 
 #include "TMath.h"
 
-PndLmdDPMAngModel1D::PndLmdDPMAngModel1D(std::string name_) :
-		PndLmdDPMMTModel1D(name_) {
+PndLmdDPMAngModel1D::PndLmdDPMAngModel1D(std::string name_, dpm_elastic_parts elastic_type_) :
+		PndLmdDPMMTModel1D(name_, elastic_type_) {
 	// TODO Auto-generated constructor stub
 
 }
@@ -91,46 +91,10 @@ double PndLmdDPMAngModel1D::getThetaMomentumTransferJacobian(
 					- getMomentumTransferFromTheta(theta - h)) / (2 * h));
 }
 
-double PndLmdDPMAngModel1D::getCoulombPart(const double *x) const {
-	double t = getMomentumTransferFromTheta(x[0]);
-	double jaco = getThetaMomentumTransferJacobian(x[0]);
-	double coul_part = getRawCoulombPart(&t) * jaco; //Coulomb part
-
-	return coul_part;
-}
-
-double PndLmdDPMAngModel1D::getInterferencePart(const double *x) const {
-	double t = getMomentumTransferFromTheta(x[0]);
-	double jaco = getThetaMomentumTransferJacobian(x[0]);
-
-	double int_part = getRawInterferencePart(&t) * jaco;
-
-	return int_part;
-}
-
-double PndLmdDPMAngModel1D::getHadronicPart(const double *x) const {
-	double t = getMomentumTransferFromTheta(x[0]);
-	double jaco = getThetaMomentumTransferJacobian(x[0]);
-
-	double had_part = getRawHadronicPart(&t) * jaco;
-
-	return had_part;
-}
-
 double PndLmdDPMAngModel1D::eval(const double *x) const {
-	double p1 = getCoulombPart(x);
-	double p2 = getInterferencePart(x);
-	double p3 = getHadronicPart(x);
-
-	return luminosity->getValue() * (p1 + p2 + p3);
-}
-
-double PndLmdDPMAngModel1D::coulombHadronDifference(double *x) const {
-	double p1 = getCoulombPart(x);
-	double p2 = getInterferencePart(x);
-	double p3 = getHadronicPart(x);
-
-	return p1 - p2 - p3;
+	double t = getMomentumTransferFromTheta(x[0]);
+	double jaco = getThetaMomentumTransferJacobian(x[0]);
+	return PndLmdDPMMTModel1D::eval(&t) * jaco;
 }
 
 void PndLmdDPMAngModel1D::updateDomain() {

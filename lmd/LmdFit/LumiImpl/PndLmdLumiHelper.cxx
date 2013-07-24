@@ -47,7 +47,7 @@ PndLmdLumiHelper::PndLmdLumiHelper() {
 
 double PndLmdLumiHelper::getMomentumTransferFromTheta(double plab,
 		double theta) {
-	PndLmdDPMAngModel1D model("dpm_angular_1d");
+	PndLmdDPMAngModel1D model("dpm_angular_1d", PndLmdDPMMTModel1D::ALL);
 	shared_ptr<Parametrization> para(
 			new PndLmdDPMModelParametrization(model.getModelParameterSet()));
 	model.getModelParameterHandler().registerParametrizations(

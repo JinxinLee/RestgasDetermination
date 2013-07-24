@@ -14,8 +14,21 @@
 #include "TMath.h"
 #include "TDatabasePDG.h"
 
-PndLmdDPMMTModel1D::PndLmdDPMMTModel1D(std::string name_) :
+PndLmdDPMMTModel1D::PndLmdDPMMTModel1D(std::string name_,
+		dpm_elastic_parts elastic_type_) :
 		Model1D(name_) {
+
+	elastic_type = elastic_type_;
+	if (elastic_type == COUL) {
+		model_func = &PndLmdDPMMTModel1D::getRawCoulombPart;
+	} else if (elastic_type == INT) {
+		model_func = &PndLmdDPMMTModel1D::getRawInterferencePart;
+	} else if (elastic_type == HAD) {
+		model_func = &PndLmdDPMMTModel1D::getRawHadronicPart;
+	} else {
+		model_func = &PndLmdDPMMTModel1D::getRawFullElastic;
+	}
+
 	// here a bunch of parameters, which are constants, will be set
 	init();
 	initModelParameters();
@@ -108,11 +121,13 @@ double PndLmdDPMMTModel1D::getRawHadronicPart(const double *x) const {
 	return had_part;
 }
 
+double PndLmdDPMMTModel1D::getRawFullElastic(const double *x) const {
+	return (getRawCoulombPart(x) + getRawInterferencePart(x)
+			+ getRawHadronicPart(x));
+}
+
 double PndLmdDPMMTModel1D::eval(const double *x) const {
-	double p1 = getRawCoulombPart(x);
-	double p2 = getRawInterferencePart(x);
-	double p3 = getRawHadronicPart(x);
-	return luminosity->getValue() * (p1 + p2 + p3);
+	return luminosity->getValue() * (this->*model_func)(x);
 }
 
 void PndLmdDPMMTModel1D::updateDomain() {

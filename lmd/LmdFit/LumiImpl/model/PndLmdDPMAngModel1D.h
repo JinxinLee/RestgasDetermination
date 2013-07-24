@@ -12,18 +12,12 @@
 
 class PndLmdDPMAngModel1D: public PndLmdDPMMTModel1D {
   public:
-    PndLmdDPMAngModel1D(std::string name_);
+    PndLmdDPMAngModel1D(std::string name_, dpm_elastic_parts elastic_type_);
     virtual ~PndLmdDPMAngModel1D();
 
     double getMomentumTransferFromTheta(const double theta) const;
 
     double getThetaMomentumTransferJacobian(const double theta) const;
-
-    double getCoulombPart(const double *x) const;
-
-    double getInterferencePart(const double *x) const;
-
-    double getHadronicPart(const double *x) const;
 
     /**
      * @param x theta and phi value, which are stored in x[0] and x[1]
@@ -32,8 +26,6 @@ class PndLmdDPMAngModel1D: public PndLmdDPMMTModel1D {
      * @returns cross section value for given theta and phi value, which are stored in x[0] and x[1] and the parameters:
      * par */
     double eval(const double *x) const;
-
-    double coulombHadronDifference(double *x) const;
 
     virtual void updateDomain();
 };

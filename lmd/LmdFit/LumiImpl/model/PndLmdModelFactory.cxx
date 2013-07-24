@@ -63,8 +63,18 @@ shared_ptr<Model1D> PndLmdModelFactory::generate1DModel(
 		const PndLmdLumiFitOptions *fit_options, double plab,
 		const PndLmdAcceptance *acceptance) {
 	shared_ptr<Model1D> current_model;
+
+	// get dpm part
+	PndLmdDPMMTModel1D::dpm_elastic_parts dpm_elastic_type = PndLmdDPMMTModel1D::ALL;
+	if(fit_options->getDpmElasticModelParts() == 1)
+		dpm_elastic_type = PndLmdDPMMTModel1D::COUL;
+	else if(fit_options->getDpmElasticModelParts() == 2)
+		dpm_elastic_type = PndLmdDPMMTModel1D::INT;
+	else if(fit_options->getDpmElasticModelParts() == 3)
+			dpm_elastic_type = PndLmdDPMMTModel1D::HAD;
+
 	if (fit_options->getModelBinaryOptions().isFitRaw()) {
-		current_model.reset(new PndLmdDPMMTModel1D("dpm_mt_1d"));
+		current_model.reset(new PndLmdDPMMTModel1D("dpm_mt_1d", dpm_elastic_type));
 		// set free parameters
 		current_model->getModelParameterSet().freeModelParameter(
 				std::make_pair("dpm_mt_1d", "luminosity"));
@@ -78,7 +88,7 @@ shared_ptr<Model1D> PndLmdModelFactory::generate1DModel(
 			current_model->getModelParameterSet().freeModelParameter(
 					std::make_pair("dpm_mt_1d", "b"));
 	} else {
-		current_model.reset(new PndLmdDPMAngModel1D("dpm_angular_1d"));
+		current_model.reset(new PndLmdDPMAngModel1D("dpm_angular_1d", dpm_elastic_type));
 		// finally set all parameters free according to the fit options
 		// set free parameters
 		current_model->getModelParameterSet().freeModelParameter(

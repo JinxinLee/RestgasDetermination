@@ -14,7 +14,8 @@
 class PndLmdDPMMTModel2D: public Model2D {
 	PndLmdDPMMTModel1D dpm_model_1d;
 public:
-	PndLmdDPMMTModel2D(std::string name_);
+	PndLmdDPMMTModel2D(std::string name_,
+			PndLmdDPMMTModel1D::dpm_elastic_parts elastic_type);
 	virtual ~PndLmdDPMMTModel2D();
 
 	double eval(double *x) const;

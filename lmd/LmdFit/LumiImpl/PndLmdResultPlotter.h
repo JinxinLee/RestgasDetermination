@@ -154,7 +154,8 @@ public:
 			TString name,
 			std::map<TString, std::vector<PndLmdResultPlotter::combined_values> >& result_map);
 
-	void plotDPMModelParts();
+	void plotDPMModelParts(double plab,
+			std::pair<double, double> plot_range, bool log_scale = true);
 };
 
 #endif /* PNDLMDRESULTPLOTTER_H_ */

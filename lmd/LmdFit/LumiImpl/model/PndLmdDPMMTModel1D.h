@@ -57,6 +57,11 @@ protected:
 	shared_ptr<ModelPar> T1;
 	shared_ptr<ModelPar> T2;
 
+	// function pointer used to switch between different algorithms for interpolation
+	typedef double (PndLmdDPMMTModel1D::*function)(const double *x) const;
+
+	function model_func;
+
 	/**
 	 *  initializes the above parameters of the DPM cross section that are
 	 *  absolutely fixed (so not dependent on the beam momentum for example)
@@ -66,12 +71,16 @@ protected:
 	void updateDomainFromPars(double *par);
 
 public:
+  enum dpm_elastic_parts {
+    COUL, INT, HAD, ALL
+  } elastic_type;
+
 	/**
 	 * In the constructor that creates a fully defined pure signal cross section
 	 * model of LMD
 	 * @param name_ is the name of the model. Make sure that it is unique.
 	 */
-	PndLmdDPMMTModel1D(std::string name_);
+	PndLmdDPMMTModel1D(std::string name_, dpm_elastic_parts elastic_type_);
 
 	~PndLmdDPMMTModel1D();
 
@@ -93,6 +102,8 @@ public:
 	double getRawInterferencePart(const double *x) const;
 
 	double getRawHadronicPart(const double *x) const;
+
+	double getRawFullElastic(const double *x) const;
 
 	virtual double eval(const double *x) const;
 

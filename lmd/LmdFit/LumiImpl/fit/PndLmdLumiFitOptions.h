@@ -9,7 +9,6 @@
 #define PNDLMDLUMIFITOPTIONS_H_
 
 #include "../LumiFitStructs.h" // .. is needed for rootcint to find the header
-
 #include "TObject.h"
 #include "TString.h"
 #include "TMath.h"
@@ -49,27 +48,23 @@ private:
 
 	int smearing_type;
 	int acc_intpol_type;
+	int dpm_elastic_model_parts;
 
 	double theta_fit_range_low; /** Lower boundary of the fit for the theta variable */
 	double theta_fit_range_high; /** Upper boundary of the fit for the theta variable */
 	double phi_fit_range_low; /** Lower boundary of the fit for the phi variable. This will only be used if fit dimension equals 2. */
 	double phi_fit_range_high; /** Upper boundary of the fit for the phi variable. This will only be used if fit dimension equals 2. */
-
 	double t_fit_range_low; /** Lower boundary of the fit for the t variable (calculated automatically from the @see theta_fit_range_low) */
 	double t_fit_range_high; /** Upper boundary of the fit for the t variable (calculated automatically from the @see theta_fit_range_high) */
-
 	void initBinaryOptions(unsigned long bit_flag_options);
-
 	TString resolution_parametrization_file_url;
-
 public:
 	/**
 
 	 *  @param smearing_type is a
 	 */
-	PndLmdLumiFitOptions(LumiFit::LmdBinaryFitOptions bit_flag_options, int smearing_type_,
-			int acc_intpol_type_);
-
+	PndLmdLumiFitOptions(LumiFit::LmdBinaryFitOptions bit_flag_options,
+			int smearing_type_, int acc_intpol_type_);
 	/**
 	 * Constructor
 	 * @param bit_flag_options is a number in which each digit represents a binary flag @see PndLmdLumiFitOptions(int)
@@ -87,13 +82,11 @@ public:
 			int acc_intpol_type_, double plab, double theta_fit_range_low_,
 			double theta_fit_range_high_, double phi_fit_range_low_ = -TMath::Pi(),
 			double phi_fit_range_high_ = TMath::Pi());
-
 	/**
 	 * Constructor
 	 * empty constructor only required by ROOT IO
 	 */
 	PndLmdLumiFitOptions();
-
 	/**
 	 * Get method for the smearing function type
 	 * @returns smearing model type (atm: 0 = single gaussian, 1 = double gaussian)
@@ -104,23 +97,18 @@ public:
 	 * @returns smearing model name (i.e: "single gaussian" or "double gaussian")
 	 */
 	std::string getSmearingModelName() const;
-
-
-
 	int getAcceptanceInterpolationType() const;
 	/**
 	 * Get method for the model binary fit options
 	 * @returns integer format of the binary fit options
 	 */
-	const LumiFit::LmdBinaryFitOptions& getModelBinaryOptions() const;
+	const LumiFit::LmdBinaryFitOptions & getModelBinaryOptions() const;
 	/**
 	 * Get method for the data binary fit options
 	 * @returns integer format of the binary fit options
 	 */
-	const LumiFit::LmdBinaryFitOptions& getDataBinaryOptions() const;
-
-	LumiFit::LmdBinaryFitOptions& getDataBinaryOptions();
-
+	const LumiFit::LmdBinaryFitOptions & getDataBinaryOptions() const;
+	LumiFit::LmdBinaryFitOptions & getDataBinaryOptions();
 	/**
 	 * @returns the code for which parameter is free in the fit
 	 */
@@ -141,7 +129,6 @@ public:
 	 * @returns the upper fit boundary for the phi variable
 	 */
 	double getPhiFitRangeHigh() const;
-
 	/**
 	 * @returns the lower fit boundary for the t variable
 	 */
@@ -151,41 +138,49 @@ public:
 	 */
 	double getTFitRangeHigh() const;
 
+	int getDpmElasticModelParts() const;
+
 	void setAcceptanceInterpolationType(int acc_intpol_type_);
-
 	void setSmearingModelType(int smearing_type_);
-
 	/**
 	 * This function will set the #free_parameters_code field. This code decides
 	 * which parameters will be set free in the fit later on.
 	 * @param free_parameters_code_ is new value of #free_parameters_code
 	 */
 	void setFreeParametersOfModel(unsigned int free_parameters_code_);
-
 	void setThetaFitRange(const double fit_range_low_,
 			const double fit_range_high_);
 
+	void setDpmElasticModelParts(int dpm_elastic_model_parts_);
+	/**
+	 * Less then operator. Will return true "this" fit options are "less" in value.
+	 */
+	bool operator <(const PndLmdLumiFitOptions & rhs) const;
+	/**
+	 * Greater then operator. Will return true "this" fit options are "greater" in value.
+	 */
+	bool operator >(const PndLmdLumiFitOptions & rhs) const;
 	/**
 	 * Comparison operator. Will return true only if all fit options are equal in value.
 	 */
-	bool operator==(const PndLmdLumiFitOptions &fit_options) const;
+	bool operator ==(const PndLmdLumiFitOptions & fit_options) const;
 	/**
 	 * Inverse comparison operator @see operator==()
 	 */
-	bool operator!=(const PndLmdLumiFitOptions &fit_options) const;
+	bool operator !=(const PndLmdLumiFitOptions & fit_options) const;
 	/**
 	 * Output stream operator for printing out fit options for information.
 	 */
-	friend std::ostream& operator<<(std::ostream& os,
-			const PndLmdLumiFitOptions& fit_options);
+	friend std::ostream & operator <<(std::ostream & os,
+			const PndLmdLumiFitOptions & fit_options);
 
 	TString makeName() const;
-
 	TString getResolutionParametrizationFileUrl() const;
 	void setResolutionParametrizationFileUrl(
 			TString resolution_parametrization_file_url_);
 
 ClassDef(PndLmdLumiFitOptions,1)
+
 };
 
 #endif /* PNDLMDLUMIFITOPTIONS_H_ */

@@ -714,8 +714,93 @@ std::map<TString, std::vector<PndLmdLumiHelper::lmd_graph*> > PndLmdResultPlotte
 	return return_map;
 }
 
-void PndLmdResultPlotter::plotDPMModelParts() {
+void PndLmdResultPlotter::plotDPMModelParts(double plab,
+		std::pair<double, double> plot_range, bool log_scale) {
+	PndLmdModelFactory model_factory;
 
+	ROOTDataHelper data_helper;
+	ModelVisualizationProperties1D vis_prop;
+	vis_prop.setPlotRange(plot_range);
+
+	LumiFit::LmdBinaryFitOptions bit_fit_opt(0);
+	PndLmdLumiFitOptions fit_op_full(bit_fit_opt, 0, 0);
+
+	shared_ptr<Model1D> full_model = model_factory.generate1DModel(&fit_op_full,
+			plab);
+	if (full_model->init()) {
+		std::cout << "Error: not all parameters have been set!" << std::endl;
+	}
+
+	TGraphErrors* full_model_graph = root_plotter.createGraphFromModel1D(
+			full_model, vis_prop);
+
+	PndLmdLumiFitOptions fit_op_coul = fit_op_full;
+	fit_op_coul.setDpmElasticModelParts(1);
+
+	shared_ptr<Model1D> coul_model = model_factory.generate1DModel(&fit_op_coul,
+			plab);
+	if (full_model->init()) {
+		std::cout << "Error: not all parameters have been set!" << std::endl;
+	}
+
+	TGraphErrors* coul_model_graph = root_plotter.createGraphFromModel1D(
+			coul_model, vis_prop);
+
+	PndLmdLumiFitOptions fit_op_int = fit_op_full;
+	fit_op_int.setDpmElasticModelParts(2);
+
+	shared_ptr<Model1D> int_model = model_factory.generate1DModel(&fit_op_int,
+			plab);
+	if (full_model->init()) {
+		std::cout << "Error: not all parameters have been set!" << std::endl;
+	}
+
+	TGraphErrors* int_model_graph = root_plotter.createGraphFromModel1D(int_model,
+			vis_prop);
+
+	PndLmdLumiFitOptions fit_op_had = fit_op_full;
+	fit_op_had.setDpmElasticModelParts(3);
+
+	shared_ptr<Model1D> had_model = model_factory.generate1DModel(&fit_op_had,
+			plab);
+	if (full_model->init()) {
+		std::cout << "Error: not all parameters have been set!" << std::endl;
+	}
+
+	TGraphErrors* had_model_graph = root_plotter.createGraphFromModel1D(had_model,
+			vis_prop);
+
+	TCanvas c("c", "", 1000, 700);
+	c.SetLogy(log_scale);
+	full_model_graph->Draw("AC");
+	gPad->Update();
+	double top_pos = gPad->GetUymax();
+	if(log_scale)
+		top_pos = pow(10, gPad->GetUymax());
+	int_model_graph->Draw("AC");
+	gPad->Update();
+	double bottom_pos = gPad->GetUymin();
+	if(log_scale)
+		bottom_pos = pow(10, gPad->GetUymin());
+	full_model_graph->GetYaxis()->SetRangeUser(bottom_pos, top_pos);
+
+	full_model_graph->SetLineWidth(2);
+	full_model_graph->Draw("AC");
+	coul_model_graph->SetLineWidth(2);
+	coul_model_graph->SetLineColor(2);
+	coul_model_graph->Draw("CSAME");
+	int_model_graph->SetLineWidth(2);
+	int_model_graph->SetLineColor(8);
+	int_model_graph->Draw("CSAME");
+	had_model_graph->SetLineWidth(2);
+	had_model_graph->SetLineColor(9);
+	had_model_graph->Draw("CSAME");
+
+	ostringstream strstream;
+	strstream.precision(3);
+
+	strstream << "DPMModels_" << plab << ".pdf";
+	c.SaveAs(strstream.str().c_str());
 }
 
 void PndLmdResultPlotter::makeResolutionSummaryPlots(TFile *f) {
