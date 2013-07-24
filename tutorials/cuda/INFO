@@ -14,7 +14,7 @@ to your $VMCWORKDIR/gconfig/rootlogon.C, if your still using the rootlogon.C met
 
 #### MORE INFO ####
 Some more detailed explanation is available at https://github.com/AndiH/CMake/tree/master/CMake%2BCUDA%2BPandaRoot
-
+Also, there is a short introducing presentation http://panda-wiki.gsi.de/pub/Computing/Minutes22July2013/aherten_PndCuda.pdf
 
 
 -- Andreas Herten, 24.07.2013
