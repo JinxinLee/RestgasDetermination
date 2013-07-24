@@ -770,7 +770,7 @@ Bool_t PndAnalysis::McTruthMatch(RhoCandidate* cand, Int_t level, bool verbose)
 Int_t PndAnalysis::McTruthMatch(RhoCandList& list, Int_t level, bool verbose)
 {
   Int_t ifound = 0;
-  for(int icand=0;icand<fAllCandList.GetLength();icand++){
+  for(int icand=0;icand<list.GetLength();icand++){
     if( true == MctMatch(list[icand],fMcCandList,level,verbose) ) {
       ifound++;
     }
