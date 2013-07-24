@@ -1,0 +1,20 @@
+Example on how to compile CUDA projects with PandaRoot.
+
+
+#### USING IT ####
+Either copy the whole /tutorials/cuda directory into your /pandaroot/ dir and add
+	add_subdirectory (cuda)
+to the /pandaroot/CMakeLists.txt or just add 
+	add_subdirectory (tutorials/cuda)
+to the .txt. Also, add
+  if(isLibrary("libPndCuda"))gSystem->Load("libPndCuda");
+to your $VMCWORKDIR/gconfig/rootlogon.C, if your still using the rootlogon.C method.
+
+`cmake` and `make` and you should be done.
+
+#### MORE INFO ####
+Some more detailed explanation is available at https://github.com/AndiH/CMake/tree/master/CMake%2BCUDA%2BPandaRoot
+
+
+
+-- Andreas Herten, 24.07.2013
