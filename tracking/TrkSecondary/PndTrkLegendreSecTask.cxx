@@ -580,7 +580,10 @@ void PndTrkLegendreSecTask::Exec(Option_t* opt) {
       // 8. last association z --> HIT: fill position and add to cluster ???? CHECK
       for(int ihit = 0; ihit < skewhitlist.GetNofHits(); ihit++) {
 	PndTrkSkewHit *skewhit = (PndTrkSkewHit*) skewhitlist.GetHit(ihit);
-	trkcluster->AddHit(skewhit);
+	if(trkcluster->DoesContain(skewhit) == kTRUE) {
+	  trkcluster->Replace(skewhit);
+	}
+	else 	    trkcluster->AddHit(skewhit);	
 	TVector3 intersection1 = skewhit->GetIntersection1();
 	double phi1 = track->ComputePhi(intersection1);
 	double calcz1 = ml * phi1 + pl;
@@ -711,6 +714,7 @@ void PndTrkLegendreSecTask::Reset()
 }
 // ============================================================================================
 Int_t PndTrkLegendreSecTask::FillConformalHitList(int isec) {
+  conformalhitlist->Reset();
 
   conformalhitlist->SetConformalTransform(conform);
     
