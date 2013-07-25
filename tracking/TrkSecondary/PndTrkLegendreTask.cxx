@@ -322,7 +322,13 @@ void PndTrkLegendreTask::Exec(Option_t* opt) {
     // 1 real: mvd and stt in real plane
     // 2 mixed: mvd in real/stt in conformal plane
     int method = 0; 
+//     cout << "cluster " << cluster.GetNofHits() << endl;
     cluster = CreateClusterByDistance(method, fitm, fitq);
+//     cout << "CREATED " << endl;
+//    for(int ihit = 0; ihit < cluster.GetNofHits(); ihit++) {
+//      PndTrkHit *comparehit = (PndTrkHit*) cluster.GetHit(ihit);
+//      cout << "hit " << comparehit->GetHitID() << " " << comparehit->GetDetectorID() << endl;
+//     }
 
     // APPLY LEGENDRE TO CLUSTER + MVD
     // -------------------------------------------------------
@@ -564,7 +570,14 @@ void PndTrkLegendreTask::Exec(Option_t* opt) {
       // 8. last association z --> HIT: fill position and add to cluster ???? CHECK
       for(int ihit = 0; ihit < skewhitlist.GetNofHits(); ihit++) {
 	PndTrkSkewHit *skewhit = (PndTrkSkewHit*) skewhitlist.GetHit(ihit);
-	trkcluster->AddHit(skewhit);
+	bool doescontain = trkcluster->DoesContain(skewhit);
+	//	cout << "SKEW HIT " << skewhit->GetHitID() << " " << doescontain << endl;
+	if(doescontain == kTRUE) {
+	  trkcluster->Replace(skewhit);
+	}
+	else trkcluster->AddHit(skewhit);
+	//	trkcluster->AddHit(skewhit);
+
 	TVector3 intersection1 = skewhit->GetIntersection1();
 	double phi1 = track->ComputePhi(intersection1);
 	double calcz1 = ml * phi1 + pl;
@@ -694,7 +707,7 @@ void PndTrkLegendreTask::Reset()
 }
 // ============================================================================================
 Int_t PndTrkLegendreTask::FillConformalHitList() {
-
+  conformalhitlist->Reset();
   conformalhitlist->SetConformalTransform(conform);
     
   // FILL ONCE FOR ALL THE CONFORMAL HIT LIST 
@@ -1077,7 +1090,8 @@ PndTrkCluster PndTrkLegendreTask::CreateClusterByDistance(Int_t mode, double fit
       // if you put "is used" the efficiency beecomes much lower!
       // DO NOT: 	if(!hit->IsUsed())
       if(accept == kTRUE) {
-	//      cout << "ADDING TO CLUSTER" << endl;
+	//    
+	//	cout << "ADDING TO CLUSTER " << hit->GetHitID() << " " << hit->GetDetectorID() << endl;
 	cluster.AddHit(hit);
       }
   }
