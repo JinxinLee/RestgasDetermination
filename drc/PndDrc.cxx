@@ -83,7 +83,6 @@ PndDrc::PndDrc()
     
     fRunCherenkov(kTRUE),            //!  Switch ON/OFF Cherenkov propagation
     fTrackID(-1),         //!  track index
-    fCurrentTrackID(-1),         //!  track index              //!  volume id
     fPos(TLorentzVector(0,0,0)),             //!  position
     fMom(TLorentzVector(0,0,0)),             //!  momentum
     fTime(-1),           //!  time
@@ -186,7 +185,6 @@ PndDrc::PndDrc(const char* name, Bool_t active)
  
     fRunCherenkov(kTRUE),            //!  Switch ON/OFF Cherenkov propagation
     fTrackID(-1),         //!  track index
-    fCurrentTrackID(-1),         //!  track index    
     fPos(TLorentzVector(0,0,0)),             //!  position
     fMom(TLorentzVector(0,0,0)),             //!  momentum
     fTime(-1),           //!  time
@@ -333,9 +331,7 @@ void PndDrc::Initialize() {
   // print out for debugging all names and pointers stored in manager
   // manager->Print();
   
-  //%%%%%%%%%%%%%%5
-    nphotons = 0;
-  //%%%%%%%%%%%%%%%
+  nphotons = 0;
   
   // bar ID number:    
   fbarID =gMC->VolId("DrcBarSensor");      
@@ -351,9 +347,6 @@ void PndDrc::Initialize() {
     flens3ID = gMC->VolId("DrcLENS3Sensor");
     flens2ID = gMC->VolId("DrcLENS2Sensor");
     flens1ID = gMC->VolId("DrcLENS1Sensor");
-    //cout<<"lens1 = "<<v2->FindNode("DrcLENS1Sensor_1")->GetVolume()->GetNumber()<<
-    //    ", lens2 = "<<v2->FindNode("DrcLENS2Sensor_1")->GetVolume()->GetNumber()<<
-    // 	", lens3 = "<<v2->FindNode("DrcLENS3Sensor_1")->GetVolume()->GetNumber()<<endl;
   }
   if(fFocusing == 3){        
     flens2ID = gMC->VolId("DrcLENS2Sensor");
@@ -923,15 +916,18 @@ void PndDrc::BeginEvent() {
 
 // -----   Public method ProcessHits  --------------------------------------
 Bool_t PndDrc::ProcessHits(FairVolume* vol) {
-   
+
   TString nam =vol->GetName();
   Int_t num = vol->getMCid();
        
   fEventID = gMC->CurrentEvent();
   fPdgCode = gMC->TrackPid();
-     
-  //TLorentzVector fPos, fMom;
+  fTrackID = gMC->GetStack()->GetCurrentTrackNumber();	  
+  fTime    = gMC->TrackTime() * 1.0e09;
+  fLength  = gMC->TrackLength();
+  
   gMC->TrackPosition(fPos);
+  gMC->TrackMomentum(fMom);
   
   //stop secondaries so that they do not produce Cherenkov photons
   if(fStopSecondaries){
@@ -943,6 +939,15 @@ Bool_t PndDrc::ProcessHits(FairVolume* vol) {
       }  
     }
   }
+
+  // // //stop Cherenkov photons with positive z direction
+  //  if(true){
+  //    if(fPdgCode == 50000050){
+  // //     if(gMC->IsNewTrack()){
+  //  	if(fMom.Vect().Z()>0) gMC->StopTrack();
+  // //     }
+  //   }
+  //  }
 
   // stop the track after the DIRC in radius:
   if(fStopChargedTrackAfterDIRC){
@@ -959,13 +964,8 @@ Bool_t PndDrc::ProcessHits(FairVolume* vol) {
     }  
           
     // apply detector efficiency at the production stage:    
-    if(fDetEffAtProduction && fLastTrackID != gMC->GetStack()->GetCurrentTrackNumber()){
-      gMC->TrackMomentum(fMom1);
-      Double_t Px= fMom1.Px();
-      Double_t Py= fMom1.Py();
-      Double_t Pz= fMom1.Pz();
-      Double_t fP = sqrt(Px*Px + Py*Py +Pz*Pz);
-      Double_t lambda=197.0*2.0*fpi/(fP*1.0E9);          
+    if(fDetEffAtProduction && fLastTrackID != fTrackID){
+      Double_t lambda = 197.0*2.0*fpi/(fMom.Vect().Mag()*1.0E9);          
       Double_t ra = frand.Uniform(0., 1.);
       if(ra > fDetEff->Eval(lambda)){ 
         gMC->StopTrack();	
@@ -975,7 +975,7 @@ Bool_t PndDrc::ProcessHits(FairVolume* vol) {
     }
     
     // apply transport efficiency at production stage (Maria Patsyuk 20.04.2012):
-    if(fTransportEffAtProduction && fLastTrackID != gMC->GetStack()->GetCurrentTrackNumber()){
+    if(fTransportEffAtProduction && fLastTrackID != fTrackID){
       gMC->TrackMomentum(fMom2);
       // initial momentum of the photon
       TVector3 PphoInit;
@@ -1036,8 +1036,6 @@ Bool_t PndDrc::ProcessHits(FairVolume* vol) {
     if(fTakeDirect){  
       if(gMC->IsTrackExiting()==1){        
         if(num == flens3ID && fPos.Z() < fBarEnd){
-	  gMC->TrackPosition(fPos);
-	  gMC->TrackMomentum(fMom);
 	  if ((fPos.X()*fMom.X() + fPos.Y()*fMom.Y()) < 0.){
 	    gMC->StopTrack();	    	   
 	  }
@@ -1049,62 +1047,32 @@ Bool_t PndDrc::ProcessHits(FairVolume* vol) {
     if(fTakeReflected){  
       if(gMC->IsTrackExiting()==1){        
         if(num == flens3ID && fPos.Z() < fBarEnd){
-	  gMC->TrackPosition(fPos);
-	  gMC->TrackMomentum(fMom);
 	  if ((fPos.X()*fMom.X() + fPos.Y()*fMom.Y()) > 0.){
 	    gMC->StopTrack();	    	   
 	  }
 	}
       }
     }
+
    // kill photons older than fPhoMaxTime:  
    if (fStopTime == kTRUE && gMC->TrackTime()*1.0e09 > fPhoMaxTime){          
       gMC->StopTrack();
    }  
       
-   if(gMC->IsTrackEntering()==1 && num == fevID && fLastTrackID != gMC->GetStack()->GetCurrentTrackNumber()){     
+   if(gMC->IsTrackEntering()==1 && num == fevID && fLastTrackID != fTrackID){     
      gMC->TrackMomentum(fMomAtEV); 
    }
-   
-   // // check reflections inside the EV and PD = tagging surfaces:   
-   // if(nam.BeginsWith("DrcEVSensor")) {
-   //   Int_t nproc = gMC->StepProcesses(fProc);
-   //   cout<<"-I- PndDrc: "<<endl;
-   //   for(Int_t i=0; i<nproc; i++){
-   //     cout<<"track "<<gMC->GetStack()->GetCurrentTrackNumber()
-   // 	   <<" in volume "<<gMC->CurrentVolPath()
-   // 	   <<": position ("<<fPos.X()<<", "<<fPos.Y()<<", "<<fPos.Z()<<"),"<<i<<" - "<<fProc[i]
-   // 	   <<", "<<TMCProcessName[fProc[i]]<<endl;	   
-   //   }
-   //   cout<<" current vol name = "<<gMC->CurrentVolName()<<endl;
-   // }                 
-
-
-   // // check glue  if(gMC->IsTrackEntering() && nam.BeginsWith("DrcBarGlue"))
-   // if(nam.BeginsWith("DrcBar") && fPos.Z()< -119.){ 
-   //   Int_t nproc = gMC->StepProcesses(fProc);
-   //   for(Int_t i=0; i<nproc; i++){
-   //     cout<<"-I- PndDrc: track "<<gMC->GetStack()->GetCurrentTrackNumber()
-   // 	   <<" in volume "<<gMC->CurrentVolPath()
-   // 	   <<": Z position "<<fPos.Z()<<",pz = "<<fMom.Z()<<", "<<i<<" - "<<fProc[i]
-   // 	   <<", "<<TMCProcessName[fProc[i]]<<endl;
-   //   }
-   // } 
-
   
    // // js group velocity check    
    // if ( gMC->IsTrackEntering() ) 
    //   {
    //     fTime_in = gMC->TrackTime() * 1.0e09;
-   //     fLength_in = gMC->TrackLength();
+   //     fLength_in = gfLength;
    //   }
-
    // if ( gMC->IsTrackExiting() ) 
    //   {
    //     fTime_out = gMC->TrackTime() * 1.0e09;
-   //     fLength_out = gMC->TrackLength();
-   //     gMC->TrackMomentum(fMom);	
-   //     gMC->TrackPosition(fPos);
+   //     fLength_out = fLength;
    //     fPEnergy = (sqrt(fMom.X()*fMom.X() + fMom.Y()*fMom.Y() + fMom.Z()*fMom.Z()))*1.0e09;
    //     fLambda1 = 197.*2*TMath::Pi()/fPEnergy;
    //     fDeltaT = fTime_out - fTime_in;
@@ -1133,18 +1101,13 @@ Bool_t PndDrc::ProcessHits(FairVolume* vol) {
     
    if(gMC->IsTrackEntering()){     
      if ( gMC->IsNewTrack()==1 ) {
-       fTimeStart = gMC->TrackTime()*1.0e09; // charged particle time at entrance of radiator bar
+       fTimeStart = fTime; // charged particle time at entrance of radiator bar
      }         
      if(nam.BeginsWith("DrcEVSensor")){
         if(fTimeAtEVEntrance ==0.){
 	  fTimeAtEVEntrance= gMC->TrackTime()*1.0e09;
-          fLengthEV=gMC->TrackLength();
+          fLengthEV=fLength;
 	}        
-        fTrackID = gMC->GetStack()->GetCurrentTrackNumber(); //track ID     
-        gMC->TrackPosition(fPos);
-        gMC->TrackMomentum(fMom);	
-        fTime=gMC->TrackTime()*1.0e09; // ns
-	fLength = gMC->TrackLength(); // cm ??	
         fVeloPhoton=fLength/(fTime-fTimeStart);
 
         AddEVHit(fTrackID, 0, fPos.Vect(), fMom.Vect(),
@@ -1153,68 +1116,58 @@ Bool_t PndDrc::ProcessHits(FairVolume* vol) {
 
         fTimeAtEVEntrance = 0.0;
      }
-   }   
+   } 
    
    if (gMC->IsTrackEntering()==1){         
-      if (nam.BeginsWith("DrcPDSensor")){ 
+     if (nam.BeginsWith("DrcPDSensor")){ 
       
-        if(0==fGeoH) {
-          std::cout<<" -E- No PndGeoHandling loaded."<<std::endl;
-          abort();
-        }      
-        fTrackID = gMC->GetStack()->GetCurrentTrackNumber(); //track ID     
-        gMC->TrackPosition(fPos);
-        gMC->TrackMomentum(fMom);	
-        fTime=gMC->TrackTime()*1.0e09; // ns
-	fLength = gMC->TrackLength(); // cm ??	
-	TString detPath = gMC->CurrentVolPath();
+       if(0==fGeoH) {
+	 std::cout<<" -E- No PndGeoHandling loaded."<<std::endl;
+	 abort();
+       }      
+       TString detPath = gMC->CurrentVolPath();
+       AddHit(fTrackID, fGeoH->GetShortID(detPath),
+	      fPos.Vect(),fMom.Vect(),fMomAtEV.Vect(),
+	      fTime, fLength, fPdgCode, fEventID);
 
-        AddHit(fTrackID, fGeoH->GetShortID(detPath),
-	       fPos.Vect(),fMom.Vect(),fMomAtEV.Vect(),
-	       fTime, fLength, fPdgCode, fEventID);
-
-	gMC->StopTrack();
-      }
-       PndStack* stack = (PndStack*) gMC->GetStack();
-       stack->AddPoint(kDRC);
+       gMC->StopTrack();
      }
+     PndStack* stack = (PndStack*) gMC->GetStack();
+     stack->AddPoint(kDRC);
+   }
   }else if(gMC->TrackCharge()!=0. && gMC->IsTrackEntering()==1 ){
-        if (nam.BeginsWith("DrcBar")) {
-		fTrackID = gMC->GetStack()->GetCurrentTrackNumber();	  
-		  fTime  = gMC->TrackTime() * 1.0e09;
-		  fLength = gMC->TrackLength();
-		  Int_t s=0, b=0; //side and bar
-		  fNBar=0;
-		  TString path = gMC->CurrentVolPath();
-		  if (fVerboseLevel >1) cout<< "Volume: " << gMC->CurrentVolPath() << endl;
-		  sscanf(path, "/cave_1/BarrelDIRC_0/DrcBarBox_%d/DrcAirBox_0/DrcBarSensor_%d", &s, &b);				
-		  if(s != 0 && s<17) fNBar = s*10 + b;                 
-		  gMC->TrackMomentum(fMom);	
-		  Double_t Px= fMom.Px();
-		  Double_t Py= fMom.Py();
-		  Double_t Pz= fMom.Pz();
-		  Double_t fP = sqrt(Px*Px + Py*Py +Pz*Pz);
-		  fMass = gMC->TrackMass();
-		  Double_t fEnergy = TMath::Sqrt(fP*fP + fMass*fMass); 
-		  if ( fP==0 ) {fAngIn = -1.;}
-		  else if ( fabs(Pz/fP) > 1. ){ fAngIn = -1.;}
-		  else { fAngIn = acos(Pz/fP);}
-		  if ( fP == 0. || fEnergy == 0.){ fThetaC = -1.;}
-		  else if (fabs(1./(1.47*(fP/fEnergy))) > 1. ){ fThetaC = -1.;}
-		  else{ fThetaC = acos(1/(1.47*(fP/fEnergy)));} 
+    if (nam.BeginsWith("DrcBar")) {
+      Int_t s=0, b=0; //side and bar
+      fNBar=0;
+      TString path = gMC->CurrentVolPath();
+      if (fVerboseLevel >1) cout<< "Volume: " << gMC->CurrentVolPath() << endl;
+      sscanf(path, "/cave_1/BarrelDIRC_0/DrcBarBox_%d/DrcAirBox_0/DrcBarSensor_%d", &s, &b);				
+      if(s != 0 && s<17) fNBar = s*10 + b;                 
+      Double_t Px= fMom.Px();
+      Double_t Py= fMom.Py();
+      Double_t Pz= fMom.Pz();
+      Double_t fP = sqrt(Px*Px + Py*Py +Pz*Pz);
+      fMass = gMC->TrackMass();
+      Double_t fEnergy = TMath::Sqrt(fP*fP + fMass*fMass); 
+      if ( fP==0 ) {fAngIn = -1.;}
+      else if ( fabs(Pz/fP) > 1. ){ fAngIn = -1.;}
+      else { fAngIn = acos(Pz/fP);}
+      if ( fP == 0. || fEnergy == 0.){ fThetaC = -1.;}
+      else if (fabs(1./(1.47*(fP/fEnergy))) > 1. ){ fThetaC = -1.;}
+      else{ fThetaC = acos(1/(1.47*(fP/fEnergy)));} 
 		  
-		  AddBarHit(fTrackID, fGeoH->GetShortID(path), fPos.Vect(), fMom.Vect(),
-			    fTime, fLength, fPdgCode, fAngIn, fThetaC, fNBar,
-			    fEventID, fMass);
+      AddBarHit(fTrackID, fGeoH->GetShortID(path), fPos.Vect(), fMom.Vect(),
+		fTime, fLength, fPdgCode, fAngIn, fThetaC, fNBar,
+		fEventID, fMass);
 		  
-		  PndStack* stack = (PndStack*) gMC->GetStack();
-       		  stack->AddPoint(kDRC);
-		  fCurrentTrackID=fTrackID;
-	}
+      PndStack* stack = (PndStack*) gMC->GetStack();
+      stack->AddPoint(kDRC);
+    }
   } // if Cherenkov photon
   
-  ResetParameters(); 
-  fLastTrackID = gMC->GetStack()->GetCurrentTrackNumber(); 
+  fLastTrackID = fTrackID;
+  
+  ResetParameters();
   return kTRUE; 
 }
 
@@ -1403,11 +1356,8 @@ void PndDrc::ConstructGeometry() {
      if(fileName.Contains("_l3_")){
       fBarEnd = -119.8;
       fFocusing = 3;
-      //cout<<"focusing = "<<fFocusing<<endl;
     } 
-    if(fileName.Contains("mirrorGap")){
-      fMirrorGap = 0.1; //[cm]
-    }
+     fMirrorGap = 0.1;
   } else{
     std::cout<<"Geometry format not supported!"<<std::endl;
   } 
@@ -1532,11 +1482,14 @@ void PndDrc::ConstructOpGeometry() {
   reflectivity_r[44] = 0.800;
   reflectivity_r[45] = 0.780;
   
-  gMC->DefineOpSurface("LensSurface", kGlisur, kDielectric_dielectric, kPolished, 0.0);
-  gMC->DefineOpSurface("MirrSurface", kGlisur, kDielectric_metal, kPolished, 0.0);
+  gMC->DefineOpSurface("LensSurface",  kGlisur, kDielectric_dielectric, kPolished, 0.0);
+  gMC->DefineOpSurface("MirrSurface",  kGlisur, kDielectric_metal, kPolished, 0.0);
+  gMC->DefineOpSurface("EVSurface",    kGlisur, kDielectric_metal, kPolished, 0.0);
+  gMC->DefineOpSurface("BlackSurface", kGlisur, kDielectric_dielectric, kPolished, 0.0);
   
   gMC->SetMaterialProperty("LensSurface", "REFLECTIVITY", npoints_i, ephoton_i, reflectivity_b);
-  
+  gMC->SetMaterialProperty("BlackSurface",  "REFLECTIVITY", npoints_i, ephoton_i, reflectivity_b);
+
   if(fTakeRealReflectivity == kFALSE){
     gMC->SetMaterialProperty("MirrSurface", "REFLECTIVITY", npoints_i, ephoton_i, reflectivity_i);
   }
@@ -1545,25 +1498,27 @@ void PndDrc::ConstructOpGeometry() {
   } 
   
   for(Int_t i=0; i<fGeo->barNum(); i++){
-    if(fFocusing == 1 || fFocusing == 0 || fFocusing == 3){ // lens or no focusing 
+    gMC->SetBorderSurface("AirCarbonSurface", "DrcBarAirBox", i+1, "DrcBarBox", 1, "BlackSurface"); 
+    if(fFocusing != 2){ // lens or no focusing 
       if(fMirrorGap == 0.){              
 	gMC->SetBorderSurface("BarMirrSurface", "DrcBarSensor", i+1, "DrcMirr", i+1, "MirrSurface");
       }
     }
-    if(fFocusing == 1 || fFocusing == 3){
-      //gMC->SetBorderSurface("Lens1AirSurface", "DrcLENS1", i+1, "DrcAirBox", 0, "LensSurface");
-      //gMC->SetBorderSurface("Lens2AirSurface", "DrcLENS2", i+1, "DrcAirBox", 0, "LensSurface");
-      //gMC->SetBorderSurface("Lens3AirSurface", "DrcLENS3", i+1, "DrcAirBox", 0, "LensSurface");
-    }
   }
-    
-  gMC->DefineOpSurface("EVSurface", kGlisur, kDielectric_metal, kPolished, 0.0);
-  //gMC->SetMaterialProperty("EVSurface", "REFLECTIVITY", npoints_i, ephoton_i, reflectivity_i);
+
+  { // for lut simulation
+    gMC->SetMaterialProperty("EVSurface", "REFLECTIVITY", npoints_i, ephoton_i, reflectivity_b);
+    for(Int_t i=1; i<6; i++){
+      gMC->SetBorderSurface("Lens1AirSurface", "DrcLENS1Sensor", i, "BarrelDIRC", 0, "EVSurface"); 
+      gMC->SetBorderSurface("Lens2AirSurface", "DrcLENS2Sensor", i, "BarrelDIRC", 0, "EVSurface");
+      gMC->SetBorderSurface("Lens1AirSurface", "DrcLENS1Sensor", i, "DrcAirBox", 4, "EVSurface"); 
+      gMC->SetBorderSurface("Lens2AirSurface", "DrcLENS2Sensor", i, "DrcAirBox", 4, "EVSurface");
+    }
+    gMC->SetBorderSurface("Lens2AirSurface", "DrcBarboxWindowSensor", 1, "BarrelDIRC", 0, "EVSurface");
+    gMC->SetBorderSurface("Lens2AirSurface", "DrcEVgrease", 1, "BarrelDIRC", 0, "EVSurface");
+  }
+
   gMC->SetBorderSurface("EVAirSurface", "DrcEVSensor", 1, "BarrelDIRC", 0, "EVSurface"); 
-  
-  //gMC->DefineOpSurface("PDSurface", kGlisur, kDielectric_dielectric, kPolished, 0.0);
-  //gMC->SetMaterialProperty("PDSurface", "EFFICIENCY", npoints_i, ephoton_i, reflectivity_i);
-  //gMC->SetBorderSurface("EVPDSurface", "DrcEVSensor", 1, "DrcPDSensor", 1, "PDSurface");
     
   gMC->SetSkinSurface("AirMirrorSurface", "DrcMirr", "MirrSurface");          
  
