@@ -588,6 +588,7 @@ void PndTrkQATask::Exec(Option_t* opt) {
 	    if(pnt->GetTrackID() == mctrackID) {
 	      nTmpAssignedMvdPixel++;
 	      nTmpAssigned++;
+	      //	      cout << "ADDED pix " << hitID << " " << detID << " " << hit->GetRefIndex() << endl;
 	    }
 	    else {
 	      nTmpWrongMvdPixel++;
@@ -607,6 +608,7 @@ void PndTrkQATask::Exec(Option_t* opt) {
 	    if(pnt->GetTrackID() == mctrackID) {
 	      nTmpAssignedMvdStrip++;
 	      nTmpAssigned++;
+	      //	      cout << "ADDED str " << hitID << " " << detID << " " << hit->GetRefIndex() << endl;
 	    }
 	    else  {
 	      nTmpWrongMvdStrip++;
@@ -619,8 +621,8 @@ void PndTrkQATask::Exec(Option_t* opt) {
 	  hit = (PndSttHit*) fSttHitArray->At(hitID);
 	  Int_t tubeID = ((PndSttHit*) hit)->GetTubeID();
 	  PndSttTube *tube = (PndSttTube*) fTubeArrayStt->At(tubeID);
-
-	  if(fAccountForMultiHits == kFALSE && IsTubeMultiHit(tubeID) == kTRUE) {
+	  //	  if(IsTubeMultiHit(tubeID)) cout << "IsTubeMultiHit(tubeID) " << tubeID << " " << IsTubeMultiHit(tubeID) << endl;
+ 	  if(fAccountForMultiHits == kFALSE && IsTubeMultiHit(tubeID) == kTRUE) {
 	    Bool_t isgoodhit = CheckIfTrackHitTube(mctrackID, tubeID);
 	    if(isgoodhit == kFALSE) {
 	      nTmpWrongStt++;
@@ -631,6 +633,8 @@ void PndTrkQATask::Exec(Option_t* opt) {
 	    else {
 	      nTmpAssignedStt++;
 	      nTmpAssigned++;
+
+	      //	      cout << "ADDED stt " << hitID << " " << detID << " " << hit->GetRefIndex() << " " << tubeID << " " << tube->IsSkew() << endl;
 	      if(tube->IsSkew()) nTmpAssignedSttSkew++;
 	      else nTmpAssignedSttParal++;
 	   
@@ -653,6 +657,7 @@ void PndTrkQATask::Exec(Option_t* opt) {
 	      if(pnt->GetTrackID() == mctrackID) {
 		nTmpAssignedStt++;
 		nTmpAssigned++;
+		//		cout << "ADDED stt " << hitID << " " << detID << " " << hit->GetRefIndex() << " " << tubeID << " " << tube->IsSkew() << endl;
 		if(tube->IsSkew()) nTmpAssignedSttSkew++;
 		else nTmpAssignedSttParal++;
 	      }
@@ -697,7 +702,10 @@ void PndTrkQATask::Exec(Option_t* opt) {
 	}
 
       }
+
       nTmpNotAssigned = nofmctrackpoints - nTmpAssigned;
+      //      cout << "TMP " << nofmctrackpoints << " " << nTmpNotAssigned << " " << nTmpAssigned << endl;
+
       nTmpNotAssignedMvdPixel = nofmctrackmvdpixpoints - nTmpAssignedMvdPixel;
       nTmpNotAssignedMvdStrip = nofmctrackmvdstrpoints - nTmpAssignedMvdStrip;
       nTmpNotAssignedStt = nofmctracksttpoints - nTmpAssignedStt;
@@ -766,6 +774,15 @@ void PndTrkQATask::Exec(Option_t* opt) {
     }
     // EFFICIENCY one reco for one mc
     if(nofmctrackpoints > 0) {
+      if(((Double_t) nAssigned/nofmctrackpoints) > 1) {
+      cout << "EFFICIENCY LOOKS STRANGE" << endl;;
+      cout << "MC " << nofmctrackpoints << " " << nofmctrackmvdpixpoints << " " << nofmctrackmvdstrpoints << " " << nofmctracksttpoints << " " <<  nofmctracksttparalpoints << " " <<  nofmctracksttskewpoints << " " << nofmctrackftspoints << endl;
+      cout << "RECO " << nofrecotrackpoints << " " << nofrecotrackmvdpixpoints << " " << nofrecotrackmvdstrpoints << " " << nofrecotracksttpoints << " " <<  nofrecotracksttparalpoints << " " <<  nofrecotracksttskewpoints << endl;
+      cout << "assigned : "<< nAssigned << " " << nAssignedMvdPixel << " " << nAssignedMvdStrip << " " << nAssignedStt << " " << nAssignedSttParal << " " << nAssignedSttSkew << endl;
+   cout << "not assigned : "<< nNotAssigned << " " << nNotAssignedMvdPixel << " " << nNotAssignedMvdStrip << " " << nNotAssignedStt << " " << nNotAssignedSttParal << " " << nNotAssignedSttSkew << endl;
+     cout << "wrong : "<< nWrong << " " << nWrongMvdPixel << " " << nWrongMvdStrip << " " << nWrongStt << " " << nWrongSttParal << " " << nWrongSttSkew << endl;     
+    }
+
       hEfficiency->Fill(nofmctrackpoints, (Double_t) nAssigned/nofmctrackpoints);
       hInefficiency->Fill(nofmctrackpoints, (Double_t) nNotAssigned/nofmctrackpoints);
     }
