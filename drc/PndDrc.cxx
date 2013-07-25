@@ -1506,16 +1506,25 @@ void PndDrc::ConstructOpGeometry() {
     }
   }
 
-  { // for lut simulation
-    gMC->SetMaterialProperty("EVSurface", "REFLECTIVITY", npoints_i, ephoton_i, reflectivity_b);
-    for(Int_t i=1; i<6; i++){
+  if(fSetBlackLens == kTRUE){ 
+    // for lut simulation  
+    gMC->SetMaterialProperty("EVSurface", "REFLECTIVITY", npoints_i, ephoton_i, reflectivity_b);    
+    for(Int_t i=1; i<fGeo->barNum()+1; i++){
+      // upper and bottom surfaces of lenses are touching with BarrelDIRC volume
       gMC->SetBorderSurface("Lens1AirSurface", "DrcLENS1Sensor", i, "BarrelDIRC", 0, "EVSurface"); 
       gMC->SetBorderSurface("Lens2AirSurface", "DrcLENS2Sensor", i, "BarrelDIRC", 0, "EVSurface");
-      gMC->SetBorderSurface("Lens1AirSurface", "DrcLENS1Sensor", i, "DrcAirBox", 4, "EVSurface"); 
-      gMC->SetBorderSurface("Lens2AirSurface", "DrcLENS2Sensor", i, "DrcAirBox", 4, "EVSurface");
-    }
-    gMC->SetBorderSurface("Lens2AirSurface", "DrcBarboxWindowSensor", 1, "BarrelDIRC", 0, "EVSurface");
-    gMC->SetBorderSurface("Lens2AirSurface", "DrcEVgrease", 1, "BarrelDIRC", 0, "EVSurface");
+      gMC->SetBorderSurface("Lens3AirSurface", "DrcLENS3Sensor", i, "BarrelDIRC", 0, "EVSurface"); 
+      gMC->SetBorderSurface("Lens4AirSurface", "DrcLENS4Sensor", i, "BarrelDIRC", 0, "EVSurface");
+      for(Int_t isec=0; isec<fGeo->BBoxNum(); isec++){
+        // left and right surfaces of lenses are touching with DrcAirBox volume
+        gMC->SetBorderSurface("Lens1AirSurface", "DrcLENS1Sensor", i, "DrcAirBox", isec, "EVSurface"); 
+        gMC->SetBorderSurface("Lens2AirSurface", "DrcLENS2Sensor", i, "DrcAirBox", isec, "EVSurface");
+        gMC->SetBorderSurface("Lens3AirSurface", "DrcLENS3Sensor", i, "DrcAirBox", isec, "EVSurface"); 
+        gMC->SetBorderSurface("Lens4AirSurface", "DrcLENS4Sensor", i, "DrcAirBox", isec, "EVSurface");
+      }
+    }   
+    gMC->SetBorderSurface("BarboxWindowAirSurface", "DrcBarboxWindowSensor", 1, "BarrelDIRC", 0, "EVSurface");
+    gMC->SetBorderSurface("EVGreaseAirSurface", "DrcEVgrease", 1, "BarrelDIRC", 0, "EVSurface");  
   }
 
   gMC->SetBorderSurface("EVAirSurface", "DrcEVSensor", 1, "BarrelDIRC", 0, "EVSurface"); 

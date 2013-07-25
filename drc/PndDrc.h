@@ -91,6 +91,7 @@ class PndDrc : public FairDetector
   */
   void SetMirrorReal(Bool_t mir = kTRUE){fTakeRealReflectivity = mir;}
 
+  void SetBlackLensSides(Bool_t lesi = kFALSE){fSetBlackLens = lesi;}
 
   /*! \brief  Set time after which photons are killed.
     \param ti The time (ns)
@@ -315,6 +316,7 @@ class PndDrc : public FairDetector
   Bool_t         fTakeRealReflectivity;
   Bool_t	 fStopSecondaries;
   Bool_t  	 fStopChargedTrackAfterDIRC;
+  Bool_t	 fSetBlackLens; 	
   
   TArrayI        fProc;
 
