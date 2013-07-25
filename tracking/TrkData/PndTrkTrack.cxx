@@ -200,8 +200,8 @@ TVector3 PndTrkTrack::ComputeMomentumAtPosition(TVector3 position, TVector3 &new
 
   Double_t ptot = TMath::Sqrt(pt * pt + pl * pl);
 
-  momentum.SetX(rotx);
-  momentum.SetY(roty);
+  momentum.SetX(rotx); // CHECK magnitude?
+  momentum.SetY(roty); // CHECK magnitude?
   momentum.SetZ(0.);
   momentum.SetMag(pt);
   momentum.SetZ(pl);

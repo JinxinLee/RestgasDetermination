@@ -558,12 +558,7 @@ Bool_t PndTrkCluster::DoesContain(PndTrkHit *hit) {
   bool isthere = false;
   if(hitlist.FindObject(hit) == 0) return kFALSE;
   return kTRUE;  
-//   for(int ihit = 0; ihit < GetNofHits(); ihit++) {
-//     PndTrkHit *comparehit = (PndTrkHit*)  hitlist[ihit];
-//     (comparehit == hit) ? isthere = true : isthere = false;
-//     if(isthere == true) return kTRUE;
-//   }
-//   return kFALSE;
+
 }
 
 
