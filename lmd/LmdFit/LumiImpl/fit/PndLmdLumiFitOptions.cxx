@@ -142,21 +142,8 @@ void PndLmdLumiFitOptions::setThetaFitRange(const double fit_range_low_,
 	theta_fit_range_high = fit_range_high_;
 }
 
-bool PndLmdLumiFitOptions::operator<(const PndLmdLumiFitOptions &rhs) const {
-	// check binary options first
-	if (model_binary_options.getBinaryOptions()
-			< rhs.getModelBinaryOptions().getBinaryOptions())
-		return true;
-	else if (model_binary_options.getBinaryOptions()
-			> rhs.getModelBinaryOptions().getBinaryOptions())
-		return false;
-	if (data_binary_options.getBinaryOptions()
-			< rhs.getDataBinaryOptions().getBinaryOptions())
-		return true;
-	else if (data_binary_options.getBinaryOptions()
-			> rhs.getDataBinaryOptions().getBinaryOptions())
-		return false;
-
+bool PndLmdLumiFitOptions::lessThanNonBinaryOptions(
+		const PndLmdLumiFitOptions &rhs) const {
 	// then fit ranges
 	if (theta_fit_range_low < rhs.getThetaFitRangeLow())
 		return true;
@@ -190,6 +177,24 @@ bool PndLmdLumiFitOptions::operator<(const PndLmdLumiFitOptions &rhs) const {
 		return false;
 
 	return false;
+}
+
+bool PndLmdLumiFitOptions::operator<(const PndLmdLumiFitOptions &rhs) const {
+	// check binary options first
+	if (model_binary_options.getBinaryOptions()
+			< rhs.getModelBinaryOptions().getBinaryOptions())
+		return true;
+	else if (model_binary_options.getBinaryOptions()
+			> rhs.getModelBinaryOptions().getBinaryOptions())
+		return false;
+	if (data_binary_options.getBinaryOptions()
+			< rhs.getDataBinaryOptions().getBinaryOptions())
+		return true;
+	else if (data_binary_options.getBinaryOptions()
+			> rhs.getDataBinaryOptions().getBinaryOptions())
+		return false;
+
+	return lessThanNonBinaryOptions(rhs);
 }
 
 bool PndLmdLumiFitOptions::operator>(const PndLmdLumiFitOptions &rhs) const {

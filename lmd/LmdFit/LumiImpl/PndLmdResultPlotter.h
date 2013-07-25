@@ -9,6 +9,7 @@
 #define PNDLMDRESULTPLOTTER_H_
 
 #include "PndLmdLumiHelper.h"
+#include "fit/PndLmdLumiFitOptions.h"
 #ifndef __CINT__
 #include "ROOTPlotter.h"
 #endif /* __CINT __ */
@@ -20,7 +21,6 @@ class PndLmdData;
 class PndLmdAcceptance;
 class PndLmdResolution;
 class PndLmdLumiFitResult;
-class PndLmdLumiFitOptions;
 
 class TH1D;
 class TH2D;
@@ -41,6 +41,7 @@ public:
 	struct graph_bundle_1D {
 		TGraphErrors *model;
 		TH1D* data_hist;
+		TGraphErrors *residual;
 		double plab;
 		const PndLmdLumiFitOptions* fit_options;
 		bool is_resolution;
@@ -52,6 +53,13 @@ public:
 		TH2D *acceptance_2d;
 		double plab;
 		bool is_angular;
+	};
+
+	struct fit_options_compare {
+		bool operator()(const PndLmdLumiFitOptions& lhs,
+				const PndLmdLumiFitOptions& rhs) const {
+			return lhs.lessThanNonBinaryOptions(rhs);
+		}
 	};
 
 private:
@@ -115,7 +123,9 @@ public:
 	TGraphErrors* createSmearingGraphFromFitResult(PndLmdLumiFitResult *fit_res,
 			PndLmdResolution *res_data);
 
-	std::vector<PndLmdResultPlotter::graph_bundle_1D> makeGraphBundles1D(
+	std::map<PndLmdLumiFitOptions,
+			std::vector<PndLmdResultPlotter::graph_bundle_1D>,
+			PndLmdResultPlotter::fit_options_compare> makeGraphBundles1D(
 			PndLmdData *data, PndLmdAcceptance* acc);
 
 	std::vector<PndLmdResultPlotter::graph_bundle_1D> makeResolutionGraphBundles1D(
@@ -131,7 +141,7 @@ public:
 
 	void fill2DAcceptanceInPad(acceptance_bundle acceptance_bundle);
 
-	void fillSinglePad(TCanvas *c, graph_bundle_1D graph_bundle, bool log_scale,
+	void fillSinglePad(TCanvas *c, graph_bundle_1D graph_bundle, bool residual, bool log_scale,
 			bool labels_on = true);
 
 	combined_values createCombinedValue(double x, double lumi, double err,
@@ -141,9 +151,15 @@ public:
 			ModelStructs::string_comp> createBookyMap(
 			std::vector<PndLmdResolution*> &res_vec);
 
-	TCanvas* makeOverviewCanvas(
+	void fillOverviewCanvas(TCanvas *c,
 			std::vector<PndLmdResultPlotter::graph_bundle_1D> &graph_bundles,
 			acceptance_bundle &acceptance_bundle);
+
+	void makeFitResultBooky(
+			std::map<PndLmdLumiFitOptions,
+					std::vector<PndLmdResultPlotter::graph_bundle_1D>,
+					PndLmdResultPlotter::fit_options_compare> &graph_bundle_map
+			, acceptance_bundle &acc_bundle , TString filename="fitresults");
 
 	void makeResolutionSummaryPlots(TFile *f);
 
@@ -154,8 +170,8 @@ public:
 			TString name,
 			std::map<TString, std::vector<PndLmdResultPlotter::combined_values> >& result_map);
 
-	void plotDPMModelParts(double plab,
-			std::pair<double, double> plot_range, bool log_scale = true);
+	void plotDPMModelParts(double plab, std::pair<double, double> plot_range
+			, bool log_scale = true);
 };
 
 #endif /* PNDLMDRESULTPLOTTER_H_ */

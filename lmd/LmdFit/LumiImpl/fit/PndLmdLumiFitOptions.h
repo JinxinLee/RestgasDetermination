@@ -152,6 +152,12 @@ public:
 			const double fit_range_high_);
 
 	void setDpmElasticModelParts(int dpm_elastic_model_parts_);
+
+	/**
+	 * Less then operator for NON binary options (so fit range etc).
+	 * Will return true "this" fit options are "less" in value.
+	 */
+	bool lessThanNonBinaryOptions(const PndLmdLumiFitOptions &rhs) const;
 	/**
 	 * Less then operator. Will return true "this" fit options are "less" in value.
 	 */
