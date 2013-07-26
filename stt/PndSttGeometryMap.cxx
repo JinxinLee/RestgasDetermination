@@ -181,13 +181,19 @@ Bool_t PndSttGeometryMap::FillGeometryParametersGeoType1() {
 }
 
 Bool_t PndSttGeometryMap::FindNeighborings(PndSttTube *tube) {
+
+ 
+  double tolerance0 = 1.2; // parallel/parallel && inner parallel/skew
+  double tolerance1 = 1.3; // skew/skew 
+  double tolerance2 = 1.5;; // outer parallel/skew
   double tolerance = 1.5; // CHECK tolerance
+
+
   TArrayI neighboring;
 
   int isector = tube->GetSectorID();
   int ilayer = tube->GetLayerID();
   //  cout << "LAYER/SECTOR " << ilayer << " " << isector << endl;
-
 
   // possible lay/sec to check:
   // same layer/same sector, before, after
@@ -219,14 +225,25 @@ Bool_t PndSttGeometryMap::FindNeighborings(PndSttTube *tube) {
       if(tubeid != -1) tube2 = (PndSttTube*) fTubeArray->At(tubeid);
       double distance = 1000;
       if(tube2) distance = tube->GetDistance(tube2);
+
+      // pick the correct tolerance
+      if(tube2->IsSkew() == kTRUE && tube->IsSkew() == kTRUE) tolerance = tolerance1;
+      else if(tube2->IsParallel() == kTRUE && tube->IsParallel() == kTRUE) tolerance = tolerance0;
+      else {
+	if(ilayer < fNLayers_inner_parallel + 3)  tolerance = tolerance1;
+	else tolerance = tolerance2;
+      }
+
       if(distance < tolerance) {
 	int size =  neighboring.GetSize();
 	neighboring.Set(size + 1);
 	neighboring.AddAt(tubeid, size);
-	//	cout << "ADD " << tubeid << " " << distance << endl; 
+	//
+	//	cout << tube->GetTubeID() << " ADD " << tubeid << " " << distance << " " << tolerance << endl; 
       }
     }
   }
+  cout << endl;
   tube->SetNeighborings(neighboring); // CHECK
   return kTRUE;
 }
