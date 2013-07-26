@@ -97,17 +97,7 @@ PndDrc::PndDrc()
     fPos2(TLorentzVector(0,0,0)),  //! for transport efficiency calculation
     fBarEnd(0),
     fMirrorGap(0),
-  
-  // for efficiency calculation:
-    //fLambda({0}),
-    //fEfficiency({0}),
-    //fEfficiencyR({0}),
-    fLambdaMin(0.),
-    fLambdaMax(0.),
-    fLambdaStep(0.),
-    fAngleStep(0.),
-    fLambdaPoints(0),
-  
+    
   // used in ProcessHits function:
     fbarID(0),	   //!  ID number of DrcBarSensors
     fpdID(0),		   //!  ID number of DrcPdSensor
@@ -199,17 +189,7 @@ PndDrc::PndDrc(const char* name, Bool_t active)
     fPos2(TLorentzVector(0,0,0)),  //! for transport efficiency calculation
     fBarEnd(0),
     fMirrorGap(0),
-  
-  // for efficiency calculation:
-    //fLambda({0}),
-    //fEfficiency({0}),
-    //fEfficiencyR({0}),
-    fLambdaMin(0.),
-    fLambdaMax(0.),
-    fLambdaStep(0.),
-    fAngleStep(0.),
-    fLambdaPoints(0),
-  
+ 
   // used in ProcessHits function:
     fbarID(0),	   //!  ID number of DrcBarSensors
     fpdID(0),		   //!  ID number of DrcPdSensor

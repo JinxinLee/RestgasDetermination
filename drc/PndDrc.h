@@ -283,12 +283,7 @@ class PndDrc : public FairDetector
   // from Initialisation:
   Double_t       fLambda[1000];
   Double_t       fEfficiency[1000];
-  Double_t       fEfficiencyR[1000];
-  Double_t 	 fLambdaMin;
-  Double_t 	 fLambdaMax;
-  Double_t 	 fLambdaStep;
-  Double_t 	 fAngleStep;
-  Int_t		 fLambdaPoints;
+  Double_t       fEfficiencyR[1000]; 
   Int_t          fEVreflections;
   
   // used in ProcessHits function:
