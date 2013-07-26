@@ -1527,7 +1527,7 @@ void PndDrc::ConstructOpGeometry() {
     gMC->SetBorderSurface("EVGreaseAirSurface", "DrcEVgrease", 1, "BarrelDIRC", 0, "EVSurface");  
   }
 
-  gMC->SetBorderSurface("EVAirSurface", "DrcEVSensor", 1, "BarrelDIRC", 0, "EVSurface"); 
+  //gMC->SetBorderSurface("EVAirSurface", "DrcEVSensor", 1, "BarrelDIRC", 0, "EVSurface"); 
     
   gMC->SetSkinSurface("AirMirrorSurface", "DrcMirr", "MirrSurface");          
  
