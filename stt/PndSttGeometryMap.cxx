@@ -243,7 +243,7 @@ Bool_t PndSttGeometryMap::FindNeighborings(PndSttTube *tube) {
       }
     }
   }
-  cout << endl;
+  //  cout << endl;
   tube->SetNeighborings(neighboring); // CHECK
   return kTRUE;
 }
