@@ -79,6 +79,7 @@ class PndTrkHit : public FairTimeStamp
   Double_t GetXYDistanceFromTrack(double x0, double y0, double R);
   // info
   void Draw(Color_t color);
+  void DrawTube(Color_t color);
   void Print();
 
   // variables

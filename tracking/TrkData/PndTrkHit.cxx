@@ -146,6 +146,59 @@ void PndTrkHit::Draw(Color_t color) {
 
 }
 
+
+void PndTrkHit::DrawTube(Color_t color) {
+  //  cout << "draw "<< fIRegion << endl;
+  Int_t style = 1; 
+  if(fUsed  && color == kBlack) {
+    style = 0;
+    color = kGray;
+  }
+  TMarker *mrk = NULL;
+  TArc *arc = NULL;
+
+  switch(fIRegion) {
+  case 0: 
+    {
+      mrk = new TMarker(fPosition.X(), fPosition.Y(), 21);
+      break;
+    }
+  case 1: 
+    {
+      mrk = new TMarker(fPosition.X(), fPosition.Y(), 25);
+      break;
+    }
+  case 2: 
+  case 6:
+  case 3:
+  case 7: 
+    {
+      arc = new TArc(fPosition.X(), fPosition.Y(), TUBERADIUS);
+      break;
+    }
+  case 4:
+  case 5: 
+    {
+      //      arc = new TArc(fPosition.X(), fPosition.Y(), TUBERADIUS); // CHECK skew
+      mrk = new TMarker(fPosition.X(), fPosition.Y(), 3);
+      break;
+    }
+  }
+
+  if(mrk) {
+    mrk->SetMarkerColor(color);
+    mrk->Draw("SAME");
+  }
+  if(arc) {
+    arc->SetFillColor(color);
+    arc->SetLineColor(color);
+//     arc->SetFillStyle(style);
+    arc->Draw("SAME");
+  }
+
+
+}
+
 void PndTrkHit::Print() {
 
   cout << "###############################" << endl;
