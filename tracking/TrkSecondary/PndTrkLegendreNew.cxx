@@ -261,12 +261,12 @@ void PndTrkLegendreNew::Exec(Option_t* opt) {
       }
       int nclusters = clusterlist.GetNofClusters();
       cout << "hit " << thishit->GetHitID() << " in nclusters: " <<  nclusters << endl;   
+      std::vector<int> possibletocluster; 
       for(int iclus = 0; iclus < nclusters; iclus++) {
 	//
 	cout << "iclust " << iclus << endl;   
 	PndTrkCluster *cluster = clusterlist.GetCluster(iclus);
 	bool alreadyinlay = false;
-
 	for(int jhit = cluster->GetNofHits() - 1; jhit >= 0; jhit--) {
 	  PndTrkHit *prehit = cluster->GetHit(jhit);
 
@@ -278,6 +278,7 @@ void PndTrkLegendreNew::Exec(Option_t* opt) {
 	  if(prelayerID > ilay + 1) break;
 	  if(prelayerID == ilay) {
 	    alreadyinlay = true;
+	    if(thistube->IsParallel() && pretube->IsParallel() && thistube->IsNeighboring(pretubeID)) possibletocluster.push_back(iclus);
 	    continue;
 	  }
 	  //	  cout << "compare " << thishit->GetHitID() << " " << prehit->GetHitID() << " " << prelayerID << " " << ilay << endl;
@@ -336,10 +337,23 @@ void PndTrkLegendreNew::Exec(Option_t* opt) {
 	}
       }
       if(associated == false) {
-	cout << "************** START NEW CLUSTER" << clusterlist.GetNofClusters() << " @ " << thishit->GetHitID() << endl;
-	PndTrkCluster *cluster0 = new PndTrkCluster();
-	cluster0->AddHit(thishit);
-	clusterlist.AddCluster(cluster0);
+
+	// if:
+	// 1. it is parallel and neigh to parallel
+	// 2. not associated to any other cluster 
+	// 3. except for one cluster, as neighboring to a tube of the same layer
+	// ---> then add it
+	if(possibletocluster.size() == 1) {
+	  PndTrkCluster *cluster = clusterlist.GetCluster(possibletocluster.at(0));
+	  cluster->AddHit(thishit);
+	  cout << "ALREDY IN LAY, BUT PARALLEL AND NEIGH TO NOTHING ELSE --> ADDED TO CLUSTER" << endl;
+	}
+	else {
+	  cout << "************** START NEW CLUSTER" << clusterlist.GetNofClusters() << " @ " << thishit->GetHitID() << endl;
+	  PndTrkCluster *cluster0 = new PndTrkCluster();
+	  cluster0->AddHit(thishit);
+	  clusterlist.AddCluster(cluster0);
+	}
       }
     }
   }
