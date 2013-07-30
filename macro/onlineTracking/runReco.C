@@ -17,8 +17,8 @@ runReco(Int_t nEvents=500)
   // ------------------------------------------------------------------------
   // Output file
   PndFileNameCreator creator(MCFile.Data());
-  TString DigiFile = creator.GetDigiFileName(false).c_str();
-  TString outFile = creator.GetRecoFileName(false).c_str();
+  TString DigiFile = creator.GetDigiFileName().c_str();
+  TString outFile = creator.GetRecoFileName().c_str();
   
   std::cout << "MCFile  : " << MCFile.Data()<< std::endl;
   std::cout << "DigiFile: " << DigiFile.Data()<< std::endl;
@@ -70,12 +70,17 @@ runReco(Int_t nEvents=500)
 
   rtdb->setOutput(parInput1);
   rtdb->print();
+
+  cout << "Geo Man Debug Output:" << endl << gGeoManager << endl;
+
   // =====                 End of HitProducers                           =====
   // =========================================================================
 //   PndMvdGeoPar* geoPar  = (PndMvdGeoPar*)(rtdb->getContainer("PndMvdGeoPar")); 
   
   // -----   Intialise and run   --------------------------------------------
   fRun->Init();
+
+  cout << "Geo Man Debug Output:" << endl << gGeoManager << endl;
 
   fRun->Run(0,nEvents);
   // ------------------------------------------------------------------------

@@ -71,7 +71,7 @@ runSim(Int_t nEvents=500)
   fRun->AddModule(Emc);
   //-------------------------  DRC       -----------------
   PndDrc *Drc = new PndDrc("DIRC", kTRUE);
-  Drc->SetGeometryFileName("dirc_l0_p0_updated.root");
+  Drc->SetGeometryFileName("dirc_l0_p0.root");
   Drc->SetRunCherenkov(kFALSE);
   fRun->AddModule(Drc);
   //-------------------------  DISC      -----------------

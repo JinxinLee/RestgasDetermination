@@ -122,11 +122,54 @@ void DrawDetector() {
 	mybglipse.DrawEllipse(0, 0, 0.5, 0.5, 0, 360, 0);
 }
 
+// Draws the detector outline in YZ projection
+void DrawDetectorYZ() {
+	TBox mybox;
+	mybox.SetLineColor(kBlack);
+	mybox.SetFillStyle(0);
+	mybox.DrawBox(-40, -40.5, 110, 40.5);
+	mybox.DrawBox(-17, -14, 23, 14);
+	TEllipse myiplipse;
+	myiplipse.SetLineColor(kBlack);
+	myiplipse.SetFillStyle(0);
+	myiplipse.DrawEllipse(0, 0, 1, 1, 0, 360, 0);
+}
+
+// Draws the detector outline in XZ projection
+void DrawDetectorXZ() {
+	TBox mybox;
+	mybox.SetLineColor(kBlack);
+	mybox.SetFillStyle(0);
+	mybox.DrawBox(-40, -40.5, 110, 40.5);
+	mybox.DrawBox(-17, -14, 23, 14);
+	TEllipse myiplipse;
+	myiplipse.SetLineColor(kBlack);
+	myiplipse.SetFillStyle(0);
+	myiplipse.DrawEllipse(0, 0, 1, 1, 0, 360, 0);
+}
+
+// Draws the detector outline in RZ projection
+void DrawDetectorRZ() {
+	TBox mybox;
+	mybox.SetLineColor(kBlack);
+	mybox.SetFillStyle(0);
+	//stt
+	mybox.DrawBox(-40, 16, 110, 40.5);
+	mybox.DrawBox(-40, -16, 110, -40.5);
+	//mvd
+	mybox.DrawBox(-17, 1.0, 23, 15.5);
+	mybox.DrawBox(-17, -1.0, 23, -15.5);
+	TEllipse myiplipse;
+	myiplipse.SetLineColor(kBlack);
+	myiplipse.SetFillStyle(0);
+	myiplipse.DrawEllipse(0, 0, 0.5, 0.5, 0, 360, 0);
+}
+
 // Draws list of FairHits in xy projection
 /*
 TObjArray* fairhits: Array of FairHit objects to be drawn in the xy projection
 */
-void DrawFairHits(TObjArray* fairhits) {
+void DrawFairHits(Double_t currenttime, TObjArray* fairhits, Double_t timeout) {
 	TEllipse mylipse(0, 0, 0.2, 0.2);
 	mylipse.SetFillColor(kBlack);
 	FairHit* drawhit = 0;
@@ -137,7 +180,12 @@ void DrawFairHits(TObjArray* fairhits) {
 			cout << "Error: No Hit Pointer in drawstack." << endl;
 			continue;
 		}
-		cout << "FairHit Timestamp: " << drawhit->GetTimeStamp() << ",  " << drawhit->GetX() << ",  " << drawhit->GetY() << endl;
+		Double_t timestamp = drawhit->GetTimeStamp();
+		if ((timestamp>currenttime+timeout) || (timestamp < currenttime)) {
+			cout << "Error: Hit time " << timestamp << " out of Window " << currenttime+200 << endl;
+			continue;
+		}
+		//cout << "FairHit Timestamp: " << drawhit->GetTimeStamp() << ",  " << drawhit->GetX() << ",  " << drawhit->GetY() << endl;
 		mylipse.SetX1(drawhit->GetX());
 		mylipse.SetY1(drawhit->GetY());
 		//mylipse.SetR1(0.1);
@@ -150,6 +198,75 @@ void DrawFairHits(TObjArray* fairhits) {
 			mylipse.SetLineColor(kBlack);
 		}
 		mylipse.DrawClone();
+	}
+}
+
+void DrawFairHitsYZ(Double_t currenttime, TObjArray* fairhits, Double_t timeout) {
+	TEllipse mylipse(0, 0, 0.2, 0.2);
+	mylipse.SetFillColor(kBlack);
+	FairHit* drawhit = 0;
+	cout << "YZ Drawing " << fairhits->GetName() << " with " << fairhits->GetEntriesFast() << endl;
+	for(int j = 0; j < fairhits->GetEntriesFast(); j++) {
+		drawhit = (FairHit*) fairhits->At(j);
+		if (!drawhit) {
+			cout << "Error: No Hit Pointer in drawstack." << endl;
+			continue;
+		}
+		Double_t timestamp = drawhit->GetTimeStamp();
+		if ((timestamp>currenttime+timeout) || (timestamp < currenttime)) {
+			cout << "Error: Hit time " << timestamp << " out of Window " << currenttime+200 << endl;
+			continue;
+		}
+		cout << "FairHit Timestamp: " << drawhit->GetTimeStamp() << ",  " << drawhit->GetX() << ",  " << drawhit->GetY() << ",  " << drawhit->GetZ() << endl;
+		mylipse.SetX1(drawhit->GetZ());
+		mylipse.SetY1(drawhit->GetY());
+		//mylipse.SetR1(0.1);
+		//mylipse.SetR2(0.1);
+		if (TMath::Sqrt(drawhit->GetX()*drawhit->GetX()+drawhit->GetY()*drawhit->GetY())/drawhit->GetZ() > 0.3) {
+			mylipse.SetLineColor(kGreen);
+			mylipse.SetFillColor(kGreen);
+		} else {
+			mylipse.SetFillColor(kBlack);
+			mylipse.SetLineColor(kBlack);
+		}
+		//mylipse.DrawClone();
+		mylipse.DrawEllipse(drawhit->GetZ(), drawhit->GetY(), 0.3, 0.3, 0, 360, 0);
+	}
+}
+
+void DrawFairHitsRZ(Double_t currenttime, TObjArray* fairhits, Double_t timeout) {
+	TEllipse mylipse(0, 0, 0.2, 0.2);
+	mylipse.SetFillColor(kBlack);
+	FairHit* drawhit = 0;
+	cout << "YZ Drawing " << fairhits->GetName() << " with " << fairhits->GetEntriesFast() << endl;
+	for(int j = 0; j < fairhits->GetEntriesFast(); j++) {
+		drawhit = (FairHit*) fairhits->At(j);
+		if (!drawhit) {
+			cout << "Error: No Hit Pointer in drawstack." << endl;
+			continue;
+		}
+		Double_t timestamp = drawhit->GetTimeStamp();
+		if ((timestamp>currenttime+timeout) || (timestamp < currenttime)) {
+			cout << "Error: Hit time " << timestamp << " out of Window " << currenttime+200 << endl;
+			continue;
+		}
+		cout << "FairHit Timestamp: " << drawhit->GetTimeStamp() << ",  " << drawhit->GetX() << ",  " << drawhit->GetY() << ",  " << drawhit->GetZ() << endl;
+		Double_t r = TMath::Sqrt(drawhit->GetX()*drawhit->GetX()+drawhit->GetY()*drawhit->GetY());
+		Double_t rsign = drawhit->GetY() / TMath::Abs(drawhit->GetY());
+		r *= rsign;
+		mylipse.SetX1(drawhit->GetZ());
+		mylipse.SetY1(r);
+		//mylipse.SetR1(0.1);
+		//mylipse.SetR2(0.1);
+		if (TMath::Sqrt(drawhit->GetX()*drawhit->GetX()+drawhit->GetY()*drawhit->GetY())/drawhit->GetZ() > 0.3) {
+			mylipse.SetLineColor(kGreen);
+			mylipse.SetFillColor(kGreen);
+		} else {
+			mylipse.SetFillColor(kBlack);
+			mylipse.SetLineColor(kBlack);
+		}
+		//mylipse.DrawClone();
+		mylipse.DrawEllipse(drawhit->GetZ(), r, 0.3, 0.3, 0, 360, 0);
 	}
 }
 
@@ -179,13 +296,15 @@ void DrawIsochrones(Int_t currenttime, TObjArray* stthits, TObjArray* stttubes) 
 	// wire positioning   
 	stt.PutWireXYZ(0.,  0., -75., 0., 0., 75.);
 
+
+	cout << "----- Drawing Isochrones at " << currenttime << " with " << stthits->GetEntriesFast() << " active Hits." << endl;
 	for(int j = 0; j < stthits->GetEntriesFast(); j++) {
 		drawhit = (PndSttHit*) stthits->At(j);
 		if (!drawhit) {
 			cout << "Error: No Hit Pointer in drawstack." << endl;
 			continue;
 		}
-		cout << "Tube ID: " << drawhit->GetTubeID() << endl;
+		//cout << "Tube ID: " << drawhit->GetTubeID() << endl;
 		tube = (PndSttTube*)(stttubes->At(drawhit->GetTubeID()));
 		if (!tube) {
 			cout << "Error: Hit pointed to invalid tube." << endl;
@@ -194,12 +313,21 @@ void DrawIsochrones(Int_t currenttime, TObjArray* stthits, TObjArray* stttubes) 
 		//cout << "Calculating Isochrones." << endl;
 		isochrone = drawhit->GetIsochrone();
 		timestamp = drawhit->GetTimeStamp();
+		if ((timestamp>currenttime+245) || (timestamp < currenttime-10)) {
+			cout << "Error: Hit time " << timestamp << " out of Window " << currenttime+200 << endl;
+			//continue;
+		}
+		//cout << "MC Isochrone: " << drawhit->GetIsochrone() << endl;
+		//cout << "Hit Timestamp: " << drawhit->GetTimeStamp() << endl;
 		drifttime = timestamp - currenttime;
+		//cout << "Calculating Isochrones: " << isochrone << " " << timestamp << " " << drifttime << " " << recoisochrone << endl;
 		if (drifttime < 0) drifttime = 0;
 		if (drifttime > 245) drifttime = 245;
 		recoisochrone = stt.TimnsToDiscm(drifttime);
+		//cout << "Calculating Isochrones: " << isochrone << " " << timestamp << " " << drifttime << " " << recoisochrone << endl;
 		if (recoisochrone < 0) recoisochrone = 0;
 		if (recoisochrone > 0.5) recoisochrone = 0.5;
+		//cout << "Calculating Isochrones: " << isochrone << " " << timestamp << " " << drifttime << " " << recoisochrone << endl;
 		//std::cout << currenttime << " " << drawhit->GetTubeID() << " " << tube->GetPosition().X() << " " << tube->GetPosition().Y() << " " << tube->GetPosition().Z() << " " << tube->GetWireDirection().X() << " " << tube->GetWireDirection().Y() << " " << tube->GetWireDirection().Z() << " " << timestamp << " " << isochrone << " " << recoisochrone << std::endl;
 		mylipse.SetX1(tube->GetPosition().X());
 		mylipse.SetY1(tube->GetPosition().Y());
@@ -236,6 +364,189 @@ void DrawIsochrones(Int_t currenttime, TObjArray* stthits, TObjArray* stttubes) 
 	}
 }
 
+void DrawOnlineTrackVertices(Double_t currenttime, TObjArray* onlinetracks) {
+	TEllipse mylipse;
+	mylipse.SetFillColor(kBlack);
+	mylipse.SetFillStyle(1001);
+	mylipse.SetLineColor(kRed);
+	mylipse.SetR1(0.3);
+	mylipse.SetR2(0.3);
+	PndOnlineTrack* drawtrack = 0;
+	Double_t timestamp = 0;
+	cout << "----- Drawing OnlineTrack Vertices at " << currenttime << " with " << onlinetracks->GetEntriesFast() << " active Hits." << endl;
+	for(int j = 0; j < onlinetracks->GetEntriesFast(); j++) {
+		drawtrack = (PndOnlineTrack*) onlinetracks->At(j);
+		if (!drawtrack) {
+			cout << "Error: No Hit Pointer in drawstack." << endl;
+			continue;
+		}
+		// goodness for triplet hack points is 0
+		if (drawtrack->DrawMode() != PndOnlineTrack::kVertexAsPoint) {
+			continue;
+		}
+		if (drawtrack->Goodness() > 5) {
+			continue;
+		}
+		timestamp = drawtrack->T0();
+		if ((timestamp>currenttime+10) || (timestamp < currenttime-245)) {
+			cout << "Error: Hit time " << timestamp << " out of Window: " << currenttime -245 << " - " << currenttime+10 << endl;
+			//continue;
+		}
+		std::cout << "Vertex data: " << currenttime << " " << timestamp << " " << drawtrack->Vertex().X() << " " << drawtrack->Vertex().Y() << endl;
+		mylipse.SetX1(drawtrack->Vertex().X());
+		mylipse.SetY1(drawtrack->Vertex().Y());
+		//mylipse.DrawEllipse(drawtrack->Vertex().X(),drawtrack->Vertex().Y(), 0.3, 0.3, 0, 360, 0);
+		mylipse.DrawClone();
+	}
+}
+
+void DrawOnlineTrackVerticesRZ(Double_t currenttime, TObjArray* onlinetracks) {
+	TEllipse mylipse;
+	mylipse.SetFillColor(kBlack);
+	mylipse.SetFillStyle(1001);
+	mylipse.SetLineColor(kRed);
+	mylipse.SetR1(0.3);
+	mylipse.SetR2(0.3);
+	PndOnlineTrack* drawtrack = 0;
+	Double_t timestamp = 0;
+	cout << "----- Drawing OnlineTrack Vertices at " << currenttime << " with " << onlinetracks->GetEntriesFast() << " active Hits." << endl;
+	for(int j = 0; j < onlinetracks->GetEntriesFast(); j++) {
+		drawtrack = (PndOnlineTrack*) onlinetracks->At(j);
+		if (!drawtrack) {
+			cout << "Error: No Hit Pointer in drawstack." << endl;
+			continue;
+		}
+		// goodness for triplet hack points is 0
+		if (drawtrack->Goodness() > 5) {
+			continue;
+		}
+		timestamp = drawtrack->T0();
+		if ((timestamp>currenttime+245) || (timestamp < currenttime)) {
+			cout << "Error: Hit time " << timestamp << " out of Window " << currenttime+200 << endl;
+			continue;
+		}
+		//std::cout << "RZ Vertex data: " << currenttime << " " << timestamp << " " << drawtrack->Vertex().X() << " " << drawtrack->Vertex().Y() << " " << drawtrack->Vertex().Z() << endl;
+		Double_t r = TMath::Sqrt(drawtrack->Vertex().X()*drawtrack->Vertex().X()+drawtrack->Vertex().Y()*drawtrack->Vertex().Y());
+		Double_t rsign = drawtrack->Vertex().Y() / TMath::Abs(drawtrack->Vertex().Y());
+		r *= rsign;
+		//mylipse.SetX1(drawtrack->Vertex().Z());
+		//mylipse.SetY1(r);
+		mylipse.DrawEllipse(drawtrack->Vertex().Z(),r, 0.3, 0.3, 0, 360, 0);
+	}
+}
+
+void DrawOnlineTrackHack(Double_t currenttime, TObjArray* onlinetracks) {
+	Double_t timestamp = 0;
+	cout << "----- Drawing OnlineTrack Hacks at " << currenttime << " with " << onlinetracks->GetEntriesFast() << " active Tracks." << endl;
+	for(int j = 0; j < onlinetracks->GetEntriesFast(); j++) {
+		drawtrack = (PndOnlineTrack*) onlinetracks->At(j);
+		if (!drawtrack) {
+			cout << "Error: No Hit Pointer in drawstack." << endl;
+			continue;
+		}
+		// goodness for track hack circles is 10
+		if (drawtrack->DrawMode() != PndOnlineTrack::kVertexMomentumAsCircleHack) {
+			continue;
+		}
+		if ((drawtrack->Goodness() < 5) || (drawtrack->Goodness() > 15)) {
+			cout << "Goodness abuse is deprecated. Use DrawMode instead!" << endl;
+			continue;
+		}
+		timestamp = drawtrack->T0();
+		if ((timestamp>currenttime+10) || (timestamp < currenttime-245)) {
+			cout << "Error: Hit time " << timestamp << " out of Window: " << currenttime -245 << " - " << currenttime+10 << endl;
+			continue;
+		}
+		TVector2 innerhit(drawtrack->Vertex().X(), drawtrack->Vertex().Y());
+		TVector2 outerhit(drawtrack->Momentum().X(), drawtrack->Momentum().Y());
+		DrawOriginTrackLipse(innerhit.X(), innerhit.Y(), outerhit.X(), outerhit.Y(), kBlue).DrawClone("only")->SetBit(kCanDelete);
+	}
+}
+
+void DrawOnlineTrackHackHitCheck(Double_t currenttime, TObjArray* onlinetracks, TObjArray* stthits, TObjArray* stttubes) {
+	Double_t timestamp = 0;
+	cout << "----- Drawing OnlineTrack Hacks with Hit Check at " << currenttime << " with " << onlinetracks->GetEntriesFast() << " active Tracks." << endl;
+
+	for(int j = 0; j < onlinetracks->GetEntriesFast(); j++) {
+		drawtrack = (PndOnlineTrack*) onlinetracks->At(j);
+		if (!drawtrack) {
+			cout << "Error: No Hit Pointer in drawstack." << endl;
+			continue;
+		}
+		// goodness for track hack circles is 10
+		if (drawtrack->DrawMode() != PndOnlineTrack::kVertexMomentumAsCircleHack) {
+			continue;
+		}
+		if ((drawtrack->Goodness() < 5) || (drawtrack->Goodness() > 15)) {
+			cout << "Goodness abuse is deprecated. Use DrawMode instead!" << endl;
+			continue;
+		}
+		timestamp = drawtrack->T0();
+		if ((timestamp>currenttime+10) || (timestamp < currenttime-245)) {
+			cout << "Error: Hit time " << timestamp << " out of Window: " << currenttime -245 << " - " << currenttime+10 << endl;
+			continue;
+		}
+		TVector2 innerhit(drawtrack->Vertex().X(), drawtrack->Vertex().Y());
+		TVector2 outerhit(drawtrack->Momentum().X(), drawtrack->Momentum().Y());
+		TVector2 circleorigin;
+		Double_t circleradius = 0;
+		Int_t circleclockwise = 0;
+		CalculateCircle(&innerhit, &outerhit, &circleorigin, &circleradius, &circleclockwise);
+		Int_t hitcount = 0;
+		for (int k = 0; k < stthits->GetEntriesFast(); k++) {
+			PndSttHit* drawhit = (PndSttHit*)stthits->At(k);
+			if ((drawhit->GetTubeID() < 1001) || (drawhit->GetTubeID() > 2744)) {
+				PndSttTube* tube = (PndSttTube*)(stttubes->At(drawhit->GetTubeID()));
+				TVector2 hitpos(tube->GetPosition().X(), tube->GetPosition().Y());
+				TVector2 distvec = hitpos - circleorigin;
+				TVector2 originvec = (-1)* circleorigin;
+				if (TMath::Abs(distvec.Mod() - circleradius) < 0.6) {
+					//cout << "Clockwise: " << circleclockwise << endl;
+					if (originvec.DeltaPhi(distvec)*circleclockwise > 0) {
+						hitcount++;
+					}
+				}
+			}
+		}
+
+		if ( (hitcount > 15) || ((circleradius > 25) && (hitcount > 9)) || ((circleradius > 50) && (hitcount > 6)) ) {
+			DrawOriginTrackLipse(innerhit.X(), innerhit.Y(), outerhit.X(), outerhit.Y(), kBlue).DrawClone("only")->SetBit(kCanDelete);
+		} else {
+			DrawOriginTrackLipse(innerhit.X(), innerhit.Y(), outerhit.X(), outerhit.Y(), kYellow).DrawClone("only")->SetBit(kCanDelete);
+		}
+	}
+}
+
+void DrawOnlineTrackMomentum(Double_t currenttime, TObjArray* onlinetracks) {
+	Double_t timestamp = 0;
+	cout << "----- Drawing OnlineTrack Momenta at " << currenttime << " with " << onlinetracks->GetEntriesFast() << " active Tracks." << endl;
+	for(int j = 0; j < onlinetracks->GetEntriesFast(); j++) {
+		drawtrack = (PndOnlineTrack*) onlinetracks->At(j);
+		if (!drawtrack) {
+			cout << "Error: No Hit Pointer in drawstack." << endl;
+			continue;
+		}
+		// goodness for track hack circles is 20
+		if (drawtrack->DrawMode() != PndOnlineTrack::kVertexMomentumAsArrow) {
+			continue;
+		}
+		if ((drawtrack->Goodness() < 15) || (drawtrack->Goodness() > 25)) {
+			cout << "Goodness abuse is deprecated. Use DrawMode instead!" << endl;
+			continue;
+		}
+		timestamp = drawtrack->T0();
+		if ((timestamp>currenttime+200) || (timestamp < currenttime)) {
+			cout << "Error: Hit time " << timestamp << " out of Window " << currenttime+200 << endl;
+			continue;
+		}
+		TVector2 vertex(drawtrack->Vertex().X(), drawtrack->Vertex().Y());
+		TVector2 momentum(drawtrack->Momentum().X(), drawtrack->Momentum().Y());
+		TArrow myarrow;
+		myarrow.SetLineWidth(3);
+		myarrow.DrawArrow(vertex.X(), vertex.Y(), vertex.X()+momentum.X(), vertex.Y()+momentum.Y(), 0.02, ">");
+	}
+}
+
 void FindTriplets(TObjArray* stthits, TObjArray* stttubes, TObjArray* tripletlist, Int_t starttube, Int_t stoptube) {
 	PndSttTube* tube = 0;
 	PndSttHit* drawhit = 0;
@@ -258,33 +569,9 @@ void FindTriplets(TObjArray* stthits, TObjArray* stttubes, TObjArray* tripletlis
 				//innerlist.AddLast(tube->Clone());
 				tripletlist->AddLast(cmspoint.Clone());
 			}
+			cout << "Drawhit finished" << endl;
 		}
-	}
-}
-
-void FindSkewlet(TObjArray* stthits, TObjArray* stttubes, TObjArray* skewletlist, Int_t starttube, Int_t stoptube) {
-	PndSttTube* tube = 0;
-	PndSttHit* drawhit = 0;
-	for(int j = 0; j < stthits->GetEntriesFast(); j++) {
-		drawhit = (PndSttHit*) stthits->At(j);
-		if (!drawhit) {
-			cout << "Error: No Hit Pointer in Stack." << endl;
-			continue;
-		}
-		//cout << "Tube ID: " << drawhit->GetTubeID() << endl;
-		tube = (PndSttTube*)(stttubes->At(drawhit->GetTubeID()));
-		if (!tube) {
-			cout << "Error: Hit pointed to invalid tube." << endl;
-			continue;
-		}
-		if ((drawhit->GetTubeID()>starttube) && (drawhit->GetTubeID()<stoptube)) {
-			TVector3 cmspoint;
-			if (HasNeighborCMS3D(drawhit->GetTubeID(), stthits, stttubes, &cmspoint)) {
-				cout << "Skewlet found. Adding to list." << endl;
-				//innerlist.AddLast(tube->Clone());
-				skewletlist->AddLast(cmspoint.Clone());
-			}
-		}
+		cout << "End of loop " << j << endl;
 	}
 }
 
@@ -315,6 +602,110 @@ DrawTripletTracks(TObjArray* innerpoints, TObjArray* outerpoints, Int_t maxdefle
 	}
 }
 
+DrawVector2(TObjArray* points) {
+	TEllipse mylipse;
+	for (int i = 0; i < points->GetEntriesFast(); i++) {
+		TVector2* myhit = (TVector2*)points->At(i);
+		mylipse.SetFillColor(kBlack);
+		mylipse.SetFillStyle(1001);
+		mylipse.SetLineColor(kRed);
+		mylipse.SetX1(myhit->X());
+		mylipse.SetY1(myhit->Y());
+		mylipse.SetR1(0.3);
+		mylipse.SetR2(0.3);
+		mylipse.DrawClone();
+	}
+}
+
+DrawVector3(TObjArray* points) {
+	TEllipse mylipse;
+	for (int i = 0; i < points->GetEntriesFast(); i++) {
+		TVector3* myhit = (TVector3*)points->At(i);
+		mylipse.SetFillColor(kBlack);
+		mylipse.SetFillStyle(1001);
+		mylipse.SetLineColor(kRed);
+		mylipse.SetX1(myhit->X());
+		mylipse.SetY1(myhit->Y());
+		mylipse.SetR1(0.3);
+		mylipse.SetR2(0.3);
+		mylipse.DrawClone();
+	}
+}
+
+DrawVector3YZ(TObjArray* points) {
+	TEllipse mylipse;
+	for (int i = 0; i < points->GetEntriesFast(); i++) {
+		TVector3* myhit = (TVector3*)points->At(i);
+		mylipse.SetFillColor(kBlack);
+		mylipse.SetFillStyle(1001);
+		mylipse.SetLineColor(kRed);
+		mylipse.SetX1(myhit->Z());
+		mylipse.SetY1(myhit->Y());
+		mylipse.SetR1(0.3);
+		mylipse.SetR2(0.3);
+		mylipse.DrawEllipse(myhit->Z(), myhit->Y(), 0.3, 0.3, 0, 360, 0);
+	}
+}
+
+DrawVector3XZ(TObjArray* points) {
+	TEllipse mylipse;
+	for (int i = 0; i < points->GetEntriesFast(); i++) {
+		TVector3* myhit = (TVector3*)points->At(i);
+		mylipse.SetFillColor(kBlack);
+		mylipse.SetFillStyle(1001);
+		mylipse.SetLineColor(kRed);
+		mylipse.SetX1(myhit->Z());
+		mylipse.SetY1(myhit->X());
+		mylipse.SetR1(0.3);
+		mylipse.SetR2(0.3);
+		mylipse.DrawEllipse(myhit->Z(), myhit->X(), 0.3, 0.3, 0, 360, 0);
+	}
+}
+
+DrawVector3RZ(TObjArray* points) {
+	TEllipse mylipse;
+	for (int i = 0; i < points->GetEntriesFast(); i++) {
+		TVector3* myhit = (TVector3*)points->At(i);
+		mylipse.SetFillColor(kBlack);
+		mylipse.SetFillStyle(1001);
+		mylipse.SetLineColor(kRed);
+		Double_t r = TMath::Sqrt(myhit->X()*myhit->X()+myhit->Y()*myhit->Y());
+		Double_t rsign = myhit->Y() / TMath::Abs(myhit->Y());
+		r *= rsign;
+		mylipse.SetX1(myhit->Z());
+		mylipse.SetY1(r);
+		mylipse.SetR1(0.3);
+		mylipse.SetR2(0.3);
+		mylipse.DrawEllipse(myhit->Z(), r, 0.3, 0.3, 0, 360, 0);
+	}
+}
+
+void CalculateCircle(TVector2* innerhit, TVector2* outerhit, TVector2* circleorigin, Double_t* circleradius, Int_t* clockwise) {
+
+	Double_t x1= innerhit->X();
+	Double_t y1= innerhit->Y();
+	Double_t x2= outerhit->X();
+	Double_t y2= outerhit->Y();
+	Double_t a= x1;
+	Double_t b= y1;
+	Double_t c= x2;
+	Double_t d= y2;
+	Double_t px = 0.5*(b*c*c-a*a*d-b*b*d+b*d*d)/(b*c-a*d);
+	Double_t py = 0.5*(a*a*c+b*b*c-a*c*c-a*d*d)/(b*c-a*d);
+	Double_t r = TMath::Sqrt(px*px+py*py);
+	circleorigin->Set(px, py);
+	*circleradius = r;
+	Bool_t isclockwise = (y1 > x1*y2/x2);
+	if (x2 < 0) {
+		isclockwise = !(isclockwise);
+	}
+	if (isclockwise) {
+		*clockwise = 1;
+	} else {
+		*clockwise = -1;
+	}
+}
+
 TEllipse DrawOriginTrackLipse(Double_t x1, Double_t y1, Double_t x2, Double_t y2, Color_t linecolor = kBlack) {
 	Double_t a= x1;
 	Double_t b= y1;
@@ -334,7 +725,7 @@ TEllipse DrawOriginTrackLipse(Double_t x1, Double_t y1, Double_t x2, Double_t y2
 	if (x2 < 0) {
 		clockwise = !(clockwise);
 	}
-	cout << "Circle Parameters: " << px << " " << py << " " << x1 << " " << y1 << " " << x2 << " " << y2 << " " << TMath::RadToDeg()*zeroangle << " " << TMath::RadToDeg()*midangle << " " << TMath::RadToDeg()*endangle << " " << clockwise << endl;
+	//cout << "Circle Parameters: " << px << " " << py << " " << x1 << " " << y1 << " " << x2 << " " << y2 << " " << TMath::RadToDeg()*zeroangle << " " << TMath::RadToDeg()*midangle << " " << TMath::RadToDeg()*endangle << " " << clockwise << endl;
 	if (clockwise) {
 		/*
 		Double_t diffangle = zeroangle - endangle;
@@ -385,6 +776,10 @@ returns: Distance in cm between the two given tubes in xy Projection
 Double_t GetTubeDist(Int_t leftID, Int_t rightID, TObjArray* stttubes) {
 	PndSttTube* lefttube = (PndSttTube*)(stttubes->At(leftID));
 	PndSttTube* righttube = (PndSttTube*)(stttubes->At(rightID));
+	if ((lefttube == 0) || (righttube == 0)) {
+		cout << "Distance for invalid tubes!" << endl;
+		return -1;
+	}
 	Double_t dx = righttube->GetPosition().X()-lefttube->GetPosition().X();
 	Double_t dy = righttube->GetPosition().Y()-lefttube->GetPosition().Y();
 	return (TMath::Sqrt(dx*dx+dy*dy));
@@ -418,36 +813,22 @@ Bool_t HasNeighborCMS(UInt_t leftID, TObjArray* stthits, TObjArray* stttubes, TV
 	for (int i = 0; i < stthits->GetEntriesFast(); i++) {
 		rightID = ((PndSttHit*)(stthits->At(i)))->GetTubeID();
 		//cout << "Checking distance between tubes: " << leftID << ", " << rightID << endl;
-		if (GetTubeDist(leftID, rightID, stttubes) < 1.5) {
+		if (GetTubeDist(leftID, rightID, stttubes) < 1.1) {
 			cout << "Neighbor found between tubes: " << leftID << ", " << rightID << ", " << GetTubeDist(leftID, rightID, stttubes) << endl;
 			neighbors++;
-			cmsx += ((PndSttTube*)(stttubes->At(rightID)))->GetPosition()->X();
-			cmsy += ((PndSttTube*)(stttubes->At(rightID)))->GetPosition()->Y();
+			cmsx += ((PndSttTube*)(stttubes->At(rightID)))->GetPosition().X();
+			cmsy += ((PndSttTube*)(stttubes->At(rightID)))->GetPosition().Y();
 		}
 	}
 	cmspoint->Set(cmsx/neighbors, cmsy/neighbors);
-	return (neighbors > 2);
-}
-
-Bool_t HasNeighborCMS3D(UInt_t leftID, TObjArray* stthits, TObjArray* stttubes, TVector3* cmspoint) {
-	UInt_t neighbors = 0;
-	UInt_t rightID = 0;
-	Double_t cmsx = 0;
-	Double_t cmsy = 0;
-	Double_t cmsz = 0;
-	cmspoint->Set(cmsx, cmsy, cmsz);
-	for (int i = 0; i < stthits->GetEntriesFast(); i++) {
-		rightID = ((PndSttHit*)(stthits->At(i)))->GetTubeID();
-		//cout << "Checking distance between tubes: " << leftID << ", " << rightID << endl;
-		if (GetTubeDist(leftID, rightID, stttubes) < 1.5) {
-			cout << "Neighbor found between tubes: " << leftID << ", " << rightID << ", " << GetTubeDist(leftID, rightID, stttubes) << endl;
-			neighbors++;
-			cmsx += ((PndSttTube*)(stttubes->At(rightID)))->GetPosition()->X();
-			cmsy += ((PndSttTube*)(stttubes->At(rightID)))->GetPosition()->Y();
-		}
+	cout << "Returning CMS Point" << endl;
+	if (neighbors > 2) {
+		cout << "TRUE" << endl;
+		return kTRUE;
+	} else {
+		cout << "FALSE" << endl;
+		return kFALSE;
 	}
-	cmspoint->Set(cmsx/neighbors, cmsy/neighbors, cmsz);
-	return (neighbors > 2);
 }
 
 // Prints details of the STT assembly
@@ -456,13 +837,19 @@ TObjArray* stttubes: Array storing the setup of the PndSttTube objects comprisin
 */
 void PrintSttStats(TObjArray* stttubes)
 {
+	TEllipse mylipse(0, 0, 1, 1);
+	mylipse.SetFillStyle(0);
+	TText mytext;
+	mytext.SetTextSize(0.003);
 	for (int i = 0; i < stttubes->GetEntriesFast(); i++) {
 		tube = (PndSttTube*)(stttubes->At(i));
 		if (!tube) {
 			cout << "Error: No Tube at position " << i << endl;
 			continue;
 		}
-		std::cout << i << " " << tube->GetPosition().X() << " " << tube->GetPosition().Y() << " " << tube->GetPosition().Z() << " " << tube->GetWireDirection().X() << " " << tube->GetWireDirection().Y() << " " << tube->GetWireDirection().Z() << std::endl;
+		std::cout << i << " " << tube->GetPosition().Perp() << " " << tube->GetPosition().Phi() << " " << tube->GetPosition().X() << " " << tube->GetPosition().Y() << " " << tube->GetPosition().Z() << " " << tube->GetWireDirection().X() << " " << tube->GetWireDirection().Y() << " " << tube->GetWireDirection().Z() << std::endl;
+		mylipse.DrawEllipse(tube->GetPosition().X(), tube->GetPosition().Y(), 0.5, 0.5, 0, 360, 0);
+		mytext->DrawText(tube->GetPosition().X()-0.25, tube->GetPosition().Y()-0.13, TString::Format("%d",i));
 	}
 }
 

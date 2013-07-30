@@ -4,7 +4,7 @@
 // Macro to simulate the MVD in pandaroot
 // Updated 30.11.2009
 // Ralf Kliemt
-runSim(Int_t nEvents=500)
+runSimPions(Int_t nPions = 1, Int_t nEvents=500)
 {
   TStopwatch timer;
   timer.Start();
@@ -71,7 +71,7 @@ runSim(Int_t nEvents=500)
   fRun->AddModule(Emc);
   //-------------------------  DRC       -----------------
   PndDrc *Drc = new PndDrc("DIRC", kTRUE);
-  Drc->SetGeometryFileName("dirc_l0_p0_updated.root");
+  Drc->SetGeometryFileName("dirc_l0_p0.root");
   Drc->SetRunCherenkov(kFALSE);
   fRun->AddModule(Drc);
   //-------------------------  DISC      -----------------
@@ -115,12 +115,12 @@ runSim(Int_t nEvents=500)
 
   // Box Generator
   //Pions
-// FairBoxGenerator *fBox = new FairBoxGenerator(211, 4);
-//    fBox->SetPRange(2.5,2.5);
-//    fBox->SetThetaRange(10,40);
-//    fBox->SetPhiRange(350,360.);
-//    fBox->SetCosTheta();
-//    primGen->AddGenerator(fBox);
+ FairBoxGenerator *fBox = new FairBoxGenerator(211, nPions);
+    fBox->SetPRange(0.2,2.5);
+    fBox->SetThetaRange(40,120);
+    fBox->SetPhiRange(0.,360.);
+    fBox->SetCosTheta();
+    primGen->AddGenerator(fBox);
 
   //EvtGen Generator
 //    FairEvtGenGenerator* evtGen = new
@@ -139,8 +139,8 @@ runSim(Int_t nEvents=500)
   // --------------------
   // 1- Reading the new field map in the old format
 
-  PndDpmDirect *dpmGen = new PndDpmDirect(15,1, gRandom->GetSeed());
-  primGen->AddGenerator(dpmGen);
+  //PndDpmDirect *dpmGen = new PndDpmDirect(15,1, gRandom->GetSeed());
+  //primGen->AddGenerator(dpmGen);
 
 
 	fRun->SetBeamMom(15);
