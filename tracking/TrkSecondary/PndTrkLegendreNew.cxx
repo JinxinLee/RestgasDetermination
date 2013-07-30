@@ -252,13 +252,13 @@ void PndTrkLegendreNew::Exec(Option_t* opt) {
 // 	display->Modified();
 //       }
       
-      if(ilay == 26) {
-	PndTrkCluster *newcluster0 = new PndTrkCluster();
-	newcluster0->AddHit(thishit);
-	cout << "****** START CLUSTER " << clusterlist.GetNofClusters() << " @ " << thishit->GetHitID() << endl;
-	clusterlist.AddCluster(newcluster0);
-	continue;
-      }
+      //   if(ilay == 26) {
+      // 	PndTrkCluster *newcluster0 = new PndTrkCluster();
+      // 	newcluster0->AddHit(thishit);
+      // 	cout << "****** START CLUSTER " << clusterlist.GetNofClusters() << " @ " << thishit->GetHitID() << endl;
+      // 	clusterlist.AddCluster(newcluster0);
+      // 	continue;
+      //       }
       int nclusters = clusterlist.GetNofClusters();
       cout << "hit " << thishit->GetHitID() << " in nclusters: " <<  nclusters << endl;   
       std::vector<int> possibletocluster; 
