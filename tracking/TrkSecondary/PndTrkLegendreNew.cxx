@@ -225,7 +225,9 @@ void PndTrkLegendreNew::Exec(Option_t* opt) {
       
 
   // loop over all the layers
-  for(int ilay = 25; ilay >= 0; ilay--) {
+  // from out to in
+  for(int ilay = 26; ilay >= 0; ilay--) {
+
     std::vector< PndTrkHit* > sttinlay = stthitlist->GetHitListFromLayer(ilay);
     cout << endl;
     cout << "======================== > layer " << ilay << " " << sttinlay.size() << endl;
@@ -250,10 +252,10 @@ void PndTrkLegendreNew::Exec(Option_t* opt) {
 // 	display->Modified();
 //       }
       
-      if(ilay == 25) {
+      if(ilay == 26) {
 	PndTrkCluster *newcluster0 = new PndTrkCluster();
 	newcluster0->AddHit(thishit);
-	cout << "START CLUSTER " << clusterlist.GetNofClusters() << " @ " << thishit->GetHitID() << endl;
+	cout << "****** START CLUSTER " << clusterlist.GetNofClusters() << " @ " << thishit->GetHitID() << endl;
 	clusterlist.AddCluster(newcluster0);
 	continue;
       }
@@ -273,27 +275,28 @@ void PndTrkLegendreNew::Exec(Option_t* opt) {
 	  int pretubeID = prehit->GetTubeID();
 	  PndSttTube *pretube = (PndSttTube*) fTubeArray->At(pretubeID);
 	  int prelayerID = pretube->GetLayerID();
-
-	  //	  cout << "compare " << thishit->GetHitID() << " " << prehit->GetHitID() << " " << prelayerID << " " << ilay << endl;
-// 	  if(fDisplayOn)  {
-// 	    char goOnChar;
-// 	    //  Refresh();
-// 	    cout << "new compare?" << endl;
-// 	    cin >> goOnChar;
-// 	    Refresh(); 
-// 	    thishit->DrawTube(kYellow);
-// 	    prehit->DrawTube(kRed);
-// 	    display->Update();
-// 	    display->Modified();
-// 	  }
-	  // cout << "compare: yellow " << thishit->GetHitID() << " with red: " << prehit->GetHitID() << " " << prelayerID << " " << ilay << endl;
-
 	  if(prelayerID > ilay + 1) break;
 	  if(prelayerID == ilay) {
 	    alreadyinlay = true;
 	    continue;
 	  }
- cout << "compare: yellow " << thishit->GetHitID() << " with red: " << prehit->GetHitID() << " " << prelayerID << " " << ilay << endl;
+	  //	  cout << "compare " << thishit->GetHitID() << " " << prehit->GetHitID() << " " << prelayerID << " " << ilay << endl;
+	  if(1 == 2) {
+	    if(fDisplayOn)  {
+	      char goOnChar;
+	      //  Refresh();
+	      cout << "new compare?" << endl;
+	      cin >> goOnChar;
+	      Refresh(); 
+	      thishit->DrawTube(kYellow);
+	      prehit->DrawTube(kRed);
+	      display->Update();
+	      display->Modified();
+	    }
+	  }
+
+	  cout << "compare: new hit yellow: " << thishit->GetHitID() << "@" << ilay << ", with previous hit red: " << prehit->GetHitID() << "@" << prelayerID << " "  << endl;
+	  cout << "new tubeID " << thistubeID << " pre tubeID " << pretubeID << endl;
 
 	  if(thistube->IsNeighboring(pretubeID)) {
 	    if(alreadyinlay == false) {
@@ -333,7 +336,7 @@ void PndTrkLegendreNew::Exec(Option_t* opt) {
 	}
       }
       if(associated == false) {
-	cout << " START NEW CLUSTER" << clusterlist.GetNofClusters() << " @ " << thishit->GetHitID() << endl;
+	cout << "************** START NEW CLUSTER" << clusterlist.GetNofClusters() << " @ " << thishit->GetHitID() << endl;
 	PndTrkCluster *cluster0 = new PndTrkCluster();
 	cluster0->AddHit(thishit);
 	clusterlist.AddCluster(cluster0);
@@ -341,10 +344,24 @@ void PndTrkLegendreNew::Exec(Option_t* opt) {
     }
   }
   
+  // ================================= CLEANING
+  // delete clusters with more than LIMIT hits on the same layer
+  // AND tubes @ layer before and after
+
+  // merge similar clusters
+
+  // --- take first/last hit and see if there are neighboring clusters
+  //                                                  ----> merge them
+
+  // delete too small clusters
+
+
+
   // ---------- PRINT ---------------------
   for(int iclus = 0; iclus < clusterlist.GetNofClusters(); iclus++) {
     PndTrkCluster *cluster = clusterlist.GetCluster(iclus);
-    cout << "CLUSTER " << iclus << ":";
+    if(cluster->GetNofHits() < 3) continue;
+   cout << "CLUSTER " << iclus << ":";
     if(fDisplayOn)  {
       char goOnChar;
       cin >> goOnChar;
@@ -436,10 +453,29 @@ void PndTrkLegendreNew::DrawGeometry() {
   else hxy->Reset();
   display->cd(1);
   hxy->Draw();
+
+  // draw all the tubes
+  for(int itube = 1; itube < fTubeArray->GetEntriesFast(); itube++) {
+    PndSttTube *tube = (PndSttTube*) fTubeArray->At(itube);
+    if(tube->IsParallel()) {
+      TArc * arc = new TArc(tube->GetPosition().X(), tube->GetPosition().Y(), 0.5);
+      arc->SetFillStyle(0);
+      arc->SetLineColor(kCyan - 10);
+      arc->Draw("SAME");
+    }
+    else {
+      TMarker *mrk = new TMarker(tube->GetPosition().X(), tube->GetPosition().Y(), 6);
+   
+      mrk->SetMarkerColor(kCyan - 10);
+      mrk->Draw("SAME");
+    }
+  }
+  // ............................
+ 
   display->Update();
   display->Modified();  
  
 }
 
-  ClassImp(PndTrkLegendreNew)
+ClassImp(PndTrkLegendreNew)
 
