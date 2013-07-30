@@ -1,15 +1,11 @@
 void tut_ana_task(int nevts=0)
 {
-	// *** some variables
-	int i=0,j=0, k=0, l=0;
-	
 	TString OutFile="output_ana_task.root";  
 					
 	// *** the files coming from the simulation
 	TString inPidFile = "pid_complete.root";    // this file contains the PndPidCandidates and McTruth
 	TString inParFile = "simparams.root";
-	
-	gStyle->SetOptFit(1011);
+
 	gROOT->Macro("$VMCWORKDIR/gconfig/rootlogon.C");
 	gSystem->Load("libtutrhotask");
 	
