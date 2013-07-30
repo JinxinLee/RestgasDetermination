@@ -59,9 +59,6 @@ void tut_ana_comb(int nevts=0)
 	// *** Mass selector for the jpsi cands
 	RhoMassParticleSelector *jpsiMassSel=new RhoMassParticleSelector("jpsi",3.096,1.0);
 	
-	// *** the lorentz vector of the initial psi(2S)
-	TLorentzVector ini(0, 0, 6.231552, 7.240065);
-	
 	// ***
 	// the event loop
 	// ***

@@ -27,7 +27,7 @@ void tut_ana(int nevts=0)
 	// *** some variables
 	int i=0,j=0, k=0, l=0;
 	
-	TString OutFile="output.root";  
+	TString OutFile="output_ana.root";  
 					
 	// *** the files coming from the simulation
 	TString inPidFile = "pid_complete.root";    // this file contains the PndPidCandidates and McTruth
