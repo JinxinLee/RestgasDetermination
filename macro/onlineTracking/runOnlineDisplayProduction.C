@@ -22,6 +22,11 @@ void runOnlineDisplayProduction()  {
 	TString recoFileName = "Sim_Dpm_500_reco.root";
 	TString outFileName = "Sim_Dpm_500_streamdisplay.root";
 
+	TString digiFile = "all.par";
+	TString allDigiFile = gSystem->Getenv("VMCWORKDIR");
+	allDigiFile += "/macro/params/";
+	allDigiFile += digiFile;
+
 	TFile filedigi(digiFileName.Data());
 	TFile filereco(recoFileName.Data());
 	TFile filerecopixel(recoFileName.Data());
@@ -31,11 +36,20 @@ void runOnlineDisplayProduction()  {
 
 	FairRunAna *fRun = new FairRunAna();
 	fRun->SetInputFile(simFileName.Data());
-	fRun->AddFriend(recoFileName.Data());
 	fRun->AddFriend(digiFileName.Data());
+	fRun->AddFriend(recoFileName.Data());
 	fRun->SetOutputFile(outFileName.Data());
-	fRun->Init();
+
 	FairRuntimeDb* rtdb = fRun->GetRuntimeDb();
+	FairParRootFileIo* parInput1 = new FairParRootFileIo();
+	parInput1->open(parFileName.Data());
+	FairParAsciiFileIo* parIo1 = new FairParAsciiFileIo();
+	parIo1->open(allDigiFile.Data(),"in");
+	rtdb->setFirstInput(parInput1);
+	rtdb->setSecondInput(parIo1);
+	rtdb->print();
+
+	fRun->Init();
 
 	PndOnlineGeometryManager *online_geometry = new PndOnlineGeometryManager(rtdb, parFileName.Data());
 
