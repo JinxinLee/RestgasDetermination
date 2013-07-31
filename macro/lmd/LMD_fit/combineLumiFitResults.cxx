@@ -8,188 +8,154 @@
 #include "TCanvas.h"
 #include "TStyle.h"
 #include "TLatex.h"
-
-#include "boost/filesystem.hpp"   // includes all needed Boost.Filesystem declarations
-#include "boost/regex.hpp"
+#include "TLine.h"
+#include "TMultiGraph.h"
+#include "TLegend.h"
 
 #include <iostream>               // for std::cout
 #include <vector>
 #include <sstream>
 
-using boost::filesystem3::path;
-using boost::filesystem3::directory_iterator;
+void makeOverviewPlot(TString suffix) {
+	TDirectory *topdir = gDirectory;
+	gStyle->SetOptFit(1111);
+	TCanvas c;
+	c.Print(TString("lumidist_") + suffix + ".pdf[");
+	TIter next(gDirectory->GetListOfKeys());
+	TDirectory *dir;
+	while ((dir = (TDirectory*) next())) {
+		TH1D* hist;
+		gDirectory->cd(dir->GetName());
+		gDirectory->GetObject("reldiff_dist", hist);
+		hist->Draw("E1");
 
-const double xmin = -4.0;
-const double xmax = 4.0;
-
-struct histBundle {
-	TH1D *hist;
-	double mean_rel_diff_lumi_error;
-	int num_entries;
-
-	histBundle() {
-		hist = new TH1D("h", "h", 40, xmin, xmax);
-		mean_rel_diff_lumi_error = 0.0;
-		num_entries = 0;
+		TLatex *label;
+		gDirectory->GetObject("error_label", label);
+		label->Draw();
+		TLatex *label2;
+		gDirectory->GetObject("fit_range_label", label2);
+		label2->Draw();
+		c.Print(TString("lumidist_") + suffix + ".pdf");
+		gDirectory->cd("..");
 	}
-};
+	c.Print(TString("lumidist_") + suffix + ".pdf]");
 
-std::vector<std::string> find_file(const path & dir_path, // in this directory,
-		const std::string & dir_name_filter, const std::string & file_name =
-				"fit_results.root") // search for this name
-		{
+	gDirectory->cd(topdir->GetPath());
+	TCanvas co;
+	co.Divide(4, 3);
+	int counter = 1;
+	co.Print(TString("lumidist_overview_") + suffix + ".pdf["); // No actual print, just open file
+	TIter next2(gDirectory->GetListOfKeys());
+	while ((dir = (TDirectory*) next2())) {
+		co.cd(counter);
+		TH1D* hist;
+		gDirectory->cd(dir->GetName());
+		gDirectory->GetObject("reldiff_dist", hist);
+		hist->Draw("E1");
 
-	std::cout << dir_name_filter << std::endl;
+		TLatex *label;
+		gDirectory->GetObject("error_label", label);
+		label->Draw();
+		TLatex *label2;
+		gDirectory->GetObject("fit_range_label", label2);
+		label2->Draw();
 
-	const boost::regex my_filter(dir_name_filter,
-			boost::regex::extended | boost::regex::icase);
-	const boost::regex my_filename_filter(file_name,
-			boost::regex::extended | boost::regex::icase);
-
-	std::vector<std::string> all_matching_files;
-
-	if (exists(dir_path)) {
-		std::cout << dir_path.string() << " exists... Looping over this directory.."
-				<< std::endl;
-		directory_iterator end_itr; // default construction yields past-the-end
-		for (directory_iterator itr(dir_path); itr != end_itr; ++itr) {
-			// Skip if not a file
-			if (boost::filesystem3::is_regular_file(itr->status()))
-				continue;
-
-			boost::smatch what;
-
-			// Skip if no match
-			//std::cout << "trying find " << dir_name_filter << " within "
-			//		<< itr->path().string() << std::endl;
-			if (!boost::regex_search(itr->path().string(), what, my_filter))
-				continue;
-
-			//std::cout << "This directory matches the filter " << dir_name_filter
-			//		<< std::endl;
-			// File matches, check if fit_result.root file resides in this directory
-			if (boost::filesystem3::is_directory(itr->status())) {
-				for (directory_iterator fitr(itr->path()); fitr != end_itr; ++fitr) {
-
-					boost::smatch fwhat;
-
-					// Skip if no match
-					if (!boost::regex_search(fitr->path().string(), fwhat,
-							my_filename_filter))
-						continue;
-
-					all_matching_files.push_back(itr->path().string());
+		if (counter == 12 || counter >= topdir->GetListOfKeys()->GetEntries() - 1) {
+			co.Print(TString("lumidist_overview_") + suffix + ".pdf"); // actually print canvas to file
+			if (counter >= topdir->GetListOfKeys()->GetEntries() - 1) {
+				// clear all pads
+				for (unsigned int temp = 1; temp <= 12; temp++) {
+					co.cd(temp)->Clear();
 				}
 			}
+			counter = 0;
 		}
+		counter++;
+		gDirectory->cd("..");
 	}
-	return all_matching_files;
-}
-
-void fitGauss(TH1D *hist) {
-	hist->SetStats(1);
-	hist->GetXaxis()->SetTitle("#frac{L_{fit}-L_{ref}}{L_{ref}} [%]");
-	hist->GetXaxis()->SetTitleOffset(1.4);
-	TF1 gausfit("gauss", "gaus(0)", xmin, xmax);
-	gausfit.SetParameters(10, 0.0, 1.0);
-	gausfit.SetParNames("A", "#mu", "#sigma");
-	hist->Fit(&gausfit, "+");
+	co.Print(TString("lumidist_overview_") + suffix + ".pdf]");
 }
 
 void combineLumiFitResults(std::vector<std::string> paths) {
 	std::cout << "Generating lumi comparison plots for fit results....\n";
 
-	// create an instance of PndLmdResultPlotter the plotting helper class
-	PndLmdResultPlotter plotter;
+	TMultiGraph mean_all;
+	TMultiGraph sigma_all;
 
-	//TH1D *dist_hist = new TH1D("lumi_rel_diffs", "", 40, xmin,
-	//		xmax);
+	int colors[] = { 1, 2, 8, 9 };
 
-	std::map<PndLmdLumiFitOptions, histBundle> comb_map;
+	TLegend legend1(0.1, 0.7, 0.48, 0.9);
+	legend1.SetHeader("");
+	TLegend legend2(0.1, 0.7, 0.48, 0.9);
+	legend2.SetHeader("");
 
 	for (unsigned int j = 0; j < paths.size(); j++) {
-		//std::cout << "found: " << paths[i] << std::endl;
 
-		// read in data from a root file which will return a vector of pointers to PndLmdData objects
-		std::vector<PndLmdData*> data_vec = plotter.getDataFromPath(paths[j]);
+		TGraphErrors *mean;
+		TGraphErrors *sigma;
+		TGraphErrors *lumifit_err;
 
-		// =============================== BEGIN PLOTTING =============================== //
-		// if you only have a single data object (mostly the case)
-		if (data_vec.size() > 0) {
+		TLatex *suffix;
+		// get graphs
+		TFile *f = new TFile(TString(paths[j]) + "/lumifit_systematics.root",
+				"OPEN");
+		f->GetObject("reldiff_sys_mean", mean);
+		f->GetObject("reldiff_sys_sigma", sigma);
+		f->GetObject("reldiff_lumifit_error", lumifit_err);
+		f->GetObject("suffix", suffix);
 
-			//std::map<PndLmdAcceptance*, std::vector<PndLmdLumiFitResult*> > &fit_map = data_vec[0]->getFitMap();
-			std::vector<PndLmdAcceptance*> accs = data_vec[0]->getListOfAcceptances();
-			// in case there exists only a single acceptance (with which fit were performed...
-			// usually the case)
-			if (accs.size() > 0) {
-				// create a vector of graph bundles (one entry for each fit option)
+		mean->SetLineColor(colors[j]);
+		mean->SetMarkerColor(colors[j]);
+		mean->SetMarkerStyle(5);
+		mean->SetMarkerSize(1.0);
+		mean_all.Add(mean, "P");
+		legend1.AddEntry(mean, suffix->GetTitle(), "pe");
 
-				double lumi_ref = data_vec[0]->getReferenceLuminosity();
+		sigma->SetLineColor(colors[j]);
+		sigma->SetMarkerColor(colors[j]);
+		sigma->SetMarkerStyle(5);
+		sigma->SetMarkerSize(1.0);
+		sigma_all.Add(sigma, "P");
+		legend2.AddEntry(sigma, TString(suffix->GetTitle()) + " sys.", "lep");
+		lumifit_err->SetLineColor(colors[j]);
+		lumifit_err->SetMarkerColor(colors[j]);
+		lumifit_err->SetMarkerStyle(5);
+		lumifit_err->SetMarkerSize(1.0);
+		sigma_all.Add(lumifit_err, "C");
+		legend2.AddEntry(lumifit_err, TString(suffix->GetTitle()) + " lmdfit.",
+				"l");
 
-				std::map<PndLmdAcceptance*, std::vector<PndLmdLumiFitResult*> >& fit_map =
-						data_vec[0]->getFitMap();
-
-				std::map<PndLmdAcceptance*, std::vector<PndLmdLumiFitResult*> >::iterator iter =
-						fit_map.find(accs[0]);
-
-				if (iter != fit_map.end()) {
-					std::vector<PndLmdLumiFitResult*> fit_res = iter->second;
-
-					for (unsigned int i = 0; i < fit_res.size(); i++) {
-						if (fit_res[i]->getLumiFitOptions()->getModelBinaryOptions().isSmearingOn()) {
-							if (fit_res[i]->getLumiFitOptions()->getDataBinaryOptions().isSmearingOn()) {
-								std::cout << "fit status: "
-										<< fit_res[i]->getModelFitResult()->getFitStatus()
-										<< std::endl;
-								std::pair<double, double> lumival = plotter.calulateLumiRelDiff(
-										fit_res[i]->getLuminosity(),
-										fit_res[i]->getLuminosityError(), lumi_ref);
-								if (lumival.second < 100) { // if error of the fit was larger then 10% something is wrong
-									comb_map[*(fit_res[i]->getLumiFitOptions())].hist->Fill(
-											lumival.first);
-									comb_map[*(fit_res[i]->getLumiFitOptions())].mean_rel_diff_lumi_error +=
-											lumival.second;
-									comb_map[*(fit_res[i]->getLumiFitOptions())].num_entries++;
-								}
-							}
-						}
-					}
-				}
-			}
-		}
+		gDirectory->cd("individuals");
+		makeOverviewPlot(suffix->GetTitle());
 	}
 
-	gStyle->SetOptFit(1111);
-	TCanvas c;
-	c.Print("lumidist.pdf[");
-	for (std::map<PndLmdLumiFitOptions, histBundle>::iterator it =
-			comb_map.begin(); it != comb_map.end(); it++) {
-		fitGauss(it->second.hist);
-
-		double mean_error = it->second.mean_rel_diff_lumi_error
-				/ it->second.num_entries;
-		it->second.hist->Draw("E1");
-		std::stringstream s;
-		s.precision(3);
-		s << "lumifit error on rel diff: " << mean_error;
-		TLatex label(xmin * 0.9, 20.0, s.str().c_str());
-		label.Draw();
-		s.str("");
-		s << "#Theta fit range: " << it->first.getThetaFitRangeLow() << " - "
-				<< it->first.getThetaFitRangeHigh();
-		TLatex label2(xmin * 0.9, 18.0, s.str().c_str());
-		label2.Draw();
-		c.Print("lumidist.pdf");
-	}
-	c.Print("lumidist.pdf]");
-	// ================================ END PLOTTING ================================ //
+	TCanvas c_dep;
+	c_dep.Divide(2, 1);
+	c_dep.cd(1);
+	mean_all.Draw("A");
+	mean_all.GetYaxis()->SetTitle("fit dist. mean [mrad]");
+	mean_all.GetYaxis()->SetTitleOffset(1.5);
+	mean_all.GetXaxis()->SetTitle("lower fit range [mrad]");
+	mean_all.GetXaxis()->SetTitleOffset(1.1);
+	legend1.Draw();
+	gPad->Update();
+	TLine *zero = new TLine(gPad->GetUxmin(), 0, gPad->GetUxmax(), 0);
+	zero->Draw();
+	c_dep.cd(2);
+	sigma_all.Draw("A");
+	sigma_all.GetYaxis()->SetTitle("fit dist. sigma [mrad]");
+	sigma_all.GetYaxis()->SetTitleOffset(1.5);
+	sigma_all.GetXaxis()->SetTitle("lower fit range [mrad]");
+	sigma_all.GetXaxis()->SetTitleOffset(1.1);
+	legend2.Draw();
+	c_dep.SaveAs("lumidist_dependency.pdf");
 }
 
 int main(int argc, char* argv[]) {
-	if (argc == 3) {
-		combineLumiFitResults(find_file(path(argv[1]), // in this directory,
-		std::string(argv[2])));
+	std::vector<std::string> paths;
+	for (int i = 1; i < argc; i++) {
+		paths.push_back(std::string(argv[i]));
 	}
-
+	combineLumiFitResults(paths);
 	return 0;
 }

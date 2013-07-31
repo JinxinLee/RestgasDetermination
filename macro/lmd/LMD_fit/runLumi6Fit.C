@@ -129,44 +129,43 @@ void runLumi6Fit(TString input_file_dir, const double mom, int nEvents = -1,
   std::vector<PndLmdLumiFitOptions*> fit_options_vec;
   PndLmdLumiFitOptions *temp_fit_opt;
 
-  double fit_range_low_start = 4.0;
-  double fit_range_high_start = 8.0;
+  double fit_range_low = 4.0;
+  double fit_range_high = 8.0;
 
   TString resolution_parametrization_file_url = acceptance_file_dir + "/resolution_params_1.root";
 
-  for(double fit_range_step = 0.0; fit_range_step <= 2.0; fit_range_step += 0.2) {
-    LumiFit::LmdBinaryFitOptions bit_fit_opt(0);
-    bit_fit_opt.setFitAsRaw(true);
-    temp_fit_opt = new PndLmdLumiFitOptions(bit_fit_opt, 0, 0, 1, mom, fit_range_low_start-fit_range_step,
-        fit_range_high_start+fit_range_step);
-    temp_fit_opt->setResolutionParametrizationFileUrl(resolution_parametrization_file_url);
-    fit_options_vec.push_back(temp_fit_opt);
+  LumiFit::LmdBinaryFitOptions bit_fit_opt(0);
+  bit_fit_opt.setFitAsRaw(true);
+  temp_fit_opt = new PndLmdLumiFitOptions(bit_fit_opt, 0, 0, 1, mom, fit_range_low,
+      fit_range_high);
+  temp_fit_opt->setResolutionParametrizationFileUrl(resolution_parametrization_file_url);
+  fit_options_vec.push_back(temp_fit_opt);
 
-    bit_fit_opt.setFitAsRaw(false);
-    temp_fit_opt = new PndLmdLumiFitOptions(bit_fit_opt, 0, 0, 1, mom, fit_range_low_start-fit_range_step,
-        fit_range_high_start+fit_range_step);
-    temp_fit_opt->setResolutionParametrizationFileUrl(resolution_parametrization_file_url);
-    fit_options_vec.push_back(temp_fit_opt);
+  bit_fit_opt.setFitAsRaw(false);
+  temp_fit_opt = new PndLmdLumiFitOptions(bit_fit_opt, 0, 0, 1, mom, fit_range_low,
+      fit_range_high);
+  temp_fit_opt->setResolutionParametrizationFileUrl(resolution_parametrization_file_url);
+  fit_options_vec.push_back(temp_fit_opt);
 
-    bit_fit_opt.setAcceptanceCorrMode(true);
-    temp_fit_opt = new PndLmdLumiFitOptions(bit_fit_opt, 0, 0, 1, mom, fit_range_low_start-fit_range_step,
-        fit_range_high_start+fit_range_step);
-    temp_fit_opt->setResolutionParametrizationFileUrl(resolution_parametrization_file_url);
-    fit_options_vec.push_back(temp_fit_opt);
+  bit_fit_opt.setAcceptanceCorrMode(true);
+  temp_fit_opt = new PndLmdLumiFitOptions(bit_fit_opt, 0, 0, 1, mom, fit_range_low,
+      fit_range_high);
+  temp_fit_opt->setResolutionParametrizationFileUrl(resolution_parametrization_file_url);
+  fit_options_vec.push_back(temp_fit_opt);
 
-    temp_fit_opt = new PndLmdLumiFitOptions(bit_fit_opt, 0, 0, 1, mom, fit_range_low_start-fit_range_step,
-        fit_range_high_start+fit_range_step);
-    temp_fit_opt->setResolutionParametrizationFileUrl(resolution_parametrization_file_url);
-    temp_fit_opt->getDataBinaryOptions().setSmearingMode(true);
-    fit_options_vec.push_back(temp_fit_opt);
-    std::cout<<temp_fit_opt->getDataBinaryOptions().getBinaryOptions()<<std::endl;
+  temp_fit_opt = new PndLmdLumiFitOptions(bit_fit_opt, 0, 0, 1, mom, fit_range_low,
+      fit_range_high);
+  temp_fit_opt->setResolutionParametrizationFileUrl(resolution_parametrization_file_url);
+  temp_fit_opt->getDataBinaryOptions().setSmearingMode(true);
+  fit_options_vec.push_back(temp_fit_opt);
+  std::cout<<temp_fit_opt->getDataBinaryOptions().getBinaryOptions()<<std::endl;
 
-    bit_fit_opt.setSmearingMode(true);
-    temp_fit_opt = new PndLmdLumiFitOptions(bit_fit_opt, 0, 0, 1, mom, fit_range_low_start-fit_range_step,
-        fit_range_high_start+fit_range_step);
-    temp_fit_opt->setResolutionParametrizationFileUrl(resolution_parametrization_file_url);
-    fit_options_vec.push_back(temp_fit_opt);
-  } 
+  bit_fit_opt.setSmearingMode(true);
+  temp_fit_opt = new PndLmdLumiFitOptions(bit_fit_opt, 0, 0, 1, mom, fit_range_low,
+      fit_range_high);
+  temp_fit_opt->setResolutionParametrizationFileUrl(resolution_parametrization_file_url);
+  fit_options_vec.push_back(temp_fit_opt);
+  
 
   // =============================== END STEP 2 =============================== //
   

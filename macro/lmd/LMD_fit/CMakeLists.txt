@@ -25,6 +25,26 @@ $ENV{VMCWORKDIR}/build/lib
 /usr/X11R6/lib
 )
 
+########################### create lumiFitSystematic app ##################################
+
+HEADER_DIRECTORIES(MODEL_INCLUDE_DIRECTORIES $ENV{VMCWORKDIR}/lmd/LmdFit/ModelFramework)
+HEADER_DIRECTORIES(TEMP_INCLUDE_DIRECTORIES $ENV{VMCWORKDIR}/lmd/LmdFit/LumiImpl)
+
+set(INCLUDE_DIRECTORIES
+$ENV{SIMPATH}/include
+$ENV{ROOT_INCLUDE_DIR}
+${TEMP_INCLUDE_DIRECTORIES}
+${MODEL_INCLUDE_DIRECTORIES}
+/usr/X11R6/include
+)
+
+include_directories(${INCLUDE_DIRECTORIES})
+
+link_directories(${LINK_DIRECTORIES})
+
+add_executable(determineLumiFitSystematics determineLumiFitSystematics.cxx)
+target_link_libraries(determineLumiFitSystematics $ENV{ROOT_LIBRARIES} MathMore LmdFit Model GL X11 GLU gsl gslcblas boost_system boost_filesystem boost_regex)
+
 
 ########################### create lumiFitComparison app ##################################
 
@@ -88,3 +108,24 @@ link_directories(${LINK_DIRECTORIES})
 
 add_executable(plotDPMModelParts plotDPMModelParts.cxx)
 target_link_libraries(plotDPMModelParts $ENV{ROOT_LIBRARIES} MathMore LmdFit Model GL X11 GLU gsl gslcblas)
+
+
+########################### create DPMModel plotter app ##################################
+
+HEADER_DIRECTORIES(MODEL_INCLUDE_DIRECTORIES $ENV{VMCWORKDIR}/lmd/LmdFit/ModelFramework)
+HEADER_DIRECTORIES(TEMP_INCLUDE_DIRECTORIES $ENV{VMCWORKDIR}/lmd/LmdFit/LumiImpl)
+
+set(INCLUDE_DIRECTORIES
+$ENV{SIMPATH}/include
+$ENV{ROOT_INCLUDE_DIR}
+${TEMP_INCLUDE_DIRECTORIES}
+${MODEL_INCLUDE_DIRECTORIES}
+/usr/X11R6/include
+)
+
+include_directories(${INCLUDE_DIRECTORIES})
+
+link_directories(${LINK_DIRECTORIES})
+
+add_executable(convolutionThesisPlots convolutionThesisPlots.cxx)
+target_link_libraries(convolutionThesisPlots $ENV{ROOT_LIBRARIES} MathMore LmdFit Model GL X11 GLU gsl gslcblas)
