@@ -65,6 +65,9 @@ class PndSdsPixelClusterTask : public PndSdsTask
    virtual void SetClusterFinder()=0;
    virtual void SetBackMapping()=0;
 
+   void SetNoiseSuppression(Bool_t val){fUseNoiseSuppression = val;}
+   Bool_t GetNoiseSuppression() const {return fUseNoiseSuppression;}
+
    virtual void SetInBranchId(){
 		FairRootManager *ioman = FairRootManager::Instance();
 		fInBranchId = ioman->GetBranchId(fInBranchName);
@@ -88,6 +91,7 @@ class PndSdsPixelClusterTask : public PndSdsTask
   protected:
     
     Bool_t fPersistance; // switch to turn on/off storing the arrays to a file
+    Bool_t fUseNoiseSuppression; // switch to turn on/off noise cancellation by introducing an additional cluster threshold
 
     PndSdsFE* fFEModel; //!
 

@@ -31,7 +31,7 @@
 
 // -----   Default constructor   -------------------------------------------
 PndSdsPixelClusterTask::PndSdsPixelClusterTask() :
-PndSdsTask("SDS Clustertisation Task"), fPersistance(kTRUE), fClusterType(-1), fEventNr(0)
+PndSdsTask("SDS Clustertisation Task"), fPersistance(kTRUE), fClusterType(-1), fEventNr(0), fUseNoiseSuppression(kTRUE)
 {
   fFEModel = NULL;
 
@@ -55,7 +55,7 @@ PndSdsTask("SDS Clustertisation Task"), fPersistance(kTRUE), fClusterType(-1), f
 
 // -----   Named constructor   ---------------------------------------------
 PndSdsPixelClusterTask::PndSdsPixelClusterTask(const char* name) :
-PndSdsTask(name), fPersistance(kTRUE), fClusterType(-1), fEventNr(0)
+PndSdsTask(name), fPersistance(kTRUE), fClusterType(-1), fEventNr(0), fUseNoiseSuppression(kTRUE)
 {
   fFEModel = NULL;
 
@@ -192,10 +192,30 @@ void PndSdsPixelClusterTask::Exec(Option_t* opt)
   }
   // Retrieve the calculated clusters with the chosen clusterfinder
   std::vector< std::vector< Int_t> > clusters = fClusterFinder->GetClusters(DigiPixelArray);
-  if(fVerbose>1) std::cout << " -I-  PndSdsPixelClusterTask::Exec(): We have "<<clusters.size()<<" pixel clusters" << std::endl;
+  if(fVerbose>1)  std::cout << " -I-  PndSdsPixelClusterTask::Exec(): We have "<<clusters.size()<<" pixel clusters" << std::endl;
+
+  // Get rid of noise hits with a single digi in cluster and minimum charge
+  if (fUseNoiseSuppression) {
+	  Int_t clusterSize = clusters.size();
+	  for (UInt_t i = 0 ; i < clusterSize; i++)
+	  {
+		  if (clusters[i].size() == 1){
+			  PndSdsDigiPixel tempDigi = DigiPixelArray[clusters[i][0]];
+			  if (tempDigi.GetCharge() < 40){
+				  if (fVerbose > 2) std::cout << "-I-  PndSdsPixelClusterTask::Exec():Erased cluster with digi " << tempDigi << std::endl;
+				  clusters.erase(clusters.begin() + i);
+				  i--;
+				  clusterSize = clusters.size();
+			  }
+		  }
+	  }
+  }
+
   // store the list
+  std::cout << "Cluster Size after Erase: " << clusters.size() << std::endl;
   for (UInt_t i = 0; i < clusters.size(); i++)
   {
+
     PndSdsClusterPixel* tempCluster = new((*fClusterArray)[i]) PndSdsClusterPixel(fInBranchId, clusters[i]);
 
     if (FairRunAna::Instance()->IsTimeStamp()){
@@ -211,30 +231,28 @@ void PndSdsPixelClusterTask::Exec(Option_t* opt)
 //			std::cout << "Links: " << (FairMultiLinkedData)(*tempCluster) << std::endl;
 		}
     }
-  }
-  
-  // do the backmapping with charge-weight
-  for (UInt_t i = 0; i < clusters.size(); i++)
-  {
-    //    if(fVerbose>2) std::cout << clusters[i].size() << " " << std::endl;
+
     std::vector<PndSdsDigiPixel> clusterArray;
-    for (UInt_t j=0;j < clusters[i].size();j++)
-    { // convert
-      clusterArray.push_back(DigiPixelArray[clusters[i][j]]);
-    }
-    
-    // mapping with the choosen back mapping
-    PndSdsHit myHit = fBackMapping->GetCluster(clusterArray);
-    myHit.SetClusterIndex(fClusterType,i, -1, FairRootManager::Instance()->GetEntryNr());
+	for (UInt_t j=0;j < clusters[i].size();j++)
+	{ // convert
+	  clusterArray.push_back(DigiPixelArray[clusters[i][j]]);
+	}
+
+	// mapping with the chosen back mapping
+	PndSdsHit myHit = fBackMapping->GetCluster(clusterArray);
+	myHit.SetClusterIndex(fClusterType,i, -1, FairRootManager::Instance()->GetEntryNr());
 
  //   myHit.SetCharge(myHit.GetCharge());
-    if(fVerbose>0){
-      std::cout << " -I-  PndSdsPixelClusterTask::Exec(): Calculated Hit: " << std::endl;
-      myHit.Print();
-      ((FairMultiLinkedData)(myHit)).Print();
-    }
-    new ((*fHitArray)[i]) PndSdsHit(myHit);
+	if(fVerbose>0){
+	  std::cout << " -I-  PndSdsPixelClusterTask::Exec(): Calculated Hit: " << std::endl;
+	  myHit.Print();
+	  ((FairMultiLinkedData)(myHit)).Print();
+	}
+	new ((*fHitArray)[i]) PndSdsHit(myHit);
   }
+
+
+
   if(fVerbose>1)std::cout << std::endl;
 
   if(fVerbose>1){
