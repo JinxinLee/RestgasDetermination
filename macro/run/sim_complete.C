@@ -78,7 +78,7 @@ sim_complete(Int_t nEvents = 10, TString  SimEngine ="TGeant3", Float_t mom = 7.
   fRun->AddModule(Dipole);
   //-------------------------  Pipe     -----------------
   FairModule *Pipe= new PndPipe("PIPE");
-  Pipe->SetGeometryFileName("beampipe_201112.root");
+  Pipe->SetGeometryFileName("beampipe_201308.root");
   fRun->AddModule(Pipe);
   //-------------------------  STT       -----------------
   FairDetector *Stt= new PndStt("STT", kTRUE);
