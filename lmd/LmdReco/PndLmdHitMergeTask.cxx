@@ -192,7 +192,10 @@ void PndLmdHitMergeTask::Exec(Option_t* opt)
       }
       x/=(mergewithIDs.size()+1); y/=(mergewithIDs.size()+1); z/=(mergewithIDs.size()+1);
       tmphit->SetX(x); tmphit->SetY(y); tmphit->SetZ(z);
-
+      if (fVerbose > 4){
+	cout<<"!!! Merged hit !!!"<<endl;
+	tmphit->Print();
+      }
     }else{ //dont merge, just use original hit
       //       tmphit = new((*fMergedHitArray)[newHits]) PndSdsHit(*myHit1);
       tmphit = new((*fMergedHitArray)[newHits]) PndSdsMergedHit(*myHit1,-1);
