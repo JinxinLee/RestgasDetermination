@@ -300,25 +300,37 @@ void PndLmdGeaneTask::Exec(Option_t* opt)
       ///Propagate to the PCA (a space point) in 7 steps ---------------------------------
       //Comment: seems back propagation in one step (for 11 m) is too much
       //try smoothing it by small steps, which follow mag.field
-      //      const int nstep=7;
-      //      double zbend[nstep]={661, 660.5, 660., 659, 319, 316, 220};//entarance and exit mag.field
-      //TEST for backward and forward propagation: more steps!
-      //      const int nstep=50;
-      //      const int nstep=550;
-      //      const int nstep=4400;
-      const int nstep=50;
-      //      const int nstep=10;
-      vector<double> vxmc(nstep),vymc(nstep),vxmc_err(nstep),vymc_err(nstep),vzmc(nstep),vthetamc(nstep),vphimc(nstep),vpmc(nstep),vvmc(nstep),vwmc(nstep),vtvmc(nstep),vtwmc(nstep),vvmc_err(nstep),vwmc_err(nstep),vtvmc_err(nstep),vtwmc_err(nstep);
-      double zbend[nstep];
-      //      const double z0=661;
-      //      const double z0=1111.;
-      const double z0=fFittedTrkP.GetZ();
-      const double z1=1;
-      const double zstep=(z0-z1)/nstep;
-      for(int js=0;js<nstep;js++){
-	zbend[js]=z0-zstep*js;
-      }
+      //  const int nstep=7;
+      //  double zbend[nstep]={661, 660.5, 660., 659, 319, 316, 220};//entarance and exit mag.field
+      // //TEST for backward and forward propagation: more steps!
+      // //      const int nstep=50;
+      //  // double zbend[nstep];
+      // // const double z0=fFittedTrkP.GetZ();
+      // // const double z1=1;
+      // // const double zstep=(z0-z1)/nstep;
+      // // for(int js=0;js<nstep;js++){
+      // // 	zbend[js]=z0-zstep*js;
+      // // }
 
+      const int nstep0=10;
+      //      double zbend0[nstep0]={fFittedTrkP.GetZ(), 661, 660.5, 660., 659, 319, 316, 220,10};//entarance and exit mag.field
+      double zbend0[nstep0]={fFittedTrkP.GetZ(), 660, 602, 450, 342, 283, 248, 180, 100, 1};//entarance and exit mag.field
+       //      TEST for backward and forward propagation: more steps!
+      const int nintstep = 100;
+      const int nstep=nstep0*nintstep;
+      double zbend[nstep];
+       for(int is=1;is<=nstep0;is++){
+	 const double z0=zbend0[is-1];
+	 const double z1=zbend0[is];
+	 const double zstep=(z0-z1)/nintstep;
+	 //	 cout<<"is = "<<is<<": z0 = "<<z0<<" z1 = "<<z1<<" zstep = "<<zstep<<endl;
+	 for(int js=0;js<nintstep;js++){
+	   int curint = (is-1)*nintstep+js;
+	   zbend[curint]=z0-zstep*js;
+	   //   cout<<"zbend["<<curint<<"]="<<zbend[curint]<<endl;
+	 }
+       }
+ vector<double> vxmc(nstep),vymc(nstep),vxmc_err(nstep),vymc_err(nstep),vzmc(nstep),vthetamc(nstep),vphimc(nstep),vpmc(nstep),vvmc(nstep),vwmc(nstep),vtvmc(nstep),vtwmc(nstep),vvmc_err(nstep),vwmc_err(nstep),vtvmc_err(nstep),vtwmc_err(nstep);
       FairTrackParP *fStartMC = new FairTrackParP();
        if(fVerbose>2){
 	 cout<<"------------------------------------------"<<endl;      
@@ -363,7 +375,7 @@ void PndLmdGeaneTask::Exec(Option_t* opt)
 
 	   fStartMC = new FairTrackParP(PosMC, MomMC, PosMCerr, MomMCerr, fCharge,ocMC,djMC,dkMC);
 	   for(int sj=nstep-1;sj>-1;sj--){
-	     //    cout<<"MC forward: to z="<<zbend[sj]<<endl;
+	     //   cout<<"MC forward: to z="<<zbend[sj]<<endl;
 	     bool isPropMC;
 	     FairTrackParP *fResMC = PropToPlane(fStartMC,zbend[sj],+1,isPropMC);//forward propagation
 	     if(isPropMC){
@@ -387,13 +399,13 @@ void PndLmdGeaneTask::Exec(Option_t* opt)
 	       vwmc_err[sj] = fResMC->GetDW();
 	       vtvmc_err[sj] = fResMC->GetDTV();
 	       vtwmc_err[sj] = fResMC->GetDTW();
-	       //    cout<<"Next step;)"<<endl;
+	       //   cout<<"Next step;)"<<endl;
 	     }
 	     else break;
 	   }
 	 }
        }
-       if(abs(fStartMC->GetZ()-fFittedTrkP.GetZ())>10) break;//MC particle wasn't propagated to LMD plane
+       if(abs(fStartMC->GetZ()-fFittedTrkP.GetZ())>10) break;//MC particle wasn't propagated to LMD plane ????
       TClonesArray& clref1 = *fTrackParIni;
       Int_t size1 = clref1.GetEntriesFast();
 
