@@ -37,6 +37,7 @@ public:
 	void InitStage(Int_t type, std::string fileName, std::string branchName);
 	void InitStage(std::string fileName, std::string branchName = "");
 	void RemoveStage(Int_t type);
+	void RemoveStage(TString stage){RemoveStage(FairRootManager::Instance()->GetBranchId(stage));}
 	void LoadInMCLists(TClonesArray* myLinkArray);
 	void ClearMCList();
 
