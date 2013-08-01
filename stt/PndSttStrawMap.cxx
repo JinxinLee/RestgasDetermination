@@ -58,19 +58,19 @@ void PndSttStrawMap::GenerateStrawMap(TClonesArray* const stt_tube_array)
 	fSectorOfStraw.push_back(-1);
 	fRowOfStraw.push_back(-1);
 	fAxialStraw.push_back(false);
-	cout << "Generating straw map for " << fTubeArray->GetEntriesFast() << " straws." << endl;
+	// cout << "Generating straw map for " << fTubeArray->GetEntriesFast() << " straws." << endl;
 	for (int i = 1; i < fTubeArray->GetEntriesFast(); i++) {
-		cout << "Finding tube." << endl;
+		// cout << "Finding tube." << endl;
 		PndSttTube* tube = GetTube(i);
-		cout << "Tube address: " << tube << endl;
+		// cout << "Tube address: " << tube << endl;
 		bool isaxial = (tube->GetWireDirection().Theta() < 0.001);
-		cout << "Axial Straw: " << isaxial << endl;
-		cout << "Wire Direction: ";
-		tube->GetWireDirection().Print();
+		// cout << "Axial Straw: " << isaxial << endl;
+		// cout << "Wire Direction: ";
+//		tube->GetWireDirection().Print();
 		double phi = tube->GetPosition().Phi();
-		cout << "Phi: " << phi << endl;
+		// cout << "Phi: " << phi << endl;
 		if (phi < 0) phi += 2*TMath::Pi();
-		cout << "Checking sector." << endl;
+		// cout << "Checking sector." << endl;
 		while ( !( (phi > fSectorStart.at(sector)) && (phi < fSectorEnd.at(sector)) )
 				&& !( (sector == 4) && ( (phi > fSectorStart.at(4)) || (phi < fSectorEnd.at(4)) ) ) ) {
 			sector++;
@@ -79,7 +79,7 @@ void PndSttStrawMap::GenerateStrawMap(TClonesArray* const stt_tube_array)
 		if (sector != lastsector) {
 			fStrawIndex[lastsector].push_back(currentRow);
 			currentRow.clear();
-			cout << "SECTOR COMPLETE: Row " << row << " added to sector " << lastsector << endl;
+			// cout << "SECTOR COMPLETE: Row " << row << " added to sector " << lastsector << endl;
 		}
 		if (sector < lastsector) row++;
 		lastsector = sector;
@@ -87,10 +87,10 @@ void PndSttStrawMap::GenerateStrawMap(TClonesArray* const stt_tube_array)
 		fSectorOfStraw.push_back(sector);
 		fRowOfStraw.push_back(row);
 		fAxialStraw.push_back(isaxial);
-		cout << "Straw " << i << " added to " << sector << ", " << row << endl;
+		// cout << "Straw " << i << " added to " << sector << ", " << row << endl;
 	}
 	fStrawIndex[lastsector].push_back(currentRow);
-	cout << "STT COMPLETE. SECTOR COMPLETE: Row " << row << " added to sector " << lastsector << endl;
+	// cout << "STT COMPLETE. SECTOR COMPLETE: Row " << row << " added to sector " << lastsector << endl;
 
 	fStrawMapInitialized = true;
 }
