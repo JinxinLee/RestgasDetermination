@@ -87,6 +87,7 @@ TrkData/PndTrkClusterList.cxx
 TrkData/PndTrkTrack.cxx
 TrkData/PndTrkConformalHit.cxx
 TrkData/PndTrkConformalHitList.cxx
+TrkData/PndTrkNeighboringMap.cxx
 #
 TrkSecondary/PndTrkLegendreTask.cxx
 TrkSecondary/PndTrkLegendreSecTask.cxx 

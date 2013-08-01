@@ -47,6 +47,7 @@
 #pragma link C++ class PndTrkQATask+;
 #pragma link C++ class PndTrkClean+;
 #pragma link C++ class PndTrkFitter+;
+#pragma link C++ class PndTrkNeighboringMap+;
 
 #endif
 
