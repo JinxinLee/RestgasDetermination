@@ -51,6 +51,7 @@ class PndSttGeometryMap : public TObject
   bool IsSkewedRow(int rowindex) const;
 
   Bool_t FindNeighborings(PndSttTube *tube);
+  TArrayI GetNeighborings(int tubeId);
 
   // *********************
 

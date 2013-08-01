@@ -248,6 +248,75 @@ Bool_t PndSttGeometryMap::FindNeighborings(PndSttTube *tube) {
   return kTRUE;
 }
 
+TArrayI PndSttGeometryMap::GetNeighborings(int tubeId) {
+
+        PndSttTube* tube = (PndSttTube*) fTubeArray->At(tubeId);
+        double tolerance = 1.5; // CHECK tolerance
+        TArrayI neighboring;
+
+        int isector = tube->GetSectorID();
+        int ilayer = tube->GetLayerID();
+        //  cout << "LAYER/SECTOR " << ilayer << " " << isector << endl;
+
+        // possible lay/sec to check:
+        // same layer/same sector, before, after
+        // layer up/same sector, before, after
+        // layer down/same sector, before, after
+        int possible_lay_sec[9][2] = { { ilayer, isector }, { ilayer, isector + 1 },
+                        { ilayer, isector - 1 }, { ilayer + 1, isector }, { ilayer + 1,
+                                        isector + 1 }, { ilayer + 1, isector - 1 }, { ilayer - 1,
+                                        isector }, { ilayer - 1, isector + 1 }, { ilayer - 1,
+                                        isector - 1 } };
+
+        std::vector<int> neigh_candidates;
+        for (int itest = 0; itest < 9; itest++) {
+
+                PndSttTube *tube2 = NULL;
+                int tubeid = -1;
+                //    cout << "is " << possible_lay_sec[itest][0] << " " << possible_lay_sec[itest][1] << "good?" << endl;
+                // check it is an existing layer/sec
+                if (possible_lay_sec[itest][0] < 0
+                                || possible_lay_sec[itest][0] >= fNLayers)
+                        continue;
+                if (possible_lay_sec[itest][1] < 0
+                                || possible_lay_sec[itest][1] >= fNSectors)
+                        continue;
+                // skip che pipe
+                if ((isector == 0 && possible_lay_sec[itest][1] == 5)
+                                || (isector == 5 && possible_lay_sec[itest][1] == 0)
+                                || (isector == 2 && possible_lay_sec[itest][1] == 3)
+                                || (isector == 3 && possible_lay_sec[itest][1] == 2))
+                        continue;
+                // if not @ limit of the sector
+                if (tube->IsSectorLimit() == kFALSE
+                                && (possible_lay_sec[itest][1] == isector + 1
+                                                || possible_lay_sec[itest][1] == isector - 1))
+                        continue;
+
+                //    cout << "CHECKING " << possible_lay_sec[itest][0] <<  " " << possible_lay_sec[itest][1] << endl;
+                neigh_candidates = GetStrawRow(possible_lay_sec[itest][1],
+                                possible_lay_sec[itest][0]);
+
+                for (int itube = 0; itube < neigh_candidates.size(); itube++) {
+                        tubeid = neigh_candidates.at(itube);
+                        if (tube->GetTubeID() == tubeid)
+                                continue;
+                        if (tubeid != -1)
+                                tube2 = (PndSttTube*) fTubeArray->At(tubeid);
+                        double distance = 1000;
+                        if (tube2)
+                                distance = tube->GetDistance(tube2);
+                        if (distance < tolerance) {
+                                int size = neighboring.GetSize();
+                                neighboring.Set(size + 1);
+                                neighboring.AddAt(tubeid, size);
+                                //      cout << "ADD " << tubeid << " " << distance << endl;
+                        }
+                }
+        }
+        //tube->SetNeighborings(neighboring); // CHECK
+        return neighboring;
+}
 
 
 
