@@ -1055,11 +1055,13 @@ void PndTrkTracking::Exec(Option_t* opt) {
 //---------------------------------------------   fetching the STT  MC points
  nSttMCPoint = fSttPointArray->GetEntriesFast();
  if (nSttMCPoint ==0){
-	if (istampa >= 1) cout<<"da PndTrkTracking  :  N. di Stt MC points = 0"<<endl<<endl;
+	cout<<"da PndTrkTracking  :  N. di Stt MC points = 0"<<endl<<endl;
 //	return;
  } else  if( nSttMCPoint>MAXSTTHITS){
 	cout<<"da PndTrkTracking  :  N. di Stt MC points = "<<nSttMCPoint
-	<<" and it is > MAXSTTHITS ("<<MAXSTTHITS<<")."<<endl;
+	<<" and it is > MAXSTTHITS ("<<MAXSTTHITS
+	     <<"), therefore consider only the first "<<MAXSTTHITS<<" hits"<<endl<<endl;
+	nSttHit= MAXSTTHITS;
  }
 
 
