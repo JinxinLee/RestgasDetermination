@@ -640,13 +640,14 @@ if(doMcComparison >=1 ){
  // Create and register output array for PndTrackCand of Stt+Mvd combined
 
  fSttMvdPndTrackCandArray = new TClonesArray("PndTrackCand");
- ioman->Register("SttMvdTrackCand","SttMvd",fSttMvdPndTrackCandArray, kTRUE);
+// ioman->Register("SttMvdTrackCand","SttMvd",fSttMvdPndTrackCandArray, kTRUE);
+ ioman->Register("SttMvdTrackCand","SttMvd",fSttMvdPndTrackCandArray, fPersistence);
 
 
  // Create and register output array for PndTrack of Stt+Mvd combined
 
  fSttMvdPndTrackArray = new TClonesArray("PndTrack");
- ioman->Register("SttMvdTrack","SttMvd",fSttMvdPndTrackArray, kTRUE);
+ ioman->Register("SttMvdTrack","SttMvd",fSttMvdPndTrackArray, fPersistence);
 
 //-----------------------
 
@@ -1118,7 +1119,9 @@ void PndTrkTracking2::Exec(Option_t* opt) {
 //	return;
  } else  if( nSttMCPoint>MAXSTTHITS){
 	cout<<"da PndTrkTracking2  :  N. di Stt MC points = "<<nSttMCPoint
-	<<" and it is > MAXSTTHITS ("<<MAXSTTHITS<<")."<<endl;
+	<<" and it is > MAXSTTHITS ("<<MAXSTTHITS
+	     <<"), therefore consider only the first "<<MAXSTTHITS<<" hits"<<endl<<endl;
+	nSttHit= MAXSTTHITS;
  }
 
 
@@ -1126,7 +1129,7 @@ void PndTrkTracking2::Exec(Option_t* opt) {
 
  nSttHit = fSttHitArray->GetEntriesFast();
  if (nSttHit ==0){
-	cout<<"da PndTrkTracking2  :  N. di Stt Hits = 0, return!"<<endl<<endl;
+	if (istampa >= 1) cout<<"da PndTrkTracking2  :  N. di Stt Hits = 0, return!"<<endl<<endl;
 	return;
  } else if (nSttHit> MAXSTTHITS) {
 	cout<<"da PndTrkTracking2  :  N. di Stt Hits = "<<nSttHit
