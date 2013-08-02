@@ -65,6 +65,7 @@ private:
 	TClonesArray* fTrackCandArray;
 	TClonesArray* fRiemannTrackArray;
 	TClonesArray* fTrackArray;
+	TClonesArray* fCorrectedSttHitArray;
 
 	TH2F *fCutDistH;
 	TH2F *fCutChi2H;

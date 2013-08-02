@@ -17,6 +17,7 @@
 // PndMvd includes
 #include "PndTrackCand.h"
 #include "PndMvdSttGemRiemannTrackFinder.h"
+#include "PndSttHit.h"
 
 #include "PndSttMapCreator.h"
 
@@ -82,7 +83,10 @@ InitStatus PndMvdSttGemRiemannTrackFinderTask::Init()
   fTrackArray = new TClonesArray("PndTrack");
   ioman->Register("MVDTrack", "MVD", fTrackArray, fPersistence);
 
-  fRiemannTrackArray = new TClonesArray("PndRiemannTrack");
+  fCorrectedSttHitArray = new TClonesArray("FairHit");
+  ioman->Register("CorrectedSttHit", "Stt", fCorrectedSttHitArray, kTRUE);
+
+//  fRiemannTrackArray = new TClonesArray("PndRiemannTrack");
 //  ioman->Register("MVDRiemannTrack", "MVD", fRiemannTrackArray, kTRUE);
 
 
@@ -117,7 +121,7 @@ void PndMvdSttGemRiemannTrackFinderTask::AddHitBranch(TString branchName)
 void PndMvdSttGemRiemannTrackFinderTask::Exec(Option_t* opt)
 {
 
-	SetVerbose(3);
+//	SetVerbose(0);
   // Reset output array
   if ( ! fTrackCandArray )
     Fatal("Exec", "No trackCandArray");
@@ -134,12 +138,14 @@ void PndMvdSttGemRiemannTrackFinderTask::Exec(Option_t* opt)
 
   FairRootManager *ioman = FairRootManager::Instance();
 
-  std::cout << std::endl;
-  std::cout << "------------- event " << fEventNr << "----------------" << std::endl;
+  if (fVerbose > 0) {
+	  std::cout << std::endl;
+	  std::cout << "------------- event " << fEventNr++ << "----------------" << std::endl;
+  }
 
   for (int i = 0; i < (int)fHitBranch.size(); i++){
 	  trackFinder.AddHits(fHitArray[i], ioman->GetBranchId(fHitBranch[i]));
-	  std::cout << "TrackFinder.AddHits: " << ioman->GetBranchId(fHitBranch[i]) << std::endl;
+	  if (fVerbose > 1) std::cout << "TrackFinder.AddHits: " << ioman->GetBranchId(fHitBranch[i]) << std::endl;
   }
   trackFinder.SetMaxSZChi2(fMaxSZChi2);
   trackFinder.SetMinPointDist(fMinPointDist);
@@ -155,7 +161,7 @@ void PndMvdSttGemRiemannTrackFinderTask::Exec(Option_t* opt)
   trackFinder.FindTracks();
 
 
-  if (fVerbose > 0) std::cout << " -I- PndMvdSttGemRiemannTrackFinderTask::Exec : Found Tracks: " << trackFinder.NTracks() << " in event no. " << fEventNr++ << std::endl;
+  if (fVerbose > 0) std::cout << " -I- PndMvdSttGemRiemannTrackFinderTask::Exec : Found Tracks: " << trackFinder.NTracks() << " in event no. " << fEventNr << std::endl;
   if (fVerbose > 0) std::cout << " -I- PndMvdSttGemRiemannTrackFinderTask::Exec : ----------------" << std::endl;
 
 
@@ -190,6 +196,21 @@ void PndMvdSttGemRiemannTrackFinderTask::Exec(Option_t* opt)
 		  std::cout << i << ": ";
 		  myTrack->Print();
 	  }
+
+	  for (int j = 0; j < myCand->GetNHits(); j++){
+		  if (myCand->GetLink(j).GetType() == FairRootManager::Instance()->GetBranchId("STTHit")){
+			  PndSttHit* mySttHit = (PndSttHit*)FairRootManager::Instance()->GetCloneOfLinkData(myCand->GetLink(j));
+			  PndRiemannTrack myRiemannTrack = trackFinder.GetTrack(i);
+			  PndRiemannHit correctedSttHit = myRiemannTrack.correctSttHit(mySttHit);
+			  FairHit correctedFairHit;
+			  correctedFairHit.SetXYZ(correctedSttHit.x().X(), correctedSttHit.x().Y(), correctedSttHit.z());
+			  std::cout << "PndMvdSttGemRiemannTrackFinderTask::Exec Correction: " << mySttHit->GetX() << "/" << mySttHit->GetY() << "/" << mySttHit->GetZ()
+					    << " CorrectedHit: " << correctedFairHit.GetX() << "/"<< correctedFairHit.GetY() << "/" << correctedFairHit.GetZ()<< std::endl;
+
+//			  Fair1Hit* copyHit = new((*fCorrectedSttHitArray)[fCorrectedSttHitArray->GetEntriesFast()])FairHit(correctedFairHit);
+
+		  }
+	  }
 //	  PndRiemannTrack* newTrack = new ((*fRiemannTrackArray)[i])PndRiemannTrack();
 //	  TVectorD origin = myTrack.orig();
 //	  newTrack->init(origin[0], origin[1], myTrack.r(), myTrack.dip(), 0);
@@ -216,6 +237,7 @@ void PndMvdSttGemRiemannTrackFinderTask::FinishEvent()
 {
 	fTrackCandArray->Delete();
 	fTrackArray->Delete();
+	fCorrectedSttHitArray->Delete();
 //	fRiemannTrackArray->Delete();
 }
 
