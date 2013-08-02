@@ -6,7 +6,7 @@
 #include "PndSdsHit.h"
 #include "PndSttHit.h"
 #include "TString.h"
-
+#include "TMath.h"
 
   ClassImp(PndMvdSttGemRiemannTrackFinder);
 
@@ -16,7 +16,6 @@ PndMvdSttGemRiemannTrackFinder::PndMvdSttGemRiemannTrackFinder():PndRiemannTrack
 	if (fUseZeroPos)
 		fLayers[0].push_back(0);
 	fGeoH = PndGeoHandling::Instance();
-	fVerbose = 0;
 	fSttHitsInSectors.resize(6);
 	InitLayerMap();
 }
@@ -53,9 +52,9 @@ void PndMvdSttGemRiemannTrackFinder::InitLayerMapMvd()
 	fLayerMap["PixeloLdkoco(Silicon)_5"] = fLastLayerId 		+ 11;
 	fLayerMap["PixeloLdkoio(Silicon)_2"] = fLastLayerId 		+ 12;	   //naming after MVD2.2
 	fLayerMap["PixeloLdkoco(Silicon)_6"] = fLastLayerId 		+ 12;
-	fLayerMap["PixeloLdkoiiio(Silicon)_4"] = fLastLayerId 		+ 13;	   //naming after MVD2.2
+	fLayerMap["PixeloLdkoiiio(Silicon)_3"] = fLastLayerId 		+ 13;	   //naming after MVD2.2
 	fLayerMap["PixeloLdkoco(Silicon)_7"] = fLastLayerId 		+ 13;
-	fLayerMap["PixeloLdkoiiio(Silicon)_3"] = fLastLayerId 		+ 14;	   //naming after MVD2.2
+	fLayerMap["PixeloLdkoiiio(Silicon)_4"] = fLastLayerId 		+ 14;	   //naming after MVD2.2
 	fLayerMap["PixeloLdkoco(Silicon)_8"] = fLastLayerId 		+ 14;
 
 	fLayerMap["StripoBl3o(Silicon)"] = fLastLayerId 			+ 15;
@@ -92,22 +91,34 @@ void PndMvdSttGemRiemannTrackFinder::InitLayerMapGem()
 
 void PndMvdSttGemRiemannTrackFinder::AddHits(TClonesArray* hits, Int_t branchId)
 {
+//	SetVerbose(3);
 	FairRootManager* man = FairRootManager::Instance();
   //	PndRiemannTrackFinder::AddHits(hits, branchId);
 	if (branchId == man->GetBranchId("STTHit")){
 		fSttHits = hits;
 		for (int i = 0; i < fSttHits->GetEntries(); i++){
 			PndSttHit* myHit = (PndSttHit*)(fSttHits->At(i));
+			myHit->SetEntryNr(FairLink(man->GetBranchId("SttHit"), i));
 			fHits.push_back(myHit);
-			std::cout << "PndMvdSttGemRiemannTrackFinder::AddHits StrawMap Sector: " << myHit->GetTubeID() << ": " << fStrawMap.GetSector(myHit->GetTubeID())<< std::endl;
-			fSttHitsInSectors[fStrawMap.GetSector(myHit->GetTubeID())].push_back(myHit);
+			myHit->SetPositionError(TVector3(0.5/TMath::Sqrt(12), 0.5/TMath::Sqrt(12), 200));
+			TVector3 sttPos;
+			myHit->Position(sttPos);
 			FairLink myID;
-			if (myHit->GetEntryNr().GetIndex() < 0){
+
+			if (myHit->GetEntryNr().GetIndex() < 0 || myHit->GetEntryNr().GetType() < 0){
 				myID = FairLink(branchId, i);
 				myHit->SetEntryNr(myID);
 			}
 			else
 				myID = myHit->GetEntryNr();
+			double phi = 0;
+			if  (sttPos.Phi() < 0)
+				phi = sttPos.Phi() + TMath::Pi() * 2;
+			else
+				phi = sttPos.Phi();
+			if (fVerbose > 1) std::cout << "PndMvdSttGemRiemannTrackFinder::AddHits StrawMap Sector: " << myHit->GetEntryNr() << " " << myHit->GetTubeID() << ": Phi: " << sttPos.x() << "/" << sttPos.y() << " " << phi << " Sector: " << fStrawMap.GetSector(myHit->GetTubeID())<< std::endl;
+			fSttHitsInSectors[fStrawMap.GetSector(myHit->GetTubeID())].push_back(myHit);
+
 			fMapHitToID[fHits.size()-1]=myID;
 			fMapIDtoHit[myID] = fHits.size()-1;
 		}
@@ -116,7 +127,7 @@ void PndMvdSttGemRiemannTrackFinder::AddHits(TClonesArray* hits, Int_t branchId)
 
 	if (branchId == man->GetBranchId("GEMHit")){
 		fGemHits = hits;
-		std::cout << "PndMvdSttGemRiemannTrackFinder::AddHits GEMHitsAdded: " << hits->GetEntries() << std::endl;
+		if (fVerbose > 1) std::cout << "PndMvdSttGemRiemannTrackFinder::AddHits GEMHitsAdded: " << hits->GetEntries() << std::endl;
 		for (int i = 0; i < hits->GetEntries(); i++){
 			FairHit* myHit = (FairHit*)(hits->At(i));
 			fHits.push_back(myHit);
@@ -208,6 +219,8 @@ int PndMvdSttGemRiemannTrackFinder::GetLayerMvd(FairHit* hit)
 void PndMvdSttGemRiemannTrackFinder::FindTracks()
 {
 
+//	SetVerbose(3);
+
 	std::vector<std::vector<Int_t> > Tracks = GetStartTracks();				//Get the possible track seeds
 
 	std::vector<int> tooClose;
@@ -217,17 +230,17 @@ void PndMvdSttGemRiemannTrackFinder::FindTracks()
 	for (unsigned int trackId = 0; trackId < Tracks.size(); trackId++){				//Go through all track seeds and search for additional points
     
 		if (Tracks[trackId].size() != 3)
-			std::cout << "-E- PndMVDRiemannTrackFinder::FindTracks: Start points: " << Tracks[trackId].size()
+			if (fVerbose > 1) std::cout << "-E- PndMVDRiemannTrackFinder::FindTracks: Start points: " << Tracks[trackId].size()
 					  << " in Track: " << trackId << std::endl;
     
 		std::vector<Int_t> StartTrack = Tracks[trackId];
     
 		if (fVerbose > 1){
-			std::cout << "------------------------------------" << std::endl;
-			std::cout << "Start Plane from Points: " << fMapHitToID[StartTrack[0]] << " "
+			if (fVerbose > 1) std::cout << "------------------------------------" << std::endl;
+			if (fVerbose > 1) std::cout << "Start Plane from Points: " << fMapHitToID[StartTrack[0]] << " "
 					  << fMapHitToID[StartTrack[1]] << " "  << fMapHitToID[StartTrack[2]] << std::endl;
 
-			std::cout << "Start Plane from Points: " << StartTrack[0] << " " << StartTrack[1] << " "  << StartTrack[2] << std::endl;
+			if (fVerbose > 1) std::cout << "Start Plane from Points: " << StartTrack[0] << " " << StartTrack[1] << " "  << StartTrack[2] << std::endl;
 		}
 
 		if (TrackExists(StartTrack) == true){
@@ -257,7 +270,7 @@ void PndMvdSttGemRiemannTrackFinder::FindTracks()
 			for(unsigned int testHitInLayer=0; testHitInLayer<fLayers[Layer].size();testHitInLayer++){
 				testHit=fLayers[Layer][testHitInLayer];
         
-				if (fVerbose > 2) std::cout << "Layer: " << Layer << " hitInLayer: " << testHitInLayer << " hitID " << testHit << " ";
+				if (fVerbose > 2) if (fVerbose > 1) std::cout << "Layer: " << Layer << " hitInLayer: " << testHitInLayer << " hitID " << testHit << " ";
 				if (fVerbose > 1) std::cout << "Point " << fMapHitToID[testHit] << " ";
 
 				if (CheckHitInTrack(StartTrack, testHit)) continue;
@@ -287,50 +300,57 @@ void PndMvdSttGemRiemannTrackFinder::FindTracks()
 		}
 
 		if (fVerbose > 1) {
-			std::cout << std::endl;
-			std::cout << "PndMvdSttGemRiemannTrackFinder::FindTracks ActTrack for Assignment: ";
+			if (fVerbose > 1) std::cout << std::endl;
+			if (fVerbose > 1) std::cout << "PndMvdSttGemRiemannTrackFinder::FindTracks ActTrack for Assignment: ";
 			for (int j = 0; j < StartTrack.size(); j ++){
 				int hitId = StartTrack[j];
-				std::cout << fMapHitToID[hitId] << " ";
+				if (fVerbose > 1) std::cout << fMapHitToID[hitId] << " ";
 			}
-			std::cout << std::endl;
+			if (fVerbose > 1) std::cout << std::endl;
 		}
 
-		std::cout << "Track before STT: " << actTrack << std::endl;
+		if (fVerbose > 1) std::cout << "Track before STT: " << actTrack << std::endl;
 
 		if (fSttHits > 0){															//assign STTHits to Mvd track
 			if (fVerbose > 1 )
-				std::cout << "PndMvdSttGemRiemannTrackFinder::FindTracks AssignSttHits" << std::endl;
+				if (fVerbose > 1) std::cout << "PndMvdSttGemRiemannTrackFinder::FindTracks AssignSttHits" << std::endl;
 			AssignSttHits(actTrack, StartTrack);
 			if (fVerbose > 1 )
-				std::cout << "ActTrack size with Stt: " << actTrack.getNumHits() << " " << StartTrack.size() << std::endl;
+				if (fVerbose > 1) std::cout << "ActTrack size with Stt: " << actTrack.getNumHits() << " " << StartTrack.size() << std::endl;
+			actTrack.refit(false);
+			actTrack.szFit(false);
+			actTrack.correctSttHits();
+			actTrack.refit(false);
+			actTrack.szFit(false);
+			actTrack.correctSttHits();
 			actTrack.refit(false);
 			actTrack.szFit(false);
 
+
 		}
 
-		std::cout << "Track after STT: " << actTrack << std::endl;
+		if (fVerbose > 1) std::cout << "Track after STT: " << actTrack << std::endl;
 
 		if (fGemHits > 0){
 			if (fVerbose > 1 )
-				std::cout << "PndMvdSttGemRiemannTrackFinder::FindTracks AssignGemHits" << std::endl;
+				if (fVerbose > 1) std::cout << "PndMvdSttGemRiemannTrackFinder::FindTracks AssignGemHits" << std::endl;
 			AssignGemHits(actTrack, StartTrack);
 			if (fVerbose > 1 )
-				std::cout << "ActTrack size with Gem: " << actTrack.getNumHits() << " " << StartTrack.size() << std::endl;
+				if (fVerbose > 1) std::cout << "ActTrack size with Gem: " << actTrack.getNumHits() << " " << StartTrack.size() << std::endl;
 			actTrack.refit(false);
 			actTrack.szFit(false);
 
 		}
 
-		std::cout << "Track after GEM: " << actTrack << std::endl;
+		if (fVerbose > 1) std::cout << "Track after GEM: " << actTrack << std::endl;
 
 
 		if ((int)actTrack.getNumHits() > (fMinNumberOfHits-1))		//if you have a track match check hits which were to close
 		{
 			std::vector<int> hits = fHitsTooClose[trackId];
-			std::cout << "HitsTooClose Test for Track: " << actTrack << std::endl;
+			if (fVerbose > 1) std::cout << "HitsTooClose Test for Track: " << actTrack << std::endl;
 			for (unsigned int ind = 0; ind < hits.size(); ind++){
-				if (fVerbose > 2); std::cout << "Too Close Point " << hits[ind] << ": " << fMapHitToID[hits[ind]];
+				if (fVerbose > 2); if (fVerbose > 1) std::cout << "Too Close Point " << hits[ind] << ": " << fMapHitToID[hits[ind]];
 				if (CheckHitInTrack(StartTrack, hits[ind])) continue;
 				PndRiemannHit actHit(fHits[hits[ind]]);
 				if (CheckRiemannHit(&actTrack, &actHit, fHits[hits[ind]])!= true) continue;
@@ -339,8 +359,8 @@ void PndMvdSttGemRiemannTrackFinder::FindTracks()
         
 			}
       
-			actTrack.refit(false);
-			actTrack.szFit(false);
+//			actTrack.refit(false);
+//			actTrack.szFit(false);
       
 			if (fVerbose > 1) std::cout << "Hits in Track: " << StartTrack.size() << std::endl;
 
@@ -349,7 +369,7 @@ void PndMvdSttGemRiemannTrackFinder::FindTracks()
 
 			if (fVerbose > 1){
 				TVectorD orig = actTrack.orig();
-				std::cout << "Track added! " << StartTrack[0] << " " << StartTrack[1]
+				if (fVerbose > 1) std::cout << "Track added! " << StartTrack[0] << " " << StartTrack[1]
 							<< " " << StartTrack[2] << " r: " << actTrack.r()
 							<< " orig: " << orig[0] << " " << orig[1]
 							<< " sz-m: " << actTrack.getSZm() << " sz-t: " << actTrack.getSZt()
@@ -359,68 +379,72 @@ void PndMvdSttGemRiemannTrackFinder::FindTracks()
 
 			for (unsigned int i = 0; i < StartTrack.size(); i++)
 			{
-//				if (fVerbose > 1)
-					std::cout << " " << fMapHitToID[StartTrack[i]];
+					if (fVerbose > 1) std::cout << " " << fMapHitToID[StartTrack[i]];
 			}
-//			if (fVerbose > 1) {
-				TVectorD myOrig = actTrack.orig();
-				std::cout << " numHits: " << actTrack.getNumHits() << std::endl;
-				std::cout << " curv: " << 1/actTrack.r() << "+/-" << actTrack.dR()/(actTrack.r() * actTrack.r())
-						<< " dip: " << actTrack.dip() << "+/-" << actTrack.dDip()
-						<< " orig: " << myOrig[0] << "+/-" << actTrack.dX()
-						<< " " << myOrig[1] << "+/-" << actTrack.dY() << std::endl;
-        //	actTrack.getPforHit(0, 2);
-//			}
+
 		}
 	}
   
-  //	std::cout << "In PndMvdRiemannTrackFinder are: " << fTracks.size() << " tracks" << std::endl;
+  //	if (fVerbose > 1) std::cout << "In PndMvdRiemannTrackFinder are: " << fTracks.size() << " tracks" << std::endl;
 	for (unsigned int n = 0; n < fTracks.size(); n++){
 		PndTrackCand myTrackCand;
 		bool trackFound = false;
 		std::vector<PndRiemannHit> TrackHits = fTracks[n].getHits();
     
 		for (unsigned int p = 0; p < TrackHits.size(); p++){
-			std::cout << "HitID: " << TrackHits[p].hitID() << std::endl;
+			if (fVerbose > 1) std::cout << "HitID: " << TrackHits[p].hitID() << std::endl;
 			if (TrackHits[p].hitID() > -1){
 				myTrackCand.AddHit(fMapHitToID[TrackHits[p].hitID()], TrackHits[p].s());
 			}
 
 		}
-		std::cout << "NPoints TrackCand: " << myTrackCand.GetNHits() << std::endl;
-		myTrackCand.Print();
+		if (fVerbose > 1) std::cout << "NPoints TrackCand: " << myTrackCand.GetNHits() << std::endl;
+		if (fVerbose > 1) myTrackCand.Print();
 		FairMultiLinkedData gemHits = myTrackCand.GetLinksWithType(FairRootManager::Instance()->GetBranchId("GEMHit"));
 		FairMultiLinkedData sttHits = myTrackCand.GetLinksWithType(FairRootManager::Instance()->GetBranchId("STTHit"));
 		if (gemHits.GetNLinks() > 3){
 			fTrackCand.push_back(myTrackCand);
 			trackFound = true;
 		}
-		else if (sttHits.GetNLinks() > 6 && CheckBoarderHitsStt(&myTrackCand)) {
+		else if (sttHits.GetNLinks() > 3 && CheckBoarderHitsStt(&myTrackCand)) {
 			fTrackCand.push_back(myTrackCand);
 			trackFound = true;
-		} else if (gemHits.GetNLinks() == 0 && sttHits.GetNLinks() == 0) {
-			fTrackCand.push_back(myTrackCand);
-			trackFound = true;
+//		} else if (gemHits.GetNLinks() == 0 && sttHits.GetNLinks() == 0) {
+//			fTrackCand.push_back(myTrackCand);
+//			trackFound = true;
 		} else {
 			fTracks.erase(fTracks.begin()+n);
 			n--;
 		}
 		if (trackFound) {
+//			fTracks[n].refit(false);
+//			fTracks[n].szFit(false);
 			std::pair<double,double> CurvDip(1/fTracks[n].r(),fTracks[n].dip());
 			fCurvAndDipOfCand.push_back(CurvDip);
 
 			if (fVerbose > 0){
 				std::cout << "PndMvdSttGemRiemannTrackFinder::FindTracks TrackFound: " << myTrackCand << std::endl;
 			}
+			if (fVerbose > 1) std::cout << " numHits: " << fTracks[n].getNumHits() << std::endl;
+//			if (fVerbose > 1)
+			{
+				TVectorD myOrig = fTracks[n].orig();
+				std::cout << "Track: " << fTracks[n] << std::endl;
+				std::cout << " curv: " << 1/fTracks[n].r() << "+/-" << fTracks[n].dR()/(fTracks[n].r() * fTracks[n].r())
+					<< " dip: " << fTracks[n].dip() << "+/-" << fTracks[n].dDip()
+					<< " orig: " << myOrig[0] << "+/-" << fTracks[n].dX()
+					<< " " << myOrig[1] << "+/-" << fTracks[n].dY() << std::endl;
+				std::cout << "PlaneChiSquare: " << fTracks[n].calcChi2Plane() << std::endl;
+			}
 		}
 	}
   
-  //	std::cout << "Hits before merging: " << fTrackCand.size() << std::endl;
+  //	if (fVerbose > 1) std::cout << "Hits before merging: " << fTrackCand.size() << std::endl;
   //	MergeTracks();
   //	fTrackCand.clear();
   //	fTrackCand = fMergedTrackCand;
   //	if (fVerbose > 0) {
-  //		std::cout << "Tracks after merging:" << fMergedTrackCand.size() << std::endl;
+  //		if (fVerbose > 1) std::cout << "Tracks after merging:" << fMergedTrackCand.size() << std::endl;
   //		for (unsigned int p = 0; p < fTrackCand.size(); p++){
   //			fTrackCand[p].Print();
   //		}											///todo Create RiemannTracks out of PndTrackCands
@@ -435,91 +459,130 @@ std::vector< std::vector<Int_t> > PndMvdSttGemRiemannTrackFinder::GetStartTracks
 	std::vector<int> tooCloseFirst;
 	std::vector<int> tooCloseSecond;
 	std::vector<int> tooCloseThird;
-	if (fHits.size() > 3){
-    int shift=0;
-    if (fUseZeroPos) shift=1;
-    for(int FirstLayer=1-shift;FirstLayer<fNLayers-2;FirstLayer++){ /// going through layers : first, second and third
-		  for(int SecondLayer=FirstLayer+1;SecondLayer<fNLayers-1;SecondLayer++){
-        for(int ThirdLayer=SecondLayer+1;ThirdLayer<fNLayers;ThirdLayer++){
-          
-          
-          for (unsigned int firstInLayer = 0; firstInLayer < fLayers[FirstLayer].size(); firstInLayer++){
-            int first=fLayers[FirstLayer][firstInLayer];
-            // if ((fHits[first]->GetZ()<(-fZClosePar)) && (SecondLayer==2 or SecondLayer==3 or SecondLayer==5 or SecondLayer==6 or SecondLayer==8 or SecondLayer==10)) continue;
-            for (unsigned int secondInLayer = 0; secondInLayer < fLayers[SecondLayer].size(); secondInLayer++){
-              int second=fLayers[SecondLayer][secondInLayer];
-              // if ((fHits[second]->GetZ()<(-fZClosePar)) && (ThirdLayer==2 or ThirdLayer==3 or ThirdLayer==5 or ThirdLayer==6 or ThirdLayer==8 or ThirdLayer==10)) continue;
-              // if ((fHits[first]->GetZ())*(fHits[second]->GetZ())<0 && fabs(fHits[first]->GetZ())>fZClosePar && fabs(fHits[second]->GetZ())>fZClosePar) {/*printf("Diff Sign of Points  z1=%e  z2=%e \n",fHits[first]->GetZ(),fHits[second]->GetZ()); */continue;} //my// check the same direction on z axis
-              
-              for (unsigned int thirdInLayer = 0; thirdInLayer < fLayers[ThirdLayer].size(); thirdInLayer++){
-                int third=fLayers[ThirdLayer][thirdInLayer];
-                //if ((fHits[second]->GetZ())*(fHits[third]->GetZ())<0 && fabs(fHits[second]->GetZ())>fZClosePar && fabs(fHits[third]->GetZ())>fZClosePar) {/*printf("Diff Sign of Points  z1=%e  z2=%e \n",fHits[first]->GetZ(),fHits[second]->GetZ());*/ continue;} //my// check the same direction on z axis
-                if (fVerbose > 2) std::cout << "Checking Points for Start Triplet: " << first << " " << second << " " << third << std::endl;
-                if (fVerbose > 2) std::cout << "Checking Points for Start Triplet: " << fMapHitToID[first] << " " << fMapHitToID[second] << " " << fMapHitToID[third] << std::endl;
+	if (fHits.size() > 3) {
+		int shift = 0;
+		if (fUseZeroPos)
+			shift = 1;
+		for (int FirstLayer = 1 - shift; FirstLayer < fNLayers - 2;	FirstLayer++) { /// going through layers : first, second and third
+			for (int SecondLayer = FirstLayer + 1; SecondLayer < fNLayers - 1; SecondLayer++) {
+//				for (int ThirdLayer = SecondLayer + 1; ThirdLayer < fNLayers; ThirdLayer++) {
+				for (int ThirdLayer = fNLayers - 1; ThirdLayer > SecondLayer; ThirdLayer--) {
 
-                if (CheckHitDistance(first, third)!= true){tooCloseFirst.push_back(third); continue;}
-                if (CheckHitDistance(second, third)!= true){tooCloseSecond.push_back(third); continue;}///<---------
-                if (CheckHitInSameSensor(first, third)==true)continue;
-                if (CheckHitInSameSensor(second, third)==true)continue;
-                
-                actCandidates.clear();
-                actCandidates.push_back(first);
-                actCandidates.push_back(second);
-                
-                if (CheckZeroPassing(actCandidates, third) == true) continue;
-                
-                actCandidates.push_back(third);
-                
-                PndRiemannTrack actTrack;// = new PndRiemannTrack();
-                PndRiemannHit hit1(fHits[first]);
-                PndRiemannHit hit2(fHits[second]);
-                PndRiemannHit hit3(fHits[third]);
-                actTrack.addHit(hit1);
-                actTrack.addHit(hit2);
-                actTrack.addHit(hit3);
-                actTrack.refit(false);
-                if (CheckSZ(actTrack)!= true) continue;
-                TVectorT<double> orig = actTrack.orig();
-                if (fVerbose > 1) std::cout << "Base plane from Points: " << first << " " << second << " " << third << " r: " << actTrack.r() << " orig: " << orig[0] << " " << orig[1] << std::endl;
-                Tracks.push_back(actCandidates);
-                tooCloseFirst=GetTooCloseHitsInLayer(FirstLayer,first);
-                tooCloseSecond=GetTooCloseHitsInLayer(SecondLayer,second);
-                tooCloseThird=GetTooCloseHitsInLayer(ThirdLayer,third);
-                std::vector<int> combHits = tooCloseFirst;
-                combHits.insert(combHits.begin(), tooCloseSecond.begin(), tooCloseSecond.end());
-                combHits.insert(combHits.begin(), tooCloseThird.begin(), tooCloseThird.end());
-                fHitsTooClose.push_back(combHits);
-                
-                
-              }
-              
-            }
-            
-          }
-          
-          
-        }
-      }
+					for (unsigned int firstInLayer = 0; firstInLayer < fLayers[FirstLayer].size(); firstInLayer++) {
+						int first = fLayers[FirstLayer][firstInLayer];
+						// if ((fHits[first]->GetZ()<(-fZClosePar)) && (SecondLayer==2 or SecondLayer==3 or SecondLayer==5 or SecondLayer==6 or SecondLayer==8 or SecondLayer==10)) continue;
+						for (unsigned int secondInLayer = 0; secondInLayer < fLayers[SecondLayer].size(); secondInLayer++) {
+							int second = fLayers[SecondLayer][secondInLayer];
+							// if ((fHits[second]->GetZ()<(-fZClosePar)) && (ThirdLayer==2 or ThirdLayer==3 or ThirdLayer==5 or ThirdLayer==6 or ThirdLayer==8 or ThirdLayer==10)) continue;
+							// if ((fHits[first]->GetZ())*(fHits[second]->GetZ())<0 && fabs(fHits[first]->GetZ())>fZClosePar && fabs(fHits[second]->GetZ())>fZClosePar) {/*printf("Diff Sign of Points  z1=%e  z2=%e \n",fHits[first]->GetZ(),fHits[second]->GetZ()); */continue;} //my// check the same direction on z axis
+
+							for (unsigned int thirdInLayer = 0;	thirdInLayer < fLayers[ThirdLayer].size(); thirdInLayer++) {
+								int third = fLayers[ThirdLayer][thirdInLayer];
+								//if ((fHits[second]->GetZ())*(fHits[third]->GetZ())<0 && fabs(fHits[second]->GetZ())>fZClosePar && fabs(fHits[third]->GetZ())>fZClosePar) {/*printf("Diff Sign of Points  z1=%e  z2=%e \n",fHits[first]->GetZ(),fHits[second]->GetZ());*/ continue;} //my// check the same direction on z axis
+								if (fVerbose > 2)
+									std::cout
+											<< "Checking Points for Start Triplet: "
+											<< first << " " << second << " "
+											<< third << std::endl;
+								if (fVerbose > 2)
+									std::cout
+											<< "Checking Points for Start Triplet: "
+											<< fMapHitToID[first] << " "
+											<< fMapHitToID[second] << " "
+											<< fMapHitToID[third] << std::endl;
+
+								if (CheckHitDistance(first, third) != true) {
+									tooCloseFirst.push_back(third);
+									continue;
+								}
+								if (CheckHitDistance(second, third) != true) {
+									tooCloseSecond.push_back(third);
+									continue;
+								}              ///<---------
+								if (CheckHitInSameSensor(first, third) == true)
+									continue;
+								if (CheckHitInSameSensor(second, third) == true)
+									continue;
+
+								actCandidates.clear();
+								actCandidates.push_back(first);
+								actCandidates.push_back(second);
+
+								if (CheckZeroPassing(actCandidates, third)
+										== true)
+									continue;
+
+								actCandidates.push_back(third);
+
+								PndRiemannTrack actTrack; // = new PndRiemannTrack();
+								PndRiemannHit hit1(fHits[first]);
+								PndRiemannHit hit2(fHits[second]);
+								PndRiemannHit hit3(fHits[third]);
+								actTrack.addHit(hit1);
+								actTrack.addHit(hit2);
+								actTrack.addHit(hit3);
+								actTrack.refit(false);
+								if (CheckSZ(actTrack) != true)
+									continue;
+								TVectorT<double> orig = actTrack.orig();
+								if (fVerbose > 1)
+									std::cout << "Base plane from Points: "
+											<< first << " " << second << " "
+											<< third << " r: " << actTrack.r()
+											<< " orig: " << orig[0] << " "
+											<< orig[1] << std::endl;
+								Tracks.push_back(actCandidates);
+								tooCloseFirst = GetTooCloseHitsInLayer(
+										FirstLayer, first);
+								tooCloseSecond = GetTooCloseHitsInLayer(
+										SecondLayer, second);
+								tooCloseThird = GetTooCloseHitsInLayer(
+										ThirdLayer, third);
+								std::vector<int> combHits = tooCloseFirst;
+								combHits.insert(combHits.begin(),
+										tooCloseSecond.begin(),
+										tooCloseSecond.end());
+								combHits.insert(combHits.begin(),
+										tooCloseThird.begin(),
+										tooCloseThird.end());
+								fHitsTooClose.push_back(combHits);
+
+							}
+
+						}
+
+					}
+
+				}
+			}
 		}
 	}
-  
-  	if (fVerbose > 1) {
-  		std::cout << "Start Tracks are: " << std::endl;
-  		for (unsigned int i = 0; i < Tracks.size(); i++){
-  			std::vector<int> aTrack = Tracks[i];
-  			for (unsigned int j = 0; j < aTrack.size(); j++){
-  				std::cout << aTrack[j] << " ";
-  			}
-  			std::cout << std::endl;
-  			for (unsigned int j = 0; j < aTrack.size(); j++){
-				std::cout << fMapHitToID[aTrack[j]] << " ";
+
+	if (fVerbose > 1) {
+		if (fVerbose > 1)
+			std::cout << "Start Tracks are: " << std::endl;
+		for (unsigned int i = 0; i < Tracks.size(); i++) {
+			std::vector<int> aTrack = Tracks[i];
+			for (unsigned int j = 0; j < aTrack.size(); j++) {
+				if (fVerbose > 1)
+					std::cout << aTrack[j] << " ";
 			}
+			if (fVerbose > 1)
+				std::cout << std::endl;
+			for (unsigned int j = 0; j < aTrack.size(); j++) {
+				if (fVerbose > 1)
+					std::cout << fMapHitToID[aTrack[j]] << " ";
+			}
+			if (fVerbose > 1)
+				std::cout << std::endl;
+		}
+		if (fVerbose > 1)
 			std::cout << std::endl;
-  		}
-		std::cout << std::endl;
-  	}
+	}
 	return Tracks;
 }
+
+
 
 void PndMvdSttGemRiemannTrackFinder::AssignSttHits(PndRiemannTrack& actTrack, std::vector<Int_t>& startTrack)
 {
@@ -548,24 +611,40 @@ void PndMvdSttGemRiemannTrackFinder::AssignSttHits(PndRiemannTrack& actTrack, st
 			std::cout << "-I- PndMvdSttGemRiemannTrackFinder SearchSector: Actual searchSector: "  << searchSector << std::endl;
 
 		for (int i = 0; i < sttHits.size(); i++){
+
+			if (nHitsStt < 0) nHitsStt = 0;
+
 			PndSttHit* fairSttHit = sttHits[i];
+
+			if (fStrawMap.IsSkewedStraw(fairSttHit->GetTubeID())) continue;
+
+
+//			PndSttHit* correctedSttHit = new PndSttHit(CalculateCorrectedSTTHit(*fairSttHit, actTrack));
+//			correctedSttHit->SetDxyz(fairSttHit->GetDx(), fairSttHit->GetDy(), fairSttHit->GetDz());
+//			correctedSttHit->SetEntryNr(FairLink(FairRootManager::Instance()->GetBranchId("STTHit"), i));
 			PndRiemannHit actHit(fairSttHit, fMapIDtoHit[fairSttHit->GetEntryNr()]);
+
+
 
 			if (fVerbose > 2) {
 				std::cout << std::endl;
-				std::cout << "-I- PndMvdSttGemRiemannTrackFinder SearchSector: Act Hit: " << ((FairHit*)fSttHits->At(i))->GetEntryNr() << std::endl;
+				std::cout << "-I- PndMvdSttGemRiemannTrackFinder SearchSector: Act Hit: " << fairSttHit->GetEntryNr() << std::endl;
 			}
 
-			if (CheckRiemannHitStt(&actTrack, &actHit,(FairHit*)fSttHits->At(i)) != true) continue;
+//			if (CheckRiemannHitStt(&actTrack, &actHit,(FairHit*)fSttHits->At(i)) != true) continue;
+			if (CheckRiemannHitStt(&actTrack, &actHit,fairSttHit) != true) continue;
 
 			if (fVerbose > 2 )
 				std::cout << "-I- PndMvdSttGemRiemannTrackFinder SearchSector: STTHit add to Track!" << std::endl;
 
 			actTrack.addHit(actHit);
 			startTrack.push_back(fMapIDtoHit[actHit.hit()->GetEntryNr()]);
+			actTrack.refit(kFALSE);
+//			actTrack.szFit(kFALSE);
 			nHitsStt++;
 			if (fStrawMap.IsSectorBorderStraw(fairSttHit->GetTubeID()) != 0){
-				std::cout << " TubeID: " << fairSttHit->GetTubeID() << " Sector: " << fStrawMap.GetSector(fairSttHit->GetTubeID()) << std::endl;
+				if (fVerbose > 2)
+					std::cout << " TubeID: " << fairSttHit->GetTubeID() << " Sector: " << fStrawMap.GetSector(fairSttHit->GetTubeID()) << std::endl;
 				if (nextSectorDirection == 0){
 					nextSectorDirection = fStrawMap.IsSectorBorderStraw(fairSttHit->GetTubeID());
 				} else if(nextSectorDirection != fStrawMap.IsSectorBorderStraw(fairSttHit->GetTubeID())){
@@ -594,7 +673,7 @@ void PndMvdSttGemRiemannTrackFinder::AssignSttHits(PndRiemannTrack& actTrack, st
 
 void PndMvdSttGemRiemannTrackFinder::AssignGemHits(PndRiemannTrack& actTrack, vector<Int_t>& startTrack){
 
-	std::cout << "NGemHits: " << fGemHits->GetEntriesFast() << std::endl;
+	if (fVerbose > 1) std::cout << "NGemHits: " << fGemHits->GetEntriesFast() << std::endl;
 	for (int i = 0; i < fGemHits->GetEntriesFast(); i++){
 		FairHit* fairGemHit = (FairHit*)fGemHits->At(i);
 		PndRiemannHit actHit(fairGemHit, fMapIDtoHit[fairGemHit->GetEntryNr()]);
@@ -643,7 +722,19 @@ bool PndMvdSttGemRiemannTrackFinder::CheckRiemannHit(PndRiemannTrack* track, Pnd
 
 bool PndMvdSttGemRiemannTrackFinder::CheckRiemannHitStt(PndRiemannTrack* track, PndRiemannHit* hit, FairHit* fairHit)
 {
+	PndRiemannHit tempHit = track->correctSttHit((PndSttHit*)fairHit);
+
+	std::cout << "CheckRiemannHit PndRiemannHit: " << fairHit->GetEntryNr() << " : " << hit->x().X() << "/" << hit->x().Y() << "/" << hit->x().Z() << " " << hit->z() << std::endl;
+	std::cout << "CheckRiemannHit PndRiemannHit: " << tempHit.x().X() << "/" << tempHit.x().Y() << "/" << tempHit.x().Z() << " " << tempHit.z() << std::endl;
+
+	hit->setXYZ(tempHit.x().X(), tempHit.x().Y(), tempHit.x().Z());
+	hit->setDXYZ(tempHit.sigmaX(), tempHit.sigmaY(), 200);
+
+	std::cout << "CheckRiemannHit PndRiemannHit: " << hit->x().X() << "/" << hit->x().Y() << "/" << hit->x().Z() << " " << hit->z() << std::endl;
+
 	double dist = track->dist(hit);
+	std::cout << "CheckRiemannHit PndRiemannHit:Dist " << dist << std::endl;
+
 	double maxDist = 1;
 //	double szDist = track->szDist(hit);
 //	double maxSZDist = 10;
@@ -657,8 +748,12 @@ bool PndMvdSttGemRiemannTrackFinder::CheckRiemannHitStt(PndRiemannTrack* track, 
 	if (fVerbose > 1) std::cout << "STTHit: dist " << dist << std::endl;
 
 	if (fabs(dist) > maxDist){
-		if (fVerbose > 1) std::cout << "dist larger than " << maxDist << std::endl;
+//		if (fVerbose > 1)
+			std::cout << "dist larger than " << maxDist << std::endl;
 		return false;
+	} else {
+
+		std::cout << "PndMvdSttGemRiemannTrackFinder::CheckRiemannHitStt Hit taken! Dist: " << dist << " < " << maxDist << std::endl << std::endl;
 	}
 //
 //	if (szChi2 > maxSZChi2){
@@ -724,12 +819,12 @@ bool PndMvdSttGemRiemannTrackFinder::CheckRiemannHitMvd(PndRiemannTrack* track, 
 		return false;
 	}
 
-	std::cout << "CheckRiemannHitMvd oldSZChi2 " << oldSZChi2 << " new SZChi2 " << szChi2 << std::endl;
+//	if (fVerbose > 1) std::cout << "CheckRiemannHitMvd oldSZChi2 " << oldSZChi2 << " new SZChi2 " << szChi2 << std::endl;
 
-	if (oldSZChi2 < szChi2){
-		if (fVerbose > 1) std::cout << " SZ Chi2 " << szChi2 << " bigger than berfore!  " << oldSZChi2 << std::endl;
-		return false;
-	}
+//	if (oldSZChi2 < szChi2){
+//		if (fVerbose > 1) std::cout << " SZ Chi2 " << szChi2 << " bigger than before!  " << oldSZChi2 << std::endl;
+//		return false;
+//	}
 
 //	if (szChi2 > GetMaxSZChi2(r,dip,sign)){
 //		if (fVerbose > 1) std::cout << " SZ Chi2 too big! Cut at: " << GetMaxSZChi2(r,dip,sign) << std::endl;
@@ -748,7 +843,7 @@ bool PndMvdSttGemRiemannTrackFinder::CheckBoarderHitsStt(PndTrackCand* track)
 
 	for (int i = 0; i < sttHitsInTrack.GetNLinks(); i++){
 		PndSttHit* mySttHit = (PndSttHit*)fHits[fMapIDtoHit[sttHitsInTrack.GetLink(i)]];
-		std::cout << "-I- PndMvdSttGemRiemannTrackFinder::CheckBoarderHitsStt Stt Index: " << mySttHit->GetTubeID() << std::endl;
+		if (fVerbose > 1) std::cout << "-I- PndMvdSttGemRiemannTrackFinder::CheckBoarderHitsStt Stt Index: " << mySttHit->GetTubeID() << std::endl;
 		if (fStrawMap.GetRow(mySttHit->GetTubeID()) == 0)
 			return true;
 	}
@@ -765,13 +860,13 @@ int PndMvdSttGemRiemannTrackFinder::GetStrawSector(PndRiemannTrack& track)
 
 	for (int i = 0; i < riemannHits.size(); i++){
 		FairLink hitLink = fMapHitToID[riemannHits[i].hitID()];
-		std::cout << "HitID Track : " << i << " : " << riemannHits[i].hitID() << " " << hitLink << std::endl;
+		if (fVerbose > 1) std::cout << "HitID Track : " << i << " : " << riemannHits[i].hitID() << " " << hitLink << std::endl;
 		int branchId = hitLink.GetType();
 		FairRootManager* man = FairRootManager::Instance();
 		if (branchId == man->GetBranchId("MVDHitsStrip") || branchId == man->GetBranchId("MVDHitsPixel")){
 			FairHit* FairHit = (PndSdsHit*)fHits[fMapIDtoHit[hitLink]];
 			radiusSq = FairHit->GetX()*FairHit->GetX() + FairHit->GetY()*FairHit->GetY();
-			std::cout << "-I- PndMvdSttGemRiemannTrackFinder::GetStrawSector FairHit: " << i << " : " << radiusSq << " " << *FairHit << std::endl;
+			if (fVerbose > 1) std::cout << "-I- PndMvdSttGemRiemannTrackFinder::GetStrawSector FairHit: " << i << " : " << radiusSq << " " << *FairHit << std::endl;
 
 			if (radiusSq > oldRadiusSq){
 				oldRadiusSq = radiusSq;
@@ -780,10 +875,10 @@ int PndMvdSttGemRiemannTrackFinder::GetStrawSector(PndRiemannTrack& track)
 		}
 	}
 	if (indexHitMaxRadius > -1){
-		std::cout << "-I- PndMvdSttGemRiemannTrackFinder::GetStrawSector IndexHitMaxRadius: " << indexHitMaxRadius << std::endl;
+		if (fVerbose > 1) std::cout << "-I- PndMvdSttGemRiemannTrackFinder::GetStrawSector IndexHitMaxRadius: " << indexHitMaxRadius << " Link: " << fMapHitToID[indexHitMaxRadius] << std::endl;
 		FairHit* FairHit = (PndSdsHit*)fHits[indexHitMaxRadius];
 		TVector3 hitPos(FairHit->GetX(), FairHit->GetY(), FairHit->GetZ());
-		std::cout << "-I- PndMvdSttGemRiemannTrackFinder::GetStrawSector Phi: " << hitPos.Phi() << " PhiSector: " << fStrawMap.FindPhiSector(hitPos.Phi()) << std::endl;
+		if (fVerbose > 1) std::cout << "-I- PndMvdSttGemRiemannTrackFinder::GetStrawSector Phi: " << hitPos.Phi() << " PhiSector: " << fStrawMap.FindPhiSector(hitPos.Phi()) << std::endl;
 		return fStrawMap.FindPhiSector(hitPos.Phi());
 	}
 	return -1;

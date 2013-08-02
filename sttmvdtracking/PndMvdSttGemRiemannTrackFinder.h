@@ -28,6 +28,7 @@ public:
 
 	void SetSttTubeArray(TClonesArray* SttTubeArray){fStrawMap.GenerateStrawMap(SttTubeArray);}
 
+
 private:
 	PndGeoHandling* fGeoH;
 
@@ -37,6 +38,8 @@ private:
 	bool CheckRiemannHitMvd(PndRiemannTrack* track, PndRiemannHit* hit, FairHit* fairHit);
 	bool CheckRiemannHitGem(PndRiemannTrack* track, PndRiemannHit* hit, FairHit* fairHit);
 	bool CheckRiemannHitStt(PndRiemannTrack* track, PndRiemannHit* hit, FairHit* fairHit);
+
+//	bool CheckTrackStt(PndRiemannTrack* track);
 
 	void AssignSttHits(PndRiemannTrack& actTrack, std::vector<Int_t>& startTrack);
 	void AssignGemHits(PndRiemannTrack& actTrack, std::vector<Int_t>& startTrack);
