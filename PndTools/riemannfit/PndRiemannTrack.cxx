@@ -79,6 +79,7 @@ PndRiemannTrack::init(double x0_, double y0_, double R_,
 
 void
 PndRiemannTrack::addHit(PndRiemannHit& hit){
+//	SetVerbose(3);
   int nbefore=fHits.size();
   fHits.push_back(hit);
 //  std::cout << "fweight before addHit: " << fweight << std::endl;
@@ -361,8 +362,8 @@ PndRiemannTrack::szFit(bool withErrorCalc){
 	  int j=0;
 	  for(unsigned int i=0;i<num;++i){
 		if (fVerbose > 1) std::cout << "Point: " << i << ": " << fHits[i].hit()->GetEntryNr() << " ";
-		if (fHits[i].hit()->GetEntryNr().GetType() == FairRootManager::Instance()->GetBranchId("STTHit")){
-			std::cout << std::endl;
+		if (fHits[i].hit() != 0 && fHits[i].hit()->GetEntryNr().GetType() == FairRootManager::Instance()->GetBranchId("STTHit")){
+//			std::cout << std::endl;
 			continue;
 		}
 		fHits[i].calcPosOnTrk(this);
@@ -396,6 +397,26 @@ PndRiemannTrack::szFit(bool withErrorCalc){
   return;
 }
 
+double PndRiemannTrack::calcChi2Plane()
+{
+	double chiSquare = 0;
+	if (fFitDone == false)
+			refit ();
+	if (r() > 0) {
+		for (int i = 0; i < getNumHits(); i++){
+			PndRiemannHit* actualHit = getHit(i);
+//			chiSquare += TMath::Power((dist(actualHit)/actualHit->sigmaXY()),2);
+//			std::cout << "Dist: " << " "<< dist(actualHit) << std::endl;
+			chiSquare += TMath::Power((dist(actualHit)),2);
+		}
+		if (getNumHits() > 3)
+			chiSquare /= (getNumHits() - 3);
+		else
+			chiSquare = 0;
+	}
+	return chiSquare;
+}
+
 double
 PndRiemannTrack::calcSZChi2(PndRiemannHit* hit){
   // get s'es and zs
@@ -409,12 +430,18 @@ PndRiemannTrack::calcSZChi2(PndRiemannHit* hit){
 		TGraph g(num + 1);
 		int j = 0;
 		for (unsigned int i = 0; i < num; ++i) {
-			if (fHits[i].hit()->GetEntryNr().GetType() == FairRootManager::Instance()->GetBranchId("STTHit")){
+			if (fHits[i].hit() != 0 && fHits[i].hit()->GetEntryNr().GetType() == FairRootManager::Instance()->GetBranchId("STTHit")){
 				continue;
 			}
 			fHits[i].calcPosOnTrk(this);
-			if (fVerbose > 1)
-				std::cout << "Point: " << j << ": " << fHits[i].hit()->GetEntryNr() << " " <<  fHits[i].s() << " " << fHits[i].z() << std::endl;
+			if (fVerbose > 1){
+
+				std::cout << "Point: " << j << ": ";
+				if (fHits[i].hit() != 0)
+					std::cout << fHits[i].hit()->GetEntryNr() << " ";
+				std::cout <<  fHits[i].s() << " " << fHits[i].z() << std::endl;
+
+			}
 			g.SetPoint(j, fHits[i].s(), fHits[i].z());
 			j++;
 		}
@@ -460,14 +487,18 @@ double PndRiemannTrack::calcZPosByS(double s)
 
 TVector3 PndRiemannTrack::calcPosByS(double s)
 {
+//	calcSForHits();
+	TVectorD o=orig();
+	const PndRiemannHit* firstHit=getHit(0);
 
-	TVectorD o = orig();
-	const PndRiemannHit* firstHit = getHit(0);
 
-	TVector2 k(firstHit->x().X() - o[0], firstHit->x().Y() - o[1]);
+
+	TVector2 k(firstHit->x().X()-o[0],firstHit->x().Y()-o[1]);
+
 	Double_t start_phi = k.Phi();
 	Double_t delta_phi = s / r();
 	TVector2 Res2D(r(), 0);
+
 	TVector2 rotated = Res2D.Rotate(start_phi + delta_phi);
 
 	TVector3 result(rotated.X() + o[0], rotated.Y() + o[1], calcZPosByS(s));
@@ -940,7 +971,8 @@ Int_t PndRiemannTrack::getCharge(Double_t B)
 
 FairTrackParP PndRiemannTrack::getTrackParPForHit(Int_t i, Double_t B)
 {
-//		calcSForHits();
+	calcSForHits();
+
 
 		TVector3 hitPos;
 		TVector3 hitPosError;
@@ -949,13 +981,15 @@ FairTrackParP PndRiemannTrack::getTrackParPForHit(Int_t i, Double_t B)
 		TVector3 dk(0,1,0);
 		TVector3 origin(0, 0, 1);
 
-		Double_t s = getHit(i)->s();
-		getHit(i)->hit()->Position(hitPos);
-		std::cout << "PndRiemannTrack::getTrackParPForHit hitPos by Hit: "; hitPos.Print();
-		hitPos = calcPosByS(s);
-	//	getHit(i)->hit()->Position(hitPos);
-		getHit(i)->hit()->PositionError(hitPosError);
-		FairTrackParP result(hitPos, getPforHit(i, B), hitPosError, momError, getCharge(B), origin, dj, dk);
+	Double_t s = getHit(i)->s();
+	getHit(i)->hit()->Position(hitPos);
+	hitPos = calcPosByS(s);
+//	getHit(i)->hit()->Position(hitPos);
+	getHit(i)->hit()->PositionError(hitPosError);
+	FairTrackParP result(hitPos, getPforHit(i, B), hitPosError, momError, getCharge(B), origin, dj, dk);
+
+	return result;
+
 }
 
 PndTrack PndRiemannTrack::getPndTrack(Double_t B)
@@ -1008,6 +1042,147 @@ void PndRiemannTrack::PrintHits()
 {
 	std::cout << "-I- PndRiemannTrack::PrintHits:" << std::endl;
 	for (int i = 0; i < fHits.size(); i++){
-		std::cout << i << ": " << fHits[i].hit()->GetEntryNr() << " : "<< fHits[i].x().X() << " " << fHits[i].x().Y() << " " << fHits[i].z() << " s: " << fHits[i].s() << std::endl;
+		std::cout << i << ": ";
+
+		if (fHits[i].hit() != 0)
+			std::cout << fHits[i].hit()->GetEntryNr() << " : ";
+
+		std::cout << fHits[i].x().X() << " +/- " << fHits[i].sigmaX()
+				  << "\t" << fHits[i].x().Y()<< " +/- " << fHits[i].sigmaY()
+				  << "\t" << fHits[i].z() << " s: " << fHits[i].s() << "\t" << " dist: " << dist(&fHits[i]);
+//		calcPosByS(fHits[i].s()).Print();
+		std::cout << std::endl;
+
 	}
+}
+
+
+PndRiemannHit PndRiemannTrack::correctSttHit(PndSttHit* mySttHit)
+{
+
+	TVectorD normalVector = n();
+	if (fVerbose > 0)
+		std::cout << "MySttHit: " << mySttHit << std::endl;
+	Double_t x_val = mySttHit->GetX();
+	Double_t y_val = mySttHit->GetY();
+
+	Double_t phi = TMath::ATan2((normalVector[1]+2*normalVector[2]*y_val), (normalVector[0]+2*normalVector[2]*x_val));
+
+	Double_t correctedX = x_val+TMath::Cos(phi)*mySttHit->GetIsochrone();
+	Double_t correctedY = y_val+TMath::Sin(phi)*mySttHit->GetIsochrone();
+
+	Double_t correctedX1 = x_val+TMath::Cos(phi+TMath::Pi())*mySttHit->GetIsochrone();
+	Double_t correctedY1 = y_val+TMath::Sin(phi+TMath::Pi())*mySttHit->GetIsochrone();
+
+	PndRiemannHit myRiemannHit(mySttHit);
+	PndRiemannHit myRiemannHit1(mySttHit);
+	myRiemannHit1.setXYZ(correctedX, correctedY, 0);
+	PndRiemannHit myRiemannHit2(mySttHit);
+	myRiemannHit2.setXYZ(correctedX1, correctedY1, 0);
+
+	Double_t finalX, finalY;
+
+	if (fabs(dist(&myRiemannHit)) < fabs(dist(&myRiemannHit1))){
+		if (fabs(dist(&myRiemannHit)) < fabs(dist(&myRiemannHit2))){
+			finalX = x_val;
+			finalY = y_val;
+		}
+		else {
+			finalX = correctedX1;
+			finalY = correctedY1;
+		}
+	} else {
+		if (fabs(dist(&myRiemannHit1)) < fabs(dist(&myRiemannHit2))){
+			finalX = correctedX;
+			finalY = correctedY;
+		} else {
+			finalX = correctedX1;
+			finalY = correctedY1;
+		}
+
+	}
+
+	if (fVerbose > 1){
+		std::cout << "TrackNormal + Length: " << normalVector[0] << "/" << normalVector[1] << "/" << normalVector[2] << " o: " << c() << std::endl;
+		std::cout << "CalculateCorrectedSTTHit: TubeCenter(" << x_val << "/" << y_val << ") Radius: " << mySttHit->GetIsochrone() << " Distance: " << dist(&myRiemannHit) << std::endl;
+		std::cout << "CalculateCorrectedSTTHit: Corrected1(" << correctedX << "/" << correctedY << ") Distance: " << dist(&myRiemannHit1) << " phi: " << phi << std::endl;
+		std::cout << "CalculateCorrectedSTTHit: Corrected2(" << correctedX1 << "/" << correctedY1 << ") Distance: " << dist(&myRiemannHit2) << " phi: " << phi << std::endl;
+
+		std::cout << "Result: " << finalX << "/" << finalY << std::endl;
+	}
+	PndRiemannHit result(mySttHit);
+	if (fVerbose > 1){
+		std::cout << "result: " << mySttHit << " " << result.x().X() << "/" << result.x().Y() << "/" << result.x().Z() << " " << result.z() << std::endl;
+	}
+	result.setXYZ(finalX, finalY, 0);
+	result.setDXYZ(0.01,0.01,200);
+
+	if (fVerbose > 1){
+		std::cout << "result: " << result.x().X() << "/" << result.x().Y() << "/" << result.x().Z() << " " << result.z() << std::endl;
+	}
+	return result;
+}
+
+
+void PndRiemannTrack::correctSttHits()
+{
+
+	for (int i = 0; i < fHits.size(); i++){
+		if (fHits[i].hit()->GetEntryNr().GetType() == FairRootManager::Instance()->GetBranchId("STTHit")){
+
+			PndRiemannHit myHit = fHits[i];
+			PndSttHit* mySttHit = (PndSttHit*)fHits[i].hit();
+
+			PndRiemannHit correctedHit = correctSttHit(mySttHit);
+//			TVectorD normalVector = n();
+//			Double_t phi = TMath::ATan2((normalVector[1]+2*normalVector[2]*myHit.x().Y()), (normalVector[0]+2*normalVector[2]*myHit.x().X()));
+//
+//			Double_t correctedX = myHit.x().X()+TMath::Cos(phi)*mySttHit->GetIsochrone();
+//			Double_t correctedY = myHit.x().Y()+TMath::Sin(phi)*mySttHit->GetIsochrone();
+//
+//			Double_t correctedX1 = myHit.x().X()+TMath::Cos(phi+TMath::Pi())*mySttHit->GetIsochrone();
+//			Double_t correctedY1 = myHit.x().Y()+TMath::Sin(phi+TMath::Pi())*mySttHit->GetIsochrone();
+//
+//			PndRiemannHit myRiemannHit(myHit);
+//			PndRiemannHit myRiemannHit1(myHit);
+//			myRiemannHit1.setXYZ(correctedX, correctedY, 0);
+//			PndRiemannHit myRiemannHit2(myHit);
+//			myRiemannHit2.setXYZ(correctedX1, correctedY1, 0);
+//
+//			Double_t finalX, finalY;
+//
+//			if (fabs(dist(&myRiemannHit)) < fabs(dist(&myRiemannHit1))){
+//				if (fabs(dist(&myRiemannHit)) < fabs(dist(&myRiemannHit2))){
+//					finalX = myHit.x().X();
+//					finalY = myHit.x().Y();
+//				}
+//				else {
+//					finalX = correctedX1;
+//					finalY = correctedY1;
+//				}
+//			} else {
+//				if (fabs(dist(&myRiemannHit1)) < fabs(dist(&myRiemannHit2))){
+//					finalX = correctedX;
+//					finalY = correctedY;
+//				} else {
+//					finalX = correctedX1;
+//					finalY = correctedY1;
+//				}
+//
+//			}
+//
+//			if (fVerbose > 1){
+//				std::cout << "TrackNormal + Length: " << normalVector[0] << "/" << normalVector[1] << "/" << normalVector[2] << " o: " << c() << std::endl;
+//				std::cout << "CalculateCorrectedSTTHit: TubeCenter(" << myHit.x().X() << "/" << myHit.x().Y() << ") Radius: " << mySttHit->GetIsochrone() << " Distance: " << dist(&myRiemannHit) << std::endl;
+//				std::cout << "CalculateCorrectedSTTHit: Corrected1(" << correctedX << "/" << correctedY << ") Distance: " << dist(&myRiemannHit1) << " phi: " << phi << std::endl;
+//				std::cout << "CalculateCorrectedSTTHit: Corrected2(" << correctedX1 << "/" << correctedY1 << ") Distance: " << dist(&myRiemannHit2) << " phi: " << phi << std::endl;
+//
+//				std::cout << "Result: " << finalX << "/" << finalY << std::endl;
+//			}
+			fHits[i].setXYZ(correctedHit.x().X(), correctedHit.x().Y(), 0);
+			fHits[i].setDXYZ(0.001,0.001,200);
+		}
+	}
+
+//	return result;
 }

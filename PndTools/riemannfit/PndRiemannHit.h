@@ -28,7 +28,7 @@
 #include "FairHit.h"
 
 // Collaborating Class Declarations --
-class PndTpcCluster;
+//class PndTpcCluster;
 class PndRiemannTrack;
 
 class PndRiemannHit : public TObject{

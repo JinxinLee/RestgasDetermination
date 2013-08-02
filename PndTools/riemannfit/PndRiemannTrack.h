@@ -34,6 +34,8 @@
 #include "PndRiemannHit.h"
 #include "PndTrack.h"
 
+#include "PndSttHit.h"
+
 #include <iostream>
 #include <iomanip>
 #include <algorithm>
@@ -104,6 +106,7 @@ public:
   void refit(bool withErrorCalc = true);
   double dist(PndRiemannHit* hit);
   void szFit(bool withErrorCalc = true);
+  double calcChi2Plane();
   double calcSZChi2(PndRiemannHit* hit); //calculates the chi2 of the track plus the additional hit
   double szDist(PndRiemannHit* hit);
   double szError(PndRiemannHit* hit);
@@ -113,11 +116,16 @@ public:
   void SetVertexCut(double cut){fVertexCut = cut;}
   TVector3 calcErrorPosByS(Double_t s, Double_t dS);
 
+
+  void correctSttHits();
+  PndRiemannHit correctSttHit(PndSttHit* mySttHit);
+
   void PrintHits();
 
   virtual void Print(std::ostream& out = std::cout){
 
 	  out << std::setprecision(6) << "Riemann Track: Radius " << r() << " +/- " << dR() << " Origin: " << orig()[0] << " +/- " << dX() << " / " << orig()[1] << " +/- " << dY() << std::endl;
+	  out << "RiemannTrack: Normal: " << n()[0] << "/" << n()[1] << "/" << n()[2] << " c: " << c() << std::endl;
 	  out << "Dip: " << dip() << " +/- " << dDip() << " StartAlpha: " << fStartAlpha << " StopAlpha: " << fStopAlpha << std::endl;
 	  PrintHits();
   }

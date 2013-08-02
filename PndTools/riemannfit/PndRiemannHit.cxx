@@ -58,7 +58,7 @@ void PndRiemannHit::setXYZ(double mx, double my, double mz)
 {
 	TVector2 a(mx, my);
 	double r=a.Mod()/RIEMANNSCALE;
-	double phi=a.Phi();
+//	double phi=a.Phi();
 	double r2=r*r;
 
 	fX.SetX(mx/RIEMANNSCALE);
