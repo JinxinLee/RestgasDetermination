@@ -69,23 +69,31 @@ Bool_t PndAnaPidSelector::SetSelection ( TString& crit )
 {
   //Default setting for criterion
   RhoParticleSelectorBase::SetCriterion ( all );
+  TString critcopy(crit);
 
   // parse criterion string to criteria flags...
 
   if ( crit.Contains ( "VeryLoose" ) ) {
     RhoParticleSelectorBase::SetCriterion ( veryLoose );
+    critcopy.ReplaceAll("VeryLoose","");
   } else if ( crit.Contains ( "Loose" ) ) {
     RhoParticleSelectorBase::SetCriterion ( loose );
+    critcopy.ReplaceAll("Loose","");
   } else if ( crit.Contains ( "VeryTight" ) ) {
     RhoParticleSelectorBase::SetCriterion ( veryTight );
+    critcopy.ReplaceAll("VeryTight","");
   } else if ( crit.Contains ( "Tight" ) ) {
     RhoParticleSelectorBase::SetCriterion ( tight );
+    critcopy.ReplaceAll("Tight","");
   } else if ( crit.Contains ( "Variable" ) ) {
     RhoParticleSelectorBase::SetCriterion ( variable );
+    critcopy.ReplaceAll("Variable","");
   } else if ( crit.Contains ( "Best" ) ) {
     RhoParticleSelectorBase::SetCriterion ( best );
+    critcopy.ReplaceAll("Best","");
   } else if ( crit.Contains ( "All" ) ) {
     RhoParticleSelectorBase::SetCriterion ( all );
+    critcopy.ReplaceAll("All","");
   } // well, that's default anyway
 
   //TODO: make a 2d array of the criterion numbers for faster access
@@ -101,24 +109,27 @@ Bool_t PndAnaPidSelector::SetSelection ( TString& crit )
 
   if ( crit.Contains ( "Proton" ) ) {
     fTypePlus=pdg->GetParticle ( "p+" );
-
     if ( 0==fTypePlus ) {
       fTypePlus=pdg->GetParticle ( "proton" );
     }
-
     fPidSelect=4;
+    critcopy.ReplaceAll("Proton","");
   } else if ( crit.Contains ( "Kaon" ) ) {
     fTypePlus=pdg->GetParticle ( "K+" );
     fPidSelect=3;
+    critcopy.ReplaceAll("Kaon","");
   } else if ( crit.Contains ( "Pion" ) ) {
     fTypePlus=pdg->GetParticle ( "pi+" );
     fPidSelect=2;
+    critcopy.ReplaceAll("Pion","");
   } else if ( crit.Contains ( "Muon" ) ) {
     fTypePlus=pdg->GetParticle ( "mu+" );
     fPidSelect=1;
+    critcopy.ReplaceAll("Muon","");
   } else if ( crit.Contains ( "Electron" ) ) {
     fTypePlus=pdg->GetParticle ( "e+" );
     fPidSelect=0;
+    critcopy.ReplaceAll("Electron","");
   }
 
   if ( fTypePlus!=0 ) {
@@ -127,10 +138,24 @@ Bool_t PndAnaPidSelector::SetSelection ( TString& crit )
 
   if ( crit.Contains ( "Plus" ) ) {
     fChargeCrit=1.;
+    critcopy.ReplaceAll("Plus","");
   } else if ( crit.Contains ( "Minus" ) ) {
     fChargeCrit=-1.;
+    critcopy.ReplaceAll("Minus","");
   } else {
     fChargeCrit=0;
+  }
+
+  if(critcopy.Length()>0){
+    std::cout<<"Analysis PID selection criteria setting failed. "<<std::endl;
+    std::cout<<"Selection String: \""<<crit.Data()<<"\""<<std::endl;
+    std::cout<<"Invalid piece:    \""<<critcopy.Data()<<"\""<<std::endl;
+    std::cout<<"Viable optios are: (choose one or none of each)"<<std::endl;
+    std::cout<<"\tProton,Kaon,Pion,Muon,Electron"<<std::endl;
+    std::cout<<"\tVeryLoose,Loose,Tight,VeryTight,Variable,Best,All"<<std::endl;
+    std::cout<<"\tPlus,Minus"<<std::endl;
+    Error("SetSelection()","Invalid selection string.");
+    return kFALSE;
   }
 
   return kTRUE;

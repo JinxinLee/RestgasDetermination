@@ -258,8 +258,9 @@ Bool_t PndAnalysis::FillList ( RhoCandList& l, TString listkey, TString pidTcaNa
 
   // Real selection requested:
   // set the base list for the PID list maker
-  fPidSelector->SetCriterion ( listkey );
-
+  Bool_t checkcrit = fPidSelector->SetCriterion ( listkey );
+  if (!checkcrit) return kFALSE;
+  
   if ( listkey.Contains ( "Neutral" ) ) {
     fPidCombiner->Apply ( fNeutralCandList );
     fPidSelector->Select ( fNeutralCandList,l );
