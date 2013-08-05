@@ -90,42 +90,6 @@ RhoCandidate::RhoCandidate ( const TLorentzVector& v, Double_t charge, RhoVector
 }
 
 
-// RhoCandidate::RhoCandidate ( const TVector3 &v, Double_t charge, RhoVector3Err* vp ) :
-//         fFastMode ( kFALSE ),
-//         fLocked ( kFALSE ),
-//         fTheMother ( 0 ),
-//         fDecayVtx ( vp ),
-//         fPdtEntry ( 0 ),
-//         fPdgCode ( 0 ),
-//         fIsAResonance ( kFALSE ),
-//   //      fTruth ( 0 ),
-//         fMicroCand ( 0 ),
-//         fTrackNumber ( -1 ),
-//         fUid ( 0 ),
-//        // fDaugList ( 0 ),
-//         nDaug ( 0 ),
-//         nCons ( 0 )
-// {
-//     fMarker[0] = fMarker[1] = fMarker[2] = fMarker[3] = 0;
-//     TDatabasePDG *pdg = TDatabasePDG::Instance();    // Access particle DB
-//     TParticlePDG* pdt = 0;
-//     if ( fabs ( charge ) <1.e-06 )
-//         pdt = pdg->GetParticle ( "gamma" );
-//     else
-//         pdt = ( charge>0 ) ? pdg->GetParticle ( "pi+" ) : pdg->GetParticle ( "pi-" );
-//     SetPos ( vp!=0 ? *((TVector3*)vp) : TVector3 ( 0.,0.,0. ) );
-//     SetP3 ( v );
-//     SetType ( pdt );
-//     SetUid();
-//     SetPidInfo ( 0 );
-//     SetMcIdx ( -1 );
-//     SetMcMotherIdx ( -1 );
-//     for ( int i=0; i<30; i++ ) {
-//       fPidLH[i]=-999999.;
-//     }
-//     for ( int i=0; i<MATRIXSIZE; i++ ) { fErrP7[i] = 0.; }
-// }
-
 RhoCandidate::RhoCandidate ( const TVector3& v, const TParticlePDG* pdt, RhoVector3Err* vp ) :
   fFastMode ( kFALSE ),
   fLocked ( kFALSE ),
@@ -189,15 +153,16 @@ RhoCandidate::RhoCandidate ( const RhoCandidate& o )
     for ( i=0; i<MATRIXSIZE; i++ ) { fErrP7[i] = o.fErrP7[i]; }
   }
 
-  fNDaug = o.fNDaug;
-  for ( int i=0; i<fNDaug; i++ ) {
-    fDaughters[i] = o.fDaughters[i];
-    fDaughters[i]->fTheMother = this;
-  }
-  for ( int i=fNDaug; i<MAXNDAU; i++ ) {
-    fDaughters[i] = NULL;
-  }
-
+// What do we want to copy in terms of genealogy? Nothing! Let external functions set these relations properly.
+//   fNDaug = o.fNDaug;
+//   for ( int i=0; i<fNDaug; i++ ) {
+//     fDaughters[i] = o.fDaughters[i];
+//     fDaughters[i]->fTheMother = this;
+//   }
+//   for ( int i=fNDaug; i<MAXNDAU; i++ ) {
+//     fDaughters[i] = NULL;
+//   }
+RemoveAssociations();
   fNCons = 0;
 //  if (o.nCons > 0) {
 //    for (int i=0;i<o.nCons;i++) AddConstraint(*o.fConstraints[i]);
@@ -213,65 +178,6 @@ RhoCandidate::RhoCandidate ( const RhoCandidate& o )
   fChi2 = 0 ;
   fFit = 0 ;
 }
-
-// RhoCandidate::RhoCandidate ( const RhoCandidate* o )
-// {
-//   if(!o) Fatal("RhoCandidate::RhoCandidate","Copy constructor got a bad pointer");
-//   fFastMode = o->fFastMode;
-//   fLocked = kFALSE;
-//   fTheMother = 0;
-//   fDecayVtx = o->fDecayVtx;
-//   fPdtEntry = o->fPdtEntry;
-//   fPdgCode  = o->fPdgCode;
-//   fIsAResonance = o->fIsAResonance;
-//   fTrackNumber = o->fTrackNumber;
-//   fUid = o->fUid;
-//   fMicroCand = o->fMicroCand;
-// 
-//   fMarker[0] = o->fMarker[0];
-//   fMarker[1] = o->fMarker[1];
-//   fMarker[2] = o->fMarker[2];
-//   fMarker[3] = o->fMarker[3];
-// 
-//   fCharge    = o->fCharge;
-//   fXposition = o->fXposition;
-//   fYposition = o->fYposition;
-//   fZposition = o->fZposition;
-//   fXmomentum = o->fXmomentum;
-//   fYmomentum = o->fYmomentum;
-//   fZmomentum = o->fZmomentum;
-//   fEnergy    = o->fEnergy;
-// 
-//   if ( !fFastMode ) {
-//     int i;
-//     for ( i=0; i<MATRIXSIZE; i++ ) { fErrP7[i] = o->fErrP7[i]; }
-//   }
-// 
-//   fNDaug = o->fNDaug;
-//   for ( int i=0; i<fNDaug; i++ ) {
-//     fDaughters[i] = o->fDaughters[i];
-//     fDaughters[i]->fTheMother = this;
-//   }
-//   for ( int i=fNDaug; i<MAXNDAU; i++ ) {
-//     fDaughters[i] = NULL;
-//   }
-// 
-//   fNCons = 0;
-// //  if (o->nCons > 0) {
-// //    for (int i=0;i<o->nCons;i++) AddConstraint(*o->fConstraints[i]);
-// //  }
-// 
-//   for ( int i=0; i<30; i++ ) {
-//     fPidLH[i]=o->fPidLH[i];
-//   }
-// 
-//   fMcTruth=o->fMcTruth;
-// 
-//   //FIXME Do we want to carry these status flags?
-//   fChi2 = 0 ;
-//   fFit = 0 ;
-// }
-
 
 // This is the special constructor to bring a RhoCandidate into
 // life from the MicroCandidate
@@ -372,15 +278,16 @@ RhoCandidate::operator = ( const RhoCandidate& o )
   }
 
   //fDaugList = 0;
-  fNDaug = o.fNDaug;
-  for ( int i=0; i<fNDaug; i++ ) {
-    fDaughters[i] = o.fDaughters[i];
-    fDaughters[i]->fTheMother = this;
-  }
-  for ( int i=fNDaug; i<MAXNDAU; i++ ) {
-    fDaughters[i] = NULL;
-  }
-
+// What do we want to copy in terms of genealogy? Nothing! Let external functions handle the family.
+//   fNDaug = o.fNDaug;
+//   for ( int i=0; i<fNDaug; i++ ) {
+//     fDaughters[i] = o.fDaughters[i];
+//     fDaughters[i]->fTheMother = this;
+//   }
+//   for ( int i=fNDaug; i<MAXNDAU; i++ ) {
+//     fDaughters[i] = NULL;
+//   }
+RemoveAssociations();
   fNCons = 0;
 //  if (o.nCons > 0) {
 //    for (int i=0;i<o.nCons;i++) AddConstraint(*o.fConstraints[i]);
@@ -689,7 +596,7 @@ RhoCandidate::SetMotherLink ( RhoCandidate* m , bool verbose)
 {
   assert ( m!=0 ); // what kind of mother is it ?!
 
-  // already a mother ?  not allowed !
+  // we have already a mother ?  not allowed !
   assert ( fTheMother==0 );
 
   // should not be called for a local candidate...
@@ -910,18 +817,11 @@ RhoCandidate::SetType ( const TParticlePDG* pdt )
 }
 
 
-
-// void
-// RhoCandidate::SetMcTruth ( VAbsTruth * mctruth )
-// {
-//     fTruth = mctruth;
-// }
-
 void
 RhoCandidate::SetDecayVtx ( RhoVector3Err*  theVtx )
 {
 
-  // protection agains null pointers
+  // protection against null pointers
   if ( theVtx==0 ) { return; }
 
   //
@@ -1004,12 +904,13 @@ RhoCandidate::AddDaughterLinkSimple ( const RhoCandidate* cand , bool verbose)
   if ( fNDaug==0 ) { SetCharge ( 0 ); }
   SetCharge ( Charge() +cand->Charge() );
 
-  if (fNDaug>=5) {
-   if(verbose) cerr << "RhoCandidate::AddDaughterLinkSimple: Can not add more than 5 daughters." << endl;
-    return;
-  }
+//   if (fNDaug>=5) {
+//    if(verbose) cerr << "RhoCandidate::AddDaughterLinkSimple: Can not add more than 5 daughters." << endl;
+//     return;
+//   }
 
-  fDaughters[fNDaug++] = d;
+  fDaughters.push_back(d);
+  fNDaug=fDaughters.size();
 
   // set the daughter's mother link
   // ******** modified K Goetzen
@@ -1030,6 +931,15 @@ RhoCandidate::RemoveDaughter ( RhoCandidate* d )
   // the charge
   SetCharge ( Charge() - d->Charge() );
 
+  fNDaug=fDaughters.size();
+  for(int i=0;i<fNDaug-1;i++){
+    if(fDaughters[i]==d){
+      fDaughters[i]=fDaughters[fNDaug-1]; //put last element to a safe place, daughter order is screwed
+      break;
+    }
+  }
+  fDaughters.pop_back(); //remove last element
+  fNDaug=fDaughters.size();
   // destroy the daughter
   //delete d;
 
@@ -1053,7 +963,7 @@ RhoCandidate::Mass() const
 RhoCandidate*
 RhoCandidate::Daughter ( Int_t n )
 {
-  if ( n >=0 && n < fNDaug ) {
+  if ( n >=0 && n < fDaughters.size() ) {
     return fDaughters[n];
   } else {
     return 0;
@@ -1359,7 +1269,7 @@ void RhoCandidate::RemoveAssociations()
   
   fTheMother=0; //make sure to drop associations only here.
   fNDaug=0;
-  for(int i=0;i<MAXNDAU;i++){fDaughters[i]=0;}
+  fDaughters.clear();
 
   // ************************
 

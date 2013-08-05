@@ -113,13 +113,12 @@ RhoCandList* RhoCandList::GetFittedList()
 
 void RhoCandList::FillFittedList(RhoCandList &fittedlist)
 {
-  // nonexistant fit candidates are dropped! The new list will
-  // be not synchrone to the original!
   RhoCandidate* aFit=0;
   fittedlist.Cleanup();
   for(int j=0;j<GetNumberOfTracks();j++) {
     aFit = GetConst(j)->GetFit();
-    if(aFit) fittedlist.Add(aFit);
+    if(!aFit) Error("RhoCandList::FillFittedList","Fit pointer does not exist!");
+    fittedlist.Put(aFit);
   }
   return;
 }

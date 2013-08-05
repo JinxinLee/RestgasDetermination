@@ -34,8 +34,6 @@ class RhoError;
 class RhoCandListIterator;
 
 #define MATRIXSIZE 28
-#define MAXNDAU 5
-
 
 
 //      ---------------------
@@ -78,7 +76,7 @@ class RhoCandidate : public TObject
     UInt_t fUid;  //! unique number
 
     // Daughters
-    RhoCandidate*  fDaughters[MAXNDAU]; //! List of Daughters
+    std::vector<RhoCandidate*> fDaughters; //! List of Daughters
     Short_t fNDaug;          //! Number of daughters
 
     // Constraints

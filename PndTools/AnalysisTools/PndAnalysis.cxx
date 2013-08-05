@@ -42,8 +42,6 @@ using std::endl;
 
 ClassImp ( PndAnalysis );
 
-Int_t PndAnalysis::fVerbose=0;
-
 PndAnalysis::PndAnalysis ( TString tname1, TString tname2 ) :
     fRootManager ( FairRootManager::Instance() ),
     fPidSelector ( 0 ),
@@ -148,11 +146,11 @@ void PndAnalysis::Init()
     if ( ! fMcTracks && fVerbose ) {
       std::cout << "-W- PndAnalysis::Init(): No \"MCTrack\" array found. No MC info available." << std::endl;
     }
-
+    
     fMcCands =new TClonesArray ( "RhoCandidate" );
 
     // next line commented by KG, 07/2012
-    fRootManager->Register ( "PndMcTracks","PndMcTracksFolder", fMcCands, kTRUE );
+    fRootManager->Register ( "PndMcTracks","PndMcTracksFolder", fMcCands, kFALSE );
     fBuildMcCands = true;
   }
 
@@ -195,6 +193,7 @@ Int_t PndAnalysis::GetEvent ( Int_t n )
 
   ReadRecoCandidates();
   BuildMcCands(); 
+  
   // now fill carged and neutral lists. 
   // MC association to reconstructed particles done at this point and copying is ok
   fChargedCandList.Cleanup();
@@ -277,19 +276,42 @@ Bool_t PndAnalysis::FillList ( RhoCandList& l, TString listkey, TString pidTcaNa
 
   // Get or build Monte-Carlo truth list
   if ( listkey=="McTruth" ) {
-    if ( fMcCands ) {
-      for ( Int_t i1=0; i1<fMcCands->GetEntriesFast(); i1++ ) {
-        RhoCandidate* tc = ( RhoCandidate* ) fMcCands->At ( i1 );
-        l.Add ( tc );
-      }
-      return kTRUE;
-    } else {
-      return kFALSE;
-    }
+    return GetMcCandList(l);
   }
 
   Error ( "FillList", "Unknown list key: %s",listkey.Data() );
   return kFALSE;
+}
+
+Bool_t PndAnalysis::GetMcCandList(RhoCandList& l)
+{
+  l.Clear();
+  // Put all candidates from the mctruth list to the candlist and set the mother-daughter relations
+  if ( !fMcCands ) return kFALSE;
+  
+  RhoCandidate* truth=0;
+  RhoCandidate* truthmother=0;
+  for (int i=0;i<fMcCands->GetEntriesFast();i++)
+  {
+    // copy candidates via put
+    truth = (RhoCandidate*) fMcCands->At(i);
+    l.Put(truth);
+    
+    // get mother track
+    PndMCTrack* part = (PndMCTrack*) fMcTracks->At(i);
+    Int_t mcMotherID = part->GetMotherID();
+    if(mcMotherID<0) mcMotherID=part->GetSecondMotherID();
+    
+    // SetMotherLink does the deep mother-daughter relation
+    if (mcMotherID<0) continue; // no mother there, go on...
+    if (mcMotherID>=fMcCands->GetEntriesFast()) continue; // something bad hapened to the indices
+     
+    // do the linking
+    truthmother = (RhoCandidate*) fMcCands->At(mcMotherID);
+    l[i]->SetMotherLink(truthmother);
+  }
+
+  return kTRUE;
 }
 
 Int_t PndAnalysis::GetEntries()
@@ -352,53 +374,10 @@ void PndAnalysis::ReadRecoCandidates()
 }
 
 
-RhoCandidate* PndAnalysis::CreateMcCandidate(Int_t mcindex)
-{ // iterative mc candidate and mothers adding
-  // check if it is in the mccand list (private index list) and return pointer in case
-  if(fMcPresenceMap[mcindex]) return fMcPresenceMap[mcindex];
-  if(mcindex>fMcTracks->GetEntriesFast()) return 0;
-  if(mcindex<0) return 0;
-  // fetch particle properties
-  PndMCTrack* part = (PndMCTrack*) fMcTracks->At(mcindex);
-  if(!part) return 0;
-  TLorentzVector p4 = part->Get4Momentum();
-  TVector3    stvtx = part->GetStartVertex();
-  TParticlePDG* ppdg = fPdg->GetParticle(part->GetPdgCode());
-  double charge=0.0;
-  if ( ppdg ) {
-    charge=ppdg->Charge();
-  } else if (fVerbose) {
-    cout <<"-W- CreateMcCandidate: strange PDG code:"<<part->GetPdgCode() <<endl;
-  }
-  if ( fabs(charge) >2 ) {
-    charge/=3.;
-  }
-  // create mc candidate
-  Int_t size = fMcCands->GetEntriesFast();
-  RhoCandidate* pmc=new ( (*fMcCands)[size] ) RhoCandidate(p4,charge);
-  pmc->SetPos (stvtx);
-  pmc->SetType (part->GetPdgCode()); //this overwrites our generator's mass information
-  pmc->SetP4 (p4);
-  pmc->SetTrackNumber(mcindex);
-  // put mc candidate to list
-  fMcPresenceMap[mcindex]=pmc; 
-  // ask for mc mother candidate pointer by iteration
-  Int_t mcMotherID = part->GetMotherID();
-  if(mcMotherID<0) mcMotherID=part->GetSecondMotherID(); 
-  if(mcMotherID<0) return pmc;
-  RhoCandidate* aMother=CreateMcCandidate(mcMotherID);
-  if (0 == aMother){
-    if (fVerbose) Info("CreateMcCandidate","Mother not existant, top of tree reached");
-    return pmc;
-  }
-  // do mother link (which is double linking)
-  pmc->SetMotherLink (aMother,false); // This adds the mother-daughter and daughter-mother relation
-  // return pointer to this mc candiate
-  return pmc;
-}
 
 void PndAnalysis::BuildMcCands()
 { 
+  int i;
   // Make Monte-carlo truth candidates by the reconstructed particles up to the initial state (if available)
   if ( !fMcCands ){ 
     Warning("PndAnalysis::BuildMcCands","No array to store candidates...");
@@ -411,13 +390,41 @@ void PndAnalysis::BuildMcCands()
   if ( fMcCands->GetEntriesFast() != 0 ) {
     fMcCands->Delete();
   }
-  // clear index list
-  fMcPresenceMap.clear();
+    
   if ( fMcTracks == 0 ) {
     Error ( "BuildMcCands","MC track Array does not exist." );
     return;
   }
-  // loop allCandnds
+  
+  //loop all MCTracks
+  for (i=0;i<fMcTracks->GetEntriesFast();i++)
+  {
+    // fetch particle properties
+    PndMCTrack* part = (PndMCTrack*) fMcTracks->At(i);
+    TLorentzVector p4 = part->Get4Momentum();
+    TVector3    stvtx = part->GetStartVertex();
+    TParticlePDG* ppdg = fPdg->GetParticle(part->GetPdgCode());
+    double charge=0.0;
+    if ( ppdg ) {
+       charge=ppdg->Charge();
+    } else if (fVerbose) {
+       cout <<"-W- CreateMcCandidate: strange PDG code:"<<part->GetPdgCode() <<endl;
+    }
+       if ( fabs(charge) >2 ) {
+       charge/=3.;
+    }
+    // create mc candidate
+    RhoCandidate* pmc=new ( (*fMcCands)[i] ) RhoCandidate(p4,charge);
+    pmc->SetPos(stvtx);
+    pmc->SetType(part->GetPdgCode()); //this overwrites our generator's mass information
+    pmc->SetP4(p4);
+    pmc->SetTrackNumber(i);
+  }
+  
+  //write correctly assigned copy of mc truth candidates
+  GetMcCandList(fMcCandList);
+  
+  // Assign MC truth to reconstructed allCandnds
   RhoCandidate* truth=0;
   for(int icand=0;icand<fAllCandList.GetLength();icand++){
     RhoCandidate* currentcand=fAllCandList.Get(icand);
@@ -429,14 +436,12 @@ void PndAnalysis::BuildMcCands()
     }
     // get the mctruth
     Int_t mcidx = reco->GetMcIndex();
-    // call iterative candidate adding with mc truth
-    truth = CreateMcCandidate(mcidx);
-    if(!truth) continue;
-    // now set the truth
-    if(fVerbose)Info("PndAnalysis::BuildMcCands()","Now setting truth (%p) to candidate (uid=%i)",truth,currentcand->Uid());
+    if (mcidx>fMcCandList.GetLength()) continue;
+    truth = fMcCandList[mcidx];
     currentcand->SetMcTruth(truth);
-    //if(fVerbose)std::cout<<*currentcand<<std::endl;
+    if(fVerbose)Info("PndAnalysis::BuildMcCands()","Now setting truth (%p) to candidate (uid=%i)",truth,currentcand->Uid());
   }
+
   //std::cout<<"BuildMcCands():  "<<fAllCandList<<std::endl;
 }
 
@@ -836,7 +841,9 @@ Bool_t PndAnalysis::MctMatch ( RhoCandidate* c, RhoCandList& mct, Int_t level, b
   }
   RhoCandidate* mcdauzeromother=mcdauzero->TheMother();
   if (!mcdauzeromother) {
-    if(verbose) Info("PndMcTruthMatch::MctMatch","rejected by not existing mother of MC truth of daughter zero");
+    if(verbose) {Info("PndMcTruthMatch::MctMatch","rejected by not existing mother of MC truth of daughter zero");
+    cout <<*mcdauzero<<endl;}
+    
     return false;
   }
   
@@ -866,7 +873,8 @@ Bool_t PndAnalysis::MctMatch ( RhoCandidate* c, RhoCandList& mct, Int_t level, b
       return false;
     }
     if(mcdaumother!=mcdauzeromother){
-      if(verbose) Info("PndMcTruthMatch::MctMatch","rejected by mc mother of daughter %i is different to mc mother of daughter zero -> Tree does not match",idau);
+      if(verbose) Info("PndMcTruthMatch::MctMatch","rejected by mc mother of daughter %i(%p) is different to mc mother of daughter zero(%p) -> Tree does not match"
+       			,idau,mcdaumother,mcdauzeromother);
       return false;
     }
   }
@@ -875,6 +883,9 @@ Bool_t PndAnalysis::MctMatch ( RhoCandidate* c, RhoCandList& mct, Int_t level, b
   // *** MATCH LEVEL 1: PID of the leaves and tree topology are matched
   // ***
   if ( 1==level ) {
+    if (verbose) Info("PndMcTruthMatch::MctMatch","accepted composite(pdg=%i) on match-level 1",pdg);
+    c->SetMcTruth(mcdauzeromother);
+    if (verbose)  cout <<*c->GetMcTruth()<<endl;
     return true;
   }
   //if(verbose)std::cout<<"going Level 2"<<std::endl;
@@ -886,6 +897,9 @@ Bool_t PndAnalysis::MctMatch ( RhoCandidate* c, RhoCandList& mct, Int_t level, b
   // ***
   // *** MATCH LEVEL 2: PID of leaves, tree topology and intermediate particle types are matched
   // ***
+  if (verbose) Info("PndMcTruthMatch::MctMatch","accepted composite(pdg=%i) on match-level 2", pdg);
+  c->SetMcTruth(mcdauzeromother);
+  if (verbose) cout <<*c->GetMcTruth()<<endl;
   return true;  // c's tree matches!
 }
 

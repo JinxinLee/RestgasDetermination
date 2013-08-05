@@ -66,8 +66,8 @@ class PndAnalysis
 
     void Init();
     void BuildMcCands();
+    Bool_t GetMcCandList(RhoCandList& l);
     void ReadRecoCandidates();
-    RhoCandidate* CreateMcCandidate(Int_t mcindex);
     TClonesArray* ReadTCA(TString tcaname);
 
     // Private Member Variables
@@ -79,7 +79,7 @@ class PndAnalysis
     Int_t              fChainEntries;
     Bool_t             fEventRead;
     Bool_t             fBuildMcCands;
-    static Int_t       fVerbose;
+    Int_t              fVerbose;
 
     std::map<int,RhoCandidate*> fMcPresenceMap;
     
