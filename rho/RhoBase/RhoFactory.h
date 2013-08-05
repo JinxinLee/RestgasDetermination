@@ -34,11 +34,12 @@ class RhoFactory : public TObject
     static RhoCandidate* NewCandidate();
     static RhoCandidate* NewCandidate ( const RhoCandidate& c );
     static RhoCandidate* NewCandidate ( const RhoCandidate* c );
-    static RhoCandidate* NewCandidate ( TLorentzVector p4,
-                                        RhoError& p4Err,
-                                        RhoCandListIterator& iterDau,
-                                        RhoVector3Err& theVertex,
-                                        const TParticlePDG* hypo = 0 );
+
+//     static RhoCandidate* NewCandidate ( TLorentzVector p4,
+//                                         RhoError& p4Err,
+//                                         RhoCandListIterator& iterDau,
+//                                         RhoVector3Err& theVertex,
+//                                         const TParticlePDG* hypo = 0 );
 
     static RhoCandidate* GetCandidate ( Int_t );
     static Int_t GetCandidateWatermark();

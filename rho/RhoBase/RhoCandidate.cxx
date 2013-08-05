@@ -869,28 +869,28 @@ RhoCandidate::NDaughters() const
   return fNDaug;
 }
 
-void
-RhoCandidate::AddDaughterLink ( const RhoCandidate* cand )
-{
-  //assert( cand!=0 );
-
-  // first copy the candidate pointer
-  RhoCandidate* d = const_cast<RhoCandidate*> ( cand );
-
-  // as soon as there are daughters, the charge is
-  // given by the sum of the daughter charges
-  if ( fNDaug==0 ) { SetCharge ( 0 ); }
-  SetCharge ( Charge() +cand->Charge() );
-
-  // set the daughter's mother link
-  // ******** modified K Goetzen
-  d->SetMotherLink ( this );
-
-  fMarker[0] |= d->GetMarker ( 0 );
-  fMarker[1] |= d->GetMarker ( 1 );
-  fMarker[2] |= d->GetMarker ( 2 );
-  fMarker[3] |= d->GetMarker ( 3 );
-}
+// void
+// RhoCandidate::AddDaughterLink ( const RhoCandidate* cand )
+// {
+//   //assert( cand!=0 );
+// 
+//   // first copy the candidate pointer
+//   RhoCandidate* d = const_cast<RhoCandidate*> ( cand );
+// 
+//   // as soon as there are daughters, the charge is
+//   // given by the sum of the daughter charges
+//   if ( fNDaug==0 ) { SetCharge ( 0 ); }
+//   SetCharge ( Charge() +cand->Charge() );
+// 
+//   // set the daughter's mother link
+//   // ******** modified K Goetzen
+//   d->SetMotherLink ( this );
+// 
+//   fMarker[0] |= d->GetMarker ( 0 );
+//   fMarker[1] |= d->GetMarker ( 1 );
+//   fMarker[2] |= d->GetMarker ( 2 );
+//   fMarker[3] |= d->GetMarker ( 3 );
+// }
 
 void
 RhoCandidate::AddDaughterLinkSimple ( const RhoCandidate* cand , bool verbose)
@@ -1153,48 +1153,48 @@ void RhoCandidate::SetMarker ( UInt_t n )
 
 // Constructor from CandBase
 
-RhoCandidate::RhoCandidate ( TLorentzVector p4,
-                             RhoError& p4Err,
-                             RhoCandListIterator& iterDau,
-                             RhoVector3Err& theVertex,
-                             const TParticlePDG* hypo )
-  :
-  fFastMode ( kFALSE ),
-  fLocked ( kFALSE ),
-  fTheMother ( 0 ),
-  fDecayVtx ( 0 ),
-  fPdtEntry ( 0 ),
-  fPdgCode ( 0 ),
-  fIsAResonance ( kFALSE ),
-//        fTruth ( 0 ),
-  fMicroCand ( 0 ),
-  fTrackNumber ( -1 ),
-  //fDaugList ( 0 ),
-  fNDaug ( 0 ),
-  fNCons ( 0 )
-{
-  fMarker[0] = fMarker[1] = fMarker[2] = fMarker[3] = 0;
-
-  // create the local candidate
-  //createLocalCand();
-
-  // first set the mother/daughter links
-  RhoCandidate* dau=0;
-  iterDau.Rewind();
-  Int_t nDau=0;
-  while ( dau=iterDau.Next() ) {
-    nDau++;
-    AddDaughterLink ( dau );
-  }
-
-  // a composite cand is not supposed not to have a vertex...
-  if ( nDau==0 ) {
-    cerr << "A composite cand is supposed to have daughters ! " << endl;
-  }
-
-  // set the trajector
-  SetTrajectory ( p4,p4Err, ( Int_t ) Charge(),hypo,&theVertex );
-}
+// RhoCandidate::RhoCandidate ( TLorentzVector p4,
+//                              RhoError& p4Err,
+//                              RhoCandListIterator& iterDau,
+//                              RhoVector3Err& theVertex,
+//                              const TParticlePDG* hypo )
+//   :
+//   fFastMode ( kFALSE ),
+//   fLocked ( kFALSE ),
+//   fTheMother ( 0 ),
+//   fDecayVtx ( 0 ),
+//   fPdtEntry ( 0 ),
+//   fPdgCode ( 0 ),
+//   fIsAResonance ( kFALSE ),
+// //        fTruth ( 0 ),
+//   fMicroCand ( 0 ),
+//   fTrackNumber ( -1 ),
+//   //fDaugList ( 0 ),
+//   fNDaug ( 0 ),
+//   fNCons ( 0 )
+// {
+//   fMarker[0] = fMarker[1] = fMarker[2] = fMarker[3] = 0;
+// 
+//   // create the local candidate
+//   //createLocalCand();
+// 
+//   // first set the mother/daughter links
+//   RhoCandidate* dau=0;
+//   iterDau.Rewind();
+//   Int_t nDau=0;
+//   while ( dau=iterDau.Next() ) {
+//     nDau++;
+//     AddDaughterLink ( dau );
+//   }
+// 
+//   // a composite cand is not supposed not to have a vertex...
+//   if ( nDau==0 ) {
+//     cerr << "A composite cand is supposed to have daughters ! " << endl;
+//   }
+// 
+//   // set the trajector
+//   SetTrajectory ( p4,p4Err, ( Int_t ) Charge(),hypo,&theVertex );
+// }
 
 
 void RhoCandidate::SetTrajectory ( const TLorentzVector& p4, const RhoError& p4Err,
@@ -1277,61 +1277,61 @@ void RhoCandidate::RemoveAssociations()
 // for (int i=0;i<nCons;i++) { delete fConstraints[i]; fConstraints[i]=0; nCons=0;}
 }
 
-RhoCandidate* RhoCandidate::Combine ( const RhoCandidate& c )
+RhoCandidate* RhoCandidate::Combine ( RhoCandidate* c )
 {
-  RhoCandidate tmp ( P4() +c.P4(),Charge() +c.Charge() );
+  RhoCandidate tmp ( P4() +c->P4(),Charge() +c->Charge() );
   RhoCandidate* cand = RhoFactory::Instance()->NewCandidate ( tmp );
-  cand->SetMarker ( fMarker[0]|c.fMarker[0],0 );
-  cand->SetMarker ( fMarker[1]|c.fMarker[1],1 );
-  cand->SetMarker ( fMarker[2]|c.fMarker[2],2 );
-  cand->SetMarker ( fMarker[3]|c.fMarker[3],3 );
+  cand->SetMarker ( fMarker[0]|c->fMarker[0],0 );
+  cand->SetMarker ( fMarker[1]|c->fMarker[1],1 );
+  cand->SetMarker ( fMarker[2]|c->fMarker[2],2 );
+  cand->SetMarker ( fMarker[3]|c->fMarker[3],3 );
 
-  cand->SetCovP4 ( P4Cov() +c.P4Cov() );
+  cand->SetCovP4 ( P4Cov() +c->P4Cov() );
 
-  // *************** modified by K Goetzen
-  cand->AddDaughterLinkSimple ( this );
-  cand->AddDaughterLinkSimple ( &c );
-  // ****************
+  // doubly link mother & daughter
+  this->SetMotherLink(cand);
+  c->SetMotherLink(cand);
+
   return cand;
 }
 
 //************** added Combine for more candidates K.Goetzen, 05/2008
-RhoCandidate* RhoCandidate::Combine ( const RhoCandidate& c1,const RhoCandidate& c2 )
+RhoCandidate* RhoCandidate::Combine ( RhoCandidate* c1, RhoCandidate* c2 )
 {
-  RhoCandidate tmp ( P4() +c1.P4() +c2.P4(),Charge() +c1.Charge() +c2.Charge() );
+  RhoCandidate tmp ( P4() +c1->P4() +c2->P4(),Charge() +c1->Charge() +c2->Charge() );
   RhoCandidate* cand = RhoFactory::Instance()->NewCandidate ( tmp );
-  cand->SetMarker ( fMarker[0]|c1.fMarker[0]|c2.fMarker[0],0 );
-  cand->SetMarker ( fMarker[1]|c1.fMarker[1]|c2.fMarker[1],1 );
-  cand->SetMarker ( fMarker[2]|c1.fMarker[2]|c2.fMarker[2],2 );
-  cand->SetMarker ( fMarker[3]|c1.fMarker[3]|c2.fMarker[3],3 );
+  cand->SetMarker ( fMarker[0]|c1->fMarker[0]|c2->fMarker[0],0 );
+  cand->SetMarker ( fMarker[1]|c1->fMarker[1]|c2->fMarker[1],1 );
+  cand->SetMarker ( fMarker[2]|c1->fMarker[2]|c2->fMarker[2],2 );
+  cand->SetMarker ( fMarker[3]|c1->fMarker[3]|c2->fMarker[3],3 );
 
-  cand->SetCovP4 ( P4Cov() +c1.P4Cov() +c2.P4Cov() );
+  cand->SetCovP4 ( P4Cov() +c1->P4Cov() +c2->P4Cov() );
 
-  // *************** modified by K Goetzen
-  cand->AddDaughterLinkSimple ( this );
-  cand->AddDaughterLinkSimple ( &c1 );
-  cand->AddDaughterLinkSimple ( &c2 );
-  // ****************
+  // doubly link mother & daughter
+  this->SetMotherLink(cand);
+  c1->SetMotherLink(cand);
+  c2->SetMotherLink(cand);
+  
   return cand;
 }
 
-RhoCandidate* RhoCandidate::Combine ( const RhoCandidate& c1,const RhoCandidate& c2,const RhoCandidate& c3 )
+RhoCandidate* RhoCandidate::Combine ( RhoCandidate* c1, RhoCandidate* c2, RhoCandidate* c3 )
 {
-  RhoCandidate tmp ( P4() +c1.P4() +c2.P4() +c3.P4(),Charge() +c1.Charge() +c2.Charge() +c3.Charge() );
+  RhoCandidate tmp ( P4() +c1->P4() +c2->P4() +c3->P4(),Charge() +c1->Charge() +c2->Charge() +c3->Charge() );
   RhoCandidate* cand = RhoFactory::Instance()->NewCandidate ( tmp );
-  cand->SetMarker ( fMarker[0]|c1.fMarker[0]|c2.fMarker[0]|c3.fMarker[0],0 );
-  cand->SetMarker ( fMarker[1]|c1.fMarker[1]|c2.fMarker[1]|c3.fMarker[1],1 );
-  cand->SetMarker ( fMarker[2]|c1.fMarker[2]|c2.fMarker[2]|c3.fMarker[2],2 );
-  cand->SetMarker ( fMarker[3]|c1.fMarker[3]|c2.fMarker[3]|c3.fMarker[3],3 );
+  cand->SetMarker ( fMarker[0]|c1->fMarker[0]|c2->fMarker[0]|c3->fMarker[0],0 );
+  cand->SetMarker ( fMarker[1]|c1->fMarker[1]|c2->fMarker[1]|c3->fMarker[1],1 );
+  cand->SetMarker ( fMarker[2]|c1->fMarker[2]|c2->fMarker[2]|c3->fMarker[2],2 );
+  cand->SetMarker ( fMarker[3]|c1->fMarker[3]|c2->fMarker[3]|c3->fMarker[3],3 );
 
-  cand->SetCovP4 ( P4Cov() +c1.P4Cov() +c2.P4Cov() +c3.P4Cov() );
+  cand->SetCovP4 ( P4Cov() +c1->P4Cov() +c2->P4Cov() +c3->P4Cov() );
 
-  // *************** modified by K Goetzen
-  cand->AddDaughterLinkSimple ( this );
-  cand->AddDaughterLinkSimple ( &c1 );
-  cand->AddDaughterLinkSimple ( &c2 );
-  cand->AddDaughterLinkSimple ( &c3 );
-  // ****************
+  // doubly link mother & daughter
+  this->SetMotherLink(cand);
+  c1->SetMotherLink(cand);
+  c2->SetMotherLink(cand);
+  c3->SetMotherLink(cand);
+
   return cand;
 }
 

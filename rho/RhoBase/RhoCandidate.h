@@ -149,11 +149,12 @@ class RhoCandidate : public TObject
     // Special constructor from MicroCandidate
     RhoCandidate ( FairRecoCandidate& a, Int_t n, RhoVector3Err* vp=0, Bool_t fast= kFALSE );
 
-    RhoCandidate ( TLorentzVector p4,
-                   RhoError& p4Err,
-                   RhoCandListIterator& iterDau,
-                   RhoVector3Err& theVertex,
-                   const TParticlePDG* hypo = 0 );
+//     RhoCandidate ( TLorentzVector p4,
+//                    RhoError& p4Err,
+//                    RhoCandListIterator& iterDau,
+//                    RhoVector3Err& theVertex,
+//                    const TParticlePDG* hypo = 0 );
+
     //
     // Destructor
     //
@@ -372,10 +373,10 @@ class RhoCandidate : public TObject
 
     FairRecoCandidate* GetRecoCandidate() const { return fMicroCand; }
 
-    RhoCandidate* Combine ( const RhoCandidate& c );
+    RhoCandidate* Combine ( RhoCandidate* c );
     //************** added Combine for more candidates K.Goetzen, 05/2008
-    RhoCandidate* Combine ( const RhoCandidate& c1,const RhoCandidate& c2 );
-    RhoCandidate* Combine ( const RhoCandidate& c1,const RhoCandidate& c2,const RhoCandidate& c3 );
+    RhoCandidate* Combine ( RhoCandidate* c1, RhoCandidate* c2 );
+    RhoCandidate* Combine ( RhoCandidate* c1, RhoCandidate* c2, RhoCandidate* c3 );
 
     // two Candidates overlap if they are identical
     // (same pointers), equal (same Base),
@@ -438,7 +439,7 @@ class RhoCandidate : public TObject
     void DropMotherLink();
 
     // Add a daughter link and set the daughters mother link
-    void AddDaughterLink ( const RhoCandidate* );
+    //void AddDaughterLink ( const RhoCandidate* );
 
     // Add a daughter link without touching the daughters
     void AddDaughterLinkSimple ( const RhoCandidate*, bool verbose=true );

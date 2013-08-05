@@ -52,8 +52,6 @@ class PndAnalysis
     Bool_t ResetDaughters(RhoCandidate* cand);
     Bool_t McTruthMatch(RhoCandidate* cand, Int_t level = 2, bool verbose=false);
     Int_t McTruthMatch(RhoCandList& list, Int_t level = 2, bool verbose=false);
-    Bool_t MctMatch(RhoCandidate& c, RhoCandList& mct, Int_t level = 2, bool verbose=false){ return MctMatch(&c,mct,level,verbose); };
-    Bool_t MctMatch(RhoCandidate* c, RhoCandList& mct, Int_t level = 2, bool verbose=false);
 
     //FIXME: This is an aweful solution to access the correct
     //track array from a fitter object. [R.K.03'11]
@@ -70,6 +68,8 @@ class PndAnalysis
     void ReadRecoCandidates();
     TClonesArray* ReadTCA(TString tcaname);
 
+    Bool_t MctMatch(RhoCandidate& c, RhoCandList& mct, Int_t level = 2, bool verbose=false){ return MctMatch(&c,mct,level,verbose); };
+    Bool_t MctMatch(RhoCandidate* c, RhoCandList& mct, Int_t level = 2, bool verbose=false);
     // Private Member Variables
 
     FairRootManager*   fRootManager;

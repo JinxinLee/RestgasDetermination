@@ -83,22 +83,22 @@ RhoCandidate* RhoFactory::NewCandidate ( const RhoCandidate* c )
 
 
 
-RhoCandidate* RhoFactory::NewCandidate ( TLorentzVector p4,
-    RhoError& p4Err,
-    RhoCandListIterator& iterDau,
-    RhoVector3Err& theVertex,
-    const TParticlePDG* hypo )
-{
-  if ( fgCandBuffer==0 ) { fgCandBuffer = new TClonesArray ( "RhoCandidate" ); }
-  int current = fgCandPointer++;
-  if ( current>fgCandWatermark ) { fgCandWatermark = current; }
-  if ( current<fgCandWatermark ) {
-    RhoCandidate* c = GetCandidate ( current );
-    c->RemoveAssociations();
-  }
-  new ( ( *fgCandBuffer ) [current] ) RhoCandidate ( p4,p4Err,iterDau,theVertex,hypo );
-  return GetCandidate ( current );
-}
+// RhoCandidate* RhoFactory::NewCandidate ( TLorentzVector p4,
+//     RhoError& p4Err,
+//     RhoCandListIterator& iterDau,
+//     RhoVector3Err& theVertex,
+//     const TParticlePDG* hypo )
+// {
+//   if ( fgCandBuffer==0 ) { fgCandBuffer = new TClonesArray ( "RhoCandidate" ); }
+//   int current = fgCandPointer++;
+//   if ( current>fgCandWatermark ) { fgCandWatermark = current; }
+//   if ( current<fgCandWatermark ) {
+//     RhoCandidate* c = GetCandidate ( current );
+//     c->RemoveAssociations();
+//   }
+//   new ( ( *fgCandBuffer ) [current] ) RhoCandidate ( p4,p4Err,iterDau,theVertex,hypo );
+//   return GetCandidate ( current );
+// }
 
 RhoCandidate* RhoFactory::GetCandidate ( Int_t i )
 {
