@@ -236,6 +236,11 @@ Bool_t PndAnalysis::FillList ( RhoCandList& l, TString listkey, TString pidTcaNa
     fPidCombiner->SetDefaults();
   }
 
+  // Get or build Monte-Carlo truth list
+  if ( listkey=="McTruth" ) {
+    return GetMcCandList(l);
+  }
+
   //Info("PndAnalysis::FillList","key=%s",listkey.Data());
   // acceleration: just give the large lists directly
   if ( listkey=="All" ) {
@@ -245,7 +250,7 @@ Bool_t PndAnalysis::FillList ( RhoCandList& l, TString listkey, TString pidTcaNa
   }
 
   if ( listkey=="Neutral" ) {
-    //fPidCombiner->Apply(neutralCands);
+    //fPidCombiner->Apply(fNeutralCandList);
     l=fNeutralCandList;
     return kTRUE;
   }
@@ -261,24 +266,20 @@ Bool_t PndAnalysis::FillList ( RhoCandList& l, TString listkey, TString pidTcaNa
   Bool_t checkcrit = fPidSelector->SetCriterion ( listkey );
   if (!checkcrit) return kFALSE;
   
+  if ( listkey.Contains ( "Electron" ) ||listkey.Contains ( "Muon" ) ||listkey.Contains ( "Pion" )
+       || listkey.Contains ( "Kaon" ) ||listkey.Contains ( "Proton" )
+       || listkey.Contains ( "Plus" ) ||listkey.Contains ( "Minus" ) ||listkey.Contains ( "Charged" ) ) {
+    fPidCombiner->Apply ( fChargedCandList );
+    fPidSelector->Select ( fChargedCandList,l );
+    return kTRUE;
+  }
+  
   if ( listkey.Contains ( "Neutral" ) ) {
     fPidCombiner->Apply ( fNeutralCandList );
     fPidSelector->Select ( fNeutralCandList,l );
     return kTRUE;
   }
 
-  if ( listkey.Contains ( "Electron" ) ||listkey.Contains ( "Muon" ) ||listkey.Contains ( "Pion" )
-       || listkey.Contains ( "Kaon" ) ||listkey.Contains ( "Proton" )
-       || listkey.Contains ( "Plus" ) ||listkey.Contains ( "Minus" ) ) {
-    fPidCombiner->Apply ( fChargedCandList );
-    fPidSelector->Select ( fChargedCandList,l );
-    return kTRUE;
-  }
-
-  // Get or build Monte-Carlo truth list
-  if ( listkey=="McTruth" ) {
-    return GetMcCandList(l);
-  }
 
   Error ( "FillList", "Unknown list key: %s",listkey.Data() );
   return kFALSE;
