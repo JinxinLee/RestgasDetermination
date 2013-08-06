@@ -120,14 +120,16 @@ void PndChiVtxFitter::Compute()
 
 void PndChiVtxFitter::SetOutput()
 {
-  TLorentzVector sum(vtxMom[0][0],vtxMom[1][0],vtxMom[2][0],vtxEnergy);
   TVector3 vtx(vtxPos[0][0],vtxPos[1][0],vtxPos[2][0]);
   if(fVerbose) cout<<"vtxPos"<<endl;
-  fCurrentNode->SetP7(vtx,sum);
+  SetDecayVertex(fCurrentNode,vtx,xxCov);
+  SetFourMomentumByDaughters(fCurrentNode);// propagates also Cov7
+  fCurrentNode->SetPos(vtx); //P4 is defined here
+  
   if(fVerbose) cout << "Energy" << vtxEnergy<< endl;
-  if(fVerbose) cout << "vtxMom" << sum.X() <<" .." <<  sum.Y() <<" .." <<  sum.Z();
+  if(fVerbose) cout << "vtxMom" << fCurrentNode->Px() <<" .." <<  fCurrentNode->Py() <<" .." <<  fCurrentNode->Pz();
   if(fVerbose) cout << "vtxPos" << vtx.X() <<" .." <<  vtx.Y() <<" .." <<  vtx.Z();
-  if(fVerbose) cout << " mass" << sum.M() << endl;
+  if(fVerbose) cout << " mass" << fCurrentNode->M() << endl;
   //  fHeadOfTree->SetPos(vtx);
 //  TVector3 vtxP(vtxMom[0][0],vtxMom[1][0],vtxMom[2][0]);
 //  double mass(vtxEnergy*vtxEnergy-vtxP.Mag2());

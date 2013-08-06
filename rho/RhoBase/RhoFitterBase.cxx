@@ -169,5 +169,11 @@ void RhoFitterBase::SetFourMomentumByDaughters(RhoCandidate* composite)
   return;
 }
 
+void RhoFitterBase::SetDecayVertex(RhoCandidate* composite, const TVector3& vtx, const TMatrixD& CovVV)
+{
+  RhoError decaypointcov(CovVV);
+  RhoVector3Err decayvertex(vtx,decaypointcov);
+  composite->SetDecayVtx(decayvertex);
+}
 
 

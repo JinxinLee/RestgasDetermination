@@ -77,7 +77,6 @@ class RhoCandidate : public TObject
 
     // Daughters
     std::vector<RhoCandidate*> fDaughters; //! List of Daughters
-    Short_t fNDaug;          //! Number of daughters
 
     // Constraints
 //    TConstraint* fConstraints[5];   //! Array of constraints

@@ -719,14 +719,14 @@ unsigned PndVtxFitter::SetOutputToRhoCandidate(RhoCandidate* cand)
   cout <<"sum: "<<sum.Px() <<" "<<sum.Py() <<" "<<sum.Pz() <<" "<<sum.M() <<endl;
   cout <<"vtx: "<<m_v_a[0][0]<<" "<<m_v_a[1][0]<<" "<<m_v_a[2][0]<<endl;
   cand->SetP4 ( sum );
+  
   cand->SetPos ( foudVertex );
-
   //         cout <<"SetOutputToRhoCandidate head of Tree:"<<(*fHeadOfTree)<<endl;
-
   cout<<"Vertex Error : "<<endl;
-  //  m_V_E.Print();
+  //m_V_E.Print();
   cand->SetCovPos ( m_V_E ); //Implemented in TFitParams :Dipak
   cand->PosCov().Print();
+  SetDecayVertex(cand,foudVertex,m_V_E);
 
   fChiSquare= m_chisq;
 

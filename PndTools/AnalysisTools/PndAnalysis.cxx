@@ -49,6 +49,7 @@ PndAnalysis::PndAnalysis ( TString tname1, TString tname2 ) :
     fChainEntries ( 0 ),
     fEventRead ( false ),
     fBuildMcCands ( false ),
+    fVerbose(0),
     fChargedPidName ( "PidAlgoIdealCharged" ),
     fNeutralPidName ( "PidAlgoIdealNeutral" ),
     fTracksName ( tname1 ),

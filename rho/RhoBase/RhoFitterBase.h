@@ -70,6 +70,7 @@ class RhoFitterBase: public TObject // TOperatorBase
     void SetDaugthersFromComposite(RhoCandidate* cand);
     void FindAndAddFinalStateDaughters(RhoCandidate* cand);
     void SetFourMomentumByDaughters(RhoCandidate* composite);
+    void SetDecayVertex(RhoCandidate* composite, const TVector3& vtx, const TMatrixD& CovVV);
     double fChiSquare; //global chi^2 value
     int fNDegreesOfFreedom; //degrees of freedom
 

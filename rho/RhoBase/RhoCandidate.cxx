@@ -48,7 +48,6 @@ RhoCandidate::RhoCandidate() :
   fTrackNumber ( -1 ),
   fUid ( 0 ),
   //fDaugList ( 0 ),
-  fNDaug ( 0 ),
   fNCons ( 0 ),
   fChi2 ( 0 ),
   fMcTruth ( 0 ),
@@ -74,7 +73,6 @@ RhoCandidate::RhoCandidate ( const TLorentzVector& v, Double_t charge, RhoVector
   fTrackNumber ( -1 ),
   fUid ( 0 ),
   //fDaugList ( 0 ),
-  fNDaug ( 0 ),
   fNCons ( 0 ),
   fChi2 ( 0 ),
   fMcTruth ( 0 ),
@@ -103,7 +101,6 @@ RhoCandidate::RhoCandidate ( const TVector3& v, const TParticlePDG* pdt, RhoVect
   fTrackNumber ( -1 ),
   fUid ( 0 ),
  // fDaugList ( 0 ),
-  fNDaug ( 0 ),
   fNCons ( 0 ),
   fChi2 ( 0 ),
   fMcTruth ( 0 ),
@@ -153,16 +150,10 @@ RhoCandidate::RhoCandidate ( const RhoCandidate& o )
     for ( i=0; i<MATRIXSIZE; i++ ) { fErrP7[i] = o.fErrP7[i]; }
   }
 
-// What do we want to copy in terms of genealogy? Nothing! Let external functions set these relations properly.
-//   fNDaug = o.fNDaug;
-//   for ( int i=0; i<fNDaug; i++ ) {
-//     fDaughters[i] = o.fDaughters[i];
-//     fDaughters[i]->fTheMother = this;
-//   }
-//   for ( int i=fNDaug; i<MAXNDAU; i++ ) {
-//     fDaughters[i] = NULL;
-//   }
-RemoveAssociations();
+  for ( int i=0; i<NDaughters(); i++ ) {
+    fDaughters.push_back(o.fDaughters[i]);
+  }
+
   fNCons = 0;
 //  if (o.nCons > 0) {
 //    for (int i=0;i<o.nCons;i++) AddConstraint(*o.fConstraints[i]);
@@ -194,7 +185,6 @@ RhoCandidate::RhoCandidate ( FairRecoCandidate& a, Int_t n) :
   fMicroCand ( &a ),
   fTrackNumber ( -1 ),
   //fDaugList ( 0 ),
-  fNDaug ( 0 ),
   fNCons ( 0 ),
   fChi2 ( 0 ),
   fMcTruth ( 0 ),
@@ -240,7 +230,6 @@ RhoCandidate::RhoCandidate ( FairRecoCandidate& a, Int_t n, RhoVector3Err& vp, B
   fMicroCand ( &a ),
   fTrackNumber ( -1 ),
   //fDaugList ( 0 ),
-  fNDaug ( 0 ),
   fNCons ( 0 ),
   fChi2 ( 0 ),
   fMcTruth ( 0 ),
@@ -323,17 +312,9 @@ RhoCandidate::operator = ( const RhoCandidate& o )
     for ( i=0; i<MATRIXSIZE; i++ ) { fErrP7[i] = o.fErrP7[i]; }
   }
 
-  //fDaugList = 0;
-// What do we want to copy in terms of genealogy? Nothing! Let external functions handle the family.
-//   fNDaug = o.fNDaug;
-//   for ( int i=0; i<fNDaug; i++ ) {
-//     fDaughters[i] = o.fDaughters[i];
-//     fDaughters[i]->fTheMother = this;
-//   }
-//   for ( int i=fNDaug; i<MAXNDAU; i++ ) {
-//     fDaughters[i] = NULL;
-//   }
-RemoveAssociations();
+  for ( int i=0; i<NDaughters(); i++ ) {
+    fDaughters.push_back(o.fDaughters[i]);
+  }
   fNCons = 0;
 //  if (o.nCons > 0) {
 //    for (int i=0;i<o.nCons;i++) AddConstraint(*o.fConstraints[i]);
@@ -681,13 +662,10 @@ RhoCandidate::DropMotherLink()
   if ( fTheMother==0 ) { return; }
 
   // the mother looses this as a daughter
-  for ( int i=0; i<fTheMother->fNDaug; i++ ) 
+  for ( int i=0; i<fTheMother->NDaughters(); i++ ) 
   {
     if ( fTheMother->fDaughters[i] == this ) {
-      fTheMother->fNDaug--;
-      // now we srew the order of the remaining candidates
-      fTheMother->fDaughters[i] = fTheMother->fDaughters[fTheMother->fNDaug];
-      fTheMother->fDaughters[fTheMother->fNDaug+1]=0;
+      fTheMother->RemoveDaughter(this);
       break;
     }
   }
@@ -710,7 +688,7 @@ const RhoCandidate*
 RhoCandidate::CloneInTree ( const RhoCandidate& c ) const
 {
   if ( IsCloneOf ( c ) ) { return this; }
-  for ( int i=0; i<fNDaug; i++ ) {
+  for ( int i=0; i<NDaughters(); i++ ) {
     const RhoCandidate* b = fDaughters[i]->CloneInTree ( c );
     if ( b!=0 ) { return b; }
   }
@@ -742,7 +720,7 @@ RhoCandidate::InvalidateFit()
 //     }
 
   // and do that recursively
-  for ( int i=0; i<fNDaug; i++ ) { fDaughters[i]->InvalidateFit(); }
+  for ( int i=0; i<NDaughters(); i++ ) { fDaughters[i]->InvalidateFit(); }
 }
 
 
@@ -912,7 +890,7 @@ RhoCandidate::SetDecayVtx ( RhoVector3Err  theVtx )
 Int_t
 RhoCandidate::NDaughters() const
 {
-  return fNDaug;
+  return fDaughters.size();
 }
 
 // void
@@ -925,7 +903,7 @@ RhoCandidate::NDaughters() const
 // 
 //   // as soon as there are daughters, the charge is
 //   // given by the sum of the daughter charges
-//   if ( fNDaug==0 ) { SetCharge ( 0 ); }
+//   if ( NDaughters()==0 ) { SetCharge ( 0 ); }
 //   SetCharge ( Charge() +cand->Charge() );
 // 
 //   // set the daughter's mother link
@@ -947,16 +925,15 @@ RhoCandidate::AddDaughterLinkSimple ( const RhoCandidate* cand , bool verbose)
   RhoCandidate* d = const_cast<RhoCandidate*> ( cand );
   // as soon as there are daughters, the charge is
   // given by the sum of the daughter charges
-  if ( fNDaug==0 ) { SetCharge ( 0 ); }
+  if ( NDaughters()==0 ) { SetCharge ( 0 ); }
   SetCharge ( Charge() +cand->Charge() );
 
-//   if (fNDaug>=5) {
+//   if (NDaughters()>=5) {
 //    if(verbose) cerr << "RhoCandidate::AddDaughterLinkSimple: Can not add more than 5 daughters." << endl;
 //     return;
 //   }
 
   fDaughters.push_back(d);
-  fNDaug=fDaughters.size();
 
   // set the daughter's mother link
   // ******** modified K Goetzen
@@ -977,15 +954,14 @@ RhoCandidate::RemoveDaughter ( RhoCandidate* d )
   // the charge
   SetCharge ( Charge() - d->Charge() );
 
-  fNDaug=fDaughters.size();
-  for(int i=0;i<fNDaug-1;i++){
+  for(int i=0;i<NDaughters()-1;i++){
     if(fDaughters[i]==d){
-      fDaughters[i]=fDaughters[fNDaug-1]; //put last element to a safe place, daughter order is screwed
+      //put last element to a safe place, daughter order is screwed
+      fDaughters[i]=fDaughters[NDaughters()-1]; 
       break;
     }
   }
   fDaughters.pop_back(); //remove last element
-  fNDaug=fDaughters.size();
   // destroy the daughter
   //delete d;
 
@@ -1025,9 +1001,9 @@ RhoCandidate::Daughter ( Int_t n )
 // 
 //   // return an iterator to the daughter list
 //   RhoCandList* l = const_cast<RhoCandList*> ( fDaugList );
-//   if ( l==0 ) { l = new RhoCandList ( "DaugList",fNDaug ); }
+//   if ( l==0 ) { l = new RhoCandList ( "DaugList",NDaughters() ); }
 //   l->Cleanup();
-//   for ( int i=0; i<fNDaug; i++ ) { l->Put ( *fDaughters[i] ); }
+//   for ( int i=0; i<NDaughters(); i++ ) { l->Put ( *fDaughters[i] ); }
 //   return RhoCandListIterator ( *l );
 // }
 
@@ -1114,7 +1090,7 @@ RhoCandidate::PdtEntry() const
 Bool_t
 RhoCandidate::IsComposite() const
 {
-  return fNDaug>0;
+  return NDaughters()>0;
 }
 
 Bool_t
@@ -1168,8 +1144,8 @@ void RhoCandidate::PrintOn ( std::ostream& o ) const
   o.unsetf ( ios::hex | ios::showbase );
 
   // print daughter links
-  o << "daughters: "<< fNDaug <<"(";
-  for ( int i=0; i<fNDaug; i++ ) { o << " " << fDaughters[i]->Uid(); }
+  o << "daughters: "<< NDaughters() <<"(";
+  for ( int i=0; i<NDaughters(); i++ ) { o << " " << fDaughters[i]->Uid(); }
   o <<")";
   o << " dcy: "<<fDecayVtx;
   o << " pdg: " <<fPdgCode;
@@ -1216,7 +1192,6 @@ void RhoCandidate::SetMarker ( UInt_t n )
 //   fMicroCand ( 0 ),
 //   fTrackNumber ( -1 ),
 //   //fDaugList ( 0 ),
-//   fNDaug ( 0 ),
 //   fNCons ( 0 )
 // {
 //   fMarker[0] = fMarker[1] = fMarker[2] = fMarker[3] = 0;
@@ -1314,7 +1289,6 @@ void RhoCandidate::RemoveAssociations()
   //if (fTheMother!=0) DropMotherLink(); fTheMother = 0;
   
   fTheMother=0; //make sure to drop associations only here.
-  fNDaug=0;
   fDaughters.clear();
 
   // ************************
@@ -1334,9 +1308,9 @@ RhoCandidate* RhoCandidate::Combine ( RhoCandidate* c )
 
   cand->SetCovP4 ( P4Cov() +c->P4Cov() );
 
-  // doubly link mother & daughter
-  this->SetMotherLink(cand);
-  c->SetMotherLink(cand);
+  //Only one-way link because we're not sure where else the daughters are used (combinatorics)
+  cand->AddDaughterLinkSimple(this);
+  cand->AddDaughterLinkSimple(c);
 
   return cand;
 }
@@ -1353,10 +1327,10 @@ RhoCandidate* RhoCandidate::Combine ( RhoCandidate* c1, RhoCandidate* c2 )
 
   cand->SetCovP4 ( P4Cov() +c1->P4Cov() +c2->P4Cov() );
 
-  // doubly link mother & daughter
-  this->SetMotherLink(cand);
-  c1->SetMotherLink(cand);
-  c2->SetMotherLink(cand);
+  //Only one-way link because we're not sure where else the daughters are used (combinatorics)
+  cand->AddDaughterLinkSimple(this);
+  cand->AddDaughterLinkSimple(c1);
+  cand->AddDaughterLinkSimple(c2);
   
   return cand;
 }
@@ -1372,11 +1346,11 @@ RhoCandidate* RhoCandidate::Combine ( RhoCandidate* c1, RhoCandidate* c2, RhoCan
 
   cand->SetCovP4 ( P4Cov() +c1->P4Cov() +c2->P4Cov() +c3->P4Cov() );
 
-  // doubly link mother & daughter
-  this->SetMotherLink(cand);
-  c1->SetMotherLink(cand);
-  c2->SetMotherLink(cand);
-  c3->SetMotherLink(cand);
+  //Only one-way link because we're not sure where else the daughters are used (combinatorics)
+  cand->AddDaughterLinkSimple(this);
+  cand->AddDaughterLinkSimple(c1);
+  cand->AddDaughterLinkSimple(c2);
+  cand->AddDaughterLinkSimple(c3);
 
   return cand;
 }

@@ -338,11 +338,6 @@ void RhoCandList::CombineAndAppend ( RhoCandList& l1, RhoCandList& l2,RhoVertexS
       c.SetMarker ( l1[i1]->GetMarker ( 2 ) |l2[i2]->GetMarker ( 2 ),2 );
       c.SetMarker ( l1[i1]->GetMarker ( 3 ) |l2[i2]->GetMarker ( 3 ),3 );
 
-     c.AddDaughterLinkSimple(l1[i1]) ;
-     c.AddDaughterLinkSimple(l2[i2]) ;
-
-//       c.AddDaughterLink ( & ( l1[i1] ) );
-//       c.AddDaughterLink ( & ( l2[i2] ) );
 
       if ( selector!=0 ) {
         c.SetPosition ( selector->GetVertex() );
@@ -351,6 +346,10 @@ void RhoCandList::CombineAndAppend ( RhoCandList& l1, RhoCandList& l2,RhoVertexS
       }
 
       Put ( &c );
+      // after putting (does a copy and drops daughter links)
+      RhoCandidate* cInList = Get(GetLength()-1);
+      cInList->AddDaughterLinkSimple(l1[i1]) ;
+      cInList->AddDaughterLinkSimple(l2[i2]) ;
     }
   }
 
@@ -396,15 +395,12 @@ void RhoCandList::CombineAndAppend ( RhoCandList& l1, RhoCandList& l2, RhoCandLi
         c.SetMarker ( l1[i1]->GetMarker ( 2 ) |l2[i2]->GetMarker ( 2 ) |l3[i3]->GetMarker ( 2 ),2 );
         c.SetMarker ( l1[i1]->GetMarker ( 3 ) |l2[i2]->GetMarker ( 3 ) |l3[i3]->GetMarker ( 3 ),3 );
 
-       c.AddDaughterLinkSimple ( l1[i1] );
-       c.AddDaughterLinkSimple ( l2[i2] );
-       c.AddDaughterLinkSimple ( l3[i3] );
-
-//         c.AddDaughterLink ( & ( l1[i1] ) );
-//         c.AddDaughterLink ( & ( l2[i2] ) );
-//         c.AddDaughterLink ( & ( l3[i3] ) );
-
         Put ( &c );
+        // after putting (does a copy and drops daughter links)
+        RhoCandidate* cInList = Get(GetLength()-1);
+        cInList->AddDaughterLinkSimple(l1[i1]) ;
+        cInList->AddDaughterLinkSimple(l2[i2]) ;
+        cInList->AddDaughterLinkSimple(l3[i3]) ;
       }
     }
   }
@@ -459,17 +455,13 @@ void RhoCandList::CombineAndAppend ( RhoCandList& l1, RhoCandList& l2, RhoCandLi
           c.SetMarker ( l1[i1]->GetMarker ( 2 ) |l2[i2]->GetMarker ( 2 ) |l3[i3]->GetMarker ( 2 ) |l4[i4]->GetMarker ( 2 ),2 );
           c.SetMarker ( l1[i1]->GetMarker ( 3 ) |l2[i2]->GetMarker ( 3 ) |l3[i3]->GetMarker ( 3 ) |l4[i4]->GetMarker ( 3 ),3 );
 
-          c.AddDaughterLinkSimple (  l1[i1] );
-          c.AddDaughterLinkSimple (  l2[i2] );
-          c.AddDaughterLinkSimple (  l3[i3] );
-          c.AddDaughterLinkSimple (  l4[i4] );
-
-//           c.AddDaughterLink ( & ( l1[i1] ) );
-//           c.AddDaughterLink ( & ( l2[i2] ) );
-//           c.AddDaughterLink ( & ( l3[i3] ) );
-//           c.AddDaughterLink ( & ( l4[i4] ) );
-
           Put ( &c );
+          // after putting (does a copy and drops daughter links)
+          RhoCandidate* cInList = Get(GetLength()-1);
+          cInList->AddDaughterLinkSimple(l1[i1]) ;
+          cInList->AddDaughterLinkSimple(l2[i2]) ;
+          cInList->AddDaughterLinkSimple(l3[i3]) ;
+          cInList->AddDaughterLinkSimple(l4[i4]) ;
         }
       }
     }
@@ -540,19 +532,14 @@ void RhoCandList::CombineAndAppend ( RhoCandList& l1, RhoCandList& l2, RhoCandLi
             c.SetMarker ( l1[i1]->GetMarker ( 3 ) |l2[i2]->GetMarker ( 3 )
                           |l3[i3]->GetMarker ( 3 ) |l4[i4]->GetMarker ( 3 ) |l5[i5]->GetMarker ( 3 ),3 );
 
-            c.AddDaughterLinkSimple ( l1[i1] );
-            c.AddDaughterLinkSimple ( l2[i2] );
-            c.AddDaughterLinkSimple ( l3[i3] );
-            c.AddDaughterLinkSimple ( l4[i4] );
-            c.AddDaughterLinkSimple ( l5[i5] );
-
-//             c.AddDaughterLink ( & ( l1[i1] ) );
-//             c.AddDaughterLink ( & ( l2[i2] ) );
-//             c.AddDaughterLink ( & ( l3[i3] ) );
-//             c.AddDaughterLink ( & ( l4[i4] ) );
-//             c.AddDaughterLink ( & ( l5[i5] ) );
-
             Put ( &c );
+            // after putting (does a copy and drops daughter links)
+            RhoCandidate* cInList = Get(GetLength()-1);
+            cInList->AddDaughterLinkSimple(l1[i1]) ;
+            cInList->AddDaughterLinkSimple(l2[i2]) ;
+            cInList->AddDaughterLinkSimple(l3[i3]) ;
+            cInList->AddDaughterLinkSimple(l4[i4]) ;
+            cInList->AddDaughterLinkSimple(l5[i5]) ;
           }
         }
       }

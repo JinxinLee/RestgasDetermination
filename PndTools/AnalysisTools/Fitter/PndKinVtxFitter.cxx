@@ -361,9 +361,14 @@ void PndKinVtxFitter::SetOutput(RhoCandidate* head)
 //  head->SetP7(vtx,sum); //[ralfk:01.12.11 Try to make it a leaf-by-leaf fit]
 //  //fHeadOfTree->SetCov7(covC); //New covariance matrix
 //  head->SetCov7(covC); //New covariance matrix //[ralfk:01.12.11]
+  //We set the decay vertex of the mother! [R.K.]
 
-  SetFourMomentumByDaughters(head);
-  
+  TVector3 vtx(vtx_ex[0][0],vtx_ex[1][0],vtx_ex[2][0]);
+  TMatrixD CovV=covC.GetSub(0,2,0,2);
+  head->SetPos(vtx);//P4 is defined here
+  SetDecayVertex(head,vtx,CovV);
+  SetFourMomentumByDaughters(head);//propagates cov7 from daughters
+  //head->SetCov7(covC);//which one to use???
   if(fVerbose) { cout<<"Final vertex Position is "<<vtx_ex[0][0]<<" "<<vtx_ex[1][0]<<" "<<vtx_ex[2][0]<<endl; }
   if(fVerbose) { cout<<"Final Momenta are "<<al0[0][0]<<" "<<al1[1][0]<<" "<<al1[2][0]<<endl; }
 }
@@ -1021,9 +1026,9 @@ void PndKinVtxFitter::GetCovariance(TMatrixD& a_cov0, TMatrixD& cov_al_x, TMatri
 
 
 
-  covS.SetSub(0,0,SumcovP);
-  covS.SetSub(4,0,covPX_t);
-  covS.SetSub(0,4,covPX);
-  covS.SetSub(4,4,V_vtx);
+  covS.SetSub(0,0,V_vtx);
+  covS.SetSub(0,3,covPX_t);
+  covS.SetSub(3,0,covPX);
+  covS.SetSub(3,3,SumcovP);
 
 }

@@ -528,8 +528,9 @@ Bool_t PndVtxPRG::Calculate()
     // put fitted candidate
     //if(fDebug) {std::cout<<" #$# Fit #$# CovP7 with mom for traj "<<i<<": "; CovP7.Print();}
   }
-  fCurrentHead->SetPos(vtx);
-  SetFourMomentumByDaughters(fCurrentHead);
+  fCurrentHead->SetPos(vtx); // that's wher the P4 is defined
+  SetFourMomentumByDaughters(fCurrentHead);//Cov7 updated by daughters, too!
+  SetDecayVertex(fCurrentHead,vtx,CovVV);
   return kTRUE; // all good now!
 }
 
