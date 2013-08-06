@@ -292,25 +292,29 @@ Bool_t PndAnalysis::GetMcCandList(RhoCandList& l)
   if ( !fMcCands ) return kFALSE;
   
   RhoCandidate* truth=0;
-  RhoCandidate* truthmother=0;
   for (int i=0;i<fMcCands->GetEntriesFast();i++)
   {
     // copy candidates via put
     truth = (RhoCandidate*) fMcCands->At(i);
     l.Put(truth);
-    
+  }
+  
+  // now set genealogy inside the list
+  RhoCandidate* truthmother=0;
+  for (int k=0;k<l.GetLength();k++)
+  {
     // get mother track
-    PndMCTrack* part = (PndMCTrack*) fMcTracks->At(i);
+    PndMCTrack* part = (PndMCTrack*) fMcTracks->At(k);
     Int_t mcMotherID = part->GetMotherID();
     if(mcMotherID<0) mcMotherID=part->GetSecondMotherID();
     
     // SetMotherLink does the deep mother-daughter relation
     if (mcMotherID<0) continue; // no mother there, go on...
-    if (mcMotherID>=fMcCands->GetEntriesFast()) continue; // something bad hapened to the indices
+    if (mcMotherID>=l.GetLength()) continue; // something bad hapened to the indices
      
     // do the linking
-    truthmother = (RhoCandidate*) fMcCands->At(mcMotherID);
-    l[i]->SetMotherLink(truthmother);
+    truthmother = (RhoCandidate*) l[mcMotherID];
+    l[k]->SetMotherLink(truthmother);
   }
 
   return kTRUE;

@@ -39,7 +39,7 @@ RhoCandidate::RhoCandidate() :
   fFastMode ( kFALSE ),
   fLocked ( kFALSE ),
   fTheMother ( 0 ),
-  fDecayVtx ( 0 ),
+//  fDecayVtx ( 0 ),
   fPdtEntry ( 0 ),
   fPdgCode ( 0 ),
   fIsAResonance ( kFALSE ),
@@ -65,7 +65,7 @@ RhoCandidate::RhoCandidate ( const TLorentzVector& v, Double_t charge, RhoVector
   fFastMode ( kFALSE ),
   fLocked ( kFALSE ),
   fTheMother ( 0 ),
-  fDecayVtx ( vp ),
+//  fDecayVtx ( vp ),
   fPdtEntry ( 0 ),
   fPdgCode ( 0 ),
   fIsAResonance ( kFALSE ),
@@ -94,7 +94,7 @@ RhoCandidate::RhoCandidate ( const TVector3& v, const TParticlePDG* pdt, RhoVect
   fFastMode ( kFALSE ),
   fLocked ( kFALSE ),
   fTheMother ( 0 ),
-  fDecayVtx ( vp ),
+//  fDecayVtx ( vp ),
   fPdtEntry ( 0 ),
   fPdgCode ( 0 ),
   fIsAResonance ( kFALSE ),
@@ -182,7 +182,53 @@ RemoveAssociations();
 // This is the special constructor to bring a RhoCandidate into
 // life from the MicroCandidate
 
-RhoCandidate::RhoCandidate ( FairRecoCandidate& a, Int_t n, RhoVector3Err* vp, Bool_t fast ) :
+RhoCandidate::RhoCandidate ( FairRecoCandidate& a, Int_t n) :
+  fFastMode ( kFALSE ),
+  fLocked ( kFALSE ),
+  fTheMother ( 0 ),
+  fDecayVtx (  ), //default?
+  fPdtEntry ( 0 ),
+  fPdgCode ( 0 ),
+  fIsAResonance ( kFALSE ),
+  //      fTruth ( 0 ),
+  fMicroCand ( &a ),
+  fTrackNumber ( -1 ),
+  //fDaugList ( 0 ),
+  fNDaug ( 0 ),
+  fNCons ( 0 ),
+  fChi2 ( 0 ),
+  fMcTruth ( 0 ),
+  fFit ( 0 )
+{
+  fMarker[0] = fMarker[1] = fMarker[2] = fMarker[3] = 0;
+  // Set kinematics from MicroCandidate
+
+  SetP4 ( a.GetLorentzVector() );
+  SetPos ( a.GetPosition() );
+  SetCharge ( a.GetCharge() );
+
+  if ( !fFastMode ) {
+    const Float_t* err = a.GetErrorP7(); // 4 momentum & point
+    //const Float_t* cov = a.GetCov(); // helix cov
+    //const Float_t* par = a.GetParams(); // helix params
+    int i;
+    if ( err!=0 ) for ( i=0; i<MATRIXSIZE; i++ ) { fErrP7[i] = err[i]; }
+  }
+
+  SetUid ( n );
+
+  SetPidInfo ( 0 );
+  SetPidInfo ( 0,a.GetElectronPidLH() );
+  SetPidInfo ( 1,a.GetMuonPidLH() );
+  SetPidInfo ( 2,a.GetPionPidLH() );
+  SetPidInfo ( 3,a.GetKaonPidLH() );
+  SetPidInfo ( 4,a.GetProtonPidLH() );
+
+//  SetMcTruth ( a.GetMcTruth() ); // set the MCTuth object when building the mc list
+}
+
+
+RhoCandidate::RhoCandidate ( FairRecoCandidate& a, Int_t n, RhoVector3Err& vp, Bool_t fast ) :
   fFastMode ( fast ),
   fLocked ( kFALSE ),
   fTheMother ( 0 ),
@@ -621,7 +667,7 @@ RhoCandidate::SetMotherLink ( RhoCandidate* m , bool verbose)
 
   // if it's a resonance and the mother has already a decay vertex,
   // set the decay vertex of the mother to the daughter
-  if ( IsAResonance() && fTheMother->DecayVtx() !=0 && fTheMother->DecayVtx() !=DecayVtx() ) {
+  if ( IsAResonance()) {
     SetDecayVtx ( fTheMother->DecayVtx() );
     // if it is a resonance and the mother has no other vertex, the vertex of the reonance is given to her.
   }
@@ -721,11 +767,11 @@ operator << ( std::ostream& o, const RhoCandidate& a )
   return o;
 }
 
-const RhoVector3Err* RhoCandidate::ProductionVtx() const
-{
-  if ( fTheMother!=0 ) { return fTheMother->DecayVtx(); }
-  else { return 0; }
-}
+// const RhoVector3Err* RhoCandidate::ProductionVtx() const
+// {
+//   if ( fTheMother!=0 ) { return fTheMother->DecayVtx(); }
+//   else { return 0; }
+// }
 
 Bool_t RhoCandidate::operator== ( const RhoCandidate* c ) const
 {
@@ -818,28 +864,28 @@ RhoCandidate::SetType ( const TParticlePDG* pdt )
 
 
 void
-RhoCandidate::SetDecayVtx ( RhoVector3Err*  theVtx )
+RhoCandidate::SetDecayVtx ( RhoVector3Err  theVtx )
 {
 
   // protection against null pointers
-  if ( theVtx==0 ) { return; }
+  //if ( theVtx==0 ) { return; }
 
   //
   // Warning : this is a recursive algorithm
   //
 
   // this vertex is not already set
-  if ( fDecayVtx!=theVtx ) {
+  //if ( fDecayVtx!=theVtx ) {
     // set the new decay vertex reference
     fDecayVtx = theVtx;
 
-  } else {
-    cerr << "trying to reset the same vertex ! " << endl;
+ // } else {
+ //   cerr << "trying to reset the same vertex ! " << endl;
     // this is used to refresh the vertex links
     //theVtx->_inComingCand=0;
     //theVtx->_outGoingCands.clear();
     //theVtx->_resonances.clear();
-  }
+ // }
 
   // update the vertex back links
   /*   if ( IsAResonance() )
@@ -1039,24 +1085,24 @@ RhoCandidate::Daughter ( Int_t n )
 
 // former inline implementations
 
-RhoVector3Err*
-RhoCandidate::ProductionVtx()
-{
-  if ( fTheMother!=0 ) { return fTheMother->DecayVtx(); }
-  else { return 0; }
-}
-
-const RhoVector3Err*
-RhoCandidate::DecayVtx() const
-{
-  return fDecayVtx;
-}
-
-RhoVector3Err*
-RhoCandidate::DecayVtx()
-{
-  return fDecayVtx;
-}
+// RhoVector3Err*
+// RhoCandidate::ProductionVtx()
+// {
+//   if ( fTheMother!=0 ) { return fTheMother->DecayVtx(); }
+//   else { return 0; }
+// }
+// 
+// const RhoVector3Err*
+// RhoCandidate::DecayVtx() const
+// {
+//   return fDecayVtx;
+// }
+// 
+// RhoVector3Err*
+// RhoCandidate::DecayVtx()
+// {
+//   return fDecayVtx;
+// }
 
 const TParticlePDG*
 RhoCandidate::PdtEntry() const
@@ -1125,7 +1171,7 @@ void RhoCandidate::PrintOn ( std::ostream& o ) const
   o << "daughters: "<< fNDaug <<"(";
   for ( int i=0; i<fNDaug; i++ ) { o << " " << fDaughters[i]->Uid(); }
   o <<")";
-  if ( DecayVtx() ) { o << " dcy: "<<*DecayVtx(); }
+  o << " dcy: "<<fDecayVtx;
   o << " pdg: " <<fPdgCode;
   o << " PID:";
   for ( int k=0; k<5; k++ ) { o << fPidLH[k] <<","; } // take the first 5 pid entries to check charged p,pi,e,mu,K
@@ -1197,36 +1243,36 @@ void RhoCandidate::SetMarker ( UInt_t n )
 // }
 
 
-void RhoCandidate::SetTrajectory ( const TLorentzVector& p4, const RhoError& p4Err,
-                                   Int_t charge,const TParticlePDG* hypo,
-                                   RhoVector3Err* dVtx )
-{
-  if ( dVtx ) {
-    SetP7 ( *((TVector3*)dVtx),p4 );
-    //SetCov7 ( dVtx->XXCov(),p4Err,dVtx->XPCov() );
-    SetCov7 ( dVtx->CovMatrix(),p4Err );
-    //BbrPointErr pos(dVtx->point(),dVtx->xxCov());
-    //_deferCompTrk = true;
-
-    //     HepSymMatrix ppc(3);
-    //     for(Int_t k=0;k<3;k++)
-    //       for (Int_t j=k;j<3;j++)
-    //  ppc[j][k]=p4Err[j][k];
-    //     BbrVectorErr mom(p4.vect(),ppc);
-
-    //     TrkCompTrk * compTrk=new TrkCompTrk( pos,mom,dVtx->xpCov(),charge,
-    //                   dVtx->chiSquared(),dVtx->nDof());
-    //     setTrkCompTrk(compTrk);
-
-    SetDecayVtx ( dVtx );
-  } else {
-    SetP4 ( p4 );
-    SetCovP4 ( p4Err );
-  }
-
-  if ( hypo ) { SetType ( hypo ); }
-  if ( Uid() ==0 ) { SetUid(); }
-}
+// void RhoCandidate::SetTrajectory ( const TLorentzVector& p4, const RhoError& p4Err,
+//                                    Int_t charge,const TParticlePDG* hypo,
+//                                    RhoVector3Err dVtx )
+// {
+//   if ( dVtx ) {
+//     SetP7 ( ((TVector3*)dVtx),p4 );
+//     //SetCov7 ( dVtx->XXCov(),p4Err,dVtx->XPCov() );
+//     SetCov7 ( dVtx.CovMatrix(),p4Err );
+//     //BbrPointErr pos(dVtx->point(),dVtx->xxCov());
+//     //_deferCompTrk = true;
+// 
+//     //     HepSymMatrix ppc(3);
+//     //     for(Int_t k=0;k<3;k++)
+//     //       for (Int_t j=k;j<3;j++)
+//     //  ppc[j][k]=p4Err[j][k];
+//     //     BbrVectorErr mom(p4.vect(),ppc);
+// 
+//     //     TrkCompTrk * compTrk=new TrkCompTrk( pos,mom,dVtx->xpCov(),charge,
+//     //                   dVtx->chiSquared(),dVtx->nDof());
+//     //     setTrkCompTrk(compTrk);
+// 
+//     SetDecayVtx ( dVtx );
+//   } else {
+//     SetP4 ( p4 );
+//     SetCovP4 ( p4Err );
+//   }
+// 
+//   if ( hypo ) { SetType ( hypo ); }
+//   if ( Uid() ==0 ) { SetUid(); }
+// }
 
 void RhoCandidate::SetUid ( UInt_t uid )
 {

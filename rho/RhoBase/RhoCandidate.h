@@ -57,7 +57,7 @@ class RhoCandidate : public TObject
     // The mother
     RhoCandidate* fTheMother;  //! Do not stream
    // Counted reference to the vertex
-    RhoVector3Err* fDecayVtx;       //! Vertex
+    RhoVector3Err fDecayVtx;       //! Vertex
 
     // Identity
     const TParticlePDG* fPdtEntry;  //! Pointer to particle database
@@ -147,7 +147,8 @@ class RhoCandidate : public TObject
     //RhoCandidate ( const RhoCandidate* );
 
     // Special constructor from MicroCandidate
-    RhoCandidate ( FairRecoCandidate& a, Int_t n, RhoVector3Err* vp=0, Bool_t fast= kFALSE );
+    RhoCandidate ( FairRecoCandidate& a, Int_t n);
+    RhoCandidate ( FairRecoCandidate& a, Int_t n, RhoVector3Err& vp, Bool_t fast= kFALSE );
 
 //     RhoCandidate ( TLorentzVector p4,
 //                    RhoError& p4Err,
@@ -280,10 +281,7 @@ class RhoCandidate : public TObject
     //  Access to vertex information
     //
 
-    const RhoVector3Err*    DecayVtx() const;
-    RhoVector3Err*          DecayVtx();
-    const RhoVector3Err*    ProductionVtx() const;
-    RhoVector3Err*          ProductionVtx();
+    RhoVector3Err DecayVtx() {return fDecayVtx;};
 
     Double_t Chi2() const {return fChi2;}
     void SetChi2 ( Double_t chi2 ) {fChi2=chi2;}
@@ -411,9 +409,9 @@ class RhoCandidate : public TObject
     void  SetUid ( UInt_t uid=0 );
 
 
-    void SetTrajectory ( const TLorentzVector& p4, const RhoError& p4Err,
-                         Int_t charge,const TParticlePDG* hypo,
-                         RhoVector3Err* dVtx );
+//     void SetTrajectory ( const TLorentzVector& p4, const RhoError& p4Err,
+//                          Int_t charge,const TParticlePDG* hypo,
+//                          RhoVector3Err dVtx );
 
 
     void SetPidInfo ( double* pidinfo=0 );
@@ -430,7 +428,7 @@ class RhoCandidate : public TObject
     Bool_t IsLocal() const { return kTRUE; }
 
     // Set the decay vertex - operators can do that
-    void SetDecayVtx ( RhoVector3Err*  theVtx ) ;
+    void SetDecayVtx ( RhoVector3Err theVtx ) ;
 
     // Sets the mother link and adds a daughter link in the mother
     void SetMotherLink ( RhoCandidate* m , bool verbose=true );

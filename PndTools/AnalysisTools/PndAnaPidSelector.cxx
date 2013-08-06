@@ -150,10 +150,10 @@ Bool_t PndAnaPidSelector::SetSelection ( TString& crit )
     std::cout<<"Analysis PID selection criteria setting failed. "<<std::endl;
     std::cout<<"Selection String: \""<<crit.Data()<<"\""<<std::endl;
     std::cout<<"Invalid piece:    \""<<critcopy.Data()<<"\""<<std::endl;
-    std::cout<<"Viable optios are: (choose one or none of each)"<<std::endl;
+    std::cout<<"Viable optios are:"<<std::endl;
     std::cout<<"\tProton,Kaon,Pion,Muon,Electron"<<std::endl;
     std::cout<<"\tVeryLoose,Loose,Tight,VeryTight,Variable,Best,All"<<std::endl;
-    std::cout<<"\tPlus,Minus"<<std::endl;
+    std::cout<<"\tPlus,Minus,Charged,Neutral,(All)"<<std::endl;
     Error("SetSelection()","Invalid selection string.");
     return kFALSE;
   }
