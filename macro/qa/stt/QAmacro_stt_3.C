@@ -50,7 +50,7 @@ void QAmacro_stt_3()
 
   // -----   STT reconstruction -----------------------------------
   // trackfinding ....
-  PndTrkTracking2* tracking = new PndTrkTracking(0,false,false,false);
+  PndTrkTracking2* tracking = new PndTrkTracking2(0,false,false,false);
   tracking->SetInputBranchName("STTHit","MVDHitsPixel","MVDHitsStrip");
   tracking->NoMvdAloneTracking();
   fRun->AddTask(tracking);
