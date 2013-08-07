@@ -18,10 +18,32 @@ using namespace std;
 
 PndTrkNeighboringMap::PndTrkNeighboringMap(TClonesArray *tubearray) : fTubeArray(tubearray) {}
 
+PndTrkNeighboringMap::PndTrkNeighboringMap(const PndTrkNeighboringMap &thismap) {
+  *this = thismap;
+}
+
 PndTrkNeighboringMap::~PndTrkNeighboringMap() {}
+
+PndTrkNeighboringMap& PndTrkNeighboringMap::operator=(const PndTrkNeighboringMap &thismap) {
+
+  TMapIter *it = (TMapIter*) hit2neigh.MakeIterator();
+  TObjArray *hits;
+  while(PndTrkHit *hit = (PndTrkHit*) it->Next()) {
+    hits = (TObjArray*) thismap.hit2neigh.GetValue(hit);
+    hit2neigh.Add(hit, hits);
+  }
+
+  fTubeArray = thismap.fTubeArray;
+  fStandalone = thismap.fStandalone;
+  fSeeds = thismap.fSeeds;
+  fCandseeds = thismap.fCandseeds;
+  return *this;
+}
 
 
 void PndTrkNeighboringMap::AddNeighboringsToHit(PndTrkHit *hit, TObjArray *hits) {
+
+
   hit2neigh.Add(hit, hits);
   int tubeID = hit->GetTubeID();
   PndSttTube *tube = (PndSttTube*) fTubeArray->At(tubeID);

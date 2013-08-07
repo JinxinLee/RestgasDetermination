@@ -19,7 +19,10 @@ class PndTrkNeighboringMap : public TObject
  public:    
 
   PndTrkNeighboringMap(TClonesArray *tubearray);
+  PndTrkNeighboringMap(const PndTrkNeighboringMap& thismap);
   ~PndTrkNeighboringMap();    
+  PndTrkNeighboringMap& operator=(const PndTrkNeighboringMap &thismap);
+
 
   
   void AddNeighboringsToHit(PndTrkHit *hit, TObjArray *hits);
