@@ -1,3 +1,4 @@
+#include "PndLmdLumiHelper.h"
 #include "PndLmdResultPlotter.h"
 #include "PndLmdLumiFitResult.h"
 #include "PndLmdLumiFitOptions.h"
@@ -18,8 +19,8 @@
 #include <vector>
 #include <sstream>
 
-using boost::filesystem3::path;
-using boost::filesystem3::directory_iterator;
+using boost::filesystem::path;
+using boost::filesystem::directory_iterator;
 
 const double xmin = -4.0;
 const double xmax = 4.0;
@@ -61,7 +62,7 @@ std::vector<std::string> find_file(const path & dir_path, // in this directory,
 		directory_iterator end_itr; // default construction yields past-the-end
 		for (directory_iterator itr(dir_path); itr != end_itr; ++itr) {
 			// Skip if not a file
-			if (boost::filesystem3::is_regular_file(itr->status()))
+			if (boost::filesystem::is_regular_file(itr->status()))
 				continue;
 
 			boost::smatch what;
@@ -75,7 +76,7 @@ std::vector<std::string> find_file(const path & dir_path, // in this directory,
 			//std::cout << "This directory matches the filter " << dir_name_filter
 			//		<< std::endl;
 			// File matches, check if fit_result.root file resides in this directory
-			if (boost::filesystem3::is_directory(itr->status())) {
+			if (boost::filesystem::is_directory(itr->status())) {
 				for (directory_iterator fitr(itr->path()); fitr != end_itr; ++fitr) {
 
 					boost::smatch fwhat;
@@ -125,6 +126,8 @@ void determineLumiFitSystematics(std::string path, std::string dir_name_filter, 
 	std::vector<std::string> paths = find_file(path, dir_name_filter);
 
 	// create an instance of PndLmdResultPlotter the plotting helper class
+	PndLmdLumiHelper helper;
+	// create an instance of PndLmdResultPlotter the plotting helper class
 	PndLmdResultPlotter plotter;
 
 	//TH1D *dist_hist = new TH1D("lumi_rel_diffs", "", 40, xmin,
@@ -135,8 +138,11 @@ void determineLumiFitSystematics(std::string path, std::string dir_name_filter, 
 	for (unsigned int j = 0; j < paths.size(); j++) {
 		//std::cout << "found: " << paths[i] << std::endl;
 
+		// ------ get files -------------------------------------------------------
+		TFile *fdata = new TFile((paths[j] + "/lmd_data.root").c_str(), "UPDATE");
+
 		// read in data from a root file which will return a vector of pointers to PndLmdData objects
-		std::vector<PndLmdData*> data_vec = plotter.getDataFromPath(paths[j]);
+		std::vector<PndLmdData*> data_vec = helper.getDataFromFile(fdata);
 
 		// if you only have a single data object (mostly the case)
 		if (data_vec.size() > 0) {

@@ -117,25 +117,6 @@ PndLmdResultPlotter::combined_values PndLmdResultPlotter::createCombinedValue(
 	return cv;
 }
 
-std::vector<PndLmdData*> PndLmdResultPlotter::getDataFromPath(TString path) {
-	std::vector<PndLmdData*> vec_lmd_data;
-
-	TFile *f = new TFile(path + "/fit_results.root", "OPEN");
-
-	TIter next(f->GetListOfKeys());
-	TDirectory *dir;
-	while ((dir = (TDirectory*) next())) {
-		std::cout << "Found dir " << dir->GetName() << std::endl;
-		TString tname(dir->GetName());
-		PndLmdData *data;
-		f->GetObject(tname + "/lmddata", data);
-		if (data) {
-			std::cout << "adding " << tname + "/lmddata" << std::endl;
-			vec_lmd_data.push_back(data);
-		}
-	}
-	return vec_lmd_data;
-}
 
 std::pair<double, double> PndLmdResultPlotter::determinePlotRange(
 		std::map<TString, std::vector<combined_values> > &result_map) {

@@ -15,10 +15,10 @@
 
 ClassImp(PndLmdAcceptance)
 
-PndLmdAcceptance::PndLmdAcceptance(TFile *f_, int num_events_, double plab_,
+PndLmdAcceptance::PndLmdAcceptance(int num_events_, double plab_,
 		PndLmdFit::lmd_dimension th_dimension_,
 		PndLmdFit::lmd_dimension phi_dimension_, double acceptance_threshold_) :
-		PndLmdDataBase(f_, num_events_, plab_, th_dimension_, phi_dimension_), acceptance_threshold(
+		PndLmdDataBase(num_events_, plab_, th_dimension_, phi_dimension_), acceptance_threshold(
 				acceptance_threshold_) {
 	acceptance_1d = NULL;
 	acceptance_2d = NULL;
@@ -27,7 +27,6 @@ PndLmdAcceptance::PndLmdAcceptance(TFile *f_, int num_events_, double plab_,
 }
 
 PndLmdAcceptance::PndLmdAcceptance() {
-	f = NULL;
 	acceptance_threshold = 0.0;
 
 	acceptance_1d = NULL;
@@ -58,13 +57,6 @@ void PndLmdAcceptance::makeFitterHists() {
 
 	t_acceptance_1d = new TEfficiency(*t_mc_acc_1d, *t_mc_1d);
 
-	/*} else if (acceptance_type == 1) {
-	 acceptance_1d = new TEfficiency(*reco_1d, *mc_1d);
-	 acceptance_2d = new TEfficiency(*reco_2d, *mc_2d);
-
-	 t_acceptance_1d = new TEfficiency(*t_reco_1d, *t_mc_1d);
-	 }*/
-
 	// create array
 	data = new double*[th_dimension.bins * phi_dimension.bins];
 	for (int i = 0; i < th_dimension.bins * phi_dimension.bins; i++) {
@@ -72,14 +64,11 @@ void PndLmdAcceptance::makeFitterHists() {
 	}
 }
 
-void PndLmdAcceptance::saveToRootFile() {
-	makeDir();
-	if (acceptance_1d)
-		acceptance_1d->Write();
-	if (acceptance_2d)
-		acceptance_2d->Write();
-	if (t_acceptance_1d)
-		t_acceptance_1d->Write();
+void PndLmdAcceptance::saveToRootFile(TFile *file) {
+	std::cout << "Saving " << getName() << " to file..." << std::endl;
+  file->cd();
+
+	this->Write("lmdacc");
 }
 
 TH2D* PndLmdAcceptance::getMCHist() {

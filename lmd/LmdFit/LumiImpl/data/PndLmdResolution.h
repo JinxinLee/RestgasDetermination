@@ -28,7 +28,7 @@ private:
 	std::set<PndLmdLumiFitResult*> fit_set;
 
 public:
-	PndLmdResolution(TFile* f_, int num_events_, double plab, double th_slice_range_low_,
+	PndLmdResolution(int num_events_, double plab, double th_slice_range_low_,
 			double th_slice_range_high_, double phi_slice_range_low_,
 			double phi_slice_range_high_, PndLmdFit::lmd_dimension th_dimension_,
 			PndLmdFit::lmd_dimension phi_dimension_);
@@ -41,10 +41,10 @@ public:
 	TH1D* getResolutionHistogram1D();
 	TH2D* getResolutionHistogram2D();
 
-	void saveToRootFile();
+	void saveToRootFile(TFile *file);
 	virtual void makeName();
-	void makeDir();
-	void cdToParentDirectory();
+	/*void makeDir();
+	void cdToParentDirectory();*/
 
 	void fillHistograms(
 			std::vector<std::pair<PndLmdFit::lmd_values, PndLmdFit::lmd_values> > &event_data);

@@ -59,14 +59,14 @@ public:
 	/** Empty constructor required by ROOT IO */
 	PndLmdDataBase();
 	/** Standard constructor taking all binning information as parameters */
-	PndLmdDataBase(TFile* f_, int num_events_, double plab_, PndLmdFit::lmd_dimension th_dimension_,
+	PndLmdDataBase(int num_events_, double plab_, PndLmdFit::lmd_dimension th_dimension_,
 			PndLmdFit::lmd_dimension phi_dimension_);
 
 	virtual ~PndLmdDataBase();
 
 
 	// other helper methods
-	virtual void saveToRootFile();
+	virtual void saveToRootFile(TFile *file);
 
 	void setUnbinnedRecoData(TTree* reco_tree);
 	TTree* getUnbinnedRecoData() const;

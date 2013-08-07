@@ -34,6 +34,9 @@
 void plotLumiFitResults(TString path) {
 	std::cout << "Generating lumi plots for fit results....\n";
 
+	// A small helper class that helps to construct lmd data objects
+	PndLmdLumiHelper lumifit_helper;
+
 	// create an instance of PndLmdResultPlotter the plotting helper class
 	PndLmdResultPlotter plotter;
 
@@ -63,8 +66,11 @@ void plotLumiFitResults(TString path) {
 	//plotter.setTitleOffsetY(1.5);
 	// ================================= END CONFIG ================================= //
 
+	// ------ get files -------------------------------------------------------
+	TFile *fdata = new TFile(path + "/lmd_data.root", "UPDATE");
+
 	// read in data from a root file which will return a vector of pointers to PndLmdData objects
-	std::vector<PndLmdData*> data_vec = plotter.getDataFromPath(path);
+	std::vector<PndLmdData*> data_vec = lumifit_helper.getDataFromFile(fdata);
 
 	// =============================== BEGIN PLOTTING =============================== //
 	// if you only have a single data object (mostly the case)

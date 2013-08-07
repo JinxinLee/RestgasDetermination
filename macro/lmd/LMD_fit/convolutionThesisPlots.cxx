@@ -12,57 +12,54 @@
 #include "PndLmdModelFactory.h"
 #include "GaussianModel1D.h"
 
-#include "TCanvas.h"
-#include "TLine.h"
-
 #include <iostream>               // for std::cout
 #include <vector>
 #include <sstream>
 
 #include <tr1/memory>
 
+#include "TCanvas.h"
+#include "TLine.h"
+#include "TFile.h"
+#include "TString.h"
+
 using std::tr1::shared_ptr;
 
-void makeConvolutionThesisPlots(std::string acceptance_file_dir) {
+void makeConvolutionThesisPlots(TString acceptance_file_dir) {
 	// A small helper class that helps to construct lmddata objects
 	PndLmdLumiHelper lumifit_helper;
 
-	TFile *f;
+	double fit_range_low = 0.0;
+	double fit_range_high = 20.0;
 
-	double data_range_low = 0.0;
-	double data_range_high = 20.0;
-	unsigned int nEvents = 500000;
-	double mom = 4.06;
+	// ------ get files -------------------------------------------------------
+	TFile *facc = new TFile(acceptance_file_dir + "/lmd_acc_data.root", "OPEN");
+	// ------------------------------------------------------------------------
 
 	// ---- acceptance or box gen data ---- //
 	// same procedure as for the "real" data
 	std::vector<PndLmdAcceptance*> my_lmd_acc_vec;
 
-	PndLmdFit::lmd_dimension theta(200, data_range_low, data_range_high); // theta dimension
-	PndLmdFit::lmd_dimension phi(50, -TMath::Pi(), TMath::Pi()); // phi dimension
+	my_lmd_acc_vec = lumifit_helper.getAcceptanceFromFile(facc);
 
-	PndLmdAcceptance *acc = new PndLmdAcceptance(f, nEvents, mom, theta, phi, 0);
-	my_lmd_acc_vec.push_back(acc);
-
-	//register data objects in helper instance
-	lumifit_helper.registerAcceptances(my_lmd_acc_vec);
-
-	// fill all box gen histograms (for acceptance) that are registered in the gamma helper object
-	// note: 3rd argument identifies specifies which kind of data is being read in
-	lumifit_helper.fillData(mom, acceptance_file_dir,
-			PndLmdLumiHelper::ACCEPTANCE, PndLmdLumiHelper::FULL);
+	PndLmdAcceptance *acc;
+	if (my_lmd_acc_vec.size() > 0) {
+		acc = my_lmd_acc_vec[0];
+	}
+	if (!acc)
+		return;
 
 	PndLmdLumiFitOptions *fit_options;
 
 	LumiFit::LmdBinaryFitOptions bit_fit_opt(0);
 	bit_fit_opt.setFitAsRaw(false);
 	bit_fit_opt.setAcceptanceCorrMode(true);
-	fit_options = new PndLmdLumiFitOptions(bit_fit_opt, 0, 0, 1, mom,
-			data_range_low, data_range_high);
+	fit_options = new PndLmdLumiFitOptions(bit_fit_opt, 0, 0, 1, acc->getLabMomentum(),
+			fit_range_low, fit_range_high);
 
 	PndLmdModelFactory model_fac;
 	shared_ptr<Model1D> unsmeared_model = model_fac.generate1DModel(fit_options,
-			mom, acc);
+			acc->getLabMomentum(), acc);
 	unsmeared_model->getModelParameterSet().getModelParameter(
 			std::make_pair("dpm_angular_1d", "luminosity"))->setValue(1.0);
 
@@ -85,7 +82,6 @@ void makeConvolutionThesisPlots(std::string acceptance_file_dir) {
 	double height_model = unsmeared_model->evaluate(&xval);
 	double height_gauss = gauss1->evaluate(&xval);
 	double height_gauss2 = gauss1->evaluate(&xval2);
-
 
 	ROOTPlotter plotter;
 	ModelVisualizationProperties1D vp;
@@ -129,7 +125,7 @@ void makeConvolutionThesisPlots(std::string acceptance_file_dir) {
 
 int main(int argc, char* argv[]) {
 	if (argc == 2) {
-		makeConvolutionThesisPlots(std::string(argv[1]));
+		makeConvolutionThesisPlots(argv[1]);
 	}
 	return 0;
 }

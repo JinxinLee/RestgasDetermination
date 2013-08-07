@@ -17,7 +17,7 @@
 
 ClassImp(PndLmdResolution)
 
-PndLmdResolution::PndLmdResolution(TFile* f_, int num_events_, double plab,
+PndLmdResolution::PndLmdResolution(int num_events_, double plab,
 		double th_slice_range_low_, double th_slice_range_high_,
 		double phi_slice_range_low_, double phi_slice_range_high_,
 		PndLmdFit::lmd_dimension th_dimension_,
@@ -25,7 +25,6 @@ PndLmdResolution::PndLmdResolution(TFile* f_, int num_events_, double plab,
 		PndLmdDataInterface(plab, th_dimension_, phi_dimension_) {
 	setNumEvents(num_events_);
 
-	f = f_;
 	th_slice_range_low = th_slice_range_low_;
 	th_slice_range_high = th_slice_range_high_;
 	phi_slice_range_low = phi_slice_range_low_;
@@ -71,6 +70,7 @@ void PndLmdResolution::makeName() {
 	getName() += cname;
 }
 
+/*
 void PndLmdResolution::makeDir() {
 	char phi_dirname[100];
 	sprintf(phi_dirname, "%i_%f_%f_%f", phi_dimension.bins,
@@ -102,12 +102,12 @@ void PndLmdResolution::cdToParentDirectory() {
 			phi_dimension.range_low, phi_dimension.range_high, getPhiSliceMean());
 	f->cd();
 	gDirectory->cd(phi_dirname);
-}
+}*/
 
-void PndLmdResolution::saveToRootFile() {
+void PndLmdResolution::saveToRootFile(TFile *file) {
 	std::cout << "Saving " << getName() << " to file..." << std::endl;
 
-	makeDir(); // this will just change current directory to the one created by this data set
+	file->cd();
 
 	this->Write("lmdresolution");
 }

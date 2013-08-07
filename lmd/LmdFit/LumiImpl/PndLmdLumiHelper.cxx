@@ -34,6 +34,7 @@
 #include "TH2D.h"
 #include "TGraphErrors.h"
 #include "TCanvas.h"
+#include "TKey.h"
 
 #include "FairTrackParH.h"
 #include "FairTrackParP.h"
@@ -432,6 +433,40 @@ double PndLmdLumiHelper::calcHistIntegral(TH1D* hist,
 		}
 	}
 	return hist->Integral(bin_low, bin_high, "width");
+}
+
+std::vector<PndLmdData*> PndLmdLumiHelper::getDataFromFile(TFile *f) {
+	std::vector<PndLmdData*> vec_lmd_data;
+
+	TIter next(f->GetListOfKeys());
+	TKey *key;
+	while ((key = (TKey*) next())) {
+		std::cout << "Found key " << key->GetName() << std::endl;
+		PndLmdData *data;
+		f->GetObject(key->GetName(), data);
+		if (data) {
+			std::cout << "adding " << key->GetName() << std::endl;
+			vec_lmd_data.push_back(data);
+		}
+	}
+	return vec_lmd_data;
+}
+
+std::vector<PndLmdAcceptance*> PndLmdLumiHelper::getAcceptanceFromFile(TFile *f) {
+	std::vector<PndLmdAcceptance*> vec_lmd_acc;
+
+	TIter next(f->GetListOfKeys());
+	TKey *key;
+	while ((key = (TKey*) next())) {
+		std::cout << "Found key " << key->GetName() << std::endl;
+		PndLmdAcceptance *acc;
+		f->GetObject(key->GetName(), acc);
+		if (acc) {
+			std::cout << "adding " << key->GetName() << std::endl;
+			vec_lmd_acc.push_back(acc);
+		}
+	}
+	return vec_lmd_acc;
 }
 
 std::vector<PndLmdResolution*> PndLmdLumiHelper::getFittedResolutionsFromPath(
@@ -972,9 +1007,7 @@ void PndLmdLumiHelper::fitSmearingModelToResolutions(
 
 	for (unsigned int index_resolution = 0;
 			index_resolution < lmd_resolutions.size(); index_resolution++) {
-		lmd_resolutions[index_resolution]->makeDir();
 		fitResolutionForSlice(lmd_resolutions[index_resolution], fit_options);
-		lmd_resolutions[index_resolution]->saveToRootFile();
 	}
 }
 

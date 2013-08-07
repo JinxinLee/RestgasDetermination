@@ -107,6 +107,9 @@ public:
 
 	double calcHistIntegral(TH1D* hist, std::pair<double, double> range);
 
+	std::vector<PndLmdData*> getDataFromFile(TFile *f);
+	std::vector<PndLmdAcceptance*> getAcceptanceFromFile(TFile *f);
+
 #ifndef __CINT__
 	void removePointsAboveChi2(
 			std::map<std::string, TGraphErrors*, ModelStructs::string_comp> &graph_map

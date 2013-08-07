@@ -118,7 +118,6 @@ public:
 	void setTitleOffsetX(double title_offset_x_);
 	void setTitleOffsetY(double title_offset_y_);
 
-	std::vector<PndLmdData*> getDataFromPath(TString path);
 
 	TGraphErrors* createSmearingGraphFromFitResult(PndLmdLumiFitResult *fit_res,
 			PndLmdResolution *res_data);

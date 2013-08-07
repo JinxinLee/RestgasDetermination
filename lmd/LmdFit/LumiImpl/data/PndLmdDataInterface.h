@@ -97,9 +97,6 @@ protected:
 	/** defines the t (4 momentum transfer) dimension */
 	PndLmdFit::lmd_dimension t_dimension;
 
-	/** Root file where data is written to. */
-	TFile *f;
-
 public:
 	PndLmdDataInterface();
 	PndLmdDataInterface(double plab);
@@ -114,14 +111,11 @@ public:
 	PndLmdFit::lmd_dimension getTDimension() const;
 	PndLmdFit::lmd_dimension getThetaDimension() const;
 	PndLmdFit::lmd_dimension getPhiDimension() const;
-	TFile* getFile() const;
 
 	void setNumEvents(int num_events_);
 	void setLabMomentum(double p_lab_);
 
-	virtual void makeDir();
-	virtual void makeName() =0;
-	virtual void saveToRootFile() =0;
+	virtual void saveToRootFile(TFile* file) =0;
 	int addFileToList(TString filepath);
 
 	// histogram filling methods

@@ -69,9 +69,6 @@ PndLmdFit::lmd_dimension PndLmdDataInterface::getPhiDimension() const {
 	return phi_dimension;
 }
 
-TFile* PndLmdDataInterface::getFile() const {
-	return f;
-}
 
 void PndLmdDataInterface::setNumEvents(int num_events_) {
 	num_events = num_events_;
@@ -79,17 +76,6 @@ void PndLmdDataInterface::setNumEvents(int num_events_) {
 
 void PndLmdDataInterface::setLabMomentum(double p_lab_) {
 	p_lab = p_lab_;
-}
-
-void PndLmdDataInterface::makeDir() {
-	TDirectory *dir = f->GetDirectory(getName());
-	if (dir) {
-		dir->cd();
-	} else {
-		f->cd();
-		f->mkdir(getName());
-		f->cd(getName());
-	}
 }
 
 int PndLmdDataInterface::addFileToList(TString filepath) {

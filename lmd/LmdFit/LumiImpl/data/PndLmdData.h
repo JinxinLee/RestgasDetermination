@@ -45,7 +45,7 @@ private:
 	std::pair<double, double> calcRange(const PndLmdLumiFitOptions *fit_options);
 
 public:
-	PndLmdData(TFile *f_, int num_events_, double plab_,
+	PndLmdData(int num_events_, double plab_,
 			PndLmdFit::lmd_dimension th_dimension_,
 			PndLmdFit::lmd_dimension phi_dimension_,
 			double generated_luminosity_per_event = -1.0);
@@ -54,7 +54,7 @@ public:
 	~PndLmdData();
 	// getter methods
 
-	void saveToRootFile();
+	void saveToRootFile(TFile *file);
 
 	double getReferenceLuminosity() const;
 	void setReferenceLuminosityPerEvent(double luminosity_per_event_);

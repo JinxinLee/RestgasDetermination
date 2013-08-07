@@ -21,17 +21,15 @@
 
 ClassImp(PndLmdData)
 
-PndLmdData::PndLmdData(TFile *f_, int num_events_, double plab_,
+PndLmdData::PndLmdData(int num_events_, double plab_,
 		PndLmdFit::lmd_dimension th_dimension_,
 		PndLmdFit::lmd_dimension phi_dimension_,
 		double generated_luminosity_per_event_) :
-		PndLmdDataBase(f_, num_events_, plab_, th_dimension_, phi_dimension_) {
+		PndLmdDataBase(num_events_, plab_, th_dimension_, phi_dimension_) {
 	//fit_map =
 	//		new std::map<PndLmdLumiModel*, std::vector<PndLmdLumiFitResult*> >();
 
 	luminosity_per_event = generated_luminosity_per_event_;
-
-	makeDir();
 }
 PndLmdData::PndLmdData() {
 }
@@ -39,10 +37,9 @@ PndLmdData::PndLmdData() {
 PndLmdData::~PndLmdData() {
 }
 
-void PndLmdData::saveToRootFile() {
+void PndLmdData::saveToRootFile(TFile *file) {
+	file->cd();
 	std::cout << "Saving " << getName() << " to file..." << std::endl;
-
-	makeDir(); // this will just change current directory to the one created by this data set
 
 	this->Write("lmddata");
 }

@@ -21,11 +21,10 @@ ClassImp(PndLmdDataBase)
 PndLmdDataBase::PndLmdDataBase() {
 }
 
-PndLmdDataBase::PndLmdDataBase(TFile *f_, int num_events_, double plab_,
+PndLmdDataBase::PndLmdDataBase(int num_events_, double plab_,
 		PndLmdFit::lmd_dimension th_dimension_,
 		PndLmdFit::lmd_dimension phi_dimension_) :
 		PndLmdDataInterface(plab_, th_dimension_, phi_dimension_) {
-	f = f_;
 	setLabMomentum(plab_);
 	setNumEvents(num_events_);
 
@@ -113,7 +112,7 @@ void PndLmdDataBase::makeName() {
 	getName() += cname;
 }
 
-void PndLmdDataBase::saveToRootFile() {
+void PndLmdDataBase::saveToRootFile(TFile *file) {
 }
 
 void PndLmdDataBase::setUnbinnedRecoData(TTree* reco_tree) {

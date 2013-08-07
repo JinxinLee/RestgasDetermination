@@ -41,7 +41,7 @@ private:
 	void makeName();
 
 public:
-	PndLmdAcceptance(TFile *f_, int num_events_, double plab_,
+	PndLmdAcceptance(int num_events_, double plab_,
 			PndLmdFit::lmd_dimension th_dimension_,
 			PndLmdFit::lmd_dimension phi_dimension_, double acceptance_threshold_ =
 					0.95);
@@ -64,7 +64,7 @@ public:
 
 	void makeFitterHists();
 
-	void saveToRootFile();
+	void saveToRootFile(TFile *file);
 
 ClassDef(PndLmdAcceptance, 1)
 };
