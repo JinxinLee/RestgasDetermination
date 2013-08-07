@@ -77,7 +77,7 @@ void tut_ana_comb(int nevts=0)
 		// ***
 		jpsi.Combine(muplus, muminus);
 		for (j=0;j<jpsi.GetLength();++j) hjpsim_all->Fill( jpsi[j]->M() );
-		
+
 		// *** some rough mass selection
 		jpsi.Select(jpsiMassSel);
 		
@@ -102,7 +102,7 @@ void tut_ana_comb(int nevts=0)
 			{
 				if (muminus[k]->P()<0.3) continue;
 				
- 				RhoCandidate *combCand = muplus[j]->Combine(*muminus[k]);
+ 				RhoCandidate *combCand = muplus[j]->Combine(muminus[k]);
   				jpsi.Append(combCand);
 			}
 		}
@@ -131,7 +131,7 @@ void tut_ana_comb(int nevts=0)
 					// momentum selection and check clash with J/psi
 					if ( piminus[l]->P()<0.2 || piminus[l]->Overlaps(jpsi[j]) ) continue;
 					
-					RhoCandidate *combCand = jpsi[j]->Combine(*piplus[k], *piminus[l]);
+					RhoCandidate *combCand = jpsi[j]->Combine(piplus[k], piminus[l]);
   					psi2s.Append(combCand);
 				}
 			}
