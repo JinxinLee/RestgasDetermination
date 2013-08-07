@@ -1,4 +1,4 @@
-run_sim_complete(TString FileName="test",Double_t Momenta = 1.642, Int_t nEvents=100){
+run_sim_complete(TString FileName="test",Int_t lambdadiskposition=0, Double_t Momenta = 1.642, Int_t nEvents=100000,Int_t DecayModel=1,Int_t Seed=6){
   
   // This script should simulate the decay p pbar -> lambda lambdabar -> p pbar pi+ pi- with the hole panda detector.
   // The default beam momenta is 1.642, since the dataset for the parametrisation of the decay was recorded with this momenta.
@@ -7,18 +7,18 @@ run_sim_complete(TString FileName="test",Double_t Momenta = 1.642, Int_t nEvents
   //---- User Settings ------------------------------------------------------------
   
   // choose your simulation seed
-  gRandom->SetSeed(6);
+  gRandom->SetSeed(Seed);
   
   gDebug=0;
   
   TString MediaFile             = "media_pnd.geo";
 
-  Bool_t VisTrack               = kTRUE; 
+  Bool_t VisTrack               = kFALSE; 
 
   Double_t BeamMomentum         = 15.0; // beam momentum ONLY for the scaling of the dipole field. For the generator use "mom"
 
   // choose your simulation engine
-  TString SimEngine             = "TGeant4";
+  TString SimEngine             = "TGeant3";
 
   // choose your event generator
   Bool_t UseEvtGen              = kFALSE; 	  
@@ -34,7 +34,43 @@ run_sim_complete(TString FileName="test",Double_t Momenta = 1.642, Int_t nEvents
   // options for EvtGen + EvtGenDirect 
   //  TString EvtDecayFile          = gSystem->Getenv("VMCWORKDIR");
   //  EvtDecayFile                  +="/macro/run/2pipi.dec";  
-  TString EvtDecayFile          = "llbar_EvtModel_LambdaLambdaBarPol.DEC"; 
+  if(DecayModel==0)
+  {
+	  TString EvtDecayFile          = "llbar_EvtModel_PHSP.DEC";
+  }
+  else if(DecayModel==1)
+  {
+	  TString EvtDecayFile          = "llbar_EvtModel_LambdaLambdaBarPol_1-642.DEC";
+  }
+  else if(DecayModel==2)
+  {
+	  TString EvtDecayFile		= "llbar_EvtModel_LambdaLambdaBarPol_1-918.DEC";
+  }
+  else if(DecayModel==3)
+  {
+          TString EvtDecayFile 		= "llbar_EvtModel_LambdaLambdaBarHE.DEC";
+  }
+  else if(DecayModel==4)
+  {
+ 	  TString EvtDecayFile          = "llbar_EvtModel_LambdaLambdaBar_1-642.DEC";
+  } 
+  else if(DecayModel==5)
+  {
+  	  TString EvtDecayFile		= "llbar_EvtModel_LambdaLambdaBar_1-918.DEC";
+  }
+  else if(DecayModel==6)
+  {
+	  TString EvtDecayFile 		= "llbar_EvtModel_LambdaLambdaBarPol_6.DEC";
+  }  
+  else if(DecayModel==7)
+  {
+	  TString EvtDecayFile  	= "llbar_EvtModel_LambdaLambdaBar_6.DEC";	
+  }
+
+  else
+  {
+	  TString EvtDecayFile          = "llbar_EvtModel_PHSP.DEC";
+  }
 
   // options for BoxGenerator
   Int_t Particle                = 22;  // DPG Code http://pdg.lbl.gov/2012/mcdata/mc_particle_id_contents.html
@@ -123,8 +159,37 @@ run_sim_complete(TString FileName="test",Double_t Momenta = 1.642, Int_t nEvents
 
   // MVD (Just the Lambda Disks)
   FairDetector *LambdaDisks = new PndMvdDetector("MVD", kTRUE);   // Just Lambda Disks
-  LambdaDisks->SetGeometryFileName("Mvd_AddDisks_Silicon_Closed_smallSens.root");
-  fRun->AddModule(LambdaDisks);
+
+  if(lambdadiskposition==0)
+  {
+	  LambdaDisks->SetGeometryFileName("LambdaDisksSeparatedSupport.root");		  // Lambda Disks at 40cm & 60 cm  - Position 0
+	  LambdaDisks->SetVerboseLevel(0);
+	  fRun->AddModule(LambdaDisks);
+  }
+  else if(lambdadiskposition==1)
+  {
+	  LambdaDisks->SetGeometryFileName("Mvd_AddDisks_smalldiskdistance_position1_40cm.root");   // Lambda Disks at 37cm & 43 cm - Position 1
+	  LambdaDisks->SetVerboseLevel(0);
+	  fRun->AddModule(LambdaDisks);
+  }
+  else if(lambdadiskposition==2)
+  {
+	  LambdaDisks->SetGeometryFileName("Mvd_AddDisks_smalldiskdistance_position2_60cm.root");   // Lambda Disks at 57cm & 63 cm - Position 2
+	  LambdaDisks->SetVerboseLevel(0);
+	  fRun->AddModule(LambdaDisks);
+  }
+  else if(lambdadiskposition==3)
+  {
+	  LambdaDisks->SetGeometryFileName("Mvd_AddDisks_smalldiskdistance_position3_80cm.root");   // Lambda Disks at 77cm & 83 cm - Position 2
+	  LambdaDisks->SetVerboseLevel(0);
+	  fRun->AddModule(LambdaDisks);
+  }
+  else
+  {
+	  std::cout << "No LambdaDisk position given - No LambdaDisks will be added" << std::endl;
+	  //exit(0);
+  }
+
 
   // GEM
   FairDetector *Gem = new PndGemDetector("GEM", kTRUE);
@@ -205,7 +270,7 @@ run_sim_complete(TString FileName="test",Double_t Momenta = 1.642, Int_t nEvents
   }     
   if(UseEvtGenDirect){   
     PndEvtGenDirect *EvtGen = new PndEvtGenDirect("pbarpSystem", EvtDecayFile.Data(), Momenta);
-    EvtGen->SetStoreTree(kFALSE);
+    EvtGen->SetStoreTree(kTRUE);
     primGen->AddGenerator(EvtGen);
   } 
   
@@ -232,9 +297,15 @@ run_sim_complete(TString FileName="test",Double_t Momenta = 1.642, Int_t nEvents
   Double_t rtime = timer.RealTime();
   Double_t ctime = timer.CpuTime();
   printf("RealTime=%f seconds, CpuTime=%f seconds\n",rtime,ctime);
-  
+ 
+  cout << endl << endl;
+  cout << "Sim macro finished successfully." << endl;
+  cout << "Output file is "    << outputFile << endl;
+  cout << "Parameter file is " << parFile << endl;
+  cout << "Real time " << rtime << " s, CPU time " << ctime << " s" << endl;
+  cout << endl;
+
   cout << " Test passed" << endl;
   cout << " All ok " << endl;
   
-  exit(0);
 }
