@@ -19,6 +19,7 @@
 #include "PndTrkTrack.h"
 #include "PndTrkConformalHitList.h"
 #include "PndTrkFitter.h"
+#include "PndTrkNeighboringMap.h"
 
 // ROOT
 #include "TH2F.h"
@@ -60,6 +61,8 @@ class PndTrkLegendreNew : public FairTask {
   inline void SwitchOnDisplay() { fDisplayOn = kTRUE; }
   void DrawGeometry();
   void DrawHits(PndTrkHitList *hitlist);
+  void DrawLists(PndTrkNeighboringMap hitmap); 
+  void DrawNeighborings(PndTrkNeighboringMap hitmap);
   void Refresh();
 
   void LightCluster(PndTrkCluster *cluster);

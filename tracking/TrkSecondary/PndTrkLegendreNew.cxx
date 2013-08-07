@@ -264,70 +264,13 @@ void PndTrkLegendreNew::Exec(Option_t* opt) {
     hitmap.AddNeighboringsToHit(hit, neighborings);
   }
 
-  neighborings = NULL;
-  delete neighborings;
+  //  neighborings = NULL;
+  //   delete neighborings;
 
-
- // draw lists ---------
- if(1 == 1) {
-   if(fDisplayOn)  {
-     char goOnChar;
-     cout << "new hit?" << endl;
-     cin >> goOnChar;
-     Refresh(); 
-
-
-     for(int i = 0; i < hitmap.GetStandalone().GetEntriesFast(); i++) {
-       PndTrkHit *hitA = (PndTrkHit*) hitmap.GetStandalone().At(i);
-       hitA->DrawTube(kGreen);
-     }
-     for(int i = 0; i < hitmap.GetSeeds().GetEntriesFast(); i++) {
-       PndTrkHit *hitA = (PndTrkHit*) hitmap.GetSeeds().At(i);
-       hitA->DrawTube(kRed);
-     }
-     for(int i = 0; i < hitmap.GetCandseeds().GetEntriesFast(); i++) {
-       PndTrkHit *hitA = (PndTrkHit*) hitmap.GetCandseeds().At(i);
-       hitA->DrawTube(kBlue);
-     }
-     
-     //     for(int i = 0; i < limits.GetEntriesFast(); i++) {
-     //        PndTrkHit *hitA = (PndTrkHit*) limits.At(i);
-     //        hitA->DrawTube(kYellow);
-     //      }
-     
-     display->Update();
-     display->Modified();
-     cin >> goOnChar;
-   }
- }
-
- // draw neighborings ---------
- if(1 == 2) {
-   if(fDisplayOn)  {
-     char goOnChar;
- 
-     for(int ihit = 0; ihit < stthitlist->GetNofHits(); ihit++) {
-       cout << "new neigh hit?" << endl;
-       cin >> goOnChar;
-       Refresh(); 
-       PndTrkHit *hit = stthitlist->GetHit(ihit);
-       hit->DrawTube(kYellow);
-       TObjArray *neighs = hitmap.GetNeighboringsToHit(hit);
-       cout << "HIT " << hit->GetHitID() << " has " << neighs->GetEntriesFast() << " neighborings: ";
-       for(int i = 0; i < neighs->GetEntriesFast(); i++) {
-	 PndTrkHit *hitA = (PndTrkHit*) neighs->At(i);
-	 hitA->DrawTube(kCyan);
-	 cout << " " << hitA->GetHitID() ;
-       }
-       cout << endl;
-       display->Update();
-       display->Modified();
-       cin >> goOnChar;
-
-   
-     }
-   }
- }
+  if(fDisplayOn) {
+    if(1 == 2)  DrawLists(hitmap);
+    if(1 == 2)  DrawNeighborings(hitmap);
+  }
 
  // ---------- PRINT ---------------------
  for(int iclus = 0; iclus < clusterlist.GetNofClusters(); iclus++) {
@@ -448,6 +391,65 @@ void PndTrkLegendreNew::DrawGeometry() {
   display->Update();
   display->Modified();  
  
+}
+
+// draw lists ---------
+void PndTrkLegendreNew::DrawLists(PndTrkNeighboringMap hitmap) {
+  char goOnChar;
+  cout << "new hit?" << endl;
+  cin >> goOnChar;
+  Refresh(); 
+  
+  
+  for(int i = 0; i < hitmap.GetStandalone().GetEntriesFast(); i++) {
+    PndTrkHit *hitA = (PndTrkHit*) hitmap.GetStandalone().At(i);
+    hitA->DrawTube(kGreen);
+  }
+  for(int i = 0; i < hitmap.GetSeeds().GetEntriesFast(); i++) {
+    PndTrkHit *hitA = (PndTrkHit*) hitmap.GetSeeds().At(i);
+    hitA->DrawTube(kRed);
+  }
+  for(int i = 0; i < hitmap.GetCandseeds().GetEntriesFast(); i++) {
+    PndTrkHit *hitA = (PndTrkHit*) hitmap.GetCandseeds().At(i);
+    hitA->DrawTube(kBlue);
+     }
+  
+  //     for(int i = 0; i < limits.GetEntriesFast(); i++) {
+  //        PndTrkHit *hitA = (PndTrkHit*) limits.At(i);
+  //        hitA->DrawTube(kYellow);
+     //      }
+  
+  display->Update();
+  display->Modified();
+  cin >> goOnChar;
+}
+
+
+// draw neighborings ---------
+void PndTrkLegendreNew::DrawNeighborings(PndTrkNeighboringMap hitmap) {
+
+  char goOnChar;
+ 
+  for(int ihit = 0; ihit < stthitlist->GetNofHits(); ihit++) {
+    cout << "new neigh hit?" << endl;
+    cin >> goOnChar;
+    Refresh(); 
+    PndTrkHit *hit = stthitlist->GetHit(ihit);
+    hit->DrawTube(kYellow);
+    TObjArray *neighs = hitmap.GetNeighboringsToHit(hit);
+    cout << "HIT " << hit->GetHitID() << " has " << neighs->GetEntriesFast() << " neighborings: ";
+    for(int i = 0; i < neighs->GetEntriesFast(); i++) {
+      PndTrkHit *hitA = (PndTrkHit*) neighs->At(i);
+      hitA->DrawTube(kCyan);
+      cout << " " << hitA->GetHitID() ;
+    }
+    cout << endl;
+    display->Update();
+    display->Modified();
+    cin >> goOnChar;
+
+   
+  }
 }
 
 ClassImp(PndTrkLegendreNew)
