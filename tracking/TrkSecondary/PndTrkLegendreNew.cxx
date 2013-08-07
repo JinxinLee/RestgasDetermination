@@ -268,28 +268,123 @@ void PndTrkLegendreNew::Exec(Option_t* opt) {
   //   delete neighborings;
 
   if(fDisplayOn) {
-    if(1 == 2)  DrawLists(hitmap);
-    if(1 == 2)  DrawNeighborings(hitmap);
+    if(1 == 1)  DrawLists(&hitmap);
+    if(1 == 2)  DrawNeighborings(&hitmap);
   }
 
- // ---------- PRINT ---------------------
- for(int iclus = 0; iclus < clusterlist.GetNofClusters(); iclus++) {
-   PndTrkCluster *cluster = clusterlist.GetCluster(iclus);
-   if(cluster->GetNofHits() < 3) continue;
-   cout << "CLUSTER " << iclus << ":";
-   if(fDisplayOn)  {
-     char goOnChar;
-     cin >> goOnChar;
-     Refresh();
-     cluster->LightUp();
-     display->Update();
-     display->Modified();
-   }
+  // get seeds *********************************************8
+  TObjArray seeds = hitmap.GetSeeds();
+  neighborings = NULL;
+  
+  // ----------------- loop over seeds
+  for(int iseed = 0; iseed < seeds.GetEntriesFast(); iseed++) {
+    PndTrkCluster *cluster = new PndTrkCluster();
+    PndTrkHit *seedhit = (PndTrkHit*) seeds.At(iseed);
+    
+    // is it already used
+    if(seedhit->IsUsed() == kTRUE) continue;
+    
+    int seedtubeID = seedhit->GetTubeID();
+    PndSttTube *seedtube = (PndSttTube*) fTubeArray->At(seedtubeID);
+    int seedlayerID = seedtube->GetLayerID();
+    
+    // add hit to cluster
+    cluster->AddHit(seedhit);
+
+    //    if(fDisplayOn) {
+    //       char goOnChar;
+    //       cin >> goOnChar;
+    //       cout << "SEED " << seedtubeID << endl; 
+    //       cluster->LightUp();
+    //       display->Update();
+    //       display->Modified();
+    //     }
+
+    // add cluster to clusterlist
+    clusterlist.AddCluster(cluster);
+
+    int nlastadded = 1, addedcounter = 0;
+    // cout << "nlastadded to " << seedhit->GetHitID() << "(" << seedtubeID << ")" << " " << nlastadded << endl;
+    //    if(nlastadded == 0) continue;
+    while(nlastadded > 0) {
+      // loop on the last nlastadded hits to this cluster
+      // example: add to a 5 hits cluster: 0 1 2 3 4
+      // the hits no. 5, 6, 7
+      // --> nlastadded = 3 & nof hits in cluster = 5 + 3 = 8
+      // 7 6 5 = 8 - 3
+      // here loop from hit 8 - 1 = 7 to hit 8 - 3 = 5
+
+      addedcounter = 0;
+
+      // cout << "@@@@@@@@@@@@@@@@@ loop on the last " << nlastadded << " hits of cluster" << endl;
+      //   for(int ihit = 0; ihit < cluster->GetNofHits(); ihit++) {
+      // 	PndTrkHit *hit = cluster->GetHit(ihit);
+      // 	cout << " " << hit->GetHitID() ;
+      //       }
+      //       cout << endl;
+
+
+      int nclusterhits = cluster->GetNofHits();
+      for(int iadded = nclusterhits - 1; iadded >= (nclusterhits - nlastadded); iadded--) {
+	PndTrkHit *addedhit = cluster->GetHit(iadded);
+	neighborings = hitmap.GetNeighboringsToHit(addedhit);
+	if(neighborings->GetEntriesFast() == 0) continue;
+	//	cout << "hit " << addedhit->GetHitID() << "(" << addedhit->GetTubeID() << ")" << " has " << neighborings->GetEntriesFast()  << " neighborigns: " << endl;
+
+	// loop over the neighborings and add them all
+	for(int ineigh = 0; ineigh < neighborings->GetEntriesFast(); ineigh++)
+	  {
+	    PndTrkHit *neighhit = (PndTrkHit*) neighborings->At(ineigh);
+	    //  cout << " " << neighhit->GetHitID() << "(" << neighhit->GetTubeID() << ")";
+	    if(cluster->DoesContain(neighhit) == kTRUE) {
+	      //  cout << "UN-ADDED, in cluster already" << endl;
+	      continue;
+	    }
+	    cluster->AddHit(neighhit);
+	    addedcounter++;
+	    //  cout << " - ADDED; ";
+
+	    //     if(fDisplayOn) {
+	    // 	      char goOnChar;
+	    // 	      cin >> goOnChar;
+	    // 	      cluster->LightUp();
+	    // 	      display->Update();
+	    // 	      display->Modified();
+	    // 	      //  cin >> goOnChar;
+	    // 	    }
+	    
+	  }
+
+
+      }
+      //       cout << endl;
+      nlastadded = addedcounter;
+    }
+    //     cout << "NEXT seed " << endl;
+  }
+
+  cout << "CLUSTERLIST " << clusterlist.GetNofClusters() << endl;
+
+
+
+  // ---------- PRINT ---------------------
+  for(int iclus = 0; iclus < clusterlist.GetNofClusters(); iclus++) {
+    PndTrkCluster *cluster = clusterlist.GetCluster(iclus);
+    // if(cluster->GetNofHits() < 3) continue;
+    cout << "CLUSTER " << iclus << ":";
+    if(fDisplayOn)  {
+      char goOnChar;
+      cin >> goOnChar;
+      Refresh();
+      cluster->LightUp();
+      display->Update();
+      display->Modified();
+    }
       
-   for(int ihit = 0; ihit < cluster->GetNofHits(); ihit++) {
-     PndTrkHit *hit = cluster->GetHit(ihit);
-     cout << " " << hit->GetHitID();
-   }
+    for(int ihit = 0; ihit < cluster->GetNofHits(); ihit++) {
+      PndTrkHit *hit = cluster->GetHit(ihit);
+      cout << " " << hit->GetHitID();
+    }
 
     cout << endl;
   }
@@ -394,23 +489,23 @@ void PndTrkLegendreNew::DrawGeometry() {
 }
 
 // draw lists ---------
-void PndTrkLegendreNew::DrawLists(PndTrkNeighboringMap hitmap) {
+void PndTrkLegendreNew::DrawLists(PndTrkNeighboringMap *hitmap) {
   char goOnChar;
   cout << "new hit?" << endl;
   cin >> goOnChar;
   Refresh(); 
   
   
-  for(int i = 0; i < hitmap.GetStandalone().GetEntriesFast(); i++) {
-    PndTrkHit *hitA = (PndTrkHit*) hitmap.GetStandalone().At(i);
+  for(int i = 0; i < hitmap->GetStandalone().GetEntriesFast(); i++) {
+    PndTrkHit *hitA = (PndTrkHit*) hitmap->GetStandalone().At(i);
     hitA->DrawTube(kGreen);
   }
-  for(int i = 0; i < hitmap.GetSeeds().GetEntriesFast(); i++) {
-    PndTrkHit *hitA = (PndTrkHit*) hitmap.GetSeeds().At(i);
+  for(int i = 0; i < hitmap->GetSeeds().GetEntriesFast(); i++) {
+    PndTrkHit *hitA = (PndTrkHit*) hitmap->GetSeeds().At(i);
     hitA->DrawTube(kRed);
   }
-  for(int i = 0; i < hitmap.GetCandseeds().GetEntriesFast(); i++) {
-    PndTrkHit *hitA = (PndTrkHit*) hitmap.GetCandseeds().At(i);
+  for(int i = 0; i < hitmap->GetCandseeds().GetEntriesFast(); i++) {
+    PndTrkHit *hitA = (PndTrkHit*) hitmap->GetCandseeds().At(i);
     hitA->DrawTube(kBlue);
      }
   
@@ -426,30 +521,39 @@ void PndTrkLegendreNew::DrawLists(PndTrkNeighboringMap hitmap) {
 
 
 // draw neighborings ---------
-void PndTrkLegendreNew::DrawNeighborings(PndTrkNeighboringMap hitmap) {
-
+void PndTrkLegendreNew::DrawNeighborings(PndTrkNeighboringMap *hitmap) {
   char goOnChar;
  
   for(int ihit = 0; ihit < stthitlist->GetNofHits(); ihit++) {
     cout << "new neigh hit?" << endl;
     cin >> goOnChar;
-    Refresh(); 
     PndTrkHit *hit = stthitlist->GetHit(ihit);
-    hit->DrawTube(kYellow);
-    TObjArray *neighs = hitmap.GetNeighboringsToHit(hit);
-    cout << "HIT " << hit->GetHitID() << " has " << neighs->GetEntriesFast() << " neighborings: ";
-    for(int i = 0; i < neighs->GetEntriesFast(); i++) {
-      PndTrkHit *hitA = (PndTrkHit*) neighs->At(i);
-      hitA->DrawTube(kCyan);
-      cout << " " << hitA->GetHitID() ;
-    }
-    cout << endl;
-    display->Update();
-    display->Modified();
+    DrawNeighboringsToHit(hitmap, hit);
     cin >> goOnChar;
-
-   
   }
+
+}
+
+void PndTrkLegendreNew::DrawNeighboringsToHit(PndTrkNeighboringMap *hitmap, PndTrkHit *hit) {
+
+ 
+  Refresh(); 
+  hit->DrawTube(kYellow);
+   PndSttTube *tube = (PndSttTube*) fTubeArray->At(hit->GetTubeID());
+ TObjArray *neighs = hitmap->GetNeighboringsToHit(hit);
+
+
+ cout << "HIT " << hit->GetHitID() << "(" << hit->GetTubeID() << "/" << tube->GetLayerID() << ")" << " has " << neighs->GetEntriesFast() << " neighborings: ";
+  for(int i = 0; i < neighs->GetEntriesFast(); i++) {
+    PndTrkHit *hitA = (PndTrkHit*) neighs->At(i);
+    hitA->DrawTube(kCyan);
+     PndSttTube *tubeA = (PndSttTube*) fTubeArray->At(hitA->GetTubeID());
+     cout << " " << hitA->GetHitID() << "(" << hitA->GetTubeID() << "/" << tubeA->GetLayerID() << ")";
+  }
+  cout << endl;
+  display->Update();
+  display->Modified();
+  
 }
 
 ClassImp(PndTrkLegendreNew)

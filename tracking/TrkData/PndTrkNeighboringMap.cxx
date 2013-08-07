@@ -24,6 +24,7 @@ PndTrkNeighboringMap::PndTrkNeighboringMap(const PndTrkNeighboringMap &thismap) 
 
 PndTrkNeighboringMap::~PndTrkNeighboringMap() {}
 
+// CHECK this might still have problems
 PndTrkNeighboringMap& PndTrkNeighboringMap::operator=(const PndTrkNeighboringMap &thismap) {
 
   TMapIter *it = (TMapIter*) hit2neigh.MakeIterator();

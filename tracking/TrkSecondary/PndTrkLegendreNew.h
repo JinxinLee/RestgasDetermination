@@ -61,8 +61,9 @@ class PndTrkLegendreNew : public FairTask {
   inline void SwitchOnDisplay() { fDisplayOn = kTRUE; }
   void DrawGeometry();
   void DrawHits(PndTrkHitList *hitlist);
-  void DrawLists(PndTrkNeighboringMap hitmap); 
-  void DrawNeighborings(PndTrkNeighboringMap hitmap);
+  void DrawLists(PndTrkNeighboringMap *hitmap); 
+  void DrawNeighborings(PndTrkNeighboringMap *hitmap);
+  void DrawNeighboringsToHit(PndTrkNeighboringMap *hitmap, PndTrkHit *hit);
   void Refresh();
 
   void LightCluster(PndTrkCluster *cluster);
