@@ -60,6 +60,7 @@
     for(int inei = 0; inei < neighborings.GetSize(); inei++) { 
       tube = (PndSttTube*) fTubeArray.At(neighborings.At(inei));
       TVector3 position = tube->GetPosition(); 
+      cout << " " << neighborings.At(inei);
       if(tube->IsParallel()) {
 	arc = new TArc(position.X(), position.Y(), 0.5); 
 	arc->SetFillColor(3);
@@ -67,12 +68,18 @@
       }
       else {
 	mrk = new TMarker(position.X(), position.Y(), 6);
+
+	TVector3 extr1 = position - tube->GetWireDirection() * tube->GetHalfLength();
+	TVector3 extr2 = position + tube->GetWireDirection() * tube->GetHalfLength();
+	// 	mrk = new TMarker(extr1.X(), extr1.Y(), 6);
+	//	mrk = new TMarker(extr2.X(), extr2.Y(), 6);
+
 	mrk->SetMarkerColor(3);
 	mrk->Draw("SAME");
       }
     }
 
-
+    cout << endl;
     c->Update();
     c->Modified();
   }
