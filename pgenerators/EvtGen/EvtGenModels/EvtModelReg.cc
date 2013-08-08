@@ -49,6 +49,7 @@
 #include "EvtGenModels/EvtSVPCP.hh"
 #include "EvtGenModels/EvtVVSPwave.hh"
 #include "EvtGenModels/EvtDDalitz.hh"
+#include "EvtGenModels/EvtDsDalitz.hh"        // [Lu Cao 22/07/2013]
 #include "EvtGenModels/EvtOmegaDalitz.hh"
 #include "EvtGenModels/EvtPi0Dalitz.hh"
 #include "EvtGenModels/EvtEtaDalitz.hh"
@@ -168,6 +169,7 @@ EvtModelReg::EvtModelReg()
     modelist.Register(new EvtSVPCP);
     modelist.Register(new EvtVVSPwave);
     modelist.Register(new EvtDDalitz);
+    modelist.Register(new EvtDsDalitz);       // [Lu Cao 22/07/2013]
     modelist.Register(new EvtOmegaDalitz);
     modelist.Register(new EvtEtaDalitz);
     modelist.Register(new EvtPhsp);

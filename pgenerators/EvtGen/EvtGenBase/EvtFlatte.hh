@@ -8,40 +8,62 @@
 // Copyright Information: See EvtGen/COPYRIGHT
 //      Copyright (C) 1998      Caltech, UCSB
 //
-// Module: EvtGen/EvtResonance2.hh
+// Module: EvtGen/EvtFlatte.hh
 //
 // Description:resonance-defining class
 //
 // Modification history:
 //
-//    lange   Nov 21, 2000         Module created
+//    ponyisi  18 Feb 2008  created
+//
 //
 //------------------------------------------------------------------------
 
-#ifndef EVTRESONANCE2_HH
-#define EVTRESONANCE2_HH
+#ifndef EVTFLATTE_HH
+#define EVTFLATTE_HH
 
 #include "EvtGenBase/EvtVector4R.hh"
+#include <vector>
+
+using std::vector;
 
 class EvtComplex;
 
+// Helper class
+
+class EvtFlatteParam {
+   public:
+      EvtFlatteParam(double fm1, double fm2, double fg):
+	 _m1(fm1), _m2(fm2), _g(fg) {}
+      
+      inline double m1() const { return _m1; }
+      inline double m2() const { return _m2; }
+      inline double g() const { return _g; }
+
+   private:
+      double _m1, _m2, _g;
+};
 
 //class declaration
 
-class EvtResonance2 {
+class EvtFlatte {
   public:
 
    //operator
-   EvtResonance2& operator = (const EvtResonance2 &);
+   EvtFlatte& operator = (const EvtFlatte &);
 
    //constructor with all information about the resonance
-   EvtResonance2(const EvtVector4R& p4_p, const EvtVector4R& p4_d1, 
-		const EvtVector4R& p4_d2, 
-		double ampl = 0.0, double theta = 0.0, double gamma = 0.0, 
-		double bwm = 0.0, int spin = 0, bool invmass_angdenom = false);
+   EvtFlatte(const EvtVector4R& p4_p, const EvtVector4R& p4_d1, 
+	     const EvtVector4R& p4_d2, 
+	     double ampl, double theta,
+	     double mass, 
+	     vector<EvtFlatteParam>& params
+//	     double m1a = 0.0, double m1b = 0.0, double g1 = 0.0,
+//	     double m2a = 0.0, double m2b = 0.0, double g2 = 0.0
+      );
 
     //destructor
-   virtual ~EvtResonance2();
+   virtual ~EvtFlatte();
 
    //accessors
       //return 4-momenta of the particles involved
@@ -56,14 +78,8 @@ class EvtResonance2 {
       //return theta
     inline double theta() { return _theta; } 
 
-      //return gamma
-    inline double gamma() { return _gamma; } 
-
       //return bwm
-    inline double bwm() { return _bwm; } 
-
-       //return spin
-    inline int spin() { return _spin; } 
+    inline double mass() { return _mass; } 
 
 //functions
 
@@ -72,10 +88,13 @@ class EvtResonance2 {
    
   private:
 
+      inline EvtComplex sqrtCplx(double in) { return (in > 0) ? EvtComplex(sqrt(in), 0) : EvtComplex(0, sqrt(-in)); }
+
     EvtVector4R _p4_p, _p4_d1, _p4_d2;
-    double _ampl, _theta, _gamma, _bwm;
-    int _spin;
-    bool _invmass_angdenom;
+    double _ampl, _theta, _mass;
+      vector<EvtFlatteParam> _params;
+//      double _m1a, _m1b, _g1;
+//      double _m2a, _m2b, _g2;
 }; 
 
 #endif

@@ -54,6 +54,7 @@ EvtGenBase/EvtDecayMode.cc
 EvtGenBase/EvtDecayParm.cc
 EvtGenBase/EvtDecayProb.cc
 EvtGenBase/EvtDecayTable.cc
+EvtGenBase/EvtFlatte.cc
 EvtGenBase/EvtdFunction.cc
 EvtGenBase/EvtdFunctionSingle.cc
 EvtGenBase/EvtDiracParticle.cc
@@ -165,6 +166,7 @@ EvtGenModels/EvtBtoXsllUtil.cc
 EvtGenModels/EvtCBTo3piMPP.cc
 EvtGenModels/EvtCBTo3piP00.cc
 EvtGenModels/EvtDDalitz.cc
+EvtGenModels/EvtDsDalitz.cc
 EvtGenModels/EvtDeuteronSpectator.cc
 EvtGenModels/EvtElectronPositron.cc
 EvtGenModels/EvtEtaDalitz.cc

@@ -49,9 +49,9 @@ EvtResonance2& EvtResonance2::operator = ( const EvtResonance2  &n)
  
 EvtResonance2::EvtResonance2(const EvtVector4R& fp4_p, const EvtVector4R& fp4_d1,
 			   const  EvtVector4R& fp4_d2, double fampl, 
-			   double ftheta, double fgamma, double fbwm, int fspin): 
+			   double ftheta, double fgamma, double fbwm, int fspin, bool invmass_angdenom): 
   _p4_p(fp4_p),_p4_d1(fp4_d1), _p4_d2(fp4_d2),_ampl(fampl), _theta(ftheta), 
-  _gamma(fgamma), _bwm(fbwm), _spin(fspin) {}
+  _gamma(fgamma), _bwm(fbwm), _spin(fspin), _invmass_angdenom(invmass_angdenom) {}
 
 //amplitude function
 
@@ -85,6 +85,7 @@ EvtComplex EvtResonance2::resAmpl() {
   double mC=p4_d3.mass();
   
   double mR=_bwm;
+  double mdenom = _invmass_angdenom ? mAB : mR;
   double gammaR=_gamma;
   double pAB=sqrt( (((mAB*mAB-mA*mA-mB*mB)*(mAB*mAB-mA*mA-mB*mB)/4.0) -
 		    mA*mA*mB*mB)/(mAB*mAB));
@@ -117,6 +118,13 @@ EvtComplex EvtResonance2::resAmpl() {
     //report(INFO,"EvtGen") << "fR="<<fR<<" fD="<<fD<<endl;
     power=3;
     break;
+  case 2:
+    fR = sqrt( (9+3*pow((1.5*pR),2)+pow((1.5*pR),4))/(9+3*pow((1.5*pAB),2)+pow((1.5*pAB),4)) );
+    fD = sqrt( (9+3*pow((5.0*pD),2)+pow((5.0*pD),4))/(9+3*pow((5.0*pDAB),2)+pow((5.0*pDAB),4)) );
+    power=5;
+    //report(INFO,"EvtGen") << "fR="<<fR<<" fD="<<fD<<std::endl;
+    break;
+    
   default:
     report(INFO,"EvtGen") << "Incorrect spin in EvtResonance22.cc\n";
   }
@@ -130,9 +138,22 @@ EvtComplex EvtResonance2::resAmpl() {
     break;
   case 1:
     ampl=_ampl*EvtComplex(cos(_theta*pi180inv),sin(_theta*pi180inv))*
-      (fR*fD*(mAC*mAC-mBC*mBC+((mD*mD-mC*mC)*(mB*mB-mA*mA)/(mR*mR)))/
+      (fR*fD*(mAC*mAC-mBC*mBC+((mD*mD-mC*mC)*(mB*mB-mA*mA)/(mdenom*mdenom)))/
        (mR*mR-mAB*mAB-EvtComplex(0.0,mR*gammaAB)));
     break;
+    case 2:
+//     ampl=_ampl*EvtComplex(cos(_theta*pi180inv),sin(_theta*pi180inv))*
+//	fR*fD/(mR*mR-mAB*mAB-EvtComplex(0.0,mR*gammaAB))*
+//        (pow((mBC*mBC-mAC*mAC+(mD*mD-mC*mC)*(mA*mA-mB*mB)/(mAB*mAB)),2)-
+//	(1.0/3.0)*(mAB*mAB-2*mD*mD-2*mC*mC+pow((mD*mD- mC*mC)/mAB, 2))*
+//	(mAB*mAB-2*mA*mA-2*mB*mB+pow((mA*mA-mB*mB)/mAB,2)));
+     ampl=_ampl*EvtComplex(cos(_theta*pi180inv),sin(_theta*pi180inv))*
+	fR*fD/(mR*mR-mAB*mAB-EvtComplex(0.0,mR*gammaAB))*
+        (pow((mBC*mBC-mAC*mAC+(mD*mD-mC*mC)*(mA*mA-mB*mB)/(mdenom*mdenom)),2)-
+	(1.0/3.0)*(mAB*mAB-2*mD*mD-2*mC*mC+pow((mD*mD- mC*mC)/mdenom, 2))*
+	(mAB*mAB-2*mA*mA-2*mB*mB+pow((mA*mA-mB*mB)/mdenom,2)));
+   break;
+
   default:
     report(INFO,"EvtGen") << "Incorrect spin in EvtResonance22.cc\n";
   }
