@@ -23,7 +23,7 @@ double getX(TVector3 corner1, TVector3 corner2, double yy);
 int findSectorIn(double y, double dphi, double radius, double EVdrop, double hthick);
 int findSectorOut(double y, double dphi_rad, double radiusCornerOut);
 
-void createdirc(Int_t fGeomType = 1, Int_t fFocusingSystem = 4){ 
+void createdirc(Int_t fGeomType = 1, Int_t fFocusingSystem = 31){ 
 
   { // initialization 
     gROOT->Macro("$VMCWORKDIR/gconfig/rootlogon.C");
@@ -157,8 +157,8 @@ void createdirc(Int_t fGeomType = 1, Int_t fFocusingSystem = 4){
     FairGeoMedium *DrcMirror      = Media->getMedium("Mirror");
     FairGeoMedium *DrcMarcol82_7  = Media->getMedium("Marcol82_7");
     FairGeoMedium *DrcNLAK33A     = Media->getMedium("NLAK33A");
-    FairGeoMedium *DrcBK7G18     = Media->getMedium("BK7G18");
-    FairGeoMedium *DrcPBF2     = Media->getMedium("PBF2");
+    FairGeoMedium *DrcBK7G18      = Media->getMedium("BK7G18");
+    FairGeoMedium *DrcPBF2        = Media->getMedium("PBF2");
     FairGeoMedium *DrcPhotocathode= Media->getMedium("Photocathode");  
   
     Int_t nmed=geobuild->createMedium(DrcAir);
@@ -617,16 +617,21 @@ void createdirc(Int_t fGeomType = 1, Int_t fFocusingSystem = 4){
   double sum = len + barWin_hthick + EVgreaseLayer;
   double mirrorgap = 0.0;
   double mirrorblock = mirr_hthick/2.+mirrorgap/2.;
+  
+  cout<<"len = "<<len<<endl;
 
-  TGeoPcon*   shape = new TGeoPcon("BarrelDIRCShape", 0, 360., 4);
+  TGeoPcon*   shape = new TGeoPcon("BarrelDIRCShape", 0, 360., 6);
   shape->DefineSection(0, bbox_zdown+2*mirrorblock, 35., 60.);
   shape->DefineSection(1, bbox_zup, 35., 60.);
+  shape->DefineSection(2, bbox_zup-2.*sum, 35., 60.);
   if(fGeomType ==2){
-    shape->DefineSection(2, bbox_zup - sob_len +20., 35., sob_Rout+poffset+pheight+EVoffset+1.);
-    shape->DefineSection(3, bbox_zup - sob_len - PDbaseLayer - 2*sum, 35., sob_Rout+poffset+pheight+EVoffset+1.);
-  }else{
-    shape->DefineSection(2, bbox_zup - sob_len, 35., sob_Rout+poffset+pheight+EVoffset+1.);
-    shape->DefineSection(3, bbox_zup - sob_len - PDbaseLayer - 2*sum, 35., sob_Rout+poffset+pheight+EVoffset+1.);
+    shape->DefineSection(3, bbox_zup - sob_len +20., radiusMiddleSmall-0.01, sob_Rout+poffset+pheight+EVoffset+1.);    
+    shape->DefineSection(4, bbox_zup - sob_len +20., radiusMiddleSmall-0.01, sob_Rout+poffset+pheight+EVoffset+1.);
+    shape->DefineSection(5, bbox_zup - sob_len - PDbaseLayer - 2*sum, radiusMiddleSmall-0.01, sob_Rout+poffset+pheight+EVoffset+1.);
+  }else{ 
+    shape->DefineSection(3, bbox_zup - 2.*sum -0.01, radiusMiddleSmall-0.01, sob_Rout+poffset+pheight+EVoffset+1.);   
+    shape->DefineSection(4, bbox_zup - sob_len, radiusMiddleSmall-0.01, sob_Rout+poffset+pheight+EVoffset+1.);
+    shape->DefineSection(5, bbox_zup - sob_len - PDbaseLayer - 2*sum, radiusMiddleSmall-0.01, sob_Rout+poffset+pheight+EVoffset+1.);
   }
   vLocalMother = new TGeoVolume("BarrelDIRC", shape, gGeoManager->GetMedium("DIRCairNoSens"));
   top->AddNode(vLocalMother, 0,0);
