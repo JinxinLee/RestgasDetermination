@@ -36,6 +36,7 @@
 #pragma link C++ class PndAnaSelectorPar+;
 //#pragma link C++ class PndMcTruthMatch+;
 #pragma link C++ class PndGoodTrackSelector;
+#pragma link C++ class PndEventShape;
 
 
 #pragma link C++ class  CStrTok+;
