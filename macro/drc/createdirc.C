@@ -521,6 +521,8 @@ void createdirc(Int_t fGeomType = 1, Int_t fFocusingSystem = 31){
       Double_t hlens4 = 0.1; //[cm] thickness in the middle of the second component
       Double_t rlens1 = 14; // [cm] 10
       Double_t rlens2 = 5; // [cm]  5
+
+      barWin_hthick=0;
       Double_t llens =  barwidth/2.;
       len1 =  (hlens1+hlens2)/2.;     
       len2 =  (hlens3+hlens4)/2.;
@@ -620,15 +622,18 @@ void createdirc(Int_t fGeomType = 1, Int_t fFocusingSystem = 31){
   
   cout<<"len = "<<len<<endl;
 
-  TGeoPcon*   shape = new TGeoPcon("BarrelDIRCShape", 0, 360., 6);
-  shape->DefineSection(0, bbox_zdown+2*mirrorblock, 35., 60.);
-  shape->DefineSection(1, bbox_zup, 35., 60.);
-  shape->DefineSection(2, bbox_zup-2.*sum, 35., 60.);
+  TGeoPcon* shape;
   if(fGeomType ==2){
-    shape->DefineSection(3, bbox_zup - sob_len +20., radiusMiddleSmall-0.01, sob_Rout+poffset+pheight+EVoffset+1.);    
-    shape->DefineSection(4, bbox_zup - sob_len +20., radiusMiddleSmall-0.01, sob_Rout+poffset+pheight+EVoffset+1.);
-    shape->DefineSection(5, bbox_zup - sob_len - PDbaseLayer - 2*sum, radiusMiddleSmall-0.01, sob_Rout+poffset+pheight+EVoffset+1.);
+    shape = new TGeoPcon("BarrelDIRCShape", 0, 360., 4);
+    shape->DefineSection(0, bbox_zdown+2*mirrorblock, 35., 60.);
+    shape->DefineSection(1, bbox_zup, 35., 60.);
+    shape->DefineSection(2, bbox_zup - sob_len +20., radiusMiddleSmall-0.1, sob_Rout+poffset+pheight+EVoffset+1.);
+    shape->DefineSection(3, bbox_zup - sob_len - PDbaseLayer - 2*sum, radiusMiddleSmall-0.1, sob_Rout+poffset+pheight+EVoffset+1.);
   }else{ 
+    shape = new TGeoPcon("BarrelDIRCShape", 0, 360., 6);
+    shape->DefineSection(0, bbox_zdown+2*mirrorblock, 35., 60.);
+    shape->DefineSection(1, bbox_zup, 35., 60.);
+    shape->DefineSection(2, bbox_zup-2.*sum, 35., 60.);
     shape->DefineSection(3, bbox_zup - 2.*sum -0.01, radiusMiddleSmall-0.01, sob_Rout+poffset+pheight+EVoffset+1.);   
     shape->DefineSection(4, bbox_zup - sob_len, radiusMiddleSmall-0.01, sob_Rout+poffset+pheight+EVoffset+1.);
     shape->DefineSection(5, bbox_zup - sob_len - PDbaseLayer - 2*sum, radiusMiddleSmall-0.01, sob_Rout+poffset+pheight+EVoffset+1.);
@@ -676,7 +681,7 @@ void createdirc(Int_t fGeomType = 1, Int_t fFocusingSystem = 31){
     entrancebox->AddNode(CylLensWide1, 1, new TGeoCombiTrans(0, 0,  barWin_hthick + EVgreaseLayer, new TGeoRotation(0))); 
     entrancebox->AddNode(CylLensWide2, 1, new TGeoCombiTrans(0, 0,  barWin_hthick + EVgreaseLayer, new TGeoRotation(0))); 
   }
-  entrancebox->AddNode(barwin,       1, new TGeoCombiTrans(0, 0, entransewidth - 2*len - barWin_hthick, new TGeoRotation(0)));
+  if( barWin_hthick != 0) entrancebox->AddNode(barwin,       1, new TGeoCombiTrans(0, 0, entransewidth - 2*len - barWin_hthick, new TGeoRotation(0)));
   entrancebox->AddNode(evgrease,     1, new TGeoCombiTrans(0, 0, entransewidth - 2*len - 2*barWin_hthick - EVgreaseLayer, new TGeoRotation(0)));
 
   // put barboxes into right positions:    
@@ -949,7 +954,7 @@ void createdirc(Int_t fGeomType = 1, Int_t fFocusingSystem = 31){
     Int_t totalnumbering = 1;
     TVector3 location;
     Double_t phi_curr1 = 0.;  
-    for(Int_t m = 0; m < bbnum; m ++){       
+    for(Int_t m = 0; m < bbnum; m ++){
       phi_curr1 = (90. - phi0 - dphi*m)/180.*pi;    
       if(m > bbnum/2-1){ phi_curr1 = (90. - phi0 - dphi*m - 2.*pipehAngle)/180.*pi; }
   
