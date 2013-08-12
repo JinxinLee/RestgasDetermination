@@ -251,7 +251,7 @@ Bool_t PndAnalysis::FillList ( RhoCandList& l, TString listkey, TString pidTcaNa
   }
 
   if ( listkey=="Neutral" ) {
-    //fPidCombiner->Apply(fNeutralCandList);
+    fPidCombiner->Apply(fNeutralCandList);
     l=fNeutralCandList;
     return kTRUE;
   }
@@ -270,8 +270,11 @@ Bool_t PndAnalysis::FillList ( RhoCandList& l, TString listkey, TString pidTcaNa
   if ( listkey.Contains ( "Electron" ) ||listkey.Contains ( "Muon" ) ||listkey.Contains ( "Pion" )
        || listkey.Contains ( "Kaon" ) ||listkey.Contains ( "Proton" )
        || listkey.Contains ( "Plus" ) ||listkey.Contains ( "Minus" ) ||listkey.Contains ( "Charged" ) ) {
-    fPidCombiner->Apply ( fChargedCandList );
-    fPidSelector->Select ( fChargedCandList,l );
+    
+    l=fChargedCandList;
+    fPidCombiner->Apply ( l );
+    l.Select(fPidSelector);
+    //fPidSelector->Select ( fChargedCandList,l );
     return kTRUE;
   }
   
@@ -342,6 +345,7 @@ void PndAnalysis::ReadRecoCandidates()
         _uid++; // uid will start from 1
         RhoCandidate tc ( *mic,_uid );
         tc.SetTrackNumber ( -1 );//(i1);
+	tc.SetType( 22 );     // default PDG code for neutrals is gamma = 22
         // TODO: Do we want to set something here? It is neutrals anyway.
 
         if ( 0!=fNeutralProbability && i1<fNeutralProbability->GetEntriesFast() ) {
@@ -371,6 +375,7 @@ void PndAnalysis::ReadRecoCandidates()
         FairRecoCandidate* mic = ( FairRecoCandidate* ) fChargedCands->At ( i2 );
         RhoCandidate tc ( *mic,_uid );
         tc.SetTrackNumber ( i2 );
+	tc.SetType( tc.Charge()*211 );  // default PDG code for charged is pi = +-211
         // TODO: Check that no i+1 is requested anymore elsewhere!!!
         fAllCandList.Add ( &tc );
       }
@@ -443,10 +448,10 @@ void PndAnalysis::BuildMcCands()
     }
     // get the mctruth
     Int_t mcidx = reco->GetMcIndex();
-    if (mcidx>fMcCandList.GetLength()) continue;
+    if (mcidx>fMcCandList.GetLength() || mcidx<0) continue;
     truth = fMcCandList[mcidx];
     currentcand->SetMcTruth(truth);
-    if(fVerbose)Info("PndAnalysis::BuildMcCands()","Now setting truth (%p) to candidate (uid=%i)",truth,currentcand->Uid());
+    if(fVerbose)Info("PndAnalysis::BuildMcCands()","Now setting truth index %i (%p) to candidate (uid=%i)", mcidx,truth,currentcand->Uid());
   }
 
   //std::cout<<"BuildMcCands():  "<<fAllCandList<<std::endl;
@@ -814,7 +819,7 @@ Bool_t PndAnalysis::MctMatch ( RhoCandidate* c, RhoCandList& mct, Int_t level, b
     
     // check recursively whether all daughter trees match
   for ( Int_t i=0; i<nd; i++ ) {
-    if ( !MctMatch ( * ( c->Daughter ( i ) ), mct, level, verbose ) ) {
+    if ( !MctMatch (  c->Daughter ( i ) , mct, level, verbose ) ) {
       if(verbose) Info("PndMcTruthMatch::MctMatch","rejected composite (pdg=%i) by non-matching daughter: idau=%i",pdg,i);
       return false;
     }
