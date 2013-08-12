@@ -177,7 +177,7 @@ void PndSdsPixelClusterTask::Exec(Option_t* opt)
    if(fVerbose>0) std::cout << "-I- PndSdsPixelClusterTask::Exec EventTime: " << EventTime << std::endl;
 
     if (FairRunAna::Instance()->IsTimeStamp()){
-    	std::cout << "TimeStepPixel: " << fDigiPar->GetTimeStep();
+    	if(fVerbose>0)  std::cout << "TimeStepPixel: " << fDigiPar->GetTimeStep();
     	fDigiArray = FairRootManager::Instance()->GetData(fInBranchName, fFunctor, fDigiPar->GetTimeStep() * 2);
     }
 
@@ -212,7 +212,7 @@ void PndSdsPixelClusterTask::Exec(Option_t* opt)
   }
 
   // store the list
-  std::cout << "Cluster Size after Erase: " << clusters.size() << std::endl;
+  if(fVerbose > 2) std::cout << "Cluster Size after Erase: " << clusters.size() << std::endl;
   for (UInt_t i = 0; i < clusters.size(); i++)
   {
 
