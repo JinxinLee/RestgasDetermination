@@ -40,13 +40,16 @@ set(INCLUDE_OUTPUT_DIRECTORY "${PROJECT_BINARY_DIR}/include")
 Option(USE_PATH_INFO "Information from PATH and LD_LIBRARY_PATH are
 used."OFF)
 If(USE_PATH_INFO)
-  Set(PATH $ENV{PATH})
+  Set(PATH "$PATH")
   If (APPLE)
     Set(LD_LIBRARY_PATH $ENV{DYLD_LIBRARY_PATH})
   Else (APPLE)
     Set(LD_LIBRARY_PATH $ENV{LD_LIBRARY_PATH})
   EndIf (APPLE)
+Else(USE_PATH_INFO)
+  STRING(REGEX MATCHALL "[^:]+" PATH $ENV{PATH})
 EndIf(USE_PATH_INFO)
+
 
 # Check if the user wants to build the project in the source
 # directory
@@ -63,7 +66,7 @@ ENDIF(NOT UNIX)
 IF(NOT DEFINED ENV{SIMPATH})
    MESSAGE(FATAL_ERROR "You did not define the environment variable SIMPATH which is nedded to find the external packages. Please set this variable and execute cmake again.") 
 ENDIF(NOT DEFINED ENV{SIMPATH})
-STRING(REGEX MATCHALL "[^:]+" PATH $ENV{PATH})
+
 SET(SIMPATH $ENV{SIMPATH})
 
 # Check if the external packages are installed into a separate install
