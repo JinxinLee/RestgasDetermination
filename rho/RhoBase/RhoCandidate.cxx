@@ -150,7 +150,7 @@ RhoCandidate::RhoCandidate ( const RhoCandidate& o )
     for ( i=0; i<MATRIXSIZE; i++ ) { fErrP7[i] = o.fErrP7[i]; }
   }
 
-  for ( int i=0; i<NDaughters(); i++ ) {
+  for ( int i=0; i<o.NDaughters(); i++ ) {
     fDaughters.push_back(o.fDaughters[i]);
   }
 
@@ -312,7 +312,7 @@ RhoCandidate::operator = ( const RhoCandidate& o )
     for ( i=0; i<MATRIXSIZE; i++ ) { fErrP7[i] = o.fErrP7[i]; }
   }
 
-  for ( int i=0; i<NDaughters(); i++ ) {
+  for ( int i=0; i<o.NDaughters(); i++ ) {
     fDaughters.push_back(o.fDaughters[i]);
   }
   fNCons = 0;
