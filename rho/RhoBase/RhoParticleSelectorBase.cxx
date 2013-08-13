@@ -61,16 +61,17 @@ RhoParticleSelectorBase::~RhoParticleSelectorBase()
 void RhoParticleSelectorBase::SetCriterion ( const char* c )
 {
   TString crit ( c );
+  crit.ToLower();
 
   if ( crit=="best" ) {
     SetCriterion ( best );
-  } else if ( crit=="veryLoose" ) {
+  } else if ( crit=="veryloose" ) {
     SetCriterion ( veryLoose );
   } else if ( crit=="loose" ) {
     SetCriterion ( loose );
   } else if ( crit=="tight" ) {
     SetCriterion ( tight );
-  } else if ( crit=="veryTight" ) {
+  } else if ( crit=="verytight" ) {
     SetCriterion ( veryTight );
   } else if ( crit=="variable" ) {
     SetCriterion ( variable );
