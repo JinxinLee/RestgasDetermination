@@ -156,7 +156,7 @@ void PndDrcHitFinder::Exec(Option_t* opt)
   Int_t nDigis = fDigiArray->GetEntriesFast();
   
   if(fVerbose>1) std::cout<<"Event # "<< fEventNr<<" has "<<nDigis<<" digis."<< std::endl;
-  else if(fVerbose=1 && fEventNr%1000==0) std::cout<<"Event # "<< fEventNr<<" has "<<nDigis<<" digis."<< std::endl;
+  else if(fVerbose==1 && fEventNr%1000==0) std::cout<<"Event # "<< fEventNr<<" has "<<nDigis<<" digis."<< std::endl;
 
   fGeoH->SetVerbose(fVerbose);  
  
