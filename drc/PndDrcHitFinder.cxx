@@ -119,8 +119,7 @@ InitStatus PndDrcHitFinder::ReInit()
 
 // -----   Public method Init   --------------------------------------------
 InitStatus PndDrcHitFinder::Init()
-{
-    
+{  
   FairRun* ana = FairRun::Instance();
   FairRootManager* ioman = FairRootManager::Instance();
   if ( ! ioman )
@@ -142,8 +141,6 @@ InitStatus PndDrcHitFinder::Init()
   // Create and register output array
   fPdHitArray	= new TClonesArray("PndDrcPDHit");    
   ioman->Register("DrcPDHit", "Drc", fPdHitArray, kTRUE);
-  
-  
  
   return kSUCCESS;
 }
@@ -154,18 +151,15 @@ void PndDrcHitFinder::Exec(Option_t* opt)
 {
   if(fVerbose>3) Info("Exec","Start");
   
-  if ( ! fPdHitArray ) Fatal("Exec", "No PdHitArray");
-  fPdHitArray->Delete(); 
+  if (!fPdHitArray) Fatal("Exec", "No PdHitArray");
+  fPdHitArray->Clear(); 
+  Int_t nDigis = fDigiArray->GetEntriesFast();
   
-  Double_t EventTime = FairRootManager::Instance()->GetEventTime();
-  
-  if(fVerbose>0) std::cout << "-I- PndDrcHitFinder::Exec EventTime: " << EventTime << std::endl;  
-  
-  //fPDHitList.clear();
+  if(fVerbose>1) std::cout<<"Event # "<< fEventNr<<" has "<<nDigis<<" digis."<< std::endl;
+  else if(fVerbose=1 && fEventNr%1000==0) std::cout<<"Event # "<< fEventNr<<" has "<<nDigis<<" digis."<< std::endl;
+
   fGeoH->SetVerbose(fVerbose);  
-  
-  // Declare some variables
-  PndDrcDigi *digi = NULL;
+ 
   Int_t detID = 0;
   Int_t sensorID = 0;
   Int_t pixelID = 0;
@@ -174,19 +168,12 @@ void PndDrcHitFinder::Exec(Option_t* opt)
   TVector3 dPosHit;
   Double_t hitTime = 0.;
     
-  // Loop over PndSdsMCPoints
-  Int_t nDigis = fDigiArray->GetEntriesFast();
-  
-  if(fVerbose>0) std::cout << "-I- PndDrcHitFinder::Exec event number: " << fEventNr <<" has "<<nDigis<<" digis."<< std::endl;
-  
-  if(fVerbose>3) Info("Exec","Begin loop for %i points",nDigis);
-  for (Int_t iDigi = 0; iDigi < nDigis; iDigi++)
-  {
-    digi = (PndDrcDigi*) fDigiArray->At(iDigi); 
-    detID = digi->GetSensorID();    
+  for (Int_t iDigi = 0; iDigi < nDigis; iDigi++){
+    fDigi = (PndDrcDigi*) fDigiArray->At(iDigi); 
+    detID = fDigi->GetSensorID();    
     pixelID = detID - 100*(Int_t)TMath::Floor((Double_t)detID/100.);
     sensorID = detID/100;
-    hitTime = digi->GetTime();
+    hitTime = fDigi->GetTime();
         
     // the pixel number shows local coordinates of the hit:
     HitPosLocal.SetXYZ(fPixelStep*((Double_t)(pixelID % fNpix) - (Double_t)(fNpix/2) + 0.5),fPixelStep*(TMath::Floor(((Double_t)pixelID)/((Double_t)fNpix)) - (Double_t)(fNpix/2) + 0.5), 0.);
@@ -194,32 +181,20 @@ void PndDrcHitFinder::Exec(Option_t* opt)
     // local coordinates of the hit on the MCP are translated into global ones as the following:
     HitPosGlobal = fGeoH->LocalToMasterShortId(HitPosLocal, sensorID);   
     dPosHit.SetXYZ(fPixelSize/2., fPixelSize/2., 0.);   
-       	
-    PndDrcPDHit*  aNewPDHit = AddDrcPDHit(detID, HitPosGlobal, dPosHit, hitTime, 0., iDigi);     
-  }   // Loop over MCPoints
+    
+    new((*fPdHitArray)[fPdHitArray->GetEntriesFast()]) PndDrcPDHit(detID, HitPosGlobal, dPosHit, hitTime, 0., iDigi); 
+  } // Loop over MCPoints
   
- 
   fEventNr++;
   if(fVerbose>3) Info("Exec","Loop MC points");
 }
 //----------------------------------------------------------------------------
-
-// -----   Add Photon Detector Hit to HitCollection   --------------------------------------
-PndDrcPDHit* PndDrcHitFinder::AddDrcPDHit(Int_t iDetectorId, TVector3 posHit, TVector3 dPosHit, Double_t time, Double_t timeThreshold, Int_t index)
-{
-  TClonesArray& clrefPD = *fPdHitArray;
-  Int_t size = clrefPD.GetEntriesFast();
-  return new(clrefPD[size]) PndDrcPDHit(iDetectorId, posHit, dPosHit, time, timeThreshold, index);
-}
-//______________________________________________________________________________
 
 // -------------------------------------------------------------------------
 
 void PndDrcHitFinder::FinishEvent()
 {
   // called after all Tasks did their Exex() and the data is copied to the file
-  
-  //	  fPdHitArray->Delete();
   FinishEvents();
 }
 // -------------------------------------------------------------------------
@@ -227,7 +202,6 @@ void PndDrcHitFinder::FinishEvent()
 void PndDrcHitFinder::FinishTask()
 {
   // called after all Tasks did their Exex() and the data is copied to the file
-   
 }
 
 ClassImp(PndDrcHitFinder);

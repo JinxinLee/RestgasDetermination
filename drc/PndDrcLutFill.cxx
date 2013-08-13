@@ -108,6 +108,7 @@ void PndDrcLutFill::InitLut()
 void PndDrcLutFill::Exec(Option_t* option)
 {
   nevents++;
+  if(fVerbose>0 && nevents%1000==0) std::cout<<"Event # "<< nevents<<std::endl;  
   fDetectorID = 0;
   ProcessPhotonHit();
 }

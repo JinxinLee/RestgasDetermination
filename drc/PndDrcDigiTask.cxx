@@ -13,10 +13,7 @@
 
 #include "FairRootManager.h"
 #include "PndDrcDigiTask.h"
-#include "PndDrcPDPoint.h"
-#include "PndDrcBarPoint.h"
 
-#include "PndMCTrack.h"
 #include "FairRunAna.h"
 #include "FairRuntimeDb.h"
 #include "FairGeoVector.h"
@@ -55,11 +52,11 @@ PndDrcDigiTask::PndDrcDigiTask()
 
 // -----   Standard constructor with verbosity level  -------------------------------------------
 
-PndDrcDigiTask::PndDrcDigiTask(Int_t verbose, Int_t det_type) 
+PndDrcDigiTask::PndDrcDigiTask(Int_t verbose) 
   :FairTask("PndDrcDigiTask",verbose)
 {
   fVerbose = verbose;  
-  fDetType= det_type; 
+  fDetType= 1; 
   fisDetEff= kTRUE; 
   fisPixel= kTRUE; 
   fGeo = new PndGeoDrc();
@@ -168,43 +165,38 @@ void PndDrcDigiTask::ProcessPhotonPoint()
     cout <<" Number of Photon MC Points in Photon Detector Plane : "<<fPDPointArray->GetEntries()<<endl;
   }
   
-  PndDrcPDPoint* Ppt=NULL;
-  PndMCTrack* tr = NULL;
-  
   //Loop over PndDrcPDPoints
   if (fVerbose > 0) cout<<"-I- PndDrcDigiTask: PD points "<< fPDPointArray->GetEntriesFast() <<endl;
   for(Int_t k=0; k < fPDPointArray->GetEntriesFast(); k++) {
   
-    Ppt = (PndDrcPDPoint*)fPDPointArray->At(k);
+    fPpt = (PndDrcPDPoint*)fPDPointArray->At(k);
        
-    Int_t trID= Ppt->GetTrackID();
-    tr = (PndMCTrack*)fMCArray->At(trID);
+    Int_t trID= fPpt->GetTrackID();
+    fMCtrk = (PndMCTrack*)fMCArray->At(trID);
     
     Int_t NbouncesX, NbouncesY;
     Double_t angleX, angleY;    
     Int_t BarId=-1;
-    if(Ppt->GetBarPointID()!=-1){
-      PndDrcBarPoint *fBarPoint= (PndDrcBarPoint*)fBarPointArray->At(Ppt->GetBarPointID());
+
+    if(fPpt->GetBarPointID()!=-1){
+      fBarPoint= (PndDrcBarPoint*)fBarPointArray->At(fPpt->GetBarPointID());
       BarId = fBarPoint->GetDetectorID();
 
 
       // start vertex of the photon
-      TVector3 StartVertex = tr->GetStartVertex();
+      TVector3 StartVertex = fMCtrk->GetStartVertex();
     
-      // initial momentum of the photon      
-      TVector3 PphoInit;
-      PphoInit.SetXYZ(tr->GetMomentum().X(), tr->GetMomentum().Y(), tr->GetMomentum().Z());
       //calculate the number of bounces: 
       // initial direction of the photon in the bar coord system
-      TVector3 PphoInitBar = fGeoH->MasterToLocalShortId(PphoInit, BarId)- fGeoH->MasterToLocalShortId((0.,0.,0.),BarId); // vector
+      TVector3 PphoInitBar = fGeoH->MasterToLocalShortId(fMCtrk->GetMomentum(), BarId)- fGeoH->MasterToLocalShortId((0.,0.,0.),BarId); // vector
       NumberOfBounces(StartVertex, PphoInitBar, BarId, &NbouncesX, &NbouncesY, &angleX, &angleY);
     }  
       
   
       
-    Double_t PPx= Ppt->GetPx();
-    Double_t PPy= Ppt->GetPy();
-    Double_t PPz= Ppt->GetPz();
+    Double_t PPx= fPpt->GetPx();
+    Double_t PPy= fPpt->GetPy();
+    Double_t PPz= fPpt->GetPz();
 
     Double_t etot = sqrt(PPx*PPx + PPy*PPy +PPz*PPz);// in GeV
     Double_t lambda=197.0*2.0*fpi/(etot*1.0E9);//wavelength of photon in nm
@@ -249,13 +241,13 @@ void PndDrcDigiTask::ProcessPhotonPoint()
             
      	// transform to local sensor system... (mc point has the ID not the path to the volume)
      	TVector3 PptPosition;
-	Ppt->Position(PptPosition);
-     	TVector3 posL = fGeoH->MasterToLocalShortId(PptPosition,Ppt->GetDetectorID()); // point
+	fPpt->Position(PptPosition);
+     	TVector3 posL = fGeoH->MasterToLocalShortId(PptPosition,fPpt->GetDetectorID()); // point
 	 
-    	TVector3 sensorDim = GetSensorDimensions(Ppt->GetDetectorID());	
+    	TVector3 sensorDim = GetSensorDimensions(fPpt->GetDetectorID());	
  
      	if (fVerbose > 1){
-	      std::cout << "SensorDimension for: " << Ppt->GetDetectorID() << std::endl;
+	      std::cout << "SensorDimension for: " << fPpt->GetDetectorID() << std::endl;
 	      std::cout << sensorDim.X() << " " << sensorDim.Y() << " " << sensorDim.Z() << std::endl;
 	}
 	 
@@ -268,10 +260,10 @@ void PndDrcDigiTask::ProcessPhotonPoint()
      	Int_t Nrow = (Int_t)TMath::Floor(posLshifted.Y()/fPixelStep);
      	Int_t NpixelLocal = Ncol + Nrow  * fNpix;
      
-     	fDetectorID = Ppt->GetDetectorID() * 100 + NpixelLocal;
+     	fDetectorID = fPpt->GetDetectorID() * 100 + NpixelLocal;
 	 
 	// time is smeared and digitized = has granularity
-	fTime=(Int_t)(Ppt->GetTime()/fTimeGranularity)*fTimeGranularity; 
+	fTime=(Int_t)(fPpt->GetTime()/fTimeGranularity)*fTimeGranularity; 
      	Smear(fTime,fSigmat);
      
 	ActivatePixel(fDetectorID, fTime, k, 0);
@@ -286,28 +278,28 @@ void PndDrcDigiTask::ProcessPhotonPoint()
 	  distance =  posLshifted.X() - TMath::Floor(posLshifted.X()/fPixelStep)*fPixelStep; //[cm]
 	  if(exp(- distance/fPixelSigma) > gRandom->Uniform(0.,1.) && exp(- distance/fPixelSigma) > fThreshold){   
 	    if((Ncol-1) >= 0){
-	      ActivatePixel(Ppt->GetDetectorID() * 100 +Ncol-1+Nrow*fNpix, fTime, k, 1);	
+	      ActivatePixel(fPpt->GetDetectorID() * 100 +Ncol-1+Nrow*fNpix, fTime, k, 1);	
 	    }
 	  }
 	  // right pixel
 	  distance =  TMath::Ceil(posLshifted.X()/fPixelStep)*fPixelStep - posLshifted.X();	  
 	  if(exp(- distance/fPixelSigma) > gRandom->Uniform(0.,1.) && exp(- distance/fPixelSigma) > fThreshold){    
 	    if(Ncol+1 < fNpix){
-	      ActivatePixel(Ppt->GetDetectorID() * 100 +Ncol+1+Nrow*fNpix, fTime, k, 1);	
+	      ActivatePixel(fPpt->GetDetectorID() * 100 +Ncol+1+Nrow*fNpix, fTime, k, 1);	
 	    }
 	  }
 	  // lower pixel
 	  distance =  posLshifted.Y() - TMath::Floor(posLshifted.Y()/fPixelStep)*fPixelStep;	  
 	  if(exp(- distance/fPixelSigma) > gRandom->Uniform(0.,1.) && exp(- distance/fPixelSigma) > fThreshold){    
 	    if(Nrow-1 >= 0){
-	      ActivatePixel(Ppt->GetDetectorID() * 100 +Ncol+(Nrow-1)*fNpix, fTime, k, 1);
+	      ActivatePixel(fPpt->GetDetectorID() * 100 +Ncol+(Nrow-1)*fNpix, fTime, k, 1);
 	    }
 	  }
 	  // upper pixel
 	  distance =  TMath::Ceil(posLshifted.Y()/fPixelStep)*fPixelStep - posLshifted.Y();
 	  if(exp(- distance/fPixelSigma) > gRandom->Uniform(0.,1.) && exp(- distance/fPixelSigma) > fThreshold){    
 	    if(Nrow+1 < fNpix){
-	      ActivatePixel(Ppt->GetDetectorID() * 100 +Ncol+(Nrow+1)*fNpix, fTime, k, 1);
+	      ActivatePixel(fPpt->GetDetectorID() * 100 +Ncol+(Nrow+1)*fNpix, fTime, k, 1);
 	    }
 	  }
 		
@@ -319,7 +311,7 @@ void PndDrcDigiTask::ProcessPhotonPoint()
 	  distance = (point-corner).Mag();	  
 	  if(exp(-distance/fPixelSigma) > gRandom->Uniform(0.,1.) && exp(- distance/fPixelSigma) > fThreshold){	    
 	    if(Ncol-1 >= 0 && Nrow+1 < fNpix){
-	      ActivatePixel(Ppt->GetDetectorID() * 100 +Ncol-1+(Nrow+1)*fNpix, fTime, k, 1);
+	      ActivatePixel(fPpt->GetDetectorID() * 100 +Ncol-1+(Nrow+1)*fNpix, fTime, k, 1);
 				
 	    }
 	  }
@@ -330,7 +322,7 @@ void PndDrcDigiTask::ProcessPhotonPoint()
 	  distance = (point-corner).Mag();	 
 	  if(exp(-distance/fPixelSigma) > gRandom->Uniform(0.,1.) && exp(- distance/fPixelSigma) > fThreshold){	    
 	    if(Ncol-1 >= 0 && Nrow-1 >= 0){
-	      ActivatePixel(Ppt->GetDetectorID() * 100 +Ncol-1+(Nrow-1)*fNpix, fTime, k, 1);
+	      ActivatePixel(fPpt->GetDetectorID() * 100 +Ncol-1+(Nrow-1)*fNpix, fTime, k, 1);
 	    }
 	  }
 		
@@ -340,7 +332,7 @@ void PndDrcDigiTask::ProcessPhotonPoint()
 	  distance = (point-corner).Mag();	  
 	  if(exp(-distance/fPixelSigma) > gRandom->Uniform(0.,1.) && exp(- distance/fPixelSigma) > fThreshold){	    
 	    if(Ncol+1 < fNpix && Nrow-1 >= 0){
-	      ActivatePixel(Ppt->GetDetectorID() * 100 +Ncol+1+(Nrow-1)*fNpix, fTime, k, 1);
+	      ActivatePixel(fPpt->GetDetectorID() * 100 +Ncol+1+(Nrow-1)*fNpix, fTime, k, 1);
 	    }
 	  }
 		
@@ -350,7 +342,7 @@ void PndDrcDigiTask::ProcessPhotonPoint()
 	  distance = (point-corner).Mag();	  
 	  if(exp(-distance/fPixelSigma) > gRandom->Uniform(0.,1.) && exp(- distance/fPixelSigma) > fThreshold){	    
 	    if(Ncol+1 < fNpix && Nrow+1 < fNpix){
-	      ActivatePixel(Ppt->GetDetectorID() * 100 +Ncol+1+(Nrow+1)*fNpix, fTime, k, 1);
+	      ActivatePixel(fPpt->GetDetectorID() * 100 +Ncol+1+(Nrow+1)*fNpix, fTime, k, 1);
 	    }
 	  }		
      	} // if charge sharing true          	
@@ -381,12 +373,9 @@ void PndDrcDigiTask::ActivatePixel(Int_t sensorDetId, Double_t signalTime, Int_t
       fPixelMap[sensorDetId] = fNDigis;
       fNDigis++; 
     }
-    //ddigi->AddCharge(signalHeight);
-    //ddigi->AddIndex(iPoint);
   }
 }
 // -------------------------------------------------------------------------
-
 
 //------   Find Nubmer of Bounces     --------------------------------------
 void PndDrcDigiTask::NumberOfBounces(TVector3 start, TVector3 dir, Int_t barId, Int_t *n1, Int_t *n2, Double_t *alpha1, Double_t *alpha2){
@@ -1121,9 +1110,7 @@ void PndDrcDigiTask::SetPhotonTransportEff(){
   
 }
 //--------------------------------------------------------------
-TVector3 PndDrcDigiTask::GetSensorDimensions(Int_t sensorID)
-{
-  //PndGeoHandling GeoH(gGeoManager);
+TVector3 PndDrcDigiTask::GetSensorDimensions(Int_t sensorID){
   gGeoManager->cd(fGeoH->GetPath(sensorID));
   TGeoVolume* actVolume = gGeoManager->GetCurrentVolume();
   TGeoBBox* actBox = (TGeoBBox*)(actVolume->GetShape());

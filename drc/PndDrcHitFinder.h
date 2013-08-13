@@ -69,7 +69,6 @@ protected:
   void Reset();
   void ProduceHits();
 
-  PndDrcPDHit* AddDrcPDHit(Int_t iDetectorId, TVector3 posHit, TVector3 dPosHit, Double_t time, Double_t timeThreshold, Int_t index);
   Double_t fPixelSize;	//pixel size;
   Double_t fPixelGap;   // gap betwen neighboring pixels
   Double_t fPixelStep;
@@ -79,7 +78,8 @@ protected:
   PndGeoHandling* fGeoH; //!
   PndGeoDrc*  fGeo;
   Int_t fEventNr;
-
+  PndDrcDigi *fDigi;
+  
   std::vector<PndDrcPDHit> fPDHitList;
 
   ClassDef(PndDrcHitFinder,1);

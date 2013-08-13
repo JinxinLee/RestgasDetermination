@@ -30,6 +30,10 @@
 #include "PndGeoDrc.h"
 #include "PndGeoHandling.h"
 
+#include "PndDrcPDPoint.h"
+#include "PndDrcBarPoint.h"
+#include "PndMCTrack.h"
+
 #ifndef ROOT_TParticlePDG
 #include "TParticlePDG.h"
 #endif
@@ -47,7 +51,7 @@ public:
   PndDrcDigiTask();
 
   /** Constructor with verbosity **/
-  PndDrcDigiTask(Int_t verbose, Int_t det_type);
+  PndDrcDigiTask(Int_t verbose);
 
    /** Destructor **/
   virtual ~PndDrcDigiTask();
@@ -194,7 +198,10 @@ public:
   Double_t fTranspEfficiency[798]; 
   Double_t flambda_min_tr,flambda_max_tr,flambda_step_tr, fangle_step_tr;
   Int_t flambda_points_tr;
- 
+
+  PndDrcPDPoint* fPpt;
+  PndMCTrack* fMCtrk;
+  PndDrcBarPoint *fBarPoint;
   
   /** Set the parameters to the default values. **/
   void SetParameters();
