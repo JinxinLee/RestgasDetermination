@@ -117,6 +117,44 @@ PndLmdResultPlotter::combined_values PndLmdResultPlotter::createCombinedValue(
 	return cv;
 }
 
+TGraphAsymmErrors* PndLmdResultPlotter::makeDifferenceGraph(
+		TGraphAsymmErrors *g1, TGraphAsymmErrors *g2) {
+	// this can only work when the graphs are equal in binning
+
+	if (g1->GetN() == g2->GetN()) {
+		TGraphAsymmErrors *gdiff = new TGraphAsymmErrors(g1->GetN());
+		for (unsigned int i = 0; i < g1->GetN(); i++) {
+			double x1;
+			double y1;
+			g1->GetPoint(i, x1, y1);
+			double x1errup = g1->GetErrorXhigh(i);
+			double x1errlow = g1->GetErrorXlow(i);
+			double y1errup = g1->GetErrorYhigh(i);
+			double y1errlow = g1->GetErrorYlow(i);
+
+			for (unsigned int j = 0; j < g2->GetN(); j++) {
+				double x2;
+				double y2;
+				g2->GetPoint(j, x2, y2);
+
+				if (x1 == x2) {
+					double x2errup = g2->GetErrorXhigh(i);
+					double x2errlow = g2->GetErrorXlow(i);
+					double y2errup = g2->GetErrorYhigh(i);
+					double y2errlow = g2->GetErrorYlow(i);
+
+					gdiff->SetPoint(i, x1, y1 - y2);
+					gdiff->SetPointError(i, (x1errlow + x2errlow) / 2,
+							(x1errup + x2errup) / 2, y1errlow + y2errlow, y1errup + y2errup);
+
+					break;
+				}
+			}
+			return gdiff;
+		}
+	}
+	return 0;
+}
 
 std::pair<double, double> PndLmdResultPlotter::determinePlotRange(
 		std::map<TString, std::vector<combined_values> > &result_map) {
@@ -366,7 +404,9 @@ TGraphErrors* createResidual(PndLmdLumiFitResult *fit_res,
 			}
 		}
 		xvals[counter] = data_hist->GetBinCenter(i);
-		yvals[counter] = data_hist->GetBinContent(i) - model->evaluate(&eval_point)*data->getBinningFactor(fit_res->getLumiFitOptions());
+		yvals[counter] = data_hist->GetBinContent(i)
+				- model->evaluate(&eval_point)
+						* data->getBinningFactor(fit_res->getLumiFitOptions());
 		yerrs[counter] = data_hist->GetBinError(i);
 		counter++;
 	}

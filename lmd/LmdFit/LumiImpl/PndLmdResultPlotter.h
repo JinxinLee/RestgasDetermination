@@ -118,6 +118,8 @@ public:
 	void setTitleOffsetX(double title_offset_x_);
 	void setTitleOffsetY(double title_offset_y_);
 
+	TGraphAsymmErrors* makeDifferenceGraph(TGraphAsymmErrors *g1, TGraphAsymmErrors *g2);
+
 
 	TGraphErrors* createSmearingGraphFromFitResult(PndLmdLumiFitResult *fit_res,
 			PndLmdResolution *res_data);
