@@ -781,10 +781,10 @@ void createdirc(Int_t fGeomType = 1, Int_t fFocusingSystem = 31){
 
       }
 
-      logicEV1->DefineSection(6, sob_len, radiusMiddleSmall,  (radius+hthick+boxgap+boxthick+EVoffset)/cos(dphi/2./180.*pi));
-      logicEV2->DefineSection(6, sob_len, radiusMiddleSmall,  (radius+hthick+boxgap+boxthick+EVoffset)/cos(dphi/2./180.*pi));    
-      logicEV3->DefineSection(6, sob_len, radiusMiddleSmall*cosFactor1,  (radius+hthick+boxgap+boxthick+EVoffset)/cos(dphi/2./180.*pi)*cosFactor1);   
-      logicEV4->DefineSection(6, sob_len, radiusMiddleSmall*cosFactor1,  (radius+hthick+boxgap+boxthick+EVoffset)/cos(dphi/2./180.*pi)*cosFactor1);
+      logicEV1->DefineSection(6, sob_len, radiusMiddleSmall,  (radius+hthick+boxgap+boxthick+EVoffset));///cos(dphi/2./180.*pi));
+      logicEV2->DefineSection(6, sob_len, radiusMiddleSmall,  (radius+hthick+boxgap+boxthick+EVoffset));///cos(dphi/2./180.*pi));    
+      logicEV3->DefineSection(6, sob_len, radiusMiddleSmall*cosFactor1,  (radius+hthick+boxgap+boxthick+EVoffset)*cosFactor1);///cos(dphi/2./180.*pi));   
+      logicEV4->DefineSection(6, sob_len, radiusMiddleSmall*cosFactor1,  (radius+hthick+boxgap+boxthick+EVoffset)*cosFactor1);///cos(dphi/2./180.*pi));
 
 
       //small volume to constract EVcover
