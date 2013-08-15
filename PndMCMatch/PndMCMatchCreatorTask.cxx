@@ -4,6 +4,7 @@
 // -------------------------------------------------------------------------
 // libc includes
 #include <iostream>
+#include <exception>
 
 // Root includes
 #include "TROOT.h"
@@ -42,71 +43,90 @@ InitStatus PndMCMatchCreatorTask::Init()
 
 	fMCMatch = new PndMCMatch("PndMCMatch", "PndMCMatch");
 
-  fMCMatch->InitStage("MVDPoint");
-  fMCMatch->InitStage("MVDStripDigis");
-  fMCMatch->InitStage("MVDPixelDigis");
-  fMCMatch->InitStage("MVDPixelClusterCand");
-  fMCMatch->InitStage("MVDStripClusterCand");
-  fMCMatch->InitStage("MVDSortedPixelDigis");
-  fMCMatch->InitStage("MVDSortedStripDigis");
-  fMCMatch->InitStage("MVDHitsPixel");
-  fMCMatch->InitStage("MVDHitsStrip");
+	TList* branchNames = FairRootManager::Instance()->GetBranchNameList();
 
-  fMCMatch->InitStage("EmcCluster");
-  fMCMatch->InitStage("EmcBump");
-  fMCMatch->InitStage("EmcDigi");
-  fMCMatch->InitStage("EmcHit");
-  fMCMatch->InitStage("EmcPoint");
-  fMCMatch->InitStage("EmcRecoHit");
-  fMCMatch->InitStage("EmcSharedDigi");
-  fMCMatch->InitStage("EmcWaveform");
+	for (int i = 0; i < branchNames->GetEntries(); i++){
+		TObjString* branchName = (TObjString*)branchNames->At(i);
+		if (branchName->String().Contains(".")) continue;
+		if (branchName->String().Contains("MCTrack")) continue;
 
+		fMCMatch->InitStage(branchName->GetString().Data());
+		std::cout << "PndMCMatchCreatorTask: BranchNames: " << branchName->GetString().Data() << std::endl;
+	}
 
-
-  fMCMatch->InitStage("STTPoint");
-  fMCMatch->InitStage("STTHit");
-  fMCMatch->InitStage("SttHelixHit");
-  fMCMatch->InitStage("STTTrack");
-  fMCMatch->InitStage("STTTrackCand");
-
-//  fMCMatch->InitStage("PndTpcPoint");
-//  fMCMatch->InitStage("PndTpcPrimaryCluster");
-//  fMCMatch->InitStage("PndTpcDriftedElectron");
-//  fMCMatch->InitStage("PndTpcAvalanche");
-//  fMCMatch->InitStage("PndTpcSignal");
-//  fMCMatch->InitStage("PndTpcDigi");
-//  fMCMatch->InitStage("PndTpcCluster");
-
-
-  fMCMatch->InitStage("GEMPoint");
-  fMCMatch->InitStage("GEMDigi");
-  fMCMatch->InitStage("GEMHit");
-
-  fMCMatch->InitStage("PndDchPoint");
-  fMCMatch->InitStage("PndDchDigi");
-  fMCMatch->InitStage("PndDchCylinderHit");
-
-  fMCMatch->InitStage("MdtPoint");
-  fMCMatch->InitStage("MdtHit");
-  fMCMatch->InitStage("MdtTrk");
-
-  fMCMatch->InitStage("ScitPoint");
-  fMCMatch->InitStage("FTSPoint");
-  fMCMatch->InitStage("FTSHit");
-
-  fMCMatch->InitStage("FtofPoint");
-  fMCMatch->InitStage("FtofHit");
-
-
-  fMCMatch->InitStage("LheHit");
-  fMCMatch->InitStage("LheCandidate");
-  fMCMatch->InitStage("LheTrack");
-  fMCMatch->InitStage("MVDIdealTrackCand");
-  fMCMatch->InitStage("MVDRiemannTrackCand");
-  fMCMatch->InitStage("MVDTrack");
-  fMCMatch->InitStage("LheGenTrack");
-  fMCMatch->InitStage("PidChargedCand");
-  fMCMatch->InitStage("PidNeutralCand");
+//  fMCMatch->InitStage("MVDPoint");
+//  fMCMatch->InitStage("MVDStripDigis");
+//  fMCMatch->InitStage("MVDPixelDigis");
+//  fMCMatch->InitStage("MVDPixelClusterCand");
+//  fMCMatch->InitStage("MVDStripClusterCand");
+//  fMCMatch->InitStage("MVDSortedPixelDigis");
+//  fMCMatch->InitStage("MVDSortedStripDigis");
+//  fMCMatch->InitStage("MVDHitsPixel");
+//  fMCMatch->InitStage("MVDHitsStrip");
+//
+//  fMCMatch->InitStage("EmcCluster");
+//  fMCMatch->InitStage("EmcBump");
+//  fMCMatch->InitStage("EmcDigi");
+//  fMCMatch->InitStage("EmcHit");
+//  fMCMatch->InitStage("EmcPoint");
+//  fMCMatch->InitStage("EmcRecoHit");
+//  fMCMatch->InitStage("EmcSharedDigi");
+//  fMCMatch->InitStage("EmcWaveform");
+//
+//
+//
+//  fMCMatch->InitStage("STTPoint");
+//  fMCMatch->InitStage("STTHit");
+//  fMCMatch->InitStage("SttHelixHit");
+//  fMCMatch->InitStage("STTTrack");
+//  fMCMatch->InitStage("STTTrackCand");
+//
+////  fMCMatch->InitStage("PndTpcPoint");
+////  fMCMatch->InitStage("PndTpcPrimaryCluster");
+////  fMCMatch->InitStage("PndTpcDriftedElectron");
+////  fMCMatch->InitStage("PndTpcAvalanche");
+////  fMCMatch->InitStage("PndTpcSignal");
+////  fMCMatch->InitStage("PndTpcDigi");
+////  fMCMatch->InitStage("PndTpcCluster");
+//
+//
+//  fMCMatch->InitStage("GEMPoint");
+//  fMCMatch->InitStage("GEMDigi");
+//  fMCMatch->InitStage("GEMHit");
+//
+//  fMCMatch->InitStage("PndDchPoint");
+//  fMCMatch->InitStage("PndDchDigi");
+//  fMCMatch->InitStage("PndDchCylinderHit");
+//
+//  fMCMatch->InitStage("MdtPoint");
+//  fMCMatch->InitStage("MdtHit");
+//  fMCMatch->InitStage("MdtTrk");
+//
+//  fMCMatch->InitStage("ScitPoint");
+//  fMCMatch->InitStage("FTSPoint");
+//  fMCMatch->InitStage("FTSHit");
+//
+//  fMCMatch->InitStage("FtofPoint");
+//  fMCMatch->InitStage("FtofHit");
+//
+//
+//  fMCMatch->InitStage("LheHit");
+//  fMCMatch->InitStage("LheCandidate");
+//  fMCMatch->InitStage("LheTrack");
+//  fMCMatch->InitStage("MVDIdealTrackCand");
+//  fMCMatch->InitStage("MVDRiemannTrackCand");
+//  fMCMatch->InitStage("MVDTrack");
+//  fMCMatch->InitStage("LheGenTrack");
+//  fMCMatch->InitStage("PidChargedCand");
+//  fMCMatch->InitStage("PidNeutralCand");
+//
+//  fMCMatch->InitStage("FirstTrackCand");
+//  fMCMatch->InitStage("CombiTrackCand");
+//  fMCMatch->InitStage("STTCombinedSkewedHits");
+//
+//  fMCMatch->InitStage("SttMvdTrack");
+//  fMCMatch->InitStage("SttMvdGemTrack");
+//  fMCMatch->InitStage("SttMvdGemGenTrack");
 
   InitStatus status = InitBranches();
 
@@ -175,15 +195,24 @@ void PndMCMatchCreatorTask::Exec(Option_t* opt)
 
 	fMCMatch->LoadInMCLists(fMCLink);
 
-	//std::cout << "NMCStages: " << fMCMatch->GetNMCStages() << std::endl;
+//	std::cout << "NMCStages: " << fMCMatch->GetNMCStages() << std::endl;
 	for (int i = 0; i < fMCMatch->GetNMCStages(); i++){
 		if (fMCMatch->GetMCStage(i)->GetFill() == kTRUE && fMCMatch->GetMCStage(i)->GetLoaded() == kFALSE){
-			//std::cout << i << ": ";
-			//std::cout << "BranchName: " << fMCMatch->GetMCStage(i)->GetBranchName() << std::endl;
+//			std::cout << i << ": ";
+//			std::cout << "BranchName: " << fMCMatch->GetMCStage(i)->GetBranchName() << std::endl;
 			TClonesArray* clArray = fBranches[fMCMatch->GetMCStage(i)->GetBranchName()];
 			for (int j = 0; j < clArray->GetEntries(); j++){
-				FairMultiLinkedData* myData = (FairMultiLinkedData*)clArray->At(j);
-				fMCMatch->SetElements(fMCMatch->GetMCStage(i)->GetStageId(), j, myData);
+				FairMultiLinkedData* myData = 0;
+				try {
+					 myData = dynamic_cast<FairMultiLinkedData*>(clArray->At(j));
+				}
+				catch (std::exception& e) {std::cout << "Exception: " << e.what();}
+				if (myData == 0) {
+//					std::cout << "MyData is empty!" << std::endl;
+				} else {
+//					std::cout << j << ": " << *myData << std::endl;
+					fMCMatch->SetElements(fMCMatch->GetMCStage(i)->GetStageId(), j, myData);
+				}
 			}
 			if (fMCMatch->GetMCStage(i)->GetNEntries() > 0)
 				fMCMatch->GetMCStage(i)->SetLoaded(kTRUE);
