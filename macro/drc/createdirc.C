@@ -98,8 +98,8 @@ void createdirc(Int_t fGeomType = 1, Int_t fFocusingSystem = 31){
     Double_t EVoffset		=  fGeo->EVoffset();	  //0. [cm] offset of the EV - outer radius
     Double_t EVgreaseLayer	=  0.0015/2.;		  //[cm] grease layer half thickness btw the bar window and the EV 
     //Double_t sob_angle		=  45.;//fGeo->EVangle();	  //80. [degrees] opening angle of the EV 
-    Double_t sob_angle		=  atan((5.*step-2.*hthick-EVoffset-EVdrop)/sob_len)/pi*180.;// [degrees] opening angle of the EV  
-    Double_t sob_Rout     	=  (radius + hthick + EVoffset + sob_len*tan(sob_angle/180.*pi));//  [cm] radius in the middle of the section
+    Double_t sob_angle		=  atan((5.*step-2.*hthick-EVoffset-EVdrop-boxgap-boxthick)/sob_len)/pi*180.;// [degrees] opening angle of the EV  
+    Double_t sob_Rout     	=  (radius + hthick + EVoffset + boxgap + boxthick + sob_len*tan(sob_angle/180.*pi));//  [cm] radius in the middle of the section
     
     Double_t bbSideGap		=  0.5*( ((barwidth+2.*barhgap)*barnum) - (2.*radius*sin((dphi-bbGapAngle)/180.*pi/2.)+2.*barhgap) );
     Double_t bbX          	=  2.*radius*sin((dphi-bbGapAngle)/180.*pi/2.)+2.*barhgap;  
