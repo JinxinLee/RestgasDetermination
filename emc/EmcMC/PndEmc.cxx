@@ -745,7 +745,7 @@ Bool_t PndEmc::ProcessHits(FairVolume* vol) {
 //		  gMC3->Gpcxyz(); //a simple test
 	  }
 	  else if (nam.Contains("FscFiberVolume")){
-	 	  nMod = 51; //for fibers different module
+	 	  nMod = 10; //for fibers different module
 	 	  gMC->CurrentVolOffID(2,ModCopy);//upto FscModuleVolume
 	 	  nCrys = ModCopy/100;
 	 	  nRow = ModCopy%100;
