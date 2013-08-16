@@ -61,7 +61,7 @@ PndTrkQATask::PndTrkQATask() : FairTask("QA plots", 0), fPersistence(kTRUE), fUs
   fSttTubeIDToMCPointID.clear();
 }
 
- 
+
 
 
 // ---------------------------------------------------------
@@ -85,7 +85,7 @@ void PndTrkQATask::SetDetectorsToStudy(TString detectorsToStudy){
   }
   fDetectorsToStudy=detectorsToStudy;
 
-  
+
 }
 
 // -----   Destructor   ----------------------------------------------------
@@ -301,7 +301,7 @@ void PndTrkQATask::ReInitTask() {
   fNMvdStrHits  = 0;
   fNHits        = 0;
   fNMCTracks    = 0;
-  
+
   // mvd
   fNMvdPoints = fMvdPointArray->GetEntriesFast();
   fNMvdPixHits = fMvdPixelHitArray->GetEntriesFast();
@@ -311,7 +311,7 @@ void PndTrkQATask::ReInitTask() {
     cout << "Found " << fNMvdPixHits << " MVD Pixel hits\n";
     cout << "Found " << fNMvdStrHits << " MVD Strip hits\n";
   }
-  
+
   // stt
   if(fDetectorsToStudy == "STT") {
     fNSttPoints = fSttPointArray->GetEntriesFast();
@@ -326,10 +326,10 @@ void PndTrkQATask::ReInitTask() {
   if(fDetectorsToStudy == "FTS") {
     fNFtsPoints = fFtsPointArray->GetEntriesFast();
     fNFtsHits = fFtsHitArray->GetEntriesFast();
-    if(fVerbose > 9) {  
+    if(fVerbose > 9) {
       cout << "Found " << fNFtsPoints << " FTS points\n";
       cout << "Found " << fNFtsPoints << " FTS hits\n";
-    } 
+    }
   }
 
   fNMCPoints = fNFtsPoints + fNSttPoints + fNMvdPoints;
@@ -448,14 +448,14 @@ void PndTrkQATask::Exec(Option_t* opt) {
       PndTrackCandHit mccandhit = mctrkcand->GetSortedHit(ihit);
       Int_t hitID1 = mccandhit.GetHitId();
       Int_t detID1 = mccandhit.GetDetId();
-      
-      
+
+
       //       if(!fUseMVDPixHits && detID1 == FairRootManager::Instance()->GetBranchId(fMvdPixelBranch)) continue;
       //       if(!fUseMVDStrHits && detID1 == FairRootManager::Instance()->GetBranchId(fMvdStripBranch)) continue;
-      
+
       if(!fUseSTTHits && detID1 == FairRootManager::Instance()->GetBranchId(fSttBranch)) continue;
       if(!fUseFTSHits && detID1 == FairRootManager::Instance()->GetBranchId(fFtsBranch)) continue;
-      
+
 
       // count skew STT ---------------------------
       if(detID1 == FairRootManager::Instance()->GetBranchId(fSttBranch)) {
@@ -619,8 +619,15 @@ void PndTrkQATask::Exec(Option_t* opt) {
 	else if(detID == FairRootManager::Instance()->GetBranchId(fSttBranch)) {
 
 	  hit = (PndSttHit*) fSttHitArray->At(hitID);
+	  if(fVerbose > 9) {
+		  cout << "hitID = " << hitID << endl;
+		  cout << "hit = " << hit << endl;
+	  }
 	  Int_t tubeID = ((PndSttHit*) hit)->GetTubeID();
-	  PndSttTube *tube = (PndSttTube*) fTubeArrayStt->At(tubeID);
+	  if(fVerbose > 9) {
+		  cout << "tubeID = " << tubeID << endl;
+	  }
+      PndSttTube *tube = (PndSttTube*) fTubeArrayStt->At(tubeID);
 	  //	  if(IsTubeMultiHit(tubeID)) cout << "IsTubeMultiHit(tubeID) " << tubeID << " " << IsTubeMultiHit(tubeID) << endl;
  	  if(fAccountForMultiHits == kFALSE && IsTubeMultiHit(tubeID) == kTRUE) {
 	    Bool_t isgoodhit = CheckIfTrackHitTube(mctrackID, tubeID);
@@ -637,7 +644,7 @@ void PndTrkQATask::Exec(Option_t* opt) {
 	      //	      cout << "ADDED stt " << hitID << " " << detID << " " << hit->GetRefIndex() << " " << tubeID << " " << tube->IsSkew() << endl;
 	      if(tube->IsSkew()) nTmpAssignedSttSkew++;
 	      else nTmpAssignedSttParal++;
-	   
+
 	    }
 	  }
 	  else {
@@ -765,7 +772,7 @@ void PndTrkQATask::Exec(Option_t* opt) {
     }
 
 
- 
+
     if(fVerbose > 1) {
       cout << "POINTS MC (mc trk, stt, mvd pix, mvd str, fts)" << endl;
       cout << nofmctrackpoints << " " << nofmctracksttpoints << " " << nofmctrackmvdpixpoints << " " << nofmctrackmvdstrpoints << " " << nofmctrackftspoints<< endl;
@@ -780,7 +787,7 @@ void PndTrkQATask::Exec(Option_t* opt) {
       cout << "RECO " << nofrecotrackpoints << " " << nofrecotrackmvdpixpoints << " " << nofrecotrackmvdstrpoints << " " << nofrecotracksttpoints << " " <<  nofrecotracksttparalpoints << " " <<  nofrecotracksttskewpoints << endl;
       cout << "assigned : "<< nAssigned << " " << nAssignedMvdPixel << " " << nAssignedMvdStrip << " " << nAssignedStt << " " << nAssignedSttParal << " " << nAssignedSttSkew << endl;
    cout << "not assigned : "<< nNotAssigned << " " << nNotAssignedMvdPixel << " " << nNotAssignedMvdStrip << " " << nNotAssignedStt << " " << nNotAssignedSttParal << " " << nNotAssignedSttSkew << endl;
-     cout << "wrong : "<< nWrong << " " << nWrongMvdPixel << " " << nWrongMvdStrip << " " << nWrongStt << " " << nWrongSttParal << " " << nWrongSttSkew << endl;     
+     cout << "wrong : "<< nWrong << " " << nWrongMvdPixel << " " << nWrongMvdStrip << " " << nWrongStt << " " << nWrongSttParal << " " << nWrongSttSkew << endl;
     }
 
       hEfficiency->Fill(nofmctrackpoints, (Double_t) nAssigned/nofmctrackpoints);
@@ -850,7 +857,7 @@ void PndTrkQATask::Exec(Option_t* opt) {
       cout << "assigned " <<  nAssigned <<  " not assigned " << nNotAssigned << " wrong " << nWrong << endl;
     }
 
- 
+
     if((nAssigned + nNotAssigned) != nofmctrackpoints) cout << "ERROR 1" << endl;
     if((nAssigned + nWrong) != nofrecotrackpoints) cout << "ERROR 2" << endl;
     if((nAssignedSttSkew + nAssignedSttParal) != nAssignedStt) cout << "ERROR 3" << endl;
@@ -875,7 +882,7 @@ void PndTrkQATask::Exec(Option_t* opt) {
 
 
   // if the nof reconstructed tracks is > assigned + ghosts it means
-  // that a track not considered reconstructable has been reconstructed 
+  // that a track not considered reconstructable has been reconstructed
   if(fThisRecoTrack > fThisGoodTrack + fThisGhostTrack) {
     if(fVerbose > 0) cout << "fThisRecoTrack " << fThisRecoTrack << " fThisMCReconstructableTrack " << fThisMCReconstructableTrack << " fThisGoodTrack " <<  fThisGoodTrack << " fThisGhostTrack " << fThisGhostTrack << endl;
     fThisIgnoredTrack += (fThisRecoTrack - (fThisGoodTrack + fThisGhostTrack));
@@ -1164,10 +1171,10 @@ Bool_t PndTrkQATask::IdealTrackFinding() {
       }
 
 
-  
+
       for(int ipnt = 0; ipnt < multihits.GetSize(); ipnt++) {
 	ptIndex = multihits.At(ipnt);
-	
+
 	if (ptIndex < 0) continue;
 	pMCpt =  (PndSttPoint*) fSttPointArray->At(ptIndex);
 	if (!pMCpt) continue;
@@ -1308,7 +1315,7 @@ Bool_t PndTrkQATask::IsMcTrackAcceptable(Int_t iMCTrack, Int_t hitMap[][NOFDETEC
     bool hasmorethanminparall = !( hitMap[iMCTrack][1] < fMinimumNofSttParalHits);
     bool hasmorethanminskew = !( hitMap[iMCTrack][2] < fMinimumNofSttSkewHits);
     bool haslessthanmax = (hitMap[iMCTrack][1] + hitMap[iMCTrack][2]) < fMaximumNofSttHits;
-    bool fullrequest = hasmorethanminparall && hasmorethanminskew && haslessthanmax; 
+    bool fullrequest = hasmorethanminparall && hasmorethanminskew && haslessthanmax;
 
     if(fVerbose > 13) cout << "STT for " << iMCTrack << " track: hitMap[iMCTrack][1]= " << hitMap[iMCTrack][1] << " hitMap[iMCTrack][2]= " <<  hitMap[iMCTrack][2] << " IsMcTrackAcceptable returns " << fullrequest << endl;
     return fullrequest; // CHECK
@@ -1352,11 +1359,11 @@ Int_t PndTrkQATask::CleanTubeIDMap() {
   else counter++;
   }
 
-  // returns the number of multiply hit tubes in this event 
+  // returns the number of multiply hit tubes in this event
   return counter;
 }
 
-Bool_t PndTrkQATask::CheckIfTrackHitTube(int thistrack, int tubeID) 
+Bool_t PndTrkQATask::CheckIfTrackHitTube(int thistrack, int tubeID)
 {
 
   TArrayI refindices = GetTubeMultiHits(tubeID);
@@ -1386,14 +1393,14 @@ Bool_t PndTrkQATask::IsTubeMultiHit(int tubeID) {
 
 TArrayI PndTrkQATask::GetTubeMultiHits(int tubeID) {
   TArrayI array;
-  
-  
+
+
   std::pair< std::multimap< int , int >::iterator, std::multimap< int, int >::iterator > ret;
   ret = fSttTubeIDToMCPointID.equal_range(tubeID);
   for (std::multimap< int, int >::iterator it = ret.first; it != ret.second; ++it)
     {
-      
-      
+
+
       int size = array.GetSize();
       array.Set(size + 1);
       array.AddAt((*it).second, size);
