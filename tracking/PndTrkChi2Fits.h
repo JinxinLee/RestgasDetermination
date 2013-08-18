@@ -23,6 +23,28 @@ class PndTrkChi2Fits : public TObject
   /** Destructor **/
   ~PndTrkChi2Fits(){};
 
+ void  Calculations_Mvd(
+	bool * InclusionMvd,	// input;
+	Double_t * Mvd_DipVar_DipVar,	// input;
+	Double_t * Mvd_IndVar_DipVar,	// input;
+	Double_t * Mvd_IndVar_IndVar,	// input;
+	Short_t nMvdHits,	// input;
+
+	Double_t & Mvd_DipVar_DipVar_Sum,	// output;
+	Double_t & Mvd_IndVar_DipVar_Sum,	// output;
+	Double_t & Mvd_IndVar_IndVar_Sum	// output;
+					);
+
+ void  Calculations_SkewStt_AllLeftRightCombinations(
+	Short_t nSttHits,	// input;
+	Double_t * Stt_DriftRad_DipVar,	// input;
+	Double_t * Stt_DriftRad_IndVar,	// input;
+
+	Double_t * Stt_DriftRad_DipVar_Sum,	// output;
+	Double_t * Stt_DriftRad_IndVar_Sum	// output;
+						);
+
+
 
   Short_t FitHelixCylinder(
 	Short_t nHitsinTrack,
@@ -55,6 +77,20 @@ class PndTrkChi2Fits : public TObject
 	Double_t *emme,
 	int IVOLTE
 	);
+
+
+  Short_t FitSZspace_Chi2_AnnealingtheMvdOnly(
+	Short_t nHitsinTrack,
+	Double_t *S,
+	Double_t *Z,
+	Double_t *DriftRadius,
+	Double_t *ErrorDriftRadius,
+	Double_t FInot,
+	Short_t NMAX,
+	Double_t *emme,
+	int IVOLTE
+	);
+
 
   void GSumCalculation(
 
