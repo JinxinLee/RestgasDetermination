@@ -1531,43 +1531,44 @@ int iconta=0;
 
  for(iCluster=0; iCluster<nFoundClusters ; iCluster++) {
 
- // output of the found track candidate; assignment of InOut.Fi_low_limit to a already assigned memory
- // is necessary ! So it is for InOut.Fi_up_limit;
- InOut.Fi_low_limit = &Fi_low_limit[nSttTrackCand];
- InOut.Fi_up_limit = &Fi_up_limit[nSttTrackCand];
- InOut.ListMvdPixelHitsinTrack = &fListMvdPixelHitsinTrack[nSttTrackCand][0];
- InOut.ListMvdStripHitsinTrack = &fListMvdStripHitsinTrack[nSttTrackCand][0];
- InOut.Mvdhits = &Mvdhits[nSttTrackCand];
- InOut.nMvdPixelHitsinTrack = &fnMvdPixelHitsinTrack[nSttTrackCand];
- InOut.nMvdStripHitsinTrack = &fnMvdStripHitsinTrack[nSttTrackCand];
- InOut.Oxx = &fOx[nSttTrackCand];
- InOut.Oyy = &fOy[nSttTrackCand];
- InOut.Rr = &fR[nSttTrackCand];
+	if(istampa>=2){  cout<<"Begin of Loop of Clusters;  processing cluster n. "<<iCluster<<endl;}
 
+	// output of the found track candidate; assignment of InOut.Fi_low_limit to a already assigned memory
+	// is necessary ! So it is for InOut.Fi_up_limit;
+	InOut.Fi_low_limit = &Fi_low_limit[nSttTrackCand];
+	InOut.Fi_up_limit = &Fi_up_limit[nSttTrackCand];
+	InOut.ListMvdPixelHitsinTrack = &fListMvdPixelHitsinTrack[nSttTrackCand][0];
+	InOut.ListMvdStripHitsinTrack = &fListMvdStripHitsinTrack[nSttTrackCand][0];
+	InOut.Mvdhits = &Mvdhits[nSttTrackCand];
+	InOut.nMvdPixelHitsinTrack = &fnMvdPixelHitsinTrack[nSttTrackCand];
+	InOut.nMvdStripHitsinTrack = &fnMvdStripHitsinTrack[nSttTrackCand];
+	InOut.Oxx = &fOx[nSttTrackCand];
+	InOut.Oyy = &fOy[nSttTrackCand];
+	InOut.Rr = &fR[nSttTrackCand];
 
-// StrawCode convention (in the following left or right is looking to the beam from downstream) :
-//   -1 = not a boundary straw;
-//   10= inner axial boundary left;
-//   20= inner axial boundary right;
-//   12= outer VERTICAL (BUT NOT OUTERMOST) axial boundary left;
-//   22= outer VERTICAL (BUT NOT OUTERMOST)  axial boundary right;
-//   13= outermost axial boundary left;
-//   23= outermost axial boundary;  right;
-//   14= outer axial boundary, (innermost), left;
-//   24= outer axial boundary (innermost), right;
-//   15= outer axial boundary, special zone, left;
-//   25= outer axial boundary, special zone, right;
-
+	// StrawCode convention (in the following left or right is looking to the beam from downstream) :
+	//   -1 = not a boundary straw;
+	//   10= inner axial boundary left;
+	//   20= inner axial boundary right;
+	//   12= outer VERTICAL (BUT NOT OUTERMOST) axial boundary left;
+	//   22= outer VERTICAL (BUT NOT OUTERMOST)  axial boundary right;
+	//   13= outermost axial boundary left;
+	//   23= outermost axial boundary;  right;
+	//   14= outer axial boundary, (innermost), left;
+	//   24= outer axial boundary (innermost), right;
+	//   15= outer axial boundary, special zone, left;
+	//   25= outer axial boundary, special zone, right;
 
 	if( nHitsinCluster[ iCluster ] < MINIMUMHITSPERTRACK ) continue;
-
 	if( nSttTrackCand >= MAXTRACKSPEREVENT) {
 		cout<<"from PndTrkTracking2 :  # n. Tracks found so far = "
 		<<nSttTrackCand<<" and it is >= MAXTRACKSPEREVENT ( = "
 		 <<MAXTRACKSPEREVENT<<"); exiting from || hit loop.\n";
 		break;
 	}
-iconta++;
+
+	iconta++;
+
 	// the following is only the initial hits in the current track cand;
 	fnSttParHitsinTrack[nSttTrackCand] = nHitsinCluster[iCluster];
 	for(i=0;i<nHitsinCluster[iCluster];i++){
@@ -1581,9 +1582,6 @@ iconta++;
 	InOut.GAMMA = &fGAMMA[nSttTrackCand];
 	InOut.ListHitsinTrack = &fListSttParHitsinTrack[nSttTrackCand][0];
 	InOut.nHitsinTrack = &fnSttParHitsinTrack[nSttTrackCand];
-
-
-
 
 
 //---------------------------------------------
@@ -1606,19 +1604,21 @@ iconta++;
 		fnMvdStripHitsinTrack[nSttTrackCand]+
 		fnSttParHitsinTrack[nSttTrackCand]<2) continue;
 
- InOut.Oyy = &fOy[nSttTrackCand];
- InOut.Rr = &fR[nSttTrackCand];
-
+	InOut.Oyy = &fOy[nSttTrackCand];
+	InOut.Rr = &fR[nSttTrackCand];
 
 // --------  here the track and its hits were found, filling the Inclusion list
 
- for(j=0; j<fnSttParHitsinTrack[nSttTrackCand]; j++){
-   fInclusionListStt[fListSttParHitsinTrack[nSttTrackCand][j]] = false;
- }
+	for(j=0; j<fnSttParHitsinTrack[nSttTrackCand]; j++){
+		fInclusionListStt[fListSttParHitsinTrack[nSttTrackCand][j]] = false;
+	}
 
- keepit[nSttTrackCand]=true;
- nSttTrackCand++;
+	keepit[nSttTrackCand]=true;
+	nSttTrackCand++;
 
+	if(istampa>=2){  cout<<"At the bottome of Loop of Clusters; end processing cluster n."
+	<<iCluster<<endl;
+	}
   }      // end  of   for(iCluster=0; iCluster<nFoundClusters ; iCluster++)
 
 
@@ -1641,8 +1641,8 @@ iconta++;
 
 
 //-------------- stampa
- if(istampa>=2){
-cout<<"\tstampa dopo il Match Again.\n";
+ if(istampa>=1){
+cout<<"\tstampa dopo FindTrackInXYProjection di tutte le trackCand rimaste :\n";
 fPrint.stampetta(IVOLTE,tkeepit,&fListMvdPixelHitsinTrack[0][0],
 &fListMvdStripHitsinTrack[0][0],&fListSttParHitsinTrack[0][0],
 &fListSttSkewHitsinTrack[0][0],&fListSciTilHitsinTrack[0][0],
@@ -1832,9 +1832,9 @@ MAXSCITILHITSINTRACK,MAXSTTHITSINTRACK,fR,fOx,fOy,FI0,KAPPA);
 //---------------------   here do the fit again in the SZ space if there are Mvd hits.
 //			  For this, reordering of the  Mvd hits is not necessary.
 
-
 	if(nhitsinfit>0){
-		resultFitSZagain[ncand] = fit.FitSZspace(
+//		resultFitSZagain[ncand] = fit.FitSZspace(
+		resultFitSZagain[ncand] = fit.FitSZspace_Chi2_AnnealingtheMvdOnly(
 				nhitsinfit,	// n. hits to be fitted
 				tS,
 				tZED,
@@ -1846,19 +1846,6 @@ MAXSCITILHITSINTRACK,MAXSTTHITSINTRACK,fR,fOx,fOy,FI0,KAPPA);
 				IVOLTE*100+ncand // number of the accumulation plot.
 						);
 
-
-//-------------- stampa
- if(istampa>=2){
-	cout<<"\tstampa dopo FitSZspace, [not in Mvd track section], result (1 va bene) = "
-	<<resultFitSZagain[ncand]<<endl;
-	fPrint.stampetta(
-IVOLTE,tkeepit,&fListMvdPixelHitsinTrack[0][0],&fListMvdStripHitsinTrack[0][0],
-&fListSttParHitsinTrack[0][0],&fListSttSkewHitsinTrack[0][0],&fListSciTilHitsinTrack[0][0],
-fnMvdPixelHitsinTrack,fnMvdStripHitsinTrack,fnSttParHitsinTrack,fnSttSkewHitsinTrack,
-fnSciTilHitsinTrack,nSttTrackCand,ncand,MAXMVDPIXELHITSINTRACK,MAXMVDSTRIPHITSINTRACK,
-MAXSCITILHITSINTRACK,MAXSTTHITSINTRACK,fR,fOx,fOy,FI0,KAPPA);
-	}
-//---------------------------------------------------------------------------
 		if( resultFitSZagain[ncand]==1){
 			KAPPA[ncand] = emme;
 			GoodSkewFit[ncand] = true;
@@ -1875,6 +1862,18 @@ MAXSCITILHITSINTRACK,MAXSTTHITSINTRACK,fR,fOx,fOy,FI0,KAPPA);
 	}   // end of  if(nhitsinfit>0)
 
 
+//-------------- stampa
+ if(istampa>=2){
+	cout<<"\tstampa dopo FitSZspace, [not in Mvd track section], result (1 va bene) = "
+	<<resultFitSZagain[ncand]<<endl;
+	fPrint.stampetta(
+IVOLTE,tkeepit,&fListMvdPixelHitsinTrack[0][0],&fListMvdStripHitsinTrack[0][0],
+&fListSttParHitsinTrack[0][0],&fListSttSkewHitsinTrack[0][0],&fListSciTilHitsinTrack[0][0],
+fnMvdPixelHitsinTrack,fnMvdStripHitsinTrack,fnSttParHitsinTrack,fnSttSkewHitsinTrack,
+fnSciTilHitsinTrack,nSttTrackCand,ncand,MAXMVDPIXELHITSINTRACK,MAXMVDSTRIPHITSINTRACK,
+MAXSCITILHITSINTRACK,MAXSTTHITSINTRACK,fR,fOx,fOy,FI0,KAPPA);
+	}
+//---------------------------------------------------------------------------
 
 //-------------------------------------------
 
@@ -1936,7 +1935,7 @@ MAXSCITILHITSINTRACK,MAXSTTHITSINTRACK,fR,fOx,fOy,FI0,KAPPA);
 
 
 //-------------- stampa
- if(istampa>=2){
+ if(istampa>=1){
 	cout<<"\tstampa dopo EliminateSpuriousSZ, [non in Mvd track section] .\n";
 
 	fPrint.stampetta(
@@ -3638,9 +3637,8 @@ void PndTrkTracking2::EliminateSpuriousSZ(
 		 nchosen,
 		 Nround[4];
 
+//	const Double_t  MvdCut=1.8,
 	const Double_t  MvdCut=0.8,
-//	const Double_t  MvdCut=0.3,
-//	const Double_t  MvdCut=0.1,
 			minimumSttDriftError = 1.;
 
 	Double_t ddd,
@@ -3668,6 +3666,8 @@ void PndTrkTracking2::EliminateSpuriousSZ(
 
 
 	for(i=0;i<*nPixelHitsinTrack;i++){
+
+
 
 
 		if( fabs(GeomC.Dist_SZ(Rr,KAPPA,FI0,ZED[i],S[i],&nrounds0)) < MvdCut
