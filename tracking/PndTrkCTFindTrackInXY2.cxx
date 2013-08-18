@@ -344,6 +344,7 @@ bool PndTrkCTFindTrackInXY2::FindTrackInXYProjection(
 
  bool
 	Type;
+int istampa = 0;
 
  Short_t
 	auxListHitsinTrack[InOut->maxstthits],
@@ -463,6 +464,33 @@ bool PndTrkCTFindTrackInXY2::FindTrackInXYProjection(
 
  if(status < 0  ) return false;
 
+
+//-------------- stampa
+if (istampa>0){
+bool tkeepit[10];
+tkeepit[0] = true;
+Short_t nSttSkewHitsinTrack[10],
+	nSciTilHitsinTrack[10],
+	IVOLTE = 0;
+Short_t ListSttSkewHitsinTrack[100];
+Double_t KAPPA[10] ;
+KAPPA[0] = 0.;
+nSttSkewHitsinTrack[0] = 0;
+nSciTilHitsinTrack[0] = 0;
+
+cout<<"\tstampa in CTFind..2.cxx, dopo FitHelixCylinder :"<<endl;
+Print2.stampetta2(tkeepit,ListMvdPixelHitsinTrack,
+ListMvdStripHitsinTrack,ListSttParHitsinTrack,
+ListSttSkewHitsinTrack,InOut->ListSciTilHitsinTrack,
+&nMvdPixelHitsinTrack,&nMvdStripHitsinTrack,&nSttParHitsinTrack,
+
+nSttSkewHitsinTrack,nSciTilHitsinTrack,1,	// questo e' nTotCand, cioe' 1
+-1, // print all candidates;
+InOut->maxmvdpixelhitsintrack,InOut->maxmvdstriphitsintrack,InOut->maxscitilhitsintrack,InOut->maxstthitsintrack,&R,&Ox,&Oy,
+InOut->Fi_initial_helix_referenceframe,KAPPA);
+}
+//-------------- fine stampa
+
 //  this trasformation is valid even if the equation is a straight line from the fit
  Ox= -0.5*(*(InOut->ALFA));
  Oy= -0.5*(*(InOut->BETA));
@@ -567,6 +595,34 @@ bool PndTrkCTFindTrackInXY2::FindTrackInXYProjection(
  for(i=0; i< nSttParHitsinTrack;i++){
 	ListSttParHitsinTrack[i]=auxListHitsinTrack[i];
  }
+
+
+//-------------- stampa
+
+if (istampa>0){
+bool tkeepit[10];
+tkeepit[0] = true;
+Short_t nSttSkewHitsinTrack[10],
+	nSciTilHitsinTrack[10],
+	IVOLTE = 0;
+Short_t ListSttSkewHitsinTrack[100];
+Double_t KAPPA[10] ;
+KAPPA[0] = 0.;
+nSttSkewHitsinTrack[0] = 0;
+nSciTilHitsinTrack[0] = 0;
+
+cout<<"\tstampa in CTFind..2.cxx, dopo TrkAssociatedParallelHitsToHelix5 :"<<endl;
+Print2.stampetta2(tkeepit,ListMvdPixelHitsinTrack,
+ListMvdStripHitsinTrack,ListSttParHitsinTrack,
+ListSttSkewHitsinTrack,InOut->ListSciTilHitsinTrack,
+&nMvdPixelHitsinTrack,&nMvdStripHitsinTrack,&nSttParHitsinTrack,
+
+nSttSkewHitsinTrack,nSciTilHitsinTrack,1,	// questo e' nTotCand, cioe' 1
+-1, // print all candidates;
+InOut->maxmvdpixelhitsintrack,InOut->maxmvdstriphitsintrack,InOut->maxscitilhitsintrack,InOut->maxstthitsintrack,&R,&Ox,&Oy,
+InOut->Fi_initial_helix_referenceframe,KAPPA);
+}
+//-------------- fine stampa
 
 
 // adding the Mvd hits;
@@ -855,7 +911,6 @@ bool PndTrkCTFindTrackInXY2::FindTrackInXYProjection(
 
 
 //-------------- stampa
-int istampa = 0;
 if (istampa>0){
 bool tkeepit[10];
 tkeepit[0] = true;
@@ -866,7 +921,7 @@ Short_t ListSttSkewHitsinTrack[100];
 Double_t KAPPA[10] ;
 KAPPA[0] = 0.;
 nSttSkewHitsinTrack[0] = 0;
-nSciTilHitsinTrack[0] = 0;
+nSciTilHitsinTrack[0] = *(InOut->nSciTilHitsinTrack);
 
 cout<<"\tstampa in CTFind..2.cxx, dopo ordering :"<<endl;
 Print2.stampetta2(tkeepit,ListMvdPixelHitsinTrack,
@@ -874,7 +929,7 @@ ListMvdStripHitsinTrack,ListSttParHitsinTrack,
 ListSttSkewHitsinTrack,InOut->ListSciTilHitsinTrack,
 &nMvdPixelHitsinTrack,&nMvdStripHitsinTrack,&nSttParHitsinTrack,
 
-nSttSkewHitsinTrack,nSciTilHitsinTrack,1,
+nSttSkewHitsinTrack,nSciTilHitsinTrack,1,	// questo e' nTotCand, cioe' 1
 -1, // print all candidates;
 InOut->maxmvdpixelhitsintrack,InOut->maxmvdstriphitsintrack,InOut->maxscitilhitsintrack,InOut->maxstthitsintrack,&R,&Ox,&Oy,
 InOut->Fi_initial_helix_referenceframe,KAPPA);
@@ -901,8 +956,14 @@ InOut->Fi_initial_helix_referenceframe,KAPPA);
 
 
 			)
-// ) return true; else return false;
- ){  return true;} else { return false;}
+ ){
+
+
+   return true;} else {
+
+
+
+   return false;}
 
 
 
@@ -1092,7 +1153,8 @@ Short_t PndTrkCTFindTrackInXY2::TrkAssociatedParallelHitsToHelix5(
            dx,
            dy,
            distance,
-           NTIMES=1.5;   //   number of Straw radia allowed in association.
+//           NTIMES=1.5;   //   number of Straw radia allowed in association.
+           NTIMES=2.;   //   number of Straw radia allowed in association.
 
   nAssociatedHits=0;
 //   find the Hits belonging to this Track.
@@ -1102,7 +1164,6 @@ Short_t PndTrkCTFindTrackInXY2::TrkAssociatedParallelHitsToHelix5(
   for(i=0; i<NhitsParallel;i++){
 	if( !InclusionListStt[ ListSttParHits[i] ] ) continue;
 // check if the hit position is near the circle of the Helix found by the fit
-
 	dx = -Oxx+info[ListSttParHits[i]][0];
 	dy = -Oyy+info[ListSttParHits[i]][1];
 	angle=atan2(dy,dx);
