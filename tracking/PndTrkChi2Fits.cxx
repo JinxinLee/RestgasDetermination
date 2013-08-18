@@ -15,6 +15,97 @@ using namespace std;
  /** Default constructor **/
 PndTrkChi2Fits::PndTrkChi2Fits(){};
 
+//----------begin of function PndTrkChi2Fits::Calculations_Mvd
+
+void  PndTrkChi2Fits:: Calculations_Mvd(
+	bool * InclusionMvd,	// input;
+	Double_t * Mvd_DipVar_DipVar,	// input;
+	Double_t * Mvd_IndVar_DipVar,	// input;
+	Double_t * Mvd_IndVar_IndVar,	// input;
+	Short_t nMvdHits,	// input;
+
+	Double_t & Mvd_DipVar_DipVar_Sum,	// output;
+	Double_t & Mvd_IndVar_DipVar_Sum,	// output;
+	Double_t & Mvd_IndVar_IndVar_Sum	// output;
+					)
+{
+ Short_t
+	i,
+	j;
+
+ Mvd_DipVar_DipVar_Sum = 0. ;
+ Mvd_IndVar_DipVar_Sum = 0. ;
+ Mvd_IndVar_IndVar_Sum = 0. ;
+
+
+ for(i=0;i<nMvdHits; i++){
+	// if this Mvd hit has been annihiled, skip;
+	if(!InclusionMvd[i]) continue;
+
+
+	Mvd_DipVar_DipVar_Sum += Mvd_DipVar_DipVar[i] ;
+	Mvd_IndVar_DipVar_Sum +=  Mvd_IndVar_DipVar[i];
+	Mvd_IndVar_IndVar_Sum +=  Mvd_IndVar_IndVar[i];
+
+ } // end of for(i=0;i<nMvdHits; i++)
+
+
+}
+
+//----------begin of function PndTrkChi2Fits::Calculations_Mvd
+
+
+
+//----------begin of function PndTrkChi2Fits::Calculations_SkewStt_AllLeftRightCombinations
+
+void  PndTrkChi2Fits:: Calculations_SkewStt_AllLeftRightCombinations(
+	Short_t nSttHits,	// input;
+	Double_t * Stt_DriftRad_DipVar,	// input;
+	Double_t * Stt_DriftRad_IndVar,	// input;
+
+	Double_t * Stt_DriftRad_DipVar_Sum,	// output;
+	Double_t * Stt_DriftRad_IndVar_Sum	// output;
+						)
+{
+
+ Short_t
+	current_number,
+	i,
+	j;
+
+ Double_t
+	aux;
+
+ current_number = 1;
+ Stt_DriftRad_IndVar_Sum[0] = 0.;
+ Stt_DriftRad_DipVar_Sum[0] = 0.;
+
+ // calculate the quantities for the chi**2 minimization for all the other combinations;
+ // this part was written previously in an iterative way;
+ for(i=0; i<nSttHits; i++){
+	for(j=0; j<current_number; j++){  // current_number --> number of combinations formed so far;
+
+		aux = Stt_DriftRad_IndVar_Sum[i];
+		Stt_DriftRad_IndVar_Sum[j] += Stt_DriftRad_IndVar[i] ;
+		Stt_DriftRad_IndVar_Sum[current_number + j] = aux - Stt_DriftRad_IndVar[i] ;
+
+		aux = Stt_DriftRad_DipVar_Sum[i];
+		Stt_DriftRad_DipVar_Sum[j] += Stt_DriftRad_DipVar[i] ;
+		Stt_DriftRad_DipVar_Sum[current_number + j] = aux - Stt_DriftRad_DipVar[i] ;
+
+	}  //  end of for(j=0; j<current_number; j++)
+
+	current_number *= 2;
+
+ }  // end of  for(i=0; i<nHitsinTrack; i++)
+
+
+}
+
+
+//----------end of function PndTrkChi2Fits::Calculations_SkewStt_AllLeftRightCombinations
+
+
 //----------begin of function PndTrkChi2Fits::FitHelixCylinder
 
 Short_t PndTrkChi2Fits::FitHelixCylinder(
@@ -402,6 +493,278 @@ return 1;
 }
 
 //----------end of function PndTrkChi2Fits::FitSZspace
+
+
+
+
+
+//----------begin of function PndTrkChi2Fits::FitSZspace_Chi2_AnnealingtheMvdOnly
+
+ Short_t PndTrkChi2Fits::FitSZspace_Chi2_AnnealingtheMvdOnly(
+	Short_t nHitsinTrack,
+	Double_t *S,
+	Double_t *Z,
+	Double_t *DriftRadius,
+	Double_t *ErrorDriftRadius,
+	Double_t FInot,
+	Short_t NMAX,
+	Double_t *emme,
+	int IVOLTE
+	)
+{
+  bool
+	InclusionMvd[nHitsinTrack];
+
+  Short_t
+	i,
+	j,
+	nHitsinFit,
+	nMvdHits,
+	nSttHits,
+	status;
+
+  Int_t
+	Combinations;
+
+  Double_t
+	A,
+	chi2,
+	chi2_fixed,
+	chi2_best,
+	e2,
+	M,
+
+	Mvd_DipVar_DipVar[nHitsinTrack],
+	Mvd_DipVar_DipVar_Sum,
+	Mvd_IndVar_DipVar[nHitsinTrack],
+	Mvd_IndVar_DipVar_Sum,
+	Mvd_IndVar_IndVar[nHitsinTrack],
+	Mvd_IndVar_IndVar_Sum,
+	Mvd_invError2[nHitsinTrack],
+
+	Penalty,
+
+	Stt_DipVar_Sum,
+	Stt_DipVar_DipVar_Sum,
+	Stt_DriftRad_DipVar[nHitsinTrack],
+	Stt_DriftRad_DriftRad_Sum,
+	Stt_DriftRad_IndVar[nHitsinTrack],
+	Stt_IndVar_Sum,
+	Stt_IndVar_DipVar_Sum,
+	Stt_IndVar_IndVar_Sum;
+
+
+
+
+
+  //	nHitsinTrack = n. hits in this track candidate;
+  //   *S  =  array of the independent variable of the fit, namely the R*fi variable on
+  // 		the side surface of the Helix cylinder;
+  //   *Z  =  array of the dependent variable of the fit; namely the Z position of the hit
+  //		projected on the side surface of the Helix cylinder; (Z coordinate for a
+  //		Mvd hit, intersection between wire and Helix cylinder for Skew Stt);
+  //   *DriftRadius  = array of Radius of drift for the Skew Sraw PROJECTED onto the lateral surface
+  //			of the Helix, namely the major axis of the ellipsis projection
+  //			of the Skew Straw;  for the Mvd hits it is < 0;
+  //   *ErrorDriftRadius = array of Errors associated to DriftRadius; presently (8 Aug 2013) they
+  //			are set to 0.5 cm for the Mvd hits, and to 2 times DriftRadius for the
+  //			Skew Straws;
+  //   FInot = this is a fixed input from the previous fits in XY; it is NOT a output variable
+  //			in this fit;
+  //   NMAX = maximum number of Skew Straws allowed to partecipate in this fit;
+  //  *emme = output of the fit;
+  //  IVOLTE = service variable indicating the current event;
+
+
+ // This method calculates the Chi2 for :
+ // 1)  all Mvd hits plus all left/right combinations of the Skew Stt;
+ // 2)  like the above but excluding one Mvd hit and replacing it with a penalty term;
+ // at the end the minimum Chi2 among all these is chosen and the fit parameter accordingly.
+
+
+
+ //   Step 1 : calculation of all the Mvd hits plus all the combinations left/right of the Skew Stt;
+ //   here Mvd hits means Mvd (these have DriftRadius = -1) or SciTil (these have DriftRadius = -2);
+ nMvdHits=0;
+ nSttHits=0;
+ Stt_DipVar_DipVar_Sum = 0. ;
+ Stt_DriftRad_DriftRad_Sum = 0. ;
+ Stt_IndVar_IndVar_Sum = 0. ;
+ Stt_IndVar_DipVar_Sum = 0. ;
+
+
+ for(i=0; i<nHitsinTrack; i++){
+
+
+	e2 = 1./(ErrorDriftRadius[i]*ErrorDriftRadius[i]);
+
+	if( DriftRadius[i]<0. )
+	{
+	  // Mvd hit;
+	  // relevant quantities for the chi2 calculation and minimization;
+	  // Here S is the independent variable (== Mvd_IndVar), Z is the
+	  // dependent variable (== Mvd_DepVar);
+	  // the fit function is :  Z = (1/Kappa)*(S-FInot);
+
+	  Mvd_DipVar_DipVar[nMvdHits] = Z[i]*Z[i]*e2;
+	  Mvd_IndVar_IndVar[nMvdHits] =(S[i]-FInot)*(S[i]-FInot)*e2;
+	  Mvd_IndVar_DipVar[nMvdHits] =(S[i]-FInot)*Z[i]*e2;
+	  // the following is useful only for adding the penalty term later;
+	  Mvd_invError2[nMvdHits] = e2;
+	  nMvdHits++;
+
+	} else {
+	  // Skew Straw hit;
+	  // relevant quantities for the chi2 calculation and minimization;
+	  // Here S is the independent variable (== Stt_IndVar), Z is the
+	  // dependent variable (== Stt_DepVar);
+	  // the fit function is :  Z = (1/Kappa)*(S-FInot);
+
+	  Stt_DipVar_DipVar_Sum += Z[i]*Z[i]*e2;
+
+	  Stt_DriftRad_DriftRad_Sum += DriftRadius[i]*DriftRadius[i]*e2;
+	  Stt_DriftRad_IndVar[nSttHits] = DriftRadius[i]*(S[i]-FInot)*e2;
+	  Stt_DriftRad_DipVar[nSttHits] = DriftRadius[i]*Z[i]*e2;
+
+	  Stt_IndVar_IndVar_Sum += (S[i]-FInot)*(S[i]-FInot)*e2;
+	  Stt_IndVar_DipVar_Sum += (S[i]-FInot)*Z[i]*e2;
+	  nSttHits++;
+	}
+ } // end of  for(i=0; i<nHitsinTrack; i++)
+
+
+ // limit the number of Skew hits in fit, otherwise the number of combinations
+ // becomes too large;
+ if(nSttHits>NMAX) nSttHits=NMAX;
+
+ //---- begin the fit procedure. Here S is the INDEPENDENT-like variable and  Z the
+ //     dependent-like one.
+
+
+ status = 0;	// failure in fitting (just initializing!);
+
+ // For the Skew Stt hit calculate the contribution of all possible left/right combinations once and for all
+ // since no 'annealing' mechanism is used for them in this algorithm;
+ // only the terms containing DriftRadius (linearly) change depending on the combinations;
+
+ //  Combinations == number of all possible left/right combinations given the Skew Stt in the track;
+ Combinations = (Int_t) (pow(2,nSttHits) + 0.1) ;// +0.1 only for being absolutely
+ 						//  sure agains rounding errors;
+
+ Double_t
+	Stt_DriftRad_DipVar_Sum[Combinations],
+	Stt_DriftRad_IndVar_Sum[Combinations];
+
+
+ Calculations_SkewStt_AllLeftRightCombinations(
+	nSttHits,	// input;
+	Stt_DriftRad_DipVar,	// input;
+	Stt_DriftRad_IndVar,	// input;
+
+	Stt_DriftRad_DipVar_Sum,	// output;
+	Stt_DriftRad_IndVar_Sum		// output;
+						);
+
+ // For the Mvd hits, calculate the contribution of all Mvd, and all Mvd except 1 (a penalty term instead)
+
+ // all Mvd contribution;
+ memset(InclusionMvd, true, sizeof(InclusionMvd));
+ Calculations_Mvd(
+	InclusionMvd,	// input;
+	Mvd_DipVar_DipVar,	// input;
+	Mvd_IndVar_DipVar,	// input;
+	Mvd_IndVar_IndVar,	// input;
+	nMvdHits,	// input;
+
+	Mvd_DipVar_DipVar_Sum,	// output;
+	Mvd_IndVar_DipVar_Sum,	// output;
+	Mvd_IndVar_IndVar_Sum	// output;
+		);
+
+ // calculation with all the Mvd hits considered;
+
+ // formula used here :  emme * (Sum_i (x_i **2 / sigma_i**2)) = Sum_i ( x_i*y_i/sigma_i**2) - qu *(Sum_i x_i/sigma_i**2);
+ chi2_best = 9999999.;
+ A = Mvd_IndVar_DipVar_Sum + Stt_IndVar_DipVar_Sum ;
+ chi2_fixed =
+	Mvd_DipVar_DipVar_Sum + Stt_DipVar_DipVar_Sum
+	+ Stt_DriftRad_DriftRad_Sum;
+
+ for(i=0;i<Combinations; i++){
+	M = (A + Stt_DriftRad_IndVar_Sum[i])/(Stt_IndVar_IndVar_Sum + Mvd_IndVar_IndVar_Sum) ;
+	chi2 =  chi2_fixed +
+		M*M*(Mvd_IndVar_IndVar_Sum + Stt_IndVar_IndVar_Sum)
+		+ 2.*Stt_DriftRad_DipVar_Sum[i]
+		- 2.*M*(Mvd_IndVar_DipVar_Sum + Stt_IndVar_DipVar_Sum)
+		- 2.*Stt_DriftRad_IndVar_Sum[i]*M;
+	if(chi2<chi2_best){
+		chi2_best = chi2;
+		*emme = M;
+		status = 1;	// success in fitting;
+	}
+ }	// end of for(i=0;i<nCombinations; i++)
+
+ // exclude 1 Mvd hit, add penalty term to chi2;
+
+// memset(InclusionMvd, true, sizeof(InclusionMvd));
+
+
+ for( j =0; j<nMvdHits;j++){
+	InclusionMvd[j] = false;
+	Penalty = 9./Mvd_invError2[j];
+	// the following is necessary to include again the Mvd hit excluded in the previous loop;
+	if(j>0) InclusionMvd[j-1] = true;
+
+	// calculate the new Mvd contributions with 1 hit excluded;
+ 	Calculations_Mvd(
+		InclusionMvd,	// input;
+		Mvd_DipVar_DipVar,	// input;
+		Mvd_IndVar_DipVar,	// input;
+		Mvd_IndVar_IndVar,	// input;
+		nMvdHits,	// input;
+
+		Mvd_DipVar_DipVar_Sum,	// output;
+		Mvd_IndVar_DipVar_Sum,	// output;
+		Mvd_IndVar_IndVar_Sum	// output;
+			);
+
+	// redo the chi2 minimization and best chi2 choice;
+	A = Mvd_IndVar_DipVar_Sum + Stt_IndVar_DipVar_Sum ;
+		chi2_fixed = Penalty +
+		Mvd_DipVar_DipVar_Sum + Stt_DipVar_DipVar_Sum
+		+ Stt_DriftRad_DriftRad_Sum;
+ 	for(i=0;i<Combinations; i++){
+		M = (A + Stt_DriftRad_IndVar_Sum[i])/(Stt_IndVar_IndVar_Sum + Mvd_IndVar_IndVar_Sum) ;
+		chi2 =  chi2_fixed +
+			M*M*(Mvd_IndVar_IndVar_Sum + Stt_IndVar_IndVar_Sum)
+		+ 2.*Stt_DriftRad_DipVar_Sum[i]
+		- 2.*M*(Mvd_IndVar_DipVar_Sum + Stt_IndVar_DipVar_Sum)
+		- 2.*Stt_DriftRad_IndVar_Sum[i]*M;
+
+		if(chi2<chi2_best){
+			chi2_best = chi2;
+			*emme = M;
+			status = 1;	// success in fitting;
+		}
+	}	// end of for(i=0;i<nCombinations; i++)
+ }  //  end of  for( j =0; j<nMvdHits;j++)
+
+
+
+  // at this moment  *emme  corresponds to 1/KAPPA so now it is inverted;
+  if( status>0){
+	if( fabs(*emme) > 1.e-9 ) {  *emme = 1./(*emme); } else { *emme = 1.e9; }
+  }
+
+
+
+
+
+  return status;
+
+}
+
+//----------end of function PndTrkChi2Fits::FitSZspace_Chi2_AnnealingtheMvdOnly
 
 
 
