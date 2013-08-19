@@ -575,10 +575,21 @@ void PndTrkQATask::Exec(Option_t* opt) {
 	PndTrackCandHit candhit = trkcand->GetSortedHit(ihit);
 	Int_t hitID = candhit.GetHitId();
 	Int_t detID = candhit.GetDetId();
+	if(fVerbose > 9) {
+		cout << "PndTrkQATask at noftmprecotrackpoints loop\n";
+		cout << "candhit = " << candhit << endl;
+	  	cout << "hitID = " << hitID << endl;
+	  	cout << "detID = " << detID << endl;
+	}
 	FairHit *hit = NULL;
 	if(detID == FairRootManager::Instance()->GetBranchId(fMvdPixelBranch)) {
 	  if(!fUseMVDPixHits) continue;
 	  hit = (PndSdsHit*) fMvdPixelHitArray->At(hitID);
+	  if(fVerbose > 9) {
+		  	  cout << "PndTrkQATask at fMvdPixelBranch\n";
+	  		  cout << "hitID = " << hitID << endl;
+	  		  cout << "hit = " << hit << endl;
+	  }
 	  if(hit->GetRefIndex() == -1) {
 	    nTmpWrongMvdPixel++;
 	    nTmpWrong++;
