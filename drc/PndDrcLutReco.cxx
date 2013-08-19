@@ -122,6 +122,10 @@ void PndDrcLutReco::ProcessPhotonHit()
   if ( ! fDrcLutInfoArray ) Fatal("Exec", "No fDrcLutInfoArray");
   fDrcLutInfoArray->Clear();
 
+  int nHits = fPDHitArray->GetEntriesFast();
+  if(fVerbose>1) std::cout<<"Event # "<< nevents<<" has "<<nHits<<" hits."<< std::endl;
+  else if(fVerbose==1 && nevents%1000==0) std::cout<<"Event # "<< nevents<<" has "<<nHits<<" hits."<< std::endl;
+
   PndDrcLutInfo lutinfo;
   TVector3 dir, momAtZero, momInBar;
   Double_t cangle,tangle;
@@ -143,7 +147,7 @@ void PndDrcLutReco::ProcessPhotonHit()
   }
 
   // Loop over PndDrcPDHits
-  for(Int_t k=0; k<fPDHitArray->GetEntriesFast(); k++) {
+  for(Int_t k=0; k<nHits; k++) {
    
     fPDHit = (PndDrcPDHit*)fPDHitArray->At(k);
   
@@ -161,15 +165,26 @@ void PndDrcLutReco::ProcessPhotonHit()
     // Int_t trackID= fPDPoint->GetTrackID();
     // fMCTrack = (PndMCTrack*)fMCArray->At(trackID);
     // TVector3 vert =  fMCTrack->GetStartVertex();
-
+ 
+    if(fPDHit->GetDetectorID()>150000) {
+      std::cout<<"WTQ  fPDHit->GetDetectorID()   "<<fPDHit->GetDetectorID() <<std::endl;
+      continue;
+    }
     PndDrcLutNode *node= (PndDrcLutNode*) fLut->At(fPDHit->GetDetectorID());
     Int_t size = node->Entries();
     for(int i=0; i<size; i++){
       dir = node->GetEntry(i);
       tangle = momInBar.Angle(dir);
+      //tangle = momAtZero.Angle(dir);
+      if(tangle>TMath::Pi()/2.) tangle = TMath::Pi()-tangle;
+      lutinfo.AddAngle(cangle - tangle);
+      dir.SetZ(-dir.Z());
+      tangle = momInBar.Angle(dir);
+      //tangle = momAtZero.Angle(dir);
       if(tangle>TMath::Pi()/2.) tangle = TMath::Pi()-tangle;
       lutinfo.AddAngle(cangle - tangle);
     }
+    lutinfo.AddPixelEnd(lutinfo.AngleEntries());
   }
 
   lutinfo.SetChPartDir(momAtZero);

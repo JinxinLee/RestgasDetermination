@@ -132,6 +132,10 @@ void PndDrcLutFill::ProcessPhotonHit()
 
     fMCTrack = (PndMCTrack*)fMCArray->At(trackID);
     TVector3 dir =  fMCTrack->GetMomentum().Unit();
+    if(fDigi->GetSensorID()>150000) {
+      std::cout<<"WTQ  fPDHit->GetDetectorID()   "<<fPDHit->GetDetectorID() <<std::endl;
+      continue;
+    }
     ((PndDrcLutNode*)(fLut->At(fDigi->GetSensorID())))->AddEntry(dir);
   }
 }
