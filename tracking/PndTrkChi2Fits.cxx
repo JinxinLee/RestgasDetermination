@@ -648,7 +648,7 @@ return 1;
  // only the terms containing DriftRadius (linearly) change depending on the combinations;
 
  //  Combinations == number of all possible left/right combinations given the Skew Stt in the track;
- Combinations = (Int_t) (pow(2,nSttHits) + 0.1) ;// +0.1 only for being absolutely
+ Combinations = (Int_t) (pow(2., (double) nSttHits) + 0.1) ;// +0.1 only for being absolutely
  						//  sure agains rounding errors;
 
  Double_t
