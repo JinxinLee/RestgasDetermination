@@ -29,6 +29,7 @@ public:
 
   // Modifiers
   void AddAngle(Double_t val);
+  void AddPixelEnd(Double_t val);
   void AddTime(Double_t val);
   void AddPath(Double_t val);
   void AddChDiff(Double_t val);
@@ -46,6 +47,7 @@ public:
 
   // Accessors
   Int_t AngleEntries() 		    {return fAnglesSize; }
+  Int_t PixelEntries() 		    {return fPixelSize; }
   Int_t TimeEntries() 		    {return fTimesSize; }
   Int_t PathEntries() 		    {return fPathsSize; }
   Int_t ChDiffEntries() 	    {return fChDiffsSize; }
@@ -58,10 +60,11 @@ public:
   Int_t    GetChPartPdg()	    {return fChPartPdg;} 
   Double_t GetTime()		    {return fTime;}
   Double_t GetPath()		    {return fPath;}
-  Double_t GetCherenkovMC()		    {return fCherenkovMC;}
-  Double_t GetCherenkovReal()		    {return fCherenkovReal;}
+  Double_t GetCherenkovMC()	    {return fCherenkovMC;}
+  Double_t GetCherenkovReal()	    {return fCherenkovReal;}
   
   Double_t GetAngle(Int_t entry);
+  Int_t    GetPixelEnd(Int_t entry);
   Double_t GetTime(Int_t entry);
   Double_t GetPath(Int_t entry);
   Double_t GetChDiff(Int_t entry);
@@ -70,6 +73,7 @@ public:
 protected:
 
   Int_t fAnglesSize;
+  Int_t fPixelSize;
   Int_t fTimesSize;
   Int_t fPathsSize;
   Int_t fChDiffsSize;
@@ -77,6 +81,8 @@ protected:
 
   // arrays of values based on the LUT ambiguities:
   std::vector<Double_t> fAnglesArray;
+
+  std::vector<Int_t>    fPixelEndArray;
   std::vector<Double_t> fTimesArray;
   std::vector<Double_t> fPathsArray;
   std::vector<Double_t> fChDiffsArray;

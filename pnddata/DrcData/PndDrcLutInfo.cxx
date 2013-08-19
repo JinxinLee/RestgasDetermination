@@ -24,6 +24,7 @@ PndDrcLutInfo::PndDrcLutInfo()
   fPath = 0.;
   fCherenkovMC = 0.;
   fCherenkovReal = 0.;
+  fPixelSize = 0;
 }
 
 void PndDrcLutInfo::AddAngle(Double_t val) {
@@ -31,6 +32,13 @@ void PndDrcLutInfo::AddAngle(Double_t val) {
   fAnglesArray.push_back(val);
   fAnglesSize++;
 }
+
+void PndDrcLutInfo::AddPixelEnd(Double_t val) {
+
+  fPixelEndArray.push_back(val);
+  fPixelSize++;
+}
+
 void PndDrcLutInfo::AddTime(Double_t val) {
 
   fTimesArray.push_back(val);
@@ -86,6 +94,11 @@ void PndDrcLutInfo::SetCherenkovReal(Double_t val){
 Double_t PndDrcLutInfo::GetAngle(Int_t entry) {
   return fAnglesArray[entry];
 }
+
+Int_t PndDrcLutInfo::GetPixelEnd(Int_t entry) {
+  return fPixelEndArray[entry];
+}
+
 Double_t PndDrcLutInfo::GetTime(Int_t entry) {
   return fTimesArray[entry];
 }
