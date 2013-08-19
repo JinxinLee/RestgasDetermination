@@ -133,7 +133,6 @@ class PndDrc : public FairDetector
    **/
   virtual Bool_t ProcessHits(FairVolume* vol = 0);
 
-
   /** Virtual method EndOfEvent
    **
    ** If verbosity level is set, print hit collection at the
@@ -257,7 +256,6 @@ class PndDrc : public FairDetector
  
   Bool_t fRunCherenkov;            //!  Switch ON/OFF Cherenkov propagation
   Int_t          fTrackID;         //!  track index
-  Int_t          fCurrentTrackID;         //!  track index  
   Int_t 	 fBarId;
   TLorentzVector fPos;             //!  position
   TLorentzVector fMom;             //!  momentum
