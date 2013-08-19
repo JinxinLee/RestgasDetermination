@@ -37,7 +37,6 @@ void PndMCMatch::AddElement(Int_t type, int index, FairLink link){
 
 
 void PndMCMatch::SetElements(Int_t sourceType, int index, FairMultiLinkedData* links){
-	std::cout << "SourceType: " << sourceType <<" index " << index << std::endl;
 	fList[sourceType]->SetEntry(links, index);
 }
 
