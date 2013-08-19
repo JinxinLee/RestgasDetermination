@@ -32,6 +32,7 @@
 #include "TGeoManager.h"
 #include "TLorentzVector.h"
 
+
 // Fit Classes -----------
 #include <TMath.h>
 #include <TVector3.h>
@@ -39,6 +40,7 @@
 #include <TF2.h>
 #include <TH1.h>
 #include <TVirtualFitter.h>
+#include <TFitterMinuit.h>
 #include <TPolyLine3D.h>
 #include <Math/Vector3D.h>
 #include <TMatrixTSym.h>
@@ -112,8 +114,8 @@ PndLmdLinFitTask::PndLmdLinFitTask()
   ttal->Branch("erraly3b",& ferraly3b);
   ttal->Branch("npoints",& fnpoints);
   ttal->Branch("chi2",& fchi2);
- TVirtualFitter::SetDefaultFitter("Minuit");
-  fmin = TVirtualFitter::Fitter(0,15);
+ TVirtualFitter::SetDefaultFitter("Minuit2");
+  fmin = TVirtualFitter::Fitter(0,25);
   for(int ih=0;ih<4;ih++)
     hitMergedfl[ih] = false;
 }
@@ -172,8 +174,8 @@ PndLmdLinFitTask::PndLmdLinFitTask(TString tTCandBranchName, TString tRecoBranch
  ttal->Branch("chi2",& fchi2);
  ttal->Branch("zhit0",&fzhit0);
 
-  TVirtualFitter::SetDefaultFitter("Minuit");
-  fmin = TVirtualFitter::Fitter(0,15);
+  TVirtualFitter::SetDefaultFitter("Minuit2");
+  fmin = TVirtualFitter::Fitter(0,25);
   for(int ih=0;ih<4;ih++)
     hitMergedfl[ih] = false;
 }
@@ -232,14 +234,16 @@ InitStatus PndLmdLinFitTask::Init()
   //  double totRadLen = 1.5*0.00306;//rad.length of 1 plane
   // double totRadLen = 0.00306;//rad.length of 1 plane
   // totRadLen +=0.000175;// +flex-cable
-  //double totRadLen = 0.0044;
-  double totRadLen = 0.00306;//rad.length of whole plane
-  totRadLen -=0.000175;// -flex-cable
+  //  double totRadLen = 0.0044;
+   double totRadLen = 0.00306;//rad.length of whole plane
+  totRadLen -=2*0.000175;// -flex-cable
   totRadLen -=0.00053;// -sensor
   fsigmaMSb = ScatteredAngle(totRadLen);
   double totRadLenCable = 2*0.000175;// 2*flex-cable only
   totRadLenCable +=0.00053;
   fsigmaMSa = ScatteredAngle(totRadLenCable);
+  //  fsigmaMSa =  fsigmaMSb;
+  cout<<"fsigmaMSa: "<<fsigmaMSa<<" fsigmaMSb: "<<fsigmaMSb<<endl;
   // totRadLen +=0.5*0.00306;// + more (half-plane for merged hits)
   // fsigmaMSmerged = ScatteredAngle(totRadLen);
   // totRadLen +=0.5*0.00306; //2pl
@@ -304,10 +308,16 @@ void PndLmdLinFitTask::Exec(Option_t* opt)
     PndTrackCand* trcnd = (PndTrackCand*)fTCandArray->At(track);
     const int numPts = trcnd->GetNHits(); //read how many points in this track
     /// Obtain first approximation ----------
-    TVector3 posSeed = trcnd->getPosSeed();
-    TVector3 dirSeed = trcnd->getDirSeed();
-    posSeed = lmddim->Transform_global_to_lmd_local(posSeed,false,false);
-    dirSeed = lmddim->Transform_global_to_lmd_local(dirSeed,true,false);
+    //    TVector3 posSeed = trcnd->getPosSeed();
+    // TVector3 dirSeed = trcnd->getDirSeed();
+    // cout<<"initial Dir(gl):"<<endl;
+    // dirSeed.Print();
+
+    //    posSeed = lmddim->Transform_global_to_lmd_local(posSeed,false,false);
+    // dirSeed = lmddim->Transform_global_to_lmd_local(dirSeed,true,false);
+    // cout<<"initial Dir(loc):"<<endl;
+    // dirSeed.Print();
+
     // if(dirSeed.Theta()<3e-2 || dirSeed.Theta()>5e-2 ||  fabs(dirSeed.Phi())>0.3){
     //   if(fVerbose>2) cout<<"Trk-cand doesn't pass throw limit (dirSeed.Theta() = "<<dirSeed.Theta()<<" dirSeed.Phi() = "<<dirSeed.Phi()<<")"<<endl;
     //   continue;
@@ -318,16 +328,13 @@ void PndLmdLinFitTask::Exec(Option_t* opt)
 
     TGraph2DErrors fitme(numPts); //new graph for fitting
     Int_t firstHit=-1, lastHit=-1;
+    TVector3 hit0,hit1;
     for(unsigned int ihit=0; ihit<numPts; ihit++){ //fill Graph
       PndTrackCandHit theHit = trcnd->GetSortedHit(ihit); //get hit
       Int_t index = theHit.GetHitId();
       Int_t detId = theHit.GetDetId();
       // if(fVerbose>2) std::cout << "Point: "<< ihit<< " index: "<< index <<std::endl;
 
-      if(ihit==0)
-         firstHit=index;
-      else if(ihit==numPts-1)
-         lastHit=index;
       //      PndSdsHit* addHit = (PndSdsHit*) fRecoArray->At(index);
       PndSdsMergedHit* addHit = (PndSdsMergedHit*) fRecoArray->At(index);
       cout<<"IsMerged??? "<<addHit->GetIsMerged()<<endl;
@@ -335,17 +342,26 @@ void PndLmdLinFitTask::Exec(Option_t* opt)
 
 
       TVector3 addPos = addHit->GetPosition();
+
       //      addPos.Print();
       // cout<<"BEFORE:"<<endl;
       // addPos.Print();
       double xhit = addPos.X();       double yhit = addPos.Y();       double zhit = addPos.Z();
-      //    TVector3 addPosloc = lmddim->Transform_global_to_lmd_local(addPos,false,false);
-      lmddim->Transform_global_to_lmd_local(xhit,yhit,zhit,false);
-      //      addPos.SetXYZ(zhit,yhit,zhit);
-      // cout<<"After:"<<endl;
-      // addPosloc.Print();
+      //      lmddim->Transform_global_to_lmd_local(xhit,yhit,zhit,false);
+      TVector3 addPos2(xhit,yhit,zhit);
+      if(ihit==0){
+         firstHit=index;
+	 hit0 = addPos2;
+      }
+      else{
+	if(ihit==2) 	  hit1 = addPos2;
+	if(ihit==numPts-1){
+          lastHit=index;
+	  //	  hit1 = addPos2;
+	}
+      }
       double errxhit = addHit->GetDx();       double erryhit = addHit->GetDy();       double errzhit = addHit->GetDz();
-      lmddim->Transform_global_to_lmd_local_vect(errxhit,erryhit,errzhit,false);
+      //      lmddim->Transform_global_to_lmd_local_vect(errxhit,erryhit,errzhit,false);
       fitme.SetPoint(ihit, xhit,yhit,zhit);
       fitme.SetPointError(ihit, errxhit,erryhit,errzhit);
       // fitme.SetPoint(ihit, addPos.X(), addPos.Y(), addPos.Z());
@@ -353,7 +369,11 @@ void PndLmdLinFitTask::Exec(Option_t* opt)
 
     }//end of Hits in TCand
 
-
+    TVector3 dirSeed =  hit1 - hit0;
+    TVector3 posSeed =  hit0;
+    cout<<"DirSeed before fit and norm:"<<endl;
+    dirSeed.Print();
+    dirSeed *=1./dirSeed.Mag();
     // Double_t parFit[6]; //fit-parameter
     //    TMatrixDSym *COVmatrix = new TMatrixDSym(6);
     //    TMatrixDSym *COVmatrix = new TMatrixDSym(14);
@@ -374,19 +394,71 @@ void PndLmdLinFitTask::Exec(Option_t* opt)
     //save as PndTrack
     TVector3 FitPoint(parFit[0], parFit[2], parFit[4]);
     TVector3 FitDir(parFit[1], parFit[3], parFit[5]);
-    // FitDir *= 1./FitDir.Mag();
-    TVector3 FitMom =  fPbeam*FitDir;
+    TVector3 FitMom = FitDir*fPbeam;
+    // FitPoint = lmddim->Transform_lmd_local_to_global(FitPoint,false,false);
+    // FitDir = lmddim->Transform_lmd_local_to_global(FitDir,true,false);
+
     Double_t COVmatrixPosMom[6][6];
-    // int iconver[6]={0, 2, 4, 1, 3, 5};
+    // //TODO: full cov.matrix transformation
+    // TMatrixD COVmtxPoint(3,3);
+    // //    TMatrixD COVmtxDir(3,3);
+    // TVector3 errDir;
+    // // int iconver[6]={0, 2, 4, 1, 3, 5};
+
+    // for(int ij=0;ij<3;ij++){
+    //   for(int kl=0;kl<3;kl++){
+    // 	COVmtxPoint(ij,kl) = (*COVmatrix)(2*ij,2*kl);
+    // 	//	COVmtxDir(ij,kl) = ((*COVmatrix)((2*ij+1),(2*kl+1)))*fPbeam;
+    // 	}
+    //   //      cout<<"sqrt((*COVmatrix)((2*ij+1),(2*ij+1))) = "<<sqrt((*COVmatrix)((2*ij+1),(2*ij+1)))<<endl;
+    //   //      errDir[ij] = (sqrt((*COVmatrix)((2*ij+1),(2*ij+1))))*fPbeam;
+    //   errDir[ij] = (sqrt((*COVmatrix)((2*ij+1),(2*ij+1))));
+    // }
+
+    // TMatrixD COVmtxPointGL = lmddim->Transform_lmd_local_to_global(COVmtxPoint,false);
+    // //    TMatrixD COVmtxDirGL = lmddim->Transform_lmd_local_to_global(COVmtxDir,false);
+    // TVector3 errDirGL = lmddim->Transform_lmd_local_to_global(errDir,true,false);
+    // // cout<<"Cov mtx point [BEFORE] :"<<endl;
+    // // COVmtxPoint.Print();
+    // // cout<<"Cov mtx point [AFTER] :"<<endl;
+    // // COVmtxPointGL.Print();
+    // // cout<<"Cov mtx dir [BEFORE]:"<<endl;
+    // // COVmtxDir.Print();
+    // // cout<<"Cov mtx dir [AFTER]:"<<endl;
+    // // COVmtxDirGL.Print();
+    // // cout<<"Errors for dir[Before]:"<<endl;
+    // // errDir.Print();
+    // // cout<<"Errors for dir[AFTER]:"<<endl;
+    // // errDirGL.Print();
+
+    for(int ij=0;ij<6;ij++){
+      for(int ji=0;ji<6;ji++)
+	COVmatrixPosMom[ij][ji] = 0;
+    }  
+
+
+    // for(int ij=0;ij<3;ij++){
+    //   for(int ji=0;ji<3;ji++){
+    // 	COVmatrixPosMom[ij+3][ji+3] = COVmtxPointGL(ij,ji);
+    //   }
+    //   COVmatrixPosMom[ij][ij] = fPbeam*(errDirGL[ij]*errDirGL[ij]);
+    // }
+
+    // // for(int ij=0;ij<6;ij++){
+    // //   for(int ji=0;ji<6;ji++){
+    // // 	cout<<" "<<COVmatrixPosMom[ij][ji]<<", ";
+    // //   }
+    // //   cout<<""<<endl;
+    // // }  
+
     int iconver[6]={3,0,4,1,5,2};
     for(int ij=0;ij<6;ij++){
       for(int ji=0;ji<6;ji++){
-	if(ij==1 || ij==3 || ij==5) (*COVmatrix)(ij,ji) *=fPbeam;
-	if(ji==1 || ji==3 || ji==5) (*COVmatrix)(ij,ji) *=fPbeam;
-	int km =  iconver[ij];
-	int mk = iconver[ji];
-	COVmatrixPosMom[km][mk] = (*COVmatrix)(ij,ji);
-
+    	if(ij==1 || ij==3 || ij==5) (*COVmatrix)(ij,ji) *=fPbeam;
+    	if(ji==1 || ji==3 || ji==5) (*COVmatrix)(ij,ji) *=fPbeam;
+    	int km =  iconver[ij];
+    	int mk = iconver[ji];
+    	COVmatrixPosMom[km][mk] = (*COVmatrix)(ij,ji);
       }
     }
 
@@ -524,9 +596,10 @@ void PndLmdLinFitTask::LocalFCN(int &, double *, double & sum, double * par, int
 
 // calculate distance line-point in local coordinates
 double PndLmdLinFitTask::distance_MS(double x,double y,double z, double errx,double erry,double errz, double *p, double *zpr) { 
-  if((p[1]*p[1]+p[3]*p[3])<1) p[5]=sqrt(1-(p[1]*p[1]+p[3]*p[3]));
-  //  else p[5]=0.99;
-  else return 1e6;
+
+  // if((p[1]*p[1]+p[3]*p[3])<1) p[5]=sqrt(1-(p[1]*p[1]+p[3]*p[3]));
+  // //  else p[5]=0.99;
+  // else return 1e6;
     // cout<<"x,y,z: "<<x<<", "<<y<<", "<<z<<endl;
     // cout<<"p[4] = "<<p[4]<<endl;MS(
   //  cout<<"erral = "<<erral<<endl;
@@ -537,8 +610,8 @@ double PndLmdLinFitTask::distance_MS(double x,double y,double z, double errx,dou
   Double_t t_min = (z-p[4]);
   //  Double_t t_min = p[1]*(x-p[0])+p[3]*(y-p[2])+p[5]*(z-p[4]);
   for(int iz=0;iz<8;iz++){
-    if(((p[4]+t_min)-zpr[iz])<0) THfunc[iz]=0;
-    //    cout<<"zpr["<<iz<<"]="<<zpr[iz]<<" (p[4]+t_min) = "<<(p[4]+t_min)<<" THfunc = "<<THfunc[iz]<<endl;
+    if(((p[4]+t_min)-zpr[iz])<=0) THfunc[iz]=0;
+    //    cout<<"zpr["<<iz<<"]="<<zpr[iz]<<" (p[4]+t_min) = "<<(p[4]+t_min)<<" (p[4]+t_min)-zpr["<<iz<<"] = "<<(p[4]+t_min)-zpr[iz]<<" THfunc = "<<THfunc[iz]<<endl;
   }
 
   // double funcX = p[0]+p[1]*t_min
@@ -552,26 +625,44 @@ double PndLmdLinFitTask::distance_MS(double x,double y,double z, double errx,dou
   //   +p[12]*((p[4]+t_min)-zpr[2])*THfunc[2]
   //   +p[13]*((p[4]+t_min)-zpr[3])*THfunc[3];
 
+  double funcX = p[0]+p[1]*t_min
+    +(-p[6]+p[7])*((p[4]+t_min)-zpr[0])*THfunc[0]
+    +(-p[8]+p[9])*((p[4]+t_min)-zpr[2])*THfunc[2]
+    +(-p[10]+p[11])*((p[4]+t_min)-zpr[4])*THfunc[4]
+    +(-p[12]+p[13])*((p[4]+t_min)-zpr[6])*THfunc[6];
+  double funcY = p[2]+p[3]*t_min
+    +(-p[14]+p[15])*((p[4]+t_min)-zpr[0])*THfunc[0]
+    +(-p[16]+p[17])*((p[4]+t_min)-zpr[2])*THfunc[2]
+    +(-p[18]+p[19])*((p[4]+t_min)-zpr[4])*THfunc[4]
+    +(-p[20]+p[21])*((p[4]+t_min)-zpr[6])*THfunc[6];
+
   // double funcX = p[0]+p[1]*t_min
-  //   +(p[6]-p[14])*((p[4]+t_min)-zpr[0])*THfunc[0]
-  //   +(p[7]-p[15])*((p[4]+t_min)-zpr[1])*THfunc[1]
-  //   +(p[8]-p[16])*((p[4]+t_min)-zpr[2])*THfunc[2]
-  //   +(p[9]-p[17])*((p[4]+t_min)-zpr[3])*THfunc[3];
+  //   +(-p[6]+p[7])*((p[4]+t_min)-zpr[1])*THfunc[1]
+  //   +(-p[8]+p[9])*((p[4]+t_min)-zpr[3])*THfunc[3]
+  //   +(-p[10]+p[11])*((p[4]+t_min)-zpr[5])*THfunc[5]
+  //   +(-p[12]+p[13])*((p[4]+t_min)-zpr[7])*THfunc[7];
   // double funcY = p[2]+p[3]*t_min
-  //   +(p[10]-p[18])*((p[4]+t_min)-zpr[0])*THfunc[0]
-  //   +(p[11]-p[19])*((p[4]+t_min)-zpr[1])*THfunc[1]
-  //   +(p[12]-p[20])*((p[4]+t_min)-zpr[2])*THfunc[2]
-  //   +(p[13]-p[21])*((p[4]+t_min)-zpr[3])*THfunc[3];
+  //   +(-p[14]+p[15])*((p[4]+t_min)-zpr[1])*THfunc[1]
+  //   +(-p[16]+p[17])*((p[4]+t_min)-zpr[3])*THfunc[3]
+  //   +(-p[18]+p[19])*((p[4]+t_min)-zpr[5])*THfunc[5]
+  //   +(-p[20]+p[21])*((p[4]+t_min)-zpr[7])*THfunc[7];
+
+
   // double funcX = p[0]+p[1]*t_min
-  //   +(-p[6]+p[7])*((p[4]+t_min)-zpr[0])*THfunc[0]
-  //   +(-p[8]+p[9])*((p[4]+t_min)-zpr[1])*THfunc[1]
-  //   +(-p[10]+p[11])*((p[4]+t_min)-zpr[2])*THfunc[2]
-  //   +(-p[12]+p[13])*((p[4]+t_min)-zpr[3])*THfunc[3];
+  //   +(p[7])*((p[4]+t_min)-zpr[0])*THfunc[0]
+  //   +(p[9])*((p[4]+t_min)-zpr[2])*THfunc[2]
+  //   +(p[11])*((p[4]+t_min)-zpr[4])*THfunc[4]
+  //   +(p[13])*((p[4]+t_min)-zpr[6])*THfunc[6];
   // double funcY = p[2]+p[3]*t_min
-  //   +(-p[14]+p[15])*((p[4]+t_min)-zpr[0])*THfunc[0]
-  //   +(-p[16]+p[17])*((p[4]+t_min)-zpr[1])*THfunc[1]
-  //   +(-p[18]+p[19])*((p[4]+t_min)-zpr[2])*THfunc[2]
-  //   +(-p[20]+p[21])*((p[4]+t_min)-zpr[3])*THfunc[3];
+  //   +(p[15])*((p[4]+t_min)-zpr[0])*THfunc[0]
+  //   +(p[17])*((p[4]+t_min)-zpr[2])*THfunc[2]
+  //   +(p[19])*((p[4]+t_min)-zpr[4])*THfunc[4]
+  //   +(p[21])*((p[4]+t_min)-zpr[6])*THfunc[6];
+
+  // double funcX = p[0]+p[1]*t_min;
+
+  // double funcY = p[2]+p[3]*t_min;
+  //  cout<<""
   // double funcX = p[0]+p[1]*t_min
   //   +(p[6])*((p[4]+t_min)-zpr[0])*THfunc[0]
   //   +(p[7])*((p[4]+t_min)-zpr[1])*THfunc[1]
@@ -592,37 +683,51 @@ double PndLmdLinFitTask::distance_MS(double x,double y,double z, double errx,dou
   //     +(p[20])*((p[4]+t_min)-zpr[6])*THfunc[6]
   //     +(p[21])*((p[4]+t_min)-zpr[7])*THfunc[7];
 
- double funcX = p[0]+p[1]*t_min
-   -(p[6])*((p[4]+t_min)-zpr[0])*THfunc[0]
-    +(p[7])*((p[4]+t_min)-zpr[1])*THfunc[1]
-   -(p[8])*((p[4]+t_min)-zpr[2])*THfunc[2]
-   +(p[9])*((p[4]+t_min)-zpr[3])*THfunc[3]
-   -(p[10])*((p[4]+t_min)-zpr[4])*THfunc[4]
-   +(p[11])*((p[4]+t_min)-zpr[5])*THfunc[5]
-   -(p[12])*((p[4]+t_min)-zpr[6])*THfunc[6]
-   +(p[13])*((p[4]+t_min)-zpr[7])*THfunc[7];
+ // double funcX = p[0]+p[1]*t_min
+ //   -(p[6])*((p[4]+t_min)-zpr[0])*THfunc[0]
+ //    +(p[7])*((p[4]+t_min)-zpr[1])*THfunc[1]
+ //   -(p[8])*((p[4]+t_min)-zpr[2])*THfunc[2]
+ //   +(p[9])*((p[4]+t_min)-zpr[3])*THfunc[3]
+ //   -(p[10])*((p[4]+t_min)-zpr[4])*THfunc[4]
+ //   +(p[11])*((p[4]+t_min)-zpr[5])*THfunc[5]
+ //   -(p[12])*((p[4]+t_min)-zpr[6])*THfunc[6]
+ //   +(p[13])*((p[4]+t_min)-zpr[7])*THfunc[7];
 
-    double funcY = p[2]+p[3]*t_min
-      -(p[14])*((p[4]+t_min)-zpr[0])*THfunc[0]
-      +(p[15])*((p[4]+t_min)-zpr[1])*THfunc[1]
-      -(p[16])*((p[4]+t_min)-zpr[2])*THfunc[2]
-      +(p[17])*((p[4]+t_min)-zpr[3])*THfunc[3]
-      -(p[18])*((p[4]+t_min)-zpr[4])*THfunc[4]
-      +(p[19])*((p[4]+t_min)-zpr[5])*THfunc[5]
-      -(p[20])*((p[4]+t_min)-zpr[6])*THfunc[6]
-      +(p[21])*((p[4]+t_min)-zpr[7])*THfunc[7];
+ //    double funcY = p[2]+p[3]*t_min
+ //      -(p[14])*((p[4]+t_min)-zpr[0])*THfunc[0]
+ //      +(p[15])*((p[4]+t_min)-zpr[1])*THfunc[1]
+ //      -(p[16])*((p[4]+t_min)-zpr[2])*THfunc[2]
+ //      +(p[17])*((p[4]+t_min)-zpr[3])*THfunc[3]
+ //      -(p[18])*((p[4]+t_min)-zpr[4])*THfunc[4]
+ //      +(p[19])*((p[4]+t_min)-zpr[5])*THfunc[5]
+ //      -(p[20])*((p[4]+t_min)-zpr[6])*THfunc[6]
+ //      +(p[21])*((p[4]+t_min)-zpr[7])*THfunc[7];
   
-    double funcZ = p[4] + p[5]*t_min;
-  double fdx = TMath::Power((x-funcX)/errx,2);
-  double fdy = TMath::Power((y-funcY)/erry,2);
-  double fdz = TMath::Power((z-funcZ)/errz,2);
-  //double fdz = 0;
+    //    double funcZ = p[4] + p[5]*t_min;
+    double fdx = TMath::Power((x-funcX)/errx,2);
+    double fdy = TMath::Power((y-funcY)/erry,2);
+   //  cout<<"t_min = "<<t_min<<endl;  
+  // cout<<"x = "<<x<<" funcX = "<<funcX<<" errx = "<<errx<<endl;
+  // cout<<"y = "<<y<<" funcY = "<<funcY<<" erry = "<<erry<<endl;
+  //   //   if(fVerbose>10){
+  //   cout<<"... fdx = "<<fdx<<" fdy = "<<fdy<<" ..."<<endl;
+  //    //   }
+  //  double fdz = TMath::Power((z-funcZ)/errz,2);
+  double fdz = 0;
   double fchi2 = fdx + fdy +fdz;
   return fchi2; 
 }
 
 // function to be minimized with kink angle due to multiple scattering
 void PndLmdLinFitTask::LocalFCN_MS(int &, double *, double & sum, double * par, int ) { 
+  // // // //if(fVerbose>10){
+  // cout<<" "<<endl;
+  // cout<<" --- PndLmdLinFitTask::LocalFCN_MS --- "<<endl;
+  // //for(int kpar=0;kpar<21;kpar++)
+  // for(int kpar=9;kpar<20;kpar++)
+  //   cout<<" par["<<kpar<<"]="<<par[kpar];
+  // cout<<""<<endl;
+  // // // //}
   TGraph2DErrors * gr = dynamic_cast<TGraph2DErrors*>( (TVirtualFitter::GetFitter())->GetObjectFit());
   assert(gr != 0);
   double * x = gr->GetX();
@@ -647,6 +752,7 @@ void PndLmdLinFitTask::LocalFCN_MS(int &, double *, double & sum, double * par, 
   double totRadLen = 0.00306;//rad.length of whole plane
   double thCVD = 0.01;//half thickness of CVD diamond+sensor
   double thSens = 0.0050;//thickness of sensor
+  double thFoil = 0.0050;//thickness of foil
   double z_perp[4] = {0.,20.,30.,40.}; //planes positions
   //  double x0[4] = {25.65,26.5,26.85,27.25};
   //  double x0[4] = {25.83,26.63,27.05,27.4};
@@ -657,33 +763,60 @@ void PndLmdLinFitTask::LocalFCN_MS(int &, double *, double & sum, double * par, 
   // // where bending starts with
   // double end_seg_upstream = 361;
   double zpr[8];
-  for (int i  = 0; i < npoints; ++i) { 
-    if(z[0]>0.)  z_perp[i]+=0.25;//shifted modules
-    else z_perp[i]-=0.25;
-  int izcur = 0;
-    for(int izpl = 0;izpl<8;izpl++){
-      zpr[izcur] = z_perp[izpl] - thCVD-thSens;
+  //  for (int i  = 0; i < npoints; ++i) { 
+    int izcur = 0;
+    for(int izpl = 0;izpl<4;izpl++){
+      zpr[izcur] = z[izpl];
       izcur++;
-      //  zpr[izcur] = z_perp[izpl] +thCVD;
-      zpr[izcur] = z_perp[izpl]+thCVD;
+      zpr[izcur] = z[izpl];
       izcur++;
+
+
+      // //      zpr[izcur] = z_perp[izpl];
+      // zpr[izcur] = z_perp[izpl] + z[0];
+      // // if(z[0]>0)  zpr[izcur]+=0.25;//shifted modules
+      // // else zpr[izcur]-=0.25;
+
+      // zpr[izcur] -= (thCVD+thSens);
+      // //      cout<<"zpr["<<izcur<<"]="<<zpr[izcur]<<"z_perp[0] = "<<z_perp[0]<<" -thCVD-thSens="<<-thCVD-thSens<<endl;
+      // izcur++;
+      // // zpr[izcur] = z_perp[izpl];
+      // // if(z[0]>0)  zpr[izcur]+=0.25;//shifted modules
+      // // else zpr[izcur]-=0.25;
+      // //      zpr[izcur] +=(thCVD+thSens+thFoil);
+
+      // zpr[izcur] = z_perp[izpl] + z[0];
+      // zpr[izcur] +=(thCVD);
+      // //cout<<"zpr["<<izcur<<"]="<<zpr[izcur]<<endl;
+      // izcur++;
     }
-  }
+    //}
   for (int i  = 0; i < npoints; ++i) {  
+    //    cout<<"point #"<<i<<endl;
     double chi2 = distance_MS(x[i],y[i],z[i],errx[i],erry[i],errz[i],par,zpr); 
     sum += chi2;
   }
   double fdal = 0;
-  for(int jms=0;jms<npoints-1;jms=jms+2){
-    // double errTot = sqrt(erralA*erralA+erralB*erralB);
-    // fdal += TMath::Power(((par[7+jms]-par[6+jms])/errTot),2);
-    // fdal += TMath::Power(((par[15+jms]-par[14+jms])/errTot),2);
-    fdal += TMath::Power((par[6+jms]/erralA),2);
-    fdal += TMath::Power((par[7+jms]/erralB),2);
-    fdal += TMath::Power((par[14+jms]/erralA),2);
-    fdal += TMath::Power((par[15+jms]/erralB),2);
+  for(int jms=0;jms<8;jms=jms+2){
+    double errTot = sqrt(erralA*erralA+erralB*erralB);
+    fdal += TMath::Power(((par[7+jms]-par[6+jms])/errTot),2);
+    //    cout<<" fdal["<<7+jms<<"-"<<6+jms<<"] = "<<fdal;
+    fdal += TMath::Power(((par[15+jms]-par[14+jms])/errTot),2);
+    // cout<<" fdal["<<15+jms<<"-"<<14+jms<<"] = "<<fdal;
+    //    cout<<" fdal = "<<fdal;
+    // fdal += TMath::Power((par[6+jms]/erralA),2);
+    // //    cout<<" fdal["<<6+jms<<"]="<<TMath::Power((par[6+jms]/erralA),2);
+    // fdal += TMath::Power((par[7+jms]/erralB),2);
+    // //    cout<<" fdal["<<7+jms<<"]="<<TMath::Power((par[7+jms]/erralB),2);
+    // fdal += TMath::Power((par[14+jms]/erralA),2);
+    // //    cout<<" fdal["<<14+jms<<"]="<<TMath::Power((par[14+jms]/erralA),2);
+    // fdal += TMath::Power((par[15+jms]/erralB),2);
+    // // cout<<" fdal["<<15+jms<<"]="<<TMath::Power((par[15+jms]/erralB),2);
+    // // cout<<""<<endl;
   }
+
   sum +=fdal;
+  //  cout<<"curr sum Chi2 = "<<sum<<endl;
 }
 
 double PndLmdLinFitTask::line3Dfit(Int_t nd, TGraph2DErrors* gr, Double_t* fitpar, Double_t* fitparerr)
@@ -727,6 +860,7 @@ double PndLmdLinFitTask::line3Dfit(Int_t nd, TGraph2DErrors* gr, Double_t* fitpa
    }
    // return amin; 
    Double_t chi2 = amin/(2.*Npoint-4);
+   //   Double_t chi2 = amin/(3.*Npoint-5);
    // cout<<"Chi^2 = "<<chi2<<endl;
    return chi2; 
 }
@@ -767,7 +901,7 @@ double PndLmdLinFitTask::line3Dfit(Int_t nd, TGraph2DErrors* gr, TVector3 posSee
   double l = 1/dirSeed.Mag();
   //  double pStart[6] = {posSeed.X(),l*dirSeed.X(),posSeed.Y(),l*dirSeed.Y(),posSeed.Z(),1.};
 
-  double pStart[6] = {posSeed.X(),l*dirSeed.X(),posSeed.Y(),l*dirSeed.Y(),posSeed.Z(),l*dirSeed.Z()};
+  double pStart[6] = {posSeed.X(),dirSeed.X(),posSeed.Y(),dirSeed.Y(),posSeed.Z(),dirSeed.Z()};
   // //  //go out of middle of plane!
   // double pStart[6] = {posSeed.X(),l*dirSeed.X(),posSeed.Y(),l*dirSeed.Y(),posSeed.Z()-0.0085,l*dirSeed.Z()};//85 mkm!!!
   
@@ -873,15 +1007,17 @@ double PndLmdLinFitTask::ScatteredAngle(double radLen){
 //chi2 with kink angles fit [G.Lutz, NIM A273 (1988)]
 double PndLmdLinFitTask::line3DfitMS(Int_t nd, TGraph2DErrors* gr, TVector3 posSeed, TVector3 dirSeed, Double_t* fitpar, TMatrixDSym *covmatrix)
 {
+  fmin->Clear();
   const int nparams = 22;
   if(fVerbose>2) cout<<"PndLmdLinFitTask::line3Dfit with SEED is used (multiple scattering taking into account with kinks)"<<endl;
   Int_t Npoint = gr->GetN();
   Double_t ErrX1 = gr->GetErrorX(0);
   Double_t ErrY1 = gr->GetErrorY(0);
   Double_t ErrZ1 = gr->GetErrorZ(0);
-  Double_t ErrX2 = gr->GetErrorX(1);
-  Double_t ErrY2 = gr->GetErrorY(1);
-  Double_t ErrZ2 = gr->GetErrorY(1);
+  TVector3 ErrPosSeed(ErrX1,ErrY1,ErrZ1);
+  Double_t ErrX2 = gr->GetErrorX(2);
+  Double_t ErrY2 = gr->GetErrorY(2);
+  Double_t ErrZ2 = gr->GetErrorY(2);
   
   Double_t errRx = 1*TMath::Hypot(ErrX1,ErrX2);
   Double_t errRy = 1*TMath::Hypot(ErrY1,ErrY2);
@@ -893,39 +1029,47 @@ double PndLmdLinFitTask::line3DfitMS(Int_t nd, TGraph2DErrors* gr, TVector3 posS
   //  TVirtualFitter *min = TVirtualFitter::Fitter(0,12);
   //  TVirtualFitter *min = TVirtualFitter::Fitter(0,15);
   fmin->SetObjectFit(gr);
+  //  fmin->SetFitOption("U");
   fmin->SetFCN(*LocalFCN_MS);
   Double_t arglist[100];
   arglist[0] = 1;
   //  fmin->ExecuteCommand("SET PRINT",arglist,0);//no output
-  fmin->ExecuteCommand("SET PRINT",arglist,1);//output
+  fmin->ExecuteCommand("SET PRINT",arglist,10);//output
 
   if(fVerbose>5){
     cout<<"Number of hits = "<<Npoint<<endl;
     cout<<"posSeed:"<<endl;
     posSeed.Print();
+    cout<<"ErrposSeed:"<<endl;
+    ErrPosSeed.Print();
     cout<<"dirSeed:"<<endl;
     dirSeed.Print();
   }
   double l = 1/dirSeed.Mag();
   double pStart[nparams] = {posSeed.X(),l*dirSeed.X(),posSeed.Y(),l*dirSeed.Y(),posSeed.Z(),l*dirSeed.Z(),0,0,0,0,0,0,0,0};
-  double st3MS = fsigmaMSb;
-  //  double st3MS = 0;// fitting angels on the last plane doesn't make sense
+  //  double st3MS = fsigmaMSb;
+  double st3MS = 0;// fitting angels on the last plane doesn't make sense
   double st2MS = fsigmaMSb;
-  // if(Npoint<4) st2MS=0;
-  double pStartErr[nparams] = {ErrX1,errRx,ErrY1,errRy,ErrZ1,errRz,fsigmaMSb,fsigmaMSb,fsigmaMSb,fsigmaMSb,fsigmaMSb,fsigmaMSb,fsigmaMSb,fsigmaMSb};
-
+  if(Npoint<4) st2MS=0;
+  double pStartErr[nparams] = {ErrX1,errRx,ErrY1,errRy,ErrZ1,errRz,1e-2*fsigmaMSa,1e-2*fsigmaMSb,1e-2*fsigmaMSa,1e-2*fsigmaMSb,1e-2*fsigmaMSa,1e-2*fsigmaMSb,1e-2*fsigmaMSa,1e-2*fsigmaMSb,1e-2*fsigmaMSb,1e-2*fsigmaMSa,1e-2*fsigmaMSb,1e-2*fsigmaMSa,1e-2*fsigmaMSb,1e-2*fsigmaMSa,1e-2*fsigmaMSb};
+ 
   if(fVerbose>5){
     for(int i=0;i<6;i++)
       cout<<"pStartErr["<<i<<"]="<<pStartErr[i]<<endl;
   }
   
+  // fmin->SetParameter(0,"x0",pStart[0],pStartErr[0],pStart[0]-fabs(pStart[0]*0.7),pStart[0]+fabs(pStart[0]*0.7));
+  // fmin->SetParameter(1,"Ax",pStart[1],pStartErr[1],pStart[1]-fabs(pStart[1]*0.7),pStart[1]+fabs(pStart[1]*0.7));
+  // fmin->SetParameter(2,"y0",pStart[2],pStartErr[2],pStart[2]-fabs(pStart[2]*0.7),pStart[2]+fabs(pStart[2]*0.7));
+  // fmin->SetParameter(3,"Ay",pStart[3],pStartErr[3],pStart[3]-fabs(pStart[3]*0.7),pStart[3]+fabs(pStart[3]*0.7));
   fmin->SetParameter(0,"x0",pStart[0],pStartErr[0],0,0);
   fmin->SetParameter(1,"Ax",pStart[1],pStartErr[1],0,0);
   fmin->SetParameter(2,"y0",pStart[2],pStartErr[2],0,0);
   fmin->SetParameter(3,"Ay",pStart[3],pStartErr[3],0,0);
-  //  fmin->SetParameter(4,"z0",pStart[4],0,0,0);
+
+  fmin->SetParameter(4,"z0",pStart[4],0,0,0);
   fmin->SetParameter(5,"Az",pStart[5],0,0,0);
-  fmin->SetParameter(4,"z0",pStart[4],pStartErr[4],0,0);
+  //  fmin->SetParameter(4,"z0",pStart[4],pStartErr[4],pStart[4]-fabs(pStart[4]*0.5),pStart[4]+fabs(pStart[4]*0.5));
   // // fmin->SetParameter(5,"Az",pStart[5],pStartErr[5],0,0);
   // //  fmin->SetParameter(6,"al0x",pStart[6],fsigmaMSb,0,0);
   // fmin->SetParameter(6,"al0x",pStart[6],0,0,0);
@@ -948,57 +1092,121 @@ double PndLmdLinFitTask::line3DfitMS(Int_t nd, TGraph2DErrors* gr, TVector3 posS
   // fmin->SetParameter(21,"al3yl",pStart[6],st3MS,0,0);
 
 
-  fmin->SetParameter(6,"al0x_a",pStart[6],0,0,0);
-  //  fmin->SetParameter(6,"al0x_a",pStart[6],fsigmaMSb,0,0);
-  fmin->SetParameter(7,"al0x_b",pStart[6],fsigmaMSb,0,0);
-  fmin->SetParameter(8,"al1x_a",pStart[6],fsigmaMSb,0,0);
-  fmin->SetParameter(9,"al1x_b",pStart[6],fsigmaMSb,0,0);
-  fmin->SetParameter(10,"al2x_a",pStart[6],fsigmaMSb,0,0);
-  fmin->SetParameter(11,"al2x_b",pStart[6],st2MS,0,0);
-  fmin->SetParameter(12,"al3x_a",pStart[6],st2MS,0,0);
-  fmin->SetParameter(13,"al3x_b",pStart[6],st3MS,0,0);
+  //  fmin->SetParameter(6,"al0x_a",pStart[6],0,0,0);
+  fmin->SetParameter(6,"al0x_a",pStart[6],1e-4*fsigmaMSa,0,0);
+  fmin->SetParameter(7,"al0x_b",pStart[7],1e-4*fsigmaMSb,0,0);
+  fmin->SetParameter(8,"al1x_a",pStart[8],1e-4*fsigmaMSa,0,0);
+  fmin->SetParameter(9,"al1x_b",pStart[9],1e-4*fsigmaMSb,0,0);
+  fmin->SetParameter(10,"al2x_a",pStart[10],1e-4*fsigmaMSa,0,0);
+  fmin->SetParameter(11,"al2x_b",pStart[11],1e-4*fsigmaMSb,0,0);
+  fmin->SetParameter(12,"al3x_a",pStart[12],1e-4*fsigmaMSa,0,0);
+  fmin->SetParameter(13,"al3x_b",pStart[13],1e-4*fsigmaMSb,0,0);
 
-  fmin->SetParameter(14,"al0y_a",pStart[6],0,0,0);
-  //fmin->SetParameter(14,"al0y_a",pStart[6],fsigmaMSb,0,0);
-  fmin->SetParameter(15,"al0y_b",pStart[6],fsigmaMSb,0,0);
-  fmin->SetParameter(16,"al1y_a",pStart[6],fsigmaMSb,0,0);
-  fmin->SetParameter(17,"al1y_b",pStart[6],fsigmaMSb,0,0);
-  fmin->SetParameter(18,"al2y_a",pStart[6],fsigmaMSb,0,0);
-  fmin->SetParameter(19,"al2y_b",pStart[6],st2MS,0,0);
-  fmin->SetParameter(20,"al3y_a",pStart[6],st2MS,0,0);
-  fmin->SetParameter(21,"al3y_b",pStart[6],st3MS,0,0);
-  // fmin->FixParameter(7);
-  // fmin->FixParameter(9);
-  // fmin->FixParameter(11);
-  // fmin->FixParameter(13);
-  // fmin->FixParameter(15);
-  // fmin->FixParameter(17);
-  // fmin->FixParameter(19);
+  //fmin->SetParameter(14,"al0y_a",pStart[6],0,0,0);
+  fmin->SetParameter(14,"al0y_a",pStart[14],1e-4*fsigmaMSa,0,0);
+  fmin->SetParameter(15,"al0y_b",pStart[15],1e-4*fsigmaMSb,0,0);
+  fmin->SetParameter(16,"al1y_a",pStart[16],1e-4*fsigmaMSa,0,0);
+  fmin->SetParameter(17,"al1y_b",pStart[17],1e-4*fsigmaMSb,0,0);
+  fmin->SetParameter(18,"al2y_a",pStart[18],1e-4*fsigmaMSa,0,0);
+  fmin->SetParameter(19,"al2y_b",pStart[19],1e-4*fsigmaMSb,0,0);
+  fmin->SetParameter(20,"al3y_a",pStart[20],1e-4*fsigmaMSa,0,0);
+  fmin->SetParameter(21,"al3y_b",pStart[21],1e-4*fsigmaMSb,0,0);
+
+
+  // //  fmin->SetParameter(6,"al0x_a",pStart[6],0,0,0);
+  // fmin->SetParameter(6,"al0x_a",pStart[6],1e-2*fsigmaMSa,-5*fsigmaMSa,5*fsigmaMSa);
+  // fmin->SetParameter(7,"al0x_b",pStart[7],1e-2*fsigmaMSb,-5*fsigmaMSb,5*fsigmaMSb);
+  // fmin->SetParameter(8,"al1x_a",pStart[8],1e-2*fsigmaMSa,-5*fsigmaMSa,5*fsigmaMSa);
+  // fmin->SetParameter(9,"al1x_b",pStart[9],1e-2*fsigmaMSb,-5*fsigmaMSb,5*fsigmaMSb);
+  // fmin->SetParameter(10,"al2x_a",pStart[10],1e-2*fsigmaMSa,-5*fsigmaMSa,5*fsigmaMSa);
+  // fmin->SetParameter(11,"al2x_b",pStart[11],1e-2*fsigmaMSb,-5*fsigmaMSb,5*fsigmaMSb);
+  // fmin->SetParameter(12,"al3x_a",pStart[12],1e-2*fsigmaMSa,-5*fsigmaMSa,5*fsigmaMSa);
+  // fmin->SetParameter(13,"al3x_b",pStart[13],1e-2*fsigmaMSb,-5*fsigmaMSb,5*fsigmaMSb);
+
+  // //fmin->SetParameter(14,"al0y_a",pStart[6],0,0,0);
+  // fmin->SetParameter(14,"al0y_a",pStart[14],1e-2*fsigmaMSa,-5*fsigmaMSa,5*fsigmaMSa);
+  // fmin->SetParameter(15,"al0y_b",pStart[15],1e-2*fsigmaMSb,-5*fsigmaMSb,5*fsigmaMSb);
+  // fmin->SetParameter(16,"al1y_a",pStart[16],1e-2*fsigmaMSa,-5*fsigmaMSa,5*fsigmaMSa);
+  // fmin->SetParameter(17,"al1y_b",pStart[17],1e-2*fsigmaMSb,-5*fsigmaMSb,5*fsigmaMSb);
+  // fmin->SetParameter(18,"al2y_a",pStart[18],1e-2*fsigmaMSa,-5*fsigmaMSa,5*fsigmaMSa);
+  // fmin->SetParameter(19,"al2y_b",pStart[19],1e-2*fsigmaMSb,-5*fsigmaMSb,5*fsigmaMSb);
+  // fmin->SetParameter(20,"al3y_a",pStart[20],1e-2*fsigmaMSa,-5*fsigmaMSa,5*fsigmaMSa);
+  // fmin->SetParameter(21,"al3y_b",pStart[21],1e-2*fsigmaMSb,-5*fsigmaMSb,5*fsigmaMSb);
+
+  //  fmin->FixParameter(7);
+  // // // // fmin->FixParameter(9);
+  // // // // fmin->FixParameter(11);
+  //  fmin->FixParameter(13);
+  //  fmin->FixParameter(15);
+  //  // fmin->FixParameter(17);
+  //  //fmin->FixParameter(19);
   // fmin->FixParameter(21);
 
   // fmin->FixParameter(6);
-  // fmin->FixParameter(8);
-  // // fmin->FixParameter(10);
-  // // fmin->FixParameter(12);
-  // // fmin->FixParameter(14);
-  // // fmin->FixParameter(16);
-  // fmin->FixParameter(18);
-  // fmin->FixParameter(20);
+  // fmin->FixParameter(7);
+  fmin->FixParameter(8);
+  fmin->FixParameter(10);
+  fmin->FixParameter(12);
+  //  fmin->FixParameter(14);
+  //fmin->FixParameter(15);
+  fmin->FixParameter(16);
+  fmin->FixParameter(18);
+  fmin->FixParameter(20);
 
+  fmin->FixParameter(13);
+  fmin->FixParameter(21);
+  if(Npoint<4){
+  fmin->FixParameter(11);
+  fmin->FixParameter(19);
+  }
+  // fmin->FixParameter(7);
+  // fmin->FixParameter(15);
 
-  //  fmin->SetPrecision(1e-5);
-
-  // Now ready for minimization step
-  arglist[0] = 3500;
-  arglist[1] = 1.;
-  fmin->ExecuteCommand("MIGRAD", arglist,2);
+  // // // fmin->FixParameter(6);
+  // // // fmin->FixParameter(14);
+  // // // fmin->FixParameter(7);
+  // // // fmin->FixParameter(15);
+  // // fmin->FixParameter(13);
+  // // fmin->FixParameter(21);
+  // // // fmin->FixParameter(12);
+  // // // fmin->FixParameter(20);
   
+  // // // //  fmin->FixParameter(12);
+  // // // //  fmin->FixParameter(20);
+
+  // // // // // 
+  
+  // // // // //
+  
+  // // // // // fmin->FixParameter(13);
+   
+  // // // // // fmin->FixParameter(21);
+
+  
+  // // // // // fmin->SetPrecision(recpres);
+
+  //  double recpres = 1e-20;
+  double recpres = 1e-7;
+  // Now ready for minimization step
+   arglist[0] = 2000;
+  //  arglist[0] = 2;
+  arglist[1] = recpres;
+  //fmin->Ex ecuteCommand("MIGRAD", arglist,2);
+  fmin->ExecuteCommand("MIGRAD", arglist,3);
+  fmin->ExecuteCommand("SET PRI", arglist,5);
   ///Get results ---------------------------------------------
+  // TFitterMinuit* curminuit = (TFitterMinuit*)(fmin->GetFitter());
+  // int firstatus =  curminuit->ExamineMinimum();
+  double fitstatus  = fmin->GetErrorDef();
+  //  cout<<"fitstatus  = "<<fitstatus<<endl;
    int nvpar,nparx; 
    double amin,edm, errdef;
    fmin->GetStats(amin,edm,errdef,nvpar,nparx);
-   if(fVerbose>1)
+   if(edm>1e2*recpres) return 1e6; 
+   if(fVerbose>1){
+     cout<<"------------- Final result ---------------- "<<endl;
      fmin->PrintResults(1,amin);
+   }
 
    Double_t fitparerr[nparams];
    // get fit parameters
@@ -1016,37 +1224,43 @@ double PndLmdLinFitTask::line3DfitMS(Int_t nd, TGraph2DErrors* gr, TVector3 posS
      }
    }
 
-   // //!!!!!!!!!!!!!!!!!! dx, dy and their errors should be corrected since dx = dx0+alx0; dy = dy0+aly0; 
-   // // fitpar[1] +=  fitpar[6]+fitpar[7];
-   // // fitpar[3] +=  fitpar[10]+fitpar[11];
-   // // fitpar[1] +=  fitpar[6]+fitpar[7]+fitpar[8]+fitpar[9];
-   // // fitpar[3] +=  fitpar[10]+fitpar[11]+fitpar[12]+fitpar[13];
-   // int i_dxal0 = 6-3;//index of alx0 parameter: z0,dz - fixed, alx0_a - fixed
-   // int i_dyal0 = 14-3-1;//index of aly0 parameter: z0,dz - fixed,  alx0_a - fixed, alx3_b - fixed
-   // if(st2MS==0) i_dyal0 -=1; //alx2_b - fixed
+   // // //!!!!!!!!!!!!!!!!!! dx, dy and their errors should be corrected since dx = dx0+alx0; dy = dy0+aly0; 
+   // // // fitpar[1] +=  fitpar[6]+fitpar[7];
+   // // // fitpar[3] +=  fitpar[10]+fitpar[11];
+   // // // fitpar[1] +=  fitpar[6]+fitpar[7]+fitpar[8]+fitpar[9];
+   // // // fitpar[3] +=  fitpar[10]+fitpar[11]+fitpar[12]+fitpar[13];
+   // // int i_dxal0 = 6-3;//index of alx0 parameter: z0,dz - fixed, alx0_a - fixed
+   // // int i_dyal0 = 14-3-1;//index of aly0 parameter: z0,dz - fixed,  alx0_a - fixed, alx3_b - fixed
+   // // if(st2MS==0) i_dyal0 -=1; //alx2_b - fixed
 
    // double err_dx_2 = (*covmatrix)(1,1);
    // double err_dy_2 = (*covmatrix)(3,3);
-   // // double err_dx_2, err_dy_2;
-   // // int Nang = 3;
-   // // if(st2MS==0) Nang -=1;
+   // // // double err_dx_2, err_dy_2;
+   // // // int Nang = 3;
+   // // // if(st2MS==0) Nang -=1;
 
-   // int Nang = 2;
-   // for(int iadd=1;iadd<Nang;iadd++){
-   //   cout<<"Add param for b_x: #"<<6+iadd<<" b_y: #"<<14+iadd<<endl;
-   //   cout<<"Errors contribution: x:"<<i_dxal0+iadd<<" y:"<<i_dyal0+iadd<<endl;
-   //   fitpar[1] += fitpar[6+iadd];
-   //   fitpar[3] += fitpar[14+iadd];
+   // int Nang = 1;
+   // for(int iadd=0;iadd<Nang;iadd=iadd++){
+   //   //     cout<<"Add param for b_x: #"<<6+iadd<<" b_y: #"<<14+iadd<<endl;
+   //   //     cout<<"Errors contribution: x:"<<i_dxal0+iadd<<" y:"<<i_dyal0+iadd<<endl;
+   //   if( iadd % 2== 0 ){
+   //   fitpar[1] -= fitpar[6+iadd];
+   //   fitpar[3] -= fitpar[14+iadd];
+   //   }
+   //   else{
+   //     fitpar[1] += fitpar[6+iadd];
+   //     fitpar[3] += fitpar[14+iadd];
+   //   }
    //   // fitpar[3] += fitpar[10+iadd];
    //   // fitpar[3] += fitpar[18+iadd];
-   //   err_dx_2+=2*(fmin->GetCovarianceMatrixElement(1,(i_dxal0+iadd)));
-   //   err_dy_2+=2*(fmin->GetCovarianceMatrixElement(3,(i_dyal0+iadd)));
+   //   err_dx_2+=2*(fmin->GetCovarianceMatrixElement(1,(6+iadd)));
+   //   err_dy_2+=2*(fmin->GetCovarianceMatrixElement(3,(14+iadd)));
    //   // err_dx_2+=2*(fmin->GetCovarianceMatrixElement(1,(i_dxal0+6+iadd)));
    //   // err_dy_2+=2*(fmin->GetCovarianceMatrixElement(3,(i_dyal0+6+iadd)));
 
    //   for(int jadd=0;jadd<Nang;jadd++){
-   //     err_dx_2+=(fmin->GetCovarianceMatrixElement((i_dxal0+iadd),(i_dxal0+jadd)));
-   //     err_dy_2+=(fmin->GetCovarianceMatrixElement((i_dyal0+iadd),(i_dyal0+jadd)));
+   //     err_dx_2+=(fmin->GetCovarianceMatrixElement((6+iadd),(6+jadd)));
+   //     err_dy_2+=(fmin->GetCovarianceMatrixElement((14+iadd),(14+jadd)));
    //     // err_dx_2+=(fmin->GetCovarianceMatrixElement((i_dxal0+6+iadd),(i_dxal0+6+jadd)));
    //     // err_dy_2+=(fmin->GetCovarianceMatrixElement((i_dyal0+6+iadd),(i_dyal0+6+jadd)));
    //     // err_dx_2+=(fmin->GetCovarianceMatrixElement((i_dxal0+iadd),(i_dxal0+6+jadd)));
@@ -1057,45 +1271,45 @@ double PndLmdLinFitTask::line3DfitMS(Int_t nd, TGraph2DErrors* gr, TVector3 posS
    // }
 
 
-   //   // fitpar[1] += fitpar[6];
-   //   // fitpar[1] += fitpar[7];
-   //   // fitpar[3] += fitpar[10];
-   //   // fitpar[3] += fitpar[18];
-   //   // //     fitpar[1] += fitpar[7];
-   //   // //     fitpar[3] += fitpar[11];
-   //   // err_dx_2+=2*(fmin->GetCovarianceMatrixElement(1,(i_dxal0)));
-   //   // err_dy_2+=2*(fmin->GetCovarianceMatrixElement(3,(i_dyal0)));
-   //   // // err_dx_2+=2*(fmin->GetCovarianceMatrixElement(1,(i_dxal0+1)));
-   //   // // err_dy_2+=2*(fmin->GetCovarianceMatrixElement(3,(i_dyal0+1)));
-   //   // err_dx_2+=2*(fmin->GetCovarianceMatrixElement(1,(i_dxal0+6)));
-   //   // err_dy_2+=2*(fmin->GetCovarianceMatrixElement(3,(i_dyal0+6)));
+   // //   // fitpar[1] += fitpar[6];
+   // //   // fitpar[1] += fitpar[7];
+   // //   // fitpar[3] += fitpar[10];
+   // //   // fitpar[3] += fitpar[18];
+   // //   // //     fitpar[1] += fitpar[7];
+   // //   // //     fitpar[3] += fitpar[11];
+   // //   // err_dx_2+=2*(fmin->GetCovarianceMatrixElement(1,(i_dxal0)));
+   // //   // err_dy_2+=2*(fmin->GetCovarianceMatrixElement(3,(i_dyal0)));
+   // //   // // err_dx_2+=2*(fmin->GetCovarianceMatrixElement(1,(i_dxal0+1)));
+   // //   // // err_dy_2+=2*(fmin->GetCovarianceMatrixElement(3,(i_dyal0+1)));
+   // //   // err_dx_2+=2*(fmin->GetCovarianceMatrixElement(1,(i_dxal0+6)));
+   // //   // err_dy_2+=2*(fmin->GetCovarianceMatrixElement(3,(i_dyal0+6)));
 
 
-   //   //   err_dx_2+=(fmin->GetCovarianceMatrixElement((i_dxal0),(i_dxal0)));
-   //   //   err_dy_2+=(fmin->GetCovarianceMatrixElement((i_dyal0),(i_dyal0)));
-   //   //   err_dx_2+=(fmin->GetCovarianceMatrixElement((i_dxal0+6),(i_dxal0+6)));
-   //   //   err_dy_2+=(fmin->GetCovarianceMatrixElement((i_dyal0+6),(i_dyal0+6)));
-   //   //   err_dx_2+=(fmin->GetCovarianceMatrixElement((i_dxal0),(i_dxal0+6)));
-   //   //   err_dy_2+=(fmin->GetCovarianceMatrixElement((i_dyal0),(i_dyal0+6)));
+   // //   //   err_dx_2+=(fmin->GetCovarianceMatrixElement((i_dxal0),(i_dxal0)));
+   // //   //   err_dy_2+=(fmin->GetCovarianceMatrixElement((i_dyal0),(i_dyal0)));
+   // //   //   err_dx_2+=(fmin->GetCovarianceMatrixElement((i_dxal0+6),(i_dxal0+6)));
+   // //   //   err_dy_2+=(fmin->GetCovarianceMatrixElement((i_dyal0+6),(i_dyal0+6)));
+   // //   //   err_dx_2+=(fmin->GetCovarianceMatrixElement((i_dxal0),(i_dxal0+6)));
+   // //   //   err_dy_2+=(fmin->GetCovarianceMatrixElement((i_dyal0),(i_dyal0+6)));
 
-   //   //   // err_dx_2+=(fmin->GetCovarianceMatrixElement((i_dxal0+1),(i_dxal0+1)));
-   //   //   // err_dy_2+=(fmin->GetCovarianceMatrixElement((i_dyal0+1),(i_dyal0+1)));
-   //   //   // err_dx_2+=(fmin->GetCovarianceMatrixElement((i_dxal0+7),(i_dxal0+7)));
-   //   //   // err_dy_2+=(fmin->GetCovarianceMatrixElement((i_dyal0+7),(i_dyal0+7)));
-   //   //   // err_dx_2+=(fmin->GetCovarianceMatrixElement((i_dxal0),(i_dxal0+7)));
-   //   //   // err_dy_2+=(fmin->GetCovarianceMatrixElement((i_dyal0),(i_dyal0+7)));
+   // //   //   // err_dx_2+=(fmin->GetCovarianceMatrixElement((i_dxal0+1),(i_dxal0+1)));
+   // //   //   // err_dy_2+=(fmin->GetCovarianceMatrixElement((i_dyal0+1),(i_dyal0+1)));
+   // //   //   // err_dx_2+=(fmin->GetCovarianceMatrixElement((i_dxal0+7),(i_dxal0+7)));
+   // //   //   // err_dy_2+=(fmin->GetCovarianceMatrixElement((i_dyal0+7),(i_dyal0+7)));
+   // //   //   // err_dx_2+=(fmin->GetCovarianceMatrixElement((i_dxal0),(i_dxal0+7)));
+   // //   //   // err_dy_2+=(fmin->GetCovarianceMatrixElement((i_dyal0),(i_dyal0+7)));
 
 
-   // //   double err_dy_2 = (*covmatrix)(3,3)+(*covmatrix)(i_dyal0,i_dyal0)+2*(*covmatrix)(3,i_dyal0);// fmin->GetCovarianceMatrixElement(i,j);
+   // // //   double err_dy_2 = (*covmatrix)(3,3)+(*covmatrix)(i_dyal0,i_dyal0)+2*(*covmatrix)(3,i_dyal0);// fmin->GetCovarianceMatrixElement(i,j);
    // cout<<"Before:   (*covmatrix)(1,1) = "<<(*covmatrix)(1,1)<<endl;
    // cout<<"Before:   (*covmatrix)(3,3) = "<<(*covmatrix)(3,3)<<endl;
-   // //  if(err_dx_2<0) err_dx_2*=-1;
+   // // //  if(err_dx_2<0) err_dx_2*=-1;
    // (*covmatrix)(1,1)=err_dx_2;
-   // // if(err_dy_2<0) err_dy_2*=-1;
+   // // // if(err_dy_2<0) err_dy_2*=-1;
    // (*covmatrix)(3,3)=err_dy_2;
    // cout<<"After:   (*covmatrix)(1,1) = "<<(*covmatrix)(1,1)<<endl;
    // cout<<"After:   (*covmatrix)(3,3) = "<<(*covmatrix)(3,3)<<endl;
-   // //!!!!!!!!!!!!!!!!!!
+   // // //!!!!!!!!!!!!!!!!!!
 
    if((fitpar[1]*fitpar[1]+fitpar[3]*fitpar[3])<1.){
    fitpar[5]=sqrt(1-fitpar[1]*fitpar[1]-fitpar[3]*fitpar[3]);
@@ -1117,6 +1331,7 @@ double PndLmdLinFitTask::line3DfitMS(Int_t nd, TGraph2DErrors* gr, TVector3 posS
   
 
    Double_t chi2 = amin/(2.*Npoint-4);
+   // Double_t chi2 = amin/(3.*Npoint-4);
    //  cout<<"After fit: Chi^2 = "<<chi2<<endl;
    ///-------------------------------------------------------------
    //  ttal = new TNtuple("ttal","kink angles","alx0:alx1:alx2:aly0:aly1:aly2:erralx1:erralx2:erraly1:erraly2:npoints") ;
