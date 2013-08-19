@@ -6,24 +6,21 @@
 // input parameters are:
 // fGeomType = 1 - tank type with 90 degree PD
 // fGeomType = 2 - tank type with curved PD
-// fGeomType = 3 - test type
+// fGeomType = 3 - prism type
 
 // fFocusingSystem = 0 - no focusing is used
 // fFocusingSystem = 1 - lens 
 // fFocusingSystem = 2 - forward mirror is used
-// fFocusingSystem = 3 - new lens (no air gap) is used
+// fFocusingSystem = 3 - cylindrical
+// fFocusingSystem = 31 - wide cylindrical
 // fFocusingSystem = 4 - two component spherical lens is used
+// fFocusingSystem = 6 - three component spherical lens is used
 
 
 // B E F O R E   R U N N I N G   T H E   P R O G R A M   C H E C K   T H E   N A M E   O F   T H E   O U T P U T   F I L E ! ! ! 
 const Double_t pi =  4.*atan(1.);
 
-void getXrange(double dphi, double radiusCornerOut, double radiusCornerIn, double MCPactiveArea, int cas1, int cas2, double ylow, double step, double &x1, double &x2);
-double getX(TVector3 corner1, TVector3 corner2, double yy);
-int findSectorIn(double y, double dphi, double radius, double EVdrop, double hthick);
-int findSectorOut(double y, double dphi_rad, double radiusCornerOut);
-
-void createdirc(Int_t fGeomType = 1, Int_t fFocusingSystem = 31){ 
+void createdirc(Int_t fGeomType = 1, Int_t fFocusingSystem = 6){ 
 
   { // initialization 
     gROOT->Macro("$VMCWORKDIR/gconfig/rootlogon.C");
@@ -74,11 +71,11 @@ void createdirc(Int_t fGeomType = 1, Int_t fFocusingSystem = 31){
     Double_t fdz_lens3		=  0.;  
     Double_t fdz_lens2		=  0.;
     Double_t fdz_lens1		=  0.; 
-  
+
     //parameters for MCPs:
     Double_t MCPsize 		= 5.76; //[cm] width=height of an MCP
     Double_t MCPactiveArea	= 5.3; //[cm] width=height of the active area of an MCP
-    Double_t MCPgap  		= 0.1; //[cm] gap between MCPs
+    Double_t MCPgap  		= fGeo->McpGap(); //[cm] gap between MCPs
     Double_t PixelSize 		= 0.65; //[cm] size of a pixel
     Int_t    Npix 		= 8; // number of mcps in a row/column
     const Int_t NpixTotal 	= Npix*Npix; // total number of pixels for 1 mcp
@@ -94,37 +91,38 @@ void createdirc(Int_t fGeomType = 1, Int_t fFocusingSystem = 31){
     Double_t sob_len      	=  fGeo->EVlen();        // 30. in current version
     Double_t sob_shift    	=  -bbox_hlen + bbox_shift - sob_len; // -150.   
     Double_t sob_angleB		=  fGeo->EVbackAngle();  //90. [degrees] angle of the EV (usually it is 90)
-    Double_t EVdrop		=  fGeo->EVdrop();	  //0.7 [cm] drop of the EV - inner radius
+    if(fGeomType!=3) sob_angleB = 90;
+    Double_t EVdrop		=  boxgap+boxthick + fGeo->EVdrop();  // [cm] drop of the EV - inner radius
+    if(fGeomType==3) EVdrop -= boxgap+boxthick;
     Double_t EVoffset		=  fGeo->EVoffset();	  //0. [cm] offset of the EV - outer radius
     Double_t EVgreaseLayer	=  0.0015/2.;		  //[cm] grease layer half thickness btw the bar window and the EV 
-    //Double_t sob_angle		=  45.;//fGeo->EVangle();	  //80. [degrees] opening angle of the EV 
-    Double_t sob_angle		=  atan((5.*step-2.*hthick-EVoffset-EVdrop-boxgap-boxthick)/sob_len)/pi*180.;// [degrees] opening angle of the EV  
-    Double_t sob_Rout     	=  (radius + hthick + EVoffset + boxgap + boxthick + sob_len*tan(sob_angle/180.*pi));//  [cm] radius in the middle of the section
     
     Double_t bbSideGap		=  0.5*( ((barwidth+2.*barhgap)*barnum) - (2.*radius*sin((dphi-bbGapAngle)/180.*pi/2.)+2.*barhgap) );
     Double_t bbX          	=  2.*radius*sin((dphi-bbGapAngle)/180.*pi/2.)+2.*barhgap;  
 
-    Double_t radiusCornerIn	= (radius-hthick-EVdrop)/cos(dphi/2./180.*pi);
-    Double_t radiusCornerOut	= sob_Rout/cos(dphi_rad/2.);///cos(dphi_rad/2.);
-    Double_t radiusMiddleSmall	= radius-hthick-EVdrop;
-    
     Double_t barBoxWidth =  0.5*barnum*(barwidth+2.*barhgap)+bbSideGap+boxthick;
-    Double_t barBoxHeight =  hthick+boxgap+boxthick;
+    Double_t barBoxHeight = hthick+boxgap+boxthick;
+
+    Double_t sob_angle		=  atan((5.*step + 2*hgap-2*hthick -EVoffset-EVdrop)/sob_len)/pi*180.;// [degrees] opening angle of the EV  
+    Double_t sob_Rout     	=  radius-hthick + 5*step -2*hgap-EVdrop; 
+
+    Double_t radiusCornerIn	= (radius-hthick-EVdrop)/cos(dphi/2./180.*pi);
+    Double_t radiusCornerOut	= sob_Rout/cos(dphi_rad/2.);
+    Double_t radiusMiddleSmall	= radius-hthick-EVdrop;
   
     // cout<<"radius = "<<radius<<"rad corner in = "<< radiusCornerIn<<", rad corner out = "<< radiusCornerOut<<endl;     cout<<"pixel gap  = "<< PixelGap<<endl;  
     // cout<<"sob_angle = "<<sob_angle<<endl;
     // cout<<"sob_Rout = "<<sob_Rout<<endl; 
     // cout<<"bbAngle = "<<bbAngle<<", bbX = "<<bbX<<endl;    
     // cout<<"dphi = "<<dphi<<", phi0 = "<<phi0<<endl;  
-    //----------------------------------------------------------------------
+    //----------------------------------------------------------
    
     // prizm:  
     Double_t phlength	 =  fGeo->PrismhLength(); //4.5 [cm] half length of the prizm
     Double_t pdrop	 =  fGeo->PrismDrop();	  //0.5 [cm] drop of the prizm - inner side
     Double_t pangle	 =  fGeo->PrismAngle();	  //30. [degrees] angle of the edge
     Double_t poffset	 =  fGeo->PrismOffset();  //1.[cm] prizm offset - outer side
-    Double_t pheight	 =  2.*phlength * tan(pangle/180.*pi);  // [cm] half heigth of the prism
-  			      
+    Double_t pheight	 =  2.*phlength * tan(pangle/180.*pi);  // [cm] half heigth of the prism			      
     Double_t sob_Rprizm    =  radius + hthick + poffset + pheight + EVoffset + (sob_len-2.*phlength)*tan(60./180.*pi);  
     //----------------------------------------------------------
       
@@ -587,23 +585,23 @@ void createdirc(Int_t fGeomType = 1, Int_t fFocusingSystem = 31){
    
     }
 
-  }
- 
-  // {
-  //   TGeoVolume *top = gGeoManager->MakeBox("DIRC",gGeoManager->GetMedium("air"),100,100,100);
-  //   top->AddNode(CylLens1, 1, new TGeoCombiTrans(0, 0, 0, new TGeoRotation(0)));
-  //   top->AddNode(CylLens2, 2, new TGeoCombiTrans(0, 0, 0, new TGeoRotation(0))); 
+    // {
+    //   TGeoVolume *top = gGeoManager->MakeBox("DIRC",gGeoManager->GetMedium("air"),100,100,100);
+    //   top->AddNode(CylLens1, 1, new TGeoCombiTrans(0, 0, 0, new TGeoRotation(0)));
+    //   top->AddNode(CylLens2, 2, new TGeoCombiTrans(0, 0, 0, new TGeoRotation(0))); 
     
-  //   //gGeoManager->SetTopVolume(top);
-  //   //gGeoManager->CloseGeometry();
-  //   gGeoManager->SetNsegments(1000);
-  //   //top->CheckOverlaps(0.0001, "");
-  //   //gGeoManager->CheckOverlaps(0.00001,"");
-  //   //top->Write();
-  //   //fi->Close(); 
-  //   top->Draw("ogl");
-  //   return;
-  // }
+    //   //gGeoManager->SetTopVolume(top);
+    //   //gGeoManager->CloseGeometry();
+    //   gGeoManager->SetNsegments(1000);
+    //   //top->CheckOverlaps(0.0001, "");
+    //   //gGeoManager->CheckOverlaps(0.00001,"");
+    //   //top->Write();
+    //   //fi->Close(); 
+    //   top->Draw("ogl");
+    //   return;
+    // }
+
+  }
  
   // create top volume:
   TGeoManager* gGeoMan = (TGeoManager*)gROOT->FindObject("FAIRGeom");
@@ -619,16 +617,14 @@ void createdirc(Int_t fGeomType = 1, Int_t fFocusingSystem = 31){
   double sum = len + barWin_hthick + EVgreaseLayer;
   double mirrorgap = 0.0;
   double mirrorblock = mirr_hthick/2.+mirrorgap/2.;
-  
-  cout<<"len = "<<len<<endl;
 
   TGeoPcon* shape;
   if(fGeomType != 1){
     shape = new TGeoPcon("BarrelDIRCShape", 0, 360., 4);
     shape->DefineSection(0, bbox_zdown+2*mirrorblock, 35., 60.);
     shape->DefineSection(1, bbox_zup, 35., 60.);
-    shape->DefineSection(2, bbox_zup - sob_len +20., radiusMiddleSmall-0.3, sob_Rout+poffset+pheight+EVoffset+1.);
-    shape->DefineSection(3, bbox_zup - sob_len - PDbaseLayer - 2*sum, radiusMiddleSmall-0.3, sob_Rout+poffset+pheight+EVoffset+1.);
+    shape->DefineSection(2, bbox_zup - sob_len +20., radiusMiddleSmall-1, sob_Rout+poffset+pheight+EVoffset+1.);
+    shape->DefineSection(3, bbox_zup - sob_len - PDbaseLayer - 2*sum, radiusMiddleSmall-1, sob_Rout+poffset+pheight+EVoffset+1.);
   }else{
     shape = new TGeoPcon("BarrelDIRCShape", 0, 360., 6);
     shape->DefineSection(0, bbox_zdown+2*mirrorblock, 35., 60.);
@@ -767,7 +763,6 @@ void createdirc(Int_t fGeomType = 1, Int_t fFocusingSystem = 31){
 
 
     { // cereate one MCP
-
       		//create pixel plates: one for each MCP:
 		TGeoBBox* logicPD = new TGeoBBox("logicPD", MCPactiveArea/2., MCPactiveArea/2., PDsensitiveThick/2.); 
 		TGeoVolume *pixelholder  = new TGeoVolume("DrcPDSensor", logicPD,  gGeoManager->GetMedium("FusedSil"));
@@ -803,34 +798,34 @@ void createdirc(Int_t fGeomType = 1, Int_t fFocusingSystem = 31){
     case 1:
       {
         if(sob_angleB == 90.){
-	  logicEV1 = new TGeoPgon("logicEV1", 93.6, 172.8, bbnum/2, 2);
+	  logicEV1 = new TGeoPgon("logicEV1",  90 + pipehAngle, 180 - 2.*pipehAngle, bbnum/2, 2);
 	  logicEV1->DefineSection(0, 0.,      radiusMiddleSmall,  sob_Rout);
 	  logicEV1->DefineSection(1, sob_len, radiusMiddleSmall,  (radius+hthick+boxgap+boxthick+EVoffset));
-	  logicEV2 = new TGeoPgon("logicEV2", -86.4, 172.8, bbnum/2, 2);
+	  logicEV2 = new TGeoPgon("logicEV2", -90 + pipehAngle, 180 - 2.*pipehAngle, bbnum/2, 2);
 	  logicEV2->DefineSection(0, 0.,      radiusMiddleSmall,  sob_Rout);
 	  logicEV2->DefineSection(1, sob_len, radiusMiddleSmall,  (radius+hthick+boxgap+boxthick+EVoffset));     
-	  logicEV3 = new TGeoPgon("logicEV3", 86.4, 7.2, 1, 2);
+	  logicEV3 = new TGeoPgon("logicEV3",  90 - pipehAngle-0.02, 2*pipehAngle+0.04, 1, 2);
 	  logicEV3->DefineSection(0, 0.,      (radiusMiddleSmall)*cosFactor1,  sob_Rout*cosFactor1);
 	  logicEV3->DefineSection(1, sob_len, (radiusMiddleSmall)*cosFactor1,  (radius+hthick+boxgap+boxthick+EVoffset)*cosFactor1);     
-	  logicEV4 = new TGeoPgon("logicEV4", -93.6, 7.2, 1, 2);
+	  logicEV4 = new TGeoPgon("logicEV4", -90 - pipehAngle-0.02, 2*pipehAngle+0.04, 1, 2);
 	  logicEV4->DefineSection(0, 0.,      (radiusMiddleSmall)*cosFactor1,  sob_Rout*cosFactor1);
 	  logicEV4->DefineSection(1, sob_len, (radiusMiddleSmall)*cosFactor1,  (radius+hthick+boxgap+boxthick+EVoffset)*cosFactor1);     
       
 	}
 	if(sob_angleB != 90.){  
-	  logicEV1 = new TGeoPgon("logicEV1", 93.6, 172.8, bbnum/2, 3);
+	  logicEV1 = new TGeoPgon("logicEV1",  90 + pipehAngle, 180 - 2.*pipehAngle, bbnum/2, 3);
 	  logicEV1->DefineSection(0, 0.,      radius-hthick,  radius-hthick+eps);
 	  logicEV1->DefineSection(1, xEV,     radius-hthick,  sob_Rout - xEV*tan(sob_angle/180.*pi));
 	  logicEV1->DefineSection(2, sob_len, radius-hthick,  (radius+hthick+boxgap+boxthick));
-	  logicEV2 = new TGeoPgon("logicEV2", -86.4, 172.8, bbnum/2, 3);
+	  logicEV2 = new TGeoPgon("logicEV2",  -90 + pipehAngle, 180 - 2.*pipehAngle, bbnum/2, 3);
 	  logicEV2->DefineSection(0, 0.,      radius-hthick,  radius-hthick+eps);
 	  logicEV2->DefineSection(1, xEV,     radius-hthick,  sob_Rout - xEV*tan(sob_angle/180.*pi));
 	  logicEV2->DefineSection(2, sob_len, radius-hthick,  (radius+hthick+boxgap+boxthick));
-	  logicEV3 = new TGeoPgon("logicEV3", 86.4, 7.2, 1, 3);
+	  logicEV3 = new TGeoPgon("logicEV3", 90 - pipehAngle-0.02, 2*pipehAngle+0.04, 1, 3);
 	  logicEV3->DefineSection(0, 0.,      (radius-hthick)*cosFactor1,  (radius-hthick+eps)*cosFactor1);
 	  logicEV3->DefineSection(1, xEV,     (radius-hthick)*cosFactor1,  (sob_Rout - xEV*tan(sob_angle/180.*pi))*cosFactor1);
 	  logicEV3->DefineSection(2, sob_len, (radius-hthick)*cosFactor1,  (radius+hthick+boxgap+boxthick)*cosFactor1);
-	  logicEV4 = new TGeoPgon("logicEV4", -93.6, 7.2, 1, 3);
+	  logicEV4 = new TGeoPgon("logicEV4", -90 - pipehAngle-0.02, 2*pipehAngle+0.04, 1, 3);
 	  logicEV4->DefineSection(0, 0.,      (radius-hthick)*cosFactor1,  (radius-hthick+eps)*cosFactor1);
 	  logicEV4->DefineSection(1, xEV,     (radius-hthick)*cosFactor1,  (sob_Rout - xEV*tan(sob_angle/180.*pi))*cosFactor1);
 	  logicEV4->DefineSection(2, sob_len, (radius-hthick)*cosFactor1,  (radius+hthick+boxgap+boxthick)*cosFactor1);           
@@ -842,17 +837,17 @@ void createdirc(Int_t fGeomType = 1, Int_t fFocusingSystem = 31){
 	TGeoPgon *logicPDbase2 = new TGeoPgon("logicPDbase2", -90.+(phi0-dphi/2.), 180.-2.*(phi0-dphi/2.), bbnum/2, 2);
 	TGeoPgon *logicPDbase3 = new TGeoPgon("logicPDbase3",  90.-(phi0-dphi/2.), 2.*(phi0-dphi/2.)     ,       1, 2);
 	TGeoPgon *logicPDbase4 = new TGeoPgon("logicPDbase4", -90.-(phi0-dphi/2.), 2.*(phi0-dphi/2.)     ,       1, 2);  
-	Double_t rad_delta = (MCPsize-MCPactiveArea)/2./cos(45./180.*pi);
+	Double_t rad_delta = hgap;//(MCPsize-MCPactiveArea)/2./cos(45./180.*pi);
 
 	if(sob_angleB == 90.){
-	  logicPDbase1->DefineSection(0, 0.,  radiusMiddleSmall-rad_delta, sob_Rout);
-	  logicPDbase1->DefineSection(1, PDbaseLayer,  radiusMiddleSmall-rad_delta, sob_Rout);           
-	  logicPDbase2->DefineSection(0, 0.,  radiusMiddleSmall-rad_delta, sob_Rout);
-	  logicPDbase2->DefineSection(1, PDbaseLayer,  radiusMiddleSmall-rad_delta, sob_Rout);      
-	  logicPDbase3->DefineSection(0, 0., (radiusMiddleSmall)*cosFactor1-rad_delta, sob_Rout*cosFactor1);
-	  logicPDbase3->DefineSection(1, PDbaseLayer, (radiusMiddleSmall)*cosFactor1-rad_delta, sob_Rout*cosFactor1);
-	  logicPDbase4->DefineSection(0, 0., (radiusMiddleSmall)*cosFactor1-rad_delta, sob_Rout*cosFactor1);
-	  logicPDbase4->DefineSection(1, PDbaseLayer, (radiusMiddleSmall)*cosFactor1-rad_delta, sob_Rout*cosFactor1);
+	  logicPDbase1->DefineSection(0, 0.,  radiusMiddleSmall-rad_delta, sob_Rout+hgap);
+	  logicPDbase1->DefineSection(1, PDbaseLayer,  radiusMiddleSmall-rad_delta, sob_Rout+hgap);           
+	  logicPDbase2->DefineSection(0, 0.,  radiusMiddleSmall-rad_delta, sob_Rout+hgap);
+	  logicPDbase2->DefineSection(1, PDbaseLayer,  radiusMiddleSmall-rad_delta, sob_Rout+hgap);      
+	  logicPDbase3->DefineSection(0, 0., (radiusMiddleSmall)*cosFactor1-rad_delta, (sob_Rout+hgap)*cosFactor1);
+	  logicPDbase3->DefineSection(1, PDbaseLayer, (radiusMiddleSmall)*cosFactor1-rad_delta, (sob_Rout+hgap)*cosFactor1);
+	  logicPDbase4->DefineSection(0, 0., (radiusMiddleSmall)*cosFactor1-rad_delta, (sob_Rout+hgap)*cosFactor1);
+	  logicPDbase4->DefineSection(1, PDbaseLayer, (radiusMiddleSmall)*cosFactor1-rad_delta, (sob_Rout+hgap)*cosFactor1);
 	}
 
 	TGeoCompositeShape *logicPDbase = new TGeoCompositeShape("logicPDbase","logicPDbase1  + logicPDbase2 + logicPDbase3 + logicPDbase4");
@@ -875,7 +870,7 @@ void createdirc(Int_t fGeomType = 1, Int_t fFocusingSystem = 31){
 	    TGeoRotation rot_sector;    
 	    rot_sector.RotateZ( -phi0 - m*dphi - (TMath::Floor(2.*m/bbnum))*(2.*pipehAngle));       
 	    // placement of MCPs in one sector
-	    for(Int_t nrow=0; nrow < Int_t((sob_Rout-radiusMiddleSmall)/step); nrow++){
+	    for(Int_t nrow=0; nrow < Int_t((sob_Rout+2*hgap-radiusMiddleSmall)/step); nrow++){
 	      sectorWidth = 2.* (radiusMiddleSmall + step*nrow) * tan(dphi_rad/2.);
 	      nmcp = Int_t(sectorWidth/step);
 	      xpos = (radiusMiddleSmall + 0.5*MCPactiveArea + step*(nrow));      
@@ -889,7 +884,7 @@ void createdirc(Int_t fGeomType = 1, Int_t fFocusingSystem = 31){
 	    }            
 	  }
 
-	  for(Int_t nrow=0; nrow < Int_t((sob_Rout-radiusMiddleSmall)/step); nrow++){
+	  for(Int_t nrow=0; nrow < Int_t((sob_Rout+2*hgap-radiusMiddleSmall)/step); nrow++){
 	    for(Int_t nadd = 0; nadd<2; nadd++){
 	      xpos = (radiusMiddleSmall*cosFactor1 + 0.5*MCPactiveArea + step*(nrow));
 	      location.SetXYZ(xpos,0.,0.);
@@ -1026,7 +1021,7 @@ void createdirc(Int_t fGeomType = 1, Int_t fFocusingSystem = 31){
 	    steprad =  mcptot*(1-TMath::Cos(alpharad))/2.;
 
 	    // placement of MCPs in one sector
-	    for(Int_t nrow=0; nrow < Int_t((sob_Rout-radiusMiddleSmall)/step); nrow++){
+	    for(Int_t nrow=0; nrow < Int_t((sob_Rout+2*hgap-radiusMiddleSmall)/step); nrow++){
       
 	      TGeoRotation rot_sector;    
 	      rot_sector.RotateX((nrow+1)*alpharad*180./pi);
@@ -1055,30 +1050,20 @@ void createdirc(Int_t fGeomType = 1, Int_t fFocusingSystem = 31){
       break;
     case 3: 
       {
-	{ //EV
-	  TGeoTrap *Trd0 = new TGeoTrap("Trd0",sob_len/2.,	//1
-					atan(((2.*hthick+EVdrop+EVoffset+sob_len*tan(sob_angle*pi/180.))-(2.*hthick+EVdrop+EVoffset))/(2.*sob_len))*180./pi,  //2
-					270.,				//3
-					(2.*hthick+EVdrop+EVoffset+sob_len*tan(sob_angle*pi/180.))/2., //4
-					0.5*(3.*step - MCPgap - (MCPsize - MCPactiveArea)),	//5
-					0.5*(3.*step - MCPgap - (MCPsize - MCPactiveArea)),	//6
-					0,				//7
-					(2.*hthick+EVdrop+EVoffset)/2., //8 
-					0.5*(3.*step - MCPgap - (MCPsize - MCPactiveArea)),	//9
-					0.5*(3.*step - MCPgap - (MCPsize - MCPactiveArea)),	//10
-					0);			//11
-  
-	  double sp = 2.*hthick+EVdrop+EVoffset;
-	  double evh = sp + sob_len*tan(sob_angle*pi/180.);
+	{ //EV radius+hthick+boxgap+boxthick+EVoffset
+
+	  double sp = 2*(barBoxHeight+EVdrop/2.+EVoffset/2.);
+	  double evh =  5*step - 2*hgap;
 	  double evb = evh*sin(sob_angleB*pi/180.);
 	  double dz1 = (sob_len - evh*cos(sob_angleB*pi/180.))/2.;
 	  double dz2 =  evh*cos(sob_angleB*pi/180.)/2.;
-	  double evwidth = 0.5*(3.*step - MCPgap - (MCPsize - MCPactiveArea));
+	  double evwidth = 3*step/2. - hgap;
 
+	  TGeoTrap *Trd0 = new TGeoTrap("Trd0",sob_len/2., atan((evh-sp)/(2.*sob_len))*180./pi, 270, evh/2., evwidth, evwidth, 0, sp/2., evwidth, evwidth, 0);
 	  TGeoTrap *Trd1 = new TGeoTrap("Trd1",dz1, atan((evb-sp)/(4.*dz1))*180./pi, 270., evb/2., evwidth, evwidth, 0, sp/2., evwidth, evwidth, 0);	 
 	  TGeoTrap *Trd2 = new TGeoTrap("Trd2",dz2, -atan((evb)/(4.*dz2))*180./pi, 270., 0.000001, evwidth, evwidth, 0, evb/2., evwidth, evwidth, 0);	 
   
-	  evLocShift =  (Trd1->GetH1()+Trd1->GetH2())/2. -hthick - 0.5*(MCPsize-MCPactiveArea);
+	  evLocShift =  (Trd1->GetH1()+Trd1->GetH2())/2. - barBoxHeight;
 	  TGeoTranslation * evtr1 = new TGeoTranslation("evtr1",0,0,dz2); 
 	  evtr1->RegisterYourself(); 
 	  TGeoTranslation * evtr2 = new TGeoTranslation("evtr2",0,-sp/4.,-dz1); 
@@ -1092,8 +1077,8 @@ void createdirc(Int_t fGeomType = 1, Int_t fFocusingSystem = 31){
 	  baseEV->SetTransparency(0);
 	}
 
-	TGeoBBox* logicPDbase = new TGeoBBox("logicPDbase", 0.5*3.*step, (2.*hthick+EVdrop+EVoffset+sob_len*tan(sob_angle*pi/180.))/2., PDbaseLayer/2.);
-	Double_t pdLocShift = logicPDbase->GetDY()-hthick - 0.5*(MCPsize-MCPactiveArea);
+	TGeoBBox* logicPDbase = new TGeoBBox("logicPDbase", 3*step/2., 5*step/2., PDbaseLayer/2.);
+	Double_t pdLocShift = logicPDbase->GetDY() - barBoxHeight - hgap;
 	pdbase  = new TGeoVolume("DrcPDbase", logicPDbase,  gGeoManager->GetMedium("DIRCcarbonFiber"));
 	pdbase->SetLineColor(kGreen-6);
 	pdbase->SetTransparency(40);
@@ -1103,7 +1088,7 @@ void createdirc(Int_t fGeomType = 1, Int_t fFocusingSystem = 31){
 	  for(Int_t i=0; i<5; i++){  // loop over y
 	    for(Int_t j=0; j<3; j++){ // loop over x
 	      xcurr = -0.5*(3.*step) + 0.5*step+j*step;
-	      ycurr = -(2.*hthick+EVdrop+EVoffset+sob_len*tan(sob_angle*pi/180.))/2. + 0.5*step+i*step;
+	      ycurr = -(2.*hthick+EVdrop+EVoffset+sob_len*tan(sob_angle*pi/180.))/2. + 0.5*step+i*step + hgap;
 
 	      pdbase->AddNode(oneMCP, totalnumbering, new TGeoCombiTrans(xcurr, ycurr, PDbaseLayer/2.-(PDsensitiveThick+PhCathodeThick+PDwindowThick+PDgreaseLayer)/2., new TGeoRotation(0)));
 	      totalnumbering = totalnumbering + 1;   
@@ -1111,22 +1096,22 @@ void createdirc(Int_t fGeomType = 1, Int_t fFocusingSystem = 31){
 	  }
 	  Double_t evcorr90 = -logicPDbase->GetDZ();
 	  if(sob_angleB!=90) {
-	    pdLocShift +=  - logicPDbase->GetDY()*(1-cos((90-sob_angleB)*pi/180.))+logicPDbase->GetDZ()*cos(sob_angleB*pi/180.); 
-	    evcorr90 = logicPDbase->GetDY()*sin((90-sob_angleB)*pi/180.) -logicPDbase->GetDZ()*sin(sob_angleB*pi/180.);
+	    pdLocShift +=  - (logicPDbase->GetDY()- hgap)*(1-cos((90-sob_angleB)*pi/180.))+logicPDbase->GetDZ()*cos(sob_angleB*pi/180.); 
+	    evcorr90 = (logicPDbase->GetDY() - hgap)*sin((90-sob_angleB)*pi/180.) -logicPDbase->GetDZ()*sin(sob_angleB*pi/180.);
 	  }
 	  for(Int_t m = 0; m < bbnum; m ++){
 	    phi_curr = (90. - phi0 - dphi*m)/180.*pi;    
 	    if(m > bbnum/2-1){ phi_curr = (90. - phi0 - dphi*m - 2.*pipehAngle)/180.*pi; }
-	    dx = radius * cos(phi_curr);
-	    dy = radius * sin(phi_curr);
+	    dx = (radius-EVdrop) * cos(phi_curr);
+	    dy = (radius-EVdrop) * sin(phi_curr);
          
 	    TGeoRotation rotbbox,rotpbox;    
 	    rotbbox.RotateZ( -phi0 - m*dphi - (TMath::Floor(2.*m/bbnum))*(2.*pipehAngle)); 
 	    rotpbox.RotateX(90-sob_angleB);
 	    rotpbox.RotateZ( -phi0 - m*dphi - (TMath::Floor(2.*m/bbnum))*(2.*pipehAngle));   
 
-	    vLocalMother->AddNode(baseEV, m+1, new TGeoCombiTrans(dx + evLocShift*cos(phi_curr), dy+ evLocShift*sin(phi_curr), bbox_zup - 2*entransewidth - sob_len/2.  , new TGeoRotation(rotbbox)));
-	    vLocalMother->AddNode(pdbase,   m+1, new TGeoCombiTrans(dx + pdLocShift*cos(phi_curr), dy + pdLocShift*sin(phi_curr), sob_shift-2*sum+evcorr90, new TGeoRotation(rotpbox)));
+	    vLocalMother->AddNode(baseEV, m+1, new TGeoCombiTrans(dx + evLocShift*cos(phi_curr), dy + evLocShift*sin(phi_curr), bbox_zup - 2*entransewidth - sob_len/2.  , new TGeoRotation(rotbbox)));
+	    vLocalMother->AddNode(pdbase, m+1, new TGeoCombiTrans(dx + pdLocShift*cos(phi_curr), dy + pdLocShift*sin(phi_curr), sob_shift-2*sum+evcorr90, new TGeoRotation(rotpbox)));
 	  }
 
 	}
@@ -1142,7 +1127,6 @@ void createdirc(Int_t fGeomType = 1, Int_t fFocusingSystem = 31){
 
   // gGeoManager->SetTopVisible(); 		
   // pdbase->Draw("ogl"); return;
-
 
   if(fGeomType==5){
     TGeoBBox*   lTop = new TGeoBBox(500,500,300);
@@ -1161,7 +1145,6 @@ void createdirc(Int_t fGeomType = 1, Int_t fFocusingSystem = 31){
     
   }
 
-
   gGeoManager->CloseGeometry();
   top->CheckOverlaps(0.0001, "");
   gGeoManager->CheckOverlaps(0.00001,""); // [cm]
@@ -1176,119 +1159,4 @@ void createdirc(Int_t fGeomType = 1, Int_t fFocusingSystem = 31){
   TObjArray *listOfOverlaps = gGeoManager->GetListOfOverlaps();
   cout<<listOfOverlaps->GetEntries()<<endl;
   listOfOverlaps->Print(); 
-}
-
-int findSectorIn(double y, double dphi_rad, double radius, double EVdrop, double hthick){
-  TVector3 EVcornerIn;
-  EVcornerIn.SetXYZ((radius-EVdrop-hthick)/cos(dphi_rad/2.),0.,0.);
-  Double_t Y0[4];
-  for(Int_t i=0; i<4; i++){
-    EVcornerIn.RotateZ(dphi_rad);
-    Y0[i] = EVcornerIn.Y();
-  }
-  if(y <= Y0[0]){return 1;}
-  if(y > Y0[0] && y <= Y0[1]){return 2;}
-  if(y > Y0[1] && y <= Y0[2]){return 3;}
-  if(y > Y0[2] && y <= Y0[3]){return 4;}
-  if(y > Y0[3]){return 5;}
-   
-}
-
-int findSectorOut(double y, double dphi_rad, double radiusCornerOut){
-  TVector3 EVcorner;
-  EVcorner.SetXYZ(radiusCornerOut,0.,0.);  
-  Double_t Y0[4];
-  for(Int_t i=0; i<4; i++){
-    EVcorner.RotateZ(dphi_rad);
-    Y0[i] = EVcorner.Y();
-    cout<<"Y ["<<i<<"] = "<<Y0[i]<<endl;
-  }
-  if(y <= Y0[0]){return 1;}
-  if(y > Y0[0] && y <= Y0[1]){return 2;}
-  if(y > Y0[1] && y <= Y0[2]){return 3;}
-  if(y > Y0[2] && y <= Y0[3]){return 4;}
-  if(y > Y0[3]){return 5;}
-   
-}
-
-bool getXrange(double dphi, double radiusCornerOut, double radiusCornerIn, double MCPactiveArea, int cas1, int cas2, double ylow, double step, double &x1, double &x2){
-    
-  Double_t dphi_rad = dphi/180.*pi;
-  
-  TVector3 EVcorner;
-  EVcorner.SetXYZ(radiusCornerOut,0.,0.);    
-  TVector3 EVcorner1 = EVcorner;
-  TVector3 EVcorner2 = EVcorner;
-  TVector3 EVcornerIn;
-  EVcornerIn.SetXYZ(radiusCornerIn,0.,0.);
-  TVector3 EVcornerIn1 = EVcornerIn;
-  TVector3 EVcornerIn2 = EVcornerIn;
-  //cout<<"-I- sob_Rout = "<<sob_Rout<<", dphi = "<<dphi<<", |EVcorner| = "<<EVcorner.Mag()<<", |EVcornerIn| = "<<EVcornerIn.Mag()<<endl;   
-    
-  Double_t xstart, xfinish;
-  if(cas1 == 1){ // 0 - 21.6 degrees        
-    EVcornerIn2.RotateZ(dphi_rad);
-    xstart = getX(EVcornerIn1, EVcornerIn2, ylow) + MCPactiveArea/2.;        
-  }
-  if(cas1 == 2){    // 21.6 - 43.2 degrees    
-    EVcornerIn1.RotateZ(1.*dphi_rad);
-    EVcornerIn2.RotateZ(2.*dphi_rad);
-    xstart = getX(EVcornerIn1, EVcornerIn2, ylow) + MCPactiveArea/2.;    
-  }
-  if(cas1 == 3){ // 43.2 - 63.8 degrees    
-    EVcornerIn1.RotateZ(2.*dphi_rad);
-    EVcornerIn2.RotateZ(3.*dphi_rad);
-    xstart = getX(EVcornerIn1, EVcornerIn2, ylow) + MCPactiveArea/2.;    
-  }
-  if(cas1 == 4){ // 63.8 - 85.6 degrees    
-    EVcornerIn1.RotateZ(3.*dphi_rad);
-    EVcornerIn2.RotateZ(4.*dphi_rad);
-    xstart = getX(EVcornerIn1, EVcornerIn2, ylow) + MCPactiveArea/2.;    
-  }
-  if(cas1 == 5){ // 85.6 - 90.    
-    EVcornerIn1.RotateZ(4.*dphi_rad);
-    EVcornerIn2.RotateZ(pi/2.);
-    xstart = getX(EVcornerIn1, EVcornerIn2, ylow) + MCPactiveArea/2.;    
-  } 
-  
-  if(cas2 == 1){ // 0 - 21.6 degrees   
-    EVcorner2.RotateZ(dphi_rad);   
-    xfinish = getX(EVcorner1, EVcorner2, ylow+step) - MCPactiveArea/2.;        
-  }
-  if(cas2 == 2){    // 21.6 - 43.2 degrees
-    EVcorner1.RotateZ(1.*dphi_rad);
-    EVcorner2.RotateZ(2.*dphi_rad);    
-    xfinish = getX(EVcorner1, EVcorner2, ylow+step) - MCPactiveArea/2.;
-  }
-  if(cas2 == 3){ // 43.2 - 63.8 degrees
-    EVcorner1.RotateZ(2.*dphi_rad);
-    EVcorner2.RotateZ(3.*dphi_rad);    
-    xfinish = getX(EVcorner1, EVcorner2, ylow+step) - MCPactiveArea/2.;
-  }
-  if(cas2 == 4){ // 63.8 - 85.6 degrees
-    EVcorner1.RotateZ(3.*dphi_rad);
-    EVcorner2.RotateZ(4.*dphi_rad);    
-    xfinish = getX(EVcorner1, EVcorner2, ylow+step) - MCPactiveArea/2.;
-  }
-  if(cas2 == 5){ // 85.6 - 90.
-    EVcorner1.RotateZ(4.*dphi_rad);
-    EVcorner2.RotateZ(pi/2.);    
-    xfinish = getX(EVcorner1, EVcorner2, ylow+step) - MCPactiveArea/2.;
-  } 
-  if(xstart <= 0.){xstart = step/2.;}
-  if(xstart < step/2.){xstart = step/2.;}
-  if(xfinish <= 0.){xfinish = step/2.;}
-    x1 = xstart;
-    x2 = xfinish;
-  
-  cout<<"-I- xstart = "<<xstart<<", xfinish = "<<xfinish<<endl;
-  if(x1 != x2)return true;
-  else return false;
-}
-
-double getX(TVector3 corner1, TVector3 corner2, double yy){
-  Double_t b = ( corner1.X()*corner2.Y() - corner1.Y()*corner2.X() ) / ( corner1.X() - corner2.X() );
-  Double_t k = ( corner1.Y() - corner2.Y() ) / ( corner1.X() - corner2.X() );
-  if(( yy - b )/k >= 0.)  return ( yy - b )/k;
-  if(( yy - b )/k < 0.) return 0.;
 }
