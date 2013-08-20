@@ -117,8 +117,10 @@ void PndMvdRiemannTrackFinderTask::AddHitBranch(TString branchName)
 void PndMvdRiemannTrackFinderTask::Exec(Option_t* opt)
 {
 
-	SetVerbose(3);
-  // Reset output array
+	  if (fVerbose > 0) std::cout << std::endl;
+	  if (fVerbose > 0) std::cout << "------------- event " << fEventNr << "----------------" << std::endl;
+
+	// Reset output array
   if ( ! fTrackCandArray )
     Fatal("Exec", "No trackCandArray");
 
@@ -134,18 +136,15 @@ void PndMvdRiemannTrackFinderTask::Exec(Option_t* opt)
 
   FairRootManager *ioman = FairRootManager::Instance();
 
-  std::cout << std::endl;
-  std::cout << "------------- event " << fEventNr << "----------------" << std::endl;
 
   for (int i = 0; i < (int)fHitBranch.size(); i++){
 	  trackFinder.AddHits(fHitArray[i], ioman->GetBranchId(fHitBranch[i]));
-	  std::cout << "TrackFinder.AddHits: " << ioman->GetBranchId(fHitBranch[i]) << std::endl;
+	  if (fVerbose > 0) std::cout << "TrackFinder.AddHits: " << fHitBranch[i] << " Number: " << ioman->GetBranchId(fHitBranch[i]) << std::endl;
   }
   trackFinder.SetMaxSZChi2(fMaxSZChi2);
   trackFinder.SetMinPointDist(fMinPointDist);
   trackFinder.SetMaxPlaneDistance(fMaxDist);
   trackFinder.SetMaxSZDist(fMaxSZDist);
-  trackFinder.SetVerbose(fVerbose);
   trackFinder.SetMinNumberOfHits(4);
   //trackFinder.SetGeoH(fGeoH);
 
@@ -232,8 +231,9 @@ void PndMvdRiemannTrackFinderTask::FillHitArray()
 {
 	Double_t eventTime = -1;
 	if (FairRunAna::Instance()->IsTimeStamp()){
-		fHitArray[0]->Delete();
-		fHitArray[1]->Delete();
+		for (int i = 0; i < fHitArray.size(); i++){
+			fHitArray[i]->Delete();
+		}
 
 		fHitArray[0] = FairRootManager::Instance()->GetData("MVDHitsPixel", fTimeGapFunctor, 10); //FairRootManager::Instance()->GetEventTime() +
 		std::cout << "PixelHits: " << fHitArray[0]->GetEntriesFast() << std::endl;
