@@ -607,8 +607,8 @@ double PndLmdLinFitTask::distance_MS(double x,double y,double z, double errx,dou
   //   cout<<"zcr["<<crz<<"]="<<zpr[crz]<<endl;
   double THfunc[8] = {1,1,1,1,1,1,1,1};
  
-  Double_t t_min = (z-p[4]);
-  //  Double_t t_min = p[1]*(x-p[0])+p[3]*(y-p[2])+p[5]*(z-p[4]);
+  //Double_t t_min = (z-p[4]);
+  Double_t t_min = p[1]*(x-p[0])+p[3]*(y-p[2])+p[5]*(z-p[4]);
   for(int iz=0;iz<8;iz++){
     if(((p[4]+t_min)-zpr[iz])<=0) THfunc[iz]=0;
     //    cout<<"zpr["<<iz<<"]="<<zpr[iz]<<" (p[4]+t_min) = "<<(p[4]+t_min)<<" (p[4]+t_min)-zpr["<<iz<<"] = "<<(p[4]+t_min)-zpr[iz]<<" THfunc = "<<THfunc[iz]<<endl;
@@ -1058,10 +1058,6 @@ double PndLmdLinFitTask::line3DfitMS(Int_t nd, TGraph2DErrors* gr, TVector3 posS
       cout<<"pStartErr["<<i<<"]="<<pStartErr[i]<<endl;
   }
   
-  // fmin->SetParameter(0,"x0",pStart[0],pStartErr[0],pStart[0]-fabs(pStart[0]*0.7),pStart[0]+fabs(pStart[0]*0.7));
-  // fmin->SetParameter(1,"Ax",pStart[1],pStartErr[1],pStart[1]-fabs(pStart[1]*0.7),pStart[1]+fabs(pStart[1]*0.7));
-  // fmin->SetParameter(2,"y0",pStart[2],pStartErr[2],pStart[2]-fabs(pStart[2]*0.7),pStart[2]+fabs(pStart[2]*0.7));
-  // fmin->SetParameter(3,"Ay",pStart[3],pStartErr[3],pStart[3]-fabs(pStart[3]*0.7),pStart[3]+fabs(pStart[3]*0.7));
   fmin->SetParameter(0,"x0",pStart[0],pStartErr[0],0,0);
   fmin->SetParameter(1,"Ax",pStart[1],pStartErr[1],0,0);
   fmin->SetParameter(2,"y0",pStart[2],pStartErr[2],0,0);
@@ -1069,30 +1065,7 @@ double PndLmdLinFitTask::line3DfitMS(Int_t nd, TGraph2DErrors* gr, TVector3 posS
 
   fmin->SetParameter(4,"z0",pStart[4],0,0,0);
   fmin->SetParameter(5,"Az",pStart[5],0,0,0);
-  //  fmin->SetParameter(4,"z0",pStart[4],pStartErr[4],pStart[4]-fabs(pStart[4]*0.5),pStart[4]+fabs(pStart[4]*0.5));
-  // // fmin->SetParameter(5,"Az",pStart[5],pStartErr[5],0,0);
-  // //  fmin->SetParameter(6,"al0x",pStart[6],fsigmaMSb,0,0);
-  // fmin->SetParameter(6,"al0x",pStart[6],0,0,0);
-  // fmin->SetParameter(7,"al1x",pStart[6],fsigmaMSb,0,0);
-  // fmin->SetParameter(8,"al2x",pStart[6],st2MS,0,0);
-  // fmin->SetParameter(9,"al3x",pStart[6],st3MS,0,0);
-  // fmin->SetParameter(10,"al0y",pStart[6],fsigmaMSb,0,0);
-  // //  fmin->SetParameter(10,"al0y",pStart[6],0,0,0);
-  // fmin->SetParameter(11,"al1y",pStart[6],fsigmaMSb,0,0);
-  // fmin->SetParameter(12,"al2y",pStart[6],st2MS,0,0);
-  // fmin->SetParameter(13,"al3y",pStart[6],st2MS,0,0);
-
-  // fmin->SetParameter(14,"al0xl",pStart[6],fsigmaMSb,0,0);
-  // fmin->SetParameter(15,"al1xl",pStart[6],fsigmaMSb,0,0);
-  // fmin->SetParameter(16,"al2xl",pStart[6],st2MS,0,0);
-  // fmin->SetParameter(17,"al3xl",pStart[6],st3MS,0,0);
-  // fmin->SetParameter(18,"al0yl",pStart[6],fsigmaMSb,0,0);
-  // fmin->SetParameter(19,"al1yl",pStart[6],fsigmaMSb,0,0);
-  // fmin->SetParameter(20,"al2yl",pStart[6],st2MS,0,0);
-  // fmin->SetParameter(21,"al3yl",pStart[6],st3MS,0,0);
-
-
-  //  fmin->SetParameter(6,"al0x_a",pStart[6],0,0,0);
+  
   fmin->SetParameter(6,"al0x_a",pStart[6],1e-4*fsigmaMSa,0,0);
   fmin->SetParameter(7,"al0x_b",pStart[7],1e-4*fsigmaMSb,0,0);
   fmin->SetParameter(8,"al1x_a",pStart[8],1e-4*fsigmaMSa,0,0);
@@ -1102,7 +1075,6 @@ double PndLmdLinFitTask::line3DfitMS(Int_t nd, TGraph2DErrors* gr, TVector3 posS
   fmin->SetParameter(12,"al3x_a",pStart[12],1e-4*fsigmaMSa,0,0);
   fmin->SetParameter(13,"al3x_b",pStart[13],1e-4*fsigmaMSb,0,0);
 
-  //fmin->SetParameter(14,"al0y_a",pStart[6],0,0,0);
   fmin->SetParameter(14,"al0y_a",pStart[14],1e-4*fsigmaMSa,0,0);
   fmin->SetParameter(15,"al0y_b",pStart[15],1e-4*fsigmaMSb,0,0);
   fmin->SetParameter(16,"al1y_a",pStart[16],1e-4*fsigmaMSa,0,0);
@@ -1112,35 +1084,6 @@ double PndLmdLinFitTask::line3DfitMS(Int_t nd, TGraph2DErrors* gr, TVector3 posS
   fmin->SetParameter(20,"al3y_a",pStart[20],1e-4*fsigmaMSa,0,0);
   fmin->SetParameter(21,"al3y_b",pStart[21],1e-4*fsigmaMSb,0,0);
 
-
-  // //  fmin->SetParameter(6,"al0x_a",pStart[6],0,0,0);
-  // fmin->SetParameter(6,"al0x_a",pStart[6],1e-2*fsigmaMSa,-5*fsigmaMSa,5*fsigmaMSa);
-  // fmin->SetParameter(7,"al0x_b",pStart[7],1e-2*fsigmaMSb,-5*fsigmaMSb,5*fsigmaMSb);
-  // fmin->SetParameter(8,"al1x_a",pStart[8],1e-2*fsigmaMSa,-5*fsigmaMSa,5*fsigmaMSa);
-  // fmin->SetParameter(9,"al1x_b",pStart[9],1e-2*fsigmaMSb,-5*fsigmaMSb,5*fsigmaMSb);
-  // fmin->SetParameter(10,"al2x_a",pStart[10],1e-2*fsigmaMSa,-5*fsigmaMSa,5*fsigmaMSa);
-  // fmin->SetParameter(11,"al2x_b",pStart[11],1e-2*fsigmaMSb,-5*fsigmaMSb,5*fsigmaMSb);
-  // fmin->SetParameter(12,"al3x_a",pStart[12],1e-2*fsigmaMSa,-5*fsigmaMSa,5*fsigmaMSa);
-  // fmin->SetParameter(13,"al3x_b",pStart[13],1e-2*fsigmaMSb,-5*fsigmaMSb,5*fsigmaMSb);
-
-  // //fmin->SetParameter(14,"al0y_a",pStart[6],0,0,0);
-  // fmin->SetParameter(14,"al0y_a",pStart[14],1e-2*fsigmaMSa,-5*fsigmaMSa,5*fsigmaMSa);
-  // fmin->SetParameter(15,"al0y_b",pStart[15],1e-2*fsigmaMSb,-5*fsigmaMSb,5*fsigmaMSb);
-  // fmin->SetParameter(16,"al1y_a",pStart[16],1e-2*fsigmaMSa,-5*fsigmaMSa,5*fsigmaMSa);
-  // fmin->SetParameter(17,"al1y_b",pStart[17],1e-2*fsigmaMSb,-5*fsigmaMSb,5*fsigmaMSb);
-  // fmin->SetParameter(18,"al2y_a",pStart[18],1e-2*fsigmaMSa,-5*fsigmaMSa,5*fsigmaMSa);
-  // fmin->SetParameter(19,"al2y_b",pStart[19],1e-2*fsigmaMSb,-5*fsigmaMSb,5*fsigmaMSb);
-  // fmin->SetParameter(20,"al3y_a",pStart[20],1e-2*fsigmaMSa,-5*fsigmaMSa,5*fsigmaMSa);
-  // fmin->SetParameter(21,"al3y_b",pStart[21],1e-2*fsigmaMSb,-5*fsigmaMSb,5*fsigmaMSb);
-
-  //  fmin->FixParameter(7);
-  // // // // fmin->FixParameter(9);
-  // // // // fmin->FixParameter(11);
-  //  fmin->FixParameter(13);
-  //  fmin->FixParameter(15);
-  //  // fmin->FixParameter(17);
-  //  //fmin->FixParameter(19);
-  // fmin->FixParameter(21);
 
   // fmin->FixParameter(6);
   // fmin->FixParameter(7);
@@ -1159,36 +1102,10 @@ double PndLmdLinFitTask::line3DfitMS(Int_t nd, TGraph2DErrors* gr, TVector3 posS
   fmin->FixParameter(11);
   fmin->FixParameter(19);
   }
-  // fmin->FixParameter(7);
-  // fmin->FixParameter(15);
 
-  // // // fmin->FixParameter(6);
-  // // // fmin->FixParameter(14);
-  // // // fmin->FixParameter(7);
-  // // // fmin->FixParameter(15);
-  // // fmin->FixParameter(13);
-  // // fmin->FixParameter(21);
-  // // // fmin->FixParameter(12);
-  // // // fmin->FixParameter(20);
-  
-  // // // //  fmin->FixParameter(12);
-  // // // //  fmin->FixParameter(20);
-
-  // // // // // 
-  
-  // // // // //
-  
-  // // // // // fmin->FixParameter(13);
-   
-  // // // // // fmin->FixParameter(21);
-
-  
-  // // // // // fmin->SetPrecision(recpres);
-
-  //  double recpres = 1e-20;
   double recpres = 1e-7;
   // Now ready for minimization step
-   arglist[0] = 2000;
+   arglist[0] = 5000;
   //  arglist[0] = 2;
   arglist[1] = recpres;
   //fmin->Ex ecuteCommand("MIGRAD", arglist,2);
@@ -1225,6 +1142,30 @@ double PndLmdLinFitTask::line3DfitMS(Int_t nd, TGraph2DErrors* gr, TVector3 posS
    }
 
    // // //!!!!!!!!!!!!!!!!!! dx, dy and their errors should be corrected since dx = dx0+alx0; dy = dy0+aly0; 
+   // cout<<"Before: fitpar[1]="<< fitpar[1]<<"; (*covmatrix)(1,1) = "<<(*covmatrix)(1,1)<<endl;
+
+   // fitpar[1] +=  fitpar[9];
+   // fitpar[3] +=  fitpar[17];
+   // double err_dx_2 = (*covmatrix)(1,1);
+   // double err_dy_2 = (*covmatrix)(3,3);
+   // //  err_dx_2+=2*(fmin->GetCovarianceMatrixElement(1,4));
+   // err_dx_2+=fmin->GetCovarianceMatrixElement(4,4);
+   // if(Npoint<4){
+   //   //   err_dy_2+=2*(fmin->GetCovarianceMatrixElement(3,5));
+   // err_dy_2+=fmin->GetCovarianceMatrixElement(5,5);
+   // }
+   // else{
+   //   //    err_dy_2+=2*(fmin->GetCovarianceMatrixElement(3,6));
+   //   err_dy_2+=fmin->GetCovarianceMatrixElement(6,6);
+   // }
+  
+
+   // (*covmatrix)(1,1)=err_dx_2;
+   // (*covmatrix)(3,3)=err_dy_2;
+   // cout<<"After: fitpar[1]="<< fitpar[1]<<"; (*covmatrix)(1,1) = "<<(*covmatrix)(1,1)<<endl;
+   // //   cout<<"After:   (*covmatrix)(1,1) = "<<(*covmatrix)(1,1)<<endl;
+   // //   cout<<"After:   (*covmatrix)(3,3) = "<<(*covmatrix)(3,3)<<endl;
+
    // // // fitpar[1] +=  fitpar[6]+fitpar[7];
    // // // fitpar[3] +=  fitpar[10]+fitpar[11];
    // // // fitpar[1] +=  fitpar[6]+fitpar[7]+fitpar[8]+fitpar[9];
@@ -1233,8 +1174,7 @@ double PndLmdLinFitTask::line3DfitMS(Int_t nd, TGraph2DErrors* gr, TVector3 posS
    // // int i_dyal0 = 14-3-1;//index of aly0 parameter: z0,dz - fixed,  alx0_a - fixed, alx3_b - fixed
    // // if(st2MS==0) i_dyal0 -=1; //alx2_b - fixed
 
-   // double err_dx_2 = (*covmatrix)(1,1);
-   // double err_dy_2 = (*covmatrix)(3,3);
+  
    // // // double err_dx_2, err_dy_2;
    // // // int Nang = 3;
    // // // if(st2MS==0) Nang -=1;
@@ -1301,8 +1241,7 @@ double PndLmdLinFitTask::line3DfitMS(Int_t nd, TGraph2DErrors* gr, TVector3 posS
 
 
    // // //   double err_dy_2 = (*covmatrix)(3,3)+(*covmatrix)(i_dyal0,i_dyal0)+2*(*covmatrix)(3,i_dyal0);// fmin->GetCovarianceMatrixElement(i,j);
-   // cout<<"Before:   (*covmatrix)(1,1) = "<<(*covmatrix)(1,1)<<endl;
-   // cout<<"Before:   (*covmatrix)(3,3) = "<<(*covmatrix)(3,3)<<endl;
+  
    // // //  if(err_dx_2<0) err_dx_2*=-1;
    // (*covmatrix)(1,1)=err_dx_2;
    // // // if(err_dy_2<0) err_dy_2*=-1;
@@ -1337,37 +1276,38 @@ double PndLmdLinFitTask::line3DfitMS(Int_t nd, TGraph2DErrors* gr, TVector3 posS
    //  ttal = new TNtuple("ttal","kink angles","alx0:alx1:alx2:aly0:aly1:aly2:erralx1:erralx2:erraly1:erraly2:npoints") ;
    if(fVerbose>2){
      falx0a = fitpar[6];
-     falx1a = fitpar[7];
-     falx2a = fitpar[8];
-     falx3a = fitpar[9];
-     faly0a = fitpar[10];
-     faly1a = fitpar[11];
-     faly2a = fitpar[12];
-     faly3a = fitpar[13];
-     falx0b = fitpar[14];
-     falx1b = fitpar[15];
-     falx2b = fitpar[16];
-     falx3b = fitpar[17];
-     faly0b = fitpar[18];
-     faly1b = fitpar[19];
-     faly2b = fitpar[20];
-     faly3b = fitpar[21];
      ferralx0a = fitparerr[6];
-     ferralx1a = fitparerr[7];
-     ferralx2a = fitparerr[8];
-     ferralx3a = fitparerr[9];
-     ferraly0a = fitparerr[10];
-     ferraly1a = fitparerr[11];
-     ferraly2a = fitparerr[12];
-     ferraly3a = fitparerr[13];
-     ferralx0b = fitparerr[14];
-     ferralx1b = fitparerr[15];
-     ferralx2b = fitparerr[16];
-     ferralx3b = fitparerr[17];
-     ferraly0b = fitparerr[18];
-     ferraly1b = fitparerr[19];
-     ferraly2b = fitparerr[20];
+     falx1a = fitpar[8];
+     ferralx1a = fitparerr[8];
+     falx2a = fitpar[10];
+     ferralx2a = fitparerr[10];
+     falx3a = fitpar[12];
+     ferralx3a = fitparerr[12];
+     faly0a = fitpar[14];
+     ferraly0a = fitparerr[14];
+     faly1a = fitpar[16];
+     ferraly1a = fitparerr[16];
+     faly2a = fitpar[18];
+     ferraly2a = fitparerr[18];
+     faly3a = fitpar[20];
+     ferraly3a = fitparerr[20];
+     falx0b = fitpar[7];
+     ferralx0b = fitparerr[7];
+     falx1b = fitpar[9];
+     ferralx1b = fitparerr[9];
+     falx2b = fitpar[11];
+     ferralx2b = fitparerr[11];
+     falx3b = fitpar[13];
+     ferralx3b = fitparerr[13];
+     faly0b = fitpar[15];
+     ferraly0b = fitparerr[15];
+     faly1b = fitpar[17];
+     ferraly1b = fitparerr[17];
+     faly2b = fitpar[19];
+     ferraly2b = fitparerr[19];
+     faly3b = fitpar[21]; 
      ferraly3b = fitparerr[21];
+
      fnpoints = Npoint;
      fchi2 =  chi2;
      fzhit0 = (gr->GetZ())[0];
