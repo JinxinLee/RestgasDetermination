@@ -56,7 +56,6 @@ InitStatus PndMCTestPatternRecoQuality::Init() {
 
 	fTrack = (TClonesArray*) ioman->GetObject(fTrackBranchName);
 	fMCTrack = (TClonesArray*) ioman->GetObject("MCTrack");
-//	fTrackCand = (TClonesArray*) ioman->GetObject("MVDRiemannTrackCand");
 
 	if (fBranchNames.size() == 0){
 		AddHitsBranchName("MVDHitsPixel");
@@ -133,7 +132,7 @@ void PndMCTestPatternRecoQuality::Exec(Option_t* opt) {
 				PndMCEntry myEntry = fIdealTrackData.GetEntry(myLink.GetIndex());
 
 				std::cout << "MC Data " << myLink.GetIndex() << ": ";
-				PrintTrackDataSummary(&myEntry);
+				PrintTrackDataSummary(myEntry);
 
 			}
 			std::cout << std::endl;
@@ -177,25 +176,6 @@ Int_t PndMCTestPatternRecoQuality::AnalyseData()
 			return -1;;
 		}
 	}
-//	} else if (fMapLinkData["AllHits"].GetNLinks() == 2){
-//		Double_t nLinks0 = fMapLinkData["AllHits"].GetLink(0).GetWeight();
-//		Double_t nLinks1 = fMapLinkData["AllHits"].GetLink(1).GetWeight();
-//
-//
-//		if (nLinks0 / (nLinks0 + nLinks1) > 0.7){
-//			fMapTrackQualifikation[fMapLinkData["AllHits"].GetLink(0).GetIndex()] = 4;
-//			mostProbableTrack = fMapLinkData["AllHits"].GetLink(0).GetIndex();
-//		} else if (nLinks0 / (nLinks0 + nLinks1) > 0.3){
-//			fMapTrackQualifikation[fMapLinkData["AllHits"].GetLink(1).GetIndex()] = 4;
-//			mostProbableTrack = fMapLinkData["AllHits"].GetLink(1).GetIndex();
-//		} else {
-//			fNGhosts++;
-//			return;
-//		}
-//	} else {
-//		fNGhosts++;
-//		return;
-//	}
 
 	CalcEfficiencies(mostProbableTrack);
 	return mostProbableTrack;
@@ -238,13 +218,6 @@ void PndMCTestPatternRecoQuality::FillQualyHisto()
 		if (iter->second > -1){
 			fQualyHisto->Fill(9);
 		}
-//		if (iter->second == 0){
-//			fQualyHisto->Fill(1);
-//		} else if (iter->second == 2) {
-//			fQualyHisto->Fill(2);
-//		} else if (iter->second == 3) {
-//			fQualyHisto->Fill(3);
-//		}
 	}
 }
 
@@ -266,7 +239,8 @@ void PndMCTestPatternRecoQuality::FillMapTrackQualifikation()
 
 //				fMapTrackQualifikation[i] = -1;						//No hits in central tracking detectors
 			}
-			if (PossibleTrack(&fIdealTrackData.GetEntry(i))){
+			PndMCEntry entry = fIdealTrackData.GetEntry(i);
+			if (PossibleTrack(entry)){
 				fMapTrackQualifikation[i] = 0;
 			}
 		}
@@ -278,15 +252,12 @@ void PndMCTestPatternRecoQuality::FillMapTrackQualifikation()
 
 }
 
-Bool_t PndMCTestPatternRecoQuality::PossibleTrack(FairMultiLinkedData* mcForward)
+Bool_t PndMCTestPatternRecoQuality::PossibleTrack(FairMultiLinkedData& mcForward)
 {
 	Bool_t possibleTrack = kFALSE;
-//	for (std::map<TString, Double_t>::iterator iter = fPossibleTrackParameter.begin(); iter != fPossibleTrackParameter.end(); iter++){
-//		possibleTrack = possibleTrack & (mcForward->GetLinksWithType(ioman->GetBranchId(iter->first)).GetNLinks() > iter->second);
-//	}
 
-	if (mcForward->GetLinksWithType(ioman->GetBranchId("MVDHitsPixel")).GetNLinks() + mcForward->GetLinksWithType(ioman->GetBranchId("MVDHitsStrip")).GetNLinks() > 3 ||
-			mcForward->GetLinksWithType(ioman->GetBranchId("STTHit")).GetNLinks() > 5)
+	if (mcForward.GetLinksWithType(ioman->GetBranchId("MVDHitsPixel")).GetNLinks() + mcForward.GetLinksWithType(ioman->GetBranchId("MVDHitsStrip")).GetNLinks() > 3 ||
+			mcForward.GetLinksWithType(ioman->GetBranchId("STTHit")).GetNLinks() > 5)
 	{
 		possibleTrack = kTRUE;
 	}
@@ -308,18 +279,20 @@ FairMultiLinkedData PndMCTestPatternRecoQuality::GetMCInfoForBranch(TString bran
 }
 
 
-void PndMCTestPatternRecoQuality::PrintTrackQualityMap(){
+void PndMCTestPatternRecoQuality::PrintTrackQualityMap()
+{
 	for (std::map<Int_t, Int_t>::iterator iter = fMapTrackQualifikation.begin(); iter != fMapTrackQualifikation.end(); iter++){
 		std::cout << iter->first << " : "  << iter->second << " Data: ";
-		PrintTrackDataSummary(&(fIdealTrackData.GetEntry(iter->first)));
+		PndMCEntry entry = fIdealTrackData.GetEntry(iter->first);
+		PrintTrackDataSummary(entry);
 	}
 	std::cout << std::endl;
 }
 
-void PndMCTestPatternRecoQuality::PrintTrackDataSummary(FairMultiLinkedData* trackData)
+void PndMCTestPatternRecoQuality::PrintTrackDataSummary(FairMultiLinkedData& trackData)
 {
 	for (int branchIndex = 0; branchIndex < fBranchNames.size(); branchIndex++){
-		std:: cout << fBranchNames[branchIndex] << " " << trackData->GetLinksWithType(ioman->GetBranchId(fBranchNames[branchIndex])).GetNLinks() << " | ";
+		std:: cout << fBranchNames[branchIndex] << " " << trackData.GetLinksWithType(ioman->GetBranchId(fBranchNames[branchIndex])).GetNLinks() << " | ";
 	}
 	std::cout << std::endl;
 }
