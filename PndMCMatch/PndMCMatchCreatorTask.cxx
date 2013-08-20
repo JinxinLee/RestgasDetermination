@@ -51,7 +51,7 @@ InitStatus PndMCMatchCreatorTask::Init()
 		if (branchName->String().Contains("MCTrack")) continue;
 
 		fMCMatch->InitStage(branchName->GetString().Data());
-		std::cout << "PndMCMatchCreatorTask: BranchNames: " << branchName->GetString().Data() << std::endl;
+		if (fVerbose > 0) std::cout << "PndMCMatchCreatorTask: BranchNames: " << branchName->GetString().Data() << std::endl;
 	}
 
 //  fMCMatch->InitStage("MVDPoint");

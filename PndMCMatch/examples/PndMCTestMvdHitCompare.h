@@ -20,8 +20,6 @@
 #include "PndMCMatch.h"
 #include "PndDetectorList.h"
 
-#include "TH1D.h"
-
 
 #include <vector>
 #include <map>
@@ -33,7 +31,7 @@ class PndMCTestHitCompare : public FairTask
  public:
 
   /** Default constructor **/
-	PndMCTestHitCompare(TString hitBranchName, TString pointBranchName);
+	PndMCTestHitCompare();
 
   /** Destructor **/
   virtual ~PndMCTestHitCompare();
@@ -49,22 +47,13 @@ class PndMCTestHitCompare : public FairTask
 
   virtual void Finish();
 
-  void SetHitBranchName(TString name) {fHitBranchName = name;}
-  void SetPointBranchName(TString name) {fPointBranchName = name;}
-
 
 
  private:
   PndMCMatch* fMCMatch;
-  TClonesArray* fHits;
-  TClonesArray* fMCPoints;
-
-  TString fHitBranchName;
-  TString fPointBranchName;
-
-  TH1D* fHistoDistZ;
-  TH1D* fHistoDistR;
-  TH1D* fHistoDist;
+  TClonesArray* fStripHit;
+  TClonesArray* fPixelHit;
+  TClonesArray* fMCPoint;
 
   void Register();
 
