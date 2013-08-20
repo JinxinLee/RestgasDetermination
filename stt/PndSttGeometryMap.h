@@ -4,13 +4,18 @@
 #include <iostream>
 #include <map>
 #include <vector>
+#include "TVector3.h"
 #include "TObject.h"
 #include "TArrayI.h"
 
 class PndSttTubeParameters;
 class PndSttTube; 
 class PndGeoSttPar;
+class PndSttHit;
 class FairGeoNode;
+
+
+class FairHit;
 
 using std::map;
 using std::vector;
@@ -50,8 +55,10 @@ class PndSttGeometryMap : public TObject
   bool IsAxialRow(int rowindex) const;
   bool IsSkewedRow(int rowindex) const;
 
-  Bool_t FindNeighborings(PndSttTube *tube);
-  TArrayI GetNeighborings(int tubeId);
+  TArrayI FindNeighborings(PndSttTube *tube);
+  TArrayI FindNeighborings(int tubeId);
+
+  Double_t CalculateStrawPoca(PndSttHit* hit1, PndSttHit* hit2, TVector3& poca); //returns smallest distance between two Stt Straws. poca is set to the point between the two straws.
 
   // *********************
 
@@ -64,6 +71,7 @@ class PndSttGeometryMap : public TObject
 
   void GenerateAngles();
   map<int, vector< vector<int> > > fStrawIndex;
+  map<int, TArrayI> fStrawNeighbours;
   vector<int> fSectorOfStraw;
   vector<int> fLayerOfStraw;
   vector<bool> fAxialStraw;
