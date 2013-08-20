@@ -204,8 +204,8 @@ void PndMvdSttGemRiemannTrackFinderTask::Exec(Option_t* opt)
 			  PndRiemannHit correctedSttHit = myRiemannTrack.correctSttHit(mySttHit);
 			  FairHit correctedFairHit;
 			  correctedFairHit.SetXYZ(correctedSttHit.x().X(), correctedSttHit.x().Y(), correctedSttHit.z());
-			  std::cout << "PndMvdSttGemRiemannTrackFinderTask::Exec Correction: " << mySttHit->GetX() << "/" << mySttHit->GetY() << "/" << mySttHit->GetZ()
-					    << " CorrectedHit: " << correctedFairHit.GetX() << "/"<< correctedFairHit.GetY() << "/" << correctedFairHit.GetZ()<< std::endl;
+//			  std::cout << "PndMvdSttGemRiemannTrackFinderTask::Exec Correction: " << mySttHit->GetX() << "/" << mySttHit->GetY() << "/" << mySttHit->GetZ()
+//					    << " CorrectedHit: " << correctedFairHit.GetX() << "/"<< correctedFairHit.GetY() << "/" << correctedFairHit.GetZ()<< std::endl;
 
 //			  Fair1Hit* copyHit = new((*fCorrectedSttHitArray)[fCorrectedSttHitArray->GetEntriesFast()])FairHit(correctedFairHit);
 
