@@ -113,7 +113,6 @@ PndDrc::PndDrc()
     frand(),
     fLastTrackID(-1),
     fCollectionEff(-1),//Collection Efficiency 
-    fPackingFraction(-1),//Packing Efficiency 
  
     fStopTime(kFALSE),
     fPhoMaxTime(-1),
@@ -205,7 +204,6 @@ PndDrc::PndDrc(const char* name, Bool_t active)
     frand(),
     fLastTrackID(-1),
     fCollectionEff(-1),//Collection Efficiency 
-    fPackingFraction(-1),//Packing Efficiency 
  
     fStopTime(kFALSE),
     fPhoMaxTime(-1),
@@ -352,7 +350,6 @@ void PndDrc::Initialize() {
   // create a detector efficiency function:
   if(fDetEffAtProduction == kTRUE){
     fCollectionEff=0.65;//Collection Efficiency 
-    fPackingFraction=0.8;//Packing Efficiency 
    
 // quantum efficiency data from Alex Britting, Jan 25, 2011
 // unit is percent
@@ -877,7 +874,7 @@ void PndDrc::Initialize() {
         else
 	  {
 	    // total detector efficiency
-	    fEfficiencyR[iBin]=fEfficiency[iBin-200]/100.*fCollectionEff*fPackingFraction;
+	    fEfficiencyR[iBin]=fEfficiency[iBin-200]/100.*fCollectionEff;
 	  }
       }   
   

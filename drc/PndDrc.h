@@ -299,8 +299,7 @@ class PndDrc : public FairDetector
   Bool_t     	 fTransportEffAtProduction;
   TRandom3	 frand;
   Int_t          fLastTrackID;
-  Double_t       fCollectionEff;//Collection Efficiency 
-  Double_t       fPackingFraction;//Packing Efficiency 
+  Double_t       fCollectionEff;//Collection Efficiency
  
   Bool_t         fStopTime;
   Double_t       fPhoMaxTime;
