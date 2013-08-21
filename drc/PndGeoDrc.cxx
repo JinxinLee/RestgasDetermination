@@ -45,7 +45,7 @@ PndGeoDrc::PndGeoDrc() {
   // parameters of the EV:
   fEVlength     = 30.;        // [cm] Length of expansion volume
   fEVdrop	= 0; //-(fBoxThick+fBoxGap);   // [cm] drop of the EV - inner radius (used only with prism)
-  fEVoffset	= 0;	      // [cm] offset of the EV - outer radius
+  fEVoffset	= 2;	      // [cm] offset of the EV - outer radius
   fEVangle	= 45.;	      // [degrees] opening angle of the EV
   fEVbackAngle  = 70.;	      // [degrees] angle between the PD surface and the Z axis, default = 90.
   
