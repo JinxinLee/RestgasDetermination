@@ -1097,7 +1097,7 @@ void PndTrkTracking2::Exec(Option_t* opt) {
  if( fMvdAloneTracking ){
 	fnMvdTrackCand = fMvdTrackCandArray->GetEntriesFast();
 	if (fnMvdTrackCand> MAXMVDTRACKSPEREVENT) {
-		cout<<"da PndTrkTracking2  :  N. of MvdTrackCand = "<<
+		cout<<"from PndTrkTracking2  :  N. of MvdTrackCand = "<<
 		fnMvdTrackCand<<" and it is > MAXMVDTRACKSPEREVENT (="<<MAXMVDTRACKSPEREVENT
 		<<"),  therefore it is set to "<<MAXMVDTRACKSPEREVENT<<endl;
 		fnMvdTrackCand= MAXMVDTRACKSPEREVENT;
@@ -1115,10 +1115,10 @@ void PndTrkTracking2::Exec(Option_t* opt) {
 //---------------------------------------------   fetching the STT  MC points
  nSttMCPoint = fSttPointArray->GetEntriesFast();
  if (nSttMCPoint ==0){
-	cout<<"da PndTrkTracking2  :  N. di Stt MC points = 0"<<endl<<endl;
+	cout<<"from PndTrkTracking2  :  N. di Stt MC points = 0"<<endl<<endl;
 //	return;
  } else  if( nSttMCPoint>MAXSTTHITS){
-	cout<<"da PndTrkTracking2  :  N. di Stt MC points = "<<nSttMCPoint
+	cout<<"from PndTrkTracking2  :  N. di Stt MC points = "<<nSttMCPoint
 	<<" and it is > MAXSTTHITS ("<<MAXSTTHITS
 	     <<"), therefore consider only the first "<<MAXSTTHITS<<" hits"<<endl<<endl;
 	nSttHit= MAXSTTHITS;
@@ -1129,17 +1129,17 @@ void PndTrkTracking2::Exec(Option_t* opt) {
 
  nSttHit = fSttHitArray->GetEntriesFast();
  if (nSttHit ==0){
-	if (istampa >= 1) cout<<"da PndTrkTracking2  :  N. di Stt Hits = 0, return!"<<endl<<endl;
+	if (istampa >= 1) cout<<"from PndTrkTracking2  :  N. di Stt Hits = 0, return!"<<endl<<endl;
 	return;
  } else if (nSttHit> MAXSTTHITS) {
-	cout<<"da PndTrkTracking2  :  N. di Stt Hits = "<<nSttHit
+	cout<<"from PndTrkTracking2  :  N. di Stt Hits = "<<nSttHit
 	     <<" and it is > MAXSTTHITS (="<<MAXSTTHITS
 	     <<"), therefore consider only the first "<<MAXSTTHITS<<" hits"<<endl<<endl;
 	nSttHit= MAXSTTHITS;
  }
 
  if (istampa >= 1) {
-	cout<<"da PndTrkTracking2  :  n. totale Hits in STT  : "<<nSttHit<<endl;
+	cout<<"from PndTrkTracking2  :  total # Hits in STT  : "<<nSttHit<<endl;
  }
 
  nSttParHit=0; 
@@ -1230,7 +1230,7 @@ void PndTrkTracking2::Exec(Option_t* opt) {
 	// number SciTil hits/event
 	fnSciTilHits = fSciTHitArray->GetEntriesFast();
 	if(fnSciTilHits>MAXSCITILHITS){
-		cout<<"da PndTrkTracking2  :  N. of SciTil Hits = "<<fnSciTilHits
+		cout<<"from PndTrkTracking2  :  N. of SciTil Hits = "<<fnSciTilHits
 	     <<" and it is > MAXSCITILHITS (="<<MAXSCITILHITS
 	     <<"), therefore consider only the first "<<MAXSCITILHITS <<" hits"<<endl<<endl;
 		fnSciTilHits= MAXSCITILHITS;
@@ -1251,8 +1251,8 @@ void PndTrkTracking2::Exec(Option_t* opt) {
  memset (nHitsInSciTile,0,sizeof(nHitsInSciTile));
 //---
 
- if(istampa>0) cout<<"da PndTrkTracking2, event "<<IVOLTE<<", "<<fnSciTilHits
-		<<" SciTil hits presenti inizialmente."<<endl;
+ if(istampa>0) cout<<"from PndTrkTracking2, event "<<IVOLTE<<", "<<fnSciTilHits
+		<<" SciTil hits present initially."<<endl;
 	for(j=0; j<fnSciTilHits; j++){
 	}
 
@@ -1269,8 +1269,8 @@ void PndTrkTracking2::Exec(Option_t* opt) {
 	// of the (first) SciTil Hit inside the Sci Tile.
 	pPndSciTHit = (PndSciTHit*) fSciTHitArray->At(0);
 	posiz = pPndSciTHit->GetPosition();
-	if(istampa>0)cout<<"da PndTrkTracking2 SciTil n. "<<0<<
-	" non purgato, Xpos "<<
+	if(istampa>0)cout<<"from PndTrkTracking2 SciTil n. "<<0<<
+	" not purged, Xpos "<<
 			posiz.X()<<", Ypos "<<
 			posiz.Y()<<", Zpos "<<posiz.Z()<<endl;
 
@@ -1287,7 +1287,7 @@ void PndTrkTracking2::Exec(Option_t* opt) {
 	for(j=1; j<fnSciTilHits; j++){
 		pPndSciTHit = (PndSciTHit*) fSciTHitArray->At(j);
 		posiz = pPndSciTHit->GetPosition();
-		if(istampa>0)cout<<"da PndTrkTracking2 SciTil n. "<<j<<" non purgato, Xpos "
+		if(istampa>0)cout<<"from PndTrkTracking2 SciTil n. "<<j<<" not purged, Xpos "
 			<<posiz.X()<<", Ypos "<<posiz.Y()<<", Zpos "<<posiz.Z()<<endl;
 
 	// purging the duplicate SciTil hits.
@@ -1327,9 +1327,9 @@ void PndTrkTracking2::Exec(Option_t* opt) {
 
 //-----------stampe.
 if(istampa>0){
-  cout<<"da PndTrkTracking2, dopo purga di SciTil; n. hits = "<<fnSciTilHits<<endl;
+  cout<<"from PndTrkTracking2, after purging  SciTil; # hits = "<<fnSciTilHits<<endl;
   for(j=0; j<fnSciTilHits; j++){
-	cout<<"da PndTrkTracking2 SciTil Xpos "<<fposizSciTil[j][0]<<", Ypos "<<
+	cout<<"from PndTrkTracking2 SciTil Xpos "<<fposizSciTil[j][0]<<", Ypos "<<
 	fposizSciTil[j][1]<<", Zpos "<<fposizSciTil[j][2]<<endl;
   }
 }
@@ -5394,7 +5394,7 @@ if(istampa>=3){cout<<"\tevento n. "<<IVOLTE<<" questi Mvd ALONE US hits passano 
 //-------  end of using the Mvd which are in no Mvd Track Candidate
 
 
-if(istampa>=3 ){cout<<"da PndTrkTracking2 : appena prima arbitration, IVOLTE = "<<
+if(istampa>=3 ){cout<<"from PndTrkTracking2 : appena prima arbitration, IVOLTE = "<<
 IVOLTE<<", Stt track cand = "<<i<<", ngoodmix = "<<ngoodmix<<endl;}
 
 		if( ngoodmix==1){
@@ -5406,13 +5406,13 @@ IVOLTE<<", Stt track cand = "<<i<<", ngoodmix = "<<ngoodmix<<endl;}
 			oldtotal2 = DIST[0];
 			oldN = nHighQuality[0];
 //			oldtotal /= nTotali[0];
-if(istampa>=3 ){cout<<"da PndTrkTracking2 : goodmix n. 0, total distance (che e' = total distance2) = "<<oldtotal
+if(istampa>=3 ){cout<<"from PndTrkTracking2 : goodmix n. 0, total distance (che e' = total distance2) = "<<oldtotal
 				<<", e nHighQuality = "<<nHighQuality[0]<<endl;}
 			chosenmix=0;
 			chosenmix2=0;
 			for(j1=1; j1<ngoodmix;j1++){
 				total = DIST[j1];
-if(istampa>=3){cout<<"da PndTrkTracking2 :\t goodmix n. "<<j1<<", total distance "<<total
+if(istampa>=3){cout<<"from PndTrkTracking2 :\t goodmix n. "<<j1<<", total distance "<<total
 					<<", e nHighQuality = "<<nHighQuality[j1]<<endl;}
 				if(oldN<nHighQuality[j1]){
 					oldN=nHighQuality[j1];
@@ -5430,7 +5430,7 @@ if(istampa>=3){cout<<"da PndTrkTracking2 :\t goodmix n. "<<j1<<", total distance
 			}
 		}	// end of  if( ngoodmix==1)
 //--- end of arbitration
-if(istampa>=3 ){cout<<"da PndTrkTracking2 : fine arbitration, IVOLTE = "<<
+if(istampa>=3 ){cout<<"from PndTrkTracking2 : fine arbitration, IVOLTE = "<<
 IVOLTE<<", Stt track cand = "<<i<<endl;}
 
 
