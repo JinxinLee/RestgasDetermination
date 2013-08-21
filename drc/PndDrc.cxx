@@ -947,6 +947,13 @@ Bool_t PndDrc::ProcessHits(FairVolume* vol) {
       }
     }
     
+  //if the photon goes backward through the lens, stop it  
+  if(fOptionForLUT){
+    if(gMC->IsTrackExiting() == 1 && nam.Contains("LENS")){
+      if(fMom.Z() > 0.) gMC->StopTrack();
+    }
+  } 
+    
     // apply transport efficiency at production stage (Maria Patsyuk 20.04.2012):
     if(fTransportEffAtProduction && fLastTrackID != fTrackID){
       gMC->TrackMomentum(fMom2);
@@ -1116,7 +1123,7 @@ Bool_t PndDrc::ProcessHits(FairVolume* vol) {
 	TString path = gMC->CurrentVolPath();
 	if (fVerboseLevel >1) cout<< "Volume: " << gMC->CurrentVolPath() << endl;
 	sscanf(path, "/cave_1/BarrelDIRC_0/DrcBarBox_%d/DrcAirBox_0/DrcBarSensor_%d", &s, &b);
-	if(s != 0 && s<17) fNBar = s*10 + b;                 
+	if(s != 0 && s < 17) fNBar = s*10 + b;                 
 	Double_t Px= fMom.Px();
 	Double_t Py= fMom.Py();
 	Double_t Pz= fMom.Pz();

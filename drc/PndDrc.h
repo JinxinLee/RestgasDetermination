@@ -120,6 +120,7 @@ class PndDrc : public FairDetector
    ** Initialises detector. Stores volume IDs for DIRC detector and mirror.
    **/
      
+  void SetOptionForLUT(Bool_t oplu=kFALSE){fOptionForLUT = oplu;}
      
   virtual void Initialize();
 
@@ -309,7 +310,8 @@ class PndDrc : public FairDetector
   Bool_t         fTakeRealReflectivity;
   Bool_t	 fStopSecondaries;
   Bool_t  	 fStopChargedTrackAfterDIRC;
-  Bool_t	 fSetBlackLens; 	
+  Bool_t	 fSetBlackLens; 
+  Bool_t 	 fOptionForLUT;	
   
   TArrayI        fProc;
 
