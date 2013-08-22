@@ -1,4 +1,4 @@
-tut_makegifs(TString fn)
+tut_makegifs(TString fn="output_ana.root", TString type="gif")
 {
   TFile *f=new TFile(fn,"READ");
     
@@ -13,10 +13,11 @@ tut_makegifs(TString fn)
   
   while (key = (TKey*)next())
   {
-	TString name(key->GetName());
-	cout <<name<<endl;
-	name+=".gif";
-	TH1* h=(TH1*) key->ReadObj();
+	TObject *obj = key->ReadObj();
+	if (!obj->InheritsFrom("TH1")) continue;
+	TString name=TString(obj->GetName())+"."+type;
+	cout <<"Creating "<<name<<endl;
+	TH1* h=(TH1*) obj;
 	h->Draw();
 	c1->SaveAs(name);
   }
