@@ -73,10 +73,10 @@ void createdirc(Int_t fGeomType = 1, Int_t fFocusingSystem = 6){
     Double_t fdz_lens1		=  0.; 
 
     //parameters for MCPs:
-    Double_t MCPsize 		= 5.76; //[cm] width=height of an MCP
-    Double_t MCPactiveArea	= 5.3; //[cm] width=height of the active area of an MCP
+    Double_t MCPsize 		= fGeo->McpSize();//5.76; //[cm] width=height of an MCP
+    Double_t MCPactiveArea	= fGeo->McpActiveArea();//5.3; //[cm] width=height of the active area of an MCP
     Double_t MCPgap  		= fGeo->McpGap(); //[cm] gap between MCPs
-    Double_t PixelSize 		= 0.65; //[cm] size of a pixel
+    Double_t PixelSize 		= fGeo->PixelSize();//0.65; //[cm] size of a pixel
     Int_t    Npix 		= 8; // number of mcps in a row/column
     const Int_t NpixTotal 	= Npix*Npix; // total number of pixels for 1 mcp
     Double_t PixelGap 		= (MCPactiveArea - Double_t(Npix)*PixelSize)/(Double_t(Npix)-1.);  
@@ -112,7 +112,7 @@ void createdirc(Int_t fGeomType = 1, Int_t fFocusingSystem = 6){
   
     // cout<<"radius = "<<radius<<"rad corner in = "<< radiusCornerIn<<", rad corner out = "<< radiusCornerOut<<endl;     cout<<"pixel gap  = "<< PixelGap<<endl;  
     // cout<<"sob_angle = "<<sob_angle<<endl;
-    // cout<<"sob_Rout = "<<sob_Rout<<endl; 
+     cout<<"sob_Rout = "<<sob_Rout<<endl; 
     // cout<<"bbAngle = "<<bbAngle<<", bbX = "<<bbX<<endl;    
     // cout<<"dphi = "<<dphi<<", phi0 = "<<phi0<<endl;  
     //----------------------------------------------------------
@@ -639,6 +639,7 @@ void createdirc(Int_t fGeomType = 1, Int_t fFocusingSystem = 6){
 
 
   Double_t entransewidth =len+barWin_hthick+EVgreaseLayer ;
+  cout<<"entrance width = "<<entransewidth<<endl;
   double aw = bbox_hlen+entransewidth;
 
   TGeoBBox *lEntranceBox = new TGeoBBox("lEntranceBox", barBoxWidth, barBoxHeight, entransewidth);
@@ -809,8 +810,9 @@ void createdirc(Int_t fGeomType = 1, Int_t fFocusingSystem = 6){
 	  logicEV3->DefineSection(1, sob_len, (radiusMiddleSmall)*cosFactor1,  (radius+hthick+boxgap+boxthick+EVoffset)*cosFactor1);     
 	  logicEV4 = new TGeoPgon("logicEV4", -90 - pipehAngle-0.02, 2*pipehAngle+0.04, 1, 2);
 	  logicEV4->DefineSection(0, 0.,      (radiusMiddleSmall)*cosFactor1,  sob_Rout*cosFactor1);
-	  logicEV4->DefineSection(1, sob_len, (radiusMiddleSmall)*cosFactor1,  (radius+hthick+boxgap+boxthick+EVoffset)*cosFactor1);     
-      
+	  logicEV4->DefineSection(1, sob_len, (radiusMiddleSmall)*cosFactor1,  (radius+hthick+boxgap+boxthick+EVoffset)*cosFactor1);  
+	  
+	 cout<<" Rin1 = "<< radiusMiddleSmall<<", Rin2 = "<<radius+hthick+boxgap+boxthick+EVoffset<<", Rout = "<<       sob_Rout<<endl;	
 	}
 	if(sob_angleB != 90.){  
 	  logicEV1 = new TGeoPgon("logicEV1",  90 + pipehAngle, 180 - 2.*pipehAngle, bbnum/2, 3);
