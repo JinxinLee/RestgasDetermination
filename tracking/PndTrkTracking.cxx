@@ -901,10 +901,6 @@ void PndTrkTracking::Exec(Option_t* opt) {
 		+MAXMVDSTRIPHITSINTRACK+MAXSCITILHITSINTRACK,"ZED");
 //--------------------------------------
 
-
-
-
-
  TVector3
 	ErrMomentum,
 	ErrPosition,
@@ -1061,7 +1057,7 @@ void PndTrkTracking::Exec(Option_t* opt) {
 	cout<<"da PndTrkTracking  :  N. di Stt MC points = "<<nSttMCPoint
 	<<" and it is > MAXSTTHITS ("<<MAXSTTHITS
 	     <<"), therefore consider only the first "<<MAXSTTHITS<<" hits"<<endl<<endl;
-	nSttHit= MAXSTTHITS;
+	nSttMCPoint= MAXSTTHITS;
  }
 
 
