@@ -441,26 +441,6 @@ int istampa = 0;
 		0, // istampa
 		InOut->icounter //  IVOLTE
 			);
-/*
- status = fitLegiandre.FitHelixCylinder(
-		nFitPoints,
-		tXconformal,
-		tYconformal,
-		tDriftRadiusconformal,
-		tErrorDriftRadiusconformal,
-		0.,  //  rotationangle, input;
-		InOut->trajectory_vertex,	//  vertex in (X,Y) of this trajectory
-		InOut->maxhitsinfit,  //  maximum n. of hits allowed in fast fit
-		&m,
-		&q,
-		InOut->ALFA,
-		InOut->BETA,
-		InOut->GAMMA,
-		InOut->TypeConf,
-		0, // istampa
-		InOut->icounter //  IVOLTE
-			);
-*/
 
  if(status < 0  ) return false;
 
@@ -658,7 +638,7 @@ InOut->Fi_initial_helix_referenceframe,KAPPA);
  // if there are new Mvd hits attached, redo the fit;
 
  if( nMvdPixelHitsinTrack + nMvdStripHitsinTrack == 0 ){
- // in this case no Mvd hits were added, return;
+ // in this case no Mvd hits were added, skip and go to the SciTil section;
  	*(InOut->Mvdhits) = false;
 	*(InOut->ALFA)   = -2.* Ox ;
 	*(InOut->BETA)  = -2.* Oy ;
@@ -666,10 +646,9 @@ InOut->Fi_initial_helix_referenceframe,KAPPA);
  }
 
  // in this case new Mvd hits were added;
+ else {
 
-
-
- if( *(InOut->Mvdhits) ){
+   *(InOut->Mvdhits) = true;
 
  // fit again in XY projection, this time with the Chi2 fit;
  // redo the Xconformal and Yconformal arrays since the
@@ -834,8 +813,9 @@ InOut->Fi_initial_helix_referenceframe,KAPPA);
    }  // end of  if(status> 0 )
 
 
- }  // end of if  ( *(InOut->Mvdhits) )
+// }  // end of if  ( *(InOut->Mvdhits) )
 
+ }  // end of if( nMvdPixelHitsinTrack + nMvdStripHitsinTrack == 0 )
 
 //---------------------------
 
