@@ -34,7 +34,6 @@ void tut_ana_pid(int nevts=0)
 	TString inParFile = "simparams.root";
 	
 	gStyle->SetOptFit(1011);
-	gROOT->Macro("$VMCWORKDIR/gconfig/rootlogon.C");
 	
 	FairLogger::GetLogger()->SetLogToFile(kFALSE);
 	

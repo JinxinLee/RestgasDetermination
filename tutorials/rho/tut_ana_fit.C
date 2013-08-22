@@ -17,7 +17,6 @@ void tut_ana_fit(int nevts=0)
 	TString inParFile = "simparams.root";
 	
 	gStyle->SetOptFit(1011);
-	gROOT->Macro("$VMCWORKDIR/gconfig/rootlogon.C");
 	
 	FairLogger::GetLogger()->SetLogToFile(kFALSE);
 	
@@ -48,6 +47,10 @@ void tut_ana_fit(int nevts=0)
 	TH1F *hjpsi_chi2_vf  = new TH1F("hjpsi_chi2_vf", "J/#psi: #chi^{2} vertex fit",100,0,10);
 	TH1F *hpsi_chi2_4c   = new TH1F("hpsi_chi2_4c",  "#psi(2S): #chi^{2} 4C fit",100,0,250);
 	TH1F *hjpsi_chi2_mf  = new TH1F("hjpsi_chi2_mf", "J/#psi: #chi^{2} mass fit",100,0,10);
+
+	TH1F *hjpsi_prob_vf  = new TH1F("hjpsi_prob_vf", "J/#psi: Prob vertex fit",100,0,1);
+	TH1F *hpsi_prob_4c   = new TH1F("hpsi_prob_4c",  "#psi(2S): Prob 4C fit",100,0,1);
+	TH1F *hjpsi_prob_mf  = new TH1F("hjpsi_prob_mf", "J/#psi: Prob mass fit",100,0,1);
 	
 	TH2F *hvpos = new TH2F("hvpos","(x,y) projection of fitted decay vertex",100,-2,2,100,-2,2);
 	
@@ -64,7 +67,8 @@ void tut_ana_fit(int nevts=0)
 	RhoCandList muplus, muminus, piplus, piminus, jpsi, psi2s;
 	
 	// *** Mass selector for the jpsi cands
-	RhoMassParticleSelector *jpsiMassSel=new RhoMassParticleSelector("jpsi",3.096,1.0);
+	double m0_jpsi = TDatabasePDG::Instance()->GetParticle("J/psi")->Mass();   // Get nominal PDG mass of the J/psi
+	RhoMassParticleSelector *jpsiMassSel=new RhoMassParticleSelector("jpsi",m0_jpsi,1.0);
 	
 	// *** the lorentz vector of the initial psi(2S), needed by 4C fitter
 	TLorentzVector ini(0, 0, 6.231552, 7.240065);
@@ -95,10 +99,12 @@ void tut_ana_fit(int nevts=0)
 			PndKinVtxFitter vtxfitter(jpsi[j]);	// instantiate a vertex fitter
 			vtxfitter.Fit();
 			
-			double chi2_vtx=vtxfitter.GetChi2();	// access chi2 of fit
+			double chi2_vtx = vtxfitter.GetChi2();	// access chi2 of fit
+			double prob_vtx = vtxfitter.GetProb();	// access probability of fit
 			hjpsi_chi2_vf->Fill(chi2_vtx);
+			hjpsi_prob_vf->Fill(prob_vtx);			
 			
-			if (chi2_vtx<1)				// when good enough, fill some histos
+			if ( prob_vtx > 0.01 )				// when good enough, fill some histos
 			{
 				RhoCandidate *jfit = jpsi[j]->GetFit();	// access the fitted cand
 				TVector3 jVtx=jfit->Pos();		// and the decay vertex position
@@ -121,13 +127,16 @@ void tut_ana_fit(int nevts=0)
 		{
 			hpsim_all->Fill(psi2s[j]->M());		// fill histo for all psi(2S) candidates
 			
-			Pnd4CFitter fitter(psi2s[j],ini);	// instantiate the 4C fitter in psi(2S)
-			fitter.FitConserveMasses();		// do fit, conserving masses of final state particles
+			PndKinFitter fitter(psi2s[j]);	// instantiate the kin fitter in psi(2S)
+			fitter.Add4MomConstraint(ini);	// set 4 constraint
+			fitter.Fit();		            // do fit
 			
-			double chi2_4c=fitter.GetChi2();	// get chi2 of fit
+			double chi2_4c = fitter.GetChi2();	// get chi2 of fit
+			double prob_4c = fitter.GetProb();	// access probability of fit
 			hpsi_chi2_4c->Fill(chi2_4c);
+			hpsi_prob_4c->Fill(prob_4c);			
 			
-			if (chi2_4c<40)			// when good enough, fill some histo
+			if ( prob_4c > 0.01 )			// when good enough, fill some histo
 			{
 				RhoCandidate *jfit = psi2s[j]->Daughter(0)->GetFit();	// get fitted J/psi
 				
@@ -141,13 +150,15 @@ void tut_ana_fit(int nevts=0)
 		for (j=0;j<jpsi.GetLength();++j) 
 		{
 			PndKinFitter mfitter(jpsi[j]);		// instantiate the PndKinFitter in psi(2S)
-			mfitter.AddMassConstraint(3.0965);	// add the mass constraint
+			mfitter.AddMassConstraint(m0_jpsi);	// add the mass constraint
 			mfitter.Fit();				// do fit
 			
 			double chi2_m = mfitter.GetChi2();	// get chi2 of fit
+			double prob_m = mfitter.GetProb();	// access probability of fit
 			hjpsi_chi2_mf->Fill(chi2_m);
+			hjpsi_prob_mf->Fill(prob_m);			
 			
-			if (chi2_m<1)				// when good enough, fill some histo
+			if ( prob_m > 0.01 )				// when good enough, fill some histo
 			{
 				RhoCandidate *jfit = jpsi[j]->GetFit();	// access the fitted cand
 				hjpsim_mcf->Fill(jfit->M());

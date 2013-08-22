@@ -119,6 +119,10 @@ InitStatus PndTutAnaTask::Init()
 	hjpsi_chi2_vf  = new TH1F("hjpsi_chi2_vf", "J/#psi: #chi^{2} vertex fit",100,0,10);
 	hpsi_chi2_4c   = new TH1F("hpsi_chi2_4c",  "#psi(2S): #chi^{2} 4C fit",100,0,250);
 	hjpsi_chi2_mf  = new TH1F("hjpsi_chi2_mf", "J/#psi: #chi^{2} mass fit",100,0,10);
+
+	hjpsi_prob_vf  = new TH1F("hjpsi_prob_vf", "J/#psi: Prob vertex fit",100,0,1);
+	hpsi_prob_4c   = new TH1F("hpsi_prob_4c",  "#psi(2S): Prob 4C fit",100,0,1);
+	hjpsi_prob_mf  = new TH1F("hjpsi_prob_mf", "J/#psi: Prob mass fit",100,0,1);
 	
 	hvpos = new TH2F("hvpos","(x,y) projection of fitted decay vertex",100,-2,2,100,-2,2);
 	
@@ -192,10 +196,12 @@ void PndTutAnaTask::Exec(Option_t* opt)
 		PndKinVtxFitter vtxfitter(jpsi[j]);	// instantiate a vertex fitter
 		vtxfitter.Fit();
 		
-		double chi2_vtx=vtxfitter.GetChi2();	// access chi2 of fit
+		double chi2_vtx = vtxfitter.GetChi2();	// access chi2 of fit
+		double prob_vtx = vtxfitter.GetProb();	// access probability of fit
 		hjpsi_chi2_vf->Fill(chi2_vtx);
-		
-		if (chi2_vtx<1)				// when good enough, fill some histos
+		hjpsi_prob_vf->Fill(prob_vtx);			
+			
+		if ( prob_vtx > 0.01 )				// when good enough, fill some histos
 		{
 			RhoCandidate *jfit = jpsi[j]->GetFit();	// access the fitted cand
 			TVector3 jVtx=jfit->Pos();		// and the decay vertex position
@@ -234,13 +240,16 @@ void PndTutAnaTask::Exec(Option_t* opt)
 	// ***
 	for (j=0;j<psi2s.GetLength();++j) 
 	{
-		Pnd4CFitter fitter(psi2s[j],fIni);	// instantiate the 4C fitter in psi(2S)
-		fitter.FitConserveMasses();		// do fit, conserving masses of final state particles
-		
-		double chi2_4c=fitter.GetChi2();	// get chi2 of fit
+		PndKinFitter fitter(psi2s[j]);	// instantiate the kin fitter in psi(2S)
+		fitter.Add4MomConstraint(fIni);	// set 4 constraint
+		fitter.Fit();		            // do fit
+			
+		double chi2_4c = fitter.GetChi2();	// get chi2 of fit
+		double prob_4c = fitter.GetProb();	// access probability of fit
 		hpsi_chi2_4c->Fill(chi2_4c);
-		
-		if (chi2_4c<40)			// when good enough, fill some histo
+		hpsi_prob_4c->Fill(prob_4c);			
+			
+		if ( prob_4c > 0.01 )			// when good enough, fill some histo
 		{
 			RhoCandidate *jfit = psi2s[j]->Daughter(0)->GetFit();	// get fitted J/psi
 			
@@ -259,9 +268,11 @@ void PndTutAnaTask::Exec(Option_t* opt)
 		mfitter.Fit();				// do fit
 		
 		double chi2_m = mfitter.GetChi2();	// get chi2 of fit
+		double prob_m = mfitter.GetProb();	// access probability of fit
 		hjpsi_chi2_mf->Fill(chi2_m);
-		
-		if (chi2_m<1)				// when good enough, fill some histo
+		hjpsi_prob_mf->Fill(prob_m);			
+			
+		if ( prob_m > 0.01 )				// when good enough, fill some histo
 		{
 			RhoCandidate *jfit = jpsi[j]->GetFit();	// access the fitted cand
 			hjpsim_mcf->Fill(jfit->M());
@@ -352,6 +363,10 @@ void PndTutAnaTask::Finish()
 	hjpsi_chi2_vf->Write();
 	hpsi_chi2_4c->Write();
 	hjpsi_chi2_mf->Write();
+			
+	hjpsi_prob_vf->Write();
+	hpsi_prob_4c->Write();
+	hjpsi_prob_mf->Write();
 			
 	hvpos->Write();
 		

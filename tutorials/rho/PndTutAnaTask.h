@@ -81,6 +81,10 @@ class PndTutAnaTask : public FairTask
 	TH1F *hpsi_chi2_4c;
 	TH1F *hjpsi_chi2_mf;
 	
+	TH1F *hjpsi_prob_vf;
+	TH1F *hpsi_prob_4c;
+	TH1F *hjpsi_prob_mf;
+	
 	TH2F *hvpos;
 	
 	// *** the initial 4-vector
