@@ -34,8 +34,7 @@ class  PndGeoDrc : public FairGeoSet {
   
   double fEVlength;			    //!< Length of Expansion Volume [cm].
   double fEVdrop;	      		    //!< [cm] drop of the EV - inner radius
-  double fEVoffset;	                    //!< [cm] offset of the EV - outer radius
-  double fEVangle;			    //!< [degrees] EV opening angle
+  double fEVoffset;	                    //!< [cm] offset of the EV - outer radius  
   double fEVbackAngle;			    //!< [degrees] angle btw PDplane and global Z axis
   
   // prism parameters:
@@ -141,9 +140,6 @@ class  PndGeoDrc : public FairGeoSet {
   
   /*! The offset of the Expansion Volume [cm]. */
   Double_t  EVoffset() {return fEVoffset;}
-  
-  /*! The opening angle of the EV [degrees]. */
-  Double_t  EVangle() {return fEVangle;}
   
   /*! The angle between the PDplane and global Z axis [degrees]. */
   Double_t  EVbackAngle() {return fEVbackAngle;}

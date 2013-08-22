@@ -45,8 +45,7 @@ PndGeoDrc::PndGeoDrc() {
   // parameters of the EV:
   fEVlength     = 30.;        // [cm] Length of expansion volume
   fEVdrop	= 0; //-(fBoxThick+fBoxGap);   // [cm] drop of the EV - inner radius (used only with prism)
-  fEVoffset	= 2;	      // [cm] offset of the EV - outer radius
-  fEVangle	= 45.;	      // [degrees] opening angle of the EV
+  fEVoffset	= 0;	      // [cm] offset of the EV - outer radius  
   fEVbackAngle  = 70.;	      // [degrees] angle between the PD surface and the Z axis, default = 90.
   
   // prism parameters:
@@ -56,7 +55,7 @@ PndGeoDrc::PndGeoDrc() {
   fPOffset	=  1.;	      // [cm] offset of the prism - outer side 
   
   // MCP parameters:
-  fMCPsize	= 5.78;	      // [cm] for geometry Mcp2 and Mcp1, = 5.78 for geometry Mcp2a
+  fMCPsize	= 5.76;	      // [cm] for geometry Mcp2 and Mcp1, = 5.78 for geometry Mcp2a
   fMCPactiveArea= 5.3;	      // [cm] 
   fMCPgap	= 0.01;       // [cm] gap between MCPs
   fNpix		= 8;	      // [cm] number of pixel in one column/row for one MCP (8 x 8)
