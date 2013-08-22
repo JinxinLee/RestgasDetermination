@@ -38,7 +38,7 @@ PndEmcPoint::PndEmcPoint(Int_t trackID, Int_t detID, Int_t evtID, TVector3 pos,
 // -----   Copy constructor   ------------------------------------------
 PndEmcPoint::PndEmcPoint(const PndEmcPoint& point)
   :FairMCPoint(point.fTrackID, point.fDetectorID, TVector3(point.fX, point.fY, point.fZ), TVector3(point.fPx, point.fPy, point.fPz), 
-	       point.fTime, point.fLength, point.fELoss),
+	       point.fTime, point.fLength, point.fELoss, point.fEventId),
    nModule(point.nModule), nRow(point.nRow), nCrystal(point.nCrystal), nCopy(point.nCopy)
 
 { 
