@@ -300,112 +300,112 @@ void PndLmdGeaneTask::Exec(Option_t* opt)
       ///Propagate to the PCA (a space point) in 7 steps ---------------------------------
       //Comment: seems back propagation in one step (for 11 m) is too much
       //try smoothing it by small steps, which follow mag.field
-      //  const int nstep=7;
-      //  double zbend[nstep]={661, 660.5, 660., 659, 319, 316, 220};//entarance and exit mag.field
-      // //TEST for backward and forward propagation: more steps!
-      // //      const int nstep=50;
-      //  // double zbend[nstep];
-      // // const double z0=fFittedTrkP.GetZ();
-      // // const double z1=1;
-      // // const double zstep=(z0-z1)/nstep;
-      // // for(int js=0;js<nstep;js++){
-      // // 	zbend[js]=z0-zstep*js;
-      // // }
+       const int nstep=7;
+       double zbend[nstep]={661, 660.5, 660., 659, 319, 316, 220};//entarance and exit mag.field
+      //TEST for backward and forward propagation: more steps!
+      //      const int nstep=50;
+       // double zbend[nstep];
+      // const double z0=fFittedTrkP.GetZ();
+      // const double z1=1;
+      // const double zstep=(z0-z1)/nstep;
+      // for(int js=0;js<nstep;js++){
+      // 	zbend[js]=z0-zstep*js;
+      // }
 
-      const int nstep0=10;
-      //      double zbend0[nstep0]={fFittedTrkP.GetZ(), 661, 660.5, 660., 659, 319, 316, 220,10};//entarance and exit mag.field
-      double zbend0[nstep0]={fFittedTrkP.GetZ(), 660, 602, 450, 342, 283, 248, 180, 100, 1};//entarance and exit mag.field
-       //      TEST for backward and forward propagation: more steps!
-      const int nintstep = 100;
-      const int nstep=nstep0*nintstep;
-      double zbend[nstep];
-       for(int is=1;is<=nstep0;is++){
-	 const double z0=zbend0[is-1];
-	 const double z1=zbend0[is];
-	 const double zstep=(z0-z1)/nintstep;
-	 //	 cout<<"is = "<<is<<": z0 = "<<z0<<" z1 = "<<z1<<" zstep = "<<zstep<<endl;
-	 for(int js=0;js<nintstep;js++){
-	   int curint = (is-1)*nintstep+js;
-	   zbend[curint]=z0-zstep*js;
-	   //   cout<<"zbend["<<curint<<"]="<<zbend[curint]<<endl;
-	 }
-       }
+ //      const int nstep0=10;
+ //      //      double zbend0[nstep0]={fFittedTrkP.GetZ(), 661, 660.5, 660., 659, 319, 316, 220,10};//entarance and exit mag.field
+ //      double zbend0[nstep0]={fFittedTrkP.GetZ(), 660, 602, 450, 342, 283, 248, 180, 100, 1};//entarance and exit mag.field
+ //       //      TEST for backward and forward propagation: more steps!
+ //      const int nintstep = 100;
+ //      const int nstep=nstep0*nintstep;
+ //      double zbend[nstep];
+ //       for(int is=1;is<=nstep0;is++){
+ // 	 const double z0=zbend0[is-1];
+ // 	 const double z1=zbend0[is];
+ // 	 const double zstep=(z0-z1)/nintstep;
+ // 	 //	 cout<<"is = "<<is<<": z0 = "<<z0<<" z1 = "<<z1<<" zstep = "<<zstep<<endl;
+ // 	 for(int js=0;js<nintstep;js++){
+ // 	   int curint = (is-1)*nintstep+js;
+ // 	   zbend[curint]=z0-zstep*js;
+ // 	   //   cout<<"zbend["<<curint<<"]="<<zbend[curint]<<endl;
+ // 	 }
+ //       }
  vector<double> vxmc(nstep),vymc(nstep),vxmc_err(nstep),vymc_err(nstep),vzmc(nstep),vthetamc(nstep),vphimc(nstep),vpmc(nstep),vvmc(nstep),vwmc(nstep),vtvmc(nstep),vtwmc(nstep),vvmc_err(nstep),vwmc_err(nstep),vtvmc_err(nstep),vtwmc_err(nstep);
       FairTrackParP *fStartMC = new FairTrackParP();
        if(fVerbose>2){
-	 cout<<"------------------------------------------"<<endl;      
-	 cout<<"StartPos:"<<endl;
-	 StartPos.Print();
-	 cout<<"StartPosErr:"<<endl;
-	 StartPosErr.Print();
+ 	 cout<<"------------------------------------------"<<endl;      
+ 	 cout<<"StartPos:"<<endl;
+ 	 StartPos.Print();
+ 	 cout<<"StartPosErr:"<<endl;
+ 	 StartPosErr.Print();
 
-	 cout<<"StartMom: "<<StartMom.Mag()<<endl;
-	 StartMom.Print();
-	 cout<<"StartMomErr: "<<StartMomErr.Mag()<<endl;
-	 StartMomErr.Print();     
-	 cout<<""<<endl;
+ 	 cout<<"StartMom: "<<StartMom.Mag()<<endl;
+ 	 StartMom.Print();
+ 	 cout<<"StartMomErr: "<<StartMomErr.Mag()<<endl;
+ 	 StartMomErr.Print();     
+ 	 cout<<""<<endl;
 
-	 if(fVerbose>5 &&  (fTracks->GetEntries()==fMCTracks->GetEntries())){ //check results for MC track propagation to LMD plane
-	   FairTrackParP *fStartPst = new FairTrackParP(fFittedTrkP);
-	   TVector3 istLMD(fStartPst->GetIVer());
-	   TVector3 jstLMD(fStartPst->GetJVer());
-	   TVector3 kstLMD(fStartPst->GetKVer());
-	   //	   cout<<"i,j,k of LMD trk:"<<endl;
-	   //	   istLMD+=StartPos;
-	   istLMD=StartPos;
-	   // istLMD.Print();
-	   // jstLMD.Print();
-	   // kstLMD.Print();
-	  TVector3 ocMC(0,0,0); //define plane perpendicular to z-axis in IP
-	  TVector3 djMC(1.,0.,0.);
-	  TVector3 dkMC(0.,1.,0.);
-	  djMC.SetMag(1);
-	  dkMC.SetMag(1);
+ 	 if(fVerbose>5 &&  (fTracks->GetEntries()==fMCTracks->GetEntries())){ //check results for MC track propagation to LMD plane
+ 	   FairTrackParP *fStartPst = new FairTrackParP(fFittedTrkP);
+ 	   TVector3 istLMD(fStartPst->GetIVer());
+ 	   TVector3 jstLMD(fStartPst->GetJVer());
+ 	   TVector3 kstLMD(fStartPst->GetKVer());
+ 	   //	   cout<<"i,j,k of LMD trk:"<<endl;
+ 	   //	   istLMD+=StartPos;
+ 	   istLMD=StartPos;
+ 	   // istLMD.Print();
+ 	   // jstLMD.Print();
+ 	   // kstLMD.Print();
+ 	  TVector3 ocMC(0,0,0); //define plane perpendicular to z-axis in IP
+ 	  TVector3 djMC(1.,0.,0.);
+ 	  TVector3 dkMC(0.,1.,0.);
+ 	  djMC.SetMag(1);
+ 	  dkMC.SetMag(1);
 
 	  
-	   PndMCTrack* mctrk = (PndMCTrack*)(fMCTracks->At(i));
-	   TVector3 MomMC = mctrk->GetMomentum();
-	   TVector3 PosMC = mctrk->GetStartVertex();
-	   TVector3 MomMCerr(0.,0.,0.);
-	   TVector3 PosMCerr(0.,0.,0.);
-	   if(PosMC.Z()>0){
-	     cout<<"!!! Achtung: "<<PosMC.Z()<<endl;
-	     break;
-	   }
+ 	   PndMCTrack* mctrk = (PndMCTrack*)(fMCTracks->At(i));
+ 	   TVector3 MomMC = mctrk->GetMomentum();
+ 	   TVector3 PosMC = mctrk->GetStartVertex();
+ 	   TVector3 MomMCerr(0.,0.,0.);
+ 	   TVector3 PosMCerr(0.,0.,0.);
+ 	   if(PosMC.Z()>0){
+ 	     cout<<"!!! Achtung: "<<PosMC.Z()<<endl;
+ 	     break;
+ 	   }
 
-	   fStartMC = new FairTrackParP(PosMC, MomMC, PosMCerr, MomMCerr, fCharge,ocMC,djMC,dkMC);
-	   for(int sj=nstep-1;sj>-1;sj--){
-	     //   cout<<"MC forward: to z="<<zbend[sj]<<endl;
-	     bool isPropMC;
-	     FairTrackParP *fResMC = PropToPlane(fStartMC,zbend[sj],+1,isPropMC);//forward propagation
-	     if(isPropMC){
-	       delete fStartMC;
-	       fStartMC=fResMC;
-	       vxmc[sj]= fResMC->GetX();
-	       vxmc_err[sj] = fResMC->GetDX();
-	       vymc_err[sj] = fResMC->GetDY();
-	       vymc[sj]= fResMC->GetY();
-	       vzmc[sj]= fResMC->GetZ();
-	       TVector3 finDirMC(fResMC->GetPx(),fResMC->GetPy(),fResMC->GetPz());
-	       vpmc[sj]= finDirMC.Mag();
-	       vthetamc[sj]= finDirMC.Theta();
-	       vphimc[sj]= finDirMC.Phi();
+ 	   fStartMC = new FairTrackParP(PosMC, MomMC, PosMCerr, MomMCerr, fCharge,ocMC,djMC,dkMC);
+ 	   for(int sj=nstep-1;sj>-1;sj--){
+ 	     //   cout<<"MC forward: to z="<<zbend[sj]<<endl;
+ 	     bool isPropMC;
+ 	     FairTrackParP *fResMC = PropToPlane(fStartMC,zbend[sj],+1,isPropMC);//forward propagation
+ 	     if(isPropMC){
+ 	       delete fStartMC;
+ 	       fStartMC=fResMC;
+ 	       vxmc[sj]= fResMC->GetX();
+ 	       vxmc_err[sj] = fResMC->GetDX();
+ 	       vymc_err[sj] = fResMC->GetDY();
+ 	       vymc[sj]= fResMC->GetY();
+ 	       vzmc[sj]= fResMC->GetZ();
+ 	       TVector3 finDirMC(fResMC->GetPx(),fResMC->GetPy(),fResMC->GetPz());
+ 	       vpmc[sj]= finDirMC.Mag();
+ 	       vthetamc[sj]= finDirMC.Theta();
+ 	       vphimc[sj]= finDirMC.Phi();
 
-	       vvmc[sj] = fResMC->GetV();
-	       vwmc[sj] = fResMC->GetW();
-	       vtvmc[sj] = fResMC->GetTV();
-	       vtwmc[sj] = fResMC->GetTW();
-	       vvmc_err[sj] = fResMC->GetDV();
-	       vwmc_err[sj] = fResMC->GetDW();
-	       vtvmc_err[sj] = fResMC->GetDTV();
-	       vtwmc_err[sj] = fResMC->GetDTW();
-	       //   cout<<"Next step;)"<<endl;
-	     }
-	     else break;
-	   }
-	 }
+ 	       vvmc[sj] = fResMC->GetV();
+ 	       vwmc[sj] = fResMC->GetW();
+ 	       vtvmc[sj] = fResMC->GetTV();
+ 	       vtwmc[sj] = fResMC->GetTW();
+ 	       vvmc_err[sj] = fResMC->GetDV();
+ 	       vwmc_err[sj] = fResMC->GetDW();
+ 	       vtvmc_err[sj] = fResMC->GetDTV();
+ 	       vtwmc_err[sj] = fResMC->GetDTW();
+ 	       //   cout<<"Next step;)"<<endl;
+ 	     }
+ 	     else break;
+ 	   }
+ 	 }
        }
-       if(abs(fStartMC->GetZ()-fFittedTrkP.GetZ())>10) break;//MC particle wasn't propagated to LMD plane ????
+       if(abs(fStartMC->GetZ()-fFittedTrkP.GetZ())>10 && fVerbose>5) break;//MC particle wasn't propagated to LMD plane ????
       TClonesArray& clref1 = *fTrackParIni;
       Int_t size1 = clref1.GetEntriesFast();
 
@@ -413,96 +413,96 @@ void PndLmdGeaneTask::Exec(Option_t* opt)
       FairTrackParP *fStartPst = new FairTrackParP(fFittedTrkP);//REC
       FairTrackParP *fStartPstMCLMD= new FairTrackParP(*fStartMCLMD);//MC in LMD, should be treated as REC
       for(int js=1;js<nstep;js++){
-	//	cout<<"step#"<<js<<endl;
-	bool isProp;
-	//	cout<<"REC backward "<<endl;
-	FairTrackParP*  fResPst  = PropToPlane(fStartPst,zbend[js],-1,isProp);//back propagation
-	if(isProp){
-	  delete fStartPst;
-	  fStartPst = fResPst;
-	  if(fVerbose>5){
-	    bool isPropMClmd;
-	    FairTrackParP*  fResPstMCLMD  = PropToPlane(fStartPstMCLMD,zbend[js],-1,isPropMClmd);//back propagation
-	    if(isPropMClmd){
+ 	//	cout<<"step#"<<js<<endl;
+ 	bool isProp;
+ 	//	cout<<"REC backward "<<endl;
+ 	FairTrackParP*  fResPst  = PropToPlane(fStartPst,zbend[js],-1,isProp);//back propagation
+ 	if(isProp){
+ 	  delete fStartPst;
+ 	  fStartPst = fResPst;
+ 	  if(fVerbose>5){
+ 	    bool isPropMClmd;
+ 	    FairTrackParP*  fResPstMCLMD  = PropToPlane(fStartPstMCLMD,zbend[js],-1,isPropMClmd);//back propagation
+ 	    if(isPropMClmd){
 
-	      TVector3 finPosMCLMD(fResPstMCLMD->GetX(),fResPstMCLMD->GetY(),fResPstMCLMD->GetZ());
-	      TVector3 finDirMCLMD(fResPstMCLMD->GetPx(),fResPstMCLMD->GetPy(),fResPstMCLMD->GetPz());
+ 	      TVector3 finPosMCLMD(fResPstMCLMD->GetX(),fResPstMCLMD->GetY(),fResPstMCLMD->GetZ());
+ 	      TVector3 finDirMCLMD(fResPstMCLMD->GetPx(),fResPstMCLMD->GetPy(),fResPstMCLMD->GetPz());
 
-	      TVector3 finPos(fResPst->GetX(),fResPst->GetY(),fResPst->GetZ());
-	      TVector3 finDir(fResPst->GetPx(),fResPst->GetPy(),fResPst->GetPz());
+ 	      TVector3 finPos(fResPst->GetX(),fResPst->GetY(),fResPst->GetZ());
+ 	      TVector3 finDir(fResPst->GetPx(),fResPst->GetPy(),fResPst->GetPz());
 
-	      //     double pnt[3]={finPosMC.X(),finPosMC.Y(),finPosMC.Z()}; //Position where to get field strength
-	      double pnt[3]={vxmc[js],vymc[js],vzmc[js]};
-	      double Bf[3]; //result goes here
-	      // retrieve the field from the framework
-	      pndField->Field(pnt, Bf);  //[kGs]
-	      fbx = Bf[0];
-	      fby = Bf[1];
-	      fbz = Bf[2];
-	      fxrec = finPos.X();
-	      fyrec = finPos.Y();
-	      fxrec_err = fResPst->GetDX();
-	      fyrec_err = fResPst->GetDY();
-	      fzrec = finPos.Z();
-	      fprec = finDir.Mag();
-	      fthetarec = finDir.Theta();
-	      fphirec = finDir.Phi();
-	      fxmc = vxmc[js];
-	      fymc = vymc[js];
-	      fzmc = vzmc[js];
-	      fxmc_err = vxmc_err[js];
-	      fymc_err = vymc_err[js];
-	      fpmc = vpmc[js];
-	      fthetamc = vthetamc[js];
-	      fphimc = vphimc[js];
+ 	      //     double pnt[3]={finPosMC.X(),finPosMC.Y(),finPosMC.Z()}; //Position where to get field strength
+ 	      double pnt[3]={vxmc[js],vymc[js],vzmc[js]};
+ 	      double Bf[3]; //result goes here
+ 	      // retrieve the field from the framework
+ 	      pndField->Field(pnt, Bf);  //[kGs]
+ 	      fbx = Bf[0];
+ 	      fby = Bf[1];
+ 	      fbz = Bf[2];
+ 	      fxrec = finPos.X();
+ 	      fyrec = finPos.Y();
+ 	      fxrec_err = fResPst->GetDX();
+ 	      fyrec_err = fResPst->GetDY();
+ 	      fzrec = finPos.Z();
+ 	      fprec = finDir.Mag();
+ 	      fthetarec = finDir.Theta();
+ 	      fphirec = finDir.Phi();
+ 	      fxmc = vxmc[js];
+ 	      fymc = vymc[js];
+ 	      fzmc = vzmc[js];
+ 	      fxmc_err = vxmc_err[js];
+ 	      fymc_err = vymc_err[js];
+ 	      fpmc = vpmc[js];
+ 	      fthetamc = vthetamc[js];
+ 	      fphimc = vphimc[js];
 	    
 
-	      fxmclmd = finPosMCLMD.X();
-	      fymclmd = finPosMCLMD.Y();
-	      fxmclmd_err = fResPstMCLMD->GetDX();
-	      fymclmd_err = fResPstMCLMD->GetDY();
-	      fzmclmd = finPosMCLMD.Z();
-	      fpmclmd = finDirMCLMD.Mag();
-	      fthetamclmd = finDirMCLMD.Theta();
-	      fphimclmd = finDirMCLMD.Phi();
+ 	      fxmclmd = finPosMCLMD.X();
+ 	      fymclmd = finPosMCLMD.Y();
+ 	      fxmclmd_err = fResPstMCLMD->GetDX();
+ 	      fymclmd_err = fResPstMCLMD->GetDY();
+ 	      fzmclmd = finPosMCLMD.Z();
+ 	      fpmclmd = finDirMCLMD.Mag();
+ 	      fthetamclmd = finDirMCLMD.Theta();
+ 	      fphimclmd = finDirMCLMD.Phi();
 
-	      fvmc = vvmc[js];
-	      fwmc = vwmc[js];
-	      ftvmc = vtvmc[js];
-	      ftwmc = vtwmc[js];
-	      fvmc_err = vvmc_err[js];
-	      fwmc_err = vwmc_err[js];
-	      ftvmc_err = vtvmc_err[js];
-	      ftwmc_err = vtwmc_err[js];
+ 	      fvmc = vvmc[js];
+ 	      fwmc = vwmc[js];
+ 	      ftvmc = vtvmc[js];
+ 	      ftwmc = vtwmc[js];
+ 	      fvmc_err = vvmc_err[js];
+ 	      fwmc_err = vwmc_err[js];
+ 	      ftvmc_err = vtvmc_err[js];
+ 	      ftwmc_err = vtwmc_err[js];
 
-	      fvrec = fResPst->GetV();
-	      fwrec = fResPst->GetW();
-	      ftvrec = fResPst->GetTV();
-	      ftwrec = fResPst->GetTW();
-	      fvrec_err = fResPst->GetDV();
-	      fwrec_err = fResPst->GetDW();
-	      ftvrec_err = fResPst->GetDTV();
-	      ftwrec_err = fResPst->GetDTW();
+ 	      fvrec = fResPst->GetV();
+ 	      fwrec = fResPst->GetW();
+ 	      ftvrec = fResPst->GetTV();
+ 	      ftwrec = fResPst->GetTW();
+ 	      fvrec_err = fResPst->GetDV();
+ 	      fwrec_err = fResPst->GetDW();
+ 	      ftvrec_err = fResPst->GetDTV();
+ 	      ftwrec_err = fResPst->GetDTW();
 
-	      fvmclmd = fResPstMCLMD->GetV();
-	      fwmclmd = fResPstMCLMD->GetW();
-	      ftvmclmd = fResPstMCLMD->GetTV();
-	      ftwmclmd = fResPstMCLMD->GetTW();
-	      fvmclmd_err = fResPstMCLMD->GetDV();
-	      fwmclmd_err = fResPstMCLMD->GetDW();
-	      ftvmclmd_err = fResPstMCLMD->GetDTV();
-	      ftwmclmd_err = fResPstMCLMD->GetDTW();
+ 	      fvmclmd = fResPstMCLMD->GetV();
+ 	      fwmclmd = fResPstMCLMD->GetW();
+ 	      ftvmclmd = fResPstMCLMD->GetTV();
+ 	      ftwmclmd = fResPstMCLMD->GetTW();
+ 	      fvmclmd_err = fResPstMCLMD->GetDV();
+ 	      fwmclmd_err = fResPstMCLMD->GetDW();
+ 	      ftvmclmd_err = fResPstMCLMD->GetDTV();
+ 	      ftwmclmd_err = fResPstMCLMD->GetDTW();
 
-	      tprop->Fill();
-	      delete fStartPstMCLMD;
-	      fStartPstMCLMD = fResPstMCLMD;
+ 	      tprop->Fill();
+ 	      delete fStartPstMCLMD;
+ 	      fStartPstMCLMD = fResPstMCLMD;
      	    }
-	    else
-	      break;
-	  }
-	}
-	else
-	  break;
+ 	    else
+ 	      break;
+ 	  }
+ 	}
+ 	else
+ 	  break;
       }
 
       ///and now Propagate to the PCA (a space point) in one step ---------------------------------
@@ -600,7 +600,7 @@ void PndLmdGeaneTask::Exec(Option_t* opt)
 	new((*fTrackParFinal)[counterGeaneTrk]) FairTrackParH(*(fRes)); //save Track
 	//	new((*fTrackParFinal)[counterGeaneTrk]) FairTrackParP(*(fRes)); //save Track
 	counterGeaneTrk++;
-	//	cout<<"***** isProp TRUE *****"<<endl;
+	if(fVerbose>2) cout<<"***** isProp TRUE *****"<<endl;
       }
       else{
 	if(fVerbose>2){
