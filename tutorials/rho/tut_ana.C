@@ -26,25 +26,32 @@ void tut_ana(int nevts=0)
 {
 	// *** some variables
 	int i=0,j=0, k=0, l=0;
+	gStyle->SetOptFit(1011);
 	
+	// *** the output file for FairRunAna
 	TString OutFile="output.root";  
 					
 	// *** the files coming from the simulation
-	TString inPidFile = "pid_complete.root";    // this file contains the PndPidCandidates and McTruth
-	TString inParFile = "simparams.root";
+	TString inPidFile  = "pid_complete.root";    // this file contains the PndPidCandidates and McTruth
+	TString inParFile  = "simparams.root";
 	
-	gStyle->SetOptFit(1011);
-	
-	FairLogger::GetLogger()->SetLogToFile(kFALSE);
+	// *** PID table with selection thresholds; can be modified by the user
+	TString pidParFile = TString(gSystem->Getenv("VMCWORKDIR"))+"/macro/params/all.par";	
 	
 	// *** initialization
+	FairLogger::GetLogger()->SetLogToFile(kFALSE);
 	FairRunAna* fRun = new FairRunAna();
 	FairRuntimeDb* rtdb = fRun->GetRuntimeDb();
 	fRun->SetInputFile(inPidFile);
 	
+	// *** setup parameter database 	
 	FairParRootFileIo* parIO = new FairParRootFileIo();
 	parIO->open(inParFile);
+	FairParAsciiFileIo* parIOPid = new FairParAsciiFileIo();
+	parIOPid->open(pidParFile.Data(),"in");
+	
 	rtdb->setFirstInput(parIO);
+	rtdb->setSecondInput(parIOPid);
 	rtdb->setOutput(parIO);  
 	
 	fRun->SetOutputFile(OutFile);

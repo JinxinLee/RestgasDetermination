@@ -18,16 +18,23 @@ void tut_ana_fit(int nevts=0)
 	
 	gStyle->SetOptFit(1011);
 	
-	FairLogger::GetLogger()->SetLogToFile(kFALSE);
+	// *** PID table with selection thresholds; can be modified by the user
+	TString pidParFile = TString(gSystem->Getenv("VMCWORKDIR"))+"/macro/params/all.par";	
 	
 	// *** initialization
+	FairLogger::GetLogger()->SetLogToFile(kFALSE);
 	FairRunAna* fRun = new FairRunAna();
 	FairRuntimeDb* rtdb = fRun->GetRuntimeDb();
 	fRun->SetInputFile(inPidFile);
 	
+	// *** setup parameter database 	
 	FairParRootFileIo* parIO = new FairParRootFileIo();
 	parIO->open(inParFile);
+	FairParAsciiFileIo* parIOPid = new FairParAsciiFileIo();
+	parIOPid->open(pidParFile.Data(),"in");
+	
 	rtdb->setFirstInput(parIO);
+	rtdb->setSecondInput(parIOPid);
 	rtdb->setOutput(parIO);  
 	
 	fRun->SetOutputFile(OutFile);
@@ -180,6 +187,10 @@ void tut_ana_fit(int nevts=0)
 	hjpsi_chi2_vf->Write();
 	hpsi_chi2_4c->Write();
 	hjpsi_chi2_mf->Write();
+			
+	hjpsi_prob_vf->Write();
+	hpsi_prob_4c->Write();
+	hjpsi_prob_mf->Write();
 			
 	hvpos->Write();
 		
