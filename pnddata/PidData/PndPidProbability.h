@@ -29,16 +29,17 @@ class PndPidProbability : public TObject
   Double_t		GetProtonPdf()   const { return fProtonPdf; }
   Int_t                 GetIndex()       const { return fIndex;}
 
-  Double_t   GetElectronPidProb(PndPidProbability* flux = NULL) const { if(flux==NULL) flux = new PndPidProbability(0.2,0.2,0.2,0.2,0.2); return fElectronPdf * flux->GetElectronPdf() / GetSumProb(flux); }
-  Double_t   GetMuonPidProb    (PndPidProbability* flux = NULL) const { if(flux==NULL) flux = new PndPidProbability(0.2,0.2,0.2,0.2,0.2); return fMuonPdf     * flux->GetMuonPdf() / GetSumProb(flux); }
-  Double_t   GetPionPidProb    (PndPidProbability* flux = NULL) const { if(flux==NULL) flux = new PndPidProbability(0.2,0.2,0.2,0.2,0.2); return fPionPdf     * flux->GetPionPdf() / GetSumProb(flux); } 
-  Double_t   GetKaonPidProb    (PndPidProbability* flux = NULL) const { if(flux==NULL) flux = new PndPidProbability(0.2,0.2,0.2,0.2,0.2); return fKaonPdf     * flux->GetKaonPdf() / GetSumProb(flux); }
-  Double_t   GetProtonPidProb  (PndPidProbability* flux = NULL) const { if(flux==NULL) flux = new PndPidProbability(0.2,0.2,0.2,0.2,0.2); return fProtonPdf   * flux->GetProtonPdf() / GetSumProb(flux); }
+  Double_t   GetElectronPidProb(PndPidProbability* flux = NULL) const { if(flux==NULL) return fElectronPdf/GetSumProb(flux); else return fElectronPdf * flux->GetElectronPdf() / GetSumProb(flux); }
+  Double_t   GetMuonPidProb    (PndPidProbability* flux = NULL) const { if(flux==NULL) return fMuonPdf/GetSumProb(flux);     else return fMuonPdf     * flux->GetMuonPdf() / GetSumProb(flux); }
+  Double_t   GetPionPidProb    (PndPidProbability* flux = NULL) const { if(flux==NULL) return fPionPdf/GetSumProb(flux);     else return fPionPdf     * flux->GetPionPdf() / GetSumProb(flux); } 
+  Double_t   GetKaonPidProb    (PndPidProbability* flux = NULL) const { if(flux==NULL) return fKaonPdf/GetSumProb(flux);     else return fKaonPdf     * flux->GetKaonPdf() / GetSumProb(flux); }
+  Double_t   GetProtonPidProb  (PndPidProbability* flux = NULL) const { if(flux==NULL) return fProtonPdf/GetSumProb(flux);   else return fProtonPdf   * flux->GetProtonPdf() / GetSumProb(flux); }
 
   Double_t   GetSumProb        (PndPidProbability* flux = NULL) const 
   { 
-    if(flux==NULL) flux = new PndPidProbability(0.2,0.2,0.2,0.2,0.2);
-    return 
+    if(flux==NULL) 
+    return fElectronPdf + fMuonPdf + fPionPdf + fKaonPdf + fProtonPdf;
+    else return 
       fElectronPdf * flux->GetElectronPdf() + 
       fMuonPdf     * flux->GetMuonPdf()     +
       fPionPdf     * flux->GetPionPdf()     +
