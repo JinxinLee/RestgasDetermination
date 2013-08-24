@@ -682,6 +682,11 @@ void PndTrkTracking::Exec(Option_t* opt) {
 
 //----------------------------------------------
 
+memset(tMvdhits,false,sizeof(tMvdhits));
+
+
+
+
 
  Short_t
 	tnHitsInMCTrack[MAXTRACKSPEREVENT],
@@ -1033,7 +1038,7 @@ void PndTrkTracking::Exec(Option_t* opt) {
  if( fMvdAloneTracking ){
 	fnMvdTrackCand = fMvdTrackCandArray->GetEntriesFast();
 	if (fnMvdTrackCand> MAXMVDTRACKSPEREVENT) {
-		cout<<"da PndTrkTracking  :  N. of MvdTrackCand = "<<
+		cout<<"from PndTrkTracking  :  N. of MvdTrackCand = "<<
 		fnMvdTrackCand<<" and it is > MAXMVDTRACKSPEREVENT (="<<MAXMVDTRACKSPEREVENT
 		<<"),  therefore it is set to "<<MAXMVDTRACKSPEREVENT<<endl;
 		fnMvdTrackCand= MAXMVDTRACKSPEREVENT;
@@ -1051,10 +1056,10 @@ void PndTrkTracking::Exec(Option_t* opt) {
 //---------------------------------------------   fetching the STT  MC points
  nSttMCPoint = fSttPointArray->GetEntriesFast();
  if (nSttMCPoint ==0){
-	cout<<"da PndTrkTracking  :  N. di Stt MC points = 0"<<endl<<endl;
+	if(istampa>0) cout<<"warning from PndTrkTracking  :  N. of Stt MC points = 0"<<endl;
 //	return;
  } else  if( nSttMCPoint>MAXSTTHITS){
-	cout<<"da PndTrkTracking  :  N. di Stt MC points = "<<nSttMCPoint
+	cout<<"warning from PndTrkTracking  :  N. of Stt MC points = "<<nSttMCPoint
 	<<" and it is > MAXSTTHITS ("<<MAXSTTHITS
 	     <<"), therefore consider only the first "<<MAXSTTHITS<<" hits"<<endl<<endl;
 	nSttMCPoint= MAXSTTHITS;
@@ -1065,17 +1070,17 @@ void PndTrkTracking::Exec(Option_t* opt) {
 
  nSttHit = fSttHitArray->GetEntriesFast();
  if (nSttHit ==0){
-	if (istampa >= 1) cout<<"da PndTrkTracking  :  N. di Stt Hits = 0, return!"<<endl<<endl;
+	if (istampa >= 1) cout<<"warning from PndTrkTracking, evt "<<IVOLTE<<"  :  N. di Stt Hits = 0, return!"<<endl<<endl;
 	return;
  } else if (nSttHit> MAXSTTHITS) {
-	cout<<"da PndTrkTracking  :  N. di Stt Hits = "<<nSttHit
+	cout<<"warning from PndTrkTracking, evt "<<IVOLTE<<"  :  N. of Stt Hits = "<<nSttHit
 	     <<" and it is > MAXSTTHITS (="<<MAXSTTHITS
 	     <<"), therefore consider only the first "<<MAXSTTHITS<<" hits"<<endl<<endl;
 	nSttHit= MAXSTTHITS;
  }
 
  if (istampa >= 1) {
-	cout<<"da PndTrkTracking  :  n. totale Hits in STT  : "<<nSttHit<<endl;
+	cout<<"from PndTrkTracking  :  n. total # Hits in STT  : "<<nSttHit<<endl;
  }
 
  nSttParHit=0; 
@@ -1156,7 +1161,7 @@ void PndTrkTracking::Exec(Option_t* opt) {
 	// number SciTil hits/event
 	fnSciTilHits = fSciTHitArray->GetEntriesFast();
 	if(fnSciTilHits>MAXSCITILHITS){
-		cout<<"da PndTrkTracking  :  N. of SciTil Hits = "<<fnSciTilHits
+		cout<<"from PndTrkTracking  :  N. of SciTil Hits = "<<fnSciTilHits
 	     <<" and it is > MAXSCITILHITS (="<<MAXSCITILHITS
 	     <<"), therefore consider only the first "<<MAXSCITILHITS <<" hits"<<endl<<endl;
 		fnSciTilHits= MAXSCITILHITS;
@@ -1570,6 +1575,11 @@ MAXSCITILHITSINTRACK,MAXSTTHITSINTRACK,fR,fOx,fOy,FI0,KAPPA);
 //	of the track candidates, and for the Mvd hits (FI0 and Fi_low_limit ).
 
  for(  ncand= 0; ncand< nSttTrackCand; ncand++){
+
+//------------------------------------------
+fnMvdPixelHitsinTrack[ncand] =0;
+fnMvdStripHitsinTrack[ncand] =0;
+//--------------------------------------------
 
 	keepit[ncand]=true;
 	FindingParallelTrackAngularRange(
@@ -3232,14 +3242,6 @@ if(istampa>=2){
 // -------------------------------------------------------------------------------------
 
 
-//--------------------------
- if(istampa>1){
-	for(ncand=0; ncand< nTotalCandidates; ncand++){
-		cout<<"evento n. "<<IVOLTE<<",  prima di LoadPndTrack_TrackCand, candidato n. "
-		<<ncand<<", suo keepit "<<keepit[ncand]<<endl;
-	} // end of   for(ncand=nSttTrackCand; ncand< nTotalCandidates; ncand++)
-}
-//--------------------------
 
 //-------  load the new PndTrackCand ; each track has the STT and the Mvd hits associated
 //-------  also load the new PndTrack ; each track has the STT and the Mvd hits associated
@@ -4750,6 +4752,57 @@ void PndTrkTracking::LoadPndTrack_TrackCand(
 	Position
 	;
 
+//--------------------------
+int nSttHit = fSttHitArray->GetEntriesFast();
+//-------------------------
+
+
+
+	for(ncand=0; ncand< nTotalCandidates; ncand++){
+		if(!keepit[ncand]) continue;
+		for(int jj=0; jj<fnTrackCandHit[ncand]; jj++){
+			switch (fListTrackCandHitType[ncand][jj]){
+				case 0:
+					if ( fListTrackCandHit[ncand][jj] >=fnMvdPixelHit ){
+						cout<<"from PndTrkTracking, problem event "<<IVOLTE<<", cand. "<<ncand<<", hit n. "<<
+						fListTrackCandHit[ncand][jj]<<"  type Mvd Pixel; (n. Mvd Pixel Hit = "<<fnMvdPixelHit<<" );\n";
+					}
+					break;
+
+				case 1:
+					if ( fListTrackCandHit[ncand][jj] >=fnMvdStripHit ){
+						cout<<"from PndTrkTracking, problem event "<<IVOLTE<<", cand. "<<ncand<<", hit n. "<<
+						fListTrackCandHit[ncand][jj]<<"  type Mvd Strip; (n. Mvd Strip Hit = "<<fnMvdStripHit  <<" );\n";
+					}
+					break;
+				case 2:
+					if ( fListTrackCandHit[ncand][jj] >=nSttHit ){
+						cout<<"from PndTrkTracking, problem event "<<IVOLTE<<", cand. "<<ncand<<", hit n. "<<
+						fListTrackCandHit[ncand][jj]<<"  type Stt || hit; (nSttHit = "<<nSttHit<<" );\n";
+					}
+					break;
+				case 3:
+					if ( fListTrackCandHit[ncand][jj] >=nSttHit ){
+						cout<<"from PndTrkTracking, problem event "<<IVOLTE<<", cand. "<<ncand<<", hit n. "<<
+						fListTrackCandHit[ncand][jj]<<"  type Stt // hit; (nSttHit = "<<nSttHit<<" );\n";
+					}
+					break;
+				case 1001:
+					if ( fListTrackCandHit[ncand][jj] >=fnSciTilHits ){
+						cout<<"from PndTrkTracking, problem event "<<IVOLTE<<", cand. "<<ncand<<", hit n. "<<
+						fListTrackCandHit[ncand][jj]<<"  type SciTil hit; (n. SciTi Hit = "<<fnSciTilHits<<" );\n";
+					}
+					break;
+
+			}
+		}
+	} // end of   for(ncand=nSttTrackCand; ncand< nTotalCandidates; ncand++)
+
+//---------------------------------------------------------------------------------------------------
+//-----------------------------------------------------------------------------------------------------------------
+
+
+
 
  for(ncand=0, ipinco = 0; ncand< nTotalCandidates; ncand++){
 	if(!keepit[ncand]) continue;
@@ -5680,7 +5733,7 @@ if(istampa>=3 ){cout<<"\tquesto Mvd candidato (n. ngoodmix = "<<ngoodmix-1<<
 			FairRootManager::Instance()->GetBranchId(fMvdStripBranch)){
 			cout<<"\tStrip hit n. "<<List[ngoodmix-1][icc]<<endl;
 		} else{
-			cout<<"\tNoise  (?) , hit tipo "<<ListType[ngoodmix-1][icc]<<endl;
+			cout<<"\tNoise  (?) , hit type "<<ListType[ngoodmix-1][icc]<<endl;
 		}
 	}
 	cout<<endl;
@@ -6144,9 +6197,8 @@ void PndTrkTracking::Ordering_Loading_ListTrackCandHit(
 	Short_t ncand;
 
 	for(ncand=FirstCandidate; ncand< LastCandidate; ncand++){
+
 		// for small radius trajectory better the ordering with conformal.
-
-
 		if( fR[ncand]< RSTRAWDETECTORMAX/2.){
 			OrderingConformal_Loading_ListTrackCandHit(
 				keepit,
