@@ -46,32 +46,32 @@ public:
   int GetPDGcode() const{return fPDGcode;}
 
   void SetLMDpoint(double x, double y, double z){fXrecLMD=x;fYrecLMD=y;fZrecLMD=z;}
-  void GetLMDpoint(TVector3 lmdp){lmdp = TVector3(fXrecLMD,fYrecLMD,fZrecLMD);}
+  void GetLMDpoint(TVector3& lmdp){lmdp.SetXYZ(fXrecLMD,fYrecLMD,fZrecLMD);}
   void SetLMDdir(double theta, double phi){fThetarecLMD = theta; fPhirecLMD = phi;}
   double GetLMDtheta() const{return fThetarecLMD;}
   double GetLMDphi() const{return fPhirecLMD;}
   void SetLMDchi2(double chi2){fchi2LMD = chi2;}
   double GetLMDchi2() const{return fchi2LMD;}
   void SetIPpoint(double x, double y, double z){fXrec=x;fYrec=y;fZrec=z;}
-  void GetIPpoint(TVector3 lmdp){lmdp = TVector3(fXrec,fYrec,fZrec);}
+  void GetIPpoint(TVector3& lmdp){lmdp.SetXYZ(fXrec,fYrec,fZrec);}
   void SetIPmom(double theta, double phi,double mom){fThetarec = theta; fPhirec = phi; fMomrec = mom;}
   double GetIPtheta() const{return fThetarec;}
   double GetIPphi() const{return fPhirec;}
   double GetIPmom() const{return fMomrec;}
 
   void SetIPerrpoint(double errx, double erry, double errz){ferrXrec=errx;ferrYrec=erry;ferrZrec=errz;}
-  void GetIPerrpoint(TVector3 lmdp){lmdp = TVector3(ferrXrec,ferrYrec,ferrZrec);}
+  void GetIPerrpoint(TVector3& lmdp){lmdp.SetXYZ(ferrXrec,ferrYrec,ferrZrec);}
 
   void SetIPerrmom(double errtheta, double errphi, double errmom){ferrThetarec = errtheta; ferrPhirec = errphi; ferrMomrec = errmom;}
-  void GetIPerrmom(TVector3 lmerrdp){lmerrdp = TVector3(ferrXrec,ferrYrec,ferrZrec);}
+  void GetIPerrmom(TVector3& lmerrdp){lmerrdp.SetXYZ(ferrXrec,ferrYrec,ferrZrec);}
 
   void SetMCpoint(double x, double y, double z){fXmc=x;fYmc=y;fZmc=z;}
-  void GetMCpoint(TVector3 lmdp){lmdp = TVector3(fXmc,fYmc,fZmc);}
+  void GetMCpoint(TVector3& lmdp){lmdp.SetXYZ(fXmc,fYmc,fZmc);}
   void SetMCmom(double theta, double phi,double mom){fThetamc = theta; fPhimc = phi; fMommc = mom;}
   double GetMCtheta() const{return fThetamc;}
   double GetMCphi() const{return fPhimc;}
   double GetMCmom() const{return fMommc;}
-  void GetMCpointLMD(TVector3 lmdp){lmdp = TVector3(fXmcLMD,fYmcLMD,fZmcLMD);}
+  void GetMCpointLMD(TVector3& lmdp){lmdp.SetXYZ(fXmcLMD,fYmcLMD,fZmcLMD);}
   void SetMCpointLMD(double x, double y, double z){fXmcLMD=x;fYmcLMD=y;fZmcLMD=z;}
   void SetMCmomLMD(double theta, double phi,double mom){fThetamcLMD = theta; fPhimcLMD = phi; fMommcLMD = mom;}
   double GetMCthetaLMD() const{return fThetamcLMD;}
