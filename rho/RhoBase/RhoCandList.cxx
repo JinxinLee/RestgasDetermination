@@ -35,6 +35,7 @@ RhoCandList::RhoCandList ( const char* name, UInt_t capacity ) :
 RhoCandList::RhoCandList ( RhoCandList& l )
 {
   fFast = l.fFast;
+  fOwnList = new TObjArray( l.GetLength() );
 
   Cleanup();
   const Int_t n = l.GetLength();
