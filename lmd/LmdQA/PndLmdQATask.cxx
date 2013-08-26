@@ -340,15 +340,15 @@ InitStatus PndLmdQATask::Init()
    hPullPhi = new TH1F("hPullPhi","(#phi_{MC}-#phi_{REC})/#sigma_{#phi};",1e2,-10,10);
 
    hResPointPx = new TH1F("hResPointPx","Px_{MC}-Px_{REC};#deltaPx, GeV/c",1e2,-0.01,0.01);
-   hErrPointPx = new TH1F("hErrPointPx","#sigma_{Px};#sigmaPx, GeV/c",1e3,0,0.01);
+   hErrPointPx = new TH1F("hErrPointPx","#sigma_{Px};#sigmaPx, GeV/c",1e3,0,0.001);
    hPullPointPx = new TH1F("hPullPointPx","(Px_{MC}-Px_{REC})/#sigma_{Px};(Px_{MC}-Px_{REC})/#sigma_{Px}",1e2,-10,10);
   
    hResPointPy = new TH1F("hResPointPy","Py_{MC}-Py_{REC};#deltaPy, GeV/c",1e2,-0.01,0.01);
-   hErrPointPy = new TH1F("hErrPointPy","#sigma_{Py};#sigmaPy, GeV/c",1e3,0,0.01);
+   hErrPointPy = new TH1F("hErrPointPy","#sigma_{Py};#sigmaPy, GeV/c",1e3,0,0.001);
    hPullPointPy = new TH1F("hPullPointPy","(Py_{MC}-Py_{REC})/#sigma_{Py};(Py_{MC}-Py_{REC})/#sigma_{Py}",1e2,-10,10);
   
    hResPointPz = new TH1F("hResPointPz","Pz_{MC}-Pz_{REC};#deltaPz, GeV/c",1e2,-1e-4,1e-4);
-   hErrPointPz = new TH1F("hErrPointPz","#sigma_{Pz};#sigmaPz, GeV/c",1e3,0,1e-1);
+   hErrPointPz = new TH1F("hErrPointPz","#sigma_{Pz};#sigmaPz, GeV/c",1e3,0,1e-3);
    hPullPointPz = new TH1F("hPullPointPz","(Pz_{MC}-Pz_{REC})/#sigma_{Pz};(Pz_{MC}-Pz_{REC})/#sigma_{Pz}",1e2,-10,10);
 
    hResPointX = new TH1F("hResPointX","X_{MC}-X_{REC};#deltaX,cm",1e2,-2.,2.);
@@ -370,14 +370,14 @@ InitStatus PndLmdQATask::Init()
 
    hResLumiTrkPointPx = new TH1F("hResLumiTrkPointPx","Px_{MC}-Px_{REC}(near Lumi);#deltaPx, GeV/c",1e2,-0.01,0.01);
    hResLumiTrkPointPy = new TH1F("hResLumiTrkPointPy","Py_{MC}-Py_{REC}(near Lumi);#deltaPy, GeV/c",1e2,-0.01,0.01);
-   hResLumiTrkPointPz = new TH1F("hResLumiTrkPointPz","Pz_{MC}-Pz_{REC}(near Lumi);#deltaPz, GeV/c",1e2,-1e-3,1e-3);
+   hResLumiTrkPointPz = new TH1F("hResLumiTrkPointPz","Pz_{MC}-Pz_{REC}(near Lumi);#deltaPz, GeV/c",1e2,-5e-4,5e-4);
 
    hResLumiTrkPointXErr = new TH1F("hResLumiTrkPointXErr","#sigma(X_{REC})(near Lumi);#sigma_{X},cm",1e2,0,0.02);
    hResLumiTrkPointYErr = new TH1F("hResLumiTrkPointYErr","#sigma(Y_{REC})(near Lumi);#sigma_{Y},cm",1e2,0,0.02);
    hResLumiTrkPointZErr = new TH1F("hResLumiTrkPointZErr","#sigma(Z_{REC})(near Lumi);#sigma_{Z},cm",1e2,0,0.02);
-   hResLumiTrkPointPxErr = new TH1F("hResLumiTrkPointPxErr","#sigma(Px_{REC})(near Lumi);#sigma_{Px}, GeV/c",1e2,0,0.01);
-   hResLumiTrkPointPyErr = new TH1F("hResLumiTrkPointPyErr","#sigma(Py_{REC})(near Lumi);#sigma_{Py}, GeV/c",1e2,0,0.01);
-   hResLumiTrkPointPzErr = new TH1F("hResLumiTrkPointPzErr","#sigma(Pz_{REC})(near Lumi);#sigma_{Pz}, GeV/c",1e2,0,0.001);
+   hResLumiTrkPointPxErr = new TH1F("hResLumiTrkPointPxErr","#sigma(Px_{REC})(near Lumi);#sigma_{Px}, GeV/c",1e2,0,0.001);
+   hResLumiTrkPointPyErr = new TH1F("hResLumiTrkPointPyErr","#sigma(Py_{REC})(near Lumi);#sigma_{Py}, GeV/c",1e2,0,0.001);
+   hResLumiTrkPointPzErr = new TH1F("hResLumiTrkPointPzErr","#sigma(Pz_{REC})(near Lumi);#sigma_{Pz}, GeV/c",1e2,0,0.0001);
 
    hResLumiTrkPointXPull = new TH1F("hResLumiTrkPointXPull","(X_{MC}-X_{REC})/#sigma (near Lumi) ;(X_{MC}-X_{REC})/#sigma",1e2,-10.,10.);
    hResLumiTrkPointYPull = new TH1F("hResLumiTrkPointYPull","(Y_{MC}-Y_{REC})/#sigma (near Lumi);(Y_{MC}-Y_{REC})/#sigma",1e2,-10.,10.);
