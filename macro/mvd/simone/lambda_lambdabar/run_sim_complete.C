@@ -1,4 +1,4 @@
-run_sim_complete(TString FileName="test",Int_t lambdadiskposition=0, Double_t Momenta = 1.642, Int_t nEvents=100000,Int_t DecayModel=1,Int_t Seed=6){
+void run_sim_complete(TString FileName="test",Int_t lambdadiskposition=0, Double_t Momenta = 1.642, Int_t nEvents=100000,Int_t DecayModel=1,Int_t Seed=6){
   
   // This script should simulate the decay p pbar -> lambda lambdabar -> p pbar pi+ pi- with the hole panda detector.
   // The default beam momenta is 1.642, since the dataset for the parametrisation of the decay was recorded with this momenta.
@@ -13,7 +13,9 @@ run_sim_complete(TString FileName="test",Int_t lambdadiskposition=0, Double_t Mo
   
   TString MediaFile             = "media_pnd.geo";
 
-  Bool_t VisTrack               = kFALSE; 
+  Bool_t VisTrack               = kTRUE;
+
+  Bool_t SetStoreTree			= kTRUE;
 
   Double_t BeamMomentum         = 15.0; // beam momentum ONLY for the scaling of the dipole field. For the generator use "mom"
 
@@ -44,11 +46,11 @@ run_sim_complete(TString FileName="test",Int_t lambdadiskposition=0, Double_t Mo
   }
   else if(DecayModel==2)
   {
-	  TString EvtDecayFile		= "llbar_EvtModel_LambdaLambdaBarPol_1-918.DEC";
+	  TString EvtDecayFile			= "llbar_EvtModel_LambdaLambdaBarPol_1-918.DEC";
   }
   else if(DecayModel==3)
   {
-          TString EvtDecayFile 		= "llbar_EvtModel_LambdaLambdaBarHE.DEC";
+	  TString EvtDecayFile 			= "llbar_EvtModel_LambdaLambdaBarPol_6.DEC";
   }
   else if(DecayModel==4)
   {
@@ -56,15 +58,16 @@ run_sim_complete(TString FileName="test",Int_t lambdadiskposition=0, Double_t Mo
   } 
   else if(DecayModel==5)
   {
-  	  TString EvtDecayFile		= "llbar_EvtModel_LambdaLambdaBar_1-918.DEC";
+  	  TString EvtDecayFile			= "llbar_EvtModel_LambdaLambdaBar_1-918.DEC";
   }
   else if(DecayModel==6)
   {
-	  TString EvtDecayFile 		= "llbar_EvtModel_LambdaLambdaBarPol_6.DEC";
+	  TString EvtDecayFile  		= "llbar_EvtModel_LambdaLambdaBar_6.DEC";
   }  
   else if(DecayModel==7)
   {
-	  TString EvtDecayFile  	= "llbar_EvtModel_LambdaLambdaBar_6.DEC";	
+	  TString EvtDecayFile 			= "llbar_EvtModel_LambdaLambdaBarHE.DEC";
+
   }
 
   else
@@ -99,8 +102,8 @@ run_sim_complete(TString FileName="test",Int_t lambdadiskposition=0, Double_t Mo
   // File Names
   PndFileNameCreator creator(FileName.Data());
   TString outputFile 	        = creator.GetSimFileName();
-  TString parFile 		= creator.GetParFileName();
-  TString digiFile 		= "all.par"; //The emc run the hit producer directly
+  TString parFile 				= creator.GetParFileName();
+  TString digiFile 				= "all.par"; //The emc run the hit producer directly
   
   // Create the simulation run manager
   FairRunSim *fRun = new FairRunSim();
@@ -183,6 +186,10 @@ run_sim_complete(TString FileName="test",Int_t lambdadiskposition=0, Double_t Mo
 	  LambdaDisks->SetGeometryFileName("Mvd_AddDisks_smalldiskdistance_position3_80cm.root");   // Lambda Disks at 77cm & 83 cm - Position 2
 	  LambdaDisks->SetVerboseLevel(0);
 	  fRun->AddModule(LambdaDisks);
+  }
+  else if(lambdadiskposition==-1)
+  {
+	  std::cout <<"No LambdaDisks Setting - No LambdaDisc geometry is loaded"<< std::endl;
   }
   else
   {
@@ -270,7 +277,7 @@ run_sim_complete(TString FileName="test",Int_t lambdadiskposition=0, Double_t Mo
   }     
   if(UseEvtGenDirect){   
     PndEvtGenDirect *EvtGen = new PndEvtGenDirect("pbarpSystem", EvtDecayFile.Data(), Momenta);
-    EvtGen->SetStoreTree(kTRUE);
+    EvtGen->SetStoreTree(SetStoreTree);
     primGen->AddGenerator(EvtGen);
   } 
   
