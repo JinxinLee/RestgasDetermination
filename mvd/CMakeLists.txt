@@ -144,6 +144,7 @@ MvdTracking/PndMvdTrackFinderAnaTask.cxx
 
 MvdTracking/PndMvdRiemannTrackFinderTask.cxx
 MvdTracking/PndGemRiemannTrackFinderTask.cxx
+MvdTracking/PndMvdSttGemRiemannTrackFinderTask.cxx
 
 #MvdTracking/PndMvdRiemannTrackFinder.cxx
 MvdTracking/PndMvdGemRiemannTrackFinder.cxx
