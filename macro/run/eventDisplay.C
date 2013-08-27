@@ -94,7 +94,7 @@ eventDisplay()
 	  FairHitDraw *MvdRecoStrip = new FairHitDraw ("MVDHitsStrip");
 	  FairHitDraw *STTHits = new FairHitDraw ("STTHit");
 	  PndSttIsochroneDraw* STTIsochrone = new PndSttIsochroneDraw("STTHit");
-	  STTIsochrone->UseIsochroneTime();
+//	  STTIsochrone->UseIsochroneTime();
 	  FairHitDraw *SciTHit = new FairHitDraw("SciTHit");
 	  FairHitDraw *MdtHit = new FairHitDraw("MdtHit");
 	  FairHitDraw *DrcHit = new FairHitDraw("DrcHit");
@@ -120,9 +120,11 @@ eventDisplay()
 	  PndTrackDraw* SttMvdTrack = new PndTrackDraw("SttMvdTrack");
 	  PndTrackDraw* SttMvdGemTrack = new PndTrackDraw("SttMvdGemTrack");
 	  PndTrackDraw* FtsIdealTrack = new PndTrackDraw("FtsIdealTrack");
+      PndTrackDraw* SttMvdGemGenTrack = new PndTrackDraw("SttMvdGemGenTrack");
 
 	  fMan->AddTask(SttMvdTrack);
 	  fMan->AddTask(SttMvdGemTrack);
+      fMan->AddTask(SttMvdGemGenTrack);
 	  fMan->AddTask(FtsIdealTrack);
   }
 
