@@ -23,8 +23,8 @@
 #include "PndMCEntry.h"
 
 // -----   Default constructor   -------------------------------------------
-PndMCTestPatternRecoQuality::PndMCTestPatternRecoQuality(TString trackBranchName) :
-	FairTask("Creates PndMC test"), fEventNr(0), fTrackBranchName(trackBranchName)
+PndMCTestPatternRecoQuality::PndMCTestPatternRecoQuality(TString trackBranchName, Bool_t pndTrackData) :
+	FairTask("Creates PndMC test"), fEventNr(0), fTrackBranchName(trackBranchName), fPndTrackOrTrackCand(pndTrackData)
 {
 }
 // -------------------------------------------------------------------------
@@ -38,7 +38,6 @@ PndMCTestPatternRecoQuality::~PndMCTestPatternRecoQuality() {
 InitStatus PndMCTestPatternRecoQuality::Init() {
 
 	//  fMCMatch->InitStage(kMCTrack, "", "MCTrack");
-
 
 	fPHisto = new TH1D("fPHisto", "Momentum Resolution", 1000, -10, 10);
 	fPtHisto = new TH1D("fPtHisto", "Transverse Momentum Resolution", 1000,
@@ -99,8 +98,14 @@ void PndMCTestPatternRecoQuality::Exec(Option_t* opt) {
 	FillMapTrackQualifikation();
 
 	for (int i = 0; i < fTrack->GetEntriesFast(); i++){
-		PndTrack* myTrack = (PndTrack*) fTrack->At(i);
-		PndTrackCand myTrackCand = myTrack->GetTrackCand();
+		PndTrack* myTrack;
+		PndTrackCand myTrackCand;
+		if (fPndTrackOrTrackCand){
+			myTrack = (PndTrack*) fTrack->At(i);
+			myTrackCand = myTrack->GetTrackCand();
+		} else {
+			myTrackCand = *((PndTrackCand*) fTrack->At(i));
+		}
 		fMapLinkData["AllHits"].ResetLinks();
 
 
@@ -119,11 +124,13 @@ void PndMCTestPatternRecoQuality::Exec(Option_t* opt) {
 
 		PndMCTrack* mcTrack = (PndMCTrack*)fMCTrack->At(mostProbableTrack);
 
-		TVector3 mom(myTrack->GetParamFirst().GetPx(), myTrack->GetParamFirst().GetPy(), myTrack->GetParamFirst().GetPz());
-		TVector3 McMom(mcTrack->GetMomentum());
+		if (fPndTrackOrTrackCand){
+			TVector3 mom(myTrack->GetParamFirst().GetPx(), myTrack->GetParamFirst().GetPy(), myTrack->GetParamFirst().GetPz());
+			TVector3 McMom(mcTrack->GetMomentum());
 
-		fPHisto->Fill(mom.Mag() - McMom.Mag());
-		fPtHisto->Fill(mom.Pt() - McMom.Pt());
+			fPHisto->Fill(mom.Mag() - McMom.Mag());
+			fPtHisto->Fill(mom.Pt() - McMom.Pt());
+		}
 
 
 		if (fVerbose > 0) {
@@ -256,10 +263,15 @@ Bool_t PndMCTestPatternRecoQuality::PossibleTrack(FairMultiLinkedData& mcForward
 {
 	Bool_t possibleTrack = kFALSE;
 
-	if (mcForward.GetLinksWithType(ioman->GetBranchId("MVDHitsPixel")).GetNLinks() + mcForward.GetLinksWithType(ioman->GetBranchId("MVDHitsStrip")).GetNLinks() > 3 ||
-			mcForward.GetLinksWithType(ioman->GetBranchId("STTHit")).GetNLinks() > 5)
-	{
-		possibleTrack = kTRUE;
+	for (int i = 0; i < fBranchNames.size(); i++){
+		if (fBranchNames[i] == "MVDHitsPixel"){
+			possibleTrack = possibleTrack | (mcForward.GetLinksWithType(ioman->GetBranchId("MVDHitsPixel")).GetNLinks() +
+										     mcForward.GetLinksWithType(ioman->GetBranchId("MVDHitsStrip")).GetNLinks() > 3);
+
+		}
+		if (fBranchNames[i] == "STTHit"){
+			possibleTrack = possibleTrack | mcForward.GetLinksWithType(ioman->GetBranchId("STTHit")).GetNLinks() > 5;
+		}
 	}
 
 	return possibleTrack;
@@ -306,11 +318,11 @@ void PndMCTestPatternRecoQuality::Finish() {
 	fPtHisto->Write();
 	fQualyHisto->Write();
 	std::cout << "fQualyHisto: NPossible Tracks " << fQualyHisto->GetBinContent(11)
-			  << " FullyFound: "    << fQualyHisto->GetBinContent(4)
-			  << " PartlyFound: "  << fQualyHisto->GetBinContent(5)
-			  << " Spurious: " 	<< fQualyHisto->GetBinContent(6)
-			  << " NotFound: " << fQualyHisto->GetBinContent(2)
-			  << " Ghosts: "	<< fQualyHisto->GetBinContent(12) << std::endl;
+			  << " FullyFound: "    << fQualyHisto->GetBinContent(4) 	<< " " << (Double_t)fQualyHisto->GetBinContent(4) / (Double_t)fQualyHisto->GetBinContent(11) * 100 << "% "
+			  << " PartlyFound: "  << fQualyHisto->GetBinContent(5) 	<< " " << (Double_t)fQualyHisto->GetBinContent(5) / (Double_t)fQualyHisto->GetBinContent(11) * 100 << "% "
+			  << " Spurious: " 	<< fQualyHisto->GetBinContent(6) 		<< " " << (Double_t)fQualyHisto->GetBinContent(6) / (Double_t)fQualyHisto->GetBinContent(11) * 100 << "% "
+			  << " NotFound: " << fQualyHisto->GetBinContent(2) 		<< " " << (Double_t)fQualyHisto->GetBinContent(2) / (Double_t)fQualyHisto->GetBinContent(11) * 100 << "% "
+			  << " Ghosts: "	<< fQualyHisto->GetBinContent(12)		<< " " << (Double_t)fQualyHisto->GetBinContent(12) / (Double_t)fQualyHisto->GetBinContent(11) * 100 << "% " << std::endl;
 }
 
 ClassImp( PndMCTestPatternRecoQuality);

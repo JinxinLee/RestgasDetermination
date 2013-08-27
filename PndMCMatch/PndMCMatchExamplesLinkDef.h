@@ -12,7 +12,9 @@
 
 #pragma link C++ class PndMCTestEmcClusterCompare+;
 #pragma link C++ class PndMCTestDataCrawler+;
-
+#pragma link C++ class PndTrackingQualityData+;
+#pragma link C++ class PndTrackingQualityAnalysis+;
+#pragma link C++ class PndTrackingQualityTask+;
 
 #endif
 

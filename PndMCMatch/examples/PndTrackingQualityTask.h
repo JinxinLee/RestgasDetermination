@@ -11,8 +11,8 @@
  **/
 
 
-#ifndef PNDMCTESTPATTERNRECOQUALITY_H
-#define PNDMCTESTPATTERNRECOQUALITY_H
+#ifndef PndTrackingQualityTask_H
+#define PndTrackingQualityTask_H
 
 
 // framework includes
@@ -29,15 +29,15 @@
 
 class TClonesArray;
 
-class PndMCTestPatternRecoQuality : public FairTask
+class PndTrackingQualityTask : public FairTask
 {
  public:
 
   /** Default constructor **/
-	PndMCTestPatternRecoQuality(TString trackBranchName, Bool_t pndTrackData = kTRUE);
+	PndTrackingQualityTask(TString trackBranchName, Bool_t pndTrackData = kTRUE);
 
   /** Destructor **/
-  virtual ~PndMCTestPatternRecoQuality();
+  virtual ~PndTrackingQualityTask();
 
 
   /** Virtual method Init **/
@@ -57,31 +57,11 @@ class PndMCTestPatternRecoQuality : public FairTask
   //! Adds branch names of detector data which should be taken into account in the analysis
   void AddHitsBranchName(TString name){ fBranchNames.push_back(name);}
 
-  //! Prints how many hits of one detector are in trackData.
-  void PrintTrackDataSummary(FairMultiLinkedData& trackData);
-
-  /** Prints the information of the track quality map.
-   * First output value is the MC track ID. Second output the quality indicator:
-   * -1 : Track with at least one hit in a tracking detector but of type 0
-   * 0  : Track with sufficient hits in tracking detectors for track finding but not found
-   * 1  : Not assigned
-   * 2  : All hits of the MC track were found and no additional once
-   * 3  : Some hits of the MC track were found and no additional once
-   * 4  : 70 % of all hits found belong to this MC track
-   */
-  void PrintTrackQualityMap();
 
  private:
+//
+//  virtual void FillMapTrackQualifikation();
 
-  virtual void FillMapTrackQualifikation();
-
-/** Checks if a MC track could be found by the tracking algorithm.
-  * \param mcForward a FairMultiLinkedData pointer containing the hits from a track found by ideal track finding
-  * \return kTRUE if a track could be found, kFALSE if not
-  *  At the moment this method checks if there are at least 4 hit points in the MVD or more than 5 hits in the STT.
-  *  For a more sophisticated analysis this method has to be overwritten in a derived class
-  */
-  virtual Bool_t PossibleTrack(FairMultiLinkedData& mcForward);
 
   /** Analyses the track data and assigns quality indicator to track.
    * Quality indicators:
@@ -90,11 +70,14 @@ class PndMCTestPatternRecoQuality : public FairTask
    * 3  : Some hits of the MC track were found and no additional once
    * 4  : 70 % of all hits found belong to this MC track
    */
-  virtual Int_t AnalyseData();
-  virtual void CalcEfficiencies(Int_t mostProbableTrack);
-  virtual void FillQualyHisto();
+
+
+  virtual void FillQualyHisto(std::map<Int_t, Int_t> trackQualifikation, Int_t nGhosts);
+  virtual void FillEfficiencies(std::map<Int_t, std::map<TString, std::pair<Double_t, Int_t > > > efficiencies);
+  virtual void FillPResolution (std::map<Int_t, Double_t> pResolution);
+  virtual void FillPtResolution(std::map<Int_t, Double_t> ptResolution);
+
   virtual Int_t GetSumOfAllValidMCHits(FairMultiLinkedData* trackData);
-  FairMultiLinkedData GetMCInfoForBranch(TString branchName, PndTrackCand& trackCand);
 
   std::vector<TString> fBranchNames;
 
@@ -128,7 +111,7 @@ class PndMCTestPatternRecoQuality : public FairTask
   void Reset();
 
 
-  ClassDef(PndMCTestPatternRecoQuality,3);
+  ClassDef(PndTrackingQualityTask,1);
 
 };
 

@@ -65,6 +65,9 @@ examples/PndMCTestEmcClusterCompare.cxx
 examples/PndMCTestPatternRecoQuality.cxx
 examples/PndMCTestDataCrawler.cxx
 examples/PndMCTimebasedPatternRecoQuality.cxx
+examples/PndTrackingQualityData.cxx
+examples/PndTrackingQualityAnalysis.cxx
+examples/PndTrackingQualityTask.cxx
 )
 
 set(LINKDEF  PndMCMatchExamplesLinkDef.h)
