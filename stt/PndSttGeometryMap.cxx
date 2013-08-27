@@ -261,6 +261,21 @@ TArrayI PndSttGeometryMap::FindNeighborings(int tubeId) {
         return FindNeighborings(tube);
 }
 
+void PndSttGeometryMap::FillStrawNeighborsMap()
+{
+	for (int i = 1; i < fNTubes+1; i++){
+		fStrawNeighbors[i] = FindNeighborings(i);
+	}
+}
+
+TArrayI PndSttGeometryMap::GetNeighboringsByMap(int tubeId)
+{
+	if (fStrawNeighbors.size() == 0)
+		FillStrawNeighborsMap();
+	return fStrawNeighbors[tubeId];
+}
+
+
 Double_t PndSttGeometryMap::CalculateStrawPoca(PndSttHit* hit1, PndSttHit* hit2, TVector3& poca)
 {
 	TVector3 p1(hit1->GetX(), hit1->GetY(), hit1->GetZ());

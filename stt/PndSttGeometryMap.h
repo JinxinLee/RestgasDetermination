@@ -58,6 +58,10 @@ class PndSttGeometryMap : public TObject
   TArrayI FindNeighborings(PndSttTube *tube);
   TArrayI FindNeighborings(int tubeId);
 
+  TArrayI GetNeighboringsByMap(int tubeId);
+
+  void FillStrawNeighborsMap();
+
   Double_t CalculateStrawPoca(PndSttHit* hit1, PndSttHit* hit2, TVector3& poca); //returns smallest distance between two Stt Straws. poca is set to the point between the two straws.
 
   // *********************
@@ -71,7 +75,7 @@ class PndSttGeometryMap : public TObject
 
   void GenerateAngles();
   map<int, vector< vector<int> > > fStrawIndex;
-  map<int, TArrayI> fStrawNeighbours;
+  map<int, TArrayI> fStrawNeighbors;
   vector<int> fSectorOfStraw;
   vector<int> fLayerOfStraw;
   vector<bool> fAxialStraw;
