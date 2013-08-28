@@ -29,6 +29,7 @@
 
 #pragma link C++ class PndGemMCPoint+;
 #pragma link C++ class PndGemDigi+;
+#pragma link C++ class PndGemCluster+;
 #pragma link C++ class PndGemHit+;
 
 #pragma link C++ class  PndMdtTrk+;

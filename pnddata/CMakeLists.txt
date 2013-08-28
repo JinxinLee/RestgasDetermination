@@ -39,6 +39,7 @@ DrcData/PndDrcLutInfo.cxx
 
 GemData/PndGemMCPoint.cxx
 GemData/PndGemDigi.cxx
+GemData/PndGemCluster.cxx
 GemData/PndGemHit.cxx
 
 MdtData/PndMdtPoint.cxx
@@ -121,6 +122,7 @@ DrcData/PndDrcLutInfo.h
 
 GemData/PndGemMCPoint.h
 GemData/PndGemDigi.h
+GemData/PndGemCluster.h
 GemData/PndGemHit.h
 
 MdtData/PndMdtPoint.h
