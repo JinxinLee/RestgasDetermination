@@ -117,6 +117,7 @@ void PndTrackingQualityTask::FillQualyHisto(std::map<Int_t, Int_t> trackQualifik
 		fQualyHisto->Fill(iter->second);
 		if (iter->second > -1){
 			fQualyHisto->Fill(9);
+			fQualyHisto->Fill(-1);
 		}
 	}
 }
@@ -153,7 +154,8 @@ void PndTrackingQualityTask::Finish() {
 	fPHisto->Write();
 	fPtHisto->Write();
 	fQualyHisto->Write();
-	std::cout << "fQualyHisto: NPossible Tracks " << fQualyHisto->GetBinContent(11)
+	std::cout << "fQualyHisto: All Tracks: " << fQualyHisto->GetBinContent(1)
+			  << " NPossible Tracks " << fQualyHisto->GetBinContent(11)
 			  << " FullyFound: "    << fQualyHisto->GetBinContent(4) 	<< " " << (Double_t)fQualyHisto->GetBinContent(4) / (Double_t)fQualyHisto->GetBinContent(11) * 100 << "% "
 			  << " PartlyFound: "  << fQualyHisto->GetBinContent(5) 	<< " " << (Double_t)fQualyHisto->GetBinContent(5) / (Double_t)fQualyHisto->GetBinContent(11) * 100 << "% "
 			  << " Spurious: " 	<< fQualyHisto->GetBinContent(6) 		<< " " << (Double_t)fQualyHisto->GetBinContent(6) / (Double_t)fQualyHisto->GetBinContent(11) * 100 << "% "
