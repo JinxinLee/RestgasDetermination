@@ -170,6 +170,9 @@ add_subdirectory (GenfitTools)
 #add_subdirectory(hypGe)
 add_subdirectory (fsim)
 add_subdirectory(rho)
+#add_subdirectory(online)
+add_subdirectory(PndTools/SttCellTrackFinder)
+add_subdirectory(PndTools/TrackingQA)
 
 FIND_PATH(TEvePath NAMES TEveEventManager.h PATHS
   ${SIMPATH}/tools/root/include
