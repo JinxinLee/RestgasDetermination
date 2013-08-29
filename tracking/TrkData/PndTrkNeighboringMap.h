@@ -12,6 +12,7 @@
 #include "PndTrkHitList.h"
 #include "FairHit.h"
 
+#include "TObjArray.h"
 
 class PndTrkNeighboringMap : public TObject
 {

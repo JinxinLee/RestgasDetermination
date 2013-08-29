@@ -13,6 +13,8 @@
 #include "PndTrkHit.h"
 #include "PndSttTube.h"
 
+#include "TClonesArray.h"
+
 using namespace std;
 
 

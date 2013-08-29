@@ -11,6 +11,8 @@
 #include "PndTrkConformalTransform.h"
 #include "FairHit.h"
 
+#include "TObjArray.h"
+
 #include <iostream>
 /* #include <cmath> */
 /* #include <vector> */
@@ -19,7 +21,7 @@
 
 #define MAXNOFHITS 1000  // CHECK consistency
 
-class TObjArray;
+//class TObjArray;
 class PndTrkConformalHitList : public TObject
 {
 

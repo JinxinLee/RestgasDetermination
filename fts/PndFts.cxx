@@ -26,6 +26,8 @@
 #include "TGeoMatrix.h"
 #include "TObjArray.h"
 #include "TGeoTube.h"
+#include "TGeoMedium.h"
+#include "TGeoVolume.h"
 
 #include <iostream>
 

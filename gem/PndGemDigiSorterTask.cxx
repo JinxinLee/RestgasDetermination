@@ -10,6 +10,8 @@
 #include "PndGemDigi.h"
 #include "PndGemDigiRingSorter.h"
 
+#include "TClonesArray.h"
+
 ClassImp(PndGemDigiSorterTask);
 
 PndGemDigiSorterTask::PndGemDigiSorterTask() {

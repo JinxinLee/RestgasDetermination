@@ -13,6 +13,8 @@
 #include "PndMCStage.h"
 #include "PndMCResult.h"
 
+#include "FairRootManager.h"
+
 #include <TNamed.h>
 
 #include <map>

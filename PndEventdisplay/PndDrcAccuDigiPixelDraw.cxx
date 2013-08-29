@@ -19,6 +19,9 @@
 #include "TRandom.h"
 #include "TStyle.h"
 
+using std::cout;
+using std::endl;
+
 PndDrcAccuDigiPixelDraw::PndDrcAccuDigiPixelDraw() : fPixelSize(0.01), fBoxSize(1)
 {
   fGeo = new PndGeoDrc();

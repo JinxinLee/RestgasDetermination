@@ -10,6 +10,8 @@
 #include "PndSttHit.h"
 #include "PndSttHitRingSorter.h"
 
+#include "TClonesArray.h"
+
 ClassImp(PndSttHitSorterTask);
 
 PndSttHitSorterTask::PndSttHitSorterTask() {

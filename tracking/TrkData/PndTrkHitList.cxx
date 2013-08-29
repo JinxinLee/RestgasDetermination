@@ -17,6 +17,8 @@
 #include "PndSttHit.h"
 #include "PndSdsHit.h"
 
+#include "TClonesArray.h"
+
 using namespace std;
 
 

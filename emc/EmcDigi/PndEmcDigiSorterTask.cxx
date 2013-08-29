@@ -7,6 +7,8 @@
 #include "PndEmcDigi.h"
 #include "PndEmcDigiRingSorter.h"
 
+#include "TClonesArray.h"
+
 ClassImp(PndEmcDigiSorterTask);
 
 PndEmcDigiSorterTask::PndEmcDigiSorterTask() {

@@ -15,6 +15,7 @@
 #include "FairRun.h"
 #include "FairRunAna.h"
 #include "FairRuntimeDb.h"
+#include "FairTrackParH.h"
 
 #include "TVector3.h"
 #include "TMath.h"

@@ -10,6 +10,8 @@
 #include "PndSdsDigiPixel.h"
 #include "PndSdsDigiPixelRingSorter.h"
 
+#include "TClonesArray.h"
+
 ClassImp(PndSdsDigiPixelSorterTask);
 
 PndSdsDigiPixelSorterTask::PndSdsDigiPixelSorterTask() {

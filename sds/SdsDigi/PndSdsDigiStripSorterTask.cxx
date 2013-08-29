@@ -10,6 +10,8 @@
 #include "PndSdsDigiStrip.h"
 #include "PndSdsDigiStripRingSorter.h"
 
+#include "TClonesArray.h"
+
 ClassImp(PndSdsDigiStripSorterTask);
 
 PndSdsDigiStripSorterTask::PndSdsDigiStripSorterTask() {

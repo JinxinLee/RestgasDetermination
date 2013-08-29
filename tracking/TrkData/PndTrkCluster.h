@@ -11,9 +11,11 @@
 #include "PndTrkHitList.h"
 #include "FairHit.h"
 
+#include "TObjArray.h"
+
 #define MAXNOFHITSINCLUSTER 1000  // CHECK consistency
 
-class TObjArray;
+//class TObjArray;
 class PndTrkCluster : public TObject
 {
   

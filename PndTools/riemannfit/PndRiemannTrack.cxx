@@ -29,6 +29,7 @@
 // Collaborating Class Headers --------
 #include "PndRiemannHit.h"
 #include "FairTrackParP.h"
+#include "FairRootManager.h"
 #include "TGraph.h"
 #include "TMath.h"
 #include "TMatrixTSym.h"

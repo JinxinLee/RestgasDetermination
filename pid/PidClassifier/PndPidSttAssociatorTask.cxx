@@ -8,6 +8,9 @@
 #include "PndPidProbability.h"
 
 #include "FairRootManager.h"
+
+#include "TClonesArray.h"
+
 #include <iostream>
 #include <cmath>
 

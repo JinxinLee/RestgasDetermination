@@ -6,6 +6,7 @@
 
 #include <TVector2.h>
 #include <TObjString.h>
+#include "TArrayD.h"
 
 #include "FairParGenericSet.h"
 #include "FairParamList.h"

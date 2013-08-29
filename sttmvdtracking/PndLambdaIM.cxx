@@ -21,12 +21,14 @@
 #include "FairGeanePro.h"
 #include "FairGeaneUtil.h"
 #include "FairTrackParP.h"
+#include "FairTrackParH.h"
 
 // ROOT
 #include "TDatabasePDG.h"
 #include "TArc.h"
 #include "TMarker.h"
 #include "TF1.h"
+#include "TClonesArray.h"
 
 // general
 #include <iostream>
