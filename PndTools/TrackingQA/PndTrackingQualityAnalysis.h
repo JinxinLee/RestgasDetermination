@@ -60,6 +60,22 @@ class OnlySttFunctor : public PossibleTrackFunctor
 	}
 };
 
+class RiemannMvdSttGemFunctor : public PossibleTrackFunctor
+{
+	Bool_t Call(FairMultiLinkedData* a){
+		FairRootManager* ioman = FairRootManager::Instance();
+		Bool_t possibleTrack = kFALSE;
+		Bool_t mvdHits =  ((a->GetLinksWithType(ioman->GetBranchId("MVDHitsPixel")).GetNLinks() +
+							a->GetLinksWithType(ioman->GetBranchId("MVDHitsStrip")).GetNLinks()) > 2);
+
+		if (mvdHits){
+			possibleTrack = a->GetLinksWithType(ioman->GetBranchId("STTHit")).GetNLinks() > 1 | a->GetLinksWithType(ioman->GetBranchId("GEMHit")).GetNLinks() > 1;
+		}
+		return possibleTrack;
+	}
+
+};
+
 class PndTrackingQualityAnalysis : public TObject
 {
 public:
@@ -87,7 +103,7 @@ public:
 
 
 
-	void PrintTrackDataSummary(FairMultiLinkedData& trackData);
+	void PrintTrackDataSummary(FairMultiLinkedData& trackData, Bool_t detailedInfo = kFALSE);
 
 	/** Prints the information of the track quality map.
 	* First output value is the MC track ID. Second output the quality indicator:
@@ -98,7 +114,7 @@ public:
 	* 3  : Some hits of the MC track were found and no additional once
 	* 4  : 70 % of all hits found belong to this MC track
 	*/
-	void PrintTrackQualityMap();
+	void PrintTrackQualityMap(Bool_t detailedInfo = kFALSE);
 
 
 private:

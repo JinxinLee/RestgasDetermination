@@ -41,7 +41,7 @@ public:
 	void SetLink(FairLink link, int index);
 	void AddLink(FairLink link, int index);
 
-	PndMCEntry GetEntry(int index) const {return fStage[index];}
+	PndMCEntry GetEntry(int index) const;
 	FairLink	GetSingleLink(int entryIndex, int linkIndex) const {
 		return fStage.at(entryIndex).GetLink(linkIndex);
 	}

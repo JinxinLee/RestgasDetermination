@@ -84,6 +84,7 @@ FairMultiLinkedData PndTrackingQualityData::GetMCInfoForBranch(TString branchNam
 	FairMultiLinkedData linksOfType = trackCand->GetLinksWithType(ioman->GetBranchId(branchName));
 	for (int j = 0; j < linksOfType.GetNLinks(); j++){
 		PndMCEntry mcTracks = fMCMatch->GetMCInfoSingle(linksOfType.GetLink(j), "MCTrack");
+		mcTracks.RemoveType(-2);
 		mcTracks.SetAllWeights(1.);
 		result.AddLinks(mcTracks);
 	}

@@ -84,7 +84,7 @@ void PndTrackingQualityTask::Exec(Option_t* opt) {
 	std::cout << "----- Event " << fEventNr << " ------" << std::endl;
 	fEventNr++;
 
-	PndTrackingQualityAnalysis qaAna(fTrackBranchName, new OnlySttFunctor(), fPndTrackOrTrackCand);
+	PndTrackingQualityAnalysis qaAna(fTrackBranchName, new RiemannMvdSttGemFunctor(), fPndTrackOrTrackCand);
 	qaAna.SetVerbose(fVerbose);
 	qaAna.SetHitsBranchNames(fBranchNames);
 	qaAna.Init();
@@ -94,6 +94,8 @@ void PndTrackingQualityTask::Exec(Option_t* opt) {
 	FillEfficiencies(qaAna.GetEfficiencies());
 	FillPResolution(qaAna.GetPResolution());
 	FillPtResolution(qaAna.GetPtResolution());
+//	if (fVerbose > 1)
+		qaAna.PrintTrackQualityMap();
 
 }
 
@@ -112,7 +114,6 @@ void PndTrackingQualityTask::FillQualyHisto(std::map<Int_t, Int_t> trackQualifik
 
 	fQualyHisto->Fill(10, nGhosts);
 	for(std::map<Int_t, Int_t>::iterator iter = trackQualifikation.begin(); iter != trackQualifikation.end(); iter++){
-		std::cout << "Map: " << iter->first << " " << iter->second << std::endl;
 		fQualyHisto->Fill(iter->second);
 		if (iter->second > -1){
 			fQualyHisto->Fill(9);

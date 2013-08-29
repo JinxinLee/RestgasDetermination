@@ -73,6 +73,17 @@ void PndMCObject::AdoptSize(int index){
 	}
 }
 
+
+PndMCEntry PndMCObject::GetEntry(int index) const
+{
+	if (index > -1)
+		return fStage.at(index);
+	else {
+		std::cout << "-W- PndMCObject::GetEntry: Entry "  << index << " not a valid Stage" << std::endl;
+		return PndMCEntry();
+	}
+}
+
 FairMultiLinkedData PndMCObject::PosInList(FairLink link){
 	FairMultiLinkedData result;
 	result.SetPersistanceCheck(kFALSE);

@@ -59,10 +59,11 @@ void PndTrackingQualityAnalysis::AnalyseEvent()
 //	fMCMatch->RemoveStage("GEMHit");
 	fIdealTracksData = fMCMatch->GetMCInfo("MCTrack", "FTSHit");							//ideal pattern reconstruction for mvd. Replace MVDHitsStrip with the branch name of your detector
 	fIdealTracksData.RemoveType(ioman->GetBranchId("MVDStripClusterCand"));
+	fIdealTracksData.RemoveType(ioman->GetBranchId("MCTrack"));
 
 	FillMapTrackQualifikation();
 	std::cout << "PndTrackingQualityAnalysis::AnalyseEvent() Track quality map before analysis: " << std::endl;
-	PrintTrackQualityMap();
+	PrintTrackQualityMap(kTRUE);
 
 	for (Int_t i = 0; i < fTrack->GetEntriesFast(); i++){
 
@@ -78,7 +79,9 @@ void PndTrackingQualityAnalysis::AnalyseEvent()
 			PndTrackCand* myTrack = (PndTrackCand*)fTrack->At(i);
 			trackInfo = trackQAData.AnalyseTrackCand(myTrack);
 		}
-
+		if (fVerbose > 1){
+			std::cout << "PndTrackingQualityAnalysis::AnalyseEvent Analyse track: " << i << std::endl;
+		}
 		Int_t mostProbableTrack = AnalyseTrackInfo(trackInfo);
 
 		if (mostProbableTrack == -1) continue;
@@ -89,15 +92,17 @@ void PndTrackingQualityAnalysis::AnalyseEvent()
 
 		fMCTrackFound[mostProbableTrack]++;
 
-		PndMCTrack* mcTrack = (PndMCTrack*)fMCTrack->At(mostProbableTrack);
+		if (mostProbableTrack > -1){
+			PndMCTrack* mcTrack = (PndMCTrack*)fMCTrack->At(mostProbableTrack);
 
-		if (fPndTrackOrTrackCand){
-			PndTrack* myTrack = (PndTrack*)fTrack->At(i);
-			TVector3 mom(myTrack->GetParamFirst().GetPx(), myTrack->GetParamFirst().GetPy(), myTrack->GetParamFirst().GetPz());
-			TVector3 McMom(mcTrack->GetMomentum());
+			if (fPndTrackOrTrackCand){
+				PndTrack* myTrack = (PndTrack*)fTrack->At(i);
+				TVector3 mom(myTrack->GetParamFirst().GetPx(), myTrack->GetParamFirst().GetPy(), myTrack->GetParamFirst().GetPz());
+				TVector3 McMom(mcTrack->GetMomentum());
 
-			fMapPResolution[mostProbableTrack] = (mom.Mag() - McMom.Mag());
-			fMapPtResolution[mostProbableTrack] =(mom.Pt() - McMom.Pt());
+				fMapPResolution[mostProbableTrack] = (mom.Mag() - McMom.Mag());
+				fMapPtResolution[mostProbableTrack] =(mom.Pt() - McMom.Pt());
+			}
 		}
 
 	}
@@ -270,22 +275,28 @@ Int_t PndTrackingQualityAnalysis::GetNIdealHits(FairMultiLinkedData& track, TStr
 	return track.GetLinksWithType(ioman->GetBranchId(branchName)).GetNLinks();
 }
 
-void PndTrackingQualityAnalysis::PrintTrackDataSummary(FairMultiLinkedData& trackData)
+void PndTrackingQualityAnalysis::PrintTrackDataSummary(FairMultiLinkedData& trackData, Bool_t detailedInfo)
 {
+	if (detailedInfo == kTRUE) std::cout << std::endl;
 	for (int branchIndex = 0; branchIndex < fBranchNames.size(); branchIndex++){
 		TString branchName = fBranchNames[branchIndex];
-		std:: cout << branchName << " " << GetNIdealHits(trackData, branchName) << " | ";
+		std::cout << branchName << " " << GetNIdealHits(trackData, branchName);
+		if (detailedInfo == kTRUE){
+			std::cout << " : " << trackData.GetLinksWithType(ioman->GetBranchId(branchName)) << " | " << std::endl;
+		} else {
+			std::cout << " | ";
+		}
 	}
 	std::cout << std::endl;
 }
 
 
-void PndTrackingQualityAnalysis::PrintTrackQualityMap()
+void PndTrackingQualityAnalysis::PrintTrackQualityMap(Bool_t detailedInfo)
 {
 	for (std::map<Int_t, Int_t>::iterator iter = fMapTrackQualifikation.begin(); iter != fMapTrackQualifikation.end(); iter++){
-		std::cout << iter->first << " : "  << iter->second << " Data: ";
+		std::cout << "TrackID: " << iter->first << " Quality: "  << iter->second << " Found: " << fMCTrackFound[iter->first] << " Data: ";
 		PndMCEntry entry = fIdealTracksData.GetEntry(iter->first);
-		PrintTrackDataSummary(entry);
+		PrintTrackDataSummary(entry, detailedInfo);
 	}
 	std::cout << std::endl;
 }
