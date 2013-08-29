@@ -10,6 +10,7 @@ ${CMAKE_SOURCE_DIR}/pnddata
 ${CMAKE_SOURCE_DIR}/pnddata/SttData
 ${CMAKE_SOURCE_DIR}/pnddata/SdsData
 ${CMAKE_SOURCE_DIR}/pnddata/TrackData
+${CMAKE_SOURCE_DIR}/stt
 ${CMAKE_SOURCE_DIR}/field 
 ${CMAKE_SOURCE_DIR}/passive
 ${CMAKE_SOURCE_DIR}/genfit
@@ -34,6 +35,6 @@ PndRiemannTrackFinder.cxx
 set(LINKDEF  riemannfitLinkDef.h)
 set(LIBRARY_NAME riemann)
 
-set(DEPENDENCIES Base PndData TrkBase)
+set(DEPENDENCIES Base PndData TrkBase Stt)
 
 GENERATE_LIBRARY()

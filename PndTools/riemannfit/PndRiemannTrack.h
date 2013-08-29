@@ -35,6 +35,7 @@
 #include "PndTrack.h"
 
 #include "PndSttHit.h"
+#include "PndSttTube.h"
 
 #include <iostream>
 #include <iomanip>
@@ -119,7 +120,7 @@ public:
 
   void correctSttHits();
   PndRiemannHit correctSttHit(PndSttHit* mySttHit);
-
+  PndRiemannHit correctSttSkewedHit(PndSttHit* mySttHit, PndSttTube* myTube);
   void PrintHits();
 
   virtual void Print(std::ostream& out = std::cout){

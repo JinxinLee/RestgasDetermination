@@ -110,6 +110,11 @@ PndRiemannTrack::dist(PndRiemannHit* hit){
   d2+=hit->x().X()*fn[0];
   d2+=hit->x().Y()*fn[1];
   d2+=hit->x().Z()*fn[2];
+
+  if (fVerbose > 1) {
+	  std::cout << "PndRiemannTrack::dist: c" << fc << " n: " << fn[0] << "/" << fn[1] << "/" << fn[2] <<
+			" hit: " << hit->x().X() << "/" << hit->x().Y() << "/" << hit->x().Z() << " Dist: " << d2 << std::endl;
+  }
   return d2;
 }
 
@@ -1120,6 +1125,33 @@ PndRiemannHit PndRiemannTrack::correctSttHit(PndSttHit* mySttHit)
 	if (fVerbose > 1){
 		std::cout << "result: " << result.x().X() << "/" << result.x().Y() << "/" << result.x().Z() << " " << result.z() << std::endl;
 	}
+	return result;
+}
+
+
+PndRiemannHit PndRiemannTrack::correctSttSkewedHit(PndSttHit* mySttHit, PndSttTube* myTube)
+{
+	TVectorD nVec = n();
+	if (fVerbose > 0)
+		std::cout << "MySttHit: " << mySttHit << std::endl;
+
+	TVector3 tubeDir = myTube->GetWireDirection();
+	TVector3 tubeMidPos = myTube->GetPosition();
+
+	Double_t nominator = nVec[0]*tubeDir.x() + nVec[1]*tubeDir.y() + 2*nVec[2]*(tubeDir.x() + tubeDir.y());
+	Double_t denominator = 2*nVec[2]*myTube->GetHalfLength()*(tubeDir.x() * tubeDir.x() + tubeDir.y()*tubeDir.y());
+
+	Double_t posOnTube = nominator/denominator;
+	if (posOnTube > 1){
+		posOnTube = 1;
+	} else if (posOnTube < -1) {
+		posOnTube = -1;
+	}
+
+	PndRiemannHit result(mySttHit);
+	result.setXYZ(tubeMidPos.x()+posOnTube*myTube->GetHalfLength()*tubeDir.x(),
+					tubeMidPos.y()+posOnTube*myTube->GetHalfLength()*tubeDir.y(),
+					tubeMidPos.z()+posOnTube*myTube->GetHalfLength()*tubeDir.z());
 	return result;
 }
 

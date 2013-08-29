@@ -254,28 +254,30 @@ bool PndRiemannTrackFinder::CheckSZ(PndRiemannTrack aTrack)
 bool PndRiemannTrackFinder::CheckZeroPassing(std::vector<int> hitIds, int hit)
 {
 	int zeroPresent = -1;
+	FairHit* testHit = fHits[hit];
+	FairHit* myHit;
 	for (int i = 0; i < hitIds.size(); i++){
 		if (fMapHitToID[hitIds[i]].GetIndex() < 0){
 			zeroPresent = i;
 		}
 	}
 	if (zeroPresent > -1) {
-		FairHit* testHit = fHits[hit];
-		FairHit* myHit;
 		if (zeroPresent + 1 < hitIds.size()) {
 			myHit = fHits[hitIds[zeroPresent + 1]];
 		} else {
 			myHit = fHits[hitIds[zeroPresent - 1]];
 		}
-		TVector3 point1, point2, result;
-		//std::cout << " TestHit: " << *testHit << " BaseHit: " << *myHit << std::endl;
-		myHit->Position(point1);
-		testHit->Position(point2);
-		if ((point1 * point2) < 0){
-			//std::cout << "product " << point1 * point2 << " negative: ZeroPassing" << std::endl;
-			if (fVerbose > 1) std::cout << "ZeroPassing!" << std::endl;
-			return true;
-		}
+	} else {
+		myHit = fHits[hitIds[0]];
+	}
+	TVector3 point1, point2, result;
+	//std::cout << " TestHit: " << *testHit << " BaseHit: " << *myHit << std::endl;
+	myHit->Position(point1);
+	testHit->Position(point2);
+	if ((point1 * point2) < 0){
+		//std::cout << "product " << point1 * point2 << " negative: ZeroPassing" << std::endl;
+		if (fVerbose > 1) std::cout << "ZeroPassing!" << std::endl;
+		return true;
 	}
 	return false;
 }
