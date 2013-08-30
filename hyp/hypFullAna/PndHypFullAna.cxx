@@ -33,12 +33,20 @@ for Hypernuclei.
 #include "LSLTrackRep.h"
 
 //RHO stuff
-#include "RhoBase/RhoCandidate.h"
+#include "RhoCandidate.h"
 #include "PndPidCandidate.h"
 #include "FairRecoCandidate.h"
-#include "RhoBase/RhoCandList.h"
-#include "RhoBase/RhoCandListIterator.h"
-#include "RhoBase/RhoFactory.h"
+#include "RhoCandList.h"
+#include "RhoCandListIterator.h"
+#include "RhoFactory.h"
+#include "RhoSelector/RhoMassParticleSelector.h"	
+#include "RhoSelector/RhoPlusParticleSelector.h"
+#include "RhoSelector/RhoMinusParticleSelector.h"
+#include "RhoSelector/RhoSimpleElectronSelector.h"
+#include "RhoSelector/RhoSimpleKaonSelector.h"
+#include "RhoSelector/RhoSimpleMuonSelector.h"
+#include "RhoSelector/RhoSimplePionSelector.h"
+#include "RhoSelector/RhoSimpleProtonSelector.h"
 		
 		
 using std::cout;
@@ -131,7 +139,7 @@ InitStatus PndHypFullAna::Init() {
   // **** create and configure the selectors/filters we'd like to use later
   //
   //chargedSel = new RhoChargedParticleSelector;
-  neutralSel = new RhoNeutralParticleSelector;
+  //neutralSel = new RhoNeutralParticleSelector;
   plusSel    = new RhoPlusParticleSelector;
   minusSel   = new RhoMinusParticleSelector;
   
@@ -199,7 +207,7 @@ void PndHypFullAna::Exec(Option_t* opt) {
     TVector3 p=tc.Pos();
     //cout<<" micro to tcaaand "<<tc.GetCharge()<<endl;
     
-    chargedCands.Add(tc);
+    chargedCands.Add(&tc);
   }
   
  
@@ -226,7 +234,7 @@ void PndHypFullAna::Exec(Option_t* opt) {
   
   for (int la=0;la<ppiCands.GetLength();la++)
     {
-      Lamb->Fill((ppiCands[la].P4()).M());
+      Lamb->Fill((ppiCands.Get(la)->P4()).M());
       
     }
   
@@ -239,19 +247,19 @@ void PndHypFullAna::Exec(Option_t* opt) {
       ximass->Fill(t4->Mass());
     }
 
-  for (int c=0;c<chargedCands.GetLength();c++)
+  /* for (int c=0;c<chargedCands.GetLength();c++)
     {
       bool notinlist = true;
       for (int d=0;d<xiCands.GetLength();d++)
 	{
-	  if(chargedCands[c].Overlaps(xiCands[d]))notinlist =false;
+	  if(chargedCands[c].Overlaps(xiCands.Get(d)))notinlist =false;
 	  if(notinlist)nonOvCands.Append(chargedCands[c]);
 	  
 	}
     }
-
+  */
   
-  cout <<"charg non Overlap:"<<nonOvCands.GetLength()<<endl;
+  //cout <<"charg non Overlap:"<<nonOvCands.GetLength()<<endl;
 
   //cout <<"pi-:"<<piCands.GetLength()<<endl;
  
@@ -291,9 +299,10 @@ void PndHypFullAna::Exec(Option_t* opt) {
 	
 	for (int k=0;k<npi;k++)
 	  {
-	    RhoCandidate pion=piCands[k];
+	    RhoCandidate* pion=piCands.Get(k);
+	    PndPidCandidate *pionpid =(PndPidCandidate *) pion->GetRecoCandidate();
 	  
-	    PndHypHit*  hp=(PndHypHit*)fMcCands->At((pion.GetRecoCandidate().GetMvdHits())-1);
+	    PndHypHit*  hp=(PndHypHit*)fMcCands->At((pionpid->GetMvdHits())-1);
 	    PndHypPoint* pop=(PndHypPoint*)fMc->At(hp->GetRefIndex());
 	    if(pop==0)continue;
 	    
@@ -370,9 +379,9 @@ void PndHypFullAna::Exec(Option_t* opt) {
 	if(dsi==1){
 	  //if(npi==1){
 	  //RhoCandidate pi=piCands[0];
-	  RhoCandidate pi=dsCands[0];
+	  RhoCandidate* pi=dsCands.Get(0);
 	  //RhoCandidate pp=piminusCands[jj];
-	  TLorentzVector vpim=pi.P4();
+	  TLorentzVector vpim=pi->P4();
 	  TVector3 pi3v = vpim.Vect();
 	  //cout<<ii<<" "<<pi3v.Mag()<<endl;
 	  
@@ -386,22 +395,23 @@ void PndHypFullAna::Exec(Option_t* opt) {
 	    for (ii=0;ii<dsi-1;ii++)
 	      {	
 		//RhoCandidate pi=piCands[ii];
-		RhoCandidate pi=dsCands[ii];
+		RhoCandidate *pi=dsCands.Get(ii);
 		//cout<<" charge pion "<<pi.GetCharge()<<endl;
-		
-		TLorentzVector vpim=pi.P4();
+		PndPidCandidate* pipid = (PndPidCandidate*)pi->GetRecoCandidate();
+		TLorentzVector vpim=pi->P4();
 		TVector3 pi3v = vpim.Vect();
 
 		for (jj=ii+1;jj<dsi;jj++)
 		  {
 		    //RhoCandidate pp=piCands[jj];
-		    RhoCandidate pp=dsCands[jj];
+		    RhoCandidate *pp=dsCands.Get(jj);
 		    
-		    TLorentzVector vpp=pp.P4(); 
+		    TLorentzVector vpp=pp->P4(); 
 		    TVector3 pp3v = vpp.Vect(); 
 		    //VAbsMicroCandidate cm;
 		    //cm = pi.GetMicroCandidate();
-		    hit=(PndHypHit*)fMcCands->At((pi.GetRecoCandidate().GetMvdHits())-1);
+
+		    hit=(PndHypHit*)fMcCands->At((pipid->GetMvdHits())-1);
 		    po=(PndHypPoint*)fMc->At(hit->GetRefIndex());
 		    if(po==0)continue;
 		   
