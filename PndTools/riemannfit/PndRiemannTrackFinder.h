@@ -28,12 +28,12 @@ public:
 	int NTracks(){return fTrackCand.size();};								///< Returns the number of found tracks
 	PndRiemannTrack GetTrack(int i){return fTracks[i];};					///< Returns the track with the index i
 	PndTrack GetPndTrack(int i, double B){return fTracks[i].getPndTrack(B);};
-	std::vector<Int_t> GetTrackCandidates(int i){return fHitsInTracks[i];};	///< Returns the hits belonging to track i
+	std::set<Int_t> GetTrackCandidates(int i){return fHitsInTracks[i];};	///< Returns the hits belonging to track i
 	std::vector<PndTrackCand> GetTrackCand(){return fTrackCand;}
 	std::vector<PndTrackCand> GetMergedTrackCands(){return fMergedTrackCand;}
 	PndTrackCand GetTrackCand(int i) {return fTrackCand[i];}
 	double HitDistance(FairHit* h1, FairHit* h2);							///< Calculates the distance between two hits
-	int HitTooClose(std::vector<Int_t> hitsInUse, FairHit* newHit, double threshold); ///< returns if and which hit was too close to the hit which is tested
+	int HitTooClose(std::set<Int_t> hitsInUse, FairHit* newHit, double threshold); ///< returns if and which hit was too close to the hit which is tested
 	
 	void SetMaxPlaneDistance(double val){fMaxPlaneDist = val;}
 	void SetMaxSZDist(double val){fMaxSZDist = val;}
@@ -47,11 +47,11 @@ public:
 protected:
 	std::vector<FairHit*> fHits;											///< Vector of all FairHits used for track finding (fitting)
 	std::vector<PndRiemannTrack> fTracks;									///< Resulting Riemann Tracks
-	std::vector<std::vector<Int_t> > fHitsInTracks;							///< Vector of indizes which hits where used in which track
+	std::vector<std::set<Int_t> > fHitsInTracks;							///< Vector of indizes which hits where used in which track
 	std::vector<PndTrackCand> fTrackCand;									///< List of track candidates
 	std::vector< std::pair<double,double> > fCurvAndDipOfCand;  			///< Curvature and dip of fPndTrackCand
 	std::vector<PndTrackCand> fMergedTrackCand;
-	std::vector< std::vector<int> > fHitsTooClose;							///< matrix of TrackNr and hits which are too close to one of the three starting points
+	std::vector< std::set<int> > fHitsTooClose;							///< matrix of TrackNr and hits which are too close to one of the three starting points
 	std::map<int, FairLink > fMapHitToID;									///< map to convert the list of hits back into a FairLink
 	std::map<FairLink, int > fMapIDtoHit; 									///<map to convert the list of detID/hitID hits into the list of hits for track finding
 	double fMaxPlaneDist;													///< Distance cut between new point and riemann plane
@@ -66,16 +66,16 @@ protected:
 	int fVerbose;
 	bool fUseZeroPos;
 
-	std::vector<std::vector<Int_t> >  GetStartTracks();
+	std::vector<std::set<Int_t> >  GetStartTracks();
 	bool CheckHitDistance(int hit1, int hit2);								///< Tests if the distance is larger than fMinPointDistance
 	bool CheckSZ(PndRiemannTrack aTrack);									///< Tests the results of the sz fit
 	bool CheckRiemannHit(PndRiemannTrack* track, PndRiemannHit* hit);
 	bool CheckHitInSameSensor(int hit1, int hit2); 						///< Tests if hits in the same sensor are selected
-	bool CheckHitInTrack(std::vector<int> hitIds, int hit);				///< Check if this HitId is used in the track already
-	bool CheckZeroPassing(std::vector<int> hitIds, int hit);				///< If the track contains (0,0) all points have to go forward or all have to go backward
-	PndRiemannTrack CreateRiemannTrack(std::vector<Int_t> aHits); 			///< Creates a PndRiemannTrack from an array of indices of Hits
+	bool CheckHitInTrack(std::set<int> hitIds, int hit);				///< Check if this HitId is used in the track already
+	bool CheckZeroPassing(std::set<int> hitIds, int hit);				///< If the track contains (0,0) all points have to go forward or all have to go backward
+	PndRiemannTrack CreateRiemannTrack(std::set<Int_t> aHits); 			///< Creates a PndRiemannTrack from an array of indices of Hits
 		
-	bool TrackExists(std::vector<Int_t> hitsInTrack);
+	bool TrackExists(std::set<Int_t> hitsInTrack);
 	std::vector<int> FindTracksWithSimilarParameters(int TrackInd, std::vector<int>& TracksToTest, double curvDiff, double dipDiff);
 	std::vector<int> FindTracksWithSimilarHits(std::vector<int>& TracksToTest,std::vector<PndTrackCand> tempTrCnd, std::vector<int>& tempKillAfter);    ///<------------added by me
 	void RemoveTrack(int TrackInd, std::vector<int>& TrackList);

@@ -69,6 +69,7 @@ InitStatus PndMvdSttGemRiemannTrackFinderTask::Init()
 	  fHitBranch.push_back("MVDHitsStrip");
 	  fHitBranch.push_back("STTHit");
 	  fHitBranch.push_back("GEMHit");
+	  fHitBranch.push_back("STTCombinedSkewedHits");
   }
 
   for (int i = 0; i < (int)fHitBranch.size(); i++){
@@ -191,6 +192,7 @@ void PndMvdSttGemRiemannTrackFinderTask::Exec(Option_t* opt)
 	  }
 	  myTrack->SetLink(FairLink("MVDRiemannTrackCand", i));
 	  myTrack->SetTrackCandRef(myCand);
+	  myTrack->SetTrackCand(*myCand);
 
 	  if (fVerbose > 1) {
 		  std::cout << i << ": ";

@@ -17,6 +17,7 @@ PndMvdSttGemRiemannTrackFinder::PndMvdSttGemRiemannTrackFinder():PndRiemannTrack
 		fLayers[0].push_back(0);
 	fGeoH = PndGeoHandling::Instance();
 	fSttHitsInSectors.resize(6);
+	fSttSkewedHitsInSectors.resize(6);
 	InitLayerMap();
 }
 
@@ -112,12 +113,45 @@ void PndMvdSttGemRiemannTrackFinder::AddHits(TClonesArray* hits, Int_t branchId)
 			else
 				myID = myHit->GetEntryNr();
 			double phi = 0;
+//			if  (sttPos.Phi() < 0)
+//				phi = sttPos.Phi() + TMath::Pi() * 2;
+//			else
+//				phi = sttPos.Phi();
+			if (fVerbose > 1) std::cout << "PndMvdSttGemRiemannTrackFinder::AddHits StrawMap Sector: " << myHit->GetEntryNr() << " " << myHit->GetTubeID() << ": Phi: " << sttPos.x() << "/" << sttPos.y() << " " << phi << " Sector: " << fStrawMap.GetSector(myHit->GetTubeID())<< std::endl;
+			fSttHitsInSectors[fStrawMap.GetSector(myHit->GetTubeID())].push_back(myHit);
+
+			fMapHitToID[fHits.size()-1]=myID;
+			fMapIDtoHit[myID] = fHits.size()-1;
+		}
+		return;
+	}
+
+	if(branchId == man->GetBranchId("STTCombinedSkewedHits")){
+		std::cout << "PndMvdSttGemRiemannTrackFinder::AddHits: SkewedHits " << hits->GetEntriesFast() << std::endl;
+		fSkewedSttHits = hits;
+		for (int i = 0; i < fSkewedSttHits->GetEntries(); i++){
+			FairHit* myHit = (FairHit*)(fSkewedSttHits->At(i));
+			myHit->SetEntryNr(FairLink(man->GetBranchId("STTCombinedSkewedHits"), i));
+			fHits.push_back(myHit);
+			myHit->SetPositionError(TVector3(0.5/TMath::Sqrt(12), 0.5/TMath::Sqrt(12), 200));
+			TVector3 sttPos;
+			myHit->Position(sttPos);
+			FairLink myID;
+
+			if (myHit->GetEntryNr().GetIndex() < 0 || myHit->GetEntryNr().GetType() < 0){
+				myID = FairLink(branchId, i);
+				myHit->SetEntryNr(myID);
+			}
+			else
+				myID = myHit->GetEntryNr();
+			double phi = 0;
 			if  (sttPos.Phi() < 0)
 				phi = sttPos.Phi() + TMath::Pi() * 2;
 			else
 				phi = sttPos.Phi();
-			if (fVerbose > 1) std::cout << "PndMvdSttGemRiemannTrackFinder::AddHits StrawMap Sector: " << myHit->GetEntryNr() << " " << myHit->GetTubeID() << ": Phi: " << sttPos.x() << "/" << sttPos.y() << " " << phi << " Sector: " << fStrawMap.GetSector(myHit->GetTubeID())<< std::endl;
-			fSttHitsInSectors[fStrawMap.GetSector(myHit->GetTubeID())].push_back(myHit);
+//			if (fVerbose > 1)
+				std::cout << "PndMvdSttGemRiemannTrackFinder::AddHits StrawMap Sector: " << myHit->GetEntryNr() <<  ": Phi: " << sttPos.x() << "/" << sttPos.y() << " " << phi << " Sector: " << fStrawMap.FindPhiSector(phi)<< std::endl;
+			fSttSkewedHitsInSectors[fStrawMap.FindPhiSector(phi)].push_back(myHit);
 
 			fMapHitToID[fHits.size()-1]=myID;
 			fMapIDtoHit[myID] = fHits.size()-1;
@@ -221,9 +255,10 @@ void PndMvdSttGemRiemannTrackFinder::FindTracks()
 
 //	SetVerbose(3);
 
-	std::vector<std::vector<Int_t> > Tracks = GetStartTracks();				//Get the possible track seeds
+	std::vector<std::set<Int_t> > Tracks = GetStartTracks();				//Get the possible track seeds
 
-	std::vector<int> tooClose;
+	std::set<int> tooClose;
+	std::set<int>::iterator iter;
 
 	fTracks.clear();
 	fTrackCand.clear();
@@ -233,14 +268,19 @@ void PndMvdSttGemRiemannTrackFinder::FindTracks()
 			if (fVerbose > 1) std::cout << "-E- PndMVDRiemannTrackFinder::FindTracks: Start points: " << Tracks[trackId].size()
 					  << " in Track: " << trackId << std::endl;
     
-		std::vector<Int_t> StartTrack = Tracks[trackId];
+		std::set<Int_t> StartTrack = Tracks[trackId];
     
 		if (fVerbose > 1){
-			if (fVerbose > 1) std::cout << "------------------------------------" << std::endl;
-			if (fVerbose > 1) std::cout << "Start Plane from Points: " << fMapHitToID[StartTrack[0]] << " "
-					  << fMapHitToID[StartTrack[1]] << " "  << fMapHitToID[StartTrack[2]] << std::endl;
+			if (fVerbose > 1)
+			{
+				std::cout << "------------------------------------" << std::endl;
 
-			if (fVerbose > 1) std::cout << "Start Plane from Points: " << StartTrack[0] << " " << StartTrack[1] << " "  << StartTrack[2] << std::endl;
+				iter = StartTrack.begin();
+				std::cout << "Start Plane from Points: " << fMapHitToID[*iter] << " "
+					  << fMapHitToID[*(++iter)] << " "  << fMapHitToID[*(++iter)] << std::endl;
+				iter = StartTrack.begin();
+				std::cout << "Start Plane from Points: " << *iter << " " << *(iter++) << " "  << *(iter++) << std::endl;
+			}
 		}
 
 		if (TrackExists(StartTrack) == true){
@@ -250,7 +290,7 @@ void PndMvdSttGemRiemannTrackFinder::FindTracks()
 
 		PndRiemannTrack actTrack = CreateRiemannTrack(StartTrack);
 		int startLayer=0;
-		int startHit=StartTrack[0];
+		int startHit=*(StartTrack.begin());
     
 		bool flag=false;
 		for(int i=1;i<fNLayers;i++){  									///< finding layer's number of start hit
@@ -274,9 +314,10 @@ void PndMvdSttGemRiemannTrackFinder::FindTracks()
 				if (fVerbose > 1) std::cout << "Point " << fMapHitToID[testHit] << " ";
 
 				if (CheckHitInTrack(StartTrack, testHit)) continue;
-				if (CheckHitDistance(StartTrack[0], testHit)!=true) continue;
-				if (CheckHitDistance(StartTrack[1], testHit)!=true) continue;
-				if (CheckHitDistance(StartTrack[2], testHit)!=true) continue;
+				iter = StartTrack.begin();
+				if (CheckHitDistance(*(iter)  , testHit)!=true) continue;
+				if (CheckHitDistance(*(++iter), testHit)!=true) continue;
+				if (CheckHitDistance(*(++iter), testHit)!=true) continue;
 				if (CheckZeroPassing(StartTrack, testHit)== true) continue;
         
         
@@ -285,7 +326,7 @@ void PndMvdSttGemRiemannTrackFinder::FindTracks()
 				PndRiemannHit actHit(fHits[testHit], testHit);
 				if (CheckRiemannHit(&actTrack, &actHit, fHits[testHit]) != true) continue;
         
-				StartTrack.push_back(testHit);
+				StartTrack.insert(testHit);
         
 				actTrack.addHit(actHit);
 				actTrack.refit(false);
@@ -294,29 +335,29 @@ void PndMvdSttGemRiemannTrackFinder::FindTracks()
 				TVectorD orig = actTrack.orig();
 				if (fVerbose > 1) std::cout << "actHit added: " << testHit  << " r: " << actTrack.r() << " orig: " << orig[0] << " " << orig[1] << std::endl;
 				tooClose=GetTooCloseHitsInLayer(Layer,testHit);
-				fHitsTooClose[trackId].insert(fHitsTooClose[trackId].begin(),tooClose.begin(),tooClose.end());
+				fHitsTooClose[trackId].insert(tooClose.begin(),tooClose.end());
 				//break;
 			}
 		}
 
 		if (fVerbose > 1) {
-			if (fVerbose > 1) std::cout << std::endl;
-			if (fVerbose > 1) std::cout << "PndMvdSttGemRiemannTrackFinder::FindTracks ActTrack for Assignment: ";
-			for (int j = 0; j < StartTrack.size(); j ++){
-				int hitId = StartTrack[j];
-				if (fVerbose > 1) std::cout << fMapHitToID[hitId] << " ";
+			std::cout << std::endl;
+			std::cout << "PndMvdSttGemRiemannTrackFinder::FindTracks ActTrack for Assignment: ";
+			for (iter = StartTrack.begin(); iter != StartTrack.end(); iter++){
+				int hitId = *iter;
+				std::cout << fMapHitToID[hitId] << " ";
 			}
-			if (fVerbose > 1) std::cout << std::endl;
+			std::cout << std::endl;
 		}
 
 		if (fVerbose > 1) std::cout << "Track before STT: " << actTrack << std::endl;
 
 		if (fSttHits > 0){															//assign STTHits to Mvd track
 			if (fVerbose > 1 )
-				if (fVerbose > 1) std::cout << "PndMvdSttGemRiemannTrackFinder::FindTracks AssignSttHits" << std::endl;
+				std::cout << "PndMvdSttGemRiemannTrackFinder::FindTracks AssignSttHits" << std::endl;
 			AssignSttHits(actTrack, StartTrack);
 			if (fVerbose > 1 )
-				if (fVerbose > 1) std::cout << "ActTrack size with Stt: " << actTrack.getNumHits() << " " << StartTrack.size() << std::endl;
+				std::cout << "ActTrack size with Stt: " << actTrack.getNumHits() << " " << StartTrack.size() << std::endl;
 			actTrack.refit(false);
 			actTrack.szFit(false);
 			actTrack.correctSttHits();
@@ -327,6 +368,16 @@ void PndMvdSttGemRiemannTrackFinder::FindTracks()
 			actTrack.szFit(false);
 
 
+		}
+
+		if (fSkewedSttHits > 0){
+			if (fVerbose > 1 )
+				std::cout << "PndMvdSttGemRiemannTrackFinder::FindTracks AssignSkewedSttHits" << std::endl;
+			AssignSkewedSttHits(actTrack, StartTrack);
+			if (fVerbose > 1 )
+				std::cout << "ActTrack size with Stt: " << actTrack.getNumHits() << " " << StartTrack.size() << std::endl;
+			actTrack.refit(false);
+			actTrack.szFit(false);
 		}
 
 		if (fVerbose > 1) std::cout << "Track after STT: " << actTrack << std::endl;
@@ -347,14 +398,14 @@ void PndMvdSttGemRiemannTrackFinder::FindTracks()
 
 		if ((int)actTrack.getNumHits() > (fMinNumberOfHits-1))		//if you have a track match check hits which were to close
 		{
-			std::vector<int> hits = fHitsTooClose[trackId];
+			std::set<int> hits = fHitsTooClose[trackId];
 			if (fVerbose > 1) std::cout << "HitsTooClose Test for Track: " << actTrack << std::endl;
-			for (unsigned int ind = 0; ind < hits.size(); ind++){
-				if (fVerbose > 2); if (fVerbose > 1) std::cout << "Too Close Point " << hits[ind] << ": " << fMapHitToID[hits[ind]];
-				if (CheckHitInTrack(StartTrack, hits[ind])) continue;
-				PndRiemannHit actHit(fHits[hits[ind]]);
-				if (CheckRiemannHit(&actTrack, &actHit, fHits[hits[ind]])!= true) continue;
-				StartTrack.push_back(hits[ind]);
+			for (iter = hits.begin(); iter != hits.end(); iter++){
+				if (fVerbose > 1) std::cout << "Too Close Point " << *iter << ": " << fMapHitToID[*iter];
+				if (CheckHitInTrack(StartTrack, *iter)) continue;
+				PndRiemannHit actHit(fHits[*iter]);
+				if (CheckRiemannHit(&actTrack, &actHit, fHits[*iter])!= true) continue;
+				StartTrack.insert(*iter);
 				actTrack.addHit(actHit);
         
 			}
@@ -369,19 +420,21 @@ void PndMvdSttGemRiemannTrackFinder::FindTracks()
 
 			if (fVerbose > 1){
 				TVectorD orig = actTrack.orig();
-				if (fVerbose > 1) std::cout << "Track added! " << StartTrack[0] << " " << StartTrack[1]
-							<< " " << StartTrack[2] << " r: " << actTrack.r()
+				if (fVerbose > 1)
+					iter = StartTrack.begin();
+					std::cout << "Track added! " << *iter << " " << *(++iter)
+							<< " " << *(++iter) << " r: " << actTrack.r()
 							<< " orig: " << orig[0] << " " << orig[1]
 							<< " sz-m: " << actTrack.getSZm() << " sz-t: " << actTrack.getSZt()
 							<< " dip: " << actTrack.dip()
 							<< std::endl;
 			}
-
-			for (unsigned int i = 0; i < StartTrack.size(); i++)
-			{
-					if (fVerbose > 1) std::cout << " " << fMapHitToID[StartTrack[i]];
+			if (fVerbose > 1) {
+				for (iter = StartTrack.begin(); iter != StartTrack.end(); iter++)
+				{
+						 std::cout << " " << fMapHitToID[*iter];
+				}
 			}
-
 		}
 	}
   
@@ -452,13 +505,13 @@ void PndMvdSttGemRiemannTrackFinder::FindTracks()
   
 }
 
-std::vector< std::vector<Int_t> > PndMvdSttGemRiemannTrackFinder::GetStartTracks()
+std::vector< std::set<Int_t> > PndMvdSttGemRiemannTrackFinder::GetStartTracks()
 {
-	std::vector<Int_t> actCandidates;
-	std::vector<std::vector<Int_t> > Tracks;
-	std::vector<int> tooCloseFirst;
-	std::vector<int> tooCloseSecond;
-	std::vector<int> tooCloseThird;
+	std::set<Int_t> actCandidates;
+	std::vector<std::set<Int_t> > Tracks;
+	std::set<int> tooCloseFirst;
+	std::set<int> tooCloseSecond;
+	std::set<int> tooCloseThird;
 	if (fHits.size() > 3) {
 		int shift = 0;
 		if (fUseZeroPos)
@@ -492,11 +545,11 @@ std::vector< std::vector<Int_t> > PndMvdSttGemRiemannTrackFinder::GetStartTracks
 											<< fMapHitToID[third] << std::endl;
 
 								if (CheckHitDistance(first, third) != true) {
-									tooCloseFirst.push_back(third);
+									tooCloseFirst.insert(third);
 									continue;
 								}
 								if (CheckHitDistance(second, third) != true) {
-									tooCloseSecond.push_back(third);
+									tooCloseSecond.insert(third);
 									continue;
 								}              ///<---------
 								if (CheckHitInSameSensor(first, third) == true)
@@ -505,14 +558,12 @@ std::vector< std::vector<Int_t> > PndMvdSttGemRiemannTrackFinder::GetStartTracks
 									continue;
 
 								actCandidates.clear();
-								actCandidates.push_back(first);
-								actCandidates.push_back(second);
+								actCandidates.insert(first);
+								actCandidates.insert(second);
 
-								if (CheckZeroPassing(actCandidates, third)
-										== true)
-									continue;
+								if (CheckZeroPassing(actCandidates, third)== true)	continue;
 
-								actCandidates.push_back(third);
+								actCandidates.insert(third);
 
 								PndRiemannTrack actTrack; // = new PndRiemannTrack();
 								PndRiemannHit hit1(fHits[first]);
@@ -525,12 +576,14 @@ std::vector< std::vector<Int_t> > PndMvdSttGemRiemannTrackFinder::GetStartTracks
 								if (CheckSZ(actTrack) != true)
 									continue;
 								TVectorT<double> orig = actTrack.orig();
-								if (fVerbose > 1)
+//								if (fVerbose > 1)
+								{
+									std::set<Int_t>::iterator iter = actCandidates.begin();
 									std::cout << "Base plane from Points: "
-											<< first << " " << second << " "
-											<< third << " r: " << actTrack.r()
-											<< " orig: " << orig[0] << " "
-											<< orig[1] << std::endl;
+											<< *(iter) << " " << *(iter++) << " "
+											<< *(iter++) << std::endl;
+									std::cout << "TrackParameter: " << actTrack << std::endl;
+								}
 								Tracks.push_back(actCandidates);
 								tooCloseFirst = GetTooCloseHitsInLayer(
 										FirstLayer, first);
@@ -538,13 +591,9 @@ std::vector< std::vector<Int_t> > PndMvdSttGemRiemannTrackFinder::GetStartTracks
 										SecondLayer, second);
 								tooCloseThird = GetTooCloseHitsInLayer(
 										ThirdLayer, third);
-								std::vector<int> combHits = tooCloseFirst;
-								combHits.insert(combHits.begin(),
-										tooCloseSecond.begin(),
-										tooCloseSecond.end());
-								combHits.insert(combHits.begin(),
-										tooCloseThird.begin(),
-										tooCloseThird.end());
+								std::set<int> combHits = tooCloseFirst;
+								combHits.insert(tooCloseSecond.begin(), tooCloseSecond.end());
+								combHits.insert(tooCloseThird.begin(), tooCloseThird.end());
 								fHitsTooClose.push_back(combHits);
 
 							}
@@ -559,24 +608,18 @@ std::vector< std::vector<Int_t> > PndMvdSttGemRiemannTrackFinder::GetStartTracks
 	}
 
 	if (fVerbose > 1) {
-		if (fVerbose > 1)
-			std::cout << "Start Tracks are: " << std::endl;
+		std::cout << "Start Tracks are: " << std::endl;
 		for (unsigned int i = 0; i < Tracks.size(); i++) {
-			std::vector<int> aTrack = Tracks[i];
-			for (unsigned int j = 0; j < aTrack.size(); j++) {
-				if (fVerbose > 1)
-					std::cout << aTrack[j] << " ";
+			std::set<int> aTrack = Tracks[i];
+			for (std::set<int>::iterator iter = aTrack.begin(); iter != aTrack.end(); iter++) {
+				std::cout << *iter << " ";
 			}
-			if (fVerbose > 1)
-				std::cout << std::endl;
-			for (unsigned int j = 0; j < aTrack.size(); j++) {
-				if (fVerbose > 1)
-					std::cout << fMapHitToID[aTrack[j]] << " ";
+			std::cout << std::endl;
+			for(std::set<int>::iterator iter = aTrack.begin(); iter != aTrack.end(); iter++) {
+				std::cout << fMapHitToID[*iter] << " ";
 			}
-			if (fVerbose > 1)
 				std::cout << std::endl;
 		}
-		if (fVerbose > 1)
 			std::cout << std::endl;
 	}
 	return Tracks;
@@ -584,7 +627,7 @@ std::vector< std::vector<Int_t> > PndMvdSttGemRiemannTrackFinder::GetStartTracks
 
 
 
-void PndMvdSttGemRiemannTrackFinder::AssignSttHits(PndRiemannTrack& actTrack, std::vector<Int_t>& startTrack)
+void PndMvdSttGemRiemannTrackFinder::AssignSttHits(PndRiemannTrack& actTrack, std::set<Int_t>& startTrack)
 {
 	int startSector = GetStrawSector(actTrack);
 	int searchSector = startSector;
@@ -616,7 +659,10 @@ void PndMvdSttGemRiemannTrackFinder::AssignSttHits(PndRiemannTrack& actTrack, st
 
 			PndSttHit* fairSttHit = sttHits[i];
 
-			if (fStrawMap.IsSkewedStraw(fairSttHit->GetTubeID())) continue;
+			if (fStrawMap.IsSkewedStraw(fairSttHit->GetTubeID())){
+//				actTrack.correctSttSkewedHit(fairSttHit, fStrawMap.GetTube(fairSttHit->GetTubeID()));
+				continue;
+			}
 
 
 //			PndSttHit* correctedSttHit = new PndSttHit(CalculateCorrectedSTTHit(*fairSttHit, actTrack));
@@ -638,7 +684,7 @@ void PndMvdSttGemRiemannTrackFinder::AssignSttHits(PndRiemannTrack& actTrack, st
 				std::cout << "-I- PndMvdSttGemRiemannTrackFinder SearchSector: STTHit add to Track!" << std::endl;
 
 			actTrack.addHit(actHit);
-			startTrack.push_back(fMapIDtoHit[actHit.hit()->GetEntryNr()]);
+			startTrack.insert(fMapIDtoHit[actHit.hit()->GetEntryNr()]);
 			actTrack.refit(kFALSE);
 //			actTrack.szFit(kFALSE);
 			nHitsStt++;
@@ -671,7 +717,57 @@ void PndMvdSttGemRiemannTrackFinder::AssignSttHits(PndRiemannTrack& actTrack, st
 	}
 }
 
-void PndMvdSttGemRiemannTrackFinder::AssignGemHits(PndRiemannTrack& actTrack, vector<Int_t>& startTrack){
+void PndMvdSttGemRiemannTrackFinder::AssignSkewedSttHits(PndRiemannTrack& actTrack, std::set<Int_t>& startTrack)
+{
+	int startSector = GetStrawSector(actTrack);
+	int searchSector = startSector;
+	int nHitsStt = -1;
+
+//	SetVerbose(3);
+
+	if (fVerbose > 2)
+					std::cout << "StartSector: " << searchSector << std::endl;
+
+	std::vector<FairHit*> sttHits = fSttSkewedHitsInSectors[searchSector];
+	int leftSector = fStrawMap.GetLeftSector(startSector);
+	int rightSector = fStrawMap.GetRightSector(startSector);
+	sttHits.insert(sttHits.end(), fSttSkewedHitsInSectors[leftSector].begin(),  fSttSkewedHitsInSectors[leftSector].end());
+	sttHits.insert(sttHits.end(), fSttSkewedHitsInSectors[rightSector].begin(), fSttSkewedHitsInSectors[rightSector].end());
+
+	if (fVerbose > 2)
+		std::cout << "-I- PndMvdSttGemRiemannTrackFinder SearchSector: Actual searchSector: "  << searchSector << std::endl;
+
+	for (int i = 0; i < sttHits.size(); i++){
+
+		if (nHitsStt < 0) nHitsStt = 0;
+
+		FairHit* fairSttHit = sttHits[i];
+
+		PndRiemannHit actHit(fairSttHit, fMapIDtoHit[fairSttHit->GetEntryNr()]);
+
+
+
+		if (fVerbose > 2) {
+			std::cout << std::endl;
+			std::cout << "-I- PndMvdSttGemRiemannTrackFinder SearchSector: Act Hit: " << fairSttHit->GetEntryNr() << std::endl;
+		}
+
+		if (CheckRiemannHitSkewedStt(&actTrack, &actHit,fairSttHit) != true) continue;
+
+		if (fVerbose > 2 )
+			std::cout << "-I- PndMvdSttGemRiemannTrackFinder SearchSector: STTHit add to Track!" << std::endl;
+
+		actTrack.addHit(actHit);
+		startTrack.insert(fMapIDtoHit[actHit.hit()->GetEntryNr()]);
+		actTrack.refit(kFALSE);
+//			actTrack.szFit(kFALSE);
+		nHitsStt++;
+
+	}
+//	SetVerbose(0);
+}
+
+void PndMvdSttGemRiemannTrackFinder::AssignGemHits(PndRiemannTrack& actTrack, set<Int_t>& startTrack){
 
 	if (fVerbose > 1) std::cout << "NGemHits: " << fGemHits->GetEntriesFast() << std::endl;
 	for (int i = 0; i < fGemHits->GetEntriesFast(); i++){
@@ -684,7 +780,7 @@ void PndMvdSttGemRiemannTrackFinder::AssignGemHits(PndRiemannTrack& actTrack, ve
 			std::cout << "-I- PndMvdSttGemRiemannTrackFinder SearchSector: GemHit add to Track!" << std::endl;
 
 		actTrack.addHit(actHit);
-		startTrack.push_back(fMapIDtoHit[actHit.hit()->GetEntryNr()]);
+		startTrack.insert(fMapIDtoHit[actHit.hit()->GetEntryNr()]);
 	}
 }
 
@@ -724,16 +820,16 @@ bool PndMvdSttGemRiemannTrackFinder::CheckRiemannHitStt(PndRiemannTrack* track, 
 {
 	PndRiemannHit tempHit = track->correctSttHit((PndSttHit*)fairHit);
 
-	std::cout << "CheckRiemannHit PndRiemannHit: " << fairHit->GetEntryNr() << " : " << hit->x().X() << "/" << hit->x().Y() << "/" << hit->x().Z() << " " << hit->z() << std::endl;
-	std::cout << "CheckRiemannHit PndRiemannHit: " << tempHit.x().X() << "/" << tempHit.x().Y() << "/" << tempHit.x().Z() << " " << tempHit.z() << std::endl;
+//	std::cout << "CheckRiemannHit PndRiemannHit: " << fairHit->GetEntryNr() << " : " << hit->x().X() << "/" << hit->x().Y() << "/" << hit->x().Z() << " " << hit->z() << std::endl;
+//	std::cout << "CheckRiemannHit PndRiemannHit: " << tempHit.x().X() << "/" << tempHit.x().Y() << "/" << tempHit.x().Z() << " " << tempHit.z() << std::endl;
 
 	hit->setXYZ(tempHit.x().X(), tempHit.x().Y(), tempHit.x().Z());
 	hit->setDXYZ(tempHit.sigmaX(), tempHit.sigmaY(), 200);
 
-	std::cout << "CheckRiemannHit PndRiemannHit: " << hit->x().X() << "/" << hit->x().Y() << "/" << hit->x().Z() << " " << hit->z() << std::endl;
+//	std::cout << "CheckRiemannHit PndRiemannHit: " << hit->x().X() << "/" << hit->x().Y() << "/" << hit->x().Z() << " " << hit->z() << std::endl;
 
 	double dist = track->dist(hit);
-	std::cout << "CheckRiemannHit PndRiemannHit:Dist " << dist << std::endl;
+//	std::cout << "CheckRiemannHit PndRiemannHit:Dist " << dist << std::endl;
 
 	double maxDist = 1;
 //	double szDist = track->szDist(hit);
@@ -748,12 +844,53 @@ bool PndMvdSttGemRiemannTrackFinder::CheckRiemannHitStt(PndRiemannTrack* track, 
 	if (fVerbose > 1) std::cout << "STTHit: dist " << dist << std::endl;
 
 	if (fabs(dist) > maxDist){
-//		if (fVerbose > 1)
+		if (fVerbose > 1)
 			std::cout << "dist larger than " << maxDist << std::endl;
 		return false;
 	} else {
 
-		std::cout << "PndMvdSttGemRiemannTrackFinder::CheckRiemannHitStt Hit taken! Dist: " << dist << " < " << maxDist << std::endl << std::endl;
+//		std::cout << "PndMvdSttGemRiemannTrackFinder::CheckRiemannHitStt Hit taken! Dist: " << dist << " < " << maxDist << std::endl << std::endl;
+	}
+//
+//	if (szChi2 > maxSZChi2){
+//		if (fVerbose > 1) std::cout << " SZ Chi2 too big! Cut at: " << maxSZChi2 << std::endl;
+//		return false;
+//	}
+//	if (fabs(szDist) > maxSZDist){
+//		if (fVerbose > 1) std::cout << "SZ Dist too big! Cut at: " << maxSZDist << std::endl;
+//		return false;
+//	}
+	return true;
+}
+
+bool PndMvdSttGemRiemannTrackFinder::CheckRiemannHitSkewedStt(PndRiemannTrack* track, PndRiemannHit* hit, FairHit* fairHit)
+{
+
+
+//	std::cout << "CheckRiemannHit PndRiemannHit: " << hit->x().X() << "/" << hit->x().Y() << "/" << hit->x().Z() << " " << hit->z() << std::endl;
+
+	double dist = track->dist(hit);
+//	std::cout << "CheckRiemannHit PndRiemannHit:Dist " << dist << std::endl;
+
+	double maxDist = 1;
+//	double szDist = track->szDist(hit);
+//	double maxSZDist = 10;
+//	double szChi2 = track->calcSZChi2(hit);
+//	double maxSZChi2 = 25;
+	double r = track->r();
+	bool sign;
+	if ((track->getHit(1)->z())>0 )
+		sign=true;
+	else sign=false;
+	if (fVerbose > 1) std::cout << "STTHit: dist " << dist << std::endl;
+
+	if (fabs(dist) > maxDist){
+		if (fVerbose > 1)
+			std::cout << "dist larger than " << maxDist << std::endl;
+		return false;
+	} else {
+
+//		std::cout << "PndMvdSttGemRiemannTrackFinder::CheckRiemannHitStt Hit taken! Dist: " << dist << " < " << maxDist << std::endl << std::endl;
 	}
 //
 //	if (szChi2 > maxSZChi2){
@@ -884,15 +1021,15 @@ int PndMvdSttGemRiemannTrackFinder::GetStrawSector(PndRiemannTrack& track)
 	return -1;
 }
 
-std::vector<int> PndMvdSttGemRiemannTrackFinder::GetTooCloseHitsInLayer(int LayerNumber , int HitNumber )
+std::set<int> PndMvdSttGemRiemannTrackFinder::GetTooCloseHitsInLayer(int LayerNumber , int HitNumber )
 {
-	std::vector<int> result;
+	std::set<int> result;
 	int testN;
 	for(unsigned int i=0;i<fLayers[LayerNumber].size();i++){
 		testN=fLayers[LayerNumber][i];
 		if (CheckHitDistance(HitNumber, testN)!= true){
 			if (testN != HitNumber){
-				result.push_back(testN);
+				result.insert(testN);
 			}
 		}
 	}

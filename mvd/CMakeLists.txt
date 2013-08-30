@@ -143,11 +143,11 @@ MvdTracking/PndMvdKalmanTask.cxx
 MvdTracking/PndMvdTrackFinderAnaTask.cxx
 
 MvdTracking/PndMvdRiemannTrackFinderTask.cxx
-MvdTracking/PndGemRiemannTrackFinderTask.cxx
+#MvdTracking/PndGemRiemannTrackFinderTask.cxx
 MvdTracking/PndMvdSttGemRiemannTrackFinderTask.cxx
 
 #MvdTracking/PndMvdRiemannTrackFinder.cxx
-MvdTracking/PndMvdGemRiemannTrackFinder.cxx
+#MvdTracking/PndMvdGemRiemannTrackFinder.cxx
 MvdTracking/PndMvdRiemannVertexFinderTask.cxx
 
 #MvdTracking/PndMvdTpcRiemannCorrelatorTask.cxx
