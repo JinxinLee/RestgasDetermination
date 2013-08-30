@@ -59,14 +59,16 @@ void createRootGeometry_beampipe() {
 	cout << " ******************************************* " << endl;
 	cout << " *              beam pipe creator          * " << endl;
 	cout << " ******************************************* " << endl;
-	cout << "\n\n\t\t 28.03.13 \n " << endl;
+	cout << "\n\n\t\t 31.08.13 \n " << endl;
 	cout << " \t modified by P.Jasinski \n " << endl;
 
 	cout << " basic beam pipe parameters: " << endl;
 	cout << " \t bending start  " << bend_begin << " cm" << endl;
 	cout << " \t bending end    " << bend_end << " cm" << endl;
 	cout << " \t bending angle  " << bend_angle << " rad" << endl;
-	cout << " \t bending radius " << bend_radius << " cm" << endl;
+	cout << " \t bending radius " << bend_radius << " cm \n" << endl;
+
+	cout << " \t taking the pressure profile into account " << endl;
 
 
 	gROOT->Macro("$VMCWORKDIR/gconfig/rootlogon.C");
@@ -93,7 +95,36 @@ void createRootGeometry_beampipe() {
 	FairGeoMedium* FairMediumTi = geoMedia->getMedium(str_ti.c_str()); //titanium"); not found in media_pnd.geo !
 	FairGeoMedium* FairMediumKapton = geoMedia->getMedium("mylar"); // mylar properties are nearly the same as for the non existing Kapton
 
-	if (!FairMediumAir || !FairMediumSteel || !FairMediumTi || !FairMediumKapton) {
+	/* additional lines for media_pnd.geo file:
+	// 1.205e-3 g/cm³ eq 1e3 mbar (see air)
+	// 1e-8 mbar eq 1.205e-6 * 1e-8 g/cm³
+	vacuum8            3  14.01  16.  39.95  7.  8.  18.  1.205e-14  .755  .231  .014
+	                   0  1  30.  .001
+	                   0
+	vacuum7            3  14.01  16.  39.95  7.  8.  18.  1.205e-13  .755  .231  .014
+	                   0  1  30.  .001
+	                   0
+	vacuum6            3  14.01  16.  39.95  7.  8.  18.  1.205e-12  .755  .231  .014
+	                   0  1  30.  .001
+	                   0
+	vacuum5            3  14.01  16.  39.95  7.  8.  18.  1.205e-11  .755  .231  .014
+	                   0  1  30.  .001
+	                   0
+	vacuum4            3  14.01  16.  39.95  7.  8.  18.  1.205e-10  .755  .231  .014
+	                   0  1  30.  .001
+	                   0
+	 */
+
+	FairGeoMedium* FairMediumVac4 = geoMedia->getMedium("vacuum4"); // vacuum 10-4 mbar
+	FairGeoMedium* FairMediumVac5 = geoMedia->getMedium("vacuum5"); // vacuum 10-5 mbar
+	FairGeoMedium* FairMediumVac6 = geoMedia->getMedium("vacuum6"); // vacuum 10-6 mbar
+	FairGeoMedium* FairMediumVac7 = geoMedia->getMedium("vacuum7"); // vacuum 10-7 mbar
+	FairGeoMedium* FairMediumVac8 = geoMedia->getMedium("vacuum8"); // vacuum 10-8 mbar
+
+
+
+	if (!FairMediumAir || !FairMediumSteel || !FairMediumTi || !FairMediumKapton ||
+			!FairMediumVac4 ||!FairMediumVac5 ||!FairMediumVac6 ||!FairMediumVac7 ||!FairMediumVac8) {
 		std::cout << " warning: not all media found " << std::endl;
 	}
 
@@ -101,15 +132,20 @@ void createRootGeometry_beampipe() {
 	geoBuild->createMedium(FairMediumSteel);
 	geoBuild->createMedium(FairMediumTi);
 	geoBuild->createMedium(FairMediumKapton);
+	geoBuild->createMedium(FairMediumVac4);
+	geoBuild->createMedium(FairMediumVac5);
+	geoBuild->createMedium(FairMediumVac6);
+	geoBuild->createMedium(FairMediumVac7);
+	geoBuild->createMedium(FairMediumVac8);
 	std::cout << " done " << std::endl;
 	// open output file
 	TFile* fi;
 	TString fGeoFile;
 	if (create_sensors){
-		fGeoFile = "beampipe_201303_active.root";
+		fGeoFile = "beampipe_201309_active.root";
 
 	} else {
-		fGeoFile = "beampipe_201303.root";
+		fGeoFile = "beampipe_201309.root";
 	}
 	fi = new TFile(fGeoFile, "RECREATE");
 
@@ -166,24 +202,37 @@ void createRootGeometry_beampipe() {
 	TGeoCompositeShape *SVATvalve630 = new TGeoCompositeShape("VATvalve630",
 			"VATvalve63a-tv1");
 	TGeoCompositeShape *SVATvalve63 = new TGeoCompositeShape("VATvalve63",
-			"VATvalve63b:trv1+VATvalve630:trv2+VATvalve63b:trv3");
+			"VATvalve63b:trv1+VATvalve63b:trv3");//"VATvalve63b:trv1+VATvalve630:trv2+VATvalve63b:trv3");
+
+	TGeoTube* VATvalve630_vac = new TGeoTube("VATvalve630_vac",0., 3.5, 1.35+1.075*2);
+	TGeoCompositeShape *SVATvalve63_vac = new TGeoCompositeShape("VATvalve63_vac",
+				"VATvalve630_vac:trv2+VATvalve630_vac:trv2");
 
 	// VAT -Gate Valve CF100
 	// width in z is 7.
 	Double_t ov2[3] = { 0., 7.3, 0. };
 	TGeoBBox* VATvalve100a = new TGeoBBox("VATvalve100a", 7.2, 16.0, 1.35, ov2);
-	TGeoTube* VATvalve100b = new TGeoTube("VATvalve100b", 5.0, 8.25, 1.075);
+	TGeoTube* VATvalve100b = new TGeoTube("VATvalve100b", 5.0, 8.25, 1.0);
 	TGeoTube* tv2 = new TGeoTube("tv2", 0., 5.0, 1.35 + delta);
 
 	TGeoCompositeShape *SVATvalve1000 = new TGeoCompositeShape("VATvalve1000",
 			"VATvalve100a-tv2");
 	TGeoCompositeShape *SVATvalve100 = new TGeoCompositeShape("VATvalve100",
-			"VATvalve100b:trv1+VATvalve1000:trv2+VATvalve100b:trv3");
+			"VATvalve100b:trv1+VATvalve100b:trv3");//"VATvalve100b:trv1+VATvalve1000:trv2+VATvalve100b:trv3");
+
+	TGeoTube* VATvalve1000_vac = new TGeoTube("VATvalve1000_vac",0., 5.0, 1.35+1.*2);
+	TGeoCompositeShape *SVATvalve100_vac = new TGeoCompositeShape("VATvalve100_vac",
+				"VATvalve1000_vac:trv2+VATvalve1000_vac:trv2");
+
 
 	// special valve with inner clearance of 110 mm
 	TGeoTube* tv55 = new TGeoTube("tv55", 0., 5.5, 1.35 + delta);
 	TGeoCompositeShape *SVATvalve110 = new TGeoCompositeShape("VATvalve110",
 				"VATvalve100-tv55:trv2-tv55:trv1-tv55:trv3");
+
+	TGeoTube* SVATvalve1100_vac = new TGeoTube("VATvalve1100_vac", 0., 5.5, 1.35+1.*2.);
+	TGeoCompositeShape *SVATvalve110_vac = new TGeoCompositeShape("VATvalve110_vac",
+				"VATvalve1100_vac:trv2+VATvalve1100_vac:trv2");
 
 
 	// VAT -Gate Valve CF160
@@ -235,7 +284,7 @@ void createRootGeometry_beampipe() {
 	Vgvhesr->SetLineColor(30);
 
 	// last z-position: 7.
-	currentz += 7.;
+	currentz += 7. + delta;
 	fprintf(stderr, "currentz a: %f\n", currentz);
 
 	// ---------------------------------------------------------------------------
@@ -247,6 +296,18 @@ void createRootGeometry_beampipe() {
 	TGeoPcon* pipeup = new TGeoPcon("pipeup", 0., 360., 8);
 	pipeup->SetDimensions(psb1);
 
+	Double_t psb1_vac[27] = { 0., 360., 8,
+			0., 0.0, 4.35,
+			2.0, 0.0, 4.35,
+			2.0, 0.0, 4.35,
+			20.0, 0.0, 4.35,
+			31.3328, 0.0, 7.50,
+			156.0328, 0.0, 7.50,
+			156.0328, 0.0, 7.50,
+			158.2328, 0.0, 7.50};
+	TGeoPcon* pipeup_vac = new TGeoPcon("pipeup_vac", 0., 360., 8);
+	pipeup_vac->SetDimensions(psb1_vac);
+
 	TGeoCombiTrans* trb1 =
 			new TGeoCombiTrans("trb1", 0., 0., z0 + currentz, r1);
 	trb1->RegisterYourself();
@@ -255,6 +316,10 @@ void createRootGeometry_beampipe() {
 	TGeoVolume *Vpipeup = new TGeoVolume("pipeup", pipeup,
 			gGeoManager->GetMedium("steel"));
 	Vpipeup->SetLineColor(31);
+	TGeoVolume *Vpipeup_vac = new TGeoVolume("pipeup_vac", pipeup_vac,
+			gGeoManager->GetMedium("vacuum8"));
+	Vpipeup_vac->SetLineColor(2);
+	Vpipeup_vac->SetTransparency(80);
 
 	// last z-position: 165.2328
 	currentz += 158.2328;
@@ -269,6 +334,15 @@ void createRootGeometry_beampipe() {
 			16.7, 7.50, 10.125 };
 	TGeoPcon* ktmpump0 = new TGeoPcon("ktmpump0", 0., 360., 6);
 	ktmpump0->SetDimensions(psc1);
+
+	// corresponding vacuum
+	Double_t psc1_vac[12] = { 0., 360., 3,
+			-16.7,0.0,7.50,
+			0.0, 0.0, 7.50,
+			16.7,0.0,7.50};
+	TGeoPcon* ktmpump0_vac = new TGeoPcon("ktmpump0_vac", 0., 360., 3);
+	ktmpump0_vac->SetDimensions(psc1_vac);
+
 	TGeoTube* tc1 = new TGeoTube("tc1", 0., 7.7, 7.7);
 
 	TGeoCombiTrans* trc1 = new TGeoCombiTrans("trc1", 0., 0., 0, r2);
@@ -285,6 +359,11 @@ void createRootGeometry_beampipe() {
 	TGeoVolume *Vktmpump = new TGeoVolume("ktmpump", Sktmpump,
 			gGeoManager->GetMedium("steel"));
 	Vktmpump->SetLineColor(32);
+
+	TGeoVolume *Vktmpump_vac = new TGeoVolume("ktmpump_vac", ktmpump0_vac,
+			gGeoManager->GetMedium("vacuum8"));
+	Vktmpump_vac->SetLineColor(2);
+	Vktmpump_vac->SetTransparency(80);
 
 	//sensor_positions.push_back(z0 + currentz);
 	// last z-position: 181.932800
@@ -324,6 +403,13 @@ void createRootGeometry_beampipe() {
 	TGeoPcon* pipeTSup = new TGeoPcon("pipeTSup", 0., 360., 8);
 	pipeTSup->SetDimensions(psd1);
 
+	Double_t psd1_vac[27] = { 0., 360., 3,
+			0.0,  0.0, 7.5,
+			2.20, 0.0, 7.5,
+			231.30, 0.0, 7.5 };
+	TGeoPcon* pipeTSup_vac = new TGeoPcon("pipeTSup_vac", 0., 360., 3);
+	pipeTSup_vac->SetDimensions(psd1_vac);
+
 	TGeoCombiTrans* trd1 =
 			new TGeoCombiTrans("trd1", 0., 0., z0 + currentz, r1);
 	trd1->RegisterYourself();
@@ -331,6 +417,11 @@ void createRootGeometry_beampipe() {
 	TGeoVolume *VpipeTSup = new TGeoVolume("pipeTSup", pipeTSup,
 			gGeoManager->GetMedium("steel"));
 	VpipeTSup->SetLineColor(34);
+
+	TGeoVolume *VpipeTSup_vac = new TGeoVolume("pipeTSup_vac", pipeTSup_vac,
+			gGeoManager->GetMedium("vacuum7"));
+	VpipeTSup_vac->SetLineColor(2);
+	VpipeTSup_vac->SetTransparency(70);
 
 	//sensor_positions.push_back(z0 + currentz);
 	// last z-position: 429.9328
@@ -345,13 +436,32 @@ void createRootGeometry_beampipe() {
 	fprintf(stderr, "Target position: 0 / 0 / %f\n", z0 + currentz + tz);
 
 	// target cross - horizontal
-	Double_t pse1[24] = { 0., 360., 7, 0., 7.5, 7.55, 10.45, 7.5, 7.55, 26.8,
-			1.25, 1.30, 26.8, 1.25, 1.27, 29.98, 1.25, 1.27, 29.98, 0., 1.27,
-			tz, 0., 1.27 };
+	Double_t pse1[24] = { 0., 360.,
+			7, 0., 7.5, 7.55,
+			10.45, 7.5, 7.55,
+			26.8, 1.25, 1.30,
+			26.8, 1.25, 1.27,
+			29.98, 1.25, 1.27,
+			29.98, 1.25, 1.27,
+			tz, 1.25, 1.27 };
 	TGeoPcon* Tcross1 = new TGeoPcon("Tcross1", 0., 360., 7);
 	Tcross1->SetDimensions(pse1);
 
+	// vacuum - horizontal
+	Double_t pse1_vac[24] = { 0., 360., 7,
+			0., 0., 7.5,
+			10.45, 0., 7.5,
+			26.8, 0., 1.3,
+			26.8, 0., 1.25,
+			29.98, 0., 1.25,
+			29.98, 0., 1.25,
+			tz, 0., 1.25 };
+	TGeoPcon* Tcross1_vac = new TGeoPcon("Tcross1_vac", 0., 360., 7);
+	Tcross1_vac->SetDimensions(pse1_vac);
+
 	TGeoTube* Tcross2 = new TGeoTube("Tcross2", 1.0, 1.02, 11.5);
+
+	TGeoTube* Tcross2_vac = new TGeoTube("Tcross2", 0.0, 1.0, 11.5);
 
 	// target cross vertical
 	Double_t pse2[63] = { 0., 360., 20, -182.0, 7.5, 7.7, -135.5, 7.5, 7.7,
@@ -359,8 +469,7 @@ void createRootGeometry_beampipe() {
 			3.1, -54.0, 2.0, 2.1, -42.1, 2.0, 2.1, -17.0, 2.0, 2.1, -17.0, 1.0,
 			1.02, 17.0, 1.0, 1.02, 17.0, 2.0, 2.1, 42.1, 2.0, 2.1, 54.0, 2.0,
 			2.1, 54.0, 3.0, 3.1, 95.5, 3.0, 3.1, 95.5, 4.5, 4.6, 133.5, 4.5,
-			4.6, 143.5, 7.85, 7.95, 168.69, 7.85, 7.95,
-
+			4.6, 143.5, 7.85, 7.95, 168.69, 7.85, 7.95
 	};
 	TGeoPcon* Tcross3 = new TGeoPcon("Tcross3", 0., 360., 20);
 	Tcross3->SetDimensions(pse2);
@@ -401,9 +510,17 @@ void createRootGeometry_beampipe() {
 	TGeoCompositeShape *STcross = new TGeoCompositeShape("Tcross",
 			"Tcross0a+Tcross0b:tre6+Tcross0c:tre7+VATvalve160:tre8");
 
+	TGeoCompositeShape *STcross_vac = new TGeoCompositeShape("Tcross_vac",
+			"Tcross1+Tcross2:tre6");
+
 	TGeoVolume *VTcross = new TGeoVolume("Tcross", STcross,
 			gGeoManager->GetMedium(str_ti.c_str()));
 	VTcross->SetLineColor(35);
+
+	TGeoVolume *VTcross_vac = new TGeoVolume("Tcross_vac", STcross_vac,
+			gGeoManager->GetMedium("vacuum5"));
+	VTcross_vac->SetLineColor(2);
+	VTcross_vac->SetTransparency(50);
 
 	//sensor_positions.push_back(z0 + currentz);
 	// last z-position: 482.9328
@@ -422,6 +539,27 @@ void createRootGeometry_beampipe() {
 	TGeoPcon* pipeTSdown = new TGeoPcon("pipeTSdown", 0., 360., 16);
 	pipeTSdown->SetDimensions(psf1);
 
+	// the corresponding vacuum
+	Double_t psf1_vac[51] = { 0., 360., 16,
+			0.000, 0.0, 1.0,
+			3.7321, 0.0, 2.0,
+			3.7321, 0.0, 2.0,
+			93.0000, 0.0, 2.0,
+			97.4785, 0.0, 3.2,
+			101.0000, 0.0, 3.2,
+			101.0000, 0.0, 3.2,
+			106.0225, 0.0, 3.2,
+			106.0225, 0.0, 3.2,
+			241.8225, 0.0, 3.2,
+			241.8225, 0.0, 3.2,
+			244.8225, 0.0, 3.2,
+			244.8225, 0.0, 3.2,
+			261.0725, 0.0, 3.2,
+			261.0725, 0.0, 3.2,
+			262.8225, 0.0, 3.2};
+	TGeoPcon* pipeTSdown_vac = new TGeoPcon("pipeTSdown_vac", 0., 360., 16);
+	pipeTSdown_vac->SetDimensions(psf1_vac);
+
 	TGeoCombiTrans* trf1 =
 			new TGeoCombiTrans("trf1", 0., 0., z0 + currentz, r1);
 	trf1->RegisterYourself();
@@ -429,6 +567,11 @@ void createRootGeometry_beampipe() {
 	TGeoVolume *VpipeTSdown = new TGeoVolume("pipeTSdown", pipeTSdown,
 			gGeoManager->GetMedium(str_ti.c_str()));
 	VpipeTSdown->SetLineColor(36);
+
+	TGeoVolume *VpipeTSdown_vac = new TGeoVolume("pipeTSdown_vac", pipeTSdown_vac,
+			gGeoManager->GetMedium("vacuum6"));
+	VpipeTSdown_vac->SetLineColor(2);
+	VpipeTSdown_vac->SetTransparency(60);
 
 	//sensor_positions.push_back(z0 + currentz);
 	// last z-position: 745.7553
@@ -444,6 +587,19 @@ void createRootGeometry_beampipe() {
 			5.0, 5.07, 51.0, 5.0, 7.60, 53.0, 5.0, 7.60 };
 	TGeoPcon* crossTS1 = new TGeoPcon("crossTS1", 0., 360., 8);
 	crossTS1->SetDimensions(psg1);
+
+	// vacuum
+	Double_t psg1_vac[27] = { 0., 360., 8,
+			0.000, 0.0, 3.2,
+			1.7200, 0.0, 3.2,
+			1.7200, 0.0, 3.2,
+			3.3653, 0.0, 3.2,
+			10.0830, 0.0, 5.0,
+			51.0, 0.0, 5.0,
+			51.0, 0.0, 5.0,
+			53.0, 0.0, 5.0};
+	TGeoPcon* crossTS1_vac = new TGeoPcon("crossTS1_vac", 0., 360., 8);
+	crossTS1_vac->SetDimensions(psg1_vac);
 
 	TGeoTube* tg1 = new TGeoTube("tg1", 0., 6.07, 5.07 + delta);
 	TGeoCombiTrans* trg1 = new TGeoCombiTrans("trg1", 0., 0., 26.0, r2);
@@ -484,9 +640,17 @@ void createRootGeometry_beampipe() {
 	TGeoCompositeShape *ScrossTSTMPs = new TGeoCompositeShape("crossTSTMPs",
 			"VATvalve63+crossTS+VATvalve100:trg6");
 
+	TGeoCompositeShape *ScrossTS_vac = new TGeoCompositeShape("crossTS_vac",
+				"VATvalve63_vac+crossTS1_vac:trg4+VATvalve100_vac:trg6");
+
 	TGeoVolume *VcrossTSTMPs = new TGeoVolume("crossTSTMPs", ScrossTSTMPs,
 			gGeoManager->GetMedium("steel"));
 	VcrossTSTMPs->SetLineColor(37);
+
+	TGeoVolume *VcrossTSTMPs_vac = new TGeoVolume("crossTSTMPs_vac", ScrossTS_vac,
+			gGeoManager->GetMedium("vacuum7"));
+	VcrossTSTMPs_vac->SetLineColor(2);
+	VcrossTSTMPs_vac->SetTransparency(70);
 
 	//sensor_positions.push_back(z0 + currentz);
 	// last z-position: 812.9103
@@ -521,8 +685,19 @@ void createRootGeometry_beampipe() {
 	TGeoPcon* Dippip1 = new TGeoPcon("Dippip1", 0., 360., 4);
 	Dippip1->SetDimensions(psh1);
 
+	// it's vacuum
+	Double_t psh1_vac[15] = { 0., 360., 4,
+			0., 0.0, 5.0,
+			2.2, 0.0, 5.0,
+			2.2, 0.0, 5.0,
+			7.2, 0.0, 5.5};
+	TGeoPcon* Dippip1_vac = new TGeoPcon("Dippip1_vac", 0., 360., 4);
+	Dippip1_vac->SetDimensions(psh1_vac);
+
 	// dipole pipe, bent part
 	TGeoTorus *Dippip2 = new TGeoTorus("Dippip2", R, 5.5, 5.7, 0., dphi / rad);
+	// and it's vacuum
+	TGeoTorus *Dippip2_vac = new TGeoTorus("Dippip2_vac", R, 0.0, 5.49, 0., dphi / rad);
 
 	// dipole pipe, straight part
 	Double_t psh21[15] = { 0., 360., 4, 0., 5.5, 5.7, 11., 5.5, 5.7,
@@ -530,14 +705,43 @@ void createRootGeometry_beampipe() {
 	TGeoPcon* Dippip21 = new TGeoPcon("Dippip21", 0., 360., 4);
 	Dippip21->SetDimensions(psh21);
 
+	// and it's vacuum
+	Double_t psh21_vac[12] = { 0., 360., 3,
+			0., 0.0, 5.5,
+			11., 0.0, 5.5,
+			13., 0.0, 5.5};
+	TGeoPcon* Dippip21_vac = new TGeoPcon("Dippip21_vac", 0., 360., 3);
+	Dippip21_vac->SetDimensions(psh21_vac);
+
 	// horizontal pipe, third part
 	//Double_t psh2[24] = { 0., 360., 7, 0., 5.0, 5.2, 5.0225, 5.0, 5.2, 19.3385
-	Double_t psh2[33] = { 0., 360., 10, 0., 5.5, 7.6, 2., 5.5, 7.6,
-			2., 5.5, 5.7, 5., 5.5, 5.7, 20, 9., 9.3, 320, 9.0,
-			9.3, 340.5, 10.0, 10.3,
-			340.5+98.9, 10., 10.3, 340.5+98.9, 10., 12, 340.5+101.5, 10., 12};
+	Double_t psh2[33] = { 0., 360., 10,
+			0., 5.5, 7.6,
+			2., 5.5, 7.6,
+			2., 5.5, 5.7,
+			5., 5.5, 5.7,
+			20, 9., 9.3,
+			320, 9.0, 9.3,
+			340.5, 10.0, 10.3,
+			340.5+98.9, 10., 10.3,
+			340.5+98.9, 10., 12,
+			340.5+101.5, 10., 12};
 	TGeoPcon* Dippip3 = new TGeoPcon("Dippip3", 0., 360., 10);
 	Dippip3->SetDimensions(psh2);
+
+	// and it's vacuum
+	Double_t psh2_vac[30] = { 0., 360., 9,
+			0., 0.0, 5.5,
+			2., 0.0, 5.5,
+			2., 0.0, 5.5,
+			5., 0.0, 5.5,
+			20, 0.0, 9.0,
+			320, 0.0, 9.0,
+			340.5, 0.0, 10.0,
+			340.5+98.9, 0.0, 10.,
+			340.5+101.5, 0.0, 10.};
+	TGeoPcon* Dippip3_vac = new TGeoPcon("Dippip3_vac", 0., 360., 9);
+	Dippip3_vac->SetDimensions(psh2_vac);
 
 	TGeoCombiTrans* trh1 = new TGeoCombiTrans("trh1", R, 0., 7.1225,
 			new TGeoRotation("a", 0., -90., 180.));
@@ -563,9 +767,18 @@ void createRootGeometry_beampipe() {
 	TGeoCompositeShape *SDippip = new TGeoCompositeShape("Dippip",
 			"Dippip1+Dippip2:trh1+Dippip21:trh2+VATvalve110:trh21+Dippip3:trh3");//"Dippip1+Dippip3:trh3");//"Dippip1+Dippip2:trh1+VATvalve100:trh2+Dippip3:trh3");
 
+	TGeoCompositeShape *SDippip_vac = new TGeoCompositeShape("Dippip_vac",
+			"Dippip1_vac+Dippip2_vac:trh1+Dippip21_vac:trh2+VATvalve110_vac:trh21+Dippip3_vac:trh3");//"Dippip1+Dippip3:trh3");//"Dippip1+Dippip2:trh1+VATvalve100:trh2+Dippip3:trh3");
+
+
 	TGeoVolume *VDipolePip = new TGeoVolume("DipolePip", SDippip,
 			gGeoManager->GetMedium("steel"));
 	VDipolePip->SetLineColor(38);
+
+	TGeoVolume *VDipolePip_vac = new TGeoVolume("DipolePip_vac", SDippip_vac,
+			gGeoManager->GetMedium("vacuum8"));
+	VDipolePip_vac->SetLineColor(2);
+	VDipolePip_vac->SetTransparency(80);
 
 	// last z-position: 1498.836617 was 1509.7031905 (s = 448.83470)
 	currentz += 7.1225 + dz0 + s * cos(dphi);
@@ -750,15 +963,31 @@ void createRootGeometry_beampipe() {
 	// put all volumes together -> beamPipe
 	TGeoVolume *beamPipe = new TGeoVolumeAssembly("BeamPipe");
 	//gGeoManager->SetTopVolume(beamPipe);
-	beamPipe->AddNode(Vgvhesr, 0, tr0); // a
+	//beamPipe->AddNode(Vgvhesr, 0, tr0); // a
 	beamPipe->AddNode(Vpipeup, 0, trb1); // b
+	beamPipe->AddNode(Vpipeup_vac, 0, trb1);
+
 	beamPipe->AddNode(Vktmpump, 0, trc2); // c1
+	beamPipe->AddNode(Vktmpump_vac, 0, trc2);
+
 	beamPipe->AddNode(VTpumps, 0, tr0); // c2
+
 	beamPipe->AddNode(VpipeTSup, 0, trd1); // d
+	beamPipe->AddNode(VpipeTSup_vac, 0, trd1);
+
 	beamPipe->AddNode(VTcross, 0, tre9); // e
+	beamPipe->AddNode(VTcross_vac, 0, tre9); // e
+
 	beamPipe->AddNode(VpipeTSdown, 0, trf1); // f
+	beamPipe->AddNode(VpipeTSdown_vac, 0, trf1);
+
 	beamPipe->AddNode(VcrossTSTMPs, 0, trg7); // g
+	beamPipe->AddNode(VcrossTSTMPs_vac, 0, trg7);
+
+
 	beamPipe->AddNode(VDipolePip, 0, trh4); // h
+	beamPipe->AddNode(VDipolePip_vac, 0, trh4);
+
 	//beamPipe->AddNode(VLumMon,        0, tri6);       // i
 	//beamPipe->AddNode(vlum_beampipe_upstream, 0, tri6);       // i
 	//beamPipe->AddNode(vlum_CaptonCone, 0, tri6);       // i
@@ -797,8 +1026,9 @@ void createRootGeometry_beampipe() {
 
 	// check geometry
 	//cave->CheckOverlaps(0.1, "");
-	//gGeoManager->CheckOverlaps(0.001); // [cm]
+	gGeoManager->CheckOverlaps(0.001); // [cm]
 	//gGeoManager->CheckGeometryFull();
+	gGeoManager->PrintOverlaps();
 
 	// save geometry
 

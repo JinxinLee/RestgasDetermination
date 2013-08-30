@@ -347,6 +347,7 @@ void read_jost_fieldmaps() {
 	transform_jost_fieldmap("s1301_z180_hsc.dat", "SolenoidMap3", 2);
 	transform_jost_fieldmap("s1301_z248_hsc.dat", "SolenoidMap4", 2);
 	transform_jost_fieldmap("p1301_z283_hsc_0150.dat", "TransMap.0150", 4);
+	transform_jost_fieldmap("p1301_z283_hsc_0406.dat", "TransMap.0406", 4);
 }
 
 #include<TApplication.h>
