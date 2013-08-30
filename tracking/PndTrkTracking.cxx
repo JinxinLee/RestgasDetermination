@@ -1537,6 +1537,7 @@ fnMvdPixelHitsinTrack,fnMvdStripHitsinTrack,fnSttParHitsinTrack,fnSttSkewHitsinT
 fnSciTilHitsinTrack,nSttTrackCand,-1,MAXMVDPIXELHITSINTRACK,MAXMVDSTRIPHITSINTRACK,
 MAXSCITILHITSINTRACK,MAXSTTHITSINTRACK,fR,fOx,fOy,FI0,KAPPA);
  }
+
 //-------------- fine stampa
 
 
@@ -2535,7 +2536,7 @@ MAXSCITILHITSINTRACK,MAXSTTHITSINTRACK,fR,fOx,fOy,FI0,KAPPA);
 		fnSttParHitsinTrack[ncand]=MAXSTTHITSINTRACK-fnSttSkewHitsinTrack[ncand];
 	  else fnSttParHitsinTrack[ncand]=0;
 	}
-  }
+  }  // end of  for(ncand=0; ncand< nTotalCandidates; ncand++)
 //---------------
 
 //-------------- stampa
@@ -2549,6 +2550,14 @@ fnSciTilHitsinTrack,nSttTrackCand,-1,MAXMVDPIXELHITSINTRACK,MAXMVDSTRIPHITSINTRA
 MAXSCITILHITSINTRACK,MAXSTTHITSINTRACK,fR,fOx,fOy,FI0,KAPPA);
  }
 //-------------- fine stampa
+
+
+  }  // end of if(fnMvdPixelHit+fnMvdStripHit>0
+//--------------------- end of the section where the Mvd hits are added to the track candidates
+
+
+
+//   the following is valid for all tracks;
 
 //	ordering all the hits belonging to the candidate track, by increasing fR (large
 //	trajectories)  or Conformal variables (better for small trajectories);
@@ -2581,7 +2590,7 @@ MAXSCITILHITSINTRACK,MAXSTTHITSINTRACK,fR,fOx,fOy,FI0,KAPPA);
 		}
 	}  // end of for(ncand=0; ncand< nTotalCandidates; ncand++)
 
-  }  // end of if(fnMvdPixelHit+fnMvdStripHit>0)
+
 
 //------------- cleanup section.
 
@@ -3241,7 +3250,87 @@ if(istampa>=2){
 // -------------------------------------------------------------------------------------
 // -------------------------------------------------------------------------------------
 
+//-----------------------
+if(istampa>1){
+ for(ncand=0; ncand< nTotalCandidates; ncand++) {
+	cout<<"from PndTrkTracking.cxx, just before  LoadPndTrack_TrackCand, cand. # "
+	<<ncand<<", keepit = "<<keepit[ncand];
+	if(keepit[ncand]){
+		  cout<<", # Pixels in cand = "<<fnMvdPixelHitsinTrack[ncand]<<" e loro lista :\n";
+		for(int gg=0; gg<fnMvdPixelHitsinTrack[ncand]; gg++){
+		  cout<<"\tPixel Hit # "<<fListMvdPixelHitsinTrack[ncand][gg]<<endl;
+		}
+		cout<<ncand<<", # Strips in cand = "<<fnMvdStripHitsinTrack[ncand]<<" e loro lista :\n";
+        	for(int gg=0; gg<fnMvdStripHitsinTrack[ncand]; gg++){
+                	cout<<"\tPixel Hit # "<<fListMvdStripHitsinTrack[ncand][gg]<<endl;
+        	}
+	} else {
+		cout<<";\n";
+	}  // end of  if(keepit[ncand])
 
+ }
+}
+
+
+        for(ncand=0; ncand< nTotalCandidates; ncand++){
+                if(!keepit[ncand]) continue;
+                for(int jj=0; jj<fnTrackCandHit[ncand]; jj++){
+                        switch (fListTrackCandHitType[ncand][jj]){
+                                case 0:
+                                        if ( fListTrackCandHit[ncand][jj] >=fnMvdPixelHit ){
+                                                cout<<"from PndTrkTracking, problem event "<<IVOLTE<<", cand. "<<ncand<<", hit n. "<<
+                                                fListTrackCandHit[ncand][jj]<<"  type Mvd Pixel; (n. Mvd Pixel Hit = "<<fnMvdPixelHit<<" );\n";
+                                        }
+                                        break;
+
+                                case 1:
+                                        if ( fListTrackCandHit[ncand][jj] >=fnMvdStripHit ){
+                                                cout<<"from PndTrkTracking, problem event "<<IVOLTE<<", cand. "<<ncand<<", hit n. "<<
+                                                fListTrackCandHit[ncand][jj]<<"  type Mvd Strip; (n. Mvd Strip Hit = "<<fnMvdStripHit  <<" );\n";
+                                        }
+                                        break;
+
+                                case 2:
+                                        if ( fListTrackCandHit[ncand][jj] >=nSttHit ){
+                                                cout<<"from PndTrkTracking, problem event "<<IVOLTE<<", cand. "<<ncand<<", hit n. "<<
+                                                fListTrackCandHit[ncand][jj]<<"  type Stt || hit; (nSttHit = "<<nSttHit<<" );\n";
+                                        }
+                                        break;
+                                case 3:
+                                        if ( fListTrackCandHit[ncand][jj] >=nSttHit ){
+                                                cout<<"from PndTrkTracking, problem event "<<IVOLTE<<", cand. "<<ncand<<", hit n. "<<
+                                                fListTrackCandHit[ncand][jj]<<"  type Stt // hit; (nSttHit = "<<nSttHit<<" );\n";
+                                        }
+                                        break;
+                                case 1001:
+                                        if ( fListTrackCandHit[ncand][jj] >=fnSciTilHits ){
+                                                cout<<"from PndTrkTracking, problem event "<<IVOLTE<<", cand. "<<ncand<<", hit n. "<<
+                                                fListTrackCandHit[ncand][jj]<<"  type SciTil hit; (n. SciTi Hit = "<<fnSciTilHits<<" );\n";
+                                        }
+                                        break;
+
+                        }
+                }
+        } // end of   for(ncand=nSttTrackCand; ncand< nTotalCandidates; ncand++)
+
+//---------------------------------------------------------------------------------------------------
+//-----------------------------------------------------------------------------------------------------------------
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+//------------------------
 
 //-------  load the new PndTrackCand ; each track has the STT and the Mvd hits associated
 //-------  also load the new PndTrack ; each track has the STT and the Mvd hits associated
@@ -4754,49 +4843,6 @@ void PndTrkTracking::LoadPndTrack_TrackCand(
 
 //--------------------------
 int nSttHit = fSttHitArray->GetEntriesFast();
-//-------------------------
-
-
-
-	for(ncand=0; ncand< nTotalCandidates; ncand++){
-		if(!keepit[ncand]) continue;
-		for(int jj=0; jj<fnTrackCandHit[ncand]; jj++){
-			switch (fListTrackCandHitType[ncand][jj]){
-				case 0:
-					if ( fListTrackCandHit[ncand][jj] >=fnMvdPixelHit ){
-						cout<<"from PndTrkTracking, problem event "<<IVOLTE<<", cand. "<<ncand<<", hit n. "<<
-						fListTrackCandHit[ncand][jj]<<"  type Mvd Pixel; (n. Mvd Pixel Hit = "<<fnMvdPixelHit<<" );\n";
-					}
-					break;
-
-				case 1:
-					if ( fListTrackCandHit[ncand][jj] >=fnMvdStripHit ){
-						cout<<"from PndTrkTracking, problem event "<<IVOLTE<<", cand. "<<ncand<<", hit n. "<<
-						fListTrackCandHit[ncand][jj]<<"  type Mvd Strip; (n. Mvd Strip Hit = "<<fnMvdStripHit  <<" );\n";
-					}
-					break;
-				case 2:
-					if ( fListTrackCandHit[ncand][jj] >=nSttHit ){
-						cout<<"from PndTrkTracking, problem event "<<IVOLTE<<", cand. "<<ncand<<", hit n. "<<
-						fListTrackCandHit[ncand][jj]<<"  type Stt || hit; (nSttHit = "<<nSttHit<<" );\n";
-					}
-					break;
-				case 3:
-					if ( fListTrackCandHit[ncand][jj] >=nSttHit ){
-						cout<<"from PndTrkTracking, problem event "<<IVOLTE<<", cand. "<<ncand<<", hit n. "<<
-						fListTrackCandHit[ncand][jj]<<"  type Stt // hit; (nSttHit = "<<nSttHit<<" );\n";
-					}
-					break;
-				case 1001:
-					if ( fListTrackCandHit[ncand][jj] >=fnSciTilHits ){
-						cout<<"from PndTrkTracking, problem event "<<IVOLTE<<", cand. "<<ncand<<", hit n. "<<
-						fListTrackCandHit[ncand][jj]<<"  type SciTil hit; (n. SciTi Hit = "<<fnSciTilHits<<" );\n";
-					}
-					break;
-
-			}
-		}
-	} // end of   for(ncand=nSttTrackCand; ncand< nTotalCandidates; ncand++)
 
 //---------------------------------------------------------------------------------------------------
 //-----------------------------------------------------------------------------------------------------------------
@@ -6195,7 +6241,6 @@ void PndTrkTracking::Ordering_Loading_ListTrackCandHit(
 				)
 {
 	Short_t ncand;
-
 	for(ncand=FirstCandidate; ncand< LastCandidate; ncand++){
 
 		// for small radius trajectory better the ordering with conformal.
@@ -6234,7 +6279,8 @@ void PndTrkTracking::OrderingR_Loading_ListTrackCandHit(
 	)
 {
 
- Short_t	i,
+ Short_t	dime,
+		i,
 		j,
 		ipar,
 		iskew;
@@ -6249,14 +6295,12 @@ void PndTrkTracking::OrderingR_Loading_ListTrackCandHit(
 		fnTrackCandHit[ncand] =fnSttParHitsinTrack[ncand]+fnSttSkewHitsinTrack[ncand]+
 					fnMvdPixelHitsinTrack[ncand]+
 					fnMvdStripHitsinTrack[ncand];
-		Short_t tempmvdindex[fnMvdPixelHitsinTrack[ncand]+
-					fnMvdStripHitsinTrack[ncand] ],
-			 tempmvdtype[fnMvdPixelHitsinTrack[ncand]+
-					fnMvdStripHitsinTrack[ncand] ];
-		Int_t auxIndex[fnMvdPixelHitsinTrack[ncand]+
-					fnMvdStripHitsinTrack[ncand] ];
-		Double_t auxR[fnMvdPixelHitsinTrack[ncand]+
-					fnMvdStripHitsinTrack[ncand] ];
+		dime = fnMvdPixelHitsinTrack[ncand]+fnMvdStripHitsinTrack[ncand];
+		if(dime == 0 ) dime =1;	// just for protection;
+		Short_t tempmvdindex[dime ],
+			 tempmvdtype[dime ];
+		Int_t auxIndex[dime ];
+		Double_t auxR[dime ];
 		// adding the Mvd hits (Pixel and Strips)
 		for(i=0; i< fnMvdPixelHitsinTrack[ncand]; i++){
 			auxR[i] =
@@ -6299,14 +6343,12 @@ void PndTrkTracking::OrderingR_Loading_ListTrackCandHit(
 
 		// construction of the second part of the ordered new Track  Candidate
 
-		Short_t tempmvdindex2[fnSttParHitsinTrack[ncand]+
-					fnSttSkewHitsinTrack[ncand] ],
-			 tempmvdtype2[fnSttParHitsinTrack[ncand]+
-					fnSttSkewHitsinTrack[ncand] ];
-		Int_t auxIndex2[fnSttParHitsinTrack[ncand]+
-					fnSttSkewHitsinTrack[ncand] ];
-		Double_t auxR2[fnSttParHitsinTrack[ncand]+
-					fnSttSkewHitsinTrack[ncand] ];
+		dime = fnSttParHitsinTrack[ncand]+fnSttSkewHitsinTrack[ncand];
+		if(dime == 0) dime =1;	// only for protection;
+		Short_t tempmvdindex2[dime ],
+			 tempmvdtype2[dime ];
+		Int_t auxIndex2[dime ];
+		Double_t auxR2[dime ];
 
 		for(i=0; i<fnSttParHitsinTrack[ncand]; i++){
 			auxR2[i] =
@@ -6521,18 +6563,21 @@ void   PndTrkTracking::OrderingUsingConformal(
 
 
 
-      Short_t	i,j, 
-		tmp[nHits];
+      Short_t	dime,i,j;
       Double_t	aaa,
 		bbb,
 		ccc,
 		b1,
 		firstR2,
-		lastR2,
-		aux[nHits],
-		U[nHits],
-		V[nHits];
+		lastR2;
 
+      dime = nHits;
+      if(nHits==0) dime =1;
+
+      Short_t	tmp[dime];
+      Double_t	aux[dime],
+		U[dime],
+		V[dime];
 
  PndTrkMergeSort MergeSort;
 
