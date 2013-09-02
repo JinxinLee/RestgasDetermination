@@ -13,6 +13,7 @@
 #include "TClonesArray.h"
 #include "PndMCTrack.h"
 #include "PndDrcPDPoint.h"
+#include "PndDrcEVPoint.h"
 #include "PndDrcHit.h"
 #include "PndDrcPDHit.h"
 #include "PndDrcDigi.h"
@@ -55,9 +56,10 @@ private:
 
   TClonesArray* fMCArray;      // DRC MCPoints in the photon detector
   TClonesArray* fPDPointArray; // DRC points in the photon detector
+  TClonesArray* fEVPointArray;
   TClonesArray* fDigiArray;
   TClonesArray* fPDHitArray;   // DRC Hits in the photon detector
-  TClonesArray *fLut;
+  TClonesArray* fLut;
   
   TFile *fFile; 
   TTree *fTree;
@@ -66,7 +68,8 @@ private:
   PndDrcPDPoint* fPDPoint;
   PndDrcDigi* fDigi;
   PndDrcPDHit* fPDHit;
-
+  PndDrcEVPoint *fEVPoint;
+  
   // Set the parameters to the default values.
   void SetDefaultParameters();
   

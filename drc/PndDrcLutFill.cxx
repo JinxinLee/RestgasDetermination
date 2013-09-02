@@ -70,6 +70,14 @@ InitStatus PndDrcLutFill::Init()
     cout << "-W- PndDrcLutFill::Init: " << "No DrcPDPoint array!" << endl;
     return kERROR;
   }  
+
+  // Get ev points array
+  fEVPointArray = (TClonesArray*) ioman->GetObject("DrcEVPoint");
+  if ( ! fEVPointArray ) {
+    cout << "-W- PndDrcLutFill::Init: " << "No DrcEVPoint array!" << endl;
+    return kERROR;
+  }
+
   // Get digi array
   fDigiArray = (TClonesArray*) ioman->GetObject("DrcDigi");
   if ( ! fDigiArray ) {
@@ -117,6 +125,8 @@ void PndDrcLutFill::Exec(Option_t* option)
 void PndDrcLutFill::ProcessPhotonHit()
 {
   Int_t nofChPho = 0;
+  Double_t id;
+  TVector3 dir, vec;
   // Loop over PndDrcPDHits
   for(Int_t k=0; k<fPDHitArray->GetEntriesFast(); k++) {
    
@@ -127,18 +137,32 @@ void PndDrcLutFill::ProcessPhotonHit()
 
     Int_t pointID= fDigi->GetIndex(0);
     fPDPoint = (PndDrcPDPoint*)fPDPointArray->At(pointID);
-    
-    Int_t trackID= fPDPoint->GetTrackID();
+
+    Int_t trackID = fPDPoint->GetTrackID();
+    Int_t nev=0; 
+    id=0;
+    for(int i=0; i<fEVPointArray->GetEntriesFast(); i++){
+      fEVPoint = (PndDrcEVPoint*)fEVPointArray->At(i);
+      if(trackID == fEVPoint->GetTrackID()){
+	nev++;
+        vec = fEVPoint->GetNormal();
+	id += (vec.X()+vec.Y()*10 + vec.Z()*100)*1000*nev;
+      }
+    }
 
     fMCTrack = (PndMCTrack*)fMCArray->At(trackID);
-    TVector3 dir =  fMCTrack->GetMomentum().Unit();
-    if(fDigi->GetSensorID()>150000) {
+    dir =  fMCTrack->GetMomentum().Unit();
+    Int_t sensorId = fDigi->GetSensorID();
+    if(sensorId>150000) {
       std::cout<<"WTQ  fPDHit->GetDetectorID()   "<<fPDHit->GetDetectorID() <<std::endl;
       continue;
     }
-    ((PndDrcLutNode*)(fLut->At(fDigi->GetSensorID())))->AddEntry(dir);
+
+    ((PndDrcLutNode*)(fLut->At(sensorId)))->AddEntry(dir);
+    ((PndDrcLutNode*)(fLut->At(sensorId)))->AddPathId(id);
   }
 }
+
 
 // -----   Finish Task   ---------------------------------------------------
 void PndDrcLutFill::Finish()
