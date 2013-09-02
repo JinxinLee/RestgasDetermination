@@ -34,7 +34,8 @@ public:
   void AddPath(Double_t val);
   void AddChDiff(Double_t val);
   void AddNOfBounces(Double_t val);
-  
+  void AddNOfEVReflections(Int_t val);
+
   void SetLambda(Double_t val);
   void SetChPartDir(TVector3 val);
   void SetChPartDirInBar(TVector3 val);
@@ -52,6 +53,7 @@ public:
   Int_t PathEntries() 		    {return fPathsSize; }
   Int_t ChDiffEntries() 	    {return fChDiffsSize; }
   Int_t NOfBouncesEntries() 	    {return fNOfBouncesSize; }
+  Int_t NOfEVReflectionEntries()    {return fNOfEVReflectionsSize; }
   
   Double_t GetLambda()		    {return fLambda;}
   TVector3 GetChPartDir()	    {return fChPartDir;}
@@ -69,6 +71,7 @@ public:
   Double_t GetPath(Int_t entry);
   Double_t GetChDiff(Int_t entry);
   Int_t    GetNOfBounces(Int_t entry);
+  Int_t    GetNOfEVReflections(Int_t entry);
     
 protected:
 
@@ -78,6 +81,7 @@ protected:
   Int_t fPathsSize;
   Int_t fChDiffsSize;
   Int_t fNOfBouncesSize;
+  Int_t fNOfEVReflectionsSize;
 
   // arrays of values based on the LUT ambiguities:
   std::vector<Double_t> fAnglesArray;
@@ -88,6 +92,7 @@ protected:
   std::vector<Double_t> fChDiffsArray;
   std::vector<Int_t>    fNOfBouncesArray;
   std::vector<TVector3> fPhotonStartPosition; 
+  std::vector<Int_t>   fNOfEVReflectionsArray;
 
   // MC information
   Double_t fLambda;

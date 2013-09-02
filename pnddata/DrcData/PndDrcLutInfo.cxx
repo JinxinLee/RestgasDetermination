@@ -60,6 +60,12 @@ void PndDrcLutInfo::AddNOfBounces(Double_t val) {
   fNOfBouncesSize++;
 }
 
+void PndDrcLutInfo::AddNOfEVReflections(Int_t val) {
+
+  fNOfEVReflectionsArray.push_back(val);
+  fNOfEVReflectionsSize++;
+}
+
 void PndDrcLutInfo::SetLambda(Double_t val){
   fLambda = val;
 }
@@ -110,4 +116,8 @@ Double_t PndDrcLutInfo::GetChDiff(Int_t entry) {
 }
 Int_t PndDrcLutInfo::GetNOfBounces(Int_t entry) {
   return fNOfBouncesArray[entry];
+}
+
+Int_t PndDrcLutInfo::GetNOfEVReflections(Int_t entry) {
+  return fNOfEVReflectionsArray[entry];
 }
