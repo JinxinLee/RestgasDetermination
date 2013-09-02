@@ -55,6 +55,9 @@ public:
   Int_t ChDiffEntries() 	    {return fChDiffsSize; }
   Int_t NOfBouncesEntries() 	    {return fNOfBouncesSize; }
   Int_t NOfEVReflectionEntries()    {return fNOfEVReflectionsSize; }
+  Int_t NOfLambdas()		    {return fLambdasSize;}
+  Int_t NOfTruePaths()		    {return fTruePathsSize;}
+  Int_t NOfHitTimes()		    {return fHitTimesSize;}
   
   TVector3 GetChPartDir()	    {return fChPartDir;}
   TVector3 GetChPartDirInBar()	    {return fChPartDirInBar;}
