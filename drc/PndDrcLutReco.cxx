@@ -72,6 +72,13 @@ InitStatus PndDrcLutReco::Init()
     return kERROR;
   }
 
+  // Get ev points array
+  fEVPointArray = (TClonesArray*) ioman->GetObject("DrcEVPoint");
+  if ( ! fEVPointArray ) {
+    cout << "-W- PndDrcLutReco::Init: " << "No DrcEVPoint array!" << endl;
+    return kERROR;
+  }
+
   // Get Photon point array
   fPDPointArray = (TClonesArray*) ioman->GetObject("DrcPDPoint");
   if ( ! fPDPointArray ) {
@@ -102,6 +109,10 @@ InitStatus PndDrcLutReco::Init()
   fDrcLutInfoArray = new TClonesArray("PndDrcLutInfo");
   ioman->Register("DrcLutInfo","Drc",fDrcLutInfoArray, kTRUE);
 
+  fGeo = new PndGeoDrc();
+  fBboxNum    = fGeo->BBoxNum();
+  fPipehAngle = fGeo->PipehAngle();
+  fDphi       = 2.*(180. - 2*fPipehAngle)/(Double_t)fGeo->BBoxNum();
 
   cout << "-I- PndDrcLutReco: Intialization successfull" << endl;
   return kSUCCESS;
@@ -127,9 +138,12 @@ void PndDrcLutReco::ProcessPhotonHit()
   else if(fVerbose==1 && nevents%1000==0) std::cout<<"Event # "<< nevents<<" has "<<nHits<<" hits."<< std::endl;
 
   PndDrcLutInfo lutinfo;
-  TVector3 dir, momAtZero, momInBar;
-  Double_t cangle,tangle;
+  TVector3 dirm, dir, momAtZero, momInBar,posInBar;
+  Double_t cangle,tangle, barPhi;
   Int_t pdgcode;
+
+  TVector3 fnX1 = TVector3 (1,0,0);   
+  TVector3 fnY1 = TVector3( 0,1,0); 
   //information retrieved correctly if there is only one primary track
   for(Int_t k=0; k<fMCArray->GetEntriesFast(); k++){
     fMCTrack = (PndMCTrack*)fMCArray->At(k);
@@ -159,8 +173,23 @@ void PndDrcLutReco::ProcessPhotonHit()
     
     fBarPoint= (PndDrcBarPoint*)fBarPointArray->At(fPDPoint->GetBarPointID());
     fBarPoint->Momentum(momInBar);
+    fBarPoint->Position(posInBar);
+
     pdgcode = fBarPoint->GetPdgCode();
+    Double_t startPhi = posInBar.Phi()/TMath::Pi()*180;
+    if(startPhi < 0) startPhi = 360 + startPhi;
+    if(startPhi >= 0 && startPhi < 90) barPhi = TMath::Floor(startPhi/fDphi) *fDphi + fDphi/2.;
+    if(startPhi >= 90 && startPhi < 270) barPhi = 90  + fPipehAngle + TMath::Floor((startPhi-90-fPipehAngle)/fDphi) *fDphi + fDphi/2.;
+    if(startPhi >= 270 && startPhi < 360) barPhi = 270 + fPipehAngle + TMath::Floor((startPhi-270-fPipehAngle)/fDphi) *fDphi + fDphi/2.;
+    momInBar.RotateZ(-barPhi/180.*TMath::Pi());
     cangle = fBarPoint->GetThetaC();
+    
+    Int_t trackID = fPDPoint->GetTrackID();
+    Int_t evpointcount = 0;
+    for(int i=0; i<fEVPointArray->GetEntriesFast(); i++){
+      fEVPoint = (PndDrcEVPoint*)fEVPointArray->At(i);
+      if(trackID == fEVPoint->GetTrackID()) evpointcount++;
+    }
 
     // Int_t trackID= fPDPoint->GetTrackID();
     // fMCTrack = (PndMCTrack*)fMCArray->At(trackID);
@@ -173,18 +202,39 @@ void PndDrcLutReco::ProcessPhotonHit()
     PndDrcLutNode *node= (PndDrcLutNode*) fLut->At(fPDHit->GetDetectorID());
     Int_t size = node->Entries();
     for(int i=0; i<size; i++){
-      dir = node->GetEntry(i);
-      tangle = momInBar.Angle(dir);
-      //tangle = momAtZero.Angle(dir);
-      if(tangle>TMath::Pi()/2.) tangle = TMath::Pi()-tangle;
-      lutinfo.AddAngle(cangle - tangle);
-      dir.SetZ(-dir.Z());
-      tangle = momInBar.Angle(dir);
-      //tangle = momAtZero.Angle(dir);
-      if(tangle>TMath::Pi()/2.) tangle = TMath::Pi()-tangle;
-      lutinfo.AddAngle(cangle - tangle);
+      dirm = node->GetEntry(i);
+      dirm.RotateZ(-barPhi/180.*TMath::Pi());
+
+      for(int u=0; u<8; u++){
+	if(u == 0) dir = dirm;
+	if(u == 1) dir.SetXYZ( dirm.X(), dirm.Y(),-dirm.Z());
+	if(u == 2) dir.SetXYZ( dirm.X(),-dirm.Y(), dirm.Z());
+	if(u == 3) dir.SetXYZ(-dirm.X(), dirm.Y(), dirm.Z());
+	if(u == 4) dir.SetXYZ(-dirm.X(),-dirm.Y(), dirm.Z());
+	if(u == 5) dir.SetXYZ(-dirm.X(), dirm.Y(),-dirm.Z());
+	if(u == 6) dir.SetXYZ( dirm.X(),-dirm.Y(),-dirm.Z());
+	if(u == 7) dir = -dirm;
+
+	tangle = momInBar.Angle(dir);
+	if(tangle>TMath::Pi()/2.) tangle = TMath::Pi()-tangle;
+	lutinfo.AddAngle(cangle - tangle);
+
+
+	if(!((dir.Cross(fnX1)).Mag() > 1.00028/fGeo->nQuartz() || (dir.Cross(fnY1)).Mag() > 1.00028/fGeo->nQuartz())){
+	  std::cout<<"Wrong combination "<<std::endl;
+	}
+
+      }
+
+      // dir = TVector3(dirm.X(),dirm.Y(),-dirm.Z());
+      // tangle = momInBar.Angle(dir);
+      // if(tangle>TMath::Pi()/2.) tangle = TMath::Pi()-tangle;
+      // lutinfo.AddAngle(cangle - tangle);
+
+
     }
     lutinfo.AddPixelEnd(lutinfo.AngleEntries());
+    lutinfo.AddNOfEVReflections(evpointcount);
   }
 
   lutinfo.SetChPartDir(momAtZero);
