@@ -17,11 +17,11 @@ PndDrcLutInfo::PndDrcLutInfo()
   fTimesSize = 0;
   fPathsSize = 0;
   fChDiffsSize = 0;
-  
-  fLambda = 0.; 
-  fChPartPdg = 0;
-  fTime = 0.;
-  fPath = 0.;
+  fLambdasSize = 0;
+  fTruePathsSize = 0;
+  fHitTimesSize = 0;  
+    
+  fChPartPdg = 0;    
   fCherenkovMC = 0.;
   fCherenkovReal = 0.;
   fPixelSize = 0;
@@ -49,6 +49,21 @@ void PndDrcLutInfo::AddPath(Double_t val) {
   fPathsArray.push_back(val);
   fPathsSize++;
 }
+void PndDrcLutInfo::AddTruePath(Double_t val) {
+
+  fTruePathArray.push_back(val);
+  fTruePathsSize++;
+}
+void PndDrcLutInfo::AddLambda(Double_t val) {
+
+  fLambdaArray.push_back(val);
+  fLambdasSize++;
+}
+void PndDrcLutInfo::AddHitTime(Double_t val) {
+
+  fHitTimeArray.push_back(val);
+  fHitTimesSize++;
+}
 void PndDrcLutInfo::AddChDiff(Double_t val) {
 
   fChDiffsArray.push_back(val);
@@ -66,9 +81,6 @@ void PndDrcLutInfo::AddNOfEVReflections(Int_t val) {
   fNOfEVReflectionsSize++;
 }
 
-void PndDrcLutInfo::SetLambda(Double_t val){
-  fLambda = val;
-}
 void PndDrcLutInfo::SetChPartDir(TVector3 val){
   fChPartDir = val;
 }
@@ -83,12 +95,6 @@ void PndDrcLutInfo::SetChPartDirInBar2(TVector3 val){
 
 void PndDrcLutInfo::SetChPartPdg(Int_t val){
   fChPartPdg = val;
-}
-void PndDrcLutInfo::SetTime(Double_t val){
-  fTime = val;
-}
-void PndDrcLutInfo::SetPath(Double_t val){
-  fPath = val;
 }
 void PndDrcLutInfo::SetCherenkovMC(Double_t val){
   fCherenkovMC = val;
@@ -107,9 +113,6 @@ Int_t PndDrcLutInfo::GetPixelEnd(Int_t entry) {
 
 Double_t PndDrcLutInfo::GetTime(Int_t entry) {
   return fTimesArray[entry];
-}
-Double_t PndDrcLutInfo::GetPath(Int_t entry) {
-  return fPathsArray[entry];
 }
 Double_t PndDrcLutInfo::GetChDiff(Int_t entry) {
   return fChDiffsArray[entry];

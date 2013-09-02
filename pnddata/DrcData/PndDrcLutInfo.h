@@ -35,14 +35,15 @@ public:
   void AddChDiff(Double_t val);
   void AddNOfBounces(Double_t val);
   void AddNOfEVReflections(Int_t val);
-
+  void AddLambda(Double_t val);
+  void AddTruePath(Double_t val);
+  void AddHitTime(Double_t val);
+  
   void SetLambda(Double_t val);
   void SetChPartDir(TVector3 val);
   void SetChPartDirInBar(TVector3 val);
   void SetChPartDirInBar2(TVector3 val);
-  void SetChPartPdg(Int_t val);  
-  void SetTime(Double_t val);
-  void SetPath(Double_t val);
+  void SetChPartPdg(Int_t val);   
   void SetCherenkovMC(Double_t val);
   void SetCherenkovReal(Double_t val);
 
@@ -55,24 +56,24 @@ public:
   Int_t NOfBouncesEntries() 	    {return fNOfBouncesSize; }
   Int_t NOfEVReflectionEntries()    {return fNOfEVReflectionsSize; }
   
-  Double_t GetLambda()		    {return fLambda;}
   TVector3 GetChPartDir()	    {return fChPartDir;}
   TVector3 GetChPartDirInBar()	    {return fChPartDirInBar;}
   TVector3 GetChPartDirInBar2()	    {return fChPartDirInBar2;}
-  Int_t    GetChPartPdg()	    {return fChPartPdg;} 
-  Double_t GetTime()		    {return fTime;}
-  Double_t GetPath()		    {return fPath;}
+  Int_t    GetChPartPdg()	    {return fChPartPdg;}     
   Double_t GetCherenkovMC()	    {return fCherenkovMC;}
   Double_t GetCherenkovReal()	    {return fCherenkovReal;}
   
   Double_t GetAngle(Int_t entry);
-  Int_t    GetPixelEnd(Int_t entry);
-  Double_t GetTime(Int_t entry);
-  Double_t GetPath(Int_t entry);
+  Int_t    GetPixelEnd(Int_t entry);    
   Double_t GetChDiff(Int_t entry);
   Int_t    GetNOfBounces(Int_t entry);
   Int_t    GetNOfEVReflections(Int_t entry);
-    
+  Double_t GetTime(Int_t entry);
+  Double_t GetLambda(Int_t entry){return fLambdaArray[entry];}  
+  Double_t GetHitTime(Int_t entry){return fHitTimeArray[entry];}
+  Double_t GetTruePath(Int_t entry){return fTruePathArray[entry];}
+  Double_t GetPath(Int_t entry){return fPathsArray[entry];}
+  
 protected:
 
   Int_t fAnglesSize;
@@ -82,6 +83,10 @@ protected:
   Int_t fChDiffsSize;
   Int_t fNOfBouncesSize;
   Int_t fNOfEVReflectionsSize;
+  Int_t fLambdasSize;
+  Int_t fHitTimesSize;
+  Int_t fTruePathsSize;
+  
 
   // arrays of values based on the LUT ambiguities:
   std::vector<Double_t> fAnglesArray;
@@ -92,16 +97,16 @@ protected:
   std::vector<Double_t> fChDiffsArray;
   std::vector<Int_t>    fNOfBouncesArray;
   std::vector<TVector3> fPhotonStartPosition; 
-  std::vector<Int_t>   fNOfEVReflectionsArray;
+  std::vector<Int_t>    fNOfEVReflectionsArray;
+  std::vector<Double_t> fLambdaArray;
+  std::vector<Double_t> fHitTimeArray;
+  std::vector<Double_t> fTruePathArray;  
 
-  // MC information
-  Double_t fLambda;
+  // MC information 
   TVector3 fChPartDir;
   TVector3 fChPartDirInBar;
   TVector3 fChPartDirInBar2;
-  Int_t    fChPartPdg;  
-  Double_t fTime;
-  Double_t fPath;
+  Int_t    fChPartPdg;    
   Double_t fCherenkovMC;
   Double_t fCherenkovReal;
   
