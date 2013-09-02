@@ -32,7 +32,7 @@ class PndDrcEVPoint : public FairMCPoint
    *@param eLoss    Energy deposit [GeV]
    **/
   PndDrcEVPoint(Int_t trackID, Int_t detID, TVector3 pos, TVector3 mom,
-  		  Double_t tof, Double_t length, Int_t pdgCode, Int_t eventID, Double_t timestart, Double_t timestartEV, Double_t VeloPhoton);
+		Double_t tof, Double_t length, Int_t pdgCode, Int_t eventID, Double_t timestart, Double_t timestartEV, Double_t VeloPhoton,TVector3 normal=TVector3(0,0,0));
 
 
  /** Copy constructor **/
@@ -46,6 +46,7 @@ class PndDrcEVPoint : public FairMCPoint
   /** Accessors **/
   Int_t    GetPdgCode()    const{ return fPdgCode;    };
 //  TVector3 GetMomAtEV()	   const{ return fmomAtEV;    };
+  TVector3 GetNormal()	{ return fNormal; };
   Int_t    GetDetectorID() const{ return fDetectorID; };
   virtual Double_t GetTimeStart()  {return fTimeStart;}
   virtual Double_t GetTimeAtEVEntrance()  {return fTimeAtEVEntrance;}
@@ -67,6 +68,7 @@ class PndDrcEVPoint : public FairMCPoint
   Double_t fTimeStart;
   Double_t fTimeAtEVEntrance;
   Double_t fVeloPhoton;
+  TVector3 fNormal;
 //  TVector3 fmomAtEV;
 
 

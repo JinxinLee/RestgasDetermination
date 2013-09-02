@@ -22,12 +22,13 @@ PndDrcEVPoint::PndDrcEVPoint()
 
 // -----   Standard constructor   ------------------------------------------
 PndDrcEVPoint::PndDrcEVPoint(Int_t trackID, Int_t detID, TVector3 pos, 
-			       TVector3 mom, Double_t tof, Double_t length, Int_t pdgCode, Int_t eventID, Double_t timestart, Double_t timeatEVentrance, Double_t VeloPhoton)
+			       TVector3 mom, Double_t tof, Double_t length, Int_t pdgCode, Int_t eventID, Double_t timestart, Double_t timeatEVentrance, Double_t VeloPhoton,TVector3 normal)
   :FairMCPoint(trackID, detID, pos, mom, tof, length, 0.0, (UInt_t) eventID),
   fPdgCode(pdgCode),
   fTimeStart(timestart),
   fTimeAtEVEntrance(timeatEVentrance),
-  fVeloPhoton(VeloPhoton)
+   fVeloPhoton(VeloPhoton),
+   fNormal(normal)
  {
    SetLink(FairLink("MCTrack", trackID)); 
  }
