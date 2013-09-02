@@ -56,6 +56,13 @@ PndGemDigiWriteoutBuffer.cxx
 PndGemDigiSorterTask.cxx
 PndGemDigiRingSorter.cxx
 PndGemFindHitsAna.cxx
+PndGemMonitor.cxx
+PndGemTrackFinderOnHitsTB.cxx
+PndGemFindClustersTB.cxx
+PndGemSensorMonitor.cxx
+PndGemDigiAna.cxx
+PndGemEventBuilderOnTracks.cxx
+PndGemEmpty.cxx
 )
 
 set(LINKDEF  GemLinkDef.h)

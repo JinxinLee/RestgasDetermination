@@ -1,6 +1,6 @@
 // -------------------------------------------------------------------------
-// -----                   PndDchFindTracks source file                -----
-// -----                  Created 27/01/08  by A. Bubak               -----
+// -----                   PndGemIdealPatternRecoTask source file      -----
+// -----                  Based on PndDchFindTracks 27/01/08  by A. Bubak               -----
 // -----                 according to the CbmStsFindTracks             -----
 // -------------------------------------------------------------------------
 
@@ -83,7 +83,7 @@ InitStatus PndGemIdealPatternRecoTask::Init() {
     return kERROR;
   }
 
-  // Create and register DchTrack array
+  // Create and register GemTrack array
   fPndTrackCandArr = new TClonesArray("PndTrackCand",100);
   ioman->Register("GemPndTrackCand", "Gem", fPndTrackCandArr  , kTRUE);
   

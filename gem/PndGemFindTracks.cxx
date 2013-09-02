@@ -190,6 +190,8 @@ void PndGemFindTracks::Finish() {
   cout << " Time:       " << setw(10) << fTTime      << "    ( " << fTTime/((Double_t)fTNofEvents) << " per event )" << endl;
   cout << "                           ( " << fTTime/((Double_t)fTNofTracks) << " per track )" << endl;
   cout << "---------------------------------------------------------------------" << endl; 
+
+  fFinder->Finish();
 }
 // -------------------------------------------------------------------------
 

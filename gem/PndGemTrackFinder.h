@@ -39,7 +39,8 @@ public:
    *  concrete class.
    **/
   virtual void Init() { };
-  
+  virtual void Finish() {};
+
   /** Virtual method SetParContainers. If needed, to be implemented in the
    *  concrete class.
    **/

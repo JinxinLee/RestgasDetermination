@@ -76,7 +76,7 @@ class PndGemSensor : public TNamed
 	       Double_t d, 
 	       Double_t stripAngle0, Double_t stripAngle1,
 	       Double_t pitch0, Double_t pitch1);
-
+  PndGemSensor(const PndGemSensor &tempSensor);
 
   /** Destructor **/
   virtual ~PndGemSensor();
@@ -111,6 +111,8 @@ class PndGemSensor : public TNamed
   Int_t    GetNChannelsFront()        const { return fNChannelsFront; }
   Int_t    GetNChannelsBack ()        const { return fNChannelsBack;  }
 
+  Int_t    GetSideChannels (Int_t si) const { if ( si==0 ) return fNChannelsFront; return fNChannelsBack;} // will return NChFront for si==0, and NChBack for anything else
+
   /** Calculate channel number for a coordinate pair.
    *@param x      x coordinate in global c.s. [cm]
    *@param y      y coordinate in global c.s. [cm]
@@ -139,7 +141,16 @@ class PndGemSensor : public TNamed
 
    Double_t GetStripOrientation(Double_t x, Double_t y, Int_t iSide);
    Double_t GetDistance(Int_t iSide, Double_t chan1, Double_t chan2);
+   Int_t    GetDistance(Int_t iSide, Int_t chanMin, Int_t chanMax, Int_t chanTest);
+   
+   // returns the part of sensor in which chan is located.
+   // for most sensors it should return -1
+   // only for the sensors where the channel order is broken
+   Int_t    GetSensorPart(Int_t iSide, Int_t chan);
+
    Double_t GetMeanChannel(Int_t iSide, Double_t chan1, Double_t weight1, Double_t chan2, Double_t weight2);
+
+   Int_t    GetNeighbours(Int_t iSide, Int_t iChan, Int_t& nChan1, Int_t& nChan2, Int_t& nChan3);
 
   /** Calculates the coordinates of the intersections of front strip i
    ** with back strip j in the global coordinate system
@@ -184,7 +195,6 @@ class PndGemSensor : public TNamed
 
   /** -------------   Data members   --------------------------**/
 
-  TString    fName;             // Station name
   Int_t    fDetectorId;   // Unique detector ID
   Int_t    fType;         // Sensor type 
   Double_t fPosition[3];  // Coordinates of the sensor centre [cm]
@@ -208,17 +218,7 @@ class PndGemSensor : public TNamed
   Double_t fSigmaY;   // RMS in y, global c.s. [cm]
   Double_t fSigmaXY;  // Covariance in global c.s. [cm**2]
 
-  /** STL sets containing the active channels **/
-  std::set<Int_t> fFrontActive;       //!
-  std::set<Int_t> fBackActive;        //!
-
-  /** STL map from the indizes of the fired strips to the 
-   ** index of the MCPoint **/
-  std::map<std::pair<Int_t,Int_t>, Int_t > fTrueHits;      //!
-
-
-
-  /** -------------   Private methods   ------------------------**/
+ /** -------------   Private methods   ------------------------**/
 
   /** Strip number of a point in the front plane.
    ** Returns -1 if the point is outside the sensor

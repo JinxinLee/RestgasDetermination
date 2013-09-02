@@ -24,16 +24,19 @@
 #include "FairTask.h"
 
 #include "TStopwatch.h"
+#include "TH2F.h"
 
 #include <map>
 #include <set>
+#include <vector>
 
-
+class TH1F;
 class TClonesArray;
+class PndGemMonitor;
 class PndGemDigiPar;
 class PndGemSensor;
 class PndGemStation;
-
+class PndGemCluster;
 
 class PndGemFindHits : public FairTask
 {
@@ -55,6 +58,8 @@ class PndGemFindHits : public FairTask
 
   /** Destructor **/
   virtual ~PndGemFindHits();
+  void ConfirmHits();
+  void ActivateDigis();
 
 
   /** Execution **/
@@ -64,6 +69,7 @@ class PndGemFindHits : public FairTask
 
  private:
 
+  PndGemMonitor*    fMonitor;     /** GEM monitor **/
   PndGemDigiPar*    fDigiPar;     /** Digitisation parameters **/
   TClonesArray*     fDigis;       /** Input array of PndGemDigi **/
   TClonesArray*     fHits;        /** Output array of PndGemHit **/
@@ -75,6 +81,13 @@ class PndGemFindHits : public FairTask
   Int_t             fTNofHits;
 
   TStopwatch fTimer;
+
+  Double_t fPrepTime;
+  Double_t fSortTime;
+  Double_t fCreateTime;
+  Double_t fConfirmTime;
+  Double_t fActivateTime;
+  Double_t fAllTime;
 
   Bool_t fUseClusters;
 

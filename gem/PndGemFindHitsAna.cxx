@@ -37,8 +37,8 @@ PndGemFindHitsAna::PndGemFindHitsAna()
     fGemHitArray(NULL),
     fNofEvents(0),
     fGridSize(10.),
-    fStatBegHist(NULL),
-    fGridHalfLen(NULL),
+    //    fStatBegHist(NULL),
+    //    fGridHalfLen(NULL),
     fHistoList(NULL),
     fhFrontBackDiff(NULL)
 {
@@ -52,8 +52,8 @@ PndGemFindHitsAna::PndGemFindHitsAna(Int_t iVerbose)
     fGemHitArray(NULL),
     fNofEvents(0),
     fGridSize(10.),
-    fStatBegHist(NULL),
-    fGridHalfLen(NULL),
+    //    fStatBegHist(NULL),
+    //    fGridHalfLen(NULL),
     fHistoList(NULL),
     fhFrontBackDiff(NULL)
 {
@@ -67,8 +67,8 @@ PndGemFindHitsAna::PndGemFindHitsAna(TString taskName, Int_t iVerbose)
     fGemHitArray(NULL),
     fNofEvents(0),
     fGridSize(10.),
-    fStatBegHist(NULL),
-    fGridHalfLen(NULL),
+    //    fStatBegHist(NULL),
+    //    fGridHalfLen(NULL),
     fHistoList(NULL),
     fhFrontBackDiff(NULL)
 {

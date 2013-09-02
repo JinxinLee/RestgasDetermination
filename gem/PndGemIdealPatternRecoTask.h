@@ -1,20 +1,17 @@
 // -------------------------------------------------------------------------
-// -----                   PndDchFindTracks header file                -----
+// -----                   PndGemIdealPatternRecoTask header file      -----
+// -----                based on PndDchFindTracks header file          -----
 // -----                  Created 27.01.2008  by A. Bubak              -----
 // -----                 according to the CbmStsFindTracks             -----
 // -------------------------------------------------------------------------
 
 
-/** \class PndDchFindTracks
+/** \class PndGemIdealPatternRecoTask
  *  \author A.Bubak <arkadiusz.bubak@gmail.com>
  *  \date 27.01.2008
- *  \brief Task class for track finding in the Dch
+ *  \brief Task class for track finding
  * 
- *   Uses as track finding algorithm classes derived from PndDchTrackFinder. 
- *	 Input:  TClonesArray of PndDchHit or
- *	 Input:  TClonesArray of PndCylinderHit
- *	 Input:  TClonesArray of PndDchDigi
- *	 \return TClonesArray of PndDchTrack
+ *   Ideal Pattern reco task
  **/
 
 #ifndef PNDGEMIDEALPATTERNRECOTASK_H

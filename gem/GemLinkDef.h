@@ -38,5 +38,13 @@
 #pragma link C++ class PndGemDigiSorterTask+;
 #pragma link C++ class PndGemDigiRingSorter+;
 
+#pragma link C++ class PndGemMonitor+;
+#pragma link C++ class PndGemTrackFinderOnHitsTB+;
+#pragma link C++ class PndGemFindClustersTB+;
+#pragma link C++ class PndGemSensorMonitor+;
+#pragma link C++ class PndGemDigiAna+;
+#pragma link C++ class PndGemEventBuilderOnTracks+;
+#pragma link C++ class PndGemEmpty+;
+
 #endif
 

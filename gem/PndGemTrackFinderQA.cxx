@@ -474,17 +474,20 @@ void PndGemTrackFinderQA::Exec(Option_t* opt) {
       isRefP = kTRUE;
       fhMCRefVsT->Fill(mcMomThe);
     }
-    if ( isPrim && mcMomThe > 5. && mcMomThe < 25. ) {
+    if ( isPrim && mcMomThe > 5. && mcMomThe < 20. ) {
       isRefT = kTRUE;
       fhMCRefVsP->Fill(mcMomMag);
     }
     if ( isRefP && isRefT ) {
       nofMCRef ++;
       fhMCRefVsN->Fill(mcPoints);
+      fhMCRefVsA->Fill(mcMomPhi);
     }
-
+ 
+    Bool_t mcTrackReconstructed = kFALSE; 
     for ( Int_t irtr = 0 ; irtr < nofRecoTracks ; irtr++ ) {
       if ( fRecoTrackMCMatch[irtr] != imct ) continue;
+      mcTrackReconstructed = kTRUE;
       gemTrack = (PndTrack*) fGemTrackArray->At(irtr);
 
       TVector3 recoTrackMom = gemTrack->GetParamFirst().GetMomentum();
@@ -511,6 +514,7 @@ void PndGemTrackFinderQA::Exec(Option_t* opt) {
       if ( isRefP && isRefT ) {
 	nofRecoRef ++;
 	fhRecoRefVsN->Fill(mcPoints);
+	fhRecoRefVsA->Fill(mcMomPhi);
       }
       if ( isPrim ) {
 	nofRecoPrim ++;
@@ -541,6 +545,13 @@ void PndGemTrackFinderQA::Exec(Option_t* opt) {
 	fhRecoSecA->Fill(recoTrackMom.Phi()*TMath::RadToDeg());	
       }
       break; //do not include clones, the break is good for efficiency plots but bad(?) for momentum resolution
+    }
+    if ( mcTrackReconstructed == kFALSE && fVerbose > 0 ) {
+      cout << "MC TRACK WAS NOT RECONSTRUCTED" 
+	   << "  mom = " << mcMomMag
+	   << "  the = " << mcMomThe
+	   << "  phi = " << mcMomPhi 
+	   << endl;
     }
   }
 
@@ -688,7 +699,17 @@ void PndGemTrackFinderQA::MatchRecoTracks() {
       if ( nofTrMCId[itm] == largestNofMCId ) { bestMCId = -1; }
       if ( nofTrMCId[itm]  > largestNofMCId ) { bestMCId = itm; largestNofMCId = nofTrMCId[itm]; }
     }
-    if ( bestMCId == -1 ) { continue; }
+    if ( bestMCId == -1 ) { 
+      if ( fVerbose ) {
+	cout << "GHOST TRACK WITH" 
+	     << "  mom = " << gemTrack->GetParamFirst().GetMomentum().Mag()
+	     << "  the = " << gemTrack->GetParamFirst().GetMomentum().Theta()*TMath::RadToDeg()
+	     << "  phi = " << gemTrack->GetParamFirst().GetMomentum().Phi()*TMath::RadToDeg()
+	     << endl;
+      }
+      continue; 
+    }
+
     if ( largestNofMCId < fMinQuota*gemTrack->GetTrackCand().GetNHits() ) continue;
 
     fRecoTrackMCMatch[irtr] = bestMCId;

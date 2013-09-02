@@ -157,12 +157,20 @@ void PndGemDigitize::Exec(Option_t* opt) {
   // cout << "--- at  " << EventTime << " ns" << endl;
   // cout << "--- has " << fDigis->GetEntriesFast() << " digis made from " << fPoints->GetEntriesFast() << " points" << endl;
   // cout << "---------------> Put them in output buffer" << endl;
+  if ( fVerbose ) {
+    cout << "---PndGemDigitize---> Event " << fTNofEvents
+	 << " at  " << EventTime << " ns"
+	 << " has " << fDigis->GetEntriesFast() << " digis made from " << fPoints->GetEntriesFast() << " points" << endl;
+  }
+  // this loop should be done after each point, and not at the end of the event not to miss any late digis...
   for ( Int_t idigi = 0 ; idigi < fDigis->GetEntriesFast() ; idigi++ ) {
     adigi = dynamic_cast<PndGemDigi*>(fDigis->At(idigi));
     adigi->SetTimeStamp(adigi->GetTimeStamp()+EventTime);
     fDataBuffer->FillNewData(adigi,
-     			     adigi->GetTimeStamp()+EventTime,
-     			     adigi->GetTimeStamp()+EventTime+100.); // 100 ns dead time
+			     adigi->GetTimeStamp(),
+			     adigi->GetTimeStamp()+100.); // 100 ns dead time
+    //     			     adigi->GetTimeStamp()+EventTime,
+    //     			     adigi->GetTimeStamp()+EventTime+100.); // 100 ns dead time
   }
   //  cout << "------------------------------------------" << endl;
 }
@@ -366,7 +374,16 @@ void PndGemDigitize::SimulateGaussianResponse(PndGemSensor* sensor, Int_t side, 
 
   Double_t scanOrient = sensor->GetStripOrientation(locPosIn[0],locPosIn[1],side) + TMath::Pi()/2.;
 
-  Int_t nofBBB = 1000;
+  Double_t feeDist;
+  Int_t minChan = sensor->GetChannel2(locPosIn[0],
+				      locPosIn[1],
+				      side,feeDist);
+  Int_t maxChan = sensor->GetChannel2(locPosOut[0],
+				      locPosOut[1],
+				      side,feeDist);
+
+  Int_t nofBBB = 1000+10*sensor->GetDistance(side,minChan,maxChan);
+
   Double_t unitSig = showerStrength/((Double_t)nofBBB);
 
   Double_t deltaPos[4];
@@ -384,7 +401,6 @@ void PndGemDigitize::SimulateGaussianResponse(PndGemSensor* sensor, Int_t side, 
 
     Double_t xloc = locPosIn[0]+ibbb*deltaPos[0]-dist*TMath::Sin(scanOrient);
     Double_t yloc = locPosIn[1]+ibbb*deltaPos[1]+dist*TMath::Cos(scanOrient);
-    Double_t feeDist;
     chanNr = sensor->GetChannel2(xloc,yloc,side,feeDist);
     time = gemPoint->GetTime()+fRand->Gaus(5,0.5)+fRand->Gaus(feeDist/30.,0.5);
     //time = fTNofEvents;
@@ -526,7 +542,7 @@ InitStatus PndGemDigitize::Init() {
 
   // Register output array StsDigi
   fDigis = new TClonesArray("PndGemDigi",10000);
-  ioman->Register("GEMDigiNormal", "Digital response in GEM", fDigis, kTRUE);
+  ioman->Register("GEMDigiNormal", "Digital response in GEM", fDigis, kFALSE);
 
   // Register output buffer
   fDataBuffer = new PndGemDigiWriteoutBuffer("GEMDigi", "GEM", kTRUE);
