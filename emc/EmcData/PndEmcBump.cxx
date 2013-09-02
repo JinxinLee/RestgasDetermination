@@ -66,6 +66,13 @@ PndEmcBump::PndEmcBump(const PndEmcBump &copy): fClusterIndex(copy.fClusterIndex
 	fEnergy=copy.fEnergy;
 	fWhereValid=copy.fWhereValid;
 	fWhere=copy.fWhere;
+
+	fTimeStamp  = copy.fTimeStamp;
+	fEvtNo = copy.fEvtNo;
+	//fTimeStamp1 = copy.fTimeStamp1;
+	//fSeedPosition = copy.fSeedPosition;
+	//fTimeStamp2 = copy.fTimeStamp2;
+	//fTimeStamp3 = copy.fTimeStamp3;
 }
 
 //--------------
@@ -76,6 +83,11 @@ PndEmcBump::~PndEmcBump()
 {
 }
 
+void
+PndEmcBump::Print(Int_t iBump) const
+{
+	std::cout<<"Bump["<<iBump<<"], (digis, E)=("<<DigiList().size()<<", "<<energy()<<")"<<endl;
+}
 //-------------
 // Modifiers --
 //-------------

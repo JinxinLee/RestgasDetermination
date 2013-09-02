@@ -34,45 +34,47 @@ class PndEmcSharedDigi;
 
 class PndEmcDigi : public FairTimeStamp
 {
-	
-    friend std::ostream& operator<< (std::ostream& out, PndEmcDigi& digi){
-      out << "PndEmc Digi in crystal: " << digi.GetDetectorId() 
-      << " energy: " << digi.GetEnergy()
-      << " timestamp: "<<digi.GetTimeStamp();
-      return out;
-    }
-	
- public:    
-  
-  
+
+	friend std::ostream& operator<< (std::ostream& out, PndEmcDigi& digi){
+		out << "PndEmc Digi in crystal: " << digi.GetDetectorId() 
+			<< " energy: " << digi.GetEnergy()
+			<< " timestamp: "<<digi.GetTimeStamp();
+		return out;
+	}
+
+	public:    
+	//for time based simulation
+	static TClonesArray* fDigiArrayTBD;
+
+
 	/** Default constructor **/
 	PndEmcDigi();
-	
+
 	PndEmcDigi(Int_t trackid, Int_t id, Float_t energy, Float_t time, Int_t hitIndex=-1);
 	PndEmcDigi(const PndEmcDigi&);
-		
+
 	/** Destructor **/
 	virtual ~PndEmcDigi();    
-	  // Operators
+	// Operators
 
 	virtual bool operator==(const PndEmcDigi & otherDigi) const;
 	virtual bool operator!=(const PndEmcDigi & otherDigi) const;
-    virtual bool operator<( const PndEmcDigi & otherDigi) const;
+	virtual bool operator<( const PndEmcDigi & otherDigi) const;
 
 	virtual bool equal(FairTimeStamp* data){
-	  PndEmcDigi* myDigi = dynamic_cast <PndEmcDigi*> (data);
-	  if (myDigi != 0){
-	    if (fDetectorId == myDigi->GetDetectorId())
-			return true;
-	  }
-	  return false;
+		PndEmcDigi* myDigi = dynamic_cast <PndEmcDigi*> (data);
+		if (myDigi != 0){
+			if (fDetectorId == myDigi->GetDetectorId())
+				return true;
+		}
+		return false;
 	}
-	
+
 	/** Output to screen **/
 	virtual void Print(const Option_t* opt ="") const;
 
 	enum PositionMethod { surface, depth };
-	
+
 	/** Modifiers **/
 	void SetEnergy(Double32_t energy) { fEnergy     = energy ;};
 	void SetTrackId(Int_t id)         { fTrackId    = id     ;};
@@ -81,11 +83,10 @@ class PndEmcDigi : public FairTimeStamp
 	//check if 2 digis are neigbour or not (prelim for testing)
 	const bool isNeighbour(const PndEmcDigi* theDigi) const;
 
-  
+
 	/** Accessors **/
 	virtual Double_t GetEnergy()  const;
 	Int_t GetTrackId()    const { return fTrackId    ;};
-	Int_t GetHitIndex()    const { return fHitIndex    ;};
 	Int_t GetDetectorId() const { return fDetectorId ;};
 	PndEmcTwoCoordIndex* GetTCI() const;
 	Int_t GetThetaInt() const {return fThetaInd;};
@@ -98,20 +99,21 @@ class PndEmcDigi : public FairTimeStamp
 	Short_t GetCopy()        const { return ((fDetectorId/10000)%100);};
 	Short_t GetXPad()        const;
 	Short_t GetYPad()        const;
-	
+
 	Int_t GetHitIndex() {return fHitIndex;}
 	const TVector3 &where() const {return fWhere;};
-	
+
 	virtual PndEmcSharedDigi* dynamic_cast_PndEmcSharedDigi();
 	virtual const PndEmcSharedDigi* dynamic_cast_PndEmcSharedDigi() const;
-	
+
 	static Double_t getRescaleFactor(){ return fRescaleFactor; };
 	static Double_t getPositionDepthPWO(){ return fPositionDepthPWO; };
 	static Double_t getPositionDepthShashlyk(){ return fPositionDepthShashlyk; };
 
 
+	Int_t fEvtNo;
 
- protected:
+	protected:
 	Double_t fEnergy;    // digi amplitude
 	Int_t fTrackId;
 	Int_t fDetectorId;
@@ -122,31 +124,33 @@ class PndEmcDigi : public FairTimeStamp
 	TVector3 fWhere;
 
 	Int_t fHitIndex; //  Index of hit which is converted to digi
-  
-private:
+
+	private:
 
 	friend class PndEmcWaveformToDigi;
+	friend class PndEmcWaveformToDigiFPGA;
 	friend class PndEmcWaveformToCalibratedDigi;
 	friend class PndEmcMultiWaveformToCalibratedDigi;
 	friend class PndEmcTmpWaveformToDigi;
 	friend class PndEmcMakeDigi;
+	friend class PndEmcCorrBump;
 
-  static void selectDigiPositionMethod( PositionMethod , 
-					double positionDepthPWO = 0., 
-					double positionDepthShahslyk = 0.,
-					double rescaleFactor = 1.);
+	static void selectDigiPositionMethod( PositionMethod , 
+			double positionDepthPWO = 0., 
+			double positionDepthShahslyk = 0.,
+			double rescaleFactor = 1.);
 
-  static TVector3 surfacePosition( const PndEmcXtal* xtal );
-  static TVector3 depthPosition( const PndEmcXtal* xtal );
-  
-  static TVector3 ( *&algPointer() ) ( const PndEmcXtal* );
+	static TVector3 surfacePosition( const PndEmcXtal* xtal );
+	static TVector3 depthPosition( const PndEmcXtal* xtal );
 
-  static double fRescaleFactor;
-  static double fPositionDepthPWO;
-  static double fPositionDepthShashlyk;
+	static TVector3 ( *&algPointer() ) ( const PndEmcXtal* );
 
-  
-  ClassDef(PndEmcDigi,5);
+	static double fRescaleFactor;
+	static double fPositionDepthPWO;
+	static double fPositionDepthShashlyk;
+
+
+	ClassDef(PndEmcDigi,5);
 };
 
 #endif //PndEmcDigi_H

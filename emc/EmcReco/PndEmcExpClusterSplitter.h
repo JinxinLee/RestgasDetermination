@@ -34,7 +34,7 @@
 #include "FairTask.h"
 #include "TObject.h"
 #include "PndEmcDataTypes.h"
-
+#include "PndEmcDigiCalibrator.h"
 //------------------------------------
 // Collaborating Class Declarations --
 //------------------------------------
@@ -74,6 +74,7 @@ class PndEmcExpClusterSplitter: public FairTask
 	PndEmcBump* AddBump();
 	PndEmcSharedDigi* AddSharedDigi(PndEmcDigi*, Double_t weight);
 	
+	virtual void FinishTask();
   
  private:
 	/** Input array of PndEmcClusters **/
@@ -109,5 +110,11 @@ class PndEmcExpClusterSplitter: public FairTask
         PndEmcExpClusterSplitter& operator= (const  PndEmcExpClusterSplitter&) {return *this;};
 	
 	ClassDef(PndEmcExpClusterSplitter,1);
+
+//added for time information
+
+	PndEmcDigiCalibrator digiCalibrator;
+	Int_t HowManyDidis;
+
 };
 #endif // EMCABSCLUSTERSPLITTER_HH

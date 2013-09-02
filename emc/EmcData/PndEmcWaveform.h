@@ -9,17 +9,17 @@
 //
 // Public functions:
 //	
-//      AddElecNoise(double)
+//      AddElecNoise(Double_t)
 //                                      Adds gaussian noise with width
-//                                      given by the double parameter.
+//                                      given by the Double_t parameter.
 //
-//      Digitise(double)                Simple digitisation, given
+//      Digitise(Double_t)                Simple digitisation, given
 //                                      the value of one bit in energy 
 //                                      equivalent units.
 //      
-//     AddElecNoiseAndDigitse(double, double)  Do both
+//     AddElecNoiseAndDigitse(Double_t, Double_t)  Do both
 //
-//     AddShapedElecNoiseAndDigitse(double, double)  Do both, but with 
+//     AddShapedElecNoiseAndDigitse(Double_t, Double_t)  Do both, but with 
 //            noise tyhat is not just plain gaussian, but passed through the
 //            shaping.  Only use for detailed studies- this is like
 //            adding a Hit to *every bin* and is very slow if you are doing
@@ -43,74 +43,112 @@
 #include "PndEmcCRRCPulseshape.h"
 #include "PndEmcCR2RCPulseshape.h"
 #include "PndEmcHit.h"
-#include "FairMultiLinkedData.h"
+//#include "FairMultiLinkedData.h"
+#include "FairTimeStamp.h"
+#include "TGraphErrors.h"
+#define TIMEBASEDSIM
 
 class PndEmcHit;
 
-class PndEmcWaveform: public FairMultiLinkedData
+
+
+class PndEmcWaveform: public FairTimeStamp
 {
 
-public:
+	public:
 
-  //  Constructors
-	PndEmcWaveform();
-	
-	PndEmcWaveform(int	trackId,long detId, long waveform_length=128, Int_t hitIndex =-1); 
+		//  Constructors
+		PndEmcWaveform();
 
-  // Destructor:
+		PndEmcWaveform(Int_t trackId,Long_t detId, Double_t sampleRate, Long_t waveform_length=64, Int_t hitIndex=-1, Double_t time=0. ); 
 
-  virtual ~PndEmcWaveform();
+		// Destructor:
 
-  // Copy:
-  PndEmcWaveform(const PndEmcWaveform& copy);
+		virtual ~PndEmcWaveform();
 
-  // Operators
-  
-  virtual PndEmcWaveform& operator=(const PndEmcWaveform& copy);
+		// Copy:
+		PndEmcWaveform(const PndEmcWaveform& copy);
 
-  // Selectors 
+		// Operators
 
-	long   GetDetectorId() const                    {return fDetectorId;}
-	int    GetTrackId() const                       {return fTrackId;}
-	Short_t GetModule()      const { return (fDetectorId/100000000);};
-	PndEmcTwoCoordIndex* GetTCI() const;
-	virtual	std::vector<double> GetSignal() const { return fSignal ;};
-	double GetScale(Double_t sampleRate, PndEmcAbsPulseshape *pulseshape) const;
-	double GetNormalisation(Double_t sampleRate, PndEmcAbsPulseshape *pulseshape) const;
-   int    GetWaveformLength() const {return fWaveformLength;};
-	
-	Int_t GetHitIndex() {return fHitIndex;}
-  
+		virtual PndEmcWaveform& operator=(const PndEmcWaveform& copy);
 
-    // Modifiers
+		virtual bool operator == (const PndEmcWaveform& otherWave) const;
+		virtual bool operator < (const PndEmcWaveform& otherWave) const;
+		virtual bool operator != (const PndEmcWaveform& otherWave) const;
+		virtual bool equal(FairTimeStamp* data);
+		PndEmcWaveform& operator += (const PndEmcWaveform& otherWave);
 
-  void UpdateWaveform(PndEmcHit *hit, Double_t pePerMeV, Bool_t usePhotonStatistic, Double_t excessNoiseFactor, Double_t firstADCBinTime, Double_t sampleRate, PndEmcAbsPulseshape *pulseshape);
-  void MakeWaveform(Double_t energy, Double_t time, Double_t pePerMeV, Bool_t usePhotonStatistic, Double_t excessNoiseFactor, Double_t firstADCBinTime, Double_t sampleRate, PndEmcAbsPulseshape *pulseshape);
-  
-  void AddElecNoise(double);
-  void Digitise(double);
-  void AddElecNoiseAndDigitise(double,double);
-  // Both add noise and digitise.  The first double is the noise width (GeV),
-  // the second is the one bit resolution
+		// Selectors 
 
-  void AddShapedElecNoiseAndDigitise(Double_t noise_width,Double_t oneBitResolution, PndEmcAbsPulseshape *pulseshape, Double_t firstADCBinTime, Double_t sampleRate);
-  // Add shaped noise and digitise.  
+		Long_t   GetDetectorId() const                    {return fDetectorId;}
+		Int_t    GetTrackId() const                       {return fTrackId;}
+		Short_t GetModule()      const { return (fDetectorId/100000000);};
+		PndEmcTwoCoordIndex* GetTCI() const;
+		virtual	std::vector<Double_t> GetSignal() const { return fSignal ;};
+		virtual std::vector<Double_t> GetSignalError() const { return fSignalError; }
 
-  void SetWaveform(std::vector<Double_t>&signal,Int_t length){fSignal = signal; fWaveformLength=length;};
-	double Max();
-  
-	virtual void clearAndReset();
-	virtual void Clear(Option_t *option=""){fSignal.clear();};
+		Double_t GetScale(Double_t sampleRate, PndEmcAbsPulseshape *pulseshape) const;
+		Double_t GetNormalisation(Double_t sampleRate, PndEmcAbsPulseshape *pulseshape) const;
+		Int_t    GetWaveformLength() const {return fWaveformLength;}
 
-//private:
-protected: 
-	Int_t fTrackId;	
-	Int_t fDetectorId;
-	Int_t fWaveformLength;
-	Int_t fHitIndex;
 
-	std::vector<Double_t>  fSignal; // Signal after FADC
 
-ClassDef(PndEmcWaveform,5)
+		Int_t GetHitIndex() {return fHitIndex;}
+
+
+		// Modifiers
+
+		void UpdateWaveform(PndEmcHit *hit, Double_t pePerMeV, Bool_t usePhotonStatistic, Double_t excessNoiseFactor, Double_t firstADCBinTime, Double_t sampleRate, PndEmcAbsPulseshape *pulseshape, Double_t=0);
+		void MakeWaveform(Double_t energy, Double_t time, Double_t pePerMeV, Bool_t usePhotonStatistic, Double_t excessNoiseFactor, Double_t firstADCBinTime, Double_t sampleRate, PndEmcAbsPulseshape *pulseshape, Double_t=0);
+
+		void AddElecNoise(Double_t);
+		void Digitise(Double_t);
+		void AddElecNoiseAndDigitise(Double_t,Double_t,Double_t=0);
+		//void AddElecNoiseAndDigitise(Double_t,Double_t, Double_t* noise);
+		// Both add noise and digitise.  The first Double_t is the noise width (GeV),
+		// the second is the one bit resolution
+
+		void AddShapedElecNoiseAndDigitise(Double_t noise_width,Double_t oneBitResolution, PndEmcAbsPulseshape *pulseshape, Double_t firstADCBinTime, Double_t sampleRate,Double_t=0);
+		// Add shaped noise and digitise.  
+
+		void SetWaveform(std::vector<Double_t>&signal,Int_t length);
+		Double_t Max();
+
+		virtual void clearAndReset();
+		virtual void Clear(Option_t *option=""){fSignal.clear();};
+
+		Double_t GetActiveTime() const { return GetTimeStamp() + (fWaveformLength-1)/fSampleRate*1.0e9; }//nano seconds
+		Int_t    GetPileupCount() const {return fEvt.size() - 1; }
+
+		void AddEvt(Int_t evtNo) { fEvt.push_back(evtNo);}
+		const std::vector<Int_t>& GetEvtList() const { return fEvt; }
+
+		TGraphErrors* ToTGraph() const ;
+
+		Double_t GetBaseline() const { return fBaselineValue;}
+		Double_t Integral() const ;
+
+	protected: 
+		Int_t fTrackId;	
+		Int_t fDetectorId;
+		Int_t fWaveformLength;
+		Int_t fHitIndex;
+
+		Double_t fSampleRate;
+		Double_t fBaselineValue;
+
+		std::vector<Double_t>  fSignal; // Signal after FADC
+		std::vector<Double_t>  fSignalError; // Signal after FADC
+		std::vector<Int_t>     fEvt;//combined waveforms from which events, for check.
+
+		//for pileup
+		static Double_t BarrelOverlapTime;
+		static Double_t ForwardOverlapTime;
+		static Double_t ShashylikOverlapTime;
+
+		ClassDef(PndEmcWaveform,5)
+			
+		
 };
 #endif

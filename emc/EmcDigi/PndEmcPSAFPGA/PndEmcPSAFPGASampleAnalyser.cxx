@@ -51,6 +51,8 @@ void PndEmcPSAFPGASampleAnalyser::init(PndEmcPSAFPGASampleAnalyser::SampleAnalys
   analyserParams.cf_fit_offset = params.cf_fit_offset;
   analyserParams.mwd_length = params.mwd_length;
   analyserParams.mwd_tau = params.mwd_tau;
+  analyserParams.clock_unit= params.clock_unit;
+  analyserParams.iafactor= params.iafactor;
 
   CF_filter->set(analyserParams.cf_delay, analyserParams.cf_ratio);
   Signal_delay->set(analyserParams.cf_delay + analyserParams.cf_delay/2);
@@ -68,10 +70,12 @@ void PndEmcPSAFPGASampleAnalyser::initFromFile(const std::string &fname) {
   newParams.cf_ratio = 0.15;
   newParams.cf_fitter_length = 5; 
   newParams.cf_fit_offset = 2;
-  newParams.mwd_length = 20;
+  newParams.mwd_length = 90;
   newParams.mwd_tau = 2500;
+  newParams.clock_unit = 10;//ns
+  newParams.iafactor= 1.;//ns
 
-  std::ifstream ifile(fname.c_str());
+/*  std::ifstream ifile(fname.c_str());
   if(!ifile) {
     std::cerr << "Can not open input file: " << fname << "\n";
     exit(1);
@@ -86,7 +90,7 @@ void PndEmcPSAFPGASampleAnalyser::initFromFile(const std::string &fname) {
   options.insert("Fit_ofset");
   options.insert("Fitter_L");
   options.insert("MA_trig");
-/*
+
   //parser
   for (pod::config_file_iterator i(ifile, options), e ; i != e; ++i) {
     if (i->string_key == "MWD_Tau") {
@@ -114,8 +118,8 @@ void PndEmcPSAFPGASampleAnalyser::initFromFile(const std::string &fname) {
       newParams.ma_trig_M = atoi((i->value[0]).c_str());
     }
   }
-  */
-  ifile.close();
+  
+  ifile.close();*/
   init(newParams);
   return;
 }
@@ -129,6 +133,8 @@ void PndEmcPSAFPGASampleAnalyser::Init(const std::vector<Double_t> &params){
 	newParams.cf_fit_offset = (int) params.at(5);
 	newParams.mwd_length = (int) params.at(6);
 	newParams.mwd_tau = params.at(7);
+	newParams.clock_unit = params.at(8);
+	newParams.iafactor = params.at(9);
 	/*
 	std::cout << newParams.ma_trig_M << std::endl;
 	std::cout << newParams.hit_threshold << std::endl;
@@ -163,6 +169,8 @@ float PndEmcPSAFPGASampleAnalyser::sampleIntegral(int index) {
 }
 
 Int_t PndEmcPSAFPGASampleAnalyser::Process(const PndEmcWaveform *waveform){
+	//std::cout<<"PndEmcPSAFPGASampleAnalyser::Process#"<<waveform->GetTimeStamp()
+	//	<<", "<<waveform->GetActiveTime()<<std::endl;
 	reset();
 	std::vector<double> signal = waveform->GetSignal();
 	std::vector<double>::iterator it;
@@ -173,7 +181,8 @@ Int_t PndEmcPSAFPGASampleAnalyser::Process(const PndEmcWaveform *waveform){
 }
 
 void PndEmcPSAFPGASampleAnalyser::GetHit(Int_t i,Double_t &energy, Double_t &t){
-	energy = this->sampleIntegral(i);
+	//energy = this->sampleIntegral(i);
+	energy = this->sampleAmplitude(i);
 	t = this->sampleTime(i);
 }
 

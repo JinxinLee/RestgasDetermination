@@ -13,6 +13,7 @@ using namespace std;
 #include "FairRuntimeDb.h"
 #include "PndEmcGeoPar.h"
 #include "PndEmcDigiPar.h"
+#include "PndEmcFpgaPar.h"
 #include "PndEmcRecoPar.h"					
 #include "PndEmcDigiNonuniformityPar.h"
 #include "PndEmcErrorMatrixPar.h"
@@ -62,11 +63,17 @@ void PndEmcContFact::setAllContainers() {
 													 "TestDefaultContext");
 	p5->addContext("TestNonDefaultContext");
 	
+	FairContainer* p6= new FairContainer("PndEmcFpgaPar",
+													 "Emc FPGA Parameters",
+													 "TestDefaultContext");
+	p6->addContext("TestNonDefaultContext");
+
 	containers->Add(p1);
 	containers->Add(p2);
 	containers->Add(p3);
 	containers->Add(p4);
 	containers->Add(p5);
+	containers->Add(p6);
 }
 
 FairParSet* PndEmcContFact::createContainer(FairContainer* c) {
@@ -95,6 +102,9 @@ FairParSet* PndEmcContFact::createContainer(FairContainer* c) {
   
   if (strcmp(name,"PndEmcErrorMatrixPar")==0) {
 	  p=new PndEmcErrorMatrixPar(c->getConcatName().Data(),c->GetTitle(),c->getContext());
+  }
+  if (strcmp(name,"PndEmcFpgaPar")==0) {
+    p=new PndEmcFpgaPar(c->getConcatName().Data(),c->GetTitle(),c->getContext());
   }
   return p;
 }

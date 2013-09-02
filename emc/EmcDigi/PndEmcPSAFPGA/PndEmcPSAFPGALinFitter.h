@@ -11,6 +11,7 @@ class PndEmcPSAFPGALinFitter{
   double offset();
   double slope();
   double average();
+  double averageX();
  private:
   double x;
   double xx;

@@ -15,6 +15,7 @@ ${CMAKE_SOURCE_DIR}/emc/EmcReco
 ${CMAKE_SOURCE_DIR}/emc/EmcTools
 ${CMAKE_SOURCE_DIR}/emc/EmcProtoTools
 ${CMAKE_SOURCE_DIR}/emc/EmcCorr
+${CMAKE_SOURCE_DIR}/emc/EmcTimeBased
 ${CMAKE_SOURCE_DIR}/emc
 )
 
@@ -116,6 +117,13 @@ EmcDigi/PndEmcAbsCrystalCalibrator.cxx
 EmcDigi/PndEmcDummyCrystalCalibrator.cxx
 EmcDigi/PndEmcFileCrystalCalibrator.cxx
 EmcDigi/PndEmcSimCrystalCalibrator.cxx
+EmcTimeBased/PndEmcWaveformWriteoutBuffer.cxx
+EmcTimeBased/PndEmcWaveformRingSorter.cxx
+EmcTimeBased/PndEmcWaveformSorterTask.cxx
+EmcTimeBased/PndEmcFpgaPar.cxx
+EmcTimeBased/PndEmcDigiCalibrator.cxx
+EmcTimeBased/PndEmcCorrBump.cxx
+EmcTimeBased/PndEmcAnalysis.cxx
 )
 
 set(LINKDEF  EmcLinkDef.h)

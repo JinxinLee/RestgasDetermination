@@ -100,4 +100,12 @@
 #pragma link C++ class  vector<PndEmcPoint*>;
 #pragma link C++ class  vector<PndEmcDigi*>;
 
+#pragma link C++ class PndEmcWaveformWriteoutBuffer+;
+#pragma link C++ class PndEmcWaveformSorterTask+;
+#pragma link C++ class PndEmcWaveformRingSorter+;
+#pragma link C++ class PndEmcFpgaPar+;
+#pragma link C++ class PndEmcDigiCalibrator+;
+#pragma link C++ class PndEmcCorrBump+;
+#pragma link C++ class PndEmcAnalysis+;
+
 #endif

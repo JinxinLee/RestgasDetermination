@@ -35,6 +35,7 @@ public:
 	
 	// List of Digi indexes
 	const std::vector<Int_t> &DigiList() const {return fDigiList;};
+	std::vector<Int_t> &DigiList() {return fDigiList;};
 	const std::map<Int_t,Int_t> &LocalMaxMap() const {return fLocalMaxMap;};
 	const std::map<Int_t,Int_t> &MemberDigiMap() const {return fMemberDigiMap;};
 
@@ -87,6 +88,8 @@ public:
 
 	// Modifiers
 	virtual void addDigi(const TClonesArray *digiArray, Int_t iDigi);
+	virtual void removeDigi(const TClonesArray *digiArray, Int_t iDigi);
+	virtual std::vector<Int_t>::iterator removeDigi(const TClonesArray *digiArray, std::vector<Int_t>::iterator& it);
 	void addCluster( PndEmcCluster* cluster, const TClonesArray *digiArray);
 	virtual void addLocalMax( const TClonesArray *digiArray, Int_t iDigi);
 	virtual void addLocalMax( const PndEmcDigi *digi);
@@ -99,18 +102,19 @@ public:
 		
 	Double_t GetEnergyCorrected() const;
 
-	const std::vector<Int_t> &GetMcList() {return fMcList;}
+	const std::vector<Int_t> &GetMcList() const;
 	Int_t GetMcSize()                     { return fMcList.size(); }
 	Int_t GetMcIndex(Int_t i = 0)         { return fMcList[i]; }
 
 private:
 	friend class PndEmcMakeCluster;
-	void invalidateCache();
+	void invalidateCache(bool );
 
 protected:
 
 	std::vector<Int_t> fDigiList;
-	std::vector<Int_t> fMcList;
+	mutable std::vector<Int_t> fMcList;
+	mutable std::map<Int_t, Int_t> fMcMap;//<track, count>
 	std::map<Int_t,Int_t> fMemberDigiMap; // Map <detId,digiIndex>
 	std::map<Int_t,Int_t> fLocalMaxMap;   // Map<detId, digiIndex> for the maxima
 

@@ -9,6 +9,7 @@ class PndEmcPSAFPGAFilterMWD: public PndEmcPSAFPGAFilterLine {
  public:
   PndEmcPSAFPGAFilterMWD();
   virtual ~PndEmcPSAFPGAFilterMWD();
+	void resetToZero() ;
   void set(float tau, unsigned int newBufferSize);
   virtual float put(float valueToStore);
 

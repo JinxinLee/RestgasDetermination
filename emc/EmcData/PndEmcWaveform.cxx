@@ -41,49 +41,70 @@ using std::endl;
 //----------------
 // Constructors --
 //----------------
+Double_t PndEmcWaveform::BarrelOverlapTime = 700;//(120*12.5 - 800);ns
+Double_t PndEmcWaveform::ForwardOverlapTime = 390;//(60*10 - 210);
+Double_t PndEmcWaveform::ShashylikOverlapTime = 130;//(60*5.5 - 200);
 
 PndEmcWaveform::PndEmcWaveform():
-  fTrackId(-1),
-  fDetectorId(-1),
-  fWaveformLength(0),
-  fSignal(0,0.),
-  fHitIndex(-1)
+	fTrackId(-1)
+	,fDetectorId(-1)
+	,fWaveformLength(0)
+	,fSignal(0,0.)
+	,fSignalError(0,0.)
+	,fHitIndex(-1)
+	,fSampleRate(0.)
+	, fBaselineValue(0.)
+	,FairTimeStamp()
+{}
+
+
+
+PndEmcWaveform::PndEmcWaveform(int trackId, long detId, Double_t sampleRate, long waveform_length, Int_t hitIndex, Double_t time) :
+	fTrackId(trackId)
+	,fDetectorId(detId)
+	,fWaveformLength(waveform_length)
+	,fSignal(waveform_length,0.)
+	,fSignalError(waveform_length,0.)
+	,fHitIndex(hitIndex)
+	,fSampleRate(sampleRate)
+	, fBaselineValue(0.)
+	,FairTimeStamp(time)
 {
-}
-
-
-
-PndEmcWaveform::PndEmcWaveform(int trackId, long detId, long waveform_length, Int_t hitIndex):
-	fTrackId(trackId),
-	fDetectorId(detId),
-	fWaveformLength(waveform_length),
-	fSignal(waveform_length,0.),
-	fHitIndex(hitIndex)
-{
-  SetLink(FairLink("EmcHit", hitIndex));
+	SetLink(FairLink("EmcHit", hitIndex));
 }
 
 PndEmcWaveform::PndEmcWaveform(const PndEmcWaveform& copy):
-  fTrackId(copy.fTrackId),
-  fDetectorId ( copy.fDetectorId),
-  fWaveformLength(copy.fWaveformLength),
-  fHitIndex(copy.fHitIndex),
-  fSignal(copy.fSignal)
+	fTrackId(copy.fTrackId)
+	,fDetectorId ( copy.fDetectorId)
+	,fWaveformLength(copy.fWaveformLength)
+	,fHitIndex(copy.fHitIndex)
+	,fSignal(copy.fSignal)
+  ,fSignalError(copy.fSignalError)
+	,fSampleRate(copy.fSampleRate)
+  ,fBaselineValue(copy.fBaselineValue)
+	,fEvt(copy.fEvt) 
 {
-  SetLink(FairLink("EmcHit", copy.fHitIndex));
+	SetTimeStamp(copy.GetTimeStamp());
+	SetTimeStampError(copy.GetTimeStampError());
+	SetLink(FairLink("EmcHit", copy.fHitIndex));
 }
 
-PndEmcWaveform&
-PndEmcWaveform::operator=(const PndEmcWaveform &copy){
-  if (this != &copy){
-		fTrackId=copy.fTrackId;
+PndEmcWaveform& PndEmcWaveform::operator=(const PndEmcWaveform &copy){
+	if(this != &copy){
+		fTrackId = copy.fTrackId;
 		fDetectorId = copy.fDetectorId;
-		fWaveformLength=copy.fWaveformLength;
-		fHitIndex=copy.fHitIndex;
-		fSignal=copy.fSignal;  
+		fWaveformLength = copy.fWaveformLength;
+		fHitIndex = copy.fHitIndex;
+		fSignal = copy.fSignal;  
+		fSignalError = copy.fSignalError;
+		fEvt = copy.fEvt;
+		fSampleRate = copy.fSampleRate;
+		fBaselineValue = copy.fBaselineValue;
+		SetTimeStamp(copy.GetTimeStamp());
+		SetTimeStampError(copy.GetTimeStampError());
 		SetLink(FairLink("EmcHit", copy.fHitIndex));
-  }
-  return *this;
+	}
+	return *this;
 }
 
 //--------------
@@ -93,9 +114,11 @@ PndEmcWaveform::operator=(const PndEmcWaveform &copy){
 PndEmcWaveform::~PndEmcWaveform()
 {
 	fSignal.clear();
+	fSignalError.clear();
+	fEvt.clear();
 }
 
-    
+
 //-------------
 // Selectors --
 //-------------
@@ -109,40 +132,54 @@ PndEmcWaveform::GetScale(Double_t sampleRate, PndEmcAbsPulseshape *pulseshape) c
 Double_t 
 PndEmcWaveform::GetNormalisation(Double_t sampleRate, PndEmcAbsPulseshape *pulseshape) const
 {
-  // Function to return the equivalent pulse height for a 1 GeV pulse
-  // Used  in EmcHitsToWaveform to determine electronics noise scale
+	// Function to return the equivalent pulse height for a 1 GeV pulse
+	// Used  in EmcHitsToWaveform to determine electronics noise scale
 
 	PndEmcWaveform newWaveform(*this);
 	newWaveform.clearAndReset();
-	
+
 	PndEmcHit *gevHit=new PndEmcHit();
 	gevHit->SetEnergy(1.0);
 	gevHit->SetTime(0.);
 	newWaveform.UpdateWaveform(gevHit, 0, false, 1., 0., sampleRate, pulseshape);
- 	delete gevHit;
+	delete gevHit;
 
 	Double_t maximum=newWaveform.Max();
 	return maximum;
 }
 
-    
+
 //-------------
 // Modifiers --
 //-------------
 
 void 
-PndEmcWaveform::UpdateWaveform(PndEmcHit *hit, Double_t pePerMeV, Bool_t usePhotonStatistic, Double_t excessNoiseFactor, Double_t firstADCBinTime, Double_t sampleRate, PndEmcAbsPulseshape *pulseshape)
+PndEmcWaveform::UpdateWaveform(PndEmcHit *hit
+		, Double_t pePerMeV
+		, Bool_t usePhotonStatistic
+		, Double_t excessNoiseFactor
+		, Double_t firstADCBinTime
+		, Double_t sampleRate
+		, PndEmcAbsPulseshape *pulseshape
+		, Double_t EnergyError)
 {
-
 	Double_t energy=(Double_t)hit->GetEnergy();
-	Double_t time=(Double_t)hit->GetTime();
-	
-	MakeWaveform(energy, time, pePerMeV, usePhotonStatistic, excessNoiseFactor, firstADCBinTime, sampleRate, pulseshape);
+	Double_t time= GetTimeStamp();//firstADCBinTime = 0.;
+
+	MakeWaveform(energy, time, pePerMeV, usePhotonStatistic, excessNoiseFactor, firstADCBinTime, sampleRate, pulseshape, EnergyError);
 
 }
 
 void 
-PndEmcWaveform::MakeWaveform(Double_t energy, Double_t time, Double_t pePerMeV, Bool_t usePhotonStatistic, Double_t excessNoiseFactor, Double_t firstADCBinTime, Double_t sampleRate, PndEmcAbsPulseshape *pulseshape)
+PndEmcWaveform::MakeWaveform(Double_t energy
+		, Double_t time
+		, Double_t pePerMeV
+		, Bool_t usePhotonStatistic
+		, Double_t excessNoiseFactor
+		, Double_t firstADCBinTime
+		, Double_t sampleRate
+		, PndEmcAbsPulseshape *pulseshape
+		, Double_t EnergyError)
 {
 	Double_t amplitude;
 	Double_t photonStatFactor;
@@ -150,27 +187,38 @@ PndEmcWaveform::MakeWaveform(Double_t energy, Double_t time, Double_t pePerMeV, 
 	{
 		Double_t crystalPhotonsMeV = 1.0e3 * energy * pePerMeV;
 		photonStatFactor = gRandom->Gaus(1,sqrt(excessNoiseFactor/crystalPhotonsMeV));
-   }
+	}
 	else
 	{
 		photonStatFactor=1.;
 	}
 
 	amplitude = energy*photonStatFactor;
-	
-	Double_t t;
-	Double_t time_offset=time;
-	for (  int i=0;i<fWaveformLength;i++)
+
+	Double_t local_time(0.);
+	Double_t time_offset=firstADCBinTime;//nano seconds
+
+	Double_t sumCharge(0.);
+	Double_t sumChargeErr(0.);
+
+	for (Int_t i=0;i<fWaveformLength;i++)
 	{
-		t= time+firstADCBinTime+i/sampleRate;
-		fSignal[i]+=(pulseshape->value(t,amplitude,time_offset));
+		local_time = i/sampleRate;//seconds
+		fSignal[i]+=(pulseshape->value(local_time,amplitude,time_offset));
+		sumCharge += fSignal[i];
+		sumChargeErr += sqrt(fSignal[i]);
 	}
+	Double_t Coff = EnergyError*sumCharge/sumChargeErr;
+	for(Int_t i=0;i<fWaveformLength;++i){
+		fSignalError[i] = fSignal[i]*Coff;
+	}
+
 }
 
-void 
+	void 
 PndEmcWaveform::AddElecNoise(Double_t width)
 {
-   
+
 	for (int i=0;i<fWaveformLength;i++)
 	{
 		Double_t ran_noise;
@@ -180,7 +228,7 @@ PndEmcWaveform::AddElecNoise(Double_t width)
 }
 
 
-void 
+	void 
 PndEmcWaveform::Digitise(Double_t oneBitResolution)
 {
 	for (  int i=0;i<fWaveformLength;i++)
@@ -189,12 +237,12 @@ PndEmcWaveform::Digitise(Double_t oneBitResolution)
 	}
 }
 
-void 
+	void 
 PndEmcWaveform::AddElecNoiseAndDigitise(Double_t noise_width,
-					 Double_t oneBitResolution)
+		Double_t oneBitResolution, Double_t EnergyError)
 {
 	// Do both e_noise and digitisation.  
-	
+
 	for (  int i=0;i<fWaveformLength;i++)
 	{
 		Double_t ran_noise=gRandom->Gaus(0,1)*noise_width;
@@ -202,28 +250,60 @@ PndEmcWaveform::AddElecNoiseAndDigitise(Double_t noise_width,
 		if (fSignal[i]<0) fSignal[i]=0;
 		fSignal[i]=(Double_t) ( long (fSignal[i]/oneBitResolution+64)-64 ) * oneBitResolution;
 	}    
+	Double_t sumCharge(0.);
+	Double_t sumChargeErr(0.);
+	for (Int_t i=0;i<fWaveformLength;i++)
+	{
+		sumCharge += fSignal[i];
+		sumChargeErr += sqrt(fSignal[i]);
+	}
+	Double_t Coff = EnergyError*sumCharge/sumChargeErr;
+	for(Int_t i=0;i<fWaveformLength;++i){
+		fSignalError[i] = fSignal[i]*Coff;
+	}
+  //calculate baseline
+	static Int_t baseline_length =100;
+	for(Int_t j=0;j<baseline_length;++j){
+		fBaselineValue += gRandom->Gaus(0,1)*noise_width;
+	}
+	fBaselineValue/=baseline_length;
 }
 
-void 
+	void 
 PndEmcWaveform::AddShapedElecNoiseAndDigitise(Double_t noise_width,
-						Double_t oneBitResolution, PndEmcAbsPulseshape *pulseshape, Double_t firstADCBinTime, Double_t sampleRate)
+		Double_t oneBitResolution, PndEmcAbsPulseshape *pulseshape, Double_t firstADCBinTime, Double_t sampleRate, Double_t EnergyError )
 {
-  // Do both e_noise and digitisation.
+	// Do both e_noise and digitisation.
 	Double_t t;
 	for (  int i=0;i<fWaveformLength;i++)
 	{
-			t= firstADCBinTime+i/sampleRate;
-			Double_t ran_noise=gRandom->Gaus(0,1)*noise_width;
-			fSignal[i]+=pulseshape->value(t,ran_noise,0);
-	}    
-	
-	for (  int i=0;i<fWaveformLength;i++)
-	{
-		fSignal[i]=(Double_t) ( long (fSignal[i]/oneBitResolution+64)-64 ) * oneBitResolution;
+		t = i/sampleRate;
+		Double_t ran_noise=gRandom->Gaus(0,1)*noise_width;
+		fSignal[i] += pulseshape->value(t,ran_noise,firstADCBinTime);
 	}
+	Double_t sumCharge(0.);
+	Double_t sumChargeErr(0.);
+	for (Int_t i=0;i<fWaveformLength;i++)
+	{
+		sumCharge += fSignal[i];
+		sumChargeErr += sqrt(fSignal[i]);
+	}
+	Double_t Coff = EnergyError*sumCharge/sumChargeErr;
+	for(Int_t i=0;i<fWaveformLength;++i){
+		fSignalError[i] = fSignal[i]*Coff;
+	}
+	//calculate baseline
+	static Int_t baseline_length =100;
+	for(Int_t j=0;j<baseline_length;++j){
+		t =  j/sampleRate;
+		Double_t ran_noise=gRandom->Gaus(0,1)*noise_width;
+		fBaselineValue += pulseshape->value(t,ran_noise,firstADCBinTime);
+	}
+	fBaselineValue/=baseline_length;
+
 }
 
-Double_t 
+	Double_t 
 PndEmcWaveform::Max()
 {
 	Double_t _max;
@@ -242,6 +322,97 @@ PndEmcTwoCoordIndex* PndEmcWaveform::GetTCI() const
 	PndEmcMapper *emcMap=PndEmcMapper::Instance();
 	PndEmcTwoCoordIndex* tci=emcMap->GetTCI(fDetectorId);
 	return tci;
-};
-	
+}
+bool PndEmcWaveform::operator == (const PndEmcWaveform& otherWave) const
+{
+	if(fDetectorId != otherWave.fDetectorId) return false;
+	return true;
+}
+bool PndEmcWaveform::operator < (const PndEmcWaveform& otherWave) const
+{
+	Double_t overlapped_time = 0.;
+	if(GetModule() == 3) overlapped_time = PndEmcWaveform::ForwardOverlapTime;
+	else if(GetModule() == 5) overlapped_time = PndEmcWaveform::ShashylikOverlapTime;
+	else overlapped_time = PndEmcWaveform::BarrelOverlapTime;
+
+	if(GetDetectorId() < otherWave.GetDetectorId())
+		return true;
+	else if	(GetDetectorId() == otherWave.GetDetectorId()){
+		if(GetTimeStamp() < otherWave.GetTimeStamp())
+			return otherWave.GetTimeStamp() >  GetActiveTime() - overlapped_time;
+		else
+			return GetTimeStamp() >  otherWave.GetActiveTime() - overlapped_time;
+	}else
+		return false;
+
+}
+bool PndEmcWaveform::operator != (const PndEmcWaveform& otherWave) const
+{
+	if(fDetectorId != otherWave.fDetectorId) return true;
+	return false;
+}
+bool PndEmcWaveform::equal(FairTimeStamp* data)
+{
+	PndEmcWaveform* other = (PndEmcWaveform*)(data);
+	if(GetDetectorId() == other->GetDetectorId()) return true;
+	return false;
+}
+PndEmcWaveform& PndEmcWaveform::operator += (const PndEmcWaveform& otherWave)
+{
+	if(GetTimeStamp()> otherWave.GetTimeStamp())// current wave earlier
+	{
+		std::cerr<<"Please make sure the eariler waveform += the later waveform"<<std::endl;
+		return *this;
+	}
+	//++ fPileupCount ;
+
+	const std::vector<Int_t>& evtList = otherWave.GetEvtList();
+	for(Int_t i=0; i< evtList.size();++i){
+		AddEvt(evtList[i]);
+	}
+
+	Int_t k =0;
+	Int_t IDX = 0;
+	for(; (IDX < fWaveformLength) && (k < otherWave.fWaveformLength); ++ IDX){
+		if((GetTimeStamp() + IDX/fSampleRate*1.0e9) < otherWave.GetTimeStamp()){
+			continue;
+		}
+		fSignal[IDX] += otherWave.fSignal[k];
+		fSignalError[IDX] = sqrt(fSignalError[IDX]*fSignalError[IDX] + otherWave.fSignalError[k]*otherWave.fSignalError[k]);
+		++k;
+	}
+	if(k < otherWave.fWaveformLength){
+		fWaveformLength += otherWave.fWaveformLength - k ;
+		for(; IDX < fWaveformLength; ++IDX, ++k){
+			fSignal.push_back(otherWave.fSignal[k]);
+			fSignalError.push_back(otherWave.fSignalError[k]);
+		}
+	}
+
+	return *this;
+}
+
+TGraphErrors* PndEmcWaveform::ToTGraph() const 
+{
+	//free this object outside 
+	TGraphErrors* g = new TGraphErrors(fSignal.size());
+	for(Int_t i = 0; i< fSignal.size(); ++i){
+		g->SetPoint(i, GetTimeStamp()/1.e9 + Double_t(i)/fSampleRate, fSignal[i]);
+		g->SetPointError(i, 0, fSignalError[i]);
+	}
+	return g;
+}
+
+void PndEmcWaveform::SetWaveform(std::vector<Double_t>&signal,Int_t length)
+{
+	fSignal = signal; 
+	fWaveformLength=length;
+}
+Double_t PndEmcWaveform::Integral() const {
+	Double_t sum(0.);
+	for(Int_t i=0;i<fSignal.size();++i)
+		sum += fSignal[i];
+	return sum;
+}
+
 ClassImp(PndEmcWaveform)

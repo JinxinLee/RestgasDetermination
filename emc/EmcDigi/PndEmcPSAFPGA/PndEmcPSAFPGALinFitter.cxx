@@ -50,3 +50,9 @@ double PndEmcPSAFPGALinFitter::average()
     return y/Np;
   return 0.0;
 }
+double PndEmcPSAFPGALinFitter::averageX()
+{
+  if (Np > 0)
+    return x/Np;
+  return 0.0;
+}

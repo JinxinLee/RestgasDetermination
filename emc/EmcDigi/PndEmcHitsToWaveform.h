@@ -23,8 +23,6 @@
 #include "PndEmcTwoCoordIndex.h"
 
 #include "FairTask.h"
-//#include <string>
-//#include <map>
 
 //class PndEmcTwoCoordIndex;
 //class PndEmcWaveform;
@@ -33,98 +31,121 @@ class PndEmcMapper;
 class TClonesArray;
 class PndEmcDigiPar;
 class PndEmcGeoPar;
+class PndEmcWaveformWriteoutBuffer;
+class PndEmcAbsPulseshape;
 
 class PndEmcHitsToWaveform : public FairTask
 {
 
-public:
+	public:
 
-  // Constructors
+		// Constructors
 
-  PndEmcHitsToWaveform(Int_t verbose=0, Bool_t storewaves=kTRUE);
+		PndEmcHitsToWaveform(Int_t verbose=0, Bool_t storewaves=kTRUE);
 
-  // Destructor
+		// Destructor
 
-  virtual ~PndEmcHitsToWaveform();
+		virtual ~PndEmcHitsToWaveform();
 
-  /** Virtual method Init **/
-  virtual InitStatus Init();
+		/** Virtual method Init **/
+		virtual InitStatus Init();
 
 
-  /** Virtual method Exec **/
-  virtual void Exec(Option_t* opt);
-  
-  PndEmcWaveform * AddWaveform(Int_t detId,Int_t hitIndex,Int_t numOfSamples);
+		/** Virtual method Exec **/
+		virtual void Exec(Option_t* opt);
 
-  void SetStorageOfData(Bool_t val); // Method to specify whether waveforms are stored or not.
+		//PndEmcWaveform * AddWaveform(Int_t detId,Int_t hitIndex,Int_t numOfSamples);
+		PndEmcWaveform * AddWaveform(Int_t detId,Int_t hitIndex,Int_t numOfSamples, Double_t timeStamp, Double_t sampleRate, Int_t MCTrackID);
 
-private:
+		void SetStorageOfData(Bool_t val); // Method to specify whether waveforms are stored or not.
 
-  /** Input array of PndEmcHits **/
-  TClonesArray* fHitArray;
+		void RunTimeBased(){ fTimeOrderedWaveform = kTRUE;}
 
-  /** Output array of PndEmcWaveforms **/
-  TClonesArray* fWaveformArray;  
+		void FinishTask();
+	private:
 
-	Double_t fOneBitResolution;
-	Double_t fOneBitResolutionBW;
-	Double_t fOneBitResolutionPMT;
+		/** Input array of PndEmcHits **/
+		TClonesArray* fHitArray;
 
-	Int_t fNBits;
-	Double_t fDetectedPhotonsPerMeV;
-	Double_t fDetectedPhotonsPerMeV_PMT;
-	Double_t fNPhotoElectronsPerMeVAPDBarrel;
-	Double_t fNPhotoElectronsPerMeVAPDBWD;
-	Double_t fNPhotoElectronsPerMeVVPT;
-	Double_t fNPhotoElectronsPerMeVPMT;
-	Double_t fSensitiveAreaAPD; //mm^2
-	Double_t fSensitiveAreaVPT; //mm^2
-	Double_t fQuantumEfficiencyAPD;
-	Double_t fQuantumEfficiencyVPT;
-	Double_t fQuantumEfficiencyPMT;
-	Double_t fExcessNoiseFactorAPD;
-	Double_t fExcessNoiseFactorVPT;
-	Double_t fExcessNoiseFactorPMT;
-	Double_t fIncoherent_elec_noise_width_GeV_APD; //GeV
-	Double_t fIncoherent_elec_noise_width_GeV_VPT; //GeV
-	Double_t fEnergyRange; //GeV
-	Double_t fEnergyRangeBW; //GeV
-	Double_t fFirstSamplePhase;
-	Int_t fNumber_of_samples_in_waveform;
-	Int_t fNumber_of_samples_in_waveform_pmt;
-	Double_t fASIC_Shaping_int_time;      //s
-	Double_t fPMT_Shaping_int_time;      //s
-	Double_t fPMT_Shaping_diff_time;      //s
-	Double_t fCrystal_time_constant;  //s
-	Double_t fShashlyk_time_constant;  //s
-	Double_t fShashlykSamplingFactor;
-	Double_t fSampleRate;
-	Double_t fSampleRate_PMT;
-	Int_t fUse_shaped_noise;
-	Int_t fUse_photon_statistic;
-	Int_t fNoiseAllChannels;
-	Int_t fMapVersion;
+		/** Output array of PndEmcWaveforms **/
+		TClonesArray* fWaveformArray;  
+		PndEmcWaveformWriteoutBuffer* fDataBuffer;
+		Bool_t                        fTimeOrderedWaveform;
 
-	Double_t fFirstADCBinTime;
+		Double_t fOneBitResolution;
+		Double_t fOneBitResolutionBW;
+		Double_t fOneBitResolutionPMT;
+		Double_t fOneBitResolutionFWD;
 
-	Double_t fGevPeakAnalogue;
-	Double_t fGevPeakAnalogue_PMT;
+		Int_t fNBits;
+		Double_t fDetectedPhotonsPerMeV;
+		Double_t fDetectedPhotonsPerMeV_PMT;
+		Double_t fNPhotoElectronsPerMeVAPDBarrel;
+		Double_t fNPhotoElectronsPerMeVAPDBWD;
+		Double_t fNPhotoElectronsPerMeVVPT;
+		Double_t fNPhotoElectronsPerMeVPMT;
+		Double_t fSensitiveAreaAPD; //mm^2
+		Double_t fSensitiveAreaVPT; //mm^2
+		Double_t fQuantumEfficiencyAPD;
+		Double_t fQuantumEfficiencyVPT;
+		Double_t fQuantumEfficiencyPMT;
+		Double_t fExcessNoiseFactorAPD;
+		Double_t fExcessNoiseFactorVPT;
+		Double_t fExcessNoiseFactorPMT;
+		Double_t fIncoherent_elec_noise_width_GeV_APD; //GeV
+		Double_t fIncoherent_elec_noise_width_GeV_VPT; //GeV
+		Double_t fEnergyRange; //GeV
+		Double_t fEnergyRangeBW; //GeV
+		Double_t fFirstSamplePhase;
+		Int_t fNumber_of_samples_in_waveform;
+		Int_t fNumber_of_samples_in_waveform_pmt;
+		Int_t fNumber_of_samples_in_waveform_fwd;
+		Double_t fASIC_Shaping_int_time;      //s
+		Double_t fPMT_Shaping_int_time;      //s
+		Double_t fPMT_Shaping_diff_time;      //s
+		Double_t fFWD_Shaping_int_time;      //s
+		Double_t fFWD_time_constant;  //s
+		Double_t fCrystal_time_constant;  //s
+		Double_t fShashlyk_time_constant;  //s
+		Double_t fShashlykSamplingFactor;
+		Double_t fSampleRate;
+		Double_t fSampleRate_PMT;
+		Double_t fSampleRate_FWD;
+		Int_t fUse_shaped_noise;
+		Int_t fUse_photon_statistic;
+		Int_t fNoiseAllChannels;
+		Int_t fMapVersion;
 
-	PndEmcDigiPar*    fDigiPar;      /** Digitisation parameter container **/
-	PndEmcGeoPar*     fGeoPar;       /** Geometry parameter container **/
-	/** Get parameter containers **/
-	virtual void SetParContainers();
-	
-	/** Verbosity level **/
-	Int_t fVerbose;
+		Double_t fFirstADCBinTime;
 
-	Bool_t fStoreWaves;
+		Double_t fGevPeakAnalogue;
+		Double_t fGevPeakAnalogue_PMT;
+		Double_t fGevPeakAnalogue_FWD;
 
-	PndEmcHitsToWaveform(const  PndEmcHitsToWaveform& L);
-	PndEmcHitsToWaveform& operator= (const  PndEmcHitsToWaveform&) {return *this;}
-  
+		PndEmcDigiPar*    fDigiPar;      /** Digitisation parameter container **/
+		PndEmcGeoPar*     fGeoPar;       /** Geometry parameter container **/
+		/** Get parameter containers **/
+		virtual void SetParContainers();
 
-  ClassDef(PndEmcHitsToWaveform,2);
+		/** Verbosity level **/
+		Int_t fVerbose;
+		Bool_t fStoreWaves;
+
+		PndEmcHitsToWaveform(const  PndEmcHitsToWaveform& L);
+		PndEmcHitsToWaveform& operator= (const  PndEmcHitsToWaveform&) {return *this;}
+
+
+		ClassDef(PndEmcHitsToWaveform,2);
+
+		//counters for task
+		Int_t HowManyHit;
+		Int_t nWaveformProduced;
+		Int_t HowManyEventPileup;
+
+		//pulse shapes
+		PndEmcAbsPulseshape* pulseshape1;
+		PndEmcAbsPulseshape* pulseshape2;
+		PndEmcAbsPulseshape* pulseshape3;
 };
 
 #endif

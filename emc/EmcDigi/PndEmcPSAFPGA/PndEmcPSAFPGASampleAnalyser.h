@@ -44,6 +44,8 @@ class PndEmcPSAFPGASampleAnalyser : public PndEmcAbsPSA{
 	  int cf_fit_offset;
 	  int mwd_length;
 	  float mwd_tau;
+		float clock_unit;//unit time per point
+		float iafactor;//integral vs ampltitue
   } ;
 
  protected:

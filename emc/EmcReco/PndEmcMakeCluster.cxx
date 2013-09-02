@@ -17,7 +17,7 @@
 //	Jan Zhong            //------------------------------------------------------------------------
 
 #include "PndEmcMakeCluster.h"
-
+#include <assert.h>
 #include "PndEmcClusterProperties.h"
 #include "PndEmcXClMoments.h"
 #include "PndEmcStructure.h"
@@ -46,9 +46,12 @@ using std::endl;
 
 Int_t PndEmcMakeCluster::fEventCounter=0;
 
+
 PndEmcMakeCluster::PndEmcMakeCluster(Int_t verbose, Bool_t storeclusters):
 fDigiArray(new TClonesArray()), fHitArray(new TClonesArray()), fMCTrackArray(new TClonesArray()), fClusterArray(new TClonesArray()), fClusterList(), fDigiEnergyTresholdBarrel(0), fDigiEnergyTresholdFWD(0), fDigiEnergyTresholdBWD(0), fDigiEnergyTresholdShashlyk(0), fClusterPosParam(), fMapVersion(0), fGeoPar(new PndEmcGeoPar()), fDigiPar(new PndEmcDigiPar()), fRecoPar(new PndEmcRecoPar()), fVerbose(verbose), fStoreClusters(storeclusters) 
 {
+	HowManyDigi = 0;
+	HowManyCluster = 0;
 	fClusterList.clear();
 	fClusterPosParam.clear();
 }
@@ -139,70 +142,76 @@ void PndEmcMakeCluster::Exec(Option_t* opt)
 	if ( ! fClusterArray ) Fatal("Exec", "No Cluster Array");
 	fClusterArray->Delete();
 
+	//if (fVerbose>0)
+	//	cout<<"PndEmcMakeCluster, event: "<<fEventCounter<<endl;
+
 	Int_t nDigis = fDigiArray->GetEntriesFast();
-	if (fVerbose>2){
-		cout<<"DigiList length "<<nDigis<<endl;
+	if (fVerbose>0){
+		cout<<"------------------------PndEmcMakeCluster------------------------"<<endl;
+		cout<<"EventNO. #"<<fEventCounter<<", DigiList length "<<nDigis<<endl;
 	}
-	
+
 	Double_t totalDigiEnergy=0;
 	//loop to build Cluster
+	HowManyDigi += nDigis;
+
 	for (Int_t iDigi=0; iDigi<nDigis; iDigi++)
 	{
 		PndEmcDigi* theDigi = (PndEmcDigi*) fDigiArray->At(iDigi);
-		
+
 		Int_t module=theDigi->GetModule();
-		
+
 		// In the following lines there is separate threshold for forward endcup
 		// and the same for barrel and backward and shashlyk EMC, but for last 2 threshold probably should be different 
 		if ((module==1||module==2)&&(theDigi->GetEnergy()< fDigiEnergyTresholdBarrel)) continue;
 		if ((module==3)&&(theDigi->GetEnergy()< fDigiEnergyTresholdFWD)) continue;
 		if ((module==4)&&(theDigi->GetEnergy()< fDigiEnergyTresholdBWD)) continue;
 		if ((module==5)&&(theDigi->GetEnergy()< fDigiEnergyTresholdShashlyk)) continue;
-		
-			bool isAdded = false;
-		
-			Int_t clustmarker=0;
-			
-			Int_t clustLength=fClusterArray->GetEntriesFast();
-			
-			for(Int_t i=0;i<clustLength;i++)
+
+		bool isAdded = false;
+
+		Int_t clustmarker=0;
+
+		Int_t clustLength=fClusterArray->GetEntriesFast();
+
+		for(Int_t i=0;i<clustLength;i++)
+		{
+			PndEmcCluster* cluster=(PndEmcCluster*) fClusterArray->At(i);
+			if(cluster->isInCluster(theDigi, fDigiArray))
 			{
-				PndEmcCluster* cluster=(PndEmcCluster*) fClusterArray->At(i);
-				if(cluster->isInCluster(theDigi, fDigiArray))
+				if(!isAdded)
 				{
-					if(!isAdded)
-					{
-						clustmarker=i;
-						isAdded=true;
-						cluster->addDigi(fDigiArray, iDigi);
-						cluster->AddLink(FairLink("EmcDigi", iDigi));
-					}
-					else
-					{
-						PndEmcCluster* clust_clustmarker=(PndEmcCluster*) fClusterArray->At(clustmarker);
-						PndEmcCluster* clust_i=(PndEmcCluster*) fClusterArray->At(i);
-						clust_clustmarker->addCluster(clust_i, fDigiArray);
-						fClusterArray->RemoveAt(i);
-						fClusterArray->Compress();
-						clustLength--;
-						i--;
-					}
+					clustmarker=i;
+					isAdded=true;
+					cluster->addDigi(fDigiArray, iDigi);
+					cluster->AddLink(FairLink("EmcDigi", iDigi));
+				}
+				else
+				{
+					PndEmcCluster* clust_clustmarker=(PndEmcCluster*) fClusterArray->At(clustmarker);
+					PndEmcCluster* clust_i=(PndEmcCluster*) fClusterArray->At(i);
+					clust_clustmarker->addCluster(clust_i, fDigiArray);
+					fClusterArray->RemoveAt(i);
+					fClusterArray->Compress();
+					clustLength--;
+					i--;
 				}
 			}
-	
-			if (!isAdded)
-			{
-				PndEmcCluster* newcluster = new((*fClusterArray)[clustLength]) PndEmcCluster();
-				newcluster->addDigi(fDigiArray, iDigi);
-				newcluster->SetLink(FairLink("EmcDigi", iDigi));
-			}
-			
-			totalDigiEnergy+=theDigi->GetEnergy();
-			
+		}
+
+		if (!isAdded)
+		{
+			PndEmcCluster* newcluster = new((*fClusterArray)[clustLength]) PndEmcCluster();
+			newcluster->addDigi(fDigiArray, iDigi);
+			newcluster->SetLink(FairLink("EmcDigi", iDigi));
+		}
+
+		totalDigiEnergy+=theDigi->GetEnergy();
 	}
-	
+
 	// At that moment internal state fEnergy and fWhere of Clusters are not initialized, the following does initialisation
 	Int_t nCluster = fClusterArray->GetEntriesFast();
+	HowManyCluster += nCluster;
 	for (Int_t i=0; i<nCluster; i++)
 	{
 		PndEmcCluster *tmpclust = (PndEmcCluster*) fClusterArray->At(i);
@@ -215,45 +224,56 @@ void PndEmcMakeCluster::Exec(Option_t* opt)
 		tmpclust->SetZ20(xClMoments.AbsZernikeMoment(2, 0, 15));
 		tmpclust->SetZ53(xClMoments.AbsZernikeMoment(5, 3, 15));
 		tmpclust->SetLatMom(xClMoments.Lat());
-		tmpclust->fMcList.clear();
-		if(fHitArray && fMCTrackArray){
-			// BS: this is a first order approximation only !!!!
+		//const std::vector<Int_t>& MCTruth = tmpclust->GetMcList();
+		//std::cout<<"The cluster #"<<i<<" produced by MC Track #";
+		//for(Int_t j=0;j<MCTruth.size();++j)
+		//	cout<<MCTruth[j]<<' ';
+		//cout<<endl;
 
-			std::vector <Int_t> newlist;
-			newlist.clear();
-			for(Int_t j=0; j<tmpclust->fDigiList.size(); j++){
-				PndEmcDigi*m;
-				m=(PndEmcDigi*)fDigiArray->At(tmpclust->fDigiList[j]);
+		//tmpclust->fMcList.clear();
+		//if(fHitArray && fMCTrackArray){
+		//	// BS: this is a first order approximation only !!!!
+		//	std::vector <Int_t> newlist;
+		//	newlist.clear();
+		//	//assert(tmpclust->fDigiList != 0);
+		//	for(Int_t j=0; j<tmpclust->fDigiList.size(); j++){
+		//		PndEmcDigi*m;
+		//		m=(PndEmcDigi*)fDigiArray->At(tmpclust->fDigiList[j]);
 
-				Int_t inx;
-				inx=m->GetHitIndex();
+		//		Int_t inx;
+		//		inx=m->GetHitIndex();
 
-				if(inx>=0){
-					const std::vector <Int_t> &tmplist=((PndEmcHit*) fHitArray->At(inx))->GetMcList();
+		//		if(inx>=0){
+		//			if(fHitArray->At(inx) != 0 ){//add by hujf
+		//				std::vector <Int_t> tmplist=((PndEmcHit*) fHitArray->At(inx))->GetMcList();
 
-					// I copy the complete list instead of only the highest energy particle
-					// highest energy might be a problem for Hits which belong to two real clusters?
-					for(Int_t k=0; k<tmplist.size(); k++){
-						newlist.push_back(tmplist[k]);
-					}
-				}
-			}
-			// if( fMCTrackArray) checked above already
-	        cleansortmclist(newlist,fMCTrackArray);
-			tmpclust->fMcList=newlist;
-		}
+		//				// I copy the complete list instead of only the highest energy particle
+		//				// highest energy might be a problem for Hits which belong to two real clusters?
+		//				for(Int_t k=0; k<tmplist.size(); k++){
+		//					newlist.push_back(tmplist[k]);
+		//				}
+		//			}
+		//		}
+		//	}
+		//	// if( fMCTrackArray) checked above already
+		//	cleansortmclist(newlist,fMCTrackArray);
+		//	tmpclust->fMcList=newlist;
+		//}
 	}
-	
-	fEventCounter++;
-	if (fVerbose>0)
-		cout<<"PndEmcMakeCluster, event: "<<fEventCounter<<endl;
-	
+
+
+	if (fVerbose>0){
+		cout<<"EventNO. #"<<fEventCounter<<", Cluster length "<<nCluster<<endl;
+		cout<<"------------------------PndEmcMakeCluster------------------------"<<endl;
+	}
 	if (fVerbose>2){
 		timer.Stop();
 		Double_t rtime = timer.RealTime();
 		Double_t ctime = timer.CpuTime();
 		cout << "PndEmcMakeCluster, Real time " << rtime << " s, CPU time " << ctime << " s" << endl;
 	}	
+
+	fEventCounter++;
 }
 
 // Helper function, does not depend on class, identical to the one in PndEmcHitProducer
@@ -293,28 +313,36 @@ void PndEmcMakeCluster::cleansortmclist( std::vector <Int_t> &newlist,TClonesArr
 
 void PndEmcMakeCluster::SetParContainers() {
 
-  // Get run and runtime database
-  FairRun* run = FairRun::Instance();
-  if ( ! run ) Fatal("SetParContainers", "No analysis run");
+	// Get run and runtime database
+	FairRun* run = FairRun::Instance();
+	if ( ! run ) Fatal("SetParContainers", "No analysis run");
 
-  FairRuntimeDb* db = run->GetRuntimeDb();
-  if ( ! db ) Fatal("SetParContainers", "No runtime database");
+	FairRuntimeDb* db = run->GetRuntimeDb();
+	if ( ! db ) Fatal("SetParContainers", "No runtime database");
 
-  // Get Emc geometry parameter container
-  fGeoPar = (PndEmcGeoPar*) db->getContainer("PndEmcGeoPar");
-  
-  // Get Emc digitisation parameter container
-  fDigiPar = (PndEmcDigiPar*) db->getContainer("PndEmcDigiPar");
- 
-  // Get Emc reconstruction parameter container
-  fRecoPar = (PndEmcRecoPar*) db->getContainer("PndEmcRecoPar");
+	// Get Emc geometry parameter container
+	fGeoPar = (PndEmcGeoPar*) db->getContainer("PndEmcGeoPar");
+
+	// Get Emc digitisation parameter container
+	fDigiPar = (PndEmcDigiPar*) db->getContainer("PndEmcDigiPar");
+
+	// Get Emc reconstruction parameter container
+	fRecoPar = (PndEmcRecoPar*) db->getContainer("PndEmcRecoPar");
 }
 
 void PndEmcMakeCluster::SetStorageOfData(Bool_t val)
 {
-  fStoreClusters=val;
-  return;
+	fStoreClusters=val;
+	return;
 }
-  
+void PndEmcMakeCluster::FinishTask()
+{
+	std::cout<<"PndEmcMakeCluster::FinishTask"<<std::endl;
+	std::cout<<"*********************************************************"<<std::endl;
+	std::cout<<"Read digis# "<<HowManyDigi<<std::endl;
+	std::cout<<"Produce cluster# "<<HowManyCluster<<std::endl;
+	std::cout<<"*********************************************************"<<std::endl;
+}
+
 
 ClassImp(PndEmcMakeCluster)

@@ -35,9 +35,9 @@
 #include "Riostream.h"
 
 using namespace std;
-
+TClonesArray* PndEmcDigi::fDigiArrayTBD = new TClonesArray("PndEmcDigi");
 // -----   Default constructor   -----------------------------------
-PndEmcDigi::PndEmcDigi():FairTimeStamp(0),fEnergy(0),fTrackId(-1),fDetectorId(-1),fHitIndex(-1),fWhere(0,0,0), fThetaInd(0), fPhiInd(0),fTheta(0), fPhi(0)
+PndEmcDigi::PndEmcDigi():FairTimeStamp(0),fEnergy(0),fTrackId(-1),fDetectorId(-1),fHitIndex(-1),fWhere(0,0,0), fThetaInd(0), fPhiInd(0),fTheta(0), fPhi(0), fEvtNo(-1)
 {
 }
 // -----------------------------------------------------------------
@@ -72,7 +72,7 @@ PndEmcDigi::PndEmcDigi( const PndEmcDigi& other )
   fTrackId(other.fTrackId),
   fDetectorId( other.fDetectorId),
   fHitIndex( other.fHitIndex),
-  fThetaInd(0), fPhiInd(0),fTheta(0),fPhi(0), fWhere(0,0,0)
+  fThetaInd(0), fPhiInd(0),fTheta(0),fPhi(0), fWhere(0,0,0), fEvtNo(other.fEvtNo)
 {
 	PndEmcMapper *emcMap=PndEmcMapper::Instance();
 	PndEmcTwoCoordIndex* tci=emcMap->GetTCI(fDetectorId);
@@ -320,8 +320,9 @@ bool PndEmcDigi::operator<( const PndEmcDigi & otherDigi) const
 
 // -----   Public method Print   -----------------------------------
 void PndEmcDigi::Print(const Option_t* opt) const {
-  cout << "EMC digi: cellid=" << GetDetectorId() << ", Energy=" << fEnergy;
+  cout << "EMC digi: cellid=" << GetDetectorId() << ", Energy=" << fEnergy<<", Time="<<GetTimeStamp()<<", Evt="<<fEvtNo;
   if (fTrackId>0) cout << ", TrackID= " << fTrackId;
+	//cout<<endl;
 //  cout << ", x=" << GetX() << ", y=" << GetY() << endl << flush; 
 }
 

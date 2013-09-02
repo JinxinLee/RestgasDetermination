@@ -21,11 +21,20 @@ class PndEmcPSAFPGADigitalFilterAnalyser : public PndEmcPSAFPGASampleAnalyser {
   virtual void init(PndEmcPSAFPGASampleAnalyser::SampleAnalyserParams &params);
   virtual void reset();
   virtual void put(float valueToStore);
+	virtual void enable_mwd_filter(bool flag);
 
+	virtual Int_t Process(const PndEmcWaveform *waveform);
  private:
   unsigned int analysis_start_position;
   unsigned int baseline_stop_position;
   float baseline_value_calculated;
+	float ma_value_delay;
+	int increasement;
+	int decreasement;
+	bool useMWDFilter;
+	bool pulse_finished;
+	int ith_pulse;
+	int rising_count;
 
   PndEmcPSAFPGAFilterMWD *MWD_filter;
 
