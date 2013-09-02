@@ -29,13 +29,20 @@ PndDrcLutNode::PndDrcLutNode(Int_t nodeId, TVector3 dir)
 }
 
 void PndDrcLutNode::AddEntry(TVector3 dir) {
-
   fNodeArray.push_back(dir);
   fSize++;
 }
 
+void PndDrcLutNode::AddPathId(Double_t pathid) {
+  fPathIdArray.push_back(pathid);
+}
 
-TVector3 PndDrcLutNode::GetEntry(Int_t entrie) {
-  return fNodeArray[entrie];
+
+TVector3 PndDrcLutNode::GetEntry(Int_t entry) {
+  return fNodeArray[entry];
+}
+
+Double_t PndDrcLutNode::GetPathId(Int_t entry) {
+  return fPathIdArray[entry];
 }
 
