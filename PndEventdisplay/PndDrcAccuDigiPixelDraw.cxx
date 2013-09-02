@@ -16,6 +16,7 @@
 #include "TEveManager.h"
 #include "TEveBoxSet.h"
 #include "TGLViewer.h" 
+#include "TGLSAViewer.h" 
 #include "TRandom.h"
 #include "TStyle.h"
 
@@ -57,9 +58,29 @@ InitStatus PndDrcAccuDigiPixelDraw::Init()
 	  if(volumename(0,4)=="Pipe")  vol->SetVisibility(kFALSE);
 	  if(volumename=="DrcAirBox") vol->SetTransparency(80);
 	  if(volumename=="DrcEVSensor") vol->SetTransparency(80);
+	  if(volumename=="DrcBarSensor") vol->SetTransparency(80);
+	  if(volumename=="DrcBarSensor") vol->SetTransparency(80);
+	  if(volumename.Contains("DrcLENS")) vol->SetTransparency(30);
+
+	  //vol->SetTransparency(80);
+	  // vol->SetLineColor(17);
+	  if(volumename.Contains("DrcMcpGreaseSensor")) vol->SetLineColor(13);
 	}
-        //TGLViewer* v = gEve->GetDefaultGLViewer();
-        //v->SetCurrentCamera(TGLViewer::kCameraPerspXOY);
+	
+	gGeoManager->SetNsegments(400);
+
+	TGLViewer *v = gEve->GetDefaultGLViewer();
+	//v->SetCurrentCamera(TGLViewer::kCameraPerspXOY);
+	TGLSAViewer *sav = (TGLSAViewer *)v;
+	sav->SetDrawCameraCenter(true);
+	TGLCamera & cam=(TGLOrthoCamera &)v->CurrentCamera();
+	cam.SetExternalCenter(true);
+	cam.SetCenterVec(46.8, 8.9, -120.);
+
+	//Double_t c[] = {46.8, 8.9, -120.};
+	//cam.Configure(1.3,1,c,-0.4,2.);
+	//v->DoDraw();
+
 	fFirstEvent=true;
 }
 
@@ -136,12 +157,13 @@ void PndDrcAccuDigiPixelDraw::Exec(Option_t* option)
       if(it->second > max) max = it->second;
     }
     max -= 0.1*max;
-    Float_t hstep =  fBoxHeight/max;
+    Float_t hstep =  fBoxHeight/(Float_t)max;
     TEveBoxSet* topbs = new TEveBoxSet("DrcAccuDigiPixel");
     for (boxSetMapIter it = fHitsArr.begin(); it != fHitsArr.end(); it++){
+      if(hstep*fHitsN[it->first]<0.3) continue;
       it->second->SetPalette(pal);
-      it->second->DigitValue(fHitsN[it->first]*colnums/max);
-      it->second->SetDefDepth(-0.005-hstep*fHitsN[it->first]);
+      it->second->DigitValue(fHitsN[it->first]*colnums/(Float_t)max);
+      it->second->SetDefDepth(-0.05-hstep*fHitsN[it->first]); //-0.005
       topbs->AddElement(it->second);
     }
     gEve->AddElement(topbs, man);

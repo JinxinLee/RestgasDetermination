@@ -170,8 +170,9 @@ void PndDrcDigiTask::ProcessPhotonPoint()
   for(Int_t k=0; k < fPDPointArray->GetEntriesFast(); k++) {
   
     fPpt = (PndDrcPDPoint*)fPDPointArray->At(k);
-       
+   
     Int_t trID= fPpt->GetTrackID();
+    if(trID<0) continue;
     fMCtrk = (PndMCTrack*)fMCArray->At(trID);
     
     Int_t NbouncesX, NbouncesY;
@@ -220,133 +221,127 @@ void PndDrcDigiTask::ProcessPhotonPoint()
     // Maria Patsyuk
     if(fisTransportEff && BarId != -1){
       if (lambda >= flambda_min_tr && lambda < flambda_max_tr) {
-	    Int_t ilambda=(Int_t)((lambda-flambda_min_tr)/flambda_step_tr); 
-	    Int_t iangleX =(Int_t)(angleX/fangle_step_tr);	    
-	    Int_t iangleY =(Int_t)(angleY/fangle_step_tr);
+	Int_t ilambda=(Int_t)((lambda-flambda_min_tr)/flambda_step_tr); 
+	Int_t iangleX =(Int_t)(angleX/fangle_step_tr);	    
+	Int_t iangleY =(Int_t)(angleY/fangle_step_tr);
 
-	    Double_t rand = gRandom->Rndm();
-	    fDetection = 0;
-	    Double_t TotalTrProb = 1.;
-	    Double_t ReflectionProbX = fTranspEfficiency[ilambda+ iangleX*flambda_points_tr];
-	    Double_t ReflectionProbY = fTranspEfficiency[ilambda+ iangleY*flambda_points_tr];
-	    TotalTrProb = pow(ReflectionProbX, (Int_t)NbouncesX)*pow(ReflectionProbY, (Int_t)NbouncesY);
-	    if(TotalTrProb > rand) fDetection = 1;
-       }
-     }
-     if(!fisTransportEff && BarId != -1 && !fisDetEff){ 
-       fDetection=1;
-     }      
+	Double_t rand = gRandom->Rndm();
+	fDetection = 0;
+	Double_t TotalTrProb = 1.;
+	Double_t ReflectionProbX = fTranspEfficiency[ilambda+ iangleX*flambda_points_tr];
+	Double_t ReflectionProbY = fTranspEfficiency[ilambda+ iangleY*flambda_points_tr];
+	TotalTrProb = pow(ReflectionProbX, (Int_t)NbouncesX)*pow(ReflectionProbY, (Int_t)NbouncesY);
+	if(TotalTrProb > rand) fDetection = 1;
+      }
+    }
+    if(!fisTransportEff && BarId != -1 && !fisDetEff){
+      fDetection=1;
+    }      
 
-     if(fDetection==1){
+    if(fDetection==1){
             
-     	// transform to local sensor system... (mc point has the ID not the path to the volume)
-     	TVector3 PptPosition;
-	fPpt->Position(PptPosition);
-     	TVector3 posL = fGeoH->MasterToLocalShortId(PptPosition,fPpt->GetDetectorID()); // point
+      // transform to local sensor system... (mc point has the ID not the path to the volume)
+      TVector3 PptPosition;
+      fPpt->Position(PptPosition);
+      TVector3 posL = fGeoH->MasterToLocalShortId(PptPosition,fPpt->GetDetectorID()); // point
 	 
-    	TVector3 sensorDim = GetSensorDimensions(fPpt->GetDetectorID());	
- 
-     	if (fVerbose > 1){
-	      std::cout << "SensorDimension for: " << fPpt->GetDetectorID() << std::endl;
-	      std::cout << sensorDim.X() << " " << sensorDim.Y() << " " << sensorDim.Z() << std::endl;
-	}
+      TVector3 sensorDim = GetSensorDimensions(fPpt->GetDetectorID());	
 	 
-	//usually sensors have origin in the middle, let's move it to the left lower corner:
-     	TVector3 posLshifted;
-     	posLshifted.SetXYZ(posL.X()+sensorDim.X(), posL.Y()+sensorDim.Y(), posL.Z()+sensorDim.Z());
+      //usually sensors have origin in the middle, let's move it to the left lower corner:
+      TVector3 posLshifted = posL + sensorDim;
 	 
-     	// calculate the number of the fired pixel
-     	Int_t Ncol = (Int_t)TMath::Floor(posLshifted.X()/fPixelStep);
-     	Int_t Nrow = (Int_t)TMath::Floor(posLshifted.Y()/fPixelStep);
-     	Int_t NpixelLocal = Ncol + Nrow  * fNpix;
+      // calculate the number of the fired pixel
+      Int_t Ncol = (Int_t)TMath::Floor(posLshifted.X()/fPixelStep);
+      Int_t Nrow = (Int_t)TMath::Floor(posLshifted.Y()/fPixelStep);
+      Int_t NpixelLocal = Ncol + Nrow  * fNpix;
      
-     	fDetectorID = fPpt->GetDetectorID() * 100 + NpixelLocal;
+      fDetectorID = fPpt->GetDetectorID() * 100 + NpixelLocal;
 	 
-	// time is smeared and digitized = has granularity
-	fTime=(Int_t)(fPpt->GetTime()/fTimeGranularity)*fTimeGranularity; 
-     	Smear(fTime,fSigmat);
+      // time is smeared and digitized = has granularity
+      fTime=(Int_t)(fPpt->GetTime()/fTimeGranularity)*fTimeGranularity; 
+      Smear(fTime,fSigmat);
      
-	ActivatePixel(fDetectorID, fTime, k, 0);
+      ActivatePixel(fDetectorID, fTime, k, 0);
 
-        if(fChargeSharing == kTRUE){
-	  // find fired pixels:
-	  Double_t distance = 999.;
-	  TVector3 corner;
-	  TVector3 point;
+      if(fChargeSharing == kTRUE){
+	// find fired pixels:
+	Double_t distance = 999.;
+	TVector3 corner;
+	TVector3 point;
 		
-	  // left pixel
-	  distance =  posLshifted.X() - TMath::Floor(posLshifted.X()/fPixelStep)*fPixelStep; //[cm]
-	  if(exp(- distance/fPixelSigma) > gRandom->Uniform(0.,1.) && exp(- distance/fPixelSigma) > fThreshold){   
-	    if((Ncol-1) >= 0){
-	      ActivatePixel(fPpt->GetDetectorID() * 100 +Ncol-1+Nrow*fNpix, fTime, k, 1);	
-	    }
+	// left pixel
+	distance =  posLshifted.X() - TMath::Floor(posLshifted.X()/fPixelStep)*fPixelStep; //[cm]
+	if(exp(- distance/fPixelSigma) > gRandom->Uniform(0.,1.) && exp(- distance/fPixelSigma) > fThreshold){   
+	  if((Ncol-1) >= 0){
+	    ActivatePixel(fPpt->GetDetectorID() * 100 +Ncol-1+Nrow*fNpix, fTime, k, 1);	
 	  }
-	  // right pixel
-	  distance =  TMath::Ceil(posLshifted.X()/fPixelStep)*fPixelStep - posLshifted.X();	  
-	  if(exp(- distance/fPixelSigma) > gRandom->Uniform(0.,1.) && exp(- distance/fPixelSigma) > fThreshold){    
-	    if(Ncol+1 < fNpix){
-	      ActivatePixel(fPpt->GetDetectorID() * 100 +Ncol+1+Nrow*fNpix, fTime, k, 1);	
-	    }
+	}
+	// right pixel
+	distance =  TMath::Ceil(posLshifted.X()/fPixelStep)*fPixelStep - posLshifted.X();	  
+	if(exp(- distance/fPixelSigma) > gRandom->Uniform(0.,1.) && exp(- distance/fPixelSigma) > fThreshold){    
+	  if(Ncol+1 < fNpix){
+	    ActivatePixel(fPpt->GetDetectorID() * 100 +Ncol+1+Nrow*fNpix, fTime, k, 1);	
 	  }
-	  // lower pixel
-	  distance =  posLshifted.Y() - TMath::Floor(posLshifted.Y()/fPixelStep)*fPixelStep;	  
-	  if(exp(- distance/fPixelSigma) > gRandom->Uniform(0.,1.) && exp(- distance/fPixelSigma) > fThreshold){    
-	    if(Nrow-1 >= 0){
-	      ActivatePixel(fPpt->GetDetectorID() * 100 +Ncol+(Nrow-1)*fNpix, fTime, k, 1);
-	    }
+	}
+	// lower pixel
+	distance =  posLshifted.Y() - TMath::Floor(posLshifted.Y()/fPixelStep)*fPixelStep;	  
+	if(exp(- distance/fPixelSigma) > gRandom->Uniform(0.,1.) && exp(- distance/fPixelSigma) > fThreshold){    
+	  if(Nrow-1 >= 0){
+	    ActivatePixel(fPpt->GetDetectorID() * 100 +Ncol+(Nrow-1)*fNpix, fTime, k, 1);
 	  }
-	  // upper pixel
-	  distance =  TMath::Ceil(posLshifted.Y()/fPixelStep)*fPixelStep - posLshifted.Y();
-	  if(exp(- distance/fPixelSigma) > gRandom->Uniform(0.,1.) && exp(- distance/fPixelSigma) > fThreshold){    
-	    if(Nrow+1 < fNpix){
-	      ActivatePixel(fPpt->GetDetectorID() * 100 +Ncol+(Nrow+1)*fNpix, fTime, k, 1);
-	    }
+	}
+	// upper pixel
+	distance =  TMath::Ceil(posLshifted.Y()/fPixelStep)*fPixelStep - posLshifted.Y();
+	if(exp(- distance/fPixelSigma) > gRandom->Uniform(0.,1.) && exp(- distance/fPixelSigma) > fThreshold){    
+	  if(Nrow+1 < fNpix){
+	    ActivatePixel(fPpt->GetDetectorID() * 100 +Ncol+(Nrow+1)*fNpix, fTime, k, 1);
 	  }
+	}
 		
-	  point.SetXYZ(posLshifted.X(),posLshifted.Y(),0.);
+	point.SetXYZ(posLshifted.X(),posLshifted.Y(),0.);
 		
-	  // upper left pixel
-	  corner.SetXYZ(TMath::Floor(posLshifted.X()/fPixelStep)*fPixelStep,
-	  		TMath::Ceil(posLshifted.Y()/fPixelStep)*fPixelStep,0.);
-	  distance = (point-corner).Mag();	  
-	  if(exp(-distance/fPixelSigma) > gRandom->Uniform(0.,1.) && exp(- distance/fPixelSigma) > fThreshold){	    
-	    if(Ncol-1 >= 0 && Nrow+1 < fNpix){
-	      ActivatePixel(fPpt->GetDetectorID() * 100 +Ncol-1+(Nrow+1)*fNpix, fTime, k, 1);
+	// upper left pixel
+	corner.SetXYZ(TMath::Floor(posLshifted.X()/fPixelStep)*fPixelStep,
+		      TMath::Ceil(posLshifted.Y()/fPixelStep)*fPixelStep,0.);
+	distance = (point-corner).Mag();	  
+	if(exp(-distance/fPixelSigma) > gRandom->Uniform(0.,1.) && exp(- distance/fPixelSigma) > fThreshold){	    
+	  if(Ncol-1 >= 0 && Nrow+1 < fNpix){
+	    ActivatePixel(fPpt->GetDetectorID() * 100 +Ncol-1+(Nrow+1)*fNpix, fTime, k, 1);
 				
-	    }
 	  }
+	}
 		
-	  // bottom left pixel
-	  corner.SetXYZ(TMath::Floor(posLshifted.X()/fPixelStep)*fPixelStep,
-	  		TMath::Floor(posLshifted.Y()/fPixelStep)*fPixelStep,0.);
-	  distance = (point-corner).Mag();	 
-	  if(exp(-distance/fPixelSigma) > gRandom->Uniform(0.,1.) && exp(- distance/fPixelSigma) > fThreshold){	    
-	    if(Ncol-1 >= 0 && Nrow-1 >= 0){
-	      ActivatePixel(fPpt->GetDetectorID() * 100 +Ncol-1+(Nrow-1)*fNpix, fTime, k, 1);
-	    }
+	// bottom left pixel
+	corner.SetXYZ(TMath::Floor(posLshifted.X()/fPixelStep)*fPixelStep,
+		      TMath::Floor(posLshifted.Y()/fPixelStep)*fPixelStep,0.);
+	distance = (point-corner).Mag();	 
+	if(exp(-distance/fPixelSigma) > gRandom->Uniform(0.,1.) && exp(- distance/fPixelSigma) > fThreshold){	    
+	  if(Ncol-1 >= 0 && Nrow-1 >= 0){
+	    ActivatePixel(fPpt->GetDetectorID() * 100 +Ncol-1+(Nrow-1)*fNpix, fTime, k, 1);
 	  }
+	}
 		
-	  // bottom right pixel
-	  corner.SetXYZ(TMath::Ceil(posLshifted.X()/fPixelStep)*fPixelStep,
-	  		TMath::Floor(posLshifted.Y()/fPixelStep)*fPixelStep,0.);
-	  distance = (point-corner).Mag();	  
-	  if(exp(-distance/fPixelSigma) > gRandom->Uniform(0.,1.) && exp(- distance/fPixelSigma) > fThreshold){	    
-	    if(Ncol+1 < fNpix && Nrow-1 >= 0){
-	      ActivatePixel(fPpt->GetDetectorID() * 100 +Ncol+1+(Nrow-1)*fNpix, fTime, k, 1);
-	    }
+	// bottom right pixel
+	corner.SetXYZ(TMath::Ceil(posLshifted.X()/fPixelStep)*fPixelStep,
+		      TMath::Floor(posLshifted.Y()/fPixelStep)*fPixelStep,0.);
+	distance = (point-corner).Mag();	  
+	if(exp(-distance/fPixelSigma) > gRandom->Uniform(0.,1.) && exp(- distance/fPixelSigma) > fThreshold){	    
+	  if(Ncol+1 < fNpix && Nrow-1 >= 0){
+	    ActivatePixel(fPpt->GetDetectorID() * 100 +Ncol+1+(Nrow-1)*fNpix, fTime, k, 1);
 	  }
+	}
 		
-	  // upper right pixel
-	  corner.SetXYZ(TMath::Ceil(posLshifted.X()/fPixelStep)*fPixelStep,
-	  		TMath::Ceil(posLshifted.Y()/fPixelStep)*fPixelStep,0.);
-	  distance = (point-corner).Mag();	  
-	  if(exp(-distance/fPixelSigma) > gRandom->Uniform(0.,1.) && exp(- distance/fPixelSigma) > fThreshold){	    
-	    if(Ncol+1 < fNpix && Nrow+1 < fNpix){
-	      ActivatePixel(fPpt->GetDetectorID() * 100 +Ncol+1+(Nrow+1)*fNpix, fTime, k, 1);
-	    }
-	  }		
-     	} // if charge sharing true          	
-     } // if detection
+	// upper right pixel
+	corner.SetXYZ(TMath::Ceil(posLshifted.X()/fPixelStep)*fPixelStep,
+		      TMath::Ceil(posLshifted.Y()/fPixelStep)*fPixelStep,0.);
+	distance = (point-corner).Mag();	  
+	if(exp(-distance/fPixelSigma) > gRandom->Uniform(0.,1.) && exp(- distance/fPixelSigma) > fThreshold){	    
+	  if(Ncol+1 < fNpix && Nrow+1 < fNpix){
+	    ActivatePixel(fPpt->GetDetectorID() * 100 +Ncol+1+(Nrow+1)*fNpix, fTime, k, 1);
+	  }
+	}		
+      } // if charge sharing true          	
+    } // if detection
   }
 }
 
