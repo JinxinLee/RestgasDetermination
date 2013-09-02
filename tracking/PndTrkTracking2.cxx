@@ -1999,6 +1999,41 @@ MAXSCITILHITSINTRACK,MAXSTTHITSINTRACK,fR,fOx,fOy,FI0,KAPPA);
 //-------------- fine stampa
 
 
+//-------------------------------
+// reject tracks with too few or too many hits;
+
+  for(ncand=0; ncand< nTotalCandidates; ncand++){
+	// check if the track candidate has still at least 2 axial hits;
+	if( fnMvdPixelHitsinTrack[ncand]+fnMvdStripHitsinTrack[ncand]+fnSttParHitsinTrack[ncand]<2){
+		keepit[ncand]=false;
+		continue;
+	}
+	// limit the total # Stt hits to MAXSTTHITSINTRACK
+	if( fnSttSkewHitsinTrack[ncand]+fnSttParHitsinTrack[ncand] > MAXSTTHITSINTRACK ) {
+	  if(MAXSTTHITSINTRACK > fnSttSkewHitsinTrack[ncand])
+		fnSttParHitsinTrack[ncand]=MAXSTTHITSINTRACK-fnSttSkewHitsinTrack[ncand];
+	  else fnSttParHitsinTrack[ncand]=0;
+	}
+  }  // end of  for(ncand=0; ncand< nTotalCandidates; ncand++)
+//---------------
+
+//	ordering all the hits belonging to the candidate track, by increasing fR (large
+//	trajectories)  or Conformal variables (better for small trajectories);
+//	from candidate n. 0 to candidate n. nTotalCandidates-1; loading fListTrackCandHit.
+//	the array ordered are :
+//	fListTrackCandHit, fListTrackCandHitType, fListSttParHitsinTrack, fListSttSkewHitsinTrack
+//	and also at the end the SciTil hit (if present) is added.
+
+
+	Ordering_Loading_ListTrackCandHit(
+		keepit,
+		0,	// starting from candidate # 0
+		nTotalCandidates,	// .... up to candidate # nTotalCandidates -1;
+		info,
+		Trajectory_Start,
+		Charge,
+		SchosenSkew
+		);
 
 	// adding at the end the SciTil hits (if present).
 	for(ncand=0; ncand< nTotalCandidates; ncand++){
@@ -2010,9 +2045,13 @@ MAXSCITILHITSINTRACK,MAXSTTHITSINTRACK,fR,fOx,fOy,FI0,KAPPA);
 			fListTrackCandHitType[ncand][i+j] = 1001;
 		}
 	}  // end of for(ncand=0; ncand< nTotalCandidates; ncand++)
+
+
+
+
+
+
 //------------- cleanup section.
-
-
 	Start[0]=0.;
 	Start[1]=0.;
 	Start[2]=0.;
@@ -2023,7 +2062,9 @@ MAXSCITILHITSINTRACK,MAXSTTHITSINTRACK,fR,fOx,fOy,FI0,KAPPA);
 	if(!keepit[ncand]) continue;
 	Short_t &nHitsPar = fnSttParHitsinTrack[ncand];
 	Short_t &nHitsSkew = fnSttSkewHitsinTrack[ncand];
-	Double_t auxS[nHitsSkew];
+	int dime;
+	if(nHitsSkew>0) { dime = nHitsSkew; } else { dime =1; }
+	Double_t auxS[dime];
 
 	for(i=0;i<nHitsSkew;i++){
 		auxS[i] = SchosenSkew[ncand][fListSttSkewHitsinTrack[ncand][i]];
@@ -3540,21 +3581,25 @@ void PndTrkTracking2::LoadPndTrack_TrackCand(
 			pTrckCand->AddHit(FairRootManager::Instance()->
 				GetBranchId(fMvdPixelBranch),
 				(Int_t)fListTrackCandHit[ncand][j],j);
+
 		break;
 		case 1:
 			pTrckCand->AddHit(FairRootManager::Instance()->
 				GetBranchId(fMvdStripBranch),
 				(Int_t)fListTrackCandHit[ncand][j],j);
+
 		break;
 		case 2:
 			pTrckCand->AddHit(FairRootManager::Instance()->
 				GetBranchId(fSttBranch),
 				(Int_t)fListTrackCandHit[ncand][j],j);
+
 		break;
 		case 3:
 			pTrckCand->AddHit(FairRootManager::Instance()->
 				GetBranchId(fSttBranch),
 				(Int_t)fListTrackCandHit[ncand][j],j);
+
 		break;
 	     }
 	}
