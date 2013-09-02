@@ -213,7 +213,8 @@ class PndDrc : public FairDetector
 			Int_t eventID,
                         Double_t timestart,
                         Double_t timestartEV,
-                        Double_t VeloPhoton);
+			Double_t VeloPhoton,
+		        TVector3 normal);
 
   PndDrcBarPoint* AddBarHit(Int_t trackID, 
 			    Int_t copyNo,			    

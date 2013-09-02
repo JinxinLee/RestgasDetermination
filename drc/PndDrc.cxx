@@ -884,6 +884,7 @@ void PndDrc::Initialize() {
   }
   
   cout << " -I- PndDrc: Intialization successfull" << endl;
+
 }
 
 // -------------------------------------------------------------------------
@@ -894,7 +895,7 @@ void PndDrc::BeginEvent() {
 
 // -----   Public method ProcessHits  --------------------------------------
 Bool_t PndDrc::ProcessHits(FairVolume* vol) {
-  
+
   TString nam =vol->GetName();
   Int_t num = vol->getMCid();
        
@@ -924,7 +925,10 @@ Bool_t PndDrc::ProcessHits(FairVolume* vol) {
       cout<<"track is exiting the bar!!!"<<endl;
       gMC->StopTrack();
     }
+    if(nam.BeginsWith("DrcEVSensor") && gMC->IsTrackExiting()&&fMom.Z() > 0.) gMC->StopTrack();
+
   }
+
   
   if (fPdgCode == 50000050){
     if (fRunCherenkov==kFALSE ) {
@@ -1073,17 +1077,20 @@ Bool_t PndDrc::ProcessHits(FairVolume* vol) {
        fTimeStart = fTime; // charged particle time at entrance of radiator bar
      }         
      if(nam.BeginsWith("DrcEVSensor")){
-        if(fTimeAtEVEntrance ==0.){
-	  fTimeAtEVEntrance= gMC->TrackTime()*1.0e09;
-          fLengthEV=fLength;
-	}        
-        fVeloPhoton=fLength/(fTime-fTimeStart);
+       if(fTimeAtEVEntrance ==0.){
+	 fTimeAtEVEntrance= gMC->TrackTime()*1.0e09;
+	 fLengthEV=fLength;
+       }        
+       fVeloPhoton=fLength/(fTime-fTimeStart);
 
-        AddEVHit(fTrackID, 0, fPos.Vect(), fMom.Vect(),
-		 fTime, fLength, fPdgCode,
-		 fEventID, fTimeStart, fTimeAtEVEntrance, fVeloPhoton);
+       Double_t nx,ny,nz;
+       bool bres = gMC->CurrentBoundaryNormal(nx,ny,nz);
 
-        fTimeAtEVEntrance = 0.0;
+       AddEVHit(fTrackID, 0, fPos.Vect(), fMom.Vect(),
+		fTime, fLength, fPdgCode,
+		fEventID, fTimeStart, fTimeAtEVEntrance, fVeloPhoton, TVector3(nx,ny,nz));
+
+       fTimeAtEVEntrance = 0.0;
      }
    } 
    
@@ -1094,10 +1101,12 @@ Bool_t PndDrc::ProcessHits(FairVolume* vol) {
 	 abort();
        }   
        Int_t sensorId = fGeoH->GetShortID(gMC->CurrentVolPath());
-
-       AddHit(fTrackID, sensorId,
-	      fPos.Vect(),fMom.Vect(),fMomAtEV.Vect(),
-	      fTime, fLength, fPdgCode, fEventID);
+       
+       if(fTrackID>-2){
+	 AddHit(fTrackID, sensorId,
+		fPos.Vect(),fMom.Vect(),fMomAtEV.Vect(),
+		fTime, fLength, fPdgCode, fEventID);
+       }
 
        gMC->StopTrack();
      }
@@ -1535,6 +1544,7 @@ bool PndDrc::CheckIfSensitive(std::string name) {
 PndDrcPDPoint* PndDrc::AddHit(Int_t trackID, Int_t copyNo, TVector3 pos, TVector3 mom, TVector3 momAtEV, Double_t time, Double_t length, Int_t pdgCode, Int_t eventID) {
   TClonesArray& clrefPD = *fDrcPDCollection;
   Int_t size = clrefPD.GetEntriesFast();
+  // if(size>2) return NULL;
   if (fVerboseLevel>1) 
     cout << "-I- PndDrc: Adding PD Point at (" << pos.X() << ", " << pos.Y() 
 	 << ", " << pos.Z() << ") cm, detector " << copyNo << ", track "
@@ -1552,7 +1562,7 @@ PndDrcPDPoint* PndDrc::AddHit(Int_t trackID, Int_t copyNo, TVector3 pos, TVector
 
 }
 
-PndDrcEVPoint* PndDrc::AddEVHit(Int_t trackID, Int_t copyNo, TVector3 pos, TVector3 mom, Double_t time, Double_t length, Int_t pdgCode, Int_t eventID, Double_t timestart,Double_t timestartEV,Double_t VeloPhoton) {
+PndDrcEVPoint* PndDrc::AddEVHit(Int_t trackID, Int_t copyNo, TVector3 pos, TVector3 mom, Double_t time, Double_t length, Int_t pdgCode, Int_t eventID, Double_t timestart,Double_t timestartEV,Double_t VeloPhoton,TVector3 normal) {
  
   TClonesArray& clrefEV = *fDrcEVCollection;
   Int_t size = clrefEV.GetEntriesFast();
@@ -1570,7 +1580,7 @@ PndDrcEVPoint* PndDrc::AddEVHit(Int_t trackID, Int_t copyNo, TVector3 pos, TVect
 					  eventID,
                                           timestart,
                                           timestartEV,
-                                          VeloPhoton);
+                                          VeloPhoton,normal);
 
 }
 
