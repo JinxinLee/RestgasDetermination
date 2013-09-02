@@ -44,8 +44,7 @@ SampleRate_FWD:Double_t 100e6
 Use_shaped_noise:Int_t 0
 Use_photon_statistic:Int_t 1
 EnergyDigiThreshold:Double_t 2.0e-3
-UseDigiEffectiveSmearing:Int_t 1                      ###according to Dima, once using PndEmcMakeDigi class one has 
-to set this parameter to 1 otherwise 0
+UseDigiEffectiveSmearing:Int_t 1                
 NoiseAllChannels:Int_t 0
 Use_nonuniformity:Int_t 0
 #################################################################
