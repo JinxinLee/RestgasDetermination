@@ -432,7 +432,7 @@ void PndEmcAnalysis::Exec(Option_t* opt)
 		timer.Start();
 	}
 
-
+ 
 	fEvtTime = FairRootManager::Instance()->GetEventTime();
 	cout<<"=======================PndEmcAnalysis======================="<<endl;
 	if(fSaveHits){
@@ -830,17 +830,17 @@ void PndEmcAnalysis::Exec(Option_t* opt)
 			if(fMcTrackArray){
 				if(fMcTrack1 >= 0){
 					PndMCTrack* p1 = (PndMCTrack*)fMcTrackArray->At(fMcTrack1);
-					TLorentzVector p4(p1->GetMomentum(), p1->Get4Momentum().E());
+					p4 = TLorentzVector(p1->GetMomentum(), p1->Get4Momentum().E());
 					memcpy(&fMc4p1[0], &p4[0], 4*sizeof(Double_t)); 
 				}
 				if(fMcTrack2 >= 0){
 					PndMCTrack* p2 = (PndMCTrack*)fMcTrackArray->At(fMcTrack2);
-					TLorentzVector p4(p2->GetMomentum(), p2->Get4Momentum().E());
+					p4 = TLorentzVector(p2->GetMomentum(), p2->Get4Momentum().E());
 					memcpy(&fMc4p2[0], &p4[0], 4*sizeof(Double_t)); 
 				}
 				if(fMcTrack3 >= 0){
 					PndMCTrack* p3 = (PndMCTrack*)fMcTrackArray->At(fMcTrack3);
-					TLorentzVector p4(p3->GetMomentum(), p3->Get4Momentum().E());
+					p4 = TLorentzVector(p3->GetMomentum(), p3->Get4Momentum().E());
 					memcpy(&fMc4p3[0], &p4[0], 4*sizeof(Double_t)); 
 				}
 			}
