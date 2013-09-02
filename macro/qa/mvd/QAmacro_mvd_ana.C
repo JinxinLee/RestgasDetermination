@@ -32,13 +32,18 @@ void QAmacro_mvd_ana()
   TTree* t=(TTree*)f->Get("cbmsim");
   t->AddFriend("cbmsim",recoFile.Data()); // the reco file you want to analyse
   TFile* dbfile = new TFile(parFile.Data());
-  dbfile->Get("FairBaseParSet"); // now the geometry is available as TGeo in memory
-
-  TGeoManager *geoMan = gGeoManager;
-  if(!geoMan){
-    std::cout<<"No GeoManager existant. Abort now!"<<std::endl;
-    exit(1);
-  }
+  if (!gGeoManager) {      
+    dbfile->Get("FairBaseParSet");      
+    TGeoManager *geoMan = gGeoManager;      
+    if(!geoMan) {      
+      dbfile->Get("FairGeoParSet");      
+      geoMan = gGeoManager;      
+      if(!geoMan) {      
+        std::cout<<"Could not find valid GeoManager. Abort now!"<<std::endl;      
+        exit(1);      
+      }      
+    }      
+  }      
   
   TClonesArray* mc_array=new TClonesArray("PndSdsMCPoint");
   t->SetBranchAddress("MVDPoint",&mc_array);//Branch names
