@@ -27,20 +27,25 @@ Incoherent_elec_noise_width_GeV_VPT:Double_t 1.5e-3
 EnergyRange:Double_t 15
 EnergyRangeBW:Double_t 3
 FirstSamplePhase:Double_t 0
-Number_of_samples_in_waveform:Int_t 64
-Number_of_samples_in_waveform_pmt:Int_t 20
-ASIC_Shaping_int_time:Double_t 80e-9
+Number_of_samples_in_waveform:Int_t 120
+Number_of_samples_in_waveform_pmt:Int_t 60
+Number_of_samples_in_waveform_fwd:Int_t 60
+ASIC_Shaping_int_time:Double_t 70e-9
 PMT_Shaping_int_time:Double_t 5e-9
 PMT_Shaping_diff_time:Double_t 20e-9
+FWD_Shaping_int_time:Double_t 8e-9
+FWD_time_constant:Double_t 25e-6
 Crystal_time_constant:Double_t 12e-9
 Shashlyk_time_constant:Double_t 15e-9
 ShashlykSamplingFactor:Double_t 3.0144
 SampleRate:Double_t 80e6
 SampleRate_PMT:Double_t 180e6
-Use_shaped_noise:Int_t 1
+SampleRate_FWD:Double_t 100e6
+Use_shaped_noise:Int_t 0
 Use_photon_statistic:Int_t 1
 EnergyDigiThreshold:Double_t 2.0e-3
-UseDigiEffectiveSmearing:Int_t 1                      ###according to Dima, once using PndEmcMakeDigi class one has to set this parameter to 1 otherwise 0
+UseDigiEffectiveSmearing:Int_t 1                      ###according to Dima, once using PndEmcMakeDigi class one has 
+to set this parameter to 1 otherwise 0
 NoiseAllChannels:Int_t 0
 Use_nonuniformity:Int_t 0
 #################################################################
@@ -71,4 +76,38 @@ MaxIterations:Int_t 10
 CentroidShift:Double_t 0.1
 MaxBumps:Int_t 8
 MinDigiEnergy:Double_t 20.e-6
+#################################################################
+#################################################################
+# FPGA parameter for EMC
+# PndEmcFpgaPar
+# pulse threshold indicates a ratio of noise level of 1MeV
+#################################################################
+[PndEmcFpgaPar]
+BarrelMAFilterLength:Int_t 8
+BarrelCFFilterLength:Int_t 10
+BarrelCFFilterRatio:Double_t 0.4
+BarrelCFDelayLength:Int_t 2
+BarrelCFFitterLength:Int_t 6
+BarrelMWDFilterUsed:Int_t 0
+BarrelMWDFilterLength:Int_t 10
+BarrelMWDFilterLifeT:Double_t 25.e3
+BarrelPulseThreshold:Double_t 3
+ForwardMAFilterLength:Int_t 8
+ForwardCFFilterLength:Int_t 8
+ForwardCFFilterRatio:Double_t 0.4
+ForwardCFDelayLength:Int_t 2
+ForwardCFFitterLength:Int_t 6
+ForwardMWDFilterUsed:Int_t 1
+ForwardMWDFilterLength:Int_t 10
+ForwardMWDFilterLifeT:Double_t 25.e3
+ForwardPulseThreshold:Double_t 3
+ShashylikMAFilterLength:Int_t 4
+ShashylikCFFilterLength:Int_t 8
+ShashylikCFFilterRatio:Double_t 0.4
+ShashylikCFFitterLength:Int_t 6
+ShashylikCFDelayLength:Int_t 2
+ShashylikMWDFilterUsed:Int_t 0
+ShashylikMWDFilterLength:Int_t 10
+ShashylikMWDFilterLifeT:Double_t 25.e3
+ShashylikPulseThreshold:Double_t 3
 #################################################################
