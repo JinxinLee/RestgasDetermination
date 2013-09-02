@@ -27,6 +27,7 @@ Int_t RhoFactory::fgCandWatermark=0;
 
 void RhoFactory::Reset()
 {
+  if (fgCandBuffer != 0) fgCandBuffer->Delete();
   fgCandPointer = 0;
 }
 
