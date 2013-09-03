@@ -79,9 +79,9 @@ public:
   double GetMCmomLMD() const{return fMommcLMD;}
   void SetSecondary(int sec){fSecondary = sec;}
   int GetSecondary() const{return fSecondary;}
-  void SetNumMChits(int num){fnumMChits;}
+  void SetNumMChits(int num){fnumMChits = num;}
   int GetNumMChits() const{return fnumMChits;}
-  void SetNumDoubleMChits(int num){fnumMCdoublehits;}
+  void SetNumDoubleMChits(int num){fnumMCdoublehits = num;}
   int GetNumDoubleMChits() const{return fnumMCdoublehits;}
  private:
   Double_t fXrecLMD,fYrecLMD,fZrecLMD,fThetarecLMD,fPhirecLMD;
