@@ -68,7 +68,7 @@
   //Hyp->SetGeometryFileName("HypST_newxy3C.geo"); 
 
   // --- root geometry ------
-  Hyp->SetAbsorverVol("stglAb"); // absorber layer
+  Hyp->SetAbsorberVol("stglAb"); // absorber layer
   Hyp->SetSensorVol("stglSi");   // silicon sensor
   Hyp->SetGeometryFileName("HYPST_assexy3C.root");
   // ---------------------------------
