@@ -17,7 +17,7 @@
 
 #include "PndHypGeoHandling.h"
 //#include "PndHypDecayer.h"
-//#include "HypStatDecay.h"
+#include "HypStatDecay.h"
 using namespace std;
 
 
@@ -113,6 +113,7 @@ class PndHyp : public FairDetector
    **/
   virtual void ConstructGeometry();
  void ConstructASCIIGeometry();
+ virtual void FinishRun();
 
   PndHypPoint* AddHit(Int_t trackID,Int_t evtID, 
 		      Int_t detID, TString detName,
@@ -154,12 +155,19 @@ class PndHyp : public FairDetector
   
   void PreTrack();
 
+  void SetHypSDtoFile(bool onf,bool val)
+  {
+    fUseRAZHOption = onf;// **switch On/Off HypStatDecay**
+    fUseFileOption = val;
+  };
+
+  void SetTreeFName(const Char_t* Name){ fFileName    = Name; };
 
   void SetSensorVol(TString VolSi){ 
     fVolNamSi=VolSi.Data();
 
   }
-  void SetAbsorverVol(TString VolAb){ 
+  void SetAbsorberVol(TString VolAb){ 
     fVolNamAb=VolAb.Data();
 
   }
@@ -190,6 +198,13 @@ class PndHyp : public FairDetector
 /*   TLorentzVector fPosOutLocal;       //  exit position in module frame */
   Double_t fPLout,fPLin;               //  total momentum
  
+  TFile *fFile;
+  TTree *t;
+  TClonesArray *fEvt;
+  Int_t        activeCnt;
+  Double_t     weight;
+  Double_t     seed;
+  Int_t          fcount;
   
   Double32_t     fTime;              //   time
   Double32_t     fLength;            //   length
@@ -200,11 +215,12 @@ class PndHyp : public FairDetector
   
   Double_t fcharge;  
   Double_t fmass, fdist;
-  
+  const Char_t* fFileName;   //! Input file name
+
    PndHypGeoHandling* fGeoH;          //! Gives Access to the Path info of a hit
   
   //PndHypDecayer* fread;          //! Gives Access to the Statistical decay products
-  //HypStatDecay* fread;          //! Gives Access to the Statistical decay products
+  HypStatDecay* fread;          //! Gives Access to the Statistical decay products
 
   TClonesArray* fHypCollection;        //! Hit collection
   TClonesArray* fHypSecTarCollection;        // Hit collection(Absorver)
@@ -214,8 +230,11 @@ class PndHyp : public FairDetector
   // reset all parameters   
   void ResetParameters();
   Bool_t  fTrackStopNxtStep;
+   Bool_t  fUseFileOption;
+  Bool_t fUseRAZHOption;
+  void SetHypStatDecay(bool cal,bool active);
 
-  ClassDef(PndHyp,8)
+  ClassDef(PndHyp,9)
 
 }; 
 
