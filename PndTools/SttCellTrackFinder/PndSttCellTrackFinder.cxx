@@ -165,6 +165,18 @@ void PndSttCellTrackFinder::GenerateTracklets() {
 	FindHitNeighbors();
 	SeparateNeighbors();
 	EvaluateState();
+	EvaluateMultiState();
+
+//	if (fVerbose > 1) {
+		for (map<int, set<int>  >::iterator iter = fMultiStates.begin(); iter != fMultiStates.end(); iter++){
+			std::cout << iter->first << " : ";
+			for (set<int>::iterator iter2 = iter->second.begin(); iter2 != iter->second.end(); iter2++){
+				std::cout << *iter2 << " ";
+			}
+			std::cout << std::endl;
+		}
+//	}
+
 	InitStartTracklets();
 
 	if (fVerbose > 1) {
@@ -326,6 +338,97 @@ void PndSttCellTrackFinder::EvaluateState() {
 		fStates.insert(tmpStates.begin(), tmpStates.end());
 
 	}
+}
+
+void PndSttCellTrackFinder::EvaluateMultiState() {
+
+	/* Approach: For 3 and 4 hit-neighbors the cell value is a copy of all indices of the neighboring cells.
+	 * The copying is repeated until the values do not change anymore. In this way the cell content is a collection
+	 * of all unique tracklets touching the cluster of ambiguous cells.*/
+
+	SetVerbose(3);
+
+	int currentSum = 0;
+	int priorSum = -1;
+	set<int> newState;
+	set<int> plainHitIds;
+	set<int>::iterator it;
+	map<int, int>::iterator itStates;
+	vector<int> neighbors;
+	map<int, set<int> > tmpStates;
+
+	// set with tube-ids of hits without ambiguity
+	plainHitIds.insert(fSeparations[3].begin(), fSeparations[3].end());
+	plainHitIds.insert(fSeparations[4].begin(), fSeparations[4].end());
+
+	if (fVerbose > 2){
+		std::cout << "EvaluateMultiState: PlainHitIds: ";
+		for(it = plainHitIds.begin(); it != plainHitIds.end(); it++){
+			std::cout << *it << " ";
+		}
+		std::cout << std::endl;
+		std::cout << "fStates: " << std::endl;
+		for (map<int, int>::iterator mapIter = fStates.begin(); mapIter != fStates.end(); mapIter++){
+			std::cout << mapIter->first << " : " << mapIter->second << std::endl;
+		}
+
+	}
+
+	int loopcount = 0;
+	while (currentSum != priorSum) {
+		if (fVerbose > 2){
+			std::cout << std::endl;
+			std::cout << "LoopCount: " << loopcount++ << " currentSum: " << currentSum << " priorSum: " << priorSum << std::endl;
+		}
+
+		priorSum = currentSum;
+		currentSum = 0;
+
+		for (it = plainHitIds.begin(); it != plainHitIds.end(); ++it) {
+			neighbors = fHitNeighbors[(*it)];
+			newState.clear();
+			if (fVerbose > 2) {
+				std::cout << "PlainHitId: " << *it << std::endl;
+				std::cout << "Neighbors: " << std::endl;
+			}
+
+			for (int i = 0; i < neighbors.size(); i++){
+				std::cout << neighbors[i] << " : ";
+				if (fMultiStates.count(neighbors[i]) > 0){
+					newState.insert(fMultiStates[neighbors[i]].begin(), fMultiStates[neighbors[i]].end());
+					if (fVerbose > 2) {
+						for (std::set<int>::iterator iter = fMultiStates[neighbors[i]].begin(); iter != fMultiStates[neighbors[i]].end(); iter++){
+							std::cout << *iter << "/";
+						}
+					}
+				} else if( fStates.count(neighbors[i]) > 0) {
+					newState.insert(fStates[neighbors[i]]);
+					if (fVerbose > 2) std::cout << fStates[neighbors[i]];
+				}
+				if (fVerbose > 2) std::cout << " | ";
+			}
+			if (fVerbose > 2) std::cout << std::endl;
+
+			if (newState.size() > tmpStates[(*it)].size())
+				tmpStates[(*it)] = newState;
+
+			if (fVerbose > 2) {
+				std::cout << "NewState for " << *it << " : ";
+				for (std::set<int>::iterator stateIter = newState.begin(); stateIter != newState.end(); stateIter++){
+					std::cout << *stateIter << " | ";
+					currentSum += *stateIter;
+				}
+				std::cout << std::endl;
+			}
+
+		}
+
+
+		// update states simultaneously
+		fMultiStates.clear();
+		fMultiStates.insert(tmpStates.begin(), tmpStates.end());
+	}
+	SetVerbose(0);
 }
 
 void PndSttCellTrackFinder::InitStartTracklets() {
@@ -601,6 +704,32 @@ void PndSttCellTrackFinder::CombineTracklets() {
 
 }
 
+
+std::set<std::pair<int, int> > PndSttCellTrackFinder::CreatePairCombis(std::set<int> values)
+{
+	std::set<std::pair<int, int> > result;
+	std::set<int>::iterator iterForward = values.begin();
+	std::set<int>::iterator iterBackward = values.end();
+
+	if (fVerbose > 2){
+		std::cout << "-I- PndSttCellTrackFinder::CreatePairCombis values: ";
+		for (std::set<int>::iterator iter = values.begin(); iter != values.end(); iter++){
+			std::cout << *iter << " ";
+		}
+		std::cout << std::endl;
+		std::cout << "Combinations: ";
+	}
+
+	for (iterForward = values.begin(); iterForward != values.end(); iterForward++){
+		for (iterBackward = values.end(); iterBackward != iterForward; --iterBackward){
+			if (fVerbose > 2) std::cout << "(" << *iterForward << "/" << *iterBackward << ") ";
+			std::pair<int, int> createdPair(*iterForward, *iterBackward);
+			result.insert(createdPair);
+		}
+	}
+	if (fVerbose > 2) std::cout << std::endl;
+	return result;
+}
 void PndSttCellTrackFinder::FindTrackletsWithoutCombi() {
 
 	set<int> combinedTracklets;

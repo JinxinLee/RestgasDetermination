@@ -111,13 +111,13 @@ void PndSttCellTrackFinderTask::Exec(Option_t* opt) {
 	FairEventHeader* myEventHeader = (FairEventHeader*) fEventHeader;
 	int eventNumber = myEventHeader->GetMCEntryNumber();
 
-	if (fVerbose > 0) {
+//	if (fVerbose > 0) {
 		cout
 				<< "====================Begin PndSttCellTrackFinderTask::Exec======================="
 				<< endl;
 
 		cout << "Event #" << eventNumber << endl;
-	}
+//	}
 
 	// Reset output array
 	if (!fFirstTrackCandArray)
