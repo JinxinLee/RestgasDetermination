@@ -65,8 +65,41 @@ class PndTrkLegendreNew : public FairTask {
   void DrawNeighborings(PndTrkNeighboringMap *hitmap);
   void DrawNeighboringsToHit(PndTrkNeighboringMap *hitmap, PndTrkHit *hit);
   void Refresh();
+  void RefreshConf(); 
+  void DrawGeometryConf(double x1, double y1, double x2, double y2) ;
+  void DrawConfHit(double x, double y, double r, int marker = 2);
 
   void LightCluster(PndTrkCluster *cluster);
+  void DrawLegendreHisto();
+
+
+  Int_t FillConformalHitList(PndTrkCluster *cluster);
+  void FillLegendreHisto(PndTrkCluster *cluster);
+ void  ComputeTraAndRot(PndTrkHit *hit, Double_t &delta, Double_t trasl[2]);
+  PndTrkHit *FindSttReferenceHit(int isec = -1);
+  PndTrkHit *FindMvdPixelReferenceHit();
+  PndTrkHit *FindMvdStripReferenceHit();
+  PndTrkHit *FindMvdReferenceHit();
+  PndTrkHit *FindReferenceHit();
+  PndTrkHit *FindReferenceHit(PndTrkCluster *cluster);
+
+
+  void RePrepareLegendre(PndTrkCluster *cluster);
+ /*  void PrepareLegendre(); */
+/*   Int_t ApplyLegendre(double &theta_max, double &r_max); */
+  Int_t ApplyLegendre(PndTrkCluster *cluster, double &theta_max, double &r_max);
+  Int_t ExtractLegendre(Int_t mode, double &theta_max, double &r_max);
+
+  void FromConformalToRealTrack(double fitm, double fitp, double &x0, double &y0, double &R);
+
+  void  SearchSecondaryTracks() { fSecondary = kTRUE; }
+
+
+
+
+
+
+
  private:
 
 
