@@ -12,7 +12,7 @@
   gROOT->Macro("$VMCWORKDIR/gconfig/rootlogon.C");
   //rootlogon();
   
-  //gSystem->Load("librazhyp");
+  gSystem->Load("librazhyp");
   gSystem->Load("libHyp");
   
   FairRunSim *fRun = new FairRunSim();
@@ -42,7 +42,7 @@
   
   //fRun->SetMaterials("media_pnd_hyp.geo");
   //new media for hyp
-  fRun->SetMaterials("media_pnd.geo");
+  fRun->SetMaterials("media_pnd_cuts.geo");
   
   // Create and add detectors
   //-------------------------
@@ -64,11 +64,12 @@
   fRun->AddModule(PndTpc);
   */
 
-  /*FairDetector *Mvd = new PndMvdDetector("MVD", kTRUE);
-  Mvd->SetGeometryFileName("Mvd-2.1_FullVersion.root"); // only sensors, update follows
+  
+  /* FairDetector *Mvd = new PndMvdDetector("MVD", kTRUE);
+  Mvd->SetGeometryFileName("Mvd-2.2_Simplified_onlyStrip5_z-verschoben550.root"); // only sensors, update follows
   //Mvd->SetVerboseLevel(verboseLevel);
-  fRun->AddModule(Mvd);
-  */
+  fRun->AddModule(Mvd);*/
+  
   
   PndHyp *Hyp = new PndHyp("HYP",kTRUE);
   //FairDetector *Hyp = new PndHyp("HYP",kTRUE);
@@ -86,10 +87,22 @@
   //Hyp->SetGeometryFileName("HypST_prueba24pipe.geo"); 
   //Hyp->SetGeometryFileName("HypST_newxy3C.geo");
 
+
+
   // --- root geometry ------
-  Hyp->SetAbsorverVol("stglAb"); // absorber layer
+   Hyp->SetAbsorberVol("stglAb"); // absorber layer
   Hyp->SetSensorVol("stglSi");   // silicon sensor
+  //Hyp->SetGeometryFileName("HYPST_assexy3C5Lay.root");
   Hyp->SetGeometryFileName("HYPST_assexy3C5Lay_mvd.root");//HYPST_assexy3C5Lay_test.root");
+  
+
+  // xxxxxxxx Sebastian asymmetric geo root xxxxxxxxxxx
+  
+  /*  Hyp->SetAbsorverVol("Absorber"); // absorber layer
+  Hyp->SetSensorVol("Sensor");   // silicon sensor
+  Hyp->SetGeometryFileName("SekTarget_open_varAbs4Si5_3Q_HYPbe_1mm_MVD.root");
+  */
+  
   // ---------------------------------
 
   //Hyp->SetHypSDtoFile(true,false);
@@ -98,7 +111,7 @@
   //gROOT->LoadMacro("$VMCWORKDIR/gconfig/SetFragments.C");
   //FragConfig(fRun);
   
-  
+ 
   
   // Create and Set Event Generator
   //-------------------------------
@@ -108,16 +121,27 @@
   
   
    // Box Generator: 
-  PndBoxGenerator* boxGen = new PndBoxGenerator(-211, 1); // 13 = muon; 1 = multipl. // 211 = pi+
+  PndVolGenerator* boxGen = new PndVolGenerator(-211, 2); // 13 = muon; 1 = multipl. // 211 = pi+
   // first number: PDG particle code: 2nd number: particle multiplicity per event
 
   boxGen->SetPRange(.1,.1); // GeV/c
   // boxGen->SetPtRange(1.,1.); // GeV/c
-  boxGen->SetPhiRange(90., 90.); // Azimuth angle range [degree]
-  boxGen->SetThetaRange(70., 70.); // Polar angle in lab system range [degree]
+  boxGen->SetPhiRange(90., 90.); // Azimuth angle range [degree] 90
+  boxGen->SetThetaRange(70., 70.); // Polar angle in lab system range [degree] 70
   //boxGen->SetCosTheta(); // Set uniform ditribution in cos(theta)
-  boxGen->SetXYZ(0., 0., -17.5); // vertex coordinates [cm]
+  //boxGen->SetXYZ(0., 0., -55.0); // vertex coordinates [cm]
   primGen->AddGenerator(boxGen);
+
+ // PndBoxGenerator* boxGen2 = new PndBoxGenerator(-211, 1); // 13 = muon; 1 = multipl. // 211 = pi+
+ //  // first number: PDG particle code: 2nd number: particle multiplicity per event
+
+ //  boxGen2->SetPRange(.1,.1); // GeV/c
+ //  // boxGen->SetPtRange(1.,1.); // GeV/c
+ //  boxGen2->SetPhiRange(90., 90.); // Azimuth angle range [degree] 90
+ //  boxGen2->SetThetaRange(80., 80.); // Polar angle in lab system range [degree] 70
+ //  //boxGen->SetCosTheta(); // Set uniform ditribution in cos(theta)
+ //  boxGen2->SetXYZ(0., 0., -55.0); // vertex coordinates [cm]
+ //  primGen->AddGenerator(boxGen2);
 
 
   // Background events UrqmdSmm
@@ -190,7 +214,7 @@
   // Transport nEvents
   // -----------------
   // Set the number of events
-  Int_t nEvents =5; 
+  Int_t nEvents =1000; 
   
   fRun->Run(nEvents);
   
