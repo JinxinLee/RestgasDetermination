@@ -201,18 +201,15 @@ void PndTrkLegendreNew::Exec(Option_t* opt) {
   fTrackCandArray->Delete();
   if(fVerbose > 0) cout << "*********************** " << fEventCounter << " ***********************" << endl;
  
-
-   Initialize();
+  // initialize -----~~~~~-----~~~~~-----~~~~~-----~~~~~-----~~~~~-----~~~~~-----~~~
+  Initialize();
   if(fVerbose > 1) {
     cout << "number of stt    hits " << fSttHitArray->GetEntriesFast() << endl;
     cout << "number of mvdpix hits " << fMvdPixelHitArray->GetEntriesFast() << endl;
     cout << "number of mvdstr hits " << fMvdStripHitArray->GetEntriesFast() << endl;
   }
  
-  PndTrkClusterList clusterlist;
-  // PndTrkCluster *cluster = NULL;
-
-
+ 
   if(fDisplayOn)  {
     Refresh();
     char goOnChar;
@@ -224,153 +221,16 @@ void PndTrkLegendreNew::Exec(Option_t* opt) {
     display->Modified();
   }
 
-  TObjArray limits;
-  TObjArray sector[6];
-  PndTrkNeighboringMap hitmap(fTubeArray);
-  TObjArray *neighborings = NULL;
-
-
-  //  PndTrkHit *hit, hit2;
-  // Loop over all hits and look for:
-  // 1 - tubes limiting sectors                               std::vector< int > limithit
-  // 2 - tubes with no neighborings (will not use them)       std::vector< int > standalone
-  // 3 - tubes with only 1 neighboring (will serve as seed)   std::vector< int > seeds
-  // 4 - tubes with only 2 neighborings, one of which is on   std::vector< int > candseeds
-  //     the same layer and has neighboring (will be candidate 
-  //     to serve as seed, if needed)
-  // 5 - Fill the sector std::vector according to sectors     std::vector< int > sector*
-
-  hitmap.SetOwnerValue(kTRUE); // CHECK
-  for(int ihit = 0; ihit < stthitlist->GetNofHits(); ihit++) {
-
-    PndTrkHit  *hit = stthitlist->GetHit(ihit);
-    int tubeID = hit->GetTubeID();
-    PndSttTube *tube = (PndSttTube*) fTubeArray->At(tubeID);
-    if(tube->IsSectorLimit() == kTRUE) limits.Add(hit);
-
-    neighborings = new TObjArray();
-   
-    for(int jhit = 0; jhit < stthitlist->GetNofHits(); jhit++) {
-      if(ihit == jhit) continue;
-     
-      PndTrkHit *hit2 = stthitlist->GetHit(jhit);
-      int tubeID2 = hit2->GetTubeID();
-     
-      if(tube->IsNeighboring(tubeID2) == kTRUE) neighborings->Add(hit2);
-     
-    }
-   
-    cout << "HIT: " << hit->GetHitID() << " has " << neighborings->GetEntriesFast() << " hits" << endl;
-    hitmap.AddNeighboringsToHit(hit, neighborings);
-  }
-
-  //  neighborings = NULL;
-  //   delete neighborings;
-
-  if(fDisplayOn) {
-    if(1 == 1)  DrawLists(&hitmap);
-    if(1 == 2)  DrawNeighborings(&hitmap);
-  }
-
-  // get seeds *********************************************8
-  TObjArray seeds = hitmap.GetSeeds();
-  neighborings = NULL;
-  
-  // ----------------- loop over seeds
-  for(int iseed = 0; iseed < seeds.GetEntriesFast(); iseed++) {
-    PndTrkCluster *cluster = new PndTrkCluster();
-    PndTrkHit *seedhit = (PndTrkHit*) seeds.At(iseed);
-    
-    // is it already used
-    if(seedhit->IsUsed() == kTRUE) continue;
-    
-    int seedtubeID = seedhit->GetTubeID();
-    PndSttTube *seedtube = (PndSttTube*) fTubeArray->At(seedtubeID);
-    int seedlayerID = seedtube->GetLayerID();
-    
-    // add hit to cluster
-    cluster->AddHit(seedhit);
-
-    //    if(fDisplayOn) {
-    //       char goOnChar;
-    //       cin >> goOnChar;
-    //       cout << "SEED " << seedtubeID << endl; 
-    //       cluster->LightUp();
-    //       display->Update();
-    //       display->Modified();
-    //     }
-
-    // add cluster to clusterlist
-    clusterlist.AddCluster(cluster);
-
-    int nlastadded = 1, addedcounter = 0;
-    // cout << "nlastadded to " << seedhit->GetHitID() << "(" << seedtubeID << ")" << " " << nlastadded << endl;
-    //    if(nlastadded == 0) continue;
-    while(nlastadded > 0) {
-      // loop on the last nlastadded hits to this cluster
-      // example: add to a 5 hits cluster: 0 1 2 3 4
-      // the hits no. 5, 6, 7
-      // --> nlastadded = 3 & nof hits in cluster = 5 + 3 = 8
-      // 7 6 5 = 8 - 3
-      // here loop from hit 8 - 1 = 7 to hit 8 - 3 = 5
-
-      addedcounter = 0;
-
-      // cout << "@@@@@@@@@@@@@@@@@ loop on the last " << nlastadded << " hits of cluster" << endl;
-      //   for(int ihit = 0; ihit < cluster->GetNofHits(); ihit++) {
-      // 	PndTrkHit *hit = cluster->GetHit(ihit);
-      // 	cout << " " << hit->GetHitID() ;
-      //       }
-      //       cout << endl;
-
-
-      int nclusterhits = cluster->GetNofHits();
-      for(int iadded = nclusterhits - 1; iadded >= (nclusterhits - nlastadded); iadded--) {
-	PndTrkHit *addedhit = cluster->GetHit(iadded);
-	neighborings = hitmap.GetNeighboringsToHit(addedhit);
-	if(neighborings->GetEntriesFast() == 0) continue;
-	//	cout << "hit " << addedhit->GetHitID() << "(" << addedhit->GetTubeID() << ")" << " has " << neighborings->GetEntriesFast()  << " neighborigns: " << endl;
-
-	// loop over the neighborings and add them all
-	for(int ineigh = 0; ineigh < neighborings->GetEntriesFast(); ineigh++)
-	  {
-	    PndTrkHit *neighhit = (PndTrkHit*) neighborings->At(ineigh);
-	    //  cout << " " << neighhit->GetHitID() << "(" << neighhit->GetTubeID() << ")";
-	    if(cluster->DoesContain(neighhit) == kTRUE) {
-	      //  cout << "UN-ADDED, in cluster already" << endl;
-	      continue;
-	    }
-	    cluster->AddHit(neighhit);
-	    addedcounter++;
-	    //  cout << " - ADDED; ";
-
-	    //     if(fDisplayOn) {
-	    // 	      char goOnChar;
-	    // 	      cin >> goOnChar;
-	    // 	      cluster->LightUp();
-	    // 	      display->Update();
-	    // 	      display->Modified();
-	    // 	      //  cin >> goOnChar;
-	    // 	    }
-	    
-	  }
-
-
-      }
-      //       cout << endl;
-      nlastadded = addedcounter;
-    }
-    //     cout << "NEXT seed " << endl;
-  }
-
+  // clusterization -----~~~~~-----~~~~~-----~~~~~-----~~~~~-----~~~~~-----~~~~~-----
+  PndTrkClusterList clusterlist = CreateFullClusterization();
   cout << "CLUSTERLIST " << clusterlist.GetNofClusters() << endl;
 
-
-
-  // ---------- PRINT ---------------------
+  // loop on clusterlist -----~~~~~-----~~~~~-----~~~~~-----~~~~~-----~~~~~-----~~~~~
   for(int iclus = 0; iclus < clusterlist.GetNofClusters(); iclus++) {
     PndTrkCluster *cluster = clusterlist.GetCluster(iclus);
     // if(cluster->GetNofHits() < 3) continue;
+
+    // print and display cluster -----~~~~~-----~~~~~-----~~~~~-----~~~~~-----~~~~~--
     cout << "CLUSTER " << iclus << ":";
     if(fDisplayOn)  {
       char goOnChar;
@@ -385,290 +245,20 @@ void PndTrkLegendreNew::Exec(Option_t* opt) {
       PndTrkHit *hit = cluster->GetHit(ihit);
       cout << " " << hit->GetHitID();
     }
-
+    
     cout << endl;
 
-    // -------------------------------------------------------
-    // clean up skew ....
-    //
-    cout << "CLEANUP SKEW" << endl;
-    int nofhitsinlay[30]; // CHECK initialize this
-    for(int ilay = 0; ilay < 30; ilay++) nofhitsinlay[ilay] = 0;
-
-    for(int ihit = 0; ihit < cluster->GetNofHits(); ihit++) {
-      PndTrkHit *hit = cluster->GetHit(ihit);
-      PndSttTube *tube = (PndSttTube*) fTubeArray->At(hit->GetTubeID());
-      hit->SetSortVariable(tube->GetLayerID());
-      nofhitsinlay[tube->GetLayerID()]++;
-      cout << "hit " << ihit << " " << tube->GetLayerID() << " " << nofhitsinlay[tube->GetLayerID()] << endl;
-
-    }
-    cluster->Sort();
-
-    for(int ihit = 0; ihit < cluster->GetNofHits(); ihit++) {
-      PndTrkHit *hit = cluster->GetHit(ihit);
-      PndSttTube *tube = (PndSttTube*) fTubeArray->At(hit->GetTubeID());
-      cout << "SORTED " << ihit << " " << hit->GetHitID() << " " << tube->GetLayerID() << endl;
-    }
-
-    int maxnoftracks = 1;
-    int tmplayid = -1;
-    int counter = 0, counter1 = 0;;
-    int isneigh = 0;
-    for(int ihit = 0; ihit < cluster->GetNofHits(); ihit++) {
-      PndTrkHit *hit = cluster->GetHit(ihit);
-      counter++; 
-      if(hit->IsSttParallel() == kTRUE) continue;
-      PndSttTube *tube = (PndSttTube*) fTubeArray->At(hit->GetTubeID());
-
-      int layid = tube->GetLayerID();
-      if(nofhitsinlay[layid] <= 1) continue;
-
-      if(layid != tmplayid) {
-	int noftracks = nofhitsinlay[tmplayid] - isneigh;
-	if(tmplayid != -1) cout << "CLUSTER CONTAINS @ LAYER " << tmplayid << " ACTUALLY " << nofhitsinlay[tmplayid] << " - " << isneigh << " = " << noftracks << " TRACKS" << endl;
-	if(noftracks > maxnoftracks) maxnoftracks = noftracks;
-	isneigh = 0;
-	tmplayid = layid;
-	counter1 = 0;
-	//	continue; //	break;
-      }
-      cout << "hit " << ihit << " on layid " << layid << "/ " <<  nofhitsinlay[layid] << endl;
-      counter1++;
-      if(counter1 == nofhitsinlay[layid]) continue;
-      for(int jhit = counter; jhit < counter + nofhitsinlay[layid] -  counter1; jhit++) {
-	PndTrkHit *hit2 = cluster->GetHit(jhit);
-	int tubeid2 =   hit2->GetTubeID();
-	PndSttTube *tube2 = (PndSttTube*) fTubeArray->At(tubeid2);
-
-
-
-	if(tube->GetLayerID() != tube2->GetLayerID()) cout << "ERROR" << tube->GetLayerID()  << " " << tube2->GetLayerID() << endl;
-	cout << "compare " << ihit << "(" << hit->GetHitID() << "- " << hit->GetTubeID() << ") with " << jhit << " (" << hit2->GetHitID() << "- " << tubeid2 << ") from " << counter << " to " << counter + nofhitsinlay[layid] - 1 << endl;
-	if(tube->IsNeighboring(tubeid2) == kTRUE) {
-	  isneigh++;
-	  cout << "isneigh " << isneigh << endl;
-	  // break;
-	}
-      }
-    }
-    
-    cout << "THIS CLUSTER HAS A TOTAL OF " << maxnoftracks << " TRACKS" << " " << iclus << " of " << clusterlist.GetNofClusters() << endl;
+    // count tracks in skew sector -----~~~~~-----~~~~~-----~~~~~-----~~~~~-----~~~~~
+    Int_t maxnoftracks =  CountTracksInSkewSector(cluster);
 
     if(maxnoftracks > 1) continue; // CHECK
-    // ================ --> TO CONFORMAL PLANE
-      
-    conformalhitlist = new PndTrkConformalHitList();
 
-    // translation and rotation
-    Int_t nchits = 0;
-    Double_t delta = 0, trasl[2] = {0., 0.};
-    if(fSecondary) {
-      // translation and rotation - CHECK
-      //	cout << " REFERENCE HIT " << cluster->GetNofHits() << endl;
-      fRefHit = FindReferenceHit(cluster);
-      if(fRefHit == NULL)  {
-	//	  cout << "REFHIT " << fRefHit << endl;
-	//	Reset();  
-	continue; // return // CHECK
-      }
-      ComputeTraAndRot(fRefHit, delta, trasl);
-    }
-    //    
-    cout << "DELTA " << delta << " TRASL " << trasl[0] << " " << trasl[1] << endl;
-    conform->SetOrigin(trasl[0], trasl[1], delta);
-    nchits = FillConformalHitList(cluster);
-      
-  
-    if(nchits == 0) {
-      //      Reset();
-      continue; // return // CHECK
-    }
+    // fitting procedure -----~~~~~-----~~~~~-----~~~~~-----~~~~~-----~~~~~-----~~~~~
+    Int_t nhits = ClusterToConformal(cluster);
+    PndTrkTrack *track = LegendreFit(cluster);
+    if(track == NULL) continue;
+    PndTrkCluster *thiscluster = CreateClusterAroundTrack(track);
 
-    // APPLY LEGENDRE TO STT ALONE
-    // -------------------------------------------------------
-
-    cout << "APPLY LEGENDRE =======================" << endl;
-    double theta_max, r_max;
-    Int_t maxpeak = ApplyLegendre(cluster, theta_max, r_max);
-
-    
-    cout << "EXTRACT MAX =======================" << endl;
-    
-    double fitm, fitq;
-    legendre->ExtractLegendreSingleLineParameters(fitm, fitq);
-    if(fDisplayOn) {
-      display->cd(2);
-      TLine *line = new TLine(-10.07, fitq + fitm * (-10.07), 10.07, fitq + fitm * (10.07));
-      line->Draw("SAME");
-    }
-    
-    // center and radius
-    Double_t xc, yc, R;
-    FromConformalToRealTrack(fitm, fitq, xc, yc, R);
-    cout << "XR, YC, R: " << xc << " " << yc << " " << R << endl;
-    PndTrkTrack *track = new PndTrkTrack(cluster, xc, yc, R);
-       
-    // create cluster depending on fitting
-    double rmin = R - R * 0.05; // CHECK 20%?
-    double rmax = R + R * 0.05; // "      "
-
-
-    if(fDisplayOn) {
-      display->cd(1);
-      track->Draw(kRed);
-
-      TArc *arcmin = new TArc(xc, yc, rmin);
-      TArc *arcmax = new TArc(xc, yc, rmax);
-      
-      arcmin->SetFillStyle(0);
-      arcmax->SetFillStyle(0);
-      arcmin->SetLineColor(kGreen);
-      arcmax->SetLineColor(kBlue);
-
-      arcmin->Draw("SAME");
-      arcmax->Draw("SAME");
-
-      display->Update();
-      display->Modified();
-      char goOnChar;
-      cout << "want to go to new cluster?" << endl;
-      cin >> goOnChar;
-    }
-      
-    // create cluster depending on fitting
-    PndTrkCluster *thiscluster = new PndTrkCluster();
-    bool started = false;
-    int startsecid = -1, endsecid = -1, startlayid = -1, endlayid = -1;
-    // clean existing cluster
-    for(int ihit = 0; ihit < cluster->GetNofHits(); ihit++) {
-      PndTrkHit *hit = cluster->GetHit(ihit);
-      double distance = hit->GetXYDistance(TVector3(xc, yc, 0.));
-      if(distance <= rmax && distance >= rmin) {
-	thiscluster->AddHit(hit);
-	PndSttTube *tube = (PndSttTube*) fTubeArray->At(hit->GetTubeID());
-	if(started == false) {
-	  startsecid = tube->GetSectorID();
-	  startlayid = tube->GetLayerID();
-	  started = true;
-	cout << "start hit " << ihit << " " << hit->GetHitID() << " " << endsecid << " " << endlayid << endl;
-	}
-	endsecid = tube->GetSectorID();
-	endlayid = tube->GetLayerID();
-	cout << "hit " << ihit << " " << hit->GetHitID() << " " << endsecid << " " << endlayid << endl;
-
-      }
-    }
-
-    cout << "START SECTOR " << startsecid << " END SECTOR " << endsecid << endl;
-    cout << "START LAYER  " << startlayid << " END LAYER  " << endlayid << endl;
-
-    if(fDisplayOn) {
-      display->cd(1);
-      thiscluster->Draw(kRed);
-      display->Update();
-      display->Modified();
-      char goOnChar;
-      cout << "want to go to next cluster1?" << endl;
-      cin >> goOnChar;
-    } 
-
-
-    if(startlayid != 0 || endlayid != 23) {
-      for(int ihit = 0; ihit < stthitlist->GetNofHits(); ihit++) {
-	PndTrkHit *hit = stthitlist->GetHit(ihit);
-	if(cluster->DoesContain(hit)) continue;     
-	PndSttTube *tube = (PndSttTube*) fTubeArray->At(hit->GetTubeID());
-     
-	double distance = hit->GetXYDistance(TVector3(xc, yc, 0.));
-	if(distance <= rmax && distance >= rmin) {
-	  cout << endl;
-	  cout << "other sector " << tube->GetSectorID() << " " << tube->GetLayerID();
-
-	  if(tube->GetSectorID() == 0 || tube->GetSectorID() == 5) {
-	    if(startsecid != 5 && endsecid != 5 && startsecid != 0 && endsecid != 0) continue; 
-	  }
-	  else if(fabs(tube->GetSectorID() - startsecid) > 1 && fabs(tube->GetSectorID() - endsecid) > 1) continue;
-	  
-	  if(tube->GetLayerID() > startlayid && tube->GetLayerID() < endlayid) continue;
-	  
-	  thiscluster->AddHit(hit);
-	  cout << " ***";
-	}
-      }
-    }
-    	  cout << endl;
-
-    if(fDisplayOn) {
-      display->cd(1);
-      thiscluster->Draw(kRed);
-      display->Update();
-      display->Modified();
-      char goOnChar;
-      cout << "want to go to next cluster2?" << endl;
-      cin >> goOnChar;
-    } 
-    // ---------------------------
-
-
-
-    /**
-     // translation and rotation
-     conformalhitlist->Clear();
-     nchits = 0;
-     conform->SetOrigin(trasl[0], trasl[1], delta);
-     nchits = FillConformalHitList(thiscluster);
-      
-  
-     if(nchits == 0) {
-     Reset();
-     return;
-     }
-
-
-     //    // APPLY LEGENDRE TO STT ALONE AGAIN
-     // -------------------------------------------------------
-
-     cout << "APPLY LEGENDRE AGAIN =======================" << endl;
-     maxpeak = ApplyLegendre(thiscluster, theta_max, r_max);
-
-    
-     cout << "EXTRACT MAX AGAIN =======================" << endl;
-     legendre->ExtractLegendreSingleLineParameters(fitm, fitq);
-     if(fDisplayOn) {
-     display->cd(2);
-     TLine *line = new TLine(-10.07, fitq + fitm * (-10.07), 10.07, fitq + fitm * (10.07));
-     line->Draw("SAME");
-     }
-    
-     // center and radius
-     FromConformalToRealTrack(fitm, fitq, xc, yc, R);
-     cout << "XR, YC, R: " << xc << " " << yc << " " << R << endl;
-     track = new PndTrkTrack(thiscluster, xc, yc, R);
-     
-     if(fDisplayOn) {
-     display->cd(1);
-     track->Draw(kViolet);
-     display->Update();
-     display->Modified();
-     char goOnChar;
-     cout << "want to go to new cluster?" << endl;
-     cin >> goOnChar;
-     }
-
-     // create cluster depending on fitting
-     rmin = R - 0.05 * R;
-     rmax = R + 0.05 * R;
-     PndTrkCluster *thiscluster2 = new PndTrkCluster();
-     // int counteradded = AddHitToClusterByDistance(cluster, method, fitm, fitq);
-     for(int ihit = 0; ihit < stthitlist->GetNofHits(); ihit++) {
-     PndTrkHit *hit = stthitlist->GetHit(ihit);
-     double distance = hit->GetXYDistance(TVector3(xc, yc, 0.));
-     if(distance <= rmax && distance >= rmin) thiscluster2->AddHit(hit);
-     }
-    
-     }
-    **/
     cout << "CLSUTERING " << iclus << " " << endl;
   }
 
@@ -1211,4 +801,409 @@ void PndTrkLegendreNew::FromConformalToRealTrack(double fitm, double fitp, doubl
   // traslation 
   x0 += conformalhitlist->GetConformalTransform()->GetTranslation().X();
   y0 += conformalhitlist->GetConformalTransform()->GetTranslation().Y();
+}
+
+
+PndTrkClusterList PndTrkLegendreNew::CreateFullClusterization() {
+  PndTrkClusterList clusterlist;
+  TObjArray limits;
+  TObjArray sector[6];
+  PndTrkNeighboringMap hitmap(fTubeArray);
+  TObjArray *neighborings = NULL;
+
+
+  //  PndTrkHit *hit, hit2;
+  // Loop over all hits and look for:
+  // 1 - tubes limiting sectors                               std::vector< int > limithit
+  // 2 - tubes with no neighborings (will not use them)       std::vector< int > standalone
+  // 3 - tubes with only 1 neighboring (will serve as seed)   std::vector< int > seeds
+  // 4 - tubes with only 2 neighborings, one of which is on   std::vector< int > candseeds
+  //     the same layer and has neighboring (will be candidate 
+  //     to serve as seed, if needed)
+  // 5 - Fill the sector std::vector according to sectors     std::vector< int > sector*
+
+  hitmap.SetOwnerValue(kTRUE); // CHECK
+  for(int ihit = 0; ihit < stthitlist->GetNofHits(); ihit++) {
+
+    PndTrkHit  *hit = stthitlist->GetHit(ihit);
+    int tubeID = hit->GetTubeID();
+    PndSttTube *tube = (PndSttTube*) fTubeArray->At(tubeID);
+    if(tube->IsSectorLimit() == kTRUE) limits.Add(hit);
+
+    neighborings = new TObjArray();
+   
+    for(int jhit = 0; jhit < stthitlist->GetNofHits(); jhit++) {
+      if(ihit == jhit) continue;
+     
+      PndTrkHit *hit2 = stthitlist->GetHit(jhit);
+      int tubeID2 = hit2->GetTubeID();
+     
+      if(tube->IsNeighboring(tubeID2) == kTRUE) neighborings->Add(hit2);
+     
+    }
+   
+    cout << "HIT: " << hit->GetHitID() << " has " << neighborings->GetEntriesFast() << " hits" << endl;
+    hitmap.AddNeighboringsToHit(hit, neighborings);
+  }
+
+  //  neighborings = NULL;
+  //   delete neighborings;
+
+  if(fDisplayOn) {
+    if(1 == 1)  DrawLists(&hitmap);
+    if(1 == 2)  DrawNeighborings(&hitmap);
+  }
+
+  // get seeds *********************************************8
+  TObjArray seeds = hitmap.GetSeeds();
+  neighborings = NULL;
+  
+  // ----------------- loop over seeds
+  for(int iseed = 0; iseed < seeds.GetEntriesFast(); iseed++) {
+    PndTrkCluster *cluster = new PndTrkCluster();
+    PndTrkHit *seedhit = (PndTrkHit*) seeds.At(iseed);
+    
+    // is it already used
+    if(seedhit->IsUsed() == kTRUE) continue;
+    
+    int seedtubeID = seedhit->GetTubeID();
+    PndSttTube *seedtube = (PndSttTube*) fTubeArray->At(seedtubeID);
+    int seedlayerID = seedtube->GetLayerID();
+    
+    // add hit to cluster
+    cluster->AddHit(seedhit);
+
+    //    if(fDisplayOn) {
+    //       char goOnChar;
+    //       cin >> goOnChar;
+    //       cout << "SEED " << seedtubeID << endl; 
+    //       cluster->LightUp();
+    //       display->Update();
+    //       display->Modified();
+    //     }
+
+    // add cluster to clusterlist
+    clusterlist.AddCluster(cluster);
+
+    int nlastadded = 1, addedcounter = 0;
+    // cout << "nlastadded to " << seedhit->GetHitID() << "(" << seedtubeID << ")" << " " << nlastadded << endl;
+    //    if(nlastadded == 0) continue;
+    while(nlastadded > 0) {
+      // loop on the last nlastadded hits to this cluster
+      // example: add to a 5 hits cluster: 0 1 2 3 4
+      // the hits no. 5, 6, 7
+      // --> nlastadded = 3 & nof hits in cluster = 5 + 3 = 8
+      // 7 6 5 = 8 - 3
+      // here loop from hit 8 - 1 = 7 to hit 8 - 3 = 5
+
+      addedcounter = 0;
+
+      // cout << "@@@@@@@@@@@@@@@@@ loop on the last " << nlastadded << " hits of cluster" << endl;
+      //   for(int ihit = 0; ihit < cluster->GetNofHits(); ihit++) {
+      // 	PndTrkHit *hit = cluster->GetHit(ihit);
+      // 	cout << " " << hit->GetHitID() ;
+      //       }
+      //       cout << endl;
+
+
+      int nclusterhits = cluster->GetNofHits();
+      for(int iadded = nclusterhits - 1; iadded >= (nclusterhits - nlastadded); iadded--) {
+	PndTrkHit *addedhit = cluster->GetHit(iadded);
+	neighborings = hitmap.GetNeighboringsToHit(addedhit);
+	if(neighborings->GetEntriesFast() == 0) continue;
+	//	cout << "hit " << addedhit->GetHitID() << "(" << addedhit->GetTubeID() << ")" << " has " << neighborings->GetEntriesFast()  << " neighborigns: " << endl;
+
+	// loop over the neighborings and add them all
+	for(int ineigh = 0; ineigh < neighborings->GetEntriesFast(); ineigh++)
+	  {
+	    PndTrkHit *neighhit = (PndTrkHit*) neighborings->At(ineigh);
+	    //  cout << " " << neighhit->GetHitID() << "(" << neighhit->GetTubeID() << ")";
+	    if(cluster->DoesContain(neighhit) == kTRUE) {
+	      //  cout << "UN-ADDED, in cluster already" << endl;
+	      continue;
+	    }
+	    cluster->AddHit(neighhit);
+	    addedcounter++;
+	    //  cout << " - ADDED; ";
+
+	    //     if(fDisplayOn) {
+	    // 	      char goOnChar;
+	    // 	      cin >> goOnChar;
+	    // 	      cluster->LightUp();
+	    // 	      display->Update();
+	    // 	      display->Modified();
+	    // 	      //  cin >> goOnChar;
+	    // 	    }
+	    
+	  }
+
+
+      }
+      //       cout << endl;
+      nlastadded = addedcounter;
+    }
+    //     cout << "NEXT seed " << endl;
+  }
+  return clusterlist;
+}
+
+
+Int_t PndTrkLegendreNew::CountTracksInSkewSector(PndTrkCluster *cluster) {
+  // check how many neighboring tubes each skew 
+  // tube on a layer has on that same layer
+  // the total number of tubes on a layer minus the number 
+  // of neighboring couples gives the number of tracks:
+  // example 1 with 3 tracks:
+  // OOO OO OOO are tube no.: 0 1 2   3 4  5 6 7
+  // nof tubes on the layer = 8
+  // calculation of neighborings:
+  // 0 <--> 1
+  // 1 <--> 2
+  // 3 <--> 4
+  // 5 <--> 6
+  // 6 <--> 7
+  // so, nof neigboging couples = 5
+  // Then: noftubes (8) - nofcouples (5) = 3 tracks !!OK!!
+  cout << "COUNT TRACKS IN SKEW SECTOR" << endl;
+  int nofhitsinlay[30]; // CHECK initialize this
+  for(int ilay = 0; ilay < 30; ilay++) nofhitsinlay[ilay] = 0;
+
+  for(int ihit = 0; ihit < cluster->GetNofHits(); ihit++) {
+    PndTrkHit *hit = cluster->GetHit(ihit);
+    PndSttTube *tube = (PndSttTube*) fTubeArray->At(hit->GetTubeID());
+    hit->SetSortVariable(tube->GetLayerID());
+    nofhitsinlay[tube->GetLayerID()]++;
+    cout << "hit " << ihit << " " << tube->GetLayerID() << " " << nofhitsinlay[tube->GetLayerID()] << endl;
+
+  }
+  cluster->Sort();
+
+  for(int ihit = 0; ihit < cluster->GetNofHits(); ihit++) {
+    PndTrkHit *hit = cluster->GetHit(ihit);
+    PndSttTube *tube = (PndSttTube*) fTubeArray->At(hit->GetTubeID());
+    cout << "SORTED " << ihit << " " << hit->GetHitID() << " " << tube->GetLayerID() << endl;
+  }
+
+  int maxnoftracks = 1;
+  int tmplayid = -1;
+  int counter = 0, counter1 = 0;;
+  int isneigh = 0;
+  for(int ihit = 0; ihit < cluster->GetNofHits(); ihit++) {
+    PndTrkHit *hit = cluster->GetHit(ihit);
+    counter++; 
+    if(hit->IsSttParallel() == kTRUE) continue;
+    PndSttTube *tube = (PndSttTube*) fTubeArray->At(hit->GetTubeID());
+
+    int layid = tube->GetLayerID();
+    if(nofhitsinlay[layid] <= 1) continue;
+
+    if(layid != tmplayid) {
+      int noftracks = nofhitsinlay[tmplayid] - isneigh;
+      if(tmplayid != -1) cout << "CLUSTER CONTAINS @ LAYER " << tmplayid << " ACTUALLY " << nofhitsinlay[tmplayid] << " - " << isneigh << " = " << noftracks << " TRACKS" << endl;
+      if(noftracks > maxnoftracks) maxnoftracks = noftracks;
+      isneigh = 0;
+      tmplayid = layid;
+      counter1 = 0;
+      //	continue; //	break;
+    }
+    cout << "hit " << ihit << " on layid " << layid << "/ " <<  nofhitsinlay[layid] << endl;
+    counter1++;
+    if(counter1 == nofhitsinlay[layid]) continue;
+    for(int jhit = counter; jhit < counter + nofhitsinlay[layid] -  counter1; jhit++) {
+      PndTrkHit *hit2 = cluster->GetHit(jhit);
+      int tubeid2 =   hit2->GetTubeID();
+      PndSttTube *tube2 = (PndSttTube*) fTubeArray->At(tubeid2);
+
+
+
+      if(tube->GetLayerID() != tube2->GetLayerID()) cout << "ERROR" << tube->GetLayerID()  << " " << tube2->GetLayerID() << endl;
+      cout << "compare " << ihit << "(" << hit->GetHitID() << "- " << hit->GetTubeID() << ") with " << jhit << " (" << hit2->GetHitID() << "- " << tubeid2 << ") from " << counter << " to " << counter + nofhitsinlay[layid] - 1 << endl;
+      if(tube->IsNeighboring(tubeid2) == kTRUE) {
+	isneigh++;
+	cout << "isneigh " << isneigh << endl;
+	// break;
+      }
+    }
+  }
+    
+  
+  cout << "THIS CLUSTER HAS A TOTAL OF " << maxnoftracks << " TRACKS" << endl;
+  return maxnoftracks;
+}
+
+
+Int_t PndTrkLegendreNew::ClusterToConformal(PndTrkCluster *cluster) {
+  // ================ --> TO CONFORMAL PLANE
+  conformalhitlist = new PndTrkConformalHitList(); // CHECK
+  // translation and rotation
+  Int_t nchits = 0;
+  Double_t delta = 0, trasl[2] = {0., 0.};
+  if(fSecondary) {
+    // translation and rotation - CHECK
+    //	cout << " REFERENCE HIT " << cluster->GetNofHits() << endl;
+    fRefHit = FindReferenceHit(cluster);
+    if(fRefHit == NULL)  {
+      //	  cout << "REFHIT " << fRefHit << endl;
+      //	Reset();  
+      return 0;
+    }
+    ComputeTraAndRot(fRefHit, delta, trasl);
+  }
+  //    
+  cout << "DELTA " << delta << " TRASL " << trasl[0] << " " << trasl[1] << endl;
+  conform->SetOrigin(trasl[0], trasl[1], delta);
+  nchits = FillConformalHitList(cluster);
+  
+  return nchits;
+}
+
+PndTrkTrack * PndTrkLegendreNew::LegendreFit(PndTrkCluster *cluster) {
+
+  cout << "APPLY LEGENDRE =======================" << endl;
+
+  // reset the legendre histo for a new legendre fit
+  legendre->ResetLegendreHisto();
+  
+  if(fDisplayOn) {
+    RefreshConf();
+    if(fSecondary) DrawGeometryConf(-1, 1, -1, 1);
+    else   DrawGeometryConf(-0.07, 0.07, -0.07, 0.07);
+  }
+  
+  // fill legendre histo with the cluster hits
+  FillLegendreHisto(cluster); 
+  double theta_max, r_max;
+  // get the peak
+  int maxpeak = ExtractLegendre(1, theta_max, r_max); // CHECK mode??
+          
+  // from theta/r to line parameters in CONFORMAL plane 
+  double fitm, fitq;
+  legendre->ExtractLegendreSingleLineParameters(fitm, fitq);
+  if(fDisplayOn) {
+    display->cd(2);
+    TLine *line = new TLine(-10.07, fitq + fitm * (-10.07), 10.07, fitq + fitm * (10.07));
+    line->Draw("SAME");
+  }
+    
+  // from line parameters to center/radius in REAL plane
+  Double_t xc, yc, R;
+  FromConformalToRealTrack(fitm, fitq, xc, yc, R);
+  cout << "XR, YC, R: " << xc << " " << yc << " " << R << endl;
+
+  // create a track from the cluster
+  PndTrkTrack *track = new PndTrkTrack(cluster, xc, yc, R);
+
+  return track;
+}
+
+
+PndTrkCluster * PndTrkLegendreNew::CreateClusterAroundTrack(PndTrkTrack *track) {
+
+  double R = track->GetRadius();
+  double xc = track->GetCenter().X();
+  double yc = track->GetCenter().Y();
+  PndTrkCluster *cluster = track->GetCluster();
+
+  // create cluster depending on fitting
+  double rmin = R - R * 0.05; // CHECK 20%?
+  double rmax = R + R * 0.05; // "      "
+  
+  
+  if(fDisplayOn) {
+    display->cd(1);
+    track->Draw(kRed);
+    
+    TArc *arcmin = new TArc(xc, yc, rmin);
+    TArc *arcmax = new TArc(xc, yc, rmax);
+      
+    arcmin->SetFillStyle(0);
+    arcmax->SetFillStyle(0);
+    arcmin->SetLineColor(kGreen);
+    arcmax->SetLineColor(kBlue);
+
+    arcmin->Draw("SAME");
+    arcmax->Draw("SAME");
+
+    display->Update();
+    display->Modified();
+    char goOnChar;
+    cout << "want to go to new cluster?" << endl;
+    cin >> goOnChar;
+  }
+    
+  // create cluster depending on fitting
+  PndTrkCluster *thiscluster = new PndTrkCluster();
+  bool started = false;
+  int startsecid = -1, endsecid = -1, startlayid = -1, endlayid = -1;
+  // clean existing cluster
+  for(int ihit = 0; ihit < cluster->GetNofHits(); ihit++) {
+    PndTrkHit *hit = cluster->GetHit(ihit);
+    double distance = hit->GetXYDistance(TVector3(xc, yc, 0.));
+    if(distance <= rmax && distance >= rmin) {
+      thiscluster->AddHit(hit);
+      PndSttTube *tube = (PndSttTube*) fTubeArray->At(hit->GetTubeID());
+      if(started == false) {
+	startsecid = tube->GetSectorID();
+	startlayid = tube->GetLayerID();
+	started = true;
+	cout << "start hit " << ihit << " " << hit->GetHitID() << " " << endsecid << " " << endlayid << endl;
+      }
+      endsecid = tube->GetSectorID();
+      endlayid = tube->GetLayerID();
+      cout << "hit " << ihit << " " << hit->GetHitID() << " " << endsecid << " " << endlayid << endl;
+
+    }
+  }
+
+  cout << "START SECTOR " << startsecid << " END SECTOR " << endsecid << endl;
+  cout << "START LAYER  " << startlayid << " END LAYER  " << endlayid << endl;
+
+  if(fDisplayOn) {
+    display->cd(1);
+    thiscluster->Draw(kRed);
+    display->Update();
+    display->Modified();
+    char goOnChar;
+    cout << "want to go to next cluster1?" << endl;
+    cin >> goOnChar;
+  } 
+
+
+  if(startlayid != 0 || endlayid != 23) {
+    for(int ihit = 0; ihit < stthitlist->GetNofHits(); ihit++) {
+      PndTrkHit *hit = stthitlist->GetHit(ihit);
+      if(cluster->DoesContain(hit)) continue;     
+      PndSttTube *tube = (PndSttTube*) fTubeArray->At(hit->GetTubeID());
+     
+      double distance = hit->GetXYDistance(TVector3(xc, yc, 0.));
+      if(distance <= rmax && distance >= rmin) {
+	cout << endl;
+	cout << "other sector " << tube->GetSectorID() << " " << tube->GetLayerID();
+
+	if(tube->GetSectorID() == 0 || tube->GetSectorID() == 5) {
+	  if(startsecid != 5 && endsecid != 5 && startsecid != 0 && endsecid != 0) continue; 
+	}
+	else if(fabs(tube->GetSectorID() - startsecid) > 1 && fabs(tube->GetSectorID() - endsecid) > 1) continue;
+	  
+	if(tube->GetLayerID() > startlayid && tube->GetLayerID() < endlayid) continue;
+	  
+	thiscluster->AddHit(hit);
+	cout << " ***";
+      }
+    }
+  }
+  cout << endl;
+
+  if(fDisplayOn) {
+    display->cd(1);
+    thiscluster->Draw(kRed);
+    display->Update();
+    display->Modified();
+    char goOnChar;
+    cout << "want to go to next cluster2?" << endl;
+    cin >> goOnChar;
+  } 
+  // ---------------------------
+
+  return thiscluster;
 }

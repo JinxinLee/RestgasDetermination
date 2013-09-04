@@ -94,7 +94,11 @@ class PndTrkLegendreNew : public FairTask {
 
   void  SearchSecondaryTracks() { fSecondary = kTRUE; }
 
-
+  PndTrkClusterList CreateFullClusterization();
+  Int_t CountTracksInSkewSector(PndTrkCluster *cluster);
+  Int_t ClusterToConformal(PndTrkCluster *cluster);
+ PndTrkTrack *LegendreFit(PndTrkCluster *cluster);
+  PndTrkCluster *CreateClusterAroundTrack(PndTrkTrack *track);
 
 
 
