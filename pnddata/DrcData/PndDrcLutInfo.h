@@ -38,8 +38,7 @@ public:
   void AddLambda(Double_t val);
   void AddTruePath(Double_t val);
   void AddHitTime(Double_t val);
-  
-  void SetLambda(Double_t val);
+    
   void SetChPartDir(TVector3 val);
   void SetChPartDirInBar(TVector3 val);
   void SetChPartDirInBar2(TVector3 val);
