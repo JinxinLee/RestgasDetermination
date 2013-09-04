@@ -140,7 +140,7 @@ InitStatus PndTrkLegendreNew::Init() {
  
   if(fDisplayOn) {
     display = new TCanvas("display", "display", 0, 0, 800, 800); // CHECK
-    //    display->Divide(2, 2);
+    display->Divide(2, 2);
   }
 
   legendre = new PndTrkLegendreTransform();
@@ -202,7 +202,7 @@ void PndTrkLegendreNew::Exec(Option_t* opt) {
   if(fVerbose > 0) cout << "*********************** " << fEventCounter << " ***********************" << endl;
  
 
-  Initialize();
+   Initialize();
   if(fVerbose > 1) {
     cout << "number of stt    hits " << fSttHitArray->GetEntriesFast() << endl;
     cout << "number of mvdpix hits " << fMvdPixelHitArray->GetEntriesFast() << endl;
@@ -387,9 +387,293 @@ void PndTrkLegendreNew::Exec(Option_t* opt) {
     }
 
     cout << endl;
-  }
-  // ---------------------------------------
 
+    // -------------------------------------------------------
+    // clean up skew ....
+    //
+    cout << "CLEANUP SKEW" << endl;
+    int nofhitsinlay[30]; // CHECK initialize this
+    for(int ilay = 0; ilay < 30; ilay++) nofhitsinlay[ilay] = 0;
+
+    for(int ihit = 0; ihit < cluster->GetNofHits(); ihit++) {
+      PndTrkHit *hit = cluster->GetHit(ihit);
+      PndSttTube *tube = (PndSttTube*) fTubeArray->At(hit->GetTubeID());
+      hit->SetSortVariable(tube->GetLayerID());
+      nofhitsinlay[tube->GetLayerID()]++;
+      cout << "hit " << ihit << " " << tube->GetLayerID() << " " << nofhitsinlay[tube->GetLayerID()] << endl;
+
+    }
+    cluster->Sort();
+
+    for(int ihit = 0; ihit < cluster->GetNofHits(); ihit++) {
+      PndTrkHit *hit = cluster->GetHit(ihit);
+      PndSttTube *tube = (PndSttTube*) fTubeArray->At(hit->GetTubeID());
+      cout << "SORTED " << ihit << " " << hit->GetHitID() << " " << tube->GetLayerID() << endl;
+    }
+
+    int maxnoftracks = 1;
+    int tmplayid = -1;
+    int counter = 0, counter1 = 0;;
+    int isneigh = 0;
+    for(int ihit = 0; ihit < cluster->GetNofHits(); ihit++) {
+      PndTrkHit *hit = cluster->GetHit(ihit);
+      counter++; 
+      if(hit->IsSttParallel() == kTRUE) continue;
+      PndSttTube *tube = (PndSttTube*) fTubeArray->At(hit->GetTubeID());
+
+      int layid = tube->GetLayerID();
+      if(nofhitsinlay[layid] <= 1) continue;
+
+      if(layid != tmplayid) {
+	int noftracks = nofhitsinlay[tmplayid] - isneigh;
+	if(tmplayid != -1) cout << "CLUSTER CONTAINS @ LAYER " << tmplayid << " ACTUALLY " << nofhitsinlay[tmplayid] << " - " << isneigh << " = " << noftracks << " TRACKS" << endl;
+	if(noftracks > maxnoftracks) maxnoftracks = noftracks;
+	isneigh = 0;
+	tmplayid = layid;
+	counter1 = 0;
+	//	continue; //	break;
+      }
+      cout << "hit " << ihit << " on layid " << layid << "/ " <<  nofhitsinlay[layid] << endl;
+      counter1++;
+      if(counter1 == nofhitsinlay[layid]) continue;
+      for(int jhit = counter; jhit < counter + nofhitsinlay[layid] -  counter1; jhit++) {
+	PndTrkHit *hit2 = cluster->GetHit(jhit);
+	int tubeid2 =   hit2->GetTubeID();
+	PndSttTube *tube2 = (PndSttTube*) fTubeArray->At(tubeid2);
+
+
+
+	if(tube->GetLayerID() != tube2->GetLayerID()) cout << "ERROR" << tube->GetLayerID()  << " " << tube2->GetLayerID() << endl;
+	cout << "compare " << ihit << "(" << hit->GetHitID() << "- " << hit->GetTubeID() << ") with " << jhit << " (" << hit2->GetHitID() << "- " << tubeid2 << ") from " << counter << " to " << counter + nofhitsinlay[layid] - 1 << endl;
+	if(tube->IsNeighboring(tubeid2) == kTRUE) {
+	  isneigh++;
+	  cout << "isneigh " << isneigh << endl;
+	  // break;
+	}
+      }
+    }
+    
+    cout << "THIS CLUSTER HAS A TOTAL OF " << maxnoftracks << " TRACKS" << " " << iclus << " of " << clusterlist.GetNofClusters() << endl;
+
+    if(maxnoftracks > 1) continue; // CHECK
+    // ================ --> TO CONFORMAL PLANE
+      
+    conformalhitlist = new PndTrkConformalHitList();
+
+    // translation and rotation
+    Int_t nchits = 0;
+    Double_t delta = 0, trasl[2] = {0., 0.};
+    if(fSecondary) {
+      // translation and rotation - CHECK
+      //	cout << " REFERENCE HIT " << cluster->GetNofHits() << endl;
+      fRefHit = FindReferenceHit(cluster);
+      if(fRefHit == NULL)  {
+	//	  cout << "REFHIT " << fRefHit << endl;
+	//	Reset();  
+	continue; // return // CHECK
+      }
+      ComputeTraAndRot(fRefHit, delta, trasl);
+    }
+    //    
+    cout << "DELTA " << delta << " TRASL " << trasl[0] << " " << trasl[1] << endl;
+    conform->SetOrigin(trasl[0], trasl[1], delta);
+    nchits = FillConformalHitList(cluster);
+      
+  
+    if(nchits == 0) {
+      //      Reset();
+      continue; // return // CHECK
+    }
+
+    // APPLY LEGENDRE TO STT ALONE
+    // -------------------------------------------------------
+
+    cout << "APPLY LEGENDRE =======================" << endl;
+    double theta_max, r_max;
+    Int_t maxpeak = ApplyLegendre(cluster, theta_max, r_max);
+
+    
+    cout << "EXTRACT MAX =======================" << endl;
+    
+    double fitm, fitq;
+    legendre->ExtractLegendreSingleLineParameters(fitm, fitq);
+    if(fDisplayOn) {
+      display->cd(2);
+      TLine *line = new TLine(-10.07, fitq + fitm * (-10.07), 10.07, fitq + fitm * (10.07));
+      line->Draw("SAME");
+    }
+    
+    // center and radius
+    Double_t xc, yc, R;
+    FromConformalToRealTrack(fitm, fitq, xc, yc, R);
+    cout << "XR, YC, R: " << xc << " " << yc << " " << R << endl;
+    PndTrkTrack *track = new PndTrkTrack(cluster, xc, yc, R);
+       
+    // create cluster depending on fitting
+    double rmin = R - R * 0.05; // CHECK 20%?
+    double rmax = R + R * 0.05; // "      "
+
+
+    if(fDisplayOn) {
+      display->cd(1);
+      track->Draw(kRed);
+
+      TArc *arcmin = new TArc(xc, yc, rmin);
+      TArc *arcmax = new TArc(xc, yc, rmax);
+      
+      arcmin->SetFillStyle(0);
+      arcmax->SetFillStyle(0);
+      arcmin->SetLineColor(kGreen);
+      arcmax->SetLineColor(kBlue);
+
+      arcmin->Draw("SAME");
+      arcmax->Draw("SAME");
+
+      display->Update();
+      display->Modified();
+      char goOnChar;
+      cout << "want to go to new cluster?" << endl;
+      cin >> goOnChar;
+    }
+      
+    // create cluster depending on fitting
+    PndTrkCluster *thiscluster = new PndTrkCluster();
+    bool started = false;
+    int startsecid = -1, endsecid = -1, startlayid = -1, endlayid = -1;
+    // clean existing cluster
+    for(int ihit = 0; ihit < cluster->GetNofHits(); ihit++) {
+      PndTrkHit *hit = cluster->GetHit(ihit);
+      double distance = hit->GetXYDistance(TVector3(xc, yc, 0.));
+      if(distance <= rmax && distance >= rmin) {
+	thiscluster->AddHit(hit);
+	PndSttTube *tube = (PndSttTube*) fTubeArray->At(hit->GetTubeID());
+	if(started == false) {
+	  startsecid = tube->GetSectorID();
+	  startlayid = tube->GetLayerID();
+	  started = true;
+	cout << "start hit " << ihit << " " << hit->GetHitID() << " " << endsecid << " " << endlayid << endl;
+	}
+	endsecid = tube->GetSectorID();
+	endlayid = tube->GetLayerID();
+	cout << "hit " << ihit << " " << hit->GetHitID() << " " << endsecid << " " << endlayid << endl;
+
+      }
+    }
+
+    cout << "START SECTOR " << startsecid << " END SECTOR " << endsecid << endl;
+    cout << "START LAYER  " << startlayid << " END LAYER  " << endlayid << endl;
+
+    if(fDisplayOn) {
+      display->cd(1);
+      thiscluster->Draw(kRed);
+      display->Update();
+      display->Modified();
+      char goOnChar;
+      cout << "want to go to next cluster1?" << endl;
+      cin >> goOnChar;
+    } 
+
+
+    if(startlayid != 0 || endlayid != 23) {
+      for(int ihit = 0; ihit < stthitlist->GetNofHits(); ihit++) {
+	PndTrkHit *hit = stthitlist->GetHit(ihit);
+	if(cluster->DoesContain(hit)) continue;     
+	PndSttTube *tube = (PndSttTube*) fTubeArray->At(hit->GetTubeID());
+     
+	double distance = hit->GetXYDistance(TVector3(xc, yc, 0.));
+	if(distance <= rmax && distance >= rmin) {
+	  cout << endl;
+	  cout << "other sector " << tube->GetSectorID() << " " << tube->GetLayerID();
+
+	  if(tube->GetSectorID() == 0 || tube->GetSectorID() == 5) {
+	    if(startsecid != 5 && endsecid != 5 && startsecid != 0 && endsecid != 0) continue; 
+	  }
+	  else if(fabs(tube->GetSectorID() - startsecid) > 1 && fabs(tube->GetSectorID() - endsecid) > 1) continue;
+	  
+	  if(tube->GetLayerID() > startlayid && tube->GetLayerID() < endlayid) continue;
+	  
+	  thiscluster->AddHit(hit);
+	  cout << " ***";
+	}
+      }
+    }
+    	  cout << endl;
+
+    if(fDisplayOn) {
+      display->cd(1);
+      thiscluster->Draw(kRed);
+      display->Update();
+      display->Modified();
+      char goOnChar;
+      cout << "want to go to next cluster2?" << endl;
+      cin >> goOnChar;
+    } 
+    // ---------------------------
+
+
+
+    /**
+     // translation and rotation
+     conformalhitlist->Clear();
+     nchits = 0;
+     conform->SetOrigin(trasl[0], trasl[1], delta);
+     nchits = FillConformalHitList(thiscluster);
+      
+  
+     if(nchits == 0) {
+     Reset();
+     return;
+     }
+
+
+     //    // APPLY LEGENDRE TO STT ALONE AGAIN
+     // -------------------------------------------------------
+
+     cout << "APPLY LEGENDRE AGAIN =======================" << endl;
+     maxpeak = ApplyLegendre(thiscluster, theta_max, r_max);
+
+    
+     cout << "EXTRACT MAX AGAIN =======================" << endl;
+     legendre->ExtractLegendreSingleLineParameters(fitm, fitq);
+     if(fDisplayOn) {
+     display->cd(2);
+     TLine *line = new TLine(-10.07, fitq + fitm * (-10.07), 10.07, fitq + fitm * (10.07));
+     line->Draw("SAME");
+     }
+    
+     // center and radius
+     FromConformalToRealTrack(fitm, fitq, xc, yc, R);
+     cout << "XR, YC, R: " << xc << " " << yc << " " << R << endl;
+     track = new PndTrkTrack(thiscluster, xc, yc, R);
+     
+     if(fDisplayOn) {
+     display->cd(1);
+     track->Draw(kViolet);
+     display->Update();
+     display->Modified();
+     char goOnChar;
+     cout << "want to go to new cluster?" << endl;
+     cin >> goOnChar;
+     }
+
+     // create cluster depending on fitting
+     rmin = R - 0.05 * R;
+     rmax = R + 0.05 * R;
+     PndTrkCluster *thiscluster2 = new PndTrkCluster();
+     // int counteradded = AddHitToClusterByDistance(cluster, method, fitm, fitq);
+     for(int ihit = 0; ihit < stthitlist->GetNofHits(); ihit++) {
+     PndTrkHit *hit = stthitlist->GetHit(ihit);
+     double distance = hit->GetXYDistance(TVector3(xc, yc, 0.));
+     if(distance <= rmax && distance >= rmin) thiscluster2->AddHit(hit);
+     }
+    
+     }
+    **/
+    cout << "CLSUTERING " << iclus << " " << endl;
+  }
+
+  // ---------------------------------------
+  
   if(fDisplayOn) {
     char goOnChar;
     display->Update();
@@ -400,7 +684,6 @@ void PndTrkLegendreNew::Exec(Option_t* opt) {
   
   
   Reset();
-
 }
 
 void PndTrkLegendreNew::Reset()
@@ -430,6 +713,7 @@ void PndTrkLegendreNew::Reset()
   fInitDone = kFALSE;
 }
 
+
 // ============================================================================================
 // DISPLAY  ***********************************************************************************
 // ============================================================================================
@@ -449,6 +733,21 @@ void PndTrkLegendreNew::Refresh(){
   DrawHits(mvdstrhitlist);
   if(fVerbose)  cout << "Refresh stop" << endl;
 
+}
+
+void PndTrkLegendreNew::DrawLegendreHisto() {
+  display->cd(3);
+  legendre->Draw();
+  display->Update();
+  display->Modified();
+}
+
+void PndTrkLegendreNew::RefreshConf() { // CHECK delete
+  // CHECK
+  char goOnChar;
+  //  cout << "RefreshConf?" << endl;
+  //  cin >> goOnChar;
+  //  cout << "REFRESHING CONF" << endl;
 }
 
 void PndTrkLegendreNew::DrawHits(PndTrkHitList *hitlist) {
@@ -483,6 +782,26 @@ void PndTrkLegendreNew::DrawGeometry() {
   }
   // ............................
  
+  display->Update();
+  display->Modified();  
+ 
+}
+
+void PndTrkLegendreNew::DrawGeometryConf(double x1, double y1, double x2, double y2) {
+  // CHECK
+  char goOnChar;
+  //  cout << "DRAWING GEOMETRY CONF" << endl;
+  // cin >> goOnChar;
+  
+  // CHECK previous calculations, now not used;
+  if(huv == NULL)  huv = new TH2F("huv", "uv plane", 100, x1, y1, 100, x2, y2);
+  else {
+    huv->Reset(); 
+    huv->GetXaxis()->SetLimits(x1, y1);
+    huv->GetYaxis()->SetLimits(x2, y2);
+   }
+  display->cd(2);
+  huv->Draw();
   display->Update();
   display->Modified();  
  
@@ -556,5 +875,340 @@ void PndTrkLegendreNew::DrawNeighboringsToHit(PndTrkNeighboringMap *hitmap, PndT
   
 }
 
+void PndTrkLegendreNew::DrawConfHit(double u, double v, double r, int marker) {
+  display->cd(2);
+  if(r >= 0) {
+    TArc *arc = new TArc(u, v, r);
+    arc->SetFillStyle(0);
+    arc->Draw("SAME");
+  }
+  else {
+    TMarker *mrk = new TMarker(u, v, marker);
+    mrk->Draw("SAME");
+  }
+  //  display->Update();
+  //   display->Modified();
+}
+
+Int_t PndTrkLegendreNew::FillConformalHitList(PndTrkCluster *cluster) { 
+
+  conformalhitlist->SetConformalTransform(conform);
+    
+  for(int jhit = 0; jhit < cluster->GetNofHits(); jhit++) {
+    PndTrkHit *hit = cluster->GetHit(jhit);
+    if(hit == fRefHit) continue;
+    PndTrkConformalHit * chit = NULL;
+    //    cout << "HIT " << hit->GetHitID() << " " << hit->IsSttParallel() << " " << hit->IsSttSkew() << endl;
+    if(hit->IsSttParallel() == kTRUE) chit = conform->GetConformalSttHit(hit);
+    else continue; // chit = conform->GetConformalHit(hit);
+    conformalhitlist->AddHit(chit);  
+    cout << hit->GetPosition().X() << " " << hit->GetPosition().Y() << " " << hit->IsSttParallel() << " " << " to CONFORMAL " << chit->GetU() << " " << chit->GetV() << " " << chit->GetIsochrone() << endl;   
+
+  }
+  return conformalhitlist->GetNofHits();
+}
+
+// ----------------------- FOR SECONDARIES
+PndTrkHit *PndTrkLegendreNew::FindSttReferenceHit(int isec) {
+  int ntot = 0; 
+  if(isec == -1) ntot = stthitlist->GetNofHits();
+  else  ntot = stthitlist->GetNofHitsInSector(isec);
+  
+  if(ntot == 0) return NULL;
+
+
+  int tmphitid = -1;
+  Double_t tmpiso = 1.;
+  PndTrkHit *refhit = NULL;
+  for(int jhit = 0; jhit < ntot; jhit++) {
+    PndTrkHit *hit = NULL;
+    if(isec == -1) hit = stthitlist->GetHit(jhit);
+    else  hit = stthitlist->GetHitFromSector(jhit, isec);
+    
+    if(hit->IsUsed()) { 
+      if(fVerbose > 1) cout << "STT hit " << jhit << "already used " << endl; 
+      continue; }
+    if(hit->IsSttSkew()) continue;
+    if(hit->GetIsochrone() < tmpiso) {
+      tmphitid = jhit;
+      tmpiso = hit->GetIsochrone();
+      refhit = hit;
+    }
+  }   
+  if(tmphitid == -1)  return NULL;
+  
+  // PndTrkHit *refhit =  &thishitlist[tmphitid];
+  if(fVerbose > 1) cout << "STT REFERENCE HIT " <<  tmphitid << " " << refhit->GetIsochrone() << endl;
+  return refhit;
+
+}
+ 
+PndTrkHit *PndTrkLegendreNew::FindMvdPixelReferenceHit()
+  {
+  if(mvdpixhitlist->GetNofHits() == 0) return NULL;
+  // loop on mvd pix hits
+  int tmphitid = -1;
+  PndTrkHit *refhit = NULL;
+  for(int jhit = 0; jhit < mvdpixhitlist->GetNofHits(); jhit++) {
+    PndTrkHit *hit = mvdpixhitlist->GetHit(jhit);
+    if(hit->IsUsed()) { 
+      if(fVerbose > 1) cout << "already used V" << endl; 
+      continue; 
+    }
+    tmphitid = jhit;
+    break;
+  }   
+  if(tmphitid == -1)  return NULL;
+  refhit = mvdpixhitlist->GetHit(tmphitid);
+   if(fVerbose > 1) cout << "MVD PIXEL REFERENCE HIT " << refhit->GetHitID() << endl;
+  return refhit;
+}
+
+PndTrkHit *PndTrkLegendreNew::FindMvdStripReferenceHit()
+{
+  if(mvdstrhitlist->GetNofHits() == 0) return NULL;
+  // loop on mvd str hits
+  int tmphitid = -1;
+  PndTrkHit *refhit = NULL;
+  for(int jhit = 0; jhit < mvdstrhitlist->GetNofHits(); jhit++) {
+    PndTrkHit *hit = mvdstrhitlist->GetHit(jhit);
+    if(hit->IsUsed()) { 
+       if(fVerbose > 1) cout << "already used V" << endl; 
+      continue; 
+    }
+    tmphitid = jhit;
+    break;
+  }   
+  if(tmphitid == -1)  return NULL;
+  refhit = mvdstrhitlist->GetHit(tmphitid);
+   if(fVerbose > 1) cout << "MVD STRIP REFERENCE HIT " << refhit->GetHitID() << endl;
+  return refhit;
+}
+
+PndTrkHit *PndTrkLegendreNew::FindMvdReferenceHit()
+{
+  PndTrkHit *refhit = NULL;
+  refhit = FindMvdStripReferenceHit();
+  // refhit = FindMvdPixelReferenceHit();
+  if(refhit != NULL) return refhit;
+  //  refhit = FindMvdStripReferenceHit();
+  FindMvdPixelReferenceHit();
+  return refhit;
+}
+
+PndTrkHit *PndTrkLegendreNew::FindReferenceHit()
+{
+  PndTrkHit *refhit = NULL;
+  // refhit = FindMvdReferenceHit();
+  refhit = FindSttReferenceHit();
+  if(refhit != NULL) return refhit;
+  // refhit = FindSttReferenceHit();
+  FindMvdReferenceHit();
+
+ return refhit;
+}
+
+PndTrkHit *PndTrkLegendreNew::FindReferenceHit(PndTrkCluster *cluster) {
+  int ntot = cluster->GetNofHits();
+  //  cout << "FIND REFERENCE HIT " << ntot << endl;
+  
+  if(ntot == 0) return NULL;
+
+
+  int tmphitid = -1;
+  Double_t tmpiso = 1.;
+  PndTrkHit *refhit = NULL;
+  for(int jhit = 0; jhit < ntot; jhit++) {
+    PndTrkHit *hit = cluster->GetHit(jhit);
+    
+    //   if(hit->IsUsed()) { 
+    //       if(fVerbose > 1) cout << "STT hit " << jhit << "already used " << endl; 
+    //       continue; }
+    
+    if(hit->IsStt()) {
+      if(hit->IsSttParallel()) {
+	if(hit->GetIsochrone() < tmpiso) {
+	  tmphitid = jhit;
+	  tmpiso = hit->GetIsochrone();
+	  refhit = hit;
+	}
+      }
+    }
+    else {
+      tmphitid = jhit;
+      break;
+    }
+  }
+
+  if(tmphitid == -1)  return NULL;
+  refhit = cluster->GetHit(tmphitid);
+  if(fVerbose > 1) cout << "REFERENCE HIT " << refhit->GetHitID() << " " << refhit->GetDetectorID() << endl;
+  return refhit;
+
+
+}
+ 
+
+void PndTrkLegendreNew::ComputeTraAndRot(PndTrkHit *hit, Double_t &delta, Double_t trasl[2]) {
+  
+  trasl[0] = hit->GetPosition().X();
+  trasl[1] = hit->GetPosition().Y();
+
+  delta = 0.; // TMath::ATan2(hit->GetPosition().Y() - 0., hit->GetPosition().X() - 0.); // CHECK 
+  
+}
 ClassImp(PndTrkLegendreNew)
 
+
+ 
+void PndTrkLegendreNew::FillLegendreHisto(PndTrkCluster *cluster)
+{
+  // ---------------------------------------------------------------
+  //  cout << "FILL LEGENDRE HISTO " << cluster->GetNofHits() << endl;
+
+  for(int ihit = 0; ihit < conformalhitlist->GetNofHits(); ihit++) {
+    PndTrkConformalHit *chit = conformalhitlist->GetHit(ihit);
+    PndTrkHit *hit = chit->GetHit();
+    if(cluster->DoesContain(hit) == kFALSE) continue;
+    legendre->FillLegendreHisto(chit->GetU(), chit->GetV(), chit->GetIsochrone());
+    if(fDisplayOn) {
+      DrawConfHit(chit->GetU(), chit->GetV(), chit->GetIsochrone());
+      //      cout << "conformal2: " << chit->GetU() << " " << chit->GetV() << " " << chit->GetIsochrone() << endl;   
+    }
+  }
+}
+ 
+void PndTrkLegendreNew::RePrepareLegendre(PndTrkCluster *cluster) {
+
+  //    cout << "RESETTING LEGENDRE HISTO" << endl;
+  legendre->ResetLegendreHisto();
+ 
+  if(fDisplayOn) {
+    RefreshConf();
+    if(fSecondary) DrawGeometryConf(-1, 1, -1, 1);
+    else   DrawGeometryConf(-0.07, 0.07, -0.07, 0.07);
+  }
+  // cout << "%%%%%%%%%%%%%%%%%%%% XY FINDE %%%%%%%%%%%%%%%%%%%%%%%%%%" << endl;
+  FillLegendreHisto(cluster);
+}
+
+// void PndTrkLegendreNew::PrepareLegendre() {
+
+//   //    cout << "RESETTING LEGENDRE HISTO" << endl;
+//   legendre->ResetLegendreHisto();
+ 
+//   if(fDisplayOn) {
+//     RefreshConf();
+//     if(fSecondary) DrawGeometryConf(-1., 1., -1., 1.);
+//     else   DrawGeometryConf(-0.07, 0.07, -0.07, 0.07);
+//   }
+//   if(fVerbose > 1) cout << "%%%%%%%%%%%%%%%%%%%% XY FINDER %%%%%%%%%%%%%%%%%%%%%%%%%%" << endl;
+//   FillLegendreHisto(0);
+// }
+
+// Int_t PndTrkLegendreNew::ApplyLegendre(double &theta_max, double &r_max) {
+//   PrepareLegendre();
+//   return ExtractLegendre(0, theta_max, r_max);
+// }
+
+Int_t PndTrkLegendreNew::ApplyLegendre(PndTrkCluster *cluster, double &theta_max, double &r_max) {
+  RePrepareLegendre(cluster);
+  return ExtractLegendre(1, theta_max, r_max);
+}
+
+
+
+Int_t  PndTrkLegendreNew::ExtractLegendre(Int_t mode, double &theta_max, double &r_max) {
+  if(fDisplayOn) {
+    char goOnChar;
+    //      cin >> goOnChar;
+    DrawLegendreHisto();
+    //    cout << "LEGENDRE (nof conf hits = " <<  conformalhitlist->GetNofHits() << ")" << endl;
+    display->cd();
+    //      cin >> goOnChar;
+    display->Update();
+    display->Modified();
+  }
+  
+  // FIND MAXIMUM IN LEGENDRE HISTO
+
+  //  legendre->ApplyThresholdLegendreHisto(0.3);
+  int  maxpeak = legendre->ExtractLegendreMaximum(theta_max, r_max);
+
+  bool alreadythere = false;
+  //  if(mode == 0) 
+  {
+
+    if(maxpeak <= 3) {
+      //      if(fVerbose > 1)
+      cout << "MAXPEAK " << maxpeak <<  ", BREAK NOW! "  << endl;
+      return maxpeak;
+    }
+  
+    for(int ialready = 0; ialready < fFoundPeaks.size(); ialready++) {
+      std::pair<double, double> foundthetar = fFoundPeaks.at(ialready);
+      double foundtheta = foundthetar.first;
+      double foundr = foundthetar.second;
+      // IF THIS PEAK WAS ALREADY FOUND, DELETE THE PEAK AND GO ON (TO AVOID INFINITE LOOPS)
+      if(theta_max == foundtheta && r_max == foundr) {
+	legendre->DeleteZoneAroundXYLegendre(theta_max, r_max);
+	maxpeak = legendre->ExtractLegendreMaximum(theta_max, r_max);
+	alreadythere = true;
+	if(fVerbose > 0) cout << "OH NO! THIS PEAK IS ALREADY THERE" << endl;
+	return -1;
+      }
+    }
+    
+    if(alreadythere == false) {
+      std::pair<double, double> tr(theta_max, r_max);
+      fFoundPeaks.push_back(tr);
+    }
+  }
+  // ZOOM LEGENDRE HISTO
+  legendre->SetUpZoomHisto(theta_max, r_max, 3, 0.005);
+  //   cout << "THETA/R " << theta_max << " " << r_max << " maxpeak " << maxpeak << endl;
+
+  for(int ihit = 0; ihit < conformalhitlist->GetNofHits(); ihit++) {
+    PndTrkConformalHit *chit = conformalhitlist->GetHit(ihit);
+    legendre->FillZoomHisto(chit->GetU(), chit->GetV(), chit->GetIsochrone());
+  }
+
+  if(mode == 0 && alreadythere == true) {
+     cout << "THIS PEAK IS ALREADY THERE" << endl;
+    legendre->DeleteZoneAroundXYZoom(theta_max, r_max);
+  }
+
+ int maxpeakzoom = legendre->ExtractZoomMaximum(theta_max, r_max);
+  //  cout << "THETA/R ZOOM " << theta_max << " " << r_max <<  " maxpeakzoom " << maxpeakzoom << endl;
+
+  if(fDisplayOn) {
+    char goOnChar;
+    display->cd(3);
+    TMarker *mrk = new TMarker(theta_max, r_max, 29);
+    mrk->Draw("SAME");
+    display->cd(4);
+    legendre->DrawZoom();
+    mrk->Draw("SAME");
+    display->Update();
+    display->Modified();
+    //      cin >> goOnChar;
+  }
+  
+  return maxpeak;
+}
+
+void PndTrkLegendreNew::FromConformalToRealTrack(double fitm, double fitp, double &x0, double &y0, double &R) {
+ // CHECK if this needs to be kept --> change xc0 to xc etc
+  // center and radius
+  Double_t xcrot0, ycrot0;
+  ycrot0 = 1 / (2 * fitp);
+  xcrot0 = - fitm * ycrot0;
+  R =  sqrt(xcrot0 * xcrot0 + ycrot0 * ycrot0);
+  // re-rotation and re-traslation of xc and yc
+  // rotation    
+  x0 = TMath::Cos(conformalhitlist->GetConformalTransform()->GetRotation())*xcrot0 - TMath::Sin(conformalhitlist->GetConformalTransform()->GetRotation())*ycrot0;
+  y0 = TMath::Sin(conformalhitlist->GetConformalTransform()->GetRotation())*xcrot0 + TMath::Cos(conformalhitlist->GetConformalTransform()->GetRotation())*ycrot0;
+  // traslation 
+  x0 += conformalhitlist->GetConformalTransform()->GetTranslation().X();
+  y0 += conformalhitlist->GetConformalTransform()->GetTranslation().Y();
+}
