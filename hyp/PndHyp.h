@@ -199,7 +199,7 @@ class PndHyp : public FairDetector
   Double_t fPLout,fPLin;               //  total momentum
  
   TFile *fFile;
-  TTree *t;
+  //  TTree *t;
   TClonesArray *fEvt;
   Int_t        activeCnt;
   Double_t     weight;
