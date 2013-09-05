@@ -1,3 +1,9 @@
+////////////////////////////////////////////////////////////////
+// ----     Interface to start Multfrag code --------         //
+// ----     Author : Alicia Sanchez          -------          //
+//                                                            // 
+////////////////////////////////////////////////////////////////
+
 #include <iostream>
 #include "TClonesArray.h"
 #include "TFile.h"
