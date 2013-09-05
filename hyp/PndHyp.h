@@ -17,7 +17,7 @@
 
 #include "PndHypGeoHandling.h"
 //#include "PndHypDecayer.h"
-#include "HypStatDecay.h"
+//#include "HypStatDecay.h"
 using namespace std;
 
 
@@ -220,7 +220,7 @@ class PndHyp : public FairDetector
    PndHypGeoHandling* fGeoH;          //! Gives Access to the Path info of a hit
   
   //PndHypDecayer* fread;          //! Gives Access to the Statistical decay products
-  HypStatDecay* fread;          //! Gives Access to the Statistical decay products
+  //HypStatDecay* fread;          //! Gives Access to the Statistical decay products
 
   TClonesArray* fHypCollection;        //! Hit collection
   TClonesArray* fHypSecTarCollection;        // Hit collection(Absorver)
