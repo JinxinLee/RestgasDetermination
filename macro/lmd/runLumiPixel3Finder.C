@@ -1,6 +1,6 @@
 ///  Method="Follow" - Track-following method, Method="CA" - Cellular Automaton
 ///  missPl=true - use "missing plane" algorithm
-void runLumiPixel3Finder(const int nEvents=1000, const int startEvent=0, TString storePath="tmpOutput", const int verboseLevel=5,  TString Method="Follow", const bool missPl=true, const bool mergedHits=true, const bool trkcuts=true, const double psirule=1e-6)
+void runLumiPixel3Finder(const int nEvents=1000, const int startEvent=0, TString storePath="tmpOutput", const int verboseLevel=5,  TString Method="Follow", const bool missPl=true, const bool mergedHits=true, const bool trkcuts=true, double mom=1.5)
 {
   // ========================================================================
   // Input file (MC events)
@@ -82,19 +82,30 @@ void runLumiPixel3Finder(const int nEvents=1000, const int startEvent=0, TString
   int nsensors = 100;
   int nplanes = 8;
   double accurF = 0.01;//parameter for trk-finder corridor
-  double accurCA = 1e-6;//parameter for CA neigboring search (breaking angle)
-  accurCA = psirule;//TEST
+  double accurCA;//parameter for CA neigboring search (breaking angle)
   // //set accurCA for diff Pbeam cases ---------------------------------------------
-  //  double accCAv[5]={??,??,??,??,??};
-  // if(pbeam<1.6) accurCA = 1e-5;
-  // else{
-  //   if(pbeam<4.07) accurCA = 1e-5;
-  //   else{
-  //     if(pbeam<9) accurCA = 1e-5;
-  //     else 
-  // 	accurCA = 1e-6;
-  //   }
-  // }
+  double accCAv[5]={5e-6, 1e-6, 9e-7, 8e-7, 8e-7}; //1.5, 4.06, 8.9, 11.91, 15
+  switch (mom) {
+  case 1.5:
+    accurCA = accCAv[0];
+    break;
+  case 4.06:
+    accurCA = accCAv[1];
+    break;
+  case 8.9:
+    accurCA = accCAv[2];
+    break;
+  case 11.91:
+    accurCA = accCAv[3];
+    break;
+  case 15:
+    accurCA = accCAv[4];
+    break;
+  default:
+    accurCA = 1e-5;
+    cout<<"! CA algorithm needs to know beam momentum for choose of proper cut !";
+    break;
+  }
   // //------------------------------------------------------------------------------------------
   if(trkcuts!=true) accurCA = 1e-3;//misalignment sensors case (TODO: study it in multiple trks case)
   if(mergedHits){
@@ -109,6 +120,7 @@ void runLumiPixel3Finder(const int nEvents=1000, const int startEvent=0, TString
 
   }else{
     if(Method=="CA"){
+      cout<<"CA is going to use cut="<<accurCA<<endl;
       PndLmdTrackFinderCATask* lmdfinder = new PndLmdTrackFinderCATask(missPl,accurCA,nsensors,nplanes,inHits,inClusters,inDigis); //for merged hits
       lmdfinder->SetSensPixelFlag(true);
       lmdfinder->SetTrkCandCutsFlag(trkcuts);//value=false for misaligned sensors only
