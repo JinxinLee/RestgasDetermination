@@ -135,7 +135,8 @@ InitStatus PndLmdTrkQTask::Init()
   // fGeoH = PndGeoHandling::Instance();
   FairRun* fRun = FairRun::Instance();
   FairRuntimeDb* rtdb = fRun->GetRuntimeDb();
- 
+  //  TDatabasePDG *fdbPDG = TDatabasePDG::Instance();
+  //  fdbPDG = TDatabasePDG::Instance();
   return kSUCCESS;
 }
 // -------------------------------------------------------------------------
@@ -173,7 +174,22 @@ void PndLmdTrkQTask::Exec(Option_t* opt)
       cout<<"%%%%%! Event #"<<fEventNr<<" has "<<nParticles<<" true particles, "<<" out of it "<<nRecHits<<" hits, "<<nTrkCandidates
 	  <<" trk-cands, "<<numTrk<<" tracks and "<<nGeaneTrks<<" geane Trks!"<<endl;
    
-   
+    /// Set signal/bkg flag ----------------------------------------------------
+    int sumID=0;
+    int TotCharge=0;
+    for (Int_t iN=0; iN<nParticles; iN++){
+      PndMCTrack *mctrk =(PndMCTrack*) fMCTracks->At(iN);
+      Int_t mcID = mctrk->GetPdgCode();
+      int motherid = mctrk->GetMotherID();
+      if(motherid<0 && fabs(mcID)<1e5){
+	sumID+=fabs(mcID);
+      }     
+      // TParticlePDG *fParticle = fdbPDG->GetParticle(mcID);
+      // Double_t  fCharge = fParticle->Charge();
+      // TotCharge += fCharge;
+    }
+    ///------------------------------------------------------------------------------
+
     /// Chech how many MC hits has MC trk ----------------------------
     int MCtksSIMhits[nParticles];
     int MCDoubleHits[nParticles];
@@ -654,6 +670,10 @@ void PndLmdTrkQTask::Exec(Option_t* opt)
       trkqlmd->SetNumDoubleMChits(glNumDoubleMChits);
       trkqlmd->SetMCpointLMD(glXmcLMD,glYmcLMD,glZmcLMD);
       trkqlmd->SetMCmomLMD(glThetamcLMD,glPhimcLMD,glMommcLMD);
+      //      trkqlmd->SetTotEvCharge(TotCharge);
+      trkqlmd->SetSumEvPDG(sumID);
+      trkqlmd->SetEvMCMulti(nParticles);
+      trkqlmd->SetEvRECMulti(nGeaneTrks);
       //(end) Fill tree with rec vs. mc trk info ---------------------------------------
     }
     ///END GHOST--------------------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -736,6 +756,10 @@ void PndLmdTrkQTask::Exec(Option_t* opt)
 	    trkqlmd->SetNumDoubleMChits(MCDoubleHits[imc]);
 	    trkqlmd->SetMCpointLMD(glXmcLMD,glYmcLMD,glZmcLMD);
 	    trkqlmd->SetMCmomLMD(glThetamcLMD,glPhimcLMD,glMommcLMD);
+	    //	    trkqlmd->SetTotEvCharge(TotCharge);
+	    trkqlmd->SetSumEvPDG(sumID);
+	    trkqlmd->SetEvMCMulti(nParticles);
+	    trkqlmd->SetEvRECMulti(nGeaneTrks);
 	  }
 	//(end) Fill tree with rec vs. mc trk info for missed trks ---------------------------------------
 	}

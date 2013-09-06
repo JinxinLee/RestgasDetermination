@@ -83,7 +83,19 @@ public:
   int GetNumMChits() const{return fnumMChits;}
   void SetNumDoubleMChits(int num){fnumMCdoublehits = num;}
   int GetNumDoubleMChits() const{return fnumMCdoublehits;}
+  void SetSumEvPDG(int sumid){fsumID=sumid;};
+  int GetSumEvPDG() const{return fsumID;}
+  /* void SetTotEvCharge(int totch){ ftotCharge = totch;} */
+  /* int GetTotEvCharge() const{return ftotCharge;} */
+  void SetEvMCMulti(int tot){ fnumEvparticles = tot;}
+  int GetEvMCMulti() const{return fnumEvparticles;}
+
+ void SetEvRECMulti(int tot){ fnumEvRECparticles = tot;}
+  int GetEvRECMulti() const{return fnumEvRECparticles;}
  private:
+
+  //  Int_t ftotCharge;
+  Int_t fsumID, fnumEvparticles,fnumEvRECparticles;
   Double_t fXrecLMD,fYrecLMD,fZrecLMD,fThetarecLMD,fPhirecLMD;
   Double_t fXrec,fYrec,fZrec,fThetarec,fPhirec, fMomrec;
   Double_t ferrXrec,ferrYrec,ferrZrec,ferrThetarec,ferrPhirec, ferrMomrec;

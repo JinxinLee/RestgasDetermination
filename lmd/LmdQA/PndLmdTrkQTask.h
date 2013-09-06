@@ -22,7 +22,7 @@
 #include "PndGeoHandling.h"
 #include <vector>
 #include <map>
-
+#include "TDatabasePDG.h"
 #include "LmdQA/PndLmdTrackQ.h"
 
 class TClonesArray;
@@ -75,6 +75,7 @@ class PndLmdTrkQTask : public FairTask
   // TVector3 vtx;
   bool fWriteAllMC;
 
+  //  TDatabasePDG *fdbPDG;
   
 
 
