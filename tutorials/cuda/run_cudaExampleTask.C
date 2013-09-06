@@ -1,8 +1,8 @@
-void run_ana_complete(TString FileName="test"){
+void run_cudaExampleTask(TString FileName="test"){
   // ========================================================================
 
-  gROOT->LoadMacro("$VMCWORKDIR/gconfig/rootlogon.C");
-  rootlogon();
+//  gROOT->LoadMacro("$VMCWORKDIR/gconfig/rootlogon.C");
+//  rootlogon();
 
 	  Int_t iVerbose = 0;
 
@@ -19,7 +19,7 @@ void run_ana_complete(TString FileName="test"){
 	  Int_t nEvents =0;
 	  // ----  Load libraries   -------------------------------------------------
 
-	  gROOT->Macro("$VMCWORKDIR/gconfig/rootlogon.C");
+//	  gROOT->Macro("$VMCWORKDIR/gconfig/rootlogon.C");
 	  // ------------------------------------------------------------------------
 	  // Output file
 
@@ -32,8 +32,8 @@ void run_ana_complete(TString FileName="test"){
 	  std::cout << "DigiFile: " << DigiFile.Data()<< std::endl;
 	  std::cout << "RecoFile: " << RecoFile.Data()<< std::endl;
 
-	  gSystem->Load("libMCMatch");
-	  gSystem->Load("libMCMatchExamples");
+//	  gSystem->Load("libMCMatch");
+//	  gSystem->Load("libMCMatchExamples");
 
 
   // -----   Timer   --------------------------------------------------------

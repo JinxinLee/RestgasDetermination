@@ -1,65 +1,61 @@
-set(INCLUDE_DIRECTORIES
-	${ROOT_INCLUDE_DIR} 
+# cuda does not work together with clang
+# there is a incompatibility between nvcc and clang
+# to overcome the problem set the cuda host compiler as gcc
+# on newer mac versions gcc links to clang, so check for the
+# known gcc compiler with different names
+if (NOT DEFINED CUDA_HOST_COMPILER AND CMAKE_C_COMPILER_ID STREQUAL "Clang")
+  If (CMAKE_SYSTEM_NAME MATCHES Darwin)
+    Find_Program(Found_host_compiler 
+      NAMES 686-apple-darwin10-gcc-4.2.1 i686-apple-darwin11-llvm-gcc-4.2
+      PATHS /usr/bin/
+    )
+  Else (CMAKE_SYSTEM_NAME MATCHES Darwin)
+    Find_Program(Found_host_compiler 
+      NAMES gcc
+      PATHS /usr/bin/
+    )
+  EndIf (CMAKE_SYSTEM_NAME MATCHES Darwin)
+  If (Found_host_compiler)
+    set(CUDA_HOST_COMPILER ${Found_host_compiler} CACHE FILEPATH "Host side compiler used by NVCC")
+    message(STATUS "Setting CUDA_HOST_COMPILER to ${Found_host_compiler} instead of ${CMAKE_C_COMPILER}.")
+    set (CUDA_BUILD_POSSIBLE TRUE)
+  Else (Found_host_compiler)
+    message(STATUS "The default compiler ${CMAKE_C_COMPILER} does not work together with the CUDA compiler nvcc. We could not find a gcc compiler so we have to switch of the build of the CUDA eaxamples.")
+    set (CUDA_BUILD_POSSIBLE FALSE)
+  EndIf (Found_host_compiler)
+else()
+  set (CUDA_BUILD_POSSIBLE TRUE)  
+endif()
+
+find_package(CUDA REQUIRED)
+
+If (CUDA_BUILD_POSSIBLE AND CUDA_FOUND)
+
+  add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/example)
+
+  set(INCLUDE_DIRECTORIES
+  	${ROOT_INCLUDE_DIR} 
 	${CUDA_INCLUDE}
-	${GLPK_INCLUDE_DIR}
-	${GEANT3_INCLUDE_DIR}
-	${CMAKE_SOURCE_DIR}/fairtools
-	${CMAKE_SOURCE_DIR}/geobase 
-	${CMAKE_SOURCE_DIR}/parbase 
-	${CMAKE_SOURCE_DIR}/base 
+        ${BASE_INCLUDE_DIRECTORIES}
+	${CMAKE_CURRENT_SOURCE_DIR}
 	${CMAKE_SOURCE_DIR}/pnddata 
-	${CMAKE_SOURCE_DIR}/pnddata/SttData
-	${CMAKE_SOURCE_DIR}/trackbase
-	${CMAKE_SOURCE_DIR}/pnddata/TrackData
-	${CMAKE_SOURCE_DIR}/field 
-	${CMAKE_SOURCE_DIR}/stt
-	${CMAKE_SOURCE_DIR}/sttmvdtracking
-	${CMAKE_SOURCE_DIR}/mvd/MvdTracking
-	${CMAKE_SOURCE_DIR}/pnddata/SdsData
-	${CMAKE_SOURCE_DIR}/pnddata/SciTData
-	${CMAKE_SOURCE_DIR}/gem 
-	${CMAKE_SOURCE_DIR}/pnddata/GemData 
-	${CMAKE_SOURCE_DIR}/geane 
-	${CMAKE_SOURCE_DIR}/cuda
-)
-include_directories( ${INCLUDE_DIRECTORIES})
+  )
+  include_directories( ${INCLUDE_DIRECTORIES})
 
-set(LINK_DIRECTORIES
+  set(LINK_DIRECTORIES
 	${ROOT_LIBRARY_DIR}
-	${GLPK_LIB_DIR}
-)
-link_directories( ${LINK_DIRECTORIES})
+  )
+  link_directories( ${LINK_DIRECTORIES})
 
-set(PNDCUDA_SRC
+  set(SRCS
 	PndCudaExampleTask.cxx
-)
+  )
 
-# You can use find_package(CUDA) and then trigger on CUDA_FOUND
-# But since this example is part of /tutorials/ I didn't yet implement this
-add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/example)
+  set(LINKDEF PndCudaLinkDef.h)
+  set(LIBRARY_NAME PndCuda)
 
-if(RULE_CHECKER_FOUND)
-  CHECK_RULES("${PNDCUDA_SRC}" "${INCLUDE_DIRECTORIES}" PNDCUDA_RULES)
-endif(RULE_CHECKER_FOUND)
+  set(DEPENDENCIES Base ${PNDCUDAEXAMPLESONAME})
 
-# fill list of header files from list of source files
-# by exchanging the file extension
-CHANGE_FILE_EXTENSION(*.cxx *.h PNDCUDA_HEADERS "${PNDCUDA_SRC}")
+  GENERATE_LIBRARY()
 
-set(PNDCUDA_LINKDEF PndCudaLinkDef.h)
-set(PNDCUDA_DICTIONARY ${CMAKE_CURRENT_BINARY_DIR}/PndCudaDict.cxx) 
-
-ROOT_GENERATE_DICTIONARY("${PNDCUDA_HEADERS}" "${PNDCUDA_LINKDEF}" "${PNDCUDA_DICTIONARY}" "${INCLUDE_DIRECTORIES}")
-
-SET(PNDCUDA_SRC ${PNDCUDA_SRC} ${PNDCUDA_DICTIONARY})
-
-# message(${PNDCUDAEXAMPLESONAME}) # DEBUG test if variable is set
-
-add_library(PndCuda SHARED ${PNDCUDA_SRC})
-add_dependencies(PndCuda ${PNDCUDAEXAMPLESONAME})
-target_link_libraries(PndCuda ${ROOT_LIBRARIES}
- ${CMAKE_BINARY_DIR}/lib/lib${PNDCUDAEXAMPLESONAME}.so
-  ${GLPK_LIB_DIR}/libglpk.so)
-set_target_properties(PndCuda PROPERTIES ${FAIRROOT_LIBRARY_PROPERTIES})
-################ install ###################
-install(TARGETS PndCuda DESTINATION ${CMAKE_BINARY_DIR}/lib)
+EndIf (CUDA_BUILD_POSSIBLE AND CUDA_FOUND)

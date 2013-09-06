@@ -36,6 +36,8 @@ CUDA_ADD_LIBRARY(${PNDCUDAEXAMPLESONAME}
   ${CUDAEXAMPLE_SRCS}
    SHARED # This seems to be, for our case, equivalent with set(BUILD_SHARED_LIBS ON)
   )
+  set_target_properties(${PNDCUDAEXAMPLESONAME} PROPERTIES
+  ${FAIRROOT_LIBRARY_PROPERTIES})
 
 
 ######################################
