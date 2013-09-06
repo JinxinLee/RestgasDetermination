@@ -70,8 +70,12 @@ void runLumiPixel2Reco(const int nEvents=10, const int startEvent=0, TString sto
   //  TString alignparFile = "lumi.misalign.par";//misalignment!  OLD
   //  TString alignparFile = "lumi.align_pixel_ideal.par";//perfect
   TString alignparFile;
-  if(misalign) alignparFile = storePath+"/lumi.misalign_pixel.par";//misalign
-  else alignparFile = "LMD_alignment/lumi.align_pixel_ideal.par";//perfect
+  if(misalign){ 
+    alignparFile = storePath+"/lumi.misalign_pixel.par";//misalign
+  }
+  else{
+    alignparFile = "LMD_alignment/lumi.align_pixel_ideal.par";//perfect
+  }
  
   FairParAsciiFileIo* parInput2 = new FairParAsciiFileIo();
   parInput2->open(alignparFile.Data(),"in");
@@ -99,6 +103,7 @@ void runLumiPixel2Reco(const int nEvents=10, const int startEvent=0, TString sto
   //  PndLmdIdealClusterTask* lmdmccls = new PndLmdIdealClusterTask();
   lmdmccls->SetVerbose(verboseLevel);
   lmdmccls->SetMSflag(useMSerr);//switch on\off error calculation due to multiple scaterring
+  lmdmccls->SetAlignFlag(misalign);
   //  lmdmccls->SetMtxPath(storePath);
   lmdmccls->SetMtxPath("../../../pandaroot/input/");
   fRun->AddTask(lmdmccls);
