@@ -82,6 +82,7 @@ InitStatus PndSttCellTrackFinderTask::Init() {
 
 	fTrackFinder.SetSttTubeArray(fTubeArray);
 	fTrackFinder.SetCalcFirstTrackletInf(fAnalyseSteps);
+	fTrackFinder.SetVerbose(fVerbose);
 
 	fFirstTrackCandArray = new TClonesArray("PndTrackCand");
 	ioman->Register("FirstTrackCand", "STT", fFirstTrackCandArray,
