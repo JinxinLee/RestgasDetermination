@@ -12,13 +12,7 @@ solsw=3 #GeV, switch between half and full solenoid: below half of solenoid
 echo Enter momentum from "1.5, 4.06, 8.9, 11.91, 15 [GeV/c]":
 read mom
 echo "Beam mometum is: $mom!"
-#1.5 GeV
-#ln -sf solenoid_hc/* ./
-#15GeV
-#ln -sf solenoid_fc/* ./
 cd ${VMCWORKDIR}/macro/lmd/
-
-ln -sf solenoid_fc/* ./
 pbeam=$mom
 #pick up half solenoid maps for 1.5 GeV/c
 if [[ $(echo "if (${pbeam} > ${solsw}) 1 else 0" | bc) -eq 1 ]]; then
