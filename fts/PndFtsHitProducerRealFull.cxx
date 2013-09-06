@@ -18,9 +18,12 @@
 #include "PndFtsMapCreator.h"
 #include "PndFtsTube.h"
 
+#include "PndFtsHitWriteoutBuffer.h"
+
 #include "FairRootManager.h"
 #include "FairRunAna.h"
 #include "FairRuntimeDb.h"
+#include "FairEventHeader.h"
 
 #include "TGeoManager.h"
 #include "TVector3.h"
@@ -35,7 +38,7 @@ using std::endl;
 // -----   Default constructor   -------------------------------------------
 PndFtsHitProducerRealFull::PndFtsHitProducerRealFull() :
   FairTask("Real FTS Hit Producer",0), fPointArray(new TClonesArray),  fHitArray(new TClonesArray),
-  fHitInfoArray(new TClonesArray), fFtsParameters(new PndGeoFtsPar()),
+  fHitInfoArray(new TClonesArray), fFtsParameters(new PndGeoFtsPar()), fTimeOrderedDigi(kFALSE),
   fPersistence(kTRUE)
 {
 }
@@ -69,8 +72,12 @@ InitStatus PndFtsHitProducerRealFull::Init() {
   }
 
   // Create and register output array
-  fHitArray = new TClonesArray("PndFtsHit");
-  ioman->Register("FTSHit","FTS",fHitArray, fPersistence);
+//  fHitArray = new TClonesArray("PndFtsHit");
+//  ioman->Register("FTSHit","FTS",fHitArray, fPersistence);
+
+  fDataBuffer = new PndFtsHitWriteoutBuffer("FTSHit", "FTS", fPersistence);
+  fDataBuffer = (PndFtsHitWriteoutBuffer*)ioman->RegisterWriteoutBuffer("FTSHit", fDataBuffer);
+  fDataBuffer->ActivateBuffering(fTimeOrderedDigi);
   
  // Create and register output array
   fHitInfoArray = new TClonesArray("PndFtsHitInfo");
@@ -208,7 +215,7 @@ void PndFtsHitProducerRealFull::Exec(Option_t* opt) {
 
 
     // create hit
-    AddHit(detID, tubeID, chamberID, layerID, skew, iPoint, pos, dpos, pulset, radius, closestDistanceError, depCharge);
+    AddHit(detID, tubeID, chamberID, layerID, skew, iPoint, pos, dpos, pulset, radius, closestDistanceError, depCharge, point->GetTime());
 
     AddHitInfo(0, 0, point->GetTrackID(), iPoint, 0, kFALSE);
 
@@ -236,13 +243,20 @@ void PndFtsHitProducerRealFull::FoldZPosWithResolution(Double_t &zpos, Double_t 
 
 
 // -----   Private method AddHit   --------------------------------------------
-PndFtsHit* PndFtsHitProducerRealFull::AddHit(Int_t detID, Int_t tubeID, Int_t chamberID, Int_t layerID, Int_t skew, Int_t iPoint, TVector3& pos, TVector3& dpos, Double_t p, Double_t rsim, Double_t closestDistanceError, Double_t depcharge)
+PndFtsHit* PndFtsHitProducerRealFull::AddHit(Int_t detID, Int_t tubeID, Int_t chamberID, Int_t layerID, Int_t skew, Int_t iPoint, TVector3& pos, TVector3& dpos, Double_t p, Double_t rsim, Double_t closestDistanceError, Double_t depcharge, Double_t timeOfFlight)
 {
-  // see PndSttHit for hit description
-  TClonesArray& clref = *fHitArray;
-  Int_t size = clref.GetEntriesFast();
+  // see PndFtsHit for hit description
 
-  PndFtsHit *hitnew =  new(clref[size]) PndFtsHit(detID, tubeID, chamberID, layerID, skew, iPoint, pos, dpos, p, rsim, closestDistanceError, depcharge);
+	  Double_t EventTime = FairRootManager::Instance()->GetEventTime();
+
+  PndFtsHit *hitnew =  new PndFtsHit(detID, tubeID, chamberID, layerID, skew, iPoint, pos, dpos, p+EventTime+timeOfFlight, rsim, closestDistanceError, depcharge);
+  if (fTimeOrderedDigi){
+	  hitnew->ResetLinks();
+	  FairEventHeader* evtHeader = (FairEventHeader*)FairRootManager::Instance()->GetObject("EventHeader.");
+	  hitnew->AddLink(FairLink(evtHeader->GetInputFileId(), evtHeader->GetMCEntryNumber(),  "FTSPoint", iPoint));
+	  hitnew->AddLink(FairLink(-1, FairRootManager::Instance()->GetEntryNr(), "EventHeader.", -1));
+  }
+  fDataBuffer->FillNewData(hitnew, p+EventTime+timeOfFlight, timeOfFlight+EventTime);
   return hitnew;
 
 }

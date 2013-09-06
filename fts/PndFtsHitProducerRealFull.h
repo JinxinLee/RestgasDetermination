@@ -8,6 +8,9 @@
 #include "PndGeoFtsPar.h"
 #include "TVector3.h"
 
+
+#include "PndFtsHitWriteoutBuffer.h"
+
 class PndFtsHit;
 class PndFtsHitInfo;
 class TClonesArray;
@@ -34,7 +37,7 @@ class PndFtsHitProducerRealFull : public FairTask
   /** Virtual method Exec **/
   virtual void Exec(Option_t* opt);
 
-  PndFtsHit* AddHit(Int_t detID, Int_t tubeID, Int_t chamberID, Int_t layerID, Int_t skew, Int_t iPoint, TVector3& pos, TVector3& dpos, Double_t p, Double_t rsim, Double_t closestDistanceError, Double_t depcharge);
+  PndFtsHit* AddHit(Int_t detID, Int_t tubeID, Int_t chamberID, Int_t layerID, Int_t skew, Int_t iPoint, TVector3& pos, TVector3& dpos, Double_t p, Double_t rsim, Double_t closestDistanceError, Double_t depcharge, Double_t timeOfFlight);
 
   PndFtsHitInfo* AddHitInfo(Int_t fileNumber, Int_t eventNumber, Int_t trackID, Int_t pointID, Int_t nMerged, Bool_t isFake);
 
@@ -45,13 +48,16 @@ class PndFtsHitProducerRealFull : public FairTask
 
   void SetParContainers();
 
+  void RunTimeBased(){fTimeOrderedDigi = kTRUE;}
+
  private: 
 
   /** Input array of PndFtsPoints **/
   TClonesArray* fPointArray;   
 
   /** Output array of PndFtsHits **/
-  TClonesArray* fHitArray;    
+  TClonesArray* fHitArray;
+  PndFtsHitWriteoutBuffer* fDataBuffer;
 
   /** Output array of PndFtsHitInfo **/
   TClonesArray* fHitInfoArray;
@@ -59,7 +65,8 @@ class PndFtsHitProducerRealFull : public FairTask
   PndGeoFtsPar *fFtsParameters;
 
   /** object persistence **/
-  Bool_t  fPersistence; 
+  Bool_t  fPersistence;
+  Bool_t fTimeOrderedDigi;
 
   /** from parameters array of PndSttTube **/  //  CHECK added
   TClonesArray* fTubeArray;

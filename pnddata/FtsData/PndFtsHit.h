@@ -67,12 +67,32 @@ class PndFtsHit : public FairHit
 
   // tube ID // CHECK added
   void SetTubeID(Int_t tubeid) { fTubeID = tubeid; }
-  Int_t GetTubeID() { return fTubeID; }
+  Int_t GetTubeID() const { return fTubeID; }
   void SetChamberID(Int_t chamberid) { fChamberID = chamberid; }
-  Int_t GetChamberID() { return fChamberID; }
+  Int_t GetChamberID() const { return fChamberID; }
   void SetLayerID(Int_t layerid) { fLayerID = layerid; }
-  Int_t GetLayerID() { return fLayerID; }
-  Int_t GetSkewed() { return fSkewed; }
+  Int_t GetLayerID() const { return fLayerID; }
+  Int_t GetSkewed() const { return fSkewed; }
+
+  virtual bool equal(FairTimeStamp* data) const{
+	  PndFtsHit* myDigi = dynamic_cast <PndFtsHit*> (data);
+	  if (myDigi != 0){
+		if (fTubeID == myDigi->GetTubeID())
+						return true;
+	  }
+	  return false;
+	}
+
+  	virtual bool operator<(const PndFtsHit& myDigi) const{
+  		if (fTubeID < myDigi.GetTubeID()) 		return true;
+  		else return false;
+  	}
+
+    friend std::ostream& operator<< (std::ostream& out, PndFtsHit& digi){
+  	  out << "PndSttHit in Tube: " << digi.GetTubeID() << " Isochrone: " << digi.GetIsochrone() << " +/- " << digi.GetIsochroneError()
+  		  << " Charge: " << digi.GetDepCharge() << " Pulse: " << digi.GetPulse() << std::endl;
+  	  return out;
+    }
 
  protected:
 

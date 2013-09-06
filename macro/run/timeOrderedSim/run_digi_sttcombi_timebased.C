@@ -97,10 +97,14 @@
   fRun->AddTask(gemDigitize);
 
   // -----   FTS hit producers   ---------------------------------
-  PndFtsHitProducerRealFast* ftsHitProducer = new PndFtsHitProducerRealFast();
+  PndFtsHitProducerRealFull* ftsHitProducer = new PndFtsHitProducerRealFull();
+  ftsHitProducer->RunTimeBased();
   //PndFtsHitProducerIdeal* ftsHitProducer = new PndFtsHitProducerIdeal();
   //PndFtsHitProducerRealFull* ftsHitProducer = new PndFtsHitProducerRealFull();
   fRun->AddTask(ftsHitProducer);
+
+  PndFtsHitSorterTask* ftsSorter = new PndFtsHitSorterTask(5000, 50, "FTSHit", "FTSSortedHits", "PndFTS");
+//  fRun->AddTask(ftsSorter);
   // -----   Ftof hit producers   ---------------------------------
   PndFtofHitProducerIdeal* ftofhit = new PndFtofHitProducerIdeal();
   ftofhit->SetVerbose(iVerbose);
