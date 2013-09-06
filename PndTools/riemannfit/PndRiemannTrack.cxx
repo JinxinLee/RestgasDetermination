@@ -58,6 +58,26 @@ PndRiemannTrack::PndRiemannTrack() :
 	fHits.clear();
 }
 
+PndRiemannTrack::PndRiemannTrack(PndTrackCand* trackCand) :
+	fn(3),fav(3), fc(0), fm(0), ft(0), fmError(0), ftError(0), fChi2(0), fcovPlane(4,4), fjacRXY(3,4), fcovRXY(3,3),
+	fVerbose(0), fFitDone(false), fSZFitDone(false), fErrorCalcDone(false), fweight(0),ftrefit(false),fVertexCut(0.5),
+	fStartAlpha(0), fStopAlpha(0)
+{
+	fHits.clear();
+	addPndTrackCand(trackCand);
+}
+
+void PndRiemannTrack::addPndTrackCand(PndTrackCand* trackCand)
+{
+	FairRootManager* ioman = FairRootManager::Instance();
+	std::set<FairLink> linksToHits = trackCand->GetLinks();
+	for (std::set<FairLink>::iterator iter = linksToHits.begin(); iter != linksToHits.end(); iter++)
+	{
+		PndRiemannHit riemannHit((FairHit*)ioman->GetCloneOfLinkData(*iter));
+		addHit(riemannHit);
+	}
+}
+
 
 PndRiemannTrack::~PndRiemannTrack()
 {
@@ -368,7 +388,7 @@ PndRiemannTrack::szFit(bool withErrorCalc){
 	  int j=0;
 	  for(unsigned int i=0;i<num;++i){
 		if (fVerbose > 1) std::cout << "Point: " << i << ": " << fHits[i].hit()->GetEntryNr() << " ";
-		if (fHits[i].hit() != 0 && fHits[i].hit()->GetEntryNr().GetType() == FairRootManager::Instance()->GetBranchId("STTHit")){
+		if (fHits[i].hit() != 0 && fHits[i].hit()->GetEntryNr().GetType() == GetBranchId("STTHit")){
 //			std::cout << std::endl;
 			continue;
 		}
@@ -436,7 +456,7 @@ PndRiemannTrack::calcSZChi2(PndRiemannHit* hit){
 		TGraph g(num + 1);
 		int j = 0;
 		for (unsigned int i = 0; i < num; ++i) {
-			if (fHits[i].hit() != 0 && fHits[i].hit()->GetEntryNr().GetType() == FairRootManager::Instance()->GetBranchId("STTHit")){
+			if (fHits[i].hit() != 0 && fHits[i].hit()->GetEntryNr().GetType() == GetBranchId("STTHit")){
 				continue;
 			}
 			fHits[i].calcPosOnTrk(this);
@@ -1161,7 +1181,7 @@ void PndRiemannTrack::correctSttHits()
 {
 
 	for (int i = 0; i < fHits.size(); i++){
-		if (fHits[i].hit()->GetEntryNr().GetType() == FairRootManager::Instance()->GetBranchId("STTHit")){
+		if (fHits[i].hit()->GetEntryNr().GetType() == GetBranchId("STTHit")){
 
 			PndRiemannHit myHit = fHits[i];
 			PndSttHit* mySttHit = (PndSttHit*)fHits[i].hit();
@@ -1218,4 +1238,13 @@ void PndRiemannTrack::correctSttHits()
 	}
 
 //	return result;
+}
+
+
+Int_t PndRiemannTrack::GetBranchId(TString branchName)
+{
+	if (fBranchNameMap.count(branchName) == 0){
+		fBranchNameMap[branchName] = FairRootManager::Instance()->GetBranchId(branchName);
+	}
+	return fBranchNameMap[branchName];
 }

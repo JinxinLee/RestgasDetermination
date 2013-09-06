@@ -13,9 +13,30 @@
 
 ClassImp(PndTrackingQualityAnalysis);
 
+PndTrackingQualityAnalysis::PndTrackingQualityAnalysis (TString trackBranchName, Bool_t pndTrackData):
+	fTrackBranchName(trackBranchName), fPndTrackOrTrackCand(pndTrackData), fPossibleTrack(0), fNGhosts(0), fVerbose(0)
+{
+	if(fPossibleTrack == 0){
+		std::cout << "-I- PndTrackingQualityAnalysis::PndTrackingQualityAnalysis no PossibleTrackFunctor given. Taking Standard!" << std::endl;
+		if (trackBranchName == "MVDTrack" ){
+			fPossibleTrack = new RiemannMvdSttGemFunctor();
+		} else {
+			fPossibleTrack = new StandardTrackFunctor();
+		}
+	}
+}
+
 PndTrackingQualityAnalysis::PndTrackingQualityAnalysis (TString trackBranchName, PossibleTrackFunctor* posTrack, Bool_t pndTrackData):
 	fTrackBranchName(trackBranchName), fPndTrackOrTrackCand(pndTrackData), fPossibleTrack(posTrack), fNGhosts(0), fVerbose(0)
 {
+	if(fPossibleTrack == 0){
+		std::cout << "-I- PndTrackingQualityAnalysis::PndTrackingQualityAnalysis no PossibleTrackFunctor given. Taking Standard!" << std::endl;
+		if (trackBranchName == "MVDTrack" ){
+			fPossibleTrack = new RiemannMvdSttGemFunctor();
+		} else {
+			fPossibleTrack = new StandardTrackFunctor();
+		}
+	}
 }
 
 PndTrackingQualityAnalysis::~PndTrackingQualityAnalysis()
@@ -49,7 +70,8 @@ void PndTrackingQualityAnalysis::Init()
 		AddHitsBranchName("STTHit");
 		AddHitsBranchName("GEMHit");
 	}
-
+	std::cout << "-I- PndTRackingQualityAnalysis::Init: PossibleTrackFunctor: ";
+	fPossibleTrack->Print();
 }
 
 void PndTrackingQualityAnalysis::AnalyseEvent()
@@ -122,10 +144,10 @@ Int_t PndTrackingQualityAnalysis::AnalyseTrackInfo(std::map<TString, FairMultiLi
 		Int_t nMCHits = GetSumOfAllValidMCHits(&myEntry);
 
 		if (nMCHits == trackInfo["AllHits"].GetLink(0).GetWeight()){
-			fMapTrackQualifikation[trackInfo["AllHits"].GetLink(0).GetIndex()] = 2;
+			fMapTrackQualifikation[trackInfo["AllHits"].GetLink(0).GetIndex()] = 1;
 		} else {
-			if (fMapTrackQualifikation[trackInfo["AllHits"].GetLink(0).GetIndex()] != 2)
-				fMapTrackQualifikation[trackInfo["AllHits"].GetLink(0).GetIndex()] = 3;
+			if (fMapTrackQualifikation[trackInfo["AllHits"].GetLink(0).GetIndex()] != 1)
+				fMapTrackQualifikation[trackInfo["AllHits"].GetLink(0).GetIndex()] = 2;
 		}
 	} else {
 		Int_t highestCount = 0;
@@ -140,7 +162,7 @@ Int_t PndTrackingQualityAnalysis::AnalyseTrackInfo(std::map<TString, FairMultiLi
 
 		if ((Double_t)highestCount/(Double_t)allCounts > 0.7){
 			if (fMapTrackQualifikation[mostProbableTrack] < 1)
-				fMapTrackQualifikation[mostProbableTrack] = 4;
+				fMapTrackQualifikation[mostProbableTrack] = 3;
 		}
 		else {
 			fNGhosts++;
@@ -155,7 +177,7 @@ Int_t PndTrackingQualityAnalysis::AnalyseTrackInfo(std::map<TString, FairMultiLi
 			PrintTrackDataSummary(myEntry);
 
 		}
-		std::cout << "MostProbableTrack: " << mostProbableTrack << " : " << fMapTrackQualifikation[mostProbableTrack] << std::endl;
+		std::cout << "MostProbableTrack: " << mostProbableTrack << " Quality: " << fMapTrackQualifikation[mostProbableTrack] << std::endl;
 		std::cout << std::endl;
 	}
 
@@ -165,24 +187,38 @@ Int_t PndTrackingQualityAnalysis::AnalyseTrackInfo(std::map<TString, FairMultiLi
 void PndTrackingQualityAnalysis::FillMapTrackQualifikation()
 {
 	fMapTrackQualifikation.clear();
-
+	fMapTrackMCStatus.clear();
 	for (int i = 0; i < fIdealTracksData.GetNEntries(); i++){
 		if (fIdealTracksData.GetEntry(i).GetNLinks() > 0){
-			Bool_t atLeastOneHit = kFALSE;
+			PndMCTrack* mcTrack = (PndMCTrack*)fMCTrack->At(i);
+			Bool_t primaryTrack = (mcTrack->GetMotherID() < 0);
+			Bool_t atLeastThreeHits = kFALSE;
+			Bool_t nHits = 0;
 			for (int branchIndex = 0; branchIndex < fBranchNames.size(); branchIndex++){
 				TString branchName = fBranchNames[branchIndex];
-				atLeastOneHit = atLeastOneHit | GetNIdealHits(i, branchName) > 0;
+				nHits += GetNIdealHits(i, branchName);
 			}
-			if (atLeastOneHit)
+			if (nHits > 2){
+				atLeastThreeHits = kTRUE;
+			}
+			if (atLeastThreeHits)
 			{
-				fMapTrackQualifikation[i] = -1;
-			} else {
-
-//				fMapTrackQualifikation[i] = -1;						//No hits in central tracking detectors
+				if (primaryTrack) {
+					fMapTrackQualifikation[i] = -4;
+				} else {
+					fMapTrackQualifikation[i] = -3;
+				}
+			} else if (primaryTrack){
+				fMapTrackQualifikation[i] = -5;						//No hits for primary track in central tracking detectors
 			}
 			PndMCEntry entry = fIdealTracksData.GetEntry(i);
-			if ((*fPossibleTrack)((FairMultiLinkedData*)&entry)){
-				fMapTrackQualifikation[i] = 0;
+			if ((*fPossibleTrack)((FairMultiLinkedData*)&entry))
+			{
+				if (primaryTrack) {
+					fMapTrackQualifikation[i] = -2;
+				} else {
+					fMapTrackQualifikation[i] = -1;
+				}
 			}
 		}
 	}
@@ -190,26 +226,26 @@ void PndTrackingQualityAnalysis::FillMapTrackQualifikation()
 		std::cout << "-I- PndMCTestPatternRecoQuality::FillMapTrackQualifikation:" << std::endl;
 //		PrintTrackQualityMap();
 	}
-
+	fMapTrackMCStatus = fMapTrackQualifikation;
 }
 
-Bool_t PndTrackingQualityAnalysis::PossibleTrack(FairMultiLinkedData& mcForward)
-{
-	Bool_t possibleTrack = kFALSE;
-
-	for (int i = 0; i < fBranchNames.size(); i++){
-		if (fBranchNames[i] == "MVDHitsPixel"){
-			possibleTrack = possibleTrack | (mcForward.GetLinksWithType(ioman->GetBranchId("MVDHitsPixel")).GetNLinks() +
-										     mcForward.GetLinksWithType(ioman->GetBranchId("MVDHitsStrip")).GetNLinks() > 3);
-
-		}
-		if (fBranchNames[i] == "STTHit"){
-			possibleTrack = possibleTrack | mcForward.GetLinksWithType(ioman->GetBranchId("STTHit")).GetNLinks() > 5;
-		}
-	}
-
-	return possibleTrack;
-}
+//Bool_t PndTrackingQualityAnalysis::PossibleTrack(FairMultiLinkedData& mcForward)
+//{
+//	Bool_t possibleTrack = kFALSE;
+//
+//	for (int i = 0; i < fBranchNames.size(); i++){
+//		if (fBranchNames[i] == "MVDHitsPixel"){
+//			possibleTrack = possibleTrack | (mcForward.GetLinksWithType(ioman->GetBranchId("MVDHitsPixel")).GetNLinks() +
+//										     mcForward.GetLinksWithType(ioman->GetBranchId("MVDHitsStrip")).GetNLinks() > 3);
+//
+//		}
+//		if (fBranchNames[i] == "STTHit"){
+//			possibleTrack = possibleTrack | mcForward.GetLinksWithType(ioman->GetBranchId("STTHit")).GetNLinks() > 5;
+//		}
+//	}
+//
+//	return possibleTrack;
+//}
 
 Int_t PndTrackingQualityAnalysis::GetSumOfAllValidMCHits(FairMultiLinkedData* trackData)
 {
@@ -294,9 +330,19 @@ void PndTrackingQualityAnalysis::PrintTrackDataSummary(FairMultiLinkedData& trac
 void PndTrackingQualityAnalysis::PrintTrackQualityMap(Bool_t detailedInfo)
 {
 	for (std::map<Int_t, Int_t>::iterator iter = fMapTrackQualifikation.begin(); iter != fMapTrackQualifikation.end(); iter++){
-		std::cout << "TrackID: " << iter->first << " Quality: "  << iter->second << " Found: " << fMCTrackFound[iter->first] << " Data: ";
+		std::cout << "TrackID: " << iter->first << " MCQuality: "  << fMapTrackMCStatus[iter->first] << " Quality: "<< iter->second << " Found: " << fMCTrackFound[iter->first] << " MCData: ";
 		PndMCEntry entry = fIdealTracksData.GetEntry(iter->first);
 		PrintTrackDataSummary(entry, detailedInfo);
+	}
+	std::cout << std::endl;
+}
+
+void PndTrackingQualityAnalysis::PrintTrackMCStatusMap()
+{
+	std::cout << "PrintTrackMCStatusMap: " << std::endl;
+	for (std::map<Int_t, Int_t>::iterator iter = fMapTrackMCStatus.begin(); iter != fMapTrackMCStatus.end(); iter++){
+		std::cout << "TrackID: " << iter->first << " Quality: "  << iter->second << " Found: " << fMCTrackFound[iter->first];
+		std::cout << std::endl;
 	}
 	std::cout << std::endl;
 }

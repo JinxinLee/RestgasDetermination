@@ -33,6 +33,7 @@
 // Collaborating Class Declarations --
 #include "PndRiemannHit.h"
 #include "PndTrack.h"
+#include "PndTrackCand.h"
 
 #include "PndSttHit.h"
 #include "PndSttTube.h"
@@ -47,6 +48,7 @@ public:
 
   // Constructors/Destructors ---------
   PndRiemannTrack();
+  PndRiemannTrack(PndTrackCand* trackCand);
   ~PndRiemannTrack();
 
 
@@ -100,6 +102,7 @@ public:
 
   // Modifiers -----------------------
   void addHit(PndRiemannHit& hit);
+  void addPndTrackCand(PndTrackCand* trackCand);
   void init(double x0, double y0, double R,
 	    double dip, double z0);
 
@@ -161,6 +164,8 @@ private:
   TMatrixD fcovPlane; 	///< full covarince matrix of the plane;
   TMatrixD fjacRXY;  	///< jacobian matrix to transform from c,n1,n2,n2 to r,x,y
   TMatrixD fcovRXY;
+
+  std::map<TString, Int_t> fBranchNameMap;
   int fVerbose;
   /////////////////
     bool ftrefit;
@@ -173,6 +178,8 @@ private:
   TVector3 calcErrorLineOffset(PndRiemannTrack& track);
   TVectorD calcErrorXY1XY2(TVector3& line, TVector3& dLine, TVector3& offset, TVector3& dOffset);
   Double_t calcErrorS(TVector2& XY, TVector2& dXY, PndRiemannTrack* track);
+
+  Int_t GetBranchId(TString branchName);
 
 
 

@@ -73,6 +73,7 @@ class PndTrackingQualityTask : public FairTask
 
 
   virtual void FillQualyHisto(std::map<Int_t, Int_t> trackQualifikation, Int_t nGhosts);
+  virtual void FillMCStatus(std::map<Int_t, Int_t> trackMCStatus);
   virtual void FillEfficiencies(std::map<Int_t, std::map<TString, std::pair<Double_t, Int_t > > > efficiencies);
   virtual void FillPResolution (std::map<Int_t, Double_t> pResolution);
   virtual void FillPtResolution(std::map<Int_t, Double_t> ptResolution);

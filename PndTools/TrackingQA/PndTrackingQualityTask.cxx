@@ -41,7 +41,7 @@ InitStatus PndTrackingQualityTask::Init() {
 
 	fPHisto = new TH1D("fPHisto", "Momentum Resolution", 1000, -10, 10);
 	fPtHisto = new TH1D("fPtHisto", "Transverse Momentum Resolution", 1000, -10, 10);
-	fQualyHisto = new TH1I("fQualyHisto", "Quality of Trackfinding", 12, -1.5, 10.5);
+	fQualyHisto = new TH1I("fQualyHisto", "Quality of Trackfinding", 26, -15.5, 10.5);
 
 	ioman = FairRootManager::Instance();
 	if (!ioman) {
@@ -84,13 +84,14 @@ void PndTrackingQualityTask::Exec(Option_t* opt) {
 	std::cout << "----- Event " << fEventNr << " ------" << std::endl;
 	fEventNr++;
 
-	PndTrackingQualityAnalysis qaAna(fTrackBranchName, new RiemannMvdSttGemFunctor(), fPndTrackOrTrackCand);
+	PndTrackingQualityAnalysis qaAna(fTrackBranchName, fPndTrackOrTrackCand);
 	qaAna.SetVerbose(fVerbose);
 	qaAna.SetHitsBranchNames(fBranchNames);
 	qaAna.Init();
 	qaAna.AnalyseEvent();
 
 	FillQualyHisto(qaAna.GetTrackQualifikation(), qaAna.GetNGhosts());
+	FillMCStatus(qaAna.GetTrackMCStatus());
 	FillEfficiencies(qaAna.GetEfficiencies());
 	FillPResolution(qaAna.GetPResolution());
 	FillPtResolution(qaAna.GetPtResolution());
@@ -112,13 +113,22 @@ Int_t PndTrackingQualityTask::GetSumOfAllValidMCHits(FairMultiLinkedData* trackD
 void PndTrackingQualityTask::FillQualyHisto(std::map<Int_t, Int_t> trackQualifikation, Int_t nGhosts)
 {
 
-	fQualyHisto->Fill(10, nGhosts);
+	fQualyHisto->Fill(5, nGhosts);
 	for(std::map<Int_t, Int_t>::iterator iter = trackQualifikation.begin(); iter != trackQualifikation.end(); iter++){
 		fQualyHisto->Fill(iter->second);
-		if (iter->second > -1){
-			fQualyHisto->Fill(9);
-			fQualyHisto->Fill(-1);
+		if (iter->second > 0){
+			fQualyHisto->Fill(8);
 		}
+		else {
+			fQualyHisto->Fill(7);
+		}
+	}
+}
+
+void PndTrackingQualityTask::FillMCStatus(std::map<Int_t, Int_t> trackMCStatus)
+{
+	for(std::map<Int_t, Int_t>::iterator iter = trackMCStatus.begin(); iter != trackMCStatus.end(); iter++){
+		fQualyHisto->Fill(iter->second - 6);
 	}
 }
 
@@ -154,13 +164,32 @@ void PndTrackingQualityTask::Finish() {
 	fPHisto->Write();
 	fPtHisto->Write();
 	fQualyHisto->Write();
-	std::cout << "fQualyHisto: All Tracks: " << fQualyHisto->GetBinContent(1)
-			  << " NPossible Tracks " << fQualyHisto->GetBinContent(11)
-			  << " FullyFound: "    << fQualyHisto->GetBinContent(4) 	<< " " << (Double_t)fQualyHisto->GetBinContent(4) / (Double_t)fQualyHisto->GetBinContent(11) * 100 << "% "
-			  << " PartlyFound: "  << fQualyHisto->GetBinContent(5) 	<< " " << (Double_t)fQualyHisto->GetBinContent(5) / (Double_t)fQualyHisto->GetBinContent(11) * 100 << "% "
-			  << " Spurious: " 	<< fQualyHisto->GetBinContent(6) 		<< " " << (Double_t)fQualyHisto->GetBinContent(6) / (Double_t)fQualyHisto->GetBinContent(11) * 100 << "% "
-			  << " NotFound: " << fQualyHisto->GetBinContent(2) 		<< " " << (Double_t)fQualyHisto->GetBinContent(2) / (Double_t)fQualyHisto->GetBinContent(11) * 100 << "% "
-			  << " Ghosts: "	<< fQualyHisto->GetBinContent(12)		<< " " << (Double_t)fQualyHisto->GetBinContent(12) / (Double_t)fQualyHisto->GetBinContent(11) * 100 << "% " << std::endl;
+	Int_t allTracksWithHits = 0;
+	Int_t allTracksWithHitsNotFound = 0;
+
+	allTracksWithHits += fQualyHisto->GetBinContent(fQualyHisto->FindFixBin(-10));
+	allTracksWithHits += fQualyHisto->GetBinContent(fQualyHisto->FindFixBin(-9));
+	allTracksWithHits += fQualyHisto->GetBinContent(fQualyHisto->FindFixBin(-8));
+	allTracksWithHits += fQualyHisto->GetBinContent(fQualyHisto->FindFixBin(-7));
+
+
+	allTracksWithHitsNotFound += fQualyHisto->GetBinContent(fQualyHisto->FindFixBin(-4));
+	allTracksWithHitsNotFound += fQualyHisto->GetBinContent(fQualyHisto->FindFixBin(-3));
+	allTracksWithHitsNotFound += fQualyHisto->GetBinContent(fQualyHisto->FindFixBin(-2));
+	allTracksWithHitsNotFound += fQualyHisto->GetBinContent(fQualyHisto->FindFixBin(-1));
+
+	std::cout << "fQualyHisto: All Tracks: " << fQualyHisto->GetBinContent(fQualyHisto->FindFixBin(-11)) + allTracksWithHits << std::endl
+			  << " Primary Tracks wo hits: " << fQualyHisto->GetBinContent(fQualyHisto->FindFixBin(-10)) << std::endl
+			  << " All Tracks with hits: " << allTracksWithHits << " not Found: " << allTracksWithHitsNotFound << std::endl
+			  << " Primary Tracks with 3 hits: " << fQualyHisto->GetBinContent(fQualyHisto->FindFixBin(-10)) << " not Found: " << fQualyHisto->GetBinContent(fQualyHisto->FindFixBin(-4)) << std::endl
+			  << " Secondary Tracks with 3 hits: " << fQualyHisto->GetBinContent(fQualyHisto->FindFixBin(-9)) << " not Found: " << fQualyHisto->GetBinContent(fQualyHisto->FindFixBin(-3)) << std::endl
+			  << " Primary Tracks possible: " << fQualyHisto->GetBinContent(fQualyHisto->FindFixBin(-8)) << " not Found: " << fQualyHisto->GetBinContent(fQualyHisto->FindFixBin(-2)) << std::endl
+			  << " Secondary Tracks possible: " << fQualyHisto->GetBinContent(fQualyHisto->FindFixBin(-7)) << " not Found: " << fQualyHisto->GetBinContent(fQualyHisto->FindFixBin(-1)) << std::endl
+
+			  << " FullyFound: "    << fQualyHisto->GetBinContent(fQualyHisto->FindFixBin(1)) 	<< " " << (Double_t)fQualyHisto->GetBinContent(fQualyHisto->FindFixBin(1)) / allTracksWithHits * 100 << "% "
+			  << " PartlyFound: "  << fQualyHisto->GetBinContent(fQualyHisto->FindFixBin(2)) 	<< " " << (Double_t)fQualyHisto->GetBinContent(fQualyHisto->FindFixBin(3)) / allTracksWithHits * 100 << "% "
+			  << " Spurious: " 	<< fQualyHisto->GetBinContent(fQualyHisto->FindFixBin(3)) 		<< " " << (Double_t)fQualyHisto->GetBinContent(fQualyHisto->FindFixBin(3)) / allTracksWithHits * 100 << "% "
+			  << " Ghosts: "	<< fQualyHisto->GetBinContent(fQualyHisto->FindFixBin(5))		<< " " << (Double_t)fQualyHisto->GetBinContent(fQualyHisto->FindFixBin(5)) / allTracksWithHits * 100 << "% " << std::endl;
 }
 
 ClassImp( PndTrackingQualityTask);

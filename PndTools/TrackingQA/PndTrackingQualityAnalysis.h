@@ -29,6 +29,7 @@ class PossibleTrackFunctor : public std::unary_function<FairMultiLinkedData* , B
   public :
     virtual Bool_t operator() (FairMultiLinkedData* a) {return Call(a);};
     virtual Bool_t Call(FairMultiLinkedData* a) = 0;
+    virtual void Print() = 0;
 
     virtual ~PossibleTrackFunctor() {};
 
@@ -42,9 +43,15 @@ class StandardTrackFunctor : public PossibleTrackFunctor
 		possibleTrack = possibleTrack | (a->GetLinksWithType(ioman->GetBranchId("MVDHitsPixel")).GetNLinks() +
 										 a->GetLinksWithType(ioman->GetBranchId("MVDHitsStrip")).GetNLinks() > 3);
 
-		possibleTrack = possibleTrack | a->GetLinksWithType(ioman->GetBranchId("STTHit")).GetNLinks() > 5;
+		possibleTrack = possibleTrack | (a->GetLinksWithType(ioman->GetBranchId("MVDHitsPixel")).GetNLinks() +
+										 a->GetLinksWithType(ioman->GetBranchId("MVDHitsStrip")).GetNLinks() +
+										 a->GetLinksWithType(ioman->GetBranchId("STTHit")).GetNLinks() ) > 5;
 
 		return possibleTrack;
+	}
+
+	void Print(){
+		std::cout << "StandardTrackFunctor: > 3 Hits in MVD or > 5 Hits in (MVD+Stt)" << std::endl;
 	}
 };
 
@@ -57,6 +64,9 @@ class OnlySttFunctor : public PossibleTrackFunctor
 		possibleTrack = possibleTrack | a->GetLinksWithType(ioman->GetBranchId("STTHit")).GetNLinks() > 5;
 
 		return possibleTrack;
+	}
+	void Print(){
+		std::cout << "OnlySttFunctor: > 5 Hits in Stt" << std::endl;
 	}
 };
 
@@ -73,12 +83,16 @@ class RiemannMvdSttGemFunctor : public PossibleTrackFunctor
 		}
 		return possibleTrack;
 	}
+	void Print(){
+		std::cout << "RiemannMvdSttGemFunctor: > 2 Hits in MVD and >0 Hits in (Stt+Gem)" << std::endl;
+	}
 
 };
 
 class PndTrackingQualityAnalysis : public TObject
 {
 public:
+	PndTrackingQualityAnalysis(TString trackBranchName, Bool_t pndTrackData = kTRUE);
 	PndTrackingQualityAnalysis(TString trackBranchName, PossibleTrackFunctor* posTrack, Bool_t pndTrackData = kTRUE);
 	virtual ~PndTrackingQualityAnalysis();
 
@@ -95,6 +109,7 @@ public:
 	Int_t GetNIdealHits(FairMultiLinkedData& track, TString branchName);
 	std::map<Int_t, Int_t> GetMCTrackFound()						{return fMCTrackFound;}
 	std::map<Int_t, Int_t> GetTrackQualifikation()					{return fMapTrackQualifikation;}
+	std::map<Int_t, Int_t> GetTrackMCStatus()							{return fMapTrackMCStatus;}
 	std::map<Int_t, std::map<TString, std::pair<Double_t, Int_t > > > GetEfficiencies()	{return fMapEfficiencies;}
 	std::map<Int_t, Double_t> GetPResolution()						{return fMapPResolution;}
 	std::map<Int_t, Double_t> GetPtResolution()						{return fMapPtResolution;}
@@ -115,13 +130,14 @@ public:
 	* 4  : 70 % of all hits found belong to this MC track
 	*/
 	void PrintTrackQualityMap(Bool_t detailedInfo = kFALSE);
+	void PrintTrackMCStatusMap();
 
 
 private:
 
 
 	virtual void FillMapTrackQualifikation();
-	virtual Bool_t PossibleTrack(FairMultiLinkedData& mcForward);
+//	virtual Bool_t PossibleTrack(FairMultiLinkedData& mcForward);
 	Int_t GetSumOfAllValidMCHits(FairMultiLinkedData* trackData);
 	virtual Int_t AnalyseTrackInfo(std::map<TString, FairMultiLinkedData>& trackInfo);
 	virtual void CalcEfficiencies(Int_t mostProbableTrack, std::map<TString, FairMultiLinkedData>& trackInfo);
@@ -141,9 +157,9 @@ private:
 	std::map<Int_t, Int_t> fMCTrackFound;				//< How often was a MC Track (key) found
 	PndMCResult fIdealTracksData;
 
-
-	std::map<Int_t, Int_t> fMapTrackQualifikation;
-	std::map<Int_t, std::map<TString, std::pair<Double_t, Int_t> > > fMapEfficiencies;
+	std::map<Int_t, Int_t> fMapTrackMCStatus;			//< TrackId vs TrackStatus from MC
+	std::map<Int_t, Int_t> fMapTrackQualifikation;		//< TrackId vs TrackStatus after analysis of track finding
+	std::map<Int_t, std::map<TString, std::pair<Double_t, Int_t> > > fMapEfficiencies;  //< MostProbable TrackId, BranchName, Efficiency, #FoundHits / #MCHits, #MCHits
 	std::map<Int_t, Double_t> fMapPResolution;
 	std::map<Int_t, Double_t> fMapPtResolution;
 
