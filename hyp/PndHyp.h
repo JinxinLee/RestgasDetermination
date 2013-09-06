@@ -112,8 +112,8 @@ class PndHyp : public FairDetector
    **
    **/
   virtual void ConstructGeometry();
- void ConstructASCIIGeometry();
- virtual void FinishRun();
+  void ConstructASCIIGeometry();
+  //virtual void FinishRun();
 
   PndHypPoint* AddHit(Int_t trackID,Int_t evtID, 
 		      Int_t detID, TString detName,
@@ -199,7 +199,7 @@ class PndHyp : public FairDetector
   Double_t fPLout,fPLin;               //  total momentum
  
   TFile *fFile;
-  //  TTree *t;
+  //TTree *t;
   TClonesArray *fEvt;
   Int_t        activeCnt;
   Double_t     weight;
