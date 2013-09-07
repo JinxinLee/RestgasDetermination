@@ -5,7 +5,7 @@
 // to run with different options:(e.g more events, different momentum, Geant4)
 // root  sim_complete.C"(100, "TGeant4",2)"
 
-sim_complete(Int_t nEvents = 10, TString  SimEngine ="TGeant3", Float_t mom = 7.24)
+sim_complete(Int_t nEvents = 10, TString  SimEngine ="TGeant3", Float_t mom = 6.231552)
 {
   //-----User Settings:-----------------------------------------------
   TString  OutputFile     ="sim_complete.root";
@@ -159,7 +159,7 @@ sim_complete(Int_t nEvents = 10, TString  SimEngine ="TGeant3", Float_t mom = 7.
   }	
   if(UseEvtGenDirect){
           TString  EvtInput =gSystem->Getenv("VMCWORKDIR");
-          EvtInput+="/macro/run/2pipi.dec";	
+          EvtInput+="/macro/run/psi2s_Jpsi2pi_Jpsi_mumu.dec";	
           PndEvtGenDirect *EvtGen = new PndEvtGenDirect("pbarpSystem", EvtInput.Data(), mom);
 	  EvtGen->SetStoreTree(kFALSE);
 	  primGen->AddGenerator(EvtGen);
