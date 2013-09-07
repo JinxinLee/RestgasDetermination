@@ -1,5 +1,5 @@
 // Lmd DPM Sim macro
-void runLumiPixel0SimDPMDirect(const int nEvents=10, const int startEvent=0, const double mom=15, TString input, TString storePath="tmpOutputDPM", 
+void runLumiPixel0SimDPMDirect(const int nEvents=10, const int startEvent=0, const double mom=15, TString storePath="tmpOutputDPM", 
 			       const int seed, const int verboseLevel=0)
 {
   // gRandom->SetSeed(seed);

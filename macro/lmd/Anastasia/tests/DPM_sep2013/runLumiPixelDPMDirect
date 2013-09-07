@@ -29,6 +29,6 @@ useMSerr=false
 # #simulation with DPM Direct
 
 cd ${VMCWORKDIR}/macro/lmd/Anastasia/tests/DPM_sep2013/
-    root -l -b -q runLumiPixel0SimDPMDirect.C\(${numEv},0,${pbeam},"\"${path}/DPM_all_${momStr}_0.root\"","\"${path}\""\) &> ${path}/logDPM_direct
+    root -l -b -q runLumiPixel0SimDPMDirect.C\(${numEv},0,${pbeam},"\"${path}\"",23465,0\) &> ${path}/logDPM_direct
 
 
