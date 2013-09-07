@@ -37,8 +37,8 @@ const int verboseLevel=0)
 // //-------------------------  CAVE      -----------------
 
   FairModule *Cave= new PndCave("CAVE");
-  //  Cave->SetGeometryFileName("pndcave.geo");
-  Cave->SetGeometryFileName("pndcaveVAC.geo"); //LMD is working in vacuum!!!
+  Cave->SetGeometryFileName("pndcave.geo");
+  //  Cave->SetGeometryFileName("pndcaveVAC.geo"); //LMD is working in vacuum!!!
   fRun->AddModule(Cave); 
   //-------------------------  Magnet   ----------------- 
   FairModule *Magnet= new PndMagnet("MAGNET");
@@ -52,54 +52,6 @@ const int verboseLevel=0)
   Pipe->SetGeometryFileName("../macro/lmd/geo/beampipe_201303.root");
   //  Pipe->SetGeometryFileName("../macro/lmd/geo/beampipe_201309.root");//test with real vacuum
   fRun->AddModule(Pipe);
-//   //-------------------------  STT       -----------------
-//   FairDetector *Stt= new PndStt("STT", kTRUE);
-//   Stt->SetGeometryFileName("straws_skewed_blocks_35cm_pipe.geo");
-//   fRun->AddModule(Stt);
-//   //-------------------------  MVD       -----------------
-//   FairDetector *Mvd = new PndMvdDetector("MVD", kTRUE);
-//   Mvd->SetGeometryFileName("Mvd-2.1_FullVersion.root");
-//   fRun->AddModule(Mvd);
-//   //-------------------------  GEM       -----------------
-//   FairDetector *Gem = new PndGemDetector("GEM", kTRUE);
-//   Gem->SetGeometryFileName("gem_3Stations.root");
-//   fRun->AddModule(Gem);
-//   //-------------------------  EMC       -----------------
-//   PndEmc *Emc = new PndEmc("EMC",kTRUE);
-//   Emc->SetGeometryVersion(1);
-//   Emc->SetStorageOfData(kFALSE);
-//   fRun->AddModule(Emc);
-//   //-------------------------  DRC       -----------------
-//   PndDrc *Drc = new PndDrc("DIRC", kTRUE);
-//   Drc->SetGeometryFileName("dirc_l0_p0_updated.root"); 
-//   Drc->SetRunCherenkov(kFALSE);
-//   fRun->AddModule(Drc); 
-//   //-------------------------  DISC      -----------------
-//   PndDsk* Dsk = new PndDsk("DSK", kTRUE);
-//   Dsk->SetStoreCerenkovs(kFALSE);
-//   Dsk->SetStoreTrackPoints(kFALSE);
-//   fRun->AddModule(Dsk);
-//   //-------------------------  MDT       -----------------
-//   PndMdt *Muo = new PndMdt("MDT",kTRUE);
-//   Muo->SetBarrel("fast");
-//   Muo->SetEndcap("fast");
-//   Muo->SetMuonFilter("fast");
-//   Muo->SetForward("fast");
-//   Muo->SetMdtMagnet(kTRUE);
-//   Muo->SetMdtMFIron(kTRUE);
-//   fRun->AddModule(Muo);
-//   //-------------------------  FTS       -----------------
-//   FairDetector *Fts= new PndFts("FTS", kTRUE);
-//   Fts->SetGeometryFileName("fts.geo");
-//   fRun->AddModule(Fts); 
-//   //-------------------------  FTOF      -----------------
-//   FairDetector *FTof = new PndFtof("FTOF",kTRUE);
-//   FTof->SetGeometryFileName("ftofwall.root");
-//   fRun->AddModule(FTof);
-//   //-------------------------  RICH       ----------------
-//   FairDetector *Rich= new PndRich("RICH",kFALSE);
-//   Rich->SetGeometryFileName("rich_v2.geo");
-//   fRun->AddModule(Rich);
 
   PndLmdDetector *Lum = new PndLmdDetector("LUM", kTRUE);
   Lum->SetExclusiveSensorType("LumActive");  //ignore MVD
@@ -109,50 +61,20 @@ const int verboseLevel=0)
 
   //particle generator
   FairPrimaryGenerator* primGen = new FairPrimaryGenerator();
-  // primGen->SmearVertexXY(kTRUE);
-  // primGen->SmearAngle(kTRUE);
-  // primGen->SmearVertexZ(kTRUE);
-  // primGen->SetBeamAngularDivergence(0.0003);// sigmaTheta~0.3 mrad
-  // primGen->SetBeam(0., 0., 2*0.08, 2*0.08); //sigmaX=sigmaY=0.8 mm ["square"shape of beam ]
-  // primGen->SetTarget(0.,0.1); // sigmaZ=1mm, gaus
-  
 
   
   // DPM Generator
   PndDpmGenerator* dpmGen = new PndDpmGenerator(input);
   primGen->AddGenerator(dpmGen);
-  // PndDpmDirect *dpmGen = new PndDpmDirect(mom, mode,365, 0.1);
-  // primGen->AddGenerator(dpmGen);
-
+ 
   fRun->SetGenerator(primGen);
 
   //reading the new field map in the old format
   fRun->SetBeamMom(mom);
-  // PndMultiField *fField= new PndMultiField("FULL");
-  // fRun->SetField(fField);
-  PndMultiField *fField= new PndMultiField();
-  // PndTransMap *map_t = new PndTransMap("TransMap_v1", "R");
-  // PndDipoleMap *map_d1 = new PndDipoleMap("DipoleMap1_v1", "R");
-  // PndDipoleMap *map_d2 = new PndDipoleMap("DipoleMap2_v1", "R");
-  PndTransMap *map_t = new PndTransMap("TransMap", "R");
-  PndDipoleMap *map_d1 = new PndDipoleMap("DipoleMap1", "R");
-  PndDipoleMap *map_d2 = new PndDipoleMap("DipoleMap2", "R");
-  PndSolenoidMap *map_s1 = new PndSolenoidMap("SolenoidMap1", "R");
-  PndSolenoidMap *map_s2 = new PndSolenoidMap("SolenoidMap2", "R");
-  PndSolenoidMap *map_s3 = new PndSolenoidMap("SolenoidMap3", "R");
-  PndSolenoidMap *map_s4 = new PndSolenoidMap("SolenoidMap4", "R");
-  
-  fField->AddField(map_t);
-  fField->AddField(map_d1);
-  fField->AddField(map_d2);
-  fField->AddField(map_s1);
-  fField->AddField(map_s2);
-  fField->AddField(map_s3);
-  fField->AddField(map_s4);
-  
+  PndMultiField *fField= new PndMultiField("FULL");
   fRun->SetField(fField);
   
-  if(nEvents<450)
+  if(nEvents<100)
     fRun->SetStoreTraj(kTRUE); // toggle this for use with EVE
   else
     fRun->SetStoreTraj(kFALSE);
@@ -184,11 +106,6 @@ const int verboseLevel=0)
   FairParRootFileIo* output=new FairParRootFileIo(kParameterMerged);
   output->open(parOutput.Data(),"RECREATE");
   rtdb->setOutput(output);
-
-  // PndMultiFieldPar* Par = (PndMultiFieldPar*) rtdb->getContainer("PndMultiFieldPar");
-  // if (fField) {  Par->SetParameters(fField); }
-  // Par->setInputVersion(fRun->GetRunId(),1);
-  // Par->setChanged();
 
   // Transport nEvents
   // -----------------
