@@ -25,7 +25,7 @@ int SelectTruePid(PndAnalysis *ana, RhoCandList &l)
 void ana_complete(int nevts=0)
 {
         TDatabasePDG::Instance()->AddParticle("pbarpSystem","pbarpSystem",1.9,kFALSE,0.1,0,"",88888);
-
+        TStopwatch timer;
 	// *** some variables
 	int i=0,j=0, k=0, l=0;
 	gStyle->SetOptFit(1011);
@@ -59,7 +59,7 @@ void ana_complete(int nevts=0)
 	fRun->SetOutputFile(OutFile);
 	fRun->Init(); 
 	
-	// *** create an output file for all histograms
+        // *** create an output file for all histograms
 	TFile *out = TFile::Open("output_ana.root","RECREATE");
 	
 	// *** create some histograms
@@ -339,5 +339,17 @@ void ana_complete(int nevts=0)
 	hvpos->Write();
 		
 	out->Save();
+        
+        timer.Stop();
+        Double_t rtime = timer.RealTime();
+        Double_t ctime = timer.CpuTime();
+        cout << endl << endl;
+        cout << "Macro finished successfully." << endl;
+        cout << "Real time " << rtime << " s, CPU time " << ctime << " s" << endl;
+        cout << endl;
+        // ------------------------------------------------------------------------
+        cout << " Test passed" << endl;
+        cout << " All ok " << endl;
+        exit(0);
 	
 }
