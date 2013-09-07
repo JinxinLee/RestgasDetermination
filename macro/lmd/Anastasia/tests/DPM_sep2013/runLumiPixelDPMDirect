@@ -22,7 +22,7 @@ numTrks=1
 #merge hits on sensors from different sides. true=yes
 mergedHits=true
 #number of events
-numEv=10
+numEv=1000
 # #add multiples scattering error estimation for hits. false=no
 useMSerr=false
 

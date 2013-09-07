@@ -22,14 +22,14 @@ numTrks=1
 #merge hits on sensors from different sides. true=yes
 mergedHits=true
 #number of events
-numEv=10
+numEv=1000
 # #add multiples scattering error estimation for hits. false=no
 useMSerr=false
 
 
 
 # #simulation with DPM
-cd ${VMCWORKDIR}/build/bin
+cd ${VMCWORKDIR}/pgenerators/DpmEvtGen/
 # ## !el+inel
  ./DPMGen -e 1 -t 0.1 -s 17259 -m ${pbeam} -n $numEv -f ${path}/DPM_all_${momStr}_0.root &> ${path}/logDPM_standalone
 
