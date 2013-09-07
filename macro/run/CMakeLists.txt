@@ -1,4 +1,4 @@
-GENERATE_ROOT_TEST_SCRIPT(${PANDAROOT_SOURCE_DIR}/macro/run/sim_complete.C")
+GENERATE_ROOT_TEST_SCRIPT(${PANDAROOT_SOURCE_DIR}/macro/run/sim_complete.C)
 add_test(sim_complete ${PANDAROOT_BINARY_DIR}/macro/run/sim_complete.sh)
 SET_TESTS_PROPERTIES(sim_complete PROPERTIES TIMEOUT "400")
 SET_TESTS_PROPERTIES(sim_complete PROPERTIES PASS_REGULAR_EXPRESSION "TestPassed;All ok")
