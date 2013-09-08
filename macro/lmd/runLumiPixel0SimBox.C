@@ -43,12 +43,12 @@ void runLumiPixel0SimBox(const int nEvents=10, const int startEv=0, TString stor
   //create and add detectors
   FairModule *Cave= new PndCave("CAVE");
   Cave->SetGeometryFileName("../macro/lmd/pndcaveVAC.geo");
-  //  Cave->SetGeometryFileName("pndcave.geo");
+  // Cave->SetGeometryFileName("pndcave.geo");
   fRun->AddModule(Cave);
 
-  FairModule *Pipe= new PndPipe("PIPE");
-  Pipe->SetGeometryFileName("../macro/lmd/geo/beampipe_201303.root");
-  fRun->AddModule(Pipe);
+  // FairModule *Pipe= new PndPipe("PIPE");
+  // Pipe->SetGeometryFileName("../macro/lmd/geo/beampipe_201303.root");
+  // fRun->AddModule(Pipe);
   
 
   FairModule *Magnet= new PndMagnet("MAGNET");
@@ -64,7 +64,7 @@ void runLumiPixel0SimBox(const int nEvents=10, const int startEv=0, TString stor
   Lum->SetExclusiveSensorType("LumActive");  //ignore MVD
   //  Lum->SetGeometryFileName("../macro/lmd/geo/Test-Dipol-Design.root"); //sensors with trap shape
   Lum->SetGeometryFileName("../macro/lmd/geo/HV_MAPS-Design-29052013.root"); // LMD including box etc
-  //Lum->SetGeometryFileName("../macro/lmd/geo/HV_MAPS-Design-SensorsOnly.root"); // LMD, seonsors only
+  //Lum->SetGeometryFileName("../macro/lmd/geo/HV_MAPS-Design-SensorsOnly.root"); // LMD, sensors only
   Lum->SetVerboseLevel(verboseLevel);
   fRun->AddModule(Lum);
 
@@ -85,8 +85,8 @@ void runLumiPixel0SimBox(const int nEvents=10, const int startEv=0, TString stor
   FairBoxGenerator *fBox = new FairBoxGenerator(particle, trkNum);
   fBox->SetPRange(mom,mom);
   // //  fBox->SetThetaRange(0.13,0.7); // 2... 12 mrad
-  fBox->SetThetaRange(0.13,0.65); // 2... 11 mrad
-  //fBox->SetThetaRange(0.229183, 0.458366); //4 ... 8 mrad
+  //  fBox->SetThetaRange(0.13,0.65); // 2... 11 mrad
+  fBox->SetThetaRange(0.229183, 0.458366); //4 ... 8 mrad
   // //  fBox->SetThetaRange(0.229183,0.31512);//4..5.5 mrad
   // //fBox->SetThetaRange(0.229,0.229);//4..mrad
   // //  fBox->SetThetaRange(0.458366, 0.458366); //!!! 8 mrad
@@ -123,9 +123,9 @@ void runLumiPixel0SimBox(const int nEvents=10, const int startEv=0, TString stor
 
   // //TEST
   PndMultiField *fField= new PndMultiField();
-  // // PndTransMap *map_t = new PndTransMap("TransMap_v1", "R");
-  // // PndDipoleMap *map_d1 = new PndDipoleMap("DipoleMap1_v1", "R");
-  // // PndDipoleMap *map_d2 = new PndDipoleMap("DipoleMap2_v1", "R");
+  // PndTransMap *map_t = new PndTransMap("TransMap_v1", "R");
+  // PndDipoleMap *map_d1 = new PndDipoleMap("DipoleMap1_v1", "R");
+  // PndDipoleMap *map_d2 = new PndDipoleMap("DipoleMap2_v1", "R");
   PndTransMap *map_t = new PndTransMap("TransMap", "R");
   PndDipoleMap *map_d1 = new PndDipoleMap("DipoleMap1", "R");
   PndDipoleMap *map_d2 = new PndDipoleMap("DipoleMap2", "R");
@@ -136,24 +136,29 @@ void runLumiPixel0SimBox(const int nEvents=10, const int startEv=0, TString stor
   PndSolenoidMap *map_s2 = new PndSolenoidMap("SolenoidMap2", "R");
   PndSolenoidMap *map_s3 = new PndSolenoidMap("SolenoidMap3", "R");
   PndSolenoidMap *map_s4 = new PndSolenoidMap("SolenoidMap4", "R");
-  if(mom<3){ //TODO: solenoid mag.field should be standart
-    map_s1->SetScale(0.5);
-    map_s2->SetScale(0.5);
-    map_s3->SetScale(0.5);
-    map_s4->SetScale(0.5);
-  }
+  // if(mom<3){ //TODO: solenoid mag.field should be standart
+  //   map_s1->SetScale(0.5);
+  //   map_s2->SetScale(0.5);
+  //   map_s3->SetScale(0.5);
+  //   map_s4->SetScale(0.5);
+  // }
   fField->AddField(map_s1);
   fField->AddField(map_s2);
   fField->AddField(map_s3);
   fField->AddField(map_s4);
  
+
+  // //TEST: const dipole field
+  // PndConstField *fDipField=new PndConstField();
+  // fDipField->SetField(0,0.75,0);
+  // fDipField->SetFieldRegion(-240,240,-240,240,400,600); 
+  // fField->AddField(fDipField);
   // //TEST: const solenoid Mag.Field 
-  // // PndConstField *fSolField=new PndConstField();
-  // // // fSolField->SetField(0,0,20); // values are in kG //for cross-check with results from maps set Bz=2T
-  // // //  fSolField->SetField(0,0,10); // values are in kG //for cross-check with results from maps set Bz=2T
-  // // fSolField->SetField(0,0,1); // values are in T
-  // // fSolField->SetFieldRegion(-240,240,-240,240,-172,283.7); //z range is sum from Solenoid#1-#4 maps
-  // // fField->AddField(fSolField);
+  // PndConstField *fSolField=new PndConstField();
+  // // fSolField->SetField(0,0,20); // values are in kG //for cross-check with results from maps set Bz=2T
+  // fSolField->SetField(0,0,10); // values are in kG //for cross-check with results from maps set Bz=2T
+  // fSolField->SetFieldRegion(-240,240,-240,240,-172,283.7); //z range is sum from Solenoid#1-#4 maps
+  // fField->AddField(fSolField);
   
   fRun->SetField(fField);
   
