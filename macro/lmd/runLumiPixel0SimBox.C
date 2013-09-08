@@ -46,9 +46,9 @@ void runLumiPixel0SimBox(const int nEvents=10, const int startEv=0, TString stor
   // Cave->SetGeometryFileName("pndcave.geo");
   fRun->AddModule(Cave);
 
-  // FairModule *Pipe= new PndPipe("PIPE");
-  // Pipe->SetGeometryFileName("../macro/lmd/geo/beampipe_201303.root");
-  // fRun->AddModule(Pipe);
+  FairModule *Pipe= new PndPipe("PIPE");
+  Pipe->SetGeometryFileName("../macro/lmd/geo/beampipe_201303.root");
+  fRun->AddModule(Pipe);
   
 
   FairModule *Magnet= new PndMagnet("MAGNET");
