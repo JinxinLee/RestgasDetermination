@@ -12,21 +12,22 @@
 #include "TClonesArray.h"
 #include "TFile.h"
 using namespace std;
-void TrksFitBPPullsCompar_alltogether(TString pathName="/panda/curpandaroot/macro/lmd/testPixel/33042013/diffMom/diff_0/")
+void TrksFitBPPullsCompar_alltogether(TString pathName="/home/karavdina/lmd_macro/testPixel/newMinuit_BPtest/")
 {
-  gROOT->Macro("/panda/curpandaroot/macro/lmd/Anastasia/test_macros/Style_Imported_Style.C");
+  gROOT->Macro("/home/karavdina/lmd_macro/Anastasia/test_macros/Style_Imported_Style.C");
   gROOT->SetStyle("Imported_Style"); 
 
   const int nBeamPoints=5;
   double p_beam[nBeamPoints]={1.5, 4.06, 8.9, 11.91, 15};
   // const int nBeamPoints=2;
   // double p_beam[nBeamPoints]={1.5, 15};
-  const int nMethods=6;
-  TString Method[nMethods]={"_MINUIT_BPGEANE","_MINUIT_BPRK","_KALMANGEANE_BPGEANE","_KALMANGEANE_BPRK","_KALMANRK_BPGEANE","_KALMANRK_BPRK"};
- TString MethodName[nMethods]={"MINUIT, BP=GEANE","MINUIT, BP=RK","KALMAN=GEANE, BP=GEANE","KALMAN=GEANE, BP=RK","KALMAN=RK, BP=GEANE","KALMAN=RK, BP=RK"};
-  // const int nMethods=2;
-  // TString Method[nMethods]={"_MINUIT_BPGEANE","_MINUIT_BPRK"};
+  // const int nMethods=6;
+ //  TString Method[nMethods]={"_MINUIT_BPGEANE","_MINUIT_BPRK","_KALMANGEANE_BPGEANE","_KALMANGEANE_BPRK","_KALMANRK_BPGEANE","_KALMANRK_BPRK"};
+ // TString MethodName[nMethods]={"MINUIT, BP=GEANE","MINUIT, BP=RK","KALMAN=GEANE, BP=GEANE","KALMAN=GEANE, BP=RK","KALMAN=RK, BP=GEANE","KALMAN=RK, BP=RK"};
+  const int nMethods=2;
+  TString Method[nMethods]={"_MINUIT_BPGEANE","_MINUIT_BPRK"};
   // TString MethodName[nMethods]={"MINUIT, BP=GEANE","MINUIT, BP=RK"};
+ TString MethodName[nMethods]={"BP=GEANE","BP=Runge-Kutta"};
 
 // const int nMethods=4;
 //  TString Method[nMethods]={"_KALMANGEANE_BPGEANE","_KALMANGEANE_BPRK","_KALMANRK_BPGEANE","_KALMANRK_BPRK"};
@@ -61,7 +62,7 @@ double ResPx_mean[nMethods][nBeamPoints], ResPx_sigma[nMethods][nBeamPoints], Re
   double erResPx_mean_in[nMethods][nBeamPoints],erResPx_sigma_in[nMethods][nBeamPoints], erResPy_mean_in[nMethods][nBeamPoints], erResPy_sigma_in[nMethods][nBeamPoints], erResPz_mean_in[nMethods][nBeamPoints], erResPz_sigma_in[nMethods][nBeamPoints];
  double erResTheta_mean_in[nMethods][nBeamPoints], erResTheta_sigma_in[nMethods][nBeamPoints], erResPhi_mean_in[nMethods][nBeamPoints], erResPhi_sigma_in[nMethods][nBeamPoints];
 
- TString compfilename = "Lumi_compare_MC_and_REC_trks";
+ TString compfilename = "Lumi_QA";
  //TString compfilename = "Lumi_out_MC_and_REC_trks_matches_with_IDs0";
   for(int ip=0;ip<nBeamPoints;ip++){
     TString fileNameG = pathName+"/mom_";
@@ -96,7 +97,7 @@ double ResPx_mean[nMethods][nBeamPoints], ResPx_sigma[nMethods][nBeamPoints], Re
     TFile *fileIN = new TFile(fileName,"READ");
 
   ///Pull distributions
-  TH1F* hPullPointPx = (TH1F*)fileIN->Get("hPullPointPx");
+  TH1F* hPullPointPx = (TH1F*)fileIN->Get("NearIP/hPullPointPx");
   TF1 *fPullPx  = new TF1("fitPPx","gaus",-10,10);
   hPullPointPx->Fit(fPullPx,"qr");
   PullPx_mean[im][ip] = fPullPx->GetParameter(1);
@@ -104,7 +105,7 @@ double ResPx_mean[nMethods][nBeamPoints], ResPx_sigma[nMethods][nBeamPoints], Re
   PullPx_sigma[im][ip] = fPullPx->GetParameter(2);
   erPullPx_sigma[im][ip] = fPullPx->GetParError(2) ;
 
-  TH1F* hPullPointPy = (TH1F*)fileIN->Get("hPullPointPy");
+  TH1F* hPullPointPy = (TH1F*)fileIN->Get("NearIP/hPullPointPy");
   TF1 *fPullPy = new TF1("fitPPy","gaus",-10,10);
   hPullPointPy->Fit(fPullPy,"qr");
   PullPy_mean[im][ip] = fPullPy->GetParameter(1);
@@ -112,7 +113,7 @@ double ResPx_mean[nMethods][nBeamPoints], ResPx_sigma[nMethods][nBeamPoints], Re
   erPullPy_mean[im][ip] = fPullPy->GetParError(1);
   erPullPy_sigma[im][ip] = fPullPy->GetParError(2);
   
-  TH1F* hPullPointPz = (TH1F*)fileIN->Get("hPullPointPz");
+  TH1F* hPullPointPz = (TH1F*)fileIN->Get("NearIP/hPullPointPz");
   TF1 *fPullPz  = new TF1("fitPPz","gaus",-10,10);
   hPullPointPz->Fit(fPullPz,"qr");
   PullPz_mean[im][ip] = fPullPz->GetParameter(1);
@@ -120,7 +121,7 @@ double ResPx_mean[nMethods][nBeamPoints], ResPx_sigma[nMethods][nBeamPoints], Re
   erPullPz_mean[im][ip] = fPullPz->GetParError(1);
   erPullPz_sigma[im][ip] = fPullPz->GetParError(2);
 
-  TH1F* hPullPointX = (TH1F*)fileIN->Get("hPullPointX");
+  TH1F* hPullPointX = (TH1F*)fileIN->Get("NearIP/hPullPointX");
   TF1 *fPullX  = new TF1("fitPX","gaus",-10,10);
   hPullPointX->Fit(fPullX,"qr");
   PullX_mean[im][ip] = fPullX->GetParameter(1);
@@ -128,7 +129,7 @@ double ResPx_mean[nMethods][nBeamPoints], ResPx_sigma[nMethods][nBeamPoints], Re
   erPullX_mean[im][ip] = fPullX->GetParError(1);
   erPullX_sigma[im][ip] = fPullX->GetParError(2);
 
-  TH1F* hPullPointY = (TH1F*)fileIN->Get("hPullPointY");
+  TH1F* hPullPointY = (TH1F*)fileIN->Get("NearIP/hPullPointY");
   TF1 *fPullY  = new TF1("fitPY","gaus",-10,10);
   hPullPointY->Fit(fPullY,"qr");
   PullY_mean[im][ip] = fPullY->GetParameter(1);
@@ -136,7 +137,7 @@ double ResPx_mean[nMethods][nBeamPoints], ResPx_sigma[nMethods][nBeamPoints], Re
   erPullY_mean[im][ip] = fPullY->GetParError(1);
   erPullY_sigma[im][ip] = fPullY->GetParError(2);
   
-  TH1F* hPullPointZ = (TH1F*)fileIN->Get("hPullPointZ");
+  TH1F* hPullPointZ = (TH1F*)fileIN->Get("NearIP/hPullPointZ");
   TF1 *fPullZ  = new TF1("fitPZ","gaus",-100,100);
   hPullPointZ->Fit(fPullZ,"qr");
   PullZ_mean[im][ip] = fPullZ->GetParameter(1);
@@ -144,7 +145,7 @@ double ResPx_mean[nMethods][nBeamPoints], ResPx_sigma[nMethods][nBeamPoints], Re
   erPullZ_mean[im][ip] = fPullZ->GetParError(1);
   erPullZ_sigma[im][ip] = fPullZ->GetParError(2);
 
-  TH1F* hPullTheta = (TH1F*)fileIN->Get("hPullTheta");
+  TH1F* hPullTheta = (TH1F*)fileIN->Get("NearIP/hPullTheta");
   TF1 *fPullTheta = new TF1("fitpth","gaus",-10,10);
   hPullTheta->Fit(fPullTheta,"qr");
   PullTheta_mean[im][ip] = fPullTheta->GetParameter(1);
@@ -152,7 +153,7 @@ double ResPx_mean[nMethods][nBeamPoints], ResPx_sigma[nMethods][nBeamPoints], Re
   erPullTheta_mean[im][ip] = fPullTheta->GetParError(1);
   erPullTheta_sigma[im][ip] = fPullTheta->GetParError(2);
 
-  TH1F* hPullPhi = (TH1F*)fileIN->Get("hPullPhi");
+  TH1F* hPullPhi = (TH1F*)fileIN->Get("NearIP/hPullPhi");
   TF1 *fPullPhi = new TF1("fitpphi","gaus",-10,10);
   hPullPhi->Fit(fPullPhi,"qr");
   PullPhi_mean[im][ip] = fPullPhi->GetParameter(1);
@@ -160,19 +161,19 @@ double ResPx_mean[nMethods][nBeamPoints], ResPx_sigma[nMethods][nBeamPoints], Re
   erPullPhi_mean[im][ip] = fPullPhi->GetParError(1);
   erPullPhi_sigma[im][ip] = fPullPhi->GetParError(2);
 
-  TH1F *hResLumiTrkPointXPull = (TH1F*)fileIN->Get("hResLumiTrkPointXPull");
+  TH1F *hResLumiTrkPointXPull = (TH1F*)fileIN->Get("NearLMD/hResLumiTrkPointXPull");
   hResLumiTrkPointXPull->Fit(fPullX,"qr");
   PullX_mean_in[im][ip] = fPullX->GetParameter(1);
   PullX_sigma_in[im][ip] = fPullX->GetParameter(2);
   erPullX_mean_in[im][ip] = fPullX->GetParError(1);
   erPullX_sigma_in[im][ip] = fPullX->GetParError(2);
-  TH1F *hResLumiTrkPointYPull = (TH1F*)fileIN->Get("hResLumiTrkPointYPull");
+  TH1F *hResLumiTrkPointYPull = (TH1F*)fileIN->Get("NearLMD/hResLumiTrkPointYPull");
   hResLumiTrkPointYPull->Fit(fPullY,"qr");
   PullY_mean_in[im][ip] = fPullY->GetParameter(1);
   PullY_sigma_in[im][ip] = fPullY->GetParameter(2);
   erPullY_mean_in[im][ip] = fPullY->GetParError(1);
   erPullY_sigma_in[im][ip] = fPullY->GetParError(2);
-  TH1F *hResLumiTrkPointZPull = (TH1F*)fileIN->Get("hResLumiTrkPointZPull");
+  TH1F *hResLumiTrkPointZPull = (TH1F*)fileIN->Get("NearLMD/hResLumiTrkPointZPull");
   hResLumiTrkPointZPull->Fit(fPullZ,"qr");
   PullZ_mean_in[im][ip]=-1000;
   PullZ_sigma_in[im][ip]=-1000;
@@ -184,35 +185,35 @@ double ResPx_mean[nMethods][nBeamPoints], ResPx_sigma[nMethods][nBeamPoints], Re
   }
 
 
-  TH1F *hResLumiTrkPointPxPull = (TH1F*)fileIN->Get("hResLumiTrkPointPxPull");
+  TH1F *hResLumiTrkPointPxPull = (TH1F*)fileIN->Get("NearLMD/hResLumiTrkPointPxPull");
   hResLumiTrkPointPxPull->Fit(fPullPx,"qr");
   PullPx_mean_in[im][ip] = fPullPx->GetParameter(1);
   PullPx_sigma_in[im][ip] = fPullPx->GetParameter(2);
   erPullPx_mean_in[im][ip] = fPullPx->GetParError(1);
   erPullPx_sigma_in[im][ip] = fPullPx->GetParError(2);
 
-  TH1F *hResLumiTrkPointPyPull = (TH1F*)fileIN->Get("hResLumiTrkPointPyPull");
+  TH1F *hResLumiTrkPointPyPull = (TH1F*)fileIN->Get("NearLMD/hResLumiTrkPointPyPull");
   hResLumiTrkPointPyPull->Fit(fPullPy,"qr");
   PullPy_mean_in[im][ip] = fPullPy->GetParameter(1);
   PullPy_sigma_in[im][ip] = fPullPy->GetParameter(2);
   erPullPy_mean_in[im][ip] = fPullPy->GetParError(1);
   erPullPy_sigma_in[im][ip] = fPullPy->GetParError(2);
 
-  TH1F *hResLumiTrkPointPzPull = (TH1F*)fileIN->Get("hResLumiTrkPointPzPull");
+  TH1F *hResLumiTrkPointPzPull = (TH1F*)fileIN->Get("NearLMD/hResLumiTrkPointPzPull");
   hResLumiTrkPointPzPull->Fit(fPullPz,"qr");
   PullPz_mean_in[im][ip] = fPullPz->GetParameter(1);
   PullPz_sigma_in[im][ip] = fPullPz->GetParameter(2);
   erPullPz_mean_in[im][ip] = fPullPz->GetParError(1);
   erPullPz_sigma_in[im][ip] = fPullPz->GetParError(2);
 
-  TH1F *hResLumiTrkThetaPull = (TH1F*)fileIN->Get("hResLumiTrkThetaPull");
+  TH1F *hResLumiTrkThetaPull = (TH1F*)fileIN->Get("NearLMD/hResLumiTrkThetaPull");
   hResLumiTrkThetaPull->Fit(fPullTheta,"qr");
   PullTheta_mean_in[im][ip] = fPullTheta->GetParameter(1);
   PullTheta_sigma_in[im][ip] = fPullTheta->GetParameter(2);
   erPullTheta_mean_in[im][ip] = fPullTheta->GetParError(1);
   erPullTheta_sigma_in[im][ip] = fPullTheta->GetParError(2);
 
-TH1F *hResLumiTrkPhiPull = (TH1F*)fileIN->Get("hResLumiTrkPhiPull");
+TH1F *hResLumiTrkPhiPull = (TH1F*)fileIN->Get("NearLMD/hResLumiTrkPhiPull");
   hResLumiTrkPhiPull->Fit(fPullPhi,"qr");
   PullPhi_mean_in[im][ip] = fPullPhi->GetParameter(1);
   PullPhi_sigma_in[im][ip] = fPullPhi->GetParameter(2);
@@ -222,83 +223,83 @@ TH1F *hResLumiTrkPhiPull = (TH1F*)fileIN->Get("hResLumiTrkPhiPull");
 
   //Resolution
 
-  TH1F* hResPointPx = (TH1F*)fileIN->Get("hResPointPx");
+  TH1F* hResPointPx = (TH1F*)fileIN->Get("NearIP/hResPointPx");
   TF1 *fResPx  = new TF1("fitPPx","gaus",-10,10);
   hResPointPx->Fit(fResPx,"qr");
-  ResPx_mean[im][ip] = 1e3*fResPx->GetParameter(1);
-  erResPx_mean[im][ip] = 1e3*fResPx->GetParError(1) ;
+  ResPx_mean[im][ip] = 1e6*fResPx->GetParameter(1);
+  erResPx_mean[im][ip] = 1e6*fResPx->GetParError(1) ;
   ResPx_sigma[im][ip] = 1e3*fResPx->GetParameter(2);
   erResPx_sigma[im][ip] = 1e3*fResPx->GetParError(2) ;
 
-  TH1F* hResPointPy = (TH1F*)fileIN->Get("hResPointPy");
+  TH1F* hResPointPy = (TH1F*)fileIN->Get("NearIP/hResPointPy");
   TF1 *fResPy = new TF1("fitPPy","gaus",-10,10);
   hResPointPy->Fit(fResPy,"qr");
-  ResPy_mean[im][ip] = 1e3*fResPy->GetParameter(1);
+  ResPy_mean[im][ip] = 1e6*fResPy->GetParameter(1);
   ResPy_sigma[im][ip] = 1e3*fResPy->GetParameter(2);
-  erResPy_mean[im][ip] = 1e3*fResPy->GetParError(1);
+  erResPy_mean[im][ip] = 1e6*fResPy->GetParError(1);
   erResPy_sigma[im][ip] = 1e3*fResPy->GetParError(2);
   
-  TH1F* hResPointPz = (TH1F*)fileIN->Get("hResPointPz");
+  TH1F* hResPointPz = (TH1F*)fileIN->Get("NearIP/hResPointPz");
   TF1 *fResPz  = new TF1("fitPPz","gaus",-10,10);
   hResPointPz->Fit(fResPz,"qr");
-  ResPz_mean[im][ip] = 1e3*fResPz->GetParameter(1);
-  ResPz_sigma[im][ip] = 1e3*fResPz->GetParameter(2);
-  erResPz_mean[im][ip] = 1e3*fResPz->GetParError(1);
-  erResPz_sigma[im][ip] = 1e3*fResPz->GetParError(2);
+  ResPz_mean[im][ip] = 1e6*fResPz->GetParameter(1);
+  ResPz_sigma[im][ip] = 1e6*fResPz->GetParameter(2);
+  erResPz_mean[im][ip] = 1e6*fResPz->GetParError(1);
+  erResPz_sigma[im][ip] = 1e6*fResPz->GetParError(2);
 
-  TH1F* hResPointX = (TH1F*)fileIN->Get("hResPointX");
+  TH1F* hResPointX = (TH1F*)fileIN->Get("NearIP/hResPointX");
   TF1 *fResX  = new TF1("fitPX","gaus",-10,10);
   hResPointX->Fit(fResX,"qr");
-  ResX_mean[im][ip] = fResX->GetParameter(1);
-  ResX_sigma[im][ip] = fResX->GetParameter(2);
-  erResX_mean[im][ip] = fResX->GetParError(1);
-  erResX_sigma[im][ip] = fResX->GetParError(2);
+  ResX_mean[im][ip] = 1e4*fResX->GetParameter(1);
+  ResX_sigma[im][ip] = 1e4*fResX->GetParameter(2);
+  erResX_mean[im][ip] = 1e4*fResX->GetParError(1);
+  erResX_sigma[im][ip] = 1e4*fResX->GetParError(2);
 
-  TH1F* hResPointY = (TH1F*)fileIN->Get("hResPointY");
+  TH1F* hResPointY = (TH1F*)fileIN->Get("NearIP/hResPointY");
   TF1 *fResY  = new TF1("fitPY","gaus",-10,10);
   hResPointY->Fit(fResY,"qr");
-  ResY_mean[im][ip] = fResY->GetParameter(1);
-  ResY_sigma[im][ip] = fResY->GetParameter(2);
-  erResY_mean[im][ip] = fResY->GetParError(1);
-  erResY_sigma[im][ip] = fResY->GetParError(2);
+  ResY_mean[im][ip] = 1e4*fResY->GetParameter(1);
+  ResY_sigma[im][ip] = 1e4*fResY->GetParameter(2);
+  erResY_mean[im][ip] = 1e4*fResY->GetParError(1);
+  erResY_sigma[im][ip] = 1e4*fResY->GetParError(2);
   
-  TH1F* hResPointZ = (TH1F*)fileIN->Get("hResPointZ");
+  TH1F* hResPointZ = (TH1F*)fileIN->Get("NearIP/hResPointZ");
   TF1 *fResZ  = new TF1("fitPZ","gaus",-100,100);
   hResPointZ->Fit(fResZ,"qr");
-  ResZ_mean[im][ip] = fResZ->GetParameter(1);
-  ResZ_sigma[im][ip] = fResZ->GetParameter(2);
-  erResZ_mean[im][ip] = fResZ->GetParError(1);
-  erResZ_sigma[im][ip] = fResZ->GetParError(2);
+  ResZ_mean[im][ip] = 1e4*fResZ->GetParameter(1);
+  ResZ_sigma[im][ip] = 1e4*fResZ->GetParameter(2);
+  erResZ_mean[im][ip] = 1e4*fResZ->GetParError(1);
+  erResZ_sigma[im][ip] = 1e4*fResZ->GetParError(2);
 
-  TH1F* hResTheta = (TH1F*)fileIN->Get("hResTheta");
+  TH1F* hResTheta = (TH1F*)fileIN->Get("NearIP/hResTheta");
   TF1 *fResTheta = new TF1("fitpth","gaus",-10,10);
   hResTheta->Fit(fResTheta,"qr");
-  ResTheta_mean[im][ip] = 1e3*(fResTheta->GetParameter(1));
-  ResTheta_sigma[im][ip] = 1e3*(fResTheta->GetParameter(2));
-  erResTheta_mean[im][ip] = 1e3*(fResTheta->GetParError(1));
-  erResTheta_sigma[im][ip] = 1e3*(fResTheta->GetParError(2));
+  ResTheta_mean[im][ip] = 1e6*(fResTheta->GetParameter(1));
+  ResTheta_sigma[im][ip] = 1e6*(fResTheta->GetParameter(2));
+  erResTheta_mean[im][ip] = 1e6*(fResTheta->GetParError(1));
+  erResTheta_sigma[im][ip] = 1e6*(fResTheta->GetParError(2));
 
-  TH1F* hResPhi = (TH1F*)fileIN->Get("hResPhi");
+  TH1F* hResPhi = (TH1F*)fileIN->Get("NearIP/hResPhi");
   TF1 *fResPhi = new TF1("fitpphi","gaus",-10,10);
   hResPhi->Fit(fResPhi,"qr");
-  ResPhi_mean[im][ip] = fResPhi->GetParameter(1);
-  ResPhi_sigma[im][ip] = fResPhi->GetParameter(2);
-  erResPhi_mean[im][ip] = fResPhi->GetParError(1);
-  erResPhi_sigma[im][ip] = fResPhi->GetParError(2);
+  ResPhi_mean[im][ip] = 1e3*fResPhi->GetParameter(1);
+  ResPhi_sigma[im][ip] = 1e3*fResPhi->GetParameter(2);
+  erResPhi_mean[im][ip] = 1e3*fResPhi->GetParError(1);
+  erResPhi_sigma[im][ip] = 1e3*fResPhi->GetParError(2);
 
-  TH1F *hResLumiTrkPointX = (TH1F*)fileIN->Get("hResLumiTrkPointX");
+  TH1F *hResLumiTrkPointX = (TH1F*)fileIN->Get("NearLMD/hResLumiTrkPointX");
   hResLumiTrkPointX->Fit(fResX,"qr");
-  ResX_mean_in[im][ip] = fResX->GetParameter(1);
-  ResX_sigma_in[im][ip] = fResX->GetParameter(2);
-  erResX_mean_in[im][ip] = fResX->GetParError(1);
-  erResX_sigma_in[im][ip] = fResX->GetParError(2);
-  TH1F *hResLumiTrkPointY = (TH1F*)fileIN->Get("hResLumiTrkPointY");
+  ResX_mean_in[im][ip] = 1e4*fResX->GetParameter(1);
+  ResX_sigma_in[im][ip] = 1e4*fResX->GetParameter(2);
+  erResX_mean_in[im][ip] = 1e4*fResX->GetParError(1);
+  erResX_sigma_in[im][ip] = 1e4*fResX->GetParError(2);
+  TH1F *hResLumiTrkPointY = (TH1F*)fileIN->Get("NearLMD/hResLumiTrkPointY");
   hResLumiTrkPointY->Fit(fResY,"qr");
-  ResY_mean_in[im][ip] = fResY->GetParameter(1);
-  ResY_sigma_in[im][ip] = fResY->GetParameter(2);
-  erResY_mean_in[im][ip] = fResY->GetParError(1);
-  erResY_sigma_in[im][ip] = fResY->GetParError(2);
-  TH1F *hResLumiTrkPointZ = (TH1F*)fileIN->Get("hResLumiTrkPointZ");
+  ResY_mean_in[im][ip] = 1e4*fResY->GetParameter(1);
+  ResY_sigma_in[im][ip] = 1e4*fResY->GetParameter(2);
+  erResY_mean_in[im][ip] = 1e4*fResY->GetParError(1);
+  erResY_sigma_in[im][ip] = 1e4*fResY->GetParError(2);
+  TH1F *hResLumiTrkPointZ = (TH1F*)fileIN->Get("NearLMD/hResLumiTrkPointZ");
   hResLumiTrkPointZ->Fit(fResZ,"qr");
   ResZ_mean_in[im][ip]=-1000;
   ResZ_sigma_in[im][ip]=-1000;
@@ -310,56 +311,56 @@ TH1F *hResLumiTrkPhiPull = (TH1F*)fileIN->Get("hResLumiTrkPhiPull");
   }
 
 
-  TH1F *hResLumiTrkPointPx = (TH1F*)fileIN->Get("hResLumiTrkPointPx");
+  TH1F *hResLumiTrkPointPx = (TH1F*)fileIN->Get("NearLMD/hResLumiTrkPointPx");
   hResLumiTrkPointPx->Fit(fResPx,"qr");
-  ResPx_mean_in[im][ip] = 1e3*fResPx->GetParameter(1);
+  ResPx_mean_in[im][ip] = 1e6*fResPx->GetParameter(1);
   ResPx_sigma_in[im][ip] = 1e3*fResPx->GetParameter(2);
-  erResPx_mean_in[im][ip] = 1e3*fResPx->GetParError(1);
+  erResPx_mean_in[im][ip] = 1e6*fResPx->GetParError(1);
   erResPx_sigma_in[im][ip] = 1e3*fResPx->GetParError(2);
 
-  TH1F *hResLumiTrkPointPy = (TH1F*)fileIN->Get("hResLumiTrkPointPy");
+  TH1F *hResLumiTrkPointPy = (TH1F*)fileIN->Get("NearLMD/hResLumiTrkPointPy");
   hResLumiTrkPointPy->Fit(fResPy,"qr");
-  ResPy_mean_in[im][ip] = 1e3*fResPy->GetParameter(1);
+  ResPy_mean_in[im][ip] = 1e6*fResPy->GetParameter(1);
   ResPy_sigma_in[im][ip] = 1e3*fResPy->GetParameter(2);
-  erResPy_mean_in[im][ip] = 1e3*fResPy->GetParError(1);
+  erResPy_mean_in[im][ip] = 1e6*fResPy->GetParError(1);
   erResPy_sigma_in[im][ip] = 1e3*fResPy->GetParError(2);
 
-  TH1F *hResLumiTrkPointPz = (TH1F*)fileIN->Get("hResLumiTrkPointPz");
+  TH1F *hResLumiTrkPointPz = (TH1F*)fileIN->Get("NearLMD/hResLumiTrkPointPz");
   hResLumiTrkPointPz->Fit(fResPz,"qr");
-  ResPz_mean_in[im][ip] = 1e3*fResPz->GetParameter(1);
-  ResPz_sigma_in[im][ip] = 1e3*fResPz->GetParameter(2);
-  erResPz_mean_in[im][ip] = 1e3*fResPz->GetParError(1);
-  erResPz_sigma_in[im][ip] = 1e3*fResPz->GetParError(2);
+  ResPz_mean_in[im][ip] = 1e6*fResPz->GetParameter(1);
+  ResPz_sigma_in[im][ip] = 1e6*fResPz->GetParameter(2);
+  erResPz_mean_in[im][ip] = 1e6*fResPz->GetParError(1);
+  erResPz_sigma_in[im][ip] = 1e6*fResPz->GetParError(2);
 
-  TH1F *hResLumiTrkTheta = (TH1F*)fileIN->Get("hResLumiTrkTheta");
+  TH1F *hResLumiTrkTheta = (TH1F*)fileIN->Get("NearLMD/hResLumiTrkTheta");
   hResLumiTrkTheta->Fit(fResTheta,"qr");
-  ResTheta_mean_in[im][ip] = 1e3*(fResTheta->GetParameter(1));
-  ResTheta_sigma_in[im][ip] = 1e3*(fResTheta->GetParameter(2));
-  erResTheta_mean_in[im][ip] = 1e3*(fResTheta->GetParError(1));
-  erResTheta_sigma_in[im][ip] = 1e3*(fResTheta->GetParError(2));
+  ResTheta_mean_in[im][ip] = 1e6*(fResTheta->GetParameter(1));
+  ResTheta_sigma_in[im][ip] = 1e6*(fResTheta->GetParameter(2));
+  erResTheta_mean_in[im][ip] = 1e6*(fResTheta->GetParError(1));
+  erResTheta_sigma_in[im][ip] = 1e6*(fResTheta->GetParError(2));
 
-  TH1F *hResLumiTrkPhi = (TH1F*)fileIN->Get("hResLumiTrkPhi");
+  TH1F *hResLumiTrkPhi = (TH1F*)fileIN->Get("NearLMD/hResLumiTrkPhi");
   hResLumiTrkPhi->Fit(fResPhi,"qr");
-  ResPhi_mean_in[im][ip] = fResPhi->GetParameter(1);
-  ResPhi_sigma_in[im][ip] = fResPhi->GetParameter(2);
-  erResPhi_mean_in[im][ip] = fResPhi->GetParError(1);
-  erResPhi_sigma_in[im][ip] = fResPhi->GetParError(2);
+  ResPhi_mean_in[im][ip] = 1e3*fResPhi->GetParameter(1);
+  ResPhi_sigma_in[im][ip] = 1e3*fResPhi->GetParameter(2);
+  erResPhi_mean_in[im][ip] = 1e3*fResPhi->GetParError(1);
+  erResPhi_sigma_in[im][ip] = 1e3*fResPhi->GetParError(2);
   //****************************************
 
 
-  //Eff
-  TH1F *hhits= (TH1F*)fileIN->Get("hhits");
-  double Nrec =  hhits->GetEntries();
-  TNtuple *nBadTrks = (TNtuple*)fileIN->Get("nBadTrks");
-  double NbadRec = nBadTrks->GetEntries();
-  Eff[im][ip] = (Nrec-NbadRec)/1e5;
-    //TODO: theta resolution???
-  //  TH2F*hThetaResTheta = (TH2F*)fileIN->Get("hThetaResTheta");
+  // //Eff
+  // TH1F *hhits= (TH1F*)fileIN->Get("NearLMD/hhits");
+  // double Nrec =  hhits->GetEntries();
+  // //  TNtuple *nBadTrks = (TNtuple*)fileIN->Get("nBadTrks");
+  // // double NbadRec = nBadTrks->GetEntries();
+  // //  Eff[im][ip] = (Nrec-NbadRec)/1e5;
+  //   //TODO: theta resolution???
+  // //  TH2F*hThetaResTheta = (TH2F*)fileIN->Get("hThetaResTheta");
   }//methods
   }//pbeam
 
   //Creat and fill graphs with pbeam dependence
-  TGraphErrors *gEff[nMethods];
+  //  TGraphErrors *gEff[nMethods];
   TGraphErrors *gPullPx_mean[nMethods], *gPullPx_sigma[nMethods], *gPullPy_mean[nMethods], *gPullPy_sigma[nMethods], *gPullPz_mean[nMethods], *gPullPz_sigma[nMethods];
   TGraphErrors *gPullX_mean[nMethods], *gPullX_sigma[nMethods], *gPullY_mean[nMethods], *gPullY_sigma[nMethods], *gPullZ_mean[nMethods], *gPullZ_sigma[nMethods];
   TGraphErrors *gPullTheta_mean[nMethods], *gPullTheta_sigma[nMethods], *gPullPhi_mean[nMethods], *gPullPhi_sigma[nMethods];
@@ -367,7 +368,7 @@ TH1F *hResLumiTrkPhiPull = (TH1F*)fileIN->Get("hResLumiTrkPhiPull");
   TGraphErrors *gPullX_mean_in[nMethods], *gPullX_sigma_in[nMethods], *gPullY_mean_in[nMethods], *gPullY_sigma_in[nMethods], *gPullZ_mean_in[nMethods], *gPullZ_sigma_in[nMethods];
   TGraphErrors *gPullPx_mean_in[nMethods], *gPullPx_sigma_in[nMethods], *gPullPy_mean_in[nMethods], *gPullPy_sigma_in[nMethods], *gPullPz_mean_in[nMethods], *gPullPz_sigma_in[nMethods];
 
-  TMultiGraph *mgEff = new TMultiGraph("mgEff",""); 
+  //  TMultiGraph *mgEff = new TMultiGraph("mgEff",""); 
 
   TMultiGraph *mgPullPx_mean = new TMultiGraph("mgPullPx_mean",""); TMultiGraph *mgPullPx_sigma = new TMultiGraph("mgPullPx_sigma","");
   TMultiGraph *mgPullPy_mean = new TMultiGraph("mgPullPy_mean",""); TMultiGraph *mgPullPy_sigma = new TMultiGraph("mgPullPy_sigma","");
@@ -397,11 +398,11 @@ TH1F *hResLumiTrkPhiPull = (TH1F*)fileIN->Get("hResLumiTrkPhiPull");
     //    if(im>3) markerstshadd=-3;
     int matkercolsh = 1;
     if(im>4) matkercolsh = 2;
-    gEff[im] = new TGraphErrors(nBeamPoints,p_beam,Eff[im],0,0);
-    gEff[im]->SetMarkerStyle(markerstsh+im);
-    gEff[im]->SetMarkerColor(im+matkercolsh);
-    gEff[im]->SetMarkerSize(2.5);
-    mgEff->Add(gEff[im],"LP");
+    // gEff[im] = new TGraphErrors(nBeamPoints,p_beam,Eff[im],0,0);
+    // gEff[im]->SetMarkerStyle(markerstsh+im);
+    // gEff[im]->SetMarkerColor(im+matkercolsh);
+    // gEff[im]->SetMarkerSize(2.5);
+    // mgEff->Add(gEff[im],"LP");
 
 
     gPullPx_mean[im] = new TGraphErrors(nBeamPoints,p_beam,PullPx_mean[im],0,erPullPx_mean[im]);
@@ -423,8 +424,8 @@ TH1F *hResLumiTrkPhiPull = (TH1F*)fileIN->Get("hResLumiTrkPhiPull");
     gPullPx_sigma_in[im]->SetMarkerColor(im+matkercolsh);
     gPullPx_mean_in[im]->SetMarkerSize(2.5);
     gPullPx_sigma_in[im]->SetMarkerSize(2.5);
-    mgPullPx_mean->Add(gPullPx_mean_in[im],"LP");
-    mgPullPx_sigma->Add(gPullPx_sigma_in[im],"LP");
+    // mgPullPx_mean->Add(gPullPx_mean_in[im],"LP");
+    // mgPullPx_sigma->Add(gPullPx_sigma_in[im],"LP");
 
     gPullPy_mean[im] = new TGraphErrors(nBeamPoints,p_beam,PullPy_mean[im],0,erPullPy_mean[im]);
     gPullPy_sigma[im] = new TGraphErrors(nBeamPoints,p_beam,PullPy_sigma[im],0,erPullPy_sigma[im]);
@@ -444,8 +445,8 @@ TH1F *hResLumiTrkPhiPull = (TH1F*)fileIN->Get("hResLumiTrkPhiPull");
     gPullPy_sigma_in[im]->SetMarkerColor(im+matkercolsh);
     gPullPy_mean_in[im]->SetMarkerSize(2.5);
     gPullPy_sigma_in[im]->SetMarkerSize(2.5);
-    mgPullPy_mean->Add(gPullPy_mean_in[im],"LP");
-    mgPullPy_sigma->Add(gPullPy_sigma_in[im],"LP");
+    // mgPullPy_mean->Add(gPullPy_mean_in[im],"LP");
+    // mgPullPy_sigma->Add(gPullPy_sigma_in[im],"LP");
 
     gPullPz_mean[im] = new TGraphErrors(nBeamPoints,p_beam,PullPz_mean[im],0,erPullPz_mean[im]);
     gPullPz_sigma[im] = new TGraphErrors(nBeamPoints,p_beam,PullPz_sigma[im],0,erPullPz_sigma[im]);
@@ -465,8 +466,8 @@ TH1F *hResLumiTrkPhiPull = (TH1F*)fileIN->Get("hResLumiTrkPhiPull");
     gPullPz_sigma_in[im]->SetMarkerColor(im+matkercolsh);
     gPullPz_mean_in[im]->SetMarkerSize(2.5);
     gPullPz_sigma_in[im]->SetMarkerSize(2.5);
-    mgPullPz_mean->Add(gPullPz_mean_in[im],"LP");
-    mgPullPz_sigma->Add(gPullPz_sigma_in[im],"LP");
+    // mgPullPz_mean->Add(gPullPz_mean_in[im],"LP");
+    // mgPullPz_sigma->Add(gPullPz_sigma_in[im],"LP");
 
     gPullX_mean[im] = new TGraphErrors(nBeamPoints,p_beam,PullX_mean[im],0,erPullX_mean[im]);
     gPullX_sigma[im] = new TGraphErrors(nBeamPoints,p_beam,PullX_sigma[im],0,erPullX_sigma[im]);
@@ -484,8 +485,8 @@ TH1F *hResLumiTrkPhiPull = (TH1F*)fileIN->Get("hResLumiTrkPhiPull");
     gPullX_sigma_in[im]->SetMarkerColor(im+matkercolsh);
     gPullX_mean_in[im]->SetMarkerSize(2.5);
     gPullX_sigma_in[im]->SetMarkerSize(2.5); 
-    mgPullX_mean->Add(gPullX_mean_in[im],"LP");
-    mgPullX_sigma->Add(gPullX_sigma_in[im],"LP");
+    // mgPullX_mean->Add(gPullX_mean_in[im],"LP");
+    // mgPullX_sigma->Add(gPullX_sigma_in[im],"LP");
     mgPullX_mean->Add(gPullX_mean[im],"LP");
     mgPullX_sigma->Add(gPullX_sigma[im],"LP");
   
@@ -507,8 +508,8 @@ TH1F *hResLumiTrkPhiPull = (TH1F*)fileIN->Get("hResLumiTrkPhiPull");
     gPullY_sigma_in[im]->SetMarkerColor(im+matkercolsh);
     gPullY_mean_in[im]->SetMarkerSize(2.5);
     gPullY_sigma_in[im]->SetMarkerSize(2.5);
-    mgPullY_mean->Add(gPullY_mean_in[im],"LP");
-    mgPullY_sigma->Add(gPullY_sigma_in[im],"LP");
+    // mgPullY_mean->Add(gPullY_mean_in[im],"LP");
+    // mgPullY_sigma->Add(gPullY_sigma_in[im],"LP");
 
 
     gPullZ_mean[im] = new TGraphErrors(nBeamPoints,p_beam,PullZ_mean[im],0,erPullZ_mean[im]);
@@ -542,8 +543,8 @@ TH1F *hResLumiTrkPhiPull = (TH1F*)fileIN->Get("hResLumiTrkPhiPull");
     gPullTheta_sigma_in[im]->SetMarkerColor(im+matkercolsh);
     gPullTheta_mean_in[im]->SetMarkerSize(2.5);
     gPullTheta_sigma_in[im]->SetMarkerSize(2.5);
-    mgPullTheta_mean->Add(gPullTheta_mean_in[im],"LP");
-    mgPullTheta_sigma->Add(gPullTheta_sigma_in[im],"LP");
+    // mgPullTheta_mean->Add(gPullTheta_mean_in[im],"LP");
+    // mgPullTheta_sigma->Add(gPullTheta_sigma_in[im],"LP");
 
 
     gPullPhi_mean[im] = new TGraphErrors(nBeamPoints,p_beam,PullPhi_mean[im],0,erPullPhi_mean[im]);
@@ -565,8 +566,8 @@ TH1F *hResLumiTrkPhiPull = (TH1F*)fileIN->Get("hResLumiTrkPhiPull");
     gPullPhi_sigma_in[im]->SetMarkerColor(im+matkercolsh);
     gPullPhi_mean_in[im]->SetMarkerSize(2.5);
     gPullPhi_sigma_in[im]->SetMarkerSize(2.5);
-    mgPullPhi_mean->Add(gPullPhi_mean_in[im],"LP");
-    mgPullPhi_sigma->Add(gPullPhi_sigma_in[im],"LP");
+    // mgPullPhi_mean->Add(gPullPhi_mean_in[im],"LP");
+    // mgPullPhi_sigma->Add(gPullPhi_sigma_in[im],"LP");
    
     // gPullZ_mean_in[im] = new TGraphErrors(nBeamPoints,p_beam,PullZ_mean_in[im],0,erPullZ_mean_in[im]);
     // gPullZ_sigma_in[im] = new TGraphErrors(nBeamPoints,p_beam,PullZ_sigma_in[im],0,erPullZ_sigma_in[im]);
@@ -632,8 +633,8 @@ TH1F *hResLumiTrkPhiPull = (TH1F*)fileIN->Get("hResLumiTrkPhiPull");
     gResPx_sigma_in[im]->SetMarkerColor(im+matkercolsh);
     gResPx_mean_in[im]->SetMarkerSize(2.5);
     gResPx_sigma_in[im]->SetMarkerSize(2.5);
-    mgResPx_mean->Add(gResPx_mean_in[im],"LP");
-    mgResPx_sigma->Add(gResPx_sigma_in[im],"LP");
+    // mgResPx_mean->Add(gResPx_mean_in[im],"LP");
+    // mgResPx_sigma->Add(gResPx_sigma_in[im],"LP");
 
     gResPy_mean[im] = new TGraphErrors(nBeamPoints,p_beam,ResPy_mean[im],0,erResPy_mean[im]);
     gResPy_sigma[im] = new TGraphErrors(nBeamPoints,p_beam,ResPy_sigma[im],0,erResPy_sigma[im]);
@@ -653,8 +654,8 @@ TH1F *hResLumiTrkPhiPull = (TH1F*)fileIN->Get("hResLumiTrkPhiPull");
     gResPy_sigma_in[im]->SetMarkerColor(im+matkercolsh);
     gResPy_mean_in[im]->SetMarkerSize(2.5);
     gResPy_sigma_in[im]->SetMarkerSize(2.5);
-    mgResPy_mean->Add(gResPy_mean_in[im],"LP");
-    mgResPy_sigma->Add(gResPy_sigma_in[im],"LP");
+    // mgResPy_mean->Add(gResPy_mean_in[im],"LP");
+    // mgResPy_sigma->Add(gResPy_sigma_in[im],"LP");
 
     gResPz_mean[im] = new TGraphErrors(nBeamPoints,p_beam,ResPz_mean[im],0,erResPz_mean[im]);
     gResPz_sigma[im] = new TGraphErrors(nBeamPoints,p_beam,ResPz_sigma[im],0,erResPz_sigma[im]);
@@ -674,8 +675,8 @@ TH1F *hResLumiTrkPhiPull = (TH1F*)fileIN->Get("hResLumiTrkPhiPull");
     gResPz_sigma_in[im]->SetMarkerColor(im+matkercolsh);
     gResPz_mean_in[im]->SetMarkerSize(2.5);
     gResPz_sigma_in[im]->SetMarkerSize(2.5);
-    mgResPz_mean->Add(gResPz_mean_in[im],"LP");
-    mgResPz_sigma->Add(gResPz_sigma_in[im],"LP");
+    // mgResPz_mean->Add(gResPz_mean_in[im],"LP");
+    // mgResPz_sigma->Add(gResPz_sigma_in[im],"LP");
 
     gResX_mean[im] = new TGraphErrors(nBeamPoints,p_beam,ResX_mean[im],0,erResX_mean[im]);
     gResX_sigma[im] = new TGraphErrors(nBeamPoints,p_beam,ResX_sigma[im],0,erResX_sigma[im]);
@@ -693,8 +694,8 @@ TH1F *hResLumiTrkPhiPull = (TH1F*)fileIN->Get("hResLumiTrkPhiPull");
     gResX_sigma_in[im]->SetMarkerColor(im+matkercolsh);
     gResX_mean_in[im]->SetMarkerSize(2.5);
     gResX_sigma_in[im]->SetMarkerSize(2.5); 
-    mgResX_mean->Add(gResX_mean_in[im],"LP");
-    mgResX_sigma->Add(gResX_sigma_in[im],"LP");
+    // mgResX_mean->Add(gResX_mean_in[im],"LP");
+    // mgResX_sigma->Add(gResX_sigma_in[im],"LP");
     mgResX_mean->Add(gResX_mean[im],"LP");
     mgResX_sigma->Add(gResX_sigma[im],"LP");
   
@@ -716,8 +717,8 @@ TH1F *hResLumiTrkPhiPull = (TH1F*)fileIN->Get("hResLumiTrkPhiPull");
     gResY_sigma_in[im]->SetMarkerColor(im+matkercolsh);
     gResY_mean_in[im]->SetMarkerSize(2.5);
     gResY_sigma_in[im]->SetMarkerSize(2.5);
-    mgResY_mean->Add(gResY_mean_in[im],"LP");
-    mgResY_sigma->Add(gResY_sigma_in[im],"LP");
+    // mgResY_mean->Add(gResY_mean_in[im],"LP");
+    // mgResY_sigma->Add(gResY_sigma_in[im],"LP");
 
 
     gResZ_mean[im] = new TGraphErrors(nBeamPoints,p_beam,ResZ_mean[im],0,erResZ_mean[im]);
@@ -750,8 +751,8 @@ TH1F *hResLumiTrkPhiPull = (TH1F*)fileIN->Get("hResLumiTrkPhiPull");
     gResTheta_sigma_in[im]->SetMarkerColor(im+matkercolsh);
     gResTheta_mean_in[im]->SetMarkerSize(2.5);
     gResTheta_sigma_in[im]->SetMarkerSize(2.5);
-    mgResTheta_mean->Add(gResTheta_mean_in[im],"LP");
-    mgResTheta_sigma->Add(gResTheta_sigma_in[im],"LP");
+    // mgResTheta_mean->Add(gResTheta_mean_in[im],"LP");
+    // mgResTheta_sigma->Add(gResTheta_sigma_in[im],"LP");
     
 
     gResPhi_mean[im] = new TGraphErrors(nBeamPoints,p_beam,ResPhi_mean[im],0,erResPhi_mean[im]);
@@ -772,8 +773,8 @@ TH1F *hResLumiTrkPhiPull = (TH1F*)fileIN->Get("hResLumiTrkPhiPull");
     gResPhi_sigma_in[im]->SetMarkerColor(im+matkercolsh);
     gResPhi_mean_in[im]->SetMarkerSize(2.5);
     gResPhi_sigma_in[im]->SetMarkerSize(2.5);
-    mgResPhi_mean->Add(gResPhi_mean_in[im],"LP");
-    mgResPhi_sigma->Add(gResPhi_sigma_in[im],"LP");
+    // mgResPhi_mean->Add(gResPhi_mean_in[im],"LP");
+    // mgResPhi_sigma->Add(gResPhi_sigma_in[im],"LP");
    
     // gResZ_mean_in[im] = new TGraphErrors(nBeamPoints,p_beam,ResZ_mean_in[im],0,erResZ_mean_in[im]);
     // gResZ_sigma_in[im] = new TGraphErrors(nBeamPoints,p_beam,ResZ_sigma_in[im],0,erResZ_sigma_in[im]);
@@ -798,14 +799,15 @@ TH1F *hResLumiTrkPhiPull = (TH1F*)fileIN->Get("hResLumiTrkPhiPull");
  TString resname_root = resname+".root";
   TFile *fout = new TFile(resname_root,"RECREATE");
 
-  TLegend *leg = new TLegend(0.55,0.4,0.95,0.95);
+  TLegend *leg = new TLegend(0.55,0.4,0.95,0.75);
   //TLegend *leg = new TLegend(0.7,0.2,0.98,0.7);
   leg->SetFillColor(0);
   //   leg->SetHeader("The Legend Title");
   for(int im=0;im<nMethods;im++){
     TString MethodName_ext1 = MethodName[im]+" [LMD]";
-    TString MethodName_ext2 = MethodName[im]+" [PCA]";
-    leg->AddEntry(gPullPx_mean_in[im],MethodName_ext1,"lep");
+    //   TString MethodName_ext2 = MethodName[im]+" [PCA]";
+    TString MethodName_ext2 = MethodName[im];
+    //    leg->AddEntry(gPullPx_mean_in[im],MethodName_ext1,"lep");
     leg->AddEntry(gPullPx_mean[im],MethodName_ext2,"lep");
   }
   TLegend *legsh = new TLegend(0.7,0.65,0.98,0.97);
@@ -813,7 +815,8 @@ TH1F *hResLumiTrkPhiPull = (TH1F*)fileIN->Get("hResLumiTrkPhiPull");
   legsh->SetFillColor(0);
   //   leg->SetHeader("The Legend Title");
   for(int im=0;im<nMethods;im++){
-    TString MethodName_ext2 = MethodName[im]+" [PCA]";
+    //    TString MethodName_ext2 = MethodName[im]+" [PCA]";
+    TString MethodName_ext2 = MethodName[im];
     legsh->AddEntry(gPullPx_mean[im],MethodName_ext2,"lep");
   }
   TLine *perfectmeanval = new TLine(0.75,0,15.6,0);
@@ -826,78 +829,78 @@ TH1F *hResLumiTrkPhiPull = (TH1F*)fileIN->Get("hResLumiTrkPhiPull");
   perfectsigmaval->SetLineWidth(2);
 
   TCanvas c1;
-  mgEff->Draw("AP"); 
-  mgEff->GetXaxis()->SetTitle("momentum, GeV/c");
-  mgEff->GetYaxis()->SetTitle("Eff");
-  leg->Draw();
-  c1.Print(resname_pdf_o); //write canvas and keep the pdf file open
-  c1.Clear();
+  // mgEff->Draw("AP"); 
+  // mgEff->GetXaxis()->SetTitle("momentum, GeV/c");
+  // mgEff->GetYaxis()->SetTitle("Eff");
+  // leg->Draw();
+  // c1.Print(resname_pdf_o); //write canvas and keep the pdf file open
+  // c1.Clear();
 
   mgPullPx_mean->Draw("AP");  
-  mgPullPx_mean->GetXaxis()->SetTitle("momentum, GeV/c");
+  mgPullPx_mean->GetXaxis()->SetTitle("#bar{p} momentum, GeV/c");
   mgPullPx_mean->GetYaxis()->SetTitle("(P^{MC}_{x} - P^{REC}_{x})/#sigma_{Px}, mean");
   //leg->Draw();
   perfectmeanval->Draw();
   c1.Print(resname_pdf_o); //write canvas and keep the pdf file open
   c1.Clear();
   mgPullPx_sigma->Draw("AP");
-  mgPullPx_sigma->GetXaxis()->SetTitle("momentum, GeV/c");
+  mgPullPx_sigma->GetXaxis()->SetTitle("#bar{p} momentum, GeV/c");
   mgPullPx_sigma->GetYaxis()->SetTitle("(P^{MC}_{x} - P^{REC}_{x})/#sigma_{Px}, sigma");
   //leg->Draw();
   perfectsigmaval->Draw();
   c1.Print(resname_pdf_o); //write canvas and keep the pdf file open
   c1.Clear();
  mgPullPy_mean->Draw("AP");  
- mgPullPy_mean->GetXaxis()->SetTitle("momentum, GeV/c");
+ mgPullPy_mean->GetXaxis()->SetTitle("#bar{p} momentum, GeV/c");
  mgPullPy_mean->GetYaxis()->SetTitle("(P^{MC}_{y} - P^{REC}_{y})/#sigma_{Py}, mean");
  //leg->Draw();
  perfectmeanval->Draw();
   c1.Print(resname_pdf_o); //write canvas and keep the pdf file open
   c1.Clear();
   mgPullPy_sigma->Draw("AP");
-  mgPullPy_sigma->GetXaxis()->SetTitle("momentum, GeV/c");
+  mgPullPy_sigma->GetXaxis()->SetTitle("#bar{p} momentum, GeV/c");
   mgPullPy_sigma->GetYaxis()->SetTitle("(P^{MC}_{y} - P^{REC}_{y})/#sigma_{Py}, sigma");
   //leg->Draw();
   perfectsigmaval->Draw();
   c1.Print(resname_pdf_o); //write canvas and keep the pdf file open
   c1.Clear();
   mgPullPz_mean->Draw("AP");  
-  mgPullPz_mean->GetXaxis()->SetTitle("momentum, GeV/c");
+  mgPullPz_mean->GetXaxis()->SetTitle("#bar{p} momentum, GeV/c");
   mgPullPz_mean->GetYaxis()->SetTitle("(P^{REC}_{z} - P^{MC}_{z})/#sigma_{Pz}, mean");
   //leg->Draw();
   perfectmeanval->Draw();
   c1.Print(resname_pdf_o); //write canvas and keep the pdf file open
   c1.Clear();
   mgPullPz_sigma->Draw("AP");
-  mgPullPz_sigma->GetXaxis()->SetTitle("momentum, GeV/c");
+  mgPullPz_sigma->GetXaxis()->SetTitle("#bar{p} momentum, GeV/c");
   mgPullPz_sigma->GetYaxis()->SetTitle("(P^{MC}_{z} - P^{REC}_{z})/#sigma_{Pz}, sigma");
   //leg->Draw();
   perfectsigmaval->Draw();
   c1.Print(resname_pdf_o); //write canvas and keep the pdf file open
   c1.Clear();
   mgPullX_mean->Draw("AP");  
-  mgPullX_mean->GetXaxis()->SetTitle("momentum, GeV/c");
+  mgPullX_mean->GetXaxis()->SetTitle("#bar{p} momentum, GeV/c");
   mgPullX_mean->GetYaxis()->SetTitle("(X^{MC} - X^{REC})/#sigma_{X}, mean");
   //leg->Draw();
   perfectmeanval->Draw();
   c1.Print(resname_pdf_o); //write canvas and keep the pdf file open
   c1.Clear();
   mgPullX_sigma->Draw("AP");
-  mgPullX_sigma->GetXaxis()->SetTitle("momentum, GeV/c");
+  mgPullX_sigma->GetXaxis()->SetTitle("#bar{p} momentum, GeV/c");
   mgPullX_sigma->GetYaxis()->SetTitle("(X^{MC} - X^{REC})/#sigma_{X}, sigma");
   //leg->Draw();
   perfectsigmaval->Draw();
   c1.Print(resname_pdf_o); //write canvas and keep the pdf file open
   c1.Clear();
   mgPullY_mean->Draw("AP");  
-  mgPullY_mean->GetXaxis()->SetTitle("momentum, GeV/c");
+  mgPullY_mean->GetXaxis()->SetTitle("#bar{p} momentum, GeV/c");
   mgPullY_mean->GetYaxis()->SetTitle("(Y^{MC} - Y^{REC})/#sigma_{Y}, mean");
   //leg->Draw();
   perfectmeanval->Draw();
   c1.Print(resname_pdf_o); //write canvas and keep the pdf file open
   c1.Clear();
   mgPullY_sigma->Draw("AP");
-  mgPullY_sigma->GetXaxis()->SetTitle("momentum, GeV/c");
+  mgPullY_sigma->GetXaxis()->SetTitle("#bar{p} momentum, GeV/c");
   mgPullY_sigma->GetYaxis()->SetTitle("(Y^{MC} - Y^{REC})/#sigma_{Y}, sigma");
   //leg->Draw();
   perfectsigmaval->Draw();
@@ -906,7 +909,7 @@ TH1F *hResLumiTrkPhiPull = (TH1F*)fileIN->Get("hResLumiTrkPhiPull");
   //    c1.SetLogy(1);// set log scale
   c1.SetLogy(0);// set norm scale
   mgPullZ_mean->Draw("AP");  
-  mgPullZ_mean->GetXaxis()->SetTitle("momentum, GeV/c");
+  mgPullZ_mean->GetXaxis()->SetTitle("#bar{p} momentum, GeV/c");
   mgPullZ_mean->GetYaxis()->SetTitle("|Z^{MC} - Z^{REC}|/#sigma_{Z}, mean [PCA]");
   //  legsh->Draw();
   perfectmeanval->Draw();
@@ -914,35 +917,35 @@ TH1F *hResLumiTrkPhiPull = (TH1F*)fileIN->Get("hResLumiTrkPhiPull");
   c1.Clear();
   c1.SetLogy(0);// set norm scale
   mgPullZ_sigma->Draw("AP");
-  mgPullZ_sigma->GetXaxis()->SetTitle("momentum, GeV/c");
+  mgPullZ_sigma->GetXaxis()->SetTitle("#bar{p} momentum, GeV/c");
   mgPullZ_sigma->GetYaxis()->SetTitle("(Z^{MC} - Z^{REC})/#sigma_{Z}, sigma [PCA]");
   perfectsigmaval->Draw();
   //leg->Draw();
   c1.Print(resname_pdf_o); //write canvas and keep the pdf file open
   c1.Clear();
   mgPullTheta_mean->Draw("AP");  
-  mgPullTheta_mean->GetXaxis()->SetTitle("momentum, GeV/c");
+  mgPullTheta_mean->GetXaxis()->SetTitle("#bar{p} momentum, GeV/c");
   mgPullTheta_mean->GetYaxis()->SetTitle("(#theta^{MC} - #theta^{REC})/#sigma_{#theta}, mean [PCA]");
   //leg->Draw();
   perfectmeanval->Draw();
   c1.Print(resname_pdf_o); //write canvas and keep the pdf file open
   c1.Clear();
   mgPullTheta_sigma->Draw("AP");
-  mgPullTheta_sigma->GetXaxis()->SetTitle("momentum, GeV/c");
+  mgPullTheta_sigma->GetXaxis()->SetTitle("#bar{p} momentum, GeV/c");
   mgPullTheta_sigma->GetYaxis()->SetTitle("(#theta^{MC} - #theta^{REC})/#sigma_{#theta}, sigma [PCA]");
   //leg->Draw();
   perfectsigmaval->Draw();
   c1.Print(resname_pdf_o); //write canvas and keep the pdf file open
   c1.Clear();
   mgPullPhi_mean->Draw("AP");  
- mgPullPhi_mean->GetXaxis()->SetTitle("momentum, GeV/c");
+ mgPullPhi_mean->GetXaxis()->SetTitle("#bar{p} momentum, GeV/c");
  mgPullPhi_mean->GetYaxis()->SetTitle("(#phi^{MC} - #phi^{REC})/#sigma_{#phi}, mean [PCA]");
  //leg->Draw();
  perfectmeanval->Draw();
   c1.Print(resname_pdf_o); //write canvas and keep the pdf file open
   c1.Clear();
   mgPullPhi_sigma->Draw("AP");
- mgPullPhi_sigma->GetXaxis()->SetTitle("momentum, GeV/c");
+ mgPullPhi_sigma->GetXaxis()->SetTitle("#bar{p} momentum, GeV/c");
  mgPullPhi_sigma->GetYaxis()->SetTitle("(#phi^{MC} - #phi^{REC})/#sigma_{#phi}, sigma [PCA]");
  //leg->Draw();
  perfectsigmaval->Draw();
@@ -951,123 +954,123 @@ TH1F *hResLumiTrkPhiPull = (TH1F*)fileIN->Get("hResLumiTrkPhiPull");
 
   //Draw resolution only
   mgResPx_mean->Draw("AP");  
-  mgResPx_mean->GetXaxis()->SetTitle("momentum, GeV/c");
-  mgResPx_mean->GetYaxis()->SetTitle("(P^{MC}_{x} - P^{REC}_{x}), mean, MeV/c");
+  mgResPx_mean->GetXaxis()->SetTitle("#bar{p} momentum, GeV/c");
+  mgResPx_mean->GetYaxis()->SetTitle("(P^{MC}_{x} - P^{REC}_{x}), mean, keV/c");
   //leg->Draw();
    
   c1.Print(resname_pdf_o); //write canvas and keep the pdf file open
   c1.Clear();
   mgResPx_sigma->Draw("AP");
-  mgResPx_sigma->GetXaxis()->SetTitle("momentum, GeV/c");
+  mgResPx_sigma->GetXaxis()->SetTitle("#bar{p} momentum, GeV/c");
   mgResPx_sigma->GetYaxis()->SetTitle("(P^{MC}_{x} - P^{REC}_{x}), sigma, MeV/c");
   //leg->Draw();
    
   c1.Print(resname_pdf_o); //write canvas and keep the pdf file open
   c1.Clear();
  mgResPy_mean->Draw("AP");  
- mgResPy_mean->GetXaxis()->SetTitle("momentum, GeV/c");
- mgResPy_mean->GetYaxis()->SetTitle("(P^{MC}_{y} - P^{REC}_{y}), mean, MeV/c");
+ mgResPy_mean->GetXaxis()->SetTitle("#bar{p} momentum, GeV/c");
+ mgResPy_mean->GetYaxis()->SetTitle("(P^{MC}_{y} - P^{REC}_{y}), mean, keV/c");
  //leg->Draw();
   
   c1.Print(resname_pdf_o); //write canvas and keep the pdf file open
   c1.Clear();
   mgResPy_sigma->Draw("AP");
-  mgResPy_sigma->GetXaxis()->SetTitle("momentum, GeV/c");
+  mgResPy_sigma->GetXaxis()->SetTitle("#bar{p} momentum, GeV/c");
   mgResPy_sigma->GetYaxis()->SetTitle("(P^{MC}_{y} - P^{REC}_{y}), sigma, MeV/c");
   //leg->Draw();
    
   c1.Print(resname_pdf_o); //write canvas and keep the pdf file open
   c1.Clear();
   mgResPz_mean->Draw("AP");  
-  mgResPz_mean->GetXaxis()->SetTitle("momentum, GeV/c");
-  mgResPz_mean->GetYaxis()->SetTitle("(P^{MC}_{z} - P^{REC}_{z}), mean, MeV/c");
+  mgResPz_mean->GetXaxis()->SetTitle("#bar{p} momentum, GeV/c");
+  mgResPz_mean->GetYaxis()->SetTitle("(P^{MC}_{z} - P^{REC}_{z}), mean, keV/c");
   //leg->Draw();
    
   c1.Print(resname_pdf_o); //write canvas and keep the pdf file open
   c1.Clear();
   mgResPz_sigma->Draw("AP");
-  mgResPz_sigma->GetXaxis()->SetTitle("momentum, GeV/c");
-  mgResPz_sigma->GetYaxis()->SetTitle("(P^{MC}_{z} - P^{REC}_{z}), sigma, MeV/c");
+  mgResPz_sigma->GetXaxis()->SetTitle("#bar{p} momentum, GeV/c");
+  mgResPz_sigma->GetYaxis()->SetTitle("(P^{MC}_{z} - P^{REC}_{z}), sigma, keV/c");
   //leg->Draw();
    
   c1.Print(resname_pdf_o); //write canvas and keep the pdf file open
   c1.Clear();
   mgResX_mean->Draw("AP");  
-  mgResX_mean->GetXaxis()->SetTitle("momentum, GeV/c");
-  mgResX_mean->GetYaxis()->SetTitle("(X^{MC} - X^{REC}), mean, cm");
+  mgResX_mean->GetXaxis()->SetTitle("#bar{p} momentum, GeV/c");
+  mgResX_mean->GetYaxis()->SetTitle("(X^{MC} - X^{REC}), mean, #mum");
   //leg->Draw();
    
   c1.Print(resname_pdf_o); //write canvas and keep the pdf file open
   c1.Clear();
-  c1.SetLogy(1);// set log scale
+  c1.SetLogy(0);// set log scale
   //  c1.SetLogy(0);// set norm scale
   mgResX_sigma->Draw("AP");
-  mgResX_sigma->GetXaxis()->SetTitle("momentum, GeV/c");
-  mgResX_sigma->GetYaxis()->SetTitle("(X^{MC} - X^{REC}), sigma, cm");
+  mgResX_sigma->GetXaxis()->SetTitle("#bar{p} momentum, GeV/c");
+  mgResX_sigma->GetYaxis()->SetTitle("(X^{MC} - X^{REC}), sigma, #mum");
   //leg->Draw();
    
   c1.Print(resname_pdf_o); //write canvas and keep the pdf file open
   c1.Clear();
   c1.SetLogy(0);// set norm scale
   mgResY_mean->Draw("AP");  
-  mgResY_mean->GetXaxis()->SetTitle("momentum, GeV/c");
-  mgResY_mean->GetYaxis()->SetTitle("(Y^{MC} - Y^{REC}), mean, cm");
+  mgResY_mean->GetXaxis()->SetTitle("#bar{p} momentum, GeV/c");
+  mgResY_mean->GetYaxis()->SetTitle("(Y^{MC} - Y^{REC}), mean, #mum");
   //leg->Draw();
    
   c1.Print(resname_pdf_o); //write canvas and keep the pdf file open
   c1.Clear();
-  c1.SetLogy(1);// set log scale
+  c1.SetLogy(0);// set log scale
   mgResY_sigma->Draw("AP");
-  mgResY_sigma->GetXaxis()->SetTitle("momentum, GeV/c");
-  mgResY_sigma->GetYaxis()->SetTitle("(Y^{MC} - Y^{REC}), sigma, cm");
+  mgResY_sigma->GetXaxis()->SetTitle("#bar{p} momentum, GeV/c");
+  mgResY_sigma->GetYaxis()->SetTitle("(Y^{MC} - Y^{REC}), sigma, #mum");
   //leg->Draw();
    
   c1.Print(resname_pdf_o); //write canvas and keep the pdf file open
   c1.Clear();
   c1.SetLogy(0);// set log scale
   mgResZ_mean->Draw("AP");  
-  mgResZ_mean->GetXaxis()->SetTitle("momentum, GeV/c");
-  mgResZ_mean->GetYaxis()->SetTitle("|Z^{MC} - Z^{REC}|, mean [PCA], cm");
+  mgResZ_mean->GetXaxis()->SetTitle("#bar{p} momentum, GeV/c");
+  mgResZ_mean->GetYaxis()->SetTitle("|Z^{MC} - Z^{REC}|, mean, #mum");
   //  legsh->Draw();
    
   c1.Print(resname_pdf_o); //write canvas and keep the pdf file open
   c1.Clear();
   c1.SetLogy(0);// set normal scale
   mgResZ_sigma->Draw("AP");
-  mgResZ_sigma->GetXaxis()->SetTitle("momentum, GeV/c");
-  mgResZ_sigma->GetYaxis()->SetTitle("(Z^{MC} - Z^{REC}), sigma [PCA], cm");
+  mgResZ_sigma->GetXaxis()->SetTitle("#bar{p} momentum, GeV/c");
+  mgResZ_sigma->GetYaxis()->SetTitle("(Z^{MC} - Z^{REC}), sigma, #mum");
   //leg->Draw();
   c1.Print(resname_pdf_o); //write canvas and keep the pdf file open
   c1.Clear();
 
   c1.SetLogy(0);// set norm scale
   mgResTheta_mean->Draw("AP");  
-  mgResTheta_mean->GetXaxis()->SetTitle("momentum, GeV/c");
-  mgResTheta_mean->GetYaxis()->SetTitle("(#theta^{MC} - #theta^{REC}), mrad");
+  mgResTheta_mean->GetXaxis()->SetTitle("#bar{p} momentum, GeV/c");
+  mgResTheta_mean->GetYaxis()->SetTitle("(#theta^{MC} - #theta^{REC}), #murad");
   //leg->Draw();
   c1.Print(resnameThetaMean);
   c1.Print(resname_pdf_o); //write canvas and keep the pdf file open
   c1.Clear();
   //  c1.SetLogy(1);// set log scale
   mgResTheta_sigma->Draw("AP");
-  mgResTheta_sigma->GetXaxis()->SetTitle("momentum, GeV/c");
-  mgResTheta_sigma->GetYaxis()->SetTitle("#sigma(#theta^{REC}), mrad");
+  mgResTheta_sigma->GetXaxis()->SetTitle("#bar{p} momentum, GeV/c");
+  mgResTheta_sigma->GetYaxis()->SetTitle("#sigma(#theta^{REC}), #murad");
   leg->Draw();
   c1.Print(resnameThetaSigma);
   c1.Print(resname_pdf_o); //write canvas and keep the pdf file open
   c1.Clear();
   c1.SetLogy(0);// set norm scale
   mgResPhi_mean->Draw("AP");  
- mgResPhi_mean->GetXaxis()->SetTitle("momentum, GeV/c");
- mgResPhi_mean->GetYaxis()->SetTitle("(#phi^{MC} - #phi^{REC}), mean [PCA], rad");
+ mgResPhi_mean->GetXaxis()->SetTitle("#bar{p} momentum, GeV/c");
+ mgResPhi_mean->GetYaxis()->SetTitle("(#phi^{MC} - #phi^{REC}), mean, mrad");
  //leg->Draw();
   
   c1.Print(resname_pdf_o); //write canvas and keep the pdf file open
   c1.Clear();
-  c1.SetLogy(1);// set log scale
+  c1.SetLogy(0);// set log scale
   mgResPhi_sigma->Draw("AP");
- mgResPhi_sigma->GetXaxis()->SetTitle("momentum, GeV/c");
- mgResPhi_sigma->GetYaxis()->SetTitle("(#phi^{MC} - #phi^{REC}), sigma [PCA], rad");
+ mgResPhi_sigma->GetXaxis()->SetTitle("#bar{p} momentum, GeV/c");
+ mgResPhi_sigma->GetYaxis()->SetTitle("(#phi^{MC} - #phi^{REC}), sigma, mrad");
  //leg->Draw();
   
  // c1.Print(resname_pdf_o); //write canvas and keep the pdf file open
@@ -1133,7 +1136,7 @@ TH1F *hResLumiTrkPhiPull = (TH1F*)fileIN->Get("hResLumiTrkPhiPull");
   mgResPy_sigma_in->Write();
   mgResPz_mean_in->Write();  
   mgResPz_sigma_in->Write();
-  mgEff->Write();
+  //  mgEff->Write();
   //  legsh->Write();
   leg->Write();
   fout->Write();
