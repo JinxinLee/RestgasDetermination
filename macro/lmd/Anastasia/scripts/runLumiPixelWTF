@@ -1,0 +1,82 @@
+#!/bin/bash 
+################################################################
+## script for running sim&rec for LMD
+## [with pixels sensors set-up!]
+## 13/11/2012
+## A.Karavdina
+################################################################
+#pbeam=1.5
+#MOM=(15 8.9 11.91 4.06) #GeV
+solsw=3 #GeV, switch between half and full solenoid: below half of solenoid
+MOM=(15) #GeV
+MOMN=${#MOM[@]}
+#1.5 GeV
+#ln -sf ${VMCWORKDIR}/input/solenoid_hc/* ./
+#15GeV
+#ln -sf ${VMCWORKDIR}/input/solenoid_fc/* ./
+  for (( jp=0;jp<$MOMN;jp++)); do
+      pbeam=${MOM[${jp}]}
+      if [[ $(echo "if (${pbeam} > ${solsw}) 1 else 0" | bc) -eq 1 ]]; then
+	  ln -sf ${VMCWORKDIR}/input/solenoid_fc/* ${VMCWORKDIR}/input/.
+      else
+	  ln -sf ${VMCWORKDIR}/input/solenoid_hc/* ${VMCWORKDIR}/input/.
+      fi
+
+momStr=`echo $pbeam | sed -e '{ s/\./_/g; }'`
+#path=${VMCWORKDIR}/macro/lmd/testPixel_FullLMD_KalmanGEANE_Geant4_0_01_bendAngleForGEANE/mom_${momStr}/
+#path=${VMCWORKDIR}/macro/lmd/testPixel_FullLMD_KalmanGEANE_Geant4_20_bendAngleForGEANE_1TSolenoid/mom_${momStr}/
+path=${VMCWORKDIR}/macro/lmd/testPixel_newMinuit_BPgeane_FullLMD_160steps_NOpipe_large/mom_${momStr}/
+mkdir -p ${path}
+#number of trks per event
+numTrks=1
+#merge hits on sensors from different sides. true=yes
+mergedHits=true
+#number of event
+numEv=30000
+# #add multiples scattering error estimation for hits (needed only for trk fit with Minuit). false=no
+useMSerr=false
+#useMSerr=true
+#simulation with Box generator
+     root -l -b -q runLumiPixel0SimBox.C\(${numEv},0,"\"${path}\"",0,-2212,${pbeam},${numTrks},3562\)
+     root -l -b -q runLumiPixel1Digi.C\(${numEv},0,"\"${path}\""\)
+     root -l -b -q runLumiPixel2Reco.C\(${numEv},0,"\"${path}\"",0,${useMSerr},false\)
+
+#merge hits
+     root -l -b -q runLumiPixel2bHitMerge.C\(${numEv},0,"\"${path}\""\)
+
+#switch on "missing plane" search algorithm
+	 misspl=true
+#use cuts during trk seacrh with "CA". Should be 'false' if sensors missaligned!
+	 trkcut=true
+### change "CA" --> "Follow" if you want to use Trk-Following as trk-search algorithm
+### NB: CA can use merged or single(not merged) hits, Trk-Following can't
+     root -l -b -q runLumiPixel3Finder.C\(${numEv},0,"\"${path}\"",0,"\"CA\"",${misspl},${mergedHits},${trkcut},${pbeam}\)
+
+#track fit: 
+### Miniut: useMSerr should be _true_ in this case!
+### Kalman Fillter:  useMSerr must be _false_ in this case!  
+### "KalmanGeane" = with GEANE trk representation
+### change "KalmanGeane" --> "KalmanRK" if you want to use Runge-Kutta trk.rep.
+#     root -l -b -q runLumiPixel4Fitter.C\(${numEv},0,"\"${path}\"",0,"\"KalmanGeane\"",${mergedHits}\)
+  root -l -b -q runLumiPixel4Fitter.C\(${numEv},0,"\"${path}\"",10,"\"Minuit\"",${mergedHits}\)
+
+#track filter (on number of hits and chi2)
+     root -l -b -q runLumiPixel4aFilter.C\(${numEv},0,"\"${path}\"",0,${mergedHits}\) 
+
+#save filtered results as standart Track array
+     mv ${path}/Lumi_Track_0.root ${path}/Lumi_TrackNotFiltered_0.root 
+     cp ${path}/Lumi_TrackFiltered_0.root ${path}/Lumi_Track_0.root
+
+#back-propgation GEANE
+### change "Geane" --> "RK" if you want to use Runge-Kutta for back-propagation
+ root -l -b -q runLumiPixel5BackProp.C\(${numEv},0,"\"${path}\"",10,"\"Geane\"",${mergedHits},${pbeam}\) &> logBP_Geane
+#     root -l -b -q runLumiPixel5BackProp.C\(${numEv},0,"\"${path}\"",0,"\"Geane\"",${mergedHits},${pbeam}\)
+#   root -l -b -q runLumiPixel5BackProp.C\(${numEv},0,"\"${path}\"",0,"\"RK\"",${mergedHits},${pbeam}\)
+# # Quality assurance task(s)
+      root -l -b -q runLumiPixel7QA.C\(${numEv},0,"\"${path}\"",0,${pbeam}\)
+      root -l -b -q runLumiPixel7TrksQA.C\(${numEv},0,"\"${path}\"",0,${pbeam},false\)
+
+# # compare MC trk params and reconstructed trk params and much more...
+#     cd ${VMCWORKDIR}/buildPanda/bin
+#    ./simple_mc_rec_match -s 0 -n ${numEv} -mom ${pbeam} -v 0 -path ${path}
+done
