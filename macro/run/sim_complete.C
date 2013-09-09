@@ -161,7 +161,7 @@ sim_complete(Int_t nEvents = 100, TString  SimEngine ="TGeant3", Float_t mom = 6
           TString  EvtInput =gSystem->Getenv("VMCWORKDIR");
           EvtInput+="/macro/run/psi2s_Jpsi2pi_Jpsi_mumu.dec";	
           PndEvtGenDirect *EvtGen = new PndEvtGenDirect("pbarpSystem", EvtInput.Data(), mom);
-	  EvtGen->SetStoreTree(kFALSE);
+	  EvtGen->SetStoreTree(kTRUE);
 	  primGen->AddGenerator(EvtGen);
   }	
 
