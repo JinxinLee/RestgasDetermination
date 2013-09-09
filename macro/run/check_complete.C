@@ -14,12 +14,12 @@ bool check_complete(TString fn="output_ana.root", TString fn2="ana_target.root")
 	bool fTest=kFALSE;
         TString templateFile = gSystem->Getenv("VMCWORKDIR");
         templateFile += "/macro/run/";
-        templateFile += fn;
+        templateFile += fn2;
 	
-	TFile *f=new TFile(templateFile,"READ");
+	TFile *f=new TFile(fn,"READ");
 	if (!f->IsZombie())
 	{
-		TFile *f2=new TFile(fn2,"READ");
+		TFile *f2=new TFile(templateFile,"READ");
 			
 		TKey *key;
 		TIter next(f->GetListOfKeys());
