@@ -6,15 +6,18 @@ Either copy the whole /tutorials/cuda directory into your /pandaroot/ dir and ad
 	add_subdirectory (cuda)
 to the /pandaroot/CMakeLists.txt or just add 
 	add_subdirectory (tutorials/cuda)
-to the .txt. Also, add
-  if(isLibrary("libPndCuda"))gSystem->Load("libPndCuda");
-to your $VMCWORKDIR/gconfig/rootlogon.C, if your still using the rootlogon.C method.
+to the .txt.
 
-`cmake` and `make` and you should be done.
+`cmake` and `make`.
+
+Generate a toy simulation example by `root -l sim_toy.C` and generate some device output by `root -l run_cudaExampleTask.C`.
+
+You're done.
+
 
 #### MORE INFO ####
 Some more detailed explanation is available at https://github.com/AndiH/CMake/tree/master/CMake%2BCUDA%2BPandaRoot
 Also, there is a short introducing presentation http://panda-wiki.gsi.de/pub/Computing/Minutes22July2013/aherten_PndCuda.pdf
 
 
--- Andreas Herten, 24.07.2013
+-- Andreas Herten, 10.09.2013
