@@ -20,6 +20,8 @@ PndTrackingQualityAnalysis::PndTrackingQualityAnalysis (TString trackBranchName,
 		std::cout << "-I- PndTrackingQualityAnalysis::PndTrackingQualityAnalysis no PossibleTrackFunctor given. Taking Standard!" << std::endl;
 		if (trackBranchName == "MVDTrack" ){
 			fPossibleTrack = new RiemannMvdSttGemFunctor();
+		} else if (trackBranchName == "CombiTrackCand" ) {
+			fPossibleTrack = new OnlySttFunctor();
 		} else {
 			fPossibleTrack = new StandardTrackFunctor();
 		}
@@ -33,6 +35,8 @@ PndTrackingQualityAnalysis::PndTrackingQualityAnalysis (TString trackBranchName,
 		std::cout << "-I- PndTrackingQualityAnalysis::PndTrackingQualityAnalysis no PossibleTrackFunctor given. Taking Standard!" << std::endl;
 		if (trackBranchName == "MVDTrack" ){
 			fPossibleTrack = new RiemannMvdSttGemFunctor();
+		} else if (trackBranchName == "CombiTrackCand" ) {
+			fPossibleTrack = new OnlySttFunctor();
 		} else {
 			fPossibleTrack = new StandardTrackFunctor();
 		}
@@ -193,11 +197,16 @@ void PndTrackingQualityAnalysis::FillMapTrackQualifikation()
 			PndMCTrack* mcTrack = (PndMCTrack*)fMCTrack->At(i);
 			Bool_t primaryTrack = (mcTrack->GetMotherID() < 0);
 			Bool_t atLeastThreeHits = kFALSE;
-			Bool_t nHits = 0;
-			for (int branchIndex = 0; branchIndex < fBranchNames.size(); branchIndex++){
-				TString branchName = fBranchNames[branchIndex];
-				nHits += GetNIdealHits(i, branchName);
-			}
+			Int_t nHits = 0;
+//			for (int branchIndex = 0; branchIndex < fBranchNames.size(); branchIndex++){
+//				TString branchName = fBranchNames[branchIndex];
+//				nHits += GetNIdealHits(i, branchName);
+//			}
+			nHits += GetNIdealHits(i, "MVDHitsPixel");
+			nHits += GetNIdealHits(i, "MVDHitsStrip");
+			nHits += GetNIdealHits(i, "STTHit");
+			nHits += GetNIdealHits(i, "GEMHit");
+			//std::cout << "FillMapTrackQualifikation: NHits: " << nHits << std::endl;
 			if (nHits > 2){
 				atLeastThreeHits = kTRUE;
 			}
@@ -208,9 +217,12 @@ void PndTrackingQualityAnalysis::FillMapTrackQualifikation()
 				} else {
 					fMapTrackQualifikation[i] = -3;
 				}
-			} else if (primaryTrack){
-				fMapTrackQualifikation[i] = -5;						//No hits for primary track in central tracking detectors
+				std::cout << "AtLeastThreeHits: Track "<< i << " status: " << fMapTrackQualifikation[i] << std::endl; 
 			}
+			else if (primaryTrack){
+				fMapTrackQualifikation[i] = -5;
+			}						//No hits for primary track in central tracking detectors
+			
 			PndMCEntry entry = fIdealTracksData.GetEntry(i);
 			if ((*fPossibleTrack)((FairMultiLinkedData*)&entry))
 			{

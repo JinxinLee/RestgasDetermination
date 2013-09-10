@@ -165,12 +165,17 @@ void PndTrackingQualityTask::Finish() {
 	fPtHisto->Write();
 	fQualyHisto->Write();
 	Int_t allTracksWithHits = 0;
+	Int_t allPossibleTracksWithHits = 0;
 	Int_t allTracksWithHitsNotFound = 0;
 
 	allTracksWithHits += fQualyHisto->GetBinContent(fQualyHisto->FindFixBin(-10));
 	allTracksWithHits += fQualyHisto->GetBinContent(fQualyHisto->FindFixBin(-9));
 	allTracksWithHits += fQualyHisto->GetBinContent(fQualyHisto->FindFixBin(-8));
 	allTracksWithHits += fQualyHisto->GetBinContent(fQualyHisto->FindFixBin(-7));
+
+	allPossibleTracksWithHits += fQualyHisto->GetBinContent(fQualyHisto->FindFixBin(-8));
+	allPossibleTracksWithHits += fQualyHisto->GetBinContent(fQualyHisto->FindFixBin(-7));
+
 
 
 	allTracksWithHitsNotFound += fQualyHisto->GetBinContent(fQualyHisto->FindFixBin(-4));
@@ -179,17 +184,28 @@ void PndTrackingQualityTask::Finish() {
 	allTracksWithHitsNotFound += fQualyHisto->GetBinContent(fQualyHisto->FindFixBin(-1));
 
 	std::cout << "fQualyHisto: All Tracks: " << fQualyHisto->GetBinContent(fQualyHisto->FindFixBin(-11)) + allTracksWithHits << std::endl
-			  << " Primary Tracks wo hits: " << fQualyHisto->GetBinContent(fQualyHisto->FindFixBin(-10)) << std::endl
+			  << " Primary Tracks wo hits: " << fQualyHisto->GetBinContent(fQualyHisto->FindFixBin(-11)) << std::endl
 			  << " All Tracks with hits: " << allTracksWithHits << " not Found: " << allTracksWithHitsNotFound << std::endl
 			  << " Primary Tracks with 3 hits: " << fQualyHisto->GetBinContent(fQualyHisto->FindFixBin(-10)) << " not Found: " << fQualyHisto->GetBinContent(fQualyHisto->FindFixBin(-4)) << std::endl
 			  << " Secondary Tracks with 3 hits: " << fQualyHisto->GetBinContent(fQualyHisto->FindFixBin(-9)) << " not Found: " << fQualyHisto->GetBinContent(fQualyHisto->FindFixBin(-3)) << std::endl
 			  << " Primary Tracks possible: " << fQualyHisto->GetBinContent(fQualyHisto->FindFixBin(-8)) << " not Found: " << fQualyHisto->GetBinContent(fQualyHisto->FindFixBin(-2)) << std::endl
 			  << " Secondary Tracks possible: " << fQualyHisto->GetBinContent(fQualyHisto->FindFixBin(-7)) << " not Found: " << fQualyHisto->GetBinContent(fQualyHisto->FindFixBin(-1)) << std::endl
 
-			  << " FullyFound: "    << fQualyHisto->GetBinContent(fQualyHisto->FindFixBin(1)) 	<< " " << (Double_t)fQualyHisto->GetBinContent(fQualyHisto->FindFixBin(1)) / allTracksWithHits * 100 << "% "
-			  << " PartlyFound: "  << fQualyHisto->GetBinContent(fQualyHisto->FindFixBin(2)) 	<< " " << (Double_t)fQualyHisto->GetBinContent(fQualyHisto->FindFixBin(3)) / allTracksWithHits * 100 << "% "
-			  << " Spurious: " 	<< fQualyHisto->GetBinContent(fQualyHisto->FindFixBin(3)) 		<< " " << (Double_t)fQualyHisto->GetBinContent(fQualyHisto->FindFixBin(3)) / allTracksWithHits * 100 << "% "
-			  << " Ghosts: "	<< fQualyHisto->GetBinContent(fQualyHisto->FindFixBin(5))		<< " " << (Double_t)fQualyHisto->GetBinContent(fQualyHisto->FindFixBin(5)) / allTracksWithHits * 100 << "% " << std::endl;
+			  << " FullyFound: "    << fQualyHisto->GetBinContent(fQualyHisto->FindFixBin(1)) 	<< " "
+			  << (Double_t)fQualyHisto->GetBinContent(fQualyHisto->FindFixBin(1)) / allTracksWithHits * 100 << "% "
+			  << (Double_t)fQualyHisto->GetBinContent(fQualyHisto->FindFixBin(1)) / allPossibleTracksWithHits * 100 << "% "
+
+			  << " PartlyFound: "  << fQualyHisto->GetBinContent(fQualyHisto->FindFixBin(2)) 	<< " "
+			  << (Double_t)fQualyHisto->GetBinContent(fQualyHisto->FindFixBin(2)) / allTracksWithHits * 100 << "% "
+			  << (Double_t)fQualyHisto->GetBinContent(fQualyHisto->FindFixBin(2)) / allPossibleTracksWithHits * 100 << "% "
+
+			  << " Spurious: " 	<< fQualyHisto->GetBinContent(fQualyHisto->FindFixBin(3)) 		<< " "
+			  << (Double_t)fQualyHisto->GetBinContent(fQualyHisto->FindFixBin(3)) / allTracksWithHits * 100 << "% "
+			  << (Double_t)fQualyHisto->GetBinContent(fQualyHisto->FindFixBin(3)) / allPossibleTracksWithHits * 100 << "% "
+
+			  << " Ghosts: "	<< fQualyHisto->GetBinContent(fQualyHisto->FindFixBin(5))		<< " "
+			  << (Double_t)fQualyHisto->GetBinContent(fQualyHisto->FindFixBin(5)) / allTracksWithHits * 100 << "% "
+			  << (Double_t)fQualyHisto->GetBinContent(fQualyHisto->FindFixBin(5)) / allPossibleTracksWithHits * 100 << "% " << std::endl;
 }
 
 ClassImp( PndTrackingQualityTask);
