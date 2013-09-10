@@ -217,7 +217,7 @@ void PndTrackingQualityAnalysis::FillMapTrackQualifikation()
 				} else {
 					fMapTrackQualifikation[i] = -3;
 				}
-				std::cout << "AtLeastThreeHits: Track "<< i << " status: " << fMapTrackQualifikation[i] << std::endl; 
+			//	std::cout << "AtLeastThreeHits: Track "<< i << " status: " << fMapTrackQualifikation[i] << std::endl;
 			}
 			else if (primaryTrack){
 				fMapTrackQualifikation[i] = -5;
