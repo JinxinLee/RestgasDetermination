@@ -51,6 +51,7 @@ MdtData/PndMdtTrk.cxx
 SttData/PndSttGeomPoint.cxx
 SttData/PndSttHelixHit.cxx
 SttData/PndSttHit.cxx  
+SttData/PndSttSkewedHit.cxx  
 SttData/PndSttHitInfo.cxx  
 SttData/PndSttPoint.cxx  
 SttData/PndSttTrack.cxx
@@ -134,6 +135,7 @@ MdtData/PndMdtTrk.h
 SttData/PndSttGeomPoint.h
 SttData/PndSttHelixHit.h
 SttData/PndSttHit.h  
+SttData/PndSttSkewedHit.h  
 SttData/PndSttHitInfo.h  
 SttData/PndSttPoint.h  
 SttData/PndSttTrack.h

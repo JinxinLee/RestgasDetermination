@@ -41,6 +41,7 @@
 #pragma link C++ class  PndSttGeomPoint+;
 #pragma link C++ class  PndSttHelixHit+;
 #pragma link C++ class  PndSttHit+;
+#pragma link C++ class  PndSttSkewedHit+;
 #pragma link C++ class  PndSttHitInfo+;
 #pragma link C++ class  PndSttPoint+;
 #pragma link C++ class  PndSttTrack+;
