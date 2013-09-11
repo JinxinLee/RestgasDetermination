@@ -31,7 +31,7 @@ class PndVtxPRG : public RhoFitterBase
     void SetDebug(bool db = true) {if(db) { fVerbose=true; } fDebug=db;};
     void SetSilent() {fVerbose=false; fDebug=false;};
   private:
-    void FitNode(RhoCandidate* b);
+    Bool_t FitNode(RhoCandidate* b);
     RhoCandidate* fCurrentHead;
 
     Bool_t Calculate();

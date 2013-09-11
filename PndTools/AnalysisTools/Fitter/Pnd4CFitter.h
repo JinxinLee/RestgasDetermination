@@ -24,17 +24,17 @@ class Pnd4CFitter : public RhoFitterBase
   public:
     Pnd4CFitter( RhoCandidate* b , TLorentzVector lv) ;
     virtual ~Pnd4CFitter();// {if(fHeadOfTree) delete fHeadOfTree;}
-    void Fit(); // fits final state particles to initial state, States inbetween are modified.
-    void FitConserveMasses(); // fits final state particles threemomenta to initial state, States inbetween are modified.
-    void FitAll() {Fatal("Pnd4CFitter::FitAll()","Nit applicable. Please use Fit() or FitConserveMasses().");};
+    Bool_t Fit(); // fits final state particles to initial state, States inbetween are modified.
+    Bool_t FitConserveMasses(); // fits final state particles threemomenta to initial state, States inbetween are modified.
+    Bool_t FitAll() {Fatal("Pnd4CFitter::FitAll()","Nit applicable. Please use Fit() or FitConserveMasses().");};
     void PrintTree(RhoCandidate* c, int l=0);
     double Chi2Contribution ( const RhoCandidate& ) const {Error("Pnd4CFitter::Chi2Contribution","No chi2 contribution available.");return -9999.;};
     
   private:
 
 
-    void    Do4CFit(); //Fit, can freely change energy
-    void    Do4CFitWithMassConservation(); //Fit, conserving daughter masses
+    Bool_t Do4CFit(); //Fit, can freely change energy
+    Bool_t Do4CFitWithMassConservation(); //Fit, conserving daughter masses
 
     TLorentzVector fLv4C;
     int            fNDau;

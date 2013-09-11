@@ -83,8 +83,7 @@ RhoFitterBase::CopyTree ( RhoCandidate* head )
 
 
 
-Double_t
-RhoFitterBase::Chi2Contribution ( const RhoCandidate* b )
+Double_t RhoFitterBase::Chi2Contribution ( const RhoCandidate* b )
 {
   if(!b) return -999.;
   Int_t uid = b->Uid();
@@ -93,39 +92,40 @@ RhoFitterBase::Chi2Contribution ( const RhoCandidate* b )
 }
 
 
-void
-RhoFitterBase::Fit()
+Bool_t RhoFitterBase::Fit()
 {
   fChi2Map.clear();
-  FitNode(fHeadOfTree);
+  return FitNode(fHeadOfTree);
 }
-void
 
-RhoFitterBase::FitAll()
+Bool_t RhoFitterBase::FitAll()
 {
-  IterateAndFit(fHeadOfTree);
+  return IterateAndFit(fHeadOfTree);
 }
 
 
-void RhoFitterBase::IterateAndFit(RhoCandidate* b)
+Bool_t RhoFitterBase::IterateAndFit(RhoCandidate* b)
 {
   RhoCandidate* dau=0;
+  Bool_t check = kFALSE;
   for(Int_t i=0;i<b->NDaughters();i++)
   {
     dau=b->Daughter(i);
     if (dau->IsComposite() && !dau->IsLocked())
     {
-      IterateAndFit(dau);
-      FitNode(dau);
+      check = IterateAndFit(dau);
+      if(kFALSE==check) return kFALSE;
+      check = FitNode(dau);
+      if(kFALSE==check) return kFALSE;
     }
   }
-  return;
+  return kTRUE;
 }
 
-void RhoFitterBase::FitNode(RhoCandidate* b)
+Bool_t RhoFitterBase::FitNode(RhoCandidate* b)
 {
   Warning("RhoFitterBase::FitNode","Method not implemented in %s",this->GetName());
-  return;
+  return kFALSE;
 }
 
 void RhoFitterBase::SetDaugthersFromComposite(RhoCandidate* cand)

@@ -30,7 +30,7 @@ class PndKinVtxFitter : public RhoFitterBase
     Float_t GetPocaVtx(TVector3& vertex, RhoCandidate* a, RhoCandidate* b);
 
   private:
-    void FitNode(RhoCandidate* b);
+    Bool_t FitNode(RhoCandidate* b);
 
     void SetMatrices();
     void ResetMatrices();
@@ -42,7 +42,7 @@ class PndKinVtxFitter : public RhoFitterBase
     void ReadPointingKinMatrix(RhoCandidate* head);
 
 
-    void Compute();
+    Bool_t Compute();
     void SetOutput(RhoCandidate* head);
 
     void TransportToVertex(TMatrixD&, TMatrixD&, TMatrixD&, TMatrixD&, TMatrixD&);

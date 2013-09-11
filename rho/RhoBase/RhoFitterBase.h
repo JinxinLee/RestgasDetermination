@@ -36,8 +36,8 @@ class RhoFitterBase: public TObject // TOperatorBase
     /**
     * This function has to be overridden by the real algoritms implementations
     */
-    void Fit();                            // fit only the head composite (node)
-    void FitAll();                         // fit composites and refitted daughters. FMV, 07/21/99.
+    Bool_t Fit();                            // fit only the head composite (node)
+    Bool_t FitAll();                         // fit composites and refitted daughters. FMV, 07/21/99.
 
     /**
     *   access to the fitted candidates
@@ -56,7 +56,7 @@ class RhoFitterBase: public TObject // TOperatorBase
     // the decay tree
     RhoCandidate& HeadOfTree() const { return *fHeadOfTree; }
     Bool_t fVerbose;
-    virtual void FitNode(RhoCandidate* b);                 // fit one decay in the tree. 
+    virtual Bool_t FitNode(RhoCandidate* b);                 // fit one decay in the tree. 
     
     // the clone of the tree.
     RhoCandidate* fHeadOfTree;                      //! uppermost particle composite in tree
@@ -78,7 +78,7 @@ class RhoFitterBase: public TObject // TOperatorBase
   private:
     // helper function
     std::map<Int_t,Double_t> fChi2Map; //each particle's contribution to the chi^2
-    void IterateAndFit(RhoCandidate* b);  // iterate the decay tree and fit each node recoursively
+    Bool_t IterateAndFit(RhoCandidate* b);  // iterate the decay tree and fit each node recoursively
 
     
   public:

@@ -59,7 +59,7 @@ void PndKinFitter::AddMassConstraint(double mass)
   fMass=mass;
 }
 
-void PndKinFitter::Fit()
+Bool_t PndKinFitter::Fit()
 {
   fDaughters.clear();
   FindAndAddFinalStateDaughters(fHeadOfTree);
@@ -89,8 +89,9 @@ void PndKinFitter::Fit()
   SetMatrices();
   ZeroMatrices();
   ReadMatrix();
-  Solve();
+  Bool_t check = Solve();
   SetOutput();
+  return check;
 }
 
 void PndKinFitter::SetMatrices()
@@ -128,7 +129,7 @@ void PndKinFitter::ZeroMatrices()
 }
 
 
-void PndKinFitter::Solve()
+Bool_t PndKinFitter::Solve()
 {
   //int nd=fDaughters.size(); //unused?
   double ierr; // used to check inversions
@@ -164,6 +165,7 @@ void PndKinFitter::Solve()
   fAl0=al_new;
   fV_al0=V_al_new;
   fPull=fmPull[0][0];
+  return kTRUE;
 }
 
 //Write output
@@ -486,15 +488,4 @@ void PndKinFitter::ReadEqMassKinMatrix()
   fNc +=1;
 }
 */
-
-
-
-
-
-
-
-
-
-
-
 

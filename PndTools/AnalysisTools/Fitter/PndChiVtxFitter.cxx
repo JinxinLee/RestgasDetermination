@@ -28,8 +28,9 @@ PndChiVtxFitter::~PndChiVtxFitter()
   //if(fHeadOfTree) delete fHeadOfTree;
 }
 
-void PndChiVtxFitter::FitNode(RhoCandidate* b)
+Bool_t PndChiVtxFitter::FitNode(RhoCandidate* b)
 {
+  Bool_t check=kFALSE;
   fCurrentNode=b;
 
   int nd=fCurrentNode->NDaughters();
@@ -38,10 +39,10 @@ void PndChiVtxFitter::FitNode(RhoCandidate* b)
   SetMatrices();
   ResetMatrices();
   ReadMatrix();
-  Compute();
+  check = Compute();
   // put result to the candidate (which is the "fitted" copy)
   SetOutput();
-  return;
+  return check;
 }
 
 
@@ -91,7 +92,7 @@ void PndChiVtxFitter::ResetMatrices()
 
 
 
-void PndChiVtxFitter::Compute()
+Bool_t PndChiVtxFitter::Compute()
 {
   TVector3 startVtx;
   GetStartVtx(&startVtx);
@@ -103,7 +104,7 @@ void PndChiVtxFitter::Compute()
 
   // the resulting vertex
   fNIter=0;
-  bool good(true);
+  Bool_t good=kTRUE;
   while(fNIter<fMaxIter) {
     good=FindVertex();
     if(!good) {
@@ -115,7 +116,7 @@ void PndChiVtxFitter::Compute()
     last  =vtxPos;
     fNIter++;
   }
-  return;
+  return good;
 }
 
 void PndChiVtxFitter::SetOutput()
@@ -141,7 +142,7 @@ void PndChiVtxFitter::SetOutput()
 }
 
 
-bool PndChiVtxFitter::FindVertex()
+Bool_t PndChiVtxFitter::FindVertex()
 {
   int nd=fCurrentNode->NDaughters();
   TMatrixD x0(3*nd,1);
@@ -214,7 +215,7 @@ bool PndChiVtxFitter::FindVertex()
   ppw.Invert(&determinant); // TDecompLU is called inside
   if(determinant==0) {
     if(fVerbose) cout<<"::FindVertex() Cannot invert.PP matrix Fit not completed"<<endl; 
-    return false;
+    return kFALSE;
   }
 
   //  if(problems) return false;
@@ -239,7 +240,7 @@ bool PndChiVtxFitter::FindVertex()
   xxCov.Invert(&determinant);
   if(0==determinant) { 
     cout<<"::FindVertex() Cannot invert. xx Matrix Fit not completed"<<endl; 
-    return false;
+    return kFALSE;
   }
   //   if(problems) return false;
 
@@ -280,7 +281,7 @@ bool PndChiVtxFitter::FindVertex()
   xpCov=-(1.0)*xxCov*xpCov;
   fChiSquare=fChi2;
 
-  return true;                                                                                                           ;
+  return kTRUE;                                                                                                           ;
 }
 
 void PndChiVtxFitter::ReadMatrix()

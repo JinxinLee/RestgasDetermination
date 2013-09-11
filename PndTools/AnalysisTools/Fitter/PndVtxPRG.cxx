@@ -44,7 +44,7 @@ Bool_t PndVtxPRG::CalcPrgParams(RhoCandidate* tcand, TVector3 expansionpoint)
 }
 
 
-void PndVtxPRG::FitNode(RhoCandidate* b)
+Bool_t PndVtxPRG::FitNode(RhoCandidate* b)
 {
   fCurrentHead=b;
   Bool_t check = Calculate();
@@ -52,6 +52,7 @@ void PndVtxPRG::FitNode(RhoCandidate* b)
     fChiSquare=-22222;
     Error("PndVtxPRG::FitNode()","Fit failed for composite %p. Set chisquare to %i.",b,fChiSquare);
   }
+  return check;
 }
 
 

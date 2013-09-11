@@ -53,30 +53,31 @@ void Pnd4CFitter::PrintTree(RhoCandidate* c, int l)
   }
 }
 
-void Pnd4CFitter::Fit()
+Bool_t Pnd4CFitter::Fit()
 {
   fDaughters.clear();
   FindAndAddFinalStateDaughters(fHeadOfTree); //add all leaves as deep as they are unlocked in fit status!
   fNDau=fDaughters.size();
-  Do4CFit();
+  Bool_t check = Do4CFit();
   SetFourMomentumByDaughters(fHeadOfTree);
+  return check;
 }
 
 
-void Pnd4CFitter::FitConserveMasses()
+Bool_t Pnd4CFitter::FitConserveMasses()
 {
   fDaughters.clear();
   FindAndAddFinalStateDaughters(fHeadOfTree);
   fNDau=fDaughters.size();
-  Do4CFitWithMassConservation();
+  Bool_t check = Do4CFitWithMassConservation();
   SetFourMomentumByDaughters(fHeadOfTree);
-
+  return check;
 }
 
 
 
 
-void Pnd4CFitter::Do4CFit()
+Bool_t Pnd4CFitter::Do4CFit()
 {
   int nd=fNDau;
 
@@ -171,14 +172,14 @@ void Pnd4CFitter::Do4CFit()
   fChiSquare=chi2;
   //fNDegreesOfFreedom=4*nd+4-4*nd; //(measurement+constraints-adjusted)
   fNDegreesOfFreedom=4; 
-  return;
+  return kTRUE;
 }
 
 
 
 //Fit conserves the daughter masses (only 3 params per track...)
 
-void Pnd4CFitter::Do4CFitWithMassConservation()
+Bool_t Pnd4CFitter::Do4CFitWithMassConservation()
 {
   int nd=fDaughters.size();
 
@@ -275,7 +276,7 @@ void Pnd4CFitter::Do4CFitWithMassConservation()
   fChiSquare=chi2;
   //fNDegreesOfFreedom=4*nd+4-3*nd; //(measurement+constraints-adjusted)
   fNDegreesOfFreedom=nd+4;
-  return;
+  return kTRUE;
 }
 
 

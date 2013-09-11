@@ -29,8 +29,8 @@ class PndKinFitter : public RhoFitterBase
     void AddTotEConstraint(double energy);
     void AddTotMomConstraint(double momentum);
     void AddMassConstraint(double mass);
-    void Fit();
-    void FitAll() {Fatal("PndKinFitter::FitAll()","Not applicable. Please use Fit().");};
+    Bool_t Fit();
+    Bool_t FitAll() {Fatal("PndKinFitter::FitAll()","Not applicable. Please use Fit().");};
 
     double Chi2Diff() {return fChi2Diff;}
     double GetPull() {return fPull;}
@@ -46,7 +46,7 @@ class PndKinFitter : public RhoFitterBase
     void ReadMomKinMatrix();
     void ReadTotEKinMatrix();
     void ReadTotMomKinMatrix();
-    void Solve();
+    Bool_t Solve();
     void SetOutput();
 
     TMatrixD fAl0; //original parameters

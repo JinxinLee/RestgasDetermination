@@ -45,11 +45,12 @@ void PndKinVtxFitter::AddPointingConstraint(TVector3 pVtx)
 }
 
 
-void PndKinVtxFitter::FitNode(RhoCandidate *cand)
+Bool_t PndKinVtxFitter::FitNode(RhoCandidate *cand)
 {
   SetDaugthersFromComposite(cand); 
-  Compute();
+  Bool_t check=Compute();
   SetOutput(cand);
+  return check;
 }
 
 
@@ -90,7 +91,7 @@ void PndKinVtxFitter::ResetMatrices()
 
 
 
-void PndKinVtxFitter::Compute()
+Bool_t PndKinVtxFitter::Compute()
 {
   // int nd=fDaughters.size();
   int nd=fDaughters.size();
@@ -279,6 +280,7 @@ void PndKinVtxFitter::Compute()
 //  V_al0=Va_new_vtx;
   fChiSquare=chi2[0][0];
   // fChi2Diff=chi2_1[0][0]-chi2[0][0];
+  return kTRUE;
 }
 
 

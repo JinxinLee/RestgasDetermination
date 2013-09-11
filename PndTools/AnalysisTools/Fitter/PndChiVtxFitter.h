@@ -34,16 +34,16 @@ class PndChiVtxFitter : public RhoFitterBase
     RhoCandList fDaughters;
     RhoCandidate* fCurrentNode;
     
-    void FitNode(RhoCandidate* b);
+    Bool_t FitNode(RhoCandidate* b);
 
     void SetMatrices();
     void ResetMatrices();
     void ReadMatrix();
 
-    void Compute();
+    Bool_t Compute();
     void SetOutput();
     void GetStartVtx(TVector3*);  //VJ
-    bool FindVertex();
+    Bool_t FindVertex();
 
 
     TMatrixD al0; //original parameters

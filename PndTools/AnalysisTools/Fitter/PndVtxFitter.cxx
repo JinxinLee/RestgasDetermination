@@ -49,13 +49,19 @@ PndVtxFitter::~PndVtxFitter()
   //if(fHeadOfTree) delete fHeadOfTree;
 }
 
-void PndVtxFitter::FitNode(RhoCandidate* b)
+Bool_t PndVtxFitter::FitNode(RhoCandidate* b)
 {
   SetDaugthersFromComposite(b);
+  unsigned test=4444;
   //    if(GetConstraintOpt() == 0)DoVertexFitWOCorr();
-  if ( m_beamConstraint == 0 ) { DoVertexFitWOCorr(); }
-  else { DoVertexFitBeamConstraint(); }
+  if ( m_beamConstraint == 0 ) { test=DoVertexFitWOCorr(); }
+  else { test=DoVertexFitBeamConstraint(); }
   SetOutputToRhoCandidate(b);
+  if(test==KF_NO_ERROR) {return kTRUE;}
+  else {
+    Error("FitNode()","Fit failed with status %i",test);
+    return kFALSE;
+  }
 }
 
 /**

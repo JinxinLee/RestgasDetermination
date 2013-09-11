@@ -21,7 +21,7 @@ class PndVtxFitter : public RhoFitterBase
   public:
     PndVtxFitter( RhoCandidate* b ) ;
     virtual ~PndVtxFitter();// {if(fHeadOfTree) delete fHeadOfTree;}
-    void FitNode(RhoCandidate* b);
+    Bool_t FitNode(RhoCandidate* b);
 
   private:
     //  unsigned   _fit2(PndVtxFitterParticleCollection& ); // small Matrix
