@@ -31,14 +31,19 @@ class PndTrkNeighboringMap : public TObject
   void SetOwnerValue(Bool_t enable = kTRUE) { hit2neigh.SetOwnerValue(enable); }
   TMapIter *GetIterator();
   TObjArray GetStandalone() { return fStandalone ; } 
-  TObjArray GetSeeds(); //  { return fSeeds; }
+  TObjArray GetSeeds(); //  { return fOneNeigh; }
   TObjArray GetCandseeds();
+  TObjArray GetIndivisibles();
+  TObjArray *GetIndivisiblesToHit(PndTrkHit *hit);
+  void PrintIndivisibleMap();
+  TObjArray GetHitWithNNeighborings(int nofhits);
+
 
  protected:
 
-  TMap hit2neigh;
+  TMap hit2neigh, hit2indiv;
   TClonesArray *fTubeArray;
-  TObjArray fStandalone, fSeeds, fCandseeds;
+  TObjArray fStandalone, fOneNeigh, fTwoNeigh;
 
 
   ClassDef(PndTrkNeighboringMap,1);

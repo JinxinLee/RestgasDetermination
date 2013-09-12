@@ -36,15 +36,27 @@ PndTrkNeighboringMap& PndTrkNeighboringMap::operator=(const PndTrkNeighboringMap
     hit2neigh.Add(hit, hits);
   }
 
+  TMapIter *it2 = (TMapIter*) hit2indiv.MakeIterator();
+  TObjArray *hits2;
+  while(PndTrkHit *hit = (PndTrkHit*) it2->Next()) {
+    hits2 = (TObjArray*) thismap.hit2indiv.GetValue(hit);
+    hit2indiv.Add(hit, hits);
+  }
+
+
   fTubeArray = thismap.fTubeArray;
   fStandalone = thismap.fStandalone;
-  fSeeds = thismap.fSeeds;
-  fCandseeds = thismap.fCandseeds;
+  fOneNeigh = thismap.fOneNeigh;
+  fTwoNeigh = thismap.fTwoNeigh;
   return *this;
 }
 
 
 void PndTrkNeighboringMap::AddNeighboringsToHit(PndTrkHit *hit, TObjArray *hits) {
+
+  //  hit->DrawTube(kGreen); // CHECK
+
+ 
 
 
   hit2neigh.Add(hit, hits);
@@ -52,15 +64,44 @@ void PndTrkNeighboringMap::AddNeighboringsToHit(PndTrkHit *hit, TObjArray *hits)
   PndSttTube *tube = (PndSttTube*) fTubeArray->At(tubeID);
   
   if(hits->GetEntriesFast() == 0) fStandalone.Add(hit);
-  else if(hits->GetEntriesFast() == 1) fSeeds.Add(hit);
-  else if(hits->GetEntriesFast() == 2) fCandseeds.Add(hit);
-  else if(tube->GetLayerID() == 0) fCandseeds.Add(hit);
+  else if(hits->GetEntriesFast() == 1) fOneNeigh.Add(hit);
+  else if(hits->GetEntriesFast() == 2) fTwoNeigh.Add(hit);
+  else if(tube->GetLayerID() == 0) fTwoNeigh.Add(hit);
+
+  // fill indivisible map -------------------------------------------
+
+  // up to 2 hits
+  if(hits->GetEntriesFast() <= 2) {
+    hit2indiv.Add(hit, hits);
+    cout << "Bset up map " << hit->GetHitID() << " " << hits->GetEntriesFast() << endl; 
+    return;
+  }
+
+  // more hits
+  TObjArray *indiv = new TObjArray();
+  
+  int counter = 0;
+  for(int k = 0; k < hits->GetEntriesFast(); k++) {
+    PndTrkHit *hit2 = (PndTrkHit*) hits->At(k);
+    PndSttTube *tube2 = (PndSttTube* ) fTubeArray->At(hit2->GetTubeID());
+    if(tube->GetLayerID() == tube2->GetLayerID()) continue;
+      counter++;
+      indiv->Add(hit2);
+
+      //      hit2->DrawTube(kRed); // CHECK
+  }
+  
+
+  if(counter > 2) indiv->Clear();
+  hit2indiv.Add(hit, indiv);
+  cout << "Aset up map " << hit->GetHitID() << " " << indiv->GetEntriesFast() << endl; 
+  
 }
 
 TObjArray PndTrkNeighboringMap::GetSeeds() {
   TObjArray seeds;
-  for(int ihit = 0; ihit < fSeeds.GetEntriesFast(); ihit++) {
-    PndTrkHit *hit = (PndTrkHit*) fSeeds.At(ihit);
+  for(int ihit = 0; ihit < fOneNeigh.GetEntriesFast(); ihit++) {
+    PndTrkHit *hit = (PndTrkHit*) fOneNeigh.At(ihit);
     int tubeID = hit->GetTubeID();
     PndSttTube *tube = (PndSttTube*) fTubeArray->At(tubeID);
     TObjArray *neighs = GetNeighboringsToHit(hit);
@@ -108,10 +149,10 @@ TObjArray PndTrkNeighboringMap::GetCandseeds() {
   TObjArray candidateseeds;
 
  
-  for(int ihit = 0; ihit < fCandseeds.GetEntriesFast(); ihit++) {
+  for(int ihit = 0; ihit < fTwoNeigh.GetEntriesFast(); ihit++) {
     int samelayer = -1;
     int standalone = -2;
-    PndTrkHit *hit = (PndTrkHit*) fCandseeds.At(ihit);
+    PndTrkHit *hit = (PndTrkHit*) fTwoNeigh.At(ihit);
     int tubeID = hit->GetTubeID();
     PndSttTube *tube = (PndSttTube*) fTubeArray->At(tubeID);
     TObjArray *neighs = GetNeighboringsToHit(hit);
@@ -142,6 +183,22 @@ TObjArray PndTrkNeighboringMap::GetCandseeds() {
   return candidateseeds;
 }
    
+TObjArray PndTrkNeighboringMap::GetIndivisibles() {
+  return fTwoNeigh;
+}
+   
+TObjArray *PndTrkNeighboringMap::GetIndivisiblesToHit(PndTrkHit *hit) {
+  cout << "indiv hit "  << hit << " " << hit->GetHitID() << endl;
+  return (TObjArray*) hit2indiv.GetValue(hit);
+}
+
+void PndTrkNeighboringMap::PrintIndivisibleMap() {
+  TMapIter *it2 = (TMapIter*) hit2indiv.MakeIterator();
+  TObjArray *hits2;
+  while(PndTrkHit *hit = (PndTrkHit*) it2->Next()) {
+    hits2 = (TObjArray*) hit2indiv.GetValue(hit);
+  }
+}
 
 // Returns 0 if not found.
 TObjArray * PndTrkNeighboringMap::GetNeighboringsToHit(PndTrkHit *hit) {
@@ -150,4 +207,16 @@ TObjArray * PndTrkNeighboringMap::GetNeighboringsToHit(PndTrkHit *hit) {
 
 TMapIter *PndTrkNeighboringMap::GetIterator() {
   return (TMapIter*) hit2neigh.MakeIterator();
+}
+
+TObjArray PndTrkNeighboringMap::GetHitWithNNeighborings(int nofhits) {
+  TObjArray listofhits;
+
+  TMapIter *it = (TMapIter*) hit2neigh.MakeIterator();
+  TObjArray *hits;
+  while(PndTrkHit *hit = (PndTrkHit*) it->Next()) {
+    hits = (TObjArray*) hit2neigh.GetValue(hit);
+    if(hits->GetEntriesFast() == nofhits) listofhits.Add(hit);
+  }
+  return listofhits;
 }
