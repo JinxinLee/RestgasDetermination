@@ -140,7 +140,7 @@ InitStatus PndTrkLegendreNew::Init() {
  
   if(fDisplayOn) {
     display = new TCanvas("display", "display", 0, 0, 800, 800); // CHECK
-    display->Divide(2, 2);
+    //    display->Divide(2, 2);
   }
 
   legendre = new PndTrkLegendreTransform();
@@ -498,16 +498,42 @@ void PndTrkLegendreNew::DrawLists(PndTrkNeighboringMap *hitmap) {
   
   for(int i = 0; i < hitmap->GetStandalone().GetEntriesFast(); i++) {
     PndTrkHit *hitA = (PndTrkHit*) hitmap->GetStandalone().At(i);
-    hitA->DrawTube(kGreen);
+    // hitA->DrawTube(kGreen);
   }
   for(int i = 0; i < hitmap->GetSeeds().GetEntriesFast(); i++) {
     PndTrkHit *hitA = (PndTrkHit*) hitmap->GetSeeds().At(i);
-    hitA->DrawTube(kRed);
+    //  hitA->DrawTube(kRed);
   }
   for(int i = 0; i < hitmap->GetCandseeds().GetEntriesFast(); i++) {
     PndTrkHit *hitA = (PndTrkHit*) hitmap->GetCandseeds().At(i);
-    hitA->DrawTube(kBlue);
-     }
+    //  hitA->DrawTube(kBlue);
+  }
+  for(int i = 0; i < hitmap->GetIndivisibles().GetEntriesFast(); i++) {
+    PndTrkHit *hitA = (PndTrkHit*) hitmap->GetIndivisibles().At(i);
+    hitA->DrawTube(kOrange);
+    TObjArray *neighs = hitmap->GetNeighboringsToHit(hitA);
+    for(int j = 0; j < neighs->GetEntriesFast(); j++) {
+      PndTrkHit *hitB = (PndTrkHit*) neighs->At(j);
+      TObjArray *neighs2 = hitmap->GetNeighboringsToHit(hitA);
+      if(neighs2->GetEntriesFast() > 2) {
+	int counter = 0;
+	PndSttTube *tubeB = (PndSttTube* ) fTubeArray->At(hitB->GetTubeID());
+	for(int k = 0; k < neighs2->GetEntriesFast(); k++) {
+	  PndTrkHit *hitC = (PndTrkHit*) neighs2->At(k);
+	  PndSttTube *tubeC = (PndSttTube* ) fTubeArray->At(hitC->GetTubeID());
+	  cout << "tubes " << tubeB << " "<< tubeC << endl;
+	  if(tubeB->GetLayerID() == tubeC->GetLayerID()) continue;
+	  counter++;
+	}
+	if(counter > 2) continue;
+      }
+      hitB->DrawTube(kYellow);
+    }
+    display->Update();
+    display->Modified();
+    //    cin >> goOnChar;
+
+  }
   
   //     for(int i = 0; i < limits.GetEntriesFast(); i++) {
   //        PndTrkHit *hitA = (PndTrkHit*) limits.At(i);
@@ -958,17 +984,53 @@ PndTrkClusterList PndTrkLegendreNew::CreateFullClusterization() {
     }
    
     //    cout << "HIT: " << hit->GetHitID() << " has " << neighborings->GetEntriesFast() << " hits" << endl;
+//     if(fDisplayOn) { 
+//       Refresh();
+//     }
+  
     hitmap.AddNeighboringsToHit(hit, neighborings);
-  }
 
+//     if(fDisplayOn) {
+//       char goOnChar;
+//       display->Update();
+//       display->Modified();
+//       cout << " go on?" << endl;
+//       cin >> goOnChar;
+//     }
+  }
   //  neighborings = NULL;
   //   delete neighborings;
 
   if(fDisplayOn) {
     if(1 == 1)  DrawLists(&hitmap);
     if(1 == 2)  DrawNeighborings(&hitmap);
-  }
+    // ================================================
+    Refresh();
+    char goOnChar;
+    for(int ihit = 0; ihit < stthitlist->GetNofHits(); ihit++) {
+      PndTrkHit *stthit = stthitlist->GetHit(ihit);
+      TObjArray *indiv = hitmap.GetIndivisiblesToHit(stthit);
+      for(int jhit = 0; jhit < indiv->GetEntriesFast(); jhit++) {
+	PndTrkHit *stthit2 = (PndTrkHit*) indiv->At(jhit);
+	stthit2->Draw(kOrange);
+ 	stthit->Draw(kOrange);
+      }
+    }
 
+    display->Update();
+    display->Modified();
+    cout << " STARTING" << endl;
+    cin >> goOnChar;
+    display->Update();
+    display->Modified();
+    // ================================================
+  }
+  cout << "PRINT INDIVISIBILE MAP" << endl;
+  hitmap.PrintIndivisibleMap();
+  
+
+
+  fDisplayOn = kFALSE;
   // get seeds *********************************************8
   TObjArray seeds = hitmap.GetSeeds();
   neighborings = NULL;
@@ -1062,6 +1124,259 @@ PndTrkClusterList PndTrkLegendreNew::CreateFullClusterization() {
   return clusterlist;
 }
 
+PndTrkClusterList PndTrkLegendreNew::CreateFullClusterization2() {
+/**
+  PndTrkClusterList clusterlist;
+  TObjArray limits;
+  TObjArray sector[6];
+  PndTrkNeighboringMap hitmap(fTubeArray);
+  TObjArray *neighborings = NULL;
+
+
+  //  PndTrkHit *hit, hit2;
+  // Loop over all hits and look for:
+  // 1 - tubes limiting sectors                               std::vector< int > limithit
+  // 2 - tubes with no neighborings (will not use them)       std::vector< int > standalone
+  // 3 - tubes with only 1 neighboring (will serve as seed)   std::vector< int > seeds
+  // 4 - tubes with only 2 neighborings, one of which is on   std::vector< int > candseeds
+  //     the same layer and has neighboring (will be candidate 
+  //     to serve as seed, if needed)
+  // 5 - Fill the sector std::vector according to sectors     std::vector< int > sector*
+
+  hitmap.SetOwnerValue(kTRUE); // CHECK
+  for(int ihit = 0; ihit < stthitlist->GetNofHits(); ihit++) {
+
+    PndTrkHit  *hit = stthitlist->GetHit(ihit);
+    int tubeID = hit->GetTubeID();
+    PndSttTube *tube = (PndSttTube*) fTubeArray->At(tubeID);
+    if(tube->IsSectorLimit() == kTRUE) limits.Add(hit);
+
+    neighborings = new TObjArray();
+   
+    for(int jhit = 0; jhit < stthitlist->GetNofHits(); jhit++) {
+      if(ihit == jhit) continue;
+     
+      PndTrkHit *hit2 = stthitlist->GetHit(jhit);
+      int tubeID2 = hit2->GetTubeID();
+     
+      if(tube->IsNeighboring(tubeID2) == kTRUE) neighborings->Add(hit2);
+     
+    }
+   
+    //    cout << "HIT: " << hit->GetHitID() << " has " << neighborings->GetEntriesFast() << " hits" << endl;
+    hitmap.AddNeighboringsToHit(hit, neighborings);
+  }
+
+  //  neighborings = NULL;
+  //   delete neighborings;
+
+  if(fDisplayOn) {
+    if(1 == 1)  DrawLists(&hitmap);
+    if(1 == 2)  DrawNeighborings(&hitmap);
+
+
+  }
+
+  //  fDisplayOn = kFALSE;
+  // get seeds *********************************************8
+  TObjArray seeds = hitmap.GetSeeds();
+  neighborings = NULL;
+  
+//   // ----------------- loop over seeds
+//   for(int iseed = 0; iseed < seeds.GetEntriesFast(); iseed++) {
+//     PndTrkCluster *cluster = new PndTrkCluster();
+//     PndTrkHit *seedhit = (PndTrkHit*) seeds.At(iseed);
+    
+//     // is it already used
+//     if(seedhit->IsUsed() == kTRUE) continue;
+    
+//     int seedtubeID = seedhit->GetTubeID();
+//     PndSttTube *seedtube = (PndSttTube*) fTubeArray->At(seedtubeID);
+//     int seedlayerID = seedtube->GetLayerID();
+    
+//     // add hit to cluster
+//     cluster->AddHit(seedhit);
+//     // add cluster to clusterlist
+//     clusterlist.AddCluster(cluster);
+
+//     PndTrkHit *hitA = hit;
+//     TObjArray *neighsA = hitmap->GetNeighborings(hitA);
+
+//     for(int ihit = 0; ihit < neighsA->GetEntriesFast(); ihit++) {
+//       PndTrkHit *hitB = (PndTrkHit*) neighsA->At(ihit);
+//       TObjArray *neighsB = hitmap->GetNeighborings(hitB);
+
+//       if(neighsB->GetEntriesFast() > 2) {
+// 	int counter = 0;
+// 	PndSttTube *tubeB = (PndSttTube* ) fTubeArray->At(hitB->GetTubeID());
+// 	for(int k = 0; k < neighsB->GetEntriesFast(); k++) {
+// 	  PndTrkHit *hitC = (PndTrkHit*) neighsB->At(k);
+// 	  PndSttTube *tubeC = (PndSttTube* ) fTubeArray->At(hitC->GetTubeID());
+// 	  if(tubeB->GetLayerID() == tubeC->GetLayerID()) continue;
+// 	  counter++;
+// 	}
+// 	if(counter > 2) continue;
+//       }
+
+//       cluster->AddHit(hitB);
+//     }
+//   }
+
+
+  // ----------------- loop over seeds
+  cout << "START LOOP OVER " << seeds.GetEntriesFast() << " SEEDS" << endl;
+  for(int iseed = 0; iseed < seeds.GetEntriesFast(); iseed++) {
+    cout << "SEED " << iseed << endl;
+    PndTrkCluster *cluster = new PndTrkCluster();
+    PndTrkHit *seedhit = (PndTrkHit*) seeds.At(iseed);
+    
+    // is it already used
+    if(seedhit->IsUsed() == kTRUE) continue;
+    
+    int seedtubeID = seedhit->GetTubeID();
+    PndSttTube *seedtube = (PndSttTube*) fTubeArray->At(seedtubeID);
+    int seedlayerID = seedtube->GetLayerID();
+    
+    // add hit to cluster
+    cluster->AddHit(seedhit);
+    // add cluster to clusterlist
+    clusterlist.AddCluster(cluster);
+
+    TObjArray indivisibles = hitmap.GetIndivisibles();
+    cout << "indivisibles " << indivisibles.GetEntriesFast() << endl;
+    int lastadded = 1;
+    while(lastadded > 0) {
+
+      PndTrkHit *hitA = seedhit;
+      lastadded = 0;
+      for(int ihit = 0; ihit < indivisibles.GetEntriesFast();  ihit++) {
+	//	cout << "ihit " << ihit << endl;
+	PndTrkHit *hitB = (PndTrkHit*) indivisibles.At(ihit);
+	TObjArray *neighsB = hitmap.GetNeighboringsToHit(hitB);
+	if(neighsB->FindObject(hitA) == 0) continue;
+	cluster->AddHit(hitA);
+	hitA = hitB;
+	lastadded++;
+	cout << "new iteration " << hitA->GetHitID() << endl;
+      }
+    }
+  }
+  cout << " END " << endl;
+  return clusterlist;
+**/
+}
+
+/**
+PndTrkClusterList PndTrkLegendreNew::CreateFullClusterization3
+() {
+  PndTrkClusterList clusterlist;
+  TObjArray limits;
+  TObjArray sector[6];
+  PndTrkNeighboringMap hitmap(fTubeArray);
+  TObjArray *neighborings = NULL;
+
+
+  //  PndTrkHit *hit, hit2;
+  // Loop over all hits and look for:
+  // 1 - tubes limiting sectors                               std::vector< int > limithit
+  // 2 - tubes with no neighborings (will not use them)       std::vector< int > standalone
+  // 3 - tubes with only 1 neighboring (will serve as seed)   std::vector< int > seeds
+  // 4 - tubes with only 2 neighborings, one of which is on   std::vector< int > candseeds
+  //     the same layer and has neighboring (will be candidate 
+  //     to serve as seed, if needed)
+  // 5 - Fill the sector std::vector according to sectors     std::vector< int > sector*
+
+  hitmap.SetOwnerValue(kTRUE); // CHECK
+  for(int ihit = 0; ihit < stthitlist->GetNofHits(); ihit++) {
+
+    PndTrkHit  *hit = stthitlist->GetHit(ihit);
+    int tubeID = hit->GetTubeID();
+    PndSttTube *tube = (PndSttTube*) fTubeArray->At(tubeID);
+    if(tube->IsSectorLimit() == kTRUE) limits.Add(hit);
+
+    neighborings = new TObjArray();
+   
+    for(int jhit = 0; jhit < stthitlist->GetNofHits(); jhit++) {
+      if(ihit == jhit) continue;
+     
+      PndTrkHit *hit2 = stthitlist->GetHit(jhit);
+      int tubeID2 = hit2->GetTubeID();
+     
+      if(tube->IsNeighboring(tubeID2) == kTRUE) neighborings->Add(hit2);
+     
+    }
+   
+    //    cout << "HIT: " << hit->GetHitID() << " has " << neighborings->GetEntriesFast() << " hits" << endl;
+    hitmap.AddNeighboringsToHit(hit, neighborings);
+  }
+
+  //  neighborings = NULL;
+  //   delete neighborings;
+
+  if(fDisplayOn) {
+    if(1 == 1)  DrawLists(&hitmap);
+    if(1 == 2)  DrawNeighborings(&hitmap);
+
+
+  }
+
+  //  fDisplayOn = kFALSE;
+  // get seeds *********************************************8
+  TObjArray seeds = hitmap.GetSeeds();
+  neighborings = NULL;
+  
+   // ----------------- loop over seeds
+   for(int iseed = 0; iseed < seeds.GetEntriesFast(); iseed++) {
+     PndTrkCluster *cluster = new PndTrkCluster();
+     PndTrkHit *seedhit = (PndTrkHit*) seeds.At(iseed);
+    
+     // is it already used
+     if(seedhit->IsUsed() == kTRUE) continue;
+    
+     int seedtubeID = seedhit->GetTubeID();
+     PndSttTube *seedtube = (PndSttTube*) fTubeArray->At(seedtubeID);
+     int seedlayerID = seedtube->GetLayerID();
+  
+     // add hit to cluster
+     cluster->AddHit(seedhit);
+     // add cluster to clusterlist
+     clusterlist.AddCluster(cluster);
+
+     int nlastadded = 1, addedcounter = 0;
+
+     while(nlastadded > 0) {
+      // loop on the last nlastadded hits to this cluster
+      // example: add to a 5 hits cluster: 0 1 2 3 4
+      // the hits no. 5, 6, 7
+      // --> nlastadded = 3 & nof hits in cluster = 5 + 3 = 8
+      // 7 6 5 = 8 - 3
+      // here loop from hit 8 - 1 = 7 to hit 8 - 3 = 5
+
+      addedcounter = 0;
+      int nclusterhits = cluster->GetNofHits();
+      for(int iadded = nclusterhits - 1; iadded >= (nclusterhits - nlastadded); iadded--) {
+	PndTrkHit *addedhit = cluster->GetHit(iadded);
++
+
+
+	neighborings = hitmap.GetNeighboringsToHit(addedhit);
+	if(neighborings->GetEntriesFast() == 0) continue;
+	//	cout << "hit " << addedhit->GetHitID() << "(" << addedhit->GetTubeID() << ")" << " has " << neighborings->GetEntriesFast()  << " neighborigns: " << endl;
+        addedcounter++;
+
+
+      }
+      nlastadded = addedcounter;
+    }
+
+
+
+    
+  }
+  cout << " END " << endl;
+  return clusterlist;
+}
+**/
 
 Int_t PndTrkLegendreNew::CountTracksInSkewSector(PndTrkCluster *cluster) {
   // check how many neighboring tubes each skew 
@@ -1132,11 +1447,11 @@ Int_t PndTrkLegendreNew::CountTracksInSkewSector(PndTrkCluster *cluster) {
 
 
       if(tube->GetLayerID() != tube2->GetLayerID()) cout << "ERROR" << tube->GetLayerID()  << " " << tube2->GetLayerID() << endl;
-      cout << "compare " << ihit << "(" << hit->GetHitID() << "- " << hit->GetTubeID() << ") with " << jhit << " (" << hit2->GetHitID() << "- " << tubeid2 << ") from " << counter << " to " << counter + nofhitsinlay[layid] - 1 << endl;
+      //      cout << "compare " << ihit << "(" << hit->GetHitID() << "- " << hit->GetTubeID() << ") with " << jhit << " (" << hit2->GetHitID() << "- " << tubeid2 << ") from " << counter << " to " << counter + nofhitsinlay[layid] - 1 << endl;
       if(tube->IsNeighboring(tubeid2) == kTRUE) {
 	isneigh++;
-	cout << "isneigh " << isneigh << endl;
-	// break;
+	//	cout << "isneigh " << isneigh << endl;
+	//	// break;
       }
     }
   }
@@ -1266,7 +1581,7 @@ PndTrkCluster * PndTrkLegendreNew::CreateClusterAroundTrack(PndTrkTrack *track) 
  
 
     double distance = hit->GetXYDistance(TVector3(xc, yc, 0.));
-    cout << "distance " << distance << " " << rmin << " " << rmax << " " << distanceconf << endl;
+    //    cout << "distance " << distance << " " << rmin << " " << rmax << " " << distanceconf << endl;
     if(distance <= rmax && distance >= rmin) {
       thiscluster->AddHit(hit);
       PndSttTube *tube = (PndSttTube*) fTubeArray->At(hit->GetTubeID());
@@ -1276,7 +1591,7 @@ PndTrkCluster * PndTrkLegendreNew::CreateClusterAroundTrack(PndTrkTrack *track) 
       if(tube->GetLayerID() > endlayid)  endlayid = tube->GetLayerID();
       if(tube->GetSectorID() > endsecid) endsecid = tube->GetSectorID();
       
-      cout << "hit " << ihit << " " << hit->GetHitID() << " " << endsecid << " " << endlayid << endl;
+      //      cout << "hit " << ihit << " " << hit->GetHitID() << " " << endsecid << " " << endlayid << endl;
       totaldistanceconf += distanceconf;
 
     }
@@ -1320,11 +1635,11 @@ PndTrkCluster * PndTrkLegendreNew::CreateClusterAroundTrack(PndTrkTrack *track) 
 	else chit = conform->GetConformalHit(hit); // CHECK if skew?
 	double distanceconf = fabs((chit->GetV() - fitm * chit->GetU() - fitp)/ TMath::Sqrt(fitm * fitm + 1));
    
-	cout << "->distance " << distance << " (" << meandistanceconf << ") " << rmin << " " << rmax << " " << distanceconf << endl;
+	//	cout << "->distance " << distance << " (" << meandistanceconf << ") " << rmin << " " << rmax << " " << distanceconf << endl;
  
 
 
-	cout << "tubeid " << hit->GetTubeID() << " " << tube->GetLayerID() << endl;
+	//	cout << "tubeid " << hit->GetTubeID() << " " << tube->GetLayerID() << endl;
 	thiscluster->AddHit(hit);
 	//	cout << " ***";
 
@@ -1365,22 +1680,22 @@ void PndTrkLegendreNew::AnalyticalFit(PndTrkCluster *cluster, double xc, double 
       PndTrkConformalHit *chit = conform->GetConformalHit(hit);
       double sigma = 0.1; // CHECK
       fFitter->SetPointToFit(chit->GetPosition().X(), chit->GetPosition().Y(), sigma);
-      cout << "set point to fit " << chit->GetPosition().X() << " " <<  chit->GetPosition().Y() << endl;
-      if(fDisplayOn) {
-	display->cd(1);
-	TMarker *mrk = new TMarker(hit->GetPosition().X(), hit->GetPosition().Y(), 6);
-	mrk->SetMarkerColor(kRed);
-	mrk->Draw("SAME");
+      //      cout << "set point to fit " << chit->GetPosition().X() << " " <<  chit->GetPosition().Y() << endl;
+      //     if(fDisplayOn) {
+      // 	display->cd(1);
+      // 	TMarker *mrk = new TMarker(hit->GetPosition().X(), hit->GetPosition().Y(), 6);
+      // 	mrk->SetMarkerColor(kRed);
+      // 	mrk->Draw("SAME");
 
-	display->cd(2);
-	TMarker *mrk2 = new TMarker(chit->GetPosition().X(), chit->GetPosition().Y(), 6);
-	mrk2->SetMarkerColor(kRed);
-	mrk2->Draw("SAME");
+      // 	display->cd(2);
+      // 	TMarker *mrk2 = new TMarker(chit->GetPosition().X(), chit->GetPosition().Y(), 6);
+      // 	mrk2->SetMarkerColor(kRed);
+      // 	mrk2->Draw("SAME");
 
 
-	display->Update();
-	display->Modified();
-      } 
+      // 	display->Update();
+      // 	display->Modified();
+      //       } 
     }
 
   
@@ -1426,7 +1741,7 @@ void PndTrkLegendreNew::AnalyticalFit2(PndTrkCluster *cluster, double fitm, doub
       
       double sigma = chit->GetIsochrone();
       fFitter->SetPointToFit(chit->GetPosition().X(), chit->GetPosition().Y(), sigma);
-      cout << "set point to fit " << chit->GetPosition().X() << " " <<  chit->GetPosition().Y() << endl;
+      //      cout << "set point to fit " << chit->GetPosition().X() << " " <<  chit->GetPosition().Y() << endl;
       if(fDisplayOn) {
 	display->cd(1);
 	TMarker *mrk = new TMarker(hit->GetPosition().X(), hit->GetPosition().Y(), 6);
