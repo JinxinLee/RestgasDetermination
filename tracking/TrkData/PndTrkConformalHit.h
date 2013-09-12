@@ -34,6 +34,9 @@ class PndTrkConformalHit : public TObject
 
   double GetDistanceFromTrack(double fitm, double fitp);
  
+
+  void SetPosition(double x, double y) { fPosition.Set(x, y);  }
+
   // info
   void Draw(Color_t color);
   void Print();

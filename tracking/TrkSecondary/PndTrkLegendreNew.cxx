@@ -220,13 +220,14 @@ void PndTrkLegendreNew::Exec(Option_t* opt) {
     display->Update();
     display->Modified();
   }
-
+  // fDisplayOn = kFALSE;
   // clusterization -----~~~~~-----~~~~~-----~~~~~-----~~~~~-----~~~~~-----~~~~~-----
   PndTrkClusterList clusterlist = CreateFullClusterization();
-  cout << "CLUSTERLIST " << clusterlist.GetNofClusters() << endl;
+  int nofclusters = clusterlist.GetNofClusters(); 
+  cout << "CLUSTERLIST " << nofclusters << endl;
 
   // loop on clusterlist -----~~~~~-----~~~~~-----~~~~~-----~~~~~-----~~~~~-----~~~~~
-  for(int iclus = 0; iclus < clusterlist.GetNofClusters(); iclus++) {
+  for(int iclus = 0; iclus < nofclusters; iclus++) {
     PndTrkCluster *cluster = clusterlist.GetCluster(iclus);
     // if(cluster->GetNofHits() < 3) continue;
 
@@ -251,19 +252,109 @@ void PndTrkLegendreNew::Exec(Option_t* opt) {
     // count tracks in skew sector -----~~~~~-----~~~~~-----~~~~~-----~~~~~-----~~~~~
     Int_t maxnoftracks =  CountTracksInSkewSector(cluster);
 
-    if(maxnoftracks > 1) continue; // CHECK
+    //  if(maxnoftracks > 1) continue; // CHECK
 
-    // fitting procedure -----~~~~~-----~~~~~-----~~~~~-----~~~~~-----~~~~~-----~~~~~
+    PndTrkClusterList partialcluslist;
+    cout << "\033[1;36m ITERATIONS -----------------------> " << maxnoftracks << "\033[0m" << endl;
+    for(int iter = 0; iter < maxnoftracks; iter++) {
+      cout << "\033[1;36m ############### ITER "  << iter << "\033[0m" << endl;
+      // fitting procedure -----~~~~~-----~~~~~-----~~~~~-----~~~~~-----~~~~~-----~~~~~
+      Int_t nhits = ClusterToConformal(cluster);
+      PndTrkTrack *track = LegendreFit(cluster);
+      if(track == NULL) continue;
+      PndTrkCluster *thiscluster = CreateClusterAroundTrack(track);
+      partialcluslist.AddCluster(thiscluster);
+      cout << "ADD CLUSTER TO PARTCLUSLIST " << thiscluster->GetNofHits() << endl;
+      PndTrkCluster *remainingcluster = new PndTrkCluster();
+      for(int ihit = 0; ihit < cluster->GetNofHits(); ihit++) {
+	PndTrkHit *hit = cluster->GetHit(ihit);
+	if(thiscluster->DoesContain(hit)) continue;
+	remainingcluster->AddHit(hit);
+      }
+      cluster = remainingcluster;
+      cout << "partialclusterlist " << partialcluslist.GetNofClusters() << endl;
+      cout << "remainning hits " << remainingcluster->GetNofHits() << endl;
+
+      // if there are still a lot of hits not assigned, maybe 
+      // there is another track...
+      if(remainingcluster->GetNofHits() > 15 && iter == maxnoftracks - 1) {
+	cout << "\033[1;31m LETS TRY ANOTHER ONE -------- BONUS ------------ \033[0m" << endl;
+	
+	maxnoftracks++;
+      }
+    }
+
+    cout << "partialclusterlist " << partialcluslist.GetNofClusters() << endl;
+    for(int jclus = 0; jclus < partialcluslist.GetNofClusters(); jclus++) {
+      PndTrkCluster *partcluster = partialcluslist.GetCluster(jclus);
+      cout << "ADD CLUSTER TO NEW CLUSLIST " << cluster->GetNofHits() << " " << partcluster->GetNofHits() << endl;
+	 
+      if(jclus == 0) clusterlist.ReplaceCluster(iclus, partcluster);
+      else clusterlist.AddCluster(partcluster);
+    }
+    cout << "clusterlist now is " << clusterlist.GetNofClusters() << endl;
+    cout << "@@@@@@ " <<     clusterlist.GetCluster(iclus)->GetNofHits() << endl;
+
+  }
+  // ---------------------------------------
+  
+
+  // reloop over the clusterlist -----~~~~~-----~~~~~-----~~~~~-----~~~~~-----~~~~~
+  nofclusters = clusterlist.GetNofClusters(); 
+  cout << "\033[1;35m (AFTER LEGENDRE AND RECLUSTERING) NEW CLUSTERLIST " << nofclusters << " \033[0m" << endl;
+  // fDisplayOn = kTRUE;
+  
+  std::vector< PndTrkTrack* > tracklist;
+  // loop on clusterlist -----~~~~~-----~~~~~-----~~~~~-----~~~~~-----~~~~~-----~~~~~
+  for(int iclus = 0; iclus < nofclusters; iclus++) {
+    PndTrkCluster *cluster = clusterlist.GetCluster(iclus);
+    // if(cluster->GetNofHits() < 3) continue;
+
+    // print and display cluster -----~~~~~-----~~~~~-----~~~~~-----~~~~~-----~~~~~--
+    cout << "CLUSTER " << iclus << ":";
+    if(fDisplayOn)  {
+      char goOnChar;
+      cin >> goOnChar;
+      Refresh();
+      cluster->LightUp();
+      display->Update();
+      display->Modified();
+    }
+      
+    // fit with analytical chi2 -----~~~~~-----~~~~~-----~~~~~-----~~~~~-----~~~~~--
     Int_t nhits = ClusterToConformal(cluster);
     PndTrkTrack *track = LegendreFit(cluster);
     if(track == NULL) continue;
     PndTrkCluster *thiscluster = CreateClusterAroundTrack(track);
+    double fitm, fitp;
+    // AnalyticalFit(thiscluster, track->GetCenter().X(), track->GetCenter().Y(), track->GetRadius(), fitm, fitp);
+    FromRealToConformalTrack(track->GetCenter().X(), track->GetCenter().Y(), track->GetRadius(), fitm, fitp);
+    double fitm2, fitp2;
+    AnalyticalFit2(thiscluster, fitm, fitp, fitm2, fitp2);
 
-    cout << "CLSUTERING " << iclus << " " << endl;
+    double xc, yc, R;
+    FromConformalToRealTrack(fitm, fitp, xc, yc, R);
+
+    track->SetCluster(thiscluster);
+    track->SetCenter(xc, yc);
+    track->SetRadius(R);
+
+    tracklist.push_back(track);
+  }
+  fDisplayOn = kTRUE;
+
+  if(fDisplayOn) {
+    
+    Refresh();
+    for(int itrk = 0; itrk < tracklist.size(); itrk++) {
+      PndTrkTrack *track = tracklist.at(itrk);
+      track->Draw(kRed);
+      display->Update();
+      display->Modified();
+    }
   }
 
-  // ---------------------------------------
-  
+
   if(fDisplayOn) {
     char goOnChar;
     display->Update();
@@ -271,7 +362,7 @@ void PndTrkLegendreNew::Exec(Option_t* opt) {
     cout << "Finish? ";
     cin >> goOnChar;
   }
-  
+    
   
   Reset();
 }
@@ -492,7 +583,7 @@ Int_t PndTrkLegendreNew::FillConformalHitList(PndTrkCluster *cluster) {
     if(hit->IsSttParallel() == kTRUE) chit = conform->GetConformalSttHit(hit);
     else continue; // chit = conform->GetConformalHit(hit);
     conformalhitlist->AddHit(chit);  
-    cout << hit->GetPosition().X() << " " << hit->GetPosition().Y() << " " << hit->IsSttParallel() << " " << " to CONFORMAL " << chit->GetU() << " " << chit->GetV() << " " << chit->GetIsochrone() << endl;   
+    //    cout << hit->GetPosition().X() << " " << hit->GetPosition().Y() << " " << hit->IsSttParallel() << " " << " to CONFORMAL " << chit->GetU() << " " << chit->GetV() << " " << chit->GetIsochrone() << endl;   
 
   }
   return conformalhitlist->GetNofHits();
@@ -731,7 +822,7 @@ Int_t  PndTrkLegendreNew::ExtractLegendre(Int_t mode, double &theta_max, double 
 
     if(maxpeak <= 3) {
       //      if(fVerbose > 1)
-      cout << "MAXPEAK " << maxpeak <<  ", BREAK NOW! "  << endl;
+     	cout << "\033[1;31m MAXPEAK " << maxpeak <<  ", BREAK NOW! \033[0m" << endl;
       return maxpeak;
     }
   
@@ -803,6 +894,30 @@ void PndTrkLegendreNew::FromConformalToRealTrack(double fitm, double fitp, doubl
   y0 += conformalhitlist->GetConformalTransform()->GetTranslation().Y();
 }
 
+void PndTrkLegendreNew::FromRealToConformalTrack(double x0, double y0, double R, double &fitm, double &fitp) {
+ // CHECK if this needs to be kept --> change xc0 to xc etc
+  Double_t xcrot0, ycrot0;
+ 
+  // traslation 
+  x0 -= conformalhitlist->GetConformalTransform()->GetTranslation().X();
+  y0 -= conformalhitlist->GetConformalTransform()->GetTranslation().Y();
+
+  /**
+     |x|  |c -s||xr|  ---> |xr|  | c s||x|
+     |y|  |s  c||yr|       |yr|  |-s c||y|
+  **/
+
+  // rotation    
+  xcrot0 = TMath::Cos(conformalhitlist->GetConformalTransform()->GetRotation())*x0 + TMath::Sin(conformalhitlist->GetConformalTransform()->GetRotation())*y0;
+  ycrot0 = - TMath::Sin(conformalhitlist->GetConformalTransform()->GetRotation())*x0 + TMath::Cos(conformalhitlist->GetConformalTransform()->GetRotation())*y0;
+  
+  // yr = 1/ (2 p) --> p = 1 / (2 yr)
+  // xr = - m / (2 p) --> m = - 2 p xr
+  fitp = 1 / (2 * ycrot0);
+  fitm = - 2 * fitp *  xcrot0;
+}
+
+
 
 PndTrkClusterList PndTrkLegendreNew::CreateFullClusterization() {
   PndTrkClusterList clusterlist;
@@ -842,7 +957,7 @@ PndTrkClusterList PndTrkLegendreNew::CreateFullClusterization() {
      
     }
    
-    cout << "HIT: " << hit->GetHitID() << " has " << neighborings->GetEntriesFast() << " hits" << endl;
+    //    cout << "HIT: " << hit->GetHitID() << " has " << neighborings->GetEntriesFast() << " hits" << endl;
     hitmap.AddNeighboringsToHit(hit, neighborings);
   }
 
@@ -973,7 +1088,7 @@ Int_t PndTrkLegendreNew::CountTracksInSkewSector(PndTrkCluster *cluster) {
     PndSttTube *tube = (PndSttTube*) fTubeArray->At(hit->GetTubeID());
     hit->SetSortVariable(tube->GetLayerID());
     nofhitsinlay[tube->GetLayerID()]++;
-    cout << "hit " << ihit << " " << tube->GetLayerID() << " " << nofhitsinlay[tube->GetLayerID()] << endl;
+    //    cout << "hit " << ihit << " " << tube->GetLayerID() << " " << nofhitsinlay[tube->GetLayerID()] << endl;
 
   }
   cluster->Sort();
@@ -981,7 +1096,7 @@ Int_t PndTrkLegendreNew::CountTracksInSkewSector(PndTrkCluster *cluster) {
   for(int ihit = 0; ihit < cluster->GetNofHits(); ihit++) {
     PndTrkHit *hit = cluster->GetHit(ihit);
     PndSttTube *tube = (PndSttTube*) fTubeArray->At(hit->GetTubeID());
-    cout << "SORTED " << ihit << " " << hit->GetHitID() << " " << tube->GetLayerID() << endl;
+    //    cout << "SORTED " << ihit << " " << hit->GetHitID() << " " << tube->GetLayerID() << endl;
   }
 
   int maxnoftracks = 1;
@@ -1006,7 +1121,7 @@ Int_t PndTrkLegendreNew::CountTracksInSkewSector(PndTrkCluster *cluster) {
       counter1 = 0;
       //	continue; //	break;
     }
-    cout << "hit " << ihit << " on layid " << layid << "/ " <<  nofhitsinlay[layid] << endl;
+    //    cout << "hit " << ihit << " on layid " << layid << "/ " <<  nofhitsinlay[layid] << endl;
     counter1++;
     if(counter1 == nofhitsinlay[layid]) continue;
     for(int jhit = counter; jhit < counter + nofhitsinlay[layid] -  counter1; jhit++) {
@@ -1076,6 +1191,7 @@ PndTrkTrack * PndTrkLegendreNew::LegendreFit(PndTrkCluster *cluster) {
   // get the peak
   int maxpeak = ExtractLegendre(1, theta_max, r_max); // CHECK mode??
           
+  if(maxpeak == 0) return NULL;
   // from theta/r to line parameters in CONFORMAL plane 
   double fitm, fitq;
   legendre->ExtractLegendreSingleLineParameters(fitm, fitq);
@@ -1088,7 +1204,8 @@ PndTrkTrack * PndTrkLegendreNew::LegendreFit(PndTrkCluster *cluster) {
   // from line parameters to center/radius in REAL plane
   Double_t xc, yc, R;
   FromConformalToRealTrack(fitm, fitq, xc, yc, R);
-  cout << "XR, YC, R: " << xc << " " << yc << " " << R << endl;
+  cout << "\033[1;33m XR, YC, R: " << xc << " " << yc << " " << R << "\033[0m" << endl;
+	//	cout << "start hit " << ihit << " " << hit->GetHitID() << " " << endsecid << " " << endlayid << endl;
 
   // create a track from the cluster
   PndTrkTrack *track = new PndTrkTrack(cluster, xc, yc, R);
@@ -1102,11 +1219,15 @@ PndTrkCluster * PndTrkLegendreNew::CreateClusterAroundTrack(PndTrkTrack *track) 
   double R = track->GetRadius();
   double xc = track->GetCenter().X();
   double yc = track->GetCenter().Y();
-  PndTrkCluster *cluster = track->GetCluster();
+  double fitm, fitp;
+  FromRealToConformalTrack(xc, yc, R, fitm, fitp);
+
+
+ PndTrkCluster *cluster = track->GetCluster();
 
   // create cluster depending on fitting
-  double rmin = R - R * 0.05; // CHECK 20%?
-  double rmax = R + R * 0.05; // "      "
+  double rmin = R - R * 0.10; // CHECK 20%?
+  double rmax = R + R * 0.10; // "      "
   
   
   if(fDisplayOn) {
@@ -1121,8 +1242,8 @@ PndTrkCluster * PndTrkLegendreNew::CreateClusterAroundTrack(PndTrkTrack *track) 
     arcmin->SetLineColor(kGreen);
     arcmax->SetLineColor(kBlue);
 
-    arcmin->Draw("SAME");
-    arcmax->Draw("SAME");
+ //    arcmin->Draw("SAME");
+//     arcmax->Draw("SAME");
 
     display->Update();
     display->Modified();
@@ -1133,27 +1254,35 @@ PndTrkCluster * PndTrkLegendreNew::CreateClusterAroundTrack(PndTrkTrack *track) 
     
   // create cluster depending on fitting
   PndTrkCluster *thiscluster = new PndTrkCluster();
-  bool started = false;
-  int startsecid = -1, endsecid = -1, startlayid = -1, endlayid = -1;
+  int startsecid = 1000, endsecid = -1, startlayid = 1000, endlayid = -1;
+  double totaldistanceconf = 0,  chi2 = 0;
   // clean existing cluster
   for(int ihit = 0; ihit < cluster->GetNofHits(); ihit++) {
     PndTrkHit *hit = cluster->GetHit(ihit);
+    PndTrkConformalHit *chit = NULL;
+    if(hit->IsSttParallel()) chit = conform->GetConformalSttHit(hit);
+    else chit = conform->GetConformalHit(hit); // CHECK if skew?
+    double distanceconf = fabs((chit->GetV() - fitm * chit->GetU() - fitp)/ TMath::Sqrt(fitm * fitm + 1));
+ 
+
     double distance = hit->GetXYDistance(TVector3(xc, yc, 0.));
+    cout << "distance " << distance << " " << rmin << " " << rmax << " " << distanceconf << endl;
     if(distance <= rmax && distance >= rmin) {
       thiscluster->AddHit(hit);
       PndSttTube *tube = (PndSttTube*) fTubeArray->At(hit->GetTubeID());
-      if(started == false) {
-	startsecid = tube->GetSectorID();
-	startlayid = tube->GetLayerID();
-	started = true;
-	cout << "start hit " << ihit << " " << hit->GetHitID() << " " << endsecid << " " << endlayid << endl;
-      }
-      endsecid = tube->GetSectorID();
-      endlayid = tube->GetLayerID();
+      
+      if(tube->GetLayerID() < startlayid)  startlayid = tube->GetLayerID();
+      if(tube->GetSectorID() < startsecid) startsecid = tube->GetSectorID();
+      if(tube->GetLayerID() > endlayid)  endlayid = tube->GetLayerID();
+      if(tube->GetSectorID() > endsecid) endsecid = tube->GetSectorID();
+      
       cout << "hit " << ihit << " " << hit->GetHitID() << " " << endsecid << " " << endlayid << endl;
+      totaldistanceconf += distanceconf;
 
     }
   }
+
+  double meandistanceconf = totaldistanceconf/thiscluster->GetNofHits();
 
   cout << "START SECTOR " << startsecid << " END SECTOR " << endsecid << endl;
   cout << "START LAYER  " << startlayid << " END LAYER  " << endlayid << endl;
@@ -1177,8 +1306,8 @@ PndTrkCluster * PndTrkLegendreNew::CreateClusterAroundTrack(PndTrkTrack *track) 
      
       double distance = hit->GetXYDistance(TVector3(xc, yc, 0.));
       if(distance <= rmax && distance >= rmin) {
-	cout << endl;
-	cout << "other sector " << tube->GetSectorID() << " " << tube->GetLayerID();
+	//	cout << endl;
+	//	cout << "other sector " << tube->GetSectorID() << " " << tube->GetLayerID();
 
 	if(tube->GetSectorID() == 0 || tube->GetSectorID() == 5) {
 	  if(startsecid != 5 && endsecid != 5 && startsecid != 0 && endsecid != 0) continue; 
@@ -1186,9 +1315,20 @@ PndTrkCluster * PndTrkLegendreNew::CreateClusterAroundTrack(PndTrkTrack *track) 
 	else if(fabs(tube->GetSectorID() - startsecid) > 1 && fabs(tube->GetSectorID() - endsecid) > 1) continue;
 	  
 	if(tube->GetLayerID() > startlayid && tube->GetLayerID() < endlayid) continue;
-	  
+	PndTrkConformalHit *chit = NULL;
+	if(hit->IsSttParallel()) chit = conform->GetConformalSttHit(hit);
+	else chit = conform->GetConformalHit(hit); // CHECK if skew?
+	double distanceconf = fabs((chit->GetV() - fitm * chit->GetU() - fitp)/ TMath::Sqrt(fitm * fitm + 1));
+   
+	cout << "->distance " << distance << " (" << meandistanceconf << ") " << rmin << " " << rmax << " " << distanceconf << endl;
+ 
+
+
+	cout << "tubeid " << hit->GetTubeID() << " " << tube->GetLayerID() << endl;
 	thiscluster->AddHit(hit);
-	cout << " ***";
+	//	cout << " ***";
+
+
       }
     }
   }
@@ -1206,4 +1346,242 @@ PndTrkCluster * PndTrkLegendreNew::CreateClusterAroundTrack(PndTrkTrack *track) 
   // ---------------------------
 
   return thiscluster;
+}
+
+void PndTrkLegendreNew::AnalyticalFit(PndTrkCluster *cluster, double xc, double yc, double R, double &fitm, double&fitq) {
+  
+  
+  // fit with analytical chi2 -----~~~~~-----~~~~~-----~~~~~-----~~~~~-----~~~~~--
+  fFitter->Reset();
+  if(fDisplayOn) {
+    display->cd(1);
+    Refresh();
+  }
+  for(int ihit = 0; ihit < cluster->GetNofHits(); ihit++) 
+    {
+      PndTrkHit *hit = cluster->GetHit(ihit);
+      if(hit->IsSttSkew()) continue;
+      if(hit->IsSttParallel()) IntersectionFinder(hit, xc, yc, R);
+      PndTrkConformalHit *chit = conform->GetConformalHit(hit);
+      double sigma = 0.1; // CHECK
+      fFitter->SetPointToFit(chit->GetPosition().X(), chit->GetPosition().Y(), sigma);
+      cout << "set point to fit " << chit->GetPosition().X() << " " <<  chit->GetPosition().Y() << endl;
+      if(fDisplayOn) {
+	display->cd(1);
+	TMarker *mrk = new TMarker(hit->GetPosition().X(), hit->GetPosition().Y(), 6);
+	mrk->SetMarkerColor(kRed);
+	mrk->Draw("SAME");
+
+	display->cd(2);
+	TMarker *mrk2 = new TMarker(chit->GetPosition().X(), chit->GetPosition().Y(), 6);
+	mrk2->SetMarkerColor(kRed);
+	mrk2->Draw("SAME");
+
+
+	display->Update();
+	display->Modified();
+      } 
+    }
+
+  
+  fFitter->StraightLineFit(fitm, fitq);
+  cout << "previous " << xc << " " << yc << " " << R << endl;
+  FromConformalToRealTrack(fitm, fitq, xc, yc, R);
+  cout << "now " << xc << " " << yc << " " << R << endl;
+
+  if(fDisplayOn) {
+    display->cd(2);
+    cout << "wanna see the line?" << endl;
+    TLine *line = new TLine(-10.07, fitq + fitm * (-10.07), 10.07, fitq + fitm * (10.07));
+    line->SetLineColor(2);
+    line->Draw("SAME");
+    char goOnChar;
+    display->Update();
+    display->Modified();
+    cin >> goOnChar;
+  }
+
+
+
+
+}
+
+
+void PndTrkLegendreNew::AnalyticalFit2(PndTrkCluster *cluster, double fitm, double fitp, double &fitm2, double&fitp2) {
+  
+  
+  // fit with analytical chi2 -----~~~~~-----~~~~~-----~~~~~-----~~~~~-----~~~~~--
+  fFitter->Reset();
+  if(fDisplayOn) {
+    display->cd(1);
+    Refresh();
+  }
+  for(int ihit = 0; ihit < cluster->GetNofHits(); ihit++) 
+    {
+      PndTrkHit *hit = cluster->GetHit(ihit);
+      if(hit->IsSttSkew()) continue;
+  
+      PndTrkConformalHit *chit = conform->GetConformalSttHit(hit);
+      IntersectionFinder(chit, fitm, fitp);
+      
+      double sigma = chit->GetIsochrone();
+      fFitter->SetPointToFit(chit->GetPosition().X(), chit->GetPosition().Y(), sigma);
+      cout << "set point to fit " << chit->GetPosition().X() << " " <<  chit->GetPosition().Y() << endl;
+      if(fDisplayOn) {
+	display->cd(1);
+	TMarker *mrk = new TMarker(hit->GetPosition().X(), hit->GetPosition().Y(), 6);
+	mrk->SetMarkerColor(kRed);
+	mrk->Draw("SAME");
+
+	display->cd(2);
+	TMarker *mrk2 = new TMarker(chit->GetPosition().X(), chit->GetPosition().Y(), 6);
+	mrk2->SetMarkerColor(kRed);
+	mrk2->Draw("SAME");
+
+
+	display->Update();
+	display->Modified();
+      } 
+    }
+
+  
+  fFitter->StraightLineFit(fitm2, fitp2);
+
+  double xc, yc, R;
+  FromConformalToRealTrack(fitm, fitp, xc, yc, R);
+  cout << "previous " << xc << " " << yc << " " << R << endl;
+  FromConformalToRealTrack(fitm2, fitp2, xc, yc, R);
+  cout << "now " << xc << " " << yc << " " << R << endl;
+
+  if(fDisplayOn) {
+    display->cd(2);
+    cout << "wanna see the line?" << endl;
+    TLine *line = new TLine(-10.07, fitp2 + fitm2 * (-10.07), 10.07, fitp2 + fitm2 * (10.07));
+    line->SetLineColor(2);
+    line->Draw("SAME");
+
+    display->cd(1);
+    TArc *aline = new TArc(xc, yc, R);
+    aline->SetFillStyle(0);
+    aline->SetLineColor(2);
+    aline->Draw("SAME");
+
+
+    char goOnChar;
+    display->Update();
+    display->Modified();
+    cin >> goOnChar;
+  }
+
+
+
+
+}
+void PndTrkLegendreNew::IntersectionFinder(PndTrkConformalHit *chit, double fitm, double fitp) {
+  
+  double xi1 = chit->GetU() + fitm * chit->GetIsochrone()/ TMath::Sqrt(fitm * fitm + 1);
+  double yi1 = chit->GetV() - chit->GetIsochrone() / TMath::Sqrt(fitm * fitm + 1);
+  
+  double xi2 = chit->GetU() - fitm * chit->GetIsochrone() / TMath::Sqrt(fitm * fitm + 1);
+  double yi2 = chit->GetV() + chit->GetIsochrone()/ TMath::Sqrt(fitm * fitm + 1);
+  
+  double xi = 0, yi = 0;
+  
+  fabs(yi1 - (fitm * xi1 + fitp)) < fabs(yi2 - (fitm * xi2 + fitp)) ? (yi = yi1, xi = xi1) : (yi = yi2, xi = xi2);
+  
+  chit->SetPosition(xi, yi);
+
+}
+
+void PndTrkLegendreNew::IntersectionFinder(PndTrkHit *hit, double xc, double yc, double R) {
+
+  TVector2 vec(xc, yc);
+  
+  // tubeID  CHECK added
+    Int_t tubeID = hit->GetTubeID();
+    PndSttTube *tube = (PndSttTube*) fTubeArray->At(tubeID);
+
+    // [xp, yp] point = coordinates xy of the centre of the firing tube
+    TVector2 point(tube->GetPosition().X(), tube->GetPosition().Y());
+    double radius = hit->GetIsochrone();
+
+    // the coordinates of the point are taken from the intersection
+    // between the circumference from the drift time and the R radius of
+    // curvature. -------------------------------------------------------
+    // 2. find the intersection between the little circle and the line // R
+    // 2.a
+    // find the line passing throught [xc, yc] (centre of curvature) and [xp, yp] (first wire)
+    // y = mx + q
+    Double_t m = (point.Y() - vec.Y())/(point.X() - vec.X());
+    Double_t q = point.Y() - m*point.X();
+
+    Double_t x1 = 0, y1 = 0,
+      x2 = 0, y2 = 0,
+      xb1 = 0, yb1 = 0,
+      xb2 = 0, yb2 = 0;
+
+    // CHECK the vertical track
+    if(fabs(point.X() - vec.X()) < 1e-6) {
+      
+      // 2.b
+      // intersection little circle and line --> [x1, y1]
+      // + and - refer to the 2 possible intersections
+      // +
+      x1 = point.X();
+      y1 = point.Y() + sqrt(radius * radius - (x1 - point.X()) * (x1 - point.X()));
+      // - 
+      x2 = x1;
+      y2 = point.Y() - sqrt(radius * radius - (x2 - point.X()) * (x2 - point.X()));
+      
+      // 2.c intersection between line and circle
+      // +
+      xb1 = vec.X();
+      yb1 = vec.Y() + sqrt(R * R - (xb1 - vec.X()) * (xb1 - vec.X()));
+      // -
+      xb2 = xb1;
+      yb2 = vec.Y() - sqrt(R * R - (xb2 - vec.X()) * (xb2 - vec.X()));
+
+    }    // END CHECK
+    else {
+      
+      // 2.b
+      // intersection little circle and line --> [x1, y1]
+      // + and - refer to the 2 possible intersections
+      // +
+      x1 = (-(m*(q - point.Y()) - point.X()) + sqrt((m*(q - point.Y()) - point.X())*(m*(q - point.Y()) - point.X()) - (m*m + 1)*((q - point.Y())*(q - point.Y()) + point.X()*point.X() - radius*radius))) / (m*m + 1);
+      y1 = m*x1 + q;
+      // - 
+      x2 = (-(m*(q - point.Y()) - point.X()) - sqrt((m*(q - point.Y()) - point.X())*(m*(q - point.Y()) - point.X()) - (m*m + 1)*((q - point.Y())*(q - point.Y()) + point.X()*point.X() - radius*radius))) / (m*m + 1);
+      y2 = m*x2 + q;
+      
+      // 2.c intersection between line and circle
+      // +
+      xb1 = (-(m*(q - vec.Y()) - vec.X()) + sqrt((m*(q - vec.Y()) - vec.X())*(m*(q - vec.Y()) - vec.X()) - (m*m + 1)*((q - vec.Y())*(q - vec.Y()) + vec.X()*vec.X() - R * R))) / (m*m + 1);
+      yb1 = m*xb1 + q;
+      // -
+      xb2 = (-(m*(q - vec.Y()) - vec.X()) - sqrt((m*(q - vec.Y()) - vec.X())*(m*(q - vec.Y()) - vec.X()) - (m*m + 1)*((q - vec.Y())*(q - vec.Y()) + vec.X()*vec.X() - R * R))) / (m*m + 1);
+      yb2 = m*xb2 + q;
+    }
+    
+    // calculation of the distance between [xb, yb] and [xp, yp]
+    Double_t distb1 = sqrt((yb1 - point.Y())*(yb1 - point.Y()) + (xb1 - point.X())*(xb1 - point.X()));
+    Double_t distb2 = sqrt((yb2 - point.Y())*(yb2 - point.Y()) + (xb2 - point.X())*(xb2 - point.X()));
+    
+    // choice of [xb, yb]
+    TVector2 xyb;
+    if(distb1 > distb2) xyb.Set(xb2, yb2); 
+    else xyb.Set(xb1, yb1); 
+
+    // calculation of the distance between [x, y] and [xb. yb]
+    Double_t dist1 = sqrt((xyb.Y() - y1)*(xyb.Y() - y1) + (xyb.X() - x1)*(xyb.X() - x1));
+    Double_t dist2 = sqrt((xyb.Y() - y2)*(xyb.Y() - y2) + (xyb.X() - x2)*(xyb.X() - x2));
+
+    // choice of [x, y]
+    TVector2 *xy;
+    if(dist1 > dist2) xy = new TVector2(x2, y2);
+    else xy = new TVector2(x1, y1);   // <========= THIS IS THE NEW POINT to be used for the fit
+    
+    hit->SetPosition(TVector3(xy->X(), xy->Y(), 0.0));
+    
+    delete xy;
 }

@@ -91,6 +91,7 @@ class PndTrkLegendreNew : public FairTask {
   Int_t ExtractLegendre(Int_t mode, double &theta_max, double &r_max);
 
   void FromConformalToRealTrack(double fitm, double fitp, double &x0, double &y0, double &R);
+  void FromRealToConformalTrack(double x0, double y0, double R, double &fitm, double &fitp);
 
   void  SearchSecondaryTracks() { fSecondary = kTRUE; }
 
@@ -99,6 +100,11 @@ class PndTrkLegendreNew : public FairTask {
   Int_t ClusterToConformal(PndTrkCluster *cluster);
  PndTrkTrack *LegendreFit(PndTrkCluster *cluster);
   PndTrkCluster *CreateClusterAroundTrack(PndTrkTrack *track);
+
+  void AnalyticalFit(PndTrkCluster *cluster, double xc, double yc, double R, double &fitm, double &fitq);
+  void AnalyticalFit2(PndTrkCluster *cluster, double fitm, double fitp, double &fitm2, double &fip2);
+  void IntersectionFinder(PndTrkHit *hit, double xc, double yc, double R);
+  void IntersectionFinder(PndTrkConformalHit *chit, double fitm, double fitp);
 
 
 
