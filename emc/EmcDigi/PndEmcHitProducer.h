@@ -72,7 +72,7 @@ class PndEmcHitProducer : public FairTask
 
 	/** Output array of PndEmcHit **/
 	TClonesArray* fHitArray;  
-	TClonesArray* fMcTrackArray;
+	//TClonesArray* fMcTrackArray;
 
 	TObjArray *fVolumeArray;
 
