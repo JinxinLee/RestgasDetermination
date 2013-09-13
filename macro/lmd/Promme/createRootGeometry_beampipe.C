@@ -59,7 +59,7 @@ void createRootGeometry_beampipe() {
 	cout << " ******************************************* " << endl;
 	cout << " *              beam pipe creator          * " << endl;
 	cout << " ******************************************* " << endl;
-	cout << "\n\n\t\t 31.08.13 \n " << endl;
+	cout << "\n\n\t\t 13.09.13 \n " << endl;
 	cout << " \t modified by P.Jasinski \n " << endl;
 
 	cout << " basic beam pipe parameters: " << endl;
@@ -76,7 +76,9 @@ void createRootGeometry_beampipe() {
 
 	// if you do not want sensors in your beam pipe,
 	// so a simple beam pipe only, set it to false
+	// warning: it does not work with vacuum inserted as an medium
 	bool create_sensors = false;
+	bool create_vacuum = true;
 	// key z positions are stored in the following vector
 	std::vector< double > sensor_positions;
 
@@ -204,9 +206,9 @@ void createRootGeometry_beampipe() {
 	TGeoCompositeShape *SVATvalve63 = new TGeoCompositeShape("VATvalve63",
 			"VATvalve63b:trv1+VATvalve63b:trv3");//"VATvalve63b:trv1+VATvalve630:trv2+VATvalve63b:trv3");
 
-	TGeoTube* VATvalve630_vac = new TGeoTube("VATvalve630_vac",0., 3.5, 1.35+1.075*2);
+	TGeoTube* VATvalve630_vac = new TGeoTube("VATvalve630_vac",0., 3.5+delta, 1.35+(1.075+0.01987)*2);
 	TGeoCompositeShape *SVATvalve63_vac = new TGeoCompositeShape("VATvalve63_vac",
-				"VATvalve630_vac:trv2+VATvalve630_vac:trv2");
+				"VATvalve630_vac:trv2-VATvalve63");
 
 	// VAT -Gate Valve CF100
 	// width in z is 7.
@@ -220,19 +222,19 @@ void createRootGeometry_beampipe() {
 	TGeoCompositeShape *SVATvalve100 = new TGeoCompositeShape("VATvalve100",
 			"VATvalve100b:trv1+VATvalve100b:trv3");//"VATvalve100b:trv1+VATvalve1000:trv2+VATvalve100b:trv3");
 
-	TGeoTube* VATvalve1000_vac = new TGeoTube("VATvalve1000_vac",0., 5.0, 1.35+1.*2);
+	TGeoTube* VATvalve1000_vac = new TGeoTube("VATvalve1000_vac",0., 5.0+delta, 1.35+(2.19)*2);
 	TGeoCompositeShape *SVATvalve100_vac = new TGeoCompositeShape("VATvalve100_vac",
-				"VATvalve1000_vac:trv2+VATvalve1000_vac:trv2");
+				"VATvalve1000_vac:trv2-VATvalve100");
 
 
 	// special valve with inner clearance of 110 mm
-	TGeoTube* tv55 = new TGeoTube("tv55", 0., 5.5, 1.35 + delta);
+	TGeoTube* tv55 = new TGeoTube("tv55", 0., 5.5+ delta, 1.35 + delta);
 	TGeoCompositeShape *SVATvalve110 = new TGeoCompositeShape("VATvalve110",
 				"VATvalve100-tv55:trv2-tv55:trv1-tv55:trv3");
 
-	TGeoTube* SVATvalve1100_vac = new TGeoTube("VATvalve1100_vac", 0., 5.5, 1.35+1.*2.);
+	TGeoTube* SVATvalve1100_vac = new TGeoTube("VATvalve1100_vac", 0., 5.5, 1.35+(2.)*2.);
 	TGeoCompositeShape *SVATvalve110_vac = new TGeoCompositeShape("VATvalve110_vac",
-				"VATvalve1100_vac:trv2+VATvalve1100_vac:trv2");
+				"VATvalve1100_vac:trv2-VATvalve110");
 
 
 	// VAT -Gate Valve CF160
@@ -461,7 +463,7 @@ void createRootGeometry_beampipe() {
 
 	TGeoTube* Tcross2 = new TGeoTube("Tcross2", 1.0, 1.02, 11.5);
 
-	TGeoTube* Tcross2_vac = new TGeoTube("Tcross2", 0.0, 1.0, 11.5);
+	TGeoTube* Tcross2_vac = new TGeoTube("Tcross2_vac", 0.0, 1.0, 11.5);
 
 	// target cross vertical
 	Double_t pse2[63] = { 0., 360., 20, -182.0, 7.5, 7.7, -135.5, 7.5, 7.7,
@@ -511,7 +513,7 @@ void createRootGeometry_beampipe() {
 			"Tcross0a+Tcross0b:tre6+Tcross0c:tre7+VATvalve160:tre8");
 
 	TGeoCompositeShape *STcross_vac = new TGeoCompositeShape("Tcross_vac",
-			"Tcross1+Tcross2:tre6");
+			"Tcross1_vac+Tcross2_vac:tre6");
 
 	TGeoVolume *VTcross = new TGeoVolume("Tcross", STcross,
 			gGeoManager->GetMedium(str_ti.c_str()));
@@ -739,7 +741,7 @@ void createRootGeometry_beampipe() {
 			320, 0.0, 9.0,
 			340.5, 0.0, 10.0,
 			340.5+98.9, 0.0, 10.,
-			340.5+101.5, 0.0, 10.};
+			340.5+101.5+0.24, 0.0, 10.};
 	TGeoPcon* Dippip3_vac = new TGeoPcon("Dippip3_vac", 0., 360., 9);
 	Dippip3_vac->SetDimensions(psh2_vac);
 
@@ -965,28 +967,28 @@ void createRootGeometry_beampipe() {
 	//gGeoManager->SetTopVolume(beamPipe);
 	//beamPipe->AddNode(Vgvhesr, 0, tr0); // a
 	beamPipe->AddNode(Vpipeup, 0, trb1); // b
-	beamPipe->AddNode(Vpipeup_vac, 0, trb1);
+	if (create_vacuum) beamPipe->AddNode(Vpipeup_vac, 0, trb1);
 
 	beamPipe->AddNode(Vktmpump, 0, trc2); // c1
-	beamPipe->AddNode(Vktmpump_vac, 0, trc2);
+	if (create_vacuum) beamPipe->AddNode(Vktmpump_vac, 0, trc2);
 
 	beamPipe->AddNode(VTpumps, 0, tr0); // c2
 
 	beamPipe->AddNode(VpipeTSup, 0, trd1); // d
-	beamPipe->AddNode(VpipeTSup_vac, 0, trd1);
+	if (create_vacuum) beamPipe->AddNode(VpipeTSup_vac, 0, trd1);
 
 	beamPipe->AddNode(VTcross, 0, tre9); // e
-	beamPipe->AddNode(VTcross_vac, 0, tre9); // e
+	if (create_vacuum) beamPipe->AddNode(VTcross_vac, 0, tre9); // e
 
 	beamPipe->AddNode(VpipeTSdown, 0, trf1); // f
-	beamPipe->AddNode(VpipeTSdown_vac, 0, trf1);
+	if (create_vacuum) beamPipe->AddNode(VpipeTSdown_vac, 0, trf1);
 
 	beamPipe->AddNode(VcrossTSTMPs, 0, trg7); // g
-	beamPipe->AddNode(VcrossTSTMPs_vac, 0, trg7);
+	if (create_vacuum) beamPipe->AddNode(VcrossTSTMPs_vac, 0, trg7);
 
 
 	beamPipe->AddNode(VDipolePip, 0, trh4); // h
-	beamPipe->AddNode(VDipolePip_vac, 0, trh4);
+	if (create_vacuum) beamPipe->AddNode(VDipolePip_vac, 0, trh4);
 
 	//beamPipe->AddNode(VLumMon,        0, tri6);       // i
 	//beamPipe->AddNode(vlum_beampipe_upstream, 0, tri6);       // i
