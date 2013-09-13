@@ -61,9 +61,9 @@ class PndTrkLegendreNew : public FairTask {
   inline void SwitchOnDisplay() { fDisplayOn = kTRUE; }
   void DrawGeometry();
   void DrawHits(PndTrkHitList *hitlist);
-  void DrawLists(PndTrkNeighboringMap *hitmap); 
-  void DrawNeighborings(PndTrkNeighboringMap *hitmap);
-  void DrawNeighboringsToHit(PndTrkNeighboringMap *hitmap, PndTrkHit *hit);
+  void DrawLists();
+  void DrawNeighborings();
+  void DrawNeighboringsToHit(PndTrkHit *hit);
   void Refresh();
   void RefreshConf(); 
   void DrawGeometryConf(double x1, double y1, double x2, double y2) ;
@@ -108,6 +108,7 @@ class PndTrkLegendreNew : public FairTask {
   void IntersectionFinder(PndTrkHit *hit, double xc, double yc, double R);
   void IntersectionFinder(PndTrkConformalHit *chit, double fitm, double fitp);
 
+  void FillHitMap();
 
 
 
@@ -170,6 +171,8 @@ class PndTrkLegendreNew : public FairTask {
   TStopwatch *fTimer;
   PndTrkFitter *fFitter;
 
+  PndTrkNeighboringMap *fHitMap;
+  
   // display
   Bool_t fDisplayOn;
   TH2F *hxy, *hxz, *hzphi;
