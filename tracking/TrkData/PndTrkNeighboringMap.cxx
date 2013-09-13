@@ -53,11 +53,11 @@ PndTrkNeighboringMap& PndTrkNeighboringMap::operator=(const PndTrkNeighboringMap
 
 void PndTrkNeighboringMap::Clear() {
 
-  hit2neigh.DeleteAll();
-  hit2indiv.DeleteAll();
-  fStandalone.Delete();
-  fOneNeigh.Delete();
-  fTwoNeigh.Delete();
+  hit2neigh.Clear();
+  hit2indiv.Clear();
+  fStandalone.Clear();
+  fOneNeigh.Clear();
+  fTwoNeigh.Clear();
 
 }
 

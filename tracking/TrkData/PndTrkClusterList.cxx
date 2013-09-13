@@ -1,7 +1,7 @@
 //
 // PndTrkClusterList.cxx
 // 
-// Class for pattern recognition hit
+// Class for pattern recognition cluster list
 //
 // authors: Lia Lavezzi - INFN Pavia (2012)
 //
