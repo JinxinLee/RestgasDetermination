@@ -24,7 +24,7 @@ class PndTrkNeighboringMap : public TObject
   ~PndTrkNeighboringMap();    
   PndTrkNeighboringMap& operator=(const PndTrkNeighboringMap &thismap);
 
-
+  void Clear();
   
   void AddNeighboringsToHit(PndTrkHit *hit, TObjArray *hits);
   TObjArray * GetNeighboringsToHit(PndTrkHit *hit);

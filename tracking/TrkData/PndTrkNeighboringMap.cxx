@@ -51,6 +51,15 @@ PndTrkNeighboringMap& PndTrkNeighboringMap::operator=(const PndTrkNeighboringMap
   return *this;
 }
 
+void PndTrkNeighboringMap::Clear() {
+
+  hit2neigh.DeleteAll();
+  hit2indiv.DeleteAll();
+  fStandalone.Delete();
+  fOneNeigh.Delete();
+  fTwoNeigh.Delete();
+
+}
 
 void PndTrkNeighboringMap::AddNeighboringsToHit(PndTrkHit *hit, TObjArray *hits) {
 

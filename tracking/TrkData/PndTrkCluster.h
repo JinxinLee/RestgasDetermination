@@ -82,7 +82,8 @@ class PndTrkCluster : public TObject
   void SortFromHit(PndTrkHit *firstextremity, TString criterion);
   friend Bool_t SorterFunction(PndTrkHit *hit1, PndTrkHit *hit2); 
   void Sort();
-  
+  void ReverseSort();
+
   Bool_t IsSorted() { return hitlist.IsSorted(); }
 
  void AddCluster(PndTrkCluster *cluster);

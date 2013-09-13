@@ -442,8 +442,6 @@ Bool_t PndTrkCluster::SplitV(PndTrkHit *athit, PndTrkHit *firstextremity, PndTrk
 // =======================================================================================
 
 
-
-
 void PndTrkCluster::SortFromHit(PndTrkHit *firstextremity, TString criterion) {
 
   //  cout << "------------------------------------ sorting" << endl;
@@ -470,7 +468,17 @@ void PndTrkCluster::Sort()
   hitlist.Sort(); 
 }
 
-
+void PndTrkCluster::ReverseSort()
+{
+  // CHECK each TObject must return IsSortable = kTRUE
+  PndTrkHit *hit;
+  for(int ihit = 0; ihit < GetNofHits(); ihit++) {
+    hit = (PndTrkHit* ) hitlist[ihit];
+    int srt = hit->GetSortVariable();
+    hit->SetSortVariable(-srt);
+  }
+  hitlist.Sort(); 
+}
 // =======================================================================================
 // MERGE CLUSTERS
 
@@ -678,7 +686,7 @@ void PndTrkCluster::Draw(Color_t color) {
 }
 
 void PndTrkCluster::LightUp() { 
-  Draw(kYellow);
+  Draw(kOrange); // Yellow);
 }
 
 
