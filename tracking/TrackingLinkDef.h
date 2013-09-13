@@ -35,7 +35,7 @@
 #pragma link C++ class PndTrkLegendreCluster+; 
 #pragma link C++ class PndTrkClusterList+;
 #pragma link C++ class PndTrkTrack+;
-// #pragma link C++ class PndTrkTrackList+;
+#pragma link C++ class PndTrkTrackList+;
 #pragma link C++ class PndTrkLegendreTask+;
 #pragma link C++ class PndTrkLegendreSecTask+; 
 #pragma link C++ class PndTrkLegendreSecTask2+; 
