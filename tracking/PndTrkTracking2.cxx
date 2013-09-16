@@ -716,6 +716,7 @@ void PndTrkTracking2::Exec(Option_t* opt) {
 	outcome;
 
 //----------------------------------------------
+/*
  bool
 	tGoodSkewFit[MAXTRACKSPEREVENT],
 	tkeepit[MAXTRACKSPEREVENT],
@@ -730,8 +731,16 @@ void PndTrkTracking2::Exec(Option_t* opt) {
 	Mvdhits(tMvdhits, MAXTRACKSPEREVENT,"Mvdhits"),
 	status(tstatus, MAXTRACKSPEREVENT,"status"),
 	SttSZfit(tSttSZfit, MAXTRACKSPEREVENT,"SttSZfit");
-
+*/
 //----------------------------------------------
+ bool
+	GoodSkewFit[MAXTRACKSPEREVENT],
+	keepit[MAXTRACKSPEREVENT],
+	Mvdhits[MAXTRACKSPEREVENT],
+	status[MAXTRACKSPEREVENT],
+	SttSZfit[MAXTRACKSPEREVENT];
+
+
 
 
  Short_t
@@ -744,25 +753,25 @@ void PndTrkTracking2::Exec(Option_t* opt) {
 	tnSpuriParinTrack[MAXTRACKSPEREVENT],
 	tnSpuriSkewinTrack[MAXTRACKSPEREVENT],
 	//  given a Hit number it gives its radial box number
-	tRConformalIndex[MAXSTTHITS],
+	RConformalIndex[MAXSTTHITS],
 	//  given a Hit number it gives its azimuthal box number
-	tFiConformalIndex[MAXSTTHITS],
-	ttempore[MAXSTTHITS],
+	FiConformalIndex[MAXSTTHITS],
+	tempore[MAXSTTHITS],
 	TemporarySkewList[2*MAXSTTHITS][2],
 	BigList[MAXTRACKSPEREVENT][MAXSTTHITSINTRACK],
 	// nBoxConformal,  first index -> radial divisions,
 	// 2nd index -> azimuthal divisions; n. of hits falling in this cell.
-	tnBoxConformal[NRDIVCONFORMAL*NFIDIVCONFORMAL],
+	nBoxConformal[NRDIVCONFORMAL*NFIDIVCONFORMAL],
 	tParalCommonList[MAXTRACKSPEREVENT*MAXSTTHITSINTRACK],
 	tParSpuriList[MAXTRACKSPEREVENT*MAXSTTHITSINTRACK],
 	tSkewCommonList[MAXTRACKSPEREVENT*MAXSTTHITSINTRACK],
 	tSkewSpuriList[MAXTRACKSPEREVENT*MAXSTTHITSINTRACK],
-	tHitsinBoxConformal[MAXHITSINCELL*NRDIVCONFORMAL*NFIDIVCONFORMAL],
-	tCharge[MAXTRACKSPEREVENT],
+	HitsinBoxConformal[MAXHITSINCELL*NRDIVCONFORMAL*NFIDIVCONFORMAL],
+	Charge[MAXTRACKSPEREVENT],
 	tdaTrackFoundaTrackMC[MAXTRACKSPEREVENT],
-	tresultFitSZagain[MAXTRACKSPEREVENT],
-	tstatusflag[MAXTRACKSPEREVENT],
-	tSttStrawOn[NUMBER_STRAWS];
+	resultFitSZagain[MAXTRACKSPEREVENT],
+	statusflag[MAXTRACKSPEREVENT],
+	SttStrawOn[NUMBER_STRAWS];
 
 
 
@@ -776,26 +785,31 @@ void PndTrkTracking2::Exec(Option_t* opt) {
 	nSpuriParinTrack(tnSpuriParinTrack, MAXTRACKSPEREVENT,"nSpuriParinTrack"),
 	nSpuriSkewinTrack(tnSpuriSkewinTrack, MAXTRACKSPEREVENT,"nSpuriSkewinTrack"),
 	//  given a Hit number it gives its radial box number
-	RConformalIndex(tRConformalIndex, MAXSTTHITS,"RConformalIndex"),
+
+//	RConformalIndex(tRConformalIndex, MAXSTTHITS,"RConformalIndex"),
+
 	//  given a Hit number it gives its azimuthal box number
-	FiConformalIndex(tFiConformalIndex, MAXSTTHITS,"FiConformalIndex"),
-	tempore(ttempore, MAXSTTHITS,"tempore"),
+
+//	FiConformalIndex(tFiConformalIndex, MAXSTTHITS,"FiConformalIndex"),
+//	tempore(ttempore, MAXSTTHITS,"tempore"),
 	// nBoxConformal,  first index -> radial divisions,
 	// 2nd index -> azimuthal divisions; n. of hits falling in this cell.
-	nBoxConformal(tnBoxConformal, NRDIVCONFORMAL*NFIDIVCONFORMAL,"nBoxConformal"),
+//	nBoxConformal(tnBoxConformal, NRDIVCONFORMAL*NFIDIVCONFORMAL,"nBoxConformal"),
 	ParalCommonList(tParalCommonList, MAXTRACKSPEREVENT*MAXSTTHITSINTRACK,"ParalCommonList"),
 	ParSpuriList(tParSpuriList, MAXTRACKSPEREVENT*MAXSTTHITSINTRACK,"ParSpuriList"),
 	SkewCommonList(tSkewCommonList, MAXTRACKSPEREVENT*MAXSTTHITSINTRACK,"SkewCommonList"),
 	SkewSpuriList(tSkewSpuriList, MAXTRACKSPEREVENT*MAXSTTHITSINTRACK,"SkewSpuriList"),
-	HitsinBoxConformal(tHitsinBoxConformal, MAXHITSINCELL*NRDIVCONFORMAL*NFIDIVCONFORMAL,"HitsinBoxConformal"),
-	Charge(tCharge,MAXTRACKSPEREVENT,"Charge"),
-	daTrackFoundaTrackMC(tdaTrackFoundaTrackMC,MAXTRACKSPEREVENT,"daTrackFoundaTrackMC"),
-	resultFitSZagain(tresultFitSZagain,MAXTRACKSPEREVENT,"resultFitSZagain"),
-	statusflag(tstatusflag,MAXTRACKSPEREVENT,"statusflag"),
-	SttStrawOn(tSttStrawOn,NUMBER_STRAWS,"SttStrawOn");  //  SttStrawOn[i] >= 0 --> it is the Stt hit number corresponding to Stt
+//	HitsinBoxConformal(tHitsinBoxConformal, MAXHITSINCELL*NRDIVCONFORMAL*NFIDIVCONFORMAL,"HitsinBoxConformal"),
+
+//	Charge(tCharge,MAXTRACKSPEREVENT,"Charge"),
+
+	daTrackFoundaTrackMC(tdaTrackFoundaTrackMC,MAXTRACKSPEREVENT,"daTrackFoundaTrackMC");
+//	resultFitSZagain(tresultFitSZagain,MAXTRACKSPEREVENT,"resultFitSZagain"),
+//	statusflag(tstatusflag,MAXTRACKSPEREVENT,"statusflag"),
+//	SttStrawOn(tSttStrawOn,NUMBER_STRAWS,"SttStrawOn");  //  SttStrawOn[i] >= 0 --> it is the Stt hit number corresponding to Stt
 							// i-th Tube ID; SttStrawOn[i] == -1 --> i-th Stt straw NOT hit;
 
- memset(tSttStrawOn,-1,sizeof(tSttStrawOn));
+ memset(SttStrawOn,-1,sizeof(SttStrawOn));
 
 //-----------------------------------
 
@@ -1408,7 +1422,7 @@ if(istampa>0){
 		NUMBER_STRAWS,		// input; number of Stt Straws in total;
 		fStrawCode,		// input;
 		fStrawCode2,		// input;
-		tSttStrawOn,		// input;
+		SttStrawOn,		// input;
 		fSttTubeArray,		// input; array of the Stt tubes;
 		fTubeID,			// input;
 
@@ -1459,7 +1473,7 @@ if(istampa>=2){
  InOut.r_stt_inner_par_max = APOTEMAMAXINNERPARSTRAW *2./sqrt(3.) ;
  InOut.StrawCode = fStrawCode; // Short_t array NUMBER_STRAWS large; 
  InOut.StrawCode2 = fStrawCode2; // Short_t array NUMBER_STRAWS large; 
- InOut.SttStrawOn = tSttStrawOn;  //  tSttStrawOn[i] >= 0 --> it is the Stt hit number corresponding to Stt
+ InOut.SttStrawOn = SttStrawOn;  //  tSttStrawOn[i] >= 0 --> it is the Stt hit number corresponding to Stt
 				// i-th Tube ID; tSttStrawOn[i] == -1 --> i-th Stt straw NOT hit;
  InOut.TubeID = fTubeID;  // list of Tube ID; fTubeID[i] is Tube Id of i-th Stt hit;
  InOut.thetamax = THETAMAX;
@@ -1477,8 +1491,8 @@ if(istampa>=2){
  InOut.Cosine = fCosine;
  InOut.deltanr = DELTAnR;
  InOut.dimensionscitil = DIMENSIONSCITIL;
- InOut.FiConformalIndex = tFiConformalIndex;
- InOut.HitsinBoxConf = tHitsinBoxConformal;
+ InOut.FiConformalIndex = FiConformalIndex;
+ InOut.HitsinBoxConf = HitsinBoxConformal;
  InOut.InclusionListStt = fInclusionListStt;
  InOut.InclusionListSciTil = fInclusionListSciTil;
  InOut.legiandre_nthetadiv = LEGIANDRE_NTHETADIV;
@@ -1488,14 +1502,14 @@ if(istampa>=2){
  InOut.maxscitilhitsintrack = MAXSCITILHITSINTRACK;
  InOut.maxstthits = MAXSTTHITS;
  InOut.minouterhitspertrack = MINOUTERHITSPERTRACK;
- InOut.nBoxConf = tnBoxConformal;
+ InOut.nBoxConf = nBoxConformal;
  InOut.nfidivconformal = NFIDIVCONFORMAL;
  InOut.nrdivconformal = NRDIVCONFORMAL;
  InOut.nSciTilHits = fnSciTilHits;
  InOut.nsttparhit = nSttParHit;
  InOut.posizSciT = fposizSciTil;
  InOut.radiaConf = fradiaConf;
- InOut.RConformalIndex = tRConformalIndex;
+ InOut.RConformalIndex = RConformalIndex;
  InOut.rstrawdetectormax = RSTRAWDETECTORMAX;
  InOut.Sinus = fSinus;
  InOut.strawradius = STRAWRADIUS;
@@ -1644,7 +1658,8 @@ int iconta=0;
 //-------------- stampa
  if(istampa>=1){
 cout<<"\tstampa dopo FindTrackInXYProjection di tutte le trackCand rimaste :\n";
-fPrint.stampetta(IVOLTE,tkeepit,&fListMvdPixelHitsinTrack[0][0],
+//fPrint.stampetta(IVOLTE,tkeepit,&fListMvdPixelHitsinTrack[0][0],
+fPrint.stampetta(IVOLTE,keepit,&fListMvdPixelHitsinTrack[0][0],
 &fListMvdStripHitsinTrack[0][0],&fListSttParHitsinTrack[0][0],
 &fListSttSkewHitsinTrack[0][0],&fListSciTilHitsinTrack[0][0],
 fnMvdPixelHitsinTrack,fnMvdStripHitsinTrack,fnSttParHitsinTrack,
@@ -1721,7 +1736,9 @@ MAXMVDPIXELHITSINTRACK,MAXMVDSTRIPHITSINTRACK,MAXSCITILHITSINTRACK,MAXSTTHITSINT
 //-------------------------------------------  %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 //-------------- stampa
  if(istampa>=2){
-cout<<"\tstampa dopo AssociateSkewHitsToXYTrack;\n";fPrint.stampetta(IVOLTE,tkeepit,&fListMvdPixelHitsinTrack[0][0],
+cout<<"\tstampa dopo AssociateSkewHitsToXYTrack;\n";
+//fPrint.stampetta(IVOLTE,tkeepit,&fListMvdPixelHitsinTrack[0][0],
+fPrint.stampetta(IVOLTE,keepit,&fListMvdPixelHitsinTrack[0][0],
 &fListMvdStripHitsinTrack[0][0],&fListSttParHitsinTrack[0][0],
 &fListSttSkewHitsinTrack[0][0],&fListSciTilHitsinTrack[0][0],
 fnMvdPixelHitsinTrack,fnMvdStripHitsinTrack,fnSttParHitsinTrack,
@@ -1822,7 +1839,8 @@ MAXMVDPIXELHITSINTRACK,MAXMVDSTRIPHITSINTRACK,MAXSCITILHITSINTRACK,MAXSTTHITSINT
  if(istampa>=2){
 	cout<<"\tstampa prima di FitSZspace, [non in Mvd track section] .\n";
 	fPrint.stampetta(
-IVOLTE,tkeepit,&fListMvdPixelHitsinTrack[0][0],&fListMvdStripHitsinTrack[0][0],
+// IVOLTE,tkeepit,&fListMvdPixelHitsinTrack[0][0],&fListMvdStripHitsinTrack[0][0],
+IVOLTE,keepit,&fListMvdPixelHitsinTrack[0][0],&fListMvdStripHitsinTrack[0][0],
 &fListSttParHitsinTrack[0][0],&fListSttSkewHitsinTrack[0][0],&fListSciTilHitsinTrack[0][0],
 fnMvdPixelHitsinTrack,fnMvdStripHitsinTrack,fnSttParHitsinTrack,fnSttSkewHitsinTrack,
 fnSciTilHitsinTrack,nSttTrackCand,ncand,MAXMVDPIXELHITSINTRACK,MAXMVDSTRIPHITSINTRACK,
@@ -1868,7 +1886,8 @@ MAXSCITILHITSINTRACK,MAXSTTHITSINTRACK,fR,fOx,fOy,FI0,KAPPA);
 	cout<<"\tstampa dopo FitSZspace, [not in Mvd track section], result (1 va bene) = "
 	<<resultFitSZagain[ncand]<<endl;
 	fPrint.stampetta(
-IVOLTE,tkeepit,&fListMvdPixelHitsinTrack[0][0],&fListMvdStripHitsinTrack[0][0],
+//IVOLTE,tkeepit,&fListMvdPixelHitsinTrack[0][0],&fListMvdStripHitsinTrack[0][0],
+IVOLTE,keepit,&fListMvdPixelHitsinTrack[0][0],&fListMvdStripHitsinTrack[0][0],
 &fListSttParHitsinTrack[0][0],&fListSttSkewHitsinTrack[0][0],&fListSciTilHitsinTrack[0][0],
 fnMvdPixelHitsinTrack,fnMvdStripHitsinTrack,fnSttParHitsinTrack,fnSttSkewHitsinTrack,
 fnSciTilHitsinTrack,nSttTrackCand,ncand,MAXMVDPIXELHITSINTRACK,MAXMVDSTRIPHITSINTRACK,
@@ -1940,7 +1959,8 @@ MAXSCITILHITSINTRACK,MAXSTTHITSINTRACK,fR,fOx,fOy,FI0,KAPPA);
 	cout<<"\tstampa dopo EliminateSpuriousSZ, [non in Mvd track section] .\n";
 
 	fPrint.stampetta(
-IVOLTE,tkeepit,&fListMvdPixelHitsinTrack[0][0],&fListMvdStripHitsinTrack[0][0],
+//IVOLTE,tkeepit,&fListMvdPixelHitsinTrack[0][0],&fListMvdStripHitsinTrack[0][0],
+IVOLTE,keepit,&fListMvdPixelHitsinTrack[0][0],&fListMvdStripHitsinTrack[0][0],
 &fListSttParHitsinTrack[0][0],&fListSttSkewHitsinTrack[0][0],&fListSciTilHitsinTrack[0][0],
 fnMvdPixelHitsinTrack,fnMvdStripHitsinTrack,fnSttParHitsinTrack,fnSttSkewHitsinTrack,
 fnSciTilHitsinTrack,nSttTrackCand,ncand,MAXMVDPIXELHITSINTRACK,MAXMVDSTRIPHITSINTRACK,
@@ -1990,7 +2010,8 @@ MAXSCITILHITSINTRACK,MAXSTTHITSINTRACK,fR,fOx,fOy,FI0,KAPPA);
  if(istampa>=2){
 	cout<<"\tstampa dopo il Cleanup piccolo\n";
 	fPrint.stampetta(
-IVOLTE,tkeepit,&fListMvdPixelHitsinTrack[0][0],&fListMvdStripHitsinTrack[0][0],
+//IVOLTE,tkeepit,&fListMvdPixelHitsinTrack[0][0],&fListMvdStripHitsinTrack[0][0],
+IVOLTE,keepit,&fListMvdPixelHitsinTrack[0][0],&fListMvdStripHitsinTrack[0][0],
 &fListSttParHitsinTrack[0][0],&fListSttSkewHitsinTrack[0][0],&fListSciTilHitsinTrack[0][0],
 fnMvdPixelHitsinTrack,fnMvdStripHitsinTrack,fnSttParHitsinTrack,fnSttSkewHitsinTrack,
 fnSciTilHitsinTrack,nSttTrackCand,-1,MAXMVDPIXELHITSINTRACK,MAXMVDSTRIPHITSINTRACK,
@@ -2231,7 +2252,7 @@ MAXSCITILHITSINTRACK,MAXSTTHITSINTRACK,fR,fOx,fOy,FI0,KAPPA);
 	// load the structure;
 
 	ioData.Bfield = BFIELD;
-	ioData.Charge = tCharge;
+	ioData.Charge = Charge;
 	ioData.Cvel = CVEL;
 	ioData.daTrackFoundaTrackMC = tdaTrackFoundaTrackMC;
 	ioData.DIMENSIONSciTil = DIMENSIONSCITIL;
@@ -2250,7 +2271,7 @@ MAXSCITILHITSINTRACK,MAXSTTHITSINTRACK,fR,fOx,fOy,FI0,KAPPA);
 	ioData.istampa = istampa;
 	ioData.IVOLTE = IVOLTE;
 	ioData.KAPPA = KAPPA;
-	ioData.keepit = tkeepit;
+	ioData.keepit = keepit;
 	ioData.InclusionListStt = fInclusionListStt;
 	ioData.ListMvdPixelHitsinTrack = &fListMvdPixelHitsinTrack[0][0];
 	ioData.ListMvdStripHitsinTrack = &fListMvdStripHitsinTrack[0][0];
@@ -2317,12 +2338,12 @@ MAXSCITILHITSINTRACK,MAXSTTHITSINTRACK,fR,fOx,fOy,FI0,KAPPA);
 	ioData.R = fR;
 	ioData.refindexMvdPixel = frefindexMvdPixel;
 	ioData.refindexMvdStrip = frefindexMvdStrip;
-	ioData.resultFitSZagain = tresultFitSZagain;
+	ioData.resultFitSZagain = resultFitSZagain;
 	ioData.SciTilCommonList = SciTilCommonList;
 	ioData.SciTilSpuriList = SciTilSpuriList;
 	ioData.SkewCommonList = tSkewCommonList;
 	ioData.SkewSpuriList = tSkewSpuriList;
-	ioData.SttSZfit = tSttSZfit;
+	ioData.SttSZfit = SttSZfit;
 	ioData.XMvdPixel = fXMvdPixel;
 	ioData.XMvdStrip = fXMvdStrip;
 	ioData.XSciTilCenter = fpSciTilx;
@@ -2369,7 +2390,7 @@ MAXSCITILHITSINTRACK,MAXSTTHITSINTRACK,fR,fOx,fOy,FI0,KAPPA);
 	In_Put.apotemaminouterparstraw = APOTEMAMINOUTERPARSTRAW ;
 	In_Put.apotemaminskewstraw = APOTEMAMINSKEWSTRAW ;
 	In_Put.bfield = BFIELD ;
-	In_Put.Charge = tCharge ;
+	In_Put.Charge = Charge ;
 	In_Put.cvel = CVEL ;
 	In_Put.daTrackFoundaTrackMC = tdaTrackFoundaTrackMC ;
 	In_Put.dimensionscitil = DIMENSIONSCITIL ;
@@ -2380,7 +2401,7 @@ MAXSCITILHITSINTRACK,MAXSTTHITSINTRACK,fR,fOx,fOy,FI0,KAPPA);
 	In_Put.info =  &info[0][0] ;
 	In_Put.IVOLTE = IVOLTE ;
 	In_Put.KAPPA = KAPPA ;
-	In_Put.keepit = tkeepit ;
+	In_Put.keepit = keepit ;
 	In_Put.InclusionListSciTil = fInclusionListSciTil ;
 	In_Put.InclusionListStt = fSingleHitListStt ;
 
@@ -3489,10 +3510,10 @@ void  PndTrkTracking2::Initial_SttParHits_DecreasingR_Ordering(
 //----------------------  begin function   PndTrkTracking2::LoadPndTrack_TrackCand
 
 void PndTrkTracking2::LoadPndTrack_TrackCand(
-	Vec <bool>& keepit,
-	Vec <bool>& SttSZfit,
+	bool * keepit,
+	bool * SttSZfit,
 	Short_t nTotalCandidates,
-	Vec <Short_t>& Charge,
+	Short_t * Charge,
 	Int_t nSttTrackCand,
 	Double_t *FI0,
 	Double_t *KAPPA,
@@ -4779,11 +4800,11 @@ IVOLTE<<", Stt track cand = "<<i<<endl;}
 
 //------begin function PndTrkTracking2::OrderingConformal_Loading_ListTrackCandHit
 void PndTrkTracking2::OrderingConformal_Loading_ListTrackCandHit(
-	Vec <bool>& keepit,
+	bool * keepit,
 	Short_t ncand,
 	Double_t info[][7],
 	Double_t Trajectory_Start[][2],
-	Vec <Short_t>& CHARGE,
+	Short_t *CHARGE,
 	Double_t SchosenSkew[][MAXSTTHITS]
 				)
 {
@@ -4932,12 +4953,14 @@ if(istampa>=3) for(int ica=0; ica<fnMvdPixelHitsinTrack[ncand]+fnMvdStripHitsinT
 //----------begin of function PndTrkTracking2::Ordering_Loading_ListTrackCandHit
 
 void PndTrkTracking2::Ordering_Loading_ListTrackCandHit(
-	Vec<bool>& keepit,
+//	Vec<bool>& keepit,
+	bool * keepit,
 	Short_t FirstCandidate,
 	Short_t LastCandidate,
 	Double_t info[][7],
 	Double_t Trajectory_Start[][2],
-	Vec <Short_t>& CHARGE,
+//	Vec <Short_t>& CHARGE,
+	Short_t * CHARGE,
 	Double_t SchosenSkew[][MAXSTTHITS]
 				)
 {
@@ -4976,7 +4999,7 @@ void PndTrkTracking2::Ordering_Loading_ListTrackCandHit(
 //----------begin of function PndTrkTracking2::OrderingR_Loading_ListTrackCandHit
 
 void PndTrkTracking2::OrderingR_Loading_ListTrackCandHit(
-	Vec <bool>& keepit,
+	bool* keepit,
 	Short_t ncand,
 	Double_t info[][7]
 	)
