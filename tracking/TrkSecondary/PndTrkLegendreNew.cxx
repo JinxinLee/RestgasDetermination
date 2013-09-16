@@ -42,6 +42,7 @@
 #include "TStopwatch.h" 
 // tracking 
 #include "PndTrkClusterList.h"
+#include "PndTrkTrackList.h"
 #include "PndTrkGlpkFits.h"
 #include "PndTrkClean.h"
 #include "PndTrkNeighboringMap.h"
@@ -198,13 +199,13 @@ void PndTrkLegendreNew::Initialize() {
 
 
 void PndTrkLegendreNew::Exec(Option_t* opt) {
-  
+
   // ############## I N I T I A L I Z A T I O N S ##############
   fTrackArray->Delete();
   fTrackCandArray->Delete();
   if(fVerbose > 0) cout << "*********************** " << fEventCounter << " ***********************" << endl;
  
-  // initialize -----~~~~~-----~~~~~-----~~~~~-----~~~~~-----~~~~~-----~~~~~-----~~~
+  // initialize -----~~~~~-----~~~~~-----~~~~~-----~~~~~-----~~~~~-----~~~~~-----~~~~
   Initialize();
   if(fVerbose > 1) {
     cout << "number of stt    hits " << fSttHitArray->GetEntriesFast() << endl;
@@ -228,13 +229,15 @@ void PndTrkLegendreNew::Exec(Option_t* opt) {
   fHitMap->Clear();
   FillHitMap();
   // ##########################################################
-  
-  
-  // fDisplayOn = kFALSE;
+
+  //  fDisplayOn = kFALSE;
   // clusterization -----~~~~~-----~~~~~-----~~~~~-----~~~~~-----~~~~~-----~~~~~-----
   PndTrkClusterList clusterlist = CreateFullClusterization();
   int nofclusters = clusterlist.GetNofClusters(); 
   cout << "CLUSTERLIST " << nofclusters << endl;
+
+
+  PndTrkTrackList tracklist;
 
   // loop on clusterlist -----~~~~~-----~~~~~-----~~~~~-----~~~~~-----~~~~~-----~~~~~
   for(int iclus = 0; iclus < nofclusters; iclus++) {
@@ -268,13 +271,27 @@ void PndTrkLegendreNew::Exec(Option_t* opt) {
     cout << "\033[1;36m ITERATIONS -----------------------> " << maxnoftracks << "\033[0m" << endl;
     for(int iter = 0; iter < maxnoftracks; iter++) {
       cout << "\033[1;36m ############### ITER "  << iter << "\033[0m" << endl;
+      if(fDisplayOn)  {
+	char goOnChar;
+	cin >> goOnChar;
+	Refresh();
+	cluster->LightUp();
+	display->Update();
+	display->Modified();
+      }
+
       // fitting procedure -----~~~~~-----~~~~~-----~~~~~-----~~~~~-----~~~~~-----~~~~~
       Int_t nhits = ClusterToConformal(cluster);
       PndTrkTrack *track = LegendreFit(cluster);
       if(track == NULL) continue;
       PndTrkCluster *thiscluster = CreateClusterAroundTrack(track);
-      partialcluslist.AddCluster(thiscluster);
-      cout << "ADD CLUSTER TO PARTCLUSLIST " << thiscluster->GetNofHits() << endl;
+      cout << "nof hits " << thiscluster->GetNofHits() << endl;
+      track->SetCluster(thiscluster);
+      tracklist.AddTrack(track);
+      cout << "ADD CLUSTER TO TRACKLIST " << thiscluster->GetNofHits() << endl;
+      //  partialcluslist.AddCluster(thiscluster);
+      //  cout << "ADD CLUSTER TO PARTCLUSLIST " << thiscluster->GetNofHits() << endl;
+
       PndTrkCluster *remainingcluster = new PndTrkCluster();
       for(int ihit = 0; ihit < cluster->GetNofHits(); ihit++) {
 	PndTrkHit *hit = cluster->GetHit(ihit);
@@ -294,34 +311,36 @@ void PndTrkLegendreNew::Exec(Option_t* opt) {
       }
     }
 
-    cout << "partialclusterlist " << partialcluslist.GetNofClusters() << endl;
-    for(int jclus = 0; jclus < partialcluslist.GetNofClusters(); jclus++) {
-      PndTrkCluster *partcluster = partialcluslist.GetCluster(jclus);
-      cout << "ADD CLUSTER TO NEW CLUSLIST " << cluster->GetNofHits() << " " << partcluster->GetNofHits() << endl;
+    //     cout << "partialclusterlist " << partialcluslist.GetNofClusters() << endl;
+    //     for(int jclus = 0; jclus < partialcluslist.GetNofClusters(); jclus++) {
+    //       PndTrkCluster *partcluster = partialcluslist.GetCluster(jclus);
+    //       cout << "ADD CLUSTER TO NEW CLUSLIST " << cluster->GetNofHits() << " " << partcluster->GetNofHits() << endl;
 	 
-      if(jclus == 0) clusterlist.ReplaceCluster(iclus, partcluster);
-      else clusterlist.AddCluster(partcluster);
-    }
-    cout << "clusterlist now is " << clusterlist.GetNofClusters() << endl;
-    cout << "@@@@@@ " <<     clusterlist.GetCluster(iclus)->GetNofHits() << endl;
+    //       if(jclus == 0) clusterlist.ReplaceCluster(iclus, partcluster);
+    //       else clusterlist.AddCluster(partcluster);
+    //     }
+    //     cout << "clusterlist now is " << clusterlist.GetNofClusters() << endl;
+    //     cout << "@@@@@@ " <<     clusterlist.GetCluster(iclus)->GetNofHits() << endl;
+    cout << "tracklist is " << tracklist.GetNofTracks() << endl;
 
   }
   // ---------------------------------------
   
+  // loop over the tracklist -----~~~~~-----~~~~~-----~~~~~-----~~~~~-----~~~~~
+  int noftrack = tracklist.GetNofTracks(); 
+  cout << "\033[1;35m (AFTER LEGENDRE AND RECLUSTERING) NEW CLUSTERLIST " << noftrack << " \033[0m" << endl;
 
-  // reloop over the clusterlist -----~~~~~-----~~~~~-----~~~~~-----~~~~~-----~~~~~
-  nofclusters = clusterlist.GetNofClusters(); 
-  cout << "\033[1;35m (AFTER LEGENDRE AND RECLUSTERING) NEW CLUSTERLIST " << nofclusters << " \033[0m" << endl;
   // fDisplayOn = kTRUE;
-  
-  std::vector< PndTrkTrack* > tracklist;
+
+  PndTrkTrackList tracklist2;
   // loop on clusterlist -----~~~~~-----~~~~~-----~~~~~-----~~~~~-----~~~~~-----~~~~~
-  for(int iclus = 0; iclus < nofclusters; iclus++) {
-    PndTrkCluster *cluster = clusterlist.GetCluster(iclus);
+  for(int itrk = 0; itrk < noftrack; itrk++) {
+    PndTrkTrack *track = tracklist.GetTrack(itrk);
+    PndTrkCluster *cluster = track->GetCluster();
     // if(cluster->GetNofHits() < 3) continue;
 
     // print and display cluster -----~~~~~-----~~~~~-----~~~~~-----~~~~~-----~~~~~--
-    cout << "CLUSTER " << iclus << ":";
+    cout << "CLUSTER " << itrk << ":";
     if(fDisplayOn)  {
       char goOnChar;
       cin >> goOnChar;
@@ -333,31 +352,41 @@ void PndTrkLegendreNew::Exec(Option_t* opt) {
       
     // fit with analytical chi2 -----~~~~~-----~~~~~-----~~~~~-----~~~~~-----~~~~~--
     Int_t nhits = ClusterToConformal(cluster);
-    PndTrkTrack *track = LegendreFit(cluster);
-    if(track == NULL) continue;
-    PndTrkCluster *thiscluster = CreateClusterAroundTrack(track);
     double fitm, fitp;
-    // AnalyticalFit(thiscluster, track->GetCenter().X(), track->GetCenter().Y(), track->GetRadius(), fitm, fitp);
     FromRealToConformalTrack(track->GetCenter().X(), track->GetCenter().Y(), track->GetRadius(), fitm, fitp);
+    if(fDisplayOn) {
+      // draw old conformal line
+      RefreshConf();
+      if(fSecondary) DrawGeometryConf(-1, 1, -1, 1);
+      else   DrawGeometryConf(-0.07, 0.07, -0.07, 0.07);
+      display->cd(2);
+      TLine *line = new TLine(-10.07, fitp + fitm * (-10.07), 10.07, fitp + fitm * (10.07));
+      line->Draw("SAME");
+      
+    }
+
+    // analytical LS fit
     double fitm2, fitp2;
-    AnalyticalFit2(thiscluster, fitm, fitp, fitm2, fitp2);
+    AnalyticalFit2(cluster, fitm, fitp, fitm2, fitp2);
 
     double xc, yc, R;
     FromConformalToRealTrack(fitm, fitp, xc, yc, R);
-
-    track->SetCluster(thiscluster);
     track->SetCenter(xc, yc);
     track->SetRadius(R);
 
-    tracklist.push_back(track);
+    // create new cluster on the refitted track
+    PndTrkCluster *thiscluster = CreateClusterAroundTrack(track);
+    track->SetCluster(thiscluster);
+    
+    tracklist2.AddTrack(track);
   }
   //  fDisplayOn = kTRUE;
 
   if(fDisplayOn) {
     
     Refresh();
-    for(int itrk = 0; itrk < tracklist.size(); itrk++) {
-      PndTrkTrack *track = tracklist.at(itrk);
+    for(int itrk = 0; itrk < tracklist2.GetNofTracks(); itrk++) {
+      PndTrkTrack *track = tracklist2.GetTrack(itrk);
       track->Draw(kRed);
       display->Update();
       display->Modified();
@@ -539,8 +568,8 @@ void PndTrkLegendreNew::DrawLists() {
       }
       hitB->DrawTube(kYellow);
     }
- //    display->Update();
-//     display->Modified();
+    //    display->Update();
+    //    display->Modified();
     //    cin >> goOnChar;
 
   }
@@ -548,7 +577,7 @@ void PndTrkLegendreNew::DrawLists() {
   //     for(int i = 0; i < limits.GetEntriesFast(); i++) {
   //        PndTrkHit *hitA = (PndTrkHit*) limits.At(i);
   //        hitA->DrawTube(kYellow);
-     //      }
+  //      }
   
   display->Update();
   display->Modified();
@@ -575,16 +604,16 @@ void PndTrkLegendreNew::DrawNeighboringsToHit(PndTrkHit *hit) {
  
   Refresh(); 
   hit->DrawTube(kYellow);
-   PndSttTube *tube = (PndSttTube*) fTubeArray->At(hit->GetTubeID());
- TObjArray *neighs = fHitMap->GetNeighboringsToHit(hit);
+  PndSttTube *tube = (PndSttTube*) fTubeArray->At(hit->GetTubeID());
+  TObjArray *neighs = fHitMap->GetNeighboringsToHit(hit);
 
 
- cout << "HIT " << hit->GetHitID() << "(" << hit->GetTubeID() << "/" << tube->GetLayerID() << ")" << " has " << neighs->GetEntriesFast() << " neighborings: ";
+  cout << "HIT " << hit->GetHitID() << "(" << hit->GetTubeID() << "/" << tube->GetLayerID() << ")" << " has " << neighs->GetEntriesFast() << " neighborings: ";
   for(int i = 0; i < neighs->GetEntriesFast(); i++) {
     PndTrkHit *hitA = (PndTrkHit*) neighs->At(i);
     hitA->DrawTube(kCyan);
-     PndSttTube *tubeA = (PndSttTube*) fTubeArray->At(hitA->GetTubeID());
-     cout << " " << hitA->GetHitID() << "(" << hitA->GetTubeID() << "/" << tubeA->GetLayerID() << ")";
+    PndSttTube *tubeA = (PndSttTube*) fTubeArray->At(hitA->GetTubeID());
+    cout << " " << hitA->GetHitID() << "(" << hitA->GetTubeID() << "/" << tubeA->GetLayerID() << ")";
   }
   cout << endl;
   display->Update();
@@ -608,9 +637,13 @@ void PndTrkLegendreNew::DrawConfHit(double u, double v, double r, int marker) {
 }
 
 Int_t PndTrkLegendreNew::FillConformalHitList(PndTrkCluster *cluster) { 
-
+  
+  // set the conformal transformation, where the
+  // translation and rotation must be already set
   conformalhitlist->SetConformalTransform(conform);
     
+  // loop over the cluster hits 
+  // and port them to conf plane
   for(int jhit = 0; jhit < cluster->GetNofHits(); jhit++) {
     PndTrkHit *hit = cluster->GetHit(jhit);
     if(hit == fRefHit) continue;
