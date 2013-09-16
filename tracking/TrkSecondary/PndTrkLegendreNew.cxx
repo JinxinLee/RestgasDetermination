@@ -1416,6 +1416,16 @@ PndTrkCluster * PndTrkLegendreNew::CreateClusterAroundTrack(PndTrkTrack *track) 
     //    cout << "distance " << distance << " " << rmin << " " << rmax << " " << distanceconf << endl;
     if(distance <= rmax && distance >= rmin) {
       thiscluster->AddHit(hit);
+      if(fDisplayOn) {
+	display->cd(1);
+	hit->DrawTube(kGreen);
+	display->Update();
+	display->Modified();
+	//	  char goOnChar;
+	//	  cout << "want to go to next hitcluster2?" << endl;
+	//	  cin >> goOnChar;
+      } 
+      
       PndSttTube *tube = (PndSttTube*) fTubeArray->At(hit->GetTubeID());
       
       if(tube->GetLayerID() < startlayid)  startlayid = tube->GetLayerID();
@@ -1470,6 +1480,16 @@ PndTrkCluster * PndTrkLegendreNew::CreateClusterAroundTrack(PndTrkTrack *track) 
 	//	cout << "->distance " << distance << " (" << meandistanceconf << ") " << rmin << " " << rmax << " " << distanceconf << endl;
  
 
+
+	if(fDisplayOn) {
+	  display->cd(1);
+	  hit->Draw(kRed);
+	  display->Update();
+	  display->Modified();
+	  char goOnChar;
+	  cout << "want to go to next?" << endl;
+	  cin >> goOnChar;
+	} 
 
 	//	cout << "tubeid " << hit->GetTubeID() << " " << tube->GetLayerID() << endl;
 	thiscluster->AddHit(hit);
