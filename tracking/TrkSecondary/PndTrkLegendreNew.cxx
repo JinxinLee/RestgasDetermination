@@ -351,7 +351,7 @@ void PndTrkLegendreNew::Exec(Option_t* opt) {
 
     tracklist.push_back(track);
   }
-  fDisplayOn = kTRUE;
+  //  fDisplayOn = kTRUE;
 
   if(fDisplayOn) {
     
@@ -1182,27 +1182,41 @@ Int_t PndTrkLegendreNew::CountTracksInSkewSector(PndTrkCluster *cluster) {
   int tmplayid = -1;
   int counter = 0, counter1 = 0;;
   int isneigh = 0;
+  // loop over cluster hits
   for(int ihit = 0; ihit < cluster->GetNofHits(); ihit++) {
     PndTrkHit *hit = cluster->GetHit(ihit);
     counter++; 
+
+    // skew sector?
     if(hit->IsSttParallel() == kTRUE) continue;
     PndSttTube *tube = (PndSttTube*) fTubeArray->At(hit->GetTubeID());
 
     int layid = tube->GetLayerID();
     if(nofhitsinlay[layid] <= 1) continue;
 
+    // new layer?
     if(layid != tmplayid) {
-      int noftracks = nofhitsinlay[tmplayid] - isneigh;
-      if(tmplayid != -1) cout << "CLUSTER CONTAINS @ LAYER " << tmplayid << " ACTUALLY " << nofhitsinlay[tmplayid] << " - " << isneigh << " = " << noftracks << " TRACKS" << endl;
-      if(noftracks > maxnoftracks) maxnoftracks = noftracks;
+      /**
+	 int noftracks = nofhitsinlay[tmplayid] - isneigh;
+	 if(tmplayid != -1) cout << "CLUSTER CONTAINS @ LAYER " << tmplayid << " ACTUALLY " << nofhitsinlay[tmplayid] << " - " << isneigh << " = " << noftracks << " TRACKS" << endl;
+	 if(noftracks > maxnoftracks) maxnoftracks = noftracks;
+      **/
       isneigh = 0;
       tmplayid = layid;
       counter1 = 0;
       //	continue; //	break;
     }
     //    cout << "hit " << ihit << " on layid " << layid << "/ " <<  nofhitsinlay[layid] << endl;
+
+    // count processed hits 
+    // in this same layer
     counter1++;
+
+    // if it is the last hit ==> all its
+    // neighborings have already been taken
+    // into account
     if(counter1 == nofhitsinlay[layid]) continue;
+
     for(int jhit = counter; jhit < counter + nofhitsinlay[layid] -  counter1; jhit++) {
       PndTrkHit *hit2 = cluster->GetHit(jhit);
       int tubeid2 =   hit2->GetTubeID();
@@ -1218,6 +1232,14 @@ Int_t PndTrkLegendreNew::CountTracksInSkewSector(PndTrkCluster *cluster) {
 	//	// break;
       }
     }
+
+    // if all the hits in the layer have been processed
+    if(counter1 == nofhitsinlay[layid] - 1) {
+      int noftracks = nofhitsinlay[layid] - isneigh;
+      cout << "CLUSTER CONTAINS @ LAYER " << layid << " ACTUALLY " << nofhitsinlay[layid] << " - " << isneigh << " = " << noftracks << " TRACKS" << endl;
+      if(noftracks > maxnoftracks) maxnoftracks = noftracks;
+    }
+
   }
     
   
