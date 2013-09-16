@@ -382,6 +382,8 @@ int istampa = 0;
 	rotationsin;
 
 
+//---------------------
+/*
  Double_t
 	tDriftRadiusconformal[InOut->maxhitsinfit],
 	tErrorDriftRadiusconformal[InOut->maxhitsinfit],
@@ -392,6 +394,16 @@ int istampa = 0;
  	ErrorDriftRadiusconformal ( tErrorDriftRadiusconformal, InOut->maxhitsinfit, "ErrorDriftRadiusconformal"),
 	Xconformal(tXconformal, InOut->maxhitsinfit, "Xconformal"),
 	Yconformal(tYconformal, InOut->maxhitsinfit, "Yconformal");
+*/
+ Double_t
+	DriftRadiusconformal[InOut->maxhitsinfit],
+	ErrorDriftRadiusconformal[InOut->maxhitsinfit],
+	Xconformal[InOut->maxhitsinfit],
+	Yconformal[InOut->maxhitsinfit];
+
+//--------------------------
+
+
 
  PndTrkCleanup Cleanup;
  PndTrkCTGeometryCalculations GeomCalculator;
@@ -422,10 +434,20 @@ int istampa = 0;
 		InOut->legiandre_nthetadiv,
 		InOut->legiandre_nradiusdiv,
 		nFitPoints,
+
+/*
 		tXconformal,
 		tYconformal,
 		tDriftRadiusconformal,
 		tErrorDriftRadiusconformal,
+*/
+
+		Xconformal,
+		Yconformal,
+		DriftRadiusconformal,
+		ErrorDriftRadiusconformal,
+
+
 		0.,  //  rotationangle, input;
 		InOut->Sinus,
 		InOut->thetamax,	// input;
@@ -706,11 +728,22 @@ InOut->Fi_initial_helix_referenceframe,KAPPA);
   // to decide a priori on the left-right ambiguity of the Stt axial straws);
    status = fitChi2.FitHelixCylinder(
 	nFitPoints,
+
+/*
 	tXconformal,
 	tYconformal,
 	tDriftRadiusconformal,
 	tErrorDriftRadiusconformal,
-	0.,  //  rotationangle, da mettere
+*/
+
+
+	Xconformal,
+	Yconformal,
+	DriftRadiusconformal,
+	ErrorDriftRadiusconformal,
+
+
+	0.,  //  rotationangle;
 	InOut->trajectory_vertex,	//  vertex in (X,Y) of this trajectory
 	InOut->maxhitsinfit,  //  maximum n. of hits allowed in fast fit
 	&m,
