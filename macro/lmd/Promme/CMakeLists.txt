@@ -6,6 +6,8 @@ ${CMAKE_SOURCE_DIR}/fairtools
 ${CMAKE_SOURCE_DIR}/geobase
 ${CMAKE_SOURCE_DIR}/parbase
 ${CMAKE_SOURCE_DIR}/base
+${CMAKE_SOURCE_DIR}/base/steer
+${CMAKE_SOURCE_DIR}/base/event
 ${CMAKE_SOURCE_DIR}/field
 ${CMAKE_SOURCE_DIR}/pnddata
 ${CMAKE_SOURCE_DIR}/pnddata/SdsData
@@ -59,27 +61,35 @@ add_executable(resolution_and_acceptance Resolution_and_acceptance.cxx)
 # (-lSts -lGen -lRich -lTrd -lTof -lMvd -lGlobal -lKF -lDilept
 #-lMuch -lBase -lField -lMCStack -lPassive -lGeoBase
 #-lParBase)
-target_link_libraries(resolution_and_acceptance ${ROOT_LIBRARIES} LmdTesting Lmd Sds Geane Geom Proof MathMore TrkBase FairTools PndData VMC EG GeomPainter generalTools Base GeoBase FairDB ParBase)
+target_link_libraries(resolution_and_acceptance ${ROOT_LIBRARIES} LmdTool)
 
-add_executable(radiation radiation.cxx)
-target_link_libraries(radiation ${ROOT_LIBRARIES} Lmd Sds Geane Geom Proof MathMore TrkBase FairTools PndData VMC EG GeomPainter generalTools Base GeoBase FairDB ParBase)
+#add_executable(radiation radiation.cxx)
+#target_link_libraries(radiation ${ROOT_LIBRARIES} Lmd Sds Geane Geom Proof MathMore TrkBase FairTools PndData VMC EG GeomPainter generalTools Base GeoBase FairDB ParBase)
 
+add_executable(scattered_particles scattered_particles.cxx)
+target_link_libraries(scattered_particles ${ROOT_LIBRARIES} Lmd MathMore MbsAPI generalTools Base GeoBase FairDB ParBase)
+
+add_executable(roman_crosscheck roman_crosscheck.cxx)
+target_link_libraries(roman_crosscheck ${ROOT_LIBRARIES} Lmd MathMore MbsAPI generalTools Base GeoBase FairDB ParBase)
 
 add_executable(check_particle_path Check_particle_path.C)
-target_link_libraries(check_particle_path ${ROOT_LIBRARIES} LmdTesting Lmd Sds Geane Geom Proof MathMore TrkBase FairTools PndData VMC EG GeomPainter generalTools Base GeoBase FairDB ParBase)
+target_link_libraries(check_particle_path ${ROOT_LIBRARIES} Lmd Sds Geane Geom Proof MathMore TrkBase FairTools PndData VMC EG GeomPainter generalTools Base GeoBase FairDB ParBase)
 
 add_executable(createRootGeometry_beampipe createRootGeometry_beampipe.C)
 # loading of libraries in the correct order is important!
 # (-lSts -lGen -lRich -lTrd -lTof -lMvd -lGlobal -lKF -lDilept
 #-lMuch -lBase -lField -lMCStack -lPassive -lGeoBase
 #-lParBase)
-target_link_libraries(createRootGeometry_beampipe ${ROOT_LIBRARIES} Geom GeoBase)
+target_link_libraries(createRootGeometry_beampipe ${ROOT_LIBRARIES} Geom GeoBase Lmd MathMore)
 
 #add_executable(createRootGeometry_lmd_HV_MAPS create_Lmd_HV_MAPS.C)
 #target_link_libraries(createRootGeometry_lmd_HV_MAPS ${ROOT_LIBRARIES} LmdTesting Geane Geom Proof TrkBase FairTools PndData VMC EG GeomPainter generalTools Base GeoBase FairDB ParBase)
 
-add_executable(interpolate_fieldmaps interpolate_fieldmaps.cxx)
-target_link_libraries(interpolate_fieldmaps ${ROOT_LIBRARIES} Base Field Passive Geom GeoBase)
+#add_executable(interpolate_fieldmaps interpolate_fieldmaps.cxx)
+#target_link_libraries(interpolate_fieldmaps ${ROOT_LIBRARIES} Base Field Passive Geom GeoBase)
+
+add_executable(read_jost_fieldmaps read_jost_fieldmaps.cxx)
+target_link_libraries(read_jost_fieldmaps ${ROOT_LIBRARIES} Base Field Passive Geom GeoBase)
 
 #add_executable(lumi_simbox runLumiSimBox.cxx)
 #target_link_libraries(lumi_simbox ${ROOT_LIBRARIES} Lmd Sds Base ParBase Field Passive Geom GeoBase Gen Pluto PndData TrkBase generalTools MathMore)

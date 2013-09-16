@@ -39,6 +39,7 @@
 #include<TGeoManager.h>
 #include<TGeoTorus.h>
 #include<TGeoCone.h>
+#include<PndLmdDim.h>
 #include<vector>
 #include<sstream>
 
@@ -59,7 +60,7 @@ void createRootGeometry_beampipe() {
 	cout << " ******************************************* " << endl;
 	cout << " *              beam pipe creator          * " << endl;
 	cout << " ******************************************* " << endl;
-	cout << "\n\n\t\t 13.09.13 \n " << endl;
+	cout << "\n\n\t\t 16.09.13 \n " << endl;
 	cout << " \t modified by P.Jasinski \n " << endl;
 
 	cout << " basic beam pipe parameters: " << endl;
@@ -79,6 +80,7 @@ void createRootGeometry_beampipe() {
 	// warning: it does not work with vacuum inserted as an medium
 	bool create_sensors = false;
 	bool create_vacuum = true;
+	bool create_lumi   = false;
 	// key z positions are stored in the following vector
 	std::vector< double > sensor_positions;
 
@@ -741,7 +743,7 @@ void createRootGeometry_beampipe() {
 			320, 0.0, 9.0,
 			340.5, 0.0, 10.0,
 			340.5+98.9, 0.0, 10.,
-			340.5+101.5+0.24, 0.0, 10.};
+			340.5+101.5+0.252, 0.0, 10.};
 	TGeoPcon* Dippip3_vac = new TGeoPcon("Dippip3_vac", 0., 360., 9);
 	Dippip3_vac->SetDimensions(psh2_vac);
 
@@ -945,7 +947,6 @@ void createRootGeometry_beampipe() {
 			"TVPwValve:trj5+VATvalve160:trj6+IGP1000:trj7");
 	TGeoCompositeShape *EndCross = new TGeoCompositeShape("EndCross",
 			"EndCross2+EndCross3+EndCross4+VATvalve100:trj4");
-
 	TGeoCombiTrans* trj8 = new TGeoCombiTrans("trj8", dx0 + s * sin(dphi), 0.,
 			z0 + currentz, dipolerot);
 	trj8->RegisterYourself();
@@ -1023,6 +1024,10 @@ void createRootGeometry_beampipe() {
 
 	// add pipe to cave
 	cave->AddNode(beamPipe, 1);
+	if (create_lumi){
+		PndLmdDim* lmddim = PndLmdDim::Instance();
+		lmddim->Generate_rootgeom(*cave, false);
+	}
 	//beamPipe->AddNode(VTest, 0, trv1);
 	gGeoManager->CloseGeometry();
 
