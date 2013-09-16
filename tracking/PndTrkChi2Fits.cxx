@@ -711,7 +711,8 @@ return 1;
 
  for( j =0; j<nMvdHits;j++){
 	InclusionMvd[j] = false;
-	Penalty = 9./Mvd_invError2[j];
+//	Penalty = 9.*Mvd_invError2[j];
+	Penalty = 36.;
 	// the following is necessary to include again the Mvd hit excluded in the previous loop;
 	if(j>0) InclusionMvd[j-1] = true;
 
