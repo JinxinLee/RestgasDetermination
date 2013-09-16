@@ -43,20 +43,31 @@ Short_t PndTrkSttClusterFinder::FindTrackPattern(
  Short_t
 		ContiguousTube,
 		CurrentTube,
-		i,
-		tCurrentListofTubes[ MAXHITSINCLUSTER ];  // current list of tubes forming the cluster;
+		i;
+
+
+/*
+ Short_t		tCurrentListofTubes[ MAXHITSINCLUSTER ];  // current list of tubes forming the cluster;
 
  Vec <Short_t>
 		CurrentListofTubes(tCurrentListofTubes,MAXHITSINCLUSTER , "CurrentListofTubes");
+
+*/
+
+ Short_t	CurrentListofTubes[ MAXHITSINCLUSTER ];  // current list of tubes forming the cluster;
 
 
 
 // the following is a necessary initialization every time a new cluster is searched starting from a given seed hit;
 
+/*
  bool tAlreadyConsidered[ number_straws ] ;   // for each Stt Straw;
  memset ( tAlreadyConsidered,false, sizeof( tAlreadyConsidered ));
  Vec<bool> AlreadyConsidered(tAlreadyConsidered,number_straws,"AlreadyConsidered");
+*/
 
+ bool AlreadyConsidered[ number_straws ] ;   // for each Stt Straw;
+ memset ( AlreadyConsidered,false, sizeof( AlreadyConsidered ));
 
  // algorithm of clusterization by proximity only;
 
@@ -135,8 +146,11 @@ Short_t PndTrkSttClusterFinder::FindTrackPattern(
 						)
  {
 
+/*
 	bool tinclusion_list_stt[MAXSTTHITS];
 	Vec <bool> inclusion_list_stt(tinclusion_list_stt,MAXSTTHITS,"inclusion_list_stt");
+*/
+	bool inclusion_list_stt[MAXSTTHITS];
 
 	Short_t	i,
 		iParHit,
@@ -177,8 +191,14 @@ Short_t PndTrkSttClusterFinder::FindTrackPattern(
 // in the following inclusion list the Stt multiple hits are NOT included NOR the hit already used in a previous cluster;
 
 	  nHitsinCluster[nFoundClusters] = FindTrackPattern(
+/*
 	 	tinclusion_list_stt,		// input; here it is the exclusion of Stt hits for Stt multiple hits
 						// OR because the hit was already used in another cluster;
+*/
+
+	 	inclusion_list_stt,		// input; here it is the exclusion of Stt hits for Stt multiple hits
+						// OR because the hit was already used in another cluster;
+
 		&ListHitsinCluster[nFoundClusters*MAXHITSINCLUSTER],	// output
 		ListParContiguous,	// input, this is the list of contiguous TubeID ;
 		MAXHITSINCLUSTER,	// input;
