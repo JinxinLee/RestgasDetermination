@@ -98,7 +98,10 @@ class PndTrkLegendreNew : public FairTask {
   PndTrkClusterList CreateFullClusterization();
   PndTrkClusterList CreateFullClusterization2();
 
+  Int_t CountTracksInCluster(PndTrkCluster *cluster);
   Int_t CountTracksInSkewSector(PndTrkCluster *cluster);
+  Int_t CountTracksInCluster(PndTrkCluster *cluster, Int_t where);
+
   Int_t ClusterToConformal(PndTrkCluster *cluster);
  PndTrkTrack *LegendreFit(PndTrkCluster *cluster);
   PndTrkCluster *CreateClusterAroundTrack(PndTrkTrack *track);

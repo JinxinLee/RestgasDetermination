@@ -1175,7 +1175,20 @@ PndTrkClusterList PndTrkLegendreNew::CreateFullClusterization2() {
 **/
 }
 
+Int_t PndTrkLegendreNew::CountTracksInCluster(PndTrkCluster *cluster) {
+  return CountTracksInCluster(cluster, 0);
+}
+
+
 Int_t PndTrkLegendreNew::CountTracksInSkewSector(PndTrkCluster *cluster) {
+  return CountTracksInCluster(cluster, 1); 
+}
+
+Int_t PndTrkLegendreNew::CountTracksInCluster(PndTrkCluster *cluster, Int_t where) {
+  // where means:
+  // 0 all: parallel & skewed sectors
+  // 1: only skewed
+
   // check how many neighboring tubes each skew 
   // tube on a layer has on that same layer
   // the total number of tubes on a layer minus the number 
@@ -1220,8 +1233,8 @@ Int_t PndTrkLegendreNew::CountTracksInSkewSector(PndTrkCluster *cluster) {
     PndTrkHit *hit = cluster->GetHit(ihit);
     counter++; 
 
-    // skew sector?
-    if(hit->IsSttParallel() == kTRUE) continue;
+    // which sector?
+    if(where == 1 && hit->IsSttParallel() == kTRUE) continue;
     PndSttTube *tube = (PndSttTube*) fTubeArray->At(hit->GetTubeID());
 
     int layid = tube->GetLayerID();
@@ -1338,7 +1351,7 @@ PndTrkTrack * PndTrkLegendreNew::LegendreFit(PndTrkCluster *cluster) {
   // from line parameters to center/radius in REAL plane
   Double_t xc, yc, R;
   FromConformalToRealTrack(fitm, fitq, xc, yc, R);
-  cout << "\033[1;33m XR, YC, R: " << xc << " " << yc << " " << R << "\033[0m" << endl;
+  cout << "\033[1;33m MAXPEAK " << maxpeak << " XR, YC, R: " << xc << " " << yc << " " << R << "\033[0m" << endl;
 	//	cout << "start hit " << ihit << " " << hit->GetHitID() << " " << endsecid << " " << endlayid << endl;
 
   // create a track from the cluster
