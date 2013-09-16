@@ -650,7 +650,7 @@ Int_t PndTrkLegendreNew::FillConformalHitList(PndTrkCluster *cluster) {
     PndTrkConformalHit * chit = NULL;
     //    cout << "HIT " << hit->GetHitID() << " " << hit->IsSttParallel() << " " << hit->IsSttSkew() << endl;
     if(hit->IsSttParallel() == kTRUE) chit = conform->GetConformalSttHit(hit);
-    else continue; // chit = conform->GetConformalHit(hit);
+    else chit = conform->GetConformalHit(hit); // CHECK
     conformalhitlist->AddHit(chit);  
     //    cout << hit->GetPosition().X() << " " << hit->GetPosition().Y() << " " << hit->IsSttParallel() << " " << " to CONFORMAL " << chit->GetU() << " " << chit->GetV() << " " << chit->GetIsochrone() << endl;   
 
@@ -1373,8 +1373,8 @@ PndTrkCluster * PndTrkLegendreNew::CreateClusterAroundTrack(PndTrkTrack *track) 
  PndTrkCluster *cluster = track->GetCluster();
 
   // create cluster depending on fitting
-  double rmin = R - R * 0.10; // CHECK 20%?
-  double rmax = R + R * 0.10; // "      "
+  double rmin = R - R * 0.05; // CHECK 5%?
+  double rmax = R + R * 0.05; // "      "
   
   
   if(fDisplayOn) {
@@ -1606,8 +1606,8 @@ void PndTrkLegendreNew::AnalyticalFit2(PndTrkCluster *cluster, double fitm, doub
 	mrk2->Draw("SAME");
 
 
-// 	display->Update();
-// 	display->Modified();
+	display->Update();
+	display->Modified();
       } 
     }
 
