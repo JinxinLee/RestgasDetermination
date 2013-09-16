@@ -498,10 +498,10 @@ class PndTrkTracking2 : public FairTask
 
 
   void LoadPndTrack_TrackCand(
-	Vec <bool>& keepit,
-	Vec <bool>& SttSZfit,
+	bool* keepit,
+	bool* SttSZfit,
 	Short_t nTotalCandidates,
-	Vec <Short_t>& Charge,
+	Short_t* Charge,
 	Int_t nSttTrackCand,
 	Double_t *FI0,
 	Double_t *KAPPA,
@@ -593,16 +593,16 @@ class PndTrkTracking2 : public FairTask
 
 
   void OrderingConformal_Loading_ListTrackCandHit(
-	Vec <bool>& keepit,
+	bool* keepit,
 	Short_t ncand,
 	Double_t info[][7],
 	Double_t Trajectory_Start[][2],
-	Vec <Short_t>& CHARGE,
+	Short_t* CHARGE,
 	Double_t SchosenSkew[][MAXSTTHITS]
 	);
 
   void OrderingR_Loading_ListTrackCandHit(
-	Vec <bool>& keepit,
+	bool* keepit,
 	Short_t ncand,
 	Double_t info[][7]
 	);
@@ -639,12 +639,14 @@ class PndTrkTracking2 : public FairTask
 
 
   void Ordering_Loading_ListTrackCandHit(
-	Vec <bool>& keepit,
+//	Vec <bool>& keepit,
+	bool * keepit,
 	Short_t FirstCandidate,
 	Short_t LastCandidate,
 	Double_t info[][7],
 	Double_t Trajectory_Start[][2],
-	Vec <Short_t>& CHARGE,
+//	Vec <Short_t>& CHARGE,
+	Short_t * CHARGE,
 	Double_t SchosenSkew[][MAXSTTHITS]
 	);
   void RefitMvdStt(
