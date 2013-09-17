@@ -289,9 +289,7 @@ void PndTrkLegendreNew::Exec(Option_t* opt) {
       track->SetCluster(thiscluster);
       tracklist.AddTrack(track);
       cout << "ADD CLUSTER TO TRACKLIST " << thiscluster->GetNofHits() << endl;
-      //  partialcluslist.AddCluster(thiscluster);
-      //  cout << "ADD CLUSTER TO PARTCLUSLIST " << thiscluster->GetNofHits() << endl;
-
+ 
       PndTrkCluster *remainingcluster = new PndTrkCluster();
       for(int ihit = 0; ihit < cluster->GetNofHits(); ihit++) {
 	PndTrkHit *hit = cluster->GetHit(ihit);
@@ -311,16 +309,7 @@ void PndTrkLegendreNew::Exec(Option_t* opt) {
       }
     }
 
-    //     cout << "partialclusterlist " << partialcluslist.GetNofClusters() << endl;
-    //     for(int jclus = 0; jclus < partialcluslist.GetNofClusters(); jclus++) {
-    //       PndTrkCluster *partcluster = partialcluslist.GetCluster(jclus);
-    //       cout << "ADD CLUSTER TO NEW CLUSLIST " << cluster->GetNofHits() << " " << partcluster->GetNofHits() << endl;
-	 
-    //       if(jclus == 0) clusterlist.ReplaceCluster(iclus, partcluster);
-    //       else clusterlist.AddCluster(partcluster);
-    //     }
-    //     cout << "clusterlist now is " << clusterlist.GetNofClusters() << endl;
-    //     cout << "@@@@@@ " <<     clusterlist.GetCluster(iclus)->GetNofHits() << endl;
+
     cout << "tracklist is " << tracklist.GetNofTracks() << endl;
 
   }
@@ -350,8 +339,15 @@ void PndTrkLegendreNew::Exec(Option_t* opt) {
       display->Modified();
     }
       
-    // fit with analytical chi2 -----~~~~~-----~~~~~-----~~~~~-----~~~~~-----~~~~~--
+    // fit with legendre the new cluster -----~~~~~-----~~~~~-----~~~~~-----~~~~~-----~~~~~--
     Int_t nhits = ClusterToConformal(cluster);
+
+    track = LegendreFit(cluster); 
+    if(track == NULL) continue; 
+
+    // create cluster around new fit
+    PndTrkCluster *cluster2 = CreateClusterAroundTrack(track); 
+
     double fitm, fitp;
     FromRealToConformalTrack(track->GetCenter().X(), track->GetCenter().Y(), track->GetRadius(), fitm, fitp);
     if(fDisplayOn) {
@@ -365,16 +361,17 @@ void PndTrkLegendreNew::Exec(Option_t* opt) {
       
     }
 
+    // fit with analytical chi2 -----~~~~~-----~~~~~-----~~~~~-----~~~~~-----~~~~~--
     // analytical LS fit
     double fitm2, fitp2;
-    AnalyticalFit2(cluster, fitm, fitp, fitm2, fitp2);
+    AnalyticalFit2(cluster2, fitm, fitp, fitm2, fitp2);
 
     double xc, yc, R;
     FromConformalToRealTrack(fitm, fitp, xc, yc, R);
     track->SetCenter(xc, yc);
     track->SetRadius(R);
 
-    // create new cluster on the refitted track
+    // create final cluster on the refitted track
     PndTrkCluster *thiscluster = CreateClusterAroundTrack(track);
     track->SetCluster(thiscluster);
     
@@ -650,7 +647,7 @@ Int_t PndTrkLegendreNew::FillConformalHitList(PndTrkCluster *cluster) {
     PndTrkConformalHit * chit = NULL;
     //    cout << "HIT " << hit->GetHitID() << " " << hit->IsSttParallel() << " " << hit->IsSttSkew() << endl;
     if(hit->IsSttParallel() == kTRUE) chit = conform->GetConformalSttHit(hit);
-    else chit = conform->GetConformalHit(hit); // CHECK
+    else continue; // CHECK  chit = conform->GetConformalHit(hit); // CHECK
     conformalhitlist->AddHit(chit);  
     //    cout << hit->GetPosition().X() << " " << hit->GetPosition().Y() << " " << hit->IsSttParallel() << " " << " to CONFORMAL " << chit->GetU() << " " << chit->GetV() << " " << chit->GetIsochrone() << endl;   
 
