@@ -1097,8 +1097,8 @@ PndTrkClusterList PndTrkLegendreNew::CreateFullClusterization() {
     //       display->Modified();
     //     }
 
-    // add cluster to clusterlist
-    clusterlist.AddCluster(cluster);
+    //    // add cluster to clusterlist
+    //    clusterlist.AddCluster(cluster);
 
     int nlastadded = 1, addedcounter = 0;
     // cout << "nlastadded to " << seedhit->GetHitID() << "(" << seedtubeID << ")" << " " << nlastadded << endl;
@@ -1158,6 +1158,9 @@ PndTrkClusterList PndTrkLegendreNew::CreateFullClusterization() {
       nlastadded = addedcounter;
     }
     //     cout << "NEXT seed " << endl;
+    // add cluster to clusterlist
+    if(cluster->GetNofHits() > 3)  clusterlist.AddCluster(cluster); // CHECK
+    
   }
   return clusterlist;
 }
@@ -1480,12 +1483,12 @@ PndTrkCluster * PndTrkLegendreNew::CreateClusterAroundTrack(PndTrkTrack *track) 
 
 	if(fDisplayOn) {
 	  display->cd(1);
-	  hit->Draw(kRed);
+	  hit->DrawTube(kBlue);
 	  display->Update();
 	  display->Modified();
 	  char goOnChar;
 	  cout << "want to go to next?" << endl;
-	  cin >> goOnChar;
+	  // cin >> goOnChar;
 	} 
 
 	//	cout << "tubeid " << hit->GetTubeID() << " " << tube->GetLayerID() << endl;
