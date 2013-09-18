@@ -50,7 +50,9 @@ class PndSttSkewedHit : public FairHit
   /** Public method Clear
    ** Resets the isochrone and it's error to 0
    **/
-  void Clear();
+  void Clear(){
+	  SetTubeIDs(-1,-1);
+  }
 
 
   /** Accessors **/
