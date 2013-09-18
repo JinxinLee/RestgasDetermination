@@ -24,6 +24,7 @@
 #include "FairGeanePro.h"
 #include "TFile.h"
 #include "TString.h"
+#include "TH2Poly.h"
 
 //#include "PndSdsGeoHandling.h"
 #include "PndGeoHandling.h"
@@ -140,8 +141,8 @@ private:
 	TH2* hist_angular_distr_acc;
 
 	// spatial acceptance in x and y at the first lumi plane
-	TH2* hist_spatial_distr_gen;
-	TH2* hist_spatial_distr_acc;
+	TH2Poly* hist_spatial_distr_gen;
+	TH2Poly* hist_spatial_distr_acc;
 
 	// theta over momentum acceptance
 	TH2* hist_theta_over_mom_gen;

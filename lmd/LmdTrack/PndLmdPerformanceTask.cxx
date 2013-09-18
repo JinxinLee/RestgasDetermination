@@ -40,7 +40,8 @@
 // GenFit includes
 #include "RKTrackRep.h"
 #include "GFFieldManager.h"
-#include "GFPandaField.h"
+#include "PndGenfitField.h"
+//#include "GFPandaField.h"
 
 #include <vector>
 #include <map>
@@ -165,7 +166,7 @@ InitStatus PndLmdPerformanceTask::Init() {
 	// fPbeam = par->GetBeamMom();
 	//  cout<<"Beam Momentum for this run is "<<fPbeam<<endl;
 
-	GFFieldManager::getInstance()->init(new GFPandaField());
+	GFFieldManager::getInstance()->init(new PndGenfitField());
 
 	std::cout << " Setting up histograms in PndLmdPerformanceTask ";
 	flush(std::cout);
@@ -209,10 +210,10 @@ InitStatus PndLmdPerformanceTask::Init() {
 			"hist_angular_distr_acc", 400, 2.e-3, 12.e-3, 400, -3.141, 3.141);
 
 	// spatial acceptance in x and y at the first lumi plane
-	hist_spatial_distr_gen = new TH2F("hist_spatial_distr_gen",
-			"hist_spatial_distr_gen", 1000, -100., 100., 1000, -100., 100.);
-	hist_spatial_distr_acc = new TH2F("hist_spatial_distr_acc",
-			"hist_spatial_distr_acc", 1000, -100., 100., 1000, -100., 100.);
+	hist_spatial_distr_gen = lmddim->Get_histogram_Plane(0, 0, true, true, false);// new TH2F("hist_spatial_distr_gen",
+			//"hist_spatial_distr_gen", 1000, -100., 100., 1000, -100., 100.);
+	hist_spatial_distr_acc = lmddim->Get_histogram_Plane(1, 0, true, true, false);// new TH2F("hist_spatial_distr_acc",
+			//"hist_spatial_distr_acc", 1000, -100., 100., 1000, -100., 100.);
 
 	hist_theta_over_mom_gen = new TH2F("hist_theta_over_mom_gen",
 			"hist_theta_over_mom_gen", 2000, 1., 20., 100, 2.e-3, 12.e-3);
@@ -351,7 +352,7 @@ InitStatus PndLmdPerformanceTask::Init() {
 		hist_name << "hist_theta_diff_in_plane_" << _iplane;
 		hist_title << "#Delta#Theta distribution at plane " << _iplane;
 		hist_theta_diff[_iplane] = new TH2F(hist_name.str().c_str(),
-				hist_title.str().c_str(), 100, -20e-5, 20e-5, 360, -3.141, +3.141);
+				hist_title.str().c_str(), 100, -40e-4, 40e-4, 360, -3.141, +3.141);
 		hist_theta_diff[_iplane]->Draw();
 		hist_theta_diff[_iplane]->GetXaxis()->SetTitle("#Delta#Theta [rad]");
 		hist_theta_diff[_iplane]->GetYaxis()->SetTitle("#Phi [rad]");
@@ -362,7 +363,7 @@ InitStatus PndLmdPerformanceTask::Init() {
 		hist_name << "hist_theta_rec_diff_in_plane_" << _iplane;
 		hist_title << "#Delta#Theta reco distribution at plane " << _iplane;
 		hist_theta_rec_diff[_iplane] = new TH2F(hist_name.str().c_str(),
-				hist_title.str().c_str(), 100, -20e-5, 20e-5, 360, -3.141, +3.141);
+				hist_title.str().c_str(), 100, -40e-4, 40e-4, 360, -3.141, +3.141);
 		hist_theta_rec_diff[_iplane]->Draw();
 		hist_theta_rec_diff[_iplane]->GetXaxis()->SetTitle("#Delta#Theta [rad]");
 		hist_theta_rec_diff[_iplane]->GetYaxis()->SetTitle("#Phi [rad]");
@@ -925,7 +926,7 @@ void PndLmdPerformanceTask::Exec(Option_t* opt) {
 								//int ihere(0);
 								//cout << " here " << ihere++ << endl;
 								// back propagation
-								if (1){
+								if (0){
 									//cout << " here " << ihere++ << endl;
 									TVector3 StartPos, StartPosErr, StartMom, StartMomErr, StartO, StartU, StartV;
 									//TVector3 DirVec =  _momrec.Unit();
@@ -1257,6 +1258,7 @@ void PndLmdPerformanceTask::Finish() {
 	for (int _iplane = 0; _iplane < nplanes; _iplane++) {
 		canvas_properties_per_plane.cd(_iplane + 1);
 		hist_xy[_iplane]->Draw("COLZ");
+		lmddim->Draw_Sensors(iplane);
 	}
 	canvas_properties_per_plane.Print("Resolution_acceptance_results.ps(");
 	for (int _iplane = 0; _iplane < nplanes; _iplane++) {
