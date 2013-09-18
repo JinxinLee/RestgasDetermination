@@ -75,6 +75,9 @@ target_link_libraries(roman_crosscheck ${ROOT_LIBRARIES} Lmd MathMore MbsAPI gen
 add_executable(check_particle_path Check_particle_path.C)
 target_link_libraries(check_particle_path ${ROOT_LIBRARIES} Lmd Sds Geane Geom Proof MathMore TrkBase FairTools PndData VMC EG GeomPainter generalTools Base GeoBase FairDB ParBase)
 
+add_executable(sandbox_promme sandbox.C)
+target_link_libraries(sandbox_promme ${ROOT_LIBRARIES} Lmd Sds Geane Geom Proof MathMore TrkBase FairTools PndData VMC EG GeomPainter generalTools Base GeoBase FairDB ParBase)
+
 add_executable(createRootGeometry_beampipe createRootGeometry_beampipe.C)
 # loading of libraries in the correct order is important!
 # (-lSts -lGen -lRich -lTrd -lTof -lMvd -lGlobal -lKF -lDilept

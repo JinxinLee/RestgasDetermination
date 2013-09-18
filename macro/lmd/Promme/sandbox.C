@@ -17,6 +17,7 @@
 #include<TGaxis.h>
 #include<PndMCTrack.h>
 #include<PndSdsMCPoint.h>
+#include<PndLmdDim.h>
 #include<FairRunAna.h>
 #include<FairGeane.h>
 #include<FairRtdbRun.h>
@@ -51,19 +52,7 @@ double last_percent(-1.);
 // draw a progress bar only when the length changes significantly
 void DrawProgressBar(int len, double percent);
 
-// the path for the beam pipe as a function of the distance z to the interaction point
-// par[0]: where bending starts (dipole region)
-// par[1]: the bending radius
-// par[2]: the bending angle
-Double_t function_beampipe(Double_t *x, Double_t *par);
-
-// a circle created out of a polyline
-TPolyLine* Get_PolyLine_circle(float x,float y, float r);
-
-// when giving a path to a beam pipe geometry, the beampipe is drawn to a panel
-// when checking for acceptance along a beam pipe
-string geo_beampipe = "/home/jasinski/bin/pandaroot/macro/lmd/Promme/beampipe_201209.root";
-
+/*
 void Check_particle_path() {
 	cout << " analysis tool vers. 1.4 " << endl;
 
@@ -182,32 +171,6 @@ void Check_particle_path() {
 	// loop over planes
 	//cout << " constructing histograms for " << nplanes << " planes with " << nsensors_per_plane << " sensors per plane " << endl;
 
-	/*
-	 for (int iplane = 0; iplane < nplanes; iplane++){
-	 stringstream hist_name;
-	 stringstream hist_title;
-
-	 hist_name  << "hist_xy_plane_" << iplane;
-	 hist_title << "xy hit distribution plane " << iplane;
-	 hist_xy[iplane] = new TH2F(hist_name.str().c_str(), hist_title.str().c_str(),
-	 100, -40, 40, 100, -40, 40);
-	 hist_xy[iplane]->Draw();
-	 hist_xy[iplane]->GetXaxis()->SetTitle("X [cm]");
-	 hist_xy[iplane]->GetYaxis()->SetTitle("Y [cm]");
-
-	 hist_name .str("");
-	 hist_title.str("");
-
-	 hist_name  << "hist_theta_init_plane_" << iplane;
-	 hist_title << "initial #Theta distribution plane " << iplane;
-	 hist_theta_in[iplane] = new TH1F(hist_name.str().c_str(), hist_title.str().c_str(),
-	 150, 0, 15e-3);
-	 hist_theta_in[iplane]->Draw();
-	 hist_theta_in[iplane]->GetXaxis()->SetTitle("#Theta [rad]");
-	 hist_theta_in[iplane]->GetYaxis()->SetTitle("entries");
-
-	 }*/
-
 	int nEvents = tMC.GetEntries();
 	cout << " reading " << nEvents << " Events " << endl;
 	// store the x and z measurements for a later fit of a graph
@@ -239,31 +202,6 @@ void Check_particle_path() {
 		x_z_values_in.close();
 		cout << " read " << nlines << " lines "<< endl;
 	}
-
-	/*
-	TString vmcWorkdir = gSystem->Getenv("VMCWORKDIR");
-	TFile* file_beampipe(NULL);
-	TGeoVolume* beampipe(NULL);
-	FairGeoLoader* geoLoad = new FairGeoLoader("TGeo", "FairGeoLoader");
-	FairGeoInterface* geoFace = geoLoad->getGeoInterface();
-	geoFace->setMediaFile(vmcWorkdir + "/geometry/media_pnd.geo");
-	geoFace->readMedia();
-	geoFace->print();
-	FairGeoMedia* geoMedia = geoFace->getMedia();
-	FairGeoBuilder* geoBuild = geoLoad->getGeoBuilder();
-	if (geo_beampipe.size() > 0){
-		 file_beampipe = new TFile(geo_beampipe.c_str(), "OPEN");
-		 beampipe = (TGeoVolume*) file_beampipe->Get("pipeassembly");
-		 TCanvas* _canvas = new TCanvas("_canvas", "_canvas", 800, 200);
-		 if (beampipe) {
-			 gGeoManager->SetTopVolume(beampipe);
-			 gGeoManager->CloseGeometry();
-			 beampipe->Draw("ogl");
-			 _canvas->Update();
-			 _canvas->Print("test.gif");
-		 }
-	}
-	return;*/
 
 	for (Int_t j = 0; j < nEvents ; j++) {
 		DrawProgressBar(50, (j + 1) / ((double) nEvents));
@@ -401,7 +339,29 @@ void Check_particle_path() {
 	canvas6->Print("beampipe_results.ps(");
 
 	TCanvas* canvas2 = new TCanvas("canvas2", "canvas2", 1200, 800);
-	//canvas2->Divide(2,2);
+	//canvas2->Divide(2,2);Double_t function_beampipe(Double_t *x, Double_t *par)
+	{
+		double pos_z = x[0];
+		double result = 0.;
+		double end_seg_upstream = par[0]; // where bending starts with
+		double r_bend = par[1]; // a radius
+		double phi_bend = par[2]; // and the angle of the circle path
+		// the rest is fully determined
+		double end_seg_bend = end_seg_upstream+sin(phi_bend)*r_bend;
+		// the first straight part
+		if (pos_z < end_seg_upstream){
+			result = 0.;
+		}
+		// bending part is a part of a circle
+		if (end_seg_upstream <= pos_z && pos_z < end_seg_bend){
+			result = r_bend - cos(atan((pos_z-end_seg_upstream)/r_bend))*r_bend;
+		}
+		// straight part behind the dipole is a tangent to the circle
+		if (end_seg_bend <= pos_z){
+			result = (pos_z - end_seg_upstream - tan(phi_bend/2.)*r_bend)*tan(phi_bend);
+		}
+		return result;
+	}
 	canvas2->cd(0);
 	hist_yz->Draw("COLZ");
 	canvas2->Print("beampipe_results.ps(");
@@ -533,7 +493,7 @@ void Check_particle_path() {
 	output_histfile->Write();
 
 	output_histfile->Close();
-}
+}*/
 
 void DrawProgressBar(int len, double percent) {
 	if ((int) (last_percent * 100) == (int) (percent * 100))
@@ -555,46 +515,39 @@ void DrawProgressBar(int len, double percent) {
 	last_percent = percent;
 }
 
-Double_t function_beampipe(Double_t *x, Double_t *par)
-{
-	double pos_z = x[0];
-	double result = 0.;
-	double end_seg_upstream = par[0]; // where bending starts with
-	double r_bend = par[1]; // a radius
-	double phi_bend = par[2]; // and the angle of the circle path
-	// the rest is fully determined
-	double end_seg_bend = end_seg_upstream+sin(phi_bend)*r_bend;
-	// the first straight part
-	if (pos_z < end_seg_upstream){
-		result = 0.;
-	}
-	// bending part is a part of a circle
-	if (end_seg_upstream <= pos_z && pos_z < end_seg_bend){
-		result = r_bend - cos(atan((pos_z-end_seg_upstream)/r_bend))*r_bend;
-	}
-	// straight part behind the dipole is a tangent to the circle
-	if (end_seg_bend <= pos_z){
-		result = (pos_z - end_seg_upstream - tan(phi_bend/2.)*r_bend)*tan(phi_bend);
-	}
-	return result;
-}
-
-TPolyLine* Get_PolyLine_circle(float x,float y, float r){
-    const int nsegments = 360;
-	Double_t _x[nsegments+1] = {0.,}; // +1 : Endpoint is Startpoint
-    Double_t _y[nsegments+1] = {0.,};
-    for (int i = 0; i <= nsegments; i++){
-    	double angle = 2*TMath::Pi()*((double) i)/((double) nsegments);
-    	_x[i] = r*sin(angle)+x;
-    	_y[i] = r*cos(angle)+y;
-    }
-    TPolyLine *pline_circle = new TPolyLine(nsegments+1,_x,_y);
-    return pline_circle;
-}
-
+#include"TH2Poly.h"
+#include"TRandom.h"
 int main() {
-	//TApplication myapp("myapp", 0, 0);
-	Check_particle_path();
-	//myapp.Run();
+	TApplication myapp("myapp", 0, 0);
+	//Check_particle_path();
+	PndLmdDim* lmddim = PndLmdDim::Instance();
+	lmddim->Read_transformation_matrices();
+	TH2Poly* hist1 = lmddim->Get_histogram_Plane(0,0,true, true, false);
+	TH2Poly* hist2 = lmddim->Get_histogram_Plane(0,1,true, true, false);
+	cout << " creating hist sensor " << endl;
+	TH2Poly* hist_sens_1 = lmddim->Get_histogram_Sensor(0,0,3,0,0,0,true, true);
+	TH2Poly* hist_mod_1  = lmddim->Get_histogram_Moduleside(1,3,1,0,true, true, true);
+	cout << " done " << endl;
+	for (int i=0; i < 10000000; i++){
+		double x = gRandom->Uniform(-10., 10.);
+		double y = gRandom->Uniform(-10., 10.);
+		hist1->Fill(x,y);
+		hist2->Fill(x,y);
+		hist_sens_1->Fill(x,y);
+		hist_mod_1->Fill(x,y);
+		DrawProgressBar(50, (i + 1) / ((double) 1000000));
+	}
+	TCanvas canvas("canvas", "canvas", 1000, 1000);
+	canvas.Divide(2,2);
+	canvas.cd(1);
+	hist1->Draw("COLZ");
+	canvas.cd(2);
+	hist2->Draw("COLZ");
+	canvas.cd(3);
+	//hist_sens_1->Draw("alp");
+	hist_sens_1->Draw("COLZ");
+	canvas.cd(4);
+	hist_mod_1->Draw("COLZ");
+	myapp.Run();
 	return 0;
 }

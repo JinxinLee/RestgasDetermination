@@ -31,6 +31,9 @@
 #include <TGeoMatrix.h>
 #include <TVector3.h>
 #include <TMatrixT.h>
+#include <TH2Poly.h>
+#include <TMultiGraph.h>
+#include <TGraph.h>
 //work with DB
 /* #include<PndLmdContFact.h> */
 /* #include<TList.h> */
@@ -848,15 +851,54 @@ public:
 
 	// Draw the Sensors as overlays to an active root pad
 	// Projection in XY is used
-	// lmd_frame == true : The Lumi Referenceframe is used
+	// lmd_frame == true : The Lumi reference frame is used
 	void Draw_Sensors(int iplane, bool aligned = true, bool lmd_frame = true);
 
-	// Get one Sensor as an polyline to be drawn to an active root pad
+	// Get one Sensor as a polyline to be drawn to an active root pad
 	// Projection in XY is used
 	// Important -> Do not delete the PolyLine until you are sure that you are
 	// finished with displaying it!
-	// lmd_frame == true : The Lumi Referenceframe is used
+	// lmd_frame == true : The Lumi reference frame is used
 	TPolyLine* Get_Sensor_Shape(int ihalf, int iplane, int imodule, int iside, int idie, int isensor, bool aligned = true, bool lmd_frame = true);
+
+	// Get one Sensor as a vector of graphs
+	// Projection in XY is used
+	// lmd_frame == true : The Lumi reference frame is used
+	// else the sensor reference frame
+	// if pixel_subdivision: several graphs are returned
+	// representing the passive area and the
+	// active area subdivided into several pixels
+	// please do not call several times with same
+	// parameters if previous result and it's contents
+	// are not deleted
+	vector<TGraph*> Get_Sensor_Graph(int ihalf, int iplane, int imodule, int iside, int idie, int isensor, bool aligned = true, bool lmd_frame = true, bool pixel_subdivision = true);
+
+
+	// Get a TH2Poly histogram where bins matching the x_y projected shapes
+	// of the sensors in one plane
+	// The active area can be subdivided further
+	// the active pixels: NOT RECOMMENDED due to heavy ram usage
+	// Please rename it if you intend to call the function
+	// several times with same parameters
+	TH2Poly* Get_histogram_Plane(int iplane, int iside, bool aligned =true, bool lmd_frame = true, bool pixel_subdivision = false);
+
+	// Get a TH2Poly histogram for one module side
+	// in the reference frame of the lumi
+	// on request in the panda reference frame
+	// The active area can be subdivided further
+	// into the active pixels: WARNING heavy ram usage
+	// Please rename it if you intend to call the function
+	// several times with same parameters
+	TH2Poly* Get_histogram_Moduleside(int ihalf, int iplane, int imodule, int iside, bool aligned = true, bool lmd_frame = true, bool pixel_subdivision = true);
+
+	// Get a TH2Poly histogram for one sensor
+	// in the reference frame of the lumi
+	// on request in the panda reference frame
+	// The active area can be subdivided into
+	// and the active pixels
+	// Please rename it if you intend to call the function
+	// several times with same parameters
+	TH2Poly* Get_histogram_Sensor(int ihalf, int iplane, int imodule, int iside, int idie, int isensor, bool aligned = true, bool lmd_frame = true);
 };
 
 

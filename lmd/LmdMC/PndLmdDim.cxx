@@ -335,8 +335,8 @@ void PndLmdDim::Generate_rootgeom(TGeoVolume& mothervol, bool misaligned){
 					box_size_y,
 					lmd_total_length, origin);
 	TGeoVolume *lmd_vol_vac = new TGeoVolume(nav_paths[0].c_str(), lmd_box_vac,
-					fgGeoMan->GetMedium("vacuum"));
-	//vol_lmd_vac->SetTransparency(20);
+					fgGeoMan->GetMedium("vacuum7"));
+	//lmd_vol_vac->SetTransparency(20);
 	lmd_vol_vac->SetLineColor(3);
 	double x, y, z, rottheta, rotphi, rotpsi;
 	Get_pos_lmd_global(x, y, z, rottheta, rotphi, rotpsi);
@@ -1967,8 +1967,12 @@ void PndLmdDim::Draw_Sensors(int iplane, bool aligned, bool lmd_frame){
 }
 
 TPolyLine* PndLmdDim::Get_Sensor_Shape(int ihalf, int iplane, int imodule, int iside, int idie, int isensor, bool aligned, bool lmd_frame){
-	   Double_t x[5] = {-maps_width,maps_width,maps_width,-maps_width,-maps_width};
-	   Double_t y[5] = {-maps_height,-maps_height,maps_height,maps_height,-maps_height};
+	   Double_t x[5] = {-maps_width+2*maps_passive_left,
+			   maps_width-2*maps_passive_right,maps_width-2*maps_passive_right,
+			   -maps_width+2*maps_passive_left,-maps_width+2*maps_passive_right};
+	   Double_t y[5] = {-maps_height+2*maps_passive_bottom,-maps_height+2*maps_passive_bottom,
+			   maps_height-2*maps_passive_top,maps_height-2*maps_passive_top,
+			   -maps_height+2*maps_passive_bottom};
 	   for (unsigned int ipoint = 0; ipoint < 5; ipoint++){
 		   TVector3 point(x[ipoint], y[ipoint], 0);
 		   TVector3 point_master;
@@ -1988,6 +1992,184 @@ TPolyLine* PndLmdDim::Get_Sensor_Shape(int ihalf, int iplane, int imodule, int i
 	   //pline->Draw();
 	   //gPad->Update();
 	   return pline;
+}
+
+vector<TGraph*> PndLmdDim::Get_Sensor_Graph(int ihalf, int iplane, int imodule, int iside, int idie, int isensor, bool aligned, bool lmd_frame, bool pixel_subdivision){
+	//stringstream name;
+	//name << "multigraph_half_" << ihalf << "_plane_" << iplane << "_module_" << imodule << "_side_" << iside << "_die_" << idie << "_sensor_" << isensor;
+	//stringstream title;
+	//title << "multi graph for sensor " << Get_sensor_id(ihalf, iplane, imodule, iside, idie, isensor);
+	vector<TGraph*> result;// = new TMultiGraph(name.str().c_str(), title.str().c_str());
+	vector<double*> xs;
+	vector<double*> ys;
+	// create the passive area
+	// top
+	Double_t x_top[5] = {-maps_width,maps_width,maps_width,-maps_width,-maps_width};
+	Double_t y_top[5] = {maps_height-maps_passive_top*2.,maps_height-maps_passive_top*2.,
+			maps_height,maps_height,maps_height-maps_passive_top*2.};
+	xs.push_back(x_top);
+	ys.push_back(y_top);
+	// bottom
+	Double_t x_bottom[5] = {-maps_width,maps_width,maps_width,-maps_width,-maps_width};
+	Double_t y_bottom[5] = {-maps_height+maps_passive_bottom*2.,-maps_height+maps_passive_bottom*2.,
+			-maps_height,-maps_height,-maps_height+maps_passive_bottom*2.};
+	xs.push_back(x_bottom);
+	ys.push_back(y_bottom);
+	// left
+	Double_t x_left[5] = {-maps_width,
+			-maps_width+maps_passive_left*2,-maps_width+maps_passive_left*2,
+			-maps_width,-maps_width};
+	Double_t y_left[5] = {-maps_height+maps_passive_bottom*2.,-maps_height+maps_passive_bottom*2.,
+			maps_height-maps_passive_top*2.,maps_height-maps_passive_top*2.,
+			-maps_height+maps_passive_bottom*2.};
+	xs.push_back(x_left);
+	ys.push_back(y_left);
+	// right
+	Double_t x_right[5] = {+maps_width-maps_passive_right*2.,+maps_width,+maps_width,
+			+maps_width-maps_passive_right*2.,+maps_width-maps_passive_right*2.};
+	Double_t y_right[5] = {-maps_height+maps_passive_bottom*2.,-maps_height+maps_passive_bottom*2.,
+			maps_height-maps_passive_top*2.,maps_height-maps_passive_top*2.,
+			-maps_height+maps_passive_bottom*2.};
+	xs.push_back(x_right);
+	ys.push_back(y_right);
+	// the pixels
+	int ncols = (int)floor(maps_active_width*2./maps_active_pixel_size);
+	int nrows = (int)floor(maps_active_height*2./maps_active_pixel_size);
+	if (!pixel_subdivision){
+		// create only one bin for the active area
+		TPolyLine* shape = Get_Sensor_Shape(ihalf, iplane, imodule, iside, idie, isensor, aligned, lmd_frame);
+		double* x = shape->GetX();
+		double* y = shape->GetY();
+		double n = shape->GetN();
+		result.push_back(new TGraph(n, x, y));
+
+	} else {
+		cout << "creating " << nrows << " rows x " << ncols << " cols of pixels " << endl;
+		for (int irow = 0; irow < nrows; irow++){
+			//cout << ".";
+			//flush(cout);
+			for (int icol = 0; icol < ncols; icol++){
+				// put it on the stack instead of the heap
+				// to have it still outside this loop scope
+				double* x = new double[5];
+				double* y = new double[5];
+				x[0] = -maps_width+maps_passive_left*2.+icol*maps_active_pixel_size;
+				x[1] = x[0]+maps_active_pixel_size;
+				x[2] = x[1];
+				x[3] = x[0];
+				x[4] = x[0];
+				xs.push_back(x);
+				y[0] = -maps_height+maps_passive_bottom*2.+irow*maps_active_pixel_size;
+				y[1] = y[0];
+				y[2] = y[0]+maps_active_pixel_size;
+				y[3] = y[2];
+				y[4] = y[0];
+				ys.push_back(y);
+			}
+		}
+	}
+	// now transform (if requested) into the corresponding reference frame
+	//cout << " transforming "  << endl;
+	for (unsigned int ipoints = 0; ipoints < xs.size(); ipoints++){
+		//cout << ".";
+		//flush(cout);
+		for (unsigned int ipoint = 0; ipoint < 5; ipoint++){
+			TVector3 point(xs[ipoints][ipoint], ys[ipoints][ipoint], 0);
+			TVector3 point_master;
+			if (lmd_frame){
+				point_master = Transform_sensor_to_lmd_local(point, ihalf, iplane, imodule, iside, idie, isensor, false, aligned);
+			} else {
+				point_master = Transform_sensor_to_global(point, ihalf, iplane, imodule, iside, idie, isensor, false, aligned);
+			}
+			xs[ipoints][ipoint] = point_master.X();
+			ys[ipoints][ipoint] = point_master.Y();
+		}
+		result.push_back(new TGraph(5, xs[ipoints], ys[ipoints]));
+		// clean up
+		if (ipoints > 3){
+			delete[] xs[ipoints];
+			delete[] ys[ipoints];
+		}
+	}
+	return result;
+}
+
+TH2Poly* PndLmdDim::Get_histogram_Plane(int iplane, int iside, bool aligned, bool lmd_frame, bool pixel_subdivision){
+	stringstream name;
+	name << "histpoly_plane_" << iplane << "_side_" << iside;
+	stringstream title;
+	title << "plane " << iplane << " side " << iside;
+	TH2Poly* result = new TH2Poly();
+	result->SetNameTitle(name.str().c_str(), title.str().c_str());
+	result->SetFloat();
+	result->SetXTitle("x [cm]");
+	result->SetYTitle("y [cm]");
+
+	for (unsigned int ihalf = 0; ihalf < 2; ihalf++)
+	//for (unsigned int iplane = 0; iplane < n_planes; iplane++)
+		for (unsigned int imodule = 0; imodule < nmodules; imodule++)
+			//for (unsigned int iside = 0; iside < 2; iside++)
+				for (unsigned int idie = 0; idie < 2; idie++)
+					for (unsigned int isensor = 0; isensor < 3; isensor++)
+	{
+		if (idie == 1 && isensor == 0) continue;
+		vector<TGraph*> sensor_graph = Get_Sensor_Graph(ihalf, iplane, imodule, iside, idie, isensor, aligned, lmd_frame, pixel_subdivision);
+		for (int igraph = 0; igraph < sensor_graph.size(); igraph++){
+			result->AddBin(sensor_graph[igraph]);
+			//delete sensor_graph[igraph]; is owned by a PolyBin, so don't delete it
+		}
+	}
+	return result;
+}
+
+
+TH2Poly* PndLmdDim::Get_histogram_Moduleside(int ihalf, int iplane, int imodule, int iside, bool aligned, bool lmd_frame, bool pixel_subdivision){
+	stringstream name;
+	name << "histpoly_half_"<< ihalf<< "_plane_" << iplane << "_module_" << imodule << "_side_" << iside;
+	stringstream title;
+	title << "half " << ihalf << " plane " << iplane << " module " << imodule << " side " << iside;
+	TH2Poly* result = new TH2Poly();
+	result->SetNameTitle(name.str().c_str(), title.str().c_str());
+	result->SetFloat();
+	result->SetXTitle("x [cm]");
+	result->SetYTitle("y [cm]");
+
+	//for (unsigned int ihalf = 0; ihalf < 2; ihalf++)
+	//for (unsigned int iplane = 0; iplane < n_planes; iplane++)
+		//for (unsigned int imodule = 0; imodule < nmodules; imodule++)
+			//for (unsigned int iside = 0; iside < 2; iside++)
+				for (unsigned int idie = 0; idie < 2; idie++)
+					for (unsigned int isensor = 0; isensor < 3; isensor++)
+	{
+		if (idie == 1 && isensor == 0) continue;
+		vector<TGraph*> sensor_graph = Get_Sensor_Graph(ihalf, iplane, imodule, iside, idie, isensor, aligned, lmd_frame, pixel_subdivision);
+		for (int igraph = 0; igraph < sensor_graph.size(); igraph++){
+			result->AddBin(sensor_graph[igraph]);
+			//delete sensor_graph[igraph]; is owned by a PolyBin, so don't delete it
+		}
+	}
+	return result;
+}
+
+
+TH2Poly* PndLmdDim::Get_histogram_Sensor(int ihalf, int iplane, int imodule, int iside, int idie, int isensor, bool aligned, bool lmd_frame){
+	stringstream name;
+	name << "histpoly_sensor_half_" << ihalf << "_plane_" << iplane << "_module_" << imodule << "_side_" << iside << "_die_" << idie << "_sensor_" << isensor;
+	stringstream title;
+	title << "sensor " << Get_sensor_id(ihalf, iplane, imodule, iside, idie, isensor);
+	TH2Poly* result = new TH2Poly();
+	result->SetNameTitle(name.str().c_str(), title.str().c_str());
+	result->SetFloat();
+	result->SetXTitle("x [cm]");
+	result->SetYTitle("y [cm]");
+
+	vector<TGraph*> sensor_graph = Get_Sensor_Graph(ihalf, iplane, imodule, iside, idie, isensor, aligned, lmd_frame, true);
+	for (int igraph = 0; igraph < sensor_graph.size(); igraph++){
+		//cout << " adding bins " << endl;
+		result->AddBin(sensor_graph[igraph]);
+		//delete sensor_graph[igraph]; is owned by a PolyBin, so don't delete it
+	}
+	return result;
 }
 
 //
