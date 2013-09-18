@@ -49,7 +49,7 @@
 
 using namespace std;
 
-PndSttGeometryMap::PndSttGeometryMap() : fTubeArray(new TClonesArray), fGeoType(-1), fVerbose(0) {}
+PndSttGeometryMap::PndSttGeometryMap() : fTubeArray(0), fGeoType(-1), fVerbose(0) {}
 
 
 PndSttGeometryMap::PndSttGeometryMap(TClonesArray *tubearray, Int_t geoType) : fTubeArray(tubearray), fGeoType(geoType), fVerbose(0) {

@@ -37,8 +37,8 @@ using std::endl;
 
 // -----   Default constructor   -------------------------------------------
 PndFtsHitProducerRealFull::PndFtsHitProducerRealFull() :
-  FairTask("Real FTS Hit Producer",0), fPointArray(new TClonesArray),  fHitArray(new TClonesArray),
-  fHitInfoArray(new TClonesArray), fFtsParameters(new PndGeoFtsPar()), fTimeOrderedDigi(kFALSE),
+  FairTask("Real FTS Hit Producer",0), fPointArray(0),  fHitArray(0),
+  fHitInfoArray(0), fFtsParameters(new PndGeoFtsPar()), fTimeOrderedDigi(kFALSE),
   fPersistence(kTRUE)
 {
 }
@@ -64,7 +64,7 @@ InitStatus PndFtsHitProducerRealFull::Init() {
   }
   
   // Get input array
-  fPointArray = (TClonesArray*) ioman->GetObject("FTSPoint");
+  fPointArray = dynamic_cast<TClonesArray*> (ioman->GetObject("FTSPoint"));
   if ( ! fPointArray ) {
     cout << "-W- PndFtsHitProducerRealFull::Init: "
 	 << "No FTSPoint array!" << endl;
