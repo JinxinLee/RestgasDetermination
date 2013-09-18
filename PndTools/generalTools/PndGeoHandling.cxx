@@ -41,7 +41,7 @@ PndGeoHandling* PndGeoHandling::Instance(){
 	return fInstance;
 }
 
-PndGeoHandling::PndGeoHandling():fVerbose(0),fGeoMan(),fSensorNamePar(),fRtdb(),fLevel(0),fFullPath(true),fRunId(0),fLevelNames()
+PndGeoHandling::PndGeoHandling():fVerbose(0),fGeoMan(0),fSensorNamePar(0),fRtdb(0),fLevel(0),fFullPath(true),fRunId(0),fLevelNames()
 {
   if(fInstance) return;
   fInstance = this;
@@ -52,6 +52,8 @@ PndGeoHandling::PndGeoHandling():fVerbose(0),fGeoMan(),fSensorNamePar(),fRtdb(),
     this->SetName("PndGeoHandling");
     this->SetTitle("FairTask");
     run->AddTask((FairTask*)this);
+    fRtdb = run->GetRuntimeDb();
+     
   }
   else {
     std::cout << "PndGeoHandling. No FairRun object found. If used in a macro take another constructor." << std::endl;

@@ -69,7 +69,7 @@ using std::endl;
 //----------------
 
 PndEmcExpClusterSplitter::PndEmcExpClusterSplitter(Int_t verbose):
-fDigiArray(new TClonesArray()), fClusterArray(new TClonesArray()), fBumpArray(new TClonesArray()), fSharedDigiArray(new TClonesArray()), fGeoPar(new PndEmcGeoPar()), fDigiPar(new PndEmcDigiPar()), fRecoPar(new PndEmcRecoPar()), fPersistance(kTRUE), fMoliereRadius(0), fMoliereRadiusShashlyk(0), fExponentialConstant(0), fMaxIterations(0), fCentroidShift(0), fMaxBumps(0), fMinDigiEnergy(0), fClusterPosParam(), fVerbose(verbose)
+fDigiArray(0), fClusterArray(0), fBumpArray(0), fSharedDigiArray(0), fGeoPar(new PndEmcGeoPar()), fDigiPar(new PndEmcDigiPar()), fRecoPar(new PndEmcRecoPar()), fPersistance(kTRUE), fMoliereRadius(0), fMoliereRadiusShashlyk(0), fExponentialConstant(0), fMaxIterations(0), fCentroidShift(0), fMaxBumps(0), fMinDigiEnergy(0), fClusterPosParam(), fVerbose(verbose)
 {
   fClusterPosParam.clear();
 }
@@ -100,14 +100,14 @@ InitStatus PndEmcExpClusterSplitter::Init() {
   PndEmcStructure::Instance();
 	
 	// Get input array
-	fDigiArray = (TClonesArray*) ioman->GetObject("EmcDigi");
+	fDigiArray = dynamic_cast<TClonesArray *> (ioman->GetObject("EmcDigi"));
 	if ( ! fDigiArray ) {
 		cout << "-W- PndEmcMakeCluster::Init: "
 		<< "No PndEmcDigi array!" << endl;
 		return kERROR;
 	}
   
-  fClusterArray = (TClonesArray*) ioman->GetObject("EmcCluster");
+  fClusterArray = dynamic_cast<TClonesArray *> (ioman->GetObject("EmcCluster"));
   if ( ! fClusterArray ) {
     cout << "-W- PndEmcMakeBump::Init: "
 	 << "No PndEmcCluster array!" << endl;

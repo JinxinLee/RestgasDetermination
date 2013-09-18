@@ -71,7 +71,7 @@ ostream& operator<<(ostream& os, const TVector3& pos)
 }
 
 PndEmcCorrBump::PndEmcCorrBump(Int_t verbose, Bool_t storeclusters):
-fDigiArray(new TClonesArray()), fSharedDigiArray(new TClonesArray()), fBumpArray(new TClonesArray()), fMapVersion(0), fGeoPar(new PndEmcGeoPar()), fDigiPar(new PndEmcDigiPar()), fRecoPar(new PndEmcRecoPar()), fVerbose(verbose), fStoreClusters(storeclusters) 
+fDigiArray(0), fSharedDigiArray(0), fBumpArray(0), fMapVersion(0), fGeoPar(new PndEmcGeoPar()), fDigiPar(new PndEmcDigiPar()), fRecoPar(new PndEmcRecoPar()), fVerbose(verbose), fStoreClusters(storeclusters)
 {
 }
 
@@ -96,14 +96,14 @@ InitStatus PndEmcCorrBump::Init() {
 	}
 	
 	// Get input array
-	fDigiArray = (TClonesArray*) ioman->GetObject("EmcDigi");
+	fDigiArray = dynamic_cast<TClonesArray *>(ioman->GetObject("EmcDigi"));
 	if ( ! fDigiArray ) {
 		cout << "-W- PndEmcCorrBump::Init: "
 		<< "No PndEmcDigi array!" << endl;
 		return kERROR;
 	}
 	// Get input array
-	fSharedDigiArray = (TClonesArray*) ioman->GetObject("EmcSharedDigi");
+	fSharedDigiArray =dynamic_cast<TClonesArray *> ( ioman->GetObject("EmcSharedDigi"));
 	if ( ! fSharedDigiArray ) {
 		cout << "-W- PndEmcCorrBump::Init: "
 		<< "No PndEmcSharedDigi array!" << endl;
@@ -111,7 +111,7 @@ InitStatus PndEmcCorrBump::Init() {
 	}
 
 	// Get input array
-	fBumpArray = (TClonesArray*) ioman->GetObject("EmcBump");
+	fBumpArray = dynamic_cast<TClonesArray *> (ioman->GetObject("EmcBump"));
 	if ( ! fBumpArray ) {
 		cout << "-W- PndEmcCorrBump::Init: "
 		<< "No EmcBump array!" << endl;

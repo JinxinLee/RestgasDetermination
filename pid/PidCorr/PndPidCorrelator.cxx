@@ -48,7 +48,7 @@ PndPidCorrelator::~PndPidCorrelator()
 
 //___________________________________________________________
 PndPidCorrelator::PndPidCorrelator() : 
-  FairTask(), fMcTrack(new TClonesArray()), fTrack(new TClonesArray()), fTrackID(new TClonesArray()), fTrack2(new TClonesArray()), fTrackID2(new TClonesArray()), fPidChargedCand(new TClonesArray()), fPidNeutralCand(new TClonesArray()), fMdtTrack(new TClonesArray()), fMvdHitsStrip(new TClonesArray()), fMvdHitsPixel(new TClonesArray()), fTofHit(new TClonesArray()), fTofPoint(new TClonesArray()), fFtofHit(new TClonesArray()), fFtofPoint(new TClonesArray()), fEmcCluster(new TClonesArray()), fEmcBump(new TClonesArray()), fEmcDigi(new TClonesArray()), fMdtPoint(new TClonesArray()), fMdtHit(new TClonesArray()), fMdtTrk(new TClonesArray()), fDrcPoint(new TClonesArray()), fDrcHit(new TClonesArray()), fDskParticle(new TClonesArray()), fSttHit(new TClonesArray()), fFtsHit(new TClonesArray()), 
+  FairTask(), fMcTrack(0), fTrack(0), fTrackID(0), fTrack2(0), fTrackID2(0), fPidChargedCand(0), fPidNeutralCand(0), fMdtTrack(0), fMvdHitsStrip(0), fMvdHitsPixel(0), fTofHit(0), fTofPoint(0), fFtofHit(0), fFtofPoint(0), fEmcCluster(0), fEmcBump(0), fEmcDigi(0), fMdtPoint(0), fMdtHit(0), fMdtTrk(0), fDrcPoint(0), fDrcHit(0), fDskParticle(0), fSttHit(0), fFtsHit(0),
   fCorrPar(new PndPidCorrPar()), fEmcGeoPar(new PndEmcGeoPar()), fEmcErrorMatrixPar(new PndEmcErrorMatrixPar()), fEmcErrorMatrix(new PndEmcErrorMatrix()), fSttParameters(new PndGeoSttPar()), fEmcCalibrator(NULL), fEmcClstCount(0), fFscClstCount(0),
   fDebugMode(kFALSE),
   fGeanePro(kTRUE), 
@@ -109,7 +109,7 @@ PndPidCorrelator::PndPidCorrelator() :
 //___________________________________________________________
 PndPidCorrelator::PndPidCorrelator(const char *name, const char *title) :
   FairTask(name),
-  fMcTrack(new TClonesArray()), fTrack(new TClonesArray()), fTrackID(new TClonesArray()), fTrack2(new TClonesArray()), fTrackID2(new TClonesArray()), fPidChargedCand(new TClonesArray()), fPidNeutralCand(new TClonesArray()), fMdtTrack(new TClonesArray()), fMvdHitsStrip(new TClonesArray()), fMvdHitsPixel(new TClonesArray()), fTofHit(new TClonesArray()), fTofPoint(new TClonesArray()), fFtofHit(new TClonesArray()), fFtofPoint(new TClonesArray()), fEmcCluster(new TClonesArray()), fEmcBump(new TClonesArray()), fEmcDigi(new TClonesArray()), fMdtPoint(new TClonesArray()), fMdtHit(new TClonesArray()), fMdtTrk(new TClonesArray()), fDrcPoint(new TClonesArray()), fDrcHit(new TClonesArray()), fDskParticle(new TClonesArray()), fSttHit(new TClonesArray()), fFtsHit(new TClonesArray()), 
+  fMcTrack(0), fTrack(0), fTrackID(0), fTrack2(0), fTrackID2(0), fPidChargedCand(0), fPidNeutralCand(0), fMdtTrack(0), fMvdHitsStrip(0), fMvdHitsPixel(0), fTofHit(0), fTofPoint(0), fFtofHit(0), fFtofPoint(0), fEmcCluster(0), fEmcBump(0), fEmcDigi(0), fMdtPoint(0), fMdtHit(0), fMdtTrk(0), fDrcPoint(0), fDrcHit(0), fDskParticle(0), fSttHit(0), fFtsHit(0), 
   fCorrPar(new PndPidCorrPar()), fEmcGeoPar(new PndEmcGeoPar()), fEmcErrorMatrixPar(new PndEmcErrorMatrixPar()), fEmcErrorMatrix(new PndEmcErrorMatrix()), fSttParameters(new PndGeoSttPar()), fEmcCalibrator(NULL), fEmcClstCount(0), fFscClstCount(0),
   fDebugMode(kFALSE),
   fGeanePro(kTRUE), 
@@ -174,7 +174,7 @@ InitStatus PndPidCorrelator::Init() {
   
   FairRootManager *fManager =FairRootManager::Instance();	
   
-  fTrack = (TClonesArray *)fManager->GetObject(fTrackBranch);
+  fTrack = dynamic_cast<TClonesArray *> (fManager->GetObject(fTrackBranch));
   if ( ! fTrack ) {
     cout << "-I- PndPidCorrelator::Init: No PndTrack array!" << endl;
     return kERROR;
@@ -182,7 +182,7 @@ InitStatus PndPidCorrelator::Init() {
   
   if (fTrackIDBranch!="")
     {
-      fTrackID = (TClonesArray *)fManager->GetObject(fTrackIDBranch);
+      fTrackID = dynamic_cast<TClonesArray *> (fManager->GetObject(fTrackIDBranch));
       if ( ! fTrackID ) {
 	cout << "-I- PndPidCorrelator::Init: No PndTrackID array! Switching MC propagation OFF" << endl;
 	fTrackIDBranch = "";
@@ -191,7 +191,7 @@ InitStatus PndPidCorrelator::Init() {
   
   if (fTrackBranch2!="")
     {
-      fTrack2 = (TClonesArray *)fManager->GetObject(fTrackBranch2);
+      fTrack2 = dynamic_cast<TClonesArray *> (fManager->GetObject(fTrackBranch2));
       if ( ! fTrack2 ) {
 	cout << "-I- PndPidCorrelator::Init: No 2nd PndTrack array!" << endl;
 	return kERROR;
@@ -200,7 +200,7 @@ InitStatus PndPidCorrelator::Init() {
   
   if (fTrackIDBranch2!="")
     {
-      fTrackID2 = (TClonesArray *)fManager->GetObject(fTrackIDBranch2);
+      fTrackID2 = dynamic_cast<TClonesArray *> (fManager->GetObject(fTrackIDBranch2));
       if ( ! fTrackID2 ) {
 	cout << "-I- PndPidCorrelator::Init: No 2nd PndTrackID array! Switching MC propagation OFF" << endl;
 	fTrackIDBranch2 = "";
@@ -212,7 +212,7 @@ InitStatus PndPidCorrelator::Init() {
     {
       if (fMixMode==kFALSE)
 	{
-	  fSttHit = (TClonesArray*) fManager->GetObject("STTHit");
+	  fSttHit = dynamic_cast<TClonesArray *> ( fManager->GetObject("STTHit"));
 	  if ( fSttHit ) 
 	    {
 	      cout << "-I- PndPidCorrelator::Init: Using STTHit" << endl;
@@ -226,7 +226,7 @@ InitStatus PndPidCorrelator::Init() {
 	}
       else
 	{
-	  fSttHit = (TClonesArray*) fManager->GetObject("STTHitMix");
+	  fSttHit = dynamic_cast<TClonesArray *> (fManager->GetObject("STTHitMix"));
 	  if ( fSttHit )
 	    {
 	      cout << "-I- PndPidCorrelator::Init: Using STTHitMix" << endl;
@@ -245,7 +245,7 @@ InitStatus PndPidCorrelator::Init() {
     {
       if (fMixMode==kFALSE)
 	{
-	  fFtsHit = (TClonesArray*) fManager->GetObject("FTSHit");
+	  fFtsHit =dynamic_cast<TClonesArray *>( fManager->GetObject("FTSHit"));
 	  if ( fFtsHit ) 
 	    {
 	      cout << "-I- PndPidCorrelator::Init: Using FTSHit" << endl;
@@ -259,7 +259,7 @@ InitStatus PndPidCorrelator::Init() {
 	}
       else
 	{
-	  fFtsHit = (TClonesArray*) fManager->GetObject("FTSHitMix");
+	  fFtsHit =dynamic_cast<TClonesArray *> (fManager->GetObject("FTSHitMix"));
 	  if ( fFtsHit )
 	    {
 	      cout << "-I- PndPidCorrelator::Init: Using FTSHitMix" << endl;
@@ -278,14 +278,14 @@ InitStatus PndPidCorrelator::Init() {
     {
       if (fMixMode==kFALSE)
 	{
-	  fMvdHitsStrip = (TClonesArray*) fManager->GetObject("MVDHitsStrip");
+	  fMvdHitsStrip = dynamic_cast<TClonesArray *> ( fManager->GetObject("MVDHitsStrip"));
 	  if ( ! fMvdHitsStrip ) 
 	    {
 	      cout << "-W- PndPidCorrelator::Init: No MVDHitsStrip array!" << endl;
 	    }
 	  else fMvdMode = 2;
 	  
-	  fMvdHitsPixel = (TClonesArray*) fManager->GetObject("MVDHitsPixel");
+	  fMvdHitsPixel = dynamic_cast<TClonesArray *> ( fManager->GetObject("MVDHitsPixel"));
 	  if ( ! fMvdHitsPixel ) 
 	    {
 	      cout << "-W- PndPidCorrelator::Init: No MVDHitsPixel array!" << endl;
@@ -294,14 +294,14 @@ InitStatus PndPidCorrelator::Init() {
 	}
       else
 	{
-	  fMvdHitsStrip = (TClonesArray*) fManager->GetObject("MVDHitsStripMix");
+	  fMvdHitsStrip = dynamic_cast<TClonesArray *> ( fManager->GetObject("MVDHitsStripMix"));
 	  if ( ! fMvdHitsStrip )
 	    {
 	      cout << "-W- PndPidCorrelator::Init: No MVDHitsStripMix array!" << endl;
 	    }
 	  else fMvdMode = 2;
 	  
-	  fMvdHitsPixel = (TClonesArray*) fManager->GetObject("MVDHitsPixelMix");
+	  fMvdHitsPixel = dynamic_cast<TClonesArray *> (fManager->GetObject("MVDHitsPixelMix"));
 	  if ( ! fMvdHitsPixel )
 	    {
 	      cout << "-W- PndPidCorrelator::Init: No MVDHitsPixelMix array!" << endl;
@@ -323,7 +323,7 @@ InitStatus PndPidCorrelator::Init() {
   // *** TOF ***
   if (fTofMode)
     {
-      fTofHit = (TClonesArray*) fManager->GetObject("SciTHit");
+      fTofHit = dynamic_cast<TClonesArray *> (fManager->GetObject("SciTHit"));
       if ( ! fTofHit ) 
 	{
 	  cout << "-W- PndPidCorrelator::Init: No SciTHit array!" << endl;
@@ -336,7 +336,7 @@ InitStatus PndPidCorrelator::Init() {
 	}
     if (fIdeal)
       {
-        fTofPoint = (TClonesArray*) fManager->GetObject("SciTPoint");
+        fTofPoint = dynamic_cast<TClonesArray *> (fManager->GetObject("SciTPoint"));
         if ( ! fTofPoint )
           {
             cout << "-W- PndPidCorrelator::Init: No SciTPoint array!" << endl;
@@ -348,7 +348,7 @@ InitStatus PndPidCorrelator::Init() {
   // *** FTOF ***
   if (fFtofMode)
     {
-      fFtofHit = (TClonesArray*) fManager->GetObject("FtofHit");
+      fFtofHit = dynamic_cast<TClonesArray *> ( fManager->GetObject("FtofHit"));
       if ( ! fFtofHit ) 
 	{
 	  cout << "-W- PndPidCorrelator::Init: No FtofHit array!" << endl;
@@ -361,7 +361,7 @@ InitStatus PndPidCorrelator::Init() {
 	}
     if (fIdeal)
       {
-        fFtofPoint = (TClonesArray*) fManager->GetObject("FtofPoint");
+        fFtofPoint = dynamic_cast<TClonesArray *>  (fManager->GetObject("FtofPoint"));
         if ( ! fFtofPoint )
           {
             cout << "-W- PndPidCorrelator::Init: No FtofPoint array!" << endl;
@@ -373,7 +373,7 @@ InitStatus PndPidCorrelator::Init() {
   // *** EMC ***
   if (fEmcMode)
     {
-      fEmcCluster = (TClonesArray*) fManager->GetObject("EmcCluster");
+      fEmcCluster = dynamic_cast<TClonesArray *> ( fManager->GetObject("EmcCluster"));
       if ( ! fEmcCluster ) 
 	{
 	  cout << "-W- PndPidCorrelator::Init: No EmcCluster array!" << endl;
@@ -385,7 +385,7 @@ InitStatus PndPidCorrelator::Init() {
 	  fEmcMode = 2;
 	}
       
-      fEmcBump = (TClonesArray*) fManager->GetObject("EmcBump");
+      fEmcBump = dynamic_cast<TClonesArray *> (fManager->GetObject("EmcBump"));
       if ( ! fEmcBump ) 
 	{
 	  cout << "-W- PndPidCorrelator::Init: No EmcBump array!" << endl;
@@ -396,7 +396,7 @@ InitStatus PndPidCorrelator::Init() {
 	  fEmcMode = 3;
 	}	  
 
-      fEmcDigi = (TClonesArray*) fManager->GetObject("EmcDigi");
+      fEmcDigi = dynamic_cast<TClonesArray *> ( fManager->GetObject("EmcDigi"));
       if ( ! fEmcDigi)
         {
           cout << "-W- PndPidCorrelator::Init: No EmcDigi array! No EMC E1/E9/E25 information is propagated!" << endl;
@@ -406,7 +406,7 @@ InitStatus PndPidCorrelator::Init() {
   // *** DRC ***
   if (fDrcMode)
     {
-      fDrcHit = (TClonesArray*) fManager->GetObject("DrcHit");
+      fDrcHit = dynamic_cast<TClonesArray *> (fManager->GetObject("DrcHit"));
       if ( ! fDrcHit ) 
 	{
 	  cout << "-W- PndPidCorrelator::Init: No DrcHit array!" << endl;
@@ -422,7 +422,7 @@ InitStatus PndPidCorrelator::Init() {
   // *** DSK ***
   if (fDskMode)
     {
-      fDskParticle = (TClonesArray*) fManager->GetObject("DskParticle");
+      fDskParticle = dynamic_cast<TClonesArray *> ( fManager->GetObject("DskParticle"));
       if ( ! fDskParticle )
 	{
 	  cout << "-W- PndPidCorrelator::Init: No DskParticle array!" << endl;
@@ -438,7 +438,7 @@ InitStatus PndPidCorrelator::Init() {
   // *** MDT ***
   if (fMdtMode)
     {
-      fMdtHit = (TClonesArray*) fManager->GetObject("MdtHit");
+      fMdtHit = dynamic_cast<TClonesArray *> (fManager->GetObject("MdtHit"));
       if ( ! fMdtHit ) 
 	{
 	  cout << "-W- PndPidCorrelator::Init: No MdtHit array!" << endl;
@@ -449,7 +449,7 @@ InitStatus PndPidCorrelator::Init() {
 	  cout << "-I- PndPidCorrelator::Init: Using MdtHit" << endl;
 	  fMdtMode = 2;
 	}
-      fMdtTrk = (TClonesArray*) fManager->GetObject("MdtTrk");
+      fMdtTrk = dynamic_cast<TClonesArray *> (fManager->GetObject("MdtTrk"));
       if ( ! fMdtTrk ) 
 	{
 	  cout << "-W- PndPidCorrelator::Init: No MdtTrk array!" << endl;
@@ -464,7 +464,7 @@ InitStatus PndPidCorrelator::Init() {
   if (fIdeal)
     {
       cout << "-I- PndPidCorrelator::Init: Using MonteCarlo correlation" << endl;
-      fTofPoint = (TClonesArray*) fManager->GetObject("TofPoint");
+      fTofPoint =dynamic_cast<TClonesArray *> ( fManager->GetObject("TofPoint"));
       if ( ! fTofPoint ) 
 	{
 	  cout << "-W- PndPidCorrelator::Init: No TofPoint array!" << endl;
@@ -474,7 +474,7 @@ InitStatus PndPidCorrelator::Init() {
 	{
 	  cout << "-I- PndPidCorrelator::Init: Using TofPoint" << endl;
 	}
-      fDrcPoint = (TClonesArray*) fManager->GetObject("DrcBarPoint");
+      fDrcPoint = dynamic_cast<TClonesArray *> (fManager->GetObject("DrcBarPoint"));
       if ( ! fDrcPoint ) 
 	{
 	  cout << "-W- PndPidCorrelator::Init: No DrcBarPoint array!" << endl;
@@ -484,7 +484,7 @@ InitStatus PndPidCorrelator::Init() {
 	{
 	  cout << "-I- PndPidCorrelator::Init: Using DrcPoint" << endl;
 	}
-      fMdtPoint = (TClonesArray*) fManager->GetObject("MdtPoint");
+      fMdtPoint = dynamic_cast<TClonesArray *> ( fManager->GetObject("MdtPoint"));
       if ( ! fMdtPoint ) 
 	{
 	  cout << "-W- PndPidCorrelator::Init: No MdtPoint array!" << endl;
@@ -509,7 +509,7 @@ InitStatus PndPidCorrelator::Init() {
 	}
       if (fIdealHyp)
 	{
-	  fMcTrack = (TClonesArray *)fManager->GetObject("MCTrack");
+	  fMcTrack = dynamic_cast<TClonesArray *> (fManager->GetObject("MCTrack"));
 	  if ( ! fMcTrack ) {
 	    cout << "-I- PndPidCorrelator::Init: No PndMcTrack array! No ideal pid hypothesis is possible!" << endl;
 	    return kERROR;

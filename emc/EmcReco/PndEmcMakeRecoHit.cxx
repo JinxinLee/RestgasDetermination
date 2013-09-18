@@ -36,7 +36,7 @@ using std::cout;
 using std::endl;
 
 PndEmcMakeRecoHit::PndEmcMakeRecoHit(Int_t verbose, Bool_t storerecohits):
-fBumpArray(new TClonesArray()), fRecoHitArray(new TClonesArray()), fRecoPar(new PndEmcRecoPar()), fVerbose(verbose), fStoreRecoHits(storerecohits) 
+fBumpArray(0), fRecoHitArray(0), fRecoPar(new PndEmcRecoPar()), fVerbose(verbose), fStoreRecoHits(storerecohits)
 {
 }
 
@@ -61,7 +61,7 @@ InitStatus PndEmcMakeRecoHit::Init() {
 	}
 	
 	// Get input array
-	fBumpArray = (TClonesArray*) ioman->GetObject("EmcBump");
+	fBumpArray = dynamic_cast<TClonesArray *>(ioman->GetObject("EmcBump"));
 	if ( ! fBumpArray ) {
 		cout << "-W- PndEmcMakeRecoHit::Init: "
 		<< "No PndEmcBump array!" << endl;

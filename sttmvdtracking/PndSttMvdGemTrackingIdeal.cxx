@@ -25,8 +25,8 @@
 
 //________________________________________________________________
 PndSttMvdGemTrackingIdeal::PndSttMvdGemTrackingIdeal():
-  FairTask("SttMvdGemTrackingIdeal"), fMCTracks(new TClonesArray()), fTrackCands(new TClonesArray()), fTracks(new TClonesArray()), 
-  fTrackIds(new TClonesArray()), fMomSigma(0,0,0), fDPoP(0.), fRelative (kFALSE), fVtxSigma(0,0,0), fEfficiency(1.), 
+  FairTask("SttMvdGemTrackingIdeal"), fMCTracks(0), fTrackCands(0), fTracks(0),
+  fTrackIds(0), fMomSigma(0,0,0), fDPoP(0.), fRelative (kFALSE), fVtxSigma(0,0,0), fEfficiency(1.),
   fTracksArrayName("STTTrkIdeal"), pdg(0), fPersistence(kTRUE)
 {
   //---
@@ -63,19 +63,19 @@ InitStatus PndSttMvdGemTrackingIdeal::Init() {
   FairRootManager *fManager = FairRootManager::Instance();
   
   // Get MC arrays
-  fMCTracks = (TClonesArray*)fManager->GetObject("MCTrack");
+  fMCTracks = dynamic_cast<TClonesArray *> (fManager->GetObject("MCTrack"));
   if ( ! fMCTracks ) {
     std::cout << "-W-  PndSttMvdGemTrackingIdeal::Init: No MCTrack array! Needed for MC Truth" << std::endl;
     return kERROR;
   }
   
   //STT
-  fMCPoints[0] = (TClonesArray*)fManager->GetObject("STTPoint");
+  fMCPoints[0] = dynamic_cast<TClonesArray *> (fManager->GetObject("STTPoint"));
   if ( ! fMCPoints[0] ) {
     std::cout << "-W-  PndSttMvdGemTrackingIdeal::Init: No STTPoint array!" << std::endl;
     return kERROR;
   }
-  fHits[0] = (TClonesArray *)fManager->GetObject("STTHit");
+  fHits[0] = dynamic_cast<TClonesArray *> (fManager->GetObject("STTHit"));
   if ( ! fHits[0] ) {
     std::cout << "-W-  PndSttMvdGemTrackingIdeal::Init: No STTHit array!" << std::endl;
     return kERROR;
@@ -84,12 +84,12 @@ InitStatus PndSttMvdGemTrackingIdeal::Init() {
   
   
   //GEM
-  fMCPoints[1] = (TClonesArray*)fManager->GetObject("GEMPoint");
+  fMCPoints[1] = dynamic_cast<TClonesArray *> (fManager->GetObject("GEMPoint"));
   if ( ! fMCPoints[1] ) {
     std::cout << "-W-  PndSttMvdGemTrackingIdeal::Init: No GEMPoint array!" << std::endl;
     fMCPoints[1]=new TClonesArray("FairMCPoint");
   }
-  fHits[1] = (TClonesArray *)fManager->GetObject("GEMHit");
+  fHits[1] = dynamic_cast<TClonesArray *> (fManager->GetObject("GEMHit"));
   if ( ! fHits[1] ) {
     std::cout << "-W-  PndSttMvdGemTrackingIdeal::Init: No GEMHit array!" << std::endl;
     fHits[1]=new TClonesArray("FairHit");
@@ -97,12 +97,12 @@ InitStatus PndSttMvdGemTrackingIdeal::Init() {
   fBranchIDs[1] = 	FairRootManager::Instance()->GetBranchId("GEMHit");
   
   //MVD Pixel
-  fMCPoints[2] = (TClonesArray*)fManager->GetObject("MVDPoint");
+  fMCPoints[2] = dynamic_cast<TClonesArray *> (fManager->GetObject("MVDPoint"));
   if ( ! fMCPoints[2] ) {
     std::cout << "-W-  PndSttMvdGemTrackingIdeal::Init: No MVDPoint array!" << std::endl;
     fMCPoints[1]=new TClonesArray("FairMCPoint");
   }
-  fHits[2] = (TClonesArray *)fManager->GetObject("MVDHitsPixel");
+  fHits[2] = dynamic_cast<TClonesArray *> (fManager->GetObject("MVDHitsPixel"));
   if ( ! fHits[2] ) {
     std::cout << "-W-  PndSttMvdGemTrackingIdeal::Init: No MVDHitsPixel array!" << std::endl;
     fHits[2]=new TClonesArray("FairHit");
@@ -110,7 +110,7 @@ InitStatus PndSttMvdGemTrackingIdeal::Init() {
   fBranchIDs[2] = 	FairRootManager::Instance()->GetBranchId("MVDHitsPixel");
   
   fMCPoints[3] = fMCPoints[2];
-  fHits[3] = (TClonesArray *)fManager->GetObject("MVDHitsStrip");
+  fHits[3] = dynamic_cast<TClonesArray *> (fManager->GetObject("MVDHitsStrip"));
   if ( ! fHits[3] ) {
     std::cout << "-W-  PndSttMvdGemTrackingIdeal::Init: No MVDHitsStrip array!" << std::endl;
     fMCPoints[3]=new TClonesArray("FairHit");

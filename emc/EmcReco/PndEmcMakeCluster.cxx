@@ -48,7 +48,7 @@ Int_t PndEmcMakeCluster::fEventCounter=0;
 
 
 PndEmcMakeCluster::PndEmcMakeCluster(Int_t verbose, Bool_t storeclusters):
-fDigiArray(new TClonesArray()), fHitArray(new TClonesArray()), fMCTrackArray(new TClonesArray()), fClusterArray(new TClonesArray()), fClusterList(), fDigiEnergyTresholdBarrel(0), fDigiEnergyTresholdFWD(0), fDigiEnergyTresholdBWD(0), fDigiEnergyTresholdShashlyk(0), fClusterPosParam(), fMapVersion(0), fGeoPar(new PndEmcGeoPar()), fDigiPar(new PndEmcDigiPar()), fRecoPar(new PndEmcRecoPar()), fVerbose(verbose), fStoreClusters(storeclusters) 
+fDigiArray(0), fHitArray(0), fMCTrackArray(0), fClusterArray(0), fClusterList(), fDigiEnergyTresholdBarrel(0), fDigiEnergyTresholdFWD(0), fDigiEnergyTresholdBWD(0), fDigiEnergyTresholdShashlyk(0), fClusterPosParam(), fMapVersion(0), fGeoPar(new PndEmcGeoPar()), fDigiPar(new PndEmcDigiPar()), fRecoPar(new PndEmcRecoPar()), fVerbose(verbose), fStoreClusters(storeclusters)
 {
 	HowManyDigi = 0;
 	HowManyCluster = 0;
@@ -77,7 +77,7 @@ InitStatus PndEmcMakeCluster::Init() {
 	}
 	
 	// Get input array
-	fDigiArray = (TClonesArray*) ioman->GetObject("EmcDigi");
+	fDigiArray = dynamic_cast<TClonesArray *>( ioman->GetObject("EmcDigi"));
 	if ( ! fDigiArray ) {
 		cout << "-W- PndEmcMakeCluster::Init: "
 		<< "No PndEmcDigi array!" << endl;
@@ -85,7 +85,7 @@ InitStatus PndEmcMakeCluster::Init() {
 	}
 	
 	// Get input array
-	fHitArray = (TClonesArray*) ioman->GetObject("EmcHit");
+	fHitArray =dynamic_cast<TClonesArray *> (ioman->GetObject("EmcHit"));
 	if ( ! fHitArray ) {
 		cout << "-W- PndEmcMakeCluster::Init: "
 		<< "No PndEmcHit array! Needed for MC Truth" << endl;
@@ -93,7 +93,7 @@ InitStatus PndEmcMakeCluster::Init() {
 	}
 
 	// Get input array
-	fMCTrackArray = (TClonesArray*) ioman->GetObject("MCTrack");
+	fMCTrackArray = dynamic_cast<TClonesArray *> (ioman->GetObject("MCTrack"));
 	if ( ! fMCTrackArray ) {
 		cout << "-W- PndEmcMakeCluster::Init: "
 		<< "No MCTrack array! Needed for MC Truth" << endl;

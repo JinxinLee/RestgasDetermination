@@ -45,7 +45,7 @@ using std::endl;
 using std::fstream;
 
 PndEmcWaveformToDigi::PndEmcWaveformToDigi(Int_t verbose, Bool_t storedigis):
-	fWaveformArray(new TClonesArray()), fDigiArray(new TClonesArray()), fSampleRate(0), fSampleRate_PMT(0), fEnergyDigiThreshold(0), fASIC_Shaping_int_time(0), fPMT_Shaping_int_time(0), fPMT_Shaping_diff_time(0), fCrystal_time_constant(0), fShashlyk_time_constant(0), fNumber_of_samples_in_waveform(0), fNumber_of_samples_in_waveform_pmt(0), fDigiPosMethod(0), fEmcDigiRescaleFactor(0), fEmcDigiPositionDepthPWO(0), fEmcDigiPositionDepthShashlyk(0), fPulseshape(0), fPulseshape_pmt(0), fpsaAlgorithm(0), fpsaAlgorithm_pmt(0), fDigiPar(new PndEmcDigiPar()), fRecoPar(new PndEmcRecoPar()), fVerbose(verbose), fStoreDigis(storedigis), fWfNormalisation(0), fWfNormalisation_pmt(0), fTimeOrderedDigi(kFALSE), fFpgaPar(new PndEmcFpgaPar()) , fDigitizationVersion2(kFALSE)
+	fWaveformArray(0), fDigiArray(0), fSampleRate(0), fSampleRate_PMT(0), fEnergyDigiThreshold(0), fASIC_Shaping_int_time(0), fPMT_Shaping_int_time(0), fPMT_Shaping_diff_time(0), fCrystal_time_constant(0), fShashlyk_time_constant(0), fNumber_of_samples_in_waveform(0), fNumber_of_samples_in_waveform_pmt(0), fDigiPosMethod(0), fEmcDigiRescaleFactor(0), fEmcDigiPositionDepthPWO(0), fEmcDigiPositionDepthShashlyk(0), fPulseshape(0), fPulseshape_pmt(0), fpsaAlgorithm(0), fpsaAlgorithm_pmt(0), fDigiPar(new PndEmcDigiPar()), fRecoPar(new PndEmcRecoPar()), fVerbose(verbose), fStoreDigis(storedigis), fWfNormalisation(0), fWfNormalisation_pmt(0), fTimeOrderedDigi(kFALSE), fFpgaPar(new PndEmcFpgaPar()) , fDigitizationVersion2(kFALSE)
 {
 	fDigiPosMethod="depth";// "surface" or "depth"
 	fEmcDigiRescaleFactor=1.08;
@@ -73,9 +73,9 @@ InitStatus PndEmcWaveformToDigi::Init()
 
 	// Get input array
 	if(fTimeOrderedDigi){
-		fWaveformArray = (TClonesArray*) ioman->GetObject("EmcSortedWaveform");
+		fWaveformArray = dynamic_cast<TClonesArray *>( ioman->GetObject("EmcSortedWaveform"));
 	}else{
-		fWaveformArray = (TClonesArray*) ioman->GetObject("EmcWaveform");
+		fWaveformArray =dynamic_cast<TClonesArray *> (ioman->GetObject("EmcWaveform"));
 	}
 //		fWaveformArrayOrg = (TClonesArray*) ioman->GetObject("EmcWaveform");
 	//fEvtHeaderArray = (TClonesArray*) ioman->GetObject("EventHeader.");

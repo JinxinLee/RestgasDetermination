@@ -50,7 +50,7 @@ using std::endl;
 // Constructors --
 //----------------
 PndEmcMakeCorr::PndEmcMakeCorr(Int_t verbose, TString transportModel, TString clusterType):
-f(new TFile()), f0(new TFile()), f1(new TFile()), f2(new TFile()), f3(new TFile()), fClusterIndex(-1), fClusterArray(new TClonesArray()), fClusterArrayCorr(new TClonesArray()), fDigiPar(new PndEmcDigiPar()), fRecoPar(new PndEmcRecoPar()), fStoreClustersCorr(kTRUE), fModel(transportModel), fClusterType(clusterType), fVerbose(0)
+f(new TFile()), f0(new TFile()), f1(new TFile()), f2(new TFile()), f3(new TFile()), fClusterIndex(-1), fClusterArray(0), fClusterArrayCorr(0), fDigiPar(new PndEmcDigiPar()), fRecoPar(new PndEmcRecoPar()), fStoreClustersCorr(kTRUE), fModel(transportModel), fClusterType(clusterType), fVerbose(0)
 {
   cout<<"PndEmcMakeCorr  constructor: "<<fClusterType<<endl;
 }
@@ -89,7 +89,7 @@ InitStatus PndEmcMakeCorr::Init() {
   }
 
   // Get input array - Clusters
-  fClusterArray = (TClonesArray*) ioman->GetObject(fClusterType);
+  fClusterArray = dynamic_cast<TClonesArray *> (ioman->GetObject(fClusterType));
   cout<<""<<endl;
   cout << "-------------> fClusterType is: *****  "<<fClusterType<<"  *****"<<endl;
   if ( ! fClusterArray ) {

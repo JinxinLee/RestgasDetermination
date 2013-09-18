@@ -26,7 +26,7 @@ using std::endl;
 
 // -----   Default constructor   -------------------------------------------
 PndEmcHdrFiller::PndEmcHdrFiller() :
-fHitArray(new TClonesArray()), fDigiArray(new TClonesArray()), fCluArray(new TClonesArray()), fHdrArray(new TClonesArray()),
+fHitArray(0), fDigiArray(0), fCluArray(0), fHdrArray(0),
   FairTask("EMC Header Filler") { 
 }
 // -------------------------------------------------------------------------
@@ -51,18 +51,18 @@ InitStatus PndEmcHdrFiller::Init() {
   }
   
   // Get input array
-  fHitArray = (TClonesArray*) ioman->GetObject("EmcHit");
+  fHitArray = dynamic_cast<TClonesArray *>(ioman->GetObject("EmcHit"));
   if ( ! fHitArray ) {
     cout << "-W- PndEmcHdrFiller::Init: "
 	 << "No PndEmcHit array!" << endl;
   }
   
-  fDigiArray = (TClonesArray*) ioman->GetObject("EmcDigi");
+  fDigiArray = dynamic_cast<TClonesArray *> (ioman->GetObject("EmcDigi"));
   if ( ! fDigiArray ) {
     cout << "-W- PndEmcHdrFiller::Init: "
 	 << "No PndEmcDigi array!" << endl;
   }
-  fCluArray = (TClonesArray*) ioman->GetObject("EmcCluster");
+  fCluArray = dynamic_cast<TClonesArray *> (ioman->GetObject("EmcCluster"));
   if ( ! fCluArray ) {
     cout << "-W- PndEmcHdrFiller::Init: "
 	 << "No PndEmcCluster array!" << endl;
