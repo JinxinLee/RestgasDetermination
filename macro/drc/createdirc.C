@@ -20,7 +20,7 @@
 // B E F O R E   R U N N I N G   T H E   P R O G R A M   C H E C K   T H E   N A M E   O F   T H E   O U T P U T   F I L E ! ! ! 
 const Double_t pi =  4.*atan(1.);
 
-void createdirc(Int_t fGeomType = 1, Int_t fFocusingSystem = 6, Int_t iter=0, TString geomPath=".", Double_t par1=-100, Double_t par2=-100, Double_t par3=-100, Double_t par4=-100, Double_t par5=-100, Double_t par6=-100, Double_t par7=-100, Double_t par8=-100){ 
+void createdirc(Int_t fGeomType = 1, Int_t fFocusingSystem = 6, Int_t iter=0, TString geomPath=".", Double_t par1=-100, Double_t par2=-100, Double_t par3=-100, Double_t par4=-100, Double_t par5=2.5, Double_t par6=-100, Double_t par7=-100, Double_t par8=-100){ 
 
   { // initialization 
     gROOT->Macro("$VMCWORKDIR/gconfig/rootlogon.C");
@@ -44,7 +44,7 @@ void createdirc(Int_t fGeomType = 1, Int_t fFocusingSystem = 6, Int_t iter=0, TS
    
     Double_t eps          	= 0.01;                   // epsilon
     Double_t mirr_hthick  	= 0.02;  
-    Double_t PDbaseLayer  	= 5.;			  // [cm] thickness of the carbon at the back of the EV
+    Double_t PDbaseLayer  	= 0.2;			  // [cm] thickness of the carbon at the back of the EV
   
     Double_t radius       	=  fGeo->radius();       // 47.6 radius in middle of the barbox (x and y)
     Double_t hthick       	=  fGeo->barHalfThick(); // 1.7/2. half thickness of the bars
@@ -88,10 +88,10 @@ void createdirc(Int_t fGeomType = 1, Int_t fFocusingSystem = 6, Int_t iter=0, TS
     Double_t hgap 		= 0.5*(MCPsize - MCPactiveArea + MCPgap); // gap btw MCPs
     Double_t step 		= MCPactiveArea + 2.*hgap; // step in which to locate MCPs = 6 for Mcp1, Mcp2; = 5.88 for Mcp2a. This is total size of one MCP with gaps in between
   
-    // EV parameters   
-    Double_t sob_len      	=  fGeo->EVlen();        // 30. in current version
+    // EV parameters 
+    Double_t sob_len      	=  (par6==-100)? fGeo->EVlen() : par6;        // 30. in current version
     Double_t sob_shift    	=  -bbox_hlen + bbox_shift - sob_len; // -150.   
-    Double_t sob_angleB		=  fGeo->EVbackAngle();  //90. [degrees] angle of the EV (usually it is 90)
+    Double_t sob_angleB		=  (par7==-100)? fGeo->EVbackAngle() : par7;   //90. [degrees] angle of the EV (usually it is 90)
     if(fGeomType==2) sob_angleB = 90;
     Double_t EVdrop		= (par3==-100)? fGeo->EVdrop() : par3;    // drop of the EV - inner radius
     if(fGeomType!=3) EVdrop += boxgap+boxthick;
@@ -638,7 +638,7 @@ void createdirc(Int_t fGeomType = 1, Int_t fFocusingSystem = 6, Int_t iter=0, TS
     shape->DefineSection(2, bbox_zup-2.*sum, 35., 60.);
     shape->DefineSection(3, bbox_zup - 2.*sum -0.01, radiusMiddleSmall-0.01, sob_Rout+poffset+pheight+EVoffset+1.);   
     shape->DefineSection(4, bbox_zup - sob_len, radiusMiddleSmall-0.01, sob_Rout+poffset+pheight+EVoffset+1.);
-    shape->DefineSection(5, bbox_zup - sob_len - PDbaseLayer - 2*sum, radiusMiddleSmall-0.01, sob_Rout+poffset+pheight+EVoffset+1.);
+    shape->DefineSection(5, bbox_zup - sob_len - 2*PDbaseLayer - 2*sum, radiusMiddleSmall-0.01, sob_Rout+poffset+pheight+EVoffset+1.);
   }
   vLocalMother = new TGeoVolume("BarrelDIRC", shape, gGeoManager->GetMedium("DIRCairNoSens"));
   top->AddNode(vLocalMother, 0,0);
