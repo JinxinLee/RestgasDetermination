@@ -30,6 +30,22 @@
 #include<TFile.h>
 #include<TCanvas.h>
 #include<TVector3.h>
+#include "TPolyLine3D.h"
+#include "TView.h"
+#include "TCanvas.h"
+#include "TRandom.h"
+#include<TApplication.h>
+#include "TGLViewer.h"
+#include <TGeoManager.h>
+#include "TGeoMaterial.h"
+#include "TGeoMedium.h"
+#include "TGeoVolume.h"
+#include "TString.h"
+#include "TSystem.h"
+#include "FairGeoLoader.h"
+#include "FairGeoInterface.h"
+#include "FairGeoMedia.h"
+#include "FairGeoBuilder.h"
 
 using namespace std;
 
@@ -336,21 +352,187 @@ void transform_jost_fieldmap(string filename_in, string filename_out, int fieldt
 			cout << " converted " << n_x << " x " << n_y << " x " << n_z << endl;
 			cout << " to        " << fieldmap_converted->GetNx() << " x " << fieldmap_converted->GetNy() << " x " << fieldmap_converted->GetNz() << endl;
 			cout << " values " << endl;
+			/************* feature of displaying results ************************/
+			if (1){
+				static TApplication* myapp = NULL;
+				static TCanvas *canvas_fieldlines = NULL;
+				if (!myapp){
+					myapp = new TApplication("myapp",0,0);
+					/*
+					TGeoManager *geom = new TGeoManager("geom", "geo manager");
+					TGeoMaterial *something = new TGeoMaterial("something", 9.01, 4, 1.848);
+					something->SetUniqueID(1);
+					TGeoMedium *somemedium = new TGeoMedium("something", 3, 5, 0, 1, 10, 2, 0.1e11, 0.2, 0.2e-3, 0.2e-1);
+					TGeoVolume *top_vol = gGeoManager->MakeBox("cave", somemedium, 5, 5, 350);
+					top_vol->SetVisibility(0);
+					TGeoVolume *beam_pipe_vol = gGeoManager->MakeTube("beampipe",somemedium,2.0,2.1,5);
+					beam_pipe_vol->SetVisibility(0);
+					beam_pipe_vol->SetLineColor(5);
+					top_vol->AddNode(beam_pipe_vol, 1);
+					geom->SetTopVolume(top_vol);
+					gGeoManager->CloseGeometry();
+					canvas_fieldlines = new TCanvas("canvas_fieldlines", "field lines", 600, 600);
+					top_vol->Draw("ogl");
+					cout << " drawing done " << endl;
+					*/
+					gROOT->Macro("$VMCWORKDIR/gconfig/rootlogon.C");
+					TString vmcWorkdir = gSystem->Getenv("VMCWORKDIR");
+					// materials and media
+					FairGeoLoader* geoLoad = new FairGeoLoader("TGeo", "FairGeoLoader");
+					FairGeoInterface* geoFace = geoLoad->getGeoInterface();
+					geoFace->setMediaFile(vmcWorkdir + "/geometry/media_pnd.geo");
+					geoFace->readMedia();
+					geoFace->print();
+					FairGeoMedia* geoMedia = geoFace->getMedia();
+					FairGeoMedium *FairMediumAir = geoMedia->getMedium("air");
+					FairGeoBuilder* geoBuild = geoLoad->getGeoBuilder();
+					Int_t nmed=geoBuild->createMedium(FairMediumAir);
+					TGeoVolume *top_vol = gGeoManager->MakeBox("cave", gGeoManager->GetMedium("air"), 400, 400, 1000);
+					top_vol->SetVisibility(0);
+					TFile* solenoid_file = new TFile("$VMCWORKDIR/geometry/FullSolenoid.root" ,"OPEN");
+					TGeoVolume * solenoid = (TGeoVolume*) solenoid_file->Get("topNode");
+					if (!solenoid){
+						cout << " 'Error: no solenoid file found to display " << endl;
+					} else {
+						solenoid->SetLineColor(12);
+						solenoid->SetTransparency(50);
+						top_vol->AddNode(solenoid, 1);
+					}
+					TFile* beampipe_file = new TFile("$VMCWORKDIR/geometry/beampipe_201309.root" ,"OPEN");
+					TGeoVolume * beampipe = (TGeoVolume*) beampipe_file->Get("pipeassembly");
+					if (!beampipe){
+						cout << " 'Error: no beam pipe file found to display " << endl;
+					} else {
+						beampipe->SetTransparency(50);
+						top_vol->AddNode(beampipe, 1);
+					}
+					gGeoManager->SetTopVolume(top_vol);
+					top_vol->Draw("ogl");
+				}
+				//static TGLViewer *view(NULL);
+				//static TView *view(NULL);
+				//if (!view) {
+					//view = TView::CreateView(1);
+					//view = (TGLViewer *)gPad->GetViewer3D();
+					//view->Draw("ogl");
+					//view->SetRange(x_min/10., y_min/10., z_min/10., x_max/10., y_max/10., z_max/10.);
+					//view->SetRange(-231, -231, -172, 231, 231, 343);
+					//view->SetRange(-5, -5, -172, 5, 5, 343);
+				//}
+				// store the end points of the previous visualization
+				static vector<double>xstart_prev;
+				static vector<double>ystart_prev;
+				static vector<double>zstart_prev;
+				static vector<int> line_color;
+				// initilize with a starting grid
+				if (xstart_prev.size()==0){
+					//const Int_t n = 100;
+					//create a raster for one plane to start the field lines from
+					for (double ix = -2.; ix < 2.; ix += .2){
+						for (double iy = -2.; iy < 2.; iy += .2){
+							double r2 = (ix*ix + iy*iy);
+							if (r2 > 4) continue;
+							xstart_prev.push_back(ix);
+							ystart_prev.push_back(iy);
+							zstart_prev.push_back(-50.);
+							int color = 12 + floor(7./4.*r2);
+							line_color.push_back(color);
+						}
+					}
+				}
+				// continue drawing from discontinued points
+				for (unsigned int istartpoint = 0; istartpoint < xstart_prev.size(); istartpoint++){
+					int npoints = 1000;
+					double stepsize = d_x/10.;
+					if (d_y/10. < stepsize) stepsize = d_y/10.;
+					if (d_z/10. < stepsize) stepsize = d_z/10.;
+					vector<double> xs;
+					vector<double> ys;
+					vector<double> zs;
+					xs.push_back(xstart_prev[istartpoint]);
+					ys.push_back(ystart_prev[istartpoint]);
+					zs.push_back(zstart_prev[istartpoint]);
+					//cout << endl;
+					for (int ipoint = 1; ipoint < npoints; ipoint++){
+						// get the previous position
+						double pval[3] = {xs[ipoint-1],ys[ipoint-1],zs[ipoint-1]};
+						// check the validity of the field map range
+						//cout << x_min/10. << " " << pval[0] << " " << x_max/10. << endl;
+						//cout << y_min/10. << " " << pval[1] << " " << y_max/10. << endl;
+						//cout << z_min/10. << " " << pval[2] << " " << z_max/10. << endl << endl;
+						if (!(x_min/10. < pval[0] && pval[0] < x_max/10.)||
+							!(y_min/10. < pval[1] && pval[1] < y_max/10.)||
+							!(z_min/10. < pval[2] && pval[2] < z_max/10.)){
+							//if (xs.size()>2)
+								//cout << " break due to out of range " << endl;
+							xstart_prev[istartpoint] = pval[0];
+							ystart_prev[istartpoint] = pval[1];
+							zstart_prev[istartpoint] = pval[2];
+							break;
+						}
+						// get the corresponding field value
+						// what is in fact the direction of the field line
+						double Bval[3];
+						fieldmap_converted->GetBxyz(pval, Bval);
+						// scale to the stepsize and add to the position
+						double fieldstrength = sqrt(Bval[0]*Bval[0]+Bval[1]*Bval[1]+Bval[2]*Bval[2]);
+						pval[0] = pval[0] + stepsize/fieldstrength*Bval[0];
+						pval[1] = pval[1] + stepsize/fieldstrength*Bval[1];
+						pval[2] = pval[2] + stepsize/fieldstrength*Bval[2];
+						// store the next point
+						xs.push_back(pval[0]);
+						ys.push_back(pval[1]);
+						zs.push_back(pval[2]);
+					}
+					// create a line out of the points
+					if (xs.size() > 2){
+						//cout << " creating polyline " << endl;
+						TPolyLine3D* fieldline = new TPolyLine3D(xs.size(), &xs[0], &ys[0], &zs[0]);
+						fieldline->SetLineColor(line_color[istartpoint]);
+						fieldline->Draw("same");
+						// mirror it
+						for (unsigned int ipoint = 0; ipoint < xs.size(); ipoint++){
+							xs[ipoint] = -xs[ipoint];
+						}
+						fieldline = new TPolyLine3D(xs.size(), &xs[0], &ys[0], &zs[0]);
+						fieldline->SetLineColor(line_color[istartpoint]);
+						fieldline->Draw("same");
+						for (unsigned int ipoint = 0; ipoint < xs.size(); ipoint++){
+							ys[ipoint] = -ys[ipoint];
+						}
+						fieldline = new TPolyLine3D(xs.size(), &xs[0], &ys[0], &zs[0]);
+						fieldline->SetLineColor(line_color[istartpoint]);
+						fieldline->Draw("same");
+						for (unsigned int ipoint = 0; ipoint < xs.size(); ipoint++){
+							xs[ipoint] = -xs[ipoint];
+						}
+						fieldline = new TPolyLine3D(xs.size(), &xs[0], &ys[0], &zs[0]);
+						fieldline->SetLineColor(line_color[istartpoint]);
+						fieldline->Draw("same");
+					}
+				}
+				static int counter(0);
+				counter++;
+				if (counter == 5){
+					myapp->Run();
+				}
+			}
+			/************* end of displaying results ****************************/
 		}
 }
 
 void read_jost_fieldmaps() {
 	//Load basic libraries
 	//gROOT->Macro("$VMCWORKDIR/gconfig/rootlogon.C");
+
 	transform_jost_fieldmap("s1301_z-172_hsc.dat", "SolenoidMap1", 2);
 	transform_jost_fieldmap("s1301_z-40_hsc.dat", "SolenoidMap2", 2);
 	transform_jost_fieldmap("s1301_z180_hsc.dat", "SolenoidMap3", 2);
 	transform_jost_fieldmap("s1301_z248_hsc.dat", "SolenoidMap4", 2);
 	transform_jost_fieldmap("p1301_z283_hsc_0150.dat", "TransMap.0150", 4);
 	transform_jost_fieldmap("p1301_z283_hsc_0406.dat", "TransMap.0406", 4);
-}
 
-#include<TApplication.h>
+}
 
 int main(int argc, char **argv) {
 	read_jost_fieldmaps();
