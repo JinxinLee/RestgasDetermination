@@ -5,8 +5,8 @@
 
   // -----  Load libraries   ------------------------------------------------
   gROOT->Macro("$VMCWORKDIR/gconfig/rootlogon.C");
-  gROOT->LoadMacro("$VMCWORKDIR/macro/mvd/Tools.C");
-  LoadPandaStyle();
+  //  gROOT->LoadMacro("$VMCWORKDIR/macro/mvd/Tools.C");
+  //  LoadPandaStyle();
   gROOT->LoadMacro("$VMCWORKDIR/macro/mvd/Helper.C");
   // -----   Timer   --------------------------------------------------------
   TStopwatch timer;
