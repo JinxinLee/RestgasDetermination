@@ -78,6 +78,7 @@ void reco_complete()
   //recoKalman->SetIdealHyp(kTRUE);
   //recoKalman->SetNumIterations(3);
   recoKalman->SetTrackRep(0); // 0 Geane (default), 1 RK
+  //recoKalman->SetPropagateToIP(kFALSE);
   fRun->AddTask(recoKalman);
 
   PndMCTrackAssociator* trackMC2 = new PndMCTrackAssociator();
@@ -101,6 +102,7 @@ void reco_complete()
   //recoKalmanFwd->SetIdealHyp(kTRUE);
   //recoKalmanFwd->SetNumIterations(3);
   recoKalmanFwd->SetTrackRep(0); // 0 Geane (default), 1 RK
+  //recoKalmanFwd->SetPropagateToIP(kFALSE);
   fRun->AddTask(recoKalmanFwd);
 
   PndMCTrackAssociator* trackMC3 = new PndMCTrackAssociator();

@@ -57,6 +57,7 @@ void pid_complete()
   corr->SetInputIDBranch2("FtsIdealGenTrackID");
   //corr->SetDebugMode(kTRUE);
   //corr->SetFast(kTRUE);
+  //corr->SetBackPropagate(kFALSE);
   fRun->AddTask(corr);
 
   PndMcCloner *clone = new PndMcCloner();
