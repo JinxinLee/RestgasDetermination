@@ -20,6 +20,7 @@
 #include "TDatabasePDG.h"
 //#include "Riostream.h"
 #include "FairTask.h"
+#include "PndGeoFtsPar.h"
 #include <cmath>
 
 class PndFtsTrackerIdeal : public FairTask {
@@ -34,7 +35,9 @@ public:
   virtual void Finish(); 
   
   void Reset();                    
-  void Register();                 
+  void Register();
+
+  void SetParContainers();
   
   void SetTrackOutput(TString name = "FTSTrkIdeal") { fTracksArrayName = name; };
   
@@ -74,6 +77,9 @@ protected:
   TString fTracksArrayName;     // Branch name where to store the Track candidates
   TDatabasePDG *pdg;            //! Particle DB
   
+  PndGeoFtsPar *fFtsParameters;
+  TClonesArray* fTubeArrayFts;
+
   PndFtsTrackerIdeal(const  PndFtsTrackerIdeal& L);
   PndFtsTrackerIdeal& operator= (const  PndFtsTrackerIdeal&) {return *this;}
   
