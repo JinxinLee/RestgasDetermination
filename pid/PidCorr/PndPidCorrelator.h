@@ -119,6 +119,8 @@ protected:
   Int_t fPidHyp;                    // particle hypothesis for propagation
   Bool_t fIdealHyp;                 // Flag to use MC particle hypothesis
   Bool_t fFast;                     // 0: normal; 1: no correlation/extrapolation/neutral
+  Bool_t fFlagCut;                  // kFALSE -> all the tracks; (kTRUE) -> store tracks only if flag>0
+  Bool_t fBackPropagate;            // kFALSE -> do not propagate to IP; (kTRUE) -> propagate to IP
   PndGeoHandling* fGeoH;             // Object to retrieve MVD geometry
   PndRecoKalmanFit *fFitter;         // Refitter for MDT tracks
   TFile *r;                          // File for debug ntuples
@@ -188,7 +190,9 @@ public:
   void SetGeanePro(Bool_t gea = kTRUE)    { fGeanePro = gea; };
   void SetPidHyp(Int_t pid)               { fPidHyp = pid; };
   void SetIdealHyp(Bool_t opt = kTRUE)    { fIdealHyp = opt;            }
-
+  void SetFlagCut(Bool_t opt = kTRUE)     { fFlagCut = opt; };
+  void SetBackPropagate(Bool_t opt =kTRUE){ fBackPropagate = opt; };
+  
   void SetMvdMode(Short_t mode)	{ fMvdMode = mode; };                 // MVD Mode: 0 no MVD
   void SetSttMode(Short_t mode)	{ fSttMode = mode; };                 // STT Mode: 0 no STT 
   void SetFtsMode(Short_t mode)	{ fFtsMode = mode; };                 // FTS Mode: 0 no FTS

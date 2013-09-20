@@ -69,6 +69,8 @@ PndPidCorrelator::PndPidCorrelator() :
   fSimulation(kFALSE),
   fIdeal(kFALSE), 
   fCorrErrorProp(kTRUE),
+  fFlagCut(kTRUE),
+  fBackPropagate(kTRUE),
   tofCorr(0),
   emcCorr(0), 
   fscCorr(0),
@@ -129,7 +131,9 @@ PndPidCorrelator::PndPidCorrelator(const char *name, const char *title) :
   fFast(kFALSE),
   fSimulation(kFALSE),
   fIdeal(kFALSE), 
-  fCorrErrorProp(kTRUE),
+  fCorrErrorProp(kTRUE), 
+  fFlagCut(kTRUE),
+  fBackPropagate(kTRUE),
   tofCorr(0),
   emcCorr(0), 
   fscCorr(0),
@@ -708,7 +712,8 @@ void PndPidCorrelator::ConstructChargedCandidate() {
     PndTrack* track = (PndTrack*) fTrack->At(i);
     Int_t ierr = 0;
     FairTrackParP par = track->GetParamLast();
-    if ((par.GetMomentum().Mag()<0.1) || (par.GetMomentum().Mag()>15.) )continue;
+    if ((par.GetMomentum().Mag()<0.1) || (par.GetMomentum().Mag()>15.) )continue; // cut low and high momenta
+    if ((fFlagCut) && (track->GetFlag()<=0)) continue; // cut flag<=0
     FairTrackParH *helix = new FairTrackParH(&par, ierr);
     
     PndPidCandidate* pidCand = 	new PndPidCandidate();
@@ -769,7 +774,8 @@ void PndPidCorrelator::ConstructChargedCandidate() {
 	PndTrack* track = (PndTrack*) fTrack2->At(i);
 	Int_t ierr = 0;
 	FairTrackParP par = track->GetParamLast();
-	if ((par.GetMomentum().Mag()<0.1) || (par.GetMomentum().Mag()>20.) )continue;
+	if ((par.GetMomentum().Mag()<0.1) || (par.GetMomentum().Mag()>20.) )continue; // cut low and high momenta
+	if ((fFlagCut) && (track->GetFlag()<=0)) continue; // cut flag<=0
 	FairTrackParH *helix = new FairTrackParH(&par, ierr);
       
 	PndPidCandidate* pidCand =  new PndPidCandidate();
