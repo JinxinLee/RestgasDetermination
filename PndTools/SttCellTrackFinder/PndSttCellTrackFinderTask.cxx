@@ -93,7 +93,11 @@ InitStatus PndSttCellTrackFinderTask::Init() {
 			fPersistence);
 
 	fCombiTrackCandArray = new TClonesArray("PndTrackCand");
-	ioman->Register("CombiTrackCand", "STT", fCombiTrackCandArray,
+	ioman->Register("SttCellTrackCand", "STT", fCombiTrackCandArray,
+			fPersistence);
+
+	fCombiTrackArray = new TClonesArray("PndTrack");
+	ioman->Register("SttCellTrack", "STT", fCombiTrackArray,
 			fPersistence);
 
 	fCombiRiemannTrackArray = new TClonesArray("PndRiemannTrack");
@@ -163,9 +167,10 @@ void PndSttCellTrackFinderTask::Exec(Option_t* opt) {
 	}
 
 	for (int i = 0; i < fTrackFinder.NumCombinedTracks(); ++i) {
-		PndTrackCand* myCand = new ((*fCombiTrackCandArray)[i]) PndTrackCand(
-				fTrackFinder.GetCombiTrackCand(i));
-
+		PndTrackCand* myCand = new ((*fCombiTrackCandArray)[i]) PndTrackCand(fTrackFinder.GetCombiTrackCand(i));
+		PndTrack* myTrack = new ((*fCombiTrackArray)[i]) PndTrack(fTrackFinder.GetCombiTrack(i));
+		myTrack->SetTrackCandRef(myCand);
+		myTrack->SetTrackCand(*myCand);
 	}
 
 //	for (int i = 0; i < fTrackFinder.NumCombinedRiemannTracks(); ++i) {
@@ -182,6 +187,7 @@ void PndSttCellTrackFinderTask::Exec(Option_t* opt) {
 
 	fFirstTrackCandArray->Sort();
 	fCombiTrackCandArray->Sort();
+	fCombiTrackArray->Sort();
 
 }
 
@@ -189,6 +195,7 @@ void PndSttCellTrackFinderTask::FinishEvent() {
 	fFirstTrackCandArray->Delete();
 	fFirstRiemannTrackArray->Delete();
 	fCombiTrackCandArray->Delete();
+	fCombiTrackArray->Delete();
 	fCombiRiemannTrackArray->Delete();
 
 }

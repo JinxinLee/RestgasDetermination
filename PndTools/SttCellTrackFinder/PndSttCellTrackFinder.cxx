@@ -83,8 +83,8 @@ void PndSttCellTrackFinder::FindTracks() {
 		for (int i = 0; i < fCombinedData.size(); ++i) {
 			cout << "Combination #" << i << endl;
 			cout << "state of tracklets: ";
-			for (int j = 0; j < fCombinedData[i].tracklets.size(); ++j) {
-				cout << fCombinedData[i].tracklets[j] << ", ";
+			for (set<int>::iterator iter = fCombinedData[i].tracklets.begin(); iter != fCombinedData[i].tracklets.end(); iter++) {
+				cout << *iter << ", ";
 			}
 			cout << endl;
 			/*cout << " radius: " << fCombinedData[i].trackletInf.riemannTrack.r()
@@ -117,6 +117,8 @@ void PndSttCellTrackFinder::FindTracks() {
 
 	FindTrackletsWithoutCombi();
 
+	AssignAmbiguousHits();
+
 	AddMissingHits();
 
 	CreatePndTrackCands();
@@ -133,12 +135,11 @@ void PndSttCellTrackFinder::CreatePndTrackCands() {
 
 		// add all hits of combined tracklet to trackCand
 		for (int j = 0; j < fCombinedData[i].trackletInf.hitIDs.size(); ++j) {
-			trackCand.AddHit(
-					fMapHitToFairLink[fCombinedData[i].trackletInf.hitIDs[j]],
-					0);
+			trackCand.AddHit(fMapHitToFairLink[fCombinedData[i].trackletInf.hitIDs[j]],	j);
 		}
 
 		fCombiTrackCand.push_back(trackCand);
+		fCombiTrack.push_back(fCombinedData[i].trackletInf.riemannTrack.getPndTrack(2.0)); //todo replace fixed magnetic field with info from simulation
 	}
 
 	// add tracklets without combi and more than 2 hits
@@ -147,12 +148,17 @@ void PndSttCellTrackFinder::CreatePndTrackCands() {
 		numHits = fStartTracklets[fTrackletsWithoutCombi[i]].hitIDs.size();
 
 		if (numHits > 2) {
+			std::cout << "Tracklet: " << fTrackletsWithoutCombi[i] << " : ";
 			for (int j = 0; j < numHits; ++j) {
-				trackCand.AddHit(
-						fMapHitToFairLink[fStartTracklets[fTrackletsWithoutCombi[i]].hitIDs[j]],
-						0);
+				trackCand.AddHit(fMapHitToFairLink[fStartTracklets[fTrackletsWithoutCombi[i]].hitIDs[j]], j);
+				std::cout << fMapHitToFairLink[fStartTracklets[fTrackletsWithoutCombi[i]].hitIDs[j]] << " ";
 			}
+
+			PndRiemannTrack trackRefit(&trackCand);
+			trackRefit.refit(kFALSE);
+			std::cout << std::endl << "RiemannTrack: " << trackRefit <<std::endl;
 			fCombiTrackCand.push_back(trackCand);
+			fCombiTrack.push_back(trackRefit.getPndTrack(2.0));
 		}
 	}
 }
@@ -173,11 +179,19 @@ void PndSttCellTrackFinder::GenerateTracklets() {
 	SeparateNeighbors();
 	EvaluateState();
 
+	if (fVerbose > 1) {
+		std::cout << "States: " << std::endl;
+		for (map<int, int>::iterator iter = fStates.begin(); iter != fStates.end(); iter++) {
+			std::cout << iter->first << " : " << iter->second << std::endl;
+		}
+	}
+
+
 	InitStartTracklets();
 
 	if (fVerbose > 1) {
 
-		cout << "Start-Tracklets#:" << fStartTracklets.size() << endl;
+		cout << "Start-Tracklets#: " << fStartTracklets.size() << endl;
 
 		cout << "Tracklet-Information: " << endl;
 		map<int, TrackletInf_t>::iterator it;
@@ -185,41 +199,28 @@ void PndSttCellTrackFinder::GenerateTracklets() {
 			int state = it->first;
 			TrackletInf_t inf = it->second;
 
-			cout << "State: " << state << ", maxId: " << inf.maxID
-					<< ", endId: " << inf.endID << ", straight: "
-					<< inf.straight << ", numSkewed: " << inf.numSkewed;
-
-			if (inf.riemannTrack.getNumHits() != 0) {
-				cout << ", RiemannTrack created error: " << inf.error
-						<< ", #wrong hits: " << inf.numErrHits;
-			}
-
-			cout << endl;
+			cout << "State: " << state << " ";
+			inf.Print();
 		}
 
 	}
 
+	SetVerbose(0);
 	EvaluateMultiState();
+	SetVerbose(3);
 
-//	if (fVerbose > 1) {
-	for (map<int, set<int> >::iterator iter = fMultiStates.begin();
-			iter != fMultiStates.end(); iter++) {
-		std::cout << iter->first << " : ";
-		for (set<int>::iterator iter2 = iter->second.begin();
-				iter2 != iter->second.end(); iter2++) {
-			std::cout << *iter2 << " ";
+	if (fVerbose > 1) {
+		std::cout << "MultiStates: " << std::endl;
+		for (map<int, set<int> >::iterator iter = fMultiStates.begin();
+				iter != fMultiStates.end(); iter++) {
+			std::cout << iter->first << " : ";
+			for (set<int>::iterator iter2 = iter->second.begin();
+					iter2 != iter->second.end(); iter2++) {
+				std::cout << *iter2 << " ";
+			}
+			std::cout << std::endl;
 		}
-		std::set < std::pair<int, int> > result = CreatePairCombis(
-				iter->second);
-		std::cout << " Created Pairs: ";
-		for (std::set<std::pair<int, int> >::iterator pairIter = result.begin();
-				pairIter != result.end(); pairIter++) {
-			std::cout << " (" << pairIter->first << "/" << pairIter->second
-					<< ") ";
-		}
-		std::cout << std::endl;
 	}
-//	}
 
 }
 
@@ -372,7 +373,6 @@ void PndSttCellTrackFinder::EvaluateMultiState() {
 	 * The copying is repeated until the values do not change anymore. In this way the cell content is a collection
 	 * of all unique tracklets touching the cluster of ambiguous cells.*/
 
-//	SetVerbose(3);
 	int currentSum = 0;
 	int priorSum = -1;
 	set<int> newState;
@@ -504,6 +504,7 @@ void PndSttCellTrackFinder::InitStartTracklets() {
 	PndSttHit* sttHit;
 	int tubeID;
 
+	std::cout << "Calculation of StartTracklets: " << std::endl;
 	for (trackIt = tmpStartTracklets.begin();
 			trackIt != tmpStartTracklets.end(); ++trackIt) {
 
@@ -514,6 +515,7 @@ void PndSttCellTrackFinder::InitStartTracklets() {
 
 		hitIDs = trackletInf.hitIDs;
 		PndTrackCand trackCand;
+		trackletInf.startID = state;
 		trackletInf.maxID = 0;
 		trackletInf.endID = state;
 		trackletInf.straight = false;
@@ -583,6 +585,8 @@ void PndSttCellTrackFinder::InitStartTracklets() {
 			fFirstTrackCand.push_back(trackCand);
 		}
 
+		std::cout << state << " : " << trackletInf.riemannTrack << std::endl;
+
 		if (trackIt->second.size() < 3) {
 			// save as short tracklet
 			fShortTracklets[state] = trackletInf;
@@ -596,327 +600,348 @@ void PndSttCellTrackFinder::InitStartTracklets() {
 	}
 }
 
-void PndSttCellTrackFinder::CombineTracklets() {
+//void PndSttCellTrackFinder::CombineTracklets() {
 
-	vector<int> leftTrackCands; // State of tracklets on the left side of stt
-	vector<int> rightTrackCands; // State of tracklets on the right side of stt
+//	vector<int> leftTrackCands; // State of tracklets on the left side of stt
+//	vector<int> rightTrackCands; // State of tracklets on the right side of stt
+//
+//	map<int, TrackletInf_t>::iterator trackletsIt;
+//
+//	int tubeId;
+//	vector<int> hits;
+//
+//	// devide tracklets into tracklets of left and right half of the stt to get less combination possibilities
+//	for (trackletsIt = fStartTracklets.begin();
+//			trackletsIt != fStartTracklets.end(); ++trackletsIt) {
+//
+//		// state is equal to tubeID of on hit in tracklet
+//		tubeId = trackletsIt->first;
+//		hits = trackletsIt->second.hitIDs;
+//
+//		// add only tracklets with more than two hits of not skewed tubes
+//		if ((hits.size() - trackletsIt->second.numSkewed) > 2) {
+//
+//			// check the sector of the tube
+//			if (fStrawMap.GetSector(tubeId) <= 2) {
+//				// tracklet is located in the left half of stt
+//				leftTrackCands.push_back(tubeId);
+//			} else {
+//				// tracklet is located in the right half of stt
+//				rightTrackCands.push_back(tubeId);
+//			}
+//
+//		}
+//
+//	}
+//
+//	// sort tracklets by state
+//	sort(leftTrackCands.begin(), leftTrackCands.end());
+//	sort(rightTrackCands.begin(), rightTrackCands.end());
+//
+//	int firstState, secondState, sector;
+//	vector<int> tracklets;
+//	set<int> sectorNeighbors;
+//
+//	// combine the leftTrackCands
+//	for (int i = 0; i < leftTrackCands.size(); ++i) {
+//
+//		firstState = leftTrackCands[i];
+//
+//		// combine straight and "unfinished" tracklets only
+//		if (fStartTracklets[firstState].straight
+//				&& fHitNeighbors[fStartTracklets[firstState].maxID].size()
+//						> 1) {
+//
+//			sector = fStrawMap.GetSector(fStartTracklets[firstState].maxID);
+//			sectorNeighbors.clear();
+//			sectorNeighbors.insert(sector);
+//			sectorNeighbors.insert(fStrawMap.GetLeftSector(sector));
+//			sectorNeighbors.insert(fStrawMap.GetRightSector(sector));
+//
+//			for (int j = i + 1; j < leftTrackCands.size(); ++j) {
+//				secondState = leftTrackCands[j];
+//
+//				// combine with tracklets with a higher state than maxID of first tracklet
+//				if (secondState > fStartTracklets[firstState].maxID) {
+//
+//					// is second tracklet in nearby sector?
+//					if (sectorNeighbors.find(fStrawMap.GetSector(secondState))
+//							!= sectorNeighbors.end()) {
+//
+//						tracklets.clear();
+//						tracklets.push_back(firstState);
+//						tracklets.push_back(secondState);
+//
+//						TrackletInf_t trackletInf = GetTrackletInf(tracklets);
+//
+//						/* it is not necessary to check riemannTrack because only tracklet with
+//						 * more than 2 hits of unskewed tubes were combined.*/
+//						if (trackletInf.numErrHits == 0) {
+//							Combination_t combi;
+//							combi.tracklets = tracklets;
+//							combi.trackletInf = trackletInf;
+//
+//							fCombinedData.push_back(combi);
+//						}
+//
+//						/*	old code
+//						 *
+//						 * // get hit-ids of both tracklets
+//						 hitIDs = fStartTracklets[firstState].hitIDs;
+//						 hitIDs.insert(hitIDs.end(),
+//						 fStartTracklets[secondState].hitIDs.begin(),
+//						 fStartTracklets[secondState].hitIDs.end());
+//
+//						 PndRiemannTrack riemannTrack = CreateRiemannTrack(hitIDs);
+//
+//						 // at least 5 riemannHits? --> fit riemannTrack and save in map
+//						 if (riemannTrack.getNumHits() > 4) {
+//						 riemannTrack.refit(false);
+//
+//						 numWrongHits = GetDeviationCount(riemannTrack);
+//
+//						 if (numWrongHits < 2) {
+//						 Combination combi;
+//
+//						 vector<int> tracklets;
+//						 tracklets.push_back(firstState);
+//						 tracklets.push_back(secondState);
+//
+//						 error = CalcDeviationOfRiemannTrack(riemannTrack);
+//
+//						 combi.riemannTrack = riemannTrack;
+//						 combi.tracklets = tracklets;
+//						 combi.errSum = error;
+//						 combi.numErrHits = numWrongHits;
+//
+//						 fCombinedData.push_back(combi);
+//						 }*/
+//
+//					}
+//
+//				}
+//
+//			}
+//		}
+//	}
+//
+//	// combine the rightTrackCands
+//	for (int i = 0; i < rightTrackCands.size(); ++i) {
+//		firstState = rightTrackCands[i];
+//
+//		// combine straight and "unfinished" tracklets only
+//		if (fStartTracklets[firstState].straight
+//				&& fHitNeighbors[fStartTracklets[firstState].maxID].size()
+//						> 1) {
+//
+//			sector = fStrawMap.GetSector(fStartTracklets[firstState].maxID);
+//			sectorNeighbors.clear();
+//			sectorNeighbors.insert(sector);
+//			sectorNeighbors.insert(fStrawMap.GetLeftSector(sector));
+//			sectorNeighbors.insert(fStrawMap.GetRightSector(sector));
+//
+//			for (int j = i + 1; j < rightTrackCands.size(); ++j) {
+//				secondState = rightTrackCands[j];
+//
+//				// combine with tracklets with a higher state than maxID of first tracklet
+//				if (secondState > fStartTracklets[firstState].maxID) {
+//
+//					// is second tracklet in nearby sector?
+//					if (sectorNeighbors.find(fStrawMap.GetSector(secondState))
+//							!= sectorNeighbors.end()) {
+//
+//						tracklets.clear();
+//						tracklets.push_back(firstState);
+//						tracklets.push_back(secondState);
+//
+//						TrackletInf_t trackletInf = GetTrackletInf(tracklets);
+//
+//						/* it is not necessary to check riemannTrack because only tracklet with
+//						 * more than 2 hits of unskewed tubes were combined.*/
+//						if (trackletInf.numErrHits == 0) {
+//							Combination_t combi;
+//							combi.tracklets = tracklets;
+//							combi.trackletInf = trackletInf;
+//
+//							fCombinedData.push_back(combi);
+//						}
+//
+//					}
+//				}
+//			}
+//		}
+//
+//	}
+//
+//}
 
-	map<int, TrackletInf_t>::iterator trackletsIt;
-
-	int tubeId;
-	vector<int> hits;
-
-	// devide tracklets into tracklets of left and right half of the stt to get less combination possibilities
-	for (trackletsIt = fStartTracklets.begin();
-			trackletsIt != fStartTracklets.end(); ++trackletsIt) {
-
-		// state is equal to tubeID of on hit in tracklet
-		tubeId = trackletsIt->first;
-		hits = trackletsIt->second.hitIDs;
-
-		// add only tracklets with more than two hits of not skewed tubes
-		if ((hits.size() - trackletsIt->second.numSkewed) > 2) {
-
-			// check the sector of the tube
-			if (fStrawMap.GetSector(tubeId) <= 2) {
-				// tracklet is located in the left half of stt
-				leftTrackCands.push_back(tubeId);
-			} else {
-				// tracklet is located in the right half of stt
-				rightTrackCands.push_back(tubeId);
-			}
-
-		}
-
-	}
-
-	// sort tracklets by state
-	sort(leftTrackCands.begin(), leftTrackCands.end());
-	sort(rightTrackCands.begin(), rightTrackCands.end());
-
-	int firstState, secondState, sector;
-	vector<int> tracklets;
-	set<int> sectorNeighbors;
-
-	// combine the leftTrackCands
-	for (int i = 0; i < leftTrackCands.size(); ++i) {
-
-		firstState = leftTrackCands[i];
-
-		// combine straight and "unfinished" tracklets only
-		if (fStartTracklets[firstState].straight
-				&& fHitNeighbors[fStartTracklets[firstState].maxID].size()
-						> 1) {
-
-			sector = fStrawMap.GetSector(fStartTracklets[firstState].maxID);
-			sectorNeighbors.clear();
-			sectorNeighbors.insert(sector);
-			sectorNeighbors.insert(fStrawMap.GetLeftSector(sector));
-			sectorNeighbors.insert(fStrawMap.GetRightSector(sector));
-
-			for (int j = i + 1; j < leftTrackCands.size(); ++j) {
-				secondState = leftTrackCands[j];
-
-				// combine with tracklets with a higher state than maxID of first tracklet
-				if (secondState > fStartTracklets[firstState].maxID) {
-
-					// is second tracklet in nearby sector?
-					if (sectorNeighbors.find(fStrawMap.GetSector(secondState))
-							!= sectorNeighbors.end()) {
-
-						tracklets.clear();
-						tracklets.push_back(firstState);
-						tracklets.push_back(secondState);
-
-						TrackletInf_t trackletInf = GetTrackletInf(tracklets);
-
-						/* it is not necessary to check riemannTrack because only tracklet with
-						 * more than 2 hits of unskewed tubes were combined.*/
-						if (trackletInf.numErrHits == 0) {
-							Combination_t combi;
-							combi.tracklets = tracklets;
-							combi.trackletInf = trackletInf;
-
-							fCombinedData.push_back(combi);
-						}
-
-						/*	old code
-						 *
-						 * // get hit-ids of both tracklets
-						 hitIDs = fStartTracklets[firstState].hitIDs;
-						 hitIDs.insert(hitIDs.end(),
-						 fStartTracklets[secondState].hitIDs.begin(),
-						 fStartTracklets[secondState].hitIDs.end());
-
-						 PndRiemannTrack riemannTrack = CreateRiemannTrack(hitIDs);
-
-						 // at least 5 riemannHits? --> fit riemannTrack and save in map
-						 if (riemannTrack.getNumHits() > 4) {
-						 riemannTrack.refit(false);
-
-						 numWrongHits = GetDeviationCount(riemannTrack);
-
-						 if (numWrongHits < 2) {
-						 Combination combi;
-
-						 vector<int> tracklets;
-						 tracklets.push_back(firstState);
-						 tracklets.push_back(secondState);
-
-						 error = CalcDeviationOfRiemannTrack(riemannTrack);
-
-						 combi.riemannTrack = riemannTrack;
-						 combi.tracklets = tracklets;
-						 combi.errSum = error;
-						 combi.numErrHits = numWrongHits;
-
-						 fCombinedData.push_back(combi);
-						 }*/
-
-					}
-
-				}
-
-			}
-		}
-	}
-
-	// combine the rightTrackCands
-	for (int i = 0; i < rightTrackCands.size(); ++i) {
-		firstState = rightTrackCands[i];
-
-		// combine straight and "unfinished" tracklets only
-		if (fStartTracklets[firstState].straight
-				&& fHitNeighbors[fStartTracklets[firstState].maxID].size()
-						> 1) {
-
-			sector = fStrawMap.GetSector(fStartTracklets[firstState].maxID);
-			sectorNeighbors.clear();
-			sectorNeighbors.insert(sector);
-			sectorNeighbors.insert(fStrawMap.GetLeftSector(sector));
-			sectorNeighbors.insert(fStrawMap.GetRightSector(sector));
-
-			for (int j = i + 1; j < rightTrackCands.size(); ++j) {
-				secondState = rightTrackCands[j];
-
-				// combine with tracklets with a higher state than maxID of first tracklet
-				if (secondState > fStartTracklets[firstState].maxID) {
-
-					// is second tracklet in nearby sector?
-					if (sectorNeighbors.find(fStrawMap.GetSector(secondState))
-							!= sectorNeighbors.end()) {
-
-						tracklets.clear();
-						tracklets.push_back(firstState);
-						tracklets.push_back(secondState);
-
-						TrackletInf_t trackletInf = GetTrackletInf(tracklets);
-
-						/* it is not necessary to check riemannTrack because only tracklet with
-						 * more than 2 hits of unskewed tubes were combined.*/
-						if (trackletInf.numErrHits == 0) {
-							Combination_t combi;
-							combi.tracklets = tracklets;
-							combi.trackletInf = trackletInf;
-
-							fCombinedData.push_back(combi);
-						}
-
-					}
-				}
-			}
-		}
-
-	}
-
-}
-
-std::set<std::pair<int, int> > PndSttCellTrackFinder::CreatePairCombis(
-		std::set<int> values) {
+std::set<std::pair<int, int> > PndSttCellTrackFinder::CreatePairCombis(int firstState, std::set<int> values) {
 	std::set < std::pair<int, int> > result;
-	if (values.size() > 2) {
-		std::set<int>::iterator iterForward = values.begin();
-		std::set<int>::iterator iterBackward = values.end();
-		std::set<int>::iterator iterOneBeforeEnd = values.end();
-		iterOneBeforeEnd--;
 
-//		SetVerbose(3);
-		if (fVerbose > 2) {
-			std::cout << "-I- PndSttCellTrackFinder::CreatePairCombis values: ";
-			for (std::set<int>::iterator iter = values.begin();
-					iter != values.end(); iter++) {
-				std::cout << *iter << " ";
-			}
-			std::cout << std::endl;
-			std::cout << "Combinations: ";
-		}
-
-		for (iterForward = values.begin(); iterForward != iterOneBeforeEnd;
-				iterForward++) {
-			iterBackward = values.end();
-			iterBackward--;
-			for (; iterBackward != iterForward; iterBackward--) {
-				if (fVerbose > 2)
-					std::cout << "(" << *iterForward << "/" << *iterBackward
-							<< ") ";
-				std::pair<int, int> createdPair(*iterForward, *iterBackward);
-				result.insert(createdPair);
-
+	if (values.count(firstState) > 0) {
+		for (std::set<int>::iterator iter = values.begin(); iter != values.end(); iter++){
+			std::pair<int, int> actualPair;
+			actualPair.first = firstState;
+			if (firstState != *iter){
+				actualPair.second = *iter;
+				result.insert(actualPair);
 			}
 		}
-		if (fVerbose > 2)
-			std::cout << std::endl;
-//		SetVerbose(0);
 	} else {
-		std::set<int>::iterator iter = values.begin();
-		std::pair<int, int> createdPair;
-		if (values.size() == 1) {
-			createdPair = std::make_pair(-1, *iter);
-		} else if (values.size() == 2) {
-			createdPair = std::make_pair(*iter, *iter++);
+		std::cout << "-E- PndSttCellTrackFinder::CreatePairCombis Value " << firstState << " is not in set: ";
+		for (std::set<int>::iterator iter = values.begin(); iter != values.end(); iter++){
+			std::cout << *iter << " ";
 		}
-		result.insert(createdPair);
+		std::cout << std::endl;
 	}
 
 	return result;
+//
+//
+//
+//	if (values.size() > 2) {
+//		std::set<int>::iterator iterForward = values.begin();
+//		std::set<int>::iterator iterBackward = values.end();
+//		std::set<int>::iterator iterOneBeforeEnd = values.end();
+//		iterOneBeforeEnd--;
+//
+////		SetVerbose(3);
+//		if (fVerbose > 2) {
+//			std::cout << "-I- PndSttCellTrackFinder::CreatePairCombis values: ";
+//			for (std::set<int>::iterator iter = values.begin();
+//					iter != values.end(); iter++) {
+//				std::cout << *iter << " ";
+//			}
+//			std::cout << std::endl;
+//			std::cout << "Combinations: ";
+//		}
+//
+//		for (iterForward = values.begin(); iterForward != iterOneBeforeEnd;
+//				iterForward++) {
+//			iterBackward = values.end();
+//			iterBackward--;
+//			for (; iterBackward != iterForward; iterBackward--) {
+//				if (fVerbose > 2)
+//					std::cout << "(" << *iterForward << "/" << *iterBackward
+//							<< ") ";
+//				std::pair<int, int> createdPair(*iterForward, *iterBackward);
+//				result.insert(createdPair);
+//
+//			}
+//		}
+//		if (fVerbose > 2)
+//			std::cout << std::endl;
+////		SetVerbose(0);
+//	} else {
+//		std::set<int>::iterator iter = values.begin();
+//		std::pair<int, int> createdPair;
+//		if (values.size() == 1) {
+//			createdPair = std::make_pair(-1, *iter);
+//		} else if (values.size() == 2) {
+//			createdPair = std::make_pair(*iter, *iter++);
+//		}
+//		result.insert(createdPair);
+//	}
+//
+//	return result;
 }
 
-void PndSttCellTrackFinder::CombineTrackletsMultiStagesOld() {
+//void PndSttCellTrackFinder::CombineTrackletsMultiStagesOld() {
 
-	map<int, TrackletInf_t>::iterator trackletIt;
-	vector<int> combinedTracklets;
-
-	int curEndID, curState, ambiguousID, numUnskewed;
-	set < pair<int, int> > pairCombinations;
-	set<pair<int, int> >::iterator pairIt;
-
-	for (trackletIt = fStartTracklets.begin();
-			trackletIt != fStartTracklets.end(); ++trackletIt) {
-
-		// there should at least be one hit of an unskewed tube
-		if ((trackletIt->second.hitIDs.size() - trackletIt->second.numSkewed)
-				> 2) {
-
-			curState = trackletIt->first;
-			curEndID = trackletIt->second.endID;
-
-			if (fVerbose > 2) {
-				cout << "Search for a combination for " << trackletIt->first
-						<< ", endID: " << curEndID << endl;
-			}
-			// find neighbor with ambiguities
-
-			if (fHitNeighbors[curEndID].size() == 2) {
-				if (fMultiStates.count(fHitNeighbors[curEndID].at(0))) {
-					ambiguousID = fHitNeighbors[curEndID].at(0);
-				} else if (fMultiStates.count(fHitNeighbors[curEndID].at(1))) {
-					ambiguousID = fHitNeighbors[curEndID].at(1);
-				} else {
-					continue;
-				}
-
-				if (fVerbose > 2) {
-					cout << "Found neighbor with multiStates: " << ambiguousID
-							<< endl;
-				}
-
-				pairCombinations = CreatePairCombis(fMultiStates[ambiguousID]);
-
-				// find pair with curState
-				for (pairIt = pairCombinations.begin();
-						pairIt != pairCombinations.end(); ++pairIt) {
-
-//					if(pairIt->first == curState){
+//	map<int, TrackletInf_t>::iterator trackletIt;
+//	vector<int> combinedTracklets;
 //
-//					}else if(pairIt->second == curState){
+//	int curEndID, curState, ambiguousID, numUnskewed;
+//	set < pair<int, int> > pairCombinations;
+//	set<pair<int, int> >::iterator pairIt;
 //
-//					}else{ continue;};
+//	for (trackletIt = fStartTracklets.begin();
+//			trackletIt != fStartTracklets.end(); ++trackletIt) {
+//
+//		// there should at least be one hit of an unskewed tube
+//		if ((trackletIt->second.hitIDs.size() - trackletIt->second.numSkewed)
+//				> 2) {
+//
+//			curState = trackletIt->first;
+//			curEndID = trackletIt->second.endID;
+//
+//			if (fVerbose > 2) {
+//				cout << "Search for a combination for " << trackletIt->first
+//						<< ", endID: " << curEndID << endl;
+//			}
+//			// find neighbor with ambiguities
+//
+//			if (fHitNeighbors[curEndID].size() == 2) {
+//				if (fMultiStates.count(fHitNeighbors[curEndID].at(0))) {
+//					ambiguousID = fHitNeighbors[curEndID].at(0);
+//				} else if (fMultiStates.count(fHitNeighbors[curEndID].at(1))) {
+//					ambiguousID = fHitNeighbors[curEndID].at(1);
+//				} else {
+//					continue;
+//				}
+//
+//				if (fVerbose > 2) {
+//					cout << "Found neighbor with multiStates: " << ambiguousID
+//							<< endl;
+//				}
+//
+//				pairCombinations = CreatePairCombis(fMultiStates[ambiguousID]);
+//
+//				// find pair with curState
+//				for (pairIt = pairCombinations.begin();
+//						pairIt != pairCombinations.end(); ++pairIt) {
+//
+////					if(pairIt->first == curState){
+////
+////					}else if(pairIt->second == curState){
+////
+////					}else{ continue;};
+//
+//					numUnskewed = fStartTracklets[pairIt->first].hitIDs.size()
+//							- fStartTracklets[pairIt->first].numSkewed
+//							+ fStartTracklets[pairIt->second].hitIDs.size()
+//							- fStartTracklets[pairIt->second].numSkewed;
+//					if (fVerbose > 2) {
+//						cout << "Pair <" << pairIt->first << ","
+//								<< pairIt->second << ">, # unskewed: "
+//								<< numUnskewed << endl;
+//					}
+//
+//					if ((pairIt->first == curState || pairIt->second == curState)
+//							&& (numUnskewed > 2)) {
+//						// found combination with curState  --> create combination
+//
+//						if (fVerbose > 2) {
+//							cout << "try to combine tracklets" << endl;
+//						}
+//
+//						combinedTracklets.clear();
+//						combinedTracklets.push_back(pairIt->first);
+//						combinedTracklets.push_back(pairIt->second);
+//
+//						TrackletInf_t trackletInf = GetTrackletInf(
+//								combinedTracklets);
+//
+//						if (trackletInf.riemannTrack.getNumHits()
+//								> fStartTracklets[curState].riemannTrack.getNumHits()
+//								&& (trackletInf.numErrHits == 0)) {
+//							Combination_t combi;
+//							combi.tracklets = combinedTracklets;
+//							combi.trackletInf = trackletInf;
+//
+//							if (fVerbose > 2) {
+//								cout << "successful approximation!" << endl;
+//							}
+//							fCombinedData.push_back(combi);
+//						}
+//
+//					}
+//				}
+//			}
+//		}
+//	}
 
-					numUnskewed = fStartTracklets[pairIt->first].hitIDs.size()
-							- fStartTracklets[pairIt->first].numSkewed
-							+ fStartTracklets[pairIt->second].hitIDs.size()
-							- fStartTracklets[pairIt->second].numSkewed;
-					if (fVerbose > 2) {
-						cout << "Pair <" << pairIt->first << ","
-								<< pairIt->second << ">, # unskewed: "
-								<< numUnskewed << endl;
-					}
-
-					if ((pairIt->first == curState || pairIt->second == curState)
-							&& (numUnskewed > 2)) {
-						// found combination with curState  --> create combination
-
-						if (fVerbose > 2) {
-							cout << "try to combine tracklets" << endl;
-						}
-
-						combinedTracklets.clear();
-						combinedTracklets.push_back(pairIt->first);
-						combinedTracklets.push_back(pairIt->second);
-
-						TrackletInf_t trackletInf = GetTrackletInf(
-								combinedTracklets);
-
-						if (trackletInf.riemannTrack.getNumHits()
-								> fStartTracklets[curState].riemannTrack.getNumHits()
-								&& (trackletInf.numErrHits == 0)) {
-							Combination_t combi;
-							combi.tracklets = combinedTracklets;
-							combi.trackletInf = trackletInf;
-
-							if (fVerbose > 2) {
-								cout << "successful approximation!" << endl;
-							}
-							fCombinedData.push_back(combi);
-						}
-
-					}
-				}
-			}
-		}
-	}
-
-}
+//}
 
 void PndSttCellTrackFinder::CombineTrackletsMultiStages() {
 
@@ -927,8 +952,7 @@ void PndSttCellTrackFinder::CombineTrackletsMultiStages() {
 
 	map<int, TrackletInf_t>::iterator trackletIt;
 
-	for (trackletIt = fStartTracklets.begin();
-			trackletIt != fStartTracklets.end(); ++trackletIt) {
+	for (trackletIt = fStartTracklets.begin(); trackletIt != fStartTracklets.end(); ++trackletIt) {
 		set<int> combi;
 		if (trackletIt->first < 104)
 			CombineTrackletsMultiStagesRecursive(trackletIt->first, combi);
@@ -949,22 +973,28 @@ void PndSttCellTrackFinder::CombineTrackletsMultiStages() {
 		}
 	}
 
+
+
 	// fit combinations
-	for (combiIt = fStateCombinations.begin();
-			combiIt != fStateCombinations.end(); ++combiIt) {
-		vector<int> tracklets;
+	for (combiIt = fStateCombinations.begin(); combiIt != fStateCombinations.end(); ++combiIt) {
+//		vector<int> tracklets;
 		TrackletInf_t trackletInf;
 
-		for (setIt = (*combiIt).begin(); setIt != (*combiIt).end(); ++setIt) {
-			tracklets.push_back(*setIt);
-		}
+//		for (setIt = (*combiIt).begin(); setIt != (*combiIt).end(); ++setIt) {
+//			tracklets.push_back(*setIt);
+//		}
 
-		trackletInf = GetTrackletInf(tracklets);
+		trackletInf = GetTrackletInf(*combiIt);
+
+		if (fVerbose > 2) {
+			std::cout << "CombiTrackletsMultiStrange: trackletInf: ";
+			trackletInf.Print();
+		}
 
 		if (trackletInf.riemannTrack.getNumHits() > 2
 				&& trackletInf.numErrHits == 0) {
 			Combination_t combi;
-			combi.tracklets = tracklets;
+			combi.tracklets = *combiIt;
 			combi.trackletInf = trackletInf;
 
 			fCombinedData.push_back(combi);
@@ -1063,20 +1093,26 @@ void PndSttCellTrackFinder::CombineTrackletsMultiStagesRecursive(
 	int combiPartner;
 
 	// get possible combination
-	pairCombinations = CreatePairCombis(fMultiStates[ambiguousID]);
+
+
+	pairCombinations = CreatePairCombis(stateToCombine, fMultiStates[ambiguousID]);
+
+	if (fVerbose > 2) {
+		std::cout << "StateToCombine " << stateToCombine << " with: ";
+		for (std::set<int>::iterator iter = fMultiStates[ambiguousID].begin(); iter != fMultiStates[ambiguousID].end(); iter++){
+			std::cout << *iter << " ";
+		}
+		std::cout << std::endl;
+		std::cout << "Gives PairCombinations: ";
+		for (std::set<std::pair<int,int> >::iterator iter = pairCombinations.begin(); iter != pairCombinations.end(); iter++){
+			std::cout << iter->first << "/" << iter->second << " ";
+		}
+		std::cout << std::endl;
+	}
 
 	// find pair with curState
-	for (pairIt = pairCombinations.begin(); pairIt != pairCombinations.end();
-			++pairIt) {
-
-		if (pairIt->first == stateToCombine) {
-			combiPartner = pairIt->second;
-		} else if (pairIt->second == stateToCombine) {
-			combiPartner = pairIt->first;
-		} else {
-			// no combination found
-			continue;
-		}
+	for (pairIt = pairCombinations.begin(); pairIt != pairCombinations.end();++pairIt) {
+		combiPartner = pairIt->second;
 
 		if (fVerbose > 2)
 			cout << "found combipartner: " << combiPartner << endl;
@@ -1111,9 +1147,9 @@ void PndSttCellTrackFinder::FindTrackletsWithoutCombi() {
 
 // fill set with states of combined tracklets
 	for (int i = 0; i < fCombinedData.size(); ++i) {
-
-		for (int j = 0; j < fCombinedData[i].tracklets.size(); ++j)
-			combinedTracklets.insert(fCombinedData[i].tracklets[j]);
+		for (set<int>::iterator iter = fCombinedData[i].tracklets.begin(); iter != fCombinedData[i].tracklets.end(); iter++) {
+			combinedTracklets.insert(*iter);
+		}
 	}
 
 	map<int, TrackletInf_t>::iterator it;
@@ -1126,40 +1162,61 @@ void PndSttCellTrackFinder::FindTrackletsWithoutCombi() {
 
 }
 
-void PndSttCellTrackFinder::CreateFurtherCombinations() {
+//void PndSttCellTrackFinder::CreateFurtherCombinations() {
+//
+//	int curSize = fCombinedData.size();
+//	Combination_t curCombi, nextCombi;
+//
+//	for (int i = 0; i < curSize; ++i) {
+//
+//		curCombi = fCombinedData[i];
+//
+////search for another combi that starts with the state of the second tracklet of the current combi
+//		for (int j = i + 1; j < curSize; ++j) {
+//
+//			nextCombi = fCombinedData[j];
+//
+//			// is there a chain?
+//			if (curCombi.tracklets[1] == nextCombi.tracklets[0]) {
+//
+//				//combine 2 two-part-combinations to 1 three-part-combination
+//				Combination_t newCombi;
+//				newCombi.tracklets.push_back(curCombi.tracklets[0]);
+//				newCombi.tracklets.push_back(curCombi.tracklets[1]);
+//				newCombi.tracklets.push_back(nextCombi.tracklets[1]);
+//				newCombi.trackletInf = GetTrackletInf(newCombi.tracklets);
+//
+//				if (newCombi.trackletInf.numErrHits == 0) {
+//					fCombinedData.push_back(newCombi);
+//					if (fVerbose > 1) {
+//						cout << "Found Combination of 3 tracklets!" << endl;
+//					}
+//				}
+//			}
+//		}
+//	}
+//
+//}
 
-	int curSize = fCombinedData.size();
-	Combination_t curCombi, nextCombi;
-
-	for (int i = 0; i < curSize; ++i) {
-
-		curCombi = fCombinedData[i];
-
-//search for another combi that starts with the state of the second tracklet of the current combi
-		for (int j = i + 1; j < curSize; ++j) {
-
-			nextCombi = fCombinedData[j];
-
-			// is there a chain?
-			if (curCombi.tracklets[1] == nextCombi.tracklets[0]) {
-
-				//combine 2 two-part-combinations to 1 three-part-combination
-				Combination_t newCombi;
-				newCombi.tracklets.push_back(curCombi.tracklets[0]);
-				newCombi.tracklets.push_back(curCombi.tracklets[1]);
-				newCombi.tracklets.push_back(nextCombi.tracklets[1]);
-				newCombi.trackletInf = GetTrackletInf(newCombi.tracklets);
-
-				if (newCombi.trackletInf.numErrHits == 0) {
-					fCombinedData.push_back(newCombi);
-					if (fVerbose > 1) {
-						cout << "Found Combination of 3 tracklets!" << endl;
-					}
-				}
+void PndSttCellTrackFinder::AssignAmbiguousHits()
+{
+	for (std::map<int, std::set<int> >::iterator iter = fMultiStates.begin(); iter != fMultiStates.end(); iter++){
+		if (iter->second.size() == 1){
+			if (fStartTracklets.count(*(iter->second.begin())) > 0){
+				fStartTracklets[*(iter->second.begin())].hitIDs.push_back(fMapTubeIdToHit[iter->first]);
+			}
+		}
+		if (iter->second.size() == 2){
+			if (fStartTracklets.count(*(iter->second.begin())) > 0){
+				PndRiemannHit hit(fHits[fMapTubeIdToHit[iter->first]]);
+				if (fStartTracklets[*(iter->second.begin())].riemannTrack.dist(&hit) < 1)
+					fStartTracklets[*(iter->second.begin())].hitIDs.push_back(fMapTubeIdToHit[iter->first]);
 			}
 		}
 	}
-
+	for (int i = 0; i < fCombinedData.size(); i++){
+		fCombinedData[i].trackletInf = GetTrackletInf(fCombinedData[i].tracklets);
+	}
 }
 
 void PndSttCellTrackFinder::AddMissingHits() {
@@ -1209,7 +1266,7 @@ bool PndSttCellTrackFinder::AddHitToBestCombi(int hitID) {
 
 	for (int i = 0; i < fCombinedData.size(); ++i) {
 
-		sectorOfCombi = fStrawMap.GetSector(fCombinedData[i].tracklets[0]);
+		sectorOfCombi = fStrawMap.GetSector(*(fCombinedData[i].tracklets.begin()));
 
 		if (sector / 3 == sectorOfCombi / 3) {
 			// combi and hit are in the same half of the STT (integer division)
@@ -1238,14 +1295,14 @@ bool PndSttCellTrackFinder::AddHitToBestCombi(int hitID) {
 }
 
 // es wird davon ausgegangen, dass nur hintereinanderliegende tracklets kombiniert werden
-TrackletInf_t PndSttCellTrackFinder::GetTrackletInf(vector<int> tracklets) {
+TrackletInf_t PndSttCellTrackFinder::GetTrackletInf(set<int> tracklets) {
 
 // sort by state of tracklets
-	sort(tracklets.begin(), tracklets.end());
+//	sort(tracklets.begin(), tracklets.end());
 
 	TrackletInf_t inf;
 	int numTracklets = tracklets.size();
-	int state, maxID, endID;
+	int state = 0, maxID = 0, endID = 0;
 	bool straight = false;
 
 	if (numTracklets > 1) {
@@ -1253,14 +1310,15 @@ TrackletInf_t PndSttCellTrackFinder::GetTrackletInf(vector<int> tracklets) {
 
 		state = 5000;
 // state of combined tracklet equals min state of all
-		for (int i = 0; i < numTracklets; ++i) {
-			state = TMath::Min(state, tracklets[i]);
+		for (set<int>::iterator iter = tracklets.begin(); iter != tracklets.end(); ++iter) {
+			state = TMath::Min(state, *iter);
 		}
+		inf.startID = state;
 
 		straight = true;
 // combined tracklet is straight if each particular tracklets are straight
-		for (int i = 0; i < numTracklets; ++i) {
-			if (fStartTracklets[tracklets[i]].straight) {
+		for (set<int>::iterator iter = tracklets.begin(); iter != tracklets.end(); ++iter) {
+			if (fStartTracklets[*iter].straight) {
 				straight = false;
 				break;
 			}
@@ -1268,23 +1326,22 @@ TrackletInf_t PndSttCellTrackFinder::GetTrackletInf(vector<int> tracklets) {
 
 		if (straight) {
 			// maxID equals the data of the last tracklet
-			maxID = fStartTracklets[tracklets[numTracklets - 1]].maxID;
+			maxID = fStartTracklets[*(--tracklets.end())].maxID;
 
 		} else {
 			// maxID is the maximum of all maxID
 			maxID = 0;
-			for (int i = 0; i < numTracklets; ++i) {
-				maxID = TMath::Max(maxID, fStartTracklets[tracklets[i]].maxID);
+			for (set<int>::iterator iter = tracklets.begin(); iter != tracklets.end(); ++iter) {
+				maxID = TMath::Max(maxID, fStartTracklets[*iter].maxID);
 			}
 		}
 // endID equals the endID of last tracklet
-		endID = fStartTracklets[tracklets[numTracklets - 1]].endID;
+		endID = fStartTracklets[*(--tracklets.end())].endID;
 
 // update hitIDs
-		for (int i = 0; i < numTracklets; ++i) {
-			inf.hitIDs.insert(inf.hitIDs.end(),
-					fStartTracklets[tracklets[i]].hitIDs.begin(),
-					fStartTracklets[tracklets[i]].hitIDs.end());
+		for (set<int>::iterator iter = tracklets.begin(); iter != tracklets.end(); ++iter) {
+			inf.hitIDs.insert(inf.hitIDs.end(),	fStartTracklets[*iter].hitIDs.begin(), fStartTracklets[*iter].hitIDs.end());
+			inf.numSkewed += fStartTracklets[*iter].numSkewed;
 		}
 
 	}

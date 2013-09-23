@@ -179,8 +179,10 @@ PndRiemannTrack::refit(bool withErrorCalc)
 
   if (nh != 0)
 	  sampleCov*=1./(double)nh;
-  else
+  else {
       	std::cout << "-E- PndRiemannTrack::refit nh == 0" << std::endl;
+      	return;
+  }
 
   if (fVerbose > 1) std::cout << "sampleCov: " << std::endl;
   if (fVerbose > 1) MatrixOutput(sampleCov);
@@ -389,7 +391,6 @@ PndRiemannTrack::szFit(bool withErrorCalc){
 	  for(unsigned int i=0;i<num;++i){
 		if (fVerbose > 1) std::cout << "Point: " << i << ": " << fHits[i].hit()->GetEntryNr() << " ";
 		if (fHits[i].hit() != 0 && fHits[i].hit()->GetEntryNr().GetType() == GetBranchId("STTHit")){
-//			std::cout << std::endl;
 			continue;
 		}
 		fHits[i].calcPosOnTrk(this);
@@ -397,16 +398,28 @@ PndRiemannTrack::szFit(bool withErrorCalc){
 		g.SetPoint(j,fHits[i].s(),fHits[i].z());
 		j++;
 	  }
-	  g.Set(j);
+	  if (j > 1){
+		g.Set(j);
 		g.Fit("pol1","Q0"); // << std::endl;
-		  TF1* f = g.GetFunction("pol1");
-		  //std::cout << "f: " << f << std::endl;
-		  ft = f->GetParameter(0);
-		  fm = f->GetParameter(1);
-		  ftError = f->GetParError(0);
-		  fmError = f->GetParError(1);
-		  fChi2   = f->GetChisquare()/f->GetNDF();
+		TF1* f = g.GetFunction("pol1");
+		//std::cout << "f: " << f << std::endl;
+		ft = f->GetParameter(0);
+		fm = f->GetParameter(1);
+		ftError = f->GetParError(0);
+		fmError = f->GetParError(1);
+		fChi2   = f->GetChisquare()/f->GetNDF();
+		fSZFitDone = true;
+	  } else {
+		  ft = 0;
+		  fm = 0;
+		  ftError = 0;
+		  fmError = 0;
+		  fChi2   = -1;
 		  fSZFitDone = true;
+
+		  if (fVerbose > 0)
+			  std::cout << "-W- PndRiemannTrack::calcSZ less than 2 points with z-Info: " << *this << std::endl;
+	  }
   } else {
 	  ft = 0;
 	  fm = 0;
@@ -1000,30 +1013,37 @@ FairTrackParP PndRiemannTrack::getTrackParPForHit(Int_t i, Double_t B)
 	calcSForHits();
 
 
-		TVector3 hitPos;
-		TVector3 hitPosError;
-		TVector3 momError(2, 2, 2);
-		TVector3 dj(1,0,0);
-		TVector3 dk(0,1,0);
-		TVector3 origin(0, 0, 1);
+	TVector3 hitPos;
+	TVector3 hitPosError;
+	TVector3 momError(2, 2, 2);
+	TVector3 dj(1,0,0);
+	TVector3 dk(0,1,0);
+	TVector3 origin(0, 0, 1);
 
-	Double_t s = getHit(i)->s();
-	getHit(i)->hit()->Position(hitPos);
-	hitPos = calcPosByS(s);
-//	getHit(i)->hit()->Position(hitPos);
-	getHit(i)->hit()->PositionError(hitPosError);
-	FairTrackParP result(hitPos, getPforHit(i, B), hitPosError, momError, getCharge(B), origin, dj, dk);
+	if (i < getNumHits()){
+		Double_t s = getHit(i)->s();
+		getHit(i)->hit()->Position(hitPos);
+		hitPos = calcPosByS(s);
+	//	getHit(i)->hit()->Position(hitPos);
+		getHit(i)->hit()->PositionError(hitPosError);
+		FairTrackParP result(hitPos, getPforHit(i, B), hitPosError, momError, getCharge(B), origin, dj, dk);
 
-	return result;
-
+		return result;
+	}
+	else {
+		return FairTrackParP();
+	}
 }
 
 PndTrack PndRiemannTrack::getPndTrack(Double_t B)
 {
-	FairTrackParP first = getTrackParPForHit(0, B);
-	FairTrackParP last = getTrackParPForHit(getNumHits()-1, B);
-	//FairTrackParP last;
+	FairTrackParP first, last;
 	PndTrackCand myCand;
+	if (getNumHits() > 0){
+		first = getTrackParPForHit(0, B);
+		last = getTrackParPForHit(getNumHits()-1, B);
+		//FairTrackParP last;
+	}
 	return PndTrack(first, last, myCand);
 }
 

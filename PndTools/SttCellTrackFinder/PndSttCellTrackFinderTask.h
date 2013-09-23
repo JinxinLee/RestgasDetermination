@@ -59,6 +59,7 @@ private:
 	// second step of trackfinding
 	TClonesArray* fCombiTrackCandArray;
 	TClonesArray* fCombiRiemannTrackArray;
+	TClonesArray* fCombiTrackArray;
 
 	//Bool_t fInitDone;
 
