@@ -993,9 +993,15 @@ TVector3 PndRiemannTrack::getPforHit(int i, double B)
 Int_t PndRiemannTrack::getCharge(Double_t B)
 {
 	TVector3 p = getPforHit(0, B);
+	Double_t s = getHit(0)->s();
+	TVector3 hitPos = calcPosByS(s);
+	TVector2 hitPos2D(hitPos.x(), hitPos.y());
+
 	TVector2 pt(p.x(), p.y());
 	TVectorD origin = orig();
 	TVector2 orig2(origin[0], origin[1]);
+
+	orig2 -= hitPos2D;
 
 	TVector2 origRotated = orig2.Rotate(-pt.Phi());
 
@@ -1005,7 +1011,6 @@ Int_t PndRiemannTrack::getCharge(Double_t B)
 		return 1;
 	else
 		return -1;
-
 }
 
 FairTrackParP PndRiemannTrack::getTrackParPForHit(Int_t i, Double_t B)
