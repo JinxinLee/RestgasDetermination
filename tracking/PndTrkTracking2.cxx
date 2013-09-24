@@ -1228,7 +1228,9 @@ void PndTrkTracking2::Exec(Option_t* opt) {
 
 //  this MUST go after the MakeInclusionListStt
 
+
  for( i= 0; i< nSttHit; i++){
+
 	if(!fInclusionListStt[i]) continue;
 //  SttStrawOn is a Short_t used in the XY track pattern finding later; it was initialized at -1;
 	SttStrawOn[ fTubeID[i] - 1 ] = i;
@@ -1614,6 +1616,11 @@ int iconta=0;
 
 	outcome = SttTrackXYFinder.FindTrackInXYProjection(&InOut);
 
+	if(!outcome){
+		if(istampa>=1){  cout<<" Loop of Clusters; this cluster (n. "<<iCluster<<
+		") has a bad outcome, no further processing.\n";}
+	}
+
 	if(!outcome)  continue;
 	if( fnMvdPixelHitsinTrack[nSttTrackCand]+
 		fnMvdStripHitsinTrack[nSttTrackCand]+
@@ -1623,6 +1630,7 @@ int iconta=0;
 	InOut.Rr = &fR[nSttTrackCand];
 
 // --------  here the track and its hits were found, filling the Inclusion list
+
 
 	for(j=0; j<fnSttParHitsinTrack[nSttTrackCand]; j++){
 		fInclusionListStt[fListSttParHitsinTrack[nSttTrackCand][j]] = false;
@@ -1975,6 +1983,8 @@ MAXSCITILHITSINTRACK,MAXSTTHITSINTRACK,fR,fOx,fOy,FI0,KAPPA);
 
 //	First cleanup based on the absence of Mvd hits
 
+//fYesCleanMvd=false;
+
 	if(fYesCleanMvd){
 
 		// reject the candidate if it is NOT contained in the pipe and
@@ -2272,7 +2282,7 @@ MAXSCITILHITSINTRACK,MAXSTTHITSINTRACK,fR,fOx,fOy,FI0,KAPPA);
 	ioData.IVOLTE = IVOLTE;
 	ioData.KAPPA = KAPPA;
 	ioData.keepit = keepit;
-	ioData.InclusionListStt = fInclusionListStt;
+	ioData.InclusionListStt = fSingleHitListStt;  // these are straws with only a single hit;
 	ioData.ListMvdPixelHitsinTrack = &fListMvdPixelHitsinTrack[0][0];
 	ioData.ListMvdStripHitsinTrack = &fListMvdStripHitsinTrack[0][0];
 	ioData.ListSciTilHitsinTrack = &fListSciTilHitsinTrack[0][0];
