@@ -53,14 +53,14 @@ using namespace std;
 
 
 // -----   Default constructor   -------------------------------------------
-PndTrkLegendreNew::PndTrkLegendreNew() : FairTask("secondary track finder", 0), fDisplayOn(kFALSE), fPersistence(kTRUE), fUseMVDPix(kTRUE), fUseMVDStr(kTRUE), fUseSTT(kTRUE), fSecondary(kFALSE), fMvdPix_RealDistLimit(1000), fMvdStr_RealDistLimit(1000), fStt_RealDistLimit(1000), fMvdPix_ConfDistLimit(1000), fMvdStr_ConfDistLimit(1000), fStt_ConfDistLimit(1000), fInitDone(kFALSE) {
+PndTrkLegendreNew::PndTrkLegendreNew() : FairTask("secondary track finder", 0), fDisplayOn(kFALSE), fPersistence(kTRUE), fUseMVDPix(kTRUE), fUseMVDStr(kTRUE), fUseSTT(kTRUE), fSecondary(kFALSE), fMvdPix_RealDistLimit(1000), fMvdStr_RealDistLimit(1000), fStt_RealDistLimit(1000), fMvdPix_ConfDistLimit(1000), fMvdStr_ConfDistLimit(1000), fStt_ConfDistLimit(1000), fInitDone(kFALSE), fUmin(-0.07), fUmax(0.07), fVmin(-0.07), fVmax(0.07), fRmin(-1.5), fRmax(1.5), fThetamin(0), fThetamax(180) {
   sprintf(fSttBranch,"STTHit");
   sprintf(fMvdPixelBranch,"MVDHitsPixel");
   sprintf(fMvdStripBranch,"MVDHitsStrip");
   PndGeoHandling::Instance();
 }
 
-PndTrkLegendreNew::PndTrkLegendreNew(int verbose) : FairTask("secondary track finder", verbose), fDisplayOn(kFALSE), fPersistence(kTRUE), fUseMVDPix(kTRUE), fUseMVDStr(kTRUE), fUseSTT(kTRUE), fSecondary(kFALSE), fMvdPix_RealDistLimit(1000), fMvdStr_RealDistLimit(1000), fStt_RealDistLimit(1000), fMvdPix_ConfDistLimit(1000), fMvdStr_ConfDistLimit(1000), fStt_ConfDistLimit(1000), fInitDone(kFALSE) {
+PndTrkLegendreNew::PndTrkLegendreNew(int verbose) : FairTask("secondary track finder", verbose), fDisplayOn(kFALSE), fPersistence(kTRUE), fUseMVDPix(kTRUE), fUseMVDStr(kTRUE), fUseSTT(kTRUE), fSecondary(kFALSE), fMvdPix_RealDistLimit(1000), fMvdStr_RealDistLimit(1000), fStt_RealDistLimit(1000), fMvdPix_ConfDistLimit(1000), fMvdStr_ConfDistLimit(1000), fStt_ConfDistLimit(1000), fInitDone(kFALSE), fUmin(-0.07), fUmax(0.07), fVmin(-0.07), fVmax(0.07), fRmin(-1.5), fRmax(1.5), fThetamin(0), fThetamax(180) {
   sprintf(fSttBranch,"STTHit");
   sprintf(fMvdPixelBranch,"MVDHitsPixel");
   sprintf(fMvdStripBranch,"MVDHitsStrip");
@@ -145,8 +145,9 @@ InitStatus PndTrkLegendreNew::Init() {
   }
 
   legendre = new PndTrkLegendreTransform();
-  if(fSecondary) legendre->SetUpLegendreHisto(90, 0, 180, 1000, -1.5, 1.5); // CHECK
-  else legendre->SetUpLegendreHisto();
+
+  if(fSecondary == kFALSE) legendre->SetUpLegendreHisto();
+  // else it will be set up cluster by cluster
   legendre->SetUpZoomHisto();
 
   conform = new PndTrkConformalTransform();
@@ -154,6 +155,7 @@ InitStatus PndTrkLegendreNew::Init() {
   tools = new PndTrkTools();
   fFitter = new PndTrkFitter(fVerbose);
   fHitMap = new PndTrkNeighboringMap(fTubeArray);
+  fTimer = new TStopwatch();
 
   return kSUCCESS;
 
@@ -282,6 +284,14 @@ void PndTrkLegendreNew::Exec(Option_t* opt) {
 
       // fitting procedure -----~~~~~-----~~~~~-----~~~~~-----~~~~~-----~~~~~-----~~~~~
       Int_t nhits = ClusterToConformal(cluster);
+      if(fSecondary) {
+	cout << ">>>>>>>>>>>>>>>>><<<<<<<<<<<<<<<<<" << endl;
+	ComputePlaneExtremities(cluster);
+	
+	int nofsteps = (int) ((fRmax - fRmin)/0.04);
+	cout << "nofsteps " << nofsteps << endl;
+	legendre->SetUpLegendreHisto(1000, fThetamin, fThetamax, 1000, fRmin, fRmax);
+      }
       PndTrkTrack *track = LegendreFit(cluster);
       if(track == NULL) continue;
       PndTrkCluster *thiscluster = CreateClusterAroundTrack(track);
@@ -353,8 +363,7 @@ void PndTrkLegendreNew::Exec(Option_t* opt) {
     if(fDisplayOn) {
       // draw old conformal line
       RefreshConf();
-      if(fSecondary) DrawGeometryConf(-1, 1, -1, 1);
-      else   DrawGeometryConf(-0.07, 0.07, -0.07, 0.07);
+      DrawGeometryConf(fUmin, fUmax, fVmin, fVmax);
       display->cd(2);
       TLine *line = new TLine(-10.07, fitp + fitm * (-10.07), 10.07, fitp + fitm * (10.07));
       line->Draw("SAME");
@@ -367,7 +376,7 @@ void PndTrkLegendreNew::Exec(Option_t* opt) {
     AnalyticalFit2(cluster2, fitm, fitp, fitm2, fitp2);
 
     double xc, yc, R;
-    FromConformalToRealTrack(fitm, fitp, xc, yc, R);
+    FromConformalToRealTrack(fitm2, fitp2, xc, yc, R);
     track->SetCenter(xc, yc);
     track->SetRadius(R);
 
@@ -384,7 +393,7 @@ void PndTrkLegendreNew::Exec(Option_t* opt) {
     Refresh();
     for(int itrk = 0; itrk < tracklist2.GetNofTracks(); itrk++) {
       PndTrkTrack *track = tracklist2.GetTrack(itrk);
-      track->Draw(kRed);
+      track->Draw(kGreen);
       display->Update();
       display->Modified();
     }
@@ -504,18 +513,18 @@ void PndTrkLegendreNew::DrawGeometry() {
  
 }
 
-void PndTrkLegendreNew::DrawGeometryConf(double x1, double y1, double x2, double y2) {
+void PndTrkLegendreNew::DrawGeometryConf(double x1, double x2, double y1, double y2) {
   // CHECK
   char goOnChar;
   //  cout << "DRAWING GEOMETRY CONF" << endl;
   // cin >> goOnChar;
   
   // CHECK previous calculations, now not used;
-  if(huv == NULL)  huv = new TH2F("huv", "uv plane", 100, x1, y1, 100, x2, y2);
+  if(huv == NULL)  huv = new TH2F("huv", "uv plane", 100, x1, x2, 100, y1, y2);
   else {
     huv->Reset(); 
-    huv->GetXaxis()->SetLimits(x1, y1);
-    huv->GetYaxis()->SetLimits(x2, y2);
+    huv->GetXaxis()->SetLimits(x1, x2);
+    huv->GetYaxis()->SetLimits(y1, y2);
    }
   display->cd(2);
   huv->Draw();
@@ -649,7 +658,7 @@ Int_t PndTrkLegendreNew::FillConformalHitList(PndTrkCluster *cluster) {
     if(hit->IsSttParallel() == kTRUE) chit = conform->GetConformalSttHit(hit);
     else continue; // CHECK  chit = conform->GetConformalHit(hit); // CHECK
     conformalhitlist->AddHit(chit);  
-    //    cout << hit->GetPosition().X() << " " << hit->GetPosition().Y() << " " << hit->IsSttParallel() << " " << " to CONFORMAL " << chit->GetU() << " " << chit->GetV() << " " << chit->GetIsochrone() << endl;   
+    // cout << hit->GetPosition().X() << " " << hit->GetPosition().Y() << " " << hit->GetIsochrone() << " " << hit->IsSttParallel() << " " << " to CONFORMAL " << chit->GetU() << " " << chit->GetV() << " " << chit->GetIsochrone() << endl;
 
   }
   return conformalhitlist->GetNofHits();
@@ -804,10 +813,53 @@ void PndTrkLegendreNew::ComputeTraAndRot(PndTrkHit *hit, Double_t &delta, Double
   delta = 0.; // TMath::ATan2(hit->GetPosition().Y() - 0., hit->GetPosition().X() - 0.); // CHECK 
   
 }
-ClassImp(PndTrkLegendreNew)
 
+void PndTrkLegendreNew::ComputePlaneExtremities(PndTrkCluster *cluster) {
+  fUmin =  1000, fVmin =  1000, fRmin =  1000;
+  fUmax = -1000, fVmax = -1000, fRmax = -1000;
+  double rc_of_min, rc_of_max;
+  
+  
+  for(int ihit = 0; ihit < conformalhitlist->GetNofHits(); ihit++) {
+    PndTrkConformalHit *chit = conformalhitlist->GetHit(ihit);
+    double u = chit->GetU();
+    double v = chit->GetV();
+    double rc = chit->GetIsochrone();
+    u - rc < fUmin ? fUmin = u - rc : fUmin;
+    v - rc < fVmin ? fVmin = v - rc : fVmin;
+    u + rc > fUmax ? fUmax = u + rc : fUmax;
+    v + rc > fVmax ? fVmax = v + rc : fVmax;
+    
+    double theta1 = TMath::ATan2(v, u);
+    double theta2 = theta1 + TMath::Pi();
+    
+    double r1 = u * TMath::Cos(theta1) + v * TMath::Sin(theta1);
+    double r2 = u * TMath::Cos(theta2) + v * TMath::Sin(theta2);
+    
+    double rimin, rimax;
+    r1 < r2 ? (rimin = r1, rimax = r2) : (rimin = r2, rimax = r1);
+    
+    rimin < fRmin ? (rc_of_min = rc, fRmin = rimin) : fRmin;
+    rimax > fRmax ? (rc_of_max = rc, fRmax = rimax) : fRmax;
+  }
+  
+  fRmin -= rc_of_min;
+  fRmax += rc_of_max;
+  
+  // to square the conformal plane
+  double du = fUmax - fUmin;
+  double dv = fVmax - fVmin;
+  double delta = fabs(dv - du)/2.;
+  du < dv ? (fUmin -= delta, fUmax += delta) : (fVmin -= delta, fVmax += delta);
+  
+  cout << "u_min " << fUmin << " u_max " << fUmax << endl;
+  cout << "v_min " << fVmin << " v_max " << fVmax << endl;
+  cout << "r_min " << fRmin << " r_max " << fRmax << endl;
+  cout << "theta_min 0 theta_max 180" << endl;
+  
+  
+}
 
- 
 void PndTrkLegendreNew::FillLegendreHisto(PndTrkCluster *cluster)
 {
   // ---------------------------------------------------------------
@@ -832,31 +884,11 @@ void PndTrkLegendreNew::RePrepareLegendre(PndTrkCluster *cluster) {
  
   if(fDisplayOn) {
     RefreshConf();
-    if(fSecondary) DrawGeometryConf(-1, 1, -1, 1);
-    else   DrawGeometryConf(-0.07, 0.07, -0.07, 0.07);
+    DrawGeometryConf(fUmin, fUmax, fVmin, fVmax);
   }
   // cout << "%%%%%%%%%%%%%%%%%%%% XY FINDE %%%%%%%%%%%%%%%%%%%%%%%%%%" << endl;
   FillLegendreHisto(cluster);
 }
-
-// void PndTrkLegendreNew::PrepareLegendre() {
-
-//   //    cout << "RESETTING LEGENDRE HISTO" << endl;
-//   legendre->ResetLegendreHisto();
- 
-//   if(fDisplayOn) {
-//     RefreshConf();
-//     if(fSecondary) DrawGeometryConf(-1., 1., -1., 1.);
-//     else   DrawGeometryConf(-0.07, 0.07, -0.07, 0.07);
-//   }
-//   if(fVerbose > 1) cout << "%%%%%%%%%%%%%%%%%%%% XY FINDER %%%%%%%%%%%%%%%%%%%%%%%%%%" << endl;
-//   FillLegendreHisto(0);
-// }
-
-// Int_t PndTrkLegendreNew::ApplyLegendre(double &theta_max, double &r_max) {
-//   PrepareLegendre();
-//   return ExtractLegendre(0, theta_max, r_max);
-// }
 
 Int_t PndTrkLegendreNew::ApplyLegendre(PndTrkCluster *cluster, double &theta_max, double &r_max) {
   RePrepareLegendre(cluster);
@@ -888,7 +920,7 @@ Int_t  PndTrkLegendreNew::ExtractLegendre(Int_t mode, double &theta_max, double 
 
     if(maxpeak <= 3) {
       //      if(fVerbose > 1)
-     	cout << "\033[1;31m MAXPEAK " << maxpeak <<  ", BREAK NOW! \033[0m" << endl;
+      cout << "\033[1;31m MAXPEAK " << maxpeak <<  ", BREAK NOW! \033[0m" << endl;
       return maxpeak;
     }
   
@@ -1322,14 +1354,14 @@ Int_t PndTrkLegendreNew::ClusterToConformal(PndTrkCluster *cluster) {
 PndTrkTrack * PndTrkLegendreNew::LegendreFit(PndTrkCluster *cluster) {
 
   cout << "APPLY LEGENDRE =======================" << endl;
+  cout << "nof hits " << cluster->GetNofHits() << endl;
 
   // reset the legendre histo for a new legendre fit
   legendre->ResetLegendreHisto();
   
   if(fDisplayOn) {
     RefreshConf();
-    if(fSecondary) DrawGeometryConf(-1, 1, -1, 1);
-    else   DrawGeometryConf(-0.07, 0.07, -0.07, 0.07);
+    DrawGeometryConf(fUmin, fUmax, fVmin, fVmax);
   }
   
   // fill legendre histo with the cluster hits
@@ -1338,7 +1370,7 @@ PndTrkTrack * PndTrkLegendreNew::LegendreFit(PndTrkCluster *cluster) {
   // get the peak
   int maxpeak = ExtractLegendre(1, theta_max, r_max); // CHECK mode??
           
-  if(maxpeak == 0) return NULL;
+  if(maxpeak < 4) return NULL; // CHECK
   // from theta/r to line parameters in CONFORMAL plane 
   double fitm, fitq;
   legendre->ExtractLegendreSingleLineParameters(fitm, fitq);
@@ -1379,7 +1411,7 @@ PndTrkCluster * PndTrkLegendreNew::CreateClusterAroundTrack(PndTrkTrack *track) 
   
   if(fDisplayOn) {
     display->cd(1);
-    track->Draw(kRed);
+    track->Draw(kBlue);
     
     TArc *arcmin = new TArc(xc, yc, rmin);
     TArc *arcmax = new TArc(xc, yc, rmax);
@@ -1601,6 +1633,9 @@ void PndTrkLegendreNew::AnalyticalFit2(PndTrkCluster *cluster, double fitm, doub
 	mrk->Draw("SAME");
 
 	display->cd(2);
+	chit->Draw(1);
+
+	display->cd(2);
 	TMarker *mrk2 = new TMarker(chit->GetPosition().X(), chit->GetPosition().Y(), 6);
 	mrk2->SetMarkerColor(kRed);
 	mrk2->Draw("SAME");
@@ -1752,3 +1787,5 @@ void PndTrkLegendreNew::IntersectionFinder(PndTrkHit *hit, double xc, double yc,
     
     delete xy;
 }
+
+ClassImp(PndTrkLegendreNew)

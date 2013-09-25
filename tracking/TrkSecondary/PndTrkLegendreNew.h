@@ -66,16 +66,17 @@ class PndTrkLegendreNew : public FairTask {
   void DrawNeighboringsToHit(PndTrkHit *hit);
   void Refresh();
   void RefreshConf(); 
-  void DrawGeometryConf(double x1, double y1, double x2, double y2) ;
+  void DrawGeometryConf(double x1, double x2, double y1, double y2);
   void DrawConfHit(double x, double y, double r, int marker = 2);
 
   void LightCluster(PndTrkCluster *cluster);
   void DrawLegendreHisto();
 
+  void ComputePlaneExtremities(PndTrkCluster *cluster);
 
   Int_t FillConformalHitList(PndTrkCluster *cluster);
   void FillLegendreHisto(PndTrkCluster *cluster);
- void  ComputeTraAndRot(PndTrkHit *hit, Double_t &delta, Double_t trasl[2]);
+  void ComputeTraAndRot(PndTrkHit *hit, Double_t &delta, Double_t trasl[2]);
   PndTrkHit *FindSttReferenceHit(int isec = -1);
   PndTrkHit *FindMvdPixelReferenceHit();
   PndTrkHit *FindMvdStripReferenceHit();
@@ -85,8 +86,6 @@ class PndTrkLegendreNew : public FairTask {
 
 
   void RePrepareLegendre(PndTrkCluster *cluster);
- /*  void PrepareLegendre(); */
-/*   Int_t ApplyLegendre(double &theta_max, double &r_max); */
   Int_t ApplyLegendre(PndTrkCluster *cluster, double &theta_max, double &r_max);
   Int_t ExtractLegendre(Int_t mode, double &theta_max, double &r_max);
 
@@ -175,7 +174,8 @@ class PndTrkLegendreNew : public FairTask {
   PndTrkFitter *fFitter;
 
   PndTrkNeighboringMap *fHitMap;
-  
+  double fUmin, fUmax, fVmin, fVmax, fRmin, fRmax, fThetamin, fThetamax;
+
   // display
   Bool_t fDisplayOn;
   TH2F *hxy, *hxz, *hzphi;
