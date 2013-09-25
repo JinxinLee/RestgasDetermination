@@ -59,6 +59,26 @@ void PndTrkConformalTransform::PerformConformalTransformation(double x, double y
 }
 
 
+void PndTrkConformalTransform::PerformRealTransformation(double u, double v, double rc, double &x, double &y, double &rd)
+{
+  // conf ->> real
+  double xrot, yrot;
+  xrot = GetXConf(u, v, rc);
+  yrot = GetYConf(u, v, rc);
+  rd = GetRConf(u, v, rc);
+  
+  // re-rotation
+  Double_t xtrasl, ytrasl;
+  xtrasl = TMath::Cos(fAngle) * xrot - TMath::Sin(fAngle) * yrot;
+  ytrasl = TMath::Sin(fAngle) * xrot + TMath::Cos(fAngle) * yrot;
+
+  // re-traslation
+  x = xtrasl + fTrasl.X();
+  y = ytrasl + fTrasl.Y();
+
+}
+
+
 PndTrkConformalHit *PndTrkConformalTransform::GetConformalSttHit(PndTrkHit *hit) {
   TVector3 position = hit->GetPosition();
   Double_t rd = hit->GetIsochrone();

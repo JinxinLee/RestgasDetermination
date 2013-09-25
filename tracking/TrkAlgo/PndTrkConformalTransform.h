@@ -18,6 +18,7 @@ class PndTrkConformalTransform : public TObject {
   Double_t GetRotation() { return fAngle; }
 
   void PerformConformalTransformation(double x, double y, double rd, double &u, double &v, double &rc);
+  void PerformRealTransformation(double u, double v, double rc, double &x, double &y, double &rd);
 
   PndTrkConformalHit *GetConformalSttHit(PndTrkHit *hit);
   PndTrkConformalHit * GetConformalHit(PndTrkHit *hit);

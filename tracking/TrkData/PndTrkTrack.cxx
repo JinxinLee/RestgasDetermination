@@ -224,10 +224,11 @@ Double_t PndTrkTrack::ComputePhi(TVector3 hit)
   // +   -    -90/0      phi + 360
   
   double phi = fromcentertohit.Phi();
-  if(fromcentertohit.Y() < 0) phi += TMath::Pi();
+  if(fromcentertohit.Y() < 0) phi += (2 * TMath::Pi());
+  cout << "final phi in rad " << phi << endl;
   return phi * TMath::RadToDeg();
 }
- 
+
 
 // =======================================================================================
 void PndTrkTrack::Draw(Color_t color) {

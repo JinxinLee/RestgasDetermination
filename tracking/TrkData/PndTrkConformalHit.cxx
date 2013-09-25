@@ -69,7 +69,7 @@ void PndTrkConformalHit::Draw(Color_t color) {
     mrk->Draw("SAME");
   }
   if(arc) {
-    arc->SetFillColor(color);
+    arc->SetFillStyle(0);
     arc->SetLineColor(color);
     arc->Draw("SAME");
   }
