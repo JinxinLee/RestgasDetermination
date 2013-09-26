@@ -94,6 +94,9 @@ target_link_libraries(createRootGeometry_beampipe ${ROOT_LIBRARIES} Geom GeoBase
 add_executable(read_jost_fieldmaps read_jost_fieldmaps.cxx)
 target_link_libraries(read_jost_fieldmaps ${ROOT_LIBRARIES} Base Field Passive Geom GeoBase)
 
+add_executable(visualize_fieldmaps visualize_fieldmaps.cxx)
+target_link_libraries(visualize_fieldmaps ${ROOT_LIBRARIES} Base Field Passive Geom GeoBase)
+
 #add_executable(lumi_simbox runLumiSimBox.cxx)
 #target_link_libraries(lumi_simbox ${ROOT_LIBRARIES} Lmd Sds Base ParBase Field Passive Geom GeoBase Gen Pluto PndData TrkBase generalTools MathMore)
 # Gen dependencies:  EG MathCore Physics RIO Cint Core 
