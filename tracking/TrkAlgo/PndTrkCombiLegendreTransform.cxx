@@ -65,49 +65,81 @@ void PndTrkCombiLegendreTransform::ResetLegendreHisto() {
 }
 
 
-void PndTrkCombiLegendreTransform::FillHisto(TH2F *histo, double thetamin, double thetamax, double x1, double y1, double r1, double x2, double y2, double r2) {
+void PndTrkCombiLegendreTransform::FillHisto(TH2F *histo, double x1, double y1, double r1, double x2, double y2, double r2)
+{
+  double theta, r;
+  ComputeThetaR(x1, y1, r1, x2, y2, r2, theta, r); 
+  histo->Fill(theta * TMath::RadToDeg(), r);
+}
+
+void PndTrkCombiLegendreTransform::ComputeThetaR(double x1, double y1, double r1, double x2, double y2, double r2, double &theta, double &r) 
+{
 
   double dx = x1 - x2;
   double dy = y1 - y2;
-  double dr[4] = {r1 - r2, r1 + r2, -r1 - r2, -r1 + r2};
 
-  //  cout << endl;
-  //   cout << "1: x " << x1 << " y " << y1 << " rd " << r1 << endl;
-  //   cout << "2: x " << x2 << " y " << y2 << " rd " << r2 << endl;
-  //   cout << "dx " << dx << " dy " << dy << " dr: " << dr[0] << " " << dr[1] << " " << dr[2] << " " << dr[3] << endl;
+  if(r1 == 0 && r2 == 0) {                                    // two points
+    theta = TMath::ATan2(-dx, dy);
+    r = x1 * TMath::Cos(theta) + y1 * TMath::Sin(theta);
+   //    cout << "2points "  << theta * TMath::RadToDeg() << "/ r "  << r << endl;
+  }
+  else if(r1 > 0 && r2 > 0) {                                 // two circles
+    double dr[4] = {r1 - r2, r1 + r2, -r1 - r2, -r1 + r2};
+    for(int ir = 0; ir < 4; ir++) {
 
-
-  for(int ir = 0; ir < 4; ir++) {
-
-    double alpha = TMath::ATan2(dy, dx);
-    if(dy < 0) alpha += (2 * TMath::Pi());
+      double alpha = TMath::ATan2(dy, dx);
+      if(dy < 0) alpha += (2 * TMath::Pi());
 	  
-    double distance = TMath::Sqrt(dx * dx  + dy * dy);
-    double theta  = alpha + TMath::ACos(-dr[ir]/distance);
+      double distance = TMath::Sqrt(dx * dx  + dy * dy);
+      theta  = alpha + TMath::ACos(-dr[ir]/distance);
 
-    while(theta < 0) theta += TMath::Pi();
-    while(theta > TMath::Pi()) theta -= TMath::Pi();
+      while(theta < 0) theta += TMath::Pi();
+      while(theta > TMath::Pi()) theta -= TMath::Pi();
 
-    // try all the combinations (++ +- -+ --) and...
-    double rA[2], rB[2];
-    rA[0] = x1 * TMath::Cos(theta) + y1 * TMath::Sin(theta) - r1;
-    rA[1] = x1 * TMath::Cos(theta) + y1 * TMath::Sin(theta) + r1;
-    rB[0] = x2 * TMath::Cos(theta) + y2 * TMath::Sin(theta) - r2;
-    rB[1] = x2 * TMath::Cos(theta) + y2 * TMath::Sin(theta) + r2;
+      // try all the combinations (++ +- -+ --) and...
+      double rA[2], rB[2];
+      rA[0] = x1 * TMath::Cos(theta) + y1 * TMath::Sin(theta) - r1;
+      rA[1] = x1 * TMath::Cos(theta) + y1 * TMath::Sin(theta) + r1;
+      rB[0] = x2 * TMath::Cos(theta) + y2 * TMath::Sin(theta) - r2;
+      rB[1] = x2 * TMath::Cos(theta) + y2 * TMath::Sin(theta) + r2;
 
-    double r = -999;
-    // ...get the one where curve A and curve B have the same r --> they cross
-    if(fabs(rA[0] - rB[0]) < 1e-10 || fabs(rA[0] - rB[1]) < 1e-10) r = rA[0];
-    else if(fabs(rA[1] - rB[0]) < 1e-10 || fabs(rA[1] - rB[1]) < 1e-10) r = rA[1];
+      // ...get the one where curve A and curve B have the same r --> they cross
+      if(fabs(rA[0] - rB[0]) < 1e-10 || fabs(rA[0] - rB[1]) < 1e-10) r = rA[0];
+      else if(fabs(rA[1] - rB[0]) < 1e-10 || fabs(rA[1] - rB[1]) < 1e-10) r = rA[1];
 
-    histo->Fill(theta * TMath::RadToDeg(), r);
-    //   cout << "ir " << ir << " theta " << theta * TMath::RadToDeg() << "/ r "  << r << endl;
+      //   cout << "2circles "  << theta * TMath::RadToDeg() << "/ r "  << r << endl;
+      //   cout << "ir " << ir << " theta " << theta * TMath::RadToDeg() << "/ r "  << r << endl;
+    }
+  }
+  else {                                                         // one point/one circle
+    double rj;
+    if(r1 > 0) rj = r1;
+    else rj = r2;
+
+    double dr[2] = {-rj, rj};
+    for(int ir = 0; ir < 2; ir++) {
+
+      double alpha = TMath::ATan2(dy, dx);
+      if(dy < 0) alpha += (2 * TMath::Pi());
+	  
+      double distance = TMath::Sqrt(dx * dx  + dy * dy);
+      theta  = alpha + TMath::ACos(dr[ir]/distance);
+
+      while(theta < 0) theta += TMath::Pi();
+      while(theta > TMath::Pi()) theta -= TMath::Pi();
+
+      if(r1 > 0) r = x2 * TMath::Cos(theta) + y2 * TMath::Sin(theta);
+      else r = x1 * TMath::Cos(theta) + y1 * TMath::Sin(theta);
+      //   cout << "1pt/1cir "  << theta * TMath::RadToDeg() << "/ r "  << r << endl;
+
+      //   cout << "ir " << ir << " theta " << theta * TMath::RadToDeg() << "/ r "  << r << endl;
+    }
   }
 }
 
 
 void PndTrkCombiLegendreTransform::FillLegendreHisto(double x1, double y1, double radius1, double x2, double y2, double radius2) {
-  FillHisto(fhLegendre, fThetaMin, fThetaMax, x1, y1, radius1, x2, y2, radius2);
+  FillHisto(fhLegendre, x1, y1, radius1, x2, y2, radius2);
 }
 
 void PndTrkCombiLegendreTransform::Draw() {

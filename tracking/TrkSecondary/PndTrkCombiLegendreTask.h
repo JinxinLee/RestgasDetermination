@@ -118,7 +118,7 @@ class PndTrkCombiLegendreTask : public FairTask {
   void FillHitMap();
 
   void FillPeakCouplesHisto(PndTrkCluster *cluster);
-
+  void FillPeakNeighCouplesHisto(PndTrkCluster *cluster);
 
 
  private:

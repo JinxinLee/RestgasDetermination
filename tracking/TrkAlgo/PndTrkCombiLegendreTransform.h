@@ -15,9 +15,9 @@ class PndTrkCombiLegendreTransform : public TObject {
   void SetUpLegendreHisto(double thetaNofBin, double thetaMin, double thetaMax, double rNofBin, double rMin, double rMax);
   void ResetLegendreHisto();
  
-
-  void FillHisto(TH2F *histo, double thetamin, double thetamax, double x1, double y1, double r1, double x2, double y2, double r2);
   void FillLegendreHisto(double x1, double y1, double radius1, double x2, double y2, double radius2);
+  void FillHisto(TH2F *histo, double x1, double y1, double r1, double x2, double y2, double r2);
+  void ComputeThetaR(double x1, double y1, double r1, double x2, double y2, double r2, double &theta, double &r);
 
   int ExtractLegendreMaximum(double &theta_max, double &r_max); 
   int ExtractMaximumFromHisto(TH2F *histo, double &theta_max, double &r_max);

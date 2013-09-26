@@ -236,8 +236,7 @@ void PndTrkCombiLegendreTask::Exec(Option_t* opt) {
   FillHitMap();
   // ##########################################################
 
-  //
-  fDisplayOn = kFALSE;
+  //  fDisplayOn = kFALSE;
 
   // --------- NO CLUSTERING -----------
   PndTrkCluster *cluster = new PndTrkCluster();
@@ -292,9 +291,9 @@ void PndTrkCombiLegendreTask::Exec(Option_t* opt) {
 	cout << ">>>>>>>>>>>>>>>>><<<<<<<<<<<<<<<<<" << endl;
 	ComputePlaneExtremities(cluster);
 
-	int nofsteps = (int) ((fRmax - fRmin)/0.04);
-	cout << "nofsteps " << nofsteps << endl;
-	legendrecombi->SetUpLegendreHisto(6000, fThetamin, fThetamax, 1000, fRmin, fRmax);
+// 	int nofsteps = (int) ((fRmax - fRmin)/0.04);
+// 	cout << "nofsteps " << nofsteps << endl;
+// 	legendrecombi->SetUpLegendreHisto(1000, fThetamin, fThetamax, 1000, fRmin, fRmax);
       }
       
     
@@ -390,7 +389,7 @@ void PndTrkCombiLegendreTask::Exec(Option_t* opt) {
 	maxnoftracks++;
       }
   }
-  fDisplayOn = kFALSE;
+  //  fDisplayOn = kFALSE;
 
 
   cout << "tracklist is " << tracklist.GetNofTracks() << endl;
@@ -430,9 +429,9 @@ void PndTrkCombiLegendreTask::Exec(Option_t* opt) {
       cout << ">>>>>>>>>>>>>>>>><<<<<<<<<<<<<<<<<" << endl;
       ComputePlaneExtremities(cluster);
       
-      int nofsteps = (int) ((fRmax - fRmin)/0.04);
-      cout << "nofsteps " << nofsteps << endl;
-      legendrecombi->SetUpLegendreHisto(1000, fThetamin, fThetamax, 1000, fRmin, fRmax);
+//       int nofsteps = (int) ((fRmax - fRmin)/0.04);
+//       cout << "nofsteps " << nofsteps << endl;
+//       legendrecombi->SetUpLegendreHisto(1000, fThetamin, fThetamax, 1000, fRmin, fRmax);
     }
     
     
@@ -923,50 +922,21 @@ void PndTrkCombiLegendreTask::ComputePlaneExtremities(PndTrkCluster *cluster) {
        double u2 = chit2->GetU();
        double v2 = chit2->GetV();
        double rc2 = chit2->GetIsochrone();
-     
-       double dx = u - u2;
-       double dy = v - v2;
-       double dr[4] = {rc - rc2, rc + rc2, -rc - rc2, -rc + rc2};
-     
-       for(int ir = 0; ir < 4; ir++) {
+
+       double theta, r;
+       legendrecombi->ComputeThetaR(u, v, rc, u2, v2, rc2, theta, r);
        
-	 double alpha = TMath::ATan2(dy, dx);
-	 if(dy < 0) alpha += (2 * TMath::Pi());
-	  
-	 double distance = TMath::Sqrt(dx * dx  + dy * dy);
-	 double theta  = alpha + TMath::ACos(-dr[ir]/distance);
-
-	 while(theta < 0) theta += TMath::Pi();
-	 while(theta > TMath::Pi()) theta -= TMath::Pi();
-
-	 // try all the combinations (++ +- -+ --) and...
-	 double rA[2], rB[2];
-	 rA[0] = u * TMath::Cos(theta) + v * TMath::Sin(theta) - rc;
-	 rA[1] = u * TMath::Cos(theta) + v * TMath::Sin(theta) + rc;
-	 rB[0] = u2 * TMath::Cos(theta) + v2 * TMath::Sin(theta) - rc2;
-	 rB[1] = u2 * TMath::Cos(theta) + v2 * TMath::Sin(theta) + rc2;
-
-	 double r = -999;
-	 // ...get the one where curve A and curve B have the same r --> they cross
-	 if(fabs(rA[0] - rB[0]) < 1e-10 || fabs(rA[0] - rB[1]) < 1e-10) r = rA[0];
-	 else if(fabs(rA[1] - rB[0]) < 1e-10 || fabs(rA[1] - rB[1]) < 1e-10) r = rA[1];
-
-	 if(r < fRmin) {
-	   fRmin = r;
-	   rc < rc2 ? rc_of_min = rc : rc_of_min = rc2;
-	 }
-	 if(r > fRmax) {
-	   fRmax = r;
-	   rc < rc2 ? rc_of_max = rc2 : rc_of_max = rc;
-	 }
+       if(r < fRmin) {
+	 fRmin = r;
+	 rc < rc2 ? rc_of_min = rc : rc_of_min = rc2;
+       }
+       if(r > fRmax) {
+	 fRmax = r;
+	 rc < rc2 ? rc_of_max = rc2 : rc_of_max = rc;
        }
      }
-     
    }
-    
-   fRmin -= rc_of_min;
-   fRmax += rc_of_max;
-
+   
    // to square the conformal plane
    double du = fUmax - fUmin;
    double dv = fVmax - fVmin;
@@ -982,14 +952,104 @@ void PndTrkCombiLegendreTask::ComputePlaneExtremities(PndTrkCluster *cluster) {
 }
 
 
+void PndTrkCombiLegendreTask::FillPeakNeighCouplesHisto(PndTrkCluster *cluster)
+{
+  fTimer->Start();
+
+  std::vector< std::pair<int, int> > usedcouples;
+  for(int ihit = 0; ihit < conformalhitlist->GetNofHits(); ihit++) {
+    PndTrkConformalHit *chit = conformalhitlist->GetHit(ihit);
+    PndTrkHit *hit = chit->GetHit();
+   if(fDisplayOn) { 
+      display->cd(2);
+      chit->Draw(1);
+    }
+ //    cout << "---------- HIT ihit " << ihit <<  endl;
+ //    if(fDisplayOn) { 
+//       Refresh();
+//       display->cd(1);
+//       hit->DrawTube(kBlue);
+//       display->Update();
+//       display->Modified();
+//       char goOnchar;
+//       //  cin >> goOnchar;
+//     }
+
+    TObjArray *neighborings = fHitMap->GetNeighboringsToHit(hit);
+    if(neighborings->GetEntriesFast() == 0) continue;
+
+    for(int jhit = 0; jhit < neighborings->GetEntriesFast(); jhit++) {
+      PndTrkHit *hit2 = (PndTrkHit*) neighborings->At(jhit);
+
+  //     cout << "jhit " << jhit << " ";
+  //     if(fDisplayOn) { 
+// 	display->cd(1);
+// 	hit2->DrawTube(kOrange);
+// 	display->Update();
+// 	display->Modified();
+// 	char goOnchar;
+// 	//	cin >> goOnchar;
+//       }
+
+      for(int khit = 0; khit < conformalhitlist->GetNofHits(); khit++) {
+	PndTrkConformalHit *chit2 = conformalhitlist->GetHit(khit);
+	if(hit2 != chit2->GetHit()) continue;
+
+	std::pair< int, int > thiscouple(hit->GetHitID(), hit2->GetHitID());
+	std::pair< int, int > thisrevcouple(hit2->GetHitID(), hit->GetHitID());
+
+	if((find(usedcouples.begin(), usedcouples.end(), thiscouple) != usedcouples.end()) || 
+	   (find(usedcouples.begin(), usedcouples.end(), thisrevcouple) != usedcouples.end()))
+	  {
+// 	    cout << "ALREADY USED" << endl;
+	//     if(fDisplayOn) { 
+// 	      display->cd(1);
+// 	      hit2->DrawTube(kRed);
+// 	      display->Update();
+// 	      display->Modified();
+// 	      char goOnchar;
+// 	      // cin >> goOnchar;
+// 	    }
+	  
+	  break;
+	  }
+// 	cout << "ADDED" << endl;
+// 	if(fDisplayOn) { 
+// 	  display->cd(1);
+// 	  hit2->DrawTube(kGreen);
+// 	  display->cd(4);
+// 	  legendrecombi->Draw();
+// 	  display->Update();
+// 	  display->Modified();
+// 	  char goOnchar;
+// 	  // cin >> goOnchar;
+// 	}
+	
+//	cout << "couple " << usedcouples.size() << " " << hit->GetHitID() << " " << hit2->GetHitID() << endl;
+	legendrecombi->FillLegendreHisto(chit->GetU(), chit->GetV(), chit->GetIsochrone(), chit2->GetU(), chit2->GetV(), chit2->GetIsochrone());
+	usedcouples.push_back(thiscouple);
+	break;
+      }
+    }
+  }
+
+  fTimer->Stop();
+  cout << "fill peak legendre histo " << fTimer->RealTime() << endl;
+
+  if(fDisplayOn) { 
+    display->cd(4);
+    legendrecombi->Draw();
+    display->Update();
+    display->Modified();
+    char goOnchar;
+    cin >> goOnchar;
+  }
+}
+
+
+
 void PndTrkCombiLegendreTask::FillPeakCouplesHisto(PndTrkCluster *cluster)
 {
-  // ---------------------------------------------------------------
-  //  cout << "FILL LEGENDRE HISTO " << cluster->GetNofHits() << endl;
-  //  PndTrkCombiLegendreTransform *legendrecombi = new PndTrkCombiLegendreTransform();
-
-  legendrecombi->SetUpLegendreHisto(1000, fThetamin, fThetamax, 1000, fRmin, fRmax);
-
   fTimer->Start();
   for(int ihit = 0; ihit < conformalhitlist->GetNofHits(); ihit++) {
     PndTrkConformalHit *chit = conformalhitlist->GetHit(ihit);
@@ -1401,6 +1461,7 @@ PndTrkTrack * PndTrkCombiLegendreTask::LegendreFit(PndTrkCluster *cluster) {
   cout << "APPLY LEGENDRE =======================" << endl;
   cout << "nof hits " << cluster->GetNofHits() << endl;
   // reset the legendre histo for a new legendre fit
+  legendrecombi->SetUpLegendreHisto(6000, fThetamin, fThetamax, 1000, fRmin, fRmax);
   legendrecombi->ResetLegendreHisto();
   
   if(fDisplayOn) {
@@ -1412,9 +1473,11 @@ PndTrkTrack * PndTrkCombiLegendreTask::LegendreFit(PndTrkCluster *cluster) {
   // ---------------------------------------
   // NEW LEGENDRE WITH ONLY PEAKS
   FillPeakCouplesHisto(cluster);
+  // FillPeakNeighCouplesHisto(cluster);
   double theta_max;
   double r_max;
   int maxpeak =  legendrecombi->ExtractLegendreMaximum(theta_max, r_max);
+  cout << " MAX PEAK " << maxpeak << endl;
   if(maxpeak <= 3) return NULL;
 
   double fitm, fitq;
