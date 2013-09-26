@@ -21,7 +21,7 @@ PndGeoDrc::PndGeoDrc() {
   maxModules=20;
   
   // mean refraction index of fused silica (for reconstruction)
-  fNquartz      = 1.46907;    //(Lambda = 410 nm for EV filled with FS)//1.47383;//1.47248;//1.47125;//1.47012;//1.46907;
+  fNquartz      = 1.497;//Lambda = 400 nm//1.46907;    //(Lambda = 410 nm for EV filled with FS)
   fNEV		= 1.47;       // oil ondex of refraction
   fRoughness	= 0.001;      // [nm] = 10A, roughness of the quartz bar surface
   fGlueLayer	= 0.0025;     // [cm]
@@ -46,7 +46,7 @@ PndGeoDrc::PndGeoDrc() {
   fEVlength     = 30.;        // [cm] Length of expansion volume
   fEVdrop	= 0; //-(fBoxThick+fBoxGap);   // [cm] drop of the EV - inner radius (used only with prism)
   fEVoffset	= 0;	      // [cm] offset of the EV - outer radius  
-  fEVbackAngle  = 70.;	      // [degrees] angle between the PD surface and the Z axis, default = 90.
+  fEVbackAngle  = 90.;	      // [degrees] angle between the PD surface and the Z axis, default = 90.
   
   // prism parameters:
   fPhLength	=  4.5;       // [cm] half length of the prism
