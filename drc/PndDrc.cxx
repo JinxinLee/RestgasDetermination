@@ -41,6 +41,8 @@ using std::cout;
 #include "TColor.h"
 
 #include "TCanvas.h"
+#include "TH1.h"
+#include "TH2.h"
 
 #include "FairGeoInterface.h"
 #include "FairGeoLoader.h"
@@ -881,7 +883,7 @@ void PndDrc::Initialize() {
     fDetEff = new TGraph(1000, fLambda,fEfficiencyR);  
 
     fLastTrackID = -2;
-  }
+  } 
   
   cout << " -I- PndDrc: Intialization successfull" << endl;
 
@@ -907,7 +909,7 @@ Bool_t PndDrc::ProcessHits(FairVolume* vol) {
 
   gMC->TrackPosition(fPos);
   gMC->TrackMomentum(fMom);
-  
+    
   //stop secondaries so that they do not produce Cherenkov photons
   if(fStopSecondaries){
     if(fPdgCode != 50000050){
@@ -954,7 +956,7 @@ Bool_t PndDrc::ProcessHits(FairVolume* vol) {
       if(fMom.Z() > 0.) gMC->StopTrack();
     }
   } 
-    
+     
     // apply transport efficiency at production stage (Maria Patsyuk 20.04.2012):
     if(fTransportEffAtProduction && fLastTrackID != fTrackID){
       gMC->TrackMomentum(fMom2);
@@ -986,7 +988,7 @@ Bool_t PndDrc::ProcessHits(FairVolume* vol) {
     // // counting photons:
     // //if(gMC->IsTrackEntering()==1 && num == fbarID && fLastTrackID != gMC->GetStack()->GetCurrentTrackNumber()){      
     // if(gMC->IsTrackEntering()==1 && num == fbarID){// check how many photons were born      
-    // //if(gMC->IsTrackExiting()==1 && num == fbarID && fPos.Z() < -118.5){ //check how many photons reach the read out bar end     
+   // if(gMC->IsTrackExiting()==1 && num == fbarID && fPos.Z() < -118.5){ //check how many photons reach the read out bar end     
     // //if(gMC->IsTrackEntering()==1 && num == fevID && fPos.Z() > -121.){ // check how many photons enter the EV    
     // //if(gMC->IsTrackExiting()==1 && num == fevID && fPos.Z() < -150.){ //check how many photons reach the back side of the EV     
     // //if(nam.BeginsWith("DrcMcpGrease") && fPos.Z() < -150.05){ // check how many photons are in the middle of grease    
@@ -997,12 +999,12 @@ Bool_t PndDrc::ProcessHits(FairVolume* vol) {
     //  cout<<"photon number "<<nphotons<<" is produced!!! from track "<<gMC->GetStack()->GetCurrentTrackNumber()<<endl;
     // 	gMC->StopTrack();
     // }    
-    //cout<<"photon z coord = "<<fPos.Z()<<endl;              
+   // cout<<"photon z coord = "<<fPos.Z()<<", name = "<<nam.Data()<<endl;              
     // if(fPdgCode == 50000050 && gMC->IsTrackEntering()==1 && num == fevID){
     //   gMC->TrackMomentum(fMom1);
     // 	gMC->TrackPosition(fPos1);
-    //   cout<<"X, Y, Z: "<<fPos1.X()<<", "<<fPos1.Y()<<", "<<fPos1.Z()<<"; Kx, Ky, Kz: "<<fMom1.Px()*1e+9<<", "<<fMom1.Py()*1e+9<<", "<<fMom1.Pz()*1e+9<<endl;
-    // }
+      // cout<<"X, Y, Z: "<<fPos1.X()<<", "<<fPos1.Y()<<", "<<fPos1.Z()<<"; Kx, Ky, Kz: "<<fMom1.Px()*1e+9<<", "<<fMom1.Py()*1e+9<<", "<<fMom1.Pz()*1e+9<<endl;
+   //  }
     
    
     // "TakeOnlyDirectPho" option: if photon is exiting the bar - check its direction
@@ -1122,7 +1124,7 @@ Bool_t PndDrc::ProcessHits(FairVolume* vol) {
       // 	PndDrcBarPoint *tBarPoint = (PndDrcBarPoint*) fDrcBarCollection->At(fDrcBarCollection->GetEntriesFast()-1);
       // 	if(tBarPoint->GetTrackID()==fTrackID && fLength - tBarPoint->GetLength()<0.1) bpass = false;
       // }
-      
+            
       if(bpass){
 	Int_t s=0, b=0; //side and bar
 	fNBar=0;
@@ -1140,8 +1142,8 @@ Bool_t PndDrc::ProcessHits(FairVolume* vol) {
 	else if ( fabs(Pz/fP) > 1. ){ fAngIn = -1.;}
 	else { fAngIn = acos(Pz/fP);}
 	if ( fP == 0. || fEnergy == 0.){ fThetaC = -1.;}
-	else if (fabs(1./(1.47*(fP/fEnergy))) > 1. ){ fThetaC = -1.;}
-	else{ fThetaC = acos(1/(1.47*(fP/fEnergy)));} 
+	else if (fabs(1./(fGeo->nQuartz()*(fP/fEnergy))) > 1. ){ fThetaC = -1.;}
+	else{ fThetaC = acos(1/(fGeo->nQuartz()*(fP/fEnergy)));} 
 
 	AddBarHit(fTrackID, fGeoH->GetShortID(path), fPos.Vect(), fMom.Vect(),
 		  fTime, fLength, fPdgCode, fAngIn, fThetaC, fNBar,
@@ -1241,9 +1243,11 @@ Double_t PndDrc::FindOutPoint(Double_t x0, Double_t xEn, Double_t a, Double_t *N
 // -----   Public method EndOfEvent   -----------------------------------------
 void PndDrc::EndOfEvent() {
   fLastTrackID = -2;
-  if (fVerboseLevel)  Print();
-  Reset();
+  if (fVerboseLevel)  Print();  
+  Reset(); 
 }
+
+void PndDrc::FinishRun(){}
 
 // -----   Public method Register   -------------------------------------------
 void PndDrc::Register() {

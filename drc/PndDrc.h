@@ -178,8 +178,9 @@ class PndDrc : public FairDetector
   virtual void CopyClones(TClonesArray* clPD1, TClonesArray* clPD2, TClonesArray* clBar1, TClonesArray* clBar2, /*TClonesArray* clSdsPD1, TClonesArray* clSdsPD2, TClonesArray* clSdsBar1, TClonesArray* clSdsBar2, */ Int_t offset);
   
   // Int_t GetSensorId(TString);
-
-
+ 
+ void FinishRun();
+ 
   /** Virtual method Construct geometry
    **
    **/
@@ -312,7 +313,7 @@ class PndDrc : public FairDetector
   Bool_t  	 fStopChargedTrackAfterDIRC;
   Bool_t	 fSetBlackLens; 
   Bool_t 	 fOptionForLUT;	
-  
+   
   TArrayI        fProc;
 
   PndGeoDrc*     fGeo;             //! Pointer to basic DRC geometry data
@@ -351,7 +352,7 @@ inline void PndDrc::ResetParameters() {
   fAngIn = -999;
   fThetaC = -999;
   fNBar = -999;
-  fEventID = -999;
+  //fEventID = -999;
   fMass = -999;
 }
 
