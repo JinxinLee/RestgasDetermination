@@ -71,6 +71,7 @@ PndTrkSttAdjacencies.cxx
 PndTrkSttClusterFinder.cxx
 #
 TrkAlgo/PndTrkLegendreTransform.cxx
+TrkAlgo/PndTrkCombiLegendreTransform.cxx
 TrkAlgo/PndTrkConformalTransform.cxx
 TrkAlgo/PndTrkTools.cxx
 TrkAlgo/PndTrkClean.cxx
@@ -94,6 +95,7 @@ TrkSecondary/PndTrkLegendreTask.cxx
 TrkSecondary/PndTrkLegendreSecTask.cxx 
 TrkSecondary/PndTrkLegendreSecTask2.cxx 
 TrkSecondary/PndTrkLegendreNew.cxx
+TrkSecondary/PndTrkCombiLegendreTask.cxx
 #
 TrkStructure/PndTrkQATask.cxx
 )
