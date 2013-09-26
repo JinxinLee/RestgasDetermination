@@ -651,7 +651,7 @@ Double_t PndDrcRecoLookupMapS::RecoAmbigTime(TVector3 kb, TVector3 start, Double
   //Double_t u_quartz = 30./1.46838; // for lambda = 417 nm 
   //Double_t u_quartz = 30./1.47125; // for lambda = 390 nm 
   //Double_t u_quartz = 30./1.47248; // for lambda = 380 nm
-  Double_t u_quartz = 19.8;//30./fNquartz;//1.47805; // for lambda = 370 nm
+  Double_t u_quartz = 20.;//30./fNquartz;//1.47805; // for lambda = 400 nm
   
   // kb - photon momentum at the production point, first calculate path in QUARTZ BAR:
   // assume that there are only DIRECT photons!!!   
