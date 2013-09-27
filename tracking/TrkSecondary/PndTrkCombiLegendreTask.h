@@ -120,6 +120,7 @@ class PndTrkCombiLegendreTask : public FairTask {
   void FillPeakCouplesHisto(PndTrkCluster *cluster);
   void FillPeakNeighCouplesHisto(PndTrkCluster *cluster);
 
+  //  Int_t ComputeSkewedXYZ(PndTrkCluster *cluster);
 
  private:
 

@@ -246,6 +246,10 @@ void PndTrkCombiLegendreTask::Exec(Option_t* opt) {
   }
   // ------------------------------------
 
+
+  //  ComputeSkewedXYZ(cluster);
+
+
   PndTrkTrackList tracklist;
 
   // print and display cluster -----~~~~~-----~~~~~-----~~~~~-----~~~~~-----~~~~~--
@@ -1912,4 +1916,96 @@ void PndTrkCombiLegendreTask::IntersectionFinder(PndTrkHit *hit, double xc, doub
     
     delete xy;
 }
+
+/**
+// wiredirection | layerID | correlate with layerID
+// PARALLEL      |   16    | 
+// S   [-3 deg]  |   15    | 16 ( --> post)
+// K   [-3 deg]  |   14    | 13 ( --> pre)
+// *   [+3 deg]  |   13    | 
+// E   [+3 deg]  |   12    | 11 ( --> pre)
+// W   [-3 deg]  |   11    | 
+// *   [-3 deg]  |   10    | 9  ( --> pre)
+// E   [+3 deg]  |    9    | 
+// D   [+3 deg]  |    8    | 7  ( --> pre)
+// PARALLEL      |    7    | 
+Int_t PndTrkCombiLegendreTask::ComputeSkewedXYZ(PndTrkCluster *cluster) {
+  
+  // loop on all the hist
+  for(int ihit = 0; ihit < cluster->GetNofHits(); ihit++) {
+    PndTrkHit *hit = cluster->GetHit(ihit);
+    if(hit->IsStt() == kFALSE) continue;
+    if(hit->IsSttParallel() == kTRUE) continue;
+
+    PndSttTube *tube = (PndSttTube*) fTubeArray->At(hit->GetTubeID());
+    int layID = tube->GetLayerID();
+    if(layID != 8 && layID != 10 && layID != 12 && layID != 14 && layID != 15) continue;
+
+    TObjArray *neighs = fHitMap->GetNeighboringsToHit(hit);
+
+    TVector3 poca1(-999, -999, -999), poca2;
+    double iso1, iso2;
+
+    bool isfound = false;
+    for(int jhit = 0; jhit < neighs->GetEntriesFast(); jhit++) {
+      PndTrkHit *hit2 = (PndTrkHit*) neighs->At(jhit);
+      PndSttTube *tube2 = (PndSttTube*) fTubeArray->At(hit2->GetTubeID());
+      int layID2 = tube2->GetLayerID();
+
+      // 8/10/12/14 seek the pre layer; 15 seeks the post layer
+      if((layID != 15 && layID2 != layID - 1) || (layID == 15 && layID2 != layID + 1)) continue;
+
+      // if all the "continue" were passed it means we are 
+      // dealing with two stereo tubes with opposite tilting 
+      // angle or a parallel + a stereo tube
+      cout << "****************************" << endl;
+      double distance = -999;
+      if(poca1.X() == -999) {
+	isfound = true;
+	tube->GetPoca(tube2, poca1, poca2);
+	iso1 = hit->GetIsochrone();
+	iso2 = hit2->GetIsochrone();
+      }
+      else isfound = false;
+      cout << endl;
+
+      //     PndSttHit *hitI = (PndSttHit*) fSttHitArray->At(hit->GetHitID());
+      //       PndSttHit *hitII = (PndSttHit*) fSttHitArray->At(hit2->GetHitID());
+      
+      //       TVector3 pocamiddle;
+      //       Double_t poca = (fMapper->GetGeometryMap())->CalculateStrawPoca(hitI, hitII, pocamiddle);
+      //       cout << "distance " << poca << endl;  
+    }
+    
+    if(isfound == true) {
+    if(fDisplayOn)  {
+    cout << " STARTING" << endl;
+	
+    // 	   TMarker *mrkpoca1 = new TMarker(poca1.X(), poca1.Y(), 20);
+    // 	   mrkpoca1->SetMarkerSize(0.5);
+    // 	   mrkpoca1->Draw("SAME");
+    // 	   TMarker *mrkpoca2 = new TMarker(poca2.X(), poca2.Y(), 20);
+    // 	   mrkpoca2->SetMarkerSize(0.5);
+    // 	   mrkpoca2->Draw("SAME");
+    // 	   TMarker *mrkpoca = new TMarker(pocamiddle.X(), pocamiddle.Y(), 20);
+    // 	   mrkpoca->SetMarkerColor(2);
+    // 	   mrkpoca->SetMarkerSize(0.5);
+    // 	   mrkpoca->Draw("SAME");
+	
+    TArc *mrkpoca1 = new TArc(poca1.X(), poca1.Y(), iso1);
+    mrkpoca1->SetFillStyle(0);
+    mrkpoca1->Draw("SAME");
+	
+    TArc *mrkpoca2 = new TArc(poca2.X(), poca2.Y(), iso2);
+    mrkpoca2->SetFillStyle(0);
+    mrkpoca2->Draw("SAME");
+
+    display->Update();
+    display->Modified();
+    }
+    }
+    }
+    }
+**/
+
 ClassImp(PndTrkCombiLegendreTask)
