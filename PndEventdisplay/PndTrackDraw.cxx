@@ -16,6 +16,7 @@
 #include "TLorentzVector.h"
 #include "TParticle.h"
 #include "TEveBoxSet.h"
+#include "PndHelixPropagator.h"
 #include <string>
 #include <sstream>
 using std::cout;
@@ -152,7 +153,12 @@ void PndTrackDraw::Exec(Option_t* option)
         fTrackCandDraw->AddBoxesPndTrackCand(myBoxSet,&trackCand, i);
 
 		TVector3 posFirst = parFirst.GetPosition();
-		TVector3 momFirst = parFirst.GetMomentum() * 10;
+		TVector3 momFirst;
+		if (parFirst.GetMomentum().Mag() < 0.1) {
+			momFirst = parFirst.GetMomentum() * 100;
+		} else {
+			momFirst = parFirst.GetMomentum() * 10;
+		}
 		//TVector3 resFirst = posFirst + momFirst;
 		TString groupName("Track_");
 		groupName += i;
@@ -172,10 +178,15 @@ void PndTrackDraw::Exec(Option_t* option)
         std::cout << "Charge: " << parFirst.GetQ() << std::endl;
 
         if (fDoPropagation)
-        	PropagateTrack(parFirst, pidHypo, kRed, arrowList);
+        	PropagateTrackHelix(parFirst, pidHypo, kRed, arrowList);
 
 		TVector3 posLast = parLast.GetPosition();
-		TVector3 momLast = parLast.GetMomentum() * 10;
+		TVector3 momLast;
+		if (parLast.GetMomentum().Mag() < 0.1) {
+			momLast = parLast.GetMomentum() * 100;
+		} else {
+			momLast = parLast.GetMomentum() * 10;
+		}
 		//TVector3 resLast = posLast + momLast;
 
 		TEveArrow* myArrowLast = new TEveArrow(momLast.X(), momLast.Y(), momLast.Z(),
@@ -191,7 +202,9 @@ void PndTrackDraw::Exec(Option_t* option)
         std::cout << "Charge: " << parLast.GetQ() << std::endl;
 
         if (fDoPropagation)
-        	PropagateTrack(parLast, pidHypo, kBlue, arrowList);
+        	PropagateTrackHelix(parLast, pidHypo, kBlue, arrowList);
+
+//        	PropagateTrack(parLast, pidHypo, kBlue, arrowList);
         fListOfTracks->AddElement(arrowList);
 
     }
@@ -205,6 +218,60 @@ void PndTrackDraw::Exec(Option_t* option)
   //  fEventManager->SetEvtMinEnergy(MinEnergyLimit);
     gEve->Redraw3D(kFALSE);
  }
+}
+
+void PndTrackDraw::PropagateTrackHelix(FairTrackParP& trackPar, Int_t pidHypo, Int_t color, TEveElement* group)
+{
+	Int_t Np = 100;
+
+	TVector3 posTrack = trackPar.GetPosition();
+	TVector3 momTrack = trackPar.GetMomentum();
+	Double_t charge = trackPar.GetQ();
+
+	PndHelixPropagator prop(2.0, posTrack, momTrack, charge);
+
+	if (pidHypo == 0){
+		pidHypo = 211;
+		if (charge < 0)
+			pidHypo *= -1;
+	}
+
+	TParticle *P = new TParticle(pidHypo, 0, -1, -1, -1, -1, TLorentzVector(momTrack, 10), TLorentzVector(posTrack, 0));
+
+	fTrList = GetTrGroup(pidHypo);
+	TEveTrack *track = new TEveTrack(P, pidHypo, fTrPr);
+	track->SetLineColor(color);
+
+	Int_t index = 0;
+	for (Int_t n = -Np; n < Np; n++){
+		FairTrackPar result = prop.PropagateByAngle(n);
+
+		track->SetPoint(index++, result.GetX(), result.GetY(), result.GetZ());
+		TEveVector pos = TEveVector(result.GetX(), result.GetY(), result.GetZ());
+		TEvePathMark *path = new TEvePathMark();
+		path->fV = pos;
+		path->fTime = n;
+		if (n == 0) {
+			TEveVector mom = TEveVector(result.GetPx(), result.GetPy(),result.GetPz());
+			path->fP = mom;
+			track->SetPoint(index++, posTrack.X(), posTrack.Y(), posTrack.Z());
+		}
+		if (fVerbose > 3)
+			cout << "Path marker added " << path << endl;
+		#if ROOT_VERSION_CODE <= ROOT_VERSION(5,18,0)
+				track->AddPathMark(path);
+		#else
+				track->AddPathMark(*path);
+		#endif
+		if (fVerbose > 3)
+			cout << "Path marker added " << path << endl;
+	}
+	if (group != 0)
+		group->AddElement(track);
+	else
+		fTrList->AddElement(track);
+	if (fVerbose > 3)
+		cout << "track added " << track->GetName() << endl;
 }
 
 void PndTrackDraw::PropagateTrack(FairTrackParP& trackPar, Int_t pidHypo, Int_t color, TEveElement* group)

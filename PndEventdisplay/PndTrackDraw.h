@@ -72,6 +72,7 @@ class PndTrackDraw : public FairTask {
 protected:
 
   void PropagateTrack(FairTrackParP& trackPar, Int_t pidHypo, Int_t color = -1, TEveElement* group = 0);
+  void PropagateTrackHelix(FairTrackParP& trackPar, Int_t pidHypo, Int_t color = -1, TEveElement* group = 0);
   TClonesArray  *fPndTrackList;  //!
   TEveTrackPropagator *fTrPr; 
   FairEventManager * fEventManager; //!
