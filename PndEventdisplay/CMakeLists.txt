@@ -6,6 +6,7 @@ ${ROOT_INCLUDE_DIR}
 ${GEANT3_INCLUDE_DIR}
 ${BASE_INCLUDE_DIRECTORIES} 
 ${CMAKE_SOURCE_DIR}/PndTools/generalTools 
+${CMAKE_SOURCE_DIR}/PndTools/HelixPropagator
 ${CMAKE_SOURCE_DIR}/PndMCMatch
 ${CMAKE_SOURCE_DIR}/field 
 ${CMAKE_SOURCE_DIR}/trackbase 
@@ -48,6 +49,6 @@ set(LINKDEF PndEventDisplayLinkDef.h)
 set(LIBRARY_NAME PndEventDisplay)
 
 set(DEPENDENCIES Base EventDisplay generalTools MCMatch Geane
-ParBase PndData Drc Sds Stt)
+ParBase PndData Drc Sds Stt helixpropagator)
 
 GENERATE_LIBRARY()
