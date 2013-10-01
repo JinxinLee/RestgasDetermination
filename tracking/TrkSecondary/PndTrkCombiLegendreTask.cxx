@@ -419,7 +419,7 @@ void PndTrkCombiLegendreTask::Exec(Option_t* opt) {
       }
   }
 
- fDisplayOn = kFALSE;
+  fDisplayOn = kFALSE;
 
 
   cout << "tracklist is " << tracklist.GetNofTracks() << endl;
@@ -431,7 +431,7 @@ void PndTrkCombiLegendreTask::Exec(Option_t* opt) {
   int noftrack = tracklist.GetNofTracks(); 
   cout << "\033[1;35m (AFTER LEGENDRE AND RECLUSTERING) NEW CLUSTERLIST " << noftrack << " \033[0m" << endl;
 
- // fDisplayOn = kTRUE;
+  // fDisplayOn = kTRUE;
 
   PndTrkTrackList tracklist2;
   // loop on clusterlist -----~~~~~-----~~~~~-----~~~~~-----~~~~~-----~~~~~-----~~~~~
@@ -499,8 +499,7 @@ void PndTrkCombiLegendreTask::Exec(Option_t* opt) {
     
     tracklist2.AddTrack(track);
   }
-  //
-  fDisplayOn = kTRUE;
+  //  fDisplayOn = kTRUE;
 
   if(fDisplayOn) {
     Refresh();
@@ -1726,7 +1725,7 @@ PndTrkCluster * PndTrkCombiLegendreTask::CreateClusterAroundTrack(PndTrkTrack *t
     display->Update();
     display->Modified();
     char goOnChar;
-    //    cout << "want to go to next cluster2?" << endl;/
+    //    cout << "want to go to next cluster2?" << endl;
     //    cin >> goOnChar;
   } 
   // ---------------------------
@@ -2040,52 +2039,49 @@ PndTrkCluster* PndTrkCombiLegendreTask::ComputeSkewedXYZ(PndTrkCluster *cluster)
       //       Double_t poca = (fMapper->GetGeometryMap())->CalculateStrawPoca(hitI, hitII, pocamiddle);
       //       cout << "distance " << poca << endl;  
     
-    
       if(isfound == true) {
+	if(layID != 7 && layID != 15) {
+	  PndTrkHit *newhit = new PndTrkHit(*hit);
+	  newhit->SetPosition(poca1);
+	  newhit->SetRegion(INNER_LEFT); // CHECK to consider this as parallel for the fit in xy
+	  skewcluster->AddHit(newhit);
+	}
+	if(layID2 != 7 && layID2 != 15) {
+	  PndTrkHit *newhit2 = new PndTrkHit(*hit2);
+	  newhit2->SetPosition(poca2);
+	  newhit2->SetRegion(INNER_LEFT); // CHECK to consider this as parallel for the fit in xy
+	  skewcluster->AddHit(newhit2);
+	}
+
 	if(fDisplayOn)  {
 	  cout << " STARTING" << endl;
-
-
-	  if(layID != 7 && layID != 15) {
-	    PndTrkHit *newhit = new PndTrkHit(*hit);
-	    newhit->SetPosition(poca1);
-	    newhit->SetRegion(INNER_LEFT); // CHECK to consider this as parallel for the fit in xy
-	    skewcluster->AddHit(newhit);
-	  }
-	  if(layID2 != 7 && layID2 != 15) {
-	    PndTrkHit *newhit2 = new PndTrkHit(*hit2);
-	    newhit2->SetPosition(poca2);
-	    newhit2->SetRegion(INNER_LEFT); // CHECK to consider this as parallel for the fit in xy
-	    skewcluster->AddHit(newhit2);
-	  }
-
-
-
-	// 	   TMarker *mrkpoca1 = new TMarker(poca1.X(), poca1.Y(), 20);
-	// 	   mrkpoca1->SetMarkerSize(0.5);
-	// 	   mrkpoca1->Draw("SAME");
-	// 	   TMarker *mrkpoca2 = new TMarker(poca2.X(), poca2.Y(), 20);
-	// 	   mrkpoca2->SetMarkerSize(0.5);
-	// 	   mrkpoca2->Draw("SAME");
-	// 	   TMarker *mrkpoca = new TMarker(pocamiddle.X(), pocamiddle.Y(), 20);
-	// 	   mrkpoca->SetMarkerColor(2);
-	// 	   mrkpoca->SetMarkerSize(0.5);
-	// 	   mrkpoca->Draw("SAME");
+	  
+	  // 	   TMarker *mrkpoca1 = new TMarker(poca1.X(), poca1.Y(), 20);
+	  // 	   mrkpoca1->SetMarkerSize(0.5);
+	  // 	   mrkpoca1->Draw("SAME");
+	  // 	   TMarker *mrkpoca2 = new TMarker(poca2.X(), poca2.Y(), 20);
+	  // 	   mrkpoca2->SetMarkerSize(0.5);
+	  // 	   mrkpoca2->Draw("SAME");
+	  // 	   TMarker *mrkpoca = new TMarker(pocamiddle.X(), pocamiddle.Y(), 20);
+	  // 	   mrkpoca->SetMarkerColor(2);
+	  // 	   mrkpoca->SetMarkerSize(0.5);
+	  // 	   mrkpoca->Draw("SAME");
 	
-	TArc *mrkpoca1 = new TArc(poca1.X(), poca1.Y(), iso1);
-	mrkpoca1->SetFillStyle(0);
-	mrkpoca1->Draw("SAME");
+	  TArc *mrkpoca1 = new TArc(poca1.X(), poca1.Y(), iso1);
+	  mrkpoca1->SetFillStyle(0);
+	  mrkpoca1->Draw("SAME");
 	
-	TArc *mrkpoca2 = new TArc(poca2.X(), poca2.Y(), iso2);
-	mrkpoca2->SetFillStyle(0);
-	mrkpoca2->Draw("SAME");
+	  TArc *mrkpoca2 = new TArc(poca2.X(), poca2.Y(), iso2);
+	  mrkpoca2->SetFillStyle(0);
+	  mrkpoca2->Draw("SAME");
 
-	display->Update();
-	display->Modified();
+	  display->Update();
+	  display->Modified();
+	}
       }
     }
-    }
   }
+  return skewcluster;
 }
 
 
@@ -2121,7 +2117,7 @@ void PndTrkCombiLegendreTask::CleanTrack(PndTrkTrack *track) {
       lastlayid = ilay;
       if(noftracksinlay[ilay] == 1) noflayerswith1track++;
       else noflayerswithmoretracks++;
-   }
+    }
   }
   noflayerswith0tracks = (lastlayid - firstlayid + 1) - noflayerswith1track - noflayerswithmoretracks;
 
