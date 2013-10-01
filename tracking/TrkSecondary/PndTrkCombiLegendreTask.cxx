@@ -778,7 +778,7 @@ Int_t PndTrkCombiLegendreTask::FillConformalHitList(PndTrkCluster *cluster) {
     if(hit->IsSttParallel() == kTRUE) chit = conform->GetConformalSttHit(hit);
     else continue; // CHECK  chit = conform->GetConformalHit(hit); // CHECK
     conformalhitlist->AddHit(chit);  
-    cout << hit->GetPosition().X() << " " << hit->GetPosition().Y() << " " << hit->GetIsochrone() << " " << hit->IsSttParallel() << " " << " to CONFORMAL " << chit->GetU() << " " << chit->GetV() << " " << chit->GetIsochrone() << endl;   
+    //    cout << hit->GetPosition().X() << " " << hit->GetPosition().Y() << " " << hit->GetIsochrone() << " " << hit->IsSttParallel() << " " << " to CONFORMAL " << chit->GetU() << " " << chit->GetV() << " " << chit->GetIsochrone() << endl;   
    //  if(chit->GetPosition().Mod() > 1.16) cout << "\033[1;36m CONFORMAL DISTANCE IS " << chit->GetPosition().Mod() << "\033[0m" << endl;
 
   }
@@ -1397,7 +1397,7 @@ Int_t PndTrkCombiLegendreTask::CountTracksInCluster(PndTrkCluster *cluster, Int_
   for(int ihit = 0; ihit < cluster->GetNofHits(); ihit++) {
     PndTrkHit *hit = cluster->GetHit(ihit);
     PndSttTube *tube = (PndSttTube*) fTubeArray->At(hit->GetTubeID());
-    cout << "SORTED " << ihit << " " << hit->GetHitID() << " " << tube->GetLayerID() << " " << nofhitsinlay[tube->GetLayerID()] << endl;
+    //    cout << "SORTED " << ihit << " " << hit->GetHitID() << " " << tube->GetLayerID() << " " << nofhitsinlay[tube->GetLayerID()] << endl;
   }
 
   int maxnoftracks = 1;
@@ -1665,8 +1665,8 @@ PndTrkCluster * PndTrkCombiLegendreTask::CreateClusterAroundTrack(PndTrkTrack *t
     display->Update();
     display->Modified();
     char goOnChar;
-    cout << "want to go to next cluster1?" << endl;
-    cin >> goOnChar;
+    //    cout << "want to go to next cluster1?" << endl;
+    //    cin >> goOnChar;
   } 
   // ...................................................
   // II. for its not in the cluster
@@ -1726,8 +1726,8 @@ PndTrkCluster * PndTrkCombiLegendreTask::CreateClusterAroundTrack(PndTrkTrack *t
     display->Update();
     display->Modified();
     char goOnChar;
-    cout << "want to go to next cluster2?" << endl;
-    cin >> goOnChar;
+    //    cout << "want to go to next cluster2?" << endl;/
+    //    cin >> goOnChar;
   } 
   // ---------------------------
 
@@ -1980,7 +1980,7 @@ void PndTrkCombiLegendreTask::IntersectionFinder(PndTrkHit *hit, double xc, doub
     delete xy;
 }
 
-/**
+
 // wiredirection | layerID | correlate with layerID
 // PARALLEL      |   16    | 
 // S   [-3 deg]  |   15    | 16 ( --> post)
@@ -1992,8 +1992,9 @@ void PndTrkCombiLegendreTask::IntersectionFinder(PndTrkHit *hit, double xc, doub
 // E   [+3 deg]  |    9    | 
 // D   [+3 deg]  |    8    | 7  ( --> pre)
 // PARALLEL      |    7    | 
-Int_t PndTrkCombiLegendreTask::ComputeSkewedXYZ(PndTrkCluster *cluster) {
-  
+PndTrkCluster* PndTrkCombiLegendreTask::ComputeSkewedXYZ(PndTrkCluster *cluster) {
+
+  PndTrkCluster *skewcluster = new PndTrkCluster();
   // loop on all the hist
   for(int ihit = 0; ihit < cluster->GetNofHits(); ihit++) {
     PndTrkHit *hit = cluster->GetHit(ihit);
@@ -2038,38 +2039,55 @@ Int_t PndTrkCombiLegendreTask::ComputeSkewedXYZ(PndTrkCluster *cluster) {
       //       TVector3 pocamiddle;
       //       Double_t poca = (fMapper->GetGeometryMap())->CalculateStrawPoca(hitI, hitII, pocamiddle);
       //       cout << "distance " << poca << endl;  
-    }
     
-    if(isfound == true) {
-    if(fDisplayOn)  {
-    cout << " STARTING" << endl;
-	
-    // 	   TMarker *mrkpoca1 = new TMarker(poca1.X(), poca1.Y(), 20);
-    // 	   mrkpoca1->SetMarkerSize(0.5);
-    // 	   mrkpoca1->Draw("SAME");
-    // 	   TMarker *mrkpoca2 = new TMarker(poca2.X(), poca2.Y(), 20);
-    // 	   mrkpoca2->SetMarkerSize(0.5);
-    // 	   mrkpoca2->Draw("SAME");
-    // 	   TMarker *mrkpoca = new TMarker(pocamiddle.X(), pocamiddle.Y(), 20);
-    // 	   mrkpoca->SetMarkerColor(2);
-    // 	   mrkpoca->SetMarkerSize(0.5);
-    // 	   mrkpoca->Draw("SAME");
-	
-    TArc *mrkpoca1 = new TArc(poca1.X(), poca1.Y(), iso1);
-    mrkpoca1->SetFillStyle(0);
-    mrkpoca1->Draw("SAME");
-	
-    TArc *mrkpoca2 = new TArc(poca2.X(), poca2.Y(), iso2);
-    mrkpoca2->SetFillStyle(0);
-    mrkpoca2->Draw("SAME");
+    
+      if(isfound == true) {
+	if(fDisplayOn)  {
+	  cout << " STARTING" << endl;
 
-    display->Update();
-    display->Modified();
+
+	  if(layID != 7 && layID != 15) {
+	    PndTrkHit *newhit = new PndTrkHit(*hit);
+	    newhit->SetPosition(poca1);
+	    newhit->SetRegion(INNER_LEFT); // CHECK to consider this as parallel for the fit in xy
+	    skewcluster->AddHit(newhit);
+	  }
+	  if(layID2 != 7 && layID2 != 15) {
+	    PndTrkHit *newhit2 = new PndTrkHit(*hit2);
+	    newhit2->SetPosition(poca2);
+	    newhit2->SetRegion(INNER_LEFT); // CHECK to consider this as parallel for the fit in xy
+	    skewcluster->AddHit(newhit2);
+	  }
+
+
+
+	// 	   TMarker *mrkpoca1 = new TMarker(poca1.X(), poca1.Y(), 20);
+	// 	   mrkpoca1->SetMarkerSize(0.5);
+	// 	   mrkpoca1->Draw("SAME");
+	// 	   TMarker *mrkpoca2 = new TMarker(poca2.X(), poca2.Y(), 20);
+	// 	   mrkpoca2->SetMarkerSize(0.5);
+	// 	   mrkpoca2->Draw("SAME");
+	// 	   TMarker *mrkpoca = new TMarker(pocamiddle.X(), pocamiddle.Y(), 20);
+	// 	   mrkpoca->SetMarkerColor(2);
+	// 	   mrkpoca->SetMarkerSize(0.5);
+	// 	   mrkpoca->Draw("SAME");
+	
+	TArc *mrkpoca1 = new TArc(poca1.X(), poca1.Y(), iso1);
+	mrkpoca1->SetFillStyle(0);
+	mrkpoca1->Draw("SAME");
+	
+	TArc *mrkpoca2 = new TArc(poca2.X(), poca2.Y(), iso2);
+	mrkpoca2->SetFillStyle(0);
+	mrkpoca2->Draw("SAME");
+
+	display->Update();
+	display->Modified();
+      }
     }
     }
-    }
-    }
-**/
+  }
+}
+
 
 void PndTrkCombiLegendreTask::CleanTrack(PndTrkTrack *track) {
   
@@ -2115,8 +2133,8 @@ void PndTrkCombiLegendreTask::CleanTrack(PndTrkTrack *track) {
   // 1 = one-way
   // 2 = full circle
   noflayerswith0tracks < noflayerswith1track ? classification = 1 : classification = 0;
-  if(classification == 0)  noflayerswith0tracks < noflayerswithmoretracks ? classification = 2 : classification = 0;
-  else if(classification == 1) noflayerswith1track < noflayerswithmoretracks ? classification = 2 : classification = 1;
+  if(classification == 0)  noflayerswith0tracks <= noflayerswithmoretracks ? classification = 2 : classification = 0;
+  else if(classification == 1) noflayerswith1track <= noflayerswithmoretracks ? classification = 2 : classification = 1;
 
   switch(classification) {
   case 0:
@@ -2137,7 +2155,7 @@ void PndTrkCombiLegendreTask::CleanTrack(PndTrkTrack *track) {
     PndSttTube *tube = (PndSttTube*) fTubeArray->At(tubeid);
     int layid = tube->GetLayerID();
     if(noftracksinlay[layid] > 2) {
-      cout << "hit " << ihit << " " << hitid << " " << tubeid << " " << layid << endl;
+      cout << "hit " << ihit << " hitid " << hitid << " tubeid " << tubeid << " layid " << layid << endl;
       if(fDisplayOn)  {
 	display->cd(1);
 	hit->DrawTube(kBlue);
