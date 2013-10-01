@@ -319,18 +319,17 @@ void PndTrkCombiLegendreTask::Exec(Option_t* opt) {
       }
       
     
-      PndTrkTrack *track = LegendreFit(cluster);
-      //      PndTrkTrack *track = LegendreFitWithRecovering(cluster);
+      // PndTrkTrack *track = LegendreFit(cluster);
+      PndTrkTrack *track = LegendreFitWithRecovering(cluster);
       if(track == NULL) continue;
-      //      else fRecoverIteration = 0;
-
+      
       PndTrkCluster *thiscluster = CreateClusterAroundTrack(track);
       cout << "nof hits " << thiscluster->GetNofHits() << endl;
       //   thiscluster->Sort();
       track->SetCluster(thiscluster);
 
       // >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
-      // CleanTrack(track);
+      CleanTrack(track);
 
       // >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
  //      // clean cluster:
@@ -466,8 +465,8 @@ void PndTrkCombiLegendreTask::Exec(Option_t* opt) {
     }
     
     
-    track = LegendreFit(cluster); 
-    //    track = LegendreFitWithRecovering(cluster);
+    // track = LegendreFit(cluster); 
+    track = LegendreFitWithRecovering(cluster);
     if(track == NULL) continue; 
 
     // create cluster around new fit
