@@ -197,7 +197,7 @@ TObjArray PndTrkNeighboringMap::GetIndivisibles() {
 }
    
 TObjArray *PndTrkNeighboringMap::GetIndivisiblesToHit(PndTrkHit *hit) {
-  cout << "indiv hit "  << hit << " " << hit->GetHitID() << endl;
+  // cout << "indiv hit "  << hit << " " << hit->GetHitID() << endl;
   return (TObjArray*) hit2indiv.GetValue(hit);
 }
 
