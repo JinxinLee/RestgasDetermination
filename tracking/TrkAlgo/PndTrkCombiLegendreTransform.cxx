@@ -44,9 +44,12 @@ PndTrkCombiLegendreTransform::~PndTrkCombiLegendreTransform() {
 
 // ------ HISTOGRAM --------------------------------------------------------
 void PndTrkCombiLegendreTransform::SetUpLegendreHisto() {
-  //  if(fhLegendre == NULL) 
-  fhLegendre = new TH2F("fhCombiLegendre", "", fThetaNofBin, fThetaMin, fThetaMax, fRNofBin, fRMin, fRMax);
-  //  else {    }
+  if(fhLegendre == NULL) fhLegendre = new TH2F("fhCombiLegendre", "", fThetaNofBin, fThetaMin, fThetaMax, fRNofBin, fRMin, fRMax);
+  else { 
+    fhLegendre->SetAxisRange(fThetaMin, fThetaMax, "X");
+    fhLegendre->SetAxisRange(fRMin, fRMax, "Y");
+    // fhLegendre->Rebin2D(20, 50)
+  }
 }
 
 void PndTrkCombiLegendreTransform::SetUpLegendreHisto(double thetaNofBin, double thetaMin, double thetaMax, double rNofBin, double rMin, double rMax) {
@@ -157,7 +160,7 @@ int PndTrkCombiLegendreTransform::ExtractMaximumFromHisto(TH2F *histo, double &t
   theta_max = histo->GetXaxis()->GetBinCenter(binx);
   r_max = histo->GetYaxis()->GetBinCenter(biny);
   return histo->GetMaximum();
-  //    cout << "== THETA, R max ======== " << theta_max << " " << r_max << endl;
+
 }
 
 void PndTrkCombiLegendreTransform::ExtractLegendreSingleLineParameters(double &slope, double &intercept) {
