@@ -1992,7 +1992,7 @@ void PndTrkCombiLegendreTask::IntersectionFinder(PndTrkHit *hit, double xc, doub
 // D   [+3 deg]  |    8    | 7  ( --> pre)
 // PARALLEL      |    7    | 
 PndTrkCluster* PndTrkCombiLegendreTask::ComputeSkewedXYZ(PndTrkCluster *cluster) {
-
+  /**
   PndTrkCluster *skewcluster = new PndTrkCluster();
   // loop on all the hist
   for(int ihit = 0; ihit < cluster->GetNofHits(); ihit++) {
@@ -2082,6 +2082,7 @@ PndTrkCluster* PndTrkCombiLegendreTask::ComputeSkewedXYZ(PndTrkCluster *cluster)
     }
   }
   return skewcluster;
+  **/
 }
 
 
