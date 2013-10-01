@@ -45,11 +45,7 @@ PndTrkCombiLegendreTransform::~PndTrkCombiLegendreTransform() {
 // ------ HISTOGRAM --------------------------------------------------------
 void PndTrkCombiLegendreTransform::SetUpLegendreHisto() {
   if(fhLegendre == NULL) fhLegendre = new TH2F("fhCombiLegendre", "", fThetaNofBin, fThetaMin, fThetaMax, fRNofBin, fRMin, fRMax);
-  else { 
-    fhLegendre->SetAxisRange(fThetaMin, fThetaMax, "X");
-    fhLegendre->SetAxisRange(fRMin, fRMax, "Y");
-    // fhLegendre->Rebin2D(20, 50)
-  }
+  else fhLegendre->SetBins(fThetaNofBin, fThetaMin, fThetaMax, fRNofBin, fRMin, fRMax);
 }
 
 void PndTrkCombiLegendreTransform::SetUpLegendreHisto(double thetaNofBin, double thetaMin, double thetaMax, double rNofBin, double rMin, double rMax) {

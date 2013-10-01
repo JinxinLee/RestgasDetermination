@@ -112,6 +112,8 @@ class PndTrkCombiLegendreTask : public FairTask {
   PndTrkTrack *LegendreFit(PndTrkCluster *cluster);
   PndTrkTrack *LegendreFitWithRecovering(PndTrkCluster *cluster);
   PndTrkCluster *CreateClusterAroundTrack(PndTrkTrack *track);
+  Bool_t DoesBelong(PndTrkHit *hit, double xc, double yc, double R);
+
 
   void AnalyticalFit(PndTrkCluster *cluster, double xc, double yc, double R, double &fitm, double &fitq);
   void AnalyticalFit2(PndTrkCluster *cluster, double fitm, double fitp, double &fitm2, double &fip2);

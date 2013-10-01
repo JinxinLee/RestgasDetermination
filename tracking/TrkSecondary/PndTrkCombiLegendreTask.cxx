@@ -310,7 +310,7 @@ void PndTrkCombiLegendreTask::Exec(Option_t* opt) {
       Int_t nhits = ClusterToConformal(cluster);
       if(nhits == 0) continue;
       if(fSecondary) {
-	cout << ">>>>>>>>>>>>>>>>><<<<<<<<<<<<<<<<<" << endl;
+	//	cout << ">>>>>>>>>>>>>>>>><<<<<<<<<<<<<<<<<" << endl;
 	ComputePlaneExtremities(cluster);
 
 // 	int nofsteps = (int) ((fRmax - fRmin)/0.04);
@@ -456,7 +456,7 @@ void PndTrkCombiLegendreTask::Exec(Option_t* opt) {
     if(nhits == 0) continue;
 
     if(fSecondary) {
-      cout << ">>>>>>>>>>>>>>>>><<<<<<<<<<<<<<<<<" << endl;
+      //      cout << ">>>>>>>>>>>>>>>>><<<<<<<<<<<<<<<<<" << endl;
       ComputePlaneExtremities(cluster);
       
 //       int nofsteps = (int) ((fRmax - fRmin)/0.04);
@@ -467,7 +467,7 @@ void PndTrkCombiLegendreTask::Exec(Option_t* opt) {
     
     // track = LegendreFit(cluster); 
     track = LegendreFitWithRecovering(cluster);
-    if(track == NULL) continue; 
+    if(track == NULL) { cout << "CONTINUE" << endl;  continue; }
 
     // create cluster around new fit
     PndTrkCluster *cluster2 = CreateClusterAroundTrack(track); 
@@ -499,7 +499,8 @@ void PndTrkCombiLegendreTask::Exec(Option_t* opt) {
     
     tracklist2.AddTrack(track);
   }
-  //  fDisplayOn = kTRUE;
+
+  fDisplayOn = kTRUE;
 
   if(fDisplayOn) {
     Refresh();
@@ -655,9 +656,9 @@ void PndTrkCombiLegendreTask::DrawGeometryConf(double x1, double x2, double y1, 
 // draw lists ---------
 void PndTrkCombiLegendreTask::DrawLists() {
   char goOnChar;
-  cout << "new hit?" << endl;
-  cin >> goOnChar;
-  Refresh(); 
+  //  cout << "new hit?" << endl;
+  //  cin >> goOnChar;
+  //  Refresh(); 
   
   
   for(int i = 0; i < fHitMap->GetStandalone().GetEntriesFast(); i++) {
@@ -981,11 +982,12 @@ void PndTrkCombiLegendreTask::ComputePlaneExtremities(PndTrkCluster *cluster) {
    double delta = fabs(dv - du)/2.;
    du < dv ? (fUmin -= delta, fUmax += delta) : (fVmin -= delta, fVmax += delta);
 
-   cout << "u_min " << fUmin << " u_max " << fUmax << endl;
-   cout << "v_min " << fVmin << " v_max " << fVmax << endl;
-   cout << "r_min " << fRmin << " r_max " << fRmax << endl;
-   cout << "theta_min 0 theta_max 180" << endl;
-  
+   if(fVerbose > 0) {
+     cout << "u_min " << fUmin << " u_max " << fUmax << endl;
+     cout << "v_min " << fVmin << " v_max " << fVmax << endl;
+     cout << "r_min " << fRmin << " r_max " << fRmax << endl;
+     cout << "theta_min 0 theta_max 180" << endl;
+   }
   
 }
 
@@ -1115,6 +1117,7 @@ void PndTrkCombiLegendreTask::FillPeakCouplesHisto(PndTrkCluster *cluster)
     display->Update();
     display->Modified();
     char goOnchar;
+    cout << "get the max? " << endl;
     cin >> goOnchar;
   }
 }
@@ -1236,8 +1239,8 @@ void PndTrkCombiLegendreTask::FillHitMap() {
     display->Modified();
     // ================================================
   }
-  cout << "PRINT INDIVISIBILE MAP" << endl;
-  fHitMap->PrintIndivisibleMap();
+  //  cout << "PRINT INDIVISIBILE MAP" << endl;
+  //  fHitMap->PrintIndivisibleMap();
 }
 
 
@@ -1481,10 +1484,10 @@ Int_t PndTrkCombiLegendreTask::ClusterToConformal(PndTrkCluster *cluster) {
   Double_t delta = 0, trasl[2] = {0., 0.};
   if(fSecondary) {
     // translation and rotation - CHECK
-    cout << " REFERENCE HIT among " << cluster->GetNofHits() << " hits" << endl;
     fRefHit = FindReferenceHit(cluster);
-    if(fRefHit == NULL)  {
-      // cout << "REFHIT " << fRefHit << endl;
+    cout << " REFERENCE HIT " << fRefHit << " found among " << cluster->GetNofHits() << " hits" << endl;
+   if(fRefHit == NULL)  {
+      //      cout << "REFHIT " << fRefHit << endl;
       //	Reset();  
       return 0;
     }
@@ -1519,7 +1522,7 @@ PndTrkTrack * PndTrkCombiLegendreTask::LegendreFit(PndTrkCluster *cluster) {
   legendrecombi->SetUpLegendreHisto(1000, fThetamin, fThetamax, 1000, fRmin, fRmax);
   if(fRecoverIteration > 0) {
     legendrecombi->GetLegendreHisto()->Rebin2D(TMath::Power(2, fRecoverIteration), TMath::Power(2, fRecoverIteration));
-    cout << "RECOVER ITERATION " << fRecoverIteration << " " << legendrecombi->GetLegendreHisto()->GetNbinsX() << " " << legendrecombi->GetLegendreHisto()->GetNbinsY() << endl;
+    cout << "RECOVER ITERATION " << fRecoverIteration << " " << TMath::Power(2, fRecoverIteration) << " " << legendrecombi->GetLegendreHisto()->GetNbinsX() << " " << legendrecombi->GetLegendreHisto()->GetNbinsY() << endl;
   }
   
   if(legendrecombi->GetLegendreHisto()->GetNbinsX() < 50) return NULL; // CHECK
@@ -1577,63 +1580,57 @@ PndTrkTrack * PndTrkCombiLegendreTask::LegendreFit(PndTrkCluster *cluster) {
   return track;
 }
 
+Bool_t PndTrkCombiLegendreTask::DoesBelong(PndTrkHit *hit, double xc, double yc, double R) {
+
+  // create cluster depending on fitting
+  double rmin = R - 1;// R * 0.05; // CHECK value%? // CHECK CAN BE DONE ONCE FOR EACH TRACK
+  double rmax = R + 1;// R * 0.05; // "      "
+  // cout << "rmin " << rmin << " rmax " << rmax << endl;
+
+  double distance = hit->GetXYDistance(TVector3(xc, yc, 0.));
+  double dist = fabs(distance - R);
+
+  // ------- to be deleted --- only to check MC truth
+  if(hit->IsStt()) {
+    PndSttHit *stthit = (PndSttHit*) fSttHitArray->At(hit->GetHitID());
+    PndSttPoint *sttpnt = (PndSttPoint*) fSttPointArray->At(stthit->GetRefIndex());
+    if(dist < 5 * hit->GetIsochrone()) {
+      if(distance <= rmax && distance >= rmin) cout << " distance " << distance << " dist " << dist << " " << hit->GetIsochrone() << " "<< sttpnt->GetTrackID() << endl;
+      else cout << "\033[1;31m distance " << distance << " dist " << dist << "\033[0m" << " " << hit->GetIsochrone() << " "<< sttpnt->GetTrackID() << endl;
+    }
+    else if(distance <= rmax && distance >= rmin) cout << "\033[1;33m distance " << distance << " dist " << dist << "\033[0m" << " " << hit->GetIsochrone() << " "<< sttpnt->GetTrackID() << endl;
+  }
+    // ------------------------------------------------
+
+
+
+  //    if(distance <= rmax && distance >= rmin) {
+  //    if(dist < 5 * hit->GetIsochrone()) {
+  if((distance <= rmax && distance >= rmin) || (dist < 5 * hit->GetIsochrone())) return kTRUE;
+  return kFALSE;
+}      
+
 
 PndTrkCluster * PndTrkCombiLegendreTask::CreateClusterAroundTrack(PndTrkTrack *track) {
 
+  PndTrkCluster *cluster = track->GetCluster();
   double R = track->GetRadius();
   double xc = track->GetCenter().X();
   double yc = track->GetCenter().Y();
-  double fitm, fitp;
-  FromRealToConformalTrack(xc, yc, R, fitm, fitp);
 
-  PndTrkCluster *cluster = track->GetCluster();
-
-  // create cluster depending on fitting
-  double rmin = R - R * 0.05; // CHECK 5%?
-  double rmax = R + R * 0.05; // "      "
-  
-  //   if(fDisplayOn) {
-  //     display->cd(1);
-  //     track->Draw(kBlue);
-    
-  //     TArc *arcmin = new TArc(xc, yc, rmin);
-  //     TArc *arcmax = new TArc(xc, yc, rmax);
-      
-  //     arcmin->SetFillStyle(0);
-  //     arcmax->SetFillStyle(0);
-  //     arcmin->SetLineColor(kGreen);
-  //     arcmax->SetLineColor(kBlue);
-
-  //    arcmin->Draw("SAME");
-  //     arcmax->Draw("SAME");
-  
-  //     display->Update();
-  //     display->Modified();
-  //     char goOnChar;
-  //     cout << "want to go to new cluster?" << endl;
-  //     cin >> goOnChar;
-  //   }
-    
   // create cluster depending on fitting
   PndTrkCluster *thiscluster = new PndTrkCluster();
   int startsecid = 1000, endsecid = -1, startlayid = 1000, endlayid = -1;
-  double totaldistanceconf = 0,  chi2 = 0;
-
+ 
+ 
   // ...................................................
   // I. clean existing cluster
   // add hits within certain rmin & rmax;
   // find min/max sec/layer
   for(int ihit = 0; ihit < cluster->GetNofHits(); ihit++) {
     PndTrkHit *hit = cluster->GetHit(ihit);
-    PndTrkConformalHit *chit = NULL;
-    if(hit->IsSttParallel()) chit = conform->GetConformalSttHit(hit);
-    else chit = conform->GetConformalHit(hit); // CHECK if skew?
-    double distanceconf = fabs((chit->GetV() - fitm * chit->GetU() - fitp)/ TMath::Sqrt(fitm * fitm + 1));
- 
-
-    double distance = hit->GetXYDistance(TVector3(xc, yc, 0.));
-    //    cout << "distance " << distance << " " << rmin << " " << rmax << " " << distanceconf << endl;
-    if(distance <= rmax && distance >= rmin) {
+    bool doesitbelong = DoesBelong(hit, xc, yc, R);
+    if(doesitbelong == kTRUE) {
       thiscluster->AddHit(hit);
       if(fDisplayOn) {
 	display->cd(1);
@@ -1646,14 +1643,8 @@ PndTrkCluster * PndTrkCombiLegendreTask::CreateClusterAroundTrack(PndTrkTrack *t
       if(tube->GetSectorID() < startsecid) startsecid = tube->GetSectorID();
       if(tube->GetLayerID() > endlayid)  endlayid = tube->GetLayerID();
       if(tube->GetSectorID() > endsecid) endsecid = tube->GetSectorID();
-      
-      //      cout << "hit " << ihit << " " << hit->GetHitID() << " " << endsecid << " " << endlayid << endl;
-      totaldistanceconf += distanceconf;
-
-    }
+     }
   }
-
-  double meandistanceconf = totaldistanceconf/thiscluster->GetNofHits();
 
   cout << "START SECTOR " << startsecid << " END SECTOR " << endsecid << endl;
   cout << "START LAYER  " << startlayid << " END LAYER  " << endlayid << endl;
@@ -1676,12 +1667,9 @@ PndTrkCluster * PndTrkCombiLegendreTask::CreateClusterAroundTrack(PndTrkTrack *t
 	PndTrkHit *hit = stthitlist->GetHit(ihit);
 	if(cluster->DoesContain(hit)) continue;     
 	PndSttTube *tube = (PndSttTube*) fTubeArray->At(hit->GetTubeID());
-	
-	double distance = hit->GetXYDistance(TVector3(xc, yc, 0.));
-	if(distance <= rmax && distance >= rmin) {
-	  //	cout << endl;
-	  //	cout << "other sector " << tube->GetSectorID() << " " << tube->GetLayerID();
-	  
+	bool doesitbelong = DoesBelong(hit, xc, yc, R);
+	if(doesitbelong == kTRUE) {
+  	  
 	  if(select_sec_lay == true) {
 	    if(tube->GetSectorID() == 0 || tube->GetSectorID() == 5) {
 	      if(startsecid != 5 && endsecid != 5 && startsecid != 0 && endsecid != 0) continue; 
@@ -1689,15 +1677,6 @@ PndTrkCluster * PndTrkCombiLegendreTask::CreateClusterAroundTrack(PndTrkTrack *t
 	    else if(fabs(tube->GetSectorID() - startsecid) > 1 && fabs(tube->GetSectorID() - endsecid) > 1) continue;
 	    if(tube->GetLayerID() > startlayid && tube->GetLayerID() < endlayid) continue;
 	  }
-	  
-	  PndTrkConformalHit *chit = NULL;
-	  if(hit->IsSttParallel()) chit = conform->GetConformalSttHit(hit);
-	  else chit = conform->GetConformalHit(hit); // CHECK if skew?
-	  double distanceconf = fabs((chit->GetV() - fitm * chit->GetU() - fitp)/ TMath::Sqrt(fitm * fitm + 1));
-	  
-	  //	cout << "->distance " << distance << " (" << meandistanceconf << ") " << rmin << " " << rmax << " " << distanceconf << endl;
-	  
-	  
 	  
 	  if(fDisplayOn) {
 	    display->cd(1);
@@ -1709,11 +1688,7 @@ PndTrkCluster * PndTrkCombiLegendreTask::CreateClusterAroundTrack(PndTrkTrack *t
 	    // cin >> goOnChar;
 	  } 
 
-	  //	cout << "tubeid " << hit->GetTubeID() << " " << tube->GetLayerID() << endl;
 	  thiscluster->AddHit(hit);
-	  //	cout << " ***";
-
-
 	}
       }
     }
@@ -1732,6 +1707,7 @@ PndTrkCluster * PndTrkCombiLegendreTask::CreateClusterAroundTrack(PndTrkTrack *t
 
   return thiscluster;
 }
+
 
 void PndTrkCombiLegendreTask::AnalyticalFit(PndTrkCluster *cluster, double xc, double yc, double R, double &fitm, double&fitq) {
   

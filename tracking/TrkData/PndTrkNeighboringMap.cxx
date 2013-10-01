@@ -82,7 +82,7 @@ void PndTrkNeighboringMap::AddNeighboringsToHit(PndTrkHit *hit, TObjArray *hits)
   // up to 2 hits
   if(hits->GetEntriesFast() <= 2) {
     hit2indiv.Add(hit, hits);
-    cout << "Bset up map " << hit->GetHitID() << " " << hits->GetEntriesFast() << endl; 
+    //    cout << "Bset up map " << hit->GetHitID() << " " << hits->GetEntriesFast() << endl; 
     return;
   }
 
@@ -103,7 +103,7 @@ void PndTrkNeighboringMap::AddNeighboringsToHit(PndTrkHit *hit, TObjArray *hits)
 
   if(counter > 2) indiv->Clear();
   hit2indiv.Add(hit, indiv);
-  cout << "Aset up map " << hit->GetHitID() << " " << indiv->GetEntriesFast() << endl; 
+  //  cout << "Aset up map " << hit->GetHitID() << " " << indiv->GetEntriesFast() << endl; 
   
 }
 
