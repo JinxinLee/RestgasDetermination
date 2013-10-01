@@ -592,7 +592,6 @@ return 1;
  Stt_IndVar_IndVar_Sum = 0. ;
  Stt_IndVar_DipVar_Sum = 0. ;
 
-
  for(i=0; i<nHitsinTrack; i++){
 
 
@@ -612,7 +611,6 @@ return 1;
 	  // the following is useful only for adding the penalty term later;
 	  Mvd_invError2[nMvdHits] = e2;
 	  nMvdHits++;
-
 	} else {
 	  // Skew Straw hit;
 	  // relevant quantities for the chi2 calculation and minimization;
@@ -620,14 +618,15 @@ return 1;
 	  // dependent variable (== Stt_DepVar);
 	  // the fit function is :  Z = (1/Kappa)*(S-FInot);
 
-	  Stt_DipVar_DipVar_Sum += Z[i]*Z[i]*e2;
+	  if( nSttHits < NMAX){
+		Stt_DipVar_DipVar_Sum += Z[i]*Z[i]*e2;
+		Stt_DriftRad_DriftRad_Sum += DriftRadius[i]*DriftRadius[i]*e2;
+		Stt_DriftRad_IndVar[nSttHits] = DriftRadius[i]*(S[i]-FInot)*e2;
+		Stt_DriftRad_DipVar[nSttHits] = DriftRadius[i]*Z[i]*e2;
 
-	  Stt_DriftRad_DriftRad_Sum += DriftRadius[i]*DriftRadius[i]*e2;
-	  Stt_DriftRad_IndVar[nSttHits] = DriftRadius[i]*(S[i]-FInot)*e2;
-	  Stt_DriftRad_DipVar[nSttHits] = DriftRadius[i]*Z[i]*e2;
-
-	  Stt_IndVar_IndVar_Sum += (S[i]-FInot)*(S[i]-FInot)*e2;
-	  Stt_IndVar_DipVar_Sum += (S[i]-FInot)*Z[i]*e2;
+		Stt_IndVar_IndVar_Sum += (S[i]-FInot)*(S[i]-FInot)*e2;
+		Stt_IndVar_DipVar_Sum += (S[i]-FInot)*Z[i]*e2;
+	  }
 	  nSttHits++;
 	}
  } // end of  for(i=0; i<nHitsinTrack; i++)
