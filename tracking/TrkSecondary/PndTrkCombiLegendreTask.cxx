@@ -1593,7 +1593,6 @@ PndTrkCluster * PndTrkCombiLegendreTask::CreateClusterAroundTrack(PndTrkTrack *t
   double rmin = R - R * 0.05; // CHECK 5%?
   double rmax = R + R * 0.05; // "      "
   
-  
   //   if(fDisplayOn) {
   //     display->cd(1);
   //     track->Draw(kBlue);
@@ -1606,9 +1605,9 @@ PndTrkCluster * PndTrkCombiLegendreTask::CreateClusterAroundTrack(PndTrkTrack *t
   //     arcmin->SetLineColor(kGreen);
   //     arcmax->SetLineColor(kBlue);
 
-  //  //    arcmin->Draw("SAME");
-  // //     arcmax->Draw("SAME");
-
+  //    arcmin->Draw("SAME");
+  //     arcmax->Draw("SAME");
+  
   //     display->Update();
   //     display->Modified();
   //     char goOnChar;
@@ -1620,7 +1619,11 @@ PndTrkCluster * PndTrkCombiLegendreTask::CreateClusterAroundTrack(PndTrkTrack *t
   PndTrkCluster *thiscluster = new PndTrkCluster();
   int startsecid = 1000, endsecid = -1, startlayid = 1000, endlayid = -1;
   double totaldistanceconf = 0,  chi2 = 0;
-  // clean existing cluster
+
+  // ...................................................
+  // I. clean existing cluster
+  // add hits within certain rmin & rmax;
+  // find min/max sec/layer
   for(int ihit = 0; ihit < cluster->GetNofHits(); ihit++) {
     PndTrkHit *hit = cluster->GetHit(ihit);
     PndTrkConformalHit *chit = NULL;
@@ -1636,11 +1639,6 @@ PndTrkCluster * PndTrkCombiLegendreTask::CreateClusterAroundTrack(PndTrkTrack *t
       if(fDisplayOn) {
 	display->cd(1);
 	hit->DrawTube(kGreen);
-	// 	display->Update();
-	// 	display->Modified();
-	//	  char goOnChar;
-	//	  cout << "want to go to next hitcluster2?" << endl;
-	//	  cin >> goOnChar;
       } 
       
       PndSttTube *tube = (PndSttTube*) fTubeArray->At(hit->GetTubeID());
@@ -1670,9 +1668,10 @@ PndTrkCluster * PndTrkCombiLegendreTask::CreateClusterAroundTrack(PndTrkTrack *t
     cout << "want to go to next cluster1?" << endl;
     cin >> goOnChar;
   } 
-
-
-  if(startlayid != 0 || endlayid != 23) 
+  // ...................................................
+  // II. for its not in the cluster
+  bool select_sec_lay = true;
+  if((select_sec_lay == true && (startlayid != 0 || endlayid != 23)) || select_sec_lay == false) 
     {
       for(int ihit = 0; ihit < stthitlist->GetNofHits(); ihit++) {
 	PndTrkHit *hit = stthitlist->GetHit(ihit);
@@ -1684,11 +1683,13 @@ PndTrkCluster * PndTrkCombiLegendreTask::CreateClusterAroundTrack(PndTrkTrack *t
 	  //	cout << endl;
 	  //	cout << "other sector " << tube->GetSectorID() << " " << tube->GetLayerID();
 	  
-	  if(tube->GetSectorID() == 0 || tube->GetSectorID() == 5) {
-	    if(startsecid != 5 && endsecid != 5 && startsecid != 0 && endsecid != 0) continue; 
+	  if(select_sec_lay == true) {
+	    if(tube->GetSectorID() == 0 || tube->GetSectorID() == 5) {
+	      if(startsecid != 5 && endsecid != 5 && startsecid != 0 && endsecid != 0) continue; 
+	    }
+	    else if(fabs(tube->GetSectorID() - startsecid) > 1 && fabs(tube->GetSectorID() - endsecid) > 1) continue;
+	    if(tube->GetLayerID() > startlayid && tube->GetLayerID() < endlayid) continue;
 	  }
-	  else if(fabs(tube->GetSectorID() - startsecid) > 1 && fabs(tube->GetSectorID() - endsecid) > 1) continue;
-	  if(tube->GetLayerID() > startlayid && tube->GetLayerID() < endlayid) continue;
 	  
 	  PndTrkConformalHit *chit = NULL;
 	  if(hit->IsSttParallel()) chit = conform->GetConformalSttHit(hit);
