@@ -48,11 +48,13 @@ class PndTrkHit : public FairTimeStamp
   void SetPhi(Double_t phi)                  { fPhi = phi; }
 
   void SetUsedFlag(Bool_t used) { fUsed = used; }
+  void SetRefHitFlag(Bool_t used) { fUsedAsRefHit = used; }
 
   // inline get
   inline Int_t    GetHitID()          { return fHitID; }
   inline Int_t    GetDetectorID()     { return fDetectorID; }
   inline Bool_t   IsUsed()            { return fUsed; }
+   inline Bool_t  WasRefHit()         { return fUsedAsRefHit; }
   inline Int_t    GetSensorID()       { return fSensorID; }
   inline Int_t    GetTubeID()         { return fSensorID; }
   inline TVector3 GetPosition()       { return fPosition; }
@@ -85,6 +87,7 @@ class PndTrkHit : public FairTimeStamp
   // variables
   Int_t fHitID, fDetectorID, fIRegion, fSensorID; 
   Bool_t fUsed;
+  Bool_t fUsedAsRefHit;
   TVector3 fPosition;
   Double_t fIsochrone;
   Double_t fSortVariable; // variable for sorting

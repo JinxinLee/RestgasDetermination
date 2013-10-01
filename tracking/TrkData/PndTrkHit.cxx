@@ -42,13 +42,13 @@ Bool_t PndTrkHit::operator<(const PndTrkHit &hit1) {
 
 
 
-PndTrkHit::PndTrkHit() :  fHitID(-1), fDetectorID(-1), fUsed(0), fIRegion(-1), fSensorID(-1), fPosition(0., 0., 0.), fIsochrone(0), fSortVariable(-1), fPhi(-1) {}
+PndTrkHit::PndTrkHit() :  fHitID(-1), fDetectorID(-1), fUsed(0), fUsedAsRefHit(0), fIRegion(-1), fSensorID(-1), fPosition(0., 0., 0.), fIsochrone(0), fSortVariable(-1), fPhi(-1) {}
 
-PndTrkHit::PndTrkHit(Int_t hitID, Int_t detID, Bool_t used, Int_t iregion, Int_t sensorID, TVector3& pos, Double_t isochrone, Double_t sortvar) : fHitID(hitID), fDetectorID(detID), fUsed(used), fIRegion(iregion), fSensorID(sensorID), fPosition(pos.X(), pos.Y(), pos.Z()), fIsochrone(isochrone), fSortVariable(sortvar), fPhi(-1) {}
+PndTrkHit::PndTrkHit(Int_t hitID, Int_t detID, Bool_t used, Int_t iregion, Int_t sensorID, TVector3& pos, Double_t isochrone, Double_t sortvar) : fHitID(hitID), fDetectorID(detID), fUsed(used), fUsedAsRefHit(0), fIRegion(iregion), fSensorID(sensorID), fPosition(pos.X(), pos.Y(), pos.Z()), fIsochrone(isochrone), fSortVariable(sortvar), fPhi(-1) {}
 
 // PndTrkHit::PndTrkHit(Int_t hitID, Int_t detID, Bool_t used, Int_t iregion, Int_t sensorID, TVector3& pos) :  fHitID(hitID), fDetID(detID), fUsed(used), fIRegion(iregion), fSensorID(sensorID), fPosition(pos.X(), pos.Y(), pos.Z()), fIsochrone(0) {}
 
-PndTrkHit::PndTrkHit(const PndTrkHit &hit) : fHitID(hit.fHitID), fDetectorID(hit.fDetectorID), fUsed(hit.fUsed), fIRegion(hit.fIRegion), fSensorID(hit.fSensorID), fPosition(hit.fPosition), fIsochrone(hit.fIsochrone), fSortVariable(hit.fSortVariable), fPhi(hit.fPhi) {}
+PndTrkHit::PndTrkHit(const PndTrkHit &hit) : fHitID(hit.fHitID), fDetectorID(hit.fDetectorID), fUsed(hit.fUsed), fUsedAsRefHit(hit.fUsedAsRefHit), fIRegion(hit.fIRegion), fSensorID(hit.fSensorID), fPosition(hit.fPosition), fIsochrone(hit.fIsochrone), fSortVariable(hit.fSortVariable), fPhi(hit.fPhi) {}
 
 PndTrkHit::~PndTrkHit() {}
 
