@@ -50,6 +50,8 @@ class PndTrkHit : public FairTimeStamp
   void SetUsedFlag(Bool_t used) { fUsed = used; }
   void SetRefHitFlag(Bool_t used) { fUsedAsRefHit = used; }
 
+  void SetRegion(Int_t iregion) { fIRegion = iregion; }
+
   // inline get
   inline Int_t    GetHitID()          { return fHitID; }
   inline Int_t    GetDetectorID()     { return fDetectorID; }
@@ -59,7 +61,7 @@ class PndTrkHit : public FairTimeStamp
   inline Int_t    GetTubeID()         { return fSensorID; }
   inline TVector3 GetPosition()       { return fPosition; }
   inline Double_t GetIsochrone()      { return fIsochrone; }
-  inline Int_t    GetIRegion()        { return fIRegion; }
+  inline Int_t    GetIRegion()        { return fIRegion ; }
   inline Bool_t   IsRegion(Int_t iregion) { return iregion == fIRegion; }
   inline Double_t GetSortVariable()   { return fSortVariable; } 
   inline Double_t GetPhi()            { return fPhi; }

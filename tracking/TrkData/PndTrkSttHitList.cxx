@@ -98,6 +98,27 @@ void PndTrkSttHitList::AddHit(Int_t hitid, Int_t detid, FairHit *hit) {
 
 }
 
+void PndTrkSttHitList::AddHit(PndTrkHit *hit) {
+  PndTrkHitList::AddHit(hit);
+  
+  std::map< int , int > ::iterator it;
+  int tubeID = hit->GetTubeID();
+  PndSttTube *tube = (PndSttTube* ) fTubeArray->At(tubeID);
+  int isec = tube->GetSectorID();
+  hitmap.insert( std::pair<int , int > (isec, hitlist.size() - 1));
+  int ilay = tube->GetLayerID();
+  hitmap2.insert( std::pair<int , int > (ilay, hitlist.size() - 1));
+  //   cout << "ISEC " << isec << " ILAY " << ilay << endl;
+  int iglo = FromSecLayToGlo(isec, ilay);
+  hitmap3.insert( std::pair<int , int > (iglo, hitlist.size() - 1)); // CHECK
+
+
+
+}
+
+
+
+
 // ---------------------- LAYERS ----------------------
 void PndTrkSttHitList::PrintLayers() {
 

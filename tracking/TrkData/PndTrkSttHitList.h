@@ -27,7 +27,7 @@ class PndTrkSttHitList : public PndTrkHitList
   PndTrkSttHitList* Instanciate();
 
   void AddHit(Int_t hitid, Int_t detid, FairHit *hit);
-
+  void AddHit(PndTrkHit *hit);
 
 
   int GetNofHitsInLayer(int ilay);

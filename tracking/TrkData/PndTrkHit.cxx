@@ -127,13 +127,14 @@ void PndTrkHit::Draw(Color_t color) {
   case 5: 
     {
       //      arc = new TArc(fPosition.X(), fPosition.Y(), TUBERADIUS); // CHECK skew
-      mrk = new TMarker(fPosition.X(), fPosition.Y(), 3);
+      mrk = new TMarker(fPosition.X(), fPosition.Y(), 6);
       break;
     }
   }
 
   if(mrk) {
     mrk->SetMarkerColor(color);
+    mrk->SetMarkerSize(0.5);
     mrk->Draw("SAME");
   }
   if(arc) {

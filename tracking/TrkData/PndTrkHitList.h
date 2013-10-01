@@ -30,7 +30,8 @@ class PndTrkHitList : public TObject
   void AddHit(Int_t hitID, Int_t detID, Bool_t used, Int_t iregion, TVector3& pos);
   void AddHit(Int_t hitID, Int_t detID, Bool_t used, Int_t iregion, Int_t tubeID, TVector3& pos, Double_t isochrone);
   void AddHit(Int_t hitID, Int_t detID, Bool_t used, Int_t iregion, Int_t sensorID, TVector3& pos);
-  
+  void AddHit(PndTrkHit *hit);
+
   void AddTCA(Int_t detID, TClonesArray *array);
 
   virtual void AddHit(Int_t hitid, Int_t detid, FairHit *hit);
