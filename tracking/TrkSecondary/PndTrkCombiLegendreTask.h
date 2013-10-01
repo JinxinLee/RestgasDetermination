@@ -61,7 +61,9 @@ class PndTrkCombiLegendreTask : public FairTask {
   void Reset();
 
   inline void SwitchOnDisplay() { fDisplayOn = kTRUE; }
-  void DrawGeometry();
+  inline void SwitchOnSeeMC() { fSeeMC = kTRUE; }
+  void DrawGeometry(int cpad = 1);
+  void DrawSttGeometry();
   void DrawHits(PndTrkHitList *hitlist);
   void DrawLists();
   void DrawNeighborings();
@@ -102,12 +104,13 @@ class PndTrkCombiLegendreTask : public FairTask {
   PndTrkClusterList CreateFullClusterization();
   PndTrkClusterList CreateFullClusterization2();
 
-  Int_t CountTracksInCluster(PndTrkCluster *cluster);
-  Int_t CountTracksInSkewSector(PndTrkCluster *cluster);
-  Int_t CountTracksInCluster(PndTrkCluster *cluster, Int_t where);
+  Int_t CountTracksInCluster(PndTrkCluster *cluster, int *noftracksinlayer);
+  Int_t CountTracksInSkewSector(PndTrkCluster *cluster, int *noftracksinlayer);
+  Int_t CountTracksInCluster(PndTrkCluster *cluster, Int_t where, int *noftracksinlayer);
 
   Int_t ClusterToConformal(PndTrkCluster *cluster);
- PndTrkTrack *LegendreFit(PndTrkCluster *cluster);
+  PndTrkTrack *LegendreFit(PndTrkCluster *cluster);
+  PndTrkTrack *LegendreFitWithRecovering(PndTrkCluster *cluster);
   PndTrkCluster *CreateClusterAroundTrack(PndTrkTrack *track);
 
   void AnalyticalFit(PndTrkCluster *cluster, double xc, double yc, double R, double &fitm, double &fitq);
@@ -122,6 +125,7 @@ class PndTrkCombiLegendreTask : public FairTask {
 
   //  Int_t ComputeSkewedXYZ(PndTrkCluster *cluster);
 
+  void CleanTrack(PndTrkTrack *track);
  private:
 
 
@@ -164,7 +168,8 @@ class PndTrkCombiLegendreTask : public FairTask {
   //  TSpectrum2 *s;
   PndTrkLegendreTransform *legendre;
   PndTrkCombiLegendreTransform *legendrecombi;
- Bool_t fPersistence, fUseMVDPix, fUseMVDStr, fUseSTT, fSecondary, fInitDone;
+  Bool_t fPersistence, fUseMVDPix, fUseMVDStr, fUseSTT, fSecondary, fInitDone;
+  Int_t fRecoverIteration;
 
 
 
@@ -186,6 +191,7 @@ class PndTrkCombiLegendreTask : public FairTask {
 
   // display
   Bool_t fDisplayOn;
+  Bool_t fSeeMC;
   TH2F *hxy, *hxz, *hzphi;
   TCanvas *display;
   TH2F *huv;
