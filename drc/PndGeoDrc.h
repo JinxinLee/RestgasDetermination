@@ -12,6 +12,7 @@ class  PndGeoDrc : public FairGeoSet {
 
   private:
   double fNquartz;
+  double fUquartz;
   double fNEV;
   double fRoughness;			    //!< Quartz bar surface roughness [nm] = 10A
   double fGlueLayer;			    //!< Thickness of the glue layer [cm].
@@ -67,6 +68,8 @@ class  PndGeoDrc : public FairGeoSet {
   /*! The mean refraction index of fused silica (for reconstruction).
     \return The Nquartz. */
   Double_t  nQuartz() {return fNquartz;}
+  
+  Double_t uQuartz(){return fUquartz;}
   
   /*! The refraction index of the expansion volume.
     \return The NEV. */
