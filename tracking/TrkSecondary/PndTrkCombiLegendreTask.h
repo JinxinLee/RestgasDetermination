@@ -112,6 +112,8 @@ class PndTrkCombiLegendreTask : public FairTask {
   PndTrkTrack *LegendreFit(PndTrkCluster *cluster);
   PndTrkTrack *LegendreFitWithRecovering(PndTrkCluster *cluster);
   PndTrkCluster *CreateClusterAroundTrack(PndTrkTrack *track);
+ PndTrkCluster *CreateClusterAroundTrack2(PndTrkTrack *track);
+
   Bool_t DoesBelong(PndTrkHit *hit, double xc, double yc, double R);
 
 
@@ -139,7 +141,8 @@ class PndTrkCombiLegendreTask : public FairTask {
   /** Input array of PndSttHit **/
   TClonesArray* fSttHitArray;
 
-
+  /** Input array of PndSdsPoint **/
+  TClonesArray* fMvdPointArray;
  /** Input array of MvdPixelHitArray **/
   TClonesArray* fMvdPixelHitArray;
  /** Input array of MvdStripHitArray **/

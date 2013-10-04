@@ -8,7 +8,7 @@
 
 // STT - geometry
 #define TUBERADIUS 0.5
-#define CTOUTRADIUS 42.
+#define CTOUTRADIUS 41.
 #define CTINRADIUS  15.
 #define SKEWANGLE  3. * TMath::DegToRad()
 #define SKEWLIMIT 30.   // CHECK
