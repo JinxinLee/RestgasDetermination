@@ -290,7 +290,7 @@ void PndPhoGunShort::ProcessPhotonHit()
     if(SelectionName==0.){continue;}    
 
     fPixIndex = pdhit->GetDetectorID();                          
-    ftime = pdhit->GetTime(); 
+    ftime = Ppt->GetTime();//pdhit->GetTime(); 
       
     // Photon initial momentum in the bar coord. syst.
     fPphoInit = tr->GetMomentum();       
@@ -303,9 +303,10 @@ void PndPhoGunShort::ProcessPhotonHit()
     fkyBar =  fPphoB.X();
     fkzBar =  fPphoB.Z();
     fPphoB.SetXYZ(fkxBar,fkyBar,fkzBar);
-    
+
+    ((PndDrcLutNodeH*)(fLut->At(fPixIndex)))->AddEntry(fPphoB,ambiguity,ftime);
     ((PndDrcLutNodeH*)(fLut->At(fPixIndex)))->SetPos(pdhit->GetPosition());
-    ((PndDrcLutNodeH*)(fLut->At(fPixIndex)))->AddEntry(fPphoB,ambiguity);
+  
     
     Double_t rrr = sqrt(pow(pdhit->GetX(),2) + pow(pdhit->GetY(),2));
     
