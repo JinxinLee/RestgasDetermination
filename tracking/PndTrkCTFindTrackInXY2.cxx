@@ -434,14 +434,6 @@ int istampa = 0;
 		InOut->legiandre_nthetadiv,
 		InOut->legiandre_nradiusdiv,
 		nFitPoints,
-
-/*
-		tXconformal,
-		tYconformal,
-		tDriftRadiusconformal,
-		tErrorDriftRadiusconformal,
-*/
-
 		Xconformal,
 		Yconformal,
 		DriftRadiusconformal,
@@ -480,7 +472,7 @@ KAPPA[0] = 0.;
 nSttSkewHitsinTrack[0] = 0;
 nSciTilHitsinTrack[0] = 0;
 
-cout<<"\tstampa in CTFind..2.cxx, dopo FitHelixCylinder :"<<endl;
+cout<<"\tstampa in CTFind..2.cxx, dopo FitHelixCylinder  :"<<endl;
 Print2.stampetta2(tkeepit,ListMvdPixelHitsinTrack,
 ListMvdStripHitsinTrack,ListSttParHitsinTrack,
 ListSttSkewHitsinTrack,InOut->ListSciTilHitsinTrack,
@@ -657,6 +649,39 @@ InOut->Fi_initial_helix_referenceframe,KAPPA);
 	);
 
 
+//-------------- stampa
+
+if (istampa>0){
+bool tkeepit[10];
+tkeepit[0] = true;
+Short_t nSttSkewHitsinTrack[10],
+	nSciTilHitsinTrack[10],
+	IVOLTE = 0;
+Short_t ListSttSkewHitsinTrack[100];
+Double_t KAPPA[10] ;
+KAPPA[0] = 0.;
+nSttSkewHitsinTrack[0] = 0;
+nSciTilHitsinTrack[0] = 0;
+
+cout<<"\tstampa in CTFind..2.cxx, dopo AddMvdHitsToSttTracks (m = "<<m<<", q = "<<q<<", atan(m) = "<<atan(m)<<"):"<<endl;
+Print2.stampetta2(tkeepit,ListMvdPixelHitsinTrack,
+ListMvdStripHitsinTrack,ListSttParHitsinTrack,
+ListSttSkewHitsinTrack,InOut->ListSciTilHitsinTrack,
+&nMvdPixelHitsinTrack,&nMvdStripHitsinTrack,&nSttParHitsinTrack,
+
+nSttSkewHitsinTrack,nSciTilHitsinTrack,1,	// questo e' nTotCand, cioe' 1
+-1, // print all candidates;
+InOut->maxmvdpixelhitsintrack,InOut->maxmvdstriphitsintrack,InOut->maxscitilhitsintrack,InOut->maxstthitsintrack,&R,&Ox,&Oy,
+InOut->Fi_initial_helix_referenceframe,KAPPA);
+}
+//-------------- fine stampa
+
+
+
+
+
+//-----------------------------------------------------------------------
+
  // if there are new Mvd hits attached, redo the fit;
 
  if( nMvdPixelHitsinTrack + nMvdStripHitsinTrack == 0 ){
@@ -726,24 +751,19 @@ InOut->Fi_initial_helix_referenceframe,KAPPA);
 
   // the following fit in XY with the Chi2 methods requires already an existing fit (in order
   // to decide a priori on the left-right ambiguity of the Stt axial straws);
+  // The calculation of a good  rotationangle is very, very useful to the success of the fitting
+  //  in those cases when the trajectory is nearly perpendicular in the conformal space;
+
    status = fitChi2.FitHelixCylinder(
 	nFitPoints,
-
-/*
-	tXconformal,
-	tYconformal,
-	tDriftRadiusconformal,
-	tErrorDriftRadiusconformal,
-*/
-
-
 	Xconformal,
 	Yconformal,
 	DriftRadiusconformal,
 	ErrorDriftRadiusconformal,
 
 
-	0.,  //  rotationangle;
+	atan(m) ,  //  rotationangle, in radians; m was found by the Hough transform fit;
+//	0. ,  //  rotationangle, in radians; m was found by the Hough transform fit;
 	InOut->trajectory_vertex,	//  vertex in (X,Y) of this trajectory
 	InOut->maxhitsinfit,  //  maximum n. of hits allowed in fast fit
 	&m,
@@ -969,14 +989,7 @@ InOut->Fi_initial_helix_referenceframe,KAPPA);
 
 
 			)
- ){
-
-
-   return true;} else {
-
-
-
-   return false;}
+ ){return true;} else {return false;}
 
 
 
