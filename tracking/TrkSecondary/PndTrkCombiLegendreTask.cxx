@@ -262,7 +262,7 @@ void PndTrkCombiLegendreTask::Exec(Option_t* opt) {
   FillHitMap();
   // ##########################################################
 
-  //  fDisplayOn = kFALSE;
+    fDisplayOn = kFALSE;
 
   // --------- NO CLUSTERING -----------
   PndTrkCluster *globalcluster = new PndTrkCluster();
@@ -1580,6 +1580,7 @@ PndTrkCluster * PndTrkCombiLegendreTask::CreateClusterAroundTrack2(PndTrkTrack *
 
   // initialization
   int nofhitsinsec[6], lowlayinsec[6], uplayinsec[6];
+  TVector2 lowinsec[6], upinsec[6];
   bool sectorsallow[6];
   for(int isec = 0; isec < 6; isec++) {
     nofhitsinsec[isec] = 0;
@@ -1612,12 +1613,17 @@ PndTrkCluster * PndTrkCombiLegendreTask::CreateClusterAroundTrack2(PndTrkTrack *
 	maxnofhits = nofhitsinsec[isec];
 	maxhitsec = isec;
       }
-      if(ilay < lowlayinsec[isec]) lowlayinsec[isec] = ilay;
-      if(ilay > uplayinsec[isec])   uplayinsec[isec] = ilay;
-
-
+      if(ilay < lowlayinsec[isec]) {
+	lowlayinsec[isec] = ilay;
+	lowinsec[isec].Set(hit->GetPosition().X(), hit->GetPosition().Y());
+      }
+      if(ilay > uplayinsec[isec]) {
+	uplayinsec[isec] = ilay;
+	upinsec[isec].Set(hit->GetPosition().X(), hit->GetPosition().Y());
+      }
     }
   }
+
   // ============== CHECK ALLOWED SECTORS ================
   sectorsallow[maxhitsec] = true;
   for(int isec = maxhitsec + 1; isec <= endsecid; isec++) {
@@ -1644,8 +1650,85 @@ PndTrkCluster * PndTrkCombiLegendreTask::CreateClusterAroundTrack2(PndTrkTrack *
   if((OC < CTOUTRADIUS && (OC + R) > CTOUTRADIUS) || (OC > CTOUTRADIUS && (OC - R) < CTOUTRADIUS)) {
     double arrow = OC + R - OQ;
     cout << "========================> ARROW " << arrow << endl;
+    
+    bool sectorsallow2[6];
+    for(int isec = 0; isec < 6; isec++) {          // CHECK hardcoded nof sectors
+      sectorsallow2[isec] = false;
+    }
+    sectorsallow2[maxhitsec] = true;
+    
+    int nofsteps = endsecid - startsecid;
+    if(nofsteps == 5) nofsteps++;
+    int nofstepsup = endsecid - maxhitsec;
+    //    int nofstepsdown = maxhitsec - startsecid;
+    sectorsallow2[maxhitsec] = true;
+
+    for(int isec = 0; isec < nofsteps; isec++) {   
+      int ksec = maxhitsec, jsec;
+      if(isec < nofstepsup) {
+	ksec += isec;
+	if(ksec > 5) ksec -= 6;
+	jsec = ksec;
+	jsec++;
+	if(ksec == 5) jsec = 0;
+      }
+      else {
+	ksec -= (isec - nofstepsup);
+	if(ksec < 0) ksec += 6;
+	jsec = ksec;
+	jsec--;
+	if(ksec == 0) jsec = 5;
+      }
+      cout << "ksec " << ksec << " jsec " << jsec << endl;
+      cout << "ksec layers " << lowlayinsec[ksec] << " " << uplayinsec[ksec] << endl;
+      cout << lowinsec[ksec].Mod() << " " << upinsec[ksec].Mod() << endl;
+
+      cout << "jsec layers " << lowlayinsec[jsec] << " " << uplayinsec[jsec] << endl;
+      cout << lowinsec[jsec].Mod() << " " << upinsec[jsec].Mod() << endl;
+   if(sectorsallow[ksec] == true && sectorsallow[jsec] == true) {
+	cout << "go on " << endl;
+	
+	if(upinsec[ksec].Mod() > 39 && upinsec[jsec].Mod() > 39) {  // both pieces @ CTOUTRADIUS?
+	  if(arrow < 7) {
+	    cout << "BOTH AT OUTER RADIUS" << endl;
+	    sectorsallow2[isec] = true;
+	    sectorsallow2[jsec] = true;
+	  }
+	  else 	  cout << "WRONG BOTH AT OUTER RADIUS ************* " << upinsec[ksec].Mod() << " " <<  upinsec[jsec].Mod() << endl;
+	}
+	else if(lowinsec[ksec].Mod() < 17 && lowinsec[jsec].Mod() < 17) { // both @ 0
+	  if(arrow < 7) {
+	    cout << "BOTH AT INNER RADIUS" << endl;
+	    sectorsallow2[isec] = true;
+	    sectorsallow2[jsec] = true;
+	  }
+	  else 	    cout << "WRONG BOTH AT INNER RADIUS ************* " << lowinsec[ksec].Mod() << " " << lowinsec[jsec].Mod() << endl;  
+	}
+	else { // one here/one there
+	  TVector2 lowvec, upvec;
+	  int lowlay, uplay;
+	  (upinsec[ksec] - lowinsec[jsec]).Mod() < (lowinsec[ksec] - upinsec[jsec]).Mod() ?  (lowvec = lowinsec[ksec], upvec = upinsec[jsec], lowlay = lowlayinsec[ksec] , uplay = uplayinsec[jsec]) : (upvec = upinsec[ksec], lowvec = lowinsec[jsec], lowlay = lowlayinsec[jsec], uplay = uplayinsec[ksec]);
+	  if((upvec - lowvec).Mod() < 10) {
+	    cout << "ONE HERE / ONE THERE" << endl;
+	    sectorsallow2[isec] = true;
+	    sectorsallow2[jsec] = true;
+	  }
+	  else 	 {
+	    cout << "WRONG ONE HERE / ONE THERE *************** " << (upvec - lowvec).Mod() << " " << lowlay << " " << uplay << endl;
+
+	  }
+	  
+	}
+      }
+    }     
+    for(int isec = 0; isec < 6; isec++) {
+      sectorsallow[isec] =  sectorsallow2[isec];
+    }
+
   }
   else cout << "========================> NO INTERSECTION " << OQ << " " << CTOUTRADIUS << " " << R << endl;
+
+
 
 
   if(fDisplayOn) {
@@ -1682,12 +1765,12 @@ PndTrkCluster * PndTrkCombiLegendreTask::CreateClusterAroundTrack2(PndTrkTrack *
   }
   return thiscluster2;
 }
-
+  
 PndTrkCluster * PndTrkCombiLegendreTask::CreateClusterAroundTrack(PndTrkTrack *track) {
 
   PndTrkCluster *cluster = track->GetCluster();
 
-  cout << "CREATE CLUSTER AROUNG TRACK " << track->GetCluster() << " with hits " << track->GetCluster()->GetNofHits() << endl;
+  cout << "CREATE CLUSTER AROUND TRACK " << track->GetCluster() << " with hits " << track->GetCluster()->GetNofHits() << endl;
 
   double R = track->GetRadius();
   double xc = track->GetCenter().X();
