@@ -262,7 +262,7 @@ void PndTrkCombiLegendreTask::Exec(Option_t* opt) {
   FillHitMap();
   // ##########################################################
 
-    fDisplayOn = kFALSE;
+      fDisplayOn = kFALSE;
 
   // --------- NO CLUSTERING -----------
   PndTrkCluster *globalcluster = new PndTrkCluster();
@@ -328,7 +328,9 @@ void PndTrkCombiLegendreTask::Exec(Option_t* opt) {
 	if(thiscluster == NULL) continue;
 	//	cout << thiscluster << endl;
 	// fitting procedure -----~~~~~-----~~~~~-----~~~~~-----~~~~~-----~~~~~-----~~~~~
-	Int_t nhits = ClusterToConformal(thiscluster);
+	Int_t nhits = 0;
+	if(irun == 0) nhits = ClusterToConformal(thiscluster, 0);
+	else nhits = ClusterToConformal(thiscluster, 1);
 	if(nhits == 0) continue;
 	if(fSecondary) ComputePlaneExtremities(thiscluster);
     
@@ -417,7 +419,7 @@ void PndTrkCombiLegendreTask::Exec(Option_t* opt) {
       track->SetRadius(R);
       
       // create final cluster on the refitted track
-      thiscluster = CreateClusterAroundTrack(track);
+      thiscluster = CreateClusterAroundTrack3(track);
       cout << "after analytical fit *** nof hits " << cluster->GetNofHits() << endl;
 
       track->SetCluster(thiscluster);
@@ -836,11 +838,15 @@ PndTrkHit *PndTrkCombiLegendreTask::FindReferenceHit()
  return refhit;
 }
 
-PndTrkHit *PndTrkCombiLegendreTask::FindReferenceHit(PndTrkCluster *cluster) {
+PndTrkHit *PndTrkCombiLegendreTask::FindReferenceHit(PndTrkCluster *cluster, bool keeprefhit) {
   int ntot = cluster->GetNofHits();
   //  cout << "FIND REFERENCE HIT " << ntot << endl;
-  
   if(ntot == 0) return NULL;
+
+  if(keeprefhit && cluster->DoesContain(fRefHit) == kTRUE) {
+    cout << "THE REF HIT IS ALREADY INSIDE THE CLUSTER SO I KEEP IT" << endl;
+    return fRefHit;
+  }
 
 
   int tmphitid = -1;
@@ -1433,7 +1439,7 @@ Int_t PndTrkCombiLegendreTask::CountTracksInCluster(PndTrkCluster *cluster, Int_
 }
 
 
-Int_t PndTrkCombiLegendreTask::ClusterToConformal(PndTrkCluster *cluster) {
+Int_t PndTrkCombiLegendreTask::ClusterToConformal(PndTrkCluster *cluster, bool samerefhit) {
   // ================ --> TO CONFORMAL PLANE
   conformalhitlist = new PndTrkConformalHitList(); // CHECK
   // translation and rotation
@@ -1441,7 +1447,7 @@ Int_t PndTrkCombiLegendreTask::ClusterToConformal(PndTrkCluster *cluster) {
   Double_t delta = 0, trasl[2] = {0., 0.};
   if(fSecondary) {
     // translation and rotation - CHECK
-    fRefHit = FindReferenceHit(cluster);
+    fRefHit = FindReferenceHit(cluster, samerefhit);
     cout << " REFERENCE HIT " << fRefHit << " found among " << cluster->GetNofHits() << " hits of cluster " << cluster << endl;
    if(fRefHit == NULL)  {
       //      cout << "REFHIT " << fRefHit << endl;
@@ -1655,14 +1661,20 @@ PndTrkCluster * PndTrkCombiLegendreTask::CreateClusterAroundTrack2(PndTrkTrack *
     for(int isec = 0; isec < 6; isec++) {          // CHECK hardcoded nof sectors
       sectorsallow2[isec] = false;
     }
-    sectorsallow2[maxhitsec] = true;
     
     int nofsteps = endsecid - startsecid;
     if(nofsteps == 5) nofsteps++;
     int nofstepsup = endsecid - maxhitsec;
-    //    int nofstepsdown = maxhitsec - startsecid;
+    int nofstepsdown = maxhitsec - startsecid;
     sectorsallow2[maxhitsec] = true;
+    cout << "nofsteps " << nofsteps << " whose up " << nofstepsup << " and down " << nofstepsdown << endl;
 
+    for(int isec = 0; isec < 6; isec++) {   
+      cout << "preliminary sec " << isec << " " << sectorsallow[isec] << endl;
+    }
+   for(int isec = 0; isec < 6; isec++) {   
+      cout << "preliminary sec2 " << isec << " " << sectorsallow2[isec] << endl;
+    }
     for(int isec = 0; isec < nofsteps; isec++) {   
       int ksec = maxhitsec, jsec;
       if(isec < nofstepsup) {
@@ -1679,27 +1691,33 @@ PndTrkCluster * PndTrkCombiLegendreTask::CreateClusterAroundTrack2(PndTrkTrack *
 	jsec--;
 	if(ksec == 0) jsec = 5;
       }
-      cout << "ksec " << ksec << " jsec " << jsec << endl;
-      cout << "ksec layers " << lowlayinsec[ksec] << " " << uplayinsec[ksec] << endl;
-      cout << lowinsec[ksec].Mod() << " " << upinsec[ksec].Mod() << endl;
+      cout << "===== ksec " << ksec << " jsec " << jsec << endl;
+      cout << "sectorsallow2[0]:  " <<  sectorsallow2[0] << endl;
 
-      cout << "jsec layers " << lowlayinsec[jsec] << " " << uplayinsec[jsec] << endl;
-      cout << lowinsec[jsec].Mod() << " " << upinsec[jsec].Mod() << endl;
-   if(sectorsallow[ksec] == true && sectorsallow[jsec] == true) {
+      //      cout << "ksec layers " << lowlayinsec[ksec] << " " << uplayinsec[ksec] << endl;
+      // cout << lowinsec[ksec].Mod() << " " << upinsec[ksec].Mod() << endl;
+      //      cout << lowinsec[ksec].X() << " " << lowinsec[ksec].Y() << endl;
+      //      cout << upinsec[ksec].X() << " " << upinsec[ksec].Y() << endl;
+      //      cout << "jsec layers " << lowlayinsec[jsec] << " " << uplayinsec[jsec] << endl;
+      //      cout << lowinsec[jsec].Mod() << " " << upinsec[jsec].Mod() << endl;
+      //      cout << lowinsec[jsec].X() << " " << lowinsec[jsec].Y() << endl;
+      //      cout << upinsec[jsec].X() << " " << upinsec[jsec].Y() << endl;
+ 
+      if(sectorsallow[ksec] == true && sectorsallow[jsec] == true) {
 	cout << "go on " << endl;
 	
 	if(upinsec[ksec].Mod() > 39 && upinsec[jsec].Mod() > 39) {  // both pieces @ CTOUTRADIUS?
-	  if(arrow < 7) {
+	  if(arrow < 7.5) {
 	    cout << "BOTH AT OUTER RADIUS" << endl;
-	    sectorsallow2[isec] = true;
+	    sectorsallow2[ksec] = true;
 	    sectorsallow2[jsec] = true;
 	  }
 	  else 	  cout << "WRONG BOTH AT OUTER RADIUS ************* " << upinsec[ksec].Mod() << " " <<  upinsec[jsec].Mod() << endl;
 	}
 	else if(lowinsec[ksec].Mod() < 17 && lowinsec[jsec].Mod() < 17) { // both @ 0
-	  if(arrow < 7) {
+	  if(arrow < 7.5) {
 	    cout << "BOTH AT INNER RADIUS" << endl;
-	    sectorsallow2[isec] = true;
+	    sectorsallow2[ksec] = true;
 	    sectorsallow2[jsec] = true;
 	  }
 	  else 	    cout << "WRONG BOTH AT INNER RADIUS ************* " << lowinsec[ksec].Mod() << " " << lowinsec[jsec].Mod() << endl;  
@@ -1707,10 +1725,10 @@ PndTrkCluster * PndTrkCombiLegendreTask::CreateClusterAroundTrack2(PndTrkTrack *
 	else { // one here/one there
 	  TVector2 lowvec, upvec;
 	  int lowlay, uplay;
-	  (upinsec[ksec] - lowinsec[jsec]).Mod() < (lowinsec[ksec] - upinsec[jsec]).Mod() ?  (lowvec = lowinsec[ksec], upvec = upinsec[jsec], lowlay = lowlayinsec[ksec] , uplay = uplayinsec[jsec]) : (upvec = upinsec[ksec], lowvec = lowinsec[jsec], lowlay = lowlayinsec[jsec], uplay = uplayinsec[ksec]);
+	  (upinsec[ksec] - lowinsec[jsec]).Mod() < (lowinsec[ksec] - upinsec[jsec]).Mod() ?  (lowvec = lowinsec[jsec], upvec = upinsec[ksec], lowlay = lowlayinsec[jsec] , uplay = uplayinsec[ksec]) : (upvec = upinsec[jsec], lowvec = lowinsec[ksec], lowlay = lowlayinsec[ksec], uplay = uplayinsec[jsec]);
 	  if((upvec - lowvec).Mod() < 10) {
 	    cout << "ONE HERE / ONE THERE" << endl;
-	    sectorsallow2[isec] = true;
+	    sectorsallow2[ksec] = true;
 	    sectorsallow2[jsec] = true;
 	  }
 	  else 	 {
@@ -1720,9 +1738,17 @@ PndTrkCluster * PndTrkCombiLegendreTask::CreateClusterAroundTrack2(PndTrkTrack *
 	  
 	}
       }
+
+      cout << "@step " << isec << ":";
+      for(int lsec = 0; lsec < 6; lsec++) cout << " " <<  sectorsallow2[lsec];
+      cout << endl;
+
+
+
     }     
     for(int isec = 0; isec < 6; isec++) {
       sectorsallow[isec] =  sectorsallow2[isec];
+      cout << "final " << sectorsallow[isec] << endl;
     }
 
   }
@@ -1866,6 +1892,45 @@ PndTrkCluster * PndTrkCombiLegendreTask::CreateClusterAroundTrack(PndTrkTrack *t
   return thiscluster;
 }
 
+PndTrkCluster * PndTrkCombiLegendreTask::CreateClusterAroundTrack3(PndTrkTrack *track) {
+
+  PndTrkCluster *cluster = track->GetCluster();
+
+  cout << "CREATE CLUSTER AROUND TRACK " << track->GetCluster() << " with hits " << track->GetCluster()->GetNofHits() << endl;
+
+  double R = track->GetRadius();
+  double xc = track->GetCenter().X();
+  double yc = track->GetCenter().Y();
+
+  // create cluster depending on fitting
+  PndTrkCluster *thiscluster = new PndTrkCluster();
+  for(int ihit = 0; ihit < cluster->GetNofHits(); ihit++) {
+    PndTrkHit *hit = cluster->GetHit(ihit);
+    double distance = hit->GetXYDistance(TVector3(xc, yc, 0.));
+
+    double distancefromtrack = fabs(distance - R);
+    if(distancefromtrack < 1) {
+      thiscluster->AddHit(hit);
+      if(fDisplayOn) {
+	display->cd(1);
+	hit->DrawTube(kGreen);
+      } 
+    }
+  }
+  
+  if(fDisplayOn) {
+    display->cd(1);
+    thiscluster->Draw(kRed);
+    display->Update();
+    display->Modified();
+    char goOnChar;
+    //    cout << "want to go to next cluster2?" << endl;
+    //    cin >> goOnChar;
+  } 
+  // ---------------------------
+  
+  return thiscluster;
+}
 
 void PndTrkCombiLegendreTask::AnalyticalFit(PndTrkCluster *cluster, double xc, double yc, double R, double &fitm, double&fitq) {
   

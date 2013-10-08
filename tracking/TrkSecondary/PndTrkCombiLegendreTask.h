@@ -87,7 +87,7 @@ class PndTrkCombiLegendreTask : public FairTask {
   PndTrkHit *FindMvdStripReferenceHit();
   PndTrkHit *FindMvdReferenceHit();
   PndTrkHit *FindReferenceHit();
-  PndTrkHit *FindReferenceHit(PndTrkCluster *cluster);
+  PndTrkHit *FindReferenceHit(PndTrkCluster *cluster, bool keeprefhit);
 
 
   void RePrepareLegendre(PndTrkCluster *cluster);
@@ -108,11 +108,12 @@ class PndTrkCombiLegendreTask : public FairTask {
   Int_t CountTracksInSkewSector(PndTrkCluster *cluster, int *noftracksinlayer);
   Int_t CountTracksInCluster(PndTrkCluster *cluster, Int_t where, int *noftracksinlayer);
 
-  Int_t ClusterToConformal(PndTrkCluster *cluster);
+  Int_t ClusterToConformal(PndTrkCluster *cluster, bool samerefhit);
   PndTrkTrack *LegendreFit(PndTrkCluster *cluster);
   PndTrkTrack *LegendreFitWithRecovering(PndTrkCluster *cluster);
   PndTrkCluster *CreateClusterAroundTrack(PndTrkTrack *track);
- PndTrkCluster *CreateClusterAroundTrack2(PndTrkTrack *track);
+  PndTrkCluster *CreateClusterAroundTrack2(PndTrkTrack *track);
+  PndTrkCluster *CreateClusterAroundTrack3(PndTrkTrack *track);
 
   Bool_t DoesBelong(PndTrkHit *hit, double xc, double yc, double R);
 

@@ -14,13 +14,15 @@
 
 using namespace std;
 
-PndTrkTrack::PndTrkTrack() : fCluster(NULL), fCenterX(0), fCenterY(0), fRadius(0), fTanL(0), fZ0(0), fCharge(0) {}
+PndTrkTrack::PndTrkTrack() :  fRefHit(NULL), fCluster(NULL), fCenterX(0), fCenterY(0), fRadius(0), fTanL(0), fZ0(0), fCharge(0) {}
 
-PndTrkTrack::PndTrkTrack(PndTrkCluster *cluster) : fCluster(cluster), fCenterX(0), fCenterY(0), fRadius(0), fTanL(0), fZ0(0), fCharge(0) {}
+PndTrkTrack::PndTrkTrack(PndTrkCluster *cluster) :  fRefHit(NULL), fCluster(cluster), fCenterX(0), fCenterY(0), fRadius(0), fTanL(0), fZ0(0), fCharge(0) {}
 
-PndTrkTrack::PndTrkTrack(PndTrkCluster *cluster, double x, double y, double radius) : fCluster(cluster), fCenterX(x), fCenterY(y), fRadius(radius), fTanL(0), fZ0(0), fCharge(0) {}
+PndTrkTrack::PndTrkTrack(PndTrkCluster *cluster, double x, double y, double radius) : fRefHit(NULL), fCluster(cluster), fCenterX(x), fCenterY(y), fRadius(radius), fTanL(0), fZ0(0), fCharge(0) {}
 
-PndTrkTrack::PndTrkTrack(double x, double y, double radius) : fCluster(NULL), fCenterX(x), fCenterY(y), fRadius(radius), fTanL(0), fZ0(0), fCharge(0) {}
+PndTrkTrack::PndTrkTrack(PndTrkHit *hit, PndTrkCluster *cluster, double x, double y, double radius) : fRefHit(hit), fCluster(cluster), fCenterX(x), fCenterY(y), fRadius(radius), fTanL(0), fZ0(0), fCharge(0) {}
+
+PndTrkTrack::PndTrkTrack(double x, double y, double radius) : fRefHit(NULL), fCluster(NULL), fCenterX(x), fCenterY(y), fRadius(radius), fTanL(0), fZ0(0), fCharge(0) {}
 
 
 PndTrkTrack::~PndTrkTrack() {}

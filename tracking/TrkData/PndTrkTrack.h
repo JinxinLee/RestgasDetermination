@@ -11,6 +11,7 @@
 #include "PndTrkCluster.h"
 #include "PndTrackCand.h"
 #include "PndTrack.h"
+#include "PndTrkHit.h"
 #include "PndTrkTools.h"
 
 class PndTrkTrack : public TObject
@@ -21,6 +22,7 @@ class PndTrkTrack : public TObject
   PndTrkTrack();
   PndTrkTrack(PndTrkCluster *cluster);
   PndTrkTrack(PndTrkCluster *cluster, double x, double y, double radius);
+  PndTrkTrack(PndTrkHit *hit, PndTrkCluster *cluster, double x, double y, double radius);
   PndTrkTrack(double x, double y, double radius);
 
   ~PndTrkTrack();    
@@ -33,8 +35,8 @@ class PndTrkTrack : public TObject
   void SetCenter(TVector3 center)  { fCenterX = center.X(); fCenterY = center.Y(); }
   void SetTanL(double tanl) { fTanL = tanl; }
   void SetZ0(double z0) { fZ0 = z0;}
- void SetCluster(PndTrkCluster *cluster) { fCluster = cluster; }
-
+  void SetCluster(PndTrkCluster *cluster) { fCluster = cluster; }
+  void SetRefHit(PndTrkHit *hit) { fRefHit = hit; }
   Double_t GetRadius() { return fRadius; }
   TVector2 GetCenter() { return TVector2(fCenterX, fCenterY); }
   Double_t GetTanL() { return fTanL; } 
@@ -58,6 +60,7 @@ class PndTrkTrack : public TObject
   double fRadius, fCenterX, fCenterY, fTanL, fZ0;
   int fCharge;
   PndTrkCluster *fCluster;
+  PndTrkHit *fRefHit;
 
   // parameters:
   // pT = p cos(lam)
