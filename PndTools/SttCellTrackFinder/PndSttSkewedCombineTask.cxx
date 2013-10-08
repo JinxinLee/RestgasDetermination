@@ -20,6 +20,7 @@
 #include "PndRiemannTrack.h"
 #include "PndSttMapCreator.h"
 #include "PndSttCellTrackFinder.h"
+#include "PndSttSkewedHit.h"
 
 using std::cout;
 using std::endl;
@@ -68,7 +69,7 @@ InitStatus PndSttSkewedCombineTask::Init() {
 	fStrawMap.GenerateStrawMap(fTubeArray);
 	fGeometryMap = new PndSttGeometryMap(fTubeArray, 1);
 
-	fCombinedSkewedHits = ioman->Register("STTCombinedSkewedHits", "FairHit", "Stt", kTRUE);
+	fCombinedSkewedHits = ioman->Register("STTCombinedSkewedHits", "PndSttSkewedHit", "Stt", kTRUE);
 
 
 	std::cout << "-I- PndSttSkewedCombineTask: Initialisation successfull"
@@ -114,9 +115,9 @@ void PndSttSkewedCombineTask::Exec(Option_t* opt) {
 
 						double distance = fGeometryMap->CalculateStrawPoca(myHit, tubeMap[tmp.At(j)], poca);
 						std::cout << "PndSttSkewedCombineTask::Exec: poca: " << poca.x() << "/" << poca.y() << "/" << poca.z() << " " << distance << std::endl;
-						FairHit* myFairHit = new ((*fCombinedSkewedHits)[fCombinedSkewedHits->GetEntriesFast()]) FairHit(-1, poca, pocaError,-1);
-						myFairHit->AddLink(myHit->GetEntryNr());
-						myFairHit->AddLink(tubeMap[tmp.At(j)]->GetEntryNr());
+						PndSttSkewedHit* skewedHit = new ((*fCombinedSkewedHits)[fCombinedSkewedHits->GetEntriesFast()]) PndSttSkewedHit(-1,myHit->GetTubeID(),  tubeMap[tmp.At(j)]->GetTubeID(), -1, poca, pocaError);
+						skewedHit->AddLink(myHit->GetEntryNr());
+						skewedHit->AddLink(tubeMap[tmp.At(j)]->GetEntryNr());
 					}
 				}
 			}

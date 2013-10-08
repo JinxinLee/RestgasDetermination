@@ -60,6 +60,7 @@ private:
 	TClonesArray* fCombiTrackCandArray;
 	TClonesArray* fCombiRiemannTrackArray;
 	TClonesArray* fCombiTrackArray;
+	TClonesArray* fCorrectedIsochronesArray;
 
 	//Bool_t fInitDone;
 

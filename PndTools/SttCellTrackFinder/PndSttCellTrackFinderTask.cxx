@@ -67,6 +67,7 @@ InitStatus PndSttCellTrackFinderTask::Init() {
 				<< "No Branch Names given with AddHitBranch(TString branchName)! Standard BranchNames taken!"
 				<< std::endl;
 		fHitBranch.push_back("STTHit");
+		fHitBranch.push_back("STTCombinedSkewedHits");
 	}
 
 	for (int i = 0; i < (int) fHitBranch.size(); i++) {
@@ -84,28 +85,16 @@ InitStatus PndSttCellTrackFinderTask::Init() {
 	fTrackFinder.SetCalcFirstTrackletInf(fAnalyseSteps);
 	fTrackFinder.SetVerbose(fVerbose);
 
-	fFirstTrackCandArray = new TClonesArray("PndTrackCand");
-	ioman->Register("FirstTrackCand", "STT", fFirstTrackCandArray,
-			fPersistence);
+	fFirstTrackCandArray = 		ioman->Register("FirstTrackCand", "PndTrackCand", "STT", fPersistence);
+	fFirstRiemannTrackArray =	ioman->Register("FirstRiemannTrack", "PndRiemannTrack", "STT", fPersistence);
 
-	fFirstRiemannTrackArray = new TClonesArray("PndRiemannTrack");
-	ioman->Register("FirstRiemannTrack", "STT", fFirstRiemannTrackArray,
-			fPersistence);
+	fCombiTrackCandArray = 		ioman->Register("SttCellTrackCand", "PndTrackCand", "STT", fPersistence);
+	fCombiTrackArray = 			ioman->Register("SttCellTrack", "PndTrack", "STT", fPersistence);
 
-	fCombiTrackCandArray = new TClonesArray("PndTrackCand");
-	ioman->Register("SttCellTrackCand", "STT", fCombiTrackCandArray,
-			fPersistence);
+	fCombiRiemannTrackArray = 	ioman->Register("CombiRiemannTrack", "PndRiemannTrack", "STT", fPersistence);
+	fCorrectedIsochronesArray = ioman->Register("CorrectedIsochrones", "FairHit", "STT", fPersistence);
 
-	fCombiTrackArray = new TClonesArray("PndTrack");
-	ioman->Register("SttCellTrack", "STT", fCombiTrackArray,
-			fPersistence);
-
-	fCombiRiemannTrackArray = new TClonesArray("PndRiemannTrack");
-	ioman->Register("CombiRiemannTrack", "STT", fCombiRiemannTrackArray,
-			fPersistence);
-
-	std::cout << "-I- PndSttCellTrackFinderTask: Initialisation successfull"
-			<< std::endl;
+	std::cout << "-I- PndSttCellTrackFinderTask: Initialisation successfull" << std::endl;
 	//fInitDone = kTRUE;
 	return kSUCCESS;
 }
@@ -173,6 +162,13 @@ void PndSttCellTrackFinderTask::Exec(Option_t* opt) {
 		myTrack->SetTrackCand(*myCand);
 	}
 
+	std::map<int, FairHit> correctedIsochrones = fTrackFinder.GetCorrectedIsochrones();
+
+	for (std::map<int, FairHit>::iterator iter = correctedIsochrones.begin(); iter != correctedIsochrones.end(); iter++){
+		std::cout << "Corrected Isochrone for TubeId: " << iter->first << " : " << iter->second << std::endl;
+		FairHit* myCorrectedHit = new ((*fCorrectedIsochronesArray)[fCorrectedIsochronesArray->GetEntries()]) FairHit(iter->second);
+	}
+
 //	for (int i = 0; i < fTrackFinder.NumCombinedRiemannTracks(); ++i) {
 //
 //		PndRiemannTrack* myRiemannTrack =
@@ -197,6 +193,7 @@ void PndSttCellTrackFinderTask::FinishEvent() {
 	fCombiTrackCandArray->Delete();
 	fCombiTrackArray->Delete();
 	fCombiRiemannTrackArray->Delete();
+	fCorrectedIsochronesArray->Delete();
 
 }
 

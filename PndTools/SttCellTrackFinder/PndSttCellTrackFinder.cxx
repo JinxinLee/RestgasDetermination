@@ -1,6 +1,7 @@
 #include "PndSttCellTrackFinder.h"
 #include "PndSttHit.h"
 #include "TString.h"
+#include "PndSttHit.h"
 #include "FairHit.h"
 
 #include "PndSttStrawMap.h"
@@ -8,6 +9,9 @@
 #include "PndSttTube.h"
 #include "PndRiemannHit.h"
 #include "FairEventHeader.h"
+#include "FairRootManager.h"
+
+#include "TMath.h"
 
 #include <iostream>
 #include <math.h>
@@ -40,22 +44,36 @@ void PndSttCellTrackFinder::SetSttTubeArray(TClonesArray* sttTubeArray) {
 
 void PndSttCellTrackFinder::AddHits(TClonesArray* hits, Int_t branchId) {
 	TString geoPath;
-	FairHit* myHit;
+	PndSttHit* myHit;
 	FairLink myID;
 
-	for (int i = 0; i < hits->GetEntries(); i++) {
-		myHit = (FairHit*) (hits->At(i));
+	if (branchId == FairRootManager::Instance()->GetBranchId("STTHit")) {
+		for (int i = 0; i < hits->GetEntries(); i++) {
+			myHit = (PndSttHit*) (hits->At(i));
 
-		if (myHit->GetEntryNr().GetIndex() < 0) {
-			myID = FairLink(branchId, i);
-			myHit->SetEntryNr(FairLink(branchId, i));
-		} else
-			myID = myHit->GetEntryNr();
+			if (myHit->GetEntryNr().GetIndex() < 0) {
+				myID = FairLink(branchId, i);
+				myHit->SetEntryNr(FairLink(branchId, i));
+			} else
+				myID = myHit->GetEntryNr();
+			myHit->SetDxyz(myHit->GetIsochrone(), myHit->GetIsochrone(), 100);
 
-		//fMapHitToFairLink[fHits.size() - 1] = myID;
-		fMapHitToFairLink[i] = myID;
-		fHits.push_back(myHit);
+			//fMapHitToFairLink[fHits.size() - 1] = myID;
+			fMapHitToFairLink[i] = myID;
+			fHits.push_back((FairHit*)myHit);
 
+		}
+	} else if (branchId == FairRootManager::Instance()->GetBranchId("STTCombinedSkewedHits")){
+		for (int i = 0; i < hits->GetEntries(); i++) {
+			PndSttSkewedHit* skewedHit = (PndSttSkewedHit*)(hits->At(i));
+			int tubeId = skewedHit->GetTubeIDs().first;
+			fCombinedSkewedHits.insert(std::pair<int, PndSttSkewedHit*>(tubeId, skewedHit));
+			if (skewedHit->GetEntryNr().GetIndex() < 0) {
+				myID = FairLink(branchId, i);
+				skewedHit->SetEntryNr(FairLink(branchId, i));
+			} else
+				myID = skewedHit->GetEntryNr();
+		}
 	}
 
 }
@@ -154,8 +172,9 @@ void PndSttCellTrackFinder::CreatePndTrackCands() {
 				std::cout << fMapHitToFairLink[fStartTracklets[fTrackletsWithoutCombi[i]].hitIDs[j]] << " ";
 			}
 
-			PndRiemannTrack trackRefit(&trackCand);
+			PndRiemannTrack trackRefit = CreateRiemannTrack(fStartTracklets[fTrackletsWithoutCombi[i]].hitIDs);
 			trackRefit.refit(kFALSE);
+
 			std::cout << std::endl << "RiemannTrack: " << trackRefit <<std::endl;
 			fCombiTrackCand.push_back(trackCand);
 			fCombiTrack.push_back(trackRefit.getPndTrack(2.0));
@@ -177,6 +196,7 @@ void PndSttCellTrackFinder::GenerateTracklets() {
 
 	FindHitNeighbors();
 	SeparateNeighbors();
+	CorrectIsochrones();
 	EvaluateState();
 
 	if (fVerbose > 1) {
@@ -287,6 +307,225 @@ void PndSttCellTrackFinder::SeparateNeighbors() {
 			fSeparations[it->second.size()].push_back(it->first);
 		}
 	}
+}
+
+
+void PndSttCellTrackFinder::CorrectIsochrones()
+{
+	for (int i = 0; i < fSeparations[3].size(); i++){
+		int actualTubeId = fSeparations[3][i];
+		std::vector<std::vector<double> > angles;
+
+		if (fStrawMap.IsSkewedStraw(actualTubeId)) continue;
+
+
+		std::cout << "PndSttCellTrackFinder::CorrectIsochrones : " << actualTubeId << std::endl;
+
+		for (int j = 0; j < fHitNeighbors[actualTubeId].size(); j++){
+			int neighborTubeId = fHitNeighbors[actualTubeId][j];
+			std::cout << "NeighborTube: " << neighborTubeId << " : " << std::endl;
+			angles.push_back(CalculateTangentAngles((PndSttHit*)fHits[fMapTubeIdToHit[actualTubeId]], (PndSttHit*)fHits[fMapTubeIdToHit[neighborTubeId]]));
+		}
+
+		if (angles.size() == 3) {
+			std::vector<std::vector<std::vector<double> > > differences;
+			std::vector<double> classification;
+			Double_t bestPhi = 0;
+
+			for (std::vector<std::vector<double> >::iterator iterFirst = angles.begin(); iterFirst != angles.end() - 1; iterFirst++){
+				for (std::vector<std::vector<double> >::iterator iterSecond = iterFirst + 1; iterSecond != angles.end(); iterSecond++){
+					std::vector<std::vector<double> > tmp2D;
+					differences.push_back(tmp2D);
+					for(int k = 0; k < iterFirst->size(); k++){
+						Double_t smallestDifference = 1000;
+						Double_t secondSmallestDifference = 1000;
+						std::vector<double> tmp;
+						differences.back().push_back(tmp);
+						for (int j = 0; j < iterSecond->size(); j++){
+							std::vector<double> first = *iterFirst;
+							std::vector<double> second = *iterSecond;
+
+							std::cout << "Phi 0: " << k << " : " << TMath::RadToDeg() * first[k] << " Phi 1: " << j << " : " << TMath::RadToDeg() * second[j] << std::endl;
+							differences.back().at(k).push_back(fabs(first[k] - second[j]));
+
+							if (fabs(first[k] - second[j]) < smallestDifference){
+								secondSmallestDifference = smallestDifference;
+								smallestDifference = fabs(first[k] - second[j]);
+								bestPhi = (first[k] + second[j])/2;
+								std::cout << "SmallestDifference: " << smallestDifference << " at: " << TMath::RadToDeg() * bestPhi << " SecondSmallestDifference: " << secondSmallestDifference << std::endl;
+							}
+						}
+					}
+					std::cout << std::endl;
+
+				}
+
+			}
+
+//			for(int k = 0; k < angles[0].size(); k++){
+//					std::vector<double> tmp;
+//					differences.push_back(tmp);
+//					for (int j = 0; j < angles[1].size(); j++){
+//
+//						std::cout << "Phi0: " << k << " : " << angles[0][k] << " Phi1 " << j << " : " << angles[1][j] << std::endl;
+//						differences[k].push_back(fabs(angles[0][k] - angles[1][j]));
+//
+//						if (fabs(angles[0][k] - angles[1][j]) < smallestDifference){
+//							secondSmallestDifference = smallestDifference;
+//							smallestDifference = fabs(angles[0][k] - angles[1][j]);
+//							bestPhi = (angles[0][k] + angles[1][j])/2;
+//							std::cout << "SmallestDifference: " << smallestDifference << " at: " << bestPhi << " SecondSmallestDifference: " << secondSmallestDifference << std::endl;
+//						}
+//					}
+//				}
+//				std::cout << std::endl;
+
+
+			CalcClassification(differences);
+
+			PndSttHit* actualHit = (PndSttHit*)fHits[fMapTubeIdToHit[actualTubeId]];
+			TVector3 origin(actualHit->GetX(), actualHit->GetY(), actualHit->GetZ());
+			TVector3 correctedPosition(origin.x() + actualHit->GetIsochrone() * TMath::Cos(bestPhi),
+					origin.y() + actualHit->GetIsochrone() * TMath::Sin(bestPhi), origin.z());
+			TVector3 hitError(0.1, 0.1, 100);
+			std::cout << "Corrected Position: "; correctedPosition.Print(); std::cout << std::endl;
+			fCorrectedIsochrones[actualTubeId] = FairHit(-1, correctedPosition, hitError, -1);
+		}
+	}
+}
+
+
+std::vector<std::vector<double> > PndSttCellTrackFinder::CalcClassification(std::vector<std::vector<std::vector<double> > > differences)
+{
+	std::vector<std::vector<double> > smallestValues;
+	std::vector<std::vector<std::pair<int, int> > > pairsOfSmallestValues;
+	std::vector<std::vector<double> > classification;
+
+	std::cout << "PndSttCellTrackFinder::CalcClassification: classification" << std::endl;
+
+	std::vector<double> sumOfSmallestValues;
+
+	int out = 0;
+	for (std::vector<std::vector<std::vector<double> > >::iterator outerIter = differences.begin(); outerIter != differences.end(); outerIter++)
+	{
+		sumOfSmallestValues.push_back(0);
+		std::vector<double> tmp;
+		smallestValues.push_back(tmp);
+		classification.push_back(tmp);
+
+		std::vector<std::pair<int, int> > tmp2;
+		pairsOfSmallestValues.push_back(tmp2);
+
+		for (int i = 0; i < outerIter->size(); i++){
+			double smallestValue = 10000;
+			std::pair<int, int> pairOfSmallest;
+
+			for (int j = 0; j < outerIter->at(i).size(); j++) {
+				std::cout << "Pairs: " << i << "/" << j << " : " << outerIter->at(i)[j] << std::endl;
+				if (outerIter->at(i)[j] < smallestValue){
+					smallestValue = outerIter->at(i)[j];
+					pairOfSmallest = std::make_pair(i,j);
+				}
+			}
+
+			std::cout << std::endl;
+
+			smallestValues[out].push_back(smallestValue);
+			pairsOfSmallestValues[out].push_back(pairOfSmallest);
+			sumOfSmallestValues[out] += smallestValue;
+		}
+		for (int i = 0; i < smallestValues[out].size(); i++){
+			classification[out].push_back(1- smallestValues[out][i]/sumOfSmallestValues[out]);
+			std::cout << "Pair: " << pairsOfSmallestValues[out][i].first << "/" << pairsOfSmallestValues[out][i].second << " Value: " << TMath::RadToDeg() * smallestValues[out][i] << " Classification: " << classification[out][i] << std::endl;
+		}
+		out++;
+
+	}
+
+	return classification;
+}
+
+
+std::vector<double> PndSttCellTrackFinder::CalculateTangentAngles(PndSttHit* tube1, PndSttHit* tube2)
+{
+	Double_t radius1 = tube1->GetIsochrone();
+	Double_t radius2 = tube2->GetIsochrone();
+
+	TVector3 origin1, origin2;
+	tube1->Position(origin1);
+	tube2->Position(origin2);
+
+	TVector3 directionBetweenTubes = origin2 - origin1;
+
+	std::cout << "Origin1: "; origin1.Print(); std::cout << " Origin 2: "; origin2.Print(); std::cout << " Dir: "; directionBetweenTubes.Print(); std::cout << std::endl;
+	std::cout << "Radius1: " << radius1 << " Radius2: " << radius2 << std::endl;
+
+	Double_t R, r;
+	Bool_t tube1Larger = kTRUE;
+	if (radius1 > radius2){
+		R = radius1;
+		r = radius2;
+		tube1Larger = kTRUE;
+	} else {
+		R = radius2;
+		r = radius1;
+		tube1Larger = kFALSE;
+	}
+
+	Double_t phi0 = directionBetweenTubes.Phi();
+	Double_t phi1 = TMath::Sin((R-r)/directionBetweenTubes.Mag());
+	Double_t phi2 = TMath::Sin((R+r)/directionBetweenTubes.Mag());
+
+	std::cout << "Phi0: " << TMath::RadToDeg() * phi0 << " Phi1: " << TMath::RadToDeg() *phi1 << " Phi2: " << TMath::RadToDeg() * phi2 << std::endl << std::endl;
+
+	std::vector<double> results;
+	if (tube1Larger) {
+		Double_t angle1 = phi0 + phi1 - TMath::Pi() / 2;
+		if (angle1 < 0) angle1 += TMath::Pi() * 2;
+		results.push_back(angle1);
+
+		Double_t angle2 = phi0 - phi1 + TMath::Pi() / 2;
+		if (angle2 < 0) angle2 += TMath::Pi() * 2;
+		results.push_back(angle2);
+
+		Double_t angle3 = phi0 + phi2 - TMath::Pi() / 2;
+		if (angle3 < 0) angle3 += TMath::Pi() * 2;
+		results.push_back(angle3);
+
+		Double_t angle4 = phi0 - phi2 + TMath::Pi() / 2;
+		if (angle4 < 0) angle4 += TMath::Pi() * 2;
+		results.push_back(angle4);
+
+		std::cout << "Phi0 + Phi1 - Pi/2 = " << TMath::RadToDeg() * angle1 << std::endl;
+		std::cout << "Phi0 - Phi1 + Pi/2 = " << TMath::RadToDeg() * angle2 << std::endl;
+		std::cout << "Phi0 + Phi2 - Pi/2 = " << TMath::RadToDeg() * angle3 << std::endl;
+		std::cout << "Phi0 - Phi2 + Pi/2 = " << TMath::RadToDeg() * angle4 << std::endl << std::endl;
+	} else {
+		Double_t angle1 = phi0 + phi1 + TMath::Pi() / 2;
+		if (angle1 < 0) angle1 += TMath::Pi() * 2;
+		results.push_back(angle1);
+
+		Double_t angle2 = phi0 - phi1 - TMath::Pi() / 2;
+		if (angle2 < 0) angle2 += TMath::Pi() * 2;
+		results.push_back(angle2);
+
+		Double_t angle3 = phi0 + phi2 - TMath::Pi() / 2;
+		if (angle3 < 0) angle3 += TMath::Pi() * 2;
+		results.push_back(angle3);
+
+		Double_t angle4 = phi0 - phi2 + TMath::Pi() / 2;
+		if (angle4 < 0) angle4 += TMath::Pi() * 2;
+		results.push_back(angle4);
+
+		std::cout << "Phi0 + Phi1 + Pi/2 = " << TMath::RadToDeg() * angle1 << std::endl;
+		std::cout << "Phi0 - Phi1 - Pi/2 = " << TMath::RadToDeg() * angle2 << std::endl;
+		std::cout << "Phi0 + Phi2 - Pi/2 = " << TMath::RadToDeg() * angle3 << std::endl;
+		std::cout << "Phi0 - Phi2 + Pi/2 = " << TMath::RadToDeg() * angle4 << std::endl << std::endl;
+
+	}
+
+	return results;
+
 }
 
 void PndSttCellTrackFinder::EvaluateState() {
@@ -1374,6 +1613,7 @@ PndRiemannTrack PndSttCellTrackFinder::CreateRiemannTrack(vector<int> hitIDs) {
 
 	PndRiemannTrack riemannTrack;
 	PndSttHit* sttHit;
+	std::set<int> skewedTubeIdsInTrack;
 
 	for (int i = 0; i < hitIDs.size(); ++i) {
 
@@ -1385,6 +1625,30 @@ PndRiemannTrack PndSttCellTrackFinder::CreateRiemannTrack(vector<int> hitIDs) {
 			PndRiemannHit riemannHit(fHits[hitIDs[i]], hitIDs[i]);
 			riemannTrack.addHit(riemannHit);
 
+		} else {
+			skewedTubeIdsInTrack.insert(sttHit->GetTubeID());
+		}
+	}
+	if (riemannTrack.getNumHits() > 2) {
+		riemannTrack.refit(false);
+		for (std::set<int>::iterator tubeIter = skewedTubeIdsInTrack.begin(); tubeIter != skewedTubeIdsInTrack.end(); tubeIter++){
+			std::multimap<int, PndSttSkewedHit*>::iterator it, itlow, itup, itbest;
+			itlow = fCombinedSkewedHits.lower_bound(*tubeIter);
+			itup = fCombinedSkewedHits.upper_bound(*tubeIter);
+			itbest = fCombinedSkewedHits.end();
+			Double_t minDist = 1000;
+			for (it = itlow; it != itup; ++it){
+				PndRiemannHit skewedRiemann(it->second);
+				Double_t actDist = riemannTrack.dist(&skewedRiemann);
+				if (actDist < minDist){
+					itbest = it;
+					minDist = actDist;
+				}
+			}
+			if (itbest != fCombinedSkewedHits.end()){
+				PndRiemannHit skewedRiemann(itbest->second);
+				riemannTrack.addHit(skewedRiemann);
+			}
 		}
 	}
 
