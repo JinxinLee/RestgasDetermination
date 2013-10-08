@@ -158,7 +158,7 @@ Short_t PndTrkCTFindTrackInXY2::AssociateSciTilHit(
 	if(!InclusionListSciTil[iScitHit]) continue;
 
 	intersect=GeomCalculator.IntersectionSciTil_Circle(
-	  dimensionscitil,
+	  2.*dimensionscitil,   //  dimensionscitil = true width of SciTil tiles;
 	  posizSciTil[iScitHit][0],
 	  posizSciTil[iScitHit][1],
 	  Oxx,
