@@ -262,6 +262,7 @@ void PndTrkCombiLegendreTask::Exec(Option_t* opt) {
   FillHitMap();
   // ##########################################################
 
+  //
       fDisplayOn = kFALSE;
 
   // --------- NO CLUSTERING -----------
@@ -376,17 +377,19 @@ void PndTrkCombiLegendreTask::Exec(Option_t* opt) {
 	  Refresh();
 	  cluster->LightUp();
 	  track->Draw();
+	}
+	xc = track->GetCenter().X();
+	yc = track->GetCenter().Y();
+	R = track->GetRadius();
+	FromRealToConformalTrack(xc, yc, R, fitm, fitp);
 
-	  xc = track->GetCenter().X();
-	  yc = track->GetCenter().Y();
-	  R = track->GetRadius();
-	  FromRealToConformalTrack(xc, yc, R, fitm, fitp);
+	if(fDisplayOn)  {
 	  RefreshConf();
 	  DrawGeometryConf(fUmin, fUmax, fVmin, fVmax);
 	  display->cd(2);
 	  TLine *line = new TLine(-10.07, fitp + fitm * (-10.07), 10.07, fitp + fitm * (10.07));
 	  line->Draw("SAME");
-    
+	  
 	  display->Update();
 	  display->Modified();
 	}
@@ -414,6 +417,7 @@ void PndTrkCombiLegendreTask::Exec(Option_t* opt) {
       maxnoftracks++;
     }
     else {
+    
       // otherwise save them
       track->SetCenter(xc, yc);
       track->SetRadius(R);
@@ -445,6 +449,7 @@ void PndTrkCombiLegendreTask::Exec(Option_t* opt) {
 	cout << "\033[1;31m LETS TRY ANOTHER ONE -------- BONUS ------------ \033[0m" << endl;
 	maxnoftracks++;
       }
+
     }
 
   }
@@ -2000,15 +2005,17 @@ void PndTrkCombiLegendreTask::AnalyticalFit2(PndTrkCluster *cluster, double fitm
     display->cd(1);
     Refresh();
   }
+
+  int counter = 0;
   for(int ihit = 0; ihit < cluster->GetNofHits(); ihit++) 
     {
       PndTrkHit *hit = cluster->GetHit(ihit);
       if(hit == fRefHit) {
-	cout << hit->GetHitID() << " ref hit " << endl;
+	//	cout << hit->GetHitID() << " ref hit " << endl;
 	continue;
       }
       if(hit->IsSttSkew()) {
-	cout << hit->GetHitID() << " skew " << endl;
+	//	cout << hit->GetHitID() << " skew " << endl;
 	continue;
       }
   
@@ -2019,13 +2026,21 @@ void PndTrkCombiLegendreTask::AnalyticalFit2(PndTrkCluster *cluster, double fitm
       }
 
       IntersectionFinder(chit, fitm, fitp);
+
+
+      //      PndSttHit *stthit = (PndSttHit*) fSttHitArray->At(hit->GetHitID());
+      //      double isoerr = stthit->GetIsochroneError();
       
-      double sigma = chit->GetIsochrone(); // (chit->GetPosition().Mod2() + chit->GetIsochrone() * chit->GetIsochrone()) * 0.015; // hit->GetIsochroneError();
+      double sigma = chit->GetIsochrone();
+      //      double sigma = hit->GetIsochrone() * chit->GetPosition().Y(); // * isoerr;
+
+
       fFitter->SetPointToFit(chit->GetPosition().X(), chit->GetPosition().Y(), sigma);
-      cout << ihit << " set point to fit {" << chit->GetPosition().X() << ", " <<  chit->GetPosition().Y() << "}" << endl;
-      cout << sigma << endl;    
-      cout << "C iso " << chit->GetIsochrone() << endl;
-      cout << hit->GetIsochrone() << endl;
+      counter++;
+      //      cout << ihit << " set point to fit {" << chit->GetPosition().X() << ", " <<  chit->GetPosition().Y() << "}" << endl;
+      //      cout << sigma << endl;    
+      //      cout << "C iso " << chit->GetIsochrone() << endl;
+      //      cout << hit->GetIsochrone() << endl;
 
       if(fDisplayOn) {
 	display->cd(1);
@@ -2041,8 +2056,8 @@ void PndTrkCombiLegendreTask::AnalyticalFit2(PndTrkCluster *cluster, double fitm
 	mrk2->Draw("SAME");
 
 
-	display->Update();
-	display->Modified();
+// 	display->Update();
+// 	display->Modified();
       } 
     }
 
@@ -2051,10 +2066,10 @@ void PndTrkCombiLegendreTask::AnalyticalFit2(PndTrkCluster *cluster, double fitm
 
   double xc, yc, R;
   FromConformalToRealTrack(fitm, fitp, xc, yc, R);
-  cout << "previous " << xc << " " << yc << " " << R << endl;
+  cout << "previous " << xc << " " << yc << " " << R << "/" << fitm << " " << fitp << endl;
   FromConformalToRealTrack(fitm2, fitp2, xc, yc, R);
-  cout << "now " << xc << " " << yc << " " << R << endl;
-
+  cout << "now " << xc << " " << yc << " " << R << "/" << fitm2 << " " << fitp2 << endl;
+  
   if(fDisplayOn) {
     display->cd(2);
     cout << "wanna see the line?" << endl;
@@ -2074,11 +2089,52 @@ void PndTrkCombiLegendreTask::AnalyticalFit2(PndTrkCluster *cluster, double fitm
     display->Modified();
     cin >> goOnChar;
   }
-
-
-
-
 }
+
+
+// ...........................................
+// CHECK not satisfying at all...
+Double_t PndTrkCombiLegendreTask::ComputePerpendicularChi2(PndTrkCluster *cluster, double fitm, double fitp) {
+  double chi2 = 0;
+  for(int ihit = 0; ihit < cluster->GetNofHits(); ihit++) 
+    {
+      PndTrkHit *hit = cluster->GetHit(ihit);
+      if(hit == fRefHit) {
+	//	cout << hit->GetHitID() << " ref hit " << endl;
+	continue;
+      }
+      if(hit->IsSttSkew()) {
+	//	cout << hit->GetHitID() << " skew " << endl;
+	continue;
+      }
+  
+      PndTrkConformalHit *chit = conform->GetConformalSttHit(hit);
+      if(fDisplayOn) {
+	display->cd(2);
+	chit->Draw(1);
+      }
+
+      IntersectionFinder(chit, fitm, fitp);
+
+
+      PndSttHit *stthit = (PndSttHit*) fSttHitArray->At(hit->GetHitID());
+      PndSttPoint *sttpnt = (PndSttPoint*) fSttPointArray->At(stthit->GetRefIndex());
+      double erriso =  stthit->GetIsochroneError(); 	  
+      double der = chit->GetPosition().Y() * chit->GetPosition().Y() + chit->GetPosition().X() * chit->GetPosition().X() - hit->GetIsochrone() * hit->GetIsochrone();
+      double sigma = der * erriso;
+
+      double distanceperp = fabs(chit->GetPosition().Y() - (chit->GetPosition().X() * fitm + fitp))/TMath::Sqrt(1 + fitm * fitm);
+      double chi = (distanceperp - chit->GetIsochrone())/sigma;
+      chi2 += chi * chi;
+      cout << "=> " << distanceperp << " "  << chit->GetIsochrone() << " " << sigma << " " << chi << " " << chi * chi << " " << chi2 << " " << sttpnt->GetTrackID() << endl;
+    }
+      
+  cout << "final chi2 " << chi2 << endl;
+  // ,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+
+  return chi2;
+}
+
 void PndTrkCombiLegendreTask::IntersectionFinder(PndTrkConformalHit *chit, double fitm, double fitp) {
   
   double xi1 = chit->GetU() + fitm * chit->GetIsochrone()/ TMath::Sqrt(fitm * fitm + 1);
@@ -2360,12 +2416,12 @@ void PndTrkCombiLegendreTask::CleanTrack(PndTrkTrack *track) {
     PndSttTube *tube = (PndSttTube*) fTubeArray->At(tubeid);
     int layid = tube->GetLayerID();
     if(noftracksinlay[layid] > 2) {
-      cout << "hit " << ihit << " hitid " << hitid << " tubeid " << tubeid << " layid " << layid << endl;
+      //    cout << "hit " << ihit << " hitid " << hitid << " tubeid " << tubeid << " layid " << layid << endl;
       if(fDisplayOn)  {
 	display->cd(1);
-	hit->DrawTube(kBlue);
-	display->Update();
-	display->Modified();
+	//	hit->DrawTube(kBlue);
+	//	display->Update();
+	//	display->Modified();
       }
  	
     }

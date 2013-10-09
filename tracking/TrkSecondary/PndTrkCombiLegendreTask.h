@@ -122,6 +122,7 @@ class PndTrkCombiLegendreTask : public FairTask {
   void AnalyticalFit2(PndTrkCluster *cluster, double fitm, double fitp, double &fitm2, double &fip2);
   void IntersectionFinder(PndTrkHit *hit, double xc, double yc, double R);
   void IntersectionFinder(PndTrkConformalHit *chit, double fitm, double fitp);
+  Double_t ComputePerpendicularChi2(PndTrkCluster *cluster, double fitm, double fitp);
 
   void FillHitMap();
 
