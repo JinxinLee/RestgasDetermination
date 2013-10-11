@@ -217,37 +217,42 @@ Int_t PndFtsMapCreator::GetLayerID(Int_t chamberid, Int_t tudeid,TString path ){
   Int_t i=1;
   if(chamberid==1 || chamberid==2){
     if(chamberid==2){i=i+8;}
-    while(tube>128){
-      tube=tube-128;
+    while(tube>132){
+      tube=tube-132;
       i++;
     }
   }
- if(chamberid==3 || chamberid==4){
-   if(chamberid==3){i=i+16;}
-   else{i=i+24;}
-   if(tmpstring.Contains("fts32")){tube=tube+384;}
-   if(tmpstring.Contains("fts33")){tube=tube+768;}
-   if(tmpstring.Contains("fts34")){tube=tube+1152;}
-   //if(tmpstring.Contains("fts35")){tube=tube+}
-   if(tmpstring.Contains("fts36")){tube=tube+384;}
-   if(tmpstring.Contains("fts37")){tube=tube+768;}
-   if(tmpstring.Contains("fts38")){tube=tube+1152;}
-    while(tube>192){
-      tube=tube-192;
+  if(chamberid==3){
+    i=i+16;
+    if(tmpstring.Contains("fts32")){tube=tube+352;}
+    if(tmpstring.Contains("fts33")){tube=tube+704;}
+    if(tmpstring.Contains("fts34")){tube=tube+1056;}
+    while(tube>176){
+      tube=tube-176;
+      i++;
+    }
+  }
+ if(chamberid==4){
+   i=i+24;
+   if(tmpstring.Contains("fts36")){tube=tube+416;}
+   if(tmpstring.Contains("fts37")){tube=tube+832;}
+   if(tmpstring.Contains("fts38")){tube=tube+1248;}
+    while(tube>208){
+      tube=tube-208;
       i++;
     }
   }
  if(chamberid==5){
    i=i+32;
-    while(tube>400){
-      tube=tube-400;
+    while(tube>388){
+      tube=tube-388;
       i++;
     }
   }
  if(chamberid==6){
    i=i+40;
-    while(tube>592){
-      tube=tube-592;
+    while(tube>388){
+      tube=tube-388;
       i++;
     }
   }
@@ -263,38 +268,39 @@ Int_t PndFtsMapCreator::GetTubeIDTot(Int_t chamberid, Int_t layerid, Int_t tubei
   TString tmpstring=path;
   Int_t tube=0;
   Int_t totTubeID=0;
+  Int_t strawCh12=132, strawCh3=176, strawCh4=208, strawCh56=388;
 
  if(chamberid==1){tube=tubeID;}
- if(chamberid==2){tube=tubeID+1024;}
+ if(chamberid==2){tube=tubeID+(8*strawCh12);}
  if(chamberid==3){
-   if(layer==17||layer==18){tube=tubeID+(128*(16));}
-   if(layer==19||layer==20){tube=tubeID+(128*16)+(192*2)+(12*2);} //2648
-   if(layer==21||layer==22){tube=tubeID+(128*16)+(192*4)+(12*4);} //3056
-   if(layer==23||layer==24){tube=tubeID+(128*16)+(192*6)+(12*6);} //3464
+   if(layer==17||layer==18){tube=tubeID+(strawCh12*(16));}
+   if(layer==19||layer==20){tube=tubeID+(strawCh12*16)+(strawCh3*2)+(16*2);} //
+   if(layer==21||layer==22){tube=tubeID+(strawCh12*16)+(strawCh3*4)+(16*4);} //
+   if(layer==23||layer==24){tube=tubeID+(strawCh12*16)+(strawCh3*6)+(16*6);} //
  }
  if(chamberid==4){
-   if(layer==25||layer==26){tube=tubeID+(128*(16)+192*8);} //3872
-   if(layer==27||layer==28){tube=tubeID+(128*(16)+192*10)+12*2;} //4280
-   if(layer==29||layer==30){tube=tubeID+(128*(16)+192*12)+12*4;} //4688
-   if(layer==31||layer==32){tube=tubeID+(128*(16)+192*14)+12*6;} //5096
+   if(layer==25||layer==26){tube=tubeID+(strawCh12*(16)+(strawCh3*8));} //
+   if(layer==27||layer==28){tube=tubeID+(strawCh12*(16)+(strawCh3*8)+(strawCh4*2))+16*2;} //
+   if(layer==29||layer==30){tube=tubeID+(strawCh12*(16)+(strawCh3*8)+(strawCh4*4))+16*4;} //
+   if(layer==31||layer==32){tube=tubeID+(strawCh12*(16)+(strawCh3*8)+(strawCh4*6))+16*6;} //
  }
- if(chamberid==5){tube=tubeID+(128*16)+(192*16);}
- if(chamberid==6){tube=tubeID+(128*16)+(192*16)+(400*8);}
+ if(chamberid==5){tube=tubeID+(strawCh12*16)+(strawCh3*8)+(strawCh4*8);}
+ if(chamberid==6){tube=tubeID+(strawCh12*16)+(strawCh3*8)+(strawCh4*8)+(strawCh56*8);}
 
   //up and down short tubes have different name but the same ID number
  //I shift the tube ID to give a different ID number to each tube
- // tubeid chamber 1,2: between 1-128*8, hole:12 tubes
- //tubeid chamber 3,4: between 1-192*2 for each double layer, hole: 12 tubes
- //tubeid chamber 5: between 1-400*8, hole: 18 tubes
- //tubeid chamber 6: between 1-592*8, hole: 18 tubes
+ // tubeid chamber 1,2: between 1-143*8, hole:12 tubes
+ //tubeid chamber 3,4: between 1-ch3(4)*2 for each double layer, hole: 16 tubes
+ //tubeid chamber 5: between 1-388*8, hole: 24 tubes
+ //tubeid chamber 6: between 1-388*8, hole: 24 tubes
 
  //chamber 1 and chamber 2
  if(chamber==1){
    int shift=0;
    if(!tmpstring.Contains("down") && !tmpstring.Contains("up")){
-     if(tubeid<=58){totTubeID=tube+shift;}
+     if(tubeid<=61){totTubeID=tube+shift;}
      else{
-       if(abs(tubeid-(128*(layer)))<=58){
+       if(abs(tubeid-(strawCh12*(layer)))<=61){
          totTubeID=tube+12*(layer)+shift;
        }
        else{
@@ -313,9 +319,9 @@ Int_t PndFtsMapCreator::GetTubeIDTot(Int_t chamberid, Int_t layerid, Int_t tubei
  if(chamber==2){
    int shift=12*8;
    if(!tmpstring.Contains("down") && !tmpstring.Contains("up")){
-     if(tubeid<=58){totTubeID=tube+shift;}
+     if(tubeid<=61){totTubeID=tube+shift;}
      else{
-       if(abs(tubeid-(128*(layer-8)))<=58){
+       if(abs(tubeid-(strawCh12*(layer-8)))<=61){
          totTubeID=tube+12*(layer-8)+shift;
        }
        else{
@@ -331,82 +337,110 @@ Int_t PndFtsMapCreator::GetTubeIDTot(Int_t chamberid, Int_t layerid, Int_t tubei
    }
  }
  //chamber 3
- if(chamber==3 || chamber==4){
-   int shift=0;
-   if(chamber==3){
-     shift=12*(2*8); int numTL=192;
-   }
-   else{shift=12*(3*8);}
+ if(chamber==3){
+   int shift=12*(2*8);
    if(!tmpstring.Contains("down") && !tmpstring.Contains("up")){
-     if(tubeid<=90){totTubeID=tube+shift;}
+     if(tubeid<=81){totTubeID=tube+shift;}
      else{
        if(layer%2!=0){     // odd layers
-	 if(abs(tubeid-(192))<=90){                                                                                    
-	   totTubeID=tube+shift+12;                                                                                    
-	 }                                                                                                             
-	 else{totTubeID=tube+shift;}                                                                                   
-       }                                                                                                           
+	 if(abs(tubeid-(strawCh3))<=81){
+	   totTubeID=tube+shift+16;                                   
+	 }                          
+	 else{totTubeID=tube+shift;}
+       }
        else{ 
-	 if(abs(tubeid-(192*2))<=90){                                                                                  
-	   totTubeID=tube+shift+12*2;                                                                                  
-	 }                                                                                                             
-	 else{totTubeID=tube+shift+12;} 
+	 if(abs(tubeid-(strawCh3*2))<=81){
+	   totTubeID=tube+shift+16*2;
+	 }
+	 else{totTubeID=tube+shift+16;} 
        }
      }
    }
-   if(tmpstring.Contains("down")){                                                                                     
-     if(layer%2!=0){totTubeID=tube+12+shift;} //odd layer                                                              
-     else{totTubeID=tube+12*2+shift;}                                                                                  
-   }                                                                                                                   
-   if(tmpstring.Contains("up")){                                                                                       
-     if(layer%2!=0){totTubeID=tube+shift;} //odd layer                                                                 
-     else{totTubeID=tube+12+shift;}                                                                                    
+   if(tmpstring.Contains("down")){
+     if(layer%2!=0){totTubeID=tube+16+shift;} //odd layer
+     else{totTubeID=tube+16*2+shift;}
+   }
+   if(tmpstring.Contains("up")){
+     if(layer%2!=0){totTubeID=tube+shift;} //odd layer
+     else{totTubeID=tube+16+shift;}
    } 
  }
+
+ //chamber 4
+ if(chamber==4){
+   int shift=12*(2*8)+16*8;
+   if(!tmpstring.Contains("down") && !tmpstring.Contains("up")){
+     if(tubeid<=97){totTubeID=tube+shift;}
+     else{
+       if(layer%2!=0){     // odd layers
+         if(abs(tubeid-(strawCh4))<=97){
+           totTubeID=tube+shift+16;
+         }
+         else{totTubeID=tube+shift;}
+       }
+       else{
+         if(abs(tubeid-(strawCh4*2))<=97){
+           totTubeID=tube+shift+16*2;
+         }
+         else{totTubeID=tube+shift+16;}
+       }
+     }
+   }
+   if(tmpstring.Contains("down")){
+     if(layer%2!=0){totTubeID=tube+16+shift;} //odd layer
+     else{totTubeID=tube+16*2+shift;}
+   }
+   if(tmpstring.Contains("up")){
+     if(layer%2!=0){totTubeID=tube+shift;} //odd layer                           
+     else{totTubeID=tube+16+shift;}
+   }
+ }
+
   //chamber 5
-  //12*32 are the tubes shifted in the previous chambers
+  //12*16+16*16 are the tubes shifted in the previous chambers
   if(chamber==5){
-    int shift=12*32;
+    int shift=12*16+16*16;
     if(!tmpstring.Contains("down") && !tmpstring.Contains("up")){
-      if(tubeid<=191){totTubeID=tube+shift;}
+      if(tubeid<=177){totTubeID=tube+shift;}
       else{
-	if(abs(tubeid-(400*(layer-32)))<=191){
-	  totTubeID=tube+18*(layer-32)+shift;
+	if(abs(tubeid-(strawCh56*(layer-32)))<=177){
+	  totTubeID=tube+24*(layer-32)+shift;
 	}
 	else{
-	  totTubeID=tube+18*(layer-33)+shift;
+	  totTubeID=tube+24*(layer-33)+shift;
 	}
       }
     }
     if(tmpstring.Contains("up")){  
-      totTubeID=tube+18*(layer-33)+shift;
+      totTubeID=tube+24*(layer-33)+shift;
     }
     if(tmpstring.Contains("down")){
-      totTubeID=tube+18*(layer-32)+shift;
+      totTubeID=tube+24*(layer-32)+shift;
     }
   }
 
   //chamber 6
  if(chamber==6){
-   int shift=12*32+18*8;
+   int shift=12*16+16*16+24*8;
    if(!tmpstring.Contains("down") && !tmpstring.Contains("up")){
-     if(tubeid<=287){totTubeID=tube+shift;}
+     if(tubeid<=177){totTubeID=tube+shift;}
      else{
-       if(abs(tubeid-(592*(layer-40)))<=287){
-	 totTubeID=tube+18*(layer-40)+shift;
+       if(abs(tubeid-(strawCh56*(layer-40)))<=177){
+	 totTubeID=tube+24*(layer-40)+shift;
        }
        else{
-	 totTubeID=tube+18*(layer-41)+shift;
+	 totTubeID=tube+24*(layer-41)+shift;
        }
      }
    }
    if(tmpstring.Contains("up")){  
-     totTubeID=tube+18*(layer-41)+shift;
+     totTubeID=tube+24*(layer-41)+shift;
    }
    if(tmpstring.Contains("down")){
-     totTubeID=tube+18*(layer-40)+shift;
+     totTubeID=tube+24*(layer-40)+shift;
    }
  }  
+
 
  return totTubeID;  
 
@@ -574,6 +608,9 @@ TClonesArray* PndFtsMapCreator::FillTubeArrayGeoType1() {
     //PndFtsTube *ftstube = GetTubeFromTubeIDToFillGeoType1(tubeID);
     PndFtsTube *ftstube = GetTubeFromNameToFillGeoType1(tubename);
     new((*tubeArray)[totTubeID]) PndFtsTube(*ftstube);
+
+    //ofstream myfile("testNumber.txt");
+    //myfile <<  tubename << " " << totTubeID << endl;
 
     
   }
