@@ -312,8 +312,8 @@ void PndSttCellTrackFinder::SeparateNeighbors() {
 
 void PndSttCellTrackFinder::CorrectIsochrones()
 {
-	for (int i = 0; i < fSeparations[3].size(); i++){
-		int actualTubeId = fSeparations[3][i];
+	for (int i = 0; i < fSeparations[2].size(); i++){
+		int actualTubeId = fSeparations[2][i];
 		std::vector<std::vector<double> > angles;
 
 		if (fStrawMap.IsSkewedStraw(actualTubeId)) continue;
@@ -327,7 +327,7 @@ void PndSttCellTrackFinder::CorrectIsochrones()
 			angles.push_back(CalculateTangentAngles((PndSttHit*)fHits[fMapTubeIdToHit[actualTubeId]], (PndSttHit*)fHits[fMapTubeIdToHit[neighborTubeId]]));
 		}
 
-		if (angles.size() == 3) {
+		if (angles.size() == 2) {
 			std::vector<std::vector<std::vector<double> > > differences;
 			std::vector<double> classification;
 			Double_t bestPhi = 0;
