@@ -87,6 +87,7 @@ protected:
   TString fEvent; //!
   TEveBoxSet* fListOfIsochrones;
   TEveBoxSet* fListOfTiltedIsochrones;
+  TEveBoxSet* fListOfParallelIsochrones;
   //TEveElementList *fTrackCont;
 
    BinaryFunctor* fStartFunctor;

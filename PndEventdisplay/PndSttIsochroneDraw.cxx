@@ -106,10 +106,12 @@ void PndSttIsochroneDraw::Exec(Option_t* option)
 
 		fListOfIsochrones = new TEveBoxSet("SttIsochrones");
 		fListOfTiltedIsochrones = new TEveBoxSet("SttTiltedIsochrones");
+		fListOfParallelIsochrones = new TEveBoxSet("SttParallelIsochrones");
 		//fListOfTracks->DestroyElements();
 
 		gEve->AddElement(fListOfIsochrones, fEventManager);
 		fListOfIsochrones->AddElement(fListOfTiltedIsochrones);
+		fListOfIsochrones->AddElement(fListOfParallelIsochrones);
 		Double_t eventTime = FairRootManager::Instance()->GetEventTime();
 
 		if (FairRunAna::Instance()->IsTimeStamp()) {
@@ -251,14 +253,14 @@ void PndSttIsochroneDraw::Exec(Option_t* option)
 						fListOfTiltedIsochrones->AddElement(myEveShape);
 					}
 					else {
-						fListOfIsochrones->AddElement(myEveShape);
+						fListOfParallelIsochrones->AddElement(myEveShape);
 					}
 				}
 			}
 		}
 		gEve->Redraw3D(kFALSE);
-		delete fListOfIsochrones;
-		delete fListOfTiltedIsochrones;
+//		if (fListOfIsochrones) fListOfIsochrones->Delete();
+//		if (fListOfTiltedIsochrones) fListOfTiltedIsochrones->Delete();
 	}
 }
 
@@ -280,17 +282,30 @@ void PndSttIsochroneDraw::Finish()
 // -------------------------------------------------------------------------
 void PndSttIsochroneDraw::Reset()
 {
-   if (fListOfIsochrones != 0){
-	   fListOfIsochrones->Reset();
-	   gEve->RemoveElement(fListOfIsochrones, fEventManager);
-	   //delete(fListOfTracks);
+
+	   if (fListOfTiltedIsochrones != 0) {
+	//		fListOfTiltedIsochrones->Reset();
+//		   gEve->PreDeleteElement(fListOfTiltedIsochrones);
+//			gEve->RemoveElement(fListOfTiltedIsochrones, fListOfIsochrones);
+			fListOfTiltedIsochrones->DestroyElements();
+			fListOfTiltedIsochrones->Destroy();
+		}
+
+	if (fListOfParallelIsochrones != 0){
+//	   fListOfIsochrones->Reset();
+//	   gEve->PreDeleteElement(fListOfParallelIsochrones);
+//	   gEve->RemoveElement(fListOfParallelIsochrones, fListOfIsochrones);
+	   fListOfParallelIsochrones->DestroyElements();
+	   fListOfParallelIsochrones->Destroy();
+
+   }
+	if (fListOfIsochrones != 0){
+//	   fListOfIsochrones->Reset();
+//	   gEve->PreDeleteElement(fListOfIsochrones);
+//	   gEve->RemoveElement(fListOfIsochrones, fEventManager);
+	   fListOfIsochrones->Destroy();
    }
 
-   if (fListOfTiltedIsochrones != 0) {
-		fListOfTiltedIsochrones->Reset();
-		gEve->RemoveElement(fListOfTiltedIsochrones, fEventManager);
-		//delete(fListOfTracks);
-	}
 }
 
 
