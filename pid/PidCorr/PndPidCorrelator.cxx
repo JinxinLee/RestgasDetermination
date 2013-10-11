@@ -1275,7 +1275,7 @@ Bool_t PndPidCorrelator::GetDrcInfo(FairTrackParH* helix, PndPidCandidate* pidCa
       vertex.SetXYZ(fRes->GetX(), fRes->GetY(), 0.);
       vertex_z = fRes->GetZ();
       drcGLength = fProDrc->GetLengthAtPCA();
-      if (drcGLength<25.) return kFALSE;  // additional cut on extrapolation distance to avoid fake correlations
+      if (drcGLength>25.) return kFALSE;  // additional cut on extrapolation distance to avoid fake correlations
     }
   
   for (Int_t dd = 0; dd<drcEntries; dd++)
