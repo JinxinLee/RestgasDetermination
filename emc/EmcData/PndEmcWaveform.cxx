@@ -206,7 +206,7 @@ PndEmcWaveform::MakeWaveform(Double_t energy
 		local_time = i/sampleRate;//seconds
 		fSignal[i]+=(pulseshape->value(local_time,amplitude,time_offset));
 		sumCharge += fSignal[i];
-		sumChargeErr += sqrt(fSignal[i]);
+		sumChargeErr += sqrt(fabs(fSignal[i]));
 	}
 	Double_t Coff = EnergyError*sumCharge/sumChargeErr;
 	for(Int_t i=0;i<fWaveformLength;++i){

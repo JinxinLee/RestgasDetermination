@@ -29,6 +29,7 @@
 #include "TRandom.h"
 #include "FairRootManager.h"
 #include "FairRunAna.h"
+#include "FairRun.h"
 #include "FairRuntimeDb.h"
 #include "TGraph.h"
 #include "TFile.h"
@@ -246,7 +247,7 @@ void PndEmcHitsToWaveform::Exec(Option_t* opt)
 
 	Double_t EventTime = FairRootManager::Instance()->GetEventTime();//nano seconds
 	Int_t nHits = fHitArray->GetEntriesFast();
-	Int_t evtNo = FairRunAna::Instance()->GetEventHeader()->GetMCEntryNumber();
+	Int_t evtNo = FairRun::Instance()->GetEventHeader()->GetMCEntryNumber();
 	if (fVerbose>1){
 		cout<<"**************************************"<<endl;
 		cout<<"Event No. #"<<evtNo<<", EvtTime #"<<EventTime<<std::endl;
