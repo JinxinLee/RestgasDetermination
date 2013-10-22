@@ -71,9 +71,9 @@ InitStatus PndSttSkewedCombineTask::Init() {
 
 	fCombinedSkewedHits = ioman->Register("STTCombinedSkewedHits", "PndSttSkewedHit", "Stt", kTRUE);
 
-
-	std::cout << "-I- PndSttSkewedCombineTask: Initialisation successfull"
-			<< std::endl;
+	if (fVerbose > 0) {
+		std::cout << "-I- PndSttSkewedCombineTask: Initialisation successfull" << std::endl;
+	}
 	//fInitDone = kTRUE;
 	return kSUCCESS;
 }
@@ -84,11 +84,10 @@ void PndSttSkewedCombineTask::Exec(Option_t* opt) {
 	FairEventHeader* myEventHeader = (FairEventHeader*) fEventHeader;
 	int eventNumber = myEventHeader->GetMCEntryNumber();
 
-//	if (fVerbose > 0) {
+	if (fVerbose > 0) {
 		std::cout << "====================Begin PndSttSkewedCombineTask::Exec=======================" << endl;
-
 		std::cout << "Event #" << eventNumber << endl;
-//	}
+	}
 
 
 
@@ -104,20 +103,21 @@ void PndSttSkewedCombineTask::Exec(Option_t* opt) {
 	for (int i = 0; i < fSttHits->GetEntriesFast(); i++){
 		PndSttHit* myHit = (PndSttHit*)fSttHits->At(i);
 		int strawRow = fStrawMap.GetRow(myHit->GetTubeID());
-		std::cout << "PndSttSkewedCombineTask::Exec: TubeID " << myHit->GetTubeID() << " RowNr " << strawRow << std::endl;
+		if (fVerbose > 1) std::cout << "PndSttSkewedCombineTask::Exec: TubeID " << myHit->GetTubeID() << " RowNr " << strawRow << std::endl;
 		if (strawRow > 6 && strawRow < 16 && strawRow % 2 == 1) {
 			TArrayI tmp = fGeometryMap->GetNeighboringsByMap(myHit->GetTubeID());
 			for (int j = 0; j < tmp.GetSize(); j++){
 				if (fStrawMap.GetRow(tmp.At(j)) == strawRow + 1) {
 					if (tubeMap.find(tmp.At(j)) != tubeMap.end()) {
 						TVector3 poca, pocaError;
-						std::cout << "PndSttSkewedCombineTask::Exec: FoundNeighbourHit " << tubeMap[tmp.At(j)]->GetTubeID() << std::endl;
+						if (fVerbose > 1) std::cout << "PndSttSkewedCombineTask::Exec: FoundNeighbourHit " << tubeMap[tmp.At(j)]->GetTubeID() << std::endl;
 
 						double distance = fGeometryMap->CalculateStrawPoca(myHit, tubeMap[tmp.At(j)], poca);
-						std::cout << "PndSttSkewedCombineTask::Exec: poca: " << poca.x() << "/" << poca.y() << "/" << poca.z() << " " << distance << std::endl;
+						if (fVerbose > 1) std::cout << "PndSttSkewedCombineTask::Exec: poca: " << poca.x() << "/" << poca.y() << "/" << poca.z() << " " << distance << std::endl;
 						PndSttSkewedHit* skewedHit = new ((*fCombinedSkewedHits)[fCombinedSkewedHits->GetEntriesFast()]) PndSttSkewedHit(-1,myHit->GetTubeID(),  tubeMap[tmp.At(j)]->GetTubeID(), -1, poca, pocaError);
 						skewedHit->AddLink(myHit->GetEntryNr());
 						skewedHit->AddLink(tubeMap[tmp.At(j)]->GetEntryNr());
+						skewedHit->SetEntryNr(FairLink(-1, eventNumber, ioman->GetBranchId("STTCombinedSkewedHits"), fCombinedSkewedHits->GetEntriesFast()-1));
 					}
 				}
 			}
