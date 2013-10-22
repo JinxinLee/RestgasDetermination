@@ -133,12 +133,39 @@ PndRiemannTrack::dist(PndRiemannHit* hit){
   d2+=hit->x().Z()*fn[2];
 
   if (fVerbose > 1) {
-	  std::cout << "PndRiemannTrack::dist: c" << fc << " n: " << fn[0] << "/" << fn[1] << "/" << fn[2] <<
+	  std::cout << "PndRiemannTrack::dist: c " << fc << " n: " << fn[0] << "/" << fn[1] << "/" << fn[2] <<
 			" hit: " << hit->x().X() << "/" << hit->x().Y() << "/" << hit->x().Z() << " Dist: " << d2 << std::endl;
   }
   return d2;
 }
 
+double
+PndRiemannTrack::distError(PndRiemannHit* hit){
+	//for the time being the plane errors are ignored!
+	return TMath::Sqrt(TMath::Power(hit->sigmaX(),2) +TMath::Power(hit->sigmaY(),2) +TMath::Power(hit->sigmaW(),2));
+}
+
+double
+PndRiemannTrack::distCircle(PndRiemannHit* hit){
+	TVector2 pos;
+	TVectorD origin(2);
+	origin = orig();
+	TVector2 diff;
+
+	pos.Set(hit->x().x(), hit->x().y());
+	diff.Set(pos.X() - origin[0], pos.Y() - origin[1]);
+
+	return (diff.Mod() - r());
+}
+
+
+double PndRiemannTrack::ChiSquareDistCircle(){
+	double sum = 0;
+	for (int i = 0; i < fHits.size(); i++){
+		double distance = distCircle(&(fHits[i]));
+		sum += TMath::Power(distance / fHits[i].sigmaXY(), 2);
+	}
+}
 
 void
 PndRiemannTrack::refit(bool withErrorCalc)
@@ -190,35 +217,67 @@ PndRiemannTrack::refit(bool withErrorCalc)
   TVectorD eigenValues(3);
   TMatrixD eigenVec=sampleCov.EigenVectors(eigenValues);
 
-  // find smallest eigenvalue
-  double val=eigenValues[0]; int g=0;
-  for(int k=1;k<3;++k){
-    if(eigenValues[k]<val){
-      val=eigenValues[k];
-      g=k;
-    }
-  }
+ // find smallest eigenvalue
+//  double val=eigenValues[0]; int g=0;
+//  for(int k=1;k<3;++k){
+//    if(eigenValues[k]<val){
+//      val=eigenValues[k];
+//      g=k;
+//    }
+//  }
 
-  fn=TMatrixDColumn(eigenVec,g);
-
-  if (fVerbose > 1) std::cout << "eigenVec: " << std::endl;
-  if (fVerbose > 1) MatrixOutput(eigenVec);
-
-  if (fVerbose > 1) std::cout << "eigenValues: ";
+  int g = 0;
+  double smallestDistance = -1;
+  int smallestVec = 0;
+  TVectorD correctN(3);
+  double correctC;
+  double val;
   for (int i = 0; i < 3; i++){
-	  if (fVerbose > 1) std::cout << eigenValues[i] << " ";
+	  g = i;
+	  fn=TMatrixDColumn(eigenVec,g);
+
+	  if (fVerbose > 1) std::cout << "eigenVec: " << std::endl;
+	  if (fVerbose > 1) MatrixOutput(eigenVec);
+
+	  if (fVerbose > 1) std::cout << "eigenValues: ";
+	  for (int j = 0; j < 3; j++){
+		  if (fVerbose > 1) std::cout << eigenValues[j] << " ";
+	  }
+	  if (fVerbose > 1) std::cout << std::endl;
+
+	  double norm = 1;
+	  if (fn.Norm2Sqr() != 0)
+		  norm=1./TMath::Sqrt(fn.Norm2Sqr());
+
+	  fn*=norm;
+	  fc=-1.*fn*fav;
+	  if (smallestDistance < 0){
+		  smallestDistance = ChiSquareDistCircle();
+		  smallestVec = i;
+		  correctN = fn;
+		  correctC = fc;
+		  val = eigenValues[i];
+	  } else if (smallestDistance > ChiSquareDistCircle()) {
+		  smallestDistance = ChiSquareDistCircle();
+		  smallestVec = i;
+		  correctN = fn;
+		  correctC = fc;
+		  val = eigenValues[i];
+	  }
+
+	  if (fVerbose > 1) std::cout << "fn: " << fn[0] << " " << fn[1] << " " << fn[2] << std::endl;
+	  if (fVerbose > 1) std::cout << "fc: " << fc << std::endl;
+	  if (fVerbose > 1) {
+		  TVectorD origin = orig();
+		  std::cout << "Origin: " << origin[0] << " " << origin[1] << std::endl;
+	  }
+	  if (fVerbose > 1) std::cout << "r: " << r() << std::endl;
+	  if (fVerbose > 1) std::cout << "ChiSquareCircleDistance: " << ChiSquareDistCircle() << std::endl;
   }
-  if (fVerbose > 1) std::cout << std::endl;
 
-  double norm = 1;
-  if (fn.Norm2Sqr() != 0)
-	  norm=1./TMath::Sqrt(fn.Norm2Sqr());
-
-  fn*=norm;
-  fc=-1.*fn*fav;
-
-  if (fVerbose > 1) std::cout << "fn: " << fn[0] << " " << fn[1] << " " << fn[2] << std::endl;
-  if (fVerbose > 1) std::cout << "fc: " << fc << std::endl;
+  g = smallestVec;
+  fn = correctN;
+  fc = correctC;
   //------------ Calculation of the full covariance matrix -----------
 
   // 1. Calculation of the covarianz matrix of the normal vector
@@ -389,7 +448,9 @@ PndRiemannTrack::szFit(bool withErrorCalc){
 	  // get s'es and zs
 	  int j=0;
 	  for(unsigned int i=0;i<num;++i){
-		if (fVerbose > 1) std::cout << "Point: " << i << ": " << fHits[i].hit()->GetEntryNr() << " ";
+		if (fVerbose > 1)
+			if (fHits[i].hit() > 0)
+				std::cout << "Point: " << i << ": " << fHits[i].hit()->GetEntryNr() << " ";
 		if (fHits[i].hit() != 0 && fHits[i].hit()->GetEntryNr().GetType() == GetBranchId("STTHit")){
 			continue;
 		}
@@ -446,7 +507,7 @@ double PndRiemannTrack::calcChi2Plane()
 			PndRiemannHit* actualHit = getHit(i);
 //			chiSquare += TMath::Power((dist(actualHit)/actualHit->sigmaXY()),2);
 //			std::cout << "Dist: " << " "<< dist(actualHit) << std::endl;
-			chiSquare += TMath::Power((dist(actualHit)),2);
+			chiSquare += TMath::Power((dist(actualHit)/distError(actualHit)),2);
 		}
 		if (getNumHits() > 3)
 			chiSquare /= (getNumHits() - 3);
@@ -1091,18 +1152,19 @@ void PndRiemannTrack::calcJacRXY()
 
 void PndRiemannTrack::PrintHits()
 {
-	std::cout << "-I- PndRiemannTrack::PrintHits:" << std::endl;
+	std::cout << "-I- PndRiemannTrack::PrintHits: " << fHits.size() << std::endl;
+	bool first = false;
 	for (int i = 0; i < fHits.size(); i++){
 		std::cout << i << ": ";
 
-		if (fHits[i].hit() != 0)
-			std::cout << fHits[i].hit()->GetEntryNr() << " : ";
-
-		std::cout << fHits[i].x().X() << " +/- " << fHits[i].sigmaX()
-				  << "\t" << fHits[i].x().Y()<< " +/- " << fHits[i].sigmaY()
-				  << "\t" << fHits[i].z() << " s: " << fHits[i].s() << "\t" << " dist: " << dist(&fHits[i]);
-//		calcPosByS(fHits[i].s()).Print();
-		std::cout << std::endl;
+		if (fHits[i].hit() != 0) {
+//			std::cout << fHits[i].hit()->GetEntryNr() << " : ";
+		}
+			std::cout << fHits[i].x().X() << " +/- " << fHits[i].sigmaX()
+					  << "\t" << fHits[i].x().Y()<< " +/- " << fHits[i].sigmaY()
+					  << "\t" << fHits[i].z() << " s: " << fHits[i].s() << "\t" << " dist: " << dist(&fHits[i]);
+	//		calcPosByS(fHits[i].s()).Print();
+			std::cout << std::endl;
 
 	}
 }

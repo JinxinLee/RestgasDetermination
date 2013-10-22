@@ -26,6 +26,7 @@
 #include "TVector3.h"
 #include "TMatrixD.h"
 #include "FairHit.h"
+#include "TMath.h"
 
 // Collaborating Class Declarations --
 //class PndTpcCluster;
@@ -35,7 +36,7 @@ class PndRiemannHit : public TObject{
 public:
 
   // Constructors/Destructors ---------
-  PndRiemannHit() : fCovX(3,3), fS(-1.), fZ(-1.), fDeltaZ(-1.), fAlpha(-1.){};
+  PndRiemannHit() : fCovX(3,3), fS(-1.), fZ(-1.), fDeltaZ(-1.), fAlpha(-1.), fHit(0){};
   PndRiemannHit(double x,double y, double z, double dx, double dy, double dz);
   PndRiemannHit(FairHit* cl, int hitID = -1);
   ~PndRiemannHit();
@@ -76,8 +77,9 @@ public:
   double z() const;
   double alpha() const {return fAlpha;}
   double sigmaXY() const;
-  double sigmaX() const{return fCovX[0][0];}
-  double sigmaY() const{return fCovX[1][1];}
+  double sigmaX() const{return TMath::Sqrt(fCovX[0][0]);}
+  double sigmaY() const{return TMath::Sqrt(fCovX[1][1]);}
+  double sigmaW() const{return TMath::Sqrt(TMath::Power(2*x().x()*sigmaX(),2) + TMath::Power(2*x().y()*sigmaY(),2));} // error of z-Coordinate (x2+y2) in RiemannSpace
   const TMatrixD& covX() const {return fCovX;}
   const double covX(int row, int col) const {return fCovX[row][col];}
   bool operator< (const PndRiemannHit& aHit) const{							///< Sort hits by arclength, fails if track curls

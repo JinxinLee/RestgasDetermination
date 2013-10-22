@@ -109,6 +109,9 @@ public:
   // Operations ----------------------
   void refit(bool withErrorCalc = true);
   double dist(PndRiemannHit* hit);
+  double distError(PndRiemannHit* hit);
+  double distCircle(PndRiemannHit* hit);
+  double ChiSquareDistCircle();
   void szFit(bool withErrorCalc = true);
   double calcChi2Plane();
   double calcSZChi2(PndRiemannHit* hit); //calculates the chi2 of the track plus the additional hit
@@ -131,6 +134,7 @@ public:
 	  out << std::setprecision(6) << "Riemann Track: Radius " << r() << " +/- " << dR() << " Origin: " << orig()[0] << " +/- " << dX() << " / " << orig()[1] << " +/- " << dY() << std::endl;
 	  out << "RiemannTrack: Normal: " << n()[0] << "/" << n()[1] << "/" << n()[2] << " c: " << c() << std::endl;
 	  out << "Dip: " << dip() << " +/- " << dDip() << " StartAlpha: " << fStartAlpha << " StopAlpha: " << fStopAlpha << std::endl;
+	  out << "Chi2Plane: " << calcChi2Plane() << std::endl;
 	  PrintHits();
   }
 
