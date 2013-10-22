@@ -1574,7 +1574,14 @@ int iconta=0;
 	//   15= outer axial boundary, special zone, left;
 	//   25= outer axial boundary, special zone, right;
 
-	if( nHitsinCluster[ iCluster ] < MINIMUMHITSPERTRACK ) continue;
+	if( nHitsinCluster[ iCluster ] < MINIMUMHITSPERTRACK )
+	{
+		if(istampa>=1){  cout<<" Loop of Clusters; this cluster (n. "<<iCluster<<
+		") has nHitsinCluster = "<<nHitsinCluster[ iCluster ]
+		<<" which is < MINIMUMHITSPERTRACK (= "<<
+		MINIMUMHITSPERTRACK<<"), no further processing.\n";}
+		continue;
+	}
 	if( nSttTrackCand >= MAXTRACKSPEREVENT) {
 		cout<<"from PndTrkTracking2 :  # n. Tracks found so far = "
 		<<nSttTrackCand<<" and it is >= MAXTRACKSPEREVENT ( = "
@@ -1624,7 +1631,13 @@ int iconta=0;
 	if(!outcome)  continue;
 	if( fnMvdPixelHitsinTrack[nSttTrackCand]+
 		fnMvdStripHitsinTrack[nSttTrackCand]+
-		fnSttParHitsinTrack[nSttTrackCand]<2) continue;
+		fnSttParHitsinTrack[nSttTrackCand]<2)
+	{
+		if(istampa>=1){  cout<<" Loop of Clusters; this cluster (n. "<<iCluster<<
+		") generated a track having nPixel+nStrip+nSttParallel<2; no further processing.\n";}
+		continue;
+	}
+
 
 	InOut.Oyy = &fOy[nSttTrackCand];
 	InOut.Rr = &fR[nSttTrackCand];
@@ -1632,9 +1645,9 @@ int iconta=0;
 // --------  here the track and its hits were found, filling the Inclusion list
 
 
-	for(j=0; j<fnSttParHitsinTrack[nSttTrackCand]; j++){
-		fInclusionListStt[fListSttParHitsinTrack[nSttTrackCand][j]] = false;
-	}
+//	for(j=0; j<fnSttParHitsinTrack[nSttTrackCand]; j++){
+//		fInclusionListStt[fListSttParHitsinTrack[nSttTrackCand][j]] = false;
+//	}
 
 	keepit[nSttTrackCand]=true;
 	nSttTrackCand++;
@@ -1859,6 +1872,8 @@ MAXSCITILHITSINTRACK,MAXSTTHITSINTRACK,fR,fOx,fOy,FI0,KAPPA);
 //---------------------   here do the fit again in the SZ space if there are Mvd hits.
 //			  For this, reordering of the  Mvd hits is not necessary.
 
+	resultFitSZagain[ncand] = 0;	// default value, corresponding to a bad SZ fit result;
+
 	if(nhitsinfit>0){
 //		resultFitSZagain[ncand] = fit.FitSZspace(
 		resultFitSZagain[ncand] = fit.FitSZspace_Chi2_AnnealingtheMvdOnly(
@@ -1891,7 +1906,7 @@ MAXSCITILHITSINTRACK,MAXSTTHITSINTRACK,fR,fOx,fOy,FI0,KAPPA);
 
 //-------------- stampa
  if(istampa>=2){
-	cout<<"\tstampa dopo FitSZspace, [not in Mvd track section], result (1 va bene) = "
+	cout<<"stampa dopo FitSZspace, [not in Mvd track section], SttTrackCand n. "<<ncand<<", result (1 va bene) = "
 	<<resultFitSZagain[ncand]<<endl;
 	fPrint.stampetta(
 //IVOLTE,tkeepit,&fListMvdPixelHitsinTrack[0][0],&fListMvdStripHitsinTrack[0][0],
@@ -2180,27 +2195,6 @@ MAXSCITILHITSINTRACK,MAXSTTHITSINTRACK,fR,fOx,fOy,FI0,KAPPA);
 
 
 
-
-
-
-//-------  load the new PndTrackCand ; each track has the STT and the Mvd hits associated
-//-------  also load the new PndTrack ; each track has the STT and the Mvd hits associated
-
- LoadPndTrack_TrackCand(
-	keepit,
-	SttSZfit,
-	nTotalCandidates,
-	Charge,
-	nSttTrackCand,
-	FI0,
-	KAPPA,
-	info,
-	SchosenSkew,
-	ZchosenSkew
-	);
-
-
-
 //------------ section with comparison MC Mvd hits - associated hits to a certain track
 
 
@@ -2254,7 +2248,13 @@ MAXSCITILHITSINTRACK,MAXSTTHITSINTRACK,fR,fOx,fOy,FI0,KAPPA);
 	nMCSciTilAlone[dim1],
 	MCSciTilAloneList[dim7];
 
-// if( doMcComparison && nTotalCandidates > 0){
+	// since in the TrackCand the associated MC track is written in all cases, initialization to -1
+	// of daTrackFoundaTrackMC is here performed whether or not doMcComparison is true;
+	for(i=0;i<nTotalCandidates;i++){
+		daTrackFoundaTrackMC[i] = -1;
+	}
+	//------------------
+
  if( doMcComparison ){
 	// make the struct for the data to pass to the
 	// method PndTrkComparisonMCtruth::ComparisonwithMC ;
@@ -2512,6 +2512,25 @@ MAXSCITILHITSINTRACK,MAXSTTHITSINTRACK,fR,fOx,fOy,FI0,KAPPA);
  }
 
 //----------------
+
+//-------  load the new PndTrackCand ; each track has the STT and the Mvd hits associated
+//-------  also load the new PndTrack ; each track has the STT and the Mvd hits associated
+
+
+ LoadPndTrack_TrackCand(
+	keepit,
+	SttSZfit,
+	nTotalCandidates,
+	Charge,
+	nSttTrackCand,
+	FI0,
+	KAPPA,
+	info,
+	SchosenSkew,
+	ZchosenSkew,
+	tdaTrackFoundaTrackMC	// MC track to which reconstructed tracks are associated;
+	);
+
 
 
 
@@ -3529,7 +3548,8 @@ void PndTrkTracking2::LoadPndTrack_TrackCand(
 	Double_t *KAPPA,
 	Double_t info[][7],
 	Double_t SchosenSkew[][MAXSTTHITS],
-	Double_t ZchosenSkew[][MAXSTTHITS]
+	Double_t ZchosenSkew[][MAXSTTHITS],
+	Short_t *daTrackFoundaTrackMC
 			)
 {
 
@@ -3603,7 +3623,8 @@ void PndTrkTracking2::LoadPndTrack_TrackCand(
 	qop = Charge[ncand]/dirSeed.Mag();
 	dirSeed.SetMag(1.);
 	pTrckCand->setTrackSeed(posSeed, dirSeed, qop);
-	pTrckCand->setMcTrackId(  -1   );
+//	pTrckCand->setMcTrackId(  -1   );
+	pTrckCand->setMcTrackId(  daTrackFoundaTrackMC[ncand]   );
 
 	for(j=0; j< fnTrackCandHit[ncand]; j++){
 
