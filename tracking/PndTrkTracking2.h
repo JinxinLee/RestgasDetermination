@@ -507,7 +507,8 @@ class PndTrkTracking2 : public FairTask
 	Double_t *KAPPA,
 	Double_t info[][7],
 	Double_t SchosenSkew[][MAXSTTHITS],
-	Double_t ZchosenSkew[][MAXSTTHITS]
+	Double_t ZchosenSkew[][MAXSTTHITS],
+	Short_t *daTrackFoundaTrackMC
 	);
 
 
