@@ -54,7 +54,7 @@ PndEmcHitProducer::PndEmcHitProducer(Bool_t val) :
 	fUse_nonuniformity(0), fNonuniformityFile(""), fPointArray(), fMCTrackArray(), fHitArray(), fVolumeArray(), fMapVersion(0), emcX(), emcY(), emcZ(), fEmcStr(), fMapper(), fDigiPar(), fGeoPar(), fNonuniformityPar(), fStoreHits(val), fEnergyThreshold(0)
 { 
 	fNonuniformityFile=gSystem->Getenv("VMCWORKDIR");
-	fNonuniformityFile+="/input/EmcDigiNoniformitypars.root";
+	fNonuniformityFile+="/input/EmcDigiNoniformityPars.root";
 }
 
 // -----   Destructor   ----------------------------------------------------
