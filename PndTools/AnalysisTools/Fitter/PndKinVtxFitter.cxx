@@ -47,7 +47,7 @@ void PndKinVtxFitter::AddPointingConstraint(TVector3 pVtx)
 
 Bool_t PndKinVtxFitter::FitNode(RhoCandidate *cand)
 {
-  SetDaugthersFromComposite(cand); 
+  SetDaugthersFromComposite(cand);
   Bool_t check=Compute();
   SetOutput(cand);
   return check;
@@ -104,7 +104,7 @@ Bool_t PndKinVtxFitter::Compute()
     NumCon += 2;
   }
 
-  fNDegreesOfFreedom=NumCon-3; 
+  fNDegreesOfFreedom=NumCon-3;
 
 
   SetMatrices();
@@ -146,7 +146,7 @@ Bool_t PndKinVtxFitter::Compute()
 
   for(Int_t j1=0; j1<j1Max; ++j1) {
     fNc=0;
-    if(fMassConstraint >0) { 
+    if(fMassConstraint >0) {
       ReadMassKinMatrix();
     } else {
     //here should be thr else statement, right?
@@ -329,7 +329,7 @@ void PndKinVtxFitter::SetOutput(RhoCandidate* head)
         p1Cov[i][j]= V_al0[k*7+i][k*7+j];
       }
     }
-    
+
     //Change from px,py,pz,E,x,y,z
     //         to x,y,z,px,py,pz,E
     for(int i=0; i<7; i++) {
@@ -346,7 +346,7 @@ void PndKinVtxFitter::SetOutput(RhoCandidate* head)
       }
     }
 
-    // create cov with E... check it 
+    // create cov with E... check it
     double invE = 1./al0[k*7+3][0];
     p2Cov[3][6] = p2Cov[6][3] = (p1.X()*p1Cov[0][0]+p1.Y()*p1Cov[0][1]+p1.Z()*p1Cov[0][2])*invE;
     p2Cov[4][6] = p2Cov[6][4] = (p1.X()*p1Cov[1][0]+p1.Y()*p1Cov[1][1]+p1.Z()*p1Cov[1][2])*invE;
@@ -360,7 +360,7 @@ void PndKinVtxFitter::SetOutput(RhoCandidate* head)
     p2Cov[6][0] = p2Cov[0][6] = (p1.X()*p1Cov[0][4]+p1.Y()*p1Cov[1][4]+p1.Z()*p1Cov[2][4])*invE;
     p2Cov[6][1] = p2Cov[1][6] = (p1.X()*p1Cov[0][5]+p1.Y()*p1Cov[1][5]+p1.Z()*p1Cov[2][5])*invE;
     p2Cov[6][2] = p2Cov[2][6] = (p1.X()*p1Cov[0][6]+p1.Y()*p1Cov[1][6]+p1.Z()*p1Cov[2][6])*invE;
-    
+
     fDaughters[k]->SetCov7(p2Cov); //New covariance matrix with correlations
     //cout<< " #######  KinVtx daughter cov check... " << endl;
     //cout<<"p1Cov"; p1Cov.Print();
@@ -393,12 +393,12 @@ void PndKinVtxFitter::SetOutput(RhoCandidate* head)
 
   TVector3 vtx(vtx_ex[0][0],vtx_ex[1][0],vtx_ex[2][0]);
   TMatrixD CovV = covC.GetSub(0,2,0,2);
-  
+
   head->SetPos(vtx);//P4 is defined here
   SetDecayVertex(head,vtx,CovV);
   SetFourMomentumByDaughters(head);//propagates cov7 from daughters
   //head->SetCov7(covC);//which one to use???
-  cout<<" KinVtx Cov7: ";covC.Print(); 
+  //cout<<" KinVtx Cov7: ";covC.Print();
   if(fVerbose) { cout<<"Final vertex Position is "<<vtx_ex[0][0]<<" "<<vtx_ex[1][0]<<" "<<vtx_ex[2][0]<<endl; }
   if(fVerbose) { cout<<"Final Momenta are "<<al0[0][0]<<" "<<al1[1][0]<<" "<<al1[2][0]<<endl; }
 }
@@ -432,12 +432,10 @@ void PndKinVtxFitter::ReadMatrix()
     TMatrixD p2Cov(7,7);
     TMatrixD p4Cov(7,7);
     p1Cov=fDaughters[k]->Cov7(); //Cov Matrix x,y,z,px,py,pz,E
-    cout<<"daughter " <<k<<" cov before ";p1Cov.Print();
 
     for (int ii=0; ii<6; ii++) {for(int jj=0; jj<6; jj++) {p3Cov[ii][jj]=p1Cov[ii][jj];}} //test
 
     //Extend matrix for energy for each candidates .....6x6 to 7x7
-
     TMatrixD J(7,6) ;
     J.Zero();
     TMatrixD J_t(6,7);
