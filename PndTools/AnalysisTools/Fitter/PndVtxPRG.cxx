@@ -77,11 +77,11 @@ Double_t PndVtxPRG::FitVertexFast(TVector3& vtx, TMatrixD& cov, bool skipcov)
 {
   // Calculate a vertex of n tracks without considering the changes in momentum vector
   // the variables vtx & cov (3x3) are written and the Chi^2 is returned.
-  // the current head candidate is set by FitNode during tree navigation or is the composite 
+  // the current head candidate is set by FitNode during tree navigation or is the composite
   // which the fitter was initialized with.
   int nTrk = fCurrentHead->NDaughters();
   fNDegreesOfFreedom=2*nTrk-3;
-  
+
   std::vector<TMatrixD> w;
   std::vector<TMatrixD> xp;
   TMatrixD sumw(3,3);
@@ -513,23 +513,36 @@ Bool_t PndVtxPRG::Calculate()
     // The candidate tree is the to-be-fitted copy
     // It's safe to modify!
     RhoCandidate* tcand = fCurrentHead->Daughter(i);
+    // set fitted values
+    tcand->SetPos(vtx);
+    if(fDebug) {std::cout<<" #$# Fit #$# Final Momentum :("<<i<<") "; momenta[i].Print();}
+    tcand->SetP3(momenta[i]);
+
     for(int k=0; k<3; k++) for(int l=0; l<3; l++) {
         CovP7[k+3][l+3]=CovFitFull[3*(i+1)+k][3*(i+1)+l]; // momentum cov
         CovP7[k+3][l]=CovFitFull[3*(i+1)+k][l];   // momentum-position cov
         CovP7[l][k+3]=CovFitFull[l][3*(i+1)+k];   // momentum-position cov
       }
-    CovP7[6][6]= (tcand->GetErrP7())[27];// error in e
-    // set fitted values
-    tcand->SetPos(vtx);
-    if(fDebug) {std::cout<<" #$# Fit #$# Final Momentum :("<<i<<") "; momenta[i].Print();}
-    tcand->SetP3(momenta[i]);
+    // Calculate energy covariances:
+    double invE = 1./tcand->E();
+    CovP7[3][6] = CovP7[6][3] = (momenta[i].X()*CovP7[3][3]+momenta[i].Y()*CovP7[3][4]+momenta[i].Z()*CovP7[3][5])*invE;
+    CovP7[4][6] = CovP7[6][4] = (momenta[i].X()*CovP7[4][3]+momenta[i].Y()*CovP7[4][4]+momenta[i].Z()*CovP7[4][5])*invE;
+    CovP7[5][6] = CovP7[6][5] = (momenta[i].X()*CovP7[5][3]+momenta[i].Y()*CovP7[5][4]+momenta[i].Z()*CovP7[5][5])*invE;
+
+    CovP7[6][6] = (momenta[i].X()*momenta[i].X()*CovP7[3][3]+momenta[i].Y()*momenta[i].Y()*CovP7[4][4]+momenta[i].Z()*momenta[i].Z()*CovP7[5][5]
+                       +2.0*momenta[i].X()*momenta[i].Y()*CovP7[3][4]
+                       +2.0*momenta[i].X()*momenta[i].Z()*CovP7[3][5]
+                       +2.0*momenta[i].Y()*momenta[i].Z()*CovP7[4][5])*invE*invE;
+
+    CovP7[6][0] = CovP7[0][6] = (momenta[i].X()*CovP7[3][0]+momenta[i].Y()*CovP7[4][0]+momenta[i].Z()*CovP7[5][0])*invE;
+    CovP7[6][1] = CovP7[1][6] = (momenta[i].X()*CovP7[3][1]+momenta[i].Y()*CovP7[4][1]+momenta[i].Z()*CovP7[5][1])*invE;
+    CovP7[6][2] = CovP7[2][6] = (momenta[i].X()*CovP7[3][2]+momenta[i].Y()*CovP7[4][2]+momenta[i].Z()*CovP7[5][2])*invE;
+
     tcand->SetCov7(CovP7);
-    tcand->Lock();
-    //TODO: Update helix parameters & cov here, too.
-    // put fitted candidate
+    //tcand->Lock(); //?? autolocking
     //if(fDebug) {std::cout<<" #$# Fit #$# CovP7 with mom for traj "<<i<<": "; CovP7.Print();}
   }
-  fCurrentHead->SetPos(vtx); // that's wher the P4 is defined
+  fCurrentHead->SetPos(vtx); // that's where the P4 is defined
   SetFourMomentumByDaughters(fCurrentHead);//Cov7 updated by daughters, too!
   SetDecayVertex(fCurrentHead,vtx,CovVV);
   return kTRUE; // all good now!
