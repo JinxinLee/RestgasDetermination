@@ -1,0 +1,1 @@
+/u/kliemt/Panda/builds_pandaroot/trunk_smartsvn_kdev/config.sh
