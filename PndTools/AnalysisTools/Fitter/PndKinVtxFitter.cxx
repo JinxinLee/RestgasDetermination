@@ -130,9 +130,9 @@ Bool_t PndKinVtxFitter::Compute()
   al0=al1;
   V_al0=V_al1;
   TMatrixD V_vtx(3,3);
-  V_vtx[0][0] = 1000.;
-  V_vtx[1][1] = 1000.;
-  V_vtx[2][2] = 1000.;
+  V_vtx[0][0] = 9000.;
+  V_vtx[1][1] = 9000.;
+  V_vtx[2][2] = 9000.;
   // vtx_ex=vtx_st;
 
   double ierr =0 ; // used to check inversions
@@ -180,7 +180,13 @@ Bool_t PndKinVtxFitter::Compute()
     mE_t.T();
     TMatrixD Vx_inv = mE_t*Vd*mE;
     TMatrixD Vx=Vx_inv.Invert(&ierr);
-    //  Vx.Print();
+//     cout<<"   *** *** *** *** ***"<<endl;
+//     cout<<"mE     "; mE.Print();
+//     cout<<"mE_t   "; mE_t.Print();
+//     cout<<"Vd     "; Vd.Print();
+//     cout<<"Vx_inv "; Vx_inv.Print();
+//     cout<<"Vx     "; Vx.Print();
+//     cout<<"   *******************"<<endl;
 
     // New vertex and covariance ........
     TMatrixD V_vtx_new(3,3);
@@ -323,22 +329,42 @@ void PndKinVtxFitter::SetOutput(RhoCandidate* head)
         p1Cov[i][j]= V_al0[k*7+i][k*7+j];
       }
     }
-    for (int ii=0; ii<6; ii++) {for(int jj=0; jj<6; jj++) {p2Cov[ii][jj]=p1Cov[ii][jj];}} //test
+    
+    //Change from px,py,pz,E,x,y,z
+    //         to x,y,z,px,py,pz,E
+    for(int i=0; i<7; i++) {
+      for(int j=0; j<7; j++) {
+        if(i>=4) {
+          if(j>=4) {
+            p2Cov[i-4][j-4] = p1Cov[i][j];
+          } else { p2Cov[i-4][j+3] = p1Cov[i][j]; }
+        } else {
+          if(j>=4) {
+            p2Cov[i+3][j-4] = p1Cov[i][j];
+          } else { p2Cov[i+3][j+3] = p1Cov[i][j]; }
+        }
+      }
+    }
 
+    // create cov with E... check it 
     double invE = 1./al0[k*7+3][0];
-    p2Cov[0+3][3+3] = p2Cov[3+3][0+3] = (p1.X()*p1Cov[0+3][0+3]+p1.Y()*p1Cov[0+3][1+3]+p1.Z()*p1Cov[0+3][2+3])*invE;
-    p2Cov[1+3][3+3] = p2Cov[3+3][1+3] = (p1.X()*p1Cov[0+3][1+3]+p1.Y()*p1Cov[1+3][1+3]+p1.Z()*p1Cov[1+3][2+3])*invE;
-    p2Cov[2+3][3+3] = p2Cov[3+3][2+3] = (p1.X()*p1Cov[0+3][2+3]+p1.Y()*p1Cov[1+3][2+3]+p1.Z()*p1Cov[2+3][2+3])*invE;
-    p2Cov[3+3][3+3] = (p1.X()*p1.X()*p1Cov[0+3][0+3]+p1.Y()*p1.Y()*p1Cov[1+3][1+3]+p1.Z()*p1.Z()*p1Cov[2+3][2+3]
-                       +2.0*p1.X()*p1.Y()*p1Cov[0+3][1+3]
-                       +2.0*p1.X()*p1.Z()*p1Cov[0+3][2+3]
-                       +2.0*p1.Y()*p1.Z()*p1Cov[1+3][2+3])*invE*invE;
+    p2Cov[3][6] = p2Cov[6][3] = (p1.X()*p1Cov[0][0]+p1.Y()*p1Cov[0][1]+p1.Z()*p1Cov[0][2])*invE;
+    p2Cov[4][6] = p2Cov[6][4] = (p1.X()*p1Cov[1][0]+p1.Y()*p1Cov[1][1]+p1.Z()*p1Cov[1][2])*invE;
+    p2Cov[5][6] = p2Cov[6][5] = (p1.X()*p1Cov[2][0]+p1.Y()*p1Cov[2][1]+p1.Z()*p1Cov[2][2])*invE;
 
-    p2Cov[3+3][4-4] = p2Cov[4-4][3+3] = (p1.X()*p1Cov[0+3][4-4]+p1.Y()*p1Cov[1+3][4-4]+p1.Z()*p1Cov[2+3][4-4])*invE;
-    p2Cov[3+3][5-4] = p2Cov[5-4][3+3] = (p1.X()*p1Cov[0+3][5-4]+p1.Y()*p1Cov[1+3][5-4]+p1.Z()*p1Cov[2+3][5-4])*invE;
-    p2Cov[3+3][6-4] = p2Cov[6-4][3+3] = (p1.X()*p1Cov[0+3][6-4]+p1.Y()*p1Cov[1+3][6-4]+p1.Z()*p1Cov[2+3][6-4])*invE;
-//        fDaughters[k]->SetCov7(p2Cov); //New covariance matrix without correlations
-    fDaughters[k]->SetCov7(p1Cov); //New covariance matrix without correlations
+    p2Cov[6][6] = (p1.X()*p1.X()*p1Cov[0][0]+p1.Y()*p1.Y()*p1Cov[1][1]+p1.Z()*p1.Z()*p1Cov[2][2]
+                       +2.0*p1.X()*p1.Y()*p1Cov[0][1]
+                       +2.0*p1.X()*p1.Z()*p1Cov[0][2]
+                       +2.0*p1.Y()*p1.Z()*p1Cov[1][2])*invE*invE;
+
+    p2Cov[6][0] = p2Cov[0][6] = (p1.X()*p1Cov[0][4]+p1.Y()*p1Cov[1][4]+p1.Z()*p1Cov[2][4])*invE;
+    p2Cov[6][1] = p2Cov[1][6] = (p1.X()*p1Cov[0][5]+p1.Y()*p1Cov[1][5]+p1.Z()*p1Cov[2][5])*invE;
+    p2Cov[6][2] = p2Cov[2][6] = (p1.X()*p1Cov[0][6]+p1.Y()*p1Cov[1][6]+p1.Z()*p1Cov[2][6])*invE;
+    
+    fDaughters[k]->SetCov7(p2Cov); //New covariance matrix with correlations
+    //cout<< " #######  KinVtx daughter cov check... " << endl;
+    //cout<<"p1Cov"; p1Cov.Print();
+    //cout<<"p2Cov"; p2Cov.Print();
 
   }
 
@@ -366,11 +392,13 @@ void PndKinVtxFitter::SetOutput(RhoCandidate* head)
   //We set the decay vertex of the mother! [R.K.]
 
   TVector3 vtx(vtx_ex[0][0],vtx_ex[1][0],vtx_ex[2][0]);
-  TMatrixD CovV=covC.GetSub(0,2,0,2);
+  TMatrixD CovV = covC.GetSub(0,2,0,2);
+  
   head->SetPos(vtx);//P4 is defined here
   SetDecayVertex(head,vtx,CovV);
   SetFourMomentumByDaughters(head);//propagates cov7 from daughters
   //head->SetCov7(covC);//which one to use???
+  cout<<" KinVtx Cov7: ";covC.Print(); 
   if(fVerbose) { cout<<"Final vertex Position is "<<vtx_ex[0][0]<<" "<<vtx_ex[1][0]<<" "<<vtx_ex[2][0]<<endl; }
   if(fVerbose) { cout<<"Final Momenta are "<<al0[0][0]<<" "<<al1[1][0]<<" "<<al1[2][0]<<endl; }
 }
@@ -404,6 +432,7 @@ void PndKinVtxFitter::ReadMatrix()
     TMatrixD p2Cov(7,7);
     TMatrixD p4Cov(7,7);
     p1Cov=fDaughters[k]->Cov7(); //Cov Matrix x,y,z,px,py,pz,E
+    cout<<"daughter " <<k<<" cov before ";p1Cov.Print();
 
     for (int ii=0; ii<6; ii++) {for(int jj=0; jj<6; jj++) {p3Cov[ii][jj]=p1Cov[ii][jj];}} //test
 

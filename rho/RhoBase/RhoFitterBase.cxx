@@ -166,6 +166,7 @@ void RhoFitterBase::SetFourMomentumByDaughters(RhoCandidate* composite)
   }
   composite->SetP4(tmpLV);
   composite->SetCov7(tmpCov);
+  //std::cout<<" Base fitter cov7 from tc "<<tc->Uid()<<"/"<<tc->Charge()<<"/"<<tc->PdgCode()<<": ";tmpCov.Print();
   return;
 }
 

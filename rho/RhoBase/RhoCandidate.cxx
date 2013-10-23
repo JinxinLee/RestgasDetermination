@@ -1391,14 +1391,14 @@ RhoCandidate::P4Cov()   const
 {
   static RhoError covP4 ( 4 );
   covP4 ( 0,0 ) = fErrP7[18];
-  covP4 ( 1,0 ) = fErrP7[19];
+  covP4 ( 1,0 ) = covP4 ( 0,1 ) = fErrP7[19];
   covP4 ( 1,1 ) = fErrP7[20];
-  covP4 ( 2,0 ) = fErrP7[21];
-  covP4 ( 2,1 ) = fErrP7[22];
+  covP4 ( 2,0 ) = covP4 ( 0,2 ) = fErrP7[21];
+  covP4 ( 2,1 ) = covP4 ( 1,2 ) = fErrP7[22];
   covP4 ( 2,2 ) = fErrP7[23];
-  covP4 ( 3,0 ) = fErrP7[24];
-  covP4 ( 3,1 ) = fErrP7[25];
-  covP4 ( 3,2 ) = fErrP7[26];
+  covP4 ( 3,0 ) = covP4 ( 0,3 ) = fErrP7[24];
+  covP4 ( 3,1 ) = covP4 ( 1,3 ) = fErrP7[25];
+  covP4 ( 3,2 ) = covP4 ( 2,3 ) = fErrP7[26];
   covP4 ( 3,3 ) = fErrP7[27];
   return covP4;
 }
@@ -1408,10 +1408,10 @@ RhoCandidate::P3Cov()   const
 {
   static RhoError covP3 ( 3 );
   covP3 ( 0,0 ) = fErrP7[18];
-  covP3 ( 1,0 ) = fErrP7[19];
+  covP3 ( 1,0 ) = covP3 ( 0,1 ) = fErrP7[19];
   covP3 ( 1,1 ) = fErrP7[20];
-  covP3 ( 2,0 ) = fErrP7[21];
-  covP3 ( 2,1 ) = fErrP7[22];
+  covP3 ( 2,0 ) = covP3 ( 0,2 ) = fErrP7[21];
+  covP3 ( 2,1 ) = covP3 ( 1,2 ) = fErrP7[22];
   covP3 ( 2,2 ) = fErrP7[23];
   return covP3;
 }
