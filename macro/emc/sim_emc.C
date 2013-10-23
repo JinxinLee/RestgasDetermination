@@ -135,6 +135,9 @@ sim_emc(Int_t nEvents = 10, Float_t mom = 1.){
   // EMC Hit producer
   //-------------------------------
   PndEmcHitProducer* emcHitProd = new PndEmcHitProducer();
+  //TString nonuniformityFile=gSystem->Getenv("VMCWORKDIR");
+  //nonuniformityFile+="/macro/params/EmcDigiNoniformityPars2.root";
+  emcHitProd->SetNonuniformityFile(nonuniformityFile.Data());
   fRun->AddTask(emcHitProd);
   
   /**Initialize the session*/
