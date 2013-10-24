@@ -5,7 +5,7 @@
 // # author: A.Karavdina
 //###################################
 void runLumiPixel0SimDPMDirect(const int nEvents=10, const int startEvent=0, const double mom=15, TString storePath="tmpOutputDPM", 
-			       const int verboseLevel=0, const int seed, const int mode = 1, const double th_min = 0.1)
+			       const int verboseLevel=0, const int seed, const int mode = 1, const double th_min = 0.12)
 {
   // gRandom->SetSeed(seed);
   //  Int_t mode = 1;
