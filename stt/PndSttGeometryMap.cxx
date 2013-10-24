@@ -288,23 +288,24 @@ Double_t PndSttGeometryMap::CalculateStrawPoca(PndSttHit* hit1, PndSttHit* hit2,
 	TVector3 u1(tube1->GetWireDirection());
 	TVector3 u2(tube2->GetWireDirection());
 
-	std::cout << "PndSttGeometryMap::CalculateStrawPoca Hit1 center: (" << hit1->GetX() << "/" << hit1->GetY() << "/" << hit1->GetZ()
-			<< ") Dir: (" << u1.x() << "/" << u1.y() << "/" << u1.z() << ") HL: " << tube1->GetHalfLength() << std::endl;
+	if (fVerbose > 1) {
+		std::cout << "PndSttGeometryMap::CalculateStrawPoca Hit1 center: (" << hit1->GetX() << "/" << hit1->GetY() << "/" << hit1->GetZ()
+				<< ") Dir: (" << u1.x() << "/" << u1.y() << "/" << u1.z() << ") HL: " << tube1->GetHalfLength() << std::endl;
 
-	std::cout << "PndSttGeometryMap::CalculateStrawPoca Hit2 center: (" << hit2->GetX() << "/" << hit2->GetY() << "/" << hit2->GetZ()
-			<< ") Dir: (" << u2.x() << "/" << u2.y() << "/" << u2.z() << ") HL: " << tube2->GetHalfLength() << std::endl;
-
+		std::cout << "PndSttGeometryMap::CalculateStrawPoca Hit2 center: (" << hit2->GetX() << "/" << hit2->GetY() << "/" << hit2->GetZ()
+				<< ") Dir: (" << u2.x() << "/" << u2.y() << "/" << u2.z() << ") HL: " << tube2->GetHalfLength() << std::endl;
+	}
 	TVector3 p21 = p2 - p1;
  	    if (p21.Mag() < 0.000001) {
 				poca = p1;
-				std::cout << "Poca: " << poca.x() << "/" << poca.y() << "/" << poca.z() << std::endl;
+				if (fVerbose > 1) std::cout << "Poca: " << poca.x() << "/" << poca.y() << "/" << poca.z() << std::endl;
 				return 0;
 		}
 //      p21.Print();
 		TVector3 m = u2.Cross(u1);
 		if (m.Mag() < 0.000001) {
 				poca = p1 + 0.5*p21;
-				std::cout << "Poca: " << poca.x() << "/" << poca.y() << "/" << poca.z() << std::endl;
+				if (fVerbose > 1) std::cout << "Poca: " << poca.x() << "/" << poca.y() << "/" << poca.z() << std::endl;
 				return p21.Mag();
 		}
 //      m.Print();
@@ -330,10 +331,10 @@ Double_t PndSttGeometryMap::CalculateStrawPoca(PndSttHit* hit1, PndSttHit* hit2,
 		TVector3 q21 = q2 - q1;
 		poca = q1 + 0.5*q21;
 
-		std::cout << "q1: " << q1.x() << "/" << q1.y() << "/" << q1.z() << " t1: " << t1 << std::endl;
-		std::cout << "q2: " << q2.x() << "/" << q2.y() << "/" << q2.z() << " t2: " << t2 << std::endl;
+		if (fVerbose > 1) std::cout << "q1: " << q1.x() << "/" << q1.y() << "/" << q1.z() << " t1: " << t1 << std::endl;
+		if (fVerbose > 1) std::cout << "q2: " << q2.x() << "/" << q2.y() << "/" << q2.z() << " t2: " << t2 << std::endl;
 
-		std::cout << "Poca: " << poca.x() << "/" << poca.y() << "/" << poca.z() << std::endl;
+		if (fVerbose > 1) std::cout << "Poca: " << poca.x() << "/" << poca.y() << "/" << poca.z() << std::endl;
 //      cout << "Crosspoints: " << endl;
 //      q1.Print();
 //      q2.Print();

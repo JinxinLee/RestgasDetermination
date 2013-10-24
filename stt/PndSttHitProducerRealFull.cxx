@@ -27,6 +27,7 @@
 #include "TGeoManager.h"
 #include "TVector3.h"
 #include "TRandom.h"
+#include "TMath.h"
 #include "TClonesArray.h"
 
 #include <iostream>
@@ -205,7 +206,7 @@ void PndSttHitProducerRealFull::Exec(Option_t* opt) {
     pos.SetXYZ(position.X(), position.Y(), position.Z()); // <--- stt1
 
     //    dpos.SetXYZ(innerStrawDiameter / 2., innerStrawDiameter / 2., GetLongitudinalResolution(position.Z()));
-    dpos.SetXYZ(0., 0., 0.); // CHECK will be changed in future
+    dpos.SetXYZ(1./TMath::Sqrt(12), 1./TMath::Sqrt(12), 150./TMath::Sqrt(12)); // CHECK will be changed in future
     //----- end stt2 ------------------------------------------
 
 
