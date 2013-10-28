@@ -199,6 +199,8 @@ add_subdirectory (pid)
 add_subdirectory (PndMCMatch)
 add_subdirectory (global)
 
+add_subdirectory (softrig)
+
 if(RULE_CHECKER_FOUND)
 
   ADD_CUSTOM_TARGET(RULES 
