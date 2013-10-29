@@ -52,7 +52,7 @@ private:
   void ProcessPhotonHit();
   PndGeoDrc* fGeo;
   Int_t fDetectorID;  
-  Double_t fBboxNum,fPipehAngle,fDphi;
+  Double_t fBboxNum,fPipehAngle,fDphi,fBarPhi;
 
   TClonesArray* fMCArray;      // DRC MCPoints in the photon detector
   TClonesArray *fBarPointArray;
@@ -60,8 +60,8 @@ private:
   TClonesArray* fPDPointArray; // DRC points in the photon detector
   TClonesArray* fDigiArray;
   TClonesArray* fPDHitArray;   // DRC Hits in the photon detector
-  TClonesArray *fLut;
-  TClonesArray *fDrcLutInfoArray;
+  TClonesArray *fLut[5];
+  TClonesArray *fDrcTrackInfoArray;
 
   TFile *fFile; 
   TTree *fTree;
