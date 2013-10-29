@@ -36,6 +36,9 @@ DrcData/PndDrcPDHit.cxx
 DrcData/PndDrcDigi.cxx
 DrcData/PndDrcLutNode.cxx
 DrcData/PndDrcLutInfo.cxx
+DrcData/PndDrcTrackInfo.cxx
+DrcData/PndDrcPhotonInfo.cxx
+DrcData/PndDrcAmbiguityInfo.cxx
 
 GemData/PndGemMCPoint.cxx
 GemData/PndGemDigi.cxx
@@ -120,6 +123,9 @@ DrcData/PndDrcPDHit.h
 DrcData/PndDrcDigi.h
 DrcData/PndDrcLutNode.h
 DrcData/PndDrcLutInfo.h
+DrcData/PndDrcTrackInfo.h
+DrcData/PndDrcPhotonInfo.h
+DrcData/PndDrcAmbiguityInfo.h
 
 GemData/PndGemMCPoint.h
 GemData/PndGemDigi.h

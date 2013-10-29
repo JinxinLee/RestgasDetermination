@@ -23,6 +23,9 @@
 #pragma link C++ class PndDrcDigi+;
 #pragma link C++ class PndDrcLutNode+;
 #pragma link C++ class PndDrcLutInfo+;
+#pragma link C++ class PndDrcTrackInfo+;
+#pragma link C++ class PndDrcPhotonInfo+;
+#pragma link C++ class PndDrcAmbiguityInfo+;
 
 //#pragma link C++ class PndDrpcPoint+;
 //#pragma link C++ class PndDrpcPointLite+;
