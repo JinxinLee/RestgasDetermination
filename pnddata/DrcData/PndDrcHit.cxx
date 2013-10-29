@@ -14,8 +14,8 @@ using std::endl;
 // -----   Default constructor   -------------------------------------------
 PndDrcHit::PndDrcHit()
   :FairHit(),
-  fThetaC(-999.),
-  fErrThetaC(-999.)
+   fThetaC(-999.),
+   fErrThetaC(-999.)
 { 
 }
 // -------------------------------------------------------------------------
@@ -24,14 +24,16 @@ PndDrcHit::PndDrcHit()
 // -----   Standard constructor   ------------------------------------------
 
 PndDrcHit::PndDrcHit(Int_t detID, 
+		     Int_t sensorId, 
 		     TVector3& pos, 
 		     TVector3& dpos,
 		     Double_t thetaC,
 		     Double_t errThetaC,
 		     Int_t index)
   :FairHit(detID, pos, dpos, index), 
-  fThetaC    (thetaC),
-  fErrThetaC (errThetaC)
+   fSensorId (sensorId),
+   fThetaC    (thetaC),
+   fErrThetaC (errThetaC)
 {  
 }
 

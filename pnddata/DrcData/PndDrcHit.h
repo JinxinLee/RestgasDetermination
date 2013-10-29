@@ -18,6 +18,7 @@ public:
   PndDrcHit();
 
   PndDrcHit(Int_t detID, 
+	    Int_t sensorId, 
 	    TVector3& pos, 
 	    TVector3& dpos,
 	    Double_t thetaC,
@@ -41,12 +42,13 @@ public:
   virtual Double_t GetThetaC()  {return fThetaC;}
   virtual Double_t GetErrThetaC()  {return fErrThetaC;}
   virtual Int_t GetRefIndex()  {return fRefIndex;}
+  Int_t GetSensorId()  {return fSensorId;}
 
   TVector3 GetPosition()	  const { return TVector3(fX, fY, fZ);	  }
   
  protected:
-  
-//  TVector3 fmom;
+
+  Int_t fSensorId;
   Double_t fThetaC, fErrThetaC;
   
   ClassDef(PndDrcHit,1)
