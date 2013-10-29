@@ -15,6 +15,7 @@ PndDrcLutInfo::PndDrcLutInfo()
 { 
   fAnglesSize = 0;
   fTimesSize = 0;
+  fLutTimesSize = 0;
   fPathsSize = 0;
   fChDiffsSize = 0;
   fLambdasSize = 0;
@@ -39,11 +40,26 @@ void PndDrcLutInfo::AddPixelEnd(Double_t val) {
   fPixelSize++;
 }
 
+void PndDrcLutInfo::AddLutTime(Double_t val, Bool_t ref) {
+
+  fLutTimesArray.push_back(val); 
+  fLutReflected.push_back(ref);
+  fLutTimesSize++;
+}
+
 void PndDrcLutInfo::AddTime(Double_t val) {
 
   fTimesArray.push_back(val);
   fTimesSize++;
 }
+
+void PndDrcLutInfo::AddTime(Double_t val, Bool_t ref) {
+
+  fTimesArray.push_back(val);
+  fReflected.push_back(ref);
+  fTimesSize++;
+}
+
 void PndDrcLutInfo::AddPath(Double_t val) {
 
   fPathsArray.push_back(val);

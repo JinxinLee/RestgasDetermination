@@ -31,6 +31,8 @@ public:
   void AddAngle(Double_t val);
   void AddPixelEnd(Double_t val);
   void AddTime(Double_t val);
+  void AddTime(Double_t val, Bool_t ref);
+  void AddLutTime(Double_t val, Bool_t ref);
   void AddPath(Double_t val);
   void AddChDiff(Double_t val);
   void AddNOfBounces(Double_t val);
@@ -71,16 +73,20 @@ public:
   Int_t    GetNOfBounces(Int_t entry);
   Int_t    GetNOfEVReflections(Int_t entry);
   Double_t GetTime(Int_t entry);
+  Double_t GetLutTime(Int_t entry){return fLutTimesArray[entry];}
   Double_t GetLambda(Int_t entry){return fLambdaArray[entry];}  
   Double_t GetHitTime(Int_t entry){return fHitTimeArray[entry];}
   Double_t GetTruePath(Int_t entry){return fTruePathArray[entry];}
   Double_t GetPath(Int_t entry){return fPathsArray[entry];}
+  Bool_t   GetReflected(Int_t entry){return fReflected[entry];}
+  Bool_t   GetLutReflected(Int_t entry){return fLutReflected[entry];}
   
 protected:
 
   Int_t fAnglesSize;
   Int_t fPixelSize;
   Int_t fTimesSize;
+  Int_t fLutTimesSize;
   Int_t fPathsSize;
   Int_t fChDiffsSize;
   Int_t fNOfBouncesSize;
@@ -88,13 +94,13 @@ protected:
   Int_t fLambdasSize;
   Int_t fHitTimesSize;
   Int_t fTruePathsSize;
-  
 
   // arrays of values based on the LUT ambiguities:
   std::vector<Double_t> fAnglesArray;
 
   std::vector<Int_t>    fPixelEndArray;
   std::vector<Double_t> fTimesArray;
+  std::vector<Double_t> fLutTimesArray;
   std::vector<Double_t> fPathsArray;
   std::vector<Double_t> fChDiffsArray;
   std::vector<Int_t>    fNOfBouncesArray;
@@ -102,7 +108,9 @@ protected:
   std::vector<Int_t>    fNOfEVReflectionsArray;
   std::vector<Double_t> fLambdaArray;
   std::vector<Double_t> fHitTimeArray;
-  std::vector<Double_t> fTruePathArray;  
+  std::vector<Double_t> fTruePathArray; 
+  std::vector<Bool_t>    fReflected;
+  std::vector<Bool_t>    fLutReflected;
 
   // MC information 
   TVector3 fChPartDir;
