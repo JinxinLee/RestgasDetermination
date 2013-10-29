@@ -141,7 +141,7 @@ void PndDrcHitProducerIdeal::Exec(Option_t* option)
     }
 
     if (pt->GetThetaC() != -1. && beta > 1/1.47){  
-    fDetectorID = pt->GetNBar();
+    fDetectorID = pt->GetBarId();
   
     TGeoNode *dircNode = (TGeoNode*)gGeoManager->FindNode(pt->GetX(), pt->GetY(), pt->GetZ()); 
     TGeoMatrix *dircMat = (TGeoMatrix*)gGeoManager->GetCurrentMatrix();
@@ -160,7 +160,7 @@ void PndDrcHitProducerIdeal::Exec(Option_t* option)
 
    // PndMCTrack* tr = NULL;
 
-    AddHit(fDetectorID, 
+    AddHit(fDetectorID, fDetectorID, 
 	   fPosHit, 
 	   fDPosHit,
 	   fThetaC,
@@ -174,7 +174,8 @@ void PndDrcHitProducerIdeal::Exec(Option_t* option)
 
 
 // -----   Add Hit to HitCollection   --------------------------------------
-PndDrcHit* PndDrcHitProducerIdeal::AddHit(Int_t detID, 
+PndDrcHit* PndDrcHitProducerIdeal::AddHit(Int_t detID,
+					  Int_t sensorID, 
 				     TVector3 posHit, 
 				     TVector3 dPosHit, 
 				     Double_t thetaC,
@@ -183,6 +184,7 @@ PndDrcHit* PndDrcHitProducerIdeal::AddHit(Int_t detID,
   TClonesArray& clref = *fHitArray;
   Int_t size = clref.GetEntriesFast();
   return new(clref[size]) PndDrcHit(detID, 
+				    detID,
 				    posHit, 
 				    dPosHit, 
 				    thetaC,

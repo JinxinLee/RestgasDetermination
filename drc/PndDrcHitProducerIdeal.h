@@ -61,7 +61,8 @@ public:
    **
    ** Adds a DrcHit to the HitCollection
    **/
-  PndDrcHit* AddHit(Int_t detID, 
+  PndDrcHit* AddHit(Int_t detID,
+		    Int_t sensorID, 
 		    TVector3 posHit, 
 		    TVector3 dPosHit, 
 		    Double_t thetaC,
