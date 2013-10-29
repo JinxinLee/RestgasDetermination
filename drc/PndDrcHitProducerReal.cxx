@@ -177,7 +177,7 @@ void PndDrcHitProducerReal::ProcessBarPoint()
     }
 
     if (pt->GetThetaC() != -1. && beta > 1/1.47){  
-    fDetectorID = pt->GetNBar();
+    fDetectorID = pt->GetBarId();
   
     // calculate the center of the bars from the detectorID
     Int_t s = (fDetectorID /10);// correction DD
@@ -566,7 +566,7 @@ PndDrcHit* PndDrcHitProducerReal::AddHit(Int_t detID,
 				     Int_t index){
   TClonesArray& clref = *fHitArray;
   Int_t size = clref.GetEntriesFast();
-  return new(clref[size]) PndDrcHit(detID, 
+  return new(clref[size]) PndDrcHit(detID, detID, 
 				    posHit, 
 				    dPosHit, 
 				    thetaC,
@@ -583,6 +583,7 @@ PndDrcPDHit* PndDrcHitProducerReal::AddPDHit(Int_t detID,
   TClonesArray& clrefPD = *fPDHitArray;
   Int_t size = clrefPD.GetEntriesFast();
   return new(clrefPD[size]) PndDrcPDHit(detID, 
+					detID,
 				    posHit, 
 				    dPosHit, 
 				    time,
