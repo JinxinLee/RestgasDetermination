@@ -23,62 +23,64 @@
 
 
 class PndDrcDigi : public FairTimeStamp
-  {
-    friend std::ostream& operator<< (std::ostream& out, PndDrcDigi& digi){
-      out << "PndDrcDigi in: " << digi.GetSensorID()
-      << " charge " << digi.GetCharge() << " e"
-      << " time "<<digi.GetTime()<< " ns"
-      << " timestamp "<< digi.GetTimeStamp()
-      << " charge sharing flag "<< digi.GetChargeSharingFlag()
-      << ", from Point(s) ";
-      std::vector<Int_t>indices = digi.GetIndices();
-      for (unsigned int i = 0; i < indices.size(); i++){
-        out << indices[i] << "  ";
-      }
-      out << std::endl;
+{
+  friend std::ostream& operator<< (std::ostream& out, PndDrcDigi& digi){
+    out << "PndDrcDigi in: " << digi.GetDetectorId()
+	<< " charge " << digi.GetCharge() << " e"
+	<< " time "<<digi.GetTime()<< " ns"
+	<< " timestamp "<< digi.GetTimeStamp()
+	<< " charge sharing flag "<< digi.GetChargeSharingFlag()
+	<< ", from Point(s) ";
+    std::vector<Int_t>indices = digi.GetIndices();
+    for (unsigned int i = 0; i < indices.size(); i++){
+      out << indices[i] << "  ";
+    }
+    out << std::endl;
       
-      return out;
-    }
+    return out;
+  }
     
-    public : PndDrcDigi();
-    PndDrcDigi(std::vector<Int_t> index, Int_t sensorID, Double_t charge, Double_t time, Int_t CSflag, Double_t timeStamp);
-    PndDrcDigi(Int_t index, Int_t sensorID, Double_t charge, Double_t time, Int_t CSflag, Double_t timeStamp);
+public : PndDrcDigi();
+  PndDrcDigi(std::vector<Int_t> index, Int_t detectorId, Int_t sensorId, Double_t charge, Double_t time, Int_t CSflag, Double_t timeStamp);
+  PndDrcDigi(Int_t index, Int_t detectorId, Int_t sensorId, Double_t charge, Double_t time, Int_t CSflag, Double_t timeStamp);
     
-		~PndDrcDigi(){};
+  ~PndDrcDigi(){};
     
-    void Print() {
-      std::cout << *this;
-    }
+  void Print() {
+    std::cout << *this;
+  }
     		
-	Int_t GetSensorID() const { return fSensorID; }
-	Double_t GetCharge()	 const { return fCharge; }	
-	std::vector<Int_t> GetIndices() const { return fIndex;}
-	Int_t GetIndex(int i = 0) const{ return fIndex[i];}
-	Int_t GetNIndices() const { return fIndex.size();}
-	Double_t GetTime() const { return fTime; }
-	Int_t GetChargeSharingFlag() const {return fCSflag;}
+  Int_t GetDetectorId() const { return fDetectorId; }
+  Int_t GetSensorId() const { return fSensorId; }
+  Double_t GetCharge()	 const { return fCharge; }	
+  std::vector<Int_t> GetIndices() const { return fIndex;}
+  Int_t GetIndex(int i = 0) const{ return fIndex[i];}
+  Int_t GetNIndices() const { return fIndex.size();}
+  Double_t GetTime() const { return fTime; }
+  Int_t GetChargeSharingFlag() const {return fCSflag;}
 	
-	virtual void AddIndex(int index)
-		{
-			fIndex.push_back(index);
-			AddLink(FairLink(fSensorID, index));
-		}
+  virtual void AddIndex(int index)
+  {
+    fIndex.push_back(index);
+    AddLink(FairLink(fDetectorId, index));
+  }
     
-	virtual void AddIndex(std::vector<Int_t> index)
-		{
-			fIndex = index;
-			AddLinks(FairMultiLinkedData(fSensorID, index));
-		}	
+  virtual void AddIndex(std::vector<Int_t> index)
+  {
+    fIndex = index;
+    AddLinks(FairMultiLinkedData(fDetectorId, index));
+  }	
 		  
     
-    protected:
-    		std::vector<Int_t> fIndex;   // indice of mc points contributing to this digi
-		Int_t fSensorID;             // Geometry ID for sensor volume		
-		Double_t fCharge;            // collected charge
-		Double_t fTime;		     // hit time
-		Int_t fCSflag;		     // flag indicating is the hit was produced directly by the MC point or if it is a result of the charge sharing: 1 - charge sharing hit, 0 - initial hit
+protected:
+  std::vector<Int_t> fIndex;   // indice of mc points contributing to this digi
+  Int_t fDetectorId;             // uniq detector ID
+  Int_t fSensorId;             // Geometry ID for sensor volume		
+  Double_t fCharge;            // collected charge
+  Double_t fTime;		     // hit time
+  Int_t fCSflag;		     // flag indicating is the hit was produced directly by the MC point or if it is a result of the charge sharing: 1 - charge sharing hit, 0 - initial hit
     
-    ClassDef(PndDrcDigi,2);
-  };
+  ClassDef(PndDrcDigi,2);
+};
 
 #endif
