@@ -70,12 +70,19 @@ public:
 	void UseDigitizationVersion2() { fDigitizationVersion2 = kTRUE;}
 
 	/**
-	 * @brief Set PSA Algorithm to be used for Barrel and Endcaps
+	 * @brief Set PSA Algorithm to be used for Barrel and Forward Endcap
 	 *
 	 * @param psa  The psa to be used
 	 *
 	 **/
 	virtual void SetPSAAlgorithm(PndEmcAbsPSA *psa){fpsaAlgorithm=psa;}
+	/**
+	 * @brief Set PSA Algorithm to be used for Forward Endcap
+	 *
+	 * @param psa  The psa to be used
+	 *
+	 **/
+	virtual void SetPSAAlgorithmFWD(PndEmcAbsPSA *psa){fpsaAlgorithm_fwd=psa;}
 	/**
 	 * @brief Set PSA Algorithm to be used for Forward Shashlik
 	 *

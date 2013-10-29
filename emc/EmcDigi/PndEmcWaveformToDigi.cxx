@@ -38,14 +38,23 @@
 #include <iostream>
 #include "PndEmcPSAMatchedDigiFilter.h"
 #include "PndEmcSimCrystalCalibrator.h"
-
+#include "TCanvas.h"
+#include "TGraphErrors.h"
 
 using std::cout;
 using std::endl;
 using std::fstream;
 
 PndEmcWaveformToDigi::PndEmcWaveformToDigi(Int_t verbose, Bool_t storedigis):
-	fWaveformArray(0), fDigiArray(0), fSampleRate(0), fSampleRate_PMT(0), fEnergyDigiThreshold(0), fASIC_Shaping_int_time(0), fPMT_Shaping_int_time(0), fPMT_Shaping_diff_time(0), fCrystal_time_constant(0), fShashlyk_time_constant(0), fNumber_of_samples_in_waveform(0), fNumber_of_samples_in_waveform_pmt(0), fDigiPosMethod(0), fEmcDigiRescaleFactor(0), fEmcDigiPositionDepthPWO(0), fEmcDigiPositionDepthShashlyk(0), fPulseshape(0), fPulseshape_pmt(0), fpsaAlgorithm(0), fpsaAlgorithm_pmt(0), fDigiPar(new PndEmcDigiPar()), fRecoPar(new PndEmcRecoPar()), fVerbose(verbose), fStoreDigis(storedigis), fWfNormalisation(0), fWfNormalisation_pmt(0), fTimeOrderedDigi(kFALSE), fFpgaPar(new PndEmcFpgaPar()) , fDigitizationVersion2(kFALSE)
+	fWaveformArray(0), fDigiArray(0), fSampleRate(0), fSampleRate_PMT(0), fEnergyDigiThreshold(0),
+	fASIC_Shaping_int_time(0), fPMT_Shaping_int_time(0), fPMT_Shaping_diff_time(0),
+	fCrystal_time_constant(0), fShashlyk_time_constant(0), fNumber_of_samples_in_waveform(0), 
+	fNumber_of_samples_in_waveform_pmt(0), fDigiPosMethod(0), fEmcDigiRescaleFactor(0),
+	fEmcDigiPositionDepthPWO(0), fEmcDigiPositionDepthShashlyk(0), fPulseshape(0),
+	fPulseshape_pmt(0), fpsaAlgorithm(0), fpsaAlgorithm_pmt(0), fpsaAlgorithm_fwd(0), fDigiPar(new PndEmcDigiPar()),
+	fRecoPar(new PndEmcRecoPar()), fVerbose(verbose), fStoreDigis(storedigis), 
+	fWfNormalisation(0), fWfNormalisation_pmt(0), fWfNormalisation_fwd(0), fTimeOrderedDigi(kFALSE), fFpgaPar(new PndEmcFpgaPar()) ,
+	fDigitizationVersion2(kFALSE)
 {
 	fDigiPosMethod="depth";// "surface" or "depth"
 	fEmcDigiRescaleFactor=1.08;
@@ -57,6 +66,10 @@ PndEmcWaveformToDigi::PndEmcWaveformToDigi(Int_t verbose, Bool_t storedigis):
 //--------------
 PndEmcWaveformToDigi::~PndEmcWaveformToDigi()
 {
+	delete fPulseshape;
+	delete fPulseshape_pmt;
+	delete fPulseshape_fwd;
+
 }
 
 
@@ -135,9 +148,9 @@ InitStatus PndEmcWaveformToDigi::Init()
 	fPulseshape_fwd =new PndEmcAsicPulseshape(fFWD_Shaping_int_time, fFWD_time_constant);//LNP raw signal, decay time constant 25 microseconds
 
 	// Determine normalisation constant for PndEmcWaveform
-	PndEmcWaveform *tmpwaveform1=new PndEmcWaveform(0,101010001, fNumber_of_samples_in_waveform);
-	PndEmcWaveform *tmpwaveform2=new PndEmcWaveform(0,101010001, fNumber_of_samples_in_waveform_pmt);
-	PndEmcWaveform *tmpwaveform3=new PndEmcWaveform(0,101010001, fNumber_of_samples_in_waveform_fwd);//length 10
+	PndEmcWaveform *tmpwaveform1=new PndEmcWaveform(0,101010001, fSampleRate, fNumber_of_samples_in_waveform);
+	PndEmcWaveform *tmpwaveform2=new PndEmcWaveform(0,101010001, fSampleRate_PMT, fNumber_of_samples_in_waveform_pmt);
+	PndEmcWaveform *tmpwaveform3=new PndEmcWaveform(0,101010001, fSampleRate_FWD, fNumber_of_samples_in_waveform_fwd);//length 10
 
 	PndEmcHit *gevHit=new PndEmcHit();
 	gevHit->SetEnergy(1.0);
@@ -146,8 +159,6 @@ InitStatus PndEmcWaveformToDigi::Init()
 	tmpwaveform2->UpdateWaveform(gevHit, 0, false, 1., 0., fSampleRate_PMT, fPulseshape_pmt);
 	tmpwaveform3->UpdateWaveform(gevHit, 0, false, 1., 0., fSampleRate_FWD, fPulseshape_fwd);
 
-
-
 	fWfNormalisation = tmpwaveform1->Max();
 	fWfNormalisation_pmt = tmpwaveform2->Max();
 	fWfNormalisation_fwd = tmpwaveform3->Max();
@@ -155,6 +166,7 @@ InitStatus PndEmcWaveformToDigi::Init()
 	fFpgaPar->printParams();
 	if(fVerbose > 2){
 		cout<<"fWfNormalisation#"<<fWfNormalisation<<", I/A ="<<(tmpwaveform1->Integral()/fWfNormalisation)<<endl;
+		cout<<"fWfNormalisation#"<<fWfNormalisation<<", I ="<<tmpwaveform1->Integral()<<endl;
 		cout<<"fWfNormalisation_pmt#"<<fWfNormalisation_pmt<<", I/A ="<<(tmpwaveform2->Integral()/fWfNormalisation_pmt)<<endl;
 		cout<<"fWfNormalisation_fwd#"<<fWfNormalisation_fwd<<", I ="<<(tmpwaveform3->Integral())<<endl;
 		cout<<"fWfNormalisation_fwd#"<<fWfNormalisation_fwd<<", I/A ="<<(tmpwaveform3->Integral()/fWfNormalisation_fwd)<<endl;
@@ -220,46 +232,38 @@ InitStatus PndEmcWaveformToDigi::Init()
 	fEventNo = 0;
 
 	if(fDigitizationVersion2){
-		if(fpsaAlgorithm == NULL){
-			// Matched digital filter
-			// Parameters of the filter are hardcoded at the moment
-			// For different pulseshape in barrel and endcaps different filters should be implemented
-			std::vector<Double_t> params;
-			params.push_back(30); // width
-			params.push_back(fSampleRate); // Sample rate
-			fpsaAlgorithm = new PndEmcPSAMatchedDigiFilter(params,fPulseshape);
-		} 
-
-		if(fpsaAlgorithm_pmt == NULL){
-			// Pulse shape analysis algorithm.
-			// Simple parabolic fit.
-			fpsaAlgorithm_pmt = new PndEmcPSAParabolic();
-		} 
-
-		if(fCalibrator == NULL){
-			PndEmcSimCrystalCalibrator *SimCalibrator = new PndEmcSimCrystalCalibrator();
-			// Determine normalisation constant for PndEmcWaveform
-			PndEmcWaveform *tmpwaveform=new PndEmcWaveform(0,101010001, fNumber_of_samples_in_waveform);
-			tmpwaveform2=new PndEmcWaveform(0,101010001, fNumber_of_samples_in_waveform_pmt);
-			gevHit=new PndEmcHit();
-			gevHit->SetEnergy(1.0);
-			gevHit->SetTime(0.);
-			tmpwaveform->UpdateWaveform(gevHit, 0, false, 1., 0., fSampleRate, fPulseshape);
-			tmpwaveform2->UpdateWaveform(gevHit, 0, false, 1., 0., fSampleRate_PMT, fPulseshape_pmt);
-			Double_t tmpPeakPosition;
-			Double_t WfNormalisation;
-			fpsaAlgorithm->Process(tmpwaveform,WfNormalisation,tmpPeakPosition);
-			for(Int_t i = 1; i <5;i++){
-				SimCalibrator->SetCalibration(i,WfNormalisation);
-			}
-			fpsaAlgorithm_pmt->Process(tmpwaveform2,WfNormalisation,tmpPeakPosition);
-			SimCalibrator->SetCalibration(5,WfNormalisation);
-			delete tmpwaveform;
-			delete tmpwaveform2;
-			fCalibrator=SimCalibrator;
-		}
-		fCalibrator->Init();
+		// Matched digital filter
+		// Parameters of the filter are hardcoded at the moment
+		// For different pulseshape in barrel and endcaps different filters should be implemented
+		std::vector<Double_t> params;
+		params.push_back(30); // width
+		params.push_back(fSampleRate); // Sample rate
+		fpsaAlgorithm = new PndEmcPSAMatchedDigiFilter(params,fPulseshape);
+		fpsaAlgorithm_fwd = fpsaAlgorithm;
+		// Pulse shape analysis algorithm.
+		// Simple parabolic fit.
+		fpsaAlgorithm_pmt = new PndEmcPSAParabolic();
 	}
+
+	if(fCalibrator == NULL){
+		PndEmcSimCrystalCalibrator *SimCalibrator = new PndEmcSimCrystalCalibrator();
+		// Determine normalisation constant for PndEmcWaveform
+		Double_t tmpPeakPosition;
+		Double_t WfNormalisation;
+		Int_t ii1=fpsaAlgorithm->Process(tmpwaveform1);
+		fpsaAlgorithm->GetHit(0, WfNormalisation, tmpPeakPosition);
+		SimCalibrator->SetCalibration(1,WfNormalisation); // Barrel
+		SimCalibrator->SetCalibration(2,WfNormalisation); // Barrel
+		SimCalibrator->SetCalibration(4,WfNormalisation); // Backward endcap
+		Int_t ii2=fpsaAlgorithm_pmt->Process(tmpwaveform2);
+		fpsaAlgorithm_pmt->GetHit(0, WfNormalisation, tmpPeakPosition);
+		SimCalibrator->SetCalibration(5,WfNormalisation); // Shashlyk
+		Int_t ii3=fpsaAlgorithm_fwd->Process(tmpwaveform3);
+		fpsaAlgorithm_fwd->GetHit(0, WfNormalisation, tmpPeakPosition);
+		SimCalibrator->SetCalibration(3,WfNormalisation); // Forward endcap
+		fCalibrator=SimCalibrator;
+	}
+	fCalibrator->Init();
 
 
 	delete tmpwaveform1;
@@ -267,11 +271,6 @@ InitStatus PndEmcWaveformToDigi::Init()
 	delete tmpwaveform3;
 	//delete tmpwaveform4;
 	delete gevHit;
-	delete fPulseshape;
-	delete fPulseshape_pmt;
-	delete fPulseshape_fwd;
-
-
 
 	totDigisAboveThreshold = 0;
 	totHits = 0;
@@ -323,7 +322,7 @@ void PndEmcWaveformToDigi::Exec(Option_t* opt)
 	//}
 
 
-	Double_t fdigiEnergy(0.), fdigiTime(0.), theEnergyNorm(1.), theSampleRate, minT(1e10), maxT(-1e10);
+	Double_t fdigiEnergy(0.), fdigiTime(0.), theSampleRate, minT(1e10), maxT(-1e10);
 	Int_t hitIndex, nHits, detId, trackId, i_digi(0), fMod;
 	PndEmcAbsPSA *thePSA(0);
 
@@ -341,16 +340,13 @@ void PndEmcWaveformToDigi::Exec(Option_t* opt)
 		//Double_t timeshift; // how maximum is shifted
 		if(fMod== 5){
 			thePSA = fpsaAlgorithm_pmt;
-			theEnergyNorm = fWfNormalisation_pmt;
 			theSampleRate = fSampleRate_PMT;
 		} else if(fMod == 3){
 			thePSA = fpsaAlgorithm_fwd;
-			theEnergyNorm = fWfNormalisation_fwd;
 			theSampleRate = fSampleRate_FWD;
 		}else
 		{
 			thePSA = fpsaAlgorithm;
-			theEnergyNorm = fWfNormalisation;
 			theSampleRate = fSampleRate;
 		}
 		//cout<<endl;
@@ -375,12 +371,8 @@ void PndEmcWaveformToDigi::Exec(Option_t* opt)
 		for(Int_t i = 0 ; i< nHits; i++)
 		{
 			thePSA->GetHit(i, fdigiEnergy, fTimeShift);
-			if(fDigitizationVersion2){
-				if(fCalibrator->Calibrate(fdigiEnergy,detId)!=PndEmcAbsCrystalCalibrator::kCALOK){
-					continue;
-				}
-			}else{
-				fdigiEnergy/=theEnergyNorm;
+			if(fCalibrator->Calibrate(fdigiEnergy,detId)!=PndEmcAbsCrystalCalibrator::kCALOK){
+				continue;
 			}
 			fdigiTime = theWaveform->GetTimeStamp() + fTimeShift/theSampleRate*1.e9;//translate position to global time
 
