@@ -161,7 +161,7 @@ void PndDrcHitFinder::Exec(Option_t* opt)
   fGeoH->SetVerbose(fVerbose);  
  
   Int_t detID = 0;
-  Int_t sensorID = 0;
+  Int_t mcpID = 0;
   Int_t pixelID = 0;
   TVector3 HitPosGlobal;
   TVector3 HitPosLocal;
@@ -170,19 +170,19 @@ void PndDrcHitFinder::Exec(Option_t* opt)
     
   for (Int_t iDigi = 0; iDigi < nDigis; iDigi++){
     fDigi = (PndDrcDigi*) fDigiArray->At(iDigi); 
-    detID = fDigi->GetSensorID();    
+    detID = fDigi->GetDetectorId();    
     pixelID = detID - 100*(Int_t)TMath::Floor((Double_t)detID/100.);
-    sensorID = detID/100;
+    mcpID = detID/100;
     hitTime = fDigi->GetTime();
         
     // the pixel number shows local coordinates of the hit:
     HitPosLocal.SetXYZ(fPixelStep*((Double_t)(pixelID % fNpix) - (Double_t)(fNpix/2) + 0.5),fPixelStep*(TMath::Floor(((Double_t)pixelID)/((Double_t)fNpix)) - (Double_t)(fNpix/2) + 0.5), 0.);
     
     // local coordinates of the hit on the MCP are translated into global ones as the following:
-    HitPosGlobal = fGeoH->LocalToMasterShortId(HitPosLocal, sensorID);   
+    HitPosGlobal = fGeoH->LocalToMasterShortId(HitPosLocal, mcpID);   
     dPosHit.SetXYZ(fPixelSize/2., fPixelSize/2., 0.);   
     
-    new((*fPdHitArray)[fPdHitArray->GetEntriesFast()]) PndDrcPDHit(detID, HitPosGlobal, dPosHit, hitTime, 0., iDigi); 
+    new((*fPdHitArray)[fPdHitArray->GetEntriesFast()]) PndDrcPDHit(detID,  fDigi->GetSensorId() , HitPosGlobal, dPosHit, hitTime, 0., iDigi); 
   } // Loop over MCPoints
   
   fEventNr++;

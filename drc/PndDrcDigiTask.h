@@ -92,6 +92,7 @@ public:
 
   void SetIsDetEfficiency(Bool_t isDetEff){fisDetEff=isDetEff;}  
   void SetTransportEfficiency(Bool_t isTran = 0){fisTransportEff = isTran;}
+  void SetTimeSmearing(Bool_t ct = 0){fTimeSmearing = ct;}
   void SetChargeSharing(Bool_t ct = 0){fChargeSharing = ct;}
   TVector3 GetSensorDimensions(Int_t sensorID);
   
@@ -112,7 +113,7 @@ public:
  /**   Process MC Points **/
   void ProcessPhotonPoint(); 
   void Smear(Double_t& time, Double_t sigt);
-  void ActivatePixel(Int_t sensorDetId, Double_t signalTime, Int_t k, Int_t csflag);
+  void ActivatePixel(Int_t DetectorId, Int_t sensorId, Double_t signalTime, Int_t k, Int_t csflag);
   Double_t FuncD1(Double_t x);
   Double_t FuncD3(Double_t x, Double_t y);
   
@@ -144,6 +145,7 @@ public:
   Bool_t fisPixel;
   Bool_t fisTransportEff;
   Bool_t fDrawing;
+  Bool_t fTimeSmearing;
   Bool_t fChargeSharing;
   Double_t ftilt; 
   Int_t fDetectorID;
