@@ -12,11 +12,13 @@
 #include "FairTask.h"
 #include "TClonesArray.h"
 #include "PndMCTrack.h"
+#include "PndDrcBarPoint.h"
 #include "PndDrcPDPoint.h"
 #include "PndDrcEVPoint.h"
 #include "PndDrcHit.h"
 #include "PndDrcPDHit.h"
 #include "PndDrcDigi.h"
+#include "PndGeoDrc.h"
 
 #include "TString.h"
 #include "TFile.h"
@@ -51,20 +53,24 @@ public:
 private:
 
   void ProcessPhotonHit();
- 
+
+  PndGeoDrc* fGeo;
   Int_t fDetectorID;  
+  Double_t fBboxNum,fPipehAngle,fDphi;
 
   TClonesArray* fMCArray;      // DRC MCPoints in the photon detector
+  TClonesArray *fBarPointArray;
   TClonesArray* fPDPointArray; // DRC points in the photon detector
   TClonesArray* fEVPointArray;
   TClonesArray* fDigiArray;
   TClonesArray* fPDHitArray;   // DRC Hits in the photon detector
-  TClonesArray* fLut;
+  TClonesArray* fLut[5];
   
   TFile *fFile; 
   TTree *fTree;
 
   PndMCTrack* fMCTrack;
+  PndDrcBarPoint *fBarPoint;
   PndDrcPDPoint* fPDPoint;
   PndDrcDigi* fDigi;
   PndDrcPDHit* fPDHit;

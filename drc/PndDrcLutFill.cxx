@@ -64,6 +64,14 @@ InitStatus PndDrcLutFill::Init()
     cout << "-W- PndDrcLutFill::Init: " << "No MCTrack array!" << endl;
     return kERROR;
   } 
+
+  // Get bar points array
+  fBarPointArray = (TClonesArray*) ioman->GetObject("DrcBarPoint");
+  if ( ! fBarPointArray ) {
+    cout << "-W- PndDrcLutReco::Init: " << "No DrcBarPoint array!" << endl;
+    return kERROR;
+  }
+
   // Get Photon point array
   fPDPointArray = (TClonesArray*) ioman->GetObject("DrcPDPoint");
   if ( ! fPDPointArray ) {
@@ -92,11 +100,18 @@ InitStatus PndDrcLutFill::Init()
   }
  
   fFile = TFile::Open(fOutputFile,"RECREATE");
-  fLut = new TClonesArray("PndDrcLutNode");
-  fTree = new TTree("dircsim","Look-up table for DIRC");
-  fTree->Branch("LUT",&fLut,256000,0); 
-
+  fTree = new TTree("dircsim","Look-up table for DIRC"); 
+  for(Int_t l=0; l<5; l++){
+    fLut[l] = new TClonesArray("PndDrcLutNode");
+    fTree->Branch(Form("LUT%d",l),&fLut[l],256000,0); 
+  }
+ 
   InitLut();
+
+  fGeo = new PndGeoDrc();
+  fBboxNum    = fGeo->BBoxNum();
+  fPipehAngle = fGeo->PipehAngle();
+  fDphi       = 2.*(180. - 2*fPipehAngle)/(Double_t)fGeo->BBoxNum();
 
   cout << "-I- PndDrcLutFill: Intialization successfull" << endl;
   return kSUCCESS;
@@ -105,10 +120,12 @@ InitStatus PndDrcLutFill::Init()
 
 void PndDrcLutFill::InitLut()
 {
-  TClonesArray &fLuta = *fLut;
-  Int_t Nnodes = 150000;
-  for (Long64_t n=0; n<Nnodes; n++) {
-    new((fLuta)[n]) PndDrcLutNode(n);
+  Int_t Nnodes = 30000;
+  for(Int_t l=0; l<5; l++){
+    TClonesArray &fLuta = *fLut[l]; 
+    for (Long64_t n=0; n<Nnodes; n++) {
+      new((fLuta)[n]) PndDrcLutNode(-1);
+    }
   }
 }
 
@@ -125,8 +142,8 @@ void PndDrcLutFill::Exec(Option_t* option)
 void PndDrcLutFill::ProcessPhotonHit()
 {
   Int_t nofChPho = 0;
-  Double_t id;
-  TVector3 dir, vec;
+  Double_t id, barPhi;
+  TVector3 dir, dirm, vec,posInBar;
   // Loop over PndDrcPDHits
   for(Int_t k=0; k<fPDHitArray->GetEntriesFast(); k++) {
    
@@ -137,29 +154,68 @@ void PndDrcLutFill::ProcessPhotonHit()
 
     Int_t pointID= fDigi->GetIndex(0);
     fPDPoint = (PndDrcPDPoint*)fPDPointArray->At(pointID);
-
+    fBarPoint= (PndDrcBarPoint*)fBarPointArray->At(fPDPoint->GetBarPointID());
+    Int_t barId = fBarPoint->GetBarId();
+ 
     Int_t trackID = fPDPoint->GetTrackID();
+    Double_t time = fPDPoint->GetTime();
     Int_t nev=0; 
     id=0;
     for(int i=0; i<fEVPointArray->GetEntriesFast(); i++){
       fEVPoint = (PndDrcEVPoint*)fEVPointArray->At(i);
       if(trackID == fEVPoint->GetTrackID()){
+	// if(fEVPoint->GetDetectorID()==9375) {
+	//   // get the direction of the phothon at the ent of the bar
+	//   fEVPoint->Momentum(dirm);
+	// }
 	nev++;
-        vec = fEVPoint->GetNormal();
+	vec = fEVPoint->GetNormal();
 	id += (vec.X()+vec.Y()*10 + vec.Z()*100)*1000*nev;
       }
     }
-
+    
     fMCTrack = (PndMCTrack*)fMCArray->At(trackID);
     dir =  fMCTrack->GetMomentum().Unit();
-    Int_t sensorId = fDigi->GetSensorID();
-    if(sensorId>150000) {
+
+    Int_t sensorId = fDigi->GetSensorId();
+    if(sensorId>30000) {
       std::cout<<"WTQ  fPDHit->GetDetectorID()   "<<fPDHit->GetDetectorID() <<std::endl;
       continue;
     }
 
-    ((PndDrcLutNode*)(fLut->At(sensorId)))->AddEntry(dir);
-    ((PndDrcLutNode*)(fLut->At(sensorId)))->AddPathId(id);
+    // //======================
+    // posInBar = fMCTrack->GetStartVertex();
+    // Double_t phi = posInBar.Phi()/TMath::Pi()*180;
+    // if(phi < 0) phi = 360 + phi;
+    // if(phi >= 0 && phi < 90) barPhi = TMath::Floor(phi/fDphi) *fDphi + fDphi/2.;
+    // if(phi >= 90 && phi < 270) barPhi = 90  + fPipehAngle + TMath::Floor((phi-90-fPipehAngle)/fDphi) *fDphi + fDphi/2.;
+    // if(phi >= 270 && phi < 360) barPhi = 270 + fPipehAngle + TMath::Floor((phi-270-fPipehAngle)/fDphi) *fDphi + fDphi/2.;
+
+    // dirm.RotateZ(-barPhi/180.*TMath::Pi());
+    // TVector3 fnX1 = TVector3 (1,0,0);   
+    // TVector3 fnY1 = TVector3( 0,1,0); 
+    // double criticalAngle = asin(1.00028/fGeo->nQuartz()); 
+    // for(int u=0; u<8; u++){
+    //   if(u == 0) dir = dirm;
+    //   if(u == 1) dir.SetXYZ( dirm.X(), dirm.Y(),-dirm.Z());
+    //   if(u == 2) dir.SetXYZ( dirm.X(),-dirm.Y(), dirm.Z());
+    //   if(u == 3) dir.SetXYZ(-dirm.X(), dirm.Y(), dirm.Z());
+    //   if(u == 4) dir.SetXYZ(-dirm.X(),-dirm.Y(), dirm.Z());
+    //   if(u == 5) dir.SetXYZ(-dirm.X(), dirm.Y(),-dirm.Z());
+    //   if(u == 6) dir.SetXYZ( dirm.X(),-dirm.Y(),-dirm.Z());
+    //   if(u == 7) dir = -dirm;
+
+    //   if(dir.Angle(fnX1) < criticalAngle || dir.Angle(fnY1) < criticalAngle){
+    // 	//std::cout<<"Wrong combination "<<std::endl;
+    // 	continue;
+    //   }
+    //   ((PndDrcLutNode*)(fLut->At(sensorId)))->AddEntry(dir);
+    //   ((PndDrcLutNode*)(fLut->At(sensorId)))->AddPathId(id);
+    // }
+    // //======================
+
+
+    ((PndDrcLutNode*)(fLut[barId]->At(sensorId)))->AddEntry(fDigi->GetDetectorId(), dir,id,time);
   }
 }
 
@@ -171,7 +227,9 @@ void PndDrcLutFill::Finish()
     fTree->Write();
     fFile->Write();
  
-    fLut->Clear();
+    for(Int_t l=0; l<10; l++){
+      fLut[l]->Clear(); 
+    }
     cout << "-I- PndDrcLutFill: Finish" << endl; 
 }
 
