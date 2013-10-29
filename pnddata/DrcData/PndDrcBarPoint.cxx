@@ -15,8 +15,7 @@ using std::endl;
 PndDrcBarPoint::PndDrcBarPoint() 
   :FairMCPoint(), 
   fPdgCode(0),
-  fAngIn(0.),
-  fNBar(0.),
+  fBarN(0.),
   fMass(0.),
   fThetaC(0.)
 {  
@@ -27,13 +26,12 @@ PndDrcBarPoint::PndDrcBarPoint()
 
 // -----   Standard constructor   ------------------------------------------
 PndDrcBarPoint::PndDrcBarPoint(Int_t trackID, Int_t detID, TVector3 pos, 
-			       TVector3 mom, Double_t tof, Double_t length, Int_t pdgCode, Double_t angIn, Double_t thetaC, Int_t nBar, Int_t eventID, Double_t mass) 
+			       TVector3 mom, Double_t tof, Double_t length, Int_t pdgCode, Double_t thetaC, Int_t barN, Int_t eventID, Double_t mass) 
  :FairMCPoint(trackID,detID,pos,mom, tof, length, 0.0, (UInt_t) eventID),
  fPdgCode( pdgCode), 
- fAngIn(   angIn),
  fThetaC( thetaC),
- fNBar(   nBar),
- fMass(    mass)
+ fBarN(   barN),
+ fMass(   mass)
        
 { 
 }

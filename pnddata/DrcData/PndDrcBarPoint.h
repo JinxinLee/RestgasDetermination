@@ -25,7 +25,7 @@ class PndDrcBarPoint : public FairMCPoint
 
   /** Constructor with arguments **/
   PndDrcBarPoint(Int_t trackID, Int_t detID, TVector3 pos, TVector3 mom,
-		 Double_t tof, Double_t length, Int_t pdgCode, Double_t angIn, 
+		 Double_t tof, Double_t length, Int_t pdgCode, 
 		 Double_t thetaC, Int_t nBar, Int_t eventID, Double_t mass);
 
 
@@ -39,20 +39,16 @@ class PndDrcBarPoint : public FairMCPoint
 
   /** Accessors **/
   Int_t    GetPdgCode()    const { return fPdgCode;};
-  Double_t GetAngIn()      const { return fAngIn; };
   Double_t GetThetaC()     const { return fThetaC; };
-  Int_t    GetNBar()       const { return fNBar;};
-  Int_t    GetDSide()      const { return (fNBar/1000);};
-  Int_t    GetSide()       const { return ((fNBar%1000)/10);};
-  Int_t    GetBox()        const { return (fNBar%10);};
+  Int_t    GetBarId()      const { return fBarN%10;};
+  Int_t    GetBoxId()      const { return fBarN/10;};
   Double_t GetMass()       const { return fMass;};
 
 
   /** Modifiers ** **/
   void SetPdgCode(Int_t id)          { fPdgCode = id; }; 
-  void SetAngIn(Double_t ang)        { fAngIn= ang; }; 
   void SetThetaC(Double_t theta)     { fThetaC = theta; }; 
-  void SetNBar(Int_t bar)            { fNBar = bar; };
+  void SetBarN(Int_t bar)           {  fBarN = bar; };
   
 
   /** Output to screen **/
@@ -63,9 +59,8 @@ class PndDrcBarPoint : public FairMCPoint
  protected:
 
   Int_t fPdgCode;               // PDG code
-  Double_t fAngIn;              // Incident Angle
   Double_t fThetaC;             // Cherenkov Angle
-  Int_t fNBar;                  // Rod number
+  Int_t fBarN;                 // Bar id number
   Double_t fMass;               // Mass 
 
   ClassDef(PndDrcBarPoint,3)
