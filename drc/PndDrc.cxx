@@ -313,6 +313,7 @@ void PndDrc::Initialize() {
   
   nphotons = 0;
   
+
   // bar ID number:    
   fbarID =gMC->VolId("DrcBarSensor");      
   cout<<"bar 1 id = "<<fbarID<<endl;
@@ -950,13 +951,15 @@ Bool_t PndDrc::ProcessHits(FairVolume* vol) {
       }
     }
     
-  //if the photon goes backward through the lens, stop it  
-  if(fOptionForLUT){
-    if(gMC->IsTrackExiting() == 1 && nam.Contains("LENS")){
-      if(fMom.Z() > 0.) gMC->StopTrack();
+    //if the photon goes backward through the lens, stop it  
+    if(fOptionForLUT){
+      if(gMC->IsTrackExiting() == 1){
+	if(nam.Contains("LENS")){
+	  if(fMom.Z() > 0.) gMC->StopTrack();
+	}
+      }
     }
-  } 
-     
+
     // apply transport efficiency at production stage (Maria Patsyuk 20.04.2012):
     if(fTransportEffAtProduction && fLastTrackID != fTrackID){
       gMC->TrackMomentum(fMom2);
@@ -1018,6 +1021,8 @@ Bool_t PndDrc::ProcessHits(FairVolume* vol) {
       }
     }
 
+    //if(fMom.Z()>0)  gMC->StopTrack(); 
+
     // "TakeOnlyReflectedPho" option: if photon is exiting the bar - check its direction
     if(fTakeReflected){
       if(gMC->IsTrackExiting()==1){        
@@ -1073,11 +1078,21 @@ Bool_t PndDrc::ProcessHits(FairVolume* vol) {
    // 	     << endl;
    // 	 }       
    //   }
-    
+
    if(gMC->IsTrackEntering()){
      if ( gMC->IsNewTrack()==1 ) {
        fTimeStart = fTime; // charged particle time at entrance of radiator bar
-     }         
+     }     
+     
+     // if(nam.BeginsWith("DrcLENS1Sensor")){  //DrcEntranceBox
+     //   // save the direction of the photon when it enters EntranceBox (for LUT generation) 
+     //   Double_t nx,ny,nz;
+     //   bool bres = gMC->CurrentBoundaryNormal(nx,ny,nz);
+     //   AddEVHit(fTrackID, 9375, fPos.Vect(), fMom.Vect().Unit(),
+     // 		fTime, fLength, fPdgCode,
+     // 		 fEventID, fTimeStart, fTimeAtEVEntrance, fVeloPhoton, TVector3(nx,ny,nz));
+     // }
+     
      if(nam.BeginsWith("DrcEVSensor")){
        if(fTimeAtEVEntrance ==0.){
 	 fTimeAtEVEntrance= gMC->TrackTime()*1.0e09;
@@ -1103,9 +1118,11 @@ Bool_t PndDrc::ProcessHits(FairVolume* vol) {
 	 abort();
        }   
        Int_t sensorId = fGeoH->GetShortID(gMC->CurrentVolPath());
-       
+       Int_t mcpId;
+       sscanf(gMC->CurrentVolPath(), "/cave_1/BarrelDIRC_0/DrcPDbase_0/DrcMCP_%d", &mcpId);
+      
        if(fTrackID>-2){
-	 AddHit(fTrackID, sensorId,
+	 AddHit(fTrackID, sensorId, mcpId,
 		fPos.Vect(),fMom.Vect(),fMomAtEV.Vect(),
 		fTime, fLength, fPdgCode, fEventID);
        }
@@ -1116,8 +1133,10 @@ Bool_t PndDrc::ProcessHits(FairVolume* vol) {
      stack->AddPoint(kDRC);
    } 
    
-  }else if(gMC->TrackCharge()!=0. && gMC->IsTrackEntering()==1 ){
-    if (nam.BeginsWith("DrcBar") ) {
+  }
+  
+  if(gMC->TrackCharge()!=0 || fOptionForLUT ){
+    if (nam.BeginsWith("DrcBar") && gMC->IsTrackEntering()==1  ) {
 
       bool bpass = true;
       // if(fDrcBarCollection->GetEntriesFast()>0){
@@ -1130,30 +1149,30 @@ Bool_t PndDrc::ProcessHits(FairVolume* vol) {
 	fNBar=0;
 	TString path = gMC->CurrentVolPath();
 	if (fVerboseLevel >1) cout<< "Volume: " << gMC->CurrentVolPath() << endl;
-	sscanf(path, "/cave_1/BarrelDIRC_0/DrcBarBox_%d/DrcAirBox_0/DrcBarSensor_%d", &s, &b);
-	if(s != 0 && s < 17) fNBar = s*10 + b;                 
-	Double_t Px= fMom.Px();
-	Double_t Py= fMom.Py();
-	Double_t Pz= fMom.Pz();
-	Double_t fP = sqrt(Px*Px + Py*Py +Pz*Pz);
+	sscanf(path, "/cave_1/BarrelDIRC_0/DrcBarBox_%d/DrcBarAirBox_0/DrcBarSensor_%d", &s, &b);
+	
+	if(s < 17) fNBar = s*10 + b;
+	else std::cout<<"Error: Wrong BarBox Id "<< s <<std::endl;
+	
+	TVector3 barMom =  fMom.Vect();
+	Double_t fP = barMom.Mag();
 	fMass = gMC->TrackMass();
-	Double_t fEnergy = TMath::Sqrt(fP*fP + fMass*fMass); 
-	if ( fP==0 ) {fAngIn = -1.;}
-	else if ( fabs(Pz/fP) > 1. ){ fAngIn = -1.;}
-	else { fAngIn = acos(Pz/fP);}
-	if ( fP == 0. || fEnergy == 0.){ fThetaC = -1.;}
-	else if (fabs(1./(fGeo->nQuartz()*(fP/fEnergy))) > 1. ){ fThetaC = -1.;}
-	else{ fThetaC = acos(1/(fGeo->nQuartz()*(fP/fEnergy)));} 
-
-	AddBarHit(fTrackID, fGeoH->GetShortID(path), fPos.Vect(), fMom.Vect(),
-		  fTime, fLength, fPdgCode, fAngIn, fThetaC, fNBar,
-		  fEventID, fMass);
+	Double_t fEnergy = TMath::Sqrt(fP*fP + fMass*fMass);
+	
+	if ( fP == 0. || fabs(1./(fGeo->nQuartz()*(fP/fEnergy)))>1){
+	  fThetaC = -1;
+	}else{ 
+	  fThetaC = acos(1/(fGeo->nQuartz()*(fP/fEnergy)));
+	}
+	
+	AddBarHit(fTrackID, fGeoH->GetShortID(path), fPos.Vect(), barMom,
+		  fTime, fLength, fPdgCode, fThetaC, fNBar, fEventID, fMass);
       		  
 	PndStack* stack = (PndStack*) gMC->GetStack();
 	stack->AddPoint(kDRC);
       }
     }
-  } // if Cherenkov photon
+  }
   
   fLastTrackID = fTrackID;
   
@@ -1504,30 +1523,30 @@ void PndDrc::ConstructOpGeometry() {
   } 
   
   for(Int_t i=0; i<fGeo->BBoxNum(); i++){
-    gMC->SetBorderSurface("AirCarbonSurface", "DrcBarBox", i+1, "DrcBarAirBox", 1, "BlackSurface"); 
+    gMC->SetBorderSurface("AirCarbonSurface", "DrcBarBox", i, "DrcBarAirBox", 0, "BlackSurface"); 
   }
 
   if(fSetBlackLens == kTRUE){ 
     gMC->SetMaterialProperty("EVSurface", "REFLECTIVITY", npoints_i, ephoton_i, reflectivity_b);    
     for(Int_t i=0; i<fGeo->barNum(); i++){
       // upper and bottom surfaces of lenses are touching with BarrelDIRC volume
-      gMC->SetBorderSurface("Lens1AirSurface", "DrcLENS1Sensor", i+1, "BarrelDIRC", 0, "EVSurface"); 
-      gMC->SetBorderSurface("Lens2AirSurface", "DrcLENS2Sensor", i+1, "BarrelDIRC", 0, "EVSurface");
-      gMC->SetBorderSurface("Lens3AirSurface", "DrcLENS3Sensor", i+1, "BarrelDIRC", 0, "EVSurface"); 
-      gMC->SetBorderSurface("Lens4AirSurface", "DrcLENS4Sensor", i+1, "BarrelDIRC", 0, "EVSurface");
+      gMC->SetBorderSurface("Lens1AirSurface", "DrcLENS1Sensor", i, "BarrelDIRC", 0, "EVSurface"); 
+      gMC->SetBorderSurface("Lens2AirSurface", "DrcLENS2Sensor", i, "BarrelDIRC", 0, "EVSurface");
+      gMC->SetBorderSurface("Lens3AirSurface", "DrcLENS3Sensor", i, "BarrelDIRC", 0, "EVSurface"); 
+      gMC->SetBorderSurface("Lens4AirSurface", "DrcLENS4Sensor", i, "BarrelDIRC", 0, "EVSurface");
       for(Int_t isec=0; isec<fGeo->BBoxNum(); isec++){
         // left and right surfaces of lenses are touching with DrcAirBox volume
-        gMC->SetBorderSurface("Lens1AirSurface", "DrcLENS1Sensor", i+1, "DrcEntranceBox", isec+1, "EVSurface"); 
-        gMC->SetBorderSurface("Lens2AirSurface", "DrcLENS2Sensor", i+1, "DrcEntranceBox", isec+1, "EVSurface");
-        gMC->SetBorderSurface("Lens3AirSurface", "DrcLENS3Sensor", i+1, "DrcEntranceBox", isec+1, "EVSurface"); 
-        gMC->SetBorderSurface("Lens4AirSurface", "DrcLENS4Sensor", i+1, "DrcEntranceBox", isec+1, "EVSurface");
+        gMC->SetBorderSurface("Lens1AirSurface", "DrcLENS1Sensor", i, "DrcEntranceBox", isec+1, "EVSurface"); 
+        gMC->SetBorderSurface("Lens2AirSurface", "DrcLENS2Sensor", i, "DrcEntranceBox", isec+1, "EVSurface");
+        gMC->SetBorderSurface("Lens3AirSurface", "DrcLENS3Sensor", i, "DrcEntranceBox", isec+1, "EVSurface"); 
+        gMC->SetBorderSurface("Lens4AirSurface", "DrcLENS4Sensor", i, "DrcEntranceBox", isec+1, "EVSurface");
 	
 	//only direct  
-	//gMC->SetBorderSurface("EVAirSurface", "DrcEVSensor",  isec+1, "BarrelDIRC", 0, "BlackSurface");
+	//gMC->SetBorderSurface("EVAirSurface", "DrcEVSensor",  isec, "BarrelDIRC", 0, "BlackSurface");
       }
     }   
-    gMC->SetBorderSurface("BarboxWindowAirSurface", "DrcBarboxWindowSensor", 1, "BarrelDIRC", 0, "EVSurface");
-    gMC->SetBorderSurface("EVGreaseAirSurface", "DrcEVgrease", 1, "BarrelDIRC", 0, "EVSurface");
+    gMC->SetBorderSurface("BarboxWindowAirSurface", "DrcBarboxWindowSensor", 0, "BarrelDIRC", 0, "EVSurface");
+    gMC->SetBorderSurface("EVGreaseAirSurface", "DrcEVgrease", 0, "BarrelDIRC", 0, "EVSurface");
   }
  
   gMC->SetSkinSurface("AirMirrorSurface", "DrcMirr", "MirrSurface");          
@@ -1545,7 +1564,7 @@ bool PndDrc::CheckIfSensitive(std::string name) {
 }
 
 // -----   Private method AddHit   --------------------------------------------
-PndDrcPDPoint* PndDrc::AddHit(Int_t trackID, Int_t copyNo, TVector3 pos, TVector3 mom, TVector3 momAtEV, Double_t time, Double_t length, Int_t pdgCode, Int_t eventID) {
+PndDrcPDPoint* PndDrc::AddHit(Int_t trackID, Int_t copyNo, Int_t mcpId, TVector3 pos, TVector3 mom, TVector3 momAtEV, Double_t time, Double_t length, Int_t pdgCode, Int_t eventID) {
   TClonesArray& clrefPD = *fDrcPDCollection;
   Int_t size = clrefPD.GetEntriesFast();
   // if(size>2) return NULL;
@@ -1554,7 +1573,8 @@ PndDrcPDPoint* PndDrc::AddHit(Int_t trackID, Int_t copyNo, TVector3 pos, TVector
 	 << ", " << pos.Z() << ") cm, detector " << copyNo << ", track "
 	 << trackID <<" event "<<eventID << "  barId "<< fDrcBarCollection->GetEntriesFast()-1 <<endl;
   return new(clrefPD[size]) PndDrcPDPoint(trackID,
-					  copyNo, 
+					  copyNo,
+					  mcpId,
 					  fDrcBarCollection->GetEntriesFast()-1,
 					  pos, 
 					  mom,
@@ -1588,7 +1608,7 @@ PndDrcEVPoint* PndDrc::AddEVHit(Int_t trackID, Int_t copyNo, TVector3 pos, TVect
 
 }
 
-PndDrcBarPoint* PndDrc::AddBarHit(Int_t trackID, Int_t copyNo, TVector3 pos, TVector3 mom, Double_t time, Double_t length, Int_t pdgCode, Double_t angIn, Double_t thetaC, Int_t nBar, Int_t eventID, Double_t mass) {
+PndDrcBarPoint* PndDrc::AddBarHit(Int_t trackID, Int_t copyNo, TVector3 pos, TVector3 mom, Double_t time, Double_t length, Int_t pdgCode, Double_t thetaC, Int_t BarId, Int_t eventID, Double_t mass) {
   TClonesArray& clrefBar = *fDrcBarCollection;
   Int_t size = clrefBar.GetEntriesFast();
   if (fVerboseLevel>1) 
@@ -1602,9 +1622,8 @@ PndDrcBarPoint* PndDrc::AddBarHit(Int_t trackID, Int_t copyNo, TVector3 pos, TVe
 					    time, 
 					    length, 
 					    pdgCode,
-					    angIn,
 					    thetaC,
-					    nBar,
+					    BarId,
 					    eventID, 
 					    mass);
   

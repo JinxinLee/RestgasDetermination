@@ -196,6 +196,7 @@ class PndDrc : public FairDetector
 
   PndDrcPDPoint* AddHit(Int_t trackID, 
 			Int_t copyNo, 
+			Int_t mcpId, 
 			TVector3 pos, 
 			TVector3 mom,
 			TVector3 momAtEV, 
@@ -224,7 +225,6 @@ class PndDrc : public FairDetector
 			    Double_t time, 
 			    Double_t length,
 			    Int_t pdgCode,
-			    Double_t angIn,
 			    Double_t thetaC,
 			    Int_t nBar, 
 			    Int_t eventID,
