@@ -177,8 +177,9 @@ void DrawHits::ProcessBarHit()
        zbar = zH;
               
        //phoTree->Fill();
-       
-       Double_t angIn= pt->GetAngIn();
+       TVector3 barmom;
+       pt->Momentum(barmom);
+       Double_t angIn= barmom.Theta();
        Double_t angDeg=angIn*deg;
    
        fThetaC = gRandom->Gaus(pt->GetThetaC(),0.008);
