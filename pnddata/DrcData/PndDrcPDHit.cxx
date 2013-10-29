@@ -24,14 +24,16 @@ PndDrcPDHit::PndDrcPDHit()
 // -----   Standard constructor   ------------------------------------------
 
 PndDrcPDHit::PndDrcPDHit(Int_t detID, 
+			 Int_t sensorId, 
 		     TVector3& pos, 
 		     TVector3& dpos,
 		     Double_t time,
 		     Double_t timeThreshold,
 		     Int_t index)
   :FairHit(detID, pos, dpos, index),  
-  fTime       (time),
-  fTimeThreshold (timeThreshold)
+   fSensorId (sensorId), 
+   fTime       (time),
+   fTimeThreshold (timeThreshold)
 {    
 }
 

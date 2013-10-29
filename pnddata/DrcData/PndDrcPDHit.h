@@ -18,6 +18,7 @@ public:
   PndDrcPDHit();
 
   PndDrcPDHit(Int_t detID, 
+	      Int_t sensorId, 
 	    TVector3& pos, 
 	    TVector3& dpos,
 	    Double_t time,
@@ -42,10 +43,11 @@ public:
   virtual Double_t GetTimeThreshold()  {return fTimeThreshold;}
   virtual Int_t GetRefIndex()  {return fRefIndex;}
   TVector3 GetPosition()	  const { return TVector3(fX, fY, fZ);	  }
-  
+  Int_t GetSensorId()  {return fSensorId;}
+
  protected:
   
-//  TVector3 fmom;
+  Int_t fSensorId;
   Double_t fTime,  fTimeThreshold;
    
   ClassDef(PndDrcPDHit,1)
