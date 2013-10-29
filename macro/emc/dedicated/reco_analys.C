@@ -1,11 +1,5 @@
 {
   // Macro loads a file after reconstruction and plots difference between initial direction of particle and angular position of cluster
-	gROOT->SetStyle("Plain");
-	gROOT->LoadMacro("$VMCWORKDIR/gconfig/rootlogon.C");
-	gROOT->LoadMacro("$VMCWORKDIR/gconfig/basiclibs.C");
-	rootlogon();
-	basiclibs();
-	
 	TFile* f = new TFile("cluster_emc.root"); //file you want to analyse
 	TTree *t=(TTree *) f->Get("cbmsim") ;
 	TClonesArray* cluster_array=new TClonesArray("PndEmcCluster");
@@ -18,7 +12,7 @@
 	TFile* fsim = new TFile("sim_emc.root"); //file you want to analyse
 	TTree *tsim=(TTree *) fsim->Get("cbmsim") ;
 	
-	PndEmcMapper::Init(11);
+	PndEmcMapper::Init(1);
 
 	TClonesArray* mctrack_array=new TClonesArray("PndMCTrack");
 	tsim->SetBranchAddress("MCTrack",&mctrack_array);

@@ -22,14 +22,6 @@
   // Output file
   TString outFile = "cluster_emc.root";
   
-  // Loading libraries
-  // If the macro gives error messages in loading libraries, please check the path of the libs and put it by hands
-  
-  gROOT->LoadMacro("$VMCWORKDIR/gconfig/rootlogon.C");
-  gROOT->LoadMacro("$VMCWORKDIR/gconfig/basiclibs.C");
-  rootlogon();
-  basiclibs();
-
   // -----   Timer   --------------------------------------------------------
   TStopwatch timer;
   timer.Start();

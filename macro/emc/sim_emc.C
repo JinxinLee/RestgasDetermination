@@ -8,11 +8,6 @@ sim_emc(Int_t nEvents = 10, Float_t mom = 1.){
   timer.Start();
   gDebug=0;
 
-  // Load basic libraries
-  // If it does not work,  please check the path of the libs and put it by hands
-  gROOT->LoadMacro("$VMCWORKDIR/gconfig/rootlogon.C");
-  rootlogon();
-  
   TString digiFile = "emc.par";
   TString parFile = "simparams.root";
   

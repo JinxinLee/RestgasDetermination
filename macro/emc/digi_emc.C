@@ -2,7 +2,7 @@
   // Loads a filewith hits and makes digitization for EMC
   
   // Verbosity level (0=quiet, 1=event level, 2=track level, 3=debug)
-  Int_t iVerbose = 1; // just forget about it, for the moment
+  Int_t iVerbose = 0; // just forget about it, for the moment
   
   // Input file (MC events)
   TString inFile = "sim_emc.root";
@@ -18,14 +18,6 @@
   
   // Output file
   TString outFile = "digi_emc.root";
-  
-  // Loading libraries
-  // If the macro gives error messages in loading libraries, please check the path of the libs and put it by hands
-  
-  gROOT->LoadMacro("$VMCWORKDIR/gconfig/rootlogon.C");
-  gROOT->LoadMacro("$VMCWORKDIR/gconfig/basiclibs.C");
-  rootlogon();
-  basiclibs();
   
   // -----   Timer   --------------------------------------------------------
   TStopwatch timer;
@@ -58,6 +50,7 @@
   
 	PndEmcHitsToWaveform* emcHitsToWaveform= new PndEmcHitsToWaveform(iVerbose);
 	PndEmcWaveformToDigi* emcWaveformToDigi=new PndEmcWaveformToDigi(iVerbose);
+	//emcWaveformToDigi->UseDigitizationVersion2();
 	
 	fRun->AddTask(emcHitsToWaveform);
 	fRun->AddTask(emcWaveformToDigi);
