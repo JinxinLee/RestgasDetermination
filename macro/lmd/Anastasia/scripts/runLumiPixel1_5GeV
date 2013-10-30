@@ -7,10 +7,18 @@
 ################################################################
 pbeam=1.5
 momStr=`echo $pbeam | sed -e '{ s/\./_/g; }'`
+cd ${VMCWORKDIR}/input
+#1.5 GeV
+ln -sf solenoid_hc/* ./
+#15GeV
+#ln -sf solenoid_fc/* ./
+cd ${VMCWORKDIR}/macro/lmd/
+
+
 #path=${VMCWORKDIR}/macro/lmd/testPixel_FullLMD_KalmanGEANE_Geant4_0_01_bendAngleForGEANE/mom_${momStr}/
 #path=${VMCWORKDIR}/macro/lmd/testPixel_FullLMD_KalmanGEANE_Geant4_20_bendAngleForGEANE_1TSolenoid/mom_${momStr}/
 #path=${VMCWORKDIR}/macro/lmd/testPixel_FullLMD_4_8_mrad_KalmanGEANE_Geant4_20_bendAngleForGEANE_0_5MapsSolenoid_ERROR_PROP/mom_${momStr}/
-path=${VMCWORKDIR}/macro/lmd/testPixel_sensorsOnlyLMD_4_8_mrad_0_360_degree_KalmanGEANE_Geant3_20_bendAngleForGEANE_NewMapsSolenoid_ERROR_PROP/mom_${momStr}/
+path=${VMCWORKDIR}/macro/lmd/testPixel_FullLMD_4_8_mrad_0_360_degree_KalmanGEANE_Geant3_20_bendAngleForGEANE_10_100stepsBP_MapsSolenoid_ERROR_PROP/mom_${momStr}/
 #path=${VMCWORKDIR}/macro/lmd/testPixel_sensorsOnlyLMD_4_8_mrad_KalmanGEANE_Geant4_20_bendAngleForGEANE_MapsSolenoid/mom_${momStr}/
 mkdir -p ${path}
 #number of trks per event
@@ -18,7 +26,7 @@ numTrks=1
 #merge hits on sensors from different sides. true=yes
 mergedHits=true
 #number of events
-numEv=500
+numEv=200000
 # #add multiples scattering error estimation for hits (needed only for trk fit with Minuit). false=no
 useMSerr=false
 #useMSerr=true
@@ -41,8 +49,8 @@ useMSerr=false
 ### Kalman Fillter:  useMSerr must be _false_ in this case!  
 ### "KalmanGeane" = with GEANE trk representation
 ### change "KalmanGeane" --> "KalmanRK" if you want to use Runge-Kutta trk.rep.
- #    root -l -b -q runLumiPixel4Fitter.C\(${numEv},0,"\"${path}\"",0,"\"KalmanGeane\"",${mergedHits}\)
-  root -l -b -q runLumiPixel4Fitter.C\(${numEv},0,"\"${path}\"",0,"\"Minuit\"",${mergedHits}\)
+     root -l -b -q runLumiPixel4Fitter.C\(${numEv},0,"\"${path}\"",0,"\"KalmanGeane\"",${mergedHits}\)
+#  root -l -b -q runLumiPixel4Fitter.C\(${numEv},0,"\"${path}\"",0,"\"Minuit\"",${mergedHits}\)
 
 #track filter (on number of hits and chi2)
      root -l -b -q runLumiPixel4aFilter.C\(${numEv},0,"\"${path}\"",0,${mergedHits}\) 
@@ -53,8 +61,8 @@ useMSerr=false
 
 #back-propgation GEANE
 ### change "Geane" --> "RK" if you want to use Runge-Kutta for back-propagation
-#       root -l -b -q runLumiPixel5BackProp.C\(${numEv},0,"\"${path}\"",10,"\"Geane\"",${mergedHits},${pbeam}\) &> logBP_GEANE_1_5
-     root -l -b -q runLumiPixel5BackProp.C\(${numEv},0,"\"${path}\"",0,"\"RK\"",${mergedHits},${pbeam}\)
+       root -l -b -q runLumiPixel5BackProp.C\(${numEv},0,"\"${path}\"",10,"\"Geane\"",${mergedHits},${pbeam}\) &> logBP_GEANE_1_5
+#     root -l -b -q runLumiPixel5BackProp.C\(${numEv},0,"\"${path}\"",0,"\"RK\"",${mergedHits},${pbeam}\)
 
 # # Quality assurance task(s)
       root -l -b -q runLumiPixel7QA.C\(${numEv},0,"\"${path}\"",0,${pbeam}\)

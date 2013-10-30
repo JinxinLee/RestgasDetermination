@@ -23,21 +23,36 @@ fi
 ######################################################
 
 momStr=`echo $pbeam | sed -e '{ s/\./_/g; }'`
-path=${VMCWORKDIR}/macro/lmd/testDPM/LMDboxIdealVacuum/mom_${momStr}/
+#path=${VMCWORKDIR}/macro/lmd/testDPM/LMDboxRealVacuum/mom_${momStr}/
+path=${VMCWORKDIR}/macro/lmd/testDPM/mom_${momStr}/
 mkdir -p ${path}
 #number of trks per event
 numTrks=1
 #merge hits on sensors from different sides. true=yes
 mergedHits=true
 #number of events
-numEv=20000
+numEv=10
 # #add multiples scattering error estimation for hits. false=no
 useMSerr=false
 
+# ### make seed w/o zero
+# zero=0
+# seedvar=$RANDOM
+# seedvarSrt=`echo $seedvar`
+# while [  $seedvarSrt ==  *$zero* ]; do
+#     seedvar=$RANDOM
+#     seedvarSrt=`echo $seedvar`
+# done
+# echo "seed value = $seedvar"
+# #########################
+
+### make seed w/o repeated numbers
+
+
 # #simulation with DPM
 cd ${VMCWORKDIR}/pgenerators/DpmEvtGen
-## !el+inel
-./DPMGen -e 1 -t 0.1 -s $RANDOM -m ${pbeam} -n $numEv -f ${path}/DPM_all_${momStr}_0.root
+# ## !el+inel
+ ./DPMGen -e 1 -t 0.1 -s $seedvar -m ${pbeam} -n $numEv -f ${path}/DPM_all_${momStr}_0.root &> ${path}/logDPM_standalone
 
 cd ${VMCWORKDIR}/macro/lmd
 ## all systems
