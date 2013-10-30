@@ -94,6 +94,11 @@ void reco_complete()
   trackFts->SetPersistence(kFALSE);
   fRun->AddTask(trackFts);
 
+  PndMCTrackAssociator* trackMCfwd = new PndMCTrackAssociator();
+  trackMCfwd->SetTrackInBranchName("FtsIdealTrack");
+  trackMCfwd->SetTrackOutBranchName("FtsIdealTrackID");
+  fRun->AddTask(trackMCfwd);
+
   PndRecoKalmanTask* recoKalmanFwd = new PndRecoKalmanTask();
   recoKalmanFwd->SetTrackInBranchName("FtsIdealTrack");
   //recoKalmanFwd->SetTrackInIDBranchName("FtsIdealTrackID");
