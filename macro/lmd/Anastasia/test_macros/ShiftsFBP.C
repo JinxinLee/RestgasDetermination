@@ -32,7 +32,7 @@ void ShiftsFBP(TString storePath="/panda/pandaroot/macro/lmd/testPixel_newMinuit
 
 
   double thlim = 1e3*0.002;//1.5GeV
-  double phiresmax = 1e6*0.0002;//1.5GeV
+  double phiresmax = 2e6*0.0002;//1.5GeV
   double xlim = 1e4*0.001;//1.5GeV
   double philim = 1e6*0.00007;//1.5GeV
   double thresmax=1e3*0.0015;//1.5GeV
@@ -61,6 +61,9 @@ void ShiftsFBP(TString storePath="/panda/pandaroot/macro/lmd/testPixel_newMinuit
   trans.SetY1(-thlim);
   trans.SetY2(thlim);
   trans.Draw();
+  dip1.Write("dip1_th_mean");
+  dip2.Write("dip2_th_mean");
+  trans.Write("trans_th_mean");
 
   c1fb.cd(2);
   hthmcfbz_2->SetMinimum(0);
@@ -80,7 +83,10 @@ void ShiftsFBP(TString storePath="/panda/pandaroot/macro/lmd/testPixel_newMinuit
   dip1_s.Draw();
   dip2_s.Draw();
   trans_s.Draw();
- 
+  dip1.Write("dip1_th_sigma");
+  dip2.Write("dip2_th_sigma");
+  trans.Write("trans_th_sigma");
+
   c1fb.cd(3);
   hthmcfbz_chi2->Draw();
   c1fb.cd(4);
@@ -117,6 +123,10 @@ void ShiftsFBP(TString storePath="/panda/pandaroot/macro/lmd/testPixel_newMinuit
   trans.SetY1(-plim);
   trans.SetY2(plim);
   trans.Draw();
+
+  dip1.Write("dip1_mom_mean");
+  dip2.Write("dip2_mom_mean");
+  trans.Write("trans_mom_mean");
 
   cmomfb.cd(2);
   hpmcfbz_2->SetMinimum(0);
@@ -211,7 +221,7 @@ void ShiftsFBP(TString storePath="/panda/pandaroot/macro/lmd/testPixel_newMinuit
   c3.Write();
   c3.Close();
 
-  TH2D *hphz = new TH2D("hphz",";z_{MC}, cm;#phi_{MCf} - #phi_{MCb}, mrad",45.,0,1200,1e6,-2000,2000);
+  TH2D *hphz = new TH2D("hphz",";z_{MC}, cm;#phi_{MCf} - #phi_{MCb}, mrad",45.,0,1200,1e4,-2000,2000);
   tbp->Project("hphz","1e6*(phimc-phimcb):zmc",condition);
   hphz->FitSlicesY();
   hphz_1->SetMinimum(-philim);//15
