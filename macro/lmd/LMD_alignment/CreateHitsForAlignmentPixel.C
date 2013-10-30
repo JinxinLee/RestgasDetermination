@@ -194,7 +194,9 @@ int main(int __argc,char *__argv[]) {
   TChain tTrkCand("cbmsim");
   tTrkCand.Add(trkCand);
   
-  TString recTrack = storePath+"/Lumi_Track_";
+  // TString recTrack = storePath+"/Lumi_Track_";
+  //  TString recTrack = storePath+"/Lumi_notFilteredTrack_";
+  TString recTrack = storePath+"/Lumi_TrackNotFiltered_";
   recTrack += startEvent;
   recTrack += ".root";
   TChain tTrkRec("cbmsim");
@@ -281,6 +283,7 @@ int main(int __argc,char *__argv[]) {
   //				lmddim->Get_sensor_by_id(sens_id, ihalf, iplane, imodule, iside, idie, isensor);
 
   TH2F *resxy = new TH2F("resxy","residuals y vs. residuals x; #delta_{x}, cm; #delta_{y}, cm",5000,-2.5e-1,2.5e-1,5000,-2.5e-1,2.5e-1);
+  TH1I *htrks = new TH1I("trks","number of trks/ev",2e1,0,2e1);
   // for (unsigned int histID = 0; histID < 400; ++histID)
   //   {
   //     char histoResXName[100];
@@ -321,14 +324,14 @@ int main(int __argc,char *__argv[]) {
     //Load lumi geo params
     PndLmdDim *lmddim = PndLmdDim::Instance();
     // lmddim -> Read_transformation_matrices("matrices.txt", true);
-    //  TString mtx_perfect = storePath+"matrices_perfect.txt";
+    
     //    TString mtx_perfect = "${VMCWORKDIR}/macro/lmd/matrices_perfect.txt";
 
     TString mtx_corr =  storePath+"/matrices_corrected.txt";
+    TString mtx_perfect = storePath+"/matrices_perfect.txt";
     //    lmddim -> Read_transformation_matrices(mtx_perfect.Data(), false);
-    lmddim -> Read_transformation_matrices("/panda/pandaroot/macro/lmd/matrices_perfect.txt", false);
+    lmddim -> Read_transformation_matrices(mtx_perfect.Data(), false);
     lmddim -> Read_transformation_matrices(mtx_corr.Data(), true);
-
     // 
     // lmddim -> Read_transformation_matrices("/panda/pandaroot/macro/lmd/matrices_corrected.txt", true);
 
@@ -344,7 +347,6 @@ int main(int __argc,char *__argv[]) {
 
     const int nRecTrks = rec_trk->GetEntriesFast();
     //    if(nRecTrks>1) continue; //!!! TEST with 1 track/event only !!!
-
     /// Read info about hits from reconstructed tracks ----------------------------------------------------
     for (Int_t iN=0; iN<nRecTrks; iN++){
       // PndLinTrack *trk_lin = (PndLinTrack*)rec_trk->At(iN);
@@ -361,8 +363,10 @@ int main(int __argc,char *__argv[]) {
       // TVector3 errPosRecLMD(sqrt(covMARS[3][3]),sqrt(covMARS[4][4]),sqrt(covMARS[5][5]));
       dirlintrk *= 1./dirlintrk.Mag();
       int candID = trkpnd->GetRefIndex();
+      //      cout<<"candID = "<<candID<<endl;
       PndTrackCand *trkcand = (PndTrackCand*)trkcand_array->At(candID);
       const int Ntrkcandhits= trkcand->GetNHits();
+      //    cout<<"Ntrkcandhits = "<<Ntrkcandhits<<endl;
       //  if(Ntrkcandhits<4) continue; //!!! TEST with 4 hits tracks only !!!
       if(Ntrkcandhits<3) continue; //!!! TEST with > 2 hits tracks only !!!
       //      if(Ntrkcandhits<2) continue; //!!! TEST 
@@ -401,6 +405,7 @@ int main(int __argc,char *__argv[]) {
 
       //(end) check if these hits are sutiable for sector aligment
       if(!flagSector) continue;
+      if(iN==0) htrks->Fill(nRecTrks);//fill only if trk was accepted 
 	for (Int_t iHit = 0; iHit < Ntrkcandhits; iHit++){
 	  PndTrackCandHit candhit = (PndTrackCandHit)(trkcand->GetSortedHit(iHit));
 	  Int_t hitID = candhit.GetHitId();
@@ -823,6 +828,7 @@ int main(int __argc,char *__argv[]) {
  y_id->Write();
  z_id->Write();
  nhits->Write();
+ htrks->Write();
  f->Close();
 
 }

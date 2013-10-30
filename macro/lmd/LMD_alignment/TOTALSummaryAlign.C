@@ -14,7 +14,7 @@ void TOTALSummaryAlign(TString pathG="/panda/pandaroot/macro/lmd/tmpOutputAlignD
   const int nS=7;
   double TrksSim[nS]={10000, 100000, 200000, 300000, 500000, 700000, 1000000};
   //  double TrksSim[nS]={10, 100, 200, 300, 400, 500, 700, 1000};
-  double Trks[nS];
+  //  double Trks[nS]={1000,5000,10000};
   //How to save data
   TString resname= pathG+"/ResultsTOTALSummary_";
   resname+=tr_sc;
@@ -36,13 +36,13 @@ void TOTALSummaryAlign(TString pathG="/panda/pandaroot/macro/lmd/tmpOutputAlignD
   for(int i=0;i<nS;i++){
     nTrks =  TrksSim[i];
     //Where search for files
-    TString path = pathG+"/results_";
-    path+=tr_sc;
-    path+="mkm_";
-    path+=rt_sc;
-    path+="mrad_";
-    path+=nTrks;
-    path+="events/";
+    TString path = pathG+"/results/";
+    // path+=tr_sc;
+    // path+="mkm_";
+    // path+=rt_sc;
+    // path+="mrad_";
+    // path+=nTrks;
+    // path+="events/";
 
   //   // ///Residuals files for estimate of trks/sector ------------------------------------------------------------------------------
   TString nameresb0 = path + "/hitsRes_before_alignment_sector0.root";
