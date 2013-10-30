@@ -1,0 +1,41 @@
+#!/bin/bash 
+################################################################
+## script for running sim&rec for LMD with BOX generarot
+## [with pixels sensors set-up!]
+## 13/11/2012 1st version
+## 06/09/2013 updated version
+## A.Karavdina
+################################################################
+echo Enter momentum from "1.5, 4.06, 8.9, 11.91, 15 [GeV/c]":
+read mom
+echo "Beam mometum is: $mom!"
+cd ${VMCWORKDIR}/macro/lmd/
+pbeam=$mom
+momStr=`echo $pbeam | sed -e '{ s/\./_/g; }'`
+path=${VMCWORKDIR}/macro/lmd/Anastasia/tests/DPM_oct2013/output_direct/mom_${momStr}/
+mkdir -p ${path}
+echo "Ta-Dam! output: ${path}"
+#number of trks per event
+numTrks=1
+#merge hits on sensors from different sides. true=yes
+mergedHits=true
+#number of events
+numEv=10
+# #add multiples scattering error estimation for hits. false=no
+useMSerr=false
+
+# #simulation with DPM Direct
+cd ${VMCWORKDIR}/macro/lmd/Anastasia/tests/DPM_oct2013/
+#for thMin in 0.02 0.04 0.06 0.08 0.1 0.12 0.14 0.16 0.18 0.2 0.22
+step=2
+#fact=100
+echo "for Plab=${pbeam}" >> ${path}/LOG_CS
+for thSt in `seq 2 $step 30` ; do
+#    thMin=$(( $thSt/$fact ))
+    root -l -b -q runLumiPixel0SimDPMDirect.C\(${numEv},0,${pbeam},"\"${path}\"",0,23465,1,${thSt}\) &> ${path}/logDPM_direct_${thSt}e-2
+	echo "for th_min = ${thSt}e-2" >>  ${path}/LOG_CS
+	grep 'elastic cross section' ${path}/logDPM_direct_${thSt}e-2 >> ${path}/LOG_CS
+	grep 'Inelastic cross-section' ${path}/logDPM_direct_${thSt}e-2 >> ${path}/LOG_CS
+	echo "---------------------------------------" >> ${path}/LOG_CS
+done
+

@@ -22,7 +22,7 @@ numTrks=1
 #merge hits on sensors from different sides. true=yes
 mergedHits=true
 #number of events
-numEv=1000
+numEv=120000
 # #add multiples scattering error estimation for hits. false=no
 useMSerr=false
 
@@ -31,7 +31,7 @@ useMSerr=false
 # #simulation with DPM
 cd ${VMCWORKDIR}/pgenerators/DpmEvtGen/
 # ## !el+inel
- ./DPMGen -e 1 -t 0.1 -s 17259 -m ${pbeam} -n $numEv -f ${path}/DPM_all_${momStr}_0.root &> ${path}/logDPM_standalone
+ ./DPMGen -e 1 -t 0.12 -s 17259 -m ${pbeam} -n $numEv -f ${path}/DPM_all_${momStr}_0.root &> ${path}/logDPM_standalone
 
 cd ${VMCWORKDIR}/macro/lmd/Anastasia/tests/DPM_sep2013/
  root -l -b -q runLumiPixel0SimDPM.C\(${numEv},0,${pbeam},"\"${path}/DPM_all_${momStr}_0.root\"","\"${path}\""\)
