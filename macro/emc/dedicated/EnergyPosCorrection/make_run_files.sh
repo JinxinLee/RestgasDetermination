@@ -47,10 +47,10 @@ printf '. %sinit.sh; \n' "$fullPath"| tee -a $filename1 $filename2 $filename3 $f
 printf '. /lustre/panda/dmelnych/pandaroot/build/config.sh;\n'| tee -a $filename1 $filename2 $filename3 $filename4
 printf 'echo $SIMPATH; \n'| tee -a $filename1 $filename2 $filename3 $filename4
 printf 'echo $ROOTSYS; \n'| tee -a $filename1 $filename2 $filename3 $filename4
-printf 'root -l -b -q "emc_correction_data_production.C(%s,\"gamma\",\"TGeant3\",true,\"TS\",\"low\",1000)" \n' "$nevents">> $filename1
-printf 'root -l -b -q "emc_correction_data_production.C(%s,\"gamma\",\"TGeant3\",true,\"TS\",\"high\",2000)" \n' "$nevents">> $filename2
-printf 'root -l -b -q "emc_correction_data_production.C(%s,\"gamma\",\"TGeant3\",true,\"shashlyk\",\"low\",3000)" \n' "$nevents">> $filename3
-printf 'root -l -b -q "emc_correction_data_production.C(%s,\"gamma\",\"TGeant3\",true,\"shashlyk\",\"high\",4000)" \n' "$nevents">> $filename4
+printf 'root -l -b -q "emc_correction_data_production.C(%s,\\"gamma\\",\\"TGeant3\\",true,\\"TS\\",\\"low\\",1000)" \n' "$nevents">> $filename1
+printf 'root -l -b -q "emc_correction_data_production.C(%s,\\"gamma\",\\"TGeant3\\",true,\\"TS\\",\\"high\\",2000)" \n' "$nevents">> $filename2
+printf 'root -l -b -q "emc_correction_data_production.C(%s,\\"gamma\\",\\"TGeant3\\",true,\\"shashlyk\\",\\"low\\",3000)" \n' "$nevents">> $filename3
+printf 'root -l -b -q "emc_correction_data_production.C(%s,\\"gamma\\",\\"TGeant3\\",true,\\"shashlyk\\",\\"high\\",4000)" \n' "$nevents">> $filename4
 
 chmod +x $filename1
 chmod +x $filename2
