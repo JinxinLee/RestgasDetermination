@@ -6,9 +6,6 @@
 // Two methods can be tested depending on input parametr (method=1 or 2)
 void emc_correction_QA(TString InputFile="emc_complete_QA.root", Int_t test=1, Int_t version=1)
 {
-	gROOT->LoadMacro("$VMCWORKDIR/gconfig/rootlogon.C");
-	rootlogon();
-
 	// test=1
 	TH1F *h_energy= new TH1F("h_energy","Cluster energy",100,0.2,1.5);
 	TH1F *h_energy_corr1= new TH1F("h_energy_corr1","Cluster energy (corrected), (hist)",100,0.8,1.2);

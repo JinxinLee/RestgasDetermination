@@ -23,8 +23,6 @@ Int_t nrThetaIntervals[4]; //BarrelLow, BarrelHigh, Fwd, Bwd
 
 void emc_correction_parametrization(Int_t version, TString InputFile1, TString particle="gamma", Bool_t debug=false, Bool_t useStoredHistos=true)
 {
-	gROOT->LoadMacro("$VMCWORKDIR/gconfig/rootlogon.C");
-	rootlogon();
 TStopwatch timer;
 timer.Start();
 	

@@ -21,9 +21,6 @@ Int_t nrThetaIntervals[4]; //Barrel, Fwd, Bwd, Shashlyk
 // version is used for output file name
 void emc_correction_hist(Int_t version, TString InputFile1, Bool_t debug=false)
 {
-	gROOT->LoadMacro("$VMCWORKDIR/gconfig/rootlogon.C");
-	rootlogon();
-
 	TStopwatch timer;
 	timer.Start();
 

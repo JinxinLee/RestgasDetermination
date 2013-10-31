@@ -54,9 +54,6 @@ void emc_correction_data_production(Int_t nEvents = 10, TString part="gamma", TS
 	TStopwatch timer;
 	timer.Start();
 	gDebug=0;
-	// Load basic libraries
-	gROOT->LoadMacro("$VMCWORKDIR/gconfig/rootlogon.C");
-	rootlogon();
 
 	FairLogger::GetLogger()->SetLogToFile(kFALSE);		
   FairRunSim *fRun = new FairRunSim();
@@ -128,13 +125,15 @@ void emc_correction_data_production(Int_t nEvents = 10, TString part="gamma", TS
 	Mvd->SetGeometryFileName("Mvd-2.1_FullVersion.root");
 	fRun->AddModule(Mvd);
 
-	PndMdt *Muo = new PndMdt("MDT",kTRUE);
-	Muo->SetBarrel("fast");
-	Muo->SetEndcap("fast");
-	Muo->SetMuonFilter("fast");
-	Muo->SetMdtMagnet(kTRUE);
-	Muo->SetMdtMFIron(kTRUE);
-	fRun->AddModule(Muo);
+    PndMdt *Muo = new PndMdt("MDT",kTRUE);
+    Muo->SetMdtMagnet(kTRUE);
+    //  Muo->SetMdtMFIron(kFALSE);
+    Muo->SetMdtCoil(kTRUE);
+    Muo->SetBarrel("muon_TS_barrel_strip_v1_noGeo.root");
+    Muo->SetEndcap("muon_TS_endcap_strip_v1_noGeo.root");
+    Muo->SetForward("muon_Forward_strip_v1_noGeo.root");
+    Muo->SetMuonFilter("muon_MuonFilter_strip_v1_noGeo.root");
+    fRun->AddModule(Muo);
 
 	FairDetector *Gem = new PndGemDetector("GEM", kTRUE);
 	Gem->SetGeometryFileName("gem_3Stations.root");
