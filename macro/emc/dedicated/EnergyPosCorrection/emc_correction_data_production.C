@@ -114,8 +114,9 @@ void emc_correction_data_production(Int_t nEvents = 10, TString part="gamma", TS
 	Dipole->SetGeometryFileName("dipole.geo");
 	fRun->AddModule(Dipole);
 
-	FairModule *Pipe= new PndPipe("PIPE");
-	fRun->AddModule(Pipe);
+  FairModule *Pipe= new PndPipe("PIPE");
+  Pipe->SetGeometryFileName("beampipe_201309.root");
+  fRun->AddModule(Pipe);
 
 	FairDetector *Stt= new PndStt("STT", kTRUE);
 	Stt->SetGeometryFileName("straws_skewed_blocks_35cm_pipe.geo");
@@ -125,19 +126,28 @@ void emc_correction_data_production(Int_t nEvents = 10, TString part="gamma", TS
 	Mvd->SetGeometryFileName("Mvd-2.1_FullVersion.root");
 	fRun->AddModule(Mvd);
 
-    PndMdt *Muo = new PndMdt("MDT",kTRUE);
-    Muo->SetMdtMagnet(kTRUE);
-    //  Muo->SetMdtMFIron(kFALSE);
-    Muo->SetMdtCoil(kTRUE);
-    Muo->SetBarrel("muon_TS_barrel_strip_v1_noGeo.root");
-    Muo->SetEndcap("muon_TS_endcap_strip_v1_noGeo.root");
-    Muo->SetForward("muon_Forward_strip_v1_noGeo.root");
-    Muo->SetMuonFilter("muon_MuonFilter_strip_v1_noGeo.root");
-    fRun->AddModule(Muo);
+  //-------------------------  MDT       -----------------
+  PndMdt *Muo = new PndMdt("MDT",kTRUE);
+  Muo->SetBarrel("fast");
+  Muo->SetEndcap("fast");
+  Muo->SetMuonFilter("fast");
+  Muo->SetForward("fast");
+  Muo->SetMdtMagnet(kTRUE);
+  Muo->SetMdtMFIron(kTRUE);
+  fRun->AddModule(Muo);
 
 	FairDetector *Gem = new PndGemDetector("GEM", kTRUE);
 	Gem->SetGeometryFileName("gem_3Stations.root");
 	fRun->AddModule(Gem);
+  //-------------------------  SCITIL    -----------------
+  FairDetector *SciT = new PndSciT("SCIT",kTRUE);
+  SciT->SetGeometryFileName("barrel-SciTil_07022013.root");
+  fRun->AddModule(SciT);
+  //-------------------------  DRC       -----------------
+  PndDrc *Drc = new PndDrc("DIRC", kTRUE);
+  Drc->SetGeometryFileName("dirc_l0_p0_updated.root"); 
+  Drc->SetRunCherenkov(kFALSE);
+  fRun->AddModule(Drc); 
 
 	PndDsk* Dsk = new PndDsk("DSK", kTRUE);
 	Dsk->SetGeometryFileName("dsk.root");
@@ -145,11 +155,6 @@ void emc_correction_data_production(Int_t nEvents = 10, TString part="gamma", TS
 	Dsk->SetStoreTrackPoints(kFALSE);
 	fRun->AddModule(Dsk);
 
-	PndDrc *Drc = new PndDrc("DIRC", kTRUE);
-	Drc->SetGeometryFileName("dirc_l0_p0.root");
-	Drc->SetRunCherenkov(kFALSE); // for fast sim Cherenkov -> kFALSE
-	fRun->AddModule(Drc);
-	
 	FairDetector *Fts= new PndFts("FTS", kTRUE);
 	Fts->SetGeometryFileName("fts.geo");
 	fRun->AddModule(Fts);
