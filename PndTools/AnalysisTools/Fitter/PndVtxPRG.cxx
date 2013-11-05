@@ -181,6 +181,7 @@ Double_t PndVtxPRG::FitVertexFast(TVector3& vtx, TMatrixD& cov, bool skipcov)
   }
   if(fVerbose) {std::cout<<" #$# Fast #$# chisq = "<<chisq<<std::endl;}
   cov=cV;
+  fChiSquare=chisq;
   return chisq;
 
 }
