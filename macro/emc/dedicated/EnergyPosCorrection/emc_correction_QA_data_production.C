@@ -59,10 +59,10 @@ void emc_correction_QA_data_production(Int_t nEvents = 10, TString part="gamma",
 	TString s1; s1+=seed;
 
 	TString OutputSimFile = "emc_complete";
-	OutputSimFile = OutputSimFile+"_"+part+"_"+TransportModel+
+	OutputSimFile = OutputSimFile+"_"+part+"_"+energyRange+"_"+TransportModel+
 	"_"+emcModule+"_"+s1+"_QA.root";
 	TString OutputDatabaseFile = "simparams";
-	OutputDatabaseFile = OutputDatabaseFile+"_"+part+"_"+TransportModel+
+	OutputDatabaseFile = OutputDatabaseFile+"_"+part+"_"energyRange+"_"+TransportModel+
 	"_"+emcModule+"_"+s1+"_QA.root";
 	
 	TStopwatch timer;
