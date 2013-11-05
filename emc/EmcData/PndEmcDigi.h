@@ -27,6 +27,7 @@
 #include "PndEmcHit.h"
 #include "FairTimeStamp.h"
 #include "TVector3.h"
+#include "TClonesArray.h"
 
 class TVector3;
 class PndEmcXtal;
