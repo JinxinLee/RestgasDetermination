@@ -68,9 +68,6 @@ void emc_correction_QA_data_production(Int_t nEvents = 10, TString part="gamma",
 	TStopwatch timer;
 	timer.Start();
 	gDebug=0;
-	// Load basic libraries
-	gROOT->LoadMacro("$VMCWORKDIR/gconfig/rootlogon.C");
-	rootlogon();
 
 	FairLogger::GetLogger()->SetLogToFile(kFALSE);
   FairRunSim *fRun = new FairRunSim();
@@ -129,8 +126,9 @@ void emc_correction_QA_data_production(Int_t nEvents = 10, TString part="gamma",
 	Dipole->SetGeometryFileName("dipole.geo");
 	fRun->AddModule(Dipole);
 
-	FairModule *Pipe= new PndPipe("PIPE");
-	fRun->AddModule(Pipe);
+  FairModule *Pipe= new PndPipe("PIPE");
+  Pipe->SetGeometryFileName("beampipe_201309.root");
+  fRun->AddModule(Pipe);
 
 	FairDetector *Stt= new PndStt("STT", kTRUE);
 	Stt->SetGeometryFileName("straws_skewed_blocks_35cm_pipe.geo");
@@ -141,9 +139,10 @@ void emc_correction_QA_data_production(Int_t nEvents = 10, TString part="gamma",
 	fRun->AddModule(Mvd);
 
 	PndMdt *Muo = new PndMdt("MDT",kTRUE);
-	Muo->SetBarrel("fast");
-	Muo->SetEndcap("fast");
-	Muo->SetMuonFilter("fast");
+    Muo->SetBarrel("fast");
+    Muo->SetEndcap("fast");
+    Muo->SetMuonFilter("fast");
+    Muo->SetForward("fast");
 	Muo->SetMdtMagnet(kTRUE);
 	Muo->SetMdtMFIron(kTRUE);
 	fRun->AddModule(Muo);
@@ -151,6 +150,10 @@ void emc_correction_QA_data_production(Int_t nEvents = 10, TString part="gamma",
 	FairDetector *Gem = new PndGemDetector("GEM", kTRUE);
 	Gem->SetGeometryFileName("gem_3Stations.root");
 	fRun->AddModule(Gem);
+  //-------------------------  SCITIL    -----------------
+  FairDetector *SciT = new PndSciT("SCIT",kTRUE);
+  SciT->SetGeometryFileName("barrel-SciTil_07022013.root");
+  fRun->AddModule(SciT);
 
 	PndDsk* Dsk = new PndDsk("DSK", kTRUE);
 	Dsk->SetGeometryFileName("dsk.root");
@@ -158,10 +161,11 @@ void emc_correction_QA_data_production(Int_t nEvents = 10, TString part="gamma",
 	Dsk->SetStoreTrackPoints(kFALSE);
 	fRun->AddModule(Dsk);
 
-	PndDrc *Drc = new PndDrc("DIRC", kTRUE);
-	Drc->SetGeometryFileName("dirc_l0_p0.root");
-	Drc->SetRunCherenkov(kFALSE); // for fast sim Cherenkov -> kFALSE
-	fRun->AddModule(Drc);
+  //-------------------------  DRC       -----------------
+  PndDrc *Drc = new PndDrc("DIRC", kTRUE);
+  Drc->SetGeometryFileName("dirc_l0_p0_updated.root"); 
+  Drc->SetRunCherenkov(kFALSE);
+  fRun->AddModule(Drc); 
 	
 	FairDetector *Fts= new PndFts("FTS", kTRUE);
 	Fts->SetGeometryFileName("fts.geo");
