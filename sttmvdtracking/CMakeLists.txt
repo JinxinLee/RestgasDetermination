@@ -2,6 +2,7 @@
 # the array .
 # The extension is already found.  Any number of sources could be listed here.
 
+
 set(INCLUDE_DIRECTORIES
 ${ROOT_INCLUDE_DIR} 
 ${GEANT3_INCLUDE_DIR}
@@ -24,6 +25,7 @@ ${CMAKE_SOURCE_DIR}/geane
 )
 
 include_directories( ${INCLUDE_DIRECTORIES})
+
 
 
 set(LINK_DIRECTORIES
