@@ -164,7 +164,7 @@ FILE(GLOB_RECURSE MODEL_SRCS  LmdFit/ModelFramework/*.cxx)
 
 add_library(Model SHARED ${MODEL_SRCS})
 
-TARGET_LINK_LIBRARIES(Model gsl)
+TARGET_LINK_LIBRARIES(Model)
 
 
 ########################### create libLmdFit ##################################
