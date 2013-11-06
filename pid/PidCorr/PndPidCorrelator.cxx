@@ -622,7 +622,7 @@ InitStatus PndPidCorrelator::Init() {
         fEmcErrorMatrixPar->SetErrorMatrixObject(fEmcErrorMatrix->GetParObject());
         //std::cout<<"PndPidCorrelator: Emc error matrix is read from file"<<std::endl;
       }
-    fEmcCalibrator= PndEmcClusterCalibrator::MakeEmcClusterCalibrator(2, 1);	
+    fEmcCalibrator= PndEmcClusterCalibrator::MakeEmcClusterCalibrator(2, 3);	
   }
 
   if (fFast)  cout << "-W- PndPidCorrelator::Init: Using fast correlator!!" << endl;
