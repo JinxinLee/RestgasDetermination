@@ -7,7 +7,7 @@
 void emc_correction_QA(TString InputFile="emc_complete_QA.root", Int_t test=1, Int_t version=1)
 {
 	// test=1
-	TH1F *h_energy= new TH1F("h_energy","Cluster energy",100,0.2,1.5);
+	TH1F *h_energy= new TH1F("h_energy","Cluster energy",100,0.8,1.2);
 	TH1F *h_energy_corr1= new TH1F("h_energy_corr1","Cluster energy (corrected), (hist)",100,0.8,1.2);
 	TH1F *h_energy_corr2= new TH1F("h_energy_corr2","Cluster energy (corrected), (parametrization)",100,0.8,1.2);
 	TH1F *h_energy_corr_old= new TH1F("h_energy_corr_old","Cluster energy (corrected), (old)",100,0.8,1.2);
@@ -192,12 +192,12 @@ if (test==1)
 	l->SetLineWidth(2);
 	l->Draw();
 
-	c1->cd(4);
-	hEnergyRatioCorrEnergyOld->Draw("contz");
-	TLine *l=new TLine(0.,1.,10.,1.0);
-	l->SetLineColor(2);
-	l->SetLineWidth(2);
-	l->Draw();
+// 	c1->cd(4);
+// 	hEnergyRatioCorrEnergyOld->Draw("contz");
+// 	TLine *l=new TLine(0.,1.,10.,1.0);
+// 	l->SetLineColor(2);
+// 	l->SetLineWidth(2);
+// 	l->Draw();
 	
 	TCanvas* c2 = new TCanvas("c2", "Energy reconstruction vs Theta", 100, 100, 800, 800);
 	c2->Divide(2,2);
@@ -219,12 +219,12 @@ if (test==1)
 	l->SetLineColor(2);
 	l->SetLineWidth(2);
 	l->Draw();
-	c2->cd(4);
-	hEnergyRatioCorrThetaOld->Draw("contz");
-	TLine *l=new TLine(0.,1.,180.,1.0);
-	l->SetLineColor(2);
-	l->SetLineWidth(2);
-	l->Draw();
+// 	c2->cd(4);
+// 	hEnergyRatioCorrThetaOld->Draw("contz");
+// 	TLine *l=new TLine(0.,1.,180.,1.0);
+// 	l->SetLineColor(2);
+// 	l->SetLineWidth(2);
+// 	l->Draw();
 }
 
 if (test==2)
@@ -237,8 +237,8 @@ if (test==2)
 	h_energy_corr1->Draw();
 	c3->cd(3);
 	h_energy_corr2->Draw();
-	c3->cd(4);
-	h_energy_corr_old->Draw();
+// 	c3->cd(4);
+// 	h_energy_corr_old->Draw();
 	
 	TCanvas* c4 = new TCanvas("c4", "Energy (shashlyk)", 100, 100, 800, 800);
 	c4->Divide(2,2);
@@ -248,8 +248,8 @@ if (test==2)
 	h_energy_shashlyk_corr1->Draw();
 	c4->cd(3);
 	h_energy_shashlyk_corr2->Draw();
-	c4->cd(4);
-	h_energy_shashlyk_corr_old->Draw();
+// 	c4->cd(4);
+// 	h_energy_shashlyk_corr_old->Draw();
 }
 if (test==3)
 {
@@ -276,8 +276,8 @@ if (test==3)
 	c5->cd(3);
 	h_mpi0_corr2->Draw();
 	h_mpi0_corr2->Fit(f3,"R");
-	c5->cd(4);
-	h_mpi0_corr_old->Draw();
-	h_mpi0_corr_old->Fit(f4,"R");
+// 	c5->cd(4);
+// 	h_mpi0_corr_old->Draw();
+// 	h_mpi0_corr_old->Fit(f4,"R");
 }
 }
