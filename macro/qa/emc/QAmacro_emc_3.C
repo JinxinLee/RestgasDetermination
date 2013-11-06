@@ -1,11 +1,6 @@
 QAmacro_emc_3()
 {
   // Macro loads a file after reconstruction and plots difference between initial direction of particle and angular position of cluster
-  
-        gROOT->LoadMacro("$VMCWORKDIR/gconfig/rootlogon.C");
-        gROOT->LoadMacro("$VMCWORKDIR/gconfig/basiclibs.C");
-        rootlogon();
-        basiclibs();
 	////////////////////////////////////////////////////////////////////////////////
 	// The following part of macro access RunTimeDataBase and initialize PndEmcMapper from it 
 	////////////////////////////////////////////////////////////////////////////////
@@ -51,6 +46,7 @@ QAmacro_emc_3()
 	TVector3 photon_momentum;
 
 	double cluster_energy;
+	double cluster_energy_calibrated;
 	double cluster_theta, cluster_phi; //position of the cluster
 	double theta, phi; // angular position of the initial particle
 	double theta_diff, phi_diff;
@@ -69,6 +65,9 @@ QAmacro_emc_3()
  
 	// Cluster angular position
 	// Entrance point is determined by minimal time
+	
+	// Calibrartor version 3 corresponds to non-uniformity of light collection switched on
+	PndEmcAbsClusterCalibrator * calibrator1= PndEmcClusterCalibrator::MakeEmcClusterCalibrator(1, 3);
 		
 	// Cluster energy
 	for (Int_t j=0; j< t->GetEntriesFast(); j++)
@@ -78,8 +77,9 @@ QAmacro_emc_3()
 		{
 			PndEmcCluster *cluster=(PndEmcCluster*)cluster_array->At(i);
 			cluster_energy=cluster->energy();
+			cluster_energy_calibrated=calibrator1->Energy(cluster);
 			if ((cluster->NumberOfDigis()>1)&&(cluster_energy>0.02))
-			h3->Fill(cluster_energy);
+			h3->Fill(cluster_energy_calibrated);
 			PndEmcClusterEnergySums esum(*cluster, digi_array);
 			hE1->Fill(esum.E1());
 			hE1E9->Fill(esum.E1E9());
@@ -167,7 +167,7 @@ else
 Double_t energyCheckMean=h3->GetMean();
 Double_t energyCheckRMS=h3->GetRMS();
 
-if (energyCheckMean<1.0 && TMath::Abs(1.0-energyCheckMean)<0.06 && energyCheckRMS<0.03 && energyCheckRMS>0.01)
+if (energyCheckMean<1.02 && TMath::Abs(1.0-energyCheckMean)<0.06 && energyCheckRMS<0.04 && energyCheckRMS>0.01)
 {
     cout<<"\n Cluster Energy - ACCEPTABLE "<<endl;
 }

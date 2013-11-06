@@ -5,12 +5,6 @@ int QAmacro_emc_1()
   TStopwatch timer;
   timer.Start();
   gDebug=0;
-  // Load basic libraries
-  // If it does not work,  please check the path of the libs and put it by hands
-  gROOT->LoadMacro("$VMCWORKDIR/gconfig/rootlogon.C");
-  gROOT->LoadMacro("$VMCWORKDIR/gconfig/basiclibs.C");
-  rootlogon();
-  basiclibs();
 
   FairRunSim *fRun = new FairRunSim();
   

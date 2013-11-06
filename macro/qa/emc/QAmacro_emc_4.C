@@ -10,10 +10,6 @@
 int QAmacro_emc_4()
 {
   
-        gROOT->LoadMacro("$VMCWORKDIR/gconfig/rootlogon.C");
-        gROOT->LoadMacro("$VMCWORKDIR/gconfig/basiclibs.C");
-        rootlogon();
-        basiclibs();
 	////////////////////////////////////////////////////////////////////////////////
 	// The following part of macro access RunTimeDataBase and initialize PndEmcMapper from it 
 	////////////////////////////////////////////////////////////////////////////////
