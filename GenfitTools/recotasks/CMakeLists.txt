@@ -32,7 +32,6 @@ include_directories( ${INCLUDE_DIRECTORIES})
 
 set(LINK_DIRECTORIES
 ${ROOT_LIBRARY_DIR}
-${GLPK_LIB_DIR}
 )
 
 link_directories( ${LINK_DIRECTORIES})

@@ -2,14 +2,8 @@
 # the array .
 # The extension is already found.  Any number of sources could be listed here.
 
-#set(GLPK_INCLUDE_DIR 
-#${SIMPATH}/basics/glpk/include
-#${SIMPATH}/include
-#)
-
 set(INCLUDE_DIRECTORIES
 ${ROOT_INCLUDE_DIR} 
-${GLPK_INCLUDE_DIR}
 ${BASE_INCLUDE_DIRECTORIES} 
 ${CMAKE_SOURCE_DIR}/pnddata 
 ${CMAKE_SOURCE_DIR}/pnddata/SttData
@@ -23,14 +17,8 @@ ${CMAKE_SOURCE_DIR}/stt
 
 include_directories( ${INCLUDE_DIRECTORIES})
 
-#set(GLPK_LIB_DIR 
-#${SIMPATH}/basics/glpk/lib
-#${SIMPATH}/lib
-#)
-
 set(LINK_DIRECTORIES
 ${ROOT_LIBRARY_DIR}
-${GLPK_LIB_DIR}
 )
  
 link_directories( ${LINK_DIRECTORIES})
@@ -73,6 +61,6 @@ PndSttStrawMap.cxx
 set(LINKDEF  SttLinkDef.h)
 set(LIBRARY_NAME Stt)
 
-set(DEPENDENCIES Base GeoBase ParBase PndData TrkBase Geane Minuit glpk)
+set(DEPENDENCIES Base GeoBase ParBase PndData TrkBase Geane Minuit)
 
 GENERATE_LIBRARY()
