@@ -29,6 +29,10 @@ class PndKinVtxFitter : public RhoFitterBase
     double GetPull() {return fPull;}
     Float_t GetPocaVtx(TVector3& vertex, RhoCandidate* a, RhoCandidate* b);
 
+    void SetNMaxIterations(int nit=20){fNMaxIterations=nit;fIterateExact=false;};
+    void SetNIterationsExact(int nit=3){fNMaxIterations=nit;fIterateExact=true;};
+    void SetMinDChisq(double m=0.001){fMinDChisq=fabs(m);};
+
   private:
     Bool_t FitNode(RhoCandidate* b);
 
@@ -89,6 +93,11 @@ class PndKinVtxFitter : public RhoFitterBase
 
     int fMassConstraint;
     int fPointConstraint;
+
+    // control abortion of fit
+    double fMinDChisq;
+    int  fNMaxIterations;
+    bool fIterateExact;
 
 
     int                         fnDof;

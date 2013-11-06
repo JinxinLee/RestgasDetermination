@@ -594,7 +594,7 @@ TVector3 RollVertexBox(double widx,double widy, double widz)
   return vertex;
 }
 
-void SmearVertex(const TVector3& vertex)
+void SmearVertex(TVector3& vertex)
 {
   double rnd1=gRandom->Gaus(vertex.x(),fSigVx);
   double rnd2=gRandom->Gaus(vertex.y(),fSigVy);
@@ -619,7 +619,7 @@ TVector3 RollMomentumBox(const TVector3& vtx, double dtheta, double ptmin, doubl
   return momentum;
 }
 
-SmearMomentum(const TVector3& momentum)
+SmearMomentum(TVector3& momentum)
 {
   double rnd1=gRandom->Gaus(momentum.Px(),fSigPx);
   double rnd2=gRandom->Gaus(momentum.Py(),fSigPy);

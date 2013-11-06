@@ -26,6 +26,11 @@ PndKinVtxFitter::PndKinVtxFitter( RhoCandidate* b) :
 {
   fMassConstraint =-1;
   fPointConstraint=-1;
+
+  fMinDChisq=0.01;
+  fNMaxIterations=20;
+  fIterateExact=false;
+
 }
 
 PndKinVtxFitter::~PndKinVtxFitter()
@@ -142,9 +147,7 @@ Bool_t PndKinVtxFitter::Compute()
   chi2[0][0]=2000000.;
   //double tmp_chiSq = 999;
 
-  int j1Max=20;
-
-  for(Int_t j1=0; j1<j1Max; ++j1) {
+  for(Int_t j1=0; j1<fNMaxIterations; ++j1) {
     fNc=0;
     if(fMassConstraint >0) {
       ReadMassKinMatrix();
@@ -234,7 +237,8 @@ Bool_t PndKinVtxFitter::Compute()
     //     if (j1==0)  {chi2=chi2_new;continue;}
 
     // If Chi^2 change is small then go out of iteration......................
-    if( fabs(chi2[0][0] - chi2_new[0][0]) < 0.01 ) {
+    if( (j1+1 == fNMaxIterations) ||
+        (!fIterateExact && ( fabs(chi2[0][0]-chi2_new[0][0])<fMinDChisq) )  ) {
       chi2 = chi2_new;
       vtx_ex = vtx_new;
       al0 =al_new;
