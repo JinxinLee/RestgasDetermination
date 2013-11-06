@@ -3,6 +3,7 @@
 # The extension is already found.  Any number of sources could be listed here.
 
 
+
 set(INCLUDE_DIRECTORIES
 ${ROOT_INCLUDE_DIR}
 ${BASE_INCLUDE_DIRECTORIES} 
@@ -31,6 +32,7 @@ ${CMAKE_SOURCE_DIR}/tracking/TrkData
 
 include_directories( ${INCLUDE_DIRECTORIES})
 
+
 set(LINK_DIRECTORIES
 ${ROOT_LIBRARY_DIR}
 )
@@ -46,7 +48,6 @@ PndTrkComparisonMCtruth.cxx
 PndTrkCTFindTrackInXY.cxx
 PndTrkCTFindTrackInXY2.cxx
 PndTrkCTGeometryCalculations.cxx
-#PndTrkGlpkFits.cxx
 PndTrkLegendreFits.cxx
 PndTrkMergeSort.cxx
 PndTrkSttConformalFilling.cxx
@@ -54,12 +55,11 @@ PndTrkPlotMacros.cxx
 PndTrkPlotMacros2.cxx
 PndTrkPrintouts.cxx
 PndTrkTracking.cxx
-#PndTrkTracking2.cxx
+PndTrkTracking2.cxx
 PndTrkSttAdjacencies.cxx
 PndTrkSttClusterFinder.cxx
 #
 TrkAlgo/PndTrkLegendreTransform.cxx
-TrkAlgo/PndTrkCombiLegendreTransform.cxx
 TrkAlgo/PndTrkConformalTransform.cxx
 TrkAlgo/PndTrkTools.cxx
 TrkAlgo/PndTrkClean.cxx
@@ -74,7 +74,6 @@ TrkData/PndTrkCluster.cxx
 TrkData/PndTrkLegendreCluster.cxx 
 TrkData/PndTrkClusterList.cxx
 TrkData/PndTrkTrack.cxx
-TrkData/PndTrkTrackList.cxx
 TrkData/PndTrkConformalHit.cxx
 TrkData/PndTrkConformalHitList.cxx
 TrkData/PndTrkNeighboringMap.cxx
@@ -83,7 +82,6 @@ TrkSecondary/PndTrkLegendreTask.cxx
 TrkSecondary/PndTrkLegendreSecTask.cxx 
 TrkSecondary/PndTrkLegendreSecTask2.cxx 
 TrkSecondary/PndTrkLegendreNew.cxx
-TrkSecondary/PndTrkCombiLegendreTask.cxx
 #
 TrkStructure/PndTrkQATask.cxx
 )
