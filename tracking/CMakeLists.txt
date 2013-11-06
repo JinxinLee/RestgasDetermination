@@ -46,7 +46,7 @@ PndTrkComparisonMCtruth.cxx
 PndTrkCTFindTrackInXY.cxx
 PndTrkCTFindTrackInXY2.cxx
 PndTrkCTGeometryCalculations.cxx
-PndTrkGlpkFits.cxx
+#PndTrkGlpkFits.cxx
 PndTrkLegendreFits.cxx
 PndTrkMergeSort.cxx
 PndTrkSttConformalFilling.cxx

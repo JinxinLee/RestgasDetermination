@@ -12,7 +12,7 @@
 #pragma link C++ class PndTrkCTFindTrackInXY+;
 #pragma link C++ class PndTrkCTFindTrackInXY2+;
 #pragma link C++ class PndTrkCTGeometryCalculations+;
-#pragma link C++ class PndTrkGlpkFits+;
+//#pragma link C++ class PndTrkGlpkFits+;
 #pragma link C++ class PndTrkLegendreFits+;
 #pragma link C++ class PndTrkMergeSort+;
 #pragma link C++ class PndTrkPlotMacros+;
