@@ -54,7 +54,7 @@ PndTrkPlotMacros.cxx
 PndTrkPlotMacros2.cxx
 PndTrkPrintouts.cxx
 PndTrkTracking.cxx
-PndTrkTracking2.cxx
+#PndTrkTracking2.cxx
 PndTrkSttAdjacencies.cxx
 PndTrkSttClusterFinder.cxx
 #

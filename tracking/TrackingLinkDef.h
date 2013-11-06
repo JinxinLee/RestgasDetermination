@@ -21,7 +21,7 @@
 #pragma link C++ class PndTrkSttConformalFilling+;
 #pragma link C++ class PndTrkSttClusterFinder+;
 #pragma link C++ class PndTrkTracking+;
-#pragma link C++ class PndTrkTracking2+;
+//#pragma link C++ class PndTrkTracking2+;
 #pragma link C++ class PndTrkSttAdjacencies+;
 #pragma link C++ class PndTrkQATask+;
 
