@@ -1471,6 +1471,71 @@ void PndSoftTriggerTask::qaEventShape(RhoTuple *n)
 	n->Column("sumen10l",(Float_t) fEventShape->SumNeutEminLab(1.0) ,0.0f );
 	
 }
+// -------------------------------------------------------------------------
+void PndSoftTriggerTask::qaEventShapeShort(RhoTuple *n)
+{
+	// *** vars for PID multiplicity
+	int ne, nmu, npi, nk, np;
+	
+	n->Column("npart",(Float_t)	  fEventShape->NParticles(),0.0f );
+	n->Column("ngam", (Float_t)	  fEventShape->NNeutral(),	0.0f );
+	n->Column("ntrk", (Float_t)   fEventShape->NCharged(),	0.0f );
+	
+	// PID multiplicities with P>0.25 (loose)
+	CountPidCutMult(0.25, ne, nmu, npi, nk, np);
+	n->Column("npidel", (Float_t) 	  ne,	0.0f );
+	n->Column("npidmul",(Float_t) 	  nmu,	0.0f );
+	n->Column("npidpil",(Float_t) 	  npi,	0.0f );
+	n->Column("npidkl", (Float_t)	  nk,	0.0f );
+	n->Column("npidpl", (Float_t) 	  np,	0.0f );
+	
+	// PID multiplicities with P>0.25 for particles with p>1.0 GeV/c
+	CountPidCutMult(0.25, ne, nmu, npi, nk, np, 1.0);
+	n->Column("npidel1", (Float_t)   ne,	0.0f );
+	n->Column("npidmul1",(Float_t)   nmu,	0.0f );
+	n->Column("npidpil1",(Float_t)   npi,	0.0f );
+	n->Column("npidkl1", (Float_t)	  nk,	0.0f );
+	n->Column("npidpl1", (Float_t)   np,	0.0f );
+		
+	n->Column("npi0", (Float_t)	  fPi0Cands.GetLength(),	0.0f );
+	n->Column("nks0",(Float_t) 	  fKs0Cands.GetLength(),	0.0f );
+	n->Column("neta",(Float_t) 	  fEtaCands.GetLength(),	0.0f );
+	
+	n->Column("pmax", (Float_t)	  fEventShape->PmaxCms(),	0.0f );
+	n->Column("pmaxl",(Float_t)	  fEventShape->PmaxLab() ,	0.0f );
+	n->Column("ptmax",(Float_t)	  fEventShape->Ptmax() ,	0.0f );
+	n->Column("pmin", (Float_t)	  fEventShape->PminCms(),	0.0f );
+	
+	n->Column("prapmax",(Float_t) fEventShape->PRapmax(),		0.0f );
+	n->Column("sph", (Float_t)	  fEventShape->Sphericity(),	0.0f );
+	n->Column("apl", (Float_t)	  fEventShape->Aplanarity(),	0.0f );
+	n->Column("pla", (Float_t)	  fEventShape->Planarity(),		0.0f );
+	n->Column("thr",(Float_t)	  fEventShape->Thrust(),		0.0f );
+	n->Column("cir", (Float_t)	  fEventShape->Circularity(),	0.0f );	
+
+	n->Column("fw1", (Float_t)	  fEventShape->FoxWolfMomR(1),0.0f );
+	n->Column("fw2", (Float_t)	  fEventShape->FoxWolfMomR(2),0.0f );
+	n->Column("fw3", (Float_t)	  fEventShape->FoxWolfMomR(3),0.0f );
+	n->Column("fw4", (Float_t)	  fEventShape->FoxWolfMomR(4),0.0f );
+	n->Column("fw5", (Float_t)	  fEventShape->FoxWolfMomR(5),0.0f );
+
+	n->Column("np10",  (Float_t)  fEventShape->MultPminCms(1.0),	 0.0f );
+	n->Column("npt10", (Float_t)  fEventShape->MultPtminCms(1.0),	 0.0f );
+	n->Column("ncp10l", (Float_t) fEventShape->MultChrgPminLab(1.0), 0.0f );
+	n->Column("nne10l",(Float_t)  fEventShape->MultNeutEminLab(1.0), 0.0f );
+		
+	n->Column("sumpc05", (Float_t) fEventShape->SumChrgPminCms(0.5) ,0.0f );
+	
+	n->Column("sumpc", 	(Float_t)  fEventShape->ChrgPSumCms(),		0.0f );
+	n->Column("sumpcl", (Float_t)  fEventShape->ChrgPSumLab(),		0.0f );
+	n->Column("sumen", 	(Float_t)  fEventShape->NeutESumCms(),		0.0f );
+	n->Column("sumenl", (Float_t)  fEventShape->NeutESumLab(),		0.0f );
+
+	n->Column("sumpt", 	(Float_t)  fEventShape->PtSumCms(),			0.0f );
+	n->Column("sumptl",  (Float_t) fEventShape->PtSumLab(),			0.0f );
+	n->Column("sumptcl",(Float_t)  fEventShape->ChrgPtSumLab(),		0.0f );
+	
+}
 
 // -------------------------------------------------------------------------
 // *** store QA for composite particles
@@ -1495,8 +1560,12 @@ void PndSoftTriggerTask::qaComp(TString pre, RhoCandidate *c, RhoTuple *n)
 	n->Column(pre+"vqa", (Float_t) qavtx,   0.0f);
 	
 	qaCand(pre,	c,	n);
+	qaP4Cms(pre, c->P4(), n);
+	qaEventShapeShort(n);
 	
 	int nd = c->NDaughters();
+	if (nd==2) 
+		qa2Body(pre, c, n);
 	
 	for (int i=0;i<nd;++i)
 	{
@@ -1630,6 +1699,33 @@ void PndSoftTriggerTask::qaP4(TString pre, TLorentzVector &c, RhoTuple *n, bool 
 		n->Column(pre+"m",   (Float_t) -999.,  			0.0f );
 	}
 }
+// -------------------------------------------------------------------------
+
+void PndSoftTriggerTask::qaP4Cms(TString pre, TLorentzVector c, RhoTuple *n, bool skip)
+{
+	if (!skip)
+	{
+		c.Boost(-fIniP4.BoostVector());
+		
+		n->Column(pre+"pxcm",  (Float_t) c.Px(),     0.0f );
+		n->Column(pre+"pycm",  (Float_t) c.Py(),     0.0f );
+		n->Column(pre+"pzcm",  (Float_t) c.Pz(),     0.0f );
+		n->Column(pre+"ecm",   (Float_t) c.E(),      0.0f );
+		n->Column(pre+"pcm",   (Float_t) c.P(),      0.0f );
+		n->Column(pre+"thtcm", (Float_t) c.Theta(),  0.0f );
+		n->Column(pre+"phicm", (Float_t) c.Phi(),    0.0f );
+	}
+	else
+	{
+		n->Column(pre+"pxcm",  (Float_t) -999.,  			0.0f );
+		n->Column(pre+"pycm",  (Float_t) -999.,  			0.0f );
+		n->Column(pre+"pzcm",  (Float_t) -999.,  			0.0f );
+		n->Column(pre+"ecm",   (Float_t) -999.,  			0.0f );
+		n->Column(pre+"pcm",   (Float_t) -999.,  			0.0f );
+		n->Column(pre+"thtcm", (Float_t) -999., 			0.0f );
+		n->Column(pre+"phicm", (Float_t) -999.,  			0.0f );
+	}
+}
 
 // -------------------------------------------------------------------------
 
@@ -1721,6 +1817,29 @@ void PndSoftTriggerTask::qaPid(TString pre, RhoCandidate *c, RhoTuple *n)
 	n->Column(pre+"pidbest",(Float_t) bestidx,		0.0f );
 	
 }
+
+// -------------------------------------------------------------------------
+void PndSoftTriggerTask::qa2Body(TString pre, RhoCandidate *c, RhoTuple *n)
+{	
+	if (c->NDaughters()!=2) return;
+	
+	RhoCandidate *d0 = c->Daughter(0);
+	RhoCandidate *d1 = c->Daughter(1);
+	
+	// opening angle lab
+	double oang = d0->P3().Angle(d1->P3());
+	
+	// decay angle
+	TLorentzVector d_cms = d0->P4();
+	d_cms.Boost(-c->P3());
+	Float_t dec  = d_cms.Vect().Angle(c->P());
+	Float_t cdec = cos(dec);
+	
+	n->Column(pre+"oang", (Float_t) oang,		0.0f );
+	n->Column(pre+"dec",  (Float_t) dec,		0.0f );
+	n->Column(pre+"cdec", (Float_t) cdec,		0.0f );
+}
+
 
 // -------------------------------------------------------------------------
 

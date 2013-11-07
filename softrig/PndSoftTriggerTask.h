@@ -120,6 +120,7 @@ class PndSoftTriggerTask : public FairTask
 	// *** QA for candidates
 	void qaCand(TString pre, RhoCandidate *cc, RhoTuple *n, bool skip=false);
 	void qaP4(TString pre, TLorentzVector &c, RhoTuple *n, bool skip=false);
+	void qaP4Cms(TString pre, TLorentzVector c, RhoTuple *n, bool skip=false);
 	
 	// *** QA for 2-prong
 	void qaComp(TString pre, RhoCandidate *c, RhoTuple *n);
@@ -128,9 +129,11 @@ class PndSoftTriggerTask : public FairTask
 	
 	// *** QA of event shape
 	void qaEventShape(RhoTuple *n);
+	void qaEventShapeShort(RhoTuple *n);
 
-	// *** QA track, vtx, PID
+	// *** QA track, vtx, PID, decay
 	void qaVtx(TString pre, RhoCandidate *c, RhoTuple *n);
+	void qa2Body(TString pre, RhoCandidate *c, RhoTuple *n);
 	void qaTrk(TString pre, RhoCandidate *c, RhoTuple *n);
 	void qaPid(TString pre, RhoCandidate *c, RhoTuple *n);
 	
