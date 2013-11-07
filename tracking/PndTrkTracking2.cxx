@@ -1,4 +1,3 @@
-#include "glpk.h"
 #include "PndTrkTracking2.h"
 #include "PndTrkBoundaryParStraws2.h"
 #include "PndTrkChi2Fits.h"
