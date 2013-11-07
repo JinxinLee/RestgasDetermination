@@ -69,7 +69,8 @@ PndSoftTriggerTask::PndSoftTriggerTask(double pmom, int mode) :
 	fQADpmKpipi(false), fQADpmK2pipi0(false), fQADpmKspipi0(false),
 	fQADpmKs3pi(false),	fQADsKKpi(false), fQADsKKpip0(false),
 	fQALamcpKpi(false), fQAEtacKKpi0(false), fQAEtacKKspi(false),
-	fQAEtacetapipi(false), fQAEtacgg(false), fQAChic02pi2pi0(false), fQAChic04pi(false), fQAEvent(false),
+	fQAEtacetapipi(false), fQAEtacgg(false), fQAChic02pi2pi0(false), fQAChic04pi(false), 
+	fQAPi0(false),fQAEta(false),fQAKs0(false),fQAEvent(false),
 	fPi0SelMean(0),   fPi0SelWin(0.05),
 	fEtaSelMean(0),   fEtaSelWin(0.05),
 	fKs0SelMean(0),   fKs0SelWin(0.05),
@@ -168,6 +169,9 @@ void PndSoftTriggerTask::SetQA_All(bool qa)
 	SetQA_Chic0_2pi2pi0(qa); 
 	SetQA_Chic0_4pi(qa); 
 	
+	SetQA_Pi0(qa);
+	SetQA_Eta(qa);
+	SetQA_Ks0(qa);
 	SetQA_Event(qa);
 }
 
@@ -256,6 +260,8 @@ InitStatus PndSoftTriggerTask::Init()
 
 	if (fQAChic02pi2pi0) nchic01 = new RhoTuple("nchic01",	"chi_c0 -> pi+ pi- pi0 pi0");		
 	if (fQAChic04pi) nchic02 = new RhoTuple("nchic02",	"chi_c0 -> pi+ pi- pi+ pi-");		
+	
+	cout <<ntp<<endl;
 	
 	// *** create selectors
 	fPi0Sel     = new RhoMassParticleSelector("pi0Sel",   fPi0SelMean, fPi0SelWin*2.);

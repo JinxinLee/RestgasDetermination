@@ -12,7 +12,7 @@
 
 
 PndOnlineFilterInfo::PndOnlineFilterInfo() :	
-	bool fTag(false),
+	fTag(false),
 	fNTagTotal(0),
 	fNTagPhiKK(0),
 	fNTagLamppi(0),
