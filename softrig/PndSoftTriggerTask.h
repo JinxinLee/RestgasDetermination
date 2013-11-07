@@ -101,6 +101,39 @@ class PndSoftTriggerTask : public FairTask
 	void SetTag_Chic0_2pi2pi0(bool tag) { fTagChic02pi2pi0 = tag;}
 	void SetTag_Chic0_4pi(bool tag) { fTagChic04pi = tag;}
 	
+	// *** Enable/Disable QA output
+	void SetQA_Phi_KK(bool qa=true) { fQAPhiKK = qa;}
+	void SetQA_Lambda_ppi(bool qa=true) { fQALamppi = qa;}
+	void SetQA_Jpsi_ll(bool qa=true) { fQAJpsill = qa;}
+	
+	void SetQA_D0_Kpi(bool qa=true) { fQAD0Kpi = qa;}
+	void SetQA_D0_Kpipi0(bool qa=true) { fQAD0Kpipi0 = qa;}
+	void SetQA_D0_K3pi(bool qa=true) { fQAD0K3pi = qa;}
+	
+	void SetQA_Dpm_Kpipi(bool qa=true) { fQADpmKpipi = qa;}
+	void SetQA_Dpm_K2pipi0(bool qa=true) { fQADpmK2pipi0 = qa;}
+	void SetQA_Dpm_Kspipi0(bool qa=true) { fQADpmKspipi0 = qa;}
+	void SetQA_Dpm_Ks3pi(bool qa=true) { fQADpmKs3pi = qa;}
+	
+	void SetQA_Ds_KKpi(bool qa=true) { fQADsKKpi = qa;}
+	void SetQA_Ds_KKpipi0(bool qa=true) { fQADsKKpip0 = qa;}
+	
+	void SetQA_Lambdac_pKpi(bool qa=true) { fQALamcpKpi = qa;}
+	
+	void SetQA_Etac_KKpi0(bool qa=true) { fQAEtacKKpi0 = qa;}
+	void SetQA_Etac_KKspi(bool qa=true) { fQAEtacKKspi = qa;}
+	void SetQA_Etac_etapipi(bool qa=true) { fQAEtacetapipi = qa;}
+	void SetQA_Etac_gg(bool qa=true) { fQAEtacgg = qa;}
+	
+	void SetQA_Chic0_2pi2pi0(bool qa=true) { fQAChic02pi2pi0 = qa;}
+	void SetQA_Chic0_4pi(bool qa=true) { fQAChic04pi = qa;}
+	
+	void SetQA_Pi0(bool qa=true) { fQAPi0 = qa;}
+	void SetQA_Eta(bool qa=true) { fQAEta = qa;}
+	void SetQA_Ks0(bool qa=true) { fQAKs0 = qa;}
+	
+	void SetQA_Event(bool qa=true) { fQAEvent = qa;}
+	void SetQA_All(bool qa=true);
 
  protected:
 	
@@ -204,6 +237,32 @@ class PndSoftTriggerTask : public FairTask
 	bool fTagEtacgg;
 	bool fTagChic02pi2pi0;
 	bool fTagChic04pi;
+	
+	
+	// *** flags for enable/disable QA ntuple output
+	bool fQAPhiKK;
+	bool fQALamppi;
+	bool fQAJpsill;
+	bool fQAD0Kpi;
+	bool fQAD0Kpipi0;
+	bool fQAD0K3pi;
+	bool fQADpmKpipi;
+	bool fQADpmK2pipi0;
+	bool fQADpmKspipi0;
+	bool fQADpmKs3pi;	
+	bool fQADsKKpi;
+	bool fQADsKKpip0;
+	bool fQALamcpKpi;
+	bool fQAEtacKKpi0;
+	bool fQAEtacKKspi;
+	bool fQAEtacetapipi;
+	bool fQAEtacgg;
+	bool fQAChic02pi2pi0;
+	bool fQAChic04pi;
+	bool fQAPi0;
+	bool fQAEta;
+	bool fQAKs0;
+	bool fQAEvent;
 	
 	// *** parameters
 	double fPi0SelMean;		// mean value for pi0 selection
@@ -394,6 +453,8 @@ class PndSoftTriggerTask : public FairTask
 	// *** Get parameter containers
 	virtual void SetParContainers();
 	
+    FairRootManager*   fRootManager;
+    TClonesArray* fTcaOnlineFilterInfo;
 	
 	ClassDef(PndSoftTriggerTask,1);
   

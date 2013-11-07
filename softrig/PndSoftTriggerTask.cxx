@@ -9,6 +9,9 @@
 // The header file
 #include "PndSoftTriggerTask.h"
 
+// Package headers
+#include "PndOnlineFilterInfo.h"
+
 // C++ headers
 #include <string>
 #include <iostream>
@@ -61,6 +64,12 @@ PndSoftTriggerTask::PndSoftTriggerTask(double pmom, int mode) :
 	fTagDpmKs3pi(true),	fTagDsKKpi(true), fTagDsKKpip0(true),
 	fTagLamcpKpi(true), fTagEtacKKpi0(true), fTagEtacKKspi(true),
 	fTagEtacetapipi(true), fTagEtacgg(true), fTagChic02pi2pi0(true), fTagChic04pi(true),
+	fQAPhiKK(false), fQALamppi(false), fQAJpsill(false),
+	fQAD0Kpi(false), fQAD0Kpipi0(false), fQAD0K3pi(false),
+	fQADpmKpipi(false), fQADpmK2pipi0(false), fQADpmKspipi0(false),
+	fQADpmKs3pi(false),	fQADsKKpi(false), fQADsKKpip0(false),
+	fQALamcpKpi(false), fQAEtacKKpi0(false), fQAEtacKKspi(false),
+	fQAEtacetapipi(false), fQAEtacgg(false), fQAChic02pi2pi0(false), fQAChic04pi(false), fQAEvent(false),
 	fPi0SelMean(0),   fPi0SelWin(0.05),
 	fEtaSelMean(0),   fEtaSelWin(0.05),
 	fKs0SelMean(0),   fKs0SelWin(0.05),
@@ -76,7 +85,16 @@ PndSoftTriggerTask::PndSoftTriggerTask(double pmom, int mode) :
 	fGammaMinE(0.03), fTrackMinP(0.15),
 	fEventShape(NULL), 
 	fPi0Sel(NULL), fKs0Sel(NULL),
-	fMomentumSel(NULL), fEnergySel(NULL)
+	fMomentumSel(NULL), fEnergySel(NULL),
+	ntp(0),	nks0(0), npi0(0), neta(0),		
+	nphi(0), nlam(0), njpsi(0),	
+	nd01(0), nd02(0), nd03(0),	
+	ndpm1(0), ndpm2(0), ndpm3(0), ndpm4(0),		
+	nds1(0), nds2(0),			
+	nlamc(0),		
+	netac1(0), netac2(0), netac3(0), netac4(0),		
+	nchic01(0),	nchic02(0)		
+
 {
 	fPdg = TDatabasePDG::Instance();
 	double mp = fPdg->GetParticle("proton")->Mass(); //Proton mass for computation of p4_ini
@@ -121,6 +139,38 @@ PndSoftTriggerTask::PndSoftTriggerTask(double pmom, int mode) :
 PndSoftTriggerTask::~PndSoftTriggerTask() { }
 // -------------------------------------------------------------------------
 
+// ----Method to enable/disable full QA--------------------------------------------------------------
+void PndSoftTriggerTask::SetQA_All(bool qa)
+{
+	SetQA_Phi_KK(qa);
+	SetQA_Lambda_ppi(qa);
+	SetQA_Jpsi_ll(qa);
+	
+	SetQA_D0_Kpi(qa);
+	SetQA_D0_Kpipi0(qa);
+	SetQA_D0_K3pi(qa);
+	
+	SetQA_Dpm_Kpipi(qa);
+	SetQA_Dpm_K2pipi0(qa);
+	SetQA_Dpm_Kspipi0(qa);
+	SetQA_Dpm_Ks3pi(qa);
+	
+	SetQA_Ds_KKpi(qa);
+	SetQA_Ds_KKpipi0(qa);
+	
+	SetQA_Lambdac_pKpi(qa);
+	
+	SetQA_Etac_KKpi0(qa);
+	SetQA_Etac_KKspi(qa);
+	SetQA_Etac_etapipi(qa);
+	SetQA_Etac_gg(qa); 
+	
+	SetQA_Chic0_2pi2pi0(qa); 
+	SetQA_Chic0_4pi(qa); 
+	
+	SetQA_Event(qa);
+}
+
 
 // ----- Method to select true PID candidates
 int PndSoftTriggerTask::SelectTruePid(RhoCandList &l)
@@ -161,6 +211,14 @@ int PndSoftTriggerTask::SelectPidProb(RhoCandList &l, int pididx, double cut)
 // -----   Public method Init   --------------------------------------------
 InitStatus PndSoftTriggerTask::Init() 
 {		
+	fRootManager = FairRootManager::Instance();
+	
+	// Register TCA for tagging info
+    fTcaOnlineFilterInfo = new TClonesArray ( "PndOnlineFilterInfo" );
+	if (fRootManager)
+	{
+		fRootManager->Register ( "OnlineFilterInfo","PndOnlineFolder", fTcaOnlineFilterInfo, kTRUE );
+	}
 	// *** initialize analysis object
 	fAnalysis = new PndAnalysis();
 	
@@ -168,36 +226,36 @@ InitStatus PndSoftTriggerTask::Init()
 	fVtxPoca = new PndVtxPoca();
 	
 	// *** create ntuple
-	ntp  = new RhoTuple("ntp","Soft Trigger Common");
-	nks0 = new RhoTuple("nks0","K_S -> pi+ pi-");
-	npi0 = new RhoTuple("npi0","pi0 -> g g");
-	neta = new RhoTuple("neta","eta -> g g");
+	if (fQAEvent) ntp  = new RhoTuple("ntp","Soft Trigger Common");
+	if (fQAKs0) nks0 = new RhoTuple("nks0","K_S -> pi+ pi-");
+	if (fQAPi0) npi0 = new RhoTuple("npi0","pi0 -> g g");
+	if (fQAEta) neta = new RhoTuple("neta","eta -> g g");
 	
-	nphi = new RhoTuple("nphi",			"phi -> K+ K-");	
-	nlam = new RhoTuple("nlam",			"Lambda -> p pi");	
-	njpsi = new RhoTuple("njpsi",		"J/psi -> l+ l-");	
+	if (fQAPhiKK) nphi = new RhoTuple("nphi",			"phi -> K+ K-");	
+	if (fQALamppi) nlam = new RhoTuple("nlam",			"Lambda -> p pi");	
+	if (fQAJpsill) njpsi = new RhoTuple("njpsi",		"J/psi -> l+ l-");	
 	
-	nd01 = new RhoTuple("nd01",			"D0 -> K- pi+");		
-	nd02 = new RhoTuple("nd02",			"D0 -> K- pi+ pi0");		
-	nd03 = new RhoTuple("nd03",			"D0 -> K- pi+ pi- pi-");		
+	if (fQAD0Kpi) nd01 = new RhoTuple("nd01",			"D0 -> K- pi+");		
+	if (fQAD0Kpipi0) nd02 = new RhoTuple("nd02",			"D0 -> K- pi+ pi0");		
+	if (fQAD0K3pi) nd03 = new RhoTuple("nd03",			"D0 -> K- pi+ pi- pi-");		
 	
-	ndpm1 = new RhoTuple("ndpm1",		"D+- -> K- pi+ pi+");		
-	ndpm2 = new RhoTuple("ndpm2",		"D+- -> K- pi+ pi+ pi0");	
-	ndpm3 = new RhoTuple("ndpm3",		"D+- -> K_S pi+ pi0");		
-	ndpm4 = new RhoTuple("ndpm4",		"D+- -> K_S pi+ pi+ pi-");		
+	if (fQADpmKpipi) ndpm1 = new RhoTuple("ndpm1",		"D+- -> K- pi+ pi+");		
+	if (fQADpmK2pipi0) ndpm2 = new RhoTuple("ndpm2",		"D+- -> K- pi+ pi+ pi0");	
+	if (fQADpmKspipi0) ndpm3 = new RhoTuple("ndpm3",		"D+- -> K_S pi+ pi0");		
+	if (fQADpmKs3pi) ndpm4 = new RhoTuple("ndpm4",		"D+- -> K_S pi+ pi+ pi-");		
 
-	nds1 = new RhoTuple("nds1",			"Ds -> K+ K- pi+");			
-	nds2 = new RhoTuple("nds2",			"Ds -> K+ K- pi+ pi0");			
+	if (fQADsKKpi) nds1 = new RhoTuple("nds1",			"Ds -> K+ K- pi+");			
+	if (fQADsKKpip0) nds2 = new RhoTuple("nds2",			"Ds -> K+ K- pi+ pi0");			
 	
-	nlamc = new RhoTuple("nlamc",		"Lambda_c -> p K- pi+");		
+	if (fQALamcpKpi) nlamc = new RhoTuple("nlamc",		"Lambda_c -> p K- pi+");		
 	
-	netac1 = new RhoTuple("netac1",		"eta_c -> K+ K- pi0");		
-	netac2 = new RhoTuple("netac2",		"eta_c -> K+ K_S pi-");		
-	netac3 = new RhoTuple("netac3",		"eta_c -> eta pi+ pi-");		
-	netac4 = new RhoTuple("netac4",		"eta_c -> g g");		
+	if (fQAEtacKKpi0) netac1 = new RhoTuple("netac1",		"eta_c -> K+ K- pi0");		
+	if (fQAEtacKKspi) netac2 = new RhoTuple("netac2",		"eta_c -> K+ K_S pi-");		
+	if (fQAEtacetapipi) netac3 = new RhoTuple("netac3",		"eta_c -> eta pi+ pi-");		
+	if (fQAEtacgg) netac4 = new RhoTuple("netac4",		"eta_c -> g g");		
 
-	nchic01 = new RhoTuple("nchic01",	"chi_c0 -> pi+ pi- pi0 pi0");		
-	nchic02 = new RhoTuple("nchic02",	"chi_c0 -> pi+ pi- pi+ pi-");		
+	if (fQAChic02pi2pi0) nchic01 = new RhoTuple("nchic01",	"chi_c0 -> pi+ pi- pi0 pi0");		
+	if (fQAChic04pi) nchic02 = new RhoTuple("nchic02",	"chi_c0 -> pi+ pi- pi+ pi-");		
 	
 	// *** create selectors
 	fPi0Sel     = new RhoMassParticleSelector("pi0Sel",   fPi0SelMean, fPi0SelWin*2.);
@@ -313,82 +371,84 @@ void PndSoftTriggerTask::Exec(Option_t* opt)
 				   
 	
 	// *** write common information	
-	ntp->Column("ev",		(Float_t) 	fEvtCount,	0.0f);
-	ntp->Column("mode",		(Float_t)	fMode,		0.0f);
-	ntp->Column("ecm",		(Float_t)	fEcm,		0.0f);
+	if (fQAEvent)
+	{
+		ntp->Column("ev",		(Float_t) 	fEvtCount,	0.0f);
+		ntp->Column("mode",		(Float_t)	fMode,		0.0f);
+		ntp->Column("ecm",		(Float_t)	fEcm,		0.0f);
 
-	qaP4("ini", fIniP4, ntp);
-	
-	ntp->Column("tagphi",	(Float_t)	tag_phi,	0.0f);
-	ntp->Column("taglam",	(Float_t)	tag_lam,	0.0f);
-	ntp->Column("tagjpsi",	(Float_t)	tag_jpsi,	0.0f);
-	
-	ntp->Column("tagd01",	(Float_t)	tag_d01,	0.0f);
-	ntp->Column("tagd02",	(Float_t)	tag_d02,	0.0f);
-	ntp->Column("tagd03",	(Float_t)	tag_d03,	0.0f);
-	ntp->Column("tagd0",	(Float_t)	tag_d0,		0.0f);
-	
-	ntp->Column("tagdpm1",	(Float_t)	tag_dpm1,	0.0f);
-	ntp->Column("tagdpm2",	(Float_t)	tag_dpm2,	0.0f);
-	ntp->Column("tagdpm3",	(Float_t)	tag_dpm3,	0.0f);
-	ntp->Column("tagdpm4",	(Float_t)	tag_dpm4,	0.0f);
-	ntp->Column("tagdpm",	(Float_t)	tag_dpm,	0.0f);
-	
-	ntp->Column("tagds1",	(Float_t)	tag_ds1,	0.0f);
-	ntp->Column("tagds2",	(Float_t)	tag_ds2,	0.0f);
-	ntp->Column("tagds",	(Float_t)	tag_ds,		0.0f);
-	
-	ntp->Column("taglamc",	(Float_t)	tag_lamc,	0.0f);
-	
-	ntp->Column("tagetac1",	(Float_t)	tag_etac1,	0.0f);
-	ntp->Column("tagetac2",	(Float_t)	tag_etac2,	0.0f);
-	ntp->Column("tagetac3",	(Float_t)	tag_etac3,	0.0f);
-	ntp->Column("tagetac4",	(Float_t)	tag_etac4,	0.0f);
-	ntp->Column("tagetac",	(Float_t)	tag_etac,	0.0f);
+		qaP4("ini", fIniP4, ntp);
+		
+		ntp->Column("tagphi",	(Float_t)	tag_phi,	0.0f);
+		ntp->Column("taglam",	(Float_t)	tag_lam,	0.0f);
+		ntp->Column("tagjpsi",	(Float_t)	tag_jpsi,	0.0f);
+		
+		ntp->Column("tagd01",	(Float_t)	tag_d01,	0.0f);
+		ntp->Column("tagd02",	(Float_t)	tag_d02,	0.0f);
+		ntp->Column("tagd03",	(Float_t)	tag_d03,	0.0f);
+		ntp->Column("tagd0",	(Float_t)	tag_d0,		0.0f);
+		
+		ntp->Column("tagdpm1",	(Float_t)	tag_dpm1,	0.0f);
+		ntp->Column("tagdpm2",	(Float_t)	tag_dpm2,	0.0f);
+		ntp->Column("tagdpm3",	(Float_t)	tag_dpm3,	0.0f);
+		ntp->Column("tagdpm4",	(Float_t)	tag_dpm4,	0.0f);
+		ntp->Column("tagdpm",	(Float_t)	tag_dpm,	0.0f);
+		
+		ntp->Column("tagds1",	(Float_t)	tag_ds1,	0.0f);
+		ntp->Column("tagds2",	(Float_t)	tag_ds2,	0.0f);
+		ntp->Column("tagds",	(Float_t)	tag_ds,		0.0f);
+		
+		ntp->Column("taglamc",	(Float_t)	tag_lamc,	0.0f);
+		
+		ntp->Column("tagetac1",	(Float_t)	tag_etac1,	0.0f);
+		ntp->Column("tagetac2",	(Float_t)	tag_etac2,	0.0f);
+		ntp->Column("tagetac3",	(Float_t)	tag_etac3,	0.0f);
+		ntp->Column("tagetac4",	(Float_t)	tag_etac4,	0.0f);
+		ntp->Column("tagetac",	(Float_t)	tag_etac,	0.0f);
 
-	ntp->Column("tagchic01",(Float_t)	tag_chic01,	0.0f);
-	ntp->Column("tagchic02",(Float_t)	tag_chic02,	0.0f);
-	ntp->Column("tagchic0",	(Float_t)	tag_chic0,	0.0f);
+		ntp->Column("tagchic01",(Float_t)	tag_chic01,	0.0f);
+		ntp->Column("tagchic02",(Float_t)	tag_chic02,	0.0f);
+		ntp->Column("tagchic0",	(Float_t)	tag_chic0,	0.0f);
 
-	ntp->Column("tag",		(Float_t)	tag_glob,	0.0f);
-	
-	qaEventShape(ntp);
-	
-	ntp->DumpData();
-	
+		ntp->Column("tag",		(Float_t)	tag_glob,	0.0f);
+		
+		qaEventShape(ntp);
+		
+		ntp->DumpData();
+	}
 }
 
 
 void PndSoftTriggerTask::Finish()
 {	
-	ntp->GetInternalTree()->Write();			// overall info
-	nks0->GetInternalTree()->Write();			// Ks0 QA
-	npi0->GetInternalTree()->Write();			// pi0 QA
-	neta->GetInternalTree()->Write();			// eta QA
+	if (ntp) ntp->GetInternalTree()->Write();			// overall info
+	if (nks0) nks0->GetInternalTree()->Write();			// Ks0 QA
+	if (npi0) npi0->GetInternalTree()->Write();			// pi0 QA
+	if (neta) neta->GetInternalTree()->Write();			// eta QA
 	
-	nphi->GetInternalTree()->Write();			// phi -> K+ K-					(49.8 %)
-	nlam->GetInternalTree()->Write();			// Lambda -> p pi-				(63.9 %)
-	njpsi->GetInternalTree()->Write();			// J/psi -> e+e- / mu+ mu-		(11.9 %)
+	if (nphi) nphi->GetInternalTree()->Write();			// phi -> K+ K-					(49.8 %)
+	if (nlam) nlam->GetInternalTree()->Write();			// Lambda -> p pi-				(63.9 %)
+	if (njpsi) njpsi->GetInternalTree()->Write();			// J/psi -> e+e- / mu+ mu-		(11.9 %)
 	
-	nd01->GetInternalTree()->Write();			// D0 -> K- pi+					( 3.9 %)
-	nd02->GetInternalTree()->Write();			// D0 -> K- pi+ pi0				(13.9 %)
-	nd03->GetInternalTree()->Write();			// D0 -> K- pi+ pi+ pi-			( 8.1 %)
-	ndpm1->GetInternalTree()->Write();			// D+- -> K- pi+ pi+			( 9.4 %)
-	ndpm2->GetInternalTree()->Write();			// D+- -> K- pi+ pi+ pi0		( 6.1 %)
-	ndpm3->GetInternalTree()->Write();			// D+- -> K_S pi+ pi0			( 6.9 %) 
-	ndpm4->GetInternalTree()->Write();			// D+- -> K_S pi+ pi+ pi-		( 3.1 %) 
-	nds1->GetInternalTree()->Write();			// Ds -> K+ K- pi+				( 5.5 %)
-	nds2->GetInternalTree()->Write();			// Ds -> K+ K- pi+ pi0			( 5.6 %)
+	if (nd01) nd01->GetInternalTree()->Write();			// D0 -> K- pi+					( 3.9 %)
+	if (nd02) nd02->GetInternalTree()->Write();			// D0 -> K- pi+ pi0				(13.9 %)
+	if (nd03) nd03->GetInternalTree()->Write();			// D0 -> K- pi+ pi+ pi-			( 8.1 %)
+	if (ndpm1) ndpm1->GetInternalTree()->Write();			// D+- -> K- pi+ pi+			( 9.4 %)
+	if (ndpm2) ndpm2->GetInternalTree()->Write();			// D+- -> K- pi+ pi+ pi0		( 6.1 %)
+	if (ndpm3) ndpm3->GetInternalTree()->Write();			// D+- -> K_S pi+ pi0			( 6.9 %) 
+	if (ndpm4) ndpm4->GetInternalTree()->Write();			// D+- -> K_S pi+ pi+ pi-		( 3.1 %) 
+	if (nds1) nds1->GetInternalTree()->Write();			// Ds -> K+ K- pi+				( 5.5 %)
+	if (nds2) nds2->GetInternalTree()->Write();			// Ds -> K+ K- pi+ pi0			( 5.6 %)
 	
-	nlamc->GetInternalTree()->Write();			// Lambda_c -> p K- pi+			( 5.0 %)
+	if (nlamc) nlamc->GetInternalTree()->Write();			// Lambda_c -> p K- pi+			( 5.0 %)
 	
-	netac1->GetInternalTree()->Write();			// eta_c -> K+ K- pi0 			( below) 
-	netac2->GetInternalTree()->Write();			// eta_c -> K+- K_S pi-+        ( 3.2 %) = 7%/3 (1) + 7%/3*35% (2)
-	netac3->GetInternalTree()->Write();			// eta_c -> eta (gg) pi+ pi-	( 1.9 %) = 4.9% * 39 %
-	netac4->GetInternalTree()->Write();			// eta_c -> gg					( 0.0 %) = 6e-5
+	if (netac1) netac1->GetInternalTree()->Write();			// eta_c -> K+ K- pi0 			( below) 
+	if (netac2) netac2->GetInternalTree()->Write();			// eta_c -> K+- K_S pi-+        ( 3.2 %) = 7%/3 (1) + 7%/3*35% (2)
+	if (netac3) netac3->GetInternalTree()->Write();			// eta_c -> eta (gg) pi+ pi-	( 1.9 %) = 4.9% * 39 %
+	if (netac4) netac4->GetInternalTree()->Write();			// eta_c -> gg					( 0.0 %) = 6e-5
 
-	nchic01->GetInternalTree()->Write();		// chi_c0 -> pi+ pi- pi0 pi0	( 3.4 %)
-	nchic02->GetInternalTree()->Write();		// chi_c0 -> pi+ pi- pi+ pi-	( 2.3 %)
+	if (nchic01) nchic01->GetInternalTree()->Write();		// chi_c0 -> pi+ pi- pi0 pi0	( 3.4 %)
+	if (nchic02) nchic02->GetInternalTree()->Write();		// chi_c0 -> pi+ pi- pi+ pi-	( 2.3 %)
 	
 }
 
@@ -402,19 +462,22 @@ int PndSoftTriggerTask::CreateKs0Cands(RhoTuple *n)
 	fKs0Cands.Select(fKs0PreSel);
 	fKs0Cands.SetType(310);
 	
-	for (int i=0; i<fKs0Cands.GetLength();++i)
+	if (n)
 	{
-		Float_t tag = (Float_t) fabs(fKs0Cands[i]->Mass()-fKs0SelMean)<fKs0SelWin;
-		n->Column("tag", 	(Float_t) tag,			0.0f);
-		n->Column("ev",  	(Float_t) fEvtCount,	0.0f);
-		n->Column("num", 	(Float_t) i,			0.0f);
-		n->Column("mode",	(Float_t) fMode,		0.0f);
-		n->Column("ksmean", (Float_t) fKs0SelMean,	0.0f);
-		n->Column("kswin", 	(Float_t) fKs0SelWin,	0.0f);
-		
-		qaKs0("ks",fKs0Cands[i], n);
-		
-		n->DumpData();
+		for (int i=0; i<fKs0Cands.GetLength();++i)
+		{
+			Float_t tag = (Float_t) fabs(fKs0Cands[i]->Mass()-fKs0SelMean)<fKs0SelWin;
+			n->Column("tag", 	(Float_t) tag,			0.0f);
+			n->Column("ev",  	(Float_t) fEvtCount,	0.0f);
+			n->Column("num", 	(Float_t) i,			0.0f);
+			n->Column("mode",	(Float_t) fMode,		0.0f);
+			n->Column("ksmean", (Float_t) fKs0SelMean,	0.0f);
+			n->Column("kswin", 	(Float_t) fKs0SelWin,	0.0f);
+			
+			qaKs0("ks",fKs0Cands[i], n);
+			
+			n->DumpData();
+		}
 	}
 	
 	// *** final selection
@@ -489,18 +552,21 @@ void PndSoftTriggerTask::FillGlobalLists()
 	fPi0Cands.Combine(fGammaCands, fGammaCands);
 	fPi0Cands.Select(fPi0PreSel);
 	fPi0Cands.SetType(111);
-	for (i=0; i<fPi0Cands.GetLength();++i)
+	if (fQAPi0)
 	{
-		Float_t tag = (Float_t) fabs(fPi0Cands[i]->Mass()-fPi0SelMean)<fPi0SelWin;
-		npi0->Column("tag", 	(Float_t) tag,			0.0f);
-		npi0->Column("ev",  	(Float_t) fEvtCount,	0.0f);
-		npi0->Column("num", 	(Float_t) i,			0.0f);
-		npi0->Column("mode",	(Float_t) fMode,		0.0f);
-		npi0->Column("pi0mean", (Float_t) fPi0SelMean,	0.0f);
-		npi0->Column("pi0win", 	(Float_t) fPi0SelWin,	0.0f);
-		
-		qaPi0("pi0",fPi0Cands[i], npi0);
-		npi0->DumpData();
+		for (i=0; i<fPi0Cands.GetLength();++i)
+		{
+			Float_t tag = (Float_t) fabs(fPi0Cands[i]->Mass()-fPi0SelMean)<fPi0SelWin;
+			npi0->Column("tag", 	(Float_t) tag,			0.0f);
+			npi0->Column("ev",  	(Float_t) fEvtCount,	0.0f);
+			npi0->Column("num", 	(Float_t) i,			0.0f);
+			npi0->Column("mode",	(Float_t) fMode,		0.0f);
+			npi0->Column("pi0mean", (Float_t) fPi0SelMean,	0.0f);
+			npi0->Column("pi0win", 	(Float_t) fPi0SelWin,	0.0f);
+			
+			qaPi0("pi0",fPi0Cands[i], npi0);
+			npi0->DumpData();
+		}
 	}
 	fPi0Cands.Select(fPi0Sel);
 	
@@ -508,18 +574,21 @@ void PndSoftTriggerTask::FillGlobalLists()
 	fEtaCands.Combine(fGammaCands, fGammaCands);
 	fEtaCands.Select(fEtaPreSel);
 	fEtaCands.SetType(221);
-	for (i=0; i<fEtaCands.GetLength();++i)
+	if (fQAEta)
 	{
-		Float_t tag = (Float_t) fabs(fEtaCands[i]->Mass()-fEtaSelMean)<fEtaSelWin;
-		npi0->Column("tag", 	(Float_t) tag,			0.0f);
-		neta->Column("ev",  	(Float_t) fEvtCount,	0.0f);
-		neta->Column("num", 	(Float_t) i,			0.0f);
-		neta->Column("mode",	(Float_t) fMode,		0.0f);
-		neta->Column("etamean", (Float_t) fEtaSelMean,	0.0f);
-		neta->Column("etawin", 	(Float_t) fEtaSelWin,	0.0f);
-		
-		qaPi0("eta",fEtaCands[i], neta);
-		neta->DumpData();
+		for (i=0; i<fEtaCands.GetLength();++i)
+		{
+			Float_t tag = (Float_t) fabs(fEtaCands[i]->Mass()-fEtaSelMean)<fEtaSelWin;
+			npi0->Column("tag", 	(Float_t) tag,			0.0f);
+			neta->Column("ev",  	(Float_t) fEvtCount,	0.0f);
+			neta->Column("num", 	(Float_t) i,			0.0f);
+			neta->Column("mode",	(Float_t) fMode,		0.0f);
+			neta->Column("etamean", (Float_t) fEtaSelMean,	0.0f);
+			neta->Column("etawin", 	(Float_t) fEtaSelWin,	0.0f);
+			
+			qaPi0("eta",fEtaCands[i], neta);
+			neta->DumpData();
+		}
 	}
 	fEtaCands.Select(fEtaSel);
 	
@@ -543,19 +612,21 @@ int PndSoftTriggerTask::Tag_Phi_KK(RhoTuple *n)
 	l.Select(fPhiPreSel);
 	
 	// *** store QA
-	for (int i=0;i<l.GetLength();++i)
+	if (n)
 	{
-		qaComp("phi", l[i], n);
+		for (int i=0;i<l.GetLength();++i)
+		{
+			qaComp("phi", l[i], n);
 
-		Float_t tag = (Float_t) fabs(l[i]->Mass()-fPhiSelMean)<fPhiSelWin;
-		n->Column("tag", 	(Float_t) tag,			0.0f);
-		n->Column("num", 	(Float_t) i,			0.0f);
-		n->Column("phimean",(Float_t) fPhiSelMean,	0.0f);
-		n->Column("phiwin", (Float_t) fPhiSelWin,	0.0f);
-		
-		n->DumpData();
+			Float_t tag = (Float_t) fabs(l[i]->Mass()-fPhiSelMean)<fPhiSelWin;
+			n->Column("tag", 	(Float_t) tag,			0.0f);
+			n->Column("num", 	(Float_t) i,			0.0f);
+			n->Column("phimean",(Float_t) fPhiSelMean,	0.0f);
+			n->Column("phiwin", (Float_t) fPhiSelWin,	0.0f);
+			
+			n->DumpData();
+		}
 	}
-	
 	// *** final tag selection
 	l.Select(fPhiSel);
 	
@@ -582,18 +653,21 @@ int PndSoftTriggerTask::Tag_Lambda_ppi(RhoTuple *n)
 	// *** pre selection for QA
 	l.Select(fLamPreSel);
 	
-	for (int i=0;i<l.GetLength();++i)
+	if (n)
 	{
-		// *** store QA info
-		qaComp("lam", l[i], n);
+		for (int i=0;i<l.GetLength();++i)
+		{
+			// *** store QA info
+			qaComp("lam", l[i], n);
 
-		Float_t tag = (Float_t) fabs(l[i]->Mass()-fLamSelMean)<fLamSelWin;
-		n->Column("tag", 	(Float_t) tag,			0.0f);
-		n->Column("num", 	(Float_t) i,			0.0f);
-		n->Column("lammean",(Float_t) fLamSelMean,	0.0f);
-		n->Column("lamwin", (Float_t) fLamSelWin,	0.0f);
-		
-		n->DumpData();
+			Float_t tag = (Float_t) fabs(l[i]->Mass()-fLamSelMean)<fLamSelWin;
+			n->Column("tag", 	(Float_t) tag,			0.0f);
+			n->Column("num", 	(Float_t) i,			0.0f);
+			n->Column("lammean",(Float_t) fLamSelMean,	0.0f);
+			n->Column("lamwin", (Float_t) fLamSelWin,	0.0f);
+			
+			n->DumpData();
+		}
 	}
 	
 	// *** final tag selection
@@ -620,19 +694,20 @@ int PndSoftTriggerTask::Tag_Jpsi_ll(RhoTuple *n)
 	// *** pre selection for QA
 	l.Select(fJpsiPreSel);
 	
-	for (int i=0;i<l.GetLength();++i)
-	{
-		// *** store QA info
-		qaComp("jpsi", l[i], n);
-		
-		Float_t tag = (Float_t) fabs(l[i]->Mass()-fJpsiSelMean)<fJpsiSelWin;
-		n->Column("tag", 	(Float_t) tag,			0.0f);
-		n->Column("num", 	(Float_t) i,			0.0f);
-		n->Column("jpsimean",(Float_t) fJpsiSelMean,0.0f);
-		n->Column("jpsiwin", (Float_t) fJpsiSelWin,	0.0f);
-		
-		n->DumpData();
-	}
+	if (n)
+		for (int i=0;i<l.GetLength();++i)
+		{
+			// *** store QA info
+			qaComp("jpsi", l[i], n);
+			
+			Float_t tag = (Float_t) fabs(l[i]->Mass()-fJpsiSelMean)<fJpsiSelWin;
+			n->Column("tag", 	(Float_t) tag,			0.0f);
+			n->Column("num", 	(Float_t) i,			0.0f);
+			n->Column("jpsimean",(Float_t) fJpsiSelMean,0.0f);
+			n->Column("jpsiwin", (Float_t) fJpsiSelWin,	0.0f);
+			
+			n->DumpData();
+		}
 	
 	// *** final tag selection
 	l.Select(fJpsiSel);
@@ -660,19 +735,20 @@ int PndSoftTriggerTask::Tag_D0_Kpi(RhoTuple *n)
 	// *** pre selection for QA
 	l.Select(fD0PreSel);
 	
-	for (int i=0;i<l.GetLength();++i)
-	{
-		// *** store QA info
-		qaComp("d0", l[i], n);
-		
-		Float_t tag = (Float_t) fabs(l[i]->Mass()-fD0SelMean)<fD0SelWin;
-		n->Column("tag", 	(Float_t) tag,			0.0f);
-		n->Column("num", 	(Float_t) i,			0.0f);
-		n->Column("d0mean",(Float_t) fD0SelMean,0.0f);
-		n->Column("d0win", (Float_t) fD0SelWin,	0.0f);
-		
-		n->DumpData();
-	}
+	if (n)
+		for (int i=0;i<l.GetLength();++i)
+		{
+			// *** store QA info
+			qaComp("d0", l[i], n);
+			
+			Float_t tag = (Float_t) fabs(l[i]->Mass()-fD0SelMean)<fD0SelWin;
+			n->Column("tag", 	(Float_t) tag,			0.0f);
+			n->Column("num", 	(Float_t) i,			0.0f);
+			n->Column("d0mean",(Float_t) fD0SelMean,0.0f);
+			n->Column("d0win", (Float_t) fD0SelWin,	0.0f);
+			
+			n->DumpData();
+		}
 	
 	// *** final tag selection
 	l.Select(fD0Sel);
@@ -700,19 +776,20 @@ int PndSoftTriggerTask::Tag_D0_Kpipi0(RhoTuple *n)
 	// *** pre selection for QA
 	l.Select(fD0PreSel);
 	
-	for (int i=0;i<l.GetLength();++i)
-	{
-		// *** store QA info
-		qaComp("d0", l[i], n);
-		
-		Float_t tag = (Float_t) fabs(l[i]->Mass()-fD0SelMean)<fD0SelWin;
-		n->Column("tag", 	(Float_t) tag,			0.0f);
-		n->Column("num", 	(Float_t) i,			0.0f);
-		n->Column("d0mean",(Float_t) fD0SelMean,0.0f);
-		n->Column("d0win", (Float_t) fD0SelWin,	0.0f);
-		
-		n->DumpData();
-	}
+	if (n)
+		for (int i=0;i<l.GetLength();++i)
+		{
+			// *** store QA info
+			qaComp("d0", l[i], n);
+			
+			Float_t tag = (Float_t) fabs(l[i]->Mass()-fD0SelMean)<fD0SelWin;
+			n->Column("tag", 	(Float_t) tag,			0.0f);
+			n->Column("num", 	(Float_t) i,			0.0f);
+			n->Column("d0mean",(Float_t) fD0SelMean,0.0f);
+			n->Column("d0win", (Float_t) fD0SelWin,	0.0f);
+			
+			n->DumpData();
+		}
 	
 	// *** final tag selection
 	l.Select(fD0Sel);
@@ -740,19 +817,20 @@ int PndSoftTriggerTask::Tag_D0_K3pi(RhoTuple *n)
 	// *** pre selection for QA
 	l.Select(fD0PreSel);
 	
-	for (int i=0;i<l.GetLength();++i)
-	{
-		// *** store QA info
-		qaComp("d0", l[i], n);
-		
-		Float_t tag = (Float_t) fabs(l[i]->Mass()-fD0SelMean)<fD0SelWin;
-		n->Column("tag", 	(Float_t) tag,			0.0f);
-		n->Column("num", 	(Float_t) i,			0.0f);
-		n->Column("d0mean",(Float_t) fD0SelMean,0.0f);
-		n->Column("d0win", (Float_t) fD0SelWin,	0.0f);
-		
-		n->DumpData();
-	}
+	if (n)
+		for (int i=0;i<l.GetLength();++i)
+		{
+			// *** store QA info
+			qaComp("d0", l[i], n);
+			
+			Float_t tag = (Float_t) fabs(l[i]->Mass()-fD0SelMean)<fD0SelWin;
+			n->Column("tag", 	(Float_t) tag,			0.0f);
+			n->Column("num", 	(Float_t) i,			0.0f);
+			n->Column("d0mean",(Float_t) fD0SelMean,0.0f);
+			n->Column("d0win", (Float_t) fD0SelWin,	0.0f);
+			
+			n->DumpData();
+		}
 	
 	// *** final tag selection
 	l.Select(fD0Sel);
@@ -780,19 +858,20 @@ int PndSoftTriggerTask::Tag_Dpm_Kpipi(RhoTuple *n)
 	// *** pre selection for QA
 	l.Select(fDpmPreSel);
 	
-	for (int i=0;i<l.GetLength();++i)
-	{
-		// *** store QA info
-		qaComp("dpm", l[i], n);
-		
-		Float_t tag = (Float_t) fabs(l[i]->Mass()-fDpmSelMean)<fDpmSelWin;
-		n->Column("tag", 	(Float_t) tag,			0.0f);
-		n->Column("num", 	(Float_t) i,			0.0f);
-		n->Column("dpmmean",(Float_t) fDpmSelMean,0.0f);
-		n->Column("dpmwin", (Float_t) fDpmSelWin,	0.0f);
-		
-		n->DumpData();
-	}
+	if (n)
+		for (int i=0;i<l.GetLength();++i)
+		{
+			// *** store QA info
+			qaComp("dpm", l[i], n);
+			
+			Float_t tag = (Float_t) fabs(l[i]->Mass()-fDpmSelMean)<fDpmSelWin;
+			n->Column("tag", 	(Float_t) tag,			0.0f);
+			n->Column("num", 	(Float_t) i,			0.0f);
+			n->Column("dpmmean",(Float_t) fDpmSelMean,0.0f);
+			n->Column("dpmwin", (Float_t) fDpmSelWin,	0.0f);
+			
+			n->DumpData();
+		}
 	
 	// *** final tag selection
 	l.Select(fDpmSel);
@@ -820,19 +899,20 @@ int PndSoftTriggerTask::Tag_Dpm_K2pipi0(RhoTuple *n)
 	// *** pre selection for QA
 	l.Select(fDpmPreSel);
 	
-	for (int i=0;i<l.GetLength();++i)
-	{
-		// *** store QA info
-		qaComp("dpm", l[i], n);
-		
-		Float_t tag = (Float_t) fabs(l[i]->Mass()-fDpmSelMean)<fDpmSelWin;
-		n->Column("tag", 	(Float_t) tag,			0.0f);
-		n->Column("num", 	(Float_t) i,			0.0f);
-		n->Column("dpmmean",(Float_t) fDpmSelMean,0.0f);
-		n->Column("dpmwin", (Float_t) fDpmSelWin,	0.0f);
-		
-		n->DumpData();
-	}
+	if (n)
+		for (int i=0;i<l.GetLength();++i)
+		{
+			// *** store QA info
+			qaComp("dpm", l[i], n);
+			
+			Float_t tag = (Float_t) fabs(l[i]->Mass()-fDpmSelMean)<fDpmSelWin;
+			n->Column("tag", 	(Float_t) tag,			0.0f);
+			n->Column("num", 	(Float_t) i,			0.0f);
+			n->Column("dpmmean",(Float_t) fDpmSelMean,0.0f);
+			n->Column("dpmwin", (Float_t) fDpmSelWin,	0.0f);
+			
+			n->DumpData();
+		}
 	
 	// *** final tag selection
 	l.Select(fDpmSel);
@@ -860,19 +940,20 @@ int PndSoftTriggerTask::Tag_Dpm_Kspipi0(RhoTuple *n)
 	// *** pre selection for QA
 	l.Select(fDpmPreSel);
 	
-	for (int i=0;i<l.GetLength();++i)
-	{
-		// *** store QA info
-		qaComp("dpm", l[i], n);
-		
-		Float_t tag = (Float_t) fabs(l[i]->Mass()-fDpmSelMean)<fDpmSelWin;
-		n->Column("tag", 	(Float_t) tag,			0.0f);
-		n->Column("num", 	(Float_t) i,			0.0f);
-		n->Column("dpmmean",(Float_t) fDpmSelMean,0.0f);
-		n->Column("dpmwin", (Float_t) fDpmSelWin,	0.0f);
-		
-		n->DumpData();
-	}
+	if (n)
+		for (int i=0;i<l.GetLength();++i)
+		{
+			// *** store QA info
+			qaComp("dpm", l[i], n);
+			
+			Float_t tag = (Float_t) fabs(l[i]->Mass()-fDpmSelMean)<fDpmSelWin;
+			n->Column("tag", 	(Float_t) tag,			0.0f);
+			n->Column("num", 	(Float_t) i,			0.0f);
+			n->Column("dpmmean",(Float_t) fDpmSelMean,0.0f);
+			n->Column("dpmwin", (Float_t) fDpmSelWin,	0.0f);
+			
+			n->DumpData();
+		}
 	
 	// *** final tag selection
 	l.Select(fDpmSel);
@@ -900,19 +981,20 @@ int PndSoftTriggerTask::Tag_Dpm_Ks3pi(RhoTuple *n)
 	// *** pre selection for QA
 	l.Select(fDpmPreSel);
 	
-	for (int i=0;i<l.GetLength();++i)
-	{
-		// *** store QA info
-		qaComp("dpm", l[i], n);
-		
-		Float_t tag = (Float_t) fabs(l[i]->Mass()-fDpmSelMean)<fDpmSelWin;
-		n->Column("tag", 	(Float_t) tag,			0.0f);
-		n->Column("num", 	(Float_t) i,			0.0f);
-		n->Column("dpmmean",(Float_t) fDpmSelMean,0.0f);
-		n->Column("dpmwin", (Float_t) fDpmSelWin,	0.0f);
-		
-		n->DumpData();
-	}
+	if (n)
+		for (int i=0;i<l.GetLength();++i)
+		{
+			// *** store QA info
+			qaComp("dpm", l[i], n);
+			
+			Float_t tag = (Float_t) fabs(l[i]->Mass()-fDpmSelMean)<fDpmSelWin;
+			n->Column("tag", 	(Float_t) tag,			0.0f);
+			n->Column("num", 	(Float_t) i,			0.0f);
+			n->Column("dpmmean",(Float_t) fDpmSelMean,0.0f);
+			n->Column("dpmwin", (Float_t) fDpmSelWin,	0.0f);
+			
+			n->DumpData();
+		}
 	
 	// *** final tag selection
 	l.Select(fDpmSel);
@@ -940,19 +1022,20 @@ int PndSoftTriggerTask::Tag_Ds_KKpi(RhoTuple *n)
 	// *** pre selection for QA
 	l.Select(fDsPreSel);
 	
-	for (int i=0;i<l.GetLength();++i)
-	{
-		// *** store QA info
-		qaComp("ds", l[i], n);
-		
-		Float_t tag = (Float_t) fabs(l[i]->Mass()-fDsSelMean)<fDsSelWin;
-		n->Column("tag", 	(Float_t) tag,			0.0f);
-		n->Column("num", 	(Float_t) i,			0.0f);
-		n->Column("dsmean",(Float_t) fDsSelMean,0.0f);
-		n->Column("dswin", (Float_t) fDsSelWin,	0.0f);
-		
-		n->DumpData();
-	}
+	if (n)
+		for (int i=0;i<l.GetLength();++i)
+		{
+			// *** store QA info
+			qaComp("ds", l[i], n);
+			
+			Float_t tag = (Float_t) fabs(l[i]->Mass()-fDsSelMean)<fDsSelWin;
+			n->Column("tag", 	(Float_t) tag,			0.0f);
+			n->Column("num", 	(Float_t) i,			0.0f);
+			n->Column("dsmean",(Float_t) fDsSelMean,0.0f);
+			n->Column("dswin", (Float_t) fDsSelWin,	0.0f);
+			
+			n->DumpData();
+		}
 	
 	// *** final tag selection
 	l.Select(fDsSel);
@@ -980,19 +1063,20 @@ int PndSoftTriggerTask::Tag_Ds_KKpipi0(RhoTuple *n)
 	// *** pre selection for QA
 	l.Select(fDsPreSel);
 	
-	for (int i=0;i<l.GetLength();++i)
-	{
-		// *** store QA info
-		qaComp("ds", l[i], n);
-		
-		Float_t tag = (Float_t) fabs(l[i]->Mass()-fDsSelMean)<fDsSelWin;
-		n->Column("tag", 	(Float_t) tag,			0.0f);
-		n->Column("num", 	(Float_t) i,			0.0f);
-		n->Column("dsmean",(Float_t) fDsSelMean,0.0f);
-		n->Column("dswin", (Float_t) fDsSelWin,	0.0f);
-		
-		n->DumpData();
-	}
+	if (n)
+		for (int i=0;i<l.GetLength();++i)
+		{
+			// *** store QA info
+			qaComp("ds", l[i], n);
+			
+			Float_t tag = (Float_t) fabs(l[i]->Mass()-fDsSelMean)<fDsSelWin;
+			n->Column("tag", 	(Float_t) tag,			0.0f);
+			n->Column("num", 	(Float_t) i,			0.0f);
+			n->Column("dsmean",(Float_t) fDsSelMean,0.0f);
+			n->Column("dswin", (Float_t) fDsSelWin,	0.0f);
+			
+			n->DumpData();
+		}
 	
 	// *** final tag selection
 	l.Select(fDsSel);
@@ -1020,19 +1104,20 @@ int PndSoftTriggerTask::Tag_Lambdac_pKpi(RhoTuple *n)
 	// *** pre selection for QA
 	l.Select(fLamcPreSel);
 	
-	for (int i=0;i<l.GetLength();++i)
-	{
-		// *** store QA info
-		qaComp("lamc", l[i], n);
-		
-		Float_t tag = (Float_t) fabs(l[i]->Mass()-fLamcSelMean)<fLamcSelWin;
-		n->Column("tag", 	(Float_t) tag,			0.0f);
-		n->Column("num", 	(Float_t) i,			0.0f);
-		n->Column("lamcmean",(Float_t) fLamcSelMean,0.0f);
-		n->Column("lamcwin", (Float_t) fLamcSelWin,	0.0f);
-		
-		n->DumpData();
-	}
+	if (n)
+		for (int i=0;i<l.GetLength();++i)
+		{
+			// *** store QA info
+			qaComp("lamc", l[i], n);
+			
+			Float_t tag = (Float_t) fabs(l[i]->Mass()-fLamcSelMean)<fLamcSelWin;
+			n->Column("tag", 	(Float_t) tag,			0.0f);
+			n->Column("num", 	(Float_t) i,			0.0f);
+			n->Column("lamcmean",(Float_t) fLamcSelMean,0.0f);
+			n->Column("lamcwin", (Float_t) fLamcSelWin,	0.0f);
+			
+			n->DumpData();
+		}
 	
 	// *** final tag selection
 	l.Select(fLamcSel);
@@ -1057,19 +1142,20 @@ int PndSoftTriggerTask::Tag_Etac_KKpi0(RhoTuple *n)
 	// *** pre selection for QA
 	l.Select(fEtacPreSel);
 	
-	for (int i=0;i<l.GetLength();++i)
-	{
-		// *** store QA info
-		qaComp("etac", l[i], n);
-		
-		Float_t tag = (Float_t) fabs(l[i]->Mass()-fEtacSelMean)<fEtacSelWin;
-		n->Column("tag", 	(Float_t) tag,			0.0f);
-		n->Column("num", 	(Float_t) i,			0.0f);
-		n->Column("etacmean",(Float_t) fEtacSelMean,0.0f);
-		n->Column("etacwin", (Float_t) fEtacSelWin,	0.0f);
-		
-		n->DumpData();
-	}
+	if (n)
+		for (int i=0;i<l.GetLength();++i)
+		{
+			// *** store QA info
+			qaComp("etac", l[i], n);
+			
+			Float_t tag = (Float_t) fabs(l[i]->Mass()-fEtacSelMean)<fEtacSelWin;
+			n->Column("tag", 	(Float_t) tag,			0.0f);
+			n->Column("num", 	(Float_t) i,			0.0f);
+			n->Column("etacmean",(Float_t) fEtacSelMean,0.0f);
+			n->Column("etacwin", (Float_t) fEtacSelWin,	0.0f);
+			
+			n->DumpData();
+		}
 	
 	// *** final tag selection
 	l.Select(fEtacSel);
@@ -1095,19 +1181,20 @@ int PndSoftTriggerTask::Tag_Etac_KKspi(RhoTuple *n)
 	// *** pre selection for QA
 	l.Select(fEtacPreSel);
 	
-	for (int i=0;i<l.GetLength();++i)
-	{
-		// *** store QA info
-		qaComp("etac", l[i], n);
-		
-		Float_t tag = (Float_t) fabs(l[i]->Mass()-fEtacSelMean)<fEtacSelWin;
-		n->Column("tag", 	(Float_t) tag,			0.0f);
-		n->Column("num", 	(Float_t) i,			0.0f);
-		n->Column("etacmean",(Float_t) fEtacSelMean,0.0f);
-		n->Column("etacwin", (Float_t) fEtacSelWin,	0.0f);
-		
-		n->DumpData();
-	}
+	if (n)
+		for (int i=0;i<l.GetLength();++i)
+		{
+			// *** store QA info
+			qaComp("etac", l[i], n);
+			
+			Float_t tag = (Float_t) fabs(l[i]->Mass()-fEtacSelMean)<fEtacSelWin;
+			n->Column("tag", 	(Float_t) tag,			0.0f);
+			n->Column("num", 	(Float_t) i,			0.0f);
+			n->Column("etacmean",(Float_t) fEtacSelMean,0.0f);
+			n->Column("etacwin", (Float_t) fEtacSelWin,	0.0f);
+			
+			n->DumpData();
+		}
 	
 	// *** final tag selection
 	l.Select(fEtacSel);
@@ -1132,19 +1219,20 @@ int PndSoftTriggerTask::Tag_Etac_etapipi(RhoTuple *n)
 	// *** pre selection for QA
 	l.Select(fEtacPreSel);
 	
-	for (int i=0;i<l.GetLength();++i)
-	{
-		// *** store QA info
-		qaComp("etac", l[i], n);
-		
-		Float_t tag = (Float_t) fabs(l[i]->Mass()-fEtacSelMean)<fEtacSelWin;
-		n->Column("tag", 	(Float_t) tag,			0.0f);
-		n->Column("num", 	(Float_t) i,			0.0f);
-		n->Column("etacmean",(Float_t) fEtacSelMean,0.0f);
-		n->Column("etacwin", (Float_t) fEtacSelWin,	0.0f);
-		
-		n->DumpData();
-	}
+	if (n)
+		for (int i=0;i<l.GetLength();++i)
+		{
+			// *** store QA info
+			qaComp("etac", l[i], n);
+			
+			Float_t tag = (Float_t) fabs(l[i]->Mass()-fEtacSelMean)<fEtacSelWin;
+			n->Column("tag", 	(Float_t) tag,			0.0f);
+			n->Column("num", 	(Float_t) i,			0.0f);
+			n->Column("etacmean",(Float_t) fEtacSelMean,0.0f);
+			n->Column("etacwin", (Float_t) fEtacSelWin,	0.0f);
+			
+			n->DumpData();
+		}
 	
 	// *** final tag selection
 	l.Select(fEtacSel);
@@ -1169,19 +1257,20 @@ int PndSoftTriggerTask::Tag_Etac_gg(RhoTuple *n)
 	// *** pre selection for QA
 	l.Select(fEtacPreSel);
 	
-	for (int i=0;i<l.GetLength();++i)
-	{
-		// *** store QA info
-		qaComp("etac", l[i], n);
-		
-		Float_t tag = (Float_t) fabs(l[i]->Mass()-fEtacSelMean)<fEtacSelWin;
-		n->Column("tag", 	(Float_t) tag,			0.0f);
-		n->Column("num", 	(Float_t) i,			0.0f);
-		n->Column("etacmean",(Float_t) fEtacSelMean,0.0f);
-		n->Column("etacwin", (Float_t) fEtacSelWin,	0.0f);
-		
-		n->DumpData();
-	}
+	if (n)
+		for (int i=0;i<l.GetLength();++i)
+		{
+			// *** store QA info
+			qaComp("etac", l[i], n);
+			
+			Float_t tag = (Float_t) fabs(l[i]->Mass()-fEtacSelMean)<fEtacSelWin;
+			n->Column("tag", 	(Float_t) tag,			0.0f);
+			n->Column("num", 	(Float_t) i,			0.0f);
+			n->Column("etacmean",(Float_t) fEtacSelMean,0.0f);
+			n->Column("etacwin", (Float_t) fEtacSelWin,	0.0f);
+			
+			n->DumpData();
+		}
 	
 	// *** final tag selection
 	l.Select(fEtacSel);
@@ -1206,20 +1295,21 @@ int PndSoftTriggerTask::Tag_Chic0_2pi2pi0(RhoTuple *n)
 	// *** pre selection for QA
 	l.Select(fChic0PreSel);
 	
-	for (int i=0;i<l.GetLength();++i)
-	{
-		// *** store QA info
-		qaComp("chic0", l[i], n);
+	if (n)
+		for (int i=0;i<l.GetLength();++i)
+		{
+			// *** store QA info
+			qaComp("chic0", l[i], n);
+			
+			Float_t tag = (Float_t) fabs(l[i]->Mass()-fChic0SelMean)<fChic0SelWin;
+			n->Column("tag", 	(Float_t) tag,			0.0f);
+			n->Column("num", 	  (Float_t) i,				0.0f);
+			n->Column("chic0mean",(Float_t) fChic0SelMean,	0.0f);
+			n->Column("chic0win", (Float_t) fChic0SelWin,	0.0f);
+			
+			n->DumpData();
+		}
 		
-		Float_t tag = (Float_t) fabs(l[i]->Mass()-fChic0SelMean)<fChic0SelWin;
-		n->Column("tag", 	(Float_t) tag,			0.0f);
-		n->Column("num", 	  (Float_t) i,				0.0f);
-		n->Column("chic0mean",(Float_t) fChic0SelMean,	0.0f);
-		n->Column("chic0win", (Float_t) fChic0SelWin,	0.0f);
-		
-		n->DumpData();
-	}
-	
 	// *** final tag selection
 	l.Select(fChic0Sel);
 	
@@ -1243,19 +1333,20 @@ int PndSoftTriggerTask::Tag_Chic0_4pi(RhoTuple *n)
 	// *** pre selection for QA
 	l.Select(fChic0PreSel);
 	
-	for (int i=0;i<l.GetLength();++i)
-	{
-		// *** store QA info
-		qaComp("chic0", l[i], n);
-		
-		Float_t tag = (Float_t) fabs(l[i]->Mass()-fChic0SelMean)<fChic0SelWin;
-		n->Column("tag", 	(Float_t) tag,			0.0f);
-		n->Column("num", 	  (Float_t) i,				0.0f);
-		n->Column("chic0mean",(Float_t) fChic0SelMean,	0.0f);
-		n->Column("chic0win", (Float_t) fChic0SelWin,	0.0f);
-		
-		n->DumpData();
-	}
+	if (n)
+		for (int i=0;i<l.GetLength();++i)
+		{
+			// *** store QA info
+			qaComp("chic0", l[i], n);
+			
+			Float_t tag = (Float_t) fabs(l[i]->Mass()-fChic0SelMean)<fChic0SelWin;
+			n->Column("tag", 	(Float_t) tag,			0.0f);
+			n->Column("num", 	  (Float_t) i,				0.0f);
+			n->Column("chic0mean",(Float_t) fChic0SelMean,	0.0f);
+			n->Column("chic0win", (Float_t) fChic0SelWin,	0.0f);
+			
+			n->DumpData();
+		}
 	
 	// *** final tag selection
 	l.Select(fChic0Sel);
@@ -1333,6 +1424,7 @@ void PndSoftTriggerTask::CountPidCutMult(double prob, int &ne, int &nmu, int &np
 // -------------------------------------------------------------------------
 void PndSoftTriggerTask::qaEventShape(RhoTuple *n)
 {
+	if (n==0) return;
 	// *** vars for PID multiplicity
 	int ne, nmu, npi, nk, np;
 	
@@ -1474,6 +1566,7 @@ void PndSoftTriggerTask::qaEventShape(RhoTuple *n)
 // -------------------------------------------------------------------------
 void PndSoftTriggerTask::qaEventShapeShort(RhoTuple *n)
 {
+	if (n==0) return;
 	// *** vars for PID multiplicity
 	int ne, nmu, npi, nk, np;
 	
@@ -1542,6 +1635,7 @@ void PndSoftTriggerTask::qaEventShapeShort(RhoTuple *n)
 
 void PndSoftTriggerTask::qaComp(TString pre, RhoCandidate *c, RhoTuple *n)
 {
+	if (n==0) return;
 	// *** simple vtx finder
 	TVector3 vtx;
 	double qavtx = fVtxPoca->GetPocaVtx(vtx, c);
@@ -1599,6 +1693,8 @@ void PndSoftTriggerTask::qaComp(TString pre, RhoCandidate *c, RhoTuple *n)
 
 void PndSoftTriggerTask::qaPi0(TString pre, RhoCandidate *c, RhoTuple *n)
 {
+	if (n==0) return;
+	
 	qaCand(pre, c, n);
 	
 	RhoCandidate *d0 = c->Daughter(0);
@@ -1632,6 +1728,8 @@ void PndSoftTriggerTask::qaPi0(TString pre, RhoCandidate *c, RhoTuple *n)
 
 void PndSoftTriggerTask::qaKs0(TString pre, RhoCandidate *c, RhoTuple *n)
 {
+	if (n==0) return;
+
 	RhoCandidate *d0 = c->Daughter(0);
 	RhoCandidate *d1 = c->Daughter(1);
 	double ang = d0->P3().Angle(d1->P3());
@@ -1674,6 +1772,8 @@ void PndSoftTriggerTask::qaKs0(TString pre, RhoCandidate *c, RhoTuple *n)
 
 void PndSoftTriggerTask::qaP4(TString pre, TLorentzVector &c, RhoTuple *n, bool skip)
 {
+	if (n==0) return;
+	
 	if (!skip)
 	{
 		n->Column(pre+"px",  (Float_t) c.Px(),     0.0f );
@@ -1703,6 +1803,8 @@ void PndSoftTriggerTask::qaP4(TString pre, TLorentzVector &c, RhoTuple *n, bool 
 
 void PndSoftTriggerTask::qaP4Cms(TString pre, TLorentzVector c, RhoTuple *n, bool skip)
 {
+	if (n==0) return;
+	
 	if (!skip)
 	{
 		c.Boost(-fIniP4.BoostVector());
@@ -1731,6 +1833,8 @@ void PndSoftTriggerTask::qaP4Cms(TString pre, TLorentzVector c, RhoTuple *n, boo
 
 void PndSoftTriggerTask::qaCand(TString pre, RhoCandidate *cc, RhoTuple *n, bool skip)
 {
+	if (n==0) return;
+	
 	if (!skip)
 	{
 		TLorentzVector c=cc->P4();
@@ -1775,6 +1879,8 @@ void PndSoftTriggerTask::qaCand(TString pre, RhoCandidate *cc, RhoTuple *n, bool
 
 void PndSoftTriggerTask::qaTrk(TString pre, RhoCandidate *c, RhoTuple *n)
 {
+	if (n==0) return;
+	
 	PndPidCandidate *mic = (PndPidCandidate*)c->GetRecoCandidate();
 	
 	if (mic)
@@ -1791,6 +1897,8 @@ void PndSoftTriggerTask::qaTrk(TString pre, RhoCandidate *c, RhoTuple *n)
 
 void PndSoftTriggerTask::qaPid(TString pre, RhoCandidate *c, RhoTuple *n)
 {	
+	if (n==0) return;
+	
 	// pinf[0]...pinf[4]: cache P values, pinf[5] = maximum
 	double pinf[6] = {0.,0.,0.,0.,0.,-1000.};
 	// index of particle type (e=0 ... p=4) with maximum P 
@@ -1821,6 +1929,8 @@ void PndSoftTriggerTask::qaPid(TString pre, RhoCandidate *c, RhoTuple *n)
 // -------------------------------------------------------------------------
 void PndSoftTriggerTask::qa2Body(TString pre, RhoCandidate *c, RhoTuple *n)
 {	
+	if (n==0) return;
+	
 	if (c->NDaughters()!=2) return;
 	
 	RhoCandidate *d0 = c->Daughter(0);
@@ -1845,6 +1955,8 @@ void PndSoftTriggerTask::qa2Body(TString pre, RhoCandidate *c, RhoTuple *n)
 
 void PndSoftTriggerTask::qaVtx(TString pre, RhoCandidate *c, RhoTuple *n)
 {	
+	if (n==0) return;
+	
 	RhoCandidate *d = c->Daughter(0);
 	TVector3 v = c->DecayVtx();
 	if (d)
@@ -1882,6 +1994,8 @@ void PndSoftTriggerTask::qaVtx(TString pre, RhoCandidate *c, RhoTuple *n)
 
 void PndSoftTriggerTask::qaEmc(TString pre, RhoCandidate *c, RhoTuple *n)
 {
+	if (n==0) return;
+	
 	PndPidCandidate *mic = (PndPidCandidate*)c->GetRecoCandidate();
 	
 	if (mic)
@@ -1906,6 +2020,8 @@ void PndSoftTriggerTask::qaEmc(TString pre, RhoCandidate *c, RhoTuple *n)
 
 void PndSoftTriggerTask::qaMvd(TString pre, RhoCandidate *c, RhoTuple *n)
 {
+	if (n==0) return;
+	
 	PndPidCandidate *mic = (PndPidCandidate*)c->GetRecoCandidate();
 	
 	if (mic)
@@ -1919,6 +2035,8 @@ void PndSoftTriggerTask::qaMvd(TString pre, RhoCandidate *c, RhoTuple *n)
 
 void PndSoftTriggerTask::qaStt(TString pre, RhoCandidate *c, RhoTuple *n)
 {
+	if (n==0) return;
+	
 	PndPidCandidate *mic = (PndPidCandidate*)c->GetRecoCandidate();
 	
 	if (mic)
@@ -1932,6 +2050,8 @@ void PndSoftTriggerTask::qaStt(TString pre, RhoCandidate *c, RhoTuple *n)
 
 void PndSoftTriggerTask::qaDrc(TString pre, RhoCandidate *c, RhoTuple *n)
 {
+	if (n==0) return;
+	
 	PndPidCandidate *mic = (PndPidCandidate*)c->GetRecoCandidate();
 	
 	if (mic)
@@ -1948,6 +2068,8 @@ void PndSoftTriggerTask::qaDrc(TString pre, RhoCandidate *c, RhoTuple *n)
 
 void PndSoftTriggerTask::qaDsc(TString pre, RhoCandidate *c, RhoTuple *n)
 {
+	if (n==0) return;
+	
 	PndPidCandidate *mic = (PndPidCandidate*)c->GetRecoCandidate();
 	
 	if (mic)
@@ -1964,6 +2086,8 @@ void PndSoftTriggerTask::qaDsc(TString pre, RhoCandidate *c, RhoTuple *n)
 
 void PndSoftTriggerTask::qaMuo(TString pre, RhoCandidate *c, RhoTuple *n)
 {
+	if (n==0) return;
+	
 	PndPidCandidate *mic = (PndPidCandidate*)c->GetRecoCandidate();
 	
 	if (mic)
@@ -1983,6 +2107,8 @@ void PndSoftTriggerTask::qaMuo(TString pre, RhoCandidate *c, RhoTuple *n)
 
 void PndSoftTriggerTask::qaTof(TString pre, RhoCandidate *c, RhoTuple *n)
 {
+	if (n==0) return;
+	
 	PndPidCandidate *mic = (PndPidCandidate*)c->GetRecoCandidate();
 	
 	if (mic)
