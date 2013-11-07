@@ -3,7 +3,6 @@
 #include "PndTrkChi2Fits.h"
 #include "PndTrkComparisonMCtruth.h"
 #include "PndTrkSttConformalFilling.h"
-#include "PndTrkGlpkFits.h"
 #include "PndTrkLegendreFits.h"
 #include "PndTrkCleanup.h"
 #include "PndTrkCTFindTrackInXY.h"
