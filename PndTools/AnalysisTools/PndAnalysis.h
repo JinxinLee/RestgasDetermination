@@ -28,7 +28,7 @@ class TGeant3;
 class PndAnalysis
 {
   public:
-    PndAnalysis(TString tname1="", TString tname2="");
+    PndAnalysis(TString tname1="", TString tname2="",TString algnamec="PidAlgoIdealCharged", TString algnamen="PidAlgoIdealNeutral");
     virtual ~PndAnalysis();
 
     void Rewind();
@@ -82,7 +82,7 @@ class PndAnalysis
     Int_t              fVerbose;
 
     std::map<int,RhoCandidate*> fMcPresenceMap;
-    
+
     TDatabasePDG* fPdg;
 
     TClonesArray* fChargedCands;

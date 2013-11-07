@@ -42,7 +42,7 @@ using std::endl;
 
 ClassImp ( PndAnalysis );
 
-PndAnalysis::PndAnalysis ( TString tname1, TString tname2 ) :
+PndAnalysis::PndAnalysis ( TString tname1, TString tname2, TString algnamec, TString algnamen ) :
     fRootManager ( FairRootManager::Instance() ),
     fPidSelector ( 0 ),
     fEvtCount ( 0 ),
@@ -50,8 +50,8 @@ PndAnalysis::PndAnalysis ( TString tname1, TString tname2 ) :
     fEventRead ( false ),
     fBuildMcCands ( false ),
     fVerbose(0),
-    fChargedPidName ( "PidAlgoIdealCharged" ),
-    fNeutralPidName ( "PidAlgoIdealNeutral" ),
+    fChargedPidName ( algnamec ),
+    fNeutralPidName ( algnamen ),
     fTracksName ( tname1 ),
     fTracksName2 ( tname2 )
 {
@@ -73,7 +73,6 @@ PndAnalysis::~PndAnalysis()
 TClonesArray* PndAnalysis::ReadTCA ( TString tcaname )
 {
   TClonesArray* tca = ( TClonesArray* ) fRootManager->GetObject ( tcaname.Data() );
-
   if ( ! tca ) {
     std::cout << "-I- PndAnalysis::ReadTCA(): No "<<tcaname.Data() <<" array found." << std::endl;
   }
@@ -147,7 +146,7 @@ void PndAnalysis::Init()
     if ( ! fMcTracks && fVerbose ) {
       std::cout << "-W- PndAnalysis::Init(): No \"MCTrack\" array found. No MC info available." << std::endl;
     }
-    
+
     fMcCands =new TClonesArray ( "RhoCandidate" );
 
     // next line commented by KG, 07/2012
@@ -193,9 +192,9 @@ Int_t PndAnalysis::GetEvent ( Int_t n )
   fRootManager->ReadEvent ( fEvtCount-1 );
 
   ReadRecoCandidates();
-  BuildMcCands(); 
-  
-  // now fill carged and neutral lists. 
+  BuildMcCands();
+
+  // now fill carged and neutral lists.
   // MC association to reconstructed particles done at this point and copying is ok
   fChargedCandList.Cleanup();
   fNeutralCandList.Cleanup();
@@ -266,18 +265,18 @@ Bool_t PndAnalysis::FillList ( RhoCandList& l, TString listkey, TString pidTcaNa
   // set the base list for the PID list maker
   Bool_t checkcrit = fPidSelector->SetCriterion ( listkey );
   if (!checkcrit) return kFALSE;
-  
+
   if ( listkey.Contains ( "Electron" ) ||listkey.Contains ( "Muon" ) ||listkey.Contains ( "Pion" )
        || listkey.Contains ( "Kaon" ) ||listkey.Contains ( "Proton" )
        || listkey.Contains ( "Plus" ) ||listkey.Contains ( "Minus" ) ||listkey.Contains ( "Charged" ) ) {
-    
+
     l=fChargedCandList;
     fPidCombiner->Apply ( l );
     l.Select(fPidSelector);
     //fPidSelector->Select ( fChargedCandList,l );
     return kTRUE;
   }
-  
+
   if ( listkey.Contains ( "Neutral" ) ) {
     fPidCombiner->Apply ( fNeutralCandList );
     fPidSelector->Select ( fNeutralCandList,l );
@@ -294,7 +293,7 @@ Bool_t PndAnalysis::GetMcCandList(RhoCandList& l)
   l.Clear();
   // Put all candidates from the mctruth list to the candlist and set the mother-daughter relations
   if ( !fMcCands ) return kFALSE;
-  
+
   RhoCandidate* truth=0;
   for (int i=0;i<fMcCands->GetEntriesFast();i++)
   {
@@ -302,7 +301,7 @@ Bool_t PndAnalysis::GetMcCandList(RhoCandList& l)
     truth = (RhoCandidate*) fMcCands->At(i);
     l.Put(truth);
   }
-  
+
   // now set genealogy inside the list
   RhoCandidate* truthmother=0;
   for (int k=0;k<l.GetLength();k++)
@@ -311,11 +310,11 @@ Bool_t PndAnalysis::GetMcCandList(RhoCandList& l)
     PndMCTrack* part = (PndMCTrack*) fMcTracks->At(k);
     Int_t mcMotherID = part->GetMotherID();
     if(mcMotherID<0) mcMotherID=part->GetSecondMotherID();
-    
+
     // SetMotherLink does the deep mother-daughter relation
     if (mcMotherID<0) continue; // no mother there, go on...
     if (mcMotherID>=l.GetLength()) continue; // something bad hapened to the indices
-     
+
     // do the linking
     truthmother = (RhoCandidate*) l[mcMotherID];
     l[k]->SetMotherLink(truthmother);
@@ -388,10 +387,10 @@ void PndAnalysis::ReadRecoCandidates()
 
 
 void PndAnalysis::BuildMcCands()
-{ 
+{
   int i;
   // Make Monte-carlo truth candidates by the reconstructed particles up to the initial state (if available)
-  if ( !fMcCands ){ 
+  if ( !fMcCands ){
     Warning("PndAnalysis::BuildMcCands","No array to store candidates...");
     return;
   }
@@ -402,12 +401,12 @@ void PndAnalysis::BuildMcCands()
   if ( fMcCands->GetEntriesFast() != 0 ) {
     fMcCands->Delete();
   }
-    
+
   if ( fMcTracks == 0 ) {
     Error ( "BuildMcCands","MC track Array does not exist." );
     return;
   }
-  
+
   //loop all MCTracks
   for (i=0;i<fMcTracks->GetEntriesFast();i++)
   {
@@ -432,10 +431,10 @@ void PndAnalysis::BuildMcCands()
     pmc->SetP4(p4);
     pmc->SetTrackNumber(i);
   }
-  
+
   //write correctly assigned copy of mc truth candidates
   GetMcCandList(fMcCandList);
-  
+
   // Assign MC truth to reconstructed allCandnds
   RhoCandidate* truth=0;
   for(int icand=0;icand<fAllCandList.GetLength();icand++){
@@ -647,7 +646,7 @@ Bool_t PndAnalysis::Propagator ( int mode, FairTrackParP& tStart, RhoCandidate* 
     Error ( "Propagator()","Use mode 1 (to a TVector3) or mode 2 (to z axis) or mode 3 (to plane). (Mode=%i)",mode );
     return kFALSE;
   }
-  
+
   if(skipcov) geaneProp->PropagateOnlyParameters();
 
   FairTrackParH* myResult=0;
@@ -659,7 +658,7 @@ Bool_t PndAnalysis::Propagator ( int mode, FairTrackParP& tStart, RhoCandidate* 
   }else{
     myResult = new FairTrackParH();
     FairTrackParH* myStart = new FairTrackParH ( tStart );
-    rc = geaneProp->Propagate ( myStart, myResult,pdgcode ); 
+    rc = geaneProp->Propagate ( myStart, myResult,pdgcode );
   }
 
   if ( !rc ) {
@@ -697,7 +696,7 @@ Bool_t PndAnalysis::Propagator ( int mode, FairTrackParP& tStart, RhoCandidate* 
     std::cout<<"momentum difference:";
     vecdiff.Print();
   }
- 
+
   if(kFALSE==skipcov){
     Double_t globalCov[6][6];
     myParab->GetMARSCov ( globalCov );
@@ -756,10 +755,10 @@ Bool_t PndAnalysis::Propagator ( int mode, FairTrackParP& tStart, RhoCandidate* 
     tStart.SetTrackPar(myParab->GetV(), myParab->GetW(),
                        myParab->GetTV(), myParab->GetTW(),
                        myParab->GetQp(), myParab->GetCov(),
-                       myParab->GetOrigin(), 
-                       myParab->GetIVer(), 
-                       myParab->GetJVer(), 
-                       myParab->GetKVer(), 
+                       myParab->GetOrigin(),
+                       myParab->GetIVer(),
+                       myParab->GetJVer(),
+                       myParab->GetKVer(),
                        myParab->GetSPU()
                        );
   }
@@ -783,7 +782,7 @@ Bool_t PndAnalysis::McTruthMatch(RhoCandidate* cand, Int_t level, bool verbose)
 {
     return MctMatch(cand,fMcCandList,level,verbose);
 }
-    
+
 Int_t PndAnalysis::McTruthMatch(RhoCandList& list, Int_t level, bool verbose)
 {
   Int_t ifound = 0;
@@ -815,8 +814,8 @@ Bool_t PndAnalysis::MctMatch ( RhoCandidate* c, RhoCandList& mct, Int_t level, b
       if(verbose) Info("PndMcTruthMatch::MctMatch","rejected final state by PDG Code (pdg=%i|mcpdg=%i)",pdg, mccnd->PdgCode());
       return false;
     }
-  } 
-    
+  }
+
     // check recursively whether all daughter trees match
   for ( Int_t i=0; i<nd; i++ ) {
     if ( !MctMatch (  c->Daughter ( i ) , mct, level, verbose ) ) {
@@ -839,7 +838,7 @@ Bool_t PndAnalysis::MctMatch ( RhoCandidate* c, RhoCandList& mct, Int_t level, b
     c->SetMcTruth(0);
     //return false;
   }
-    
+
   // find this particle's truth in the mc decay tree
   RhoCandidate* dauzero = c->Daughter(0);
   if (!dauzero) {
@@ -855,10 +854,10 @@ Bool_t PndAnalysis::MctMatch ( RhoCandidate* c, RhoCandList& mct, Int_t level, b
   if (!mcdauzeromother) {
     if(verbose) {Info("PndMcTruthMatch::MctMatch","rejected by not existing mother of MC truth of daughter zero");
     cout <<*mcdauzero<<endl;}
-    
+
     return false;
   }
-  
+
   //now check the tree structure:
   //  first daughter number
   if( nd != mcdauzeromother->NDaughters() ){
@@ -872,7 +871,7 @@ Bool_t PndAnalysis::MctMatch ( RhoCandidate* c, RhoCandList& mct, Int_t level, b
     if (!dau) {
       if(verbose) Info("PndMcTruthMatch::MctMatch","rejected by not existing daughter %i",idau);
       return false;
-    }      
+    }
     RhoCandidate* mcdau = dau->GetMcTruth();
     if (!mcdau) {
       if(verbose) Info("PndMcTruthMatch::MctMatch","rejected by not existing MC truth of daughter %i",idau);
