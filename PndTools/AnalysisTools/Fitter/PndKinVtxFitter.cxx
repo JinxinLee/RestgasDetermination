@@ -25,7 +25,7 @@ PndKinVtxFitter::PndKinVtxFitter( RhoCandidate* b) :
   RhoFitterBase( b )
 {
   fMassConstraint =-1;
-  fPointConstraint=-1;
+  //fPointConstraint=-1;
 
   fMinDChisq=0.01;
   fNMaxIterations=20;
@@ -43,12 +43,12 @@ void PndKinVtxFitter::AddMassConstraint(double mass)
   fMass=mass;
 }
 
-void PndKinVtxFitter::AddPointingConstraint(TVector3 pVtx)
-{
-  fPointConstraint = 1;
-  fpVtx=pVtx;
-}
-
+// void PndKinVtxFitter::AddPointingConstraint(TVector3 pVtx)
+// {
+//   fPointConstraint = 1;
+//   fpVtx=pVtx;
+// }
+//
 
 Bool_t PndKinVtxFitter::FitNode(RhoCandidate *cand)
 {
@@ -105,9 +105,9 @@ Bool_t PndKinVtxFitter::Compute()
   if(fMassConstraint >0) {
     NumCon += 1;
   }
-  if(fPointConstraint >0) {
-    NumCon += 2;
-  }
+//   if(fPointConstraint >0) {
+//     NumCon += 2;
+//   }
 
   fNDegreesOfFreedom=NumCon-3;
 
@@ -152,7 +152,6 @@ Bool_t PndKinVtxFitter::Compute()
     if(fMassConstraint >0) {
       ReadMassKinMatrix();
     } else {
-    //here should be thr else statement, right?
       ReadKinMatrix();
     }
 
@@ -682,60 +681,60 @@ void PndKinVtxFitter::ReadMassKinMatrix()
 }
 
 // not used yet?
-void PndKinVtxFitter::ReadPointingKinMatrix(RhoCandidate* head)
-{
-  //Pass the vertex point
-  // To be applied on the composite particle
-
-  //int nd=fDaughters.size(); //unused
-
-  mD.ResizeTo(fNcon,fNpar);
-  mE.ResizeTo(fNcon,3);
-  md.ResizeTo(fNcon,1);
-
-  //double ch= fHeadOfTree->GetCharge(); //unused
-  //TLorentzVector p1=fHeadOfTree->P4();
-  //TVector3 p2=fHeadOfTree->Pos();
-  TLorentzVector p1=head->P4(); //[ralfk:01.12.11 Try to make it a leaf-by-leaf fit]
-  TVector3 p2=head->Pos();  //[ralfk:01.12.11 Try to make it a leaf-by-leaf fit]
-  double delX = p2.X() - fpVtx.X();
-  double delY = p2.Y() - fpVtx.Y();
-  double delZ = p2.Z() - fpVtx.Z();
-
-  double px = p1.X();
-  double py = p1.Y();
-  double pz = p1.Z();
-
-
-  //double bField = TRho::Instance()->GetMagnetField(); //unused, why?
-  //double a = -0.0029979246*ch*2.0; //TODO: bfield put manually here?
-  double pT = sqrt(px*px + py*py);
-  double delT= sqrt(delX*delX + delY*delY);
-  double p = sqrt(px*px + py*py + pz*pz);
-  double T = sqrt(delX*delX + delY*delY + delZ*delZ);
-
-
-  md[fNc+0][0] = (1-delX/delT)/(delY/delT) - (1-px/pT)/(py/pT);
-  md[fNc+1][0]= (1-delT/T)/(delZ/T) - (1-(pT/p))/(pz/p);
-
-  mD[fNc+0][0]  = -(px/(py*pT) - 1/py);
-  mD[fNc+0][1] = -(1/pT - pT/(py*py)+ px/(py*py));
-  mD[fNc+0][2] = 0;
-  mD[fNc+0][3] = 0;
-  mD[fNc+0][4] = delX/(delY*delT) - 1/delY;
-  mD[fNc+0][5] = 1/delT - delT/delY*delY+ delX/(delY*delY);
-  mD[fNc+0][6] = 0;
-
-  //half angle solution
-  mD[fNc+1][0] = -(px/pz)*(1/p - 1/pT);
-  mD[fNc+1][1] = -(py/pz)*(1/p - 1/pT);
-  mD[fNc+1][2] = -((1/(pz*pz))*(pT - p) + 1/p);
-  mD[fNc+1][3] = 0;
-  mD[fNc+1][4] = (delX/delZ)*(1/T - 1/delT);
-  mD[fNc+1][5] = (delY/delZ)*(1/T - 1/delT);
-  mD[fNc+1][6] = (1/(delZ*delZ))*(delT - T) + 1/T;
-
-}
+// void PndKinVtxFitter::ReadPointingKinMatrix(RhoCandidate* head)
+// {
+//   //Pass the vertex point
+//   // To be applied on the composite particle
+//
+//   //int nd=fDaughters.size(); //unused
+//
+//   mD.ResizeTo(fNcon,fNpar);
+//   mE.ResizeTo(fNcon,3);
+//   md.ResizeTo(fNcon,1);
+//
+//   //double ch= fHeadOfTree->GetCharge(); //unused
+//   //TLorentzVector p1=fHeadOfTree->P4();
+//   //TVector3 p2=fHeadOfTree->Pos();
+//   TLorentzVector p1=head->P4(); //[ralfk:01.12.11 Try to make it a leaf-by-leaf fit]
+//   TVector3 p2=head->Pos();  //[ralfk:01.12.11 Try to make it a leaf-by-leaf fit]
+//   double delX = p2.X() - fpVtx.X();
+//   double delY = p2.Y() - fpVtx.Y();
+//   double delZ = p2.Z() - fpVtx.Z();
+//
+//   double px = p1.X();
+//   double py = p1.Y();
+//   double pz = p1.Z();
+//
+//
+//   //double bField = TRho::Instance()->GetMagnetField(); //unused, why?
+//   //double a = -0.0029979246*ch*2.0; //TODO: bfield put manually here?
+//   double pT = sqrt(px*px + py*py);
+//   double delT= sqrt(delX*delX + delY*delY);
+//   double p = sqrt(px*px + py*py + pz*pz);
+//   double T = sqrt(delX*delX + delY*delY + delZ*delZ);
+//
+//
+//   md[fNc+0][0] = (1-delX/delT)/(delY/delT) - (1-px/pT)/(py/pT);
+//   md[fNc+1][0]= (1-delT/T)/(delZ/T) - (1-(pT/p))/(pz/p);
+//
+//   mD[fNc+0][0]  = -(px/(py*pT) - 1/py);
+//   mD[fNc+0][1] = -(1/pT - pT/(py*py)+ px/(py*py));
+//   mD[fNc+0][2] = 0;
+//   mD[fNc+0][3] = 0;
+//   mD[fNc+0][4] = delX/(delY*delT) - 1/delY;
+//   mD[fNc+0][5] = 1/delT - delT/delY*delY+ delX/(delY*delY);
+//   mD[fNc+0][6] = 0;
+//
+//   //half angle solution
+//   mD[fNc+1][0] = -(px/pz)*(1/p - 1/pT);
+//   mD[fNc+1][1] = -(py/pz)*(1/p - 1/pT);
+//   mD[fNc+1][2] = -((1/(pz*pz))*(pT - p) + 1/p);
+//   mD[fNc+1][3] = 0;
+//   mD[fNc+1][4] = (delX/delZ)*(1/T - 1/delT);
+//   mD[fNc+1][5] = (delY/delZ)*(1/T - 1/delT);
+//   mD[fNc+1][6] = (1/(delZ*delZ))*(delT - T) + 1/T;
+//
+// }
 
 /*
  // better alternate way .........

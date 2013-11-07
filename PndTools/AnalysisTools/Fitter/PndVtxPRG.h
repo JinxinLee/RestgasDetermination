@@ -25,7 +25,7 @@ class PndVtxPRG : public RhoFitterBase
     void SetExpansionPoint(TVector3 P) {fExpansionPoint=P;}
     void SetNIterations(int i) {fNIterations=i;};
 
-    double FitVertexFast(TVector3& vtx, TMatrixD& cov, bool skipcov=false);
+    double FitVertexFast(TVector3& vtx, TMatrixD& cov, bool skipcov=false, int niter=2);
     //double FitVertexFull(TVector3& vtx, TMatrixD& cov);
 
     void SetDebug(bool db = true) {if(db) { fVerbose=true; } fDebug=db;};

@@ -17,7 +17,7 @@ TBuffer& operator>>(TBuffer& buf, PndVtxPRG *&obj)
 PndVtxPRG::PndVtxPRG( RhoCandidate* b) :
   RhoFitterBase(b),
   fDebug(false),
-  fNIterations(1),
+  fNIterations(2),
   fExpansionPoint(0.,0.,0.),  // Assume Zero origin as default
   fPrgCov(5,5),
   fJacobian(5,7)
@@ -73,7 +73,7 @@ Bool_t PndVtxPRG::FitNode(RhoCandidate* b)
 
 
 
-Double_t PndVtxPRG::FitVertexFast(TVector3& vtx, TMatrixD& cov, bool skipcov)
+Double_t PndVtxPRG::FitVertexFast(TVector3& vtx, TMatrixD& cov, bool skipcov, int niter)
 {
   // Calculate a vertex of n tracks without considering the changes in momentum vector
   // the variables vtx & cov (3x3) are written and the Chi^2 is returned.
@@ -81,108 +81,110 @@ Double_t PndVtxPRG::FitVertexFast(TVector3& vtx, TMatrixD& cov, bool skipcov)
   // which the fitter was initialized with.
   int nTrk = fCurrentHead->NDaughters();
   fNDegreesOfFreedom=2*nTrk-3;
+  for (int iterate=0;iterate<niter;iterate++){
+    fExpansionPoint=vtx;
+    std::vector<TMatrixD> w;
+    std::vector<TMatrixD> xp;
+    TMatrixD sumw(3,3);
+    TMatrixD sumwx(3,1);
+    Double_t determinant = 0.;
+    for(int i=0; i<nTrk; i++) {
+      RhoCandidate* tcand = fCurrentHead->Daughter(i);
+      // get Helix in PRG notation from Billoir paper
+      // (epsilon,z0,theta,phi0,rho)
+      Bool_t testprg = CalcPrgParams(tcand,fExpansionPoint);
+      if(!testprg) { return -2; }
 
-  std::vector<TMatrixD> w;
-  std::vector<TMatrixD> xp;
-  TMatrixD sumw(3,3);
-  TMatrixD sumwx(3,1);
-  Double_t determinant = 0.;
+      if (fVerbose) {
+        printf("#$# Fast #$# Helix params:\n\t epsilon\t = %.4g cm\n\t Z0\t = %.4g cm\n\t theta\t = %.4g\n\t phi0\t = %.4g\n\t rho\t = %.4g\n",fPrgParams[0],fPrgParams[1],fPrgParams[2],fPrgParams[3],fPrgParams[4]);
+        std::cout<<" #$# Fast #$# Helix cov: ";
+        fPrgCov.Print();
+      }
 
-  for(int i=0; i<nTrk; i++) {
-    RhoCandidate* tcand = fCurrentHead->Daughter(i);
-    // get Helix in PRG notation from Billoir paper
-    // (epsilon,z0,theta,phi0,rho)
-    Bool_t testprg = CalcPrgParams(tcand,fExpansionPoint);
-    if(!testprg) { return -2; }
+      Double_t s = sin(fPrgParams[3]);
+      Double_t c = cos(fPrgParams[3]);
+      Double_t t = TMath::Tan(fPrgParams[2]);
+      if(t!=0.) { t = 1/t; }
+      else { return -3; }   // t = cot(theta)
 
-    if (fVerbose) {
-      printf("#$# Fast #$# Helix params:\n\t epsilon\t = %.4g cm\n\t Z0\t = %.4g cm\n\t theta\t = %.4g\n\t phi0\t = %.4g\n\t rho\t = %.4g\n",fPrgParams[0],fPrgParams[1],fPrgParams[2],fPrgParams[3],fPrgParams[4]);
-      std::cout<<" #$# Fast #$# Helix cov: ";
-      fPrgCov.Print();
+        TMatrixD COVi(2,2); // track parameter cov for (epsilon,z0)
+        COVi[0][0]=fPrgCov[0][0];
+        COVi[0][1]=fPrgCov[0][1];
+        COVi[1][0]=fPrgCov[1][0];
+        COVi[1][1]=fPrgCov[1][1];
+        if(fVerbose) {std::cout<<" #$# Fast #$# COVi  "; COVi.Print();}
+
+        TMatrixD Di(2,3); // Derivative in V, 2x3
+        Di[0][0]=fJacobian[0][0]; // dEpsilon  / dvx
+        Di[0][1]=fJacobian[0][1]; // dEpsilon   /dvy
+        Di[0][2]=fJacobian[0][2]; // dEpsilon   /dvz
+        Di[1][0]=fJacobian[1][0]; // dZ0   /dvx
+        Di[1][1]=fJacobian[1][1]; // dZ0   /dvy
+        Di[1][2]=fJacobian[1][2]; // dZ0   /dvz
+        if(fDebug) {std::cout<<" #$# Fast #$# Di  "; Di.Print();}
+
+        TMatrixD xpi(1,3);
+        xpi[0][0]=s*fPrgParams[0];
+        xpi[0][1]=-c*fPrgParams[0];
+        xpi[0][2]=fPrgParams[1];
+        xp.push_back(xpi); // save for later use
+        if(fVerbose) {std::cout<<" #$# Fast #$# xpi "; xpi.Print();}
+
+        //propagate to Vertex
+        TMatrixD Wi(COVi);
+        Wi.InvertFast(&determinant);
+        if (determinant == 0.) {
+          std::cout<<"PndVtxPRG: COVi Inversion failed, abort fit -888"<<std::endl;
+          return -888;
+        }
+        //TMatrixD Wi(TMatrixD::kInverted,COVi); // no determinant returned -> No check possible
+        if(fDebug) {std::cout<<" #$# Fast #$# Wi"<<std::endl; Wi.Print();}
+        TMatrixD wi(TMatrixD(Di,TMatrixD::kTransposeMult,Wi),TMatrixD::kMult,Di);
+        w.push_back(wi); // save for later use
+        if(fDebug) {std::cout<<" #$# Fast #$# wi  "; wi.Print();}
+        TMatrixD wixpi(wi,TMatrixD::kMultTranspose,xpi);
+        if(fDebug) {std::cout<<" #$# Fast #$# wixpi  "; wixpi.Print();}
+
+        sumw+=wi; // sum up weights
+        if(fDebug) {std::cout<<" #$# Fast #$# sumw  "; sumw.Print();}
+        sumwx+=wixpi; // sum up weighted positions
+        if(fDebug) {std::cout<<" #$# Fast #$# sumwx  "; sumwx.Print();}
     }
 
-    Double_t s = sin(fPrgParams[3]);
-    Double_t c = cos(fPrgParams[3]);
-    Double_t t = TMath::Tan(fPrgParams[2]);
-    if(t!=0.) { t = 1/t; }
-    else { return -3; }   // t = cot(theta)
-
-    TMatrixD COVi(2,2); // track parameter cov for (epsilon,z0)
-    COVi[0][0]=fPrgCov[0][0];
-    COVi[0][1]=fPrgCov[0][1];
-    COVi[1][0]=fPrgCov[1][0];
-    COVi[1][1]=fPrgCov[1][1];
-    if(fVerbose) {std::cout<<" #$# Fast #$# COVi  "; COVi.Print();}
-
-    TMatrixD Di(2,3); // Derivative in V, 2x3
-    Di[0][0]=fJacobian[0][0]; // dEpsilon  / dvx
-    Di[0][1]=fJacobian[0][1]; // dEpsilon   /dvy
-    Di[0][2]=fJacobian[0][2]; // dEpsilon   /dvz
-    Di[1][0]=fJacobian[1][0]; // dZ0   /dvx
-    Di[1][1]=fJacobian[1][1]; // dZ0   /dvy
-    Di[1][2]=fJacobian[1][2]; // dZ0   /dvz
-    if(fDebug) {std::cout<<" #$# Fast #$# Di  "; Di.Print();}
-
-    TMatrixD xpi(1,3);
-    xpi[0][0]=s*fPrgParams[0];
-    xpi[0][1]=-c*fPrgParams[0];
-    xpi[0][2]=fPrgParams[1];
-    xp.push_back(xpi); // save for later use
-    if(fVerbose) {std::cout<<" #$# Fast #$# xpi "; xpi.Print();}
-
-
-    //propagate to Vertex
-    TMatrixD Wi(COVi);
-    Wi.InvertFast(&determinant);
-    if (determinant == 0.) {
-      std::cout<<"PndVtxPRG: COVi Inversion failed, abort fit -888"<<std::endl;
-      return -888;
+    TMatrixD cV(sumw);
+    cV.InvertFast(&determinant);
+    if (determinant==0) {
+      std::cout<<"PndVtxPRG: sumw Inversion failed, retunring -777"<<std::endl;
+      return -777;
     }
-    //TMatrixD Wi(TMatrixD::kInverted,COVi); // no determinant returned -> No check possible
-    if(fDebug) {std::cout<<" #$# Fast #$# Wi"<<std::endl; Wi.Print();}
-    TMatrixD wi(TMatrixD(Di,TMatrixD::kTransposeMult,Wi),TMatrixD::kMult,Di);
-    w.push_back(wi); // save for later use
-    if(fDebug) {std::cout<<" #$# Fast #$# wi  "; wi.Print();}
-    TMatrixD wixpi(wi,TMatrixD::kMultTranspose,xpi);
-    if(fDebug) {std::cout<<" #$# Fast #$# wixpi  "; wixpi.Print();}
+    //TMatrixD cV(TMatrixD::kInverted,sumw); // no determinant returned -> No check possible
+    if(fVerbose) {std::cout<<" #$# Fast #$# cV  "; cV.Print();}
+    TMatrixD V(cV,TMatrixD::kMult,sumwx);// result vertex
+    V.T(); // make it a row vector
+    if(fVerbose) {std::cout<<" #$# Fast #$# V  "; V.Print();}
+    vtx.SetXYZ(V[0][0],V[0][1],V[0][2]);
+    vtx += fExpansionPoint; // move back to origin
+    if(fVerbose) {std::cout<<" #$# Fast #$# Vtx: "; vtx.Print();}
 
-    sumw+=wi; // sum up weights
-    if(fDebug) {std::cout<<" #$# Fast #$# sumw  "; sumw.Print();}
-    sumwx+=wixpi; // sum up weighted positions
-    if(fDebug) {std::cout<<" #$# Fast #$# sumwx  "; sumwx.Print();}
+    if (skipcov) {
+      fChiSquare = -111.;// skip chisqare calculation
+    } else {
+      Double_t chisq=0.; // calculate chisquare
+      for(int i=0; i<nTrk; i++) {
+        if(fDebug) {std::cout<<" #$# Fast #$# V  "; V.Print();}
+        TMatrixD resid(xp[i],TMatrixD::kMinus,V);
+        if(fDebug) {std::cout<<" #$# Fast #$# resid  "; resid.Print();}
+        if(fDebug) {std::cout<<" #$# Fast #$# w["<<i<<"]  "; w[i].Print();}
+        TMatrixD chisqi(TMatrixD(resid,TMatrixD::kMult,w[i]),TMatrixD::kMultTranspose,resid);
+        if(fDebug) {std::cout<<" #$# Fast #$# chisqi  "; chisqi.Print();}
+        chisq+=chisqi[0][0];
+      }
+      if(fVerbose) {std::cout<<" #$# Fast #$# chisq = "<<chisq<<std::endl;}
+      cov=cV;
+      fChiSquare=chisq;
+    }
   }
-
-  TMatrixD cV(sumw);
-  cV.InvertFast(&determinant);
-  if (determinant==0) {
-    std::cout<<"PndVtxPRG: sumw Inversion failed, retunring -777"<<std::endl;
-    return -777;
-  }
-  //TMatrixD cV(TMatrixD::kInverted,sumw); // no determinant returned -> No check possible
-  if(fVerbose) {std::cout<<" #$# Fast #$# cV  "; cV.Print();}
-  TMatrixD V(cV,TMatrixD::kMult,sumwx);// result vertex
-  V.T(); // make it a row vector
-  if(fVerbose) {std::cout<<" #$# Fast #$# V  "; V.Print();}
-  vtx.SetXYZ(V[0][0],V[0][1],V[0][2]);
-  vtx += fExpansionPoint; // move back to origin
-  if(fVerbose) {std::cout<<" #$# Fast #$# Vtx: "; vtx.Print();}
-
-  if (skipcov) { return -1.; } // skip chisqare calculation
-
-  Double_t chisq=0.; // calculate chisquare
-  for(int i=0; i<nTrk; i++) {
-    if(fDebug) {std::cout<<" #$# Fast #$# V  "; V.Print();}
-    TMatrixD resid(xp[i],TMatrixD::kMinus,V);
-    if(fDebug) {std::cout<<" #$# Fast #$# resid  "; resid.Print();}
-    if(fDebug) {std::cout<<" #$# Fast #$# w["<<i<<"]  "; w[i].Print();}
-    TMatrixD chisqi(TMatrixD(resid,TMatrixD::kMult,w[i]),TMatrixD::kMultTranspose,resid);
-    if(fDebug) {std::cout<<" #$# Fast #$# chisqi  "; chisqi.Print();}
-    chisq+=chisqi[0][0];
-  }
-  if(fVerbose) {std::cout<<" #$# Fast #$# chisq = "<<chisq<<std::endl;}
-  cov=cV;
-  fChiSquare=chisq;
-  return chisq;
+  return fChiSquare;
 
 }
 

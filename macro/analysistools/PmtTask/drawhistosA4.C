@@ -97,8 +97,10 @@ plotandfithistosfromfile(TString filename = "histos.root", TString ext=".pdf", I
         his->SetFillColor(kAzure+2);
         his->SetBarWidth(0.75);
         his->SetBarOffset(0.125);
+        gStyle->SetPaintTextFormat("4.3f ms");
+        his->SetMarkerSize(2.);
         his->Draw("BAR");
-        //his->Draw();
+        his->Draw("TEXT0 SAME");
       } else {
         GaussFitPlot(his);
       }
@@ -127,7 +129,7 @@ void GaussFitPlot(TH1* his) {
   TF1* fitted = new TF1(fitname.Data(),"gaus",-5,5);
   //fitted->SetParameters(par);
   cout<<" --- Fitting Gaussian to histogram "<<his->GetName()<<"  \""<<his->GetTitle()<<"\" ---"<<endl;
-  fitted->SetLineColor(4);
+  fitted->SetLineColor(kAzure+2);
   fitted->SetLineWidth(2);
   fitted->SetLineStyle(2);
   his->Fit(fitted);
@@ -153,7 +155,7 @@ void LineFitPlot(TH1* his) {
   TString fitname="myline";fitname+=ccc;
   TF1* fitted = new TF1(fitname.Data(),"pol1");
   cout<<" --- Fitting Line to histogram "<<his->GetName()<<"  \""<<his->GetTitle()<<"\" ---"<<endl;
-  fitted->SetLineColor(4);
+  fitted->SetLineColor(kAzure+2);
   fitted->SetLineWidth(2);
   fitted->SetLineStyle(2);
   his->Fit(fitted);

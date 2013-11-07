@@ -25,12 +25,12 @@ class PndKinVtxFitter : public RhoFitterBase
     PndKinVtxFitter( RhoCandidate* b) ;
     virtual ~PndKinVtxFitter();
     void AddMassConstraint(double mass);
-    void AddPointingConstraint(TVector3 pVtx);
+    //void AddPointingConstraint(TVector3 pVtx);
     double GetPull() {return fPull;}
     Float_t GetPocaVtx(TVector3& vertex, RhoCandidate* a, RhoCandidate* b);
 
     void SetNMaxIterations(int nit=20){fNMaxIterations=nit;fIterateExact=false;};
-    void SetNIterationsExact(int nit=3){fNMaxIterations=nit;fIterateExact=true;};
+    void SetNIterationsExact(int nit=2){fNMaxIterations=nit;fIterateExact=true;};
     void SetMinDChisq(double m=0.001){fMinDChisq=fabs(m);};
 
   private:
@@ -42,8 +42,8 @@ class PndKinVtxFitter : public RhoFitterBase
 
     void ReadKinMatrix();
     void ReadMassKinMatrix();
-    void ReadPointingKinMatrix() {ReadPointingKinMatrix(fHeadOfTree);};
-    void ReadPointingKinMatrix(RhoCandidate* head);
+    //void ReadPointingKinMatrix() {ReadPointingKinMatrix(fHeadOfTree);};
+    //void ReadPointingKinMatrix(RhoCandidate* head);
 
 
     Bool_t Compute();
@@ -89,10 +89,10 @@ class PndKinVtxFitter : public RhoFitterBase
 
 
     double fMass;
-    TVector3 fpVtx;
+    //TVector3 fpVtx;
 
     int fMassConstraint;
-    int fPointConstraint;
+    //int fPointConstraint;
 
     // control abortion of fit
     double fMinDChisq;

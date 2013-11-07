@@ -186,7 +186,7 @@ void PndPmtTask::Init() {
   fHPrgPull3 = new TH1F("hprgpull3","PRG Pull Distribution (3)",bins,-pullrange,pullrange);
   fHPrgPull4 = new TH1F("hprgpull4","PRG Pull Distribution (4)",bins,-pullrange,pullrange);
 
-  fHCpu = new TH1D("hcpu","CPU loads",5,0,5);
+  fHCpu = new TH1D("hcpu","CPU loads (ms)",5,0,5);
   fHCpu->GetXaxis()->SetBinLabel(1,"PMT");
   fHCpu->GetXaxis()->SetBinLabel(2,"POCA");
   fHCpu->GetXaxis()->SetBinLabel(3,"PRG Fast");
@@ -448,11 +448,9 @@ void PndPmtTask::Exec(Option_t* opt) {
     if(fVerbose>0) cout<<"prg "<<flush;
     vertexFast=nullpunkt; //seed
     double chiq = -5454;
+    vFastter.SetExpansionPoint(vertexFast);
     fSwPrgfast.Start(kFALSE);
-    for (int itfit=0;itfit<2;itfit++){ // at least 2 iterations!
-      vFastter.SetExpansionPoint(vertexFast);
-      chiq = vFastter.FitVertexFast(vertexFast,covV);
-    }
+    chiq = vFastter.FitVertexFast(vertexFast,covV,false,2); // 2 iterations, don't skip cov
     fSwPrgfast.Stop();
     if (chiq>=0){
       if(fVerbose>0) cout<<" - chiq = "<<chiq<<"  \t";if(fVerbose>1)cout<<endl;
@@ -633,11 +631,11 @@ void PndPmtTask::Finish()
   //fHCpu->Fill("PRG Fast",fSwPrgfast.RealTime()/fSwAll.RealTime());
   //fHCpu->Fill("PRG Full",fSwPrgfull.RealTime()/fSwAll.RealTime());
   //fHCpu->Fill("KinVtx",fSwKin.RealTime()/fSwAll.RealTime());
-  fHCpu->Fill("PMT",fSwPMT.RealTime()/fSwPMT.Counter());
-  fHCpu->Fill("POCA",fSwPoca.RealTime()/fSwPMT.Counter());
-  fHCpu->Fill("PRG Fast",fSwPrgfast.RealTime()/fSwPMT.Counter());
-  fHCpu->Fill("PRG Full",fSwPrgfull.RealTime()/fSwPMT.Counter());
-  fHCpu->Fill("KinVtx",fSwKin.RealTime()/fSwPMT.Counter());
+  fHCpu->Fill("PMT",1000*fSwPMT.RealTime()/fSwPMT.Counter());
+  fHCpu->Fill("POCA",1000*fSwPoca.RealTime()/fSwPMT.Counter());
+  fHCpu->Fill("PRG Fast",1000*fSwPrgfast.RealTime()/fSwPMT.Counter());
+  fHCpu->Fill("PRG Full",1000*fSwPrgfull.RealTime()/fSwPMT.Counter());
+  fHCpu->Fill("KinVtx",1000*fSwKin.RealTime()/fSwPMT.Counter());
 
 
   //Write and Plot all histos from List
