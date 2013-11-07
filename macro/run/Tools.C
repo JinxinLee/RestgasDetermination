@@ -22,7 +22,7 @@
 //     Thanks go to Thomas Goepfert & Markus Warsinsky from IKTP Dresden
 //     Making a legend for staccked histograms. It still has to be drawn.
 //   LoadPandaStyle()
-//     Sets the formerly official Panda styling to histograms, fonts etc. 
+//     Sets the formerly official Panda styling to histograms, fonts etc.
 //     Note that this is a modified version to remove clipping bugs and to set
 //     the nicer rainbow plots.
 //   TH1D TransformHisto(TH2*,min,max)
@@ -34,6 +34,11 @@
 //   TString InitDefaultRun(TString filetag)
 //     R.Kliemt, 2011
 //     Initialize a default named set of files and a FairRunAna object
+//   DrawHistSecondScale(TH1* histo, int color)
+//     R.Kliemt, 2013
+//     Draw a histogram overlaying as with the "same" option, but scaling it to
+//     the right size and adding the proper axis on the right
+//
 
 
 #include <TLatex.h>
@@ -60,7 +65,7 @@ void DrawText(Double_t posX = 0., Double_t posY = 0., const char* text = "",
               )
 {
   // Drawing some TLatex text in a root canvas, overlaying the content
-  
+
   TLatex* pText=new TLatex(posX,posY,text);
   pText->SetNDC(kTRUE);
   //   pText->SetNDC(bNDC);
@@ -95,7 +100,7 @@ void set_nicer_2d_plot_style()
 {
   const Int_t NRGBs = 5;
   const Int_t NCont = 99;//255;
-  
+
   Double_t stops[NRGBs] = { 0.00, 0.34, 0.61, 0.84, 1.00 };
   Double_t red[NRGBs]   = { 0.00, 0.00, 0.87, 1.00, 0.51 };
   Double_t green[NRGBs] = { 0.00, 0.81, 1.00, 0.20, 0.00 };
@@ -113,12 +118,12 @@ void BetterStatBox( TPad* pad ){
   ///   erzeugt, wenn das Histogramm wirklich gezeichnet wird)
   /// * der Funktion das aktuelle TPad uebergeben
   ///   (z.B.: TPad* p=(TPad*)gPad; BetterStatBox(p);)
-  
+
   int entries  = pad->GetListOfPrimitives()->GetEntries();
   TString name = "";
   TPaveStats *st;
   int obj = 1;
-  
+
   for(int i=0; i<entries; i++){
     name = pad->GetListOfPrimitives()->At(i)->IsA()->GetName();
     if( name.Contains("TH1") ){
@@ -140,14 +145,14 @@ void BetterStatBox( TPad* pad ){
 
 // TLegend discontinued in ROOT ???
 //TLegend* BuildLegend_THStack( THStack* stack, float x1, float y1, float x2, float y2 ){
-//  
+//
 //  TLegend* legend = new TLegend(x1,y1,x2,y2);
 //  TList*   list = stack->GetHists();
 //  TIter    next( list );
 //  TH1*     hist;
-//  
+//
 //  while ( hist = (TH1*)next() ) legend->AddEntry(hist,"","F");
-//  
+//
 //  return legend;
 //}
 
@@ -179,11 +184,11 @@ void ImproveDefaultStyle()
   gStyle->SetOptTitle(1);
   gStyle->SetOptStat(1);
   gStyle->SetOptFit(1);
-  
+
   // put tick marks on top and RHS of plots
   gStyle->SetPadTickX(1);
   gStyle->SetPadTickY(1);
-  
+
   //R.K. avoid clumsy axis lables
   gStyle->SetNdivisions(509); // default root value is 510
 
@@ -191,7 +196,7 @@ void ImproveDefaultStyle()
 
 void LoadPandaStyle(void)
 {
-  
+
   //--------------------------------------------------------------------------
   // File and Version Information:
   //      $Id: PBase.C,v 1.8 2006/09/22 12:04:13 kliemt Exp $
@@ -211,24 +216,24 @@ void LoadPandaStyle(void)
   //     Copyright (C) 2001-2002        Ruhr Universitaet Bochum
   //
   //------------------------------------------------------------------------
-  
+
   if(gStyle->GetName() == "PANDA") return;
   // use the 'plain' style for plots (white backgrounds, etc)
   //cout << "...using style 'Plain'" << endl;
   //gROOT->SetStyle("Plain");
-  
+
   // Create the 'PANDA' style for approved plots. Note that this style may need
   // some fine tuning in your macro depending on what you are plotting, e.g.
   //
   //  gStyle->SetMarkerSize(0.75);  // use smaller markers in a histogram with many bins
   //  gStyle->SetTitleOffset(0.65,"y");  // bring y axis label closer to narrow values
-  
-  
+
+
   // Ralf Kliemt:
   // I changed a bit for myself here
-  
+
   TStyle *pandaStyle= new TStyle("PANDA","PANDA approved plots style, modified by ralfk");
-  
+
   // use plain black on white colors
   pandaStyle->SetFrameBorderMode(0);
   pandaStyle->SetCanvasBorderMode(0);
@@ -240,12 +245,12 @@ void LoadPandaStyle(void)
   //   pandaStyle->SetFillColor(0);// conflict with 2D plots
   //   pandaStyle->SetPalette(1);
   //R.K: Now remove the title box
-  //pandaStyle->SetTitleAlign(33);  
+  //pandaStyle->SetTitleAlign(33);
   pandaStyle->SetTitleBorderSize(0);
   pandaStyle->SetTitleColor(1);
   pandaStyle->SetTitleFillColor(0);
   pandaStyle->SetTitleFontSize(0.07);
-  
+
 
   // set the paper & margin sizes
   pandaStyle->SetPaperSize(20,26);
@@ -258,7 +263,7 @@ void LoadPandaStyle(void)
 //  pandaStyle->SetPadRightMargin(0.05);
 //  pandaStyle->SetPadBottomMargin(0.16);
 //  pandaStyle->SetPadLeftMargin(0.12);
-  
+
   // use large Times-Roman fonts
   //   pandaStyle->SetTextFont(132);
   //   pandaStyle->SetLabelFont(132,"x");
@@ -275,7 +280,7 @@ void LoadPandaStyle(void)
   pandaStyle->SetTitleSize(0.06,"y");
   pandaStyle->SetLabelSize(0.05,"z");
   pandaStyle->SetTitleSize(0.06,"z");
-  
+
   // use bold lines and markers
   pandaStyle->SetMarkerStyle(8);
   pandaStyle->SetHistLineWidth(1.85);//1.85);
@@ -285,16 +290,16 @@ void LoadPandaStyle(void)
   pandaStyle->SetOptTitle(1);
   pandaStyle->SetOptStat(1);
   pandaStyle->SetOptFit(1);
-  
+
   // put tick marks on top and RHS of plots
   pandaStyle->SetPadTickX(1);
   pandaStyle->SetPadTickY(1);
-  
+
   //R.K. avoid clumsy axis lables
   pandaStyle->SetNdivisions(509); // default root value is 510
-  
+
   //cout <<"    For approved plots use: gROOT->SetStyle(\"PANDA\");"<< endl;
-  
+
   pandaStyle->cd();
   gROOT->ForceStyle();
   set_nicer_2d_plot_style();//[R.K.] use nicer 2D plots
@@ -310,7 +315,7 @@ TH1D TransformHisto(TH2* h2, double min, double max)
    *  Created on: Feb 25, 2009
    *      Author: stockman
    */
-  
+
 	TH1D result("h1","h1", 1000, min, max);
 	int nbins = h2->GetNbinsX() * h2->GetNbinsY();
 	for (int i = 0; i < nbins; i++){
@@ -343,7 +348,7 @@ plothistosfromfile(TString filename = "histos.root", TString ext=".ps", Int_t di
   cout << "opening: " << pic.Data()<<endl;
   can->Print(pic);
   pic=picname;
-  
+
   TList* list = file->GetListOfKeys();
   if (!list) {cout<<"List not there..."<<endl;return;}
   int padcount = 1;
@@ -408,10 +413,10 @@ plothistosfromfile(TString filename = "histos.root", TString ext=".ps", Int_t di
       }
       hpro->Draw();
     } else continue;
-    
+
     padcount++;
   }
-  
+
   can->Print(pic.Data());
   pic = picname + "]"; // close ps
   can->Print(pic.Data());
@@ -425,10 +430,10 @@ plothistosfromfile(TString filename = "histos.root", TString ext=".ps", Int_t di
 
 void LoadManySimFiles(TString treename="cbmsim")
 { // to use that method you should have opened some files
-  // containing the same tree structure, like splitted files of 
-  // mass production simulations. (like "root -f data/sim01*.root" 
+  // containing the same tree structure, like splitted files of
+  // mass production simulations. (like "root -f data/sim01*.root"
   // tree examination is available via TTree::Draw(...)
-  
+
   TIter next(gROOT->GetListOfFiles());
   TFile *fi=0;
   TChain *R=new TChain(treename.Data());
@@ -441,7 +446,7 @@ TString InitDefaultRun(TString filetag)
   cout << "-I- Using InitDefaultRun() from macro/run/Tools.C with the sim file " << filetag.Data() << endl;
   FairRunAna* fRun = new FairRunAna();
   FairRuntimeDb* rtdb = fRun->GetRuntimeDb();
-  
+
   filetag.ReplaceAll("_sim.root",".root");
   PndFileNameCreator namecreator(filetag.Data());
   TString simFile = namecreator.GetSimFileName();
@@ -463,16 +468,35 @@ TString InitDefaultRun(TString filetag)
   FairParRootFileIo* parIO = new FairParRootFileIo();
   parIO->open(parFile.Data());
   rtdb->setFirstInput(parIO);
-  rtdb->setOutput(parIO);  
-  
+  rtdb->setOutput(parIO);
+
   TString outFile = evrdummy;
-  TString sysFile = gSystem->Getenv("VMCWORKDIR");  
-  
+  TString sysFile = gSystem->Getenv("VMCWORKDIR");
+
   fRun->SetOutputFile(outFile.Data());
   FairGeane* geane = new FairGeane();
   fRun->AddTask(geane);
-  fRun->Init();  
+  fRun->Init();
   return histoFile;
+}
+
+
+DrawHistSecondScale(TH1* hist, int color=kRed)
+{
+    // scale hint1 to the pad coordinates
+   Float_t rightmax = 1.1*hist->GetMaximum();
+   Float_t scale = gPad->GetUymax()/rightmax;
+   hist->SetLineColor(color);
+   hist->Scale(scale);
+   hist->Draw("same");
+
+   // draw an axis on the right side
+   TGaxis *axis = new TGaxis(gPad->GetUxmax(),gPad->GetUymin(),
+   gPad->GetUxmax(), gPad->GetUymax(),0,rightmax,510,"+L");
+   axis->SetLineColor(color);
+   axis->SetTextColor(color);
+   axis->Draw();
+   return;
 }
 
 
