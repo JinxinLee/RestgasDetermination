@@ -92,6 +92,7 @@ class PndOnlineFilterInfo : public TObject
 	int fNTagChic02pi2pi0;
 	int fNTagChic04pi;
 	
+    ClassDef(PndOnlineFilterInfo,1);
     
 };
 
