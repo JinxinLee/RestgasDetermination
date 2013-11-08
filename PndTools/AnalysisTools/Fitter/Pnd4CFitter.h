@@ -15,8 +15,6 @@
 #include "TLorentzVector.h"
 #include "RhoBase/RhoCandList.h"
 
-#include "PndVtxFitterParticle.h"
-class PndVtxFitterParticle;
 class RhoCandidate;
 
 class Pnd4CFitter : public RhoFitterBase
@@ -29,9 +27,8 @@ class Pnd4CFitter : public RhoFitterBase
     Bool_t FitAll() {Fatal("Pnd4CFitter::FitAll()","Nit applicable. Please use Fit() or FitConserveMasses().");};
     void PrintTree(RhoCandidate* c, int l=0);
     double Chi2Contribution ( const RhoCandidate& ) const {Error("Pnd4CFitter::Chi2Contribution","No chi2 contribution available.");return -9999.;};
-    
-  private:
 
+  private:
 
     Bool_t Do4CFit(); //Fit, can freely change energy
     Bool_t Do4CFitWithMassConservation(); //Fit, conserving daughter masses

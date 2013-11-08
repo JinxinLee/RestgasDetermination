@@ -10,9 +10,6 @@
 #include "Pnd4CFitter.h"
 #include "RhoBase/RhoCandListIterator.h"
 
-#include "PndVtxFitterParticle.h"
-#include "PndVtxFitter_Init.h"
-#include "PndVtxFitterError.h"
 #include "RhoBase/RhoFactory.h"
 
 using namespace std;
@@ -154,7 +151,7 @@ Bool_t Pnd4CFitter::Do4CFit()
   TMatrixD alnew=al-V_al0*D_t*lam;
 
   // Writing results to final state
-  
+
   for (k=0; k<nd; k++) {
     TLorentzVector p1;//=fDaughters[k]->P4();
     p1.SetX(alnew[k*4+0][0]);
@@ -171,7 +168,7 @@ Bool_t Pnd4CFitter::Do4CFit()
 
   fChiSquare=chi2;
   //fNDegreesOfFreedom=4*nd+4-4*nd; //(measurement+constraints-adjusted)
-  fNDegreesOfFreedom=4; 
+  fNDegreesOfFreedom=4;
   return kTRUE;
 }
 

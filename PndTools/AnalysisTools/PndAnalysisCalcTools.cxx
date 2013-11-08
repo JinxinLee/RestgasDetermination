@@ -31,8 +31,6 @@
 #include "PndPidProbability.h"
 #include "PndPidListMaker.h"
 #include "PndMCTrack.h"
-#include "PndVtxFitterParticle.h"
-
 
 Int_t PndAnalysisCalcTools::fVerbose=0;
 
@@ -55,9 +53,9 @@ PndAnalysisCalcTools::~PndAnalysisCalcTools()
 //   TMatrixD helixcov(5,5);
 //   Bool_t rc = P7toHelix(cand->Pos(), cand->P4(), cand->GetCharge(), cand->Cov7(), helixparams, helixcov, skipcov);
 //   if (!rc) {Warning("FillHelixParams()","P7toHelix failed"); return kFALSE;}
-// 
+//
 //   cand->SetHelixParms(helixparams);
-// 
+//
 //   if (fVerbose>2) {
 //     std::cout<<"calculated helix Params:"
 //     <<"\n\tD0    ="<<helixparams[0]<<"\t cm"
@@ -67,7 +65,7 @@ PndAnalysisCalcTools::~PndAnalysisCalcTools()
 //     <<"\n\tcotTh ="<<helixparams[4]<<"\t "
 //     <<std::endl;
 //   }
-// 
+//
 //   if(!skipcov){
 //     Float_t rhohelixcov[15];
 //     rhohelixcov[0]  = helixcov[0][0];
@@ -87,8 +85,8 @@ PndAnalysisCalcTools::~PndAnalysisCalcTools()
 //     rhohelixcov[14] = helixcov[4][4];
 //     cand->SetHelixCov(rhohelixcov);
 //   }
-// 
-// 
+//
+//
 //   return kTRUE;
 // }
 
@@ -249,8 +247,6 @@ Bool_t PndAnalysisCalcTools::P7toHelix(const TVector3& pos, const TLorentzVector
   } // skip cov or not
   return kTRUE;
 }
-
-
 
 Bool_t PndAnalysisCalcTools::P7toPRG(const TVector3& pos, const TLorentzVector& p4, const Double_t Q, const TMatrixD& cov77,
                                      const TVector3& expPoint, Float_t* helixparams, TMatrixD& helixCov, TMatrixD& jacobian, Bool_t skipcov)
@@ -434,9 +430,9 @@ Bool_t PndAnalysisCalcTools::P7toPRG(const TVector3& pos, const TLorentzVector& 
 // //  FairRunAna::Instance()->GetField()->GetFieldValue(pnt, Bf); //[kGs]
 // //  //Double_t B = sqrt(Bf[0]*Bf[0]+Bf[1]*Bf[1]+Bf[2]*Bf[2]);
 // //  Double_t B = Bf[2];
-// 
+//
 //   Double_t B = GetBz(par->GetPosition());
-// 
+//
 //   Double_t qBc = -0.000299792458*B*Q;
 //   Double_t icL = 1. / cos(par->GetLambda()); // inverted for practical reasons (better to multiply than to divide)
 //   Double_t icLs = icL*icL;
@@ -447,12 +443,12 @@ Bool_t PndAnalysisCalcTools::P7toPRG(const TVector3& pos, const TLorentzVector& 
 //   helixparams[3]=par->GetZ_sc()*icL; //z0
 //   helixparams[4]=tan(par->GetLambda()); //lambda(averey)=cot(theta)=tan(lambda(geane))
 //   cand->SetHelixParms(helixparams);
-// 
+//
 //   if(skipcov) return kTRUE; // stop here when skipping cov matrix calculation
-// 
+//
 //   Double_t fairhelixcov[15];
 //   par->GetCov(fairhelixcov);
-// 
+//
 //   // in the poca to z axis yperp=D0, x_perp^2+z_perp^2 = z_perp/cos(Lambda)= Z0
 //   Float_t rhohelixcov[15];
 //   rhohelixcov[0]  = fairhelixcov[12];                    // sigma^2 D0
@@ -471,7 +467,7 @@ Bool_t PndAnalysisCalcTools::P7toPRG(const TVector3& pos, const TLorentzVector& 
 //   rhohelixcov[13] = fairhelixcov[8]  * icL * icLs;       //cov Z0 - tan(dip)
 //   rhohelixcov[14] = fairhelixcov[5]  * icLs * icLs;      // sigma^2 tan(dip) - from
 //   cand->SetHelixCov(rhohelixcov);
-// 
+//
 //   return kTRUE;
 // }
 

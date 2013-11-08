@@ -1,10 +1,10 @@
-# Create a library called "AnalysisTools" 
+# Create a library called "AnalysisTools"
 
 set(INCLUDE_DIRECTORIES
-${ROOT_INCLUDE_DIR} 
-${BASE_INCLUDE_DIRECTORIES} 
-${CMAKE_SOURCE_DIR}/field 
-${CMAKE_SOURCE_DIR}/trackbase 
+${ROOT_INCLUDE_DIR}
+${BASE_INCLUDE_DIRECTORIES}
+${CMAKE_SOURCE_DIR}/field
+${CMAKE_SOURCE_DIR}/trackbase
 ${CMAKE_SOURCE_DIR}/pnddata
 ${CMAKE_SOURCE_DIR}/pnddata/TrackData
 ${CMAKE_SOURCE_DIR}/pnddata/PidData
@@ -23,10 +23,10 @@ include_directories( ${INCLUDE_DIRECTORIES})
 set(LINK_DIRECTORIES
 ${ROOT_LIBRARY_DIR}
 )
- 
+
 link_directories( ${LINK_DIRECTORIES})
 
-set(SRCS 
+set(SRCS
 #PndMicroWriter.cxx
 #PndSimplePidInfo.cxx
 #PndMicroCandidate.cxx
@@ -49,10 +49,11 @@ PndAnaSelectorPar.cxx
 #PndMcTruthMatch.cxx
 PndGoodTrackSelector.cxx
 PndEventShape.cxx
-Fitter/PndVtxFitterParticle.cxx
-Fitter/PndVtxFitter_Init.cxx
-Fitter/PndVtxFitterError.cxx
-Fitter/PndVtxFitter.cxx
+PndAnaCovTool.cxx
+#Fitter/PndVtxFitterParticle.cxx
+#Fitter/PndVtxFitter_Init.cxx
+#Fitter/PndVtxFitterError.cxx
+#Fitter/PndVtxFitter.cxx
 Fitter/Pnd4CFitter.cxx
 Fitter/PndKinVtxFitter.cxx
 Fitter/PndKinFitter.cxx

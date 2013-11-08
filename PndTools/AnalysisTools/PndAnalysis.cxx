@@ -37,7 +37,7 @@ using std::endl;
 #include "PndAnaPidSelector.h"
 #include "PndAnaPidCombiner.h"
 #include "PndMCTrack.h"
-#include "PndVtxFitterParticle.h" // using a cov matrix tool
+#include "PndAnaCovTool.h" // using a cov matrix tool
 #include "PndAnalysisCalcTools.h"
 
 ClassImp ( PndAnalysis );
@@ -583,7 +583,7 @@ Bool_t PndAnalysis::ResetCandidate ( RhoCandidate* cand )
   //if(fVerbose>2){ std::cout<<"MARS cov (px,py,pz,E,x,y,z): ";err.Print();}
   TLorentzVector lv = cand->P4();
 
-  static PndVtxFitterParticle covTool; // external tool to convert from a 6x6 (p3,v) cov matrix to the 7x7(p4,v) cov matrix
+  static PndAnaCovTool covTool; // external tool to convert from a 6x6 (p3,v) cov matrix to the 7x7(p4,v) cov matrix
 
   TMatrixD covPosMom = covTool.GetConverted7 ( covTool.GetFitError ( lv, err ) );
 
@@ -607,7 +607,7 @@ Bool_t PndAnalysis::Propagator ( int mode, FairTrackParP& tStart, RhoCandidate* 
   //TODO: implement a real cov matrix
 
   Bool_t rc = kFALSE;
-  static PndVtxFitterParticle covTool; // external tool to convert from a 6x6 (p3,v) cov matrix to the 7x7(p4,v) cov matrix
+  static PndAnaCovTool covTool; // external tool to convert from a 6x6 (p3,v) cov matrix to the 7x7(p4,v) cov matrix
   FairGeanePro* geaneProp = new FairGeanePro();
   Int_t pdgcode = cand->PdgCode();
 
