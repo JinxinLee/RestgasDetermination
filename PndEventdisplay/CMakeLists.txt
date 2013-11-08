@@ -31,7 +31,6 @@ include_directories( ${INCLUDE_DIRECTORIES})
 
 set(LINK_DIRECTORIES
 ${ROOT_LIBRARY_DIR}
-${GLPK_LIB_DIR}
 )
  
 link_directories( ${LINK_DIRECTORIES})
@@ -49,6 +48,6 @@ set(LINKDEF PndEventDisplayLinkDef.h)
 set(LIBRARY_NAME PndEventDisplay)
 
 set(DEPENDENCIES Base EventDisplay generalTools MCMatch Geane
-ParBase PndData Drc Sds Stt helixpropagator)
+ParBase PndData Sds Stt helixpropagator)
 
 GENERATE_LIBRARY()
