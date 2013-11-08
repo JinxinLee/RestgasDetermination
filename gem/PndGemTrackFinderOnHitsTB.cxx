@@ -901,7 +901,7 @@ void PndGemTrackFinderOnHitsTB::PrintMCTrackSegments(TClonesArray* hitArray) {
   const Int_t kNofMCTracks    = fMCTrackArray->GetEntriesFast();
 
   vector<Int_t> nofFiredStations(kNofMCTracks,0);
-  vector<TVector3> mcTrackMomentum(kNofMCTracks,0);
+  vector<TVector3> mcTrackMomentum(kNofMCTracks);
 
   const Int_t kNofGemPoints = fMCPointArray->GetEntriesFast();
 
