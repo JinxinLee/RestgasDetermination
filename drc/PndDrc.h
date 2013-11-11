@@ -134,6 +134,8 @@ class PndDrc : public FairDetector
    **/
   virtual Bool_t ProcessHits(FairVolume* vol = 0);
 
+  virtual void   PostTrack();
+
   /** Virtual method EndOfEvent
    **
    ** If verbosity level is set, print hit collection at the
@@ -286,6 +288,7 @@ class PndDrc : public FairDetector
   Double_t       fEfficiency[1000];
   Double_t       fEfficiencyR[1000]; 
   Int_t          fEVreflections;
+  Int_t          fBarTrackStatus;
   
   // used in ProcessHits function:
   Int_t		 fbarID;	   //!  ID number of DrcBarSensors

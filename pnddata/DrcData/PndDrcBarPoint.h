@@ -43,12 +43,14 @@ class PndDrcBarPoint : public FairMCPoint
   Int_t    GetBarId()      const { return fBarN%10;};
   Int_t    GetBoxId()      const { return fBarN/10;};
   Double_t GetMass()       const { return fMass;};
+  Int_t    GetTrackStatus()    const { return fTrackStatus;};
 
 
   /** Modifiers ** **/
   void SetPdgCode(Int_t id)          { fPdgCode = id; }; 
   void SetThetaC(Double_t theta)     { fThetaC = theta; }; 
   void SetBarN(Int_t bar)           {  fBarN = bar; };
+  void SetTrackStatus(Int_t status) {  fTrackStatus = status; };
   
 
   /** Output to screen **/
@@ -62,6 +64,7 @@ class PndDrcBarPoint : public FairMCPoint
   Double_t fThetaC;             // Cherenkov Angle
   Int_t fBarN;                 // Bar id number
   Double_t fMass;               // Mass 
+  Int_t fTrackStatus;            
 
   ClassDef(PndDrcBarPoint,3)
 

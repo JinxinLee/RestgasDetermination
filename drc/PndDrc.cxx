@@ -246,6 +246,7 @@ PndDrc::PndDrc(const char* name, Bool_t active)
   if ( fGeoH == NULL )
     fGeoH = PndGeoHandling::Instance();
   
+  fBarTrackStatus = 0;
 }
 
 // -----   Destructor   ----------------------------------------------------
@@ -1167,6 +1168,9 @@ Bool_t PndDrc::ProcessHits(FairVolume* vol) {
 	
 	AddBarHit(fTrackID, fGeoH->GetShortID(path), fPos.Vect(), barMom,
 		  fTime, fLength, fPdgCode, fThetaC, fNBar, fEventID, fMass);
+	if(gMC->GetStack()->GetCurrentParentTrackNumber() != -1 ){
+	  fBarTrackStatus = 1;
+	}
       		  
 	PndStack* stack = (PndStack*) gMC->GetStack();
 	stack->AddPoint(kDRC);
@@ -1178,6 +1182,15 @@ Bool_t PndDrc::ProcessHits(FairVolume* vol) {
   
   ResetParameters();
   return kTRUE; 
+}
+
+void PndDrc::PostTrack(){
+  if(fBarTrackStatus){
+    for(Int_t ibarp=0; ibarp<fDrcBarCollection->GetEntriesFast(); ibarp++){
+      ((PndDrcBarPoint*)fDrcBarCollection->At(ibarp))->SetTrackStatus(1);  
+    }
+  }
+  fBarTrackStatus = 0;
 }
 
 //------   Find Nubmer of Bounces     -----------------------------------------
@@ -1524,6 +1537,7 @@ void PndDrc::ConstructOpGeometry() {
   
   for(Int_t i=0; i<fGeo->BBoxNum(); i++){
     gMC->SetBorderSurface("AirCarbonSurface", "DrcBarBox", i, "DrcBarAirBox", 0, "BlackSurface"); 
+    gMC->SetBorderSurface("BarMirrorSurface", "DrcMirr", i, "BarrelDIRC", 0, "MirrSurface");
   }
 
   if(fSetBlackLens == kTRUE){ 
@@ -1548,7 +1562,7 @@ void PndDrc::ConstructOpGeometry() {
     gMC->SetBorderSurface("BarboxWindowAirSurface", "DrcBarboxWindowSensor", 0, "BarrelDIRC", 0, "EVSurface");
     gMC->SetBorderSurface("EVGreaseAirSurface", "DrcEVgrease", 0, "BarrelDIRC", 0, "EVSurface");
   }
- 
+
   gMC->SetSkinSurface("AirMirrorSurface", "DrcMirr", "MirrSurface");          
  
   cout<<" =======  DRC::ConstructOpGeometry -> Finished! ====== "<< endl;     
