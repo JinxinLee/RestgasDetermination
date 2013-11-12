@@ -260,9 +260,7 @@ InitStatus PndSoftTriggerTask::Init()
 
 	if (fQAChic02pi2pi0) nchic01 = new RhoTuple("nchic01",	"chi_c0 -> pi+ pi- pi0 pi0");		
 	if (fQAChic04pi) nchic02 = new RhoTuple("nchic02",	"chi_c0 -> pi+ pi- pi+ pi-");		
-	
-	cout <<ntp<<endl;
-	
+		
 	// *** create selectors
 	fPi0Sel     = new RhoMassParticleSelector("pi0Sel",   fPi0SelMean, fPi0SelWin*2.);
 	fPi0PreSel  = new RhoMassParticleSelector("pi0PreSel",fPi0SelMean, fPi0SelWin*8.);  // 4 times wider than narrow
@@ -535,8 +533,8 @@ void PndSoftTriggerTask::FillGlobalLists()
 		SelectPidProb(fKaonPlus, 3, fIniPidCut);
 		SelectPidProb(fKaonMinus, 3, fIniPidCut);
 		
-		SelectPidProb(fProtonPlus, 3, fIniPidCut);
-		SelectPidProb(fProtonMinus, 3, fIniPidCut);	
+		SelectPidProb(fProtonPlus, 4, fIniPidCut);
+		SelectPidProb(fProtonMinus, 4, fIniPidCut);	
 	}
 	
 	// *** select on lists
