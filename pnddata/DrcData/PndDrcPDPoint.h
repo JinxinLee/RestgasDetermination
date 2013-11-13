@@ -36,7 +36,7 @@ class PndDrcPDPoint : public FairMCPoint
    *@param eLoss    Energy deposit [GeV]
    **/
   PndDrcPDPoint(Int_t trackID, Int_t detID, Int_t mcpId, Int_t barPintId, 
-		TVector3 pos, TVector3 mom, TVector3 momAtEV,
+		TVector3 pos, TVector3 mom, TVector3 momAtEV, Double_t timeAtEV,
 		Double_t tof, Double_t length, Int_t pdgCode, Int_t eventID);
 
 
@@ -51,6 +51,7 @@ class PndDrcPDPoint : public FairMCPoint
   /** Accessors **/
   Int_t    GetPdgCode()    const{ return fPdgCode;    };
   TVector3 GetMomAtEV()	   const{ return fmomAtEV;    };
+  Double_t GetTimeAtEV()   const{ return ftimeAtEV;   };
   Int_t    GetDetectorID() const{ return fDetectorID; };
   Int_t    GetBarPointID() const{ return fBarPointId; };
   Int_t    GetMcpId()      const{ return fMcpId; };
@@ -70,7 +71,7 @@ class PndDrcPDPoint : public FairMCPoint
   Int_t fMcpId;
   Int_t fBarPointId;
   TVector3 fmomAtEV;
-
+  Double_t ftimeAtEV;
 
 
   ClassDef(PndDrcPDPoint,3)
