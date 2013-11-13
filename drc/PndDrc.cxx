@@ -66,77 +66,77 @@ using std::cout;
 
 // -----   Default constructor   -------------------------------------------
 PndDrc::PndDrc() 
- :  FairDetector("PndDrcDefault",kTRUE),
-    fpi(TMath::Pi()),			//!
-    fzup(-999.),		//!
-    fzdown(-999.),
-    fradius(-999.),
-    fhthick(-999.),
-    fpipehAngle(-999.),
-    fbbGap(-999.),
-    fbbnum(-999.),
-    fbarnum(-999.),
-    fphi0(-999.),
-    fdphi(-999.),
-    flside(-999.),
-    fbarwidth(-999.),
-    
-    fGeoH(NULL),
-    
-    fRunCherenkov(kTRUE),            //!  Switch ON/OFF Cherenkov propagation
-    fTrackID(-1),         //!  track index
-    fPos(TLorentzVector(0,0,0)),             //!  position
-    fMom(TLorentzVector(0,0,0)),             //!  momentum
-    fTime(-1),           //!  time
-    fLength(-1),          //!  length 
-    fAngIn(0),
-    fNBar(0),
-    fPosIndex(-1),                 //! 
-    volDetector(0),               //!  MC volume ID of drc
-    fMass(-1),
-    fMom1(TLorentzVector(0,0,0)), 
-    fMom2(TLorentzVector(0,0,0)),  //! for transport efficiency calculation
-    fPos2(TLorentzVector(0,0,0)),  //! for transport efficiency calculation
-    fBarEnd(0),
-    fMirrorGap(0),
-    
-  // used in ProcessHits function:
-    fbarID(0),	   //!  ID number of DrcBarSensors
-    fpdID(0),		   //!  ID number of DrcPdSensor
-    flens3ID(0),	   //!  ID number of third lenses
-    flens2ID(0),
-    flens1ID(0),
-    fbboxID(0),      	   //!  ID number of DrcBarBoxes
-    fevID(0),		   //!  ID number of Expansion Volume
+: FairDetector("PndDrcDefault",kTRUE),
+  fpi(TMath::Pi()),			//!
+  fzup(-999.),		//!
+  fzdown(-999.),
+  fradius(-999.),
+  fhthick(-999.),
+  fpipehAngle(-999.),
+  fbbGap(-999.),
+  fbbnum(-999.),
+  fbarnum(-999.),
+  fphi0(-999.),
+  fdphi(-999.),
+  flside(-999.),
+  fbarwidth(-999.),
   
-    fDetEff(0x0),          //!  Detector Efficiency as a function of photon wavelength
-    fDetEffAtProduction(kFALSE),
-    fTransportEffAtProduction(kFALSE),
-    frand(),
-    fLastTrackID(-1),
-    fCollectionEff(-1),//Collection Efficiency 
+  fGeoH(NULL),
+    
+  fRunCherenkov(kTRUE),            //!  Switch ON/OFF Cherenkov propagation
+  fTrackID(-1),         //!  track index
+  fPos(TLorentzVector(0,0,0,0)),             //!  position
+  fMom(TLorentzVector(0,0,0,0)),             //!  momentum
+  fTime(-1),           //!  time
+  fLength(-1),          //!  length 
+  fAngIn(0),
+  fNBar(0),
+  fPosIndex(-1),                 //! 
+  volDetector(0),               //!  MC volume ID of drc
+  fMass(-1),
+  fMom1(TLorentzVector(0,0,0,0)), 
+  fMom2(TLorentzVector(0,0,0,0)),  //! for transport efficiency calculation
+  fPos2(TLorentzVector(0,0,0,0)),  //! for transport efficiency calculation
+  fBarEnd(0),
+  fMirrorGap(0),
+    
+// used in ProcessHits function:
+  fbarID(0),	   //!  ID number of DrcBarSensors
+  fpdID(0),		   //!  ID number of DrcPdSensor
+  flens3ID(0),	   //!  ID number of third lenses
+  flens2ID(0),
+  flens1ID(0),
+  fbboxID(0),      	   //!  ID number of DrcBarBoxes
+  fevID(0),		   //!  ID number of Expansion Volume
+  
+  fDetEff(0x0),          //!  Detector Efficiency as a function of photon wavelength
+  fDetEffAtProduction(kFALSE),
+  fTransportEffAtProduction(kFALSE),
+  frand(),
+  fLastTrackID(-1),
+  fCollectionEff(-1),//Collection Efficiency 
  
-    fStopTime(kFALSE),
-    fPhoMaxTime(-1),
-    fTakeDirect(kFALSE), 
-    fTakeReflected(kFALSE),     
+  fStopTime(kFALSE),
+  fPhoMaxTime(-1),
+  fTakeDirect(kFALSE), 
+  fTakeReflected(kFALSE),     
 
-    fFocusing(-1), 
-    fTakeRealReflectivity(kFALSE),
-    fStopSecondaries(kFALSE),
+  fFocusing(-1), 
+  fTakeRealReflectivity(kFALSE),
+  fStopSecondaries(kFALSE),
 
-    fGeo(new PndGeoDrc()),             //! Pointer to basic DRC geometry data
+  fGeo(new PndGeoDrc()),             //! Pointer to basic DRC geometry data
 
-    fPdgCode(-1),
-    fThetaC(-1.),
+  fPdgCode(-1),
+  fThetaC(-1.),
 
-    fDrcPDCollection(new TClonesArray("PndDrcPDPoint")),        //! Hit collection
-    fDrcEVCollection(new TClonesArray("PndDrcEVPoint")),
-    fDrcBarCollection (new TClonesArray("PndDrcBarPoint")),        //! Hit collection in the bar   
-    fEventID(0),    
-    fSenId1(0), 
-    fSenId2(0), 
-    fSenIdBar(0)
+  fDrcPDCollection(new TClonesArray("PndDrcPDPoint")),        //! Hit collection
+  fDrcEVCollection(new TClonesArray("PndDrcEVPoint")),
+  fDrcBarCollection (new TClonesArray("PndDrcBarPoint")),        //! Hit collection in the bar   
+  fEventID(0),    
+  fSenId1(0), 
+  fSenId2(0), 
+  fSenIdBar(0)
 {
   fListOfSensitives.push_back("Sensor");
   if(fVerboseLevel > 0){
@@ -176,68 +176,68 @@ PndDrc::PndDrc(const char* name, Bool_t active)
  
     fRunCherenkov(kTRUE),            //!  Switch ON/OFF Cherenkov propagation
     fTrackID(-1),         //!  track index
-    fPos(TLorentzVector(0,0,0)),             //!  position
-    fMom(TLorentzVector(0,0,0)),             //!  momentum
-    fTime(-1),           //!  time
-    fLength(-1),          //!  length 
-    fAngIn(0),
-    fNBar(0),
-    fPosIndex(-1),                 //! 
-    volDetector(0),               //!  MC volume ID of drc
-    fMass(-1),
-    fMom1(TLorentzVector(0,0,0)), 
-    fMom2(TLorentzVector(0,0,0)),  //! for transport efficiency calculation
-    fPos2(TLorentzVector(0,0,0)),  //! for transport efficiency calculation
-    fBarEnd(0),
-    fMirrorGap(0),
+    fPos(TLorentzVector(0,0,0,0)),             //!  position
+    fMom(TLorentzVector(0,0,0,0)),             //!  momentu
+	       fTime(-1),           //!  time
+	       fLength(-1),          //!  length 
+	       fAngIn(0),
+	       fNBar(0),
+	       fPosIndex(-1),                 //! 
+	       volDetector(0),               //!  MC volume ID of drc
+	       fMass(-1),
+	       fMom1(TLorentzVector(0,0,0,0)), 
+	       fMom2(TLorentzVector(0,0,0,0)),  //! for transport efficiency calculation
+	       fPos2(TLorentzVector(0,0,0,0)),  //! for transport efficiency calculation
+	       fBarEnd(0),
+	       fMirrorGap(0),
  
-  // used in ProcessHits function:
-    fbarID(0),	   //!  ID number of DrcBarSensors
-    fpdID(0),		   //!  ID number of DrcPdSensor
-    flens3ID(0),	   //!  ID number of third lenses
-    flens2ID(0),
-    flens1ID(0),
-    fbboxID(0),      	   //!  ID number of DrcBarBoxes
-    fevID(0),		   //!  ID number of Expansion Volume
+	       // used in ProcessHits function:
+	       fbarID(0),	   //!  ID number of DrcBarSensors
+	       fpdID(0),		   //!  ID number of DrcPdSensor
+	       flens3ID(0),	   //!  ID number of third lenses
+	       flens2ID(0),
+	       flens1ID(0),
+	       fbboxID(0),      	   //!  ID number of DrcBarBoxes
+	       fevID(0),		   //!  ID number of Expansion Volume
   
-    fDetEff(0x0),          //!  Detector Efficiency as a function of photon wavelength
-    fDetEffAtProduction(kFALSE),
-    fTransportEffAtProduction(kFALSE),
-    frand(),
-    fLastTrackID(-1),
-    fCollectionEff(-1),//Collection Efficiency 
+	       fDetEff(0x0),          //!  Detector Efficiency as a function of photon wavelength
+	       fDetEffAtProduction(kFALSE),
+	       fTransportEffAtProduction(kFALSE),
+	       frand(),
+	       fLastTrackID(-1),
+	       fCollectionEff(-1),//Collection Efficiency 
  
-    fStopTime(kFALSE),
-    fPhoMaxTime(-1),
-    fTakeDirect(kFALSE), 
-    fTakeReflected(kFALSE),     
+	       fStopTime(kFALSE),
+	       fPhoMaxTime(-1),
+	       fTakeDirect(kFALSE), 
+	       fTakeReflected(kFALSE),     
 
-    fFocusing(-1), 
-    fTakeRealReflectivity(kFALSE),
-    fStopSecondaries(kFALSE),
+	       fFocusing(-1), 
+	       fTakeRealReflectivity(kFALSE),
+	       fStopSecondaries(kFALSE),
 
-    fGeo(new PndGeoDrc()),             //! Pointer to basic DRC geometry data
+	       fGeo(new PndGeoDrc()),             //! Pointer to basic DRC geometry data
 
-    fPdgCode(-1),
-    fThetaC(-1.),
+	       fPdgCode(-1),
+	       fThetaC(-1.),
 
-    fDrcPDCollection(new TClonesArray("PndDrcPDPoint")),        //! Hit collection
-    fDrcEVCollection(new TClonesArray("PndDrcEVPoint")),        //! Hit collection
-    fDrcBarCollection (new TClonesArray("PndDrcBarPoint")),        //! Hit collection in the bar   
-    fEventID(0),    
-    fSenId1(0), 
-    fSenId2(0), 
-    fSenIdBar(0)      
+	       fDrcPDCollection(new TClonesArray("PndDrcPDPoint")),        //! Hit collection
+	       fDrcEVCollection(new TClonesArray("PndDrcEVPoint")),        //! Hit collection
+	       fDrcBarCollection (new TClonesArray("PndDrcBarPoint")),        //! Hit collection in the bar   
+	       fEventID(0),    
+	       fSenId1(0), 
+	       fSenId2(0), 
+	       fSenIdBar(0)      
 {
-    fListOfSensitives.push_back("Sensor");
-    if(fVerboseLevel > 0){
-      std::cout<<"-I- PndBarrelDIRC: fListOfSensitives contains:";
-      for(Int_t k=0; k<fListOfSensitives.size(); k++)
-        std::cout<<"\n\t"<<fListOfSensitives[k];
-      std::cout<<std::endl;
-    }
+  fListOfSensitives.push_back("Sensor");
+  if(fVerboseLevel > 0){
+    std::cout<<"-I- PndBarrelDIRC: fListOfSensitives contains:";
+    for(Int_t k=0; k<fListOfSensitives.size(); k++)
+      std::cout<<"\n\t"<<fListOfSensitives[k];
+    std::cout<<std::endl;
+  }
     
-    for(Int_t i=0; i<1000; i++){
+  for(Int_t i=0; i<1000; i++){
     fLambda[i] = 0.;
     fEfficiency[i] = 0.;
     fEfficiencyR[i] = 0.;
@@ -246,7 +246,6 @@ PndDrc::PndDrc(const char* name, Bool_t active)
   if ( fGeoH == NULL )
     fGeoH = PndGeoHandling::Instance();
   
-  fBarTrackStatus = 0;
 }
 
 // -----   Destructor   ----------------------------------------------------
@@ -281,9 +280,9 @@ void PndDrc::Initialize() {
   //PndGeoDrcPar *par  = (PndGeoDrcPar*)(rtdb->getContainer("PndGeoDrcPar"));
 
   if (0==gGeoManager) 
-  cout << "We do not have gGeoManager" << endl;
+    cout << "We do not have gGeoManager" << endl;
   else
-  cout << "there is gGeoManager" << endl;
+    cout << "there is gGeoManager" << endl;
   
     
   cout << "list of sensitives has " << fListOfSensitives.size() << " entries" << endl;
@@ -355,10 +354,10 @@ void PndDrc::Initialize() {
   if(fDetEffAtProduction == kTRUE){
     fCollectionEff=0.65;//Collection Efficiency 
    
-// quantum efficiency data from Alex Britting, Jan 25, 2011
-// unit is percent
-// first value is at 200 nm, last at 700 nm
-// credible range start around 250nm, >= 280nm to be safe
+    // quantum efficiency data from Alex Britting, Jan 25, 2011
+    // unit is percent
+    // first value is at 200 nm, last at 700 nm
+    // credible range start around 250nm, >= 280nm to be safe
 
     Float_t credibleLimit=280.;
 
@@ -888,7 +887,8 @@ void PndDrc::Initialize() {
   } 
   
   cout << " -I- PndDrc: Intialization successfull" << endl;
-
+  fBarTrackStatus = 0;
+  fbLab = false;
 }
 
 // -------------------------------------------------------------------------
@@ -911,7 +911,7 @@ Bool_t PndDrc::ProcessHits(FairVolume* vol) {
 
   gMC->TrackPosition(fPos);
   gMC->TrackMomentum(fMom);
-    
+ 
   //stop secondaries so that they do not produce Cherenkov photons
   if(fStopSecondaries){
     if(fPdgCode != 50000050){
@@ -992,7 +992,7 @@ Bool_t PndDrc::ProcessHits(FairVolume* vol) {
     // // counting photons:
     // //if(gMC->IsTrackEntering()==1 && num == fbarID && fLastTrackID != gMC->GetStack()->GetCurrentTrackNumber()){      
     // if(gMC->IsTrackEntering()==1 && num == fbarID){// check how many photons were born      
-   // if(gMC->IsTrackExiting()==1 && num == fbarID && fPos.Z() < -118.5){ //check how many photons reach the read out bar end     
+    // if(gMC->IsTrackExiting()==1 && num == fbarID && fPos.Z() < -118.5){ //check how many photons reach the read out bar end     
     // //if(gMC->IsTrackEntering()==1 && num == fevID && fPos.Z() > -121.){ // check how many photons enter the EV    
     // //if(gMC->IsTrackExiting()==1 && num == fevID && fPos.Z() < -150.){ //check how many photons reach the back side of the EV     
     // //if(nam.BeginsWith("DrcMcpGrease") && fPos.Z() < -150.05){ // check how many photons are in the middle of grease    
@@ -1003,12 +1003,12 @@ Bool_t PndDrc::ProcessHits(FairVolume* vol) {
     //  cout<<"photon number "<<nphotons<<" is produced!!! from track "<<gMC->GetStack()->GetCurrentTrackNumber()<<endl;
     // 	gMC->StopTrack();
     // }    
-   // cout<<"photon z coord = "<<fPos.Z()<<", name = "<<nam.Data()<<endl;              
+    // cout<<"photon z coord = "<<fPos.Z()<<", name = "<<nam.Data()<<endl;              
     // if(fPdgCode == 50000050 && gMC->IsTrackEntering()==1 && num == fevID){
     //   gMC->TrackMomentum(fMom1);
     // 	gMC->TrackPosition(fPos1);
-      // cout<<"X, Y, Z: "<<fPos1.X()<<", "<<fPos1.Y()<<", "<<fPos1.Z()<<"; Kx, Ky, Kz: "<<fMom1.Px()*1e+9<<", "<<fMom1.Py()*1e+9<<", "<<fMom1.Pz()*1e+9<<endl;
-   //  }
+    // cout<<"X, Y, Z: "<<fPos1.X()<<", "<<fPos1.Y()<<", "<<fPos1.Z()<<"; Kx, Ky, Kz: "<<fMom1.Px()*1e+9<<", "<<fMom1.Py()*1e+9<<", "<<fMom1.Pz()*1e+9<<endl;
+    //  }
     
    
     // "TakeOnlyDirectPho" option: if photon is exiting the bar - check its direction
@@ -1035,111 +1035,116 @@ Bool_t PndDrc::ProcessHits(FairVolume* vol) {
       }
     }
 
-   // kill photons older than fPhoMaxTime:  
-   if (fStopTime == kTRUE && gMC->TrackTime()*1.0e09 > fPhoMaxTime){
+    // kill photons older than fPhoMaxTime:  
+    if (fStopTime == kTRUE && gMC->TrackTime()*1.0e09 > fPhoMaxTime){
       gMC->StopTrack();
-   }  
+    }  
       
-   if(gMC->IsTrackEntering()==1 && num == fevID && fLastTrackID != fTrackID){
-     gMC->TrackMomentum(fMomAtEV); 
-   }
+    if(gMC->IsTrackEntering()==1 && num == fevID && fLastTrackID != fTrackID){
+      gMC->TrackMomentum(fMomAtEV); 
+    }
   
-   // // js group velocity check    
-   // if ( gMC->IsTrackEntering() ) 
-   //   {
-   //     fTime_in = gMC->TrackTime() * 1.0e09;
-   //     fLength_in = gfLength;
-   //   }
-   // if ( gMC->IsTrackExiting() ) 
-   //   {
-   //     fTime_out = gMC->TrackTime() * 1.0e09;
-   //     fLength_out = fLength;
-   //     fPEnergy = (sqrt(fMom.X()*fMom.X() + fMom.Y()*fMom.Y() + fMom.Z()*fMom.Z()))*1.0e09;
-   //     fLambda1 = 197.*2*TMath::Pi()/fPEnergy;
-   //     fDeltaT = fTime_out - fTime_in;
-   //     if ((0)&&(fDeltaT>0))
-   // 	 {
-   // 	   cout << "time out: " << fTime_out << ", in: " << fTime_in 
-   // 		<< ", deltaT: " << fTime_out-fTime_in
-   // 		<< ", t0: " << fTrackTime
-   // 		<< ", path out: " << fLength_out << ", in: " << fLength_in 
-   // 		<< ", deltaP: " << fLength_out-fLength_in
-   // 		<< ", velocity: " <<  (fLength_out-fLength_in)/(fTime_out-fTime_in)
-   // 		<< ", energy: " << fPEnergy
-   // 		<< ", lambda: " << fLambda1
-   // 		<< endl;
-   // 	 }       
-   //     if ((1)&&(fDeltaT>0.01)&&(fPos.Z()<=-119.)&&(fPos.Z()>-120.1))
-   // 	 {
-   // 	   cout 
-   // 	     << fLambda1 << " %% "
-   // 	     <<  (fLength_out-fLength_in)/(fTime_out-fTime_in)
-   // 	     << " %% " <<(fLength_out-fLength_in)
-   // 	     << " %% " <<fDeltaT
-   // 	     << endl;
-   // 	 }       
-   //   }
+    // // js group velocity check    
+    // if ( gMC->IsTrackEntering() ) 
+    //   {
+    //     fTime_in = gMC->TrackTime() * 1.0e09;
+    //     fLength_in = gfLength;
+    //   }
+    // if ( gMC->IsTrackExiting() ) 
+    //   {
+    //     fTime_out = gMC->TrackTime() * 1.0e09;
+    //     fLength_out = fLength;
+    //     fPEnergy = (sqrt(fMom.X()*fMom.X() + fMom.Y()*fMom.Y() + fMom.Z()*fMom.Z()))*1.0e09;
+    //     fLambda1 = 197.*2*TMath::Pi()/fPEnergy;
+    //     fDeltaT = fTime_out - fTime_in;
+    //     if ((0)&&(fDeltaT>0))
+    // 	 {
+    // 	   cout << "time out: " << fTime_out << ", in: " << fTime_in 
+    // 		<< ", deltaT: " << fTime_out-fTime_in
+    // 		<< ", t0: " << fTrackTime
+    // 		<< ", path out: " << fLength_out << ", in: " << fLength_in 
+    // 		<< ", deltaP: " << fLength_out-fLength_in
+    // 		<< ", velocity: " <<  (fLength_out-fLength_in)/(fTime_out-fTime_in)
+    // 		<< ", energy: " << fPEnergy
+    // 		<< ", lambda: " << fLambda1
+    // 		<< endl;
+    // 	 }       
+    //     if ((1)&&(fDeltaT>0.01)&&(fPos.Z()<=-119.)&&(fPos.Z()>-120.1))
+    // 	 {
+    // 	   cout 
+    // 	     << fLambda1 << " %% "
+    // 	     <<  (fLength_out-fLength_in)/(fTime_out-fTime_in)
+    // 	     << " %% " <<(fLength_out-fLength_in)
+    // 	     << " %% " <<fDeltaT
+    // 	     << endl;
+    // 	 }       
+    //   }
 
-   if(gMC->IsTrackEntering()){
-     if ( gMC->IsNewTrack()==1 ) {
-       fTimeStart = fTime; // charged particle time at entrance of radiator bar
-     }     
+    if(gMC->IsTrackEntering()){
+      if ( gMC->IsNewTrack()==1 ) {
+	fTimeStart = fTime; // charged particle time at entrance of radiator bar
+      }     
      
-     // if(nam.BeginsWith("DrcLENS1Sensor")){  //DrcEntranceBox
-     //   // save the direction of the photon when it enters EntranceBox (for LUT generation) 
-     //   Double_t nx,ny,nz;
-     //   bool bres = gMC->CurrentBoundaryNormal(nx,ny,nz);
-     //   AddEVHit(fTrackID, 9375, fPos.Vect(), fMom.Vect().Unit(),
-     // 		fTime, fLength, fPdgCode,
-     // 		 fEventID, fTimeStart, fTimeAtEVEntrance, fVeloPhoton, TVector3(nx,ny,nz));
-     // }
+      // if(nam.BeginsWith("DrcLENS1Sensor")){  //DrcEntranceBox
+      //   // save the direction of the photon when it enters EntranceBox (for LUT generation) 
+      //   Double_t nx,ny,nz;
+      //   bool bres = gMC->CurrentBoundaryNormal(nx,ny,nz);
+      //   AddEVHit(fTrackID, 9375, fPos.Vect(), fMom.Vect().Unit(),
+      // 		fTime, fLength, fPdgCode,
+      // 		 fEventID, fTimeStart, fTimeAtEVEntrance, fVeloPhoton, TVector3(nx,ny,nz));
+      // }
      
-     if(nam.BeginsWith("DrcEVSensor")){
-       if(fTimeAtEVEntrance ==0.){
-	 fTimeAtEVEntrance= gMC->TrackTime()*1.0e09;
-	 fLengthEV=fLength;
-       }        
-       fVeloPhoton=fLength/(fTime-fTimeStart);
+      if(nam.BeginsWith("DrcEVSensor")){
+	if(fTimeAtEVEntrance ==0.){
+	  fTimeAtEVEntrance= gMC->TrackTime()*1.0e09;
+	  fLengthEV=fLength;
+	}        
+	fVeloPhoton=fLength/(fTime-fTimeStart);
 
-       Double_t nx,ny,nz;
-       bool bres = gMC->CurrentBoundaryNormal(nx,ny,nz);
+	Double_t nx,ny,nz;
+	bool bres = gMC->CurrentBoundaryNormal(nx,ny,nz);
 
-       AddEVHit(fTrackID, 0, fPos.Vect(), fMom.Vect(),
-		fTime, fLength, fPdgCode,
-		fEventID, fTimeStart, fTimeAtEVEntrance, fVeloPhoton, TVector3(nx,ny,nz));
+	AddEVHit(fTrackID, 0, fPos.Vect(), fMom.Vect(),
+		 fTime, fLength, fPdgCode,
+		 fEventID, fTimeStart, fTimeAtEVEntrance, fVeloPhoton, TVector3(nx,ny,nz));
 
-       fTimeAtEVEntrance = 0.0;
-     }
-   } 
+	fTimeAtEVEntrance = 0.0;
+      }
+    } 
    
-   // if a photon is exiting the readout bar end
-   if (gMC->IsTrackExiting()==1 && num == fbarID && fPos.Z()<-118.99){
-     fTimeAtEV = gMC->TrackTime()*1.0e09;
-     //cout<<"time at EV = "<<fTimeAtEV<<endl;
-   } 
+    // if a photon is exiting the readout bar end
+    if (gMC->IsTrackExiting()==1 && num == fbarID && fPos.Z()<-118.99){
+      fTimeAtEV = gMC->TrackTime()*1.0e09;
+      //cout<<"time at EV = "<<fTimeAtEV<<endl;
+    } 
    
-   if (gMC->IsTrackEntering()==1){         
-     if (nam.BeginsWith("DrcPDSensor")){ 
-       if(0==fGeoH) {
-	 std::cout<<" -E- No PndGeoHandling loaded."<<std::endl;
-	 abort();
-       }   
-       Int_t sensorId = fGeoH->GetShortID(gMC->CurrentVolPath());
-       Int_t mcpId;
-       sscanf(gMC->CurrentVolPath(), "/cave_1/BarrelDIRC_0/DrcPDbase_0/DrcMCP_%d", &mcpId);
+    if (gMC->IsTrackEntering()==1){         
+      if (nam.BeginsWith("DrcPDSensor")){ 
+	if(0==fGeoH) {
+	  std::cout<<" -E- No PndGeoHandling loaded."<<std::endl;
+	  abort();
+	}   
+	Int_t sensorId = fGeoH->GetShortID(gMC->CurrentVolPath());
+	Int_t mcpId;
+	sscanf(gMC->CurrentVolPath(), "/cave_1/BarrelDIRC_0/DrcPDbase_0/DrcMCP_%d", &mcpId);
       
-       if(fTrackID>-2){
-	 AddHit(fTrackID, sensorId, mcpId,
-		fPos.Vect(),fMom.Vect(),fMomAtEV.Vect(), fTimeAtEV,
-		fTime, fLength, fPdgCode, fEventID);
-       }
+	if(fTrackID>-2){
+	  AddHit(fTrackID, sensorId, mcpId,
+		 fPos.Vect(),fMom.Vect(),fMomAtEV.Vect(), fTimeAtEV,
+		 fTime, fLength, fPdgCode, fEventID);
+	}
 
-       gMC->StopTrack();
-     }
-     PndStack* stack = (PndStack*) gMC->GetStack();
-     stack->AddPoint(kDRC);
-   } 
-   
+	gMC->StopTrack();
+      }
+      PndStack* stack = (PndStack*) gMC->GetStack();
+      stack->AddPoint(kDRC);
+    } 
+
+    //Lab
+    if (fbLab && gMC->IsTrackExiting()){
+      AddBarHit(fTrackID, 0, fPos.Vect(), fMom.Vect(),
+    		fTime, fLength, fPdgCode, fThetaC, fNBar, fEventID, fMass);
+    }
   }
   
   if(gMC->TrackCharge()!=0 /*|| fOptionForLUT*/ ){
@@ -1190,96 +1195,194 @@ Bool_t PndDrc::ProcessHits(FairVolume* vol) {
   return kTRUE; 
 }
 
-void PndDrc::PostTrack(){
-  if(fBarTrackStatus){
+void PndDrc::FinishPrimary(){
+
+  if(fBarTrackStatus == 1){
     for(Int_t ibarp=0; ibarp<fDrcBarCollection->GetEntriesFast(); ibarp++){
-      ((PndDrcBarPoint*)fDrcBarCollection->At(ibarp))->SetTrackStatus(1);  
+      ((PndDrcBarPoint*)fDrcBarCollection->At(ibarp))->SetTrackStatus(1);
     }
   }
-  fBarTrackStatus = 0;
+  
+  //Lab 
+  if(fbLab){
+    gGeoManager->cd("/cave_1/AirBoxSensor_0/AirSensor_1/AquaSensor_1/DrcLENS1Sensor_1");
+    double lowZ = gGeoManager->GetCurrentMatrix()->GetTranslation()[2]; 
+    std::cout<<"lowZ "<< lowZ <<std::endl;
+    const Double_t *tr = gGeoManager->GetCurrentMatrix()->GetRotationMatrix();
+    TGeoRotation *rm = new TGeoRotation();
+    rm->SetMatrix(tr);
+    Double_t aa1,aaPhi,aa3;
+    rm->GetAngles(aa1,aaPhi,aa3);
+    Int_t barcolsize = fDrcBarCollection->GetEntriesFast();
+    if (barcolsize!=12) return;
+
+    TVector3 ttmom, ttpos;
+    ((PndDrcBarPoint*)fDrcBarCollection->At(3))->Momentum(ttmom); 
+    ((PndDrcBarPoint*)fDrcBarCollection->At(3))->Position(ttpos);
+    ttmom = ttmom.Unit();
+    TVector3 head0 = ttpos;
+    TVector3 tail0 = head0 + 10.*ttmom;
+
+    ((PndDrcBarPoint*)fDrcBarCollection->At(9))->Momentum(ttmom); 
+    ((PndDrcBarPoint*)fDrcBarCollection->At(9))->Position(ttpos);
+    ttmom = ttmom.Unit();
+    TVector3 head1 = ttpos;
+    TVector3 tail1 = head1 + 10.*ttmom;
+
+    TVector3 dir0 = head0 - tail0;
+    TVector3 dir1 = head1 - tail1;
+    TVector3 diff = tail0 - tail1;
+
+    Double_t a = dir0.Dot(dir0);   //always >= 0
+    Double_t b = dir0.Dot(dir1);
+    Double_t c = dir1.Dot(dir1);   //always >= 0
+    Double_t d = dir0.Dot(diff);
+    Double_t e = dir1.Dot(diff);
+    Double_t f = a * c - b * b;    //always >= 0
+
+    Double_t sc,tc;
+
+    if(f<0.000001){                //The lines are almost parallel
+      sc = 0.;
+      tc = b > c ? d / b : e / c;  //Use the largest denominator
+    }else{
+      sc = (b * e - c * d) / f;
+      tc = (a * e - b * d) / f;
+    }
+
+    TVector3 point0 = tail0 + dir0 * sc;
+    TVector3 point1 = tail1 + dir1 * tc;
+    TVector3 point = 0.5*(point1+point1);
+
+    if(point.Z()>-15){
+      AddHit(0, 0, 0, point,  TVector3(0,0,0), TVector3(0,0,0),aaPhi, 0, 0, 0, 0); 
+    }else{
+      ((PndDrcBarPoint*)fDrcBarCollection->At(4))->Momentum(ttmom); 
+      ((PndDrcBarPoint*)fDrcBarCollection->At(4))->Position(ttpos);
+      ttmom = ttmom.Unit();
+      head0 = ttpos;
+      tail0 = head0 + 10.*ttmom;
+
+      ((PndDrcBarPoint*)fDrcBarCollection->At(10))->Momentum(ttmom); 
+      ((PndDrcBarPoint*)fDrcBarCollection->At(10))->Position(ttpos);
+      ttmom = ttmom.Unit();
+      head1 = ttpos;
+      tail1 = head1 + 10.*ttmom;
+
+      dir0 = head0 - tail0;
+      dir1 = head1 - tail1;
+      diff = tail0 - tail1;
+
+      a = dir0.Dot(dir0);   //always >= 0
+      b = dir0.Dot(dir1);
+      c = dir1.Dot(dir1);   //always >= 0
+      d = dir0.Dot(diff);
+      e = dir1.Dot(diff);
+      f = a * c - b * b;    //always >= 0
+
+     
+
+      if(f<0.000001){                //The lines are almost parallel
+	sc = 0.;
+	tc = b > c ? d / b : e / c;  //Use the largest denominator
+      }else{
+	sc = (b * e - c * d) / f;
+	tc = (a * e - b * d) / f;
+      }
+
+      point0 = tail0 + dir0 * sc;
+      point1 = tail1 + dir1 * tc;
+      point = 0.5*(point1+point1);
+      AddHit(0, 0, 0, point,  TVector3(0,0,0), TVector3(0,0,0),aaPhi, 0, 0, 0, 0); 
+    }
+  }
+
 }
 
 //------   Find Nubmer of Bounces     -----------------------------------------
 void PndDrc::NumberOfBounces(TVector3 start, TVector3 dir, Int_t barId, Int_t *n1, Int_t *n2, Double_t *alpha1, Double_t *alpha2) {
-    // start - photon production point in global coord system
-    // dir - photon direction in bar coord system
+  // start - photon production point in global coord system
+  // dir - photon direction in bar coord system
     
-    // calculates the number of bounces in x and y direction and reflection angles in these directions.
+  // calculates the number of bounces in x and y direction and reflection angles in these directions.
         
-    // Find coordinates of X0, Y0:
-    Double_t Z0, X0, Y0;
-    if(dir.Theta() < 3.1415/2.){
-      Z0 = -(fabs(fzup) + 2.*fzdown - start.Z());
-    }
-    if(dir.Theta() >= 3.1415/2.){
-      Z0 = -(start.Z() -  fzup);
-    }    
-    X0 = Z0*tan(dir.Theta())*cos(dir.Phi());
-    Y0 = Z0*tan(dir.Theta())*sin(dir.Phi());
-    //cout<<"-I- NumberOfBounces: X0 = "<<X0<<", Y0 = "<<Y0<<endl;
+  // Find coordinates of X0, Y0:
+  Double_t Z0, X0, Y0;
+  if(dir.Theta() < 3.1415/2.){
+    Z0 = -(fabs(fzup) + 2.*fzdown - start.Z());
+  }
+  if(dir.Theta() >= 3.1415/2.){
+    Z0 = -(start.Z() -  fzup);
+  }    
+  X0 = Z0*tan(dir.Theta())*cos(dir.Phi());
+  Y0 = Z0*tan(dir.Theta())*sin(dir.Phi());
+  //cout<<"-I- NumberOfBounces: X0 = "<<X0<<", Y0 = "<<Y0<<endl;
     
-    // Find the start position of the photon with respect to the middle of the bar:
-    TVector3 startLocal = fGeoH->MasterToLocalShortId(start, barId); // point
+  // Find the start position of the photon with respect to the middle of the bar:
+  TVector3 startLocal = fGeoH->MasterToLocalShortId(start, barId); // point
     
-    // Find the number of bounces in each direction       
-    Double_t N1, N2;    
-    FindOutPoint(X0, startLocal.X() + fbarwidth/2., fbarwidth, &N1, 0);
-    FindOutPoint(Y0, startLocal.Y() + fhthick,      2.*fhthick, &N2, 0);    
-      //cout<<"-I- NumberOfBounces: N1 = "<<N1<<", N2 = "<<N2<<endl;
+  // Find the number of bounces in each direction       
+  Double_t N1, N2;    
+  FindOutPoint(X0, startLocal.X() + fbarwidth/2., fbarwidth, &N1, 0);
+  FindOutPoint(Y0, startLocal.Y() + fhthick,      2.*fhthick, &N2, 0);    
+  //cout<<"-I- NumberOfBounces: N1 = "<<N1<<", N2 = "<<N2<<endl;
     
-    *n1 = (Int_t)N1;
-    *n2 = (Int_t)N2;
+  *n1 = (Int_t)N1;
+  *n2 = (Int_t)N2;
     
-    // calculate the reflection angles in x and y directions:
-    TVector3 up_down;
-    up_down.SetXYZ(0.,1.,0.);
-    TVector3 left_right;
-    left_right.SetXYZ(1.,0.,0.);
-    Double_t angle1 = dir.Angle(left_right);
-    if(angle1 > fpi/2.){angle1 = fpi - dir.Angle(left_right);}
-    Double_t angle2 = dir.Angle(up_down);
-    if(angle2 > fpi/2.){angle2 = fpi - dir.Angle(up_down);}
-    *alpha1 = angle1;
-    *alpha2 = angle2;
-    //cout<<"-I- NumberOfBounces: angle1 = "<<angle1<<", angle2 = "<<angle2<<endl;
+  // calculate the reflection angles in x and y directions:
+  TVector3 up_down;
+  up_down.SetXYZ(0.,1.,0.);
+  TVector3 left_right;
+  left_right.SetXYZ(1.,0.,0.);
+  Double_t angle1 = dir.Angle(left_right);
+  if(angle1 > fpi/2.){angle1 = fpi - dir.Angle(left_right);}
+  Double_t angle2 = dir.Angle(up_down);
+  if(angle2 > fpi/2.){angle2 = fpi - dir.Angle(up_down);}
+  *alpha1 = angle1;
+  *alpha2 = angle2;
+  //cout<<"-I- NumberOfBounces: angle1 = "<<angle1<<", angle2 = "<<angle2<<endl;
 }
 
 //-----------------------------------------------------------------------------
 Double_t PndDrc::FindOutPoint(Double_t x0, Double_t xEn, Double_t a, Double_t *NN, Bool_t print) {
-	Double_t m=99.;
-	Double_t n=TMath::Floor(x0/a);
-	m = n;		
-	if(print){std::cout<<"n = "<<n<<", NN = "<<*NN<<", x0 = "<<x0<<", a = "<<a<<std::endl;}
-	Double_t x1 = x0 - n*a;
-	if(x0 < 0.){x1 = x0 - (n+1)*a;}
-	if(print){std::cout<<"xy = "<< x1<<std::endl;}
-	Double_t xK = 0.;
-	if((m/2. - TMath::Floor(m/2.)) == 0.) { // 4etnoe
-		if(print){std::cout<<"odd==0"<<std::endl;}
-		if(x0 >= 0. && x1 + xEn <= a){xK = x1 + xEn;} 
-		if(x0 >= 0. && x1 + xEn >  a){xK = 2*a - x1 - xEn; n = 1. + n;}
-		if(x0 < 0. && x1 + xEn >= 0.){xK = a - (x1 + xEn); n = -1. -n;}
-		if(x0 < 0. && x1 + xEn < 0.) {xK = a + x1 + xEn; n = -n;}
-	if(print){std::cout<<"xK = "<< xK<<", n = "<<n<<std::endl;}
+  Double_t m=99.;
+  Double_t n=TMath::Floor(x0/a);
+  m = n;		
+  if(print){std::cout<<"n = "<<n<<", NN = "<<*NN<<", x0 = "<<x0<<", a = "<<a<<std::endl;}
+  Double_t x1 = x0 - n*a;
+  if(x0 < 0.){x1 = x0 - (n+1)*a;}
+  if(print){std::cout<<"xy = "<< x1<<std::endl;}
+  Double_t xK = 0.;
+  if((m/2. - TMath::Floor(m/2.)) == 0.) { // 4etnoe
+    if(print){std::cout<<"odd==0"<<std::endl;}
+    if(x0 >= 0. && x1 + xEn <= a){xK = x1 + xEn;} 
+    if(x0 >= 0. && x1 + xEn >  a){xK = 2*a - x1 - xEn; n = 1. + n;}
+    if(x0 < 0. && x1 + xEn >= 0.){xK = a - (x1 + xEn); n = -1. -n;}
+    if(x0 < 0. && x1 + xEn < 0.) {xK = a + x1 + xEn; n = -n;}
+    if(print){std::cout<<"xK = "<< xK<<", n = "<<n<<std::endl;}
 		
-	}
+  }
 
-	if((m/2. - TMath::Floor(m/2.)) != 0.) { // ne4etnoe
-		if(print){std::cout<<"even!=0"<<std::endl;} 
-		if(x0 >= 0. && x1 + xEn <= a){xK = a - (x1 + xEn);} 
-		if(x0 >= 0. && x1 + xEn >  a){xK = x1 + xEn - a; n = 1. + n;}
-		if(x0 < 0. && x1 + xEn >= 0.){xK = x1 + xEn; n = -1. -n;} 
-		if(x0 < 0. && x1 + xEn < 0.) {xK = - (x1 + xEn); n = -n;}
-	if(print){std::cout<<"xK = "<< xK<<", n = "<<n<<std::endl;}
+  if((m/2. - TMath::Floor(m/2.)) != 0.) { // ne4etnoe
+    if(print){std::cout<<"even!=0"<<std::endl;} 
+    if(x0 >= 0. && x1 + xEn <= a){xK = a - (x1 + xEn);} 
+    if(x0 >= 0. && x1 + xEn >  a){xK = x1 + xEn - a; n = 1. + n;}
+    if(x0 < 0. && x1 + xEn >= 0.){xK = x1 + xEn; n = -1. -n;} 
+    if(x0 < 0. && x1 + xEn < 0.) {xK = - (x1 + xEn); n = -n;}
+    if(print){std::cout<<"xK = "<< xK<<", n = "<<n<<std::endl;}
 
-	}
+  }
  	
-	*NN = n;		
-	return xK;
+  *NN = n;		
+  return xK;
 }
 
 // -----   Public method EndOfEvent   -----------------------------------------
 void PndDrc::EndOfEvent() {
+  
+  fBarTrackStatus = 0;
+
   fLastTrackID = -2;
   if (fVerboseLevel)  Print();  
   Reset(); 
@@ -1296,36 +1399,36 @@ void PndDrc::Register() {
 
 // -----   Public method GetCollection   --------------------------------------
 TClonesArray* PndDrc::GetCollection(Int_t iColl) const {
-   if (iColl == 0) return fDrcPDCollection;
-   if (iColl == 1) return fDrcEVCollection;
-   if (iColl == 2) return fDrcBarCollection;
+  if (iColl == 0) return fDrcPDCollection;
+  if (iColl == 1) return fDrcEVCollection;
+  if (iColl == 2) return fDrcBarCollection;
    
   return NULL;
 }
 
 // -----   Public method Print   ----------------------------------------------
 void PndDrc::Print() const {
-    Int_t nPDHits = fDrcPDCollection->GetEntriesFast();
-    Int_t nBarHits = fDrcBarCollection->GetEntriesFast();
-    Int_t nEVHits = fDrcEVCollection->GetEntriesFast();
+  Int_t nPDHits = fDrcPDCollection->GetEntriesFast();
+  Int_t nBarHits = fDrcBarCollection->GetEntriesFast();
+  Int_t nEVHits = fDrcEVCollection->GetEntriesFast();
     
-    cout << "-I- PndDrc: " << nPDHits << " points registered in the photodetector for this event." << endl;
-    cout << "-I- PndDrc: " << nEVHits << " points registered in the expansion volume for this event." << endl;
-    cout << "-I- PndDrc: " << nBarHits << " points registered in the bar for this event." 	<< endl;
+  cout << "-I- PndDrc: " << nPDHits << " points registered in the photodetector for this event." << endl;
+  cout << "-I- PndDrc: " << nEVHits << " points registered in the expansion volume for this event." << endl;
+  cout << "-I- PndDrc: " << nBarHits << " points registered in the bar for this event." 	<< endl;
     
- if (fVerboseLevel>1){
-   for (Int_t i=0; i<nPDHits; i++) (*fDrcPDCollection)[i]->Print();
-   for (Int_t i=0; i<nEVHits; i++) (*fDrcEVCollection)[i]->Print();
-   for (Int_t i=0; i<nBarHits; i++) (*fDrcBarCollection)[i]->Print();   
- }
+  if (fVerboseLevel>1){
+    for (Int_t i=0; i<nPDHits; i++) (*fDrcPDCollection)[i]->Print();
+    for (Int_t i=0; i<nEVHits; i++) (*fDrcEVCollection)[i]->Print();
+    for (Int_t i=0; i<nBarHits; i++) (*fDrcBarCollection)[i]->Print();   
+  }
 }
 
 // -----   Public method Reset   ----------------------------------------------
 void PndDrc::Reset() {
-   fDrcPDCollection->Delete();
-   fDrcEVCollection->Delete();
-   fDrcBarCollection->Delete();   
-   fPosIndex = 0;
+  fDrcPDCollection->Delete();
+  fDrcEVCollection->Delete();
+  fDrcBarCollection->Delete();   
+  fPosIndex = 0;
 }
 
 // -----   Public method CopyClones   -----------------------------------------
@@ -1383,11 +1486,11 @@ void PndDrc::ConstructGeometry() {
       fBarEnd = -118.725;
       fFocusing = 1;
     } 
-     if(fileName.Contains("_l3_")){
+    if(fileName.Contains("_l3_")){
       fBarEnd = -119.8;
       fFocusing = 3;
     } 
-     fMirrorGap = 0.1;
+    fMirrorGap = 0.1;
   } else{
     std::cout<<"Geometry format not supported!"<<std::endl;
   } 
@@ -1612,7 +1715,7 @@ PndDrcEVPoint* PndDrc::AddEVHit(Int_t trackID, Int_t copyNo, TVector3 pos, TVect
   TClonesArray& clrefEV = *fDrcEVCollection;
   Int_t size = clrefEV.GetEntriesFast();
   if (fVerboseLevel>2) 
-      cout << "-I- PndDrc: Adding EV Point at (" << pos.X() << ", " << pos.Y() 
+    cout << "-I- PndDrc: Adding EV Point at (" << pos.X() << ", " << pos.Y() 
       	 << ", " << pos.Z() << ") cm, detector " << copyNo << ", track "
       	 << trackID <<" event "<<eventID << endl;
   return new(clrefEV[size]) PndDrcEVPoint(trackID, 

@@ -134,7 +134,7 @@ class PndDrc : public FairDetector
    **/
   virtual Bool_t ProcessHits(FairVolume* vol = 0);
 
-  virtual void   PostTrack();
+  virtual void   FinishPrimary();
 
   /** Virtual method EndOfEvent
    **
@@ -318,6 +318,7 @@ class PndDrc : public FairDetector
   Bool_t  	 fStopChargedTrackAfterDIRC;
   Bool_t	 fSetBlackLens; 
   Bool_t 	 fOptionForLUT;	
+  Bool_t         fbLab;
    
   TArrayI        fProc;
 
