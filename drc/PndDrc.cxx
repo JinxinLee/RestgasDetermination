@@ -1112,6 +1112,12 @@ Bool_t PndDrc::ProcessHits(FairVolume* vol) {
      }
    } 
    
+   // if a photon is exiting the readout bar end
+   if (gMC->IsTrackExiting()==1 && num == fbarID && fPos.Z()<-118.99){
+     fTimeAtEV = gMC->TrackTime()*1.0e09;
+     //cout<<"time at EV = "<<fTimeAtEV<<endl;
+   } 
+   
    if (gMC->IsTrackEntering()==1){         
      if (nam.BeginsWith("DrcPDSensor")){ 
        if(0==fGeoH) {
@@ -1124,7 +1130,7 @@ Bool_t PndDrc::ProcessHits(FairVolume* vol) {
       
        if(fTrackID>-2){
 	 AddHit(fTrackID, sensorId, mcpId,
-		fPos.Vect(),fMom.Vect(),fMomAtEV.Vect(),
+		fPos.Vect(),fMom.Vect(),fMomAtEV.Vect(), fTimeAtEV,
 		fTime, fLength, fPdgCode, fEventID);
        }
 
@@ -1136,7 +1142,7 @@ Bool_t PndDrc::ProcessHits(FairVolume* vol) {
    
   }
   
-  if(gMC->TrackCharge()!=0 || fOptionForLUT ){
+  if(gMC->TrackCharge()!=0 /*|| fOptionForLUT*/ ){
     if (nam.BeginsWith("DrcBar") && gMC->IsTrackEntering()==1  ) {
 
       bool bpass = true;
@@ -1578,7 +1584,7 @@ bool PndDrc::CheckIfSensitive(std::string name) {
 }
 
 // -----   Private method AddHit   --------------------------------------------
-PndDrcPDPoint* PndDrc::AddHit(Int_t trackID, Int_t copyNo, Int_t mcpId, TVector3 pos, TVector3 mom, TVector3 momAtEV, Double_t time, Double_t length, Int_t pdgCode, Int_t eventID) {
+PndDrcPDPoint* PndDrc::AddHit(Int_t trackID, Int_t copyNo, Int_t mcpId, TVector3 pos, TVector3 mom, TVector3 momAtEV, Double_t timeAtEV, Double_t time, Double_t length, Int_t pdgCode, Int_t eventID) {
   TClonesArray& clrefPD = *fDrcPDCollection;
   Int_t size = clrefPD.GetEntriesFast();
   // if(size>2) return NULL;
@@ -1593,6 +1599,7 @@ PndDrcPDPoint* PndDrc::AddHit(Int_t trackID, Int_t copyNo, Int_t mcpId, TVector3
 					  pos, 
 					  mom,
 					  momAtEV, 
+					  timeAtEV,
 					  time, 
 					  length, 
 					  pdgCode,

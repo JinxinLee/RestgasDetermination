@@ -202,6 +202,7 @@ class PndDrc : public FairDetector
 			TVector3 pos, 
 			TVector3 mom,
 			TVector3 momAtEV, 
+			Double_t timeAtEV,
 			Double_t time, 
 			Double_t length, 
 			Int_t pdgCode,
@@ -277,6 +278,7 @@ class PndDrc : public FairDetector
   TLorentzVector fPos2; //! for transport efficiency calculation
   TLorentzVector fPos1;
   TLorentzVector fMomAtEV;
+  Double_t       fTimeAtEV;
   Double_t 	 fBarEnd;
   Double_t 	 fMirrorGap;
   Double_t 	 fTimeAtEVEntrance;
