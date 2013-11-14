@@ -12,7 +12,8 @@ bool checkfile(TString fn)
 
 void prod_ana(TString outpre="M9999", int from=1, int to=1, int nevts=0)
 {
- 	TString OutFile   = TString::Format("%s_ana_%d_%d.root",outpre.Data(), from, to); 
+ 	TString OutFile1   = TString::Format("%s_ana1_%d_%d.root",outpre.Data(), from, to); 
+ 	TString OutFile2   = TString::Format("%s_ana2_%d_%d.root",outpre.Data(), from, to); 
 	TString inParFile = TString::Format("%s_%d_par.root",outpre.Data(),from);
 	
   	FairRunAna *fRun= new FairRunAna();
@@ -53,7 +54,7 @@ void prod_ana(TString outpre="M9999", int from=1, int to=1, int nevts=0)
 	rtdb->setOutput(parIO);  
 	rtdb->setContainersStatic();
 	
-	fRun->SetOutputFile(OutFile);
+	fRun->SetOutputFile(OutFile1);
 	fRun->Init();
 	
 	//---------------------Create and Set the Field(s)---------- 
@@ -73,7 +74,7 @@ void prod_ana(TString outpre="M9999", int from=1, int to=1, int nevts=0)
 	RhoCandList chrg;
 	
 	// *** create an output file for all histograms
-	TFile *out = TFile::Open(outpre+"_ana2.root","RECREATE");
+	TFile *out = TFile::Open(OutFile2,"RECREATE");
 	
 	TH1F *hmom = new TH1F("hmom","momentum",100,0,6);
 	// ***

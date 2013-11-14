@@ -37,7 +37,7 @@ Run LOCALLY IN SHELL
 Box Generator
 -------------
 
--> ./runall_prod_pgun.sh <prefix> <N_ev> <PDG code> <mult>
+-> ./runall_prod_pgun.sh <prefix> <N_ev> <PDG code> <max mom> <mult>
 
 with parameters
  <prefix>    - Prefix for output files
@@ -121,7 +121,7 @@ BEFORE being able to submit jobs to Prometheus, you have to
 Box Generator
 -------------
 
--> qsub -t <min>-<max> job_prod_pgun.sge <prefix> <N_ev> <PDG code> <mult>
+-> qsub -t <min>-<max> job_prod_pgun.sge <prefix> <N_ev> <PDG code> <max mom> <mult>
 
 Submits an array of jobs with array numbers <min> to <max>
 
@@ -133,7 +133,7 @@ with parameters
  <mult>      - Multiplicity in single events
 
 Produces output files M..._sim.root, M..._par.root, M..._dig.root, M..._rec.root, M..._pid.root and log files in data directory, 
-with '...' running from <prefix>_<min> to <prefix>_<max>. E.g.
+with '...' running from <prefix>_<min> to <prefix>_<max>. 
 
 Example:
 qsub -t 1-20 job_prod_pgun.sge PiPlus 1000 211 1
@@ -145,7 +145,7 @@ data/MPiPlus_1_sim.root, ... , data/MPiPlus_20_pid.root
 EvtGen 
 --------
 
--> qsub -t <min>-<max> job_prod.sh <prefix> <N_ev> <decay> <pbar mom> <res>
+-> qsub -t <min>-<max> job_prod.sge <prefix> <N_ev> <decay> <pbar mom> <res>
 
 Submits an array of jobs with array numbers <min> to <max>
 
@@ -157,7 +157,7 @@ with parameters
  <res>       - Initial resonance used in decay file 
 
 Produces output files M..._sim.root, M..._par.root, M..._dig.root, M..._rec.root, M..._pid.root and log files in data directory, 
-with '...' running from <prefix>_<min> to <prefix>_<max>. E.g.
+with '...' running from <prefix>_<min> to <prefix>_<max>. 
 
 Example:
 qsub -t 1-20 job_prod.sge D0Kpi 1000 D0toKpi.dec 10.0 pbarpSystem
@@ -170,7 +170,7 @@ data/MD0Kpi_1_sim.root, ... , data/MD0Kpi_20_pid.root
 DPM
 --------
 
--> qsub -t <min>-<max> job_prod.sh <prefix> <N_ev> DPM <pbar mom>
+-> qsub -t <min>-<max> job_prod.sge <prefix> <N_ev> DPM <pbar mom>
 
 Submits an array of jobs with array numbers <min> to <max>
 
@@ -180,7 +180,7 @@ Runs DPM generator in _inelastic_ mode. Parameters as above, just replace name o
  <pbar mom>  - Momentum of antiproton beam
 
 Produces output files M..._sim.root, M..._par.root, M..._dig.root, M..._rec.root, M..._pid.root and log files in data directory, 
-with '...' running from <prefix>_<min> to <prefix>_<max>. E.g.
+with '...' running from <prefix>_<min> to <prefix>_<max>. 
 
 Example:
 qsub -t 1-20 job_prod.sge DPM10GeV 1000 DPM 10.0 
@@ -206,7 +206,7 @@ Parameters:
  <prefix>    - Prefix for output files
  <min>       - run from this job number
  <max>       - .. to this
- <N_ev>      - Number of events to simulate
+ <N_ev>      - Number of events to analyze, 0 = default -> all events
 
 Example:
 root -l -b -q  '../prod_ana.C("MDPM10GeV", 1, 10)' 
@@ -217,7 +217,7 @@ data/MDPM10GeV_ana_1_10.root
 
 SUBMITTING ANALYSIS JOBS:
 
-Submitting the analysis macro from above as job to Prometheus (e.g. to split to several jobs) can be done from macro/prodgsi by
+Submitting the analysis macro from above as job to Prometheus (e.g. to split to several jobs) can be done from macro/prod by
 
 -> qsub job_ana.sge <prefix> <min> <max> 
 
