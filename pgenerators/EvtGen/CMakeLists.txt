@@ -301,7 +301,7 @@ set(EVTGEN_DICTIONARY ${CMAKE_CURRENT_BINARY_DIR}/EvtGenDict.cxx)
 
 add_library(EvtGen SHARED ${EVTGEN_SRCS})
 #target_link_libraries(EvtGen ${ROOT_LIBRARIES} Pythia6 Photos ${Fortran_UseLib})
-target_link_libraries(EvtGen  Pythia6 Photos ${Fortran_UseLib})
+target_link_libraries(EvtGen Physics Pythia6 Photos ${Fortran_UseLib})
 set_target_properties(EvtGen PROPERTIES ${FAIRROOT_LIBRARY_PROPERTIES})
 set_target_properties(EvtGen PROPERTIES LINK_FLAGS "-fPIC")
 set_target_properties(EvtGen PROPERTIES LINKER_LANGUAGE "Fortran")
