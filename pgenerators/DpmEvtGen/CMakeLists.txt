@@ -44,7 +44,8 @@ Else(CMAKE_COMPILER_IS_GNUCXX OR CMAKE_CXX_COMPILER_ID MATCHES "Clang")
 EndIf(CMAKE_COMPILER_IS_GNUCXX OR CMAKE_CXX_COMPILER_ID MATCHES "Clang")
 
 add_library(DpmEvtGen SHARED ${DPMEVTGEN_SRCS})
-target_link_libraries(DpmEvtGen ${ROOT_LIBRARIES})
+#target_link_libraries(DpmEvtGen ${ROOT_LIBRARIES})
+target_link_libraries(DpmEvtGen )
 set_target_properties(DpmEvtGen PROPERTIES ${FAIRROOT_LIBRARY_PROPERTIES})
 
 add_executable(DpmEvtGen_exe ${DPMEVTGEN_EXE_SRCS})

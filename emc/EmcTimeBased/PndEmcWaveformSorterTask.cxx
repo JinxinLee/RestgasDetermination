@@ -6,6 +6,7 @@
 
 #include "PndEmcWaveform.h"
 #include "PndEmcWaveformRingSorter.h"
+#include "TClonesArray.h"
 
 ClassImp(PndEmcWaveformSorterTask);
 

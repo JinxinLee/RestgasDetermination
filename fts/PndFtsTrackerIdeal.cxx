@@ -32,7 +32,7 @@
 #include "FairRunAna.h"
 #include "FairRuntimeDb.h"
 
-
+using namespace std;
 //________________________________________________________________
 PndFtsTrackerIdeal::PndFtsTrackerIdeal():
 FairTask("FTSTrackfinderIdeal"), fMCTracks(0), fTrackCands(0), fTracks(0),

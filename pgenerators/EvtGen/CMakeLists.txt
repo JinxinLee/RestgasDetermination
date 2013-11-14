@@ -300,7 +300,8 @@ set(EVTGEN_DICTIONARY ${CMAKE_CURRENT_BINARY_DIR}/EvtGenDict.cxx)
 ## SET(EVTGEN_SRCS ${EVTGEN_SRCS} ${EVTGEN_DICTIONARY})
 
 add_library(EvtGen SHARED ${EVTGEN_SRCS})
-target_link_libraries(EvtGen ${ROOT_LIBRARIES} Pythia6 Photos ${Fortran_UseLib})
+#target_link_libraries(EvtGen ${ROOT_LIBRARIES} Pythia6 Photos ${Fortran_UseLib})
+target_link_libraries(EvtGen  Pythia6 Photos ${Fortran_UseLib})
 set_target_properties(EvtGen PROPERTIES ${FAIRROOT_LIBRARY_PROPERTIES})
 set_target_properties(EvtGen PROPERTIES LINK_FLAGS "-fPIC")
 set_target_properties(EvtGen PROPERTIES LINKER_LANGUAGE "Fortran")
@@ -310,7 +311,9 @@ foreach(program ${ALLEvtGen_exe})
 	set_target_properties(EvtGen_exe_${program} PROPERTIES OUTPUT_NAME ${program})
 	set_target_properties(EvtGen_exe_${program} PROPERTIES LINK_FLAGS "-fPIC")
         set_target_properties(EvtGen_exe_${program} PROPERTIES LINKER_LANGUAGE "Fortran")
-	target_link_libraries(EvtGen_exe_${program} ${ROOT_LIBRARIES} EvtGen Pythia6 Photos ${Fortran_UseLib} )
+#	target_link_libraries(EvtGen_exe_${program} ${ROOT_LIBRARIES} EvtGen Pythia6 Photos ${Fortran_UseLib} )
+	target_link_libraries(EvtGen_exe_${program} RIO Tree Core MathCore EvtGen Pythia6 Photos ${Fortran_UseLib} )
+
 endforeach(program)
 
 ################ install ###################

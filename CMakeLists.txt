@@ -36,7 +36,7 @@ SetBasicVariables()
 set(LIBRARY_OUTPUT_PATH "${CMAKE_BINARY_DIR}/lib")
 set(EXECUTABLE_OUTPUT_PATH "${CMAKE_BINARY_DIR}/bin")
 set(INCLUDE_OUTPUT_DIRECTORY "${PROJECT_BINARY_DIR}/include")
-
+Set(VMCWORKDIR ${PANDAROOT_SOURCE_DIR})
 Option(USE_PATH_INFO "Information from PATH and LD_LIBRARY_PATH are
 used."OFF)
 If(USE_PATH_INFO)
@@ -84,7 +84,7 @@ CHECK_EXTERNAL_PACKAGE_INSTALL_DIR()
 
 find_package(ROOT 5.32.00 REQUIRED)
 find_package(PLUTO REQUIRED)
-find_package(glpk REQUIRED)
+#find_package(glpk REQUIRED)
 find_package(Pythia8 REQUIRED)
 find_package(GENERATORS REQUIRED)
 find_package(GEANT3 REQUIRED)
