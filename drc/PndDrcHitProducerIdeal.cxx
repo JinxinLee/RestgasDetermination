@@ -43,13 +43,13 @@ PndDrcHitProducerIdeal::PndDrcHitProducerIdeal()
 :FairTask("PndDrcHitProducerIdeal")
 {
   fGeo = new PndGeoDrc();
-  
+  fVerbose=0;
 }
 // -------------------------------------------------------------------------
 
 // -----   Standard constructor with verbosity level  -------------------------------------------
 
-PndDrcHitProducerIdeal::PndDrcHitProducerIdeal(Int_t verbose = 0) 
+PndDrcHitProducerIdeal::PndDrcHitProducerIdeal(Int_t verbose)
   :FairTask("PndDrcHitProducerIdeal")
 {
   fVerbose = verbose;  
