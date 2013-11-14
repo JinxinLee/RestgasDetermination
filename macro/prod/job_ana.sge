@@ -1,0 +1,32 @@
+#$ -wd /tmp
+#$ -j y
+
+cd $TMPDIR
+
+. /path/to/your/current/build/config.sh
+
+data=$VMCWORKDIR"/macro/prod"
+_target=$data"/data/"
+
+prefix=13
+from=1
+to=20
+
+if test "$1" != ""; then
+  prefix=$1
+fi
+
+if test "$2" != ""; then
+  from=$2
+fi
+
+if test "$3" != ""; then
+  to=$3
+fi
+
+root -l -b -q -w $data"/"prod_ana.C\(\"$_target/$prefix\",$from,$to\)
+
+# Move the data to the persistent storage
+cp -v $TMPDIR/$prefix*.root $_target 
+# Evacuate the log-file
+cp -v $SGE_STDOUT_PATH $_target/$JOB_ID.log

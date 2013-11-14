@@ -1,0 +1,57 @@
+#$ -wd /tmp 
+#$ -j y
+
+cd $TMPDIR
+
+. /path/to/your/current/build/config.sh
+
+hera=$VMCWORKDIR"/macro/prod"
+_target=$hera"/data/"
+
+prefix=9999
+nEvts=1000
+dec="pp_DpDm_Dp_Kpipi_incl.dec"
+mom=12.3485
+res="pbarpSystem0"
+
+sig=1
+
+if test "$1" != ""; then
+  prefix=$1
+fi
+
+if test "$2" != ""; then
+  nEvts=$2
+fi
+
+if test "$3" != ""; then
+  dec=$3
+fi
+
+if test "$4" != ""; then
+  mom=$4
+fi
+
+if test "$5" != ""; then
+  res=$5
+fi
+
+if test "$dec" == "DPM"; then
+  sig=0
+else
+  dec=$hera"/"$dec
+fi
+
+outprefix=$TMPDIR"/M"$prefix"_"$SGE_TASK_ID
+
+echo $TMPDIR
+root -l -q -b -w $hera"/"prod_sim.C\(\"$outprefix\",$nEvts,\"$dec\",$mom,\"$res\"\) &> $outprefix"_sim.log"
+root -l -b -q -w $hera"/"prod_dig.C\(\"$outprefix\"\) &> $outprefix"_dig.log"
+root -l -b -q -w $hera"/"prod_rec.C\(\"$outprefix\"\) &> $outprefix"_rec.log"
+root -l -b -q -w $hera"/"prod_pid.C\(\"$outprefix\"\) &> $outprefix"_pid.log"
+
+
+# Move the data to the persistent storage
+cp -v $TMPDIR/M* $_target 
+# Evacuate the log-file
+cp -v $SGE_STDOUT_PATH $_target/$JOB_ID.log

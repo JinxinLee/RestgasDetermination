@@ -1,0 +1,234 @@
+macro/prodgsi
+----------------------
+
+A set of macros to run various kinds of simulation either locally or submit them for larger amounts of events to Prometheus-Cluster@GSI.
+
+######
+FILES:
+######
+
+Simulation
+- prod_sim.C
+- prod_sim_pgun.C
+- prod_dig.C
+- prod_rec.C
+- prod_pid.C
+- prod_pid_mva.C
+
+Analysis example (multiple files)
+- prod_ana.C
+
+Scripts to run all at automatically
+- runall_prod_pgun.sh
+- runall_prod.sh
+
+Scripts to submit jobs to Prometheus
+- job_prod_pgun.sge
+- job_prod.sge
+
+Script to submit analysis job for many input files
+- job_ana.sge 
+
+
+####################
+Run LOCALLY IN SHELL
+####################
+-------------
+Box Generator
+-------------
+
+-> ./runall_prod_pgun.sh <prefix> <N_ev> <PDG code> <mult>
+
+with parameters
+ <prefix>    - Prefix for output files
+ <N_ev>      - Number of events to simulate
+ <PDG code>  - PDG code of particle(s) to be created
+ <max mom>   - Generate particles with p = 0.01 ... <max mom>, isotropic in cos(theta) and phi
+ <mult>      - Multiplicity in single events
+
+Produces output files <prefix>_sim.root, <prefix>_par.root, <prefix>_dig.root, <prefix>_rec.root, <prefix>_pid.root in current directory.
+
+Example:
+./runall_prod_pgun.sh PiPlus 1000 211 1
+
+Result: 
+PiPlus_sim.root, ... , PiPlus_pid.root
+
+
+--------
+EvtGen 
+--------
+
+-> ./runall_prod.sh <prefix> <N_ev> <decay> <pbar mom> <res>
+
+with parameters
+ <prefix>    - Prefix for output files
+ <N_ev>      - Number of events to simulate
+ <decay>     - EvtGen decay file
+ <pbar mom>  - Momentum of antiproton beam
+ <res>       - Initial resonance used in decay file 
+
+Produces output files <prefix>_sim.root, <prefix>_par.root, <prefix>_dig.root, <prefix>_rec.root, <prefix>_pid.root in current directory.
+
+Example:
+./runall_prod.sh D0Kpi 1000 D0toKpi.dec 10.0 pbarpSystem 
+
+Result: 
+D0Kpi_sim.root, ... , D0Kpi_pid.root
+
+
+--------
+DPM
+--------
+
+-> ./runall_prod.sh <prefix> <N_ev> DPM <pbar mom>
+
+Runs DPM generator in _inelastic_ mode. Parameters as above, just replace name of decay file with key word 'DPM'.
+
+ <prefix>    - Prefix for output files
+ <N_ev>      - Number of events to simulate
+ <pbar mom>  - Momentum of antiproton beam
+
+Produces output files <prefix>_sim.root, <prefix>_par.root, <prefix>_dig.root, <prefix>_rec.root, <prefix>_pid.root in current directory.
+
+Example:
+./runall_prod.sh DPM10GeV 1000 DPM 10.0  
+
+Result: 
+DPM10GeV_sim.root, ... , DPM10GeV_pid.root
+
+
+####################
+SUBMIT TO CLUSTER
+####################
+
+General information about submitting jobs on cluster can be found here:
+http://wiki.gsi.de/cgi-bin/view/Linux/GridEngine
+
+BEFORE being able to submit jobs to Prometheus, you have to 
+
+1. login to a lxsub machine by ssh yourname@pro.hpc.gsi.de  
+
+2. create a work directory on HERA, e.g. /hera/panda/yourname/pandaroot
+
+3. install PandaROOT in that place, since your GSI linux home directory is not mounted on Prometheus nodes.
+   (SIMPATH is /cvmfs/fairroot.gsi.de/fairsoft/apr13/ for apr13 external packages)
+
+4. adapt the line '. /path/to/your/current/build/config.sh' which sources your current config.sh
+   in the job script files (job_prod.sge, job_prod_pgun.sge, job_ana.sge) 
+
+-------------
+Box Generator
+-------------
+
+-> qsub -t <min>-<max> job_prod_pgun.sge <prefix> <N_ev> <PDG code> <mult>
+
+Submits an array of jobs with array numbers <min> to <max>
+
+with parameters
+ <prefix>    - Prefix for output files
+ <N_ev>      - Number of events to simulate
+ <PDG code>  - PDG code of particle(s) to be created
+ <max mom>   - Generate particles with p = 0.01 ... <max mom>, isotropic in cos(theta) and phi
+ <mult>      - Multiplicity in single events
+
+Produces output files M..._sim.root, M..._par.root, M..._dig.root, M..._rec.root, M..._pid.root and log files in data directory, 
+with '...' running from <prefix>_<min> to <prefix>_<max>. E.g.
+
+Example:
+qsub -t 1-20 job_prod_pgun.sge PiPlus 1000 211 1
+
+Result: 
+data/MPiPlus_1_sim.root, ... , data/MPiPlus_20_pid.root 
+
+--------
+EvtGen 
+--------
+
+-> qsub -t <min>-<max> job_prod.sh <prefix> <N_ev> <decay> <pbar mom> <res>
+
+Submits an array of jobs with array numbers <min> to <max>
+
+with parameters
+ <prefix>    - Prefix for output files
+ <N_ev>      - Number of events to simulate
+ <decay>     - EvtGen decay file
+ <pbar mom>  - Momentum of antiproton beam
+ <res>       - Initial resonance used in decay file 
+
+Produces output files M..._sim.root, M..._par.root, M..._dig.root, M..._rec.root, M..._pid.root and log files in data directory, 
+with '...' running from <prefix>_<min> to <prefix>_<max>. E.g.
+
+Example:
+qsub -t 1-20 job_prod.sge D0Kpi 1000 D0toKpi.dec 10.0 pbarpSystem
+
+Result: 
+data/MD0Kpi_1_sim.root, ... , data/MD0Kpi_20_pid.root 
+
+
+--------
+DPM
+--------
+
+-> qsub -t <min>-<max> job_prod.sh <prefix> <N_ev> DPM <pbar mom>
+
+Submits an array of jobs with array numbers <min> to <max>
+
+Runs DPM generator in _inelastic_ mode. Parameters as above, just replace name of decay file with key word 'DPM'.
+ <prefix>    - Prefix for output files
+ <N_ev>      - Number of events to simulate
+ <pbar mom>  - Momentum of antiproton beam
+
+Produces output files M..._sim.root, M..._par.root, M..._dig.root, M..._rec.root, M..._pid.root and log files in data directory, 
+with '...' running from <prefix>_<min> to <prefix>_<max>. E.g.
+
+Example:
+qsub -t 1-20 job_prod.sge DPM10GeV 1000 DPM 10.0 
+
+Result: 
+data/MDPM10GeV_1_sim.root, ... , data/MDPM10GeV_20_pid.root 
+
+
+####################
+ANALYSING RESULTS
+####################
+
+RUN LOCALLY:
+
+In order to run over a number of your resulting output (_pid.root) files, the macro prod_ana.C can be used as follows, e.g. from the data dir:
+
+-> root -l -b -q '../prod_ana.C("<prefix>", <min>, <max>, <N_ev>)'
+
+Adds several input files <prefix>_<min>_pid.root, ... , <prefix>_<max>_pid.root and <prefix>_<min>_par.root as par file to FairRunAna to run analysis.
+Broken or missing files are skipped automatically.
+
+Parameters:
+ <prefix>    - Prefix for output files
+ <min>       - run from this job number
+ <max>       - .. to this
+ <N_ev>      - Number of events to simulate
+
+Example:
+root -l -b -q  '../prod_ana.C("MDPM10GeV", 1, 10)' 
+
+Result: 
+data/MDPM10GeV_ana_1_10.root
+
+
+SUBMITTING ANALYSIS JOBS:
+
+Submitting the analysis macro from above as job to Prometheus (e.g. to split to several jobs) can be done from macro/prodgsi by
+
+-> qsub job_ana.sge <prefix> <min> <max> 
+
+Parameters:
+ <prefix>    - Prefix for output files
+ <min>       - run from this job number
+ <max>       - .. to this
+
+Example:
+qsub job_ana.sge MDPM10GeV 1 10 
+
+Result: 
+data/MDPM10GeV_ana_1_10.root
+
