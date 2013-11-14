@@ -3,6 +3,17 @@ macro/prodgsi
 
 A set of macros to run various kinds of simulation either locally or submit them for larger amounts of events to Prometheus-Cluster@GSI.
 
+See also 
+
+  http://wiki.gsi.de/cgi-bin/view/Linux/GridEngine 
+
+for general description of usage of GSI GridEngine and
+
+  http://panda-wiki.gsi.de/cgi-bin/viewauth/Computing/PandaRootSimulationPrometheus
+
+for a nicer look-and-feel of the information given below.
+
+
 ######
 FILES:
 ######
