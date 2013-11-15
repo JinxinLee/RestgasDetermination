@@ -1,0 +1,26 @@
+tutorials/dec13
+-----------------
+
+The files in this folder (tutorials/dec13) are supporting material for the tutorial given during the 
+PANDA Collaboration Meeting in December 2013.
+
+
+The purpose of this tutorial is to practice several things like e.g.
+
+- principle reconstruction of a decay channel
+- doing analysis in a FairTask
+- make use of n-Tuples for analysis
+- playing around with data
+- optimize the significance S/sqrt(S+B) for a certain decay channel
+
+
+The files in this directory are:
+
+- README            - this files
+- tut_ana.C         - template macro for analysis of multiple input files
+- tut_ana_task.C    - template macro to run analysis task with multiple input files
+- PndTutAnaTask.h   - analysis task template header
+- PndTutAnaTask.cxx - analysis task template implementation
+
+- CMakeLists.txt    - necessary to build library
+- tutDec13LinkDef.h - necessary to build library
