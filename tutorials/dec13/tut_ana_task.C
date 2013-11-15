@@ -1,5 +1,6 @@
 class FairRunAna;
 
+// Check if file exists and readable
 bool checkfile(TString fn)
 {
 	bool fileok=true;
@@ -14,11 +15,10 @@ bool checkfile(TString fn)
 	return fileok;
 }
 
+// Add many input files to FairRunAna
 void attachFiles(FairRunAna* fRun, TString pref, int min, int max)
 {
 	bool firstfile=true;
-	// *** set output file and par file
-
 	for (int i=min;i<=max;++i) {
 		TString fname = TString::Format("%s_%d_pid.root",pref.Data(),i);
 
@@ -30,9 +30,12 @@ void attachFiles(FairRunAna* fRun, TString pref, int min, int max)
 	}
 }
 
-void tut_ana_task(TString pref="pid_complete.root", int min=-1, int max=1, int nevts=0)
+void tut_ana_task(TString pref="pid_complete.root", int min=-1, int max=1,  int nevts=0)
 {
   	TString OutFile, inParFile;
+	
+	// pbarmom for analysis task
+	double pbarmom = 6.2315;
 	
   	// *** add input files
    	FairRunAna *fRun= new FairRunAna();
@@ -46,7 +49,7 @@ void tut_ana_task(TString pref="pid_complete.root", int min=-1, int max=1, int n
 
 		fRun->SetInputFile(pref);
 	}
-	// *** open many input files
+	// *** attach many input files
 	else {
 		// *** set output file and par file
 		OutFile   = TString::Format("%s_ana_%d_%d.root",pref.Data(), min, max);
@@ -75,7 +78,7 @@ void tut_ana_task(TString pref="pid_complete.root", int min=-1, int max=1, int n
 	fRun->SetOutputFile(OutFile);
 	
 	// *** HERE OUR TASK GOES!
-	PndTutAnaTask *anaTask = new PndTutAnaTask(6.56903);
+	PndTutAnaTask *anaTask = new PndTutAnaTask(pbarmom);
 	fRun->AddTask(anaTask);
 	
 	// *** and run analysis

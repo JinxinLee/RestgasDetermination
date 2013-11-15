@@ -1,10 +1,6 @@
-class RhoCandList;
-class RhoCandidate;
-class PndAnaPidSelector;
-class PndAnaPidCombiner;
-class PndAnalysis;
 class FairRunAna;
 
+// Check if file exists and readable
 bool checkfile(TString fn)
 {
 	bool fileok=true;
@@ -19,11 +15,10 @@ bool checkfile(TString fn)
 	return fileok;
 }
 
+// Add many input files to FairRunAna
 void attachFiles(FairRunAna* fRun, TString pref, int min, int max)
 {
 	bool firstfile=true;
-	// *** set output file and par file
-
 	for (int i=min;i<=max;++i) {
 		TString fname = TString::Format("%s_%d_pid.root",pref.Data(),i);
 
@@ -37,10 +32,6 @@ void attachFiles(FairRunAna* fRun, TString pref, int min, int max)
 
 void tut_ana(TString pref="pid_complete.root", int min=-1, int max=1, int nevts=0)
 {
-	// *** some variables
-	int i=0,j=0, k=0, l=0;
-	gStyle->SetOptFit(1011);
-	
   	TString OutFile, inParFile;
 	
   	// *** add input files
@@ -55,7 +46,7 @@ void tut_ana(TString pref="pid_complete.root", int min=-1, int max=1, int nevts=
 
 		fRun->SetInputFile(pref);
 	}
-	// *** open many input files
+	// *** attach many input files
 	else {
 		// *** set output file and par file
 		OutFile   = TString::Format("%s_ana_%d_%d.root",pref.Data(), min, max);
@@ -86,27 +77,27 @@ void tut_ana(TString pref="pid_complete.root", int min=-1, int max=1, int nevts=
 	
 	// *** create an output file for all histograms
 	TFile *out = TFile::Open(OutFile,"RECREATE");
-		
-	// 
-	// Now the analysis stuff comes...
-	// 
-	
+			
 	// *** the data reader object
 	PndAnalysis* theAnalysis = new PndAnalysis();
 	if (nevts==0) nevts= theAnalysis->GetEntries();
-		
-	// ***
-	// the event loop
-	// ***
+	
+	int i=0;
+	
+	// *** the event loop
 	while (theAnalysis->GetEvent() && i++<nevts)
 	{
 		if ((i%100)==0) cout<<"evt " << i << endl;	
 
+		// ***
+		// *** HERE YOUR ANALYSIS CODE GOES!
+		// ***
+		
 	}
 	
 	// *** write out all the histos
 	out->cd();
-		
 	out->Save();
+	out->Close();
 	
 }
