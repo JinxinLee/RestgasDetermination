@@ -30,26 +30,13 @@ ${ROOT_LIBRARY_DIR}
  
 link_directories( ${LINK_DIRECTORIES})
 
-set(tutrhotask_SRCS
+set(SRCS
 PndTutAnaTask.cxx
 )
 
-set(tutrhotask_HEADERS
-PndTutAnaTask.h
-)
+set(LINKDEF tutrhoLinkDef.h)
+set(LIBRARY_NAME tutrhotask)
 
+set(DEPENDENCIES Base PndData Rho AnalysisTools TrkBase)
 
-
-set(tutrhotask_LINKDEF tutrhoLinkDef.h)
-set(tutrhotask_DICTIONARY ${CMAKE_CURRENT_BINARY_DIR}/tutrhoDict.cxx) 
-
-ROOT_GENERATE_DICTIONARY("${tutrhotask_HEADERS}" "${tutrhotask_LINKDEF}" "${tutrhotask_DICTIONARY}" "${INCLUDE_DIRECTORIES}")
-
-
-set(tutrhotask_SRCS ${tutrhotask_SRCS} ${tutrhotask_DICTIONARY})
-
-add_library(tutrhotask SHARED ${tutrhotask_SRCS})
-target_link_libraries(tutrhotask ${ROOT_LIBRARIES})
-set_target_properties(tutrhotask PROPERTIES ${FAIRROOT_LIBRARY_PROPERTIES})
-################ install ###################
-install(TARGETS tutrhotask DESTINATION ${CMAKE_BINARY_DIR}/lib)
+GENERATE_LIBRARY()

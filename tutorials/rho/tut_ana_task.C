@@ -5,9 +5,6 @@ void tut_ana_task(int nevts=0)
 	// *** the files coming from the simulation
 	TString inPidFile = "pid_complete.root";    // this file contains the PndPidCandidates and McTruth
 	TString inParFile = "simparams.root";
-
-	gROOT->Macro("$VMCWORKDIR/gconfig/rootlogon.C");
-	gSystem->Load("libtutrhotask");
 	
 	// *** PID table with selection thresholds; can be modified by the user
 	TString pidParFile = TString(gSystem->Getenv("VMCWORKDIR"))+"/macro/params/all.par";	
