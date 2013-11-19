@@ -4,6 +4,14 @@ tutorials/dec13
 The files in this folder (tutorials/dec13) are supporting material for the tutorial given during the 
 PANDA Collaboration Meeting in December 2013.
 
+-----------------
+
+General info material about Rho analysis can be found on several Wiki pages:
+
+Standard tutorial: http://panda-wiki.gsi.de/cgi-bin/view/Computing/PandaRootRhoTutorial 
+Info Rho Classes : http://panda-wiki.gsi.de/cgi-bin/view/Computing/PandaRootAnalysisJuly13
+
+-----------------
 
 The purpose of this tutorial is to practice several things like e.g.
 
@@ -11,12 +19,23 @@ The purpose of this tutorial is to practice several things like e.g.
 - doing analysis in a FairTask
 - make use of n-Tuples for analysis
 - playing around with data
-- optimize the significance S/sqrt(S+B) for a certain decay channel
 
+For 
+
+- doing simulation with Box generator, EvtGen or DPM locally or 
+- submitting jobs to Prometheus cluster@GSI
+
+please consult README file in macro/prod and/or Wiki page
+
+http://panda-wiki.gsi.de/cgi-bin/view/Computing/PandaRootSimulationPrometheus
+
+-----------------
 
 The files in this directory are:
 
-- README            - this files
+- README            - this file
+- TutDec2013.pdf    - slides for the tutorial session
+
 - tut_ana.C         - template macro for analysis of multiple input files
 - tut_ana_task.C    - template macro to run analysis task with multiple input files
 - PndTutAnaTask.h   - analysis task template header
@@ -24,3 +43,32 @@ The files in this directory are:
 
 - CMakeLists.txt    - necessary to build library
 - tutDec13LinkDef.h - necessary to build library
+
+- examples_D0toKpi  - directory with example analysis D0 -> K- pi+ (+c.c.)
+
+-----------------
+
+Reconstructable data for several signal decay channels and DPM are located at
+
+/hera/panda/tutdata/<prefix>_<num>_pid.root, <prefix>_<num>_par.root
+
+---------------------------------------------------------
+     <prefix>      :   p(pbar)   :  sqrt(s)  :  channel
+---------------------------------------------------------
+DPM24              :  1.91 GeV/c :  2.4 GeV  :  DPM
+PhiPhi24           :  1.91 GeV/c :  2.4 GeV  :  ppbar -> phi phi; both phi -> K+ K-
+LamLam24           :  1.91 GeV/c :  2.4 GeV  :  ppbar -> Lambda Lambda bar; one Lambda -> p pi-, other unknown
+
+DPM45              :  9.81 GeV/c :  4.5 GeV  :  DPM
+JpsitoLL45         :  9.81 GeV/c :  4.5 GeV  :  ppbar -> J/psi pi+ pi-; J/psi -> e+ e- / mu+ mu-
+EtactoEta2pi45     :  9.81 GeV/c :  4.5 GeV  :  ppbar -> eta_c pi+ pi-; eta_c -> eta pi+ pi-; eta -> gamma gamma     
+Chic0to2pi2pi045   :  9.81 GeV/c :  4.5 GeV  :  ppbar -> chi_c0 pi+ pi-; chi_c0 -> pi+ pi- pi0 pi0; pi0 -> gamma gamma     
+D0toKpi45          :  9.81 GeV/c :  4.5 GeV  :  ppbar -> D0 D0bar; D0(bar) -> K-+ pi+-, other D0 unknown
+DptoKSpipi045      :  9.81 GeV/c :  4.5 GeV  :  ppbar -> D+ D-; D+- -> K_S0 pi+- pi0, D-+ unknown, K_S0 ->pi+ pi- / pi0 pi0, pi0 -> gamma gamma
+
+
+
+
+
+
+
