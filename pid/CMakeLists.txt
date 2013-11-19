@@ -1,12 +1,12 @@
-# Create a library called "libPid" 
+# Create a library called "libPid"
 
 set(INCLUDE_DIRECTORIES
-${ROOT_INCLUDE_DIR} 
+${ROOT_INCLUDE_DIR}
 ${GEANT3_INCLUDE_DIR}
-${BASE_INCLUDE_DIRECTORIES} 
-${CMAKE_SOURCE_DIR}/pndbase/PndStdUtils 
-${CMAKE_SOURCE_DIR}/field 
-${CMAKE_SOURCE_DIR}/trackbase 
+${BASE_INCLUDE_DIRECTORIES}
+${CMAKE_SOURCE_DIR}/pndbase/PndStdUtils
+${CMAKE_SOURCE_DIR}/field
+${CMAKE_SOURCE_DIR}/trackbase
 ${CMAKE_SOURCE_DIR}/passive
 ${CMAKE_SOURCE_DIR}/PndTools/generalTools
 ${CMAKE_SOURCE_DIR}/PndTools/AnalysisTools
@@ -54,7 +54,7 @@ include_directories( ${INCLUDE_DIRECTORIES})
 set(LINK_DIRECTORIES
 ${ROOT_LIBRARY_DIR}
 )
- 
+
 link_directories( ${LINK_DIRECTORIES})
 
 set(SRCS
@@ -111,6 +111,6 @@ set(LINKDEF PidLinkDef.h)
 set(LIBRARY_NAME Pid)
 
 set(DEPENDENCIES Base GeoBase ParBase RecoTasks generalTools Mva Emc
-Ftof Fts Geane PndData Stt TrkBase)
+Ftof Fts Geane PndData Stt TrkBase AnalysisTools)
 
 GENERATE_LIBRARY()
