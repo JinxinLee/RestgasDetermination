@@ -12,6 +12,7 @@ ${CMAKE_SOURCE_DIR}/rho
 ${CMAKE_SOURCE_DIR}/rho/RhoBase
 ${CMAKE_SOURCE_DIR}/rho/RhoTools
 ${CMAKE_SOURCE_DIR}/rho/RhoSelector
+${CMAKE_SOURCE_DIR}/rho/RhoHistogram
 ${CMAKE_SOURCE_DIR}/PndTools/AnalysisTools
 ${CMAKE_SOURCE_DIR}/PndTools/AnalysisTools/Fitter
 ${GEANT3_INCLUDE_DIR}
@@ -50,6 +51,7 @@ PndAnaSelectorPar.cxx
 PndGoodTrackSelector.cxx
 PndEventShape.cxx
 PndAnaCovTool.cxx
+PndRhoTupleQA.cxx
 #Fitter/PndVtxFitterParticle.cxx
 #Fitter/PndVtxFitter_Init.cxx
 #Fitter/PndVtxFitterError.cxx
