@@ -1945,7 +1945,7 @@ void PndSoftTriggerTask::qa2Body(TString pre, RhoCandidate *c, RhoTuple *n)
 	
 	// decay angle
 	TLorentzVector d_cms = d0->P4();
-	d_cms.Boost(-c->P3());
+	d_cms.Boost(-(c->P4().BoostVector()));
 	Float_t dec  = d_cms.Vect().Angle(c->P());
 	Float_t cdec = cos(dec);
 	
@@ -1968,7 +1968,7 @@ void PndSoftTriggerTask::qaVtx(TString pre, RhoCandidate *c, RhoTuple *n)
 		if (v.X()==0 && v.Y()==0 && v.Z()==0) 
 			v = d->Pos();
 		TLorentzVector d_cms = d->P4();
-		d_cms.Boost(-c->P3());
+		d_cms.Boost(-(c->P4().BoostVector()));
 		
 		Float_t ctau = v.Mag()*c->M()/c->P();
 		Float_t dec  = d_cms.Vect().Angle(c->P());
