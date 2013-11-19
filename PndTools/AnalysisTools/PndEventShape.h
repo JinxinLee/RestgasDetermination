@@ -53,6 +53,19 @@ public:
 	int MultPtminCms(double ptmin);	// number of particles with pt>pmin (cms frame)
 	int MultPtmaxCms(double ptmax);	// number of particles with pt<pmax (cms frame)
 	
+	// ******* PID multiplicities with PID and momentum threshold
+	int MultElectronPminLab(double prob, double pmin=0);	// number of electrons with p>pmin and PID prob>prob (lab frame)
+	int MultMuonPminLab(double prob, double pmin=0);		// number of muons with p>pmin and PID prob>prob (lab frame)
+	int MultPionPminLab(double prob, double pmin=0);		// number of pions with p>pmin and PID prob>prob (lab frame)
+	int MultKaonPminLab(double prob, double pmin=0);		// number of kaons with p>pmin and PID prob>prob (lab frame)
+	int MultProtonPminLab(double prob, double pmin=0);	// number of protons with p>pmin and PID prob>prob (lab frame)
+	
+	int MultElectronPminCms(double prob, double pmin=0);	// number of electrons with p>pmin and PID prob>prob (cms frame)
+	int MultMuonPminCms(double prob, double pmin=0);		// number of muons with p>pmin and PID prob>prob (cms frame)
+	int MultPionPminCms(double prob, double pmin=0);		// number of pions with p>pmin and PID prob>prob (cms frame)
+	int MultKaonPminCms(double prob, double pmin=0);		// number of kaons with p>pmin and PID prob>prob (cms frame)
+	int MultProtonPminCms(double prob, double pmin=0);	// number of protons with p>pmin and PID prob>prob (cms frame)
+	
 	// ******* neutrals multiplicities with threshold
 	int MultNeutEminLab(double emin);	// number of neutrals with E>emin (lab frame)
 	int MultNeutEmaxLab(double emax);	// number of neutrals with E<emax (lab frame)
@@ -110,6 +123,11 @@ private:
 	std::vector<TLorentzVector> fLabList;	// List of 4-vectors in lab frame
 	std::vector<TLorentzVector> fCmsList;	// List of 4-vectors in cms frame
 	std::vector<int>			fCharge;	// List of charges of particles
+	std::vector<double>			fElProb;	// List of electron probabilities
+	std::vector<double>			fMuProb;	// List of muon probabilities
+	std::vector<double>			fPiProb;	// List of pion probabilities
+	std::vector<double>			fKaProb;	// List of kaon probabilities
+	std::vector<double>			fPrProb;	// List of proton probabilities
 	
 	int    fnChrg;				// number of charged particles
 	int    fnNeut;				// number of neutral particles

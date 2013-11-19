@@ -27,6 +27,13 @@ PndEventShape::PndEventShape(RhoCandList &l, TLorentzVector cms, double neutMinE
   fLabList.clear();
   fCmsList.clear();
   
+  fCharge.clear();
+  fElProb.clear();
+  fMuProb.clear();
+  fPiProb.clear();
+  fKaProb.clear();
+  fPrProb.clear();
+  
   for (i=0;i<l.GetLength();++i)
   {
 	TLorentzVector lv(l[i]->P4());
@@ -45,6 +52,12 @@ PndEventShape::PndEventShape(RhoCandList &l, TLorentzVector cms, double neutMinE
 	fLabList.push_back(lv);
 	// cache charges
 	fCharge.push_back(chrg);
+	// cache PID probabilities
+	fElProb.push_back(l[i]->GetPidInfo(0));
+	fMuProb.push_back(l[i]->GetPidInfo(1));
+	fPiProb.push_back(l[i]->GetPidInfo(2));
+	fKaProb.push_back(l[i]->GetPidInfo(3));
+	fPrProb.push_back(l[i]->GetPidInfo(4));
 	
 	// sum momentum variables (lab)
 	fptsumlab += lv.Pt();
@@ -411,6 +424,118 @@ int PndEventShape::MultPtmaxCms(double ptmax)
   int cnt=0;
   for (int i=0;i<fN;++i) 
 	if (fCmsList[i].Pt()<ptmax) cnt++;
+ 
+  return cnt;
+}
+// ---------------------------------------
+// ---------------------------------------
+// ---------------------------------------
+
+int PndEventShape::MultElectronPminLab(double prob, double pmin)
+{
+  int cnt=0;
+  for (int i=0;i<fN;++i) 
+	if (fLabList[i].Pt()>pmin && fCharge[i]!=0 && fElProb[i]>prob) cnt++;
+ 
+  return cnt;
+}
+
+// ---------------------------------------
+
+int PndEventShape::MultMuonPminLab(double prob, double pmin)
+{
+  int cnt=0;
+  for (int i=0;i<fN;++i) 
+	if (fLabList[i].Pt()>pmin && fCharge[i]!=0 && fMuProb[i]>prob) cnt++;
+ 
+  return cnt;
+}
+
+// ---------------------------------------
+
+int PndEventShape::MultPionPminLab(double prob, double pmin)
+{
+  int cnt=0;
+  for (int i=0;i<fN;++i) 
+	if (fLabList[i].Pt()>pmin && fCharge[i]!=0 && fPiProb[i]>prob) cnt++;
+ 
+  return cnt;
+}
+
+// ---------------------------------------
+
+int PndEventShape::MultKaonPminLab(double prob, double pmin)
+{
+  int cnt=0;
+  for (int i=0;i<fN;++i) 
+	if (fLabList[i].Pt()>pmin && fCharge[i]!=0 && fKaProb[i]>prob) cnt++;
+ 
+  return cnt;
+}
+
+// ---------------------------------------
+
+int PndEventShape::MultProtonPminLab(double prob, double pmin)
+{
+  int cnt=0;
+  for (int i=0;i<fN;++i) 
+	if (fLabList[i].Pt()>pmin && fCharge[i]!=0 && fPrProb[i]>prob) cnt++;
+ 
+  return cnt;
+}
+
+// ---------------------------------------
+// ---------------------------------------
+	
+int PndEventShape::MultElectronPminCms(double prob, double pmin)
+{
+  int cnt=0;
+  for (int i=0;i<fN;++i) 
+	if (fCmsList[i].Pt()>pmin && fCharge[i]!=0 && fElProb[i]>prob) cnt++;
+ 
+  return cnt;
+}
+
+// ---------------------------------------
+
+int PndEventShape::MultMuonPminCms(double prob, double pmin)
+{
+  int cnt=0;
+  for (int i=0;i<fN;++i) 
+	if (fCmsList[i].Pt()>pmin && fCharge[i]!=0 && fMuProb[i]>prob) cnt++;
+ 
+  return cnt;
+}
+
+// ---------------------------------------
+
+int PndEventShape::MultPionPminCms(double prob, double pmin)
+{
+  int cnt=0;
+  for (int i=0;i<fN;++i) 
+	if (fCmsList[i].Pt()>pmin && fCharge[i]!=0 && fPiProb[i]>prob) cnt++;
+ 
+  return cnt;
+}
+
+// ---------------------------------------
+
+int PndEventShape::MultKaonPminCms(double prob, double pmin)
+{
+  int cnt=0;
+  for (int i=0;i<fN;++i) 
+	if (fCmsList[i].Pt()>pmin && fCharge[i]!=0 && fKaProb[i]>prob) cnt++;
+ 
+  return cnt;
+}
+
+// ---------------------------------------
+
+int PndEventShape::MultProtonPminCms(double prob, double pmin)
+{
+  int cnt=0;
+  for (int i=0;i<fN;++i) 
+	if (fCmsList[i].Pt()>pmin && fCharge[i]!=0 && fPrProb[i]>prob) cnt++;
  
   return cnt;
 }
