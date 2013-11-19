@@ -13,6 +13,7 @@ ${CMAKE_SOURCE_DIR}/rho/RhoSelector
 ${CMAKE_SOURCE_DIR}/rho/RhoHistogram
 ${CMAKE_SOURCE_DIR}/rho/RhoTools
 ${CMAKE_SOURCE_DIR}/tutorials/dec13
+${CMAKE_SOURCE_DIR}/tutorials/dec13/example_D0toKpi
 ${CMAKE_SOURCE_DIR}/PndTools/AnalysisTools
 ${CMAKE_SOURCE_DIR}/PndTools/AnalysisTools/Fitter
 )
@@ -27,6 +28,7 @@ link_directories( ${LINK_DIRECTORIES})
 
 set(SRCS
 PndTutAnaTask.cxx
+example_D0toKpi/PndTutAnaTaskD0.cxx
 )
 
 set(LINKDEF tutDec13LinkDef.h)

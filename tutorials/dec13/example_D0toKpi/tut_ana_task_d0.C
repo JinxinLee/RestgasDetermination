@@ -30,7 +30,7 @@ void attachFiles(FairRunAna* fRun, TString pref, int min, int max)
 	}
 }
 
-void tut_ana_task(TString pref="pid_complete.root", int min=-1, int max=1,  int nevts=0)
+void tut_ana_task_d0(TString pref="pid_complete.root", int min=-1, int max=1,  int nevts=0)
 {
   	TString OutFile, inParFile;
 	
@@ -60,6 +60,7 @@ void tut_ana_task(TString pref="pid_complete.root", int min=-1, int max=1,  int 
 	
 	// *** PID table with selection thresholds; can be modified by the user
 	TString pidParFile = TString(gSystem->Getenv("VMCWORKDIR"))+"/macro/params/all.par";	
+	RhoCalculationTools::ForceConstantBz(20.0);
 	
 	// *** initialization
 	FairLogger::GetLogger()->SetLogToFile(kFALSE);
@@ -78,7 +79,7 @@ void tut_ana_task(TString pref="pid_complete.root", int min=-1, int max=1,  int 
 	fRun->SetOutputFile(OutFile);
 	
 	// *** HERE OUR TASK GOES!
-	PndTutAnaTask *anaTask = new PndTutAnaTask(pbarmom);
+	PndTutAnaTaskD0 *anaTask = new PndTutAnaTaskD0(pbarmom);
 	fRun->AddTask(anaTask);
 	
 	// *** and run analysis

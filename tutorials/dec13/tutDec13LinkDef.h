@@ -6,6 +6,7 @@
  
 
 #pragma link C++ class  PndTutAnaTask+;
+#pragma link C++ class  PndTutAnaTaskD0+;
 
 
 #endif
