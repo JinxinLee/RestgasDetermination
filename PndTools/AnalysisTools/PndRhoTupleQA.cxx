@@ -203,13 +203,13 @@ void PndRhoTupleQA::qaEventShapeShort(TString pre, PndEventShape *evsh, RhoTuple
 	qaESMinMax(pre, evsh, n);
 	
 	// some multiplicities with min momentum cut (lab, cms)
-	n->Column("np10",  (Float_t)  evsh->MultPminCms(1.0),	 0.0f );
-	n->Column("npt10", (Float_t)  evsh->MultPtminCms(1.0),	 0.0f );
-	n->Column("ncp10l", (Float_t) evsh->MultChrgPminLab(1.0), 0.0f );
-	n->Column("nne10l",(Float_t)  evsh->MultNeutEminLab(1.0), 0.0f );
+	n->Column(pre+"np10",  (Float_t)  evsh->MultPminCms(1.0),	 0.0f );
+	n->Column(pre+"npt10", (Float_t)  evsh->MultPtminCms(1.0),	 0.0f );
+	n->Column(pre+"ncp10l", (Float_t) evsh->MultChrgPminLab(1.0), 0.0f );
+	n->Column(pre+"nne10l",(Float_t)  evsh->MultNeutEminLab(1.0), 0.0f );
 		
 	// sum of charged momenta with min momentum cut
-	n->Column("sumpc05", (Float_t) evsh->SumChrgPminCms(0.5) ,0.0f );
+	n->Column(pre+"sumpc05", (Float_t) evsh->SumChrgPminCms(0.5) ,0.0f );
 }
 
 // -------------------------------------------------------------------------
@@ -257,12 +257,12 @@ void PndRhoTupleQA::qaComp(TString pre, RhoCandidate *c, RhoTuple *n)
 	if (truth!=0)
 	{
 		qaCand("t"+pre, truth, n);
-		n->Column("mct", 1.0f, 0.0f);
+		n->Column(pre+"mct", 1.0f, 0.0f);
 	}
 	else
 	{
 		qaCand("t"+pre, NULL , n, true);
-		n->Column("mct", 0.0f, 0.0f);
+		n->Column(pre+"mct", 0.0f, 0.0f);
 	}
 		
 }
