@@ -40,8 +40,8 @@ void runLumiPixel0SimDPMDirect(const int nEvents=10, const int startEvent=0, con
 // //-------------------------  CAVE      -----------------
 
   FairModule *Cave= new PndCave("CAVE");
-  //Cave->SetGeometryFileName("pndcave.geo");
-  Cave->SetGeometryFileName("pndcaveVAC.geo"); //LMD is working in vacuum!
+  Cave->SetGeometryFileName("pndcave.geo");
+  //  Cave->SetGeometryFileName("pndcaveVAC.geo"); //LMD is working in vacuum!
   fRun->AddModule(Cave); 
   //-------------------------  Magnet   ----------------- 
   FairModule *Magnet= new PndMagnet("MAGNET");
@@ -52,13 +52,14 @@ void runLumiPixel0SimDPMDirect(const int nEvents=10, const int startEvent=0, con
   fRun->AddModule(Dipole);
   //-------------------------  Pipe     -----------------
   FairModule *Pipe= new PndPipe("PIPE");
-  Pipe->SetGeometryFileName("../macro/lmd/geo/beampipe_201303.root");
-  //  Pipe->SetGeometryFileName("../macro/lmd/geo/beampipe_201309.root");//test with real vacuum
+  //  Pipe->SetGeometryFileName("../macro/lmd/geo/beampipe_201303.root");
+  Pipe->SetGeometryFileName("beampipe_201309.root");
   fRun->AddModule(Pipe);
 
   PndLmdDetector *Lum = new PndLmdDetector("LUM", kTRUE);
   Lum->SetExclusiveSensorType("LumActive");  //ignore MVD
-  Lum->SetGeometryFileName("../macro/lmd/geo/HV_MAPS-Design-29052013.root"); // LMD including box etc
+  //  Lum->SetGeometryFileName("../macro/lmd/geo/HV_MAPS-Design-29052013.root"); // LMD including box etc
+  Lum->SetGeometryFileName("Luminosity-Detector.root");
   Lum->SetVerboseLevel(verboseLevel);
   fRun->AddModule(Lum);
 
