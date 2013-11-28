@@ -14,7 +14,7 @@ Program reading data prodused by KNOSSOS and produce the root file with results
 #include "TH2F.h"
 #include "TF1.h"
 #include "TCanvas.h"
-#include "/panda/karavdina/myKnossos/constantsLMD.h"
+#include "/home/karavdin/pandaRoot12/mySandbox/myKnossos/constantsLMD.h"
 // needed for corditate from\out lumi frame calculation
 #include"PndLmdDim.h"
 using namespace std;
