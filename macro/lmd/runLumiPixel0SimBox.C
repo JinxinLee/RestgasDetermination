@@ -42,12 +42,13 @@ void runLumiPixel0SimBox(const int nEvents=10, const int startEv=0, TString stor
 
   //create and add detectors
   FairModule *Cave= new PndCave("CAVE");
-  Cave->SetGeometryFileName("../macro/lmd/pndcaveVAC.geo");
-  // Cave->SetGeometryFileName("pndcave.geo");
+  //Cave->SetGeometryFileName("../macro/lmd/pndcaveVAC.geo");
+  Cave->SetGeometryFileName("pndcave.geo");
   fRun->AddModule(Cave);
 
   FairModule *Pipe= new PndPipe("PIPE");
-  Pipe->SetGeometryFileName("../macro/lmd/geo/beampipe_201303.root");
+  //  Pipe->SetGeometryFileName("../macro/lmd/geo/beampipe_201303.root");
+  Pipe->SetGeometryFileName("beampipe_201309.root");
   fRun->AddModule(Pipe);
   
 
@@ -63,7 +64,8 @@ void runLumiPixel0SimBox(const int nEvents=10, const int startEv=0, TString stor
   PndLmdDetector *Lum = new PndLmdDetector("LUM", kTRUE);
   Lum->SetExclusiveSensorType("LumActive");  //ignore MVD
   //  Lum->SetGeometryFileName("../macro/lmd/geo/Test-Dipol-Design.root"); //sensors with trap shape
-  Lum->SetGeometryFileName("../macro/lmd/geo/HV_MAPS-Design-29052013.root"); // LMD including box etc
+  //Lum->SetGeometryFileName("../macro/lmd/geo/HV_MAPS-Design-29052013.root"); // LMD including box etc
+  Lum->SetGeometryFileName("Luminosity-Detector.root");
   //Lum->SetGeometryFileName("../macro/lmd/geo/HV_MAPS-Design-SensorsOnly.root"); // LMD, sensors only
   Lum->SetVerboseLevel(verboseLevel);
   fRun->AddModule(Lum);
