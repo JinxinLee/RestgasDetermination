@@ -1,7 +1,4 @@
-// compile with
-// g++ $(root-config --cflags --glibs) -lGeom -I${PANDAROOT}/geobase -L${PANDAROOT}/buildPanda/lib -lGeoBase create_Lmd_HV_MAPS.C -o /tmp/create_geometry -I${PANDAROOT}/lmd/LmdMC
-// and run with
-// /tmp/create_geometry
+// compile by adding the lmd subdirectory to the CMakesLists of the macro folder
 
 #include<TROOT.h>
 #include<FairGeoLoader.h>
@@ -117,7 +114,7 @@ void create_HV_MAPS(bool misalign = false) {
 	  //string moveto = dir + "/input/" + fileName + ".dat";
 	  //system(("mv "+fileName+".dat"+" "+moveto).c_str());
 
-	  TString outfile= dir+"/geometry/HV_MAPS-Design.root";
+	  TString outfile= dir+"/geometry/Luminosity-Detector.root";
 	  TFile* fi = new TFile(outfile,"RECREATE");
 
 	  FairGeoLoader* geoLoad = new FairGeoLoader("TGeo","FairGeoLoader");
@@ -154,6 +151,9 @@ void create_HV_MAPS(bool misalign = false) {
 	  //lmddim.Write_transformation_matrices("matrices_aligned.txt", true);
 
 	  gGeoMan->CloseGeometry();
+	  gGeoMan->CheckOverlaps(0.001); // [cm]
+	  //gGeoManager->CheckGeometryFull();
+	  gGeoMan->PrintOverlaps();
 	  top->Write();
 	  fi->Close();
 	//   gGeoManager->Export(outfile);

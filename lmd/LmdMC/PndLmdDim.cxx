@@ -293,7 +293,7 @@ void PndLmdDim::Generate_rootgeom(TGeoVolume& mothervol, bool misaligned){
 	FairGeoMedium* FairMediumAl = Media->getMedium("Aluminum");
 	FairGeoMedium *FairMediumSilicon = Media->getMedium("silicon");
 	FairGeoMedium *FairMediumDiamond = Media->getMedium("HYPdiamond");
-	FairGeoMedium *FairMediumVacuum = Media->getMedium("vacuum");
+	FairGeoMedium *FairMediumVacuum = Media->getMedium("vacuum7");
 	FairGeoMedium *FairMediumKapton = Media->getMedium("kapton");
 	FairGeoMedium *FairMediumCopper = Media->getMedium("copper");
 
@@ -979,15 +979,15 @@ void PndLmdDim::Generate_rootgeom(TGeoVolume& mothervol, bool misaligned){
 							}
 							sensor_id++;
 						} // loop over sensors
-						_x = 0;
-						_y = 0;
-						_z = - cvd_disc_thick_half - maps_thickness * 2. - kapton_disc_thick_half; // move to the surface
-						_rotphi = 0.; _rottheta = 0.; _rotpsi = 0.; // rotate to the cut edge
-						TGeoRotation* rot_kapton = new TGeoRotation("rot_kapton", _rotphi, _rottheta, _rotpsi);
-						TGeoCombiTrans* rottrans_kapton = new TGeoCombiTrans(_x, _y, _z, rot_kapton);
-						lmd_vol_side_->AddNode(lmd_vol_kapton_disc, 0, rottrans_kapton);
 						lmd_vol_side_->AddNode(lmd_vol_die_, 0, rottrans_die);
 					} // loop over dies
+					_x = 0;
+					_y = 0;
+					_z = - cvd_disc_thick_half - maps_thickness * 2. - kapton_disc_thick_half; // move to the surface
+					_rotphi = 0.; _rottheta = 0.; _rotpsi = 0.; // rotate to the cut edge
+					TGeoRotation* rot_kapton = new TGeoRotation("rot_kapton", _rotphi, _rottheta, _rotpsi);
+					TGeoCombiTrans* rottrans_kapton = new TGeoCombiTrans(_x, _y, _z, rot_kapton);
+					lmd_vol_side_->AddNode(lmd_vol_kapton_disc, 0, rottrans_kapton); // Generate_keynumber(ihalf,iplane, imodule, iside)
 					lmd_vol_module_->AddNode(lmd_vol_side_, 0, rottrans_side);
 					// save the transformation from the lumi reference frame
 					// into the local cvd side reference frame

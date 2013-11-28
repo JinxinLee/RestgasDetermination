@@ -34,6 +34,7 @@
 #include <TH2Poly.h>
 #include <TMultiGraph.h>
 #include <TGraph.h>
+#include <stdlib.h>
 //work with DB
 /* #include<PndLmdContFact.h> */
 /* #include<TList.h> */
@@ -359,6 +360,18 @@ public:
 		stringstream keystream;
 		keystream << ihalf << iplane << imodule << iside << idie << isensor;
 		return keystream.str();
+	}
+
+	// generate a unique integer key not same as the string above since there negative numbers are allowed
+	// so in case of adding -1's key is not unique!
+	// moreover numbers should be kept 1 digit long
+	int Generate_keynumber(unsigned int ihalf = 0, unsigned int iplane = 0,unsigned int imodule = 0,
+			unsigned int iside = 0,unsigned int idie = 0,unsigned int isensor = 0){
+		stringstream keystream;
+		keystream << ihalf << iplane << imodule << iside << idie << isensor;
+		int key;
+		key = atoi(keystream.str().c_str());
+		return key;
 	}
 
 	// same structure as for offsets is used for the transformation matrices
