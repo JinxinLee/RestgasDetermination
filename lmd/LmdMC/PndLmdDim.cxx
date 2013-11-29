@@ -16,6 +16,8 @@
 // #include<PndLmdAlignPar.h>
 PndLmdDim* PndLmdDim::pinstance = 0;
 
+int PndLmdDim::geometry_version = 1;
+
 
 #include <TROOT.h>
 PndLmdDim::PndLmdDim()
@@ -270,6 +272,44 @@ void PndLmdDim::transform_local_sensor()
 #include<TGeoCone.h>
 #include<TGeoBBox.h>
 #include <TGeoPcon.h>
+
+#include<TPad.h>
+bool PndLmdDim::Retrieve_version_number(){
+	bool result = false;
+	//FairRootManager* ioman = FairRootManager::Instance();
+	TGeoManager* gGeoMan = (TGeoManager*)gROOT->FindObject("FAIRGeom");
+	if (!gGeoMan){
+		cout << " Info: no FAIRGeom found, using gGeoManager " << endl;
+		gGeoMan = gGeoManager;
+	}
+	if (gGeoMan){
+		//gGeoMan->Draw("ogl");
+		//gPad->Update();
+		//gPad->Print("test.pdf");
+		TGeoVolume* vol = gGeoMan->FindVolumeFast(nav_paths[0].c_str());
+		//cout << gGeoMan->GetCurrentNode()->GetName() << endl;
+		if (vol){
+			string sversion = vol->GetTitle();
+			if (sversion.compare(0,8,"version ")!=0){
+				cout << " Warning from PndLmdDim::Retrieve_version_number: no version number encoded in the node title. Setting it to 0. " << endl;
+				geometry_version = 0;
+			} else {
+				// take the number behind "version " string
+				geometry_version = atoi(&(vol->GetTitle()[8]));
+			}
+			cout << " Info from PndLmdDim::Retrieve_version_number: The geometry version was set to " << geometry_version << endl;
+			//cout << vol->GetName() << endl;
+			result = true;
+		} else {
+			cout << " *** Error in PndLmdDim::Retrieve_version_number:" << endl;
+			cout << " Could not find the top volume " << nav_paths[0].c_str() << " to retrieve the version number of the luminosity detector! Is the geometry already loaded? " << endl;
+		}
+	} else {
+		cout << " *** Error in PndLmdDim::Retrieve_version_number:" << endl;
+		cout << " Could not find a GeoManager to retrieve the version number of the luminosity detector! " << endl;
+	}
+	return result;
+}
 
 void PndLmdDim::Generate_rootgeom(TGeoVolume& mothervol, bool misaligned){
 	Cleanup();
@@ -1008,7 +1048,11 @@ void PndLmdDim::Generate_rootgeom(TGeoVolume& mothervol, bool misaligned){
 		// save the transformation into the lumi reference frame
 		transformation_matrices[Generate_key(-1, -1, -1, -1, -1, -1)] = new TGeoHMatrix((*lmd_transrot) * (*rottrans_lmd_in_box));
 	} // loop over detector halves
-	mothervol.AddNode(lmd_vol_vac, 0, lmd_transrot);
+	// code geometry version in the node title
+	stringstream nodetitle;
+	nodetitle << "version " << geometry_version << endl;
+	lmd_vol_vac->SetTitle(nodetitle.str().c_str());
+	mothervol.AddNode(lmd_vol_vac, geometry_version, lmd_transrot);
 
 	/*
 		gGeoMan->CloseGeometry();
@@ -1211,7 +1255,8 @@ void PndLmdDim::Correct_transformation_matrices(){
 
 #include <fstream>
 
-void PndLmdDim::Read_transformation_matrices(string filename, bool aligned){
+void PndLmdDim::Read_transformation_matrices(string filename, bool aligned, int version_number){
+	Retrieve_version_number();
 	map<string, TGeoMatrix* >* matrices = NULL;
 	if (aligned){
 		matrices = &transformation_matrices_aligned;
@@ -1228,6 +1273,24 @@ void PndLmdDim::Read_transformation_matrices(string filename, bool aligned){
 	ifstream file(filename.c_str());
 	int matrices_counter(0);
 	if (file.is_open()){
+		// read the first line to get additional information
+		// in case of no (backward compatibility) seek to the first line
+		string line0;
+		getline (file, line0);
+		// first the version info is expected by "version " followed by an integer
+		string keyword = "version ";
+		if (line0.compare(0,8,keyword) != 0){
+			// jump to beginning
+			cout << " **** Warning in PndLmdDim: the input file " << filename << " has no version! **** " << endl;
+			file.seekg(0, file.beg);
+		} else {
+			int _version = 0;
+			istringstream inputstream0(&line0[8]);
+			inputstream0 >> _version;
+			if (_version != version_number){
+				cout << " **** Warning in PndLmdDim: the version " << _version << "  in " << filename << " does not match the geometry version " << version_number <<  "! **** " << endl;
+			}
+		}
 		while (1){
 			// read the key
 			string key;
@@ -1271,7 +1334,7 @@ void PndLmdDim::Read_transformation_matrices(string filename, bool aligned){
 
 #include <iomanip>
 
-void PndLmdDim::Write_transformation_matrices(string filename, bool aligned){
+void PndLmdDim::Write_transformation_matrices(string filename, bool aligned, int version_number){
 	map<string, TGeoMatrix* >* matrices = NULL;
 	if (aligned){
 		matrices = &transformation_matrices_aligned;
@@ -1281,6 +1344,8 @@ void PndLmdDim::Write_transformation_matrices(string filename, bool aligned){
 	int matrices_counter(0);
 	ofstream file(filename.c_str());
 	if (file.is_open()){
+		// write the first line to add additional information
+		file << "version " << version_number << "\n";
 		for (it_transformation_matrices = matrices->begin(); it_transformation_matrices != matrices->end(); it_transformation_matrices++){
 			// write the key
 			file << it_transformation_matrices->first << '\n';

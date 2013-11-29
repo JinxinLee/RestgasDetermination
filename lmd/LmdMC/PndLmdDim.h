@@ -50,6 +50,11 @@ using namespace std;
 
 class PndLmdDim {
 private:
+	// in case you change anything in the geometry
+	// you must increase this version number in the corresponding .cxx file!
+	// it may affect the consistency between the geometry and the transformation matrices
+	static int geometry_version;
+
 	static PndLmdDim* pinstance;
 	TGeoManager* fgGeoMan;
 	PndLmdDim();
@@ -394,12 +399,15 @@ public:
 	// containing the description of the detector positions
 	// if not filename is specified matrices are searched in
 	// VMCWORKDIR/input/matrices.txt
-	void Read_transformation_matrices(string filename = "", bool aligned = true);
+	// you may overwrite the version number if necessary
+	void Read_transformation_matrices(string filename = "", bool aligned = true, int version_number = geometry_version);
 
 	// write transformation matrices from a given file
 	// aligned and not aligned are two separate maps
 	// containing the description of the detector positions
-	void Write_transformation_matrices(string filename, bool aligned = true);
+	// you may overwrite the version number if necessary
+	// version == 0 is reserved for backward compatibility!
+	void Write_transformation_matrices(string filename, bool aligned = true, int version_number = geometry_version);
 
 	void Get_offset(int ihalf, int iplane, int imodule, int iside, int idie, int isensor,
 			double& x, double& y, double& z,
@@ -858,6 +866,11 @@ public:
 	// to store those into a file please use
 	// Write_transformation_matrices(filename, false);
 	void Generate_rootgeom(TGeoVolume& mothervol, bool misaligned = false);
+
+	// returns false
+	// if version number of the geometry could not be retrieved from a loaded geometry
+	// geometry must be available via the root geometry manager
+	bool Retrieve_version_number();
 
 	// small function to test some transformation matrices and methods
 	void Test_matrices();

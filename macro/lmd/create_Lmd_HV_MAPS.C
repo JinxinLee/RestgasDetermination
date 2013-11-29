@@ -158,6 +158,7 @@ void create_HV_MAPS(bool misalign = false) {
 	  fi->Close();
 	//   gGeoManager->Export(outfile);
 	  gGeoMan->SetVisLevel(20);
+	  lmddim.Retrieve_version_number();
 	  top->Draw("ogl");
 	//   gGeoManager->Export(outfile);
 	//gGeoMan->SetVisLevel(20);
