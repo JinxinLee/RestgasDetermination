@@ -865,7 +865,7 @@ void PndLmdDim::Generate_rootgeom(TGeoVolume& mothervol, bool misaligned){
 					plane_pos_z[iplane], rot_no);
 			if (misaligned){
 				Get_offset(ihalf, iplane, -1, -1, -1, -1,
-						_offset_x, _offset_y, _offset_z, _offset_phi, _offset_theta, _offset_psi);
+						_offset_x, _offset_y, _offset_z, _offset_phi, _offset_theta, _offset_psi, true);
 				TGeoRotation* rot_plane_offset = new TGeoRotation("rot_plane_offset",
 						_offset_phi/pi*180., _offset_theta/pi*180., _offset_psi/pi*180.);
 				TGeoCombiTrans* rottrans_plane_offset =
@@ -894,7 +894,7 @@ void PndLmdDim::Generate_rootgeom(TGeoVolume& mothervol, bool misaligned){
 				TGeoMatrix* rottrans_module = new TGeoCombiTrans(_x, _y, _z, rot_module);
 				if (misaligned){
 					Get_offset(ihalf, iplane, imodule, -1, -1, -1,
-							_offset_x, _offset_y, _offset_z, _offset_phi, _offset_theta, _offset_psi);
+							_offset_x, _offset_y, _offset_z, _offset_phi, _offset_theta, _offset_psi, true);
 					TGeoRotation* rot_module_offset = new TGeoRotation("rot_module_offset",
 							_offset_phi/pi*180., _offset_theta/pi*180., _offset_psi/pi*180.);
 					TGeoCombiTrans* rottrans_module_offset =
@@ -928,7 +928,7 @@ void PndLmdDim::Generate_rootgeom(TGeoVolume& mothervol, bool misaligned){
 					TGeoMatrix* rottrans_side = new TGeoCombiTrans(_x, _y, _z, rot_side);
 					if (misaligned){
 						Get_offset(ihalf, iplane, imodule, iside, -1, -1,
-								_offset_x, _offset_y, _offset_z, _offset_phi, _offset_theta, _offset_psi);
+								_offset_x, _offset_y, _offset_z, _offset_phi, _offset_theta, _offset_psi, true);
 						TGeoRotation* rot_side_offset = new TGeoRotation("rot_side_offset",
 								_offset_phi/pi*180., _offset_theta/pi*180., _offset_psi/pi*180.);
 						TGeoCombiTrans* rottrans_side_offset =
@@ -1125,7 +1125,7 @@ void PndLmdDim::reCreate_transformation_matrices(){
 	_rotpsi = angle/pi*180.;
 	TGeoRotation* rot_module = new TGeoRotation("rot_module", _rotphi, _rottheta, _rotpsi);
 	TGeoMatrix* rottrans_module = new TGeoCombiTrans(_x, _y, _z, rot_module);
-	Get_offset(ihalf, iplane, imodule, -1, -1, -1,
+	Set_offset(ihalf, iplane, imodule, -1, -1, -1,
 		   _offset_x, _offset_y, _offset_z, _offset_phi, _offset_theta, _offset_psi);
 	// TGeoRotation* rot_module_offset = new TGeoRotation("rot_module_offset",
 	// 						   _offset_phi/pi*180., _offset_theta/pi*180., _offset_psi/pi*180.);
@@ -1461,106 +1461,125 @@ void PndLmdDim::Read_DB_offsets(PndLmdAlignPar *lmdalignpar){
   }
 }
 
+void PndLmdDim::Set_offset(int ihalf, int iplane, int imodule, int iside, int idie, int isensor,
+		double x, double y, double z,
+		double rotphi, double rottheta, double rotpsi){
+	string key = Generate_key(ihalf, iplane, imodule, iside, idie, isensor);
+	itoffset = offsets.find(key);
+	if (itoffset != offsets.end()) {
+		cout << " **** Warning in PndLmdDim::Set_offset: offset exists already! Replacing it! *** " << endl;
+	} else {
+		offsets[key].clear();
+		offsets[key].push_back(x);
+		offsets[key].push_back(y);
+		offsets[key].push_back(z);
+		offsets[key].push_back(rotphi);
+		offsets[key].push_back(rottheta);
+		offsets[key].push_back(rotpsi);
+	}
+
+}
+
 void PndLmdDim::Get_offset(int ihalf, int iplane, int imodule, int iside, int idie, int isensor,
 		double& x, double& y, double& z,
-		double& rotphi, double& rottheta, double& rotpsi){
+		double& rotphi, double& rottheta, double& rotpsi, bool random){
 	string key = Generate_key(ihalf, iplane, imodule, iside, idie, isensor);
 	//cout<<"setting Offset for: "<<ihalf<<", "<<iplane<<", "<<imodule<<", "<<iside<<", "<<idie<<", "<<isensor<<endl;
 	itoffset = offsets.find(key);
-	// if (itoffset != offsets.end()){
-	// 	x = itoffset->second[0];
-	// 	y = itoffset->second[1];
-	// 	z = itoffset->second[2];
-	// 	rotphi = itoffset->second[3];
-	// 	rottheta = itoffset->second[4];
-	// 	rotpsi = itoffset->second[5];
-	// } else {
-	// 	cout << " generating offset for";
-	// 	// the precision of dies containing sensors is requested
-	// 	// when requested offset applies to all sensors
-	// 	// on one side
-	// 	if (ihalf >= 0 && iplane >= 0 && imodule >= 0 && iside >= 0 &&
-	// 			idie < 0 && isensor < 0 ){
-	// 		cout << " one module side " << endl;
-	// 		x = gRandom->Gaus(0, side_offset_x);
-	// 		y = gRandom->Gaus(0, side_offset_y);
-	// 		z = gRandom->Gaus(0, side_offset_z);
-	// 		rottheta = gRandom->Gaus(0, side_tilt_phi);
-	// 		rotphi = gRandom->Gaus(0, side_tilt_theta);
-	// 		rotpsi = gRandom->Gaus(0, side_tilt_psi);
-	// 	}
-	// 	// the precision of cvd discs is requested
-	// 	// when requested offset applies also to the sensors
-	// 	// on both sides
-	// 	if (ihalf >= 0 && iplane >= 0&& imodule >= 0 &&
-	// 			iside < 0 && idie < 0 && isensor < 0){
-	// 		cout << " one module " << endl;
-	// 		x = gRandom->Gaus(0, cvd_offset_x);
-	// 		y = gRandom->Gaus(0, cvd_offset_y);
-	// 		z = gRandom->Gaus(0, cvd_offset_z);
-	// 		rotphi = gRandom->Gaus(0, cvd_tilt_phi);
-	// 		rottheta = gRandom->Gaus(0, cvd_tilt_theta);
-	// 		rotpsi = gRandom->Gaus(0, cvd_tilt_psi);
-	// 		//x = (cvd_offset_x);
-	// 		//y = (cvd_offset_y);
-	// 		//z = (cvd_offset_z);
-	// 		//rotphi = (cvd_tilt_phi);
-	// 		//rottheta = (cvd_tilt_theta);
-	// 		//rotpsi = (cvd_tilt_psi);
-	// 	}
-	// 	// the precision of plane halves containing sensors is requested
-	// 	// when requested offset applies to all modules
-	// 	if (ihalf >= 0 && iplane >= 0 &&
-	// 			imodule < 0 && iside < 0 && idie < 0 && isensor < 0 ){
-	// 		cout << " one plane half " << endl;
-	// 		x = gRandom->Gaus(0, plane_half_offset_x);
-	// 		y = gRandom->Gaus(0, plane_half_offset_y);
-	// 		z = gRandom->Gaus(0, plane_half_offset_z);
-	// 		rottheta = gRandom->Gaus(0, plane_half_tilt_phi);
-	// 		rotphi = gRandom->Gaus(0, plane_half_tilt_theta);
-	// 		rotpsi = gRandom->Gaus(0, plane_half_tilt_psi);
-	// 	}
-	// 	// the precision of halves of planes is requested
-	// 	// when requested offset applies to module supports
-	// 	if (ihalf >= 0 &&
-	// 			iplane < 0 && imodule < 0 && iside < 0 &&
-	// 			idie < 0 && isensor < 0 ){
-	// 		cout << " one half " << endl;
-	// 		x = gRandom->Gaus(0, half_offset_x);
-	// 		y = gRandom->Gaus(0, half_offset_y);
-	// 		z = gRandom->Gaus(0, half_offset_z);
-	// 		rottheta = gRandom->Gaus(0, half_tilt_phi);
-	// 		rotphi = gRandom->Gaus(0, half_tilt_theta);
-	// 		rotpsi = gRandom->Gaus(0, half_tilt_psi);
-	// 	}
-	// 	// the precision of the luminosity detector is requested
-	// 	// when no degrees of freedom are available to the rest
-	// 	if (ihalf < 0 && imodule < 0 && iplane < 0 && iside < 0 &&
-	// 			idie < 0 && isensor < 0 ){
-	// 		cout << " the luminosity detector " << endl;
-	// 		// not implemented yet
-	// 		x = gRandom->Gaus(0, 0);
-	// 		y = gRandom->Gaus(0, 0);
-	// 		z = gRandom->Gaus(0, 0);
-	// 		rottheta = gRandom->Gaus(0, 0);
-	// 		rotphi = gRandom->Gaus(0, 0);
-	// 		rotpsi = gRandom->Gaus(0, 0);
-	// 	}
-
-
-	  x = itoffset->second[0];
-	  y = itoffset->second[1];
-	  z = itoffset->second[2];
-	  rotphi = itoffset->second[3];
-	  rottheta = itoffset->second[4];
-	  rotpsi = itoffset->second[5];
-
-	  offsets[key].push_back(x);
-	  offsets[key].push_back(y);
-	  offsets[key].push_back(z);
-	  offsets[key].push_back(rotphi);
-	  offsets[key].push_back(rottheta);
-	  offsets[key].push_back(rotpsi);
+	if (itoffset != offsets.end()) {
+		x = itoffset->second[0];
+		y = itoffset->second[1];
+		z = itoffset->second[2];
+		rotphi = itoffset->second[3];
+		rottheta = itoffset->second[4];
+		rotpsi = itoffset->second[5];
+	} else {
+		if (random){
+			cout << " generating offset for";
+			// the precision of dies containing sensors is requested
+			// when requested offset applies to all sensors
+			// on one side
+			if (ihalf >= 0 && iplane >= 0 && imodule >= 0 && iside >= 0 && idie < 0
+					&& isensor < 0) {
+				cout << " one module side " << endl;
+				x = gRandom->Gaus(0, side_offset_x);
+				y = gRandom->Gaus(0, side_offset_y);
+				z = gRandom->Gaus(0, side_offset_z);
+				rottheta = gRandom->Gaus(0, side_tilt_phi);
+				rotphi = gRandom->Gaus(0, side_tilt_theta);
+				rotpsi = gRandom->Gaus(0, side_tilt_psi);
+			}
+			// the precision of cvd discs is requested
+			// when requested offset applies also to the sensors
+			// on both sides
+			if (ihalf >= 0 && iplane >= 0 && imodule >= 0 && iside < 0 && idie < 0
+					&& isensor < 0) {
+				cout << " one module " << endl;
+				x = gRandom->Gaus(0, cvd_offset_x);
+				y = gRandom->Gaus(0, cvd_offset_y);
+				z = gRandom->Gaus(0, cvd_offset_z);
+				rotphi = gRandom->Gaus(0, cvd_tilt_phi);
+				rottheta = gRandom->Gaus(0, cvd_tilt_theta);
+				rotpsi = gRandom->Gaus(0, cvd_tilt_psi);
+				//x = (cvd_offset_x);
+				//y = (cvd_offset_y);
+				//z = (cvd_offset_z);
+				//rotphi = (cvd_tilt_phi);
+				//rottheta = (cvd_tilt_theta);
+				//rotpsi = (cvd_tilt_psi);
+			}
+			// the precision of plane halves containing sensors is requested
+			// when requested offset applies to all modules
+			if (ihalf >= 0 && iplane >= 0 && imodule < 0 && iside < 0 && idie < 0
+					&& isensor < 0) {
+				cout << " one plane half " << endl;
+				x = gRandom->Gaus(0, plane_half_offset_x);
+				y = gRandom->Gaus(0, plane_half_offset_y);
+				z = gRandom->Gaus(0, plane_half_offset_z);
+				rottheta = gRandom->Gaus(0, plane_half_tilt_phi);
+				rotphi = gRandom->Gaus(0, plane_half_tilt_theta);
+				rotpsi = gRandom->Gaus(0, plane_half_tilt_psi);
+			}
+			// the precision of halves of planes is requested
+			// when requested offset applies to module supports
+			if (ihalf >= 0 && iplane < 0 && imodule < 0 && iside < 0 && idie < 0
+					&& isensor < 0) {
+				cout << " one half " << endl;
+				x = gRandom->Gaus(0, half_offset_x);
+				y = gRandom->Gaus(0, half_offset_y);
+				z = gRandom->Gaus(0, half_offset_z);
+				rottheta = gRandom->Gaus(0, half_tilt_phi);
+				rotphi = gRandom->Gaus(0, half_tilt_theta);
+				rotpsi = gRandom->Gaus(0, half_tilt_psi);
+			}
+			// 	// the precision of the luminosity detector is requested
+			// 	// when no degrees of freedom are available to the rest
+			if (ihalf < 0 && imodule < 0 && iplane < 0 && iside < 0 && idie < 0
+					&& isensor < 0) {
+				cout << " the luminosity detector " << endl;
+				// not implemented yet
+				x = gRandom->Gaus(0, 0);
+				y = gRandom->Gaus(0, 0);
+				z = gRandom->Gaus(0, 0);
+				rottheta = gRandom->Gaus(0, 0);
+				rotphi = gRandom->Gaus(0, 0);
+				rotpsi = gRandom->Gaus(0, 0);
+			}
+		} else {
+			x = 0;
+			y = 0;
+			z = 0;
+			rotphi = 0;
+			rottheta = 0;
+			rotpsi = 0;
+		}
+		offsets[key].push_back(x);
+		offsets[key].push_back(y);
+		offsets[key].push_back(z);
+		offsets[key].push_back(rotphi);
+		offsets[key].push_back(rottheta);
+		offsets[key].push_back(rotpsi);
+	}
 //	  cout<<"x,y,z,rotphi,rottheta,rotpsi: "<<x<<", "<<y<<", "<<z<<", "<<rotphi<<", "<<rottheta<<", "<<rotpsi<<endl;
 }
 

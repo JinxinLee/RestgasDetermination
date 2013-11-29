@@ -35,7 +35,7 @@ const bool show_beam_pipe_dummy = true;
 
 const bool include_box = false;
 
-void create_HV_MAPS(bool misalign = false) {
+void create_HV_MAPS(bool misalign = true) {
 	/*
 	// ****************************** Parameters of Detector ************************
 	//--------------------------------------------------------------------
@@ -145,7 +145,7 @@ void create_HV_MAPS(bool misalign = false) {
 		//  lmddim.Write_transformation_matrices("matrices_perfect.txt", misalign);
 	  //else
 		//  lmddim.Write_transformation_matrices("matrices.txt", misalign);
-	  lmddim.Write_transformation_matrices(dir+"/input/trafo_matrices_lmd.dat", misalign); // generate standard matrices in VMCWORKDIR/input
+	  lmddim.Write_transformation_matrices(dir+"/input/trafo_matrices_lmd.dat", false); // generate standard matrices in VMCWORKDIR/input
 
 	  //lmddim.Read_transformation_matrices("matrices.txt", true);
 	  //lmddim.Write_transformation_matrices("matrices_aligned.txt", true);

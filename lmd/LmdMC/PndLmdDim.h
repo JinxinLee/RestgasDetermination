@@ -409,9 +409,19 @@ public:
 	// version == 0 is reserved for backward compatibility!
 	void Write_transformation_matrices(string filename, bool aligned = true, int version_number = geometry_version);
 
+	// Get an offset for a volume, if not existent and random
+	// a random offset is generated and stored
+	// Is used during generation of geometries when calling
 	void Get_offset(int ihalf, int iplane, int imodule, int iside, int idie, int isensor,
 			double& x, double& y, double& z,
-			double& rotphi, double& rottheta, double& rotpsi);
+			double& rotphi, double& rottheta, double& rotpsi, bool random = false);
+
+	// set an offset for example for the case of existent alignment
+	// values, to generate with Get_offset a geometry that matches
+	// those offsets
+	void Set_offset(int ihalf, int iplane, int imodule, int iside, int idie, int isensor,
+			double x, double y, double z,
+			double rotphi, double rottheta, double rotpsi);
 
 	//read alignment constants from DB 
 	//Feb 2013: currently DB is ASCII file
@@ -865,6 +875,8 @@ public:
 	// in addition rotation and translation matrices are calculated
 	// to store those into a file please use
 	// Write_transformation_matrices(filename, false);
+	// in case of misaligned, offsets are retrieved via get_offset
+	// and included into the geometry
 	void Generate_rootgeom(TGeoVolume& mothervol, bool misaligned = false);
 
 	// returns false
