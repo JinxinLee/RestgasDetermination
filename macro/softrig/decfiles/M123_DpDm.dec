@@ -1,0 +1,27 @@
+Alias 	MyDp	D+
+Alias	MyDm	D-
+Alias   MyKs    K_S0
+
+Decay pbarpSystem0
+  0.5 	MyDp D-	PHSP;
+  0.5   D+ MyDm PHSP;
+Enddecay
+
+Decay pbarpSystem
+  0.5 	MyDp D-	PHSP;
+  0.5   D+ MyDm PHSP;
+Enddecay
+
+Decay MyDp
+  1.0 	MyKs pi+ pi+ pi-		PHSP;
+Enddecay
+
+Decay MyDm
+  1.0 	MyKs pi- pi- pi+		PHSP;
+Enddecay
+
+Decay MyKs
+  1.0   pi+ pi-					PHSP;
+Enddecay
+
+End

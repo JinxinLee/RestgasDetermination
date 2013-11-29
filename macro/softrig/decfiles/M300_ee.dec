@@ -1,0 +1,9 @@
+Decay pbarpSystem                                                                                                                                              
+  1.0 e+ e-  ElectronPositron 0;                                                                                                                                          
+Enddecay    
+                                                                    
+Decay pbarpSystem0                                                                                                                                              
+  1.0 e+ e-  ElectronPositron 0;                                                                                                                                          
+Enddecay                                                                        
+                                                                                            
+End

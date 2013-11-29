@@ -1,0 +1,34 @@
+Alias 	MyDsp		D_s+
+Alias	MyDsm		D_s-
+Alias 	MyDspst		D_s*+
+Alias	MyDsmst		D_s*-
+
+Decay pbarpSystem0
+	0.5 	D_s*+    MyDsmst   	PHSP;
+	0.5 	D_s*-    MyDspst   	PHSP;
+Enddecay
+
+Decay pbarpSystem
+	0.5 	D_s*+    MyDsmst   	PHSP;
+	0.5 	D_s*-    MyDspst   	PHSP;
+Enddecay
+
+Decay MyDspst
+  0.942   MyDsp  gamma			VSP_PWAVE;
+  0.058   MyDsp  pi0			VSS;
+Enddecay
+
+Decay MyDsmst
+  0.942   MyDsm  gamma			VSP_PWAVE;
+  0.058   MyDsm  pi0			VSS;
+Enddecay
+
+Decay MyDsp
+  	1.0 	K+ K- pi+			DS_DALITZ;
+Enddecay
+
+Decay MyDsm
+  	1.0 	K+ K- pi-			DS_DALITZ;
+Enddecay
+
+End
