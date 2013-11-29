@@ -1,0 +1,81 @@
+macro/softrig
+--------------
+
+In this directory are several files to run the complete simulation chain + soft-trigger task and submit jobs to the cluster.
+
+
+- data/ : empty directory to store simulation data in
+
+- decfiles/M...dec: EvtGen decay files for defined Soft-Trigger modes. Names have structure M<code>_<rough description>.decfiles
+
+- decfiles/mode_codes_softtrigger.txt: Description of modes
+
+- prod_sim.C, 
+  prod_dig.C, 
+  prod_rec.C, 
+  prod_pid.C, 
+  prod_sof.C: files to run simulation chain and in addition PndSoftTriggerTask
+
+---------------
+
+- runall_sof.sh: Run complete macro sequence from above
+  
+  USAGE: ./runall_sof.h <mode> <nevts> <dec> <mom> <res>
+
+    <mode> : E_cms shortcut (24,38,45,55)+<code>, e.g. 38201 : J/psi(->mu mu) pi pi @ sqrt(s) = 3.77 GeV
+    <nevts>: number of events to run
+    <dec>  : decay file name; keyword 'DPM' instead produces DPM events; in that case <res> is ignored
+    <mom>  : pbar momentum
+    <res>  : initial resonance in decay file (default = pbarpSystem0)
+
+  EXAMPLE 1: ./runall_sof.h 38201 1000 decfiles/M201_Jpsi2pi.dec 6.56903 pbarpSystem0
+  EXAMPLE 2: ./runall_sof.h 38900 10000 DPM 6.56903 
+
+---------------
+
+- job_sof.sge: Script like runall_sof.sh, but to be used to submit jobs with qsub; parameters like above; 
+               need to have PandaROOT installation on /hera/... and being logged in to pro.hpc.gsi.de
+  
+  **********                                                                *********
+  **** PLEASE ADAPT THE PATH TO config.sh IN job_sof.sge BEFORE SUBMITTING JOBS! ****
+  **********                                                                *********
+
+  USAGE: qsub -t <min>-<max> job_sof.sge <mode> <nevts> <dec> <mom> <res>
+  
+  EXAMPLE 1: qsub -t 1-10 job_sof.sge 38201 1000 decfiles/M201_Jpsi2pi.dec 6.56903 pbarpSystem0
+  EXAMPLE 2: qsub -t 1-10 job_sof.sge 38900 10000 DPM 6.56903 
+
+---------------
+
+- submit.sh: Submit several bunches of signal jobs to prometheus cluster; need to have PandaROOT installation on /hera/... and being logged in to pro.hpc.gsi.de
+
+  **********                                                                *********
+  **** PLEASE ADAPT THE PATH TO config.sh IN job_sof.sge BEFORE SUBMITTING JOBS! ****
+  **********                                                                *********
+  
+  USAGE: ./submit.sh <energy> <min> <max> <nevts>
+
+    <energy>: E_cms shortcut (24,38,45,55); produces all modes assigned to this energy (can be many!!)
+    <min>   : minimum job number
+    <max>   : maximum job number; if not given, array numbers 0 - <min> are submitted
+    <nevts> : number of events pre job (default = 2000)
+  
+  EXAMPLE 1: ./submit.sh 45 20           # submits 20 jobs (numbers 1-20) at sqrt(s) = 4.5 GeV with 2000 events per job for each mode
+  EXAMPLE 2: ./submit.sh 38 10 19 1000   # submits 10 jobs (numbers 10-19) at sqrt(s) = 3.77 GeV with 1000 events for each mode
+  EXAMPLE 2: ./submit.sh 55              # submits 1 job (numbers 1-1) at sqrt(s) = 5.5 GeV with 2000 events for each mode
+
+---------------
+
+- submit_bg.sh: Submit several bunches of DPM jobs to prometheus cluster; need to have PandaROOT installation on /hera/... and being logged in to pro.hpc.gsi.de
+
+  **********                                                                *********
+  **** PLEASE ADAPT THE PATH TO config.sh IN job_sof.sge BEFORE SUBMITTING JOBS! ****
+  **********                                                                *********
+
+  USAGE: parameters like above
+
+  EXAMPLE 1: ./submit.sh 45 20           # submits 20 DPM jobs (numbers 1-20) at sqrt(s) = 4.5 GeV with 2000 events per job
+  EXAMPLE 2: ./submit.sh 38 10 19 1000   # submits 10 DPM jobs (numbers 10-19) at sqrt(s) = 3.77 GeV with 1000 events
+  EXAMPLE 2: ./submit.sh 55              # submits 1 DPM job (numbers 1-1) at sqrt(s) = 5.5 GeV with 2000 events
+
+
