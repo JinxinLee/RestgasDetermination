@@ -211,6 +211,23 @@ void PndRhoTupleQA::qaEventShapeShort(TString pre, PndEventShape *evsh, RhoTuple
 	// sum of charged momenta with min momentum cut
 	n->Column(pre+"sumpc05", (Float_t) evsh->SumChrgPminCms(0.5) ,0.0f );
 }
+// -------------------------------------------------------------------------
+// *** store QA for PocaVtx
+void PndRhoTupleQA::qaPoca(TString pre, RhoCandidate *c, RhoTuple *n)
+{
+	if (n==0) return;
+	
+	// *** simple vtx finder
+	TVector3 vtx;
+	double qavtx = fVtxPoca->GetPocaVtx(vtx, c);
+	
+	// *** store QA info
+	n->Column(pre+"pocvx",  (Float_t) vtx.X(), 0.0f);
+	n->Column(pre+"pocvy",  (Float_t) vtx.Y(), 0.0f);
+	n->Column(pre+"pocvz",  (Float_t) vtx.Z(), 0.0f);
+	n->Column(pre+"pocqa", (Float_t) qavtx,   0.0f);
+	
+}
 
 // -------------------------------------------------------------------------
 // *** store QA for composite particles
@@ -218,53 +235,80 @@ void PndRhoTupleQA::qaEventShapeShort(TString pre, PndEventShape *evsh, RhoTuple
 void PndRhoTupleQA::qaComp(TString pre, RhoCandidate *c, RhoTuple *n)
 {
 	if (n==0) return;
-	// *** simple vtx finder
-	TVector3 vtx;
-	double qavtx = fVtxPoca->GetPocaVtx(vtx, c);
 	
-	// *** MC truth match
-	if (fAnalysis!=0) fAnalysis->McTruthMatch(c);
+	// what kind of particle?
+	int pdg = c->PdgCode();
+
+	// special composite particle?
+	// pi0 or eta?
+	if (pdg == 111 || pdg == 221)
+	{
+		qaPi0(pre, c, n);
+		return;
+	}
+	// K_S?
+	if (pdg == 310)
+	{
+		qaKs0(pre, c, n);
+		return;
+	}
+	
+	// how many daughters?
+	int nd = c->NDaughters();
+	
+	// truth match already done?
 	RhoCandidate *truth = c->GetMcTruth();
 	
-	// *** store QA info
-	n->Column(pre+"vx",  (Float_t) vtx.X(), 0.0f);
-	n->Column(pre+"vy",  (Float_t) vtx.Y(), 0.0f);
-	n->Column(pre+"vz",  (Float_t) vtx.Z(), 0.0f);
-	n->Column(pre+"vqa", (Float_t) qavtx,   0.0f);
+	// if not, try one
+	if (truth == 0 && fAnalysis != 0) 
+	{
+		fAnalysis->McTruthMatch(c);
+		truth = c->GetMcTruth();
+	}
 	
+	bool mct = false;
+	if (truth!=0) 
+	{
+		if (nd>0) mct = true;
+		else mct = (truth->PdgCode()==c->PdgCode());
+	}
+	// store cand info in lab and cms
 	qaCand(pre,	c,	n);
 	qaP4Cms(pre, c->P4(), n);
+	n->Column(pre+"mct", (Float_t) mct, 0.0f);
 	
-	int nd = c->NDaughters();
-	if (nd==2) 
-		qa2Body(pre, c, n);
-	
-	for (int i=0;i<nd;++i)
+	// cand is final state particle
+	if (nd==0)
 	{
-		RhoCandidate *dau = c->Daughter(i);
-		TString name=TString::Format("%sd%d",pre.Data(),i);
-		qaCand(name, dau, n);
-		if ( fabs(dau->Charge())>0.1 && dau->NDaughters()==0 )
-			qaPid(name, dau, n);
-		if ( dau->PdgCode()==111) //pi0
-			qaPi0(name, dau, n);
-		if ( dau->PdgCode()==221) //eta
-			qaPi0(name, dau, n);
-		if ( dau->PdgCode()==310) //KS
-			qaKs0(name, dau, n);		
+		// charged particle -> store PID info
+		if ( fabs(c->Charge())>0.1 ) qaPid(pre,	c,	n);
 	}
+	// cand is composite
+	else 
+	{
+		// if 2 daughters -> store decay angle etc
+		if (nd==2) qa2Body(pre, c, n);
+		// if 3 daughters -> dalitz plot vars
+		if (nd==3) qaDalitz(pre, c, n);
 		
-	if (truth!=0)
-	{
-		qaCand("t"+pre, truth, n);
-		n->Column(pre+"mct", 1.0f, 0.0f);
-	}
-	else
-	{
-		qaCand("t"+pre, NULL , n, true);
-		n->Column(pre+"mct", 0.0f, 0.0f);
-	}
+		// counter for charged final states
+		int nchrgfs = 0;
 		
+		for (int i=0; i<nd; ++i) 
+		{
+			RhoCandidate *dau = c->Daughter(i);
+			TString name=TString::Format("%sd%d",pre.Data(),i);
+			
+			// count charged final states for possible vertexing later
+			if (dau->NDaughters()==0 && fabs(dau->Charge())>0.01) nchrgfs++;
+			
+			// recursive call of qaComp
+			qaComp(name, dau, n);
+		}
+		// only charged final state daughters -> Vtx info with PndVtxPoca 
+		if (nchrgfs == nd)
+			qaPoca(pre, c, n);
+	}
 }
 
 // -------------------------------------------------------------------------
@@ -514,6 +558,27 @@ void PndRhoTupleQA::qa2Body(TString pre, RhoCandidate *c, RhoTuple *n)
 	n->Column(pre+"oang", 	 (Float_t) oang,		0.0f );
 	n->Column(pre+"decang",  (Float_t) dec,		0.0f );
 	n->Column(pre+"cdecang", (Float_t) cdec,		0.0f );
+}
+
+
+// -------------------------------------------------------------------------
+void PndRhoTupleQA::qaDalitz(TString pre, RhoCandidate *c, RhoTuple *n)
+{	
+	if (n==0) return;
+	
+	if (c->NDaughters()!=3) return;
+	
+	TLorentzVector l01 = c->Daughter(0)->P4()+c->Daughter(1)->P4();
+	TLorentzVector l12 = c->Daughter(1)->P4()+c->Daughter(2)->P4();	
+	TLorentzVector l02 = c->Daughter(2)->P4()+c->Daughter(0)->P4();	
+		
+	n->Column(pre+"m01", (Float_t) l01.M(),		0.0f );
+	n->Column(pre+"m12", (Float_t) l12.M(),		0.0f );
+	n->Column(pre+"m02", (Float_t) l02.M(),		0.0f );
+	
+	n->Column(pre+"dal01", (Float_t) l01.M2(),		0.0f );
+	n->Column(pre+"dal12", (Float_t) l12.M2(),		0.0f );
+	n->Column(pre+"dal02", (Float_t) l02.M2(),		0.0f );
 }
 
 

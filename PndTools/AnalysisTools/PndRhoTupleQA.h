@@ -40,7 +40,9 @@ public:
 
 	// *** QA track, vtx, PID, decay
 	void qaVtx(TString pre, RhoCandidate *c, RhoTuple *n);
+	void qaPoca(TString pre, RhoCandidate *c, RhoTuple *n);
 	void qa2Body(TString pre, RhoCandidate *c, RhoTuple *n);
+	void qaDalitz(TString pre, RhoCandidate *c, RhoTuple *n);
 	void qaTrk(TString pre, RhoCandidate *c, RhoTuple *n);
 	void qaPid(TString pre, RhoCandidate *c, RhoTuple *n);
 	
