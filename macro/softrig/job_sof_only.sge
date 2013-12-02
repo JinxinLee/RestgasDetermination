@@ -1,0 +1,38 @@
+#$ -wd /tmp
+#$ -j y
+
+cd $TMPDIR
+
+. /path/to/your/config.sh
+
+data=$VMCWORKDIR"/macro/softrig"
+
+mode=9999
+mom=10.
+from=1
+to=20
+
+if test "$1" != ""; then
+  mode=$1
+fi
+
+if test "$2" != ""; then
+  mom=$2
+fi
+
+if test "$3" != ""; then
+  from=$3
+fi
+
+if test "$4" != ""; then
+  to=$4
+fi
+
+_target=$data"/data"
+
+root -l -b -q -w $data"/"qa_softtrig.C\(\"$_target/M$mode\",$mode,$mom,$from,$to\)
+
+# Move the data to the persistent storage
+cp -v $TMPDIR/M*_st_qa.root $_target 
+# Evacuate the log-file
+cp -v $SGE_STDOUT_PATH $_target/$JOB_ID.log
