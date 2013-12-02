@@ -128,40 +128,41 @@ class PndSoftTriggerTask : public FairTask
 	void SetAlgoProton(TString algo) {fAlgoProton=algo;}
 	
 	// *** Switch Tagging methods
-	void SetTag_Phi_KK(bool tag) { fTagPhiKK = tag;}
+	void SetTag_Phi_KK(bool tag=true) { fTagPhiKK = tag;}
 	
-	void SetTag_D0_Kpi(bool tag) { fTagD0Kpi = tag;}
-	void SetTag_D0_Kpipi0(bool tag) { fTagD0Kpipi0 = tag;}
-	void SetTag_D0_K3pi(bool tag) { fTagD0K3pi = tag;}
+	void SetTag_D0_Kpi(bool tag=true) { fTagD0Kpi = tag;}
+	void SetTag_D0_Kpipi0(bool tag=true) { fTagD0Kpipi0 = tag;}
+	void SetTag_D0_K3pi(bool tag=true) { fTagD0K3pi = tag;}
 	
-	void SetTag_Dpm_Kpipi(bool tag) { fTagDpmKpipi = tag;}
-	void SetTag_Dpm_K2pipi0(bool tag) { fTagDpmK2pipi0 = tag;}
-	void SetTag_Dpm_Kspipi0(bool tag) { fTagDpmKspipi0 = tag;}
-	void SetTag_Dpm_Ks3pi(bool tag) { fTagDpmKs3pi = tag;}
+	void SetTag_Dpm_Kpipi(bool tag=true) { fTagDpmKpipi = tag;}
+	void SetTag_Dpm_K2pipi0(bool tag=true) { fTagDpmK2pipi0 = tag;}
+	void SetTag_Dpm_Kspipi0(bool tag=true) { fTagDpmKspipi0 = tag;}
+	void SetTag_Dpm_Ks3pi(bool tag=true) { fTagDpmKs3pi = tag;}
 	
-	void SetTag_Ds_KKpi(bool tag) { fTagDsKKpi = tag;}
-	void SetTag_Ds_KKpipi0(bool tag) { fTagDsKKpip0 = tag;}
+	void SetTag_Ds_KKpi(bool tag=true) { fTagDsKKpi = tag;}
+	void SetTag_Ds_KKpipi0(bool tag=true) { fTagDsKKpip0 = tag;}
 	
-	void SetTag_Lambda_ppi(bool tag) { fTagLamppi = tag;}
+	void SetTag_Lambda_ppi(bool tag=true) { fTagLamppi = tag;}
 
-	void SetTag_Lambdac_pKpi(bool tag) { fTagLamcpKpi = tag;}
+	void SetTag_Lambdac_pKpi(bool tag=true) { fTagLamcpKpi = tag;}
 
-	void SetTag_Jpsi_2e(bool tag) { fTagJpsi2e = tag;}
-	void SetTag_Jpsi_2mu(bool tag) { fTagJpsi2mu = tag;}
+	void SetTag_Jpsi_2e(bool tag=true) { fTagJpsi2e = tag;}
+	void SetTag_Jpsi_2mu(bool tag=true) { fTagJpsi2mu = tag;}
 	
-	void SetTag_Etac_KKpi0(bool tag) { fTagEtacKKpi0 = tag;}
-	void SetTag_Etac_KKspi(bool tag) { fTagEtacKKspi = tag;}
-	void SetTag_Etac_etapipi(bool tag) { fTagEtacetapipi = tag;}
-	void SetTag_Etac_gg(bool tag) { fTagEtacgg = tag;}
+	void SetTag_Etac_KKpi0(bool tag=true) { fTagEtacKKpi0 = tag;}
+	void SetTag_Etac_KKspi(bool tag=true) { fTagEtacKKspi = tag;}
+	void SetTag_Etac_etapipi(bool tag=true) { fTagEtacetapipi = tag;}
+	void SetTag_Etac_gg(bool tag=true) { fTagEtacgg = tag;}
 	
-	void SetTag_Chic0_2pi2pi0(bool tag) { fTagChic02pi2pi0 = tag;}
-	void SetTag_Chic0_4pi(bool tag) { fTagChic04pi = tag;}
-	void SetTag_Chic0_2pi2K(bool tag) { fTagChic02pi2K = tag;}
+	void SetTag_Chic0_2pi2pi0(bool tag=true) { fTagChic02pi2pi0 = tag;}
+	void SetTag_Chic0_4pi(bool tag=true) { fTagChic04pi = tag;}
+	void SetTag_Chic0_2pi2K(bool tag=true) { fTagChic02pi2K = tag;}
 	
-	void SetTag_2e(bool tag) { fTag2e = tag;}
-	void SetTag_2mu(bool tag) { fTag2mu = tag;}
-	void SetTag_2gam(bool tag) { fTag2gam = tag;}
+	void SetTag_2e(bool tag=true) { fTag2e = tag;}
+	void SetTag_2mu(bool tag=true) { fTag2mu = tag;}
+	void SetTag_2gam(bool tag=true) { fTag2gam = tag;}
 	
+	void SetTag_All(bool qa=true);
 	
 	// *** Enable/Disable QA output
 	void SetQA_Phi_KK(bool qa=true) { fQAPhiKK = qa;}

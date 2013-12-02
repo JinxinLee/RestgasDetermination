@@ -65,7 +65,7 @@ PndSoftTriggerTask::PndSoftTriggerTask(double pmom, int mode) :
 	fTagDpmKs3pi(true),	fTagDsKKpi(true), fTagDsKKpip0(true),
 	fTagLamcpKpi(true), fTagEtacKKpi0(true), fTagEtacKKspi(true),
 	fTagEtacetapipi(true), fTagEtacgg(true), fTagChic02pi2pi0(true), fTagChic04pi(true),fTagChic02pi2K(true),
-	fTag2e(false),fTag2mu(false),fTag2gam(false),
+	fTag2e(true),fTag2mu(true),fTag2gam(true),
 	fQAPhiKK(false), fQALamppi(false), fQAJpsi2e(false),fQAJpsi2mu(false),
 	fQAD0Kpi(false), fQAD0Kpipi0(false), fQAD0K3pi(false),
 	fQADpmKpipi(false), fQADpmK2pipi0(false), fQADpmKspipi0(false),
@@ -182,14 +182,14 @@ void PndSoftTriggerTask::SetQASelectionDefaults()
 	fChic0QaMax = Chic0Mass + 0.6;		
 	
 	// *** electro-magnetic 
-	f2eQaMin = fEcm - 0.5;		
-	f2eQaMax = fEcm + 0.5;		
+	f2eQaMin = fEcm - 1.5;		
+	f2eQaMax = fEcm + 1.0;		
 	
-	f2muQaMin = fEcm - 0.5;		
-	f2muQaMax = fEcm + 0.5;		
+	f2muQaMin = fEcm - 1.5;		
+	f2muQaMax = fEcm + 1.0;		
 	
-	f2gamQaMin = fEcm - 0.5;		
-	f2gamQaMax = fEcm + 0.5;		
+	f2gamQaMin = fEcm - 1.0;		
+	f2gamQaMax = fEcm + 1.0;		
 }
 
 // ----Defaul signal parameters --------------------------------------------------------------
@@ -278,13 +278,13 @@ void PndSoftTriggerTask::SetSignalParamsDefaults()
 	
 	// *** electro-magnetic 
 	f2eMean = fEcm;			// mean value for e+ e- signal
-	f2eSigma = 0.1;		// sigma value for for e+ e- signal
+	f2eSigma = 0.125;		// sigma value for for e+ e- signal
 	
 	f2muMean = fEcm;		// mean value for mu+ mu- signal
-	f2muSigma = 0.1;		// sigma value for for mu+ mu- signal
+	f2muSigma = 0.9;		// sigma value for for mu+ mu- signal
 	
 	f2gamMean = fEcm;		// mean value for gam gam signal
-	f2gamSigma = 0.1;		// sigma value for for gam gam signal
+	f2gamSigma = 0.65;		// sigma value for for gam gam signal
 	
 }
 
@@ -327,6 +327,42 @@ void PndSoftTriggerTask::SetQA_All(bool qa)
 	SetQA_Eta(qa);
 	SetQA_Ks0(qa);
 	SetQA_Event(qa);
+}
+
+// ----Method to enable/disable full Tagging--------------------------------------------------------------
+void PndSoftTriggerTask::SetTag_All(bool qa)
+{
+	SetTag_Phi_KK(qa);
+	SetTag_Lambda_ppi(qa);
+	SetTag_Jpsi_2e(qa);
+	SetTag_Jpsi_2mu(qa);
+	
+	SetTag_D0_Kpi(qa);
+	SetTag_D0_Kpipi0(qa);
+	SetTag_D0_K3pi(qa);
+	
+	SetTag_Dpm_Kpipi(qa);
+	SetTag_Dpm_K2pipi0(qa);
+	SetTag_Dpm_Kspipi0(qa);
+	SetTag_Dpm_Ks3pi(qa);
+	
+	SetTag_Ds_KKpi(qa);
+	SetTag_Ds_KKpipi0(qa);
+	
+	SetTag_Lambdac_pKpi(qa);
+	
+	SetTag_Etac_KKpi0(qa);
+	SetTag_Etac_KKspi(qa);
+	SetTag_Etac_etapipi(qa);
+	SetTag_Etac_gg(qa); 
+	
+	SetTag_Chic0_2pi2pi0(qa); 
+	SetTag_Chic0_4pi(qa); 
+	SetTag_Chic0_2pi2K(qa); 
+
+	SetTag_2e(qa); 
+	SetTag_2mu(qa); 
+	SetTag_2gam(qa); 
 }
 
 
@@ -377,6 +413,17 @@ InitStatus PndSoftTriggerTask::Init()
 	{
 		fRootManager->Register ( "OnlineFilterInfo","PndOnlineFolder", fTcaOnlineFilterInfo, kTRUE );
 	}
+	
+	// *** add several pbar p/n/dd Systems for MC truth match
+	double ppwidth = 0.01;
+	fPdg->AddParticle("pbarpSystem", "pbar p", fEcm, false, ppwidth,0,"",88888);
+	fPdg->AddParticle("pbarpSystem0","pbar p", fEcm, false, ppwidth,0,"",88880);
+	fPdg->AddParticle("pbarpSystem1","pbar p", fEcm, false, ppwidth,0,"",88881);
+	fPdg->AddParticle("pbarpSystem2","pbar p", fEcm, false, ppwidth,0,"",88882);
+	
+	fPdg->AddParticle("pbarnSystem", "pbar n", fEcm, false, ppwidth,0,"",88887);
+	fPdg->AddParticle("pbardSystem", "pbar d", fEcm, false, ppwidth,0,"",88889);
+	
 	// *** initialize analysis object
 	fAnalysis = new PndAnalysis();
 	
@@ -420,9 +467,9 @@ InitStatus PndSoftTriggerTask::Init()
 	if (fQAChic04pi)   nchic02 = new RhoTuple("nchic02",	"chi_c0 -> pi+ pi- pi+ pi-");		
 	if (fQAChic02pi2K) nchic03 = new RhoTuple("nchic03",	"chi_c0 -> pi+ pi- K+ K-");		
 
-	if (fQA2e) n2e   = new RhoTuple("n2e",	 "pbar p -> e+ e-");		
-	if (fQA2e) n2mu  = new RhoTuple("n2mu",	 "pbar p -> mu+ mu-");		
-	if (fQA2e) n2gam = new RhoTuple("n2gam", "pbar p -> gamma gamma");		
+	if (fQA2e)   n2e   = new RhoTuple("n2e",	"pbar p -> e+ e-");		
+	if (fQA2mu)  n2mu  = new RhoTuple("n2mu",	"pbar p -> mu+ mu-");		
+	if (fQA2gam) n2gam = new RhoTuple("n2gam", 	"pbar p -> gamma gamma");		
 	
 	// *** create mass pre selectors for QA (formular takes into account RhoSelector definition mean +- win/2
 	fPi0PreSel   = new RhoMassParticleSelector("pi0PreSel",  (fPi0QaMax + fPi0QaMin)/2.0, 	fPi0QaMax - fPi0QaMin );  
@@ -562,8 +609,8 @@ void PndSoftTriggerTask::Exec(Option_t* opt)
 	int tag_chic0  = tag_chic01 + tag_chic02 + tag_chic03;
 	
 	int tag_2e     = Tag_2e(n2e);
-	int tag_2mu    = Tag_2e(n2mu);
-	int tag_2gam   = Tag_2e(n2gam);
+	int tag_2mu    = Tag_2mu(n2mu);
+	int tag_2gam   = Tag_2gam(n2gam);
 	int tag_em     = tag_2e + tag_2mu + tag_2gam;
 	
 	int tag_glob   = tag_phi + tag_lam + tag_jpsi + tag_d0 + tag_dpm
@@ -1889,6 +1936,7 @@ int PndSoftTriggerTask::Tag_2e(RhoTuple *n)
 	
 	// *** combinatorics
 	l.Combine(fElectronPlus, fElectronMinus);
+	l.SetType(88880);
 	
 	// *** pre selection for QA
 	l.Select(f2ePreSel);
@@ -1934,6 +1982,7 @@ int PndSoftTriggerTask::Tag_2mu(RhoTuple *n)
 	
 	// *** combinatorics
 	l.Combine(fMuonPlus, fMuonMinus);
+	l.SetType(88880);
 	
 	// *** pre selection for QA
 	l.Select(f2muPreSel);
@@ -1979,6 +2028,7 @@ int PndSoftTriggerTask::Tag_2gam(RhoTuple *n)
 	
 	// *** combinatorics
 	l.Combine(fGammaCands, fGammaCands);
+	l.SetType(88880);
 	
 	// *** pre selection for QA
 	l.Select(f2gamPreSel);
