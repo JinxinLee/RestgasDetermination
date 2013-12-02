@@ -9,7 +9,7 @@ res="pbarpSystem0"
 sig=1
 
 if test "$1" != ""; then
-  prefix=$1
+  mode=$1
 fi
 
 if test "$2" != ""; then

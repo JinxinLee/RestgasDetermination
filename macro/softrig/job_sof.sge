@@ -5,7 +5,7 @@ cd $TMPDIR
 
 . /hera/panda/kgoetzen/pandaroot/build5/config.sh
 
-hera=$VMCWORKDIR"/macro/prod"
+hera=$VMCWORKDIR"/macro/softrig"
 _target=$hera"/data/"
 
 mode=9999
@@ -17,7 +17,7 @@ res="pbarpSystem0"
 sig=1
 
 if test "$1" != ""; then
-  prefix=$1
+  mode=$1
 fi
 
 if test "$2" != ""; then

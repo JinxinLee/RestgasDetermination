@@ -1,7 +1,7 @@
 void prod_sof(TString outpre="", double pmom=15.15, int mode=9999)
 {
 	// Parameter file
-	TString parFile = outpre+"_par.root"; 
+	TString inParFile = outpre+"_par.root"; 
 	
 	// PID table with selection thresholds; can be modified by the user
 	TString pidParFile = TString(gSystem->Getenv("VMCWORKDIR"))+"/macro/params/all.par";	
@@ -41,6 +41,7 @@ void prod_sof(TString outpre="", double pmom=15.15, int mode=9999)
 	// *** HERE OUR TASK GOES!
 	PndSoftTriggerTask *stTask = new PndSoftTriggerTask(pmom, mode);
 	
+	stTask->SetQA_All(true);
 	stTask->SetGammaMinE(0.10);
 	stTask->SetTrackMinP(0.10);
 	
@@ -48,7 +49,7 @@ void prod_sof(TString outpre="", double pmom=15.15, int mode=9999)
 	
 	// *** and run analysis
 	fRun->Init(); 
-	fRun->Run(0,nEvents);
+	fRun->Run(0,0);
 	
 	//gObjectTable->Print();
 }
