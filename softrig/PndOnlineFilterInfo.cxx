@@ -16,7 +16,8 @@ PndOnlineFilterInfo::PndOnlineFilterInfo() :
 	fNTagTotal(0),
 	fNTagPhiKK(0),
 	fNTagLamppi(0),
-	fNTagJpsill(0),
+	fNTagJpsi2e(0),
+	fNTagJpsi2mu(0),
 	fNTagD0Kpi(0),
 	fNTagD0Kpipi0(0),
 	fNTagD0K3pi(0),
@@ -32,7 +33,11 @@ PndOnlineFilterInfo::PndOnlineFilterInfo() :
 	fNTagEtacetapipi(0),
 	fNTagEtacgg(0),
 	fNTagChic02pi2pi0(0),
-	fNTagChic04pi(0)
+	fNTagChic04pi(0),
+	fNTagChic02pi2K(0),
+	fNTag2e(0),
+	fNTag2mu(0),
+	fNTag2gam(0)
 {
 }
 
@@ -57,7 +62,8 @@ void PndOnlineFilterInfo::Reset()
 	fNTagTotal=0;
 	fNTagPhiKK=0;
 	fNTagLamppi=0;
-	fNTagJpsill=0;
+	fNTagJpsi2e=0;
+	fNTagJpsi2mu=0;
 	fNTagD0Kpi=0;
 	fNTagD0Kpipi0=0;
 	fNTagD0K3pi=0;
@@ -74,15 +80,21 @@ void PndOnlineFilterInfo::Reset()
 	fNTagEtacgg=0;
 	fNTagChic02pi2pi0=0;
 	fNTagChic04pi=0;
+	fNTagChic02pi2K=0;
+	fNTag2e=0;
+	fNTag2mu=0;
+	fNTag2gam=0;
+	
 }
 
 void PndOnlineFilterInfo::Print()
 {
-  std::cout <<"PndOnlineFilterInfo found triggers:   "<<std::endl;
+  std::cout <<"PndOnlineFilterInfo found triggers:   "   <<std::endl;
   std::cout <<"fNTagTotal        : "<< fNTagTotal        <<std::endl;
   std::cout <<"fNTagPhiKK        : "<< fNTagPhiKK        <<std::endl;
   std::cout <<"fNTagLamppi       : "<< fNTagLamppi       <<std::endl;
-  std::cout <<"fNTagJpsill       : "<< fNTagJpsill       <<std::endl;
+  std::cout <<"fNTagJpsi2e       : "<< fNTagJpsi2e       <<std::endl;
+  std::cout <<"fNTagJpsi2mu      : "<< fNTagJpsi2mu     <<std::endl;
   std::cout <<"fNTagD0Kpi        : "<< fNTagD0Kpi        <<std::endl;
   std::cout <<"fNTagD0Kpipi0     : "<< fNTagD0Kpipi0     <<std::endl;
   std::cout <<"fNTagD0K3pi       : "<< fNTagD0K3pi       <<std::endl;
@@ -99,6 +111,10 @@ void PndOnlineFilterInfo::Print()
   std::cout <<"fNTagEtacgg       : "<< fNTagEtacgg       <<std::endl;
   std::cout <<"fNTagChic02pi2pi0 : "<< fNTagChic02pi2pi0 <<std::endl;
   std::cout <<"fNTagChic04pi     : "<< fNTagChic04pi     <<std::endl;
+  std::cout <<"fNTagChic02pi2K   : "<< fNTagChic04pi     <<std::endl;
+  std::cout <<"fNTag2e           : "<< fNTag2e           <<std::endl;
+  std::cout <<"fNTag2mu          : "<< fNTag2mu          <<std::endl;
+  std::cout <<"fNTag2gam         : "<< fNTag2gam         <<std::endl;
 }
 
 

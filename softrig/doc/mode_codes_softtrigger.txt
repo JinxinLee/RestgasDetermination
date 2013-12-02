@@ -1,0 +1,75 @@
+SOFT TRIGGER MODES
+-------------------
+
+CODE: 4-5 digis ABCD(E), where AB code the CMS energy sqrt(s):
+
+sqrt(s) |  AB
+--------------
+2.4     |  24
+3.77    |  38
+4.5     |  45
+5.0     |  50
+5.5     |  55
+
+
+The digits CD(E) are arbitrary mode numbers; starts always with pbarpSystem -> and includes c.c. if existing:
+
+CD(E) |  mode
+----------------------------------------
+000   |  phi phi; one phi -> K+ K-
+
+100   |  D0 D0bar; one D0 -> K- pi+
+101   |  D0 D0bar; one D0 -> K- pi+ pi0; pi0 -> gamma gamma
+102   |  D0 D0bar; one D0 -> K- pi+ pi+ pi-
+103   |  D0 D0*bar; one D0 -> K- pi+
+104   |  D0 D0*bar; one D0 -> K- pi+ pi0; pi0 -> gamma gamma
+105   |  D0 D0*bar; one D0 -> K- pi+ pi+ pi-
+106   |  D0* D0*bar; one D0 -> K- pi+
+107   |  D0* D0*bar; one D0 -> K- pi+ pi0; pi0 -> gamma gamma
+108   |  D0* D0*bar; one D0 -> K- pi+ pi+ pi-
+
+120   |  D+ D-; one D -> K- pi+ pi+
+121   |  D+ D-; one D -> K- pi+ pi+ pi0;  pi0 ->gamma gamma
+122   |  D+ D-; one D -> K_S pi+ pi0; K_S -> pi+ pi-; pi0 -> gamma gamma
+123   |  D+ D-; one D -> K_S pi+ pi+ pi-; K_S -> pi+ pi-
+124   |  D+ D*-; either D+ -> K- pi+ pi+, or D*- -> D- pi0, D- -> K+ pi- pi-
+125   |  D+ D*-; either D+ -> K- pi+ pi+ pi0;  pi0 ->gamma gamma, or D*- -> D- pi0, D- -> K+ pi- pi- pi0
+126   |  D+ D*-; either D+ -> K_S pi+ pi0; K_S -> pi+ pi-; pi0 -> gamma gamma, or D*- -> D- pi0, D- -> K_S pi- pi0
+127   |  D+ D*-; either D+ -> K_S pi+ pi+ pi-; K_S -> pi+ pi-, or D*- -> D- pi0, D- -> K_S pi- pi- pi+
+128   |  D*+ D*-; one D*+ -> D+ pi0, D+ -> K- pi+ pi+
+129   |  D*+ D*-; one D*+ -> D+ pi0, D+ -> K- pi+ pi+ pi0;  pi0 ->gamma gamma
+130   |  D*+ D*-; one D*+ -> D+ pi0, D+ -> K_S pi+ pi0; K_S -> pi+ pi-; pi0 -> gamma gamma
+131   |  D*+ D*-; one D*+ -> D+ pi0, D+ -> K_S pi+ pi+ pi-; K_S -> pi+ pi-
+
+140   |  Ds+ Ds-; one Ds -> K+ K- pi+
+141   |  Ds+ Ds-; one Ds -> K+ K- pi+ pi0; pi0 -> gamma gamma
+142   |  Ds+ Ds*-; one Ds -> K+ K- pi+
+143   |  Ds+ Ds*-; one Ds -> K+ K- pi+ pi0; pi0 -> gamma gamma
+144   |  Ds*+ Ds*-; one Ds -> K+ K- pi+
+145   |  Ds*+ Ds*-; one Ds -> K+ K- pi+ pi0; pi0 -> gamma gamma
+
+200   |  J/psi pi+ pi-; J/psi -> e+ e-
+201   |  J/psi pi+ pi-; J/psi -> mu+ mu-
+
+220   |  eta_c pi+ pi-; eta_c -> K+ K- pi0; pi0 -> gamma gamma
+221   |  eta_c pi+ pi-; eta_c -> K+ K_S pi-; K_S -> pi+ pi-
+222   |  eta_c pi+ pi-; eta_c -> eta pi+ pi-; eta -> gamma gamma
+223   |  eta_c pi+ pi-; eta_c -> gamma gamma
+
+240   |  chi_c0 pi+ pi-; chi_c0 -> pi+ pi- pi0 pi0; pi0 -> gamma gamma
+241   |  chi_c0 pi+ pi-; chi_c0 -> pi+ pi- pi+ pi-
+242   |  chi_c0 pi+ pi-; chi_c0 -> pi+ pi- K+ K-
+
+300   |  e+ e-
+320   |  mu+ mu-
+340   |  gamma gamma
+
+400   |  Lambda Lambda_bar; one Lambda -> p pi-
+
+420   |  Lambda_c Lambda_c_bar; one Lambda_c -> p K- pi+
+
+900   |  DPM (default bkg mode)
+
+
+
+
