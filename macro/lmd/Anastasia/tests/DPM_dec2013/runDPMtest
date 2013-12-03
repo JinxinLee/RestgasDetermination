@@ -8,11 +8,11 @@
 #read mom
 #echo "Beam mometum is: $mom!"
 mom=1.5
-cd ${VMCWORKDIR}/macro/lmd/
+cd ${VMCWORKDIR}/macro/lmd/Anastasia/tests/DPM_dec2013
 pbeam=$mom
 
 momStr=`echo $pbeam | sed -e '{ s/\./_/g; }'`
-path=${VMCWORKDIR}/macro/lmd/testDPM/mom_${momStr}/
+path=${VMCWORKDIR}/macro/lmd/Anastasia/tests/DPM_dec2013/testDPM/mom_${momStr}/
 mkdir -p ${path}
 #number of events
 numEv=10000
