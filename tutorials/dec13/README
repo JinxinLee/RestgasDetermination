@@ -50,21 +50,41 @@ The files in this directory are:
 
 Reconstructable data for several signal decay channels and DPM are located at
 
-/hera/panda/tutdata/<prefix>_<num>_pid.root, <prefix>_<num>_par.root
+/hera/panda/tutdata/<prefix>/<prefix>_<pbarmom>GeV_<num>_pid.root, <prefix>_<num>_par.root
 
 ---------------------------------------------------------
-     <prefix>      :   p(pbar)   :  sqrt(s)  :  channel
+  <prefix>  :   p(pbar)   :  sqrt(s)  :  channel
 ---------------------------------------------------------
-DPM24              :  1.91 GeV/c :  2.4 GeV  :  DPM
-PhiPhi24           :  1.91 GeV/c :  2.4 GeV  :  ppbar -> phi phi; both phi -> K+ K-
-LamLam24           :  1.91 GeV/c :  2.4 GeV  :  ppbar -> Lambda Lambda bar; one Lambda -> p pi-, other unknown
 
-DPM45              :  9.81 GeV/c :  4.5 GeV  :  DPM
-JpsitoLL45         :  9.81 GeV/c :  4.5 GeV  :  ppbar -> J/psi pi+ pi-; J/psi -> e+ e- / mu+ mu-
-EtactoEta2pi45     :  9.81 GeV/c :  4.5 GeV  :  ppbar -> eta_c pi+ pi-; eta_c -> eta pi+ pi-; eta -> gamma gamma     
-Chic0to2pi2pi045   :  9.81 GeV/c :  4.5 GeV  :  ppbar -> chi_c0 pi+ pi-; chi_c0 -> pi+ pi- pi0 pi0; pi0 -> gamma gamma     
-D0toKpi45          :  9.81 GeV/c :  4.5 GeV  :  ppbar -> D0 D0bar; D0(bar) -> K-+ pi+-, other D0 unknown
-DptoKSpipi045      :  9.81 GeV/c :  4.5 GeV  :  ppbar -> D+ D-; D+- -> K_S0 pi+- pi0, D-+ unknown, K_S0 ->pi+ pi- / pi0 pi0, pi0 -> gamma gamma
+DPM         :    15.15    :    5.5    :    DPM events; to be used as background events 
+                                           DPM_15GeV_[1..20]_pid.root, par file DPM_15GeV_1_par.root
+
+D0Kpi       :    15.15    :    5.5    :    D0 D*0, one D0 -> K- pi+; 
+                                           D0Kpi_15GeV_[1..10]_pid.root, par file D0Kpi_15GeV_1_par.root
+
+DpmKpipi    :    15.15    :    5.5    :    D+- D*-+, one D+- -> K-+ pi+- pi+-; 
+                                           DpmKpipi_15GeV_[1..10]_pid.root, par file DpmKpipi_15GeV_1_par.root
+ 
+DpmKSpipi0  :    15.15    :    5.5    :    D+- D*-+, one D+- -> K_S(pi+ pi-) pi pi0 (gamma gamma) ; 
+                                           DpmKSpipi0_15GeV_[1..10]_pid.root, par file DpmKSpipi0_15GeV_1_par.root  
+
+EtacKKpi0   :    15.15    :    5.5    :    eta_c pi+ pi-, eta_c -> K+ K- pi0; 
+                                           EtacKKpi0_15GeV_[1..10]_pid.root, par file EtacKKpi0_15GeV_1_par.root  
+
+Jpsi2e      :    15.15    :    5.5    :    J/psi pi+ pi-, J/psi -> e+ e-; 
+                                           Jpsi2e_15GeV_[1..10]_pid.root, par file Jpsi2e_15GeV_1_par.root  
+
+LamcPKpi    :    15.15    :    5.5    :    Lambda_c Lambda_c bar, one Lambda_c -> p K- pi+; 
+                                           LamcPKpi_15GeV_[1..10]_pid.root, par file LamcPKpi_15GeV_1_par.root  
+
+LamPpi      :    15.15    :    5.5    :    Lambda Lambda bar, one Lambda -> p pi-; 
+                                           LamPpi_15GeV_[1..10]_pid.root, par file LamPpi_15GeV_1_par.root  
+
+MuMu        :    15.15    :    5.5    :    pbar p -> mu+ mu-; 
+                                           MuMu_15GeV_[1..10]_pid.root, par file MuMu_15GeV_1_par.root  
+
+PhiPhi      :    15.15    :    5.5    :    phi phi, one phi -> K+ K-; 
+                                           PhiPhi_15GeV_[1..10]_pid.root, par file PhiPhi_15GeV_1_par.root  
 
 
 
