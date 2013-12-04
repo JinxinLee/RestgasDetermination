@@ -1,6 +1,11 @@
 macro/prodgsi
 ----------------------
 
+  ******************************************************************************************
+  ****               IMPORTANT -> PLEASE ADAPT THE PATH TO  config.sh  IN               ****
+  ****     job_prod.sge, job_prod_pgun.sge  AND  job_ana.sge  BEFORE SUBMITTING JOBS!   ****
+  ******************************************************************************************
+
 A set of macros to run various kinds of simulation either locally or submit them for larger amounts of events to Prometheus-Cluster@GSI.
 
 See also 
@@ -28,6 +33,9 @@ Simulation
 
 Analysis example (multiple files)
 - prod_ana.C
+
+Example decay file for EvtGen
+- D0toKpi.dec
 
 Scripts to run all at automatically
 - runall_prod_pgun.sh
