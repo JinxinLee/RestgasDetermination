@@ -1,4 +1,4 @@
-void runLumiPixel2Reco(const int nEvents=10, const int startEvent=0, TString storePath="tmpOutput", const int verboseLevel=0, bool useMSerr=true, bool misalign=false)
+void runLumiPixel2Reco(const int nEvents=10, const int startEvent=0, TString storePath="tmpOutput", const int verboseLevel=0, bool misalign=false)
 {
   // ========================================================================
   // Input file (MC events)
@@ -102,7 +102,7 @@ void runLumiPixel2Reco(const int nEvents=10, const int startEvent=0, TString sto
   PndLmdPixelClusterTask* lmdmccls = new PndLmdPixelClusterTask();
   //  PndLmdIdealClusterTask* lmdmccls = new PndLmdIdealClusterTask();
   lmdmccls->SetVerbose(verboseLevel);
-  lmdmccls->SetMSflag(useMSerr);//switch on\off error calculation due to multiple scaterring
+  //  lmdmccls->SetMSflag(useMSerr);//switch on\off error calculation due to multiple scaterring
   lmdmccls->SetAlignFlag(misalign);
    if(misalign) lmdmccls->SetMtxPath(storePath);
   // 

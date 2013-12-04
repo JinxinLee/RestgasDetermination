@@ -1,4 +1,4 @@
-void runLumiPixel2bHitMerge(const int nEvents=10, const int startEvent=0, TString storePath="tmpOutput", const int verboseLevel=0)
+void runLumiPixel2bHitMerge(const int nEvents=10, const int startEvent=0, TString storePath="tmpOutput", const int verboseLevel=0, bool misalign=false)
 {
   // ========================================================================
   // Input file (Reco events)
@@ -75,6 +75,8 @@ void runLumiPixel2bHitMerge(const int nEvents=10, const int startEvent=0, TStrin
  
   PndLmdHitMergeTask* lmdmccls = new PndLmdHitMergeTask();
   lmdmccls->SetVerbose(verboseLevel);
+  lmdmccls->SetAlignFlag(misalign);
+  if(misalign) lmdmccls->SetMtxPath(storePath);
   fRun->AddTask(lmdmccls);
 
  // PndMvdPixelClusterTask* mvdClusterizer = new PndMvdPixelClusterTask(chargecut, MCFile);//, slx, sly, sthreshold, snoise);
