@@ -24,16 +24,15 @@ fi
 
 momStr=`echo $pbeam | sed -e '{ s/\./_/g; }'`
 path=${VMCWORKDIR}/macro/lmd/testPixel/mom_${momStr}/
-#path=${VMCWORKDIR}/macro/lmd/testPixel_VACcaveOLDpipe/mom_${momStr}/
+
 mkdir -p ${path}
 #number of trks per event
 numTrks=1
 #merge hits on sensors from different sides. true=yes
 mergedHits=true
 #number of events
-numEv=10000
-# #add multiples scattering error estimation for hits. false=no
-useMSerr=false
+numEv=1000
+
 # #simulation with Box generator
    root -l -b -q runLumiPixel0SimBox.C\(${numEv},0,"\"${path}\"",0,-2212,${pbeam},${numTrks},3562\)
 
@@ -44,7 +43,7 @@ useMSerr=false
 #digi
     root -l -b -q runLumiPixel1Digi.C\(${numEv},0,"\"${path}\""\)
 #hit reconstruction
-    root -l -b -q runLumiPixel2Reco.C\(${numEv},0,"\"${path}\"",0,${useMSerr},false\)
+    root -l -b -q runLumiPixel2Reco.C\(${numEv},0,"\"${path}\"",0,false\)
 # ##merge hits
      root -l -b -q runLumiPixel2bHitMerge.C\(${numEv},0,"\"${path}\""\)
 
