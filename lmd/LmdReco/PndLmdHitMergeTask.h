@@ -37,6 +37,10 @@ class PndLmdHitMergeTask : public FairTask
     /** Virtual method Exec **/
     virtual void Exec(Option_t* opt);
     
+    /** Set path to geometry matricies [explicitly needed only in alignment studies!] **/
+    void SetMtxPath(TString _path){mtxpath = _path;};
+    /** Set "alignment consts are known" flag **/
+    void SetAlignFlag(bool fflag){readAlign = fflag;}
   protected:
     
     TClonesArray* fHitArray;  // Input array of PndSdsHits
@@ -47,6 +51,8 @@ class PndLmdHitMergeTask : public FairTask
     PndLmdDim* lmddim;
     TH2* hdxdy;
     TH1* hdz;
+    bool readAlign;
+    TString mtxpath;//path to file(s) with geometry matrix
     ClassDef(PndLmdHitMergeTask,0);
     
   };

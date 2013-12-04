@@ -24,6 +24,8 @@ FairTask("LMD Hit Merging Task")
   fHitBranchName = "LMDHitsPixel";
   hdxdy = new TH2D("hdxdy","; #deltax, #mum; #deltay, #mum",4e2,-100,100,4e2,-100,100);
   hdz = new TH1D("hdz",";#deltaz, #mum",2e3,-1000,1000);
+  mtxpath = "../../input/";
+  readAlign = true;
 }
 
 // -----   Named constructor   -------------------------------------------
@@ -33,7 +35,7 @@ FairTask(name)
   fHitBranchName = "LMDHitsPixel";
   hdxdy = new TH2D("hdxdy","; #deltax, #mum; #deltay, #mum",4e2,-100,100,4e2,-100,100);
   hdz = new TH1D("hdz",";#deltaz, #mum",2e3,-1000,1000);
-
+  readAlign = true;
 }
 
 // -----   Destructor   ----------------------------------------------------
@@ -47,8 +49,12 @@ PndLmdHitMergeTask::~PndLmdHitMergeTask()
 InitStatus PndLmdHitMergeTask::Init()
 {
   lmddim = PndLmdDim::Instance();
-  // lmddim -> Read_transformation_matrices("matrices.txt", true);
-  lmddim -> Read_transformation_matrices("matrices_perfect.txt", false);
+  TString mtx_perfect =   mtxpath+"trafo_matrices_lmd.dat";
+  lmddim -> Read_transformation_matrices(mtx_perfect.Data(), false);
+  if(readAlign){
+    TString mtx_corr =   mtxpath+"matrices_corrected.txt";
+    lmddim -> Read_transformation_matrices(mtx_corr.Data(), true);
+  }
 
   FairRootManager* ioman = FairRootManager::Instance();
   if ( ! ioman )

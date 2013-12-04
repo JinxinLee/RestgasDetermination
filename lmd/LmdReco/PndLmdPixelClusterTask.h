@@ -33,16 +33,15 @@ class PndLmdPixelClusterTask : public PndSdsPixelClusterTask
     void Exec(Option_t* opt);
     FairRun* ana;
     FairRuntimeDb* rtdb;
-    void SetMSflag(bool fflag){flagMS = fflag;};
+    /** Set "alignment consts are known" flag **/
     void SetAlignFlag(bool fflag){readAlign = fflag;}
     InitStatus Init();
-
+    /** Set path to geometry matricies [explicitly needed only in alignment studies!] **/
     void SetMtxPath(TString _path){mtxpath = _path;};
     ClassDef(PndLmdPixelClusterTask,3);
 
  private:
     void FinishEvent();
-    bool flagMS;
     double fPbeam;
     TVector3 AddMSErr(TVector3 hpos, TVector3 hposerr);
     TList* fAlignParamList;

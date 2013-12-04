@@ -21,8 +21,10 @@ PndSdsPixelClusterTask("LMD Clustertisation Task")
   fPersistance = kTRUE;
   fAlignParamList = new TList();
   readAlign = true;
-  flagMS = true;
-  mtxpath = "../../../pandaroot/input/";
+  //flagMS = true;
+  //  mtxpath = "../../../pandaroot/input/";
+  //  mtxpath = "";
+  mtxpath = "../../input/";
   lmddim = NULL;
 }
 // -------------------------------------------------------------------------
@@ -84,7 +86,7 @@ InitStatus PndLmdPixelClusterTask::Init()
 
   if(lmddim!=0 ) lmddim->Cleanup();
   lmddim = PndLmdDim::Instance();
-  SetAlignConst();
+  if(readAlign) SetAlignConst();
 
   fGeoH->SetVerbose(fVerbose);
 
@@ -127,12 +129,11 @@ void PndLmdPixelClusterTask::SetAlignConst(){
   PndLmdAlignPar* lmdalignpar=(PndLmdAlignPar*)alignparams();
   lmddim -> Read_DB_offsets(lmdalignpar);
   //  TString mtx_perfect =  "matrices_perfect.txt";
-  TString mtx_perfect =   mtxpath+"/trafo_matrices_lmd.dat";
-  TString mtx_corr =   mtxpath+"/matrices_corrected.txt";
+  TString mtx_perfect =   mtxpath+"trafo_matrices_lmd.dat";
+  TString mtx_corr =   mtxpath+"matrices_corrected.txt";
   lmddim -> Read_transformation_matrices(mtx_perfect.Data(), false);
   lmddim -> reCreate_transformation_matrices();
   lmddim -> Write_transformation_matrices(mtx_corr.Data(), false);
-
   lmddim -> Read_transformation_matrices(mtx_perfect.Data(), false);
   lmddim -> Read_transformation_matrices(mtx_corr.Data(), true);
 }
@@ -293,15 +294,15 @@ void PndLmdPixelClusterTask::Exec(Option_t* opt)
       hitCov(1,1) = 2.25e-06; //assuming hit resolution for x-y 15 mkm
       hitCov(2,2) = 4.28489999999999954e-08; //assuming hit resolution for z 2.07 mkm NB: isn't used in Trk rec.
 
-      //Add multiple scattering error ---------------
-      if(flagMS){
-	//	TVector3 hitPos = myHit.GetPosition();
-	TVector3 hitErr(sqrt(hitCov[0][0]),sqrt(hitCov[1][1]),sqrt(hitCov[2][2]));
-	TVector3 hitErrMSadd = AddMSErr(hitPos, hitErr);
-	hitCov[0][0] = TMath::Power(hitErrMSadd.X(),2);
-	hitCov[1][1] = TMath::Power(hitErrMSadd.Y(),2);
-	hitCov[2][2] = TMath::Power(hitErrMSadd.Z(),2);
-      }
+      // //Add multiple scattering error ---------------
+      // if(flagMS){
+      // 	//	TVector3 hitPos = myHit.GetPosition();
+      // 	TVector3 hitErr(sqrt(hitCov[0][0]),sqrt(hitCov[1][1]),sqrt(hitCov[2][2]));
+      // 	TVector3 hitErrMSadd = AddMSErr(hitPos, hitErr);
+      // 	hitCov[0][0] = TMath::Power(hitErrMSadd.X(),2);
+      // 	hitCov[1][1] = TMath::Power(hitErrMSadd.Y(),2);
+      // 	hitCov[2][2] = TMath::Power(hitErrMSadd.Z(),2);
+      // }
       // cout<<"!!!!!!!!!"<<endl;
       // hitCov.Print();
       // cout<<"!!!!!!!!!"<<endl;
@@ -313,6 +314,8 @@ void PndLmdPixelClusterTask::Exec(Option_t* opt)
 
       // //Alignment: translate to LMD local (not corrected) frame and back to GLOBAL (corrected) ----------------
       if(readAlign){
+	// cout<<"BEFORE [mis]ALIGN:"<<endl;
+	// myHit.Print();
 	int sensorID = myHit.GetSensorID();
 	int ihalf, iplane, imodule, iside, idie, isensor;
 	lmddim->Get_sensor_by_id(sensorID, ihalf, iplane, imodule, iside, idie, isensor);
@@ -325,6 +328,8 @@ void PndLmdPixelClusterTask::Exec(Option_t* opt)
 	myHit.SetDx(sqrt(hitCov2[0][0]));
 	myHit.SetDy(sqrt(hitCov2[1][1]));
 	myHit.SetDz(sqrt(hitCov2[2][2]));
+	// cout<<"AFTER [mis]ALIGN:"<<endl;
+	// myHit.Print();
       }
       // //Alignment: (END) ---------------------------------------------------------------------------------------   
 
