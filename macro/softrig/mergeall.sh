@@ -140,15 +140,15 @@ case $energy in
 	root -l -b -q '../merge.C("njpsi2","M55_njpsi2.root","M55201*sof.root","M55900*sof.root")'
 
 	# eta_c modes
-	root -l -b -q '../merge.C("netac1","M55_etac1.root","M55220*sof.root","M55900*sof.root")'
-	root -l -b -q '../merge.C("netac2","M55_etac2.root","M55221*sof.root","M55900*sof.root")'
-	root -l -b -q '../merge.C("netac3","M55_etac3.root","M55222*sof.root","M55900*sof.root")'
-	root -l -b -q '../merge.C("netac4","M55_etac4.root","M55223*sof.root","M55900*sof.root")'
+	root -l -b -q '../merge.C("netac1","M55_netac1.root","M55220*sof.root","M55900*sof.root")'
+	root -l -b -q '../merge.C("netac2","M55_netac2.root","M55221*sof.root","M55900*sof.root")'
+	root -l -b -q '../merge.C("netac3","M55_netac3.root","M55222*sof.root","M55900*sof.root")'
+	root -l -b -q '../merge.C("netac4","M55_netac4.root","M55223*sof.root","M55900*sof.root")'
 
 	# chi_c0 modes
-	root -l -b -q '../merge.C("nchic01","M55_chic01.root","M55240*sof.root","M55900*sof.root")'
-	root -l -b -q '../merge.C("nchic02","M55_chic02.root","M55241*sof.root","M55900*sof.root")'
-	root -l -b -q '../merge.C("nchic03","M55_chic03.root","M55242*sof.root","M55900*sof.root")'
+	root -l -b -q '../merge.C("nchic01","M55_nchic01.root","M55240*sof.root","M55900*sof.root")'
+	root -l -b -q '../merge.C("nchic02","M55_nchic02.root","M55241*sof.root","M55900*sof.root")'
+	root -l -b -q '../merge.C("nchic03","M55_nchic03.root","M55242*sof.root","M55900*sof.root")'
 
 	# electro-magnetic modes
 	root -l -b -q '../merge.C("n2e","M55_n2e.root","M55300*sof.root","M55900*sof.root")'
