@@ -933,6 +933,7 @@ int PndSoftTriggerTask::Tag_Phi_KK(RhoTuple *n)
 			
 			Float_t mmiss = (fIniP4-(l[i]->P4())).M();
 			
+			n->Column("ev",  	(Float_t) fEvtCount,	0.0f);
 			n->Column("mode",	(Float_t) fMode,		0.0f);
 			n->Column("mmiss",	(Float_t) mmiss,		0.0f);
 			n->Column("tag", 	(Float_t) tag,			0.0f);
@@ -984,6 +985,7 @@ int PndSoftTriggerTask::Tag_Lambda_ppi(RhoTuple *n)
 			
 			Float_t mmiss = (fIniP4-(l[i]->P4())).M();
 			
+			n->Column("ev",  	(Float_t) fEvtCount,	0.0f);
 			n->Column("mode",	(Float_t) fMode,		0.0f);
 			n->Column("mmiss",	(Float_t) mmiss,		0.0f);
 			n->Column("nsig", 	(Float_t) nsig,			0.0f);
@@ -1032,6 +1034,7 @@ int PndSoftTriggerTask::Tag_Jpsi_2e(RhoTuple *n)
 			
 			Float_t mmiss = (fIniP4-(l[i]->P4())).M();
 			
+			n->Column("ev",  	(Float_t) fEvtCount,	0.0f);
 			n->Column("mode",	(Float_t) fMode,		0.0f);
 			n->Column("mmiss",	(Float_t) mmiss,		0.0f);
 			n->Column("nsig", 	(Float_t) nsig,			0.0f);
@@ -1078,6 +1081,7 @@ int PndSoftTriggerTask::Tag_Jpsi_2mu(RhoTuple *n)
 			
 			Float_t mmiss = (fIniP4-(l[i]->P4())).M();
 			
+			n->Column("ev",  	(Float_t) fEvtCount,	0.0f);
 			n->Column("mode",	(Float_t) fMode,		0.0f);
 			n->Column("mmiss",	(Float_t) mmiss,		0.0f);
 			n->Column("nsig", 	(Float_t) nsig,			0.0f);
@@ -1128,6 +1132,7 @@ int PndSoftTriggerTask::Tag_D0_Kpi(RhoTuple *n)
 			
 			Float_t mmiss = (fIniP4-(l[i]->P4())).M();
 			
+			n->Column("ev",  	(Float_t) fEvtCount,	0.0f);
 			n->Column("mode",	(Float_t) fMode,		0.0f);
 			n->Column("mmiss",	(Float_t) mmiss,		0.0f);
 			n->Column("nsig", 	(Float_t) nsig,			0.0f);
@@ -1178,6 +1183,7 @@ int PndSoftTriggerTask::Tag_D0_Kpipi0(RhoTuple *n)
 			
 			Float_t mmiss = (fIniP4-(l[i]->P4())).M();
 			
+			n->Column("ev",  	(Float_t) fEvtCount,	0.0f);
 			n->Column("mode",	(Float_t) fMode,		0.0f);
 			n->Column("mmiss",	(Float_t) mmiss,		0.0f);
 			n->Column("nsig", 	(Float_t) nsig,			0.0f);
@@ -1228,6 +1234,7 @@ int PndSoftTriggerTask::Tag_D0_K3pi(RhoTuple *n)
 			
 			Float_t mmiss = (fIniP4-(l[i]->P4())).M();
 			
+			n->Column("ev",  	(Float_t) fEvtCount,	0.0f);
 			n->Column("mode",	(Float_t) fMode,		0.0f);
 			n->Column("mmiss",	(Float_t) mmiss,		0.0f);
 			n->Column("nsig", 	(Float_t) nsig,			0.0f);
@@ -1278,6 +1285,7 @@ int PndSoftTriggerTask::Tag_Dpm_Kpipi(RhoTuple *n)
 			
 			Float_t mmiss = (fIniP4-(l[i]->P4())).M();
 			
+			n->Column("ev",  	(Float_t) fEvtCount,	0.0f);
 			n->Column("mode",	(Float_t) fMode,		0.0f);
 			n->Column("mmiss",	(Float_t) mmiss,		0.0f);
 			n->Column("nsig", 	(Float_t) nsig,			0.0f);
@@ -1328,6 +1336,7 @@ int PndSoftTriggerTask::Tag_Dpm_K2pipi0(RhoTuple *n)
 			
 			Float_t mmiss = (fIniP4-(l[i]->P4())).M();
 			
+			n->Column("ev",  	(Float_t) fEvtCount,	0.0f);
 			n->Column("mode",	(Float_t) fMode,		0.0f);
 			n->Column("mmiss",	(Float_t) mmiss,		0.0f);
 			n->Column("nsig", 	(Float_t) nsig,			0.0f);
@@ -1378,6 +1387,7 @@ int PndSoftTriggerTask::Tag_Dpm_Kspipi0(RhoTuple *n)
 			
 			Float_t mmiss = (fIniP4-(l[i]->P4())).M();
 			
+			n->Column("ev",  	(Float_t) fEvtCount,	0.0f);
 			n->Column("mode",	(Float_t) fMode,		0.0f);
 			n->Column("mmiss",	(Float_t) mmiss,		0.0f);
 			n->Column("nsig", 	(Float_t) nsig,			0.0f);
@@ -1428,6 +1438,7 @@ int PndSoftTriggerTask::Tag_Dpm_Ks3pi(RhoTuple *n)
 			
 			Float_t mmiss = (fIniP4-(l[i]->P4())).M();
 			
+			n->Column("ev",  	(Float_t) fEvtCount,	0.0f);
 			n->Column("mode",	(Float_t) fMode,		0.0f);
 			n->Column("mmiss",	(Float_t) mmiss,		0.0f);
 			n->Column("nsig", 	(Float_t) nsig,			0.0f);
@@ -1478,6 +1489,7 @@ int PndSoftTriggerTask::Tag_Ds_KKpi(RhoTuple *n)
 			
 			Float_t mmiss = (fIniP4-(l[i]->P4())).M();
 			
+			n->Column("ev",  	(Float_t) fEvtCount,	0.0f);
 			n->Column("mode",	(Float_t) fMode,		0.0f);
 			n->Column("mmiss",	(Float_t) mmiss,		0.0f);
 			n->Column("nsig", 	(Float_t) nsig,			0.0f);
@@ -1528,6 +1540,7 @@ int PndSoftTriggerTask::Tag_Ds_KKpipi0(RhoTuple *n)
 			
 			Float_t mmiss = (fIniP4-(l[i]->P4())).M();
 			
+			n->Column("ev",  	(Float_t) fEvtCount,	0.0f);
 			n->Column("mode",	(Float_t) fMode,		0.0f);
 			n->Column("mmiss",	(Float_t) mmiss,		0.0f);
 			n->Column("nsig", 	(Float_t) nsig,			0.0f);
@@ -1578,6 +1591,7 @@ int PndSoftTriggerTask::Tag_Lambdac_pKpi(RhoTuple *n)
 			
 			Float_t mmiss = (fIniP4-(l[i]->P4())).M();
 			
+			n->Column("ev",  	(Float_t) fEvtCount,	0.0f);
 			n->Column("mode",	(Float_t) fMode,		0.0f);
 			n->Column("mmiss",	(Float_t) mmiss,		0.0f);
 			n->Column("nsig", 	(Float_t) nsig,			0.0f);
@@ -1625,6 +1639,7 @@ int PndSoftTriggerTask::Tag_Etac_KKpi0(RhoTuple *n)
 			
 			Float_t mmiss = (fIniP4-(l[i]->P4())).M();
 			
+			n->Column("ev",  	(Float_t) fEvtCount,	0.0f);
 			n->Column("mode",	(Float_t) fMode,		0.0f);
 			n->Column("mmiss",	(Float_t) mmiss,		0.0f);
 			n->Column("nsig", 	(Float_t) nsig,			0.0f);
@@ -1673,6 +1688,7 @@ int PndSoftTriggerTask::Tag_Etac_KKspi(RhoTuple *n)
 			
 			Float_t mmiss = (fIniP4-(l[i]->P4())).M();
 			
+			n->Column("ev",  	(Float_t) fEvtCount,	0.0f);
 			n->Column("mode",	(Float_t) fMode,		0.0f);
 			n->Column("mmiss",	(Float_t) mmiss,		0.0f);
 			n->Column("nsig", 	(Float_t) nsig,			0.0f);
@@ -1720,6 +1736,7 @@ int PndSoftTriggerTask::Tag_Etac_etapipi(RhoTuple *n)
 			
 			Float_t mmiss = (fIniP4-(l[i]->P4())).M();
 			
+			n->Column("ev",  	(Float_t) fEvtCount,	0.0f);
 			n->Column("mode",	(Float_t) fMode,		0.0f);
 			n->Column("mmiss",	(Float_t) mmiss,		0.0f);
 			n->Column("nsig", 	(Float_t) nsig,			0.0f);
@@ -1767,6 +1784,7 @@ int PndSoftTriggerTask::Tag_Etac_gg(RhoTuple *n)
 			
 			Float_t mmiss = (fIniP4-(l[i]->P4())).M();
 			
+			n->Column("ev",  	(Float_t) fEvtCount,	0.0f);
 			n->Column("mode",	(Float_t) fMode,		0.0f);
 			n->Column("mmiss",	(Float_t) mmiss,		0.0f);
 			n->Column("nsig", 	(Float_t) nsig,			0.0f);
@@ -1814,6 +1832,7 @@ int PndSoftTriggerTask::Tag_Chic0_2pi2pi0(RhoTuple *n)
 			
 			Float_t mmiss = (fIniP4-(l[i]->P4())).M();
 			
+			n->Column("ev",  	(Float_t) fEvtCount,	0.0f);
 			n->Column("mode",	(Float_t) fMode,		0.0f);
 			n->Column("mmiss",	(Float_t) mmiss,		0.0f);
 			n->Column("nsig", 	(Float_t) nsig,				0.0f);
@@ -1861,6 +1880,7 @@ int PndSoftTriggerTask::Tag_Chic0_4pi(RhoTuple *n)
 			
 			Float_t mmiss = (fIniP4-(l[i]->P4())).M();
 			
+			n->Column("ev",  	(Float_t) fEvtCount,	0.0f);
 			n->Column("mode",	(Float_t) fMode,		0.0f);
 			n->Column("mmiss",	(Float_t) mmiss,		0.0f);
 			n->Column("nsig", 	(Float_t) nsig,				0.0f);
@@ -1908,6 +1928,7 @@ int PndSoftTriggerTask::Tag_Chic0_2pi2K(RhoTuple *n)
 			
 			Float_t mmiss = (fIniP4-(l[i]->P4())).M();
 			
+			n->Column("ev",  	(Float_t) fEvtCount,	0.0f);
 			n->Column("mode",	(Float_t) fMode,		0.0f);
 			n->Column("mmiss",	(Float_t) mmiss,		0.0f);
 			n->Column("nsig", 	  (Float_t) nsig,			0.0f);
@@ -1954,6 +1975,7 @@ int PndSoftTriggerTask::Tag_2e(RhoTuple *n)
 			
 			Float_t mmiss = (fIniP4-(l[i]->P4())).M();
 			
+			n->Column("ev",  	(Float_t) fEvtCount,	0.0f);
 			n->Column("mode",	(Float_t) fMode,		0.0f);
 			n->Column("mmiss",	(Float_t) mmiss,		0.0f);
 			n->Column("nsig", 	(Float_t) nsig,		0.0f);
@@ -2000,6 +2022,7 @@ int PndSoftTriggerTask::Tag_2mu(RhoTuple *n)
 			
 			Float_t mmiss = (fIniP4-(l[i]->P4())).M();
 			
+			n->Column("ev",  	(Float_t) fEvtCount,	0.0f);
 			n->Column("mode",	(Float_t) fMode,		0.0f);
 			n->Column("mmiss",	(Float_t) mmiss,		0.0f);
 			n->Column("nsig", 		(Float_t) nsig,			0.0f);
@@ -2046,6 +2069,7 @@ int PndSoftTriggerTask::Tag_2gam(RhoTuple *n)
 			
 			Float_t mmiss = (fIniP4-(l[i]->P4())).M();
 			
+			n->Column("ev",  	(Float_t) fEvtCount,	0.0f);
 			n->Column("mode",	(Float_t) fMode,		0.0f);
 			n->Column("mmiss",	(Float_t) mmiss,		0.0f);
 			n->Column("nsig", 	(Float_t) nsig,			0.0f);
