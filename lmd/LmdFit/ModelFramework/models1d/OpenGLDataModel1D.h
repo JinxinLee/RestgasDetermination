@@ -9,8 +9,8 @@
 #define OPENGLDATAMODEL1D_H_
 
 #include "Model1D.h"
-#include <GL/gl.h>
-#include <GL/glu.h>
+#include "GL/gl.h"
+#include "GL/glu.h"
 
 class OpenGLDataModel1D: public Model1D {
 private:

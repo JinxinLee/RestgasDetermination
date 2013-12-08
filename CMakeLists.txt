@@ -124,6 +124,19 @@ install(DIRECTORY geometry DESTINATION pnd_install
           PATTERN ".svn" EXCLUDE
           )
 
+
+# Check if the compiler support specific C++11 features
+# Up to now this is only a check since the code does not use
+# any of the features of the new standard
+Set(CheckSrcDir "${CMAKE_SOURCE_DIR}/cmake/checks")
+include(CheckCXX11Features)
+
+IF(HAS_CXX11_SHAREDPOINTER)
+Add_Definitions(-DHAS_SHAREDPOINTER)
+ENDIF(HAS_CXX11_SHAREDPOINTER)
+
+
+
 # Recurse into the given subdirectories.  This does not actually
 # cause another cmake executable to run.  The same process will walk through
 # the project's entire directory structure.

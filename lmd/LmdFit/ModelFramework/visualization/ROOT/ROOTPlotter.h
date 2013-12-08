@@ -11,11 +11,15 @@
 #include "Model.h"
 #include "ModelVisualizationProperties1D.h"
 
+#ifdef HAS_SHAREDPOINTER
+#include <memory>
+using std::shared_ptr;
+#else
 #include <tr1/memory>
+using std::tr1::shared_ptr;
+#endif
 
 class TGraphErrors;
-
-using std::tr1::shared_ptr;
 
 class ROOTPlotter {
 private:

@@ -154,9 +154,12 @@ GENERATE_LIBRARY()
 
 HEADER_DIRECTORIES(MODEL_INCLUDE_DIRECTORIES LmdFit/ModelFramework)
 
+
+
 include_directories(${MODEL_INCLUDE_DIRECTORIES})
 
 include_directories(/usr/X11R6/include/)
+include_directories(/opt/X11/include/)
 link_directories(/usr/X11R6/lib)
 SET(EXTRA_LIBS GL X11 GLU glut)
 

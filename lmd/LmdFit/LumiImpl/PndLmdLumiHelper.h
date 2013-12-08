@@ -17,6 +17,13 @@
 #include <vector>
 #include <map>
 
+#ifdef HAS_SHAREDPOINTER
+using std::shared_ptr;
+#else
+using std::tr1::shared_ptr;
+#endif
+
+
 #include "TString.h"
 #include "TGraphErrors.h"
 #include "TDatabasePDG.h"
@@ -32,7 +39,6 @@ class TVector3;
 class TH1D;
 class TH2D;
 
-using std::tr1::shared_ptr;
 
 /**
  * \brief This class contains a few functions helping the user with some basics.

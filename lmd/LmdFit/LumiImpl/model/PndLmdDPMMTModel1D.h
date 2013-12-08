@@ -10,9 +10,13 @@
 
 #include "Model1D.h"
 
+#ifdef HAS_SHAREDPOINTER
+#include <memory>
+using std::shared_ptr;
+#else
 #include <tr1/memory>
-
 using std::tr1::shared_ptr;
+#endif
 
 /**
  * \brief This class is the base of lumi models such as #PndLmdLumiModelROOT and #PndLmdLumiModelRooFit which can be fitted to #PndLmdData objects.

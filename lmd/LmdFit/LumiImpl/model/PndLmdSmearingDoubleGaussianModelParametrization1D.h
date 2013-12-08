@@ -8,12 +8,17 @@
 #ifndef PNDLMDSMEARINGDOUBLEGAUSSIANMODELPARAMETRIZATION1D_H_
 #define PNDLMDSMEARINGDOUBLEGAUSSIANMODELPARAMETRIZATION1D_H_
 
+#ifdef HAS_SHAREDPOINTER
+#include <memory>
+using std::shared_ptr;
+#else
 #include <tr1/memory>
+using std::tr1::shared_ptr;
+#endif
 
 class Model1D;
 class ModelPar;
 
-using std::tr1::shared_ptr;
 
 class PndLmdSmearingDoubleGaussianModelParametrization1D {
 private:

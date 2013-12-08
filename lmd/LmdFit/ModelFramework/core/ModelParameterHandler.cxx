@@ -152,7 +152,7 @@ ParametrizationProxy ModelParameterHandler::getParametrizationProxyForModelParam
 }
 
 void ModelParameterHandler::executeParametrizationModels(const double *x) {
-	for (std::map<shared_ptr<ModelPar>, ParametrizationProxy>::iterator it =
+/*	for (std::map<shared_ptr<ModelPar>, ParametrizationProxy>::iterator it =
 			parametrizations.begin(); it != parametrizations.end(); it++) {
 		if (it->second.hasParametrizationModel()) {
 			// if the model parameter is freed do NOT call the parametrization model
@@ -162,17 +162,18 @@ void ModelParameterHandler::executeParametrizationModels(const double *x) {
 			}
 		}
 	}
+*/
 }
 
 void ModelParameterHandler::updateModelParameters() {
 	// loop over all registered updater parametrizations which
 	// adjust the dependent parameters
-	for (std::map<shared_ptr<ModelPar>, ParametrizationProxy>::iterator it =
+	/*for (std::map<shared_ptr<ModelPar>, ParametrizationProxy>::iterator it =
 			parametrizations.begin(); it != parametrizations.end(); it++) {
 		if (it->second.hasParametrization()) {
 			it->second.getParametrization()->parametrize();
 		}
-	}
+	}*/
 }
 
 void ModelParameterHandler::initModelParametersFromFitResult(

@@ -9,14 +9,23 @@
 #define PARAMETRIZATIONMODEL_H_
 
 //#include <boost/shared_ptr.hpp>
+//#include <tr1/memory>
+
+#ifdef HAS_SHAREDPOINTER
+#include <memory>
+using std::shared_ptr;
+#else
 #include <tr1/memory>
+using std::tr1::shared_ptr;
+#endif
+
 
 class Model;
 class ModelPar;
 class ModelParSet;
 
 //using boost::shared_ptr;
-using std::tr1::shared_ptr;
+//using std::tr1::shared_ptr;
 //using std::shared_ptr;
 
 /**

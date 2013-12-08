@@ -8,13 +8,17 @@
 #ifndef ROOTDATAHELPER_H_
 #define ROOTDATAHELPER_H_
 
+
+#ifdef HAS_SHAREDPOINTER
+#include <memory>
+using std::shared_ptr;
+#else
 #include <tr1/memory>
+using std::tr1::shared_ptr;
+#endif
 
 class TH1D;
 class TGraphErrors;
-
-using std::tr1::shared_ptr;
-
 class Data;
 
 class ROOTDataHelper {
