@@ -22,7 +22,7 @@ path=${VMCWORKDIR}/macro/lmd/Anastasia/tests/DPM_dec2013/testDPMstandAlone/mom_$
 mkdir -p ${path}
 
 #number of events
-numEv=2000
+numEv=20
 
 
 # #simulation with DPM
