@@ -1,5 +1,5 @@
 // Lmd DPM Sim macro
-void runLumiPixel0SimDPM(const int nEvents=10, const int startEvent=0, const double mom=15, TString input, TString storePath="tmpOutputDPM", 
+void runLumiPixel0SimDPM(const int nEvents=10, const int startEvent=0, const double mom=15, TString input="tmp", TString storePath="tmpOutputDPM", 
 const double beam_X0 =0.0, const double beam_Y0 =0.0, const double beam_width_sigma_X =0.0, const double beam_width_sigma_Y =0.0, // beam offset and smearing parameters
 const double beam_grad_X =0.0, const double beam_grad_Y =0.0, const double beam_grad_sigma_X =0.0, const double beam_grad_sigma_Y =0.0, // beam gradiant parameters
 const int verboseLevel=0)

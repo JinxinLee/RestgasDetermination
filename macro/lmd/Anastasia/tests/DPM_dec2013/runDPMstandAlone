@@ -22,15 +22,16 @@ path=${VMCWORKDIR}/macro/lmd/Anastasia/tests/DPM_dec2013/testDPMstandAlone/mom_$
 mkdir -p ${path}
 
 #number of events
-numEv=10000
+numEv=2000
 
 
 # #simulation with DPM
 cd ${VMCWORKDIR}/pgenerators/DpmEvtGen/
 # ## !el+inel
  modeDPM=2 #el
- ./DPMGen -e ${modeDPM} -t 0.12 -s 3562 -m ${pbeam} -n $numEv -f ${path}/DPM_all_${momStr}_0.root &> ${path}/logDPM_standalone
+ ./DPMGen -e ${modeDPM} -t 0.12 -s 37562 -m ${pbeam} -n $numEv -f ${path}/DPM_all_${momStr}_0.root &> ${path}/logDPM_standalone
 
-cd ${VMCWORKDIR}/macro/lmd/Anastasia/tests/DPM_sep2013/
+#cd ${VMCWORKDIR}/macro/lmd/Anastasia/tests/DPM_sep2013/
+cd ${VMCWORKDIR}/macro/lmd/Anastasia/tests/DPM_dec2013
  root -l -b -q runLumiPixel0SimDPM.C\(${numEv},0,${pbeam},"\"${path}/DPM_all_${momStr}_0.root\"","\"${path}\""\)
-   root -l -b -q read_lmd_MC.C\("\"${path}\""\)
+ root -l -b -q read_lmd_MC.C\("\"${path}\""\)

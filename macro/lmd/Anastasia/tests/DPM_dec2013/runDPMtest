@@ -15,10 +15,10 @@ momStr=`echo $pbeam | sed -e '{ s/\./_/g; }'`
 path=${VMCWORKDIR}/macro/lmd/Anastasia/tests/DPM_dec2013/testDPMDirect/mom_${momStr}/
 mkdir -p ${path}
 #number of events
-numEv=10000
+numEv=1000
 
 # #simulation with DPM
 #   modeDPM=1 #el+inel
     modeDPM=2 #el
-    root -l -b -q runLumiPixel0SimDPMDirect.C\(${numEv},0,${pbeam},"\"${path}\"",0,3562,$modeDPM,0.12\)
+    root -l -b -q runLumiPixel0SimDPMDirect.C\(${numEv},0,${pbeam},"\"${path}\"",0,37562,${modeDPM},0.12\) &> ${path}/logDPM_direct
     root -l -b -q read_lmd_MC.C\("\"${path}\""\)
