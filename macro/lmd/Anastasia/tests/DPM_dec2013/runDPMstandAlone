@@ -1,0 +1,36 @@
+#!/bin/bash 
+################################################################
+## script for running sim&rec for LMD with BOX generarot
+## [with pixels sensors set-up!]
+## 13/11/2012 1st version
+## 06/09/2013 updated version
+## A.Karavdina
+################################################################
+# echo Enter momentum from "1.5, 4.06, 8.9, 11.91, 15 [GeV/c]":
+# read mom
+# echo "Beam mometum is: $mom!"
+# cd ${VMCWORKDIR}/macro/lmd/
+# pbeam=$mom
+
+mom=1.5
+cd ${VMCWORKDIR}/macro/lmd/Anastasia/tests/DPM_dec2013
+pbeam=$mom
+
+
+momStr=`echo $pbeam | sed -e '{ s/\./_/g; }'`
+path=${VMCWORKDIR}/macro/lmd/Anastasia/tests/DPM_dec2013/testDPMstandAlone/mom_${momStr}/
+mkdir -p ${path}
+
+#number of events
+numEv=10000
+
+
+# #simulation with DPM
+cd ${VMCWORKDIR}/pgenerators/DpmEvtGen/
+# ## !el+inel
+ modeDPM=2 #el
+ ./DPMGen -e ${modeDPM} -t 0.12 -s 3562 -m ${pbeam} -n $numEv -f ${path}/DPM_all_${momStr}_0.root &> ${path}/logDPM_standalone
+
+cd ${VMCWORKDIR}/macro/lmd/Anastasia/tests/DPM_sep2013/
+ root -l -b -q runLumiPixel0SimDPM.C\(${numEv},0,${pbeam},"\"${path}/DPM_all_${momStr}_0.root\"","\"${path}\""\)
+   root -l -b -q read_lmd_MC.C\("\"${path}\""\)

@@ -1,7 +1,9 @@
-void read_lmd_MC(){
-  TFile *fin = new TFile("testDPM/mom_1_5/Lumi_MC_0.root","READ");
+void read_lmd_MC(TString path="testDPM/mom_1_5/"){
+  TString name = path+"/Lumi_MC_0.root";
+  TFile *fin = new TFile(name,"READ");
   TTree *pndtree =(TTree*)fin->Get("cbmsim");
   TCanvas c1;
   cbmsim->Draw("MCTrack.GetMomentum().Theta()");
-  c1.SaveAs("testDPM/mom_1_5/MCtheta.pdf");
+  TString namef = path+"/MCtheta.pdf";
+  c1.SaveAs(namef);
 }
