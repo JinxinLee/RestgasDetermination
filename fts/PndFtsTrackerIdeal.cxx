@@ -244,8 +244,10 @@ void PndFtsTrackerIdeal::Exec(Option_t * option)
 		if(0==iDet){ // only needed after PndTrkCand contain only FTS hits
 			if(fVerbose>5) Info("Exec","Remove all PndTrkCand which are not realistic to be found by FTS Pattern Recognition");
 
-			// re-iterate over candlist and remove PndTrkCand which are not realisitic to be found by FTS PR
+			// re-iterate over candlist and save key values for PndTrkCand which are not realisitic to be found by FTS PR in a vector
+			// these will be deleted after the clean loop
 			std::map<Int_t, PndTrackCand*>::iterator  candit;
+			std::vector<Int_t> keysToDeleteFromCandList;
 
 			if(fVerbose>10){
 						cout << "print the map keys BEFORE cleaning\n";
@@ -263,10 +265,11 @@ void PndFtsTrackerIdeal::Exec(Option_t * option)
 					continue;
 				}
 				// remove tcand if it does not have enough hits from FTS (after run with iDet == 0 only FTS hits are filled)
-				if( tcand->GetNHits() < 5 ){
-					if(fVerbose>9) Info("Exec","Delete candlist[trackID] because it does not have enough FTS hits for trackID == ", trackID);
-					// delete candlist[trackID] check if this works
-					candlist.erase(trackID);
+				if( tcand->GetNHits() < 5 ){ // TODO: Make this criterion more realistic
+					if(fVerbose>9){
+						Info("Exec","Mark candlist[%i] for deletion because it has only %i FTS hits which is not enough.", trackID, tcand->GetNHits());
+					}
+					keysToDeleteFromCandList.push_back(trackID);
 					continue;
 				}
 
@@ -278,11 +281,11 @@ void PndFtsTrackerIdeal::Exec(Option_t * option)
 				Double_t lastz = -100.; // saves the z-position of the last hit
 				for( Int_t iSortedHit=0; iSortedHit<tcand->GetNHits(); ++iSortedHit ) {
 					// TODO: This needs to be checked
-					if(fVerbose>9) Info("Exec","Look at hit iSortedHit == ", iSortedHit);
+					if(fVerbose>11) Info("Exec","Look at hit iSortedHit == %i", iSortedHit);
 					PndTrackCandHit candhit = tcand->GetSortedHit(iSortedHit);
 					Int_t hitID = candhit.GetHitId();
 					Int_t detID = candhit.GetDetId();
-					if(fVerbose > 9) {
+					if(fVerbose > 11) {
 						cout << "PndFtsTrackerIdeal at cleaning loop\n";
 						cout << "candhit = " << candhit << endl;
 						cout << "hitID = " << hitID << endl;
@@ -306,10 +309,12 @@ void PndFtsTrackerIdeal::Exec(Option_t * option)
 
 								// determine if z-coordinates are increasing
 								if ( pnt->GetZ() < lastz ){
-									if(fVerbose>9) Info("Exec","Delete candlist[trackID] because it turns around in the dipole field for trackID == ", trackID);
+									if(fVerbose>9){
+										Info("Exec","Mark candlist[%i] for deletion because the track turns around in the dipole field (its time-sorted hits have decreasing z values at some point).", trackID);
+									}
 									// delete candlist[trackID] check if this works
-									candlist.erase(trackID);
-									continue;
+									keysToDeleteFromCandList.push_back(trackID);
+									break; // do not look at further hits from that track, look at next track
 								}
 								else {
 									lastz = pnt->GetZ();
@@ -320,10 +325,19 @@ void PndFtsTrackerIdeal::Exec(Option_t * option)
 
 
 
-				}
-				if(fVerbose>3) Info("Exec","Store candidate at %i",trackID);
+				} // sorted hit loop
+				if(fVerbose>3) Info("Exec","Ended cleaning loop for candidate with trackID %i",trackID);
 			} // for candidate cleaning loop
 
+
+			// now delete all keys from candlist that have previously been saved in the vector keysToDeleteFromCandList
+			for (Int_t iKey=0; iKey<keysToDeleteFromCandList.size(); ++iKey){
+				if(fVerbose>10){
+					std::cout << "Delete key " << keysToDeleteFromCandList[iKey] << std::endl;
+				}
+				candlist.erase(keysToDeleteFromCandList[iKey]);
+			}
+			keysToDeleteFromCandList.clear();
 
 			if(fVerbose>10){
 				cout << "print the map keys AFTER cleaning\n";
@@ -354,7 +368,7 @@ void PndFtsTrackerIdeal::Exec(Option_t * option)
 			if(fVerbose>3) Warning("Exec","Have no candidate at %i",trackID);
 			continue;
 		}
-		if( tcand->GetNHits() < 3 ) continue;
+		if( tcand->GetNHits() < 3 ) continue; // Here the total number of hits in the candidate are considered, not just the FTS hits. TODO This is obsolete now that I require at least 5 hits in the FTS.
 		if(0 < fEfficiency && fEfficiency < 1){
 			if(gRandom->Rndm() > fEfficiency) continue;
 		}

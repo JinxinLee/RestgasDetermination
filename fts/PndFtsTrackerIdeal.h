@@ -1,11 +1,14 @@
 // *************************************************************************
-// Author: Ralf Kliemt ralf.kliemt(at)hiskp(dot)uni-bonn(dot)de
-//   
+// Original author: Ralf Kliemt ralf.kliemt(at)hiskp(dot)uni-bonn(dot)de
+// Maintainer: Martin Galuska martin (dot) galuska <at> physik {dot} uni (minus) giessen <dot> de
+//
 // ideal tracker using MC id & track info
 // gaussian momentum smearing & fake efficiency included
+// removed tracks that have less than 5 hits in the FTS (TODO a more realistic criterion is needed)
+// removed tracks that turn around in the dipole field (because of fitter problems)
 //
 // Created: 28.01.2011
-// Modified:
+// Last modification: 12.12.2013
 //
 // *************************************************************************
 
