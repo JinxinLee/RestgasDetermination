@@ -133,7 +133,7 @@ prod_sim(TString outpre="", Int_t nEvents = 100, TString Decfile="pp_Jpsi2pi_Jps
   fRun->AddModule(FTof);
   //-------------------------  RICH       ----------------
   FairDetector *Rich= new PndRich("RICH",kFALSE);
-  Rich->SetGeometryFileName("rich_v2.geo");
+  Rich->SetGeometryFileName("rich_v2_shift.geo");
   fRun->AddModule(Rich);
 
   // Create and Set Event Generator

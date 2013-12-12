@@ -129,7 +129,7 @@ prod_sim_pgun(TString outpre="", Int_t nEvents = 100, int PdgType=13, Float_t mo
   fRun->AddModule(FTof);
   //-------------------------  RICH       ----------------
   FairDetector *Rich= new PndRich("RICH",kFALSE);
-  Rich->SetGeometryFileName("rich_v2.geo");
+  Rich->SetGeometryFileName("rich_v2_shift.geo");
   fRun->AddModule(Rich);
 
   // Create and Set Event Generator
