@@ -141,31 +141,31 @@ void PndDrcHitProducerIdeal::Exec(Option_t* option)
     }
 
     if (pt->GetThetaC() != -1. && beta > 1/1.47){  
-    fDetectorID = pt->GetBarId();
+      fDetectorID = pt->GetBoxId()*10 + pt->GetBarId();
   
-    TGeoNode *dircNode = (TGeoNode*)gGeoManager->FindNode(pt->GetX(), pt->GetY(), pt->GetZ()); 
-    TGeoMatrix *dircMat = (TGeoMatrix*)gGeoManager->GetCurrentMatrix();
-    const Double_t *dircPos = dircMat->GetTranslation();
-    fPosHit.SetXYZ(dircPos[0], dircPos[1], dircPos[2]);
+      TGeoNode *dircNode = (TGeoNode*)gGeoManager->FindNode(pt->GetX(), pt->GetY(), pt->GetZ()); 
+      TGeoMatrix *dircMat = (TGeoMatrix*)gGeoManager->GetCurrentMatrix();
+      const Double_t *dircPos = dircMat->GetTranslation();
+      fPosHit.SetXYZ(dircPos[0], dircPos[1], dircPos[2]);
     
-    Double_t fDPosXHit = 0.5; //mm
-    Double_t fDPosYHit = 0.5;
-    Double_t fDPosZHit = 0.;
-    fDPosHit.SetXYZ(fDPosXHit,fDPosYHit,fDPosZHit);
+      Double_t fDPosXHit = 0.5; //mm
+      Double_t fDPosYHit = 0.5;
+      Double_t fDPosZHit = 0.;
+      fDPosHit.SetXYZ(fDPosXHit,fDPosYHit,fDPosZHit);
 
-    fThetaC = gRandom->Gaus(pt->GetThetaC(),0.003);
-    fErrThetaC = 0.; //rad
+      fThetaC = gRandom->Gaus(pt->GetThetaC(),0.003);
+      fErrThetaC = 0.; //rad
 
-    fRefIndex = j;
+      fRefIndex = j;
 
-   // PndMCTrack* tr = NULL;
+      // PndMCTrack* tr = NULL;
 
-    AddHit(fDetectorID, fDetectorID, 
-	   fPosHit, 
-	   fDPosHit,
-	   fThetaC,
-	   fErrThetaC,
-	   fRefIndex);
+      AddHit(fDetectorID, fDetectorID, 
+	     fPosHit, 
+	     fDPosHit,
+	     fThetaC,
+	     fErrThetaC,
+	     fRefIndex);
     }
   }
 }
