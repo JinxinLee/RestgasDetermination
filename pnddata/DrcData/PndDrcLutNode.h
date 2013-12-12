@@ -24,15 +24,14 @@ public:
 
   // Standard constructors
   PndDrcLutNode (Int_t detectorId);
-  PndDrcLutNode (Int_t detectorId, TVector3 dir); 
 
   // Copy constructor 
   PndDrcLutNode (PndDrcLutNode& node) { *this = node; }  
 
   // Modifiers
-  void AddEntry(TVector3 dir);
-  void AddEntry(Int_t nodeId, TVector3 dir, Double_t pathid, Double_t time);
-  
+  void AddEntry(Int_t nodeId, TVector3 dir, Double_t pathid, Double_t time, TVector3 pos);
+  void SetPos(TVector3 pos){fNodePos = pos;}
+
   // Accessors
   Int_t Entries() { return fSize; }
   Double_t GetDetectorId() { return fDetectorId; }
@@ -40,13 +39,14 @@ public:
   TVector3 GetEntry(Int_t entry) { return fNodeArray[entry]; }
   Double_t GetPathId(Int_t entry){ return fPathIdArray[entry]; }
   Double_t GetTime(Int_t entry){ return fTimeArray[entry]; }
-
+  TVector3 GetPos(){ return fNodePos; }
 
 protected:
 
   Int_t fDetectorId;
   Int_t fSize;
-  
+  TVector3 fNodePos;
+
   std::vector<TVector3> fNodeArray;
   std::vector<Double_t> fPathIdArray;
   std::vector<Double_t> fTimeArray;

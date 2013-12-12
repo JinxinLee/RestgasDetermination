@@ -141,9 +141,14 @@ void PndDrcLutFill::Exec(Option_t* option)
 //--------------Process Photon Hits-----------------------------------------
 void PndDrcLutFill::ProcessPhotonHit()
 {
+  // LUT was generated for:
+  Int_t  lutboxId=3;
+  Double_t  lutboxPhi=10.825;
+
   Int_t nofChPho = 0;
   Double_t id, barPhi;
-  TVector3 dir, dirm, vec,posInBar;
+  TVector3 dir, dirm, vec, posInBar;
+
   // Loop over PndDrcPDHits
   for(Int_t k=0; k<fPDHitArray->GetEntriesFast(); k++) {
    
@@ -153,6 +158,8 @@ void PndDrcLutFill::ProcessPhotonHit()
     fDigi = (PndDrcDigi*) fDigiArray->At(digiID);
 
     Int_t pointID= fDigi->GetIndex(0);
+    std::cout<<"pointID "<<pointID <<std::endl;
+    
     fPDPoint = (PndDrcPDPoint*)fPDPointArray->At(pointID);
     fBarPoint= (PndDrcBarPoint*)fBarPointArray->At(fPDPoint->GetBarPointID());
     Int_t barId = fBarPoint->GetBarId();
@@ -176,10 +183,13 @@ void PndDrcLutFill::ProcessPhotonHit()
     
     fMCTrack = (PndMCTrack*)fMCArray->At(trackID);
     dir =  fMCTrack->GetMomentum().Unit();
+    dir.RotateZ(-lutboxPhi/180.*TMath::Pi());
 
     Int_t sensorId = fDigi->GetSensorId();
-    if(sensorId>30000) {
-      std::cout<<"WTQ  fPDHit->GetDetectorID()   "<<fPDHit->GetDetectorID() <<std::endl;
+    // sensorId =  (sensorId/100 + lutboxId*17)*100 + sensorId%100; 
+ 
+    if(sensorId>30000 || sensorId<0) {
+      std::cout<<"WTQ  fPDHit->GetDetectorID()   "<<sensorId <<std::endl;
       continue;
     }
 
@@ -215,7 +225,7 @@ void PndDrcLutFill::ProcessPhotonHit()
     // //======================
 
 
-    ((PndDrcLutNode*)(fLut[barId]->At(sensorId)))->AddEntry(fDigi->GetDetectorId(), dir,id,time);
+    ((PndDrcLutNode*)(fLut[barId]->At(sensorId)))->AddEntry(fDigi->GetDetectorId(), dir,id,time,fPDHit->GetPosition());
   }
 }
 

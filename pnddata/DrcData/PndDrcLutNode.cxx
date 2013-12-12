@@ -22,21 +22,11 @@ PndDrcLutNode::PndDrcLutNode(Int_t nodeId)
   fSize = 0;
 }
 
-PndDrcLutNode::PndDrcLutNode(Int_t detectorId, TVector3 dir)
-{  
-  fDetectorId = detectorId;
-  AddEntry(dir);
-}
-
-void PndDrcLutNode::AddEntry(TVector3 dir) {
-  fNodeArray.push_back(dir);
-  fSize++;
-}
-
-void PndDrcLutNode::AddEntry(Int_t detectorId, TVector3 dir, Double_t pathid, Double_t time) {
+void PndDrcLutNode::AddEntry(Int_t detectorId, TVector3 dir, Double_t pathid, Double_t time, TVector3 pos) {
   fDetectorId = detectorId; 
   fNodeArray.push_back(dir);
   fPathIdArray.push_back(pathid);
   fTimeArray.push_back(time);
+  fNodePos = pos;
   fSize++;
 }
