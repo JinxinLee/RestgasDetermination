@@ -31,10 +31,11 @@
 #pragma link C++ class PndAnaPidSelector+;
 #pragma link C++ class PndAnaContFact+;
 #pragma link C++ class PndAnaSelectorPar+;
-#pragma link C++ class PndGoodTrackSelector;
-#pragma link C++ class PndEventShape;
-#pragma link C++ class PndAnaCovTool;
-#pragma link C++ class PndRhoTupleQA;
+#pragma link C++ class PndGoodTrackSelector+;
+#pragma link C++ class PndEventShape+;
+#pragma link C++ class PndAnaCovTool+;
+#pragma link C++ class PndRhoTupleQA+;
+#pragma link C++ class PndParticleQATask+;
 
 
 #pragma link C++ class  CStrTok+;

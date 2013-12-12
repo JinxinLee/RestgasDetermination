@@ -52,6 +52,7 @@ PndGoodTrackSelector.cxx
 PndEventShape.cxx
 PndAnaCovTool.cxx
 PndRhoTupleQA.cxx
+PndParticleQATask.cxx
 #Fitter/PndVtxFitterParticle.cxx
 #Fitter/PndVtxFitter_Init.cxx
 #Fitter/PndVtxFitterError.cxx
