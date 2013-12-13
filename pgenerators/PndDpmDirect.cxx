@@ -36,7 +36,7 @@ extern "C" {
 }
 
 extern "C" int init1_(float* Plab, double* seed, float* Elastic, float* tetmin );//install DPM 
-extern "C" int dpm_gen__(float* Generator, double* seed ); //to generate events
+extern "C" int dpm_gen_(float* Generator, double* seed ); //to generate events
 
 TF1 	 * fDensityFunction;
 
@@ -138,7 +138,7 @@ Bool_t PndDpmDirect::ReadEvent(FairPrimaryGenerator* primGen) {
   Int_t activeCnt=0;
 
   // run generator
-	dpm_gen__(&Generator, &fSeed);
+	dpm_gen_(&Generator, &fSeed);
   
 	// Loop over all produced particles 
    npart = lujets_.n;
