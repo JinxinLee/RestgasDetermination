@@ -8,6 +8,19 @@ res="pbarpSystem0"
 
 sig=1
 
+if [ $# -lt 4 ]; then
+  echo -e "\nPerforms simulation of EvtGen or DPM events.\n"
+  echo -e "USAGE: ./runall_prod.sh <prefix> <nevts> <dec-file> <pbar-mom> <init. resonance>\n"
+  echo -e " <prefix>    : Prefix of output files"
+  echo -e " <nevts>     : Number of events to be simulated"
+  echo -e " <dec-file>  : Name of EvtGen decay file. Keyword 'DPM' instead runs DPM events"
+  echo -e " <pbar-mom>  : Momentum of pbar-beam"
+  echo -e " <resonance> : Initial resonance in decay-file. Skipped for DPM simulation\n"
+  echo -e "Creates output files: <prefix>_sim.root, <prefix>_par.root, <prefix>_dig.root, <prefix>_rec.root, <prefix>_pid.root"
+  echo -e "and corresponding log files.\n"
+  exit 1
+fi
+
 if test "$1" != ""; then
   prefix=$1
 fi
