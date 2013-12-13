@@ -1,0 +1,4 @@
+get rid from double underscore, it's required changes in:
+$pandaroot/pgenerators/DpmEvtGen/main.cc
+$pandaroot/pgenerators/DpmEvtGen/CMakeLists.txt
+$pandaroot/pgenerators/PndDpmDirect.cxx
