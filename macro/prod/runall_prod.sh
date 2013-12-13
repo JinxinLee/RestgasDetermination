@@ -45,7 +45,7 @@ if test "$dec" == "DPM"; then
   sig=0
 fi
 
-outprefix="data/M"$prefix
+outprefix="data/"$prefix
 
 root -l -q -b -w prod_sim.C\(\"$outprefix\",$nEvts,\"$dec\",$mom,\"$res\"\) &> $outprefix"_sim.log"
 root -l -b -q -w prod_dig.C\(\"$outprefix\"\) &> $outprefix"_dig.log"

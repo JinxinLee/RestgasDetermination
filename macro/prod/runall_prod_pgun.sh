@@ -40,7 +40,7 @@ if test "$5" != ""; then
   mult=$5
 fi
 
-outprefix="data/M"$prefix
+outprefix="data/"$prefix
 
 root -l -q -b -w prod_sim_pgun.C\(\"$outprefix\",$nEvts,$pdg,$mom,$mult\) &> $outprefix"_sim.log"
 root -l -b -q -w prod_dig.C\(\"$outprefix\"\) &> $outprefix"_dig.log"
