@@ -177,7 +177,7 @@ void PndDrcHitProducerReal::ProcessBarPoint()
     }
 
     if (pt->GetThetaC() != -1. && beta > 1/1.47){  
-    fDetectorID = pt->GetBarId();
+      fDetectorID = pt->GetBoxId()*10 + pt->GetBarId();
   
     // calculate the center of the bars from the detectorID
     Int_t s = (fDetectorID /10);// correction DD
