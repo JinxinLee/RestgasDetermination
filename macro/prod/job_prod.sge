@@ -52,11 +52,13 @@ root -l -b -q -w $hera"/"prod_pid.C\(\"$outprefix\"\) &> $outprefix"_pid.log"
 
 
 # Move the data to the persistent storage
-cp -v $TMPDIR/M*_pid.root $_target 
-cp -v $TMPDIR/M*_sim.log $_target 
-cp -v $TMPDIR/M*_pid.log $_target 
+cp -v $TMPDIR/M*root $_target 
+cp -v $TMPDIR/M*log $_target 
+
 # Evacuate the log-file
 cp -v $SGE_STDOUT_PATH $_target/$JOB_ID.log
+
+# Clean up
 rm $TMPDIR/M*root
 rm $TMPDIR/M*log
 rm $TMPDIR/Fair*root
