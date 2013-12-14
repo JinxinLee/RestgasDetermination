@@ -31,7 +31,7 @@
 // B E F O R E   R U N N I N G   T H E   P R O G R A M   C H E C K   T H E   N A M E   O F   T H E   O U T P U T   F I L E ! ! ! 
 const Double_t pi =  4.*atan(1.);
 
-void createdirc(Int_t fGeomType = 3, Int_t fFocusingSystem = 0, Int_t iter=0, TString geomPath=".", Double_t par1=-100, Double_t par2=-100, Double_t par3=-100, Double_t par4=-100, Double_t par5=-100, Double_t par6=-100, Double_t par7=-100, Double_t par8=-100, Double_t par9=-100){ 
+void createdirc(Int_t fGeomType = 1, Int_t fFocusingSystem = 6, Int_t iter=0, TString geomPath=".", Double_t par1=-100, Double_t par2=-100, Double_t par3=-100, Double_t par4=-100, Double_t par5=-100, Double_t par6=-100, Double_t par7=-100, Double_t par8=-100, Double_t par9=-100){ 
 
   { // initialization 
     gROOT->Macro("$VMCWORKDIR/gconfig/rootlogon.C");
@@ -64,7 +64,7 @@ void createdirc(Int_t fGeomType = 3, Int_t fFocusingSystem = 0, Int_t iter=0, TS
     Double_t bbnum        	=  fGeo->BBoxNum();	  //16. total number of sides = barboxes
     Double_t bbGapAngle        	=  fGeo->BBoxGap();	  //1.5 gap btw the neighboring barboxes (at the middle height)
     Double_t pipehAngle   	=  fGeo->PipehAngle();	  //3.6 [degrees] half of the angular space needed for the target pipe
-    Double_t barWin_hthick	=  0; //0.1/2.;		  // [cm]=15um thickness of the 'glas' window at the readout end of the barbox;
+    Double_t barWin_hthick	=  0.001/2.; //0.1/2.;		  // [cm]=15um thickness of the 'glas' window at the readout end of the barbox;
     Double_t phi0 		= (180.-2.*pipehAngle)/bbnum + pipehAngle;
     Double_t dphi 		= (180.-2.*pipehAngle)/bbnum*2.;
     Double_t dphi_rad 		= dphi/180.*pi;
@@ -671,11 +671,11 @@ void createdirc(Int_t fGeomType = 3, Int_t fFocusingSystem = 0, Int_t iter=0, TS
     shape->DefineSection(4, bbox_zup - sob_len, radiusMiddleSmall-1, sob_Rout+poffset+pheight+EVoffset+1.);
     shape->DefineSection(5, bbox_zup - sob_len - 2*PDbaseLayer - 2*sum +zzev  , radiusMiddleSmall-1, sob_Rout+poffset+pheight+EVoffset+1.);
   }
-  vLocalMother = new TGeoVolume("BarrelDIRC", shape, gGeoManager->GetMedium("DIRCairNoSens"));
+  vLocalMother = new TGeoVolume("BarrelDIRC", shape, gGeoManager->GetMedium("air"));
   top->AddNode(vLocalMother, 0,0);
 
 
-  Double_t entransewidth =len+barWin_hthick+EVgreaseLayer ;
+  Double_t entransewidth =len+barWin_hthick+EVgreaseLayer;
   cout<<"entrance width = "<<entransewidth<<endl;
   double aw = bbox_hlen+entransewidth;
 
@@ -822,6 +822,7 @@ void createdirc(Int_t fGeomType = 3, Int_t fFocusingSystem = 0, Int_t iter=0, TS
   { // Expansion volume:
 
     TGeoPgon* logicEV1, * logicEV2, *logicEV3, * logicEV4; 
+    TGeoPgon* logicEV1c, * logicEV2c, *logicEV3c, * logicEV4c; 
     TGeoPgon* logicEV1s, * logicEV2s, *logicEV3s, * logicEV4s;
     TGeoPgon* logicEV1b, * logicEV2b, *logicEV3b, * logicEV4b;
 
@@ -876,6 +877,7 @@ void createdirc(Int_t fGeomType = 3, Int_t fFocusingSystem = 0, Int_t iter=0, TS
     
     double btilt=(par5==-100)? 0 : par5*pi/180.;
     double fixvisual = 0.000001;
+    double coverthickness = 0.05;
     switch(fGeomType){
     case 1:
       {
@@ -892,6 +894,20 @@ void createdirc(Int_t fGeomType = 3, Int_t fFocusingSystem = 0, Int_t iter=0, TS
 	  logicEV4 = new TGeoPgon("logicEV4", -90 - pipehAngle-fixvisual, 2*(pipehAngle+fixvisual), 1, 2);
 	  logicEV4->DefineSection(0, 0.,      (radiusMiddleSmall+sob_len*tan(btilt))*cosFactor1,  (sob_Rout+sob_len*tan(btilt))*cosFactor1);
 	  logicEV4->DefineSection(1, sob_len, (radiusMiddleSmall)*cosFactor1,  (radius+hthick+boxgap+boxthick+EVoffset)*cosFactor1);
+
+	  logicEV1c = new TGeoPgon("logicEV1c",  90 + pipehAngle, 180 - 2.*pipehAngle, bbnum/2, 2);
+	  logicEV1c->DefineSection(0, 0.,      radiusMiddleSmall+sob_len*tan(btilt)-coverthickness,  sob_Rout+sob_len*tan(btilt)+coverthickness);
+	  logicEV1c->DefineSection(1, sob_len, radiusMiddleSmall-coverthickness,  (radius+hthick+boxgap+boxthick+EVoffset));
+	  logicEV2c = new TGeoPgon("logicEV2c", -90 + pipehAngle, 180 - 2.*pipehAngle, bbnum/2, 2);
+	  logicEV2c->DefineSection(0, 0.,      radiusMiddleSmall+sob_len*tan(btilt)-coverthickness,  sob_Rout+sob_len*tan(btilt)+coverthickness);
+	  logicEV2c->DefineSection(1, sob_len, radiusMiddleSmall-coverthickness,  (radius+hthick+boxgap+boxthick+EVoffset)+coverthickness);
+	  logicEV3c = new TGeoPgon("logicEV3c",  90 - pipehAngle-fixvisual, 2*(pipehAngle+fixvisual), 1, 2);
+	  logicEV3c->DefineSection(0, 0.,      (radiusMiddleSmall+sob_len*tan(btilt)-coverthickness)*cosFactor1,  (sob_Rout+sob_len*tan(btilt)+coverthickness)*cosFactor1);
+	  logicEV3c->DefineSection(1, sob_len, (radiusMiddleSmall-coverthickness)*cosFactor1,  (radius+hthick+boxgap+boxthick+EVoffset+coverthickness)*cosFactor1);     
+	  logicEV4c = new TGeoPgon("logicEV4c", -90 - pipehAngle-fixvisual, 2*(pipehAngle+fixvisual), 1, 2);
+	  logicEV4c->DefineSection(0, 0.,      (radiusMiddleSmall+sob_len*tan(btilt)-coverthickness)*cosFactor1,  (sob_Rout+sob_len*tan(btilt)+coverthickness)*cosFactor1);
+	  logicEV4c->DefineSection(1, sob_len, (radiusMiddleSmall-coverthickness)*cosFactor1,  (radius+hthick+boxgap+boxthick+EVoffset+coverthickness)*cosFactor1);
+
 	}else if(sob_angleB < 90.){
 	  logicEV1 = new TGeoPgon("logicEV1",  90.+(phi0-dphi/2.),  180.-2.*(phi0-dphi/2.), bbnum/2, 3);
 	  logicEV1->DefineSection(0, 0.,      radiusMiddleSmall+sob_len*tan(btilt),  radiusMiddleSmall+sob_len*tan(btilt)+fixvisual);
@@ -1018,7 +1034,11 @@ void createdirc(Int_t fGeomType = 3, Int_t fFocusingSystem = 0, Int_t iter=0, TS
 	  vLocalMother->AddNode(pdbase, 0, new TGeoCombiTrans(0., 0., sob_shift-2*sum-PDbaseLayer, new TGeoRotation(0)));
 	}
 	
-	vLocalMother->AddNode(baseEV, 0, new TGeoCombiTrans(0.,0.,sob_shift - 2*sum, new TGeoRotation(0)));
+	TGeoCompositeShape *logicEVc = new TGeoCompositeShape("logicEVc","logicEV1c  + logicEV3c + logicEV2c + logicEV4c ");
+	TGeoVolume* baseEVc = new TGeoVolume("DrcEVCoverSensor", logicEVc, gGeoManager->GetMedium("DIRCairNoSens"));
+
+	baseEVc->AddNode(baseEV, 0, new TGeoCombiTrans(0.,0.,0., new TGeoRotation(0)));
+	vLocalMother->AddNode(baseEVc, 0, new TGeoCombiTrans(0.,0.,sob_shift - 2*sum, new TGeoRotation(0)));
 	{ // PD plane 
 	  Double_t sectorWidth = 0.;    
 	  Int_t nmcp = 0;
@@ -1295,7 +1315,7 @@ void createdirc(Int_t fGeomType = 3, Int_t fFocusingSystem = 0, Int_t iter=0, TS
 	  baseEVair->SetLineColor(kCyan-10);
 	  baseEV->AddNode(baseEVair,0,0);
 	  baseEV0->SetLineColor(kMagenta+2);
-	  baseEV->SetLineColor(kCyan-9);
+	  baseEV->SetLineColor(kMagenta-9);
 	  baseEV->SetTransparency(0);
 	}
 
@@ -1341,7 +1361,7 @@ void createdirc(Int_t fGeomType = 3, Int_t fFocusingSystem = 0, Int_t iter=0, TS
       break;
     }
     
-    baseEV->SetLineColor(kCyan-9);
+    baseEV->SetLineColor(kMagenta-9);
     baseEV->SetTransparency(50);
   }
 
@@ -1350,22 +1370,28 @@ void createdirc(Int_t fGeomType = 3, Int_t fFocusingSystem = 0, Int_t iter=0, TS
   //gGeoManager->SetTopVisible(); 		
   //pdbase->Draw("ogl"); return;
 
-  if(fGeomType==5){
-    TGeoBBox*   lTop = new TGeoBBox(500,500,300);
+ 
+  if(false){
+    TGeoSphere* l0 = new TGeoSphere("l0",0 ,150, 0. ,180.,0.,360.); 
     top = new TGeoVolume("DIRC", lTop, gGeoManager->GetMedium("air"));
+
     gGeoManager->SetTopVolume(top);
-    TGeoBBox*   l1 = new TGeoBBox(400,400,200);
+    TGeoSphere* l1 = new TGeoSphere("l1",0 ,120, 0. ,180.,0.,360.);
     v1 = new TGeoVolume("v1", l1, gGeoManager->GetMedium("air"));
-    TGeoSphere* l2 = new TGeoSphere("l2",0 ,30, 0. ,180.,0.,360.);
+
+    TGeoSphere* l2 = new TGeoSphere("l2",0 ,100, 0. ,180.,0.,360.);
     v2 = new TGeoVolume("v2", l2, gGeoManager->GetMedium("FusedSil"));
-    v2->AddNode(Lens1, 0,new TGeoCombiTrans(0, 0,  len2, new TGeoRotation(0)));
-    v2->AddNode(Lens2, 0,new TGeoCombiTrans(0, 0,  len2, new TGeoRotation(0)));
-    v2->AddNode(Lens3, 0,new TGeoCombiTrans(0, 0,  -len1, new TGeoRotation(0)));
-    v2->AddNode(Lens4, 0,new TGeoCombiTrans(0, 0,  -len1, new TGeoRotation(0)));
+
+    // v2->AddNode(Lens1, 0,new TGeoCombiTrans(0, 0,  len2, new TGeoRotation(0)));
+    // v2->AddNode(Lens2, 0,new TGeoCombiTrans(0, 0,  len2, new TGeoRotation(0)));
+    // v2->AddNode(Lens3, 0,new TGeoCombiTrans(0, 0,  -len1, new TGeoRotation(0)));
+    // v2->AddNode(Lens4, 0,new TGeoCombiTrans(0, 0,  -len1, new TGeoRotation(0)));
+
+    v2->AddNode(baseEV,0,0);
     v1->AddNode(v2, 0,0);
     top->AddNode(v1, 0,0);
-    
   }
+
 
   gGeoManager->CloseGeometry();
   top->CheckOverlaps(0.0001, "");
