@@ -41,11 +41,17 @@ void BkgSignalCount(TString path="/panda/pandaroot/macro/lmd/testPixel/mom_1_5/"
   TH1 *hxsigmissmc = new TH1D("hxsigmissmc","x of missed mc.trks belong to signal; x_{MC}, cm",2e3,-2e2,2e2);
   TH1 *hxbkgmissmc = new TH1D("hxbkgmissmc","x of missed mc.trks belong to bkg; x_{MC}, cm",2e3,-2e2,2e2);
 
- TH1 *hysigrec = new TH1D("hysigrec","y of rec.trks belong to signal; y_{REC}, cm",2e3,-2e2,2e2);
+  TH1 *hysigrec = new TH1D("hysigrec","y of rec.trks belong to signal; y_{REC}, cm",2e3,-2e2,2e2);
   TH1 *hybkgrec = new TH1D("hybkgrec","y of rec.trks belong to bkg; y_{REC}, cm",2e3,-2e2,2e2);
   TH1 *hyfakerec = new TH1D("hyfakerec","y of rec.trks don't belong to MC; y_{REC}, cm",2e3,-2e2,2e2);
   TH1 *hysigmissmc = new TH1D("hysigmissmc","y of missed mc.trks belong to signal; y_{MC}, cm",2e3,-2e2,2e2);
   TH1 *hybkgmissmc = new TH1D("hybkgmissmc","y of missed mc.trks belong to bkg; y_{MC}, cm",2e3,-2e2,2e2);
+
+ TH1 *hmomsigrec = new TH1D("hmomsigrec","mom of rec.trks belong to signal; P_{REC}, GeV/c",2e3,-20,20);
+  TH1 *hmombkgrec = new TH1D("hmombkgrec","mom of rec.trks belong to bkg; P_{REC}, GeV/c",2e3,-20,20);
+  TH1 *hmomfakerec = new TH1D("hmomfakerec","mom of rec.trks don't belong to MC; P_{REC}, GeV/c",2e3,-20,20);
+  TH1 *hmomsigmissmc = new TH1D("hmomsigmissmc","mom of missed mc.trks belong to signal; P_{MC}, GeV/c",2e3,-20,20);
+  TH1 *hmombkgmissmc = new TH1D("hmombkgmissmc","mom of missed mc.trks belong to bkg; P_{MC}, GeV/c",2e3,-20,20);
 
   TH1 *hPDGrec  = new TH1I("hPDGrec","PDG code of rec.trks",1e4,-5e3,5e3);
   TH1 *hMultiMC  = new TH1I("hMultiMC","multiplicity of sim ev",1e2,0,1e2);
@@ -79,7 +85,8 @@ void BkgSignalCount(TString path="/panda/pandaroot/macro/lmd/testPixel/mom_1_5/"
       trkcur->GetMCpoint(pcaTrkmc);
       double xmctrk = pcaTrkmc.X();
       double ymctrk = pcaTrkmc.Y();
-
+      double momtrk = trkcur->GetIPmom();
+      double mommctrk = trkcur->GetMCmom();
       if(trkStat==0){ //GOOD rec.trks
 	hPDGrec->Fill(PDGcode);
 	if(sumPDGev==4424){//signal
@@ -87,12 +94,14 @@ void BkgSignalCount(TString path="/panda/pandaroot/macro/lmd/testPixel/mom_1_5/"
 	  hphsigrec->Fill(phtrk);
 	  hxsigrec->Fill(xtrk);
 	  hysigrec->Fill(ytrk);
+	  hmomsigrec->Fill(momtrk);
 	}
 	else{//bkg
 	  hthbkgrec->Fill(thtrk);
 	  hphbkgrec->Fill(phtrk);
 	  hxbkgrec->Fill(xtrk);
 	  hybkgrec->Fill(ytrk);
+	  hmombkgrec->Fill(momtrk);
 	}
       }
       else{// not GOOD rec.trk
@@ -103,12 +112,14 @@ void BkgSignalCount(TString path="/panda/pandaroot/macro/lmd/testPixel/mom_1_5/"
 	    hphsigmissmc->Fill(phmctrk);
 	    hxsigmissmc->Fill(xmctrk);
 	    hysigmissmc->Fill(ymctrk);
+	    hmomsigmissmc->Fill(mommctrk);
 	  }
 	  else{
 	    hthbkgmissmc->Fill(thmctrk);
 	    hphbkgmissmc->Fill(phmctrk);
 	    hxbkgmissmc->Fill(xmctrk);
 	    hybkgmissmc->Fill(ymctrk);
+	    hmombkgmissmc->Fill(mommctrk);
 	  }
 	}
 	if(trkStat>0){// fake trk
@@ -116,6 +127,7 @@ void BkgSignalCount(TString path="/panda/pandaroot/macro/lmd/testPixel/mom_1_5/"
 	  hphfakerec->Fill(phtrk);
 	  hxfakerec->Fill(xtrk);
 	  hyfakerec->Fill(ytrk);
+	  hmomfakerec->Fill(momtrk);
 	}
       }
     }
@@ -145,6 +157,12 @@ void BkgSignalCount(TString path="/panda/pandaroot/macro/lmd/testPixel/mom_1_5/"
   hyfakerec->Write();
   hysigmissmc->Write();
   hybkgmissmc->Write();
+
+  hmomsigrec->Write();
+  hmombkgrec->Write();
+  hmomfakerec->Write();
+  hmomsigmissmc->Write();
+  hmombkgmissmc->Write();
 
   hPDGrec->Write();
   hMultiMC->Write();
