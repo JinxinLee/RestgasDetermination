@@ -200,7 +200,8 @@ void BkgSignalCount(TString path="/panda/pandaroot/macro/lmd/testPixel/mom_1_5/"
 	  hxbkgmc->Fill(xmctrk);
 	  hybkgmc->Fill(ymctrk);
 	  hmombkgmc->Fill(mommctrk);
-
+	  glIDBkg = PDGcode;
+	  glSumIDBkg = sumPDGev;
 	  glThetaBkg = thtrk;
 	  glPhiBkg = phtrk;
 	  glXpcaBkg = xtrk;
