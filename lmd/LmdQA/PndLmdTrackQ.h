@@ -104,11 +104,11 @@ public:
   /** get point errors of reconstructed trk [in IP, after back-propagation] cm **/
   void GetIPerrpoint(TVector3& lmdp){lmdp.SetXYZ(ferrXrec,ferrYrec,ferrZrec);}
 
-  /** set momentum vector errors of reconstructed trk [in IP, after back-propagation] GeV/c **/
+  /** set momentum vector errors of reconstructed trk [in IP, after back-propagation] GeV/c x=theta, y=phi, z=mom **/
   void SetIPerrmom(double errtheta, double errphi, double errmom){ferrThetarec = errtheta; ferrPhirec = errphi; ferrMomrec = errmom;}
 
-  /** get momentum vector errors of reconstructed trk [in IP, after back-propagation] GeV/c **/
-  void GetIPerrmom(TVector3& lmerrdp){lmerrdp.SetXYZ(ferrXrec,ferrYrec,ferrZrec);}
+  /** get momentum vector errors of reconstructed trk [in IP, after back-propagation] GeV/c  x=theta, y=phi, z=mom**/
+  void GetIPerrmom(TVector3& lmerrdp){lmerrdp.SetXYZ(ferrThetarec,ferrPhirec,ferrMomrec);}
 
   /** set starting point of MC trk [in IP] cm **/
   void SetMCpoint(double x, double y, double z){fXmc=x;fYmc=y;fZmc=z;}
