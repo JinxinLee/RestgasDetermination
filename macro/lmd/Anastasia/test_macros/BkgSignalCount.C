@@ -28,30 +28,40 @@ void BkgSignalCount(TString path="/panda/pandaroot/macro/lmd/testPixel/mom_1_5/"
   TH1 *hthfakerec = new TH1D("hthfakerec","#theta of rec.trks don't belong to MC; #theta_{REC}, mrad",2e3,0,2000);
   TH1 *hthsigmissmc = new TH1D("hthsigmissmc","#theta of missed mc.trks belong to signal; #theta_{MC}, mrad",3.5e3,0,3500);
   TH1 *hthbkgmissmc = new TH1D("hthbkgmissmc","#theta of missed mc.trks belong to bkg; #theta_{MC}, mrad",3.5e3,0,3500);
+  TH1 *hthsigmc = new TH1D("hthsigrec","#theta of rec.trks belong to signal; #theta_{MC}, mrad",2e2,0,20);
+  TH1 *hthbkgmc = new TH1D("hthbkgrec","#theta of rec.trks belong to bkg; #theta_{MC}, mrad",2e2,0,20);
 
  TH1 *hphsigrec = new TH1D("hphsigrec","#phi of rec.trks belong to signal; #phi_{REC}, rad",2e3,-TMath::Pi(),TMath::Pi());
   TH1 *hphbkgrec = new TH1D("hphbkgrec","#phi of rec.trks belong to bkg; #phi_{REC}, rad",2e3,-TMath::Pi(),TMath::Pi());
   TH1 *hphfakerec = new TH1D("hphfakerec","#phi of rec.trks don't belong to MC; #phi_{REC}, rad",2e3,-TMath::Pi(),TMath::Pi());
   TH1 *hphsigmissmc = new TH1D("hphsigmissmc","#phi of missed mc.trks belong to signal; #phi_{MC}, rad",2e3,-TMath::Pi(),TMath::Pi());
   TH1 *hphbkgmissmc = new TH1D("hphbkgmissmc","#phi of missed mc.trks belong to bkg; #phi_{MC}, rad",2e3,-TMath::Pi(),TMath::Pi());
+  TH1 *hphsigmc = new TH1D("hphsigmc","#phi of rec.trks belong to signal; #phi_{MC}, rad",2e3,-TMath::Pi(),TMath::Pi());
+  TH1 *hphbkgmc = new TH1D("hphbkgmc","#phi of rec.trks belong to bkg; #phi_{MC}, rad",2e3,-TMath::Pi(),TMath::Pi());
 
   TH1 *hxsigrec = new TH1D("hxsigrec","x of rec.trks belong to signal; x_{REC}, cm",2e3,-2e2,2e2);
   TH1 *hxbkgrec = new TH1D("hxbkgrec","x of rec.trks belong to bkg; x_{REC}, cm",2e3,-2e2,2e2);
   TH1 *hxfakerec = new TH1D("hxfakerec","x of rec.trks don't belong to MC; x_{REC}, cm",2e3,-2e2,2e2);
   TH1 *hxsigmissmc = new TH1D("hxsigmissmc","x of missed mc.trks belong to signal; x_{MC}, cm",2e3,-2e2,2e2);
   TH1 *hxbkgmissmc = new TH1D("hxbkgmissmc","x of missed mc.trks belong to bkg; x_{MC}, cm",2e3,-2e2,2e2);
+  TH1 *hxsigmc = new TH1D("hxsigmc","x of rec.trks belong to signal; x_{MC}, cm",2e3,-2e2,2e2);
+  TH1 *hxbkgmc = new TH1D("hxbkgmc","x of rec.trks belong to bkg; x_{MC}, cm",2e3,-2e2,2e2);
 
   TH1 *hysigrec = new TH1D("hysigrec","y of rec.trks belong to signal; y_{REC}, cm",2e3,-2e2,2e2);
   TH1 *hybkgrec = new TH1D("hybkgrec","y of rec.trks belong to bkg; y_{REC}, cm",2e3,-2e2,2e2);
   TH1 *hyfakerec = new TH1D("hyfakerec","y of rec.trks don't belong to MC; y_{REC}, cm",2e3,-2e2,2e2);
   TH1 *hysigmissmc = new TH1D("hysigmissmc","y of missed mc.trks belong to signal; y_{MC}, cm",2e3,-2e2,2e2);
   TH1 *hybkgmissmc = new TH1D("hybkgmissmc","y of missed mc.trks belong to bkg; y_{MC}, cm",2e3,-2e2,2e2);
+  TH1 *hysigmc = new TH1D("hysigmc","y of rec.trks belong to signal; y_{MC}, cm",2e3,-2e2,2e2);
+  TH1 *hybkgmc = new TH1D("hybkgmc","y of rec.trks belong to bkg; y_{MC}, cm",2e3,-2e2,2e2);
 
- TH1 *hmomsigrec = new TH1D("hmomsigrec","mom of rec.trks belong to signal; P_{REC}, GeV/c",2e3,-20,20);
+  TH1 *hmomsigrec = new TH1D("hmomsigrec","mom of rec.trks belong to signal; P_{REC}, GeV/c",2e3,-20,20);
   TH1 *hmombkgrec = new TH1D("hmombkgrec","mom of rec.trks belong to bkg; P_{REC}, GeV/c",2e3,-20,20);
   TH1 *hmomfakerec = new TH1D("hmomfakerec","mom of rec.trks don't belong to MC; P_{REC}, GeV/c",2e3,-20,20);
   TH1 *hmomsigmissmc = new TH1D("hmomsigmissmc","mom of missed mc.trks belong to signal; P_{MC}, GeV/c",2e3,-20,20);
   TH1 *hmombkgmissmc = new TH1D("hmombkgmissmc","mom of missed mc.trks belong to bkg; P_{MC}, GeV/c",2e3,-20,20);
+  TH1 *hmomsigmc = new TH1D("hmomsigmc","mom of rec.trks belong to signal; P_{MC}, GeV/c",2e3,-20,20);
+  TH1 *hmombkgmc = new TH1D("hmombkgmc","mom of rec.trks belong to bkg; P_{MC}, GeV/c",2e3,-20,20);
 
   TH1 *hPDGrec  = new TH1I("hPDGrec","PDG code of rec.trks",1e4,-5e3,5e3);
   TH1 *hMultiMC  = new TH1I("hMultiMC","multiplicity of sim ev",1e2,0,1e2);
@@ -95,6 +105,11 @@ void BkgSignalCount(TString path="/panda/pandaroot/macro/lmd/testPixel/mom_1_5/"
 	  hxsigrec->Fill(xtrk);
 	  hysigrec->Fill(ytrk);
 	  hmomsigrec->Fill(momtrk);
+	  hthsigmc->Fill(thmctrk);
+	  hphsigmc->Fill(phmctrk);
+	  hxsigmc->Fill(xmctrk);
+	  hysigmc->Fill(ymctrk);
+	  hmomsigmc->Fill(mommctrk);
 	}
 	else{//bkg
 	  hthbkgrec->Fill(thtrk);
@@ -102,6 +117,11 @@ void BkgSignalCount(TString path="/panda/pandaroot/macro/lmd/testPixel/mom_1_5/"
 	  hxbkgrec->Fill(xtrk);
 	  hybkgrec->Fill(ytrk);
 	  hmombkgrec->Fill(momtrk);
+	  hthbkgmc->Fill(thmctrk);
+	  hphbkgmc->Fill(phmctrk);
+	  hxbkgmc->Fill(xmctrk);
+	  hybkgmc->Fill(ymctrk);
+	  hmombkgmc->Fill(mommctrk);
 	}
       }
       else{// not GOOD rec.trk
@@ -160,6 +180,8 @@ void BkgSignalCount(TString path="/panda/pandaroot/macro/lmd/testPixel/mom_1_5/"
 
   hmomsigrec->Write();
   hmombkgrec->Write();
+  hmomsigmc->Write();
+  hmombkgmc->Write();
   hmomfakerec->Write();
   hmomsigmissmc->Write();
   hmombkgmissmc->Write();
