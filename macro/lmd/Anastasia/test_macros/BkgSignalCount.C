@@ -68,6 +68,58 @@ void BkgSignalCount(TString path="/panda/pandaroot/macro/lmd/testPixel/mom_1_5/"
   TH1 *hMultiREC  = new TH1I("hMultiREC","multiplicity of rec ev",1e2,0,1e2);
   //-----------------------------------------------------------------------------------
 
+  // Summary Tree -------------------------------------------------------------
+  TTree *tSig = new TTree("tSig","Reconstructed variables (sig)");
+  Double_t glThetaSig,glPhiSig,glXpcaSig,glYpcaSig,glZpcaSig,glPSig;
+  Double_t glThetaSigMC,glPhiSigMC,glXpcaSigMC,glYpcaSigMC,glZpcaSigMC,glPSigMC;
+  Double_t glerrThetaSig,glerrPhiSig,glerrXpcaSig,glerrYpcaSig,glerrZpcaSig,glerrPxSig,glerrPySig,glerrPzSig,glerrPSig;
+  tSig->Branch("threc",&glThetaSig);
+  tSig->Branch("phrec",&glPhiSig);
+  tSig->Branch("xrec",&glXpcaSig);
+  tSig->Branch("yrec",&glYpcaSig);
+  tSig->Branch("zrec",&glZpcaSig);
+  tSig->Branch("prec",&glPSig);
+  tSig->Branch("thmc",&glThetaSigMC);
+  tSig->Branch("phmc",&glPhiSigMC);
+  tSig->Branch("xmc",&glXpcaSigMC);
+  tSig->Branch("ymc",&glYpcaSigMC);
+  tSig->Branch("zmc",&glZpcaSigMC);
+  tSig->Branch("pmc",&glPSigMC);
+ tSig->Branch("errthrec",&glerrThetaSig);
+ tSig->Branch("errphrec",&glerrPhiSig);
+ tSig->Branch("errxrec",&glerrXpcaSig);
+ tSig->Branch("erryrec",&glerrYpcaSig);
+ tSig->Branch("errzrec",&glerrZpcaSig);
+ tSig->Branch("errprec",&glerrPSig);
+
+ TTree *tBkg= new TTree("tBkg","Reconstructed variables (bkg)");
+ Double_t glThetaBkg,glPhiBkg,glXpcaBkg,glYpcaBkg,glZpcaBkg,glPBkg;
+ Double_t glThetaBkgMC,glPhiBkgMC,glXpcaBkgMC,glYpcaBkgMC,glZpcaBkgMC,glPBkgMC;
+ Double_t glerrThetaBkg,glerrPhiBkg,glerrXpcaBkg,glerrYpcaBkg,glerrZpcaBkg,glerrPBkg;
+ Int_t glIDBkg,glSumIDBkg;//,glMotherIDBkg;
+ tBkg->Branch("threc",&glThetaBkg);
+ tBkg->Branch("phrec",&glPhiBkg);
+ tBkg->Branch("xrec",&glXpcaBkg);
+ tBkg->Branch("yrec",&glYpcaBkg);
+ tBkg->Branch("zrec",&glZpcaBkg);
+ tBkg->Branch("prec",&glPBkg);
+ tBkg->Branch("id",&glIDBkg);
+ tBkg->Branch("sumid",&glSumIDBkg);
+ // tBkg->Branch("motherid",&glMotherIDBkg);
+ tBkg->Branch("errthrec",&glerrThetaBkg);
+ tBkg->Branch("errphrec",&glerrPhiBkg);
+ tBkg->Branch("errxrec",&glerrXpcaBkg);
+ tBkg->Branch("erryrec",&glerrYpcaBkg);
+ tBkg->Branch("errzrec",&glerrZpcaBkg);
+ tBkg->Branch("errprec",&glerrPBkg);
+ tBkg->Branch("thmc",&glThetaBkgMC);
+ tBkg->Branch("phmc",&glPhiBkgMC);
+ tBkg->Branch("xmc",&glXpcaBkgMC);
+ tBkg->Branch("ymc",&glYpcaBkgMC);
+ tBkg->Branch("zmc",&glZpcaBkgMC);
+ tBkg->Branch("pmc",&glPBkgMC);
+ //-----------------------------------------------------------------------------------
+
   // Go over all events ---------------------------------------------------------
   for (Int_t j=0; j<nEvents; j++){
     tTrkRec.GetEntry(j);
@@ -89,6 +141,13 @@ void BkgSignalCount(TString path="/panda/pandaroot/macro/lmd/testPixel/mom_1_5/"
       double phmctrk = (trkcur->GetMCphi());
       TVector3 pcaTrkrec;
       trkcur->GetIPpoint(pcaTrkrec);
+      TVector3 errpcaTrkrec;
+      trkcur->GetIPerrpoint(errpcaTrkrec);
+      TVector3 errmomTrkrec;
+      trkcur->GetIPerrmom(errmomTrkrec);
+      double errthtrk = errmomTrkrec.X();
+      double errphtrk = errmomTrkrec.Y();
+      double errmomtrk = errmomTrkrec.Z();
       double xtrk = pcaTrkrec.X();
       double ytrk = pcaTrkrec.Y();
       TVector3 pcaTrkmc;
@@ -110,6 +169,25 @@ void BkgSignalCount(TString path="/panda/pandaroot/macro/lmd/testPixel/mom_1_5/"
 	  hxsigmc->Fill(xmctrk);
 	  hysigmc->Fill(ymctrk);
 	  hmomsigmc->Fill(mommctrk);
+	  glThetaSig = thtrk;
+	  glPhiSig = phtrk;
+	  glXpcaSig = xtrk;
+	  glYpcaSig = ytrk;
+	  glZpcaSig = pcaTrkrec.Z();
+	  glPSig = momtrk;
+	  glThetaSigMC = thmctrk;
+	  glPhiSigMC = phmctrk;
+	  glXpcaSigMC = xmctrk;
+	  glYpcaSigMC = ymctrk;
+	  glZpcaSigMC = pcaTrkmc.Z();
+	  glPSigMC = mommctrk;
+	  glerrThetaSig =  errthtrk;
+	  glerrPhiSig = errphtrk;
+	  glerrPSig = errmomtrk;
+	  glerrXpcaSig = errpcaTrkrec.X();
+	  glerrYpcaSig = errpcaTrkrec.Y();
+	  glerrZpcaSig = errpcaTrkrec.Z();
+	  tSig->Fill();
 	}
 	else{//bkg
 	  hthbkgrec->Fill(thtrk);
@@ -122,6 +200,27 @@ void BkgSignalCount(TString path="/panda/pandaroot/macro/lmd/testPixel/mom_1_5/"
 	  hxbkgmc->Fill(xmctrk);
 	  hybkgmc->Fill(ymctrk);
 	  hmombkgmc->Fill(mommctrk);
+
+	  glThetaBkg = thtrk;
+	  glPhiBkg = phtrk;
+	  glXpcaBkg = xtrk;
+	  glYpcaBkg = ytrk;
+	  glZpcaBkg = pcaTrkrec.Z();
+	  glPBkg = momtrk;
+	  glerrThetaBkg =  errthtrk;
+	  glerrPhiBkg = errphtrk;
+	  glerrPBkg = errmomtrk;
+	  glerrXpcaBkg = errpcaTrkrec.X();
+	  glerrYpcaBkg = errpcaTrkrec.Y();
+	  glerrZpcaBkg = errpcaTrkrec.Z();
+
+	  glThetaBkgMC = thmctrk;
+	  glPhiBkgMC = phmctrk;
+	  glXpcaBkgMC = xmctrk;
+	  glYpcaBkgMC = ymctrk;
+	  glZpcaBkgMC = pcaTrkmc.Z();
+	  glPBkgMC = mommctrk;
+	  tBkg->Fill();
 	}
       }
       else{// not GOOD rec.trk
@@ -189,5 +288,9 @@ void BkgSignalCount(TString path="/panda/pandaroot/macro/lmd/testPixel/mom_1_5/"
   hPDGrec->Write();
   hMultiMC->Write();
   hMultiREC->Write();
+
+  tBkg->Write();
+  tSig->Write();
+
   f->Close();
 }
