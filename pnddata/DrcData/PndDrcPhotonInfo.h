@@ -33,7 +33,9 @@ public:
   void SetHitTime(Double_t val)               {fHitTime = val;}
   void SetReflected(Bool_t val)               {fReflected = val;}
   void SetEvReflections(Int_t val)            {fEvReflections = val;}
-
+  void SetMcPrimeMomentumInBar(TVector3 val)  {fMcPrimeMomentumInBar = val;}
+  void SetMcCherenkovInBar(Double_t val)      {fMcCherenkovInBar = val;}
+  
   void AddAmbiguity(PndDrcAmbiguityInfo ambiguity);
 
   // Accessors  
@@ -43,6 +45,9 @@ public:
 
   Int_t GetAmbiguitySize()	              {return fAmbiguitySize;}
   PndDrcAmbiguityInfo GetAmbiguity(Int_t id)  {return fAmbiguityArray[id];}
+  TVector3 GetMcPrimeMomentumInBar()	      {return fMcPrimeMomentumInBar;}
+  Double_t  GetMcCherenkovInBar()	      {return fMcCherenkovInBar;}    
+
 protected:
 
   std::vector<PndDrcAmbiguityInfo> fAmbiguityArray;
@@ -51,6 +56,8 @@ protected:
   Double_t fHitTime;
   Bool_t   fReflected;
   Int_t    fEvReflections;
+  TVector3 fMcPrimeMomentumInBar;
+  Double_t fMcCherenkovInBar;
  
   ClassDef(PndDrcPhotonInfo,1)
 };
