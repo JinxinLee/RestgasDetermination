@@ -935,7 +935,7 @@ Bool_t PndDrc::ProcessHits(FairVolume* vol) {
 
   
   if (fPdgCode == 50000050){
-    if (fRunCherenkov==kFALSE ) {
+    if (fRunCherenkov==kFALSE ) { //|| fabs(fMom.Vect().Mag()*1.0E9-3.18)>0.2
       gMC->StopTrack();
       if (fVerboseLevel >0) cout<< "Photon killed" << endl;
     }  
@@ -959,6 +959,7 @@ Bool_t PndDrc::ProcessHits(FairVolume* vol) {
 	  if(fMom.Z() > 0.) gMC->StopTrack();
 	}
       }
+      if(fMom.Z() > 0.) gMC->StopTrack();
     }
 
     // apply transport efficiency at production stage (Maria Patsyuk 20.04.2012):
@@ -1147,7 +1148,7 @@ Bool_t PndDrc::ProcessHits(FairVolume* vol) {
     }
   }
   
-  if(gMC->TrackCharge()!=0 /*|| fOptionForLUT*/ ){
+  if(gMC->TrackCharge()!=0 || fOptionForLUT){
     if (nam.BeginsWith("DrcBar") && gMC->IsTrackEntering()==1  ) {
 
       bool bpass = true;
@@ -1156,11 +1157,11 @@ Bool_t PndDrc::ProcessHits(FairVolume* vol) {
       // 	if(tBarPoint->GetTrackID()==fTrackID && fLength - tBarPoint->GetLength()<0.1) bpass = false;
       // }
             
-      if(bpass){
+      if(bpass && nam.BeginsWith("DrcBarSensor") ){
 	Int_t s=0, b=0; //side and bar
 	fNBar=0;
 	TString path = gMC->CurrentVolPath();
-	if (fVerboseLevel >1) cout<< "Volume: " << gMC->CurrentVolPath() << endl;
+	if (fVerboseLevel >1) cout<< "Volume: " << nam << endl;
 	sscanf(path, "/cave_1/BarrelDIRC_0/DrcBarBox_%d/DrcBarAirBox_0/DrcBarSensor_%d", &s, &b);
 	
 	if(s < 17) fNBar = s*10 + b;
@@ -1205,26 +1206,24 @@ void PndDrc::FinishPrimary(){
   
   //Lab 
   if(fbLab){
-    gGeoManager->cd("/cave_1/AirBoxSensor_0/AirSensor_1/AquaSensor_1/DrcLENS1Sensor_1");
-    double lowZ = gGeoManager->GetCurrentMatrix()->GetTranslation()[2]; 
-    std::cout<<"lowZ "<< lowZ <<std::endl;
+    gGeoManager->cd("/cave_1/AirBoxSensor_0/AirSensor_1/GlassSensor_1/AquaSensor_1/DrcLENS1Sensor_1");
     const Double_t *tr = gGeoManager->GetCurrentMatrix()->GetRotationMatrix();
     TGeoRotation *rm = new TGeoRotation();
     rm->SetMatrix(tr);
     Double_t aa1,aaPhi,aa3;
     rm->GetAngles(aa1,aaPhi,aa3);
     Int_t barcolsize = fDrcBarCollection->GetEntriesFast();
-    if (barcolsize!=12) return;
+    if (barcolsize!=16) return;
 
     TVector3 ttmom, ttpos;
-    ((PndDrcBarPoint*)fDrcBarCollection->At(3))->Momentum(ttmom); 
-    ((PndDrcBarPoint*)fDrcBarCollection->At(3))->Position(ttpos);
+    ((PndDrcBarPoint*)fDrcBarCollection->At(4))->Momentum(ttmom); 
+    ((PndDrcBarPoint*)fDrcBarCollection->At(4))->Position(ttpos);
     ttmom = ttmom.Unit();
     TVector3 head0 = ttpos;
     TVector3 tail0 = head0 + 10.*ttmom;
 
-    ((PndDrcBarPoint*)fDrcBarCollection->At(9))->Momentum(ttmom); 
-    ((PndDrcBarPoint*)fDrcBarCollection->At(9))->Position(ttpos);
+    ((PndDrcBarPoint*)fDrcBarCollection->At(12))->Momentum(ttmom); 
+    ((PndDrcBarPoint*)fDrcBarCollection->At(12))->Position(ttpos);
     ttmom = ttmom.Unit();
     TVector3 head1 = ttpos;
     TVector3 tail1 = head1 + 10.*ttmom;
@@ -1253,18 +1252,18 @@ void PndDrc::FinishPrimary(){
     TVector3 point0 = tail0 + dir0 * sc;
     TVector3 point1 = tail1 + dir1 * tc;
     TVector3 point = 0.5*(point1+point1);
-
+    point.Print();
     if(point.Z()>-15){
       AddHit(0, 0, 0, point,  TVector3(0,0,0), TVector3(0,0,0),aaPhi, 0, 0, 0, 0); 
     }else{
-      ((PndDrcBarPoint*)fDrcBarCollection->At(4))->Momentum(ttmom); 
-      ((PndDrcBarPoint*)fDrcBarCollection->At(4))->Position(ttpos);
+      ((PndDrcBarPoint*)fDrcBarCollection->At(6))->Momentum(ttmom); 
+      ((PndDrcBarPoint*)fDrcBarCollection->At(6))->Position(ttpos);
       ttmom = ttmom.Unit();
       head0 = ttpos;
       tail0 = head0 + 10.*ttmom;
 
-      ((PndDrcBarPoint*)fDrcBarCollection->At(10))->Momentum(ttmom); 
-      ((PndDrcBarPoint*)fDrcBarCollection->At(10))->Position(ttpos);
+      ((PndDrcBarPoint*)fDrcBarCollection->At(14))->Momentum(ttmom); 
+      ((PndDrcBarPoint*)fDrcBarCollection->At(14))->Position(ttpos);
       ttmom = ttmom.Unit();
       head1 = ttpos;
       tail1 = head1 + 10.*ttmom;
