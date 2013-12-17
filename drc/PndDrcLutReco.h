@@ -22,6 +22,9 @@
 
 #include "TString.h"
 #include "TFile.h"
+#include "TH1.h"
+#include "TF1.h"
+#include "TSpectrum.h"
 
 class PndDrcLutReco : public FairTask {
 
@@ -80,6 +83,9 @@ private:
   Int_t fVerbose;
   Int_t nevents;
   TString fInputFile;
+  TH1F *fHist;
+  TF1 *fFit;
+  TSpectrum *fSpect;
 
   ClassDef(PndDrcLutReco,1)
 
