@@ -89,7 +89,7 @@ void BkgSignalCount(TString path="/panda/pandaroot/macro/lmd/testPixel/mom_1_5/"
       double mommctrk = trkcur->GetMCmom();
       if(trkStat==0){ //GOOD rec.trks
 	hPDGrec->Fill(PDGcode);
-	if(sumPDGev==4424){//signal
+	if(sumPDGev==4424 && PDGcode==-2212){//signal
 	  hthsigrec->Fill(thtrk);
 	  hphsigrec->Fill(phtrk);
 	  hxsigrec->Fill(xtrk);
