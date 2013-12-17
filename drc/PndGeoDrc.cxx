@@ -21,7 +21,7 @@ PndGeoDrc::PndGeoDrc() {
   maxModules=20;
   
   // mean refraction index of fused silica (for reconstruction)
-  fNquartz      = 1.47;//Lambda = 400 nm//1.46907;    //(Lambda = 410 nm for EV filled with FS)
+  fNquartz      = 1.47125;    //(1.47125 <==> 390nm)
   fUquartz	= 19.83;      // [cm/ns] group velocity in fused silica at lambda = 400 nm
   fNEV		= 1.47;       // oil ondex of refraction
   fRoughness	= 0.001;      // [nm] = 10A, roughness of the quartz bar surface
