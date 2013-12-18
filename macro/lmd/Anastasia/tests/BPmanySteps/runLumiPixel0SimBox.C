@@ -87,20 +87,10 @@ void runLumiPixel0SimBox(const int nEvents=10, const int startEv=0, TString stor
   FairBoxGenerator *fBox = new FairBoxGenerator(particle, trkNum);
   fBox->SetPRange(mom,mom);
   //  fBox->SetThetaRange(0.52,0.63); // 9 ... 11 mrad
-  // //  fBox->SetThetaRange(0.13,0.7); // 2... 12 mrad
-  //    fBox->SetThetaRange(0.13,0.65); // 2... 11 mrad
-  fBox->SetThetaRange(0.12,0.65); // 2... 11 mrad
+  fBox->SetThetaRange(0.63,0.63); // 11 mrad
   //  fBox->SetThetaRange(0.229183, 0.458366); //4 ... 8 mrad
-  // //  fBox->SetThetaRange(0.229183,0.31512);//4..5.5 mrad
-  // //fBox->SetThetaRange(0.229,0.229);//4..mrad
-  // //  fBox->SetThetaRange(0.458366, 0.458366); //!!! 8 mrad
-  // //  fBox->SetThetaRange(0., 45.);//TEST 
-  // //  fBox->SetPhiRange(90,90.); 
-  fBox->SetPhiRange(0,360.);
-  // //  fBox->SetPhiRange(0.5,359.5); //FOR missed track check
-  // //  fBox->SetPhiRange(0.,20.);//!!! TEST
-  // fBox->SetThetaRange(0.344,0.344); //!!! TEST ~ 6 mrad
-  // fBox->SetPhiRange(45,45);//TEST
+  //fBox->SetPhiRange(0,360.);
+  fBox->SetPhiRange(0,0.);
   primGen->AddGenerator(fBox); 
 
   

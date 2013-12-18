@@ -82,6 +82,8 @@ protected:
   TH1 *hErrMom;
   TH1 *hPullMom;
   TH1 *hResTheta;
+  TH2 *hResTheta_th; //resolution vs. theta
+  TH2 *hResTheta_ph; //resolution vs. phi
   TH1 *hErrTheta;
   TH1 *hPullTheta;
   TH1 *hResPhi;
@@ -136,6 +138,8 @@ protected:
   TH1 *hResLumiTrkPointPzPull;
   TH1 *hResLumiTrkThetaPull;
   TH1 *hResLumiTrkPhiPull;
+
+  
   //TFile *fouthists;
   ClassDef(PndLmdQATask,1);
 

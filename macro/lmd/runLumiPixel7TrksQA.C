@@ -1,4 +1,4 @@
-void runLumiPixel7TrksQA(const int nEvents=100000, const int startEvent=0, TString storePath="tmpOutnewDesign", const int verboseLevel=5, const double Plab=15, const bool wrAllMC=false)
+void runLumiPixel7TrksQA(const int nEvents=100000, const int startEvent=0, TString storePath="tmpOutnewDesign", const int verboseLevel=5, const double Plab=15, const bool wrAllMC=true)
 {
   // ========================================================================
   // Input file (MC events)

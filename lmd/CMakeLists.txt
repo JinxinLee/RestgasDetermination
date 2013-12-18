@@ -122,6 +122,7 @@ LmdTrack/PndLmdIdealFitTask.cxx
 LmdTrack/PndLinTrack.cxx
 LmdTrack/PndLmdKalmanTask.cxx
 LmdTrack/PndLmdGeaneTask.cxx
+LmdTrack/PndLmdBPtestTask.cxx
 LmdTrack/PndLmdBPRungeKuttaTask.cxx	
 LmdTrack/PndLmdTrksFilterTask.cxx
 )

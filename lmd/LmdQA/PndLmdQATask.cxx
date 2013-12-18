@@ -141,6 +141,8 @@ void PndLmdQATask::WriteHists(){
   //  hErrMom->Write();
   //  hPullMom->Write();
   hResTheta->Write();
+  hResTheta_th->Write();
+  hResTheta_ph->Write();
   hErrTheta->Write();
   hPullTheta->Write();
   hResPhi->Write();
@@ -325,14 +327,17 @@ InitStatus PndLmdQATask::Init()
       Error("PndLmdQATask::Init","digi-array not found!");
       return kERROR;
     }
-  double thetarange[2]={0.001,0.01};
+  //  double thetarange[2]={0.001,0.01};
+  double thetarange[2]={1.5,10.};
   double thetam =  thetarange[0];
-  if(fPlab<5) thetam =  thetarange[1];
+  if(fPlab<4) thetam =  thetarange[1];
   //Near IP
   hResMom = new TH1F("hResMom","P_{MC}-P_{REC};#deltaP,GeV/c",1e3,-1e-4,1e-4);
   //  hErrMom = new TH1F("hErrMom","#sigma_{P};#sigmaP,GeV/c",1e3,0,1e-3);
   //  hPullMom = new TH1F("hPullMom","(P_{MC}-P_{REC})/#sigma_{P};",1e3,-1e1,1e1);
-  hResTheta = new TH1F("hResTheta","#theta_{MC}-#theta_{REC};#delta#theta,rad",1e2,-thetam,thetam);//TEST
+  hResTheta = new TH1F("hResTheta","#theta_{MC}-#theta_{REC};#delta#theta,mrad",1e2,-thetam,thetam);//TEST
+  hResTheta_th = new TH2F("hResTheta_th","#theta_{MC}-#theta_{REC};#theta_{MC}, mrad; #delta#theta,mrad",2e2,0,20,2e2,-thetam,thetam);//TEST
+  hResTheta_ph = new TH2F("hResTheta_ph","#theta_{MC}-#theta_{REC};#phi_{MC}, rad; #delta#theta,mrad",2e2,-TMath::Pi(),TMath::Pi(),2e2,-thetam,thetam);//TEST
   hErrTheta = new TH1F("hErrTheta","#sigma(#theta_{REC});#sigma,rad",1e3,0,10*thetam);
    hPullTheta = new TH1F("hPullTheta","(#theta_{MC}-#theta_{REC})/#sigma_{#theta};",1e2,-10,10);
    hResPhi = new TH1F("hResPhi","#phi_{MC}-#phi_{REC};#delta#phi,rad",2e3,-1.,1.);
@@ -600,7 +605,9 @@ void PndLmdQATask::ResoAndPulls()
 	hPullPointY->Fill((PosMCpca.Y()-PosRecPCA.Y())/errPosRecPCA.Y());
 	hPullPointZ->Fill((PosMCpca.Z()-PosRecPCA.Z())/errPosRecPCA.Z());
 
-	hResTheta->Fill(MomMCpca.Theta()-MomRecPCA.Theta());
+	hResTheta->Fill(1e3*(MomMCpca.Theta()-MomRecPCA.Theta()));
+	hResTheta_th->Fill(1e3*MomMCpca.Theta(),1e3*(MomMCpca.Theta()-MomRecPCA.Theta()));
+	hResTheta_ph->Fill(MomMCpca.Phi(),1e3*(MomMCpca.Theta()-MomRecPCA.Theta()));
 	hResPhi->Fill(MomMCpca.Phi()-MomRecPCA.Phi());
 	hPullTheta->Fill((MomMCpca.Theta()-MomRecPCA.Theta())/err_lyambda);
 	hPullPhi->Fill((MomMCpca.Phi()-MomRecPCA.Phi())/err_phi);
