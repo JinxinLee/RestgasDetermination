@@ -33,36 +33,37 @@ ${ROOT_LIBRARY_DIR}
 link_directories( ${LINK_DIRECTORIES})
 
 set(SRCS
-PndGemDetector.cxx
-PndGemSmearingTask.cxx
 PndGemContFact.cxx
-PndGemGeoPar.cxx
+PndGemDetector.cxx
+PndGemDigiAna.cxx
 PndGemDigiPar.cxx
+PndGemDigiRingSorter.cxx
+PndGemDigiSorterTask.cxx
+PndGemDigiWriteoutBuffer.cxx
 PndGemDigitize.cxx
+PndGemEmpty.cxx
+#PndGemEventBuilderOnTracks.cxx
 PndGemFindClusters.cxx
+PndGemFindClustersTB.cxx
 PndGemFindHits.cxx
-PndGemMatchHits.cxx
-PndGemStation.cxx
-PndGemSensor.cxx
+PndGemFindHitsAna.cxx
+PndGemFindTracks.cxx
+PndGemGeoPar.cxx
 PndGemIdealHitProducer.cxx
+PndGemIdealPatternRecoTask.cxx
+PndGemMagneticFieldVsTrackParameters.cxx
+PndGemMatchHits.cxx
+PndGemMonitor.cxx
+PndGemSensor.cxx
+PndGemSensorMonitor.cxx
+PndGemSmearingTask.cxx
+PndGemStation.cxx
 PndGemTrackFinder.cxx
 PndGemTrackFinderIdeal.cxx
 PndGemTrackFinderOnHits.cxx
-PndGemFindTracks.cxx
-PndGemTrackFinderQA.cxx
-PndGemIdealPatternRecoTask.cxx
-PndGemMagneticFieldVsTrackParameters.cxx
-PndGemDigiWriteoutBuffer.cxx
-PndGemDigiSorterTask.cxx
-PndGemDigiRingSorter.cxx
-PndGemFindHitsAna.cxx
-PndGemMonitor.cxx
 PndGemTrackFinderOnHitsTB.cxx
-PndGemFindClustersTB.cxx
-PndGemSensorMonitor.cxx
-PndGemDigiAna.cxx
-PndGemEventBuilderOnTracks.cxx
-PndGemEmpty.cxx
+PndGemTrackFinderQA.cxx
+#PndGemTrackWriteoutBuffer.cxx
 )
 
 set(LINKDEF  GemLinkDef.h)

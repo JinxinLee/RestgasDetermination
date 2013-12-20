@@ -10,7 +10,7 @@
  *@since 22.08.2013
  *@version 1.0
  **
- ** PANDA task class for event building basing on reconstructed GEM tracks
+ ** PANDA task class for event building basing on reconstructed GEM tracks.
  ** Task level RECO
  **/
 
@@ -19,6 +19,7 @@
 #include "PndTrack.h"
 
 #include "PndDetectorList.h"
+#include "FairRecoEventHeader.h"
 
 #include "FairRootManager.h"
 #include "FairRunAna.h"
@@ -48,26 +49,13 @@ bool CompareRecoEvents(RecoEvent ev1, RecoEvent ev2) { return (ev1.meanTime<ev2.
 
 // -----   Default constructor   ------------------------------------------
 PndGemEventBuilderOnTracks::PndGemEventBuilderOnTracks()
-  : FairTask("GEMEventBuilder", 0),
+  : FairEventBuilder("GEMEvTrack","PndTrack","GEM",kTRUE),
     fGemTracks     (NULL),
     fTNofEvents    (0),
     fTNofTracks    (0),
     fTNofRecoEvents(0),
-    fExecTime      (0.)
-{
-}
-// -------------------------------------------------------------------------
-
-
-
-// -----   Standard constructor   ------------------------------------------
-PndGemEventBuilderOnTracks::PndGemEventBuilderOnTracks(Int_t iVerbose) 
-  : FairTask("GEMEventBuilder", iVerbose),
-    fGemTracks     (NULL),
-    fTNofEvents    (0),
-    fTNofTracks    (0),
-    fTNofRecoEvents(0),
-    fExecTime      (0.)
+    fExecTime      (0.),
+    fGemTrackDelay (0.)
 {
 }
 // -------------------------------------------------------------------------
@@ -76,13 +64,16 @@ PndGemEventBuilderOnTracks::PndGemEventBuilderOnTracks(Int_t iVerbose)
 
 // -----   Constructor with name   -----------------------------------------
 PndGemEventBuilderOnTracks::PndGemEventBuilderOnTracks(const char* name, Int_t iVerbose) 
-  : FairTask(name, iVerbose),
+  : FairEventBuilder("GEMEvTrack","PndTrack","GEM",kTRUE),
     fGemTracks     (NULL),
     fTNofEvents    (0),
     fTNofTracks    (0),
     fTNofRecoEvents(0),
-    fExecTime      (0.)
+    fExecTime      (0.),
+    fGemTrackDelay (0.)
 {
+  SetBuilderName(name);
+  fVerbose = iVerbose;
 }
 // -------------------------------------------------------------------------
 
@@ -96,33 +87,161 @@ PndGemEventBuilderOnTracks::~PndGemEventBuilderOnTracks() {
 
 
 // -----   Public method Exec   --------------------------------------------
-void PndGemEventBuilderOnTracks::Exec(Option_t* opt) {
-  //  cout << endl << "======== PndGemEventBuilderOnTracks::Exec(Event = " << fTNofEvents << " ) ====================" << endl;
+std::vector<std::pair<double, FairRecoEventHeader*> > PndGemEventBuilderOnTracks::FindEvents() {
+  if ( fVerbose )
+    cout << endl << "======== PndGemEventBuilderOnTracks::FindEvents(Event = " << fTNofEvents << " ) ====================" << endl;
+  
   fTimer.Start();
-
+  
+  fRecoEvents.clear();
+  
   fTNofTracks += fGemTracks->GetEntries();
 
   PndTrack* tempTrack = NULL;
 
+  if ( fVerbose )
+    cout << "There are " << fGemTracks->GetEntries() << " tracks." << endl;
+
   for ( Int_t itrack = 0 ; itrack < fGemTracks->GetEntries() ; itrack++ ) {
     tempTrack = (PndTrack*)fGemTracks->At(itrack);
-    //    cout << "    " << fTNofEvents << " . " << itrack << " @ " << tempTrack->GetTimeStamp() << "ns, trying to match to one of " << fRecoEvents.size() << " reco events" << endl;
+    
+    if ( fVerbose > 1 ) {
+      cout << "    " << fTNofEvents << " . " << itrack << " @ " << tempTrack->GetTimeStamp() << "ns" << endl
+	   << "         trying to match to one of " << fRecoEvents.size() << " reco events" << endl;
+    }
 
-    Int_t revNo = CompareTrackToPreviousEvents(tempTrack);
+    Int_t revNo = CompareTrackToPreviousEvents(itrack,tempTrack);
 
-    //    cout << "    ----> matched to " << revNo << endl;
+    FillNewData(tempTrack,
+		tempTrack->GetTimeStamp(),
+		tempTrack->GetTimeStamp());
+
   }
 
   fTNofEvents += 1;
 
+  fTNofRecoEvents += fRecoEvents.size();
+
+  std::sort(fRecoEvents.begin(),fRecoEvents.end(),CompareRecoEvents);
+
+  std::vector<std::pair<double, FairRecoEventHeader*> > result;
+  std::pair<double,FairRecoEventHeader*> singleResult;
+
+  if ( fVerbose )
+    cout << "There are " << fRecoEvents.size() << " events." << endl;
+
+  for ( Int_t irev = 0 ; irev < fRecoEvents.size() ; irev++ ) {
+    FairRecoEventHeader recoEvent;
+    recoEvent.SetEventTime(fRecoEvents[irev].meanTime-fGemTrackDelay,5.);
+    recoEvent.SetIdentifier(GetIdentifier());
+    SetMaxAllowedTime(recoEvent.GetEventTime());
+
+    fEvent_map[recoEvent] = recoEvent.GetEventTime();
+
+    singleResult.first  = recoEvent.GetEventTime();
+    singleResult.second = (FairRecoEventHeader*)&fEvent_map.rbegin()->first;
+
+    if ( fVerbose )
+      cout << "FOUND EVENT @ " << singleResult.first << endl;
+    
+    result.push_back(singleResult);
+  }
+
   fExecTime += fTimer.RealTime();
   fTimer.Stop();  
 
+  return result;
 }
 // -------------------------------------------------------------------------
 
+// -------------------------------------------------------------------------
+void PndGemEventBuilderOnTracks::Print() {
+  cout << " print " << endl;
+  cout << " fEventMap has " << fEvent_map.size() << " entries" << endl;
+  std::map<FairRecoEventHeader,double>::iterator iter;
+  for ( iter = fEvent_map.begin() ; iter != fEvent_map.end() ; iter++ ) {
+    cout << " // for time " << iter->second << " got " << iter->first.GetEventTime() << " at an address " << &iter->first << endl;
+  }
+  cout << "-------" << endl;
+}
+// -------------------------------------------------------------------------
+
+// -------------------------------------------------------------------------
+void PndGemEventBuilderOnTracks::StoreEventData(FairRecoEventHeader* recoEvent) {
+  typedef std::multimap<double, std::pair<double, FairTimeStamp*> >::iterator startTimeMapIter;
+
+  if ( fVerbose ) {
+    cout << "* " << fData_map.size() << " in fData_map " 
+	 << "* " << fStartTime_map.size() << " in fStartTime_map "
+	 << " TO PUT IN EVENT AT " << recoEvent->GetEventTime() << endl;
+    cout << "CHECK TRACKS WITH TimeStamps:" << endl;
+    for (startTimeMapIter jter = fStartTime_map.begin() ; jter != fStartTime_map.end(); ++jter) {
+      std::pair<double, FairTimeStamp*> datb = jter->second;
+      cout << "@@@ " << datb.second->GetTimeStamp() << endl;
+    }
+  }
+  
+  startTimeMapIter iter = fStartTime_map.begin();
+  while ( iter != fStartTime_map.end() ) {
+    std::pair<double, FairTimeStamp*> data = iter->second;
+    if ( fVerbose ) {
+      cout << " ---> check data at " << data.second->GetTimeStamp() 
+	   << " /// " << data.second->GetTimeStamp()-recoEvent->GetEventTime()-fGemTrackDelay << endl;
+    }
+    if ( TMath::Abs(data.second->GetTimeStamp()-recoEvent->GetEventTime()-fGemTrackDelay) < 3. ) {
+      if ( fVerbose ) cout << "WILL ADD THIS ONE" << endl;
+      FillDataToDeadTimeMap(data.second, data.first);
+
+      startTimeMapIter save = iter;
+      save++;
+      fStartTime_map.erase(iter);
+      iter = save;
+    }
+    else 
+      iter++;
+  }
+}
+
+std::vector<std::pair<double, PndTrack*> > PndGemEventBuilderOnTracks::Modify(std::pair<double, PndTrack*> oldData, std::pair<double, PndTrack*> newData)
+{
+  std::vector<std::pair<double, PndTrack*> > result;
+  result.push_back(newData);
+  return result;
+}
+
+void PndGemEventBuilderOnTracks::AddNewDataToTClonesArray(FairTimeStamp* data)
+{
+  FairRootManager* ioman = FairRootManager::Instance();
+  TClonesArray* myArray = ioman->GetTClonesArray(fBranchName);
+  if (fVerbose > 1) std::cout << "Data Inserted: "  <<  *(PndTrack*)(data) << std::endl;
+  new ((*myArray)[myArray->GetEntries()]) PndTrack(*(PndTrack*)(data));
+}
+
+double PndGemEventBuilderOnTracks::FindTimeForData(FairTimeStamp* data) 
+{
+  std::map<PndTrack, double>::iterator it;
+  PndTrack myData = *(PndTrack*)data;
+  it = fData_map.find(myData);
+  if (it == fData_map.end())
+    return -1;
+  else
+    return it->second;
+}
+void PndGemEventBuilderOnTracks::FillDataMap(FairTimeStamp* data, double activeTime) 
+{
+  PndTrack myData = *(PndTrack*)data;
+  fData_map[myData] = activeTime;
+}
+
+void PndGemEventBuilderOnTracks::EraseDataFromDataMap(FairTimeStamp* data)
+{
+  PndTrack myData = *(PndTrack*)data;
+  if (fData_map.find(myData) != fData_map.end())
+    fData_map.erase(fData_map.find(myData));
+}
+
 // -----   Private method CompareTrackToPreviousEvents   -------------------
-Int_t PndGemEventBuilderOnTracks::CompareTrackToPreviousEvents(PndTrack* tempTrack) {
+Int_t PndGemEventBuilderOnTracks::CompareTrackToPreviousEvents(Int_t trackId, PndTrack* tempTrack) {
   Double_t trackTime = tempTrack->GetTimeStamp();
   Int_t    recoEvent = -1;
   for ( Int_t irev = 0 ; irev < fRecoEvents.size() ; irev++ ) {	
@@ -133,8 +252,8 @@ Int_t PndGemEventBuilderOnTracks::CompareTrackToPreviousEvents(PndTrack* tempTra
     // got a distribution with sigma of 9.49795e-01
     // Setting to 3.0
     if ( TMath::Abs(trackTime-iterREV.meanTime) < 3. ) { 
-      if ( recoEvent != -1 ) {
-	//	cout << "track @ " << trackTime << " matches to two reco events: " << irev << " and " << recoEvent << endl;
+      if ( fVerbose && recoEvent != -1 ) {
+	cout << "track @ " << trackTime << " matches to two reco events: " << irev << " and " << recoEvent << endl;
       }
       else {
 	recoEvent = irev;
@@ -144,15 +263,15 @@ Int_t PndGemEventBuilderOnTracks::CompareTrackToPreviousEvents(PndTrack* tempTra
 
   // matching event found
   if ( recoEvent != -1 ) { 
-    //    cout << "adding track @ " << trackTime << " to event @ " << fRecoEvents[recoEvent].meanTime << flush;
     fRecoEvents[recoEvent].meanTime = (fRecoEvents[recoEvent].meanTime*fRecoEvents[recoEvent].nofTracks+trackTime)/((Double_t)(fRecoEvents[recoEvent].nofTracks+1));
-    //    cout << " to get event @ " << fRecoEvents[recoEvent].meanTime << " (" << fRecoEvents[recoEvent].nofTracks << ")" << endl;
     fRecoEvents[recoEvent].nofTracks = fRecoEvents[recoEvent].nofTracks+1;
+    fRecoEvents[recoEvent].trackIndex.push_back(trackId);
   }
   else {
     RecoEvent tempREV;
-    tempREV.meanTime  = trackTime;
-    tempREV.nofTracks = 1;
+    tempREV.meanTime   = trackTime;
+    tempREV.nofTracks  = 1;
+    tempREV.trackIndex.push_back(trackId);
 
     fRecoEvents.push_back(tempREV);
   }
@@ -177,7 +296,7 @@ void PndGemEventBuilderOnTracks::SetParContainers() {
 
 
 // -----   Private method Init   -------------------------------------------
-InitStatus PndGemEventBuilderOnTracks::Init() {
+Bool_t PndGemEventBuilderOnTracks::Init() {
 
   // Get input array
   FairRootManager* ioman = FairRootManager::Instance();
@@ -185,7 +304,14 @@ InitStatus PndGemEventBuilderOnTracks::Init() {
 
   fGemTracks = (TClonesArray*) ioman->GetObject("GEMTrack");
 
-  return kSUCCESS;
+  // fGemOutTracks = new TClonesArray("PndTrack",100);
+  // ioman->Register("GEMTrackQQQ", "Gem Tracks", fGemOutTracks, kTRUE);
+  // ioman->RegisterWriteoutBuffer("GEMDigi", fDataBuffer);
+  // fDataBuffer->ActivateBuffering(fTimeOrderedDigi);
+
+  fGemTrackDelay = 4.96229;
+
+  return kTRUE;
 }
 // -------------------------------------------------------------------------
 
@@ -193,12 +319,12 @@ InitStatus PndGemEventBuilderOnTracks::Init() {
 
 
 // -----   Private method ReInit   -----------------------------------------
-InitStatus PndGemEventBuilderOnTracks::ReInit() {
+Bool_t PndGemEventBuilderOnTracks::ReInit() {
 
   // Create sectorwise digi sets
   //  MakeSets();
 
-  return kSUCCESS;
+  return kTRUE;
 }
 // -------------------------------------------------------------------------
 
@@ -206,19 +332,12 @@ InitStatus PndGemEventBuilderOnTracks::ReInit() {
 
 // -----   Public method Finish   ------------------------------------------
 void PndGemEventBuilderOnTracks::Finish() {
-  fTNofRecoEvents = fRecoEvents.size();
 
-  std::sort(fRecoEvents.begin(),fRecoEvents.end(),CompareRecoEvents);
-
-  for ( Int_t irev = 0 ; irev < fTNofRecoEvents ; irev++ ) {
-    cout << "reco Event " << irev << " at " << fRecoEvents[irev].meanTime << "ns has " << fRecoEvents[irev].nofTracks << " tracks." << endl;
-  }
-
-  cout << "-------------------- " << fName.Data() << " : Summary -----------------------" << endl;
+  cout << "-------------------- " << GetBuilderName() << " : Summary -----------------------" << endl;
   cout << " Events:        " << setw(10) << fTNofEvents     << endl;
   cout << " Tracks:        " << setw(10) << fTNofTracks     << "    ( " << (Double_t)fTNofTracks   /((Double_t)fTNofEvents) << " per event )" << endl;
   cout << " Reco Events:   " << setw(10) << fTNofRecoEvents << endl;
-  cout << "---------------------------------------------------------------------" << endl; 
+  cout << " . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . " << endl;
   cout << " >>> EB >>> all   time  = " << fExecTime << "s" << endl;
   cout << "---------------------------------------------------------------------" << endl; 
 }

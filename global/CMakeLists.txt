@@ -40,17 +40,19 @@ ${ROOT_LIBRARY_DIR}
 link_directories( ${LINK_DIRECTORIES})
 
 set(SRCS
-PndGlobalIdealTrackMerger.cxx
-PndGlobalTrackMergerQA.cxx
-PndGlobalTrackFitQA.cxx
-PndMvdGemTrackFinderOnHits.cxx
 PndBarrelTrackFinder.cxx
 PndBarrelTrackFinderQA.cxx
+#PndEventBuilderManager.cxx
+#PndEventBuilderOnMCEvents.cxx
+PndGlobalIdealTrackMerger.cxx
+PndGlobalTrackFitQA.cxx
+PndGlobalTrackMergerQA.cxx
+PndMvdGemTrackFinderOnHits.cxx
 )
 
 set(LINKDEF  GlobalLinkDef.h)
 set(LIBRARY_NAME Global)
 
-set(DEPENDENCIES Base ParBase PndData TrkBase Gem Stt)
+set(DEPENDENCIES Base ParBase PndData TrkBase Gem Stt Geane)
 
 GENERATE_LIBRARY()

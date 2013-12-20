@@ -1,25 +1,24 @@
 //* $Id: */
 
 // -------------------------------------------------------------------------
-// -----                     PndGemEventBuilderOnTracks header file                -----
+// -----                     PndEventBuilderOnMCEvents header file                -----
 // -----                  Created 22/08/2013 by R. Karabowicz          -----
 // -------------------------------------------------------------------------
 
 
-/** PndGemEventBuilderOnTracks
+/** PndEventBuilderOnMCEvents
  *@author Radoslaw Karabowicz <r.karabowicz@gsi.de>
  *@since 22/08/2013
  *@version 1.0
  **
- ** PANDA task class for event building basing on reconstructed GEM tracks.
+ ** PANDA ideal event builder from ideal event
+ ** information from FairEventHeader.
  ** Task level RECO
  **/
 
 
-#ifndef PNDGEMEVENTBUILDERONTRACKS_H
-#define PNDGEMEVENTBUILDERONTRACKS_H 1
-
-#include "PndTrack.h"
+#ifndef PNDEVENTBUILDERONMCEVENTS_H
+#define PNDEVENTBUILDERONMCEVENTS_H 1
 
 #include "FairEventBuilder.h"
 
@@ -33,34 +32,28 @@ class TClonesArray;
 
 class FairRecoEventHeader;
 
-struct RecoEvent {
-  std::vector<Int_t> trackIndex;
-  Int_t    nofTracks;
-  Double_t meanTime;
-};
-
-class PndGemEventBuilderOnTracks : public FairEventBuilder
+class PndEventBuilderOnMCEvents : public FairEventBuilder
 {
 
 
  public :
 
   /** Default constructor **/
-  PndGemEventBuilderOnTracks();
+  PndEventBuilderOnMCEvents();
 
   /** Constructor with task name **/
-  PndGemEventBuilderOnTracks(const char* name, Int_t iVerbose=0);
+  PndEventBuilderOnMCEvents(const char* name, Int_t iVerbose=0);
 
 
   /** Destructor **/
-  virtual ~PndGemEventBuilderOnTracks();
+  virtual ~PndEventBuilderOnMCEvents();
 
 
   virtual void          StoreEventData(FairRecoEventHeader* recoEvent);
 
   std::vector<std::pair<double, FairRecoEventHeader*> > FindEvents();
 
-  std::vector<std::pair<double, PndTrack*> > Modify(std::pair<double, PndTrack*> oldData, std::pair<double, PndTrack*> newData);
+  std::vector<std::pair<double, FairRecoEventHeader*> > Modify(std::pair<double, FairRecoEventHeader*> oldData, std::pair<double, FairRecoEventHeader*> newData);
   void AddNewDataToTClonesArray(FairTimeStamp* data);
   double FindTimeForData(FairTimeStamp* data);
   void FillDataMap(FairTimeStamp* data, double activeTime);
@@ -68,20 +61,16 @@ class PndGemEventBuilderOnTracks : public FairEventBuilder
 
  private:
 
-  TClonesArray*     fGemTracks;
-  TClonesArray*     fGemOutTracks;
+  FairEventHeader*  fEventHeader;
 
   Int_t             fTNofEvents;
-  Int_t             fTNofTracks;
   Int_t             fTNofRecoEvents;
 
-  Double_t   fGemTrackDelay;
   TStopwatch fTimer;
   Double_t   fExecTime;
-  std::vector<RecoEvent> fRecoEvents;
 
   std::map<FairRecoEventHeader,double> fEvent_map;
-  std::map<PndTrack,double>            fData_map;
+  std::map<FairRecoEventHeader,double> fData_map;
 
   /** Get parameter containers **/
   virtual void SetParContainers();
@@ -99,9 +88,7 @@ class PndGemEventBuilderOnTracks : public FairEventBuilder
   /** Finish at the end of each event **/
   virtual void Finish();
 
-  Int_t CompareTrackToPreviousEvents(Int_t trackId, PndTrack* tempTrack);
-
-  ClassDef(PndGemEventBuilderOnTracks,1);
+  ClassDef(PndEventBuilderOnMCEvents,1);
 
 };
 
