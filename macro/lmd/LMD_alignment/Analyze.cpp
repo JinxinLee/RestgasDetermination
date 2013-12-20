@@ -14,7 +14,8 @@ Program reading data prodused by KNOSSOS and produce the root file with results
 #include "TH2F.h"
 #include "TF1.h"
 #include "TCanvas.h"
-#include "/home/karavdin/pandaRoot12/mySandbox/myKnossos/constantsLMD.h"
+//#include "/home/karavdin/pandaRoot12/mySandbox/myKnossos/constantsLMD.h"
+#include "/panda/karavdina/myKnossos/constantsLMD.h"
 // needed for corditate from\out lumi frame calculation
 #include"PndLmdDim.h"
 using namespace std;
@@ -395,15 +396,18 @@ int main(int __argc,char *__argv[]) {
      cout<<"corr: dxin["<<jh<<"]["<<jp<<"]["<<jm<<"]="<<dxin[jh][jp][jm];
      cout<<"     dxout["<<jh<<"]["<<jp<<"]["<<jm<<"]="<<dxout[jh][jp][jm];
      cout<<" dif="<<dxin[jh][jp][jm]+dxout[jh][jp][jm]<<endl;
+     //   cout<<" dif="<<-dxin[jh][jp][jm]-dxout[jh][jp][jm]<<endl;
      cout<<"corr: dyin["<<jh<<"]["<<jp<<"]["<<jm<<"]="<<dyin[jh][jp][jm];
      cout<<"     dyout["<<jh<<"]["<<jp<<"]["<<jm<<"]="<<dyout[jh][jp][jm];
      cout<<" dif="<<dyin[jh][jp][jm]+dyout[jh][jp][jm]<<endl;
+     //cout<<" dif="<<-dyin[jh][jp][jm]-dyout[jh][jp][jm]<<endl;
      cout<<"corr: dgammain["<<jh<<"]["<<jp<<"]["<<jm<<"]="<<dgammain[jh][jp][jm];
      cout<<"     dgammaout["<<jh<<"]["<<jp<<"]["<<jm<<"]="<<dgammaout[jh][jp][jm];
      cout<<" dif="<<dgammain[jh][jp][jm]+dgammaout[jh][jp][jm]<<endl;
-     cout<<"corr: dyin["<<jh<<"]["<<jp<<"]["<<jm<<"]="<<dyin[jh][jp][jm];
-     cout<<"     dyout["<<jh<<"]["<<jp<<"]["<<jm<<"]="<<dyout[jh][jp][jm]<<endl;
-     cout<<""<<endl;
+     //    cout<<" dif="<<-dgammain[jh][jp][jm]-dgammaout[jh][jp][jm]<<endl;
+     // cout<<"corr: dyin["<<jh<<"]["<<jp<<"]["<<jm<<"]="<<dyin[jh][jp][jm];
+     // cout<<"     dyout["<<jh<<"]["<<jp<<"]["<<jm<<"]="<<dyout[jh][jp][jm]<<endl;
+     // cout<<""<<endl;
    }
  }
  }
@@ -750,6 +754,19 @@ c3->Update();
      }
    }
    }
+ // //TEST 04.12.2013
+// for(int jh=0;jh<nSides;jh++){
+//    for(int jp=0;jp<nStation;jp++){
+//      for(int jm=0;jm<nSectors;jm++){
+//        lumipar<<"shift_x_"<<jh<<"_"<<jp<<"_"<<jm<<":Double_t "<<-(dxout[jh][jp][jm]+dxin[jh][jp][jm])<<endl;
+//        lumipar<<"shift_y_"<<jh<<"_"<<jp<<"_"<<jm<<":Double_t "<<-(dyout[jh][jp][jm]+dyin[jh][jp][jm])<<endl;
+//        lumipar<<"shift_z_"<<jh<<"_"<<jp<<"_"<<jm<<":Double_t "<<-(dzout[jh][jp][jm]+dzin[jh][jp][jm])<<endl;
+//        lumipar<<"rotate_x_"<<jh<<"_"<<jp<<"_"<<jm<<":Double_t "<<-(dalphaout[jh][jp][jm]+dalphain[jh][jp][jm])<<endl;
+//        lumipar<<"rotate_y_"<<jh<<"_"<<jp<<"_"<<jm<<":Double_t "<<-(dbetaout[jh][jp][jm]+dbetain[jh][jp][jm])<<endl;
+//        lumipar<<"rotate_z_"<<jh<<"_"<<jp<<"_"<<jm<<":Double_t "<<-(dgammaout[jh][jp][jm]+dgammain[jh][jp][jm])<<endl;
+//      }
+//    }
+//    }
  lumipar<<"#################################################################"<<endl;
  lumipar.close();
  cout<<"That's it!"<<endl;

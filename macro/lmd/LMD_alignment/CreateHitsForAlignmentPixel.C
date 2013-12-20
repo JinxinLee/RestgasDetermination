@@ -328,7 +328,7 @@ int main(int __argc,char *__argv[]) {
     //    TString mtx_perfect = "${VMCWORKDIR}/macro/lmd/matrices_perfect.txt";
 
     TString mtx_corr =  storePath+"/matrices_corrected.txt";
-    TString mtx_perfect = storePath+"/matrices_perfect.txt";
+    TString mtx_perfect = storePath+"/trafo_matrices_lmd.dat";
     //    lmddim -> Read_transformation_matrices(mtx_perfect.Data(), false);
     lmddim -> Read_transformation_matrices(mtx_perfect.Data(), false);
     lmddim -> Read_transformation_matrices(mtx_corr.Data(), true);
