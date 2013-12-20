@@ -2,24 +2,17 @@
 
 // -------------------------------------------------------------------------
 // -----                      PndGemDigi header file                   -----
-// -----                  Created 28/08/06  by V. Friese               -----
+// -----                  Adapted in 2010  by R. Karabowicz            -----
 // -------------------------------------------------------------------------
 
 
 /** PndGemDigi.h
- **@author V.Friese <v.friese@gsi.de>
- **@since 28.08.06
- **@version 1.0
+ **@author R.Karabowicz <r.karabowicz@gsi.de>
+ **@since 2010
  **
- ** Data class for digital STS information
+ ** Data class for digital GEM information
  ** Data level: RAW
  **
- ** The detector ID consists of:
- **   system ID (0-31, kSTS=2), bits 0-4, see base class
- **   station number (0-255), bits 5-12 
- **   sector number (0-32767), bits 13-27
- **   side (0=front side, 1=back side, bit 28, always 0 for pixel sectors).
- ** 
  ** The index of the (first) MCPoint having activated this channel
  ** is accessible via GetMcPointIndex(). 
  **/
