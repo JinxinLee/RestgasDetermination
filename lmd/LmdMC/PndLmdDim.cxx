@@ -1125,11 +1125,13 @@ void PndLmdDim::reCreate_transformation_matrices(){
 	_rotpsi = angle/pi*180.;
 	TGeoRotation* rot_module = new TGeoRotation("rot_module", _rotphi, _rottheta, _rotpsi);
 	TGeoMatrix* rottrans_module = new TGeoCombiTrans(_x, _y, _z, rot_module);
-	Set_offset(ihalf, iplane, imodule, -1, -1, -1,
+	// Set_offset(ihalf, iplane, imodule, -1, -1, -1,
+	// 	   _offset_x, _offset_y, _offset_z, _offset_phi, _offset_theta, _offset_psi);
+	Get_offset(ihalf, iplane, imodule, -1, -1, -1,
 		   _offset_x, _offset_y, _offset_z, _offset_phi, _offset_theta, _offset_psi);
 	// TGeoRotation* rot_module_offset = new TGeoRotation("rot_module_offset",
 	// 						   _offset_phi/pi*180., _offset_theta/pi*180., _offset_psi/pi*180.);
-	//	cout<<"_rot_x: "<<_offset_phi<<" rad"<<endl;
+	//	cout<<"_offset_x: "<<_offset_x<<" cm"<<endl;
 	TGeoRotation* rot_module_offset = new TGeoRotation("rot_module_offset",0,0,0);
 	// // ///TEST
 	// rot_module_offset->RotateZ(-_offset_psi/pi*180.);
@@ -1164,8 +1166,12 @@ void PndLmdDim::reCreate_transformation_matrices(){
 	    // rottrans_side = new TGeoHMatrix(*rottrans_side_offset * *rottrans_side);
 	    // save the transformation from the lumi reference frame
 	    // into the local cvd side reference frame
-	    transformation_matrices[Generate_key(ihalf, iplane, imodule, iside, -1, -1)] =
-	      new TGeoHMatrix((*rottrans_plane) * (*rottrans_module) * (*rottrans_side));
+	  transformation_matrices[Generate_key(ihalf, iplane, imodule, iside, -1, -1)] =
+	    new TGeoHMatrix((*rottrans_plane) * (*rottrans_module) * (*rottrans_side));
+	  // transformation_matrices_aligned[Generate_key(ihalf, iplane, imodule, iside, -1, -1)] =
+	  //  new TGeoHMatrix((*rottrans_plane) * (*rottrans_module) * (*rottrans_side)); //TEST
+
+
 	} // loop over the two sides of the modules
 	// transformation_matrices[Generate_key(ihalf, iplane, imodule, -1, -1, -1)] =
 	//       new TGeoHMatrix((*rottrans_plane) * (*rottrans_module));
@@ -1237,8 +1243,10 @@ void PndLmdDim::Correct_transformation_matrices(){
 
 			  // save the transformation from the lumi reference frame
 			  // into the local cvd side reference frame
-			  transformation_matrices[Generate_key(ihalf, iplane, imodule, iside, -1, -1)] =
-			    new TGeoHMatrix((*rottrans_side)); //TODO: ????
+			  // transformation_matrices[Generate_key(ihalf, iplane, imodule, iside, -1, -1)] =
+			  //   new TGeoHMatrix((*rottrans_side)); //TODO: ????
+			  transformation_matrices_aligned[Generate_key(ihalf, iplane, imodule, iside, -1, -1)] =
+			    new TGeoHMatrix((*rottrans_side)); //TEST
 
 
 			} // loop over the two sides of the modules
@@ -1412,7 +1420,7 @@ void PndLmdDim::Read_DB_offsets(PndLmdAlignPar *lmdalignpar){
     for(int ik=0;ik<40;ik++){
       //      cout<<"ik = "<<ik<<endl;
       fShiftX[ik] = lmdalignpar->GetShiftX(ik);
-      //      cout<<"fShiftX[ik] = "<<fShiftX[ik]<<endl;
+      //   cout<<"fShiftX[ik] = "<<fShiftX[ik]<<endl;
       fShiftY[ik] = lmdalignpar->GetShiftY(ik);
       fShiftZ[ik] = lmdalignpar->GetShiftZ(ik);
       fRotateX[ik] = lmdalignpar->GetRotateX(ik);
