@@ -45,6 +45,36 @@ public:
 	FairTrackParP GetParamFirst() { return fTrackParamFirst; }
 	FairTrackParP GetParamLast()  { return fTrackParamLast ; }
 
+	virtual bool equal(FairTimeStamp* data) const {
+	  return false;
+	}
+	
+	virtual bool operator<(const PndTrack& myTrack) const{
+	  PndTrackCand myCand = ((PndTrack)myTrack).GetTrackCand();
+	  if      (fTimeStamp < myCand.GetTimeStamp() ) return true; 
+	  else if (fTimeStamp > myCand.GetTimeStamp() ) return false; 
+	  if      (fTrackCand.getDirSeed().Mag() < myCand.getDirSeed().Mag() ) return true; 
+	  else if (fTrackCand.getDirSeed().Mag() > myCand.getDirSeed().Mag() ) return false;
+	  if      (fTrackCand.getPosSeed().Mag() < myCand.getPosSeed().Mag() ) return true; 
+	  else if (fTrackCand.getPosSeed().Mag() > myCand.getPosSeed().Mag() ) return false; 
+	  return false;
+	}
+	
+	virtual bool operator>(const PndTrack& myTrack) const{
+	  PndTrackCand myCand = ((PndTrack)myTrack).GetTrackCand();
+	  if      (fTimeStamp > myCand.GetTimeStamp() ) return true; 
+	  else if (fTimeStamp < myCand.GetTimeStamp() ) return false; 
+	  if      (fTrackCand.getDirSeed().Mag() > myCand.getDirSeed().Mag() ) return true; 
+	  else if (fTrackCand.getDirSeed().Mag() < myCand.getDirSeed().Mag() ) return false;
+	  if      (fTrackCand.getPosSeed().Mag() > myCand.getPosSeed().Mag() ) return true; 
+	  else if (fTrackCand.getPosSeed().Mag() < myCand.getPosSeed().Mag() ) return false; 
+	  return false;
+	}
+	
+	virtual bool operator==(const PndTrack& myTrack) const{
+	  return false; 
+	}
+
 private:
 	FairTrackParP fTrackParamFirst;
 	FairTrackParP fTrackParamLast;
