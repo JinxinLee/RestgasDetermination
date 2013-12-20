@@ -314,8 +314,10 @@ void PndLmdPixelClusterTask::Exec(Option_t* opt)
 
       // //Alignment: translate to LMD local (not corrected) frame and back to GLOBAL (corrected) ----------------
       if(readAlign){
-	// cout<<"BEFORE [mis]ALIGN:"<<endl;
-	// myHit.Print();
+	if(fVerbose>0){
+	  cout<<"BEFORE [mis]ALIGN:"<<endl;
+	  myHit.Print();
+	}
 	int sensorID = myHit.GetSensorID();
 	int ihalf, iplane, imodule, iside, idie, isensor;
 	lmddim->Get_sensor_by_id(sensorID, ihalf, iplane, imodule, iside, idie, isensor);
@@ -328,8 +330,10 @@ void PndLmdPixelClusterTask::Exec(Option_t* opt)
 	myHit.SetDx(sqrt(hitCov2[0][0]));
 	myHit.SetDy(sqrt(hitCov2[1][1]));
 	myHit.SetDz(sqrt(hitCov2[2][2]));
-	// cout<<"AFTER [mis]ALIGN:"<<endl;
-	// myHit.Print();
+	if(fVerbose>0){
+	  cout<<"AFTER [mis]ALIGN:"<<endl;
+	  myHit.Print();
+	}
       }
       // //Alignment: (END) ---------------------------------------------------------------------------------------   
 
