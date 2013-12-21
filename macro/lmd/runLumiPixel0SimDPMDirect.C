@@ -41,7 +41,7 @@ void runLumiPixel0SimDPMDirect(const int nEvents=10, const int startEvent=0, con
 
   FairModule *Cave= new PndCave("CAVE");
   Cave->SetGeometryFileName("pndcave.geo");
-  //  Cave->SetGeometryFileName("pndcaveVAC.geo"); //LMD is working in vacuum!
+  //Cave->SetGeometryFileName("../macro/lmd/geo/pndcaveVAC.geo"); //LMD is working in vacuum!
   fRun->AddModule(Cave); 
   //-------------------------  Magnet   ----------------- 
   FairModule *Magnet= new PndMagnet("MAGNET");
@@ -62,6 +62,61 @@ void runLumiPixel0SimDPMDirect(const int nEvents=10, const int startEvent=0, con
   Lum->SetGeometryFileName("Luminosity-Detector.root");
   Lum->SetVerboseLevel(verboseLevel);
   fRun->AddModule(Lum);
+
+  //Other PANDA systems ----
+ //-------------------------  STT       -----------------
+  FairDetector *Stt= new PndStt("STT", kTRUE);
+  Stt->SetGeometryFileName("straws_skewed_blocks_35cm_pipe.geo");
+  fRun->AddModule(Stt);
+  //-------------------------  MVD       -----------------
+  FairDetector *Mvd = new PndMvdDetector("MVD", kTRUE);
+  Mvd->SetGeometryFileName("Mvd-2.1_FullVersion.root");
+  fRun->AddModule(Mvd);
+  //-------------------------  GEM       -----------------
+  FairDetector *Gem = new PndGemDetector("GEM", kTRUE);
+  Gem->SetGeometryFileName("gem_3Stations.root");
+  fRun->AddModule(Gem);
+  //-------------------------  EMC       -----------------
+  PndEmc *Emc = new PndEmc("EMC",kTRUE);
+  Emc->SetGeometryVersion(1);
+  Emc->SetStorageOfData(kFALSE);
+  fRun->AddModule(Emc);
+  //-------------------------  SCITIL    -----------------
+  FairDetector *SciT = new PndSciT("SCIT",kTRUE);
+  SciT->SetGeometryFileName("barrel-SciTil_07022013.root");
+  fRun->AddModule(SciT);
+  //-------------------------  DRC       -----------------
+  PndDrc *Drc = new PndDrc("DIRC", kTRUE);
+  Drc->SetGeometryFileName("dirc_l0_p0_updated.root"); 
+  Drc->SetRunCherenkov(kFALSE);
+  fRun->AddModule(Drc); 
+  //-------------------------  DISC      -----------------
+  PndDsk* Dsk = new PndDsk("DSK", kTRUE);
+  Dsk->SetStoreCerenkovs(kFALSE);
+  Dsk->SetStoreTrackPoints(kFALSE);
+  fRun->AddModule(Dsk);
+  //-------------------------  MDT       -----------------
+  PndMdt *Muo = new PndMdt("MDT",kTRUE);
+  Muo->SetBarrel("fast");
+  Muo->SetEndcap("fast");
+  Muo->SetMuonFilter("fast");
+  Muo->SetForward("fast");
+  Muo->SetMdtMagnet(kTRUE);
+  Muo->SetMdtMFIron(kTRUE);
+  fRun->AddModule(Muo);
+  //-------------------------  FTS       -----------------
+  FairDetector *Fts= new PndFts("FTS", kTRUE);
+  Fts->SetGeometryFileName("fts.geo");
+  fRun->AddModule(Fts); 
+  //-------------------------  FTOF      -----------------
+  FairDetector *FTof = new PndFtof("FTOF",kTRUE);
+  FTof->SetGeometryFileName("ftofwall.root");
+  fRun->AddModule(FTof);
+  //-------------------------  RICH       ----------------
+  FairDetector *Rich= new PndRich("RICH",kFALSE);
+  Rich->SetGeometryFileName("rich_v2_shift.geo");
+  fRun->AddModule(Rich);
+  //[END] Other PANDA systems ---
 
   //particle generator
   FairPrimaryGenerator* primGen = new FairPrimaryGenerator();
