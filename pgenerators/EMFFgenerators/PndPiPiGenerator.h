@@ -37,9 +37,9 @@ void rlxd_init(int level, int seed);
 //mz for pp_to_pipi_vandewi
 #include "mzfunctions_pp_to_pipi_vandewi.h"
 
-using namespace std;
-
 #include "FairGenerator.h"
+
+using namespace std;
 
 class FairPrimaryGenerator;
 
@@ -55,8 +55,8 @@ public:
   /** Set parameters of event generator**/
   void SetBeamMom(Double_t in_P)                 {P = in_P;};				// set pbar momentum
   void SetSeed(Int_t in_seed)                    {seed = in_seed;};			// set seed
-  void SetCosThetaMin(Double_t in_cos_theta_min) {cos_theta_min = in_cos_theta_min;};	// set cos(theta) min
-  void SetCosThetaMax(Double_t in_cos_theta_max) {cos_theta_max = in_cos_theta_max;};	// set cos(theta) max
+  void SetCosThetaMin(Double_t in_cos_theta_min) {cos_theta_min = in_cos_theta_min;};	// set cos(theta*) min in the pbarp CM frame
+  void SetCosThetaMax(Double_t in_cos_theta_max) {cos_theta_max = in_cos_theta_max;};	// set cos(theta*) max in the pbarp CM frame
 
   /** Pass event to the PANDAroot**/
   virtual Bool_t ReadEvent(FairPrimaryGenerator* primGen); 
@@ -68,8 +68,8 @@ public:
 
   Double_t P;               // pbar momentum
   Int_t seed;               // seed
-  Double_t cos_theta_min;   // cos(theta) min
-  Double_t cos_theta_max;   // cos(theta) max
+  Double_t cos_theta_min;   // cos(theta*) min in the pbarp CM frame
+  Double_t cos_theta_max;   // cos(theta*) max in the pbarp CM frame
   Double_t piplus_p[4];     // lab frame: 4-mom pi+
   Double_t piminus_p[4];    // lab frame: 4-mom pi-
 };
