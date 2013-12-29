@@ -311,7 +311,7 @@ void PndLmdBPtestTask::Exec(Option_t* opt)
       // 	zbend[js]=z0-zstep*js;
       // }
 
-      const int nstep0=10;
+      const int nstep0=100;
       //      double zbend0[nstep0]={fFittedTrkP.GetZ(), 661, 660.5, 660., 659, 319, 316, 220,10};//entarance and exit mag.field
       double zbend0[nstep0]={fFittedTrkP.GetZ(), 660, 602, 450, 342, 283, 248, 180, 100, 1};//entarance and exit mag.field
        //      TEST for backward and forward propagation: more steps!

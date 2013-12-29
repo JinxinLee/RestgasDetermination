@@ -147,11 +147,11 @@ public:
   double GetMCmomLMD() const{return fMommcLMD;}
 
   /** set secondary flag for MC trk  **/
-  /** 0=primary, 1=secondary **/
+  /** <0 primary, >=0 secondary **/
   void SetSecondary(int sec){fSecondary = sec;}
 
   /** get secondary flag for MC trk **/
-  /** 0=primary, 1=secondary **/
+  /** <0 primary, >=0 secondary **/
   int GetSecondary() const{return fSecondary;}
 
   /** set number of hits from one MC trk in REC trk **/

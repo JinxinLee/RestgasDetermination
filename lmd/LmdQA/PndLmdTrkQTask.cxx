@@ -617,9 +617,10 @@ void PndLmdTrkQTask::Exec(Option_t* opt)
 	TVector3 StartMC = mctrk->GetStartVertex();
 	glXmc= StartMC.X(); glYmc = StartMC.Y(); glZmc = StartMC.Z();
 	int movID = mctrk->GetMotherID();
-	if(movID<0) trkMCStatus=0;
-	else
-	  trkMCStatus=+1;
+	trkMCStatus = movID;
+	// if(movID<0) trkMCStatus=1;
+	// else
+	//   trkMCStatus=0;
 	glNumMChits = MCtksSIMhits[MCidforREC];
 	glNumDoubleMChits = MCDoubleHits[MCidforREC];
 
@@ -665,7 +666,7 @@ void PndLmdTrkQTask::Exec(Option_t* opt)
 
       trkqlmd->SetMCpoint(glXmc,glYmc,glZmc);
       trkqlmd->SetMCmom(glThetamc,glPhimc,glMommc);
-      trkqlmd->SetSecondary(trkMCStatus);
+      //     trkqlmd->SetSecondary(trkMCStatus);
       trkqlmd->SetNumMChits(glNumMChits);
       trkqlmd->SetNumDoubleMChits(glNumDoubleMChits);
       trkqlmd->SetMCpointLMD(glXmcLMD,glYmcLMD,glZmcLMD);
@@ -730,8 +731,9 @@ void PndLmdTrkQTask::Exec(Option_t* opt)
 	  trkRECStatus = trkQ;     
 	  glXmc= PosMC.X(); glYmc = PosMC.Y(); glZmc = PosMC.Z();
 	  glThetamc = MomMC.Theta();       glPhimc = MomMC.Phi(); glMommc = MomMC.Mag();
-	  if(movID<0) trkMCStatus=0;
-	  if(movID>=0) trkMCStatus=+1;
+	  trkMCStatus=movID;
+	  // if(movID<0) trkMCStatus=0;
+	  // if(movID>=0) trkMCStatus=+1;
 	  //	  tRECMCtrks->Fill();
 	  if(!fWriteAllMC && trkRECStatus==-3){
 	  }
@@ -749,7 +751,7 @@ void PndLmdTrkQTask::Exec(Option_t* opt)
 	    trkqlmd->SetIPmom(glThetarec,glPhirec,glMomrec);
 	    trkqlmd->SetMCpoint(glXmc,glYmc,glZmc);
 	    trkqlmd->SetMCmom(glThetamc,glPhimc,glMommc);
-	    trkqlmd->SetSecondary(trkMCStatus);
+	    //   trkqlmd->SetSecondary(trkMCStatus);
 	    trkqlmd->SetIPerrpoint(-9999,-9999,-9999);
 	    trkqlmd->SetIPerrmom(-9999,-9999,-9999);
 	    trkqlmd->SetNumMChits(MCtksREChits[imc]);
