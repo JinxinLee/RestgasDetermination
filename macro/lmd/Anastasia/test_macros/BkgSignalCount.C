@@ -64,6 +64,7 @@ void BkgSignalCount(TString path="/panda/pandaroot/macro/lmd/testPixel/mom_1_5/"
   TH1 *hmombkgmc = new TH1D("hmombkgmc","mom of rec.trks belong to bkg; P_{MC}, GeV/c",2e3,-20,20);
 
   TH1 *hPDGrec  = new TH1I("hPDGrec","PDG code of rec.trks",1e4,-5e3,5e3);
+  TH1 *hSecondaryFl  = new TH1I("hSecondaryFl","(<0 primary, >=0 secondary) for rec.bkg",2e1,-10,10); /** 0=primary, 1=secondary **/
   TH1 *hMultiMC  = new TH1I("hMultiMC","multiplicity of sim ev",1e2,0,1e2);
   TH1 *hMultiREC  = new TH1I("hMultiREC","multiplicity of rec ev",1e2,0,1e2);
   //-----------------------------------------------------------------------------------
@@ -97,6 +98,7 @@ void BkgSignalCount(TString path="/panda/pandaroot/macro/lmd/testPixel/mom_1_5/"
  Double_t glThetaBkgMC,glPhiBkgMC,glXpcaBkgMC,glYpcaBkgMC,glZpcaBkgMC,glPBkgMC;
  Double_t glerrThetaBkg,glerrPhiBkg,glerrXpcaBkg,glerrYpcaBkg,glerrZpcaBkg,glerrPBkg;
  Int_t glIDBkg,glSumIDBkg;//,glMotherIDBkg;
+ Int_t glisSecond;//is secondary?
  tBkg->Branch("threc",&glThetaBkg);
  tBkg->Branch("phrec",&glPhiBkg);
  tBkg->Branch("xrec",&glXpcaBkg);
@@ -105,6 +107,7 @@ void BkgSignalCount(TString path="/panda/pandaroot/macro/lmd/testPixel/mom_1_5/"
  tBkg->Branch("prec",&glPBkg);
  tBkg->Branch("id",&glIDBkg);
  tBkg->Branch("sumid",&glSumIDBkg);
+ tBkg->Branch("issecond",&glisSecond);
  // tBkg->Branch("motherid",&glMotherIDBkg);
  tBkg->Branch("errthrec",&glerrThetaBkg);
  tBkg->Branch("errphrec",&glerrPhiBkg);
@@ -169,6 +172,7 @@ void BkgSignalCount(TString path="/panda/pandaroot/macro/lmd/testPixel/mom_1_5/"
 	  hxsigmc->Fill(xmctrk);
 	  hysigmc->Fill(ymctrk);
 	  hmomsigmc->Fill(mommctrk);
+	
 	  glThetaSig = thtrk;
 	  glPhiSig = phtrk;
 	  glXpcaSig = xtrk;
@@ -190,6 +194,7 @@ void BkgSignalCount(TString path="/panda/pandaroot/macro/lmd/testPixel/mom_1_5/"
 	  tSig->Fill();
 	}
 	else{//bkg
+	  hSecondaryFl->Fill(flSecondary);
 	  hthbkgrec->Fill(thtrk);
 	  hphbkgrec->Fill(phtrk);
 	  hxbkgrec->Fill(xtrk);
@@ -214,7 +219,7 @@ void BkgSignalCount(TString path="/panda/pandaroot/macro/lmd/testPixel/mom_1_5/"
 	  glerrXpcaBkg = errpcaTrkrec.X();
 	  glerrYpcaBkg = errpcaTrkrec.Y();
 	  glerrZpcaBkg = errpcaTrkrec.Z();
-
+	  glisSecond = flSecondary;
 	  glThetaBkgMC = thmctrk;
 	  glPhiBkgMC = phmctrk;
 	  glXpcaBkgMC = xmctrk;
@@ -292,6 +297,6 @@ void BkgSignalCount(TString path="/panda/pandaroot/macro/lmd/testPixel/mom_1_5/"
 
   tBkg->Write();
   tSig->Write();
-
+  hSecondaryFl->Write();
   f->Close();
 }
