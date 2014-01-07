@@ -117,7 +117,6 @@ rad_complete(Int_t nEvents = 10, TString  SimEngine ="TGeant3", Float_t mom = 7.
   // Create and Set Event Generator
   //-------------------------------
   FairPrimaryGenerator* primGen = new FairPrimaryGenerator();
-  primGen->SetEventMeanTime(10);
   fRun->SetGenerator(primGen);
 	 
   FairBoxGenerator* boxGen = new FairBoxGenerator(0, 10); // 0 = geantino; 10 = multipl.

@@ -136,7 +136,6 @@ sim_complete(Int_t nEvents = 100, TString  SimEngine ="TGeant3", Float_t mom = 6
   // Create and Set Event Generator
   //-------------------------------
   FairPrimaryGenerator* primGen = new FairPrimaryGenerator();
-  primGen->SetEventMeanTime(10);
   fRun->SetGenerator(primGen);
 	 
   if(UseBoxGenerator){	// Box Generator
