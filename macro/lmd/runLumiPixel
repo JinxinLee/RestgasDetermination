@@ -15,10 +15,10 @@ pbeam=$mom
 solsw=3 #GeV, switch between half and full solenoid: below half of solenoid
 if [[ $(echo "if (${pbeam} > ${solsw}) 1 else 0" | bc) -eq 1 ]]; then
     echo "FULL solenoid field maps"
-    ln -sf ${VMCWORKDIR}/input/solenoid_fc/* ${VMCWORKDIR}/input/.
+    ln -sf ${VMCWORKDIR}/macro/lmd/Anastasia/solenoid_fc/* ${VMCWORKDIR}/input/.
 else
     echo "HALF solenoid field maps"
-    ln -sf ${VMCWORKDIR}/input/solenoid_hc/* ${VMCWORKDIR}/input/.
+    ln -sf ${VMCWORKDIR}/macro/lmd/Anastasia/solenoid_hc/* ${VMCWORKDIR}/input/.
 fi
 ######################################################
 
@@ -31,7 +31,7 @@ numTrks=1
 #merge hits on sensors from different sides. true=yes
 mergedHits=true
 #number of events
-numEv=20000
+numEv=2000
 
 # #simulation with Box generator
    root -l -b -q runLumiPixel0SimBox.C\(${numEv},0,"\"${path}\"",0,-2212,${pbeam},${numTrks},3562\)
