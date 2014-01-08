@@ -39,7 +39,7 @@
 #include<TGeoManager.h>
 #include<TGeoTorus.h>
 #include<TGeoCone.h>
-#include<PndLmdDim.h>
+//#include<PndLmdDim.h>
 #include<vector>
 #include<sstream>
 
@@ -1025,8 +1025,8 @@ void createRootGeometry_beampipe() {
 	// add pipe to cave
 	cave->AddNode(beamPipe, 1);
 	if (create_lumi){
-		PndLmdDim* lmddim = PndLmdDim::Instance();
-		lmddim->Generate_rootgeom(*cave, false);
+		//PndLmdDim* lmddim = PndLmdDim::Instance();
+		//lmddim->Generate_rootgeom(*cave, false);
 	}
 	//beamPipe->AddNode(VTest, 0, trv1);
 	gGeoManager->CloseGeometry();
