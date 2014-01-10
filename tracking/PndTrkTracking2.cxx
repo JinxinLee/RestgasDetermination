@@ -1643,9 +1643,9 @@ int iconta=0;
 // --------  here the track and its hits were found, filling the Inclusion list
 
 
-//	for(j=0; j<fnSttParHitsinTrack[nSttTrackCand]; j++){
-//		fInclusionListStt[fListSttParHitsinTrack[nSttTrackCand][j]] = false;
-//	}
+	for(j=0; j<fnSttParHitsinTrack[nSttTrackCand]; j++){
+		fInclusionListStt[fListSttParHitsinTrack[nSttTrackCand][j]] = false;
+	}
 
 	keepit[nSttTrackCand]=true;
 	nSttTrackCand++;
@@ -1784,22 +1784,7 @@ MAXMVDPIXELHITSINTRACK,MAXMVDSTRIPHITSINTRACK,MAXSCITILHITSINTRACK,MAXSTTHITSINT
 	// calculate if there is the need of using some skew hits in the subsequent SZ fit;
 	// put in  nhitsinfit  the number of hits used in the subsequent  SZ  fit.
 
-
-	// the following is valid only for GLPK fits;
-	if(YesGLPKfitSZ)
-	{	// flag for the GLPK choice of fit;
-	  if( nXYZhits <=2){
-		fnSttSkewHitsinTrack[ncand]<5 ?
-			nhitsinfit = nXYZhits + fnSttSkewHitsinTrack[ncand] :
-			nhitsinfit = nXYZhits + 5 ; // 1 0 2 XYZ hit + 5 Skew hits.
-	  } else {
-		nhitsinfit= nXYZhits;
-	  }
-	} else {  // other fit choice;
-
-	  // the following is valid for non-GLPK fits;
 	  nhitsinfit = nXYZhits + fnSttSkewHitsinTrack[ncand];
-	}  // end of if(YesGLPKfitSZ)
 
 	// the following is a protection against declaration of 0 dimension array;
 	int dime ;
