@@ -703,12 +703,13 @@ return 1;
 	}
  }	// end of for(i=0;i<nCombinations; i++)
 
- // exclude 1 Mvd hit, add penalty term to chi2;
+ // exclude 1 Mvd hit, add penalty term to chi2; DON'T DO IT in the situation when
+ // there is only one hit associated to this track (because when such a hit is a Mvd hit,
+ // the program crashes; in fact the track remains without hits and the chi**2 cannot be
+ // calculated);
+ if(nHitsinTrack > 1) {
 
-// memset(InclusionMvd, true, sizeof(InclusionMvd));
-
-
- for( j =0; j<nMvdHits;j++){
+   for( j =0; j<nMvdHits;j++){
 	InclusionMvd[j] = false;
 //	Penalty = 9.*Mvd_invError2[j];
 	Penalty = 36.;
@@ -747,8 +748,10 @@ return 1;
 			status = 1;	// success in fitting;
 		}
 	}	// end of for(i=0;i<nCombinations; i++)
- }  //  end of  for( j =0; j<nMvdHits;j++)
+   }  //  end of  for( j =0; j<nMvdHits;j++)
 
+
+ } // end of if(nHitsinTrack > 1)
 
 
   // at this moment  *emme  corresponds to 1/KAPPA so now it is inverted;
