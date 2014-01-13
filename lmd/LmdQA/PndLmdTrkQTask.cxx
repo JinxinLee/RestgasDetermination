@@ -476,7 +476,7 @@ void PndLmdTrkQTask::Exec(Option_t* opt)
 	int MCidforREC = RECtrkMCid[iN];
 	PndMCTrack *mctrk =(PndMCTrack*) fMCTracks->At(MCidforREC);
 	Int_t mcID = mctrk->GetPdgCode();
-	glPDG = mctrk->GetPdgCode();
+	//	glPDG = mctrk->GetPdgCode();
 	TVector3 MomMC = mctrk->GetMomentum();
 	Double_t thetaMC = MomMC.Theta();
 	Double_t phiMC = MomMC.Phi();
@@ -694,7 +694,7 @@ void PndLmdTrkQTask::Exec(Option_t* opt)
 	}
 	PndMCTrack *mctrk =(PndMCTrack*) fMCTracks->At(imc);
 	int movID = mctrk->GetMotherID();
-	glPDG = mctrk->GetPdgCode();
+
 	TVector3 MomMC = mctrk->GetMomentum();
 	TVector3 PosMC = mctrk->GetStartVertex();
 	int trkQ=0;
@@ -736,6 +736,7 @@ void PndLmdTrkQTask::Exec(Option_t* opt)
 	  glXmc= PosMC.X(); glYmc = PosMC.Y(); glZmc = PosMC.Z();
 	  glThetamc = MomMC.Theta();       glPhimc = MomMC.Phi(); glMommc = MomMC.Mag();
 	  trkMCStatus=movID;
+	  glPDG = mctrk->GetPdgCode();
 	  // if(movID<0) trkMCStatus=0;
 	  // if(movID>=0) trkMCStatus=+1;
 	  //	  tRECMCtrks->Fill();
