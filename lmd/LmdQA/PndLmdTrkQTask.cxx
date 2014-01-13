@@ -179,6 +179,7 @@ void PndLmdTrkQTask::Exec(Option_t* opt)
     int TotCharge=0;
     for (Int_t iN=0; iN<nParticles; iN++){
       PndMCTrack *mctrk =(PndMCTrack*) fMCTracks->At(iN);
+      glPDG = mctrk->GetPdgCode();
       Int_t mcID = mctrk->GetPdgCode();
       int motherid = mctrk->GetMotherID();
       if(motherid<0 && fabs(mcID)<1e5){
@@ -240,7 +241,7 @@ void PndLmdTrkQTask::Exec(Option_t* opt)
 	    MCDoubleHits[MCtrkidbot]++;
 	  }
 	  else{
-	    if(fVerbose>7)  cout<<"        REChit No."<<irec<<"contain MCid: "<<MCtrkidtop<<", "<<MCtrkidbot<<" !"<<endl;
+	    if(fVerbose>7)  cout<<"  REChit No."<<irec<<"contain MCid: "<<MCtrkidtop<<", "<<MCtrkidbot<<" !"<<endl;
 	  }
 	}
 	if(fVerbose>7)
@@ -475,6 +476,7 @@ void PndLmdTrkQTask::Exec(Option_t* opt)
 	int MCidforREC = RECtrkMCid[iN];
 	PndMCTrack *mctrk =(PndMCTrack*) fMCTracks->At(MCidforREC);
 	Int_t mcID = mctrk->GetPdgCode();
+	glPDG = mctrk->GetPdgCode();
 	TVector3 MomMC = mctrk->GetMomentum();
 	Double_t thetaMC = MomMC.Theta();
 	Double_t phiMC = MomMC.Phi();
@@ -692,6 +694,7 @@ void PndLmdTrkQTask::Exec(Option_t* opt)
 	}
 	PndMCTrack *mctrk =(PndMCTrack*) fMCTracks->At(imc);
 	int movID = mctrk->GetMotherID();
+	glPDG = mctrk->GetPdgCode();
 	TVector3 MomMC = mctrk->GetMomentum();
 	TVector3 PosMC = mctrk->GetStartVertex();
 	int trkQ=0;
@@ -712,6 +715,7 @@ void PndLmdTrkQTask::Exec(Option_t* opt)
 	  }
 	  else{//missed due to small amount of hits
 	    if(MCtksREChits[imc]>0){// if MCtksREChits[imc]==0 trk is out of measurment range
+	    //	    if(MCtksREChits[imc]>0){// if MCtksREChits[imc]==0 trk is out of measurment range
 	      nMCmissedLossHits++;
 	      trkQ=-2;
 	      if(fVerbose>7) cout<<" --- MCtrk#"<<imc<<" was defined as MISSED due to little amount of hits (#MChits="
