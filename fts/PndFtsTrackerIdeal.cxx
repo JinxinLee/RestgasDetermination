@@ -430,6 +430,21 @@ void PndFtsTrackerIdeal::Reset() {
 	if (fTrackCands->GetEntriesFast() != 0)  fTrackCands->Clear();
 }
 
+
+//_________________________________________________________________
+Int_t PndFtsTrackerIdeal::SetMinFtsHitsPerTrack(Int_t minFtsHitsPerTrack)
+{
+	// check that the argument is >= 1
+	if (minFtsHitsPerTrack<1)
+	{
+		minFtsHitsPerTrack=1;
+	}
+	fMinFtsHitsPerTrack=minFtsHitsPerTrack;
+	return fMinFtsHitsPerTrack;
+}
+
+
+
 //_________________________________________________________________
 void PndFtsTrackerIdeal::SmearFWD(TVector3 &vec, const TVector3 &sigma)
 {

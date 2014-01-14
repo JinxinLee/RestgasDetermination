@@ -9,7 +9,7 @@
 // removed tracks that turn around in the dipole field (because of fitter problems)
 //
 // Created: 28.01.2011
-// Last modification: 12.12.2013
+// Last modification: 14.01.2014
 //
 // *************************************************************************
 
@@ -49,7 +49,7 @@ public:
   void SetRelativeMomentumSmearing(Double_t dpop = -1.) { fDPoP=fabs(dpop); fRelative=kTRUE;}; // in GeV
   void SetVertexSmearing(Double_t sigmax = -1.,Double_t sigmay = -1.,Double_t sigmaz = -1.) { fVtxSigma.SetXYZ(fabs(sigmax),fabs(sigmay),fabs(sigmaz)); }; // in cm
   void SetTrackingEfficiency(Double_t eff = 1.) { fEfficiency=eff; };
-  void SetMinFtsHitsPerTrack(Int_t minFtsHitsPerTrack = 5) { fMinFtsHitsPerTrack=minFtsHitsPerTrack; };
+  Int_t SetMinFtsHitsPerTrack(Int_t minFtsHitsPerTrack = 5); // checks argument, sets fMinFtsHitsPerTrack (in any case) and gives new value back
 
   void SetFtsActivity(Bool_t act=kTRUE){fBranchActive[0]=act;}
   void SetGemActivity(Bool_t act=kTRUE){fBranchActive[1]=act;}
