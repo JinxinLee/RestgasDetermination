@@ -35,9 +35,9 @@
 using namespace std;
 //________________________________________________________________
 PndFtsTrackerIdeal::PndFtsTrackerIdeal():
-FairTask("FTSTrackfinderIdeal"), fMCTracks(0), fTrackCands(0), fTracks(0),
-fTrackIds(0), fMomSigma(0,0,0), fDPoP(0.), fRelative (kFALSE), fVtxSigma(0,0,0), fEfficiency(1.),
-fTracksArrayName("FTSTrkIdeal"), pdg(0), fPersistence(kTRUE)
+		FairTask("FTSTrackfinderIdeal"), fMCTracks(0), fTrackCands(0), fTracks(0),
+		fTrackIds(0), fMinFtsHitsPerTrack(5), fMomSigma(0,0,0), fDPoP(0.), fRelative (kFALSE), fVtxSigma(0,0,0), fEfficiency(1.),
+		fTracksArrayName("FTSTrkIdeal"), pdg(0), fPersistence(kTRUE)
 {
 	//---
 	fTrackCands = new TClonesArray("PndTrackCand");
@@ -50,14 +50,14 @@ fTracksArrayName("FTSTrkIdeal"), pdg(0), fPersistence(kTRUE)
 }
 
 //_________________________________________________________________
-PndFtsTrackerIdeal::~PndFtsTrackerIdeal() 
-{  
+PndFtsTrackerIdeal::~PndFtsTrackerIdeal()
+{
 	FairRootManager *fManager =FairRootManager::Instance();
 	fManager->Write();
 }
 
 //_________________________________________________________________
-void PndFtsTrackerIdeal::Register() 
+void PndFtsTrackerIdeal::Register()
 {
 	//---
 	FairRootManager::Instance()->Register(fTracksArrayName,"FTSTrk", fTracks, fPersistence);
@@ -148,7 +148,7 @@ InitStatus PndFtsTrackerIdeal::Init() {
 }
 
 //_________________________________________________________________
-void PndFtsTrackerIdeal::Exec(Option_t * option) 
+void PndFtsTrackerIdeal::Exec(Option_t * option)
 {
 	Reset();
 	if(fVerbose>3) Info("Exec","Start eventloop.");
@@ -161,8 +161,8 @@ void PndFtsTrackerIdeal::Exec(Option_t * option)
 	}
 
 	// Do we have enough hits in the FTS in this particular event?
-	if(fHits[0]->GetEntriesFast() < 5) {
-		if(fVerbose>3) Info("Exec","Skip the event, since we have less than 5 hits in FTS");
+	if(fHits[0]->GetEntriesFast() < fMinFtsHitsPerTrack) {
+		if(fVerbose>3) Info("Exec","Skip the event, since we have less than %i hits in FTS", fMinFtsHitsPerTrack);
 		return;
 	}
 
@@ -177,7 +177,7 @@ void PndFtsTrackerIdeal::Exec(Option_t * option)
 
 	// Loop over all hits from FTS first (later other detectors, too)
 	// When looping over FTS hits create a PndTrackCand with the same index as the MC truth track if we find at least one FTS hit
-	// After the FTS Hit Loop remove all candidates which do not have at least 5 hits (from FTS)
+	// After the FTS Hit Loop remove all candidates which do not have at least fMinFtsHitsPerTrack hits (from FTS)
 	// and remove all tracks which are bent in the dipole so much that they turn around and fly towards the barrel again (this leads to problems in the fitter)
 	//  I will remove such tracks at the end of the loop on FTS hits. I plan to check all (MC truth) time-ordered FTS hits associated to a given PndTrackCand and check if the z-component is increasing. If not, I will remove the PndTrackCand.
 	// When looping over the other detectors only hits are added to PndTrackCand objects which were created in the loop over FTS hits and NOT removed afterwards
@@ -239,7 +239,7 @@ void PndFtsTrackerIdeal::Exec(Option_t * option)
 
 
 		// TODO: Check if the following loops work
-		// After the FTS Hit Loop remove all candidates which do not have at least 5 hits (from FTS)
+		// After the FTS Hit Loop remove all candidates which do not have at least fMinFtsHitsPerTrack hits (from FTS)
 		// and remove all tracks which are bent in the dipole so much that they turn around and fly towards the barrel again (this leads to problems in the fitter)
 		if(0==iDet){ // only needed after PndTrkCand contain only FTS hits
 			if(fVerbose>5) Info("Exec","Remove all PndTrkCand which are not realistic to be found by FTS Pattern Recognition");
@@ -250,11 +250,11 @@ void PndFtsTrackerIdeal::Exec(Option_t * option)
 			std::vector<Int_t> keysToDeleteFromCandList;
 
 			if(fVerbose>10){
-						cout << "print the map keys BEFORE cleaning\n";
-						for(candit=candlist.begin(); candit!=candlist.end(); ++candit) {
-							cout << "trackID == " << candit->first << endl;
-						}
-					}
+				cout << "print the map keys BEFORE cleaning\n";
+				for(candit=candlist.begin(); candit!=candlist.end(); ++candit) {
+					cout << "trackID == " << candit->first << endl;
+				}
+			}
 
 
 			for(candit=candlist.begin(); candit!=candlist.end(); ++candit) {
@@ -265,7 +265,7 @@ void PndFtsTrackerIdeal::Exec(Option_t * option)
 					continue;
 				}
 				// remove tcand if it does not have enough hits from FTS (after run with iDet == 0 only FTS hits are filled)
-				if( tcand->GetNHits() < 5 ){ // TODO: Make this criterion more realistic
+				if( tcand->GetNHits() < fMinFtsHitsPerTrack ){ // TODO: Make this criterion more realistic
 					if(fVerbose>9){
 						Info("Exec","Mark candlist[%i] for deletion because it has only %i FTS hits which is not enough.", trackID, tcand->GetNHits());
 					}
@@ -368,7 +368,7 @@ void PndFtsTrackerIdeal::Exec(Option_t * option)
 			if(fVerbose>3) Warning("Exec","Have no candidate at %i",trackID);
 			continue;
 		}
-		if( tcand->GetNHits() < 3 ) continue; // Here the total number of hits in the candidate are considered, not just the FTS hits. TODO This is obsolete now that I require at least 5 hits in the FTS.
+		if( tcand->GetNHits() < 3 ) continue; // Here the total number of hits in the candidate are considered, not just the FTS hits. Note that this is obsolete in case fMinFtsHitsPerTrack is set to 3 or more
 		if(0 < fEfficiency && fEfficiency < 1){
 			if(gRandom->Rndm() > fEfficiency) continue;
 		}
@@ -418,7 +418,7 @@ void PndFtsTrackerIdeal::Exec(Option_t * option)
 }
 
 //_________________________________________________________________
-void PndFtsTrackerIdeal::Finish() 
+void PndFtsTrackerIdeal::Finish()
 {
 	std::cout << " Found  "<< fTracks->GetEntriesFast() << " tracks\n";
 }
