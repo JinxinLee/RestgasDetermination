@@ -167,7 +167,7 @@ void PndFtsDataAccessor::Exec(Option_t * option)
     }
   }
 
-    // create output files 
+    // create output files
   static int iEvent = -1;
   iEvent++;
   TString folder_name = "data/";
@@ -188,7 +188,7 @@ void PndFtsDataAccessor::Exec(Option_t * option)
 
     // Detector loop
   for(Int_t iDet=0;iDet<1;iDet++) { // only FTS hits at the moment
-    
+
     if (kFALSE == fBranchActive[iDet]) continue; //skip manually switched off detector
     if(fVerbose>4) Info("Exec","Use detector %i",iDet);
 
@@ -197,7 +197,7 @@ void PndFtsDataAccessor::Exec(Option_t * option)
     std::map<Int_t, FairMCPoint*> firstPoint;
     std::map<Int_t, FairMCPoint*> lastPoint;
     std::map<Int_t, PndTrackCand*> candlist;
-    
+
     const int NHits = fHits[iDet]->GetEntriesFast();
     // cout << " ----------------------- Store data ------------------------- " << endl;
     // cout << " NFTSHits = " << NHits << endl;
@@ -261,7 +261,7 @@ void PndFtsDataAccessor::Exec(Option_t * option)
       TVector3 wire_direction = tube->GetWireDirection(); // shows the wire direction, ( notSkewed layers - wire_direction.X() == 1 ).
       outH << wire_direction.X() << " "  << wire_direction.Y() << " "  << wire_direction.Z() << endl; // TODO rid of covMatrix
       outH << iSta << " " << iWrittenHit << " " << -1234 << endl; // station position is normal to z
-      
+
         // MC Points
       Int_t mchitid=hit->GetRefIndex();
       if(mchitid<0) {
@@ -287,7 +287,7 @@ void PndFtsDataAccessor::Exec(Option_t * option)
         }
         else { cout << " Bad MCTracks" << endl; }
       }
-   
+
       outHL << trackID << " " << -1 << " " << -1 << endl;
       outMCP << point->GetX() << " " << point->GetY() << " " << point->GetZ() << endl;
       outMCP << point->GetPx() << " " << point->GetPy() << " " << point->GetPz() << " "
@@ -304,7 +304,7 @@ void PndFtsDataAccessor::Exec(Option_t * option)
       }
 
     } // end loop over hits
-    
+
     {   // MC Tracks
       const TClonesArray* fMCTrackArray = fMCTracks;
       const int nMCTracks = fMCTrackArray->GetEntriesFast();
@@ -319,23 +319,23 @@ void PndFtsDataAccessor::Exec(Option_t * option)
           outMCT << 0 << " " << 0 << " " << 0 << " " << 0 << " " << 0 << " " << 0 << " " << 0 << endl;
           outMCT << 0 << " " << 0 << endl;
           outMCT << 0 << " " << 0 << " " << 0 << endl;
-          outMCT << 0 << " " << 0 << " " << 1 << endl;        
+          outMCT << 0 << " " << 0 << " " << 1 << endl;
 
         } else {
 
-          Int_t pdg = mcTr->GetPdgCode();
+          Int_t pdgCode = mcTr->GetPdgCode();
           Double_t px = mcTr->GetMomentum().X();
           Double_t py = mcTr->GetMomentum().Y();
           Double_t pz = mcTr->GetMomentum().Z();
           Double_t p = sqrt( px*px + py*py + pz*pz );
           Double_t q = 1;
           {  // get charge
-            TParticlePDG * part = TDatabasePDG::Instance()->GetParticle(pdg);
+            TParticlePDG * part = TDatabasePDG::Instance()->GetParticle(pdgCode);
             if ( part )
               q = part->Charge()/3.f;
           }
           Double_t ex,ey,ez,qp;
-          outMCT << mcTr->GetMotherID() << " " << pdg << endl;
+          outMCT << mcTr->GetMotherID() << " " << pdgCode << endl;
           outMCT << mcTr->GetStartVertex().X() << " " << mcTr->GetStartVertex().Y() << " " << mcTr->GetStartVertex().Z() << " "
                  << px/fabs(p) << " " << py/fabs(p) << " " << pz/fabs(p) << " " << q/p << endl;
           outMCT << 0 << " " << 0 << " " << 0 << " " << 0 << " " << 0 << " " << 0 << " " << 0 << endl;
@@ -354,7 +354,7 @@ void PndFtsDataAccessor::Exec(Option_t * option)
 
       TString fadataGeo_name = folder_name + "settings.data";
       fstream outGeo(fadataGeo_name, fstream::out);
- 
+
       outGeo << NStations << endl;
       outGeo << -10 << endl; // field
       for( int iS = 0; iS < NStations; iS++ ) {
@@ -374,11 +374,11 @@ void PndFtsDataAccessor::Exec(Option_t * option)
       float YMax[NStations/NSubStations]; // filled later
       float XMin[NStations/NSubStations]   = { -659.025, -659.025, -881.225, -1042.825, -1951.825, -1951.825 }; // mm
       float XMax[NStations/NSubStations]; // filled later
-      const float NTubes[NStations/NSubStations] = { 132,      132,      176,      208,       388,       388       }; 
+      const float NTubes[NStations/NSubStations] = { 132,      132,      176,      208,       388,       388       };
       float Z[NStations]   = { 2949.627, 2958.373, 2999.627, 3008.373, 3049.627, 3058.373, 3099.627, 3108.373,  // mm
-                               3269.627, 3278.373, 3319.627, 3328.373, 3369.627, 3378.373, 3419.627, 3428.373, 
-                               3940.627, 3949.373, 4015.377, 4024.123, 4160.627, 4169.373, 4235.377, 4244.123, 
-                               4380.627, 4389.373, 4455.377, 4464.123, 4600.627, 4609.373, 4675.377, 4684.123, 
+                               3269.627, 3278.373, 3319.627, 3328.373, 3369.627, 3378.373, 3419.627, 3428.373,
+                               3940.627, 3949.373, 4015.377, 4024.123, 4160.627, 4169.373, 4235.377, 4244.123,
+                               4380.627, 4389.373, 4455.377, 4464.123, 4600.627, 4609.373, 4675.377, 4684.123,
                                6070.627, 6079.373, 6120.627, 6129.373, 6170.627, 6179.373, 6220.627, 6229.373,
                                6390.627, 6399.373, 6440.627, 6449.373, 6490.627, 6499.373, 6540.627, 6549.373 };
 
@@ -395,7 +395,7 @@ void PndFtsDataAccessor::Exec(Option_t * option)
       for( int i = 0; i < NStations; i++ ) {
         Z[i] /= 10;
       }
-      
+
         // Field
       int ind = 0;
       for( int i=0; i<3; i++ ){
@@ -420,18 +420,18 @@ void PndFtsDataAccessor::Exec(Option_t * option)
         const float DY = YMaxS - YMinS;
         const float XAverage = XMaxS - XMinS;
         const float YAverage = YMaxS - YMinS;
-        
+
         double dx = 1.; // step for the field approximation
         double dy = 1.;
 
- 
+
         if( dx > DX/N/4 ) dx = DX/N/4.;
         if( dy > DY/N/2 ) dy = DY/N/4.;
 
         double C[3][MaxN] = {0};
         for( int i=0; i<3; i++)
           for( int k=0; k<MaxN; k++) C[i][k] = 0;
-        
+
         TMatrixD A(N,N);
         TVectorD b0(N), b1(N), b2(N);
         for( int i=0; i<N; i++){
@@ -462,7 +462,7 @@ void PndFtsDataAccessor::Exec(Option_t * option)
                              (y - YAverage)*(y - YAverage)/DY/DY  );
 //            if( r>1. ) continue;
             Double_t w = 1./(r*r+1);
-  
+
             TVectorD m(N);
             m(0)=1;
             for( int i=1; i<=M; i++){
@@ -471,7 +471,7 @@ void PndFtsDataAccessor::Exec(Option_t * option)
               for( int j=0; j<i; j++ ) m(l+j) = x*m(k+j);
               m(l+i) = y*m(k+i-1);
             }
-      
+
             TVectorD mt = m;
             for( int i=0; i<N; i++){
               for( int j=0; j<N;j++) A(i,j)+=w*m(i)*m(j);
@@ -524,7 +524,7 @@ void PndFtsDataAccessor::Exec(Option_t * option)
             float x2y3 = x2*y3;
             float x3y2 = x3*y2;
             float x4y = x4*y;
-            
+
             float x6 = x5*x;
             float y6 = y5*y;
             float xy5 = x*y5;
@@ -578,18 +578,18 @@ void PndFtsDataAccessor::Exec(Option_t * option)
 
       outGeo.close();
     } // settings
-      
 
-    
+
+
   } // iDet
 
-  
+
   outH.close();
   outHL.close();
   outMCT.close();
   outMCP.close();
 
-    
+
   if(fVerbose>3) Info("Exec","End eventloop.");
 }
 
