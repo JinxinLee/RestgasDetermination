@@ -37,6 +37,7 @@ PndFtsHitProducerRealFast.cxx
 PndFtsHitProducerIdeal.cxx
 PndFtsHitProducerRealFull.cxx
 PndFtsTrackerIdeal.cxx
+PndFtsDataAccessor.cxx
 PndFtsHitRingSorter.cxx
 PndFtsHitWriteoutBuffer.cxx
 PndFtsHitSorterTask.cxx
