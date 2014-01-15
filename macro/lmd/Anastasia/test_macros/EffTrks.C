@@ -71,8 +71,9 @@ void EffTrks(int nEvents=1000,int nStart=0,TString path="/panda/pandaroot/macro/
 	hthetaMCREC->Fill(thmctrk,thtrk);
 	hPDGrec->Fill(PDGcode);
 	//	if(sumPDGev==4424){//signal
-	if(flSecondary==0){//primaries only
+	if(flSecondary<0){//primaries only
 	  hthprimrec->Fill(thtrk);
+	  if(PDGcode==-2212 && sumPDGev!=4424) cout<<" Event #"<<j<<" has reconstructed primary anti-p and it isn't elastic scattering!"<<endl;
 	}
 	else{//bkg
 	  hthsecondrec->Fill(thtrk);
@@ -82,7 +83,7 @@ void EffTrks(int nEvents=1000,int nStart=0,TString path="/panda/pandaroot/macro/
 	if(trkStat<0){//trk was missed
 	  //	  if(PDGcode==-2212){//signal
 	  //	  if(sumPDGev==4424){//signal
-	  if(flSecondary==0){//primaries only
+	  if(flSecondary<0){//primaries only
 	    hthprimmissmc->Fill(thmctrk);
 	  }
 	  else{
