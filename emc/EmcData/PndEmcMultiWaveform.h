@@ -14,8 +14,12 @@
 
 #include "PndEmcWaveform.h"
 
+
 class PndEmcMultiWaveform: public PndEmcWaveform
 {
+
+	friend class PndEmcAbsWaveformModifier;
+
 	public:
 		PndEmcMultiWaveform():PndEmcWaveform(),fSignals(1,std::vector<Double_t>(0,0.)),fActiveWaveform(1){};
 
@@ -28,7 +32,7 @@ class PndEmcMultiWaveform: public PndEmcWaveform
 
 //        PndEmcMultiWaveform(const PndEmcMultiWaveform& copy);
 
-		void SetWaveform(std::vector<Double_t>&signal,Int_t length,Int_t Waveform);	
+		void SetWaveform(const std::vector<Double_t>&signal,Int_t length,Int_t Waveform);	
 		
 		virtual void clearAndReset();
 		virtual void Clear(Option_t *option=""){fSignal.clear();fSignals.clear();};

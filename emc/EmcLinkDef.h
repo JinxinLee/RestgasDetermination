@@ -20,17 +20,26 @@
 #pragma link C++ class  PndEmcXtal+;
 #pragma link C++ class  PndEmcMapper+;
 #pragma link C++ class  PndEmcStructure+;
+#pragma link C++ class  PndEmcWaveformData+;
 #pragma link C++ class  PndEmcWaveform+;
 #pragma link C++ class  PndEmcMultiWaveform+;
 #pragma link C++ class  PndEmcDigi+;
 #pragma link C++ class  PndEmcSharedDigi;
 #pragma link C++ class  PndEmcHitsToWaveform+;
+#pragma link C++ class  PndEmcFWEndcapTimebasedWaveforms+;
+#pragma link C++ class  PndEmcAbsWaveformSimulator+;
+#pragma link C++ class  PndEmcMultiWaveformSimulator+;
+#pragma link C++ class  PndEmcAbsWaveformModifier+;
+#pragma link C++ class  PndEmcWaveformDigitizer+;
+#pragma link C++ class  PndEmcFullStackedWaveformSimulator+;
+#pragma link C++ class  PndEmcShapingNoiseAdder+;
 #pragma link C++ class  PndEmcWaveformToDigi+;
 #pragma link C++ class  PndEmcWaveformToCalibratedDigi+;
 #pragma link C++ class  PndEmcMultiWaveformToCalibratedDigi+;
 #pragma link C++ class  PndEmcFadcFilter+;
 #pragma link C++ class  PndEmcAsicPulseshape+;
 #pragma link C++ class  PndEmcAbsPulseshape+;
+#pragma link C++ class  PndEmcFittedPulseshape+;
 #pragma link C++ class  PndEmcFullDigiTask+;
 #pragma link C++ class  PndEmcDigiPar+;
 #pragma link C++ class  PndEmcDigiNonuniformityPar+;
@@ -64,6 +73,7 @@
 #pragma link C++ class  PndEmcClusterCalibrationPar+;
 #pragma link C++ class  PndEmcClusterCalibrationParObject+;
 
+#pragma link C++ class  PndEmcWaveformBuffer+;
 #pragma link C++ class  PndEmcDigiWriteoutBuffer+;
 #pragma link C++ class  PndEmcDigiRingSorter+;
 #pragma link C++ class  PndEmcDigiSorterTask+;

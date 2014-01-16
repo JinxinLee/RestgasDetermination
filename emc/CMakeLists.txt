@@ -32,6 +32,7 @@ EmcData/PndEmcPoint.cxx
 EmcData/PndEmcApdPoint.cxx
 EmcData/PndEmcHit.cxx  
 EmcData/PndEmcApdHit.cxx
+EmcData/PndEmcWaveformData.cxx 
 EmcData/PndEmcWaveform.cxx 
 EmcData/PndEmcMultiWaveform.cxx 
 EmcData/PndEmcDigi.cxx 
@@ -52,8 +53,14 @@ EmcDigi/PndEmcCRRCPulseshape.cxx
 EmcDigi/PndEmcCR2RCPulseshape.cxx
 EmcDigi/PndEmcExpPulseshape.cxx
 EmcDigi/PndEmcAsicPulseshape.cxx 
+EmcDigi/PndEmcFittedPulseshape.cxx 
 EmcDigi/PndEmcHitsToWaveform.cxx
 #EmcDigi/PndEmcHitsToTmpWaveform.cxx 
+EmcDigi/PndEmcFullStackedWaveformSimulator.cxx
+EmcDigi/PndEmcMultiWaveformSimulator.cxx
+EmcDigi/PndEmcWaveformDigitizer.cxx
+EmcDigi/PndEmcShapingNoiseAdder.cxx
+EmcDigi/PndEmcFWEndcapTimebasedWaveforms.cxx
 EmcDigi/PndEmcWaveformToDigi.cxx
 EmcDigi/PndEmcWaveformToCalibratedDigi.cxx
 EmcDigi/PndEmcMultiWaveformToCalibratedDigi.cxx
@@ -68,6 +75,7 @@ EmcDigi/PndEmcPSATrapDigiFilter.cxx
 EmcDigi/PndEmcPSAMatchedDigiFilter.cxx
 EmcDigi/PndEmcFadcFilter.cxx
 EmcDigi/PndEmcFullDigiTask.cxx
+EmcDigi/PndEmcWaveformBuffer.cxx
 EmcDigi/PndEmcDigiWriteoutBuffer.cxx
 EmcDigi/PndEmcDigiRingSorter.cxx
 EmcDigi/PndEmcDigiSorterTask.cxx
