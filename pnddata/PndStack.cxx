@@ -102,8 +102,10 @@ void PndStack::PushTrack(Int_t toBeDone, Int_t parentId, Int_t pdgCode,
   ntr = trackId;
 
   // --> Push particle on the stack if toBeDone is set
-  if (toBeDone == 1) fStack.push(particle);
-
+   if (toBeDone == 1) {
+      particle->SetBit(kDoneBit);
+      fStack.push(particle);
+   }
 }
 // -------------------------------------------------------------------------
 
@@ -152,12 +154,14 @@ TParticle* PndStack::PopPrimaryForTracking(Int_t iPrim) {
   // Return the iPrim-th TParticle from the fParticle array. This should be
   // a primary.
   TParticle* part = (TParticle*)fParticles->At(iPrim);
+  
   if ( ! (part->GetMother(0) < 0) ) {
     gLogger->Error(MESSAGE_ORIGIN, "PndStack:: Not a primary track! , $i " ,iPrim);
     Fatal("PndStack::PopPrimaryForTracking", "Not a primary track");
   }
 
-  return part;
+  if(!part->TestBit(kDoneBit)) return NULL;
+  else return part;
 
 }
 // -------------------------------------------------------------------------

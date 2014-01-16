@@ -40,6 +40,8 @@
 #include <map>
 #include <stack>
 
+enum {kDoneBit=1};
+
 class PndStack : public FairGenericStack
 {
 
