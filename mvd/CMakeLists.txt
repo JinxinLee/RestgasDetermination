@@ -98,7 +98,7 @@ set(LINKDEF  MvdLinkDef.h)
 set(LIBRARY_NAME Mvd)
 
 set(DEPENDENCIES Base GeoBase ParBase PndData generalTools RecoHits
-Geane Lmd Sds TrkBase)
+Geane Sds TrkBase)
 
 GENERATE_LIBRARY()
 
@@ -125,7 +125,7 @@ set(LINKDEF  MvdRecoLinkDef.h)
 set(LIBRARY_NAME MvdReco)
 
 set(DEPENDENCIES Base GeoBase ParBase PndData generalTools RecoHits
-Geane Lmd Sds SdsReco TrkBase)
+Geane Sds SdsReco TrkBase)
 
 GENERATE_LIBRARY()
 
@@ -171,6 +171,6 @@ set(LINKDEF  MvdTrkLinkDef.h)
 set(LIBRARY_NAME MvdTrk)
 
 set(DEPENDENCIES Base GeoBase ParBase PndData generalTools RecoHits
-riemann Geane Lmd Sds TrkBase)
+riemann Geane Sds TrkBase)
 
 GENERATE_LIBRARY()
