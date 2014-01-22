@@ -13,6 +13,7 @@
 // fFocusingSystem = 2 - forward mirror is used
 // fFocusingSystem = 3 - cylindrical
 // fFocusingSystem = 31 - wide cylindrical
+// fFocusingSystem = 33 - wide three component cylindrical lens (same as 6 but cylindrical)
 // fFocusingSystem = 35 - half of two component cylindrical lens (one for each bar) 
 // fFocusingSystem = 36 - half of two component wide cylindrical lens (single lens for the bar box)
 // fFocusingSystem = 4 - two component spherical lens is used
@@ -202,8 +203,8 @@ void createdirc(Int_t fGeomType = 1, Int_t fFocusingSystem = 6, Int_t iter=0, TS
       Double_t hlens2 = 0.1;
       Double_t hlens3 = 0.5;
       Double_t hlens4 = 0.1;
-      Double_t rlens1 = 14;
-      Double_t rlens2 = 5;
+      Double_t rlens1 = 75.18;//14;
+      Double_t rlens2 = 17.95;//5;
       Double_t llens =  barwidth/2.;
       len1 =  (hlens1+hlens2)/2.;     
       len2 =  (hlens3+hlens4)/2.;
@@ -267,6 +268,7 @@ void createdirc(Int_t fGeomType = 1, Int_t fFocusingSystem = 6, Int_t iter=0, TS
       Lens4->SetTransparency(40);
      
     } 
+
 
     if(fFocusingSystem == 2){ // Mirrors at front
       // Put some mirrors at the downstream end with a focal plane at the PD.
@@ -395,7 +397,90 @@ void createdirc(Int_t fGeomType = 1, Int_t fFocusingSystem = 6, Int_t iter=0, TS
       CylLens2->SetTransparency(40);
 
     }
+
+    if(fFocusingSystem == 33 || fFocusingSystem == 34){ // tree component cylindrical lens w/o airgap ||  half of lens #33
+      
+      if(fFocusingSystem == 34) {
+	halfheight = hthick;
+	halfshift = -hthick;
+      }
+     
+      Double_t hlens1 = 0.3; //[cm] thickness in the middle of the first component of the first lens
+      Double_t hlens2 = 0.1; //[cm] thickness in the middle of the second component of the first lens
+      Double_t hlens3 = 0.5;//0.5; //[cm] thickness in the middle of the first component
+      Double_t hlens4 = 0.1; //[cm] thickness in the middle of the second component
+      Double_t rlens1 = 30;//30; // [cm]
+      Double_t rlens2 = 7;//7; // [cm]
+      
+      rlens1 = (par1==-100)? rlens1: par1;
+      rlens2 = (par2==-100)? rlens2: par2;
+      
+      barWin_hthick=0;
+      Double_t llens =  barBoxWidth;
+      len1 =  (hlens1+hlens2)/2.;     
+      len2 =  (hlens3+hlens4)/2.;
+      len = len1+len2;
+
+      //lens1 
+      TGeoEltu* lSphUp = new TGeoEltu("SphUp",rlens1 ,rlens1, llens+1);
+      TGeoBBox* lCylBox = new TGeoBBox("LensBox", llens, halfheight, len1);
+
+      TGeoTranslation t1("trans", 0., halfshift, rlens1+hlens2-len1);
+      TGeoRotation r1("rot",90., 90. ,0. );
+      TGeoHMatrix tr = t1*r1;
+      TGeoHMatrix *transf = new TGeoHMatrix(tr);
+      transf->SetName("transf");
+      transf->RegisterYourself();
+
+      TGeoCompositeShape *cslens1 = new TGeoCompositeShape("cslens1","SphUp:transf * LensBox");
+      TGeoVolume *Lens1 = new TGeoVolume("DrcLENS1Sensor",cslens1, gGeoManager->GetMedium("FusedSil"));//FusedSil  //NLAK33A //DIRCairNoSens
+      Lens1->SetLineColor(kRed+2);
+      Lens1->SetTransparency(40);
+     
+      fdz_lens1 = -bbox_hlen + 3*barWin_hthick - len1/2. + rlens1;
+     
+      //lens2   
+      TGeoTranslation t2("trans", 0., halfshift, rlens1+hlens2-len1);
+      TGeoHMatrix tr2 = t2*r1;
+      TGeoHMatrix *transf2 = new TGeoHMatrix(tr2);
+      transf2->SetName("transf2");
+      transf2->RegisterYourself();
+      
+      TGeoCompositeShape *cslens2 = new TGeoCompositeShape("cslens2", "LensBox - SphUp:transf2");
+      TGeoVolume* Lens2 = new TGeoVolume("DrcLENS2Sensor", cslens2, gGeoManager->GetMedium("NLAK33A"));// NLAK33A //FusedSil //BK7G18 //PBF2 //NLAK33A
+      Lens2->SetLineColor(kRed);
+      Lens2->SetTransparency(40);
+
+      //lens3
+      TGeoEltu* lSphUp2 = new TGeoEltu("SphUp2",rlens2 ,rlens2, llens+1);
+      TGeoBBox* lCylBox2 = new TGeoBBox("LensBox2", llens, halfheight, len2);
+
+      TGeoTranslation t3("trans3", 0., halfshift, rlens2+hlens4-len2);
+      TGeoHMatrix tr3 = t3*r1;
+      TGeoHMatrix *transf3 = new TGeoHMatrix(tr3);
+      transf3->SetName("transf3");
+      transf3->RegisterYourself();
+
+      TGeoCompositeShape *cslens3 = new TGeoCompositeShape("cslens3","SphUp2:transf3 * LensBox2");
+      TGeoVolume *Lens3 = new TGeoVolume("DrcLENS3Sensor",cslens3, gGeoManager->GetMedium("NLAK33A"));// PBF2 //NLAK33A //BK7G18
+      Lens3->SetLineColor(kRed);
+      Lens3->SetTransparency(40);
+     
+      //lens4  
+      TGeoTranslation t4("trans", 0., halfshift, rlens2+hlens4-len2);
+      TGeoHMatrix tr4 = t4*r1;
+      TGeoHMatrix *transf4 = new TGeoHMatrix(tr4);
+      transf4->SetName("transf4");
+      transf4->RegisterYourself();
+      
+      TGeoCompositeShape *cslens4 = new TGeoCompositeShape("cslens4", "LensBox2 - SphUp2:transf4");
+      TGeoVolume* Lens4 = new TGeoVolume("DrcLENS4Sensor", cslens4, gGeoManager->GetMedium("FusedSil"));//FusedSil //BK7G18 //PBF2 //DIRCairNoSens
+      Lens4->SetLineColor(kBlue+2);
+      Lens4->SetTransparency(40);
+
+    }
     
+
     if(fFocusingSystem == 31 || fFocusingSystem == 36){ // cylindrical lens w/o airgap ||  half of lens #31
      
       if(fFocusingSystem == 36){
@@ -735,6 +820,14 @@ void createdirc(Int_t fGeomType = 1, Int_t fFocusingSystem = 6, Int_t iter=0, TS
     entrancebox->AddNode(CylLensWide1, 0, new TGeoCombiTrans(0, 0,  barWin_hthick + EVgreaseLayer, new TGeoRotation(0))); 
     entrancebox->AddNode(CylLensWide2, 0, new TGeoCombiTrans(0, 0,  barWin_hthick + EVgreaseLayer, new TGeoRotation(0))); 
   }
+
+ if( fFocusingSystem == 33 || fFocusingSystem == 34){
+    entrancebox->AddNode(Lens1, 0, new TGeoCombiTrans(0, 0,  barWin_hthick + EVgreaseLayer + len2, new TGeoRotation(0))); 
+    entrancebox->AddNode(Lens2, 0, new TGeoCombiTrans(0, 0,  barWin_hthick + EVgreaseLayer + len2, new TGeoRotation(0))); 
+    entrancebox->AddNode(Lens3, 0, new TGeoCombiTrans(0, 0,  barWin_hthick + EVgreaseLayer - len1, new TGeoRotation(0))); 
+    entrancebox->AddNode(Lens4, 0, new TGeoCombiTrans(0, 0,  barWin_hthick + EVgreaseLayer - len1, new TGeoRotation(0))); 
+  }
+
   if( barWin_hthick != 0) entrancebox->AddNode(barwin,       0, new TGeoCombiTrans(0, 0, entransewidth - 2*len - barWin_hthick, new TGeoRotation(0)));
   entrancebox->AddNode(evgrease,     0, new TGeoCombiTrans(0, 0, entransewidth - 2*len - 2*barWin_hthick - EVgreaseLayer, new TGeoRotation(0)));
 
