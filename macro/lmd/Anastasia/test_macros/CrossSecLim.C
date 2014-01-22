@@ -11,7 +11,7 @@
 
 using namespace std;
 int main(){
-  double mom = 11.91;
+  double mom = 15;
   //  std::vector<PndLmdLumiFitOptions*> fit_options_vec;
   PndLmdLumiFitOptions *temp_fit_opt = new PndLmdLumiFitOptions();
   LumiFit::LmdBinaryFitOptions bit_fit_opt(0);
@@ -35,8 +35,8 @@ int main(){
   // double th_up = 9e-3;
 
   //  double th_dw = 2.09439510239319525e-03; //calc from 0.12 degree
-  double th_dw = 2.09439988e-03;//DPM printout
-  //  double th_dw = 1.04719994E-03;//0.06 DPM
+  //  double th_dw = 2.09439988e-03;//DPM printout
+  double th_dw = 1.04719994E-03;//0.06 DPM
   double th_up = TMath::Pi();
   // double  Tmin=  -9.86963369E-06;
   // double  Tmax=  -1.55898321;
