@@ -5,7 +5,6 @@
 // author: Isabella Garzia
 //////////////////////////////////////////////////////////
 
-
 #include "PndFtsMapCreator.h"
 #include "PndFtsTube.h"
 #include "PndGeoFtsPar.h"
@@ -257,7 +256,17 @@ Int_t PndFtsMapCreator::GetLayerID(Int_t chamberid, Int_t tudeid,TString path ){
     }
   }
  return i;
+}
 
+
+Int_t PndFtsMapCreator::IsSkew(Int_t layerid){
+  Int_t skew=0;
+  //inclination of +5deg: skew=+1
+  if(layerid==3 || layerid==4 || layerid==11 || layerid==12 || layerid==19 || layerid==20 || layerid==27 || layerid==28 || layerid==35 || layerid==36 || layerid==43 || layerid==44){skew=1;}
+  //inclination of -5deg: skew=-1
+  if(layerid==5 || layerid==6 || layerid==13 || layerid==14 || layerid==21 || layerid==22 || layerid==29 || layerid==30 || layerid==37 || layerid==38 || layerid==45 || layerid==46){skew=-1;}
+
+  return skew;
 }
 
 Int_t PndFtsMapCreator::GetTubeIDTot(Int_t chamberid, Int_t layerid, Int_t tubeid,TString path )
@@ -373,13 +382,13 @@ Int_t PndFtsMapCreator::GetTubeIDTot(Int_t chamberid, Int_t layerid, Int_t tubei
      if(tubeid<=97){totTubeID=tube+shift;}
      else{
        if(layer%2!=0){     // odd layers
-         if(abs(tubeid-(strawCh4))<=97){
+         if(abs(tubeid-(strawCh4))<=103){ //
            totTubeID=tube+shift+16;
          }
          else{totTubeID=tube+shift;}
        }
        else{
-         if(abs(tubeid-(strawCh4*2))<=97){
+         if(abs(tubeid-(strawCh4*2))<=103){
            totTubeID=tube+shift+16*2;
          }
          else{totTubeID=tube+shift+16;}
@@ -403,7 +412,7 @@ Int_t PndFtsMapCreator::GetTubeIDTot(Int_t chamberid, Int_t layerid, Int_t tubei
     if(!tmpstring.Contains("down") && !tmpstring.Contains("up")){
       if(tubeid<=177){totTubeID=tube+shift;}
       else{
-	if(abs(tubeid-(strawCh56*(layer-32)))<=177){
+	if(abs(tubeid-(strawCh56*(layer-32)))<=194){
 	  totTubeID=tube+24*(layer-32)+shift;
 	}
 	else{
@@ -425,7 +434,7 @@ Int_t PndFtsMapCreator::GetTubeIDTot(Int_t chamberid, Int_t layerid, Int_t tubei
    if(!tmpstring.Contains("down") && !tmpstring.Contains("up")){
      if(tubeid<=177){totTubeID=tube+shift;}
      else{
-       if(abs(tubeid-(strawCh56*(layer-40)))<=177){
+       if(abs(tubeid-(strawCh56*(layer-40)))<=194){
 	 totTubeID=tube+24*(layer-40)+shift;
        }
        else{
@@ -492,6 +501,7 @@ PndFtsTube * PndFtsMapCreator::GetTubeFromTubeIDToFillGeoType1(Int_t tubeid) {
   TObjArray *geoPassNodes = fFtsParameters->GetGeoPassiveNodes();
   Bool_t isCopy = kTRUE;
   // try as if it was a copy stt01tube#XXX
+
   TString  tubename = GetNameFromTubeIDGeoType1(tubeid, isCopy);
   FairGeoNode *pnode = (FairGeoNode*) geoPassNodes->FindObject(tubename);
   if(!pnode) { // try as if it was a solo stt01tubeXXX
@@ -513,6 +523,7 @@ PndFtsTube * PndFtsMapCreator::GetTubeFromTubeIDToFillGeoType1(Int_t tubeid) {
   double x = tra.getX()/10.; // in cm
   double y = tra.getY()/10.; // in cm
   double z = tra.getZ()/10.; // in cm
+
   double r[3][3];
   for(int i = 0; i < 3; i++)for(int j = 0; j < 3; j++) r[i][j] = rot.getElement(i,j);
 
@@ -530,9 +541,7 @@ PndFtsTube * PndFtsMapCreator::GetTubeFromTubeIDToFillGeoType1(Int_t tubeid) {
 			fTubeInRad, fTubeOutRad, halflength);
 }
 
-PndFtsTube * PndFtsMapCreator::GetTubeFromNameToFillGeoType1(TString tubename) {
-  
-  Int_t tubeid = GetTubeIDFromNameGeoType1(tubename);
+PndFtsTube * PndFtsMapCreator::GetTubeFromNameToFillGeoType1(TString tubename, Int_t tubeid, Int_t layerid) {
   
   TObjArray *geoPassNodes = fFtsParameters->GetGeoPassiveNodes();
   Bool_t isCopy = kTRUE;
@@ -558,6 +567,13 @@ PndFtsTube * PndFtsMapCreator::GetTubeFromNameToFillGeoType1(TString tubename) {
   double x = tra.getX()/10.; // in cm
   double y = tra.getY()/10.; // in cm
   double z = tra.getZ()/10.; // in cm
+
+  //std::cout<<"tubename="<<tubename<<" tubeid="<<tubeid<<" x="<<x<<" z="<<z<<std::endl;
+  Int_t skew=IsSkew(layerid);
+  //double angle=5*3.14159/180;
+  //x=(x+skew*(tra.getY()*sin(angle))/10.1);
+  //std::cout<<"tubename="<<tubename<<" tubeid="<<tubeid<<" skew="<<skew<<" newx="<<x<<std::endl;
+  
   double r[3][3];
   for(int i = 0; i < 3; i++)for(int j = 0; j < 3; j++) r[i][j] = rot.getElement(i,j);
 
@@ -579,6 +595,7 @@ PndFtsTube * PndFtsMapCreator::GetTubeFromNameToFillGeoType1(TString tubename) {
 
 TClonesArray* PndFtsMapCreator::FillTubeArrayGeoType1() {
 
+  //ofstream myfile("testNumber.txt");
   TObjArray *geoPassNodes = fFtsParameters->GetGeoPassiveNodes();
   TClonesArray *tubeArray = new TClonesArray("PndFtsTube");
   tubeArray->Delete();
@@ -605,12 +622,9 @@ TClonesArray* PndFtsMapCreator::FillTubeArrayGeoType1() {
     Int_t tubeID = GetTubeIDFromNameGeoType1(tubename);
     Int_t tempLayer = GetLayerID(tempChamber, tubeID, tubename);
     Int_t totTubeID = GetTubeIDTot(tempChamber, tempLayer, tubeID, tubename );
-    //PndFtsTube *ftstube = GetTubeFromTubeIDToFillGeoType1(tubeID);
-    PndFtsTube *ftstube = GetTubeFromNameToFillGeoType1(tubename);
+    PndFtsTube *ftstube = GetTubeFromNameToFillGeoType1(tubename,totTubeID,tempLayer);
     new((*tubeArray)[totTubeID]) PndFtsTube(*ftstube);
-
-    //ofstream myfile("testNumber.txt");
-    //myfile <<  tubename << " " << totTubeID << endl;
+    //myfile <<  tubename << " " << totTubeID << " "<<tempLayer<<endl;
 
     
   }

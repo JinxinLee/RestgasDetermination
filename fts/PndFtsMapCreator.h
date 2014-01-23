@@ -28,6 +28,7 @@ class PndFtsMapCreator : public TObject
   Int_t GetChamberIDFromPath(TString path); 
   Int_t GetChamberIDFromName(TString name);
   Int_t GetLayerID(Int_t chamberid, Int_t tubeid, TString path);
+  Int_t IsSkew(Int_t layerid);
   Int_t GetTubeIDTot(Int_t chamberid,Int_t layerid, Int_t tubeid, TString path);
  private:
 
@@ -37,7 +38,7 @@ class PndFtsMapCreator : public TObject
   TString GetNameFromPathGeoType1(TString path);
   TString GetNameFromTubeIDGeoType1(Int_t tubeid, Bool_t isCopy);
   PndFtsTube * GetTubeFromTubeIDToFillGeoType1(Int_t tubeid); 
-  PndFtsTube * GetTubeFromNameToFillGeoType1(TString tubename);
+  PndFtsTube * GetTubeFromNameToFillGeoType1(TString tubename, Int_t tubeid, Int_t layerid);
   TClonesArray* FillTubeArrayGeoType1();
 
   Int_t fGeoType;
