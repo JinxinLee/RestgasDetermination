@@ -10,10 +10,13 @@
 
 // fFocusingSystem = 0 - no focusing is used
 // fFocusingSystem = 1 - lens 
+// fFocusingSystem = 11 - one component lens with air gap 
+// fFocusingSystem = 15 - half of 11 
 // fFocusingSystem = 2 - forward mirror is used
 // fFocusingSystem = 3 - cylindrical
 // fFocusingSystem = 31 - wide cylindrical
 // fFocusingSystem = 33 - wide three component cylindrical lens (same as 6 but cylindrical)
+// fFocusingSystem = 34 - half of 33
 // fFocusingSystem = 35 - half of two component cylindrical lens (one for each bar) 
 // fFocusingSystem = 36 - half of two component wide cylindrical lens (single lens for the bar box)
 // fFocusingSystem = 4 - two component spherical lens is used
@@ -197,6 +200,54 @@ void createdirc(Int_t fGeomType = 1, Int_t fFocusingSystem = 6, Int_t iter=0, TS
     if(fFocusingSystem == 0){  // no focusing
       Double_t flen = 0.;
     }
+
+    if(fFocusingSystem == 11 || fFocusingSystem == 15){ // one component spherical lense ||  half of lens #11
+
+      if(fFocusingSystem == 15) {
+	halfheight = hthick;
+	halfshift = -hthick;
+      }
+      
+      Double_t hlens1 = 0.4; //[cm] thickness in the middle of the first (focising) (FusedSil) lens      
+      Double_t hlens2 = 0.1; //[cm] thickness in the middle of the second (defocusing) (FusedSil) lens           
+      Double_t rlens = 10; // [cm]
+      Double_t llens =  barwidth/2.; //(bbX/barnum)/2.-bargap;
+      len = (hlens1+hlens2)/2.;     
+     
+      //lens1 
+      TGeoSphere* lSphUp = new TGeoSphere("SphUp",0 ,rlens, 0. ,180.,0.,360.);
+      TGeoBBox* lCylBox = new TGeoBBox("LensBox", llens, halfheight, len);
+
+      TGeoTranslation t1("trans", 0., halfshift, rlens+hlens2-len);
+      TGeoRotation r1("rot",90., 90. ,0.);
+      TGeoHMatrix tr = t1*r1;
+      TGeoHMatrix *transf = new TGeoHMatrix(tr);
+      transf->SetName("transf");
+      transf->RegisterYourself();
+
+      TGeoCompositeShape *cslens1 = new TGeoCompositeShape("cslens1","SphUp:transf * LensBox");
+      TGeoVolume *CylLens1 = new TGeoVolume("DrcLENS1Sensor",cslens1, gGeoManager->GetMedium("FusedSil"));
+      CylLens1->SetLineColor(kRed+2);
+      CylLens1->SetTransparency(40);
+      // CylLens1->SetLineColor(kCyan+1);
+      // CylLens1->SetTransparency(60);
+     
+      fdz_lens1 = -bbox_hlen + 3*barWin_hthick - len/2. + rlens;
+     
+      //lens2
+      TGeoTranslation t2("trans", 0., halfshift, rlens+hlens2-len);
+      TGeoHMatrix tr2 = t2*r1;
+      TGeoHMatrix *transf2 = new TGeoHMatrix(tr2);
+      transf2->SetName("transf2");
+      transf2->RegisterYourself();
+      
+      TGeoCompositeShape *cslens2 = new TGeoCompositeShape("cslens2", "LensBox - SphUp:transf2");
+      TGeoVolume* CylLens2 = new TGeoVolume("DrcLENS2Sensor", cslens2, gGeoManager->GetMedium("DIRCairNoSens"));
+      CylLens2->SetLineColor(kRed+2);
+      CylLens2->SetTransparency(40);
+      // CylLens2->SetLineColor(kCyan+-3);
+      // CylLens2->SetTransparency(60);
+    }
   
     if(fFocusingSystem == 1){ // L E N S E S  (airgap, thin nlak33)
       Double_t hlens1 = 0.3;
@@ -268,7 +319,6 @@ void createdirc(Int_t fGeomType = 1, Int_t fFocusingSystem = 6, Int_t iter=0, TS
       Lens4->SetTransparency(40);
      
     } 
-
 
     if(fFocusingSystem == 2){ // Mirrors at front
       // Put some mirrors at the downstream end with a focal plane at the PD.
@@ -480,7 +530,6 @@ void createdirc(Int_t fGeomType = 1, Int_t fFocusingSystem = 6, Int_t iter=0, TS
 
     }
     
-
     if(fFocusingSystem == 31 || fFocusingSystem == 36){ // cylindrical lens w/o airgap ||  half of lens #31
      
       if(fFocusingSystem == 36){
@@ -892,7 +941,7 @@ void createdirc(Int_t fGeomType = 1, Int_t fFocusingSystem = 6, Int_t iter=0, TS
       entrancebox->AddNode(block1, j, new TGeoCombiTrans(dx, dy, fdz_mirr1, new TGeoRotation (0)));
       entrancebox->AddNode(block2, j, new TGeoCombiTrans(dx, dy, fdz_mirr2, new TGeoRotation (0)));
     }
-    if(fFocusingSystem == 3 || fFocusingSystem == 35 ||  fFocusingSystem == 4 ||  fFocusingSystem == 45){
+    if(fFocusingSystem == 3 || fFocusingSystem == 35 ||  fFocusingSystem == 4 ||  fFocusingSystem == 45 ||  fFocusingSystem == 11 ||  fFocusingSystem == 15){
       entrancebox->AddNode(CylLens1, j, new TGeoCombiTrans(dx, dy, barWin_hthick + EVgreaseLayer , new TGeoRotation(0)));
       entrancebox->AddNode(CylLens2, j, new TGeoCombiTrans(dx, dy, barWin_hthick + EVgreaseLayer , new TGeoRotation(0)));
     }        
