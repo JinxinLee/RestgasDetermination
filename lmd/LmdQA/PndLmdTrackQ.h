@@ -186,6 +186,12 @@ public:
 
   /** get number of reconstructed tracks in event **/
   int GetEvRECMulti() const{return fnumEvRECparticles;}
+
+  /** set and get time info **/
+  void SetEvTime(double evtm){ fEvTime = evtm;}
+  void SetTrkTime(double trktm){ fTrkTime = trktm;}
+  double GetEvTime() const{return fEvTime;}
+  double GetTrkTime() const{return fTrkTime;}
  private:
 
   //  Int_t ftotCharge;
@@ -203,9 +209,10 @@ public:
                               // <0 = missed: -1=trk-search losses,-2=little amount of hits,-3=no MC hits, -10=trk wasn't back-propag
   int fSecondary;//0=primary, 1=secondary
   int fPDGcode;// PDG code particle made the main contribution (65 % of hits) to the rec.track, -9999=n/a
+  double fEvTime;//global time for event
+  double fTrkTime;//time for 1st hit in the Trk = ToF (flight time from IP to LMD)
 
-
-  ClassDef(PndLmdTrackQ,10);
+  ClassDef(PndLmdTrackQ,11);
 };
 
 #endif

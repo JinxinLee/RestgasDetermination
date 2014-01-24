@@ -161,6 +161,8 @@ void PndLmdTrkQTask::Exec(Option_t* opt)
   int glPDG;
   int glNumMChits;
   int glNumDoubleMChits;
+  double glEvTime = FairRootManager::Instance()->GetEventTime();
+  double glTrkTime;
 
   const int nGeaneTrks = fRecBPTracks->GetEntriesFast();
     const int nParticles = fMCTracks->GetEntriesFast();
@@ -298,14 +300,11 @@ void PndLmdTrkQTask::Exec(Option_t* opt)
 
     int goodRectrk=0;//for missed trk-search
     for (Int_t iN=0; iN<nGeaneTrks; iN++){// loop over all reconstructed trks
-      //    if(fVerbose>3)  cout<<"GEANEtrk#"<<iN<<endl;
-      
       FairTrackParH *fRes = (FairTrackParH*)fRecBPTracks->At(iN);
       TVector3 PosRec = fRes->GetPosition();
       Double_t lyambda = fRes->GetLambda();
       if(lyambda==0){
-	cout<<"GEANE didn't propagate "<<iN<<" trk!"<<endl;
-	//	glBADGEANE++;
+	cout<<"GEANE didn't propagate trk No."<<iN<<"!"<<endl;
       }
         
       PndTrack *trkpnd = (PndTrack*)fRecTracks->At(iN);
@@ -320,7 +319,8 @@ void PndLmdTrkQTask::Exec(Option_t* opt)
 	MCtrkID[iHit]=9999;
       }
       Int_t diffIDs=1;
-	//Matching between MC & Rec on hits level-----------------------------------
+
+      ///Matching between MC & Rec on hits level-----------------------------------
       bool emergExit=false;
       if(fVerbose>7)
 	cout<<"    *** REChits in trk (with "<<Ntrkcandhits<<" hits) are made from MChits: "<<endl;//start MC hit content
@@ -376,7 +376,9 @@ void PndLmdTrkQTask::Exec(Option_t* opt)
       }
       //   if(emergExit) continue;
      
+
       //   Sorting MC IDs ---------------------------------------- 
+      //TODO: sort it by c++ function
       Int_t k, x;
       bool ch=false; //Was element changed? 
       Int_t nch = 0; //How many times?
@@ -468,46 +470,46 @@ void PndLmdTrkQTask::Exec(Option_t* opt)
       }
       ///------------------------------------------------------------------------
       
-      /// Comporision MC, trk-candidates and REConstructed tracks --------------------------------------------
+      // /// Comporision MC, trk-candidates and REConstructed tracks --------------------------------------------
    
-      if(diffIDs>-1){ // All tracks
+      // if(diffIDs>-1){ // All tracks
 		
-	/// Read MC track parameters ----------------------------------------------------------
-	int MCidforREC = RECtrkMCid[iN];
-	PndMCTrack *mctrk =(PndMCTrack*) fMCTracks->At(MCidforREC);
-	Int_t mcID = mctrk->GetPdgCode();
-	//	glPDG = mctrk->GetPdgCode();
-	TVector3 MomMC = mctrk->GetMomentum();
-	Double_t thetaMC = MomMC.Theta();
-	Double_t phiMC = MomMC.Phi();
-	///------------------------------------------------------------------------------------
+      // 	/// Read MC track parameters ----------------------------------------------------------
+      // 	int MCidforREC = RECtrkMCid[iN];
+      // 	PndMCTrack *mctrk =(PndMCTrack*) fMCTracks->At(MCidforREC);
+      // 	Int_t mcID = mctrk->GetPdgCode();
+      // 	//	glPDG = mctrk->GetPdgCode();
+      // 	TVector3 MomMC = mctrk->GetMomentum();
+      // 	Double_t thetaMC = MomMC.Theta();
+      // 	Double_t phiMC = MomMC.Phi();
+      // 	///------------------------------------------------------------------------------------
 	
-	/// Read track-parameters after back-propagation ---------------------------------------
-	//TODO: problem with covarance matrix in FairTrackParH???
-	Double_t CovGEANELAB[6][6];
-	fRes->GetMARSCov(CovGEANELAB);	
-	Double_t errX = fRes->GetDX();
-	Double_t errY = fRes->GetDY();
-	Double_t errZ = fRes->GetDZ();
+      // 	/// Read track-parameters after back-propagation ---------------------------------------
+      // 	//TODO: problem with covarance matrix in FairTrackParH???
+      // 	Double_t CovGEANELAB[6][6];
+      // 	fRes->GetMARSCov(CovGEANELAB);	
+      // 	Double_t errX = fRes->GetDX();
+      // 	Double_t errY = fRes->GetDY();
+      // 	Double_t errZ = fRes->GetDZ();
 
-	Double_t errPx = fRes->GetDPx();
-	Double_t errPy = fRes->GetDPy();
-	Double_t errPz = fRes->GetDPz();
-	TVector3 errMomBP(errPx,errPy,errPz);
+      // 	Double_t errPx = fRes->GetDPx();
+      // 	Double_t errPy = fRes->GetDPy();
+      // 	Double_t errPz = fRes->GetDPz();
+      // 	TVector3 errMomBP(errPx,errPy,errPz);
 
-	Double_t thetaBP = TMath::Pi()/2. - lyambda;
-	Double_t err_lyambda = fRes->GetDLambda();
-	if(err_lyambda==0) err_lyambda = errMomBP.Theta();
-	// Double_t err_lyambda = errMom.Theta();
-	Double_t phiBP = fRes->GetPhi();
-	Double_t err_phi = fRes->GetDPhi();
-	if(err_phi==0) err_phi=errMomBP.Phi();
-	Double_t errMomRecBP = fRes->GetDQp();
-	TVector3 MomRecBP = fRes->GetMomentum();
+      // 	Double_t thetaBP = TMath::Pi()/2. - lyambda;
+      // 	Double_t err_lyambda = fRes->GetDLambda();
+      // 	if(err_lyambda==0) err_lyambda = errMomBP.Theta();
+      // 	// Double_t err_lyambda = errMom.Theta();
+      // 	Double_t phiBP = fRes->GetPhi();
+      // 	Double_t err_phi = fRes->GetDPhi();
+      // 	if(err_phi==0) err_phi=errMomBP.Phi();
+      // 	Double_t errMomRecBP = fRes->GetDQp();
+      // 	TVector3 MomRecBP = fRes->GetMomentum();
 
-	///==================================
-      }
-      ///-------------------------------------------------------------------------------------
+      // 	///==================================
+      // }
+      // ///-------------------------------------------------------------------------------------
     }
   
 
@@ -570,6 +572,7 @@ void PndLmdTrkQTask::Exec(Option_t* opt)
       Double_t phiBP = fRes->GetPhi();
       TVector3 MomRecBP = fRes->GetMomentum();
       TVector3 PosBP = fRes->GetPosition();
+
       //Fill tree with rec vs. mc trk info ------------------------------------------------
       glXrec = PosBP.X();      glYrec = PosBP.Y();       glZrec = PosBP.Z();
       glThetarec = thetaBP;       glPhirec = phiBP;
@@ -597,13 +600,19 @@ void PndLmdTrkQTask::Exec(Option_t* opt)
       glXrecLMD =  PosRecLMD.X();       glYrecLMD =  PosRecLMD.Y();       glZrecLMD =  PosRecLMD.Z();
       glThetarecLMD = MomRecLMD.Theta(); glPhirecLMD = MomRecLMD.Phi();
       trkRECStatus = trkType;
-     
+      int candID = trkpnd->GetRefIndex();
+      PndTrackCand *trkcand = (PndTrackCand*)fRecCandTracks->At(candID);    
+      PndTrackCandHit candhit = (PndTrackCandHit)(trkcand->GetSortedHit(0));//1st hit info
+      Int_t hitID = candhit.GetHitId();
+      PndSdsMergedHit* myHit = (PndSdsMergedHit*)(fRecHits->At(hitID));
+      glTrkTime = myHit->GetTimeStamp();
+      //TODO: include info from GetTimeStampError()
 
    
       if(trkType>0){ //TODO: ghost-doubled trks has MC trk!!!
 	glXmc= -9999; glYmc =-9999; glZmc = -9999; glThetamc =-9999; glPhimc = -9999; glMommc = -9999;
 	glXmcLMD = -9999; glYmcLMD =-9999; glZmcLMD = -9999; glThetamcLMD =-9999; glPhimcLMD = -9999; glMommcLMD = -9999;
-	glNumMChits = -9999; 	glNumDoubleMChits  = -9999;
+	glNumMChits = -9999;  glNumDoubleMChits  = -9999; 	glEvTime = -9999; 
 	trkMCStatus = -9999;
 	glPDG = -9999;
       }
@@ -612,6 +621,7 @@ void PndLmdTrkQTask::Exec(Option_t* opt)
 	//	if(!goodTrk[iN]) continue;
 	PndMCTrack *mctrk =(PndMCTrack*) fMCTracks->At(MCidforREC);
 	glPDG = mctrk->GetPdgCode();
+	//	glEvTime = mctrk->GetStartTime(); //this gives start time of trk, doesn't matter since all el. pbar start in IP
 	TVector3 MomMC = mctrk->GetMomentum();
 	glThetamc  = MomMC.Theta();
 	glPhimc = MomMC.Phi();
@@ -626,13 +636,8 @@ void PndLmdTrkQTask::Exec(Option_t* opt)
 	glNumMChits = MCtksSIMhits[MCidforREC];
 	glNumDoubleMChits = MCDoubleHits[MCidforREC];
 
-	//Get MC info in LMD
-	int candID = trkpnd->GetRefIndex();
-	PndTrackCand *trkcand = (PndTrackCand*)fRecCandTracks->At(candID);    
-	
-	PndTrackCandHit candhit = (PndTrackCandHit)(trkcand->GetSortedHit(0));//1st hit info
-	Int_t hitID = candhit.GetHitId();
-	PndSdsMergedHit* myHit = (PndSdsMergedHit*)(fRecHits->At(hitID));
+	// //Get MC info in LMD
+
 	int mcrefbot = myHit->GetSecondMCHit();
 	int mcreftop = myHit->GetRefIndex();
 	PndSdsMCPoint* MCPointHit;
@@ -644,13 +649,14 @@ void PndLmdTrkQTask::Exec(Option_t* opt)
 	}
 
 	TVector3 PosMClmd =  MCPointHit->GetPosition();
+
 	double pxTrue =  MCPointHit->GetPx();
 	double pyTrue =  MCPointHit->GetPy();
 	double pzTrue =  MCPointHit->GetPz();
 	TVector3 MomMClmd(pxTrue,pyTrue,pzTrue);
 	glXmcLMD = PosMClmd.X();      glYmcLMD = PosMClmd.Y();      glZmcLMD = PosMClmd.Z();
 	glThetamcLMD = MomMClmd.Theta();  glPhimcLMD = MomMClmd.Phi();  glMommcLMD = MomMClmd.Mag();
-      } 
+      }
       //    tRECMCtrks->Fill();
       TClonesArray& clref = *fTrackQ;
       Int_t size = clref.GetEntriesFast();
@@ -677,6 +683,8 @@ void PndLmdTrkQTask::Exec(Option_t* opt)
       trkqlmd->SetSumEvPDG(sumID);
       trkqlmd->SetEvMCMulti(nParticles);
       trkqlmd->SetEvRECMulti(nGeaneTrks);
+      trkqlmd->SetEvTime(glEvTime);
+      trkqlmd->SetTrkTime(glTrkTime);
       //(end) Fill tree with rec vs. mc trk info ---------------------------------------
     }
     ///END GHOST--------------------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -732,11 +740,13 @@ void PndLmdTrkQTask::Exec(Option_t* opt)
 	  glThetarec = -9999;       glPhirec = -9999;
 	  glXrecLMD = -9999;      glYrecLMD = -9999;       glZrecLMD = -9999;
 	  glThetarecLMD = -9999;       glPhirecLMD = -9999; glMomrec = -9999; glchi2=-9999;
+	  glTrkTime = -9999;
 	  trkRECStatus = trkQ;     
 	  glXmc= PosMC.X(); glYmc = PosMC.Y(); glZmc = PosMC.Z();
 	  glThetamc = MomMC.Theta();       glPhimc = MomMC.Phi(); glMommc = MomMC.Mag();
-	  trkMCStatus=movID;
+	  trkMCStatus=movID; 
 	  glPDG = mctrk->GetPdgCode();
+	  //	  glEvTime = mctrk->GetStartTime();
 	  // if(movID<0) trkMCStatus=0;
 	  // if(movID>=0) trkMCStatus=+1;
 	  //	  tRECMCtrks->Fill();
@@ -767,6 +777,8 @@ void PndLmdTrkQTask::Exec(Option_t* opt)
 	    trkqlmd->SetSumEvPDG(sumID);
 	    trkqlmd->SetEvMCMulti(nParticles);
 	    trkqlmd->SetEvRECMulti(nGeaneTrks);
+	    trkqlmd->SetEvTime(glEvTime);
+	    trkqlmd->SetTrkTime(glTrkTime);
 	  }
 	//(end) Fill tree with rec vs. mc trk info for missed trks ---------------------------------------
 	}
