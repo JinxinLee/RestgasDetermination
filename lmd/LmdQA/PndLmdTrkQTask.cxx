@@ -612,7 +612,7 @@ void PndLmdTrkQTask::Exec(Option_t* opt)
       if(trkType>0){ //TODO: ghost-doubled trks has MC trk!!!
 	glXmc= -9999; glYmc =-9999; glZmc = -9999; glThetamc =-9999; glPhimc = -9999; glMommc = -9999;
 	glXmcLMD = -9999; glYmcLMD =-9999; glZmcLMD = -9999; glThetamcLMD =-9999; glPhimcLMD = -9999; glMommcLMD = -9999;
-	glNumMChits = -9999;  glNumDoubleMChits  = -9999; 	glEvTime = -9999; 
+	glNumMChits = -9999;  glNumDoubleMChits  = -9999; //	glEvTime = -9999; 
 	trkMCStatus = -9999;
 	glPDG = -9999;
       }
