@@ -276,15 +276,20 @@ void PndGemDigitize::DigitizeRealisticEvent() {
   Int_t nofHitsOutside = 0;
   Int_t nofPoints = fPoints->GetEntriesFast();
 
-//   cout << "GEM digitize points:" << endl;
-//   for ( Int_t iPoint = 0 ; iPoint < nofPoints ; iPoint++ ) {
-//     PndGemMCPoint* currentPndGemMCPoint = (PndGemMCPoint*)fPoints->At(iPoint);
-//     cout << iPoint << " : " 
-// 	 << currentPndGemMCPoint->GetX() << " "
-// 	 << currentPndGemMCPoint->GetY() << " "
-// 	 << currentPndGemMCPoint->GetZ() << endl;
-//   }
-//   cout << "GEM digis: " << endl;
+  // if ( fVerbose > 0 ) {
+  //   cout << "GEM digitize points:" << endl;
+  //   for ( Int_t iPoint = 0 ; iPoint < nofPoints ; iPoint++ ) {
+  //     PndGemMCPoint* currentPndGemMCPoint = (PndGemMCPoint*)fPoints->At(iPoint);    }
+  //   cout << "GEM digis: " << endl;
+  // }
+
+  if ( fVerbose ) {
+    cout << "GemDigiPar has "
+	 << fDigiPar->GetNStations() << " stations, "
+	 << fDigiPar->GetNSensors() << " sensors, "
+	 << fDigiPar->GetNChannels() << " channels. "
+	 << endl;
+  }
 
   for ( Int_t iPoint = 0 ; iPoint < nofPoints ; iPoint++ ) {
     PndGemMCPoint* currentPndGemMCPoint = (PndGemMCPoint*)fPoints->At(iPoint);
@@ -295,9 +300,21 @@ void PndGemDigitize::DigitizeRealisticEvent() {
     
     Int_t sensorId = currentPndGemMCPoint->GetSensorId();
 
+    if ( fVerbose > 0 ) {
+      cout << iPoint << " : " 
+	   << currentPndGemMCPoint->GetX() << " "
+	   << currentPndGemMCPoint->GetY() << " "
+	   << currentPndGemMCPoint->GetZ() << " in sensor "
+	   << sensorId << endl;
+    }
+
     Double_t stripWidth;
 
     TString nodeName = fDigiPar->GetNodeName(sensorId);
+
+    if ( fVerbose > 0 ) {
+      cout << "got nodeName = \"" << nodeName.Data() << "\"" << endl;
+    }
 
     gGeoManager->cd(nodeName.Data());
     TGeoNode* curNode = gGeoManager->GetCurrentNode();
@@ -307,8 +324,8 @@ void PndGemDigitize::DigitizeRealisticEvent() {
 // 	 << fDigiPar->GetSensorNr(sensorId) << "."
 // 	 << fDigiPar->GetSegmentNr(sensorId) << " > " 
 // 	 << nodeName.Data() << endl;
-
     sensor = (PndGemSensor*)fDigiPar->GetSensor(sensorId);
+
     if ( !sensor ) {
       cout << " -E- " << GetName() << ":Exec() There is no sensor: \"" 
 	   << nodeName.Data() << "\"." << endl;
@@ -320,9 +337,11 @@ void PndGemDigitize::DigitizeRealisticEvent() {
     
     curNode->MasterToLocal(posIn,locPosIn);
 
-    //    cout << "position:  " << posIn[0] << " " << posIn[1] << " " << posIn[2] << endl;
-    //	 << " transf to " << locPosIn[0] << " " << locPosIn[1] << " " << locPosIn[2] << endl;
-    
+    if ( fVerbose ) {
+      cout << "position:  " << posIn[0] << " " << posIn[1] << " " << posIn[2] << endl;
+      cout << " transf to " << locPosIn[0] << " " << locPosIn[1] << " " << locPosIn[2] << endl;
+    }
+
     //    if ( sensor->GetType()!=1 ) { locPosIn[3] = locPosIn[2]; locPosIn[2] = locPosIn[1]; locPosIn[1] = locPosIn[3]; locPosIn[0] = -locPosIn[0]; }
     
     Int_t sensorDetId = sensor->GetDetectorId();

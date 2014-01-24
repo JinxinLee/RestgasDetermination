@@ -27,7 +27,6 @@ PndGemSensor::PndGemSensor() {
   fPosition[0] = fPosition[1] = fPosition[2] = fRotation = fInnerRadius = fOuterRadius = fD = fStripAngle[0] = fStripAngle[1] = fPitch[0] = fPitch[1] = 0.;
   fNChannelsFront = fNChannelsBack = 0;
   fSigmaX = fSigmaY = fSigmaXY = 0.;
-  cout << "-W- PndGemSensor: Do not use this constructor! " << endl;
 }
 // -------------------------------------------------------------------------
 

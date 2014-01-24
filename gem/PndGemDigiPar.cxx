@@ -221,7 +221,9 @@ Int_t PndGemDigiPar::GetDetectorIdByName(TString sensorName)
 
 // -----   Public method GetSensor   ---------------------------------------
 PndGemSensor* PndGemDigiPar::GetSensor(Int_t stationNr, Int_t sensorNr) {
-  return ( GetStationByNr(stationNr)->GetSensorByNr(sensorNr) );
+  PndGemStation* stat = (PndGemStation*)this->GetStation(stationNr-1);
+  return stat->GetSensor(sensorNr-1);
+  //  return ( GetStationByNr(stationNr)->GetSensorByNr(sensorNr) );
 }
 // -------------------------------------------------------------------------
 
@@ -244,24 +246,14 @@ ClassImp(PndGemDigiPar);
 
 void PndGemDigiPar::Print()
 {
-  Int_t arrayIndex = 0;
   cout << "-------------------------------------------------" << endl;
-  cout<<"GEM Digitization Parameters:"<<endl;
-  while ( arrayIndex < fGemParameters.GetSize() ) {
-    for ( Int_t istp = 0 ; istp < 4 ; istp++ ) {
-      cout << fGemParameters[arrayIndex+istp] << " " << flush;
-    }
-    cout << endl;
+  cout<<"GEM Digitization Parameters (" << fGemParameters.GetSize() << "):"<<endl;
 
-    arrayIndex += 4;
-    
-    for ( Int_t isec = 0 ; isec < fGemParameters[arrayIndex-1] ; isec++ ) {
-      for ( Int_t isep = 0 ; isep < 12 ; isep++ ) {
-	cout << fGemParameters[arrayIndex+isec*12+isep] << " " << flush;
-      }
-      cout << endl;
-    }
-    arrayIndex+=(Int_t)fGemParameters[arrayIndex-1]*12;
+  for ( Int_t iind = 0 ; iind < fGemParameters.GetSize() ; iind++ ) {
+    cout << fGemParameters[iind] << " " << flush;
+    if ( iind%30 ==  3 ) cout << endl << "   " << flush;
+    if ( iind%30 == 16 ) cout << endl << "   " << flush;
+    if ( iind%30 == 29 ) cout << endl;
   }
   cout << "-------------------------------------------------" << endl;
 }
