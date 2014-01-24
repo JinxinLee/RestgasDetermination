@@ -1,4 +1,5 @@
 #include "EventShape.h"
+#include "SimpleNtp.C"
 //#include "SimpleCand.C"
 #include <iostream>
 #include <vector>
@@ -19,6 +20,7 @@
 #include "TStyle.h"
 #include "TNtuple.h"
 #include "TLatex.h"
+#include "TGaxis.h"
 
 using std::cout;
 using std::endl;
@@ -77,7 +79,7 @@ double			feewin	  = 0.;             // *** to be determined by function
 
 int             fLamPdg    = 3122;         // *** PDG code to match Lam
 double		 	fLamMass   = 1.115684;        // *** center of mass cut window
-double			fLamsig    = 0.0065;        // *** sigma of peak
+double			fLamsig    = 0.0042;        // *** sigma of peak
 double			fLamwin		=0.1;
 
 int             fDsPdg     = 431;         // *** PDG code to match Ds
@@ -87,7 +89,7 @@ double			fDswin		=0.2;
 	
 int             fPhiPdg     = 333;         // *** PDG code to match Phi
 double		 	fPhiMass    = 1.0195;        // *** center of mass cut window
-double			fPhisig     = 0.009;        // *** sigma of peak
+double			fPhisig     = 0.0065;        // *** sigma of peak
 double			fPhiwin		=0.2;
 	
 int             fEtacPdg     = 441;         // *** PDG code to match etac
@@ -119,6 +121,7 @@ double pidreal [25] = {  95,  6,  10,   7,  10,    //  e
 double mE, mMu, mPi, mK, mP, mPi0;
 
 TF1 *f_res=0;
+int npi, nk, npr, ne, nmu, nlep, evtno, globmode;
 
 // *** this map contains mapping from PDG code to indices 0...4 (for pidtab)
 // *** 11 -> 0, 13 -> 1, 211 -> 2, 321 -> 3, 2212 -> 4
@@ -133,6 +136,29 @@ CandList mclist, mcFSlist, recolist,recocmslist;
 
 // *** the global pid lists
 CandList eplus, eminus, muplus, muminus, piplus, piminus, kplus, kminus, pplus, pminus, gam;
+
+// *** setup  style
+void setStyle()
+{
+	gStyle->SetPadTopMargin(0.13);
+	gStyle->SetPadBottomMargin(0.18);
+	gStyle->SetPadLeftMargin(0.2);
+	gStyle->SetPadRightMargin(0.015);
+
+	gStyle->SetLabelSize(0.075,"X");
+	gStyle->SetLabelSize(0.07,"Y");
+
+	gStyle->SetStatY(0.87);
+	gStyle->SetStatX(0.985);
+	gStyle->SetStatW(0.4);
+	gStyle->SetStatH(0.12);
+	gStyle->SetOptStat("e"); // only entries
+	
+	gStyle->SetTitleH(0.1);
+	gStyle->SetTitleX(0.08);
+	gStyle->SetTitleOffset(1.1,"x");
+	gStyle->SetTitleXSize(0.075);
+}
 
 // *** boost full list with -boost and store in boostlist
 void boostList(CandList &list, CandList &boostlist, TVector3 boost)
@@ -352,6 +378,8 @@ int combine(CandList &l1, CandList &l2, CandList &out, int matchPdg=0)
 			c.SetCharge(l1[i].Charge()+l2[j].Charge());
 			c.SetNFS(l1[i].NFS()+l2[j].NFS());
 			c.SetMarker(l1[i].Marker() | l2[j].Marker());
+			c.AddDau(&(l1[i]));c.AddDau(&(l2[j]));
+			c.SetPdg(matchPdg);
 			
 			int m1 = l1[i].MotherIdx();
 			int m2 = l2[j].MotherIdx();
@@ -409,6 +437,8 @@ int combine(CandList &l1, CandList &l2, CandList &l3, CandList &out, int matchPd
 				c.SetCharge( l1[i1].Charge() + l2[i2].Charge() + l3[i3].Charge() );
 				c.SetNFS( l1[i1].NFS() + l2[i2].NFS() + l3[i3].NFS());
 				c.SetMarker( l1[i1].Marker() | l2[i2].Marker() | l3[i3].Marker() );
+				c.AddDau(&(l1[i1]));c.AddDau(&(l2[i2]));c.AddDau(&(l3[i3]));
+				c.SetPdg(matchPdg);
 				
 				int m1 = l1[i1].MotherIdx();
 				int m2 = l2[i2].MotherIdx();
@@ -485,6 +515,8 @@ int combine(CandList &l1, CandList &l2, CandList &l3, CandList &l4, CandList &ou
 					c.SetCharge( l1[i1].Charge() + l2[i2].Charge() + l3[i3].Charge() + l4[i4].Charge() );
 					c.SetNFS( l1[i1].NFS() + l2[i2].NFS() + l3[i3].NFS() + l4[i4].NFS() );
 					c.SetMarker( l1[i1].Marker() | l2[i2].Marker() | l3[i3].Marker() | l4[i4].Marker() );
+					c.AddDau(&(l1[i1]));c.AddDau(&(l2[i2]));c.AddDau(&(l3[i3]));c.AddDau(&(l4[i4]));
+					c.SetPdg(matchPdg);
 					
 					int m1 = l1[i1].MotherIdx();
 					int m2 = l2[i2].MotherIdx();
@@ -563,6 +595,8 @@ void makeRecoCands(CandList &mc, CandList &reco, double eff=0.90, double dp=0.05
 {
 	reco.clear();
 	
+	unsigned int marker = 1;
+	
 	for (unsigned int i=0;i<mc.size();i++)
 	{
 		SimpleCand c=mc[i];
@@ -574,11 +608,17 @@ void makeRecoCands(CandList &mc, CandList &reco, double eff=0.90, double dp=0.05
 			smearMom(c,dp,dtht,dphi);
 			// set pion mass as default
 			c.SetMass(0.13957);
+			c.SetMarker(marker);
+			c.SetPdg(211*c.Charge());
+			marker *=2;
 			reco.push_back(c);
 		}
 		else if (pid==22 && isDetected(fNeutEff))  // *** neutral
 		{
 			smearMom(c,fdE, fNdtht, fNdphi);
+			c.SetMarker(marker);
+			c.SetPdg(22);
+			marker *=2;
 			reco.push_back(c);
 		}
 	}
@@ -615,6 +655,7 @@ void select(CandList &in, CandList &out, int chrg=0, int pdg=0, double mass=0.13
 		{
 			c.SetMass(mass);
 			if (c.Pid()==pdg) c.SetMcPid();
+			c.SetPdg(pdg);
 			if (pdg==0 || pdg==22) out.push_back(c); // do we want select a pdg code? 0=only charge
 			else
 			{
@@ -666,12 +707,145 @@ void configHisto(TH1* h)
 	h->SetFillColor(602);
 	h->SetLineStyle(3);
 	h->SetLineColor(602);
+/*	TGaxis *ax = (TGaxis*)h->GetYaxis();
+	ax->SetMaxDigits(2);*/
 }
 
-void toy_core(TString fsig, int nev=2, double sqrts=3.77, bool simcut=false, bool evcut=false, double dp=0.05, 
-			double trkeff=100., double pideff=100., double misid =0., double P_mix=0.00)
+void qaCand(TString pre, SimpleCand &c, SimpleNtp *n)
 {
-	fRand.SetSeed();
+	TLorentzVector l = c.P4();
+	TVector3 boost = fIni.BoostVector();
+	TLorentzVector lb = l;
+	lb.Boost(-boost);
+	
+	n->Column(pre+"px",  l.Px());
+	n->Column(pre+"py",  l.Py());
+	n->Column(pre+"pz",  l.Pz());
+	n->Column(pre+"p",   l.P());
+	n->Column(pre+"e",   l.E());
+	n->Column(pre+"m",   l.M());
+	n->Column(pre+"pdg", c.Pdg());
+	n->Column(pre+"tpdg", c.Pid());
+	n->Column(pre+"ch",  c.Charge());
+	
+	n->Column(pre+"pt",  l.Pt());
+	n->Column(pre+"tht", l.Theta());
+	n->Column(pre+"phi", l.Phi());
+	n->Column(pre+"pcm", lb.P());
+	
+	n->Column(pre+"mct", c.Mct()||c.McPid() );
+}
+
+// int getDau( int idx, SimpleCand &c)
+// {
+// 	int num=0;
+// 	int curridx=-1;
+// 	unsigned int marker = c.Marker();
+// 	
+// 	while (curridx<idx)
+// 	{
+// 		while (!(marker&1) && num<32) {num++;marker>>=1;}
+// 		curridx++;
+// 	}
+// 	return num;
+// }
+// 
+// int countDau(SimpleCand &c)
+// {
+// 	int num=0;
+// 	unsigned int marker = c.Marker();
+// 	while (marker) {marker &= (marker-1); num++;}
+// 	
+// 	return num;
+// }
+// 
+// int getDauIdx(SimpleCand &c, int* dauidx)
+// {
+// 	int num=0;
+// 	int idx=0;
+// 	unsigned int marker = c.Marker();
+// 
+// 	while (marker)
+// 	{
+// 		if (marker & 1) 
+// 		{
+// 			dauidx[num]=idx;
+// 			num++;
+// 		}
+// 		marker >>= 1;
+// 		idx++;
+// 	}
+// 	return num;
+// }
+
+void writeTuple(TString pre, CandList &l, EventShape &evsh, SimpleNtp *n, double mass, double win)
+{
+	int dauidx[32];
+	for (int i=0;i<l.size();++i)
+	{
+		qaCand(pre,l[i], n);
+		float tag = 0;
+		float mct = l[i].Mct();
+		
+		if (fabs(l[i].P4().M()-mass)<win) tag=1.0;
+		
+		n->Column("tag",tag);
+		n->Column("mct",mct);
+	
+		//int nDau = getDauIdx(l[i], dauidx);
+		
+		//cout <<"c("<<l[i].Marker()<<") "<<i<<" made from ";
+		for (int j=0;j<l[i].NDau();++j)
+		{
+			//cout <<dauidx[j]<<"  ";
+			//SimpleCand d = recolist[dauidx[j]];
+			SimpleCand d=*(l[i].Dau(j));
+			qaCand(TString::Format("%sd%d",pre.Data(),j),d, n);
+		}
+		//cout <<endl;
+		
+		n->Column("evt", evtno);
+		n->Column("mode", globmode);
+		
+		// store eventshape
+		n->Column("npart", evsh.NParticles());
+		n->Column("nneut", evsh.NNeutral());
+		n->Column("nchrg", evsh.NCharged());
+		n->Column("sumpc", evsh.ChrgPSumCms());
+		n->Column("sumpt", evsh.PtSumLab());
+		n->Column("sumptc", evsh.ChrgPtSumLab());
+		n->Column("pmaxl" ,evsh.PmaxLab());
+		n->Column("pmax", evsh.PmaxCms());
+		n->Column("pmin", evsh.PminCms());
+		n->Column("ptmax",evsh.Ptmax());
+		n->Column("thr",  evsh.Thrust());
+		n->Column("pla",  evsh.Planarity());
+		n->Column("apl",  evsh.Aplanarity());
+		n->Column("sph",  evsh.Sphericity());
+		n->Column("cir",  evsh.Circularity());
+		n->Column("ne",   ne);
+		n->Column("nmu",  nmu);
+		n->Column("npi",  npi);
+		n->Column("nk",   nk);
+		n->Column("npr",  npr);
+		n->Column("fw1", evsh.FoxWolfMomR(1));
+		n->Column("fw2", evsh.FoxWolfMomR(2));
+		n->Column("fw3", evsh.FoxWolfMomR(3));
+		n->Column("fw4", evsh.FoxWolfMomR(4));
+		n->Column("fw5", evsh.FoxWolfMomR(5));
+		
+		n->DumpData();
+	}
+}
+
+void toy_core(TString fsig, int nev=2, double sqrts=3.77, bool simcut=true, bool evcut=false, double dp=0.05, 
+			double trkeff=95., double pideff=95., double misid =5., double P_mix=0.00, bool writentp=false, int mode =9999)
+{
+	setStyle();
+	
+	globmode= mode;
+	
+	fRand.SetSeed(314);
 	
 	init(pideff, misid);
 	
@@ -724,15 +898,17 @@ void toy_core(TString fsig, int nev=2, double sqrts=3.77, bool simcut=false, boo
 	// *** choose histogram scale according to resonance
 	high = mmean+2;
 	
-	TCanvas *c2=new TCanvas("c2","c2",10,10,1200,900);
-	c2->Divide(4,3);
+	TCanvas *c1=new TCanvas("c1","c1",10,10,600,300);
+	c1->Divide(2,1);
+	TCanvas *c2=new TCanvas("c2","c2",20,20,1800,800);
+	c2->Divide(5,2,0.005,0.01);
 	
 /*	TCanvas *c3=new TCanvas("c3","c3",1010,10,600,600);
 	c3->Divide(2,2);*/
 	
 //	TCanvas *c4=new TCanvas("c4","c4",1220,20,500,500);
 	
-	double min=0, max=6.0;
+	double min=0, max=6.0, min2=0.5;
 	
 	// *** create some histograms
 	TH1F *h_mom= new TH1F("h_mom","Momenta",200,0,5);
@@ -775,8 +951,8 @@ void toy_core(TString fsig, int nev=2, double sqrts=3.77, bool simcut=false, boo
 	
 	// ****** Jpsi -> mu mu
 	TH1F *h_jpsi2=new TH1F("h_jpsi2","J/#psi #rightarrow #mu^{+}#mu^{-}",nbins,min,max);
-	TH1F *h_jpsi2sel=new TH1F("h_jpsisel","J/psi",nbins,min,max);
-	TH1F *h_jpsi2sig=new TH1F("h_jpsisig","J/psi",nbins,min,max);
+	TH1F *h_jpsi2sel=new TH1F("h_jpsi2sel","J/psi",nbins,min,max);
+	TH1F *h_jpsi2sig=new TH1F("h_jpsi2sig","J/psi",nbins,min,max);
 	h_jpsi2sig->SetLineColor(2);
 	configHisto(h_jpsi2sel);
 	
@@ -793,44 +969,14 @@ void toy_core(TString fsig, int nev=2, double sqrts=3.77, bool simcut=false, boo
 	TH1F *h_d0sig=new TH1F("h_d0sig","D0",nbins,min,max);
 	h_d0sig->SetLineColor(2);
 	configHisto(h_d0sel);
-	
-/*	TH1F *h_d02=new TH1F("h_d02","D^{0} #rightarrow K^{-}#pi^{+}#pi^{0}",nbins,min,max);
-	TH1F *h_d02sel=new TH1F("h_d02sel","D0",nbins,min,max);
-	TH1F *h_d02sig=new TH1F("h_d02sig","D0",nbins,min,max);
-	h_d02sig->SetLineColor(2);
-	configHisto(h_d02sel);
-	
-	TH1F *h_d03=new TH1F("h_d03","D^{0} #rightarrow K^{-}#pi^{+}#pi^{+}#pi^{-}",nbins,min,max);
-	TH1F *h_d03sel=new TH1F("h_d03sel","D0",nbins,min,max);
-	TH1F *h_d03sig=new TH1F("h_d03sig","D0",nbins,min,max);
-	h_d03sig->SetLineColor(2);
-	configHisto(h_d03sel);*/
-	
+		
 	// ****** D+ -> K- pi+ pi+
 	TH1F *h_dpm=new TH1F("h_dpm","D^{+} #rightarrow K^{-}#pi^{+}#pi^{+}",nbins,min,max);
 	TH1F *h_dpmsel=new TH1F("h_dpmsel","D#pm",nbins,min,max);
 	TH1F *h_dpmsig=new TH1F("h_dpmsig","D#pm",nbins,min,max);
 	h_dpmsig->SetLineColor(2);
 	configHisto(h_dpmsel);
-	
-/*	TH1F *h_dpm2=new TH1F("h_dpm2","D^{+} #rightarrow K^{-}#pi^{+}#pi^{+}#pi^{0}",nbins,min,max);
-	TH1F *h_dpm2sel=new TH1F("h_dpm2sel","D#pm",nbins,min,max);
-	TH1F *h_dpm2sig=new TH1F("h_dpm2sig","D#pm",nbins,min,max);
-	h_dpm2sig->SetLineColor(2);
-	configHisto(h_dpm2sel);
-	
-	TH1F *h_dpm3=new TH1F("h_dpm3","D^{+} #rightarrow K_{S}^{0}#pi^{+}#pi^{0}",nbins,min,max);
-	TH1F *h_dpm3sel=new TH1F("h_dpm3sel","D#pm",nbins,min,max);
-	TH1F *h_dpm3sig=new TH1F("h_dpm3sig","D#pm",nbins,min,max);
-	h_dpm3sig->SetLineColor(2);
-	configHisto(h_dpm3sel);
-	
-	TH1F *h_dpm4=new TH1F("h_dpm4","D^{+} #rightarrow K_{S}^{0}#pi^{+}#pi^{+}#pi^{-}",nbins,min,max);
-	TH1F *h_dpm4sel=new TH1F("h_dpm4sel","D#pm",nbins,min,max);
-	TH1F *h_dpm4sig=new TH1F("h_dpm4sig","D#pm",nbins,min,max);
-	h_dpm4sig->SetLineColor(2);
-	configHisto(h_dpm4sel);*/
-	
+		
 	// ****** Ds+ -> K+ K- pi+
 	TH1F *h_ds=new TH1F("h_ds","D_{s}^{+} #rightarrow K^{+}K^{-}#pi^{+}",nbins,min,max);
 	TH1F *h_dssel=new TH1F("h_dssel","Ds",nbins,min,max);
@@ -838,16 +984,10 @@ void toy_core(TString fsig, int nev=2, double sqrts=3.77, bool simcut=false, boo
 	h_dssig->SetLineColor(2);
 	configHisto(h_dssel);
 	
-/*	TH1F *h_ds2=new TH1F("h_ds2","D_{s}^{+} #rightarrow K^{+}K^{-}#pi^{+}#pi^{0}",nbins,min,max);
-	TH1F *h_ds2sel=new TH1F("h_ds2sel","Ds",nbins,min,max);
-	TH1F *h_ds2sig=new TH1F("h_ds2sig","Ds",nbins,min,max);
-	h_ds2sig->SetLineColor(2);
-	configHisto(h_ds2sel);*/
-	
 	// ****** phi -> K+ K-
-	TH1F *h_phi=new TH1F("h_phi","#phi #rightarrow K^{+}K^{-}",nbins,min,max/2);
-	TH1F *h_phisel=new TH1F("h_phisel","Phi",nbins,min,max/2);
-	TH1F *h_phisig=new TH1F("h_phisig","Phi",nbins,min,max/2);
+	TH1F *h_phi=new TH1F("h_phi","#phi #rightarrow K^{+}K^{-}",nbins,min2,max/2);
+	TH1F *h_phisel=new TH1F("h_phisel","Phi",nbins,min2,max/2);
+	TH1F *h_phisig=new TH1F("h_phisig","Phi",nbins,min2,max/2);
 	h_phisig->SetLineColor(2);
 	configHisto(h_phisel);
 	
@@ -859,9 +999,9 @@ void toy_core(TString fsig, int nev=2, double sqrts=3.77, bool simcut=false, boo
 	configHisto(h_lamcsel);
 	
 	// ****** Lambda -> p pi-
-	TH1F *h_lam=new TH1F("h_lam","#Lambda #rightarrow p#pi^{-}",nbins,min,max/2);
-	TH1F *h_lamsel=new TH1F("h_lamsel","Lam",nbins,min,max/2);
-	TH1F *h_lamsig=new TH1F("h_lamsig","Lam",nbins,min,max/2);
+	TH1F *h_lam=new TH1F("h_lam","#Lambda #rightarrow p#pi^{-}",nbins,min2,max/2);
+	TH1F *h_lamsel=new TH1F("h_lamsel","Lam",nbins,min2,max/2);
+	TH1F *h_lamsig=new TH1F("h_lamsig","Lam",nbins,min2,max/2);
 	h_lamsig->SetLineColor(2);
 	configHisto(h_lamsel);
 	
@@ -872,15 +1012,12 @@ void toy_core(TString fsig, int nev=2, double sqrts=3.77, bool simcut=false, boo
 	h_eesig->SetLineColor(2);
 	configHisto(h_eesel);
 	
-	//TNtuple *ntp=new TNtuple("ntp","ntp","m:tht:pt:p:d1tht:d1pt:d1p:d2tht:d2pt:d2p:d3tht:d3pt:d3p");
 	
 	h_jpsi->SetXTitle("m(e^{+}e^{-}) [GeV/c^{2}]");
 	h_jpsi2->SetXTitle("m(#mu^{+}#mu^{-}) [GeV/c^{2}]");
 	h_etac->SetXTitle("m(K_{S} K^{+}#pi^{-}) [GeV/c^{2}]");
 
 	h_d0->SetXTitle("m(K^{-}#pi^{+}) [GeV/c^{2}]");
-	//h_d02->SetXTitle("m(K^{-}#pi^{+}#pi^{0}) [GeV/c^{2}]");
-	//h_d03->SetXTitle("m(K^{-}#pi^{+}#pi^{+}#pi^{-}) [GeV/c^{2}]");
 
 	h_dpm->SetXTitle("m(K^{-}#pi^{+}#pi^{+}) [GeV/c^{2}]");
 
@@ -916,7 +1053,23 @@ void toy_core(TString fsig, int nev=2, double sqrts=3.77, bool simcut=false, boo
 		t->SetBranchAddress("m",m);	
 	}
 	
+	TFile *fn=0;
 	
+	TString filename(fsig(fsig.Index("/")+1,fsig.Length())+"_ntp.root");
+	
+	if (writentp) fn=new TFile(filename, "RECREATE");
+	
+	SimpleNtp *nphi		= new SimpleNtp("nphi","phi -> K+K-");
+	SimpleNtp *nd0		= new SimpleNtp("nd0","D0 -> K+ pi+");
+	SimpleNtp *ndpm		= new SimpleNtp("ndpm","D+ -> K- pi+ pi+");
+	SimpleNtp *nds		= new SimpleNtp("nds","Ds -> K+ K- pi+");
+	SimpleNtp *njpsi1	= new SimpleNtp("njpsi1","J/psi -> e+ e-");
+	SimpleNtp *njpsi2	= new SimpleNtp("njpsi2","J/psi -> mu+ mu-");
+	SimpleNtp *netac	= new SimpleNtp("netac","eta_c -> KS (pi+pi-) K- pi+");
+	SimpleNtp *nee		= new SimpleNtp("nee","ppbar -> e+ e-");
+	SimpleNtp *nlam		= new SimpleNtp("nlam","Lambda -> p pi-");
+	SimpleNtp *nlamc	= new SimpleNtp("nlamc","Lambda_c -> p K- pi+");		
+		
 	int combCnt=0;  // how many combinatione are within our mass criterion
 	int evCnt=0;    // how many _events_ (not combinations!) are within our mass criterion
 	int evMultCut=0;
@@ -939,6 +1092,7 @@ void toy_core(TString fsig, int nev=2, double sqrts=3.77, bool simcut=false, boo
 	
 	for (i=0;i<nev;++i)
 	{	
+		evtno = i;
 		t->GetEntry(i);
 		
 		if (i%5000==0) cout <<"ev "<<i<<endl;
@@ -1031,18 +1185,20 @@ void toy_core(TString fsig, int nev=2, double sqrts=3.77, bool simcut=false, boo
 		// *** prepare all pid list according to the pidtable probabilities
 		makePidSelection(recolist);
 		
-		int npi = piplus.size()+piminus.size();
-		int nk = kplus.size()+kminus.size();
-		int npr = pplus.size()+pminus.size();
-		int nlep = eplus.size()+eminus.size()+muplus.size()+muminus.size();
+		npi = piplus.size()+piminus.size();
+		nk = kplus.size()+kminus.size();
+		npr = pplus.size()+pminus.size();
+		ne = eplus.size()+eminus.size();
+		nmu = muplus.size()+muminus.size();
+		nlep = ne+nmu;
 		
-		int nk10 = 0;  // # kaons with p>1.0
+/*		int nk10 = 0;  // # kaons with p>1.0
 		for (j=0;j<kplus.size();++j) if (kplus[j].P4().P()>1.0) nk10++;
 		for (j=0;j<kminus.size();++j) if (kminus[j].P4().P()>1.0) nk10++;
 		
 		int npr10 = 0;  // # protons with p>1.0
 		for (j=0;j<pplus.size();++j) if (pplus[j].P4().P()>1.0) npr10++;
-		for (j=0;j<pminus.size();++j) if (pminus[j].P4().P()>1.0) npr10++;
+		for (j=0;j<pminus.size();++j) if (pminus[j].P4().P()>1.0) npr10++;*/
 		
 		h_mult_k->Fill(nk);
 		h_mult_lep->Fill(nlep);
@@ -1062,7 +1218,6 @@ void toy_core(TString fsig, int nev=2, double sqrts=3.77, bool simcut=false, boo
 		CandList LLamcp, LLamcm;				// Lc -> pKpi
 		CandList LLam, LLamb;					// Lam -> ppi
 		CandList Lee;					// Lam -> ppi
-		
 		
 		int ncomb1=0, ncomb2=0;
 		bool selected=false;
@@ -1158,6 +1313,8 @@ void toy_core(TString fsig, int nev=2, double sqrts=3.77, bool simcut=false, boo
 		  combine (kplus, kminus, LPhi, fPhiPdg); 
 		  
 		  accepted |= eventAccepted(LPhi,fPhiMass, fPhiwin);
+		  
+		  writeTuple("phi",LPhi,evsh, nphi,fPhiMass, fPhiwin);
 		}
 
 
@@ -1176,6 +1333,9 @@ void toy_core(TString fsig, int nev=2, double sqrts=3.77, bool simcut=false, boo
 		  
 		  accepted |= eventAccepted(LLam, fLamMass, fLamwin);
 		  accepted |= eventAccepted(LLamb, fLamMass, fLamwin);
+		  
+		  writeTuple("lam",LLam,evsh, nlam, fLamMass, fLamwin);
+		  writeTuple("lam",LLamb,evsh, nlam, fLamMass, fLamwin);
 		}
 
 		// ********* pp -> e+ e-
@@ -1186,6 +1346,8 @@ void toy_core(TString fsig, int nev=2, double sqrts=3.77, bool simcut=false, boo
 		  combine(eminus, eplus, Lee, 88880);
 		  
 		  accepted |= eventAccepted(Lee,  fIni.M(), feewin);
+		  
+		  writeTuple("ee",Lee,evsh, nee,  fIni.M(), feewin);
 		}
 
 		// ********* ETAC
@@ -1202,6 +1364,9 @@ void toy_core(TString fsig, int nev=2, double sqrts=3.77, bool simcut=false, boo
 		  
 		  accepted |= eventAccepted(LEtac,  fEtacMass, fEtacwin);
 		  accepted |= eventAccepted(LEtac2,  fEtacMass, fEtacwin);
+		  
+		  writeTuple("etac",LEtac,evsh, netac,  fEtacMass, fEtacwin);
+		  writeTuple("etac",LEtac2,evsh, netac,  fEtacMass, fEtacwin);
 		}
 
 		// ********* JPSI -> e+e-
@@ -1216,6 +1381,8 @@ void toy_core(TString fsig, int nev=2, double sqrts=3.77, bool simcut=false, boo
 		  combine(eminus, eplus, LJpsiE, fJpsiPdg);
 		  
 		  accepted |= eventAccepted(LJpsiE,  fJMass, fJwin);
+
+		  writeTuple("jpsi1",LJpsiE,evsh, njpsi1,  fJMass, fJwin);
 		}
 		
 		// ********* JPSI -> mu+mu-
@@ -1230,6 +1397,8 @@ void toy_core(TString fsig, int nev=2, double sqrts=3.77, bool simcut=false, boo
 		  combine(muminus, muplus, LJpsiMu, fJpsiPdg);
 		  
 		  accepted |= eventAccepted(LJpsiMu,  fJMass, fJwin);
+
+		  writeTuple("jpsi2",LJpsiMu,evsh, njpsi2,  fJMass, fJwin);
 		}
 		
 		
@@ -1247,57 +1416,12 @@ void toy_core(TString fsig, int nev=2, double sqrts=3.77, bool simcut=false, boo
 		  
 		  accepted |= eventAccepted(LDp,fDMass, fDwin);
 		  accepted |= eventAccepted(LDm,fDMass, fDwin);
-		}
-/*		
-		// ********* D+ -> K- pi+ pi+ pi0
-		if ( !evcut 
-			 || (sqrts==3.77 && nk>0 && nneut>1 && pmax<0.888 && pmaxl<2.76 && sumptc>0.84  )
-			 || (sqrts==4.28 && nk>0 )
-			 || (sqrts==5.0  && nk>0 )
-			 || (sqrts==5.5  && nk>0 )
-			)
-		{
-		  // *** do combinatorics (D+- -> K pi pi pi0) 
-		  combine (piplus,  piplus,  kminus, LPi0,  LDp2, fDPdg); 
-		  combine (piminus, piminus, kplus,  LPi0, LDm2, -fDPdg); 
 		  
-		  accepted |= eventAccepted(LDp2,fDMass, fDwin);
-		  accepted |= eventAccepted(LDm2,fDMass, fDwin);
+		  writeTuple("d",LDp,evsh, ndpm,fDMass, fDwin);
+		  writeTuple("d",LDm,evsh, ndpm,fDMass, fDwin);
 		}
 		
-		// ********* D+ -> KS pi+ pi0
-		if ( !evcut 
-			 || (sqrts==3.77 && nks0>0 && npi0>0 && pmax<0.91 && sumen<1.62 )
-			 || (sqrts==4.28 && 1 )
-			 || (sqrts==5.0  && 1 )
-			 || (sqrts==5.5  && 1 )
-			)
-		{
-		  // *** do combinatorics (D+- -> KS pi pi0) 
-		  combine (piplus,  LPi0,  LKs, LDp3, fDPdg); 
-		  combine (piminus, LPi0,  LKs, LDm3, -fDPdg); 
-		  
-		  accepted |= eventAccepted(LDp3,fDMass, fDwin);
-		  accepted |= eventAccepted(LDm3,fDMass, fDwin);
-		}
 		
-		// ********* D+ -> KS pi+ pi+ pi-
-		if ( !evcut 
-			 || (sqrts==3.77 && nchrg>5 && np05<4 && pmax<0.888 && pmaxl<2.64 && sumen<1.02)
-			 || (sqrts==4.28 && 1 )
-			 || (sqrts==5.0  && 1 )
-			 || (sqrts==5.5  && 1 )
-			)
-		{
-		  // *** do combinatorics (D+- -> KS pi pi pi) 
-		  combine (piplus,  piplus,  piminus, LKs, LDp4, fDPdg); 
-		  combine (piminus, piminus, piplus,  LKs, LDm4, -fDPdg); 
-		  
-		  accepted |= eventAccepted(LDp4,fDMass, fDwin);
-		  accepted |= eventAccepted(LDm4,fDMass, fDwin);
-		}
-		*/
-
 		// ********* D0 -> K- pi+
 		if ( !evcut 
 			 || (sqrts==3.77 &&   nk>0 && sumpc05>3.18 && pmax>0.768 && pmax<1.056 && fw3<0.1848 )
@@ -1312,40 +1436,11 @@ void toy_core(TString fsig, int nev=2, double sqrts=3.77, bool simcut=false, boo
 
 		  accepted |= eventAccepted(LD0, fD0Mass, fD0win);
 		  accepted |= eventAccepted(LD0b, fD0Mass, fD0win);
-		}	
-/*
-		// ********* D0 -> K- pi+ pi0
-		if ( !evcut 
-			 || (sqrts==3.77 && nk>0 && nneut>1 && npi<6 && pmax<0.948 && sumpt>1.56 && sumen<1.92)
-			 || (sqrts==4.28 && nk>0 )
-			 || (sqrts==5.0  && nk>0 )
-			 || (sqrts==5.5  && nk>0 )
-			)
-		{
-		  // *** do combinatorics (D0 -> K pi pi0) 
-		  combine (kplus, piminus, LPi0, LD02, -fD0Pdg); 
-		  combine (kminus, piplus, LPi0, LD02b, fD0Pdg); 
 		  
-		  accepted |= eventAccepted(LD02, fD0Mass, fD0win);
-		  accepted |= eventAccepted(LD02b, fD0Mass, fD0win);
+		  writeTuple("d0",LD0,evsh, nd0, fD0Mass, fD0win);
+		  writeTuple("d0",LD0b,evsh, nd0, fD0Mass, fD0win);
 		}	
 
-		// ********* D0 -> K- pi+ pi+ pi-
-		if ( !evcut 
-			 || (sqrts==3.77 && nk>0 && nchrg>5 && npi>2 && pmax<0.96 && sumen<1.32)
-			 || (sqrts==4.28 && nk>0 )
-			 || (sqrts==5.0  && nk>0 )
-			 || (sqrts==5.5  && nk>0 )
-			)
-		{
-		  // *** do combinatorics (D0 -> K pi pi pi) 
-		  combine (kplus, piminus, piminus, piplus, LD03, -fD0Pdg); 
-		  combine (kminus, piplus, piminus, piplus, LD03b, fD0Pdg); 
-			
-		  accepted |= eventAccepted(LD03, fD0Mass, fD0win);
-		  accepted |= eventAccepted(LD03b, fD0Mass, fD0win);
-		}	
-*/
 
 		// ********* DS -> K+ K- pi+
 		if ( !evcut 
@@ -1360,22 +1455,10 @@ void toy_core(TString fsig, int nev=2, double sqrts=3.77, bool simcut=false, boo
 
 		  accepted |= eventAccepted(LDsp, fDsMass, fDswin);
 		  accepted |= eventAccepted(LDsm, fDsMass, fDswin);
+		  
+		  writeTuple("ds",LDsp,evsh, nds, fDsMass, fDswin);
+		  writeTuple("ds",LDsm,evsh, nds, fDsMass, fDswin);
 		}
-
-// 		// ********* DS -> K+ K- pi+ pi0
-// 		if ( !evcut 
-// 			 || (sqrts==4.28 &&   nk>1 )
-// 			 || (sqrts==5.0  &&   nk>1 )
-// 			 || (sqrts==5.5  &&   nk>1 )
-// 			)
-// 		{
-// 		  // *** do combinatorics (Ds+- -> K K pi pi0) 
-// 		  combine (kplus, kminus, piplus,  LPi0, LDsp2, fDsPdg); 
-// 		  combine (kplus, kminus, piminus, LPi0, LDsm2, -fDsPdg); 
-// 
-// 		  accepted |= eventAccepted(LDsp2, fDsMass, fDswin);
-// 		  accepted |= eventAccepted(LDsm2, fDsMass, fDswin);
-// 		}
 
 
 		// ********* LAMBDA_C -> p K- pi+
@@ -1390,6 +1473,9 @@ void toy_core(TString fsig, int nev=2, double sqrts=3.77, bool simcut=false, boo
 		
 		  accepted |= eventAccepted(LLamcp, fLamcMass, fLamcwin);
 		  accepted |= eventAccepted(LLamcm, fLamcMass, fLamcwin);
+		  
+		  writeTuple("lamc",LLamcp,evsh, nlamc, fLamcMass, fLamcwin);
+		  writeTuple("lamc",LLamcm,evsh, nlamc, fLamcMass, fLamcwin);
 		}
 
 		
@@ -1454,23 +1540,7 @@ void toy_core(TString fsig, int nev=2, double sqrts=3.77, bool simcut=false, boo
 			  ncomb1 = fillHisto(LDp, h_dpm, 0, fDMass, fDwin, h_dpmsel, 0, h_dpmsig ); 
 			  ncomb2 = fillHisto(LDm, h_dpm, 0, fDMass, fDwin, h_dpmsel, 0, h_dpmsig ); 	
 			  combCnt += ncomb1 +ncomb2;
-			  if (ncomb1>0 || ncomb2>0) {selected=true; channelselect[6]=true;}
-			  
-/*			  ncomb1 = fillHisto(LDp2, h_dpm2, 0, fDMass, fDwin, h_dpm2sel, 0, h_dpm2sig ); 
-			  ncomb2 = fillHisto(LDm2, h_dpm2, 0, fDMass, fDwin, h_dpm2sel, 0, h_dpm2sig ); 	
-			  combCnt += ncomb1 +ncomb2;
-			  if (ncomb1>0 || ncomb2>0) {selected=true; channelselect[4]=true;}
-			  
-			  ncomb1 = fillHisto(LDp3, h_dpm3, 0, fDMass, fDwin, h_dpm3sel, 0, h_dpm3sig ); 
-			  ncomb2 = fillHisto(LDm3, h_dpm3, 0, fDMass, fDwin, h_dpm3sel, 0, h_dpm3sig ); 	
-			  combCnt += ncomb1 +ncomb2;
-			  if (ncomb1>0 || ncomb2>0) {selected=true; channelselect[5]=true;}
-			  
-			  ncomb1 = fillHisto(LDp4, h_dpm4, 0, fDMass, fDwin, h_dpm4sel, 0, h_dpm4sig ); 
-			  ncomb2 = fillHisto(LDm4, h_dpm4, 0, fDMass, fDwin, h_dpm4sel, 0, h_dpm4sig ); 	
-			  combCnt += ncomb1 +ncomb2;
-			  if (ncomb1>0 || ncomb2>0) {selected=true; channelselect[6]=true;}*/
-			  
+			  if (ncomb1>0 || ncomb2>0) {selected=true; channelselect[6]=true;}		  
 			}
 
 			// **** D0 
@@ -1479,17 +1549,7 @@ void toy_core(TString fsig, int nev=2, double sqrts=3.77, bool simcut=false, boo
 			  ncomb1 = fillHisto(LD0, h_d0, 0, fD0Mass, fD0win, h_d0sel, 0, h_d0sig ); 
 			  ncomb2 = fillHisto(LD0b, h_d0, 0, fD0Mass, fD0win, h_d0sel, 0, h_d0sig ); 	
 			  combCnt += ncomb1 +ncomb2;
-			  if (ncomb1>0 || ncomb2>0) {selected=true; channelselect[7]=true;}
-			  
-/*			  ncomb1 = fillHisto(LD02, h_d02, 0, fD0Mass, fD0win, h_d02sel, 0, h_d02sig ); 
-			  ncomb2 = fillHisto(LD02b, h_d02, 0, fD0Mass, fD0win, h_d02sel, 0, h_d02sig ); 	
-			  combCnt += ncomb1 +ncomb2;
-			  if (ncomb1>0 || ncomb2>0) {selected=true; channelselect[8]=true;}
-			  
-			  ncomb1 = fillHisto(LD03, h_d03, 0, fD0Mass, fD0win, h_d03sel, 0, h_d03sig ); 
-			  ncomb2 = fillHisto(LD03b, h_d03, 0, fD0Mass, fD0win, h_d03sel, 0, h_d03sig ); 	
-			  combCnt += ncomb1 +ncomb2;
-			  if (ncomb1>0 || ncomb2>0) {selected=true; channelselect[9]=true;}*/
+			  if (ncomb1>0 || ncomb2>0) {selected=true; channelselect[7]=true;}	  
 			}
 
 			// **** Ds
@@ -1499,11 +1559,6 @@ void toy_core(TString fsig, int nev=2, double sqrts=3.77, bool simcut=false, boo
 			  ncomb2 = fillHisto(LDsm, h_ds, 0, fDsMass, fDswin, h_dssel, 0, h_dssig ); 
 			  combCnt += ncomb1 +ncomb2;
 			  if (ncomb1>0 || ncomb2>0) {selected=true; channelselect[8]=true;}
-			  
-/*			  ncomb1 = fillHisto(LDsp2, h_ds2, 0, fDsMass, fDswin, h_ds2sel, 0, h_ds2sig ); 
-			  ncomb2 = fillHisto(LDsm2, h_ds2, 0, fDsMass, fDswin, h_ds2sel, 0, h_ds2sig ); 
-			  combCnt += ncomb1 +ncomb2;
-			  if (ncomb1>0 || ncomb2>0) {selected=true; channelselect[11]=true;}*/
 			}
 		
 			// **** Lamc
@@ -1541,78 +1596,89 @@ void toy_core(TString fsig, int nev=2, double sqrts=3.77, bool simcut=false, boo
 	cout <<endl;
 	
 	TLatex latex;
-	latex.SetTextSize(0.055);
+	latex.SetTextSize(0.08);
 	char tmp[200];
 	double offset = 0.1;
-	double pos=2.5;
+	double pos=3.3, pos2=1.85;
+	double hfac = 0.75;
 	// *** plot all stuff and write out info
-	c2->cd(1); h_pi0->Draw(); h_pi0sel->Draw("same"); h_pi0sig->Draw("same");
-	c2->cd(2); h_ks->Draw(); h_kssel->Draw("same"); h_kssig->Draw("same");
+	c1->cd(1); h_pi0->Draw(); h_pi0sel->Draw("same"); h_pi0sig->Draw("same");
+	c1->cd(2); h_ks->Draw(); h_kssel->Draw("same"); h_kssig->Draw("same");
 
-	c2->cd(3); h_phi->Draw(); h_phisel->Draw("same");   h_phisig->Draw("same");
+	c2->cd(1); h_phi->Draw(); h_phisel->Draw("same");   h_phisig->Draw("same");
 	sprintf(tmp,"#epsilon = %4.1f%%",channelcount[0]*100.);
-	latex.DrawLatex(pos/2,h_phi->GetMaximum()*0.95+offset,tmp);
+	latex.DrawLatex(pos2,h_phi->GetMaximum()*hfac+offset,tmp);
 	
-	c2->cd(4); h_ee->Draw(); h_eesel->Draw("same"); h_eesig->Draw("same");
+	c2->cd(2); h_ee->Draw(); h_eesel->Draw("same"); h_eesig->Draw("same");
 	sprintf(tmp,"#epsilon = %4.1f%%",channelcount[1]*100.);
-	latex.DrawLatex(pos,h_ee->GetMaximum()*0.95+offset,tmp);
+	latex.DrawLatex(pos*1.2,h_ee->GetMaximum()*hfac+offset,tmp);
 	
-	c2->cd(5); h_lam->Draw(); h_lamsel->Draw("same"); h_lamsig->Draw("same");
+	c2->cd(3); h_lam->Draw(); h_lamsel->Draw("same"); h_lamsig->Draw("same");
 	sprintf(tmp,"#epsilon = %4.1f%%",channelcount[2]*100.);
-	latex.DrawLatex(pos/2,h_lam->GetMaximum()*0.95+offset,tmp);
+	latex.DrawLatex(pos2,h_lam->GetMaximum()*hfac+offset,tmp);
 	
-	c2->cd(6); h_etac->Draw(); h_etacsel->Draw("same"); h_etacsig->Draw("same");
+	c2->cd(4); h_etac->Draw(); h_etacsel->Draw("same"); h_etacsig->Draw("same");
 	sprintf(tmp,"#epsilon = %4.1f%%",channelcount[3]*100.);
-	latex.DrawLatex(pos,h_etac->GetMaximum()*0.95+offset,tmp);
+	latex.DrawLatex(pos,h_etac->GetMaximum()*hfac+offset,tmp);
 	
-	c2->cd(7); h_jpsi->Draw(); h_jpsisel->Draw("same"); h_jpsisig->Draw("same");
+	c2->cd(5); h_jpsi->Draw(); h_jpsisel->Draw("same"); h_jpsisig->Draw("same");
 	sprintf(tmp,"#epsilon = %4.1f%%",channelcount[4]*100.);
-	latex.DrawLatex(pos,h_jpsi->GetMaximum()*0.95+offset,tmp);
+	latex.DrawLatex(pos,h_jpsi->GetMaximum()*hfac+offset,tmp);
 	
-	c2->cd(8); h_jpsi2->Draw(); h_jpsi2sel->Draw("same"); h_jpsi2sig->Draw("same");
+	c2->cd(6); h_jpsi2->Draw(); h_jpsi2sel->Draw("same"); h_jpsi2sig->Draw("same");
 	sprintf(tmp,"#epsilon = %4.1f%%",channelcount[5]*100.);
-	latex.DrawLatex(pos,h_jpsi2->GetMaximum()*0.95+offset,tmp);
+	latex.DrawLatex(pos,h_jpsi2->GetMaximum()*hfac+offset,tmp);
 	
-	c2->cd(9); h_dpm->Draw();  h_dpmsel->Draw("same");  h_dpmsig->Draw("same");
+	c2->cd(7); h_dpm->Draw();  h_dpmsel->Draw("same");  h_dpmsig->Draw("same");
 	sprintf(tmp,"#epsilon = %4.1f%%",channelcount[6]*100.);
-	latex.DrawLatex(pos,h_dpm->GetMaximum()*0.95+offset,tmp);
+	latex.DrawLatex(pos,h_dpm->GetMaximum()*hfac+offset,tmp);
 	
-	c2->cd(10); h_d0->Draw();   h_d0sel->Draw("same");   h_d0sig->Draw("same");
+	c2->cd(8); h_d0->Draw();   h_d0sel->Draw("same");   h_d0sig->Draw("same");
 	sprintf(tmp,"#epsilon = %4.1f%%",channelcount[7]*100.);
-	latex.DrawLatex(pos,h_d0->GetMaximum()*0.95+offset,tmp);
+	latex.DrawLatex(pos,h_d0->GetMaximum()*hfac+offset,tmp);
 
-	c2->cd(11); h_ds->Draw();   h_dssel->Draw("same");   h_dssig->Draw("same");
+	c2->cd(9); h_ds->Draw();   h_dssel->Draw("same");   h_dssig->Draw("same");
 	sprintf(tmp,"#epsilon = %4.1f%%",channelcount[8]*100.);
-	latex.DrawLatex(pos,h_ds->GetMaximum()*0.95+offset,tmp);
+	latex.DrawLatex(pos,h_ds->GetMaximum()*hfac+offset,tmp);
 	
-	c2->cd(12); h_lamc->Draw(); h_lamcsel->Draw("same"); h_lamcsig->Draw("same");
+	c2->cd(10); h_lamc->Draw(); h_lamcsel->Draw("same"); h_lamcsig->Draw("same");
 	sprintf(tmp,"#epsilon = %4.1f%%",channelcount[9]*100.);
-	latex.DrawLatex(pos,h_lamc->GetMaximum()*0.95+offset,tmp);
+	latex.DrawLatex(pos,h_lamc->GetMaximum()*hfac+offset,tmp);
+	
+	// total efficiency in first plot (phi)
+	c2->cd(5);
+	double posy = h_jpsi->GetMaximum()*1.12;
+	if (posy=0) posy=1.12;
+	sprintf(tmp,"(#epsilon_{t} = %4.1f%%)",double(evCnt)/double(nev)*100.);
+	latex.SetTextColor(kMagenta+2);
+	latex.DrawLatex(3.0,h_jpsi->GetMaximum()*1.12,tmp);
+
 	
 	//sprintf(tmp,"#epsilon = %4.1f%%",channelcount[6]*100.);
 	//latex.DrawLatex(2.5,h_pi0->GetMaximum()*0.95,tmp);
 	
-	c2->cd();
-	TPad *peff=new TPad("peff","peff",0.46,0.665,0.54,0.70);
+/*	c2->cd();
+	TPad *peff=new TPad("peff","peff",0.45,0.47,0.55,0.53);
 	peff->Draw();
 	peff->cd();
 	sprintf(tmp,"#epsilon_{tot} = %4.1f%%",double(evCnt)/double(nev)*100.);
-	latex.SetTextSize(0.7);
+	latex.SetTextSize(0.5);
 	latex.SetTextColor(2);
-	latex.DrawLatex(0.15,0.3,tmp);
+	latex.DrawLatex(0.1,0.3,tmp);
+	*/
 	c2->cd();
 	
 	h_mult_klep->Scale(1.0/nev);
 	
-/*	c3->cd(1); h_sum_klep->Draw();   //h_dpmmm->Draw();
-	c3->cd(2); h_mult_klep->Draw("colz");//h_d0mm->Draw();
-	c3->cd(3); h_mult_k->Draw();   // h_dpmmvsmm->Draw("colz");
-	c3->cd(4); h_mult_lep->Draw(); // h_d0mvsmm->Draw("colz");
-	c3->cd();
-	*/
-//	c4->cd();
-//	h_pmax->Draw();
-	//h_lamc->Draw(); h_lamcsel->Draw("same"); h_lamcsig->Draw("same");	
-	//h_dpm->Draw();  h_dpmsel->Draw("same");  h_dpmsig->Draw("same");
+	TString plotname(fsig(fsig.Index("/")+1,fsig.Length()-5));
+	
+	c2->SaveAs("fig/"+plotname+"_core.gif");
+	c2->SaveAs("fig/"+plotname+"_core.pdf");
+	
+	if (writentp) 
+	{
+		fn->Write();
+		fn->Close();
+	}
 	
 }
