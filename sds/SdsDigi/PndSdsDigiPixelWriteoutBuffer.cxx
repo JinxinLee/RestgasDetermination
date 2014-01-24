@@ -28,22 +28,22 @@ PndSdsDigiPixelWriteoutBuffer::~PndSdsDigiPixelWriteoutBuffer() {
 	// TODO Auto-generated destructor stub
 }
 
-std::vector<std::pair<double, PndSdsDigiPixel*> > PndSdsDigiPixelWriteoutBuffer::Modify(std::pair<double, PndSdsDigiPixel*> oldData, std::pair<double, PndSdsDigiPixel*> newData)
+std::vector<std::pair<double, FairTimeStamp*> > PndSdsDigiPixelWriteoutBuffer::Modify(std::pair<double, FairTimeStamp*> oldData, std::pair<double, FairTimeStamp*> newData)
 {
-	std::vector<std::pair<double, PndSdsDigiPixel*> > result;
-	std::pair<double, PndSdsDigiPixel*> singleResult;
-	if (newData.first > 0)
-		singleResult.first = newData.first;
-	singleResult.second = oldData.second;
-	singleResult.second->AddCharge(newData.second->GetCharge());
-	if (fVerbose > 0){
-		std::cout << "Modify hit" << std::endl;
-		std::cout << "OldData: " << oldData.first << " : " << oldData.second << " NewData: " << newData.first << " : " << newData.second << std::endl;
-		std::cout << "Resulting Data: " << singleResult.first << " : " << singleResult.second << std::endl;
-	}
-
-	result.push_back(singleResult);
-	return result;
+  std::vector<std::pair<double, FairTimeStamp*> > result;
+  std::pair<double, FairTimeStamp*> singleResult;
+  if (newData.first > 0)
+    singleResult.first = newData.first;
+  singleResult.second = oldData.second;
+  ((PndSdsDigiPixel*)singleResult.second)->AddCharge(((PndSdsDigiPixel*)newData.second)->GetCharge());
+  if (fVerbose > 0){
+    std::cout << "Modify hit" << std::endl;
+    std::cout << "OldData: " << oldData.first << " : " << oldData.second << " NewData: " << newData.first << " : " << newData.second << std::endl;
+    std::cout << "Resulting Data: " << singleResult.first << " : " << singleResult.second << std::endl;
+  }
+  
+  result.push_back(singleResult);
+  return result;
 }
 
 void PndSdsDigiPixelWriteoutBuffer::AddNewDataToTClonesArray(FairTimeStamp* data)

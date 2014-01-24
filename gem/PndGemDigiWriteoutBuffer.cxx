@@ -30,22 +30,21 @@ PndGemDigiWriteoutBuffer::~PndGemDigiWriteoutBuffer() {
 	// TODO Auto-generated destructor stub
 }
 
-std::vector<std::pair<double, PndGemDigi*> > PndGemDigiWriteoutBuffer::Modify(std::pair<double, PndGemDigi*> oldData, std::pair<double, PndGemDigi*> newData)
-{
-	std::vector<std::pair<double, PndGemDigi*> > result;
-	std::pair<double, PndGemDigi*> singleResult;
-	if (newData.first > 0)
-		singleResult.first = oldData.first + newData.first;
-	singleResult.second = oldData.second;
-	singleResult.second->AddCharge(newData.second->GetCharge());
-	if (fVerbose > 0){
-		std::cout << "Modify hit" << std::endl;
-		std::cout << "OldData: " << oldData.first << " : " << oldData.second << " NewData: " << newData.first << " : " << newData.second << std::endl;
-		std::cout << "Resulting Data: " << singleResult.first << " : " << singleResult.second << std::endl;
-	}
-
-	result.push_back(singleResult);
-	return result;
+std::vector<std::pair<double, FairTimeStamp*> > PndGemDigiWriteoutBuffer::Modify(std::pair<double, FairTimeStamp*> oldData, std::pair<double, FairTimeStamp*> newData) {
+  std::vector<std::pair<double, FairTimeStamp*> > result;
+  std::pair<double, FairTimeStamp*> singleResult;
+  if (newData.first > 0)
+    singleResult.first = oldData.first + newData.first;
+  singleResult.second = oldData.second;
+  ((PndGemDigi*)singleResult.second)->AddCharge(((PndGemDigi*)newData.second)->GetCharge());
+  if (fVerbose > 0){
+    std::cout << "Modify hit" << std::endl;
+    std::cout << "OldData: " << oldData.first << " : " << oldData.second << " NewData: " << newData.first << " : " << newData.second << std::endl;
+    std::cout << "Resulting Data: " << singleResult.first << " : " << singleResult.second << std::endl;
+  }
+  
+  result.push_back(singleResult);
+  return result;
 }
 
 void PndGemDigiWriteoutBuffer::AddNewDataToTClonesArray(FairTimeStamp* data)

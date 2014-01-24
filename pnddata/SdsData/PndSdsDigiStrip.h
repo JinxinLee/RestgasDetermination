@@ -60,7 +60,7 @@ class PndSdsDigiStrip : public PndSdsDigi
     Bool_t operator==(const PndSdsDigiStrip& d2) const;
     //     Bool_t const HasNeighbour(const PndSdsDigiStrip& d2);
 
-    virtual bool equal(FairTimeStamp* data) const;
+    virtual bool equal(FairTimeStamp* data);
 
     virtual bool operator<(const PndSdsDigiStrip& myDigi) const{
 		if (fDetID < myDigi.GetDetID()) 		return true;	else if(fDetID > myDigi.GetDetID()) return false;

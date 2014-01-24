@@ -40,7 +40,7 @@ Bool_t PndSdsDigiStrip::operator==(const PndSdsDigiStrip& d2) const
           );
 }
 
-bool PndSdsDigiStrip::equal(FairTimeStamp* data) const{
+bool PndSdsDigiStrip::equal(FairTimeStamp* data) {
   PndSdsDigiStrip* myDigi = dynamic_cast <PndSdsDigiStrip*> (data);
   const PndSdsDigiStrip* const oldData = reinterpret_cast <const PndSdsDigiStrip* const> (this);
 //  std::cout << "PndSdsDigiStrip::equal: New " << *myDigi<< std::endl;

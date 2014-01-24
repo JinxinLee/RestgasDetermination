@@ -19,7 +19,7 @@ public:
 
 	virtual ~PndSdsDigiStripWriteoutBuffer();
 
-	virtual std::vector<std::pair<double, PndSdsDigiStrip*> > Modify(std::pair<double, PndSdsDigiStrip*> oldData, std::pair<double, PndSdsDigiStrip*> newData);
+	virtual std::vector<std::pair<double, FairTimeStamp*> > Modify(std::pair<double, FairTimeStamp*> oldData, std::pair<double, FairTimeStamp*> newData);
         
 	virtual double FindTimeForData(FairTimeStamp* data) ;
 	virtual void FillDataMap(FairTimeStamp* data, double activeTime) ;

@@ -22,7 +22,7 @@ public:
 
 	virtual ~PndGemDigiWriteoutBuffer();
 
-	virtual std::vector<std::pair<double, PndGemDigi*> > Modify(std::pair<double, PndGemDigi*> oldData, std::pair<double, PndGemDigi*> newData);
+	virtual std::vector<std::pair<double, FairTimeStamp*> > Modify(std::pair<double, FairTimeStamp*> oldData, std::pair<double, FairTimeStamp*> newData);
         
 	virtual double FindTimeForData(FairTimeStamp* data) ;
 	virtual void FillDataMap(FairTimeStamp* data, double activeTime) ;
