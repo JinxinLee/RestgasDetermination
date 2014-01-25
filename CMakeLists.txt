@@ -11,11 +11,42 @@ CMAKE_MINIMUM_REQUIRED(VERSION 2.6.0 FATAL_ERROR)
 # Set name of our project to "PANDAROOT". Has to be done
 # after check of cmake version since this is a new feature                  
 project(PANDAROOT)
+
 ENABLE_LANGUAGE(Fortran)
+
+FIND_PATH(FAIRBASE NAMES FairRun.h  PATHS
+  ${CMAKE_SOURCE_DIR}/base/steer
+  NO_DEFAULT_PATH
+)
+
+If (FAIRBASE)
+  Message(STATUS "Found FAIRBASE")
+  SET(FAIRBASE ${FAIRBASE})
+Else (FAIRBASE)
+  Message(STATUS "NOT Found FAIRBASE")
+  IF(NOT DEFINED ENV{FAIRROOTPATH})
+     MESSAGE(FATAL_ERROR "You did not define the environment variable FAIRROOTPATH which is needed to find FairRoot. Please set this variable and execute cmake again.")
+  ENDIF(NOT DEFINED ENV{FAIRROOTPATH})
+  SET(FAIRROOTPATH $ENV{FAIRROOTPATH})
+
+EndIf (FAIRBASE)
+
 
 # where to look first for cmake modules, before ${CMAKE_ROOT}/Modules/ 
 # is checked
 set(CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/cmake/modules")
+set(CMAKE_MODULE_PATH "${FAIRROOTPATH}/share/fairbase/cmake/modules"  ${CMAKE_MODULE_PATH})
+
+IF(FAIRROOTPATH)
+  Set(CheckSrcDir "${FAIRROOTPATH}/share/fairbase/cmake/checks")
+ELSE(FAIRROOTPATH)
+  Set(CheckSrcDir "${CMAKE_SOURCE_DIR}/cmake/checks")
+ENDIF(FAIRROOTPATH)
+
+if(FAIRROOTPATH)
+  find_package(FairRoot)
+endif(FAIRROOTPATH)
+
 
 # Load some basic macros which are needed later on
 include(FairMacros)
@@ -128,11 +159,17 @@ install(DIRECTORY geometry DESTINATION pnd_install
 # Check if the compiler support specific C++11 features
 # Up to now this is only a check since the code does not use
 # any of the features of the new standard
-Set(CheckSrcDir "${CMAKE_SOURCE_DIR}/cmake/checks")
+
+IF(FAIRROOT_FOUND)
+ Set(CheckSrcDir "${FAIRROOTPATH}/share/fairbase/cmake/checks")
+ELSE(FAIRROOT_FOUND)
+ Set(CheckSrcDir "${CMAKE_SOURCE_DIR}/cmake/checks")
+ENDIF(FAIRROOT_FOUND)
+
 include(CheckCXX11Features)
 
 IF(HAS_CXX11_SHAREDPOINTER)
-Add_Definitions(-DHAS_SHAREDPOINTER)
+  Add_Definitions(-DHAS_SHAREDPOINTER)
 ENDIF(HAS_CXX11_SHAREDPOINTER)
 
 
@@ -140,18 +177,25 @@ ENDIF(HAS_CXX11_SHAREDPOINTER)
 # Recurse into the given subdirectories.  This does not actually
 # cause another cmake executable to run.  The same process will walk through
 # the project's entire directory structure.
+
+IF(NOT FAIRROOT_FOUND)
+
 add_subdirectory (fairtools)
 add_subdirectory (base)
 add_subdirectory (geobase)
 add_subdirectory (parbase)
 add_subdirectory (dbase)
 add_subdirectory (MbsAPI)
+add_subdirectory (trackbase)
+add_subdirectory (geane)
+add_subdirectory (generators)
+ENDIF (NOT FAIRROOT_FOUND)
+
 add_subdirectory (PndTools/generalTools)
 add_subdirectory (PndTools/buffers)
 add_subdirectory (pnddata)
 add_subdirectory (passive)
 add_subdirectory (field)  
-add_subdirectory (generators)
 add_subdirectory (pgenerators)
 add_subdirectory (pgenerators/DpmEvtGen)
 #add_subdirectory (pgenerators/EvtGenNew)
@@ -177,8 +221,6 @@ add_subdirectory (ftof)
 add_subdirectory (rich)
 add_subdirectory (gem)
 add_subdirectory (macro)
-add_subdirectory (trackbase)
-add_subdirectory (geane)
 add_subdirectory (GenfitTools)
 #add_subdirectory(hypGe)
 add_subdirectory (fsim)
@@ -197,7 +239,11 @@ If(TEvePath)
 #find_package(OpenGL)
 #If (OPENGL_FOUND AND OPENGL_GLU_FOUND)
   Message("Found TEve, so the eventdisplay will be compiled.")
-  add_subdirectory(eventdisplay)
+
+IF(NOT FAIRROOT_FOUND)
+  add_subdirectory (eventdisplay)
+ENDIF(NOT FAIRROOT_FOUND)
+
   add_subdirectory(PndEventdisplay)
 #EndIf (OPENGL_FOUND AND OPENGL_GLU_FOUND)
 EndIf(TEvePath)
