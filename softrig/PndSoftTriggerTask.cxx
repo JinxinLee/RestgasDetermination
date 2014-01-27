@@ -57,7 +57,7 @@ using std::endl;
 // -----   Default constructor   -------------------------------------------
 PndSoftTriggerTask::PndSoftTriggerTask(double pmom, int mode) :
 	FairTask("Panda Softtrigger Task"),
-	fMode(mode), fEvtCount(0), fSigCount(0), fNsigTag(5.0),	
+	fMode(mode), fEvtCount(0), fSigCount(0), fNsigTag(8.0),	fNsigAux(5.0),	
 	fIniP4(0,0,0,0), fEcm(0.), fPbarMom(pmom),
 	fTagPhiKK(true), fTagLamppi(true), fTagJpsi2e(true), fTagJpsi2mu(true),
 	fTagD0Kpi(true), fTagD0Kpipi0(true), fTagD0K3pi(true),
@@ -199,6 +199,20 @@ void PndSoftTriggerTask::SetSignalParamsDefaults()
 	
 	// In case signals are not gaussian (sometimes double-gauss or with tail), the narrow core distribution
 	// was fitted to extract a guassian sigma. Should be taken as lower estimate
+/*	
+Phi					0,0037
+ee					0,1000
+Lamba					0,0041
+etac					0,0355
+Jpsi e					0,0700
+Jpsi mu					0,0448
+D+					0,0160
+D0					0,0215
+Ds					0,0141
+Lamc					0,0110
+pi0					0,0043
+Ks					0,0077
+*/
 	
 	fPi0Mean = 0.136;		// mean value for pi0 signal
 	fPi0Sigma = 0.005;		// sigma value for pi0 signal
@@ -762,7 +776,7 @@ int PndSoftTriggerTask::CreateKs0Cands(RhoTuple *n)
 		for (int i=0; i<fKs0Cands.GetLength();++i)
 		{			
 			Float_t nsig = (Float_t) fabs(fKs0Cands[i]->Mass()-fKs0Mean)/fKs0Sigma;
-			Float_t tag  = nsig<3.0;  // instead of fNsigTag, a fixed 3-sigma cut is applied for KS
+			Float_t tag  = nsig<fNsigAux;  // instead of fNsigTag, fNsigAux cut is applied for KS
 			
 			n->Column("tag", 	(Float_t) tag,			0.0f);
 			n->Column("nsig", 	(Float_t) nsig,			0.0f);
@@ -856,7 +870,7 @@ void PndSoftTriggerTask::FillGlobalLists()
 		for (i=0; i<fPi0Cands.GetLength();++i)
 		{
 			Float_t nsig = (Float_t) fabs(fPi0Cands[i]->Mass()-fPi0Mean)/fPi0Sigma;
-			Float_t tag  = nsig<3.0;  // instead of fNsigTag, a fixed 3-sigma cut is applied for pi0
+			Float_t tag  = nsig<fNsigAux;  // instead of fNsigTag, a fNsigAux cut is applied for pi0
 			
 			npi0->Column("tag", 	(Float_t) tag,			0.0f);
 			npi0->Column("nsig", 	(Float_t) nsig,			0.0f);
@@ -882,7 +896,7 @@ void PndSoftTriggerTask::FillGlobalLists()
 		for (i=0; i<fEtaCands.GetLength();++i)
 		{
 			Float_t nsig = (Float_t) fabs(fEtaCands[i]->Mass()-fEtaMean)/fEtaSigma;
-			Float_t tag  = nsig<3.0;  // instead of fNsigTag, a fixed 3-sigma cut is applied for eta
+			Float_t tag  = nsig<fNsigAux;  // instead of fNsigTag, a fNsigAux cut is applied for eta
 			
 			neta->Column("tag", 	(Float_t) tag,			0.0f);
 			neta->Column("nsig", 	(Float_t) nsig,			0.0f);
