@@ -215,21 +215,21 @@ Ks					0,0077
 */
 	
 	fPi0Mean = 0.136;		// mean value for pi0 signal
-	fPi0Sigma = 0.005;		// sigma value for pi0 signal
+	fPi0Sigma = 0.0045;		// sigma value for pi0 signal
 	
 	fEtaMean = 0.552;		// mean value for eta(gg) signal
 	fEtaSigma = 0.009;		// sigma value for eta(gg) signal
 	
 	fKs0Mean = 0.497;		// mean value for Ks signal
-	fKs0Sigma = 0.009;		// sigma value for Ks signal
+	fKs0Sigma = 0.008;		// sigma value for Ks signal
 	
 	// *** resonances
 	fPhiMean = 1.0195;		// mean value for phi signal
-	fPhiSigma = 0.005;		// sigma value for phi signal
+	fPhiSigma = 0.004;		// sigma value for phi signal
 	
 	// *** open charm
 	fD01Mean = 1.863;		// mean value for D0 signal (K pi)
-	fD01Sigma = 0.019;		// sigma value for D0 signal
+	fD01Sigma = 0.022;		// sigma value for D0 signal
 	
 	fD02Mean = 1.866;		// mean value for D0 signal (K pi pi0)
 	fD02Sigma = 0.019;		// sigma value for D0 signal
@@ -238,7 +238,7 @@ Ks					0,0077
 	fD03Sigma = 0.017;		// sigma value for D0 signal
 	
 	fDpm1Mean = 1.868;		// mean value for D+ signal (K pi pi)
-	fDpm1Sigma = 0.018;		// sigma value for D+ signal
+	fDpm1Sigma = 0.016;		// sigma value for D+ signal
 	
 	fDpm2Mean = 1.870;		// mean value for D+ signal (K pi pi pi0)
 	fDpm2Sigma = 0.019;		// sigma value for D+ signal
@@ -250,24 +250,24 @@ Ks					0,0077
 	fDpm4Sigma = 0.017;		// sigma value for D+ signal
 	
 	fDs1Mean = 1.967;		// mean value for Ds signal (K K pi)
-	fDs1Sigma = 0.016;		// sigma value for Ds signal
+	fDs1Sigma = 0.0145;		// sigma value for Ds signal
 	
 	fDs2Mean = 1.970;		// mean value for Ds signal (K K pi pi0)
 	fDs2Sigma = 0.016;		// sigma value for Ds signal
 	
 	// *** baryons
 	fLamcMean = 2.284;	// mean value for Lambdac signal
-	fLamcSigma = 0.012;		// sigma value for Lambda signal
+	fLamcSigma = 0.011;		// sigma value for Lambda signal
 
 	fLamMean = 1.116;		// mean value for Lambda signal
-	fLamSigma = 0.009;		// sigma value for Lambda signal
+	fLamSigma = 0.0045;		// sigma value for Lambda signal
 	
 	// *** charmonia
 	fEtac1Mean = 2.981;		// mean value for eta_c signal    (K K pi0)
 	fEtac1Sigma = 0.042;		// sigma value for eta_c signal
 	
 	fEtac2Mean = 2.976;		// mean value for eta_c signal    (KS K pi)    
-	fEtac2Sigma = 0.041;		// sigma value for eta_c signal
+	fEtac2Sigma = 0.036;		// sigma value for eta_c signal
 	
 	fEtac3Mean = 2.980;		// mean value for eta_c signal    (eta pi pi)
 	fEtac3Sigma = 0.042;		// sigma value for eta_c signal
