@@ -109,7 +109,7 @@ class PndGemDigi : public FairTimeStamp
     SetLinks(FairMultiLinkedData("GEMPoint", index));
   } 
 
-  virtual bool equal(FairTimeStamp* data) const{
+  virtual bool equal(FairTimeStamp* data) {
     PndGemDigi* myDigi = dynamic_cast <PndGemDigi*> (data);
     if (myDigi != 0){
       if (fDetectorId == myDigi->GetDetectorId() )
