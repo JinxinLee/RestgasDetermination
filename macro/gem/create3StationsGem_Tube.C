@@ -1,6 +1,6 @@
 #include "iomanip.h"
 
-void create3StationsGem()
+void create3StationsGem_Tube()
 {
   // Gem disk geometry parameters
   //-----------------------------
@@ -93,7 +93,7 @@ void create3StationsGem()
   gSystem->Load("libPndData");
   gSystem->Load("libPassive");
   
-  TString outfile= "../../geometry/gem_3Stations.root";
+  TString outfile= "../../geometry/gem_3Stations_Tube.root";
   TFile* fi = new TFile(outfile,"RECREATE");  
   
   cout << "created output file" << endl;
@@ -209,11 +209,10 @@ void create3StationsGem()
 
       Double_t segPhiSpan = 360./(Double_t(kDiskNFoils[istat]));
       Double_t segBegin   =  90.;
-      for ( Int_t iseg = 0 ; iseg < kDiskNFoils[istat] ; iseg++ ) {
-	DiskLayersShapeA[istat][ilay][iseg] = new TGeoTubeSeg(Form("disk%dseg%d%sshape",istat+1,iseg+1,kLayerName[ilay].Data()),
-							     kDiskInnerRadius[istat],kDiskOuterRadius[istat],
-							     kLayerThick[ilay]/2.,
-							     segBegin,segBegin+segPhiSpan);
+      for ( Int_t iseg = 0 ; iseg < 1 ; iseg++ ) {
+	DiskLayersShapeA[istat][ilay][iseg] = new TGeoTube(Form("disk%dseg%d%sshape",istat+1,iseg+1,kLayerName[ilay].Data()),
+							   kDiskInnerRadius[istat],kDiskOuterRadius[istat],
+							   kLayerThick[ilay]/2.);
 	DiskLayersShapeB[istat][ilay][iseg] = new TGeoBBox   (Form("robo%dseg%d%sshape",istat+1,iseg+1,kLayerName[ilay].Data()),
 							      kMiddleROBarHfTh[istat]/2.,
 							      kDiskOuterRadius[istat],
