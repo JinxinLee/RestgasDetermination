@@ -27,7 +27,8 @@ FairTask("SDS Hybrid Hit Producer", 1)
   
   fPixelHits = 0;
   fEventNr = 0;
-   
+  fPixelFactor = 1;
+  
   if(fVerbose>0) Info("PndDrcHitFinder","DRC Hit Finder created, Parameters will be taken from RTDB");  
   fGeoH=NULL;
   fGeo = new PndGeoDrc();
@@ -178,11 +179,19 @@ void PndDrcHitFinder::Exec(Option_t* opt)
     // the pixel number shows local coordinates of the hit:
     HitPosLocal.SetXYZ(fPixelStep*((Double_t)(pixelID % fNpix) - (Double_t)(fNpix/2) + 0.5),fPixelStep*(TMath::Floor(((Double_t)pixelID)/((Double_t)fNpix)) - (Double_t)(fNpix/2) + 0.5), 0.);
     
+    Int_t sensorId = fDigi->GetSensorId()/fPixelFactor;
+    if(fPixelFactor==2) { //double pixels
+      sensorId++;
+      if(fDigi->GetSensorId()%2) HitPosLocal.SetX(HitPosLocal.X()+fPixelSize/2.);
+      else  HitPosLocal.SetX(HitPosLocal.X()-fPixelSize/2.);
+    }
+
     // local coordinates of the hit on the MCP are translated into global ones as the following:
     HitPosGlobal = fGeoH->LocalToMasterShortId(HitPosLocal, mcpID);   
     dPosHit.SetXYZ(fPixelSize/2., fPixelSize/2., 0.);   
-    
-    new((*fPdHitArray)[fPdHitArray->GetEntriesFast()]) PndDrcPDHit(detID,  fDigi->GetSensorId() , HitPosGlobal, dPosHit, hitTime, 0., iDigi); 
+    if(fPixelFactor==2)  dPosHit.SetXYZ(fPixelSize, fPixelSize/2., 0.);   
+   
+    new((*fPdHitArray)[fPdHitArray->GetEntriesFast()]) PndDrcPDHit(detID, sensorId , HitPosGlobal, dPosHit, hitTime, 0., iDigi); 
   } // Loop over MCPoints
   
   fEventNr++;

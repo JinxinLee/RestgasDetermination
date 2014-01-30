@@ -52,6 +52,8 @@ class PndDrcHitFinder : public FairTask
 
   virtual void FinishEvent();
   virtual void FinishTask();
+
+  void SetPixelFactor(Int_t factor ){fPixelFactor = factor;}
   
 protected:
     
@@ -69,6 +71,7 @@ protected:
   void Reset();
   void ProduceHits();
 
+  Int_t    fPixelFactor;
   Double_t fPixelSize;	//pixel size;
   Double_t fPixelGap;   // gap betwen neighboring pixels
   Double_t fPixelStep;
