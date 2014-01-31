@@ -135,7 +135,7 @@ void PndParticleQATask::Exec(Option_t* opt)
 	fAnalysis->FillList( chremcsttdrc, "Charged" ,"PidAlgoEmcBayes;PidAlgoStt;PidAlgoDrc");
 	fAnalysis->FillList( chremcsttdrcmdt, "Charged" ,"PidAlgoEmcBayes;PidAlgoStt;PidAlgoDrc;PidAlgoMdtHardCuts");
 	fAnalysis->FillList( chrsttdrc, "Charged" ,"PidAlgoStt;PidAlgoDrc");
-	fAnalysis->FillList( chrmva, "Charged" ,"TMVABDTMvaProb");
+	//fAnalysis->FillList( chrmva, "Charged" ,"TMVABDTMvaProb");
 	
 	int ntrk = chr.GetLength();
 	
@@ -156,7 +156,7 @@ void PndParticleQATask::Exec(Option_t* opt)
 		qaPid( "algdsc", 	chrdsc[j], 		ntp); 
 		qaPid( "algmdt", 	chrmdt[j], 		ntp); 
 		qaPid( "algstt", 	chrstt[j], 		ntp); 
-		qaPid( "algmva", 	chrmva[j], 		ntp); 
+		//qaPid( "algmva", 	chrmva[j], 		ntp); 
 		
 		qaPid( "algemcstt", 	chremcstt[j], 		ntp); 
 		qaPid( "algemcsttdrc", 	chremcsttdrc[j], 	ntp); 

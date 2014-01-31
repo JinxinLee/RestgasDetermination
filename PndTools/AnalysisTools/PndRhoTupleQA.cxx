@@ -235,12 +235,16 @@ void PndRhoTupleQA::qaPoca(TString pre, RhoCandidate *c, RhoTuple *n)
 void PndRhoTupleQA::qaPRG(TString pre, RhoCandidate *c, RhoTuple *n)
 {
     if (n==0) return;
-    // *** simple vtx finder
-    TVector3 vtx;
-    TMatrixD vmatrix(3,3);
+
 	PndVtxPRG vtxPRG(c);
-    double qavtx = vtxPRG.FitVertexFast(vtx, vmatrix, true, 2);//iteration 2=default
-    // *** store QA info
+	vtxPRG.SetSilent();     
+    
+    // *** PRG vtx finder
+    TVector3 vtx(0,0,0);
+    TMatrixD vmatrix(3,3);
+	double qavtx = vtxPRG.FitVertexFast(vtx, vmatrix, true, 2);//iteration 2=default
+    
+	// *** store QA info
     n->Column(pre+"prgvx",  (Float_t) vtx.X(), 0.0f);
     n->Column(pre+"prgvy",  (Float_t) vtx.Y(), 0.0f);
     n->Column(pre+"prgvz",  (Float_t) vtx.Z(), 0.0f);
