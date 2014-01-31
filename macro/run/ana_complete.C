@@ -21,6 +21,37 @@ int SelectTruePid(PndAnalysis *ana, RhoCandList &l)
 	return removed;
 }
 
+void printCand(RhoCandidate *c)
+{
+	TLorentzVector lv=c->P4();
+	
+	cout <<c->PdgCode()<<" ("<<lv.X()<<"/"<<lv.Y()<<"/"<<lv.Z()<<"/"<<lv.E()<<")"<<endl;
+}
+
+void countDoubles(RhoCandList &l, int &n1, int &n2, int &n3)
+{
+	int n_smc  = 0;
+	int n_strk = 0;
+	int n_both = 0;
+	double d = 0.00001;
+	
+	for (int i=0;i<l.GetLength()-1;++i)
+	{
+		for (int j=i+1;j<l.GetLength();++j)
+		{
+			TLorentzVector dl = l[i]->P4() - l[j]->P4();
+		
+			bool chkmc = (l[i]->GetMcTruth()==l[j]->GetMcTruth());
+			bool chktrk = (fabs(dl.X())<d) && (fabs(dl.Y())<d) && (fabs(dl.Z())<d) && (fabs(dl.E())<d);
+			if (chkmc) n_smc++;
+			if (chktrk) n_strk++;
+			if (chktrk && chkmc) n_both++;
+		}	
+	}
+	n1 = n_strk;
+	n2 = n_smc;
+	n3 = n_both;
+}
 
 void ana_complete(int nevts=0)
 {
@@ -63,6 +94,9 @@ void ana_complete(int nevts=0)
 	TFile *out = TFile::Open("output_ana.root","RECREATE");
 	
 	// *** create some histograms
+	TH1F *hmomtrk    = new TH1F("hmomtrk","track momentum (all)",200,0,5);
+	TH1F *hthttrk    = new TH1F("hthttrk","track theta (all)",200,0,3.1415);
+	
 	TH1F *hjpsim_all = new TH1F("hjpsim_all","J/#psi mass (all)",200,0,4.5);
 	TH1F *hpsim_all  = new TH1F("hpsim_all","#psi(2S) mass (all)",200,0,5);
 	
@@ -110,7 +144,7 @@ void ana_complete(int nevts=0)
 	if (nevts==0) nevts= theAnalysis->GetEntries();
 	
 	// *** RhoCandLists for the analysis
-	RhoCandList muplus, muminus, piplus, piminus, jpsi, psi2s;
+	RhoCandList chrg, muplus, muminus, piplus, piminus, jpsi, psi2s;
 	
 	// *** Mass selector for the jpsi cands
 	double m0_jpsi = TDatabasePDG::Instance()->GetParticle("J/psi")->Mass();   // Get nominal PDG mass of the J/psi
@@ -122,15 +156,40 @@ void ana_complete(int nevts=0)
 	// ***
 	// the event loop
 	// ***
+	
+	int cntdbltrk=0, cntdblmc=0, cntdblboth=0, cnttrk=0, cnt_dbl_jpsi=0, cnt_dbl_psip=0;
+	
 	while (theAnalysis->GetEvent() && i++<nevts)
 	{
 		if ((i%100)==0) cout<<"evt " << i << endl;
 				
 		// *** Select with no PID info ('All'); type and mass are set 		
+		theAnalysis->FillList(chrg,    "Charged");
 		theAnalysis->FillList(muplus,  "MuonAllPlus");
 		theAnalysis->FillList(muminus, "MuonAllMinus");
 		theAnalysis->FillList(piplus,  "PionAllPlus");
 		theAnalysis->FillList(piminus, "PionAllMinus");
+
+		// *** momentum and theta histograms
+		for (j=0;j<muplus.GetLength();++j) 
+		{
+			hmomtrk->Fill(muplus[j]->P());
+			hthttrk->Fill(muplus[j]->P4().Theta());
+		}
+		for (j=0;j<muminus.GetLength();++j) 
+		{
+			hmomtrk->Fill(muminus[j]->P());
+			hthttrk->Fill(muminus[j]->P4().Theta());
+		}
+		
+		cnttrk += chrg.GetLength();
+		
+		int n1, n2, n3;
+		
+		countDoubles(chrg,n1,n2,n3);
+		cntdbltrk  += n1;
+		cntdblmc   += n2;
+		cntdblboth += n3;		
 		
 		// *** combinatorics for J/psi -> mu+ mu-
 		jpsi.Combine(muplus, muminus);
@@ -141,12 +200,14 @@ void ana_complete(int nevts=0)
 		// ***
 		jpsi.SetType(443);
 				
+		int nm = 0;
 		for (j=0;j<jpsi.GetLength();++j) 
 		{
 			hjpsim_all->Fill( jpsi[j]->M() );
 			
 			if (theAnalysis->McTruthMatch(jpsi[j]))
 			{ 
+				nm++;
 				hjpsim_ftm->Fill( jpsi[j]->M() );
 			 	hjpsim_diff->Fill( jpsi[j]->GetMcTruth()->M() - jpsi[j]->M() );
 			}
@@ -154,6 +215,7 @@ void ana_complete(int nevts=0)
 				hjpsim_nm->Fill( jpsi[j]->M() );
 		}
 		
+		if (nm>1) cnt_dbl_jpsi++;
 		// ***
 		// *** do VERTEX FIT (J/psi)
 		// ***
@@ -189,18 +251,21 @@ void ana_complete(int nevts=0)
 		// ***
 		psi2s.SetType(88888);
 
+		nm = 0;
 		for (j=0;j<psi2s.GetLength();++j) 
 		{
 			hpsim_all->Fill( psi2s[j]->M() );
 			
 			if (theAnalysis->McTruthMatch(psi2s[j])) 
 			{
+				nm++;
 			 	hpsim_ftm->Fill( psi2s[j]->M() );
 			 	hpsim_diff->Fill( psi2s[j]->GetMcTruth()->M() - psi2s[j]->M() );
 			}
 			else 
 				hpsim_nm->Fill( psi2s[j]->M() );
 		}			
+		if (nm>1) cnt_dbl_psip++;
 
 		
 		// ***
@@ -303,9 +368,12 @@ void ana_complete(int nevts=0)
 		for (j=0;j<psi2s.GetLength();++j) hpsim_tpid->Fill( psi2s[j]->M() );
 		
 	}
-	
+		
 	// *** write out all the histos
 	out->cd();
+	
+	hmomtrk->Write();
+	hthttrk->Write();
 	
 	hjpsim_all->Write();
 	hpsim_all->Write();

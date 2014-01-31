@@ -9,7 +9,7 @@
 using std::cout;
 using std::endl;
 
-bool check_complete(TString fn="output_ana.root", TString fn2="ana_target.root")
+bool check_complete(TString fn="output_ana.root", TString fn2="ana_target.root", double minP = 0.03, int minev = 3, int maxfail=3)
 {
 	bool fTest=kFALSE;
         TString templateFile = gSystem->Getenv("VMCWORKDIR");
@@ -37,7 +37,7 @@ bool check_complete(TString fn="output_ana.root", TString fn2="ana_target.root")
 			TH1F* h  = (TH1F*) obj; 
 			TH1F* h2 = (TH1F*) f2->Get(name);
 			
-			if ( h->GetEntries()<3 ) 
+			if ( h->GetEntries()<minev ) 
 			{
 				cout << "Histogram (almost) empty : " << name << " \"" << h2->GetTitle() << "\":  N = " <<  h->GetEntries() << endl;
 				failcount++;
@@ -45,7 +45,7 @@ bool check_complete(TString fn="output_ana.root", TString fn2="ana_target.root")
 			else  
 			{
 				double P = h2->KolmogorovTest(h);
-				if ( P<0.1 )
+				if ( P<minP )
 				{
 					cout << "Incompatible distribution: " << name << " \"" << h2->GetTitle() << "\":  P = " << P << endl;
 					failcount++;
@@ -54,7 +54,7 @@ bool check_complete(TString fn="output_ana.root", TString fn2="ana_target.root")
 		
 		}
 		
-		if (failcount==0) fTest = kTRUE;
+		if (failcount<maxfail) fTest = kTRUE;
 	}
 	
 	if (fTest){
