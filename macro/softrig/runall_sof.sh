@@ -5,6 +5,7 @@ nEvts=1000
 dec="pp_DpDm_Dp_Kpipi_incl.dec"
 mom=6.56903
 res="pbarpSystem0"
+run=0
 
 sig=1
 
@@ -28,6 +29,10 @@ if test "$5" != ""; then
   res=$5
 fi
 
+if test "$6" != ""; then
+  run=$6
+fi
+
 if test "$dec" == "DPM"; then
   sig=0
 fi
@@ -38,4 +43,4 @@ root -l -q -b -w prod_sim.C\(\"$outprefix\",$nEvts,\"$dec\",$mom,\"$res\"\) &> $
 root -l -b -q -w prod_dig.C\(\"$outprefix\"\) &> $outprefix"_dig.log"
 root -l -b -q -w prod_rec.C\(\"$outprefix\"\) &> $outprefix"_rec.log"
 root -l -b -q -w prod_pid.C\(\"$outprefix\"\) &> $outprefix"_pid.log"
-root -l -b -q -w prod_sof.C\(\"$outprefix\", $mom, $mode\) &> $outprefix"_sof.log"
+root -l -b -q -w prod_sof.C\(\"$outprefix\",$mom,$mode,$run\) &> $outprefix"_sof.log"
