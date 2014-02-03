@@ -32,7 +32,7 @@ class PndSoftTriggerTask : public FairTask
  public:
 	
 	// *** Default constructor   
-	PndSoftTriggerTask(double pmom, int mode=0);
+	PndSoftTriggerTask(double pmom, int mode=0, int runnum=0);
 	
 	// *** Destructor 
 	~PndSoftTriggerTask();	
@@ -261,6 +261,7 @@ class PndSoftTriggerTask : public FairTask
 	// *** global vars
 	int fMode;					// the signal or background mode code, to be set in the constructor
 	int fEvtCount;				// global event counter
+	int fRunNum;				// run number
 	int fSigCount;	            // counter, unused for the time being
 	double fNsigTag;				// max number of sigmas deviation of candidate to be tagged
 	double fNsigAux;				// max number of sigmas deviation for auxilliary particle = pi0, K_S, eta
