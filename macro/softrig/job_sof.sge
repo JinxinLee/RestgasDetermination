@@ -3,7 +3,7 @@
 
 cd $TMPDIR
 
-. /hera/panda/kgoetzen/pandaroot/build5/config.sh
+. /path/to/your/config.sh
 
 hera=$VMCWORKDIR"/macro/softrig"
 _target=$hera"/data/"
@@ -49,7 +49,7 @@ root -l -q -b -w $hera"/"prod_sim.C\(\"$outprefix\",$nEvts,\"$dec\",$mom,\"$res\
 root -l -b -q -w $hera"/"prod_dig.C\(\"$outprefix\"\) &> $outprefix"_dig.log"
 root -l -b -q -w $hera"/"prod_rec.C\(\"$outprefix\"\) &> $outprefix"_rec.log"
 root -l -b -q -w $hera"/"prod_pid.C\(\"$outprefix\"\) &> $outprefix"_pid.log"
-root -l -b -q -w $hera"/"prod_sof.C\(\"$outprefix\", $mom, $mode\) &> $outprefix"_sof.log"
+root -l -b -q -w $hera"/"prod_sof.C\(\"$outprefix\",$mom,$mode,$SGE_TASK_ID\) &> $outprefix"_sof.log"
 
 
 # Move the data to the persistent storage

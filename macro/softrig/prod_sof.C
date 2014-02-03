@@ -1,4 +1,4 @@
-void prod_sof(TString outpre="", double pmom=15.15, int mode=9999)
+void prod_sof(TString outpre="", double pmom=15.15, int mode=9999, int runid=0)
 {
 	// Parameter file
 	TString inParFile = outpre+"_par.root"; 
@@ -39,7 +39,7 @@ void prod_sof(TString outpre="", double pmom=15.15, int mode=9999)
   
 	
 	// *** HERE OUR TASK GOES!
-	PndSoftTriggerTask *stTask = new PndSoftTriggerTask(pmom, mode);
+	PndSoftTriggerTask *stTask = new PndSoftTriggerTask(pmom, mode, runid);
 	
 	stTask->SetQA_All(true);
 	stTask->SetGammaMinE(0.10);
