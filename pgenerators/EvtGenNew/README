@@ -1,9 +1,10 @@
 
 This directory contains all packages for EvtGen ....
 Pythia8 and HepMC are part of the external packages.
+TODO: in externals, "pythia8" is used as include path, EvtGen expects "Pythia8"
 
 The CMAKEList.txt files enables/disables sub-components.
-You can disbale Photos and and Pythia8 for EvtGen, but this might not be useful.
+You can disable Photos and and Pythia8 for EvtGen, but this might not be useful.
 Tauola is disabled by default as it has no relevance for PANDA.
 
 Photos contains
@@ -11,11 +12,23 @@ Photos contains
 * the CMakeList.txt
 * the sub-folder "Photos" with softlinks for include files.
 
+EvtGen contains
+* EvtGen versions and private patches
+* the CMakeList.txt
+
 R01-02-00 contains
 * the stable "release" archive
-* the CMakeList.txt
 TODO Changes!!: enum ERROR, WARNING, INFO etc collide with logger class from fairsoft.
 TODO: streamer is commented out in EvtGen repository, but needed for simpleEvtGen etc.
+
+R01-03-00 contains
+* the stable "release" archive
+TODO: streamer is commented out in EvtGen repository, but needed for simpleEvtGen etc.
+
+Private contains
+* private models
+* code to initialize the models
+* decay and pdl files
 
 EvtGenDirect contains EvtGenDirect task for PandaRoot
 
