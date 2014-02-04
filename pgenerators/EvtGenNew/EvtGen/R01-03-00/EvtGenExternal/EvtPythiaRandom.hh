@@ -24,7 +24,7 @@
 
 #include "EvtGenBase/EvtRandom.hh"
 
-#include "Pythia8/Basics.h"
+#include "pythia8/Basics.h"
 
 class EvtPythiaRandom : public Pythia8::RndmEngine {
 
