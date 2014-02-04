@@ -50,8 +50,8 @@ void EvtDeuteronSpectator::init() {
 
     // _pmax outside [0.2, 1.5] GeV/c is rejected
     if(_pmax<0.2 || _pmax>1.5) {
-      report(EVT_ERROR,"EvtGen") << "Maximum spectator nucleon momentum should be within [0.2, 1.5] GeV/c!" << endl;
-      report(EVT_ERROR,"EvtGen") << "Will terminate execution!"<<endl;
+      report(ERROR,"EvtGen") << "Maximum spectator nucleon momentum should be within [0.2, 1.5] GeV/c!" << endl;
+      report(ERROR,"EvtGen") << "Will terminate execution!"<<endl;
       ::abort();
     }
 
@@ -61,17 +61,17 @@ void EvtDeuteronSpectator::init() {
 
   }else{
     
-    report(EVT_ERROR,"EvtGen") << "EvtDeuteronSpectator generator expects "
+    report(ERROR,"EvtGen") << "EvtDeuteronSpectator generator expects "
                            << " 2 arguments but found:"<<getNArg()<<endl;
-    report(EVT_ERROR,"EvtGen") << "Will terminate execution!"<<endl;
+    report(ERROR,"EvtGen") << "Will terminate execution!"<<endl;
     ::abort();
 
   }
 
-  report(EVT_INFO,"EvtGen") << "The deuteron spectator generator has been configured:"
+  report(INFO,"EvtGen") << "The deuteron spectator generator has been configured:"
     <<endl;
-  report(EVT_INFO,"EvtGen") << " spectator momentum < " << _pmax << " GeV/c" << endl;
-  report(EVT_INFO,"EvtGen") << " minimum pbar+N mass < " << _mmin << " GeV/c2" << endl;
+  report(INFO,"EvtGen") << " spectator momentum < " << _pmax << " GeV/c" << endl;
+  report(INFO,"EvtGen") << " minimum pbar+N mass < " << _mmin << " GeV/c2" << endl;
 
 }
 
@@ -137,9 +137,9 @@ void EvtDeuteronSpectator::decay( EvtParticle *p ) {
 
     //check if pbar+n mass is large enough for specified decay
     daug2m = p4daug2.mass();
-    //report(EVT_INFO,"EvtGen") << "daug2m: " << daug2m << endl;
+    //report(INFO,"EvtGen") << "daug2m: " << daug2m << endl;
     if(daug2m<_mmin) {
-      report(EVT_INFO,"EvtGen") << "pbar+N mass " << daug2m << " GeV/c2 is below threshold for specified decay channel!" << endl;
+      report(INFO,"EvtGen") << "pbar+N mass " << daug2m << " GeV/c2 is below threshold for specified decay channel!" << endl;
     }
   } while (daug2m < _mmin);
 
