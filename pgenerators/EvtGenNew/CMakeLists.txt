@@ -10,7 +10,7 @@ set(EVTGEN_EXTERNAL   0)
 ##set(HEPMCLIBLIST HepMC HepMCfio)
 set(HEPMCLIBLIST HepMC)
 
-set(EVTGEN_INCLUDE_DIR   ${CMAKE_SOURCE_DIR}/pgenerators/EvtGenNew/EvtGen/R01-02-00)
+set(EVTGEN_INCLUDE_DIR   ${CMAKE_SOURCE_DIR}/pgenerators/EvtGenNew/EvtGen/R01-03-00)
 
 set(EVTGENLIBLIST EvtGen)
 
