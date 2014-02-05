@@ -53,10 +53,10 @@ case $energy in
 	root -l -b -q '../merge.C("njpsi2","M38_njpsi2.root","M38201*sof.root","M38900*sof.root")'
 
 	# eta_c modes
-	root -l -b -q '../merge.C("netac1","M38_etac1.root","M38220*sof.root","M38900*sof.root")'
-	root -l -b -q '../merge.C("netac2","M38_etac2.root","M38221*sof.root","M38900*sof.root")'
-	root -l -b -q '../merge.C("netac3","M38_etac3.root","M38222*sof.root","M38900*sof.root")'
-	root -l -b -q '../merge.C("netac4","M38_etac4.root","M38223*sof.root","M38900*sof.root")'
+	root -l -b -q '../merge.C("netac1","M38_netac1.root","M38220*sof.root","M38900*sof.root")'
+	root -l -b -q '../merge.C("netac2","M38_netac2.root","M38221*sof.root","M38900*sof.root")'
+	root -l -b -q '../merge.C("netac3","M38_netac3.root","M38222*sof.root","M38900*sof.root")'
+	root -l -b -q '../merge.C("netac4","M38_netac4.root","M38223*sof.root","M38900*sof.root")'
 
 	# electro-magnetic modes
 	root -l -b -q '../merge.C("n2e","M38_n2e.root","M38300*sof.root","M38900*sof.root")'
@@ -94,15 +94,15 @@ case $energy in
 	root -l -b -q '../merge.C("njpsi2","M45_njpsi2.root","M45201*sof.root","M45900*sof.root")'
 
 	# eta_c modes
-	root -l -b -q '../merge.C("netac1","M45_etac1.root","M45220*sof.root","M45900*sof.root")'
-	root -l -b -q '../merge.C("netac2","M45_etac2.root","M45221*sof.root","M45900*sof.root")'
-	root -l -b -q '../merge.C("netac3","M45_etac3.root","M45222*sof.root","M45900*sof.root")'
-	root -l -b -q '../merge.C("netac4","M45_etac4.root","M45223*sof.root","M45900*sof.root")'
+	root -l -b -q '../merge.C("netac1","M45_netac1.root","M45220*sof.root","M45900*sof.root")'
+	root -l -b -q '../merge.C("netac2","M45_netac2.root","M45221*sof.root","M45900*sof.root")'
+	root -l -b -q '../merge.C("netac3","M45_netac3.root","M45222*sof.root","M45900*sof.root")'
+	root -l -b -q '../merge.C("netac4","M45_netac4.root","M45223*sof.root","M45900*sof.root")'
 
 	# chi_c0 modes
-	root -l -b -q '../merge.C("nchic01","M45_chic01.root","M45240*sof.root","M45900*sof.root")'
-	root -l -b -q '../merge.C("nchic02","M45_chic02.root","M45241*sof.root","M45900*sof.root")'
-	root -l -b -q '../merge.C("nchic03","M45_chic03.root","M45242*sof.root","M45900*sof.root")'
+	root -l -b -q '../merge.C("nchic01","M45_nchic01.root","M45240*sof.root","M45900*sof.root")'
+	root -l -b -q '../merge.C("nchic02","M45_nchic02.root","M45241*sof.root","M45900*sof.root")'
+	root -l -b -q '../merge.C("nchic03","M45_nchic03.root","M45242*sof.root","M45900*sof.root")'
 
 	# electro-magnetic modes
 	root -l -b -q '../merge.C("n2e","M45_n2e.root","M45300*sof.root","M45900*sof.root")'
