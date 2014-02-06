@@ -44,12 +44,12 @@
 //
 
 enum Severity {
-   EMERGENCY,           // fatal
-   ALERT,               // requires immediate action
-   CRITICAL,            // serious
+  EVT_EMERGENCY,           // fatal
+  EVT_ALERT,               // requires immediate action
+  EVT_CRITICAL,            // serious
    EVT_ERROR,
    EVT_WARNING,
-   NOTICE,              // "normal but significant"
+  EVT_NOTICE,              // "normal but significant"
    EVT_INFO,                // informational
    EVT_DEBUG                // debug
 };

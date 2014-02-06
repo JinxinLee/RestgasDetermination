@@ -95,7 +95,7 @@ private:
 
   void reportInvalidAndExit() const
   {
-    report( ERROR, "EvtD0mixDalitz" ) << "EvtD0mixDalitz: Invalid mode." << std::endl;
+    report(EVT_ERROR, "EvtD0mixDalitz" ) << "EvtD0mixDalitz: Invalid mode." << std::endl;
     exit( 1 );
   }
 public:

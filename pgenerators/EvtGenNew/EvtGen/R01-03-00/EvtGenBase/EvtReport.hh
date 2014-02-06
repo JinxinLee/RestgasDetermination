@@ -43,14 +43,14 @@
 // constants, enums and typedefs
 //
 enum Severity {
-   EMERGENCY,           // fatal
-   ALERT,               // requires immediate action
-   CRITICAL,            // serious
-   ERROR,
-   WARNING,
-   NOTICE,              // "normal but significant"
-   INFO,                // informational
-   DEBUG                // debug
+  EVT_EMERGENCY,           // fatal
+  EVT_ALERT,               // requires immediate action
+  EVT_CRITICAL,            // serious
+  EVT_ERROR,
+  EVT_WARNING,
+  EVT_NOTICE,              // "normal but significant"
+  EVT_INFO,                // informational
+  EVT_DEBUG// debug
 };
 
 // function declaration

@@ -52,7 +52,7 @@ void EvtRadCorr::setRadCorrEngine(EvtAbsRadCorr* fsrEngine){
 void EvtRadCorr::doRadCorr(EvtParticle *p){
 
   if (_fsrEngine==0){
-    report(ERROR,"EvtGen") <<"No RadCorr model available in "
+    report(EVT_ERROR,"EvtGen") <<"No RadCorr model available in "
 			   <<"EvtRadCorr::doRadCorr()."<<endl;
     ::abort();
   }

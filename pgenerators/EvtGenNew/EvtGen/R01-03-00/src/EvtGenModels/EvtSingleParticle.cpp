@@ -96,19 +96,19 @@ void EvtSingleParticle::init(){
 
   }else{
     
-    report(ERROR,"EvtGen") << "EvtSingleParticle generator expected "
+    report(EVT_ERROR,"EvtGen") << "EvtSingleParticle generator expected "
                            << " 6, 4, or 2 arguments but found:"<<getNArg()<<endl;
-    report(ERROR,"EvtGen") << "Will terminate execution!"<<endl;
+    report(EVT_ERROR,"EvtGen") << "Will terminate execution!"<<endl;
     ::abort();
 
   }
 
 
-  report(INFO,"EvtGen") << "The single particle generator has been configured:"
+  report(EVT_INFO,"EvtGen") << "The single particle generator has been configured:"
     <<endl;
-  report(INFO,"EvtGen") << pmax << " > p > " << pmin <<endl;
-  report(INFO,"EvtGen") << cthetamax << " > costheta > " << cthetamin <<endl;
-  report(INFO,"EvtGen") << phimax << " > phi > " << phimin <<endl;
+  report(EVT_INFO,"EvtGen") << pmax << " > p > " << pmin <<endl;
+  report(EVT_INFO,"EvtGen") << cthetamax << " > costheta > " << cthetamin <<endl;
+  report(EVT_INFO,"EvtGen") << phimax << " > phi > " << phimin <<endl;
 
 }
 

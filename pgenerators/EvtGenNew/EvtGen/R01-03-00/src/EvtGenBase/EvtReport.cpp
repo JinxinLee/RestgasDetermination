@@ -43,7 +43,7 @@ ostream& report( Severity severity ,
                         << endl ;
       printNoFacility = 0 ;
    }
-   if ( severity < WARNING ) {
+   if ( severity < EVT_WARNING ) {
      if (facility[0]!=0){
        cerr<<facility<<":";
      }

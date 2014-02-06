@@ -26,7 +26,7 @@ EvtTwoBodyKine::EvtTwoBodyKine(double mA, double mB, double mAB)
 {
   if(mAB < mA + mB) {
 
-    report(INFO,"EvtGen") << mAB << " < " << mA << " + " << mB << endl;
+    report(EVT_INFO,"EvtGen") << mAB << " < " << mA << " + " << mB << endl;
     assert(0);
   }
 }
