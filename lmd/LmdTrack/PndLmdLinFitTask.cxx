@@ -172,6 +172,7 @@ PndLmdLinFitTask::PndLmdLinFitTask(TString tTCandBranchName, TString tRecoBranch
 
   TVirtualFitter::SetDefaultFitter("Minuit2");
   fmin = TVirtualFitter::Fitter(0,25);
+  //fmin->SetPrintLevel(fVerbose);//0=suppression of printing
   for(int ih=0;ih<4;ih++)
     hitMergedfl[ih] = false;
 }
@@ -295,7 +296,7 @@ void PndLmdLinFitTask::Exec(Option_t* opt)
 
       //      PndSdsHit* addHit = (PndSdsHit*) fRecoArray->At(index);
       PndSdsMergedHit* addHit = (PndSdsMergedHit*) fRecoArray->At(index);
-      cout<<"IsMerged??? "<<addHit->GetIsMerged()<<endl;
+      //      cout<<"IsMerged??? "<<addHit->GetIsMerged()<<endl;
       hitMergedfl[ihit] = addHit->GetIsMerged();
 
 
@@ -321,8 +322,8 @@ void PndLmdLinFitTask::Exec(Option_t* opt)
 
     TVector3 dirSeed =  hit1 - hit0;
     TVector3 posSeed =  hit0;
-    cout<<"DirSeed before fit and norm:"<<endl;
-    dirSeed.Print();
+    // cout<<"DirSeed before fit and norm:"<<endl;
+    // dirSeed.Print();
     dirSeed *=1./dirSeed.Mag();
     Double_t parFit[22]; //fit-parameter
     TMatrixDSym *COVmatrix = new TMatrixDSym(6);
@@ -696,8 +697,8 @@ double PndLmdLinFitTask::line3DfitMS(Int_t nd, TGraph2DErrors* gr, TVector3 posS
   Double_t arglist[100];
   arglist[0] = 1;
   //  fmin->ExecuteCommand("SET PRINT",arglist,10);//output
-  fmin->ExecuteCommand("SET PRINT",arglist,0);//no output
-
+  //  fmin->ExecuteCommand("SET PRINT",arglist,0);//no output
+  ((TFitterMinuit*)fmin->GetFitter())->SetPrintLevel(fVerbose);
   if(fVerbose>5){
     cout<<"Number of hits = "<<Npoint<<endl;
     cout<<"posSeed:"<<endl;
@@ -768,8 +769,12 @@ double PndLmdLinFitTask::line3DfitMS(Int_t nd, TGraph2DErrors* gr, TVector3 posS
   if(edm>1e2*recpres) return 1e6; 
   if(fVerbose>1){
     cout<<"------------- Final result ---------------- "<<endl;
-    fmin->PrintResults(1,amin);
+    fmin->PrintResults(fVerbose,amin);
   }
+  // if(fVerbose>1){
+  //   cout<<"------------- Final result ---------------- "<<endl;
+  //   fmin->PrintResults(1,amin);
+  // }
   
    Double_t fitparerr[nparams];
    // get fit parameters
