@@ -1048,6 +1048,7 @@ void PndLmdTrackFinderCATask::Exec(Option_t* opt)
 	cout<<"Ooops, trk-cand has: theta="<<dir.Theta()<<" and phi="<<dir.Phi()<<endl;
       }
     //   hthetaphi->Fill(dir.Theta(),dir.Phi());
+    //   myTCand->CalcTimeStamp();
     const unsigned int numPts = myTCand->GetNHits(); //read how many points in this track
     if(fVerbose>4) htthetatphiTrk->Fill(dir.Theta(),dir.Phi(),numPts);
     bool cutTrkCand=false;
@@ -1121,7 +1122,7 @@ Double_t PndLmdTrackFinderCATask::GetTrackDip(PndMCTrack* myTrack)
   return (p.Mag()/TMath::Sqrt(p.Px()*p.Px() + p.Py()*p.Py()));
 }
 void PndLmdTrackFinderCATask::FinishTask(){
-  cout<<"!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! HO-HO!!!!"<<endl;
+  //cout<<"!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! HO-HO!!!!"<<endl;
   // TFile *fout = new TFile("/panda/pandaroot/macro/lmd/tmpOutnewDesign/CA_MultipleTrksCheck/mom_1_5/1trks/tgthetatgpgi_CAcells_1_5GeV_noSecondaries.root","RECREATE");
   if(fVerbose>4){
     //   htthetatphi->Print();
