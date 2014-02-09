@@ -1,37 +1,11 @@
+DrawField(TString Map, Double_t fBeamMom)
 {
   // Macro to plot the magnetic field
- 
-  gROOT->LoadMacro("$VMCWORKDIR/gconfig/basiclibs.C");
-  basiclibs();
-
-  // Load this example libraries
-  gSystem->Load("libGeoBase");
-  gSystem->Load("libParBase");
-  gSystem->Load("libBase");
-  gSystem->Load("libField");
-
-
-   PndMultiField *fField= new PndMultiField();
-
-   PndTransMap *map_t= new PndTransMap("TransMap", "R");
-   PndDipoleMap *map_d1= new PndDipoleMap("DipoleMap1", "R");
-   PndDipoleMap *map_d2= new PndDipoleMap("DipoleMap2", "R");
-   PndSolenoidMap *map_s1= new PndSolenoidMap("SolenoidMap1", "R");
-   PndSolenoidMap *map_s2= new PndSolenoidMap("SolenoidMap2", "R");
-   PndSolenoidMap *map_s3= new PndSolenoidMap("SolenoidMap3", "R");
-   PndSolenoidMap *map_s4= new PndSolenoidMap("SolenoidMap4", "R");
-
-   fField->AddField(map_t);
-   fField->AddField(map_d1);
-   fField->AddField(map_d2);
-   fField->AddField(map_s1);
-   fField->AddField(map_s2);
-   fField->AddField(map_s3);
-   fField->AddField(map_s4);
-
-   fField->Init();
    
-     
+    Map.ToUpper();
+    PndMultiField *fField = new PndMultiField(Map.Data(), fBeamMom);
+
+    fField->Init();
      
      Double_t x=0;
      Double_t y=0;
