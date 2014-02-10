@@ -6,14 +6,10 @@ int QAmacro_evtgen_1()
   timer.Start();
 
   TString BaseDir =  gSystem->Getenv("VMCWORKDIR");
-  TString DECAYInput = BaseDir + "/pgenerators/EvtGen/DECAY.DEC";
-  TString PDLInput = BaseDir + "/pgenerators/EvtGen/evt.pdl";
-
-  gROOT->LoadMacro("$VMCWORKDIR/gconfig/rootlogon.C");
-  rootlogon();
+  TString DECAYInput = BaseDir + "/pgenerators/EvtGenNew/EvtGen/Private/DECAY.DEC";
+  TString PDLInput = BaseDir + "/pgenerators/EvtGenNew/EvtGen/Private/evt.pdl";
 
   Bool_t fTest=kFALSE;
-  if( gSystem->Load("libEvtGen")>=0 && gSystem->Load("libEvtGenDirect")>=0){ 
   
   FairRunSim *fRun = new FairRunSim();
 
