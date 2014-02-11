@@ -64,7 +64,7 @@ int QAmacro_evtgen_1()
   // ------------------------------------------------------------------------
 
   fTest = kTRUE;
-	}
+
 
   if (fTest){
     cout << " Test Passed" << endl;
