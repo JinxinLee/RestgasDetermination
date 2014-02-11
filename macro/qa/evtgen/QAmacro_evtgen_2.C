@@ -6,15 +6,11 @@ int QAmacro_evtgen_2()
   timer.Start();
 
   TString BaseDir =  gSystem->Getenv("VMCWORKDIR");
-  TString DECAYInput = BaseDir + "/pgenerators/EvtGen/DECAY.DEC";
-  TString PDLInput = BaseDir + "/pgenerators/EvtGen/evt.pdl";
+  TString DECAYInput = BaseDir + "/pgenerators/EvtGenNew/EvtGen/Private/DECAY.DEC";
+  TString PDLInput = BaseDir + "/pgenerators/EvtGenNew/EvtGen/Private/evt.pdl";
   TString USERInput = BaseDir + "/macro/qa/evtgen/test.dec";
 
-  gROOT->LoadMacro("$VMCWORKDIR/gconfig/rootlogon.C");
-  rootlogon();
-
   Bool_t fTest=kFALSE;
-  if( gSystem->Load("libEvtGen")>=0 && gSystem->Load("libEvtGenDirect")>=0){ 
   
   FairRunSim *fRun = new FairRunSim();
 
@@ -54,7 +50,7 @@ int QAmacro_evtgen_2()
   // ------------------------------------------------------------------------
 
   fTest = kTRUE;
-	}
+	
 
   if (fTest){
     cout << " Test Passed" << endl;
@@ -67,6 +63,6 @@ int QAmacro_evtgen_2()
   Double_t rtime = timer.RealTime();
   Double_t ctime = timer.CpuTime();
   printf("RealTime=%f seconds, CpuTime=%f seconds\n",rtime,ctime);
-  exit(0); 
+  //exit(0); 
 }  
   
