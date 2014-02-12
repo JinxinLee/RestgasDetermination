@@ -194,9 +194,8 @@ Bool_t PndSciT::ProcessHits(FairVolume* vol)
 		TVector3(fMomOut.Px(), fMomOut.Py(), fMomOut.Pz()),
 		fTime, fLength,fELoss);
 	 
-	 //PndStack* stack = (PndStack*) gMC->GetStack();
-	 
-	 //stack->AddPoint(kTOF);
+	 PndStack* stack = (PndStack*) gMC->GetStack();
+	 stack->AddPoint(kTOF);
 	 
 	 ResetParameters();
       }

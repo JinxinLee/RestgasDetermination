@@ -776,7 +776,7 @@ Bool_t PndEmc::ProcessHits(FairVolume* vol) {
 	 fTime, fLength, fELoss, nMod, nRow, nCrys, copyNo);
 
    // Increment number of emc points for TParticle
-  if (gMC->IsTrackEntering()) 
+  //if (gMC->IsTrackEntering()) 
     {
       PndStack* stack = (PndStack*) gMC->GetStack();
       stack->AddPoint(kEMC);
