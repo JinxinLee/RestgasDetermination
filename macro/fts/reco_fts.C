@@ -52,9 +52,9 @@ void reco_fts()
 
   PndFtsTrackerTaskHough* trackFts = new PndFtsTrackerTaskHough();
   trackFts->SetTrackOutput("FtsHoughTrack");
-  trackFts->SetPersistence(kFALSE);
+  trackFts->SetPersistence(kTRUE);
   trackFts->SetSaveDebugInfo(kTRUE);
-  trackFts->SetVerbose(0);
+  trackFts->SetVerbose(1);
   fRun->AddTask(trackFts);
 
 //  PndMCTrackAssociator* trackMCfwd = new PndMCTrackAssociator();
