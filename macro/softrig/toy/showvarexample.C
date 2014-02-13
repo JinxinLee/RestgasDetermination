@@ -51,43 +51,7 @@ void setStyle()
 	gStyle->SetNdivisions(505);
 }
 
-double bestSignificance(TH1* h1, TH1* h2, double &bestcut, double fac2=1.)
-{
-	int n=h1->GetNbinsX();
-	double sum1=0, sum2=0;
-	double bestr=0, bestl=0;
-	double int1 = h1->Integral();
-	double int2 = h2->Integral();
-	double bestcutl=-999.;
-	double bestcutr=999.;
-	
-	bestcut=-999.;
-	
-	for (int i=1;i<n;++i)
-	{
-		double cur1 = h1->GetBinContent(i)/int1;
-		double cur2 = h2->GetBinContent(i)/int2;
-		sum1 += cur1;
-		sum2 += cur2;
-		
-		double vall = 0, valr=0;
-		
-		if ((sum1+fac2*sum2)>0) vall=sum1/sqrt(fac2*sum2+sum1);
-		if ((1.-sum1+fac2*(1.-sum2))>0) valr=(1.-sum1)/sqrt(1.-sum1+fac2*(1.-sum2));
-		
-		if (valr>bestr) { bestr=valr; bestcutr = h1->GetBinCenter(i);}
-		if (vall>bestl) { bestl=vall; bestcutl = h1->GetBinCenter(i);}
-	}
-	
-	if (bestr>bestl) 
-	{
-		bestcut = bestcutr;
-		return bestr;
-	}
-	
-	bestcut = bestcutl;
-	return bestl;
-}
+
 
 int countEvents(TTree *t, TString ccut)
 {
@@ -114,68 +78,6 @@ int countEvents(TTree *t, TString ccut)
 	return evcnt.size();
 }
 
-double diffQA(TH1F &ht1, TH1F &ht2)
-{
-	int n=ht1.GetNbinsX();
-	TH1F h1=ht1;
-	TH1F h2=ht2;
-	h1.Scale(1.0/h1.Integral());
-	h2.Scale(1.0/h2.Integral());
-	h1.Add(&h2,-1);
-	
-	double sum=0.;
-	
-	for (int i=1;i<=n;++i)
-	{
-		sum+=fabs(h1.GetBinContent(i));
-	}
-	
-	return sum;
-}
-
-double bestSuppression(TH1* h1, TH1* h2, double &bestcut, double eff=0.9)
-{
-	int n=h1->GetNbinsX();
-	double sum1=0, sum2=0;
-	double bestr=0, bestl=0;
-	double int1 = h1->Integral();
-	double int2 = h2->Integral();
-	double bestcutl=-999.;
-	double bestcutr=999.;
-	
-	bestcut=-999.;
-	int i=1;
-	
-	while (sum1<eff)
-	{
-		sum1 += h1->GetBinContent(i)/int1;
-		sum2 += h2->GetBinContent(i++)/int2;	
-	}
-	bestr=(1.0-sum2);
-	bestcutr = h1->GetBinCenter(i-1);
-	
-	sum1=0;
-	sum2=0;
-	i=n;
-	
-	while (sum1<eff)
-	{
-		sum1 += h1->GetBinContent(i)/int1;
-		sum2 += h2->GetBinContent(i--)/int2;	
-	}
-	
-	bestl=(1.0-sum2);
-	bestcutl = h1->GetBinCenter(i-1);
-		
-	if (bestr>bestl) 
-	{
-		bestcut = bestcutr;
-		return bestr;
-	}
-	
-	bestcut = bestcutl;
-	return bestl;
-}
 double suppression(TH1* h1, TH1* h2, double cut)
 {
 	int n=h1->GetNbinsX();
@@ -192,51 +94,6 @@ double suppression(TH1* h1, TH1* h2, double cut)
 	}
 	return sum2;
 }
-
-double bestEff(TH1* h1, TH1* h2, double &bestcut, double supr2=0.8, double fac2=1.)
-{
-	int n=h1->GetNbinsX();
-	double sum1=0, sum2=0;
-	double bestr=0, bestl=0;
-	double int1 = h1->Integral();
-	double int2 = h2->Integral();
-	double bestcutl=-999.;
-	double bestcutr=999.;
-	
-	bestcut=-999.;
-	int i=1;
-	
-	while (sum2<supr2)
-	{
-		sum1 += h1->GetBinContent(i)/int1;
-		sum2 += h2->GetBinContent(i++)/int2;	
-	}
-	bestr=(1.0-sum1);
-	bestcutr = h1->GetBinCenter(i-1);
-	
-	sum1=0;
-	sum2=0;
-	i=n;
-	
-	while (sum2<supr2)
-	{
-		sum1 += h1->GetBinContent(i)/int1;
-		sum2 += h2->GetBinContent(i--)/int2;	
-	}
-	
-	bestl=(1.0-sum1);
-	bestcutl = h1->GetBinCenter(i-1);
-		
-	if (bestr>bestl) 
-	{
-		bestcut = bestcutr;
-		return bestr;
-	}
-	
-	bestcut = bestcutl;
-	return bestl;
-}
-
 void findLimits(TTree *t, TString var, TString ccut, double &low, double &high, double frac = 0.98)
 {
 	low  = t->GetMinimum(var);
@@ -271,7 +128,7 @@ void findLimits(TTree *t, TString var, TString ccut, double &low, double &high, 
 	t->SetEventList(0);	
 }
 
-void drawHistos(TTree *t, TString var, TString title, TString precut, TString newcut, double val)
+void drawHistos(TTree *t, TString var, TString title, TString precut, TString newcut, double val, double val2=-999.)
 {
 	double sigl, sigh, bgl, bgh;
 
@@ -286,6 +143,12 @@ void drawHistos(TTree *t, TString var, TString title, TString precut, TString ne
 	TLatex lt2;
 	lt2.SetTextSize(0.06);
 	lt2.SetTextColor(kBlue+2);
+	
+/*	double preeffb = countEvents(t, "mode==900&&tag");
+	double preeffs = countEvents(t, "mode!=900&&tag");
+	preeffb/=500000.;
+	preeffs/=50000.;*/
+	
 	
 	double eff=countEvents(t, "mode==900&&tag&&"+precut+"&&"+newcut);
 	cout <<eff<<endl;
@@ -302,6 +165,8 @@ void drawHistos(TTree *t, TString var, TString title, TString precut, TString ne
 			
 	if (sigl>bgl) sigl=bgl;
 	if (sigh<bgh) sigh=bgh;
+	
+	if (var=="dtht") sigh=0.5;
 	
 	TH1F *h1=new TH1F("h1",title,200,sigl,sigh);
 	TH1F *h2=new TH1F("h2",title,200,sigl,sigh);
@@ -330,6 +195,7 @@ void drawHistos(TTree *t, TString var, TString title, TString precut, TString ne
 	double axmin = h1->GetXaxis()->GetXmin(),axmax = h1->GetXaxis()->GetXmax(); 
 	
 	l.DrawLine(val,0, val, maxi*0.9);
+	if (val2!=-999) l.DrawLine(val2,0, val2, maxi*0.9);
 	
 	//lt.DrawLatex(axmin+(axmax-axmin)*0.03,0.65*maxi,TString::Format("#epsilon_{BG,cut} = %5.2f%%",100*(1-signi)));
 	lt.DrawLatex(axmin+(axmax-axmin)*0.53,0.53*maxi,TString::Format("#epsilon_{bg} = %5.2f%%",100*eff));
@@ -348,12 +214,12 @@ void showvarexample()
 	
 	int i,j;
 	
-	TFile *f=new TFile("M45_nds.root","READ");
+	TFile *f=new TFile("data/M55_ndpm.root","READ");
 	//TFile *f=new TFile(fname,"READ");
-	TTree *t=(TTree*)f->Get("nds");
+	TTree *t=(TTree*)f->Get("ndpm");
 	
-	TCanvas *c1=new TCanvas("c1","c1",10,10,1500,500);
-	c1->Divide(3,1);
+	TCanvas *c1=new TCanvas("c1","c1",10,10,1600,400);
+	c1->Divide(4,1);
 	TObjArray* branches = t->GetListOfBranches();
 	
 	TString bgcut = "mode==900 && tag";
@@ -372,21 +238,54 @@ void showvarexample()
 	TString var3 = "lampt"; 
 	TString cut3 = "lampt>1";
 	double val3 = 1;*/
+
+
+//dpcm>1.9&&dp>4&&ptmax>0.7&&dtht>0.09             *** sup 1000
 	
-	TString name1= "p(Ds) cms [GeV/c]";
-	TString var1 = "dspcm"; 
-	TString cut1 = "dspcm>0.9";
-	double val1 = 0.9;
+	TString name1= "dpcm [GeV/c]";
+	TString var1 = "dpcm"; 
+	TString cut1 = "dpcm>1.9";
+	double val1 = 1.9;
+	double val11 =-999;
 
-	TString name2= "p(Ds) cms [GeV/c]";
-	TString var2 = "dspcm"; 
-	TString cut2 = "dspcm<1.35"; 
-	double val2 = 1.35;
+	TString name2= "dp [GeV/c]";
+	TString var2 = "dp"; 
+	TString cut2 = "dp>4"; 
+	double val2 = 4;
 
-	TString name3= "p_{t} (max. in event) [GeV/c]";
+	TString name3= "ptmax [GeV/c]";
 	TString var3 = "ptmax"; 
-	TString cut3 = "ptmax>0.55";
-	double val3 = 0.55;
+	TString cut3 = "ptmax>0.7";
+	double val3 = 0.7;
+
+	TString name4= "dtht [rad]";
+	TString var4 = "dtht"; 
+	TString cut4 = "dtht>0.09";
+	double val4 = 0.09;
+
+	//abs(dpcm-2.05)<0.2&&dp>2&&dpt>0.5&&ptmax>0.5	 *** eff 90
+
+
+// 	TString name1= "dpcm [GeV/c]";
+// 	TString var1 = "dpcm"; 
+// 	TString cut1 = "abs(dpcm-2.05)<0.2";
+// 	double val1 = 1.85;
+// 	double val11 =2.25;
+// 
+// 	TString name2= "dp [GeV/c]";
+// 	TString var2 = "dp"; 
+// 	TString cut2 = "dp>2"; 
+// 	double val2 = 2;
+// 
+// 	TString name3= "ptmax [GeV/c]";
+// 	TString var3 = "ptmax"; 
+// 	TString cut3 = "ptmax>0.5";
+// 	double val3 = 0.5;
+// 
+// 	TString name4= "dpt [GeV/c]";
+// 	TString var4 = "dpt"; 
+// 	TString cut4 = "dpt>0.5";
+// 	double val4 = 0.5;
 
 	double preEff = countEvents(t, bgcut);
 	cout <<preEff<<endl;
@@ -399,11 +298,13 @@ void showvarexample()
 	t->SetEventList(&el1);*/
 	
 	c1->cd(1);
-	drawHistos(t, var1,name1, "1",cut1,val1);
+	drawHistos(t, var1,name1, "1",cut1,val1,val11);
 	c1->cd(2);
 	drawHistos(t, var2,name2, cut1,cut2,val2);
 	c1->cd(3);
 	drawHistos(t, var3,name3, cut1+"&&"+cut2,cut3,val3);
+	c1->cd(4);
+	drawHistos(t, var4,name4, cut1+"&&"+cut2+"&&"+cut3,cut4,val4);
 	c1->Update();
 	
 	

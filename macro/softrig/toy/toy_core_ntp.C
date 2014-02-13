@@ -89,7 +89,130 @@ void init_modes()
 	modes["DPM"] 	= "900";
 }
 
-void init_cuts(TString energy)
+void init_cuts_1000(TString energy)
+{
+	if (energy=="24")
+	{
+		cuts["nphi"] 	= "pmax<0.6&&phipcm>0.55&&phipcm<0.7";
+		cuts["nlam"] 	= "abs(lampcm-0.44)<0.04&&fw1>0.1&&fw2>0.1";
+		cuts["nee"] 	= "1";
+	}
+	else if (energy=="38")
+	{
+		cuts["nphi"]  	= "thr>0.87&&phipcm>1.35&&phip>0.8";
+		cuts["nlam"]  	= "fw2>0.66&&fw5>0.21&&lampcm>1.4&&fw1<0.75";
+		cuts["nee"]  	= "1";
+		cuts["njpsi1"] 	= "1";
+		cuts["njpsi2"] 	= "1";
+		cuts["netac"] 	= "sumpc>3.3&&ptmax>0.83&&etace>5.5";
+		cuts["nd0"]  	= "abs(d0pcm-0.275)<0.045&&d0e>3.1&&ptmax>0.68&&pmax>0.85";
+		cuts["ndpm"] 	= "abs(dpcm-0.23)<0.03&&de>3.3&&ptmax>0.58&&pmax<0.8";
+		
+	}
+	else if (energy=="45")
+	{
+		cuts["nphi"]  	= "thr>0.93&&phipcm>1.8";
+		cuts["nlam"]  	= "lampcm>1.7&&fw2>0.75&&lamtht>0.09&&fw4>0.5&&pmax>1.4";
+		cuts["nee"]  	= "1";
+		cuts["njpsi1"] 	= "sumpc>3";
+		cuts["njpsi2"] 	= "sumpc>3";
+		cuts["netac"] 	= "sumptc>3&&ptmax>0.7&&sumpc>4.1&&ptmax>0.85";
+		cuts["nd0"]  	= "abs(d0pcm-1.28)<0.09&&ptmax>1&&sumpt>3&&d0tht<0.31";
+		cuts["ndpm"] 	= "abs(dpcm-1.25)<0.05&&ptmax>0.87&&abs(dp-5)<2&&dpt>1.1";
+		cuts["nds"] 	= "abs(dspcm-1.1)<0.07&&ptmax>0.85&&dspt>0.8&&dstht<0.27";
+	}
+	else if (energy=="55")
+	{
+		cuts["nphi"]  	= "thr>0.955&&phipcm>2";
+		cuts["nlam"]  	= "fw2>0.87&&sumptc>0.9&&lampcm>2.2&&fw1>-0.1";
+		cuts["nee"]  	= "1";
+		cuts["njpsi1"] 	= "sumptc>2.1&&pmax>1.5";
+		cuts["njpsi2"] 	= "sumptc>2.1&&pmax>1.5";
+		cuts["netac"] 	= "ptmax>1&&sumptc>2.6&&sumpc>4.9";
+		cuts["nd0"]  	= "d0pcm>1.8&&sumpt>2.7&&ptmax>0.8&&d0pt>1.3&&d0tht<0.41";
+		cuts["ndpm"] 	= "dpcm>1.9&&dp>4&&ptmax>0.7&&dtht>0.09";
+		cuts["nds"] 	= "dspcm>1.8&&ptmax>0.8&&dsp>3&&dspt>1&&dspcm<2.1";
+		cuts["nlamc"] 	= "lamcpcm>1.43&&lamcpcm<1.65&&fw1>0&&lamcpt>1.27";
+		
+	}
+	else
+	{
+		cuts["nphi"]  	= "1";
+		cuts["nlam"]  	= "1";
+		cuts["nee"]  	= "1";
+		cuts["njpsi1"] 	= "1";
+		cuts["njpsi2"] 	= "1";
+		cuts["netac"] 	= "1";
+		cuts["nd0"]  	= "1";
+		cuts["ndpm"] 	= "1";
+		cuts["nds"] 	= "1";
+		cuts["nlamc"] 	= "1";
+	}
+}
+
+void init_cuts_95(TString energy)
+{
+	if (energy=="24")
+	{
+		cuts["nphi"] 	= "pmax<0.6&&phipcm>0.55&&phipcm<0.7";
+		cuts["nlam"] 	= "abs(lampcm-0.44)<0.04&&fw1>0.1&&fw2>0.1";
+		cuts["nee"] 	= "1";
+	}
+	else if (energy=="38")
+	{
+		cuts["nphi"]  	= "thr>0.87&&phipcm>1.35&&phip>0.8";
+		cuts["nlam"]  	= "fw2>0.66&&fw5>0.21&&lampcm>1.4&&fw1<0.75";
+		cuts["nee"]  	= "1";
+		cuts["njpsi1"] 	= "1";
+		cuts["njpsi2"] 	= "1";
+		cuts["netac"] 	= "etace>4.95&&sumpc>2.9&&etacpcm<0.75&&sumptc>1.63";
+		cuts["nd0"]  	= "abs(d0pcm-0.285)<0.085&&d0e>3.2&&ptmax>0.415";
+		cuts["ndpm"] 	= "abs(dpcm-0.2425)<0.0625&&dp>2.65&&ptmax>0.3&&de>3.25";
+		
+	}
+	else if (energy=="45")
+	{
+		cuts["nphi"]  	= "thr>0.93&&phipcm>1.8";
+		cuts["nlam"]  	= "lampcm>1.7&&fw2>0.75&&lamtht>0.09&&fw4>0.5&&pmax>1.4";
+		cuts["nee"]  	= "1";
+		cuts["njpsi1"] 	= "sumpc>3";
+		cuts["njpsi2"] 	= "sumpc>3";
+		cuts["netac"] 	= "sumptc>2.06&&ptmax>0.64&&sumpc>3.45&&pmax>0.8&&etace>5";
+		cuts["nd0"]  	= "abs(d0pcm-1.27)<0.13&&ptmax>0.64&&d0e>2.7";
+		cuts["ndpm"] 	= "abs(dpcm-1.255)<0.105&&de>2.6&&ptmax>0.48&&dtht<0.33";
+		cuts["nds"] 	= "abs(dspcm-1.095)<0.096&&dse>2.9&&ptmax>0.39&&dstht<0.28";
+	}
+	else if (energy=="55")
+	{
+		cuts["nphi"]  	= "thr>0.955&&phipcm>2";
+		cuts["nlam"]  	= "fw2>0.87&&sumptc>0.9&&lampcm>2.2&&fw1>-0.1";
+		cuts["nee"]  	= "1";
+		cuts["njpsi1"] 	= "sumptc>2.1&&pmax>1.5";
+		cuts["njpsi2"] 	= "sumptc>2.1&&pmax>1.5";
+		cuts["netac"] 	= "ptmax>0.75&&pmax>1.1&&sumptc>2.8&&sumpc>4";
+		cuts["nd0"]  	= "d0pcm>1.84&&sumpt>2.1&&d0e>2.1&&ptmax>0.8&&d0tht<0.45";
+		cuts["ndpm"] 	= "abs(dpcm-2.05)<0.2&&dp>2&&dpt>0.5&&ptmax>0.5";
+		cuts["nds"] 	= "abs(dspcm-1.96)<0.24&&ptmax>0.55&&dse>3";
+		cuts["nlamc"] 	= "abs(lamcpcm-1.54)<0.16&&fw1>-0.05&&lamcp>3.3&&sumptc>1.3";
+		
+	}
+	else
+	{
+		cuts["nphi"]  	= "1";
+		cuts["nlam"]  	= "1";
+		cuts["nee"]  	= "1";
+		cuts["njpsi1"] 	= "1";
+		cuts["njpsi2"] 	= "1";
+		cuts["netac"] 	= "1";
+		cuts["nd0"]  	= "1";
+		cuts["ndpm"] 	= "1";
+		cuts["nds"] 	= "1";
+		cuts["nlamc"] 	= "1";
+	}
+}
+
+
+void init_cuts_old(TString energy)
 {
 	if (energy=="24")
 	{
@@ -225,7 +348,6 @@ void fillHistos(TTree *t, TString var, TString cut, TString all, TString sel, TS
 	t->Project(all,var,cut);
 	t->Project(sel,var,cut+" && tag");
 	t->Project(sig,var,cut+" && mct");
-	
 }
 
 void toy_core_ntp(TString fname, int nev=50, bool tagonly=false)
@@ -236,15 +358,18 @@ void toy_core_ntp(TString fname, int nev=50, bool tagonly=false)
 	setStyle();	
 	init_modes();
 	
-	TString mode(fname(6,3));
-	
-	TString energy(fname(4,2));
+	TString mode(fname(fname.Last('/')+7,3));
+
+	TString energy(fname(fname.Last('/')+5,2));
 	double sqrts=energy.Atof();
 	
+/*	cout <<mode<<" "<<energy<<endl;
+	return;*/
+	
 	if (tagonly)
-		init_cuts("");
+		init_cuts_1000("");
 	else
-		init_cuts(energy);
+		init_cuts_1000(energy);
 	
 	
 	TFile *f=new TFile(fname);
@@ -253,6 +378,7 @@ void toy_core_ntp(TString fname, int nev=50, bool tagonly=false)
 	for (i=0;i<10;++i)
 	{
 		t[i]=(TTree*)f->Get(ntpname[i]);
+//		cout <<t[i]<<endl;
 	}
 	
 	TCanvas *c2=new TCanvas("c2","c2",20,20,1800,800);
@@ -463,18 +589,19 @@ void toy_core_ntp(TString fname, int nev=50, bool tagonly=false)
 	
 	c2->cd();
 	
-	TString plot(fname(0,9));
-	if (!tagonly) plot+="_opt";
+//	TString plot(fname(0,9));
+    TString plot(fname(fname.Last('/')+5,5));
+	if (!tagonly) plot+="_opt_supr1000";
 	
-	c2->SaveAs("fig/"+plot+"_eff90.gif");
-	c2->SaveAs("fig/"+plot+"_eff90.pdf");
+	c2->SaveAs("figtoy_v2/toy_"+plot+".gif");
+	c2->SaveAs("figtoy_v2/toy_"+plot+".pdf");
 	
 	std::ofstream ofs;
 	
-	ofs.open("test_eff90.txt", std::ofstream::out | std::ofstream::app);
+	ofs.open("toy_supr1000.txt", std::ofstream::out | std::ofstream::app);
 	TString result=TString::Format("%s & %3.1f & %6.2f & %6.2f & %6.2f & %6.2f & %6.2f & %6.2f & %6.2f & %6.2f & %6.2f & %6.2f & %6.2f \\\\\n",
 								   mode.Data(), sqrts/10., eff[2], eff[0], eff[5], eff[3], eff[4], eff[6], eff[7], eff[8], eff[1], eff[9], evCnt/nev*100);
-	//cout <<result;							
+	cout <<result;							
 	ofs <<result;
 	ofs.close();
 }

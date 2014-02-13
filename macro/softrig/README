@@ -25,7 +25,7 @@ In this directory are several files to run the complete simulation chain + soft-
 
 - runall_sof.sh: Run complete macro sequence (sim, digi, reco, pid, soft-trigger) from above
   
-  USAGE: ./runall_sof.h <mode> <nevts> <dec> <mom> <res>
+  USAGE: ./runall_sof.sh <mode> <nevts> <dec> <mom> <res>
 
     <mode>  : E_cms shortcut (24,38,45,55)+<code>, e.g. 38201 : J/psi(->mu mu) pi pi @ sqrt(s) = 3.77 GeV
     <nevts> : number of events to run

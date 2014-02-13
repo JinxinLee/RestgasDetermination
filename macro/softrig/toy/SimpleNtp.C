@@ -17,7 +17,7 @@ public:
 		fMax=maxsize;
 	};
 		
-	~SimpleNtp(){delete fTree;}
+	~SimpleNtp(){delete fTree; delete[] fValues;}
 	
 	void Column(TString name, Float_t value);
 	void DumpData() { fTree->Fill(); }

@@ -28,7 +28,7 @@ void attachFiles(FairRunAna* fRun, TString pref, int min, int max)
 	}
 }
 
-void qa_softtrig(TString pref="M9999", int mode, double pmom, int from=1, int to=1, int nEvents=0)
+void qa_softtrig(TString pref="M9999", int mode, double pmom, int from=1, int to=1, int nEvents=0, int run=0)
 {
   	TString OutFile   = TString::Format("%s_%d_%d_sof.root",pref.Data(),from, to); 
 	
@@ -60,7 +60,7 @@ void qa_softtrig(TString pref="M9999", int mode, double pmom, int from=1, int to
   
 	
 	// *** HERE OUR TASK GOES!
-	PndSoftTriggerTask *stTask = new PndSoftTriggerTask(pmom, mode);
+	PndSoftTriggerTask *stTask = new PndSoftTriggerTask(pmom, mode, run);
 	
 	stTask->SetTag_All(true);		// tag all modes
 	stTask->SetQA_All(true);		// ntuple output for all modes
