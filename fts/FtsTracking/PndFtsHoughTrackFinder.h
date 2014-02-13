@@ -244,7 +244,12 @@ private:
 
 
 
-
+	Bool_t FilterFoundTracklets(
+			UInt_t maxAcceptableSharedHits,
+			std::vector<PndFtsHoughTracklet> &tracklets
+	);
+	// takes the heighest peak (according to peak finder)
+	// of all peaks that share > maxSameHits
 
 
 	Bool_t FindAllPeaks(

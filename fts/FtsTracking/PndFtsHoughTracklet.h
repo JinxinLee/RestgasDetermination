@@ -28,33 +28,8 @@ public:
 
 	// Constructors/Destructors ---------
 	PndFtsHoughTracklet();
-//	PndFtsHoughTracklet(const PndFtsHoughTracklet& other);
 	~PndFtsHoughTracklet();
-//	PndFtsHoughTracklet& operator=(PndFtsHoughTracklet other) // http://stackoverflow.com/questions/3279543/what-is-the-copy-and-swap-idiom
-//	{
-//	    swap(*this, other);
-//	    return *this;
-//	}
-//
-//	friend void swap(PndFtsHoughTracklet& first, PndFtsHoughTracklet& second) // nothrow
-//	{
-//		// enable ADL (not necessary in our case, but good practice)
-//		using std::swap;
-//
-//		// by swapping the members of two classes,
-//		// the two classes are effectively swapped
-//		swap(first.fVerbose, second.fVerbose);
-//		swap(first.fIsSet, second.fIsSet);
-//		swap(first.fPeakHeightFromPeakFinder, second.fPeakHeightFromPeakFinder);
-//		swap(first.fThetaVal, second.fThetaVal);
-//		swap(first.fThetaHw, second.fThetaHw);
-//		swap(first.fSecondVal, second.fSecondVal);
-//		swap(first.fSecondHw, second.fSecondHw);
-//	}
 
-	// operators
-	// PndFtsHoughTracklet are the same if they contain the same hits, that means if the PndTrackCand are the same, therefore no need to implement that operator here
-//	bool operator= (const PndFtsHoughTracklet& rhs);
 
 	// Accessors -----------------------
 	void Print();
@@ -67,9 +42,13 @@ public:
 	Double_t getSecondVal() const { return fSecondVal; };
 	Double_t getSecondHw() const { return fSecondHw; };
 
+	UInt_t getNumberOfSharedHits(PndFtsHoughTracklet& rhs);
+
+
 	// Modifiers -----------------------
 	// add results from Hough transforms
 	void SetHoughTransformResults(const Double_t thetaVal, const Double_t secondVal, const Double_t peakHeight, const Double_t thetaHw, const Double_t secondHw);
+
 
 
 

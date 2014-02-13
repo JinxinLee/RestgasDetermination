@@ -2,6 +2,7 @@
 
 #include <iostream>
 #include <math.h>
+#include <set>
 
 // FTS
 #include "PndGeoFtsPar.h"
@@ -104,34 +105,34 @@ void PndFtsHoughTrackFinder::Initialization_ClassVariables()
 void PndFtsHoughTrackFinder::WriteHistograms(){
 	// TODO: Change this to save all Hough spaces (for each peak found in first line I get a parabola Hough space)
 	// BUG: This does not work
-//	TFile* file = FairRootManager::Instance()->GetOutFile();
-//	if (0==file)
-//	{
-//		std::cout << "Cannot get outfile.\n";
-//	}
-//	else
-//	{
-//		file->cd();
-//		file->mkdir("PndFtsHoughTrackFinder");
-//		file->cd("PndFtsHoughTrackFinder");
-//		std::cout << "Worked.\n";
-//		//		if (0!=fHoughspaceZxLineParabola)
-//		//		{
-//		//			fHoughspaceZxLineParabola->Write();
-//		//		}
-//		//		if (0!=fHoughspaceZxParabola)
-//		//		{
-//		//			fHoughspaceZxParabola->Write();
-//		//		}if (0!=fHoughspaceZxParabolaLine)
-//		//		{
-//		//			fHoughspaceZxParabolaLine->Write();
-//		//		}if (0!=fHoughspaceZyLine)
-//		//		{
-//		//			fHoughspaceZyLine->Write();
-//		//		}
-//		file->Close();
-//		delete file;
-//	}
+	//	TFile* file = FairRootManager::Instance()->GetOutFile();
+	//	if (0==file)
+	//	{
+	//		std::cout << "Cannot get outfile.\n";
+	//	}
+	//	else
+	//	{
+	//		file->cd();
+	//		file->mkdir("PndFtsHoughTrackFinder");
+	//		file->cd("PndFtsHoughTrackFinder");
+	//		std::cout << "Worked.\n";
+	//		//		if (0!=fHoughspaceZxLineParabola)
+	//		//		{
+	//		//			fHoughspaceZxLineParabola->Write();
+	//		//		}
+	//		//		if (0!=fHoughspaceZxParabola)
+	//		//		{
+	//		//			fHoughspaceZxParabola->Write();
+	//		//		}if (0!=fHoughspaceZxParabolaLine)
+	//		//		{
+	//		//			fHoughspaceZxParabolaLine->Write();
+	//		//		}if (0!=fHoughspaceZyLine)
+	//		//		{
+	//		//			fHoughspaceZyLine->Write();
+	//		//		}
+	//		file->Close();
+	//		delete file;
+	//	}
 }
 
 
@@ -326,9 +327,9 @@ void PndFtsHoughTrackFinder::FindTracks() {
 
 
 
-//	if (0<fSaveDebugInfo){
-//		WriteHistograms();
-//	}
+	//	if (0<fSaveDebugInfo){
+	//		WriteHistograms();
+	//	}
 
 
 	if(0<fVerbose) {
@@ -346,6 +347,58 @@ void PndFtsHoughTrackFinder::FindTracks() {
 
 
 }
+
+
+
+Bool_t PndFtsHoughTrackFinder::FilterFoundTracklets(
+		UInt_t maxAcceptableSharedHits,
+		std::vector<PndFtsHoughTracklet> &tracklets
+)
+{
+	// to store indices that I want to "delete"
+	std::set<UInt_t> indicesToDelete;
+	std::set<UInt_t>::iterator findIndex;
+
+
+	// compare all tracklets with each other
+	for (UInt_t iTrackletLeft = 0; iTrackletLeft < tracklets.size(); ++iTrackletLeft)
+	{
+		for (UInt_t iTrackletRight = iTrackletLeft+1; iTrackletRight < tracklets.size(); ++iTrackletRight)
+		{
+			// check if two tracks share too many hits
+			const UInt_t numberOfSharedHits = tracklets[iTrackletLeft].getNumberOfSharedHits(tracklets[iTrackletRight]);
+			if (numberOfSharedHits>maxAcceptableSharedHits){
+				// mark the peak with the lower "height" for deletion
+				const Double_t heightLeft = tracklets[iTrackletLeft].getPeakHeightFromPeakFinder();
+				const Double_t heightRight = tracklets[iTrackletRight].getPeakHeightFromPeakFinder();
+				if (heightLeft>heightRight){
+					indicesToDelete.insert(iTrackletRight);
+				} else if (heightLeft<heightRight){
+					indicesToDelete.insert(iTrackletLeft);
+				} else if (heightLeft==heightRight){
+					std::cout << "WARNING: Found two peaks of the same height that share " <<  numberOfSharedHits << " hits.\n";
+				}
+			}
+
+		}
+	} // end for loop: compare all tracklets with each other
+	// create new vector and copy all entries from input vector to it which are not marked for deletion
+	std::vector<PndFtsHoughTracklet> filteredTracklets;
+	for (UInt_t iTracklet = 0; iTracklet < tracklets.size(); ++iTracklet)
+	{
+		// check if the index is marked for "deletion"
+		findIndex = indicesToDelete.find(iTracklet);
+		if (findIndex == indicesToDelete.end()){
+			// index was not found -> entry is not marked for deletion -> I should copy it
+			filteredTracklets.push_back(tracklets[iTracklet]);
+		}
+	}
+	// replace input tracklets with filtered ones
+	tracklets = filteredTracklets;
+	return kTRUE;
+}
+
+
 
 
 
