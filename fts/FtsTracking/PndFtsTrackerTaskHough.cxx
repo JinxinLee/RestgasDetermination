@@ -1,0 +1,322 @@
+#include "PndFtsTrackerTaskHough.h"
+#include <iostream>
+#include <math.h>
+
+// FTS
+#include "PndGeoFtsPar.h"
+#include "PndFtsMapCreator.h"
+#include "PndFtsHit.h"
+#include "FairHit.h"
+
+// magnetic field
+#include "FairField.h"
+#include "TVector3.h"
+
+// (Hough) tracking
+#include "PndFtsHoughTrackFinder.h"
+#include "PndTrackCand.h"
+#include "PndTrack.h"
+#include "FairTrackParP.h"
+#include "PndFtsHoughTrackCand.h"
+
+// histogramming / plotting
+#include "TH1.h"
+#include "TH2.h"
+#include "TGraph.h"
+
+// peak finder
+#include "TSpectrum2.h"
+
+// root IO
+#include "TClonesArray.h"
+#include "FairRunAna.h"
+#include "FairRootManager.h"
+#include "FairRuntimeDb.h"
+#include "FairTask.h"
+
+
+
+
+
+
+// TODO this list can probably be shorter
+//#include "PndDetectorList.h"
+
+// Root includes
+#include "TROOT.h"
+#include "TString.h"
+#include "TClonesArray.h"
+#include "TParticlePDG.h"
+
+// framework includes
+#include "FairRootManager.h"
+#include "FairRun.h"
+#include "FairRuntimeDb.h"
+#include "FairRunAna.h"
+
+
+#include "TObjectTable.h"
+
+#include "PndFtsMapCreator.h"
+
+
+using std::cout;
+using std::endl;
+
+
+
+
+
+
+// ---- Default constructor -------------------------------------------
+PndFtsTrackerTaskHough::PndFtsTrackerTaskHough()
+: FairTask("PndFtsTrackerTaskHough")
+{
+	if(fVerbose>3) Info(MESSAGE_ORIGIN,"Default Constructor of PndFtsTrackerTaskHough");
+	Initialization_ClassVariables();
+}
+
+// ---- Destructor ----------------------------------------------------
+PndFtsTrackerTaskHough::~PndFtsTrackerTaskHough()
+{
+	if(fVerbose>3) Info(MESSAGE_ORIGIN,"Destructor of PndFtsTrackerTaskHough");
+}
+
+
+
+
+void PndFtsTrackerTaskHough::Initialization_ClassVariables()
+{
+	// in case of multiple constructors this method is useful
+
+	// general
+	//	fSaveDebugInfo=kFALSE;
+	fVerbose = 0;
+	fPersistence = kTRUE;
+
+	// arrays
+	fFtsParameters=0;
+	fFtsTubeArray=0;
+	fFtsHitArray=0;
+	fFtsBranchID=0;
+	fTracksArrayName="FTSTrkHough";
+	SetTrackOutput();
+	fHoughTrackCands = 0;
+	fTrackCands = 0;
+	fTracks = 0;
+}
+
+
+
+
+// ----  Initialisation  ----------------------------------------------
+void PndFtsTrackerTaskHough::SetParContainers()
+{
+	if(fVerbose>3) Info(MESSAGE_ORIGIN,"SetParContainers of PndFtsTrackerTaskHough");
+
+	// FTS parameters
+	FairRuntimeDb *rtdb= FairRun::Instance()->GetRuntimeDb();
+	fFtsParameters=(PndGeoFtsPar*)(rtdb->getContainer("PndGeoFtsPar"));
+}
+
+// ---- Init ----------------------------------------------------------
+InitStatus PndFtsTrackerTaskHough::Init()
+{
+	if(fVerbose>3) Info("Init","Initilization of PndFtsTrackerTaskHough");
+
+	// Get a handle from the IO manager
+	FairRootManager* ioman = FairRootManager::Instance();
+	if ( ! ioman ) {
+		fLogger->Fatal(MESSAGE_ORIGIN,"RootManager not instantiated, return!");
+		return kFATAL;
+	}
+
+	// Get a pointer to the previous already existing data level
+	/*
+    <InputDataLevel> = (TClonesArray*) ioman->GetObject("InputDataLevelName");
+    if ( ! <InputLevel> ) {
+    fLogger->Error(MESSAGE_ORIGIN,"No InputDataLevelName array!\n PndFtsTrackerTaskHough will be inactive");
+    return kERROR;
+    }
+	 */
+
+	// Create the TClonesArray for the output data and register
+	// it in the IO manager
+	/*
+    <OutputDataLevel> = new TClonesArray("OutputDataLevelName", 100);
+    ioman->Register("OutputDataLevelName","OutputDataLevelName",<OutputDataLevel>,kTRUE);
+	 */
+
+	// Do whatever else is needed at the initilization stage
+	// Create histograms to be filled
+	// initialize variables
+
+
+
+
+	// FTS Hits
+	fFtsHitArray= (TClonesArray *)ioman->GetObject("FTSHit");
+	if ( ! fFtsHitArray ) {
+		if(fVerbose>3) Info(MESSAGE_ORIGIN,"No FTSHit array!");
+		return kERROR;
+	}
+
+	// FTS Branch
+	fFtsBranchID = 	ioman->GetBranchId("FTSHit");
+
+	// FTS Tube Array
+	PndFtsMapCreator *mapperFts = new PndFtsMapCreator(fFtsParameters);
+	fFtsTubeArray = mapperFts->FillTubeArray();
+
+
+	// B field
+	if(fVerbose>3) Info("Init","Try to get B field.");
+	fField = FairRunAna::Instance()->GetField();
+	if ( ! fField ) {
+		if(fVerbose>3) Info(MESSAGE_ORIGIN,"No fField array!");
+		return kERROR;
+	}
+
+
+
+	fHoughTrackCands = new TClonesArray("PndFtsHoughTrackCand");
+	ioman->Register("PndFtsHoughTrackCand", "FTSTrkDebug", fHoughTrackCands, fSaveDebugInfo);
+
+
+	fTrackCands = new TClonesArray("PndTrackCand");
+	fTracks = new TClonesArray("PndTrack");
+	ioman->Register(fTracksArrayName,"FTSTrk", fTracks, fPersistence); // not needed for pattern recognition
+	ioman->Register(fTracksArrayName+"Cand","FTSTrk", fTrackCands, fPersistence); // TODO Is that correct, should it not be FTSTrkCand or something?
+
+
+
+	if(fVerbose>3) Info("Register","Done.");
+
+	return kSUCCESS;
+
+}
+
+// ---- ReInit  -------------------------------------------------------
+InitStatus PndFtsTrackerTaskHough::ReInit()
+{
+	InitStatus stat=kSUCCESS;
+	if(fVerbose>3) Info(MESSAGE_ORIGIN,"Re- Initilization of PndFtsTrackerTaskHough");
+	return stat;
+}
+
+
+
+
+// ---- Exec ----------------------------------------------------------
+void PndFtsTrackerTaskHough::Exec(Option_t* option)
+{
+	if(fVerbose>3) Info("Exec","Exec of PndFtsTrackerTaskHough");
+
+	// Reset output array
+	if ( ! fTrackCands )
+		Fatal("Exec", "No trackCandArray");
+
+	fTrackCands->Delete();
+	fTracks->Delete();
+	fHoughTrackCands->Delete();
+
+
+
+
+
+
+	PndFtsHoughTrackFinder trackFinder;
+	trackFinder.SetVerbose(fVerbose);
+	trackFinder.SetSaveDebugInfo(fSaveDebugInfo);
+	trackFinder.SetHits(fFtsHitArray, fFtsBranchID);
+	trackFinder.SetMinNumberOfHits(4);
+	trackFinder.SetField(fField);
+	trackFinder.FindTracks();
+
+
+	// have a look at PndMvdRiemannTrackFinderTask line 161 for reference
+	// store the found tracks as PndTrack and PndTrackCand
+	for (Int_t iFoundTrack = 0; iFoundTrack < trackFinder.NTracks(); ++iFoundTrack){
+
+		// for debug output get PndFtsHoughTrackCand
+		// TODO Check if that works
+		if (1<fSaveDebugInfo) {
+			PndFtsHoughTrackCand* myHoughCand = new ((*fHoughTrackCands)[iFoundTrack])PndFtsHoughTrackCand(trackFinder.GetTrack(iFoundTrack));
+		}
+
+		// convert to PndTrackCand and store into TCA
+		PndTrackCand* myCand = new ((*fTrackCands)[iFoundTrack])PndTrackCand(trackFinder.GetTrackCand(iFoundTrack));
+		if (1<fVerbose)
+		{
+			std::cout << "Track " << iFoundTrack << std::endl;
+			std::cout << "Links: ";
+			((FairMultiLinkedData*) myCand)->Print(); // myCand->Print(); // TODO The simpler version should work too
+			std::cout << std::endl;
+		}
+
+		myCand->CalcTimeStamp(); // TODO Why is this needed?
+		if (1<fVerbose) trackFinder.GetTrack(iFoundTrack).Print();
+
+
+		PndTrack* myTrack = new ((*fTracks)[iFoundTrack])PndTrack(trackFinder.GetPndTrack(iFoundTrack)); // TODO Some parameters are missing
+		if (myCand->GetTimeStamp() == 0){
+			myTrack->SetTimeStamp(0.0001 * (iFoundTrack+1));
+			myCand->SetTimeStamp(0.0001 * (iFoundTrack+1));
+
+		} else {
+			myTrack->SetTimeStamp(myCand->GetTimeStamp());
+			myTrack->SetTimeStampError(myCand->GetTimeStampError());
+		}
+		myTrack->SetLink(FairLink("FTSHoughTrackCand", iFoundTrack));
+		myTrack->SetTrackCandRef(myCand);
+
+
+		if (1<fVerbose) {
+			std::cout << iFoundTrack << ": ";
+			myTrack->Print();
+		}
+	}
+	fTrackCands->Sort();
+	fTracks->Sort();
+
+
+
+
+
+
+
+
+
+
+	if(3<fVerbose) Info("Exec","End eventloop.");
+}
+
+
+
+void PndFtsTrackerTaskHough::FinishEvent()
+{
+	// TODO Check if this is necessary, I think it can be left out!
+//	fTrackCands->Delete();
+//	fTracks->Delete();
+//	fHoughTrackCands->Delete();
+}
+
+
+// ---- Finish --------------------------------------------------------
+void PndFtsTrackerTaskHough::Finish()
+{
+	if(3<fVerbose) Info("Finish","Finish of PndFtsTrackerTaskHough");
+	// Get a handle from the IO manager
+	FairRootManager* ioman = FairRootManager::Instance();
+	if ( ! ioman ) {
+		fLogger->Fatal(MESSAGE_ORIGIN,"RootManager not instantiated, return!");
+	}
+	ioman->Write();
+	if(fVerbose>3) Info("Finish","Found %i tracks.",fTrackCands->GetEntriesFast());
+}
+
+
+
+
+
+ClassImp(PndFtsTrackerTaskHough)

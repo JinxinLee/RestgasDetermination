@@ -12,6 +12,7 @@ ${CMAKE_SOURCE_DIR}/pnddata/FtsData
 ${CMAKE_SOURCE_DIR}/trackbase
 ${CMAKE_SOURCE_DIR}/pnddata/TrackData
 ${CMAKE_SOURCE_DIR}/fts
+${CMAKE_SOURCE_DIR}/fts/FtsTracking
 )
 
 include_directories( ${INCLUDE_DIRECTORIES})
@@ -37,13 +38,15 @@ PndFtsSingleStraw.cxx
 PndFtsHitProducerRealFast.cxx
 PndFtsHitProducerIdeal.cxx
 PndFtsHitProducerRealFull.cxx
-PndFtsTrackerIdeal.cxx
 PndFtsDataAccessor.cxx
 PndFtsHitRingSorter.cxx
 PndFtsHitWriteoutBuffer.cxx
 PndFtsHitSorterTask.cxx
-#PndFtsTrackerHough.cxx
-#PndFtsMomentumQA.cxx
+FtsTracking/PndFtsTrackerIdeal.cxx
+FtsTracking/PndFtsHoughTracklet.cxx
+FtsTracking/PndFtsHoughTrackCand.cxx
+FtsTracking/PndFtsHoughTrackFinder.cxx
+FtsTracking/PndFtsTrackerTaskHough.cxx
 )
 
 set(LINKDEF  FtsLinkDef.h)

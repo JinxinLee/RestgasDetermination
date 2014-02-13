@@ -15,6 +15,10 @@
 #pragma link C++ class PndFtsSingleStraw+;
 #pragma link C++ class PndFtsHitProducerRealFast+;
 #pragma link C++ class PndFtsHitProducerIdeal+;
+#pragma link C++ class PndFtsHoughTracklet+;
+#pragma link C++ class PndFtsHoughTrackCand+;
+#pragma link C++ class PndFtsHoughTrackFinder+;
+#pragma link C++ class PndFtsTrackerTaskHough+;
 #pragma link C++ class PndFtsHitProducerRealFull+;
 #pragma link C++ class PndFtsTrackerIdeal+;
 #pragma link C++ class PndFtsDataAccessor+;
@@ -22,7 +26,5 @@
 #pragma link C++ class PndFtsHitWriteoutBuffer+;
 #pragma link C++ class PndFtsHitRingSorter+;
 
-//#pragma link C++ class PndFtsTrackerHough+;
-//#pragma link C++ class PndFtsMomentumQA+;
 #endif
 
