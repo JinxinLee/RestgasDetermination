@@ -165,6 +165,7 @@ double PndRiemannTrack::ChiSquareDistCircle(){
 		double distance = distCircle(&(fHits[i]));
 		sum += TMath::Power(distance / fHits[i].sigmaXY(), 2);
 	}
+	return sum;
 }
 
 void
