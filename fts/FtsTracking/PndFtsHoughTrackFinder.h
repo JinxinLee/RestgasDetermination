@@ -28,14 +28,9 @@
 //
 //
 // Created: 18.06.2013
-// Modified: 03.02.2014
+// Modified: 14.02.2014
 //
 // *************************************************************************
-
-
-
-
-
 
 
 
@@ -68,15 +63,10 @@ class TH1F;
 class TH2F;
 class TGraph;
 
-
-
 class FairHit;
 
 
-// This class is modeled after
-//PndMvdSttGemRiemannTrackFinder
-//and
-//PndRiemannTrackFinder
+
 
 class PndFtsHoughTrackFinder
 {
@@ -105,7 +95,10 @@ public:
 
 
 	// Parameters
-	void SetMinNumberOfHits(int val){fMinNumberOfHits = val;};
+//	void SetMinPeakHeightZxLineParabola(UInt_t val){ fMinPeakHeightZxLineParabola = val; };
+//	void SetMinPeakHeightZxParabola(UInt_t val){ fMinPeakHeightZxParabola = val; };
+//	void SetMinPeakHeightZxParabolaLine(UInt_t val){ fMinPeakHeightZxParabolaLine = val; };
+//	void SetMinPeakHeightZyLine(UInt_t val){ fMinPeakHeightZyLine= val; };
 
 	//  write out histograms for debugging
 	void WriteHistograms();
@@ -120,13 +113,15 @@ private:
 	//	std::vector<FairHit*> fHits;	// vector with all hits of the current event
 	std::vector<PndFtsHoughTrackCand> fTracks;									///< Resulting Hough Track Cands
 	std::vector<PndTrackCand> fTrackCand; // resulting tracks
-	Int_t    fMinNumberOfHits;												///< Minimum number of hits in track necessary for a match
+
+	///< Minimum required heights for peaks in Hough spaces
+	UInt_t    fMinPeakHeightZxLineParabola;					// zx line before dipole field
+	UInt_t    fMinPeakHeightZxParabola;					// zx parabola within dipole field
+	UInt_t    fMinPeakHeightZxParabolaLine;					// zx line after dipole field
+	UInt_t    fMinPeakHeightZyLine;					// zy line
+
 
 	Int_t fVerbose;
-
-
-
-
 
 
 
@@ -192,15 +187,9 @@ private:
 
 
 	// Which PeakFinder should be used?
-	static TString peakfinderOption; //"maxwindow"; //"tspectrum2"; //"maxbin";;
+	static TString peakfinderOption;
 
 
-
-	// for B field access
-	//	Double_t BMeanForParabolapz;
-	//	Double_t BMeanForParabola;
-
-	// -----------------------------------------------------------------------
 
 
 	// for HoughTransform
@@ -210,33 +199,15 @@ private:
 
 
 
-	// Line for stations 1+2
-	static const Double_t onlyUseHitsFromzForLine = 100.; // Set = 100. if you want to use all hits, higher if you want to exclude hits that are closer to the interaction point than the value
-	static const Double_t onlyUseHitsUpTozForLine = 380.; // 1000.; // Set = 1000. if you want to use all hits, lower if you want to exclude hits that are further away from the interaction point than the value
-	// for example event 700. cuts away the interaction stuff
-
-	// Hough transform scan steps
-	static const Int_t invthetastepForLine = 8; // Je groesser, umso feiner wird in theta-Richtung gescannt
-	static const Double_t thetastepForLine = 1./8.; // 1./invthetastepForLine; // Je kleiner, umso feiner wird in theta-Richtung gescannt TODO
-	static const Int_t thetalimitlowForLineHoughSpacePlot = -20;
-	static const Int_t thetalimithighForLineHoughSpacePlot = 20;
-	static const Double_t thetalimitlowForLine= -20+1./8./2.; //thetalimitlowForLineHoughSpacePlot+thetastepForLine/2.0; // Search in theta from this value (in degree) TODO
-	static const Double_t thetalimithighForLine = 20+1./8./2.; // thetalimithighForLineHoughSpacePlot+thetastepForLine/2.0; // Search in theta up to this value (in degree) TODO
 
 
-	//Parabola stations 3-5
-	// If kTRUE the y-component of the B-field is not used in the parabola hough transform
-	// if kFALSE the parabola's shape will be adjusted based on the magnetic field maps
-	// set only to kFALSE for testing
-	static const Bool_t keepBConstant = kTRUE;
+
 
 
 
 	// sets where the midpoint of the parabola is supposed to be
-	static const Double_t zOffset = 368.; // Der Scheitel der Parabel sollte vermutlich dort sein, wo das Dipolfeld anfängt // 368. was ok // 350. => thetaParabola = 0.
-	static const Double_t onlyusehitsfromzForParabola = 380.; // Set = 100. if you want to use all hits, higher if you want to exclude hits that are closer to the interaction point than the value
-	static const Double_t onlyusehitsuptozForParabola = 700.; // 1000.; // Set = 1000. if you want to use all hits, lower if you want to exclude hits that are further away from the interaction point than the value
-	// for example event 700. cuts away the interaction stuff
+	static const Double_t zLineParabola = 368.; // the value should coincide with the start of the dipole field // 368. was ok
+	static const Double_t zParabolaLine = 650.; // the value should coincide with the end of the dipole field // TODO determine this value
 
 
 
@@ -244,7 +215,8 @@ private:
 
 
 
-	Bool_t FilterFoundTracklets(
+
+	Bool_t FilterTrackletsBasedOnSharedHits(
 			UInt_t maxAcceptableSharedHits,
 			std::vector<PndFtsHoughTracklet> &tracklets
 	);
@@ -261,15 +233,28 @@ private:
 
 	Bool_t MakeHoughSpace(
 			TString option,
-			const Double_t onlyusehitsfromz,
-			const Double_t onlyusehitsuptoz,
-			const Bool_t onlyUseHitsFromNonSkewedStraws,
-			const Double_t thetalimitlow,
-			const Double_t thetalimithigh,
-			const Double_t thetastep,
-			Double_t interceptZxOrZy,
+
+			const Double_t zRefPos, // is used to redefine an origin for the coordinate system (so that the angle definition gives meaningful theta values)
+			Double_t interceptZx, // cannot be constant, because might need to be reset if set incorrectly (has to be 0 for line HT)
+			// is used to shift the true x values of hits so that they hit the point (zOffset|0) in z-x-plane (value is determined by line fit on chambers1+2)
+			// (zreal=zOffset, xreal=interceptZx) = (zshifted = 0, xshifted = 0)
+			// zshifted = zreal - zRefPos
+			// xshifted = xreal - interceptZx
+			// zreal = zshifted + zRefPos
+			// xreal = xshifted + interceptZx
+			// For the z-x-plane parabola, a shift in x (hitshiftinx) needs to be set (which should be the result of the straight line hough transform)
+			// For the straight line (stations before dipole field) hitshiftinx HAS TO BE ZERO
+
+			const Bool_t UseNonSkewedStraws, // if kTRUE, then hits from non-skewed straws are used for Hough transform
+			const Bool_t UseSkewedStraws, // if kTRUE, then hits from skewed straws are used for Hough transform
+
+
 			UInt_t &nHitsForHoughSpace,
-			TH2F* houghspace);
+
+			TH2F* houghspace // has always the angle (theta) on x-coordinate axis, the value on the y-axis depends on the kind of hough transform
+			//	parabola HT: yValue = Q/pzx
+			//	line HT: yValue = intercept (Achsenabschnitt) (in z-x- or z-y-plane)
+	);
 
 
 

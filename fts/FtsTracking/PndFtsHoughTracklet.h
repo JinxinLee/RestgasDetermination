@@ -42,7 +42,7 @@ public:
 	Double_t getSecondVal() const { return fSecondVal; };
 	Double_t getSecondHw() const { return fSecondHw; };
 
-	UInt_t getNumberOfSharedHits(PndFtsHoughTracklet& rhs);
+	UInt_t getNSharedHits(PndFtsHoughTracklet& rhs);
 
 
 	// Modifiers -----------------------

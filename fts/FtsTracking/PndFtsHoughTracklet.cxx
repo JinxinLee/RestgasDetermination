@@ -46,20 +46,20 @@ void PndFtsHoughTracklet::SetHoughTransformResults(const Double_t thetaVal, cons
 }
 
 
-UInt_t PndFtsHoughTracklet::getNumberOfSharedHits(PndFtsHoughTracklet& rhs){
-	UInt_t numberOfSharedHits = 0;
-	// go through all hits in this and check if they are also in rhs, if yes, increase numberOfSharedHits by 1 per shared hit
+UInt_t PndFtsHoughTracklet::getNSharedHits(PndFtsHoughTracklet& rhs){
+	UInt_t nSharedHits = 0;
+	// go through all hits in *this and check if they are also in rhs, if yes, increase numberOfSharedHits by 1 (per shared hit)
 	for (UInt_t iHit = 0; iHit < GetNHits(); ++iHit){
 		PndTrackCandHit thisHit = GetSortedHit(iHit);
 		Int_t thisHitId = thisHit.GetHitId();
 		Int_t thisDetId = thisHit.GetDetId();
-		// if hit is NOT in track -1 is returned, otherwise the index in the HitId vector is returned
+		// if hit is NOT in track -1 is returned by HitInTrack, otherwise the index (>=0) in the HitId vector is returned
 		if (-1<rhs.HitInTrack(thisDetId,thisHitId)){
 			// hit is in track
-			++numberOfSharedHits;
+			++nSharedHits;
 		}
 	}
-	return numberOfSharedHits;
+	return nSharedHits;
 }
 
 

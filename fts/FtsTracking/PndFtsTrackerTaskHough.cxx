@@ -229,7 +229,10 @@ void PndFtsTrackerTaskHough::Exec(Option_t* option)
 	trackFinder.SetVerbose(fVerbose);
 	trackFinder.SetSaveDebugInfo(fSaveDebugInfo);
 	trackFinder.SetHits(fFtsHitArray, fFtsBranchID);
-	trackFinder.SetMinNumberOfHits(4);
+//	trackFinder.SetMinPeakHeightZxLineParabola(4);
+//	trackFinder.SetMinPeakHeightZxParabola(6);
+//	trackFinder.SetMinPeakHeightZxParabolaLine(4);
+//	trackFinder.SetMinPeakHeightZyLine(4);
 	trackFinder.SetField(fField);
 	trackFinder.FindTracks();
 

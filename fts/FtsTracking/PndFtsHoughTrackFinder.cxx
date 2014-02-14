@@ -83,22 +83,18 @@ void PndFtsHoughTrackFinder::Initialization_ClassVariables()
 	fHoughspaceZxParabolaLine=0;
 	fHoughspaceZyLine=0;
 
+	fMinPeakHeightZxLineParabola=4;
+	fMinPeakHeightZxParabola=6;
+	fMinPeakHeightZxParabolaLine=4;
+	fMinPeakHeightZyLine=4;
 
 	// general
 	fSaveDebugInfo=kFALSE;
 	fVerbose = 0;
 
-
-	// arrays
-	//	fFtsParameters=0;
-	//	fFtsTubeArray=0;
 	fFtsHitArray=0;
 	fField=0;
-	//	fFtsBranchID=0;
-	//	fTracksArrayName="FTSTrkHough";
-	//	SetTrackOutput();
-	//	fTrackCands = new TClonesArray("PndTrackCand");
-	//	fTracks = new TClonesArray("PndTrack");
+
 }
 
 
@@ -179,15 +175,32 @@ void PndFtsHoughTrackFinder::FindTracks() {
 	UInt_t nHitsForHoughSpaceLine=0;
 
 
+
+	// Hough transform scan steps
+	static const Int_t invthetastepForLine = 8; // greater number means finer scanning in theta
+	static const Int_t thetaLowFirstLine = -20;
+	static const Int_t thetaHighFirstLine = 20;
 	delete fHoughspaceZxLineParabola;
-	fHoughspaceZxLineParabola = new TH2F("houghspaceFirstLine", "houghspaceFirstLine", invthetastepForLine*(thetalimithighForLineHoughSpacePlot-thetalimitlowForLineHoughSpacePlot), thetalimitlowForLineHoughSpacePlot, thetalimithighForLineHoughSpacePlot, invthetastepForLine*40, -50., 50.);
+	fHoughspaceZxLineParabola = new TH2F("houghspaceFirstLine", "houghspaceFirstLine", invthetastepForLine*(thetaHighFirstLine-thetaLowFirstLine), thetaLowFirstLine, thetaHighFirstLine, invthetastepForLine*40, -50., 50.);
 	fHoughspaceZxLineParabola->GetXaxis()->SetTitle("#theta [^{0}]");
 	fHoughspaceZxLineParabola->GetYaxis()->SetTitle("x_{LP} [cm]");
 
 
 
 	// Do straight line hough transform on non-skewed hits from stations 1+2
-	if (kTRUE == MakeHoughSpace("lineBeforeDipole", onlyUseHitsFromzForLine, onlyUseHitsUpTozForLine, kTRUE, thetalimitlowForLine, thetalimithighForLine, thetastepForLine, 0., nHitsForHoughSpaceLine, fHoughspaceZxLineParabola))
+	if ( kTRUE ==
+			MakeHoughSpace(
+					"lineBeforeDipole",
+
+					zLineParabola,
+					0.,
+
+					kTRUE,
+					kFALSE,
+
+					nHitsForHoughSpaceLine,
+					fHoughspaceZxLineParabola
+			) )
 	{
 		if (0<fVerbose) {
 			std::cout << "Hough Space for Line was created successfully!" << std::endl
@@ -236,34 +249,43 @@ void PndFtsHoughTrackFinder::FindTracks() {
 
 
 
-	// loop over all track candidates which were found by line HT before dipole field
+	// loop over all line tracklets which were found by line HT before dipole field
 
-	for (UInt_t iTrackCandLine=0; iTrackCandLine < zxLineParabolaTracklets.size(); ++iTrackCandLine)
+	for (UInt_t iTrackletLine=0; iTrackletLine < zxLineParabolaTracklets.size(); ++iTrackletLine)
 	{
 		// determine where to look for parabola
-		const Int_t invthetastepForParabola = 10;
-		const Double_t thetastepForParabola = 1.0/invthetastepForParabola; // Je kleiner, umso feiner wird in theta-Richtung gescannt
-		const Double_t peakThetaZxLineParabola = zxLineParabolaTracklets[iTrackCandLine].getThetaVal();
-		const Int_t thetalimitlowForParabolaHoughSpacePlot = floor(peakThetaZxLineParabola-0.3)-0;
-		const Int_t thetalimithighForParabolaHoughSpacePlot = ceil(peakThetaZxLineParabola+0.3)+0;
-		const Double_t thetalimitlowForParabola = thetalimitlowForParabolaHoughSpacePlot+thetastepForParabola/2.0; // Search in theta from this value (in degree)
-		const Double_t thetalimithighForParabola = thetalimithighForParabolaHoughSpacePlot+thetastepForParabola/2.0; // Search in theta up to this value (in degree)
+		const Int_t invthetastepForParabola = 10; // greater number means finer scanning in theta
+		const Double_t peakThetaZxLineParabola = zxLineParabolaTracklets[iTrackletLine].getThetaVal();
+		const Int_t thetaLowParabola = floor(peakThetaZxLineParabola-0.3)-0;
+		const Int_t thetaHighParabola = ceil(peakThetaZxLineParabola+0.3)+0;
 
 		delete fHoughspaceZxParabola;
-		fHoughspaceZxParabola= new TH2F("houghspaceParabola", "houghspaceParabola", invthetastepForParabola*(thetalimithighForParabolaHoughSpacePlot-thetalimitlowForParabolaHoughSpacePlot), thetalimitlowForParabolaHoughSpacePlot, thetalimithighForParabolaHoughSpacePlot, invthetastepForParabola*300, -0.015, 0.015); // 300 is good as factor
+		fHoughspaceZxParabola= new TH2F("houghspaceParabola", "houghspaceParabola", invthetastepForParabola*(thetaHighParabola-thetaLowParabola), thetaLowParabola, thetaHighParabola, invthetastepForParabola*300, -0.015, 0.015); // 300 is good as factor
 		fHoughspaceZxParabola->GetXaxis()->SetTitle("#theta [^{0}]");
 		fHoughspaceZxParabola->GetYaxis()->SetTitle("#frac{Q}{p_zx} [a.u.]");
 
 		// get back how many hits are in the Hough space
 		UInt_t nHitsForHoughSpaceParabola=0;
-		Double_t peakInterceptZxLineParabola = zxLineParabolaTracklets[iTrackCandLine].getSecondVal();
+		Double_t peakInterceptZxLineParabola = zxLineParabolaTracklets[iTrackletLine].getSecondVal();
 
 
 		// Do parabola hough transform (shifts FTS hits by hitshiftinx) for non-skewed hits in stations 3+4+5
-		if (kTRUE == MakeHoughSpace("parabola", onlyusehitsfromzForParabola, onlyusehitsuptozForParabola, kTRUE, thetalimitlowForParabola, thetalimithighForParabola, thetastepForParabola, peakInterceptZxLineParabola, nHitsForHoughSpaceParabola, fHoughspaceZxParabola))
+		if ( kTRUE ==
+				MakeHoughSpace(
+						"parabola",
+
+						zLineParabola,
+						peakInterceptZxLineParabola,
+
+						kTRUE,
+						kFALSE,
+
+						nHitsForHoughSpaceParabola,
+						fHoughspaceZxParabola
+				) )
 		{
 			if (0<fVerbose) {
-				std::cout << "Hough Space for Parabola was created successfully!" << std::endl
+				std::cout << "Line " << iTrackletLine << ": Hough Space for Parabola was created successfully!" << std::endl
 						<< "We have " << nHitsForHoughSpaceParabola << " hits in the line Hough space.\n";
 			}
 		}
@@ -306,23 +328,34 @@ void PndFtsHoughTrackFinder::FindTracks() {
 		}
 
 		if(1<fVerbose) {
-			std::cout << "Create track candidates from line in zx before dipole "<< iTrackCandLine << " and all parabolas within dipole." << std::endl;
+			std::cout << "Create track candidates from line in zx before dipole "<< iTrackletLine << " and all parabolas within dipole." << std::endl;
 		}
-		for (UInt_t iTrackCandParabola=0; iTrackCandParabola < zxParabolaTracklets.size(); ++iTrackCandParabola)
+		for (UInt_t iTrackletParabola=0; iTrackletParabola < zxParabolaTracklets.size(); ++iTrackletParabola)
 		{
 			PndFtsHoughTrackCand newHoughTrackCand;
-			newHoughTrackCand.SetZxFirstLine(zxLineParabolaTracklets[iTrackCandLine]);
-			newHoughTrackCand.SetZxParabola(zxParabolaTracklets[iTrackCandParabola]);
+			newHoughTrackCand.SetZxFirstLine(zxLineParabolaTracklets[iTrackletLine], zLineParabola);
+			newHoughTrackCand.SetZxParabola(zxParabolaTracklets[iTrackletParabola], zLineParabola);
 			fHoughTrackCands.push_back(newHoughTrackCand);
 		}
 
-	} // loop over all track candidates which were found by line HT before dipole field
+	} // loop over all line tracklets which were found by line HT before dipole field
 
 
 
 
-	std::cout << "At this point I have track candidates from line in zx before dipole and parabola within. Add line after dipole field in zx" << std::endl;
+	std::cout << "At this point I have track candidates from line in zx before dipole and parabola within. Now add line after dipole field in zx" << std::endl;
 	// TODO
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -346,11 +379,22 @@ void PndFtsHoughTrackFinder::FindTracks() {
 	}
 
 
+	delete fHoughspaceZxLineParabola;
+	delete fHoughspaceZxParabola;
+	delete fHoughspaceZxParabolaLine;
+	delete fHoughspaceZyLine;
+
 }
 
 
 
-Bool_t PndFtsHoughTrackFinder::FilterFoundTracklets(
+
+
+
+
+
+
+Bool_t PndFtsHoughTrackFinder::FilterTrackletsBasedOnSharedHits(
 		UInt_t maxAcceptableSharedHits,
 		std::vector<PndFtsHoughTracklet> &tracklets
 )
@@ -360,29 +404,40 @@ Bool_t PndFtsHoughTrackFinder::FilterFoundTracklets(
 	std::set<UInt_t>::iterator findIndex;
 
 
-	// compare all tracklets with each other
+	// compare all tracklets with each other, keep track which tracklets should be "deleted"
+	// delete all tracklets that share more than maxAcceptableSharedHits hits
+	// keep only the heighest peak
 	for (UInt_t iTrackletLeft = 0; iTrackletLeft < tracklets.size(); ++iTrackletLeft)
 	{
 		for (UInt_t iTrackletRight = iTrackletLeft+1; iTrackletRight < tracklets.size(); ++iTrackletRight)
 		{
-			// check if two tracks share too many hits
-			const UInt_t numberOfSharedHits = tracklets[iTrackletLeft].getNumberOfSharedHits(tracklets[iTrackletRight]);
-			if (numberOfSharedHits>maxAcceptableSharedHits){
+			// check if two tracks share more than maxAcceptableSharedHits hits
+			PndFtsHoughTracklet trackletLeft = tracklets[iTrackletLeft];
+			PndFtsHoughTracklet trackletRight = tracklets[iTrackletRight];
+			const UInt_t nSharedHits = trackletLeft.getNSharedHits(trackletRight);
+			if (nSharedHits>maxAcceptableSharedHits){
 				// mark the peak with the lower "height" for deletion
-				const Double_t heightLeft = tracklets[iTrackletLeft].getPeakHeightFromPeakFinder();
-				const Double_t heightRight = tracklets[iTrackletRight].getPeakHeightFromPeakFinder();
+				const Double_t heightLeft = trackletLeft.getPeakHeightFromPeakFinder();
+				const Double_t heightRight = trackletRight.getPeakHeightFromPeakFinder();
 				if (heightLeft>heightRight){
 					indicesToDelete.insert(iTrackletRight);
 				} else if (heightLeft<heightRight){
 					indicesToDelete.insert(iTrackletLeft);
 				} else if (heightLeft==heightRight){
-					std::cout << "WARNING: Found two peaks of the same height that share " <<  numberOfSharedHits << " hits.\n";
+					std::cout << "WARNING: Found two peaks of the same height that share " <<  nSharedHits << " hits.\n";
 				}
 			}
 
 		}
 	} // end for loop: compare all tracklets with each other
-	// create new vector and copy all entries from input vector to it which are not marked for deletion
+
+	// if we have no tracklets to "delete", we don't need to do anything
+	if (0==indicesToDelete.size()){
+		if (0<fVerbose) {  std::cout << "FilterTrackletsBasedOnSharedHits: No tracklets are marked for deletion." << std::endl; }
+		return kTRUE;
+	}
+
+	// create new tracklets vector and copy all entries from input vector to it which are not marked for deletion
 	std::vector<PndFtsHoughTracklet> filteredTracklets;
 	for (UInt_t iTracklet = 0; iTracklet < tracklets.size(); ++iTracklet)
 	{
@@ -397,6 +452,12 @@ Bool_t PndFtsHoughTrackFinder::FilterFoundTracklets(
 	tracklets = filteredTracklets;
 	return kTRUE;
 }
+
+
+
+
+
+
 
 
 
@@ -563,60 +624,114 @@ Bool_t PndFtsHoughTrackFinder::FindAllPeaks(
 // TODO actually I don't need the the parameters thetalimitlow,thetalimithigh, thetastep <- I can get the info from the Houghspace directly
 Bool_t PndFtsHoughTrackFinder::MakeHoughSpace(
 		TString option,
-		const Double_t onlyusehitsfromz,
-		const Double_t onlyusehitsuptoz,
-		const Bool_t onlyUseHitsFromNonSkewedStraws,
-		const Double_t thetalimitlow,
-		const Double_t thetalimithigh,
-		const Double_t thetastep,
-		Double_t interceptZxOrZy, // cannot be constant, because might need to be reset if set incorrectly (has to be 0 for line HT)
+
+		const Double_t zRefPos, // is used to redefine an origin for the coordinate system (so that the angle definition gives meaningful theta values)
+		Double_t interceptZx, // cannot be constant, because might need to be reset if set incorrectly (has to be 0 for line HT)
+		// is used to shift the true x values of hits so that they hit the point (zOffset|0) in z-x-plane (value is determined by line fit on chambers1+2)
+		// (zreal=zOffset, xreal=interceptZx) = (zshifted = 0, xshifted = 0)
+		// zshifted = zreal - zRefPos
+		// xshifted = xreal - interceptZx
+		// zreal = zshifted + zRefPos
+		// xreal = xshifted + interceptZx
+		// For the z-x-plane parabola, a shift in x (hitshiftinx) needs to be set (which should be the result of the straight line hough transform)
+		// For the straight line (stations before dipole field) hitshiftinx HAS TO BE ZERO
+
+
+		const Bool_t UseNonSkewedStraws, // if kTRUE, then hits from non-skewed straws are used for Hough transform
+		const Bool_t UseSkewedStraws, // if kTRUE, then hits from skewed straws are used for Hough transform
+
+
 		UInt_t &nHitsForHoughSpace,
-		TH2F* houghspace)
+
+		TH2F* houghspace // has always the angle (theta) on x-coordinate axis, the value on the y-axis depends on the kind of hough transform
+		//	parabola HT: yValue = Q/pzx
+		//	line HT: yValue = intercept (Achsenabschnitt) (in z-x- or z-y-plane)
+)
 {
-	// !!! WARNING The theta values are NOT the same as in the interaction point. They are always calculated relative to a shifted coordinate system and only 2-dimensional !!!
-
-	// houghspace has always the angle (theta) on x-coordinate axis, the value on the y-axis depends on the kind of hough transform
-	//	parabola HT: yValue = Q/pzx
-	//	line HT: yValue = intercept (Achsenabschnitt) (in z-x- or z-y-plane)
-
-	// produces a houghspace histogram using the equation corresponding to string option
-	// only hits with a z value (in the laboratory system, zreal) between onlyusehitsfromz and onlyusehitsuptoz will be used for building the houghspace
-	// if onlyUseHitsFromNonSkewedStraws is kTRUE, then only hits from non-skewed straws are used for Hough transform
-
-	// The angle to the z-axis in the z-x- or z-y-plane (theta) will be scanned from thetalimitlow to thetalimithigh with stepsize thetastep
-
-	// y component of B field will be read from field maps if keepBConstant is kFALSE
-
-	// For the z-x-plane parabola, a shift in x (hitshiftinx) needs to be set (which should be the result of the straight line hough transform)
-	// For the straight line (stations before dipole field) hitshiftinx HAS TO BE ZERO
-
-	// zOffset is used to redefine an origin for the coordinate system (so that the angle definition gives meaningful theta values)
-
-
+	// function produces a houghspace histogram using the equation corresponding to string option
 	// If everything goes well, the function returns kTRUE and the histogram houghspace contains the hough space
 	// This function returns kFALSE if option is set incorrectly
 
+	// !!! WARNING The theta values are NOT the same as in the interaction point. They are always calculated relative to a shifted coordinate system and only 2-dimensional !!!
 
-	// interceptZxOrZy is used to shift the true X values of hits so that they hit the point (zOffset|0) in z-x-plane (value is determined by line fit on chambers1+2)
-	// (zreal=zOffset, xreal=interceptZxOrZy) = (zshifted = 0, xshifted = 0)
-	// zshifted = zreal - zOffset
-	// xshifted = xreal - interceptZxOrZy
-	// zreal = zshifted + zOffset
-	// xreal = xshifted + interceptZxOrZy
+
+
+	// The angle (theta) to the z-axis in the z-x- or z-y-plane at a z reference position will be scanned
+	// from theta corresponding to lowest bin to theta corresponding to highest bin of x-axis
+
+
+	// y component of B field will be read from field maps if keepBConstant is kFALSE
+
+
+
+
+
+
+	// make sure we have a Hough space
+	if (0==houghspace){
+		Info("MakeHoughSpace","houghspace is not set.");
+		return kFALSE;
+	}
+
+
+
+
+
+
+
+	// If kTRUE the y-component of the B-field is not used in the parabola hough transform
+	// if kFALSE the parabola's shape will be adjusted based on the magnetic field maps
+	// set only to kFALSE for testing
+	static const Bool_t keepBConstant = kTRUE;
+
+
+
+	Double_t onlyUseHitsFromZ;
+	Double_t onlyUseHitsUpToZ;
+	// only hits with a z value (in the laboratory system, zreal) between onlyusehitsfromz and onlyusehitsuptoz will be used for building the houghspace
+
+	// set parameters according to the Hough transform I want to do
+	if ("lineBeforeDipole" == option)
+	{
+		// Line for stations 1+2
+		onlyUseHitsFromZ = 100.; // Set = 100. if you want to use all FTS hits, higher if you want to exclude hits that are closer to the interaction point than the value
+		onlyUseHitsUpToZ = 380.; // Set = 1000. if you want to use all FTS hits, lower if you want to exclude hits that are further away from the interaction point than the value
+	}
+	else if ("parabola" == option)
+	{
+		// parabola for stations 3-5
+		onlyUseHitsFromZ = 380.; // Set = 100. if you want to use all FTS hits, higher if you want to exclude hits that are closer to the interaction point than the value
+		onlyUseHitsUpToZ = 700.; // Set = 1000. if you want to use all FTS hits, lower if you want to exclude hits that are further away from the interaction point than the value
+	}
+	else if ("parabolapz" == option)
+	{
+		// parabola for stations 3-5
+		onlyUseHitsFromZ = 380.; // Set = 100. if you want to use all FTS hits, higher if you want to exclude hits that are closer to the interaction point than the value
+		onlyUseHitsUpToZ = 700.; // Set = 1000. if you want to use all FTS hits, lower if you want to exclude hits that are further away from the interaction point than the value
+	}
+	else
+	{
+		std::cout << "Error in MakeHoughSpace! option " << option << " is not implemented!" << std::endl;
+		return kFALSE;
+	}
+
+
+
+
+
+
+
+
 
 
 	// for B field access
 	Double_t By = 0.;
-	Double_t po[3], BB[3];
 
-	// c is a factor for the parabola
-	// for parabola equation
-	const Double_t n = 1.;
-	const Double_t e = 1.;
-	const Double_t c = n * e / 2.;
+
+
 
 	// for storing the value to be calculated in Hough transform (yValue = offset for line, yValue = Q/pzx for parabola)
-	Double_t yValue = 0.;
+	Double_t yVal = 0.;
 
 	// store bin numbers for last and current entry (for making sure that there are no holes in the histogram)
 	Int_t globalBin = 0;
@@ -626,199 +741,251 @@ Bool_t PndFtsHoughTrackFinder::MakeHoughSpace(
 	Bool_t firstEntry = kTRUE; // is used to indicate when holes in histogram have to be filled, set this to kTRUE for the first entry FOR EACH HIT
 
 
+
+
 	// make sure hits are not shifted for line hough transform
 	if ("lineBeforeDipole" == option)
 	{
-		if (0!=interceptZxOrZy) {
-			std::cout << "MakeHoughSpace: " << "interceptZxOrZy was set to " << interceptZxOrZy << " That is not correct for line HT! of stations before dipole field!\n";
+		if (0!=interceptZx) {
+			std::cout << "MakeHoughSpace: " << "interceptZxOrZy was set to " << interceptZx << " That is not correct for line HT! of stations before dipole field!\n";
 		}
-		if (0<fVerbose) {  std::cout << "Will set interceptZxOrZy to 0" << std::endl; }
-		interceptZxOrZy = 0.;
+		if (0<fVerbose) {  std::cout << "Will set interceptZx to 0 for " << option << std::endl; }
+		interceptZx = 0.;
 	}
 
-	// The hits have to be stored in TCA fFtsHitArray
+
+
+
 	// This produces the hough space for a parabola or a line (with constant B field or with B field read from field maps)
 	for (int iHit = 0; iHit < fFtsHitArray->GetEntriesFast(); iHit++)
 	{
 		firstEntry = kTRUE;
 		PndFtsHit* myHit = (PndFtsHit*) fFtsHitArray->At(iHit);
-		// Skip hit if it comes from skewed straw and if I wish not to use it
-		if (kTRUE == onlyUseHitsFromNonSkewedStraws)
+
+
+		// Skip hits from skewed or non-skewed straws if I wish not to use them
+		if (0 != myHit->GetSkewed())
 		{
-			if (0 != myHit->GetSkewed())
+			// hit comes from skewed straw
+			if (kFALSE == UseSkewedStraws)
 			{
 				if (1<fVerbose) {std::cout << "Skipping hit with index " << iHit << " , because it comes from a skewed straw! LayerID = " << myHit->GetLayerID() << std::endl;}
 				continue;
 			}
+
+		} else {
+			// hit comes from non-skewed straw
+			if (kFALSE == UseNonSkewedStraws)
+			{
+				if (1<fVerbose) {std::cout << "Skipping hit with index " << iHit << " , because it comes from a non-skewed straw! LayerID = " << myHit->GetLayerID() << std::endl;}
+				continue;
+			}
+
 		}
 
-		// get hit
+
+		// get hit position
 		TVector3 hitVector;
 		myHit->Position(hitVector);
 
 		Double_t hitXLabSys = hitVector.X();
 		Double_t hitYLabSys = hitVector.Y();
 		Double_t hitZLabSys = hitVector.Z();
-		Double_t hitXShifted = hitXLabSys - interceptZxOrZy; // shifts all x positions of hits so that they go through x=0 at z=zOffset (for parabola)
-		Double_t hitZShifted = hitZLabSys - zOffset; // z coordinate in local coordinate system (for parabola and for line)
+		Double_t hitXShifted = hitXLabSys - interceptZx; // shifts all x positions of hits so that they go through x=0 at z=zOffset (for parabola)
+		Double_t hitZShifted = hitZLabSys - zRefPos; // z coordinate in local coordinate system (for parabola and for line)
+
+
+		// only hits with z component between onlyusehitsfromz and onlyusehitsuptoz will be used in the hough transform
+		if ( (hitZLabSys < onlyUseHitsFromZ) || (hitZLabSys > onlyUseHitsUpToZ) ){
+			continue;
+		}
+
+
+		++nHitsForHoughSpace; // count hits for making of Hough space (only once per hit)
+		if (1<fVerbose) {
+			cout << "Doing " << option << " hough transform for hit (hitZLabSys, hitXLabSys) = (" << hitZLabSys << ", " << hitXLabSys << ") cm";
+			if (kTRUE == keepBConstant)
+			{
+				cout << " ignoring B field maps\n";
+			} else
+			{
+				cout << " reading B field maps\n";
+			}
+		}
+
+
+
+		// get indices for first and last bins on x-axis
+		TAxis *fXaxis = houghspace->GetXaxis();
+		Int_t iThetaFirst  = fXaxis->GetFirst();
+		Int_t iThetaLast   = fXaxis->GetLast();
+
+
 
 		// calculate Hough transform for hit iHit
 		// for each hit a scan in theta is done
-		for (Double_t theta = thetalimitlow; theta < thetalimithigh; theta += thetastep)
+		// by going through the x-axis of houghspace
+
+		for (Int_t iTheta = iThetaFirst; iTheta < iThetaLast; ++iTheta)
 		{
-			// only hits with (non-shifted) z component between onlyusehitsfromz and onlyusehitsuptoz will be used in the hough transform
-			if (hitZLabSys >= onlyusehitsfromz && hitZLabSys <= onlyusehitsuptoz)
+			// get corresponding theta value
+			Double_t theta = fXaxis->GetBinCenter(iTheta);
+
+
+			if (kTRUE == keepBConstant)
 			{
-				if (thetalimitlow == theta) // only print the message once per hit
-				{
-					++nHitsForHoughSpace; // count hits for making of Hough space (only once per hit)
-					if (1<fVerbose) {cout << "Doing " << option << " hough transform for hit (hitZreal, hitXreal) = (" << hitZLabSys << ", " << hitXLabSys << ") cm";}
+				// do not take B field into account
+				By = 1.;
+			}
+			else
+			{
+				// Use B field information
+				Double_t po[3], BB[3];
+				po[0] = hitXLabSys; // Use magnetic field at real (not shifted) x position
+				po[1] = hitYLabSys;
+				po[2] = hitZLabSys;
+				fField->GetFieldValue(po, BB); //return value in KG (G3)
+				By = BB[1] / 10.; // By is y-component of magnetic field in Tesla
+			}
+
+
+
+
+
+			Double_t thetaRad = theta / 180. * meinpi;
+
+			if ("parabola" == option)
+			{
+				// Use shifted x and shifted z for parabola
+
+				// for parabola equation
+				const Double_t n = 1.;
+				const Double_t e = 1.;
+				const Double_t c = n * e / 2.;
+
+				yVal = 1. / c / By 	* (-hitZShifted * sin(thetaRad) + hitXShifted * cos(thetaRad))/ pow((hitZShifted * cos(thetaRad) + hitXShifted * sin(thetaRad)), 2);
+
+				// next line is with rotation as in paper (I believe it is incorrect)
+				//					value = 1. / c / By 	* (hitZshifted * sin(realtheta) - hitXshifted * cos(realtheta))/ pow((hitZshifted * cos(realtheta) + hitXshifted * sin(realtheta)), 2);
+				if (9<fVerbose)	{ cout << "Q/pzx = " << yVal; }
+			}
+			else if ("parabolapz" == option)
+			{
+				// for parabola equation
+				const Double_t n = 1.;
+				const Double_t e = 1.;
+				const Double_t c = n * e / 2.;
+
+				// Use shifted x and shifted z for parabola
+				yVal = c*By*pow((hitZShifted * cos(thetaRad) + hitXShifted * sin(thetaRad)), 2)/(-hitZShifted * sin(thetaRad) + hitXShifted * cos(thetaRad));
+
+				// next line is with rotation as in paper (I believe it is incorrect)
+				//					value = c*By*pow((hitZshifted * cos(realtheta) + hitXshifted * sin(realtheta)), 2)/(hitZshifted * sin(realtheta) - hitXshifted * cos(realtheta));
+				if (9<fVerbose)	{ cout << "pz/Q = " << yVal; }
+			}
+			else if ("lineBeforeDipole" == option)
+			{
+				// Use real x and shifted z for line
+				// calculate b which is the distance of point on line at z = zOffset from z axis
+				yVal = -tan(thetaRad)*hitZShifted+hitXLabSys;
+				if (9<fVerbose) { cout << "xLP = " << yVal; }
+			}
+			else
+			{
+				std::cout << "Error in MakeHoughSpace! option " << option << " is not implemented!" << std::endl;
+				return kFALSE;
+			}
+
+			if (9<fVerbose)	{ std::cout << " for (theta, hitXreal) = (" << theta << ", " << hitXLabSys << ")" << std::endl; }
+
+
+
+
+
+
+			globalBin = houghspace->Fill(theta,yVal);
+			if (5<fVerbose) { std::cout << "Hough point was filled into histogram. globalbin = " << globalBin << " for option" << option <<std::endl; }
+			// Find binx and biny for histogram from global bin number
+			houghspace->GetBinXYZ(globalBin, currentBinX, currentBinY, currentBinZ);
+
+
+
+
+
+
+			// Check if the Fill was actually into a real bin or in over-/underflow
+			if (globalBin>=0)
+			{
+				if (5<fVerbose) { std::cout << "OK! Hough point was NOT written to over- or underflow of histogram. Setting firstEntry to kFALSE now. "<< option <<std::endl; }
+
+				// TODO Remove the following check, it should always be true
+				if (currentBinX != iTheta){
+					std::cout << "\n\nError in MakeHoughSpace! Hough point was filled into xBin " << currentBinX << " and not in " << iTheta << "\n";
+					std::cout << "iThetaFirst = " << iThetaLast << " iThetaLast = " << iThetaLast << "\n";
+					std::cout << "Over- or underflow on y-axis or FATAL error!\n\n\n";
 				}
-				if (kTRUE == keepBConstant)
+
+				// fill holes if the current Hough point is not the first entry in Hough space for the hit
+				if (kFALSE == firstEntry)
 				{
-					// do not take B field into account
-					By = 1.;
-					if (thetalimitlow == theta)
+					if (5<fVerbose)
 					{
-						if (1<fVerbose) {cout << " ignoring B field maps";}
+						std::cout << "This is not the first point of the hit in the histogram. I will fix all holes which might be between this entry and the last one in the histogram"<<std::endl;
 					}
-				}
-				else
-				{
-					// Use B field information
-					po[0] = hitXLabSys; // Use magnetic field at real (not shifted) x position
-					po[1] = hitYLabSys;
-					po[2] = hitZLabSys;
-					fField->GetFieldValue(po, BB); //return value in KG (G3)
-					By = BB[1] / 10.; // By is y-component of magnetic field in Tesla
-					if (thetalimitlow == theta)
+
+					// Make sure there are no holes in the histogram
+					for (Int_t iCorrect = 1; iCorrect < abs(currentBinY-lastBinY); ++iCorrect)
 					{
-						if (1<fVerbose) { cout << "  By = " << By << " T "; }
-					}
-				}
-
-				if (thetalimitlow == theta)
-				{
-					if (1<fVerbose) { cout << std::endl; }
-				}
-
-				Double_t thetaRad = theta / 360. * 2. * meinpi;
-
-				if ("parabola" == option)
-				{
-					// Use shifted x and shifted z for parabola
-
-					yValue = 1. / c / By 	* (-hitZShifted * sin(thetaRad) + hitXShifted * cos(thetaRad))/ pow((hitZShifted * cos(thetaRad) + hitXShifted * sin(thetaRad)), 2);
-
-					// next line is with rotation as in paper (I believe it is incorrect)
-					//					value = 1. / c / By 	* (hitZshifted * sin(realtheta) - hitXshifted * cos(realtheta))/ pow((hitZshifted * cos(realtheta) + hitXshifted * sin(realtheta)), 2);
-					if (9<fVerbose)	{ cout << "Q/pzx = " << yValue; }
-				}
-				else if ("parabolapz" == option)
-				{
-					// Use shifted x and shifted z for parabola
-					yValue = c*By*pow((hitZShifted * cos(thetaRad) + hitXShifted * sin(thetaRad)), 2)/(-hitZShifted * sin(thetaRad) + hitXShifted * cos(thetaRad));
-
-					// next line is with rotation as in paper (I believe it is incorrect)
-					//					value = c*By*pow((hitZshifted * cos(realtheta) + hitXshifted * sin(realtheta)), 2)/(hitZshifted * sin(realtheta) - hitXshifted * cos(realtheta));
-					if (9<fVerbose)	{ cout << "pz/Q = " << yValue; }
-				}
-				else if ("lineBeforeDipole" == option)
-				{
-					// Use real x and shifted z for line
-					// calculate b which is the distance of point on line at z = zOffset from z axis
-					yValue = -tan(thetaRad)*hitZShifted+hitXLabSys;
-					if (9<fVerbose) { cout << "b = " << yValue; }
-				}
-				else
-				{
-					std::cout << "Error in MakeHoughSpace! option " << option << " is not implemented!" << std::endl;
-					return kFALSE;
-				}
-
-				if (9<fVerbose)	{ std::cout << " for (theta, hitXreal) = (" << theta << ", " << hitXLabSys << ")" << std::endl; }
 
 
-
-				// make sure we have a Hough space
-				if (0==houghspace){
-					Info("MakeHoughSpace","houghspace is not set.");
-					return kFALSE;
-				}
-				globalBin = houghspace->Fill(theta,yValue);
-				if (5<fVerbose) { cout << "OK! Hough point was filled into histogram. globalbin = " << globalBin << " for option" << option <<std::endl; }
-				// Find binx and biny for histogram from global bin number
-				houghspace->GetBinXYZ(globalBin, currentBinX, currentBinY, currentBinZ);
-
-
-
-
-				// Check if the Fill was actually into a real bin or in over-/underflow
-				if (globalBin>=0)
-				{
-					if (5<fVerbose) { cout << "OK! Hough point was NOT written to over- or underflow of histogram. Setting firstEntry to kFALSE now. "<< option <<std::endl; }
-
-					// only do this if the current theta is not the first for the hit
-					if (kFALSE == firstEntry)
-					{
-						if (5<fVerbose)
+						Int_t xCorrect = round(float(iCorrect*(currentBinX-lastBinX))/float(abs(currentBinY-lastBinY))); // gives -1, 0 or 1
+						Int_t yCorrect = 0;
+						if (currentBinY > lastBinY)
 						{
-							cout << "This is not the first point of the hit in the histogram. I will fix all holes which might be between this entry and the last one in the histogram"<<std::endl;
+							yCorrect = iCorrect;
+						}
+						else
+						{
+							yCorrect = -iCorrect;
 						}
 
-						// Make sure there are no holes in the histogram
-						for (Int_t iCorrect = 1; iCorrect < abs(currentBinY-lastBinY); ++iCorrect)
+
+						houghspace->AddBinContent(houghspace->GetBin(lastBinX+xCorrect,lastBinY+yCorrect));
+
+						if (8<fVerbose)
 						{
+							std::cout << "I am filling hole number " << iCorrect << std::endl;
+							std::cout << "globalbin = " << globalBin << std::endl;
+							std::cout << "(lastbinx, lastbiny) = (" << lastBinX << ", " << lastBinY << ")" << std::endl;
+							std::cout << "(binx,     biny)     = (" << currentBinX << ", " << currentBinY << ")" << std::endl;
+							std::cout << "xCorrect = " << xCorrect << "  yCorrect = " << yCorrect << std::endl;
+							std::cout << "(lastbinx+xCorrect, lastbiny+yCorrect) = (" << lastBinX+xCorrect << ", " << lastBinY+yCorrect << ")" << std::endl;
+						}
+					}// for iCorrect
 
 
-							Int_t xCorrect = round(float(iCorrect*(currentBinX-lastBinX))/float(abs(currentBinY-lastBinY))); // gives -1, 0 or 1
-							Int_t yCorrect = 0;
-							if (currentBinY > lastBinY)
-							{
-								yCorrect = iCorrect;
-							}
-							else
-							{
-								yCorrect = -iCorrect;
-							}
-
-
-							houghspace->AddBinContent(houghspace->GetBin(lastBinX+xCorrect,lastBinY+yCorrect));
-
-							if (8<fVerbose)
-							{
-								cout << "I am filling hole number " << iCorrect << std::endl;
-								cout << "globalbin = " << globalBin << std::endl;
-								cout << "(lastbinx, lastbiny) = (" << lastBinX << ", " << lastBinY << ")" << std::endl;
-								cout << "(binx,     biny)     = (" << currentBinX << ", " << currentBinY << ")" << std::endl;
-								cout << "xCorrect = " << xCorrect << "  yCorrect = " << yCorrect << std::endl;
-								cout << "(lastbinx+xCorrect, lastbiny+yCorrect) = (" << lastBinX+xCorrect << ", " << lastBinY+yCorrect << ")" << std::endl;
-							}
-						}// for iCorrect
-
-
-					} // if not first entry to be written into histogram
-					else
-					{
-						if (5<fVerbose) { cout << "This is the first point of the hit in the histogram. I will not try to fix any holes in the " << option << " histogram"<<std::endl;}
-					}
-
-
-					firstEntry = kFALSE;
-
-
-				}
+				} // if not first entry to be written into histogram
 				else
 				{
-					if (9<fVerbose)	{ cout << "Watch out! Point was written to over- or underflow of histogram. firsttheta is set to kTRUE. "<< option <<std::endl; }
-					firstEntry = kTRUE; // otherwise, algorithm connects first point which does not go into over-/underflow with (0,0)
+					if (5<fVerbose) { std::cout << "This is the first point of the hit in the histogram. I will not try to fix any holes in the " << option << " histogram"<<std::endl;}
 				}
 
-				if (9<fVerbose)	{ cout << "biny = " << currentBinY << "  lastbiny = " << lastBinY << std::endl; }
-				lastBinX = currentBinX;
-				lastBinY = currentBinY;
 
-			} // if hitZLabSys is in correct range
+				firstEntry = kFALSE;
+
+
+			}
+			else
+			{
+				if (9<fVerbose)	{ std::cout << "Watch out! Point was written to over- or underflow of histogram. firsttheta is set to kTRUE. "<< option <<std::endl; }
+				firstEntry = kTRUE; // otherwise, algorithm connects first point which does not go into over-/underflow with (0,0)
+			}
+
+			if (9<fVerbose)	{ std::cout << "biny = " << currentBinY << "  lastbiny = " << lastBinY << std::endl; }
+			lastBinX = currentBinX;
+			lastBinY = currentBinY;
+
+
 		} // for theta
 	} // for iHit
 	return kTRUE;

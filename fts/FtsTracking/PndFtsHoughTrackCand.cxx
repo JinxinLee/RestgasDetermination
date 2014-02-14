@@ -19,7 +19,10 @@ PndFtsHoughTrackCand::PndFtsHoughTrackCand() :
 
 														fZxParabolaLine(),
 
-														fZyLine()
+														fZyLine(),
+
+														fZLineParabola(0.),
+														fZParabolaLine(0.)
 {
 
 }
@@ -30,14 +33,20 @@ PndFtsHoughTrackCand::~PndFtsHoughTrackCand()
 }
 
 
-void PndFtsHoughTrackCand::SetZxFirstLine(const PndFtsHoughTracklet zxLineParabola){
+void PndFtsHoughTrackCand::SetZxFirstLine(const PndFtsHoughTracklet zxLineParabola, const Double_t zLineParabola){
 	fZxLineParabola = zxLineParabola;
+	fZLineParabola = zLineParabola;
 }
-void PndFtsHoughTrackCand::SetZxParabola(const PndFtsHoughTracklet zxParabola){
+void PndFtsHoughTrackCand::SetZxParabola(const PndFtsHoughTracklet zxParabola, const Double_t zLineParabola){
 	fZxParabola = zxParabola;
+	// warn if line before dipole field and parabola within are not calculated wrt the same z reference value
+	if (zLineParabola!=fZLineParabola){
+		std::cout << "WARNING from PndFtsHoughTrackCand: First line and parabola were not calculated wrt the same z position! Potentially FATAL ERROR!\n";
+	}
 }
-void PndFtsHoughTrackCand::SetZxSecondLine(const PndFtsHoughTracklet zxParabolaLine){
+void PndFtsHoughTrackCand::SetZxSecondLine(const PndFtsHoughTracklet zxParabolaLine, const Double_t zParabolaLine){
 	fZxParabolaLine = zxParabolaLine;
+	fZParabolaLine = zParabolaLine;
 }
 void PndFtsHoughTrackCand::SetZyLine(const PndFtsHoughTracklet zyLine){
 	fZyLine=zyLine;

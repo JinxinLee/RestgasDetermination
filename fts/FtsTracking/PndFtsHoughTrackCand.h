@@ -47,9 +47,9 @@ public:
 
 	// Modifiers -----------------------
 	// add results from Hough transforms
-	void SetZxFirstLine(const PndFtsHoughTracklet zxLineParabola);
-	void SetZxParabola(const PndFtsHoughTracklet zxParabola);
-	void SetZxSecondLine(const PndFtsHoughTracklet zxParabolaLine);
+	void SetZxFirstLine(const PndFtsHoughTracklet zxLineParabola, const Double_t zLineParabola);
+	void SetZxParabola(const PndFtsHoughTracklet zxParabola, const Double_t zLineParabola);
+	void SetZxSecondLine(const PndFtsHoughTracklet zxParabolaLine, const Double_t zParabolaLine);
 	void SetZyLine(const PndFtsHoughTracklet zyLine);
 
 
@@ -87,6 +87,11 @@ private:
 	// vs
 	// y intercept
 
+
+	// at which z value the transition in the bending zx plane is done from a line (before dipole field) to a parabola (within dipole field)
+	Double_t fZLineParabola;
+	// at which z value the transition in the bending zx plane is done from a parabola (within dipole field) to a line (before dipole field)
+	Double_t fZParabolaLine;
 
 
 public:
