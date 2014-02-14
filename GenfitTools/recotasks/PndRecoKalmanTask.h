@@ -54,6 +54,7 @@ public:
   void SetDaf(Bool_t opt = kTRUE)                  { fDaf = opt;                 }
   void SetPropagateToIP(Bool_t opt = kTRUE)        { fPropagateToIP = opt;       }
   void SetPerpPlane(Bool_t opt = kTRUE)            { fPerpPlane = opt;           }
+  void SetNumIterations(Int_t num)                 { fNumIt = num;               }
   void SetTrackRep(Short_t num)                    { fTrackRep = num;            }
   void SetParticleHypo(TString s); 
   void SetParticleHypo(Int_t h);
