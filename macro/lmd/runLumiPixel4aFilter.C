@@ -1,4 +1,4 @@
-void runLumiPixel4aFilter(const int nEvents=100000, const int startEvent=0, TString storePath="tmpOutput", const int verboseLevel=0, const bool mergedHits=true)
+void runLumiPixel4aFilter(const int nEvents=100000, const int startEvent=0, TString storePath="tmpOutput", const int verboseLevel=0, const bool mergedHits=true, const bool SkipFilt=false, const bool XthFilt=true, const bool YphFilt=true, const bool BoxFilt=false)
 {
   // ========================================================================
   // Input file (MC events)
@@ -74,10 +74,26 @@ void runLumiPixel4aFilter(const int nEvents=100000, const int startEvent=0, TStr
   
   // -----  LMD collections names & importain parameters --------------------------------------------
   TString inHits = "LMDHitsPixel";
-  if(mergedHits){
+  if(mergedHits){ 
     inHits = "LMDHitsMerged";
   }
   PndLmdTrksFilterTask* lmdfilt = new PndLmdTrksFilterTask();
+  if(SkipFilt){ 
+    cout<<"Skip Kinematic Cuts!"<<endl;
+    lmdfilt->SetSkipKinFilt(true);
+  }
+  if(BoxFilt){
+    cout<<"Set BOX Cuts!"<<endl;
+    lmdfilt->SetBOXFilt(true);
+  }
+  if(XthFilt){
+    cout<<"Set X Cuts!"<<endl;
+    lmdfilt->SetXThFilt(true);
+  }
+  if(YphFilt){
+    cout<<"Set Y Cuts!"<<endl;
+    lmdfilt->SetYPhFilt(true);
+  }
   lmdfilt->SetVerbose(verboseLevel);
   fRun->AddTask(lmdfilt);
 

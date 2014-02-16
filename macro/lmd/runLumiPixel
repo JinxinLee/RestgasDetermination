@@ -28,22 +28,36 @@ path=${VMCWORKDIR}/macro/lmd/testPixel/mom_${momStr}/
 mkdir -p ${path}
 #number of trks per event
 numTrks=1
+#number of events
+numEv=10
+
+##############
+# set flags
 #merge hits on sensors from different sides. true=yes
 mergedHits=true
-#number of events
-numEv=2000
+#Skip kinematic filter (before back-propagation)
+SkipFilt=false
+## if SkipFilt=false (XThetaCut or YPhiCut) or BoxCut should be true:
+## X-Theta kinematic cut before back-propagation
+XThetaCut=true
+YPhiCut=true
+## BOX cut before back-propagation
+BoxCut=false
+##############
 
 # #simulation with Box generator
-   root -l -b -q runLumiPixel0SimBox.C\(${numEv},0,"\"${path}\"",0,-2212,${pbeam},${numTrks},3562\)
+root -l -b -q runLumiPixel0SimBox.C\(${numEv},0,"\"${path}\"",0,-2212,${pbeam},${numTrks},3562\) &> ${path}/log0sim
 
-# #simulation with DPM
- #modeDPM=1 #el+inel
- #   root -l -b -q runLumiPixel0SimDPMDirect.C\(${numEv},0,${pbeam},"\"${path}\"",0,3562,$modeDPM,0.12\)
+# # #simulation with DPM
+#   #  modeDPM=0 #inel
+# #    modeDPM=1 #el+inel
+# #    modeDPM=2 #el
+# #    root -l -b -q runLumiPixel0SimDPMDirect.C\(${numEv},0,${pbeam},"\"${path}\"",0,35162,$modeDPM,0.12\) >> ${path}/logDPM$mom
 
-#digi
-    root -l -b -q runLumiPixel1Digi.C\(${numEv},0,"\"${path}\""\)
-#hit reconstruction
-    root -l -b -q runLumiPixel2Reco.C\(${numEv},0,"\"${path}\"",0,false\)
+# #digi
+     root -l -b -q runLumiPixel1Digi.C\(${numEv},0,"\"${path}\"",10\) &> ${path}/log1digi
+# #hit reconstruction
+     root -l -b -q runLumiPixel2Reco.C\(${numEv},0,"\"${path}\"",10,false\) &>${path}/log2hitrec
 # ##merge hits
      root -l -b -q runLumiPixel2bHitMerge.C\(${numEv},0,"\"${path}\""\)
 
@@ -58,9 +72,8 @@ numEv=2000
 #track fit: 
 ### Possible options: "Minuit", "KalmanGeane", "KalmanRK"
        root -l -b -q runLumiPixel4Fitter.C\(${numEv},0,"\"${path}\"",0,"\"Minuit\"",${mergedHits}\)
-
 #track filter (on number of hits and chi2)
-     root -l -b -q runLumiPixel4aFilter.C\(${numEv},0,"\"${path}\"",0,${mergedHits}\) 
+     root -l -b -q runLumiPixel4aFilter.C\(${numEv},0,"\"${path}\"",0,${mergedHits},${SkipFilt},${XThetaCut},${YPhiCut},${BoxCut}\) 
 
 #save filtered results as standart Track array
      mv ${path}/Lumi_Track_0.root ${path}/Lumi_TrackNotFiltered_0.root 
@@ -73,4 +86,5 @@ numEv=2000
 # # Quality assurance task(s)
       root -l -b -q runLumiPixel7QA.C\(${numEv},0,"\"${path}\"",0,${pbeam}\)
       root -l -b -q runLumiPixel7TrksQA.C\(${numEv},0,"\"${path}\"",0,${pbeam},true\)
+      root -l -b -q  Anastasia/test_macros/BkgSignalCount.C\("\"${path}\"",${numEv},0\)
       root -l -b -q Anastasia/test_macros/EffTrks.C\(${numEv},0,"\"${path}\""\)
