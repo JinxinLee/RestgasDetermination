@@ -37,6 +37,10 @@ public:
   virtual void FinishTask();
 
   virtual void Exec(Option_t* opt);
+  void SetSkipKinFilt(bool fl){ flSkipKinFilt = fl; };
+  void SetBOXFilt(bool fl){ flBOXKinFilt = fl; };
+  void SetXThFilt(bool fl){ flXThKinFilt = fl; };
+  void SetYPhFilt(bool fl){ flYPhKinFilt = fl; };
 
 protected:
   int verboseLevel;
@@ -54,8 +58,12 @@ protected:
   TString fTrkOutName;
   int fEventNr;
   PndLmdDim* lmddim;
+  bool flSkipKinFilt;
+  bool flBOXKinFilt;
+  bool flXThKinFilt;
+  bool flYPhKinFilt;
   //  TNtuple *htthetatphiTrkFit;
-  ClassDef(PndLmdTrksFilterTask,1);
+  ClassDef(PndLmdTrksFilterTask,2);
 };
 
 #endif

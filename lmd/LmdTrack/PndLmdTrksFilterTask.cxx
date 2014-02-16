@@ -40,6 +40,9 @@
 // -----   Default constructor   -------------------------------------------
 PndLmdTrksFilterTask::PndLmdTrksFilterTask() : FairTask("Tracks filtering Task for PANDA Lmd"), fEventNr(0)
 {
+  flSkipKinFilt = false;
+  flBOXKinFilt =false;
+  flXThKinFilt = false;
   fHitName="LMDHitsMerged";
   fMCHitName="LMDPoint";
   //  fClusterName = clusterBranch;
@@ -58,7 +61,8 @@ PndLmdTrksFilterTask::~PndLmdTrksFilterTask()
 // -----   Public method Init   --------------------------------------------
 InitStatus PndLmdTrksFilterTask::Init()
 {
- 
+  
+
   // Get RootManager
   FairRootManager* ioman = FairRootManager::Instance();
   if(ioman==0)
@@ -156,15 +160,45 @@ void PndLmdTrksFilterTask::Exec(Option_t* opt)
   for (unsigned int i = 0; i<gll;i++){ 
     PndTrack* trkpnd = (PndTrack*)(fTrkArray->At(i));
     bool dirOK=true;
-    // //check theta&phi-----
+    //check trk kinematics -----
     FairTrackParP fFittedTrkP = trkpnd->GetParamFirst();
-    TVector3 MomRecLMD(fFittedTrkP.GetPx(),fFittedTrkP.GetPy(),fFittedTrkP.GetPz());
-    MomRecLMD *=1./MomRecLMD.Mag();
-    double thetaCent=MomRecLMD.Theta()-0.040;
-    if(fVerbose<2){
-      if(abs(thetaCent)>0.011 || abs(MomRecLMD.Phi())>0.25) dirOK=false;
-      if(abs(fFittedTrkP.GetX())>1000. || abs(fFittedTrkP.GetY())>1000) dirOK=false; //misaligned sensors give wierd results
+  
+    if(!flSkipKinFilt){
+      TVector3 MomRecLMD(fFittedTrkP.GetPx(),fFittedTrkP.GetPy(),fFittedTrkP.GetPz());
+      MomRecLMD *=1./MomRecLMD.Mag();
+      if(fVerbose>0)     cout<<"Check Kinematics!"<<endl;
+      //      cout<<"FLAGS: "<<bool(flSkipKinFilt)<<" "<<bool(flBOXKinFilt)<<" "<<bool(flXThKinFilt)<<endl;
+      if(flBOXKinFilt){
+	 if(fVerbose>0)  cout<<"!BOXThPhFilt!"<<endl;
+	double thetaCent=MomRecLMD.Theta()-0.040;
+	//    if(fVerbose<2){
+	if(abs(thetaCent)>0.011 || abs(MomRecLMD.Phi())>0.25) dirOK=false;
+	if(abs(fFittedTrkP.GetX())>1000. || abs(fFittedTrkP.GetY())>1000) dirOK=false; //misaligned sensors give wierd results
+	//    }
+      }
+      //      else{
+	if(flXThKinFilt){
+	  // double dist_max = 1.4;
+	  // if(fFittedTrkP.GetPz()<2)  dist_max = 1.8;
+	   if(fVerbose>0)  cout<<"!XThFilt!"<<endl;
+	  double Xref = -19.1+1.12*1e3*MomRecLMD.Theta();
+	  double diffX = abs(fFittedTrkP.GetX() - Xref);
+	 if(fVerbose>0)   cout<<"fFittedTrkP.GetX() = "<<fFittedTrkP.GetX()<<" Xref = "<<Xref<<" diffX = "<<diffX<<endl;
+	  if(diffX>1.5) dirOK=false;
+	}
+	if(flYPhKinFilt){
+	  // double dist_max = 1.4;
+	  // if(fFittedTrkP.GetPz()<2)  dist_max = 1.8;
+	  if(fVerbose>0)  cout<<"!YPhFilt!"<<endl;
+	  double Yref = -0.00651+0.045*1e3*MomRecLMD.Phi();
+	  double diffY = abs(fFittedTrkP.GetY() - Yref);
+	 if(fVerbose>0)   cout<<"fFittedTrkP.GetY() = "<<fFittedTrkP.GetY()<<" Yref = "<<Yref<<" diffY = "<<diffY<<endl;
+	  if(diffY>2.1) dirOK=false;
+	}
+
+	//      }
     }
+    
     // //--------------------------
 
     double chi2 = trkpnd->GetChi2();
@@ -307,14 +341,14 @@ void PndLmdTrksFilterTask::Exec(Option_t* opt)
 	    <<mcidtop[0][i]<<", "<<mcidtop[1][i]<<", "<<mcidtop[2][i]<<", "<<mcidtop[3][i]<<")"<<endl;
       }
       PndTrack* trkpnd = (PndTrack*)(fTrkArray->At(i));
-      // //check theta&phi-----
-      if(fVerbose>4){
-      FairTrackParP fFittedTrkP = trkpnd->GetParamFirst();
-      TVector3 MomRecLMD(fFittedTrkP.GetPx(),fFittedTrkP.GetPy(),fFittedTrkP.GetPz());
-      MomRecLMD *=1./MomRecLMD.Mag();
-      double thetaCent=MomRecLMD.Theta()-0.0402;
-      //      htthetatphiTrkFit->Fill(MomRecLMD.Theta(),MomRecLMD.Phi());
-      }
+      // // //check theta&phi-----
+      // if(fVerbose>4){
+      // FairTrackParP fFittedTrkP = trkpnd->GetParamFirst();
+      // TVector3 MomRecLMD(fFittedTrkP.GetPx(),fFittedTrkP.GetPy(),fFittedTrkP.GetPz());
+      // MomRecLMD *=1./MomRecLMD.Mag();
+      // double thetaCent=MomRecLMD.Theta()-0.0402;
+      // //      htthetatphiTrkFit->Fill(MomRecLMD.Theta(),MomRecLMD.Phi());
+      // }
       new((*fTrkOutArray)[rec_trk]) PndTrack(*(trkpnd)); //save Track
       rec_trk++;
     }
