@@ -645,15 +645,15 @@ int PndTrkComparisonMCtruth::ComparisonwithMC(
 //----------   fetching the MC truth tracks
 	nMCTracks = fMCTrackArray->GetEntriesFast(); // num. tracce/evento
 	if (istampa >= 2) {
-	     cout<<"da PndTracking  : evento (partendo da 0)  N. "<<
+	     cout<<"from PndTrkComparisonMCTruth  : event (starting from 0)  N. "<<
 	       IVOLTE<< "\n       N. di MC truth tracks  : "<<nMCTracks<<endl;
 	}
 
 	if (nMCTracks ==0){
-		cout<<"da PndTracking  :  N. di MC truth tracks = 0, return!\n"<<endl;
+		cout<<"from PndTrkComparisonMCTruth  :  N. MC truth tracks = 0, return!\n"<<endl;
 		return 0;
 	} else if(nMCTracks> MAXMCTRACKS){
-		cout<<"da PndTracking  :  N. di MC truth tracks = "<<nMCTracks
+		cout<<"from PndTrkComparisonMCTruth  :  N. MC truth tracks = "<<nMCTracks
 		<<" and it is > MAXMCTRACKS = "<<MAXMCTRACKS
 		<<", setting it equal to MAXMCTRACKS.\n";
 		nMCTracks = MAXMCTRACKS;
@@ -1091,9 +1091,9 @@ for (i=0;i<nMCTracks;i++){
 		if(fabs(carica)<1.e-5) continue;
 		Cx = Oxx + Pyy*1000./(BFIELD*CVEL*carica);
 		Cy = Oyy - Pxx*1000./(BFIELD*CVEL*carica);
-		cout<<"da PndTracking, evento (cominciando da 0) n. "<<IVOLTE<<
-		",  traccia MC n. "<<i<<",  R MC = "<<Rr<<", Centro X = "<<Cx
-		<<", Centro Y = "<<Cy<<endl;
+		cout<<"from PndTrkComparisonMCTruth, event (starting from 0) n. "<<IVOLTE<<
+		",  track MC n. "<<i<<",  R MC = "<<Rr<<", X Center = "<<Cx
+		<<", Y Center = "<<Cy<<endl;
 	}
 
 	citata=0;
