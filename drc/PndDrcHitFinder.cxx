@@ -50,7 +50,8 @@ PndDrcHitFinder::PndDrcHitFinder(Int_t iVerbose) :
   FairTask("DrcHitFinder", iVerbose)
 {
   fPixelHits = 0;
-  fEventNr = 0;    
+  fEventNr = 0; 
+  fPixelFactor = 1;
   fGeoH = NULL;
   fGeo = new PndGeoDrc();
   fDigiPixelMCInfo = kFALSE;  
@@ -72,7 +73,8 @@ PndDrcHitFinder::PndDrcHitFinder(const char* name, Int_t iVerbose) :
 FairTask(name, iVerbose)
 {
   fPixelHits = 0;
-  fEventNr = 0;    
+  fEventNr = 0;   
+  fPixelFactor = 1;
   fGeoH = NULL;
   fGeo = new PndGeoDrc();
   fDigiPixelMCInfo = kFALSE;  
@@ -149,7 +151,7 @@ InitStatus PndDrcHitFinder::Init()
 
 // -----   Public method Exec   --------------------------------------------
 void PndDrcHitFinder::Exec(Option_t* opt)
-{
+{ 
   if(fVerbose>3) Info("Exec","Start");
   
   if (!fPdHitArray) Fatal("Exec", "No PdHitArray");
@@ -178,7 +180,6 @@ void PndDrcHitFinder::Exec(Option_t* opt)
         
     // the pixel number shows local coordinates of the hit:
     HitPosLocal.SetXYZ(fPixelStep*((Double_t)(pixelID % fNpix) - (Double_t)(fNpix/2) + 0.5),fPixelStep*(TMath::Floor(((Double_t)pixelID)/((Double_t)fNpix)) - (Double_t)(fNpix/2) + 0.5), 0.);
-    
     Int_t sensorId = fDigi->GetSensorId()/fPixelFactor;
     if(fPixelFactor==2) { //double pixels
       sensorId++;
@@ -189,7 +190,8 @@ void PndDrcHitFinder::Exec(Option_t* opt)
     // local coordinates of the hit on the MCP are translated into global ones as the following:
     HitPosGlobal = fGeoH->LocalToMasterShortId(HitPosLocal, mcpID);   
     dPosHit.SetXYZ(fPixelSize/2., fPixelSize/2., 0.);   
-    if(fPixelFactor==2)  dPosHit.SetXYZ(fPixelSize, fPixelSize/2., 0.);   
+    if(fPixelFactor==2)  dPosHit.SetXYZ(fPixelSize, fPixelSize/2., 0.);  
+    
    
     new((*fPdHitArray)[fPdHitArray->GetEntriesFast()]) PndDrcPDHit(detID, sensorId , HitPosGlobal, dPosHit, hitTime, 0., iDigi); 
   } // Loop over MCPoints
