@@ -122,19 +122,29 @@ void PndParticleQATask::Exec(Option_t* opt)
 	if (!(++fEvtCount%100)) cout << "evt "<<fEvtCount<<endl;
 	
 	// *** RhoCandLists for the analysis
-	RhoCandList chr, chrdrc, chrdsc, chrmdt, chrstt, chremcstt, chremcsttdrc, chremcsttdrcmdt, chrsttdrc,chrmva,neut;
+	RhoCandList chr, chr1emc, chr2drc, chr3dsc, chr4mvd, chr5mdt, chr6stt;
+	RhoCandList chr16, chr126, chr1256, chr12356, chr1236, chr26, chr123456, chrmva;
+	RhoCandList neut;
 	
 	// *** Select with no PID info ('All'); type and mass are set 		
 	fAnalysis->FillList( neut,   "Neutral" );
-	fAnalysis->FillList( chr,    "Charged" ,"PidAlgoEmcBayes");
-	fAnalysis->FillList( chrdrc, "Charged" ,"PidAlgoDrc");
-	fAnalysis->FillList( chrdsc, "Charged" ,"PidAlgoDisc");
-	fAnalysis->FillList( chrmdt, "Charged" ,"PidAlgoMdtHardCuts");
-	fAnalysis->FillList( chrstt, "Charged" ,"PidAlgoStt");
-	fAnalysis->FillList( chremcstt, "Charged" ,"PidAlgoEmcBayes;PidAlgoStt");
-	fAnalysis->FillList( chremcsttdrc, "Charged" ,"PidAlgoEmcBayes;PidAlgoStt;PidAlgoDrc");
-	fAnalysis->FillList( chremcsttdrcmdt, "Charged" ,"PidAlgoEmcBayes;PidAlgoStt;PidAlgoDrc;PidAlgoMdtHardCuts");
-	fAnalysis->FillList( chrsttdrc, "Charged" ,"PidAlgoStt;PidAlgoDrc");
+	
+	fAnalysis->FillList( chr,     "Charged" ,"PidAlgoEmcBayes");    // short cut name
+	fAnalysis->FillList( chr1emc, "Charged" ,"PidAlgoEmcBayes");    // emc = algo 1
+	fAnalysis->FillList( chr2drc, "Charged" ,"PidAlgoDrc");         // drc = algo 2
+	fAnalysis->FillList( chr3dsc, "Charged" ,"PidAlgoDisc");        // dsc = algo 3
+	fAnalysis->FillList( chr4mvd, "Charged" ,"PidAlgoMvd");         // mvd = algo 4
+	fAnalysis->FillList( chr5mdt, "Charged" ,"PidAlgoMdtHardCuts"); // mdt = algo 5
+	fAnalysis->FillList( chr6stt, "Charged" ,"PidAlgoStt");         // stt = algo 6
+	
+	// now the combination of numbers define the algo-combination
+	fAnalysis->FillList( chr16,     "Charged" ,"PidAlgoEmcBayes;PidAlgoStt");
+	fAnalysis->FillList( chr126,    "Charged" ,"PidAlgoEmcBayes;PidAlgoStt;PidAlgoDrc");
+	fAnalysis->FillList( chr1236,   "Charged" ,"PidAlgoEmcBayes;PidAlgoStt;PidAlgoDrc;PidAlgoDisc;");
+	fAnalysis->FillList( chr1256,   "Charged" ,"PidAlgoEmcBayes;PidAlgoStt;PidAlgoDrc;PidAlgoMdtHardCuts");
+	fAnalysis->FillList( chr12356,  "Charged" ,"PidAlgoEmcBayes;PidAlgoStt;PidAlgoDrc;PidAlgoDisc;PidAlgoMdtHardCuts");
+	fAnalysis->FillList( chr123456, "Charged" ,"PidAlgoEmcBayes;PidAlgoStt;PidAlgoDrc;PidAlgoDisc;PidAlgoMdtHardCuts;PidAlgoMvd");
+	fAnalysis->FillList( chr26,     "Charged" ,"PidAlgoStt;PidAlgoDrc");
 	//fAnalysis->FillList( chrmva, "Charged" ,"TMVABDTMvaProb");
 	
 	int ntrk = chr.GetLength();
@@ -151,17 +161,22 @@ void PndParticleQATask::Exec(Option_t* opt)
 		
 		qaP4(  "",			chr[j]->P4(),	ntp);
 			   
-		qaPid( "algemc",	chr[j], 		ntp); 
-		qaPid( "algdrc", 	chrdrc[j], 		ntp); 
-		qaPid( "algdsc", 	chrdsc[j], 		ntp); 
-		qaPid( "algmdt", 	chrmdt[j], 		ntp); 
-		qaPid( "algstt", 	chrstt[j], 		ntp); 
+		qaPid( "alg1emc",	chr1emc[j], 		ntp); 
+		qaPid( "alg2drc", 	chr2drc[j], 		ntp); 
+		qaPid( "alg3dsc", 	chr3dsc[j], 		ntp); 
+		qaPid( "alg4mvd", 	chr4mvd[j], 		ntp); 
+		qaPid( "alg5mdt", 	chr5mdt[j], 		ntp); 
+		qaPid( "alg6stt", 	chr6stt[j], 		ntp); 
 		//qaPid( "algmva", 	chrmva[j], 		ntp); 
 		
-		qaPid( "algemcstt", 	chremcstt[j], 		ntp); 
-		qaPid( "algemcsttdrc", 	chremcsttdrc[j], 	ntp); 
-		qaPid( "algall", 		chremcsttdrcmdt[j], ntp); 
-		qaPid( "algsttdrc", 	chrsttdrc[j], 		ntp); 
+		qaPid( "alg16", 	chr16[j], 		ntp); 
+		qaPid( "alg126", 	chr126[j], 		ntp); 
+		qaPid( "alg1236", 	chr1236[j], 		ntp); 
+		qaPid( "alg1256", 	chr1256[j], 		ntp); 
+		qaPid( "alg12356", 	chr12356[j], 		ntp); 
+		qaPid( "alg123456", 	chr123456[j], 		ntp); 
+		qaPid( "algall", 	chr123456[j], 		ntp); 
+		qaPid( "alg26", 	chr26[j], 		ntp); 
 		
 		qaEmc( "emc",		chr[j], 		ntp);
 		qaMvd( "mvd",		chr[j], 		ntp);
