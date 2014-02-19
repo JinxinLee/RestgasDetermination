@@ -7,7 +7,7 @@
 // The tracklet can represent a line or a parabola (actually an arbitrary result of a 2d Hough transform)
 //
 // Created: 11.02.2014
-// Modified: 11.02.2014
+// Modified: 19.02.2014
 //
 // *************************************************************************
 
@@ -19,7 +19,7 @@
 
 class PndFtsHit;
 class PndTrack;
-
+class TClonesArray;
 
 
 
@@ -27,7 +27,7 @@ class PndFtsHoughTracklet : public PndTrackCand {
 public:
 
 	// Constructors/Destructors ---------
-	PndFtsHoughTracklet();
+	PndFtsHoughTracklet(TClonesArray *ftsHitArray=0);
 	~PndFtsHoughTracklet();
 
 
@@ -35,19 +35,28 @@ public:
 	void Print();
 	// isSet() is kTRUE iif data from the 2d Hough transforms have been entered
 	Bool_t isSet() const { return fIsSet; };
-	const PndFtsHit *getHit(UInt_t index); // gets the FairHit corresponding to index
-	Double_t getPeakHeightFromPeakFinder() const { return fPeakHeightFromPeakFinder; };
-	Double_t getThetaVal() const { return fThetaVal; };
-	Double_t getThetaHw() const { return fThetaHw; };
-	Double_t getSecondVal() const { return fSecondVal; };
-	Double_t getSecondHw() const { return fSecondHw; };
 
-	UInt_t getNSharedHits(PndFtsHoughTracklet& rhs);
+	// Hough space peak info
+	Double_t getPeakHeightFromPeakFinder() const { return fPeakHeightFromPeakFinder; };
+	Double_t getThetaVal() const { return fThetaVal; }; // value for peak
+	Double_t getThetaHw() const { return fThetaHw; }; // hw = half width = half length of Hough space bin
+	Double_t getSecondVal() const { return fSecondVal; }; // value for peak
+	Double_t getSecondHw() const { return fSecondHw; }; // hw = half width = half length of Hough space bin
+
+	// hits
+	const PndFtsHit *getHit(UInt_t index); // gets the hit corresponding to index, will sort the hitId vector if necessary
+	UInt_t getNSharedHits(PndFtsHoughTracklet& rhs); // gives the number of hits that are contained both in rhs and *this
 
 
 	// Modifiers -----------------------
 	// add results from Hough transforms
-	void SetHoughTransformResults(const Double_t thetaVal, const Double_t secondVal, const Double_t peakHeight, const Double_t thetaHw, const Double_t secondHw);
+	void SetHoughTransformResults(
+			const Double_t thetaVal,
+			const Double_t secondVal,
+			const Double_t peakHeight,
+			const Double_t thetaHw,
+			const Double_t secondHw
+			);
 
 
 
@@ -58,10 +67,11 @@ private:
 	Int_t fVerbose;
 
 	// FTS Hits
-	static TClonesArray *fFtsHitArray;
+	TClonesArray *fFtsHitArray;
 
 
 	Bool_t fIsSet; // kTRUE if values have already been filled
+
 
 	Double_t fPeakHeightFromPeakFinder;
 	// height of peak in Hough transform
@@ -76,6 +86,7 @@ private:
 	Double_t fSecondHw; // error on second value
 
 
+//	void addPeakHits(); // check which hits have contributed to the peak and add them to the hitId vector
 
 
 public:

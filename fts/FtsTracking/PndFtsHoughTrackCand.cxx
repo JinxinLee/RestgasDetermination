@@ -10,19 +10,20 @@
 
 ClassImp(PndFtsHoughTrackCand);
 
-PndFtsHoughTrackCand::PndFtsHoughTrackCand() :
-														fVerbose(0),
+PndFtsHoughTrackCand::PndFtsHoughTrackCand(TClonesArray *ftsHitArray) :
+				fFtsHitArray(ftsHitArray),
+				fVerbose(0),
 
-														fZxLineParabola(),
+				fZxLineParabola(),
 
-														fZxParabola(),
+				fZxParabola(),
 
-														fZxParabolaLine(),
+				fZxParabolaLine(),
 
-														fZyLine(),
+				fZyLine(),
 
-														fZLineParabola(0.),
-														fZParabolaLine(0.)
+				fZLineParabola(0.),
+				fZParabolaLine(0.)
 {
 
 }
@@ -99,11 +100,12 @@ PndTrack PndFtsHoughTrackCand::getPndTrack() {
 }
 
 const PndFtsHit* PndFtsHoughTrackCand::getHit(UInt_t index) {
+	// this method will sort the hitId vector
 	// Make sure we have a complete track candidate before we try to access any hits
 	if (!isComplete()) return 0;
 	if (index < GetNHits()){
-		TClonesArray *ftsHitArray= (TClonesArray *)FairRootManager::Instance()->GetObject("FTSHit");
-		const PndFtsHit *myHit = (PndFtsHit*) ftsHitArray->At(GetSortedHit(index).GetHitId());
+//		TClonesArray *ftsHitArray= (TClonesArray *)FairRootManager::Instance()->GetObject("FTSHit");
+		const PndFtsHit *myHit = (PndFtsHit*) fFtsHitArray->At(GetSortedHit(index).GetHitId());
 		return myHit;
 	} else {
 		return 0;

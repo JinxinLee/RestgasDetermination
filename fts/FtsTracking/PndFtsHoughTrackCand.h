@@ -6,7 +6,7 @@
 // loosely modeled according to PndTools/riemannfit/PndRiemannTrack.h
 //
 // Created: 24.01.2014
-// Modified: 11.02.2014
+// Modified: 19.02.2014
 //
 // *************************************************************************
 
@@ -27,7 +27,7 @@ class PndFtsHoughTrackCand : public PndTrackCand {
 public:
 
 	// Constructors/Destructors ---------
-	PndFtsHoughTrackCand();
+	PndFtsHoughTrackCand(TClonesArray *ftsHitArray=0);
 	~PndFtsHoughTrackCand();
 
 	// operators
@@ -59,7 +59,7 @@ private:
 	Int_t fVerbose;
 
 	// FTS Hits
-	static TClonesArray *fFtsHitArray;
+	TClonesArray *fFtsHitArray;
 
 	// zx plane
 	// straight line Hough transform in zx plane (stations before dipole field)

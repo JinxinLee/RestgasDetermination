@@ -10,18 +10,20 @@
 
 ClassImp(PndFtsHoughTracklet);
 
-PndFtsHoughTracklet::PndFtsHoughTracklet() :
-						fVerbose(0),
+PndFtsHoughTracklet::PndFtsHoughTracklet(TClonesArray *ftsHitArray) :
+		fVerbose(0),
 
-						fIsSet(kFALSE),
+		fIsSet(kFALSE),
 
-						fPeakHeightFromPeakFinder(0.),
+		fPeakHeightFromPeakFinder(0.),
 
-						fThetaVal(0.),
-						fThetaHw(0.),
+		fThetaVal(0.),
+		fThetaHw(0.),
 
-						fSecondVal(0.),
-						fSecondHw(0.)
+		fSecondVal(0.),
+		fSecondHw(0.),
+
+		fFtsHitArray(ftsHitArray)
 {
 
 }
@@ -34,16 +36,34 @@ PndFtsHoughTracklet::~PndFtsHoughTracklet()
 
 
 
-void PndFtsHoughTracklet::SetHoughTransformResults(const Double_t thetaVal, const Double_t secondVal, const Double_t peakHeight, const Double_t thetaHw, const Double_t secondHw){
+void PndFtsHoughTracklet::SetHoughTransformResults(
+		const Double_t thetaVal,
+		const Double_t secondVal,
+
+		const Double_t peakHeight,
+
+		const Double_t thetaHw,
+		const Double_t secondHw
+){
 	fPeakHeightFromPeakFinder = peakHeight;
 
+	// set values from Hough space peak
 	fThetaVal = thetaVal;
 	fSecondVal = secondVal;
 	fThetaHw = thetaHw;
 	fSecondHw = secondHw;
 
+//	addPeakHits();
+
 	fIsSet = kTRUE;
 }
+
+
+//void PndFtsHoughTracklet::addPeakHits(){
+//	// check which hits are within the peak region and add the hits
+//	// functionality is not implemented here, because I don't know how to pass the equation into this class without copy pasting it
+//
+//}
 
 
 UInt_t PndFtsHoughTracklet::getNSharedHits(PndFtsHoughTracklet& rhs){
@@ -78,8 +98,8 @@ const PndFtsHit* PndFtsHoughTracklet::getHit(UInt_t index) {
 	// Make sure we have a complete track candidate before we try to access any hits
 	if (kTRUE==fIsSet) return 0;
 	if (index < GetNHits()){
-		TClonesArray *ftsHitArray= (TClonesArray *)FairRootManager::Instance()->GetObject("FTSHit");
-		const PndFtsHit *myHit = (PndFtsHit*) ftsHitArray->At(GetSortedHit(index).GetHitId());
+		//TClonesArray *ftsHitArray= (TClonesArray *)FairRootManager::Instance()->GetObject("FTSHit");
+		const PndFtsHit *myHit = (PndFtsHit*) fFtsHitArray->At(GetSortedHit(index).GetHitId());
 		return myHit;
 	} else {
 		return 0;

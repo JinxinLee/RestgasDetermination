@@ -95,10 +95,10 @@ public:
 
 
 	// Parameters
-//	void SetMinPeakHeightZxLineParabola(UInt_t val){ fMinPeakHeightZxLineParabola = val; };
-//	void SetMinPeakHeightZxParabola(UInt_t val){ fMinPeakHeightZxParabola = val; };
-//	void SetMinPeakHeightZxParabolaLine(UInt_t val){ fMinPeakHeightZxParabolaLine = val; };
-//	void SetMinPeakHeightZyLine(UInt_t val){ fMinPeakHeightZyLine= val; };
+	//	void SetMinPeakHeightZxLineParabola(UInt_t val){ fMinPeakHeightZxLineParabola = val; };
+	//	void SetMinPeakHeightZxParabola(UInt_t val){ fMinPeakHeightZxParabola = val; };
+	//	void SetMinPeakHeightZxParabolaLine(UInt_t val){ fMinPeakHeightZxParabolaLine = val; };
+	//	void SetMinPeakHeightZyLine(UInt_t val){ fMinPeakHeightZyLine= val; };
 
 	//  write out histograms for debugging
 	void WriteHistograms();
@@ -232,8 +232,6 @@ private:
 	);
 
 	Bool_t MakeHoughSpace(
-			TString option,
-
 			const Double_t zRefPos, // is used to redefine an origin for the coordinate system (so that the angle definition gives meaningful theta values)
 			Double_t interceptZx, // cannot be constant, because might need to be reset if set incorrectly (has to be 0 for line HT)
 			// is used to shift the true x values of hits so that they hit the point (zOffset|0) in z-x-plane (value is determined by line fit on chambers1+2)
@@ -258,6 +256,45 @@ private:
 
 
 
+
+
+
+	Double_t equationParabola(Double_t thetaRad, Double_t hitZShifted, Double_t hitXShifted, Double_t By)
+	{
+		// for parabola equation
+		const Double_t n = 1.;
+		const Double_t e = 1.;
+		const Double_t c = n * e / 2.;
+
+		Double_t yVal = 1. / c / By 	* (-hitZShifted * sin(thetaRad) + hitXShifted * cos(thetaRad))/ pow((hitZShifted * cos(thetaRad) + hitXShifted * sin(thetaRad)), 2);
+
+		// next line is with rotation as in paper (I believe it is incorrect)
+		//					value = 1. / c / By 	* (hitZshifted * sin(realtheta) - hitXshifted * cos(realtheta))/ pow((hitZshifted * cos(realtheta) + hitXshifted * sin(realtheta)), 2);
+		return yVal;
+	};
+
+	Double_t equationParabolaPz(Double_t thetaRad, Double_t hitZShifted, Double_t hitXShifted, Double_t By)
+	{
+		// for parabola equation
+		const Double_t n = 1.;
+		const Double_t e = 1.;
+		const Double_t c = n * e / 2.;
+
+		// Use shifted x and shifted z for parabola
+		Double_t yVal = c*By*pow((hitZShifted * cos(thetaRad) + hitXShifted * sin(thetaRad)), 2)/(-hitZShifted * sin(thetaRad) + hitXShifted * cos(thetaRad));
+
+		// next line is with rotation as in paper (I believe it is incorrect)
+		//					value = c*By*pow((hitZshifted * cos(realtheta) + hitXshifted * sin(realtheta)), 2)/(hitZshifted * sin(realtheta) - hitXshifted * cos(realtheta));
+
+		return yVal;
+	};
+
+	Double_t equationLineZx(Double_t thetaRad, Double_t hitZShifted, Double_t hitXLabSys)
+	{
+		// calculate b which is the distance of point on line at z = zOffset from z axis
+		Double_t yVal = -tan(thetaRad)*hitZShifted+hitXLabSys;
+		return yVal;
+	}
 
 	ClassDef(PndFtsHoughTrackFinder,1);
 };
