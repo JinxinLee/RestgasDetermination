@@ -181,7 +181,7 @@ void PndFtsHoughTrackFinder::FindTracks() {
 	static const Int_t thetaLowFirstLine = -20;
 	static const Int_t thetaHighFirstLine = 20;
 	delete fHoughspaceZxLineParabola;
-	fHoughspaceZxLineParabola = new TH2F("lineBeforeDipole", "lineBeforeDipole", invthetastepForLine*(thetaHighFirstLine-thetaLowFirstLine), thetaLowFirstLine, thetaHighFirstLine, invthetastepForLine*40, -50., 50.);
+	fHoughspaceZxLineParabola = new TH2S("lineBeforeDipole", "lineBeforeDipole", invthetastepForLine*(thetaHighFirstLine-thetaLowFirstLine), thetaLowFirstLine, thetaHighFirstLine, invthetastepForLine*40, -50., 50.);
 	fHoughspaceZxLineParabola->GetXaxis()->SetTitle("#theta [^{0}]");
 	fHoughspaceZxLineParabola->GetYaxis()->SetTitle("x_{LP} [cm]");
 
@@ -222,7 +222,7 @@ void PndFtsHoughTrackFinder::FindTracks() {
 	// Call peak finder and plot the solution if it was found!
 	//	Bool_t PndFtsHoughTrackFinder::FindAllPeaks(
 	//			TString option,
-	//			TH2F *houghspace,
+	//			TH2S *houghspace,
 	//			const UInt_t minHeight,
 	//			std::vector<PndFtsHoughTrackCand> &tracklets
 	//	)
@@ -258,7 +258,7 @@ void PndFtsHoughTrackFinder::FindTracks() {
 		const Int_t thetaHighParabola = ceil(peakThetaZxLineParabola+0.3)+0;
 
 		delete fHoughspaceZxParabola;
-		fHoughspaceZxParabola= new TH2F("parabola", "parabola", invthetastepForParabola*(thetaHighParabola-thetaLowParabola), thetaLowParabola, thetaHighParabola, invthetastepForParabola*300, -0.015, 0.015); // 300 is good as factor
+		fHoughspaceZxParabola= new TH2S("parabola", "parabola", invthetastepForParabola*(thetaHighParabola-thetaLowParabola), thetaLowParabola, thetaHighParabola, invthetastepForParabola*300, -0.015, 0.015); // 300 is good as factor
 		fHoughspaceZxParabola->GetXaxis()->SetTitle("#theta [^{0}]");
 		fHoughspaceZxParabola->GetYaxis()->SetTitle("#frac{Q}{p_zx} [a.u.]");
 
@@ -461,7 +461,7 @@ Bool_t PndFtsHoughTrackFinder::FilterTrackletsBasedOnSharedHits(
 
 Bool_t PndFtsHoughTrackFinder::FindAllPeaks(
 		TString option,
-		TH2F *houghspace,
+		TH2S *houghspace,
 		const UInt_t minHeight,
 		std::vector<PndFtsHoughTracklet> &tracklets
 )
@@ -637,7 +637,7 @@ Bool_t PndFtsHoughTrackFinder::MakeHoughSpace(
 
 		UInt_t &nHitsForHoughSpace,
 
-		TH2F* houghspace // has always the angle (theta) on x-coordinate axis, the value on the y-axis depends on the kind of hough transform
+		TH2S* houghspace // has always the angle (theta) on x-coordinate axis, the value on the y-axis depends on the kind of hough transform
 		//	parabola HT: yValue = Q/pzx
 		//	line HT: yValue = intercept (Achsenabschnitt) (in z-x- or z-y-plane)
 )
@@ -903,11 +903,11 @@ Bool_t PndFtsHoughTrackFinder::MakeHoughSpace(
 
 			// if Fill was into a real bin (and not into over-/underflow) remove holes in Hough space (by assuming a straight line in between neighboring points)
 			// for each theta 1 yVal is calculated, so holes will only appear in yVal, not in theta
-			if (globalBin>=0)
+			if (globalBin>=0) // -1 would mean over- or underflow
 			{
 				if (5<fVerbose) { std::cout << "OK! Hough point was NOT written to over- or underflow of histogram. Setting firstEntry to kFALSE now. "<< option <<std::endl; }
 
-				// TODO Remove the following check, it should always be true
+				// TODO Remove the following check for optimization, it should always be true
 				if (currentBinX != iTheta){
 					std::cout << "\n\nError in MakeHoughSpace! Hough point was filled into xBin " << currentBinX << " and not in " << iTheta << "\n";
 					std::cout << "iThetaFirst = " << iThetaLast << " iThetaLast = " << iThetaLast << "\n";
@@ -923,14 +923,16 @@ Bool_t PndFtsHoughTrackFinder::MakeHoughSpace(
 					}
 
 					// Make sure there are no holes in the histogram
-					for (Int_t iCorrect = 1; iCorrect < abs(currentBinY-lastBinY); ++iCorrect)
+					// holes cannot appear in theta, we always go from lower theta to higher values
+					const UInt_t nHolesToFill = abs(currentBinY-lastBinY);
+					for (UInt_t iCorrect = 1; iCorrect < nHolesToFill; ++iCorrect)
 					{
 
-
-						Int_t xCorrect = round(float(iCorrect*(currentBinX-lastBinX))/float(abs(currentBinY-lastBinY))); // gives -1, 0 or 1
-						Int_t yCorrect = 0;
+						const Int_t xCorrect = round(float(iCorrect)/float(nHolesToFill)); // gives 0 or 1
+						Int_t yCorrect;
 						if (currentBinY > lastBinY)
 						{
+							// we go up in the second value, therefore, we need to add to the yValue
 							yCorrect = iCorrect;
 						}
 						else

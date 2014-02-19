@@ -58,10 +58,10 @@
 
 class FairField;
 class TClonesArray;
-class PndGeoFtsPar;
-class TH1F;
-class TH2F;
-class TGraph;
+//class PndGeoFtsPar;
+//class TH1F;
+class TH2S;
+//class TGraph;
 
 class FairHit;
 
@@ -176,10 +176,10 @@ private:
 
 	// for Hough
 	///////////////////
-	TH2F* fHoughspaceZxLineParabola;
-	TH2F* fHoughspaceZxParabola;
-	TH2F* fHoughspaceZxParabolaLine;
-	TH2F* fHoughspaceZyLine;
+	TH2S* fHoughspaceZxLineParabola;
+	TH2S* fHoughspaceZxParabola;
+	TH2S* fHoughspaceZxParabolaLine;
+	TH2S* fHoughspaceZyLine;
 	std::vector<PndFtsHoughTrackCand> fHoughTrackCandsNew;									///< Temporary Hough Track Cands are used internally to store track cands
 	std::vector<PndFtsHoughTrackCand> fHoughTrackCands;									///< Hough Track Cands are used internally to store track cands
 
@@ -226,7 +226,7 @@ private:
 
 	Bool_t FindAllPeaks(
 			TString option,
-			TH2F *houghspace,
+			TH2S *houghspace,
 			const UInt_t minHeight,
 			std::vector<PndFtsHoughTracklet> &tracklets
 	);
@@ -249,7 +249,7 @@ private:
 
 			UInt_t &nHitsForHoughSpace,
 
-			TH2F* houghspace // has always the angle (theta) on x-coordinate axis, the value on the y-axis depends on the kind of hough transform
+			TH2S* houghspace // has always the angle (theta) on x-coordinate axis, the value on the y-axis depends on the kind of hough transform
 			//	parabola HT: yValue = Q/pzx
 			//	line HT: yValue = intercept (Achsenabschnitt) (in z-x- or z-y-plane)
 	);
