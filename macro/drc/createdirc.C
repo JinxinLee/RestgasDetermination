@@ -63,8 +63,8 @@ void createdirc(Int_t fGeomType = 1, Int_t fFocusingSystem = 6, Int_t iter=0, TS
   
     Double_t radius       	=  fGeo->radius();       // 47.6 radius in middle of the barbox (x and y)
     Double_t hthick       	=  fGeo->barHalfThick(); // 1.7/2. half thickness of the bars
-    Double_t barwidth		=  fGeo->BarWidth();       // 3.2 width of the radiator bar
-    Double_t barnum       	=  fGeo->barNum();       // 6 number of bars per barbox
+    Double_t barwidth		=  16;//fGeo->BarWidth();       // 3.2 width of the radiator bar
+    Double_t barnum       	=  1;//fGeo->barNum();       // 6 number of bars per barbox
     Double_t bbnum        	=  fGeo->BBoxNum();	  //16. total number of sides = barboxes
     Double_t bbGapAngle        	=  fGeo->BBoxGap();	  //1.5 gap btw the neighboring barboxes (at the middle height)
     Double_t pipehAngle   	=  fGeo->PipehAngle();	  //3.6 [degrees] half of the angular space needed for the target pipe
@@ -1417,7 +1417,7 @@ void createdirc(Int_t fGeomType = 1, Int_t fFocusingSystem = 6, Int_t iter=0, TS
 	  
 	  double covergap = 0.05;
 	  evwidth += covergap; 
-	  evh += 2*covergap;
+	  //evh += 2*covergap;
 	  sp += 2*covergap;
 	  evb = evh*sin(sob_angleB*pi/180.);
 	  dz1 = (sob_len - evh*cos(sob_angleB*pi/180.))/2.;
@@ -1428,7 +1428,7 @@ void createdirc(Int_t fGeomType = 1, Int_t fFocusingSystem = 6, Int_t iter=0, TS
 	  TGeoTrap *Trd2Air = new TGeoTrap("Trd2Air",dz2, -atan((evb)/(4.*dz2))*180./pi, 270., 0.000001, evwidth, evwidth, 0, evb/2., evwidth, evwidth, 0);	
 
 	  evwidth +=coverthick; 
-	  evh += 2*coverthick;
+	  //evh += 2*coverthick;
 	  sp += 2*coverthick;
 	  evb = evh*sin(sob_angleB*pi/180.);
 	  dz1 = (sob_len - evh*cos(sob_angleB*pi/180.))/2.;
