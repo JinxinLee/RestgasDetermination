@@ -255,11 +255,17 @@ private:
 	);
 
 
+	inline Bool_t FillHoles(
+			TH2S* houghspace,
+			Int_t lastBinX,
+			Int_t lastBinY,
+			Int_t currentBinY
+	);
 
 
 
 
-	Double_t equationParabola(Double_t thetaRad, Double_t hitZShifted, Double_t hitXShifted, Double_t By)
+	inline Double_t equationParabola(Double_t thetaRad, Double_t hitZShifted, Double_t hitXShifted, Double_t By)
 	{
 		// for parabola equation
 		const Double_t n = 1.;
@@ -273,7 +279,7 @@ private:
 		return yVal;
 	};
 
-	Double_t equationParabolaPz(Double_t thetaRad, Double_t hitZShifted, Double_t hitXShifted, Double_t By)
+	inline Double_t equationParabolaPz(Double_t thetaRad, Double_t hitZShifted, Double_t hitXShifted, Double_t By)
 	{
 		// for parabola equation
 		const Double_t n = 1.;
@@ -289,7 +295,7 @@ private:
 		return yVal;
 	};
 
-	Double_t equationLineZx(Double_t thetaRad, Double_t hitZShifted, Double_t hitXLabSys)
+	inline Double_t equationLineZx(Double_t thetaRad, Double_t hitZShifted, Double_t hitXLabSys)
 	{
 		// calculate b which is the distance of point on line at z = zOffset from z axis
 		Double_t yVal = -tan(thetaRad)*hitZShifted+hitXLabSys;

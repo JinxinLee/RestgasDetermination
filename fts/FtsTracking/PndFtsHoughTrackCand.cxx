@@ -3,6 +3,7 @@
 #include <iostream>
 #include "math.h"
 
+#include "TClonesArray.h"
 #include "FairRootManager.h"
 #include "PndFtsHit.h"
 #include "PndTrack.h"

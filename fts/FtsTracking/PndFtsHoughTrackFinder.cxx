@@ -922,38 +922,7 @@ Bool_t PndFtsHoughTrackFinder::MakeHoughSpace(
 						std::cout << "This is not the first point of the hit in the histogram. I will fix all holes which might be between this entry and the last one in the histogram"<<std::endl;
 					}
 
-					// Make sure there are no holes in the histogram
-					// holes cannot appear in theta, we always go from lower theta to higher values
-					const UInt_t nHolesToFill = abs(currentBinY-lastBinY);
-					for (UInt_t iCorrect = 1; iCorrect < nHolesToFill; ++iCorrect)
-					{
-
-						const Int_t xCorrect = round(float(iCorrect)/float(nHolesToFill)); // gives 0 or 1
-						Int_t yCorrect;
-						if (currentBinY > lastBinY)
-						{
-							// we go up in the second value, therefore, we need to add to the yValue
-							yCorrect = iCorrect;
-						}
-						else
-						{
-							yCorrect = -iCorrect;
-						}
-
-
-						houghspace->AddBinContent(houghspace->GetBin(lastBinX+xCorrect,lastBinY+yCorrect));
-
-						if (8<fVerbose)
-						{
-							std::cout << "I am filling hole number " << iCorrect << std::endl;
-							std::cout << "globalbin = " << globalBin << std::endl;
-							std::cout << "(lastbinx, lastbiny) = (" << lastBinX << ", " << lastBinY << ")" << std::endl;
-							std::cout << "(binx,     biny)     = (" << currentBinX << ", " << currentBinY << ")" << std::endl;
-							std::cout << "xCorrect = " << xCorrect << "  yCorrect = " << yCorrect << std::endl;
-							std::cout << "(lastbinx+xCorrect, lastbiny+yCorrect) = (" << lastBinX+xCorrect << ", " << lastBinY+yCorrect << ")" << std::endl;
-						}
-					}// for iCorrect
-
+					FillHoles(houghspace, lastBinX, lastBinY, currentBinY);
 
 				} // if not first entry to be written into histogram
 				else
@@ -984,9 +953,47 @@ Bool_t PndFtsHoughTrackFinder::MakeHoughSpace(
 
 
 
+Bool_t PndFtsHoughTrackFinder::FillHoles(
+		TH2S* houghspace,
+		Int_t lastBinX,
+		Int_t lastBinY,
+		Int_t currentBinY
+)
+{
+	// Makes sure there are no holes in the Hough space
+	// holes cannot appear in theta, we always go from lower theta to the next higher value
+	// fill holes between (lastBinX, lastBinY) and (currentBinX, currentBinY) = (lastBinX+1, currentBinY) with a line
+	const UInt_t nHolesToFill = abs(currentBinY-lastBinY);
+	for (UInt_t iCorrect = 1; iCorrect < nHolesToFill; ++iCorrect)
+	{
 
+		const Int_t xCorrect = round(float(iCorrect)/float(nHolesToFill)); // gives 0 or 1
+		Int_t yCorrect;
+		if (currentBinY > lastBinY)
+		{
+			// we go up in the second value, therefore, we need to add to the yValue
+			yCorrect = iCorrect;
+		}
+		else
+		{
+			yCorrect = -iCorrect;
+		}
 
+		Int_t globalBin = houghspace->GetBin(lastBinX+xCorrect,lastBinY+yCorrect);
+		houghspace->AddBinContent(globalBin);
 
+		if (8<fVerbose)
+		{
+			std::cout << "I am filling hole number " << iCorrect << std::endl;
+			std::cout << "globalbin = " << globalBin << std::endl;
+			std::cout << "(lastBinX, lastBinY) = (" << lastBinX << ", " << lastBinY << ")" << std::endl;
+			std::cout << "(lastBinX+1, currentBinY)     = (" << lastBinX+1 << ", " << currentBinY << ")" << std::endl;
+			std::cout << "xCorrect = " << xCorrect << "  yCorrect = " << yCorrect << std::endl;
+			std::cout << "(lastbinx+xCorrect, lastbiny+yCorrect) = (" << lastBinX+xCorrect << ", " << lastBinY+yCorrect << ")" << std::endl;
+		}
+	}// for iCorrect
+
+}
 
 
 
