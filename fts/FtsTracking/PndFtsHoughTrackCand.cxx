@@ -8,6 +8,7 @@
 #include "PndFtsHit.h"
 #include "PndTrack.h"
 #include "FairTrackParP.h"
+#include "TVector3.h"
 
 ClassImp(PndFtsHoughTrackCand);
 

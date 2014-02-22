@@ -17,10 +17,13 @@
 #include "PndTrackCand.h"
 #include "PndFtsHoughTracklet.h"
 
+
+
 class PndFtsHit;
 class PndTrack;
 class FairTrackParP;
-
+class TVector3;
+class TClonesArray;
 
 
 class PndFtsHoughTrackCand : public PndTrackCand {

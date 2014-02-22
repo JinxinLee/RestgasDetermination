@@ -39,7 +39,6 @@ class PndFtsHoughTrackCand;
 
 class TClonesArray;
 class PndGeoFtsPar;
-class TH2F;
 class FairField;
 
 
@@ -108,7 +107,7 @@ private:
 	TString fTracksArrayName;     // Branch name where to store the Track candidates
 	TClonesArray  *fTrackCands;   //! Array of found track candidates in PndTrackCand (for output)
 	TClonesArray  *fTracks;       //! Array of found tracks in PndTrack (for output)
-	TClonesArray* fHoughTrackCands; // Array of found track cands in PndFtsHoughTrackCand (only for debugging)
+	TClonesArray *fHoughTrackCands; // Array of found track cands in PndFtsHoughTrackCand (only for debugging)
 
 
 	// Debug

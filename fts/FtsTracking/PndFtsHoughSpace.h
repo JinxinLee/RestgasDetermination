@@ -23,11 +23,23 @@ class PndFtsHoughSpace : public TH2S {
 public:
 
 	// Constructors/Destructors ---------
+	PndFtsHoughSpace();
+
 	PndFtsHoughSpace(
-			TClonesArray *ftsHitArray=0,
-			Double_t zRefPos=0.,
+			const char *name,
+
+			Int_t nbinsx,
+			Double_t xlow,
+			Double_t xup,
+
+			Int_t nbinsy,
+			Double_t ylow,
+			Double_t yup,
+
+			TClonesArray *ftsHitArray,
+			Double_t zRefPos,
 			Double_t interceptZx=0.
-			);
+	);
 	~PndFtsHoughSpace();
 
 	// operators
@@ -55,7 +67,34 @@ private:
 	Double_t fInterceptZx;
 
 public:
-	ClassDef(PndFtsHoughSpace,1);
+	ClassDef(PndFtsHoughSpace,1)
+
+	// getters / setters
+	void setFtsHitArray(const TClonesArray*& ftsHitArray) {
+		fFtsHitArray = ftsHitArray;
+	}
+
+	Double_t getInterceptZx() const {
+		return fInterceptZx;
+	}
+
+	void setInterceptZx(Double_t interceptZx) {
+		fInterceptZx = interceptZx;
+	}
+
+	void setVerbose(Int_t verbose) {
+		fVerbose = verbose;
+	}
+
+	Double_t getZRefPos() const {
+		return fZRefPos;
+	}
+
+	void setZRefPos(Double_t zRefPos) {
+		fZRefPos = zRefPos;
+	}
+
+	;
 };
 
 #endif
