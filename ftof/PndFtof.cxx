@@ -64,6 +64,10 @@ PndFtof::PndFtof()
   fListOfSensitives.push_back("Ftof_Central_Strip");//Root_Test.root
   fListOfSensitives.push_back("Ftof_Beam_Strip");//Root_Test.root
   fListOfSensitives.push_back("Ftof_Vertical_Strip");//Root_Test.root
+  //adding side tof plates
+  fListOfSensitives.push_back("Stof_plate");
+
+
 }
 // -------------------------------------------------------------------------
 
@@ -80,6 +84,8 @@ PndFtof::PndFtof(const char* name, Bool_t active)
     fListOfSensitives.push_back("Ftof_Central_Strip");//Root_Test.root
     fListOfSensitives.push_back("Ftof_Beam_Strip");//Root_Test.root
     fListOfSensitives.push_back("Ftof_Vertical_Strip");//Root_Test.root
+    //adding side tof plates
+    fListOfSensitives.push_back("Stof_plate");
 }
 // -------------------------------------------------------------------------
 
