@@ -58,8 +58,6 @@ void QAmacro_mvd_1()
   fBox2->SetXYZ(0., 0., 0.); // vertex coordinates [mm]
   primGen->AddGenerator(fBox2);
   
-  primGen->SetEventMeanTime(50.); //[ns]
-  
   /** Set the field*/
   fRun->SetBeamMom(1.5);
   PndMultiField *fField= new PndMultiField("FULL");
