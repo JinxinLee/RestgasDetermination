@@ -2,7 +2,7 @@ Bool_t create_stof(TGeoManager *gGeoMan, TGeoVolume *top,TGeoVolume *unitVol){
 	// all position parameters in cm
 	// side tof plate geometry parameters
 	//-----------------------------
-	//-- macro created by Alicia S. based on 3d pdf drawing of the PANDA detector (Panda_v912.pdf)
+	//-- geo created by M. J. Galuska based on 3d pdf drawing of the PANDA detector (Panda_v912.pdf)
 	//--
 
 	// PANDA Coordinate System
@@ -264,15 +264,6 @@ void create_ftof_stof_rootgeo(Double_t zDistFtofWall = 775){
 
 	create_stof(gGeoMan, top,merge_fstof);
 	std::cout << "stof side plates were created in dipole region.\n\n";
-
-
-
-
-
-
-
-
-
 
 
 
