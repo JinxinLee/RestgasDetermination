@@ -1,4 +1,4 @@
-Bool_t create_stof(TGeoManager *gGeoMan, TGeoVolume *top){
+Bool_t create_stof(TGeoManager *gGeoMan, TGeoVolume *top,TGeoVolume *unitVol){
 	// all position parameters in cm
 	// side tof plate geometry parameters
 	//-----------------------------
@@ -75,7 +75,8 @@ Bool_t create_stof(TGeoManager *gGeoMan, TGeoVolume *top){
 
 
 
-	top->AddNode(subunitVol,0,new TGeoCombiTrans(0.,yMiddleStof,zDistStof+kdZ,new TGeoRotation ()));
+	unitVol->AddNode(subunitVol,0,new TGeoCombiTrans(0.,yMiddleStof,zDistStof+kdZ,new TGeoRotation ()));
+	top->AddNode(unitVol,0,new TGeoCombiTrans(0.,0.,0.,new TGeoRotation ()));
 	return kTRUE;
 }
 
@@ -84,7 +85,7 @@ Bool_t create_stof(TGeoManager *gGeoMan, TGeoVolume *top){
 
 
 
-Bool_t create_ftofwall(Double_t zDistFtofWall, TGeoManager *gGeoMan, TGeoVolume *top)
+Bool_t create_ftofwall(Double_t zDistFtofWall, TGeoManager *gGeoMan, TGeoVolume *top, TGeoVolume *unitVol)
 {
 	// Forward tof wall geometry parameters
 	//-----------------------------
@@ -114,7 +115,7 @@ Bool_t create_ftofwall(Double_t zDistFtofWall, TGeoManager *gGeoMan, TGeoVolume 
 	Double_t bx[22],by[22],bz[22];
 	Double_t bvx[46],bvy[46],bvz[46];
 	TGeoVolumeAssembly* SubunitVol = new TGeoVolumeAssembly("Ftof_strips");
-
+        
 
 	char name[13];
 	char namB[13];
@@ -206,8 +207,8 @@ Bool_t create_ftofwall(Double_t zDistFtofWall, TGeoManager *gGeoMan, TGeoVolume 
 		SubunitVol->AddNode(VertVol[i],i,trc1);
 	}
 
-
-	top->AddNode(SubunitVol,0,new TGeoCombiTrans(0.,0.,zDistFtofWall,new TGeoRotation ()));
+	unitVol->AddNode(SubunitVol,0,new TGeoCombiTrans(0.,0.,zDistFtofWall,new TGeoRotation ()));
+	top->AddNode(unitVol,0,new TGeoCombiTrans(0.,0.,0.,new TGeoRotation ()));
 	return kTRUE;
 }
 
@@ -242,10 +243,10 @@ void create_ftof_stof_rootgeo(Double_t zDistFtofWall = 775){
 	FairGeoMedia *Media =  geoFace->getMedia();
 	FairGeoBuilder *geobuild=geoLoad->getGeoBuilder();
 
-	FairGeoMedium *CbmMediumSci  = Media->getMedium("polyvinyltoluene");
+	FairGeoMedium *MediumSci  = Media->getMedium("polyvinyltoluene");
 
 
-	Int_t nmed=geobuild->createMedium(CbmMediumSci);
+	Int_t nmed=geobuild->createMedium(MediumSci);
 
 
 	TGeoManager* gGeoMan = (TGeoManager*)gROOT->FindObject("FAIRGeom");
@@ -255,13 +256,13 @@ void create_ftof_stof_rootgeo(Double_t zDistFtofWall = 775){
 	gGeoMan->SetTopVolume(top);
 
 
+	TGeoVolume *merge_fstof = new TGeoVolumeAssembly("FStof");
+	//merging the two assemblies volumes ftof and stof as unit
 
-
-
-	create_ftofwall(zDistFtofWall, gGeoMan, top);
+	create_ftofwall(zDistFtofWall, gGeoMan, top,merge_fstof);
 	std::cout << "\nftof wall was created.\n";
 
-	create_stof(gGeoMan, top);
+	create_stof(gGeoMan, top,merge_fstof);
 	std::cout << "stof side plates were created in dipole region.\n\n";
 
 

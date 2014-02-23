@@ -14,13 +14,16 @@
   
   
   TString inFile3= "pbarC_3_GeV.root";
+  double BeamMomentum;
+  
+  BeamMomentum = 15;
 
   // set the MC version used
   // ------------------------
+
+  fRun->SetBeamMom(BeamMomentum);
   
-  fRun->SetName("TGeant4");
-  
-  
+  fRun->SetName("TGeant3");
  
   fRun->SetOutputFile("test.root");
   
@@ -36,7 +39,7 @@
   Cave->SetGeometryFileName("cave.geo");
   fRun->AddModule(Cave); 
   
-   FairModule *Magnet= new PndMagnet("MAGNET");
+/*   FairModule *Magnet= new PndMagnet("MAGNET");
   Magnet->SetGeometryFileName("magnet.geo");
   fRun->AddModule(Magnet);
   
@@ -45,7 +48,7 @@
   Dipole->SetGeometryFileName("dipole.geo");
   fRun->AddModule(Dipole);
 
-  
+  */
   FairDetector *FTof = new PndFtof("FTOF",kTRUE);
   FTof->SetGeometryFileName("ftofwall+stof.root");
   fRun->AddModule(FTof);
@@ -71,12 +74,12 @@
   */
 
 // Box Generator:
- PndBoxGenerator* boxGen = new PndBoxGenerator(3312, 10); // 13 = muon; 1 = multipl. // 211 = pi+
+ PndBoxGenerator* boxGen = new PndBoxGenerator(13, 10); // 13 = muon; 1 = multipl. // 211 = pi+
  // first number: PDG particle code: 2nd number: particle multiplicity per event
-  boxGen->SetPRange(.2,2.); // GeV/c
+  boxGen->SetPRange(.2,7.); // GeV/c
   boxGen->SetPhiRange(0., 360.); // Azimuth angle range [degree]
   boxGen->SetThetaRange(0., 15.); // Polar angle in lab system range [degree]
-  boxGen->SetCosTheta(); // Set uniform ditribution in cos(theta)
+  //boxGen->SetCosTheta(); // Set uniform ditribution in cos(theta)
   boxGen->SetXYZ(0., 0., 0.); // vertex coordinates [cm]
   primGen->AddGenerator(boxGen);
 
