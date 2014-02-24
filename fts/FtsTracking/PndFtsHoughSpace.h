@@ -13,8 +13,10 @@
 #ifndef PndFtsHoughSpace_H
 #define PndFtsHoughSpace_H
 
-// Root Class Headers ----------------
+
 #include "TH2.h"
+#include <vector>
+#include "PndTrackCandHit.h"
 class TClonesArray;
 
 
@@ -49,26 +51,6 @@ public:
 	void Print();
 
 
-
-
-private:
-	// Private Data Members ------------
-	Int_t fVerbose;
-
-	// FTS Hits
-	TClonesArray *fFtsHitArray;
-
-
-
-	// at which z value the values are calculated
-	Double_t fZRefPos;
-
-	// is used only for parabola in zx plane to shift the true x values of hits so that they hit the point (zOffset|0) in z-x-plane (value is determined by line fit on chambers1+2)
-	Double_t fInterceptZx;
-
-public:
-	ClassDef(PndFtsHoughSpace,1)
-
 	// getters / setters
 	void setFtsHitArray(const TClonesArray*& ftsHitArray) {
 		fFtsHitArray = ftsHitArray;
@@ -94,7 +76,33 @@ public:
 		fZRefPos = zRefPos;
 	}
 
-	;
+
+
+private:
+	// Private Data Members ------------
+	Int_t fVerbose;
+
+	// FTS Hits
+	TClonesArray *fFtsHitArray; // all FTS hits
+	std::vector<PndTrackCandHit> fHitId;  // hits relevant for this Hough space
+	///< first index is detId, second index is hit Id
+	void AddHit(UInt_t detId, UInt_t hitId, Double_t rho);
+	void AddHit(TString branchName, UInt_t hitId, Double_t rho);
+	void AddHit(FairLink link, Double_t rho);
+	UInt_t GetNHits() const {return fHitId.size();}
+
+
+	// at which z value the values are calculated
+	Double_t fZRefPos;
+
+	// is used only for parabola in zx plane to shift the true x values of hits so that they hit the point (zOffset|0) in z-x-plane (value is determined by line fit on chambers1+2)
+	Double_t fInterceptZx;
+
+
+
+public:
+	ClassDef(PndFtsHoughSpace,1);
+
 };
 
 #endif

@@ -58,7 +58,22 @@ PndFtsHoughSpace::~PndFtsHoughSpace()
 
 
 
+void PndFtsHoughSpace::AddHit(UInt_t detId, UInt_t hitId, Double_t rho)
+{
+	fHitId.push_back(PndTrackCandHit(detId, hitId, rho));
+}
 
+void PndFtsHoughSpace::AddHit(TString branchName, UInt_t hitId, Double_t rho)
+{
+	FairRootManager* ioman = FairRootManager::Instance();
+	UInt_t detId = ioman->GetBranchId(branchName);
+	AddHit(detId, hitId, rho);
+}
+
+void PndFtsHoughSpace::AddHit(FairLink link, Double_t rho)
+{
+	fHitId.push_back(PndTrackCandHit(link.GetType(), link.GetIndex(), rho));
+}
 
 
 
