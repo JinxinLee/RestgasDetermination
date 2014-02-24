@@ -321,8 +321,8 @@ void PndTrkCTGeometryCalculations::ChooseEntranceExitbis(
 	Short_t  Charge,
 	Double_t FiStart,
 	Short_t nIntersections,
-	Double_t *XintersectionList, //  second index =1 -->inner polygon;
-	Double_t *YintersectionList, //  second index =2 -->outer polygon.
+	Double_t *XintersectionList,
+	Double_t *YintersectionList,
 	Double_t Xcross[2],	// output
 	Double_t Ycross[2]	// output
 					)
@@ -347,7 +347,7 @@ void PndTrkCTGeometryCalculations::ChooseEntranceExitbis(
 		  if( fi[i] > FiStart) fi[i]  -= two_pi;
 		  if( fi[i] > FiStart) fi[i] = FiStart;
 		  auxIndex[i]=i;
-		} // end of for( i=0;i<nIntersections[j];i++)
+		} // end of for( i=0;i<nIntersections;i++)
 		MergeSort.Merge_Sort( nIntersections, fi, auxIndex);
 		Xcross[0] = XintersectionList[ auxIndex[nIntersections-1] ];
 		Ycross[0] = YintersectionList[ auxIndex[nIntersections-1] ];
@@ -377,6 +377,79 @@ void PndTrkCTGeometryCalculations::ChooseEntranceExitbis(
 
 }
 //----------end of function PndTrkCTGeometryCalculations::ChooseEntranceExitbis
+
+
+
+
+//----------star of function PndTrkCTGeometryCalculations::ChooseEntranceExit3
+void PndTrkCTGeometryCalculations::ChooseEntranceExit3(
+	Double_t Oxx,
+	Double_t Oyy,
+	Short_t  Charge,
+	Double_t FiStart,
+	Short_t nIntersections,
+	Double_t *XintersectionList,	// input and output;
+	Double_t *YintersectionList	// input and output;
+					)
+{
+
+ Short_t
+	i,
+	j;
+
+ Int_t auxIndex[nIntersections];
+
+ Double_t auxX[12], auxY[12], fi[nIntersections];
+
+ PndTrkMergeSort MergeSort;
+
+// this method works under the hypothesis that there are at least 2 intersections.
+	if (nIntersections<2) return;
+
+	  if(Charge > 0) {
+		for( i=0;i<nIntersections;i++){
+		  fi[i] = atan2(YintersectionList[i]-Oyy,
+				XintersectionList[i]-Oxx);
+		  if( fi[i] < 0.) fi[i]  += two_pi;
+		  if( fi[i] > FiStart) fi[i]  -= two_pi;
+		  if( fi[i] > FiStart) fi[i] = FiStart;
+		  auxIndex[i]=i;
+		} // end of for( i=0;i<nIntersections;i++)
+		MergeSort.Merge_Sort( nIntersections, fi, auxIndex);
+		for( i=0;i<nIntersections;i++){
+			auxX[i] = XintersectionList[ auxIndex[nIntersections-i-1] ];
+			auxY[i] = YintersectionList[ auxIndex[nIntersections-i-1] ];
+
+		} // end of for( i=0;i<nIntersections;i++)
+
+	  } else { // case in which Charge is negative.
+		for( i=0;i<nIntersections;i++){
+		  fi[i] = atan2(YintersectionList[i]-Oyy,
+				XintersectionList[i]-Oxx);
+		  if( fi[i] < 0.) fi[i]  += two_pi;
+		  if( fi[i] < FiStart) fi[i]  += two_pi;
+		  if( fi[i] < FiStart) fi[i] += FiStart;
+		  auxIndex[i]=i;
+		} // end of for( i=0;i<nIntersections;i++)
+		MergeSort.Merge_Sort( nIntersections, fi, auxIndex);
+
+		for( i=0;i<nIntersections;i++){
+			auxX[i] = XintersectionList[ auxIndex[i] ];
+			auxY[i] = YintersectionList[ auxIndex[i] ];
+		} // end of for( i=0;i<nIntersections;i++)
+
+	  } // end of if(Charge > 0)
+
+
+		for( i=0;i<nIntersections;i++){
+			XintersectionList[i] = auxX[i];
+			YintersectionList[i] = auxY[i];
+		} // end of for( i=0;i<nIntersections;i++)
+
+
+}
+//----------end of function PndTrkCTGeometryCalculations::ChooseEntranceExit3
+
 
 
 
@@ -1027,21 +1100,21 @@ Short_t PndTrkCTGeometryCalculations::FindTrackEntranceExitbiHexagonRight(
 // The following is the form of the Left (looking from downstream into the beam) biHexagon
 // geometrical shape considered in this method :
 //
-/*
-	|\
-	| \
-	|  \
-	 \  \
-	  \  \
-	   |  |
-	   |  |
-	   /  /
-	  /  /
-	 /  /
-	|  /
-	| /
-	|/
-*/
+//
+//	|\
+//	| \
+//	|  \
+//	 \  \
+//	  \  \
+//	   |  |
+//	   |  |
+//	   /  /
+//	  /  /
+//	 /  /
+//	|  /
+//	| /
+//	|/
+//
 
 // finding all possible intersections with inner parallel straw region.
 // The inner parallel straw region is delimited by two hexagons.
@@ -1122,7 +1195,7 @@ Short_t PndTrkCTGeometryCalculations::FindTrackEntranceExitHexagonCircleLeft(
 	Double_t Start[3],
 	Double_t ApotemaMin, // Apotema=distance Hexagon side from (0,0).
 	Double_t Rma, // outer radius of the Circle.
-	Double_t GAP,
+	Double_t GAP, // gap between left and right sections of STT;
 	Double_t Xcross[2],
 	Double_t Ycross[2]
 	)
@@ -1231,6 +1304,134 @@ Short_t PndTrkCTGeometryCalculations::FindTrackEntranceExitHexagonCircleLeft(
 }
 
 //----------end of function PndTrkCTGeometryCalculations::FindTrackEntranceExitHexagonCircleLeft
+
+
+
+//----------begin function PndTrkCTGeometryCalculations::FindTrackEntranceExitHexagonCircleLeft2
+
+Short_t PndTrkCTGeometryCalculations::FindTrackEntranceExitHexagonCircleLeft2(
+	Double_t Oxx,
+	Double_t Oyy,
+	Double_t Rr,
+	Short_t  Charge,
+	Double_t Start[3],
+	Double_t ApotemaMin, // Apotema=distance Hexagon side from (0,0).
+	Double_t Rma, // outer radius of the Circle.
+	Double_t GAP, // gap between left and right sections of STT;
+	Short_t &nIntersections,
+	Double_t XintersectionList[12],
+	Double_t YintersectionList[12]
+	)
+{
+
+// THIS METHOD IS THE SAME AS FindTrackEntranceExitHexagonCircleLeft BUT IT PROVIDES ALL THE
+// INTERSECTIONS ORDERED FROM CENTER TO PERIFERY;
+//  This methods finds the intersections between a trajectory coming from (0,0) and
+//  parameters  Oxx, Oyy, Rr   with the closed geometrical figure (in XY) formed by the STT
+//  external Left semicircle and the Outer STT parallel Left straw semi-Hexagon + Gap for
+//  the pellet target target.
+//  It returns -1 if there are 0 or 1 intersections, 0 if there are at least 2 intersections.
+
+// At the most hte number of such intersection is 12, that's why XintersectionList[12];
+// also the intersections are ordered from center to perifery according to the charge of the
+// track that dictates the sense of rotation;
+
+
+
+	Double_t	cosFi,
+			theta1,
+			theta2,
+			Theta1,
+			Theta2,
+			aaa,
+			Fi,
+			FI0,
+			x1,
+			x2,
+			y1,
+			y2;
+//------------------
+
+	Short_t	nIntersectionsCircle;
+
+	Double_t	FiStart;
+
+// finding all possible intersections with inner parallel straw region.
+
+
+	Double_t Side_x[] = {	-GAP/2., -GAP/2. , -ApotemaMin, -ApotemaMin, -GAP/2., -GAP/2. },
+		 Side_y[] = {	sqrt(Rma*Rma-GAP*GAP/4.),  (2.*ApotemaMin-0.5*GAP)/sqrt(3.),
+				ApotemaMin/sqrt(3.),
+				-ApotemaMin/sqrt(3.),
+				-(2.*ApotemaMin-0.5*GAP)/sqrt(3.), -sqrt(Rma*Rma-GAP*GAP/4.)},
+		 a[] =	{1.,		-1./sqrt(3.),	1.,	1./sqrt(3.),	1.},
+		 b[] =	{0.,		1.,		0.,	1.,		0.},
+		 c[] =	{GAP/2., -2.*ApotemaMin/sqrt(3.),ApotemaMin, 2.*ApotemaMin/sqrt(3.), GAP/2.};
+
+	nIntersections=IntersectionsWithOpenPolygon(
+		Oxx,
+		Oyy,
+		Rr,
+		5, //  n. Sides of open Polygon.
+		a, //  coefficient of formula :  aX + bY + c = 0 defining the Polygon sides.
+		b,
+		c,
+		Side_x,  // X,Y coordinate of the Sides vertices (in sequence, following
+		Side_y,  // the Polygon along.
+		XintersectionList, // XintersectionList
+		YintersectionList // YintersectionList.
+					);
+
+
+
+//-------------------------------------------------------------------------
+// finding intersections of trajectory [assumed to originate from (0,0) ]
+// with outer semicircle, the Left part.
+
+	nIntersectionsCircle=IntersectionsWithGapSemicircle(
+		Oxx, // input from trajectory
+		Oyy, // input from trajectory
+		Rr, // input from trajectory
+		GAP, // input, vertical gap in XY plane of STT detector.
+		true, // true --> Left semicircle, false --> Right semicircle.
+		Rma, // radius of external Stt containment.
+		&XintersectionList[nIntersections], // output, X list of intersections (maximal 2).
+		&YintersectionList[nIntersections]
+						);
+	nIntersections += nIntersectionsCircle;
+
+//-------- the starting point of the track.
+
+	if(nIntersections<2) return -1;
+
+	FiStart = atan2( Start[1]-Oyy,Start[0]-Oxx);
+	if(FiStart<0.) FiStart+= two_pi;
+	if(FiStart<0.) FiStart =0.;
+
+	// this method selects the entrance and exit points of the trajectory among all
+	// geometrical intersections of the circular trajectory with the straw particular
+	// volume; IT RETURNS all the intersections ordered from center to perifery according to the sense of
+	// rotation dictated by the charge of the track;
+	// the methods requires at least 2 intersection;
+
+	ChooseEntranceExit3(
+			Oxx,
+			Oyy,
+			Charge,
+			FiStart,
+			nIntersections,
+			XintersectionList,	// input and output;
+			YintersectionList	// input and output;
+					);
+
+
+
+	return 0;
+
+}
+
+//----------end of function PndTrkCTGeometryCalculations::FindTrackEntranceExitHexagonCircleLeft2
+
 
 
 
@@ -1356,6 +1557,133 @@ Short_t PndTrkCTGeometryCalculations::FindTrackEntranceExitHexagonCircleRight(
 
 
 
+
+
+//----------begin of function PndTrkCTGeometryCalculations::FindTrackEntranceExitHexagonCircleRight2
+
+Short_t PndTrkCTGeometryCalculations::FindTrackEntranceExitHexagonCircleRight2(
+	Double_t Oxx,
+	Double_t Oyy,
+	Double_t Rr,
+	Short_t  Charge,
+	Double_t Start[3],
+	Double_t ApotemaMin, // Apotema=distance Hexagon side from (0,0).
+	Double_t Rma, // outer radius of the Circle.
+	Double_t GAP,
+	Short_t &nIntersections,
+	Double_t XintersectionList[12],
+	Double_t YintersectionList[12]
+	)
+{
+
+// THIS METHOD IS THE SAME AS FindTrackEntranceExitHexagonCircleLeft BUT IT PROVIDES ALL THE
+// INTERSECTIONS ORDERED FROM CENTER TO PERIFERY;
+//  This methods finds the intersections between a trajectory coming from (0,0) and
+//  parameters  Oxx, Oyy, Rr   with the closed geometrical figure (in XY) formed by the STT
+//  external Left semicircle and the Outer STT parallel Left straw semi-Hexagon + Gap for
+//  the pellet target target.
+//  It returns -1 if there are 0 or 1 intersections, 0 if there are at least 2 intersections.
+
+// At the most hte number of such intersection is 12, that's why XintersectionList[12];
+// also the intersections are ordered from center to perifery according to the charge of the
+// track that dictates the sense of rotation;
+
+
+	Double_t	cosFi,
+			theta1,
+			theta2,
+			Theta1,
+			Theta2,
+			aaa,
+			Fi,
+			FI0,
+			x1,
+			x2,
+			y1,
+			y2;
+//------------------
+
+	Short_t	nIntersectionsCircle;
+	Double_t	FiStart;
+
+// finding all possible intersections with inner parallel straw region.
+
+
+	Double_t Side_x[] = {	GAP/2., GAP/2. , ApotemaMin, ApotemaMin, GAP/2., GAP/2. },
+		 Side_y[] = {	sqrt(Rma*Rma-GAP*GAP/4.),  (2.*ApotemaMin-GAP)/sqrt(3.),
+				ApotemaMin/sqrt(3.),
+				-ApotemaMin/sqrt(3.),
+				-(2.*ApotemaMin-GAP)/sqrt(3.), -sqrt(Rma*Rma-GAP*GAP/4.)},
+		 a[] =	{1.,		1./sqrt(3.),	1.,	-1./sqrt(3.),	1.},
+		 b[] =	{0.,		1.,		0.,	1.,		0.},
+		 c[] =	{-GAP/2.,-2.*ApotemaMin/sqrt(3.),-ApotemaMin, 2.*ApotemaMin/sqrt(3.), -GAP/2.};
+
+	nIntersections=IntersectionsWithOpenPolygon(
+		Oxx,
+		Oyy,
+		Rr,
+		5, //  n. Sides of open Polygon.
+		a, //  coefficient of formula :  aX + bY + c = 0 defining the Polygon sides.
+		b,
+		c,
+		Side_x,  // X,Y coordinate of the Sides vertices (in sequence, following
+		Side_y,  // the Polygon along.
+		XintersectionList, // XintersectionList
+		YintersectionList // YintersectionList.
+					);
+
+
+
+//-------------------------------------------------------------------------
+// finding intersections of trajectory [assumed to originate from (0,0) ]
+// with outer semicircle, the Left part.
+
+	nIntersectionsCircle=IntersectionsWithGapSemicircle(
+		Oxx, // input from trajectory
+		Oyy, // input from trajectory
+		Rr, // input from trajectory
+		GAP, // input, vertical gap in XY plane of STT detector.
+		false, // true --> Left semicircle, false --> Right semicircle.
+		Rma, // radius of external Stt containment.
+		&XintersectionList[nIntersections], // output, X list of intersections (maximal 2).
+		&YintersectionList[nIntersections]
+						);
+
+
+	nIntersections += nIntersectionsCircle;
+
+//-------- the starting point of the track.
+
+	if(nIntersections<2) return -1;
+
+	FiStart = atan2( Start[1]-Oyy,Start[0]-Oxx);
+	if(FiStart<0.) FiStart+= two_pi;
+	if(FiStart<0.) FiStart =0.;
+
+	// this method selects the entrance and exit points of the trajectory among all
+	// geometrical intersections of the circular trajectory with the straw particular
+	// volume; IT RETURNS all the intersections ordered from center to perifery according to the sense of
+	// rotation dictated by the charge of the track;
+	// the methods requires at least 2 intersection;
+
+	ChooseEntranceExit3(
+			Oxx,
+			Oyy,
+			Charge,
+			FiStart,
+			nIntersections,
+			XintersectionList,	// input and output;
+			YintersectionList	// input and output;
+					);
+
+
+	return 0;
+
+}
+
+//----------end of function PndTrkCTGeometryCalculations::FindTrackEntranceExitHexagonCircleRight2
+
+
 //----------begin of function PndTrkCTGeometryCalculations::IntersectionCircle_Segment
 
 bool PndTrkCTGeometryCalculations::IntersectionCircle_Segment(
@@ -1412,6 +1740,7 @@ bool PndTrkCTGeometryCalculations::IntersectionCircle_Segment(
 	*distance = sqrt(distq);
 	Rq=Rr*Rr;
 	length = Rq - distq;
+
 	if(length <= 0. ) return false; // no intersection between trajectory and this
 						// segment.
 	length = sqrt(length);
@@ -2041,8 +2370,6 @@ Short_t  PndTrkCTGeometryCalculations::IntersectionsWithOpenPolygon(
 
 	// this methods returns the n. of intersections.
 
-
-
 	Short_t i,
 		 is,
 		 j,
@@ -2082,11 +2409,13 @@ Short_t  PndTrkCTGeometryCalculations::IntersectionsWithOpenPolygon(
 						&distance // distance of (Oxx,Oyy) from line
 							  // defined by  a*x+b*y+c=0.
 							)
-			   ){
+			 ){
+
+
 			   for(j=0;j<Nintersections;j++){
 				XintersectionList[ nIntersections ] =tempX[j];
 				YintersectionList[ nIntersections ] =tempY[j];
-				nIntersections += Nintersections;
+			   	nIntersections ++;
 			   }
 			}	// end of if ( IntersectionCircle_Segment( .....
 
