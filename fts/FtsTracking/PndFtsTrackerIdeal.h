@@ -6,11 +6,12 @@
 // Gaussian momentum smearing & fake efficiency included
 // removed tracks that have less than 5 hits in the FTS (TODO a more realistic criterion is needed)
 // user can specify that number via SetMinFtsHitsPerTrack()
-// for FTS studies SetMinFtsHitsPerTrack(5) should be good, for studies of overall detector performance SetMinFtsHitsPerTrack(1) gets rid off an efficiency drop 5⁰ < theta < 9⁰ that is due to the current lack of tracking starting from GEM hits
+// for FTS studies SetMinFtsHitsPerTrack(5) should be good,
+// for studies of overall detector performance SetMinFtsHitsPerTrack(1) gets rid off an efficiency drop 5⁰ < theta < 9⁰ that is due to the current lack of tracking starting from GEM hits
 // removed tracks that turn around in the dipole field (because of fitter problems)
 //
 // Created: 28.01.2011
-// Last modification: 14.01.2014
+// Last modification: 24.02.2014
 //
 // *************************************************************************
 
@@ -52,6 +53,8 @@ public:
   void SetTrackingEfficiency(Double_t eff = 1.) { fEfficiency=eff; };
   Int_t SetMinFtsHitsPerTrack(Int_t minFtsHitsPerTrack = 5); // checks argument, sets fMinFtsHitsPerTrack (in any case) and gives new value back
 
+
+
   void SetFtsActivity(Bool_t act=kTRUE){fBranchActive[0]=act;}
   void SetGemActivity(Bool_t act=kTRUE){fBranchActive[1]=act;}
   void SetMvdActivity(Bool_t act=kTRUE){fBranchActive[2]=act;fBranchActive[3]=act;}
@@ -73,7 +76,9 @@ protected:
   TClonesArray  *fTrackIds;     //! Array of track IDs (Links)
 
   // Parameters for fake tracking
-  Int_t fMinFtsHitsPerTrack;   // Only tracks that have at least this number of hits in the FTS can be found by the ideal tracker, default is 5
+  Int_t fMinFtsHitsPerTrack;   // Only tracks that have at least this number of hits in the FTS can be found by the ideal tracker
+  // default is 1 for overall detector performance studies (see explanation in forum)
+  // 5 should be used for FTS standalone performance studies
   TVector3 fMomSigma;          // Momentum smearing sigma [GeV]
   Double_t fDPoP;              // Relative momentum Smearing
   Bool_t fRelative;            // falg

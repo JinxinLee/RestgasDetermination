@@ -4,6 +4,7 @@
 #include "math.h"
 
 #include "TClonesArray.h"
+#include "FairRootManager.h"
 
 
 ClassImp(PndFtsHoughSpace);

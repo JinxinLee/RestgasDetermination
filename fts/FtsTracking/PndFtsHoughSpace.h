@@ -52,7 +52,7 @@ public:
 
 
 	// getters / setters
-	void setFtsHitArray(const TClonesArray*& ftsHitArray) {
+	void setFtsHitArray(TClonesArray *ftsHitArray) {
 		fFtsHitArray = ftsHitArray;
 	}
 
