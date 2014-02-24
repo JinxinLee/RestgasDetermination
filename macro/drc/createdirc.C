@@ -1405,7 +1405,10 @@ void createdirc(Int_t fGeomType = 1, Int_t fFocusingSystem = 6, Int_t iter=0, TS
 	  double dz2 =  evh*cos(sob_angleB*pi/180.)/2.;
 	  double evwidth = 3*step/2. - hgap;
 
-	  TGeoTrap *Trd0 = new TGeoTrap("Trd0",sob_len/2., atan((evh-sp)/(2.*sob_len))*180./pi, 270, evh/2., evwidth, evwidth, 0, sp/2., evwidth, evwidth, 0);  
+	  double sp0 = 2*(barBoxHeight+EVdrop/2.+EVoffset/2.);
+	  double evwidth0 = 3*step/2. - hgap;
+
+	  TGeoTrap *Trd0 = new TGeoTrap("Trd0",sob_len/2., atan((evh-sp0)/(2.*sob_len))*180./pi, 270, evh/2., evwidth0, evwidth0, 0, sp/2., evwidth0, evwidth0, 0);  
 	  TGeoTrap *Trd1 = new TGeoTrap("Trd1",dz1, atan((evb-sp)/(4.*dz1))*180./pi, 270., evb/2., evwidth, evwidth, 0, sp/2., evwidth, evwidth, 0);	 
 	  TGeoTrap *Trd2 = new TGeoTrap("Trd2",dz2, -atan((evb)/(4.*dz2))*180./pi, 270., 0.000001, evwidth, evwidth, 0, evb/2., evwidth, evwidth, 0);	
 
@@ -1418,6 +1421,7 @@ void createdirc(Int_t fGeomType = 1, Int_t fFocusingSystem = 6, Int_t iter=0, TS
 	  double covergap = 0.05;
 	  evwidth += covergap; 
 	  sp += 2*covergap;
+	  if(sob_angleB==90) evh += 2*covergap;
 	  evb = evh*sin(sob_angleB*pi/180.);
 	  dz1 = (sob_len - evh*cos(sob_angleB*pi/180.))/2.;
 	  dz2 =  evh*cos(sob_angleB*pi/180.)/2.;
@@ -1428,6 +1432,7 @@ void createdirc(Int_t fGeomType = 1, Int_t fFocusingSystem = 6, Int_t iter=0, TS
 
 	  evwidth +=coverthick; 
 	  sp += 2*coverthick;
+	  if(sob_angleB==90) evh += 2*coverthick;
 	  evb = evh*sin(sob_angleB*pi/180.);
 	  dz1 = (sob_len - evh*cos(sob_angleB*pi/180.))/2.;
 	  dz2 =  evh*cos(sob_angleB*pi/180.)/2.;
