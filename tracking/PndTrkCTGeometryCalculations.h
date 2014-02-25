@@ -78,7 +78,6 @@ class PndTrkCTGeometryCalculations : public TObject
 	);
 
 
-
   void ChooseEntranceExitbis(
 	Double_t Oxx,
 	Double_t Oyy,
@@ -91,6 +90,17 @@ class PndTrkCTGeometryCalculations : public TObject
 	Double_t Ycross[2]	// output
 	);
 
+
+
+  void ChooseEntranceExit3(
+	Double_t Oxx,
+	Double_t Oyy,
+	Short_t  Charge,
+	Double_t FiStart,
+	Short_t nIntersections,
+	Double_t *XintersectionList,  // input and output;
+	Double_t *YintersectionList  // input and output;
+	);
 
 
   Double_t Dist_SZ(
@@ -174,6 +184,21 @@ void  FindingParallelTrackAngularRange2(
 	Double_t Ycross[2]
 	);
 
+
+  Short_t FindTrackEntranceExitbiHexagonLeft2(
+	Double_t vgap,
+	Double_t Oxx,
+	Double_t Oyy,
+	Double_t Rr,
+	Short_t  Charge,
+	Double_t Start[3],
+	Double_t ApotemaMin, // Apotema=distance Hexagon side from (0,0).
+	Double_t ApotemaMax,
+	Short_t &nIntersections,
+	Double_t XintersectionList[16],
+	Double_t YintersectionList[16]
+	);
+
   Short_t FindTrackEntranceExitbiHexagonRight(
 	Double_t vgap,
 	Double_t Oxx,
@@ -185,6 +210,21 @@ void  FindingParallelTrackAngularRange2(
 	Double_t ApotemaMax,
 	Double_t Xcross[2],
 	Double_t Ycross[2]
+	);
+
+
+  Short_t FindTrackEntranceExitbiHexagonRight2(
+	Double_t vgap,
+	Double_t Oxx,
+	Double_t Oyy,
+	Double_t Rr,
+	Short_t  Charge,
+	Double_t Start[3],
+	Double_t ApotemaMin, // Apotema=distance Hexagon side from (0,0).
+	Double_t ApotemaMax,
+	Short_t &nIntersections,
+	Double_t XintersectionList[16],
+	Double_t YintersectionList[16]
 	);
 
   Short_t FindTrackEntranceExitHexagonCircleLeft(
@@ -200,6 +240,21 @@ void  FindingParallelTrackAngularRange2(
 	Double_t Ycross[2]
 	);
 
+
+  Short_t FindTrackEntranceExitHexagonCircleLeft2(
+	Double_t Oxx,
+	Double_t Oyy,
+	Double_t Rr,
+	Short_t  Charge,
+	Double_t Start[3],
+	Double_t ApotemaMin, // Apotema=distance Hexagon side from (0,0).
+	Double_t ApotemaMax,
+	Double_t GAP,
+	Short_t &nIntersections,
+	Double_t XintersectionList[12],
+	Double_t YintersectionList[12]
+	);
+
   Short_t FindTrackEntranceExitHexagonCircleRight(
 	Double_t Oxx,
 	Double_t Oyy,
@@ -213,7 +268,19 @@ void  FindingParallelTrackAngularRange2(
 	Double_t Ycross[2]
 	);
 
-
+  Short_t FindTrackEntranceExitHexagonCircleRight2(
+	Double_t Oxx,
+	Double_t Oyy,
+	Double_t Rr,
+	Short_t  Charge,
+	Double_t Start[3],
+	Double_t ApotemaMin, // Apotema=distance Hexagon side from (0,0).
+	Double_t ApotemaMax,
+	Double_t GAP,
+	Short_t &nIntersections,
+	Double_t XintersectionList[12],
+	Double_t YintersectionList[12]
+	);
 
   bool IntersectionCircle_Segment(
 	Double_t a, // coefficients implicit equation.
