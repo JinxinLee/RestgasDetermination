@@ -1,4 +1,4 @@
-void runLumiPixel7TrksQA(const int nEvents=100000, const int startEvent=0, TString storePath="tmpOutnewDesign", const int verboseLevel=5, const double Plab=15, const bool wrAllMC=true)
+void runLumiPixel7TrksQA(const int nEvents=100000, const int startEvent=0, TString storePath="tmpOutnewDesign", const int verboseLevel=5, const double Plab=15, const bool wrAllMC=true, const bool isClean=false)
 {
   // ========================================================================
   // Input file (MC events)
@@ -28,9 +28,17 @@ void runLumiPixel7TrksQA(const int nEvents=100000, const int startEvent=0, TStri
   TrkFile += startEvent;
   TrkFile += ".root";
   // Geane file
-  TString GeaFile = storePath+"/Lumi_Geane_";
-  GeaFile += startEvent;
-  GeaFile += ".root";
+  TString GeaFile;
+  if(isClean){
+    GeaFile = storePath+"/Lumi_GeaneFiltered_";
+    GeaFile += startEvent;
+    GeaFile += ".root";
+  }
+  else{
+    GeaFile = storePath+"/Lumi_Geane_";
+    GeaFile += startEvent;
+    GeaFile += ".root";
+  }
   // Output file
   TString DumFile = storePath+"/Lumi_TrksQA_";
   DumFile += startEvent;
@@ -82,8 +90,16 @@ void runLumiPixel7TrksQA(const int nEvents=100000, const int startEvent=0, TStri
   parInput1->open(parFile.Data(),"UPDATE");
   rtdb->setFirstInput(parInput1);
 
-  //  PndLmdQATask* lmdqa = new PndLmdQATask("LMDPoint","MCTrack","LMDPixelClusterCand","LMDPixelDigis","LMDHitsMerged","LMDTrackCand","LMDPndTrack","GeaneTrackFinal",OutFile,Plab);
-  PndLmdTrkQTask *lmdqa = new PndLmdTrkQTask(Plab);
+  PndLmdTrkQTask *lmdqa;
+  if(isClean){
+    lmdqa = new PndLmdTrkQTask(Plab,"LMDCleanTrack");//clean reconstructed (with runLumiPixel5bCleanSig.C applied before!)
+  }
+  else{
+    lmdqa = new PndLmdTrkQTask(Plab,"GeaneTrackFinal");//raw reconstructed
+  }
+  //PndLmdTrkQTask *lmdqa = new PndLmdTrkQTask(Plab,"GeaneTrackFinal");//raw reconstructed
+  //  PndLmdTrkQTask *lmdqa = new PndLmdTrkQTask(Plab,"LMDCleanTrack");//clean reconstructed (with runLumiPixel5bCleanSig.C applied before!)
+
   lmdqa->SetVerbose(verboseLevel);
   lmdqa->SetWriteMC(wrAllMC);
   fRun->AddTask(lmdqa);

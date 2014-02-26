@@ -29,24 +29,33 @@ mkdir -p ${path}
 #number of trks per event
 numTrks=1
 #number of events
-numEv=10
+numEv=20000
 
 ##############
 # set flags
-#merge hits on sensors from different sides. true=yes
+
+##merge hits on sensors from different sides. true=yes
 mergedHits=true
-#Skip kinematic filter (before back-propagation)
+
+##Skip kinematic filter (before back-propagation)
 SkipFilt=false
-## if SkipFilt=false (XThetaCut or YPhiCut) or BoxCut should be true:
-## X-Theta kinematic cut before back-propagation
+### if SkipFilt=false (XThetaCut or YPhiCut) or BoxCut should be true:
+### X-Theta kinematic cut before back-propagation
 XThetaCut=true
+### Y-Phi kinematic cut before back-propagation
 YPhiCut=true
-## BOX cut before back-propagation
+### BOX cut before back-propagation
 BoxCut=false
+
+## Clean after back-propagation (momentum or MVA cut)
+CleanSig=false
+
+## Write all MC info in TrkQA array
+WrAllMC=true
 ##############
 
 # #simulation with Box generator
-root -l -b -q runLumiPixel0SimBox.C\(${numEv},0,"\"${path}\"",0,-2212,${pbeam},${numTrks},3562\) &> ${path}/log0sim
+#root -l -b -q runLumiPixel0SimBox.C\(${numEv},0,"\"${path}\"",0,-2212,${pbeam},${numTrks},3562\) &> ${path}/log0sim
 
 # # #simulation with DPM
 #   #  modeDPM=0 #inel
@@ -83,8 +92,13 @@ root -l -b -q runLumiPixel0SimBox.C\(${numEv},0,"\"${path}\"",0,-2212,${pbeam},$
 ### Possible options: "Geane", "RK"
      root -l -b -q runLumiPixel5BackProp.C\(${numEv},0,"\"${path}\"",0,"\"Geane\"",${mergedHits},${pbeam}\)
 
+#clean signal from background (momentum cut or MVA cut)
+	 if [ $CleanSig == "true" ]; then 
+	     root -l -b -q runLumiPixel5bCleanSig.C\(${numEv},0,"\"${path}\"",0,${pbeam}\)
+	 fi
+
 # # Quality assurance task(s)
       root -l -b -q runLumiPixel7QA.C\(${numEv},0,"\"${path}\"",0,${pbeam}\)
-      root -l -b -q runLumiPixel7TrksQA.C\(${numEv},0,"\"${path}\"",0,${pbeam},true\)
+      root -l -b -q runLumiPixel7TrksQA.C\(${numEv},0,"\"${path}\"",0,${pbeam},${WrAllMC},${CleanSig}\)
       root -l -b -q  Anastasia/test_macros/BkgSignalCount.C\("\"${path}\"",${numEv},0\)
       root -l -b -q Anastasia/test_macros/EffTrks.C\(${numEv},0,"\"${path}\""\)
