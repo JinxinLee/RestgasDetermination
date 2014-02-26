@@ -44,7 +44,7 @@ public:
 	Double_t getSecondHw() const { return fSecondHw; }; // hw = half width = half length of Hough space bin
 
 	// hits
-	const PndFtsHit *getHit(UInt_t index); // gets the hit corresponding to index, will sort the hitId vector if necessary
+	const PndFtsHit *getHit(UInt_t index); // gets the FTS hit corresponding to index, will sort the hitId vector if necessary
 	UInt_t getNSharedHits(PndFtsHoughTracklet& rhs); // gives the number of hits that are contained both in rhs and *this
 
 

@@ -225,15 +225,13 @@ void PndFtsTrackerTaskHough::Exec(Option_t* option)
 
 
 
-	PndFtsHoughTrackFinder trackFinder;
+	PndFtsHoughTrackFinder trackFinder(fFtsHitArray, fFtsBranchID, fField);
 	trackFinder.SetVerbose(fVerbose);
 	trackFinder.SetSaveDebugInfo(fSaveDebugInfo);
-	trackFinder.SetHits(fFtsHitArray, fFtsBranchID);
 //	trackFinder.SetMinPeakHeightZxLineParabola(4);
 //	trackFinder.SetMinPeakHeightZxParabola(6);
 //	trackFinder.SetMinPeakHeightZxParabolaLine(4);
 //	trackFinder.SetMinPeakHeightZyLine(4);
-	trackFinder.SetField(fField);
 	trackFinder.FindTracks();
 
 
@@ -253,7 +251,7 @@ void PndFtsTrackerTaskHough::Exec(Option_t* option)
 		{
 			std::cout << "Track " << iFoundTrack << std::endl;
 			std::cout << "Links: ";
-			((FairMultiLinkedData*) myCand)->Print(); // myCand->Print(); // TODO The simpler version should work too
+			((FairMultiLinkedData*) myCand)->Print();
 			std::cout << std::endl;
 		}
 
@@ -281,13 +279,6 @@ void PndFtsTrackerTaskHough::Exec(Option_t* option)
 	}
 	fTrackCands->Sort();
 	fTracks->Sort();
-
-
-
-
-
-
-
 
 
 

@@ -119,24 +119,12 @@ private:
 
 
 
-
-
-
-
-
-
-
-
 	// helper method (handy for multiple constructors)
 	void Initialization_ClassVariables();
-
-
 
 	// TODO: I don't think I need the copy constructor and the operator=
 	PndFtsTrackerTaskHough(const PndFtsTrackerTaskHough&);
 	PndFtsTrackerTaskHough operator=(const PndFtsTrackerTaskHough&);
-
-
 
 
 
