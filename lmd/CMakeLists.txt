@@ -126,12 +126,13 @@ LmdTrack/PndLmdGeaneTask.cxx
 LmdTrack/PndLmdBPtestTask.cxx
 LmdTrack/PndLmdBPRungeKuttaTask.cxx	
 LmdTrack/PndLmdTrksFilterTask.cxx
+LmdTrack/PndLmdSigCleanTask.cxx
 )
 
 set(LINKDEF  LmdTrkLinkDef.h)
 set(LIBRARY_NAME LmdTrk)
 
-set(DEPENDENCIES genfitAdapters RecoHits TrkBase Geane LmdReco)
+set(DEPENDENCIES genfitAdapters RecoHits TrkBase Geane LmdReco TMVA)
 
 GENERATE_LIBRARY()
 
