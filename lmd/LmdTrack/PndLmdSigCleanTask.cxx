@@ -1,0 +1,218 @@
+// -------------------------------------------------------------------------
+// -----                   PndLmdSigCleanTask source file            -----
+// -----                  Created 26/02/14  by A.Karavdina            -----
+// -------------------------------------------------------------------------
+// libc includes
+#include <iostream>
+
+// Root includes
+#include "TROOT.h"
+#include "TClonesArray.h"
+#include "TVector3.h"
+#include "TTree.h"
+#include <TMatrixDSym.h>
+
+
+// framework includes
+#include "FairRootManager.h"
+#include "PndLmdSigCleanTask.h"
+#include "FairRun.h"
+#include "FairRuntimeDb.h"
+#include "FairHit.h"
+#include "PndMCTrack.h"
+#include "FairBaseParSet.h"
+#include "TGeant3.h"
+#include "FairTrackParH.h"
+#include "PndTrack.h"
+#include "FairRunAna.h"
+// PndSds includes
+#include "PndSdsMCPoint.h"
+#include "PndSdsHit.h"
+#include "PndSdsMergedHit.h"
+//PndLmd includes
+#include <vector>
+#include <map>
+
+
+
+// -----   Default constructor   -------------------------------------------
+PndLmdSigCleanTask::PndLmdSigCleanTask() : FairTask("Cleaning Tracks Task for PANDA Lmd"), fEventNr(0)
+{
+  //tprop = new TNtuple();
+}
+// -------------------------------------------------------------------------
+
+
+PndLmdSigCleanTask::PndLmdSigCleanTask(Double_t pBeam, TString dir): FairTask("Cleaning Tracks  Task for PANDA Lmd"), fEventNr(0)
+{
+  fdir = dir;
+  fPbeam = pBeam;
+  cout<<"Beam Momentum in this run is "<<fPbeam<<endl;
+}
+
+
+// -----   Destructor   ----------------------------------------------------
+PndLmdSigCleanTask::~PndLmdSigCleanTask()
+{
+}
+
+// -----   Public method Init   --------------------------------------------
+InitStatus PndLmdSigCleanTask::Init()
+{
+
+  
+  // Get RootManager
+  FairRootManager* ioman = FairRootManager::Instance();
+  if ( !ioman){
+    std::cout << "-E- PndLmdSigCleanTask::Init: "<< "RootManager not instantiated!" << std::endl;
+    return kFATAL;
+  }
+
+
+  fMCHits = (TClonesArray*) ioman->GetObject("LMDPoint");
+  if ( !fMCHits)	{
+    std::cout << "-W- PndLmdSigCleanTask::Init: "<< "No LMDPoint"<<" array!" << std::endl;
+    return kERROR;
+  }
+
+ //Get MC tracks
+  fMCTracks = (TClonesArray*) ioman->GetObject("MCTrack");
+  if ( !fMCTracks)	{
+    std::cout << "-W- PndLmdTrkQTask::Init: "<< "No MCTrack"<<" array!" << std::endl;
+    return kERROR;
+  }
+
+  // //  fTracks = (TClonesArray*) ioman->GetObject("LMDTrack");
+  // fTracks = (TClonesArray*) ioman->GetObject("LMDPndTrack");
+  // if (!fTracks){
+  //   std::cout << "-W- PndLmdSigCleanTask::Init: "<< "No Track" << " array!" << std::endl;
+  //   return kERROR;
+  // }
+
+//Get rec.tracks after back propagation
+  fRecBPTracks = (TClonesArray*) ioman->GetObject("GeaneTrackFinal");
+  if (!fRecBPTracks){
+    std::cout << "-W- PndLmdSigCleanTask::Init: "<< "No Track after back-propagation" << " array!" << std::endl;
+    return kERROR;
+  }
+
+
+  fTrackParFinal = new TClonesArray("FairTrackParH");
+  ioman->Register("LMDCleanTrack","PndLmd", fTrackParFinal, kTRUE);
+
+  fGeoH = PndGeoHandling::Instance();
+  FairRun* fRun = FairRun::Instance();
+  FairRuntimeDb* rtdb = fRun->GetRuntimeDb();
+
+  //TMVA -----------------------------------------------------
+  // This loads the library
+  TMVA::Tools::Instance();
+ 
+  //   TMVA::Reader *
+  reader = new TMVA::Reader( "!Color:!Silent" );    
+
+   // Create a set of variables and declare them to the reader
+   // - the variable names MUST corresponds in name and type to those given in the weight file(s) used
+ 
+   reader->AddVariable( "axrec", &axrec);
+   reader->AddVariable( "ayrec", &ayrec);
+   reader->AddVariable( "azrec", &azrec);
+   reader->AddVariable( "aprec", &aprec);
+   reader->AddVariable( "athrec", &athrec);
+   reader->AddVariable( "aphrec", &aphrec);
+
+   //  TString dir    = "weights/";
+   TString prefix = "TMVAClassification";
+   fmethodName = "BDT method";
+   TString weightfile =  fdir + prefix + TString("_BDT") + TString(".weights.xml");
+   reader->BookMVA( fmethodName, weightfile ); 
+  //------------------------------------------------------
+  return kSUCCESS;
+}
+// -------------------------------------------------------------------------
+void PndLmdSigCleanTask::SetParContainers()
+{
+  // Get Base Container
+ /// FairRun* ana = FairRun::Instance();
+ // FairRuntimeDb* rtdb=ana->GetRuntimeDb();
+
+}
+
+
+// -----   Public method Exec   --------------------------------------------
+void PndLmdSigCleanTask::Exec(Option_t* opt)
+{
+  // if(fVerbose>5){
+  //   if((fTracks->GetEntries())!=(fMCTracks->GetEntries()))
+  //     return;
+  //     }
+  // cout<<"PndLmdSigCleanTask::Exec starts!"<<endl;
+  std::map<int, std::vector<int> > mcHitMap;//Track ->  MCHits
+  fTrackParFinal->Delete();
+
+  if(fVerbose>2){
+    cout<<" ---- Info: "<<  fEventNr<<endl;
+  }
+  fEventNr++;
+
+  //go through all tracks
+  const int nGeaneTrks = fRecBPTracks->GetEntriesFast();
+  Int_t counterSigTrk = 0;
+  for (Int_t iN=0; iN<nGeaneTrks; iN++){// loop over all reconstructed trks
+    FairTrackParH *fRes = (FairTrackParH*)fRecBPTracks->At(iN);
+    // TVector3 PosRecBP = fRes->GetPosition();
+    // TVector3 MomRecBP = fRes->GetMomentum();
+    bool isClean = Check(fRes);
+    if(isClean == kTRUE){
+	new((*fTrackParFinal)[counterSigTrk]) FairTrackParH(*(fRes)); //save Track
+	counterSigTrk++;
+	if(fVerbose>2) cout<<"***** isClean TRUE *****"<<endl;
+      }
+      else{
+	new((*fTrackParFinal)[counterSigTrk]) FairTrackParH(); //save NULL
+	counterSigTrk++;
+	if(fVerbose>2) cout<<"***** isClean FALSE *****"<<endl;
+      }
+  }// [END] loop over all reconstructed trks
+  if(fVerbose>2) cout<<"PndLmdSigCleanTask::Exec END!"<<endl;
+}
+
+void PndLmdSigCleanTask::Finish()
+{
+}
+
+bool  PndLmdSigCleanTask::Check(FairTrackParH* fTrk){ //answer TRUE means "it's a signal"
+  bool res;
+  if(fPbeam==1.5) res = CheckMVA(fTrk); //MVA was trained only on sample with 1.5 GeV/c simulation ///TODO: extension to other energies?
+  else{
+    TVector3 MomRecBP = fTrk->GetMomentum();
+    double prec = MomRecBP.Mag();
+    res = CheckMom(prec);
+  }
+  return res;
+}
+
+bool  PndLmdSigCleanTask::CheckMom(double prec){
+  bool res;
+  if(abs(prec-fPbeam)>3e-4) res=false;
+  else res=true;
+  return res;
+}
+
+bool  PndLmdSigCleanTask::CheckMVA(FairTrackParH* fTrk){
+  bool res;
+  TVector3 PosRecBP = fTrk->GetPosition();
+  axrec = PosRecBP.X();    ayrec = PosRecBP.Y();   azrec = PosRecBP.Z(); 
+  TVector3 MomRecBP = fTrk->GetMomentum();
+  aprec = MomRecBP.Mag();    
+  Double_t lyambda = fTrk->GetLambda();
+  athrec = TMath::Pi()/2. - lyambda;   
+  aphrec = fTrk->GetPhi();
+  double mva_response =  reader->EvaluateMVA(fmethodName);
+  if(mva_response>-0.0599) res=true; //BDT 
+  else res=false;
+  return res;
+}
+
+
+ClassImp(PndLmdSigCleanTask);

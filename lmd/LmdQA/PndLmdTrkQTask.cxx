@@ -36,17 +36,18 @@
 
 #include "PndLmdTrkQTask.h"
 
-// -----   Default constructor   -------------------------------------------
-PndLmdTrkQTask::PndLmdTrkQTask() : FairTask("Track Quality  Task for PANDA Lmd"), fEventNr(0)
-{
-}
-// -------------------------------------------------------------------------
+// // -----   Default constructor   -------------------------------------------
+// PndLmdTrkQTask::PndLmdTrkQTask() : FairTask("Track Quality  Task for PANDA Lmd"), fEventNr(0)
+// {
+// }
+// // -------------------------------------------------------------------------
 
 
-PndLmdTrkQTask::PndLmdTrkQTask(Double_t pBeam): FairTask("Track Quality Task for PANDA Lmd"), fEventNr(0)
+PndLmdTrkQTask::PndLmdTrkQTask(Double_t pBeam,TString geaneBranch) : FairTask("Track Quality Task for PANDA Lmd"), fEventNr(0)
 {
   fWriteAllMC = false;
   fPbeam = pBeam;
+  fGeaneName = geaneBranch;
   //cout<<"Beam Momentum for particle with PDGid#"<<fPDGid<<" this run is "<<fPbeam<<endl;
   // vtx = IP;
   // cout<<"Interaction Point:"<<endl;
@@ -118,7 +119,9 @@ InitStatus PndLmdTrkQTask::Init()
   }
 
  //Get rec.tracks after back propagation
-  fRecBPTracks = (TClonesArray*) ioman->GetObject("GeaneTrackFinal");
+  //  fRecBPTracks = (TClonesArray*) ioman->GetObject("GeaneTrackFinal");//use raw reconstructed data
+  //  fRecBPTracks = (TClonesArray*) ioman->GetObject("LMDCleanTrack");//use cleaned data
+  fRecBPTracks = (TClonesArray*) ioman->GetObject(fGeaneName);
   if (!fRecBPTracks){
     std::cout << "-W- PndLmdTrkQTask::Init: "<< "No GeaneTrackFinal" << " array!" << std::endl;
     return kERROR;
