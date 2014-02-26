@@ -4,6 +4,10 @@
 //
 // Class for Hough space based on TH2S (for the moment)
 //
+// the angle (theta) is always on x-coordinate axis, the value on the y-axis depends on the kind of hough transform
+//	parabola HT: yValue = Q/pzx
+//	line HT: yValue = intercept (Achsenabschnitt) (in z-x- or z-y-plane)
+//
 //
 // Created: 21.02.2014
 // Modified: 26.02.2014
@@ -59,26 +63,7 @@ public:
 	);
 
 	Bool_t MakeHoughSpace(
-//			const Double_t zRefPos, // is used to redefine an origin for the coordinate system (so that the angle definition gives meaningful theta values)
-//			Double_t interceptZx, // cannot be constant, because might need to be reset if set incorrectly (has to be 0 for line HT)
-			// is used to shift the true x values of hits so that they hit the point (zOffset|0) in z-x-plane (value is determined by line fit on chambers1+2)
-			// (zreal=zOffset, xreal=interceptZx) = (zshifted = 0, xshifted = 0)
-			// zshifted = zreal - zRefPos
-			// xshifted = xreal - interceptZx
-			// zreal = zshifted + zRefPos
-			// xreal = xshifted + interceptZx
-			// For the z-x-plane parabola, a shift in x (hitshiftinx) needs to be set (which should be the result of the straight line hough transform)
-			// For the straight line (stations before dipole field) hitshiftinx HAS TO BE ZERO
-
-//			const Bool_t UseNonSkewedStraws, // if kTRUE, then hits from non-skewed straws are used for Hough transform
-//			const Bool_t UseSkewedStraws, // if kTRUE, then hits from skewed straws are used for Hough transform
-
-
-//			UInt_t &nHitsForHoughSpace
-
-			//			TH2S* houghspace // has always the angle (theta) on x-coordinate axis, the value on the y-axis depends on the kind of hough transform
-			//	parabola HT: yValue = Q/pzx
-			//	line HT: yValue = intercept (Achsenabschnitt) (in z-x- or z-y-plane)
+			//			UInt_t &nHitsForHoughSpace
 	);
 
 	// operators
@@ -134,7 +119,16 @@ private:
 	// set only to kFALSE for testing
 
 	// at which z value the values are calculated
-	Double_t fZRefPos;
+	Double_t fZRefPos; // is used to redefine an origin for the coordinate system (so that the angle definition gives meaningful theta values)
+	//			Double_t interceptZx, // cannot be constant, because might need to be reset if set incorrectly (has to be 0 for line HT)
+	// is used to shift the true x values of hits so that they hit the point (zOffset|0) in z-x-plane (value is determined by line fit on chambers1+2)
+	// (zreal=zOffset, xreal=interceptZx) = (zshifted = 0, xshifted = 0)
+	// zshifted = zreal - zRefPos
+	// xshifted = xreal - interceptZx
+	// zreal = zshifted + zRefPos
+	// xreal = xshifted + interceptZx
+	// For the z-x-plane parabola, a shift in x (hitshiftinx) needs to be set (which should be the result of the straight line hough transform)
+	// For the straight line (stations before dipole field) hitshiftinx HAS TO BE ZERO
 
 	// is used only for parabola in zx plane to shift the true x values of hits so that they hit the point (zOffset|0) in z-x-plane (value is determined by line fit on chambers1+2)
 	Double_t fInterceptZx;
@@ -152,7 +146,7 @@ private:
 
 	// for HoughTransform
 	/////////////////////
-	// if kTRUE will correct the pz prediction according to values which should be obtained from a line fit mc truth momentum VS. reco momentum with high statistics
+	// if kTRUE will correct the pzx prediction according to values which should be obtained from a line fit mc truth momentum VS. reco momentum with high statistics
 	static const Bool_t correctpz = kFALSE;
 
 
