@@ -29,7 +29,7 @@ mkdir -p ${path}
 #number of trks per event
 numTrks=1
 #number of events
-numEv=20000
+numEv=2000
 
 ##############
 # set flags
@@ -55,7 +55,7 @@ WrAllMC=true
 ##############
 
 # #simulation with Box generator
-#root -l -b -q runLumiPixel0SimBox.C\(${numEv},0,"\"${path}\"",0,-2212,${pbeam},${numTrks},3562\) &> ${path}/log0sim
+root -l -b -q runLumiPixel0SimBox.C\(${numEv},0,"\"${path}\"",0,-2212,${pbeam},${numTrks},3562\) &> ${path}/log0sim
 
 # # #simulation with DPM
 #   #  modeDPM=0 #inel
