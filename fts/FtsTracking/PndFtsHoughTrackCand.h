@@ -16,8 +16,9 @@
 // Root Class Headers ----------------
 #include "PndTrackCand.h"
 #include "PndFtsHoughTracklet.h"
+#include "Rtypes.h"                     // for Double_t, Int_t, etc
 
-
+#include <cmath>
 
 class PndFtsHit;
 class PndTrack;
@@ -50,14 +51,29 @@ public:
 
 	// Modifiers -----------------------
 	// add results from Hough transforms
-	void SetZxFirstLine(const PndFtsHoughTracklet zxLineParabola, const Double_t zLineParabola);
-	void SetZxParabola(const PndFtsHoughTracklet zxParabola, const Double_t zLineParabola);
-	void SetZxSecondLine(const PndFtsHoughTracklet zxParabolaLine, const Double_t zParabolaLine);
+	void SetZxFirstLine(const PndFtsHoughTracklet zxLineParabola);
+	void SetZxParabola(const PndFtsHoughTracklet zxParabola);
+	void SetZxSecondLine(const PndFtsHoughTracklet zxParabolaLine);
 	void SetZyLine(const PndFtsHoughTracklet zyLine);
 
 
 private:
 	void addUniqueTrackletHits(const PndFtsHoughTracklet inTracklet);
+
+
+	// TODO: Add the equations for parabola
+	inline Double_t getXOrYLabForLine(const Double_t &zLabSys, PndFtsHoughTracklet *lineTracklet)
+	{
+		// calculate x in lab sys for a given z position in lab sys for which the line assumption holds
+		// theta in radian in zx plane given at z = fZLineParabola
+		const Double_t thetaRad = lineTracklet->getThetaVal();
+		const Double_t intercept = lineTracklet->getSecondVal();
+		const Double_t zRefLabSys = lineTracklet->getZRefLabSys();
+
+		Double_t xOrYLabSys = tan(thetaRad)*(zLabSys-zRefLabSys)+intercept;
+
+		return xOrYLabSys;
+	}
 
 	// Private Data Members ------------
 	Int_t fVerbose;

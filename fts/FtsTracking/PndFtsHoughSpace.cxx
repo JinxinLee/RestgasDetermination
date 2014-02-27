@@ -601,7 +601,7 @@ Bool_t PndFtsHoughSpace::FindAllPeaks(
 					Double_t peakSecondHw = fYaxis.GetBinWidth(peakSecondVal)/2.;
 
 					// create tracklet and push it back to output
-					PndFtsHoughTracklet currentTracklet(fFtsBranchId, fFtsHitArray);
+					PndFtsHoughTracklet currentTracklet(fZRefPos, fFtsBranchId, fFtsHitArray);
 					currentTracklet.SetHoughTransformResults(peakThetaVal, peakSecondVal, currentHeight, peakThetaHw, peakSecondHw);
 
 					///////////////////////////////////////////
@@ -763,7 +763,7 @@ Bool_t PndFtsHoughSpace::FindAllPeaks(
 			Double_t currentHeight = GetBinContent(binmaxglobal);
 
 			// create tracklet and push it back to output
-			PndFtsHoughTracklet currentTracklet;
+			PndFtsHoughTracklet currentTracklet(fZRefPos, fFtsBranchId, fFtsHitArray);
 			currentTracklet.SetHoughTransformResults(peakThetaVal, peakSecondVal, currentHeight, peakThetaHw, peakSecondHw);
 			tracklets.push_back(currentTracklet);
 		}

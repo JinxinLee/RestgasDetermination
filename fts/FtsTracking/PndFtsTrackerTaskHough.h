@@ -33,6 +33,7 @@
 #include "FairTask.h"
 #include <cmath>
 #include <vector>
+#include "Rtypes.h"                     // for Double_t, Int_t, etc
 
 
 class PndFtsHoughTrackCand;

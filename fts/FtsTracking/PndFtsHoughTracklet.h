@@ -7,7 +7,7 @@
 // The tracklet can represent a line or a parabola (actually an arbitrary result of a 2d Hough transform)
 //
 // Created: 11.02.2014
-// Modified: 19.02.2014
+// Modified: 27.02.2014
 //
 // *************************************************************************
 
@@ -16,6 +16,7 @@
 
 // Root Class Headers ----------------
 #include "PndTrackCand.h"
+#include "Rtypes.h"                     // for Double_t, Int_t, etc
 
 class PndFtsHit;
 class PndTrack;
@@ -27,7 +28,7 @@ class PndFtsHoughTracklet : public PndTrackCand {
 public:
 
 	// Constructors/Destructors ---------
-	PndFtsHoughTracklet(Int_t ftsBranchId=0, TClonesArray *ftsHitArray=0); // do not use as default constructor
+	PndFtsHoughTracklet(Double_t zRefLabSys=0., Int_t ftsBranchId=0, TClonesArray *ftsHitArray=0); // do not use as default constructor
 	~PndFtsHoughTracklet();
 
 
@@ -43,7 +44,7 @@ public:
 			const Double_t peakHeight,
 			const Double_t thetaHw,
 			const Double_t secondHw
-			);
+	);
 
 
 	// getters for Hough space peak info
@@ -52,6 +53,8 @@ public:
 	Double_t getThetaHw() const { return fThetaHw; }; // hw = half width = half length of Hough space bin
 	Double_t getSecondVal() const { return fSecondVal; }; // value for peak
 	Double_t getSecondHw() const { return fSecondHw; }; // hw = half width = half length of Hough space bin
+	Double_t getZRefLabSys() const { return fZRefLabSys; }; // in cm
+
 
 	// hits
 	const PndFtsHit *getHit(UInt_t index); // gets the FTS hit corresponding to index, will sort the hitId vector if necessary
@@ -87,8 +90,10 @@ private:
 	Double_t fSecondVal; // second value is x/y intercept for line in zx / zy plane and Q/pzx for parabola in zx plane
 	Double_t fSecondHw; // error on second value
 
+	// at which z value in lab sys the values have to be interpreted
+	Double_t fZRefLabSys;
 
-//	void addPeakHits(); // check which hits have contributed to the peak and add them to the hitId vector
+	//	void addPeakHits(); // check which hits have contributed to the peak and add them to the hitId vector
 
 
 public:

@@ -21,6 +21,7 @@
 #include "TH2.h"
 #include <cmath>
 #include <vector>
+#include "Rtypes.h"                     // for Double_t, Int_t, etc
 
 #include "PndTrackCandHit.h"
 #include "TClonesArray.h"

@@ -43,6 +43,7 @@
 #include "TClonesArray.h"
 #include "PndTrackCand.h"
 #include "PndTrack.h"
+#include "Rtypes.h"                     // for Double_t, Int_t, etc
 
 #include <cmath>
 #include <vector>

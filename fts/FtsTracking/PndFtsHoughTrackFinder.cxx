@@ -323,8 +323,8 @@ void PndFtsHoughTrackFinder::FindTracks() {
 		for (UInt_t iTrackletParabola=0; iTrackletParabola < zxParabolaTracklets.size(); ++iTrackletParabola)
 		{
 			PndFtsHoughTrackCand newHoughTrackCand(fFtsBranchId, fFtsHitArray);
-			newHoughTrackCand.SetZxFirstLine(zxLineParabolaTracklets[iTrackletLine], zLineParabola);
-			newHoughTrackCand.SetZxParabola(zxParabolaTracklets[iTrackletParabola], zLineParabola);
+			newHoughTrackCand.SetZxFirstLine(zxLineParabolaTracklets[iTrackletLine]);
+			newHoughTrackCand.SetZxParabola(zxParabolaTracklets[iTrackletParabola]);
 			fHoughTrackCands.push_back(newHoughTrackCand);
 		}
 

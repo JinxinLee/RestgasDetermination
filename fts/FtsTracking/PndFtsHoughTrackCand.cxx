@@ -13,21 +13,21 @@
 ClassImp(PndFtsHoughTrackCand);
 
 PndFtsHoughTrackCand::PndFtsHoughTrackCand(Int_t ftsBranchId, TClonesArray *ftsHitArray) :
-										fFtsHitArray(ftsHitArray),
-										fFtsBranchId(ftsBranchId),
+														fFtsHitArray(ftsHitArray),
+														fFtsBranchId(ftsBranchId),
 
-										fVerbose(0),
+														fVerbose(0),
 
-										fZxLineParabola(fFtsBranchId, fFtsHitArray),
+														fZxLineParabola(0., fFtsBranchId, fFtsHitArray), // TODO: It could be a problem here that I set the z reference value to 0.
 
-										fZxParabola(fFtsBranchId, fFtsHitArray),
+														fZxParabola(0., fFtsBranchId, fFtsHitArray),
 
-										fZxParabolaLine(fFtsBranchId, fFtsHitArray),
+														fZxParabolaLine(0., fFtsBranchId, fFtsHitArray),
 
-										fZyLine(fFtsBranchId, fFtsHitArray),
+														fZyLine(0., fFtsBranchId, fFtsHitArray),
 
-										fZLineParabola(0.),
-										fZParabolaLine(0.)
+														fZLineParabola(0.),
+														fZParabolaLine(0.)
 {
 	if (0==fFtsHitArray){
 		std::cout << "PndFtsHoughTrackCand FATAL ERROR Hit array not set.\n";
@@ -40,22 +40,22 @@ PndFtsHoughTrackCand::~PndFtsHoughTrackCand()
 }
 
 
-void PndFtsHoughTrackCand::SetZxFirstLine(const PndFtsHoughTracklet zxLineParabola, const Double_t zLineParabola){
+void PndFtsHoughTrackCand::SetZxFirstLine(const PndFtsHoughTracklet zxLineParabola){
 	fZxLineParabola = zxLineParabola;
-	fZLineParabola = zLineParabola;
+	fZLineParabola = fZxLineParabola.getZRefLabSys();
 	addUniqueTrackletHits(fZxLineParabola);
 }
-void PndFtsHoughTrackCand::SetZxParabola(const PndFtsHoughTracklet zxParabola, const Double_t zLineParabola){
+void PndFtsHoughTrackCand::SetZxParabola(const PndFtsHoughTracklet zxParabola){
 	// warn if line before dipole field and parabola within are not calculated wrt the same z reference value
-	if (zLineParabola!=fZLineParabola){
+	if (zxParabola.getZRefLabSys() != fZLineParabola){
 		std::cout << "WARNING from PndFtsHoughTrackCand: First line and parabola were not calculated wrt the same z position! Potentially FATAL ERROR!\n";
 	}
 	fZxParabola = zxParabola;
 	addUniqueTrackletHits(fZxParabola);
 }
-void PndFtsHoughTrackCand::SetZxSecondLine(const PndFtsHoughTracklet zxParabolaLine, const Double_t zParabolaLine){
+void PndFtsHoughTrackCand::SetZxSecondLine(const PndFtsHoughTracklet zxParabolaLine){
 	fZxParabolaLine = zxParabolaLine;
-	fZParabolaLine = zParabolaLine;
+	fZParabolaLine = fZxParabolaLine.getZRefLabSys();
 	addUniqueTrackletHits(fZxParabolaLine);
 }
 void PndFtsHoughTrackCand::SetZyLine(const PndFtsHoughTracklet zyLine){
@@ -141,6 +141,9 @@ const PndFtsHit* PndFtsHoughTrackCand::getHit(UInt_t index) {
 
 FairTrackParP PndFtsHoughTrackCand::getTrackParPForHit(UInt_t index) {
 	// TODO: Check if all arguments are correct
+
+	// position should NOT come from hit, it should come from the pattern recognition track model
+	// position error can be large (like 1* or 2* tube size) as the Kalman filter will adjust it.
 	//	TVector3 hitPos;
 	TVector3 hitPosError;
 	TVector3 momError(2, 2, 2); // TODO: Check if that is set correctly for FTS
@@ -152,13 +155,13 @@ FairTrackParP PndFtsHoughTrackCand::getTrackParPForHit(UInt_t index) {
 		// get position of hit with index in track candidate
 		const PndFtsHit *myHit = getHit(index);
 		if (0==myHit){
-			Warning("getTrackParPForHit","Cannot get hit, probably the tracking has not finished or the track contains less hits (index is too large).");
+			Warning("getTrackParPForHit","Cannot get hit, probably the tracking has not finished.");
 			return FairTrackParP();
 		}
-		//myHit->Position(hitPos);
+		//		myHit->Position(hitPos);
 
 
-		// TODO: Is that how to set the error correctly?
+		// TODO: Set the error correctly
 		myHit->PositionError(hitPosError);
 
 
@@ -209,41 +212,49 @@ TVector3 PndFtsHoughTrackCand::getPforHit(UInt_t index) {
 
 
 TVector3 PndFtsHoughTrackCand::getPositionForHit(UInt_t index) {
-	TVector3 result;
-
-
-
+	TVector3 position;
 
 	if (index > GetNHits())
 	{
 		Warning("getPositionForHit","Hit index %i is too big for track candidate. Position is set to (0,0,0)", index);
-		result.SetXYZ(0., 0., 0.);
+		position.SetXYZ(0., 0., 0.);
+		return position;
 	}
-	else
+
+	if (kFALSE == isComplete())
 	{
-		const PndFtsHit* myHit = getHit(index);
-		// track model is assumed to be line+parabola+line in zx and line in zy
-		Int_t station = myHit->GetChamberID();
-		// I take the z value from the hit and calculate the point on the track based on the results from the Hough transforms using my track model
-		Double_t zLabSys = myHit->GetZ();
-
-		if ( 3 > station ){
-			// if hit is in station 1 or 2 use 1st line in zx plane
-			result.SetXYZ(0., 0., 0.); // TODO Use correct values
-		} else if ( 5 > station ){
-			// if hit is in station 3 or 4 use tangent to parabola in zx plane
-			result.SetXYZ(0., 0., 0.); // TODO Use correct values
-		} else if ( 7 > station ){
-			// check if hit is in station 5 or 6 (if so: use 2nd line in zx plane)
-			result.SetXYZ(0., 0., 0.); // TODO Use correct values
-		} else {
-			Warning("getPforHit","LayerID %i is not known for FTS", index);
-			result.SetXYZ(0., 0., 0.);
-		}
+		Warning("getPositionForHit","Track candidate is not complete yet. Position is set to (0,0,0)", index);
+		position.SetXYZ(0., 0., 0.);
+		return position;
 	}
 
-	if (fVerbose > 0) std::cout << "P-Vector for hit " << index << " : " << result.X() << " " << result.Y() << " " << result.Z() << std::endl;
-	return result;
+	const PndFtsHit* myHit = getHit(index);
+	// track model is assumed to be line+parabola+line in zx and line in zy
+	Int_t station = myHit->GetChamberID();
+	// I take the z value from the hit and calculate the point on the track based on the results from the Hough transforms using my track model
+	const Double_t zLabSys = myHit->GetZ();
+	const Double_t yLabSys = getXOrYLabForLine(zLabSys, &fZyLine);
+	Double_t xLabSys;
+
+	if ( 3 > station ){
+		// if hit is in station 1 or 2 use 1st line in zx plane
+		xLabSys = getXOrYLabForLine(zLabSys, &fZxLineParabola);
+
+	} else if ( 5 > station ){
+		// if hit is in station 3 or 4 use tangent to parabola in zx plane
+		position.SetXYZ(0., 0., 0.); // TODO Use correct values
+	} else if ( 7 > station ){
+		// check if hit is in station 5 or 6 (if so: use 2nd line in zx plane)
+		xLabSys = getXOrYLabForLine(zLabSys, &fZxParabolaLine);
+	} else {
+		Warning("getPforHit","LayerID %i is not known for FTS", index);
+		position.SetXYZ(0., 0., 0.);
+		return position;
+	}
+
+	position.SetXYZ(xLabSys, yLabSys, zLabSys);
+	if (fVerbose > 0) std::cout << "P-Vector for hit " << index << " : " << position.X() << " " << position.Y() << " " << position.Z() << std::endl;
+	return position;
 }
 
 Int_t PndFtsHoughTrackCand::getCharge() const {

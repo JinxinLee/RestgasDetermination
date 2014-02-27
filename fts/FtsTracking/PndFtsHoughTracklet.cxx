@@ -13,10 +13,12 @@
 
 ClassImp(PndFtsHoughTracklet);
 
-PndFtsHoughTracklet::PndFtsHoughTracklet(Int_t ftsBranchId, TClonesArray *ftsHitArray) :
+PndFtsHoughTracklet::PndFtsHoughTracklet(Double_t zRefLabSys, Int_t ftsBranchId, TClonesArray *ftsHitArray) :
 				fVerbose(0),
 
 				fIsSet(kFALSE),
+
+				fZRefLabSys(zRefLabSys),
 
 				fPeakHeightFromPeakFinder(0.),
 

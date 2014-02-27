@@ -28,6 +28,7 @@
 #include "FairTask.h"
 #include "PndGeoFtsPar.h"
 #include <cmath>
+#include "Rtypes.h"                     // for Double_t, Int_t, etc
 
 class PndFtsTrackerIdeal : public FairTask {
 
