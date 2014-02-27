@@ -36,7 +36,7 @@ public:
   virtual InitStatus Init();
   virtual void Finish(){ };
 
-  void Reset();
+  void Reset(){};
   void Register();
 
   void SetParContainers();

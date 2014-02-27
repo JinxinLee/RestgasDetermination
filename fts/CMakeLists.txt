@@ -53,6 +53,6 @@ FtsTracking/PndFtsTrackerTaskHough.cxx
 set(LINKDEF  FtsLinkDef.h)
 set(LIBRARY_NAME Fts)
 
-set(DEPENDENCIES Base GeoBase ParBase PndData TrkBase)
+set(DEPENDENCIES Base GeoBase ParBase PndData TrkBase Spectrum)
 
 GENERATE_LIBRARY()
