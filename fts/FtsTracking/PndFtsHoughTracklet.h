@@ -27,17 +27,26 @@ class PndFtsHoughTracklet : public PndTrackCand {
 public:
 
 	// Constructors/Destructors ---------
-	PndFtsHoughTracklet(Int_t ftsBranchId=0, TClonesArray *ftsHitArray=0);
-//	PndFtsHoughTracklet(){ std::cout << "PndFtsHoughTracklet WARNING Do not use the default constructor.\n"; }; // do not use
+	PndFtsHoughTracklet(Int_t ftsBranchId=0, TClonesArray *ftsHitArray=0); // do not use as default constructor
 	~PndFtsHoughTracklet();
 
 
 	// Accessors -----------------------
 	void Print();
-	// isSet() is kTRUE iif data from the 2d Hough transforms have been entered
-	Bool_t isSet() const { return fIsSet; };
 
-	// Hough space peak info
+	Bool_t isSet() const { return fIsSet; }; // returns kTRUE iif data from the 2d Hough transforms have been entered
+
+	// add results from Hough transforms
+	void SetHoughTransformResults(
+			const Double_t thetaVal,
+			const Double_t secondVal,
+			const Double_t peakHeight,
+			const Double_t thetaHw,
+			const Double_t secondHw
+			);
+
+
+	// getters for Hough space peak info
 	Double_t getPeakHeightFromPeakFinder() const { return fPeakHeightFromPeakFinder; };
 	Double_t getThetaVal() const { return fThetaVal; }; // value for peak
 	Double_t getThetaHw() const { return fThetaHw; }; // hw = half width = half length of Hough space bin
@@ -49,15 +58,6 @@ public:
 	UInt_t getNSharedHits(PndFtsHoughTracklet& rhs); // gives the number of hits that are contained both in rhs and *this
 
 
-	// Modifiers -----------------------
-	// add results from Hough transforms
-	void SetHoughTransformResults(
-			const Double_t thetaVal,
-			const Double_t secondVal,
-			const Double_t peakHeight,
-			const Double_t thetaHw,
-			const Double_t secondHw
-			);
 
 
 

@@ -56,8 +56,9 @@ public:
 	void SetZyLine(const PndFtsHoughTracklet zyLine);
 
 
-
 private:
+	void addUniqueTrackletHits(const PndFtsHoughTracklet inTracklet);
+
 	// Private Data Members ------------
 	Int_t fVerbose;
 

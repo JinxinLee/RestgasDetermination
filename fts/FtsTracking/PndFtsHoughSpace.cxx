@@ -168,12 +168,12 @@ Bool_t PndFtsHoughSpace::setParametersForHsOption()
 		std::cout << "HoughSpace parameters successfully set for option " << fName << '\n';
 		if (1<fVerbose)
 		{
-			std::cout << "fUseNonSkewedStraws " << fUseNonSkewedStraws << 'n';
-			std::cout << "fUseSkewedStraws " << fUseSkewedStraws << 'n';
-			std::cout << "fOnlyUseHitsFromZ " << fOnlyUseHitsFromZ << 'n';
-			std::cout << "fOnlyUseHitsUpToZ " << fOnlyUseHitsUpToZ << 'n';
+			std::cout << "fUseNonSkewedStraws " << fUseNonSkewedStraws << '\n';
+			std::cout << "fUseSkewedStraws " << fUseSkewedStraws << '\n';
+			std::cout << "fOnlyUseHitsFromZ " << fOnlyUseHitsFromZ << '\n';
+			std::cout << "fOnlyUseHitsUpToZ " << fOnlyUseHitsUpToZ << '\n';
 
-			std::cout << "fInterceptZx " << fInterceptZx << 'n';
+			std::cout << "fInterceptZx " << fInterceptZx << '\n';
 		}
 	}
 }
@@ -301,7 +301,7 @@ Bool_t PndFtsHoughSpace::MakeHoughSpace()
 
 	// make sure we have hits in the Hough space
 	if (0==GetNHits()){
-		Info("MakeHoughSpace","houghspace is not set.");
+		Info("MakeHoughSpace","No hits in Hough space.");
 		return kFALSE;
 	}
 
@@ -358,6 +358,21 @@ Bool_t PndFtsHoughSpace::MakeHoughSpace()
 			}
 		}
 
+		if (kTRUE == fKeepBConstant)
+		{
+			// do not take B field into account
+			By = 1.;
+		}
+		else
+		{
+			// Use B field information
+			Double_t po[3], BB[3];
+			po[0] = hitXLabSys; // Use magnetic field at real (not shifted) x position
+			po[1] = hitYLabSys;
+			po[2] = hitZLabSys;
+			fField->GetFieldValue(po, BB); //return value in KG (G3)
+			By = BB[1] / 10.; // By is y-component of magnetic field in Tesla
+		}
 
 
 		// get indices for first and last bins on x-axis
@@ -375,30 +390,7 @@ Bool_t PndFtsHoughSpace::MakeHoughSpace()
 			// get corresponding theta value
 			Double_t theta = fXaxis.GetBinCenter(iTheta);
 
-
-			if (kTRUE == fKeepBConstant)
-			{
-				// do not take B field into account
-				By = 1.;
-			}
-			else
-			{
-				// Use B field information
-				Double_t po[3], BB[3];
-				po[0] = hitXLabSys; // Use magnetic field at real (not shifted) x position
-				po[1] = hitYLabSys;
-				po[2] = hitZLabSys;
-				fField->GetFieldValue(po, BB); //return value in KG (G3)
-				By = BB[1] / 10.; // By is y-component of magnetic field in Tesla
-			}
-
-
-
-
-
 			Double_t thetaRad = theta / 180. * meinpi;
-
-
 
 
 
@@ -605,23 +597,146 @@ Bool_t PndFtsHoughSpace::FindAllPeaks(
 					Double_t peakSecondVal = fYaxis.GetBinCenter(locmay);
 
 					Int_t binmaxglobal = Fill(peakThetaVal, peakSecondVal, 0); // returns binnumber without modifying the histogram
-					Double_t peakThetaHwVal = fXaxis.GetBinWidth(peakThetaVal);
-					Double_t peakSecondHwVal = fYaxis.GetBinWidth(peakSecondVal);
+					Double_t peakThetaHw = fXaxis.GetBinWidth(peakThetaVal)/2.;
+					Double_t peakSecondHw = fYaxis.GetBinWidth(peakSecondVal)/2.;
 
 					// create tracklet and push it back to output
 					PndFtsHoughTracklet currentTracklet(fFtsBranchId, fFtsHitArray);
-					currentTracklet.SetHoughTransformResults(peakThetaVal, peakSecondVal, currentHeight, peakThetaHwVal, peakSecondHwVal);
+					currentTracklet.SetHoughTransformResults(peakThetaVal, peakSecondVal, currentHeight, peakThetaHw, peakSecondHw);
+
+					///////////////////////////////////////////
+					// TODO this is messy, because the code is very similar to MakeHoughSpace. Probably, I should find a way to merge it
+					// add hits which are in the peak to the tracklet
+					// 1 calculate the 2nd value for the next higher/lower theta bin of peak theta
+					// 2 If peak 2nd value is within [min hit 2nd value - half width,  max hit 2nd value + half width] add the hit to the tracklet
+					// 3 otherwise the hit is not in the peak
+
+					// This is more complicated to check, but also true
+					// A calculate the 2nd value for peak theta
+					// B If hit 2nd value is within [peak 2nd value - peakSecondHw,  peak 2nd value + peakSecondHw] add the hit
+					// C If hit 2nd value is < peak 2nd value - peakSecondHw, hit is in peak if the 2nd value of the next higher/lower theta bin is >= peak 2nd value
+					// D If hit 2nd value is > peak 2nd value + peakSecondHw, hit is in peak if the 2nd value of the next lower/higher theta bin is <= peak 2nd value
+					// E otherwise the hit is not in the peak
+
+					// 1 calculate the 2nd value for the next higher/lower theta bin of peak theta
+					UInt_t thetaBinLo = locmax-1;
+					UInt_t thetaBinHi = locmax+1;
+					// special case if we are at the edge of the Hough space
+					if (thetaBinLo>xfirst) {
+						thetaBinLo=xfirst;
+					}
+					if (thetaBinHi>xlast) {
+						thetaBinHi=xlast;
+					}
+
+					// get theta values
+					const Double_t thetaLo = fXaxis.GetBinCenter(thetaBinLo) / 180. * meinpi;
+					const Double_t thetaHi = fXaxis.GetBinCenter(thetaBinHi) / 180. * meinpi;
+
+					// for storing the values to be calculated in Hough transform (yValue = offset for line, yValue = Q/pzx for parabola)
+					Double_t yValLo = 0.;
+					Double_t yValHi = 0.;
+
+					// for B field access
+					Double_t By = 0.;
+
+
+					for (int iHit = 0; iHit < GetNHits(); iHit++)
+					{
+						const PndFtsHit* myHit = getHit(iHit);
+
+						// get hit position
+						TVector3 hitPos;
+						myHit->Position(hitPos);
+
+						Double_t hitXLabSys = hitPos.X();
+						Double_t hitYLabSys = hitPos.Y();
+						Double_t hitZLabSys = hitPos.Z();
+						Double_t hitXShifted = hitXLabSys - fInterceptZx; // shifts all x positions of hits so that they go through x=0 at z=zOffset (for parabola)
+						Double_t hitZShifted = hitZLabSys - fZRefPos; // z coordinate in local coordinate system (for parabola and for line)
+
+						if (kTRUE == fKeepBConstant)
+						{
+							// do not take B field into account
+							By = 1.;
+						}
+						else
+						{
+							// Use B field information
+							Double_t po[3], BB[3];
+							po[0] = hitXLabSys; // Use magnetic field at real (not shifted) x position
+							po[1] = hitYLabSys;
+							po[2] = hitZLabSys;
+							fField->GetFieldValue(po, BB); //return value in KG (G3)
+							By = BB[1] / 10.; // By is y-component of magnetic field in Tesla
+						}
+
+						const TString option = GetName();
+						if ("parabola" == option)
+						{
+							// Use shifted x and shifted z for parabola
+							yValLo = equationParabola(thetaLo, hitZShifted, hitXShifted, By);
+							yValHi = equationParabola(thetaHi, hitZShifted, hitXShifted, By);
+							if (9<fVerbose)	{
+								std::cout << "Q/pzx = " << yValLo << '\n';
+								std::cout << "Q/pzx = " << yValHi << '\n';
+							}
+						}
+						else if ("parabolapz" == option)
+						{
+							yValLo = equationParabolaPz(thetaLo, hitZShifted, hitXShifted, By);
+							yValHi = equationParabolaPz(thetaHi, hitZShifted, hitXShifted, By);
+
+							if (9<fVerbose)	{
+								std::cout << "pz/Q = " << yValLo << '\n';
+								std::cout << "pz/Q = " << yValHi << '\n';
+							}
+						}
+						else if ("lineBeforeDipole" == option)
+						{
+							// Use real x and shifted z for line
+
+							yValLo = equationLineZx(thetaLo, hitZShifted, hitXLabSys);
+							yValHi = equationLineZx(thetaHi, hitZShifted, hitXLabSys);
+
+							if (9<fVerbose) {
+								std::cout << "xLP = " << yValLo << '\n';
+								std::cout << "xLP = " << yValHi << '\n';
+							}
+						}
+						else
+						{
+							std::cout << "Error in MakeHoughSpace! option " << option << " is not implemented!" << std::endl;
+							return kFALSE;
+						}
+
+
+						// 2 If peak 2nd value is within [min hit 2nd value - half width,  max hit 2nd value + half width] add the hit to the tracklet
+						const Double_t yMin = std::min(yValLo,yValHi);
+						const Double_t yMax = std::max(yValLo,yValHi);
+						const Double_t yMinHw = fYaxis.GetBinWidth(yMin)/2.;
+						const Double_t yMaxHw = fYaxis.GetBinWidth(yMax)/2.;
+
+
+
+						if ( (yMin-yMinHw <= peakSecondVal) && (yMax+yMaxHw >= peakSecondVal) ){
+							currentTracklet.AddHit(fFtsBranchId, iHit, hitZLabSys);
+						}
+
+					} // loop over hits
+					/////////////////////////////////////////////////
 					tracklets.push_back(currentTracklet);
-				}
-			}
-		}
-		//		   }
+				} // height is big enough
+			} // x loop
+		} // y loop
+		//		   } // z loop
 
 		return kTRUE;
 	}
 	else if ("tspectrum2" == peakfinderOption)
 	{
 		// TODO: This peakfinder should be rechecked!
+		// TODO: This peakfinder does not assign hits to the tracklets (so far)
 		Int_t maxpeaks = 20;
 		// Finding the peaks (as in example macro)
 		TSpectrum2 s(maxpeaks,3); // second argument: higher = peaks can be closer together (1 enforces 3 sigma seperation between peaks)
@@ -641,15 +756,15 @@ Bool_t PndFtsHoughSpace::FindAllPeaks(
 			Double_t peakSecondVal = ypeaks[iPeak];
 
 			Int_t binmaxglobal = Fill(peakThetaVal, peakSecondVal, 0); // returns binnumber without modifying the histogram
-			Double_t peakThetaHwVal = fXaxis.GetBinWidth(peakThetaVal);
-			Double_t peakSecondHwVal = fYaxis.GetBinWidth(peakSecondVal);
+			Double_t peakThetaHw = fXaxis.GetBinWidth(peakThetaVal)/2.;
+			Double_t peakSecondHw = fYaxis.GetBinWidth(peakSecondVal)/2.;
 
 
 			Double_t currentHeight = GetBinContent(binmaxglobal);
 
 			// create tracklet and push it back to output
 			PndFtsHoughTracklet currentTracklet;
-			currentTracklet.SetHoughTransformResults(peakThetaVal, peakSecondVal, currentHeight, peakThetaHwVal, peakSecondHwVal);
+			currentTracklet.SetHoughTransformResults(peakThetaVal, peakSecondVal, currentHeight, peakThetaHw, peakSecondHw);
 			tracklets.push_back(currentTracklet);
 		}
 		//		binmaxglobal = houghspace->Fill(peakTheta, peakSecond, 0); // returns binnumber without modifying the histogram

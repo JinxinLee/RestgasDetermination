@@ -13,21 +13,21 @@
 ClassImp(PndFtsHoughTrackCand);
 
 PndFtsHoughTrackCand::PndFtsHoughTrackCand(Int_t ftsBranchId, TClonesArray *ftsHitArray) :
-				fFtsHitArray(ftsHitArray),
-				fFtsBranchId(ftsBranchId),
+										fFtsHitArray(ftsHitArray),
+										fFtsBranchId(ftsBranchId),
 
-				fVerbose(0),
+										fVerbose(0),
 
-				fZxLineParabola(fFtsBranchId, fFtsHitArray),
+										fZxLineParabola(fFtsBranchId, fFtsHitArray),
 
-				fZxParabola(fFtsBranchId, fFtsHitArray),
+										fZxParabola(fFtsBranchId, fFtsHitArray),
 
-				fZxParabolaLine(fFtsBranchId, fFtsHitArray),
+										fZxParabolaLine(fFtsBranchId, fFtsHitArray),
 
-				fZyLine(fFtsBranchId, fFtsHitArray),
+										fZyLine(fFtsBranchId, fFtsHitArray),
 
-				fZLineParabola(0.),
-				fZParabolaLine(0.)
+										fZLineParabola(0.),
+										fZParabolaLine(0.)
 {
 	if (0==fFtsHitArray){
 		std::cout << "PndFtsHoughTrackCand FATAL ERROR Hit array not set.\n";
@@ -43,20 +43,24 @@ PndFtsHoughTrackCand::~PndFtsHoughTrackCand()
 void PndFtsHoughTrackCand::SetZxFirstLine(const PndFtsHoughTracklet zxLineParabola, const Double_t zLineParabola){
 	fZxLineParabola = zxLineParabola;
 	fZLineParabola = zLineParabola;
+	addUniqueTrackletHits(fZxLineParabola);
 }
 void PndFtsHoughTrackCand::SetZxParabola(const PndFtsHoughTracklet zxParabola, const Double_t zLineParabola){
-	fZxParabola = zxParabola;
 	// warn if line before dipole field and parabola within are not calculated wrt the same z reference value
 	if (zLineParabola!=fZLineParabola){
 		std::cout << "WARNING from PndFtsHoughTrackCand: First line and parabola were not calculated wrt the same z position! Potentially FATAL ERROR!\n";
 	}
+	fZxParabola = zxParabola;
+	addUniqueTrackletHits(fZxParabola);
 }
 void PndFtsHoughTrackCand::SetZxSecondLine(const PndFtsHoughTracklet zxParabolaLine, const Double_t zParabolaLine){
 	fZxParabolaLine = zxParabolaLine;
 	fZParabolaLine = zParabolaLine;
+	addUniqueTrackletHits(fZxParabolaLine);
 }
 void PndFtsHoughTrackCand::SetZyLine(const PndFtsHoughTracklet zyLine){
 	fZyLine=zyLine;
+	addUniqueTrackletHits(fZyLine);
 }
 
 
@@ -88,6 +92,23 @@ void PndFtsHoughTrackCand::Print() {
 }
 
 
+
+void PndFtsHoughTrackCand::addUniqueTrackletHits(PndFtsHoughTracklet inTracklet)
+{
+	// add all the hits from the tracklet which are not already in the hitId vector
+	for (UInt_t iHit = 0; iHit < inTracklet.GetNHits(); ++iHit)
+	{
+		PndTrackCandHit inHit = inTracklet.GetSortedHit(iHit);
+		const Int_t inHitId = inHit.GetHitId();
+		const Int_t inDetId = inHit.GetDetId();
+		// if hit is NOT in track -1 is returned by HitInTrack, otherwise the index (>=0) in the HitId vector is returned
+		if (-1==HitInTrack(inDetId,inHitId)){
+			// add hit to track cand
+			const Double_t inRho = inHit.GetRho();
+			AddHit(inDetId, inHitId, inRho);
+		}
+	}
+}
 
 
 
