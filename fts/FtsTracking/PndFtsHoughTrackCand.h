@@ -30,7 +30,7 @@ class PndFtsHoughTrackCand : public PndTrackCand {
 public:
 
 	// Constructors/Destructors ---------
-	PndFtsHoughTrackCand(TClonesArray *ftsHitArray=0);
+	PndFtsHoughTrackCand(Int_t ftsBranchId=0, TClonesArray *ftsHitArray=0);
 	~PndFtsHoughTrackCand();
 
 	// operators
@@ -62,6 +62,7 @@ private:
 	Int_t fVerbose;
 
 	// FTS Hits
+	Int_t   fFtsBranchId;
 	TClonesArray *fFtsHitArray;
 
 	// zx plane

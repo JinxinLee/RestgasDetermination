@@ -98,7 +98,7 @@ void PndFtsTrackerTaskHough::Initialization_ClassVariables()
 	fFtsParameters=0;
 	fFtsTubeArray=0;
 	fFtsHitArray=0;
-	fFtsBranchID=0;
+	fFtsBranchId=0;
 	fTracksArrayName="FTSTrkHough";
 	SetTrackOutput();
 	fHoughTrackCands = 0;
@@ -162,7 +162,7 @@ InitStatus PndFtsTrackerTaskHough::Init()
 	}
 
 	// FTS Branch
-	fFtsBranchID = 	ioman->GetBranchId("FTSHit");
+	fFtsBranchId = 	ioman->GetBranchId("FTSHit");
 
 	// FTS Tube Array
 	PndFtsMapCreator *mapperFts = new PndFtsMapCreator(fFtsParameters);
@@ -225,7 +225,7 @@ void PndFtsTrackerTaskHough::Exec(Option_t* option)
 
 
 
-	PndFtsHoughTrackFinder trackFinder(fFtsHitArray, fFtsBranchID, fField);
+	PndFtsHoughTrackFinder trackFinder(fFtsBranchId, fFtsHitArray, fField);
 	trackFinder.SetVerbose(fVerbose);
 	trackFinder.SetSaveDebugInfo(fSaveDebugInfo);
 //	trackFinder.SetMinPeakHeightZxLineParabola(4);

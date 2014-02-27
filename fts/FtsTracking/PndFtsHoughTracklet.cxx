@@ -13,22 +13,25 @@
 
 ClassImp(PndFtsHoughTracklet);
 
-PndFtsHoughTracklet::PndFtsHoughTracklet(TClonesArray *ftsHitArray) :
-		fVerbose(0),
+PndFtsHoughTracklet::PndFtsHoughTracklet(Int_t ftsBranchId, TClonesArray *ftsHitArray) :
+				fVerbose(0),
 
-		fIsSet(kFALSE),
+				fIsSet(kFALSE),
 
-		fPeakHeightFromPeakFinder(0.),
+				fPeakHeightFromPeakFinder(0.),
 
-		fThetaVal(0.),
-		fThetaHw(0.),
+				fThetaVal(0.),
+				fThetaHw(0.),
 
-		fSecondVal(0.),
-		fSecondHw(0.),
+				fSecondVal(0.),
+				fSecondHw(0.),
 
-		fFtsHitArray(ftsHitArray)
+				fFtsHitArray(ftsHitArray),
+				fFtsBranchId(ftsBranchId)
 {
-
+	if (0==ftsHitArray){
+		std::cout << "PndFtsHoughTracklet FATAL ERROR Hit array not set in constructor.\n";
+	}
 }
 
 PndFtsHoughTracklet::~PndFtsHoughTracklet()
@@ -56,7 +59,7 @@ void PndFtsHoughTracklet::SetHoughTransformResults(
 	fThetaHw = thetaHw;
 	fSecondHw = secondHw;
 
-//	addPeakHits();
+	//	addPeakHits();
 
 	fIsSet = kTRUE;
 }

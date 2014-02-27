@@ -67,7 +67,7 @@ class FairHit;
 class PndFtsHoughTrackFinder
 {
 public:
-	PndFtsHoughTrackFinder(TClonesArray* hits, Int_t branchId, FairField* field); ///< Sets the array of all FTS hits and the branchId (super important!)
+	PndFtsHoughTrackFinder(Int_t branchId, TClonesArray* hits, FairField* field); ///< Sets the array of all FTS hits and the branchId (super important!)
 	virtual ~PndFtsHoughTrackFinder();
 
 	void FindTracks();										///< Main function to start the track finding
@@ -94,8 +94,6 @@ public:
 
 
 private:
-	PndFtsHoughTrackFinder(); // do not use!
-
 	Int_t   fFtsBranchId; // needed for saving and accessing hits
 	TClonesArray *fFtsHitArray; // Input array of all FTS hits
 

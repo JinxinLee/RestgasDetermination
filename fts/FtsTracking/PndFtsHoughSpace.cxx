@@ -74,26 +74,6 @@ inline void PndFtsHoughSpace::AddHit(FairLink link, Double_t rho)
 
 
 
-PndFtsHoughSpace::PndFtsHoughSpace() :
-						fFtsHitArray(0),
-						fFtsBranchId(0),
-						fVerbose(0),
-
-						fUseNonSkewedStraws(kFALSE),
-						fUseSkewedStraws(kFALSE),
-
-						fZRefPos(0),
-						fInterceptZx(0),
-
-						fField(0),
-
-						TH2S()
-
-{
-	std::cout << "PndFtsHoughSpace WARNING Do not use the default constructor.\n";
-}
-
-
 PndFtsHoughSpace::PndFtsHoughSpace(
 		const char *name,
 
@@ -105,11 +85,11 @@ PndFtsHoughSpace::PndFtsHoughSpace(
 		Double_t ylow,
 		Double_t yup,
 
-		TClonesArray *ftsHitArray,
-		Int_t ftsBranchId,
-
 		Double_t zRefPos,
 		Double_t interceptZx,
+
+		Int_t ftsBranchId,
+		TClonesArray *ftsHitArray,
 
 		FairField *field
 ) :
@@ -125,6 +105,9 @@ fField(field),
 TH2S(name,name,nbinsx,xlow,xup,nbinsy,ylow,yup)
 
 {
+	if (0==ftsHitArray){
+		std::cout << "PndFtsHoughSpace FATAL ERROR Hit array not set.\n";
+	}
 	setParametersForHsOption();
 	filterInputHits();
 }
@@ -305,15 +288,12 @@ Bool_t PndFtsHoughSpace::FillHoles(
 Bool_t PndFtsHoughSpace::MakeHoughSpace()
 {
 	// function fills the Hough space using the equation corresponding to the name of the Hough space
-	// If everything goes well, the function returns kTRUE
-	// This function returns kFALSE if the Hough space name is set incorrectly
+	// If everything goes well, the function returns kTRUE, else kFALSE (probably Hough space name is set incorrectly or there are no FTS hits)
 
 	// !!! WARNING The theta values are NOT the same as in the interaction point. They are always calculated relative to a shifted coordinate system and only 2-dimensional !!!
 
-
 	// The angle (theta) to the z-axis in the z-x- or z-y-plane at a z reference position will be scanned
 	// from theta corresponding to lowest bin to theta corresponding to highest bin of x-axis
-
 
 	// y component of B field will be read from field maps if fKeepBConstant is kFALSE
 
@@ -326,12 +306,8 @@ Bool_t PndFtsHoughSpace::MakeHoughSpace()
 	}
 
 
-
-
 	// make Hough space according to the Hough transform I want to do
 	const TString option = GetName();
-
-
 
 
 	// for B field access
@@ -352,7 +328,7 @@ Bool_t PndFtsHoughSpace::MakeHoughSpace()
 
 
 
-	// This produces the hough space for a parabola or a line (with constant B field or with B field read from field maps)
+	// This produces the Hough space for a parabola or a line (with constant B field or with B field read from field maps)
 	for (int iHit = 0; iHit < GetNHits(); iHit++)
 	{
 		firstEntry = kTRUE;
@@ -372,7 +348,7 @@ Bool_t PndFtsHoughSpace::MakeHoughSpace()
 
 
 		if (1<fVerbose) {
-			std::cout << "Doing " << option << " hough transform for hit (hitZLabSys, hitXLabSys) = (" << hitZLabSys << ", " << hitXLabSys << ") cm";
+			std::cout << "Doing " << option << " Hough transform for hit (hitZLabSys, hitXLabSys) = (" << hitZLabSys << ", " << hitXLabSys << ") cm";
 			if (kTRUE == fKeepBConstant)
 			{
 				std::cout << " ignoring B field maps\n";
@@ -392,7 +368,7 @@ Bool_t PndFtsHoughSpace::MakeHoughSpace()
 
 		// calculate Hough transform for hit iHit
 		// for each hit a scan in theta is done
-		// by going through the x-axis of houghspace
+		// by going through the x-axis of the Hough space
 
 		for (Int_t iTheta = iThetaFirst; iTheta < iThetaLast; ++iTheta)
 		{
@@ -465,7 +441,7 @@ Bool_t PndFtsHoughSpace::MakeHoughSpace()
 
 
 			globalBin = Fill(theta,yVal);
-			if (5<fVerbose) { std::cout << "Hough point was filled into histogram. globalbin = " << globalBin << " for option" << option <<std::endl; }
+			if (5<fVerbose) { std::cout << "Hough point was filled into Hough space. globalbin = " << globalBin << " for option" << option <<std::endl; }
 			// Find binx and biny for histogram from global bin number
 			GetBinXYZ(globalBin, currentBinX, currentBinY, currentBinZ);
 
@@ -536,14 +512,11 @@ Bool_t PndFtsHoughSpace::FindAllPeaks(
 )
 {
 	// finds all peaks that satisfy the minimum height requirement minHeight
-	// returns kTRUE if at least one peak was found
-	// kFALSE if not
-	// (probably option was not set correctly or Hough Space is empty / has too few hits)
-
+	// returns kTRUE if at least one peak was found, kFALSE otherwise (Hough space name was not set correctly or Hough Space is empty / has too few hits or tracklets were not empty)
 
 
 	// TODO: This information is obsolete and should be adjusted
-	// overwrites the following vectors with the values found for the peak in the histogram houghspace
+	// tracklets should be empty at the beginning and will contain all values found for the peak in the Hough space
 	//	peakTheta = theta for peak
 	//	peakSecond = Q/pzx for peak (parabola HT)
 	//	peakSecond = intercept for peak (line HT) (in z-x- or z-y-plane)
@@ -551,8 +524,8 @@ Bool_t PndFtsHoughSpace::FindAllPeaks(
 	// peakThetaHw = half width of peak in theta
 	// peakSecondHw = half width of peak in second value (see above for what it stands for)
 
-	// actualHeight returns the height of the peak in the histogram (in counts)
-
+	// actualHeight height of the peak in the histogram (in counts)
+	// the tracklets will contain the hitIds of all hits that contribute to the peak
 
 
 
@@ -560,7 +533,7 @@ Bool_t PndFtsHoughSpace::FindAllPeaks(
 	// make sure the output vector is empty
 	if ( 0!=tracklets.size() ){
 		std::cout << "FATAL error in PndFtsHoughSpace tracklet vector is not empty.\n";
-				return kFALSE;
+		return kFALSE;
 	}
 
 
@@ -636,7 +609,7 @@ Bool_t PndFtsHoughSpace::FindAllPeaks(
 					Double_t peakSecondHwVal = fYaxis.GetBinWidth(peakSecondVal);
 
 					// create tracklet and push it back to output
-					PndFtsHoughTracklet currentTracklet;
+					PndFtsHoughTracklet currentTracklet(fFtsBranchId, fFtsHitArray);
 					currentTracklet.SetHoughTransformResults(peakThetaVal, peakSecondVal, currentHeight, peakThetaHwVal, peakSecondHwVal);
 					tracklets.push_back(currentTracklet);
 				}

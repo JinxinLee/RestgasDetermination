@@ -59,33 +59,32 @@ ClassImp(PndFtsHoughTrackFinder)
 
 
 
-PndFtsHoughTrackFinder::PndFtsHoughTrackFinder()
+
+
+PndFtsHoughTrackFinder::PndFtsHoughTrackFinder(Int_t branchId, TClonesArray* hits, FairField* field) :
+														fFtsHitArray(hits),
+														fFtsBranchId(branchId),
+														fField(field),
+
+														// Hough spaces
+														fHoughspaceZxLineParabola(0),
+														fHoughspaceZxParabola(0),
+														fHoughspaceZxParabolaLine(0),
+														fHoughspaceZyLine(0),
+
+														// min peak heights
+														fMinPeakHeightZxLineParabola(4),
+														fMinPeakHeightZxParabola(6),
+														fMinPeakHeightZxParabolaLine(4),
+														fMinPeakHeightZyLine(4),
+
+														// general
+														fSaveDebugInfo(kFALSE),
+														fVerbose(0)
 {
-	Info("PndFtsHoughTrackFinder","Default Constructor of PndFtsHoughTrackFinder should not be used!");
-}
-
-PndFtsHoughTrackFinder::PndFtsHoughTrackFinder(TClonesArray* hits, Int_t branchId, FairField* field) :
-								fFtsHitArray(hits),
-								fFtsBranchId(branchId),
-								fField(field),
-
-								// Hough spaces
-								fHoughspaceZxLineParabola(0),
-								fHoughspaceZxParabola(0),
-								fHoughspaceZxParabolaLine(0),
-								fHoughspaceZyLine(0),
-
-								// min peak heights
-								fMinPeakHeightZxLineParabola(4),
-								fMinPeakHeightZxParabola(6),
-								fMinPeakHeightZxParabolaLine(4),
-								fMinPeakHeightZyLine(4),
-
-								// general
-								fSaveDebugInfo(kFALSE),
-								fVerbose(0)
-{
-	if(3<fVerbose) Info("PndFtsHoughTrackFinder","Correct Constructor of PndFtsHoughTrackFinder");
+	if (0==fFtsHitArray){
+		std::cout << "PndFtsHoughTrackFinder FATAL ERROR Hit array not set.\n";
+	}
 }
 
 
@@ -179,11 +178,11 @@ void PndFtsHoughTrackFinder::FindTracks() {
 			-50.,
 			50.,
 
-			fFtsHitArray,
-			fFtsBranchId,
-
 			zLineParabola,
 			0.,
+
+			fFtsBranchId,
+			fFtsHitArray,
 
 			fField
 	);
@@ -260,11 +259,11 @@ void PndFtsHoughTrackFinder::FindTracks() {
 				-0.015,
 				0.015,
 
-				fFtsHitArray,
-				fFtsBranchId,
-
 				zLineParabola,
 				peakInterceptZxLineParabola,
+
+				fFtsBranchId,
+				fFtsHitArray,
 
 				fField
 		);
@@ -323,7 +322,7 @@ void PndFtsHoughTrackFinder::FindTracks() {
 		}
 		for (UInt_t iTrackletParabola=0; iTrackletParabola < zxParabolaTracklets.size(); ++iTrackletParabola)
 		{
-			PndFtsHoughTrackCand newHoughTrackCand(fFtsHitArray);
+			PndFtsHoughTrackCand newHoughTrackCand(fFtsBranchId, fFtsHitArray);
 			newHoughTrackCand.SetZxFirstLine(zxLineParabolaTracklets[iTrackletLine], zLineParabola);
 			newHoughTrackCand.SetZxParabola(zxParabolaTracklets[iTrackletParabola], zLineParabola);
 			fHoughTrackCands.push_back(newHoughTrackCand);

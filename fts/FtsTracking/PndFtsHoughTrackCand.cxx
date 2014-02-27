@@ -12,22 +12,26 @@
 
 ClassImp(PndFtsHoughTrackCand);
 
-PndFtsHoughTrackCand::PndFtsHoughTrackCand(TClonesArray *ftsHitArray) :
+PndFtsHoughTrackCand::PndFtsHoughTrackCand(Int_t ftsBranchId, TClonesArray *ftsHitArray) :
 				fFtsHitArray(ftsHitArray),
+				fFtsBranchId(ftsBranchId),
+
 				fVerbose(0),
 
-				fZxLineParabola(),
+				fZxLineParabola(fFtsBranchId, fFtsHitArray),
 
-				fZxParabola(),
+				fZxParabola(fFtsBranchId, fFtsHitArray),
 
-				fZxParabolaLine(),
+				fZxParabolaLine(fFtsBranchId, fFtsHitArray),
 
-				fZyLine(),
+				fZyLine(fFtsBranchId, fFtsHitArray),
 
 				fZLineParabola(0.),
 				fZParabolaLine(0.)
 {
-
+	if (0==fFtsHitArray){
+		std::cout << "PndFtsHoughTrackCand FATAL ERROR Hit array not set.\n";
+	}
 }
 
 PndFtsHoughTrackCand::~PndFtsHoughTrackCand()
@@ -106,7 +110,7 @@ const PndFtsHit* PndFtsHoughTrackCand::getHit(UInt_t index) {
 	// Make sure we have a complete track candidate before we try to access any hits
 	if (!isComplete()) return 0;
 	if (index < GetNHits()){
-//		TClonesArray *ftsHitArray= (TClonesArray *)FairRootManager::Instance()->GetObject("FTSHit");
+		//		TClonesArray *ftsHitArray= (TClonesArray *)FairRootManager::Instance()->GetObject("FTSHit");
 		const PndFtsHit *myHit = (PndFtsHit*) fFtsHitArray->At(GetSortedHit(index).GetHitId());
 		return myHit;
 	} else {

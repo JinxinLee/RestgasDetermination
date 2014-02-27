@@ -27,7 +27,8 @@ class PndFtsHoughTracklet : public PndTrackCand {
 public:
 
 	// Constructors/Destructors ---------
-	PndFtsHoughTracklet(TClonesArray *ftsHitArray=0);
+	PndFtsHoughTracklet(Int_t ftsBranchId=0, TClonesArray *ftsHitArray=0);
+//	PndFtsHoughTracklet(){ std::cout << "PndFtsHoughTracklet WARNING Do not use the default constructor.\n"; }; // do not use
 	~PndFtsHoughTracklet();
 
 
@@ -67,6 +68,7 @@ private:
 	Int_t fVerbose;
 
 	// FTS Hits
+	Int_t   fFtsBranchId;
 	TClonesArray *fFtsHitArray;
 
 

@@ -37,23 +37,23 @@ public:
 
 	// Constructors/Destructors ---------
 	PndFtsHoughSpace(
-			const char *name,
+			const char *name=0,
 
-			Int_t nbinsx,
-			Double_t xlow,
-			Double_t xup,
+			Int_t nbinsx=0,
+			Double_t xlow=0.,
+			Double_t xup=0.,
 
-			Int_t nbinsy,
-			Double_t ylow,
-			Double_t yup,
+			Int_t nbinsy=0,
+			Double_t ylow=0.,
+			Double_t yup=0.,
 
-			TClonesArray *ftsHitArray,
-			Int_t ftsBranchId,
+			Double_t zRefPos=0.,
+			Double_t interceptZx=0.,
 
-			Double_t zRefPos,
-			Double_t interceptZx,
+			Int_t ftsBranchId=0,
+			TClonesArray *ftsHitArray=0,
 
-			FairField *field
+			FairField *field=0
 	);
 	~PndFtsHoughSpace();
 
@@ -85,17 +85,14 @@ public:
 	}
 
 	inline UInt_t GetNHits() const {return fHitId.size();}
-	inline const PndFtsHit *getHit(UInt_t index) const; // gets the FTS hit corresponding to index
-
 
 
 private:
-	PndFtsHoughSpace(); // do not use
-
 	Bool_t setParametersForHsOption(); // set parameters according to the kind of Hough transform I want to do
 	Bool_t filterInputHits(); // copies input hits (based on z coordinate and skewed/non-skewed) from fFtsHitArray (all FTS hits) to fHitId (only the hits that qualify for the specific Hough transform)
 	inline void AddHit(UInt_t hitId, Double_t rho);
 	inline void AddHit(FairLink link, Double_t rho);
+	inline const PndFtsHit *getHit(UInt_t index) const; // gets the FTS hit corresponding to index
 
 
 	// Private Data Members ------------
@@ -113,10 +110,10 @@ private:
 	Double_t fOnlyUseHitsUpToZ;
 	Bool_t fUseNonSkewedStraws; // if kTRUE, then hits from non-skewed straws are used for Hough transform
 	Bool_t fUseSkewedStraws; // if kTRUE, then hits from skewed straws are used for Hough transform
-	Bool_t fKeepBConstant;
+
+	Bool_t fKeepBConstant; // set only to kFALSE for testing
 	// If kTRUE the y-component of the B-field is not used in the parabola hough transform
 	// if kFALSE the parabola's shape will be adjusted based on the magnetic field maps
-	// set only to kFALSE for testing
 
 	// at which z value the values are calculated
 	Double_t fZRefPos; // is used to redefine an origin for the coordinate system (so that the angle definition gives meaningful theta values)
@@ -147,13 +144,13 @@ private:
 	// for HoughTransform
 	/////////////////////
 	// if kTRUE will correct the pzx prediction according to values which should be obtained from a line fit mc truth momentum VS. reco momentum with high statistics
-	static const Bool_t correctpz = kFALSE;
+	static const Bool_t fCorrectPzx = kFALSE;
 
 
 
 
 
-
+	// Makes sure there are no holes in the Hough space by filling them with a line
 	inline Bool_t FillHoles(
 			Int_t lastBinX,
 			Int_t lastBinY,

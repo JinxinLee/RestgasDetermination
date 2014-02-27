@@ -76,7 +76,6 @@ public:
 
 
 private:
-
 	// general
 	Bool_t fPersistence;
 
@@ -86,9 +85,8 @@ private:
 	////////
 
 	//! FTS Branch ID
-	Int_t   fFtsBranchID;
-	/** Input array of PndFtsHit **/
-	TClonesArray *fFtsHitArray;
+	Int_t   fFtsBranchId; // detector Id
+	TClonesArray *fFtsHitArray; // Input array of PndFtsHit
 
 	PndGeoFtsPar *fFtsParameters;
 	/** Input array of PndFtsTube (map of FTS tubes) **/
