@@ -6,7 +6,7 @@
 // loosely modeled according to PndTools/riemannfit/PndRiemannTrack.h
 //
 // Created: 24.01.2014
-// Modified: 19.02.2014
+// Modified: 28.02.2014
 //
 // *************************************************************************
 
@@ -44,10 +44,9 @@ public:
 	const PndFtsHit *getHit(UInt_t index); // gets the FairHit corresponding to index
 	PndTrack getPndTrack(); // convert *this to a PndTrack
 	FairTrackParP getTrackParPForHit(UInt_t i); // get the track parameters (needed for conversion to PndTrack) for hit with index i
-	Double_t getQoverPzx() const{ return fZxParabola.getSecondVal(); };
 	Int_t getCharge() const; // gets charge of track candidate // TODO only charge sign is implemented
 	TVector3 getPforHit(UInt_t index); // gets the momentum calculated at some hit
-	TVector3 getPositionForHit(UInt_t index); // gets the position calculated at some hit
+	TVector3 getPosForHit(UInt_t index); // gets the position calculated at some hit
 
 	// Modifiers -----------------------
 	// add results from Hough transforms
@@ -60,19 +59,89 @@ public:
 private:
 	void addUniqueTrackletHits(const PndFtsHoughTracklet inTracklet);
 
+	Double_t getQoverPzx() const{ return fZxParabola.getSecondVal(); };
 
-	// TODO: Check this!
-	inline Double_t getXLabForParabola(const Double_t &zLabSys, PndFtsHoughTracklet *parabolaTracklet, PndFtsHoughTracklet *lineBeforeParabolaTracklet)
-	{
-		// does not take option of varying B field into account
-		// calculate x in lab sys for a given z position in lab sys for which the parabola assumption holds
-		// theta in radian in zx plane given at z = fZLineParabola
-		const Double_t thetaRad = parabolaTracklet->getThetaVal()/180.*3.14;
-		const Double_t qDivPzx = parabolaTracklet->getSecondVal(); // Q/pzx
-		const Double_t zRefLabSys = parabolaTracklet->getZRefLabSys();
+	inline Double_t getPYLab(){
+		// theta in radian in zy plane given at z where first zx line meets the parabola
+		const Double_t zRefLabSys = fZxParabola.getZRefLabSys();
+		const Double_t thetaZyRad = fZyLine.getThetaVal()/180.*3.14;
+		const Double_t pZLab = getPZPXLabLine(zRefLabSys, &fZxLineParabola).first;
+		Double_t pYLabSys = tan(thetaZyRad)*pZLab;
+		return pYLabSys;
+	}
+
+	inline std::pair<Double_t, Double_t> getPZPXLabLine(const Double_t &zLabSys, PndFtsHoughTracklet *lineTracklet){
+		// theta in radian in zx plane given at z = zRefLabSys
+		const Double_t thetaRad = lineTracklet->getThetaVal()/180.*3.14;
+		const Double_t qDivPzx = fZxParabola.getSecondVal(); // Q/pzx
+		const Double_t pZx = getCharge() / qDivPzx;
+
+		const Double_t pZLabSys = pZx*cos(thetaRad);
+		const Double_t pXLabSys = pZx*sin(thetaRad);
+		std::pair<Double_t, Double_t> pZPXLabSys(pZLabSys, pXLabSys);
+
+		return pZPXLabSys;
+	}
+
+	inline std::pair<Double_t, Double_t> getPZPXLabParabola(const Double_t &zLabSys){
+		// theta in radian in zx plane given at z = zRefLabSys
+		const Double_t thetaRadVor = fZxLineParabola.getThetaVal()/180.*3.14;
+		const Double_t zRefLabSysVor = fZxLineParabola.getZRefLabSys();
+
+		const Double_t thetaRadNach = fZxParabolaLine.getThetaVal()/180.*3.14;
+		const Double_t zRefLabSysNach = fZxParabolaLine.getZRefLabSys();
+
+		// assume that theta is rotated linearly along z which is (probably) true for a circle, but not for a parabola // TODO: Check if this is a good assumption
+		const Double_t zDistTotal = zRefLabSysNach - zRefLabSysVor;
+		const Double_t zDistTraveled = zLabSys - zRefLabSysVor;
+
+		const Double_t currentThetaRad = thetaRadVor + zDistTraveled / zDistTotal * (thetaRadNach - thetaRadVor);
+
+		const Double_t qDivPzx = fZxParabola.getSecondVal(); // Q/pzx
+		const Double_t pZx = getCharge() / qDivPzx;
+
+		const Double_t pZLabSys = pZx*cos(currentThetaRad);
+		const Double_t pXLabSys = pZx*sin(currentThetaRad);
+		std::pair<Double_t, Double_t> pZPXLabSys(pZLabSys, pXLabSys);
+
+		return pZPXLabSys;
+	}
+
+
+	inline Double_t getXOrYLabForLine(const Double_t &zLabSys, PndFtsHoughTracklet *lineTracklet){
+		// calculate x or y in lab sys for a given z position in lab sys for which the line assumption holds
+		// theta in radian in zx plane given at z = zRefLabSys
+		const Double_t thetaRad = lineTracklet->getThetaVal()/180.*3.14;
+		const Double_t intercept = lineTracklet->getSecondVal();
+		const Double_t zRefLabSys = lineTracklet->getZRefLabSys();
 		const Double_t zshifted = zLabSys-zRefLabSys;
 
+		Double_t xOrYLabSys = tan(thetaRad)*zshifted+intercept;
+
+		return xOrYLabSys;
+	}
+
+	// TODO: Check this!
+	inline Double_t getXLabForParabola(const Double_t &zLabSys){
+		// does not take option of varying B field into account
+		// calculate x in lab sys for a given z position in lab sys for which the parabola assumption holds
+		// theta in radian in zx plane given at z = zRefLabSys
+		const Double_t thetaRad = fZxParabola.getThetaVal()/180.*3.14;
+		const Double_t qDivPzx = fZxParabola.getSecondVal(); // Q/pzx
+		const Double_t zRefLabSys = fZxParabola.getZRefLabSys();
+		const Double_t zshifted = zLabSys-zRefLabSys;
+
+		const Double_t interceptLine = fZxLineParabola.getSecondVal();
+
 		const Double_t By = 1.;
+
+		if (0==thetaRad){
+			Double_t xParabolaSys = qDivPzx /2. * By * zshifted;
+			// go from local parabola system to the lab system
+			Double_t xLabSys = xParabolaSys + interceptLine;
+			return xLabSys;
+		}
+
 
 		const Double_t tantheta = tan(thetaRad);
 		const Double_t pzstuff = 1. / qDivPzx / By / sin(thetaRad);
@@ -84,7 +153,6 @@ private:
 		const Double_t x2ParabolaSys = a + wurzel;
 
 		// go from local parabola system to the lab system
-		const Double_t interceptLine = lineBeforeParabolaTracklet->getSecondVal();
 		Double_t x1LabSys = x1ParabolaSys + interceptLine;
 		Double_t x2LabSys = x2ParabolaSys + interceptLine;
 
@@ -96,19 +164,7 @@ private:
 		}
 	}
 
-	inline Double_t getXOrYLabForLine(const Double_t &zLabSys, PndFtsHoughTracklet *lineTracklet)
-	{
-		// calculate x or y in lab sys for a given z position in lab sys for which the line assumption holds
-		// theta in radian in zx plane given at z = fZLineParabola
-		const Double_t thetaRad = lineTracklet->getThetaVal()/180.*3.14;
-		const Double_t intercept = lineTracklet->getSecondVal();
-		const Double_t zRefLabSys = lineTracklet->getZRefLabSys();
-		const Double_t zshifted = zLabSys-zRefLabSys;
 
-		Double_t xOrYLabSys = tan(thetaRad)*zshifted+intercept;
-
-		return xOrYLabSys;
-	}
 
 	// Private Data Members ------------
 	Int_t fVerbose;
