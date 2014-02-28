@@ -241,8 +241,8 @@ TVector3 PndFtsHoughTrackCand::getPositionForHit(UInt_t index) {
 		xLabSys = getXOrYLabForLine(zLabSys, &fZxLineParabola);
 
 	} else if ( 5 > station ){
-		// if hit is in station 3 or 4 use tangent to parabola in zx plane
-		position.SetXYZ(0., 0., 0.); // TODO Use correct values
+		// if hit is in station 3 or 4 use parabola in zx plane
+		getXLabForParabola(zLabSys, &fZxParabola, &fZxLineParabola);
 	} else if ( 7 > station ){
 		// check if hit is in station 5 or 6 (if so: use 2nd line in zx plane)
 		xLabSys = getXOrYLabForLine(zLabSys, &fZxParabolaLine);

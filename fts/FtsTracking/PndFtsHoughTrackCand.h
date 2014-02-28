@@ -61,16 +61,51 @@ private:
 	void addUniqueTrackletHits(const PndFtsHoughTracklet inTracklet);
 
 
-	// TODO: Add the equations for parabola
+	// TODO: Check this!
+	inline Double_t getXLabForParabola(const Double_t &zLabSys, PndFtsHoughTracklet *parabolaTracklet, PndFtsHoughTracklet *lineBeforeParabolaTracklet)
+	{
+		// does not take option of varying B field into account
+		// calculate x in lab sys for a given z position in lab sys for which the parabola assumption holds
+		// theta in radian in zx plane given at z = fZLineParabola
+		const Double_t thetaRad = parabolaTracklet->getThetaVal()/180.*3.14;
+		const Double_t qDivPzx = parabolaTracklet->getSecondVal(); // Q/pzx
+		const Double_t zRefLabSys = parabolaTracklet->getZRefLabSys();
+		const Double_t zshifted = zLabSys-zRefLabSys;
+
+		const Double_t By = 1.;
+
+		const Double_t tantheta = tan(thetaRad);
+		const Double_t pzstuff = 1. / qDivPzx / By / sin(thetaRad);
+		const Double_t ztantheta = zshifted / tantheta;
+		const Double_t a = -ztantheta + pzstuff / tantheta;
+
+		const Double_t wurzel = sqrt(a * a - 2. * pzstuff * zshifted - ztantheta * ztantheta);
+		const Double_t x1ParabolaSys = a - wurzel;
+		const Double_t x2ParabolaSys = a + wurzel;
+
+		// go from local parabola system to the lab system
+		const Double_t interceptLine = lineBeforeParabolaTracklet->getSecondVal();
+		Double_t x1LabSys = x1ParabolaSys + interceptLine;
+		Double_t x2LabSys = x2ParabolaSys + interceptLine;
+
+		// there are two analytical solutions, take the one closer to 0
+		if (fabs(x1LabSys)<fabs(x2LabSys)) {
+			return x1LabSys;
+		} else {
+			return x2LabSys;
+		}
+	}
+
 	inline Double_t getXOrYLabForLine(const Double_t &zLabSys, PndFtsHoughTracklet *lineTracklet)
 	{
-		// calculate x in lab sys for a given z position in lab sys for which the line assumption holds
+		// calculate x or y in lab sys for a given z position in lab sys for which the line assumption holds
 		// theta in radian in zx plane given at z = fZLineParabola
-		const Double_t thetaRad = lineTracklet->getThetaVal();
+		const Double_t thetaRad = lineTracklet->getThetaVal()/180.*3.14;
 		const Double_t intercept = lineTracklet->getSecondVal();
 		const Double_t zRefLabSys = lineTracklet->getZRefLabSys();
+		const Double_t zshifted = zLabSys-zRefLabSys;
 
-		Double_t xOrYLabSys = tan(thetaRad)*(zLabSys-zRefLabSys)+intercept;
+		Double_t xOrYLabSys = tan(thetaRad)*zshifted+intercept;
 
 		return xOrYLabSys;
 	}
