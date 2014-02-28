@@ -183,7 +183,7 @@ void PndLmdSigCleanTask::Finish()
 
 bool  PndLmdSigCleanTask::Check(FairTrackParH* fTrk){ //answer TRUE means "it's a signal"
   bool res;
-  if(fPbeam==1.5) res = CheckMVA(fTrk); //MVA was trained only on sample with 1.5 GeV/c simulation ///TODO: extension to other energies?
+  if(fabs(fPbeam-1.5)<1e-1) res = CheckMVA(fTrk); //MVA was trained only on sample with 1.5 GeV/c simulation ///TODO: extension to other energies?
   else{
     TVector3 MomRecBP = fTrk->GetMomentum();
     double prec = MomRecBP.Mag();
