@@ -106,26 +106,28 @@ InitStatus PndLmdSigCleanTask::Init()
 
   //TMVA -----------------------------------------------------
   // This loads the library
-  TMVA::Tools::Instance();
+  if(fabs(fPbeam-1.5)<1e-1){
+    TMVA::Tools::Instance();
  
-  //   TMVA::Reader *
-  reader = new TMVA::Reader( "!Color:!Silent" );    
-
-   // Create a set of variables and declare them to the reader
-   // - the variable names MUST corresponds in name and type to those given in the weight file(s) used
- 
-   reader->AddVariable( "axrec", &axrec);
-   reader->AddVariable( "ayrec", &ayrec);
-   reader->AddVariable( "azrec", &azrec);
-   reader->AddVariable( "aprec", &aprec);
-   reader->AddVariable( "athrec", &athrec);
-   reader->AddVariable( "aphrec", &aphrec);
-
+    //   TMVA::Reader *
+    reader = new TMVA::Reader( "!Color:!Silent" );    
+    
+    // Create a set of variables and declare them to the reader
+    // - the variable names MUST corresponds in name and type to those given in the weight file(s) used
+    
+    reader->AddVariable( "axrec", &axrec);
+    reader->AddVariable( "ayrec", &ayrec);
+    reader->AddVariable( "azrec", &azrec);
+    reader->AddVariable( "aprec", &aprec);
+    reader->AddVariable( "athrec", &athrec);
+    reader->AddVariable( "aphrec", &aphrec);
+    
    //  TString dir    = "weights/";
-   TString prefix = "TMVAClassification";
-   fmethodName = "BDT method";
+    TString prefix = "TMVAClassification";
+    fmethodName = "BDT method";
    TString weightfile =  fdir + prefix + TString("_BDT") + TString(".weights.xml");
    reader->BookMVA( fmethodName, weightfile ); 
+  }
   //------------------------------------------------------
   return kSUCCESS;
 }
@@ -200,6 +202,7 @@ bool  PndLmdSigCleanTask::CheckMom(double prec){
 }
 
 bool  PndLmdSigCleanTask::CheckMVA(FairTrackParH* fTrk){
+  // cout<<"Yes, TMVA game!"<<endl;
   bool res;
   TVector3 PosRecBP = fTrk->GetPosition();
   axrec = PosRecBP.X();    ayrec = PosRecBP.Y();   azrec = PosRecBP.Z(); 
@@ -209,7 +212,8 @@ bool  PndLmdSigCleanTask::CheckMVA(FairTrackParH* fTrk){
   athrec = TMath::Pi()/2. - lyambda;   
   aphrec = fTrk->GetPhi();
   double mva_response =  reader->EvaluateMVA(fmethodName);
-  if(mva_response>-0.0599) res=true; //BDT 
+  // if(mva_response>-0.0599) res=true; //BDT 
+  if(mva_response>0) res=true; //BDT //TEST
   else res=false;
   return res;
 }
