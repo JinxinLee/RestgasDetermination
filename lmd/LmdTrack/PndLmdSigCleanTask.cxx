@@ -213,8 +213,8 @@ bool  PndLmdSigCleanTask::CheckMVA(FairTrackParH* fTrk){
   aphrec = fTrk->GetPhi();
   double mva_response =  reader->EvaluateMVA(fmethodName);
   // if(mva_response>-0.0599) res=true; //BDT 
-  //  if(mva_response>0) res=true; //BDT //TEST
-  if(mva_response>-0.065) res=true; //BDT //TEST
+  if(mva_response>0) res=true; //BDT //TEST
+  //  if(mva_response>-0.065) res=true; //BDT //TEST
   else res=false;
   return res;
 }
