@@ -13,21 +13,21 @@
 ClassImp(PndFtsHoughTrackCand);
 
 PndFtsHoughTrackCand::PndFtsHoughTrackCand(Int_t ftsBranchId, TClonesArray *ftsHitArray) :
-																				fFtsHitArray(ftsHitArray),
-																				fFtsBranchId(ftsBranchId),
+																														fFtsHitArray(ftsHitArray),
+																														fFtsBranchId(ftsBranchId),
 
-																				fVerbose(0),
+																														fVerbose(0),
 
-																				fZxLineParabola(0., fFtsBranchId, fFtsHitArray), // TODO: It could be a problem here that I set the z reference value to 0.
+																														fZxLineParabola(0., fFtsBranchId, fFtsHitArray), // TODO: It could be a problem here that I set the z reference value to 0.
 
-																				fZxParabola(0., fFtsBranchId, fFtsHitArray),
+																														fZxParabola(0., fFtsBranchId, fFtsHitArray),
 
-																				fZxParabolaLine(0., fFtsBranchId, fFtsHitArray),
+																														fZxParabolaLine(0., fFtsBranchId, fFtsHitArray),
 
-																				fZyLine(0., fFtsBranchId, fFtsHitArray),
+																														fZyLine(0., fFtsBranchId, fFtsHitArray),
 
-																				fZLineParabola(0.),
-																				fZParabolaLine(0.)
+																														fZLineParabola(0.),
+																														fZParabolaLine(0.)
 {
 	if (0==fFtsHitArray){
 		std::cout << "PndFtsHoughTrackCand FATAL ERROR Hit array not set.\n";
@@ -142,133 +142,99 @@ const PndFtsHit* PndFtsHoughTrackCand::getHit(UInt_t index) {
 FairTrackParP PndFtsHoughTrackCand::getTrackParPForHit(UInt_t index) {
 	// TODO: Check if all arguments are correct
 
-	// position should NOT come from hit, it should come from the pattern recognition track model
-	// position error can be large (like 1* or 2* tube size) as the Kalman filter will adjust it.
-	//	TVector3 hitPos;
-	TVector3 hitPosError;
-	TVector3 momError(2, 2, 2); // TODO: Check if that is set correctly for FTS
+	// set some plane?
 	TVector3 dj(1,0,0); // TODO: Check if that is set correctly for FTS
 	TVector3 dk(0,1,0); // TODO: Check if that is set correctly for FTS
-	TVector3 origin(0, 0, 1); // TODO: Check if that is set correctly for FTS
-
-	if (index < GetNHits()){
-		// get position of hit with index in track candidate
-		const PndFtsHit *myHit = getHit(index);
-		if (0==myHit){
-			Warning("getTrackParPForHit","Cannot get hit, probably the tracking has not finished.");
-			return FairTrackParP();
-		}
-		//		myHit->Position(hitPos);
+	TVector3 origin(0,0,0); // TODO: Check if that is set correctly for FTS
 
 
-		// TODO: Set the error correctly
-		myHit->PositionError(hitPosError);
-
-
-		// -----   Constructor with track parameters in LAB -----------------------------------
-		// FairTrackParP::FairTrackParP(TVector3 pos, TVector3 Mom, TVector3 posErr, TVector3 MomErr, Int_t Q, TVector3 o, TVector3 dj, TVector3 dk)
-		FairTrackParP result(getPosForHit(index), getPforHit(index), hitPosError, momError, getCharge(), origin, dj, dk);
-		return result;
-	}
-	else {
+	// get position of hit with index in track candidate
+	const PndFtsHit *myHit = getHit(index);
+	if (0==myHit){
+		Warning("getTrackParPForHit","Cannot get hit, probably the tracking has not finished or the index is too large.");
 		return FairTrackParP();
 	}
+	// Take z of hit and calculate the position and momentum for that z using the results from the Hough transforms and my track model
+	Double_t zLabSys = myHit->GetZ();
+
+	// position should NOT come from hit, it should come from the pattern recognition track model
+	// position error can be large (like 1* or 2* tube size) as the Kalman filter will adjust it.
+	TVector3 hitPos = getPosForHit(zLabSys);
+	TVector3 hitPosError;
+	// TODO: Set the error correctly
+	myHit->PositionError(hitPosError);
+
+	TVector3 mom = getPforHit(zLabSys);
+	TVector3 momError = 0.1*mom; // TODO: add correct values here
+
+
+	// -----   Constructor with track parameters in LAB -----------------------------------
+	// FairTrackParP::FairTrackParP(TVector3 pos, TVector3 Mom, TVector3 posErr, TVector3 MomErr, Int_t Q, TVector3 o, TVector3 dj, TVector3 dk)
+	FairTrackParP result(hitPos, mom, hitPosError, momError, getCharge(), origin, dj, dk);
+	return result;
+
 }
 
-TVector3 PndFtsHoughTrackCand::getPforHit(UInt_t index) {
+TVector3 PndFtsHoughTrackCand::getPforHit(const Double_t zLabSys) const{
 	TVector3 mom;
-
-	if (index > GetNHits())
-	{
-		Warning("getPforHit","Hit index %i is too big for track candidate. Momentum is set to (0,0,0)", index);
-		mom.SetXYZ(0., 0., 0.);
-		return mom;
-	}
 
 	if (kFALSE == isComplete())
 	{
-		Warning("getPforHit","Track candidate is not complete yet. Position is set to (0,0,0)", index);
-		mom.SetXYZ(0., 0., 0.);
-		return mom;
+		Warning("getPforHit","Track cand. is not complete yet. Momentum will be calculated for incomplete track cand.");
 	}
-
-	const PndFtsHit* myHit = getHit(index);
-	// track model is assumed to be line+parabola+line in zx and line in zy
-	Int_t station = myHit->GetChamberID();
-	// I need z value for the parabola part using the results from the Hough transforms and my track model
-	Double_t zLabSys = myHit->GetZ();
 
 	Double_t pZLabSys;
 	Double_t pXLabSys;
 	std::pair<Double_t, Double_t> pZPXLabSys;
 
-	if ( 3 > station ){
-		// if hit is in station 1 or 2 use 1st line in zx plane
+	// track model is assumed to be line+parabola+line in zx and line in zy
+	if ( zLabSys <= fZLineParabola ){
+		// use 1st line in zx plane
 		pZPXLabSys = getPZPXLabLine(zLabSys, &fZxLineParabola);
-	} else if ( 5 > station ){
-		// if hit is in station 3 or 4 use tangent to parabola in zx plane
+	} else if ( zLabSys < fZParabolaLine ){
+		// use tangent to parabola in zx plane
 		pZPXLabSys = getPZPXLabParabola(zLabSys);
-	} else if ( 7 > station ){
-		// check if hit is in station 5 or 6 (if so: use 2nd line in zx plane)
-		pZPXLabSys = getPZPXLabLine(zLabSys, &fZxParabolaLine);
 	} else {
-		Warning("getPforHit","LayerID %i is not known for FTS", index);
-		mom.SetXYZ(0., 0., 0.);
-		return mom;
+		// use 2nd line in zx plane
+		pZPXLabSys = getPZPXLabLine(zLabSys, &fZxParabolaLine);
 	}
 
 	pZLabSys = pZPXLabSys.first;
 	pXLabSys = pZPXLabSys.second;
 	const Double_t pYLabSys = getPYLab();
 	mom.SetXYZ(pXLabSys, pYLabSys, pZLabSys);
-	if (fVerbose > 0) std::cout << "P-Vector for hit " << index << " : " << mom.X() << " " << mom.Y() << " " << mom.Z() << std::endl;
+	if (fVerbose > 0) std::cout << "P-Vector for z=" << zLabSys << " : " << mom.X() << " " << mom.Y() << " " << mom.Z() << std::endl;
 	return mom;
 }
 
 
-TVector3 PndFtsHoughTrackCand::getPosForHit(UInt_t index) {
-	TVector3 position;
-
-	if (index > GetNHits())
-	{
-		Warning("getPositionForHit","Hit index %i is too big for track candidate. Position is set to (0,0,0)", index);
-		position.SetXYZ(0., 0., 0.);
-		return position;
-	}
+TVector3 PndFtsHoughTrackCand::getPosForHit(const Double_t zLabSys) const{
+	// calculates the point on the track based on the results from the Hough transforms using my track model for the given z
 
 	if (kFALSE == isComplete())
 	{
-		Warning("getPositionForHit","Track candidate is not complete yet. Position is set to (0,0,0)", index);
-		position.SetXYZ(0., 0., 0.);
-		return position;
+		Warning("getPositionForHit","Track cand. is not complete yet. Position will be calculated for incomplete track cand.");
 	}
 
-	const PndFtsHit* myHit = getHit(index);
+	TVector3 position;
 	// track model is assumed to be line+parabola+line in zx and line in zy
-	Int_t station = myHit->GetChamberID();
-	// I take the z value from the hit and calculate the point on the track based on the results from the Hough transforms using my track model
-	const Double_t zLabSys = myHit->GetZ();
 	const Double_t yLabSys = getXOrYLabForLine(zLabSys, &fZyLine);
 	Double_t xLabSys;
 
-	if ( 3 > station ){
-		// if hit is in station 1 or 2 use 1st line in zx plane
+	if ( zLabSys <= fZLineParabola ){
+		// use 1st line in zx plane
 		xLabSys = getXOrYLabForLine(zLabSys, &fZxLineParabola);
 
-	} else if ( 5 > station ){
-		// if hit is in station 3 or 4 use parabola in zx plane
+	} else if ( zLabSys < fZParabolaLine ){
+		// use tangent to parabola in zx plane
 		getXLabForParabola(zLabSys);
-	} else if ( 7 > station ){
-		// check if hit is in station 5 or 6 (if so: use 2nd line in zx plane)
-		xLabSys = getXOrYLabForLine(zLabSys, &fZxParabolaLine);
 	} else {
-		Warning("getPforHit","LayerID %i is not known for FTS", index);
-		position.SetXYZ(0., 0., 0.);
-		return position;
+		// use 2nd line in zx plane
+		xLabSys = getXOrYLabForLine(zLabSys, &fZxParabolaLine);
 	}
 
 	position.SetXYZ(xLabSys, yLabSys, zLabSys);
-	if (fVerbose > 0) std::cout << "P-Vector for hit " << index << " : " << position.X() << " " << position.Y() << " " << position.Z() << std::endl;
+	if (fVerbose > 0) std::cout << "Pos-Vector for z=" << zLabSys << " : " << position.X() << " " << position.Y() << " " << position.Z() << std::endl;
 	return position;
 }
 

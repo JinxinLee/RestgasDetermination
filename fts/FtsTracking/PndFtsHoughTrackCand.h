@@ -6,7 +6,7 @@
 // loosely modeled according to PndTools/riemannfit/PndRiemannTrack.h
 //
 // Created: 24.01.2014
-// Modified: 28.02.2014
+// Modified: 03.03.2014
 //
 // *************************************************************************
 
@@ -45,8 +45,8 @@ public:
 	PndTrack getPndTrack(); // convert *this to a PndTrack
 	FairTrackParP getTrackParPForHit(UInt_t i); // get the track parameters (needed for conversion to PndTrack) for hit with index i
 	Int_t getCharge() const; // gets charge of track candidate // TODO only charge sign is implemented
-	TVector3 getPforHit(UInt_t index); // gets the momentum calculated at some hit
-	TVector3 getPosForHit(UInt_t index); // gets the position calculated at some hit
+	TVector3 getPforHit(const Double_t zLabSys) const; // gets the momentum calculated at some hit
+	TVector3 getPosForHit(const Double_t zLabSys) const; // gets the position calculated at some hit
 
 	// Modifiers -----------------------
 	// add results from Hough transforms
@@ -61,16 +61,17 @@ private:
 
 	Double_t getQoverPzx() const{ return fZxParabola.getSecondVal(); };
 
-	inline Double_t getPYLab(){
+	inline Double_t getPYLab() const {
 		// theta in radian in zy plane given at z where first zx line meets the parabola
 		const Double_t zRefLabSys = fZxParabola.getZRefLabSys();
 		const Double_t thetaZyRad = fZyLine.getThetaVal()/180.*3.14;
-		const Double_t pZLab = getPZPXLabLine(zRefLabSys, &fZxLineParabola).first;
+		std::pair<Double_t, Double_t> pZPXLabSys = getPZPXLabLine(zRefLabSys, &fZxLineParabola);
+		const Double_t pZLab = pZPXLabSys.first;
 		Double_t pYLabSys = tan(thetaZyRad)*pZLab;
 		return pYLabSys;
 	}
 
-	inline std::pair<Double_t, Double_t> getPZPXLabLine(const Double_t &zLabSys, PndFtsHoughTracklet *lineTracklet){
+	inline std::pair<Double_t, Double_t> getPZPXLabLine(const Double_t &zLabSys, const PndFtsHoughTracklet * const lineTracklet) const {
 		// theta in radian in zx plane given at z = zRefLabSys
 		const Double_t thetaRad = lineTracklet->getThetaVal()/180.*3.14;
 		const Double_t qDivPzx = fZxParabola.getSecondVal(); // Q/pzx
@@ -83,7 +84,7 @@ private:
 		return pZPXLabSys;
 	}
 
-	inline std::pair<Double_t, Double_t> getPZPXLabParabola(const Double_t &zLabSys){
+	inline std::pair<Double_t, Double_t> getPZPXLabParabola(const Double_t &zLabSys) const {
 		// theta in radian in zx plane given at z = zRefLabSys
 		const Double_t thetaRadVor = fZxLineParabola.getThetaVal()/180.*3.14;
 		const Double_t zRefLabSysVor = fZxLineParabola.getZRefLabSys();
@@ -108,7 +109,7 @@ private:
 	}
 
 
-	inline Double_t getXOrYLabForLine(const Double_t &zLabSys, PndFtsHoughTracklet *lineTracklet){
+	inline Double_t getXOrYLabForLine(const Double_t &zLabSys, const PndFtsHoughTracklet * const lineTracklet) const {
 		// calculate x or y in lab sys for a given z position in lab sys for which the line assumption holds
 		// theta in radian in zx plane given at z = zRefLabSys
 		const Double_t thetaRad = lineTracklet->getThetaVal()/180.*3.14;
@@ -122,7 +123,7 @@ private:
 	}
 
 	// TODO: Check this!
-	inline Double_t getXLabForParabola(const Double_t &zLabSys){
+	inline Double_t getXLabForParabola(const Double_t &zLabSys) const {
 		// does not take option of varying B field into account
 		// calculate x in lab sys for a given z position in lab sys for which the parabola assumption holds
 		// theta in radian in zx plane given at z = zRefLabSys
