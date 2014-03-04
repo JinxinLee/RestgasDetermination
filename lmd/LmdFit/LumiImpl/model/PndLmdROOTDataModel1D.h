@@ -9,17 +9,21 @@
 #define PNDLMDROOTDATAMODEL1D_H_
 
 #include "Model1D.h"
+#include "LumiFitStructs.h"
 
 class TEfficiency;
 class TGraphAsymmErrors;
+class TSpline3;
 
 class PndLmdROOTDataModel1D: public Model1D {
-  private:
-    TEfficiency *acceptance;
-    TGraphAsymmErrors *graph;
+private:
+	LumiFit::LmdDimensionRange data_dimension;
+	TGraphAsymmErrors *graph;
+	TSpline3 *spline;
 	double acc_range_low, acc_range_high;
+	bool using_acceptance_bounds;
 
-    void updateDomainFromPars(double *par);
+	void updateDomainFromPars(double *par);
 
 	void determineAcceptanceBounds();
 
@@ -28,21 +32,33 @@ class PndLmdROOTDataModel1D: public Model1D {
 
 	function model_func;
 
-  public:
-    enum interpolation_type {
-      CONSTANT, LINEAR, SPLINE
-    } intpol_type;
+public:
+	enum interpolation_type {
+		CONSTANT, LINEAR, SPLINE
+	} intpol_type;
 
-    PndLmdROOTDataModel1D(std::string name_, TEfficiency *acceptance_, interpolation_type type_);
-    virtual ~PndLmdROOTDataModel1D();
+	PndLmdROOTDataModel1D(std::string name_);
+	virtual ~PndLmdROOTDataModel1D();
 
-    void initModelParameters();
+	LumiFit::LmdDimensionRange getDataDimension() const;
+	void setDataDimension(LumiFit::LmdDimensionRange data_dimension_);
 
-    double eval(const double *x) const;
+	TGraphAsymmErrors *getGraph() const;
+	interpolation_type getIntpolType() const;
+	void setGraph(TGraphAsymmErrors *graph_);
+	void setIntpolType(interpolation_type intpol_type_);
 
-    double evaluateConstant(const double *x) const;
-    double evaluateLinear(const double *x) const;
-    double evaluateSpline(const double *x) const;
+	void initModelParameters();
+
+	virtual std::pair<double, double> getUncertaincy(const double *x) const;
+
+	double eval(const double *x) const;
+
+	std::pair<double, double> getAcceptanceBounds() const;
+
+	double evaluateConstant(const double *x) const;
+	double evaluateLinear(const double *x) const;
+	double evaluateSpline(const double *x) const;
 
 	void updateDomain();
 };

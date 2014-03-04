@@ -1,5 +1,5 @@
 /*
- * ModelMinimizer.h
+ * shared_ptr<ModelMinimizer>.h
  *
  *  Created on: Jun 5, 2013
  *      Author: steve
@@ -9,15 +9,9 @@
 #define MODELMINIMIZER_H_
 
 #include "ModelControlParameter.h"
+#include "ModelFitResult.h"
 
-#ifdef HAS_SHAREDPOINTER
-#include <memory>
-using std::shared_ptr;
-#else
-#include <tr1/memory>
-using std::tr1::shared_ptr;
-#endif
-
+#include "SharedPtr.h"
 
 
 /**
@@ -29,15 +23,21 @@ using std::tr1::shared_ptr;
 class ModelMinimizer {
 protected:
 	// control parameter used for the minimization
-	ModelControlParameter &control_param;
+	shared_ptr<ModelControlParameter> control_parameter;
 
 public:
-	ModelMinimizer(ModelControlParameter &control_param_);
+	ModelMinimizer();
 	virtual ~ModelMinimizer();
+
+	shared_ptr<ModelControlParameter> getControlParameter() const;
+	void setControlParameter(
+			shared_ptr<ModelControlParameter> control_parameter_);
 
 	virtual int minimize() =0;
 
 	int doMinimization();
+
+	virtual ModelFitResult createModelFitResult() const =0;
 };
 
 #endif /* MODELMINIMIZER_H_ */

@@ -8,30 +8,13 @@
 #include "PndLmdROOTDataModel1D.h"
 
 #include <iostream>
+#include <cmath>
 
-#include "TEfficiency.h"
 #include "TGraphAsymmErrors.h"
-#include "TCanvas.h"
+#include "TSpline.h"
 
-PndLmdROOTDataModel1D::PndLmdROOTDataModel1D(std::string name_,
-		TEfficiency *acceptance_, interpolation_type type_) :
-		Model1D(name_), acceptance(acceptance_) {
-
-	TCanvas can;
-	acceptance->Draw();
-	can.Update();
-	graph = acceptance->GetPaintedGraph();
-
-	intpol_type = type_;
-	if (intpol_type == CONSTANT) {
-		model_func = &PndLmdROOTDataModel1D::evaluateConstant;
-	} else if (intpol_type == SPLINE) {
-		model_func = &PndLmdROOTDataModel1D::evaluateSpline;
-	} else {
-		model_func = &PndLmdROOTDataModel1D::evaluateLinear;
-	}
-
-	determineAcceptanceBounds();
+PndLmdROOTDataModel1D::PndLmdROOTDataModel1D(std::string name_) :
+		Model1D(name_), spline(0), using_acceptance_bounds(false) {
 }
 
 PndLmdROOTDataModel1D::~PndLmdROOTDataModel1D() {
@@ -43,50 +26,99 @@ void PndLmdROOTDataModel1D::updateDomainFromPars(double *par) {
 }
 
 void PndLmdROOTDataModel1D::determineAcceptanceBounds() {
-	// ok this procedure is not very foolproof... better would be an edge detection
-	// so scanning once from left to right for the lower edge and then right to left for the upper edge!!
-	//loop over bins and find out bins that are on the edge of the threshold
-	int last_bin_index_at_zero = -10;
-	double last_bin = 0.0;
 	double y = 0.0;
 
-	acc_range_low = 0.0;
-	acc_range_high = 20.0;
+	acc_range_low = data_dimension.getRangeLow();
+	acc_range_high = data_dimension.getRangeHigh();
 
-	//std::cout << "Calculating acceptance bounds!!!!!!!!!!!!!" << std::endl;
-	//std::cout << "Number of bins: " << graph->GetN() << std::endl;
-	for (int i = 0; i < graph->GetN(); i++) {
-		y = acceptance->GetEfficiency(i);
-		//std::cout << "acceptance value at bin " << i << "(" << graph->GetX()[i]
-		//		<< "): " << y << std::endl;
-		if (y != 0.0) {
-			if (last_bin_index_at_zero == i - 1) {
-				acc_range_low = graph->GetX()[i - 1];
-				//std::cout << "first bin: " << acc_range_low << std::endl;
-			}
-		} else {
-			last_bin_index_at_zero = i;
-			if (last_bin > 0.0) {
-				acc_range_high = graph->GetX()[i];
-				//std::cout << "last bin: " << acc_range_high << std::endl;
-				break;
-			}
+	//scan lower for lower edge
+	for (int i = 1; i < graph->GetN(); i++) {
+		y = graph->GetY()[i];
+		if (y > 1e-4) {
+			acc_range_low = graph->GetX()[i - 1];
+			break;
 		}
-		last_bin = y;
 	}
+	//scan lower for upper edge
+	for (int i = graph->GetN() - 2; i >= 0; i--) {
+		y = graph->GetY()[i];
+		if (y > 1e-4) {
+			acc_range_high = graph->GetX()[i + 1];
+			break;
+		}
+	}
+
 	if (acc_range_high < acc_range_low)
 		acc_range_high = graph->GetX()[graph->GetN() - 1];
-	//std::cout << "Calculated acceptance bounds to " << acc_range_low << " and "
-	//		<< acc_range_high << std::endl;
+	std::cout << "Calculated acceptance bounds to " << acc_range_low << " and "
+			<< acc_range_high << std::endl;
 	setDomain(acc_range_low, acc_range_high);
+	using_acceptance_bounds = true;
+}
+
+LumiFit::LmdDimensionRange PndLmdROOTDataModel1D::getDataDimension() const {
+	return data_dimension;
+}
+
+void PndLmdROOTDataModel1D::setDataDimension(
+		LumiFit::LmdDimensionRange data_dimension_) {
+	data_dimension = data_dimension_;
+	determineAcceptanceBounds();
+}
+
+TGraphAsymmErrors *PndLmdROOTDataModel1D::getGraph() const {
+	return graph;
+}
+
+PndLmdROOTDataModel1D::interpolation_type PndLmdROOTDataModel1D::getIntpolType() const {
+	return intpol_type;
+}
+
+void PndLmdROOTDataModel1D::setGraph(TGraphAsymmErrors *graph_) {
+	graph = graph_;
+
+	int low = 0;
+	int high = graph->GetN() - 1;
+
+	acc_range_low = graph->GetX()[low];
+	acc_range_high = graph->GetX()[high];
+
+	if (0 == spline)
+		spline = new TSpline3("acc_spline", graph->GetX(), graph->GetY(),
+				graph->GetN());
+}
+
+void PndLmdROOTDataModel1D::setIntpolType(
+		PndLmdROOTDataModel1D::interpolation_type intpol_type_) {
+	intpol_type = intpol_type_;
+	if (intpol_type == CONSTANT) {
+		model_func = &PndLmdROOTDataModel1D::evaluateConstant;
+	} else if (intpol_type == SPLINE) {
+		model_func = &PndLmdROOTDataModel1D::evaluateSpline;
+	} else {
+		model_func = &PndLmdROOTDataModel1D::evaluateLinear;
+	}
 }
 
 void PndLmdROOTDataModel1D::initModelParameters() {
 
 }
 
+std::pair<double, double> PndLmdROOTDataModel1D::getAcceptanceBounds() const {
+	return std::make_pair(acc_range_low, acc_range_high);
+}
+
 double PndLmdROOTDataModel1D::evaluateConstant(const double *x) const {
-	return acceptance->GetEfficiency(acceptance->FindFixBin(x[0]));
+	Int_t closest = -1;
+	double diff = -1.0;
+
+	for (Int_t i = 0; i < graph->GetN(); ++i) {
+		if (diff < 0.0 || fabs(graph->GetX()[i] - x[0]) < diff) {
+			diff = fabs(graph->GetX()[i] - x[0]);
+			closest = i;
+		}
+	}
+	return graph->GetY()[closest];
 }
 
 double PndLmdROOTDataModel1D::evaluateLinear(const double *x) const {
@@ -94,13 +126,34 @@ double PndLmdROOTDataModel1D::evaluateLinear(const double *x) const {
 }
 
 double PndLmdROOTDataModel1D::evaluateSpline(const double *x) const {
-	return graph->Eval(x[0], 0, "S");
+	// spline interpolation creating a new spline
+	return spline->Eval(x[0]);
 }
 
 double PndLmdROOTDataModel1D::eval(const double *x) const {
 	if (acc_range_low > x[0] || acc_range_high < x[0])
 		return 0.0;
 	return (this->*model_func)(x);
+}
+
+std::pair<double, double> PndLmdROOTDataModel1D::getUncertaincy(
+		const double *x) const {
+	// check if we are outside of acceptance...
+	if (eval(x) == 0.0)
+		return std::make_pair(0.0, 0.0);
+	// two nearest neighbors
+	int closest_bin = -1;
+	double diff = -1.0;
+
+	for (Int_t i = 0; i < graph->GetN(); ++i) {
+		if (diff < 0.0 || fabs(graph->GetX()[i] - x[0]) < diff) {
+			diff = fabs(graph->GetX()[i] - x[0]);
+			closest_bin = i;
+		}
+	}
+
+	return std::make_pair(graph->GetErrorYlow(closest_bin),
+			graph->GetErrorYhigh(closest_bin));
 }
 
 void PndLmdROOTDataModel1D::updateDomain() {

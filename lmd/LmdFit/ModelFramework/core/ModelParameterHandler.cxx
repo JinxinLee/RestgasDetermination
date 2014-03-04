@@ -152,7 +152,7 @@ ParametrizationProxy ModelParameterHandler::getParametrizationProxyForModelParam
 }
 
 void ModelParameterHandler::executeParametrizationModels(const double *x) {
-/*	for (std::map<shared_ptr<ModelPar>, ParametrizationProxy>::iterator it =
+	for (std::map<shared_ptr<ModelPar>, ParametrizationProxy>::iterator it =
 			parametrizations.begin(); it != parametrizations.end(); it++) {
 		if (it->second.hasParametrizationModel()) {
 			// if the model parameter is freed do NOT call the parametrization model
@@ -162,7 +162,6 @@ void ModelParameterHandler::executeParametrizationModels(const double *x) {
 			}
 		}
 	}
-*/
 }
 
 void ModelParameterHandler::updateModelParameters() {
@@ -177,7 +176,7 @@ void ModelParameterHandler::updateModelParameters() {
 }
 
 void ModelParameterHandler::initModelParametersFromFitResult(
-		ModelFitResult &fit_result) {
+		const ModelFitResult &fit_result) {
 	const std::set<ModelStructs::minimization_parameter> &fit_params =
 			fit_result.getFitParameters();
 	for (std::set<ModelStructs::minimization_parameter>::const_iterator it =

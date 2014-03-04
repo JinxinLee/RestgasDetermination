@@ -26,7 +26,7 @@ unsigned int ModelVisualizationProperties1D::getEvaluations() const {
 	return evaluations;
 }
 
-std::pair<double, double> ModelVisualizationProperties1D::getPlotRange() const {
+DataStructs::dimension_range ModelVisualizationProperties1D::getPlotRange() const {
 	return plot_range;
 }
 
@@ -39,7 +39,7 @@ void ModelVisualizationProperties1D::setEvaluations(unsigned int evaluations_) {
 }
 
 void ModelVisualizationProperties1D::setPlotRange(
-		std::pair<double, double> plot_range_) {
+		DataStructs::dimension_range plot_range_) {
 	plot_range = plot_range_;
 }
 

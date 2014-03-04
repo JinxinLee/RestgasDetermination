@@ -22,6 +22,8 @@ public:
 	double eval(const double *x) const;
 
 	void updateDomain();
+
+	virtual std::pair<double, double> getUncertaincy(const double *x) const;
 };
 
 #endif /* PRODUCTMODEL1D_H_ */

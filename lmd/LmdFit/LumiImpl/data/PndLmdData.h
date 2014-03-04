@@ -1,5 +1,5 @@
 /*
- * PndLmdData.h
+ * PndLmdAngularData.h
  *
  *  Created on: Jun 27, 2012
  *      Author: steve
@@ -8,83 +8,60 @@
 #ifndef PNDLMDDATA_H_
 #define PNDLMDDATA_H_
 
-#include <map>
+#include "PndLmdAbstractData.h"
+#include "../LumiFitStructs.h"
 
-#include "PndLmdDataBase.h"
-
-#ifndef __CINT__
-#include "PndLmdModelFactory.h"
-#endif /* __CINT __ */
-
-class PndLmdLumiFitResult;
-class PndLmdLumiFitOptions;
-class PndLmdAcceptance;
-
-class TFile;
-class TH1D;
-class TH2D;
-class TF1;
-class TF2;
+#include "TH1D.h"
+#include "TH2D.h"
 
 /**
- * \brief Data class used to describe the reconstructed data.
- *
- * Contains the user interface to perform fits via #Fit().
+ * \brief Class used to describe 1D, 2D and unbinned LMD data, using ROOT
+ * histograms and trees.
+ * Important is that the user has to set the dimension variables first,
+ * before any storage will automatically be allocated.
  */
-class PndLmdData: public PndLmdDataBase {
+class PndLmdData: public PndLmdAbstractData {
 private:
-	std::map<PndLmdAcceptance*, std::vector<PndLmdLumiFitResult*> > fit_map;
-
-#ifndef __CINT__
-	PndLmdModelFactory signal_model_fac;
-#endif /* __CINT __ */
-
-	/** In case this is a simulation a reference value for the luminosity can be used */
-	double luminosity_per_event;
-
-	std::pair<double, double> calcRange(const PndLmdLumiFitOptions *fit_options);
-
-public:
-	PndLmdData(int num_events_, double plab_,
-			PndLmdFit::lmd_dimension th_dimension_,
-			PndLmdFit::lmd_dimension phi_dimension_,
-			double generated_luminosity_per_event = -1.0);
-	PndLmdData();
-
-	~PndLmdData();
-	// getter methods
-
-	void saveToRootFile(TFile *file);
-
-	double getReferenceLuminosity() const;
-	void setReferenceLuminosityPerEvent(double luminosity_per_event_);
-
-	double getBinningFactor(const PndLmdLumiFitOptions *fit_opt) const;
-
-	//void makeCorrectedGraph(TF1 *func, TH1D* hist);
-
-	TH1D* getMeasuredHist1D(const PndLmdLumiFitOptions* fit_options) const;
-	TH2D* getMeasuredHist2D(const PndLmdLumiFitOptions* fit_options) const;
+	/** ROOT 1D histogram as the container of the data */
+	TH1D* hist_1d;
+	/** ROOT 2D histogram as the container of the data */
+	TH2D* hist_2d;
 
 	/**
-	 * Function carrying out a fit with the specified fit options to this data instance.
-	 * @params lmd_acc pointer to #PndLmdAcceptance required for acceptance fitting.
-	 * In case no acceptance correction should be performed set this value to 0.
-	 * @params fit_options pointer to #PndLmdLumiFitOptions object carrying all necessary fit preferences.
-	 * @returns pointer to #PndLmdLumiFitResult containing relevant information such as the fitted function and the luminosity and its errors.
+	 * In case this is a simulation a reference value for the luminosity
+	 * can/should be used. This value corresponds to the luminosity per event,
+	 * so multiplying by the number of events results in the actual integrated
+	 * luminosity.
 	 */
-	PndLmdLumiFitResult* Fit(PndLmdAcceptance* lmd_acc,
-			const PndLmdLumiFitOptions* fit_options);
+	double reference_luminosity_per_event;
 
-	std::map<PndLmdAcceptance*, std::vector<PndLmdLumiFitResult*> >& getFitMap();
+	void init1DData();
+	void init2DData();
 
-	std::vector<PndLmdAcceptance*> getListOfAcceptances();
+public:
+	PndLmdData();
 
-	PndLmdLumiFitResult* getFitResult(PndLmdAcceptance* lmd_acc,
-			PndLmdLumiFitOptions* fit_options);
-	std::vector<PndLmdLumiFitResult*> getFitResults(PndLmdAcceptance* lmd_acc);
-	std::vector<std::pair<PndLmdAcceptance*, PndLmdLumiFitResult*> > getFitResults(
-			PndLmdLumiFitOptions* fit_options);
+	virtual ~PndLmdData();
+	// getter methods
+
+	TH1D* get1DHistogram() const;
+	TH2D* get2DHistogram() const;
+
+	void cloneData(const PndLmdAbstractData &lmd_abs_data);
+
+	void add(const PndLmdAbstractData &lmd_abs_data_addition);
+
+	// histogram filling methods
+	virtual void addData(double primary_value, double secondary_value = 0);
+
+	double getReferenceLuminosity() const;
+	double getReferenceLuminosityPerEvent() const;
+	void setReferenceLuminosityPerEvent(double reference_luminosity_per_event_);
+
+	bool operator<(const PndLmdData &lmd_data) const;
+	bool operator>(const PndLmdData &lmd_data) const;
+	bool operator==(const PndLmdData &lmd_data) const;
+	bool operator!=(const PndLmdData &lmd_data) const;
 
 ClassDef(PndLmdData,1)
 };

@@ -20,12 +20,12 @@ private:
 	int minimize();
 
 public:
-	ROOTMinimizer(ModelControlParameter &control_param_);
+	ROOTMinimizer();
 	virtual ~ROOTMinimizer();
 
 	const ROOT::Math::Minimizer* getROOTMinimizer() const;
 
-	ModelFitResult createModelFitResult() const;
+	virtual ModelFitResult createModelFitResult() const;
 };
 
 #endif /* ROOTMINIMIZER_H_ */

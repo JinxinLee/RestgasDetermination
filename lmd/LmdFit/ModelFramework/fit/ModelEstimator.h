@@ -12,25 +12,14 @@
 #include "ModelControlParameter.h"
 #include "EstimatorOptions.h"
 
+#include "SharedPtr.h"
+
 #include <map>
 #include <vector>
-
-
-#ifdef HAS_SHAREDPOINTER
-#include <memory>
-using std::shared_ptr;
-#else
-#include <tr1/memory>
-using std::tr1::shared_ptr;
-#endif
-
-
 
 class Data;
 class Model;
 class ModelPar;
-
-
 
 class ModelEstimator: public ModelControlParameter {
 private:

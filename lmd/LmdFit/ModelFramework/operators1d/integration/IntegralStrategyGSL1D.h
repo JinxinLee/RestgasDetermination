@@ -11,13 +11,16 @@
 #include "IntegralStrategy1D.h"
 
 #include "Model1D.h"
-
+#include <iostream>
 class IntegralStrategyGSL1D: public IntegralStrategy1D {
 private:
 	static Model1D *current_model;
 
   static double gsl_func_wrapper(double x, void *p) {
-    return current_model->evaluate(&x);
+  	Model1D *current_model_temp = current_model;
+  	double value = current_model->eval(&x);
+  	current_model = current_model_temp;
+    return value;
   }
 public:
 	IntegralStrategyGSL1D();

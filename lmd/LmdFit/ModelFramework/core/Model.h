@@ -12,9 +12,6 @@
 
 #include <set>
 #include <string>
-//#include <memory>
-
-//using std::shared_ptr;
 
 /**
  * This defines the abstract structure of a Model.
@@ -63,6 +60,8 @@ public:
 	 * derived class.
 	 */
 	virtual double eval(const double *x) const =0;
+
+	virtual std::pair<double, double> getUncertaincy(const double *x) const;
 
 	/**
 	 * This function will be called by the fitter when an evaluation at a certain

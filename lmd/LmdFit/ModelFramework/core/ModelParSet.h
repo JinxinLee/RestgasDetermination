@@ -14,9 +14,6 @@
 #include <map>
 #include <vector>
 #include <string>
-//#include <tr1/memory>
-
-//using std::tr1::shared_ptr;
 
 class ModelParSet {
 private:

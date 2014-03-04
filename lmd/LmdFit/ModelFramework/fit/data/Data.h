@@ -8,7 +8,6 @@
 #ifndef DATA_H_
 #define DATA_H_
 
-#include "DataStructs.h"
 #include "DataPointProxy.h"
 
 #include <vector>
@@ -24,22 +23,23 @@ private:
 
 	// dimension of the data
 	unsigned int dimension;
+
 public:
 	Data(unsigned int dimension_);
 	virtual ~Data();
 
 	unsigned int getDimension() const;
-
 	unsigned int getNumberOfDataPoints() const;
+	unsigned int getNumberOfUsedDataPoints() const;
 
 	double getBinningFactor() const;
 	bool isBinningFactorSet() const;
 
 	void clearData();
-	void insertData(std::vector<DataPointProxy> &data_points_);
-	void insertData(DataPointProxy &data_point_);
 
-	std::vector<DataPointProxy>& getData();
+	void insertData(std::vector<DataPointProxy> & data_points_);
+	void insertData(DataPointProxy & data_point_);
+	std::vector<DataPointProxy> & getData();
 };
 
 #endif /* BINNEDDATA_H_ */

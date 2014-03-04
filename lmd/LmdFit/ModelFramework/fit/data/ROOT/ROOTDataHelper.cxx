@@ -11,6 +11,8 @@
 #include "TH1D.h"
 #include "TGraphErrors.h"
 
+#include <iostream>
+
 ROOTDataHelper::ROOTDataHelper() {
 	// TODO Auto-generated constructor stub
 
@@ -20,9 +22,7 @@ ROOTDataHelper::~ROOTDataHelper() {
 	// TODO Auto-generated destructor stub
 }
 
-shared_ptr<Data> ROOTDataHelper::createBinnedData(TH1D* hist_1d) {
-	// create chi2 estimator
-	shared_ptr<Data> data(new Data(1)); // 1 dim data object
+void ROOTDataHelper::fillBinnedData(shared_ptr<Data> data, const TH1D* hist_1d) const {
 	data->clearData();
 
 	for (int i = 1; i <= hist_1d->GetNbinsX(); i++) {
@@ -41,12 +41,10 @@ shared_ptr<Data> ROOTDataHelper::createBinnedData(TH1D* hist_1d) {
 		dpp.setBinnedDataPoint(datapoint);
 		data->insertData(dpp);
 	}
-	return data;
 }
 
-shared_ptr<Data> ROOTDataHelper::createBinnedData(TGraphErrors* graph_1d) {
-	// create chi2 estimator
-	shared_ptr<Data> data(new Data(1)); // 1 dim data object
+void ROOTDataHelper::fillBinnedData(shared_ptr<Data> data,
+		const TGraphErrors* graph_1d) const {
 	data->clearData();
 
 	for (int i = 1; i <= graph_1d->GetN(); i++) {
@@ -63,5 +61,4 @@ shared_ptr<Data> ROOTDataHelper::createBinnedData(TGraphErrors* graph_1d) {
 		dpp.setBinnedDataPoint(datapoint);
 		data->insertData(dpp);
 	}
-	return data;
 }

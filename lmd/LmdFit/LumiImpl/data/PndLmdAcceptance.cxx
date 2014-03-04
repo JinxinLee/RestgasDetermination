@@ -6,109 +6,74 @@
  */
 
 #include "PndLmdAcceptance.h"
-#include "PndLmdLumiFitOptions.h"
-
-#include <cstdio>
-
-#include "TCanvas.h"
-#include "TGraphAsymmErrors.h"
 
 ClassImp(PndLmdAcceptance)
 
-PndLmdAcceptance::PndLmdAcceptance(int num_events_, double plab_,
-		PndLmdFit::lmd_dimension th_dimension_,
-		PndLmdFit::lmd_dimension phi_dimension_, double acceptance_threshold_) :
-		PndLmdDataBase(num_events_, plab_, th_dimension_, phi_dimension_), acceptance_threshold(
-				acceptance_threshold_) {
-	acceptance_1d = NULL;
-	acceptance_2d = NULL;
-
-	t_acceptance_1d = NULL;
-}
-
 PndLmdAcceptance::PndLmdAcceptance() {
-	acceptance_threshold = 0.0;
-
-	acceptance_1d = NULL;
-	acceptance_2d = NULL;
-
-	t_acceptance_1d = NULL;
+	name = "lmd_acceptance";
+	acceptance_1d = 0;
+	acceptance_2d = 0;
 }
 
 PndLmdAcceptance::~PndLmdAcceptance() {
 }
 
-void PndLmdAcceptance::makeName() {
-	getName() = "acc_corr";
-
-	char suffix[100];
-	sprintf(suffix, "_%f_%i_%f_%f_%i_%f_%f", acceptance_threshold,
-			th_dimension.bins, th_dimension.range_low, th_dimension.range_high,
-			phi_dimension.bins, phi_dimension.range_low, phi_dimension.range_high);
-
-	getName() += suffix;
+void PndLmdAcceptance::init1DData() {
+	// 1d acceptance
+	acceptance_1d = new TEfficiency("acc1d", "", primary_dimension.bins,
+			primary_dimension.dimension_range.getRangeLow(),
+			primary_dimension.dimension_range.getRangeHigh());
 }
 
-void PndLmdAcceptance::makeFitterHists() {
-	//makeDir(); we dont need to create folders for these objects since they are stored within the fit_map of the PndLmdData object
+void PndLmdAcceptance::init2DData() {
+	// 2d acceptance
+	acceptance_2d = new TEfficiency("acc2d", "", primary_dimension.bins,
+			primary_dimension.dimension_range.getRangeLow(),
+			primary_dimension.dimension_range.getRangeHigh(),
+			secondary_dimension.bins,
+			secondary_dimension.dimension_range.getRangeLow(),
+			secondary_dimension.dimension_range.getRangeHigh());
+}
 
-	acceptance_1d = new TEfficiency(*mc_acc_1d, *mc_1d);
-	acceptance_2d = new TEfficiency(*mc_acc_2d, *mc_2d);
-
-	t_acceptance_1d = new TEfficiency(*t_mc_acc_1d, *t_mc_1d);
-
-	// create array
-	data = new double*[th_dimension.bins * phi_dimension.bins];
-	for (int i = 0; i < th_dimension.bins * phi_dimension.bins; i++) {
-		data[i] = new double[3];
+void PndLmdAcceptance::cloneData(const PndLmdAbstractData &lmd_abs_data) {
+	const PndLmdAcceptance * lmd_acc = dynamic_cast<const PndLmdAcceptance*>(&lmd_abs_data);
+	if (lmd_acc) {
+		acceptance_1d = new TEfficiency(*lmd_acc->getAcceptance1D());
+		if (getSecondaryDimension().is_active) {
+			acceptance_2d = new TEfficiency(*lmd_acc->getAcceptance2D());
+		}
 	}
 }
 
-void PndLmdAcceptance::saveToRootFile(TFile *file) {
-	std::cout << "Saving " << getName() << " to file..." << std::endl;
-  file->cd();
-
-	this->Write("lmdacc");
-}
-
-TH2D* PndLmdAcceptance::getMCHist() {
-	return mc_2d;
-}
-TH2D* PndLmdAcceptance::getRecoHist() {
-	return reco_2d;
-}
-
-double PndLmdAcceptance::getAcceptanceThreshold() const {
-	return acceptance_threshold;
-}
-
-TEfficiency* PndLmdAcceptance::getAcceptance1D(bool is_raw) const {
-	if (is_raw) // if it is raw fit
-		return t_acceptance_1d;
+TEfficiency* PndLmdAcceptance::getAcceptance1D() const {
 	return acceptance_1d;
 }
 TEfficiency* PndLmdAcceptance::getAcceptance2D() const {
 	return acceptance_2d;
 }
 
-double** PndLmdAcceptance::getData(PndLmdLumiFitOptions *fit_options) {
-	// ok check if we need raw or angular data and fill array...
-	if (fit_options->getModelBinaryOptions().isFitRaw()) {
-		for (int i = 0; i < th_dimension.bins; i++) {
-			data[i][0] = t_dimension.range_low + (i + 0.5) * t_dimension.bin_size;
-			data[i][1] = 0.0;
-			data[i][2] = t_acceptance_1d->GetEfficiency(i);
-		}
-	} else {
-		for (int i = 0; i < th_dimension.bins; i++) {
-			for (int j = 0; j < phi_dimension.bins; j++) {
-				data[i][0] = th_dimension.range_low + (i + 0.5) * th_dimension.bin_size;
-				data[i][1] = phi_dimension.range_low
-						+ (j + 0.5) * phi_dimension.bin_size;
-				data[i][2] = acceptance_2d->GetEfficiency(
-						acceptance_2d->GetGlobalBin(i, j));
+void PndLmdAcceptance::add(const PndLmdAbstractData &lmd_abs_data_addition) {
+	const PndLmdAcceptance * lmd_acc_addition =
+			dynamic_cast<const PndLmdAcceptance*>(&lmd_abs_data_addition);
+	if (lmd_acc_addition) {
+		if (getPrimaryDimension().dimension_range
+				== lmd_acc_addition->getPrimaryDimension().dimension_range) {
+			setNumEvents(getNumEvents() + lmd_acc_addition->getNumEvents());
+			acceptance_1d->Add(*lmd_acc_addition->getAcceptance1D());
+			if (getSecondaryDimension().is_active) {
+				if (getSecondaryDimension().dimension_range
+						== lmd_acc_addition->getSecondaryDimension().dimension_range) {
+					acceptance_2d->Add(*lmd_acc_addition->getAcceptance2D());
+				}
 			}
 		}
 	}
-	return data;
+}
+
+// acceptance filling methods
+void PndLmdAcceptance::addData(bool is_accepted, double primary_value,
+		double secondary_value) {
+	acceptance_1d->Fill(is_accepted, primary_value);
+	if (secondary_dimension.is_active)
+		acceptance_2d->Fill(is_accepted, primary_value, secondary_value);
 }

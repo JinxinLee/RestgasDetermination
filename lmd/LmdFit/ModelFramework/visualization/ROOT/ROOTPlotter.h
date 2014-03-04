@@ -11,15 +11,9 @@
 #include "Model.h"
 #include "ModelVisualizationProperties1D.h"
 
-#ifdef HAS_SHAREDPOINTER
-#include <memory>
-using std::shared_ptr;
-#else
-#include <tr1/memory>
-using std::tr1::shared_ptr;
-#endif
+#include "SharedPtr.h"
 
-class TGraphErrors;
+class TGraphAsymmErrors;
 
 class ROOTPlotter {
 private:
@@ -27,7 +21,7 @@ public:
 	ROOTPlotter();
 	virtual ~ROOTPlotter();
 
-	TGraphErrors* createGraphFromModel1D(shared_ptr<Model> model,
+	TGraphAsymmErrors* createGraphFromModel1D(shared_ptr<Model> model,
 			ModelVisualizationProperties1D &visualization_properties);
 };
 

@@ -164,7 +164,7 @@ include_directories(/opt/X11/include/)
 link_directories(/usr/X11R6/lib)
 SET(EXTRA_LIBS GL X11 GLU glut)
 
-FILE(GLOB_RECURSE MODEL_SRCS  LmdFit/ModelFramework/*.cxx)
+FILE(GLOB_RECURSE MODEL_SRCS LmdFit/ModelFramework/*.cxx)
 
 add_definitions(${CXX11_COMPILER_FLAGS})
 add_library(Model SHARED ${MODEL_SRCS})
@@ -191,8 +191,7 @@ set(HEADERS
 LmdFit/ModelFramework/fit/ModelFitResult.h
 LmdFit/LumiImpl/fit/PndLmdLumiFitResult.h
 LmdFit/LumiImpl/fit/PndLmdLumiFitOptions.h 
-LmdFit/LumiImpl/data/PndLmdDataInterface.h
-LmdFit/LumiImpl/data/PndLmdDataBase.h
+LmdFit/LumiImpl/data/PndLmdAbstractData.h
 LmdFit/LumiImpl/data/PndLmdData.h
 LmdFit/LumiImpl/data/PndLmdAcceptance.h
 LmdFit/LumiImpl/data/PndLmdResolution.h
@@ -204,6 +203,6 @@ LmdFit/LumiImpl/LumiFitStructs.h
 set(LINKDEF  LmdFitLinkDef.h)
 set(LIBRARY_NAME LmdFit)
 
-set(DEPENDENCIES PndData Lmd LmdTool Model)
+set(DEPENDENCIES PndData LmdTool Model)
 
 GENERATE_LIBRARY()

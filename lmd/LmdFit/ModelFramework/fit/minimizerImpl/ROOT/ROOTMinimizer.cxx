@@ -11,8 +11,7 @@
 #include "Math/Functor.h"
 #include "TMath.h"
 
-ROOTMinimizer::ROOTMinimizer(ModelControlParameter &control_param_) :
-		ModelMinimizer(control_param_) {
+ROOTMinimizer::ROOTMinimizer() {
 	std::cout << "Initializing Minuit Minimizer..." << std::endl;
 
 	//Minimize = Migrad+Simplex
@@ -20,8 +19,8 @@ ROOTMinimizer::ROOTMinimizer(ModelControlParameter &control_param_) :
 	// set tolerance , etc...
 	min->SetMaxFunctionCalls(100000); // for Minuit/Minuit2
 	min->SetMaxIterations(1000);
-	min->SetTolerance(0.001);
-	//min->SetPrecision(0.001);
+	//min->SetTolerance(0.001);
+	//min->SetPrecision(0.00000001);
 	min->SetPrintLevel(5);
 }
 
@@ -51,6 +50,7 @@ ModelFitResult ROOTMinimizer::createModelFitResult() const {
 				min->X()[i],
 				min->Errors()[i]);
 	}
+
 	return fit_result;
 }
 
@@ -59,22 +59,22 @@ int ROOTMinimizer::minimize() {
 	min->Clear();
 	// create function wrapper for minmizer  a IMultiGenFunction type
 	std::cout << "Number of free parameters in fit: "
-			<< control_param.getParameterList().size() << std::endl;
-	ROOT::Math::Functor fc(&control_param, &ModelControlParameter::evaluate,
-			control_param.getParameterList().size());
+			<< control_parameter->getParameterList().size() << std::endl;
+	ROOT::Math::Functor fc(control_parameter.get(), &ModelControlParameter::evaluate,
+			control_parameter->getParameterList().size());
 	min->SetFunction(fc);
 
 	// Set the free variables to be minimized!
-	for (unsigned int i = 0; i < control_param.getParameterList().size(); i++) {
+	for (unsigned int i = 0; i < control_parameter->getParameterList().size(); i++) {
 		double stepsize = TMath::Abs(
-				0.1 * control_param.getParameterList()[i].value);
-		if (0.0 == control_param.getParameterList()[i].value)
+				0.1 * control_parameter->getParameterList()[i].value);
+		if (0.0 == control_parameter->getParameterList()[i].value)
 			stepsize = 0.001;
 		min->SetVariable(
 				i,
-				control_param.getParameterList()[i].name.first + ":"
-						+ control_param.getParameterList()[i].name.second,
-				control_param.getParameterList()[i].value, stepsize);
+				control_parameter->getParameterList()[i].name.first + ":"
+						+ control_parameter->getParameterList()[i].name.second,
+						control_parameter->getParameterList()[i].value, stepsize);
 	}
 	std::cout << "Finished setting up fit!" << std::endl;
 

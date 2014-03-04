@@ -27,12 +27,10 @@ class PndLmdLumiFitResult: public TObject {
 private:
 	double luminosity_sys_err;
 
-	const PndLmdLumiFitOptions *fit_options;
 	ModelFitResult *model_fit_result;
 
 
 public:
-	PndLmdLumiFitResult(const PndLmdLumiFitOptions *fit_options_);
 	PndLmdLumiFitResult();
 	~PndLmdLumiFitResult();
 
@@ -41,20 +39,16 @@ public:
 	double getLuminosityStatError() const;
 	double getLuminosityError() const;
 
-	ModelFitResult* getModelFitResult();
+	const ModelFitResult* getModelFitResult() const;
 
 	double getRedChiSquare() const;
 
-	void setFitStatus(int fit_status_);
+	/*void setFitStatus(int fit_status_);
 	void setChiSquare(double chi_square_);
-	void setNDF(double ndf_);
+	void setNDF(double ndf_);*/
 	void setLuminositySysError(double luminosity_sys_err_);
 
 	void setModelFitResult(ModelFitResult &fit_result);
-
-	bool checkFitOptions(const PndLmdLumiFitOptions *fit_options_) const;
-
-	const PndLmdLumiFitOptions* getLumiFitOptions() const;
 
 ClassDef(PndLmdLumiFitResult,1)
 };

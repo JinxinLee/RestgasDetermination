@@ -6,59 +6,49 @@
  */
 
 #include "PndLmdLumiFitOptions.h"
-#include "PndLmdDPMAngModel1D.h"
-#include "PndLmdDPMModelParametrization.h"
-#include "PndLmdLumiHelper.h"
+#include "PndLmdAcceptance.h"
 
 #include <iostream>
 
-#include "TFile.h"
-
 ClassImp(PndLmdLumiFitOptions)
 
-PndLmdLumiFitOptions::PndLmdLumiFitOptions(
-		LumiFit::LmdBinaryFitOptions bit_flag_options, int smearing_type_,
-		int acc_intpol_type_) :
-		model_binary_options(bit_flag_options), dpm_elastic_model_parts(0), data_binary_options(
-				bit_flag_options), smearing_type(smearing_type_), acc_intpol_type(
-				acc_intpol_type_) {
-}
-
-PndLmdLumiFitOptions::PndLmdLumiFitOptions(
-		LumiFit::LmdBinaryFitOptions bit_flag_options,
-		unsigned int free_parameters_code_, int smearing_type_,
-		int acc_intpol_type_, double plab, double theta_fit_range_low_,
-		double theta_fit_range_high_, double phi_fit_range_low_,
-		double phi_fit_range_high_) :
-		model_binary_options(bit_flag_options), data_binary_options(
-				bit_flag_options), dpm_elastic_model_parts(0), free_parameters_code(
-				free_parameters_code_), smearing_type(smearing_type_), acc_intpol_type(
-				acc_intpol_type_) {
-	theta_fit_range_low = theta_fit_range_low_;
-	theta_fit_range_high = theta_fit_range_high_;
-	phi_fit_range_low = phi_fit_range_low_;
-	phi_fit_range_high = phi_fit_range_high_;
-
-	// calculate t range
-	t_fit_range_low = PndLmdLumiHelper::getMomentumTransferFromTheta(plab,
-			theta_fit_range_low);
-	t_fit_range_high = PndLmdLumiHelper::getMomentumTransferFromTheta(plab,
-			theta_fit_range_high);
-}
-
 PndLmdLumiFitOptions::PndLmdLumiFitOptions() :
-		model_binary_options(0), data_binary_options(0), smearing_type(0), acc_intpol_type(
-				1) {
+		model_binary_options(3), smearing_model_type(0), acc_intpol_type(1), acceptance(
+				0) {
+	primary_dimension_fit_range_active = false;
+	secondary_dimension_fit_range_active = false;
+	resolution_parametrization_file_url_active = false;
+}
+
+void PndLmdLumiFitOptions::initBinaryOptions(unsigned long bit_flag_options) {
+	model_binary_options = LumiFit::LmdBinaryFitOptions(bit_flag_options);
+}
+
+const LumiFit::LmdBinaryFitOptions& PndLmdLumiFitOptions::getModelBinaryOptions() const {
+	return model_binary_options;
+}
+void PndLmdLumiFitOptions::setModelBinaryOptions(
+		LumiFit::LmdBinaryFitOptions model_binary_options_) {
+	model_binary_options = model_binary_options_;
+}
+
+PndLmdAcceptance *PndLmdLumiFitOptions::getAcceptance() const {
+	return acceptance;
+}
+void PndLmdLumiFitOptions::setAcceptance(PndLmdAcceptance *acceptance_) {
+	acceptance = acceptance_;
 }
 
 int PndLmdLumiFitOptions::getSmearingModelType() const {
-	return smearing_type;
+	return smearing_model_type;
 }
-
+void PndLmdLumiFitOptions::setSmearingModelType(int smearing_type_) {
+	smearing_model_type = smearing_type_;
+}
 std::string PndLmdLumiFitOptions::getSmearingModelName() const {
-	if (0 == smearing_type)
+	if (0 == smearing_model_type)
 		return std::string("gaussian");
-	else if (1 == smearing_type)
+	else if (1 == smearing_model_type)
 		return std::string("double gaussian");
 	return std::string("unknown");
 }
@@ -66,110 +56,91 @@ std::string PndLmdLumiFitOptions::getSmearingModelName() const {
 int PndLmdLumiFitOptions::getAcceptanceInterpolationType() const {
 	return acc_intpol_type;
 }
-
-const LumiFit::LmdBinaryFitOptions& PndLmdLumiFitOptions::getModelBinaryOptions() const {
-	return model_binary_options;
-}
-
-const LumiFit::LmdBinaryFitOptions& PndLmdLumiFitOptions::getDataBinaryOptions() const {
-	return data_binary_options;
-}
-
-LumiFit::LmdBinaryFitOptions& PndLmdLumiFitOptions::getDataBinaryOptions() {
-	return data_binary_options;
-}
-
-unsigned int PndLmdLumiFitOptions::getFreeParametersCode() const {
-	return free_parameters_code;
-}
-
-double PndLmdLumiFitOptions::getThetaFitRangeLow() const {
-	return theta_fit_range_low;
-}
-double PndLmdLumiFitOptions::getThetaFitRangeHigh() const {
-	return theta_fit_range_high;
-}
-double PndLmdLumiFitOptions::getPhiFitRangeLow() const {
-	return phi_fit_range_low;
-}
-double PndLmdLumiFitOptions::getPhiFitRangeHigh() const {
-	return phi_fit_range_high;
-}
-
-double PndLmdLumiFitOptions::getTFitRangeLow() const {
-	return t_fit_range_low;
-}
-double PndLmdLumiFitOptions::getTFitRangeHigh() const {
-	return t_fit_range_high;
-}
-
 void PndLmdLumiFitOptions::setAcceptanceInterpolationType(
 		int acc_intpol_type_) {
 	acc_intpol_type = acc_intpol_type_;
 }
 
-void PndLmdLumiFitOptions::setSmearingModelType(int smearing_type_) {
-	smearing_type = smearing_type_;
+unsigned int PndLmdLumiFitOptions::getFreeParametersCode() const {
+	return free_parameters_code;
 }
-
-void PndLmdLumiFitOptions::setFreeParametersOfModel(
+void PndLmdLumiFitOptions::setFreeParametersCode(
 		unsigned int free_parameters_code_) {
 	free_parameters_code = free_parameters_code_;
-}
-
-TString PndLmdLumiFitOptions::getResolutionParametrizationFileUrl() const {
-
-	return resolution_parametrization_file_url;
 }
 
 int PndLmdLumiFitOptions::getDpmElasticModelParts() const {
 	return dpm_elastic_model_parts;
 }
-
 void PndLmdLumiFitOptions::setDpmElasticModelParts(
 		int dpm_elastic_model_parts_) {
 	dpm_elastic_model_parts = dpm_elastic_model_parts_;
 }
 
+bool PndLmdLumiFitOptions::isPrimaryDimensionFitRangeActive() const {
+	return primary_dimension_fit_range_active;
+}
+bool PndLmdLumiFitOptions::isSecondaryDimensionFitRangeActive() const {
+	return secondary_dimension_fit_range_active;
+}
+
+void PndLmdLumiFitOptions::setPrimaryDimensionFitRangeActive(
+		bool primary_dimension_fit_range_active_) {
+	primary_dimension_fit_range_active = primary_dimension_fit_range_active_;
+}
+void PndLmdLumiFitOptions::setSecondaryDimensionFitRangeActive(
+		bool secondary_dimension_fit_range_active_) {
+	secondary_dimension_fit_range_active =
+			secondary_dimension_fit_range_active_;
+}
+
+TString PndLmdLumiFitOptions::getResolutionParametrizationFileUrl() const {
+	return resolution_parametrization_file_url;
+}
+
 void PndLmdLumiFitOptions::setResolutionParametrizationFileUrl(
 		TString resolution_parametrization_file_url_) {
 	resolution_parametrization_file_url = resolution_parametrization_file_url_;
+	resolution_parametrization_file_url_active = true;
 }
 
-void PndLmdLumiFitOptions::setThetaFitRange(const double fit_range_low_,
-		const double fit_range_high_) {
-	theta_fit_range_low = fit_range_low_;
-	theta_fit_range_high = fit_range_high_;
+bool PndLmdLumiFitOptions::isResolutionParametrizationFileUrlActive() const {
+	return resolution_parametrization_file_url_active;
+}
+
+void PndLmdLumiFitOptions::setResolutionParametrizationFileUrlActive(
+		bool resolution_parametrization_file_url_active_) {
+	resolution_parametrization_file_url_active =
+			resolution_parametrization_file_url_active_;
 }
 
 bool PndLmdLumiFitOptions::lessThanNonBinaryOptions(
 		const PndLmdLumiFitOptions &rhs) const {
 	// then fit ranges
-	if (theta_fit_range_low < rhs.getThetaFitRangeLow())
-		return true;
-	else if (theta_fit_range_low > rhs.getThetaFitRangeLow())
-		return false;
-	if (theta_fit_range_high < rhs.getThetaFitRangeHigh())
-		return true;
-	else if (theta_fit_range_high > rhs.getThetaFitRangeHigh())
-		return false;
-	if (phi_fit_range_low < rhs.getPhiFitRangeLow())
-		return true;
-	else if (phi_fit_range_low > rhs.getPhiFitRangeLow())
-		return false;
-	if (phi_fit_range_high < rhs.getPhiFitRangeHigh())
-		return true;
-	else if (phi_fit_range_high > rhs.getPhiFitRangeHigh())
-		return false;
-
+	if (primary_dimension_fit_range_active) {
+		if (primary_dimension_fit_range < rhs.getPrimaryDimensionFitRange()) {
+			return true;
+		} else if (primary_dimension_fit_range
+				> rhs.getPrimaryDimensionFitRange()) {
+			return false;
+		}
+	}
+	if (secondary_dimension_fit_range_active) {
+		if (secondary_dimension_fit_range < rhs.getPrimaryDimensionFitRange()) {
+			return true;
+		} else if (secondary_dimension_fit_range
+				> rhs.getPrimaryDimensionFitRange()) {
+			return false;
+		}
+	}
 	// other stuff
 	if (acc_intpol_type < rhs.getAcceptanceInterpolationType())
 		return true;
 	else if (acc_intpol_type > rhs.getAcceptanceInterpolationType())
 		return false;
-	if (smearing_type < rhs.getSmearingModelType())
+	if (smearing_model_type < rhs.getSmearingModelType())
 		return true;
-	else if (smearing_type > rhs.getSmearingModelType())
+	else if (smearing_model_type > rhs.getSmearingModelType())
 		return false;
 	if (free_parameters_code < rhs.getFreeParametersCode())
 		return true;
@@ -186,12 +157,6 @@ bool PndLmdLumiFitOptions::operator<(const PndLmdLumiFitOptions &rhs) const {
 		return true;
 	else if (model_binary_options.getBinaryOptions()
 			> rhs.getModelBinaryOptions().getBinaryOptions())
-		return false;
-	if (data_binary_options.getBinaryOptions()
-			< rhs.getDataBinaryOptions().getBinaryOptions())
-		return true;
-	else if (data_binary_options.getBinaryOptions()
-			> rhs.getDataBinaryOptions().getBinaryOptions())
 		return false;
 
 	return lessThanNonBinaryOptions(rhs);
@@ -218,38 +183,12 @@ std::ostream& operator<<(std::ostream& os,
 			<< std::endl;
 	os << "------------------------------------------------------------"
 			<< std::endl;
-	os << " Data options: " << std::endl;
-	os << "------------------------------------------------------------"
-			<< std::endl;
-	os << "fit dimension: "
-			<< fit_options.getDataBinaryOptions().getFitDimension() << std::endl;
-	if (fit_options.getDataBinaryOptions().getFitterType() == 0)
-		os << "fit type: ROOT" << std::endl;
-	else
-		os << "fit type: ROOFIT" << std::endl;
-	if (fit_options.getDataBinaryOptions().isAcceptanceCorrOn())
-		os << "acceptance correction: on" << std::endl;
-	else
-		os << "acceptance correction: off" << std::endl;
-	if (fit_options.getDataBinaryOptions().isSmearingOn()) {
-		os << "resolution smearing: on" << std::endl;
-		os << "using smearing model: " << fit_options.getSmearingModelName()
-				<< std::endl;
-	} else {
-		os << "resolution smearing: off" << std::endl;
-	}
-	if (fit_options.getDataBinaryOptions().isFitRaw())
-		os << "raw fit (mom. trans.): on" << std::endl;
-	else
-		os << "raw fit (mom. trans.): off" << std::endl;
-
-	os << "------------------------------------------------------------"
-			<< std::endl;
 	os << " Model options: " << std::endl;
 	os << "------------------------------------------------------------"
 			<< std::endl;
 	os << "fit dimension: "
-			<< fit_options.getModelBinaryOptions().getFitDimension() << std::endl;
+			<< fit_options.getModelBinaryOptions().getFitDimension()
+			<< std::endl;
 	if (fit_options.getModelBinaryOptions().getFitterType() == 0)
 		os << "fit type: ROOT" << std::endl;
 	else
@@ -270,38 +209,38 @@ std::ostream& operator<<(std::ostream& os,
 	else
 		os << "raw fit (mom. trans.): off" << std::endl;
 
-	os << "lower theta fit range: " << fit_options.getThetaFitRangeLow()
+	os << "primary dimension lower fit range: "
+			<< fit_options.getPrimaryDimensionFitRange().getRangeLow()
 			<< std::endl;
-	os << "upper theta fit range: " << fit_options.getThetaFitRangeHigh()
+	os << "primary dimension upper fit range: "
+			<< fit_options.getPrimaryDimensionFitRange().getRangeHigh()
 			<< std::endl;
-	os << "lower phi fit range: " << fit_options.getPhiFitRangeLow() << std::endl;
-	os << "upper phi fit range: " << fit_options.getPhiFitRangeHigh()
+	os << "secondary dimension lower fit range: "
+			<< fit_options.getSecondaryDimensionFitRange().getRangeLow()
+			<< std::endl;
+	os << "secondary dimension upper fit range: "
+			<< fit_options.getSecondaryDimensionFitRange().getRangeHigh()
 			<< std::endl;
 	os << "************************************************************"
 			<< std::endl;
 	return os;
 }
 
-TString PndLmdLumiFitOptions::makeName() const {
-	char tempc[30];
-	sprintf(tempc, "%iD", getModelBinaryOptions().getFitDimension());
-	TString name = tempc;
-
-	if (getModelBinaryOptions().getFitterType() == 0)
-		name = name + "_ROOT";
-	else
-		name = name + "_ROOFIT";
-	if (getModelBinaryOptions().isAcceptanceCorrOn())
-		name = name + "_acc-corr";
-	if (getModelBinaryOptions().isSmearingOn())
-		name = name + "_res-smeared";
-	if (getModelBinaryOptions().isFitRaw())
-		name = name + "_raw-fit";
-
-	sprintf(tempc, "_th=%f-%f", getThetaFitRangeLow(), getThetaFitRangeHigh());
-	name = name + tempc;
-	sprintf(tempc, "_phi=%f-%f", getPhiFitRangeLow(), getPhiFitRangeHigh());
-	name = name + tempc;
-
-	return name;
+LumiFit::LmdDimensionRange PndLmdLumiFitOptions::getPrimaryDimensionFitRange() const {
+	return primary_dimension_fit_range;
 }
+
+LumiFit::LmdDimensionRange PndLmdLumiFitOptions::getSecondaryDimensionFitRange() const {
+	return secondary_dimension_fit_range;
+}
+
+void PndLmdLumiFitOptions::setPrimaryDimensionFitRange(
+		LumiFit::LmdDimensionRange primary_dimension_fit_range_) {
+	primary_dimension_fit_range = primary_dimension_fit_range_;
+}
+
+void PndLmdLumiFitOptions::setSecondaryDimensionFitRange(
+		LumiFit::LmdDimensionRange secondary_dimension_fit_range_) {
+	secondary_dimension_fit_range = secondary_dimension_fit_range_;
+}
+

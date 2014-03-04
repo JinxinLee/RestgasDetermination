@@ -15,8 +15,8 @@ ModelFitResult::ModelFitResult() {
 
 ModelFitResult::ModelFitResult(const ModelFitResult &fit_result) {
 	setFitStatus(fit_result.getFitStatus());
-	setChiSquare(fit_result.getChiSquare());
-	setNDF(fit_result.getNDF());
+	setFinalEstimatorValue(fit_result.getFinalEstimatorValue());
+	setNumberOfDataPoints(fit_result.getNumberOfDataPoints());
 	for (std::set<ModelStructs::minimization_parameter>::const_iterator fit_param =
 			fit_result.getFitParameters().begin();
 			fit_param != fit_result.getFitParameters().end(); fit_param++) {
@@ -28,20 +28,24 @@ ModelFitResult::~ModelFitResult() {
 	// TODO Auto-generated destructor stub
 }
 
-double ModelFitResult::getChiSquare() const {
-	return chi2;
+unsigned int ModelFitResult::getNumberOfDataPoints() const {
+	return num_data_points;
+}
+
+double ModelFitResult::getFinalEstimatorValue() const {
+	return final_estimator_value;
 }
 
 unsigned int ModelFitResult::getNDF() const {
-	return ndf;
+	return num_data_points-fit_parameters.size();
 }
 
-void ModelFitResult::setChiSquare(double chi2_) {
-	this->chi2 = chi2_;
+void ModelFitResult::setFinalEstimatorValue(double final_estimator_value_) {
+	this->final_estimator_value = final_estimator_value_;
 }
 
-void ModelFitResult::setNDF(unsigned int ndf_) {
-	this->ndf = ndf_;
+void ModelFitResult::setNumberOfDataPoints(unsigned int num_data_points_) {
+	this->num_data_points = num_data_points_;
 }
 
 void ModelFitResult::addFitParameter(std::pair<std::string, std::string> name_

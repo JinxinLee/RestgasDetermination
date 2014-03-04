@@ -15,25 +15,25 @@
 #include <string>
 
 class ModelFitResult {
-public:
-
 private:
 	int fit_status;
-	unsigned int ndf;
+	unsigned int num_data_points;
 	std::set<ModelStructs::minimization_parameter> fit_parameters;
-	double chi2;
+	double final_estimator_value;
+
+	unsigned int getNumberOfDataPoints() const;
 
 public:
 	ModelFitResult();
 	ModelFitResult(const ModelFitResult &fit_result);
 	virtual ~ModelFitResult();
 
-	double getChiSquare() const;
+	double getFinalEstimatorValue() const;
 	unsigned int getNDF() const;
 	int getFitStatus() const;
 
-	void setChiSquare(double chi2_);
-	void setNDF(unsigned int ndf_);
+	void setFinalEstimatorValue(double final_estimator_value_);
+	void setNumberOfDataPoints(unsigned int num_data_points_);
 	void setFitStatus(int fit_status_);
 
 	void addFitParameter(std::pair<std::string, std::string> name_, double value_

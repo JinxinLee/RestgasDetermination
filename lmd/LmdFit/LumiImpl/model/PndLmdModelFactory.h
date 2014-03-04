@@ -34,7 +34,7 @@ public:
 	 * @param fit_options are the options which model will be built and returned
 	 */
 	shared_ptr<Model1D> generate1DModel(const PndLmdLumiFitOptions *fit_options,
-			double plab, const PndLmdAcceptance *acceptance = 0);
+			double plab);
 
 	/**
 	 * 2D Model generator method

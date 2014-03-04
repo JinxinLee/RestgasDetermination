@@ -28,6 +28,8 @@ PndLmdSmearingGaussianModelParametrization1D::PndLmdSmearingGaussianModelParamet
 	model->getModelParameterHandler().registerParametrizationModel(
 			model->getModelParameterSet().getModelParameter("gauss_mean"),
 			pm2);
+
+//	model->getModelParameterSet().getModelParameter("gauss_mean")->setValue(0.0);
 }
 
 PndLmdSmearingGaussianModelParametrization1D::~PndLmdSmearingGaussianModelParametrization1D() {

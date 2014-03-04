@@ -1,148 +1,63 @@
 /*
  * PndLmdResolution.cxx
  *
- *  Created on: Apr 17, 2013
+ *  Created on: Aug 25, 2013
  *      Author: steve
  */
 
 #include "PndLmdResolution.h"
 
-#include "PndLmdLumiFitResult.h"
-
-#include <iostream>
-
-#include "TH1D.h"
-#include "TH2D.h"
-#include "TFile.h"
-
-ClassImp(PndLmdResolution)
-
-PndLmdResolution::PndLmdResolution(int num_events_, double plab,
-		double th_slice_range_low_, double th_slice_range_high_,
-		double phi_slice_range_low_, double phi_slice_range_high_,
-		PndLmdFit::lmd_dimension th_dimension_,
-		PndLmdFit::lmd_dimension phi_dimension_) :
-		PndLmdDataInterface(plab, th_dimension_, phi_dimension_) {
-	setNumEvents(num_events_);
-
-	th_slice_range_low = th_slice_range_low_;
-	th_slice_range_high = th_slice_range_high_;
-	phi_slice_range_low = phi_slice_range_low_;
-	phi_slice_range_high = phi_slice_range_high_;
-
-	makeName();
-
-	theta_res = new TH1D("theta_res", "", th_dimension.bins,
-			th_dimension.range_low, th_dimension.range_high);
-	theta_res_vs_phi_res = new TH2D("theta_res_vs_phi_res", "", th_dimension.bins,
-			th_dimension.range_low, th_dimension.range_high, phi_dimension.bins,
-			phi_dimension.range_low, phi_dimension.range_high);
-}
 PndLmdResolution::PndLmdResolution() {
-	// empty constructor needed by ROOT IO
 }
 
 PndLmdResolution::~PndLmdResolution() {
-	// TODO Auto-generated destructor stub
 }
 
-double PndLmdResolution::getThetaSliceMean() const {
-	return (th_slice_range_high + th_slice_range_low) / 2;
-}
-double PndLmdResolution::getPhiSliceMean() const {
-	return (phi_slice_range_high + phi_slice_range_low) / 2;
+const LumiFit::LmdDimension& PndLmdResolution::getPrimarySelectionDimension() const {
+	return primary_select_dimension;
 }
 
-TH1D* PndLmdResolution::getResolutionHistogram1D() {
-	return theta_res;
-}
-TH2D* PndLmdResolution::getResolutionHistogram2D() {
-	return theta_res_vs_phi_res;
+void PndLmdResolution::setPrimarySelectionDimension(
+		LumiFit::LmdDimension primary_select_dimension_) {
+	primary_select_dimension = primary_select_dimension_;
 }
 
-void PndLmdResolution::makeName() {
-	char cname[100];
-	sprintf(cname, "%i_%i_%f_%f_%i_%f_%f_%f_%f", getNumEvents(),
-			th_dimension.bins, th_dimension.range_low, th_dimension.range_high,
-			phi_dimension.bins, phi_dimension.range_low, phi_dimension.range_high,
-			getThetaSliceMean(), getPhiSliceMean());
-
-	getName() += cname;
+const LumiFit::LmdDimension& PndLmdResolution::getSecondarySelectionDimension() const {
+	return secondary_select_dimension;
 }
 
-/*
-void PndLmdResolution::makeDir() {
-	char phi_dirname[100];
-	sprintf(phi_dirname, "%i_%f_%f_%f", phi_dimension.bins,
-			phi_dimension.range_low, phi_dimension.range_high, getPhiSliceMean());
-	char theta_dirname[100];
-	sprintf(theta_dirname, "%i_%f_%f_%f", th_dimension.bins,
-			th_dimension.range_low, th_dimension.range_high, getThetaSliceMean());
-	f->cd();
-	TDirectory *phidir = gDirectory->GetDirectory(phi_dirname);
-	if (phidir) {
-		phidir->cd();
-	} else {
-		f->cd();
-		gDirectory->mkdir(phi_dirname);
-		gDirectory->cd(phi_dirname);
+void PndLmdResolution::setSecondarySelectionDimension(
+		LumiFit::LmdDimension secondary_select_dimension_) {
+	secondary_select_dimension = secondary_select_dimension_;
+}
+
+bool PndLmdResolution::operator<(const PndLmdResolution &lmd_res) const {
+	if (primary_select_dimension < lmd_res.primary_select_dimension)
+		return true;
+	else if (primary_select_dimension > lmd_res.primary_select_dimension)
+		return false;
+	if (secondary_select_dimension.is_active) {
+		if (secondary_select_dimension < lmd_res.secondary_select_dimension)
+			return true;
+		else if (secondary_select_dimension > lmd_res.secondary_select_dimension)
+			return false;
 	}
-	TDirectory *thetadir = gDirectory->GetDirectory(theta_dirname);
-	if (thetadir) {
-		thetadir->cd();
-	} else {
-		gDirectory->mkdir(theta_dirname);
-		gDirectory->cd(theta_dirname);
+
+	return PndLmdAbstractData::operator<(lmd_res);
+}
+bool PndLmdResolution::operator>(const PndLmdResolution &lmd_res) const {
+	return (lmd_res < *this);
+}
+bool PndLmdResolution::operator==(const PndLmdResolution &lmd_res) const {
+	if (primary_select_dimension != lmd_res.primary_select_dimension)
+		return false;
+	if (secondary_select_dimension.is_active) {
+		if (secondary_select_dimension != lmd_res.secondary_select_dimension)
+			return false;
 	}
+
+	return PndLmdAbstractData::operator==(lmd_res);
 }
-
-void PndLmdResolution::cdToParentDirectory() {
-	char phi_dirname[100];
-	sprintf(phi_dirname, "%i_%f_%f_%f", phi_dimension.bins,
-			phi_dimension.range_low, phi_dimension.range_high, getPhiSliceMean());
-	f->cd();
-	gDirectory->cd(phi_dirname);
-}*/
-
-void PndLmdResolution::saveToRootFile(TFile *file) {
-	std::cout << "Saving " << getName() << " to file..." << std::endl;
-
-	file->cd();
-
-	this->Write("lmdresolution");
-}
-
-void PndLmdResolution::fillHistograms(
-		std::vector<std::pair<PndLmdFit::lmd_values, PndLmdFit::lmd_values> > &event_data) {
-	if (1 == event_data.size()) {
-		std::pair<PndLmdFit::lmd_values, PndLmdFit::lmd_values> data = event_data[0];
-		if (data.first.reconstructed && data.second.reconstructed) {
-			if (th_slice_range_low < 1000. * data.first.theta
-					&& th_slice_range_high > 1000. * data.first.theta) {
-				if (phi_slice_range_low < data.first.phi
-						&& phi_slice_range_high > data.first.phi) {
-					if (1000. * data.first.theta < 2.0)
-						std::cout << 1000. * (data.second.theta) << " - "
-								<< 1000. * (data.first.theta) << " = "
-								<< 1000. * (data.second.theta - data.first.theta) << std::endl;
-					theta_res->Fill(1000. * (data.second.theta - data.first.theta));
-					theta_res_vs_phi_res->Fill(
-							1000. * (data.second.theta - data.first.theta),
-							data.second.phi - data.first.phi);
-				}
-			}
-		}
-	} /*else if(1 < event_data.size()) {
-	 std::cout
-	 << "Warning: Current event contains more than 1 track pair! This is not allowed! Skipping event!"
-	 << std::endl;
-	 }*/
-}
-
-const std::set<PndLmdLumiFitResult*>& PndLmdResolution::getFitResults() const {
-	return fit_set;
-}
-
-int PndLmdResolution::addFitResult(PndLmdLumiFitResult* fit_result_) {
-	return fit_set.insert(fit_result_).second;
+bool PndLmdResolution::operator!=(const PndLmdResolution &lmd_res) const {
+	return !(*this == lmd_res);
 }

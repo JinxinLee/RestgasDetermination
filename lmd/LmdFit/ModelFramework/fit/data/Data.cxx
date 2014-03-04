@@ -26,6 +26,16 @@ unsigned int Data::getNumberOfDataPoints() const {
 	return data_points.size();
 }
 
+unsigned int Data::getNumberOfUsedDataPoints() const {
+	unsigned int num_points = 0;
+
+	for(unsigned int i = 0; i < data_points.size(); i++) {
+		if(data_points[i].isPointUsed())
+			num_points++;
+	}
+	return num_points;
+}
+
 double Data::getBinningFactor() const {
 	return binning_factor;
 }
@@ -45,19 +55,19 @@ void Data::insertData(std::vector<DataPointProxy> &data_points_) {
 	}
 }
 void Data::insertData(DataPointProxy &data_point_) {
-  if(data_point_.isBinnedDataPoint()) {
-  	if(!is_binning_factor_set) {
-  	  is_binning_factor_set = true;
-  	  binning_factor = 1.0;
-  	  for(unsigned int i = 0; i < getDimension(); i++) {
-  	  	binning_factor*=data_point_.getBinnedDataPoint()->bin_widths[i];
-  	  }
-  	}
-  }
-  else {
-  	is_binning_factor_set = false;
-  	binning_factor = 1.0;
-  }
+	if (data_point_.isBinnedDataPoint()) {
+		if (!is_binning_factor_set) {
+			is_binning_factor_set = true;
+			binning_factor = 1.0;
+			for (unsigned int i = 0; i < getDimension(); i++) {
+				binning_factor *=
+						data_point_.getBinnedDataPoint()->bin_widths[i];
+			}
+		}
+	} else {
+		is_binning_factor_set = false;
+		binning_factor = 1.0;
+	}
 	data_points.push_back(data_point_);
 }
 

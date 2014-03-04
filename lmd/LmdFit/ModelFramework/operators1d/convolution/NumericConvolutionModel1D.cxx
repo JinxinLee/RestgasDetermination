@@ -27,7 +27,11 @@ void NumericConvolutionModel1D::initModelParameters() {
 
 double NumericConvolutionModel1D::eval(const double *x) const {
 	double xx[3], val = 0.0;
-	double division_width = second->getDomainRange() / 2.0 / divisions;
+	double integration_range = second->getDomainRange();
+	if(integration_range == 0.0) {
+		return 0.0;
+	}
+	double division_width = integration_range / 2.0 / divisions;
 	double xprimea, xprimem, xprimeb;
 	//double checksum = 0.0;
 	/*std::cout << "x0= " << x[0] << " | domain range:"
@@ -87,6 +91,7 @@ double NumericConvolutionModel1D::eval(const double *x) const {
 	val = val * division_width / 6.0;
 	/*if(val != val)
 	 std::cout << "x = " << x[0] << " -> " << val << std::endl;*/
+	//std::cout<<val<<std::endl;
 	return val;
 }
 

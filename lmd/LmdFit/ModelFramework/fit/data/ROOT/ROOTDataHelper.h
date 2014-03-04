@@ -8,17 +8,11 @@
 #ifndef ROOTDATAHELPER_H_
 #define ROOTDATAHELPER_H_
 
-
-#ifdef HAS_SHAREDPOINTER
-#include <memory>
-using std::shared_ptr;
-#else
-#include <tr1/memory>
-using std::tr1::shared_ptr;
-#endif
+#include "SharedPtr.h"
 
 class TH1D;
 class TGraphErrors;
+
 class Data;
 
 class ROOTDataHelper {
@@ -26,8 +20,8 @@ public:
 	ROOTDataHelper();
 	virtual ~ROOTDataHelper();
 
-	shared_ptr<Data> createBinnedData(TH1D* hist_1d);
-	shared_ptr<Data> createBinnedData(TGraphErrors* graph_1d);
+	void fillBinnedData(shared_ptr<Data> data, const TH1D* hist_1d) const;
+	void fillBinnedData(shared_ptr<Data> data, const TGraphErrors* graph_1d) const;
 };
 
 #endif /* ROOTDATAHELPER_H_ */

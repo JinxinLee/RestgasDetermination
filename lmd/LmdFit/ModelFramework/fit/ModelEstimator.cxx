@@ -104,7 +104,8 @@ void ModelEstimator::applyEstimatorOptions(
 					}
 
 					double scale = 1.0;
-					double int_func_real = fit_model->Integral(bin_ranges, 0.001);
+					double precision = 1e-6;
+					double int_func_real = fit_model->Integral(bin_ranges, precision);
 					double int_func_approx = fit_model->evaluate(
 							data_point->bin_center_value);
 					for (unsigned int dim = 0; dim < data->getDimension(); dim++) {
@@ -114,6 +115,7 @@ void ModelEstimator::applyEstimatorOptions(
 					if (int_func_approx > 0.0 && int_func_real > 0.0) {
 						scale = int_func_approx / int_func_real;
 					}
+
 					data_point->scale = scale;
 					data_point->z = data_point->z * scale;
 					data_point->z_error = data_point->z_error * sqrt(scale);

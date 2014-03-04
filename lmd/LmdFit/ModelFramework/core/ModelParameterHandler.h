@@ -16,9 +16,6 @@
 
 #include <map>
 #include <set>
-//#include <tr1/memory>
-
-//using std::tr1::shared_ptr;
 
 class ModelParameterHandler {
 private:
@@ -73,7 +70,7 @@ public:
 	 */
 	void updateModelParameters();
 
-	void initModelParametersFromFitResult(ModelFitResult &fit_result);
+	void initModelParametersFromFitResult(const ModelFitResult &fit_result);
 };
 
 #endif /* MODELPARAMETERHANDLER_H_ */

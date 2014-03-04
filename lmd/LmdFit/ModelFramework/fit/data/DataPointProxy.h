@@ -10,14 +10,7 @@
 
 #include "DataStructs.h"
 
-#ifdef HAS_SHAREDPOINTER
-#include <memory>
-using std::shared_ptr;
-#else
-#include <tr1/memory>
-using std::tr1::shared_ptr;
-#endif
-
+#include "SharedPtr.h"
 
 class DataPointProxy {
 private:

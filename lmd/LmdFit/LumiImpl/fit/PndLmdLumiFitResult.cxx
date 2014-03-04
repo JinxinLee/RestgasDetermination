@@ -11,14 +11,8 @@
 
 ClassImp(PndLmdLumiFitResult)
 
-PndLmdLumiFitResult::PndLmdLumiFitResult(
-		const PndLmdLumiFitOptions *fit_options_) :
-		fit_options(fit_options_) {
-	model_fit_result = 0;
-}
-
 PndLmdLumiFitResult::PndLmdLumiFitResult() :
-		fit_options(0) {
+		model_fit_result(0), luminosity_sys_err(0) {
 }
 
 PndLmdLumiFitResult::~PndLmdLumiFitResult() {
@@ -34,27 +28,27 @@ double PndLmdLumiFitResult::getLuminosityStatError() const {
 	return model_fit_result->getFitParameter("luminosity").error;
 }
 double PndLmdLumiFitResult::getLuminosityError() const {
-	return luminosity_sys_err
-			+ model_fit_result->getFitParameter("luminosity").error;
+	return getLuminositySysError()
+			+ getLuminosityStatError();
 }
 
-ModelFitResult* PndLmdLumiFitResult::getModelFitResult() {
+const ModelFitResult* PndLmdLumiFitResult::getModelFitResult() const {
 	return model_fit_result;
 }
 
 double PndLmdLumiFitResult::getRedChiSquare() const {
-	return model_fit_result->getChiSquare() / model_fit_result->getNDF();
+	return model_fit_result->getFinalEstimatorValue() / model_fit_result->getNDF();
 }
 
-void PndLmdLumiFitResult::setFitStatus(int fit_status_) {
-	model_fit_result->setFitStatus(fit_status_);
-}
-void PndLmdLumiFitResult::setChiSquare(double chi_square_) {
-	model_fit_result->setChiSquare(chi_square_);
-}
-void PndLmdLumiFitResult::setNDF(double ndf_) {
-	model_fit_result->setNDF(ndf_);
-}
+/*void PndLmdLumiFitResult::setFitStatus(int fit_status_) {
+ model_fit_result->setFitStatus(fit_status_);
+ }
+ void PndLmdLumiFitResult::setChiSquare(double chi_square_) {
+ model_fit_result->setChiSquare(chi_square_);
+ }
+ void PndLmdLumiFitResult::setNDF(double ndf_) {
+ model_fit_result->setNDF(ndf_);
+ }*/
 
 void PndLmdLumiFitResult::setLuminositySysError(double luminosity_sys_err_) {
 	luminosity_sys_err = luminosity_sys_err_;
@@ -64,13 +58,4 @@ void PndLmdLumiFitResult::setModelFitResult(ModelFitResult &fit_result) {
 	if (!model_fit_result) {
 		model_fit_result = new ModelFitResult(fit_result);
 	}
-}
-
-bool PndLmdLumiFitResult::checkFitOptions(
-		const PndLmdLumiFitOptions *fit_options_) const {
-	return (*fit_options == *fit_options_);
-}
-
-const PndLmdLumiFitOptions* PndLmdLumiFitResult::getLumiFitOptions() const {
-	return fit_options;
 }

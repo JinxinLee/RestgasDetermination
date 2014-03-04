@@ -108,9 +108,10 @@ double PndLmdDPMMTModel1D::getRawInterferencePart(const double *x) const {
 }
 
 double PndLmdDPMMTModel1D::getRawHadronicPart(const double *x) const {
-	/*double p3 = par[1] * par[1] * (1.0 + pow(par[3], 2.0))
-	 * exp(1.0 * par[2] * t) / 16. / pi * hbarc2 * jaco; //E760, typical*/
 	double t = -TMath::Abs(x[0]);
+
+	/*double had_part = pow(sigma_tot->getValue(), 2.0) * (1.0 + pow(rho->getValue(), 2.0))
+	 * exp(b->getValue() * t) / 16. / pi;*/
 
 	double had_part = A1->getValue()
 			* pow(
@@ -131,6 +132,6 @@ double PndLmdDPMMTModel1D::eval(const double *x) const {
 }
 
 void PndLmdDPMMTModel1D::updateDomain() {
-	setDomain(0, std::numeric_limits<int>::max());
+	setDomain(0, std::numeric_limits<double>::max());
 }
 

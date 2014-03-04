@@ -1,288 +1,115 @@
 /*
- * PndLmdData.h
+ * PndLmdAngularData.h
  *
  *  Created on: Jun 27, 2012
  *      Author: steve
  */
 #include "PndLmdData.h"
-#include "PndLmdAcceptance.h"
-#include "ROOTMinimizer.h"
-#include "PndLmdLumiFitResult.h"
-#include "PndLmdLumiFitOptions.h"
-#include "Chi2Estimator.h"
-#include "PndLmdLumiHelper.h"
-#include "ROOTDataHelper.h"
-#include "Data.h"
-#include "EstimatorOptions.h"
-
-#include "TH1D.h"
-#include "TH2D.h"
-#include "TFile.h"
 
 ClassImp(PndLmdData)
 
-PndLmdData::PndLmdData(int num_events_, double plab_,
-		PndLmdFit::lmd_dimension th_dimension_,
-		PndLmdFit::lmd_dimension phi_dimension_,
-		double generated_luminosity_per_event_) :
-		PndLmdDataBase(num_events_, plab_, th_dimension_, phi_dimension_) {
-	//fit_map =
-	//		new std::map<PndLmdLumiModel*, std::vector<PndLmdLumiFitResult*> >();
-
-	luminosity_per_event = generated_luminosity_per_event_;
-}
-PndLmdData::PndLmdData() {
+PndLmdData::PndLmdData() :
+		hist_1d(0), hist_2d(0) {
+	reference_luminosity_per_event = 1.0;
 }
 
 PndLmdData::~PndLmdData() {
 }
 
-void PndLmdData::saveToRootFile(TFile *file) {
-	file->cd();
-	std::cout << "Saving " << getName() << " to file..." << std::endl;
+void PndLmdData::init1DData() {
+	// 1d histograms
+	hist_1d = new TH1D("hist1d", "", primary_dimension.bins,
+			primary_dimension.dimension_range.getRangeLow(),
+			primary_dimension.dimension_range.getRangeHigh());
 
-	this->Write("lmddata");
+	hist_1d->Sumw2();
+}
+
+void PndLmdData::init2DData() {
+	hist_2d = new TH2D("hist2d", "", primary_dimension.bins,
+			primary_dimension.dimension_range.getRangeLow(),
+			primary_dimension.dimension_range.getRangeHigh(),
+			secondary_dimension.bins,
+			secondary_dimension.dimension_range.getRangeLow(),
+			secondary_dimension.dimension_range.getRangeHigh());
+
+	hist_2d->Sumw2();
+}
+
+void PndLmdData::cloneData(const PndLmdAbstractData &lmd_abs_data) {
+	const PndLmdData * lmd_data = dynamic_cast<const PndLmdData*>(&lmd_abs_data);
+	if (lmd_data) {
+		hist_1d = new TH1D(*lmd_data->get1DHistogram());
+		if (getSecondaryDimension().is_active) {
+			hist_2d = new TH2D(*lmd_data->get2DHistogram());
+		}
+	}
+}
+
+void PndLmdData::add(const PndLmdAbstractData &lmd_abs_data_addition) {
+	const PndLmdData * lmd_data_addition =
+			dynamic_cast<const PndLmdData*>(&lmd_abs_data_addition);
+	if (lmd_data_addition) {
+		if (getPrimaryDimension().dimension_range
+				== lmd_data_addition->getPrimaryDimension().dimension_range) {
+			setNumEvents(getNumEvents() + lmd_data_addition->getNumEvents());
+			hist_1d->Add(lmd_data_addition->get1DHistogram());
+			if (getSecondaryDimension().is_active) {
+				if (getSecondaryDimension().dimension_range
+						== lmd_data_addition->getSecondaryDimension().dimension_range) {
+					hist_2d->Add(lmd_data_addition->get2DHistogram());
+				}
+			}
+		}
+	}
 }
 
 double PndLmdData::getReferenceLuminosity() const {
-	return luminosity_per_event * getNumEvents();
+	return reference_luminosity_per_event * getNumEvents();
 }
 
-void PndLmdData::setReferenceLuminosityPerEvent(double luminosity_per_event_) {
-	luminosity_per_event = luminosity_per_event_;
+double PndLmdData::getReferenceLuminosityPerEvent() const {
+	return reference_luminosity_per_event;
 }
 
-double PndLmdData::getBinningFactor(const PndLmdLumiFitOptions *fit_opt) const {
-	if (fit_opt->getModelBinaryOptions().isFitRaw())
-		return t_dimension.bin_size;
-	double bin_factor = th_dimension.bin_size;
-	if (fit_opt->getModelBinaryOptions().getFitDimension())
-		bin_factor *= phi_dimension.bin_size;
-	return bin_factor;
+void PndLmdData::setReferenceLuminosityPerEvent(
+		double reference_luminosity_per_event_) {
+	reference_luminosity_per_event = reference_luminosity_per_event_;
 }
 
-std::pair<double, double> PndLmdData::calcRange(
-		const PndLmdLumiFitOptions *fit_options) {
-	double range_low, range_high;
-	if (fit_options->getModelBinaryOptions().isFitRaw()) {
-		range_low = t_dimension.range_low;
-		range_high = t_dimension.range_high;
-		if (fit_options->getTFitRangeLow() > t_dimension.range_low)
-			range_low = fit_options->getTFitRangeLow();
-		if (fit_options->getTFitRangeHigh() < t_dimension.range_high)
-			range_high = fit_options->getTFitRangeHigh();
-	} else {
-		range_low = th_dimension.range_low;
-		range_high = th_dimension.range_high;
-		if (fit_options->getThetaFitRangeLow() > th_dimension.range_low)
-			range_low = fit_options->getThetaFitRangeLow();
-		if (fit_options->getThetaFitRangeHigh() < th_dimension.range_high)
-			range_high = fit_options->getThetaFitRangeHigh();
-	}
-	return std::make_pair(range_low, range_high);
-}
-
-PndLmdLumiFitResult* PndLmdData::Fit(PndLmdAcceptance *lmd_acc,
-	const PndLmdLumiFitOptions *fit_options) {
-
-	std::cout << "Attempting to perform fit with following fit options:"
-			<< std::endl;
-	std::cout << *fit_options << std::endl;
-
-	//first check if this model with the fit options have already been fitted
-	std::vector<PndLmdLumiFitResult*> &model_fit_res = fit_map[lmd_acc];
-	for (unsigned int i = 0; i < model_fit_res.size(); i++) {
-		if (model_fit_res[i]->checkFitOptions(fit_options)) {
-			std::cout << "Fit was already performed! Skipping..." << std::endl;
-			return model_fit_res[i];
-		}
-	}
-
-	std::cout << "Initiating Fitter..." << std::endl;
-
-	PndLmdLumiFitResult *fit_result;
-
-	if (fit_options->getModelBinaryOptions().getFitterType() == 0) { // if user wants to use ROOT/Minuit
-		// create a new model via the factory
-		shared_ptr<Model1D> model1d = signal_model_fac.generate1DModel(fit_options,
-				getLabMomentum(), lmd_acc);
-
-		// create chi2 estimator
-		Chi2Estimator chi2_est;
-		// set model
-		chi2_est.setModel(model1d);
-
-		// create and set data
-		ROOTDataHelper data_helper;
-		chi2_est.setData(
-				data_helper.createBinnedData(getMeasuredHist1D(fit_options)));
-
-		// create estimator options
-		EstimatorOptions est_opt;
-		std::pair<double, double> fit_range = std::make_pair(
-				fit_options->getThetaFitRangeLow(),
-				fit_options->getThetaFitRangeHigh());
-		if (fit_options->getModelBinaryOptions().isFitRaw())
-			fit_range = std::make_pair(fit_options->getTFitRangeLow(),
-					fit_options->getTFitRangeHigh());
-
-		est_opt.setFitRangeX(fit_range);
-		est_opt.setWithIntegralScaling(true);
-
-		// apply estimator options
-		chi2_est.applyEstimatorOptions(est_opt);
-
-		// now set better starting lumi value
-		std::pair<double, double> range = calcRange(fit_options);
-		PndLmdLumiHelper lmdhelper;
-		double integral_data = lmdhelper.calcHistIntegral(getMeasuredHist1D(fit_options), range);
-		std::vector<std::pair<double, double> > temp_vec_range;
-		temp_vec_range.push_back(range);
-		double integral_func = model1d->Integral(temp_vec_range, 10e-3);
-		double lumi_start = integral_data / integral_func
-				/ getBinningFactor(fit_options);
-		std::cout << integral_data << " / "
-				<< integral_func * getBinningFactor(fit_options) << std::endl;
-		std::cout << "(1D) Using start luminosity: " << lumi_start << std::endl;
-		model1d->getModelParameterSet().setModelParameterValue("luminosity",
-				lumi_start);
-
-		// create minimizer instance with control parameter
-		ROOTMinimizer fitter(chi2_est);
-
-		int fit_status = fitter.doMinimization();
-		// call minimization procedure
-		if (fit_status) {
-			std::cout
-					<< "ERROR: Problem while performing fit. Returning NULL pointer!"
-					<< std::endl;
-			return fit_result;
-		}
-
-		// store fit results
-		std::cout << "Adding fit result to storage..." << std::endl;
-
-		ModelFitResult temp_fit_result = fitter.createModelFitResult();
-		temp_fit_result.setFitStatus(fit_status);
-		// in case we have a likelihood we have to create a new chi2 estimator...
-		temp_fit_result.setChiSquare(
-				chi2_est.evaluate(fitter.getROOTMinimizer()->X()));
-		temp_fit_result.setNDF(
-				chi2_est.getData()->getNumberOfDataPoints()
-						- fitter.getROOTMinimizer()->NFree());
-		fit_result = new PndLmdLumiFitResult(fit_options);
-		fit_result->setModelFitResult(temp_fit_result);
-
-	} else { // user wants to use ROOFIT
-		// ok do roofit stuff here
-	}
-
-	model_fit_res.push_back(fit_result);
-	return fit_result;
-}
-
-TH1D* PndLmdData::getMeasuredHist1D(
-		const PndLmdLumiFitOptions *fit_options) const {
-	if (fit_options->getDataBinaryOptions().isFitRaw()) {
-		if (fit_options->getDataBinaryOptions().isSmearingOn()) {
-			if (fit_options->getDataBinaryOptions().isAcceptanceCorrOn()) {
-				return t_reco_1d;
-			} else {
-				std::cout
-						<< "WARNING: Requesting data which has flat acceptance and is resolution smeared."
-						<< "This cannot exist... the standard reconstruction histogram will be returned."
-						<< "Make sure that the fit range is chosen appropriately (in which acceptance is actually flat)."
-						<< std::endl;
-				return t_reco_1d;
-			}
-		} else {
-			if (fit_options->getDataBinaryOptions().isAcceptanceCorrOn()) {
-				return t_mc_acc_1d;
-			} else {
-				return t_mc_1d;
-			}
-		}
-	} else {
-		if (fit_options->getDataBinaryOptions().isSmearingOn()) {
-			if (fit_options->getDataBinaryOptions().isAcceptanceCorrOn()) {
-				return reco_1d;
-			} else {
-				std::cout
-						<< "WARNING: Requesting data which has flat acceptance and is resolution smeared."
-						<< "This cannot exist... the standard reconstruction histogram will be returned."
-						<< "Make sure that the fit range is chosen appropriately (in which acceptance is actually flat)."
-						<< std::endl;
-				return reco_1d;
-			}
-		} else {
-			if (fit_options->getDataBinaryOptions().isAcceptanceCorrOn()) {
-				return mc_acc_1d;
-			} else {
-				return mc_1d;
-			}
-		}
+void PndLmdData::addData(double primary_value, double secondary_value) {
+	hist_1d->Fill(primary_value);
+	if (secondary_dimension.is_active) {
+		hist_2d->Fill(primary_value, secondary_value);
 	}
 }
 
-TH2D* PndLmdData::getMeasuredHist2D(
-		const PndLmdLumiFitOptions *fit_options) const {
-	if (fit_options->getDataBinaryOptions().isSmearingOn()) {
-		if (fit_options->getDataBinaryOptions().isAcceptanceCorrOn()) {
-			return reco_2d;
-		} else {
-			std::cout
-					<< "WARNING: Requesting data which has flat acceptance and is resolution smeared."
-					<< "This cannot exist... the standard reconstruction histogram will be returned."
-					<< "Make sure that the fit range is chosen appropriately (in which acceptance is actually flat)."
-					<< std::endl;
-			return reco_2d;
-		}
-	} else {
-		if (fit_options->getDataBinaryOptions().isAcceptanceCorrOn()) {
-			return mc_acc_2d;
-		} else {
-			return mc_2d;
-		}
-	}
+TH1D* PndLmdData::get1DHistogram() const {
+	return hist_1d;
 }
 
-std::map<PndLmdAcceptance*, std::vector<PndLmdLumiFitResult*> >& PndLmdData::getFitMap() {
-	return fit_map;
+TH2D* PndLmdData::get2DHistogram() const {
+	return hist_2d;
 }
 
-std::vector<PndLmdAcceptance*> PndLmdData::getListOfAcceptances() {
-	std::vector<PndLmdAcceptance*> return_vector;
-	for (std::map<PndLmdAcceptance*, std::vector<PndLmdLumiFitResult*> >::iterator i =
-			fit_map.begin(); i != fit_map.end(); i++) {
-		return_vector.push_back(i->first);
-	}
-	return return_vector;
+bool PndLmdData::operator<(const PndLmdData &lmd_data) const {
+	if (reference_luminosity_per_event
+			< lmd_data.getReferenceLuminosityPerEvent())
+		return true;
+	else if (reference_luminosity_per_event
+			> lmd_data.getReferenceLuminosityPerEvent())
+		return false;
+	return PndLmdAbstractData::operator<(lmd_data);
 }
-
-PndLmdLumiFitResult* PndLmdData::getFitResult(PndLmdAcceptance* lmd_acc,
-		PndLmdLumiFitOptions* fit_options) {
-	std::vector<PndLmdLumiFitResult*> &fit_res_vec = fit_map[lmd_acc];
-	for (unsigned int i = 0; i < fit_res_vec.size(); i++) {
-		if (fit_res_vec[i]->checkFitOptions(fit_options))
-			return fit_res_vec[i];
-	}
-	return NULL; // found nothing
+bool PndLmdData::operator>(const PndLmdData &lmd_data) const {
+	return (lmd_data < *this);
 }
-
-std::vector<PndLmdLumiFitResult*> PndLmdData::getFitResults(
-		PndLmdAcceptance* lmd_acc) {
-	return fit_map[lmd_acc];
+bool PndLmdData::operator==(const PndLmdData &lmd_data) const {
+	if (reference_luminosity_per_event
+			!= lmd_data.getReferenceLuminosityPerEvent())
+		return false;
+	return PndLmdAbstractData::operator==(lmd_data);
 }
-
-std::vector<std::pair<PndLmdAcceptance*, PndLmdLumiFitResult*> > PndLmdData::getFitResults(
-		PndLmdLumiFitOptions* fit_options) {
-	std::vector<std::pair<PndLmdAcceptance*, PndLmdLumiFitResult*> > new_fit_res_vec;
-	for (std::map<PndLmdAcceptance*, std::vector<PndLmdLumiFitResult*> >::iterator i =
-			fit_map.begin(); i != fit_map.end(); i++) {
-		for (unsigned int j = 0; j < i->second.size(); j++) {
-			if (i->second[j]->checkFitOptions(fit_options))
-				new_fit_res_vec.push_back(std::make_pair(i->first, i->second[j]));
-		}
-	}
-	return new_fit_res_vec;
+bool PndLmdData::operator!=(const PndLmdData &lmd_data) const {
+	return !(*this == lmd_data);
 }
