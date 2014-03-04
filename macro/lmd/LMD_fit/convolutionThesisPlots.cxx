@@ -5,32 +5,31 @@
  *      Author: steve
  */
 
-#include "PndLmdLumiHelper.h"
+#include "PndLmdDataFacade.h"
 #include "PndLmdResultPlotter.h"
 #include "PndLmdLumiFitOptions.h"
 #include "PndLmdAcceptance.h"
 #include "PndLmdModelFactory.h"
 #include "GaussianModel1D.h"
+#include "AsymmetricGaussianModel1D.h"
 
 #include <iostream>               // for std::cout
 #include <vector>
 #include <sstream>
 
-#include <tr1/memory>
-
+#include "TGraphAsymmErrors.h"
 #include "TCanvas.h"
 #include "TLine.h"
 #include "TFile.h"
 #include "TString.h"
 
-using std::tr1::shared_ptr;
-
 void makeConvolutionThesisPlots(TString acceptance_file_dir) {
-	// A small helper class that helps to construct lmddata objects
-	PndLmdLumiHelper lumifit_helper;
+	PndLmdDataFacade lmd_data_facade;
 
-	double fit_range_low = 0.0;
-	double fit_range_high = 20.0;
+	LumiFit::LmdDimensionRange fit_range;
+	fit_range.setUnitPrefix(DataStructs::MILLI);
+	fit_range.setRangeLow(0.0);
+	fit_range.setRangeHigh(20.0);
 
 	// ------ get files -------------------------------------------------------
 	TFile *facc = new TFile(acceptance_file_dir + "/lmd_acc_data.root", "OPEN");
@@ -38,30 +37,64 @@ void makeConvolutionThesisPlots(TString acceptance_file_dir) {
 
 	// ---- acceptance or box gen data ---- //
 	// same procedure as for the "real" data
-	std::vector<PndLmdAcceptance*> my_lmd_acc_vec;
-
-	my_lmd_acc_vec = lumifit_helper.getAcceptanceFromFile(facc);
+	std::vector<PndLmdAcceptance> lmd_acc_vec = lmd_data_facade.getDataFromFile<
+			PndLmdAcceptance>(facc);
 
 	PndLmdAcceptance *acc;
-	if (my_lmd_acc_vec.size() > 0) {
-		acc = my_lmd_acc_vec[0];
-	}
+	if (lmd_acc_vec.size() > 0)
+		acc = &lmd_acc_vec[0];
 	if (!acc)
 		return;
 
-	PndLmdLumiFitOptions *fit_options;
+	PndLmdLumiFitOptions *fit_options = new PndLmdLumiFitOptions();
 
 	LumiFit::LmdBinaryFitOptions bit_fit_opt(0);
 	bit_fit_opt.setFitAsRaw(false);
 	bit_fit_opt.setAcceptanceCorrMode(true);
-	fit_options = new PndLmdLumiFitOptions(bit_fit_opt, 0, 0, 1, acc->getLabMomentum(),
-			fit_range_low, fit_range_high);
+	bit_fit_opt.setSmearingMode(false);
+	fit_options->setModelBinaryOptions(bit_fit_opt);
+	fit_options->setAcceptance(acc);
+	fit_options->setPrimaryDimensionFitRange(fit_range);
 
 	PndLmdModelFactory model_fac;
+	std::cout << acc->getLabMomentum() << std::endl;
 	shared_ptr<Model1D> unsmeared_model = model_fac.generate1DModel(fit_options,
-			acc->getLabMomentum(), acc);
+			acc->getLabMomentum());
 	unsmeared_model->getModelParameterSet().getModelParameter(
 			std::make_pair("dpm_angular_1d", "luminosity"))->setValue(1.0);
+
+	unsmeared_model->getModelParameterSet().printInfo();
+
+	bit_fit_opt.setFitAsRaw(false);
+	bit_fit_opt.setAcceptanceCorrMode(true);
+	bit_fit_opt.setSmearingMode(true);
+	fit_options->setSmearingModelType(12);
+	fit_options->setResolutionParametrizationFileUrl(
+			acceptance_file_dir + "/resolution_params_1.root");
+	fit_options->setModelBinaryOptions(bit_fit_opt);
+	fit_options->setAcceptance(acc);
+	fit_options->setPrimaryDimensionFitRange(fit_range);
+
+	std::cout << acc->getLabMomentum() << std::endl;
+	shared_ptr<Model1D> smeared_model = model_fac.generate1DModel(fit_options,
+			acc->getLabMomentum());
+	smeared_model->getModelParameterSet().getModelParameter(
+			std::make_pair("dpm_angular_1d", "luminosity"))->setValue(1.0);
+
+	smeared_model->getModelParameterSet().printInfo();
+
+	std::vector<std::pair<double, double> > temp_vec_range;
+	temp_vec_range.push_back(std::make_pair(0.001, 0.012));
+
+	shared_ptr<Model1D> asymmgauss(new AsymmetricGaussianModel1D("asymmgauss1"));
+	asymmgauss->getModelParameterSet().getModelParameter("asymm_gauss_mean")->setValue(0.004);
+	asymmgauss->getModelParameterSet().getModelParameter("asymm_gauss_sigma_left")->setValue(
+			0.001);
+	asymmgauss->getModelParameterSet().getModelParameter("asymm_gauss_sigma_right")->setValue(
+			0.002);
+	asymmgauss->getModelParameterSet().getModelParameter("asymm_gauss_amplitude")->setValue(
+			1.0);
+	std::cout<<"integral of aymm gauss: "<<asymmgauss->Integral(temp_vec_range, 1e-3)<<std::endl;
 
 	shared_ptr<Model1D> gauss1(new GaussianModel1D("gauss1"));
 	gauss1->getModelParameterSet().getModelParameter("gauss_mean")->setValue(4.0);
@@ -77,6 +110,12 @@ void makeConvolutionThesisPlots(TString acceptance_file_dir) {
 	gauss2->getModelParameterSet().getModelParameter("gauss_amplitude")->setValue(
 			1.0);
 
+
+	double int_unsmeared = unsmeared_model->Integral(temp_vec_range, 1e-3);
+	double int_smeared = smeared_model->Integral(temp_vec_range, 1e-3);
+	std::cout << int_unsmeared << " vs "
+			<< int_smeared<<std::endl;
+
 	double xval = 4.0;
 	double xval2 = 2.5;
 	double height_model = unsmeared_model->evaluate(&xval);
@@ -85,17 +124,25 @@ void makeConvolutionThesisPlots(TString acceptance_file_dir) {
 
 	ROOTPlotter plotter;
 	ModelVisualizationProperties1D vp;
-	vp.setPlotRange(std::make_pair(0.0, 10.0));
+	DataStructs::dimension_range plot_range;
+	plot_range.range = std::make_pair(0.0, 0.012);
+	vp.setPlotRange(plot_range);
 
-	TGraphErrors *graph_unsmeared_model = plotter.createGraphFromModel1D(
+	TGraphAsymmErrors *graph_unsmeared_model = plotter.createGraphFromModel1D(
 			unsmeared_model, vp);
 	graph_unsmeared_model->SetLineColor(2);
 	graph_unsmeared_model->SetLineWidth(1.0);
-	TGraphErrors *graph_gauss1 = plotter.createGraphFromModel1D(gauss1, vp);
+
+	TGraphAsymmErrors *graph_smeared_model = plotter.createGraphFromModel1D(
+			smeared_model, vp);
+	graph_smeared_model->SetLineColor(1);
+	graph_smeared_model->SetLineWidth(1.0);
+
+	TGraphAsymmErrors *graph_gauss1 = plotter.createGraphFromModel1D(gauss1, vp);
 	graph_gauss1->SetLineColor(1);
 	graph_gauss1->SetLineStyle(2);
 	graph_gauss1->SetLineWidth(1.0);
-	TGraphErrors *graph_gauss2 = plotter.createGraphFromModel1D(gauss2, vp);
+	TGraphAsymmErrors *graph_gauss2 = plotter.createGraphFromModel1D(gauss2, vp);
 	graph_gauss2->SetLineColor(1);
 	graph_gauss2->SetLineWidth(1.0);
 
@@ -104,6 +151,7 @@ void makeConvolutionThesisPlots(TString acceptance_file_dir) {
 	graph_unsmeared_model->SetTitle("");
 	graph_unsmeared_model->Draw("AC");
 	graph_unsmeared_model->GetXaxis()->SetTitle("#theta_{mc} [mrad]");
+	graph_smeared_model->Draw("CSAME");
 	TLine linem(4.0, 0.0, 4.0, height_model);
 	linem.SetLineColor(2);
 	linem.SetLineWidth(1.0);

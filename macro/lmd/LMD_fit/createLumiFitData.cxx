@@ -1,20 +1,18 @@
 /*
- * This is the application that generates the Lmd data objects, which can be used to determine the
- * luminosity. General information about the individual classes of the LmdFit framework can be
- * found in the doxygen manual
+ * This is the application that generates the Lmd data objects, which can be
+ * used to determine the luminosity. This application primarily uses the
+ * #PndLmdDataFacade class to easily create lmd fit data objects and fill them
+ * with data. General information about the individual classes of the LmdFit
+ * framework can be found in the doxygen manual.
  * Run it with argument -h to get running help:
  * 
  * ./createLumiFitData -h
- *
- * This macro is basically a 2 step process and each step is explained in more detail
- * below:
- * step1: create the appropriate data objects and register these objects in a lumi helper instance
- * step2: fill the registered data objects with data from the given path
  */
 
-#include "PndLmdLumiHelper.h"
+#include "PndLmdDataFacade.h"
 #include "PndLmdData.h"
 #include "PndLmdAcceptance.h"
+#include "DataStructs.h"
 
 #include "TString.h"
 #include "TFile.h"
@@ -23,106 +21,154 @@
 #include <iostream>
 
 void createLumiFitData(std::string input_file_dir, const double mom, int mode,
-		int nEvents = -1, const double generated_luminosity_per_event = -1.0,
+		int num_events, const double generated_luminosity_per_event,
 		const int verboseLevel = 0) {
-	std::cout << "Running LumiFit....\n";
+	std::cout << "Running LmdFit data reader....\n";
 
-	// A small helper class that helps to construct lmd data objects
-	PndLmdLumiHelper lumifit_helper;
+	// A lmd data facade class that helps to construct and fill lmd data objects
+	PndLmdDataFacade lmd_data_facade;
 
-	// ============================== BEGIN STEP 1 ============================== //
-	/**
-	 * There are two types of data classes PndLmdData (elastic data) and PndLmdAcceptance (boxgen data).
-	 * These objects can be easily filled with data using the helper class
-	 * (PndLmdLumiHelper using registerData and fillHists()).
-	 * The idea is to construct empty data objects (meaning no data are inside yet) at first and register
-	 * them within in the helper instance. Of course each data object has to be unique
-	 * from its options (such as number of events, data range, binning etc).
-	 * Once you have all of your data objects created that you want to work with simply
-	 * run fillHists() of the helper instance and all of the registerd data objects will
-	 * be filled in a single swoop!
-	 */
+	// create data reader instance
+	//PndLmdSeperateDataReader data_reader;
+	PndLmdCombinedDataReader data_reader;
 
-	double data_range_low = 0.5;
-	double data_range_high = 20.0;
+	// set data reader to be used
+	lmd_data_facade.setDataReader(&data_reader);
 
-	TFile *f;
+	// set lab momentum
+	lmd_data_facade.setLabMomentum(mom);
 
-	// create a temporary vector to store the data objects
-	std::vector<PndLmdData*> my_lmd_data_vec;
+	// set some dimension parameters
+	lmd_data_facade.getPrimaryDimensionTemplate().dimension_range.setUnitPrefix(
+			DataStructs::MILLI);
+	lmd_data_facade.getPrimaryDimensionTemplate().dimension_options.dimension_type =
+			LumiFit::THETA;
+	lmd_data_facade.getPrimaryDimensionTemplate().bins = 100;
+	lmd_data_facade.getPrimaryDimensionTemplate().dimension_range.setRangeLow(
+			0.5);
+	lmd_data_facade.getPrimaryDimensionTemplate().dimension_range.setRangeHigh(
+			15.0);
+	lmd_data_facade.getPrimaryDimensionTemplate().dimension_options.track_param_type =
+			LumiFit::IP;
 
-	// same procedure as for the "real" data
-	std::vector<PndLmdAcceptance*> my_lmd_acc_vec;
+	lmd_data_facade.setCurrentReferenceLuminosityPerEvent(
+			generated_luminosity_per_event);
+
+	// add input directory to data facade
+	lmd_data_facade.addDataDirectory(input_file_dir);
+
+	TString out;
 
 	if (mode == 0) {
 		// ---- dpm or elastic data ---- //
 
 		// ---- Output file -------------------------------------------------------
-		TString out = input_file_dir + "/lmd_data.root";
-		f = new TFile(out, "RECREATE");
+		out = input_file_dir + "/lmd_data.root";
 		// ------------------------------------------------------------------------
 
-		// in this case the loop was used for different binnings, but here only a single
-		// binning is actually created...
-		for (int i = 10; i < 11; i = i + 1) {
-			// create data object and push it into the vector
-			PndLmdFit::lmd_dimension theta(i * 10, data_range_low, data_range_high); // theta dimension
-			PndLmdFit::lmd_dimension phi(50, -TMath::Pi(), TMath::Pi()); // phi dimension
-			PndLmdData *data = new PndLmdData(nEvents, mom, theta, phi,
-					generated_luminosity_per_event);
-			my_lmd_data_vec.push_back(data);
-		}
-
-		//register data objects in helper instance
-		lumifit_helper.registerData(my_lmd_data_vec);
-
-		// fill all elastic scattering histograms that are registered in the gamma helper object
-		lumifit_helper.fillData(mom, input_file_dir, PndLmdLumiHelper::DATA,
-				PndLmdLumiHelper::FULL);
+		// create angular data object bundle
+		lmd_data_facade.create1DAngularDataBundle(num_events);
 	} else if (mode == 1) {
 		// ---- acceptance or box gen data ---- //
+		lmd_data_facade.getPrimaryDimensionTemplate().bins = 100;
+		lmd_data_facade.getPrimaryDimensionTemplate().dimension_range.setRangeLow(
+				0.5 + 0.0725);
+		lmd_data_facade.getPrimaryDimensionTemplate().dimension_range.setRangeHigh(
+				15.0 + 0.0725);
 
 		// ---- Output file -------------------------------------------------------
-		TString out = input_file_dir + "/lmd_acc_data.root";
-		f = new TFile(out, "RECREATE");
+		out = input_file_dir + "/lmd_acc_data.root";
 		// ------------------------------------------------------------------------
 
-		for (int i = 10; i < 11; i = i + 1) {
-			PndLmdFit::lmd_dimension theta(i * 20, data_range_low, data_range_high); // theta dimension
-			PndLmdFit::lmd_dimension phi(50, -TMath::Pi(), TMath::Pi()); // phi dimension
+		// create acceptance
+		lmd_data_facade.createAcceptance1D(num_events);
+	} else if (2 == mode) {
+		// ---- create lmd resolution objects from box gen data ---- //
 
-			PndLmdAcceptance *acc = new PndLmdAcceptance(nEvents, mom, theta, phi,
-					0);
-			my_lmd_acc_vec.push_back(acc);
-		}
+		// ---- Output file -------------------------------------------------------
+		out = input_file_dir + "/lmd_res_data.root";
+		// ------------------------------------------------------------------------
 
-		//register data objects in helper instance
-		lumifit_helper.registerAcceptances(my_lmd_acc_vec);
+		lmd_data_facade.getPrimaryDimensionTemplate().bins = 400;
+		lmd_data_facade.getPrimaryDimensionTemplate().dimension_range.setRangeLow(
+				-2.0);
+		lmd_data_facade.getPrimaryDimensionTemplate().dimension_range.setRangeHigh(
+				2.0);
+		lmd_data_facade.getPrimaryDimensionTemplate().dimension_options.track_param_type =
+				LumiFit::IP;
 
-		// fill all box gen histograms (for acceptance) that are registered in the gamma helper object
-		// note: 3rd argument identifies specifies which kind of data is being read in
-		lumifit_helper.fillData(mom, input_file_dir, PndLmdLumiHelper::ACCEPTANCE,
-				PndLmdLumiHelper::FULL);
+		lmd_data_facade.getSecondaryDimensionTemplate().dimension_options.dimension_type =
+				LumiFit::PHI;
+		lmd_data_facade.getSecondaryDimensionTemplate().bins = 20;
+		lmd_data_facade.getSecondaryDimensionTemplate().dimension_range.setRangeLow(
+				-0.2);
+		lmd_data_facade.getSecondaryDimensionTemplate().dimension_range.setRangeHigh(
+				0.2);
+
+		lmd_data_facade.getPrimarySelectionDimensionBundleTemplate().dimension_options.track_type =
+				LumiFit::MC;
+		lmd_data_facade.getPrimarySelectionDimensionBundleTemplate().dimension_range.setRangeLow(
+				1.0); //mrad
+		lmd_data_facade.getPrimarySelectionDimensionBundleTemplate().dimension_range.setRangeHigh(
+				15.0);
+		lmd_data_facade.getSecondarySelectionDimensionBundleTemplate().dimension_range.setRangeLow(
+				-TMath::Pi());
+		lmd_data_facade.getSecondarySelectionDimensionBundleTemplate().dimension_range.setRangeHigh(
+				TMath::Pi());
+		lmd_data_facade.getPrimarySelectionDimensionBundleTemplate().bins = 280;
+		lmd_data_facade.getSecondarySelectionDimensionBundleTemplate().bins = 1;
+
+		lmd_data_facade.create1DAngularResolutionDataBundle(num_events);
+	} else if (3 == mode) {
+		// ---- ip position data ---- //
+
+		// ---- Output file -------------------------------------------------------
+		out = input_file_dir + "/lmd_vertex_data.root";
+		// ------------------------------------------------------------------------
+
+		lmd_data_facade.getPrimaryDimensionTemplate().dimension_range.setUnitPrefix(
+				DataStructs::NONE);
+		lmd_data_facade.getPrimaryDimensionTemplate().bins = 200;
+		lmd_data_facade.getPrimaryDimensionTemplate().dimension_range.setRangeLow(
+				-2.0);
+		lmd_data_facade.getPrimaryDimensionTemplate().dimension_range.setRangeHigh(
+				2.0);
+
+		// create angular data object bundle and register in data reader
+		lmd_data_facade.create1DVertexDataBundle(num_events);
 	}
+
+	// register lmd data objects and fill with data
+	lmd_data_facade.fillAll();
 
 	// -----   Finish   -------------------------------------------------------
-	// save fit results by just saving the lmd data objects. They contain both
-	// the data and the fit results so from this objects the plotting macro can
-	// construct some nice plots for you!
+	// save the lmd data objects
+
+	TFile f(out, "RECREATE");
+
 	std::cout << "Saving data....\n";
-	for (int i = 0; i < my_lmd_data_vec.size(); i++) {
-		my_lmd_data_vec[i]->saveToRootFile(f);
+
+	std::vector<PndLmdData> my_lmd_data_vec = lmd_data_facade.getLmdDatas();
+	std::vector<PndLmdAcceptance> my_lmd_acc_vec =
+			lmd_data_facade.getLmdAcceptances();
+	std::vector<PndLmdResolution> my_lmd_res_vec =
+			lmd_data_facade.getLmdResolutions();
+
+	for (unsigned int i = 0; i < my_lmd_data_vec.size(); i++) {
+		my_lmd_data_vec[i].saveToRootFile();
 	}
-	for (int i = 0; i < my_lmd_acc_vec.size(); i++) {
-		my_lmd_acc_vec[i]->saveToRootFile(f);
+	for (unsigned int i = 0; i < my_lmd_acc_vec.size(); i++) {
+		my_lmd_acc_vec[i].saveToRootFile();
+	}
+	for (unsigned int i = 0; i < my_lmd_res_vec.size(); i++) {
+		my_lmd_res_vec[i].saveToRootFile();
 	}
 
 	std::cout << std::endl << std::endl;
 	std::cout << "Application finished successfully." << std::endl;
 	std::cout << std::endl;
 
-	if (f)
-		f->Close();
+	f.Close();
 	// ------------------------------------------------------------------------
 }
 
@@ -130,17 +176,18 @@ void displayInfo() {
 	// display info
 	std::cout << "Required arguments are: " << std::endl;
 	std::cout << "-m [pbar momentum]" << std::endl;
-	std::cout << "-t [type of data] (0 = data, 1 = acc)" << std::endl;
+	std::cout << "-t [type of data] (0 = data, 1 = acc, 2 = res, 3 = ip)"
+			<< std::endl;
 	std::cout << "-p [path to data]" << std::endl;
 	std::cout << "Optional arguments are: " << std::endl;
 	std::cout << "-n [number of events to process] "
-			"(if not specified all data found data will be processed)" << std::endl;
+			"(default 0: all data found will be processed)" << std::endl;
 	std::cout << "-g [generated luminosity]" << std::endl;
 	std::cout << std::endl;
 	std::cout
 			<< "Note: the parameter -g is the generated luminosity. In case you do NOT \n"
 					"specify this value it will be set to -1.0 and there is no performance \n"
-					"validation possible, but only luminsity determination. This should be \n"
+					"validation possible, but only luminosity determination. This should be \n"
 					"the case only for real data!" << std::endl;
 }
 
@@ -149,46 +196,46 @@ int main(int argc, char* argv[]) {
 
 	bool is_mom_set = false, is_gen_lumi_set = false, is_data_path_set = false;
 	double momentum = -1.0;
-	int num_events = -1;
+	unsigned int num_events = 0;
 	double gen_lumi = -1.0;
 	std::string data_path;
 	int c;
 
 	while ((c = getopt(argc, argv, "hm:n:t:p:g:")) != -1) {
 		switch (c) {
-		case 'm':
-			momentum = atof(optarg);
-			is_mom_set = true;
-			break;
-		case 'n':
-			num_events = atoi(optarg);
-			break;
-		case 'g':
-			gen_lumi = atof(optarg);
-			is_gen_lumi_set = true;
-			break;
-		case 't':
-			data_type_flag = atoi(optarg);
-			break;
-		case 'p':
-			data_path = optarg;
-			is_data_path_set = true;
-			break;
-		case '?':
-			if (optopt == 't' || optopt == 'p' || optopt == 'm' || optopt == 'n'
-					|| optopt == 'g')
-				std::cerr << "Option -" << optopt << " requires an argument."
-						<< std::endl;
-			else if (isprint(optopt))
-				std::cerr << "Unknown option -" << optopt << "." << std::endl;
-			else
-				std::cerr << "Unknown option character" << optopt << "." << std::endl;
-			return 1;
-		case 'h':
-			displayInfo();
-			return 1;
-		default:
-			return 1;
+			case 'm':
+				momentum = atof(optarg);
+				is_mom_set = true;
+				break;
+			case 'n':
+				num_events = atoi(optarg);
+				break;
+			case 'g':
+				gen_lumi = atof(optarg);
+				is_gen_lumi_set = true;
+				break;
+			case 't':
+				data_type_flag = atoi(optarg);
+				break;
+			case 'p':
+				data_path = optarg;
+				is_data_path_set = true;
+				break;
+			case '?':
+				if (optopt == 't' || optopt == 'p' || optopt == 'm' || optopt == 'n'
+						|| optopt == 'g')
+					std::cerr << "Option -" << optopt << " requires an argument."
+							<< std::endl;
+				else if (isprint(optopt))
+					std::cerr << "Unknown option -" << optopt << "." << std::endl;
+				else
+					std::cerr << "Unknown option character" << optopt << "." << std::endl;
+				return 1;
+			case 'h':
+				displayInfo();
+				return 1;
+			default:
+				return 1;
 		}
 	}
 

@@ -6,13 +6,12 @@ void makeResolutionPlots(TString input_file_dir, unsigned int parametrization_le
   timer.Start();
   // ------------------------------------------------------------------------
 
-  //gROOT->Macro("$VMCWORKDIR/gconfig/rootlogon.C");
   gSystem->Load("libLmdFit");
 
   // create an instance of PndLmdResultPlotter the plotting helper class
   PndLmdResultPlotter plotter;
   // A small helper class that helps to construct lmddata objects
-  PndLmdLumiHelper lumifit_helper;
+  PndLmdDataFacade data_facade;
 
   // ================================ BEGIN CONFIG ================================ //
   // PndLmdResultPlotter sets default pad margins etc that should be fine for most cases
@@ -56,10 +55,10 @@ void makeResolutionPlots(TString input_file_dir, unsigned int parametrization_le
 
   switch (parametrization_level) {
     case 0:
-      // read in data from a root file which will return a vector of pointers to PndLmdData objects
-      std::vector<PndLmdResolution*> res_vec = lumifit_helper.getFittedResolutionsFromPath(infile);
+      // read in data from a root file
+    	std::map<LumiFit::LmdDimensionOptions, std::vector<PndLmdResolution*> > res_map = data_facade.getFittedResolutionsFromPath(infile);
       // first lets create a booky of all resolutions with the fitted resolutions
-      plotter.makeResolutionBooky(res_vec, "resolution");
+      plotter.makeResolutionBooky(res_map, "resolution");
       break;
     case 1:
       plotter.makeResolutionSummaryPlots(infile);

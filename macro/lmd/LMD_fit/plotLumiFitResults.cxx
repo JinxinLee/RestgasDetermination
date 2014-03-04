@@ -22,6 +22,7 @@
 #include "PndLmdResultPlotter.h"
 #include "PndLmdData.h"
 #include "PndLmdAcceptance.h"
+#include "PndLmdDataFacade.h"
 
 #include <vector>
 #include <map>
@@ -30,12 +31,15 @@
 #include "TString.h"
 #include "TCanvas.h"
 #include "TStyle.h"
+#include "TFile.h"
+#include "TLatex.h"
+#include "TGraphAsymmErrors.h"
 
-void plotLumiFitResults(TString path) {
+void plotLumiFitResults(TString path, TString filename_prefix = "fitresults") {
 	std::cout << "Generating lumi plots for fit results....\n";
 
 	// A small helper class that helps to construct lmd data objects
-	PndLmdLumiHelper lumifit_helper;
+	PndLmdDataFacade lmd_data_facade;
 
 	// create an instance of PndLmdResultPlotter the plotting helper class
 	PndLmdResultPlotter plotter;
@@ -45,17 +49,16 @@ void plotLumiFitResults(TString path) {
 	// you can fine tune it and overwrite the default values
 	//gStyle->SetPadTopMargin(0.06);
 	//gStyle->SetPadBottomMargin(0.12);
-	//gStyle->SetPadLeftMargin(0.14);
+	gStyle->SetPadLeftMargin(0.15);
 	//gStyle->SetPadRightMargin(0.1);
 
-	// overwrite the default theta plot range if possible (if its larger than the max
-	// plot range then it has no effect)
-	plotter.setThetaPlotRange(0.5, 16.0);
+	// overwrite the default theta plot range if possible
+	//plotter.setThetaPlotRange(0.5, 16.0);
 
 	// The plotter has more options for text positioning and tex sizes for which you can
 	// overwrite the default values here
-	//plotter.setTextLeftPos(0.55);
-	//plotter.setTextTopPos(0.98);
+	plotter.setTextLeftPos(0.40);
+	plotter.setTextTopPos(0.9);
 	//plotter.setTextSpacing(0.08);
 	//plotter.setTextSize(0.06);
 	//plotter.setLabelSize(0.06);
@@ -67,39 +70,47 @@ void plotLumiFitResults(TString path) {
 	// ================================= END CONFIG ================================= //
 
 	// ------ get files -------------------------------------------------------
-	TFile *fdata = new TFile(path + "/lmd_data.root", "UPDATE");
+	TFile *fdata = new TFile(path + "/lmd_fitted_data.root", "OPEN");
 
-	// read in data from a root file which will return a vector of pointers to PndLmdData objects
-	std::vector<PndLmdData*> data_vec = lumifit_helper.getDataFromFile(fdata);
+	// read in data from a root file which will return a map of pointers to PndLmdData objects
+	std::vector<PndLmdData> data_vec =
+			lmd_data_facade.getDataFromFile<PndLmdData>(fdata);
 
 	// =============================== BEGIN PLOTTING =============================== //
-	// if you only have a single data object (mostly the case)
-	if (data_vec.size() > 0) {
-		//std::map<PndLmdAcceptance*, std::vector<PndLmdLumiFitResult*> > &fit_map = data_vec[0]->getFitMap();
-		std::vector<PndLmdAcceptance*> accs = data_vec[0]->getListOfAcceptances();
-		// in case there exists only a single acceptance (with which fit were performed...
-		// usually the case)
-		if (accs.size() > 0) {
-			// create a vector of graph bundles (one entry for each fit option)
-			std::map<PndLmdLumiFitOptions,
-					std::vector<PndLmdResultPlotter::graph_bundle_1D>,
-					PndLmdResultPlotter::fit_options_compare> graph_bundle_map =
-					plotter.makeGraphBundles1D(data_vec[0], accs[0]);
 
-			// create an acceptance bundle for this acceptance
-			PndLmdResultPlotter::acceptance_bundle acc_bundle =
-					plotter.makeAcceptanceBundle(accs[0]);
+	// create a vector of graph bundles (one entry for each fit option)
+	std::map<PndLmdLumiFitOptions,
+			std::map<int, PndLmdResultPlotter::graph_bundle>,
+			PndLmdResultPlotter::fit_options_compare> graph_bundle_map =
+			plotter.makeGraphBundles1D(data_vec);
 
-			// make an overview canvas for these fit specs
-			plotter.makeFitResultBooky(graph_bundle_map, acc_bundle);
-		}
-	}
+	// make an overview canvas for these fit specs
+	plotter.makeFitResultBooky(graph_bundle_map, filename_prefix);
+
+	plotter.setThetaPlotRange(0.0, 0.011);
+	// get reco graph bundle
+	PndLmdResultPlotter::graph_bundle gb = graph_bundle_map.begin()->second[6];
+  TCanvas c("c","", 1000, 700);
+	plotter.fillSinglePad(&c, gb, false, true);
+	c.SaveAs("lumifit_reco.pdf");
+	//save it as root file as well
+	TFile outputfile("reco-results.root", "RECREATE");
+	gb.hist1d->Write("data");
+	gb.model->Write("model");
+	TLatex l_plab(0.5, 0.5, gb.labels[0].first);
+	l_plab.Write("plab");
+	TLatex l_rdiff(0.5, 0.5, gb.labels[1].first);
+	l_rdiff.Write("reldiff");
+	outputfile.Close();
+
 	// ================================ END PLOTTING ================================ //
 }
 
 int main(int argc, char* argv[]) {
 	if (argc == 2) {
 		plotLumiFitResults(TString(argv[1]));
+	} else if (argc == 3) {
+		plotLumiFitResults(TString(argv[1]), TString(argv[2]));
 	}
 
 	return 0;

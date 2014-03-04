@@ -3,7 +3,7 @@
 #include <stdlib.h>
 #include <utility>
 
-const double theta_min = 4.0;
+const double theta_min = 2.5;
 const double theta_max = 10.0;
 
 const double log_scale = false;
