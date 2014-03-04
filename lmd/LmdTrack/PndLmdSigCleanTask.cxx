@@ -214,9 +214,11 @@ bool  PndLmdSigCleanTask::CheckMVA(FairTrackParH* fTrk){
   double mva_response =  reader->EvaluateMVA(fmethodName);
   // if(mva_response>-0.0599) res=true; //BDT 
 
-    if(mva_response<0){
+  // if(mva_response<0){
+  // if(mva_response<-0.1452){
+ if(mva_response<-0.2){
       res=false; //BDT //TEST
-      cout<<"PCA:("<<axrec<<", "<<ayrec<<", "<<azrec<<") athrec = "<<athrec<<" aprec = "<<aprec<<endl;
+      cout<<"BDT="<<mva_response<<" for PCA:("<<axrec<<", "<<ayrec<<", "<<azrec<<") athrec = "<<1e3*athrec<<" aprec = "<<aprec<<endl;
     }
   else res=true;
   return res;
