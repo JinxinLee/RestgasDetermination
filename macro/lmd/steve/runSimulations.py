@@ -1,5 +1,8 @@
-import os, sys, re
-from subprocess import call
+import os, sys, re, errno
+import subprocess
+import multiprocessing
+
+cpu_cores = multiprocessing.cpu_count()
 
 lib_path = os.path.abspath('argparse-1.2.1/build/lib')
 sys.path.append(lib_path)
@@ -20,13 +23,15 @@ parser.add_argument('--high_index', metavar='high_index', type=int, default=-1,
 parser.add_argument('--gen_data_dir', metavar='gen_data_dir', type=str, default=os.getenv('GEN_DATA'),
                    help='Base directory to input files created by external generator. By default the environment variable $GEN_DATA will be used!')
 
-parser.add_argument('--genfile_index_range', metavar=('genfile_index_lower_range' 'genfile_index_lower_range'), type=int, nargs=2, default=[min, max], help='Index range of generator files to be processed. By default all available files will be processed!')
+parser.add_argument('--force_directory', action='store_true', help='Force the usage of the specified directory directly instead of adding beam offset infos etc.')
 
-parser.add_argument('--use_beam_offset', metavar=("beam_offset_x", "beam_offset_y", "beam_spread_x", "beam_spread_y"), type=float, nargs=4, default=[0.0, 0.0, 0.0, 0.0],
-                   help="beam_offset_x: interaction vertex mean X position (in cm)\n"
-			"beam_offset_y: interaction vertex mean Y position (in cm)\n"
-			"beam_spread_x: interaction vertex X position distribution width (in cm)\n"
-			"beam_spread_y: interaction vertex Y position distribution width (in cm)")
+parser.add_argument('--use_ip_offset', metavar=("ip_offset_x", "ip_offset_y", "ip_offset_z", "ip_spread_x", "ip_spread_y", "ip_spread_z"), type=float, nargs=6, default=[0.0, 0.0, 0.0, 0.0, 0.0, 0.0],
+                   help="ip_offset_x: interaction vertex mean X position (in cm)\n"
+			"ip_offset_y: interaction vertex mean Y position (in cm)\n"
+			"ip_offset_z: interaction vertex mean Z position (in cm)\n"
+			"ip_spread_x: interaction vertex X position distribution width (in cm)\n"
+			"ip_spread_y: interaction vertex Y position distribution width (in cm)\n"
+			"ip_spread_z: interaction vertex Z position distribution width (in cm)")
 
 parser.add_argument('--use_beam_gradient', metavar=("beam_gradient_x", "beam_gradient_y", "beam_emittance_x", "beam_emittance_y"), type=float, nargs=4, default=[0.0, 0.0, 0.0, 0.0],
                    help="beam_gradient_x: mean beam inclination on target in x direction dPx/dPz (in mrad)\n"
@@ -38,15 +43,19 @@ parser.add_argument('--use_beam_gradient', metavar=("beam_gradient_x", "beam_gra
 
 args = parser.parse_args()
 
-# generate output directory name from specified beam parameters
-filename_base = re.sub('\.', 'o', args.gen_data_dirname[0])
+filename_base = args.gen_data_dirname[0]
+if not args.force_directory:
+  # generate output directory name from specified beam parameters
+  filename_base = re.sub('\.', 'o', args.gen_data_dirname[0])
 
-dirname = args.gen_data_dirname[0] + '_pixel_beam_offsetXYDXDY'
-for val in args.use_beam_offset:
+  dirname = args.gen_data_dirname[0] + '_pixel_ip_offsetXYZDXDYDZ'
+  for val in args.use_ip_offset:
 	dirname = dirname + '_' + str(val)  
-dirname += '_gradXYDXDY'
-for val in args.use_beam_gradient:
+  dirname += '_gradXYDXDY'
+  for val in args.use_beam_gradient:
 	dirname = dirname + '_' + str(val)
+else:
+  dirname = args.gen_data_dirname[0]
 
 dirname_full = os.getenv('DATA_DIR') + '/' + dirname
 
@@ -60,9 +69,10 @@ first = 1
 lowest_index = -1;
 highest_index = -1;
 
-dircontent = os.listdir(path + '/' + args.gen_data_dirname[0])
+if not args.force_directory:
+  dircontent = os.listdir(path + '/' + args.gen_data_dirname[0])
 
-for file in dircontent:
+  for file in dircontent:
 	result = re.search('_(\d*).root$', file)
 	if result:
 	        if first:
@@ -75,20 +85,67 @@ for file in dircontent:
 			elif int(result.group(1)) > highest_index:
 				highest_index = int(result.group(1))
 
-low_index_used=lowest_index
-high_index_used=highest_index
+  low_index_used=lowest_index
+  high_index_used=highest_index
 
-if args.low_index > lowest_index and args.low_index <= highest_index:
+  if args.low_index > lowest_index and args.low_index <= highest_index:
 	low_index_used = args.low_index
-if args.high_index < highest_index and args.high_index >= lowest_index:
+  if args.high_index < highest_index and args.high_index >= lowest_index:
 	high_index_used = args.high_index
+else:
+  low_index_used=args.low_index
+  high_index_used=args.high_index
 
 print 'preparing simulations in index range ' + str(low_index_used) + ' - ' + str(high_index_used)
 
+try:
+	os.makedirs(dirname_full)
+except OSError as exception:
+        if exception.errno != errno.EEXIST:
+		print 'error: thought dir does not exists but it does...'
+
+f = open(dirname_full+'/sim_beam_prop.config', 'w')
+f.write('ip_offset_x='+str(args.use_ip_offset[0])+'\nip_offset_y='+str(args.use_ip_offset[1])+'\nip_offset_z='+str(args.use_ip_offset[2])+'\nip_spread_x='+str(args.use_ip_offset[3])+'\nip_spread_y='+str(args.use_ip_offset[4])+'\nip_spread_z='+str(args.use_ip_offset[5])+'\nbeam_gradient_x='+str(args.use_beam_gradient[0])+'\nbeam_gradient_y='+str(args.use_beam_gradient[1])+'\nbeam_emittance_x='+str(args.use_beam_gradient[2])+'\nbeam_emittance_y='+str(args.use_beam_gradient[3]))
+f.close()
 
 # now chop all jobs into bunches of 100 which is max job array size on himster atm
 max_jobarray_size = 100
 
-for job_index in range(low_index_used, high_index_used, max_jobarray_size):
-	bashcommand = 'qsub -t ' + str(job_index) + '-' + str(min(job_index+max_jobarray_size-1, high_index_used)) + ' -N reconstructMCData_'+dirname+' -l nodes=1:ppn=1,walltime=20:00:00 -j oe -o /home/pflueger/himster_output_logs/'+dirname+' -v var1="'+str(args.num_events[0])+'",var2="'+str(args.lab_momentum[0])+'",var3="'+args.gen_data_dir+'/'+args.gen_data_dirname[0] + '/' + filename_base+'",var4="'+dirname+'",var5="'+dirname_full+'",var7="'+str(args.use_beam_offset[0])+'",var8="'+str(args.use_beam_offset[1])+'",var9="'+str(args.use_beam_offset[2])+'",var10="'+str(args.use_beam_offset[3])+'",var11="'+str(args.use_beam_gradient[0])+'",var12="'+str(args.use_beam_gradient[1])+'",var13="'+str(args.use_beam_gradient[2])+'",var14="'+str(args.use_beam_gradient[3])+'" -V ./runLumiFullSimPixel.sh'
-	call(bashcommand.split())
+def is_exe(fpath):
+  return os.path.isfile(fpath) and os.access(fpath, os.X_OK)
+
+program='qsub'
+is_cluster = 0
+for path in os.environ["PATH"].split(os.pathsep):
+  path = path.strip('"')
+  exe_file = os.path.join(path, program)
+  if is_exe(exe_file):
+    is_cluster = 1
+
+program='parallel'
+is_parallel = 0
+for path in os.environ["PATH"].split(os.pathsep):
+  path = path.strip('"')
+  exe_file = os.path.join(path, program)
+  if is_exe(exe_file):
+    is_parallel = 1
+
+
+if is_cluster:
+  print 'This is a cluster environment... submitting jobs to cluster!'
+  for job_index in range(low_index_used, high_index_used+1, max_jobarray_size):
+	bashcommand = 'qsub -t ' + str(job_index) + '-' + str(min(job_index+max_jobarray_size-1, high_index_used)) + ' -N lmd_fullsim_'+dirname+' -l nodes=1:ppn=1,walltime=20:00:00 -j oe -o '+dirname_full+'/sim.log -v num_evts="'+str(args.num_events[0])+'",mom="'+str(args.lab_momentum[0])+'",gen_input_file_stripped="'+args.gen_data_dir+'/'+args.gen_data_dirname[0] + '/' + filename_base+'",dirname="'+dirname+'",pathname="'+dirname_full+'",beamX0="'+str(args.use_ip_offset[0])+'",beamY0="'+str(args.use_ip_offset[1])+'",targetZ0="'+str(args.use_ip_offset[2])+'",beam_widthX="'+str(args.use_ip_offset[3])+'",beam_widthY="'+str(args.use_ip_offset[4])+'",target_widthZ="'+str(args.use_ip_offset[5])+'",beam_gradX="'+str(args.use_beam_gradient[0])+'",beam_gradY="'+str(args.use_beam_gradient[1])+'",beam_grad_sigmaX="'+str(args.use_beam_gradient[2])+'",beam_grad_sigmaY="'+str(args.use_beam_gradient[3])+'" -V ./runLumiFullSimPixel.sh'
+	subprocess.call(bashcommand.split())
+
+elif is_parallel:
+  print 'This is not a cluster environment, but gnu parallel was found! Using gnu parallel!'
+
+  bashcommand = 'parallel -j'+str(cpu_cores)+' ./runLumiFullSimPixel.sh '+str(args.num_events[0])+' '+str(args.lab_momentum[0])+' '+args.gen_data_dir+'/'+args.gen_data_dirname[0] + '/' + filename_base+' '+dirname+' '+dirname_full+' {} '+str(args.use_ip_offset[0])+' '+str(args.use_ip_offset[1])+' '+str(args.use_ip_offset[2])+' '+str(args.use_ip_offset[3])+' '+str(args.use_ip_offset[4])+' '+str(args.use_ip_offset[5])+' '+str(args.use_beam_gradient[0])+' '+str(args.use_beam_gradient[1])+' '+str(args.use_beam_gradient[2])+' '+str(args.use_beam_gradient[3])
+  
+  inputcommand='seq '+str(low_index_used)+' 1 '+str(high_index_used)
+  inproc = subprocess.Popen(inputcommand.split(), stdout=subprocess.PIPE)
+  mainproc = subprocess.Popen(bashcommand.split(),stdin=subprocess.PIPE)
+  mainproc.communicate(input=inproc.communicate()[0])
+
+else:
+  print 'This is not a cluster environment, and unable to find gnu parallel! Please install gnu parallel!' 

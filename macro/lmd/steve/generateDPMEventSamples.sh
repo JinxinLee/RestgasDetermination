@@ -7,7 +7,7 @@
 check_output_dir
 
 #ok we have the path. get all options the user specified!
-while getopts "m:e:t:n:s:i:f:" OPTION
+while getopts "m:i:t:n:s:e:f:" OPTION
 do
     case $OPTION in
     m)
@@ -22,17 +22,17 @@ do
     n)
         evts_per_sample="$OPTARG"
     ;;
-    e)
-        end_sample_index="$OPTARG"
-    ;;
     s)
         start_sample_index="$OPTARG"
+    ;;
+    e)
+        end_sample_index="$OPTARG"
     ;;
     f)
         filename_prefix="$OPTARG"
     ;;
     [?])
-        echo "Usage: $0 [-m lab_momentum] [-e interactions] [-t theta_min] [-n events_per_sample] [-i start_sample_index] [-e end_sample_index] [-f filename_prefix]" >&2
+        echo "Usage: $0 [-m lab_momentum] [-i interactions] [-t theta_min] [-n events_per_sample] [-s start_sample_index] [-e end_sample_index] [-f filename_prefix]" >&2
         exit 1
     ;;
     esac

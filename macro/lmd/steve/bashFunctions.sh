@@ -2,7 +2,11 @@
 
 #return which of the two numbers is smaller
 min () {
-  return $(($1<$2?$1:$2))
+  if [ $1 -lt $2 ]; then
+    echo $1
+  else
+    echo $2
+  fi
 }
 
 user_agree () {
@@ -18,14 +22,19 @@ user_agree () {
 }
 
 check_stage_success () {
-  logfile_url=$1
-  echo "checking wether ${logfile_url} exists and was job was finished successfully!"
+  file_url=$1
+  echo "checking wether ${file_url} exists and is larger than 3kB... "
   result=""
-  if [ -e ${logfile_url} ] ; then
-    if less ${logfile_url} | grep succes ; then
-      echo "found file"
+  if [ -e ${file_url} ] ; then
+    filesize=$(stat -c%s -L "${file_url}")
+    if [ "$filesize" -gt "3000" ]; then
+      echo "found file and is larger than corrupted file size"
       return 1
     fi
+    #if less ${logfile_url} | grep succes ; then
+    #  echo "found file"
+    #  return 1
+    #fi
   fi
   echo "nope..."
   return 0

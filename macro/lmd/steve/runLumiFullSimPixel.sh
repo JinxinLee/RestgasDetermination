@@ -1,120 +1,127 @@
 #!/bin/bash      
 
-env
-
-cd $PBS_O_WORKDIR
+cd ${VMCWORKDIR}/macro/lmd/steve
 
 #include some helper functions
 . bashFunctions.sh
 
 cd ..
 
-if [ $var1 ] && [ $var2 ] && [ $var3 ] && [ $var4 ] && [ $var5 ]; then
-          pathname=$var5
-          dirname=$var4
-          if [ ! -d $pathname ]; then
-            mkdir $pathname
-          fi
+if [ $# -eq '16' ]; then
+  num_evts=$1
+  mom=$2
+  gen_input_file_stripped=$3
+  dirname=$4
+  pathname=$5
+  filename_index=$6
 
-	  num_evts=$var1
-	  mom=$var2
-	  filename_index=$PBS_ARRAYID
-	  gen_input_filename="${var3}_${PBS_ARRAYID}.root"
+  beamX0=$7
+  beamY0=$8
+  targetZ0=$9
+  beam_widthX=${10}
+  beam_widthY=${11}
+  target_widthZ=${12}
+  beam_gradX=${13}
+  beam_gradY=${14}
+  beam_grad_sigmaX=${15}
+  beam_grad_sigmaY=${16}
+fi
 
-	  beamX0=0.0
-	  beamY0=0.0
-	  beam_widthX=0.0
-	  beam_widthY=0.0
-	  beam_gradX=0.0
-	  beam_gradY=0.0
-	  beam_grad_sigmaX=0.0
-	  beam_grad_sigmaY=0.0
+if [ ${PBS_ARRAYID} ]; then
+  filename_index=${PBS_ARRAYID}
+fi
 
-	  if [ $var7 ]; then
-	    beamX0=$var7
-	  fi
-	  if [ $var8 ]; then
-	    beamY0=$var8
-	  fi
-	  if [ $var9 ]; then
-	    beam_widthX=$var9
-	  fi
-	  if [ ${var10} ]; then
-	    beam_widthY=${var10}
-	  fi
-	  if [ ${var11} ]; then
-	    beam_gradX=${var11}
-	  fi
-	  if [ ${var12} ]; then
-	    beam_gradY=${var12}
-	  fi
-	  if [ ${var13} ]; then
-	    beam_grad_sigmaX=${var13}
-	  fi
-	  if [ ${var14} ]; then
-	    beam_grad_sigmaY=${var14}
-	  fi
+gen_input_filename="${gen_input_file_stripped}_${filename_index}.root"
 
-      verbositylvl=0
-      start_evt=$((${num_evts}*${filename_index})) #number of events * filename index is startevt
-      #switch on "missing plane" search algorithm
-	    misspl=true
-      # #add multiples scattering error estimation for hits (needed only for trk fit with Minuit). false=no
-      useMSerr=false
-      #merge hits on sensors from different sides. true=yes
-      mergedHits=true
+if [ ! -d $pathname ]; then
+  mkdir $pathname
+fi
 
-      
-      check_stage_success "$pathname/runLumiPixel1Digi_${start_evt}.log"
-      if [ 0 -eq "$?" ]; then
-        root -l -b -q 'runLumiPixel0SimDPM.C('${num_evts}','${start_evt}','${mom}',"'${gen_input_filename}'", "'${pathname}'",'$beamX0', '$beamY0', '${beam_widthX}', '${beam_widthY}', '${beam_gradX}', '${beam_gradY}', '${beam_grad_sigmaX}', '${beam_grad_sigmaY}','$verbositylvl')' 2>&1 >> /dev/null #$pathname/runLumiPixel0SimDPM_${start_evt}.log
-        root -l -b -q 'runLumiPixel1Digi.C('${num_evts}','${start_evt}',"'${pathname}'",'$verbositylvl')' 2>&1 >> $pathname/runLumiPixel1Digi_${start_evt}.log
-      fi
+verbositylvl=0
+start_evt=$((${num_evts}*${filename_index})) #number of events * filename index is startevt
+#switch on "missing plane" search algorithm
+misspl=true
+#use cuts during trk seacrh with "CA". Should be 'false' if sensors missaligned!
+trkcut=true
+#merge hits on sensors from different sides. true=yes
+mergedHits=true
+#Skip kinematic filter (before back-propagation)
+SkipFilt=false
+## if SkipFilt=false (XThetaCut or YPhiCut) or BoxCut should be true:
+## X-Theta kinematic cut before back-propagation
+XThetaCut=true
+YPhiCut=true
+## BOX cut before back-propagation
+BoxCut=false
 
-      check_stage_success "$pathname/runLumiPixel2Reco_${start_evt}.log"
-      if [ 0 -eq "$?" ]; then
-        root -l -b -q 'runLumiPixel2Reco.C('${num_evts}','${start_evt}',"'${pathname}'",'$verbositylvl','${useMSerr}',false)' 2>&1 >> $pathname/runLumiPixel2Reco_${start_evt}.log
-      fi
+#simulation
+check_stage_success "$pathname/Lumi_MC_${start_evt}.root"
+if [ 0 -eq "$?" ]; then
+  root -l -b -q 'runLumiPixel0SimDPM.C('${num_evts}','${start_evt}','${mom}',"'${gen_input_filename}'", "'${pathname}'",'$beamX0', '$beamY0', '${targetZ0}', '${beam_widthX}', '${beam_widthY}', '${target_widthZ}', '${beam_gradX}', '${beam_gradY}', '${beam_grad_sigmaX}', '${beam_grad_sigmaY}','$verbositylvl')'
+fi
 
-      #merge hits
-      check_stage_success "$pathname/runLumiPixel2bHitMerge_${start_evt}.log"
-      if [ 0 -eq "$?" ]; then
-        root -l -b -q 'runLumiPixel2bHitMerge.C('${num_evts}','${start_evt}',"'${pathname}'",'$verbositylvl')' 2>&1 >> $pathname/runLumiPixel2bHitMerge_${start_evt}.log
-      fi
+#digitization
+check_stage_success "$pathname/Lumi_digi_${start_evt}.root"
+if [ 0 -eq "$?" ]; then
+  root -l -b -q 'runLumiPixel1Digi.C('${num_evts}','${start_evt}',"'${pathname}'",'$verbositylvl')'
+fi
 
-      ### change "CA" --> "Follow" if you want to use Trk-Following as trk-search algorithm
-      ### NB: CA can use merged or single(not merged) hits, Trk-Following can't
-      check_stage_success "$pathname/runLumiPixel3Finder_${start_evt}.log"
-      if [ 0 -eq "$?" ]; then
-        root -l -b -q 'runLumiPixel3Finder.C('${num_evts}','${start_evt}',"'${pathname}'",'$verbositylvl',"Follow",'${misspl}','${mergedHits}')' 2>&1 >> $pathname/runLumiPixel3Finder_${start_evt}.log
-      fi
+check_stage_success "$pathname/Lumi_reco_${start_evt}.root"
+if [ 0 -eq "$?" ]; then
+  root -l -b -q 'runLumiPixel2Reco.C('${num_evts}','${start_evt}',"'${pathname}'",'$verbositylvl',false)'
+fi
 
-      # ### Track fit: Miniut
-      # ### NB: useMSerr should be _true_ in this case !
-      # root -l -b -q runLumiPixel4Fitter.C\(${num_evts},0,"\"${pathname}\"",0,${mergedHits}\)
-      # ### or Kalman Fillter with GEANE trk representation
-      # ### change "GEANE" --> "RK" if you want to use Runge-Kutta trk.rep.
-      # ### NB: useMSerr should be _false_ in this case !
-      # the 1 (argument 5) stands for pixel 0 would mean strip sensors...
-      check_stage_success "$pathname/runLumi4KalmanFitter_${start_evt}.log"
-      if [ 0 -eq "$?" ]; then
-        root -l -b -q 'runLumi4KalmanFitter.C('${num_evts}','${start_evt}',"'${pathname}'",'$verbositylvl',1,'${mergedHits}',"GEANE")' 2>&1 >> $pathname/runLumi4KalmanFitter_${start_evt}.log
-      fi
+#merge hits
+check_stage_success "$pathname/Lumi_recoMerged_${start_evt}.root"
+if [ 0 -eq "$?" ]; then
+  root -l -b -q 'runLumiPixel2bHitMerge.C('${num_evts}','${start_evt}',"'${pathname}'",'$verbositylvl')'
+fi
 
-      # back-propgation GEANE
-      check_stage_success "$pathname/runLumiPixel5BackProp_${start_evt}.log"
-      if [ 0 -eq "$?" ]; then
-        root -l -b -q 'runLumiPixel5BackProp.C('${num_evts}', '${start_evt}', "'${pathname}'", '$verbositylvl', "RK", true, '${mom}')' 2>&1 >> $pathname/runLumiPixel5BackProp_${start_evt}.log
-        #root -l -b -q '~/lmd/runLumi5Geane.C('${num_evts}','${mom}','${start_evt}',"'${pathname}'",'$verbositylvl','${mergedHits}')' 2>&1 >> $pathname/runLumi5Geane_${start_evt}.log
-      fi
-      # ### or Runge-Kutta for back-propagation
-      #root -l -b -q runLumi5RungeKutta.C\(${num_evts},${mom},0,"\"${pathname}\"",0,${mergedHits}\)
+### change "CA" --> "Follow" if you want to use Trk-Following as trk-search algorithm
+### NB: CA can use merged or single(not merged) hits, Trk-Following can't
+check_stage_success "$pathname/Lumi_TCand_${start_evt}.root"
+if [ 0 -eq "$?" ]; then
+  #root -l -b -q 'runLumiPixel3Finder.C('${num_evts}','${start_evt}',"'${pathname}'",'$verbositylvl',"CA",'${misspl}','${mergedHits}','${trkcut}','${mom}')' 2>&1 >> $pathname/runLumiPixel3Finder_${start_evt}.log
+  root -l -b -q 'runLumiPixel3Finder.C('${num_evts}','${start_evt}',"'${pathname}'",'$verbositylvl',"Follow",'${misspl}','${mergedHits}','${trkcut}','${mom}')'
+fi
 
-      # combine MC and reco information
-      check_stage_success "$pathname/runLumiPixel7TrksQA_${start_evt}.log"
-      if [ 0 -eq "$?" ]; then
-        root -l -b -q '~/lmd/runLumiPixel7TrksQA.C('${num_evts}','${start_evt}',"'${pathname}'",'0','${mom}',false)' 2>&1 >> $pathname/runLumiPixel7TrksQA_${start_evt}.log
-      fi
-else
-  echo "reconstructMCData [start event number] [number of events] [beam momentum] [generator input filename] [numbering index] [dirname] [beamX0] [beamY0] [beam width X] [beam width Y] [beam grad X] [beam grad Y] [beam grad sigma X] [beam grad sigma Y]"
+#track fit:
+### Possible options: "Minuit", "KalmanGeane", "KalmanRK"
+check_stage_success "$pathname/Lumi_TrackNotFiltered_${start_evt}.root"
+if [ 0 -eq "$?" ]; then
+  root -l -b -q 'runLumi4KalmanFitter.C('${num_evts}', '${start_evt}', "'${pathname}'", '$verbositylvl', 1, '${mergedHits}', "GEANE")'
+  #this script output a Lumi_Track_... file. Rename that to the NotFiltered..
+  mv $pathname/Lumi_Track_${start_evt}.root $pathname/Lumi_TrackNotFiltered_${start_evt}.root
+fi
+
+#track filter (on number of hits and chi2)
+check_stage_success "$pathname/Lumi_TrackFiltered_${start_evt}.root"
+if [ 0 -eq "$?" ]; then
+  #this macro needs Lumi_Track_... file as input so we need to link the unfiltered file
+  cd ${pathname}
+  ln -sf Lumi_TrackNotFiltered_${start_evt}.root Lumi_Track_${start_evt}.root
+  cd -
+  root -l -b -q 'runLumiPixel4aFilter.C('${num_evts}', '${start_evt}', "'${pathname}'", '$verbositylvl', '${mergedHits}', '${SkipFilt}', '${XThetaCut}', '${YPhiCut}', '${BoxCut}')'
+   
+  #now overwrite the Lumi_Track_ sym link with the filtered version
+  cd ${pathname}
+  ln -sf Lumi_TrackFiltered_${start_evt}.root Lumi_Track_${start_evt}.root
+  cd -
+fi
+
+# back-propgation GEANE
+### Possible options: "Geane", "RK"
+check_stage_success "$pathname/Lumi_Geane_${start_evt}.root"
+if [ 0 -eq "$?" ]; then
+  root -l -b -q 'runLumiPixel5BackProp.C('${num_evts}', '${start_evt}', "'${pathname}'", '$verbositylvl', "RK", '${mergedHits}', '${mom}')'
+fi
+
+# # Quality assurance task(s)
+# combine MC and reco information
+# the last parameter is mc all write flag and needs to be true
+# so that all mc events are written even if geometrically missing the sensors
+# this is required for the acceptance calculation
+check_stage_success "$pathname/Lumi_TrksQA_${start_evt}.root"
+if [ 0 -eq "$?" ]; then
+  root -l -b -q 'runLumiPixel7TrksQA.C('${num_evts}','${start_evt}',"'${pathname}'",'0','${mom}',true)'
 fi

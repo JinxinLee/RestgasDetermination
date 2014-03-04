@@ -1,12 +1,30 @@
 #! /bin/bash
 
-filepath=${GEN_DATA}
+cd $VMCWORKDIR/macro/lmd/steve
 random_num=$RANDOM.$RANDOM
-filename=`echo $var5 | sed -e 's/\./o/g'`_$PBS_ARRAYID
 
-if [ ! -f $filepath/$var3/$filename.root ]; then
-  root -l -b -q 'standaloneBoxGen.C('$var1', '$var2', '$var3', '$var4', "'$filepath/$var5/$filename.root'", '${random_num}')' >> $filepath/$var5/$filename.log
+if [ $PBS_ARRAYID ]; then
+  index=$PBS_ARRAYID
 fi
+
+if [ $# -eq '8' ]; then
+  lab_momentum=$1
+  num_events=$2
+  theta_min=$3
+  theta_max=$4
+  dirname=$5
+  dirname_cleaned=$6
+  basedir=$7
+  index=$8
+fi
+
+filename=${dirname_cleaned}_$index.root
+
+if [ ! -d $basedir/${dirname} ]; then
+  mkdir $basedir/${dirname}
+fi
+
+root -l -b -q 'standaloneBoxGen.C('${lab_momentum}', '${num_events}', '${theta_min}', '${theta_max}', "'$basedir/$dirname/$filename'", '${random_num}')'
 
 sleep 10;
 exit 0;
