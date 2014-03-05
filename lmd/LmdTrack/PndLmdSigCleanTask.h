@@ -87,7 +87,7 @@ class PndLmdSigCleanTask : public FairTask
   TMVA::Reader *reader;
 
   //----------------------------------------
-
+  TH1 *hResponse;
 // void Register();
   
 // void Reset();

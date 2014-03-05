@@ -48,6 +48,7 @@ PndLmdSigCleanTask::PndLmdSigCleanTask(Double_t pBeam, TString dir): FairTask("C
   fdir = dir;
   fPbeam = pBeam;
   cout<<"Beam Momentum in this run is "<<fPbeam<<endl;
+  hResponse = new TH1D("hResponse","",1e3,-1,1);
 }
 
 
@@ -205,20 +206,22 @@ bool  PndLmdSigCleanTask::CheckMVA(FairTrackParH* fTrk){
   // cout<<"Yes, TMVA game!"<<endl;
   bool res;
   TVector3 PosRecBP = fTrk->GetPosition();
-  axrec = PosRecBP.X();    ayrec = PosRecBP.Y();   azrec = PosRecBP.Z(); 
+  axrec = float(PosRecBP.X());    ayrec = float(PosRecBP.Y());   azrec = float(PosRecBP.Z()); 
   TVector3 MomRecBP = fTrk->GetMomentum();
-  aprec = MomRecBP.Mag();    
+  aprec = float(MomRecBP.Mag());    
   Double_t lyambda = fTrk->GetLambda();
-  athrec = TMath::Pi()/2. - lyambda;   
-  aphrec = fTrk->GetPhi();
+  athrec = float(TMath::Pi()/2. - lyambda);   
+  aphrec = float(fTrk->GetPhi());
   double mva_response =  reader->EvaluateMVA(fmethodName);
+  hResponse->Fill(mva_response);
   // if(mva_response>-0.0599) res=true; //BDT 
 
-  // if(mva_response<0){
+    if(mva_response<0){
   // if(mva_response<-0.1452){
- if(mva_response<-0.2){
+  // if(mva_response<-0.156){
+  //  if(mva_response<-0.01){
       res=false; //BDT //TEST
-      cout<<"BDT="<<mva_response<<" for PCA:("<<axrec<<", "<<ayrec<<", "<<azrec<<") athrec = "<<1e3*athrec<<" aprec = "<<aprec<<endl;
+      //    cout<<"BDT="<<mva_response<<" for PCA:("<<axrec<<", "<<ayrec<<", "<<azrec<<") athrec = "<<1e3*athrec<<" aprec = "<<aprec<<endl;
     }
   else res=true;
   return res;
