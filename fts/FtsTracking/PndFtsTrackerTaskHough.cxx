@@ -4,6 +4,7 @@
 
 // FTS
 #include "PndGeoFtsPar.h"
+#include "PndFtsTube.h"
 #include "PndFtsMapCreator.h"
 #include "PndFtsHit.h"
 #include "FairHit.h"
@@ -205,6 +206,28 @@ InitStatus PndFtsTrackerTaskHough::ReInit()
 }
 
 
+void PndFtsTrackerTaskHough::SetHitPositionErrors()
+{
+	// TODO: Do NOT overwrite the original TCA of FTS hits https://forum.gsi.de/index.php?t=msg&goto=15924
+	if (1<fVerbose) {
+		std::cout << "All FTS hits in event " << fFtsHitArray->GetEntriesFast() << "\n";
+	}
+
+	for (int iHit = 0; iHit < fFtsHitArray->GetEntriesFast(); iHit++)
+	{
+		PndFtsHit* myHit = (PndFtsHit*) fFtsHitArray->At(iHit);
+		Int_t tubeID = myHit->GetTubeID();
+		PndFtsTube *tube = (PndFtsTube*) fFtsTubeArray->At(tubeID);
+		const Double_t zError = 2*tube->GetHalfLength();
+		// TODO: Read out radius of FTS tube
+		const Double_t xError = 1.01 + 0.003; // in cm // Straw diameter: 10.1 mm, tube wall 0.03 mm Mylar
+		const Double_t yError = xError;
+		TVector3 hitPosError(xError,yError,zError);
+		myHit->SetPositionError(hitPosError);
+		// TODO: Take rotation into account for skewed straws
+
+	} // for loop over all hits
+}
 
 
 // ---- Exec ----------------------------------------------------------
@@ -222,16 +245,17 @@ void PndFtsTrackerTaskHough::Exec(Option_t* option)
 
 
 
+	SetHitPositionErrors();
 
 
 
 	PndFtsHoughTrackFinder trackFinder(fFtsBranchId, fFtsHitArray, fField);
 	trackFinder.SetVerbose(fVerbose);
 	trackFinder.SetSaveDebugInfo(fSaveDebugInfo);
-//	trackFinder.SetMinPeakHeightZxLineParabola(4);
-//	trackFinder.SetMinPeakHeightZxParabola(6);
-//	trackFinder.SetMinPeakHeightZxParabolaLine(4);
-//	trackFinder.SetMinPeakHeightZyLine(4);
+	//	trackFinder.SetMinPeakHeightZxLineParabola(4);
+	//	trackFinder.SetMinPeakHeightZxParabola(6);
+	//	trackFinder.SetMinPeakHeightZxParabolaLine(4);
+	//	trackFinder.SetMinPeakHeightZyLine(4);
 	trackFinder.FindTracks();
 
 
@@ -242,11 +266,11 @@ void PndFtsTrackerTaskHough::Exec(Option_t* option)
 		// for debug output get PndFtsHoughTrackCand
 		// TODO Check if that works
 		if (1<fSaveDebugInfo) {
-			PndFtsHoughTrackCand* myHoughCand = new ((*fHoughTrackCands)[iFoundTrack])PndFtsHoughTrackCand(trackFinder.GetTrack(iFoundTrack));
+			PndFtsHoughTrackCand* myHoughCand = new ((*fHoughTrackCands)[iFoundTrack])PndFtsHoughTrackCand(trackFinder.GetHoughTrack(iFoundTrack));
 		}
 
 		// convert to PndTrackCand and store into TCA
-		PndTrackCand* myCand = new ((*fTrackCands)[iFoundTrack])PndTrackCand(trackFinder.GetTrackCand(iFoundTrack));
+		PndTrackCand* myCand = new ((*fTrackCands)[iFoundTrack])PndTrackCand(trackFinder.GetPndTrackCand(iFoundTrack));
 		if (1<fVerbose)
 		{
 			std::cout << "Track " << iFoundTrack << std::endl;
@@ -256,7 +280,7 @@ void PndFtsTrackerTaskHough::Exec(Option_t* option)
 		}
 
 		myCand->CalcTimeStamp(); // TODO Why is this needed?
-		if (1<fVerbose) trackFinder.GetTrack(iFoundTrack).Print();
+		if (1<fVerbose) trackFinder.GetHoughTrack(iFoundTrack).Print();
 
 
 		PndTrack* myTrack = new ((*fTracks)[iFoundTrack])PndTrack(trackFinder.GetPndTrack(iFoundTrack)); // TODO Some parameters are missing
@@ -290,9 +314,9 @@ void PndFtsTrackerTaskHough::Exec(Option_t* option)
 void PndFtsTrackerTaskHough::FinishEvent()
 {
 	// TODO Check if this is necessary, I think it can be left out!
-//	fTrackCands->Delete();
-//	fTracks->Delete();
-//	fHoughTrackCands->Delete();
+	//	fTrackCands->Delete();
+	//	fTracks->Delete();
+	//	fHoughTrackCands->Delete();
 }
 
 

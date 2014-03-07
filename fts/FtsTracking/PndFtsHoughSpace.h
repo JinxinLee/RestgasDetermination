@@ -4,13 +4,13 @@
 //
 // Class for Hough space based on TH2S (for the moment)
 //
-// the angle (theta) is always on x-coordinate axis, the value on the y-axis depends on the kind of hough transform
+// the angle (theta in rad) is always on x-coordinate axis, the value on the y-axis depends on the kind of hough transform
 //	parabola HT: yValue = Q/pzx
 //	line HT: yValue = intercept (Achsenabschnitt) (in z-x- or z-y-plane)
 //
 //
 // Created: 21.02.2014
-// Modified: 26.02.2014
+// Modified: 03.03.2014
 //
 // *************************************************************************
 
@@ -137,8 +137,6 @@ private:
 
 
 
-	static const Double_t meinpi = 3.14159265;
-
 	// Which PeakFinder should be used?
 	static TString peakfinderOption;
 
@@ -191,8 +189,8 @@ private:
 		return yVal;
 	};
 
-	inline Double_t equationLineZx(Double_t thetaRad, Double_t hitZShifted, Double_t hitXLabSys)
-	{
+	inline Double_t equationLineZxOrZy(Double_t thetaRad, Double_t hitZShifted, Double_t hitXLabSys)
+	{ // TODO: Check if that also works in zy plane
 		// calculate b which is the distance of point on line at z = zOffset from z axis
 		Double_t yVal = -tan(thetaRad)*hitZShifted+hitXLabSys;
 		return yVal;

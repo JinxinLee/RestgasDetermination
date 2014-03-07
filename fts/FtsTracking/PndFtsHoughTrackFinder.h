@@ -13,7 +13,6 @@
 //
 //
 // Recent Changes
-// Moved code from macro to class
 // Major code cleanup and deletion of test code / unneeded code
 // use PndFtsHoughTrackCand to store information about track candidates and Hough transforms
 // Find all peaks with a minimum height
@@ -28,7 +27,7 @@
 //
 //
 // Created: 18.06.2013
-// Modified: 26.02.2014
+// Modified: 03.03.2014
 //
 // *************************************************************************
 
@@ -55,6 +54,7 @@
 #include "PndFtsHoughTracklet.h"
 #include "PndFtsHoughTrackCand.h"
 
+class TString;
 class FairField;
 class TClonesArray;
 //class PndGeoFtsPar;
@@ -78,10 +78,10 @@ public:
 	void SetSaveDebugInfo(Bool_t saveDebugInfo){ fSaveDebugInfo = saveDebugInfo;};
 
 	// Output
-	int NTracks(){return fTrackCand.size();};								///< Returns the number of found tracks
-	PndFtsHoughTrackCand GetTrack(int i){return fHoughTrackCands[i];};					///< Returns the track with the index i
-	PndTrack GetPndTrack(int i){return fHoughTrackCands[i].getPndTrack();};
-	PndTrackCand GetTrackCand(int i) {return fTrackCand[i];};
+	Int_t NTracks() const { return fHoughTrackCands.size(); };								///< Returns the number of found tracks
+	PndFtsHoughTrackCand GetHoughTrack(int i) const { return fHoughTrackCands[i]; };					///< Returns the track with the index i
+	PndTrack GetPndTrack(int i){ return fHoughTrackCands[i].getPndTrack(); };
+	PndTrackCand GetPndTrackCand(int i) { return fHoughTrackCands[i].getPndTrackCand(); };
 
 
 	// Parameters
@@ -95,6 +95,20 @@ public:
 
 
 private:
+	inline void Print(const std::vector<PndFtsHoughTracklet>& tracklets) const{
+		for (UInt_t i=0; i< tracklets.size(); ++i)
+		{
+			tracklets[i].Print();
+		}
+	};
+
+	inline void PrintFoundTracklets(const std::vector<PndFtsHoughTracklet>& tracklets, const TString& option) const{
+		std::cout << tracklets.size() << " peaks found for " << option << '\n';
+		if (10<fVerbose){
+			Print(tracklets);
+		}
+	};
+
 	Int_t   fFtsBranchId; // needed for saving and accessing hits
 	TClonesArray *fFtsHitArray; // Input array of all FTS hits
 
@@ -123,20 +137,19 @@ private:
 
 	// for Hough
 	///////////////////
-	PndFtsHoughSpace* fHoughspaceZxLineParabola;
+	PndFtsHoughSpace* fHoughSpaceZxLineBeforeDipole;
 	PndFtsHoughSpace* fHoughspaceZxParabola;
-	PndFtsHoughSpace* fHoughspaceZxParabolaLine;
+	PndFtsHoughSpace* fHoughSpaceZxLineBehindDipole;
 	PndFtsHoughSpace* fHoughspaceZyLine;
 	std::vector<PndFtsHoughTrackCand> fHoughTrackCandsNew;									///< Temporary Hough Track Cands are used internally to store track cands
 	std::vector<PndFtsHoughTrackCand> fHoughTrackCands;									///< Hough Track Cands are used internally to store track cands
-	std::vector<PndTrackCand> fTrackCand; // resulting track candidates, also used for returning PndTracks
+//	std::vector<PndTrackCand> fTrackCand; // resulting track candidates, also used for returning PndTracks
 
 
-
-
+	static const Double_t meinpi = 3.14159265359;
 	// sets where the midpoint of the parabola is supposed to be
-	static const Double_t zLineParabola = 368.; // the value should coincide with the start of the dipole field // 368. was ok
-	static const Double_t zParabolaLine = 650.; // the value should coincide with the end of the dipole field // TODO determine this value
+	static const Double_t fZLineParabola = 368.; // the value should coincide with the start of the dipole field // 368. was ok
+	static const Double_t fZParabolaLine = 605.; // the value should coincide with the end of the dipole field // TODO determine this value
 
 
 

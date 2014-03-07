@@ -33,7 +33,7 @@ public:
 
 
 	// Accessors -----------------------
-	void Print();
+	void Print() const;
 
 	Bool_t isSet() const { return fIsSet; }; // returns kTRUE iif data from the 2d Hough transforms have been entered
 
@@ -49,16 +49,17 @@ public:
 
 	// getters for Hough space peak info
 	Double_t getPeakHeightFromPeakFinder() const { return fPeakHeightFromPeakFinder; };
-	Double_t getThetaVal() const { return fThetaVal; }; // value for peak
-	Double_t getThetaHw() const { return fThetaHw; }; // hw = half width = half length of Hough space bin
-	Double_t getSecondVal() const { return fSecondVal; }; // value for peak
+	Double_t getThetaRadVal() const { return fThetaRadVal; }; // theta value for peak (in rad)
+	Double_t getThetaRadHw() const { return fThetaRadHw; }; // hw = half width = half length of Hough space bin
+	Double_t getSecondVal() const { return fSecondVal; }; // second value for peak, see below for explanation
+
 	Double_t getSecondHw() const { return fSecondHw; }; // hw = half width = half length of Hough space bin
 	Double_t getZRefLabSys() const { return fZRefLabSys; }; // in cm
 
 
 	// hits
 	const PndFtsHit *getHit(UInt_t index); // gets the FTS hit corresponding to index, will sort the hitId vector if necessary
-	UInt_t getNSharedHits(PndFtsHoughTracklet& rhs); // gives the number of hits that are contained both in rhs and *this
+	UInt_t getNSharedHits(const PndFtsHoughTracklet& rhs); // gives the number of hits that are contained both in rhs and *this
 
 
 
@@ -84,8 +85,8 @@ private:
 	// as the peak finder might add a weight to the hits depending on how close they have been to the actual peak)
 
 	// saving peak position in a 2d Hough transform as well as the half width of the histogram
-	Double_t fThetaVal; // theta angle
-	Double_t fThetaHw; // error on angle
+	Double_t fThetaRadVal; // theta angle
+	Double_t fThetaRadHw; // error on angle
 
 	Double_t fSecondVal; // second value is x/y intercept for line in zx / zy plane and Q/pzx for parabola in zx plane
 	Double_t fSecondHw; // error on second value
@@ -96,7 +97,6 @@ private:
 	//	void addPeakHits(); // check which hits have contributed to the peak and add them to the hitId vector
 
 
-public:
 	ClassDef(PndFtsHoughTracklet,1);
 };
 

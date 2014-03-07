@@ -67,9 +67,9 @@ PndFtsHoughTrackFinder::PndFtsHoughTrackFinder(Int_t branchId, TClonesArray* hit
 														fField(field),
 
 														// Hough spaces
-														fHoughspaceZxLineParabola(0),
+														fHoughSpaceZxLineBeforeDipole(0),
 														fHoughspaceZxParabola(0),
-														fHoughspaceZxParabolaLine(0),
+														fHoughSpaceZxLineBehindDipole(0),
 														fHoughspaceZyLine(0),
 
 														// min peak heights
@@ -110,9 +110,9 @@ void PndFtsHoughTrackFinder::WriteHistograms(){
 	//		file->mkdir("PndFtsHoughTrackFinder");
 	//		file->cd("PndFtsHoughTrackFinder");
 	//		std::cout << "Worked.\n";
-	//		//		if (0!=fHoughspaceZxLineParabola)
+	//		//		if (0!=fHoughSpaceZxLineBeforeDipole)
 	//		//		{
-	//		//			fHoughspaceZxLineParabola->Write();
+	//		//			fHoughSpaceZxLineBeforeDipole->Write();
 	//		//		}
 	//		//		if (0!=fHoughspaceZxParabola)
 	//		//		{
@@ -163,22 +163,22 @@ void PndFtsHoughTrackFinder::FindTracks() {
 
 
 
-	// Straight line Hough transform
-	static const Int_t invthetastepForLine = 8; // greater number means finer scanning in theta
-	static const Int_t thetaLowFirstLine = -20;
-	static const Int_t thetaHighFirstLine = 20;
-	delete fHoughspaceZxLineParabola;
-	fHoughspaceZxLineParabola = new PndFtsHoughSpace(
+	// zx plane: Straight line Hough transform before dipole
+	static const Int_t stepsPerThetaDegLineBeforeDipole = 8; // greater number means finer scanning in theta
+	static const Int_t thetaDegLowLineBeforeDipole = -20; // in degree
+	static const Int_t thetaDegHighLineBeforeDipole = 20; // in degree
+	delete fHoughSpaceZxLineBeforeDipole;
+	fHoughSpaceZxLineBeforeDipole = new PndFtsHoughSpace(
 			"lineBeforeDipole",
-			invthetastepForLine*(thetaHighFirstLine-thetaLowFirstLine),
-			thetaLowFirstLine,
-			thetaHighFirstLine,
+			stepsPerThetaDegLineBeforeDipole*(thetaDegHighLineBeforeDipole-thetaDegLowLineBeforeDipole),
+			thetaDegLowLineBeforeDipole / 180. * meinpi, // in rad
+			thetaDegHighLineBeforeDipole / 180. * meinpi, // in rad
 
-			invthetastepForLine*40,
-			-50.,
-			50.,
+			stepsPerThetaDegLineBeforeDipole*20, // TODO: Check values
+			-80., // in cm // TODO: Check values
+			80., // in cm
 
-			zLineParabola,
+			fZLineParabola,
 			0.,
 
 			fFtsBranchId,
@@ -186,18 +186,17 @@ void PndFtsHoughTrackFinder::FindTracks() {
 
 			fField
 	);
-	fHoughspaceZxLineParabola->GetXaxis()->SetTitle("#theta [^{0}]");
-	fHoughspaceZxLineParabola->GetYaxis()->SetTitle("x_{LP} [cm]");
+	fHoughSpaceZxLineBeforeDipole->GetXaxis()->SetTitle("#theta [rad]");
+	fHoughSpaceZxLineBeforeDipole->GetYaxis()->SetTitle("x_{LP} [cm]");
 
 
 
 	// Do straight line hough transform on non-skewed hits from stations 1+2
-	if ( kTRUE ==
-			fHoughspaceZxLineParabola->MakeHoughSpace() )
+	if ( kTRUE == fHoughSpaceZxLineBeforeDipole->MakeHoughSpace() )
 	{
 		if (0<fVerbose) {
 			std::cout << "Hough Space for zx line before dipole was created successfully!" << std::endl
-					<< "We have " << fHoughspaceZxLineParabola->GetNHits() << " hits in the line Hough space.\n";
+					<< "We have " << fHoughSpaceZxLineBeforeDipole->GetNHits() << " hits in the line Hough space.\n";
 
 		}
 	}
@@ -209,22 +208,15 @@ void PndFtsHoughTrackFinder::FindTracks() {
 
 
 	// find peaks for line hough space and store in vector
-	const Int_t minHeightZxLineParabola = 6;
-	std::vector<PndFtsHoughTracklet> zxLineParabolaTracklets;
+	const Int_t minHeightLineBeforeDipole = 6;
+	std::vector<PndFtsHoughTracklet> trackletsLineBeforeDipole;
 
 
 	// Call peak finder and plot the solution if it was found!
-	if (kTRUE == fHoughspaceZxLineParabola->FindAllPeaks(minHeightZxLineParabola, zxLineParabolaTracklets))
+	if (kTRUE == fHoughSpaceZxLineBeforeDipole->FindAllPeaks(minHeightLineBeforeDipole, trackletsLineBeforeDipole))
 	{
 		if (0<fVerbose) {
-			std::cout << zxLineParabolaTracklets.size() << " peaks found for zx line before dipole. \n";
-			if (10<fVerbose)
-			{
-				for (UInt_t i=0; i< zxLineParabolaTracklets.size(); ++i)
-				{
-					zxLineParabolaTracklets[i].Print();
-				}
-			}
+			PrintFoundTracklets(trackletsLineBeforeDipole, fHoughSpaceZxLineBeforeDipole->GetName());
 		}
 	}
 	else
@@ -235,31 +227,34 @@ void PndFtsHoughTrackFinder::FindTracks() {
 
 
 
+
+
+
 	// loop over all line tracklets which were found by line HT before dipole field
 
-	for (UInt_t iTrackletLine=0; iTrackletLine < zxLineParabolaTracklets.size(); ++iTrackletLine)
+	for (UInt_t iTrackletLine=0; iTrackletLine < trackletsLineBeforeDipole.size(); ++iTrackletLine)
 	{
-		const Double_t peakThetaZxLineParabola = zxLineParabolaTracklets[iTrackletLine].getThetaVal();
-		const Double_t peakInterceptZxLineParabola = zxLineParabolaTracklets[iTrackletLine].getSecondVal();
+		const Double_t peakThetaZxLineParabola = trackletsLineBeforeDipole[iTrackletLine].getThetaRadVal();
+		const Double_t peakInterceptZxLineParabola = trackletsLineBeforeDipole[iTrackletLine].getSecondVal();
 
 		// determine where to look for parabola
-		const Int_t invthetastepForParabola = 10; // greater number means finer scanning in theta
-		const Int_t thetaLowParabola = floor(peakThetaZxLineParabola-0.3)-0; // TODO: Optimize parameters
-		const Int_t thetaHighParabola = ceil(peakThetaZxLineParabola+0.3)+0;
+		const Int_t stepsPerThetaDegParabola = 10; // greater number means finer scanning in theta
+		const Int_t thetaDegLowParabola = floor(peakThetaZxLineParabola / meinpi * 180. - 0.3)-0; // in deg// TODO: Optimize parameters
+		const Int_t thetaDegHighParabola = ceil(peakThetaZxLineParabola / meinpi * 180. +0.3)+0; // in deg
 
 		delete fHoughspaceZxParabola;
 		fHoughspaceZxParabola= new PndFtsHoughSpace(
 				"parabola",
 
-				invthetastepForParabola*(thetaHighParabola-thetaLowParabola),
-				thetaLowParabola,
-				thetaHighParabola,
+				stepsPerThetaDegParabola*(thetaDegHighParabola-thetaDegLowParabola),
+				thetaDegLowParabola / 180. * meinpi, // in rad
+				thetaDegHighParabola / 180. * meinpi, // in rad
 
-				invthetastepForParabola*300, // 300 is good as factor
-				-0.015,
-				0.015,
+				stepsPerThetaDegParabola*300, // 300 is good as factor
+				-0.015, // a.u.
+				0.015, // a.u.
 
-				zLineParabola,
+				fZLineParabola,
 				peakInterceptZxLineParabola,
 
 				fFtsBranchId,
@@ -267,7 +262,7 @@ void PndFtsHoughTrackFinder::FindTracks() {
 
 				fField
 		);
-		fHoughspaceZxParabola->GetXaxis()->SetTitle("#theta [^{0}]");
+		fHoughspaceZxParabola->GetXaxis()->SetTitle("#theta [rad]");
 		fHoughspaceZxParabola->GetYaxis()->SetTitle("#frac{Q}{p_zx} [a.u.]");
 
 
@@ -301,14 +296,7 @@ void PndFtsHoughTrackFinder::FindTracks() {
 		{
 			if (0<fVerbose)
 			{
-				std::cout << zxParabolaTracklets.size() << " peaks found for parabola \n";
-				if (10<fVerbose)
-				{
-					for (UInt_t i=0; i< zxParabolaTracklets.size(); ++i)
-					{
-						zxParabolaTracklets[i].Print();
-					}
-				}
+				PrintFoundTracklets(zxParabolaTracklets, fHoughspaceZxParabola->GetName());
 			}
 
 		}
@@ -323,7 +311,7 @@ void PndFtsHoughTrackFinder::FindTracks() {
 		for (UInt_t iTrackletParabola=0; iTrackletParabola < zxParabolaTracklets.size(); ++iTrackletParabola)
 		{
 			PndFtsHoughTrackCand newHoughTrackCand(fFtsBranchId, fFtsHitArray);
-			newHoughTrackCand.SetZxFirstLine(zxLineParabolaTracklets[iTrackletLine]);
+			newHoughTrackCand.SetZxFirstLine(trackletsLineBeforeDipole[iTrackletLine]);
 			newHoughTrackCand.SetZxParabola(zxParabolaTracklets[iTrackletParabola]);
 			fHoughTrackCands.push_back(newHoughTrackCand);
 		}
@@ -336,6 +324,71 @@ void PndFtsHoughTrackFinder::FindTracks() {
 	std::cout << "At this point I have track candidates from line in zx before dipole and parabola within. Now add line after dipole field in zx" << std::endl;
 	// TODO
 
+
+
+
+
+
+	// zx plane: Straight line Hough transform behind dipole
+	  static const Int_t stepsPerThetaDegLineBehindDipole = 8; // greater number means finer scanning in theta
+	  static const Int_t thetaDegLowLineBehindDipole = -20; // in degree
+	  static const Int_t thetaDegHighLineBehindDipole = 20; // in degree
+	  delete fHoughSpaceZxLineBehindDipole;
+	  fHoughSpaceZxLineBehindDipole = new PndFtsHoughSpace(
+	      "lineBehindDipole",
+	      stepsPerThetaDegLineBehindDipole*(thetaDegHighLineBehindDipole-thetaDegLowLineBehindDipole),
+	      thetaDegLowLineBehindDipole / 180. * meinpi, // in rad
+	      thetaDegHighLineBehindDipole / 180. * meinpi, // in rad
+
+	      stepsPerThetaDegLineBehindDipole*20, // TODO: Check values
+	      -200., // in cm // TODO: Check values
+	      200., // in cm
+
+	      fZParabolaLine,
+	      0.,
+
+	      fFtsBranchId,
+	      fFtsHitArray,
+
+	      fField
+	  );
+	  fHoughSpaceZxLineBehindDipole->GetXaxis()->SetTitle("#theta [rad]");
+	  fHoughSpaceZxLineBehindDipole->GetYaxis()->SetTitle("x_{LP} [cm]");
+
+
+
+	  // Do straight line hough transform on non-skewed hits from stations 1+2
+	  if ( kTRUE == fHoughSpaceZxLineBehindDipole->MakeHoughSpace() )
+	  {
+	    if (0<fVerbose) {
+	      std::cout << "Hough Space for zx line behind dipole was created successfully!" << std::endl
+	          << "We have " << fHoughSpaceZxLineBehindDipole->GetNHits() << " hits in the line Hough space.\n";
+
+	    }
+	  }
+	  else
+	  {
+	    std::cout << "Hough Space for zx line behind dipole could not be created! " << std::endl;
+	  }
+
+
+
+	  // find peaks for line hough space and store in vector
+	  const Int_t minHeightLineBehindDipole = 6;
+	  std::vector<PndFtsHoughTracklet> trackletsLineBehindDipole;
+
+
+	  // Call peak finder and plot the solution if it was found!
+	  if (kTRUE == fHoughSpaceZxLineBehindDipole->FindAllPeaks(minHeightLineBehindDipole, trackletsLineBehindDipole))
+	  {
+	    if (0<fVerbose) {
+	      PrintFoundTracklets(trackletsLineBehindDipole, fHoughSpaceZxLineBehindDipole->GetName());
+	    }
+	  }
+	  else
+	  {
+	    std::cout << "Error: Peak finder had a problem with hough space for zx line behind dipole!!!" << std::endl;
+	  }
 
 
 
@@ -369,9 +422,9 @@ void PndFtsHoughTrackFinder::FindTracks() {
 	}
 
 
-	delete fHoughspaceZxLineParabola;
+	delete fHoughSpaceZxLineBeforeDipole;
 	delete fHoughspaceZxParabola;
-	delete fHoughspaceZxParabolaLine;
+	delete fHoughSpaceZxLineBehindDipole;
 	delete fHoughspaceZyLine;
 
 }

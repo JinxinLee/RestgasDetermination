@@ -77,6 +77,7 @@ public:
 
 
 private:
+	void SetHitPositionErrors(); // sets the errors for the hit positions to double the straw radius in x and z and to the full length of the straw in z
 	// general
 	Bool_t fPersistence;
 

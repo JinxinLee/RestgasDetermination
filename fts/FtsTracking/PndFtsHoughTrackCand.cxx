@@ -13,21 +13,21 @@
 ClassImp(PndFtsHoughTrackCand);
 
 PndFtsHoughTrackCand::PndFtsHoughTrackCand(Int_t ftsBranchId, TClonesArray *ftsHitArray) :
-																														fFtsHitArray(ftsHitArray),
-																														fFtsBranchId(ftsBranchId),
+									fFtsHitArray(ftsHitArray),
+									fFtsBranchId(ftsBranchId),
 
-																														fVerbose(0),
+									fVerbose(0),
 
-																														fZxLineParabola(0., fFtsBranchId, fFtsHitArray), // TODO: It could be a problem here that I set the z reference value to 0.
+									fZxLineParabola(0., fFtsBranchId, fFtsHitArray), // TODO: It could be a problem here that I set the z reference value to 0.
 
-																														fZxParabola(0., fFtsBranchId, fFtsHitArray),
+									fZxParabola(0., fFtsBranchId, fFtsHitArray),
 
-																														fZxParabolaLine(0., fFtsBranchId, fFtsHitArray),
+									fZxParabolaLine(0., fFtsBranchId, fFtsHitArray),
 
-																														fZyLine(0., fFtsBranchId, fFtsHitArray),
+									fZyLine(0., fFtsBranchId, fFtsHitArray),
 
-																														fZLineParabola(0.),
-																														fZParabolaLine(0.)
+									fZLineParabola(0.),
+									fZParabolaLine(0.)
 {
 	if (0==fFtsHitArray){
 		std::cout << "PndFtsHoughTrackCand FATAL ERROR Hit array not set.\n";
@@ -110,6 +110,21 @@ void PndFtsHoughTrackCand::addUniqueTrackletHits(PndFtsHoughTracklet inTracklet)
 	}
 }
 
+PndTrackCand PndFtsHoughTrackCand::getPndTrackCand() {
+	// TODO: Maybe this is not necessary because PndFtsHoughTrackCand is derived from PndTrackCand
+	PndTrackCand myCand;
+	// copy all the hits from PndFtsHoughTrackCand *this to PndTrackCand myCand
+	for (UInt_t iHit = 0; iHit < GetNHits(); ++iHit)
+	{
+		PndTrackCandHit inHit = GetSortedHit(iHit);
+		const Int_t inHitId = inHit.GetHitId();
+		const Int_t inDetId = inHit.GetDetId();
+		const Double_t inRho = inHit.GetRho();
+		myCand.AddHit(inDetId, inHitId, inRho);
+	}
+	return myCand;
+}
+
 
 
 // for conversion to PndTrack, compare to PndTools/riemannfit/PndRiemannTrack.cxx, line 1104
@@ -128,8 +143,8 @@ PndTrack PndFtsHoughTrackCand::getPndTrack() {
 
 const PndFtsHit* PndFtsHoughTrackCand::getHit(UInt_t index) {
 	// this method will sort the hitId vector
-	// Make sure we have a complete track candidate before we try to access any hits
-	if (!isComplete()) return 0;
+	// Warn if we do not have a complete track candidate
+	if (!isComplete()) Warning("getHit","You try to access hits before we have a complete track candidate.");
 	if (index < GetNHits()){
 		//		TClonesArray *ftsHitArray= (TClonesArray *)FairRootManager::Instance()->GetObject("FTSHit");
 		const PndFtsHit *myHit = (PndFtsHit*) fFtsHitArray->At(GetSortedHit(index).GetHitId());
@@ -139,14 +154,8 @@ const PndFtsHit* PndFtsHoughTrackCand::getHit(UInt_t index) {
 	}
 }
 
-FairTrackParP PndFtsHoughTrackCand::getTrackParPForHit(UInt_t index) {
+FairTrackParP PndFtsHoughTrackCand::getTrackParPForHit(const UInt_t index) {
 	// TODO: Check if all arguments are correct
-
-	// set some plane?
-	TVector3 dj(1,0,0); // TODO: Check if that is set correctly for FTS
-	TVector3 dk(0,1,0); // TODO: Check if that is set correctly for FTS
-	TVector3 origin(0,0,0); // TODO: Check if that is set correctly for FTS
-
 
 	// get position of hit with index in track candidate
 	const PndFtsHit *myHit = getHit(index);
@@ -159,23 +168,27 @@ FairTrackParP PndFtsHoughTrackCand::getTrackParPForHit(UInt_t index) {
 
 	// position should NOT come from hit, it should come from the pattern recognition track model
 	// position error can be large (like 1* or 2* tube size) as the Kalman filter will adjust it.
-	TVector3 hitPos = getPosForHit(zLabSys);
+	TVector3 hitPos = getPos(zLabSys);
 	TVector3 hitPosError;
-	// TODO: Set the error correctly
-	myHit->PositionError(hitPosError);
+	myHit->PositionError(hitPosError); // TODO: Set the error correctly
 
-	TVector3 mom = getPforHit(zLabSys);
+	// momentum comes from the pattern recognition track model
+	TVector3 mom = getP(zLabSys);
 	TVector3 momError = 0.1*mom; // TODO: add correct values here
 
+	// set plane as detector plane in which the hit is, FTS planes are parallel to xy plane
+	TVector3 origin; // set origin of plane = position of hit
+	myHit->Position(origin);
+	TVector3 dj(1,0,0); // unit vector along x // TODO: Check if that is set correctly for FTS
+	TVector3 dk(0,1,0); // unit vector along y // TODO: Check if that is set correctly for FTS
 
 	// -----   Constructor with track parameters in LAB -----------------------------------
 	// FairTrackParP::FairTrackParP(TVector3 pos, TVector3 Mom, TVector3 posErr, TVector3 MomErr, Int_t Q, TVector3 o, TVector3 dj, TVector3 dk)
 	FairTrackParP result(hitPos, mom, hitPosError, momError, getCharge(), origin, dj, dk);
 	return result;
-
 }
 
-TVector3 PndFtsHoughTrackCand::getPforHit(const Double_t zLabSys) const{
+TVector3 PndFtsHoughTrackCand::getP(const Double_t zLabSys) const{
 	TVector3 mom;
 
 	if (kFALSE == isComplete())
@@ -192,7 +205,7 @@ TVector3 PndFtsHoughTrackCand::getPforHit(const Double_t zLabSys) const{
 		// use 1st line in zx plane
 		pZPXLabSys = getPZPXLabLine(zLabSys, &fZxLineParabola);
 	} else if ( zLabSys < fZParabolaLine ){
-		// use tangent to parabola in zx plane
+		// use "tangent" to parabola in zx plane
 		pZPXLabSys = getPZPXLabParabola(zLabSys);
 	} else {
 		// use 2nd line in zx plane
@@ -208,7 +221,7 @@ TVector3 PndFtsHoughTrackCand::getPforHit(const Double_t zLabSys) const{
 }
 
 
-TVector3 PndFtsHoughTrackCand::getPosForHit(const Double_t zLabSys) const{
+TVector3 PndFtsHoughTrackCand::getPos(const Double_t zLabSys) const{
 	// calculates the point on the track based on the results from the Hough transforms using my track model for the given z
 
 	if (kFALSE == isComplete())
@@ -226,7 +239,7 @@ TVector3 PndFtsHoughTrackCand::getPosForHit(const Double_t zLabSys) const{
 		xLabSys = getXOrYLabForLine(zLabSys, &fZxLineParabola);
 
 	} else if ( zLabSys < fZParabolaLine ){
-		// use tangent to parabola in zx plane
+		// use parabola in zx plane
 		getXLabForParabola(zLabSys);
 	} else {
 		// use 2nd line in zx plane

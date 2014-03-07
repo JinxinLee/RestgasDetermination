@@ -22,8 +22,8 @@ PndFtsHoughTracklet::PndFtsHoughTracklet(Double_t zRefLabSys, Int_t ftsBranchId,
 
 				fPeakHeightFromPeakFinder(0.),
 
-				fThetaVal(0.),
-				fThetaHw(0.),
+				fThetaRadVal(0.),
+				fThetaRadHw(0.),
 
 				fSecondVal(0.),
 				fSecondHw(0.),
@@ -45,20 +45,20 @@ PndFtsHoughTracklet::~PndFtsHoughTracklet()
 
 
 void PndFtsHoughTracklet::SetHoughTransformResults(
-		const Double_t thetaVal,
+		const Double_t thetaRadVal,
 		const Double_t secondVal,
 
 		const Double_t peakHeight,
 
-		const Double_t thetaHw,
+		const Double_t thetaRadHw,
 		const Double_t secondHw
 ){
 	fPeakHeightFromPeakFinder = peakHeight;
 
 	// set values from Hough space peak
-	fThetaVal = thetaVal;
+	fThetaRadVal = thetaRadVal;
 	fSecondVal = secondVal;
-	fThetaHw = thetaHw;
+	fThetaRadHw = thetaRadHw;
 	fSecondHw = secondHw;
 
 	//	addPeakHits();
@@ -74,7 +74,7 @@ void PndFtsHoughTracklet::SetHoughTransformResults(
 //}
 
 
-UInt_t PndFtsHoughTracklet::getNSharedHits(PndFtsHoughTracklet& rhs){
+UInt_t PndFtsHoughTracklet::getNSharedHits(const PndFtsHoughTracklet& rhs) {
 	UInt_t nSharedHits = 0;
 	// go through all hits in *this and check if they are also in rhs, if yes, increase numberOfSharedHits by 1 (per shared hit)
 	for (UInt_t iHit = 0; iHit < GetNHits(); ++iHit){
@@ -91,11 +91,11 @@ UInt_t PndFtsHoughTracklet::getNSharedHits(PndFtsHoughTracklet& rhs){
 }
 
 
-void PndFtsHoughTracklet::Print() {
+void PndFtsHoughTracklet::Print() const {
 	std::cout << "=========== PndFtsHoughTracklet::Print() ==========" << std::endl;
 	if (kTRUE==fIsSet){
-		std::cout << "theta = " << fThetaVal << "  second = " << fSecondVal << std::endl << std::endl;
-		std::cout << "theta = " << fThetaHw << "  second = " << fSecondHw << std::endl << std::endl;
+		std::cout << "theta = " << fThetaRadVal << "  second = " << fSecondVal << std::endl << std::endl;
+		std::cout << "theta = " << fThetaRadHw << "  second = " << fSecondHw << std::endl << std::endl;
 	}
 }
 

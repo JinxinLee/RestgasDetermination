@@ -127,10 +127,10 @@ Bool_t PndFtsHoughSpace::setParametersForHsOption()
 	{
 		// make sure hits are not shifted for line hough transform
 		if (0!=fInterceptZx) {
-			std::cout << "PndFtsHoughSpace: " << "fInterceptZx was set to " << fInterceptZx << " That is not correct for line HT! of stations before dipole field!\n";
+			std::cout << "PndFtsHoughSpace: " << "fInterceptZx was set to " << fInterceptZx << " That is not correct for line HT of stations before dipole field!\n";
+			std::cout << "Will set interceptZx to 0 for " << fName << std::endl;
+			fInterceptZx = 0.;
 		}
-		if (0<fVerbose) {  std::cout << "Will set interceptZx to 0 for " << fName << std::endl; }
-		fInterceptZx = 0.;
 
 		fUseNonSkewedStraws = kTRUE;
 		fUseSkewedStraws = kFALSE;
@@ -146,7 +146,7 @@ Bool_t PndFtsHoughSpace::setParametersForHsOption()
 
 		// parabola for stations 3-5
 		fOnlyUseHitsFromZ = 380.; // Set = 100. if you want to use all FTS hits, higher if you want to exclude hits that are closer to the interaction point than the value
-		fOnlyUseHitsUpToZ = 700.; // Set = 1000. if you want to use all FTS hits, lower if you want to exclude hits that are further away from the interaction point than the value
+		fOnlyUseHitsUpToZ = 630.; // Set = 1000. if you want to use all FTS hits, lower if you want to exclude hits that are further away from the interaction point than the value
 	}
 	else if ("parabolapz" == fName)
 	{
@@ -155,7 +155,37 @@ Bool_t PndFtsHoughSpace::setParametersForHsOption()
 
 		// parabola for stations 3-5
 		fOnlyUseHitsFromZ = 380.; // Set = 100. if you want to use all FTS hits, higher if you want to exclude hits that are closer to the interaction point than the value
-		fOnlyUseHitsUpToZ = 700.; // Set = 1000. if you want to use all FTS hits, lower if you want to exclude hits that are further away from the interaction point than the value
+		fOnlyUseHitsUpToZ = 630.; // Set = 1000. if you want to use all FTS hits, lower if you want to exclude hits that are further away from the interaction point than the value
+	} else if ("lineAfterDipole" == fName)
+	{
+		// make sure hits are not shifted for line hough transform
+		if (0!=fInterceptZx) {
+			std::cout << "PndFtsHoughSpace: " << "fInterceptZx was set to " << fInterceptZx << " That is not correct for line HT of stations after dipole field!\n";
+			std::cout << "Will set interceptZx to 0 for " << fName << std::endl;
+			fInterceptZx = 0.;
+		}
+
+		fUseNonSkewedStraws = kTRUE;
+		fUseSkewedStraws = kFALSE;
+
+		// Line for stations 5+6
+		fOnlyUseHitsFromZ = 550.; // Set = 100. if you want to use all FTS hits, higher if you want to exclude hits that are closer to the interaction point than the value
+		fOnlyUseHitsUpToZ = 1000.; // Set = 1000. if you want to use all FTS hits, lower if you want to exclude hits that are further away from the interaction point than the value
+	} else if ("lineZy" == fName)
+	{
+		// make sure hits are not shifted for line hough transform
+		if (0!=fInterceptZx) {
+			std::cout << "PndFtsHoughSpace: " << "fInterceptZx was set to " << fInterceptZx << " That is not correct for line HT of all stations in zy plane!\n";
+			std::cout << "Will set interceptZx to 0 for " << fName << std::endl;
+			fInterceptZx = 0.;
+		}
+
+		fUseNonSkewedStraws = kTRUE;
+		fUseSkewedStraws = kFALSE;
+
+		// Line for all FTS stations
+		fOnlyUseHitsFromZ = 100.; // Set = 100. if you want to use all FTS hits, higher if you want to exclude hits that are closer to the interaction point than the value
+		fOnlyUseHitsUpToZ = 1000.; // Set = 1000. if you want to use all FTS hits, lower if you want to exclude hits that are further away from the interaction point than the value
 	}
 	else
 	{
@@ -196,7 +226,7 @@ Bool_t PndFtsHoughSpace::filterInputHits()
 			// hit comes from skewed straw
 			if (kFALSE == fUseSkewedStraws)
 			{
-				if (1<fVerbose) {std::cout << "Skipping hit with index " << iHit << " , because it comes from a skewed straw! LayerID = " << myHit->GetLayerID() << std::endl;}
+				if (1<fVerbose) {std::cout << "Skipping hit with index " << iHit << ", because it comes from a skewed straw! LayerID = " << myHit->GetLayerID() << std::endl;}
 				continue;
 			}
 
@@ -204,7 +234,7 @@ Bool_t PndFtsHoughSpace::filterInputHits()
 			// hit comes from non-skewed straw
 			if (kFALSE == fUseNonSkewedStraws)
 			{
-				if (1<fVerbose) {std::cout << "Skipping hit with index " << iHit << " , because it comes from a non-skewed straw! LayerID = " << myHit->GetLayerID() << std::endl;}
+				if (1<fVerbose) {std::cout << "Skipping hit with index " << iHit << ", because it comes from a non-skewed straw! LayerID = " << myHit->GetLayerID() << std::endl;}
 				continue;
 			}
 
@@ -290,9 +320,9 @@ Bool_t PndFtsHoughSpace::MakeHoughSpace()
 	// function fills the Hough space using the equation corresponding to the name of the Hough space
 	// If everything goes well, the function returns kTRUE, else kFALSE (probably Hough space name is set incorrectly or there are no FTS hits)
 
-	// !!! WARNING The theta values are NOT the same as in the interaction point. They are always calculated relative to a shifted coordinate system and only 2-dimensional !!!
+	// !!! WARNING The theta values (in rad) are NOT the same as in the interaction point. They are always calculated relative to a shifted coordinate system and only 2-dimensional !!!
 
-	// The angle (theta) to the z-axis in the z-x- or z-y-plane at a z reference position will be scanned
+	// The angle (theta in rad) to the z-axis in the z-x- or z-y-plane at a z reference position will be scanned
 	// from theta corresponding to lowest bin to theta corresponding to highest bin of x-axis
 
 	// y component of B field will be read from field maps if fKeepBConstant is kFALSE
@@ -388,11 +418,7 @@ Bool_t PndFtsHoughSpace::MakeHoughSpace()
 		for (Int_t iTheta = iThetaFirst; iTheta < iThetaLast; ++iTheta)
 		{
 			// get corresponding theta value
-			Double_t theta = fXaxis.GetBinCenter(iTheta);
-
-			Double_t thetaRad = theta / 180. * meinpi;
-
-
+			Double_t thetaRad = fXaxis.GetBinCenter(iTheta); // theta has to be stored in rad
 
 
 			if ("parabola" == option)
@@ -408,13 +434,21 @@ Bool_t PndFtsHoughSpace::MakeHoughSpace()
 
 				if (9<fVerbose)	{ std::cout << "pz/Q = " << yVal; }
 			}
-			else if ("lineBeforeDipole" == option)
+			else if ( ("lineBeforeDipole" == option) || ("lineAfterDipole" == option) )
 			{
 				// Use real x and shifted z for line
 
-				yVal = equationLineZx(thetaRad, hitZShifted, hitXLabSys);
+				yVal = equationLineZxOrZy(thetaRad, hitZShifted, hitXLabSys);
 
-				if (9<fVerbose) { std::cout << "xLP = " << yVal; }
+				if (9<fVerbose) { std::cout << "xLP/PL = " << yVal; }
+			}
+			else if ("lineZy" == option)
+			{
+				// Use real x and shifted z for line
+
+				yVal = equationLineZxOrZy(thetaRad, hitZShifted, hitYLabSys);
+
+				if (9<fVerbose) { std::cout << "yLine = " << yVal; }
 			}
 			else
 			{
@@ -425,14 +459,14 @@ Bool_t PndFtsHoughSpace::MakeHoughSpace()
 
 
 
-			if (9<fVerbose)	{ std::cout << " for (theta, hitXreal) = (" << theta << ", " << hitXLabSys << ")" << std::endl; }
+			if (9<fVerbose)	{ std::cout << " for (theta, hitXreal) = (" << thetaRad << ", " << hitXLabSys << ")" << std::endl; }
 
 
 
 
 
 
-			globalBin = Fill(theta,yVal);
+			globalBin = Fill(thetaRad,yVal);
 			if (5<fVerbose) { std::cout << "Hough point was filled into Hough space. globalbin = " << globalBin << " for option" << option <<std::endl; }
 			// Find binx and biny for histogram from global bin number
 			GetBinXYZ(globalBin, currentBinX, currentBinY, currentBinZ);
@@ -479,7 +513,7 @@ Bool_t PndFtsHoughSpace::MakeHoughSpace()
 			}
 			else
 			{
-				if (9<fVerbose)	{ std::cout << "Watch out! Point was written to over- or underflow of histogram. firsttheta is set to kTRUE. "<< option <<std::endl; }
+				if (9<fVerbose)	{ std::cout << "Watch out! Point was written to over- or underflow of histogram. firstEntry is set to kTRUE. "<< option <<std::endl; }
 				firstEntry = kTRUE; // otherwise, algorithm connects first point which does not go into over-/underflow with (0,0)
 			}
 
@@ -630,8 +664,8 @@ Bool_t PndFtsHoughSpace::FindAllPeaks(
 					}
 
 					// get theta values
-					const Double_t thetaLo = fXaxis.GetBinCenter(thetaBinLo) / 180. * meinpi;
-					const Double_t thetaHi = fXaxis.GetBinCenter(thetaBinHi) / 180. * meinpi;
+					const Double_t thetaRadLo = fXaxis.GetBinCenter(thetaBinLo);
+					const Double_t thetaRadHi = fXaxis.GetBinCenter(thetaBinHi);
 
 					// for storing the values to be calculated in Hough transform (yValue = offset for line, yValue = Q/pzx for parabola)
 					Double_t yValLo = 0.;
@@ -675,8 +709,8 @@ Bool_t PndFtsHoughSpace::FindAllPeaks(
 						if ("parabola" == option)
 						{
 							// Use shifted x and shifted z for parabola
-							yValLo = equationParabola(thetaLo, hitZShifted, hitXShifted, By);
-							yValHi = equationParabola(thetaHi, hitZShifted, hitXShifted, By);
+							yValLo = equationParabola(thetaRadLo, hitZShifted, hitXShifted, By);
+							yValHi = equationParabola(thetaRadHi, hitZShifted, hitXShifted, By);
 							if (9<fVerbose)	{
 								std::cout << "Q/pzx = " << yValLo << '\n';
 								std::cout << "Q/pzx = " << yValHi << '\n';
@@ -684,20 +718,32 @@ Bool_t PndFtsHoughSpace::FindAllPeaks(
 						}
 						else if ("parabolapz" == option)
 						{
-							yValLo = equationParabolaPz(thetaLo, hitZShifted, hitXShifted, By);
-							yValHi = equationParabolaPz(thetaHi, hitZShifted, hitXShifted, By);
+							yValLo = equationParabolaPz(thetaRadLo, hitZShifted, hitXShifted, By);
+							yValHi = equationParabolaPz(thetaRadHi, hitZShifted, hitXShifted, By);
 
 							if (9<fVerbose)	{
 								std::cout << "pz/Q = " << yValLo << '\n';
 								std::cout << "pz/Q = " << yValHi << '\n';
 							}
 						}
-						else if ("lineBeforeDipole" == option)
+						else if ( ("lineBeforeDipole" == option) || ("lineAfterDipole" == option) )
 						{
 							// Use real x and shifted z for line
 
-							yValLo = equationLineZx(thetaLo, hitZShifted, hitXLabSys);
-							yValHi = equationLineZx(thetaHi, hitZShifted, hitXLabSys);
+							yValLo = equationLineZxOrZy(thetaRadLo, hitZShifted, hitXLabSys);
+							yValHi = equationLineZxOrZy(thetaRadHi, hitZShifted, hitXLabSys);
+
+							if (9<fVerbose) {
+								std::cout << "xLP/PL = " << yValLo << '\n';
+								std::cout << "xLP/PL = " << yValHi << '\n';
+							}
+						}
+						else if ("lineZy" == option)
+						{
+							// Use real x and shifted z for line
+
+							yValLo = equationLineZxOrZy(thetaRadLo, hitZShifted, hitYLabSys);
+							yValHi = equationLineZxOrZy(thetaRadHi, hitZShifted, hitYLabSys);
 
 							if (9<fVerbose) {
 								std::cout << "xLP = " << yValLo << '\n';
