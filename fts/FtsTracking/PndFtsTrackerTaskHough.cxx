@@ -15,6 +15,7 @@
 
 // (Hough) tracking
 #include "PndFtsHoughTrackFinder.h"
+#include "PndFtsHoughSpace.h"
 #include "PndTrackCand.h"
 #include "PndTrack.h"
 #include "FairTrackParP.h"
@@ -37,7 +38,7 @@
 
 
 
-
+#include "TString.h"
 
 
 // TODO this list can probably be shorter
@@ -81,6 +82,7 @@ PndFtsTrackerTaskHough::PndFtsTrackerTaskHough()
 PndFtsTrackerTaskHough::~PndFtsTrackerTaskHough()
 {
 	if(fVerbose>3) Info(MESSAGE_ORIGIN,"Destructor of PndFtsTrackerTaskHough");
+	fOutFile->Close();
 }
 
 
@@ -89,9 +91,10 @@ PndFtsTrackerTaskHough::~PndFtsTrackerTaskHough()
 void PndFtsTrackerTaskHough::Initialization_ClassVariables()
 {
 	// in case of multiple constructors this method is useful
-
+	fEventNr=0;
 	// general
-	//	fSaveDebugInfo=kFALSE;
+	fOutFile=0;
+	fSaveDebugInfo=kFALSE;
 	fVerbose = 0;
 	fPersistence = kTRUE;
 
@@ -189,13 +192,69 @@ InitStatus PndFtsTrackerTaskHough::Init()
 	ioman->Register(fTracksArrayName,"FTSTrk", fTracks, fPersistence); // not needed for pattern recognition
 	ioman->Register(fTracksArrayName+"Cand","FTSTrk", fTrackCands, fPersistence); // TODO Is that correct, should it not be FTSTrkCand or something?
 
+	if (fSaveDebugInfo){
+		InitOutFileForDebugging();
+	}
 
-
-	if(fVerbose>3) Info("Register","Done.");
+	if(3<fVerbose) Info("Register","Done.");
 
 	return kSUCCESS;
 
 }
+
+
+void PndFtsTrackerTaskHough::InitOutFileForDebugging(){
+	fOutFile = FairRootManager::Instance()->GetOutFile();
+	if (0==fOutFile)
+	{
+		std::cout << "InitOutFileForDebugging: Cannot get outfile.\n";
+	}
+	else
+	{
+		fOutFile->cd();
+		fOutFile->mkdir("PndFtsTrackerTaskHough");
+		std::cout << "InitOutFileForDebugging: Outfile initialised for debugging output.\n";
+	}
+}
+
+//void PndFtsTrackerTaskHough::AddNewEventToOutFileForDebugging(UInt_t eventNr){
+//	fOutFile = FairRootManager::Instance()->GetOutFile();
+//	if (0==fOutFile)
+//	{
+//		std::cout << "AddNewEventToOutFileForDebugging: Cannot get outfile.\n";
+//	}
+//	else
+//	{
+//		fOutFile->cd();
+//		fOutFile->cd("PndFtsTrackerTaskHough");
+//		fOutFile->mkdir(""+eventNr);
+//	}
+//}
+
+
+void PndFtsTrackerTaskHough::WriteHistogram(PndFtsHoughSpace* houghSpace){
+	if (0==fOutFile)
+	{
+		std::cout << "WriteHistograms: Cannot get outfile.\n";
+	}
+	else
+	{
+		fOutFile->cd();
+		fOutFile->cd("PndFtsTrackerTaskHough");
+		if(3<fVerbose) std::cout << "WriteHistograms: Got outfile for debugging output.\n";
+		if (0!=houghSpace)
+		{
+			TString histNameOld = houghSpace->GetName();
+			TString histNameNew = ""+fEventNr;
+			histNameNew+=histNameOld;
+			houghSpace->SetName(histNameNew);
+			houghSpace->Write();
+			houghSpace->SetName(histNameOld);
+		}
+		fOutFile->cd();
+	}
+}
+
 
 // ---- ReInit  -------------------------------------------------------
 InitStatus PndFtsTrackerTaskHough::ReInit()
@@ -233,7 +292,8 @@ void PndFtsTrackerTaskHough::SetHitPositionErrors()
 // ---- Exec ----------------------------------------------------------
 void PndFtsTrackerTaskHough::Exec(Option_t* option)
 {
-	if(fVerbose>3) Info("Exec","Exec of PndFtsTrackerTaskHough");
+	++fEventNr;
+	if(0<fVerbose) Info("Exec","Exec of PndFtsTrackerTaskHough on event %i", fEventNr);
 
 	// Reset output array
 	if ( ! fTrackCands )
@@ -249,7 +309,7 @@ void PndFtsTrackerTaskHough::Exec(Option_t* option)
 
 
 
-	PndFtsHoughTrackFinder trackFinder(fFtsBranchId, fFtsHitArray, fField);
+	PndFtsHoughTrackFinder trackFinder(this, fFtsBranchId, fFtsHitArray, fField);
 	trackFinder.SetVerbose(fVerbose);
 	trackFinder.SetSaveDebugInfo(fSaveDebugInfo);
 	//	trackFinder.SetMinPeakHeightZxLineParabola(4);

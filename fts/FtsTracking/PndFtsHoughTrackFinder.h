@@ -17,17 +17,16 @@
 // use PndFtsHoughTrackCand to store information about track candidates and Hough transforms
 // Find all peaks with a minimum height
 // Moved all Hough space related code to PndFtsHoughSpace -> Major code simplification, better maintainability
+// Fill PndTrackCands and PndTrack for output
 //
 // TODO
-// Fill PndTrackCands for output
-// Add straight line for stations 5+6
+// Match straight line for stations 5+6 to parabola
 // Add skewed hits
-// Adaptive Hough
 // Add drift circles
+// Adaptive Hough
 //
 //
 // Created: 18.06.2013
-// Modified: 03.03.2014
 //
 // *************************************************************************
 
@@ -53,6 +52,7 @@
 #include "PndFtsHoughSpace.h"
 #include "PndFtsHoughTracklet.h"
 #include "PndFtsHoughTrackCand.h"
+class PndFtsTrackerTaskHough;
 
 class TString;
 class FairField;
@@ -68,7 +68,7 @@ class FairHit;
 class PndFtsHoughTrackFinder
 {
 public:
-	PndFtsHoughTrackFinder(Int_t branchId, TClonesArray* hits, FairField* field); ///< Sets the array of all FTS hits and the branchId (super important!)
+	PndFtsHoughTrackFinder(PndFtsTrackerTaskHough *trackerTask, Int_t branchId, TClonesArray* hits, FairField* field); ///< Sets the array of all FTS hits and the branchId (super important!)
 	virtual ~PndFtsHoughTrackFinder();
 
 	void FindTracks();										///< Main function to start the track finding
@@ -90,8 +90,7 @@ public:
 	//	void SetMinPeakHeightZxParabolaLine(UInt_t val){ fMinPeakHeightZxParabolaLine = val; };
 	//	void SetMinPeakHeightZyLine(UInt_t val){ fMinPeakHeightZyLine= val; };
 
-	//  write out histograms for debugging
-	void WriteHistograms();
+
 
 
 private:
@@ -112,7 +111,8 @@ private:
 	Int_t   fFtsBranchId; // needed for saving and accessing hits
 	TClonesArray *fFtsHitArray; // Input array of all FTS hits
 
-
+	// for PandaRoot input/output
+	PndFtsTrackerTaskHough *fTrackerTask;
 
 
 	///< Minimum required heights for peaks in Hough spaces

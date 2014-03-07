@@ -37,6 +37,8 @@
 
 
 class PndFtsHoughTrackCand;
+class PndFtsHoughSpace;
+class TH2;
 
 class TClonesArray;
 class PndGeoFtsPar;
@@ -74,10 +76,18 @@ public:
 	void SetSaveDebugInfo(Bool_t saveDebugInfo){ fSaveDebugInfo = saveDebugInfo;};
 	void SetTrackOutput(TString name = "FTSTrkHough") { fTracksArrayName = name; };
 
-
+	//  for writing out histograms for debugging
+	void WriteHistogram(PndFtsHoughSpace* houghSpace);
+	Bool_t GetSaveDebugInfo(){ return fSaveDebugInfo; };
 
 private:
 	void SetHitPositionErrors(); // sets the errors for the hit positions to double the straw radius in x and z and to the full length of the straw in z
+
+	//  for writing out histograms for debugging
+	void InitOutFileForDebugging();
+//	void AddNewEventToOutFileForDebugging(UInt_t eventNr);
+	TFile* fOutFile;
+
 	// general
 	Bool_t fPersistence;
 
@@ -113,7 +123,7 @@ private:
 	// Debug
 	////////
 	Bool_t fSaveDebugInfo;
-	int fEventNr;
+	UInt_t fEventNr;
 
 
 

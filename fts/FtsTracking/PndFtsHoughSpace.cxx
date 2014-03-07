@@ -95,7 +95,7 @@ PndFtsHoughSpace::PndFtsHoughSpace(
 ) :
 fFtsHitArray(ftsHitArray),
 fFtsBranchId(ftsBranchId),
-fVerbose(3),
+fVerbose(0),
 
 fZRefPos(zRefPos),
 fInterceptZx(interceptZx),
@@ -107,9 +107,10 @@ TH2S(name,name,nbinsx,xlow,xup,nbinsy,ylow,yup)
 {
 	if (0==ftsHitArray){
 		std::cout << "PndFtsHoughSpace FATAL ERROR Hit array not set.\n";
+	} else {
+		setParametersForHsOption();
+		filterInputHits();
 	}
-	setParametersForHsOption();
-	filterInputHits();
 }
 
 PndFtsHoughSpace::~PndFtsHoughSpace()
@@ -156,7 +157,7 @@ Bool_t PndFtsHoughSpace::setParametersForHsOption()
 		// parabola for stations 3-5
 		fOnlyUseHitsFromZ = 380.; // Set = 100. if you want to use all FTS hits, higher if you want to exclude hits that are closer to the interaction point than the value
 		fOnlyUseHitsUpToZ = 630.; // Set = 1000. if you want to use all FTS hits, lower if you want to exclude hits that are further away from the interaction point than the value
-	} else if ("lineAfterDipole" == fName)
+	} else if ("lineBehindDipole" == fName)
 	{
 		// make sure hits are not shifted for line hough transform
 		if (0!=fInterceptZx) {
@@ -434,7 +435,7 @@ Bool_t PndFtsHoughSpace::MakeHoughSpace()
 
 				if (9<fVerbose)	{ std::cout << "pz/Q = " << yVal; }
 			}
-			else if ( ("lineBeforeDipole" == option) || ("lineAfterDipole" == option) )
+			else if ( ("lineBeforeDipole" == option) || ("lineBehindDipole" == option) )
 			{
 				// Use real x and shifted z for line
 
@@ -726,7 +727,7 @@ Bool_t PndFtsHoughSpace::FindAllPeaks(
 								std::cout << "pz/Q = " << yValHi << '\n';
 							}
 						}
-						else if ( ("lineBeforeDipole" == option) || ("lineAfterDipole" == option) )
+						else if ( ("lineBeforeDipole" == option) || ("lineBehindDipole" == option) )
 						{
 							// Use real x and shifted z for line
 
