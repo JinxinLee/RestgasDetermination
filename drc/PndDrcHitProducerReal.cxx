@@ -166,7 +166,7 @@ void PndDrcHitProducerReal::ProcessBarPoint()
     Double_t P = sqrt(Px*Px + Py*Py +Pz*Pz);
     Double_t mass = pt->GetMass();
     Double_t energy = TMath::Sqrt(P*P + mass*mass); 
-
+    pt->Position(fPosHit);
     Double_t beta;
     if(energy != 0) {
       beta = P/energy;
@@ -207,19 +207,18 @@ void PndDrcHitProducerReal::ProcessBarPoint()
  
     //cout << "-I- HitProducerReal: hit phi: "<< acos(fXHit/radius)/pi*180. << endl;
     
-    fPosHit.SetXYZ(fXHit,fYHit,fZHit);
+//    fPosHit.SetXYZ(fXHit,fYHit,fZHit);
 
     Double_t fDPosXHit = 0.5; //mm
     Double_t fDPosYHit = 0.5;
     Double_t fDPosZHit = 0.;
     fDPosHit.SetXYZ(fDPosXHit,fDPosYHit,fDPosZHit);
 
-    fThetaC = gRandom->Gaus(pt->GetThetaC(),0.003); // changed by Maria Patsyuk on 3. July 2012 (m.patsyuk@gsi.de)
+    fThetaC = gRandom->Gaus(pt->GetThetaC(),0.002); // changed by H.Kumawat on 7 March 2014 (h.kumawat@gsi.de)
     fErrThetaC = 0.; //rad
 
     fRefIndex = j;
 
-   // PndMCTrack* tr = NULL;
 
     AddHit(fDetectorID, 
 	   fPosHit, 
