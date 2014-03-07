@@ -36,7 +36,7 @@ using namespace std;
 //________________________________________________________________
 PndFtsTrackerIdeal::PndFtsTrackerIdeal():
 		FairTask("FTSTrackfinderIdeal"), fMCTracks(0), fTrackCands(0), fTracks(0),
-		fTrackIds(0), fMinFtsHitsPerTrack(1), fMomSigma(0,0,0), fDPoP(0.), fRelative (kFALSE), fVtxSigma(0,0,0), fEfficiency(1.),
+		fTrackIds(0), fMinFtsHitsPerTrack(5), fMomSigma(0,0,0), fDPoP(0.), fRelative (kFALSE), fVtxSigma(0,0,0), fEfficiency(1.),
 		fTracksArrayName("FTSTrkIdeal"), pdg(0), fPersistence(kTRUE)
 {
 	//---

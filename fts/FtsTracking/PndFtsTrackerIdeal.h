@@ -4,11 +4,12 @@
 //
 // ideal tracker using MC id & track info
 // Gaussian momentum smearing & fake efficiency included
+//
+// removed tracks that turn around in the dipole field (because of fitter problems)
 // removed tracks that have less than 5 hits in the FTS (TODO a more realistic criterion is needed)
 // user can specify that number via SetMinFtsHitsPerTrack()
 // for FTS studies SetMinFtsHitsPerTrack(5) should be good,
 // for studies of overall detector performance SetMinFtsHitsPerTrack(1) gets rid off an efficiency drop 5⁰ < theta < 9⁰ that is due to the current lack of tracking starting from GEM hits
-// removed tracks that turn around in the dipole field (because of fitter problems)
 //
 // Created: 28.01.2011
 // Last modification: 24.02.2014
