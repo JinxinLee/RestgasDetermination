@@ -152,7 +152,7 @@ ParametrizationProxy ModelParameterHandler::getParametrizationProxyForModelParam
 }
 
 void ModelParameterHandler::executeParametrizationModels(const double *x) {
-	for (std::map<shared_ptr<ModelPar>, ParametrizationProxy>::iterator it =
+	for (std::map<const shared_ptr<ModelPar>, ParametrizationProxy>::iterator it =
 			parametrizations.begin(); it != parametrizations.end(); it++) {
 		if (it->second.hasParametrizationModel()) {
 			// if the model parameter is freed do NOT call the parametrization model
