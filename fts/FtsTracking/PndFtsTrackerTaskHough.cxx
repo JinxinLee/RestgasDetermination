@@ -245,8 +245,8 @@ void PndFtsTrackerTaskHough::WriteHistogram(PndFtsHoughSpace* houghSpace){
 		if (0!=houghSpace)
 		{
 			TString histNameOld = houghSpace->GetName();
-			TString histNameNew = ""+fEventNr;
-			histNameNew+=histNameOld;
+			TString histNameNew = houghSpace->GetName();
+			histNameNew+=fEventNr;
 			houghSpace->SetName(histNameNew);
 			houghSpace->Write();
 			houghSpace->SetName(histNameOld);
