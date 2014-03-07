@@ -49,12 +49,12 @@ public:
   Int_t GetHitId()const {return GetIndex();}
   Int_t GetDetId()const {return GetType();}
   Double_t GetRho()const {return fRho;}
-  
-  void Print();
-  
+
+  void Print() const;
+
   private :
   Double_t fRho;		///< sorting parameter
-  
+
   ClassDef(PndTrackCandHit,2);
 };
 

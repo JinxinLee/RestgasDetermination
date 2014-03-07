@@ -1,7 +1,7 @@
 
 #include "PndTrackCandHit.h"
 
-void PndTrackCandHit::Print(){
+void PndTrackCandHit::Print() const {
 	FairLink::Print();
 	std::cout << " Rho: " << fRho << std::endl;
 }

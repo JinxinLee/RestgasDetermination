@@ -61,7 +61,7 @@ void PndTrackCand::ResetLinks()
   FairMultiLinkedData::ResetLinks();
 }
 
-int PndTrackCand::HitInTrack(UInt_t detId, UInt_t hitId)
+int PndTrackCand::HitInTrack(UInt_t detId, UInt_t hitId) const
 {
 	PndTrackCandHit test(detId, hitId, 0.);
 	for (UInt_t i = 0; i < fHitId.size(); i++){
@@ -85,13 +85,13 @@ UInt_t PndTrackCand::GetNHitsDet(UInt_t detId)
 {
   // Function to count the number of hits from the same detId
   Int_t detCounts = 0;
-  
+
   for (Int_t ihit = 0; ihit<fHitId.size(); ihit++)
     {
       PndTrackCandHit candhit = GetSortedHit(ihit);
       if (candhit.GetDetId() == detId) detCounts++;
     }
-  
+
   return detCounts;
 }
 
@@ -116,11 +116,11 @@ void PndTrackCand::CalcTimeStamp()
 	for (int i = 0; i < GetNLinks(); i++){
 		FairLink myLink = GetLink(i);
 		Int_t type = myLink.GetType();
-		
+
 		if (fVerbose > 1){
 			std::cout << "Links: " << myLink << std::endl;
 		}
-		
+
 		if (type > -1){
 			TString branchName = FairRootManager::Instance()->GetBranchName(type);
 			//std::cout << "BranchName: " << branchName.Data() << std::endl;
@@ -160,7 +160,7 @@ bool PndTrackCand::operator== (const PndTrackCand& rhs){
 }
 
 
-void PndTrackCand::Print(){
+void PndTrackCand::Print() const {
   std::cout << "=========== PndTrackCand::Print() ==========" << std::endl;
   if(fMcTrackId>=0) std::cout << "McTrackId=" << fMcTrackId << std::endl;
   std::cout << "seed values for pos,direction, and q/p: " << std::endl;
