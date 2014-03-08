@@ -184,7 +184,7 @@ InitStatus PndFtsTrackerTaskHough::Init()
 
 
 	fHoughTrackCands = new TClonesArray("PndFtsHoughTrackCand");
-	ioman->Register("PndFtsHoughTrackCand", "FTSTrkDebug", fHoughTrackCands, fSaveDebugInfo);
+	ioman->Register("FTSTrkDebug", "PndFtsHoughTrackCand", fHoughTrackCands, fSaveDebugInfo);
 
 
 	fTrackCands = new TClonesArray("PndTrackCand");
@@ -192,9 +192,9 @@ InitStatus PndFtsTrackerTaskHough::Init()
 	ioman->Register(fTracksArrayName,"FTSTrk", fTracks, fPersistence); // not needed for pattern recognition
 	ioman->Register(fTracksArrayName+"Cand","FTSTrk", fTrackCands, fPersistence); // TODO Is that correct, should it not be FTSTrkCand or something?
 
-	if (fSaveDebugInfo){
-		InitOutFileForDebugging();
-	}
+//	if (fSaveDebugInfo){
+//		InitOutFileForDebugging();
+//	}
 
 	if(3<fVerbose) Info("Register","Done.");
 
@@ -203,19 +203,19 @@ InitStatus PndFtsTrackerTaskHough::Init()
 }
 
 
-void PndFtsTrackerTaskHough::InitOutFileForDebugging(){
-	fOutFile = FairRootManager::Instance()->GetOutFile();
-	if (0==fOutFile)
-	{
-		std::cout << "InitOutFileForDebugging: Cannot get outfile.\n";
-	}
-	else
-	{
-		fOutFile->cd();
-		fOutFile->mkdir("PndFtsTrackerTaskHough");
-		std::cout << "InitOutFileForDebugging: Outfile initialised for debugging output.\n";
-	}
-}
+//void PndFtsTrackerTaskHough::InitOutFileForDebugging(){
+//	fOutFile = FairRootManager::Instance()->GetOutFile();
+//	if (0==fOutFile)
+//	{
+//		std::cout << "InitOutFileForDebugging: Cannot get outfile.\n";
+//	}
+//	else
+//	{
+//		fOutFile->cd();
+//		fOutFile->mkdir("PndFtsTrackerTaskHough");
+//		std::cout << "InitOutFileForDebugging: Outfile initialised for debugging output.\n";
+//	}
+//}
 
 //void PndFtsTrackerTaskHough::AddNewEventToOutFileForDebugging(UInt_t eventNr){
 //	fOutFile = FairRootManager::Instance()->GetOutFile();
@@ -232,27 +232,37 @@ void PndFtsTrackerTaskHough::InitOutFileForDebugging(){
 //}
 
 
-void PndFtsTrackerTaskHough::WriteHistogram(PndFtsHoughSpace* houghSpace){
-	if (0==fOutFile)
-	{
-		std::cout << "WriteHistograms: Cannot get outfile.\n";
+void PndFtsTrackerTaskHough::WriteHistogram(PndFtsHoughSpace* houghSpace, Int_t index){
+	TString outName = "plots/";
+	outName += houghSpace->GetName();
+	outName+=fEventNr;
+	if (-1!=index){
+		outName+="-";
+		outName+=index;
 	}
-	else
-	{
-		fOutFile->cd();
-		fOutFile->cd("PndFtsTrackerTaskHough");
-		if(3<fVerbose) std::cout << "WriteHistograms: Got outfile for debugging output.\n";
-		if (0!=houghSpace)
-		{
-			TString histNameOld = houghSpace->GetName();
-			TString histNameNew = houghSpace->GetName();
-			histNameNew+=fEventNr;
-			houghSpace->SetName(histNameNew);
-			houghSpace->Write();
-			houghSpace->SetName(histNameOld);
-		}
-		fOutFile->cd();
-	}
+	outName+=".C";
+	houghSpace->SaveAs(outName);
+
+	//	if (0==fOutFile)
+	//	{
+	//		std::cout << "WriteHistograms: Cannot get outfile.\n";
+	//	}
+	//	else
+	//	{
+	//		fOutFile->cd();
+	//		fOutFile->cd("PndFtsTrackerTaskHough");
+	//		if(3<fVerbose) std::cout << "WriteHistograms: Got outfile for debugging output.\n";
+	//		if (0!=houghSpace)
+	//		{
+	//			TString histNameOld = houghSpace->GetName();
+	//			TString histNameNew = houghSpace->GetName();
+	//			histNameNew+=fEventNr;
+	//			houghSpace->SetName(histNameNew);
+	//			houghSpace->Write();
+	//			houghSpace->SetName(histNameOld);
+	//		}
+	//		fOutFile->cd();
+	//	}
 }
 
 

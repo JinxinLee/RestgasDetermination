@@ -63,26 +63,26 @@ ClassImp(PndFtsHoughTrackFinder)
 
 
 PndFtsHoughTrackFinder::PndFtsHoughTrackFinder(PndFtsTrackerTaskHough *trackerTask, Int_t branchId, TClonesArray* hits, FairField* field) :
-								fTrackerTask(trackerTask),
-								fFtsHitArray(hits),
-								fFtsBranchId(branchId),
-								fField(field),
+										fTrackerTask(trackerTask),
+										fFtsHitArray(hits),
+										fFtsBranchId(branchId),
+										fField(field),
 
-								// Hough spaces
-								fHoughSpaceZxLineBeforeDipole(0),
-								fHoughspaceZxParabola(0),
-								fHoughSpaceZxLineBehindDipole(0),
-								fHoughspaceZyLine(0),
+										// Hough spaces
+										fHoughSpaceZxLineBeforeDipole(0),
+										fHoughspaceZxParabola(0),
+										fHoughSpaceZxLineBehindDipole(0),
+										fHoughspaceZyLine(0),
 
-								// min peak heights
-								fMinPeakHeightZxLineParabola(4),
-								fMinPeakHeightZxParabola(6),
-								fMinPeakHeightZxParabolaLine(4),
-								fMinPeakHeightZyLine(4),
+										// min peak heights
+										fMinPeakHeightZxLineParabola(4),
+										fMinPeakHeightZxParabola(6),
+										fMinPeakHeightZxParabolaLine(4),
+										fMinPeakHeightZyLine(4),
 
-								// general
-								fSaveDebugInfo(kFALSE),
-								fVerbose(0)
+										// general
+										fSaveDebugInfo(kFALSE),
+										fVerbose(0)
 {
 	if (0==fTrackerTask){
 		std::cout << "PndFtsHoughTrackFinder FATAL ERROR Tracker task not set.\n";
@@ -216,18 +216,21 @@ void PndFtsHoughTrackFinder::FindTracks() {
 		//!TODO: Rework this
 		const Double_t thetaRadLowParabola = peakThetaRadLineBeforeDipole - peakThetaRadHwLineBeforeDipole; // in rad
 		const Double_t thetaRadHighParabola = peakThetaRadLineBeforeDipole + peakThetaRadHwLineBeforeDipole; // in rad
-		if (thetaRadHighParabola==thetaRadLowParabola) std::cout << "ERROR: low and high are the same for parabola!\n";
-		UInt_t thetaBins = ceil(stepsPerThetaDegParabola*(thetaRadHighParabola-thetaRadLowParabola));
+		const Double_t thetaDegLowParabola = thetaRadLowParabola / meinpi * 180.; // in deg
+		const Double_t thetaDegHighParabola = thetaRadHighParabola / meinpi * 180.; // in deg
 
-		std::cout << "event: " << fTrackerTask->GetEventNr() << "\nthetaDegLowParabola=" << thetaRadLowParabola/meinpi*180. << " thetaDegHighParabola=" << thetaRadHighParabola/meinpi*180. << "  peakThetaDegLineBeforeDipole=" << peakThetaRadLineBeforeDipole/meinpi*180. << " peakThetaDegHwLineBeforeDipole=" << peakThetaRadHwLineBeforeDipole/meinpi*180. << '\n';
+		if (thetaRadHighParabola==thetaRadLowParabola) std::cout << "ERROR: low and high are the same for parabola!\n";
+		UInt_t thetaBins = ceil(stepsPerThetaDegParabola*(thetaDegHighParabola-thetaDegLowParabola));
+
+		std::cout << "event: " << fTrackerTask->GetEventNr() << "\nthetaDegLowParabola=" << thetaDegLowParabola << " thetaDegHighParabola=" << thetaDegHighParabola << " thetaBins=" << thetaBins << "  peakThetaDegLineBeforeDipole=" << peakThetaRadLineBeforeDipole/meinpi*180. << " peakThetaDegHwLineBeforeDipole=" << peakThetaRadHwLineBeforeDipole/meinpi*180. << '\n';
 
 		delete fHoughspaceZxParabola;
 		fHoughspaceZxParabola= new PndFtsHoughSpace(
 				"parabola",
 
 				thetaBins,
-				thetaRadLowParabola / 180. * meinpi, // in rad
-				thetaRadHighParabola / 180. * meinpi, // in rad
+				thetaRadLowParabola, // in rad
+				thetaRadHighParabola, // in rad
 
 				stepsPerThetaDegParabola*300, // 300 is good as factor
 				-0.015, // a.u.
@@ -254,7 +257,7 @@ void PndFtsHoughTrackFinder::FindTracks() {
 						<< "We have " << fHoughspaceZxParabola->GetNHits() << " hits in the line Hough space.\n";
 			}
 			if (fTrackerTask->GetSaveDebugInfo()){
-//				fTrackerTask->WriteHistogram(fHoughspaceZxParabola);
+				fTrackerTask->WriteHistogram(fHoughspaceZxParabola, iTrackletLine);
 			}
 
 		}
@@ -368,7 +371,7 @@ void PndFtsHoughTrackFinder::FindTracks() {
 			PrintFoundTracklets(trackletsLineBehindDipole, fHoughSpaceZxLineBehindDipole->GetName());
 		}
 		if (fTrackerTask->GetSaveDebugInfo()){
-//			fTrackerTask->WriteHistogram(fHoughSpaceZxLineBehindDipole);
+			fTrackerTask->WriteHistogram(fHoughSpaceZxLineBehindDipole);
 		}
 	}
 	else

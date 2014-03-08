@@ -49,6 +49,11 @@ public:
 	TVector3 getP(const Double_t zLabSys) const; // gets the momentum calculated at some hit
 	TVector3 getPos(const Double_t zLabSys) const; // gets the position calculated at some hit
 
+	Double_t getZLineParabola() { return fZLineParabola; };
+	Double_t getZParabolaLine() { return fZParabolaLine; };
+
+
+
 	// Modifiers -----------------------
 	// add results from Hough transforms
 	void SetZxFirstLine(const PndFtsHoughTracklet zxLineParabola);

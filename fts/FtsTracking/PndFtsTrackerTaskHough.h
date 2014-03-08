@@ -16,7 +16,6 @@
 // Make this task work for time-based simulation as well [have a look at PndMvdRiemannTrackFinderTask::FillHitArray()]
 //
 // Created: 18.06.2013
-// Modified: 12.02.2014
 //
 // *************************************************************************
 
@@ -75,7 +74,7 @@ public:
 	void SetTrackOutput(TString name = "FTSTrkHough") { fTracksArrayName = name; };
 
 	//  for writing out histograms for debugging
-	void WriteHistogram(PndFtsHoughSpace* houghSpace);
+	void WriteHistogram(PndFtsHoughSpace* houghSpace, Int_t index=-1);
 	Bool_t GetSaveDebugInfo(){ return fSaveDebugInfo; };
 	const UInt_t GetEventNr() { return fEventNr; };
 
@@ -83,7 +82,7 @@ private:
 	void SetHitPositionErrors(); // sets the errors for the hit positions to double the straw radius in x and z and to the full length of the straw in z
 
 	//  for writing out histograms for debugging
-	void InitOutFileForDebugging();
+//	void InitOutFileForDebugging();
 	//	void AddNewEventToOutFileForDebugging(UInt_t eventNr);
 	TFile* fOutFile;
 
