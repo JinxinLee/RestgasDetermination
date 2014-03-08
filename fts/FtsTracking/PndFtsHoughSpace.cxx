@@ -612,236 +612,240 @@ Bool_t PndFtsHoughSpace::FindAllPeaks(
 
 				currBinNumber = GetBin(currBinX,currBinY); // binz
 				currHeight = GetBinContent(currBinNumber);
-				if (minHeight <= currHeight) {
-					// I found a potential peak, so I check the neighbors in next higher theta bins
-					// I save the currently highest peak
-					// I set the last visited peak = current peak and move to the next neighbor
-					// if neighbor < highest peak and neighbor <= last peak, but above the minHeight, I set it to 0. I save its height as the last height.
+				if (minHeight > currHeight) {
+					// currBinNumber is not high enough to be considered a peak
+					SetBinContent(currBinNumber,0); // DEBUG: Uncomment this for testing only!!!
+					continue;
+				}
+				// I found a potential peak, so I check the neighbors in next higher theta bins
+				// I save the currently highest peak
+				// I set the last visited peak = current peak and move to the next neighbor
+				// if neighbor < highest peak and neighbor <= last peak, but above the minHeight, I set it to 0. I save its height as the last height.
 
-					// if neighbor is higher than the last peak, I set the last visited bin to 0 and move on
-					// if neighbor is the same height as last peak, I find the middle and set all others to 0 and I widen the errors of the middle bin
+				// if neighbor is higher than the last peak, I set the last visited bin to 0 and move on
+				// if neighbor is the same height as last peak, I find the middle and set all others to 0 and I widen the errors of the middle bin
 
-					Int_t iBinX = 0; // for moving to neighbors in x direction
+				Int_t iBinX = 0; // for moving to neighbors in x direction
 
-					// save info of highest peak found while searching neighbors
-					Int_t combinedPeakBinXLow=currBinX;  // saves in which x (thetaRad) bin a peak starts
-					Int_t combinedPeakBinXHigh=currBinX; // saves in which x (thetaRad) bin a peak ends
-					Double_t combinedPeakHeight=currHeight;
+				// save info of highest peak found while searching neighbors
+				Int_t combinedPeakBinXLow=currBinX;  // saves in which x (thetaRad) bin a peak starts
+				Int_t combinedPeakBinXHigh=currBinX; // saves in which x (thetaRad) bin a peak ends
+				Double_t combinedPeakHeight=currHeight;
 
-					// save info of last visited neighbor
-					Int_t lastVisitedBinX = currBinX;
-					Int_t lastVisitedBinNumber = currBinNumber;
-					Double_t lastVisitedHeight = currHeight;
+				// save info of last visited neighbor
+				Int_t lastVisitedBinX = currBinX;
+				Int_t lastVisitedBinNumber = currBinNumber;
+				Double_t lastVisitedHeight = currHeight;
 
-					// storing the current neighbor bin
-					Int_t currNeighborBinX = currBinX;
-					Int_t currNeighborBinNumber = currBinNumber;
-					Double_t currNeighborHeight = currHeight;
+				// storing the current neighbor bin
+				Int_t currNeighborBinX = currBinX;
+				Int_t currNeighborBinNumber = currBinNumber;
+				Double_t currNeighborHeight = currHeight;
 
-					do{
-						++iBinX; // to move along the x bins
-						// set current neighbor
-						currNeighborBinX = currBinX+iBinX;
-						if (currNeighborBinX>xLastBin){
+				do{
+					++iBinX; // to move along the x bins
+					// set current neighbor
+					currNeighborBinX = currBinX+iBinX;
+					if (currNeighborBinX>xLastBin){
+						break;
+					}
+					currNeighborBinNumber = GetBin(currNeighborBinX,currBinY); // binz
+					currNeighborHeight = GetBinContent(currNeighborBinNumber);
+
+					if (minHeight > currNeighborHeight){
+						// end of peak region in x direction found, I can get out of the loop
+						SetBinContent(currNeighborBinNumber,0); // DEBUG: Uncomment this for testing only!!!
+						break;
+					}
+
+					if (currNeighborHeight > combinedPeakHeight){
+						// actually peak starts with neighbor (or even later), but current bin is not in peak
+						for (Int_t xBinToDel=combinedPeakBinXLow; xBinToDel<= combinedPeakBinXHigh; ++xBinToDel){
+							Int_t BinNumberToDel = GetBin(xBinToDel,currBinY);
+							SetBinContent(BinNumberToDel,0);
+						}
+						combinedPeakBinXLow = currNeighborBinX;
+						combinedPeakBinXHigh = currNeighborBinX;
+						combinedPeakHeight = currNeighborHeight;
+					} else if (currNeighborHeight < combinedPeakHeight){
+						if (currNeighborHeight <= lastVisitedHeight){
+							// peak is dropping, delete current bin (which is at the falling edge of the peak)
+							SetBinContent(currNeighborBinNumber,0);
+						} else {
+							// next peak starts rising, I can end the loop
 							break;
 						}
-						currNeighborBinNumber = GetBin(currNeighborBinX,currBinY); // binz
-						currNeighborHeight = GetBinContent(currNeighborBinNumber);
-
-						if (minHeight > currNeighborHeight){
-							// end of peak region in x direction found, I can get out of the loop
-							break;
-						}
-
-						if (currNeighborHeight > combinedPeakHeight){
-							// actually peak starts with neighbor (or even later), but current bin is not in peak
-							for (Int_t xBinToDel=combinedPeakBinXLow; xBinToDel<= combinedPeakBinXHigh; ++xBinToDel){
-								Int_t BinNumberToDel = GetBin(xBinToDel,currBinY);
-								SetBinContent(BinNumberToDel,0);
-							}
-							combinedPeakBinXLow = currNeighborBinX;
-							combinedPeakBinXHigh = currNeighborBinX;
-							combinedPeakHeight = currNeighborHeight;
-						} else if (currNeighborHeight < combinedPeakHeight){
-							if (currNeighborHeight <= lastVisitedHeight){
-								// peak is dropping, delete current bin (which is at the falling edge of the peak)
-								SetBinContent(currNeighborBinNumber,0);
-							} else {
-								// next peak starts rising, I can end the loop
-								break;
-							}
-						} else if (currNeighborHeight == combinedPeakHeight){
-							// peak is spread over several bins
-							combinedPeakBinXHigh = currNeighborBinX;
-						}
-						lastVisitedBinX = currNeighborBinX;
-						lastVisitedBinNumber = currNeighborBinNumber;
-						lastVisitedHeight = currNeighborHeight;
-
-					} while(kTRUE);
-
-
-
-					// peak is in the middle
-					peakBinX  = (combinedPeakBinXHigh+combinedPeakBinXLow)/2; // if sum is not an even number, I have to correct for that later
-					peakBinY  = currBinY;
-					// locmaz  = binz;
-					// get values corresponding to the peak
-					Double_t peakThetaVal = fXaxis.GetBinCenter(peakBinX);
-					Double_t peakSecondVal = fYaxis.GetBinCenter(peakBinY);
-
-					// correct peak value if mean for peak cannot be divided by 2 without remainder
-					if (0!=(combinedPeakBinXHigh+combinedPeakBinXLow)%2){
-						peakThetaVal+=fXaxis.GetBinWidth(peakThetaVal)/2.;
+					} else if (currNeighborHeight == combinedPeakHeight){
+						// peak is spread over several bins
+						combinedPeakBinXHigh = currNeighborBinX;
 					}
+					lastVisitedBinX = currNeighborBinX;
+					lastVisitedBinNumber = currNeighborBinNumber;
+					lastVisitedHeight = currNeighborHeight;
 
-					// get full width of peak = (highest bin + halfwidth) - (lowest bin - halfwidth)
-					Double_t combinedPeakThetaLowEdge = fXaxis.GetBinCenter(combinedPeakBinXLow) - fXaxis.GetBinWidth(combinedPeakBinXLow)/2.;
-					Double_t combinedPeakThetaHighEdge = fXaxis.GetBinCenter(combinedPeakBinXHigh) + fXaxis.GetBinWidth(combinedPeakBinXHigh)/2.;
-
-					Double_t peakThetaHw = (combinedPeakThetaHighEdge-combinedPeakThetaLowEdge)/2.;
-					Double_t peakSecondHw = fYaxis.GetBinWidth(peakSecondVal)/2.;
-
-					// create tracklet and push it back to output
-					PndFtsHoughTracklet currentTracklet(fZRefPos, fFtsBranchId, fFtsHitArray);
-					currentTracklet.SetHoughTransformResults(peakThetaVal, peakSecondVal, currHeight, peakThetaHw, peakSecondHw);
-
-					///////////////////////////////////////////
-					// TODO this is messy, because the code is very similar to MakeHoughSpace. Probably, I should find a way to merge it
-					// add hits which are in the peak to the tracklet
-					// 1 calculate the 2nd value for the next higher/lower theta bin of combined peak theta
-					// 2 If peak 2nd value is within [min hit 2nd value - half width,  max hit 2nd value + half width] add the hit to the tracklet
-					// 3 otherwise the hit is not in the peak
-
-					// This is more complicated to check, but also true
-					// A calculate the 2nd value for peak theta
-					// B If hit 2nd value is within [peak 2nd value - peakSecondHw,  peak 2nd value + peakSecondHw] add the hit
-					// C If hit 2nd value is < peak 2nd value - peakSecondHw, hit is in peak if the 2nd value of the next higher/lower theta bin is >= peak 2nd value
-					// D If hit 2nd value is > peak 2nd value + peakSecondHw, hit is in peak if the 2nd value of the next lower/higher theta bin is <= peak 2nd value
-					// E otherwise the hit is not in the peak
-
-					// 1 calculate the 2nd value for the next higher/lower theta bin of peak theta
-					UInt_t thetaBinLo = combinedPeakBinXLow-1;
-					UInt_t thetaBinHi = combinedPeakBinXHigh+1;
-					// special case if we are at the edge of the Hough space
-					if (thetaBinLo>xFirstBin) {
-						thetaBinLo=xFirstBin;
-					}
-					if (thetaBinHi>xLastBin) {
-						thetaBinHi=xLastBin;
-					}
-
-					// get theta values
-					const Double_t thetaRadLo = fXaxis.GetBinCenter(thetaBinLo);
-					const Double_t thetaRadHi = fXaxis.GetBinCenter(thetaBinHi);
-
-					// for storing the values to be calculated in Hough transform (yValue = offset for line, yValue = Q/pzx for parabola)
-					Double_t yValLo = 0.;
-					Double_t yValHi = 0.;
-
-					// for B field access
-					Double_t By = 0.;
+				} while(kTRUE);
 
 
-					for (int iHit = 0; iHit < GetNHits(); iHit++)
+
+				// peak is in the middle
+				peakBinX  = (combinedPeakBinXHigh+combinedPeakBinXLow)/2; // if sum is not an even number, I have to correct for that later
+				peakBinY  = currBinY;
+				// locmaz  = binz;
+				// get values corresponding to the peak
+				Double_t peakThetaVal = fXaxis.GetBinCenter(peakBinX);
+				Double_t peakSecondVal = fYaxis.GetBinCenter(peakBinY);
+
+				// correct peak value if mean for peak cannot be divided by 2 without remainder
+				if (0!=(combinedPeakBinXHigh+combinedPeakBinXLow)%2){
+					peakThetaVal+=fXaxis.GetBinWidth(peakThetaVal)/2.;
+				}
+
+				// get full width of peak = (highest bin + halfwidth) - (lowest bin - halfwidth)
+				Double_t combinedPeakThetaLowEdge = fXaxis.GetBinCenter(combinedPeakBinXLow) - fXaxis.GetBinWidth(combinedPeakBinXLow)/2.;
+				Double_t combinedPeakThetaHighEdge = fXaxis.GetBinCenter(combinedPeakBinXHigh) + fXaxis.GetBinWidth(combinedPeakBinXHigh)/2.;
+
+				Double_t peakThetaHw = (combinedPeakThetaHighEdge-combinedPeakThetaLowEdge)/2.;
+				Double_t peakSecondHw = fYaxis.GetBinWidth(peakSecondVal)/2.;
+
+				// create tracklet and push it back to output
+				PndFtsHoughTracklet currentTracklet(fZRefPos, fFtsBranchId, fFtsHitArray);
+				currentTracklet.SetHoughTransformResults(peakThetaVal, peakSecondVal, currHeight, peakThetaHw, peakSecondHw);
+
+				///////////////////////////////////////////
+				// TODO this is messy, because the code is very similar to MakeHoughSpace. Probably, I should find a way to merge it
+				// add hits which are in the peak to the tracklet
+				// 1 calculate the 2nd value for the next higher/lower theta bin of combined peak theta
+				// 2 If peak 2nd value is within [min hit 2nd value - half width,  max hit 2nd value + half width] add the hit to the tracklet
+				// 3 otherwise the hit is not in the peak
+
+				// This is more complicated to check, but also true
+				// A calculate the 2nd value for peak theta
+				// B If hit 2nd value is within [peak 2nd value - peakSecondHw,  peak 2nd value + peakSecondHw] add the hit
+				// C If hit 2nd value is < peak 2nd value - peakSecondHw, hit is in peak if the 2nd value of the next higher/lower theta bin is >= peak 2nd value
+				// D If hit 2nd value is > peak 2nd value + peakSecondHw, hit is in peak if the 2nd value of the next lower/higher theta bin is <= peak 2nd value
+				// E otherwise the hit is not in the peak
+
+				// 1 calculate the 2nd value for the next higher/lower theta bin of peak theta
+				UInt_t thetaBinLo = combinedPeakBinXLow-1;
+				UInt_t thetaBinHi = combinedPeakBinXHigh+1;
+				// special case if we are at the edge of the Hough space
+				if (thetaBinLo>xFirstBin) {
+					thetaBinLo=xFirstBin;
+				}
+				if (thetaBinHi>xLastBin) {
+					thetaBinHi=xLastBin;
+				}
+
+				// get theta values
+				const Double_t thetaRadLo = fXaxis.GetBinCenter(thetaBinLo);
+				const Double_t thetaRadHi = fXaxis.GetBinCenter(thetaBinHi);
+
+				// for storing the values to be calculated in Hough transform (yValue = offset for line, yValue = Q/pzx for parabola)
+				Double_t yValLo = 0.;
+				Double_t yValHi = 0.;
+
+				// for B field access
+				Double_t By = 0.;
+
+
+				for (int iHit = 0; iHit < GetNHits(); iHit++)
+				{
+					const PndFtsHit* myHit = getHit(iHit);
+
+					// get hit position
+					TVector3 hitPos;
+					myHit->Position(hitPos);
+
+					Double_t hitXLabSys = hitPos.X();
+					Double_t hitYLabSys = hitPos.Y();
+					Double_t hitZLabSys = hitPos.Z();
+					Double_t hitXShifted = hitXLabSys - fInterceptZx; // shifts all x positions of hits so that they go through x=0 at z=zOffset (for parabola)
+					Double_t hitZShifted = hitZLabSys - fZRefPos; // z coordinate in local coordinate system (for parabola and for line)
+
+					if (kTRUE == fKeepBConstant)
 					{
-						const PndFtsHit* myHit = getHit(iHit);
+						// do not take B field into account
+						By = 1.;
+					}
+					else
+					{
+						// Use B field information
+						Double_t po[3], BB[3];
+						po[0] = hitXLabSys; // Use magnetic field at real (not shifted) x position
+						po[1] = hitYLabSys;
+						po[2] = hitZLabSys;
+						fField->GetFieldValue(po, BB); //return value in KG (G3)
+						By = BB[1] / 10.; // By is y-component of magnetic field in Tesla
+					}
 
-						// get hit position
-						TVector3 hitPos;
-						myHit->Position(hitPos);
-
-						Double_t hitXLabSys = hitPos.X();
-						Double_t hitYLabSys = hitPos.Y();
-						Double_t hitZLabSys = hitPos.Z();
-						Double_t hitXShifted = hitXLabSys - fInterceptZx; // shifts all x positions of hits so that they go through x=0 at z=zOffset (for parabola)
-						Double_t hitZShifted = hitZLabSys - fZRefPos; // z coordinate in local coordinate system (for parabola and for line)
-
-						if (kTRUE == fKeepBConstant)
-						{
-							// do not take B field into account
-							By = 1.;
+					const TString option = GetName();
+					if ("parabola" == option)
+					{
+						// Use shifted x and shifted z for parabola
+						yValLo = equationParabola(thetaRadLo, hitZShifted, hitXShifted, By);
+						yValHi = equationParabola(thetaRadHi, hitZShifted, hitXShifted, By);
+						if (9<fVerbose)	{
+							std::cout << "Q/pzx = " << yValLo << '\n';
+							std::cout << "Q/pzx = " << yValHi << '\n';
 						}
-						else
-						{
-							// Use B field information
-							Double_t po[3], BB[3];
-							po[0] = hitXLabSys; // Use magnetic field at real (not shifted) x position
-							po[1] = hitYLabSys;
-							po[2] = hitZLabSys;
-							fField->GetFieldValue(po, BB); //return value in KG (G3)
-							By = BB[1] / 10.; // By is y-component of magnetic field in Tesla
+					}
+					else if ("parabolapz" == option)
+					{
+						yValLo = equationParabolaPz(thetaRadLo, hitZShifted, hitXShifted, By);
+						yValHi = equationParabolaPz(thetaRadHi, hitZShifted, hitXShifted, By);
+
+						if (9<fVerbose)	{
+							std::cout << "pz/Q = " << yValLo << '\n';
+							std::cout << "pz/Q = " << yValHi << '\n';
 						}
+					}
+					else if ( ("lineBeforeDipole" == option) || ("lineBehindDipole" == option) )
+					{
+						// Use real x and shifted z for line
 
-						const TString option = GetName();
-						if ("parabola" == option)
-						{
-							// Use shifted x and shifted z for parabola
-							yValLo = equationParabola(thetaRadLo, hitZShifted, hitXShifted, By);
-							yValHi = equationParabola(thetaRadHi, hitZShifted, hitXShifted, By);
-							if (9<fVerbose)	{
-								std::cout << "Q/pzx = " << yValLo << '\n';
-								std::cout << "Q/pzx = " << yValHi << '\n';
-							}
+						yValLo = equationLineZxOrZy(thetaRadLo, hitZShifted, hitXLabSys);
+						yValHi = equationLineZxOrZy(thetaRadHi, hitZShifted, hitXLabSys);
+
+						if (9<fVerbose) {
+							std::cout << "xLP/PL = " << yValLo << '\n';
+							std::cout << "xLP/PL = " << yValHi << '\n';
 						}
-						else if ("parabolapz" == option)
-						{
-							yValLo = equationParabolaPz(thetaRadLo, hitZShifted, hitXShifted, By);
-							yValHi = equationParabolaPz(thetaRadHi, hitZShifted, hitXShifted, By);
+					}
+					else if ("lineZy" == option)
+					{
+						// Use real x and shifted z for line
 
-							if (9<fVerbose)	{
-								std::cout << "pz/Q = " << yValLo << '\n';
-								std::cout << "pz/Q = " << yValHi << '\n';
-							}
+						yValLo = equationLineZxOrZy(thetaRadLo, hitZShifted, hitYLabSys);
+						yValHi = equationLineZxOrZy(thetaRadHi, hitZShifted, hitYLabSys);
+
+						if (9<fVerbose) {
+							std::cout << "xLP = " << yValLo << '\n';
+							std::cout << "xLP = " << yValHi << '\n';
 						}
-						else if ( ("lineBeforeDipole" == option) || ("lineBehindDipole" == option) )
-						{
-							// Use real x and shifted z for line
-
-							yValLo = equationLineZxOrZy(thetaRadLo, hitZShifted, hitXLabSys);
-							yValHi = equationLineZxOrZy(thetaRadHi, hitZShifted, hitXLabSys);
-
-							if (9<fVerbose) {
-								std::cout << "xLP/PL = " << yValLo << '\n';
-								std::cout << "xLP/PL = " << yValHi << '\n';
-							}
-						}
-						else if ("lineZy" == option)
-						{
-							// Use real x and shifted z for line
-
-							yValLo = equationLineZxOrZy(thetaRadLo, hitZShifted, hitYLabSys);
-							yValHi = equationLineZxOrZy(thetaRadHi, hitZShifted, hitYLabSys);
-
-							if (9<fVerbose) {
-								std::cout << "xLP = " << yValLo << '\n';
-								std::cout << "xLP = " << yValHi << '\n';
-							}
-						}
-						else
-						{
-							std::cout << "Error in MakeHoughSpace! option " << option << " is not implemented!" << std::endl;
-							return kFALSE;
-						}
+					}
+					else
+					{
+						std::cout << "Error in MakeHoughSpace! option " << option << " is not implemented!" << std::endl;
+						return kFALSE;
+					}
 
 
-						// 2 If peak 2nd value is within [min hit 2nd value - half width,  max hit 2nd value + half width] add the hit to the tracklet
-						const Double_t yMin = std::min(yValLo,yValHi);
-						const Double_t yMax = std::max(yValLo,yValHi);
-						const Double_t yMinHw = fYaxis.GetBinWidth(yMin)/2.;
-						const Double_t yMaxHw = fYaxis.GetBinWidth(yMax)/2.;
+					// 2 If peak 2nd value is within [min hit 2nd value - half width,  max hit 2nd value + half width] add the hit to the tracklet
+					const Double_t yMin = std::min(yValLo,yValHi);
+					const Double_t yMax = std::max(yValLo,yValHi);
+					const Double_t yMinHw = fYaxis.GetBinWidth(yMin)/2.;
+					const Double_t yMaxHw = fYaxis.GetBinWidth(yMax)/2.;
 
 
 
-						if ( (yMin-yMinHw <= peakSecondVal) && (yMax+yMaxHw >= peakSecondVal) ){
-							currentTracklet.AddHit(fFtsBranchId, iHit, hitZLabSys);
-						}
+					if ( (yMin-yMinHw <= peakSecondVal) && (yMax+yMaxHw >= peakSecondVal) ){
+						currentTracklet.AddHit(fFtsBranchId, iHit, hitZLabSys);
+					}
 
-					} // loop over hits
-					/////////////////////////////////////////////////
-					tracklets.push_back(currentTracklet);
-				} // height is big enough
-				//		   } // z loop
+				} // loop over hits
+				/////////////////////////////////////////////////
+				tracklets.push_back(currentTracklet);
+				// } // z loop
 			} // y loop
 		} // x loop
 
