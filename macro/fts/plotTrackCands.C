@@ -50,7 +50,7 @@ using namespace std;
 
 
 //#include "AnalysisTools/PndEventReader.h"
-#include "AnalysisTools/PndMcTruthMatch.h"
+//#include "AnalysisTools/PndMcTruthMatch.h"
 #include "AnalysisTools/PndAnalysis.h"
 
 #include "AnalysisTools/Fitter/Pnd4CFitter.h"
@@ -62,6 +62,7 @@ using namespace std;
 #include "FairRunSim.h"
 #include "PndMultiField.h"
 #include "PndMCTrack.h"
+#include "PndFtsHoughTrackCand.h"
 
 
 
@@ -71,11 +72,9 @@ using namespace std;
 
 
 
-
-void PlotMCTracks(int iEvent, TString branchName, TString tcaName, TGraph *mcPoints)
+void PlotMCTracks(int iEvent, TString branchName, TString tcaName, TGraph *mcPoints, TFile* fSim = 0)
 {
-	// File that you want to access needs to be opened first (and not other file after it), because the file is accessed via gFile
-	// TODO I could also pass in the handle instead of using gFile
+	// if no file is specified the newest open file is used
 
 	// Uncomment if you want to test the routine without calling it in a macro (by copy pasting into the interpreter)
 	// TString branchName="FTSPoint"; TString tcaName="PndFtsPoint";
@@ -83,38 +82,20 @@ void PlotMCTracks(int iEvent, TString branchName, TString tcaName, TGraph *mcPoi
 
 	int verbose = 0;
 
+	// use last file if none is specified
+	if (0==fSim) {
+		fSim = gFile;
+	}
 
 	TTree* tSim = (TTree*) (gFile->Get("cbmsim"));
 	//tSim->StartViewer();
-	if (verbose > 5)
-	{
-		std::cout << "Got the tree" << std::endl;
-	}
-
 	TClonesArray* Points = new TClonesArray(tcaName);
-	if (verbose > 5)
-	{
-		std::cout << "Created new TCA" << std::endl;
-	}
-
 	tSim->SetBranchAddress(branchName, &Points);
-	if (verbose > 5)
-	{
-		std::cout << "Set the branchName" << std::endl;
-	}
-
 	TBranch* br = tSim->FindBranch(branchName);
-	if (verbose > 5)
-	{
-		std::cout << "Found the branch" << std::endl;
-	}
 
 	if (br == 0 || br->GetEntries() == 0 || iEvent >= br->GetEntries())
 		return;
-	if (verbose > 3)
-	{
-		std::cout << "Passed the test" << std::endl;
-	}
+
 
 	tSim->GetEntry(iEvent); // Look at event iEvent
 	const Int_t nPoints = Points->GetEntriesFast();
@@ -122,10 +103,7 @@ void PlotMCTracks(int iEvent, TString branchName, TString tcaName, TGraph *mcPoi
 	Double_t X[nPoints];
 	Double_t Y[nPoints]; // not used for plotting
 	Double_t Z[nPoints];
-	if (verbose > 2)
-	{
-		std::cout << "Number of points: " << nPoints << std::endl;
-	}
+
 
 	for (int iPoint = 0; iPoint < nPoints; iPoint++)
 	{
@@ -174,7 +152,7 @@ void PlotMCTracks(int iEvent, TString branchName, TString tcaName, TGraph *mcPoi
 
 	if (0<nPoints)
 	{
-		mcPoints->DrawGraph(nPoints, Z, X, "LP,SAME");
+		mcPoints->DrawGraph(nPoints, Z, X, "P,SAME");
 		//		DrawGraph(Int_t n, const Double_t *x=0, const Double_t *y=0, Option_t *option="");
 	}
 
@@ -228,7 +206,7 @@ void PlotMCTracksPrintBField(PndMultiField *fField, int iEvent,
 	if (verbose > 2)
 	{
 		std::cout << "Number of points: " << Points->GetEntriesFast()
-						<< std::endl;
+																		<< std::endl;
 	}
 	for (int iPoint = 0; iPoint < Points->GetEntriesFast(); iPoint++)
 	{
@@ -305,21 +283,41 @@ void PlotMCTracksPrintBField(PndMultiField *fField, int iEvent,
 
 
 
-void MakeHoughLineFit(Double_t b, Double_t theta,
-		Double_t weight, const Double_t zOffset, TGraph* returnTGraph)
+void plotHoughTrackCand(PndFtsHoughTrackCand *trackCand, TGraph* returnTGraph)
 {
-	// calculate two points and return result in TGraph*
-	const Double_t meinpi = 3.14159265;
-	Double_t realtheta = theta / 360. * 2. * meinpi;
-	const Double_t tantheta = tan(realtheta);
 
-	const Int_t nPoints = 2;
-	Double_t z[nPoints] = { -200., 300. }; // z is in local coordinate system
+	// calculate two points on lines, many points for parabola and return result in TGraph*
+
+
+	const Double_t fZLineParabola = trackCand->getZLineParabola();
+	const Double_t fZParabolaLine = trackCand->getZParabolaLine();
+	TVector3 pos;
+
+
+	const Int_t nPoints = 50; // first 2 for line before dipole, last 2 for line after dipole, rest for parabola within dipole
+	Double_t z[nPoints] = { fZLineParabola-500., fZLineParabola }; // all coordinates are in PANDA coordinate system
 	Double_t x[nPoints];
 	for (Int_t iPoint = 0; iPoint < nPoints; ++iPoint)
 	{
-		x[iPoint] = tantheta*z[iPoint]+b;
-		z[iPoint]+=zOffset; // z has to be shifted into laboratory system before plotting
+		switch (iPoint)
+		{
+		case 0:
+			z[iPoint] = fZLineParabola-100.;
+			break;
+		case 1:
+			z[iPoint] = fZLineParabola;
+			break;
+		case nPoints-2:
+		z[iPoint] = fZParabolaLine;
+		break;
+		case nPoints-1:
+		z[iPoint] = fZParabolaLine+100.;
+		break;
+		default:
+			z[iPoint] = (fZParabolaLine-fZLineParabola)/(nPoints-4);
+		}
+		pos = trackCand->getPos(z[iPoint]);
+		x[iPoint] = pos.X();
 	}
 
 	returnTGraph->DrawGraph(nPoints,z,x,"LP,SAME") ;
@@ -578,6 +576,7 @@ void plotTrackCands(int iEvent)
 	gSystem->Load("libParBase");
 	gSystem->Load("libBase");
 	gSystem->Load("libField");
+	gSystem->Load("libFts");
 
 
 
@@ -591,6 +590,7 @@ void plotTrackCands(int iEvent)
 
 	// -----------------------------------------------------------------------
 	// FileNames
+	TString RecoFile = "reco_complete.root";
 	TString DigiFile = "digi_complete.root";
 	TString SimFile = "sim_complete.root";
 	// -----------------------------------------------------------------------
@@ -602,7 +602,7 @@ void plotTrackCands(int iEvent)
 
 	// General stuff
 	const Double_t BeamMomentum = 15.; //6.991;
-	const Double_t meinpi = 3.14159265;
+	const Double_t meinpi = 3.14159265359;
 	const Int_t ResolutionX = 800, ResolutionY = 600; // for plotting
 
 	// -----------------------------------------------------------------------
@@ -627,31 +627,28 @@ void plotTrackCands(int iEvent)
 	//	TH2D* mcPoints = new TH2D(mcPointsHistoname, mcPointsHistoname, 1200, -200, 1000, 500, -250,
 	//			250);
 
-	TH2F* Bfield = NULL;
+	TH2F* fFieldHist = NULL;
 
-	Bfield = new TH2F("Bfield", "", 650, -200, 1100, 250, -250, 250);
-	Bfield->GetXaxis()->SetTitle("z [cm]");
-	Bfield->GetYaxis()->SetTitle("x [cm]");
+	fFieldHist = new TH2F("Bfield", "", 650, -200, 1100, 250, -250, 250);
+	fFieldHist->GetXaxis()->SetTitle("z [cm]");
+	fFieldHist->GetYaxis()->SetTitle("x [cm]");
 
 
-	// 2014
-	//	TH2F* houghspaceLine= new TH2F("houghspaceLine", "houghspaceLine", invthetastepForLine*(thetalimithighForLineHoughSpacePlot-thetalimitlowForLineHoughSpacePlot), thetalimitlowForLineHoughSpacePlot, thetalimithighForLineHoughSpacePlot, invthetastepForLine*40, -50., 50.);
-	//	houghspaceLine->GetXaxis()->SetTitle("#theta [^{0}]");
-	//	houghspaceLine->GetYaxis()->SetTitle("b [cm]");
-	////	TH2D* Fitinxzplane= new TH2D("Fitinxzplane", "Fitinxzplane", 800, 0, 800, 500, -250, 250);
-	//	TGraph* FitInXZPlane = new TGraph();
-	//	FitInXZPlane->SetMarkerColor(4);
-	//	FitInXZPlane->SetMarkerStyle(1);
-	//	FitInXZPlane->SetMarkerSize(1.1);
-	//	FitInXZPlane->SetLineColor(4);
-	//	FitInXZPlane->SetLineWidth(1.5);
+
+	//	TH2D* Fitinxzplane= new TH2D("Fitinxzplane", "Fitinxzplane", 800, 0, 800, 500, -250, 250);
+	TGraph* FitInXZPlane = new TGraph();
+	FitInXZPlane->SetMarkerColor(4);
+	FitInXZPlane->SetMarkerStyle(1);
+	FitInXZPlane->SetMarkerSize(1.1);
+	FitInXZPlane->SetLineColor(4);
+	FitInXZPlane->SetLineWidth(1.5);
 
 
 
 
 
 	// Initialize the B-field // new method
-	fField= new PndMultiField("FULL", BeamMomentum);  //beam momentum is BeamMomentum in GeV/c (for scaling of dipole field)
+	PndMultiField *fField= new PndMultiField("FULL", BeamMomentum);  //beam momentum is BeamMomentum in GeV/c (for scaling of dipole field)
 	fField->Init();
 
 
@@ -671,65 +668,12 @@ void plotTrackCands(int iEvent)
 	//	   fField->Init();
 
 
-	TCanvas *cregularspace = NULL;
+	TCanvas *cEventZx = NULL;
 
-	cregularspace = new TCanvas("cregularspace", "cregularspace", ResolutionX, ResolutionY);
+	cEventZx = new TCanvas("zx plane", "zx plane", ResolutionX, ResolutionY);
 	// Plot the B-field
-	DrawField(fField, Bfield);
-	Bfield->Draw("cont1");
-
-
-
-
-
-
-	// get FTS Hits
-	TFile* fDigi = new TFile(DigiFile.Data());
-	TTree* tDigi = (TTree*) (fDigi->Get("cbmsim"));
-	//tDigi->StartViewer();
-
-	TClonesArray* fFtsHitArray = new TClonesArray("PndFtsHit");
-	tDigi->SetBranchAddress("FTSHit", &fFtsHitArray);
-
-	tDigi->GetEntry(iEvent); // Look at event iEvent
-
-
-
-
-
-
-
-	// 2014
-	//		TCanvas *choughspaceLine = new TCanvas("choughspaceLine", "choughspaceLine",
-	//				ResolutionX, ResolutionY);
-	//		houghspaceLine->DrawCopy("Lego2z");
-
-
-
-
-
-	// 2014
-	//    // find peak for line hough space
-	//	Double_t bpeakLine = 0., weightLine=0.;
-	//	Int_t binmaxglobalLine = 0;
-	//	// Call peak finder and plot the solution if it was found!
-	//	// Bool_t PeakFinder(TString option, TH2F *houghspace, Int_t& binmaxglobal, Double_t& thetapeak, Double_t& pzinvpeak, Double_t& weight)
-	//	if (kTRUE == PeakFinder(peakfinderOption, houghspaceLine, binmaxglobalLine, thetaPeakLine, bpeakLine, weightLine))
-	//	{
-	//		if (1<fVerbose) { std::cout << "Peak for line found: binmaxglobalLine = " << binmaxglobalLine
-	//			<< "  thetaPeakLine = " << thetaPeakLine << "  bpeakLine = "
-	//			<< bpeakLine << std::endl; }
-	//
-	////		void MakeHoughLineFit(Double_t b, Double_t theta,
-	////				Double_t weight, const Double_t zOffset, TGraph* returnTGraph)
-	//
-	//		if (kFALSE == noPlots) { cregularspace->cd(0); }
-	//		MakeHoughLineFit(bpeakLine, thetaPeakLine, weightLine, zOffset, FitInXZPlane);
-	//	}
-	//	else
-	//	{
-	//		std::cout << "Error: Peak finder had a problem with hough space for line!!!" << std::endl;
-	//	}
+	DrawField(fField, fFieldHist);
+	fFieldHist->Draw("cont1");
 
 
 
@@ -738,83 +682,17 @@ void plotTrackCands(int iEvent)
 
 
 
-	//2014
-	//	if (kFALSE == noPlots)
-	//	{
-	//		TCanvas *choughspaceParabola = new TCanvas("choughspaceParabola", "choughspaceParabola",
-	//				ResolutionX, ResolutionY);
-	//		houghspaceParabola->DrawCopy("Lego2z");
-	//	}
 
 
 
-	// Call peak finder and plot the solution if it was found!
-	// Bool_t PeakFinder(TString option, TH2F *houghspace, Int_t& binmaxglobal, Double_t& thetapeak, Double_t& pzinvpeak, Double_t& weight)
-	if (kTRUE == PeakFinder(peakfinderOption, houghspaceParabola, binmaxglobal, thetaPeakParabolaFrominvpz, pzinvpeak, weight))
-	{
-		if (1<fVerbose)
-		{
-			std::cout << "peak found: binmaxglobal = " << binmaxglobal
-					<< "  thetaPeakParabolaFrominvpz = " << thetaPeakParabolaFrominvpz << "  pzinvpeak = "
-					<< pzinvpeak << " height = " << weight << std::endl;
-		}
-
-
-		if (kFALSE == noPlots) { cregularspace->cd(0); }
-		BMeanForParabola = MakeHoughParabolaFitwithBfield(fField, pzinvpeak, thetaPeakParabolaFrominvpz, weight, zOffset, hitshiftinx, 1., c, keepBConstant, FitInXZPlane);
-		//			void MakeHoughParabolaFitwithBfield(PndMultiField *fField, Double_t pzinv, Double_t theta,
-		//			Double_t weight, Double_t zOffset, Double_t hitshiftinx, Double_t zscaling, const Double_t c,
-		//			const Bool_t keepBConstant, TH2D* Fitinxzplane)
-	}
-	else
-	{
-		std::cout << "Error: Peak finder had a problem!!!" << std::endl;
-	}
 
 
 
-	// ------------------------ FOR TESTING PARABOLA WITH PZ --------------------
-
-	// Do parabola hough transform with pz instead of 1/pz as parameter (shifts FTS hits by hitshiftinx)
-	if (kTRUE == MakeHoughSpace("parabolapz", fFtsHitArray, onlyusehitsfromzForParabola, onlyusehitsuptozForParabola, onlyUseHitsFromNonSkewedStraws, thetalimitlowForParabola, thetalimithighForParabola, thetastepForParabola, hitshiftinx, zOffset, c, fField, keepBConstant, nHitsForHoughSpaceParabolapz, houghspaceParabolapz))
-	{
-		if (1<fVerbose) { std::cout << "Hough Space for parabola with pz instead of 1/pz was created successfully!" << std::endl; }
-	}
-	else
-	{
-		std::cout << "Hough Space for parabola with pz instead of 1/pz could not be created! " << std::endl;
-	}
-
-	if (kFALSE == noPlots)
-	{
-		TCanvas *choughspaceParabolapz = new TCanvas("choughspaceParabolapz", "choughspaceParabolapz",
-				ResolutionX, ResolutionY);
-		houghspaceParabolapz->DrawCopy("Lego2z");
-	}
 
 
 
-	Double_t weightpz=0.;
-	Int_t binmaxglobalpz = 0;
-	pzpeak = 0.;
 
-	// Call peak finder and plot the solution if it was found!
-	if (kTRUE == PeakFinder(peakfinderOption, houghspaceParabolapz, binmaxglobalpz, thetaPeakParabolaFrompz, pzpeak, weightpz))
-	{
-		if (1<fVerbose)
-		{
-			std::cout << "peak found: binmaxglobal = " << binmaxglobalpz
-					<< "  thetaPeakParabolaFrompz = " << thetaPeakParabolaFrompz << "  pzinvpeak = "
-					<< pzpeak << " height = " << weightpz << std::endl;
-		}
 
-		if (kFALSE == noPlots) { cregularspace->cd(0); }
-		BMeanForParabolapz = MakeHoughParabolaFitwithBfield(fField, 1./pzpeak, thetaPeakParabolaFrompz, weightpz, zOffset, hitshiftinx, 1., c, keepBConstant, FitInXZPlane);
-	}
-	else
-	{
-		std::cout << "Error: Peak finder had a problem!!!" << std::endl;
-	}
 
 
 
@@ -855,7 +733,7 @@ void plotTrackCands(int iEvent)
 	//TCanvas *cHoughFit=new TCanvas("cHoughFit","cHoughFit",ResolutionX,ResolutionY);
 
 
-	//	Fitinxzplane->DrawCopy("colz,SAME");
+	//
 
 
 
@@ -886,11 +764,8 @@ void plotTrackCands(int iEvent)
 
 
 
-	cregularspace->cd(0);
+	cEventZx->cd(0);
 	// Plot the MC Points
-	TFile* fSim = new TFile(SimFile.Data());
-
-
 	const int subdetectorCount = 11; //
 	TString branchNames[subdetectorCount] =
 	{ "FTSPoint", "STTPoint", "MVDPoint", "GEMPoint", "DrcBarPoint",
@@ -908,18 +783,27 @@ void plotTrackCands(int iEvent)
 	mcPoints->SetMarkerStyle(29);
 	mcPoints->SetMarkerSize(1.4);
 	mcPoints->SetLineColor(2);
+	TFile* fSim = new TFile(SimFile.Data());
 	for (int iSubdetector = 0; iSubdetector < subdetectorCount; ++iSubdetector)
 	{
 		cout << iSubdetector
 				<< ". subdetector: branchNames[iSubdetector], tcaNames[iSubdetector] = "
 				<< branchNames[iSubdetector] << " " << tcaNames[iSubdetector]
 				                                                << std::endl;
-		PlotMCTracks(iEvent, branchNames[iSubdetector], tcaNames[iSubdetector], mcPoints);
+		PlotMCTracks(iEvent, branchNames[iSubdetector], tcaNames[iSubdetector], mcPoints, fSim);
 	}
 	// do not close the file fSim, otherwise, you won't see any plots
 
 
 
+	// get FTS Hits
+	TFile* fDigi = new TFile(DigiFile.Data());
+	TTree* tDigi = (TTree*) (fDigi->Get("cbmsim"));
+	//tDigi->StartViewer();
+
+	TClonesArray* fFtsHitArray = new TClonesArray("PndFtsHit");
+	tDigi->SetBranchAddress("FTSHit", &fFtsHitArray);
+	tDigi->GetEntry(iEvent); // Look at event iEvent
 
 	// Plot FTS hits
 	TGraph* hits = new TGraph();
@@ -933,15 +817,15 @@ void plotTrackCands(int iEvent)
 	for (int iHit = 0; iHit < nHits; iHit++)
 	{
 		PndFtsHit* myHit = (PndFtsHit*) fFtsHitArray->At(iHit);
-		if (kTRUE == onlyUseHitsFromNonSkewedStraws)
+		//		if (kTRUE == onlyUseHitsFromNonSkewedStraws)
+		//		{
+		if (0 != myHit->GetSkewed())
 		{
-			if (0 != myHit->GetSkewed())
-			{
-				if (0<fVerbose) {std::cout << "Not drawing hit with index " << iHit << " , because it comes from a skewed straw! LayerID = " << myHit->GetLayerID() << std::endl;}
-				continue;
-			}
-
+			if (0<fVerbose) {std::cout << "Not drawing hit with index " << iHit << " , because it comes from a skewed straw! LayerID = " << myHit->GetLayerID() << std::endl;}
+			continue;
 		}
+
+		//		}
 		TVector3 hit;
 		myHit->Position(hit);
 
@@ -961,45 +845,61 @@ void plotTrackCands(int iEvent)
 	hits->DrawGraph(nHits, hitZ, hitX, "P,SAME");
 
 
-	// cout particle's momentum
-	TTree *tree=(TTree *) fSim->Get("cbmsim") ;
-	TClonesArray* mc_array=new TClonesArray("PndMCTrack");
-	tree->SetBranchAddress("MCTrack", &mc_array);
-	tree->GetEntry(iEvent);
-	for (Int_t mcIndex = 0; mcIndex < mc_array->GetEntriesFast(); ++mcIndex)
-	{
-		PndMCTrack *mctrack = (PndMCTrack*)mc_array->At(mcIndex);
-		// only look at primary particles
-		if (mctrack->GetMotherID()!=-1) continue;
 
-		Int_t mc_pid = mctrack->GetPdgCode();
-		Double_t mc_px = mctrack->GetMomentum().X();
-		Double_t mc_py = mctrack->GetMomentum().Y();
-		Double_t mc_pz = mctrack->GetMomentum().Z();
-		//			Double_t mc_theta = mctrack->GetMomentum().Theta()*TMath::RadToDeg();
-		//			Double_t mc_phi = mctrack->GetMomentum().Phi()*TMath::RadToDeg();
-		//
-		//			Double_t mc_theta_xz = atan2(mc_px,mc_pz)*TMath::RadToDeg();
+	//	TTree *tree=(TTree *) fSim->Get("cbmsim") ;
+	//	TClonesArray* mc_array=new TClonesArray("PndMCTrack");
+	//	tree->SetBranchAddress("MCTrack", &mc_array);
+	//	tree->GetEntry(iEvent);
+	//	for (Int_t mcIndex = 0; mcIndex < mc_array->GetEntriesFast(); ++mcIndex)
+	//	{
+	//		PndMCTrack *mctrack = (PndMCTrack*)mc_array->At(mcIndex);
+	//		// only look at primary particles
+	//		if (mctrack->GetMotherID()!=-1) continue;
+	//
+	//		Int_t mc_pid = mctrack->GetPdgCode();
+	//		Double_t mc_px = mctrack->GetMomentum().X();
+	//		Double_t mc_py = mctrack->GetMomentum().Y();
+	//		Double_t mc_pz = mctrack->GetMomentum().Z();
+	//		//			Double_t mc_theta = mctrack->GetMomentum().Theta()*TMath::RadToDeg();
+	//		//			Double_t mc_phi = mctrack->GetMomentum().Phi()*TMath::RadToDeg();
+	//		//
+	//		//			Double_t mc_theta_xz = atan2(mc_px,mc_pz)*TMath::RadToDeg();
+	//
+	//		std::cout << "Primary particle with pid " << mc_pid << " has momentum = (" << mc_px << ", " << mc_py << ", " << mc_pz << ") GeV/c (at interaction point)" << std::endl;
+	//
+	//		//			std::cout<<setprecision(4);
+	//		TString histoname = "Single #mu^{-} event with MC p_{z} = ";
+	//		// manually round mc_pz to a.bc, for example: 4.71
+	//		TString numMCTruth="", numReco="";
+	//		numMCTruth += mc_pz+0.0005;
+	//		numMCTruth.Resize(5);
+	//		histoname += numMCTruth;
+	//		histoname += " GeV/c <-> FTS PR p_{z} = ";
+	//		numReco +=pzinvpeak+0.0005;
+	//		numReco.Resize(5);
+	//		histoname += numReco;
+	//		histoname += " GeV/c"; //, red = points, black = FTS hits";
+	//
+	//		fFieldHist->SetTitle(histoname);
 
-		std::cout << "Primary particle with pid " << mc_pid << " has momentum = (" << mc_px << ", " << mc_py << ", " << mc_pz << ") GeV/c (at interaction point)" << std::endl;
 
-		//			std::cout<<setprecision(4);
-		TString histoname = "Single #mu^{-} event with MC p_{z} = ";
-		// manually round mc_pz to a.bc, for example: 4.71
-		TString numMCTruth="", numReco="";
-		numMCTruth += mc_pz+0.0005;
-		numMCTruth.Resize(5);
-		histoname += numMCTruth;
-		histoname += " GeV/c <-> FTS PR p_{z} = ";
-		numReco +=pzinvpeak+0.0005;
-		numReco.Resize(5);
-		histoname += numReco;
-		histoname += " GeV/c"; //, red = points, black = FTS hits";
 
-		Bfield->SetTitle(histoname);
+	// get PndFtsHoughTrackCand
+	TFile* fReco = new TFile(RecoFile.Data());
+	TTree* tReco = (TTree*) (fReco->Get("cbmsim"));
+	//tReco->StartViewer();
 
-	} // end of MC loop
+	TClonesArray* fTrackCands = new TClonesArray("PndFtsHoughTrackCand");
+	tReco->SetBranchAddress("PndFtsHoughTrackCand", &fTrackCands);
+	tReco->GetEntry(iEvent); // Look at event iEvent
+	cout << fTrackCands->GetEntriesFast()<< " Hough track cands. in event\n";
 
+	// Plotting of HoughTrackCands
+	cEventZx->cd(0);
+	for (UInt_t iTrackCand=0; iTrackCand < fTrackCands->GetEntriesFast(); ++iTrackCand){
+		PndFtsHoughTrackCand *myTrackCand = (PndFtsHoughTrackCand*) fTrackCands->At(iTrackCand);
+		plotHoughTrackCand(myTrackCand, FitInXZPlane);
+	}
 }
 
 
