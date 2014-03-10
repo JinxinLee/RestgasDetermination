@@ -183,16 +183,16 @@ public:
 	//  |         | passive  |          |
 	//  |---------|----------|----------| bottom
 	//  gap
-	//            |----------|----------| bottom
-	//            | passive  |          |
-	//            ||-------|-||-------|-|
-	//            ||       | ||       | |
-	//            ||   4   | ||   5   | |     row 2
-	//            ||       | ||       | |
-	//            ||-------|-||-------|-|
 	//            |----------|----------| top
+	//            ||-------|-||-------|-|
+	//            ||       | ||       | |
+	//            ||   2   | ||   3   | |     row 2
+	//            || active| ||       | |
+	//            ||-------|-||-------|-|
+	//            | passive  |          |
+	//            |----------|----------| bottom
 	//
-	//            right   left
+	//            left   right
 	//
 	//                A   y; maps_n_row; height
 	//                |
@@ -204,6 +204,7 @@ public:
 	// even when several maps are placed on one die
 	// those will be placed in the simulation next to
 	// each other as separate detectors
+	// assumption: sensor 1 and 2 are on one die, the rest is separated
 	int maps_n_col;
 	int maps_n_row;
 	// enabled [row][col]
@@ -254,6 +255,19 @@ public:
 	double die_tilt_theta; // please do not use yet
 	// z is a rotation around an axis parallel to the along the beam pipe
 	double die_tilt_psi;// please do not use yet;
+	// *********************************** one sensor *************************************
+	// x is mostly radial to the beam pipe
+	double sensor_offset_x;
+	// y is mostly tangent to the beam pipe
+	double sensor_offset_y;
+	// z is along the beam pipe
+	double sensor_offset_z; // should not be used due to clashing volumes with cvd and flex prints
+	// phi rotation in the reference frame of the sensor
+	double sensor_tilt_phi;
+	// theta rotation in the reference frame of the sensor
+	double sensor_tilt_theta; // should not be used due to clashing volumes with cvd and flex prints
+	// psi rotation in the reference frame of the sensor
+	double sensor_tilt_psi; // should not be used due to clashing volumes with cvd and flex prints
 	//*********************************** lumi box parameters ***********************************
 	// see CAD files for details
 	// https://edms.cern.ch/nav/P:FAIR-000000719:V0/P:FAIR-000000726:V0/TAB3
@@ -400,6 +414,7 @@ public:
 	// if not filename is specified matrices are searched in
 	// VMCWORKDIR/input/matrices.txt
 	// you may overwrite the version number if necessary
+	// VMCWORKDIR/geometry folder is used if no filename is specified
 	void Read_transformation_matrices(string filename = "", bool aligned = true, int version_number = geometry_version);
 
 	// write transformation matrices from a given file
@@ -407,6 +422,8 @@ public:
 	// containing the description of the detector positions
 	// you may overwrite the version number if necessary
 	// version == 0 is reserved for backward compatibility!
+	// VMCWORKDIR/geometry folder is used if no filename (e.g. "") is specified
+	// warning overwrites existing trafo_matrices_lmd.dat!
 	void Write_transformation_matrices(string filename, bool aligned = true, int version_number = geometry_version);
 
 	// Get an offset for a volume, if not existent and random
