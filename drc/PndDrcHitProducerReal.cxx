@@ -165,7 +165,9 @@ void PndDrcHitProducerReal::ProcessBarPoint()
     Double_t Pz= pt->GetPz();
     Double_t P = sqrt(Px*Px + Py*Py +Pz*Pz);
     Double_t mass = pt->GetMass();
-    Double_t energy = TMath::Sqrt(P*P + mass*mass); 
+    Double_t energy = TMath::Sqrt(P*P + mass*mass);
+    TVector3 MomBar;
+    pt->Momentum(MomBar);
     pt->Position(fPosHit);
     Double_t beta;
     if(energy != 0) {
@@ -213,8 +215,18 @@ void PndDrcHitProducerReal::ProcessBarPoint()
     Double_t fDPosYHit = 0.5;
     Double_t fDPosZHit = 0.;
     fDPosHit.SetXYZ(fDPosXHit,fDPosYHit,fDPosZHit);
-
-    fThetaC = gRandom->Gaus(pt->GetThetaC(),0.002); // changed by H.Kumawat on 7 March 2014 (h.kumawat@gsi.de)
+// realistic Values are changed after considering the tracking effects by H.Kumawat, 7 March 2014,(h.kumawat@gsi.de)
+    Double_t theta = MomBar.Theta()*180.0/TMath::Pi();
+    Float_t sigma=0.002;
+    if(theta<45.){
+    sigma=0.001*(3.21659E-01 + 7.48416E-02*theta - 9.87561E-05*theta*theta - 2.47129E-06*theta*theta*theta);//prism
+    }else if(theta>45. && theta<90.){
+    sigma=0.001*(3.21659E-01 + 7.48416E-02*theta - 9.87561E-05*theta*theta - 2.47129E-06*theta*theta*theta);//prism
+    }else if(theta>=90.){
+    sigma=0.001*( 2.34224e+01-3.52791e-01*theta+1.64046e-03*theta*theta-7.57365e-07*theta*theta*theta)+0.0003;
+    } 
+    sigma=sigma+0.00873*exp(-MomBar.Mag()/0.4614);
+    fThetaC = gRandom->Gaus(pt->GetThetaC(),sigma); // changed by H.Kumawat on 7 March 2014 (h.kumawat@gsi.de)
     fErrThetaC = 0.; //rad
 
     fRefIndex = j;
