@@ -30,8 +30,11 @@ class PndPidMvdPar : public TObject
   Double_t GetPionMpv(Double_t momentum);
   Double_t GetPionSigma(Double_t momentum);
 
-  Double_t GetProtonMpv(Double_t momentum);
-  Double_t GetProtonSigma(Double_t momentum);
+  Double_t GetProtonLowMpv(Double_t momentum);
+  Double_t GetProtonLowSigma(Double_t momentum);
+
+  Double_t GetProtonHighMpv(Double_t momentum);
+  Double_t GetProtonHighSigma(Double_t momentum);
 
   Double_t GetKaonMpv(Double_t momentum);
   Double_t GetKaonSigma(Double_t momentum);
@@ -40,19 +43,22 @@ class PndPidMvdPar : public TObject
   void SetMuonPara();
   void SetPionPara();
   void SetKaonPara();
-  void SetProtonPara();
+  void SetProtonLowPara();
+  void SetProtonHighPara();
 
   Double_t GetElectronMpvP0()   const {return fElecMpvP0;};
   Double_t GetElectronMpvP1()   const {return fElecMpvP1;};
   Double_t GetElectronMpvP2()   const {return fElecMpvP2;};
   Double_t GetElectronSigmaP0() const {return fElecSigmaP0;};
   Double_t GetElectronSigmaP1() const {return fElecSigmaP1;};
+  Double_t GetElectronSigmaP2() const {return fElecSigmaP2;};
 
   Double_t GetMuonMpvP0()   const {return fMuonMpvP0;};
   Double_t GetMuonMpvP1()   const {return fMuonMpvP1;};
   Double_t GetMuonMpvP2()   const {return fMuonMpvP2;};
   Double_t GetMuonSigmaP0() const {return fMuonSigmaP0;};
   Double_t GetMuonSigmaP1() const {return fMuonSigmaP1;};
+  Double_t GetMuonSigmaP2() const {return fMuonSigmaP2;};
   
   Double_t GetPionMpvP0()   const {return fPionMpvP0;};
   Double_t GetPionMpvP1()   const {return fPionMpvP1;};
@@ -68,12 +74,19 @@ class PndPidMvdPar : public TObject
   Double_t GetKaonSigmaP1() const {return fKaonSigmaP1;};
   Double_t GetKaonSigmaP2() const {return fKaonSigmaP2;};
 
-  Double_t GetProtonMpvP0()   const {return fProtonMpvP0;};
-  Double_t GetProtonMpvP1()   const {return fProtonMpvP1;};
-  Double_t GetProtonMpvP2()   const {return fProtonMpvP2;};
-  Double_t GetProtonSigmaP0() const {return fProtonSigmaP0;};
-  Double_t GetProtonSigmaP1() const {return fProtonSigmaP1;};
-  Double_t GetProtonSigmaP2() const {return fProtonSigmaP2;};
+  Double_t GetProtonLowMpvP0()   const {return fProtonLowMpvP0;};
+  Double_t GetProtonLowMpvP1()   const {return fProtonLowMpvP1;};
+  Double_t GetProtonLowMpvP2()   const {return fProtonLowMpvP2;};
+  Double_t GetProtonLowSigmaP0() const {return fProtonLowSigmaP0;};
+  Double_t GetProtonLowSigmaP1() const {return fProtonLowSigmaP1;};
+  Double_t GetProtonLowSigmaP2() const {return fProtonLowSigmaP2;};
+
+  Double_t GetProtonHighMpvP0()   const {return fProtonHighMpvP0;};
+  Double_t GetProtonHighMpvP1()   const {return fProtonHighMpvP1;};
+  Double_t GetProtonHighMpvP2()   const {return fProtonHighMpvP2;};
+  Double_t GetProtonHighSigmaP0() const {return fProtonHighSigmaP0;};
+  Double_t GetProtonHighSigmaP1() const {return fProtonHighSigmaP1;};
+  Double_t GetProtonHighSigmaP2() const {return fProtonHighSigmaP2;};
 
  protected:
 
@@ -82,6 +95,7 @@ class PndPidMvdPar : public TObject
   Double_t fElecMpvP2;
   Double_t fElecSigmaP0;
   Double_t fElecSigmaP1;
+  Double_t fElecSigmaP2;
  
   Double_t fPionMpvP0;
   Double_t fPionMpvP1;
@@ -90,18 +104,26 @@ class PndPidMvdPar : public TObject
   Double_t fPionSigmaP1;
   Double_t fPionSigmaP2;
  
-  Double_t fProtonMpvP0;
-  Double_t fProtonMpvP1;
-  Double_t fProtonMpvP2;
-  Double_t fProtonSigmaP0;
-  Double_t fProtonSigmaP1;
-  Double_t fProtonSigmaP2;
+  Double_t fProtonLowMpvP0;
+  Double_t fProtonLowMpvP1;
+  Double_t fProtonLowMpvP2;
+  Double_t fProtonLowSigmaP0;
+  Double_t fProtonLowSigmaP1;
+  Double_t fProtonLowSigmaP2;
+
+  Double_t fProtonHighMpvP0;
+  Double_t fProtonHighMpvP1;
+  Double_t fProtonHighMpvP2;
+  Double_t fProtonHighSigmaP0;
+  Double_t fProtonHighSigmaP1;
+  Double_t fProtonHighSigmaP2;
  
   Double_t fMuonMpvP0;
   Double_t fMuonMpvP1;
   Double_t fMuonMpvP2;
   Double_t fMuonSigmaP0;
   Double_t fMuonSigmaP1;
+  Double_t fMuonSigmaP2;
  
   Double_t fKaonMpvP0;
   Double_t fKaonMpvP1;

@@ -65,7 +65,7 @@ void PndPidMvdAssociatorTask::Exec(Option_t * option) {
       PndPidCandidate* pidcand = (PndPidCandidate*)fPidChargedCand->At(i);
       PndPidProbability* prob = new((*fPidChargedProb)[i]) PndPidProbability(1.,1.,1.,1.,1.,i);// initializes with equal probability
       if (pidcand->GetMvdDEDX()==0) continue;
-      if (pidcand->GetMomentum().Mag()<1.)  DoPidMatch(pidcand,prob);
+      DoPidMatch(pidcand,prob);
     }
  
 }
@@ -80,12 +80,20 @@ void PndPidMvdAssociatorTask::DoPidMatch(PndPidCandidate* pidcand, PndPidProbabi
   prob->SetElectronPdf(GetPdf(pidcand->GetMvdDEDX(), CanMpv, CanSigma));
   //cout << "ele:\t" << pidcand->GetMomentum().Mag() << "\t" << pidcand->GetMvdDEDX() << "\t" << CanMpv << "\t" << CanSigma << "\t" << prob->GetElectronPdf() << endl;
    
-  //Proton
-  CanMpv=mvdPara->GetProtonMpv(pidcand->GetMomentum().Mag());
-  CanSigma=mvdPara->GetProtonSigma(pidcand->GetMomentum().Mag());
+  //Proton moment below 0.6
+  if (pidcand->GetMomentum().Mag() < 0.6) {
+  CanMpv=mvdPara->GetProtonLowMpv(pidcand->GetMomentum().Mag());
+  CanSigma=mvdPara->GetProtonLowSigma(pidcand->GetMomentum().Mag());
   prob->SetProtonPdf(GetPdf(pidcand->GetMvdDEDX(), CanMpv, CanSigma));
   //cout << "proton:\t" << pidcand->GetMomentum().Mag() << "\t" << pidcand->GetMvdDEDX() << "\t" << CanMpv << "\t" << CanSigma << "\t" << prob->GetProtonPdf() << endl;
-
+  }
+  else {
+  //Proton momenta above 0.6
+  CanMpv=mvdPara->GetProtonHighMpv(pidcand->GetMomentum().Mag());
+  CanSigma=mvdPara->GetProtonHighSigma(pidcand->GetMomentum().Mag());
+  prob->SetProtonPdf(GetPdf(pidcand->GetMvdDEDX(), CanMpv, CanSigma));
+  //cout << "proton:\t" << pidcand->GetMomentum().Mag() << "\t" << pidcand->GetMvdDEDX() << "\t" << CanMpv << "\t" << CanSigma << "\t" << prob->GetProtonPdf() << endl;
+  }
   //Pion
   CanMpv=mvdPara->GetPionMpv(pidcand->GetMomentum().Mag());
   CanSigma=mvdPara->GetPionSigma(pidcand->GetMomentum().Mag());
