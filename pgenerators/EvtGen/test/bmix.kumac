@@ -1,9 +1,0 @@
-hi/fil 1 bmix.hst
-
-vec/create par(4) R 1 0.3 1000 0.3
-vec/create step(4) R 0.1 0.1 1 0.1
-vec/create pmin(4)
-vec/create pmax(4)
-hi/fit 4 nomix.f BL 4 par step pmin pmax
-
-close 0

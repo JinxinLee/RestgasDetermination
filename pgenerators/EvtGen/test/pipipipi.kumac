@@ -1,8 +1,0 @@
-nt/crea 1 Test 7 ' ' 1000 tcp ttag tag m3pi m2pi cth1 cth2
-nt/read 1 pipipipi.dat
-zon 2 2
-nt/pl 1.m3pi
-nt/pl 1.m2pi
-nt/pl 1.cth1
-nt/pl 1.cth2
-

@@ -1,7 +1,0 @@
-#
-# Force the fragmentation to produce a ccbar pair
-#
-Decay vpho
-1.0  JSCONT 4;
-Enddecay
-End

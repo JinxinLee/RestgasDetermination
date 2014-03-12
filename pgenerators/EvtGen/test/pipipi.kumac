@@ -1,4 +1,0 @@
-nt/crea 1 Test 4 ' ' 1000 tcp ttag m12sq m13sq
-nt/read 1 pipipi.dat
-zon 1 1
-nt/pl 1.tcp-ttag
