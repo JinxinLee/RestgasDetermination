@@ -1267,7 +1267,8 @@ Bool_t PndPidCorrelator::GetDrcInfo(FairTrackParH* helix, PndPidCandidate* pidCa
 
   if (fGeanePro) // Overwrites vertex if Geane is used
     {     
-      fProDrc->PropagateToVolume("BarrelDIRC",0,1);
+      fProDrc->PropagateToVolume("DrcBarSensor",0,1);
+//      fProDrc->PropagateToVolume("BarrelDIRC",0,1);
       vertex.SetXYZ(-10000, -10000, -10000); // reset vertex
       FairTrackParH *fRes= new FairTrackParH();
       Bool_t rc =  fProDrc->Propagate(helix, fRes, fPidHyp*pidCand->GetCharge()); 	
@@ -1275,9 +1276,8 @@ Bool_t PndPidCorrelator::GetDrcInfo(FairTrackParH* helix, PndPidCandidate* pidCa
       vertex.SetXYZ(fRes->GetX(), fRes->GetY(), 0.);
       vertex_z = fRes->GetZ();
       drcGLength = fProDrc->GetLengthAtPCA();
-      if (drcGLength>25.) return kFALSE;  // additional cut on extrapolation distance to avoid fake correlations
+      if (drcGLength>30.) return kFALSE;  // additional cut on extrapolation distance to avoid fake correlations
     }
-  
   for (Int_t dd = 0; dd<drcEntries; dd++)
     {
       drcHit = (PndDrcHit*)fDrcHit->At(dd); 
@@ -1304,7 +1304,6 @@ Bool_t PndPidCorrelator::GetDrcInfo(FairTrackParH* helix, PndPidCandidate* pidCa
 	  drcCorr->Fill(ntuple);
 	}
     }
-  
   if ((drcQuality<fCorrPar->GetDrcCut()) || (fIdeal && drcIndex!=-1))
     {
       pidCand->SetDrcQuality(drcQuality);
