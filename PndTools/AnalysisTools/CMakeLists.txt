@@ -61,7 +61,6 @@ PndParticleQATask.cxx
 Fitter/Pnd4CFitter.cxx
 Fitter/PndKinVtxFitter.cxx
 Fitter/PndKinFitter.cxx
-Fitter/PndChiVtxFitter.cxx
 Fitter/PndVtxPoca.cxx
 Fitter/PndVtxPRG.cxx
 StrTok.cxx

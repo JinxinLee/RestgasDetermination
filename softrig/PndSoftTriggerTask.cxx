@@ -42,7 +42,6 @@
 #include "PndAnalysis.h"
 #include "Pnd4CFitter.h"
 #include "PndKinVtxFitter.h"
-#include "PndChiVtxFitter.h"
 #include "PndVtxPRG.h"
 #include "PndKinFitter.h"
 #include "PndVtxPoca.h"

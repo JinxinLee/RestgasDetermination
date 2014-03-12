@@ -9,7 +9,6 @@
 
 #pragma link C++ class PndEventInfo;
 #pragma link C++ function operator << ( ostream &, const PndEventInfo & );
-#pragma link C++ class PndChiVtxFitter;
 #pragma link C++ class PndKinVtxFitter;
 #pragma link C++ class PndKinFitter;
 //#pragma link C++ class PndVtxFitter;
