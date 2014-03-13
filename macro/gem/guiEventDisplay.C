@@ -135,8 +135,8 @@ MyMainFrame::MyMainFrame(const TGWindow *p,UInt_t w,UInt_t h) {
 
   fMain = new TGMainFrame(p,w,h);
 
-  ChangeBaseString("Gem_4Stations_15GeV_n1000");
-  ChangeParFString("$VMCWORKDIR/macro/params/gem_4Stations.digi.par");
+  ChangeBaseString("Gem_3Stations_15GeV_n1000");
+  ChangeParFString("$VMCWORKDIR/macro/params/gem_3Stations.digi.par");
 
   fDigitSchemeToDraw = 0;
 
@@ -221,16 +221,16 @@ MyMainFrame::MyMainFrame(const TGWindow *p,UInt_t w,UInt_t h) {
 					"gApplication->Terminate(0)");
   v2cframe->AddFrame(exit, new TGLayoutHints(kLHintsCenterX,5,5,3,4));
 
-  TGButtonGroup *digitBGroup = new TGButtonGroup(v2cframe,"Digitization layer",kVerticalFrame);
-  v2cframe->AddFrame(digitBGroup,new TGLayoutHints(kLHintsCenterX,5,5,3,4));
+  // TGButtonGroup *digitBGroup = new TGButtonGroup(v2cframe,"Digitization layer",kVerticalFrame);
+  // v2cframe->AddFrame(digitBGroup,new TGLayoutHints(kLHintsCenterX,5,5,3,4));
 
-  TGRadioButton *digitButton[4];
-  digitButton[0] = new TGRadioButton(digitBGroup,"theta strips");
-  digitButton[1] = new TGRadioButton(digitBGroup,"theta+ strips");
-  digitButton[2] = new TGRadioButton(digitBGroup,"theta- strips");
-  digitButton[3] = new TGRadioButton(digitBGroup,"radial strips");
-  digitButton[fDigitSchemeToDraw]->SetState(kButtonDown);
-  digitBGroup->Connect("Pressed(Int_t)","MyMainFrame",this,"SetDigitSchemeToDraw(Int_t)");
+  // TGRadioButton *digitButton[4];
+  // digitButton[0] = new TGRadioButton(digitBGroup,"theta strips");
+  // digitButton[1] = new TGRadioButton(digitBGroup,"theta+ strips");
+  // digitButton[2] = new TGRadioButton(digitBGroup,"theta- strips");
+  // digitButton[3] = new TGRadioButton(digitBGroup,"radial strips");
+  // digitButton[fDigitSchemeToDraw]->SetState(kButtonDown);
+  // digitBGroup->Connect("Pressed(Int_t)","MyMainFrame",this,"SetDigitSchemeToDraw(Int_t)");
 
   h2frame->AddFrame(v2cframe, new TGLayoutHints(kLHintsCenterX|kLHintsCenterY,2,2,2,2));
 
@@ -438,21 +438,32 @@ void MyMainFrame::DrawPoints() {
 
     pointToDraw = (PndGemMCPoint*)fGemPointArray->At(ipoint);
 
-    TString stationIdentifier = pointToDraw->GetDetName();
-    if ( !stationIdentifier.Contains(Form("Disk%d",fDrawStation+1)) ) continue;
+    //return stationNr*256+sensorNr*16+segmentNr;
+
+    //  TString stationIdentifier = pointToDraw->GetDetName();    
+    Int_t stationNr = pointToDraw->GetSensorId();
+    Int_t segmentNr = stationNr%16;
+    Int_t sensorNr = (stationNr/16)%16;
+    stationNr = stationNr/256;
+    //    cout << "point at " << pointToDraw->GetZ() << ", sid = " << pointToDraw->GetSensorId() << " : " << stationNr << " / " << sensorNr << " / " << segmentNr << endl;
+    //    if ( !stationIdentifier.Contains(Form("Disk%d",fDrawStation+1)) ) continue;
+    if ( stationNr != fDrawStation+1 ) continue;
 
     TMarker* pointCenter = new TMarker(pointToDraw->GetX(),pointToDraw->GetY(),20);
     pointCenter->SetUniqueID(ipoint);
     //    cout << "set uid to " << ipoint << endl;
 
-    if ( stationIdentifier.Contains("Gem1") ) markerColor = 3;
-    if ( stationIdentifier.Contains("Pad") ) markerColor = 2;
-    if ( stationIdentifier.Contains("Gem6") ) markerColor = 4;
-
+    // if ( stationIdentifier.Contains("Gem1") ) markerColor = 3;
+    // if ( stationIdentifier.Contains("Pad") ) markerColor = 2;
+    // if ( stationIdentifier.Contains("Gem6") ) markerColor = 4; 
+    if ( sensorNr == 1 ) markerColor = 3;
+   if ( sensorNr == 2 ) markerColor = 4;
+    
     pointCenter->SetMarkerColor(markerColor);
     pointCenter->Draw();
 
-    if ( stationIdentifier.Contains("Pad") ) {
+    //    if ( stationIdentifier.Contains("Pad") ) {
+    if ( sensorNr == 2 ) {
       PndMCTrack* trackSel = (PndMCTrack*)fMCTrackArray->At(pointToDraw->GetTrackID());
       TVector3 startVertex   = trackSel->GetStartVertex();
 
