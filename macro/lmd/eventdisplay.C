@@ -1,4 +1,4 @@
-eventdisplay(TString storePath="tmpOutput")
+eventdisplay(TString storePath="/panda/pandaroot/macro/lmd/testPixelNewGeo/mom_15/")
 {
   gROOT->Macro("$VMCWORKDIR/gconfig/rootlogon.C");
   gSystem->Load("libEve");
@@ -6,6 +6,7 @@ eventdisplay(TString storePath="tmpOutput")
   gSystem->Load("libPndEventDisplay");
   gSystem->Load("libSds");
   gSystem->Load("libLmd");
+
 
   TString parFile = storePath+"/Lumi_Params_0.root";
   TString inSimuFile = storePath+"/Lumi_MC_0.root";
@@ -36,7 +37,7 @@ eventdisplay(TString storePath="tmpOutput")
   fMan->AddTask(Track);
   FairMCPointDraw *MvdPoints =   new FairMCPointDraw ("LMDPoint",kBlue,kFullSquare);
   fMan->AddTask(MvdPoints);
-  FairHitDraw *stripHits = new FairHitDraw("LMDHitsStrip");
+  FairHitDraw *stripHits = new FairHitDraw("LMDHitsPixel");
   fMan->AddTask(stripHits);
 
   // cout<<"And now we try draw reconstructed tracks"<<endl;
@@ -46,4 +47,37 @@ eventdisplay(TString storePath="tmpOutput")
   // // ///------------------------------------------
   //  fRun->Init();
   fMan->Init();
+
+  ///Draw everything -------------------------------------
+  TGeoNode *N=  gGeoManager->GetTopNode();
+  gGeoManager->DefaultColors(); // repair buggy coloring
+  TEveGeoTopNode *TNod=new  TEveGeoTopNode(gGeoManager, N);
+  //TNod->SetVisLevel(3); // mandatory to see the Mvd
+  //  TNod->SetVisLevel(9);
+  TNod->SetVisLevel(20);
+  gEve->AddGlobalElement(TNod);
+  gEve->FullRedraw3D(kTRUE);
+   ///---------------------------------------------
+
+  // /// Show projections -----------------------------
+  //   // camera
+  //  TEveScene* s = gEve->SpawnNewScene("Projected Event");
+  //  gEve->GetDefaultViewer()->AddScene(s);
+  //  TGLViewer* v = gEve->GetDefaultGLViewer();
+  //  v->SetCurrentCamera(TGLViewer::kCameraOrthoXOY);
+  //  TGLOrthoCamera* cam = (TGLOrthoCamera*) v->CurrentCamera();
+  //  cam->SetZoomMinMax(0.2, 20);
+
+  //  // projections
+  //  TEveProjectionManager* mng =
+  //     new TEveProjectionManager(TEveProjection::kPT_RPhi);
+  //  s->AddElement(mng);
+  //  TEveProjectionAxes* axes = new TEveProjectionAxes(mng);
+  //  axes->SetTitle("TEveProjections demo");
+  //  s->AddElement(axes);
+  //  gEve->AddToListTree(axes, kTRUE);
+  //  gEve->AddToListTree(mng, kTRUE);
+  //  gEve->Redraw3D(kTRUE);
+  // ///---------------------------------------------
+
 }
