@@ -29,7 +29,7 @@ mkdir -p ${path}
 #number of trks per event
 numTrks=1
 #number of events
-numEv=2000
+numEv=200
 
 ##############
 # set flags
@@ -40,10 +40,12 @@ mergedHits=true
 ##Skip kinematic filter (before back-propagation)
 SkipFilt=false
 ### if SkipFilt=false (XThetaCut or YPhiCut) or BoxCut should be true:
-### X-Theta kinematic cut before back-propagation
+### X-Theta kinematic cut before back-propagation, add constant shift dX[cm] if beam is shifted
 XThetaCut=true
-### Y-Phi kinematic cut before back-propagation
+dX=0
+### Y-Phi kinematic cut before back-propagation, add constant shift dY[cm] if beam is shifted
 YPhiCut=true
+dY=0
 ### BOX cut before back-propagation
 BoxCut=false
 
@@ -82,7 +84,7 @@ root -l -b -q runLumiPixel0SimBox.C\(${numEv},0,"\"${path}\"",0,-2212,${pbeam},$
 ### Possible options: "Minuit", "KalmanGeane", "KalmanRK"
        root -l -b -q runLumiPixel4Fitter.C\(${numEv},0,"\"${path}\"",0,"\"Minuit\"",${mergedHits}\)
 #track filter (on number of hits and chi2)
-     root -l -b -q runLumiPixel4aFilter.C\(${numEv},0,"\"${path}\"",0,${mergedHits},${SkipFilt},${XThetaCut},${YPhiCut},${BoxCut}\) 
+     root -l -b -q runLumiPixel4aFilter.C\(${numEv},0,"\"${path}\"",0,${mergedHits},${SkipFilt},${XThetaCut},${YPhiCut},${BoxCut},${dX},${dY}\) 
 
 #save filtered results as standart Track array
      mv ${path}/Lumi_Track_0.root ${path}/Lumi_TrackNotFiltered_0.root 
