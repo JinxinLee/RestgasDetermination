@@ -29,7 +29,7 @@ mkdir -p ${path}
 #number of trks per event
 numTrks=1
 #number of events
-numEv=200
+numEv=20000
 
 ##############
 # set flags
@@ -57,7 +57,7 @@ WrAllMC=true
 ##############
 
 # #simulation with Box generator
-root -l -b -q runLumiPixel0SimBox.C\(${numEv},0,"\"${path}\"",0,-2212,${pbeam},${numTrks},3562\) &> ${path}/log0sim
+root -l -b -q runLumiPixel0SimBox.C\(${numEv},0,"\"${path}\"",0,-2212,${pbeam},${numTrks},3562\) 
 
 # # #simulation with DPM
 #   #  modeDPM=0 #inel
@@ -66,9 +66,9 @@ root -l -b -q runLumiPixel0SimBox.C\(${numEv},0,"\"${path}\"",0,-2212,${pbeam},$
 # #    root -l -b -q runLumiPixel0SimDPMDirect.C\(${numEv},0,${pbeam},"\"${path}\"",0,35162,$modeDPM,0.12\) >> ${path}/logDPM$mom
 
 # #digi
-     root -l -b -q runLumiPixel1Digi.C\(${numEv},0,"\"${path}\"",10\) &> ${path}/log1digi
+     root -l -b -q runLumiPixel1Digi.C\(${numEv},0,"\"${path}\"",0\) 
 # #hit reconstruction
-     root -l -b -q runLumiPixel2Reco.C\(${numEv},0,"\"${path}\"",10,false\) &>${path}/log2hitrec
+     root -l -b -q runLumiPixel2Reco.C\(${numEv},0,"\"${path}\"",0,false\) 
 # ##merge hits
      root -l -b -q runLumiPixel2bHitMerge.C\(${numEv},0,"\"${path}\""\)
 
