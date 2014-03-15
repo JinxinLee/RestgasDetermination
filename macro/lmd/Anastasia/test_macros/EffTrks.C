@@ -1,3 +1,11 @@
+#include "TString.h"
+#include "TClonesArray.h"
+#include "TH1.h"
+#include "TH2.h"
+#include "TGraph.h"
+#include  "TString.h"
+
+
 void EffTrks(int nEvents=1000,int nStart=0,TString path="/panda/pandaroot/macro/lmd/testPixel/mom_1_5/"){
 
   // ---- Input file -------------------------------------------------------------
@@ -38,6 +46,10 @@ void EffTrks(int nEvents=1000,int nStart=0,TString path="/panda/pandaroot/macro/
   TH1 *hPDGrec  = new TH1I("hPDGrec","PDG code of rec.trks",1e4,-5e3,5e3);
   TH1 *hMultiMC  = new TH1I("hMultiMC","multiplicity of sim ev",1e2,0,1e2);
   TH1 *hMultiREC  = new TH1I("hMultiREC","multiplicity of rec ev",1e2,0,1e2);
+
+  TH2 *hxth = new TH2D("hxth_recLMD","X(#theta) correlation for all [GOOD] reconstructed tracks ; #hat{#theta}_{REC}, mrad; X^{LMD}_{REC}, cm",1e3,20,50,1e3,10,50);
+  TH2 *hyph = new TH2D("hyph_recLMD","Y(#phi) correlation for all [GOOD] reconstructed tracks; #hat{#phi}_{REC}, mrad; Y^{LMD}_{REC}, cm",1e3,-250,250,1e3,-20,20);
+
   //-----------------------------------------------------------------------------------
 
   // Go over all events ---------------------------------------------------------
@@ -59,10 +71,17 @@ void EffTrks(int nEvents=1000,int nStart=0,TString path="/panda/pandaroot/macro/
       double thmctrk = 1e3*(trkcur->GetMCtheta());
       double Prec = trkcur->GetIPmom();
       double Pmc =  trkcur->GetMCmom();
+      double thLMD = 1e3*(trkcur->GetLMDtheta());
+      double phLMD = 1e3*(trkcur->GetLMDphi());
+      TVector3 lmdpt;
+      trkcur->GetLMDpoint(lmdpt);
+
       hthetaMC_all->Fill(thmctrk);
       if(trkStat==0){ //GOOD rec.trks
 	hthetaREC->Fill(thtrk);
 	hthetaMC->Fill(thmctrk);
+        hxth->Fill(thLMD,lmdpt.X());
+	hyph->Fill(phLMD,lmdpt.Y());
 	if((Prec-Pmc)/Pmc<0.0005){
 	  hthetaMC_cutMom->Fill(thmctrk);
 	  hthetaMCREC_cutMom->Fill(thmctrk,thtrk);
@@ -73,7 +92,7 @@ void EffTrks(int nEvents=1000,int nStart=0,TString path="/panda/pandaroot/macro/
 	//	if(sumPDGev==4424){//signal
 	if(flSecondary<0){//primaries only
 	  hthprimrec->Fill(thtrk);
-	  if(PDGcode==-2212 && sumPDGev!=4424) cout<<" Event #"<<j<<" has reconstructed primary anti-p and it isn't elastic scattering!"<<endl;
+	  //	  if(PDGcode==-2212 && sumPDGev!=4424) cout<<" Event #"<<j<<" has reconstructed primary anti-p and it isn't elastic scattering!"<<endl;
 	}
 	else{//bkg
 	  hthsecondrec->Fill(thtrk);
@@ -96,7 +115,41 @@ void EffTrks(int nEvents=1000,int nStart=0,TString path="/panda/pandaroot/macro/
       }
     }
     //--------------------------------------------------------------------------------
- }
+  }
+
+  //check momemtum cut value -------------------------------------------
+  const int NrecALL = hthetaREC->GetEntries();
+  // cout<<"ALL = "<<NrecALL<<endl;
+  double pdiff[14]={1e-7,5e-6,1e-6,5e-5,1e-5,5e-4,1e-4,5e-3,1e-3,5e-2,1e-2,5e-1,1e-1,1};
+  double Nrec[14];
+  
+  for(int i=0;i<14;i++){
+    Nrec[i] = 0;
+    //    tTrkRec.Reset();
+    for (Int_t j=0; j<nEvents; j++){
+      tTrkRec.GetEntry(j);
+      const int nTrksQ = qtrk->GetEntriesFast();//Number of trks/ev
+      //  cout<<" nTrksQ = "<<nTrksQ<<endl;
+      // Go over all trks ----------------------------------------------------------
+      
+      for(int iq=0;iq<nTrksQ;iq++){
+	PndLmdTrackQ *trkcur1 = qtrk->At(iq);
+	double Prec = trkcur1->GetIPmom();
+	double Pmc =  trkcur1->GetMCmom();
+	if(fabs(Prec-Pmc)/Pmc<pdiff[i])
+	  Nrec[i] +=1;
+      }
+    }
+    Nrec[i] *= 100./NrecALL;
+  }
+  TGraph *greff = new TGraph(14,pdiff,Nrec);
+  greff->GetYaxis()->SetTitle("N^{cut}_{REC}/N^{no cut}_{REC}, %");
+  greff->GetXaxis()->SetTitle("|P_{REC}-P_{beam}|/P_{beam}");
+  greff->SetName("gr_eff_diffMom");
+  greff->SetMarkerColor(2);
+  greff->SetMarkerStyle(20);
+  //[END] check momemtum cut value ----------------------------------
+
   //-----------------------------------------------------------------------------------
   hthprimrec->Write();
   hthsecondrec->Write();
@@ -113,5 +166,8 @@ void EffTrks(int nEvents=1000,int nStart=0,TString path="/panda/pandaroot/macro/
   hthetaMCREC->Write();
   hthetaMCREC_cutMom->Write();
   hdthMCREC_dmom->Write();
+  hxth->Write();
+  hyph->Write();
+  greff->Write();
   f->Close();
 }
