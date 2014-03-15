@@ -38,7 +38,7 @@
 
 
 // -----   Default constructor   -------------------------------------------
-PndLmdTrksFilterTask::PndLmdTrksFilterTask() : FairTask("Tracks filtering Task for PANDA Lmd"), fEventNr(0)
+PndLmdTrksFilterTask::PndLmdTrksFilterTask() : FairTask("Tracks filtering Task for PANDA Lmd"), fEventNr(0),fdX(0),fdY(0)
 {
   flSkipKinFilt = false;
   flBOXKinFilt =false;
@@ -181,7 +181,7 @@ void PndLmdTrksFilterTask::Exec(Option_t* opt)
 	  // double dist_max = 1.4;
 	  // if(fFittedTrkP.GetPz()<2)  dist_max = 1.8;
 	   if(fVerbose>0)  cout<<"!XThFilt!"<<endl;
-	  double Xref = -19.1+1.12*1e3*MomRecLMD.Theta();
+	  double Xref = -19.1+1.12*1e3*MomRecLMD.Theta() + fdX;
 	  double diffX = abs(fFittedTrkP.GetX() - Xref);
 	 if(fVerbose>0)   cout<<"fFittedTrkP.GetX() = "<<fFittedTrkP.GetX()<<" Xref = "<<Xref<<" diffX = "<<diffX<<endl;
 	  if(diffX>1.5) dirOK=false;
@@ -190,7 +190,7 @@ void PndLmdTrksFilterTask::Exec(Option_t* opt)
 	  // double dist_max = 1.4;
 	  // if(fFittedTrkP.GetPz()<2)  dist_max = 1.8;
 	  if(fVerbose>0)  cout<<"!YPhFilt!"<<endl;
-	  double Yref = -0.00651+0.045*1e3*MomRecLMD.Phi();
+	  double Yref = -0.00651+0.045*1e3*MomRecLMD.Phi() + fdY;
 	  double diffY = abs(fFittedTrkP.GetY() - Yref);
 	 if(fVerbose>0)   cout<<"fFittedTrkP.GetY() = "<<fFittedTrkP.GetY()<<" Yref = "<<Yref<<" diffY = "<<diffY<<endl;
 	  if(diffY>2.1) dirOK=false;
@@ -341,51 +341,13 @@ void PndLmdTrksFilterTask::Exec(Option_t* opt)
 	    <<mcidtop[0][i]<<", "<<mcidtop[1][i]<<", "<<mcidtop[2][i]<<", "<<mcidtop[3][i]<<")"<<endl;
       }
       PndTrack* trkpnd = (PndTrack*)(fTrkArray->At(i));
-      // // //check theta&phi-----
-      // if(fVerbose>4){
-      // FairTrackParP fFittedTrkP = trkpnd->GetParamFirst();
-      // TVector3 MomRecLMD(fFittedTrkP.GetPx(),fFittedTrkP.GetPy(),fFittedTrkP.GetPz());
-      // MomRecLMD *=1./MomRecLMD.Mag();
-      // double thetaCent=MomRecLMD.Theta()-0.0402;
-      // //      htthetatphiTrkFit->Fill(MomRecLMD.Theta(),MomRecLMD.Phi());
-      // }
+     
       new((*fTrkOutArray)[rec_trk]) PndTrack(*(trkpnd)); //save Track
       rec_trk++;
     }
   }
   if(fVerbose>2) cout<<"Ev#"<<fEventNr<<": "<<rec_trk<<" trks saved out of "<<gll<<endl;
-  // //some MC infor for check ------
- //  if(rec_trk!=7){ //test with 7 trks/event
- //  const int numHITS = fHitArray->GetEntriesFast();
- // if(fVerbose>2)   cout<<"MC trks in rec.Hits:"<<endl;
- //  int plprev=0;
- //  for(int iHit = 0;iHit<numHITS;iHit++){
- //    PndSdsMergedHit* myHit = (PndSdsMergedHit*)(fHitArray->At(iHit));
- //    Int_t sensid = myHit->GetSensorID();
- //    int ihalf,iplane,imodule,iside,idie,isensor;
- //    lmddim->Get_sensor_by_id(sensid,ihalf,iplane,imodule,iside,idie,isensor);
- //    if(iplane!=plprev){
- //   if(fVerbose>2)     cout<<""<<endl;
- //      plprev = iplane;
- //    }
- //    if(fVerbose>2)   cout<<"pl"<<iplane<<": ";
- //    int mcrefbot = myHit->GetSecondMCHit();
- //      if(mcrefbot>0){
- //      PndSdsMCPoint* MCPointBot = (PndSdsMCPoint*)(fMCHitArray->At(mcrefbot));
- //      int MCtrkid = MCPointBot->GetTrackID();
- //     if(fVerbose>2)   cout<<MCtrkid<<" ("<<mcrefbot<<")";
- //      }
- //      int mcreftop = myHit->GetRefIndex();
- //      if(mcreftop>0){
- //      PndSdsMCPoint* MCPointTop = (PndSdsMCPoint*)(fMCHitArray->At(mcreftop));
- //      int MCtrkid = MCPointTop->GetTrackID();
- //     if(fVerbose>2)   cout<<MCtrkid<<" ("<<mcreftop<<")";
- //      }
- //     if(fVerbose>2)   cout<<";   ";
- //  }
- //  if(fVerbose>2)  cout<<""<<endl;
- //  }
- //  //end MC info -----------------------
+ 
 
   if(fVerbose>2) cout<<"PndLmdTrksFilterTask::Exec END!"<<endl;
   fEventNr++;

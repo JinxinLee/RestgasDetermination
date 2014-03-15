@@ -41,6 +41,8 @@ public:
   void SetBOXFilt(bool fl){ flBOXKinFilt = fl; };
   void SetXThFilt(bool fl){ flXThKinFilt = fl; };
   void SetYPhFilt(bool fl){ flYPhKinFilt = fl; };
+  void SetDX(double dx){ fdX = dx;}
+  void SetDY(double dy){ fdY = dy;}
 
 protected:
   int verboseLevel;
@@ -62,6 +64,9 @@ protected:
   bool flBOXKinFilt;
   bool flXThKinFilt;
   bool flYPhKinFilt;
+
+  double fdX; //beam shift in X
+  double fdY; //beam shift in Y
   //  TNtuple *htthetatphiTrkFit;
   ClassDef(PndLmdTrksFilterTask,2);
 };
