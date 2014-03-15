@@ -120,7 +120,7 @@ void EffTrks(int nEvents=1000,int nStart=0,TString path="/panda/pandaroot/macro/
   //check momemtum cut value -------------------------------------------
   const int ALL = hthetaREC->GetEntries();
   cout<<"ALL = "<<ALL<<endl;
-  double pdiff[14]={1e-7,5e-6,1e-6,5e-5,1e-5,5e-4,1e-4,5e-3,1e-3,5e-2,1e-2,5e-1,1e-1,1};
+  double pdiff[14]={1e-7,1e-6,5e-6,1e-5,5e-5,1e-4,5e-4,1e-3,5e-3,1e-2,5e-2,1e-1,5e-1,1};
   double Nrec[14];
   double sigTh = 0.1;//100 mkrad for Pbeam from 8.9 to 15
   for(int i=0;i<14;i++){
