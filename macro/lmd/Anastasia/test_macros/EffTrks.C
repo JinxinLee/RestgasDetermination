@@ -118,13 +118,14 @@ void EffTrks(int nEvents=1000,int nStart=0,TString path="/panda/pandaroot/macro/
   }
 
   //check momemtum cut value -------------------------------------------
-  const int NrecALL = hthetaREC->GetEntries();
-  // cout<<"ALL = "<<NrecALL<<endl;
+  const int ALL = hthetaREC->GetEntries();
+  cout<<"ALL = "<<ALL<<endl;
   double pdiff[14]={1e-7,5e-6,1e-6,5e-5,1e-5,5e-4,1e-4,5e-3,1e-3,5e-2,1e-2,5e-1,1e-1,1};
   double Nrec[14];
-  
+  double sigTh = 0.1;//100 mkrad for Pbeam from 8.9 to 15
   for(int i=0;i<14;i++){
     Nrec[i] = 0;
+    int NrecALL = 0;
     //    tTrkRec.Reset();
     for (Int_t j=0; j<nEvents; j++){
       tTrkRec.GetEntry(j);
@@ -136,10 +137,24 @@ void EffTrks(int nEvents=1000,int nStart=0,TString path="/panda/pandaroot/macro/
 	PndLmdTrackQ *trkcur1 = qtrk->At(iq);
 	double Prec = trkcur1->GetIPmom();
 	double Pmc =  trkcur1->GetMCmom();
-	if(fabs(Prec-Pmc)/Pmc<pdiff[i])
-	  Nrec[i] +=1;
+	int trkStat = trkcur->GetTrkRecStatus();
+	if(trkStat!=0) continue;
+	int flSecondary = trkcur->GetSecondary();
+	if(flSecondary>=0) continue;
+
+	if(Pmc<2.) sigTh=0.6;//600 mkrad @1.5
+	if(Pmc>2 && Pmc<5) sigTh=0.22; //200 mkrad @ 4.06
+
+	double thtrk = 1e3*(trkcur->GetIPtheta());
+	double thmctrk = 1e3*(trkcur->GetMCtheta());
+	if(fabs(thtrk-thmctrk)<3*sigTh && fabs(Prec-Pmc)/Pmc<10.){
+	  NrecALL +=1;
+	  if(fabs(Prec-Pmc)/Pmc<pdiff[i])
+	    Nrec[i] +=1;
+	}
       }
     }
+    cout<<"NrecALL = "<<NrecALL<<" Nrec["<<i<<"] = "<<Nrec[i]<<endl;
     Nrec[i] *= 100./NrecALL;
   }
   TGraph *greff = new TGraph(14,pdiff,Nrec);
