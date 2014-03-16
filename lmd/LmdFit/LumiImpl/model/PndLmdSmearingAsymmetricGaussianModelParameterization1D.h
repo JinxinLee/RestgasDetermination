@@ -12,14 +12,17 @@
 
 class Model1D;
 class ModelPar;
-class PndLmdLumiFitOptions;
+namespace LumiFit {
+  class PndLmdFitModelOptions;
+}
 
 class PndLmdSmearingAsymmetricGaussianModelParameterization1D {
 	private:
 		shared_ptr<ModelPar> p_lab;
 	public:
 		PndLmdSmearingAsymmetricGaussianModelParameterization1D(
-				shared_ptr<Model1D> model, const PndLmdLumiFitOptions *fit_options);
+				shared_ptr<Model1D> model,
+				const LumiFit::PndLmdFitModelOptions& model_options);
 		virtual ~PndLmdSmearingAsymmetricGaussianModelParameterization1D();
 };
 

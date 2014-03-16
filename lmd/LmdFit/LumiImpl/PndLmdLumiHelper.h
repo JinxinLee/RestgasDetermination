@@ -109,7 +109,7 @@ class PndLmdLumiHelper {
 
 		std::vector<PndLmdLumiHelper::lmd_graph*> generateLmdGraphs(
 				std::vector<PndLmdResolution>& resolutions,
-				LumiFit::LmdDimensionRange& fit_range);
+				DataStructs::DimensionRange& fit_range);
 
 		void saveLmdGraphsToFile(
 				std::vector<PndLmdLumiHelper::lmd_graph*>& graph_vec);

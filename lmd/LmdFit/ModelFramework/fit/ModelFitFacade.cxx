@@ -21,8 +21,12 @@ ModelFitFacade::~ModelFitFacade() {
 	// TODO Auto-generated destructor stub
 }
 
-EstimatorOptions& ModelFitFacade::getEstimatorOptions() {
+const EstimatorOptions& ModelFitFacade::getEstimatorOptions() const {
 	return estimator_options;
+}
+
+void ModelFitFacade::setEstimatorOptions(const EstimatorOptions& est_opt_) {
+	estimator_options = est_opt_;
 }
 
 shared_ptr<Data> ModelFitFacade::getData() const {

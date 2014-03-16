@@ -8,12 +8,10 @@
 #ifndef PNDLMDLUMIFITRESULT_H_
 #define PNDLMDLUMIFITRESULT_H_
 
-#include <map>
-#include <string>
+#include "ModelFramework/fit/ModelFitResult.h"
 
 #include "TObject.h"
 
-class ModelFitResult;
 class PndLmdLumiFitOptions;
 
 /**
@@ -27,7 +25,7 @@ class PndLmdLumiFitResult: public TObject {
 private:
 	double luminosity_sys_err;
 
-	ModelFitResult *model_fit_result;
+	ModelFitResult model_fit_result;
 
 
 public:
@@ -39,13 +37,10 @@ public:
 	double getLuminosityStatError() const;
 	double getLuminosityError() const;
 
-	const ModelFitResult* getModelFitResult() const;
+	const ModelFitResult& getModelFitResult() const;
 
 	double getRedChiSquare() const;
 
-	/*void setFitStatus(int fit_status_);
-	void setChiSquare(double chi_square_);
-	void setNDF(double ndf_);*/
 	void setLuminositySysError(double luminosity_sys_err_);
 
 	void setModelFitResult(ModelFitResult &fit_result);

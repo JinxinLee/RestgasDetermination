@@ -40,7 +40,7 @@ void createLumiFitData(std::string input_file_dir, const double mom, int mode,
 
 	// set some dimension parameters
 	lmd_data_facade.getPrimaryDimensionTemplate().dimension_range.setUnitPrefix(
-			DataStructs::MILLI);
+			LumiFit::MILLI);
 	lmd_data_facade.getPrimaryDimensionTemplate().dimension_options.dimension_type =
 			LumiFit::THETA;
 	lmd_data_facade.getPrimaryDimensionTemplate().bins = 100;
@@ -127,7 +127,7 @@ void createLumiFitData(std::string input_file_dir, const double mom, int mode,
 		// ------------------------------------------------------------------------
 
 		lmd_data_facade.getPrimaryDimensionTemplate().dimension_range.setUnitPrefix(
-				DataStructs::NONE);
+				LumiFit::NONE);
 		lmd_data_facade.getPrimaryDimensionTemplate().bins = 200;
 		lmd_data_facade.getPrimaryDimensionTemplate().dimension_range.setRangeLow(
 				-2.0);

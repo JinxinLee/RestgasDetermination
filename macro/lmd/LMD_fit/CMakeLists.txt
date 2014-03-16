@@ -38,6 +38,7 @@ $ENV{VMCWORKDIR}/build/lib
 /usr/X11R6/lib
 )
 
+include_directories($ENV{VMCWORKDIR}/lmd/LmdFit)
 
 ########################### create lumiFitData app ##################################
 

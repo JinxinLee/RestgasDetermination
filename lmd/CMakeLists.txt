@@ -45,6 +45,7 @@ ${CMAKE_SOURCE_DIR}/lmd/LmdReco
 ${CMAKE_SOURCE_DIR}/lmd/LmdTrack
 ${CMAKE_SOURCE_DIR}/lmd/LmdTools
 ${CMAKE_SOURCE_DIR}/lmd/LmdQA
+${CMAKE_SOURCE_DIR}/lmd/LmdFit
 ${CMAKE_SOURCE_DIR}/lmd
 ${CMAKE_SOURCE_DIR}/genfit
 ${CMAKE_SOURCE_DIR}/trackbase
@@ -189,6 +190,7 @@ set(SRCS ${LMDFIT_SRCS})
 
 set(HEADERS
 LmdFit/ModelFramework/fit/ModelFitResult.h
+LmdFit/ModelFramework/fit/EstimatorOptions.h
 LmdFit/LumiImpl/fit/PndLmdLumiFitResult.h
 LmdFit/LumiImpl/fit/PndLmdLumiFitOptions.h 
 LmdFit/LumiImpl/data/PndLmdAbstractData.h

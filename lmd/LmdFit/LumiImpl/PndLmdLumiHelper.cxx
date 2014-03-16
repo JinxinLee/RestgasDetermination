@@ -35,7 +35,7 @@ PndLmdLumiHelper::PndLmdLumiHelper() {
 
 double PndLmdLumiHelper::getMomentumTransferFromTheta(double plab,
 		double theta) {
-	PndLmdDPMAngModel1D model("dpm_angular_1d", PndLmdDPMMTModel1D::ALL);
+	PndLmdDPMAngModel1D model("dpm_angular_1d", LumiFit::ALL);
 	shared_ptr<Parametrization> para(
 			new PndLmdDPMModelParametrization(model.getModelParameterSet()));
 	model.getModelParameterHandler().registerParametrizations(
@@ -89,7 +89,7 @@ void PndLmdLumiHelper::saveLmdGraphsToFile(
 
 	for (unsigned int i = 0; i < graph_vec.size(); i++) {
 		TString name(graph_vec[i]->dependency);
-		std::ostringstream strstream;
+		std::stringstream strstream;
 		strstream.precision(3);
 		for (std::map<unsigned int, std::pair<std::string, std::string> >::const_iterator j =
 				graph_vec[i]->parameter_name_stack.begin();
@@ -155,7 +155,10 @@ void PndLmdLumiHelper::finalizeLmdGraphObjects(
 
 std::vector<PndLmdLumiHelper::lmd_graph*> PndLmdLumiHelper::generateLmdGraphs(
 		std::vector<PndLmdResolution>& resolutions,
-		LumiFit::LmdDimensionRange& fit_range) {
+		DataStructs::DimensionRange& fit_range) {
+
+	EstimatorOptions est_opt;
+	est_opt.setFitRangeX(fit_range);
 
 	std::map<
 			double,
@@ -172,10 +175,10 @@ std::vector<PndLmdLumiHelper::lmd_graph*> PndLmdLumiHelper::generateLmdGraphs(
 		for (std::map<PndLmdLumiFitOptions, PndLmdLumiFitResult*>::const_iterator fit_result =
 				fit_results.begin(); fit_result != fit_results.end(); fit_result++) {
 			// if fit was not successful, skip this fit result
-			if (fit_result->second->getModelFitResult()->getFitStatus() != 0)
+			if (fit_result->second->getModelFitResult().getFitStatus() != 0)
 				continue;
 			const std::set<ModelStructs::minimization_parameter> &fit_parameters =
-					fit_result->second->getModelFitResult()->getFitParameters();
+					fit_result->second->getModelFitResult().getFitParameters();
 			for (std::set<ModelStructs::minimization_parameter>::const_iterator fit_param =
 					fit_parameters.begin(); fit_param != fit_parameters.end();
 					fit_param++) {
@@ -192,7 +195,7 @@ std::vector<PndLmdLumiHelper::lmd_graph*> PndLmdLumiHelper::generateLmdGraphs(
 						fit_param->name;
 				PndLmdLumiFitOptions *fit_opt = new PndLmdLumiFitOptions(
 						fit_result->first);
-				fit_opt->setPrimaryDimensionFitRange(fit_range);
+				fit_opt->est_opt = est_opt;
 				phi_slice_map[resolutions[i].getSecondarySelectionDimension().dimension_range.getDimensionMean()][fit_param->name]->fit_options =
 						fit_opt;
 
@@ -208,7 +211,7 @@ std::vector<PndLmdLumiHelper::lmd_graph*> PndLmdLumiHelper::generateLmdGraphs(
 				theta_slice_map[resolutions[i].getPrimarySelectionDimension().dimension_range.getDimensionMean()][fit_param->name]->parameter_name_stack[1] =
 						fit_param->name;
 				fit_opt = new PndLmdLumiFitOptions(fit_result->first);
-				fit_opt->setPrimaryDimensionFitRange(fit_range);
+				fit_opt->est_opt = est_opt;
 				theta_slice_map[resolutions[i].getPrimarySelectionDimension().dimension_range.getDimensionMean()][fit_param->name]->fit_options =
 						fit_opt;
 			}
@@ -230,7 +233,7 @@ std::vector<PndLmdLumiHelper::lmd_graph*> PndLmdLumiHelper::generateLmdGraphs(
 					std::make_pair(fit_parameters.begin()->name.first, "chi2");
 			PndLmdLumiFitOptions *fit_opt = new PndLmdLumiFitOptions(
 					fit_result->first);
-			fit_opt->setPrimaryDimensionFitRange(fit_range);
+			fit_opt->est_opt = est_opt;
 			phi_slice_map[resolutions[i].getSecondarySelectionDimension().dimension_range.getDimensionMean()][std::make_pair(
 					fit_parameters.begin()->name.first, "chi2")]->fit_options = fit_opt;
 
@@ -251,7 +254,7 @@ std::vector<PndLmdLumiHelper::lmd_graph*> PndLmdLumiHelper::generateLmdGraphs(
 					fit_parameters.begin()->name.first, "chi2")]->parameter_name_stack[1] =
 					std::make_pair(fit_parameters.begin()->name.first, "chi2");
 			fit_opt = new PndLmdLumiFitOptions(fit_result->first);
-			fit_opt->setPrimaryDimensionFitRange(fit_range);
+			fit_opt->est_opt = est_opt;
 			theta_slice_map[resolutions[i].getPrimarySelectionDimension().dimension_range.getDimensionMean()][std::make_pair(
 					fit_parameters.begin()->name.first, "chi2")]->fit_options = fit_opt;
 		}
@@ -390,7 +393,7 @@ void PndLmdLumiHelper::fitParametrizationModelToData(
 
 // generate the model
 	shared_ptr<Model> model = model_factory.generate1DResolutionModel(
-			graph->fit_options);
+			graph->fit_options->getFitModelOptions());
 
 // get the model that we have to fit to the data
 	for (std::map<unsigned int, std::pair<std::string, std::string> >::const_iterator parameter_name =
@@ -432,16 +435,8 @@ void PndLmdLumiHelper::fitParametrizationModelToData(
 	chi2_est->setData(model_data);
 
 // create estimator options
-
-	EstimatorOptions est_opt;
-	std::pair<double, double> fit_range = std::make_pair(
-			graph->fit_options->getPrimaryDimensionFitRange().getRangeLow(),
-			graph->fit_options->getPrimaryDimensionFitRange().getRangeHigh());
-	est_opt.setFitRangeX(fit_range);
-	est_opt.setWithIntegralScaling(true);
-
 // apply estimator options
-	chi2_est->applyEstimatorOptions(est_opt);
+	chi2_est->applyEstimatorOptions(graph->fit_options->getEstimatorOptions());
 
 // now fit the resolution model to the data
 // create Minuit Fitter
@@ -549,5 +544,6 @@ int PndLmdLumiHelper::initResolutionParametrizationFromFile(TFile *f,
 					*graphs[i]->fit_result);
 		}
 	}
+
 	return 0;
 }

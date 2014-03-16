@@ -14,7 +14,7 @@
 
 class ModelVisualizationProperties1D {
 private:
-	DataStructs::dimension_range plot_range;
+	DataStructs::DimensionRange plot_range;
 	unsigned int evaluations;
 	double binning_factor;
 
@@ -25,10 +25,10 @@ public:
 
 	double getBinningFactor() const;
 	unsigned int getEvaluations() const;
-	DataStructs::dimension_range getPlotRange() const;
+	DataStructs::DimensionRange getPlotRange() const;
 	void setBinningFactor(double binning_factor_);
 	void setEvaluations(unsigned int evaluations_);
-	void setPlotRange(DataStructs::dimension_range dim_range_);
+	void setPlotRange(DataStructs::DimensionRange dim_range_);
 };
 
 #endif /* MODELVISUALIZATIONPROPERTIES1D_H_ */

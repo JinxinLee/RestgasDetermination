@@ -116,13 +116,16 @@ void checkFramework(unsigned int num_events) {
 
 		for (unsigned int step = 0; step < steps; step++) {
 			std::cout << "in step " << step << std::endl;
-			std::pair<double, double> fit_range = std::make_pair(
-					fit_range_low_begin
-							+ (fit_range_low_end - fit_range_low_begin) / steps * step,
-					fit_range_high);
+			DataStructs::DimensionRange fit_range;
+			fit_range.range_low = fit_range_low_begin
+							+ (fit_range_low_end - fit_range_low_begin) / steps * step;
+			fit_range.range_high = fit_range_high;
 
-			model_fit_facade.getEstimatorOptions().setFitRangeX(fit_range);
-			model_fit_facade.getEstimatorOptions().setWithIntegralScaling(false);
+			EstimatorOptions est_opt;
+			est_opt.setFitRangeX(fit_range);
+			est_opt.setWithIntegralScaling(false);
+
+			model_fit_facade.setEstimatorOptions(est_opt);
 
 			// create minimizer instance with control parameter
 			shared_ptr<ROOTMinimizer> minuit_minimizer(new ROOTMinimizer());
@@ -134,28 +137,28 @@ void checkFramework(unsigned int num_events) {
 			std::cout << "chi2 of sample: " << chi2 << std::endl;
 
 			std::stringstream hs;
-			hs << "reldiff_" << fit_range.first << "-" << fit_range.second;
+			hs << "reldiff_" << fit_range.range_low << "-" << fit_range.range_high;
 
-			if (histograms.find(fit_range.first) == histograms.end())
-				histograms[fit_range.first] = new TH1D(hs.str().c_str(),
+			if (histograms.find(fit_range.range_low) == histograms.end())
+				histograms[fit_range.range_low] = new TH1D(hs.str().c_str(),
 						hs.str().c_str(), 100, -6, 6);
-			histograms[fit_range.first]->Fill(
+			histograms[fit_range.range_low]->Fill(
 					100.0 * (fit_result.getFitParameter("gauss_amplitude").value - refamp)
 							/ refamp);
 
 			// root histograms
 			std::stringstream hsr;
-			hsr << "root_reldiff_" << fit_range.first << "-" << fit_range.second;
-			if (root_histograms.find(fit_range.first) == root_histograms.end())
-				root_histograms[fit_range.first] = new TH1D(hsr.str().c_str(),
+			hsr << "root_reldiff_" << fit_range.range_low << "-" << fit_range.range_high;
+			if (root_histograms.find(fit_range.range_low) == root_histograms.end())
+				root_histograms[fit_range.range_low] = new TH1D(hsr.str().c_str(),
 						hsr.str().c_str(), 100, -6, 6);
 
-			TF1 *fa = new TF1("mygauss", mygauss, fit_range.first, fit_range.second,
+			TF1 *fa = new TF1("mygauss", mygauss, fit_range.range_low, fit_range.range_high,
 					1);
 			fa->SetParameter(0, refamp);
 			TFitResultPtr rootfitresult = gaushist->Fit(fa, "LRS");
 			std::cout << "root chi2 is: " << rootfitresult->Chi2() << std::endl;
-			root_histograms[fit_range.first]->Fill(
+			root_histograms[fit_range.range_low]->Fill(
 					100.0
 							* (rootfitresult->Parameter(0) / gaushist->GetBinWidth(1) - refamp)
 							/ refamp);

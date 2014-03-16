@@ -10,7 +10,7 @@
 #include "TMath.h"
 
 PndLmdDPMMTModel2D::PndLmdDPMMTModel2D(std::string name_,
-		PndLmdDPMMTModel1D::dpm_elastic_parts elastic_type) :
+		LumiFit::DPMElasticParts elastic_type) :
 		Model2D(name_), dpm_model_1d("dpm_mt_1d", elastic_type) {
 	getModelParameterSet().addModelParameters(
 			dpm_model_1d.getModelParameterSet());

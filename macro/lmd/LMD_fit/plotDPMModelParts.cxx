@@ -11,7 +11,9 @@ const double log_scale = false;
 int main(int argc, char* argv[]) {
 	if (argc == 2) {
 		PndLmdResultPlotter plotter;
-		plotter.plotDPMModelParts(atof(argv[1]), std::make_pair(theta_min, theta_max), log_scale);
+		DataStructs::DimensionRange plot_range(theta_min, theta_max);
+
+		plotter.plotDPMModelParts(atof(argv[1]), plot_range, log_scale);
 	}
 	return 0;
 }

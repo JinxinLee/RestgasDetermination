@@ -10,7 +10,7 @@
 #include "TMath.h"
 
 PndLmdDPMAngModel1D::PndLmdDPMAngModel1D(std::string name_,
-		dpm_elastic_parts elastic_type_) :
+		LumiFit::DPMElasticParts elastic_type_) :
 		PndLmdDPMMTModel1D(name_, elastic_type_) {
 	// TODO Auto-generated constructor stub
 

@@ -6,7 +6,7 @@
  */
 
 #include "PndLmdModelFactory.h"
-#include "PndLmdLumiFitOptions.h"
+#include "LumiImpl/LumiFitStructs.h"
 #include "ModelFitResult.h"
 #include "PndLmdLumiFitResult.h"
 #include "PndLmdAcceptance.h"
@@ -42,25 +42,10 @@ PndLmdModelFactory::~PndLmdModelFactory() {
 }
 
 shared_ptr<Model1D> PndLmdModelFactory::generate1DResolutionModel(
-		const PndLmdLumiFitOptions *fit_options) {
+		const LumiFit::PndLmdFitModelOptions& model_options) {
 	shared_ptr<Model1D> resolution_model;
 
-	PndLmdLumiFitOptions resolution_fit_options(*fit_options);
-
-	// init values with parametrization if possible
-	if (fit_options->isResolutionParametrizationFileUrlActive()) {
-		TFile f(fit_options->getResolutionParametrizationFileUrl(), "READ");
-		PndLmdLumiHelper lmd_helper;
-		std::vector<PndLmdLumiHelper::lmd_graph*> allgraphs =
-				lmd_helper.getResolutionModelResultsFromFile(&f);
-		if (allgraphs.size() > 0) {
-			resolution_fit_options = *allgraphs[0]->fit_options;
-			resolution_fit_options.setResolutionParametrizationFileUrl(
-					fit_options->getResolutionParametrizationFileUrl());
-		}
-	}
-
-	if (1 == resolution_fit_options.getSmearingModelType() % 10) {
+	if (model_options.smearing_model == LumiFit::DOUBLE_GAUSSIAN) {
 		resolution_model.reset(
 				new DoubleGaussianModel1D("smearing_double_gaussian_1d"));
 		// ok that part is a little different the following class will just do all
@@ -68,24 +53,22 @@ shared_ptr<Model1D> PndLmdModelFactory::generate1DResolutionModel(
 		// it all down in here...
 		PndLmdSmearingDoubleGaussianModelParametrization1D gauss_parametrization(
 				resolution_model);
-	} else if (0 == resolution_fit_options.getSmearingModelType() % 10) {
+	} else if (model_options.smearing_model == LumiFit::GAUSSIAN) {
 		resolution_model.reset(new GaussianModel1D("smearing_gaussian_1d"));
 		PndLmdSmearingGaussianModelParametrization1D gauss_parametrization(
 				resolution_model);
-	} else if (2 == resolution_fit_options.getSmearingModelType() % 10) {
+	} else if (model_options.smearing_model == LumiFit::ASYMMETRIC_GAUSSIAN) {
 		resolution_model.reset(
 				new AsymmetricGaussianModel1D("smearing_asymm_gaussian_1d"));
 		PndLmdSmearingAsymmetricGaussianModelParameterization1D gauss_parametrization(
-				resolution_model, &resolution_fit_options);
-		std::cout<<"asdfasdf"<<std::endl;
+				resolution_model, model_options);
 	} else {
-		std::cout << "this is not good!" << std::endl;
+		std::cout << "Unknown smearing model!" << std::endl;
 	}
 
-	// init values with parametrization if possible
-	if (resolution_fit_options.getSmearingModelType() < 9
-			&& resolution_fit_options.isResolutionParametrizationFileUrlActive()) {
-		TFile f(resolution_fit_options.getResolutionParametrizationFileUrl(), "READ");
+// init values with parametrization if possible
+	if (!model_options.use_resolution_parameter_interpolation) {
+		TFile f(model_options.resolution_parametrization_file_url.c_str(), "READ");
 		PndLmdLumiHelper lmd_helper;
 		lmd_helper.initResolutionParametrizationFromFile(&f, resolution_model);
 	}
@@ -94,49 +77,17 @@ shared_ptr<Model1D> PndLmdModelFactory::generate1DResolutionModel(
 }
 
 shared_ptr<Model1D> PndLmdModelFactory::generate1DModel(
-		const PndLmdLumiFitOptions *fit_options, double plab) {
+		const LumiFit::PndLmdFitModelOptions& model_options, double plab) {
 	shared_ptr<Model1D> current_model;
 
-	// get dpm part
-	PndLmdDPMMTModel1D::dpm_elastic_parts dpm_elastic_type =
-			PndLmdDPMMTModel1D::ALL;
-	if (fit_options->getDpmElasticModelParts() == 1)
-		dpm_elastic_type = PndLmdDPMMTModel1D::COUL;
-	else if (fit_options->getDpmElasticModelParts() == 2)
-		dpm_elastic_type = PndLmdDPMMTModel1D::INT;
-	else if (fit_options->getDpmElasticModelParts() == 3)
-		dpm_elastic_type = PndLmdDPMMTModel1D::HAD;
-
-	if (fit_options->getModelBinaryOptions().isFitRaw()) {
-		current_model.reset(new PndLmdDPMMTModel1D("dpm_mt_1d", dpm_elastic_type));
+	if (model_options.momentum_transfer_active) {
+		current_model.reset(
+				new PndLmdDPMMTModel1D("dpm_mt_1d", model_options.dpm_elastic_parts));
 		// set free parameters
-		current_model->getModelParameterSet().freeModelParameter(
-				std::make_pair("dpm_mt_1d", "luminosity"));
-		if (fit_options->getFreeParametersCode() & (1 << (0)))
-			current_model->getModelParameterSet().freeModelParameter(
-					std::make_pair("dpm_mt_1d", "sigma_tot"));
-		if (fit_options->getFreeParametersCode() & (1 << (1)))
-			current_model->getModelParameterSet().freeModelParameter(
-					std::make_pair("dpm_mt_1d", "rho"));
-		if (fit_options->getFreeParametersCode() & (1 << (2)))
-			current_model->getModelParameterSet().freeModelParameter(
-					std::make_pair("dpm_mt_1d", "b"));
 	} else {
 		current_model.reset(
-				new PndLmdDPMAngModel1D("dpm_angular_1d", dpm_elastic_type));
-		// finally set all parameters free according to the fit options
-		// set free parameters
-		current_model->getModelParameterSet().freeModelParameter(
-				std::make_pair("dpm_angular_1d", "luminosity"));
-		if (fit_options->getFreeParametersCode() & (1 << (0)))
-			current_model->getModelParameterSet().freeModelParameter(
-					std::make_pair("dpm_angular_1d", "sigma_tot"));
-		if (fit_options->getFreeParametersCode() & (1 << (1)))
-			current_model->getModelParameterSet().freeModelParameter(
-					std::make_pair("dpm_angular_1d", "rho"));
-		if (fit_options->getFreeParametersCode() & (1 << (2)))
-			current_model->getModelParameterSet().freeModelParameter(
-					std::make_pair("dpm_angular_1d", "b"));
+				new PndLmdDPMAngModel1D("dpm_angular_1d",
+						model_options.dpm_elastic_parts));
 	}
 
 	shared_ptr<Parametrization> dpm_parametrization(
@@ -144,28 +95,21 @@ shared_ptr<Model1D> PndLmdModelFactory::generate1DModel(
 	current_model->getModelParameterHandler().registerParametrizations(
 			current_model->getModelParameterSet(), dpm_parametrization);
 
-	if (fit_options->getModelBinaryOptions().isAcceptanceCorrOn()) { // with acceptance corr
-		if (fit_options->getAcceptance()) {
+	if (model_options.acceptance_correction_active) { // with acceptance corr
+		if (model_options.acceptance) {
 			// translate acceptance interpolation option
-			PndLmdROOTDataModel1D::interpolation_type intpol_type =
-					PndLmdROOTDataModel1D::LINEAR;
-			if (fit_options->getAcceptanceInterpolationType() == 0) {
-				intpol_type = PndLmdROOTDataModel1D::CONSTANT;
-			} else if (fit_options->getAcceptanceInterpolationType() == 2) {
-				intpol_type = PndLmdROOTDataModel1D::SPLINE;
-			}
 			PndLmdROOTDataModel1D *data_model = new PndLmdROOTDataModel1D(
 					"acceptance_1d");
 
 			TCanvas can;
-			fit_options->getAcceptance()->getAcceptance1D()->Draw();
+			model_options.acceptance->getAcceptance1D()->Draw();
 			can.Update();
 
 			data_model->setGraph(
-					fit_options->getAcceptance()->getAcceptance1D()->GetPaintedGraph());
-			data_model->setIntpolType(intpol_type);
+					model_options.acceptance->getAcceptance1D()->GetPaintedGraph());
+			data_model->setIntpolType(model_options.acceptance_interpolation);
 			data_model->setDataDimension(
-					fit_options->getAcceptance()->getPrimaryDimension().dimension_range);
+					model_options.acceptance->getPrimaryDimension().dimension_range);
 			shared_ptr<Model1D> acc(data_model);
 
 			current_model.reset(
@@ -177,18 +121,18 @@ shared_ptr<Model1D> PndLmdModelFactory::generate1DModel(
 		}
 	}
 
-	if (fit_options->getModelBinaryOptions().isSmearingOn()) { // with resolution smearing
+	if (model_options.resolution_smearing_active) { // with resolution smearing
 		// ok since we have smearing on, generate smearing model
 		current_model.reset(
 				new SmearingConvolutionModel1D("smeared_acceptance_corrected_1d",
-						current_model, generate1DResolutionModel(fit_options)));
+						current_model, generate1DResolutionModel(model_options)));
 	}
 
-	// every model has superior parameters which have to be set by the user
-	// if they are kept fixed
-	// in this case its the lab momentum plab
+// every model has superior parameters which have to be set by the user
+// if they are kept fixed
+// in this case its the lab momentum plab
 	current_model->getModelParameterSet().setModelParameterValue("p_lab", plab);
-	// the luminosity (we set it to 1.0 as a default value)
+// the luminosity (we set it to 1.0 as a default value)
 	current_model->getModelParameterSet().setModelParameterValue("luminosity",
 			1.0);
 	if (current_model->init()) {

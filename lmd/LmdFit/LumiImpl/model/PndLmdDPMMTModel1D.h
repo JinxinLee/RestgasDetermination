@@ -8,6 +8,7 @@
 #ifndef PNDLMDDPMMTMODEL1D_H_
 #define PNDLMDDPMMTMODEL1D_H_
 
+#include "LumiFitStructs.h"
 #include "Model1D.h"
 
 /**
@@ -67,16 +68,14 @@ protected:
 	void updateDomainFromPars(double *par);
 
 public:
-  enum dpm_elastic_parts {
-    COUL, INT, HAD, ALL
-  } elastic_type;
+  LumiFit::DPMElasticParts elastic_type;
 
 	/**
 	 * In the constructor that creates a fully defined pure signal cross section
 	 * model of LMD
 	 * @param name_ is the name of the model. Make sure that it is unique.
 	 */
-	PndLmdDPMMTModel1D(std::string name_, dpm_elastic_parts elastic_type_);
+	PndLmdDPMMTModel1D(std::string name_, LumiFit::DPMElasticParts elastic_type_);
 
 	~PndLmdDPMMTModel1D();
 

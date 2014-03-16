@@ -12,7 +12,7 @@
 
 class PndLmdDPMAngModel1D: public PndLmdDPMMTModel1D {
   public:
-    PndLmdDPMAngModel1D(std::string name_, dpm_elastic_parts elastic_type_);
+    PndLmdDPMAngModel1D(std::string name_, LumiFit::DPMElasticParts elastic_type_);
     virtual ~PndLmdDPMAngModel1D();
 
     double getMomentumTransferFromTheta(const double theta) const;

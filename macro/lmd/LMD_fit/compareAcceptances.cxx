@@ -94,7 +94,7 @@ void compareAcceptances(
 			can.Update();
 
 			acc_model.setGraph(acc[0].getAcceptance1D()->GetPaintedGraph());
-			acc_model.setIntpolType(PndLmdROOTDataModel1D::LINEAR);
+			acc_model.setIntpolType(LumiFit::LINEAR);
 			acc_model.setDataDimension(acc[0].getPrimaryDimension().dimension_range);
 
 			LumiFit::LmdSimIPParameters bp =

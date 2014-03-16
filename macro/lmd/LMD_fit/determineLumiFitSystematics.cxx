@@ -176,7 +176,7 @@ GraphBundle makeDependencyGraph(
 	for (std::map<PndLmdLumiFitOptions, ValueBundle>::iterator it =
 			comb_map.begin(); it != comb_map.end(); it++) {
 
-		xvals.push_back(it->first.getPrimaryDimensionFitRange().getRangeLow());
+		xvals.push_back(it->first.getEstimatorOptions().getFitRangeX().range_low);
 		mean_vals.push_back(it->second.gp.mean);
 		sigma_vals.push_back(it->second.gp.sigma);
 
@@ -199,7 +199,7 @@ void saveToRootfile(std::map<PndLmdLumiFitOptions, histBundle> &comb_map
 
 	std::stringstream topdir_name;
 	topdir_name << "fit_opt-"
-			<< comb_map.begin()->first.model_binary_options.getBinaryOptions();
+			<< comb_map.begin()->first.getFitModelOptions();
 
 	file->mkdir(topdir_name.str().c_str());
 	gDirectory->cd(topdir_name.str().c_str());
@@ -215,16 +215,16 @@ void saveToRootfile(std::map<PndLmdLumiFitOptions, histBundle> &comb_map
 		label->Draw();
 		s.str("");
 		s << "#Theta fit range: "
-				<< it->first.getPrimaryDimensionFitRange().getRangeLow() << " - "
-				<< it->first.getPrimaryDimensionFitRange().getRangeHigh();
+				<< it->first.getEstimatorOptions().getFitRangeX().range_low << " - "
+				<< it->first.getEstimatorOptions().getFitRangeX().range_high;
 		TLatex *label2 = new TLatex(xmin * 0.9, 36.0, s.str().c_str());
 		label2->Draw();
 
 		file->cd();
 		gDirectory->cd(topdir_name.str().c_str());
 		s.str("");
-		s << it->first.getPrimaryDimensionFitRange().getRangeLow() << " - "
-				<< it->first.getPrimaryDimensionFitRange().getRangeHigh();
+		s << it->first.getEstimatorOptions().getFitRangeX().range_low << " - "
+				<< it->first.getEstimatorOptions().getFitRangeX().range_high;
 		gDirectory->mkdir(s.str().c_str());
 		gDirectory->cd(s.str().c_str());
 		it->second.hist->Write("reldiff_dist");
@@ -234,7 +234,7 @@ void saveToRootfile(std::map<PndLmdLumiFitOptions, histBundle> &comb_map
 }
 
 std::map<PndLmdLumiFitOptions, ValueBundle> bundleSingleFileLuminosityValues(
-		PndLmdData &data, LumiFit::LmdBinaryFitOptions &bin_fit_op) {
+		PndLmdData &data, LumiFit::PndLmdFitModelOptions &model_opt) {
 	std::map<PndLmdLumiFitOptions, ValueBundle> return_map;
 	// create an instance of PndLmdResultPlotter the plotting helper class
 	PndLmdResultPlotter plotter;
@@ -247,8 +247,7 @@ std::map<PndLmdLumiFitOptions, ValueBundle> bundleSingleFileLuminosityValues(
 	for (map<PndLmdLumiFitOptions, PndLmdLumiFitResult*>::const_iterator iter =
 			fit_results.begin(); iter != fit_results.end(); iter++) {
 
-		if (bin_fit_op.getBinaryOptions()
-				== iter->first.getModelBinaryOptions().getBinaryOptions()) {
+		if (model_opt.lessThanBinaryOptions(iter->first.getFitModelOptions())) {
 			std::pair<double, double> lumival = plotter.calulateLumiRelDiff(
 					iter->second->getLuminosity(), iter->second->getLuminosityError(),
 					lumi_ref);
@@ -261,7 +260,7 @@ std::map<PndLmdLumiFitOptions, ValueBundle> bundleSingleFileLuminosityValues(
 	return return_map;
 }
 
-void fillData(PndLmdData &data, LumiFit::LmdBinaryFitOptions &bin_fit_op,
+void fillData(PndLmdData &data, LumiFit::PndLmdFitModelOptions &model_opt,
 		map<PndLmdLumiFitOptions, histBundle> &result_map) {
 	// create an instance of PndLmdResultPlotter the plotting helper class
 	PndLmdResultPlotter plotter;
@@ -274,8 +273,7 @@ void fillData(PndLmdData &data, LumiFit::LmdBinaryFitOptions &bin_fit_op,
 	for (map<PndLmdLumiFitOptions, PndLmdLumiFitResult*>::const_iterator iter =
 			fit_results.begin(); iter != fit_results.end(); iter++) {
 
-		if (bin_fit_op.getBinaryOptions()
-				== iter->first.getModelBinaryOptions().getBinaryOptions()) {
+		if (model_opt.lessThanBinaryOptions(iter->first.getFitModelOptions())) {
 			std::pair<double, double> lumival = plotter.calulateLumiRelDiff(
 					iter->second->getLuminosity(), iter->second->getLuminosityError(),
 					lumi_ref);
@@ -329,8 +327,8 @@ std::vector<PndLmdResultPlotter::graph_bundle> convertToPlotterGraphs(
 		gb.model = 0;
 		std::stringstream s;
 		s.precision(3);
-		s << it->first.getPrimaryDimensionFitRange().getRangeLow() << "-"
-				<< it->first.getPrimaryDimensionFitRange().getRangeHigh();
+		s << it->first.getEstimatorOptions().getFitRangeY().range_low << "-"
+				<< it->first.getEstimatorOptions().getFitRangeY().range_high;
 		gb.labels.push_back(std::make_pair(TString(s.str().c_str()), 1));
 		return_vec.push_back(gb);
 	}
@@ -365,40 +363,35 @@ void determineLumiFitSystematics(std::string pathname,
 		LumiFit::LmdDimensionOptions lmd_dim_opt;
 		lmd_dim_opt.track_type = LumiFit::MC;
 
-		LumiFit::LmdBinaryFitOptions bin_fit_op;
-		bin_fit_op.setFitAsRaw(false);
-		bin_fit_op.setFitDimension(0);
-		bin_fit_op.setSmearingMode(false);
-		bin_fit_op.setAcceptanceCorrMode(false);
-		bin_fit_op.setFitterType(0);
+		LumiFit::PndLmdFitModelOptions model_op;
 
 		vector<PndLmdData> data_vec = lmd_data_facade.filterData(full_data_vec, lmd_dim_opt);
 
 		// standard case would be just a single reco data object
 		if (data_vec.size() > 0) {
-			fillData(data_vec[0], bin_fit_op, mc_comb_map);
+			fillData(data_vec[0], model_op, mc_comb_map);
 		}
 
 		// MC ACC data case
 		lmd_dim_opt.track_type = LumiFit::MC_ACC;
-		bin_fit_op.setAcceptanceCorrMode(true);
+		model_op.acceptance_correction_active = true;
 
 		data_vec = lmd_data_facade.filterData(full_data_vec, lmd_dim_opt);
 
 		// standard case would be just a single reco data object
 		if (data_vec.size() > 0) {
-			fillData(data_vec[0], bin_fit_op, mc_acc_comb_map);
+			fillData(data_vec[0], model_op, mc_acc_comb_map);
 		}
 
 		// RECO data case
 		lmd_dim_opt.track_type = LumiFit::RECO;
-		bin_fit_op.setSmearingMode(true);
+		model_op.resolution_smearing_active = true;
 
 		data_vec = lmd_data_facade.filterData(full_data_vec, lmd_dim_opt);
 
 		// standard case would be just a single reco data object
 		if (data_vec.size() > 0) {
-			fillData(data_vec[0], bin_fit_op, reco_comb_map);
+			fillData(data_vec[0], model_op, reco_comb_map);
 		}
 	}
 
@@ -457,12 +450,7 @@ void createDependencyGraphs(std::string pathname,
 	LumiFit::LmdDimensionOptions lmd_dim_opt;
 	lmd_dim_opt.track_type = LumiFit::MC;
 
-	LumiFit::LmdBinaryFitOptions bin_fit_op;
-	bin_fit_op.setFitAsRaw(false);
-	bin_fit_op.setFitDimension(0);
-	bin_fit_op.setSmearingMode(false);
-	bin_fit_op.setAcceptanceCorrMode(false);
-	bin_fit_op.setFitterType(0);
+	LumiFit::PndLmdFitModelOptions model_op;
 
 	vector<PndLmdData> data_vec = lmd_data_facade.filterData(full_data_vec, lmd_dim_opt);
 	std::cout<<data_vec.size()<<std::endl;
@@ -472,14 +460,14 @@ void createDependencyGraphs(std::string pathname,
 	// standard case would be just a single reco data object
 	if (data_vec.size() > 0) {
 		std::map<PndLmdLumiFitOptions, ValueBundle> vm =
-				bundleSingleFileLuminosityValues(data_vec[0], bin_fit_op);
+				bundleSingleFileLuminosityValues(data_vec[0], model_op);
 		std::cout<<vm.size()<<std::endl;
 		gb_mc = makeDependencyGraph(vm);
 	}
 
 	// MC ACC data case
 	lmd_dim_opt.track_type = LumiFit::MC_ACC;
-	bin_fit_op.setAcceptanceCorrMode(true);
+	model_op.acceptance_correction_active = true;
 
 	data_vec = lmd_data_facade.filterData(full_data_vec, lmd_dim_opt);
 
@@ -488,14 +476,14 @@ void createDependencyGraphs(std::string pathname,
 	// standard case would be just a single reco data object
 	if (data_vec.size() > 0) {
 		std::map<PndLmdLumiFitOptions, ValueBundle> vm =
-				bundleSingleFileLuminosityValues(data_vec[0], bin_fit_op);
+				bundleSingleFileLuminosityValues(data_vec[0], model_op);
 		std::cout<<vm.size()<<std::endl;
 		gb_mc_acc = makeDependencyGraph(vm);
 	}
 
 	// RECO data case
 	lmd_dim_opt.track_type = LumiFit::RECO;
-	bin_fit_op.setSmearingMode(true);
+	model_op.resolution_smearing_active = true;
 
 	data_vec = lmd_data_facade.filterData(full_data_vec, lmd_dim_opt);
 
@@ -504,7 +492,7 @@ void createDependencyGraphs(std::string pathname,
 	// standard case would be just a single reco data object
 	if (data_vec.size() > 0) {
 		std::map<PndLmdLumiFitOptions, ValueBundle> vm =
-				bundleSingleFileLuminosityValues(data_vec[0], bin_fit_op);
+				bundleSingleFileLuminosityValues(data_vec[0], model_op);
 		std::cout<<vm.size()<<std::endl;
 		gb_reco = makeDependencyGraph(vm);
 	}

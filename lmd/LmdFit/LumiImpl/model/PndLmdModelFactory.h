@@ -11,7 +11,9 @@
 #include "Model1D.h"
 #include "Model2D.h"
 
-class PndLmdLumiFitOptions;
+namespace LumiFit {
+  class PndLmdFitModelOptions;
+}
 class PndLmdAcceptance;
 class PndLmdLumiFitResult;
 
@@ -22,25 +24,25 @@ class PndLmdLumiFitResult;
  * via the #generateModel() function, which has to be implemented
  */
 class PndLmdModelFactory {
-public:
-	PndLmdModelFactory();
-	~PndLmdModelFactory();
+	public:
+		PndLmdModelFactory();
+		~PndLmdModelFactory();
 
-	shared_ptr<Model1D> generate1DResolutionModel(const
-			PndLmdLumiFitOptions *fit_options);
+		shared_ptr<Model1D> generate1DResolutionModel(
+				const LumiFit::PndLmdFitModelOptions& model_options);
 
-	/**
-	 * 1D Model generator method
-	 * @param fit_options are the options which model will be built and returned
-	 */
-	shared_ptr<Model1D> generate1DModel(const PndLmdLumiFitOptions *fit_options,
-			double plab);
+		/**
+		 * 1D Model generator method
+		 * @param fit_options are the options which model will be built and returned
+		 */
+		shared_ptr<Model1D> generate1DModel(
+				const LumiFit::PndLmdFitModelOptions& model_options, double plab);
 
-	/**
-	 * 2D Model generator method
-	 * @param fit_options are the options which model will be built and returned
-	 */
-	/*Model2D& generate2DModel(PndLmdLumiFitOptions *fit_options);*/
+		/**
+		 * 2D Model generator method
+		 * @param fit_options are the options which model will be built and returned
+		 */
+		/*Model2D& generate2DModel(PndLmdLumiFitOptions *fit_options);*/
 };
 
 #endif /* PNDLMDMODELFACTORY_H_ */

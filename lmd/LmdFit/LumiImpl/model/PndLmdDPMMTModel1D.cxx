@@ -15,15 +15,15 @@
 #include "TDatabasePDG.h"
 
 PndLmdDPMMTModel1D::PndLmdDPMMTModel1D(std::string name_,
-		dpm_elastic_parts elastic_type_) :
+		LumiFit::DPMElasticParts elastic_type_) :
 		Model1D(name_) {
 
 	elastic_type = elastic_type_;
-	if (elastic_type == COUL) {
+	if (elastic_type == LumiFit::COUL) {
 		model_func = &PndLmdDPMMTModel1D::getRawCoulombPart;
-	} else if (elastic_type == INT) {
+	} else if (elastic_type == LumiFit::INT) {
 		model_func = &PndLmdDPMMTModel1D::getRawInterferencePart;
-	} else if (elastic_type == HAD) {
+	} else if (elastic_type == LumiFit::HAD) {
 		model_func = &PndLmdDPMMTModel1D::getRawHadronicPart;
 	} else {
 		model_func = &PndLmdDPMMTModel1D::getRawFullElastic;

@@ -70,7 +70,7 @@ TGraphAsymmErrors *PndLmdROOTDataModel1D::getGraph() const {
 	return graph;
 }
 
-PndLmdROOTDataModel1D::interpolation_type PndLmdROOTDataModel1D::getIntpolType() const {
+LumiFit::InterpolationType PndLmdROOTDataModel1D::getIntpolType() const {
 	return intpol_type;
 }
 
@@ -89,11 +89,11 @@ void PndLmdROOTDataModel1D::setGraph(TGraphAsymmErrors *graph_) {
 }
 
 void PndLmdROOTDataModel1D::setIntpolType(
-		PndLmdROOTDataModel1D::interpolation_type intpol_type_) {
+		LumiFit::InterpolationType intpol_type_) {
 	intpol_type = intpol_type_;
-	if (intpol_type == CONSTANT) {
+	if (intpol_type == LumiFit::CONSTANT) {
 		model_func = &PndLmdROOTDataModel1D::evaluateConstant;
-	} else if (intpol_type == SPLINE) {
+	} else if (intpol_type == LumiFit::SPLINE) {
 		model_func = &PndLmdROOTDataModel1D::evaluateSpline;
 	} else {
 		model_func = &PndLmdROOTDataModel1D::evaluateLinear;

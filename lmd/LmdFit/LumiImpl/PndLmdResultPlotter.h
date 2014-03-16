@@ -55,7 +55,7 @@ class PndLmdResultPlotter {
 		struct fit_options_compare {
 				bool operator()(const PndLmdLumiFitOptions& lhs,
 						const PndLmdLumiFitOptions& rhs) const {
-					return lhs.lessThanNonBinaryOptions(rhs);
+					return (lhs.getEstimatorOptions() < rhs.getEstimatorOptions());
 				}
 		};
 
@@ -94,7 +94,7 @@ class PndLmdResultPlotter {
 		TGraphAsymmErrors* createGraphFromFitResult(
 				const PndLmdLumiFitOptions &fit_opt, PndLmdData &data);
 
-		DataStructs::dimension_range generatePlotRange(
+		DataStructs::DimensionRange generatePlotRange(
 				const PndLmdAbstractData &lmd_abs_data,
 				const PndLmdLumiFitOptions &fit_options) const;
 
@@ -143,7 +143,8 @@ class PndLmdResultPlotter {
 		PndLmdResultPlotter::graph_bundle makeGraphBundle1D(PndLmdData& data,
 				const PndLmdLumiFitOptions &fit_options);
 
-		PndLmdResultPlotter::graph_bundle makeResolutionGraphBundle1D(PndLmdResolution& res);
+		PndLmdResultPlotter::graph_bundle makeResolutionGraphBundle1D(
+				PndLmdResolution& res);
 
 		std::pair<double, double> calulateLumiRelDiff(double lumi, double lumi_err,
 				double lumi_ref);
@@ -164,8 +165,8 @@ class PndLmdResultPlotter {
 		void makeFitResultBooky(
 				std::map<PndLmdLumiFitOptions,
 						std::map<int, PndLmdResultPlotter::graph_bundle>,
-						PndLmdResultPlotter::fit_options_compare> &graph_bundle_map
-				, TString filename = "fitresults");
+						PndLmdResultPlotter::fit_options_compare> &graph_bundle_map,
+				TString filename = "fitresults");
 
 		void makeResolutionSummaryPlots(TFile *f);
 
@@ -176,12 +177,11 @@ class PndLmdResultPlotter {
 				std::vector<PndLmdResultPlotter::graph_bundle> &graph_bundles,
 				TString filename, int x = 4, int y = 3);
 
-		void makeComparisonCanvas(
-				TString name,
+		void makeComparisonCanvas(TString name,
 				std::map<TString, std::vector<PndLmdResultPlotter::combined_values> >& result_map);
 
-		void plotDPMModelParts(double plab, std::pair<double, double> plot_range
-				, bool log_scale = true);
+		void plotDPMModelParts(double plab, DataStructs::DimensionRange& plot_range,
+				bool log_scale = true);
 };
 
 #endif /* PNDLMDRESULTPLOTTER_H_ */

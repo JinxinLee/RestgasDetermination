@@ -209,7 +209,7 @@ void PndLmdDataFacade::create1DAngularDataBundle(unsigned int num_events) {
 	primary_dimension_template.dimension_range.setRangeHigh(
 			helper.getMomentumTransferFromTheta(lab_momentum,
 					primary_dimension_template.dimension_range.getRangeHigh()));
-	primary_dimension_template.dimension_range.setUnitPrefix(DataStructs::NONE);
+	primary_dimension_template.dimension_range.setUnitPrefix(LumiFit::NONE);
 
 	primary_dimension_template.dimension_options.dimension_type = LumiFit::T;
 	primary_dimension_template.dimension_options.track_type = LumiFit::MC;
@@ -234,7 +234,7 @@ void PndLmdDataFacade::create1DAngularDataBundle(unsigned int num_events) {
 void PndLmdDataFacade::create1DAngularResolutionDataBundle(
 		unsigned int num_events) {
 	primary_selection_dimension_bundle_template.dimension_range.setUnitPrefix(
-			DataStructs::MILLI);
+			LumiFit::MILLI);
 	primary_selection_dimension_bundle_template.dimension_options.dimension_type =
 			LumiFit::THETA;
 	primary_selection_dimension_bundle_template.dimension_options.track_param_type =
@@ -250,7 +250,7 @@ void PndLmdDataFacade::create1DAngularResolutionDataBundle(
 	primary_selection_dimension_template =
 			primary_selection_dimension_bundle_template;
 	primary_selection_dimension_template.dimension_range.setUnitPrefix(
-			DataStructs::NONE);
+			LumiFit::NONE);
 
 	secondary_selection_dimension_template =
 			secondary_selection_dimension_bundle_template;

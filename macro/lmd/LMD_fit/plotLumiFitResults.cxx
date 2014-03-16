@@ -90,18 +90,21 @@ void plotLumiFitResults(TString path, TString filename_prefix = "fitresults") {
 	plotter.setThetaPlotRange(0.0, 0.011);
 	// get reco graph bundle
 	PndLmdResultPlotter::graph_bundle gb = graph_bundle_map.begin()->second[6];
-  TCanvas c("c","", 1000, 700);
+	TCanvas c("c", "", 1000, 700);
 	plotter.fillSinglePad(&c, gb, false, true);
 	c.SaveAs("lumifit_reco.pdf");
-	//save it as root file as well
-	TFile outputfile("reco-results.root", "RECREATE");
-	gb.hist1d->Write("data");
-	gb.model->Write("model");
-	TLatex l_plab(0.5, 0.5, gb.labels[0].first);
-	l_plab.Write("plab");
-	TLatex l_rdiff(0.5, 0.5, gb.labels[1].first);
-	l_rdiff.Write("reldiff");
-	outputfile.Close();
+
+	if (false) {
+		//save it as root file as well
+		TFile outputfile("reco-results.root", "RECREATE");
+		gb.hist1d->Write("data");
+		gb.model->Write("model");
+		TLatex l_plab(0.5, 0.5, gb.labels[0].first);
+		l_plab.Write("plab");
+		TLatex l_rdiff(0.5, 0.5, gb.labels[1].first);
+		l_rdiff.Write("reldiff");
+		outputfile.Close();
+	}
 
 	// ================================ END PLOTTING ================================ //
 }

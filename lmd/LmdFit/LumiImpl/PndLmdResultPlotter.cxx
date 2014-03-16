@@ -44,7 +44,7 @@
 #include "TColor.h"
 #include "TPaletteAxis.h"
 
-using std::ostringstream;
+using std::stringstream;
 using std::endl;
 
 PndLmdResultPlotter::PndLmdResultPlotter() {
@@ -347,16 +347,19 @@ double PndLmdResultPlotter::calculateYPos(double line, double text_toppos_,
 	}
 }
 
-DataStructs::dimension_range PndLmdResultPlotter::generatePlotRange(
+DataStructs::DimensionRange PndLmdResultPlotter::generatePlotRange(
 		const PndLmdAbstractData &lmd_abs_data,
 		const PndLmdLumiFitOptions &fit_options) const {
 	PndLmdFitFacade fit_facade;
-	DataStructs::dimension_range plot_range;
+	DataStructs::DimensionRange plot_range;
 	if (use_plot_range) {
-		plot_range.range = std::make_pair(theta_plot_range_low,
-				theta_plot_range_high);
+		plot_range.range_low = theta_plot_range_low;
+		plot_range.range_high = theta_plot_range_high;
 	} else {
-		plot_range.range = fit_facade.calcRange(lmd_abs_data, &fit_options);
+		plot_range.range_low =
+				fit_facade.calcRange(lmd_abs_data, &fit_options).first;
+		plot_range.range_high =
+				fit_facade.calcRange(lmd_abs_data, &fit_options).second;
 	}
 	return plot_range;
 }
@@ -365,15 +368,15 @@ TGraphAsymmErrors* PndLmdResultPlotter::createGraphFromFitResult(
 		const PndLmdLumiFitOptions &fit_opt, PndLmdData &data) {
 
 	PndLmdModelFactory model_factory;
-	shared_ptr<Model1D> model = model_factory.generate1DModel(&fit_opt,
-			data.getLabMomentum());
+	shared_ptr<Model1D> model = model_factory.generate1DModel(
+			fit_opt.getFitModelOptions(), data.getLabMomentum());
 	if (model->init()) {
 		std::cout << "Error: not all parameters have been set!" << std::endl;
 	}
 
 	// now just overwrite all parameters in the model from the fit result
 	model->getModelParameterHandler().initModelParametersFromFitResult(
-			*(data.getFitResult(fit_opt)->getModelFitResult()));
+			data.getFitResult(fit_opt)->getModelFitResult());
 
 	// ok just evaluate the function at 500 points in the range (is default);
 	ModelVisualizationProperties1D vis_prop;
@@ -387,14 +390,15 @@ TGraphAsymmErrors* PndLmdResultPlotter::createGraphFromFitResult(
 TGraphAsymmErrors* PndLmdResultPlotter::createSmearingGraphFromFitResult(
 		const PndLmdLumiFitOptions &fit_opt, PndLmdResolution &res_data) {
 	PndLmdModelFactory model_factory;
-	shared_ptr<Model1D> model = model_factory.generate1DResolutionModel(&fit_opt);
+	shared_ptr<Model1D> model = model_factory.generate1DResolutionModel(
+			fit_opt.getFitModelOptions());
 	if (model->init()) {
 		std::cout << "Error: not all parameters have been set!" << std::endl;
 	}
 
 	// now just overwrite all parameters in the model from the fit result
 	model->getModelParameterHandler().initModelParametersFromFitResult(
-			*(res_data.getFitResult(fit_opt)->getModelFitResult()));
+			res_data.getFitResult(fit_opt)->getModelFitResult());
 
 	// all parameters of the smearing model have to be freed otherwise the
 	// parametrization model will overwrite the values during the evaluation
@@ -414,15 +418,15 @@ std::pair<TGraphAsymmErrors*, TGraphAsymmErrors*> PndLmdResultPlotter::createRes
 
 	PndLmdModelFactory model_factory;
 
-	shared_ptr<Model1D> model = model_factory.generate1DModel(&fit_opt,
-			data.getLabMomentum());
+	shared_ptr<Model1D> model = model_factory.generate1DModel(
+			fit_opt.getFitModelOptions(), data.getLabMomentum());
 	if (model->init()) {
 		std::cout << "Error: not all parameters have been set!" << std::endl;
 	}
 
 	// now just overwrite all parameters in the model from the fit result
 	model->getModelParameterHandler().initModelParametersFromFitResult(
-			*(data.getFitResult(fit_opt)->getModelFitResult()));
+			data.getFitResult(fit_opt)->getModelFitResult());
 
 	int counter = 0;
 	double xvals[data_hist->GetNbinsX()];
@@ -434,7 +438,8 @@ std::pair<TGraphAsymmErrors*, TGraphAsymmErrors*> PndLmdResultPlotter::createRes
 
 	for (unsigned int i = 0; i < data_hist->GetNbinsX(); i++) {
 		double eval_point = data_hist->GetBinCenter(i);
-		if (!fit_opt.getPrimaryDimensionFitRange().isDataWithinRange(eval_point)) {
+		if (!fit_opt.getEstimatorOptions().getFitRangeX().isDataWithinRange(
+				eval_point)) {
 			continue;
 		}
 		xvals[counter] = eval_point;
@@ -482,11 +487,11 @@ PndLmdResultPlotter::graph_bundle PndLmdResultPlotter::makeAcceptanceBundle(
 
 	PndLmdLumiFitResult *fit_result = data.getFitResult(fit_options);
 
-	if (fit_options.getModelBinaryOptions().isAcceptanceCorrOn()) {
+	if (fit_options.getFitModelOptions().acceptance_correction_active) {
 		if (fit_result)
 			acc_bundle.plab = data.getLabMomentum();
 
-		PndLmdAcceptance *acc = fit_options.getAcceptance();
+		PndLmdAcceptance *acc = fit_options.getFitModelOptions().acceptance;
 		TEfficiency *eff = acc->getAcceptance1D(); // false = angular acceptance
 		TCanvas c;
 		eff->Draw();
@@ -526,7 +531,7 @@ PndLmdResultPlotter::graph_bundle PndLmdResultPlotter::makeGraphBundle1D(
 
 	lmd_graph_bundle.hist1d = hist;
 
-	if (fit_res->getModelFitResult()->getFitStatus() == 0) {
+	if (fit_res->getModelFitResult().getFitStatus() == 0) {
 		lmd_graph_bundle.model = createGraphFromFitResult(fit_options, data);
 		lmd_graph_bundle.residual = createResidual(fit_options, data);
 	} else {
@@ -535,7 +540,7 @@ PndLmdResultPlotter::graph_bundle PndLmdResultPlotter::makeGraphBundle1D(
 		//lmd_graph_bundle.residual = std::make_pair(temp,temp);
 	}
 
-	ostringstream strstream;
+	stringstream strstream;
 	strstream.precision(3);
 
 	strstream << "p_{lab} = " << lmd_graph_bundle.plab << " GeV";
@@ -543,7 +548,7 @@ PndLmdResultPlotter::graph_bundle PndLmdResultPlotter::makeGraphBundle1D(
 			std::make_pair(TString(strstream.str()), 1));
 	strstream.str("");
 
-	if (fit_res->getModelFitResult()->getFitStatus() == 0) {
+	if (fit_res->getModelFitResult().getFitStatus() == 0) {
 		/*strstream << "#chi^{2}/NDF = " << fit_res->getRedChiSquare();
 		 lmd_graph_bundle.labels.push_back(
 		 std::make_pair(TString(strstream.str()), 1));
@@ -581,6 +586,7 @@ PndLmdResultPlotter::graph_bundle PndLmdResultPlotter::makeResolutionGraphBundle
 	lmd_graph_bundle.is_acceptance = false;
 	lmd_graph_bundle.is_residual = false;
 	lmd_graph_bundle.plab = res.getLabMomentum();
+	lmd_graph_bundle.model = 0;
 
 	TH1D* hist = res.get1DHistogram();
 
@@ -592,15 +598,13 @@ PndLmdResultPlotter::graph_bundle PndLmdResultPlotter::makeResolutionGraphBundle
 	if (fit_results.size() > 0) {
 		lmd_graph_bundle.fit_options = fit_results.begin()->first;
 
-		if (fit_results.begin()->second->getModelFitResult()->getFitStatus() == 0) {
+		if (fit_results.begin()->second->getModelFitResult().getFitStatus() == 0) {
 			lmd_graph_bundle.model = createSmearingGraphFromFitResult(
 					fit_results.begin()->first, res);
-		} else {
-			lmd_graph_bundle.model = 0;
 		}
 	}
 
-	ostringstream strstream;
+	stringstream strstream;
 	strstream.precision(3);
 
 	strstream << "p_{lab} = " << lmd_graph_bundle.plab << " GeV";
@@ -628,158 +632,126 @@ std::map<PndLmdLumiFitOptions, std::map<int, PndLmdResultPlotter::graph_bundle>,
 			PndLmdResultPlotter::fit_options_compare> return_map;
 
 	// model types
-	unsigned long fitop_tmctruth = 8;
-	unsigned long fitop_thmctruth = 0;
-	unsigned long fitop_mcacc = 2;
-	unsigned long fitop_normal = 3;
+	LumiFit::PndLmdFitModelOptions fitop_tmctruth(LumiFit::MC, LumiFit::T);
+	LumiFit::PndLmdFitModelOptions fitop_thmctruth(LumiFit::MC, LumiFit::THETA);
+	LumiFit::PndLmdFitModelOptions fitop_mcacc(LumiFit::MC_ACC, LumiFit::THETA);
+	LumiFit::PndLmdFitModelOptions fitop_normal(LumiFit::RECO, LumiFit::THETA);
 
 	// go through data map
 	for (std::vector<PndLmdData>::iterator top_it = data_vec.begin();
 			top_it != data_vec.end(); top_it++) {
 
-		// first determine which data objects we have here
+		// we only want IP info, so throw out everything else
 		if (top_it->getPrimaryDimension().dimension_options.track_param_type
 				!= LumiFit::IP) {
 			continue;
 		}
 		// ok we are actually only interested in the dimension type and track type
 
-		// PAD1: if we have MC data and momentum transfer and we fit that with mc_t model
-		// skip this pad in the beginning to find the matching panels later due to different fit ranges
+		// loop over fit results
+		map<PndLmdLumiFitOptions, PndLmdLumiFitResult*> fit_results =
+				top_it->getFitResults();
+		for (map<PndLmdLumiFitOptions, PndLmdLumiFitResult*>::iterator it =
+				fit_results.begin(); it != fit_results.end(); it++) {
 
-		// PAD2:
-		if (top_it->getPrimaryDimension().dimension_options.track_type
-				== LumiFit::MC
-				&& top_it->getPrimaryDimension().dimension_options.dimension_type
-						== LumiFit::THETA) {
-			int pad_number = 2;
-			map<PndLmdLumiFitOptions, PndLmdLumiFitResult*> fit_results =
-					top_it->getFitResults();
-			for (map<PndLmdLumiFitOptions, PndLmdLumiFitResult*>::iterator it =
-					fit_results.begin(); it != fit_results.end(); it++) {
-				if (it->first.getModelBinaryOptions().getBinaryOptions()
-						== fitop_thmctruth) {
+			// PAD1: if we have MC data and momentum transfer and we fit that with mc_t model
+			// skip this pad in the beginning to find the matching panels later due to different fit ranges
+
+			// PAD2:
+			if (top_it->getPrimaryDimension().dimension_options.track_type
+					== LumiFit::MC
+					&& top_it->getPrimaryDimension().dimension_options.dimension_type
+							== LumiFit::THETA) {
+				int pad_number = 2;
+
+				if (fitop_thmctruth.equalBinaryOptions(
+						it->first.getFitModelOptions())) {
 					return_map[it->first][pad_number] = makeGraphBundle1D(*top_it,
 							it->first);
 				}
 			}
-		}
-		// PAD3:
-		if (top_it->getPrimaryDimension().dimension_options.track_type
-				== LumiFit::MC_ACC
-				&& top_it->getPrimaryDimension().dimension_options.dimension_type
-						== LumiFit::THETA) {
-			int pad_number = 3;
-			map<PndLmdLumiFitOptions, PndLmdLumiFitResult*> fit_results =
-					top_it->getFitResults();
-			for (map<PndLmdLumiFitOptions, PndLmdLumiFitResult*>::iterator it =
-					fit_results.begin(); it != fit_results.end(); it++) {
-				if (it->first.getModelBinaryOptions().getBinaryOptions()
-						== fitop_mcacc) {
+			// PAD3:
+			if (top_it->getPrimaryDimension().dimension_options.track_type
+					== LumiFit::MC_ACC
+					&& top_it->getPrimaryDimension().dimension_options.dimension_type
+							== LumiFit::THETA) {
+				int pad_number = 3;
+
+				if (fitop_mcacc.equalBinaryOptions(it->first.getFitModelOptions())) {
 					return_map[it->first][pad_number] = makeAcceptanceBundle(*top_it,
 							it->first);
 				}
 			}
-		}
-		// PAD4:
-		if (top_it->getPrimaryDimension().dimension_options.track_type
-				== LumiFit::MC_ACC
-				&& top_it->getPrimaryDimension().dimension_options.dimension_type
-						== LumiFit::THETA) {
-			int pad_number = 4;
-			map<PndLmdLumiFitOptions, PndLmdLumiFitResult*> fit_results =
-					top_it->getFitResults();
-			for (map<PndLmdLumiFitOptions, PndLmdLumiFitResult*>::iterator it =
-					fit_results.begin(); it != fit_results.end(); it++) {
-				if (it->first.getModelBinaryOptions().getBinaryOptions()
-						== fitop_mcacc) {
+			// PAD4:
+			if (top_it->getPrimaryDimension().dimension_options.track_type
+					== LumiFit::MC_ACC
+					&& top_it->getPrimaryDimension().dimension_options.dimension_type
+							== LumiFit::THETA) {
+				int pad_number = 4;
+
+				if (fitop_mcacc.equalBinaryOptions(it->first.getFitModelOptions())) {
 					return_map[it->first][pad_number] = makeGraphBundle1D(*top_it,
 							it->first);
 				}
 			}
-		}
-		// PAD5:
-		if (top_it->getPrimaryDimension().dimension_options.track_type
-				== LumiFit::RECO
-				&& top_it->getPrimaryDimension().dimension_options.dimension_type
-						== LumiFit::THETA) {
-			int pad_number = 5;
-			map<PndLmdLumiFitOptions, PndLmdLumiFitResult*> fit_results =
-					top_it->getFitResults();
-			for (map<PndLmdLumiFitOptions, PndLmdLumiFitResult*>::iterator it =
-					fit_results.begin(); it != fit_results.end(); it++) {
-				if (it->first.getModelBinaryOptions().getBinaryOptions()
-						== fitop_mcacc) {
+			// PAD5:
+			if (top_it->getPrimaryDimension().dimension_options.track_type
+					== LumiFit::RECO
+					&& top_it->getPrimaryDimension().dimension_options.dimension_type
+							== LumiFit::THETA) {
+				int pad_number = 5;
+
+				if (fitop_mcacc.equalBinaryOptions(it->first.getFitModelOptions())) {
 					return_map[it->first][pad_number] = makeGraphBundle1D(*top_it,
 							it->first);
 				}
 			}
-		}
-		// PAD6:
-		if (top_it->getPrimaryDimension().dimension_options.track_type
-				== LumiFit::RECO
-				&& top_it->getPrimaryDimension().dimension_options.dimension_type
-						== LumiFit::THETA) {
-			int pad_number = 6;
-			map<PndLmdLumiFitOptions, PndLmdLumiFitResult*> fit_results =
-					top_it->getFitResults();
-			for (map<PndLmdLumiFitOptions, PndLmdLumiFitResult*>::iterator it =
-					fit_results.begin(); it != fit_results.end(); it++) {
-				if (it->first.getModelBinaryOptions().getBinaryOptions()
-						== fitop_normal) {
+			// PAD6:
+			if (top_it->getPrimaryDimension().dimension_options.track_type
+					== LumiFit::RECO
+					&& top_it->getPrimaryDimension().dimension_options.dimension_type
+							== LumiFit::THETA) {
+				int pad_number = 6;
+
+				if (fitop_normal.equalBinaryOptions(it->first.getFitModelOptions())) {
 					return_map[it->first][pad_number] = makeGraphBundle1D(*top_it,
 							it->first);
 				}
 			}
-		}
-		// PAD7:
-		if (top_it->getPrimaryDimension().dimension_options.track_type
-				== LumiFit::MC_ACC
-				&& top_it->getPrimaryDimension().dimension_options.dimension_type
-						== LumiFit::THETA) {
-			int pad_number = 7;
-			map<PndLmdLumiFitOptions, PndLmdLumiFitResult*> fit_results =
-					top_it->getFitResults();
-			for (map<PndLmdLumiFitOptions, PndLmdLumiFitResult*>::iterator it =
-					fit_results.begin(); it != fit_results.end(); it++) {
-				if (it->first.getModelBinaryOptions().getBinaryOptions()
-						== fitop_mcacc) {
+			// PAD7:
+			if (top_it->getPrimaryDimension().dimension_options.track_type
+					== LumiFit::MC_ACC
+					&& top_it->getPrimaryDimension().dimension_options.dimension_type
+							== LumiFit::THETA) {
+				int pad_number = 7;
+
+				if (fitop_mcacc.equalBinaryOptions(it->first.getFitModelOptions())) {
 					return_map[it->first][pad_number] = makeGraphBundle1D(*top_it,
 							it->first);
 					return_map[it->first][pad_number].is_residual = true;
 				}
 			}
-		}
-		// PAD8:
-		if (top_it->getPrimaryDimension().dimension_options.track_type
-				== LumiFit::RECO
-				&& top_it->getPrimaryDimension().dimension_options.dimension_type
-						== LumiFit::THETA) {
-			int pad_number = 8;
-			map<PndLmdLumiFitOptions, PndLmdLumiFitResult*> fit_results =
-					top_it->getFitResults();
-			for (map<PndLmdLumiFitOptions, PndLmdLumiFitResult*>::iterator it =
-					fit_results.begin(); it != fit_results.end(); it++) {
-				if (it->first.getModelBinaryOptions().getBinaryOptions()
-						== fitop_mcacc) {
+			// PAD8:
+			if (top_it->getPrimaryDimension().dimension_options.track_type
+					== LumiFit::RECO
+					&& top_it->getPrimaryDimension().dimension_options.dimension_type
+							== LumiFit::THETA) {
+				int pad_number = 8;
+
+				if (fitop_mcacc.equalBinaryOptions(it->first.getFitModelOptions())) {
 					return_map[it->first][pad_number] = makeGraphBundle1D(*top_it,
 							it->first);
 					return_map[it->first][pad_number].is_residual = true;
 				}
 			}
-		}
-		// PAD9:
-		if (top_it->getPrimaryDimension().dimension_options.track_type
-				== LumiFit::RECO
-				&& top_it->getPrimaryDimension().dimension_options.dimension_type
-						== LumiFit::THETA) {
-			int pad_number = 9;
-			map<PndLmdLumiFitOptions, PndLmdLumiFitResult*> fit_results =
-					top_it->getFitResults();
-			for (map<PndLmdLumiFitOptions, PndLmdLumiFitResult*>::iterator it =
-					fit_results.begin(); it != fit_results.end(); it++) {
-				if (it->first.getModelBinaryOptions().getBinaryOptions()
-						== fitop_normal) {
+			// PAD9:
+			if (top_it->getPrimaryDimension().dimension_options.track_type
+					== LumiFit::RECO
+					&& top_it->getPrimaryDimension().dimension_options.dimension_type
+							== LumiFit::THETA) {
+				int pad_number = 9;
+
+				if (fitop_normal.equalBinaryOptions(it->first.getFitModelOptions())) {
 					return_map[it->first][pad_number] = makeGraphBundle1D(*top_it,
 							it->first);
 					return_map[it->first][pad_number].is_residual = true;
@@ -788,7 +760,7 @@ std::map<PndLmdLumiFitOptions, std::map<int, PndLmdResultPlotter::graph_bundle>,
 		}
 	}
 
-	// go through data map
+	// go through data map again and try to match the momentum transfer data fits
 	for (std::vector<PndLmdData>::iterator top_it = data_vec.begin();
 			top_it != data_vec.end(); top_it++) {
 
@@ -809,8 +781,7 @@ std::map<PndLmdLumiFitOptions, std::map<int, PndLmdResultPlotter::graph_bundle>,
 					top_it->getFitResults();
 			for (map<PndLmdLumiFitOptions, PndLmdLumiFitResult*>::iterator it =
 					fit_results.begin(); it != fit_results.end(); it++) {
-				if (it->first.getModelBinaryOptions().getBinaryOptions()
-						== fitop_tmctruth) {
+				if (fitop_tmctruth.equalBinaryOptions(it->first.getFitModelOptions())) {
 
 					// loop over current return map and find appropriate canvas
 					for (std::map<PndLmdLumiFitOptions,
@@ -818,15 +789,15 @@ std::map<PndLmdLumiFitOptions, std::map<int, PndLmdResultPlotter::graph_bundle>,
 							PndLmdResultPlotter::fit_options_compare>::iterator return_map_it =
 							return_map.begin(); return_map_it != return_map.end();
 							return_map_it++) {
-						LumiFit::LmdDimensionRange lmd_range =
-								return_map_it->first.getPrimaryDimensionFitRange();
+						DataStructs::DimensionRange lmd_range =
+								return_map_it->first.getEstimatorOptions().getFitRangeX();
 
-						if (it->first.getPrimaryDimensionFitRange().getRangeLow()
+						if (it->first.getEstimatorOptions().getFitRangeX().range_low
 								== lumi_helper.getMomentumTransferFromTheta(
-										top_it->getLabMomentum(), lmd_range.getRangeLow())) {
-							if (it->first.getPrimaryDimensionFitRange().getRangeHigh()
+										top_it->getLabMomentum(), lmd_range.range_low)) {
+							if (it->first.getEstimatorOptions().getFitRangeX().range_high
 									== lumi_helper.getMomentumTransferFromTheta(
-											top_it->getLabMomentum(), lmd_range.getRangeHigh())) {
+											top_it->getLabMomentum(), lmd_range.range_high)) {
 								return_map_it->second[pad_number] = makeGraphBundle1D(*top_it,
 										it->first);
 								break;
@@ -857,7 +828,7 @@ void PndLmdResultPlotter::fillSinglePad(TCanvas *c, graph_bundle &gb,
 			if (graph) {
 				graph->SetTitle("");
 
-				if (gb.fit_options.getModelBinaryOptions().isFitRaw()) {
+				if (gb.fit_options.getFitModelOptions().momentum_transfer_active) {
 					if (theta_plot_range_low < theta_plot_range_high) {
 						graph->GetXaxis()->SetRangeUser(
 								-lumi_helper.getMomentumTransferFromTheta(gb.plab,
@@ -904,7 +875,7 @@ void PndLmdResultPlotter::fillSinglePad(TCanvas *c, graph_bundle &gb,
 			if (hist) {
 				hist->SetTitle("");
 
-				if (gb.fit_options.getModelBinaryOptions().isFitRaw()) {
+				if (gb.fit_options.getFitModelOptions().momentum_transfer_active) {
 					if (theta_plot_range_low < theta_plot_range_high) {
 						hist->GetXaxis()->SetRangeUser(
 								-lumi_helper.getMomentumTransferFromTheta(gb.plab,
@@ -1030,8 +1001,8 @@ void PndLmdResultPlotter::fillOverviewCanvas(TCanvas *c,
 			fillAcceptanceInPad(it->second);
 		} else {
 			bool logscale = false;
-			if (it->second.fit_options.model_binary_options.isFitRaw()
-					|| !it->second.fit_options.model_binary_options.isAcceptanceCorrOn())
+			if (it->second.fit_options.getFitModelOptions().momentum_transfer_active
+					|| !it->second.fit_options.getFitModelOptions().acceptance_correction_active)
 				logscale = true;
 			fillSinglePad(c, it->second, logscale, print_labels);
 		}
@@ -1049,7 +1020,7 @@ std::map<TString, std::vector<PndLmdLumiHelper::lmd_graph*> > PndLmdResultPlotte
 				graphs[i]->remaining_dependencies.begin();
 				dependency != graphs[i]->remaining_dependencies.end(); dependency++) {
 
-			ostringstream strstream;
+			stringstream strstream;
 			strstream.precision(3);
 			strstream << "_" << dependency->first << "-" << dependency->second;
 			key = key + strstream.str();
@@ -1069,20 +1040,17 @@ std::map<TString, std::vector<PndLmdLumiHelper::lmd_graph*> > PndLmdResultPlotte
 }
 
 void PndLmdResultPlotter::plotDPMModelParts(double plab,
-		std::pair<double, double> plot_range, bool log_scale) {
+		DataStructs::DimensionRange& plot_range, bool log_scale) {
 	PndLmdModelFactory model_factory;
 
 	ROOTDataHelper data_helper;
 	ModelVisualizationProperties1D vis_prop;
-	DataStructs::dimension_range range;
-	range.range = plot_range;
-	vis_prop.setPlotRange(range);
+	vis_prop.setPlotRange(plot_range);
 
-	LumiFit::LmdBinaryFitOptions bit_fit_opt(0);
-	PndLmdLumiFitOptions fit_op_full;
-	fit_op_full.setModelBinaryOptions(bit_fit_opt);
+	LumiFit::PndLmdFitModelOptions fit_op_full;
+	fit_op_full.dpm_elastic_parts = LumiFit::ALL;
 
-	shared_ptr<Model1D> full_model = model_factory.generate1DModel(&fit_op_full,
+	shared_ptr<Model1D> full_model = model_factory.generate1DModel(fit_op_full,
 			plab);
 	if (full_model->init()) {
 		std::cout << "Error: not all parameters have been set!" << std::endl;
@@ -1091,10 +1059,10 @@ void PndLmdResultPlotter::plotDPMModelParts(double plab,
 	TGraphAsymmErrors* full_model_graph = root_plotter.createGraphFromModel1D(
 			full_model, vis_prop);
 
-	PndLmdLumiFitOptions fit_op_coul = fit_op_full;
-	fit_op_coul.setDpmElasticModelParts(1);
+	LumiFit::PndLmdFitModelOptions fit_op_coul = fit_op_full;
+	fit_op_coul.dpm_elastic_parts = LumiFit::COUL;
 
-	shared_ptr<Model1D> coul_model = model_factory.generate1DModel(&fit_op_coul,
+	shared_ptr<Model1D> coul_model = model_factory.generate1DModel(fit_op_coul,
 			plab);
 	if (full_model->init()) {
 		std::cout << "Error: not all parameters have been set!" << std::endl;
@@ -1103,10 +1071,10 @@ void PndLmdResultPlotter::plotDPMModelParts(double plab,
 	TGraphAsymmErrors* coul_model_graph = root_plotter.createGraphFromModel1D(
 			coul_model, vis_prop);
 
-	PndLmdLumiFitOptions fit_op_int = fit_op_full;
-	fit_op_int.setDpmElasticModelParts(2);
+	LumiFit::PndLmdFitModelOptions fit_op_int = fit_op_full;
+	fit_op_int.dpm_elastic_parts = LumiFit::INT;
 
-	shared_ptr<Model1D> int_model = model_factory.generate1DModel(&fit_op_int,
+	shared_ptr<Model1D> int_model = model_factory.generate1DModel(fit_op_int,
 			plab);
 	if (full_model->init()) {
 		std::cout << "Error: not all parameters have been set!" << std::endl;
@@ -1115,10 +1083,10 @@ void PndLmdResultPlotter::plotDPMModelParts(double plab,
 	TGraphAsymmErrors* int_model_graph = root_plotter.createGraphFromModel1D(
 			int_model, vis_prop);
 
-	PndLmdLumiFitOptions fit_op_had = fit_op_full;
-	fit_op_had.setDpmElasticModelParts(3);
+	LumiFit::PndLmdFitModelOptions fit_op_had = fit_op_full;
+	fit_op_had.dpm_elastic_parts = LumiFit::HAD;
 
-	shared_ptr<Model1D> had_model = model_factory.generate1DModel(&fit_op_had,
+	shared_ptr<Model1D> had_model = model_factory.generate1DModel(fit_op_had,
 			plab);
 	if (full_model->init()) {
 		std::cout << "Error: not all parameters have been set!" << std::endl;
@@ -1153,7 +1121,7 @@ void PndLmdResultPlotter::plotDPMModelParts(double plab,
 	had_model_graph->SetLineColor(9);
 	had_model_graph->Draw("CSAME");
 
-	ostringstream strstream;
+	stringstream strstream;
 	strstream.precision(3);
 
 	strstream << "DPMModels_" << plab << ".pdf";
@@ -1203,9 +1171,11 @@ void PndLmdResultPlotter::makeResolutionSummaryPlots(TFile *f) {
 			graphs.begin(); it != graphs.end(); it++) {
 		TCanvas c("c", it->first, 1000, 700);
 		if (it->second.size() > 0) {
-			if (it->second[0]->fit_options->getSmearingModelType() == 0)
+			if (it->second[0]->fit_options->getFitModelOptions().smearing_model
+					== LumiFit::GAUSSIAN)
 				c.Divide(2, 2);
-			else if (it->second[0]->fit_options->getSmearingModelType() == 1)
+			else if (it->second[0]->fit_options->getFitModelOptions().smearing_model
+					== LumiFit::DOUBLE_GAUSSIAN)
 				c.Divide(3, 3);
 			else
 				c.Divide(3, 2);
@@ -1227,7 +1197,7 @@ void PndLmdResultPlotter::makeResolutionSummaryPlots(TFile *f) {
 
 			// generate the model
 			shared_ptr<Model> model = model_factory.generate1DResolutionModel(
-					it->second[i]->fit_options);
+					it->second[i]->fit_options->getFitModelOptions());
 			// get the model that we have to fit to the data
 			for (std::map<unsigned int, std::pair<std::string, std::string> >::const_iterator parameter_name =
 					it->second[i]->parameter_name_stack.begin();
@@ -1264,13 +1234,10 @@ void PndLmdResultPlotter::makeResolutionSummaryPlots(TFile *f) {
 				data_helper.fillBinnedData(data, it->second[i]->graph);
 				ModelVisualizationProperties1D vis_prop(data);
 
-				DataStructs::dimension_range plot_range;
-				plot_range.range =
-						std::make_pair(
-								it->second[i]->fit_options->primary_dimension_fit_range.getRangeLow(),
-								it->second[i]->fit_options->primary_dimension_fit_range.getRangeHigh());
-				std::cout << "plotting range: " << plot_range.range.first << " - "
-						<< plot_range.range.second << std::endl;
+				DataStructs::DimensionRange plot_range =
+						it->second[i]->fit_options->getEstimatorOptions().getFitRangeX();
+				std::cout << "plotting range: " << plot_range.range_low << " - "
+						<< plot_range.range_high << std::endl;
 				vis_prop.setPlotRange(plot_range);
 				TGraphAsymmErrors *model_graph = root_plotter.createGraphFromModel1D(
 						model, vis_prop);

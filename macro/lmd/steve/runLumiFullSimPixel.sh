@@ -39,6 +39,7 @@ fi
 
 verbositylvl=0
 start_evt=$((${num_evts}*${filename_index})) #number of events * filename index is startevt
+
 #switch on "missing plane" search algorithm
 misspl=true
 #use cuts during trk seacrh with "CA". Should be 'false' if sensors missaligned!
@@ -53,6 +54,11 @@ XThetaCut=true
 YPhiCut=true
 ## BOX cut before back-propagation
 BoxCut=false
+## Clean after back-propagation (momentum or MVA cut)
+CleanSig=true
+
+## Write all MC info in TrkQA array
+WrAllMC=true
 
 #simulation
 check_stage_success "$pathname/Lumi_MC_${start_evt}.root"
@@ -101,7 +107,7 @@ if [ 0 -eq "$?" ]; then
   cd ${pathname}
   ln -sf Lumi_TrackNotFiltered_${start_evt}.root Lumi_Track_${start_evt}.root
   cd -
-  root -l -b -q 'runLumiPixel4aFilter.C('${num_evts}', '${start_evt}', "'${pathname}'", '$verbositylvl', '${mergedHits}', '${SkipFilt}', '${XThetaCut}', '${YPhiCut}', '${BoxCut}')'
+  root -l -b -q 'runLumiPixel4aFilter.C('${num_evts}', '${start_evt}', "'${pathname}'", '$verbositylvl', '${mergedHits}', '${SkipFilt}', '${XThetaCut}', '${YPhiCut}', '${BoxCut}', '${beamX0}', '${beamY0}')'
    
   #now overwrite the Lumi_Track_ sym link with the filtered version
   cd ${pathname}
@@ -116,6 +122,12 @@ if [ 0 -eq "$?" ]; then
   root -l -b -q 'runLumiPixel5BackProp.C('${num_evts}', '${start_evt}', "'${pathname}'", '$verbositylvl', "RK", '${mergedHits}', '${mom}')'
 fi
 
+# filter back-propagated tracks (momentum cut)
+if [ $CleanSig == "true" ]; then 
+  root -l -b -q 'runLumiPixel5bCleanSig.C('${num_evts}', '${start_evt}', "'${pathname}'", '$verbositylvl', '${mom}')'
+fi
+
+
 # # Quality assurance task(s)
 # combine MC and reco information
 # the last parameter is mc all write flag and needs to be true
@@ -123,5 +135,5 @@ fi
 # this is required for the acceptance calculation
 check_stage_success "$pathname/Lumi_TrksQA_${start_evt}.root"
 if [ 0 -eq "$?" ]; then
-  root -l -b -q 'runLumiPixel7TrksQA.C('${num_evts}','${start_evt}',"'${pathname}'",'0','${mom}',true)'
+  root -l -b -q 'runLumiPixel7TrksQA.C('${num_evts}','${start_evt}',"'${pathname}'",'0','${mom}', '$WrAllMC', '${CleanSig}')'
 fi

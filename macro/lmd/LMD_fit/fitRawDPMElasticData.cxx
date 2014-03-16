@@ -91,10 +91,7 @@ void fitRawDPMElasticData(TString data_path, bool is_filelist_path,
 				<< std::endl;
 
 		TDatabasePDG *pdg = TDatabasePDG::Instance();
-		TLorentzVector ingoing(
-				0,
-				0,
-				momentum,
+		TLorentzVector ingoing(0, 0, momentum,
 				TMath::Sqrt(
 						TMath::Power(momentum, 2.0)
 								+ TMath::Power(pdg->GetParticle(-2212)->Mass(), 2.0)));
@@ -140,17 +137,10 @@ void fitRawDPMElasticData(TString data_path, bool is_filelist_path,
 		shared_ptr<Chi2Estimator> chi2_est(new Chi2Estimator());
 		model_fit_facade.setEstimator(chi2_est);
 
-		PndLmdLumiFitOptions fit_options;
-		fit_options.setFreeParametersCode(0);
-		LumiFit::LmdBinaryFitOptions lmd_bin_opt;
-		lmd_bin_opt.setFitAsRaw(false);
-		lmd_bin_opt.setAcceptanceCorrMode(false);
-		lmd_bin_opt.setSmearingMode(false);
-
-		fit_options.setModelBinaryOptions(lmd_bin_opt);
+		LumiFit::PndLmdFitModelOptions model_opt;
 
 		// create a new model via the factory
-		shared_ptr<Model1D> model1d = model_factory.generate1DModel(&fit_options,
+		shared_ptr<Model1D> model1d = model_factory.generate1DModel(model_opt,
 				momentum);
 		// set model
 		model_fit_facade.setModel1d(model1d);
@@ -171,14 +161,21 @@ void fitRawDPMElasticData(TString data_path, bool is_filelist_path,
 
 		double reflumi = genlumi * num_events_to_process;
 
-		for (unsigned int step = 0; step < steps; step++) {
-			std::pair<double, double> fit_range = std::make_pair(
-					fit_range_low_begin
-							+ (fit_range_low_end - fit_range_low_begin) / steps * step,
-					fit_range_high);
+		EstimatorOptions est_opt;
+		est_opt.setWithIntegralScaling(false);
 
-			model_fit_facade.getEstimatorOptions().setFitRangeX(fit_range);
-			model_fit_facade.getEstimatorOptions().setWithIntegralScaling(false);
+
+		for (unsigned int step = 0; step < steps; step++) {
+			DataStructs::DimensionRange fit_range;
+			fit_range.range_low = fit_range_low_begin
+					+ (fit_range_low_end - fit_range_low_begin) / steps * step;
+			fit_range.range_high = fit_range_high;
+
+			fit_range.is_active = true;
+
+			est_opt.setFitRangeX(fit_range);
+
+			model_fit_facade.setEstimatorOptions(est_opt);
 
 			model1d->getModelParameterSet().setModelParameterValue("luminosity",
 					reflumi);
@@ -196,7 +193,7 @@ void fitRawDPMElasticData(TString data_path, bool is_filelist_path,
 			temp_fit_result->setModelFitResult(fit_result);
 
 			std::stringstream hs;
-			hs << "reldiff_" << fit_range.first << "-" << fit_range.second;
+			hs << "reldiff_" << fit_range.range_low << "-" << fit_range.range_high;
 
 			TH1D *reldiff = new TH1D(hs.str().c_str(), hs.str().c_str(), 100, -6, 6);
 			reldiff->Fill(
@@ -205,13 +202,10 @@ void fitRawDPMElasticData(TString data_path, bool is_filelist_path,
 			histograms.push_back(reldiff);
 		}
 
-		fit_options.setFreeParametersCode(0);
-		lmd_bin_opt.setFitAsRaw(true);
-
-		fit_options.setModelBinaryOptions(lmd_bin_opt);
+		model_opt.momentum_transfer_active = true;
 
 		// create a new model via the factory
-		model1d = model_factory.generate1DModel(&fit_options, momentum);
+		model1d = model_factory.generate1DModel(model_opt, momentum);
 		// set model
 		model_fit_facade.setModel1d(model1d);
 
@@ -230,13 +224,14 @@ void fitRawDPMElasticData(TString data_path, bool is_filelist_path,
 
 		// momentum transfer fit
 		for (unsigned int step = 0; step < steps; step++) {
-			std::pair<double, double> fit_range = std::make_pair(
-					t_fit_range_low_begin
-							+ (t_fit_range_low_end - t_fit_range_low_begin) / steps * step,
-					t_fit_range_high);
+			DataStructs::DimensionRange fit_range;
+			fit_range.range_low = t_fit_range_low_begin
+							+ (t_fit_range_low_end - t_fit_range_low_begin) / steps * step;
+			fit_range.range_high = t_fit_range_high;
 
-			model_fit_facade.getEstimatorOptions().setFitRangeX(fit_range);
-			model_fit_facade.getEstimatorOptions().setWithIntegralScaling(false);
+			fit_range.is_active = true;
+
+			est_opt.setFitRangeX(fit_range);
 
 			model1d->getModelParameterSet().setModelParameterValue("luminosity",
 					reflumi);
@@ -248,13 +243,14 @@ void fitRawDPMElasticData(TString data_path, bool is_filelist_path,
 
 			ModelFitResult fit_result = model_fit_facade.Fit();
 			double chi2 = fit_result.getFinalEstimatorValue() / fit_result.getNDF();
-			std::cout << "reduced chi2 of sample " << index << ": " << chi2 << std::endl;
+			std::cout << "reduced chi2 of sample " << index << ": " << chi2
+					<< std::endl;
 
 			PndLmdLumiFitResult *temp_fit_result = new PndLmdLumiFitResult();
 			temp_fit_result->setModelFitResult(fit_result);
 
 			std::stringstream hs;
-			hs << "t_reldiff_" << fit_range.first << "-" << fit_range.second;
+			hs << "t_reldiff_" << fit_range.range_low << "-" << fit_range.range_high;
 
 			TH1D *reldiff = new TH1D(hs.str().c_str(), hs.str().c_str(), 100, -6, 6);
 			reldiff->Fill(

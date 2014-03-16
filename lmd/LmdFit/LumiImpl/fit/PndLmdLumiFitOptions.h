@@ -8,9 +8,14 @@
 #ifndef PNDLMDLUMIFITOPTIONS_H_
 #define PNDLMDLUMIFITOPTIONS_H_
 
-#include "../LumiFitStructs.h" // .. is needed for rootcint to find the header
+#include "LumiImpl/LumiFitStructs.h"
+#include "ModelFramework/core/ModelStructs.h"
+#include "ModelFramework/fit/EstimatorOptions.h"
+
+#include <set>
+#include <string>
+
 #include "TObject.h"
-#include "TString.h"
 
 class PndLmdAcceptance;
 
@@ -27,132 +32,53 @@ class PndLmdAcceptance;
  * - estimator type
  * - estimator options
  *
- * In case the user only needs the standard luminosity fitting procedure, the
- * fit options instances should be created by the normal user only within the
- * #PndLmdFitFacade class.
- * For more advanced usage they can be created directly!
- *
+ * The fields can only be set by the user within the #PndLmdFitFacade class, to
+ * avoid further alterations of the variables after a their intial setting.
  */
 class PndLmdLumiFitOptions: public TObject {
-public:
-	/**
-	 * Binary fit options of the model. See #LumiFit::LmdBinaryFitOptions for a
-	 * detailed description.
-	 */
-	LumiFit::LmdBinaryFitOptions model_binary_options;
+  friend class PndLmdFitFacade;
+  friend class PndLmdLumiHelper;
 
-	PndLmdAcceptance *acceptance;
+private:
+  LumiFit::PndLmdFitModelOptions model_opt;
 
-	unsigned int free_parameters_code;
+  EstimatorOptions est_opt;
 
-	int smearing_model_type;
-	int acc_intpol_type;
-	int dpm_elastic_model_parts;
+  LumiFit::LmdEstimatorType estimator_type;
 
-	LumiFit::LmdDimensionRange primary_dimension_fit_range;
-	LumiFit::LmdDimensionRange secondary_dimension_fit_range;
-	bool primary_dimension_fit_range_active;
-	bool secondary_dimension_fit_range_active;
-
-	TString resolution_parametrization_file_url;
-	bool resolution_parametrization_file_url_active;
-
-	void initBinaryOptions(unsigned long bit_flag_options);
+  std::set<std::string, ModelStructs::string_comp> free_parameter_names;
 
 public:
-	PndLmdLumiFitOptions();
-	//PndLmdLumiFitOptions(const PndLmdLumiFitOptions & fit_options);
+  PndLmdLumiFitOptions();
 
-	/**
-	 * Get method for the model binary fit options
-	 * @returns integer format of the binary fit options
-	 */
-	const LumiFit::LmdBinaryFitOptions & getModelBinaryOptions() const;
-	void setModelBinaryOptions(
-			LumiFit::LmdBinaryFitOptions model_binary_options_);
+  const LumiFit::PndLmdFitModelOptions& getFitModelOptions() const;
+  const EstimatorOptions& getEstimatorOptions() const;
+  const std::set<std::string, ModelStructs::string_comp>& getFreeParameterSet() const;
 
-	PndLmdAcceptance *getAcceptance() const;
-	void setAcceptance(PndLmdAcceptance *acceptance_);
-
-	/**
-	 * Get method for the smearing function type
-	 * @returns smearing model type (atm: 0 = single gaussian, 1 = double gaussian)
-	 */
-	int getSmearingModelType() const;
-	void setSmearingModelType(int smearing_type_);
-
-	/**
-	 * Get method for the smearing function name
-	 * @returns smearing model name (i.e: "single gaussian" or "double gaussian")
-	 */
-	std::string getSmearingModelName() const;
-
-	int getAcceptanceInterpolationType() const;
-	void setAcceptanceInterpolationType(int acc_intpol_type_);
-
-	/**
-	 * @returns the code for which parameter is free in the fit
-	 */
-	unsigned int getFreeParametersCode() const;
-	/**
-	 * This function will set the #free_parameters_code field. This code decides
-	 * which parameters will be set free in the fit later on.
-	 * @param free_parameters_code_ is new value of #free_parameters_code
-	 */
-	void setFreeParametersCode(unsigned int free_parameters_code_);
-
-	int getDpmElasticModelParts() const;
-	void setDpmElasticModelParts(int dpm_elastic_model_parts_);
-
-	LumiFit::LmdDimensionRange getPrimaryDimensionFitRange() const;
-	LumiFit::LmdDimensionRange getSecondaryDimensionFitRange() const;
-	void setPrimaryDimensionFitRange(
-			LumiFit::LmdDimensionRange primary_dimension_fit_range_);
-	void setSecondaryDimensionFitRange(
-			LumiFit::LmdDimensionRange secondary_dimension_fit_range_);
-
-	bool isPrimaryDimensionFitRangeActive() const;
-	bool isSecondaryDimensionFitRangeActive() const;
-	void setPrimaryDimensionFitRangeActive(
-			bool primary_dimension_fit_range_active_);
-	void setSecondaryDimensionFitRangeActive(
-			bool secondary_dimension_fit_range_active_);
-	TString getResolutionParametrizationFileUrl() const;
-	void setResolutionParametrizationFileUrl(
-			TString resolution_parametrization_file_url_);
-	bool isResolutionParametrizationFileUrlActive() const;
-	void setResolutionParametrizationFileUrlActive(
-			bool resolution_parametrization_file_url_active_);
-
-	/**
-	 * Less then operator for NON binary options (so fit range etc).
-	 * Will return true "this" fit options are "less" in value.
-	 */
-	bool lessThanNonBinaryOptions(const PndLmdLumiFitOptions & rhs) const;
-	/**
-	 * Less then operator. Will return true "this" fit options are "less" in value.
-	 */
-	bool operator <(const PndLmdLumiFitOptions & rhs) const;
-	/**
-	 * Greater then operator. Will return true "this" fit options are "greater" in value.
-	 */
-	bool operator >(const PndLmdLumiFitOptions & rhs) const;
-	/**
-	 * Comparison operator. Will return true only if all fit options are equal in value.
-	 */
-	bool operator ==(const PndLmdLumiFitOptions & fit_options) const;
-	/**
-	 * Inverse comparison operator @see operator==()
-	 */
-	bool operator !=(const PndLmdLumiFitOptions & fit_options) const;
-	/**
-	 * Output stream operator for printing out fit options for information.
-	 */
-	friend std::ostream & operator <<(std::ostream & os,
-			const PndLmdLumiFitOptions & fit_options);
+  /**
+   * Less then operator. Will return true if "this" fit options are "less" in value.
+   */
+  bool operator <(const PndLmdLumiFitOptions & rhs) const;
+  /**
+   * Greater then operator. Will return true if "this" fit options are "greater" in value.
+   */
+  bool operator >(const PndLmdLumiFitOptions & rhs) const;
+  /**
+   * Comparison operator. Will return true only if all fit options are equal in value.
+   */
+  bool operator ==(const PndLmdLumiFitOptions & fit_options) const;
+  /**
+   * Inverse comparison operator @see operator==()
+   */
+  bool operator !=(const PndLmdLumiFitOptions & fit_options) const;
+  /**
+   * Output stream operator for printing out fit options for information.
+   */
+  friend std::ostream & operator <<(std::ostream & os,
+      const PndLmdLumiFitOptions & fit_options);
 
 ClassDef(PndLmdLumiFitOptions,1)
-	;
+  ;
 };
 
 #endif /* PNDLMDLUMIFITOPTIONS_H_ */

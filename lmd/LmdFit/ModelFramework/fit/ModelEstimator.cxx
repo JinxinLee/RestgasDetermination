@@ -73,19 +73,19 @@ void ModelEstimator::applyEstimatorOptions(
 			shared_ptr<DataStructs::binned_data_point> data_point =
 					datapoints[i].getBinnedDataPoint();
 			// check fit ranges
-			if (data->getDimension() > 0 && estimator_options.isFitRangeXUsed()) {
+			if (data->getDimension() > 0 && estimator_options.getFitRangeX().is_active) {
 				if (data_point->bin_center_value[0]
-						< estimator_options.getFitRangeX().first
+						< estimator_options.getFitRangeX().range_low
 						|| data_point->bin_center_value[0]
-								> estimator_options.getFitRangeX().second) {
+								> estimator_options.getFitRangeX().range_high) {
 					datapoints[i].setPointUsed(false);
 					continue;
 				}
-				if (data->getDimension() > 1 && estimator_options.isFitRangeYUsed()) {
+				if (data->getDimension() > 1 && estimator_options.getFitRangeY().is_active) {
 					if (data_point->bin_center_value[0]
-							< estimator_options.getFitRangeY().first
+							< estimator_options.getFitRangeY().range_low
 							|| data_point->bin_center_value[0]
-									> estimator_options.getFitRangeY().second) {
+									> estimator_options.getFitRangeY().range_high) {
 						datapoints[i].setPointUsed(false);
 						continue;
 					}

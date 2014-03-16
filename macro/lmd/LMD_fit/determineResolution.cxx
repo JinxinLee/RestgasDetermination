@@ -60,20 +60,20 @@ void determineResolution(TString input_file_dir,
 			// specify which of type of smearing model we want to generate
 			PndLmdFitFacade lmd_fit_facade;
 
-			LumiFit::LmdDimensionRange res_fit_range;
-			res_fit_range.setUnitPrefix(DataStructs::MILLI);
-			res_fit_range.setRangeLow(-2.0);
-			res_fit_range.setRangeHigh(2.0);
+			DataStructs::DimensionRange res_fit_range(-0.002, 0.002);
+			EstimatorOptions est_opt;
+			est_opt.setWithIntegralScaling(true);
+			est_opt.setFitRangeX(res_fit_range);
 
-			lmd_fit_facade.getFitOptionTemplate().setPrimaryDimensionFitRangeActive(
-					true);
-			lmd_fit_facade.getFitOptionTemplate().setPrimaryDimensionFitRange(
-					res_fit_range);
+			lmd_fit_facade.setEstimatorOptions(est_opt);
 
 			// now only the smearing model type has to be set
 			// all other settings are not relevant for the resolution
-			// 0 = single gaussian, 1 = double gaussian, 2 = asymm gaussian
-			lmd_fit_facade.getFitOptionTemplate().setSmearingModelType(12);
+			LumiFit::PndLmdFitModelOptions model_opt;
+			model_opt.smearing_model = LumiFit::ASYMMETRIC_GAUSSIAN;
+			model_opt.use_resolution_parameter_interpolation = true;
+
+			lmd_fit_facade.setModelFitOptions(model_opt);
 
 			// run the resolution determination method on this data
 			lmd_fit_facade.fitSmearingModelToResolutions(lmd_res_vec);
@@ -101,10 +101,7 @@ void determineResolution(TString input_file_dir,
 			vector<PndLmdResolution> lmd_res_vec = lmd_data_facade.filterData<
 					PndLmdResolution>(all_res_vec, lmd_dim_opt);
 
-			LumiFit::LmdDimensionRange fit_range;
-			fit_range.setUnitPrefix(DataStructs::NONE);
-			fit_range.setRangeLow(0.004);
-			fit_range.setRangeHigh(0.0072);
+			DataStructs::DimensionRange fit_range(0.004, 0.0072);
 
 			vector<PndLmdLumiHelper::lmd_graph*> graph_vec =
 					lumifit_helper.generateLmdGraphs(lmd_res_vec, fit_range);

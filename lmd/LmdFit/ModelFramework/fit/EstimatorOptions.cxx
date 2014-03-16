@@ -7,6 +7,8 @@
 
 #include "EstimatorOptions.h"
 
+#include <iostream>
+
 EstimatorOptions::EstimatorOptions() {
 	// TODO Auto-generated constructor stub
 
@@ -24,36 +26,62 @@ void EstimatorOptions::setWithIntegralScaling(bool with_integral_scaling_) {
 	with_integral_scaling = with_integral_scaling_;
 }
 
-std::pair<double, double> EstimatorOptions::getFitRangeX() const {
+const DataStructs::DimensionRange& EstimatorOptions::getFitRangeX() const {
 	return fit_range_x;
 }
 
-std::pair<double, double> EstimatorOptions::getFitRangeY() const {
+const DataStructs::DimensionRange& EstimatorOptions::getFitRangeY() const {
 	return fit_range_y;
 }
 
-void EstimatorOptions::setFitRangeX(std::pair<double, double> fit_range_x_) {
-	fit_range_x_used = true;
-	fit_range_x = fit_range_x_;
+void EstimatorOptions::setFitRangeX(DataStructs::DimensionRange& fit_range_) {
+	fit_range_x = fit_range_;
+}
+void EstimatorOptions::setFitRangeY(DataStructs::DimensionRange& fit_range_) {
+	fit_range_y = fit_range_;
 }
 
-void EstimatorOptions::setFitRangeY(std::pair<double, double> fit_range_y_) {
-	fit_range_y_used = true;
-	fit_range_y = fit_range_y_;
+bool EstimatorOptions::operator<(const EstimatorOptions &rhs) const {
+	// check binary options first
+	if (with_integral_scaling < rhs.isWithIntegralScaling())
+		return true;
+	else if (with_integral_scaling > rhs.isWithIntegralScaling())
+		return false;
+
+	if (fit_range_x < rhs.getFitRangeX())
+		return true;
+	else if (fit_range_x > rhs.getFitRangeX())
+		return false;
+
+	return (fit_range_y < rhs.getFitRangeY());
 }
 
-bool EstimatorOptions::isFitRangeXUsed() const {
-	return fit_range_x_used;
+bool EstimatorOptions::operator>(const EstimatorOptions &rhs) const {
+	return (rhs < *this);
 }
 
-bool EstimatorOptions::isFitRangeYUsed() const {
-	return fit_range_y_used;
+bool EstimatorOptions::operator==(const EstimatorOptions &rhs) const {
+	return ((*this < rhs) == (*this > rhs));
 }
 
-void EstimatorOptions::setFitRangeXUsed(bool fit_range_x_used_) {
-	fit_range_x_used = fit_range_x_used_;
+bool EstimatorOptions::operator!=(const EstimatorOptions &rhs) const {
+	return !(*this == rhs);
 }
 
-void EstimatorOptions::setFitRangeYUsed(bool fit_range_y_used_) {
-	fit_range_y_used = fit_range_y_used_;
+std::ostream& operator<<(std::ostream& os,
+		const EstimatorOptions& est_options) {
+
+	if (est_options.getFitRangeX().is_active) {
+		os << "primary dimension lower fit range: "
+				<< est_options.getFitRangeX().range_low << std::endl;
+		os << "primary dimension upper fit range: "
+				<< est_options.getFitRangeX().range_high << std::endl;
+	}
+	if (est_options.getFitRangeY().is_active) {
+		os << "secondary dimension lower fit range: "
+				<< est_options.getFitRangeY().range_low << std::endl;
+		os << "secondary dimension upper fit range: "
+				<< est_options.getFitRangeY().range_high << std::endl;
+	}
+	return os;
 }

@@ -135,12 +135,9 @@ void runLumiPixel0SimDPM(const int nEvents = 10, const int startEvent = 0,
 // PndMultiField *fField= new PndMultiField("FULL");
 // fRun->SetField(fField);
 	PndMultiField *fField = new PndMultiField();
-	PndTransMap *map_t = new PndTransMap("TransMap_v1", "R");
-	PndDipoleMap *map_d1 = new PndDipoleMap("DipoleMap1_v1", "R");
-	PndDipoleMap *map_d2 = new PndDipoleMap("DipoleMap2_v1", "R");
-// PndTransMap *map_t = new PndTransMap("TransMap", "R");
-// PndDipoleMap *map_d1 = new PndDipoleMap("DipoleMap1", "R");
-// PndDipoleMap *map_d2 = new PndDipoleMap("DipoleMap2", "R");
+	PndTransMap *map_t = new PndTransMap("TransMap", "R");
+	PndDipoleMap *map_d1 = new PndDipoleMap("DipoleMap1", "R");
+	PndDipoleMap *map_d2 = new PndDipoleMap("DipoleMap2", "R");
 	PndSolenoidMap *map_s1 = new PndSolenoidMap("SolenoidMap1", "R");
 	PndSolenoidMap *map_s2 = new PndSolenoidMap("SolenoidMap2", "R");
 	PndSolenoidMap *map_s3 = new PndSolenoidMap("SolenoidMap3", "R");

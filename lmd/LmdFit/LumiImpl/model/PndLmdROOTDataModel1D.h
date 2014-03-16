@@ -23,6 +23,8 @@ private:
 	double acc_range_low, acc_range_high;
 	bool using_acceptance_bounds;
 
+	LumiFit::InterpolationType intpol_type;
+
 	void updateDomainFromPars(double *par);
 
 	void determineAcceptanceBounds();
@@ -33,10 +35,6 @@ private:
 	function model_func;
 
 public:
-	enum interpolation_type {
-		CONSTANT, LINEAR, SPLINE
-	} intpol_type;
-
 	PndLmdROOTDataModel1D(std::string name_);
 	virtual ~PndLmdROOTDataModel1D();
 
@@ -44,9 +42,9 @@ public:
 	void setDataDimension(LumiFit::LmdDimensionRange data_dimension_);
 
 	TGraphAsymmErrors *getGraph() const;
-	interpolation_type getIntpolType() const;
+	LumiFit::InterpolationType getIntpolType() const;
 	void setGraph(TGraphAsymmErrors *graph_);
-	void setIntpolType(interpolation_type intpol_type_);
+	void setIntpolType(LumiFit::InterpolationType intpol_type_);
 
 	void initModelParameters();
 

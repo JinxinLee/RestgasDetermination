@@ -8,14 +8,23 @@
 #ifndef LUMIFITSTRUCTS_H_
 #define LUMIFITSTRUCTS_H_
 
-#include "../ModelFramework/fit/data/DataStructs.h"
+#include "ModelFramework/fit/data/DataStructs.h"
+#include "ModelFramework/core/ModelStructs.h"
+#include "ModelFramework/fit/EstimatorOptions.h"
+
+#include <iostream>
+#include <string>
 
 #include "TObject.h"
 #include "TString.h"
 
-#include <iostream>
+class PndLmdAcceptance;
 
 namespace LumiFit {
+
+enum LmdEstimatorType {
+	CHI2, LOG_LIKELIHOOD
+};
 
 enum LmdDataType {
 	HISTOGRAM, EFFICIENCY
@@ -31,6 +40,22 @@ enum LmdTrackType {
 
 enum LmdTrackParamType {
 	IP, LMD
+};
+
+enum SmearingModelType {
+	GAUSSIAN, DOUBLE_GAUSSIAN, ASYMMETRIC_GAUSSIAN
+};
+
+enum InterpolationType {
+	CONSTANT, LINEAR, SPLINE
+};
+
+enum DPMElasticParts {
+	COUL, INT, HAD, ALL
+};
+
+enum LmdDimensionUnitPrefix {
+	PICO, NANO, MICRO, MILLI, CENTI, NONE, KILO, MEGA, GIGA
 };
 
 struct LmdDimensionOptions: public TObject {
@@ -94,6 +119,52 @@ struct LmdDimensionOptions: public TObject {
 		;
 };
 
+struct LmdDimensionUnitFactor {
+		static std::string getUnitNamePrefix(LmdDimensionUnitPrefix unit_prefix) {
+			if (PICO == unit_prefix)
+				return "p";
+			else if (NANO == unit_prefix)
+				return "n";
+			else if (MICRO == unit_prefix)
+				return "#mu";
+			else if (MILLI == unit_prefix)
+				return "m";
+			else if (CENTI == unit_prefix)
+				return "cm";
+			else if (NONE == unit_prefix)
+				return "";
+			else if (KILO == unit_prefix)
+				return "k";
+			else if (MEGA == unit_prefix)
+				return "M";
+			else if (GIGA == unit_prefix)
+				return "G";
+			return "";
+		}
+
+		static double getUnitFactor(LmdDimensionUnitPrefix unit_prefix) {
+			if (PICO == unit_prefix)
+				return 1e-12;
+			else if (NANO == unit_prefix)
+				return 1e-9;
+			else if (MICRO == unit_prefix)
+				return 1e-6;
+			else if (MILLI == unit_prefix)
+				return 1e-3;
+			else if (CENTI == unit_prefix)
+				return 1e-2;
+			else if (NONE == unit_prefix)
+				return 1.0;
+			else if (KILO == unit_prefix)
+				return 1e3;
+			else if (MEGA == unit_prefix)
+				return 1e6;
+			else if (GIGA == unit_prefix)
+				return 1e9;
+			return 1.0;
+		}
+};
+
 class LmdDimensionRange: public TObject {
 	private:
 		// lower bound on this axis/dimension
@@ -101,11 +172,11 @@ class LmdDimensionRange: public TObject {
 		// upper bound on this axis/dimension
 		double range_high;
 
-		DataStructs::dimension_unit_prefix unit_prefix;
+		LmdDimensionUnitPrefix unit_prefix;
 
 	public:
 		LmdDimensionRange() :
-				range_low(0.0), range_high(0.0) {
+				range_low(0.0), range_high(0.0), unit_prefix(NONE) {
 		}
 
 		double getDimensionLength() const {
@@ -117,7 +188,7 @@ class LmdDimensionRange: public TObject {
 		}
 
 		double getUnitFactor() const {
-			return DataStructs::dimension_unit_factor::getUnitFactor(unit_prefix);
+			return LmdDimensionUnitFactor::getUnitFactor(unit_prefix);
 		}
 
 		double getRangeLow() const {
@@ -136,7 +207,7 @@ class LmdDimensionRange: public TObject {
 			range_high = range_high_;
 		}
 
-		void setUnitPrefix(DataStructs::dimension_unit_prefix unit_prefix_) {
+		void setUnitPrefix(LmdDimensionUnitPrefix unit_prefix_) {
 			unit_prefix = unit_prefix_;
 		}
 
@@ -277,129 +348,130 @@ struct LmdDimension: public TObject {
 		;
 };
 
-class LmdBinaryFitOptions: public TObject {
-	private:
-		/** This set of bits specifies all binary fit options will be used (so on-off type options)
-		 * bit 0: 0 = no resolution smearing, 1 = with resolution smearing
-		 * bit 1: 0 = no acceptance corr, 1 = with acceptance corr
-		 * bit 2: 0 = 1d fit, 1 = 2d fit
-		 * bit 3: 0 = use theta-phi data and fit function, 1 = use t (momentum transfer) data and fit function
-		 * bit 4: 0 = ROOT, 1 = ROOFIT
-		 **/
-		unsigned long binary_options;
+struct PndLmdFitModelOptions: public TObject {
+		// fields
+		int fit_dimension;
 
-	public:
+		DPMElasticParts dpm_elastic_parts;
+		bool momentum_transfer_active; // if this is enabled everything else cannot be used
+
+		bool acceptance_correction_active;
+		PndLmdAcceptance *acceptance;
+		InterpolationType acceptance_interpolation;
+
+		bool resolution_smearing_active;
+		SmearingModelType smearing_model;
+		bool use_resolution_parameter_interpolation;
+		std::string resolution_parametrization_file_url;
+
 		/**
 		 * Empty Constructor
 		 */
-		LmdBinaryFitOptions() :
-				binary_options(0) {
-		}
-		/**
-		 * Constructor
-		 * @param bit_flag_options is a integer number, which is represented a set of binary flags:
-		 *  bit 0: resolution smearing
-		 *  bit 1: acceptance correction
-		 *  bit 2: fit dimension
-		 *  bit 3: use t instead of theta
-		 *  bit 4: fitter type
-		 *  The highest number can therefore be 31 and the lowest 0 (higher numbers than 31 are regarded as 31).
-		 */
-		LmdBinaryFitOptions(unsigned long bit_flag_options) :
-				binary_options(bit_flag_options) {
+		PndLmdFitModelOptions() :
+				momentum_transfer_active(false), acceptance_correction_active(false), resolution_smearing_active(
+						false), fit_dimension(1), acceptance(0), resolution_parametrization_file_url(
+						""), smearing_model(GAUSSIAN), acceptance_interpolation(SPLINE), dpm_elastic_parts(
+						ALL) {
 		}
 
-		unsigned long getBinaryOptions() const {
-			return binary_options;
-		}
-		/**
-		 * Get method for the fit dimension (1D or 2D)
-		 * @returns fit dimension (0 = 1d fit, 1 = 2d fit)
-		 */
-		bool getFitDimension() const {
-			return binary_options & (1 << (2));
-		}
-		/**
-		 * Get method for the fitter type (ROOT or ROOFIT)
-		 * @returns fitter type (0 = ROOT, 1 = ROOFIT)
-		 */
-		bool getFitterType() const {
-			return binary_options & (1 << (4));
-		}
-		/**
-		 * Checks if resolution smearing is on.
-		 * @returns true if smearing is on, false if off
-		 */
-		bool isSmearingOn() const {
-			return binary_options & 1;
-		}
-		/**
-		 * Checks if acceptance correction is on
-		 * @returns true if acceptance correction will be used, false otherwise
-		 */
-		bool isAcceptanceCorrOn() const {
-			return binary_options & (1 << (1));
-		}
-		/**
-		 * Checks if raw fit mode will be used
-		 * @returns true if t spectrum and function will be used instead of theta, false otherwise
-		 */
-		bool isFitRaw() const {
-			return binary_options & (1 << (3));
+		PndLmdFitModelOptions(LmdTrackType track_type,
+				LmdDimensionType dimension_type) {
+			if (dimension_type == T) {
+				momentum_transfer_active = true;
+			} else {
+				momentum_transfer_active = false;
+			}
+			if (track_type == MC) {
+				acceptance_correction_active = false;
+				resolution_smearing_active = false;
+			} else if (track_type == MC_ACC) {
+				acceptance_correction_active = true;
+				resolution_smearing_active = false;
+			} else if (track_type == RECO) {
+				acceptance_correction_active = true;
+				resolution_smearing_active = true;
+			}
 		}
 
-		/**
-		 * Setter method for switching between theta and t
-		 * @param use_raw_ specifies if raw (momentum transfer) should be used
-		 */
-		void setFitAsRaw(bool use_raw_) {
-			if (use_raw_)
-				binary_options |= 1 << 3;
-			else
-				binary_options &= ~(1 << 3);
-		}
-		/**
-		 * Setter method for the fit dimension (1D or 2D)
-		 * @param fit_dimension_ is the new fit dimension that will be used
-		 */
-		void setFitDimension(bool fit_dimension_) {
-			if (fit_dimension_)
-				binary_options |= 1 << 2;
-			else
-				binary_options &= ~(1 << 2);
-		}
-		/**
-		 * Setter method for the fitter type (ROOT or ROOFIT)
-		 * @param fitter_type_ is the new fit type that will be used
-		 */
-		void setFitterType(bool fitter_type_) {
-			if (fitter_type_)
-				binary_options |= 1 << 4;
-			else
-				binary_options &= ~(1 << 4);
-		}
-		/**
-		 * Setter method for the smearing mode (0 disabled, 1 enabled)
-		 * @param with_smearing_ is the new fit dimension that will be used
-		 */
-		void setSmearingMode(bool with_smearing_) {
-			if (with_smearing_)
-				binary_options |= 1;
-			else
-				binary_options &= ~1;
-		}
-		/**
-		 * Setter method for the acceptance correction mode (0 disabled, 1 enabled)
-		 * @param with_acceptance_corr_ is the new fit dimension that will be used
-		 */
-		void setAcceptanceCorrMode(bool with_acceptance_corr_) {
-			if (with_acceptance_corr_)
-				binary_options |= 1 << 1;
-			else
-				binary_options &= ~(1 << 1);
+		bool lessThanBinaryOptions(const PndLmdFitModelOptions &rhs) const {
+			if (momentum_transfer_active < rhs.momentum_transfer_active)
+				return true;
+			else if (momentum_transfer_active > rhs.momentum_transfer_active)
+				return false;
+			if (acceptance_correction_active < rhs.acceptance_correction_active)
+				return true;
+			else if (acceptance_correction_active > rhs.acceptance_correction_active)
+				return false;
+			if (resolution_smearing_active < rhs.resolution_smearing_active)
+				return true;
+			else if (resolution_smearing_active > rhs.resolution_smearing_active)
+				return false;
+
+			return false;
 		}
 
-	ClassDef(LmdBinaryFitOptions ,1)
+		bool equalBinaryOptions(const PndLmdFitModelOptions &rhs) const {
+			return (lessThanBinaryOptions(rhs) == rhs.lessThanBinaryOptions(*this));
+		}
+
+		bool operator<(const PndLmdFitModelOptions &rhs) const {
+			if (lessThanBinaryOptions(rhs) == true)
+				return true;
+			else if (rhs.lessThanBinaryOptions(*this) == true)
+				return false;
+
+			if (smearing_model < rhs.smearing_model)
+				return true;
+			else if (smearing_model > rhs.smearing_model)
+				return false;
+			if (acceptance_interpolation < rhs.acceptance_interpolation)
+				return true;
+			else if (acceptance_interpolation > rhs.acceptance_interpolation)
+				return false;
+			if (dpm_elastic_parts < rhs.dpm_elastic_parts)
+				return true;
+			else if (dpm_elastic_parts > rhs.dpm_elastic_parts)
+				return false;
+			if (use_resolution_parameter_interpolation
+					< rhs.use_resolution_parameter_interpolation)
+				return true;
+			else if (use_resolution_parameter_interpolation
+					> rhs.use_resolution_parameter_interpolation)
+				return false;
+
+			ModelStructs::string_comp strcomp;
+			return strcomp(resolution_parametrization_file_url,
+					rhs.resolution_parametrization_file_url);
+		}
+
+		bool operator>(const PndLmdFitModelOptions &rhs) const {
+			return (rhs < *this);
+		}
+
+		bool operator==(const PndLmdFitModelOptions &rhs) const {
+			return ((*this < rhs) == (*this > rhs));
+		}
+
+		bool operator!=(const PndLmdFitModelOptions &rhs) const {
+			return !(*this == rhs);
+		}
+
+		friend std::ostream & operator <<(std::ostream & os,
+				const PndLmdFitModelOptions & model_opt) {
+			if (model_opt.momentum_transfer_active)
+				os << "t";
+			else
+				os << "th";
+
+			if (model_opt.acceptance_correction_active)
+				os << "-acc_cor";
+			if (model_opt.resolution_smearing_active)
+				os << "-res_smear";
+
+			return os;
+		}
+
+	ClassDef(PndLmdFitModelOptions ,1)
 		;
 };
 

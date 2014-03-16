@@ -21,18 +21,21 @@
 #include "TCanvas.h"
 #include "TLine.h"
 #include "TFile.h"
-#include "TString.h"
 
-void makeConvolutionThesisPlots(TString acceptance_file_dir) {
+void makeConvolutionThesisPlots(std::string acceptance_file_dir) {
 	PndLmdDataFacade lmd_data_facade;
 
 	LumiFit::LmdDimensionRange fit_range;
-	fit_range.setUnitPrefix(DataStructs::MILLI);
+	fit_range.setUnitPrefix(LumiFit::MILLI);
 	fit_range.setRangeLow(0.0);
 	fit_range.setRangeHigh(20.0);
 
+	std::stringstream strstream;
+	strstream.precision(3);
+	strstream << acceptance_file_dir << "/lmd_acc_data.root";
+
 	// ------ get files -------------------------------------------------------
-	TFile *facc = new TFile(acceptance_file_dir + "/lmd_acc_data.root", "OPEN");
+	TFile *facc = new TFile(strstream.str().c_str(), "OPEN");
 	// ------------------------------------------------------------------------
 
 	// ---- acceptance or box gen data ---- //
@@ -46,37 +49,29 @@ void makeConvolutionThesisPlots(TString acceptance_file_dir) {
 	if (!acc)
 		return;
 
-	PndLmdLumiFitOptions *fit_options = new PndLmdLumiFitOptions();
-
-	LumiFit::LmdBinaryFitOptions bit_fit_opt(0);
-	bit_fit_opt.setFitAsRaw(false);
-	bit_fit_opt.setAcceptanceCorrMode(true);
-	bit_fit_opt.setSmearingMode(false);
-	fit_options->setModelBinaryOptions(bit_fit_opt);
-	fit_options->setAcceptance(acc);
-	fit_options->setPrimaryDimensionFitRange(fit_range);
+	LumiFit::PndLmdFitModelOptions model_opt;
+	model_opt.momentum_transfer_active = false;
+	model_opt.acceptance_correction_active = true;
+	model_opt.resolution_smearing_active = false;
+	model_opt.acceptance = acc;
 
 	PndLmdModelFactory model_fac;
 	std::cout << acc->getLabMomentum() << std::endl;
-	shared_ptr<Model1D> unsmeared_model = model_fac.generate1DModel(fit_options,
+	shared_ptr<Model1D> unsmeared_model = model_fac.generate1DModel(model_opt,
 			acc->getLabMomentum());
 	unsmeared_model->getModelParameterSet().getModelParameter(
 			std::make_pair("dpm_angular_1d", "luminosity"))->setValue(1.0);
 
 	unsmeared_model->getModelParameterSet().printInfo();
 
-	bit_fit_opt.setFitAsRaw(false);
-	bit_fit_opt.setAcceptanceCorrMode(true);
-	bit_fit_opt.setSmearingMode(true);
-	fit_options->setSmearingModelType(12);
-	fit_options->setResolutionParametrizationFileUrl(
-			acceptance_file_dir + "/resolution_params_1.root");
-	fit_options->setModelBinaryOptions(bit_fit_opt);
-	fit_options->setAcceptance(acc);
-	fit_options->setPrimaryDimensionFitRange(fit_range);
+	model_opt.resolution_smearing_active = true;
+	model_opt.smearing_model = LumiFit::ASYMMETRIC_GAUSSIAN;
+	model_opt.resolution_parametrization_file_url = acceptance_file_dir
+			+ "/resolution_params_1.root";
+
 
 	std::cout << acc->getLabMomentum() << std::endl;
-	shared_ptr<Model1D> smeared_model = model_fac.generate1DModel(fit_options,
+	shared_ptr<Model1D> smeared_model = model_fac.generate1DModel(model_opt,
 			acc->getLabMomentum());
 	smeared_model->getModelParameterSet().getModelParameter(
 			std::make_pair("dpm_angular_1d", "luminosity"))->setValue(1.0);
@@ -87,14 +82,16 @@ void makeConvolutionThesisPlots(TString acceptance_file_dir) {
 	temp_vec_range.push_back(std::make_pair(0.001, 0.012));
 
 	shared_ptr<Model1D> asymmgauss(new AsymmetricGaussianModel1D("asymmgauss1"));
-	asymmgauss->getModelParameterSet().getModelParameter("asymm_gauss_mean")->setValue(0.004);
+	asymmgauss->getModelParameterSet().getModelParameter("asymm_gauss_mean")->setValue(
+			0.004);
 	asymmgauss->getModelParameterSet().getModelParameter("asymm_gauss_sigma_left")->setValue(
 			0.001);
-	asymmgauss->getModelParameterSet().getModelParameter("asymm_gauss_sigma_right")->setValue(
-			0.002);
+	asymmgauss->getModelParameterSet().getModelParameter(
+			"asymm_gauss_sigma_right")->setValue(0.002);
 	asymmgauss->getModelParameterSet().getModelParameter("asymm_gauss_amplitude")->setValue(
 			1.0);
-	std::cout<<"integral of aymm gauss: "<<asymmgauss->Integral(temp_vec_range, 1e-3)<<std::endl;
+	std::cout << "integral of aymm gauss: "
+			<< asymmgauss->Integral(temp_vec_range, 1e-3) << std::endl;
 
 	shared_ptr<Model1D> gauss1(new GaussianModel1D("gauss1"));
 	gauss1->getModelParameterSet().getModelParameter("gauss_mean")->setValue(4.0);
@@ -110,11 +107,9 @@ void makeConvolutionThesisPlots(TString acceptance_file_dir) {
 	gauss2->getModelParameterSet().getModelParameter("gauss_amplitude")->setValue(
 			1.0);
 
-
 	double int_unsmeared = unsmeared_model->Integral(temp_vec_range, 1e-3);
 	double int_smeared = smeared_model->Integral(temp_vec_range, 1e-3);
-	std::cout << int_unsmeared << " vs "
-			<< int_smeared<<std::endl;
+	std::cout << int_unsmeared << " vs " << int_smeared << std::endl;
 
 	double xval = 4.0;
 	double xval2 = 2.5;
@@ -124,8 +119,7 @@ void makeConvolutionThesisPlots(TString acceptance_file_dir) {
 
 	ROOTPlotter plotter;
 	ModelVisualizationProperties1D vp;
-	DataStructs::dimension_range plot_range;
-	plot_range.range = std::make_pair(0.0, 0.012);
+	DataStructs::DimensionRange plot_range(0.0, 0.012);
 	vp.setPlotRange(plot_range);
 
 	TGraphAsymmErrors *graph_unsmeared_model = plotter.createGraphFromModel1D(

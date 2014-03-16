@@ -28,59 +28,71 @@ struct unbinned_data_point {
 	double x[2]; // variables
 };
 
-enum dimension_unit_prefix {
-	PICO, NANO, MICRO, MILLI, CENTI, NONE, KILO, MEGA, GIGA
+struct DimensionRange {
+		// lower bound on this axis/dimension
+		double range_low;
+		// upper bound on this axis/dimension
+		double range_high;
+
+		bool is_active;
+
+		DimensionRange() :
+				range_low(0.0), range_high(0.0), is_active(false) {
+		}
+
+		DimensionRange(double low, double high) :
+				range_low(low), range_high(high), is_active(true) {
+		}
+
+		double getDimensionLength() const {
+			return (range_high - range_low);
+		}
+
+		double getDimensionMean() const {
+			return (range_high + range_low) / 2.0;
+		}
+
+		bool isDataWithinRange(double data_value) const {
+			if (data_value < range_low) {
+				return false;
+			}
+			if (data_value > range_high) {
+				return false;
+			}
+			return true;
+		}
+
+		bool operator<(const DimensionRange &dim_range) const {
+			if (range_low < dim_range.range_low)
+				return true;
+			else if (range_low > dim_range.range_low)
+				return false;
+			if (range_high < dim_range.range_high)
+				return true;
+			else if (range_high > dim_range.range_high)
+				return false;
+
+			return false;
+		}
+
+		bool operator>(const DimensionRange &dim_range) const {
+			return (dim_range < *this);
+		}
+
+		bool operator==(const DimensionRange &dim_range) const {
+			if (range_low != dim_range.range_low)
+				return false;
+			if (range_high != dim_range.range_high)
+				return false;
+
+			return true;
+		}
+
+		bool operator!=(const DimensionRange &lmd_dim_range) const {
+			return !(*this == lmd_dim_range);
+		}
 };
 
-struct dimension_unit_factor {
-	static std::string getUnitNamePrefix(dimension_unit_prefix unit_prefix) {
-		if (PICO == unit_prefix)
-			return "p";
-		else if (NANO == unit_prefix)
-			return "n";
-		else if (MICRO == unit_prefix)
-			return "#mu";
-		else if (MILLI == unit_prefix)
-			return "m";
-		else if (CENTI == unit_prefix)
-			return "cm";
-		else if (NONE == unit_prefix)
-			return "";
-		else if (KILO == unit_prefix)
-			return "k";
-		else if (MEGA == unit_prefix)
-			return "M";
-		else if (GIGA == unit_prefix)
-			return "G";
-		return "";
-	}
-
-	static double getUnitFactor(dimension_unit_prefix unit_prefix) {
-		if (PICO == unit_prefix)
-			return 1e-12;
-		else if (NANO == unit_prefix)
-			return 1e-9;
-		else if (MICRO == unit_prefix)
-			return 1e-6;
-		else if (MILLI == unit_prefix)
-			return 1e-3;
-		else if (CENTI == unit_prefix)
-			return 1e-2;
-		else if (NONE == unit_prefix)
-			return 1.0;
-		else if (KILO == unit_prefix)
-			return 1e3;
-		else if (MEGA == unit_prefix)
-			return 1e6;
-		else if (GIGA == unit_prefix)
-			return 1e9;
-		return 1.0;
-	}
-};
-
-struct dimension_range {
-	std::pair<double, double> range;
-};
 
 }
 

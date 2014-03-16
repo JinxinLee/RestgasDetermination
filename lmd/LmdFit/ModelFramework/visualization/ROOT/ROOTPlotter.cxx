@@ -31,13 +31,12 @@ TGraphAsymmErrors* ROOTPlotter::createGraphFromModel1D(shared_ptr<Model> model,
 		std::cout << "Error: not all parameters have been set!" << std::endl;
 	}
 
-	double stepsize = (visualization_properties.getPlotRange().range.second
-			- visualization_properties.getPlotRange().range.first)
+	double stepsize = visualization_properties.getPlotRange().getDimensionLength()
 			/ visualization_properties.getEvaluations();
 	double x;
 
 	for (unsigned int i = 0; i < visualization_properties.getEvaluations(); i++) {
-		x = visualization_properties.getPlotRange().range.first + stepsize * i;
+		x = visualization_properties.getPlotRange().range_low + stepsize * i;
 		graph->SetPoint(i, x,
 				model->evaluate(&x) * visualization_properties.getBinningFactor());
 		graph->SetPointError(
