@@ -50,7 +50,7 @@ PndMultiField::PndMultiField(TString Map, Double_t BeamMom)
 	
 	if (Map=="FULL") {
 		
-      PndTransMap *map_t= new PndTransMap("TransMap", "R", fBeamMom);
+                PndTransMap *map_t= new PndTransMap("TransMap", "R", fBeamMom);
 		PndDipoleMap *map_d1= new PndDipoleMap("DipoleMap1", "R", fBeamMom);
 		PndDipoleMap *map_d2= new PndDipoleMap("DipoleMap2", "R", fBeamMom);
 		PndSolenoidMap *map_s1= new PndSolenoidMap("SolenoidMap1", "R");
@@ -66,7 +66,63 @@ PndMultiField::PndMultiField(TString Map, Double_t BeamMom)
 		AddField(map_s3);
 		AddField(map_s4);
 	
-	}else if (Map=="DIPOLE") {
+	}
+  
+        else if (Map=="AUTO") {
+                PndDipoleMap *map_d1= new PndDipoleMap("DipoleMap1", "R", fBeamMom);
+    		PndDipoleMap *map_d2= new PndDipoleMap("DipoleMap2", "R", fBeamMom);
+
+    		PndTransMap *map_t;
+    		PndSolenoidMap *map_s1;
+    		PndSolenoidMap *map_s2;
+    		PndSolenoidMap *map_s3;
+    		PndSolenoidMap *map_s4;
+
+    		if(fBeamMom > 3.0) {
+      		    map_t= new PndTransMap("TransMap", "R", fBeamMom);
+      		    map_s1= new PndSolenoidMap("SolenoidMap1", "R");
+      		    map_s2= new PndSolenoidMap("SolenoidMap2", "R");
+      		    map_s3= new PndSolenoidMap("SolenoidMap3", "R");
+      		    map_s4= new PndSolenoidMap("SolenoidMap4", "R");
+    		}
+    		else {
+      		   map_t= new PndTransMap("TransMap_Half", "R", fBeamMom);
+      		    map_s1= new PndSolenoidMap("SolenoidMap_Half1", "R");
+      		    map_s2= new PndSolenoidMap("SolenoidMap_Half2", "R");
+     		    map_s3= new PndSolenoidMap("SolenoidMap_Half3", "R");
+      		    map_s4= new PndSolenoidMap("SolenoidMap_Half4", "R");
+    		}
+    
+    		AddField(map_t);
+    		AddField(map_d1);
+    		AddField(map_d2);
+    		AddField(map_s1);
+    		AddField(map_s2);
+    		AddField(map_s3);
+    		AddField(map_s4);
+	}		
+
+	else if (Map=="HALF") {		
+                PndTransMap *map_t= new PndTransMap("TransMap_Half", "R", fBeamMom);
+                PndDipoleMap *map_d1= new PndDipoleMap("DipoleMap1", "R", fBeamMom);
+                PndDipoleMap *map_d2= new PndDipoleMap("DipoleMap2", "R", fBeamMom);
+                PndSolenoidMap *map_s1= new PndSolenoidMap("SolenoidMap_Half1", "R");
+                PndSolenoidMap *map_s2= new PndSolenoidMap("SolenoidMap_Half2", "R");
+                PndSolenoidMap *map_s3= new PndSolenoidMap("SolenoidMap_Half3", "R");
+                PndSolenoidMap *map_s4= new PndSolenoidMap("SolenoidMap_Half4", "R");
+		
+		AddField(map_t);
+		AddField(map_d1);
+		AddField(map_d2);
+		AddField(map_s1);
+		AddField(map_s2);
+		AddField(map_s3);
+		AddField(map_s4);
+	
+	}
+	
+	
+	else if (Map=="DIPOLE") {
 		PndDipoleMap *map_d1= new PndDipoleMap("DipoleMap1", "R", fBeamMom);
 		PndDipoleMap *map_d2= new PndDipoleMap("DipoleMap2", "R", fBeamMom);
 		
@@ -80,6 +136,19 @@ PndMultiField::PndMultiField(TString Map, Double_t BeamMom)
 		PndSolenoidMap *map_s3= new PndSolenoidMap("SolenoidMap3", "R");
 		PndSolenoidMap *map_s4= new PndSolenoidMap("SolenoidMap4", "R");
 		
+		AddField(map_s1);
+		AddField(map_s2);
+		AddField(map_s3);
+		AddField(map_s4);
+	}
+	else if (Map=="SOLENOID_HALF") {
+		
+
+		PndSolenoidMap *map_s1= new PndSolenoidMap("SolenoidMap_Half1", "R");
+		PndSolenoidMap *map_s2= new PndSolenoidMap("SolenoidMap_Half2", "R");
+		PndSolenoidMap *map_s3= new PndSolenoidMap("SolenoidMap_Half3", "R");
+		PndSolenoidMap *map_s4= new PndSolenoidMap("SolenoidMap_Half4", "R");
+
 		AddField(map_s1);
 		AddField(map_s2);
 		AddField(map_s3);
