@@ -108,6 +108,35 @@ protected:
   TH1 *hResPointZ;
   TH1 *hPullPointZ;
 
+  //QA candidates
+ TH1 *hPullLikePointX;
+ TH1 *hPullLikePointY;
+ TH1 *hPullLikePointZ;
+ TH2 *hPullLikeX_Zmc;
+ TH2 *hPullLikeY_Zmc;
+ TH2 *hPullLikeZ_Zmc;
+ TH2 *hPullLikeTh_Zmc;
+ TH2 *hPullLikePh_Zmc;
+ TH2 *hPullLikeP_Zmc;
+ TH2 *hXrecZmc;
+ TH2 *hYrecZmc;
+ TH2 *hZrecZmc;
+ TH2 *hThrecZmc;
+ TH2 *hPhrecZmc;
+ TH2 *hPrecZmc;
+TH2 *hResXrecZmc;
+ TH2 *hResYrecZmc;
+ TH2 *hResZrecZmc;
+ TH2 *hResThrecZmc;
+ TH2 *hResPhrecZmc;
+ TH2 *hResPrecZmc;
+ TH2 *herrXrecZmc;
+ TH2 *herrYrecZmc;
+ TH2 *herrZrecZmc;
+ TH2 *herrThrecZmc;
+ TH2 *herrPhrecZmc;
+ TH2 *herrPrecZmc;
+
   //Near 1st LMD plane
   TH1 *hhits;
   TH1 *hchi2;

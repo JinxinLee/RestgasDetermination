@@ -240,6 +240,102 @@ void PndLmdQATask::WriteHists(){
   c2->Write();
   c2->Close();
   f->cd();
+
+  f->mkdir("QA_cand");
+  f->cd("QA_cand");
+  TCanvas *c3 = new TCanvas("QA_candidates_PCA");
+  c3->Divide(3,3);
+  c3->cd(1);
+  hXrecZmc->Draw("colz");
+  c3->cd(2);
+  hYrecZmc->Draw("colz");
+  c3->cd(3);
+  hZrecZmc->Draw("colz");
+  c3->cd(4);
+  herrXrecZmc->Draw("colz");
+  c3->cd(5);
+  herrYrecZmc->Draw("colz");
+  c3->cd(6);
+  herrZrecZmc->Draw("colz");
+ c3->cd(7);
+ hPullLikeX_Zmc->Draw("colz");
+ c3->cd(8);
+ hPullLikeY_Zmc->Draw("colz");
+ c3->cd(9);
+ hPullLikeZ_Zmc->Draw("colz");
+ c3->Write();
+ c3->Close();
+
+ TCanvas *c4 = new TCanvas("QA_candidates_dir");
+  c4->Divide(3,3);
+  c4->cd(1);
+  hThrecZmc->Draw("colz");
+  c4->cd(2);
+  hPhrecZmc->Draw("colz");
+  c4->cd(3);
+  hPrecZmc->Draw("colz");
+  c4->cd(4);
+  herrThrecZmc->Draw("colz");
+  c4->cd(5);
+  herrPhrecZmc->Draw("colz");
+  c4->cd(6);
+  herrPrecZmc->Draw("colz");
+  c4->cd(7);
+  hPullLikeTh_Zmc->Draw("colz");
+  c4->cd(8);
+  hPullLikePh_Zmc->Draw("colz");
+  c4->cd(9);
+  hPullLikeP_Zmc->Draw("colz");
+  c4->Write();
+  c4->Close();
+
+ TCanvas *c5 = new TCanvas("QA_resolution_vs_z");
+  c5->Divide(3,2);
+  c5->cd(1);
+  hResXrecZmc->Draw("colz");
+  c5->cd(2);
+  hResYrecZmc->Draw("colz");
+  c5->cd(3);
+  hResZrecZmc->Draw("colz");
+  c5->cd(4);
+  hResThrecZmc->Draw("colz");
+  c5->cd(5);
+  hResPhrecZmc->Draw("colz");
+  c5->cd(6);
+  hResPrecZmc->Draw("colz");
+  c5->Write();
+  c5->Close();
+
+
+
+  hPullLikePointX->Write();
+  hPullLikePointY->Write();
+  hPullLikePointZ->Write();
+ hPullLikeX_Zmc->Write();
+ hPullLikeY_Zmc->Write();
+ hPullLikeZ_Zmc->Write();
+ hPullLikeTh_Zmc->Write();
+ hPullLikePh_Zmc->Write();
+ hPullLikeP_Zmc->Write();
+  hXrecZmc->Write();
+  hYrecZmc->Write();
+  hZrecZmc->Write();
+  hThrecZmc->Write();
+  hPhrecZmc->Write();
+  hPrecZmc->Write();
+  hResXrecZmc->Write();
+  hResYrecZmc->Write();
+  hResZrecZmc->Write();
+  hResThrecZmc->Write();
+  hResPhrecZmc->Write();
+  hResPrecZmc->Write();
+ herrXrecZmc->Write();
+  herrYrecZmc->Write();
+  herrZrecZmc->Write();
+  herrThrecZmc->Write();
+  herrPhrecZmc->Write();
+  herrPrecZmc->Write();
+  f->cd();
   f->Write();
   f->Close();
   std::cout<<"PndLmdQATask::WriteHists() Finished successfull"<<std::endl;
@@ -362,6 +458,36 @@ InitStatus PndLmdQATask::Init()
    hPullPointY = new TH1F("hPullPointY","(Y_{MC}-Y_{REC})/#sigma_{Y};(Y_{MC}-Y_{REC})/#sigma_{Y}",1e2,-10,10);
    hResPointZ = new TH1F("hResPointZ","Z_{MC}-Z_{REC};#deltaZ,cm",1e3,-0.15,0.15);
    hPullPointZ = new TH1F("hPullPointZ","(Z_{MC}-Z_{REC})/#sigma_{Z};(Z_{MC}-Z_{REC})/#sigma_{Z}",1e2,-10,10);
+
+   //back-propagation QA candidates
+ hPullLikePointX = new TH1F("hPullLikePointX","X_{REC}/#sigma_{X};X_{REC}/#sigma_{X}",1e2,-10,10);
+ hPullLikePointY = new TH1F("hPullLikePointY","Y_{REC}/#sigma_{Y};Y_{REC}/#sigma_{Y}",1e2,-10,10);
+ hPullLikePointZ = new TH1F("hPullLikePointZ","Z_{REC}/#sigma_{Z};Z_{REC}/#sigma_{Z}",1e2,-10,10);
+ hPullLikeX_Zmc = new TH2D("hPullLikeX_Zmc",";Z_{MC}, cm;X_{REC}/#sigma_{X}",1e3,-60,60,1e3,-10,10);
+ hPullLikeY_Zmc = new TH2D("hPullLikeY_Zmc",";Z_{MC}, cm;Y_{REC}/#sigma_{Y}",1e3,-60,60,1e2,-10,10);
+ hPullLikeZ_Zmc = new TH2D("hPullLikeZ_Zmc",";Z_{MC}, cm;Z_{REC}/#sigma_{Z}",1e3,-60,60,1e2,-10,10);
+hPullLikeTh_Zmc = new TH2D("hPullLikeTh_Zmc",";Z_{MC}, cm;#theta_{REC}/#sigma_{#theta}",1e3,-60,60,2e3,-1000,1000);
+ hPullLikePh_Zmc = new TH2D("hPullLikePh_Zmc",";Z_{MC}, cm;#phi_{REC}/#sigma_{#phi}",1e3,-60,60,2e3,-1000,1000);
+ hPullLikeP_Zmc = new TH2D("hPullLikeP_Zmc",";Z_{MC}, cm;P_{REC}/P_{#phi}",1e3,-60,60,2e3,0,2e4);
+ hXrecZmc = new TH2D("hXrecZmc","; Z_{MC}, cm; X_{REC}, cm",1e3,-60,60,1e3,-2,2);
+ hYrecZmc = new TH2D("hYrecZmc","; Z_{MC}, cm; Y_{REC}, cm",1e3,-60,60,1e3,-2,2);
+ hZrecZmc = new TH2D("hZrecZmc","; Z_{MC}, cm; Z_{REC}, cm",1e3,-60,60,1e3,-0.01,0.01);
+ hThrecZmc = new TH2D("hThrecZmc","; Z_{MC}, cm; #theta_{REC}, mrad",1e3,-60,60,1e3,0,20);
+ hPhrecZmc = new TH2D("hPhrecZmc","; Z_{MC}, cm; #phi_{REC}, rad",1e3,-60,60,1e3,-3.15,3.15);
+ hPrecZmc = new TH2D("hPrecZmc","; Z_{MC}, cm; P_{REC}, GeV/c",1e3,-60,60,1e3,-1,20);
+ hResXrecZmc = new TH2D("hResXrecZmc","; Z_{MC}, cm; X_{MC}-X_{REC}, cm",3e2,-60,60,1e3,-1,1);
+ hResYrecZmc = new TH2D("hResYrecZmc","; Z_{MC}, cm; Y_{MC}-Y_{REC}, cm",3e2,-60,60,1e3,-1,1);
+ hResZrecZmc = new TH2D("hResZrecZmc","; Z_{MC}, cm; Z_{MC}-Z_{REC}, cm",3e2,-60,60,3e2,-60,60);
+ hResThrecZmc = new TH2D("hResThrecZmc","; Z_{MC}, cm; #theta_{MC}-#theta_{REC}, mrad",3e2,-60,60,1e3,-1,1);
+ hResPhrecZmc = new TH2D("hResPhrecZmc","; Z_{MC}, cm; #phi_{MC}-#phi_{REC}, rad",3e2,-60,60,1e3,-0.2,0.2);
+ hResPrecZmc = new TH2D("hResPrecZmc","; Z_{MC}, cm; P_{MC}-P_{REC}, GeV/c",3e2,-60,60,1e3,-0.005,0.005);
+
+ herrXrecZmc = new TH2D("herrXrecZmc","; Z_{MC}, cm; #sigma(X_{REC}), cm",1e3,-60,60,1e3,0,1);
+ herrYrecZmc = new TH2D("herrYrecZmc","; Z_{MC}, cm; #sigma(Y_{REC}), cm",1e3,-60,60,1e3,0,1);
+ herrZrecZmc = new TH2D("herrZrecZmc","; Z_{MC}, cm; #sigma(Z_{REC}), cm",1e3,-60,60,1e3,0,0.002);
+ herrThrecZmc = new TH2D("herrThrecZmc","; Z_{MC}, cm; #sigma(#theta_{REC}), mrad",1e3,-60,60,1e3,0,0.5);
+ herrPhrecZmc = new TH2D("herrPhrecZmc","; Z_{MC}, cm; #sigma(#phi_{REC}), rad",1e3,-60,60,1e3,0,0.1);
+ herrPrecZmc = new TH2D("herrPrecZmc","; Z_{MC}, cm; #sigma(P_{REC}), GeV/c",1e3,-60,60,1e3,0,0.01);
 
   //Near 1st LMD plane
    hhits = new TH1I("hhits","number of hits in trk",7,0,7);
@@ -571,7 +697,7 @@ void PndLmdQATask::ResoAndPulls()
 	}
 	else
 	  if(MCid!=MCidTOP){
-	    cout<<"REC trk contains hits from different MC trks! Skip this event."<<endl;
+	    cout<<"REC trk contains hits from different MC trks! Skip event #"<<fEvent<<endl;
 	    hitmix = true;
 	  }
       }
@@ -604,6 +730,38 @@ void PndLmdQATask::ResoAndPulls()
 	hPullPointX->Fill((PosMCpca.X()-PosRecPCA.X())/errPosRecPCA.X());
 	hPullPointY->Fill((PosMCpca.Y()-PosRecPCA.Y())/errPosRecPCA.Y());
 	hPullPointZ->Fill((PosMCpca.Z()-PosRecPCA.Z())/errPosRecPCA.Z());
+
+	hPullLikePointX->Fill(PosRecPCA.X()/errPosRecPCA.X());
+	hPullLikePointY->Fill(PosRecPCA.Y()/errPosRecPCA.Y());
+	hPullLikePointZ->Fill(PosRecPCA.Z()/errPosRecPCA.Z());
+
+	hXrecZmc->Fill(PosMCpca.Z(),PosRecPCA.X());
+	hYrecZmc->Fill(PosMCpca.Z(),PosRecPCA.Y());
+	hZrecZmc->Fill(PosMCpca.Z(),PosRecPCA.Z());
+	hThrecZmc->Fill(PosMCpca.Z(),1e3*MomRecPCA.Theta());
+	hPhrecZmc->Fill(PosMCpca.Z(),MomRecPCA.Phi());
+	hPrecZmc->Fill(PosMCpca.Z(),MomRecPCA.Mag());
+
+	hResXrecZmc->Fill(PosMCpca.Z(),PosMCpca.X()-PosRecPCA.X());
+	hResYrecZmc->Fill(PosMCpca.Z(),PosMCpca.Y()-PosRecPCA.Y());
+	hResZrecZmc->Fill(PosMCpca.Z(),PosMCpca.Z()-PosRecPCA.Z());
+	hResThrecZmc->Fill(PosMCpca.Z(),1e3*(MomMCpca.Theta()-MomRecPCA.Theta()));
+	hResPhrecZmc->Fill(PosMCpca.Z(),MomMCpca.Phi()-MomRecPCA.Phi());
+	hResPrecZmc->Fill(PosMCpca.Z(),MomMCpca.Mag()-MomRecPCA.Mag());
+
+	herrXrecZmc->Fill(PosMCpca.Z(),errPosRecPCA.X());
+	herrYrecZmc->Fill(PosMCpca.Z(),errPosRecPCA.Y());
+	herrZrecZmc->Fill(PosMCpca.Z(),errPosRecPCA.Z());
+	herrThrecZmc->Fill(PosMCpca.Z(),1e3*err_lyambda);
+	herrPhrecZmc->Fill(PosMCpca.Z(),err_phi);
+	herrPrecZmc->Fill(PosMCpca.Z(),errMomRecPCA.Mag());
+
+	hPullLikeX_Zmc->Fill(PosMCpca.Z(),PosRecPCA.X()/errPosRecPCA.X());
+	hPullLikeY_Zmc->Fill(PosMCpca.Z(),PosRecPCA.Y()/errPosRecPCA.Y());
+	hPullLikeZ_Zmc->Fill(PosMCpca.Z(),PosRecPCA.Z()/errPosRecPCA.Z());
+	hPullLikeTh_Zmc->Fill(PosMCpca.Z(),MomRecPCA.Theta()/err_lyambda);
+	hPullLikePh_Zmc->Fill(PosMCpca.Z(),MomRecPCA.Phi()/err_phi);
+	hPullLikeP_Zmc->Fill(PosMCpca.Z(),MomRecPCA.Mag()/errMomRecPCA.Mag());
 
 	hResTheta->Fill(1e3*(MomMCpca.Theta()-MomRecPCA.Theta()));
 	hResTheta_th->Fill(1e3*MomMCpca.Theta(),1e3*(MomMCpca.Theta()-MomRecPCA.Theta()));
