@@ -93,16 +93,16 @@ PndFtsHoughSpace::PndFtsHoughSpace(
 
 		FairField *field
 ) :
-fFtsHitArray(ftsHitArray),
-fFtsBranchId(ftsBranchId),
-fVerbose(0),
+		fFtsHitArray(ftsHitArray),
+		fFtsBranchId(ftsBranchId),
+		fVerbose(0),
 
-fZRefPos(zRefPos),
-fInterceptZx(interceptZx),
+		fZRefPos(zRefPos),
+		fInterceptZx(interceptZx),
 
-fField(field),
+		fField(field),
 
-TH2S(name,name,nbinsx,xlow,xup,nbinsy,ylow,yup)
+		TH2S(name,name,nbinsx,xlow,xup,nbinsy,ylow,yup)
 
 {
 	if (0==ftsHitArray){
@@ -614,7 +614,7 @@ Bool_t PndFtsHoughSpace::FindAllPeaks(
 				currHeight = GetBinContent(currBinNumber);
 				if (minHeight > currHeight) {
 					// currBinNumber is not high enough to be considered a peak
-					SetBinContent(currBinNumber,0); // DEBUG: Uncomment this for testing only!!!
+					SetBinContent(currBinNumber,0); // DEBUG: Uncomment this if you want to produce nice Hough space plots for demonstration
 					continue;
 				}
 				// I found a potential peak, so I check the neighbors in next higher theta bins
@@ -654,7 +654,7 @@ Bool_t PndFtsHoughSpace::FindAllPeaks(
 
 					if (minHeight > currNeighborHeight){
 						// end of peak region in x direction found, I can get out of the loop
-						SetBinContent(currNeighborBinNumber,0); // DEBUG: Uncomment this for testing only!!!
+						SetBinContent(currNeighborBinNumber,0); // DEBUG: Uncomment this if you want to produce nice Hough space plots for demonstration
 						break;
 					}
 
@@ -684,6 +684,15 @@ Bool_t PndFtsHoughSpace::FindAllPeaks(
 					lastVisitedHeight = currNeighborHeight;
 
 				} while(kTRUE);
+
+
+				// DEBUG: comment this out if you want to produce nice Hough space plots for demonstration
+				// remove the peak which was found, otherwise it (or parts of it) might be found again
+				for (Int_t xBinToDel=combinedPeakBinXLow; xBinToDel<= combinedPeakBinXHigh; ++xBinToDel){
+					Int_t BinNumberToDel = GetBin(xBinToDel,currBinY);
+					SetBinContent(BinNumberToDel,0);
+				}
+
 
 
 

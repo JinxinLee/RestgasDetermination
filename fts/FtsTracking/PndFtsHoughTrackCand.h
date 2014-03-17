@@ -43,7 +43,7 @@ public:
 	Bool_t isComplete() const { return (fZxLineParabola.isSet() && fZxParabola.isSet() && fZxParabolaLine.isSet() && fZyLine.isSet()); };
 	const PndFtsHit *getHit(UInt_t index); // gets the FairHit corresponding to index
 	PndTrackCand getPndTrackCand(); // convert *this to a PndTrack, cannot be const
-	PndTrack getPndTrack(); // convert *this to a PndTrack, cannot be const
+	PndTrack getPndTrack(); // convert *this to a PndTrack, cannot be const // calculates first and last parameter, but uses an empty PndTrackCand which has to be set lateron using SetTrackCandRef
 	FairTrackParP getTrackParPForHit(const UInt_t i); // get the track parameters (needed for conversion to PndTrack) for hit with index i, cannot be const
 	Int_t getCharge() const; // gets charge of track candidate // TODO only charge sign is implemented
 	TVector3 getP(const Double_t zLabSys) const; // gets the momentum calculated at some hit

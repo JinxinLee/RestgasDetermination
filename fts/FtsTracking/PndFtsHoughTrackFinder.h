@@ -80,7 +80,7 @@ public:
 	// Output
 	Int_t NTracks() const { return fHoughTrackCands.size(); };								///< Returns the number of found tracks
 	PndFtsHoughTrackCand GetHoughTrack(int i) const { return fHoughTrackCands[i]; };					///< Returns the track with the index i
-	PndTrack GetPndTrack(int i){ return fHoughTrackCands[i].getPndTrack(); };
+	PndTrack GetPndTrack(int i){ return fHoughTrackCands[i].getPndTrack(); }; // calculates first and last parameter, but uses an empty PndTrackCand which has to be set lateron using SetTrackCandRef
 	PndTrackCand GetPndTrackCand(int i) { return fHoughTrackCands[i].getPndTrackCand(); };
 
 

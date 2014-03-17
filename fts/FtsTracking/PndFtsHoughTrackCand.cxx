@@ -132,9 +132,9 @@ PndTrackCand PndFtsHoughTrackCand::getPndTrackCand() {
 // getNumHits is called getNHits (because my track cand class is derived from PndTrackCand and that's how it's called there)
 // I don't need the B field to calculate the parameters
 PndTrack PndFtsHoughTrackCand::getPndTrack() {
-	//! TODO this is terribly inefficient, I should consider a different solution
+	// calculates first and last parameter, but uses an empty PndTrackCand which has to be set lateron using SetTrackCandRef
 	FairTrackParP firstPar, lastPar;
-	PndTrackCand myCand = getPndTrackCand();
+	PndTrackCand myCand;
 	if (GetNHits() > 0){
 		firstPar = getTrackParPForHit(0);
 		lastPar = getTrackParPForHit(GetNHits()-1);

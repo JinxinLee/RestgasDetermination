@@ -3,10 +3,6 @@
 // martin (dot) j [dot] galuska <at> physik {dot} uni (minus) giessen <dot> de
 //
 //
-// TODO
-// Next work on PndFtsHoughTrackCand
-// After work on PndFtsHoughTrackFinder
-//
 // This task is used as an interface between
 // PndFtsHoughTrackFinder
 // and PandaRoot
@@ -49,7 +45,7 @@ class FairField;
 class PndFtsTrackerTaskHough : public FairTask
 {
 public:
-	PndFtsTrackerTaskHough();
+	PndFtsTrackerTaskHough(Bool_t persistence=kTRUE, Bool_t saveDebugInfo=kFALSE);
 	~PndFtsTrackerTaskHough();
 
 	/** Load the parameter container from the runtime database **/
@@ -71,7 +67,7 @@ public:
 	void SetPersistence(Bool_t val){ fPersistence = val;};
 
 	void SetSaveDebugInfo(Bool_t saveDebugInfo){ fSaveDebugInfo = saveDebugInfo;};
-	void SetTrackOutput(TString name = "FTSTrkHough") { fTracksArrayName = name; };
+//	void SetTrackOutput(TString name = "FTSTrkHough") { fTracksArrayName = name; };
 
 	//  for writing out histograms for debugging
 	void WriteHistogram(PndFtsHoughSpace* houghSpace, Int_t index=-1);
@@ -116,6 +112,7 @@ private:
 	TClonesArray  *fTrackCands;   //! Array of found track candidates in PndTrackCand (for output)
 	TClonesArray  *fTracks;       //! Array of found tracks in PndTrack (for output)
 	TClonesArray *fHoughTrackCands; // Array of found track cands in PndFtsHoughTrackCand (only for debugging)
+	TClonesArray *fHoughSpaces;
 
 
 	// Debug
@@ -126,9 +123,6 @@ private:
 
 
 
-
-	// helper method (handy for multiple constructors)
-	void Initialization_ClassVariables();
 
 	// TODO: I don't think I need the copy constructor and the operator=
 	PndFtsTrackerTaskHough(const PndFtsTrackerTaskHough&);

@@ -71,11 +71,29 @@ using std::endl;
 
 
 // ---- Default constructor -------------------------------------------
-PndFtsTrackerTaskHough::PndFtsTrackerTaskHough()
-: FairTask("PndFtsTrackerTaskHough")
+PndFtsTrackerTaskHough::PndFtsTrackerTaskHough(Bool_t persistence, Bool_t saveDebugInfo)
+: FairTask("PndFtsTrackerTaskHough"),
+  fSaveDebugInfo(saveDebugInfo),
+  fPersistence(persistence),
+  fEventNr(0),
+  fOutFile(0),
+
+  // arrays
+  fFtsParameters(0),
+  fFtsTubeArray(0),
+  fFtsHitArray(0),
+  fFtsBranchId(0),
+  fTracksArrayName("FTSTrkHough"),
+
+  // Debugging
+  fHoughSpaces(0),
+  fHoughTrackCands(0),
+
+  // output
+  fTrackCands(0),
+  fTracks(0)
 {
 	if(fVerbose>3) Info(MESSAGE_ORIGIN,"Default Constructor of PndFtsTrackerTaskHough");
-	Initialization_ClassVariables();
 }
 
 // ---- Destructor ----------------------------------------------------
@@ -83,31 +101,6 @@ PndFtsTrackerTaskHough::~PndFtsTrackerTaskHough()
 {
 	if(fVerbose>3) Info(MESSAGE_ORIGIN,"Destructor of PndFtsTrackerTaskHough");
 	fOutFile->Close();
-}
-
-
-
-
-void PndFtsTrackerTaskHough::Initialization_ClassVariables()
-{
-	// in case of multiple constructors this method is useful
-	fEventNr=0;
-	// general
-	fOutFile=0;
-	fSaveDebugInfo=kFALSE;
-	fVerbose = 0;
-	fPersistence = kTRUE;
-
-	// arrays
-	fFtsParameters=0;
-	fFtsTubeArray=0;
-	fFtsHitArray=0;
-	fFtsBranchId=0;
-	fTracksArrayName="FTSTrkHough";
-	SetTrackOutput();
-	fHoughTrackCands = 0;
-	fTrackCands = 0;
-	fTracks = 0;
 }
 
 
@@ -173,6 +166,7 @@ InitStatus PndFtsTrackerTaskHough::Init()
 	fFtsTubeArray = mapperFts->FillTubeArray();
 
 
+
 	// B field
 	if(fVerbose>3) Info("Init","Try to get B field.");
 	fField = FairRunAna::Instance()->GetField();
@@ -181,20 +175,22 @@ InitStatus PndFtsTrackerTaskHough::Init()
 		return kERROR;
 	}
 
-
-
+	// Debugging
+	//	if (fSaveDebugInfo){
+	//		InitOutFileForDebugging();
+	//	}
 	fHoughTrackCands = new TClonesArray("PndFtsHoughTrackCand");
-	ioman->Register("FTSTrkDebug", "PndFtsHoughTrackCand", fHoughTrackCands, fSaveDebugInfo);
+	ioman->Register("FTSTrkDebugCand", "HoughTrackCand", fHoughTrackCands, fSaveDebugInfo);
+
+	fHoughSpaces = new TClonesArray("PndFtsHoughSpace");
+	ioman->Register("FTSTrkDebugHS", "HoughSpaces", fHoughSpaces, fSaveDebugInfo);
 
 
+	// Output
 	fTrackCands = new TClonesArray("PndTrackCand");
 	fTracks = new TClonesArray("PndTrack");
 	ioman->Register(fTracksArrayName,"FTSTrk", fTracks, fPersistence); // not needed for pattern recognition
 	ioman->Register(fTracksArrayName+"Cand","FTSTrk", fTrackCands, fPersistence); // TODO Is that correct, should it not be FTSTrkCand or something?
-
-//	if (fSaveDebugInfo){
-//		InitOutFileForDebugging();
-//	}
 
 	if(3<fVerbose) Info("Register","Done.");
 
@@ -233,6 +229,12 @@ InitStatus PndFtsTrackerTaskHough::Init()
 
 
 void PndFtsTrackerTaskHough::WriteHistogram(PndFtsHoughSpace* houghSpace, Int_t index){
+	if (kFALSE == fSaveDebugInfo) return;
+
+	//	Int_t index = fHoughSpaces->GetEntriesFast();
+	//	PndFtsHoughSpace* myHoughSpace = new ((*fHoughSpaces)[index])PndFtsHoughSpace(*houghSpace);
+
+
 	TString outName = "plots/";
 	outName += houghSpace->GetName();
 	outName+=fEventNr;
@@ -241,16 +243,18 @@ void PndFtsTrackerTaskHough::WriteHistogram(PndFtsHoughSpace* houghSpace, Int_t 
 		outName+=index;
 	}
 	outName+=".C";
-	houghSpace->SaveAs(outName);
+	houghSpace->SaveAs(outName, "LEGO2");
 
+
+	//	fOutFile = FairRootManager::Instance()->GetOutFile();
 	//	if (0==fOutFile)
 	//	{
 	//		std::cout << "WriteHistograms: Cannot get outfile.\n";
 	//	}
 	//	else
 	//	{
-	//		fOutFile->cd();
-	//		fOutFile->cd("PndFtsTrackerTaskHough");
+	//		//			fOutFile->cd();
+	//		//			fOutFile->cd("PndFtsTrackerTaskHough");
 	//		if(3<fVerbose) std::cout << "WriteHistograms: Got outfile for debugging output.\n";
 	//		if (0!=houghSpace)
 	//		{
@@ -261,7 +265,7 @@ void PndFtsTrackerTaskHough::WriteHistogram(PndFtsHoughSpace* houghSpace, Int_t 
 	//			houghSpace->Write();
 	//			houghSpace->SetName(histNameOld);
 	//		}
-	//		fOutFile->cd();
+	//		//			fOutFile->cd();
 	//	}
 }
 
@@ -312,7 +316,7 @@ void PndFtsTrackerTaskHough::Exec(Option_t* option)
 	fTrackCands->Delete();
 	fTracks->Delete();
 	fHoughTrackCands->Delete();
-
+	fHoughSpaces->Delete();
 
 
 	SetHitPositionErrors();
@@ -333,9 +337,9 @@ void PndFtsTrackerTaskHough::Exec(Option_t* option)
 	// store the found tracks as PndTrack and PndTrackCand
 	for (Int_t iFoundTrack = 0; iFoundTrack < trackFinder.NTracks(); ++iFoundTrack){
 
-		// for debug output get PndFtsHoughTrackCand
+		// for debug output get PndFtsHoughTrackCand and PndFtsHoughSpace
 		// TODO Check if that works
-		if (1<fSaveDebugInfo) {
+		if (kTRUE==fSaveDebugInfo) {
 			PndFtsHoughTrackCand* myHoughCand = new ((*fHoughTrackCands)[iFoundTrack])PndFtsHoughTrackCand(trackFinder.GetHoughTrack(iFoundTrack));
 		}
 
