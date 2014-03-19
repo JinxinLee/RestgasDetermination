@@ -89,6 +89,8 @@ link_directories( ${LINK_DIRECTORIES})
 ################################## install #####################################
 add_executable(calc_cs Anastasia/tests/ModelUncert/CrossSecLim.C)
 target_link_libraries(calc_cs $ENV{ROOT_LIBRARIES} MathMore LmdFit Model GL X11 GLU gsl gslcblas)
+add_executable(calc_cs_un Anastasia/tests/ModelUncert/DPM_ModelUncert.C)
+target_link_libraries(calc_cs_un $ENV{ROOT_LIBRARIES} MathMore LmdFit Model GL X11 GLU gsl gslcblas)
 #add_executable(simple_mc_rec_match simpleMCandRECmatch.C)
 add_executable(createRootGeometry_lmd_HV_MAPS create_Lmd_HV_MAPS.C)	
 target_link_libraries(createRootGeometry_lmd_HV_MAPS -lrt ${ROOT_LIBRARIES} LmdTool  GeoBase ParBase Geom Sds Proof  PndData TrkBase VMC EG GeomPainter generalTools FairTools MathMore FairDB Base)

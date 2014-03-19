@@ -1,5 +1,4 @@
 // macro for calculation el cross-sections according to DPM model in LMD range
-//include <PndLmdDPMAngModel1D.h>
 #include <LumiFitStructs.h>
 #include <PndLmdModelFactory.h>
 #include <Model1D.h>
