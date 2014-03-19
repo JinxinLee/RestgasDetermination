@@ -1,8 +1,11 @@
 //--------------------------------------------------------------------------
-// Description:
-//      Class PndFsmSimpleTracker
+// File and Version Information:
+//      $Id: PndFsmSttPid.hh,v 1.6 2006/10/05 14:05:53 aida Exp $
 //
-//  Example Tracker for the PANDA Fast Sim Detectors
+// Description:
+//      Class PndFsmSttPid
+//
+//  Implementation of the STT for the Fast Sim Detectors
 //
 //  This software was developed for the PANDA collaboration.  If you
 //  use all or part of it, please give an appropriate acknowledgement.
@@ -11,12 +14,12 @@
 //      Klaus Goetzen                    Original Author
 //
 // Copyright Information:
-//      Copyright (C) 2008              GSI
+//      Copyright (C) 2006              GSI
 //
 //------------------------------------------------------------------------
 
-#ifndef PNDFSMSIMPLETRACKER_H
-#define PNDFSMSIMPLETRACKER_H
+#ifndef PNDFSMSTTPID_H
+#define PNDFSMSTTPID_H
 
 //----------------------
 // Base Class Headers --
@@ -35,7 +38,7 @@
 class PndFsmTrack;
 class PndFsmResponse;
 
-class PndFsmSimpleTracker: public PndFsmAbsDet
+class PndFsmSttPid: public PndFsmAbsDet
 {
 public:
 
@@ -48,11 +51,11 @@ public:
   //
 
   /** Default ctor. */
-  PndFsmSimpleTracker();
-  PndFsmSimpleTracker(ArgList &par);
+  PndFsmSttPid();
+  PndFsmSttPid(ArgList &par);
   /** Destructor
    */
-  virtual ~PndFsmSimpleTracker();
+  virtual ~PndFsmSttPid();
 
   /**
       Accessors to contained information
@@ -60,27 +63,20 @@ public:
 
   virtual PndFsmResponse* respond(PndFsmTrack *t);
 
-protected:
+private:
   bool   detected(PndFsmTrack *t) const;
-  double dp(PndFsmTrack *t) const;
-  double dphi(PndFsmTrack *t) const;
-  double dtheta(PndFsmTrack *t) const;
 
-  virtual void initParameters();
+  double compdEdx(double p, double M);
+  double gauss(double x, double x0, double s);
+
+  void   initParameters();
   void   print(std::ostream &o);
   bool   setParameter(std::string &name, double value);
-
-  //
-  //  Modifiers
-  //
 
   double _thtMin;
   double _thtMax;
   double _ptmin;
-
-  double _pRes;
-  double _thtRes;
-  double _phiRes;
+  double _dEdxRes;
 
 };
 

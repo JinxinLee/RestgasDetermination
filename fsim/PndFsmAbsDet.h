@@ -4,8 +4,8 @@
 //
 // Description:
 //      Class FsmAbsDet
-//      
-//  Abstract Class Interface for Fast Sim Detectors 
+//
+//  Abstract Class Interface for Fast Sim Detectors
 //
 //  This software was developed for the PANDA collaboration.  If you
 //  use all or part of it, please give an appropriate acknowledgement.
@@ -67,14 +67,15 @@ public:
   //
   //   Accessors to contained information
   //
-  
+
   virtual PndFsmResponse* respond(PndFsmTrack *t) = 0;
   virtual void print(std::ostream &o);
 
   const std::string& detName() {return _detName;}
+  void setName(std::string& name) {_detName = name;};
 
 
-protected:   
+protected:
 
   virtual bool setParameter(std::string &name, double value);
   virtual bool setParameter(std::string &name, std::string &value);
@@ -86,8 +87,8 @@ protected:
   //
   //  Modifiers
   //
-     
-  std::string  _detName; 
+
+  std::string  _detName;
   double       _efficiency;		//overall efficiency
   TRandom3     *_rand;
   TDatabasePDG *_fdbPDG;

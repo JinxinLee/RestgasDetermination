@@ -3,7 +3,7 @@
 #pragma link off all globals;
 #pragma link off all classes;
 #pragma link off all functions;
- 
+
 #pragma link C++ class  PndFastSim+;
 //#pragma link C++ class  PndSimpleAnalysis+;
 //#pragma link C++ class  PndAnalysis+;
@@ -35,6 +35,9 @@
 #pragma link C++ class  PndFsmCombiDet+;
 #pragma link C++ class  PndFsmRandom+;
 
+#pragma link C++ class  PndFsmMvdPid+;
+#pragma link C++ class  PndFsmSttPid+;
+#pragma link C++ class  PndFsmSimpleVtx+;
 
 //#pragma link C++ class  CStrTok+;
 

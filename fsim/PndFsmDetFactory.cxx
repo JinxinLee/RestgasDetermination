@@ -4,8 +4,8 @@
 //
 // Description:
 //      Class FsmDetFactory
-//      
-//  Factory for FsmDetectors 
+//
+//  Factory for FsmDetectors
 //
 //  This software was developed for the PANDA collaboration.  If you
 //  use all or part of it, please give an appropriate acknowledgement.
@@ -57,6 +57,9 @@
 #include "PndFsmSimpleTracker.h"
 #include "PndFsmCmpDet.h"
 #include "PndFsmCombiDet.h"
+#include "PndFsmMvdPid.h"
+#include "PndFsmSttPid.h"
+#include "PndFsmSimpleVtx.h"
 
 //-----------------------------------------------------------------------
 // Local Macros, Typedefs, Structures, Unions and Forward Declarations --
@@ -82,7 +85,7 @@ PndFsmDetFactory::~PndFsmDetFactory()
 // Operations --
 //--------------
 
-PndFsmAbsDet* 
+PndFsmAbsDet*
 PndFsmDetFactory::create(std::string &name,ArgList &par)
 {
   if (name=="EmcBarrel")
@@ -129,22 +132,46 @@ PndFsmDetFactory::create(std::string &name,ArgList &par)
   else
   if (name=="Rich")
     return (PndFsmAbsDet*)( new PndFsmRich(par) ) ;
-  else 
+  else
+  // --- scrutiny process options
+  if (name=="ScSttAlone" || name=="ScSttMvd" || name=="ScSttMvdGem" ||
+      name=="ScSttGem"   || name=="ScMvdGem" || name=="ScMvdGemFts"    ||
+      name=="ScMvdFts"   || name=="ScGemFts" ||  name=="ScFts" ) {
+    PndFsmAbsDet* aDet = (PndFsmAbsDet*)(new PndFsmSimpleTracker(par));
+    aDet->setName(name);
+    return aDet;
+  }
+  else
+  if (name=="MvdPid")
+    return (PndFsmAbsDet*)( new PndFsmMvdPid(par) );
+  else
+  if (name=="SttPid")
+    return (PndFsmAbsDet*)( new PndFsmSttPid(par) );
+  if (name=="ScVtxMvd"   || name=="ScVtxNoMvd") {
+    PndFsmAbsDet* aDet = (PndFsmAbsDet*)(new PndFsmSimpleVtx(par));
+    aDet->setName(name);
+    return aDet;
+  }
+  // general Options
+  else
   if (name=="SimpleTracker")
     return (PndFsmAbsDet*)( new PndFsmSimpleTracker(par) ) ;
-  else 
+  else
+  if (name=="SimpleVtx")
+    return (PndFsmAbsDet*)( new PndFsmSimpleVtx(par) ) ;
+  else
   if (name=="CmpDet")
     return (PndFsmAbsDet*)( new PndFsmCmpDet(par) ) ;
-  else 
+  else
   if (name=="CombiDet")
     return (PndFsmAbsDet*)( new PndFsmCombiDet(par) ) ;
   else {
-    std::cout  <<" -W- (PndFsmDetFactory::create) Unknown detector: <"<<name<<">"<< std::endl;  
+    std::cout  <<" -W- (PndFsmDetFactory::create) Unknown detector: <"<<name<<">"<< std::endl;
     return 0;
   }
 }
 
-PndFsmAbsDet* 
+PndFsmAbsDet*
 PndFsmDetFactory::create(std::string &name, std::string par)
 {
   // par is a string of the form "a=1 b=2 c=3 d=4"
@@ -152,7 +179,7 @@ PndFsmDetFactory::create(std::string &name, std::string par)
   // i.e. a std::list<std::string> of the form ("a=1","b=2","c=3","d=4")
 
   ArgList parList;
-  
+
   CStrTok tokenizer;
   char csrc[200];
 
@@ -160,8 +187,8 @@ PndFsmDetFactory::create(std::string &name, std::string par)
   strcpy(csrc,src);
 
   char* token = tokenizer.GetFirst(csrc, " \t");
-  
-  while(token) 
+
+  while(token)
   {
     parList.push_back(token);
     token=tokenizer.GetNext(" \t");
@@ -172,7 +199,7 @@ PndFsmDetFactory::create(std::string &name, std::string par)
   boost::char_separator<char> sep_blank(" ");
   tokenizer tokens_bl(par, sep_blank);
 
-  for (tokenizer::iterator tok_iter_bl = tokens_bl.begin();tok_iter_bl!=tokens_bl.end();tok_iter_bl++) 
+  for (tokenizer::iterator tok_iter_bl = tokens_bl.begin();tok_iter_bl!=tokens_bl.end();tok_iter_bl++)
     parList.push_back(*tok_iter_bl);
   */
 

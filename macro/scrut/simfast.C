@@ -1,0 +1,132 @@
+// *******
+// Macro for running fast simulation
+// *******
+
+void simfast(Int_t nEvents = 1000 )
+{
+  TString BaseDir =  gSystem->Getenv("VMCWORKDIR");
+
+ //-----User Settings:-----------------------------------------------
+  TString  OutputFile     ="sim_fast.root";
+  gDebug                  = 0;
+
+  Bool_t enableSplitoff = kFALSE;
+
+  // choose your event generator
+  Bool_t UseEvtGen        = kFALSE;
+  Bool_t UseDpm           = kFALSE;
+  Bool_t UseBoxGenerator  = kTRUE;
+
+  TString EvtInput = BaseDir + "/input/psi2s_jpsi2pi_1k.evt"; //  Input EvtGen
+
+  Double_t MomDpm  = 7.24; // pbar momentum for DPM generator; matches psi(2S) energy
+
+  Double_t MomMin  = 0.5;  // minimum momentum for box generator
+  Double_t MomMax  = 2.0;  // maximum   "       "
+
+
+   // Load basic libraries---------------------------------------------
+  gROOT->LoadMacro("$VMCWORKDIR/gconfig/rootlogon.C");
+  rootlogon();
+  // Load the rho and fast sim libraries
+  gSystem->Load("libRho");
+  gSystem->Load("libfsim");
+
+  TStopwatch timer;
+  timer.Start();
+  gDebug=0;
+
+  // Create the Simulation run manager--------------------------------
+  FairRunSim *fRun = new FairRunSim();
+  fRun->SetOutputFile(OutputFile.Data());
+
+ // Create and Set Event Generator
+  //-------------------------------
+  FairPrimaryGenerator* primGen = new FairPrimaryGenerator();
+  fRun->SetGenerator(primGen);
+  fRun->SetName("TGeant3");
+
+  if(UseBoxGenerator){  // Box Generator
+     FairBoxGenerator* boxGen = new FairBoxGenerator(211, 1); // 211 = pion; 1 = multipl.
+     boxGen->SetPtRange(MomMin,MomMax); // GeV/c
+     boxGen->SetPhiRange(0., 360.); // Azimuth angle range [degree]
+     boxGen->SetThetaRange(0., 180.); // Polar angle in lab system range [degree]
+     boxGen->SetXYZ(0., 0., 0.); //cm
+     primGen->AddGenerator(boxGen);
+  }
+  if(UseDpm){
+      PndDpmDirect *Dpm= new PndDpmDirect(MomDpm,0);
+      primGen->AddGenerator(Dpm);
+  }
+  if(UseEvtGen){
+      FairEvtGenGenerator* evtGen = new FairEvtGenGenerator(EvtInput.Data());
+      primGen->AddGenerator(evtGen);
+  }
+
+  // ------------- switch off the transport of particles
+  primGen->DoTracking(kFALSE);
+
+  //---------------------Create and Set the Field(s)----------
+  PndMultiField *fField= new PndMultiField("FULL");
+  fRun->SetField(fField);
+
+  //Setup the Fast Simulation Task
+  //-----------------------------
+  PndFastSim* fastSim = new PndFastSim();
+
+  //increasing verbosity increases the amount of console output (mainly for debugging)
+  fastSim->SetVerbosity(0);
+
+  //enable the producting of parametrized neutral (hadronic) split offs
+  if (enableSplitoff)
+    fastSim->EnableSplitoffs("splitpars.dat");
+
+  //Tracking: Set up in parts of theta coverage. All modelled by PndFsmSimpleTracker.
+  // Mind: Numbers on resolution (pRes,thtRes,phiRes) and efficiency are guessed
+  // - A    (Full Panda Tracking: STT MVD GEM FTS)
+  fastSim->AddDetector("ScSttAlone",  "thtMin=145.  thtMax=159.5 ptmin=0.1 pRes=0.04  thtRes=0.001 phiRes=0.001 efficiency=0.25");
+  fastSim->AddDetector("ScSttMvd",    "thtMin=20.9  thtMax=145.  ptmin=0.1 pRes=0.016 thtRes=0.001 phiRes=0.001 efficiency=0.95");
+  fastSim->AddDetector("ScSttMvdGem", "thtMin=7.8   thtMax=20.9  ptmin=0.1 pRes=0.018 thtRes=0.001 phiRes=0.001 efficiency=0.95");
+  fastSim->AddDetector("ScMvdGem",    "thtMin=5.    thtMax=7.8   ptmin=0.1 pRes=0.03  thtRes=0.001 phiRes=0.001 efficiency=0.80");
+  fastSim->AddDetector("ScMvdGemFts", "thtMin=5.    thtMax=7.8   ptmin=0.1 pRes=0.03  thtRes=0.001 phiRes=0.001 efficiency=0.80");
+  fastSim->AddDetector("ScFts",       "thtMin=0.    thtMax=5.    ptmin=0.0 pRes=0.05  thtRes=0.002 phiRes=0.002 efficiency=0.80");
+  // - other options
+  //fastSim->AddDetector("ScMvdFts",    "thtMin=5.    thtMax=10    ptmin=0.0 pRes=0.05  thtRes=0.002 phiRes=0.002 efficiency=0.80");
+  //fastSim->AddDetector("ScGemFts",    "thtMin=3.    thtMax=10    ptmin=0.0 pRes=0.05  thtRes=0.002 phiRes=0.002 efficiency=0.80");
+  // - STT alone:
+  //fastSim->AddDetector("ScSttAlone",  "thtMin=133.6 thtMax=159.5 ptmin=0.1 pRes=0.030 thtRes=0.06 phiRes=0.1 efficiency=0.25");
+  //fastSim->AddDetector("ScSttAlone",  "thtMin=20.9  thtMax=133.6 ptmin=0.1 pRes=0.026 thtRes=0.06 phiRes=0.1 efficiency=0.95");
+  //fastSim->AddDetector("ScSttAlone",  "thtMin=7.8   thtMax=20.9  ptmin=0.1 pRes=0.026 thtRes=0.06 phiRes=0.1 efficiency=0.25");
+
+  // Vertexing only options
+  // - A
+  fastSim->AddDetector("ScVtxMvd",   "thtMin=5. thtMax=145. ptmin=0.1 vtxRes=0.005 efficiency=1."); // efficiency=1: all tracks found in trackers will get a vertex information
+  fastSim->AddDetector("ScVtxNoMvd", "thtMin=0. thtMax=5.   ptmin=0.0 vtxRes=0.05 efficiency=1."); // efficiency=1: all tracks found in trackers will get a vertex information
+  // - B
+  //fastSim->AddDetector("ScVtxNoMvd", "thtMin=0. thtMax=160. ptmin=0.1 vtxRes=0.1 efficiency=1."); // efficiency=1: all tracks found in trackers will get a vertex information
+
+  //EM Calorimeters w/ default parameters (don't have to be set, just to list the available parameters
+  fastSim->AddDetector("EmcBarrel","thtMin=22.0 thtMax=140.0 Emin=0.01 barrelRadius=0.5");
+  fastSim->AddDetector("EmcFwCap", "thtMin=5.0 thtMax=22.0 Emin=0.01 dist=2.5");
+  fastSim->AddDetector("EmcBwCap", "thtMin=140.0 thtMax=170.0 Emin=0.01 dist=0.7");
+  fastSim->AddDetector("EmcFS",    "thtMin=0.05 thtMax=5.0 aPar=0.02 bPar=0.0274 Emin=0.01 dist=8.0");
+
+  // PID
+  fastSim->AddDetector("MvdPid","thtMin=5.  thtMax=133.6 ptmin=0.1  dEdxResMulti=1. efficiency=1."); //Note: A Bethe-Bloch-Landau-Gauss Prametrization from 2008
+  fastSim->AddDetector("SttPid","thtMin=7.8 thtMax=159.5 ptmin=0.1 dEdxRes=1. efficiency=1."); //Note: A dEdX parametrization from 2008
+  fastSim->AddDetector("DrcBarrel","thtMin=22.0 thtMax=140.0 dthtc=0.01 nPhotMin=5 effNPhotons=0.075");
+  fastSim->AddDetector("DrcDisc","thtMin=5.0 thtMax=22.0 dthtc=0.01 nPhotMin=5 effNPhotons=0.075");
+  fastSim->AddDetector("Rich","angleXMax=5.0 angleYMax=10.0 dthtc=0.01 nPhotMin=5 effNPhotons=0.075");
+
+  fRun->AddTask(fastSim);
+  //-------------------------  Initialize the RUN  -----------------
+  fRun->Init();
+  //-------------------------  Run the Simulation  -----------------
+  fRun->Run(nEvents);
+  //------------------------Print some info and exit----------------
+  timer.Stop();
+  Double_t rtime = timer.RealTime();
+  Double_t ctime = timer.CpuTime();
+  printf("RealTime=%f seconds, CpuTime=%f seconds\n",rtime,ctime);
+}
+

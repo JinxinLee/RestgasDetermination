@@ -1,15 +1,15 @@
-# Create a library called "libfsim" 
+# Create a library called "libfsim"
 
 set(INCLUDE_DIRECTORIES
-${ROOT_INCLUDE_DIR} 
-${BASE_INCLUDE_DIRECTORIES} 
-${CMAKE_SOURCE_DIR}/trackbase 
+${ROOT_INCLUDE_DIR}
+${BASE_INCLUDE_DIRECTORIES}
+${CMAKE_SOURCE_DIR}/trackbase
 ${CMAKE_SOURCE_DIR}/pnddata
 ${CMAKE_SOURCE_DIR}/pnddata/PidData
 ${CMAKE_SOURCE_DIR}/passive
 ${CMAKE_SOURCE_DIR}/tpc
-${CMAKE_SOURCE_DIR}/lhetrack
 ${CMAKE_SOURCE_DIR}/fsim
+${CMAKE_SOURCE_DIR}/fsim/scrut
 ${CMAKE_SOURCE_DIR}/pid
 ${CMAKE_SOURCE_DIR}/rho
 ${CMAKE_SOURCE_DIR}/rho/RhoBase
@@ -23,7 +23,7 @@ set(LINK_DIRECTORIES
 ${ROOT_LIBRARY_DIR}
 ${FAIRROOT_LIBRARY_DIR}
 )
- 
+
 link_directories( ${LINK_DIRECTORIES})
 
 set(SRCS
@@ -31,7 +31,6 @@ PndFastSim.cxx
 PndFsmTrack.cxx
 PndFsmResponse.cxx
 PndFsmAbsDet.cxx
-#StrTok.cxx
 PndFsmDetFactory.cxx
 PndFsmEmcBarrel.cxx
 PndFsmEmcBwCap.cxx
@@ -52,47 +51,12 @@ PndFsmSimpleTracker.cxx
 PndFsmCmpDet.cxx
 PndFsmCombiDet.cxx
 PndFsmRandom.cxx
-#PndSimpleAnalysis.cxx
-#PndAnalysis.cxx
-#PndListProvider.cxx
-#PndListDefiner.cxx
-#PndEventLoop.cxx
+PndFsmMvdPid.cxx
+PndFsmSttPid.cxx
+PndFsmSimpleVtx.cxx
 )
 
-set(HEADERS
-#ArgList.h
-FsmDetTypes.h
-PndFastSim.h
-PndFsmTrack.h
-PndFsmResponse.h
-PndFsmAbsDet.h
-#StrTok.h
-PndFsmDetFactory.h
-PndFsmEmcBarrel.h
-PndFsmEmcBwCap.h
-PndFsmEmcFwCap.h
-PndFsmEmcFS.h
-PndFsmStt.h
-PndFsmTpc.h
-PndFsmMdcFS.h
-PndFsmMdcTS.h
-PndFsmRich.h
-PndFsmDrcDisc.h
-PndFsmDrcBarrel.h
-PndFsmEffTracker.h
-PndFsmMvd.h
-PndFsmMvd2.h
-PndFsmTof.h
-PndFsmSimpleTracker.h
-PndFsmCmpDet.h
-PndFsmCombiDet.h
-PndFsmRandom.h
-#PndSimpleAnalysis.h
-#PndAnalysis.h
-#PndListProvider.h
-#PndListDefiner.h
-#PndEventLoop.h
-)
+
 
 set(LINKDEF fsimLinkDef.h)
 set(LIBRARY_NAME fsim)

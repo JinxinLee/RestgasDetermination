@@ -1,8 +1,11 @@
 //--------------------------------------------------------------------------
-// Description:
-//      Class PndFsmSimpleTracker
+// File and Version Information:
+//      $Id: PndFsmSimpleVtx.hh,v 1.4 2006/08/10 09:58:41 klausg Exp $
 //
-//  Example Tracker for the PANDA Fast Sim Detectors
+// Description:
+//      Class PndFsmSimpleVtx
+//
+//  Implementation of the MVD for the Fast Sim Detectors
 //
 //  This software was developed for the PANDA collaboration.  If you
 //  use all or part of it, please give an appropriate acknowledgement.
@@ -11,12 +14,12 @@
 //      Klaus Goetzen                    Original Author
 //
 // Copyright Information:
-//      Copyright (C) 2008              GSI
+//      Copyright (C) 2006              GSI
 //
 //------------------------------------------------------------------------
 
-#ifndef PNDFSMSIMPLETRACKER_H
-#define PNDFSMSIMPLETRACKER_H
+#ifndef PNDFSMSIMPLEVTX_H
+#define PNDFSMSIMPLEVTX_H
 
 //----------------------
 // Base Class Headers --
@@ -35,7 +38,7 @@
 class PndFsmTrack;
 class PndFsmResponse;
 
-class PndFsmSimpleTracker: public PndFsmAbsDet
+class PndFsmSimpleVtx: public PndFsmAbsDet
 {
 public:
 
@@ -48,11 +51,11 @@ public:
   //
 
   /** Default ctor. */
-  PndFsmSimpleTracker();
-  PndFsmSimpleTracker(ArgList &par);
+  PndFsmSimpleVtx();
+  PndFsmSimpleVtx(ArgList &par);
   /** Destructor
    */
-  virtual ~PndFsmSimpleTracker();
+  virtual ~PndFsmSimpleVtx();
 
   /**
       Accessors to contained information
@@ -60,13 +63,10 @@ public:
 
   virtual PndFsmResponse* respond(PndFsmTrack *t);
 
-protected:
+private:
   bool   detected(PndFsmTrack *t) const;
-  double dp(PndFsmTrack *t) const;
-  double dphi(PndFsmTrack *t) const;
-  double dtheta(PndFsmTrack *t) const;
 
-  virtual void initParameters();
+  void   initParameters();
   void   print(std::ostream &o);
   bool   setParameter(std::string &name, double value);
 
@@ -77,11 +77,7 @@ protected:
   double _thtMin;
   double _thtMax;
   double _ptmin;
-
-  double _pRes;
-  double _thtRes;
-  double _phiRes;
-
+  double _vtxRes;               //vertex resolution dx,dy,dz
 };
 
 #endif
