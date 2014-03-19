@@ -503,6 +503,7 @@ void PndFastSim::Exec(Option_t* opt)
       pidProb->SetPionPdf(ft->detResponse()->LHPion());
       pidProb->SetKaonPdf(ft->detResponse()->LHKaon());
       pidProb->SetProtonPdf(ft->detResponse()->LHProton());
+      pidProb->SetIndex(chcandsize);
       
       /*
       pidCand->SetElectronPidLH(ft->detResponse()->LHElectron());
