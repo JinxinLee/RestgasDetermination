@@ -1,25 +1,22 @@
 // macro for calculation el cross-sections according to DPM model in LMD range
 //include <PndLmdDPMAngModel1D.h>
-#include <PndLmdLumiFitOptions.h>
+#include <LumiFitStructs.h>
 #include <PndLmdModelFactory.h>
 #include <Model1D.h>
-#include <PndLmdLumiHelper.h>
+
 #include <TMath.h>
-#include <TCanvas.h>
-#include <TGraph.h>
 #include <iostream>
 
 using namespace std;
 int main(){
   double mom = 15;
   //  std::vector<PndLmdLumiFitOptions*> fit_options_vec;
-  PndLmdLumiFitOptions *temp_fit_opt = new PndLmdLumiFitOptions();
-  LumiFit::LmdBinaryFitOptions bit_fit_opt(0);
-  bit_fit_opt.setFitAsRaw(false);// will calc cross-section as a func from (theta), theta in rad
-  //  bit_fit_opt.setFitAsRaw(true);// will calc cross-section as a func from (t)
-  temp_fit_opt->setModelBinaryOptions(bit_fit_opt);
+  LumiFit::PndLmdFitModelOptions model_options;
+  model_options.momentum_transfer_active = true; // will calc cross-section as a func from (t)
+  //model_options.momentum_transfer_active = false; // will calc cross-section as a func from (theta), theta in rad
+
   PndLmdModelFactory model_factory;
-  shared_ptr<Model1D> model1d = model_factory.generate1DModel(temp_fit_opt, mom);
+  shared_ptr<Model1D> model1d = model_factory.generate1DModel(model_options, mom);
 
   double th_dw = 1.04719994E-03;//0.06 DPM
   double th_up = TMath::Pi();
