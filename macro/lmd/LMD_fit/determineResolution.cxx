@@ -18,7 +18,7 @@ using std::vector;
 using std::stringstream;
 
 void determineResolution(TString input_file_dir,
-		unsigned int parametrization_level, const int verboseLevel = 0) {
+		unsigned int parametrization_level) {
 	cout << "Running determine resolution app....\n";
 
 	// -----   Timer   --------------------------------------------------------
@@ -152,6 +152,7 @@ void displayInfo() {
 	// display info
 	cout << "Required arguments are: " << endl;
 	cout << "-d [path to data]" << endl;
+	std::cout << "Optional arguments are: " << std::endl;
 	cout << "-l [parametrization level]" << endl;
 }
 
@@ -188,9 +189,14 @@ int main(int argc, char* argv[]) {
 		}
 	}
 
-	if (is_data_set)
-		determineResolution(data_path, parametrization_level);
-	else
+	if (is_data_set) {
+		if (is_param_level_set) {
+			determineResolution(data_path, parametrization_level);
+		} else {
+			determineResolution(data_path, 0);
+			determineResolution(data_path, 1);
+		}
+	} else
 		displayInfo();
 	return 0;
 }
