@@ -2,36 +2,40 @@
 // Macro for running fast simulation
 // *******
 
-void simfast(Int_t nEvents = 1000 )
+void simfast(TString Prefix, TString Decfile, Float_t Mom, Int_t nEvents = 1000, TString Resonance="pbarpSystem0" )
 {
   TString BaseDir =  gSystem->Getenv("VMCWORKDIR");
 
  //-----User Settings:-----------------------------------------------
-  TString  OutputFile     ="sim_fast.root";
+  TString  OutputFile     = Prefix+"_fast.root";
   gDebug                  = 0;
 
-  Bool_t enableSplitoff = kFALSE;
+  // generate electro-magnetic / hadronic split offs in the EMC? switch off when running w/o EMC
+  Bool_t enableSplitoff   = kFALSE;
 
   // choose your event generator
-  Bool_t UseEvtGen        = kFALSE;
+  Bool_t UseEvtGenDirect  = kTRUE;
   Bool_t UseDpm           = kFALSE;
-  Bool_t UseBoxGenerator  = kTRUE;
-
-  TString EvtInput = BaseDir + "/input/psi2s_jpsi2pi_1k.evt"; //  Input EvtGen
-
-  Double_t MomDpm  = 7.24; // pbar momentum for DPM generator; matches psi(2S) energy
+  Bool_t UseBoxGenerator  = kFALSE;
+  
+  // use DPM generator; default: inelastic @ pbarmom = mom
+  if (Decfile=="DPM") 
+  {
+	  UseEvtGenDirect = kFALSE;
+	  UseDpm 	      = kTRUE;
+  }
+  
+  // use BOX generator; default: single mu-, 0<tht<180, 0<phi<360, 0.1<p<mom 
+  if (Decfile=="BOX") 
+  {
+	  UseEvtGenDirect = kFALSE;
+	  UseBoxGenerator = kTRUE;
+  }
 
   Double_t MomMin  = 0.5;  // minimum momentum for box generator
-  Double_t MomMax  = 2.0;  // maximum   "       "
+  Double_t MomMax  = Mom;  // maximum   "       "
 
-
-   // Load basic libraries---------------------------------------------
-  gROOT->LoadMacro("$VMCWORKDIR/gconfig/rootlogon.C");
-  rootlogon();
-  // Load the rho and fast sim libraries
-  gSystem->Load("libRho");
-  gSystem->Load("libfsim");
-
+  // Start a stop watch
   TStopwatch timer;
   timer.Start();
   gDebug=0;
@@ -39,6 +43,7 @@ void simfast(Int_t nEvents = 1000 )
   // Create the Simulation run manager--------------------------------
   FairRunSim *fRun = new FairRunSim();
   fRun->SetOutputFile(OutputFile.Data());
+  FairLogger::GetLogger()->SetLogToFile(kFALSE);
 
  // Create and Set Event Generator
   //-------------------------------
@@ -55,13 +60,14 @@ void simfast(Int_t nEvents = 1000 )
      primGen->AddGenerator(boxGen);
   }
   if(UseDpm){
-      PndDpmDirect *Dpm= new PndDpmDirect(MomDpm,0);
+      PndDpmDirect *Dpm= new PndDpmDirect(Mom,1);
       primGen->AddGenerator(Dpm);
   }
-  if(UseEvtGen){
-      FairEvtGenGenerator* evtGen = new FairEvtGenGenerator(EvtInput.Data());
-      primGen->AddGenerator(evtGen);
-  }
+  if(UseEvtGenDirect){
+      PndEvtGenDirect *EvtGen = new PndEvtGenDirect(Resonance, Decfile.Data(), Mom);
+	  EvtGen->SetStoreTree(kTRUE);
+	  primGen->AddGenerator(EvtGen);
+  }	
 
   // ------------- switch off the transport of particles
   primGen->DoTracking(kFALSE);
@@ -79,7 +85,7 @@ void simfast(Int_t nEvents = 1000 )
 
   //enable the producting of parametrized neutral (hadronic) split offs
   if (enableSplitoff)
-    fastSim->EnableSplitoffs("splitpars.dat");
+    fastSim->EnableSplitoffs(BaseDir+"/fsim/splitpars.dat");
 
   //Tracking: Set up in parts of theta coverage. All modelled by PndFsmSimpleTracker.
   // Mind: Numbers on resolution (pRes,thtRes,phiRes) and efficiency are guessed
