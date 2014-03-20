@@ -328,7 +328,7 @@ TH1D TransformHisto(TH2* h2, double min, double max)
 }
 
 
-plothistosfromfile(TString filename = "histos.root", TString ext=".ps", Int_t divx=2, Int_t divy=2, Int_t pix = 300)
+void plothistosfromfile(TString filename = "histos.root", TString ext=".pdf", Int_t divx=2, Int_t divy=2, Int_t pix = 300)
 { // Plot all histograms into a ps file
   // works with TH1, TH2, & TProfile
   //LoadPandaStyle();
@@ -421,12 +421,83 @@ plothistosfromfile(TString filename = "histos.root", TString ext=".ps", Int_t di
   pic = picname + "]"; // close ps
   can->Print(pic.Data());
   cout << "closed: " << pic.Data()<<endl;
-  TString convertcmd = "test -r ps2pdf && ps2pdf ";
-  convertcmd += pic.Data();
-  gSystem->Exec(convertcmd.Data());
+  //TString convertcmd = "test -r ps2pdf && ps2pdf ";
+  //convertcmd += pic.Data();
+  //gSystem->Exec(convertcmd.Data());
   delete can;
   return;
 }
+
+void plotntuplefromfile(TString filename = "ntps.root", TString ext=".pdf", Int_t divx=2, Int_t divy=2, Int_t pix = 300)
+{
+  // Plot all columns of an NTuple into a pdf (or ps file)
+  TFile* file = new TFile(filename.Data());
+  if (!file) {cout<<"File \""<<filename.Data()<<"\" is not there..."<<endl;return;}
+  TCanvas* can = new TCanvas();
+  Int_t pixx = ceil(1.4*pix*divx);
+  Int_t pixy = pix*divy;
+  can->SetCanvasSize(pixx,pixy);
+  can->Divide(divx, divy);
+  TString picname = filename;
+  ext="."+ext;
+  ext.ReplaceAll("..",".");
+  picname.ReplaceAll(".root",ext); // ps, png, pdf ...
+  TString pic = picname + "["; // open empty ps
+  cout << "opening: " << pic.Data()<<endl;
+  can->Print(pic);
+  pic=picname;
+
+  TList* list = file->GetListOfKeys();
+  if (!list) {cout<<"List not there..."<<endl;return;}
+  int padcount = 1;
+  TString keyclass="";
+  for(int i=0;i<list->GetEntries();i++)
+  {
+    TKey* key = (TKey*)list->At(i);
+    keyclass = key->GetClassName();
+    if(keyclass.CompareTo("TTree"))continue;
+    TTree* baum = (TTree*)key->ReadObj();
+    printf("\t - Tree: %s\n",baum->GetName());
+    TObjArray* aeste = baum->GetListOfBranches();
+    for(int asti=0;asti<aeste->GetEntriesFast();asti++)
+    {
+      TBranch* ast = (TBranch*)aeste->At(asti);
+      printf("\t\t - Branch: %s\n",ast->GetName());
+      TObjArray* bleatter = ast->GetListOfLeaves();
+      for(int blatti=0;blatti<bleatter->GetEntriesFast();blatti++)
+      {
+        TLeaf* blatt = (TLeaf*)bleatter->At(blatti);
+        TString blattsorte=blatt->GetTypeName();
+        if( !blattsorte.CompareTo("Float_t") || !blattsorte.CompareTo("Int_t") || !blattsorte.CompareTo("Double_t"))
+        {
+          if(padcount > divx*divy)
+          {
+            printf("   --- canvasdump ---");
+            can->Print(pic.Data());
+            can->Clear();
+            can->SetCanvasSize(pixx,pixy);
+            can->Divide(divx, divy);
+            padcount=1;
+          }
+          can->cd(padcount);
+          printf("\t\t\t - Leaf: %s  (%s)\n",blatt->GetName(),blatt->GetTypeName());
+          baum->Draw(blatt->GetName());
+          padcount++;
+        }
+      }
+    }
+  }
+  can->Print(pic.Data());
+  pic = picname + "]"; // close ps
+  can->Print(pic.Data());
+  cout << "closed: " << pic.Data()<<endl;
+//   TString convertcmd = "test -r ps2pdf && ps2pdf ";
+//   convertcmd += pic.Data();
+//   gSystem->Exec(convertcmd.Data());
+  delete can;
+  return;
+}
+
 
 void LoadManySimFiles(TString treename="cbmsim")
 { // to use that method you should have opened some files
