@@ -25,6 +25,10 @@ PndLmdDPMMTModel1D::PndLmdDPMMTModel1D(std::string name_,
 		model_func = &PndLmdDPMMTModel1D::getRawInterferencePart;
 	} else if (elastic_type == LumiFit::HAD) {
 		model_func = &PndLmdDPMMTModel1D::getRawHadronicPart;
+	} else if (elastic_type == LumiFit::HAD_RHO_B_SIGTOT) {
+		model_func = &PndLmdDPMMTModel1D::getRawRhoBSigtotHadronicPart;
+	} else if (elastic_type == LumiFit::ALL_RHO_B_SIGTOT) {
+		model_func = &PndLmdDPMMTModel1D::getRawRhoBSigtotFullElastic;
 	} else {
 		model_func = &PndLmdDPMMTModel1D::getRawFullElastic;
 	}
@@ -110,9 +114,6 @@ double PndLmdDPMMTModel1D::getRawInterferencePart(const double *x) const {
 double PndLmdDPMMTModel1D::getRawHadronicPart(const double *x) const {
 	double t = -TMath::Abs(x[0]);
 
-	/*double had_part = pow(sigma_tot->getValue(), 2.0) * (1.0 + pow(rho->getValue(), 2.0))
-	 * exp(b->getValue() * t) / 16. / pi;*/
-
 	double had_part = A1->getValue()
 			* pow(
 					exp(t / (2.0 * T1->getValue()))
@@ -122,9 +123,23 @@ double PndLmdDPMMTModel1D::getRawHadronicPart(const double *x) const {
 	return had_part;
 }
 
+double PndLmdDPMMTModel1D::getRawRhoBSigtotHadronicPart(const double *x) const {
+	double t = -TMath::Abs(x[0]);
+
+	double had_part = pow(sigma_tot->getValue(), 2.0)
+			* (1.0 + pow(rho->getValue(), 2.0)) * exp(b->getValue() * t) / 16. / pi;
+
+	return had_part;
+}
+
 double PndLmdDPMMTModel1D::getRawFullElastic(const double *x) const {
 	return (getRawCoulombPart(x) + getRawInterferencePart(x)
 			+ getRawHadronicPart(x));
+}
+
+double PndLmdDPMMTModel1D::getRawRhoBSigtotFullElastic(const double *x) const {
+	return (getRawCoulombPart(x) + getRawInterferencePart(x)
+			+ getRawRhoBSigtotHadronicPart(x));
 }
 
 double PndLmdDPMMTModel1D::eval(const double *x) const {

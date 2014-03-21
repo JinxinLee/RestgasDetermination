@@ -51,7 +51,7 @@ enum InterpolationType {
 };
 
 enum DPMElasticParts {
-	COUL, INT, HAD, ALL
+	COUL, INT, HAD, HAD_RHO_B_SIGTOT, ALL_RHO_B_SIGTOT, ALL
 };
 
 enum LmdDimensionUnitPrefix {
