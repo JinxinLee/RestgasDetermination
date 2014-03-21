@@ -10,12 +10,15 @@
 class TClonesArray;
 class TH1F;
 class TH2F;
+class TDatabasePDG;
 
 class RhoMassParticleSelector;
 class PndAnalysis;
 class RhoCandList;
 class RhoCandidate;
 class RhoTuple;
+class PndRhoTupleQA;
+
 
 
 class PndScrutAnaTask : public FairTask
@@ -48,7 +51,8 @@ class PndScrutAnaTask : public FairTask
 	TLorentzVector fIni;
 	
 	// *** the PndAnalysis object
-	PndAnalysis *fAnalysis;
+	PndAnalysis   *fAnalysis;
+	TDatabasePDG  *fPdg;
 	
 	
 	// *******

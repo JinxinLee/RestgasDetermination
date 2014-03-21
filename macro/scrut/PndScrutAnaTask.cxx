@@ -84,6 +84,8 @@ InitStatus PndScrutAnaTask::Init()
 	// ******* PREPARE/CREATE THE STUFF YOU NEED
 	// *******
 	
+	fPdg = TDatabasePDG::Instance();
+	
 	// *** create some ntuples
 	ntp1 = new RhoTuple("ntp1", "jpsi analysis");
 	ntp2 = new RhoTuple("ntp2", "psi(2S) analysis");
@@ -121,13 +123,12 @@ void PndScrutAnaTask::Exec(Option_t* opt)
 	// *******
 	
 	TString pidalg = "PidChargedProbability";
-	PndRhoTupleQA qa(fAnalysis, fIni.P()); 
 	
 	// *** RhoCandLists for the analysis
 	RhoCandList muplus, muminus, piplus, piminus, jpsi, psi2s, all, mclist;
 	
 	// *** Mass selector for the jpsi cands
-	double m0_jpsi = TDatabasePDG::Instance()->GetParticle("J/psi")->Mass();   // Get nominal PDG mass of the J/psi
+	double m0_jpsi = fPdg->GetParticle("J/psi")->Mass();   // Get nominal PDG mass of the J/psi
 	RhoMassParticleSelector *jpsiMassSel=new RhoMassParticleSelector("jpsi",m0_jpsi,1.0);
 	
 	fAnalysis->FillList(mclist, "McTruth");
@@ -141,6 +142,7 @@ void PndScrutAnaTask::Exec(Option_t* opt)
 
 	// *** Setup event shape object
 	PndEventShape evsh(all, fIni, 0.05, 0.1);	
+	PndRhoTupleQA qa(fAnalysis,fIni.P());
 	
 	// *** get MC list
 	for (j=0;j<mclist.GetLength();++j)

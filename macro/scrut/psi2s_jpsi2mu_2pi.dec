@@ -1,0 +1,11 @@
+noPhotos
+
+Decay psi(2S)
+  1.0 J/psi pi+ pi-	PHSP; 
+Enddecay
+
+Decay J/psi
+  1.0 mu+ mu-		PHSP;
+Enddecay
+
+End
