@@ -228,10 +228,21 @@ RhoFloatArrColumn::RhoFloatArrColumn ( const char* l,
   fBranch = tp->Branch ( fLabel,&fp[0],&*leafs,8000 );
 }
 
-void RhoFloatArrColumn::SetValue ( const void* p,RhoColumn* cp )
+/*void RhoFloatArrColumn::SetValue ( const void* p,RhoColumn* cp )
 {
   const RhoHTAbsValVector<Float_t>* vp = ( const RhoHTAbsValVector<Float_t>* ) p;
   if ( vp->length() < fMax ) {
+    cerr << "FloatArrColumn::SetValue: input vector too short,"
+         << "use default values" << endl;
+    SetDefValue();
+  } else {
+    for ( Int_t i = 0; i < fMax; ++i ) { ( ( Float_t* ) fPointer ) [i] = ( *vp ) ( i ); }
+  }
+}*/
+void RhoFloatArrColumn::SetValue ( const void* p,RhoColumn* cp )
+{
+  const TVector *vp = (const TVector*) p;
+  if ( vp->GetNoElements() < fMax ) {
     cerr << "FloatArrColumn::SetValue: input vector too short,"
          << "use default values" << endl;
     SetDefValue();
@@ -268,11 +279,27 @@ void RhoFloatDynArrColumn::SetDefValue()
   fBranch->SetAddress ( &fp[0] );
 }
 
-void RhoFloatDynArrColumn::SetValue ( const void* p,RhoColumn* cp )
+/*void RhoFloatDynArrColumn::SetValue ( const void* p,RhoColumn* cp )
 {
   const RhoHTAbsValVector<Float_t>* vp = ( const RhoHTAbsValVector<Float_t>* ) p;
   Int_t* np = ( Int_t* ) cp->GetPointer();
   if ( *np > vp->length() ) {
+    cerr << "IntDynArrColumn::SetValue: input vector too short,"
+         << "use default values" << endl;
+    SetDefValue();
+  } else {
+    Float_t* fp = new Float_t[*np];
+    if ( fPointer ) { delete[] ( Float_t* ) fPointer; }
+    fPointer = fp;
+    for ( Int_t i = 0; i < *np; ++i ) { fp[i] = ( *vp ) ( i ); }
+    fBranch->SetAddress ( &fp[0] );
+  }
+}*/
+void RhoFloatDynArrColumn::SetValue ( const void* p,RhoColumn* cp )
+{
+  const TVector *vp = (const TVector*) p;
+  Int_t* np = ( Int_t* ) cp->GetPointer();
+  if ( *np > vp->GetNoElements() ) {
     cerr << "IntDynArrColumn::SetValue: input vector too short,"
          << "use default values" << endl;
     SetDefValue();
