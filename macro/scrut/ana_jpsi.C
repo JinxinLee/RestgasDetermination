@@ -1,33 +1,27 @@
-void ana_jpsi(TString input="test_fast.root", int nevts=0, double pbarmom = 6.231552)
+void ana_jpsi(TString InFile="test_fast.root", int nevts=0, double pbarmom = 6.232069)
 {
 	// *** some variables
 	int i=0,j=0, k=0, l=0;
 	gStyle->SetOptFit(1011);
 	
 	// *** the output file for FairRunAna
-	TString OutFile="output.root";  
+	TString OutFile="dummy_out.root";  
 					
-	// *** the files coming from the simulation
-	TString inPidFile  = input;    // this file contains the PndPidCandidates and McTruth
-	
-	// *** PID table with selection thresholds; can be modified by the user
-	TString pidParFile = TString(gSystem->Getenv("VMCWORKDIR"))+"/macro/params/all.par";	
-	
 	// *** initialization
-	FairRunAna* fRun = new FairRunAna();
-	FairRuntimeDb* rtdb = fRun->GetRuntimeDb();
-	fRun->SetInputFile(inPidFile);
-	
 	FairLogger::GetLogger()->SetLogToFile(kFALSE);
 	
-	fRun->SetOutputFile(OutFile);
+	FairRunAna* fRun = new FairRunAna();
+    fRun->SetWriteRunInfoFile(kFALSE);
+	fRun->SetInputFile(InFile);
+	fRun->SetOutputFile(OutFile); // only dummy; the real output is 
+	
 	fRun->Init(); 
 	
 	// *** take constant field; needed for PocaVtx
 	RhoCalculationTools::ForceConstantBz(20.0);
 	
 	// *** create an output file for all histograms
-	TFile *out = TFile::Open(input+"_ana.root","RECREATE");
+	TFile *out = TFile::Open(InFile+"_ana.root","RECREATE");
 	
 	// *** create some ntuples
 	RhoTuple *ntp1 = new RhoTuple("ntp1", "jpsi analysis");
@@ -42,6 +36,13 @@ void ana_jpsi(TString input="test_fast.root", int nevts=0, double pbarmom = 6.23
 	PndAnalysis* theAnalysis = new PndAnalysis();
 	if (nevts==0) nevts= theAnalysis->GetEntries();
 	
+	// *** name of the only PidAlgo TClonesArray in fsim
+	TString pidalg = "PidChargedProbability";
+
+	// *** QA tool for simple dumping of analysis results in RhoRuple
+	// *** WIKI: https://panda-wiki.gsi.de/foswiki/bin/view/Computing/PandaRootAnalysisJuly13#PndRhoTupleQA
+	PndRhoTupleQA qa(theAnalysis, pbarmom); 
+
 	// *** RhoCandLists for the analysis
 	RhoCandList muplus, muminus, piplus, piminus, jpsi, psi2s, all, mclist;
 	
@@ -56,91 +57,100 @@ void ana_jpsi(TString input="test_fast.root", int nevts=0, double pbarmom = 6.23
 	// ***
 	// the event loop
 	// ***
-	
-	TString pidalg = "PidChargedProbability";
-	
-	PndRhoTupleQA qa(theAnalysis, pbarmom); 
-	
-	TLorentzVector LVdummy(0,0,0,0);
-	
+		
 	while (theAnalysis->GetEvent() && i++<nevts)
 	{
 		if ((i%100)==0) cout<<"evt " << i << endl;
 		
-		// *** get MC list
-		theAnalysis->FillList(mclist, "McTruth");
-		for (j=0;j<mclist.GetLength();++j)
-		{
-			nmc->Column("ev",	 (Float_t) i);
-			nmc->Column("part",	 (Float_t) j);
-			nmc->Column("npart", (Float_t) mclist.GetLength());
-			
-			qa.qaCand("mc",mclist[j], nmc);
-			nmc->DumpData();
-		}
+		// *** get MC list and store info in ntuple
+	 	theAnalysis->FillList(mclist, "McTruth");
+		
+		nmc->Column("ev", (Int_t) i);
+		qa.qaMcList("",   mclist, nmc);
+		nmc->DumpData();
+		
 		
 		// *** Setup event shape object
 		theAnalysis->FillList(all,  "All", pidalg);
 		PndEventShape evsh(all, ini, 0.05, 0.1);
-								
+			
+		
 		// *** Select with no PID info ('All'); type and mass are set 		
 		theAnalysis->FillList(muplus,  "MuonAllPlus", pidalg);
 		theAnalysis->FillList(muminus, "MuonAllMinus", pidalg);
 		theAnalysis->FillList(piplus,  "PionAllPlus", pidalg);
 		theAnalysis->FillList(piminus, "PionAllMinus", pidalg);
 		
+		
+		// *****
 		// *** combinatorics for J/psi -> mu+ mu-
+		// *****
+		
 		jpsi.Combine(muplus, muminus);		
 		jpsi.SetType(443);
 		int njmct = theAnalysis->McTruthMatch(jpsi);
 				
 		for (j=0;j<jpsi.GetLength();++j) 
 		{
+		    // some general info about event (actually written for each candidate!)
 			ntp1->Column("ev",		(Float_t) i);
 			ntp1->Column("cand",	(Float_t) j);
 			ntp1->Column("ncand",   (Float_t) jpsi.GetLength());
 			ntp1->Column("nmct",    (Float_t) njmct);
 			
-			// dump information about composite candidate tree recursively (see PndTools/AnalysisTools/PndRhoTupleQA)
+			// store info about initial 4-vector
+			qa.qaP4("beam", ini, ntp1);
+			
+			// store information about composite candidate tree recursively (see PndTools/AnalysisTools/PndRhoTupleQA)
 			qa.qaComp("j", jpsi[j], ntp1);
-			// dump info about event shapes
+			
+			// store info about event shapes
 			qa.qaEventShapeShort("es",&evsh, ntp1);
+		
 			
-			RhoCandidate *truth = jpsi[j]->GetMcTruth();
-			
-			if (truth!=0) 
-				qa.qaP4("trj", truth->P4(), ntp1);
-			else 
-				qa.qaP4("trj", LVdummy, ntp1, true);
+			// store the 4-vector of the truth matched candidate (or a dummy, if not matched to keep ntuple consistent)
+			RhoCandidate *truth = jpsi[j]->GetMcTruth();		
+			TLorentzVector lv;
+			if (truth) lv = truth->P4();
+			qa.qaP4("trj", lv, ntp1);
 			
 			ntp1->DumpData();
 		}
 		
-		// *** some rough mass selection
+		
+		// *****
+		// *** combinatorics for psi(2S) -> J/psi pi+ pi-
+		// *****
+
+		// *** some rough mass selection on J/psi before
 		jpsi.Select(jpsiMassSel);
 		
-		
-		// *** combinatorics for psi(2S) -> J/psi pi+ pi-
 		psi2s.Combine(jpsi, piplus, piminus);
 		psi2s.SetType(100443);
 		int npsimct = theAnalysis->McTruthMatch(psi2s);
 
 		for (j=0;j<psi2s.GetLength();++j) 
 		{
+		    // some general info about event (actually written for each candidate!)
 			ntp2->Column("ev",		(Float_t) i);
 			ntp2->Column("cand",	(Float_t) j);
 			ntp2->Column("ncand",   (Float_t) psi2s.GetLength());
 			ntp2->Column("nmct",    (Float_t) npsimct);
 			
+			// store info about initial 4-vector
+			qa.qaP4("beam", ini, ntp2);
+			
+			// store information about composite candidate tree recursively (see PndTools/AnalysisTools/PndRhoTupleQA)
 			qa.qaComp("psi", psi2s[j], ntp2);
+			
+			// store info about event shapes
 			qa.qaEventShapeShort("es",&evsh, ntp2);
 			
+			// *** store the 4-vector of the truth matched candidate (or a dummy, if not matched to keep ntuple consistent)
 			RhoCandidate *truth = psi2s[j]->GetMcTruth();
-			
-			if (truth!=0) 
-				qa.qaP4("trpsi", truth->P4(), ntp2);
-			else 
-				qa.qaP4("trpsi", LVdummy, ntp2, true);
+			TLorentzVector lv;
+			if (truth) lv = truth->P4();
+			qa.qaP4("trpsi", lv, ntp2);
 			
 			ntp2->DumpData();
 		}			

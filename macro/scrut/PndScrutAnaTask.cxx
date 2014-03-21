@@ -110,7 +110,7 @@ void PndScrutAnaTask::SetParContainers()
 void PndScrutAnaTask::Exec(Option_t* opt)
 {
 	// *** some variables
-	int i=0,j=0, k=0, l=0;
+	int i=0,j=0;
 	
 	// *** necessary to read the next event
 	fAnalysis->GetEvent();
@@ -124,6 +124,10 @@ void PndScrutAnaTask::Exec(Option_t* opt)
 	
 	TString pidalg = "PidChargedProbability";
 	
+	// *** QA tool for simple dumping of analysis results in RhoRuple
+	// *** WIKI: https://panda-wiki.gsi.de/foswiki/bin/view/Computing/PandaRootAnalysisJuly13#PndRhoTupleQA
+	PndRhoTupleQA qa(fAnalysis,fIni.P());
+
 	// *** RhoCandLists for the analysis
 	RhoCandList muplus, muminus, piplus, piminus, jpsi, psi2s, all, mclist;
 	
@@ -131,51 +135,51 @@ void PndScrutAnaTask::Exec(Option_t* opt)
 	double m0_jpsi = fPdg->GetParticle("J/psi")->Mass();   // Get nominal PDG mass of the J/psi
 	RhoMassParticleSelector *jpsiMassSel=new RhoMassParticleSelector("jpsi",m0_jpsi,1.0);
 	
-	fAnalysis->FillList(mclist, "McTruth");
-	fAnalysis->FillList(all,  "All", pidalg);
-	
 	// *** Select with PID info pidalg and ('All'); type and mass are set 		
-	fAnalysis->FillList(muplus,  "MuonAllPlus", pidalg);
+	fAnalysis->FillList(muplus,  "MuonAllPlus",  pidalg);
 	fAnalysis->FillList(muminus, "MuonAllMinus", pidalg);
-	fAnalysis->FillList(piplus,  "PionAllPlus", pidalg);
+	fAnalysis->FillList(piplus,  "PionAllPlus",  pidalg);
 	fAnalysis->FillList(piminus, "PionAllMinus", pidalg);
 
+	
 	// *** Setup event shape object
+	fAnalysis->FillList(all,   "All", pidalg);
 	PndEventShape evsh(all, fIni, 0.05, 0.1);	
-	PndRhoTupleQA qa(fAnalysis,fIni.P());
 	
-	// *** get MC list
-	for (j=0;j<mclist.GetLength();++j)
-	{
-		nmc->Column("ev",	 (Float_t) i);
-		nmc->Column("part",	 (Float_t) j);
-		nmc->Column("npart", (Float_t) mclist.GetLength());
-		
-		qa.qaCand("mc",mclist[j], nmc);
-		nmc->DumpData();
-	}
 	
-							
+	// *** store MC info in ntuple
+	fAnalysis->FillList(mclist, "McTruth");
+	
+	nmc->Column("ev", (Int_t) fEvtCount);
+	qa.qaMcList("",   mclist, nmc);
+	nmc->DumpData();
+	
 	
 	// *** combinatorics for J/psi -> mu+ mu-
 	jpsi.Combine(muplus, muminus);		
 	jpsi.SetType(443);
-	int njmct = fAnalysis->McTruthMatch(jpsi);
+	int njmct = fAnalysis->McTruthMatch(jpsi); // match the whole list to count #matches (should be only 1)
 			
+	// *** write ntuple for the jpsi reconstruction
 	for (j=0;j<jpsi.GetLength();++j) 
 	{
+		// some general info about event (actually written for each candidate!)
 		ntp1->Column("ev",		(Float_t) i);
 		ntp1->Column("cand",	(Float_t) j);
 		ntp1->Column("ncand",   (Float_t) jpsi.GetLength());
 		ntp1->Column("nmct",    (Float_t) njmct);
-		
+	
+		// store info about initial 4-vector
+		qa.qaP4("beam", fIni, ntp1);
+			
 		// dump information about composite candidate tree recursively (see PndTools/AnalysisTools/PndRhoTupleQA)
 		qa.qaComp("j", jpsi[j], ntp1);
+		
 		// dump info about event shapes
 		qa.qaEventShapeShort("es",&evsh, ntp1);
 		
+		// *** store the 4-vector of the truth matched candidate (or a dummy, if not matched to keep ntuple consistent)
 		RhoCandidate *truth = jpsi[j]->GetMcTruth();
-		
 		TLorentzVector lv;
 		if (truth) lv = truth->P4();
 		qa.qaP4("trj", lv, ntp1);
@@ -183,30 +187,38 @@ void PndScrutAnaTask::Exec(Option_t* opt)
 		ntp1->DumpData();
 	}
 	
-	// *** some rough mass selection
-	jpsi.Select(jpsiMassSel);
 	
+	// *** some rough mass selection on J/psi
+	jpsi.Select(jpsiMassSel);
 	
 	// *** combinatorics for psi(2S) -> J/psi pi+ pi-
 	psi2s.Combine(jpsi, piplus, piminus);
 	psi2s.SetType(100443);
-	int npsimct = fAnalysis->McTruthMatch(psi2s);
+	int npsimct = fAnalysis->McTruthMatch(psi2s); // match the whole list to count #matches (should be only 1)
 
+	// *** write ntuple for the psi(2S) reconstruction
 	for (j=0;j<psi2s.GetLength();++j) 
 	{
+		// some general info about event (actually written for each candidate!)
 		ntp2->Column("ev",		(Float_t) i);
 		ntp2->Column("cand",	(Float_t) j);
 		ntp2->Column("ncand",   (Float_t) psi2s.GetLength());
 		ntp2->Column("nmct",    (Float_t) npsimct);
 		
+		// store info about initial 4-vector
+		qa.qaP4("beam", fIni, ntp2);
+		
+		// dump information about composite candidate tree recursively (see PndTools/AnalysisTools/PndRhoTupleQA)
 		qa.qaComp("psi", psi2s[j], ntp2);
+
+		// dump info about event shapes
 		qa.qaEventShapeShort("es",&evsh, ntp2);
 		
+		// *** store the 4-vector of the truth matched candidate (or a dummy, if not matched to keep ntuple consistent)
 		RhoCandidate *truth = psi2s[j]->GetMcTruth();
-		
 		TLorentzVector lv;
 		if (truth) lv = truth->P4();
-		qa.qaP4("trpsi", lv, ntp1);
+		qa.qaP4("trpsi", lv, ntp2);
 		
 		ntp2->DumpData();
 	}			

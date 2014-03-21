@@ -40,13 +40,17 @@ void simfast(TString Prefix, TString Decfile, Float_t Mom, Int_t nEvents = 1000,
   timer.Start();
   gDebug=0;
 
-  // Create the Simulation run manager--------------------------------
+  // Create the Simulation run manager
+  // --------------------------------
   FairRunSim *fRun = new FairRunSim();
   fRun->SetOutputFile(OutputFile.Data());
+  fRun->SetWriteRunInfoFile(kFALSE);
+  
   FairLogger::GetLogger()->SetLogToFile(kFALSE);
 
- // Create and Set Event Generator
-  //-------------------------------
+  
+  // Create and Set Event Generator
+  // -------------------------------
   FairPrimaryGenerator* primGen = new FairPrimaryGenerator();
   fRun->SetGenerator(primGen);
   fRun->SetName("TGeant3");
