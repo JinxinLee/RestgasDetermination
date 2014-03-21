@@ -9,6 +9,7 @@
 #include "PndPidCandidate.h"
 #include "PndVtxPoca.h"
 #include "PndVtxPRG.h"
+#include "TVector.h"
 
 PndRhoTupleQA::PndRhoTupleQA(PndAnalysis *ana, double pbarmom)
 {
@@ -304,6 +305,11 @@ void PndRhoTupleQA::qaComp(TString pre, RhoCandidate *c, RhoTuple *n)
 	{
 		// charged particle -> store PID info
 		if ( fabs(c->Charge())>0.1 ) qaPid(pre,	c,	n);
+		
+		// and pdg code from truth
+	    Float_t trpdg = 0.;
+		if (truth) trpdg = truth->PdgCode();
+		n->Column(pre+"trpdg", (Float_t) trpdg, 0.0f);
 	}
 	// cand is composite
 	else 
@@ -823,5 +829,53 @@ void PndRhoTupleQA::qaRecoFull(TString pre, RhoCandidate *c, RhoTuple *n)
 	qaMuo( pre, c, n );
 	qaTrk( pre, c, n);
 }
+
+// -------------------------------------------------------------------------
+
+void PndRhoTupleQA::qaMcList(TString pre, RhoCandList &l, TString icol, RhoTuple *n)
+{
+	int nummc = l.GetLength();
+	
+	TVector vpx(nummc), vpy(nummc), vpz(nummc), ve(nummc),
+			vx(nummc), vy(nummc), vz(nummc),
+			vp(nummc), vtht(nummc), vphi(nummc), vmass(nummc),
+			vpdg(nummc), vmoth(nummc);
+	
+	for (int j=0;j<nummc;++j)
+	{	
+		RhoCandidate *moth = l[j]->TheMother();
+		vpx(j)   = l[j]->Px(); 
+		vpy(j)   = l[j]->Py(); 
+		vpz(j)   = l[j]->Pz(); 
+		ve(j)    = l[j]->E();
+		
+		vx(j)    = l[j]->Pos().X(); 
+		vy(j)    = l[j]->Pos().Y();
+		vz(j)    = l[j]->Pos().Z();
+		
+		vp(j)    = l[j]->P(); 
+		vtht(j)  = l[j]->P3().Theta(); 
+		vphi(j)  = l[j]->P3().Phi(); 
+		vmass(j) = l[j]->Mass();
+		vpdg(j)  = l[j]->PdgCode(); 
+		
+		vmoth(j) = (moth!=0x0) ? moth->GetTrackNumber() : -1;
+	}
+
+	n->Column(pre+"px",    vpx,  icol.Data());
+	n->Column(pre+"py",    vpy,  icol.Data());
+	n->Column(pre+"pz",    vpz,  icol.Data());
+	n->Column(pre+"e",     ve,   icol.Data());
+	n->Column(pre+"x",     vx,   icol.Data());
+	n->Column(pre+"y",     vy,   icol.Data());
+	n->Column(pre+"z",     vz,   icol.Data());
+	n->Column(pre+"p",     vp,   icol.Data());
+	n->Column(pre+"tht",   vtht, icol.Data());
+	n->Column(pre+"phi",   vphi, icol.Data());
+	n->Column(pre+"m",     vmass,icol.Data());
+	n->Column(pre+"pdg",   vpdg, icol.Data());
+	n->Column(pre+"moth",  vmoth, icol.Data());
+}
+
 
 

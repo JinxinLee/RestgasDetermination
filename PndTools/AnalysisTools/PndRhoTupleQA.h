@@ -4,6 +4,7 @@
 #include "TLorentzVector.h"
 #include "TVector3.h"
 #include "TString.h"
+#include "RhoCandList.h"
 
 class RhoCandidate;
 class RhoTuple;
@@ -59,6 +60,9 @@ public:
 	void qaMuo(TString pre, RhoCandidate *c, RhoTuple *n);
 	
 	void qaRecoFull(TString pre, RhoCandidate *c, RhoTuple *n);
+	
+	// *** QA for the full MC list as array. icol is the name of the column (Int_t) containing the length of the list
+	void qaMcList(TString pre, RhoCandList &l, TString icol, RhoTuple *n);
 	
 private:
 

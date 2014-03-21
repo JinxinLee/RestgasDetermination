@@ -137,7 +137,7 @@ void PndAnalysis::Init()
   // -- MC Tracks
   fBuildMcCands = false;
 
-  fMcCands = ReadTCA ( "PndMcTracks" ); // try already built RhoCandidates
+  fMcCands = 0;//ReadTCA ( "PndMcTracks" ); // try already built RhoCandidates
 
   if ( ! fMcCands ) {
     std::cout << "-I- PndAnalysis::Init(): Trying mc stack now." << std::endl;
