@@ -35,6 +35,7 @@
 #include "FairRunAna.h"
 #include "FairRuntimeDb.h"
 #include "FairTrackParP.h"
+#include "FairField.h"
 
 #include "TGeoManager.h"
 #include "TClonesArray.h"
@@ -455,6 +456,19 @@ InitStatus PndTrkTracking2::Init() {
 
  SEMILENGTH_STRAIGHT = 75.;
  ZCENTER_STRAIGHT = 35.;
+
+ Double_t po[3], BB[3];
+
+ FairField* Field = FairRunAna::Instance()->GetField();
+
+ po[0] =0.;
+ po[1]= 0.;
+ po[2]= 0.;
+
+
+ Field->GetFieldValue(po, BB); //return value in KG (G3)
+ fBFIELD = BB[2]/10.; // value in Tesla;
+
 
 
  if(iplotta){
@@ -2244,7 +2258,7 @@ MAXSCITILHITSINTRACK,MAXSTTHITSINTRACK,fR,fOx,fOy,FI0,KAPPA);
 	PndTrkComparisonMCtruth_io_Data ioData;
 	// load the structure;
 
-	ioData.Bfield = BFIELD;
+	ioData.Bfield = fBFIELD;
 	ioData.Charge = Charge;
 	ioData.Cvel = CVEL;
 	ioData.daTrackFoundaTrackMC = tdaTrackFoundaTrackMC;
@@ -2382,7 +2396,7 @@ MAXSCITILHITSINTRACK,MAXSTTHITSINTRACK,fR,fOx,fOy,FI0,KAPPA);
 	In_Put.apotemamaxskewstraw = APOTEMAMAXSKEWSTRAW ;
 	In_Put.apotemaminouterparstraw = APOTEMAMINOUTERPARSTRAW ;
 	In_Put.apotemaminskewstraw = APOTEMAMINSKEWSTRAW ;
-	In_Put.bfield = BFIELD ;
+	In_Put.bfield = fBFIELD ;
 	In_Put.Charge = Charge ;
 	In_Put.cvel = CVEL ;
 	In_Put.daTrackFoundaTrackMC = tdaTrackFoundaTrackMC ;
@@ -3583,7 +3597,7 @@ void PndTrkTracking2::LoadPndTrack_TrackCand(
 	Oyy = fOy[ncand];
 	dis=sqrt( Oxx*Oxx+Oyy*Oyy );
 	if( dis < 1.e-20)  continue;
-	Ptras = fR[ncand]*0.003*BFIELD;
+	Ptras = fR[ncand]*0.003*fBFIELD;
 	Pxini = -Charge[ncand]*Ptras*Oyy/dis;
 	Pyini = Charge[ncand]*Ptras*Oxx/dis;
 
@@ -3594,7 +3608,7 @@ void PndTrkTracking2::LoadPndTrack_TrackCand(
 	TVector3 posSeed(x,y,0.);  //  the starting point
 
 	if(fabs(KAPPA[ncand])>1.e-20  ){
-		Pzini = -Charge[ncand]*0.003*BFIELD/KAPPA[ncand];
+		Pzini = -Charge[ncand]*0.003*fBFIELD/KAPPA[ncand];
 		if(fabs(Pzini) > PMAX)  continue;
 	} else {
 		continue;
