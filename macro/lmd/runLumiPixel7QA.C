@@ -1,4 +1,4 @@
-void runLumiPixel7QA(const int nEvents=100000, const int startEvent=0, TString storePath="tmpOutnewDesign", const int verboseLevel=5, const double Plab=15)
+void runLumiPixel7QA(const int nEvents=100000, const int startEvent=0, TString storePath="tmpOutnewDesign", const int verboseLevel=5, const double Plab=15, const bool isClean=false)
 {
   // ========================================================================
   // Input file (MC events)
@@ -28,9 +28,19 @@ void runLumiPixel7QA(const int nEvents=100000, const int startEvent=0, TString s
   TrkFile += startEvent;
   TrkFile += ".root";
   // Geane file
-  TString GeaFile = storePath+"/Lumi_Geane_";
-  GeaFile += startEvent;
-  GeaFile += ".root";
+// Geane file
+  TString GeaFile;
+  if(isClean){
+    GeaFile = storePath+"/Lumi_GeaneFiltered_";
+    GeaFile += startEvent;
+    GeaFile += ".root";
+  }
+  else{
+    GeaFile = storePath+"/Lumi_Geane_";
+    GeaFile += startEvent;
+    GeaFile += ".root";
+  }
+
   // Dummy file
   TString DumFile = storePath+"/Lumi_IGNORE_";
   DumFile += startEvent;
@@ -84,7 +94,13 @@ void runLumiPixel7QA(const int nEvents=100000, const int startEvent=0, TString s
   parInput1->open(parFile.Data(),"UPDATE");
   rtdb->setFirstInput(parInput1);
 
-  PndLmdQATask* lmdqa = new PndLmdQATask("LMDPoint","MCTrack","LMDPixelClusterCand","LMDPixelDigis","LMDHitsMerged","LMDTrackCand","LMDPndTrack","GeaneTrackFinal",OutFile,Plab);
+  PndLmdQATask* lmdqa;
+ if(isClean){
+    lmdqa = new PndLmdQATask("LMDPoint","MCTrack","LMDPixelClusterCand","LMDPixelDigis","LMDHitsMerged","LMDTrackCand","LMDPndTrack","LMDCleanTrack",OutFile,Plab);
+ }
+ else{
+ lmdqa = new PndLmdQATask("LMDPoint","MCTrack","LMDPixelClusterCand","LMDPixelDigis","LMDHitsMerged","LMDTrackCand","LMDPndTrack","GeaneTrackFinal",OutFile,Plab);
+ }
   lmdqa->SetVerbose(verboseLevel);
   fRun->AddTask(lmdqa);
   fRun->SetWriteRunInfoFile(kFALSE);
