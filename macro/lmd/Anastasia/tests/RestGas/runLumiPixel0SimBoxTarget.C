@@ -135,7 +135,12 @@ void runLumiPixel0SimBoxTarget(const int nEvents=10, const int startEv=0, TStrin
   // primGen->SetTarget(0.,0.1); // sigmaZ=1mm, gaus
   // // primGen->SetTarget(1050.,0.); //attemp to have different trk topology in lmd
 
-  double beam_X0=0; double beam_Y0=0; double beam_width_sigma_X=0.08; double beam_width_sigma_Y=0.08;
+  //  double beam_X0=0; double beam_Y0=0; double beam_width_sigma_X=0.08; double beam_width_sigma_Y=0.08;
+  //primGen->SmearGausVertexXY(kTRUE);
+
+  double beam_X0=0.; double beam_Y0=0.; double beam_width_sigma_X=1.8; double beam_width_sigma_Y=1.8;
+  primGen->SmearVertexXY(kTRUE);
+
 // // // //shift 0 cm -------------------------------
 //   double target_width_Z=0.05;
 //   double target_Z0=0.;
@@ -152,7 +157,7 @@ void runLumiPixel0SimBoxTarget(const int nEvents=10, const int startEv=0, TStrin
  double target_width_Z=100.;//+/- 50 cm
   // //  END step 5 cm -------------------------------
 
-  primGen->SmearGausVertexXY(kTRUE);
+  
   primGen->SetBeam(beam_X0, beam_Y0, beam_width_sigma_X, beam_width_sigma_Y);
   //primGen->SmearGausVertexZ(kTRUE);//gaus
   primGen->SmearVertexZ(kTRUE);//uniform step

@@ -24,7 +24,7 @@ fi
 
 momStr=`echo $pbeam | sed -e '{ s/\./_/g; }'`
 #path=${VMCWORKDIR}/macro/lmd/testTargetBeamProfile_ZXplane_Step5cm/mom_${momStr}/
-path=${VMCWORKDIR}/macro/lmd/testTargetBeamProfile_PCA_Step50cm/mom_${momStr}/
+path=${VMCWORKDIR}/macro/lmd/testTargetBeamProfile_Line_Step50cm_XYStep9mm/mom_${momStr}/
 
 mkdir -p ${path}
 #number of trks per event
@@ -49,7 +49,7 @@ YPhiCut=true
 BoxCut=false
 
 ## Clean after back-propagation (momentum or MVA cut)
-CleanSig=true
+CleanSig=false
 
 ## Write all MC info in TrkQA array
 WrAllMC=true
