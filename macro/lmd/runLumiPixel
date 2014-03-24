@@ -1,9 +1,10 @@
 #!/bin/bash 
 ################################################################
-## script for running sim&rec for LMD with BOX generarot
+## script for running sim&rec for LMD with BOX or DPM generator
 ## [with pixels sensors set-up!]
 ## 13/11/2012 1st version
 ## 06/09/2013 updated version
+## 23/03/2014 more or less final version
 ## A.Karavdina
 ################################################################
 echo Enter momentum from "1.5, 4.06, 8.9, 11.91, 15 [GeV/c]":
@@ -100,7 +101,7 @@ root -l -b -q runLumiPixel0SimBox.C\(${numEv},0,"\"${path}\"",0,-2212,${pbeam},$
 	 fi
 
 # # Quality assurance task(s)
-      root -l -b -q runLumiPixel7QA.C\(${numEv},0,"\"${path}\"",0,${pbeam}\)
+       root -l -b -q runLumiPixel7QA.C\(${numEv},0,"\"${path}\"",0,${pbeam},${CleanSig}\)
       root -l -b -q runLumiPixel7TrksQA.C\(${numEv},0,"\"${path}\"",0,${pbeam},${WrAllMC},${CleanSig}\)
       root -l -b -q  Anastasia/test_macros/BkgSignalCount.C\("\"${path}\"",${numEv},0\)
       root -l -b -q Anastasia/test_macros/EffTrks.C\(${numEv},0,"\"${path}\""\)
