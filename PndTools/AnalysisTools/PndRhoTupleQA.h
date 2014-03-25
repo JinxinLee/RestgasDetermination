@@ -61,8 +61,8 @@ public:
 	
 	void qaRecoFull(TString pre, RhoCandidate *c, RhoTuple *n);
 	
-	// *** QA for the full MC list as array. icol is the name of the column (Int_t) containing the length of the list
-	void qaMcList(TString pre, RhoCandList &l, TString icol, RhoTuple *n);
+	// *** QA for the full MC list as array.
+	void qaMcList(TString pre, RhoCandList &l, RhoTuple *n);
 	
 private:
 

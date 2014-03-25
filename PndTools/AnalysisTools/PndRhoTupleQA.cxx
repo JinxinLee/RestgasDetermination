@@ -832,49 +832,60 @@ void PndRhoTupleQA::qaRecoFull(TString pre, RhoCandidate *c, RhoTuple *n)
 
 // -------------------------------------------------------------------------
 
-void PndRhoTupleQA::qaMcList(TString pre, RhoCandList &l, TString icol, RhoTuple *n)
+void PndRhoTupleQA::qaMcList(TString pre, RhoCandList &l, RhoTuple *n)
 {
-	int nummc = l.GetLength();
+	int npart = l.GetLength();
+
+	TVector vpart(npart), vpdg(npart), vmoth(npart), 
+	        vp(npart),    vmass(npart),
+	        vpx(npart),   vpy(npart),  vpz(npart), ve(npart),
+			vtht(npart),  vphi(npart),
+			vx(npart),    vy(npart),   vz(npart);
 	
-	TVector vpx(nummc), vpy(nummc), vpz(nummc), ve(nummc),
-			vx(nummc), vy(nummc), vz(nummc),
-			vp(nummc), vtht(nummc), vphi(nummc), vmass(nummc),
-			vpdg(nummc), vmoth(nummc);
-	
-	for (int j=0;j<nummc;++j)
+	for (int j=0;j<npart;++j)
 	{	
 		RhoCandidate *moth = l[j]->TheMother();
+
+		vpart(j) = j;
+		vpdg(j)  = l[j]->PdgCode(); 
+		vmoth(j) = (moth!=0x0) ? moth->GetTrackNumber() : -1;
+
+		vmass(j) = l[j]->Mass();
+		vp(j)    = l[j]->P(); 
+
 		vpx(j)   = l[j]->Px(); 
 		vpy(j)   = l[j]->Py(); 
 		vpz(j)   = l[j]->Pz(); 
 		ve(j)    = l[j]->E();
 		
+		vtht(j)  = l[j]->P3().Theta(); 
+		vphi(j)  = l[j]->P3().Phi(); 
+		
 		vx(j)    = l[j]->Pos().X(); 
 		vy(j)    = l[j]->Pos().Y();
 		vz(j)    = l[j]->Pos().Z();
-		
-		vp(j)    = l[j]->P(); 
-		vtht(j)  = l[j]->P3().Theta(); 
-		vphi(j)  = l[j]->P3().Phi(); 
-		vmass(j) = l[j]->Mass();
-		vpdg(j)  = l[j]->PdgCode(); 
-		
-		vmoth(j) = (moth!=0x0) ? moth->GetTrackNumber() : -1;
 	}
 
-	n->Column(pre+"px",    vpx,  icol.Data());
-	n->Column(pre+"py",    vpy,  icol.Data());
-	n->Column(pre+"pz",    vpz,  icol.Data());
-	n->Column(pre+"e",     ve,   icol.Data());
-	n->Column(pre+"x",     vx,   icol.Data());
-	n->Column(pre+"y",     vy,   icol.Data());
-	n->Column(pre+"z",     vz,   icol.Data());
-	n->Column(pre+"p",     vp,   icol.Data());
-	n->Column(pre+"tht",   vtht, icol.Data());
-	n->Column(pre+"phi",   vphi, icol.Data());
-	n->Column(pre+"m",     vmass,icol.Data());
-	n->Column(pre+"pdg",   vpdg, icol.Data());
-	n->Column(pre+"moth",  vmoth, icol.Data());
+	n->Column(pre+"npart", (Int_t) npart);
+
+	n->Column(pre+"part",  vpart,  pre+"npart");
+	n->Column(pre+"pdg",   vpdg,   pre+"npart");
+	n->Column(pre+"moth",  vmoth,  pre+"npart");
+
+	n->Column(pre+"m",     vmass,  pre+"npart");
+	n->Column(pre+"p",     vp,     pre+"npart");
+
+	n->Column(pre+"px",    vpx,    pre+"npart");
+	n->Column(pre+"py",    vpy,    pre+"npart");
+	n->Column(pre+"pz",    vpz,    pre+"npart");
+	n->Column(pre+"e",     ve,     pre+"npart");
+	
+	n->Column(pre+"tht",   vtht,   pre+"npart");
+	n->Column(pre+"phi",   vphi,   pre+"npart");
+
+	n->Column(pre+"x",     vx,     pre+"npart");
+	n->Column(pre+"y",     vy,     pre+"npart");
+	n->Column(pre+"z",     vz,     pre+"npart");
 }
 
 
