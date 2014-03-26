@@ -162,6 +162,7 @@
 #include "EvtGenModels/EvtDeuteronSpectator.hh"
 //#include "EvtGenModels/EvtPpbarPi0Pi0.hh"
 #include "EvtGenModels/EvtPpbarEtacGamma.hh"
+#include "EvtGenModels/EvtDsDalitz.hh"
 /// Private Panda Models end
 
 #include "EvtGenModels/EvtModelReg.hh"
@@ -190,6 +191,7 @@ EvtModelReg::EvtModelReg(const std::list<EvtDecayBase*>* extraModels)
 //    modelist.registerModel(new EvtPpbarPi0Pi0);
     modelist.registerModel(new EvtDeuteronSpectator); // [Albrecht Gillitzer 10/02/12]
     modelist.registerModel(new EvtPpbarEtacGamma); // [Johan Messchendorp, September 2012]
+    modelist.registerModel(new EvtDsDalitz); // [Cao Lu, 2013]
     /// private Panda Models end
 
     modelist.registerModel(new EvtBBScalar);

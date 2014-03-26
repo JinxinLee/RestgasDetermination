@@ -48,6 +48,7 @@ set(EVTGEN_SRCS
    ${EVTGEN_PRIVATE_DIR}/EvtLambdaLambdaBar.cpp
    ${EVTGEN_PRIVATE_DIR}/EvtLambdaLambdaBarPol.cpp
    ${EVTGEN_PRIVATE_DIR}/EvtLambdaLambdaBarHE.cpp
+    ${EVTGEN_PRIVATE_DIR}/EvtDsDalitz.cpp
 ## overwrite EvtGen ModelReg by Panda one
    ${EVTGEN_PRIVATE_DIR}/EvtModelReg.cpp
 ##   ${EVTGEN_MODELS_DIR}/EvtModelReg.cpp
