@@ -54,6 +54,7 @@ PndFsmRandom.cxx
 PndFsmMvdPid.cxx
 PndFsmSttPid.cxx
 PndFsmSimpleVtx.cxx
+PndFsmMdtPid.cxx
 )
 
 

@@ -12,6 +12,7 @@
 //
 // Author List:
 //      Klaus Goetzen                    Original Author
+//      Ralf Kliemt
 //
 // Copyright Information:
 //      Copyright (C) 2006              GSI
@@ -59,6 +60,7 @@
 #include "PndFsmCombiDet.h"
 #include "PndFsmMvdPid.h"
 #include "PndFsmSttPid.h"
+#include "PndFsmMdtPid.h"
 #include "PndFsmSimpleVtx.h"
 
 //-----------------------------------------------------------------------
@@ -149,6 +151,12 @@ PndFsmDetFactory::create(std::string &name,ArgList &par)
     return (PndFsmAbsDet*)( new PndFsmSttPid(par) );
   if (name=="ScVtxMvd"   || name=="ScVtxNoMvd") {
     PndFsmAbsDet* aDet = (PndFsmAbsDet*)(new PndFsmSimpleVtx(par));
+    aDet->setName(name);
+    return aDet;
+  }
+  else
+  if (name=="ScMdtPidBarrel"   || name=="ScMdtPidForward") {
+    PndFsmAbsDet* aDet = (PndFsmAbsDet*)(new PndFsmMdtPid(par));
     aDet->setName(name);
     return aDet;
   }
