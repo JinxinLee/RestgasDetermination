@@ -50,8 +50,8 @@ void reco_fts()
 
 
 
-  PndFtsTrackerTaskHough* trackFts = new PndFtsTrackerTaskHough();
-  trackFts->SetTrackOutput("FtsHoughTrack");
+  PndFtsHoughTrackerTask* trackFts = new PndFtsHoughTrackerTask();
+//  trackFts->SetTrackOutput("FtsHoughTrack");
   trackFts->SetPersistence(kTRUE);
 //  trackFts->SetSaveDebugInfo(kFALSE);
   trackFts->SetSaveDebugInfo(kTRUE);
