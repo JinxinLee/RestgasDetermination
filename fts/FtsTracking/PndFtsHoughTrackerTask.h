@@ -22,8 +22,8 @@
 
 
 
-#ifndef PndFtsTrackerTaskHough_H
-#define PndFtsTrackerTaskHough_H
+#ifndef PndFtsHoughTrackerTask_H
+#define PndFtsHoughTrackerTask_H
 
 #include "FairTask.h"
 #include <cmath>
@@ -42,11 +42,11 @@ class FairField;
 
 
 
-class PndFtsTrackerTaskHough : public FairTask
+class PndFtsHoughTrackerTask : public FairTask
 {
 public:
-	PndFtsTrackerTaskHough(Bool_t persistence=kTRUE, Bool_t saveDebugInfo=kFALSE);
-	~PndFtsTrackerTaskHough();
+	PndFtsHoughTrackerTask(Bool_t persistence=kTRUE, Bool_t saveDebugInfo=kFALSE);
+	~PndFtsHoughTrackerTask();
 
 	/** Load the parameter container from the runtime database **/
 	virtual void SetParContainers();
@@ -125,12 +125,12 @@ private:
 
 
 	// TODO: I don't think I need the copy constructor and the operator=
-	PndFtsTrackerTaskHough(const PndFtsTrackerTaskHough&);
-	PndFtsTrackerTaskHough operator=(const PndFtsTrackerTaskHough&);
+	PndFtsHoughTrackerTask(const PndFtsHoughTrackerTask&);
+	PndFtsHoughTrackerTask operator=(const PndFtsHoughTrackerTask&);
 
 
 
-	ClassDef(PndFtsTrackerTaskHough,1);
+	ClassDef(PndFtsHoughTrackerTask,1);
 };
 
 #endif

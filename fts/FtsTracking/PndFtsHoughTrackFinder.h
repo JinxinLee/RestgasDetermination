@@ -52,7 +52,7 @@
 #include "PndFtsHoughSpace.h"
 #include "PndFtsHoughTracklet.h"
 #include "PndFtsHoughTrackCand.h"
-class PndFtsTrackerTaskHough;
+class PndFtsHoughTrackerTask;
 
 class TString;
 class FairField;
@@ -68,7 +68,7 @@ class FairHit;
 class PndFtsHoughTrackFinder
 {
 public:
-	PndFtsHoughTrackFinder(PndFtsTrackerTaskHough *trackerTask, Int_t branchId, TClonesArray* hits, FairField* field); ///< Sets the array of all FTS hits and the branchId (super important!)
+	PndFtsHoughTrackFinder(PndFtsHoughTrackerTask *trackerTask, Int_t branchId, TClonesArray* hits, FairField* field); ///< Sets the array of all FTS hits and the branchId (super important!)
 	virtual ~PndFtsHoughTrackFinder();
 
 	void FindTracks();										///< Main function to start the track finding
@@ -112,7 +112,7 @@ private:
 	TClonesArray *fFtsHitArray; // Input array of all FTS hits
 
 	// for PandaRoot input/output
-	PndFtsTrackerTaskHough *fTrackerTask;
+	PndFtsHoughTrackerTask *fTrackerTask;
 
 
 	///< Minimum required heights for peaks in Hough spaces

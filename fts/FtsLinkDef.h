@@ -19,7 +19,7 @@
 #pragma link C++ class PndFtsHoughTrackCand+;
 #pragma link C++ class PndFtsHoughSpace+;
 #pragma link C++ class PndFtsHoughTrackFinder+;
-#pragma link C++ class PndFtsTrackerTaskHough+;
+#pragma link C++ class PndFtsHoughTrackerTask+;
 #pragma link C++ class PndFtsHitProducerRealFull+;
 #pragma link C++ class PndFtsTrackerIdeal+;
 #pragma link C++ class PndFtsDataAccessor+;

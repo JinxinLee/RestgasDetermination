@@ -47,7 +47,7 @@ FtsTracking/PndFtsHoughTracklet.cxx
 FtsTracking/PndFtsHoughTrackCand.cxx
 FtsTracking/PndFtsHoughSpace.cxx
 FtsTracking/PndFtsHoughTrackFinder.cxx
-FtsTracking/PndFtsTrackerTaskHough.cxx
+FtsTracking/PndFtsHoughTrackerTask.cxx
 )
 
 set(LINKDEF  FtsLinkDef.h)

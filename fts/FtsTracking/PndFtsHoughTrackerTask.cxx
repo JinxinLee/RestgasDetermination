@@ -1,4 +1,4 @@
-#include "PndFtsTrackerTaskHough.h"
+#include "PndFtsHoughTrackerTask.h"
 #include <iostream>
 #include <math.h>
 
@@ -71,8 +71,8 @@ using std::endl;
 
 
 // ---- Default constructor -------------------------------------------
-PndFtsTrackerTaskHough::PndFtsTrackerTaskHough(Bool_t persistence, Bool_t saveDebugInfo)
-: FairTask("PndFtsTrackerTaskHough"),
+PndFtsHoughTrackerTask::PndFtsHoughTrackerTask(Bool_t persistence, Bool_t saveDebugInfo)
+: FairTask("PndFtsHoughTrackerTask"),
   fSaveDebugInfo(saveDebugInfo),
   fPersistence(persistence),
   fEventNr(0),
@@ -93,13 +93,13 @@ PndFtsTrackerTaskHough::PndFtsTrackerTaskHough(Bool_t persistence, Bool_t saveDe
   fTrackCands(0),
   fTracks(0)
 {
-	if(fVerbose>3) Info(MESSAGE_ORIGIN,"Default Constructor of PndFtsTrackerTaskHough");
+	if(fVerbose>3) Info(MESSAGE_ORIGIN,"Default Constructor of PndFtsHoughTrackerTask");
 }
 
 // ---- Destructor ----------------------------------------------------
-PndFtsTrackerTaskHough::~PndFtsTrackerTaskHough()
+PndFtsHoughTrackerTask::~PndFtsHoughTrackerTask()
 {
-	if(fVerbose>3) Info(MESSAGE_ORIGIN,"Destructor of PndFtsTrackerTaskHough");
+	if(fVerbose>3) Info(MESSAGE_ORIGIN,"Destructor of PndFtsHoughTrackerTask");
 	fOutFile->Close();
 }
 
@@ -107,9 +107,9 @@ PndFtsTrackerTaskHough::~PndFtsTrackerTaskHough()
 
 
 // ----  Initialisation  ----------------------------------------------
-void PndFtsTrackerTaskHough::SetParContainers()
+void PndFtsHoughTrackerTask::SetParContainers()
 {
-	if(fVerbose>3) Info(MESSAGE_ORIGIN,"SetParContainers of PndFtsTrackerTaskHough");
+	if(fVerbose>3) Info(MESSAGE_ORIGIN,"SetParContainers of PndFtsHoughTrackerTask");
 
 	// FTS parameters
 	FairRuntimeDb *rtdb= FairRun::Instance()->GetRuntimeDb();
@@ -117,9 +117,9 @@ void PndFtsTrackerTaskHough::SetParContainers()
 }
 
 // ---- Init ----------------------------------------------------------
-InitStatus PndFtsTrackerTaskHough::Init()
+InitStatus PndFtsHoughTrackerTask::Init()
 {
-	if(fVerbose>3) Info("Init","Initilization of PndFtsTrackerTaskHough");
+	if(fVerbose>3) Info("Init","Initilization of PndFtsHoughTrackerTask");
 
 	// Get a handle from the IO manager
 	FairRootManager* ioman = FairRootManager::Instance();
@@ -132,7 +132,7 @@ InitStatus PndFtsTrackerTaskHough::Init()
 	/*
     <InputDataLevel> = (TClonesArray*) ioman->GetObject("InputDataLevelName");
     if ( ! <InputLevel> ) {
-    fLogger->Error(MESSAGE_ORIGIN,"No InputDataLevelName array!\n PndFtsTrackerTaskHough will be inactive");
+    fLogger->Error(MESSAGE_ORIGIN,"No InputDataLevelName array!\n PndFtsHoughTrackerTask will be inactive");
     return kERROR;
     }
 	 */
@@ -199,7 +199,7 @@ InitStatus PndFtsTrackerTaskHough::Init()
 }
 
 
-//void PndFtsTrackerTaskHough::InitOutFileForDebugging(){
+//void PndFtsHoughTrackerTask::InitOutFileForDebugging(){
 //	fOutFile = FairRootManager::Instance()->GetOutFile();
 //	if (0==fOutFile)
 //	{
@@ -208,12 +208,12 @@ InitStatus PndFtsTrackerTaskHough::Init()
 //	else
 //	{
 //		fOutFile->cd();
-//		fOutFile->mkdir("PndFtsTrackerTaskHough");
+//		fOutFile->mkdir("PndFtsHoughTrackerTask");
 //		std::cout << "InitOutFileForDebugging: Outfile initialised for debugging output.\n";
 //	}
 //}
 
-//void PndFtsTrackerTaskHough::AddNewEventToOutFileForDebugging(UInt_t eventNr){
+//void PndFtsHoughTrackerTask::AddNewEventToOutFileForDebugging(UInt_t eventNr){
 //	fOutFile = FairRootManager::Instance()->GetOutFile();
 //	if (0==fOutFile)
 //	{
@@ -222,13 +222,13 @@ InitStatus PndFtsTrackerTaskHough::Init()
 //	else
 //	{
 //		fOutFile->cd();
-//		fOutFile->cd("PndFtsTrackerTaskHough");
+//		fOutFile->cd("PndFtsHoughTrackerTask");
 //		fOutFile->mkdir(""+eventNr);
 //	}
 //}
 
 
-void PndFtsTrackerTaskHough::WriteHistogram(PndFtsHoughSpace* houghSpace, Int_t index){
+void PndFtsHoughTrackerTask::WriteHistogram(PndFtsHoughSpace* houghSpace, Int_t index){
 	if (kFALSE == fSaveDebugInfo) return;
 
 	//	Int_t index = fHoughSpaces->GetEntriesFast();
@@ -254,7 +254,7 @@ void PndFtsTrackerTaskHough::WriteHistogram(PndFtsHoughSpace* houghSpace, Int_t 
 	//	else
 	//	{
 	//		//			fOutFile->cd();
-	//		//			fOutFile->cd("PndFtsTrackerTaskHough");
+	//		//			fOutFile->cd("PndFtsHoughTrackerTask");
 	//		if(3<fVerbose) std::cout << "WriteHistograms: Got outfile for debugging output.\n";
 	//		if (0!=houghSpace)
 	//		{
@@ -271,15 +271,15 @@ void PndFtsTrackerTaskHough::WriteHistogram(PndFtsHoughSpace* houghSpace, Int_t 
 
 
 // ---- ReInit  -------------------------------------------------------
-InitStatus PndFtsTrackerTaskHough::ReInit()
+InitStatus PndFtsHoughTrackerTask::ReInit()
 {
 	InitStatus stat=kSUCCESS;
-	if(fVerbose>3) Info(MESSAGE_ORIGIN,"Re- Initilization of PndFtsTrackerTaskHough");
+	if(fVerbose>3) Info(MESSAGE_ORIGIN,"Re- Initilization of PndFtsHoughTrackerTask");
 	return stat;
 }
 
 
-void PndFtsTrackerTaskHough::SetHitPositionErrors()
+void PndFtsHoughTrackerTask::SetHitPositionErrors()
 {
 	// TODO: Do NOT overwrite the original TCA of FTS hits https://forum.gsi.de/index.php?t=msg&goto=15924
 	if (1<fVerbose) {
@@ -304,10 +304,10 @@ void PndFtsTrackerTaskHough::SetHitPositionErrors()
 
 
 // ---- Exec ----------------------------------------------------------
-void PndFtsTrackerTaskHough::Exec(Option_t* option)
+void PndFtsHoughTrackerTask::Exec(Option_t* option)
 {
 	++fEventNr;
-	if(0<fVerbose) Info("Exec","Exec of PndFtsTrackerTaskHough on event %i", fEventNr);
+	if(0<fVerbose) Info("Exec","Exec of PndFtsHoughTrackerTask on event %i", fEventNr);
 
 	// Reset output array
 	if ( ! fTrackCands )
@@ -385,7 +385,7 @@ void PndFtsTrackerTaskHough::Exec(Option_t* option)
 
 
 
-void PndFtsTrackerTaskHough::FinishEvent()
+void PndFtsHoughTrackerTask::FinishEvent()
 {
 	// TODO Check if this is necessary, I think it can be left out!
 	//	fTrackCands->Delete();
@@ -395,9 +395,9 @@ void PndFtsTrackerTaskHough::FinishEvent()
 
 
 // ---- Finish --------------------------------------------------------
-void PndFtsTrackerTaskHough::Finish()
+void PndFtsHoughTrackerTask::Finish()
 {
-	if(3<fVerbose) Info("Finish","Finish of PndFtsTrackerTaskHough");
+	if(3<fVerbose) Info("Finish","Finish of PndFtsHoughTrackerTask");
 	// Get a handle from the IO manager
 	FairRootManager* ioman = FairRootManager::Instance();
 	if ( ! ioman ) {
@@ -411,4 +411,4 @@ void PndFtsTrackerTaskHough::Finish()
 
 
 
-ClassImp(PndFtsTrackerTaskHough)
+ClassImp(PndFtsHoughTrackerTask)

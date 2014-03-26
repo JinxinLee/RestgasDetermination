@@ -21,7 +21,7 @@
 #include "TVector3.h"
 
 // (Hough) tracking
-#include "PndFtsTrackerTaskHough.h"
+#include "PndFtsHoughTrackerTask.h"
 #include "PndTrackCand.h"
 #include "PndTrack.h"
 #include "FairTrackParP.h"
@@ -62,7 +62,7 @@ ClassImp(PndFtsHoughTrackFinder)
 
 
 
-PndFtsHoughTrackFinder::PndFtsHoughTrackFinder(PndFtsTrackerTaskHough *trackerTask, Int_t branchId, TClonesArray* hits, FairField* field) :
+PndFtsHoughTrackFinder::PndFtsHoughTrackFinder(PndFtsHoughTrackerTask *trackerTask, Int_t branchId, TClonesArray* hits, FairField* field) :
 										fTrackerTask(trackerTask),
 										fFtsHitArray(hits),
 										fFtsBranchId(branchId),
