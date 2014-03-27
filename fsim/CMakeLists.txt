@@ -55,6 +55,7 @@ PndFsmMvdPid.cxx
 PndFsmSttPid.cxx
 PndFsmSimpleVtx.cxx
 PndFsmMdtPid.cxx
+PndFsmEmcPid.cxx
 )
 
 

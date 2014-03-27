@@ -61,6 +61,7 @@
 #include "PndFsmMvdPid.h"
 #include "PndFsmSttPid.h"
 #include "PndFsmMdtPid.h"
+#include "PndFsmEmcPid.h"
 #include "PndFsmSimpleVtx.h"
 
 //-----------------------------------------------------------------------
@@ -146,6 +147,12 @@ PndFsmDetFactory::create(std::string &name,ArgList &par)
   else
   if (name=="MvdPid")
     return (PndFsmAbsDet*)( new PndFsmMvdPid(par) );
+  else
+  if (name=="ScEmcPidBarrel" || name=="ScEmcPidFwCap" || name=="ScEmcPidBwCap"){
+    PndFsmAbsDet* aDet = (PndFsmAbsDet*)(new PndFsmEmcPid(par) );
+	aDet->setName(name);
+	return aDet;
+  }
   else
   if (name=="SttPid")
     return (PndFsmAbsDet*)( new PndFsmSttPid(par) );

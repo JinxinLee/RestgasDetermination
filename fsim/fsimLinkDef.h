@@ -38,6 +38,7 @@
 #pragma link C++ class  PndFsmMvdPid+;
 #pragma link C++ class  PndFsmSttPid+;
 #pragma link C++ class  PndFsmMdtPid+;
+#pragma link C++ class  PndFsmEmcPid+;
 #pragma link C++ class  PndFsmSimpleVtx+;
 
 //#pragma link C++ class  CStrTok+;

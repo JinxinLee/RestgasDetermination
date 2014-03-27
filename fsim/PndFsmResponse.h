@@ -76,6 +76,7 @@ public:
   double DrcDiscThtc() {return _DrcDiscThtc;}
   double DrcBarrelThtc() {return _DrcBarrelThtc;}
   double RichThtc() {return _RichThtc;}
+  double EmcEcal() {return _EmcEcal;}
 
   double m2Err() {return _m2Err;}
   double MvddEdxErr() {return _MvddEdxErr;}
@@ -116,6 +117,7 @@ public:
   void setDrcDiscThtc(double val, double err=0);
   void setDrcBarrelThtc(double val, double err=0);
   void setRichThtc(double val, double err=0);
+  void setEmcEcal(double val, double err=0) {_EmcEcal = val;}
 
   void setdV(TVector3 v);
   void setdV(double dx, double dy, double dz);
@@ -148,6 +150,7 @@ private:
   double _DrcDiscThtc;	      //Theta_c Disc Dirc
   double _DrcBarrelThtc;      //Theta_c Barrel Dirc
   double _RichThtc;           //Theta_c Rich
+  double _EmcEcal;            //calibrated energy deposit in calorimeter
 
   double _m2Err;              //error of square of particle mass in Tof
   double _MvddEdxErr;         //error of dEdx in Mvd
