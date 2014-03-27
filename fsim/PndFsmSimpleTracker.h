@@ -76,6 +76,7 @@ protected:
 
   double _thtMin;
   double _thtMax;
+  double _pmin;
   double _ptmin;
 
   double _pRes;

@@ -1,8 +1,8 @@
 //--------------------------------------------------------------------------
 // Description:
 //      Class PndFsmSimpleTracker
-//      
-//  Example Tracker for the PANDA Fast Sim Detectors 
+//
+//  Example Tracker for the PANDA Fast Sim Detectors
 //
 //  This software was developed for the PANDA collaboration.  If you
 //  use all or part of it, please give an appropriate acknowledgement.
@@ -51,7 +51,7 @@ using std::string;
 // Constructors --
 //----------------
 
-PndFsmSimpleTracker::PndFsmSimpleTracker() 
+PndFsmSimpleTracker::PndFsmSimpleTracker()
 {
   initParameters();
 
@@ -61,12 +61,12 @@ PndFsmSimpleTracker::PndFsmSimpleTracker()
   print(std::cout);
 }
 
-PndFsmSimpleTracker::PndFsmSimpleTracker(ArgList &par) 
+PndFsmSimpleTracker::PndFsmSimpleTracker(ArgList &par)
 {
   initParameters();
   //set default parameter values and parses a parameter list
   //i.e. std::list<std::string> of the form
-  //"a=1" "b=2" "c=3" 
+  //"a=1" "b=2" "c=3"
   parseParameterList(par);
 
   _thtMin=_thtMin*M_PI/180.0;
@@ -87,80 +87,83 @@ PndFsmSimpleTracker::~PndFsmSimpleTracker()
 // Operations --
 //--------------
 
-PndFsmResponse* 
+PndFsmResponse*
 PndFsmSimpleTracker::respond(PndFsmTrack *t)
 {
   PndFsmResponse *result=new PndFsmResponse();
-  
+
   result->setDetector(this);
   bool wasDetected=detected(t);
   result->setDetected(wasDetected);
-  
+
   if (wasDetected && fabs(t->charge())>1e-8)
   {
     result->setdp(dp(t));
     result->setdphi(dphi(t));
     result->setdtheta(dtheta(t));
   }
-  
+
   return result;
 }
 
-bool 
+bool
 PndFsmSimpleTracker::detected(PndFsmTrack *t) const
 {
     double theta = t->p4().Theta();
     double p_t=t->p4().Vect().Perp(TVector3(0.,0.,1.));
+    double p=t->p4().Vect().Mag();
     double charge=t->charge();
 
-    return ( charge!=0.0 && theta>=_thtMin && theta<=_thtMax && p_t>_ptmin  && _rand->Rndm()<=_efficiency);
+    return ( charge!=0.0 && theta>=_thtMin && theta<=_thtMax && p_t>_ptmin && p>_pmin && _rand->Rndm()<=_efficiency);
 }
 
 
-double 
+double
 PndFsmSimpleTracker::dp(PndFsmTrack *t) const
 {
   double p=t->p4().Vect().Mag();
-  
+
   return (_pRes * p );
 }
 
 double
 PndFsmSimpleTracker::dphi(PndFsmTrack *t) const
 {
-  return _phiRes; 
+  return _phiRes;
 }
 
 double
 PndFsmSimpleTracker::dtheta(PndFsmTrack *t) const
 {
-  return _thtRes; 
+  return _thtRes;
 }
 
 void
 PndFsmSimpleTracker::print(ostream &o)
 {
   o <<"Parameters for detector <"<<detName()<<">"<<endl;
-  o  <<"  _thtMin     = " <<  _thtMin << endl; 
-  o  <<"  _thtMax     = " <<  _thtMax << endl; 
-  o  <<"  _ptmin      = " <<  _ptmin  << endl; 
+  o  <<"  _thtMin     = " <<  _thtMin << endl;
+  o  <<"  _thtMax     = " <<  _thtMax << endl;
+  o  <<"  _ptmin      = " <<  _ptmin  << endl;
+  o  <<"  _pmin       = " <<  _pmin   << endl;
   o  <<"  _pRes       = " <<  _pRes   << " (rel)"<< endl;
   o  <<"  _thtRes     = " <<  _thtRes << endl;
   o  <<"  _phiRes     = " <<  _phiRes << endl;
-  o  <<"  _efficiency = " << _efficiency<<endl; 
+  o  <<"  _efficiency = " << _efficiency<<endl;
 }
 
-void 
+void
 PndFsmSimpleTracker::initParameters()
 {
   _detName         = "PndFsmSimpleTracker";
   _thtMin          = 7.765;
   _thtMax          = 159.44;
   _ptmin           = 0.1;
+  _pmin            = 0.0;
   _pRes            = 0.02;   // 2%
   _thtRes          = 0.005;
   _phiRes          = 0.005;
-  _efficiency	   = 1.0; 
+  _efficiency	   = 1.0;
 
 }
 
@@ -170,9 +173,9 @@ PndFsmSimpleTracker::setParameter(std::string &name, double value)
   // *****************
   // include here all parameters which should be settable via script
   // *****************
-      
+
   bool knownName=true;
-  
+
   if (name == "thtMin")
     _thtMin=value;
   else
@@ -181,6 +184,9 @@ PndFsmSimpleTracker::setParameter(std::string &name, double value)
   else
   if (name == "ptmin")
     _ptmin=value;
+  else
+  if (name == "pmin")
+    _pmin=value;
   else
   if (name == "pRes")
     _pRes=value;
@@ -195,7 +201,7 @@ PndFsmSimpleTracker::setParameter(std::string &name, double value)
     _efficiency=value;
   else
     knownName=false;
-  
+
   return knownName;
 }
 
