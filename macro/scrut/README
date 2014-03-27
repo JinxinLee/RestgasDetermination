@@ -1,7 +1,20 @@
 macro/scrut
 --------------
 
-In this directory are files necessary to run the fast simulation and perform some analysis, suitable for the 
+**************************************************
+Preface: Documentation about PandaROOT and Rho
+**************************************************
+
+For general info about doing simulation and analysis with PandaROOT and Rho, please consult the following links:
+
+1. https://panda-wiki.gsi.de/foswiki/bin/view/Computing/PandaRoot                     (PandaROOT Wiki)
+2. https://panda-wiki.gsi.de/foswiki/bin/view/Computing/PandaRootRhoTutorial          (Simulation/Analysis Tutorial)
+3. https://panda-wiki.gsi.de/foswiki/bin/view/Computing/PandaRootAnalysisJuly13       (Rho Class Dokumentation)
+4. https://panda-wiki.gsi.de/foswiki/bin/view/Computing/PandaRootSimulationPrometheus (Using Prometheus Cluster @ GSI)
+
+**************************************************
+
+In this directory macro/scrut are files necessary to run the fast simulation and perform some analysis, suitable for the 
 investigations for the PANDA scrutiny process.
 
 - simfast.C: macro for running fast simulation (for details see below)
@@ -28,26 +41,30 @@ Configuration of Fast Sim
   1. Tracking detectors: 
   -----------------------
     The setup of tracking is driven by the coverage of polar angle regions, not by single subdetectors. In
-    particular the detectors should not overlap in theta, which leads to unrealistic mergeing of resolutions. The tracking detectors
+    particular the detectors *should not overlap in theta*, which leads to unrealistic mergeing of resolutions. The tracking detectors
     basically provide momentum/angular smearing, and a tracking efficiency. Also momentum or pt thresholds can be set. 
-    PID information is _not_ generated! Example configurations are:
+    *PID information is not* generated! Example configurations are:
+
 
     Complete detector:
     ------------------
-    fastSim->AddDetector("ScSttAlone",  "thtMin=145.  thtMax=159.5 ptmin=0.1 pRes=0.04  thtRes=0.001 phiRes=0.001 efficiency=0.25");
-    fastSim->AddDetector("ScSttMvd",    "thtMin=20.9  thtMax=145.  ptmin=0.1 pRes=0.016 thtRes=0.001 phiRes=0.001 efficiency=0.95");
-    fastSim->AddDetector("ScSttMvdGem", "thtMin=7.8   thtMax=20.9  ptmin=0.1 pRes=0.018 thtRes=0.001 phiRes=0.001 efficiency=0.95");
-    fastSim->AddDetector("ScMvdGem",    "thtMin=5.    thtMax=7.8   ptmin=0.1 pRes=0.03  thtRes=0.001 phiRes=0.001 efficiency=0.80");
-    fastSim->AddDetector("ScMvdGemFts", "thtMin=5.    thtMax=7.8   ptmin=0.1 pRes=0.03  thtRes=0.001 phiRes=0.001 efficiency=0.80");
-    fastSim->AddDetector("ScFts",       "thtMin=0.    thtMax=5.    ptmin=0.0 pRes=0.05  thtRes=0.002 phiRes=0.002 efficiency=0.80");
+	fastSim->AddDetector("ScSttAlone",  "thtMin=145.  thtMax=159.5 ptmin=0.1 pmin=0.0 pRes=0.04  thtRes=0.001 phiRes=0.001 efficiency=0.25");
+	fastSim->AddDetector("ScSttMvd",    "thtMin=20.9  thtMax=145.  ptmin=0.1 pmin=0.0 pRes=0.016 thtRes=0.001 phiRes=0.001 efficiency=0.95");
+	fastSim->AddDetector("ScSttMvdGem", "thtMin=7.8   thtMax=20.9  ptmin=0.1 pmin=0.0 pRes=0.018 thtRes=0.001 phiRes=0.001 efficiency=0.95");
+	fastSim->AddDetector("ScMvdGem",    "thtMin=5.    thtMax=7.8   ptmin=0.1 pmin=0.0 pRes=0.03  thtRes=0.001 phiRes=0.001 efficiency=0.80");
+	fastSim->AddDetector("ScMvdGemFts", "thtMin=5.    thtMax=7.8   ptmin=0.1 pmin=0.0 pRes=0.03  thtRes=0.001 phiRes=0.001 efficiency=0.80");
+	fastSim->AddDetector("ScFts",       "thtMin=0.    thtMax=5.    ptmin=0.0 pmin=0.5 pRes=0.05  thtRes=0.002 phiRes=0.002 efficiency=0.80");
 
-    Forward tracking with MVD or GEM alone:
-    ---------------------------------------
-    fastSim->AddDetector("ScMvdFts",    "thtMin=5.    thtMax=10    ptmin=0.0 pRes=0.05  thtRes=0.002 phiRes=0.002 efficiency=0.80");
-    fastSim->AddDetector("ScGemFts",    "thtMin=3.    thtMax=10    ptmin=0.0 pRes=0.05  thtRes=0.002 phiRes=0.002 efficiency=0.80");
+    OPTION: Forward tracking setups
+    ------------------------------------------------
+    fastSim->AddDetector("ScMvdGemFts", "thtMin=5.    thtMax=7.8   ptmin=0.1 pmin=0.0 pRes=0.03  thtRes=0.001 phiRes=0.001 efficiency=0.80");
+ 	or
+	fastSim->AddDetector("ScMvdFts",    "thtMin=5.    thtMax=10    ptmin=0.0 pmin=0.0 pRes=0.05  thtRes=0.002 phiRes=0.002 efficiency=0.80");
+    or
+	fastSim->AddDetector("ScGemFts",    "thtMin=3.    thtMax=10    ptmin=0.0 pmin=0.0 pRes=0.05  thtRes=0.002 phiRes=0.002 efficiency=0.80");
 
-    STT alone:
-    ----------
+    OPTION: STT alone:
+    -------------------
     fastSim->AddDetector("ScSttAlone",  "thtMin=133.6 thtMax=159.5 ptmin=0.1 pRes=0.030 thtRes=0.06 phiRes=0.1 efficiency=0.25");
     fastSim->AddDetector("ScSttAlone",  "thtMin=20.9  thtMax=133.6 ptmin=0.1 pRes=0.026 thtRes=0.06 phiRes=0.1 efficiency=0.95");
     fastSim->AddDetector("ScSttAlone",  "thtMin=7.8   thtMax=20.9  ptmin=0.1 pRes=0.026 thtRes=0.06 phiRes=0.1 efficiency=0.25");
@@ -57,6 +74,7 @@ Configuration of Fast Sim
   ------------------------
     These only smear the vertex information. Without fitting possibly has no impact anyways.
 
+
 	fastSim->AddDetector("ScVtxMvd",   "thtMin=5. thtMax=145. ptmin=0.1 vtxRes=0.005 efficiency=1."); // efficiency=1: all tracks found in trackers will get a vertex information
 	fastSim->AddDetector("ScVtxNoMvd", "thtMin=0. thtMax=5.   ptmin=0.0 vtxRes=0.05 efficiency=1."); // efficiency=1: all tracks found in trackers will get a vertex information
 
@@ -64,6 +82,7 @@ Configuration of Fast Sim
   3. Electro magnetic calorimeters: 
   ----------------------------------
     The EMC detectors provide a certain energy/angular smearing for neutrals, and energy threshold can be set. No PID information is generated! 
+
 
 	fastSim->AddDetector("EmcBarrel","thtMin=22.0 thtMax=140.0 Emin=0.01 barrelRadius=0.5");
 	fastSim->AddDetector("EmcFwCap", "thtMin=5.0 thtMax=22.0 Emin=0.01 dist=2.5");
@@ -73,16 +92,26 @@ Configuration of Fast Sim
 
   4. PID detectors: 
   ------------------
-    Besides the 'PID only'-detectors like the Cherenkovs, also PID info for trackers is generated, separated from the tracking simulation. The PID
-    information from the EMCs and MUO are missing for the time being. TOF in priniciple is available, but the concept is not realistic without
-    start detector.	
+    Besides the 'PID only'-detectors like the Cherenkov counters and muon detectors, also PID info for trackers and EMCs is generated, separated from the 
+    tracking and neutral simulation. TOF in priniciple is available, but the concept is not realistic without start detector.	
 
+	// Based on dE/dx from trackers
 	fastSim->AddDetector("MvdPid","thtMin=5.  thtMax=133.6 ptmin=0.1  dEdxResMulti=1. efficiency=1."); //Note: A Bethe-Bloch-Landau-Gauss Prametrization from 2008
 	fastSim->AddDetector("SttPid","thtMin=7.8 thtMax=159.5 ptmin=0.1 dEdxRes=1. efficiency=1."); //Note: A dEdX parametrization from 2008
+
+	// Based on theta_C from Cherenkovs
 	fastSim->AddDetector("DrcBarrel","thtMin=22.0 thtMax=140.0 dthtc=0.01 nPhotMin=5 effNPhotons=0.075");
 	fastSim->AddDetector("DrcDisc","thtMin=5.0 thtMax=22.0 dthtc=0.01 nPhotMin=5 effNPhotons=0.075");
 	fastSim->AddDetector("Rich","angleXMax=5.0 angleYMax=10.0 dthtc=0.01 nPhotMin=5 effNPhotons=0.075");
 
+	// Based on flat eff(mu) & misid(pi) from muon detectors
+	fastSim->AddDetector("ScMdtPidBarrel", "thtMin=10.0 thtMax=130.0 pMin=1.0 efficiency=0.95 misId=0.01");
+	fastSim->AddDetector("ScMdtPidForward","thtMin=0.0  thtMax=10.0  pMin=1.5 efficiency=0.95 misId=0.01");
+	
+	// Based on deposited energy from EMCs
+	fastSim->AddDetector("ScEmcPidFwCap",  "thtMin=10.0  thtMax=22.0  ptmin=0.0 pmin=0.0 efficiency=1.0");
+	fastSim->AddDetector("ScEmcPidBarrel", "thtMin=22.0  thtMax=142.0 ptmin=0.2 pmin=0.0 efficiency=1.0");
+	fastSim->AddDetector("ScEmcPidBwCap",  "thtMin=142.0 thtMax=160.0  ptmin=0.0 pmin=0.0 efficiency=1.0");
    
 
 ##################
