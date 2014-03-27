@@ -24,7 +24,9 @@ fi
 
 momStr=`echo $pbeam | sed -e '{ s/\./_/g; }'`
 #path=${VMCWORKDIR}/macro/lmd/testTargetBeamProfile_ZXplane_Step5cm/mom_${momStr}/
-path=${VMCWORKDIR}/macro/lmd/testTargetBeamProfile_Line_Step50cm_XYStep9mm/mom_${momStr}/
+#path=${VMCWORKDIR}/macro/lmd/testTargetBeamProfile_Line_Step50cm_XYStep9mm/mom_${momStr}/
+path=${VMCWORKDIR}/macro/lmd/testTargetBeamProfile_PCA_XYStep9mm_large/mom_${momStr}/
+#path=${VMCWORKDIR}/macro/lmd/testTargetBeamProfile_Line_Step50cm/mom_${momStr}/
 
 mkdir -p ${path}
 #number of trks per event
@@ -103,7 +105,7 @@ fi
 	 fi
 
 # # Quality assurance task(s)
-      root -l -b -q runLumiPixel7QA.C\(${numEv},0,"\"${path}\"",0,${pbeam}\)
+      root -l -b -q runLumiPixel7QA.C\(${numEv},0,"\"${path}\"",0,${pbeam},${CleanSig}\)
       root -l -b -q runLumiPixel7TrksQA.C\(${numEv},0,"\"${path}\"",0,${pbeam},${WrAllMC},${CleanSig}\)
       root -l -b -q  Anastasia/test_macros/BkgSignalCount.C\("\"${path}\"",${numEv},0\)
       root -l -b -q Anastasia/test_macros/EffTrks.C\(${numEv},0,"\"${path}\""\)

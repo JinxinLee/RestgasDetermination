@@ -141,21 +141,21 @@ void runLumiPixel0SimBoxTarget(const int nEvents=10, const int startEv=0, TStrin
   double beam_X0=0.; double beam_Y0=0.; double beam_width_sigma_X=1.8; double beam_width_sigma_Y=1.8;
   primGen->SmearVertexXY(kTRUE);
 
-// // // //shift 0 cm -------------------------------
-//   double target_width_Z=0.05;
-//   double target_Z0=0.;
-// //   // //END shift 0 cm -------------------------------
+// // //shift 0 cm -------------------------------
+  double target_width_Z=0.05;
+  double target_Z0=0.;
+//   // //END shift 0 cm -------------------------------
 
   // // //shift 5 cm -------------------------------
   // double target_width_Z=0.05;
   // double target_Z0=5.;
   // // //END shift 5 cm -------------------------------
 
-  // //  step 5 cm -------------------------------
-  double target_Z0=0.;
-  // double target_width_Z=10.;//+/- 5 cm
- double target_width_Z=100.;//+/- 50 cm
-  // //  END step 5 cm -------------------------------
+ //  // //  step 5 cm -------------------------------
+ //  double target_Z0=0.;
+ //  // double target_width_Z=10.;//+/- 5 cm
+ // double target_width_Z=100.;//+/- 50 cm
+ //  // //  END step 5 cm -------------------------------
 
   
   primGen->SetBeam(beam_X0, beam_Y0, beam_width_sigma_X, beam_width_sigma_Y);
