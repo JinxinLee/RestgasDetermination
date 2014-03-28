@@ -57,17 +57,22 @@ using std::endl;
 
 
 // -----   Default constructor   -------------------------------------------
-PndScrutAnaTask::PndScrutAnaTask(double pbarmom) :
+PndScrutAnaTask::PndScrutAnaTask(double pbarmom, TString outname) :
   FairTask("Panda Scrutiny Analysis Task") 
 { 
 	double mp=0.938272;
 	fIni.SetXYZT(0,0,pbarmom, sqrt(pbarmom*pbarmom+mp*mp)+mp);
+
+	fOutName = outname;
 }
 // -------------------------------------------------------------------------
 
 
 // -----   Destructor   ----------------------------------------------------
-PndScrutAnaTask::~PndScrutAnaTask() { }
+PndScrutAnaTask::~PndScrutAnaTask() 
+{ 
+	delete fFile;
+}
 // -------------------------------------------------------------------------
 
 
@@ -86,10 +91,25 @@ InitStatus PndScrutAnaTask::Init()
 	
 	fPdg = TDatabasePDG::Instance();
 	
+	// ***
+	// *** Prepare RhoTuple output  
+	// ***
+	TDirectory *dir = gDirectory;	
+    fFile=new TFile(fOutName,"RECREATE");
+	fFile->cd();
+	
 	// *** create some ntuples
 	ntp1 = new RhoTuple("ntp1", "jpsi analysis");
 	ntp2 = new RhoTuple("ntp2", "psi(2S) analysis");
 	nmc  = new RhoTuple("nmc",  "mctruth info");
+
+	// assign RhoTuples to outfile
+	if (ntp1) ntp1->GetInternalTree()->SetDirectory(gDirectory);
+	if (ntp2) ntp2->GetInternalTree()->SetDirectory(gDirectory);
+	if (nmc)  nmc->GetInternalTree()->SetDirectory(gDirectory);
+
+	// *** restore original gDirectory
+	dir->cd();
 	
 	return kSUCCESS;
 }
@@ -233,9 +253,8 @@ void PndScrutAnaTask::Finish()
 	// ******* STORE YOUR HISTOS AND TUPLES
 	// *******
 	
-	ntp1->GetInternalTree()->Write();
-	ntp2->GetInternalTree()->Write();
-	nmc->GetInternalTree()->Write();
+	fFile->Write();
+	fFile->Close();	
 
 }
 

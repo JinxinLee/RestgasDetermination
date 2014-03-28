@@ -9,13 +9,13 @@ void ana_jpsi_task(TString InFile="test_fast.root", int nevts=0, double pbarmom 
 	FairRunAna* fRun = new FairRunAna();
 	fRun->SetWriteRunInfoFile(kFALSE);
 	fRun->SetInputFile(InFile);
-	fRun->SetOutputFile(OutFile);
+	fRun->SetOutputFile("fairout_dummy.root");
 
 	// *** take constant field; needed for PocaVtx
 	RhoCalculationTools::ForceConstantBz(20.0);
 
 	// *** HERE OUR ANALYSIS TASK GOES!
-	PndScrutAnaTask *scrutTask = new PndScrutAnaTask(pbarmom);
+	PndScrutAnaTask *scrutTask = new PndScrutAnaTask(pbarmom, OutFile);
 	fRun->AddTask(scrutTask);
 
 	// *** and run analysis

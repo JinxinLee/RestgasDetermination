@@ -27,7 +27,7 @@ class PndScrutAnaTask : public FairTask
  public:
 	
 	// ** Default constructor   
-	PndScrutAnaTask(double pbarmom);
+	PndScrutAnaTask(double pbarmom, TString outname);
 	
 	// ** Destructor 
 	~PndScrutAnaTask();	
@@ -53,6 +53,8 @@ class PndScrutAnaTask : public FairTask
 	// *** the PndAnalysis object
 	PndAnalysis   *fAnalysis;
 	TDatabasePDG  *fPdg;
+	TFile 		  *fFile;
+	TString		  fOutName;
 	
 	
 	// *******
