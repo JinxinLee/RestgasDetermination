@@ -100,6 +100,11 @@ Bool_t RhoFitterBase::Fit()
 
 Bool_t RhoFitterBase::FitAll()
 {
+  if(fHeadOfTree->IsLocked())
+  {
+    Warning("RhoFitterBase::FitAll","You tried to fit a locked candidate. Retuning kFALSE now.");
+    return kFALSE;
+  }
   return IterateAndFit(fHeadOfTree);
 }
 
@@ -115,10 +120,10 @@ Bool_t RhoFitterBase::IterateAndFit(RhoCandidate* b)
     {
       check = IterateAndFit(dau);
       if(kFALSE==check) return kFALSE;
-      check = FitNode(dau);
-      if(kFALSE==check) return kFALSE;
     }
   }
+  check = FitNode(b);
+  if(kFALSE==check) return kFALSE;
   return kTRUE;
 }
 
