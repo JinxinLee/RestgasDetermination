@@ -204,7 +204,7 @@ class RhoTuple : public TNamed
     void WriteToFile ( TString fname="ntpdata.root", TString opt="RECREATE" );
     void AddToFile ( TString fname="ntpdata.root" );
 
-    const TTree* GetInternalTree() {
+     TTree* GetInternalTree() {
       return fTree;
     }
 
