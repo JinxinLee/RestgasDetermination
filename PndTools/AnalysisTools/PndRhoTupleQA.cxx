@@ -834,6 +834,8 @@ void PndRhoTupleQA::qaRecoFull(TString pre, RhoCandidate *c, RhoTuple *n)
 
 void PndRhoTupleQA::qaMcList(TString pre, RhoCandList &l, RhoTuple *n)
 {
+	if (n==0) return;
+	
 	int npart = l.GetLength();
 
 	TVector vpart(npart), vpdg(npart), vmoth(npart), 
