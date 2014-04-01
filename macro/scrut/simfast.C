@@ -2,13 +2,14 @@
 // Macro for running fast simulation
 // *******
 
-void simfast(TString Prefix, TString Decfile, Float_t Mom, Int_t nEvents = 1000, TString Resonance="pbarpSystem0" )
+void simfast(TString Prefix, TString Decfile, Float_t Mom, Int_t nEvents = 1000, TString Resonance="pbarpSystem0", int pdgcode = 11 )
 {
   TString BaseDir =  gSystem->Getenv("VMCWORKDIR");
+  TString splitpars = BaseDir+"/fsim/splitpars.dat";
 
  //-----User Settings:-----------------------------------------------
   TString  OutputFile     = Prefix+"_fast.root";
-  gDebug                  = 0;
+  gDebug             = 0;
 
   // generate electro-magnetic / hadronic split offs in the EMC? switch off when running w/o EMC
   Bool_t enableSplitoff   = kFALSE;
@@ -32,13 +33,12 @@ void simfast(TString Prefix, TString Decfile, Float_t Mom, Int_t nEvents = 1000,
 	  UseBoxGenerator = kTRUE;
   }
 
-  Double_t MomMin  = 0.5;  // minimum momentum for box generator
+  Double_t MomMin  = 0.1;  // minimum momentum for box generator
   Double_t MomMax  = Mom;  // maximum   "       "
 
   // Start a stop watch
   TStopwatch timer;
   timer.Start();
-  gDebug=0;
 
   // Create the Simulation run manager
   // --------------------------------
@@ -56,8 +56,8 @@ void simfast(TString Prefix, TString Decfile, Float_t Mom, Int_t nEvents = 1000,
   fRun->SetName("TGeant3");
 
   if(UseBoxGenerator){  // Box Generator
-     FairBoxGenerator* boxGen = new FairBoxGenerator(211, 1); // 211 = pion; 1 = multipl.
-     boxGen->SetPtRange(MomMin,MomMax); // GeV/c
+     FairBoxGenerator* boxGen = new FairBoxGenerator(pdgcode, 1); // 211 = pion; 1 = multipl.
+     boxGen->SetPRange(MomMin,MomMax); // GeV/c
      boxGen->SetPhiRange(0., 360.); // Azimuth angle range [degree]
      boxGen->SetThetaRange(0., 180.); // Polar angle in lab system range [degree]
      boxGen->SetXYZ(0., 0., 0.); //cm
@@ -89,7 +89,7 @@ void simfast(TString Prefix, TString Decfile, Float_t Mom, Int_t nEvents = 1000,
 
   //enable the producting of parametrized neutral (hadronic) split offs
   if (enableSplitoff)
-    fastSim->EnableSplitoffs(BaseDir+"/fsim/splitpars.dat");
+    fastSim->EnableSplitoffs(splitpars.Data());
 
   // -----------------------------------------------------------------------------------
   //Tracking: Set up in parts of theta coverage. All modelled by PndFsmSimpleTracker.
@@ -139,8 +139,8 @@ void simfast(TString Prefix, TString Decfile, Float_t Mom, Int_t nEvents = 1000,
   fastSim->AddDetector("DrcDisc","thtMin=5.0 thtMax=22.0 dthtc=0.01 nPhotMin=5 effNPhotons=0.075");
   fastSim->AddDetector("Rich","angleXMax=5.0 angleYMax=10.0 dthtc=0.01 nPhotMin=5 effNPhotons=0.075");
   
-  fastSim->AddDetector("ScMdtPidBarrel", "thtMin=10.0 thtMax=130.0 pMin=1.0 efficiency=0.95 misId=0.01");
-  fastSim->AddDetector("ScMdtPidForward","thtMin=0.0  thtMax=10.0  pMin=1.5 efficiency=0.95 misId=0.01");
+  fastSim->AddDetector("ScMdtPidBarrel", "thtMin=10.0 thtMax=130.0 pmin=1.0 efficiency=0.95 misId=0.01");
+  fastSim->AddDetector("ScMdtPidForward","thtMin=0.0  thtMax=10.0  pmin=1.5 efficiency=0.95 misId=0.01");
   
   fastSim->AddDetector("ScEmcPidFwCap",  "thtMin=10.0  thtMax=22.0  ptmin=0.0 pmin=0.0 efficiency=1.0");
   fastSim->AddDetector("ScEmcPidBarrel", "thtMin=22.0  thtMax=142.0 ptmin=0.2 pmin=0.0 efficiency=1.0");

@@ -120,13 +120,14 @@ Running Fast Sim
 
 The macro simfast.C accepts several parameters:
 
-  USAGE: root -l -b -q  'simfast.C("<prefix>","<decfile>",<mom>,<nevts>,"<resonance>")'
+  USAGE: root -l -b -q  'simfast.C("<prefix>","<decfile>",<mom>,<nevts>,"<resonance>",<pdgcode>)'
 
     <prefix>    : Prefix for output file.
     <decfile>   : Name of local decay file for EvtGen. Setting it to 'DPM' will run dpm events, 'BOX' the box generator
     <mom>       : EvtGen and DPM: momentum of pbar; BOX: upper momentum of single particles
     <nevts>     : number of events to process
-    <resonance> : only for EvtGen: name of initial resonance, e.g. "psi(2S)" or "pbarpSystem0"
+    <resonance> : optional, only for EvtGen: name of initial resonance, e.g. "psi(2S)" or "pbarpSystem0"
+    <pdgcode>   : optional, only for Box Generator: pdgcode for particles to be produced (mult=1)
 
   EXAMPLE 1: root -l -b -q  'simfast.C("psi2s", "psi2s_jpsi2mu_2pi.dec", 6.232069, 10000, "psi(2S)")
 
@@ -136,10 +137,10 @@ The macro simfast.C accepts several parameters:
 
              Creates output 'dpm_fast.root', containing 100k DPM events as background for upper case. 
 
-  EXAMPLE 3: root -l -b -q  'simfast.C("singlemu", "BOX", 8.0, 100000)'
+  EXAMPLE 3: root -l -b -q  'simfast.C("singlemu", "BOX", 8.0, 100000, "", 13)'
 
-             Creates output 'singlemu_fast.root', containing 100k single mu- events with 0 < p <8.0 GeV, isotropic in theta and phi.
-             For different species or phase space coverage, the macro has to be modified.
+             Creates output 'singlemu_fast.root', containing 100k single mu- events (pdg=13) with 0.1 < p < 8.0 GeV, isotropic in theta and phi.
+             For different phase space coverage or multiplicities, the macro has to be modified.
 
 
 ####################
