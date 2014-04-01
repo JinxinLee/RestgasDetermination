@@ -137,6 +137,7 @@ void PndFastSim::Register() {
     TClonesArray* tmparray = new TClonesArray("PndPidProbability");
     FairRootManager::Instance()->Register(arrayname.Data(),"FastSim", tmparray, kTRUE);
     fPidArrayList[detname]=tmparray;
+    //std::cout<<"registered pid TCA with name "<<detname.Data()<<std::endl;
   }
 }
 
@@ -702,31 +703,34 @@ bool PndFastSim::smearTrack(PndFsmTrack *t)
   {
     PndFsmResponse *resp=*riter;
     if (!resp) continue;
-    if(success)
+    if(success&&resp->detector()->doesPid())
     { //save PID information only if particle is stored
-    PndPidProbability *pidProb;
-    TClonesArray* myPidarray = fPidArrayList[resp->detector()->detName()];
-    double rawLHe  = resp->LHElectron();
-    double rawLHmu = resp->LHMuon();
-    double rawLHpi = resp->LHPion();
-    double rawLHK  = resp->LHKaon();
-    double rawLHp  = resp->LHProton();
+      TString detname = resp->detector()->detName();
+      //std::cout<<"try PID array "<<detname.Data()<<std::endl;
+      TClonesArray* myPidarray = fPidArrayList[detname];
+      int npid = myPidarray->GetEntriesFast();
+      PndPidProbability *pidProb=new((*myPidarray)[npid]) PndPidProbability();
+      double rawLHe  = resp->LHElectron();
+      double rawLHmu = resp->LHMuon();
+      double rawLHpi = resp->LHPion();
+      double rawLHK  = resp->LHKaon();
+      double rawLHp  = resp->LHProton();
 
-    double sumRaw = rawLHe+rawLHmu+rawLHpi+rawLHK+rawLHp;
-    if (sumRaw!=0.)
-    {
-      pidProb->SetElectronPdf(rawLHe);
-      pidProb->SetMuonPdf(rawLHmu);
-      pidProb->SetPionPdf(rawLHpi);
-      pidProb->SetKaonPdf(rawLHK);
-      pidProb->SetProtonPdf(rawLHp);
-    } else {
-      pidProb->SetElectronPdf(0.2);
-      pidProb->SetMuonPdf(0.2);
-      pidProb->SetPionPdf(0.2);
-      pidProb->SetKaonPdf(0.2);
-      pidProb->SetProtonPdf(0.2);
-    }
+      double sumRaw = rawLHe+rawLHmu+rawLHpi+rawLHK+rawLHp;
+      if (sumRaw!=0.)
+      {
+        pidProb->SetElectronPdf(rawLHe);
+        pidProb->SetMuonPdf(rawLHmu);
+        pidProb->SetPionPdf(rawLHpi);
+        pidProb->SetKaonPdf(rawLHK);
+        pidProb->SetProtonPdf(rawLHp);
+      } else {
+        pidProb->SetElectronPdf(0.2);
+        pidProb->SetMuonPdf(0.2);
+        pidProb->SetPionPdf(0.2);
+        pidProb->SetKaonPdf(0.2);
+        pidProb->SetProtonPdf(0.2);
+      }
     }
     // and now clean up!
     delete resp;
@@ -979,7 +983,7 @@ PndFastSim::sumResponse(FsmResponseList respList)
       if (fabs(val = resp->dp()) > 1e-8)      dp += 1/(val*val);
       if (fabs(val = resp->dtheta())> 1e-8) dtheta += 1/(val*val);
       if (fabs(val = resp->dphi()) > 1e-8)   dphi += 1/(val*val);
-	  
+
       if (fabs(val = resp->dt()) > 1e-8)     dt += val*val;
       if (fabs(val = resp->dm()) > 1e-8)     dm =val;
       if (fabs (val = resp->m2()) > 1e-11)    m2=val;
