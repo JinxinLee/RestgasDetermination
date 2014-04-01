@@ -106,6 +106,7 @@ EmcReco/PndEmcExpClusterSplitter.cxx
 EmcReco/PndEmcMakeRecoHit.cxx
 EmcReco/PndEmcErrorMatrix.cxx
 EmcReco/PndEmcErrorMatrixPar.cxx
+EmcReco/PndEmcPhiBumpSplitter.cxx
 EmcCorr/PndEmcMakeCorr.cxx
 EmcCorr/PndEmcCorrection.cxx
 EmcCorr/PndEmcClusterCalibrator.cxx

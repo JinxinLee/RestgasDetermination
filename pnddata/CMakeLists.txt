@@ -103,6 +103,7 @@ TrackData/PndTrackID.cxx
 
 PidData/PndPidCandidate.cxx
 PidData/PndPidProbability.cxx
+PidData/PndPidBremCorrected4Mom.cxx
 
 FairRecoCandidate.cxx
 )
@@ -191,6 +192,7 @@ TrackData/PndTrackID.h
 
 PidData/PndPidCandidate.h
 PidData/PndPidProbability.h
+PidData/PndPidBremCorrected4Mom.h
 
 FairRecoCandidate.h
 )

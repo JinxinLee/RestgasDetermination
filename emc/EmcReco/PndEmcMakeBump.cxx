@@ -36,6 +36,7 @@
 #include "PndEmcSharedDigi.h"
 #include "PndEmc2DLocMaxFinder.h"
 #include "PndEmcExpClusterSplitter.h"
+#include "PndEmcPhiBumpSplitter.h"
 #include "PndEmcTwoCoordIndex.h"
 
 #include "TClonesArray.h"
@@ -59,7 +60,8 @@ FairTask("EMC Bump splitting Task"), fVerbose(verbose), fPersistance(persistance
 {
   this->Add(new PndEmc2DLocMaxFinder());
   this->Add(new PndEmcExpClusterSplitter());
-
+  this->Add(new PndEmcPhiBumpSplitter());
+  
   TList* thistasks = this->GetListOfTasks();
   for(Int_t i=0;i<thistasks->GetEntries();i++)
   {
@@ -75,6 +77,7 @@ void PndEmcMakeBump::SetStorageOfData(Bool_t val)
   TList* thistasks = this->GetListOfTasks();
   ((PndEmc2DLocMaxFinder*)thistasks->At(0))->SetStorageOfData(fPersistance);
   ((PndEmcExpClusterSplitter*)thistasks->At(1))->SetStorageOfData(fPersistance);
+  ((PndEmcPhiBumpSplitter*)thistasks->At(2))->SetStorageOfData(fPersistance);  
   return;
 }
 

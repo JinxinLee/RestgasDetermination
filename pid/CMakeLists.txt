@@ -69,6 +69,7 @@ PidCorr/PndPidFtsInfo.cxx
 PidCorr/PndPidFscInfo.cxx
 PidCorr/PndPidFtofInfo.cxx
 PidCorr/PndPidMdtInfo.cxx
+PidCorr/PndPidBremCorrector.cxx
 PndPidContFact.cxx
 
 ###### Associator
@@ -90,6 +91,7 @@ PidClassifier/PndPidMvdPar.cxx
 set(HEADERS
 PidCorr/PndPidCorrPar.h
 PidCorr/PndPidCorrelator.h
+PidCorr/PndPidBremCorrector.h
 PndPidContFact.h
 
 ###### Associator Headers
