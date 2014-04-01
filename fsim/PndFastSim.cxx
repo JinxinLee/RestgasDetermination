@@ -938,22 +938,23 @@ PndFastSim::sumResponse(FsmResponseList respList)
       if (fabs(val = resp->dp()) > 1e-8)      dp += 1/(val*val);
       if (fabs(val = resp->dtheta())> 1e-8) dtheta += 1/(val*val);
       if (fabs(val = resp->dphi()) > 1e-8)   dphi += 1/(val*val);
+	  
       if (fabs(val = resp->dt()) > 1e-8)     dt += val*val;
-      if (fabs(val = resp->dm()) > 1e-8)     dm +=val;
-      if (fabs (val = resp->m2()) > 1e-11)    m2+=val;
-      if (fabs (val = resp->MvddEdx()) > 1e-11)    MvddEdx+=val;
-      if (fabs (val = resp->SttdEdx()) > 1e-11)    SttdEdx+=val;
-      if (fabs (val = resp->DrcDiscThtc()) > 1e-11)   DrcDiscThtc+=val;
-      if (fabs (val = resp->DrcBarrelThtc()) > 1e-11)    DrcBarrelThtc+=val;
-      if (fabs (val = resp->RichThtc()) > 1e-11)    RichThtc+=val;
-      if (fabs (val = resp->EmcEcal()) > 1e-11)    EmcEcal+=val;
+      if (fabs(val = resp->dm()) > 1e-8)     dm =val;
+      if (fabs (val = resp->m2()) > 1e-11)    m2=val;
+      if (fabs (val = resp->MvddEdx()) > 1e-11)    MvddEdx=val;
+      if (fabs (val = resp->SttdEdx()) > 1e-11)    SttdEdx=val;
+      if (fabs (val = resp->DrcDiscThtc()) > 1e-11)   DrcDiscThtc=val;
+      if (fabs (val = resp->DrcBarrelThtc()) > 1e-11)    DrcBarrelThtc=val;
+      if (fabs (val = resp->RichThtc()) > 1e-11)    RichThtc=val;
+      if (fabs (val = resp->EmcEcal()) > 1e-11)    EmcEcal=val;
 
-      if (fabs (val = resp->m2Err()) > 1e-11)    m2Err+=val;
-      if (fabs (val = resp->MvddEdxErr()) > 1e-11)    MvddEdxErr+=val;
-      if (fabs (val = resp->SttdEdxErr()) > 1e-11)    SttdEdxErr+=val;
-      if (fabs (val = resp->DrcDiscThtcErr()) > 1e-11)   DrcDiscThtcErr+=val;
-      if (fabs (val = resp->DrcBarrelThtcErr()) > 1e-11)    DrcBarrelThtcErr+=val;
-      if (fabs (val = resp->RichThtcErr()) > 1e-11)    RichThtcErr+=val;
+      if (fabs (val = resp->m2Err()) > 1e-11)    m2Err=val;
+      if (fabs (val = resp->MvddEdxErr()) > 1e-11)    MvddEdxErr=val;
+      if (fabs (val = resp->SttdEdxErr()) > 1e-11)    SttdEdxErr=val;
+      if (fabs (val = resp->DrcDiscThtcErr()) > 1e-11)   DrcDiscThtcErr=val;
+      if (fabs (val = resp->DrcBarrelThtcErr()) > 1e-11)    DrcBarrelThtcErr=val;
+      if (fabs (val = resp->RichThtcErr()) > 1e-11)    RichThtcErr=val;
 
       if (fabs (val = resp->dV().X()) > 1e-11) dVx += 1/(val*val);
       if (fabs (val = resp->dV().Y()) > 1e-11) dVy += 1/(val*val);

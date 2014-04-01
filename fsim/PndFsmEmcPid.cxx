@@ -134,6 +134,9 @@ PndFsmEmcPid::respond(PndFsmTrack *t)
 	double xsig = 0.; 
 	if (hpdf->Integral()>0) xsig = hpdf->GetRandom();
 	
+	// store the value in the response object
+	result->setEmcEcal(xsig);
+	
 	// find the bin corresponding to the value
 	int xsigbin = hpdf->FindBin(xsig);
 	
