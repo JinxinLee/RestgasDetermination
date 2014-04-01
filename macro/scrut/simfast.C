@@ -6,6 +6,7 @@ void simfast(TString Prefix, TString Decfile, Float_t Mom, Int_t nEvents = 1000,
 {
   TString BaseDir =  gSystem->Getenv("VMCWORKDIR");
   TString splitpars = BaseDir+"/fsim/splitpars.dat";
+  gRandom->SetSeed();
 
  //-----User Settings:-----------------------------------------------
   TString  OutputFile     = Prefix+"_fast.root";
