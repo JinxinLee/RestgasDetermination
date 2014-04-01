@@ -21,7 +21,6 @@
 #pragma link C++ class  PndFsmEmcFwCap+;
 #pragma link C++ class  PndFsmEmcFS+;
 #pragma link C++ class  PndFsmStt+;
-#pragma link C++ class  PndFsmTpc+;
 #pragma link C++ class  PndFsmMdcFS+;
 #pragma link C++ class  PndFsmMdcTS+;
 #pragma link C++ class  PndFsmRich+;

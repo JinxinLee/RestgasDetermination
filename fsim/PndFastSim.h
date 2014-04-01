@@ -33,7 +33,7 @@ class PndFastSim : public FairTask
  public:
     //typedef std::map<Int_t, Float_t> mapper;
 
-  /** Default constructor **/  
+  /** Default constructor **/
   PndFastSim();
 
 
@@ -59,14 +59,14 @@ class PndFastSim : public FairTask
 
   void SetSeed(unsigned int seed=65539);
   //void CreateStructure();
-  
- private: 
+
+ private:
 
   PndFsmResponse* sumResponse(FsmResponseList respList);
 
   bool cutAndSmear(PndFsmTrack *t, PndFsmResponse *r);
   bool cutAndSmear(PndFsmTrack *t);
-  
+
   void smearEnergy(PndFsmTrack *t, double dE);
   void smearMomentum(PndFsmTrack *t, double dp);
   void smearTheta(PndFsmTrack *t, double dtheta);
@@ -77,18 +77,19 @@ class PndFastSim : public FairTask
   void smearMvddEdx(PndFsmTrack *t, double dedx);
   void smearTpcdEdx(PndFsmTrack *t, double dedx);
   void smearSttdEdx(PndFsmTrack *t, double dedx);
-   
+
   /** Output array of Candidates **/
   TClonesArray* fMcCandidates;
   TClonesArray* fPidChargedCand;
-  TClonesArray* fPidNeutralCand; 
+  TClonesArray* fPidNeutralCand;
   TClonesArray* fMicroCandidates;
   TClonesArray* fPidChargedProb;    //! PndPidProbability TCA for charged particles
   TClonesArray* fPidNeutralProb;    //! PndPidProbability TCA for neutral particles
-  
+
+  std::map<TString,TClonesArray*>        fPidArrayList;      //! PndPidProbability TCA's for individual detectors
   //output array EventInfo
   TClonesArray* fEventInfo;
-  
+
   TRandom3  *fRand;
   int       fVb;   //verbosity level
   int       evtcnt; //event counter for output
@@ -102,14 +103,14 @@ class PndFastSim : public FairTask
   PndFsmDetFactory *fDetFac;
   std::string fAddedDets;
   FsmAbsDetList fDetList;
-  
+
   TDatabasePDG* fdbPdg;
 
 
 	/** Get parameter containers **/
   virtual void SetParContainers();
-  
- 
+
+
   bool smearTrack(PndFsmTrack *t);
 
   static TMatrixD fRho;

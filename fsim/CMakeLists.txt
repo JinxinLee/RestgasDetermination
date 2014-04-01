@@ -37,7 +37,6 @@ PndFsmEmcBwCap.cxx
 PndFsmEmcFwCap.cxx
 PndFsmEmcFS.cxx
 PndFsmStt.cxx
-PndFsmTpc.cxx
 PndFsmMdcFS.cxx
 PndFsmMdcTS.cxx
 PndFsmRich.cxx

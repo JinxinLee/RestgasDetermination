@@ -45,7 +45,6 @@
 #include "PndFsmEmcBwCap.h"
 #include "PndFsmEmcFS.h"
 #include "PndFsmStt.h"
-#include "PndFsmTpc.h"
 #include "PndFsmMdcFS.h"
 #include "PndFsmMdcTS.h"
 #include "PndFsmEffTracker.h"
@@ -91,51 +90,87 @@ PndFsmDetFactory::~PndFsmDetFactory()
 PndFsmAbsDet*
 PndFsmDetFactory::create(std::string &name,ArgList &par)
 {
-  if (name=="EmcBarrel")
-    return (PndFsmAbsDet*)( new PndFsmEmcBarrel(par) ) ;
-  else
-  if (name=="EmcFwCap")
-    return (PndFsmAbsDet*)( new PndFsmEmcFwCap(par) ) ;
-  else
-  if (name=="EmcBwCap")
-    return (PndFsmAbsDet*)( new PndFsmEmcBwCap(par) ) ;
-  else
-  if (name=="EmcFS")
-    return (PndFsmAbsDet*)( new PndFsmEmcFS(par) ) ;
-  else
-  if (name=="Tpc")
-    return (PndFsmAbsDet*)( new PndFsmTpc(par) ) ;
-  else
-  if (name=="Stt")
-    return (PndFsmAbsDet*)( new PndFsmStt(par) ) ;
-  else
-  if (name=="MdcFS")
-    return (PndFsmAbsDet*)( new PndFsmMdcFS(par) ) ;
-  else
-  if (name=="MdcTS")
-    return (PndFsmAbsDet*)( new PndFsmMdcTS(par) ) ;
-  else
-  if (name=="EffTracker")
-    return (PndFsmAbsDet*)( new PndFsmEffTracker(par) ) ;
-  else
-  if (name=="DrcBarrel")
-    return (PndFsmAbsDet*)( new PndFsmDrcBarrel(par) ) ;
-  else
-  if (name=="DrcDisc")
-    return (PndFsmAbsDet*)( new PndFsmDrcDisc(par) ) ;
-  else
-  if (name=="Mvd")
-    return (PndFsmAbsDet*)( new PndFsmMvd(par) ) ;
-  else
-  if (name=="Mvd2")
-    return (PndFsmAbsDet*)( new PndFsmMvd2(par) ) ;
-  else
-  if (name=="Tof")
-    return (PndFsmAbsDet*)( new PndFsmTof(par) ) ;
-  else
-  if (name=="Rich")
-    return (PndFsmAbsDet*)( new PndFsmRich(par) ) ;
-  else
+  if (name=="EmcBarrel"){
+    PndFsmAbsDet* aDet = (PndFsmAbsDet*)(new PndFsmEmcBarrel(par));
+    aDet->setName(name);
+    aDet->setStorePid();
+    return aDet;
+  } else
+  if (name=="EmcFwCap"){
+    PndFsmAbsDet* aDet = (PndFsmAbsDet*)(new PndFsmEmcFwCap(par));
+    aDet->setName(name);
+    aDet->setStorePid();
+    return aDet;
+  } else
+  if (name=="EmcBwCap"){
+    PndFsmAbsDet* aDet = (PndFsmAbsDet*)(new PndFsmEmcBwCap(par));
+    aDet->setName(name);
+    aDet->setStorePid();
+    return aDet;
+  } else
+  if (name=="EmcFS"){
+    PndFsmAbsDet* aDet = (PndFsmAbsDet*)(new PndFsmEmcFS(par));
+    aDet->setName(name);
+    aDet->setStorePid();
+    return aDet;
+  } else
+  if (name=="Stt"){
+    PndFsmAbsDet* aDet = (PndFsmAbsDet*)(new PndFsmStt(par));
+    aDet->setName(name);
+    aDet->setStorePid();
+    return aDet;
+  } else
+  if (name=="MdcFS"){
+    PndFsmAbsDet* aDet = (PndFsmAbsDet*)(new PndFsmMdcFS(par));
+    aDet->setName(name);
+    return aDet;
+  } else
+  if (name=="MdcTS"){
+    PndFsmAbsDet* aDet = (PndFsmAbsDet*)(new PndFsmMdcTS(par));
+    aDet->setName(name);
+    return aDet;
+  } else
+  if (name=="EffTracker"){
+    PndFsmAbsDet* aDet = (PndFsmAbsDet*)(new PndFsmEffTracker(par));
+    aDet->setName(name);
+    return aDet;
+  } else
+  if (name=="DrcBarrel"){
+    PndFsmAbsDet* aDet = (PndFsmAbsDet*)(new PndFsmDrcBarrel(par));
+    aDet->setName(name);
+    aDet->setStorePid();
+    return aDet;
+  } else
+  if (name=="DrcDisc"){
+    PndFsmAbsDet* aDet = (PndFsmAbsDet*)(new PndFsmDrcDisc(par));
+    aDet->setName(name);
+    aDet->setStorePid();
+    return aDet;
+  } else
+  if (name=="Mvd"){
+    PndFsmAbsDet* aDet = (PndFsmAbsDet*)(new PndFsmMvd(par));
+    aDet->setName(name);
+    aDet->setStorePid();
+    return aDet;
+  } else
+  if (name=="Mvd2"){
+    PndFsmAbsDet* aDet = (PndFsmAbsDet*)(new PndFsmMvd2(par));
+    aDet->setName(name);
+    aDet->setStorePid();
+    return aDet;
+  } else
+  if (name=="Tof"){
+    PndFsmAbsDet* aDet = (PndFsmAbsDet*)(new PndFsmTof(par));
+    aDet->setName(name);
+    aDet->setStorePid();
+    return aDet;
+  } else
+  if (name=="Rich"){
+    PndFsmAbsDet* aDet = (PndFsmAbsDet*)(new PndFsmRich(par));
+    aDet->setName(name);
+    aDet->setStorePid();
+    return aDet;
+  } else
   // --- scrutiny process options
   if (name=="ScSttAlone" || name=="ScSttMvd" || name=="ScSttMvdGem" ||
       name=="ScSttGem"   || name=="ScMvdGem" || name=="ScMvdGemFts"    ||
@@ -143,44 +178,56 @@ PndFsmDetFactory::create(std::string &name,ArgList &par)
     PndFsmAbsDet* aDet = (PndFsmAbsDet*)(new PndFsmSimpleTracker(par));
     aDet->setName(name);
     return aDet;
-  }
-  else
-  if (name=="MvdPid")
-    return (PndFsmAbsDet*)( new PndFsmMvdPid(par) );
-  else
+  } else
+  if (name=="MvdPid") {
+    PndFsmAbsDet* aDet = (PndFsmAbsDet*)(new PndFsmMvdPid(par) );
+    aDet->setStorePid();
+    return aDet;
+  } else
   if (name=="ScEmcPidBarrel" || name=="ScEmcPidFwCap" || name=="ScEmcPidBwCap"){
     PndFsmAbsDet* aDet = (PndFsmAbsDet*)(new PndFsmEmcPid(par) );
 	aDet->setName(name);
+    aDet->setStorePid();
 	return aDet;
+  } else
+  if (name=="SttPid"){
+    PndFsmAbsDet* aDet = (PndFsmAbsDet*)(new PndFsmSttPid(par) );
+    aDet->setStorePid();
+    return aDet;
   }
-  else
-  if (name=="SttPid")
-    return (PndFsmAbsDet*)( new PndFsmSttPid(par) );
-  if (name=="ScVtxMvd"   || name=="ScVtxNoMvd") {
+  if (name=="ScVtxMvd" || name=="ScVtxNoMvd") {
     PndFsmAbsDet* aDet = (PndFsmAbsDet*)(new PndFsmSimpleVtx(par));
     aDet->setName(name);
     return aDet;
-  }
-  else
-  if (name=="ScMdtPidBarrel"   || name=="ScMdtPidForward") {
+  } else
+  if (name=="ScMdtPidBarrel" || name=="ScMdtPidForward") {
     PndFsmAbsDet* aDet = (PndFsmAbsDet*)(new PndFsmMdtPid(par));
     aDet->setName(name);
+    aDet->setStorePid();
     return aDet;
   }
   // general Options
   else
-  if (name=="SimpleTracker")
-    return (PndFsmAbsDet*)( new PndFsmSimpleTracker(par) ) ;
-  else
-  if (name=="SimpleVtx")
-    return (PndFsmAbsDet*)( new PndFsmSimpleVtx(par) ) ;
-  else
-  if (name=="CmpDet")
-    return (PndFsmAbsDet*)( new PndFsmCmpDet(par) ) ;
-  else
-  if (name=="CombiDet")
-    return (PndFsmAbsDet*)( new PndFsmCombiDet(par) ) ;
-  else {
+  if (name=="SimpleTracker") {
+    PndFsmAbsDet* aDet = (PndFsmAbsDet*)(new PndFsmSimpleTracker(par));
+    aDet->setName(name);
+    return aDet;
+  } else
+  if (name=="SimpleVtx") {
+    PndFsmAbsDet* aDet = (PndFsmAbsDet*)(new PndFsmSimpleVtx(par));
+    aDet->setName(name);
+    return aDet;
+  } else
+  if (name=="CmpDet") {
+    PndFsmAbsDet* aDet = (PndFsmAbsDet*)(new PndFsmCmpDet(par));
+    aDet->setName(name);
+    return aDet;
+  } else
+  if (name=="CombiDet") {
+    PndFsmAbsDet* aDet = (PndFsmAbsDet*)(new PndFsmCombiDet(par));
+    aDet->setName(name);
+    return aDet;
+  } else {
     std::cout  <<" -W- (PndFsmDetFactory::create) Unknown detector: <"<<name<<">"<< std::endl;
     return 0;
   }

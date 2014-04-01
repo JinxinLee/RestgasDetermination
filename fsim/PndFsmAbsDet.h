@@ -73,7 +73,8 @@ public:
 
   const std::string& detName() {return _detName;}
   void setName(std::string& name) {_detName = name;};
-
+  Bool_t doesPid() const {return _doesPid;};
+  void setStorePid(Bool_t doespid=kTRUE) {_doesPid=doespid;};
 
 protected:
 
@@ -88,10 +89,11 @@ protected:
   //  Modifiers
   //
 
-  std::string  _detName;
-  double       _efficiency;		//overall efficiency
-  TRandom3     *_rand;
-  TDatabasePDG *_fdbPDG;
+  std::string   _detName;
+  double        _efficiency;		//overall efficiency
+  TRandom3*     _rand;
+  TDatabasePDG* _fdbPDG;
+  Bool_t        _doesPid;
 
 };
 
