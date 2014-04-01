@@ -10,9 +10,7 @@
 
 #include "LumiFitStructs.h"
 #include "PndLmdAbstractData.h"
-#include "PndLmdData.h"
-#include "PndLmdResolution.h"
-#include "PndLmdAcceptance.h"
+
 #include "PndLmdSeperateDataReader.h"
 #include "PndLmdCombinedDataReader.h"
 
@@ -21,12 +19,30 @@
 #include "TFile.h"
 #include "TKey.h"
 
+class PndLmdAngularData;
+class PndLmdVertexData;
+class PndLmdResolution;
+class PndLmdAcceptance;
+
 /**
  * Class providing a simplified UI for constructing, reading and filling lmd
  * data objects. This class should be used primarily used by the standard user.
  */
 class PndLmdDataFacade {
-private:
+	PndLmdDataReader *data_reader;
+
+	std::vector<PndLmdAngularData> lmd_angular_data;
+	std::vector<PndLmdVertexData> lmd_vertex_data;
+	std::vector<PndLmdResolution> lmd_resolutions;
+	std::vector<PndLmdAcceptance> lmd_acceptances;
+
+	LumiFit::LmdDimension constructPrimaryDimension() const;
+	LumiFit::LmdDimension constructSecondaryDimension() const;
+
+	void initialize1DData(PndLmdAbstractData &data) const;
+	void initialize2DData(PndLmdAbstractData &data) const;
+
+public:
 	double lab_momentum;
 
 	// data dimension templates
@@ -43,38 +59,17 @@ private:
 
 	double current_reference_luminosity_per_event;
 
-	PndLmdDataReader *data_reader;
+	LumiFit::LmdSimIPParameters current_simulation_ip_parameters;
 
-	std::vector<PndLmdData> lmd_datas;
-	std::vector<PndLmdResolution> lmd_resolutions;
-	std::vector<PndLmdAcceptance> lmd_acceptances;
 
-	LumiFit::LmdDimension constructPrimaryDimension() const;
-	LumiFit::LmdDimension constructSecondaryDimension() const;
-
-	void initialize1DData(PndLmdAbstractData &data) const;
-	void initialize2DData(PndLmdAbstractData &data) const;
-
-public:
 	PndLmdDataFacade();
 	virtual ~PndLmdDataFacade();
 
 	void setDataReader(PndLmdDataReader* data_reader_);
 
-	double getLabMomentum() const;
-	void setLabMomentum(double lab_momentum_);
-
-	LumiFit::LmdDimension& getPrimaryDimensionTemplate();
-	LumiFit::LmdDimension& getSecondaryDimensionTemplate();
-
-	LumiFit::LmdDimension& getPrimarySelectionDimensionTemplate();
-	LumiFit::LmdDimension& getSecondarySelectionDimensionTemplate();
-
-	LumiFit::LmdDimension& getPrimarySelectionDimensionBundleTemplate();
-	LumiFit::LmdDimension& getSecondarySelectionDimensionBundleTemplate();
-
 	std::vector<PndLmdAcceptance> getLmdAcceptances() const;
-	std::vector<PndLmdData> getLmdDatas() const;
+	std::vector<PndLmdAngularData> getLmdAngularData() const;
+	std::vector<PndLmdVertexData> getLmdVertexData() const;
 	std::vector<PndLmdResolution> getLmdResolutions() const;
 
 	void addDataDirectory(TString directory);
@@ -84,6 +79,9 @@ public:
 
 	void createData1D(unsigned int num_events);
 	void createData2D(unsigned int num_events);
+
+	void createVertexData1D(unsigned int num_events);
+	void createVertexData2D(unsigned int num_events);
 
 	void createResolution1D(unsigned int num_events);
 	void createResolution2D(unsigned int num_events);
@@ -116,13 +114,15 @@ public:
 		return lmd_data_vec;
 	}
 
-	template<class T> std::vector<T> filterData(std::vector<T> all_data, LumiFit::LmdDimensionOptions &lmd_dim_opt) {
+	template<class T> std::vector<T> filterData(std::vector<T> all_data,
+			LumiFit::LmdDimensionOptions &lmd_dim_opt) {
 		std::vector<T> lmd_data_vec;
 
-		for(unsigned int i = 0; i < all_data.size(); i++) {
-			PndLmdAbstractData* lmd_abs_data = (PndLmdAbstractData*)&all_data[i];
-			if(lmd_abs_data != 0) {
-				if(lmd_abs_data->getPrimaryDimension().dimension_options == lmd_dim_opt)
+		for (unsigned int i = 0; i < all_data.size(); i++) {
+			PndLmdAbstractData* lmd_abs_data = (PndLmdAbstractData*) &all_data[i];
+			if (lmd_abs_data != 0) {
+				if (lmd_abs_data->getPrimaryDimension().dimension_options
+						== lmd_dim_opt)
 					lmd_data_vec.push_back(all_data[i]);
 			}
 		}
@@ -130,9 +130,6 @@ public:
 		return lmd_data_vec;
 	}
 
-	double getCurrentReferenceLuminosityPerEvent() const;
-	void setCurrentReferenceLuminosityPerEvent(
-			double current_reference_luminosity_per_event_);
 
 	LumiFit::LmdSimIPParameters readSimulationIPParameters(std::string dir_path);
 

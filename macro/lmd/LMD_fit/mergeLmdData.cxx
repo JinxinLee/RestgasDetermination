@@ -1,6 +1,8 @@
 #include "PndLmdDataFacade.h"
-#include "PndLmdData.h"
+#include "PndLmdAngularData.h"
+#include "PndLmdVertexData.h"
 #include "PndLmdAcceptance.h"
+#include "PndLmdResolution.h"
 #include "DataStructs.h"
 
 #include "TString.h"
@@ -82,8 +84,7 @@ template<class T> void mergeData(vector<std::string> found_files,
 		// get lmd data and objects from files
 		vector<T> lmd_data_vec = lmd_data_facade.getDataFromFile<T>(fdata);
 
-		for (entry = lmd_data_vec.begin();
-				entry != lmd_data_vec.end(); entry++) {
+		for (entry = lmd_data_vec.begin(); entry != lmd_data_vec.end(); entry++) {
 
 			iter = merged_files.find(*entry);
 
@@ -101,7 +102,8 @@ template<class T> void mergeData(vector<std::string> found_files,
 
 	output_file->cd();
 
-	std::cout<<"Saving "<<merged_files.size()<<" objects to file!"<<std::endl;
+	std::cout << "Saving " << merged_files.size() << " objects to file!"
+			<< std::endl;
 	for (iter = merged_files.begin(); iter != merged_files.end(); iter++) {
 		((PndLmdAbstractData*) &(*iter))->saveToRootFile();
 	}
@@ -112,7 +114,7 @@ void displayInfo() {
 	std::cout << "Required arguments are: " << std::endl;
 	std::cout << "-p [path to data]" << std::endl;
 	std::cout
-			<< "-t [data type (0: lmd data, 1: lmd acceptance, 2: lmd resolution)"
+			<< "-t [data type (0: lmd data, 1: lmd acceptance, 2: lmd resolution, 3: vertex data)"
 			<< std::endl;
 	std::cout << "Optional arguments are: " << std::endl;
 	std::cout << "-f [filename pattern] (default: lmd_data.root)" << std::endl;
@@ -165,10 +167,10 @@ int main(int argc, char* argv[]) {
 	}
 
 	if (is_data_path_set && is_type_set) {
-		if(!is_filename_pattern_set) {
-			if(type == 1)
+		if (!is_filename_pattern_set) {
+			if (type == 1)
 				filename_pattern = "lmd_acc_data.root";
-			else if(type == 2)
+			else if (type == 2)
 				filename_pattern = "lmd_res_data.root";
 		}
 		// ------ get files -------------------------------------------------------
@@ -184,11 +186,13 @@ int main(int argc, char* argv[]) {
 				TString(outfile_path) + "/" + filename_pattern, "RECREATE");
 
 		if (0 == type) {
-			mergeData<PndLmdData>(found_files, fmergeddata);
+			mergeData<PndLmdAngularData>(found_files, fmergeddata);
 		} else if (1 == type) {
 			mergeData<PndLmdAcceptance>(found_files, fmergeddata);
 		} else if (2 == type) {
 			mergeData<PndLmdResolution>(found_files, fmergeddata);
+		} else if (3 == type) {
+			mergeData<PndLmdVertexData>(found_files, fmergeddata);
 		}
 
 	} else

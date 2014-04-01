@@ -1,7 +1,7 @@
 #include "PndLmdResultPlotter.h"
 #include "PndLmdLumiFitResult.h"
 #include "PndLmdLumiFitOptions.h"
-#include "PndLmdData.h"
+#include "PndLmdAngularData.h"
 #include "PndLmdAcceptance.h"
 
 #include "TFile.h"
@@ -46,7 +46,8 @@ GraphBundle getGraphsFromFile(TFile *file, TString type) {
 }
 
 TCanvas* makeDependencyCanvas(std::map<int, GraphBundle> &scenarios) {
-	TLegend *legend1 = new TLegend(0.1, 0.7, 0.48, 0.9);
+	//TLegend *legend1 = new TLegend(0.1, 0.7, 0.48, 0.9);
+	TLegend *legend1 = new TLegend(0.6, 0.7, 0.98, 0.9);
 	legend1->SetHeader("");
 	TLegend *legend2 = new TLegend(0.1, 0.7, 0.48, 0.9);
 	legend2->SetHeader("");

@@ -139,23 +139,3 @@ bool PndLmdAbstractData::operator!=(
 		const PndLmdAbstractData &lmd_data_int) const {
 	return !(*this == lmd_data_int);
 }
-
-const map<PndLmdLumiFitOptions, PndLmdLumiFitResult*>& PndLmdAbstractData::getFitResults() const {
-	return fit_results;
-}
-
-PndLmdLumiFitResult* PndLmdAbstractData::getFitResult(
-		const PndLmdLumiFitOptions &fit_options) const {
-	map<PndLmdLumiFitOptions, PndLmdLumiFitResult*>::const_iterator fit_result =
-			fit_results.find(fit_options);
-	if (fit_result != fit_results.end())
-		return fit_result->second;
-	else
-		return 0;
-}
-
-void PndLmdAbstractData::addFitResult(const PndLmdLumiFitOptions *fit_options,
-		PndLmdLumiFitResult* fit_result_) {
-	fit_results[*fit_options] = fit_result_;
-}
-

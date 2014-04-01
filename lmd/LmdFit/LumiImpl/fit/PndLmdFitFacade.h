@@ -16,9 +16,11 @@
 
 #include <vector>
 
-class PndLmdData;
-class PndLmdResolution;
 class PndLmdAbstractData;
+class PndLmdAngularData;
+class PndLmdVertexData;
+class PndLmdResolution;
+class PndLmdHistogramData;
 
 class PndLmdFitFacade {
 	private:
@@ -31,11 +33,7 @@ class PndLmdFitFacade {
 
 		PndLmdModelFactory model_factory;
 
-		std::pair<double, double> calcActualRange(
-				const PndLmdAbstractData &lmd_data,
-				const PndLmdLumiFitOptions *fit_options);
-
-		shared_ptr<Data> createData1D(const PndLmdData &lmd_data) const;
+		shared_ptr<Data> createData1D(const PndLmdHistogramData &lmd_hist_data) const;
 
 	public:
 		PndLmdFitFacade();
@@ -45,21 +43,21 @@ class PndLmdFitFacade {
 
 		void setModelFitOptions(LumiFit::PndLmdFitModelOptions& model_opt_);
 		void setEstimatorOptions(EstimatorOptions& est_opt_);
-		void addFreeFitParameter(std::string& name);
+		void addFreeFitParameter(std::string name);
 
 		ModelFitFacade& getModelFitFacade();
 
-		std::pair<double, double> calcRange(const PndLmdAbstractData &lmd_data,
+		std::pair<double, double> calcRange(const PndLmdAbstractData &lmd_abs_data,
 				const PndLmdLumiFitOptions *fit_options);
 
 		PndLmdLumiFitOptions* cloneFitOptions() const;
 
-		PndLmdLumiFitOptions* createFitOptions(PndLmdData &lmd_data);
+		PndLmdLumiFitOptions* createFitOptions(PndLmdHistogramData &lmd_data);
 
 		void initializeResolutionModelOptionsFromParametrizationFile(
 				LumiFit::PndLmdFitModelOptions& model_opt, std::string res_file_url);
 
-		void doLmdLumiFits(std::vector<PndLmdData> &lmd_data_vec);
+		void doLmdLumiFits(std::vector<PndLmdAngularData> &lmd_data_vec);
 
 		/**
 		 * This function determines and saves the parameters of the
@@ -95,12 +93,12 @@ class PndLmdFitFacade {
 		void fitSmearingModelToResolutions(
 				vector<PndLmdResolution> &lmd_resolutions);
 
-		PndLmdLumiFitResult* doFit(PndLmdAbstractData &lmd_abs_data,
+		PndLmdLumiFitResult* doFit(PndLmdHistogramData &lmd_hist_data,
 				const PndLmdLumiFitOptions *fit_options);
 
-		void fitVertexData(std::vector<PndLmdData*> lmd_data);
+		void fitVertexData(std::vector<PndLmdVertexData> &lmd_data);
 
-		void fitMultipleElasticPPbar(std::vector<PndLmdData> &lmd_data);
+		void fitMultipleElasticPPbar(std::vector<PndLmdAngularData> &lmd_data);
 
 		void fitResolutionForSlice(PndLmdResolution &lmd_resolution,
 				const PndLmdLumiFitOptions *fit_options);

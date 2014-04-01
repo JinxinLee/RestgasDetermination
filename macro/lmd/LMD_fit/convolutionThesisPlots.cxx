@@ -21,6 +21,7 @@
 #include "TCanvas.h"
 #include "TLine.h"
 #include "TFile.h"
+#include "TAxis.h"
 
 void makeConvolutionThesisPlots(std::string acceptance_file_dir) {
 	PndLmdDataFacade lmd_data_facade;

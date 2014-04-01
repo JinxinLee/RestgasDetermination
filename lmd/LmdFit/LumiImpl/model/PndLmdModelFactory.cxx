@@ -41,6 +41,21 @@ PndLmdModelFactory::~PndLmdModelFactory() {
 
 }
 
+shared_ptr<Model1D> PndLmdModelFactory::generate1DVertexModel(
+		const LumiFit::PndLmdFitModelOptions& model_options) {
+	shared_ptr<Model1D> vertex_model;
+
+	if (model_options.vertex_model == LumiFit::UNIFORM) {
+		vertex_model.reset(new DoubleGaussianModel1D("vertex_double_gaussian_1d"));
+	} else if (model_options.vertex_model == LumiFit::GAUSSIAN) {
+		vertex_model.reset(new GaussianModel1D("vertex_double_gaussian_1d"));
+	} else {
+		std::cout << "Unknown vertex model!" << std::endl;
+	}
+
+	return vertex_model;
+}
+
 shared_ptr<Model1D> PndLmdModelFactory::generate1DResolutionModel(
 		const LumiFit::PndLmdFitModelOptions& model_options) {
 	shared_ptr<Model1D> resolution_model;

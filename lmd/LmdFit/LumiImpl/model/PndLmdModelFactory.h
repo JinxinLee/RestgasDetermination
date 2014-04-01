@@ -28,6 +28,9 @@ class PndLmdModelFactory {
 		PndLmdModelFactory();
 		~PndLmdModelFactory();
 
+		shared_ptr<Model1D> generate1DVertexModel(
+				const LumiFit::PndLmdFitModelOptions& model_options);
+
 		shared_ptr<Model1D> generate1DResolutionModel(
 				const LumiFit::PndLmdFitModelOptions& model_options);
 

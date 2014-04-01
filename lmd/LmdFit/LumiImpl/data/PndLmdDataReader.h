@@ -16,7 +16,9 @@
 #include "TLorentzVector.h"
 
 class PndLmdAbstractData;
-class PndLmdData;
+class PndLmdHistogramData;
+class PndLmdVertexData;
+class PndLmdAngularData;
 class PndLmdAcceptance;
 class PndLmdResolution;
 
@@ -26,7 +28,7 @@ class TClonesArray;
 
 class PndLmdDataReader {
 private:
-	std::vector<PndLmdData*> registered_data;
+	std::vector<PndLmdHistogramData*> registered_data;
 	std::vector<PndLmdAcceptance*> registered_acceptances;
 	std::vector<PndLmdResolution*> registered_resolutions;
 
@@ -70,8 +72,9 @@ public:
 
 	void addDataPath(TString dir_path);
 
-	int registerData(PndLmdData* data);
-	int registerData(std::vector<PndLmdData> &data_vec);
+	int registerData(PndLmdHistogramData* data);
+	int registerData(std::vector<PndLmdAngularData> &data_vec);
+	int registerData(std::vector<PndLmdVertexData> &data_vec);
 
 	int registerAcceptance(PndLmdAcceptance* acc);
 	int registerAcceptances(std::vector<PndLmdAcceptance> &acc_vec);

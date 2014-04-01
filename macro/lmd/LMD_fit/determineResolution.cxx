@@ -53,9 +53,12 @@ void determineResolution(TString input_file_dir,
 			LumiFit::LmdDimensionOptions lmd_dim_opt;
 			lmd_dim_opt.dimension_type = LumiFit::THETA;
 			lmd_dim_opt.track_param_type = LumiFit::IP;
+			lmd_dim_opt.track_type = LumiFit::MC;
 
+			std::cout<<all_lmd_res.size()<<std::endl;
 			vector<PndLmdResolution> lmd_res_vec = lmd_data_facade.filterData<
 					PndLmdResolution>(all_lmd_res, lmd_dim_opt);
+			std::cout<<lmd_res_vec.size()<<std::endl;
 
 			// specify which of type of smearing model we want to generate
 			PndLmdFitFacade lmd_fit_facade;
@@ -97,6 +100,7 @@ void determineResolution(TString input_file_dir,
 			LumiFit::LmdDimensionOptions lmd_dim_opt;
 			lmd_dim_opt.dimension_type = LumiFit::THETA;
 			lmd_dim_opt.track_param_type = LumiFit::IP;
+			lmd_dim_opt.track_type = LumiFit::MC;
 
 			vector<PndLmdResolution> lmd_res_vec = lmd_data_facade.filterData<
 					PndLmdResolution>(all_res_vec, lmd_dim_opt);

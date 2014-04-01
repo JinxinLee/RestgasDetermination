@@ -2,7 +2,7 @@
 #include "PndLmdResultPlotter.h"
 #include "PndLmdLumiFitResult.h"
 #include "PndLmdLumiFitOptions.h"
-#include "PndLmdData.h"
+#include "PndLmdAngularData.h"
 #include "PndLmdAcceptance.h"
 #include "LumiFitStructs.h"
 #include "PndLmdResultPlotter.h"
@@ -234,7 +234,7 @@ void saveToRootfile(std::map<PndLmdLumiFitOptions, histBundle> &comb_map
 }
 
 std::map<PndLmdLumiFitOptions, ValueBundle> bundleSingleFileLuminosityValues(
-		PndLmdData &data, LumiFit::PndLmdFitModelOptions &model_opt) {
+		PndLmdAngularData &data, LumiFit::PndLmdFitModelOptions &model_opt) {
 	std::map<PndLmdLumiFitOptions, ValueBundle> return_map;
 	// create an instance of PndLmdResultPlotter the plotting helper class
 	PndLmdResultPlotter plotter;
@@ -247,7 +247,7 @@ std::map<PndLmdLumiFitOptions, ValueBundle> bundleSingleFileLuminosityValues(
 	for (map<PndLmdLumiFitOptions, PndLmdLumiFitResult*>::const_iterator iter =
 			fit_results.begin(); iter != fit_results.end(); iter++) {
 
-		if (model_opt.lessThanBinaryOptions(iter->first.getFitModelOptions())) {
+		if (model_opt.equalBinaryOptions(iter->first.getFitModelOptions())) {
 			std::pair<double, double> lumival = plotter.calulateLumiRelDiff(
 					iter->second->getLuminosity(), iter->second->getLuminosityError(),
 					lumi_ref);
@@ -260,7 +260,7 @@ std::map<PndLmdLumiFitOptions, ValueBundle> bundleSingleFileLuminosityValues(
 	return return_map;
 }
 
-void fillData(PndLmdData &data, LumiFit::PndLmdFitModelOptions &model_opt,
+void fillData(PndLmdAngularData &data, LumiFit::PndLmdFitModelOptions &model_opt,
 		map<PndLmdLumiFitOptions, histBundle> &result_map) {
 	// create an instance of PndLmdResultPlotter the plotting helper class
 	PndLmdResultPlotter plotter;
@@ -356,8 +356,8 @@ void determineLumiFitSystematics(std::string pathname,
 				"UPDATE");
 
 		// read in data from a root file which will return a map of pairs dimension options to
-		// vectors of pointers to PndLmdData objects
-		vector<PndLmdData> full_data_vec = lmd_data_facade.getDataFromFile<PndLmdData>(fdata);
+		// vectors of pointers to PndLmdAngularData objects
+		vector<PndLmdAngularData> full_data_vec = lmd_data_facade.getDataFromFile<PndLmdAngularData>(fdata);
 
 		// MC data case
 		LumiFit::LmdDimensionOptions lmd_dim_opt;
@@ -365,7 +365,7 @@ void determineLumiFitSystematics(std::string pathname,
 
 		LumiFit::PndLmdFitModelOptions model_op;
 
-		vector<PndLmdData> data_vec = lmd_data_facade.filterData(full_data_vec, lmd_dim_opt);
+		vector<PndLmdAngularData> data_vec = lmd_data_facade.filterData(full_data_vec, lmd_dim_opt);
 
 		// standard case would be just a single reco data object
 		if (data_vec.size() > 0) {
@@ -442,9 +442,9 @@ void createDependencyGraphs(std::string pathname,
 	PndLmdDataFacade lmd_data_facade;
 
 	// read in data from a root file which will return a map of pairs dimension options to
-	// vectors of pointers to PndLmdData objects
-	vector<PndLmdData> full_data_vec =
-			lmd_data_facade.getDataFromFile<PndLmdData>(fdata);
+	// vectors of pointers to PndLmdAngularData objects
+	vector<PndLmdAngularData> full_data_vec =
+			lmd_data_facade.getDataFromFile<PndLmdAngularData>(fdata);
 
 	// MC data case
 	LumiFit::LmdDimensionOptions lmd_dim_opt;
@@ -452,8 +452,8 @@ void createDependencyGraphs(std::string pathname,
 
 	LumiFit::PndLmdFitModelOptions model_op;
 
-	vector<PndLmdData> data_vec = lmd_data_facade.filterData(full_data_vec, lmd_dim_opt);
-	std::cout<<data_vec.size()<<std::endl;
+	vector<PndLmdAngularData> data_vec = lmd_data_facade.filterData(full_data_vec, lmd_dim_opt);
+	std::cout<<"Got "<<data_vec.size()<<" data entries!"<<std::endl;
 
 	GraphBundle gb_mc;
 
@@ -461,7 +461,7 @@ void createDependencyGraphs(std::string pathname,
 	if (data_vec.size() > 0) {
 		std::map<PndLmdLumiFitOptions, ValueBundle> vm =
 				bundleSingleFileLuminosityValues(data_vec[0], model_op);
-		std::cout<<vm.size()<<std::endl;
+		std::cout<<model_op<<" got "<<vm.size()<<" entries!"<<std::endl;
 		gb_mc = makeDependencyGraph(vm);
 	}
 
@@ -477,7 +477,7 @@ void createDependencyGraphs(std::string pathname,
 	if (data_vec.size() > 0) {
 		std::map<PndLmdLumiFitOptions, ValueBundle> vm =
 				bundleSingleFileLuminosityValues(data_vec[0], model_op);
-		std::cout<<vm.size()<<std::endl;
+		std::cout<<model_op<<" got "<<vm.size()<<" entries!"<<std::endl;
 		gb_mc_acc = makeDependencyGraph(vm);
 	}
 
@@ -493,7 +493,7 @@ void createDependencyGraphs(std::string pathname,
 	if (data_vec.size() > 0) {
 		std::map<PndLmdLumiFitOptions, ValueBundle> vm =
 				bundleSingleFileLuminosityValues(data_vec[0], model_op);
-		std::cout<<vm.size()<<std::endl;
+		std::cout<<model_op<<" got "<<vm.size()<<" entries!"<<std::endl;
 		gb_reco = makeDependencyGraph(vm);
 	}
 

@@ -8,9 +8,9 @@
 #ifndef PNDLMDRESOLUTION_H_
 #define PNDLMDRESOLUTION_H_
 
-#include "PndLmdData.h"
+#include "PndLmdHistogramData.h"
 
-class PndLmdResolution: public PndLmdData {
+class PndLmdResolution: public PndLmdHistogramData {
 private:
 	LumiFit::LmdDimension primary_select_dimension;
 	LumiFit::LmdDimension secondary_select_dimension;

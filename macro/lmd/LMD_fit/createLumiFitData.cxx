@@ -10,7 +10,9 @@
  */
 
 #include "PndLmdDataFacade.h"
-#include "PndLmdData.h"
+#include "PndLmdAngularData.h"
+#include "PndLmdVertexData.h"
+#include "PndLmdResolution.h"
 #include "PndLmdAcceptance.h"
 #include "DataStructs.h"
 
@@ -20,9 +22,9 @@
 #include <vector>
 #include <iostream>
 
-void createLumiFitData(std::string input_file_dir, const double mom, int mode,
-		int num_events, const double generated_luminosity_per_event,
-		const int verboseLevel = 0) {
+void createLumiFitData(std::string input_file_dir, const double mom,
+		std::string& data_types, int num_events,
+		const double total_elastic_cross_section, const int verboseLevel = 0) {
 	std::cout << "Running LmdFit data reader....\n";
 
 	// A lmd data facade class that helps to construct and fill lmd data objects
@@ -36,102 +38,114 @@ void createLumiFitData(std::string input_file_dir, const double mom, int mode,
 	lmd_data_facade.setDataReader(&data_reader);
 
 	// set lab momentum
-	lmd_data_facade.setLabMomentum(mom);
+	lmd_data_facade.lab_momentum = mom;
 
 	// set some dimension parameters
-	lmd_data_facade.getPrimaryDimensionTemplate().dimension_range.setUnitPrefix(
+	lmd_data_facade.primary_dimension_template.dimension_range.setUnitPrefix(
 			LumiFit::MILLI);
-	lmd_data_facade.getPrimaryDimensionTemplate().dimension_options.dimension_type =
+	lmd_data_facade.primary_dimension_template.dimension_options.dimension_type =
 			LumiFit::THETA;
-	lmd_data_facade.getPrimaryDimensionTemplate().bins = 100;
-	lmd_data_facade.getPrimaryDimensionTemplate().dimension_range.setRangeLow(
-			0.5);
-	lmd_data_facade.getPrimaryDimensionTemplate().dimension_range.setRangeHigh(
-			15.0);
-	lmd_data_facade.getPrimaryDimensionTemplate().dimension_options.track_param_type =
+	lmd_data_facade.primary_dimension_template.bins = 100;
+	lmd_data_facade.primary_dimension_template.dimension_range.setRangeLow(0.5);
+	lmd_data_facade.primary_dimension_template.dimension_range.setRangeHigh(15.0);
+	lmd_data_facade.primary_dimension_template.dimension_options.track_param_type =
 			LumiFit::IP;
 
-	lmd_data_facade.setCurrentReferenceLuminosityPerEvent(
-			generated_luminosity_per_event);
+	lmd_data_facade.current_reference_luminosity_per_event = 1.0
+			/ total_elastic_cross_section;
 
 	// add input directory to data facade
 	lmd_data_facade.addDataDirectory(input_file_dir);
 
-	TString out;
+	TString output_filename_angular_data("");
+	TString output_filename_acceptance_data("");
+	TString output_filename_resolution_data("");
+	TString output_filename_vertex_data("");
 
-	if (mode == 0) {
+	if (data_types.find("a") != std::string::npos) {
 		// ---- dpm or elastic data ---- //
 
 		// ---- Output file -------------------------------------------------------
-		out = input_file_dir + "/lmd_data.root";
+		output_filename_angular_data = input_file_dir + "/lmd_data.root";
 		// ------------------------------------------------------------------------
 
 		// create angular data object bundle
 		lmd_data_facade.create1DAngularDataBundle(num_events);
-	} else if (mode == 1) {
+	}
+	if (data_types.find("e") != std::string::npos) {
 		// ---- acceptance or box gen data ---- //
-		lmd_data_facade.getPrimaryDimensionTemplate().bins = 100;
-		lmd_data_facade.getPrimaryDimensionTemplate().dimension_range.setRangeLow(
+		lmd_data_facade.primary_dimension_template.bins = 100;
+		lmd_data_facade.primary_dimension_template.dimension_range.setRangeLow(
 				0.5 + 0.0725);
-		lmd_data_facade.getPrimaryDimensionTemplate().dimension_range.setRangeHigh(
+		lmd_data_facade.primary_dimension_template.dimension_range.setRangeHigh(
 				15.0 + 0.0725);
 
 		// ---- Output file -------------------------------------------------------
-		out = input_file_dir + "/lmd_acc_data.root";
+		output_filename_acceptance_data = input_file_dir + "/lmd_acc_data.root";
 		// ------------------------------------------------------------------------
 
 		// create acceptance
 		lmd_data_facade.createAcceptance1D(num_events);
-	} else if (2 == mode) {
+	}
+	if (data_types.find("r") != std::string::npos) {
 		// ---- create lmd resolution objects from box gen data ---- //
 
 		// ---- Output file -------------------------------------------------------
-		out = input_file_dir + "/lmd_res_data.root";
+		output_filename_resolution_data = input_file_dir + "/lmd_res_data.root";
 		// ------------------------------------------------------------------------
 
-		lmd_data_facade.getPrimaryDimensionTemplate().bins = 400;
-		lmd_data_facade.getPrimaryDimensionTemplate().dimension_range.setRangeLow(
+		lmd_data_facade.primary_dimension_template.bins = 400;
+		lmd_data_facade.primary_dimension_template.dimension_range.setRangeLow(
 				-2.0);
-		lmd_data_facade.getPrimaryDimensionTemplate().dimension_range.setRangeHigh(
+		lmd_data_facade.primary_dimension_template.dimension_range.setRangeHigh(
 				2.0);
-		lmd_data_facade.getPrimaryDimensionTemplate().dimension_options.track_param_type =
+		lmd_data_facade.primary_dimension_template.dimension_options.track_param_type =
 				LumiFit::IP;
 
-		lmd_data_facade.getSecondaryDimensionTemplate().dimension_options.dimension_type =
+		lmd_data_facade.secondary_dimension_template.dimension_options.dimension_type =
 				LumiFit::PHI;
-		lmd_data_facade.getSecondaryDimensionTemplate().bins = 20;
-		lmd_data_facade.getSecondaryDimensionTemplate().dimension_range.setRangeLow(
+		lmd_data_facade.secondary_dimension_template.bins = 20;
+		lmd_data_facade.secondary_dimension_template.dimension_range.setRangeLow(
 				-0.2);
-		lmd_data_facade.getSecondaryDimensionTemplate().dimension_range.setRangeHigh(
+		lmd_data_facade.secondary_dimension_template.dimension_range.setRangeHigh(
 				0.2);
 
-		lmd_data_facade.getPrimarySelectionDimensionBundleTemplate().dimension_options.track_type =
+		lmd_data_facade.primary_selection_dimension_bundle_template.dimension_options.track_type =
 				LumiFit::MC;
-		lmd_data_facade.getPrimarySelectionDimensionBundleTemplate().dimension_range.setRangeLow(
+		lmd_data_facade.primary_selection_dimension_bundle_template.dimension_range.setRangeLow(
 				1.0); //mrad
-		lmd_data_facade.getPrimarySelectionDimensionBundleTemplate().dimension_range.setRangeHigh(
+		lmd_data_facade.primary_selection_dimension_bundle_template.dimension_range.setRangeHigh(
 				15.0);
-		lmd_data_facade.getSecondarySelectionDimensionBundleTemplate().dimension_range.setRangeLow(
+		lmd_data_facade.secondary_selection_dimension_bundle_template.dimension_options.track_type =
+				LumiFit::MC;
+		lmd_data_facade.secondary_selection_dimension_bundle_template.dimension_range.setRangeLow(
 				-TMath::Pi());
-		lmd_data_facade.getSecondarySelectionDimensionBundleTemplate().dimension_range.setRangeHigh(
+		lmd_data_facade.secondary_selection_dimension_bundle_template.dimension_range.setRangeHigh(
 				TMath::Pi());
-		lmd_data_facade.getPrimarySelectionDimensionBundleTemplate().bins = 280;
-		lmd_data_facade.getSecondarySelectionDimensionBundleTemplate().bins = 1;
+		lmd_data_facade.primary_selection_dimension_bundle_template.bins = 280;
+		lmd_data_facade.secondary_selection_dimension_bundle_template.bins = 1;
 
 		lmd_data_facade.create1DAngularResolutionDataBundle(num_events);
-	} else if (3 == mode) {
+	}
+	if (data_types.find("v") != std::string::npos) {
 		// ---- ip position data ---- //
 
+		// get simulation ip distribution properties
+		LumiFit::LmdSimIPParameters true_ip_values =
+				lmd_data_facade.readSimulationIPParameters(input_file_dir);
+		true_ip_values.print();
+		lmd_data_facade.current_simulation_ip_parameters = true_ip_values;
+
 		// ---- Output file -------------------------------------------------------
-		out = input_file_dir + "/lmd_vertex_data.root";
+		output_filename_vertex_data = input_file_dir + "/lmd_vertex_data.root";
 		// ------------------------------------------------------------------------
 
-		lmd_data_facade.getPrimaryDimensionTemplate().dimension_range.setUnitPrefix(
+		lmd_data_facade.primary_dimension_template.dimension_range.setUnitPrefix(
 				LumiFit::NONE);
-		lmd_data_facade.getPrimaryDimensionTemplate().bins = 200;
-		lmd_data_facade.getPrimaryDimensionTemplate().dimension_range.setRangeLow(
+		lmd_data_facade.primary_dimension_template.bins = 200;
+		lmd_data_facade.primary_dimension_template.dimension_range.setRangeLow(
 				-2.0);
-		lmd_data_facade.getPrimaryDimensionTemplate().dimension_range.setRangeHigh(
+		lmd_data_facade.primary_dimension_template.dimension_range.setRangeHigh(
 				2.0);
 
 		// create angular data object bundle and register in data reader
@@ -144,31 +158,50 @@ void createLumiFitData(std::string input_file_dir, const double mom, int mode,
 	// -----   Finish   -------------------------------------------------------
 	// save the lmd data objects
 
-	TFile f(out, "RECREATE");
-
 	std::cout << "Saving data....\n";
 
-	std::vector<PndLmdData> my_lmd_data_vec = lmd_data_facade.getLmdDatas();
+	std::vector<PndLmdAngularData> my_lmd_data_vec =
+			lmd_data_facade.getLmdAngularData();
+	std::vector<PndLmdVertexData> my_lmd_vertex_data_vec =
+			lmd_data_facade.getLmdVertexData();
 	std::vector<PndLmdAcceptance> my_lmd_acc_vec =
 			lmd_data_facade.getLmdAcceptances();
 	std::vector<PndLmdResolution> my_lmd_res_vec =
 			lmd_data_facade.getLmdResolutions();
 
-	for (unsigned int i = 0; i < my_lmd_data_vec.size(); i++) {
-		my_lmd_data_vec[i].saveToRootFile();
+	if (my_lmd_data_vec.size() > 0) {
+		TFile f(output_filename_angular_data, "RECREATE");
+		for (unsigned int i = 0; i < my_lmd_data_vec.size(); i++) {
+			my_lmd_data_vec[i].saveToRootFile();
+		}
+		f.Close();
 	}
-	for (unsigned int i = 0; i < my_lmd_acc_vec.size(); i++) {
-		my_lmd_acc_vec[i].saveToRootFile();
+	if (my_lmd_vertex_data_vec.size() > 0) {
+		TFile f(output_filename_vertex_data, "RECREATE");
+		for (unsigned int i = 0; i < my_lmd_vertex_data_vec.size(); i++) {
+			my_lmd_vertex_data_vec[i].saveToRootFile();
+		}
+		f.Close();
 	}
-	for (unsigned int i = 0; i < my_lmd_res_vec.size(); i++) {
-		my_lmd_res_vec[i].saveToRootFile();
+	if (my_lmd_acc_vec.size() > 0) {
+		TFile f(output_filename_acceptance_data, "RECREATE");
+		for (unsigned int i = 0; i < my_lmd_acc_vec.size(); i++) {
+			my_lmd_acc_vec[i].saveToRootFile();
+		}
+		f.Close();
+	}
+	if (my_lmd_res_vec.size() > 0) {
+		TFile f(output_filename_resolution_data, "RECREATE");
+		for (unsigned int i = 0; i < my_lmd_res_vec.size(); i++) {
+			my_lmd_res_vec[i].saveToRootFile();
+		}
+		f.Close();
 	}
 
 	std::cout << std::endl << std::endl;
 	std::cout << "Application finished successfully." << std::endl;
 	std::cout << std::endl;
 
-	f.Close();
 	// ------------------------------------------------------------------------
 }
 
@@ -176,32 +209,54 @@ void displayInfo() {
 	// display info
 	std::cout << "Required arguments are: " << std::endl;
 	std::cout << "-m [pbar momentum]" << std::endl;
-	std::cout << "-t [type of data] (0 = data, 1 = acc, 2 = res, 3 = ip)"
+	std::cout
+			<< "-t [type of data to create] (a = angular, e = efficiency, r = resolution, v = vertex)"
 			<< std::endl;
 	std::cout << "-p [path to data]" << std::endl;
 	std::cout << "Optional arguments are: " << std::endl;
 	std::cout << "-n [number of events to process] "
 			"(default 0: all data found will be processed)" << std::endl;
-	std::cout << "-g [generated luminosity]" << std::endl;
+	std::cout << "-c [total elastic cross section]" << std::endl;
 	std::cout << std::endl;
 	std::cout
-			<< "Note: the parameter -g is the generated luminosity. In case you do NOT \n"
-					"specify this value it will be set to -1.0 and there is no performance \n"
-					"validation possible, but only luminosity determination. This should be \n"
-					"the case only for real data!" << std::endl;
+			<< "Note: The type value is specified as a string, in which the 4 letters\n"
+					"a, e, r, v can be concatenated freely. For just a single data type\n"
+					"the values should be a, e, r, v. For a combination i.e\n"
+					"angular vertex data, one should use av or va. Other additional\n"
+					"characters will be ignored, so can be specified without any effect!\n"
+					"\n"
+					"the parameter -c is the total elastic cross section to estimate\n"
+					"the generated luminosity. In case you do NOT specify this value it\n"
+					"will be set to -1.0 and there is no performance validation possible,\n"
+					"but only luminosity determination. This should be the case only for\n"
+					"real data!" << std::endl;
+}
+
+bool checkDataType(std::string& data_type) {
+	bool is_valid = false;
+	if (data_type.find("a") != std::string::npos) {
+		is_valid = true;
+	} else if (data_type.find("e") != std::string::npos) {
+		is_valid = true;
+	} else if (data_type.find("r") != std::string::npos) {
+		is_valid = true;
+	} else if (data_type.find("v") != std::string::npos) {
+		is_valid = true;
+	}
+	return is_valid;
 }
 
 int main(int argc, char* argv[]) {
-	int data_type_flag = -1;
-
-	bool is_mom_set = false, is_gen_lumi_set = false, is_data_path_set = false;
+	bool is_mom_set = false, is_cross_section_set = false, is_data_path_set =
+			false;
 	double momentum = -1.0;
+	std::string data_type = "";
 	unsigned int num_events = 0;
-	double gen_lumi = -1.0;
+	double cross_section = 1.0;
 	std::string data_path;
 	int c;
 
-	while ((c = getopt(argc, argv, "hm:n:t:p:g:")) != -1) {
+	while ((c = getopt(argc, argv, "hm:n:t:p:c:")) != -1) {
 		switch (c) {
 			case 'm':
 				momentum = atof(optarg);
@@ -210,12 +265,12 @@ int main(int argc, char* argv[]) {
 			case 'n':
 				num_events = atoi(optarg);
 				break;
-			case 'g':
-				gen_lumi = atof(optarg);
-				is_gen_lumi_set = true;
+			case 'c':
+				cross_section = atof(optarg);
+				is_cross_section_set = true;
 				break;
 			case 't':
-				data_type_flag = atoi(optarg);
+				data_type = optarg;
 				break;
 			case 'p':
 				data_path = optarg;
@@ -223,7 +278,7 @@ int main(int argc, char* argv[]) {
 				break;
 			case '?':
 				if (optopt == 't' || optopt == 'p' || optopt == 'm' || optopt == 'n'
-						|| optopt == 'g')
+						|| optopt == 'c')
 					std::cerr << "Option -" << optopt << " requires an argument."
 							<< std::endl;
 				else if (isprint(optopt))
@@ -239,9 +294,9 @@ int main(int argc, char* argv[]) {
 		}
 	}
 
-	if (is_mom_set && is_data_path_set)
-		createLumiFitData(data_path, momentum, data_type_flag, num_events,
-				gen_lumi);
+	if (checkDataType(data_type) && is_mom_set && is_data_path_set)
+		createLumiFitData(data_path, momentum, data_type, num_events,
+				cross_section);
 	else
 		displayInfo();
 

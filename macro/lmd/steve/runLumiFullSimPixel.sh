@@ -47,7 +47,7 @@ trkcut=true
 #merge hits on sensors from different sides. true=yes
 mergedHits=true
 #Skip kinematic filter (before back-propagation)
-SkipFilt=false
+SkipFilt=true
 ## if SkipFilt=false (XThetaCut or YPhiCut) or BoxCut should be true:
 ## X-Theta kinematic cut before back-propagation
 XThetaCut=true
@@ -55,7 +55,7 @@ YPhiCut=true
 ## BOX cut before back-propagation
 BoxCut=false
 ## Clean after back-propagation (momentum or MVA cut)
-CleanSig=true
+CleanSig=false
 
 ## Write all MC info in TrkQA array
 WrAllMC=true

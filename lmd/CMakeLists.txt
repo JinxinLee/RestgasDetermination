@@ -193,8 +193,11 @@ LmdFit/ModelFramework/fit/ModelFitResult.h
 LmdFit/ModelFramework/fit/EstimatorOptions.h
 LmdFit/LumiImpl/fit/PndLmdLumiFitResult.h
 LmdFit/LumiImpl/fit/PndLmdLumiFitOptions.h 
+LmdFit/LumiImpl/data/PndLmdFitStorage.h
 LmdFit/LumiImpl/data/PndLmdAbstractData.h
-LmdFit/LumiImpl/data/PndLmdData.h
+LmdFit/LumiImpl/data/PndLmdHistogramData.h
+LmdFit/LumiImpl/data/PndLmdAngularData.h
+LmdFit/LumiImpl/data/PndLmdVertexData.h
 LmdFit/LumiImpl/data/PndLmdAcceptance.h
 LmdFit/LumiImpl/data/PndLmdResolution.h
 LmdFit/LumiImpl/PndLmdLumiHelper.h 

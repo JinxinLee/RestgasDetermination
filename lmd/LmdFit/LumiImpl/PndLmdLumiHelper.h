@@ -35,7 +35,7 @@ using std::tr1::shared_ptr;
 class Model;
 
 class PndLmdAcceptance;
-class PndLmdData;
+class PndLmdAngularData;
 class PndLmdAbstractData;
 class PndLmdResolution;
 class PndLmdLumiFitOptions;

@@ -17,7 +17,8 @@
 
 #include "TString.h"
 
-class PndLmdData;
+class PndLmdAngularData;
+class PndLmdVertexData;
 class PndLmdAcceptance;
 class PndLmdResolution;
 class PndLmdLumiFitResult;
@@ -92,7 +93,7 @@ class PndLmdResultPlotter {
 				bool log);
 
 		TGraphAsymmErrors* createGraphFromFitResult(
-				const PndLmdLumiFitOptions &fit_opt, PndLmdData &data);
+				const PndLmdLumiFitOptions &fit_opt, PndLmdAngularData &data);
 
 		DataStructs::DimensionRange generatePlotRange(
 				const PndLmdAbstractData &lmd_abs_data,
@@ -124,27 +125,33 @@ class PndLmdResultPlotter {
 		TGraphAsymmErrors* makeRatioGraph(TGraphAsymmErrors *g1,
 				TGraphAsymmErrors *g2);
 
+		TGraphAsymmErrors* createVertexGraphFromFitResult(
+				const PndLmdLumiFitOptions &fit_opt, PndLmdVertexData &data);
+
 		TGraphAsymmErrors* createSmearingGraphFromFitResult(
 				const PndLmdLumiFitOptions &fit_opt, PndLmdResolution &res_data);
 
 		std::pair<TGraphAsymmErrors*, TGraphAsymmErrors*> createResidual(
-				const PndLmdLumiFitOptions &fit_opt, PndLmdData &data);
+				const PndLmdLumiFitOptions &fit_opt, PndLmdAngularData &data);
 
 		TGraphAsymmErrors* createAcceptanceGraph(PndLmdAcceptance *acc);
 
 		std::map<PndLmdLumiFitOptions,
 				std::map<int, PndLmdResultPlotter::graph_bundle>,
 				PndLmdResultPlotter::fit_options_compare> makeGraphBundles1D(
-				std::vector<PndLmdData> &data_vec);
+				std::vector<PndLmdAngularData> &data_vec);
 
-		PndLmdResultPlotter::graph_bundle makeAcceptanceBundle(PndLmdData& data,
+		PndLmdResultPlotter::graph_bundle makeAcceptanceBundle(PndLmdAngularData& data,
 				const PndLmdLumiFitOptions &fit_options);
 
-		PndLmdResultPlotter::graph_bundle makeGraphBundle1D(PndLmdData& data,
+		PndLmdResultPlotter::graph_bundle makeGraphBundle1D(PndLmdAngularData& data,
 				const PndLmdLumiFitOptions &fit_options);
 
 		PndLmdResultPlotter::graph_bundle makeResolutionGraphBundle1D(
 				PndLmdResolution& res);
+
+		PndLmdResultPlotter::graph_bundle makeVertexGraphBundle1D(
+				PndLmdVertexData& data);
 
 		std::pair<double, double> calulateLumiRelDiff(double lumi, double lumi_err,
 				double lumi_ref);

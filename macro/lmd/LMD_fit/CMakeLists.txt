@@ -4,8 +4,6 @@
 CMAKE_MINIMUM_REQUIRED(VERSION 2.6.0 FATAL_ERROR)
 
 set(CMAKE_MODULE_PATH "$ENV{VMCWORKDIR}/cmake/modules")
-Set(CheckSrcDir "$ENV{SIMPATH}/share/fairbase/cmake/checks")
-set(CheckSrcDir "$ENV{VMCWORKDIR}/cmake/checks")
 include(CheckCXX11Features)
 IF(HAS_CXX11_SHAREDPOINTER)
   Add_Definitions(-DHAS_SHAREDPOINTER)
@@ -286,8 +284,8 @@ include_directories(${INCLUDE_DIRECTORIES})
 
 link_directories(${LINK_DIRECTORIES})
 
-add_executable(plotBeamOffsetResults plotBeamOffsetResults.cxx)
-target_link_libraries(plotBeamOffsetResults $ENV{ROOT_LIBRARIES} MathMore LmdFit Model GL X11 GLU gsl gslcblas)
+add_executable(plotIPDistribution plotIPDistribution.cxx)
+target_link_libraries(plotIPDistribution $ENV{ROOT_LIBRARIES} MathMore LmdFit Model GL X11 GLU gsl gslcblas)
 
 
 

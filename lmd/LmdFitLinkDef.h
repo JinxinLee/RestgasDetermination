@@ -16,16 +16,21 @@
 #pragma link C++ class LumiFit::LmdDimensionOptions;
 #pragma link C++ class LumiFit::LmdDimensionRange;
 #pragma link C++ class LumiFit::LmdDimension;
+#pragma link C++ class LumiFit::LmdSimIPParameters;
 #pragma link C++ class PndLmdLumiFitResult;
+#pragma link C++ class PndLmdFitStorage+;
 #pragma link C++ class PndLmdLumiFitOptions;
 #pragma link C++ class PndLmdAbstractData;
-#pragma link C++ class PndLmdData;
+#pragma link C++ class PndLmdHistogramData;
+#pragma link C++ class PndLmdAngularData;
+#pragma link C++ class PndLmdVertexData;
 #pragma link C++ class PndLmdAcceptance;
 #pragma link C++ class PndLmdResolution;
 
-#pragma link C++ class std::vector < PndLmdData* >+;
-#pragma link C++ class std::vector < PndLmdAcceptance* >+;
-#pragma link C++ class std::vector < PndLmdResolution* >+;
+#pragma link C++ class std::vector < PndLmdAngularData >+;
+#pragma link C++ class std::vector < PndLmdVertexData >+;
+#pragma link C++ class std::vector < PndLmdAcceptance >+;
+#pragma link C++ class std::vector < PndLmdResolution >+;
 
 #pragma link C++ class PndLmdResultPlotter;
 #pragma link C++ class std::vector < PndLmdResultPlotter::graph_bundle >+;

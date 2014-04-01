@@ -22,25 +22,24 @@ else
 fi
 type=$var4
 echo "data type: ${type}"
-generated_luminosity=$var5
+elastic_cross_section=$var5
 
 if [ ! $numEv ]; then
   numEv=0
 fi
 
-if [ "$type" -eq "0" ]; then
-  if [ -z "${generated_luminosity}" ]; then
+if [ "$type" == "a" ]; then
+  if [ -z "${elastic_cross_section}" ]; then
     dpm_logfile=${GEN_DATA}/`echo ${data_path} | sed -rn 's/^.*\/(.*)_pixel.*$/\1/p'`/*_1.log
-    cs=$(cat ${dpm_logfile} | sed -rn 's/elastic cross section[ ]*([0-9]*.[0-9]*).*/\1/p')
-    echo cross section is $cs
-    generated_luminosity=$(awk "BEGIN{print 1.0/$cs}")
+    elastic_cross_section=$(cat ${dpm_logfile} | sed -rn 's/elastic cross section[ ]*([0-9]*.[0-9]*).*/\1/p')
+    echo cross section is ${elastic_cross_section}
   fi
-  echo "using generated luminosity per event of " ${generated_luminosity}
-  echo $VMCWORKDIR/macro/lmd/LMD_fit/createLumiFitData -m $pbeam -t $type -p ${data_path} -n ${numEv} -g ${generated_luminosity}
+  echo "using elastic cross section of ${elastic_cross_section}"
+  echo $VMCWORKDIR/macro/lmd/LMD_fit/createLumiFitData -m $pbeam -t $type -p ${data_path} -n ${numEv} -c ${elastic_cross_section}
   if [ $batchjob -eq "0" ]; then
-    $VMCWORKDIR/macro/lmd/LMD_fit/createLumiFitData -m $pbeam -t $type -p ${data_path} -n ${numEv} -g ${generated_luminosity} 2>&1 >> ${data_path}/createLumiFitData.log
+    $VMCWORKDIR/macro/lmd/LMD_fit/createLumiFitData -m $pbeam -t $type -p ${data_path} -n ${numEv} -c ${elastic_cross_section} 2>&1 >> ${data_path}/createLumiFitData.log
   else
-    $VMCWORKDIR/macro/lmd/LMD_fit/createLumiFitData -m $pbeam -t $type -p ${data_path} -n ${numEv} -g ${generated_luminosity}
+    $VMCWORKDIR/macro/lmd/LMD_fit/createLumiFitData -m $pbeam -t $type -p ${data_path} -n ${numEv} -c ${elastic_cross_section}
   fi
 else
   if [ $batchjob -eq "0" ]; then

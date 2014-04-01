@@ -10,6 +10,7 @@
 #include "TStyle.h"
 #include "TLatex.h"
 #include "TLegend.h"
+#include "TAxis.h"
 
 #include <iostream>               // for std::cout
 #include <utility>

@@ -14,6 +14,8 @@
 #include "PndLmdDataFacade.h"
 #include "PndLmdFitFacade.h"
 #include "DataStructs.h"
+#include "PndLmdAngularData.h"
+#include "PndLmdAcceptance.h"
 
 #include <vector>
 #include <iostream>
@@ -50,8 +52,8 @@ void runLumiFit(string input_file_dir, string acceptance_file_dir) {
 	// ------------------------------------------------------------------------
 
 	// get lmd data and objects from files
-	vector<PndLmdData> my_lmd_data_vec = lmd_data_facade.getDataFromFile<
-			PndLmdData>(fdata);
+	vector<PndLmdAngularData> my_lmd_data_vec = lmd_data_facade.getDataFromFile<
+			PndLmdAngularData>(fdata);
 	vector<PndLmdAcceptance> my_lmd_acc_vec = lmd_data_facade.getDataFromFile<
 			PndLmdAcceptance>(facc);
 
@@ -67,6 +69,8 @@ void runLumiFit(string input_file_dir, string acceptance_file_dir) {
 	PndLmdFitFacade lmd_fit_facade;
 
 	LumiFit::PndLmdFitModelOptions model_opt;
+
+	model_opt.dpm_elastic_parts = LumiFit::ALL_RHO_B_SIGTOT;
 
 	// we will just take the first theta ip acceptance
 	// (usually you would only have a single one)
@@ -96,8 +100,8 @@ void runLumiFit(string input_file_dir, string acceptance_file_dir) {
 	DataStructs::DimensionRange fit_range;
 	fit_range.is_active = true;
 
-	for (unsigned int i = 0; i < 11; i++) {
-		fit_range.range_low = (2.0 + 0.2 * i) / 1000.0;
+	for (unsigned int i = 0; i < 1; i++) {
+		fit_range.range_low = (1.5 + 0.5 * i) / 1000.0;
 		fit_range.range_high = 0.01;
 
 		est_opt.setFitRangeX(fit_range);
@@ -110,7 +114,7 @@ void runLumiFit(string input_file_dir, string acceptance_file_dir) {
 	// construct some nice plots for you!
 	cout << "Saving data...." << endl;
 	ffitteddata->cd();
-	for (std::vector<PndLmdData>::iterator lmd_data_iter =
+	for (std::vector<PndLmdAngularData>::iterator lmd_data_iter =
 			my_lmd_data_vec.begin(); lmd_data_iter != my_lmd_data_vec.end();
 			lmd_data_iter++) {
 		if (lmd_data_iter->getFitResults().size() > 0)

@@ -12,7 +12,7 @@
  * The usage of this macro is straight forward and uses primarily the
  * PndLmdResultPlotter class (which is a helper class for creating plots on luminosity
  * fits).
- * -First you read in a PndLmdData object that was saved by the runLumi6Fit.C macro
+ * -First you read in a PndLmdAngularData object that was saved by the runLumi6Fit.C macro
  * -Then you create so graph bundles that contain all the information of the fit
  *  results and data in form of ROOT objects.
  * -Finally you can pass these bundles to functions of the plotter and generate
@@ -20,7 +20,7 @@
  */
 
 #include "PndLmdResultPlotter.h"
-#include "PndLmdData.h"
+#include "PndLmdAngularData.h"
 #include "PndLmdAcceptance.h"
 #include "PndLmdDataFacade.h"
 
@@ -34,6 +34,7 @@
 #include "TFile.h"
 #include "TLatex.h"
 #include "TGraphAsymmErrors.h"
+#include "TH1D.h"
 
 void plotLumiFitResults(TString path, TString filename_prefix = "fitresults") {
 	std::cout << "Generating lumi plots for fit results....\n";
@@ -72,9 +73,9 @@ void plotLumiFitResults(TString path, TString filename_prefix = "fitresults") {
 	// ------ get files -------------------------------------------------------
 	TFile *fdata = new TFile(path + "/lmd_fitted_data.root", "OPEN");
 
-	// read in data from a root file which will return a map of pointers to PndLmdData objects
-	std::vector<PndLmdData> data_vec =
-			lmd_data_facade.getDataFromFile<PndLmdData>(fdata);
+	// read in data from a root file which will return a map of pointers to PndLmdAngularData objects
+	std::vector<PndLmdAngularData> data_vec =
+			lmd_data_facade.getDataFromFile<PndLmdAngularData>(fdata);
 
 	// =============================== BEGIN PLOTTING =============================== //
 

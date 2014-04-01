@@ -6,6 +6,10 @@
  */
 
 #include "PndLmdDataFacade.h"
+#include "PndLmdAngularData.h"
+#include "PndLmdVertexData.h"
+#include "PndLmdResolution.h"
+#include "PndLmdAcceptance.h"
 #include "DataStructs.h"
 #include "PndLmdLumiHelper.h"
 
@@ -28,55 +32,16 @@ void PndLmdDataFacade::setDataReader(PndLmdDataReader* data_reader_) {
 	data_reader = data_reader_;
 }
 
-double PndLmdDataFacade::getLabMomentum() const {
-	return lab_momentum;
-}
-
-void PndLmdDataFacade::setLabMomentum(double lab_momentum_) {
-	lab_momentum = lab_momentum_;
-	data_reader->setBeam(lab_momentum);
-}
-
-LumiFit::LmdDimension & PndLmdDataFacade::getPrimaryDimensionTemplate() {
-	return primary_dimension_template;
-}
-
-LumiFit::LmdDimension & PndLmdDataFacade::getSecondaryDimensionTemplate() {
-	return secondary_dimension_template;
-}
-
-LumiFit::LmdDimension & PndLmdDataFacade::getPrimarySelectionDimensionTemplate() {
-	return primary_selection_dimension_template;
-}
-
-LumiFit::LmdDimension & PndLmdDataFacade::getSecondarySelectionDimensionTemplate() {
-	return secondary_selection_dimension_template;
-}
-
-LumiFit::LmdDimension & PndLmdDataFacade::getPrimarySelectionDimensionBundleTemplate() {
-	return primary_selection_dimension_bundle_template;
-}
-
-LumiFit::LmdDimension & PndLmdDataFacade::getSecondarySelectionDimensionBundleTemplate() {
-	return secondary_selection_dimension_bundle_template;
-}
-
-double PndLmdDataFacade::getCurrentReferenceLuminosityPerEvent() const {
-	return current_reference_luminosity_per_event;
-}
-
-void PndLmdDataFacade::setCurrentReferenceLuminosityPerEvent(
-		double current_reference_luminosity_per_event_) {
-	current_reference_luminosity_per_event =
-			current_reference_luminosity_per_event_;
-}
-
 std::vector<PndLmdAcceptance> PndLmdDataFacade::getLmdAcceptances() const {
 	return lmd_acceptances;
 }
 
-std::vector<PndLmdData> PndLmdDataFacade::getLmdDatas() const {
-	return lmd_datas;
+std::vector<PndLmdAngularData> PndLmdDataFacade::getLmdAngularData() const {
+	return lmd_angular_data;
+}
+
+std::vector<PndLmdVertexData> PndLmdDataFacade::getLmdVertexData() const {
+	return lmd_vertex_data;
 }
 
 std::vector<PndLmdResolution> PndLmdDataFacade::getLmdResolutions() const {
@@ -128,20 +93,37 @@ void PndLmdDataFacade::createAcceptance2D(unsigned int num_events) {
 }
 
 void PndLmdDataFacade::createData1D(unsigned int num_events) {
-	PndLmdData data;
+	PndLmdAngularData data;
 	data.setNumEvents(num_events);
 	data.setLabMomentum(lab_momentum);
 	initialize1DData(data);
 	data.setReferenceLuminosityPerEvent(current_reference_luminosity_per_event);
-	lmd_datas.push_back(data);
+	lmd_angular_data.push_back(data);
 }
 
 void PndLmdDataFacade::createData2D(unsigned int num_events) {
-	PndLmdData data;
+	PndLmdAngularData data;
 	data.setNumEvents(num_events);
 	initialize2DData(data);
 	data.setReferenceLuminosityPerEvent(current_reference_luminosity_per_event);
-	lmd_datas.push_back(data);
+	lmd_angular_data.push_back(data);
+}
+
+void PndLmdDataFacade::createVertexData1D(unsigned int num_events) {
+	PndLmdVertexData data;
+	data.setNumEvents(num_events);
+	data.setLabMomentum(lab_momentum);
+	initialize1DData(data);
+	data.setSimulationIPParameters(current_simulation_ip_parameters);
+	lmd_vertex_data.push_back(data);
+}
+
+void PndLmdDataFacade::createVertexData2D(unsigned int num_events) {
+	PndLmdVertexData data;
+	data.setNumEvents(num_events);
+	initialize2DData(data);
+	data.setSimulationIPParameters(current_simulation_ip_parameters);
+	lmd_vertex_data.push_back(data);
 }
 
 void PndLmdDataFacade::createResolution1D(unsigned int num_events) {
@@ -173,29 +155,29 @@ void PndLmdDataFacade::create1DVertexDataBundle(unsigned int num_events) {
 	//primary_dimension_template.unit_factor.unit_prefix = LumiFit::CENTI;
 
 	createData1D(num_events);
-	lmd_datas[0].setName("mc_x");
+	lmd_vertex_data[0].setName("mc_x");
 
 	primary_dimension_template.dimension_options.track_type = LumiFit::RECO;
 	createData1D(num_events);
-	lmd_datas[1].setName("reco_x");
+	lmd_vertex_data[1].setName("reco_x");
 
 	primary_dimension_template.dimension_options.dimension_type = LumiFit::Y;
 	primary_dimension_template.dimension_options.track_type = LumiFit::MC;
 	createData1D(num_events);
-	lmd_datas[2].setName("mc_y");
+	lmd_vertex_data[2].setName("mc_y");
 
 	primary_dimension_template.dimension_options.track_type = LumiFit::RECO;
 	createData1D(num_events);
-	lmd_datas[3].setName("reco_y");
+	lmd_vertex_data[3].setName("reco_y");
 
 	primary_dimension_template.dimension_options.dimension_type = LumiFit::Z;
 	primary_dimension_template.dimension_options.track_type = LumiFit::MC;
 	createData1D(num_events);
-	lmd_datas[4].setName("mc_z");
+	lmd_vertex_data[4].setName("mc_z");
 
 	primary_dimension_template.dimension_options.track_type = LumiFit::RECO;
 	createData1D(num_events);
-	lmd_datas[5].setName("reco_z");
+	lmd_vertex_data[5].setName("reco_z");
 }
 
 void PndLmdDataFacade::create1DAngularDataBundle(unsigned int num_events) {
@@ -215,20 +197,20 @@ void PndLmdDataFacade::create1DAngularDataBundle(unsigned int num_events) {
 	primary_dimension_template.dimension_options.track_type = LumiFit::MC;
 
 	createData1D(num_events);
-	lmd_datas[lmd_datas.size() - 1].setName("mc_t");
+	lmd_angular_data[lmd_angular_data.size() - 1].setName("mc_t");
 
 	primary_dimension_template.dimension_range = temp_dimension_range;
 	primary_dimension_template.dimension_options.dimension_type = LumiFit::THETA;
 	createData1D(num_events);
-	lmd_datas[lmd_datas.size() - 1].setName("mc_th");
+	lmd_angular_data[lmd_angular_data.size() - 1].setName("mc_th");
 
 	primary_dimension_template.dimension_options.track_type = LumiFit::MC_ACC;
 	createData1D(num_events);
-	lmd_datas[lmd_datas.size() - 1].setName("mc_acc_th");
+	lmd_angular_data[lmd_angular_data.size() - 1].setName("mc_acc_th");
 
 	primary_dimension_template.dimension_options.track_type = LumiFit::RECO;
 	createData1D(num_events);
-	lmd_datas[lmd_datas.size() - 1].setName("reco");
+	lmd_angular_data[lmd_angular_data.size() - 1].setName("reco");
 }
 
 void PndLmdDataFacade::create1DAngularResolutionDataBundle(
@@ -295,7 +277,8 @@ void PndLmdDataFacade::create1DAngularResolutionDataBundle(
 
 void PndLmdDataFacade::fillAll() {
 	data_reader->registerAcceptances(lmd_acceptances);
-	data_reader->registerData(lmd_datas);
+	data_reader->registerData(lmd_angular_data);
+	data_reader->registerData(lmd_vertex_data);
 	data_reader->registerResolutions(lmd_resolutions);
 
 	data_reader->read();

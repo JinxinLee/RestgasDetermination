@@ -7,7 +7,9 @@
 
 #include "PndLmdDataReader.h"
 #include "PndLmdAbstractData.h"
-#include "PndLmdData.h"
+#include "PndLmdHistogramData.h"
+#include "PndLmdVertexData.h"
+#include "PndLmdAngularData.h"
 #include "PndLmdAcceptance.h"
 #include "PndLmdResolution.h"
 
@@ -34,12 +36,19 @@ PndLmdDataReader::PndLmdDataReader() :
 PndLmdDataReader::~PndLmdDataReader() {
 }
 
-int PndLmdDataReader::registerData(PndLmdData* data) {
+int PndLmdDataReader::registerData(PndLmdHistogramData* data) {
 	registered_data.push_back(data);
 	return 0;
 }
 
-int PndLmdDataReader::registerData(std::vector<PndLmdData> &data_vec) {
+int PndLmdDataReader::registerData(std::vector<PndLmdVertexData> &data_vec) {
+	for (unsigned int i = 0; i < data_vec.size(); i++) {
+		registered_data.push_back(&data_vec[i]);
+	}
+	return 0;
+}
+
+int PndLmdDataReader::registerData(std::vector<PndLmdAngularData> &data_vec) {
 	for (unsigned int i = 0; i < data_vec.size(); i++) {
 		registered_data.push_back(&data_vec[i]);
 	}

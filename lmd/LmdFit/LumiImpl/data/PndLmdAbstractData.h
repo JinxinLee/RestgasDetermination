@@ -8,18 +8,15 @@
 #ifndef PNDLMDABSTRACTDATA_H_
 #define PNDLMDABSTRACTDATA_H_
 
-#include "../fit/PndLmdLumiFitResult.h"
 #include "../LumiFitStructs.h"
-#include "../fit/PndLmdLumiFitOptions.h"
 
 #include <set>
-#include <map>
 
 #include "TString.h"
 #include "TObject.h"
 
 using std::set;
-using std::map;
+
 
 class PndLmdAbstractData: public TObject {
 private:
@@ -39,8 +36,6 @@ private:
 	 * for this data object.
 	 */
 	set<TString> filepath_list;
-
-	map<PndLmdLumiFitOptions, PndLmdLumiFitResult*> fit_results;
 
 protected:
 	/** Name of the object used for saving the object in a root file */
@@ -87,10 +82,6 @@ public:
 	virtual bool operator>(const PndLmdAbstractData &lmd_data_int) const;
 	virtual bool operator==(const PndLmdAbstractData &lmd_data_int) const;
 	virtual bool operator!=(const PndLmdAbstractData &lmd_data_int) const;
-
-	const map<PndLmdLumiFitOptions, PndLmdLumiFitResult*>& getFitResults() const;
-	PndLmdLumiFitResult* getFitResult(const PndLmdLumiFitOptions &fit_options) const;
-	void addFitResult(const PndLmdLumiFitOptions *fit_options, PndLmdLumiFitResult* fit_result_);
 
 ClassDef(PndLmdAbstractData,1)
 };

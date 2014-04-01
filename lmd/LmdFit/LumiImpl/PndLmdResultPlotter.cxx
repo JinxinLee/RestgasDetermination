@@ -10,7 +10,8 @@
 #include "PndLmdModelFactory.h"
 #include "PndLmdLumiFitOptions.h"
 #include "PndLmdLumiFitResult.h"
-#include "PndLmdData.h"
+#include "PndLmdAngularData.h"
+#include "PndLmdVertexData.h"
 #include "PndLmdAcceptance.h"
 #include "PndLmdResolution.h"
 #include "ROOTDataHelper.h"
@@ -365,11 +366,34 @@ DataStructs::DimensionRange PndLmdResultPlotter::generatePlotRange(
 }
 
 TGraphAsymmErrors* PndLmdResultPlotter::createGraphFromFitResult(
-		const PndLmdLumiFitOptions &fit_opt, PndLmdData &data) {
+		const PndLmdLumiFitOptions &fit_opt, PndLmdAngularData &data) {
 
 	PndLmdModelFactory model_factory;
 	shared_ptr<Model1D> model = model_factory.generate1DModel(
 			fit_opt.getFitModelOptions(), data.getLabMomentum());
+	if (model->init()) {
+		std::cout << "Error: not all parameters have been set!" << std::endl;
+	}
+
+	// now just overwrite all parameters in the model from the fit result
+	model->getModelParameterHandler().initModelParametersFromFitResult(
+			data.getFitResult(fit_opt)->getModelFitResult());
+
+	// ok just evaluate the function at 500 points in the range (is default);
+	ModelVisualizationProperties1D vis_prop;
+
+	vis_prop.setBinningFactor(data.getBinningFactor());
+	vis_prop.setPlotRange(generatePlotRange(data, fit_opt));
+
+	return root_plotter.createGraphFromModel1D(model, vis_prop);
+}
+
+TGraphAsymmErrors* PndLmdResultPlotter::createVertexGraphFromFitResult(
+		const PndLmdLumiFitOptions &fit_opt, PndLmdVertexData &data) {
+
+	PndLmdModelFactory model_factory;
+	shared_ptr<Model1D> model = model_factory.generate1DVertexModel(
+			fit_opt.getFitModelOptions());
 	if (model->init()) {
 		std::cout << "Error: not all parameters have been set!" << std::endl;
 	}
@@ -413,7 +437,7 @@ TGraphAsymmErrors* PndLmdResultPlotter::createSmearingGraphFromFitResult(
 }
 
 std::pair<TGraphAsymmErrors*, TGraphAsymmErrors*> PndLmdResultPlotter::createResidual(
-		const PndLmdLumiFitOptions &fit_opt, PndLmdData &data) {
+		const PndLmdLumiFitOptions &fit_opt, PndLmdAngularData &data) {
 	const TH1D *data_hist = data.get1DHistogram();
 
 	PndLmdModelFactory model_factory;
@@ -477,7 +501,7 @@ TGraphAsymmErrors* PndLmdResultPlotter::createAcceptanceGraph(
 }
 
 PndLmdResultPlotter::graph_bundle PndLmdResultPlotter::makeAcceptanceBundle(
-		PndLmdData& data, const PndLmdLumiFitOptions &fit_options) {
+		PndLmdAngularData& data, const PndLmdLumiFitOptions &fit_options) {
 	graph_bundle acc_bundle;
 	acc_bundle.acceptance_1d = 0;
 
@@ -509,7 +533,7 @@ PndLmdResultPlotter::graph_bundle PndLmdResultPlotter::makeAcceptanceBundle(
 }
 
 PndLmdResultPlotter::graph_bundle PndLmdResultPlotter::makeGraphBundle1D(
-		PndLmdData& data, const PndLmdLumiFitOptions &fit_options) {
+		PndLmdAngularData& data, const PndLmdLumiFitOptions &fit_options) {
 	std::cout << "Creating graph bundle!" << std::endl;
 
 	double lumi_ref = data.getReferenceLuminosity();
@@ -623,9 +647,42 @@ PndLmdResultPlotter::graph_bundle PndLmdResultPlotter::makeResolutionGraphBundle
 	return lmd_graph_bundle;
 }
 
+PndLmdResultPlotter::graph_bundle PndLmdResultPlotter::makeVertexGraphBundle1D(
+		PndLmdVertexData& data) {
+	std::cout << "Creating vertex graph bundle!" << std::endl;
+
+	const map<PndLmdLumiFitOptions, PndLmdLumiFitResult*>& fit_results =
+			data.getFitResults();
+
+	graph_bundle lmd_graph_bundle;
+	lmd_graph_bundle.is_resolution = true;
+	lmd_graph_bundle.is_acceptance = false;
+	lmd_graph_bundle.is_residual = false;
+	lmd_graph_bundle.plab = data.getLabMomentum();
+	lmd_graph_bundle.model = 0;
+
+	TH1D* hist = data.get1DHistogram();
+
+	hist->SetTitle("");
+	hist->SetStats(0);
+
+	lmd_graph_bundle.hist1d = hist;
+
+	if (fit_results.size() > 0) {
+		lmd_graph_bundle.fit_options = fit_results.begin()->first;
+
+		if (fit_results.begin()->second->getModelFitResult().getFitStatus() == 0) {
+			lmd_graph_bundle.model = createVertexGraphFromFitResult(
+					fit_results.begin()->first, data);
+		}
+	}
+
+	return lmd_graph_bundle;
+}
+
 std::map<PndLmdLumiFitOptions, std::map<int, PndLmdResultPlotter::graph_bundle>,
 		PndLmdResultPlotter::fit_options_compare> PndLmdResultPlotter::makeGraphBundles1D(
-		std::vector<PndLmdData> &data_vec) {
+		std::vector<PndLmdAngularData> &data_vec) {
 
 	std::map<PndLmdLumiFitOptions,
 			std::map<int, PndLmdResultPlotter::graph_bundle>,
@@ -638,7 +695,7 @@ std::map<PndLmdLumiFitOptions, std::map<int, PndLmdResultPlotter::graph_bundle>,
 	LumiFit::PndLmdFitModelOptions fitop_normal(LumiFit::RECO, LumiFit::THETA);
 
 	// go through data map
-	for (std::vector<PndLmdData>::iterator top_it = data_vec.begin();
+	for (std::vector<PndLmdAngularData>::iterator top_it = data_vec.begin();
 			top_it != data_vec.end(); top_it++) {
 
 		// we only want IP info, so throw out everything else
@@ -761,7 +818,7 @@ std::map<PndLmdLumiFitOptions, std::map<int, PndLmdResultPlotter::graph_bundle>,
 	}
 
 	// go through data map again and try to match the momentum transfer data fits
-	for (std::vector<PndLmdData>::iterator top_it = data_vec.begin();
+	for (std::vector<PndLmdAngularData>::iterator top_it = data_vec.begin();
 			top_it != data_vec.end(); top_it++) {
 
 		// first determine which data objects we have here
