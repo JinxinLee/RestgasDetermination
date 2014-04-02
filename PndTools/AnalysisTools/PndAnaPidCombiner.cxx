@@ -64,7 +64,7 @@ void PndAnaPidCombiner::Init()
 }
 
 Bool_t PndAnaPidCombiner::Apply ( RhoCandList& tcl )
-{ 
+{
   if ( !fInitialized ) {
     Init();
   }
@@ -83,11 +83,11 @@ Bool_t PndAnaPidCombiner::Apply ( RhoCandidate* tc )
 {
   // Apply the multiplied pdf's to the RhoCandidate
   // If on of the pdf's is not available, it is skipped
-  
+
   if ( !fInitialized ) {
     Init();
   }
-  
+
   Bool_t check=kTRUE;
 
   //TODO: Merge PID info now.
@@ -108,7 +108,7 @@ Bool_t PndAnaPidCombiner::Apply ( RhoCandidate* tc )
   iter!=fCurrentPidArrays.end(); iter++ ){
     aTca=fPidArrays[*iter];
     //Info ( "Apply","try tca %s at %p",*iter.Data(),aTca );
-      
+
     if ( 0==aTca ) {
       Error ( "Apply", "PID Probability array not found, skip setting pid for candidate %i.",trackIndex );
       check=kFALSE;
@@ -163,17 +163,17 @@ Bool_t PndAnaPidCombiner::Apply ( RhoCandidate* tc )
   tc->SetPidInfo ( 3,fPidResult->GetKaonPidProb() );
   tc->SetPidInfo ( 4,fPidResult->GetProtonPidProb() );
   //std::cout<<"PndAnaPidCombiner: "<<tc<<std::endl;
-  
+
   return check;
 }
 
 void PndAnaPidCombiner::ApplyFlat ( RhoCandidate* tc )
 {
-  tc->SetPidInfo ( 0,1. );
-  tc->SetPidInfo ( 1,1. );
-  tc->SetPidInfo ( 2,1. );
-  tc->SetPidInfo ( 3,1. );
-  tc->SetPidInfo ( 4,1. );
+  tc->SetPidInfo ( 0,0.2 );
+  tc->SetPidInfo ( 1,0.2 );
+  tc->SetPidInfo ( 2,0.2 );
+  tc->SetPidInfo ( 3,0.2 );
+  tc->SetPidInfo ( 4,0.2 );
   return;
 }
 
@@ -182,9 +182,11 @@ void PndAnaPidCombiner::SetDefaults()
 {
   // Set list of names and weights to the default PANDA
   //TString names = "PidAlgoMvd;PidAlgoStt;PidAlgoEmcBayes;PidAlgoDrc;PidAlgoDisc;PidAlgoMdtHardCuts;";
-  TString names = "PidAlgoIdealCharged";
+  //TString names = "PidAlgoIdealCharged";
   //TString names = "PidMvaChargedProbability";
-  SetTcaNames ( names );
+  //SetTcaNames ( names );
+
+  fCurrentPidArrays.clear();
   fInitialized=kFALSE;
   return;
 }
