@@ -143,12 +143,13 @@ PndFsmEmcPid::respond(PndFsmTrack *t)
 	// get the probability values for the different particle types for this emcecal value; sum needed for normalization
 	double P[6], Psum=0.;
 	
-	// sum up e ... K
-	for (int k=0;k<4;++k)
+	// find P up e ... pbar and sum
+	for (int k=0;k<6;++k)
 	{
 		P[k] = _emcPidPdf[k]->GetBinContent(currbin,xsigbin);
-		Psum += P[k];
+		if (k<4) Psum += P[k];	
 	}
+	
 	// add P_p or P_pbar depending on charge of particle
 	if (charge>0) Psum+=P[4];
 	else Psum+=P[5];

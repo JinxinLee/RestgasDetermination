@@ -247,6 +247,8 @@ void PndFsmResponse::print(ostream &o)
   o<<"thtc_disc = " << _DrcDiscThtc << " / ";
   o<<"thtc_barrel = " << _DrcBarrelThtc << " / ";
   o<<"thtc_rich = " << _RichThtc << " / ";
+  o<<"ecal_emc = " << _EmcEcal << " / ";
+  o<<"iron_mdt = " << _MuoIron << " / ";
   
   o<<"dtheta = "<<_dtheta<<" / ";
   o<<"dphi = "<<_dphi<<" / ";

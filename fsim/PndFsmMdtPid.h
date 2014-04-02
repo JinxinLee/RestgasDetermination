@@ -37,6 +37,7 @@
 // -------------------------------------------
 class PndFsmTrack;
 class PndFsmResponse;
+class TH3F;
 
 class PndFsmMdtPid: public PndFsmAbsDet
 {
@@ -69,12 +70,18 @@ private:
   void   initParameters();
   void   print(std::ostream &o);
   bool   setParameter(std::string &name, double value);
+  bool   readParameters();
 
+  TH3F   *_mdtPidPdf[6];
+  
   double _thtMin;
   double _thtMax;
   double _pmin;
   double _misId;
+  
+  bool _useFlat;
 
+  std::string _parFileName;     //this file contains root histograms with the MDT pdfs
 };
 
 #endif

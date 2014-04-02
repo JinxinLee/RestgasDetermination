@@ -512,7 +512,7 @@ void PndFastSim::Exec(Option_t* opt)
       pidCand->SetRichThetaCErr( ft->detResponse()->RichThtcErr() );
       pidCand->SetRichNumberOfPhotons(0);
       pidCand->SetEmcCalEnergy(ft->detResponse()->EmcEcal() );
-
+	  pidCand->SetMuoIron(ft->detResponse()->MuoIron() );
       pidProb->SetElectronPdf(ft->detResponse()->LHElectron());
       pidProb->SetMuonPdf(ft->detResponse()->LHMuon());
       pidProb->SetPionPdf(ft->detResponse()->LHPion());
@@ -945,6 +945,7 @@ PndFastSim::sumResponse(FsmResponseList respList)
   double DrcBarrelThtc=0;
   double RichThtc=0;
   double EmcEcal=0;
+  double MuoIron=0;
 
   double m2Err=0;
   double MvddEdxErr=0;
@@ -993,6 +994,7 @@ PndFastSim::sumResponse(FsmResponseList respList)
       if (fabs (val = resp->DrcBarrelThtc()) > 1e-11)    DrcBarrelThtc=val;
       if (fabs (val = resp->RichThtc()) > 1e-11)    RichThtc=val;
       if (fabs (val = resp->EmcEcal()) > 1e-11)    EmcEcal=val;
+      if (fabs (val = resp->MuoIron()) > 1e-11)    MuoIron=val;
 
       if (fabs (val = resp->m2Err()) > 1e-11)    m2Err=val;
       if (fabs (val = resp->MvddEdxErr()) > 1e-11)    MvddEdxErr=val;
@@ -1076,6 +1078,7 @@ PndFastSim::sumResponse(FsmResponseList respList)
   allResponse->setDrcBarrelThtc(DrcBarrelThtc,DrcBarrelThtcErr);
   allResponse->setRichThtc(RichThtc,RichThtcErr);
   allResponse->setEmcEcal(EmcEcal);
+  allResponse->setMuoIron(MuoIron);
 
   if (dVx > 0.) dVx=1./sqrt(dVx); else dVx = 0.0;
   if (dVy > 0.) dVy=1./sqrt(dVy); else dVy = 0.0;

@@ -77,6 +77,7 @@ public:
   double DrcBarrelThtc() {return _DrcBarrelThtc;}
   double RichThtc() {return _RichThtc;}
   double EmcEcal() {return _EmcEcal;}
+  double MuoIron() {return _MuoIron;}
 
   double m2Err() {return _m2Err;}
   double MvddEdxErr() {return _MvddEdxErr;}
@@ -118,6 +119,7 @@ public:
   void setDrcBarrelThtc(double val, double err=0);
   void setRichThtc(double val, double err=0);
   void setEmcEcal(double val, double err=0) {_EmcEcal = val;}
+  void setMuoIron(double val, double err=0) {_MuoIron = val;}
 
   void setdV(TVector3 v);
   void setdV(double dx, double dy, double dz);
@@ -151,6 +153,7 @@ private:
   double _DrcBarrelThtc;      //Theta_c Barrel Dirc
   double _RichThtc;           //Theta_c Rich
   double _EmcEcal;            //calibrated energy deposit in calorimeter
+  double _MuoIron;            //penetration depth in Muon detector iron
 
   double _m2Err;              //error of square of particle mass in Tof
   double _MvddEdxErr;         //error of dEdx in Mvd
