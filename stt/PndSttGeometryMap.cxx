@@ -17,6 +17,7 @@
 // authors: L. Lavezzi (PndSttMapCreator 
 //                      in development branch - Nov 2012)
 //          M. Mertens (PndSttStrawMap - Apr 16, 2013)
+// modified: Apr 2014 (S. Costanza)
 //          
 /////////////////////////////////////////////////////////////
 
@@ -98,73 +99,6 @@ void PndSttGeometryMap::SetGeneralParametersGeoType1() {   //  CHECK whether it 
   fNLayers_skew = 8;
   fNLayers_outer_parallel = 4;
   fNLayers_fillup_parallel = 6;
-  
-  fStartTube = (int**) malloc(sizeof(int*) * fNSectors);
-  fEndTube   = (int**) malloc(sizeof(int*) * fNSectors);
-  fShift = (int**) malloc(sizeof(int*) * fNSectors);
-  for(int i = 0; i < fNSectors; i++) {
-    fStartTube[i] = (int*) malloc(sizeof(int*) * fNLayers);
-    fEndTube[i] = (int*) malloc(sizeof(int*) * fNLayers);
-    fShift[i] = (int*) malloc(sizeof(int*) * fNLayers);
-  }
-
-
-  int start_list[size] = { 1, 105, 215, 331, 453, 581, 715, 855, 1001, 1195, 1395, 1601, 1813, 2037, 2267, 2503, 2745, 2957, 3175, 3399, 3629, 3853, 4051, 4231, 4381, 4489, 
-			   17, 122, 233, 350, 473, 602, 737, 878, 1033, 1228, 1428, 1635, 1850, 2075, 2305, 2542, 2779, 2992, 3211, 3436, 3666, 3886, 4081, 4256, 4399, 4498, 
-			   36, 142, 254, 372, 496, 626, 762, 904, 1066, 1262, 1465, 1673, 1888, 2114, 2347, 2585, 2816, 3030, 3250, 3476, 3704, 3919, 4111, 4281, 4417, 4507, 
-			   53, 160, 273, 392, 517, 648, 785, 928, 1098, 1295, 1498, 1707, 1925, 2152, 2385, 2624, 2851, 3066, 3287, 3514, 3741, 3952, 4141, 4306, 4435, 4516, 
-			   69, 177, 291, 411, 537, 669, 807, 951, 1130, 1328, 1531, 1741, 1962, 2190, 2423, 2663, 2885, 3101, 3323, 3551, 3778, 3985, 4171, 4331, 4453, 4525, 
-			   88, 197, 312, 433, 560, 693, 832, 977, 1163, 1362, 1568, 1779, 2000, 2229, 2465, 2706, 2922, 3139, 3362, 3591, 3816, 4018, 4201, 4356, 4471, 4534};
- 
-  int end_list[size] = { 16, 121, 232, 349, 472, 601, 736, 877,  1032, 1227, 1427, 1634, 1849, 2074, 2304, 2541, 2778, 2991, 3210, 3435, 3665, 3885, 4080, 4255, 4398, 4497,
-			 35, 141, 253, 371, 495, 625, 761, 903, 1065, 1261, 1464, 1672, 1887, 2113, 2346, 2584, 2815, 3029, 3249, 3475, 3703, 3918, 4110, 4280, 4416, 4506, 
-			 52, 159, 272, 391, 516, 647, 784, 927, 1097, 1294, 1497, 1706, 1924, 2151, 2384, 2623, 2850, 3065, 3286, 3513, 3740, 3951, 4140, 4305, 4434, 4515, 
-			 68, 176, 290, 410, 536, 668, 806, 950, 1129, 1327, 1530, 1740, 1961, 2189, 2422, 2662, 2884, 3100, 3322, 3550, 3777, 3984, 4170, 4330, 4452, 4524,
-			 87, 196, 311, 432, 559, 692, 831, 976, 1162, 1361, 1567, 1778, 1999, 2228, 2464, 2705, 2921, 3138, 3361, 3590, 3815, 4017, 4200, 4355, 4470, 4533, 
-			 104, 214, 330, 452, 580, 714, 854, 1000, 1194, 1394, 1600, 1812, 2036, 2266, 2502, 2744, 2956, 3174, 3398, 3628, 3852, 4050, 4230, 4380, 4488, 4542};
-  
-  int shift_list[size] = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2, 4,  7, 11, 16,
-			  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2, 5, 7, 10, 14, 19,
-			  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2, 5, 7, 10, 14, 19,
-			  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2, 4,  7, 11, 16,
-			  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2, 5, 7, 10, 14, 19,
-  			  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2, 5, 7, 10, 14, 19};
-
-
-  int counter = 0;
-  for(int i = 0; i < fNSectors; i++) {
-    for(int j = 0; j < fNLayers; j++) {
-      fStartTube[i][j] = start_list[counter];
-      fEndTube[i][j] = end_list[counter];
-      fShift[i][j] = shift_list[counter];
-      counter++;
-    }
-  }
-
-  if(fVerbose > 0) {
-    // =============== PRINT
-    for(int irow = 0; irow < fNSectors; irow++) {
-      for(int icol = 0; icol < fNLayers; icol++) {
-	cout << " " << fStartTube[irow][icol];
-      }
-      cout << endl;
-    }
-    cout << endl;
-    for(int irow = 0; irow < fNSectors; irow++) {
-      for(int icol = 0; icol < fNLayers; icol++) {
-	cout << " " << fEndTube[irow][icol];
-      }
-      cout << endl;
-    }
-    cout << endl;
-    for(int irow = 0; irow < fNSectors; irow++) {
-      for(int icol = 0; icol < fNLayers; icol++) {
-	cout << " " << fShift[irow][icol];
-      }
-      cout << endl;
-    }
-    cout << endl;
-  }
 
 }
 
@@ -219,8 +153,8 @@ TArrayI PndSttGeometryMap::FindNeighborings(PndSttTube *tube) {
 							|| (isector == 3 && possible_lay_sec[itest][1] == 2))
 					continue;
 			// if not @ limit of the sector
-			if (tube->IsSectorLimit() == kFALSE && (possible_lay_sec[itest][1] == isector + 1 || possible_lay_sec[itest][1] == isector - 1))
-					continue;
+			//			if (tube->IsSectorLimit() == kFALSE && (possible_lay_sec[itest][1] == isector + 1 || possible_lay_sec[itest][1] == isector - 1))
+			//					continue;
 
 			//    cout << "CHECKING " << possible_lay_sec[itest][0] <<  " " << possible_lay_sec[itest][1] << endl;
 			neigh_candidates = GetStrawRow(possible_lay_sec[itest][1], possible_lay_sec[itest][0]);
@@ -423,6 +357,59 @@ void PndSttGeometryMap::GenerateStrawMapAngleGeoType1()
   }
   fStrawIndex[lastsector].push_back(currentRow);
   if(fVerbose > 0) cout << "STT COMPLETE. SECTOR COMPLETE: Row " << row << " added to sector " << lastsector << endl;
+
+
+  fStartTube = (int**) malloc(sizeof(int*) * fNSectors);
+  fEndTube   = (int**) malloc(sizeof(int*) * fNSectors);
+  fShift = (int**) malloc(sizeof(int*) * fNSectors);
+  for(int i = 0; i < fNSectors; i++) {
+    fStartTube[i] = (int*) malloc(sizeof(int*) * fNLayers);
+    fEndTube[i] = (int*) malloc(sizeof(int*) * fNLayers);
+    fShift[i] = (int*) malloc(sizeof(int*) * fNLayers);
+  }
+
+  const int size = 26* 6; // fNLayers * fNSectors
+  int shift_list[size] = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2, 4,  7, 11, 16,
+			  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2, 5, 7, 10, 14, 19,
+			  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2, 5, 7, 10, 14, 19,
+			  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2, 4,  7, 11, 16,
+			  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2, 5, 7, 10, 14, 19,
+  			  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2, 5, 7, 10, 14, 19};
+
+  int counter = 0;
+  for(int i = 0; i < fNSectors; i++) {
+    for(int j = 0; j < fNLayers; j++) {
+      fStartTube[i][j] = GetStrawRow(i,j).front();
+      fEndTube[i][j]   = GetStrawRow(i,j).back();
+      fShift[i][j]     = shift_list[counter];
+      counter++;
+    }
+  }
+
+  if(fVerbose > 0) {
+    // =============== PRINT
+    for(int irow = 0; irow < fNSectors; irow++) {
+      for(int icol = 0; icol < fNLayers; icol++) {
+	cout << " " << fStartTube[irow][icol];
+      }
+      cout << endl;
+    }
+    cout << endl;
+    for(int irow = 0; irow < fNSectors; irow++) {
+      for(int icol = 0; icol < fNLayers; icol++) {
+	cout << " " << fEndTube[irow][icol];
+      }
+      cout << endl;
+    }
+    cout << endl;
+    for(int irow = 0; irow < fNSectors; irow++) {
+      for(int icol = 0; icol < fNLayers; icol++) {
+	cout << " " << fShift[irow][icol];
+      }
+      cout << endl;
+    }
+    cout << endl;
+  }
 
   fStrawMapInitialized = true;
 }
