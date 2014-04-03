@@ -109,7 +109,7 @@ void sim_BARREL_1000sep(Int_t fileId = 0, Int_t nEvents=1000, Int_t pid=13, Int_
   fRun->SetField(fField);
   
   
-  fRun->SetStoreTraj(kTRUE); // toggle this for use with EVE
+  fRun->SetStoreTraj(kFALSE); // toggle this for use with EVE
   fRun->SetRadLenRegister(kFALSE); // toggle for material budget study
   
   fRun->Init();

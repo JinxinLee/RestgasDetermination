@@ -69,7 +69,7 @@ class PndGemFindHits : public FairTask
 
  private:
 
-  PndGemMonitor*    fMonitor;     /** GEM monitor **/
+  PndGemMonitor*    fMonitor;  //!   /** GEM monitor **/
   PndGemDigiPar*    fDigiPar;     /** Digitisation parameters **/
   TClonesArray*     fDigis;       /** Input array of PndGemDigi **/
   TClonesArray*     fHits;        /** Output array of PndGemHit **/

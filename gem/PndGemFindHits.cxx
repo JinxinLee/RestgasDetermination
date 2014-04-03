@@ -96,16 +96,22 @@ PndGemFindHits::PndGemFindHits(Int_t iVerbose)
 
 // -----   Constructor with name   -----------------------------------------
 PndGemFindHits::PndGemFindHits(const char* name, Int_t iVerbose) 
-  : FairTask(name, iVerbose) {
-  fDigiPar = NULL;
-  fDigis   = NULL;
-  fHits    = NULL;
-
-  fUseClusters = kFALSE;
-
-  fTNofEvents = 0;
-  fTNofDigis  = 0;
-  fTNofHits = 0;
+  : FairTask(name, iVerbose),
+  fMonitor(NULL),
+  fDigiPar(NULL),
+  fDigis  (NULL),
+  fHits   (NULL),
+  fUseClusters(kFALSE),
+  fPrepTime(0.),
+  fSortTime(0.),
+  fCreateTime(0.),
+  fConfirmTime(0.),
+  fActivateTime(0.),
+  fAllTime(0.),
+  fTNofEvents(0),
+  fTNofDigis (0),
+  fTNofHits  (0)
+{
 }
 // -------------------------------------------------------------------------
 
