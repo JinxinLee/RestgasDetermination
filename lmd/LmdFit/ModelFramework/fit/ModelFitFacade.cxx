@@ -65,7 +65,7 @@ ModelFitResult ModelFitFacade::Fit() {
 	ModelFitResult fit_result_dummy;
 
 	// check that estimator is set
-	if (estimator == nullptr) {
+	if (!estimator) {
 		fit_result_dummy.setFitStatus(-1);
 		return fit_result_dummy;
 	}
@@ -78,7 +78,7 @@ ModelFitResult ModelFitFacade::Fit() {
 	estimator->applyEstimatorOptions(estimator_options);
 
 	// check that minimizer exists
-	if (minimizer == nullptr) {
+	if (!minimizer) {
 		fit_result_dummy.setFitStatus(-2);
 		return fit_result_dummy;
 	}
