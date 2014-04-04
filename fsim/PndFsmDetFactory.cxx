@@ -38,6 +38,7 @@
 //-------------------------------
 //#include "ErrLogger/ErrLog.hh"
 #include "StrTok.h"
+#include "TString.h"
 
 
 #include "PndFsmEmcBarrel.h"
@@ -90,117 +91,119 @@ PndFsmDetFactory::~PndFsmDetFactory()
 PndFsmAbsDet*
 PndFsmDetFactory::create(std::string &name,ArgList &par)
 {
-  if (name=="EmcBarrel"){
+  TString tname(name);
+  
+  if (tname=="EmcBarrel"){
     PndFsmAbsDet* aDet = (PndFsmAbsDet*)(new PndFsmEmcBarrel(par));
     aDet->setName(name);
     aDet->setStorePid();
     return aDet;
   } else
-  if (name=="EmcFwCap"){
+  if (tname=="EmcFwCap"){
     PndFsmAbsDet* aDet = (PndFsmAbsDet*)(new PndFsmEmcFwCap(par));
     aDet->setName(name);
     aDet->setStorePid();
     return aDet;
   } else
-  if (name=="EmcBwCap"){
+  if (tname=="EmcBwCap"){
     PndFsmAbsDet* aDet = (PndFsmAbsDet*)(new PndFsmEmcBwCap(par));
     aDet->setName(name);
     aDet->setStorePid();
     return aDet;
   } else
-  if (name=="EmcFS"){
+  if (tname=="EmcFS"){
     PndFsmAbsDet* aDet = (PndFsmAbsDet*)(new PndFsmEmcFS(par));
     aDet->setName(name);
     aDet->setStorePid();
     return aDet;
   } else
-  if (name=="Stt"){
+  if (tname=="Stt"){
     PndFsmAbsDet* aDet = (PndFsmAbsDet*)(new PndFsmStt(par));
     aDet->setName(name);
     aDet->setStorePid();
     return aDet;
   } else
-  if (name=="MdcFS"){
+  if (tname=="MdcFS"){
     PndFsmAbsDet* aDet = (PndFsmAbsDet*)(new PndFsmMdcFS(par));
     aDet->setName(name);
     return aDet;
   } else
-  if (name=="MdcTS"){
+  if (tname=="MdcTS"){
     PndFsmAbsDet* aDet = (PndFsmAbsDet*)(new PndFsmMdcTS(par));
     aDet->setName(name);
     return aDet;
   } else
-  if (name=="EffTracker"){
+  if (tname.BeginsWith("EffTracker")){
     PndFsmAbsDet* aDet = (PndFsmAbsDet*)(new PndFsmEffTracker(par));
     aDet->setName(name);
     return aDet;
   } else
-  if (name=="DrcBarrel"){
+  if (tname=="DrcBarrel"){
     PndFsmAbsDet* aDet = (PndFsmAbsDet*)(new PndFsmDrcBarrel(par));
     aDet->setName(name);
     aDet->setStorePid();
     return aDet;
   } else
-  if (name=="DrcDisc"){
+  if (tname=="DrcDisc"){
     PndFsmAbsDet* aDet = (PndFsmAbsDet*)(new PndFsmDrcDisc(par));
     aDet->setName(name);
     aDet->setStorePid();
     return aDet;
   } else
-  if (name=="Mvd"){
+  if (tname=="Mvd"){
     PndFsmAbsDet* aDet = (PndFsmAbsDet*)(new PndFsmMvd(par));
     aDet->setName(name);
     aDet->setStorePid();
     return aDet;
   } else
-  if (name=="Mvd2"){
+  if (tname=="Mvd2"){
     PndFsmAbsDet* aDet = (PndFsmAbsDet*)(new PndFsmMvd2(par));
     aDet->setName(name);
     aDet->setStorePid();
     return aDet;
   } else
-  if (name=="Tof"){
+  if (tname=="Tof"){
     PndFsmAbsDet* aDet = (PndFsmAbsDet*)(new PndFsmTof(par));
     aDet->setName(name);
     aDet->setStorePid();
     return aDet;
   } else
-  if (name=="Rich"){
+  if (tname=="Rich"){
     PndFsmAbsDet* aDet = (PndFsmAbsDet*)(new PndFsmRich(par));
     aDet->setName(name);
     aDet->setStorePid();
     return aDet;
   } else
   // --- scrutiny process options
-  if (name=="ScSttAlone" || name=="ScSttMvd" || name=="ScSttMvdGem" ||
-      name=="ScSttGem"   || name=="ScMvdGem" || name=="ScMvdGemFts"    ||
-      name=="ScMvdFts"   || name=="ScGemFts" ||  name=="ScFts" ) {
+  if (tname.BeginsWith("ScSttAlone") || tname.BeginsWith("ScSttMvd") || tname.BeginsWith("ScSttMvdGem") ||
+      tname.BeginsWith("ScSttGem")   || tname.BeginsWith("ScMvdGem") || tname.BeginsWith("ScMvdGemFts")    ||
+      tname.BeginsWith("ScMvdFts")   || tname.BeginsWith("ScGemFts") ||  tname=="ScFts" ) {
     PndFsmAbsDet* aDet = (PndFsmAbsDet*)(new PndFsmSimpleTracker(par));
     aDet->setName(name);
     return aDet;
   } else
-  if (name=="MvdPid") {
+  if (tname=="MvdPid") {
     PndFsmAbsDet* aDet = (PndFsmAbsDet*)(new PndFsmMvdPid(par) );
     aDet->setStorePid();
     return aDet;
   } else
-  if (name=="ScEmcPidBarrel" || name=="ScEmcPidFwCap" || name=="ScEmcPidBwCap"){
+  if (tname=="ScEmcPidBarrel" || tname=="ScEmcPidFwCap" || tname=="ScEmcPidBwCap"){
     PndFsmAbsDet* aDet = (PndFsmAbsDet*)(new PndFsmEmcPid(par) );
 	aDet->setName(name);
     aDet->setStorePid();
 	return aDet;
   } else
-  if (name=="SttPid"){
+  if (tname=="SttPid"){
     PndFsmAbsDet* aDet = (PndFsmAbsDet*)(new PndFsmSttPid(par) );
     aDet->setStorePid();
     return aDet;
   }
-  if (name=="ScVtxMvd" || name=="ScVtxNoMvd") {
+  if (tname=="ScVtxMvd" || tname=="ScVtxNoMvd") {
     PndFsmAbsDet* aDet = (PndFsmAbsDet*)(new PndFsmSimpleVtx(par));
     aDet->setName(name);
     return aDet;
   } else
-  if (name=="ScMdtPidBarrel" || name=="ScMdtPidForward") {
+  if (tname=="ScMdtPidBarrel" || tname=="ScMdtPidForward") {
     PndFsmAbsDet* aDet = (PndFsmAbsDet*)(new PndFsmMdtPid(par));
     aDet->setName(name);
     aDet->setStorePid();
@@ -208,22 +211,22 @@ PndFsmDetFactory::create(std::string &name,ArgList &par)
   }
   // general Options
   else
-  if (name=="SimpleTracker") {
+  if (tname.BeginsWith("SimpleTracker")) {
     PndFsmAbsDet* aDet = (PndFsmAbsDet*)(new PndFsmSimpleTracker(par));
     aDet->setName(name);
     return aDet;
   } else
-  if (name=="SimpleVtx") {
+  if (tname.BeginsWith("SimpleVtx")) {
     PndFsmAbsDet* aDet = (PndFsmAbsDet*)(new PndFsmSimpleVtx(par));
     aDet->setName(name);
     return aDet;
   } else
-  if (name=="CmpDet") {
+  if (tname=="CmpDet") {
     PndFsmAbsDet* aDet = (PndFsmAbsDet*)(new PndFsmCmpDet(par));
     aDet->setName(name);
     return aDet;
   } else
-  if (name=="CombiDet") {
+  if (tname=="CombiDet") {
     PndFsmAbsDet* aDet = (PndFsmAbsDet*)(new PndFsmCombiDet(par));
     aDet->setName(name);
     return aDet;
