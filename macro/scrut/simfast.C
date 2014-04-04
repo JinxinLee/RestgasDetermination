@@ -107,8 +107,8 @@ void simfast(TString Prefix, TString Decfile, Float_t Mom, Int_t nEvents = 1000,
 	// -----------------------------------------------------------------------------------
 	// - (Full Panda Tracking: STT MVD GEM FTS)
 	fastSim->AddDetector("ScSttAlone",  "thtMin=145.  thtMax=159.5 ptmin=0.1 pmin=0.0 pRes=0.04  thtRes=0.001 phiRes=0.001 efficiency=0.25");
-	fastSim->AddDetector("ScSttMvd",    "thtMin=20.9  thtMax=145.  ptmin=0.1 pmin=0.0 pRes=0.016 thtRes=0.001 phiRes=0.001 efficiency=0.95");
-	fastSim->AddDetector("ScSttMvdGem", "thtMin=7.8   thtMax=20.9  ptmin=0.1 pmin=0.0 pRes=0.018 thtRes=0.001 phiRes=0.001 efficiency=0.95");
+	fastSim->AddDetector("ScSttMvd",    "thtMin=20.9  thtMax=145.  ptmin=0.1 pmin=0.0 pRes=0.016 thtRes=0.001 phiRes=0.001 efficiency=0.90");
+	fastSim->AddDetector("ScSttMvdGem", "thtMin=7.8   thtMax=20.9  ptmin=0.1 pmin=0.0 pRes=0.018 thtRes=0.001 phiRes=0.001 efficiency=0.90");
 	fastSim->AddDetector("ScMvdGem",    "thtMin=5.    thtMax=7.8   ptmin=0.1 pmin=0.0 pRes=0.03  thtRes=0.001 phiRes=0.001 efficiency=0.80");
 	fastSim->AddDetector("ScFts",       "thtMin=0.    thtMax=5.    ptmin=0.0 pmin=0.5 pRes=0.05  thtRes=0.002 phiRes=0.002 efficiency=0.80");
 	// - other options:
