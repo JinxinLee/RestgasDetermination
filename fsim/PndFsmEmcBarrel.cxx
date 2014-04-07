@@ -4,7 +4,7 @@
 //
 // Description:
 //      Class FsmEmcBarrel
-//      
+//
 //  Implementation of the EMC Barrel part for the FastSim
 //
 //  This software was developed for the PANDA collaboration.  If you
@@ -54,12 +54,14 @@ using std::string;
 // Constructors --
 //----------------
 
-PndFsmEmcBarrel::PndFsmEmcBarrel() 
+PndFsmEmcBarrel::PndFsmEmcBarrel()
 {
   initParameters();
-  
+
   _thtMin=_thtMin*M_PI/180.0;
   _thtMax=_thtMax*M_PI/180.0;
+  _phiMin=_thtMin*M_PI/180.0;
+  _phiMax=_thtMax*M_PI/180.0;
   print(std::cout);
 }
 
@@ -68,11 +70,13 @@ PndFsmEmcBarrel::PndFsmEmcBarrel(ArgList &par)
   initParameters();
   //set default parameter values and parses a parameter list
   //i.e. std::list<std::string> of the form
-  //"a=1" "b=2" "c=3" 
+  //"a=1" "b=2" "c=3"
   parseParameterList(par);
 
   _thtMin=_thtMin*M_PI/180.0;
   _thtMax=_thtMax*M_PI/180.0;
+  _phiMin=_thtMin*M_PI/180.0;
+  _phiMax=_thtMax*M_PI/180.0;
   print(std::cout);
 }
 
@@ -91,45 +95,46 @@ PndFsmEmcBarrel::~PndFsmEmcBarrel()
 // Operations --
 //--------------
 
-PndFsmResponse* 
+PndFsmResponse*
 PndFsmEmcBarrel::respond(PndFsmTrack *t)
 {
   PndFsmResponse *result=new PndFsmResponse();
-  
+
   result->setDetector(this);
   bool wasDetected=detected(t);
   result->setDetected(wasDetected);
-  
+
   if (wasDetected && fabs(t->charge())<1e-8)
   {
     result->setdE(dE(t));
     result->setdphi(dphi(t));
     result->setdtheta(dtheta(t));
   }
-  else 
+  else
   {
     result->setdE(0.);
     result->setdphi(0.);
     result->setdtheta(0.);
   }
-  
+
   return result;
 }
 
-bool 
+bool
 PndFsmEmcBarrel::detected(PndFsmTrack *t) const
 {
   if (t->hitMapValid()) {
     return t->hitMapResponse(FsmDetEnum::EmcBarrel);
   } else {
     double theta = t->p4().Theta();
+    double phi = t->p4().Phi();
     double E = t->p4().E();
     double lund = t->pdt();
-    return ( lund==22 && theta>=_thtMin && theta<=_thtMax && E>_Emin  && _rand->Rndm()<=_efficiency);
+    return ( lund==22 && theta>=_thtMin && theta<=_thtMax && E>_Emin && phi>=_phiMin && phi<=_phiMax && _rand->Rndm()<=_efficiency);
   }
 }
 
-double 
+double
 PndFsmEmcBarrel::dE(PndFsmTrack *t) const
 {
   double E = t->p4().E();
@@ -139,7 +144,7 @@ PndFsmEmcBarrel::dE(PndFsmTrack *t) const
 
 double
 PndFsmEmcBarrel::dphi(PndFsmTrack *t) const
-{  
+{
   return (_resFactor*M_PI/int(2*M_PI*_barrelRadius/_xtalDim) );
 }
 
@@ -154,20 +159,22 @@ void
 PndFsmEmcBarrel::print(ostream &o)
 {
   o <<"Detector <"<<_detName<<">"<<endl;
-  o  <<"  _aPar = "<<_aPar<<endl; 
-  o  <<"  _bPar = "<<_bPar<<endl; 
-  o  <<"  _cPar = "<<_cPar<<endl; 
-  o  <<"  _xtalDim = "<<_xtalDim<<endl; 
-  o  <<"  _Emin = "<<_Emin<<endl; 
-  o  <<"  _barrelRadius = "<<_barrelRadius<<endl; 
-  o  <<"  _resFactor = "<<_resFactor<<endl; 
-  o  <<"  _thtMin = "<<_thtMin<<endl; 
-  o  <<"  _thtMax = "<<_thtMax<<endl; 
-  o  <<"  _radiationLength = "<<_radiationLength<<endl; 
-  o  <<"  _efficiency = "<<_efficiency<<endl; 
+  o  <<"  _aPar = "<<_aPar<<endl;
+  o  <<"  _bPar = "<<_bPar<<endl;
+  o  <<"  _cPar = "<<_cPar<<endl;
+  o  <<"  _xtalDim = "<<_xtalDim<<endl;
+  o  <<"  _Emin = "<<_Emin<<endl;
+  o  <<"  _barrelRadius = "<<_barrelRadius<<endl;
+  o  <<"  _resFactor = "<<_resFactor<<endl;
+  o  <<"  _thtMin = "<<_thtMin<<endl;
+  o  <<"  _thtMax = "<<_thtMax<<endl;
+  o  <<"  _radiationLength = "<<_radiationLength<<endl;
+  o  <<"  _phiMin = "<<_phiMin<<endl;
+  o  <<"  _phiMax = "<<_phiMax<<endl;
+  o  <<"  _efficiency = "<<_efficiency<<endl;
 }
 
-void 
+void
 PndFsmEmcBarrel::initParameters()
 {
   _detName = FsmDetName::name(FsmDetEnum::EmcBarrel);
@@ -184,7 +191,9 @@ PndFsmEmcBarrel::initParameters()
   _thtMin = 22.0;
   _thtMax = 140.0;
   _radiationLength = 0.0;
-  _efficiency	   =1.0; 
+  _efficiency	   =1.0;
+  _phiMin=-180.;
+  _phiMax=180.;
 }
 
 bool
@@ -193,9 +202,9 @@ PndFsmEmcBarrel::setParameter(std::string &name, double value)
   // *****************
   // include here all parameters which should be settable via tcl
   // *****************
-      
+
   bool knownName=true;
-  
+
   if (name == "aPar")
     _aPar=value;
   else
@@ -223,6 +232,12 @@ PndFsmEmcBarrel::setParameter(std::string &name, double value)
   if (name == "thtMax")
     _thtMax=value;
   else
+  if (name == "phiMin")
+    _phiMin=value;
+  else
+  if (name == "phiMax")
+    _phiMax=value;
+  else
   if (name == "radiationLength")
     _radiationLength=value;
   else
@@ -230,7 +245,7 @@ PndFsmEmcBarrel::setParameter(std::string &name, double value)
     _efficiency=value;
   else
     knownName=false;
-  
+
   return knownName;
 }
 

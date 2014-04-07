@@ -4,7 +4,7 @@
 //
 // Description:
 //      Class FsmEmcPid
-//      
+//
 //  Implementation of the PID info for EMCs
 //
 //  This software was developed for the PANDA collaboration.  If you
@@ -61,29 +61,31 @@ public:
   /**
       Accessors to contained information
   */
-  
+
   virtual PndFsmResponse* respond(PndFsmTrack *t);
 
 private:
-  
+
   bool   detected(PndFsmTrack *t) const;
 
   void   initParameters();
   void   print(std::ostream &o);
   bool   setParameter(std::string &name, double value);
-  
+
   bool   readParameters();
-   
+
   //
   //  Parameters
   //
   TH2F   *_emcPidPdf[6];
-     
+
   double _pmin;			//momentum threshold
   double _ptmin;		//transverse momentum threshold
   double _thtMin;		//polar angle coverage min angle
   double _thtMax;	  	//polar angle coverage max angle
-  
+  double _phiMin;       //angle coverage min
+  double _phiMax;       //angle coverage max
+
   std::string _parFileName;     //this file contains root histograms with the EMC pdfs
 };
 

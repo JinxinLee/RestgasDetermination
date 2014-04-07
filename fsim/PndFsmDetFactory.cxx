@@ -92,8 +92,8 @@ PndFsmAbsDet*
 PndFsmDetFactory::create(std::string &name,ArgList &par)
 {
   TString tname(name);
-  
-  if (tname=="EmcBarrel"){
+
+  if (tname.BeginsWith("EmcBarrel")){
     PndFsmAbsDet* aDet = (PndFsmAbsDet*)(new PndFsmEmcBarrel(par));
     aDet->setName(name);
     aDet->setStorePid();
@@ -187,7 +187,7 @@ PndFsmDetFactory::create(std::string &name,ArgList &par)
     aDet->setStorePid();
     return aDet;
   } else
-  if (tname=="ScEmcPidBarrel" || tname=="ScEmcPidFwCap" || tname=="ScEmcPidBwCap"){
+  if (tname.BeginsWith("ScEmcPidBarrel") || tname=="ScEmcPidFwCap" || tname=="ScEmcPidBwCap"){
     PndFsmAbsDet* aDet = (PndFsmAbsDet*)(new PndFsmEmcPid(par) );
 	aDet->setName(name);
     aDet->setStorePid();

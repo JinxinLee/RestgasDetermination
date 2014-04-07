@@ -4,8 +4,8 @@
 //
 // Description:
 //      Class FsmEmcBarrel
-//      
-//  Implementation of the EMC barrel for the Fast Sim Detectors 
+//
+//  Implementation of the EMC barrel for the Fast Sim Detectors
 //
 //  This software was developed for the PANDA collaboration.  If you
 //  use all or part of it, please give an appropriate acknowledgement.
@@ -60,25 +60,25 @@ public:
   /**
       Accessors to contained information
   */
-  
+
   virtual PndFsmResponse* respond(PndFsmTrack *t);
 
 private:
-  
+
   bool   detected(PndFsmTrack *t) const;
   double dE(PndFsmTrack *t) const;
   double dphi(PndFsmTrack *t) const;
   double dtheta(PndFsmTrack *t) const;
-  
+
   void   initParameters();
   void   print(std::ostream &o);
   bool   setParameter(std::string &name, double value);
-  
-   
+
+
   //
   //  Modifiers
   //
-     
+
   double _aPar;			//Parameter 1 for energy resolution
   double _bPar;			//Parameter 2 for energy resolution
   double _cPar;			//Parameter 3 for energy resolution
@@ -89,6 +89,8 @@ private:
   double _thtMin;		//polar angle coverage min angle
   double _thtMax;	  	//polar angle coverage max angle
   double _radiationLength;      //material budget
+  double _phiMin;       //angle coverage min
+  double _phiMax;       //angle coverage max
 };
 
 #endif
