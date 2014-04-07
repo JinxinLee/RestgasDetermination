@@ -374,3 +374,23 @@ link_directories(${LINK_DIRECTORIES})
 
 add_executable(convolutionThesisPlots convolutionThesisPlots.cxx)
 target_link_libraries(convolutionThesisPlots $ENV{ROOT_LIBRARIES} MathMore LmdFit Model GL X11 GLU gsl gslcblas)
+
+########################### create elastic cross section integrator app ##################################
+
+HEADER_DIRECTORIES(MODEL_INCLUDE_DIRECTORIES $ENV{VMCWORKDIR}/lmd/LmdFit/ModelFramework)
+HEADER_DIRECTORIES(TEMP_INCLUDE_DIRECTORIES $ENV{VMCWORKDIR}/lmd/LmdFit/LumiImpl)
+
+set(INCLUDE_DIRECTORIES
+$ENV{SIMPATH}/include
+$ENV{ROOT_INCLUDE_DIR}
+${TEMP_INCLUDE_DIRECTORIES}
+${MODEL_INCLUDE_DIRECTORIES}
+/usr/X11R6/include
+)
+
+include_directories(${INCLUDE_DIRECTORIES})
+
+link_directories(${LINK_DIRECTORIES})
+
+add_executable(calculateElasticCrossSection calculateElasticCrossSection.cxx)
+target_link_libraries(calculateElasticCrossSection $ENV{ROOT_LIBRARIES} MathMore LmdFit Model GL X11 GLU gsl gslcblas)
