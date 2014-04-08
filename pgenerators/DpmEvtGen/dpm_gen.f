@@ -1096,6 +1096,8 @@ C =========================================================================
 
       CHARACTER*8 ANF
 C
+      common/IDPITH/IDPITH         ! ********************
+	save  /IDPITH/
       DIMENSION ID1(102), ID2(78), IDPITH(180)
       DATA ID1/
      1   2212, -2212,    11,   -11,    12,   -12,    22,  2112, -2112,
@@ -1113,7 +1115,7 @@ C
      5  4132,  4222,  4212,  4112,  4214,  4114,  4312,  4224,  34*0/
 
       DATA INIT/0/
-      SAVE ID1, ID2, INIT, IDPITH
+      SAVE ID1, ID2, INIT   !, IDPITH   !***************
 
       IF(INIT.EQ.0) THEN
         DO I=1, 102
