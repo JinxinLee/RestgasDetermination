@@ -27,10 +27,9 @@ extern struct {
 // k[] - Pythia particle identifiers
 // p[] - kinematical characteristics of particles
 
-extern "C" int init1_(float* Plab, double* seed, float* Elastic, 
-float* tetmin);      // to install DPM generator
+extern "C" int init1_(float* Plab, double* seed, float* Elastic, float* tetmin);   // to install DPM generator
 extern "C" int dpm_gen_(float* Generator, double* seed);  //to generate events
-
+extern "C" int chstatus_(int* iPDG, int* iStatus); //to change Particle status
  
  int main()
 {
@@ -85,7 +84,22 @@ extern "C" int dpm_gen_(float* Generator, double* seed);  //to generate events
  else  {tetmin=0;}
  init1_(&Plab,&seed,&Elastic, &tetmin);  // installation of the DPM generator  
  
-std::cout << " Enter  N_Events ";
+  int iPDG=0, iStatus=0;
+ if((Elastic==0.) || (Elastic==1.))
+ {
+  std::cout <<"   If you like to change  particle status "<<
+  "(stable - 1 / unstable - 0)  "<<"\n"<<
+  "   Enter:  particle PDGcode and status "<< "\n"<<
+  "   (for example -- Pi0 unstable:  111  0) "<<"\n"<<
+  "   To go to event generation, Enter:  0  0 "<<"\n";
+  do
+  {
+    std::cin>>iPDG>>iStatus;
+    chstatus_(&iPDG, &iStatus);
+   }
+    while(iPDG!=0);
+ }
+ std::cout << " Enter  N_Events ";
  std::cin >> ntot;
 
  TStopwatch timer;                        // time loop
