@@ -59,7 +59,7 @@ PndLmdDim::PndLmdDim()
 	sensor_offset_x = 1e-4*test_mult_fact;
 	sensor_offset_y = 1e-4*test_mult_fact;
 	sensor_offset_z = 0.; // do not use! -> clashing volumes
-	sensor_tilt_phi = 1e-4*test_mult_fact;
+	sensor_tilt_phi = 1e-6*test_mult_fact;
 	sensor_tilt_theta = 0.; // do not use! -> clashing volumes
 	sensor_tilt_psi = 0.; // do not use! -> clashing volumes
 	// cvd_diamond is cut out of 79.5 mm discs of 200 micron thickness
@@ -1870,7 +1870,7 @@ TVector3 PndLmdDim::Decode_hit(const int sensorID,
 
 void PndLmdDim::Transform_global_to_lmd_local(double& x, double& y, double& z, bool aligned){
 	const TGeoHMatrix& matrix = Get_transformation_global_to_lmd_local(aligned);
-	double from[3] = {x,y,z};http://www.versysforum.de/viewtopic.php?f=24&t=9733&sid=ef2665c730f8c0419e5c9c54f5df351f
+	double from[3] = {x,y,z};
 	//cout << x << " " << y << " " << z << endl;
 	double to[3];
 	matrix.MasterToLocal(from, to);
@@ -1914,6 +1914,155 @@ TGeoMatrix* PndLmdDim::Get_matrix(int ihalf, int iplane, int imodule, int iside,
 		return NULL;
 	} else {
 		return it_transformation_matrices->second;
+	}
+}
+
+bool PndLmdDim::Get_matrix_difference(int ihalf, int iplane, int imodule, int iside, int idie, int isensor,
+		double& dx, double& dy, double& dz, double& dphi, double& dtheta, double& dpsi){
+	bool result = true;
+	dx = 0; dy = 0; dz = 0; dphi = 0; dtheta = 0; dpsi = 0;
+	// try to retrieve the matrix
+	TGeoMatrix* matrix = Get_matrix(ihalf, iplane, imodule, iside, idie, isensor, false);
+	TGeoMatrix* matrix_aligned = Get_matrix(ihalf, iplane, imodule, iside, idie, isensor, true);
+	if (!matrix || !matrix_aligned) return false;
+	TGeoCombiTrans combi_trans_matrix(*matrix);
+	TGeoCombiTrans combi_trans_matrix_aligned(*matrix_aligned);
+	const double* pos = combi_trans_matrix.GetTranslation();
+	const double* pos_aligned = combi_trans_matrix_aligned.GetTranslation();
+	double rot[3], rot_aligned[3];
+	combi_trans_matrix.GetRotation()->GetAngles(rot[0], rot[1], rot[2]);
+	combi_trans_matrix_aligned.GetRotation()->GetAngles(rot_aligned[0], rot_aligned[1], rot_aligned[2]);
+	dx = pos[0]-pos_aligned[0];
+	dy = pos[1]-pos_aligned[1];
+	dz = pos[2]-pos_aligned[2];
+	dphi = rot[0]-rot_aligned[0];
+	dtheta = rot[1]-rot_aligned[1];
+	dpsi = rot[2]-rot_aligned[2];
+	/*if (ihalf==-1){
+		dx = pos[0];
+		dy = pos[1];
+		dz = pos[2];
+		dphi = rot[0];
+		dtheta = rot[1];
+		dpsi = rot[2];
+	}*/
+	// format the values to something meaning full for the lumi
+	dx *= 10.e3; // cm -> µm
+	dy *= 10.e3; // cm -> µm
+	dz *= 10.e3; // cm -> µm
+
+	dphi   = dphi/180.*pi*1.e6;   // deg -> µrad
+	dtheta = dtheta/180.*pi*1.e6; // deg -> µrad
+	dpsi   = dpsi/180.*pi*1.e6;   // deg -> µrad
+	return result;
+}
+
+#include<TCanvas.h>
+void PndLmdDim::Calc_matrix_offsets(){
+	// go through all available matrices and calculate the differences between in terms of
+	// displacement and rotation
+	int ihalf(-1), iplane(-1), imodule(-1), iside(-1), idie(-1), isensor(-1);
+	double dx(0), dy(0), dz(0), dphi(0), dtheta(0), dpsi(0);
+	TH1D hist_dx_sensors_local     ("hist_dx_sensors_local"    , "ref local;#Deltax [#mum]; entries", 100, -1e3, 1e3);
+	TH1D hist_dx_sensors_global    ("hist_dx_sensors_lmd "     , "ref lmd;#Deltax [#mum]; entries", 100, -1e3, 1e3);
+	TH1D hist_dy_sensors_local     ("hist_dy_sensors_local"    , "ref local;#Deltay [#mum]; entries", 100, -1e3, 1e3);
+	TH1D hist_dy_sensors_global    ("hist_dy_sensors_lmd"      , "ref lmd;#Deltay [#mum]; entries", 100, -1e3, 1e3);
+	TH1D hist_dz_sensors_local     ("hist_dz_sensors_local"    , "ref local;#Deltaz [#mum]; entries", 100, -1e3, 1e3);
+	TH1D hist_dz_sensors_global    ("hist_dz_sensors_lmd"      , "ref lmd;#Deltaz [#mum]; entries", 100, -1e3, 1e3);
+	TH1D hist_dphi_sensors_local   ("hist_dphi_sensors_local"  , "ref local;#Delta#phi [#murad]; entries", 100, -1e3, 1e3);
+	TH1D hist_dphi_sensors_global  ("hist_dphi_sensors_lmd"    , "ref lmd;#Delta#phi [#murad]; entries", 100, -1e3, 1e3);
+	TH1D hist_dtheta_sensors_local ("hist_dtheta_sensors_local", "ref local;#Delta#theta [#murad]; entries", 100, -1e3, 1e3);
+	TH1D hist_dtheta_sensors_global("hist_dtheta_sensors_lmd"  , "ref lmd;#Delta#theta [#murad]; entries", 100, -1e3, 1e3);
+	TH1D hist_dpsi_sensors_local   ("hist_dpsi_sensors_local"  , "ref local;#Delta#psi [#murad]; entries", 100, -1e3, 1e3);
+	TH1D hist_dpsi_sensors_global  ("hist_dpsi_sensors_lmd"    , "ref lmd;#Delta#psi [#murad]; entries", 100, -1e3, 1e3);
+
+	ofstream outfile("offsets.txt");
+	if (outfile.is_open()){
+		outfile.setf (std::ios::fixed, std::ios::floatfield );                // floatfield not set
+		outfile.precision(7);
+
+	if (Get_matrix_difference(ihalf, iplane, imodule, iside, idie, isensor, dx, dy, dz, dphi, dtheta, dpsi)){
+		outfile << " coordinate offset of the lmd reference system \n";
+		outfile << " \u0394x [µm] \t \u0394y [µm] \t \u0394z [µm] \t \u0394\u03C6 [µrad] \t \u0394\u03D1 [µrad] \t \u0394\u03C8 [µrad] \t \n";
+		outfile << dx << "\t" << dy << "\t" << dz << "\t" << dphi << "\t" << dtheta << "\t" << dpsi << "\n";
+		outfile << endl;
+	}
+	for (ihalf = 0; ihalf < 2; ihalf++){
+		iplane = -1; imodule = -1; iside = -1; idie = -1; isensor = -1;
+		if (Get_matrix_difference(ihalf, iplane, imodule, iside, idie, isensor, dx, dy, dz, dphi, dtheta, dpsi)){
+			outfile << "\t coordinate offset of the lmd half " << ihalf << " \n";
+			outfile << "\t \u0394x [µm] \t \u0394y [µm] \t \u0394z [µm] \t \u0394\u03C6 [µrad] \t \u0394\u03D1 [µrad] \t \u0394\u03C8 [µrad] \t \n";
+			outfile << "\t" << dx << "\t" << dy << "\t" << dz << "\t" << dphi << "\t" << dtheta << "\t" << dpsi << "\n";
+			outfile << endl;
+		}
+		for (iplane = 0; iplane < n_planes; iplane++){
+			imodule = -1; iside = -1; idie = -1; isensor = -1;
+			if (Get_matrix_difference(ihalf, iplane, imodule, iside, idie, isensor, dx, dy, dz, dphi, dtheta, dpsi)){
+				outfile << "\t\t coordinate offset of the lmd plane " << iplane << " \n";
+				outfile << "\t\t \u0394x [µm] \t \u0394y [µm] \t \u0394z [µm] \t \u0394\u03C6 [µrad] \t \u0394\u03D1 [µrad] \t \u0394\u03C8 [µrad] \t \n";
+				outfile << "\t\t" << dx << "\t" << dy << "\t" << dz << "\t" << dphi << "\t" << dtheta << "\t" << dpsi << "\n";
+				outfile << endl;
+			}
+			for (imodule = 0; imodule < n_cvd_discs/2; imodule++){
+				iside = -1; idie = -1; isensor = -1;
+				if (Get_matrix_difference(ihalf, iplane, imodule, iside, idie, isensor, dx, dy, dz, dphi, dtheta, dpsi)){
+					outfile << "\t\t\t coordinate offset of the lmd module " << imodule << " \n";
+					outfile << "\t\t\t \u0394x [µm] \t \u0394y [µm] \t \u0394z [µm] \t \u0394\u03C6 [µrad] \t \u0394\u03D1 [µrad] \t \u0394\u03C8 [µrad] \t \n";
+					outfile << "\t\t\t" << dx << "\t" << dy << "\t" << dz << "\t" << dphi << "\t" << dtheta << "\t" << dpsi << "\n";
+					outfile << endl;
+				}
+				for (iside = 0; iside < 2; iside++){
+					idie = -1; isensor = -1;
+					if (Get_matrix_difference(ihalf, iplane, imodule, iside, idie, isensor, dx, dy, dz, dphi, dtheta, dpsi)){
+						outfile << "\t\t\t\t coordinate offset of the lmd module side " << iside << " \n";
+						outfile << "\t\t\t\t \u0394x [µm] \t \u0394y [µm] \t \u0394z [µm] \t \u0394\u03C6 [µrad] \t \u0394\u03D1 [µrad] \t \u0394\u03C8 [µrad] \t \n";
+						outfile << "\t\t\t\t" << dx << "\t" << dy << "\t" << dz << "\t" << dphi << "\t" << dtheta << "\t" << dpsi << "\n";
+						outfile << endl;
+					}
+					for (idie = 0; idie < 2; idie++){
+						isensor = -1;
+						if (Get_matrix_difference(ihalf, iplane, imodule, iside, idie, isensor, dx, dy, dz, dphi, dtheta, dpsi)){
+							outfile << "\t\t\t\t\t coordinate offset of the lmd die " << idie << " \n";
+							outfile << "\t\t\t\t\t \u0394x [µm] \t \u0394y [µm] \t \u0394z [µm] \t \u0394\u03C6 [µrad] \t \u0394\u03D1 [µrad] \t \u0394\u03C8 [µrad] \t \n";
+							outfile << "\t\t\t\t\t" << dx << "\t" << dy << "\t" << dz << "\t" << dphi << "\t" << dtheta << "\t" << dpsi << "\n";
+							outfile << endl;
+						}
+						for (isensor = 0; isensor < 3; isensor++){
+							if (Get_matrix_difference(ihalf, iplane, imodule, iside, idie, isensor, dx, dy, dz, dphi, dtheta, dpsi)){
+								outfile << "\t\t\t\t\t\t coordinate offset of the lmd sensor " << isensor << " \n";
+								outfile << "\t\t\t\t\t\t \u0394x [µm] \t \u0394y [µm] \t \u0394z [µm] \t \u0394\u03C6 [µrad] \t \u0394\u03D1 [µrad] \t \u0394\u03C8 [µrad] \t \n";
+								outfile << "\t\t\t\t\t\t" << dx << "\t" << dy << "\t" << dz << "\t" << dphi << "\t" << dtheta << "\t" << dpsi << "\n";
+								outfile << endl;
+								hist_dx_sensors_local.Fill(dx);
+								hist_dy_sensors_local.Fill(dy);
+								hist_dz_sensors_local.Fill(dz);
+								hist_dphi_sensors_local.Fill(dphi);
+								hist_dtheta_sensors_local.Fill(dtheta);
+								hist_dpsi_sensors_local.Fill(dpsi);
+							}
+						} // loop over the sensor of one die
+					} // loop over the die of one side module
+				} // loop over the sides of one module
+			} // loop over the modules of one plane half
+		} // loop over the planes of the detector
+	} // loop over the halves of the detector
+	outfile.close();
+	TCanvas outcanvas("canvas", "canvas", 600, 600);
+	hist_dx_sensors_local.Draw();
+	outcanvas.Print("offsets.pdf(");
+	hist_dy_sensors_local.Draw();
+	outcanvas.Print("offsets.pdf(");
+	hist_dz_sensors_local.Draw();
+	outcanvas.Print("offsets.pdf(");
+	hist_dphi_sensors_local.Draw();
+	outcanvas.Print("offsets.pdf(");
+	hist_dtheta_sensors_local.Draw();
+	outcanvas.Print("offsets.pdf(");
+	hist_dpsi_sensors_local.Draw();
+	outcanvas.Print("offsets.pdf)");
+	} else {
+		cout << " sorry, could not write file into the current directory. " << endl;
+		// if file is open
 	}
 }
 

@@ -851,8 +851,23 @@ public:
 
 	// get a pointer to the requested matrix with checks
 	// returns NULL if no matrix available
-	// do not delete!
+	// do not delete or modify unless you know why you want to
+	// load the two files for matrices first
 	TGeoMatrix* Get_matrix(int ihalf, int iplane, int imodule, int iside, int idie, int isensor,  bool aligned = true);
+
+	// get the difference between two matrices of the aligned and misaligned branch
+	// in terms of displacement and euler angles
+	// all 0 in case of troubles and result is false
+	// load the two files for matrices first
+	// NOTE: output values are formatted to µm and µrad!!!
+	bool Get_matrix_difference(int ihalf, int iplane, int imodule, int iside, int idie, int isensor,
+			double& dx, double& dy, double& dz, double& dphi, double& dtheta, double& dpsi);
+
+	// calculates the differences of matrices between loaded
+	// aligned and misaligned ones
+	// As an output a table and some histograms are generated
+	// load the two files for matrices first
+	void Calc_matrix_offsets();
 
 	// see get matrix
 	TGeoMatrix* Get_matrix_global_to_lmd_local(bool aligned = true);
