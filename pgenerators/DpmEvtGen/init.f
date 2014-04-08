@@ -133,6 +133,7 @@ C
 C
  280  CONTINUE
 C
+      CALL TOPITH(0) !*******************************
 C-----------------------------------------------------------------
 C    IF IT IS NEEDED TO POINT OUT THE OTHER STABLE
 C    PARTICLES, PUT CORRESPONDING ISTAB = 1
@@ -255,7 +256,7 @@ caida       print *, 'sigma_tot',sigma_tot,' B',parB,' ro',rho;
        Ndiv=500000
       dto=(Tmax-Tmin)/float(Ndiv)
        SIG_COL=0.
-       print *, 'Tmin=', Tmin, 'Tmax=', Tmax
+caida       print *, 'Tmin=', Tmin, 'Tmax=', Tmax
       do i=1,Ndiv
        T11=Tmin+(i-1)*dto
        T22=T11+dto
@@ -279,13 +280,13 @@ c       print*, 'dt=', dt
        SIG_IEXACT=SIG_IEXACT+abs(dt)*(1./3.*DSIG_INT_Ex(T11)+
      & 4./3.*DSIG_INT_Ex(T11+dt)+1./3.*DSIG_INT_Ex(T22))     
       enddo
-      PRINT *,'sig_inter',sig_inter, 'sig_iexact', sig_iexact
+caida  PRINT *,'sig_inter',sig_inter, 'sig_iexact', sig_iexact
 !  numerical calculation of SIG_had using form.(1)
       sig_had=dsig_had(0.)/parB-dsig_had(Tmax)/parB
       PRINT *,'sig_had_el', sig_had
 !     calculation of sigma_hadron using our parametrization
       sig_had_p=SIG_HADi(Tmin)-SIG_HADi(Tmax)
-      PRINT *,'sig_had_p',sig_had_p
+caida      PRINT *,'sig_had_p',sig_had_p
     
 !       sig_col=0              ! kulon ==0
 !        sig_inter=0             ! inter ==0 
@@ -1083,3 +1084,21 @@ C************NZK3
       DSIG_HAD=sigma_tot**2*(1+rho**2)*exp(parB*T)/16./3.1416*pk
       RETURN
       END
+
+c**************************************************************
+      subroutine ChStatus(iPDG,iStatus)
+      common/IDPITH/IDPITH(180)         ! ********************
+	save  /IDPITH/
+
+      COMMON/LIMMAS/IDSTAB(180), SUMKM(533), AML(180), FI0ML(180)
+
+      do i=1,180
+	  if(iPDG.eq.IDPITH(i)) goto 1
+	enddo
+	write(6,*)"The particle is not found! PDGcode=",iPDG
+	stop
+
+ 1    continue
+      IDSTAB(i)=iStatus
+	return
+	end
