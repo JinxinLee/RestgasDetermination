@@ -187,7 +187,7 @@ PndFsmDetFactory::create(std::string &name,ArgList &par)
     aDet->setStorePid();
     return aDet;
   } else
-  if (tname.BeginsWith("ScEmcPidBarrel") || tname=="ScEmcPidFwCap" || tname=="ScEmcPidBwCap"){
+  if (tname.BeginsWith("ScEmcPidBarrel") || tname=="ScEmcPidFwCap" || tname=="ScEmcPidBwCap" || tname=="ScEmcPidFS"){
     PndFsmAbsDet* aDet = (PndFsmAbsDet*)(new PndFsmEmcPid(par) );
 	aDet->setName(name);
     aDet->setStorePid();

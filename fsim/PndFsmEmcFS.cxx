@@ -174,11 +174,11 @@ void
 PndFsmEmcFS::initParameters()
 {
   _detName = FsmDetName::name(FsmDetEnum::EmcFS);
-  _aPar  = 0.02;
-  _bPar = 0.0274;
-  _xtalDim = 0.1;
+  _aPar  = 0.013;
+  _bPar = 0.0283;
+  _xtalDim = 0.0555;
   _Emin = 0.01;
-  _dist = 8.0;
+  _dist = 8.2;
   _resFactor = 0.25;
   _thtMin = 0.05;
   _thtMax = 5.0;
