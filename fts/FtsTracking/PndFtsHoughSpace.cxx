@@ -1,5 +1,7 @@
 #include "PndFtsHoughSpace.h"
 
+#include "PndFtsHoughTrackerTask.h"
+
 #include <iostream>
 
 #include "TMath.h"
@@ -53,7 +55,6 @@
 
 
 
-
 ClassImp(PndFtsHoughSpace);
 
 
@@ -88,26 +89,34 @@ PndFtsHoughSpace::PndFtsHoughSpace(
 		Double_t zRefPos,
 		Double_t interceptZx,
 
-		Int_t ftsBranchId,
-		TClonesArray *ftsHitArray,
-
-		FairField *field
+		//		Int_t ftsBranchId,
+		//		TClonesArray *ftsHitArray,
+		//
+		//		FairField *field,
+		PndFtsHoughTrackerTask *trackerTask
 ) :
-		fFtsHitArray(ftsHitArray),
-		fFtsBranchId(ftsBranchId),
-		fVerbose(0),
+fTrackerTask(trackerTask),
 
-		fZRefPos(zRefPos),
-		fInterceptZx(interceptZx),
+fFtsHitArray(0),
+fFtsBranchId(0),
+fVerbose(0),
+fField(0),
 
-		fField(field),
+fZRefPos(zRefPos),
+fInterceptZx(interceptZx),
 
-		TH2S(name,name,nbinsx,xlow,xup,nbinsy,ylow,yup)
+TH2S(name,name,nbinsx,xlow,xup,nbinsy,ylow,yup)
 
 {
-	if (0==ftsHitArray){
-		std::cout << "PndFtsHoughSpace FATAL ERROR Hit array not set.\n";
+	if (0==fTrackerTask){
+		std::cout << "PndFtsHoughSpace FATAL ERROR Tracker task pointer not set.\n";
 	} else {
+		fVerbose = fTrackerTask->GetVerbose();
+		if(3<fVerbose) std::cout << "PndFtsHoughSpace called with tracker ptr " << fTrackerTask << '\n';
+		fFtsHitArray = fTrackerTask->getFtsHitArrayPtr();
+		fFtsBranchId = fTrackerTask->getFtsBranchId();
+		fField = fTrackerTask->getMagneticFieldPtr();
+
 		setParametersForHsOption();
 		filterInputHits();
 	}
@@ -717,7 +726,7 @@ Bool_t PndFtsHoughSpace::FindAllPeaks(
 				Double_t peakSecondHw = fYaxis.GetBinWidth(peakSecondVal)/2.;
 
 				// create tracklet and push it back to output
-				PndFtsHoughTracklet currentTracklet(fZRefPos, fFtsBranchId, fFtsHitArray);
+				PndFtsHoughTracklet currentTracklet(fZRefPos, fTrackerTask);
 				currentTracklet.SetHoughTransformResults(peakThetaVal, peakSecondVal, currHeight, peakThetaHw, peakSecondHw);
 
 				///////////////////////////////////////////
@@ -926,7 +935,7 @@ Bool_t PndFtsHoughSpace::FindAllPeaks(
 						Double_t peakSecondHw = fYaxis.GetBinWidth(peakSecondVal)/2.;
 
 						// create tracklet and push it back to output
-						PndFtsHoughTracklet currentTracklet(fZRefPos, fFtsBranchId, fFtsHitArray);
+						PndFtsHoughTracklet currentTracklet(fZRefPos, fTrackerTask);
 						currentTracklet.SetHoughTransformResults(peakThetaVal, peakSecondVal, currentHeight, peakThetaHw, peakSecondHw);
 
 						///////////////////////////////////////////
@@ -1100,7 +1109,7 @@ Bool_t PndFtsHoughSpace::FindAllPeaks(
 				Double_t currentHeight = GetBinContent(binmaxglobal);
 
 				// create tracklet and push it back to output
-				PndFtsHoughTracklet currentTracklet(fZRefPos, fFtsBranchId, fFtsHitArray);
+				PndFtsHoughTracklet currentTracklet(fZRefPos, fTrackerTask);
 				currentTracklet.SetHoughTransformResults(peakThetaVal, peakSecondVal, currentHeight, peakThetaHw, peakSecondHw);
 				tracklets.push_back(currentTracklet);
 			}

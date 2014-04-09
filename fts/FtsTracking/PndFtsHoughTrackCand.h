@@ -13,6 +13,8 @@
 #ifndef PNDFTSHOUGHTRACKCAND_H
 #define PNDFTSHOUGHTRACKCAND_H
 
+class PndFtsHoughTrackerTask;
+
 // Root Class Headers ----------------
 #include "PndTrackCand.h"
 #include "PndFtsHoughTracklet.h"
@@ -31,7 +33,10 @@ class PndFtsHoughTrackCand : public PndTrackCand {
 public:
 
 	// Constructors/Destructors ---------
-	PndFtsHoughTrackCand(Int_t ftsBranchId=0, TClonesArray *ftsHitArray=0);
+	PndFtsHoughTrackCand(
+//			Int_t ftsBranchId=0,
+//			TClonesArray *ftsHitArray=0,
+			PndFtsHoughTrackerTask *trackerTask=0);
 	~PndFtsHoughTrackCand();
 
 	// operators
@@ -63,6 +68,9 @@ public:
 
 
 private:
+	// for PandaRoot input/output
+	PndFtsHoughTrackerTask *fTrackerTask;
+
 	void addUniqueTrackletHits(const PndFtsHoughTracklet inTracklet);
 
 	Double_t getQoverPzx() const{ return fZxParabola.getSecondVal(); };

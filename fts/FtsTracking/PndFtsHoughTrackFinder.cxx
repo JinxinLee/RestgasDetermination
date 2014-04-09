@@ -1,5 +1,7 @@
 #include "PndFtsHoughTrackFinder.h"
 
+#include "PndFtsHoughTrackerTask.h"
+
 #include <iostream>
 
 #include "TMath.h"
@@ -62,30 +64,39 @@ ClassImp(PndFtsHoughTrackFinder)
 
 
 
-PndFtsHoughTrackFinder::PndFtsHoughTrackFinder(PndFtsHoughTrackerTask *trackerTask, Int_t branchId, TClonesArray* hits, FairField* field) :
-										fTrackerTask(trackerTask),
-										fFtsHitArray(hits),
-										fFtsBranchId(branchId),
-										fField(field),
+PndFtsHoughTrackFinder::PndFtsHoughTrackFinder(PndFtsHoughTrackerTask *trackerTask) :
+												fTrackerTask(trackerTask),
 
-										// Hough spaces
-										fHoughSpaceZxLineBeforeDipole(0),
-										fHoughspaceZxParabola(0),
-										fHoughSpaceZxLineBehindDipole(0),
-										fHoughspaceZyLine(0),
+												// set later using tracker task
+												fFtsHitArray(0),
+												fFtsBranchId(0),
+												fField(0),
 
-										// min peak heights
-										fMinPeakHeightZxLineParabola(4),
-										fMinPeakHeightZxParabola(6),
-										fMinPeakHeightZxParabolaLine(4),
-										fMinPeakHeightZyLine(4),
+												// Hough spaces
+												fHoughSpaceZxLineBeforeDipole(0),
+												fHoughspaceZxParabola(0),
+												fHoughSpaceZxLineBehindDipole(0),
+												fHoughspaceZyLine(0),
 
-										// general
-										fSaveDebugInfo(kFALSE),
-										fVerbose(0)
+												// min peak heights
+												fMinPeakHeightZxLineParabola(4),
+												fMinPeakHeightZxParabola(6),
+												fMinPeakHeightZxParabolaLine(4),
+												fMinPeakHeightZyLine(4),
+
+												// general
+												fSaveDebugInfo(kFALSE),
+												fVerbose(0)
 {
 	if (0==fTrackerTask){
 		std::cout << "PndFtsHoughTrackFinder FATAL ERROR Tracker task not set.\n";
+	} else {
+		fVerbose = fTrackerTask->GetVerbose();
+		if(3<fVerbose) std::cout << "PndFtsHoughTrackFinder called with tracker ptr " << fTrackerTask << '\n';
+		fSaveDebugInfo = fTrackerTask->GetSaveDebugInfo();
+		fFtsHitArray = fTrackerTask->getFtsHitArrayPtr();
+		fFtsBranchId = fTrackerTask->getFtsBranchId();
+		fField = fTrackerTask->getMagneticFieldPtr();
 	}
 }
 
@@ -151,10 +162,7 @@ void PndFtsHoughTrackFinder::FindTracks() {
 			fZLineParabola,
 			0.,
 
-			fFtsBranchId,
-			fFtsHitArray,
-
-			fField
+			fTrackerTask
 	);
 	fHoughSpaceZxLineBeforeDipole->GetXaxis()->SetTitle("#theta [rad]");
 	fHoughSpaceZxLineBeforeDipole->GetYaxis()->SetTitle("x_{LP} [cm]");
@@ -239,10 +247,7 @@ void PndFtsHoughTrackFinder::FindTracks() {
 				fZLineParabola,
 				peakInterceptLineBeforeDipole,
 
-				fFtsBranchId,
-				fFtsHitArray,
-
-				fField
+				fTrackerTask
 		);
 		fHoughspaceZxParabola->GetXaxis()->SetTitle("#theta [rad]");
 		fHoughspaceZxParabola->GetYaxis()->SetTitle("#frac{Q}{p_zx} [a.u.]");
@@ -296,7 +301,7 @@ void PndFtsHoughTrackFinder::FindTracks() {
 		}
 		for (UInt_t iTrackletParabola=0; iTrackletParabola < zxParabolaTracklets.size(); ++iTrackletParabola)
 		{
-			PndFtsHoughTrackCand newHoughTrackCand(fFtsBranchId, fFtsHitArray);
+			PndFtsHoughTrackCand newHoughTrackCand(fTrackerTask);
 			newHoughTrackCand.SetZxFirstLine(trackletsLineBeforeDipole[iTrackletLine]);
 			newHoughTrackCand.SetZxParabola(zxParabolaTracklets[iTrackletParabola]);
 			fHoughTrackCands.push_back(newHoughTrackCand);
@@ -333,10 +338,7 @@ void PndFtsHoughTrackFinder::FindTracks() {
 			fZParabolaLine,
 			0.,
 
-			fFtsBranchId,
-			fFtsHitArray,
-
-			fField
+			fTrackerTask
 	);
 	fHoughSpaceZxLineBehindDipole->GetXaxis()->SetTitle("#theta [rad]");
 	fHoughSpaceZxLineBehindDipole->GetYaxis()->SetTitle("x_{LP} [cm]");

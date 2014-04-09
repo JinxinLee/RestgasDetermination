@@ -1,5 +1,7 @@
 #include "PndFtsHoughTracklet.h"
 
+#include "PndFtsHoughTrackerTask.h"
+
 #include <iostream>
 #include "math.h"
 
@@ -13,26 +15,32 @@
 
 ClassImp(PndFtsHoughTracklet);
 
-PndFtsHoughTracklet::PndFtsHoughTracklet(Double_t zRefLabSys, Int_t ftsBranchId, TClonesArray *ftsHitArray) :
-				fVerbose(0),
+PndFtsHoughTracklet::PndFtsHoughTracklet(Double_t zRefLabSys, PndFtsHoughTrackerTask *trackerTask) :
+						fTrackerTask(trackerTask),
 
-				fIsSet(kFALSE),
+						fVerbose(0),
+						fFtsHitArray(0),
+						fFtsBranchId(0),
 
-				fZRefLabSys(zRefLabSys),
+						fIsSet(kFALSE),
 
-				fPeakHeightFromPeakFinder(0.),
+						fZRefLabSys(zRefLabSys),
 
-				fThetaRadVal(0.),
-				fThetaRadHw(0.),
+						fPeakHeightFromPeakFinder(0.),
 
-				fSecondVal(0.),
-				fSecondHw(0.),
+						fThetaRadVal(0.),
+						fThetaRadHw(0.),
 
-				fFtsHitArray(ftsHitArray),
-				fFtsBranchId(ftsBranchId)
+						fSecondVal(0.),
+						fSecondHw(0.)
 {
-	if (0==ftsHitArray){
-		std::cout << "PndFtsHoughTracklet FATAL ERROR Hit array not set in constructor.\n";
+	if (0==fTrackerTask){
+		std::cout << "PndFtsHoughTracklet FATAL ERROR Tracker task pointer not set in constructor.\n";
+	} else {
+		fVerbose = fTrackerTask->GetVerbose();
+		if(3<fVerbose) std::cout << "PndFtsHoughTracklet called with tracker ptr " << fTrackerTask << '\n';
+		fFtsHitArray = fTrackerTask->getFtsHitArrayPtr();
+		fFtsBranchId = fTrackerTask->getFtsBranchId();
 	}
 }
 

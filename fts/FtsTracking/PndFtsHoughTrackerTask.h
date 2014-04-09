@@ -6,7 +6,9 @@
 // This task is used as an interface between
 // PndFtsHoughTrackFinder
 // and PandaRoot
-// It was modeled after mvd/PndMvdRiemannTrackFinderTask (among many others)
+// It was originally modeled after mvd/PndMvdRiemannTrackFinderTask (among many others)
+//
+// This task provides functionality for other FTS tracking classes by passing a pointer to itself.
 //
 // TODO
 // Make this task work for time-based simulation as well [have a look at PndMvdRiemannTrackFinderTask::FillHitArray()]
@@ -29,7 +31,7 @@
 #include <cmath>
 #include <vector>
 #include "Rtypes.h"                     // for Double_t, Int_t, etc
-
+#include <iostream>
 
 class PndFtsHoughTrackCand;
 class PndFtsHoughSpace;
@@ -45,7 +47,7 @@ class FairField;
 class PndFtsHoughTrackerTask : public FairTask
 {
 public:
-	PndFtsHoughTrackerTask(Bool_t persistence=kTRUE, Bool_t saveDebugInfo=kFALSE);
+	PndFtsHoughTrackerTask(Int_t verbose=0, Bool_t persistence=kTRUE, Bool_t saveDebugInfo=kFALSE);
 	~PndFtsHoughTrackerTask();
 
 	/** Load the parameter container from the runtime database **/
@@ -63,24 +65,37 @@ public:
 	/** Finish task called at the end of the run **/
 	virtual void Finish();
 
+	//////////
+	// SETTERS
+	//////////
 	void SetVerbose(Int_t verbose){ fVerbose = verbose;};
 	void SetPersistence(Bool_t val){ fPersistence = val;};
-
 	void SetSaveDebugInfo(Bool_t saveDebugInfo){ fSaveDebugInfo = saveDebugInfo;};
-//	void SetTrackOutput(TString name = "FTSTrkHough") { fTracksArrayName = name; };
+	//	void SetTrackOutput(TString name = "FTSTrkHough") { fTracksArrayName = name; };
 
 	//  for writing out histograms for debugging
 	void WriteHistogram(PndFtsHoughSpace* houghSpace, Int_t index=-1);
-	Bool_t GetSaveDebugInfo(){ return fSaveDebugInfo; };
-	const UInt_t GetEventNr() { return fEventNr; };
+
+	///////////
+	// GETTERS
+	//////////
+	const Int_t getFtsBranchId() const {  return fFtsBranchId; };
+	TClonesArray* getFtsHitArrayPtr() { return fFtsHitArray; }; // Input array of PndFtsHit
+	FairField* getMagneticFieldPtr() { return fField; };
+	const Int_t GetVerbose() const { return fVerbose; };
+	const Bool_t GetSaveDebugInfo() const { return fSaveDebugInfo; };
+	const UInt_t GetEventNr() const { return fEventNr; };
 
 private:
+	// for PandaRoot input/output
+	PndFtsHoughTrackerTask *fTrackerTask;
+
 	void SetHitPositionErrors(); // sets the errors for the hit positions to double the straw radius in x and z and to the full length of the straw in z
 
 	//  for writing out histograms for debugging
-//	void InitOutFileForDebugging();
+	//	void InitOutFileForDebugging();
 	//	void AddNewEventToOutFileForDebugging(UInt_t eventNr);
-	TFile* fOutFile;
+	//	TFile* fOutFile;
 
 	// general
 	Bool_t fPersistence;

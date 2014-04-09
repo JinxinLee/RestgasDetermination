@@ -16,6 +16,7 @@
 #ifndef PndFtsHoughSpace_H
 #define PndFtsHoughSpace_H
 
+class PndFtsHoughTrackerTask;
 
 #include "TH2.h"
 #include <cmath>
@@ -50,10 +51,11 @@ public:
 			Double_t zRefPos=0.,
 			Double_t interceptZx=0.,
 
-			Int_t ftsBranchId=0,
-			TClonesArray *ftsHitArray=0,
-
-			FairField *field=0
+//			Int_t ftsBranchId=0,
+//			TClonesArray *ftsHitArray=0,
+//
+//			FairField *field=0,
+			PndFtsHoughTrackerTask *trackerTask=0
 	);
 	~PndFtsHoughSpace();
 
@@ -88,6 +90,9 @@ public:
 
 
 private:
+	// for PandaRoot input/output
+	PndFtsHoughTrackerTask *fTrackerTask;
+
 	Bool_t setParametersForHsOption(); // set parameters according to the kind of Hough transform I want to do
 	Bool_t filterInputHits(); // copies input hits (based on z coordinate and skewed/non-skewed) from fFtsHitArray (all FTS hits) to fHitId (only the hits that qualify for the specific Hough transform)
 	inline void AddHit(UInt_t hitId, Double_t rho);

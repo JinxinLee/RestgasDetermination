@@ -38,6 +38,8 @@
 #ifndef PndFtsHoughTrackFinder_H
 #define PndFtsHoughTrackFinder_H
 
+class PndFtsHoughTrackerTask;
+
 #include "TClonesArray.h"
 #include "PndTrackCand.h"
 #include "PndTrack.h"
@@ -52,7 +54,6 @@
 #include "PndFtsHoughSpace.h"
 #include "PndFtsHoughTracklet.h"
 #include "PndFtsHoughTrackCand.h"
-class PndFtsHoughTrackerTask;
 
 class TString;
 class FairField;
@@ -68,7 +69,7 @@ class FairHit;
 class PndFtsHoughTrackFinder
 {
 public:
-	PndFtsHoughTrackFinder(PndFtsHoughTrackerTask *trackerTask, Int_t branchId, TClonesArray* hits, FairField* field); ///< Sets the array of all FTS hits and the branchId (super important!)
+	PndFtsHoughTrackFinder(PndFtsHoughTrackerTask *trackerTask); ///< Set pointer to tracker task (super important as it provides functionality such as the array of all FTS hits and the branchId of FTS, magnetic field, etc.)
 	virtual ~PndFtsHoughTrackFinder();
 
 	void FindTracks();										///< Main function to start the track finding
@@ -94,6 +95,9 @@ public:
 
 
 private:
+	// for PandaRoot input/output
+	PndFtsHoughTrackerTask *fTrackerTask;
+
 	inline void Print(const std::vector<PndFtsHoughTracklet>& tracklets) const{
 		for (UInt_t i=0; i< tracklets.size(); ++i)
 		{
@@ -111,8 +115,6 @@ private:
 	Int_t   fFtsBranchId; // needed for saving and accessing hits
 	TClonesArray *fFtsHitArray; // Input array of all FTS hits
 
-	// for PandaRoot input/output
-	PndFtsHoughTrackerTask *fTrackerTask;
 
 
 	///< Minimum required heights for peaks in Hough spaces

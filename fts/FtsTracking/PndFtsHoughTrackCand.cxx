@@ -1,5 +1,8 @@
 #include "PndFtsHoughTrackCand.h"
 
+#include "PndFtsHoughTrackerTask.h"
+
+
 #include <iostream>
 #include "math.h"
 
@@ -12,25 +15,31 @@
 
 ClassImp(PndFtsHoughTrackCand);
 
-PndFtsHoughTrackCand::PndFtsHoughTrackCand(Int_t ftsBranchId, TClonesArray *ftsHitArray) :
-									fFtsHitArray(ftsHitArray),
-									fFtsBranchId(ftsBranchId),
+PndFtsHoughTrackCand::PndFtsHoughTrackCand(PndFtsHoughTrackerTask *trackerTask) :
+				fTrackerTask(trackerTask),
 
-									fVerbose(0),
+				fFtsHitArray(0),
+				fFtsBranchId(0),
+				fVerbose(0),
 
-									fZxLineParabola(0., fFtsBranchId, fFtsHitArray), // TODO: It could be a problem here that I set the z reference value to 0.
+				fZxLineParabola(0., trackerTask), // TODO: It could be a problem here that I set the z reference value to 0.
 
-									fZxParabola(0., fFtsBranchId, fFtsHitArray),
+				fZxParabola(0., trackerTask),
 
-									fZxParabolaLine(0., fFtsBranchId, fFtsHitArray),
+				fZxParabolaLine(0., trackerTask),
 
-									fZyLine(0., fFtsBranchId, fFtsHitArray),
+				fZyLine(0., trackerTask),
 
-									fZLineParabola(0.),
-									fZParabolaLine(0.)
+				fZLineParabola(0.),
+				fZParabolaLine(0.)
 {
-	if (0==fFtsHitArray){
-		std::cout << "PndFtsHoughTrackCand FATAL ERROR Hit array not set.\n";
+	if (0==fTrackerTask){
+		std::cout << "PndFtsHoughTrackCand FATAL ERROR Tracker task pointer not set.\n";
+	} else {
+		fVerbose = fTrackerTask->GetVerbose();
+		if(3<fVerbose) std::cout << "PndFtsHoughTrackCand called with tracker ptr " << fTrackerTask << '\n';
+		fFtsHitArray = fTrackerTask->getFtsHitArrayPtr();
+		fFtsBranchId = fTrackerTask->getFtsBranchId();
 	}
 }
 

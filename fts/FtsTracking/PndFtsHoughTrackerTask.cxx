@@ -1,4 +1,6 @@
 #include "PndFtsHoughTrackerTask.h"
+
+
 #include <iostream>
 #include <math.h>
 
@@ -71,12 +73,12 @@ using std::endl;
 
 
 // ---- Default constructor -------------------------------------------
-PndFtsHoughTrackerTask::PndFtsHoughTrackerTask(Bool_t persistence, Bool_t saveDebugInfo)
+PndFtsHoughTrackerTask::PndFtsHoughTrackerTask(Int_t verbose, Bool_t persistence, Bool_t saveDebugInfo)
 : FairTask("PndFtsHoughTrackerTask"),
   fSaveDebugInfo(saveDebugInfo),
   fPersistence(persistence),
   fEventNr(0),
-  fOutFile(0),
+//  fOutFile(0),
 
   // arrays
   fFtsParameters(0),
@@ -93,14 +95,15 @@ PndFtsHoughTrackerTask::PndFtsHoughTrackerTask(Bool_t persistence, Bool_t saveDe
   fTrackCands(0),
   fTracks(0)
 {
-	if(fVerbose>3) Info(MESSAGE_ORIGIN,"Default Constructor of PndFtsHoughTrackerTask");
+	fVerbose = verbose;
+	if(3<fVerbose) std::cout << "PndFtsHoughTrackerTask is the tracker ptr " << this << '\n';
 }
 
 // ---- Destructor ----------------------------------------------------
 PndFtsHoughTrackerTask::~PndFtsHoughTrackerTask()
 {
 	if(fVerbose>3) Info(MESSAGE_ORIGIN,"Destructor of PndFtsHoughTrackerTask");
-	fOutFile->Close();
+//	fOutFile->Close();
 }
 
 
@@ -274,7 +277,7 @@ void PndFtsHoughTrackerTask::WriteHistogram(PndFtsHoughSpace* houghSpace, Int_t 
 InitStatus PndFtsHoughTrackerTask::ReInit()
 {
 	InitStatus stat=kSUCCESS;
-	if(fVerbose>3) Info(MESSAGE_ORIGIN,"Re- Initilization of PndFtsHoughTrackerTask");
+	if(3<fVerbose) Info(MESSAGE_ORIGIN,"Re- Initilization of PndFtsHoughTrackerTask");
 	return stat;
 }
 
@@ -322,10 +325,8 @@ void PndFtsHoughTrackerTask::Exec(Option_t* option)
 	SetHitPositionErrors();
 
 
-
-	PndFtsHoughTrackFinder trackFinder(this, fFtsBranchId, fFtsHitArray, fField);
-	trackFinder.SetVerbose(fVerbose);
-	trackFinder.SetSaveDebugInfo(fSaveDebugInfo);
+	if(3<fVerbose) std::cout << "PndFtsHoughTrackFinder::Exec tracker ptr " << this << '\n';
+	PndFtsHoughTrackFinder trackFinder(this);
 	//	trackFinder.SetMinPeakHeightZxLineParabola(4);
 	//	trackFinder.SetMinPeakHeightZxParabola(6);
 	//	trackFinder.SetMinPeakHeightZxParabolaLine(4);

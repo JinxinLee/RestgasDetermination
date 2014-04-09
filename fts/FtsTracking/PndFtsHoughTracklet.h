@@ -14,6 +14,8 @@
 #ifndef PNDFTSHOUGHTRACKLET_H
 #define PNDFTSHOUGHTRACKLET_H
 
+class PndFtsHoughTrackerTask;
+
 // Root Class Headers ----------------
 #include "PndTrackCand.h"
 #include "Rtypes.h"                     // for Double_t, Int_t, etc
@@ -28,7 +30,7 @@ class PndFtsHoughTracklet : public PndTrackCand {
 public:
 
 	// Constructors/Destructors ---------
-	PndFtsHoughTracklet(Double_t zRefLabSys=0., Int_t ftsBranchId=0, TClonesArray *ftsHitArray=0); // do not use as default constructor
+	PndFtsHoughTracklet(Double_t zRefLabSys=0., PndFtsHoughTrackerTask *trackerTask=0); ///< Set pointer to tracker task (super important as it provides functionality such as the array of all FTS hits and the branchId of FTS, magnetic field, etc.)
 	~PndFtsHoughTracklet();
 
 
@@ -69,6 +71,9 @@ public:
 
 private:
 	// Private Data Members ------------
+	// for PandaRoot input/output
+	PndFtsHoughTrackerTask *fTrackerTask;
+
 	Int_t fVerbose;
 
 	// FTS Hits
