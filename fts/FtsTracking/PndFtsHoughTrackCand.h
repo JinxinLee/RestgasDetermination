@@ -6,7 +6,6 @@
 // loosely modeled according to PndTools/riemannfit/PndRiemannTrack.h
 //
 // Created: 24.01.2014
-// Modified: 03.03.2014
 //
 // *************************************************************************
 
@@ -34,8 +33,8 @@ public:
 
 	// Constructors/Destructors ---------
 	PndFtsHoughTrackCand(
-//			Int_t ftsBranchId=0,
-//			TClonesArray *ftsHitArray=0,
+			//			Int_t ftsBranchId=0,
+			//			TClonesArray *ftsHitArray=0,
 			PndFtsHoughTrackerTask *trackerTask=0);
 	~PndFtsHoughTrackCand();
 
@@ -46,7 +45,6 @@ public:
 	void Print();
 	// isComplete() is kTRUE iif data from all Hough transforms have been entered
 	Bool_t isComplete() const { return (fZxLineParabola.isSet() && fZxParabola.isSet() && fZxParabolaLine.isSet() && fZyLine.isSet()); };
-	const PndFtsHit *getHit(UInt_t index); // gets the FairHit corresponding to index
 	PndTrackCand getPndTrackCand(); // convert *this to a PndTrack, cannot be const
 	PndTrack getPndTrack(); // convert *this to a PndTrack, cannot be const // calculates first and last parameter, but uses an empty PndTrackCand which has to be set lateron using SetTrackCandRef
 	FairTrackParP getTrackParPForHit(const UInt_t i); // get the track parameters (needed for conversion to PndTrack) for hit with index i, cannot be const
@@ -184,9 +182,9 @@ private:
 	// Private Data Members ------------
 	Int_t fVerbose;
 
-	// FTS Hits
-	Int_t   fFtsBranchId;
-	TClonesArray *fFtsHitArray;
+	//	// FTS Hits
+	//	Int_t   fFtsBranchId;
+	//	TClonesArray *fFtsHitArray;
 
 	// zx plane
 	// straight line Hough transform in zx plane (stations before dipole field)

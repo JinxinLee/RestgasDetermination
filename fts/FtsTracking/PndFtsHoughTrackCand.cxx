@@ -16,30 +16,30 @@
 ClassImp(PndFtsHoughTrackCand);
 
 PndFtsHoughTrackCand::PndFtsHoughTrackCand(PndFtsHoughTrackerTask *trackerTask) :
-						fTrackerTask(trackerTask),
+		fTrackerTask(trackerTask),
 
-						fFtsHitArray(0),
-						fFtsBranchId(0),
-						fVerbose(0),
+		//						fFtsHitArray(0),
+		//						fFtsBranchId(0),
+		fVerbose(0),
 
-						fZxLineParabola(0., trackerTask), // TODO: It could be a problem here that I set the z reference value to 0.
+		fZxLineParabola(0., trackerTask), // TODO: It could be a problem here that I set the z reference value to 0.
 
-						fZxParabola(0., trackerTask),
+		fZxParabola(0., trackerTask),
 
-						fZxParabolaLine(0., trackerTask),
+		fZxParabolaLine(0., trackerTask),
 
-						fZyLine(0., trackerTask),
+		fZyLine(0., trackerTask),
 
-						fZLineParabola(0.),
-						fZParabolaLine(0.)
+		fZLineParabola(0.),
+		fZParabolaLine(0.)
 {
 	if (0==fTrackerTask){
 		std::cout << "PndFtsHoughTrackCand FATAL ERROR Tracker task pointer not set.\n";
 	} else {
 		fVerbose = fTrackerTask->GetVerbose();
 		if(3<fVerbose) std::cout << "PndFtsHoughTrackCand called with tracker ptr " << fTrackerTask << '\n';
-		fFtsHitArray = fTrackerTask->getFtsHitArrayPtr();
-		fFtsBranchId = fTrackerTask->getFtsBranchId();
+		//		fFtsHitArray = fTrackerTask->getFtsHitArrayPtr();
+		//		fFtsBranchId = fTrackerTask->getFtsBranchId();
 	}
 }
 
@@ -151,24 +151,26 @@ PndTrack PndFtsHoughTrackCand::getPndTrack() {
 	return PndTrack(firstPar, lastPar, myCand);
 }
 
-const PndFtsHit* PndFtsHoughTrackCand::getHit(UInt_t index) {
-	// this method will sort the hitId vector
-	// Warn if we do not have a complete track candidate
-	if (!isComplete()) Warning("getHit","You try to access hits before we have a complete track candidate.");
-	if (index >= GetNHits()){
-		return 0;
-	}
-
-	//		TClonesArray *ftsHitArray= (TClonesArray *)FairRootManager::Instance()->GetObject("FTSHit");
-	const PndFtsHit *myHit = (PndFtsHit*) fFtsHitArray->At(GetSortedHit(index).GetHitId());
-	return myHit;
-}
 
 FairTrackParP PndFtsHoughTrackCand::getTrackParPForHit(const UInt_t index) {
+	// index is the index of the hit in the track candidate, not in the FTS hit array
+	// this method will sort the hitId vector and therefore cannot be used for const track candidates
+
 	// TODO: Check if all arguments are correct
 
-	// get position of hit with index in track candidate
-	const PndFtsHit *myHit = getHit(index);
+	// Warn if we do not have a complete track candidate
+	if (!isComplete()) Warning("getHit","You try to access hits before we have a complete track candidate.");
+
+	// Translate index in track candidate to hitId in FTS hit array
+	if (index >= GetNHits()){
+		Warning("getTrackParPForHit","FATAL index is too large.");
+		return FairTrackParP();
+	}
+	UInt_t hitId = GetSortedHit(index).GetHitId();
+
+
+	// get position of hit with
+	const PndFtsHit *myHit = fTrackerTask->GetFtsHit(hitId);
 	if (0==myHit){
 		Warning("getTrackParPForHit","Cannot get hit, probably the tracking has not finished or the index is too large.");
 		return FairTrackParP();
@@ -180,7 +182,7 @@ FairTrackParP PndFtsHoughTrackCand::getTrackParPForHit(const UInt_t index) {
 	// position error can be large (like 1* or 2* tube size) as the Kalman filter will adjust it.
 	TVector3 hitPos = getPos(zLabSys);
 
-	UInt_t hitId = GetSortedHit(index).GetHitId();
+
 	TVector3 hitPosError = fTrackerTask->GetHitPositionError(hitId);
 
 	// momentum comes from the pattern recognition track model

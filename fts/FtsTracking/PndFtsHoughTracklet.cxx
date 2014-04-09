@@ -19,8 +19,8 @@ PndFtsHoughTracklet::PndFtsHoughTracklet(Double_t zRefLabSys, PndFtsHoughTracker
 						fTrackerTask(trackerTask),
 
 						fVerbose(0),
-						fFtsHitArray(0),
-						fFtsBranchId(0),
+//						fFtsHitArray(0),
+//						fFtsBranchId(0),
 
 						fIsSet(kFALSE),
 
@@ -39,8 +39,8 @@ PndFtsHoughTracklet::PndFtsHoughTracklet(Double_t zRefLabSys, PndFtsHoughTracker
 	} else {
 		fVerbose = fTrackerTask->GetVerbose();
 		if(3<fVerbose) std::cout << "PndFtsHoughTracklet called with tracker ptr " << fTrackerTask << '\n';
-		fFtsHitArray = fTrackerTask->getFtsHitArrayPtr();
-		fFtsBranchId = fTrackerTask->getFtsBranchId();
+//		fFtsHitArray = fTrackerTask->getFtsHitArrayPtr();
+//		fFtsBranchId = fTrackerTask->getFtsBranchId();
 	}
 }
 
@@ -106,20 +106,4 @@ void PndFtsHoughTracklet::Print() const {
 		std::cout << "theta = " << fThetaRadHw << "  second = " << fSecondHw << std::endl << std::endl;
 	}
 }
-
-
-
-
-const PndFtsHit* PndFtsHoughTracklet::getHit(UInt_t index) {
-	// Make sure we have a complete track candidate before we try to access any hits
-	if (kTRUE==fIsSet) return 0;
-	if (index < GetNHits()){
-		//TClonesArray *ftsHitArray= (TClonesArray *)FairRootManager::Instance()->GetObject("FTSHit");
-		const PndFtsHit *myHit = (PndFtsHit*) fFtsHitArray->At(GetSortedHit(index).GetHitId());
-		return myHit;
-	} else {
-		return 0;
-	}
-}
-
 

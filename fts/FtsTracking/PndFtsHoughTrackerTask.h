@@ -34,12 +34,14 @@
 #include <iostream>
 
 #include "TVector3.h"
+#include "PndFtsHit.h"
+#include "TClonesArray.h"
 
 class PndFtsHoughTrackCand;
 class PndFtsHoughSpace;
 class TH2;
 
-class TClonesArray;
+
 class PndGeoFtsPar;
 class FairField;
 
@@ -87,7 +89,16 @@ public:
 	const Int_t GetVerbose() const { return fVerbose; };
 	const Bool_t GetSaveDebugInfo() const { return fSaveDebugInfo; };
 	const UInt_t GetEventNr() const { return fEventNr; };
-	TVector3 GetHitPositionError(UInt_t iHit); // get the error for a hit positions to double the straw radius in x and z and to the full length of the straw in z
+	TVector3 GetHitPositionError(UInt_t hitId) const; // get the position error for hit with index hitId based on FTS straw geometry
+	const PndFtsHit* GetFtsHit(UInt_t hitId) const {
+		if ( hitId >= fFtsHitArray->GetEntriesFast() ) {
+			Warning("GetFtsHit","hitId is too large.");
+			return 0;
+		}
+		//		TClonesArray *ftsHitArray= (TClonesArray *)FairRootManager::Instance()->GetObject("FTSHit");
+		const PndFtsHit *myHit = (PndFtsHit*) fFtsHitArray->At(hitId);
+		return myHit;
+	}
 
 private:
 	// for PandaRoot input/output

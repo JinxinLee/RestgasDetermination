@@ -32,7 +32,7 @@
 #include "TSpectrum2.h"
 
 // root IO
-#include "TClonesArray.h"
+
 #include "FairRunAna.h"
 #include "FairRootManager.h"
 #include "FairRuntimeDb.h"
@@ -282,7 +282,7 @@ InitStatus PndFtsHoughTrackerTask::ReInit()
 }
 
 
-TVector3 PndFtsHoughTrackerTask::GetHitPositionError(UInt_t hitId)
+TVector3 PndFtsHoughTrackerTask::GetHitPositionError(UInt_t hitId) const
 {
 	// hitId is index in FTS hit array
 	if (1<fVerbose) {

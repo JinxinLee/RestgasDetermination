@@ -7,7 +7,6 @@
 // The tracklet can represent a line or a parabola (actually an arbitrary result of a 2d Hough transform)
 //
 // Created: 11.02.2014
-// Modified: 27.02.2014
 //
 // *************************************************************************
 
@@ -60,7 +59,6 @@ public:
 
 
 	// hits
-	const PndFtsHit *getHit(UInt_t index); // gets the FTS hit corresponding to index, will sort the hitId vector if necessary
 	UInt_t getNSharedHits(const PndFtsHoughTracklet& rhs); // gives the number of hits that are contained both in rhs and *this
 
 
@@ -76,9 +74,9 @@ private:
 
 	Int_t fVerbose;
 
-	// FTS Hits
-	Int_t   fFtsBranchId;
-	TClonesArray *fFtsHitArray;
+//	// FTS Hits
+//	Int_t   fFtsBranchId;
+//	TClonesArray *fFtsHitArray;
 
 
 	Bool_t fIsSet; // kTRUE if values have already been filled
