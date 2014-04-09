@@ -33,6 +33,8 @@
 #include "Rtypes.h"                     // for Double_t, Int_t, etc
 #include <iostream>
 
+#include "TVector3.h"
+
 class PndFtsHoughTrackCand;
 class PndFtsHoughSpace;
 class TH2;
@@ -85,12 +87,12 @@ public:
 	const Int_t GetVerbose() const { return fVerbose; };
 	const Bool_t GetSaveDebugInfo() const { return fSaveDebugInfo; };
 	const UInt_t GetEventNr() const { return fEventNr; };
+	TVector3 GetHitPositionError(UInt_t iHit); // get the error for a hit positions to double the straw radius in x and z and to the full length of the straw in z
 
 private:
 	// for PandaRoot input/output
 	PndFtsHoughTrackerTask *fTrackerTask;
 
-	void SetHitPositionErrors(); // sets the errors for the hit positions to double the straw radius in x and z and to the full length of the straw in z
 
 	//  for writing out histograms for debugging
 	//	void InitOutFileForDebugging();

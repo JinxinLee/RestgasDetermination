@@ -13,7 +13,7 @@
 
 // magnetic field
 #include "FairField.h"
-#include "TVector3.h"
+
 
 // (Hough) tracking
 #include "PndFtsHoughTrackFinder.h"
@@ -78,7 +78,7 @@ PndFtsHoughTrackerTask::PndFtsHoughTrackerTask(Int_t verbose, Bool_t persistence
   fSaveDebugInfo(saveDebugInfo),
   fPersistence(persistence),
   fEventNr(0),
-//  fOutFile(0),
+  //  fOutFile(0),
 
   // arrays
   fFtsParameters(0),
@@ -103,7 +103,7 @@ PndFtsHoughTrackerTask::PndFtsHoughTrackerTask(Int_t verbose, Bool_t persistence
 PndFtsHoughTrackerTask::~PndFtsHoughTrackerTask()
 {
 	if(fVerbose>3) Info(MESSAGE_ORIGIN,"Destructor of PndFtsHoughTrackerTask");
-//	fOutFile->Close();
+	//	fOutFile->Close();
 }
 
 
@@ -282,27 +282,30 @@ InitStatus PndFtsHoughTrackerTask::ReInit()
 }
 
 
-void PndFtsHoughTrackerTask::SetHitPositionErrors()
+TVector3 PndFtsHoughTrackerTask::GetHitPositionError(UInt_t hitId)
 {
-	// TODO: Do NOT overwrite the original TCA of FTS hits https://forum.gsi.de/index.php?t=msg&goto=15924
+	// hitId is index in FTS hit array
 	if (1<fVerbose) {
-		std::cout << "All FTS hits in event " << fFtsHitArray->GetEntriesFast() << "\n";
+		std::cout << "Get FTS hit error for hitId ( " << hitId << " / " << fFtsHitArray->GetEntriesFast() << " )\n";
 	}
 
-	for (int iHit = 0; iHit < fFtsHitArray->GetEntriesFast(); iHit++)
+	if ( hitId >= fFtsHitArray->GetEntriesFast() )
 	{
-		PndFtsHit* myHit = (PndFtsHit*) fFtsHitArray->At(iHit);
-		Int_t tubeID = myHit->GetTubeID();
-		PndFtsTube *tube = (PndFtsTube*) fFtsTubeArray->At(tubeID);
-		const Double_t zError = 2*tube->GetHalfLength();
-		// TODO: Read out radius of FTS tube
-		const Double_t xError = 1.01 + 0.003; // in cm // Straw diameter: 10.1 mm, tube wall 0.03 mm Mylar
-		const Double_t yError = xError;
-		TVector3 hitPosError(xError,yError,zError);
-		myHit->SetPositionError(hitPosError);
-		// TODO: Take rotation into account for skewed straws
+		return TVector3(0.,0.,0.);
+	}
 
-	} // for loop over all hits
+	// TODO: Check if there is a better way to set the errors
+	PndFtsHit* myHit = (PndFtsHit*) fFtsHitArray->At(hitId);
+	Int_t tubeID = myHit->GetTubeID();
+	PndFtsTube *tube = (PndFtsTube*) fFtsTubeArray->At(tubeID);
+	const Double_t zError = 2*tube->GetHalfLength();
+	// TODO: Read out radius of FTS tube
+	const Double_t xError = 1.01 + 0.003; // in cm // Straw diameter: 10.1 mm, tube wall 0.03 mm Mylar
+	const Double_t yError = xError;
+	TVector3 hitPosError(xError,yError,zError);
+	// TODO: Take rotation into account for skewed straws
+
+	return hitPosError;
 }
 
 
@@ -321,8 +324,6 @@ void PndFtsHoughTrackerTask::Exec(Option_t* option)
 	fHoughTrackCands->Delete();
 	fHoughSpaces->Delete();
 
-
-	SetHitPositionErrors();
 
 
 	if(3<fVerbose) std::cout << "PndFtsHoughTrackFinder::Exec tracker ptr " << this << '\n';

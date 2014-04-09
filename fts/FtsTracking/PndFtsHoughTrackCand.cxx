@@ -16,22 +16,22 @@
 ClassImp(PndFtsHoughTrackCand);
 
 PndFtsHoughTrackCand::PndFtsHoughTrackCand(PndFtsHoughTrackerTask *trackerTask) :
-				fTrackerTask(trackerTask),
+						fTrackerTask(trackerTask),
 
-				fFtsHitArray(0),
-				fFtsBranchId(0),
-				fVerbose(0),
+						fFtsHitArray(0),
+						fFtsBranchId(0),
+						fVerbose(0),
 
-				fZxLineParabola(0., trackerTask), // TODO: It could be a problem here that I set the z reference value to 0.
+						fZxLineParabola(0., trackerTask), // TODO: It could be a problem here that I set the z reference value to 0.
 
-				fZxParabola(0., trackerTask),
+						fZxParabola(0., trackerTask),
 
-				fZxParabolaLine(0., trackerTask),
+						fZxParabolaLine(0., trackerTask),
 
-				fZyLine(0., trackerTask),
+						fZyLine(0., trackerTask),
 
-				fZLineParabola(0.),
-				fZParabolaLine(0.)
+						fZLineParabola(0.),
+						fZParabolaLine(0.)
 {
 	if (0==fTrackerTask){
 		std::cout << "PndFtsHoughTrackCand FATAL ERROR Tracker task pointer not set.\n";
@@ -155,13 +155,13 @@ const PndFtsHit* PndFtsHoughTrackCand::getHit(UInt_t index) {
 	// this method will sort the hitId vector
 	// Warn if we do not have a complete track candidate
 	if (!isComplete()) Warning("getHit","You try to access hits before we have a complete track candidate.");
-	if (index < GetNHits()){
-		//		TClonesArray *ftsHitArray= (TClonesArray *)FairRootManager::Instance()->GetObject("FTSHit");
-		const PndFtsHit *myHit = (PndFtsHit*) fFtsHitArray->At(GetSortedHit(index).GetHitId());
-		return myHit;
-	} else {
+	if (index >= GetNHits()){
 		return 0;
 	}
+
+	//		TClonesArray *ftsHitArray= (TClonesArray *)FairRootManager::Instance()->GetObject("FTSHit");
+	const PndFtsHit *myHit = (PndFtsHit*) fFtsHitArray->At(GetSortedHit(index).GetHitId());
+	return myHit;
 }
 
 FairTrackParP PndFtsHoughTrackCand::getTrackParPForHit(const UInt_t index) {
@@ -179,8 +179,9 @@ FairTrackParP PndFtsHoughTrackCand::getTrackParPForHit(const UInt_t index) {
 	// position should NOT come from hit, it should come from the pattern recognition track model
 	// position error can be large (like 1* or 2* tube size) as the Kalman filter will adjust it.
 	TVector3 hitPos = getPos(zLabSys);
-	TVector3 hitPosError;
-	myHit->PositionError(hitPosError); // TODO: Set the error correctly
+
+	UInt_t hitId = GetSortedHit(index).GetHitId();
+	TVector3 hitPosError = fTrackerTask->GetHitPositionError(hitId);
 
 	// momentum comes from the pattern recognition track model
 	TVector3 mom = getP(zLabSys);
