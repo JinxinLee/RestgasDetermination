@@ -106,19 +106,19 @@ void simfast(TString Prefix, TString Decfile, Float_t Mom, Int_t nEvents = 1000,
 	// Mind: Numbers on resolution (pRes,thtRes,phiRes) and efficiency are guessed
 	// -----------------------------------------------------------------------------------
 	// - (Full Panda Tracking: STT MVD GEM FTS)
-	fastSim->AddDetector("ScSttAlone",  "thtMin=145.  thtMax=159.5 ptmin=0.1 pmin=0.0 pRes=0.04  thtRes=0.001 phiRes=0.001 efficiency=0.25");
-	fastSim->AddDetector("ScSttMvd",    "thtMin=20.9  thtMax=145.  ptmin=0.1 pmin=0.0 pRes=0.016 thtRes=0.001 phiRes=0.001 efficiency=0.90");
-	fastSim->AddDetector("ScSttMvdGem", "thtMin=7.8   thtMax=20.9  ptmin=0.1 pmin=0.0 pRes=0.018 thtRes=0.001 phiRes=0.001 efficiency=0.90");
-	fastSim->AddDetector("ScMvdGem",    "thtMin=5.    thtMax=7.8   ptmin=0.1 pmin=0.0 pRes=0.03  thtRes=0.001 phiRes=0.001 efficiency=0.80");
-	fastSim->AddDetector("ScFts",       "thtMin=0.    thtMax=5.    ptmin=0.0 pmin=0.5 pRes=0.05  thtRes=0.002 phiRes=0.002 efficiency=0.80");
+	fastSim->AddDetector("ScSttAlone",  "thtMin=145.  thtMax=159.5 ptmin=0.1 pmin=0.0 pRes=0.04 thtRes=0.001 phiRes=0.001 efficiency=0.25");
+	fastSim->AddDetector("ScSttMvd",    "thtMin=20.9  thtMax=145.  ptmin=0.1 pmin=0.0 pRes=0.02 thtRes=0.001 phiRes=0.001 efficiency=0.85");
+	fastSim->AddDetector("ScSttMvdGem", "thtMin=7.8   thtMax=20.9  ptmin=0.1 pmin=0.0 pRes=0.02 thtRes=0.001 phiRes=0.001 efficiency=0.85");
+	fastSim->AddDetector("ScMvdGem",    "thtMin=5.    thtMax=7.8   ptmin=0.1 pmin=0.0 pRes=0.03 thtRes=0.001 phiRes=0.001 efficiency=0.60");
+	fastSim->AddDetector("ScFts",       "thtMin=0.    thtMax=5.    ptmin=0.0 pmin=0.5 pRes=0.05 thtRes=0.002 phiRes=0.002 efficiency=0.80");
 	// - other options:
 	//fastSim->AddDetector("ScMvdGemFts", "thtMin=5.    thtMax=7.8   ptmin=0.1 pmin=0.0 pRes=0.03  thtRes=0.001 phiRes=0.001 efficiency=0.80");
 	//fastSim->AddDetector("ScMvdFts",    "thtMin=5.    thtMax=10    ptmin=0.0 pmin=0.0 pRes=0.05  thtRes=0.002 phiRes=0.002 efficiency=0.80");
 	//fastSim->AddDetector("ScGemFts",    "thtMin=3.    thtMax=10    ptmin=0.0 pmin=0.0 pRes=0.05  thtRes=0.002 phiRes=0.002 efficiency=0.80");
 	// - STT alone:
 	//fastSim->AddDetector("ScSttAlone",  "thtMin=133.6 thtMax=159.5 ptmin=0.1 pmin=0.0 pRes=0.030 thtRes=0.06 phiRes=0.1 efficiency=0.25");
-	//fastSim->AddDetector("ScSttAlone",  "thtMin=20.9  thtMax=133.6 ptmin=0.1 pmin=0.0 pRes=0.026 thtRes=0.06 phiRes=0.1 efficiency=0.95");
-	//fastSim->AddDetector("ScSttAlone",  "thtMin=7.8   thtMax=20.9  ptmin=0.1 pmin=0.0 pRes=0.026 thtRes=0.06 phiRes=0.1 efficiency=0.25");
+	//fastSim->AddDetector("ScSttAlone2",  "thtMin=20.9  thtMax=133.6 ptmin=0.1 pmin=0.0 pRes=0.026 thtRes=0.06 phiRes=0.1 efficiency=0.95");
+	//fastSim->AddDetector("ScSttAlone3",  "thtMin=7.8   thtMax=20.9  ptmin=0.1 pmin=0.0 pRes=0.026 thtRes=0.06 phiRes=0.1 efficiency=0.25");
 
 	// -----------------------------------------------------------------------------------
 	// Vertexing
@@ -132,11 +132,13 @@ void simfast(TString Prefix, TString Decfile, Float_t Mom, Int_t nEvents = 1000,
 	// -----------------------------------------------------------------------------------
 	// EM Calorimeters w/ default parameters
 	// (don't have to be set, just to list the available parameters
+	// EmcBarrel also allows to set phiMin and phiMax and can be added multiple times as EmcBarrel1, EmcBarrel2, etc.
+	// Should be made constistent with EmcPidBarrel below
 	// -----------------------------------------------------------------------------------
 	fastSim->AddDetector("EmcBarrel","thtMin=22.0 thtMax=142.0 Emin=0.01 barrelRadius=0.5");
-	fastSim->AddDetector("EmcFwCap", "thtMin=5.0 thtMax=22.0 Emin=0.01 dist=2.5");
+	fastSim->AddDetector("EmcFwCap", "thtMin=10.0 thtMax=22.0 Emin=0.01 dist=2.5");
 	fastSim->AddDetector("EmcBwCap", "thtMin=142.0 thtMax=160.0 Emin=0.01 dist=0.7");
-	fastSim->AddDetector("EmcFS",    "thtMin=0.05 thtMax=5.0 aPar=0.02 bPar=0.0274 Emin=0.01 dist=8.0");
+	fastSim->AddDetector("EmcFS",    "thtMin=0.05 thtMax=10.0 aPar=0.02 bPar=0.0274 Emin=0.01 dist=8.0");
 
 	// -----------------------------------------------------------------------------------
 	// PID
@@ -144,17 +146,18 @@ void simfast(TString Prefix, TString Decfile, Float_t Mom, Int_t nEvents = 1000,
 	// -----------------------------------------------------------------------------------
 	fastSim->AddDetector("MvdPid","thtMin=5.  thtMax=133.6 ptmin=0.1  dEdxResMulti=1. efficiency=1."); //Note: A Bethe-Bloch-Landau-Gauss Prametrization from 2008
 	fastSim->AddDetector("SttPid","thtMin=7.8 thtMax=159.5 ptmin=0.1 dEdxRes=1. efficiency=1."); //Note: A dEdX parametrization from 2008
-
+	
 	fastSim->AddDetector("DrcBarrel","thtMin=22.0 thtMax=140.0 dthtc=0.01 nPhotMin=5 effNPhotons=0.075");
 	fastSim->AddDetector("DrcDisc","thtMin=5.0 thtMax=22.0 dthtc=0.01 nPhotMin=5 effNPhotons=0.075");
 	fastSim->AddDetector("Rich","angleXMax=5.0 angleYMax=10.0 dthtc=0.01 nPhotMin=5 effNPhotons=0.075");
-
-	fastSim->AddDetector("ScMdtPidBarrel", "thtMin=10.0 thtMax=130.0 pmin=1.0 efficiency=0.95 misId=0.01");
-	fastSim->AddDetector("ScMdtPidForward","thtMin=0.0  thtMax=10.0  pmin=1.5 efficiency=0.95 misId=0.01");
-
+	
+	fastSim->AddDetector("ScMdtPidBarrel", "thtMin=10.0 thtMax=130.0 pmin=0.5 efficiency=0.95 misId=0.01");
+	fastSim->AddDetector("ScMdtPidForward","thtMin=0.0  thtMax=10.0  pmin=0.5 efficiency=0.95 misId=0.01");
+	
+	fastSim->AddDetector("ScEmcPidFS",     "thtMin=0.5   thtMax=10.0  ptmin=0.0 pmin=0.5 efficiency=1.0");
 	fastSim->AddDetector("ScEmcPidFwCap",  "thtMin=10.0  thtMax=22.0  ptmin=0.0 pmin=0.0 efficiency=1.0");
-	fastSim->AddDetector("ScEmcPidBarrel", "thtMin=22.0  thtMax=142.0 phiMin=-180. phiMax=180. ptmin=0.2 pmin=0.0 efficiency=1.0");
-	fastSim->AddDetector("ScEmcPidBwCap",  "thtMin=142.0 thtMax=160.0  ptmin=0.0 pmin=0.0 efficiency=1.0");
+	fastSim->AddDetector("ScEmcPidBarrel", "thtMin=22.0  thtMax=142.0 ptmin=0.2 pmin=0.0 efficiency=1.0");
+	fastSim->AddDetector("ScEmcPidBwCap",  "thtMin=142.0 thtMax=160.0 ptmin=0.0 pmin=0.0 efficiency=1.0");
 
 	fRun->AddTask(fastSim);
 	//-------------------------  Initialize the RUN  -----------------
