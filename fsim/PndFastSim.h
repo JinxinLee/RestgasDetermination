@@ -55,7 +55,7 @@ class PndFastSim : public FairTask
   void SetVerbosity(int vb) {fVb=vb;}
   bool EnableSplitoffs(std::string fname="splitpars.dat");
   void EnablePropagation(bool propagate=true, bool tostartvtx=true, bool usecovmatrix=true, double tolerance=0.0);
-
+  void SetUseFlatCov(bool v=true) {fUseFlatCovMatrix=v;};
 
   void SetSeed(unsigned int seed=65539);
   //void CreateStructure();
@@ -77,6 +77,7 @@ class PndFastSim : public FairTask
   void smearMvddEdx(PndFsmTrack *t, double dedx);
   void smearTpcdEdx(PndFsmTrack *t, double dedx);
   void smearSttdEdx(PndFsmTrack *t, double dedx);
+  void SetFlatCovMatrix(PndFsmTrack *t, double dp=0., double dtheta=0., double dphi=0., double dE=0., double dx=0., double dy=0., double dz=0.);
 
   /** Output array of Candidates **/
   TClonesArray* fMcCandidates;
@@ -98,6 +99,7 @@ class PndFastSim : public FairTask
   bool      fPropagate;
   bool      fToStartVtx;
   bool      fUseCovMatrix;
+  bool      fUseFlatCovMatrix;
   double    fTolerance;
 
   PndFsmDetFactory *fDetFac;
@@ -111,7 +113,7 @@ class PndFastSim : public FairTask
   virtual void SetParContainers();
 
 
-  bool smearTrack(PndFsmTrack *t);
+  bool smearTrack(PndFsmTrack *t, int idx = -1);
 
   static TMatrixD fRho;
   static TMatrixD fEta;

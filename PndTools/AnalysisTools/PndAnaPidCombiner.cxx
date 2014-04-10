@@ -55,7 +55,9 @@ void PndAnaPidCombiner::Init()
   for ( std::vector<TString>::iterator iter=fCurrentPidArrays.begin();
         iter!=fCurrentPidArrays.end(); iter++ ){
     if (!fPidArrays[*iter]){
-      fPidArrays[*iter]=ReadTCA((*iter).Data());
+      TClonesArray * tmpar = ReadTCA((*iter).Data());
+      if(tmpar) fPidArrays[*iter]=tmpar;
+      else fCurrentPidArrays.erase(iter);
       fRootManager->ReadBranchEvent((*iter).Data());
     }
   }

@@ -66,7 +66,10 @@ FairTask("Panda Fast Simulation") {
   fAddedDets=" ";
   fVb=0;
   fGenSplitOffs=false;
+  fUseFlatCovMatrix=false;
   fPropagate=false;
+  fToStartVtx=false;
+  fUseCovMatrix=false;
   fdbPdg = TDatabasePDG::Instance();
 }
 // -------------------------------------------------------------------------
@@ -99,18 +102,6 @@ void PndFastSim::Register() {
 
   fMcCandidates = new TClonesArray("RhoCandidate");
   FairRootManager::Instance()->Register("PndMcTracks","FastSim", fMcCandidates, kTRUE);
-
-  //fPndCandidates = new TClonesArray("RhoCandidate");
-  //FairRootManager::Instance()->Register("PndCandidates","FastSim", fPndCandidates, kTRUE);
-
-  //fChargedCandidates = new TClonesArray("RhoCandidate");
-  //FairRootManager::Instance()->Register("PndChargedCandidates","FastSim", fChargedCandidates, kTRUE);
-
-  //fNeutralCandidates = new TClonesArray("RhoCandidate");
-  //FairRootManager::Instance()->Register("PndNeutralCandidates","FastSim", fNeutralCandidates, kTRUE);
-
-  //fMicroCandidates = new TClonesArray("PndPidCandidate");
-  //FairRootManager::Instance()->Register("PndPidCandidates","FastSim", fMicroCandidates, kTRUE);
 
   fPidChargedCand = new TClonesArray("PndPidCandidate");
   FairRootManager::Instance()->Register("PidChargedCand","FastSim", fPidChargedCand, kTRUE);
@@ -148,18 +139,6 @@ InitStatus PndFastSim::Init() {
 
   if (fVb>3) cout << " Inside the Init function****" << endl;
 
-  //FairDetector::Initialize();
-  //FairRun* sim = FairRun::Instance();
-  //FairRuntimeDb* rtdb=sim->GetRuntimeDb();
-
-  // Get RootManager
-  /* FairRootManager* ioman = FairRootManager::Instance();
-  if ( ! ioman ) {
-  cout << "-E- PndFastSim::Init: "
-  << "RootManager not instantiated!" << endl;
-  return kFATAL;
-}
-*/
   Register();
   if (fVb)
   {
@@ -223,7 +202,6 @@ bool PndFastSim::EnableSplitoffs(std::string fname)
     cout <<" -W-  (PndFastSim::EnableSplitoffs) - no filename given; no split offs will be produced."<<endl;
     return false;
   }
-
 
   /*
   prepare the split off parametrization
@@ -428,12 +406,9 @@ void PndFastSim::Exec(Option_t* opt)
     McAvgVtx+=ft->startVtx();
 
     // smear and cut the track according to the detector setup
-    if (smearTrack(ft)) {
+    if (smearTrack(ft, chcandsize)) {
       RhoVector3Err *svtx=new RhoVector3Err(ft->startVtx());
 
-      //RhoCandidate *tcand;
-
-      //PndPidCandidate *micro;
       TLorentzVector miclv=ft->p4();
       TVector3 pos=ft->startVtx();
 
@@ -448,38 +423,6 @@ void PndFastSim::Exec(Option_t* opt)
         miclv.SetVectM(miclv.Vect(),0.0);
         nNeutral++;
       }
-
-      /*
-      micro=new (microCandidates[miccandsize]) PndPidCandidate((Int_t)ft->charge(),pos,miclv);
-
-      micro->SetMcIndex(iPoint);
-      micro->SetMvdDEDX( ft->detResponse()->MvddEdx() );
-      //micro->SetMvdDEdxErr( ft->detResponse()->MvddEdxErr() );
-      micro->SetSttMeanDEDX( ft->detResponse()->SttdEdx() );
-      //micro->SetSttDEdxErr( ft->detResponse()->SttdEdxErr() );
-      micro->SetTofM2( ft->detResponse()->m2() );
-      micro->SetTofM2Err( ft->detResponse()->m2Err() );
-      micro->SetDrcThetaC( ft->detResponse()->DrcBarrelThtc() );
-      micro->SetDrcThetaCErr( ft->detResponse()->DrcBarrelThtcErr() );
-      micro->SetDrcNumberOfPhotons(0);
-      micro->SetDiscThetaC( ft->detResponse()->DrcDiscThtc() );
-      micro->SetDiscThetaCErr( ft->detResponse()->DrcDiscThtcErr() );
-      micro->SetDiscNumberOfPhotons(0);
-      micro->SetRichThetaC( ft->detResponse()->RichThtc() );
-      micro->SetRichThetaCErr( ft->detResponse()->RichThtcErr() );
-      micro->SetRichNumberOfPhotons(0);
-
-      micro->SetElectronPidLH(ft->detResponse()->LHElectron());
-      micro->SetMuonPidLH(ft->detResponse()->LHMuon());
-      micro->SetPionPidLH(ft->detResponse()->LHPion());
-      micro->SetKaonPidLH(ft->detResponse()->LHKaon());
-      micro->SetProtonPidLH(ft->detResponse()->LHProton());
-
-      if (fPropagate && fabs(ft->charge())>1e-6) {
-  micro->SetCov7( ft->Cov7() );
-    }
-    */
-
 
       PndPidCandidate *pidCand;
       PndPidProbability *pidProb;
@@ -520,79 +463,15 @@ void PndFastSim::Exec(Option_t* opt)
       pidProb->SetProtonPdf(ft->detResponse()->LHProton());
       pidProb->SetIndex(chcandsize);
 
-      /*
-      pidCand->SetElectronPidLH(ft->detResponse()->LHElectron());
-      pidCand->SetMuonPidLH(ft->detResponse()->LHMuon());
-      pidCand->SetPionPidLH(ft->detResponse()->LHPion());
-      pidCand->SetKaonPidLH(ft->detResponse()->LHKaon());
-      pidCand->SetProtonPidLH(ft->detResponse()->LHProton());
-      */
-
-      if (fPropagate && fabs(ft->charge())>1e-6) {
-        pidCand->SetCov7( ft->Cov7() );
-      }
-
-      /*
-      if (fabs(ft->charge())>1e-6)
-      tcand=new (chrgCandidates[chcandsize]) RhoCandidate(ft->p4(),ft->charge(),svtx);
-      else
-        tcand=new (neutCandidates[neucandsize]) RhoCandidate(ft->p4(),ft->charge(),svtx);
-
-
-      // the likelihood values;
-      tcand->SetPidInfo( 0, ft->detResponse()->LHElectron());
-      tcand->SetPidInfo( 1, ft->detResponse()->LHMuon());
-      tcand->SetPidInfo( 2, ft->detResponse()->LHPion());
-      tcand->SetPidInfo( 3, ft->detResponse()->LHKaon());
-      tcand->SetPidInfo( 4, ft->detResponse()->LHProton());
-
-      //the direct pid relevant measurements
-      tcand->SetPidInfo( 5, ft->detResponse()->DrcBarrelThtc());
-      tcand->SetPidInfo( 6, ft->detResponse()->DrcDiscThtc());
-      tcand->SetPidInfo( 7, ft->detResponse()->RichThtc());
-      tcand->SetPidInfo( 8, ft->detResponse()->m2());
-      tcand->SetPidInfo( 9, ft->detResponse()->MvddEdx());
-      tcand->SetPidInfo(10, ft->detResponse()->SttdEdx());
-
-      tcand->SetPidInfo(12,  ft->detResponse()->DrcBarrelThtcErr());
-      tcand->SetPidInfo(13, ft->detResponse()->DrcDiscThtcErr());
-      tcand->SetPidInfo(14, ft->detResponse()->RichThtcErr());
-      tcand->SetPidInfo(15, ft->detResponse()->m2Err());
-      tcand->SetPidInfo(16, ft->detResponse()->MvddEdxErr());
-      tcand->SetPidInfo(17, ft->detResponse()->SttdEdxErr());
-      tcand->SetPidInfo(29, (double) ft->pdt());
-      //cout<<"********************** PID="<<ft->pdt()<<endl;
-
-      tcand->SetMcIdx(iPoint);
-      tcand->SetType(ft->pdt());
-
-      if (fPropagate && fabs(charge)>1e-6) {
-  tcand->SetCov7( ft->Cov7() );
-  micro->SetCov7( ft->Cov7() );
-    }
-
-    // as default set pion mass for charged tracks and 0 for neutral cands
-    if (fabs(tcand->Charge())>0.001) {
-  tcand->SetMass(fdbPdg->GetParticle(211)->Mass());
-    } else
-      tcand->SetMass(0.0);
-    */
-
       RhoCandidate tcand(ft->p4(),ft->charge(),svtx);
 
+      if( (fPropagate||fUseFlatCovMatrix) && fabs(ft->charge())>1e-6)
+      {
+        tcand.SetCov7(ft->Cov7());
+        pidCand->SetCov7( ft->Cov7() );
+      }
       l.Add(&tcand);
 
-      /*
-      tcand=new (pndCandidates[pndcandsize]) RhoCandidate(ft->p4(),ft->charge(),svtx);
-
-      tcand->SetMcIdx(iPoint);
-      tcand->SetPidInfo(pidinfo);
-
-      if (fabs(tcand->Charge())>0.001)
-      tcand->SetMass(TDatabasePDG::Instance()->GetParticle(211)->Mass());
-      else
-        tcand->SetMass(0.0);
-      */
       delete svtx;
 
       // shall we add some parametrized split offs?
@@ -628,13 +507,6 @@ void PndFastSim::Exec(Option_t* opt)
           lv.SetRho(mom);
           lv.SetE(lv.P());
 
-          /*
-          PndPidCandidate *micro=new (microCandidates[microCandidates.GetEntriesFast()])
-          PndPidCandidate(0,fPos,lv);
-          micro->SetMcIndex(-1);
-          */
-
-
           neucandsize = neutCandidates.GetEntriesFast();
 
           pidCand = new (neutCandidates[neucandsize]) PndPidCandidate((Int_t)0,fPos,lv);
@@ -644,7 +516,6 @@ void PndFastSim::Exec(Option_t* opt)
           RhoCandidate tCand(lv,0.0,svtx2);
           tCand.SetType(22);
           nNeutral++;
-
 
           l.Add(&tCand);
 
@@ -677,7 +548,7 @@ void PndFastSim::Exec(Option_t* opt)
 }
 // -------------------------------------------------------------------------
 
-bool PndFastSim::smearTrack(PndFsmTrack *t)
+bool PndFastSim::smearTrack(PndFsmTrack *t, int idx )
 {
 
 
@@ -717,13 +588,15 @@ bool PndFastSim::smearTrack(PndFsmTrack *t)
       double rawLHp  = resp->LHProton();
 
       double sumRaw = rawLHe+rawLHmu+rawLHpi+rawLHK+rawLHp;
+	  pidProb->SetIndex(idx);
+	  
       if (sumRaw!=0.)
       {
-        pidProb->SetElectronPdf(rawLHe);
-        pidProb->SetMuonPdf(rawLHmu);
-        pidProb->SetPionPdf(rawLHpi);
-        pidProb->SetKaonPdf(rawLHK);
-        pidProb->SetProtonPdf(rawLHp);
+        pidProb->SetElectronPdf(rawLHe/sumRaw);
+        pidProb->SetMuonPdf(rawLHmu/sumRaw);
+        pidProb->SetPionPdf(rawLHpi/sumRaw);
+        pidProb->SetKaonPdf(rawLHK/sumRaw);
+        pidProb->SetProtonPdf(rawLHp/sumRaw);
       } else {
         pidProb->SetElectronPdf(0.2);
         pidProb->SetMuonPdf(0.2);
@@ -763,7 +636,7 @@ PndFastSim::cutAndSmear(PndFsmTrack *t, PndFsmResponse *r)
   double MvddEdx =r->MvddEdx();
   double SttdEdx =r->SttdEdx();
   TVector3 dV   = r->dV();
-
+  //r->print(cout);
   //this removes candidates, which only have hit a PID-only device (like Cherenkov, TOF ...)
   if (fabs(charge)>1e-6 && fabs(dp)<1e-8) return false;
   if (fabs(charge)<1e-6 && fabs(dE)<1e-8) return false;
@@ -801,6 +674,8 @@ PndFastSim::cutAndSmear(PndFsmTrack *t, PndFsmResponse *r)
       t->Propagate( fToStartVtx ? t->startVtx() : TVector3(0,0,0), fTolerance);
     // uncharged particles remain uncorrelated
   } else {
+    //first set cov, using mctruth for correct calculation of jacobian
+    if (fUseFlatCovMatrix) SetFlatCovMatrix(t,dp,dtheta,dphi,dE,dV.X(),dV.Y(),dV.Z());
     if (dE != 0.0)     smearEnergy(t,dE);
     if (dp != 0.0)     smearMomentum(t,dp);
     if (dtheta != 0.0) smearTheta(t,dtheta);
@@ -809,12 +684,80 @@ PndFastSim::cutAndSmear(PndFsmTrack *t, PndFsmResponse *r)
   }
   if (dm != 0.0)     smearM(t,dm);
   if( m2!=0.0)       smearM2(t,m2);           // mass^2 of track after tof
-    if(MvddEdx!=0.0)   smearMvddEdx(t,MvddEdx); // dEdx of track after Mvd
-      if(SttdEdx!=0.0)   smearSttdEdx(t,SttdEdx); // dEdx of track after Stt
-        return true;
+  if(MvddEdx!=0.0)   smearMvddEdx(t,MvddEdx); // dEdx of track after Mvd
+  if(SttdEdx!=0.0)   smearSttdEdx(t,SttdEdx); // dEdx of track after Stt
+  return true;
 }
 
 //-----------------------------------------------------------------------
+
+void PndFastSim::SetFlatCovMatrix(PndFsmTrack *t, double dp, double dtheta, double dphi, double dE, double dx, double dy, double dz)
+{
+  TLorentzVector lv=t->p4();
+
+  double st=sin(lv.Theta());
+  double ct=cos(lv.Theta());
+  double sf=sin(lv.Phi());
+  double cf=cos(lv.Phi());
+  double p=lv.P();
+  double e=lv.E();
+
+  TMatrixD jacobian(4,4);
+
+  jacobian(0,0) = st*cf;
+  jacobian(1,0) = st*sf;
+  jacobian(2,0) = ct;
+  jacobian(3,0) = (e>0) ? p/e : 0.;
+  jacobian(0,1) = p*ct*cf;
+  jacobian(1,1) = p*ct*sf;
+  jacobian(2,1) = -p*st;
+  jacobian(3,1) = 0.;
+  jacobian(0,2) = -p*st*sf;
+  jacobian(1,2) = p*st*cf;
+  jacobian(2,2) = 0.;
+  jacobian(3,2) = 0.;
+  jacobian(0,3) = 0.;
+  jacobian(1,3) = 0.;
+  jacobian(2,3) = 0.;
+  jacobian(3,3) = 1.;
+
+  TMatrixDSym covPol(4);
+  covPol(0,0)=dp*dp;
+  covPol(1,1)=dtheta*dtheta;
+  covPol(2,2)=dphi*dphi;
+  covPol(3,3)=dE*dE;
+
+  TMatrixD jcov(jacobian,TMatrixD::kMult,covPol);
+  TMatrixD covCar(jcov,TMatrixD::kMultTranspose,jacobian);
+
+//  cout<<"Lorentzvector: ";
+//  lv.Print();
+//  cout<<"Polar covariance: ";
+//  covPol.Print();
+//  cout<<"Jacobian: ";
+//  jacobian.Print();
+//  //cout<<"Jacobian*covPol: ";
+//  //jcov.Print();
+//  cout<<"Kartesian covariance: ";
+//  covCar.Print();
+
+  t->SetP4Cov(covCar);
+
+  TMatrixD covV(3,3);
+  covV(0,0) = dx*dx;
+  covV(0,1) = 0.;
+  covV(0,2) = 0.;
+  covV(1,0) = 0.;
+  covV(1,1) = dy*dy;
+  covV(1,2) = 0.;
+  covV(2,0) = 0.;
+  covV(2,1) = 0.;
+  covV(2,2) = dz*dz;
+
+  t->SetVCov(covV);
+
+  return;
+}
 
 void
 PndFastSim::smearEnergy(PndFsmTrack *t, double dE)

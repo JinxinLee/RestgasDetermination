@@ -4,7 +4,7 @@
 //
 // Description:
 //      Class PndFsmTrack
-//      
+//
 //  Candidate "Tracks" or "Particles" for the Fast Simulation
 //
 //  This software was developed for the PANDA collaboration.  If you
@@ -69,7 +69,7 @@ PndFsmTrack::PndFsmTrack() {
   setMvddEdX(0.);
   setTpcdEdX(0.);
   setSttdEdX(0.);
-  setCharge(0); 
+  setCharge(0);
   setGTrackId(0);
   setDetResponse(0);
   for (char i=0;i<15;i++)
@@ -80,7 +80,7 @@ PndFsmTrack::PndFsmTrack() {
     fCov7[i]=0;
 }
 
-PndFsmTrack::PndFsmTrack(TLorentzVector const inP4, TVector3 start, TVector3 stop, double inCharge, int inPdt, signed long trackId) 
+PndFsmTrack::PndFsmTrack(TLorentzVector const inP4, TVector3 start, TVector3 stop, double inCharge, int inPdt, signed long trackId)
 : fCov5(5,5), fCov7(7,7) {
   setP4(inP4);
   setStartVtx(start);
@@ -102,7 +102,7 @@ void PndFsmTrack::HelixRep(TVector3 reference) {
     reference=_startVtx-fReference;
     double tandip=p4().Pz()/p4().Perp();
     double pnt[3], Bf[3];
-    pnt[0]=fReference.X(); pnt[1]=fReference.Y(); pnt[2]=fReference.Z(); 
+    pnt[0]=fReference.X(); pnt[1]=fReference.Y(); pnt[2]=fReference.Z();
   FairField* theField=0;
   if(FairRun::Instance()->IsAna()){
     theField=FairRunAna::Instance()->GetField();
@@ -111,10 +111,10 @@ void PndFsmTrack::HelixRep(TVector3 reference) {
     theField=FairRunSim::Instance()->GetField();
 //    FairRunSim::Instance()->GetField()->GetFieldValue(pnt, Bf); //[kGs]
   }
-  if(theField==0) Fatal("PndFsmTrack::HelixRep()","Magnetic Field pointer missing. Set your field!"); 
+  if(theField==0) Fatal("PndFsmTrack::HelixRep()","Magnetic Field pointer missing. Set your field!");
     theField->GetFieldValue(pnt, Bf); //[kGs]
-    
-      
+
+
     double a=-2.99792458e-3*Bf[2]*charge();
     double omega=a/p4().Perp();
     // construct helix center (1/omega=R)
@@ -125,14 +125,14 @@ void PndFsmTrack::HelixRep(TVector3 reference) {
     double sinrs=sin(delta);
 
     TVector3 p(p4().Vect());
-    
+
     p.SetZ( p4().Pz() );
     p.SetPhi( p4().Phi() - delta );
-    
+
     reference.SetX( reference.X() - p.X()/a*sinrs + p.Y()/a*(1-cosrs) );
     reference.SetY( reference.Y() - p.Y()/a*sinrs - p.X()/a*(1-cosrs) );
     reference.SetZ( reference.Z() - tandip*delta/omega );
-    
+
     fPar5[0]=reference.Cross(p).Z()<0 ? reference.Perp() : -reference.Perp();
     fPar5[1]=p.Phi();
     fPar5[2]=omega;
@@ -151,7 +151,7 @@ void PndFsmTrack::Propagate(TVector3 origin, double deltaError) {
   // calculate p4 and start vertex at point
   // on helix track closest to origin
   double pnt[3], Bf[3];
-  pnt[0]=fReference.X(); pnt[1]=fReference.Y(); pnt[2]=fReference.Z(); 
+  pnt[0]=fReference.X(); pnt[1]=fReference.Y(); pnt[2]=fReference.Z();
   FairField* theField=0;
   if(FairRun::Instance()->IsAna()){
     theField=FairRunAna::Instance()->GetField();
@@ -160,7 +160,7 @@ void PndFsmTrack::Propagate(TVector3 origin, double deltaError) {
     theField=FairRunSim::Instance()->GetField();
 //    FairRunSim::Instance()->GetField()->GetFieldValue(pnt, Bf); //[kGs]
   }
-  if(theField==0) Fatal("PndFsmTrack::HelixRep()","Magnetic Field pointer missing. Set your field!"); 
+  if(theField==0) Fatal("PndFsmTrack::HelixRep()","Magnetic Field pointer missing. Set your field!");
   theField->GetFieldValue(pnt, Bf); //[kGs]
   double a=2.99792458e-3*Bf[2];
   double R=1/GetHelixOmega();
@@ -202,7 +202,7 @@ void PndFsmTrack::Propagate(TVector3 origin, double deltaError) {
   _p4.SetXYZM( pt*c1, pt*s1, pt*GetHelixTanDip(),
                TDatabasePDG::Instance()->GetParticle("pi-")->Mass());
 
-  // calculate jacobian wrt d0..tandip 
+  // calculate jacobian wrt d0..tandip
   TMatrixD J_alpha(7,5);
   J_alpha(0,0)=-s0;
   J_alpha(0,1)=-_startVtx.Y();
@@ -229,7 +229,7 @@ void PndFsmTrack::Propagate(TVector3 origin, double deltaError) {
   J_alpha(6,4)=+pt*pt*GetHelixTanDip()/_p4.T();
 
   if (deltaError>=0.001) {
-    // calculate jacobian wrt delta to allow fitter 
+    // calculate jacobian wrt delta to allow fitter
     // to move 1deg along the linearized trajectory
     deltaError*=3.1416/180;
     double covDelta=deltaError*deltaError;
@@ -244,12 +244,39 @@ void PndFsmTrack::Propagate(TVector3 origin, double deltaError) {
     fCov7+=tmp2;
   }
 
-  // calculate fCov7 = J_alpha * fCov5 * J_alpha.T + 
+  // calculate fCov7 = J_alpha * fCov5 * J_alpha.T +
   // covDelta * J_delta * J_delta.T (covDelta is scalar)
   TMatrixD tmp1(J_alpha, TMatrixD::kMult, fCov5);
   fCov7.MultT(tmp1, J_alpha);
 
   _startVtx+=fReference;
+}
+
+void PndFsmTrack::SetP7Cov(TMatrixD &p7cov)
+{
+  for (int i=0;i<7;i++)
+    for (int j=0;j<7;j++)
+    {
+      fCov7[i][j]=p7cov[i][j];
+    }
+}
+
+void PndFsmTrack::SetP4Cov(TMatrixD &p4cov)
+{
+  for (int i=0;i<4;i++)
+    for (int j=0;j<4;j++)
+    {
+      fCov7[i+3][j+3]=p4cov[i][j];
+    }
+}
+
+void PndFsmTrack::SetVCov(TMatrixD &vcov)
+{
+  for (int i=0;i<3;i++)
+    for (int j=0;j<3;j++)
+    {
+      fCov7[i][j]=vcov[i][j];
+    }
 }
 
 //--------------

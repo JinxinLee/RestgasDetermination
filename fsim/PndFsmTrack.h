@@ -4,7 +4,7 @@
 //
 // Description:
 //      Class PndFsmTrack
-//      
+//
 //  Candidate "Tracks" or "Particles" for the Fast Simulation
 //
 //  This software was developed for the PANDA collaboration.  If you
@@ -30,7 +30,7 @@
 //-------------------------------
 #include "TLorentzVector.h"
 #include "TVector3.h"
-#include "TMatrixD.h" 
+#include "TMatrixD.h"
 
 //#include "CLHEP/Vector/LorentzVector.h"
 //#include "CLHEP/Geometry/HepPoint.h"
@@ -60,7 +60,7 @@ public:
 
   PndFsmTrack();
   PndFsmTrack(TLorentzVector p4, TVector3 start, TVector3 stop, double charge, int pdt, signed long trackId);
-  
+
   //
   // Destructor
   //
@@ -70,12 +70,12 @@ public:
   //    Accessors to contained information
   //
   TLorentzVector   p4() {return _p4;}   // 4-momentum
-  TVector3         startVtx() {return _startVtx;} 
+  TVector3         startVtx() {return _startVtx;}
   TVector3         stopVtx() {return _stopVtx;}
-  double	   charge() {return _charge;} 
+  double	   charge() {return _charge;}
   int              pdt() {return _pdt;}
   signed long	   gTrackId() {return _gTrackId;}
-  PndFsmResponse*     detResponse() {return _detResponse;} 
+  PndFsmResponse*     detResponse() {return _detResponse;}
   double  Mass2()    {return _Mass2;}
   double  MvddEdX() {return _MvddEdX;}
   double  TpcdEdX() {return _TpcdEdX;}
@@ -84,8 +84,8 @@ public:
   // for the time being partial interface conservation for migration purpose
   bool hitMapValid() {return false;}
   bool hitMapResponse(unsigned int index) {return false;}
-   
-  
+
+
 
   //
   //  Modifiers
@@ -97,7 +97,7 @@ public:
   void setGTrackId(signed long id);
   void setPdt(int pdt);
   void setDetResponse(PndFsmResponse* resp);
- 
+
   void setMass2(double c);
   void setMvddEdX(double c);
   void setTpcdEdX(double c);
@@ -105,9 +105,9 @@ public:
 
 
   // Operations
-   
+
   void print(std::ostream &o);
-  
+
 private:
   TLorentzVector   _p4;
   TVector3         _startVtx;
@@ -124,12 +124,15 @@ private:
   double fPar5[5]; // helix fit parameters: d0, phi0, omega, z0, tandip
   TVector3 fReference; // reference point to helix rep
   TMatrixD fCov5;
-  TMatrixD fCov7; 
+  TMatrixD fCov7;
 
 public:
   double *GetHelixParams() { return fPar5; }
   TMatrixD& GetHelixCov() {return fCov5; }
   TMatrixD& Cov7() {return fCov7;}
+  void SetP7Cov(TMatrixD &p7cov);
+  void SetP4Cov(TMatrixD &p4cov);
+  void SetVCov(TMatrixD &vcov);
 
   Double_t GetHelixD0()     const {return fPar5[0];}
   Double_t GetHelixPhi0()   const {return fPar5[1];}
