@@ -1,7 +1,9 @@
-void ana_jpsi_task(TString InFile="test_fast.root", int nevts=0, double pbarmom = 6.232069)
+void ana_jpsi_task(TString Fname="test", int nevts=0, double pbarmom = 6.232069)
 {
 	// *** the output file for FairRunAna
-	TString OutFile = InFile+"_taskana.root";  
+	TString InFile  = Fname;
+	if (!InFile.EndsWith(".root")) InFile+="_fast.root";
+	TString OutFile = Fname + "_taskana.root";  
 					
 	// *** initialization
 	FairLogger::GetLogger()->SetLogToFile(kFALSE);
@@ -9,7 +11,7 @@ void ana_jpsi_task(TString InFile="test_fast.root", int nevts=0, double pbarmom 
 	FairRunAna* fRun = new FairRunAna();
 	fRun->SetWriteRunInfoFile(kFALSE);
 	fRun->SetInputFile(InFile);
-	fRun->SetOutputFile("fairout_dummy.root");
+	fRun->SetOutputFile(Fname+"_dummy.root");
 
 	// *** take constant field; needed for PocaVtx
 	RhoCalculationTools::ForceConstantBz(20.0);

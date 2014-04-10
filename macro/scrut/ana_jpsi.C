@@ -3,6 +3,8 @@ void ana_jpsi(TString InFile="test_fast.root", int nevts=0, double pbarmom = 6.2
 	// *** some variables
 	int i=0,j=0, k=0, l=0;
 	gStyle->SetOptFit(1011);
+
+	if (!InFile.EndsWith(".root")) InFile+="_fast.root";
 	
 	// *** the output file for FairRunAna
 	TString OutFile="dummy_out.root";  

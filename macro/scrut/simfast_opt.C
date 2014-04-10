@@ -14,11 +14,11 @@
 // DetOpt    : Parameter string to control detector setup for scrutiny process with some predefined options. For other configurations better use simfast.C 
 //             Appearance of each parameter is a *positive* switch! Default value "MvdGem EmcBar Drc Dsc FwdSpec" represents complete detector. 
 //             Detectors always being enabled are: EmcFwd, EmcBw, STT, Barrel MUO, 
-//             - MvdGem    : Enable MVD and GEM for central tracking in addition to STT
-//             - EmcBarrel : Enable EMC barrel for calorimetry (neutral detection and PID component)
-//             - Drc       : Enable Barrel DIRC for PID
-//             - Dsc       : Enable Disc DIRC for PID
-//             - FwdSpec   : Enable complete Forward Spectrometer (= Fwd Spec. EMC, Fwd Tracking, RICH, Fwd MUO) 
+//             - MvdGem    (or 1) : Enable MVD and GEM for central tracking in addition to STT
+//             - EmcBarrel (or 2) : Enable EMC barrel for calorimetry (neutral detection and PID component)
+//             - Drc       (or 3) : Enable Barrel DIRC for PID
+//             - Dsc       (or 4) : Enable Disc DIRC for PID
+//             - FwdSpec   (or 5) : Enable complete Forward Spectrometer (= Fwd Spec. EMC, Fwd Tracking, RICH, Fwd MUO) 
 
 
 
@@ -33,11 +33,11 @@ void simfast_opt(TString Prefix, TString Decfile, Float_t Mom, Int_t nEvents = 1
 	bool SwDsc     = false;
 	bool SwFwdSpec = false;
 	
-	if (DetOpt.Contains("MvdGem"))  SwMvdGem  = true;
-	if (DetOpt.Contains("EmcBar"))  SwEmcBar  = true;
-	if (DetOpt.Contains("Drc"))     SwDrc     = true;
-	if (DetOpt.Contains("Dsc"))     SwDsc     = true;
-	if (DetOpt.Contains("FwdSpec")) SwFwdSpec = true;
+	if (DetOpt.Contains("MvdGem")  || DetOpt.Contains("1") ) SwMvdGem  = true;
+	if (DetOpt.Contains("EmcBar")  || DetOpt.Contains("2") ) SwEmcBar  = true;
+	if (DetOpt.Contains("Drc")     || DetOpt.Contains("3") ) SwDrc     = true;
+	if (DetOpt.Contains("Dsc")     || DetOpt.Contains("4") ) SwDsc     = true;
+	if (DetOpt.Contains("FwdSpec") || DetOpt.Contains("5") ) SwFwdSpec = true;
 		
 
 	//-----General settings-----------------------------------------------
@@ -112,6 +112,11 @@ void simfast_opt(TString Prefix, TString Decfile, Float_t Mom, Int_t nEvents = 1
 	if(UseDpm)
 	{
 		PndDpmDirect *Dpm= new PndDpmDirect(Mom,1);
+		Dpm->SetUnstable(111);   // pi0
+		Dpm->SetUnstable(310);   // K_S0
+		Dpm->SetUnstable(3122);  // Lambda
+		Dpm->SetUnstable(-3122); // anti-Lambda
+		Dpm->SetUnstable(221);   // eta
 		primGen->AddGenerator(Dpm);
 	}
 	if(UseEvtGenDirect)

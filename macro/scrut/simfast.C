@@ -75,6 +75,11 @@ void simfast(TString Prefix, TString Decfile, Float_t Mom, Int_t nEvents = 1000,
 	}
 	if(UseDpm){
 		PndDpmDirect *Dpm= new PndDpmDirect(Mom,1);
+		Dpm->SetUnstable(111);   // pi0
+		Dpm->SetUnstable(310);   // K_S0
+		Dpm->SetUnstable(3122);  // Lambda
+		Dpm->SetUnstable(-3122); // anti-Lambda
+		Dpm->SetUnstable(221);   // eta
 		primGen->AddGenerator(Dpm);
 	}
 	if(UseEvtGenDirect){

@@ -197,14 +197,14 @@ USAGE: root -l -b -q  'simfast_opt.C("<prefix>","<decfile>",<mom>,<nevts>,"<reso
 
 The first parameters are the same as above; the parameter <detopt> can be used in the following way:
 
- detopt    : Appearance of each parameter is a *positive* switch! Default value is <detopt>="MvdGem EmcBar Drc Dsc FwdSpec" for the complete detector.
+ detopt    : Appearance of each parameter is a *positive* switch! Default value is <detopt>="MvdGem EmcBar Drc Dsc FwdSpec" (shortcut:"12345") for the complete detector.
  
              Detectors always being enabled are: Stt (FsmSimpleTracker), SttPid, EmcFwd, EmcBw, EmcPidFwd, EmcPidBw, MdtPidBarrel
 
-             - MvdGem    : Enable MVD and GEM for central tracking in addition to STT (MvdPid, VtxMvd, better tracking)
-             - EmcBarrel : Enable EMC barrel for calorimetry (neutral detection and PID component) (EmcBarrel, EmcPidBarrel)
-             - Drc       : Enable Barrel DIRC for PID (DrcBarrel)
-             - Dsc       : Enable Disc DIRC for PID (DrcDisc)
-             - FwdSpec   : Enable complete Forward Spectrometer (= FTS, EmcFS, EmcPidFS, MdtPidForward, Rich) 
+             - MvdGem    (or 1) : Enable MVD and GEM for central tracking in addition to STT (MvdPid, VtxMvd, better tracking)
+             - EmcBarrel (or 2) : Enable EMC barrel for calorimetry (neutral detection and PID component) (EmcBarrel, EmcPidBarrel)
+             - Drc       (or 3) : Enable Barrel DIRC for PID (DrcBarrel)
+             - Dsc       (or 4) : Enable Disc DIRC for PID (DrcDisc)
+             - FwdSpec   (or 5) : Enable complete Forward Spectrometer (= FTS, EmcFS, EmcPidFS, MdtPidForward, Rich) 
 
 

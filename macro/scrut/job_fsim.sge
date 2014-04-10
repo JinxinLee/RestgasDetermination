@@ -1,0 +1,64 @@
+#$ -wd /tmp 
+#$ -j y
+#$ -v FAIRLIBDIR
+
+cd $TMPDIR
+
+. $FAIRLIBDIR/../config.sh
+
+hera=$VMCWORKDIR"/macro/scrut"
+_target=$hera"/data/"
+
+prefix=test
+dec="DPM"
+mom=7.53
+nEvts=10000
+res="pbarpSystem"
+pdg=11
+detopt="12345"
+
+if test "$1" != ""; then
+  prefix=$1
+fi
+
+if test "$2" != ""; then
+  dec=$2
+fi
+
+if test "$3" != ""; then
+  mom=$3
+fi
+
+if test "$4" != ""; then
+  nEvts=$4
+fi
+
+if test "$5" != ""; then
+  res=$5
+fi
+
+if test "$6" != ""; then
+  pdg=$6
+fi
+
+if test "$7" != ""; then
+  detopt=$7
+fi
+
+if test "$dec" != "DPM" -a "$dec" != "BOX"; then
+  dec=$hera"/"$dec
+fi
+
+outprefix=$_target$prefix"_"$SGE_TASK_ID
+
+root -l -q -b $hera"/"simfast_opt.C\(\"$outprefix\",\"$dec\",$mom,$nEvts,\"$res\"\,$pdg,\"$detopt\"\) &> $outprefix"_fsim.log"
+
+# Move the data to the persistent storage
+#cp -v $TMPDIR"/"$prefix* $_target 
+
+# Evacuate the log-file
+#cp -v $SGE_STDOUT_PATH $_target/$prefix"_"$JOB_ID.log
+
+# Clean up
+#rm $TMPDIR/$prefix*
+#rm $TMPDIR/Fair*root

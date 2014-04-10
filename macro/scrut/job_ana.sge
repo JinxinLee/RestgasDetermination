@@ -1,0 +1,31 @@
+#$ -wd /tmp 
+#$ -j y
+#$ -v FAIRLIBDIR
+
+cd $TMPDIR
+
+. $FAIRLIBDIR/../config.sh
+
+hera=$VMCWORKDIR"/macro/scrut"
+_target=$hera"/data/"
+
+prefix=test
+mom=7.53
+nEvts=0
+
+if test "$1" != ""; then
+  prefix=$1
+fi
+
+if test "$2" != ""; then
+  mom=$2
+fi
+
+if test "$3" != ""; then
+  nEvts=$3
+fi
+
+
+outprefix=$_target$prefix"_"$SGE_TASK_ID
+
+root -l -q -b $hera"/"ana_jpsi_task.C\(\"$outprefix\",$nEvts,$mom\) &> $outprefix"_ana.log"
