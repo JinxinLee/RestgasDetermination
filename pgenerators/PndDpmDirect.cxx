@@ -37,6 +37,7 @@ extern "C" {
 
 extern "C" int init1_(float* Plab, double* seed, float* Elastic, float* tetmin );//install DPM 
 extern "C" int dpm_gen_(float* Generator, double* seed ); //to generate events
+extern "C" int chstatus_(int* iPDG, int* iStatus); //to change Particle status
 
 TF1 	 * fDensityFunction;
 
@@ -122,7 +123,21 @@ PndDpmDirect::PndDpmDirect(Double_t Mom, Int_t Mode, Double_t Rsigma, TF1* Densi
 PndDpmDirect::~PndDpmDirect() {
 
 }
+// -----Set particle type stable ------------------------------------------
+void PndDpmDirect::SetStable(int pdg)
+{
+	int status=1;
+	chstatus_(&pdg, &status);
+}
+
+// -----Set particle type unstable ----------------------------------------
+void PndDpmDirect::SetUnstable(int pdg)
+{
+	int status=0;
+	chstatus_(&pdg, &status);
+}
 // ------------------------------------------------------------------------
+
 
 // -----   Public method ReadEvent   --------------------------------------
 Bool_t PndDpmDirect::ReadEvent(FairPrimaryGenerator* primGen) {

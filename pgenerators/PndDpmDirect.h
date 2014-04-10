@@ -49,6 +49,10 @@ class PndDpmDirect : public FairGenerator
    **/
   virtual Bool_t ReadEvent(FairPrimaryGenerator* primGen);
 	
+  void SetUnstable(int pdg);
+  void SetStable(int pdg);
+  
+  
  private:
 
   /**
