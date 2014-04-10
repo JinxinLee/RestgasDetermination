@@ -139,11 +139,18 @@ void ana_jpsi(TString InFile="test_fast.root", int nevts=0, double pbarmom = 6.2
 			ntp2->Column("ncand",   (Float_t) psi2s.GetLength());
 			ntp2->Column("nmct",    (Float_t) npsimct);
 			
+			PndKinFitter kinfit(psi2s[j]);
+			kinfit.Add4MomConstraint(ini);
+			kinfit.Fit();
+			
+			RhoCandidate *psifit=psi2s[j]->GetFit();
+			
 			// store info about initial 4-vector
 			qa.qaP4("beam", ini, ntp2);
 			
 			// store information about composite candidate tree recursively (see PndTools/AnalysisTools/PndRhoTupleQA)
 			qa.qaComp("psi", psi2s[j], ntp2);
+			qa.qaComp("fpsi",psifit, ntp2);
 			
 			// store info about event shapes
 			qa.qaEventShapeShort("es",&evsh, ntp2);

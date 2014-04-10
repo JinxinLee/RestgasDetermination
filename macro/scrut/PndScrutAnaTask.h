@@ -65,6 +65,9 @@ class PndScrutAnaTask : public FairTask
 	RhoTuple *ntp2;
 	RhoTuple *nmc;
 	
+	RhoMassParticleSelector *jpsiMassSel;
+	RhoMassParticleSelector *jpsiPreMassSel;
+	
 	// *** Get parameter containers
 	virtual void SetParContainers();
 	

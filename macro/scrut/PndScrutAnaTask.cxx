@@ -90,6 +90,11 @@ InitStatus PndScrutAnaTask::Init()
 	// *******
 	
 	fPdg = TDatabasePDG::Instance();
+
+	// *** Mass selector for the jpsi cands
+	double m0_jpsi = fPdg->GetParticle("J/psi")->Mass();   // Get nominal PDG mass of the J/psi
+	jpsiMassSel    = new RhoMassParticleSelector("jpsi"   ,m0_jpsi,0.5);
+	jpsiPreMassSel = new RhoMassParticleSelector("jpsipre",m0_jpsi,2.0);
 	
 	// ***
 	// *** Prepare RhoTuple output  
@@ -125,7 +130,6 @@ void PndScrutAnaTask::SetParContainers()
 
 // -------------------------------------------------------------------------
 
-
 // -----   Public method Exec   --------------------------------------------
 void PndScrutAnaTask::Exec(Option_t* opt)
 {
@@ -139,7 +143,7 @@ void PndScrutAnaTask::Exec(Option_t* opt)
 	if (!(++fEvtCount%100)) cout << "evt "<<fEvtCount<<endl;
 	
 	// *******
-	// ******* PUT ANALYSIS CODE HERE
+	// ******* PUT ANALYSIS CODE HERE			
 	// *******
 	
 	TString pidalg = "PidChargedProbability";
@@ -151,9 +155,6 @@ void PndScrutAnaTask::Exec(Option_t* opt)
 	// *** RhoCandLists for the analysis
 	RhoCandList muplus, muminus, piplus, piminus, jpsi, psi2s, all, mclist;
 	
-	// *** Mass selector for the jpsi cands
-	double m0_jpsi = fPdg->GetParticle("J/psi")->Mass();   // Get nominal PDG mass of the J/psi
-	RhoMassParticleSelector *jpsiMassSel=new RhoMassParticleSelector("jpsi",m0_jpsi,1.0);
 	
 	// *** Select with PID info pidalg and ('All'); type and mass are set 		
 	fAnalysis->FillList(muplus,  "MuonAllPlus",  pidalg);
@@ -176,7 +177,8 @@ void PndScrutAnaTask::Exec(Option_t* opt)
 	
 	
 	// *** combinatorics for J/psi -> mu+ mu-
-	jpsi.Combine(muplus, muminus);		
+	jpsi.Combine(muplus, muminus);
+	jpsi.Select(jpsiPreMassSel);
 	jpsi.SetType(443);
 	int njmct = fAnalysis->McTruthMatch(jpsi); // match the whole list to count #matches (should be only 1)
 			
@@ -225,11 +227,18 @@ void PndScrutAnaTask::Exec(Option_t* opt)
 		ntp2->Column("ncand",   (Float_t) psi2s.GetLength());
 		ntp2->Column("nmct",    (Float_t) npsimct);
 		
+		PndKinFitter kinfit(psi2s[j]);
+		kinfit.Add4MomConstraint(fIni);
+		kinfit.Fit();
+		
+		RhoCandidate *psifit=psi2s[j]->GetFit();
 		// store info about initial 4-vector
 		qa.qaP4("beam", fIni, ntp2);
 		
 		// dump information about composite candidate tree recursively (see PndTools/AnalysisTools/PndRhoTupleQA)
 		qa.qaComp("psi", psi2s[j], ntp2);
+		qa.qaComp("fpsi",psifit, ntp2);
+		ntp2->Column("fchi2", (Float_t) kinfit.GetChi2());
 
 		// dump info about event shapes
 		qa.qaEventShapeShort("es",&evsh, ntp2);
