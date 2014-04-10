@@ -25,6 +25,9 @@
 #include <iosfwd>
 #include <ostream>
 
+#include "boost/filesystem.hpp"   // includes all needed Boost.Filesystem declarations
+#include "boost/regex.hpp"
+
 #include "TMath.h"
 #include "TGraphErrors.h"
 #include "TGraphAsymmErrors.h"
@@ -45,6 +48,8 @@
 #include "TColor.h"
 #include "TPaletteAxis.h"
 
+using boost::filesystem::path;
+using boost::filesystem::directory_iterator;
 using std::stringstream;
 using std::endl;
 
@@ -277,6 +282,34 @@ TGraphErrors* PndLmdResultPlotter::makeGraph(std::vector<combined_values> data,
 	return graph;
 }
 
+void PndLmdResultPlotter::drawMultipleGraphsOnCanvas(
+		std::vector<std::pair<TGraphErrors*, TString> >& graphs) {
+	int colors[] = { 1, 2, 8, 9, 3, 4, 5, 6, 7, 10, 11, 12, 13, 14, 15, 16, 17 };
+	TLegend* leg = new TLegend(0.75, 0.85 - 0.05 * graphs.size(), .9, .9);
+
+	TMultiGraph *mg = new TMultiGraph();
+
+	for (unsigned int i = 0; i < graphs.size(); i++) {
+		graphs[i].first->SetMarkerColor(colors[i]);
+		graphs[i].first->SetLineColor(colors[i]);
+		graphs[i].first->SetMarkerStyle(8);
+		graphs[i].first->SetMarkerSize(1.0);
+		mg->Add(graphs[i].first);
+
+		leg->AddEntry(graphs[i].first, graphs[i].second, "lp");
+	}
+
+	mg->Draw("AP"); // draw first to be able to set axis stuff below without segfaulting
+
+	if (graphs.size() > 0) {
+		mg->GetXaxis()->SetTitle(graphs[0].first->GetXaxis()->GetTitle());
+		mg->GetYaxis()->SetTitle(graphs[0].first->GetYaxis()->GetTitle());
+	}
+	mg->GetYaxis()->SetTitleOffset(1.35);
+
+	leg->Draw();
+}
+
 void PndLmdResultPlotter::makeComparisonCanvas(TString name,
 		std::map<TString, std::vector<combined_values> >& result_map) {
 
@@ -503,31 +536,37 @@ TGraphAsymmErrors* PndLmdResultPlotter::createAcceptanceGraph(
 PndLmdResultPlotter::graph_bundle PndLmdResultPlotter::makeAcceptanceBundle(
 		PndLmdAngularData& data, const PndLmdLumiFitOptions &fit_options) {
 	graph_bundle acc_bundle;
-	acc_bundle.acceptance_1d = 0;
-
-	acc_bundle.is_acceptance = true;
-	acc_bundle.is_resolution = false;
-	acc_bundle.is_residual = false;
+	acc_bundle.data_graph_1D = 0;
 
 	PndLmdLumiFitResult *fit_result = data.getFitResult(fit_options);
 
 	if (fit_options.getFitModelOptions().acceptance_correction_active) {
-		if (fit_result)
-			acc_bundle.plab = data.getLabMomentum();
-
 		PndLmdAcceptance *acc = fit_options.getFitModelOptions().acceptance;
-		TEfficiency *eff = acc->getAcceptance1D(); // false = angular acceptance
-		TCanvas c;
-		eff->Draw();
-		c.Update();
-		acc_bundle.acceptance_1d = new TGraphAsymmErrors(*eff->GetPaintedGraph());
-		if (acc->getSecondaryDimension().is_active) {
-			eff = acc->getAcceptance2D();
-			eff->Draw("COLZ");
+		if (acc) {
+			TEfficiency *eff = acc->getAcceptance1D(); // false = angular acceptance
+			TCanvas c;
+			eff->Draw();
 			c.Update();
-			acc_bundle.hist2d = new TH2D(*(TH2D*) eff->GetPaintedHistogram());
+			acc_bundle.data_graph_1D = new TGraphAsymmErrors(*eff->GetPaintedGraph());
+			acc_bundle.data_graph_1D->GetXaxis()->SetTitle("#Theta [rad]");
+			acc_bundle.data_graph_1D->GetYaxis()->SetTitle("acc. MC / MC");
+
+			acc_bundle.data_graph_1D->SetMarkerColor(kRed);
+			acc_bundle.data_graph_1D->SetMarkerStyle(20);
+
+			acc_bundle.x_parallel_lines.push_back(1.0);
+
+			if (acc->getSecondaryDimension().is_active) {
+				eff = acc->getAcceptance2D();
+				eff->Draw("COLZ");
+				c.Update();
+				acc_bundle.hist2d = new TH2D(*(TH2D*) eff->GetPaintedHistogram());
+				acc_bundle.hist2d->GetXaxis()->SetTitle("#Theta [rad]");
+				acc_bundle.hist2d->GetYaxis()->SetTitle("#Phi [rad]");
+				acc_bundle.hist2d->GetZaxis()->SetTitle("acc. MC / MC");
+			}
+			acc_bundle.est_options = fit_options.getEstimatorOptions();
 		}
-		acc_bundle.fit_options = fit_options;
 	}
 	return acc_bundle;
 }
@@ -541,50 +580,59 @@ PndLmdResultPlotter::graph_bundle PndLmdResultPlotter::makeGraphBundle1D(
 	PndLmdLumiFitResult *fit_res = data.getFitResult(fit_options);
 
 	graph_bundle lmd_graph_bundle;
-	lmd_graph_bundle.is_resolution = false;
-	lmd_graph_bundle.is_acceptance = false;
-	lmd_graph_bundle.is_residual = false;
-	lmd_graph_bundle.plab = data.getLabMomentum();
 
-	lmd_graph_bundle.fit_options = fit_options;
+	lmd_graph_bundle.est_options = fit_options.getEstimatorOptions();
 
 	TH1D* hist = data.get1DHistogram();
 
 	hist->SetTitle("");
 	hist->SetStats(0);
 
+	std::stringstream ss;
+	if (fit_options.getFitModelOptions().momentum_transfer_active) {
+		if (theta_plot_range_low < theta_plot_range_high) {
+			hist->GetXaxis()->SetRangeUser(
+					-lumi_helper.getMomentumTransferFromTheta(data.getLabMomentum(),
+							theta_plot_range_low),
+					-lumi_helper.getMomentumTransferFromTheta(data.getLabMomentum(),
+							theta_plot_range_high));
+		}
+		hist->GetXaxis()->SetTitle("t [GeV^{2}/c^{2}]");
+		ss << "# of events / " << hist->GetXaxis()->GetBinWidth(1)
+				<< " GeV^{2}/c^{2}";
+	} else {
+		if (theta_plot_range_low < theta_plot_range_high) {
+			hist->GetXaxis()->SetRangeUser(theta_plot_range_low,
+					theta_plot_range_high);
+		}
+		hist->GetXaxis()->SetTitle("#Theta [rad]");
+		ss << "# of events / " << hist->GetXaxis()->GetBinWidth(1) << " mrad";
+	}
+	hist->GetYaxis()->SetTitle(ss.str().c_str());
+
 	lmd_graph_bundle.hist1d = hist;
 
-	if (fit_res->getModelFitResult().getFitStatus() == 0) {
+	if (0 == fit_res->getModelFitResult().getFitStatus()) {
 		lmd_graph_bundle.model = createGraphFromFitResult(fit_options, data);
+		lmd_graph_bundle.model->SetLineColor(2);
+		lmd_graph_bundle.model->SetMarkerColor(2);
+
 		lmd_graph_bundle.residual = createResidual(fit_options, data);
-	} else {
-		lmd_graph_bundle.model = 0;
-		//TGraphAsymmErrors *temp = 0;
-		//lmd_graph_bundle.residual = std::make_pair(temp,temp);
+		lmd_graph_bundle.residual.first->GetXaxis()->SetTitle("#Theta [rad]");
+		lmd_graph_bundle.residual.first->GetYaxis()->SetTitle("Data-Model");
+		lmd_graph_bundle.residual.second->SetLineColor(2);
+		lmd_graph_bundle.residual.second->SetMarkerColor(2);
 	}
 
 	stringstream strstream;
 	strstream.precision(3);
 
-	strstream << "p_{lab} = " << lmd_graph_bundle.plab << " GeV";
+	strstream << "p_{lab} = " << data.getLabMomentum() << " GeV";
 	lmd_graph_bundle.labels.push_back(
 			std::make_pair(TString(strstream.str()), 1));
 	strstream.str("");
 
 	if (fit_res->getModelFitResult().getFitStatus() == 0) {
-		/*strstream << "#chi^{2}/NDF = " << fit_res->getRedChiSquare();
-		 lmd_graph_bundle.labels.push_back(
-		 std::make_pair(TString(strstream.str()), 1));
-		 strstream.str("");
-
-		 strstream << "lumi. diff. = " << fit_res->getLuminosity() - lumi_ref
-		 << " #pm "
-		 << sqrt(pow(fit_res->getLuminosityError(), 2.0) + pow(0.0, 2.0));
-		 lmd_graph_bundle.labels.push_back(
-		 std::make_pair(TString(strstream.str()), 1));
-		 strstream.str("");*/
-
 		strstream << "lumi. rel. diff. = "
 				<< calulateLumiRelDiff(fit_res->getLuminosity(),
 						fit_res->getLuminosityError(), lumi_ref).first << " #pm "
@@ -606,21 +654,19 @@ PndLmdResultPlotter::graph_bundle PndLmdResultPlotter::makeResolutionGraphBundle
 			res.getFitResults();
 
 	graph_bundle lmd_graph_bundle;
-	lmd_graph_bundle.is_resolution = true;
-	lmd_graph_bundle.is_acceptance = false;
-	lmd_graph_bundle.is_residual = false;
-	lmd_graph_bundle.plab = res.getLabMomentum();
-	lmd_graph_bundle.model = 0;
 
 	TH1D* hist = res.get1DHistogram();
 
 	hist->SetTitle("");
 	hist->SetStats(0);
 
+	hist->GetXaxis()->SetTitle("#Delta#Theta [rad]");
+
 	lmd_graph_bundle.hist1d = hist;
 
 	if (fit_results.size() > 0) {
-		lmd_graph_bundle.fit_options = fit_results.begin()->first;
+		lmd_graph_bundle.est_options =
+				fit_results.begin()->first.getEstimatorOptions();
 
 		if (fit_results.begin()->second->getModelFitResult().getFitStatus() == 0) {
 			lmd_graph_bundle.model = createSmearingGraphFromFitResult(
@@ -631,7 +677,7 @@ PndLmdResultPlotter::graph_bundle PndLmdResultPlotter::makeResolutionGraphBundle
 	stringstream strstream;
 	strstream.precision(3);
 
-	strstream << "p_{lab} = " << lmd_graph_bundle.plab << " GeV";
+	strstream << "p_{lab} = " << res.getLabMomentum() << " GeV";
 	lmd_graph_bundle.labels.push_back(
 			std::make_pair(TString(strstream.str()), 1));
 	strstream.str("");
@@ -655,25 +701,47 @@ PndLmdResultPlotter::graph_bundle PndLmdResultPlotter::makeVertexGraphBundle1D(
 			data.getFitResults();
 
 	graph_bundle lmd_graph_bundle;
-	lmd_graph_bundle.is_resolution = true;
-	lmd_graph_bundle.is_acceptance = false;
-	lmd_graph_bundle.is_residual = false;
-	lmd_graph_bundle.plab = data.getLabMomentum();
-	lmd_graph_bundle.model = 0;
 
 	TH1D* hist = data.get1DHistogram();
 
 	hist->SetTitle("");
 	hist->SetStats(0);
 
+	std::stringstream ss;
+	if (LumiFit::X == data.getPrimaryDimension().dimension_options.dimension_type)
+		ss << "x";
+	else if (LumiFit::Y
+			== data.getPrimaryDimension().dimension_options.dimension_type)
+		ss << "y";
+	else if (LumiFit::Z
+			== data.getPrimaryDimension().dimension_options.dimension_type)
+		ss << "z";
+
+	if (LumiFit::RECO == data.getPrimaryDimension().dimension_options.track_type)
+		ss << "_{rec}";
+	else if (LumiFit::MC
+			== data.getPrimaryDimension().dimension_options.track_type)
+		ss << "_{MC}";
+
+	ss << " [cm]";
+
+	hist->GetXaxis()->SetTitle(ss.str().c_str());
+
+	ss.str("");
+	ss << "# of tracks / " << hist->GetXaxis()->GetBinWidth(1) << " cm";
+	hist->GetYaxis()->SetTitle(ss.str().c_str());
+
 	lmd_graph_bundle.hist1d = hist;
 
 	if (fit_results.size() > 0) {
-		lmd_graph_bundle.fit_options = fit_results.begin()->first;
+		lmd_graph_bundle.est_options =
+				fit_results.begin()->first.getEstimatorOptions();
 
 		if (fit_results.begin()->second->getModelFitResult().getFitStatus() == 0) {
 			lmd_graph_bundle.model = createVertexGraphFromFitResult(
 					fit_results.begin()->first, data);
+			lmd_graph_bundle.model->SetLineColor(2);
+			lmd_graph_bundle.model->SetMarkerColor(2);
 		}
 	}
 
@@ -688,13 +756,13 @@ std::map<PndLmdLumiFitOptions, std::map<int, PndLmdResultPlotter::graph_bundle>,
 			std::map<int, PndLmdResultPlotter::graph_bundle>,
 			PndLmdResultPlotter::fit_options_compare> return_map;
 
-	// model types
+// model types
 	LumiFit::PndLmdFitModelOptions fitop_tmctruth(LumiFit::MC, LumiFit::T);
 	LumiFit::PndLmdFitModelOptions fitop_thmctruth(LumiFit::MC, LumiFit::THETA);
 	LumiFit::PndLmdFitModelOptions fitop_mcacc(LumiFit::MC_ACC, LumiFit::THETA);
 	LumiFit::PndLmdFitModelOptions fitop_normal(LumiFit::RECO, LumiFit::THETA);
 
-	// go through data map
+// go through data map
 	for (std::vector<PndLmdAngularData>::iterator top_it = data_vec.begin();
 			top_it != data_vec.end(); top_it++) {
 
@@ -817,7 +885,7 @@ std::map<PndLmdLumiFitOptions, std::map<int, PndLmdResultPlotter::graph_bundle>,
 		}
 	}
 
-	// go through data map again and try to match the momentum transfer data fits
+// go through data map again and try to match the momentum transfer data fits
 	for (std::vector<PndLmdAngularData>::iterator top_it = data_vec.begin();
 			top_it != data_vec.end(); top_it++) {
 
@@ -870,199 +938,187 @@ std::map<PndLmdLumiFitOptions, std::map<int, PndLmdResultPlotter::graph_bundle>,
 	return return_map;
 }
 
-void PndLmdResultPlotter::fillSinglePad(TCanvas *c, graph_bundle &gb,
-		bool log_scale, bool labels_on) {
+std::map<int, PndLmdResultPlotter::graph_bundle> PndLmdResultPlotter::makeVertexGraphBundles1D(
+		std::vector<PndLmdVertexData> &data_vec) {
+	std::map<int, PndLmdResultPlotter::graph_bundle> return_map;
+
+	for (unsigned int i = 0; i < data_vec.size(); i++) {
+		if (data_vec[i].getName().EqualTo("mc_x")) {
+			return_map[1] = makeVertexGraphBundle1D(data_vec[i]);
+			return_map[1].log_scale = true;
+		} else if (data_vec[i].getName().EqualTo("mc_y")) {
+			return_map[2] = makeVertexGraphBundle1D(data_vec[i]);
+			return_map[2].log_scale = true;
+		} else if (data_vec[i].getName().EqualTo("mc_z")) {
+			return_map[3] = makeVertexGraphBundle1D(data_vec[i]);
+		} else if (data_vec[i].getName().EqualTo("reco_x")) {
+			return_map[4] = makeVertexGraphBundle1D(data_vec[i]);
+		} else if (data_vec[i].getName().EqualTo("reco_y")) {
+			return_map[5] = makeVertexGraphBundle1D(data_vec[i]);
+		} else if (data_vec[i].getName().EqualTo("reco_z")) {
+			return_map[6] = makeVertexGraphBundle1D(data_vec[i]);
+		}
+	}
+
+	return return_map;
+}
+
+std::pair<TGraphErrors*, TGraphErrors*> PndLmdResultPlotter::makeIPParameterDependencyGraphBundle(
+		std::vector<PndLmdVertexData> &vertex_data,
+		const LumiFit::LmdSimIPParameters &dependency, TString ytitle_subscript) {
+
+	TGraphErrors *mean = 0;
+	TGraphErrors *width = 0;
+
+	if (vertex_data.size() > 0) {
+		std::vector<double> x;
+		std::vector<double> y_mean;
+		std::vector<double> y_err_mean;
+
+		std::vector<double> y_width;
+		std::vector<double> y_err_width;
+
+		for (unsigned int i = 0; i < vertex_data.size(); i++) {
+			PndLmdLumiFitResult *fit_result =
+					vertex_data[i].getFitResults().begin()->second;
+			if (fit_result && fit_result->getModelFitResult().getFitStatus() == 0) {
+				x.push_back(
+						vertex_data[i].getSimulationIPParameters().getDependencyValue(
+								dependency));
+
+				double ideal_mean(0.0);
+				double ideal_width(0.0);
+
+				if (vertex_data[i].getPrimaryDimension().dimension_options.dimension_type
+						== LumiFit::X) {
+					ideal_mean = vertex_data[i].getSimulationIPParameters().offset_x_mean;
+					ideal_width =
+							vertex_data[i].getSimulationIPParameters().offset_x_width;
+				} else if (vertex_data[i].getPrimaryDimension().dimension_options.dimension_type
+						== LumiFit::X) {
+					ideal_mean = vertex_data[i].getSimulationIPParameters().offset_y_mean;
+					ideal_width =
+							vertex_data[i].getSimulationIPParameters().offset_y_width;
+				} else if (vertex_data[i].getPrimaryDimension().dimension_options.dimension_type
+						== LumiFit::X) {
+					ideal_mean = vertex_data[i].getSimulationIPParameters().offset_z_mean;
+					ideal_width =
+							vertex_data[i].getSimulationIPParameters().offset_z_width;
+				}
+
+				y_mean.push_back(
+						fit_result->getModelFitResult().getFitParameter("gauss_mean").value
+								- ideal_mean);
+				y_err_mean.push_back(
+						fit_result->getModelFitResult().getFitParameter("gauss_mean").error);
+
+				y_width.push_back(
+						fit_result->getModelFitResult().getFitParameter("gauss_sigma").value
+								- ideal_width);
+				y_err_width.push_back(
+						fit_result->getModelFitResult().getFitParameter("gauss_sigma").error);
+			}
+		}
+
+		mean = new TGraphErrors(x.size(), &x[0], &y_mean[0], 0, &y_err_mean[0]);
+		mean->GetXaxis()->SetTitle(
+				vertex_data[0].getSimulationIPParameters().getDependencyName(dependency).c_str());
+		mean->GetYaxis()->SetTitle(
+				TString("#delta#mu_{") + ytitle_subscript + "} [cm]");
+		width = new TGraphErrors(x.size(), &x[0], &y_width[0], 0, &y_err_width[0]);
+		width->GetXaxis()->SetTitle(
+				vertex_data[0].getSimulationIPParameters().getDependencyName(dependency).c_str());
+		width->GetYaxis()->SetTitle(
+				TString("#delta#sigma_{") + ytitle_subscript + "} [cm]");
+
+	}
+	return std::make_pair(mean, width);
+}
+
+void PndLmdResultPlotter::fillSinglePad(TCanvas *c, graph_bundle &gb) {
 	if (c) {
-		if (log_scale)
+		// set logarithmic scale
+		if (gb.log_scale)
 			gPad->SetLogy(1);
 		else
 			gPad->SetLogy(0);
 
-		char ytitle[100];
+		TAxis *xaxis;
+		TAxis *yaxis;
 
 		if (gb.is_residual) {
-			TGraphAsymmErrors* graph = gb.residual.first;
-			if (graph) {
-				graph->SetTitle("");
+			gb.residual.first->Draw("AP");
+			TGraphAsymmErrors* model_zero = gb.residual.second;
+			model_zero->Draw("PSAME");
 
-				if (gb.fit_options.getFitModelOptions().momentum_transfer_active) {
-					if (theta_plot_range_low < theta_plot_range_high) {
-						graph->GetXaxis()->SetRangeUser(
-								-lumi_helper.getMomentumTransferFromTheta(gb.plab,
-										theta_plot_range_low),
-								-lumi_helper.getMomentumTransferFromTheta(gb.plab,
-										theta_plot_range_high));
-					}
-					graph->GetXaxis()->SetTitle("t [GeV^{2}/c^{2}]");
-				} else {
-					if (theta_plot_range_low < theta_plot_range_high) {
-						graph->GetXaxis()->SetRangeUser(theta_plot_range_low,
-								theta_plot_range_high);
-					}
-					if (gb.is_resolution)
-						graph->GetXaxis()->SetTitle("#Delta#Theta [rad]");
-					else
-						graph->GetXaxis()->SetTitle("#Theta [rad]");
-				}
-				graph->GetYaxis()->SetTitle("Data-Model");
-
-				graph->GetYaxis()->SetTitleFont(text_font);
-				graph->GetXaxis()->SetTitleFont(text_font);
-				graph->GetYaxis()->SetLabelFont(text_font);
-				graph->GetXaxis()->SetLabelFont(text_font);
-				graph->GetXaxis()->SetLabelOffset(label_offset_x);
-				graph->GetYaxis()->SetLabelOffset(label_offset_y);
-				graph->GetYaxis()->SetLabelSize(text_size2);
-				graph->GetXaxis()->SetLabelSize(text_size2);
-				graph->GetYaxis()->SetNoExponent(false);
-				graph->GetYaxis()->SetTitleOffset(title_offset_y);
-				graph->GetYaxis()->SetTitleSize(text_size2);
-				graph->GetXaxis()->SetTitleSize(text_size2);
-				graph->Draw("AP");
-
-				gPad->Update();
-
-				TGraphAsymmErrors* model_zero = gb.residual.second;
-				model_zero->SetLineColor(2);
-				model_zero->SetMarkerColor(2);
-				model_zero->Draw("PSAME");
-			}
+			xaxis = gb.residual.first->GetXaxis();
+			yaxis = gb.residual.first->GetYaxis();
 		} else {
-			TH1D* hist = gb.hist1d;
-			if (hist) {
-				hist->SetTitle("");
+			if (gb.data_graph_1D) {
+				gb.data_graph_1D->Draw("AP");
 
-				if (gb.fit_options.getFitModelOptions().momentum_transfer_active) {
-					if (theta_plot_range_low < theta_plot_range_high) {
-						hist->GetXaxis()->SetRangeUser(
-								-lumi_helper.getMomentumTransferFromTheta(gb.plab,
-										theta_plot_range_low),
-								-lumi_helper.getMomentumTransferFromTheta(gb.plab,
-										theta_plot_range_high));
-					}
-					hist->GetXaxis()->SetTitle("t [GeV^{2}/c^{2}]");
-					sprintf(ytitle, "# of events / %.3e GeV^{2}/c^{2}",
-							hist->GetXaxis()->GetBinWidth(1));
-				} else {
-					if (theta_plot_range_low < theta_plot_range_high) {
-						hist->GetXaxis()->SetRangeUser(theta_plot_range_low,
-								theta_plot_range_high);
-					}
-					if (gb.is_resolution)
-						hist->GetXaxis()->SetTitle("#Delta#Theta [rad]");
-					else
-						hist->GetXaxis()->SetTitle("#Theta [rad]");
-					sprintf(ytitle, "# of events / %.3e mrad",
-							hist->GetXaxis()->GetBinWidth(1));
-				}
-				hist->GetYaxis()->SetTitle(ytitle);
+				xaxis = gb.data_graph_1D->GetXaxis();
+				yaxis = gb.data_graph_1D->GetYaxis();
+			} else if (gb.hist1d) {
+				gb.hist1d->Draw("E1");
 
-				hist->GetYaxis()->SetTitleFont(text_font);
-				hist->GetXaxis()->SetTitleFont(text_font);
-				hist->GetYaxis()->SetLabelFont(text_font);
-				hist->GetXaxis()->SetLabelFont(text_font);
-				hist->GetXaxis()->SetLabelOffset(label_offset_x);
-				hist->GetYaxis()->SetLabelOffset(label_offset_y);
-				hist->GetYaxis()->SetLabelSize(text_size2);
-				hist->GetXaxis()->SetLabelSize(text_size2);
-				hist->GetYaxis()->SetNoExponent(false);
-				hist->GetYaxis()->SetTitleOffset(title_offset_y);
-				hist->GetYaxis()->SetTitleSize(text_size2);
-				hist->GetXaxis()->SetTitleSize(text_size2);
-				hist->Draw("E1");
-				hist->SetStats(0);
+				xaxis = gb.hist1d->GetXaxis();
+				yaxis = gb.hist1d->GetYaxis();
+			} else if (gb.hist2d) {
+				gb.hist2d->Draw("COLZ");
+				xaxis = gb.hist2d->GetXaxis();
+				yaxis = gb.hist2d->GetYaxis();
+			}
+			if (gb.model) {
+				gb.model->Draw("Csame");
+			}
+		}
 
-				if (gb.model) {
-					TGraphAsymmErrors * model = gb.model;
-					model->SetLineColor(2);
-					model->SetMarkerColor(2);
-					//model->Draw("4same");
-					model->Draw("Csame");
-				}
+		xaxis->SetTitleFont(text_font);
+		yaxis->SetTitleFont(text_font);
+		xaxis->SetLabelFont(text_font);
+		yaxis->SetLabelFont(text_font);
+		xaxis->SetLabelOffset(label_offset_x);
+		yaxis->SetLabelOffset(label_offset_y);
+		xaxis->SetLabelSize(text_size2);
+		yaxis->SetLabelSize(text_size2);
+		yaxis->SetNoExponent(false);
+		yaxis->SetTitleOffset(title_offset_y);
+		xaxis->SetTitleSize(text_size2);
+		yaxis->SetTitleSize(text_size2);
 
-				gPad->Update();
+		gPad->Update();
+		for (unsigned int i = 0; i < gb.x_parallel_lines.size(); i++) {
+			TLine *line = new TLine(gPad->GetUxmin(), gb.x_parallel_lines[i],
+					gPad->GetUxmax(), gb.x_parallel_lines[i]);
+			line->Draw();
+		}
+		for (unsigned int i = 0; i < gb.y_parallel_lines.size(); i++) {
+			TLine *line = new TLine(gb.y_parallel_lines[i], gPad->GetUymin(),
+					gb.y_parallel_lines[i], gPad->GetUymax());
+			line->Draw();
+		}
 
-				if (labels_on) {
-					for (unsigned int i = 0; i < gb.labels.size(); i++) {
-						TLatex *label = new TLatex(text_leftpos * gPad->GetUxmax(),
-								calculateYPos(1.0 * i, text_toppos, text_spacing, log_scale),
-								gb.labels[i].first);
-						label->SetTextSize(text_size);
-						label->SetTextColor(gb.labels[i].second);
-						label->Draw();
-					}
-				}
+		if (gb.draw_labels) {
+			for (unsigned int i = 0; i < gb.labels.size(); i++) {
+				TLatex *label = new TLatex(text_leftpos * gPad->GetUxmax(),
+						calculateYPos(1.0 * i, text_toppos, text_spacing, gb.log_scale),
+						gb.labels[i].first);
+				label->SetTextSize(text_size);
+				label->SetTextColor(gb.labels[i].second);
+				label->Draw();
 			}
 		}
 	}
-}
-
-void PndLmdResultPlotter::fillAcceptanceInPad(graph_bundle acc_bundle) {
-	if (0 == acc_bundle.acceptance_1d)
-		return;
-
-	TGraphAsymmErrors *acceptance = acc_bundle.acceptance_1d;
-
-	acceptance->Draw("AP");
-	acceptance->GetXaxis()->SetTitle("#Theta [mrad]");
-	acceptance->GetYaxis()->SetTitle("acc. MC / MC");
-	acceptance->GetXaxis()->SetTitleSize(text_size2);
-	acceptance->GetYaxis()->SetTitleSize(text_size2);
-	acceptance->GetXaxis()->SetLabelSize(text_size2);
-	acceptance->GetYaxis()->SetLabelSize(text_size2);
-	acceptance->GetYaxis()->SetTitleOffset(1.1);
-
-	if (theta_plot_range_low < theta_plot_range_high) {
-		acceptance->GetXaxis()->SetRangeUser(theta_plot_range_low,
-				theta_plot_range_high);
-	}
-	acceptance->SetMarkerColor(kRed);
-	acceptance->SetMarkerStyle(20);
-
-	gPad->Update();
-	TLine *line = new TLine(gPad->GetUxmin(), 1.0, gPad->GetUxmax(), 1.0);
-	line->Draw();
-}
-
-void PndLmdResultPlotter::fill2DAcceptanceInPad(graph_bundle acc_bundle) {
-	TH2D *acceptance = acc_bundle.hist2d;
-
-	acceptance->Draw("COLZ");
-	acceptance->GetXaxis()->SetTitle("#Theta [mrad]");
-	acceptance->GetYaxis()->SetTitle("#Phi [rad]");
-	acceptance->GetXaxis()->SetTitleSize(text_size2);
-	acceptance->GetYaxis()->SetTitleSize(text_size2);
-	acceptance->GetXaxis()->SetLabelSize(text_size2);
-	acceptance->GetYaxis()->SetLabelSize(text_size2);
-	acceptance->GetYaxis()->SetTitleOffset(1.1);
-
-	if (theta_plot_range_low < theta_plot_range_high) {
-		acceptance->GetXaxis()->SetRangeUser(theta_plot_range_low,
-				theta_plot_range_high);
-	}
-	acceptance->SetMarkerColor(kRed);
-	acceptance->SetMarkerStyle(20);
-
-	gPad->Update();
 }
 
 void PndLmdResultPlotter::fillOverviewCanvas(TCanvas *c,
 		std::map<int, PndLmdResultPlotter::graph_bundle> &graph_bundles) {
 
-	bool print_labels = true;
-
 	for (std::map<int, PndLmdResultPlotter::graph_bundle>::iterator it =
 			graph_bundles.begin(); it != graph_bundles.end(); it++) {
 		c->cd(it->first);
-		if (it->second.is_acceptance) {
-			fillAcceptanceInPad(it->second);
-		} else {
-			bool logscale = false;
-			if (it->second.fit_options.getFitModelOptions().momentum_transfer_active
-					|| !it->second.fit_options.getFitModelOptions().acceptance_correction_active)
-				logscale = true;
-			fillSinglePad(c, it->second, logscale, print_labels);
-		}
+		fillSinglePad(c, it->second);
 	}
 }
 
@@ -1096,8 +1152,9 @@ std::map<TString, std::vector<PndLmdLumiHelper::lmd_graph*> > PndLmdResultPlotte
 	return return_map;
 }
 
-void PndLmdResultPlotter::plotDPMModelParts(double plab,
-		DataStructs::DimensionRange& plot_range, bool log_scale) {
+TGraphAsymmErrors* PndLmdResultPlotter::generateDPMModelPartGraph(double plab,
+		LumiFit::DPMElasticParts dpm_elastic_part,
+		DataStructs::DimensionRange& plot_range) {
 	PndLmdModelFactory model_factory;
 
 	ROOTDataHelper data_helper;
@@ -1105,84 +1162,17 @@ void PndLmdResultPlotter::plotDPMModelParts(double plab,
 	vis_prop.setPlotRange(plot_range);
 
 	LumiFit::PndLmdFitModelOptions fit_op_full;
-	fit_op_full.dpm_elastic_parts = LumiFit::ALL;
+	fit_op_full.dpm_elastic_parts = dpm_elastic_part;
 
-	shared_ptr<Model1D> full_model = model_factory.generate1DModel(fit_op_full,
-			plab);
-	if (full_model->init()) {
+	shared_ptr<Model1D> model = model_factory.generate1DModel(fit_op_full, plab);
+	if (model->init()) {
 		std::cout << "Error: not all parameters have been set!" << std::endl;
 	}
 
-	TGraphAsymmErrors* full_model_graph = root_plotter.createGraphFromModel1D(
-			full_model, vis_prop);
+	TGraphAsymmErrors* model_graph = root_plotter.createGraphFromModel1D(model,
+			vis_prop);
 
-	LumiFit::PndLmdFitModelOptions fit_op_coul = fit_op_full;
-	fit_op_coul.dpm_elastic_parts = LumiFit::COUL;
-
-	shared_ptr<Model1D> coul_model = model_factory.generate1DModel(fit_op_coul,
-			plab);
-	if (full_model->init()) {
-		std::cout << "Error: not all parameters have been set!" << std::endl;
-	}
-
-	TGraphAsymmErrors* coul_model_graph = root_plotter.createGraphFromModel1D(
-			coul_model, vis_prop);
-
-	LumiFit::PndLmdFitModelOptions fit_op_int = fit_op_full;
-	fit_op_int.dpm_elastic_parts = LumiFit::INT;
-
-	shared_ptr<Model1D> int_model = model_factory.generate1DModel(fit_op_int,
-			plab);
-	if (full_model->init()) {
-		std::cout << "Error: not all parameters have been set!" << std::endl;
-	}
-
-	TGraphAsymmErrors* int_model_graph = root_plotter.createGraphFromModel1D(
-			int_model, vis_prop);
-
-	LumiFit::PndLmdFitModelOptions fit_op_had = fit_op_full;
-	fit_op_had.dpm_elastic_parts = LumiFit::HAD;
-
-	shared_ptr<Model1D> had_model = model_factory.generate1DModel(fit_op_had,
-			plab);
-	if (full_model->init()) {
-		std::cout << "Error: not all parameters have been set!" << std::endl;
-	}
-
-	TGraphAsymmErrors* had_model_graph = root_plotter.createGraphFromModel1D(
-			had_model, vis_prop);
-
-	TCanvas c("c", "", 1000, 700);
-	c.SetLogy(log_scale);
-	full_model_graph->Draw("AC");
-	gPad->Update();
-	double top_pos = gPad->GetUymax();
-	if (log_scale)
-		top_pos = pow(10, gPad->GetUymax());
-	int_model_graph->Draw("AC");
-	gPad->Update();
-	double bottom_pos = gPad->GetUymin();
-	if (log_scale)
-		bottom_pos = pow(10, gPad->GetUymin());
-	full_model_graph->GetYaxis()->SetRangeUser(bottom_pos, top_pos);
-
-	full_model_graph->SetLineWidth(2);
-	full_model_graph->Draw("AC");
-	coul_model_graph->SetLineWidth(2);
-	coul_model_graph->SetLineColor(2);
-	coul_model_graph->Draw("CSAME");
-	int_model_graph->SetLineWidth(2);
-	int_model_graph->SetLineColor(8);
-	int_model_graph->Draw("CSAME");
-	had_model_graph->SetLineWidth(2);
-	had_model_graph->SetLineColor(9);
-	had_model_graph->Draw("CSAME");
-
-	stringstream strstream;
-	strstream.precision(3);
-
-	strstream << "DPMModels_" << plab << ".pdf";
-	c.SaveAs(strstream.str().c_str());
+	return model_graph;
 }
 
 void PndLmdResultPlotter::makeFitResultBooky(
@@ -1201,6 +1191,24 @@ void PndLmdResultPlotter::makeFitResultBooky(
 			PndLmdResultPlotter::fit_options_compare>::iterator i =
 			graph_bundle_map.begin(); i != graph_bundle_map.end(); i++) {
 		fillOverviewCanvas(&c, i->second);
+		c.cd();
+		c.Print(filename + "_overview.pdf"); // actually print canvas to file
+	}
+	c.Print(filename + "_overview.pdf]");
+
+}
+
+void PndLmdResultPlotter::makeVertexFitResultBooky(
+		std::vector<std::map<int, PndLmdResultPlotter::graph_bundle> > &graph_bundles,
+		TString filename) {
+
+	TCanvas c("ip_fit_overview", "ip_fit_overview", 1000, 700);
+
+	c.Divide(3, 2);
+
+	c.Print(filename + "_overview.pdf["); // No actual print, just open file
+	for (unsigned int i = 0; i < graph_bundles.size(); i++) {
+		fillOverviewCanvas(&c, graph_bundles[i]);
 		c.cd();
 		c.Print(filename + "_overview.pdf"); // actually print canvas to file
 	}
@@ -1338,7 +1346,7 @@ void PndLmdResultPlotter::makeBooky(
 	c.Print(filename + ".pdf["); // No actual print, just open file
 	for (unsigned int i = 0; i < graph_bundles.size(); i = i + stepsize) {
 		c.cd(i / stepsize % (x * y) + 1);
-		fillSinglePad(&c, graph_bundles[i], false, true);
+		fillSinglePad(&c, graph_bundles[i]);
 		if (i / stepsize % (x * y) + 1 == (x * y)
 				|| i >= graph_bundles.size() - 1) {
 			if (i >= graph_bundles.size() - 1) {
@@ -1353,4 +1361,128 @@ void PndLmdResultPlotter::makeBooky(
 		}
 	}
 	c.Print(filename + ".pdf]");
+}
+
+void PndLmdResultPlotter::plotIPDependencyGraphs(
+		std::map<LumiFit::LmdSimIPParameters,
+				std::map<LumiFit::LmdSimIPParameters,
+						std::map<LumiFit::LmdDimensionType, std::vector<PndLmdVertexData> > > > &ip_data_clusters) {
+
+	std::cout << "looping over clustered ip data map..." << std::endl;
+	std::map<LumiFit::LmdSimIPParameters,
+			std::map<LumiFit::LmdSimIPParameters,
+					std::map<LumiFit::LmdDimensionType, std::vector<PndLmdVertexData> > > >::iterator dependency_it;
+	for (dependency_it = ip_data_clusters.begin();
+			dependency_it != ip_data_clusters.end(); dependency_it++) {
+
+		std::cout << "dependency: " << dependency_it->first.getDependencyLabel()
+				<< std::endl;
+
+		std::map<LumiFit::LmdSimIPParameters,
+				std::map<LumiFit::LmdDimensionType, std::vector<PndLmdVertexData> > >::iterator ip_params_it;
+		for (ip_params_it = dependency_it->second.begin();
+				ip_params_it != dependency_it->second.end(); ip_params_it++) {
+
+			std::cout << "remaining parameters: " << ip_params_it->first.getLabel()
+					<< std::endl;
+
+			std::map<LumiFit::LmdDimensionType, std::vector<PndLmdVertexData> >::iterator dimension_type_it;
+			for (dimension_type_it = ip_params_it->second.begin();
+					dimension_type_it != ip_params_it->second.end();
+					dimension_type_it++) {
+
+				// get all mc objects
+				std::vector<PndLmdVertexData> mc_ip_data;
+				std::vector<PndLmdVertexData>::iterator start =
+						dimension_type_it->second.begin();
+				while (start != dimension_type_it->second.end()) {
+					std::vector<PndLmdVertexData>::iterator it = std::find_if(start,
+							dimension_type_it->second.end(), mc_dimension_compare);
+					if (it != dimension_type_it->second.end()) {
+						mc_ip_data.push_back(*it);
+						it++;
+					}
+					start = it;
+				}
+				std::cout << "collected " << mc_ip_data.size()
+						<< " mc ip data for these settings!" << std::endl;
+
+				// get all reco objects
+				std::vector<PndLmdVertexData> reco_ip_data;
+				start = dimension_type_it->second.begin();
+				while (start != dimension_type_it->second.end()) {
+					std::vector<PndLmdVertexData>::iterator it = std::find_if(start,
+							dimension_type_it->second.end(), reco_dimension_compare);
+					if (it != dimension_type_it->second.end()) {
+						reco_ip_data.push_back(*it);
+						it++;
+					}
+					start = it;
+				}
+				std::cout << "collected " << reco_ip_data.size()
+						<< " reco ip data for these settings!" << std::endl;
+
+				std::stringstream dimension_str;
+				if (dimension_type_it->first == LumiFit::X) {
+					dimension_str << "x";
+				} else if (dimension_type_it->first == LumiFit::Y) {
+					dimension_str << "y";
+				} else if (dimension_type_it->first == LumiFit::Z) {
+					dimension_str << "z";
+				}
+
+				std::pair<TGraphErrors*, TGraphErrors*> mc_graph_pair =
+						makeIPParameterDependencyGraphBundle(mc_ip_data,
+								dependency_it->first, dimension_str.str());
+
+				std::pair<TGraphErrors*, TGraphErrors*> reco_graph_pair =
+						makeIPParameterDependencyGraphBundle(reco_ip_data,
+								dependency_it->first, dimension_str.str());
+
+				//combine reco and mc graph of each type
+				std::vector<std::pair<TGraphErrors*, TString> > mean_graphs;
+				mean_graphs.push_back(std::make_pair(mc_graph_pair.first, "MC"));
+				mean_graphs.push_back(std::make_pair(reco_graph_pair.first, "Reco"));
+
+				std::vector<std::pair<TGraphErrors*, TString> > width_graphs;
+				width_graphs.push_back(std::make_pair(mc_graph_pair.second, "MC"));
+				width_graphs.push_back(std::make_pair(reco_graph_pair.second, "Reco"));
+
+				std::cout << "about to draw stuff!" << std::endl;
+				//then generate new filename and save to pdf
+				std::stringstream dir_path_str;
+				dir_path_str << boost::filesystem::current_path().c_str() << "/";
+				dir_path_str << "ip-tilt/"; // basedir
+				dir_path_str << dependency_it->first.getDependencyLabel() << "/";
+				dir_path_str << ip_params_it->first.getLabel();
+
+				std::cout << "creating directory " << dir_path_str.str()
+						<< " before saving..." << std::endl;
+
+				const path dir_path(dir_path_str.str());
+				if (!exists(dir_path)) {
+					if (!boost::filesystem::create_directories(dir_path)) {
+						std::cout << "could not create directories... exiting...";
+						return;
+					}
+				}
+
+				TCanvas c;
+				drawMultipleGraphsOnCanvas(mean_graphs);
+				std::stringstream file_url;
+				file_url << dir_path_str.str() << "/" << dimension_str.str()
+						<< "_mean.pdf";
+
+				c.SaveAs(file_url.str().c_str());
+
+				c.Clear();
+				drawMultipleGraphsOnCanvas(width_graphs);
+				file_url.str("");
+				file_url << dir_path_str.str() << "/" << dimension_str.str()
+						<< "_width.pdf";
+
+				c.SaveAs(file_url.str().c_str());
+			}
+		}
+	}
 }

@@ -154,29 +154,29 @@ void PndLmdDataFacade::create1DVertexDataBundle(unsigned int num_events) {
 	// we are actually using and filling cm here as it is the standard length unit
 	//primary_dimension_template.unit_factor.unit_prefix = LumiFit::CENTI;
 
-	createData1D(num_events);
+	createVertexData1D(num_events);
 	lmd_vertex_data[0].setName("mc_x");
 
 	primary_dimension_template.dimension_options.track_type = LumiFit::RECO;
-	createData1D(num_events);
+	createVertexData1D(num_events);
 	lmd_vertex_data[1].setName("reco_x");
 
 	primary_dimension_template.dimension_options.dimension_type = LumiFit::Y;
 	primary_dimension_template.dimension_options.track_type = LumiFit::MC;
-	createData1D(num_events);
+	createVertexData1D(num_events);
 	lmd_vertex_data[2].setName("mc_y");
 
 	primary_dimension_template.dimension_options.track_type = LumiFit::RECO;
-	createData1D(num_events);
+	createVertexData1D(num_events);
 	lmd_vertex_data[3].setName("reco_y");
 
 	primary_dimension_template.dimension_options.dimension_type = LumiFit::Z;
 	primary_dimension_template.dimension_options.track_type = LumiFit::MC;
-	createData1D(num_events);
+	createVertexData1D(num_events);
 	lmd_vertex_data[4].setName("mc_z");
 
 	primary_dimension_template.dimension_options.track_type = LumiFit::RECO;
-	createData1D(num_events);
+	createVertexData1D(num_events);
 	lmd_vertex_data[5].setName("reco_z");
 }
 
@@ -307,3 +307,59 @@ LumiFit::LmdSimIPParameters PndLmdDataFacade::readSimulationIPParameters(
 	return bp;
 }
 
+std::map<LumiFit::LmdSimIPParameters,
+		std::map<LumiFit::LmdSimIPParameters,
+				std::map<LumiFit::LmdDimensionType, std::vector<PndLmdVertexData> > > > PndLmdDataFacade::clusterVertexData(
+		std::vector<PndLmdVertexData> &lmd_vertex_vec) {
+	std::map<LumiFit::LmdSimIPParameters,
+			std::map<LumiFit::LmdSimIPParameters,
+					std::map<LumiFit::LmdDimensionType, std::vector<PndLmdVertexData> > > > return_map;
+
+	for (unsigned int i = 0; i < lmd_vertex_vec.size(); i++) {
+		LumiFit::LmdSimIPParameters sim_ip_params =
+				lmd_vertex_vec[i].getSimulationIPParameters();
+
+		sim_ip_params.offset_x_mean = 0.0; // set the insensitive value to 0.0
+		LumiFit::LmdSimIPParameters dependency_ip_params;
+		dependency_ip_params.offset_x_mean = 1.0; // set the dependency value to 1.0
+		return_map[dependency_ip_params][sim_ip_params][lmd_vertex_vec[i].getPrimaryDimension().dimension_options.dimension_type].push_back(
+				lmd_vertex_vec[i]);
+
+		sim_ip_params = lmd_vertex_vec[i].getSimulationIPParameters();
+		sim_ip_params.offset_y_mean = 0.0; // set the insensitive value to 0.0
+		dependency_ip_params.reset();
+		dependency_ip_params.offset_y_mean = 1.0; // set the dependency value to 1.0
+		return_map[dependency_ip_params][sim_ip_params][lmd_vertex_vec[i].getPrimaryDimension().dimension_options.dimension_type].push_back(
+				lmd_vertex_vec[i]);
+
+		sim_ip_params = lmd_vertex_vec[i].getSimulationIPParameters();
+		sim_ip_params.offset_z_mean = 0.0; // set the insensitive value to 0.0
+		dependency_ip_params.reset();
+		dependency_ip_params.offset_z_mean = 1.0; // set the dependency value to 1.0
+		return_map[dependency_ip_params][sim_ip_params][lmd_vertex_vec[i].getPrimaryDimension().dimension_options.dimension_type].push_back(
+				lmd_vertex_vec[i]);
+
+		sim_ip_params = lmd_vertex_vec[i].getSimulationIPParameters();
+		sim_ip_params.offset_x_width = 0.0; // set the insensitive value to 0.0
+		dependency_ip_params.reset();
+		dependency_ip_params.offset_x_width = 1.0; // set the dependency value to 1.0
+		return_map[dependency_ip_params][sim_ip_params][lmd_vertex_vec[i].getPrimaryDimension().dimension_options.dimension_type].push_back(
+				lmd_vertex_vec[i]);
+
+		sim_ip_params = lmd_vertex_vec[i].getSimulationIPParameters();
+		sim_ip_params.offset_y_width = 0.0; // set the insensitive value to 0.0
+		dependency_ip_params.reset();
+		dependency_ip_params.offset_y_width = 1.0; // set the dependency value to 1.0
+		return_map[dependency_ip_params][sim_ip_params][lmd_vertex_vec[i].getPrimaryDimension().dimension_options.dimension_type].push_back(
+				lmd_vertex_vec[i]);
+
+		sim_ip_params = lmd_vertex_vec[i].getSimulationIPParameters();
+		sim_ip_params.offset_z_width = 0.0; // set the insensitive value to 0.0
+		dependency_ip_params.reset();
+		dependency_ip_params.offset_z_width = 1.0; // set the dependency value to 1.0
+		return_map[dependency_ip_params][sim_ip_params][lmd_vertex_vec[i].getPrimaryDimension().dimension_options.dimension_type].push_back(
+				lmd_vertex_vec[i]);
+	}
+
+	return return_map;
+}

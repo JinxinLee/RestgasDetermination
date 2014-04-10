@@ -14,6 +14,7 @@
 
 #include <iostream>
 #include <string>
+#include <sstream>
 
 #include "TObject.h"
 #include "TString.h"
@@ -115,7 +116,7 @@ struct LmdDimensionOptions: public TObject {
 		return !(*this == rhs);
 	}
 
-	ClassDef(LmdDimensionOptions, 1)
+ClassDef(LmdDimensionOptions, 1)
 	;
 };
 
@@ -253,7 +254,7 @@ public:
 		return !(*this == lmd_dim_range);
 	}
 
-	ClassDef(LmdDimensionRange, 1)
+ClassDef(LmdDimensionRange, 1)
 	;
 };
 
@@ -344,7 +345,7 @@ struct LmdDimension: public TObject {
 		return !(*this == lmd_dim);
 	}
 
-	ClassDef(LmdDimension, 1)
+ClassDef(LmdDimension, 1)
 	;
 };
 
@@ -477,11 +478,11 @@ struct PndLmdFitModelOptions: public TObject {
 		return os;
 	}
 
-	ClassDef(PndLmdFitModelOptions ,1)
+ClassDef(PndLmdFitModelOptions ,1)
 	;
 };
 
-struct LmdSimIPParameters : public TObject {
+struct LmdSimIPParameters: public TObject {
 	double offset_x_mean;
 	double offset_x_width;
 	double offset_y_mean;
@@ -511,9 +512,164 @@ struct LmdSimIPParameters : public TObject {
 	}
 
 	LmdSimIPParameters() {
+		reset();
 	}
 
-	ClassDef(LmdSimIPParameters ,1);
+	void reset() {
+		offset_x_mean = 0.0;
+		offset_x_width = 0.0;
+		offset_y_mean = 0.0;
+		offset_y_width = 0.0;
+		offset_z_mean = 0.0;
+		offset_z_width = 0.0;
+
+		tilt_x_mean = 0.0;
+		tilt_x_width = 0.0;
+		tilt_y_mean = 0.0;
+		tilt_y_width = 0.0;
+	}
+
+	std::string getLabel() const {
+		std::stringstream ss;
+		ss << "IP_pos_" << offset_x_mean << "_" << offset_x_width << "_"
+				<< offset_y_mean << "_" << offset_y_width << "_" << offset_z_mean << "_"
+				<< offset_z_width << "-beam_tilt_" << tilt_x_mean << "_" << tilt_x_width
+				<< "_" << tilt_y_mean << "_" << tilt_y_width;
+		return ss.str();
+	}
+
+	std::string getDependencyLabel() const {
+		if (1.0 == offset_x_mean)
+			return std::string("offset_x");
+		if (1.0 == offset_x_width)
+			return std::string("width_x");
+		if (1.0 == offset_y_mean)
+			return std::string("offset_y");
+		if (1.0 == offset_y_width)
+			return std::string("width_y");
+		if (1.0 == offset_z_mean)
+			return std::string("offset_z");
+		if (1.0 == offset_z_width)
+			return std::string("width_z");
+
+		if (1.0 == tilt_x_mean)
+			return std::string("tilt_x");
+		if (1.0 == tilt_x_width)
+			return std::string("div_x");
+		if (1.0 == tilt_y_mean)
+			return std::string("tilt_y");
+		if (1.0 == tilt_y_width)
+			return std::string("div_y");
+
+		return std::string("");
+	}
+
+	double getDependencyValue(const LmdSimIPParameters &param_template) const {
+		if (1.0 == param_template.offset_x_mean)
+			return offset_x_mean;
+		if (1.0 == param_template.offset_x_width)
+			return offset_x_width;
+		if (1.0 == param_template.offset_y_mean)
+			return offset_y_mean;
+		if (1.0 == param_template.offset_y_width)
+			return offset_y_width;
+		if (1.0 == param_template.offset_z_mean)
+			return offset_z_mean;
+		if (1.0 == param_template.offset_z_width)
+			return offset_z_width;
+
+		if (1.0 == param_template.tilt_x_mean)
+			return tilt_x_mean;
+		if (1.0 == param_template.tilt_x_width)
+			return tilt_x_width;
+		if (1.0 == param_template.tilt_y_mean)
+			return tilt_y_mean;
+		if (1.0 == param_template.tilt_y_width)
+			return tilt_y_width;
+
+		return 0.0;
+	}
+
+	std::string getDependencyName(
+			const LmdSimIPParameters &param_template) const {
+		std::string return_str("");
+		if (1.0 == param_template.offset_x_mean)
+			return_str = "#mu_{x}";
+		else if (1.0 == param_template.offset_x_width)
+			return_str = "#sigma_{x}";
+		else if (1.0 == param_template.offset_y_mean)
+			return_str = "#mu_{y}";
+		else if (1.0 == param_template.offset_y_width)
+			return_str = "#sigma_{y}";
+		else if (1.0 == param_template.offset_z_mean)
+			return_str = "#mu_{z}";
+		else if (1.0 == param_template.offset_z_width)
+			return_str = "#sigma_{z}";
+
+		else if (1.0 == param_template.tilt_x_mean)
+			return_str = "#mu_{x}";
+		else if (1.0 == param_template.tilt_x_width)
+			return_str = "#sigma_{x}";
+		else if (1.0 == param_template.tilt_y_mean)
+			return_str = "#mu_{x}";
+		else if (1.0 == param_template.tilt_y_width)
+			return_str = "#sigma_{x}";
+
+		return return_str.append(" [cm]");
+	}
+
+	bool operator<(const LmdSimIPParameters &rhs) const {
+		if (offset_x_mean < rhs.offset_x_mean)
+			return true;
+		else if (offset_x_mean > rhs.offset_x_mean)
+			return false;
+		if (offset_x_width < rhs.offset_x_width)
+			return true;
+		else if (offset_x_width > rhs.offset_x_width)
+			return false;
+		if (offset_y_mean < rhs.offset_y_mean)
+			return true;
+		else if (offset_y_mean > rhs.offset_y_mean)
+			return false;
+		if (offset_y_width < rhs.offset_y_width)
+			return true;
+		else if (offset_y_width > rhs.offset_y_width)
+			return false;
+		if (offset_z_mean < rhs.offset_z_mean)
+			return true;
+		else if (offset_z_mean > rhs.offset_z_mean)
+			return false;
+		if (offset_z_width < rhs.offset_z_width)
+			return true;
+		else if (offset_z_width > rhs.offset_z_width)
+			return false;
+
+		if (tilt_x_mean < rhs.tilt_x_mean)
+			return true;
+		else if (tilt_x_mean > rhs.tilt_x_mean)
+			return false;
+		if (tilt_x_width < rhs.tilt_x_width)
+			return true;
+		else if (tilt_x_width > rhs.tilt_x_width)
+			return false;
+		if (tilt_y_mean < rhs.tilt_y_mean)
+			return true;
+		else if (tilt_y_mean > rhs.tilt_y_mean)
+			return false;
+		if (tilt_y_width < rhs.tilt_y_width)
+			return true;
+		else if (tilt_y_width > rhs.tilt_y_width)
+			return false;
+
+		return false;
+	}
+
+	bool operator>(const LmdSimIPParameters &rhs) const {
+		return (rhs < *this);
+	}
+
+ClassDef(LmdSimIPParameters ,1)
+	;
 };
 
 }

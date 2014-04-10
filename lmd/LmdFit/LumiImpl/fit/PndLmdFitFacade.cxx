@@ -279,11 +279,56 @@ void PndLmdFitFacade::fitVertexData(std::vector<PndLmdVertexData> &lmd_data) {
 	for (unsigned int i = 0; i < lmd_data.size(); i++) {
 		cout << "Fitting resolution " << lmd_data[i].getName() << endl;
 
+		DataStructs::DimensionRange old_range =
+				fit_options_template.est_opt.getFitRangeX();
+		double ideal_sigma;
+		if (lmd_data[i].getPrimaryDimension().dimension_options.track_type
+				== LumiFit::MC) {
+			DataStructs::DimensionRange fit_range;
+
+			if (lmd_data[i].getPrimaryDimension().dimension_options.dimension_type
+					== LumiFit::X) {
+				ideal_sigma = lmd_data[i].getSimulationIPParameters().offset_x_width;
+				fit_range.range_low =
+						lmd_data[i].getSimulationIPParameters().offset_x_mean
+								- 2.0 * ideal_sigma;
+				fit_range.range_high =
+						lmd_data[i].getSimulationIPParameters().offset_x_mean
+								+ 2.0 * ideal_sigma;
+			} else if (lmd_data[i].getPrimaryDimension().dimension_options.dimension_type
+					== LumiFit::Y) {
+				ideal_sigma = lmd_data[i].getSimulationIPParameters().offset_y_width;
+				fit_range.range_low =
+						lmd_data[i].getSimulationIPParameters().offset_y_mean
+								- 2.0 * ideal_sigma;
+				fit_range.range_high =
+						lmd_data[i].getSimulationIPParameters().offset_y_mean
+								+ 2.0 * ideal_sigma;
+			} else if (lmd_data[i].getPrimaryDimension().dimension_options.dimension_type
+					== LumiFit::Z) {
+				ideal_sigma = lmd_data[i].getSimulationIPParameters().offset_z_width;
+				fit_range.range_low =
+						lmd_data[i].getSimulationIPParameters().offset_z_mean
+								- 2.0 * ideal_sigma;
+				fit_range.range_high =
+						lmd_data[i].getSimulationIPParameters().offset_z_mean
+								+ 2.0 * ideal_sigma;
+			}
+
+			fit_range.is_active = true;
+			fit_options_template.est_opt.setFitRangeX(fit_range);
+		}
+
 		PndLmdLumiFitOptions *fit_options = createFitOptions(lmd_data[i]);
+		fit_options_template.est_opt.setFitRangeX(old_range);
 
 		// create chi2 estimator
 		shared_ptr<Chi2Estimator> chi2_est(new Chi2Estimator());
 		model_fit_facade.setEstimator(chi2_est);
+
+		/*shared_ptr<LogLikelihoodEstimator> loglikelihood_est(
+				new LogLikelihoodEstimator());
+		model_fit_facade.setEstimator(loglikelihood_est);*/
 
 		// get histogram
 		const TH1D* hist = lmd_data[i].get1DHistogram();
@@ -299,16 +344,23 @@ void PndLmdFitFacade::fitVertexData(std::vector<PndLmdVertexData> &lmd_data) {
 		// now we have to set good starting values and free parameters
 		if (fit_options->getFitModelOptions().vertex_model == LumiFit::GAUSSIAN) { // simple gaussian
 			// amplitude of gauss is equal to number of events in the histogram
-			vertex_model->getModelParameterSet().getModelParameter("gauss_amplitude")->setValue(
-					hist->GetEntries());
+			std::cout<<"wtfwtfwft: "<<hist->Integral()<<"  "<<hist->GetEntries()<<std::endl;
 			vertex_model->getModelParameterSet().getModelParameter("gauss_amplitude")->setParameterFixed(
 					false);
+			vertex_model->getModelParameterSet().getModelParameter("gauss_amplitude")->setValue(
+					hist->Integral());
 			vertex_model->getModelParameterSet().getModelParameter("gauss_mean")->setValue(
 					hist->GetMean(1));
 			vertex_model->getModelParameterSet().getModelParameter("gauss_mean")->setParameterFixed(
 					false);
-			vertex_model->getModelParameterSet().getModelParameter("gauss_sigma")->setValue(
-					hist->GetRMS(1));
+			if (lmd_data[i].getPrimaryDimension().dimension_options.track_type
+					== LumiFit::MC) {
+				vertex_model->getModelParameterSet().getModelParameter("gauss_sigma")->setValue(
+						ideal_sigma);
+			} else {
+				vertex_model->getModelParameterSet().getModelParameter("gauss_sigma")->setValue(
+						hist->GetRMS(1));
+			}
 			vertex_model->getModelParameterSet().getModelParameter("gauss_sigma")->setParameterFixed(
 					false);
 		}

@@ -61,7 +61,6 @@ public:
 
 	LumiFit::LmdSimIPParameters current_simulation_ip_parameters;
 
-
 	PndLmdDataFacade();
 	virtual ~PndLmdDataFacade();
 
@@ -130,8 +129,12 @@ public:
 		return lmd_data_vec;
 	}
 
-
 	LumiFit::LmdSimIPParameters readSimulationIPParameters(std::string dir_path);
+
+	std::map<LumiFit::LmdSimIPParameters,
+			std::map<LumiFit::LmdSimIPParameters,
+					std::map<LumiFit::LmdDimensionType, std::vector<PndLmdVertexData> > > > clusterVertexData(
+			std::vector<PndLmdVertexData> &lmd_vertex_vec);
 
 };
 

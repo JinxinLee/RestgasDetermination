@@ -285,7 +285,7 @@ include_directories(${INCLUDE_DIRECTORIES})
 link_directories(${LINK_DIRECTORIES})
 
 add_executable(plotIPDistribution plotIPDistribution.cxx)
-target_link_libraries(plotIPDistribution $ENV{ROOT_LIBRARIES} MathMore LmdFit Model GL X11 GLU gsl gslcblas)
+target_link_libraries(plotIPDistribution $ENV{ROOT_LIBRARIES} MathMore LmdFit Model GL X11 GLU gsl gslcblas boost_filesystem)
 
 
 
@@ -307,7 +307,7 @@ include_directories(${INCLUDE_DIRECTORIES})
 link_directories(${LINK_DIRECTORIES})
 
 add_executable(plotLumiFitResults plotLumiFitResults.cxx)
-target_link_libraries(plotLumiFitResults $ENV{ROOT_LIBRARIES} MathMore LmdFit Model GL X11 GLU gsl gslcblas)
+target_link_libraries(plotLumiFitResults $ENV{ROOT_LIBRARIES} MathMore LmdFit Model GL X11 GLU gsl gslcblas boost_filesystem)
 
 
 
@@ -329,7 +329,7 @@ include_directories(${INCLUDE_DIRECTORIES})
 link_directories(${LINK_DIRECTORIES})
 
 add_executable(plotResolutionParametrization plotResolutionParametrization.cxx)
-target_link_libraries(plotResolutionParametrization $ENV{ROOT_LIBRARIES} MathMore LmdFit Model GL X11 GLU gsl gslcblas)
+target_link_libraries(plotResolutionParametrization $ENV{ROOT_LIBRARIES} MathMore LmdFit Model GL X11 GLU gsl gslcblas boost_filesystem)
 
 
 
@@ -352,7 +352,7 @@ include_directories(${INCLUDE_DIRECTORIES})
 link_directories(${LINK_DIRECTORIES})
 
 add_executable(plotDPMModelParts plotDPMModelParts.cxx)
-target_link_libraries(plotDPMModelParts $ENV{ROOT_LIBRARIES} MathMore LmdFit Model GL X11 GLU gsl gslcblas)
+target_link_libraries(plotDPMModelParts $ENV{ROOT_LIBRARIES} MathMore LmdFit Model GL X11 GLU gsl gslcblas boost_filesystem)
 
 
 ########################### create convolution plotter app ##################################
@@ -373,7 +373,7 @@ include_directories(${INCLUDE_DIRECTORIES})
 link_directories(${LINK_DIRECTORIES})
 
 add_executable(convolutionThesisPlots convolutionThesisPlots.cxx)
-target_link_libraries(convolutionThesisPlots $ENV{ROOT_LIBRARIES} MathMore LmdFit Model GL X11 GLU gsl gslcblas)
+target_link_libraries(convolutionThesisPlots $ENV{ROOT_LIBRARIES} MathMore LmdFit Model GL X11 GLU gsl gslcblas boost_filesystem)
 
 ########################### create elastic cross section integrator app ##################################
 
@@ -393,4 +393,4 @@ include_directories(${INCLUDE_DIRECTORIES})
 link_directories(${LINK_DIRECTORIES})
 
 add_executable(calculateElasticCrossSection calculateElasticCrossSection.cxx)
-target_link_libraries(calculateElasticCrossSection $ENV{ROOT_LIBRARIES} MathMore LmdFit Model GL X11 GLU gsl gslcblas)
+target_link_libraries(calculateElasticCrossSection $ENV{ROOT_LIBRARIES} MathMore LmdFit Model GL X11 GLU gsl gslcblas boost_filesystem)

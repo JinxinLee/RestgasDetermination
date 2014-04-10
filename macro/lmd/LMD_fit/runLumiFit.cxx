@@ -70,7 +70,8 @@ void runLumiFit(string input_file_dir, string acceptance_file_dir) {
 
 	LumiFit::PndLmdFitModelOptions model_opt;
 
-	model_opt.dpm_elastic_parts = LumiFit::ALL_RHO_B_SIGTOT;
+	//model_opt.dpm_elastic_parts = LumiFit::ALL_RHO_B_SIGTOT;
+	model_opt.dpm_elastic_parts = LumiFit::ALL;
 
 	// we will just take the first theta ip acceptance
 	// (usually you would only have a single one)

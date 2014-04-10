@@ -92,7 +92,7 @@ void plotLumiFitResults(TString path, TString filename_prefix = "fitresults") {
 	// get reco graph bundle
 	PndLmdResultPlotter::graph_bundle gb = graph_bundle_map.begin()->second[6];
 	TCanvas c("c", "", 1000, 700);
-	plotter.fillSinglePad(&c, gb, false, true);
+	plotter.fillSinglePad(&c, gb);
 	c.SaveAs("lumifit_reco.pdf");
 
 	if (false) {

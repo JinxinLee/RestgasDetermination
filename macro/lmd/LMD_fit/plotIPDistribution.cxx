@@ -166,7 +166,7 @@
  c->SaveAs("overview.eps");
  }*/
 
-void plotIPDistribution(TString path) {
+void plotIPDistribution(std::vector<TString> paths) {
 	std::cout << "Generating lumi plots for fit results....\n";
 
 	PndLmdDataFacade lmd_data_facade;
@@ -187,7 +187,7 @@ void plotIPDistribution(TString path) {
 
 	// overwrite the default theta plot range if possible (if its larger than the max
 	// plot range then it has no effect)
-	plotter.setThetaPlotRange(0.5, 16.0);
+	plotter.setThetaPlotRange(-2.0, 2.0);
 
 	// The plotter has more options for text positioning and tex sizes for which you can
 	// overwrite the default values here
@@ -203,29 +203,59 @@ void plotIPDistribution(TString path) {
 	//plotter.setTitleOffsetY(1.5);
 	// ================================= END CONFIG ================================= //
 
-	// ------ get files -------------------------------------------------------
-	TFile *fdata = new TFile(path + "/lmd_fitted_vertex_data.root", "UPDATE");
+	// ok here we should allow for multiple input root files of some pattern
+	// which can then all be combined to results (different ip properties)
 
-	// read in data from a root file which will return a vector of pointers to PndLmdAngularData objects
-	std::vector<PndLmdVertexData> data_vec =
-			lmd_data_facade.getDataFromFile<PndLmdVertexData>(fdata);
+	std::vector<PndLmdVertexData> data_vec;
+
+	for (unsigned int i = 0; i < paths.size(); i++) {
+		// ------ get files -------------------------------------------------------
+		TFile *fdata = new TFile(paths[i] + "/lmd_fitted_vertex_data.root",
+				"UPDATE");
+
+		// read in data from a root file which will return a vector of pointers to PndLmdAngularData objects
+		std::vector<PndLmdVertexData> file_data = lmd_data_facade.getDataFromFile<
+				PndLmdVertexData>(fdata);
+
+		std::vector<std::map<int, PndLmdResultPlotter::graph_bundle> > graph_bundles_vec;
+		graph_bundles_vec.push_back(plotter.makeVertexGraphBundles1D(file_data));
+
+		if (file_data.size() > 0) {
+			std::stringstream filepath;
+			filepath << "ip-tilt/ip-fit_results-";
+			filepath << file_data[0].getSimulationIPParameters().getLabel();
+
+			plotter.makeVertexFitResultBooky(graph_bundles_vec,
+					filepath.str().c_str());
+		}
+
+		data_vec.insert(data_vec.end(), file_data.begin(), file_data.end());
+	}
+
+	std::map<LumiFit::LmdSimIPParameters,
+			std::map<LumiFit::LmdSimIPParameters,
+					std::map<LumiFit::LmdDimensionType, std::vector<PndLmdVertexData> > > > clustered_ip_data =
+			lmd_data_facade.clusterVertexData(data_vec);
 
 	// =============================== BEGIN PLOTTING =============================== //
 	// if you only have a single data object (mostly the case)
 
-	if (data_vec.size() > 0) {
+	std::cout << clustered_ip_data.size() << " "
+			<< clustered_ip_data.begin()->second.size() << " "
+			<< clustered_ip_data.begin()->second.begin()->second.size() << " "
+			<< clustered_ip_data.begin()->second.begin()->second.begin()->second.size()
+			<< std::endl;
 
-		PndLmdResultPlotter::graph_bundle gb = plotter.makeVertexGraphBundle1D(
-				data_vec[0]);
-
-
-	}
+	plotter.plotIPDependencyGraphs(clustered_ip_data);
 	// ================================ END PLOTTING ================================ //
 }
 
 int main(int argc, char* argv[]) {
-	if (argc == 2) {
-		plotIPDistribution(TString(argv[1]));
+	if (argc > 1) {
+		std::vector<TString> data_paths;
+		for (int i = 1; i < argc; i++)
+			data_paths.push_back(TString(argv[i]));
+		plotIPDistribution(data_paths);
 	}
 
 	return 0;

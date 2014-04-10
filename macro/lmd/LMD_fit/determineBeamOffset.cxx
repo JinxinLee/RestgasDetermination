@@ -9,7 +9,7 @@
 
 #include "TFile.h"
 
-void determineBeamOffset(std::string data_path, std::string sim_config_path) {
+void determineBeamOffset(std::string data_path) {
 	// facade for opening lmd files
 	PndLmdDataFacade lmd_data_facade;
 
@@ -29,7 +29,7 @@ void determineBeamOffset(std::string data_path, std::string sim_config_path) {
 	lmd_fit_facade.setModelFitOptions(model_options);
 	// construct estimator options
 	EstimatorOptions est_options;
-	DataStructs::DimensionRange fit_range(-1.0, 1.0);
+	DataStructs::DimensionRange fit_range(-2.0, 2.0);
 	est_options.setFitRangeX(fit_range);
 	lmd_fit_facade.setEstimatorOptions(est_options);
 
@@ -57,27 +57,19 @@ void displayInfo() {
 	// display info
 	std::cout << "Required arguments are: " << std::endl;
 	std::cout << "-p [path to data]" << std::endl;
-	std::cout << "Optional arguments are: " << std::endl;
-	std::cout << "-s [path to simulation config file] (defaul: data path)" << std::endl;
 	std::cout << std::endl;
 }
 
 int main(int argc, char* argv[]) {
 	bool is_data_path_set = false;
-	bool is_sim_config_path_set = false;
 	std::string data_path;
-	std::string sim_config_path;
 	int c;
 
-	while ((c = getopt(argc, argv, "hp:s:")) != -1) {
+	while ((c = getopt(argc, argv, "hp:")) != -1) {
 		switch (c) {
 			case 'p':
 				data_path = optarg;
 				is_data_path_set = true;
-				break;
-			case 's':
-				sim_config_path = optarg;
-				is_sim_config_path_set = true;
 				break;
 			case '?':
 				if (optopt == 'p')
@@ -96,11 +88,8 @@ int main(int argc, char* argv[]) {
 		}
 	}
 
-	if(!is_sim_config_path_set)
-		sim_config_path = data_path;
-
 	if (is_data_path_set)
-		determineBeamOffset(data_path, sim_config_path);
+		determineBeamOffset(data_path);
 	else
 		displayInfo();
 
