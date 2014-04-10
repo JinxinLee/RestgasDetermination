@@ -66,7 +66,7 @@ FairTask("Panda Fast Simulation") {
   fAddedDets=" ";
   fVb=0;
   fGenSplitOffs=false;
-  fUseFlatCovMatrix=false;
+  fUseFlatCovMatrix=true;
   fPropagate=false;
   fToStartVtx=false;
   fUseCovMatrix=false;
@@ -589,7 +589,7 @@ bool PndFastSim::smearTrack(PndFsmTrack *t, int idx )
 
       double sumRaw = rawLHe+rawLHmu+rawLHpi+rawLHK+rawLHp;
 	  pidProb->SetIndex(idx);
-	  
+
       if (sumRaw!=0.)
       {
         pidProb->SetElectronPdf(rawLHe/sumRaw);
