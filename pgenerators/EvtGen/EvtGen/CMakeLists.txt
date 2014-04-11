@@ -6,7 +6,6 @@ if(COMMAND cmake_policy)
 endif(COMMAND cmake_policy)
 
 set(EVTGEN_PRIVATE_DIR     "Private")
-#set(EVTGEN_DIR             "R01-02-00")
 set(EVTGEN_DIR             "R01-03-00")
 set(EVTGEN_SRC_DIR         "${EVTGEN_DIR}/src")
 set(EVTGEN_EXAMPLE_DIR     "${EVTGEN_DIR}/test")
@@ -48,7 +47,10 @@ set(EVTGEN_SRCS
    ${EVTGEN_PRIVATE_DIR}/EvtLambdaLambdaBar.cpp
    ${EVTGEN_PRIVATE_DIR}/EvtLambdaLambdaBarPol.cpp
    ${EVTGEN_PRIVATE_DIR}/EvtLambdaLambdaBarHE.cpp
-    ${EVTGEN_PRIVATE_DIR}/EvtDsDalitz.cpp
+   ${EVTGEN_PRIVATE_DIR}/EvtDsDalitz.cpp 
+   ${EVTGEN_PRIVATE_DIR}/EvtChic1toJpsiGam.cpp
+   ${EVTGEN_PRIVATE_DIR}/EvtChic2toJpsiGam.cpp
+   ${EVTGEN_PRIVATE_DIR}/EvtDecayNew.cpp
 ## overwrite EvtGen ModelReg by Panda one
    ${EVTGEN_PRIVATE_DIR}/EvtModelReg.cpp
 ##   ${EVTGEN_MODELS_DIR}/EvtModelReg.cpp
