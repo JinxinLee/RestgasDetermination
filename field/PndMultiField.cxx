@@ -16,7 +16,7 @@
 #include "PndDipoleMap.h"
 
 
-#include "FairRun.h"
+#include "FairRunSim.h"
 #include "FairRuntimeDb.h"
 
 
@@ -45,8 +45,13 @@ PndMultiField::PndMultiField(TString Map, Double_t BeamMom)
  : fMaps(new TObjArray(10)), fNoOfMaps(0), fFieldMaps(), fMapIter(), fBeamMom(BeamMom)
 {
     fType = 5;
-	
-	Map.ToUpper();
+    if (BeamMom<0.)
+        {
+	  FairRunSim *fRun= FairRunSim::Instance();
+	  if(fRun) fBeamMom= fRun->GetBeamMom();
+	}
+    
+        Map.ToUpper();
 	
 	if (Map=="FULL") {
 		

@@ -27,7 +27,7 @@ public:
   /** Default constructor **/
   PndMultiField();
 
-  PndMultiField(TString Map, Double_t BeamMom=15.0);
+  PndMultiField(TString Map, Double_t BeamMom=-1.);
 	
 	
   /** Constructor from PndFieldPar **/
