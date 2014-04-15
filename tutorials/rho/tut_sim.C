@@ -166,7 +166,7 @@ tut_sim(Int_t nEvents = 10, TString  SimEngine ="TGeant3", Float_t mom = 7.24)
   }	
 
  //---------------------Create and Set the Field(s)---------- 
-  PndMultiField *fField= new PndMultiField("FULL");
+  PndMultiField *fField= new PndMultiField("AUTO");
   fRun->SetField(fField);
 
  // EMC Hit producer
