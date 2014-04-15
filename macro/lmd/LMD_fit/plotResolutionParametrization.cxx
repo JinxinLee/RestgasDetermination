@@ -1,6 +1,6 @@
-#include "PndLmdDataFacade.h"
 #include "PndLmdResultPlotter.h"
-#include "PndLmdResolution.h"
+#include "data/PndLmdDataFacade.h"
+#include "data/PndLmdResolution.h"
 
 #include "TStyle.h"
 #include "TFile.h"

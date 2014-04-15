@@ -8,10 +8,11 @@
 #ifndef ROOTPLOTTER_H_
 #define ROOTPLOTTER_H_
 
-#include "Model.h"
-#include "ModelVisualizationProperties1D.h"
+#include "core/Model.h"
 
 #include "SharedPtr.h"
+
+class ModelVisualizationProperties1D;
 
 class TGraphAsymmErrors;
 

@@ -20,9 +20,9 @@
  */
 
 #include "PndLmdResultPlotter.h"
-#include "PndLmdAngularData.h"
-#include "PndLmdAcceptance.h"
-#include "PndLmdDataFacade.h"
+#include "data/PndLmdAngularData.h"
+#include "data/PndLmdAcceptance.h"
+#include "data/PndLmdDataFacade.h"
 
 #include <vector>
 #include <map>

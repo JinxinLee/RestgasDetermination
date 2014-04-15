@@ -8,7 +8,7 @@
 #ifndef EXPONENTIALMODEL1D_H_
 #define EXPONENTIALMODEL1D_H_
 
-#include "Model1D.h"
+#include "core/Model1D.h"
 
 class ExponentialModel1D: public Model1D {
   private:

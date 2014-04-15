@@ -5,16 +5,16 @@
  *      Author: steve
  */
 
-#include "ModelFitFacade.h"
-#include "PndLmdModelFactory.h"
-#include "PndLmdLumiFitOptions.h"
-#include "Chi2Estimator.h"
-#include "ROOTDataHelper.h"
-#include "ROOTMinimizer.h"
-#include "ROOTPlotter.h"
-#include "ModelVisualizationProperties1D.h"
-#include "DataStructs.h"
-#include "PndLmdLumiFitResult.h"
+#include "fit/ModelFitFacade.h"
+#include "fit/estimatorImpl/Chi2Estimator.h"
+#include "fit/data/ROOT/ROOTDataHelper.h"
+#include "fit/minimizerImpl/ROOT/ROOTMinimizer.h"
+#include "fit/data/DataStructs.h"
+#include "visualization/ROOT/ROOTPlotter.h"
+#include "visualization/ModelVisualizationProperties1D.h"
+#include "model/PndLmdModelFactory.h"
+#include "fit/PndLmdLumiFitOptions.h"
+#include "fit/PndLmdLumiFitResult.h"
 #include "PndLmdLumiHelper.h"
 
 #include <sstream>

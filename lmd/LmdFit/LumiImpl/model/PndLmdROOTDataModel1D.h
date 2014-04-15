@@ -8,7 +8,7 @@
 #ifndef PNDLMDROOTDATAMODEL1D_H_
 #define PNDLMDROOTDATAMODEL1D_H_
 
-#include "Model1D.h"
+#include "core/Model1D.h"
 #include "LumiFitStructs.h"
 
 class TEfficiency;

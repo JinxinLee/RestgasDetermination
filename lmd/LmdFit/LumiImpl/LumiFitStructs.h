@@ -8,9 +8,9 @@
 #ifndef LUMIFITSTRUCTS_H_
 #define LUMIFITSTRUCTS_H_
 
-#include "ModelFramework/fit/data/DataStructs.h"
-#include "ModelFramework/core/ModelStructs.h"
-#include "ModelFramework/fit/EstimatorOptions.h"
+#include "fit/data/DataStructs.h"
+#include "core/ModelStructs.h"
+#include "fit/EstimatorOptions.h"
 
 #include <iostream>
 #include <string>

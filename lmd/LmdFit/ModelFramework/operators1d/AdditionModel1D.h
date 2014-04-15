@@ -8,7 +8,7 @@
 #ifndef ADDITIONMODEL1D_H_
 #define ADDITIONMODEL1D_H_
 
-#include "Model1D.h"
+#include "core/Model1D.h"
 
 class AdditionModel1D: public Model1D {
 private:

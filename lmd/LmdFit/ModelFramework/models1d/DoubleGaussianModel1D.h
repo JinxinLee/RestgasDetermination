@@ -8,7 +8,7 @@
 #ifndef DOUBLEGAUSSIANMODEL1D_H_
 #define DOUBLEGAUSSIANMODEL1D_H_
 
-#include "Model1D.h"
+#include "core/Model1D.h"
 
 class DoubleGaussianModel1D: public Model1D {
 private:

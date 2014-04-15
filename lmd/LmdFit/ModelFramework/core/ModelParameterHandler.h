@@ -12,7 +12,7 @@
 #include "Parametrization.h"
 #include "ParametrizationModel.h"
 #include "ParametrizationProxy.h"
-#include "ModelFitResult.h"
+#include "fit/ModelFitResult.h"
 
 #include <map>
 #include <set>

@@ -8,9 +8,9 @@
 #ifndef PNDLMDLUMIFITOPTIONS_H_
 #define PNDLMDLUMIFITOPTIONS_H_
 
-#include "LumiImpl/LumiFitStructs.h"
-#include "ModelFramework/core/ModelStructs.h"
-#include "ModelFramework/fit/EstimatorOptions.h"
+#include "LumiFitStructs.h"
+#include "core/ModelStructs.h"
+#include "fit/EstimatorOptions.h"
 
 #include <set>
 #include <string>

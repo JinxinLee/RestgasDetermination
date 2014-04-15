@@ -1,14 +1,15 @@
 // this macro checks the difference between the MC information of the generated pbars and the
+#include "PndMCTrack.h"
+#include "PndLmdTrackQ.h"
+
+#include <iostream>
+
 #include "TChain.h"
 #include "TClonesArray.h"
 #include "TH1D.h"
 #include "TH1D.h"
-#include "PndMCTrack.h"
-#include "PndLmdTrackQ.h"
 #include "TParticle.h"
 #include "TCanvas.h"
-
-#include <iostream>
 
 using std::cout;
 using std::endl;

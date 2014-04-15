@@ -9,12 +9,12 @@
  * ./createLumiFitData -h
  */
 
-#include "PndLmdDataFacade.h"
-#include "PndLmdAngularData.h"
-#include "PndLmdVertexData.h"
-#include "PndLmdResolution.h"
-#include "PndLmdAcceptance.h"
-#include "DataStructs.h"
+#include "data/PndLmdDataFacade.h"
+#include "data/PndLmdAngularData.h"
+#include "data/PndLmdVertexData.h"
+#include "data/PndLmdResolution.h"
+#include "data/PndLmdAcceptance.h"
+#include "fit/data/DataStructs.h"
 
 #include "TString.h"
 #include "TFile.h"
@@ -74,18 +74,27 @@ void createLumiFitData(std::string input_file_dir, const double mom,
 	}
 	if (data_types.find("e") != std::string::npos) {
 		// ---- acceptance or box gen data ---- //
-		lmd_data_facade.primary_dimension_template.bins = 100;
+		/*lmd_data_facade.primary_dimension_template.bins = 100;
+		 lmd_data_facade.primary_dimension_template.dimension_range.setRangeLow(
+		 0.5 + 0.0725);
+		 lmd_data_facade.primary_dimension_template.dimension_range.setRangeHigh(
+		 15.0 + 0.0725);*/
+		lmd_data_facade.primary_dimension_template.bins = 300;
 		lmd_data_facade.primary_dimension_template.dimension_range.setRangeLow(
-				0.5 + 0.0725);
+				0.5);
 		lmd_data_facade.primary_dimension_template.dimension_range.setRangeHigh(
-				15.0 + 0.0725);
+				15.0);
+		lmd_data_facade.secondary_dimension_template.bins = 100;
+		lmd_data_facade.secondary_dimension_template.dimension_range.setRangeLow(-TMath::Pi());
+		lmd_data_facade.secondary_dimension_template.dimension_range.setRangeHigh(TMath::Pi());
 
 		// ---- Output file -------------------------------------------------------
 		output_filename_acceptance_data = input_file_dir + "/lmd_acc_data.root";
 		// ------------------------------------------------------------------------
 
 		// create acceptance
-		lmd_data_facade.createAcceptance1D(num_events);
+		lmd_data_facade.createAcceptance2D(num_events);
+
 	}
 	if (data_types.find("r") != std::string::npos) {
 		// ---- create lmd resolution objects from box gen data ---- //
@@ -94,6 +103,8 @@ void createLumiFitData(std::string input_file_dir, const double mom,
 		output_filename_resolution_data = input_file_dir + "/lmd_res_data.root";
 		// ------------------------------------------------------------------------
 
+		lmd_data_facade.primary_dimension_template.dimension_options.dimension_type =
+				LumiFit::THETA;
 		lmd_data_facade.primary_dimension_template.bins = 400;
 		lmd_data_facade.primary_dimension_template.dimension_range.setRangeLow(
 				-2.0);
@@ -109,6 +120,8 @@ void createLumiFitData(std::string input_file_dir, const double mom,
 				-0.2);
 		lmd_data_facade.secondary_dimension_template.dimension_range.setRangeHigh(
 				0.2);
+		lmd_data_facade.secondary_dimension_template.dimension_options.track_param_type =
+				LumiFit::IP;
 
 		lmd_data_facade.primary_selection_dimension_bundle_template.dimension_options.track_type =
 				LumiFit::MC;
@@ -142,11 +155,11 @@ void createLumiFitData(std::string input_file_dir, const double mom,
 
 		lmd_data_facade.primary_dimension_template.dimension_range.setUnitPrefix(
 				LumiFit::NONE);
-		lmd_data_facade.primary_dimension_template.bins = 200;
+		lmd_data_facade.primary_dimension_template.bins = 300;
 		lmd_data_facade.primary_dimension_template.dimension_range.setRangeLow(
-				-2.0);
+				-3.0);
 		lmd_data_facade.primary_dimension_template.dimension_range.setRangeHigh(
-				2.0);
+				3.0);
 
 		// create angular data object bundle and register in data reader
 		lmd_data_facade.create1DVertexDataBundle(num_events);

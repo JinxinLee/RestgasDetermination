@@ -8,7 +8,7 @@
 #ifndef ESTIMATOROPTIONS_H_
 #define ESTIMATOROPTIONS_H_
 
-#include "ModelFramework/fit/data/DataStructs.h"
+#include "fit/data/DataStructs.h"
 
 #include <utility>
 

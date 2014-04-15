@@ -8,8 +8,8 @@
 #ifndef PNDLMDMODELFACTORY_H_
 #define PNDLMDMODELFACTORY_H_
 
-#include "Model1D.h"
-#include "Model2D.h"
+#include "core/Model1D.h"
+#include "core/Model2D.h"
 
 namespace LumiFit {
   class PndLmdFitModelOptions;

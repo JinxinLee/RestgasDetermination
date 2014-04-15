@@ -1,7 +1,7 @@
 #ifndef LOGLIKELIHOODESTIMATOR_H_
 #define LOGLIKELIHOODESTIMATOR_H_
 
-#include "ModelEstimator.h"
+#include "fit/ModelEstimator.h"
 
 class LogLikelihoodEstimator: public ModelEstimator {
 public:

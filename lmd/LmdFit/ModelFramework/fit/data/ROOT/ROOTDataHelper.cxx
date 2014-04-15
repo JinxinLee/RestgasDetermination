@@ -6,7 +6,7 @@
  */
 
 #include "ROOTDataHelper.h"
-#include "Data.h"
+#include "fit/data/Data.h"
 
 #include "TH1D.h"
 #include "TGraphErrors.h"

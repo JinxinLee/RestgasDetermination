@@ -6,18 +6,14 @@
  */
 
 #include "PndLmdFitFacade.h"
-#include "PndLmdLumiFitOptions.h"
-#include "LumiFitStructs.h"
-#include "PndLmdResolution.h"
-#include "PndLmdAngularData.h"
-#include "PndLmdVertexData.h"
+#include "data/PndLmdResolution.h"
+#include "data/PndLmdAngularData.h"
+#include "data/PndLmdVertexData.h"
+#include "fit/estimatorImpl/Chi2Estimator.h"
+#include "fit/estimatorImpl/LogLikelihoodEstimator.h"
+#include "fit/minimizerImpl/ROOT/ROOTMinimizer.h"
+#include "fit/data/Data.h"
 #include "PndLmdLumiHelper.h"
-#include "ROOTDataHelper.h"
-#include "Chi2Estimator.h"
-#include "LogLikelihoodEstimator.h"
-#include "PndLmdLumiHelper.h"
-#include "ROOTMinimizer.h"
-#include "Data.h"
 
 #include <iostream>
 
@@ -279,6 +275,12 @@ void PndLmdFitFacade::fitVertexData(std::vector<PndLmdVertexData> &lmd_data) {
 	for (unsigned int i = 0; i < lmd_data.size(); i++) {
 		cout << "Fitting resolution " << lmd_data[i].getName() << endl;
 
+		// get histogram
+		const TH1D* hist = lmd_data[i].get1DHistogram();
+		if (hist->Integral() < 400) {
+			return;
+		}
+
 		DataStructs::DimensionRange old_range =
 				fit_options_template.est_opt.getFitRangeX();
 		double ideal_sigma;
@@ -318,9 +320,46 @@ void PndLmdFitFacade::fitVertexData(std::vector<PndLmdVertexData> &lmd_data) {
 			fit_range.is_active = true;
 			fit_options_template.est_opt.setFitRangeX(fit_range);
 		}
+		else if (lmd_data[i].getPrimaryDimension().dimension_options.track_type
+				== LumiFit::RECO) {
+			DataStructs::DimensionRange fit_range;
+
+			if (lmd_data[i].getPrimaryDimension().dimension_options.dimension_type
+					== LumiFit::X) {
+				ideal_sigma = hist->GetRMS(1);
+				fit_range.range_low =
+						lmd_data[i].getSimulationIPParameters().offset_x_mean
+								- 2.0 * ideal_sigma;
+				fit_range.range_high =
+						lmd_data[i].getSimulationIPParameters().offset_x_mean
+								+ 2.0 * ideal_sigma;
+			} else if (lmd_data[i].getPrimaryDimension().dimension_options.dimension_type
+					== LumiFit::Y) {
+				ideal_sigma = hist->GetRMS(1);
+				fit_range.range_low =
+						lmd_data[i].getSimulationIPParameters().offset_y_mean
+								- 2.0 * ideal_sigma;
+				fit_range.range_high =
+						lmd_data[i].getSimulationIPParameters().offset_y_mean
+								+ 2.0 * ideal_sigma;
+			} else if (lmd_data[i].getPrimaryDimension().dimension_options.dimension_type
+					== LumiFit::Z) {
+				ideal_sigma = hist->GetRMS(1);
+				fit_range.range_low =
+						lmd_data[i].getSimulationIPParameters().offset_z_mean
+								- 2.0 * ideal_sigma;
+				fit_range.range_high =
+						lmd_data[i].getSimulationIPParameters().offset_z_mean
+								+ 2.0 * ideal_sigma;
+			}
+
+			fit_range.is_active = true;
+			fit_options_template.est_opt.setFitRangeX(fit_range);
+		}
 
 		PndLmdLumiFitOptions *fit_options = createFitOptions(lmd_data[i]);
 		fit_options_template.est_opt.setFitRangeX(old_range);
+
 
 		// create chi2 estimator
 		shared_ptr<Chi2Estimator> chi2_est(new Chi2Estimator());
@@ -330,11 +369,6 @@ void PndLmdFitFacade::fitVertexData(std::vector<PndLmdVertexData> &lmd_data) {
 				new LogLikelihoodEstimator());
 		model_fit_facade.setEstimator(loglikelihood_est);*/
 
-		// get histogram
-		const TH1D* hist = lmd_data[i].get1DHistogram();
-		if (hist->Integral() < 400) {
-			return;
-		}
 		model_fit_facade.setData(createData1D(lmd_data[i]));
 
 		// generate the model

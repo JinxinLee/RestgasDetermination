@@ -8,7 +8,7 @@
 #ifndef MODELVISUALIZATIONPROPERTIES1D_H_
 #define MODELVISUALIZATIONPROPERTIES1D_H_
 
-#include "Data.h"
+#include "fit/data/Data.h"
 
 #include <utility>
 

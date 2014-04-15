@@ -6,18 +6,16 @@
  */
 
 #include "PndLmdLumiHelper.h"
-#include "PndLmdResolution.h"
-#include "PndLmdLumiFitOptions.h"
-#include "ROOTMinimizer.h"
-#include "PndLmdModelFactory.h"
-#include "PndLmdDPMAngModel1D.h"
-#include "PndLmdDPMModelParametrization.h"
-#include "PndLmdLumiFitResult.h"
-#include "ROOTDataHelper.h"
-#include "Data.h"
-#include "Chi2Estimator.h"
-
-#include "ModelStructs.h"
+#include "fit/data/ROOT/ROOTDataHelper.h"
+#include "fit/data/Data.h"
+#include "fit/estimatorImpl/Chi2Estimator.h"
+#include "fit/minimizerImpl/ROOT/ROOTMinimizer.h"
+#include "data/PndLmdResolution.h"
+#include "fit/PndLmdLumiFitOptions.h"
+#include "model/PndLmdModelFactory.h"
+#include "model/PndLmdDPMAngModel1D.h"
+#include "model/PndLmdDPMModelParametrization.h"
+#include "fit/PndLmdLumiFitResult.h"
 
 #include <iostream>
 #include <sstream>

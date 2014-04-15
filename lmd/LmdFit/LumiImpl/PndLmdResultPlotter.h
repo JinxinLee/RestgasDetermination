@@ -10,9 +10,9 @@
 
 #include "PndLmdLumiHelper.h"
 #include "fit/PndLmdLumiFitOptions.h"
-#include "LumiImpl/data/PndLmdVertexData.h"
+#include "data/PndLmdVertexData.h"
 #ifndef __CINT__
-#include "ROOTPlotter.h"
+#include "visualization/ROOT/ROOTPlotter.h"
 #endif /* __CINT __ */
 
 #include <map>
@@ -222,6 +222,12 @@ public:
 	TGraphAsymmErrors* generateDPMModelPartGraph(double plab,
 			LumiFit::DPMElasticParts dpm_elastic_part,
 			DataStructs::DimensionRange& plot_range);
+
+	void plotXYOverviewGraph(std::vector<PndLmdVertexData> &vertex_data);
+
+	TGraphAsymmErrors* makeXYOverviewGraph(
+			std::vector<PndLmdVertexData> &vertex_data, double error_scaling_factor,
+			int color);
 
 	void plotIPDependencyGraphs(
 			std::map<LumiFit::LmdSimIPParameters,

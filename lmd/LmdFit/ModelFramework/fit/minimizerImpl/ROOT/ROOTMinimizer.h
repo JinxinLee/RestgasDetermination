@@ -8,8 +8,8 @@
 #ifndef ROOTMINIMIZER_H_
 #define ROOTMINIMIZER_H_
 
-#include "ModelMinimizer.h"
-#include "ModelFitResult.h"
+#include "fit/ModelMinimizer.h"
+#include "fit/ModelFitResult.h"
 
 #include "Math/Minimizer.h"
 

@@ -10,7 +10,7 @@
 
 #include "ModelMinimizer.h"
 #include "ModelEstimator.h"
-#include "Model1D.h"
+#include "core/Model1D.h"
 
 class ModelFitFacade {
 private:

@@ -8,7 +8,7 @@
 #ifndef PNDLMDLUMIFITRESULT_H_
 #define PNDLMDLUMIFITRESULT_H_
 
-#include "ModelFramework/fit/ModelFitResult.h"
+#include "fit/ModelFitResult.h"
 
 #include "TObject.h"
 

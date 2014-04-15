@@ -10,8 +10,9 @@
 
 #include "IntegralStrategy1D.h"
 
-#include "Model1D.h"
+#include "core/Model1D.h"
 #include <iostream>
+
 class IntegralStrategyGSL1D: public IntegralStrategy1D {
 private:
 	static Model1D *current_model;

@@ -7,15 +7,14 @@
 
 #include "PndLmdResultPlotter.h"
 
-#include "PndLmdModelFactory.h"
-#include "PndLmdLumiFitOptions.h"
-#include "PndLmdLumiFitResult.h"
-#include "PndLmdAngularData.h"
-#include "PndLmdVertexData.h"
-#include "PndLmdAcceptance.h"
-#include "PndLmdResolution.h"
-#include "ROOTDataHelper.h"
-#include "PndLmdFitFacade.h"
+#include "fit/data/ROOT/ROOTDataHelper.h"
+#include "visualization/ModelVisualizationProperties1D.h"
+#include "model/PndLmdModelFactory.h"
+#include "fit/PndLmdLumiFitResult.h"
+#include "data/PndLmdAngularData.h"
+#include "data/PndLmdAcceptance.h"
+#include "data/PndLmdResolution.h"
+#include "fit/PndLmdFitFacade.h"
 
 #include <iostream>
 #include <sstream>
@@ -671,6 +670,8 @@ PndLmdResultPlotter::graph_bundle PndLmdResultPlotter::makeResolutionGraphBundle
 		if (fit_results.begin()->second->getModelFitResult().getFitStatus() == 0) {
 			lmd_graph_bundle.model = createSmearingGraphFromFitResult(
 					fit_results.begin()->first, res);
+			lmd_graph_bundle.model->SetLineColor(2);
+			lmd_graph_bundle.model->SetMarkerColor(2);
 		}
 	}
 
@@ -1361,6 +1362,139 @@ void PndLmdResultPlotter::makeBooky(
 		}
 	}
 	c.Print(filename + ".pdf]");
+}
+
+void PndLmdResultPlotter::plotXYOverviewGraph(
+		std::vector<PndLmdVertexData> &vertex_data) {
+
+	unsigned int num_values = 5;
+	// define scales
+	double scales[] = { 1.0, 10.0, 100.0, 1e3, 1e4 };
+	// define colors for scales
+	int colors[] = { kRed + 2, kRed, kViolet, kViolet + 7, kBlue };
+
+	TMultiGraph *mg = new TMultiGraph();
+	TLegend* leg = new TLegend(0.9, 0.85 - 0.05 * num_values, .98, .9);
+
+	TGraphAsymmErrors *first;
+
+	for (unsigned int i = 0; i < num_values; i++) {
+		TGraphAsymmErrors *gae = makeXYOverviewGraph(vertex_data, scales[i],
+				colors[i]);
+		if(i == 0)
+			first = gae;
+		mg->Add(gae);
+		std::stringstream ss;
+		ss << scales[i];
+		leg->AddEntry(gae, ss.str().c_str(), "l");
+	}
+
+	mg->Draw("AP");
+	mg->GetXaxis()->SetTitle(first->GetXaxis()->GetTitle());
+	mg->GetYaxis()->SetTitle(first->GetYaxis()->GetTitle());
+	leg->Draw();
+}
+
+TGraphAsymmErrors* PndLmdResultPlotter::makeXYOverviewGraph(
+		std::vector<PndLmdVertexData> &vertex_data, double error_scaling_factor,
+		int color) {
+	std::vector<double> x;
+	std::vector<double> y;
+	std::vector<double> x_err_low;
+	std::vector<double> x_err_high;
+	std::vector<double> y_err_low;
+	std::vector<double> y_err_high;
+
+	double current_x;
+	double current_y;
+	double current_x_err_low;
+	double current_x_err_high;
+	double current_y_err_low;
+	double current_y_err_high;
+
+	double max_offset = 0.4;
+
+	// first group all vertex data plots of some specific ip property setting together
+	std::map<LumiFit::LmdSimIPParameters, std::vector<PndLmdVertexData> > sim_settings_ip_data_map;
+	for (unsigned int i = 0; i < vertex_data.size(); i++) {
+		sim_settings_ip_data_map[vertex_data[i].getSimulationIPParameters()].push_back(
+				vertex_data[i]);
+	}
+
+	std::map<LumiFit::LmdSimIPParameters, std::vector<PndLmdVertexData> >::iterator ip_setting_case;
+	for (ip_setting_case = sim_settings_ip_data_map.begin();
+			ip_setting_case != sim_settings_ip_data_map.end(); ip_setting_case++) {
+		current_x = ip_setting_case->first.offset_x_mean;
+		current_y = ip_setting_case->first.offset_y_mean;
+		current_x_err_low = 0.0;
+		current_x_err_high = 0.0;
+		current_y_err_low = 0.0;
+		current_y_err_high = 0.0;
+
+		std::cout << "vertex data count for " << ip_setting_case->first.getLabel()
+				<< ": " << ip_setting_case->second.size() << std::endl;
+
+		for (unsigned int i = 0; i < ip_setting_case->second.size(); i++) {
+			if (reco_dimension_compare(ip_setting_case->second[i])) {
+				if (ip_setting_case->second[i].getPrimaryDimension().dimension_options.dimension_type
+						== LumiFit::X) {
+					PndLmdLumiFitResult *fit_result =
+							ip_setting_case->second[i].getFitResults().begin()->second;
+
+					double diff =
+							error_scaling_factor
+									* (fit_result->getModelFitResult().getFitParameter(
+											"gauss_mean").value - current_x);
+					double absdiff = fabs(diff);
+
+					std::cout << diff << " " << absdiff << std::endl;
+					if (absdiff > 0.1 * max_offset && absdiff < max_offset) {
+						if (diff < 0.0)
+							current_x_err_low = absdiff;
+						else
+							current_x_err_high = absdiff;
+					}
+				}
+				else if (ip_setting_case->second[i].getPrimaryDimension().dimension_options.dimension_type
+						== LumiFit::Y) {
+					PndLmdLumiFitResult *fit_result =
+							ip_setting_case->second[i].getFitResults().begin()->second;
+
+					double diff =
+							error_scaling_factor
+									* (fit_result->getModelFitResult().getFitParameter(
+											"gauss_mean").value - current_y);
+					double absdiff = fabs(diff);
+
+					std::cout << diff << " " << absdiff << std::endl;
+					if (absdiff > 0.1 * max_offset && absdiff < max_offset) {
+						if (diff < 0.0)
+							current_y_err_low = absdiff;
+						else
+							current_y_err_high = absdiff;
+					}
+				}
+			}
+		}
+
+		// add values to vector
+		x.push_back(current_x);
+		y.push_back(current_y);
+		x_err_low.push_back(current_x_err_low);
+		x_err_high.push_back(current_x_err_high);
+		y_err_low.push_back(current_y_err_low);
+		y_err_high.push_back(current_y_err_high);
+	}
+
+	TGraphAsymmErrors *graph = new TGraphAsymmErrors(x.size(), &x[0], &y[0],
+			&x_err_low[0], &x_err_high[0], &y_err_low[0], &y_err_high[0]);
+	graph->GetXaxis()->SetTitle("#mu_{x} [cm]");
+	graph->GetYaxis()->SetTitle("#mu_{y} [cm]");
+	graph->SetTitle("");
+	graph->SetMarkerStyle(9);
+	graph->SetLineColor(color);
+
+	return graph;
 }
 
 void PndLmdResultPlotter::plotIPDependencyGraphs(

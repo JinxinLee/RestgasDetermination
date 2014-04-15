@@ -6,7 +6,7 @@
  */
 
 #include "Model1D.h"
-#include "IntegralStrategyGSL1D.h"
+#include "operators1d/integration/IntegralStrategyGSL1D.h"
 
 Model1D::Model1D(std::string name_) :
 		Model(name_, 1) {

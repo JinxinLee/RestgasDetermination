@@ -8,7 +8,7 @@
 #ifndef NUMERICCONVOLUTIONMODEL2D_H_
 #define NUMERICCONVOLUTIONMODEL2D_H_
 
-#include "Model2D.h"
+#include "core/Model2D.h"
 
 class NumericConvolutionModel2D: public Model2D {
 private:

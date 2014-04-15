@@ -10,7 +10,7 @@
 #include "PndLmdVertexData.h"
 #include "PndLmdResolution.h"
 #include "PndLmdAcceptance.h"
-#include "DataStructs.h"
+#include "fit/data/DataStructs.h"
 #include "PndLmdLumiHelper.h"
 
 #include <sstream>
@@ -215,6 +215,9 @@ void PndLmdDataFacade::create1DAngularDataBundle(unsigned int num_events) {
 
 void PndLmdDataFacade::create1DAngularResolutionDataBundle(
 		unsigned int num_events) {
+	primary_dimension_template.dimension_options.track_type = LumiFit::MC;
+	secondary_dimension_template.dimension_options.track_type = LumiFit::MC;
+
 	primary_selection_dimension_bundle_template.dimension_range.setUnitPrefix(
 			LumiFit::MILLI);
 	primary_selection_dimension_bundle_template.dimension_options.dimension_type =

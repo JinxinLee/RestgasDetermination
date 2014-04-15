@@ -1,8 +1,8 @@
 #include "PndLmdResultPlotter.h"
-#include "PndLmdLumiFitResult.h"
-#include "PndLmdLumiFitOptions.h"
-#include "PndLmdAngularData.h"
-#include "PndLmdAcceptance.h"
+#include "fit/PndLmdLumiFitResult.h"
+#include "fit/PndLmdLumiFitOptions.h"
+#include "data/PndLmdAngularData.h"
+#include "data/PndLmdAcceptance.h"
 
 #include "TFile.h"
 #include "TH1D.h"

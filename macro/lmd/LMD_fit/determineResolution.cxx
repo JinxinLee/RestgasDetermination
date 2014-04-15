@@ -1,7 +1,7 @@
 #include "PndLmdLumiHelper.h"
-#include "PndLmdDataFacade.h"
-#include "PndLmdResolution.h"
-#include "PndLmdFitFacade.h"
+#include "data/PndLmdDataFacade.h"
+#include "data/PndLmdResolution.h"
+#include "fit/PndLmdFitFacade.h"
 
 #include <vector>
 #include <iostream>

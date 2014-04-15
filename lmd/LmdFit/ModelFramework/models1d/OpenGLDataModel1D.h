@@ -8,7 +8,7 @@
 #ifndef OPENGLDATAMODEL1D_H_
 #define OPENGLDATAMODEL1D_H_
 
-#include "Model1D.h"
+#include "core/Model1D.h"
 #include "GL/gl.h"
 #include "GL/glu.h"
 

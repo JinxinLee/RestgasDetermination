@@ -8,7 +8,7 @@
 #ifndef GAUSSIANMODEL2D_H_
 #define GAUSSIANMODEL2D_H_
 
-#include "../core/Model2D.h"
+#include "core/Model2D.h"
 
 class GaussianModel2D: public Model2D {
 private:

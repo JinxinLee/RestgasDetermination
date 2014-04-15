@@ -8,7 +8,7 @@
 #ifndef MODELCONTROLPARAMETER_H_
 #define MODELCONTROLPARAMETER_H_
 
-#include "ModelStructs.h"
+#include "core/ModelStructs.h"
 
 #include <vector>
 

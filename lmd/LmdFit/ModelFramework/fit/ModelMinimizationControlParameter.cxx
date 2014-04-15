@@ -6,7 +6,7 @@
  */
 
 #include "ModelMinimizationControlParameter.h"
-#include "Model.h"
+#include "core/Model.h"
 
 ModelMinimizationControlParameter::ModelMinimizationControlParameter() {
 	// TODO Auto-generated constructor stub

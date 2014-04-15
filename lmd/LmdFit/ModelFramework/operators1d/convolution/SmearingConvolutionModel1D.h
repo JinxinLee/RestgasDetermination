@@ -8,7 +8,7 @@
 #ifndef SMEARINGCONVOLUTIONMODEL1D_H_
 #define SMEARINGCONVOLUTIONMODEL1D_H_
 
-#include "Model1D.h"
+#include "core/Model1D.h"
 
 class SmearingConvolutionModel1D: public Model1D {
 private:

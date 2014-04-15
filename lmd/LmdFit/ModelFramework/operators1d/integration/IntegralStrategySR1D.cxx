@@ -6,7 +6,7 @@
  */
 
 #include "IntegralStrategySR1D.h"
-#include "Model1D.h"
+#include "core/Model1D.h"
 
 #include <cmath>
 

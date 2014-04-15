@@ -5,8 +5,8 @@
  *      Author: steve
  */
 
-#include "LumiImpl/model/PndLmdModelFactory.h"
-#include "LumiImpl/LumiFitStructs.h"
+#include "model/PndLmdModelFactory.h"
+#include "LumiFitStructs.h"
 
 #include <utility>
 #include <vector>

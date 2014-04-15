@@ -6,9 +6,9 @@
  */
 
 #include "ModelEstimator.h"
-#include "Model.h"
-#include "ModelPar.h"
-#include "Data.h"
+#include "core/Model.h"
+#include "core/ModelPar.h"
+#include "fit/data/Data.h"
 
 #include <cmath>
 

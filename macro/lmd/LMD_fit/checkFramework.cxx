@@ -1,11 +1,11 @@
-#include "ModelFitFacade.h"
-#include "GaussianModel1D.h"
-#include "Chi2Estimator.h"
-#include "LogLikelihoodEstimator.h"
-#include "ROOTDataHelper.h"
-#include "ROOTMinimizer.h"
-#include "ModelFitResult.h"
-#include "Data.h"
+#include "fit/ModelFitFacade.h"
+#include "models1d/GaussianModel1D.h"
+#include "fit/estimatorImpl/Chi2Estimator.h"
+#include "fit/estimatorImpl/LogLikelihoodEstimator.h"
+#include "fit/data/ROOT/ROOTDataHelper.h"
+#include "fit/minimizerImpl/ROOT/ROOTMinimizer.h"
+#include "fit/ModelFitResult.h"
+#include "fit/data/Data.h"
 
 #include <cmath>
 #include <map>

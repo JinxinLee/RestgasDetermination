@@ -8,10 +8,10 @@
 #ifndef PNDLMDFITFACADE_H_
 #define PNDLMDFITFACADE_H_
 
-#include "ROOTDataHelper.h"
-#include "PndLmdModelFactory.h"
+#include "fit/data/ROOT/ROOTDataHelper.h"
+#include "model/PndLmdModelFactory.h"
+#include "fit/ModelFitFacade.h"
 #include "LumiFitStructs.h"
-#include "ModelFitFacade.h"
 #include "PndLmdLumiFitOptions.h"
 
 #include <vector>

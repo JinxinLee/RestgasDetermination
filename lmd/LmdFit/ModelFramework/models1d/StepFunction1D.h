@@ -8,7 +8,7 @@
 #ifndef STEPFUNCTION1D_H_
 #define STEPFUNCTION1D_H_
 
-#include "Model1D.h"
+#include "core/Model1D.h"
 
 class StepFunction1D: public Model1D {
 private:

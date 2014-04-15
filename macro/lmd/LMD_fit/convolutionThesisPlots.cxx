@@ -5,13 +5,14 @@
  *      Author: steve
  */
 
-#include "PndLmdDataFacade.h"
+#include "models1d/GaussianModel1D.h"
+#include "visualization/ModelVisualizationProperties1D.h"
+#include "data/PndLmdDataFacade.h"
 #include "PndLmdResultPlotter.h"
-#include "PndLmdLumiFitOptions.h"
-#include "PndLmdAcceptance.h"
-#include "PndLmdModelFactory.h"
-#include "GaussianModel1D.h"
-#include "AsymmetricGaussianModel1D.h"
+#include "fit/PndLmdLumiFitOptions.h"
+#include "data/PndLmdAcceptance.h"
+#include "model/PndLmdModelFactory.h"
+#include "model/AsymmetricGaussianModel1D.h"
 
 #include <iostream>               // for std::cout
 #include <vector>

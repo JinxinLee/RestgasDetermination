@@ -6,7 +6,7 @@
  */
 
 #include "PolynomialModel1D.h"
-#include "ModelPar.h"
+#include "core/ModelPar.h"
 
 #include <cmath>
 #include <limits>

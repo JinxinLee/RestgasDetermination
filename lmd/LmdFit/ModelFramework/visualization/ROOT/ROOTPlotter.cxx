@@ -6,7 +6,7 @@
  */
 
 #include "ROOTPlotter.h"
-#include "ModelVisualizationProperties1D.h"
+#include "visualization/ModelVisualizationProperties1D.h"
 
 #include "TGraphAsymmErrors.h"
 

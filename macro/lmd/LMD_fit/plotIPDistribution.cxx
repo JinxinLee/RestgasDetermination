@@ -20,8 +20,8 @@
  */
 
 #include "PndLmdResultPlotter.h"
-#include "PndLmdVertexData.h"
-#include "PndLmdDataFacade.h"
+#include "data/PndLmdVertexData.h"
+#include "data/PndLmdDataFacade.h"
 
 #include <vector>
 #include <map>
@@ -33,6 +33,7 @@
 #include "TStyle.h"
 #include "TLatex.h"
 #include "TLine.h"
+#include "TGraphAsymmErrors.h"
 
 /*void drawGraphRow(TCanvas *c, int i, std::vector<TGraphErrors*> &graphs,
  std::vector<std::string> &infos, int row_length) {
@@ -232,6 +233,11 @@ void plotIPDistribution(std::vector<TString> paths) {
 		data_vec.insert(data_vec.end(), file_data.begin(), file_data.end());
 	}
 
+	TCanvas c;
+	c.SetGrid();
+	plotter.plotXYOverviewGraph(data_vec);
+	c.SaveAs("ip-tilt/ip-fit_result-overview.pdf");
+
 	std::map<LumiFit::LmdSimIPParameters,
 			std::map<LumiFit::LmdSimIPParameters,
 					std::map<LumiFit::LmdDimensionType, std::vector<PndLmdVertexData> > > > clustered_ip_data =
@@ -246,7 +252,7 @@ void plotIPDistribution(std::vector<TString> paths) {
 			<< clustered_ip_data.begin()->second.begin()->second.begin()->second.size()
 			<< std::endl;
 
-	plotter.plotIPDependencyGraphs(clustered_ip_data);
+	//plotter.plotIPDependencyGraphs(clustered_ip_data);
 	// ================================ END PLOTTING ================================ //
 }
 

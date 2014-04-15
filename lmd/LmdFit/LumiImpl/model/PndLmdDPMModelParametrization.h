@@ -8,7 +8,7 @@
 #ifndef PNDLMDDPMMODELPARAMETRIZATION_H_
 #define PNDLMDDPMMODELPARAMETRIZATION_H_
 
-#include "Parametrization.h"
+#include "core/Parametrization.h"
 
 class PndLmdDPMModelParametrization : public Parametrization {
 private:

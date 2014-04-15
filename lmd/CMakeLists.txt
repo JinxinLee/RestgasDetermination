@@ -45,7 +45,8 @@ ${CMAKE_SOURCE_DIR}/lmd/LmdReco
 ${CMAKE_SOURCE_DIR}/lmd/LmdTrack
 ${CMAKE_SOURCE_DIR}/lmd/LmdTools
 ${CMAKE_SOURCE_DIR}/lmd/LmdQA
-${CMAKE_SOURCE_DIR}/lmd/LmdFit
+${CMAKE_SOURCE_DIR}/lmd/LmdFit/LumiImpl
+${CMAKE_SOURCE_DIR}/lmd/LmdFit/ModelFramework
 ${CMAKE_SOURCE_DIR}/lmd
 ${CMAKE_SOURCE_DIR}/genfit
 ${CMAKE_SOURCE_DIR}/trackbase
@@ -64,6 +65,7 @@ include_directories( ${INCLUDE_DIRECTORIES})
 set(LINK_DIRECTORIES
 ${ROOT_LIBRARY_DIR}
 ${FAIRROOT_LIBRARY_DIR}
+${SIMPATH}/lib
 )
 
 link_directories( ${LINK_DIRECTORIES})
@@ -156,33 +158,20 @@ GENERATE_LIBRARY()
 ########################### create libModel  ##################################
 # modeling framework (completely independent of ROOT)
 
-HEADER_DIRECTORIES(MODEL_INCLUDE_DIRECTORIES LmdFit/ModelFramework)
-
-include_directories(${MODEL_INCLUDE_DIRECTORIES})
-
 include_directories(/usr/X11R6/include/)
 include_directories(/opt/X11/include/)
 link_directories(/usr/X11R6/lib)
-SET(EXTRA_LIBS GL X11 GLU glut)
+SET(EXTRA_LIBS GL X11 GLU gsl gslcblas)
 
 FILE(GLOB_RECURSE MODEL_SRCS LmdFit/ModelFramework/*.cxx)
 
 add_definitions(${CXX11_COMPILER_FLAGS})
 add_library(Model SHARED ${MODEL_SRCS})
 
-TARGET_LINK_LIBRARIES(Model)
+TARGET_LINK_LIBRARIES(Model ${EXTRA_LIBS} boost_filesystem)
 
 
 ########################### create libLmdFit ##################################
-
-HEADER_DIRECTORIES(TEMP_INCLUDE_DIRECTORIES LmdFit/LumiImpl)
-set(LMDFIT_INCLUDE_DIRECTORIES
-${TEMP_INCLUDE_DIRECTORIES}
-${MODEL_INCLUDE_DIRECTORIES}
-${SIMPATH}/include
-)
-
-include_directories(${LMDFIT_INCLUDE_DIRECTORIES})
 
 FILE(GLOB_RECURSE LMDFIT_SRCS  LmdFit/LumiImpl/*.cxx)
 
@@ -208,6 +197,6 @@ LmdFit/LumiImpl/LumiFitStructs.h
 set(LINKDEF  LmdFitLinkDef.h)
 set(LIBRARY_NAME LmdFit)
 
-set(DEPENDENCIES PndData LmdTool Model)
+set(DEPENDENCIES MathMore PndData LmdTool Model boost_filesystem)
 
 GENERATE_LIBRARY()

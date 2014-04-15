@@ -11,11 +11,11 @@
  *        and perform the fit and store the results (via fit facade)
  */
 
-#include "PndLmdDataFacade.h"
-#include "PndLmdFitFacade.h"
-#include "DataStructs.h"
-#include "PndLmdAngularData.h"
-#include "PndLmdAcceptance.h"
+#include "fit/data/DataStructs.h"
+#include "data/PndLmdDataFacade.h"
+#include "fit/PndLmdFitFacade.h"
+#include "data/PndLmdAngularData.h"
+#include "data/PndLmdAcceptance.h"
 
 #include <vector>
 #include <iostream>
@@ -102,7 +102,7 @@ void runLumiFit(string input_file_dir, string acceptance_file_dir) {
 	fit_range.is_active = true;
 
 	for (unsigned int i = 0; i < 1; i++) {
-		fit_range.range_low = (1.5 + 0.5 * i) / 1000.0;
+		fit_range.range_low = (2.1 + 0.5 * i) / 1000.0;
 		fit_range.range_high = 0.01;
 
 		est_opt.setFitRangeX(fit_range);

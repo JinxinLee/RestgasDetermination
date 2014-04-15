@@ -8,9 +8,9 @@
 #ifndef MODELESTIMATOR_H_
 #define MODELESTIMATOR_H_
 
-#include "ModelStructs.h"
-#include "ModelControlParameter.h"
-#include "EstimatorOptions.h"
+#include "core/ModelStructs.h"
+#include "fit/ModelControlParameter.h"
+#include "fit/EstimatorOptions.h"
 
 #include "SharedPtr.h"
 

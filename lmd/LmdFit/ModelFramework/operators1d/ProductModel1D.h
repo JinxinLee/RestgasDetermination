@@ -8,7 +8,7 @@
 #ifndef PRODUCTMODEL1D_H_
 #define PRODUCTMODEL1D_H_
 
-#include "Model1D.h"
+#include "core/Model1D.h"
 
 class ProductModel1D: public Model1D {
 private:

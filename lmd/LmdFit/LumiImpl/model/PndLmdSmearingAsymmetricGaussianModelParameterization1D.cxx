@@ -6,11 +6,11 @@
  */
 
 #include "PndLmdSmearingAsymmetricGaussianModelParameterization1D.h"
-#include "Model1D.h"
-#include "ModelPar.h"
-#include "PolynomialModel1D.h"
-#include "PndLmdROOTDataModel1D.h"
-#include "PndLmdLumiFitOptions.h"
+#include "core/Model1D.h"
+#include "core/ModelPar.h"
+#include "models1d/PolynomialModel1D.h"
+#include "model/PndLmdROOTDataModel1D.h"
+#include "fit/PndLmdLumiFitOptions.h"
 #include "PndLmdLumiHelper.h"
 
 #include <string>

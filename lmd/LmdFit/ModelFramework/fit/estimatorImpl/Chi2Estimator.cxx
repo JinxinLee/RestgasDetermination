@@ -6,8 +6,8 @@
  */
 
 #include "Chi2Estimator.h"
-#include "Model.h"
-#include "Data.h"
+#include "core/Model.h"
+#include "fit/data/Data.h"
 
 #include <iostream>
 

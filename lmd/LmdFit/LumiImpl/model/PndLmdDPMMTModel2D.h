@@ -8,7 +8,7 @@
 #ifndef PNDLMDDPMMODEL2D_H_
 #define PNDLMDDPMMODEL2D_H_
 
-#include "Model2D.h"
+#include "core/Model2D.h"
 #include "PndLmdDPMMTModel1D.h"
 
 class PndLmdDPMMTModel2D: public Model2D {

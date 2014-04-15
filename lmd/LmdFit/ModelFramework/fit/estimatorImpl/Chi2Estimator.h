@@ -8,7 +8,7 @@
 #ifndef CHI2ESTIMATOR_H_
 #define CHI2ESTIMATOR_H_
 
-#include "ModelEstimator.h"
+#include "fit/ModelEstimator.h"
 
 class Chi2Estimator: public ModelEstimator {
 public:

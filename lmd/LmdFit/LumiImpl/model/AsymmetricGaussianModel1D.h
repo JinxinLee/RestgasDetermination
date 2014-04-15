@@ -8,7 +8,7 @@
 #ifndef ASYMMETRICGAUSSIANMODEL1D_H_
 #define ASYMMETRICGAUSSIANMODEL1D_H_
 
-#include "Model1D.h"
+#include "core/Model1D.h"
 
 class AsymmetricGaussianModel1D: public Model1D {
 private:

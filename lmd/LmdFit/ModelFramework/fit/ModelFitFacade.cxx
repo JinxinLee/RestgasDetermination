@@ -6,7 +6,7 @@
  */
 
 #include "ModelFitFacade.h"
-#include "Data.h"
+#include "fit/data/Data.h"
 
 #include <iostream>
 

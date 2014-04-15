@@ -1,8 +1,8 @@
-#include "PndLmdDataFacade.h"
+#include "data/PndLmdDataFacade.h"
 #include "PndLmdResultPlotter.h"
-#include "PndLmdLumiFitResult.h"
-#include "PndLmdAcceptance.h"
-#include "PndLmdROOTDataModel1D.h"
+#include "fit/PndLmdLumiFitResult.h"
+#include "data/PndLmdAcceptance.h"
+#include "model/PndLmdROOTDataModel1D.h"
 
 #include "TFile.h"
 #include "TGraphAsymmErrors.h"

@@ -8,8 +8,8 @@
 #ifndef PNDLMDDPMMTMODEL1D_H_
 #define PNDLMDDPMMTMODEL1D_H_
 
+#include "core/Model1D.h"
 #include "LumiFitStructs.h"
-#include "Model1D.h"
 
 /**
  * \brief This class is the base of lumi models such as #PndLmdLumiModelROOT and #PndLmdLumiModelRooFit which can be fitted to #PndLmdData objects.

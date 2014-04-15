@@ -8,7 +8,7 @@
 #ifndef NUMERICCONVOLUTIONMODEL1D_H_
 #define NUMERICCONVOLUTIONMODEL1D_H_
 
-#include "Model1D.h"
+#include "core/Model1D.h"
 
 class NumericConvolutionModel1D: public Model1D {
 private:

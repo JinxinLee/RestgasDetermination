@@ -9,8 +9,8 @@
 #define PNDLMDLUMIHELPER_H_
 
 #if !defined(__CINT__)
-#include "ModelFitResult.h"
-#include "ModelStructs.h"
+#include "fit/ModelFitResult.h"
+#include "core/ModelStructs.h"
 
 #include "SharedPtr.h"
 
