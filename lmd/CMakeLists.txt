@@ -168,7 +168,7 @@ FILE(GLOB_RECURSE MODEL_SRCS LmdFit/ModelFramework/*.cxx)
 add_definitions(${CXX11_COMPILER_FLAGS})
 add_library(Model SHARED ${MODEL_SRCS})
 
-TARGET_LINK_LIBRARIES(Model ${EXTRA_LIBS} boost_filesystem)
+TARGET_LINK_LIBRARIES(Model ${EXTRA_LIBS} boost_filesystem boost_system)
 
 
 ########################### create libLmdFit ##################################
