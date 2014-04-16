@@ -1,0 +1,51 @@
+#!/bin/bash 
+################################################################
+## script for test cuts from rec as influence on determination of luminosity
+## BOX data and DPM data should be generated before
+## 26/03/2014 1st version
+## A.Karavdina
+################################################################
+echo Enter momentum from "1.5, 4.06, 8.9, 11.91, 15 [GeV/c]":
+read mom
+echo "Beam mometum is: $mom!"
+cd ${VMCWORKDIR}/macro/lmd/
+pbeam=$mom
+momStr=`echo $pbeam | sed -e '{ s/\./_/g; }'`
+#pathBOX=${VMCWORKDIR}/macro/lmd/testPixelBOXdataRealBeam_1e6/mom_${momStr}/
+#pathBOX=/panda/myResults/BOXoutpitMarch2014_BeamProf/mom_${momStr}/
+#pathDPM=/panda/myResults/DPMoutputMarch2014_BeamProf/mom_${momStr}/
+
+pathBOX=/panda/myResults/BOXoutpitMarch2014_pointBeam/mom_${momStr}/
+pathDPM=/panda/myResults/DPMoutputMarch2014_pointBeam/mom_${momStr}/
+
+#thcutVal=1.0
+
+### preparation for the luminosity fit
+cd ${VMCWORKDIR}/buildPanda/bin
+#./createLumiFitData -t 0 -p ${pathDPM} -g 0.102459016393442626 ### 15 GeV/c, -g= 1./sigma_tot_el
+#for thcutVal in 0.7 1.1 1.4 1.75 2.1 2.45 2.8 3.15 3.5 4.2 7
+#for thcutVal in 0.5 0.9 1.3 1.7 2.1 2.5 2.9 3.3 3.7 4.1 4.5 4.9 5.3 5.7 6.1 6.5 6.9 10000
+#for thcutVal in 0.7 1.4 2.1 2.8 3.5 4.2 4.9 5.6 6.3 7.0 7.7 8.4 9.1 9.8 10.5 14 70 
+
+#for thcutVal in 0.7
+#for thcutVal in 0.7 1.4 2.1 2.8 3.5 
+#for thcutVal in 800000000
+#for thcutVal in -300.1
+for thcutVal in 50000000 0.7 1.4 2.1 2.8 3.5 4.2 4.9 5.6 6.3 7.0 7.7 8.4 9.1 9.8 10.5 14 70 
+do 
+    ./createLumiFitData -n 100000  -m 1.5 -t a -p ${pathDPM} -c 61.919965  -a ${thcutVal} #data
+    ./createLumiFitData -n 100000 -m 1.5 -t er -p ${pathBOX} -a ${thcutVal} #acc & res
+    ./determineResolution -d ${pathBOX} &> ${pathDPM}\log_determineResolution
+    ./plotResolutionParametrization -d  ${pathBOX} -l 0
+    ### and now let's fit the luminosity
+    ./runLumiFit -d ${pathDPM} -a ${pathBOX} &> ${pathDPM}\log_runLumiFit
+    ./plotLumiFitResults ${pathDPM}
+    thcutValStr=`echo $thcutVal | sed -e '{ s/\./_/g; }'`
+    mv fitresults_overview.pdf ${pathDPM}/fitresults_overview_Thcut_${thcutValStr}.pdf
+    mv lumifit_reco.pdf ${pathDPM}/lumifit_reco_Thcut_${thcutValStr}.pdf
+    mv resolution.pdf ${pathDPM}/resolution_Thcut_${thcutValStr}.pdf
+    mv ${pathBOX}/resolution_params_1.root ${pathDPM}/resolution_params_1_${thcutValStr}.root
+    mv ${pathBOX}/resolution_params_0.root ${pathDPM}/resolution_params_0_${thcutValStr}.root
+
+
+done 
