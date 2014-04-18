@@ -143,7 +143,7 @@ PndFsmAbsDet::parseParameterList(ArgList &par)
 
       //cout <<"value: -"<<value<<"-   "<<endl;
 
-      if (value!=0 || strvalue=="0" || strvalue=="0.0")
+      if (value!=0 || strvalue=="0" || strvalue=="0.0" || strvalue=="0.")
       {
         if (!setParameter(name,value))
 	  cout  <<" -W- (PndFsmAbsDet::parseParameterList) Unknown Parameter: <"<<name<< endl;
