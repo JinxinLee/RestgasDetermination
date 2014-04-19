@@ -107,12 +107,14 @@ PndFsmEmcBarrel::respond(PndFsmTrack *t)
   if (wasDetected && fabs(t->charge())<1e-8)
   {
     result->setdE(dE(t));
+    result->setdp(dE(t));
     result->setdphi(dphi(t));
     result->setdtheta(dtheta(t));
   }
   else
   {
     result->setdE(0.);
+    result->setdp(0.);
     result->setdphi(0.);
     result->setdtheta(0.);
   }

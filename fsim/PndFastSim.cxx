@@ -465,7 +465,7 @@ void PndFastSim::Exec(Option_t* opt)
 
       RhoCandidate tcand(ft->p4(),ft->charge(),svtx);
 
-      if( (fPropagate||fUseFlatCovMatrix) && fabs(ft->charge())>1e-6)
+      if( (fPropagate||fUseFlatCovMatrix))// && fabs(ft->charge())>1e-6)
       {
         tcand.SetCov7(ft->Cov7());
         pidCand->SetCov7( ft->Cov7() );
