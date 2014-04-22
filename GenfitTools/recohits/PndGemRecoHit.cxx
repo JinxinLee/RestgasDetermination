@@ -132,6 +132,17 @@ PndGemRecoHit::PndGemRecoHit(PndGemHit* hit)
    fHitCov[0][0] = hit->GetDr()*hit->GetDr();
    fHitCov[1][1] = hit->GetDp()*hit->GetDp();
 
+   if ( hit->GetDp() < 1.e-8 ) {
+     uu.SetXYZ (1.,0.,0.);
+     vv.SetXYZ (0.,1.,0.);
+
+     fHitCoord[0][0] = hitX;
+     fHitCoord[1][0] = hitY;
+     
+     fHitCov[0][0] = hit->GetDx()*hit->GetDx();
+     fHitCov[1][1] = hit->GetDy()*hit->GetDy();
+   }
+
    fPolicy.setDetPlane(GFDetPlane(oo,uu,vv));
  //============================================================================
 }
