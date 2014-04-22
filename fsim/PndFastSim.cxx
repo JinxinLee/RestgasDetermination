@@ -464,6 +464,7 @@ void PndFastSim::Exec(Option_t* opt)
       pidProb->SetIndex(chcandsize);
 
       RhoCandidate tcand(ft->p4(),ft->charge(),svtx);
+      tcand.SetTrackNumber(chcandsize);
 
       if( (fPropagate||fUseFlatCovMatrix))// && fabs(ft->charge())>1e-6)
       {
@@ -548,7 +549,7 @@ void PndFastSim::Exec(Option_t* opt)
 }
 // -------------------------------------------------------------------------
 
-bool PndFastSim::smearTrack(PndFsmTrack *t, int idx )
+bool PndFastSim::smearTrack(PndFsmTrack *t, int chcandsize )
 {
 
 
@@ -570,39 +571,53 @@ bool PndFastSim::smearTrack(PndFsmTrack *t, int idx )
 
   bool success = cutAndSmear(t);
 
+  if(success && fabs(t->charge())>1e-6)
+  { // create dummy PID info for all detectors, then fill it with reason later
+    for(std::map<TString, TClonesArray*>::iterator pidit=fPidArrayList.begin() ; pidit != fPidArrayList.end() ; pidit++)
+    {
+      TClonesArray* myPidarray = pidit->second;
+      if (!myPidarray) Error("PndFastSim::smearTrack","Missing PidProb Array: \"%s\"",pidit->first.Data());
+      if (! myPidarray->GetEntriesFast() == chcandsize ) Warning("PndFastSim::smearTrack","unequal array sizes: cand array:%i  prob array \"%s\" :%i",chcandsize,pidit->first.Data(),myPidarray->GetEntriesFast());
+      PndPidProbability *apidProb=new((*myPidarray)[chcandsize]) PndPidProbability();
+      apidProb->SetIndex(chcandsize);
+    }
+  }
+
   for (FsmResponseList::iterator riter=responseList.begin(); riter!=responseList.end();riter++)
   {
     PndFsmResponse *resp=*riter;
     if (!resp) continue;
-    if(success&&resp->detector()->doesPid())
+
+    if(success && fabs(t->charge())>1e-6&&resp->detector()->doesPid())
     { //save PID information only if particle is stored
       TString detname = resp->detector()->detName();
-      //std::cout<<"try PID array "<<detname.Data()<<std::endl;
       TClonesArray* myPidarray = fPidArrayList[detname];
-      int npid = myPidarray->GetEntriesFast();
-      PndPidProbability *pidProb=new((*myPidarray)[npid]) PndPidProbability();
-      double rawLHe  = resp->LHElectron();
-      double rawLHmu = resp->LHMuon();
-      double rawLHpi = resp->LHPion();
-      double rawLHK  = resp->LHKaon();
-      double rawLHp  = resp->LHProton();
-
-      double sumRaw = rawLHe+rawLHmu+rawLHpi+rawLHK+rawLHp;
-	  pidProb->SetIndex(idx);
-
-      if (sumRaw!=0.)
+      if (!myPidarray) Error("PndFastSim::smearTrack","Failed accessing PidProb Array: \"%s\"",detname.Data());
+      PndPidProbability *pidProb=(PndPidProbability*)myPidarray->At(chcandsize);
+      if (!pidProb) Error("PndFastSim::smearTrack","Failed accessing PidProb Object number %i from array \"%s\"",chcandsize,detname.Data());
       {
-        pidProb->SetElectronPdf(rawLHe/sumRaw);
-        pidProb->SetMuonPdf(rawLHmu/sumRaw);
-        pidProb->SetPionPdf(rawLHpi/sumRaw);
-        pidProb->SetKaonPdf(rawLHK/sumRaw);
-        pidProb->SetProtonPdf(rawLHp/sumRaw);
-      } else {
-        pidProb->SetElectronPdf(0.2);
-        pidProb->SetMuonPdf(0.2);
-        pidProb->SetPionPdf(0.2);
-        pidProb->SetKaonPdf(0.2);
-        pidProb->SetProtonPdf(0.2);
+        double rawLHe  = resp->LHElectron();
+        double rawLHmu = resp->LHMuon();
+        double rawLHpi = resp->LHPion();
+        double rawLHK  = resp->LHKaon();
+        double rawLHp  = resp->LHProton();
+
+        double sumRaw = rawLHe+rawLHmu+rawLHpi+rawLHK+rawLHp;
+
+        if (sumRaw!=0.)
+        {
+          pidProb->SetElectronPdf(rawLHe/sumRaw);
+          pidProb->SetMuonPdf(rawLHmu/sumRaw);
+          pidProb->SetPionPdf(rawLHpi/sumRaw);
+          pidProb->SetKaonPdf(rawLHK/sumRaw);
+          pidProb->SetProtonPdf(rawLHp/sumRaw);
+        } else {
+          pidProb->SetElectronPdf(0.2);
+          pidProb->SetMuonPdf(0.2);
+          pidProb->SetPionPdf(0.2);
+          pidProb->SetKaonPdf(0.2);
+          pidProb->SetProtonPdf(0.2);
+        }
       }
     }
     // and now clean up!
