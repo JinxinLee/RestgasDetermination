@@ -6,7 +6,7 @@
 // This task is used as an interface between
 // PndFtsHoughTrackFinder
 // and PandaRoot
-// It was originally modeled after mvd/PndMvdRiemannTrackFinderTask (among many others)
+// It was originally modeled after mvd/MvdTracking/PndMvdRiemannTrackFinderTask (among many others)
 //
 // This task provides functionality for other FTS tracking classes by passing a pointer to itself.
 //

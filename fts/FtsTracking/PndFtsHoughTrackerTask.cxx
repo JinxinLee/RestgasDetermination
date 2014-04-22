@@ -232,8 +232,6 @@ InitStatus PndFtsHoughTrackerTask::Init()
 
 
 void PndFtsHoughTrackerTask::WriteHistogram(PndFtsHoughSpace* houghSpace, Int_t index){
-	if (kFALSE == fSaveDebugInfo) return;
-
 	//	Int_t index = fHoughSpaces->GetEntriesFast();
 	//	PndFtsHoughSpace* myHoughSpace = new ((*fHoughSpaces)[index])PndFtsHoughSpace(*houghSpace);
 

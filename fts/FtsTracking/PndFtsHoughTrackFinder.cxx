@@ -69,8 +69,8 @@ PndFtsHoughTrackFinder::PndFtsHoughTrackFinder(PndFtsHoughTrackerTask *trackerTa
 
 												// set later using tracker task
 												fFtsHitArray(0),
-												fFtsBranchId(0),
-												fField(0),
+//												fFtsBranchId(0),
+//												fField(0),
 
 												// Hough spaces
 												fHoughSpaceZxLineBeforeDipole(0),
@@ -95,8 +95,8 @@ PndFtsHoughTrackFinder::PndFtsHoughTrackFinder(PndFtsHoughTrackerTask *trackerTa
 		if(3<fVerbose) std::cout << "PndFtsHoughTrackFinder called with tracker ptr " << fTrackerTask << '\n';
 		fSaveDebugInfo = fTrackerTask->GetSaveDebugInfo();
 		fFtsHitArray = fTrackerTask->getFtsHitArrayPtr();
-		fFtsBranchId = fTrackerTask->getFtsBranchId();
-		fField = fTrackerTask->getMagneticFieldPtr();
+//		fFtsBranchId = fTrackerTask->getFtsBranchId();
+//		fField = fTrackerTask->getMagneticFieldPtr();
 	}
 }
 
@@ -169,7 +169,7 @@ void PndFtsHoughTrackFinder::FindTracks() {
 
 
 
-	// Do straight line hough transform on non-skewed hits from stations 1+2
+	// Do straight line Hough transform on non-skewed hits from stations 1+2
 	if ( kTRUE == fHoughSpaceZxLineBeforeDipole->MakeHoughSpace() )
 	{
 		if (0<fVerbose) {
@@ -202,7 +202,7 @@ void PndFtsHoughTrackFinder::FindTracks() {
 	}
 	else
 	{
-		std::cout << "Error: Peak finder had a problem with hough space for zx line before dipole!!!" << std::endl;
+		std::cout << "Error: Peak finder had a problem with Hough space for zx line before dipole!!!" << std::endl;
 	}
 
 

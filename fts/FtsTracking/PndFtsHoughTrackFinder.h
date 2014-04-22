@@ -75,9 +75,6 @@ public:
 	void FindTracks();										///< Main function to start the track finding
 
 
-	void SetVerbose (int verbose){fVerbose = verbose;};
-	void SetSaveDebugInfo(Bool_t saveDebugInfo){ fSaveDebugInfo = saveDebugInfo;};
-
 	// Output
 	Int_t NTracks() const { return fHoughTrackCands.size(); };								///< Returns the number of found tracks
 	PndFtsHoughTrackCand GetHoughTrack(int i) const { return fHoughTrackCands[i]; };					///< Returns the track with the index i
@@ -112,7 +109,7 @@ private:
 		}
 	};
 
-	Int_t   fFtsBranchId; // needed for saving and accessing hits
+//	Int_t   fFtsBranchId; // needed for saving and accessing hits
 	TClonesArray *fFtsHitArray; // Input array of all FTS hits
 
 
@@ -129,9 +126,9 @@ private:
 
 
 
-
-	// for B field access
-	FairField* fField;
+//
+//	// for B field access
+//	FairField* fField;
 
 
 
