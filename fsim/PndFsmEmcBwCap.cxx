@@ -4,7 +4,7 @@
 //
 // Description:
 //      Class FsmEmcBwCap
-//      
+//
 //  Implementation of the EMC Barrel part for the FastSim
 //
 //  This software was developed for the PANDA collaboration.  If you
@@ -53,21 +53,21 @@ using std::string;
 // Constructors --
 //----------------
 
-PndFsmEmcBwCap::PndFsmEmcBwCap() 
+PndFsmEmcBwCap::PndFsmEmcBwCap()
 {
   initParameters();
-  
+
   _thtMin=_thtMin*M_PI/180.0;
   _thtMax=_thtMax*M_PI/180.0;
   print(std::cout);
 }
 
-PndFsmEmcBwCap::PndFsmEmcBwCap(ArgList &par) 
+PndFsmEmcBwCap::PndFsmEmcBwCap(ArgList &par)
 {
   initParameters();
   //set default parameter values and parses a parameter list
   //i.e. std::list<std::string> of the form
-  //"a=1" "b=2" "c=3" 
+  //"a=1" "b=2" "c=3"
   parseParameterList(par);
 
   _thtMin=_thtMin*M_PI/180.0;
@@ -87,34 +87,32 @@ PndFsmEmcBwCap::~PndFsmEmcBwCap()
 // Operations --
 //--------------
 
-PndFsmResponse* 
+PndFsmResponse*
 PndFsmEmcBwCap::respond(PndFsmTrack *t)
 {
   PndFsmResponse *result=new PndFsmResponse();
-  
+
   result->setDetector(this);
   bool wasDetected=detected(t);
   result->setDetected(wasDetected);
-  
+
   if (wasDetected && fabs(t->charge())<1e-8)
   {
     result->setdE(dE(t));
-    result->setdp(dE(t));
     result->setdphi(dphi(t));
     result->setdtheta(dtheta(t));
   }
-  else 
+  else
   {
     result->setdE(0.);
-    result->setdp(0.);
     result->setdphi(0.);
     result->setdtheta(0.);
   }
-  
+
   return result;
 }
 
-bool 
+bool
 PndFsmEmcBwCap::detected(PndFsmTrack *t) const
 {
   if (t->hitMapValid()) {
@@ -127,11 +125,11 @@ PndFsmEmcBwCap::detected(PndFsmTrack *t) const
   }
 }
 
-double 
+double
 PndFsmEmcBwCap::dE(PndFsmTrack *t) const
 {
   double E = t->p4().E();
-  
+
   return (_aPar+_bPar/E+_cPar/sqrt(E) ) * E;
 }
 
@@ -139,7 +137,7 @@ double
 PndFsmEmcBwCap::dphi(PndFsmTrack *t) const
 {
   double theta = t->p4().Vect().Theta();
-   
+
   return (_resFactor*M_PI/int(2*M_PI*_dist*tan(M_PI-theta)/_xtalDim) );
 }
 
@@ -154,20 +152,20 @@ void
 PndFsmEmcBwCap::print(ostream &o)
 {
   o <<"Detector <"<<_detName<<">"<<endl;
-  o  <<"  _aPar = "<<_aPar<<endl; 
-  o  <<"  _bPar = "<<_bPar<<endl; 
-  o  <<"  _cPar = "<<_cPar<<endl; 
-  o  <<"  _xtalDim = "<<_xtalDim<<endl; 
-  o  <<"  _Emin = "<<_Emin<<endl; 
-  o  <<"  _dist = "<<_dist<<endl; 
-  o  <<"  _resFactor = "<<_resFactor<<endl; 
-  o  <<"  _thtMin = "<<_thtMin<<endl; 
-  o  <<"  _thtMax = "<<_thtMax<<endl; 
-  o  <<"  _radiationLength = "<<_radiationLength<<endl; 
-  o  <<"  _efficiency = "<<_efficiency<<endl; 
+  o  <<"  _aPar = "<<_aPar<<endl;
+  o  <<"  _bPar = "<<_bPar<<endl;
+  o  <<"  _cPar = "<<_cPar<<endl;
+  o  <<"  _xtalDim = "<<_xtalDim<<endl;
+  o  <<"  _Emin = "<<_Emin<<endl;
+  o  <<"  _dist = "<<_dist<<endl;
+  o  <<"  _resFactor = "<<_resFactor<<endl;
+  o  <<"  _thtMin = "<<_thtMin<<endl;
+  o  <<"  _thtMax = "<<_thtMax<<endl;
+  o  <<"  _radiationLength = "<<_radiationLength<<endl;
+  o  <<"  _efficiency = "<<_efficiency<<endl;
 }
 
-void 
+void
 PndFsmEmcBwCap::initParameters()
 {
   _detName = FsmDetName::name(FsmDetEnum::EmcBwCap);
@@ -183,7 +181,7 @@ PndFsmEmcBwCap::initParameters()
   _thtMin = 140.0;
   _thtMax = 170.0;
   _radiationLength = 0.0;
-  _efficiency	   =1.0; 
+  _efficiency	   =1.0;
 }
 
 bool
@@ -192,9 +190,9 @@ PndFsmEmcBwCap::setParameter(std::string &name, double value)
   // *****************
   // include here all parameters which should be settable via tcl
   // *****************
-      
+
   bool knownName=true;
-  
+
   if (name == "aPar")
     _aPar=value;
   else
@@ -229,7 +227,7 @@ PndFsmEmcBwCap::setParameter(std::string &name, double value)
     _efficiency=value;
   else
     knownName=false;
-  
+
   return knownName;
 }
 

@@ -4,7 +4,7 @@
 //
 // Description:
 //      Class FsmEmcFS
-//      
+//
 //  Implementation of the EMC Barrel part for the FastSim
 //
 //  This software was developed for the PANDA collaboration.  If you
@@ -54,21 +54,21 @@ using std::string;
 // Constructors --
 //----------------
 
-PndFsmEmcFS::PndFsmEmcFS() 
+PndFsmEmcFS::PndFsmEmcFS()
 {
   initParameters();
-  
+
   _thtMin=_thtMin*M_PI/180.0;
   _thtMax=_thtMax*M_PI/180.0;
   print(std::cout);
 }
 
-PndFsmEmcFS::PndFsmEmcFS(ArgList &par) 
+PndFsmEmcFS::PndFsmEmcFS(ArgList &par)
 {
   initParameters();
   //set default parameter values and parses a parameter list
   //i.e. std::list<std::string> of the form
-  //"a=1" "b=2" "c=3" 
+  //"a=1" "b=2" "c=3"
   parseParameterList(par);
 
   _thtMin=_thtMin*M_PI/180.0;
@@ -88,34 +88,32 @@ PndFsmEmcFS::~PndFsmEmcFS()
 // Operations --
 //--------------
 
-PndFsmResponse* 
+PndFsmResponse*
 PndFsmEmcFS::respond(PndFsmTrack *t)
 {
   PndFsmResponse *result=new PndFsmResponse();
-  
+
   result->setDetector(this);
   bool wasDetected=detected(t);
   result->setDetected(wasDetected);
-  
+
   if (wasDetected && fabs(t->charge())<1e-8)
   {
     result->setdE(dE(t));
-    result->setdp(dE(t));
     result->setdphi(dphi(t));
     result->setdtheta(dtheta(t));
   }
-  else 
+  else
   {
     result->setdE(0.);
-    result->setdp(0.);
     result->setdphi(0.);
     result->setdtheta(0.);
   }
-  
+
   return result;
 }
 
-bool 
+bool
 PndFsmEmcFS::detected(PndFsmTrack *t) const
 {
   if (t->hitMapValid()) {
@@ -128,11 +126,11 @@ PndFsmEmcFS::detected(PndFsmTrack *t) const
   }
 }
 
-double 
+double
 PndFsmEmcFS::dE(PndFsmTrack *t) const
 {
   double E = t->p4().E();
-  
+
   return (sqrt(_aPar*_aPar+_bPar*_bPar/E ) * E);  //Jerzy's version
 }
 
@@ -153,26 +151,26 @@ PndFsmEmcFS::dtheta(PndFsmTrack *t) const
   //return ( _resFactor*atan(_xtalDim*cos(theta)/(2*_dist)) );
 
   double E = t->p4().E();                 //Jerzy's version
-  return (0.002/sqrt(E));   
+  return (0.002/sqrt(E));
 }
 
 void
 PndFsmEmcFS::print(ostream &o)
 {
   o <<"Detector <"<<_detName<<">"<<endl;
-  o  <<"  _aPar = "<<_aPar<<endl; 
-  o  <<"  _bPar = "<<_bPar<<endl; 
-  o  <<"  _xtalDim = "<<_xtalDim<<endl; 
-  o  <<"  _Emin = "<<_Emin<<endl; 
-  o  <<"  _dist = "<<_dist<<endl; 
-  o  <<"  _resFactor = "<<_resFactor<<endl; 
-  o  <<"  _thtMin = "<<_thtMin<<endl; 
-  o  <<"  _thtMax = "<<_thtMax<<endl; 
-  o  <<"  _radiationLength = "<<_radiationLength<<endl; 
-  o  <<"  _efficiency = "<<_efficiency<<endl; 
+  o  <<"  _aPar = "<<_aPar<<endl;
+  o  <<"  _bPar = "<<_bPar<<endl;
+  o  <<"  _xtalDim = "<<_xtalDim<<endl;
+  o  <<"  _Emin = "<<_Emin<<endl;
+  o  <<"  _dist = "<<_dist<<endl;
+  o  <<"  _resFactor = "<<_resFactor<<endl;
+  o  <<"  _thtMin = "<<_thtMin<<endl;
+  o  <<"  _thtMax = "<<_thtMax<<endl;
+  o  <<"  _radiationLength = "<<_radiationLength<<endl;
+  o  <<"  _efficiency = "<<_efficiency<<endl;
 }
 
-void 
+void
 PndFsmEmcFS::initParameters()
 {
   _detName = FsmDetName::name(FsmDetEnum::EmcFS);
@@ -185,7 +183,7 @@ PndFsmEmcFS::initParameters()
   _thtMin = 0.05;
   _thtMax = 5.0;
   _radiationLength = 0.0;
-  _efficiency	   =1.0; 
+  _efficiency	   =1.0;
 }
 
 bool
@@ -194,9 +192,9 @@ PndFsmEmcFS::setParameter(std::string &name, double value)
   // *****************
   // include here all parameters which should be settable via tcl
   // *****************
-      
+
   bool knownName=true;
-  
+
   if (name == "aPar")
     _aPar=value;
   else
@@ -228,7 +226,7 @@ PndFsmEmcFS::setParameter(std::string &name, double value)
     _efficiency=value;
   else
     knownName=false;
-  
+
   return knownName;
 }
 

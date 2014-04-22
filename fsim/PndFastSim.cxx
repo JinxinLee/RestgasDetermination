@@ -717,12 +717,22 @@ void PndFastSim::SetFlatCovMatrix(PndFsmTrack *t, double dp, double dtheta, doub
   double p=lv.P();
   double e=lv.E();
 
-  TMatrixD jacobian(4,4);
+  //printf("FastSim covariance test: dp=%f,  dtheta=%f,  dphi=%f,  dE=%f,  dx=%f,  dy=%f,  dz=%f\n", dp,  dtheta,  dphi,  dE,  dx,  dy,  dz);
 
-  jacobian(0,0) = st*cf;
-  jacobian(1,0) = st*sf;
-  jacobian(2,0) = ct;
-  jacobian(3,0) = (e>0) ? p/e : 0.;
+  TMatrixD jacobian(4,3);
+
+  if(fabs(t->charge())>1e-6)
+  {
+	jacobian(0,0) = st*cf;
+    jacobian(1,0) = st*sf;
+    jacobian(2,0) = ct;
+    jacobian(3,0) = (e>0) ? p/e : 0.;
+  } else { // no direct momentum measurement of neutrals
+    jacobian(0,0) = st*cf*e/p;
+    jacobian(1,0) = st*sf*e/p;
+    jacobian(2,0) = ct*e/p;
+    jacobian(3,0) = 1.;
+  }
   jacobian(0,1) = p*ct*cf;
   jacobian(1,1) = p*ct*sf;
   jacobian(2,1) = -p*st;
@@ -731,16 +741,13 @@ void PndFastSim::SetFlatCovMatrix(PndFsmTrack *t, double dp, double dtheta, doub
   jacobian(1,2) = p*st*cf;
   jacobian(2,2) = 0.;
   jacobian(3,2) = 0.;
-  jacobian(0,3) = 0.;
-  jacobian(1,3) = 0.;
-  jacobian(2,3) = 0.;
-  jacobian(3,3) = 1.;
 
-  TMatrixDSym covPol(4);
-  covPol(0,0)=dp*dp;
+  TMatrixDSym covPol(3);
+  if(fabs(t->charge())>1e-6) covPol(0,0)=dp*dp;
+  else covPol(0,0)=dE*dE;
+
   covPol(1,1)=dtheta*dtheta;
   covPol(2,2)=dphi*dphi;
-  covPol(3,3)=dE*dE;
 
   TMatrixD jcov(jacobian,TMatrixD::kMult,covPol);
   TMatrixD covCar(jcov,TMatrixD::kMultTranspose,jacobian);
