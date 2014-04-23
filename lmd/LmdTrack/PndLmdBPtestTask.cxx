@@ -245,7 +245,7 @@ void PndLmdBPtestTask::Exec(Option_t* opt)
       TVector3 PosRecLMD(fFittedTrkP.GetX(),fFittedTrkP.GetY(),fFittedTrkP.GetZ());
       if(fFittedTrkP.GetZ()>1130) continue;// TEST: skip trks from 2nd plane. TODO: check are they fine???
       TVector3 MomRecLMD(fFittedTrkP.GetPx(),fFittedTrkP.GetPy(),fFittedTrkP.GetPz());
-      MomRecLMD *=fPbeam/MomRecLMD.Mag();//external assumption about mom magnitude
+      MomRecLMD *=fPbeam/MomRecLMD.Mag();//external assumption about mom magnitude //<- commented as TEST
       fFittedTrkP.SetPx(MomRecLMD.X()); fFittedTrkP.SetPy(MomRecLMD.Y()); fFittedTrkP.SetPz(MomRecLMD.Z());
       double covMARS[6][6];
       fFittedTrkP.GetMARSCov(covMARS);
@@ -282,7 +282,7 @@ void PndLmdBPtestTask::Exec(Option_t* opt)
       TVector3 MomMClmd(pxTrue,pyTrue,pzTrue);
       TVector3 dirMClmd = MomMClmd;
       dirMClmd *=1./(MomMClmd.Mag());
-      MomMClmd *=fPbeam/(MomMClmd.Mag());
+      MomMClmd *=fPbeam/(MomMClmd.Mag()); //<- commented as TEST
       double xMClmdNew =  PosMClmd.X()-(dirMClmd.X()*0.010);
       double yMClmdNew =  PosMClmd.Y()-(dirMClmd.Y()*0.010);
       double zMClmdNew  = PosMClmd.Z()-(dirMClmd.Z()*0.010);
@@ -311,7 +311,7 @@ void PndLmdBPtestTask::Exec(Option_t* opt)
       // 	zbend[js]=z0-zstep*js;
       // }
 
-      const int nstep0=100;
+      const int nstep0=10;
       //      double zbend0[nstep0]={fFittedTrkP.GetZ(), 661, 660.5, 660., 659, 319, 316, 220,10};//entarance and exit mag.field
       double zbend0[nstep0]={fFittedTrkP.GetZ(), 660, 602, 450, 342, 283, 248, 180, 100, 1};//entarance and exit mag.field
        //      TEST for backward and forward propagation: more steps!
@@ -322,7 +322,7 @@ void PndLmdBPtestTask::Exec(Option_t* opt)
  	 const double z0=zbend0[is-1];
  	 const double z1=zbend0[is];
  	 const double zstep=(z0-z1)/nintstep;
- 	 //	 cout<<"is = "<<is<<": z0 = "<<z0<<" z1 = "<<z1<<" zstep = "<<zstep<<endl;
+	 //	 cout<<"is = "<<is<<": z0 = "<<z0<<" z1 = "<<z1<<" zstep = "<<zstep<<endl;
  	 for(int js=0;js<nintstep;js++){
  	   int curint = (is-1)*nintstep+js;
  	   zbend[curint]=z0-zstep*js;
@@ -368,14 +368,15 @@ void PndLmdBPtestTask::Exec(Option_t* opt)
  	   TVector3 PosMC = mctrk->GetStartVertex();
  	   TVector3 MomMCerr(0.,0.,0.);
  	   TVector3 PosMCerr(0.,0.,0.);
- 	   if(PosMC.Z()>0){
+	   //	   if(PosMC.Z()>0){
+	   if(PosMC.Z()>1){
  	     cout<<"!!! Achtung: "<<PosMC.Z()<<endl;
  	     break;
  	   }
 
  	   fStartMC = new FairTrackParP(PosMC, MomMC, PosMCerr, MomMCerr, fCharge,ocMC,djMC,dkMC);
  	   for(int sj=nstep-1;sj>-1;sj--){
- 	     //   cout<<"MC forward: to z="<<zbend[sj]<<endl;
+	     //	     cout<<"MC forward: to z="<<zbend[sj]<<endl;
  	     bool isPropMC;
  	     FairTrackParP *fResMC = PropToPlane(fStartMC,zbend[sj],+1,isPropMC);//forward propagation
  	     if(isPropMC){
@@ -399,7 +400,7 @@ void PndLmdBPtestTask::Exec(Option_t* opt)
  	       vwmc_err[sj] = fResMC->GetDW();
  	       vtvmc_err[sj] = fResMC->GetDTV();
  	       vtwmc_err[sj] = fResMC->GetDTW();
- 	       //   cout<<"Next step;)"<<endl;
+	       // 	         cout<<"Next step;)"<<endl;
  	     }
  	     else break;
  	   }
@@ -637,7 +638,7 @@ FairTrackParP* PndLmdBPtestTask::PropToPlane(FairTrackParP* fStartPst, double zp
 	TVector3 stStartPos(fStartPst->GetX(),fStartPst->GetY(),fStartPst->GetZ());
 	if(zpos>1e3){//external assumption about mom magnitude [use it while in BOX and we know mom should be diff]
 	  TVector3 MomStartPos(fStartPst->GetPx(),fStartPst->GetPy(),fStartPst->GetPz());
-	  MomStartPos *=fPbeam/MomStartPos.Mag();
+	  MomStartPos *=fPbeam/MomStartPos.Mag(); //<- commented as TEST
 	  fStartPst->SetPx(MomStartPos.X()); fStartPst->SetPy(MomStartPos.Y()); fStartPst->SetPz(MomStartPos.Z());//correct mom.magnitude
 	}
 	//propagate plane-to-plane
