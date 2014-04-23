@@ -25,14 +25,14 @@ fi
 momStr=`echo $pbeam | sed -e '{ s/\./_/g; }'`
 #path=${VMCWORKDIR}/macro/lmd/testTargetBeamProfile_ZXplane_Step5cm/mom_${momStr}/
 #path=${VMCWORKDIR}/macro/lmd/testTargetBeamProfile_Line_Step50cm_XYStep9mm/mom_${momStr}/
-path=${VMCWORKDIR}/macro/lmd/testTargetBeamProfile_PCA_XYStep9mm_large/mom_${momStr}/
+path=${VMCWORKDIR}/macro/lmd/testTraceRestGas/mom_${momStr}/
 #path=${VMCWORKDIR}/macro/lmd/testTargetBeamProfile_Line_Step50cm/mom_${momStr}/
 
 mkdir -p ${path}
 #number of trks per event
 numTrks=1
 #number of events
-numEv=1000000
+numEv=100000
 
 ##############
 # set flags
@@ -61,7 +61,7 @@ SkipRec=false
 ##############
 
 # #simulation with Box generator
-root -l -b -q runLumiPixel0SimBoxTarget.C\(${numEv},0,"\"${path}\"",0,-2212,${pbeam},${numTrks},3562\) 
+root -l -b -q Anastasia/tests/RestGas/runLumiPixel0SimBoxTarget.C\(${numEv},0,"\"${path}\"",0,-2212,${pbeam},${numTrks},3562\) 
 
 # # #simulation with DPM
 #   #  modeDPM=0 #inel
@@ -97,7 +97,8 @@ if [ $SkipRec == "false" ]; then
 
 #back-propgation GEANE
 ### Possible options: "Geane", "RK"
-     root -l -b -q runLumiPixel5BackProp.C\(${numEv},0,"\"${path}\"",0,"\"Geane\"",${mergedHits},${pbeam}\)
+    # root -l -b -q Anastasia/tests/RestGas/runLumiPixel5BackProp.C\(${numEv},0,"\"${path}\"",0,"\"Geane\"",${mergedHits},${pbeam}\)
+root -l -b -q Anastasia/tests/RestGas/runLumiPixel5BPtest.C\(${numEv},0,"\"${path}\"",10,"\"Geane\"",${mergedHits},${pbeam}\)
 fi 
 #clean signal from background (momentum cut or MVA cut)
 	 if [ $CleanSig == "true" ]; then 
@@ -109,3 +110,6 @@ fi
       root -l -b -q runLumiPixel7TrksQA.C\(${numEv},0,"\"${path}\"",0,${pbeam},${WrAllMC},${CleanSig}\)
       root -l -b -q  Anastasia/test_macros/BkgSignalCount.C\("\"${path}\"",${numEv},0\)
       root -l -b -q Anastasia/test_macros/EffTrks.C\(${numEv},0,"\"${path}\""\)
+
+## for trace of back propagation (works only if runLumiPixel5BPtest.C was used!)
+root -l -b -q Anastasia/tests/BPmanySteps/MC_REC_MCLMD.C\("\"${path}\""\)
