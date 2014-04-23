@@ -60,8 +60,8 @@ PndFsmEmcBarrel::PndFsmEmcBarrel()
 
   _thtMin=_thtMin*M_PI/180.0;
   _thtMax=_thtMax*M_PI/180.0;
-  _phiMin=_thtMin*M_PI/180.0;
-  _phiMax=_thtMax*M_PI/180.0;
+  _phiMin=_phiMin*M_PI/180.0;
+  _phiMax=_phiMax*M_PI/180.0;
   print(std::cout);
 }
 
@@ -75,8 +75,8 @@ PndFsmEmcBarrel::PndFsmEmcBarrel(ArgList &par)
 
   _thtMin=_thtMin*M_PI/180.0;
   _thtMax=_thtMax*M_PI/180.0;
-  _phiMin=_thtMin*M_PI/180.0;
-  _phiMax=_thtMax*M_PI/180.0;
+  _phiMin=_phiMin*M_PI/180.0;
+  _phiMax=_phiMax*M_PI/180.0;
   print(std::cout);
 }
 
