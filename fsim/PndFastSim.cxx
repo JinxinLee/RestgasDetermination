@@ -390,145 +390,152 @@ void PndFastSim::Exec(Option_t* opt)
 
     // store a plain copy of the mc track to the file
     RhoCandidate *pmc=new (mctracks[mcsize]) RhoCandidate(ft->p4(),ft->charge());
-    pmc->SetMcTruth(pmc);;
+    pmc->SetMcTruth(pmc);
     pmc->SetPos(ft->startVtx());
     pmc->SetType(t->GetPdgCode());
     // write some ideal pid lhs
+	bool pdgcheck = false;
     switch(abs(t->GetPdgCode())) {
-      case 11: pmc->SetPidInfo(0, 1); break;
-      case 13: pmc->SetPidInfo(1, 1); break;
-      case 211: pmc->SetPidInfo(2, 1); break;
-      case 321: pmc->SetPidInfo(3, 1); break;
-      case 2212: pmc->SetPidInfo(4, 1); break;
+	  case 22:                          pdgcheck = true; break;
+      case 11:   pmc->SetPidInfo(0, 1); pdgcheck = true; break;
+      case 13:   pmc->SetPidInfo(1, 1); pdgcheck = true; break;
+      case 211:  pmc->SetPidInfo(2, 1); pdgcheck = true; break;
+      case 321:  pmc->SetPidInfo(3, 1); pdgcheck = true; break;
+      case 2212: pmc->SetPidInfo(4, 1); pdgcheck = true; break;
     }
 
     McSumP4+=ft->p4();
     McAvgVtx+=ft->startVtx();
 
-    // smear and cut the track according to the detector setup
-    if (smearTrack(ft, chcandsize)) {
-      RhoVector3Err *svtx=new RhoVector3Err(ft->startVtx());
+	if (pdgcheck) // only consider final state particles
+	{
+      // smear and cut the track according to the detector setup
+	  bool smeared = smearTrack(ft, chcandsize);
+      if (smeared)
+	  {
+        RhoVector3Err *svtx=new RhoVector3Err(ft->startVtx());
 
-      TLorentzVector miclv=ft->p4();
-      TVector3 pos=ft->startVtx();
+        TLorentzVector miclv=ft->p4();
+        TVector3 pos=ft->startVtx();
 
-      // assign pion mass to all charged and 0 to all neutral cands
-      if (fabs(ft->charge())>0.001)
-      {
-        miclv.SetVectM(miclv.Vect(),fdbPdg->GetParticle(211)->Mass());
-        nCharged++;
-      }
-      else
-      {
-        miclv.SetVectM(miclv.Vect(),0.0);
-        nNeutral++;
-      }
-
-      PndPidCandidate *pidCand;
-      PndPidProbability *pidProb;
-
-      if (fabs(ft->charge())>1e-6)
-      {
-        pidCand = new (chrgCandidates[chcandsize]) PndPidCandidate((Int_t)ft->charge(),pos,miclv);
-        pidProb = new (chrgProbs[chcandsize]) PndPidProbability();
-      }
-      else
-      {
-        pidCand = new (neutCandidates[neucandsize]) PndPidCandidate((Int_t)ft->charge(),pos,miclv);
-        pidProb = new (neutProbs[neucandsize]) PndPidProbability();
-      }
-
-      pidCand->SetMcIndex(iTrack);
-      pidCand->SetMvdDEDX( ft->detResponse()->MvddEdx() );
-      //pidCand->SetMvdDEdxErr( ft->detResponse()->MvddEdxErr() );
-      pidCand->SetSttMeanDEDX( ft->detResponse()->SttdEdx() );
-      //pidCand->SetSttDEdxErr( ft->detResponse()->SttdEdxErr() );
-      pidCand->SetTofM2( ft->detResponse()->m2() );
-      //pidCand->SetTofM2Err( ft->detResponse()->m2Err() );
-      pidCand->SetDrcThetaC( ft->detResponse()->DrcBarrelThtc() );
-      pidCand->SetDrcThetaCErr( ft->detResponse()->DrcBarrelThtcErr() );
-      pidCand->SetDrcNumberOfPhotons(0);
-      pidCand->SetDiscThetaC( ft->detResponse()->DrcDiscThtc() );
-      pidCand->SetDiscThetaCErr( ft->detResponse()->DrcDiscThtcErr() );
-      pidCand->SetDiscNumberOfPhotons(0);
-      pidCand->SetRichThetaC( ft->detResponse()->RichThtc() );
-      pidCand->SetRichThetaCErr( ft->detResponse()->RichThtcErr() );
-      pidCand->SetRichNumberOfPhotons(0);
-      pidCand->SetEmcCalEnergy(ft->detResponse()->EmcEcal() );
-	  pidCand->SetMuoIron(ft->detResponse()->MuoIron() );
-      pidProb->SetElectronPdf(ft->detResponse()->LHElectron());
-      pidProb->SetMuonPdf(ft->detResponse()->LHMuon());
-      pidProb->SetPionPdf(ft->detResponse()->LHPion());
-      pidProb->SetKaonPdf(ft->detResponse()->LHKaon());
-      pidProb->SetProtonPdf(ft->detResponse()->LHProton());
-      pidProb->SetIndex(chcandsize);
-
-      RhoCandidate tcand(ft->p4(),ft->charge(),svtx);
-      tcand.SetTrackNumber(chcandsize);
-
-      if( (fPropagate||fUseFlatCovMatrix))// && fabs(ft->charge())>1e-6)
-      {
-        tcand.SetCov7(ft->Cov7());
-        pidCand->SetCov7( ft->Cov7() );
-      }
-      l.Add(&tcand);
-
-      delete svtx;
-
-      // shall we add some parametrized split offs?
-      if (fGenSplitOffs)
-      {
-        int type=0;
-        int abslid = abs(ft->pdt());
-
-        if (abslid == 11) type=0;
-        else if (abslid == 211) type=2;
-        else if (abslid == 321) type=3;
-        else if (abslid == 2212) type=4;
-        else continue;
-
-        //number of split offs?
-        int numSP=(int)fspo[type][3]->GetRandom();
-
-        if (fVb) cout <<" -I- (PndFastSim::Exec) - creating "<<numSP
-          <<" split offs for particle with type "<<type<<endl;
-
-        for (int i=0;i<numSP;i++)
+        // assign pion mass to all charged and 0 to all neutral cands
+        if (fabs(ft->charge())>0.001)
         {
-          TLorentzVector lv=ft->p4();
-          TVector3 fPos(0.,0.,0.);
-          RhoVector3Err *svtx2=new RhoVector3Err(fPos);
-
-          double mom   = fspo[type][0]->GetRandom();
-          double dphi  = fspo[type][1]->GetRandom();
-          double dtht  = fspo[type][2]->GetRandom();
-
-          lv.SetPhi(lv.Phi()+dphi);
-          lv.SetTheta(lv.Theta()+dtht);
-          lv.SetRho(mom);
-          lv.SetE(lv.P());
-
-          neucandsize = neutCandidates.GetEntriesFast();
-
-          pidCand = new (neutCandidates[neucandsize]) PndPidCandidate((Int_t)0,fPos,lv);
-          pidProb = new (neutProbs[neucandsize]) PndPidProbability();
-          pidCand->SetMcIndex(-1);
-
-          RhoCandidate tCand(lv,0.0,svtx2);
-          tCand.SetType(22);
+          miclv.SetVectM(miclv.Vect(),fdbPdg->GetParticle(211)->Mass());
+          nCharged++;
+        }
+        else
+        {
+          miclv.SetVectM(miclv.Vect(),0.0);
           nNeutral++;
+        }
 
-          l.Add(&tCand);
+        PndPidCandidate *pidCand;
+        PndPidProbability *pidProb;
 
-          delete svtx2;
-          //tcand=new (pndCandidates[pndCandidates.GetEntriesFast()]) RhoCandidate(lv,0.0);
-          //tcand->SetMcIdx(-1);
+        if (fabs(ft->charge())>1e-6)
+        {
+          pidCand = new (chrgCandidates[chcandsize]) PndPidCandidate((Int_t)ft->charge(),pos,miclv);
+          pidProb = new (chrgProbs[chcandsize]) PndPidProbability();
+        }
+        else
+        {
+          pidCand = new (neutCandidates[neucandsize]) PndPidCandidate((Int_t)ft->charge(),pos,miclv);
+          pidProb = new (neutProbs[neucandsize]) PndPidProbability();
+        }
 
-        } // split off loop
+        pidCand->SetMcIndex(iTrack);
+        pidCand->SetMvdDEDX( ft->detResponse()->MvddEdx() );
+        //pidCand->SetMvdDEdxErr( ft->detResponse()->MvddEdxErr() );
+        pidCand->SetSttMeanDEDX( ft->detResponse()->SttdEdx() );
+        //pidCand->SetSttDEdxErr( ft->detResponse()->SttdEdxErr() );
+        pidCand->SetTofM2( ft->detResponse()->m2() );
+        //pidCand->SetTofM2Err( ft->detResponse()->m2Err() );
+        pidCand->SetDrcThetaC( ft->detResponse()->DrcBarrelThtc() );
+        pidCand->SetDrcThetaCErr( ft->detResponse()->DrcBarrelThtcErr() );
+        pidCand->SetDrcNumberOfPhotons(0);
+        pidCand->SetDiscThetaC( ft->detResponse()->DrcDiscThtc() );
+        pidCand->SetDiscThetaCErr( ft->detResponse()->DrcDiscThtcErr() );
+        pidCand->SetDiscNumberOfPhotons(0);
+        pidCand->SetRichThetaC( ft->detResponse()->RichThtc() );
+        pidCand->SetRichThetaCErr( ft->detResponse()->RichThtcErr() );
+        pidCand->SetRichNumberOfPhotons(0);
+        pidCand->SetEmcCalEnergy(ft->detResponse()->EmcEcal() );
+	    pidCand->SetMuoIron(ft->detResponse()->MuoIron() );
+        pidProb->SetElectronPdf(ft->detResponse()->LHElectron());
+        pidProb->SetMuonPdf(ft->detResponse()->LHMuon());
+        pidProb->SetPionPdf(ft->detResponse()->LHPion());
+        pidProb->SetKaonPdf(ft->detResponse()->LHKaon());
+        pidProb->SetProtonPdf(ft->detResponse()->LHProton());
+        pidProb->SetIndex(chcandsize);
 
-      }// generate split offs
+        RhoCandidate tcand(ft->p4(),ft->charge(),svtx);
+        tcand.SetTrackNumber(chcandsize);
 
-    }// smeartrack
+        if( (fPropagate||fUseFlatCovMatrix))// && fabs(ft->charge())>1e-6)
+        {
+          tcand.SetCov7(ft->Cov7());
+          pidCand->SetCov7( ft->Cov7() );
+        }
+        l.Add(&tcand);
+
+        delete svtx;
+
+        // shall we add some parametrized split offs?
+        if (fGenSplitOffs)
+        {
+          int type=0;
+          int abslid = abs(ft->pdt());
+
+          if (abslid == 11) type=0;
+          else if (abslid == 211) type=2;
+          else if (abslid == 321) type=3;
+          else if (abslid == 2212) type=4;
+          else continue;
+
+          //number of split offs?
+          int numSP=(int)fspo[type][3]->GetRandom();
+
+          if (fVb) cout <<" -I- (PndFastSim::Exec) - creating "<<numSP
+            <<" split offs for particle with type "<<type<<endl;
+
+          for (int i=0;i<numSP;i++)
+          {
+            TLorentzVector lv=ft->p4();
+            TVector3 fPos(0.,0.,0.);
+            RhoVector3Err *svtx2=new RhoVector3Err(fPos);
+
+            double mom   = fspo[type][0]->GetRandom();
+            double dphi  = fspo[type][1]->GetRandom();
+            double dtht  = fspo[type][2]->GetRandom();
+
+            lv.SetPhi(lv.Phi()+dphi);
+            lv.SetTheta(lv.Theta()+dtht);
+            lv.SetRho(mom);
+            lv.SetE(lv.P());
+
+            neucandsize = neutCandidates.GetEntriesFast();
+
+            pidCand = new (neutCandidates[neucandsize]) PndPidCandidate((Int_t)0,fPos,lv);
+            pidProb = new (neutProbs[neucandsize]) PndPidProbability();
+            pidCand->SetMcIndex(-1);
+
+            RhoCandidate tCand(lv,0.0,svtx2);
+            tCand.SetType(22);
+            nNeutral++;
+
+            l.Add(&tCand);
+
+            delete svtx2;
+            //tcand=new (pndCandidates[pndCandidates.GetEntriesFast()]) RhoCandidate(lv,0.0);
+            //tcand->SetMcIdx(-1);
+
+          } // split off loop
+
+        }// generate split offs
+
+      }// smeartrack
+	}
     delete ft;
   }//trackloop
 
