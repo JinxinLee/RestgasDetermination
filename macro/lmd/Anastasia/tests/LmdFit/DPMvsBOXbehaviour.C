@@ -20,20 +20,21 @@ void DPMvsBOXbehaviour(){
   TString condM = condXY+" && abs(LMDTrackQ.fMomrec-1.5)<1e-2 ";
   //---------------------------------------------------------------------------------------
 
-  // TString condition = "LMDTrackQ.fSecondary<0 && LMDTrackQ.fTrkRecStatus==0";
+  TString condition = "LMDTrackQ.fSecondary<0 && LMDTrackQ.fTrkRecStatus==0";
   //TString condition = condXY;
-  TString condition = condM;
-  condition += " && LMDTrackQ.fSecondary<0 && LMDTrackQ.fTrkRecStatus==0";
+  // TString condition = condM;
+  // condition += " && LMDTrackQ.fSecondary<0 && LMDTrackQ.fTrkRecStatus==0";
 
   //create reference from BOX -----------------------------------------------------
-  TString pathBOX = "/panda/myResults/BOXoutpitMarch2014_pointBeam/mom_1_5/Lumi_TrksQA_pointBeam_NOcut.root";
+  //  TString pathBOX = "/panda/myResults/BOXoutpitMarch2014_pointBeam/mom_1_5/Lumi_TrksQA_pointBeam_NOcut.root";
+  TString pathBOX = "/panda/myResults/BOXoutpitMarch2014_pointBeam/mom_15/Lumi_TrksQA_pointBeam_noCuts_BOX.root";
   TFile *finBOX = new TFile(pathBOX.Data(),"READ");
   TTree *treeBOX = (TTree*)finBOX->Get("cbmsim");
   TH2 *hthbox = new TH2D("hthbox",";#theta_{MC}, mrad; #theta_{REC}, mrad",2e2,0,20,4e2,0,20);
   treeBOX->Project("hthbox","1e3*LMDTrackQ.fThetarec:1e3*LMDTrackQ.fThetamc",condition,"",nEv);
   TCanvas c2;
   hthbox->Draw("colz");
-  c2.SaveAs("thREC_vs_thMC_BOX.root");
+  c2.SaveAs("thREC_vs_thMC_BOX_15GeV.root");
   TH2 *hdthbox = new TH2D("hdthbox",";#theta_{REC}, mrad; (#theta_{MC}-#theta_{REC}), mrad",2e2,0,20,4e2,-20,20);
   treeBOX->Project("hdthbox","1e3*(LMDTrackQ.fThetamc-LMDTrackQ.fThetarec):1e3*LMDTrackQ.fThetarec",condition,"",nEv);
   //  hdthbox->Draw("colz");
@@ -48,14 +49,15 @@ void DPMvsBOXbehaviour(){
   //---------------------------------------------------------------------------------------
 
  //and now let's work with DPM data. a lot! ------------------------------------
-  TString pathDPM = "/panda/myResults/DPMoutputMarch2014_pointBeam/mom_1_5/Lumi_TrksQA_pointBeam.root";
+  //  TString pathDPM = "/panda/myResults/DPMoutputMarch2014_pointBeam/mom_1_5/Lumi_TrksQA_pointBeam.root";
+  TString pathDPM = "/panda/myResults/DPMoutputMarch2014_pointBeam/mom_15/Lumi_TrksQA_pointBeam_noCuts_DPM.root";
   TFile *finDPM = new TFile(pathDPM.Data(),"READ");
   TTree *treeDPM = (TTree*)finDPM->Get("cbmsim");
   TH2 *hrefdthdpm = new TH2D("hrefdthdpm",";#theta_{REC}, mrad; (#theta_{MC}-#theta_{REC}), mrad",2e2,0,20,4e2,-20,20);
   treeDPM->Project("hrefdthdpm","1e3*(LMDTrackQ.fThetamc-LMDTrackQ.fThetarec):1e3*LMDTrackQ.fThetarec",condition,"",nEv);
   TCanvas c3;
   hrefdthdpm->Draw("colz");
-  c3.SaveAs("deltaTh_dpm.root");
+  c3.SaveAs("deltaTh_dpm_15GeV.root");
 
   //  hdthdpm->Draw("colz");
   hrefdthdpm->FitSlicesY();
@@ -103,5 +105,5 @@ void DPMvsBOXbehaviour(){
   }
   leg->Draw();
   //---------------------------------------------------------------------------------------
-  c1.SaveAs("deltaTh_dpm_box.root");
+  c1.SaveAs("deltaTh_dpm_box_15GeV.root");
 }
