@@ -26,6 +26,8 @@
 #include "TDatabasePDG.h"
 #include "PndTrack.h"
 
+#include "FairMCEventHeader.h"
+
 // PndSds includes
 #include "PndSdsMCPoint.h"
 #include "PndSdsHit.h"
@@ -70,6 +72,12 @@ InitStatus PndLmdTrkQTask::Init()
     std::cout << "-E- PndLmdTrkQTask::Init: "<< "RootManager not instantiated!" << std::endl;
     return kFATAL;
   }
+
+  // fMCHeader = (TClonesArray*) ioman->GetObject("MCEventHeader.");
+  // if ( !fMCHeader)	{
+  //   std::cout << "-W- PndLmdTrkQTask::Init: "<< "No MCEventHeader "<<" object!" << std::endl;
+  //   return kERROR;
+  // }
 
   //Get MC points
   fMCHits = (TClonesArray*) ioman->GetObject("LMDPoint");
@@ -164,7 +172,14 @@ void PndLmdTrkQTask::Exec(Option_t* opt)
   int glPDG;
   int glNumMChits;
   int glNumDoubleMChits;
-  double glEvTime = FairRootManager::Instance()->GetEventTime();
+
+  FairRootManager* ioman = FairRootManager::Instance();
+  //  double glEvTime = FairRootManager::Instance()->GetEventTime();
+  double glEvTime= ioman->GetEventTime();
+  // FairMCEventHeader* iomchead = (FairMCEventHeader*) ioman->GetObject("MCEventHeader");
+  // FairMCEventHeader* mcevhead = (FairMCEventHeader*) fMCHeader->At(0);
+  // int glEvID = mcevhead->GetEventID();
+  // cout<<"this is event # "<<glEvID<<endl;
   double glTrkTime;
 
   const int nGeaneTrks = fRecBPTracks->GetEntriesFast();

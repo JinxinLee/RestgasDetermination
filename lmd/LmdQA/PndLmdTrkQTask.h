@@ -65,7 +65,7 @@ class PndLmdTrkQTask : public FairTask
   TClonesArray* fRecCandTracks;
   TClonesArray* fRecTracks;
   TClonesArray* fRecBPTracks;
-
+  TClonesArray* fMCHeader;
   // Output Data -------
   TClonesArray*  fTrackQ;		
  
