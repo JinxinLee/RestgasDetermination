@@ -1868,6 +1868,111 @@ TVector3 PndLmdDim::Decode_hit(const int sensorID,
 	return Transform_sensor_to_global(hit, ihalf, iplane, imodule, iside, idie, isensor, false, aligned);
 }
 
+bool PndLmdDim::Get_overlapping_sensor(const TVector3& point,int& ihalf, int& iplane, int& imodule, int& iside, int& idie, int& isensor, bool aligned){
+	bool result = false;
+	int _ihalf = ihalf; ihalf = -1;
+	int _iplane = iplane; iplane = -1;
+	int _imodule = imodule; imodule = -1;
+	int _iside = iside; iside = -1;
+	int _idie = idie; idie = -1;
+	int _isensor = isensor; isensor = -1;
+	// check if point lies on the proposed sensor
+	if (!Is_on_Sensor(point, _ihalf, _iplane, _imodule, _iside, _idie, _isensor, aligned)) return false;
+	// check all other sensors on the opposite side
+	if (_iside == 0) _iside = 1; else _iside = 0;
+	// make it faster by the knowledge, which sensors can only overlap
+	vector<int> jdie;
+	vector<int> jsensor;
+	int nchecks = Get_overlapping_sensor(_idie, _isensor, jdie, jsensor);
+	//cout << " nchecks " << nchecks << endl;
+	if (nchecks <= 0) return false;
+	for (int icheck = 0; icheck < nchecks; icheck++){
+		if (Is_on_Sensor(point, _ihalf, _iplane, _imodule, _iside, jdie[icheck], jsensor[icheck], aligned)){
+			ihalf = _ihalf;
+			iplane = _iplane;
+			imodule = _imodule;
+			iside = _iside;
+			idie = jdie[icheck];
+			isensor = jsensor[icheck];
+			//cout << " true " << endl;
+			return true;
+		}
+	}
+	return result;
+}
+
+int PndLmdDim::Get_overlapping_sensor(int idie, int isensor, vector<int> &jdie, vector<int> &jsensor){
+	jdie.empty();
+	jsensor.empty();
+	if (idie == 0 && isensor == 0){
+		jdie.push_back(0);
+		jsensor.push_back(0);
+		jdie.push_back(0);
+		jsensor.push_back(1);
+		return 2;
+	}
+	if (idie == 0 && isensor == 1){
+		jdie.push_back(1);
+		jsensor.push_back(1);
+		jdie.push_back(0);
+		jsensor.push_back(1);
+		jdie.push_back(0);
+		jsensor.push_back(0);
+		return 3;
+	}
+	if (idie == 0 && isensor == 2){
+		jdie.push_back(1);
+		jsensor.push_back(2);
+		jdie.push_back(1);
+		jsensor.push_back(1);
+		return 2;
+	}
+	if (idie == 1 && isensor == 1){
+		jdie.push_back(0);
+		jsensor.push_back(1);
+		jdie.push_back(0);
+		jsensor.push_back(2);
+		jdie.push_back(1);
+		jsensor.push_back(1);
+		jdie.push_back(1);
+		jsensor.push_back(2);
+		return 4;
+	}
+	if (idie == 1 && isensor == 2){
+		jdie.push_back(1);
+		jsensor.push_back(2);
+		jdie.push_back(0);
+		jsensor.push_back(2);
+		jdie.push_back(1);
+		jsensor.push_back(1);
+		return 3;
+	}
+	return 0;
+}
+
+bool PndLmdDim::Is_on_Sensor(const TVector3& point,int ihalf, int iplane, int imodule, int iside, int idie, int isensor, bool aligned){
+	bool result_x = false;
+	bool result_y = false;
+	const TVector3& point_on_sensor =	Transform_global_to_sensor(point, ihalf, iplane, imodule, iside, idie, isensor, false, aligned);
+	// take only the projection
+	double x = point_on_sensor.X();
+	double y = point_on_sensor.Y();
+	//cout << " checking x " << x << " and  y " << y << " on sensor " << ihalf << " " << iplane << " " << imodule << " " << iside << " " << idie << " " << isensor << endl;
+	if ( x <= 0 ){// check left border
+		if ((x + maps_width - maps_passive_left*2.) >= 0) result_x = true;
+	}else{ // check right border
+		if ((x - maps_width + maps_passive_right*2.) <= 0) result_x = true;
+	}
+	if ( y <= 0 ){// check bottom border
+		if ((y + maps_height - maps_passive_bottom*2.) >= 0) result_y = true;
+	}else{ // check top border
+		if ((y - maps_height + maps_passive_top*2.) <= 0) result_y = true;
+	}
+	//cout << " result is " << result_x << " " << result_y << " therefore " << (result_x && result_y) << endl << endl;
+	// both must be set to true to be true
+	return (result_x && result_y);
+}
+
 void PndLmdDim::Transform_global_to_lmd_local(double& x, double& y, double& z, bool aligned){
 	const TGeoHMatrix& matrix = Get_transformation_global_to_lmd_local(aligned);
 	double from[3] = {x,y,z};

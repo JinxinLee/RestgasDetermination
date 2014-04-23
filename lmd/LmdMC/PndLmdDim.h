@@ -643,6 +643,28 @@ public:
 	}
 	*/
 
+	// Find the corresponding sensor on the opposite side of a module
+	// point is in the panda frame
+	// point is transformed into the local lmd frame and
+	// the projection is tested 1. to lie on the given sensor
+	// 2. on all other sensors on the opposite side for intersection
+	// returns true if the corresponding sensor was found
+	// in that case input parameters are set to the corresponding sensor
+	// otherwise those are set to -1!
+	// do not use in time critical cases!
+	bool Get_overlapping_sensor(const TVector3& point,int& ihalf, int& iplane, int& imodule, int& iside, int& idie, int& isensor, bool aligned = true);
+
+	// Test if a point lies on a specific sensor
+	// The point in the panda frame is transformed into the sensor frame
+	// the projection is tested to be within the boundaries of the active sensor area
+	bool Is_on_Sensor(const TVector3& point,int ihalf, int iplane, int imodule, int iside, int idie, int isensor, bool aligned = true);
+
+	// get the overlapping sensors by geometric constraints
+	// hard coded overlapping areas are given sorted by the overlapping area
+	// returned is the number of overlapping sensors
+	// jdie and jsensor are vectors with the length of the returned number
+	int Get_overlapping_sensor(int idie, int isensor, vector<int> &jdie, vector<int> &jsensor);
+
 	// get the transformation matrix from the PANDA global reference frame to the
 	// Luminosity reference frame
 	TGeoHMatrix Get_transformation_global_to_lmd_local(bool aligned = true);
