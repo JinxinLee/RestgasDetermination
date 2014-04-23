@@ -184,7 +184,8 @@ void PndLmdTrksFilterTask::Exec(Option_t* opt)
 	  double Xref = -19.1+1.12*1e3*MomRecLMD.Theta() + fdX;
 	  double diffX = abs(fFittedTrkP.GetX() - Xref);
 	 if(fVerbose>0)   cout<<"fFittedTrkP.GetX() = "<<fFittedTrkP.GetX()<<" Xref = "<<Xref<<" diffX = "<<diffX<<endl;
-	  if(diffX>1.5) dirOK=false;
+	 //	  if(diffX>1.5) dirOK=false;
+	 if(diffX>3.0) dirOK=false;
 	}
 	if(flYPhKinFilt){
 	  // double dist_max = 1.4;
@@ -193,7 +194,8 @@ void PndLmdTrksFilterTask::Exec(Option_t* opt)
 	  double Yref = -0.00651+0.045*1e3*MomRecLMD.Phi() + fdY;
 	  double diffY = abs(fFittedTrkP.GetY() - Yref);
 	 if(fVerbose>0)   cout<<"fFittedTrkP.GetY() = "<<fFittedTrkP.GetY()<<" Yref = "<<Yref<<" diffY = "<<diffY<<endl;
-	  if(diffY>2.1) dirOK=false;
+	 //	  if(diffY>2.1) dirOK=false;
+	 if(diffY>4.0) dirOK=false;
 	}
 
 	//      }
