@@ -8,8 +8,44 @@
 #include "TCanvas.h"
 #include "TGraphAsymmErrors.h"
 #include "TMultiGraph.h"
+#include "TStyle.h"
+#include "TROOT.h"
+#include "TGaxis.h"
+#include "TColor.h"
+#include "TLegend.h"
 
 int main(int argc, char* argv[]) {
+	// some style stuff
+	TPad foo; // never remove this line :-)))
+	if(1){
+		gROOT->SetStyle("Plain");
+		const Int_t NRGBs = 5;
+		const Int_t NCont = 255;
+		Double_t stops[NRGBs] = { 0.00, 0.34, 0.61, 0.84, 1.00 };
+		Double_t red[NRGBs]   = { 0.00, 0.00, 0.87, 1.00, 0.51 };
+		Double_t green[NRGBs] = { 0.00, 0.81, 1.00, 0.20, 0.00 };
+		Double_t blue[NRGBs]  = { 0.51, 1.00, 0.12, 0.00, 0.00 };
+		TColor::CreateGradientColorTable(NRGBs, stops, red, green, blue, NCont);
+		gStyle->SetNumberContours(NCont);
+		gStyle->SetTitleFont(10*13+2,"xyz");
+		gStyle->SetTitleSize(0.06, "xyz");
+		gStyle->SetTitleOffset(1.3,"y");
+		gStyle->SetTitleOffset(1.3,"z");
+		gStyle->SetLabelFont(10*13+2,"xyz");
+		gStyle->SetLabelSize(0.06,"xyz");
+		gStyle->SetLabelOffset(0.009,"xyz");
+		gStyle->SetPadBottomMargin(0.16);
+		gStyle->SetPadTopMargin(0.16);
+		gStyle->SetPadLeftMargin(0.16);
+		gStyle->SetPadRightMargin(0.16);
+		gStyle->SetOptTitle(1);
+		gStyle->SetOptStat(1);
+		gROOT->ForceStyle();
+		gStyle->SetFrameFillColor(0);
+		gStyle->SetFrameFillStyle(0);
+		TGaxis::SetMaxDigits(3);
+	}
+
 	if (argc == 2) {
 		double plab = atof(argv[1]);
 
@@ -30,12 +66,29 @@ int main(int argc, char* argv[]) {
 		TGraphAsymmErrors* had_model_graph = plotter.generateDPMModelPartGraph(plab,
 				LumiFit::HAD, plot_range);
 		TMultiGraph* model_graph = new TMultiGraph();
+		// change from rad to mrad
+		for (int ipoint = 0; ipoint < full_model_graph->GetN(); ipoint++){
+			double x, y;
+			full_model_graph->GetPoint(ipoint, x, y);
+			full_model_graph->SetPoint(ipoint, x*1e3, y);
+		}
+		for (int ipoint = 0; ipoint < coul_model_graph->GetN(); ipoint++){
+			double x, y;
+			coul_model_graph->GetPoint(ipoint, x, y);
+			coul_model_graph->SetPoint(ipoint, x*1e3, y);
+		}
+		for (int ipoint = 0; ipoint < had_model_graph->GetN(); ipoint++){
+			double x, y;
+			had_model_graph->GetPoint(ipoint, x, y);
+			had_model_graph->SetPoint(ipoint, x*1e3, y);
+		}
+
 		model_graph->Add(full_model_graph);
 		model_graph->Add(coul_model_graph);
 		model_graph->Add(had_model_graph);
 		
 
-		TCanvas c("c", "", 1000, 700);
+		TCanvas c("c", "", 600, 600);
 		c.SetLogy(log_scale);
 
 		// determine y axis range (mainly required for interference part)
@@ -51,6 +104,21 @@ int main(int argc, char* argv[]) {
 		model_graph->GetXaxis()->SetRangeUser(theta_min, theta_max);
 		model_graph->GetYaxis()->SetRangeUser(bottom_pos, top_pos);
 
+		model_graph->GetXaxis()->SetTitle("#theta [mrad]");
+		model_graph->GetYaxis()->SetTitle("d#sigma/d#theta");
+
+		TLegend *legend;
+		if (plab < 6){
+			legend =	new TLegend(0.6,0.65,0.88,0.85);
+		} else {
+			legend =	new TLegend(0.2,0.2,0.48,0.4);
+		}
+		legend->AddEntry(full_model_graph,"#sigma_{total}","l");
+		legend->AddEntry(coul_model_graph,"#sigma_{coulomb}","l");
+		legend->AddEntry(had_model_graph,"#sigma_{hadron}","l");
+		legend->SetFillColor(0);
+		legend->SetBorderSize(0);
+
 		full_model_graph->SetLineWidth(2);
 		//full_model_graph->Draw("AC");
 		coul_model_graph->SetLineWidth(2);
@@ -59,6 +127,7 @@ int main(int argc, char* argv[]) {
 		had_model_graph->SetLineWidth(2);
 		had_model_graph->SetLineColor(9);
 		//had_model_graph->Draw("CSAME");
+		legend->Draw();
 
 		std::stringstream strstream;
 		strstream.precision(3);
