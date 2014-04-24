@@ -55,15 +55,30 @@ void EvtChic2toJpsiGam::init()
 
 void EvtChic2toJpsiGam::decay(EvtParticle* p)
 {
-  EvtId JpsiDaugs[2];
+  EvtParticle* jpsi =  p->getDaug(0);
+  EvtParticle* gamma =  p->getDaug(1);
+  if ((jpsi->getId() != EvtPDL::getId("J/psi")) || (gamma->getId() != EvtPDL::getId("gamma")) )
+    cout << "EvtChic1toJpsiGam::decay():\n wrong id of produced particles!"<<endl;
   
-  JpsiDaugs[0]=EvtPDL::getId("e-");
-  JpsiDaugs[1]=EvtPDL::getId("e+");
-
+  EvtParticle* lepton = p->getDaug(0)->getDaug(1);
+  EvtId JpsiDaugs[2];
+  if ((lepton->getId() ==EvtPDL::getId("e-")) || (lepton->getId() == EvtPDL::getId("e+")))
+    {
+      JpsiDaugs[0]=EvtPDL::getId("e-");
+      JpsiDaugs[1]=EvtPDL::getId("e+");
+    }
+  else
+    if ((lepton->getId() ==EvtPDL::getId("mu-")) || (lepton->getId() == EvtPDL::getId("mu+")))
+      {
+	JpsiDaugs[0]=EvtPDL::getId("mu-");
+	JpsiDaugs[1]=EvtPDL::getId("mu+");
+      }
+    else
+      cout << "EvtChic1toJpsiGam::decay():\n wrong id of produced daughter particles!"<<endl;  
+  
   p->initializePhaseSpace(2,getDaugs());
   p->getDaug(0)->initializePhaseSpace(2,JpsiDaugs);
-  
-  EvtParticle* jpsi =  p->getDaug(0);
+
   TVector3 jpsiMom( jpsi->getP4().get(1), jpsi->getP4().get(2), jpsi->getP4().get(3) );
   
   double costheta=jpsiMom.z()/jpsiMom.Mag();
