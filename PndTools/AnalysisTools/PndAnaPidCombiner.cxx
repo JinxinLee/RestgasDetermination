@@ -53,12 +53,17 @@ void PndAnaPidCombiner::Init()
   } //if we did initilize, don't do it again.
 
   for ( std::vector<TString>::iterator iter=fCurrentPidArrays.begin();
-        iter!=fCurrentPidArrays.end(); iter++ ){
+        iter!=fCurrentPidArrays.end()&&fCurrentPidArrays.size()>0; iter++ )
+    {
+    //std::cout<<"Init: Item name is \""<<(*iter).Data()<<"\" with array size "<<fCurrentPidArrays.size()<<std::endl;
     if (!fPidArrays[*iter]){
       TClonesArray * tmpar = ReadTCA((*iter).Data());
-      if(tmpar) fPidArrays[*iter]=tmpar;
-      else fCurrentPidArrays.erase(iter);
-      fRootManager->ReadBranchEvent((*iter).Data());
+      if(tmpar) {
+        fPidArrays[*iter]=tmpar;
+        fRootManager->ReadBranchEvent((*iter).Data());
+      } else {
+        fCurrentPidArrays.erase(iter);
+      }
     }
   }
   //std::cout<<"PidCombiner initialized."<<std::endl;
@@ -101,7 +106,7 @@ Bool_t PndAnaPidCombiner::Apply ( RhoCandidate* tc )
   //std::cout<<"PidCombiner: Try RhoCandidate uid:"<<tc->Uid()<<" trknr:"<<trackIndex<<std::endl;
   //std::cout<<tc<<std::endl;
   fPidResult->SetIndex(trackIndex);
-  if ( trackIndex<0 ) {
+  if ( fCurrentPidArrays.size()==0 || trackIndex<0 ) {
     ApplyFlat ( tc );
     return kFALSE;
   }
@@ -200,6 +205,7 @@ void PndAnaPidCombiner::SetTcaNames ( TString& names )
   TStringToken list ( names,";" );
   //use TString class part (inherited, Tokenizer stores data there)
   while ( list.NextToken() ) {
+    if ((TString) list == "") continue;
     fCurrentPidArrays.push_back ( ( TString ) list );
   }
   fInitialized=kFALSE;
@@ -209,11 +215,15 @@ void PndAnaPidCombiner::SetTcaNames ( TString& names )
 TClonesArray* PndAnaPidCombiner::ReadTCA ( const TString& tcaname )
 {
   // Fetch a TCLonesArray from the framework by its root name
-
+  if (tcaname == "") {
+    Warning ( "PndAnaPidCombiner::ReadTCA()","Empty TCA name.",tcaname.Data() );
+    return NULL;
+  }
   TClonesArray* tca = ( TClonesArray* ) fRootManager->GetObject ( tcaname.Data() );
 
   if ( ! tca ) {
     Warning ( "PndAnaPidCombiner::ReadTCA()","No \"%s\" array found.",tcaname.Data() );
+    return NULL;
   }
 
   return tca;
