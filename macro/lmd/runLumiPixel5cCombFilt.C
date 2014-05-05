@@ -1,4 +1,4 @@
-void runLumiPixel5bCleanSig(const int nEvents=10, const int startEvent=0, TString storePath="tmpOutput", const int verboseLevel=0, const double mom=15)
+void runLumiPixel5cCombFilt(const int nEvents=10, const int startEvent=0, TString storePath="tmpOutput", const int verboseLevel=0, const double mom=15, const double dX=0, const double dY=0)
 {
   // ========================================================================
   // Input file (MC events)
@@ -22,7 +22,7 @@ void runLumiPixel5bCleanSig(const int nEvents=10, const int startEvent=0, TStrin
   TString parFile = storePath+"/Lumi_Params_";
   parFile += startEvent;
   parFile += ".root";
-  // // Track file
+  // Track file
   TString TrkFile = storePath+"/Lumi_Track_";
   TrkFile += startEvent;
   TrkFile += ".root";
@@ -94,6 +94,9 @@ void runLumiPixel5bCleanSig(const int nEvents=10, const int startEvent=0, TStrin
   Double_t fpBeam = mom;
   TString dir = "TMVAweights/";
   PndLmdSigCleanTask* lmdclean = new PndLmdSigCleanTask(fpBeam, dir);
+  lmdclean->SetXY(true);
+  lmdclean->SetDX(dX);
+  lmdclean->SetDY(dY);
   lmdclean->SetVerbose(verboseLevel);
   fRun->AddTask(lmdclean);
   rtdb->setOutput(parInput1);
