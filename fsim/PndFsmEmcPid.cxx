@@ -61,8 +61,8 @@ PndFsmEmcPid::PndFsmEmcPid()
 
   _thtMin=_thtMin*M_PI/180.0;
   _thtMax=_thtMax*M_PI/180.0;
-  _phiMin=_thtMin*M_PI/180.0;
-  _phiMax=_thtMax*M_PI/180.0;
+  _phiMin=_phiMin*M_PI/180.0;
+  _phiMax=_phiMax*M_PI/180.0;
   readParameters();
 
   print(std::cout);
@@ -78,8 +78,8 @@ PndFsmEmcPid::PndFsmEmcPid(ArgList &par)
 
   _thtMin=_thtMin*M_PI/180.0;
   _thtMax=_thtMax*M_PI/180.0;
-  _phiMin=_thtMin*M_PI/180.0;
-  _phiMax=_thtMax*M_PI/180.0;
+  _phiMin=_phiMin*M_PI/180.0;
+  _phiMax=_phiMax*M_PI/180.0;
   readParameters();
 
   print(std::cout);
@@ -146,7 +146,6 @@ PndFsmEmcPid::respond(PndFsmTrack *t)
 
 	// get the probability values for the different particle types for this emcecal value; sum needed for normalization
 	double P[6], Psum=0.;
-
 	// find P up e ... pbar and sum
 	for (int k=0;k<6;++k)
 	{
@@ -207,8 +206,8 @@ PndFsmEmcPid::initParameters()
   _ptmin  = 0.00;
   _thtMin = 22.0;
   _thtMax = 140.0;
-  _phiMin=-180.;
-  _phiMax=180.;
+  _phiMin=-360.;
+  _phiMax=360.;
   _efficiency=1.0;
   _parFileName     = "$VMCWORKDIR/fsim/EmcPidPdf.root";
 }

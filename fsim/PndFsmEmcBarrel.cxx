@@ -192,8 +192,8 @@ PndFsmEmcBarrel::initParameters()
   _thtMax = 140.0;
   _radiationLength = 0.0;
   _efficiency	   =1.0;
-  _phiMin=-180.;
-  _phiMax=180.;
+  _phiMin=-360.;
+  _phiMax=360.;
 }
 
 bool

@@ -66,6 +66,8 @@ FairTask("Panda Fast Simulation") {
   fAddedDets=" ";
   fVb=0;
   fGenSplitOffs=false;
+  fMergeNeutralClusters=false;
+  fMergeProbPar = 0.389;
   fUseFlatCovMatrix=true;
   fPropagate=false;
   fToStartVtx=false;
@@ -409,7 +411,7 @@ void PndFastSim::Exec(Option_t* opt)
 
 	if (pdgcheck) // only consider final state particles
 	{
-      // smear and cut the track according to the detector setup
+	  // smear and cut the track according to the detector setup
 	  bool smeared = smearTrack(ft, chcandsize);
       if (smeared)
 	  {
@@ -430,8 +432,8 @@ void PndFastSim::Exec(Option_t* opt)
           nNeutral++;
         }
 
-        PndPidCandidate *pidCand;
-        PndPidProbability *pidProb;
+        PndPidCandidate *pidCand=0;
+        PndPidProbability *pidProb=0;
 
         if (fabs(ft->charge())>1e-6)
         {
@@ -440,45 +442,80 @@ void PndFastSim::Exec(Option_t* opt)
         }
         else
         {
-          pidCand = new (neutCandidates[neucandsize]) PndPidCandidate((Int_t)ft->charge(),pos,miclv);
-          pidProb = new (neutProbs[neucandsize]) PndPidProbability();
+		  // flag for merge neutral clusters
+		  bool merged = false;
+	  
+	      // if two neutrals have small angle difference alpha, merge their clusters with a certain probability 1-exp(-a*alpha)
+		  if (fMergeNeutralClusters)
+		  {
+			  // loop through old gammas
+			  for (int i=0; i<neucandsize;++i)
+			  {
+				TLorentzVector nlv = ((PndPidCandidate*) neutCandidates[i])->GetLorentzVector();
+			    double openang = nlv.Angle(miclv.Vect())*57.2958;
+			    if (fRand->Rndm()>(1-exp(-fMergeProbPar*openang)))
+				{
+					double mergeE = nlv.E()+miclv.E();
+					TVector3 mergeV = nlv.Vect()+miclv.Vect();
+					mergeV *= mergeE/mergeV.Mag();
+					
+					PndPidCandidate* mergedCand = (PndPidCandidate*) neutCandidates[i];
+					mergedCand->SetMomentum(mergeV);
+					mergedCand->SetEnergy(mergeE);
+					mergedCand->SetMcIndex(-1); // remove MC truth match
+					
+					merged = true;
+					i=neucandsize;
+				}
+			  }
+		  }
+		  
+		  // if the new gamma wasn't merged to another, just add it as usual
+		  if (!merged)
+		  {
+			  pidCand = new (neutCandidates[neucandsize]) PndPidCandidate((Int_t)ft->charge(),pos,miclv);
+              pidProb = new (neutProbs[neucandsize]) PndPidProbability();
+		  }
         }
+        
+		if (pidCand)
+		{
+			pidCand->SetMcIndex(iTrack);
+			pidCand->SetMvdDEDX( ft->detResponse()->MvddEdx() );
+			
+			//pidCand->SetMvdDEdxErr( ft->detResponse()->MvddEdxErr() );
+			pidCand->SetSttMeanDEDX( ft->detResponse()->SttdEdx() );
+			//pidCand->SetSttDEdxErr( ft->detResponse()->SttdEdxErr() );
+			pidCand->SetTofM2( ft->detResponse()->m2() );
+			//pidCand->SetTofM2Err( ft->detResponse()->m2Err() );
+			pidCand->SetDrcThetaC( ft->detResponse()->DrcBarrelThtc() );
+			pidCand->SetDrcThetaCErr( ft->detResponse()->DrcBarrelThtcErr() );
+			pidCand->SetDrcNumberOfPhotons(0);
+			pidCand->SetDiscThetaC( ft->detResponse()->DrcDiscThtc() );
+			pidCand->SetDiscThetaCErr( ft->detResponse()->DrcDiscThtcErr() );
+			pidCand->SetDiscNumberOfPhotons(0);
+			pidCand->SetRichThetaC( ft->detResponse()->RichThtc() );
+			pidCand->SetRichThetaCErr( ft->detResponse()->RichThtcErr() );
+			pidCand->SetRichNumberOfPhotons(0);
+			pidCand->SetEmcCalEnergy(ft->detResponse()->EmcEcal() );
+			pidCand->SetMuoIron(ft->detResponse()->MuoIron() );
+			pidProb->SetElectronPdf(ft->detResponse()->LHElectron());
+			pidProb->SetMuonPdf(ft->detResponse()->LHMuon());
+			pidProb->SetPionPdf(ft->detResponse()->LHPion());
+			pidProb->SetKaonPdf(ft->detResponse()->LHKaon());
+			pidProb->SetProtonPdf(ft->detResponse()->LHProton());
+			pidProb->SetIndex(chcandsize);
 
-        pidCand->SetMcIndex(iTrack);
-        pidCand->SetMvdDEDX( ft->detResponse()->MvddEdx() );
-        //pidCand->SetMvdDEdxErr( ft->detResponse()->MvddEdxErr() );
-        pidCand->SetSttMeanDEDX( ft->detResponse()->SttdEdx() );
-        //pidCand->SetSttDEdxErr( ft->detResponse()->SttdEdxErr() );
-        pidCand->SetTofM2( ft->detResponse()->m2() );
-        //pidCand->SetTofM2Err( ft->detResponse()->m2Err() );
-        pidCand->SetDrcThetaC( ft->detResponse()->DrcBarrelThtc() );
-        pidCand->SetDrcThetaCErr( ft->detResponse()->DrcBarrelThtcErr() );
-        pidCand->SetDrcNumberOfPhotons(0);
-        pidCand->SetDiscThetaC( ft->detResponse()->DrcDiscThtc() );
-        pidCand->SetDiscThetaCErr( ft->detResponse()->DrcDiscThtcErr() );
-        pidCand->SetDiscNumberOfPhotons(0);
-        pidCand->SetRichThetaC( ft->detResponse()->RichThtc() );
-        pidCand->SetRichThetaCErr( ft->detResponse()->RichThtcErr() );
-        pidCand->SetRichNumberOfPhotons(0);
-        pidCand->SetEmcCalEnergy(ft->detResponse()->EmcEcal() );
-	    pidCand->SetMuoIron(ft->detResponse()->MuoIron() );
-        pidProb->SetElectronPdf(ft->detResponse()->LHElectron());
-        pidProb->SetMuonPdf(ft->detResponse()->LHMuon());
-        pidProb->SetPionPdf(ft->detResponse()->LHPion());
-        pidProb->SetKaonPdf(ft->detResponse()->LHKaon());
-        pidProb->SetProtonPdf(ft->detResponse()->LHProton());
-        pidProb->SetIndex(chcandsize);
+			RhoCandidate tcand(ft->p4(),ft->charge(),svtx);
+			tcand.SetTrackNumber(chcandsize);
 
-        RhoCandidate tcand(ft->p4(),ft->charge(),svtx);
-        tcand.SetTrackNumber(chcandsize);
-
-        if( (fPropagate||fUseFlatCovMatrix))// && fabs(ft->charge())>1e-6)
-        {
-          tcand.SetCov7(ft->Cov7());
-          pidCand->SetCov7( ft->Cov7() );
-        }
-        l.Add(&tcand);
-
+			if( (fPropagate||fUseFlatCovMatrix))// && fabs(ft->charge())>1e-6)
+			{
+			tcand.SetCov7(ft->Cov7());
+			pidCand->SetCov7( ft->Cov7() );
+			}
+			l.Add(&tcand);
+		}
         delete svtx;
 
         // shall we add some parametrized split offs?

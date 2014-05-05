@@ -96,31 +96,26 @@ PndFsmDetFactory::create(std::string &name,ArgList &par)
   if (tname.BeginsWith("EmcBarrel")){
     PndFsmAbsDet* aDet = (PndFsmAbsDet*)(new PndFsmEmcBarrel(par));
     aDet->setName(name);
-    aDet->setStorePid();
     return aDet;
   } else
   if (tname=="EmcFwCap"){
     PndFsmAbsDet* aDet = (PndFsmAbsDet*)(new PndFsmEmcFwCap(par));
     aDet->setName(name);
-    aDet->setStorePid();
     return aDet;
   } else
   if (tname=="EmcBwCap"){
     PndFsmAbsDet* aDet = (PndFsmAbsDet*)(new PndFsmEmcBwCap(par));
     aDet->setName(name);
-    aDet->setStorePid();
     return aDet;
   } else
   if (tname=="EmcFS"){
     PndFsmAbsDet* aDet = (PndFsmAbsDet*)(new PndFsmEmcFS(par));
     aDet->setName(name);
-    aDet->setStorePid();
     return aDet;
   } else
   if (tname=="Stt"){
     PndFsmAbsDet* aDet = (PndFsmAbsDet*)(new PndFsmStt(par));
     aDet->setName(name);
-    aDet->setStorePid();
     return aDet;
   } else
   if (tname=="MdcFS"){

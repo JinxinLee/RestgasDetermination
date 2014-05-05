@@ -106,6 +106,7 @@ void simfast(TString Prefix, TString Decfile, Float_t Mom, Int_t nEvents = 1000,
 	if (enableSplitoff)
 		fastSim->EnableSplitoffs(splitpars.Data());
 
+	fastSim->SetUseFlatCov(true);
 	// -----------------------------------------------------------------------------------
 	//Tracking: Set up in parts of theta coverage. All modelled by PndFsmSimpleTracker.
 	// Mind: Numbers on resolution (pRes,thtRes,phiRes) and efficiency are guessed
@@ -151,14 +152,14 @@ void simfast(TString Prefix, TString Decfile, Float_t Mom, Int_t nEvents = 1000,
 	// -----------------------------------------------------------------------------------
 	fastSim->AddDetector("MvdPid","thtMin=5.  thtMax=133.6 ptmin=0.1  dEdxResMulti=1. efficiency=1."); //Note: A Bethe-Bloch-Landau-Gauss Prametrization from 2008
 	fastSim->AddDetector("SttPid","thtMin=7.8 thtMax=159.5 ptmin=0.1 dEdxRes=1. efficiency=1."); //Note: A dEdX parametrization from 2008
-	
+
 	fastSim->AddDetector("DrcBarrel","thtMin=22.0 thtMax=140.0 dthtc=0.01 nPhotMin=5 effNPhotons=0.075");
 	fastSim->AddDetector("DrcDisc","thtMin=5.0 thtMax=22.0 dthtc=0.01 nPhotMin=5 effNPhotons=0.075");
 	fastSim->AddDetector("Rich","angleXMax=5.0 angleYMax=10.0 dthtc=0.01 nPhotMin=5 effNPhotons=0.075");
-	
+
 	fastSim->AddDetector("ScMdtPidBarrel", "thtMin=10.0 thtMax=130.0 pmin=0.5 efficiency=0.95 misId=0.01");
 	fastSim->AddDetector("ScMdtPidForward","thtMin=0.0  thtMax=10.0  pmin=0.5 efficiency=0.95 misId=0.01");
-	
+
 	fastSim->AddDetector("ScEmcPidFS",     "thtMin=0.5   thtMax=10.0  ptmin=0.0 pmin=0.5 efficiency=1.0");
 	fastSim->AddDetector("ScEmcPidFwCap",  "thtMin=10.0  thtMax=22.0  ptmin=0.0 pmin=0.0 efficiency=1.0");
 	fastSim->AddDetector("ScEmcPidBarrel", "thtMin=22.0  thtMax=142.0 ptmin=0.2 pmin=0.0 efficiency=1.0");

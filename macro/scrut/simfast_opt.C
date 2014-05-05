@@ -11,20 +11,20 @@
 // Resonance : Initial resonance name for EvtGen
 // Pdgcode   : Only BoxGen: pdgcode of particle to be generated
 
-// DetOpt    : Parameter string to control detector setup for scrutiny process with some predefined options. For other configurations better use simfast.C 
-//             Appearance of each parameter is a *positive* switch! Default value "MvdGem EmcBar Drc Dsc FwdSpec" represents complete detector. 
-//             Detectors always being enabled are: EmcFwd, EmcBw, STT, Barrel MUO, 
+// DetOpt    : Parameter string to control detector setup for scrutiny process with some predefined options. For other configurations better use simfast.C
+//             Appearance of each parameter is a *positive* switch! Default value "MvdGem EmcBar Drc Dsc FwdSpec" represents complete detector.
+//             Detectors always being enabled are: EmcFwd, EmcBw, STT, Barrel MUO,
 //             - MvdGem    (or 1) : Enable MVD and GEM for central tracking in addition to STT
 //             - EmcBarrel (or 2) : Enable EMC barrel for calorimetry (neutral detection and PID component)
 //             - Drc       (or 3) : Enable Barrel DIRC for PID
 //             - Dsc       (or 4) : Enable Disc DIRC for PID
-//             - FwdSpec   (or 5) : Enable complete Forward Spectrometer (= Fwd Spec. EMC, Fwd Tracking, RICH, Fwd MUO) 
+//             - FwdSpec   (or 5) : Enable complete Forward Spectrometer (= Fwd Spec. EMC, Fwd Tracking, RICH, Fwd MUO)
 
 
 
-void simfast_opt(TString Prefix, TString Decfile, Float_t Mom, Int_t nEvents = 1000, TString Resonance="pbarpSystem0", int Pdgcode = 11, 
+void simfast_opt(TString Prefix, TString Decfile, Float_t Mom, Int_t nEvents = 1000, TString Resonance="pbarpSystem0", int Pdgcode = 11,
            TString DetOpt="MvdGem EmcBar Drc Dsc FwdSpec" )
-                      
+
 {
 	//-----Evaluate Detector Setup -----------------------------------------------
 	bool SwMvdGem  = false;
@@ -32,19 +32,19 @@ void simfast_opt(TString Prefix, TString Decfile, Float_t Mom, Int_t nEvents = 1
 	bool SwDrc     = false;
 	bool SwDsc     = false;
 	bool SwFwdSpec = false;
-	
+
 	if (DetOpt.Contains("MvdGem")  || DetOpt.Contains("1") ) SwMvdGem  = true;
 	if (DetOpt.Contains("EmcBar")  || DetOpt.Contains("2") ) SwEmcBar  = true;
 	if (DetOpt.Contains("Drc")     || DetOpt.Contains("3") ) SwDrc     = true;
 	if (DetOpt.Contains("Dsc")     || DetOpt.Contains("4") ) SwDsc     = true;
 	if (DetOpt.Contains("FwdSpec") || DetOpt.Contains("5") ) SwFwdSpec = true;
-		
+
 
 	//-----General settings-----------------------------------------------
 	TString BaseDir =  gSystem->Getenv("VMCWORKDIR");
 	TString splitpars = BaseDir+"/fsim/splitpars.dat";
-	gRandom->SetSeed(); 
-	
+	gRandom->SetSeed();
+
 	//-----User Settings:-----------------------------------------------
 	TString  OutputFile     = Prefix+"_fast.root";
 	gDebug             = 0;
@@ -72,7 +72,7 @@ void simfast_opt(TString Prefix, TString Decfile, Float_t Mom, Int_t nEvents = 1
 	}
 
 	Double_t MomMin  = 0.1;  // minimum momentum for box generator
-	
+
 	// for negative values of Mom and use of Box generator -> Just generate tracks with p=-Mom
 	if (Mom<0)
 	{
@@ -144,6 +144,7 @@ void simfast_opt(TString Prefix, TString Decfile, Float_t Mom, Int_t nEvents = 1
 	if (enableSplitoff)
 		fastSim->EnableSplitoffs(splitpars.Data());
 
+	fastSim->SetUseFlatCov(true);
 	// -----------------------------------------------------------------------------------
 	//Tracking: Set up in parts of theta coverage. All modelled by PndFsmSimpleTracker.
 	// Mind: Numbers on resolution (pRes,thtRes,phiRes) and efficiency are guessed
@@ -151,7 +152,7 @@ void simfast_opt(TString Prefix, TString Decfile, Float_t Mom, Int_t nEvents = 1
 	if (SwMvdGem) // MVD and GEM are enabled; combined tracking available
 	{
 		// - (Full Panda Tracking: STT MVD GEM FTS)
-	
+
 		fastSim->AddDetector("ScSttAlone",  "thtMin=145.  thtMax=159.5 ptmin=0.1 pmin=0.0 pRes=0.04 thtRes=0.001 phiRes=0.001 efficiency=0.25");
 		fastSim->AddDetector("ScSttMvd",    "thtMin=20.9  thtMax=145.  ptmin=0.1 pmin=0.0 pRes=0.02 thtRes=0.001 phiRes=0.001 efficiency=0.85");
 		fastSim->AddDetector("ScSttMvdGem", "thtMin=7.8   thtMax=20.9  ptmin=0.1 pmin=0.0 pRes=0.02 thtRes=0.001 phiRes=0.001 efficiency=0.85");
@@ -173,12 +174,12 @@ void simfast_opt(TString Prefix, TString Decfile, Float_t Mom, Int_t nEvents = 1
 	// -----------------------------------------------------------------------------------
 	// Vertexing
 	// -----------------------------------------------------------------------------------
-	if (SwMvdGem) // MVD and GEM are enabled -> better vertexing in central region 
+	if (SwMvdGem) // MVD and GEM are enabled -> better vertexing in central region
 	{
 		fastSim->AddDetector("ScVtxMvd",   "thtMin=5. thtMax=145. ptmin=0.1 vtxRes=0.005 efficiency=1."); // efficiency=1: all tracks found in trackers will get a vertex information
 		fastSim->AddDetector("ScVtxNoMvd", "thtMin=0. thtMax=5.   ptmin=0.0 vtxRes=0.05  efficiency=1."); // efficiency=1: all tracks found in trackers will get a vertex information
 	}
-	else // MVD and GEM are disabled -> no good vertexing at all 
+	else // MVD and GEM are disabled -> no good vertexing at all
 	{
 		fastSim->AddDetector("ScVtxNoMvd", "thtMin=0. thtMax=160. ptmin=0.1 vtxRes=0.1 efficiency=1."); // efficiency=1: all tracks found in trackers will get a vertex information
 	}
@@ -196,19 +197,19 @@ void simfast_opt(TString Prefix, TString Decfile, Float_t Mom, Int_t nEvents = 1
 		// Should be made constistent with EmcPidBarrel below
 		fastSim->AddDetector("EmcBarrel","thtMin=22.0 thtMax=142.0 Emin=0.01 barrelRadius=0.5");
 	}
-	
+
 	if (SwFwdSpec) // Fwd spectrometer enabled -> use Fwd EMC
 	{
 		fastSim->AddDetector("EmcFS",    "thtMin=0.05 thtMax=10.0 aPar=0.013 bPar=0.0283 Emin=0.01 dist=8.2");
 	}
-	
+
 	// -----------------------------------------------------------------------------------
 	// PID
 	// -----------------------------------------------------------------------------------
-	
+
 	// PID detectors being always in: STT, MUO Barrel, EMC FwdCap, EMC BwdCap
 	//Note: A dEdX parametrization from 2008
-	fastSim->AddDetector("SttPid","thtMin=7.8 thtMax=159.5 ptmin=0.1 dEdxRes=1. efficiency=1."); 
+	fastSim->AddDetector("SttPid","thtMin=7.8 thtMax=159.5 ptmin=0.1 dEdxRes=1. efficiency=1.");
 	fastSim->AddDetector("ScMdtPidBarrel", "thtMin=10.0 thtMax=130.0 pmin=0.5 efficiency=0.95 misId=0.01");
 	fastSim->AddDetector("ScEmcPidFwCap",  "thtMin=10.0  thtMax=22.0  ptmin=0.0 pmin=0.0 efficiency=1.0");
 	fastSim->AddDetector("ScEmcPidBwCap",  "thtMin=142.0 thtMax=160.0  ptmin=0.0 pmin=0.0 efficiency=1.0");
@@ -216,30 +217,30 @@ void simfast_opt(TString Prefix, TString Decfile, Float_t Mom, Int_t nEvents = 1
 	if (SwMvdGem) // MVD and GEM are enabled -> MVD PID available
 	{
 		//Note: A Bethe-Bloch-Landau-Gauss Prametrization from 2008
-		fastSim->AddDetector("MvdPid","thtMin=5.  thtMax=133.6 ptmin=0.1  dEdxResMulti=1. efficiency=1."); 
+		fastSim->AddDetector("MvdPid","thtMin=5.  thtMax=133.6 ptmin=0.1  dEdxResMulti=1. efficiency=1.");
 	}
 
 	if (SwEmcBar) // EMC Barrel enable -> EMC barrel PID available
 	{
 		fastSim->AddDetector("ScEmcPidBarrel", "thtMin=22.0  thtMax=142.0 ptmin=0.2 pmin=0.0 efficiency=1.0");
 	}
-	
+
 	if (SwDrc) // Barrel DIRC enabled
 	{
 		fastSim->AddDetector("DrcBarrel","thtMin=22.0 thtMax=140.0 dthtc=0.01 nPhotMin=5 effNPhotons=0.075");
 	}
-	
+
 	if (SwDsc) // Disc DIRC enabled
 	{
 		fastSim->AddDetector("DrcDisc","thtMin=5.0 thtMax=22.0 dthtc=0.01 nPhotMin=5 effNPhotons=0.075");
 	}
-	
+
 	if (SwFwdSpec) // Fwd spectrometer enabled -> use RICH, FwdMUO and EMC FS
 	{
 		fastSim->AddDetector("ScEmcPidFS",     "thtMin=0.5   thtMax=10.0  ptmin=0.0 pmin=0.5 efficiency=1.0");
 		fastSim->AddDetector("Rich","angleXMax=5.0 angleYMax=10.0 dthtc=0.01 nPhotMin=5 effNPhotons=0.075");
 		fastSim->AddDetector("ScMdtPidForward","thtMin=0.0  thtMax=10.0  pmin=0.5 efficiency=0.95 misId=0.01");
-	}	
+	}
 
 
 	fRun->AddTask(fastSim);
