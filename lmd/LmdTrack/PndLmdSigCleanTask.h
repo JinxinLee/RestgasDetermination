@@ -25,6 +25,7 @@
 #include "TVector3.h"
 #include "TNtuple.h"
 #include "FairTrackParH.h"
+#include "FairTrackParP.h"
 //#include "PndSdsGeoHandling.h"
 #include "PndGeoHandling.h"
 #include <vector>
@@ -63,7 +64,11 @@ class PndLmdSigCleanTask : public FairTask
   bool CheckMVA(FairTrackParH* fTrk);
   bool CheckMom(double prec);
   bool Check(FairTrackParH* fTrk);
+  void SetXY(bool setXY){fXYcut = setXY;};
 
+  bool CheckXY(FairTrackParP* fTrk);
+  void SetDX(double dx){ fdX = dx;}
+  void SetDY(double dy){ fdY = dy;}
  private:
 
   TClonesArray* fTrackParFinal;
@@ -71,10 +76,11 @@ class PndLmdSigCleanTask : public FairTask
   PndGeoHandling* fGeoH;
   int fEventNr;
   Double_t fPbeam;
-
+  bool fXYcut;
 
   // Input Data ----------
   TClonesArray* fRecBPTracks;
+  TClonesArray* fTrkArray;
   TClonesArray* fMCHits;
   TClonesArray* fMCTracks;
 
@@ -87,6 +93,9 @@ class PndLmdSigCleanTask : public FairTask
   TMVA::Reader *reader;
 
   //----------------------------------------
+  double fdX; //beam shift in X
+  double fdY; //beam shift in Y
+
   TH1 *hResponse;
 // void Register();
   

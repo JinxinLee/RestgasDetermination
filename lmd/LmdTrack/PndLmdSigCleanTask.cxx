@@ -36,19 +36,20 @@
 
 
 // -----   Default constructor   -------------------------------------------
-PndLmdSigCleanTask::PndLmdSigCleanTask() : FairTask("Cleaning Tracks Task for PANDA Lmd"), fEventNr(0)
+PndLmdSigCleanTask::PndLmdSigCleanTask() : FairTask("Cleaning Tracks Task for PANDA Lmd"), fEventNr(0),fdX(0),fdY(0)
 {
   //tprop = new TNtuple();
 }
 // -------------------------------------------------------------------------
 
 
-PndLmdSigCleanTask::PndLmdSigCleanTask(Double_t pBeam, TString dir): FairTask("Cleaning Tracks  Task for PANDA Lmd"), fEventNr(0)
+PndLmdSigCleanTask::PndLmdSigCleanTask(Double_t pBeam, TString dir): FairTask("Cleaning Tracks  Task for PANDA Lmd"), fEventNr(0),fdX(0),fdY(0)
 {
   fdir = dir;
   fPbeam = pBeam;
   cout<<"Beam Momentum in this run is "<<fPbeam<<endl;
   hResponse = new TH1D("hResponse","",1e3,-1,1);
+  fXYcut = false;
 }
 
 
@@ -83,7 +84,11 @@ InitStatus PndLmdSigCleanTask::Init()
     return kERROR;
   }
 
-  // //  fTracks = (TClonesArray*) ioman->GetObject("LMDTrack");
+  fTrkArray = (TClonesArray*) ioman->GetObject("LMDPndTrack");
+  if ( !fTrkArray)	{
+    std::cout << "-W- PndLmdTrkQTask::Init: "<< "No Track"<<" array!" << std::endl;
+    return kERROR;
+  }
   // fTracks = (TClonesArray*) ioman->GetObject("LMDPndTrack");
   // if (!fTracks){
   //   std::cout << "-W- PndLmdSigCleanTask::Init: "<< "No Track" << " array!" << std::endl;
@@ -163,10 +168,19 @@ void PndLmdSigCleanTask::Exec(Option_t* opt)
   Int_t counterSigTrk = 0;
   for (Int_t iN=0; iN<nGeaneTrks; iN++){// loop over all reconstructed trks
     FairTrackParH *fRes = (FairTrackParH*)fRecBPTracks->At(iN);
-    // TVector3 PosRecBP = fRes->GetPosition();
-    // TVector3 MomRecBP = fRes->GetMomentum();
+    //1. Trk params before BP
+    bool isCleanCand;
+    if(fXYcut==kTRUE){
+      PndTrack* trkpnd = (PndTrack*)(fTrkArray->At(iN));
+      FairTrackParP fFittedTrkP = trkpnd->GetParamFirst();
+      isCleanCand = CheckXY(&fFittedTrkP);
+    }
+    else{
+      isCleanCand = kTRUE;
+    }
+    //2. Trk params after BP
     bool isClean = Check(fRes);
-    if(isClean == kTRUE){
+    if(isClean == kTRUE && isCleanCand == kTRUE){
 	new((*fTrackParFinal)[counterSigTrk]) FairTrackParH(*(fRes)); //save Track
 	counterSigTrk++;
 	if(fVerbose>2) cout<<"***** isClean TRUE *****"<<endl;
@@ -226,6 +240,28 @@ bool  PndLmdSigCleanTask::CheckMVA(FairTrackParH* fTrk){
       //    cout<<"BDT="<<mva_response<<" for PCA:("<<axrec<<", "<<ayrec<<", "<<azrec<<") athrec = "<<1e3*athrec<<" aprec = "<<aprec<<endl;
     }
   else res=true;
+  return res;
+}
+
+bool  PndLmdSigCleanTask::CheckXY(FairTrackParP* fFittedTrkP){
+  TVector3 MomRecLMD(fFittedTrkP->GetPx(),fFittedTrkP->GetPy(),fFittedTrkP->GetPz());
+  MomRecLMD *=1./MomRecLMD.Mag();
+  bool dirOKx = true;
+  bool dirOKy = true;
+  if(fVerbose>0)  cout<<"!XThFilt!"<<endl;
+  double Xref = -19.1+1.12*1e3*MomRecLMD.Theta() + fdX;
+  double diffX = abs(fFittedTrkP->GetX() - Xref);
+  if(fVerbose>0)   cout<<"fFittedTrkP.GetX() = "<<fFittedTrkP->GetX()<<" Xref = "<<Xref<<" diffX = "<<diffX<<endl;
+  if(diffX>3.0) dirOKx=false;
+  if(fVerbose>0)  cout<<"!YPhFilt!"<<endl;
+  double Yref = -0.00651+0.045*1e3*MomRecLMD.Phi() + fdY;
+  double diffY = abs(fFittedTrkP->GetY() - Yref);
+  if(fVerbose>0)   cout<<"fFittedTrkP.GetY() = "<<fFittedTrkP->GetY()<<" Yref = "<<Yref<<" diffY = "<<diffY<<endl;
+  if(diffY>4.0) dirOKy=false;
+
+  bool res = false;
+  if(dirOKx && dirOKy)
+    res = true;
   return res;
 }
 
