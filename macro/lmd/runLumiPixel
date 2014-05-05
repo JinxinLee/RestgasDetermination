@@ -105,7 +105,7 @@ WrAllMC=true
 	 fi
 	 #combined filter (X&Y and M cuts)
 	 if [ $CombFilt == "true" ]; then 
-	     root -l -b -q runLumiPixel5cCombFilt.C\(${numEv},0,"\"${path}\"",0,${pbeam}\)
+	     root -l -b -q runLumiPixel5cCombFilt.C\(${numEv},0,"\"${path}\"",0,${pbeam},${dX},${dY}\)
 	 fi
 
 # # Quality assurance task(s)
