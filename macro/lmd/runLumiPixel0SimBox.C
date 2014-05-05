@@ -64,14 +64,69 @@ void runLumiPixel0SimBox(const int nEvents=10, const int startEv=0, TString stor
   PndLmdDetector *Lum = new PndLmdDetector("LUM", kTRUE);
   Lum->SetExclusiveSensorType("LumActive");  //ignore MVD
   //  Lum->SetGeometryFileName("../macro/lmd/geo/Test-Dipol-Design.root"); //sensors with trap shape
-  //Lum->SetGeometryFileName("../macro/lmd/geo/HV_MAPS-Design-29052013.root"); // LMD including box etc
+  //  Lum->SetGeometryFileName("../macro/lmd/geo/HV_MAPS-Design-29052013.root"); // LMD including box etc
   Lum->SetGeometryFileName("Luminosity-Detector.root");
   //Lum->SetGeometryFileName("../macro/lmd/geo/HV_MAPS-Design-SensorsOnly.root"); // LMD, sensors only
   Lum->SetVerboseLevel(verboseLevel);
   fRun->AddModule(Lum);
+ //  //Other PANDA systems ----
+ // //-------------------------  STT       -----------------
+ //  PndStt *Stt= new PndStt("STT", kTRUE);
+ //  Stt->SetGeometryFileName("straws_skewed_blocks_35cm_pipe.geo");
+ //  fRun->AddModule(Stt);
+ //  //-------------------------  MVD       -----------------
+ //  PndMvdDetector *Mvd = new PndMvdDetector("MVD", kTRUE);
+ //  Mvd->SetGeometryFileName("Mvd-2.1_FullVersion.root");
+ //  fRun->AddModule(Mvd);
+ //  //-------------------------  GEM       -----------------
+ //  PndGemDetector *Gem = new PndGemDetector("GEM", kTRUE);
+ //  Gem->SetGeometryFileName("gem_3Stations.root");
+ //  fRun->AddModule(Gem);
+ //  //-------------------------  EMC       -----------------
+ //  PndEmc *Emc = new PndEmc("EMC",kTRUE);
+ //  Emc->SetGeometryVersion(1);
+ //  Emc->SetStorageOfData(kTRUE);
+ //  fRun->AddModule(Emc);
+ //  //-------------------------  SCITIL    -----------------
+ //  PndSciT *SciT = new PndSciT("SCIT",kTRUE);
+ //  SciT->SetGeometryFileName("barrel-SciTil_07022013.root");
+ //  fRun->AddModule(SciT);
+ //  //-------------------------  DRC       -----------------
+ //  PndDrc *Drc = new PndDrc("DIRC", kTRUE);
+ //  Drc->SetGeometryFileName("dirc_l0_p0_updated.root"); 
+ //  Drc->SetRunCherenkov(kTRUE);
+ //  fRun->AddModule(Drc); 
+ //  //-------------------------  DISC      -----------------
+ //  PndDsk* Dsk = new PndDsk("DSK", kTRUE);
+ //  Dsk->SetStoreCerenkovs(kTRUE);
+ //  Dsk->SetStoreTrackPoints(kTRUE);
+ //  fRun->AddModule(Dsk);
+ //  // //-------------------------  MDT       -----------------
+ //  PndMdt *Muo = new PndMdt("MDT",kTRUE);
+ //  Muo->SetBarrel("fast");
+ //  Muo->SetEndcap("fast");
+ //  Muo->SetMuonFilter("fast");
+ //  Muo->SetForward("fast");
+ //  Muo->SetMdtMagnet(kTRUE);
+ //  Muo->SetMdtMFIron(kTRUE);
+ //  fRun->AddModule(Muo);
+ //  //-------------------------  FTS       -----------------
+ //  PndFts *Fts= new PndFts("FTS",kTRUE);
+ //  Fts->SetGeometryFileName("fts.geo");
+ //  fRun->AddModule(Fts); 
+ //  //-------------------------  FTOF      -----------------
+ //  PndFtof *FTof = new PndFtof("FTOF",kTRUE);
+ //  FTof->SetGeometryFileName("ftofwall.root");
+ //  fRun->AddModule(FTof);
+ //  //-------------------------  RICH       ----------------
+ //  PndRich *Rich= new PndRich("RICH",kTRUE);
+ //  Rich->SetGeometryFileName("rich_v2_shift.geo");
+ //  fRun->AddModule(Rich);
+ //  // //[END] Other PANDA systems ---
 
   //particle generator
   FairPrimaryGenerator* primGen = new FairPrimaryGenerator();
+  //  primGen->SetEventMeanTime(100);
   // primGen->SmearVertexXY(kTRUE);
   // primGen->SmearAngle(kTRUE);
   // primGen->SmearVertexZ(kTRUE);
@@ -87,9 +142,9 @@ void runLumiPixel0SimBox(const int nEvents=10, const int startEv=0, TString stor
   FairBoxGenerator *fBox = new FairBoxGenerator(particle, trkNum);
   fBox->SetPRange(mom,mom);
   //  fBox->SetThetaRange(0.52,0.63); // 9 ... 11 mrad
-  // //  fBox->SetThetaRange(0.13,0.7); // 2... 12 mrad
-  //    fBox->SetThetaRange(0.13,0.65); // 2... 11 mrad
-  fBox->SetThetaRange(0.12,0.65); // 2... 11 mrad
+  fBox->SetThetaRange(0.12,0.7); // 2... 12 mrad
+  //fBox->SetThetaRange(0.13,0.65); // 2... 11 mrad
+  //fBox->SetThetaRange(0.12,0.65); // 2... 11 mrad
   //  fBox->SetThetaRange(0.229183, 0.458366); //4 ... 8 mrad
   // //  fBox->SetThetaRange(0.229183,0.31512);//4..5.5 mrad
   // //fBox->SetThetaRange(0.229,0.229);//4..mrad
@@ -122,48 +177,46 @@ void runLumiPixel0SimBox(const int nEvents=10, const int startEv=0, TString stor
   fRun->SetBeamMom(mom);
 
 
-  // PndMultiField *fField= new PndMultiField("FULL"); 
-  // //TODO: change FULL to *_v1 maps
+  PndMultiField *fField= new PndMultiField("AUTO"); 
+  // // //TEST
+  // PndMultiField *fField= new PndMultiField();
+  // // PndTransMap *map_t = new PndTransMap("TransMap_v1", "R");
+  // // PndDipoleMap *map_d1 = new PndDipoleMap("DipoleMap1_v1", "R");
+  // // PndDipoleMap *map_d2 = new PndDipoleMap("DipoleMap2_v1", "R");
 
-  // //TEST
-  PndMultiField *fField= new PndMultiField();
-  // PndTransMap *map_t = new PndTransMap("TransMap_v1", "R");
-  // PndDipoleMap *map_d1 = new PndDipoleMap("DipoleMap1_v1", "R");
-  // PndDipoleMap *map_d2 = new PndDipoleMap("DipoleMap2_v1", "R");
-
-  PndTransMap *map_t = new PndTransMap("TransMap", "R");
-  PndDipoleMap *map_d1 = new PndDipoleMap("DipoleMap1", "R");
-  PndDipoleMap *map_d2 = new PndDipoleMap("DipoleMap2", "R");
-  fField->AddField(map_t);
-  fField->AddField(map_d1);
-  fField->AddField(map_d2);
-  PndSolenoidMap *map_s1 = new PndSolenoidMap("SolenoidMap1", "R");
-  PndSolenoidMap *map_s2 = new PndSolenoidMap("SolenoidMap2", "R");
-  PndSolenoidMap *map_s3 = new PndSolenoidMap("SolenoidMap3", "R");
-  PndSolenoidMap *map_s4 = new PndSolenoidMap("SolenoidMap4", "R");
-  // if(mom<3){ //TODO: solenoid mag.field should be standart
-  //   map_s1->SetScale(0.5);
-  //   map_s2->SetScale(0.5);
-  //   map_s3->SetScale(0.5);
-  //   map_s4->SetScale(0.5);
-  // }
-  fField->AddField(map_s1);
-  fField->AddField(map_s2);
-  fField->AddField(map_s3);
-  fField->AddField(map_s4);
+  // PndTransMap *map_t = new PndTransMap("TransMap", "R");
+  // PndDipoleMap *map_d1 = new PndDipoleMap("DipoleMap1", "R");
+  // PndDipoleMap *map_d2 = new PndDipoleMap("DipoleMap2", "R");
+  // fField->AddField(map_t);
+  // fField->AddField(map_d1);
+  // fField->AddField(map_d2);
+  // PndSolenoidMap *map_s1 = new PndSolenoidMap("SolenoidMap1", "R");
+  // PndSolenoidMap *map_s2 = new PndSolenoidMap("SolenoidMap2", "R");
+  // PndSolenoidMap *map_s3 = new PndSolenoidMap("SolenoidMap3", "R");
+  // PndSolenoidMap *map_s4 = new PndSolenoidMap("SolenoidMap4", "R");
+  // // if(mom<3){ //TODO: solenoid mag.field should be standart
+  // //   map_s1->SetScale(0.5);
+  // //   map_s2->SetScale(0.5);
+  // //   map_s3->SetScale(0.5);
+  // //   map_s4->SetScale(0.5);
+  // // }
+  // fField->AddField(map_s1);
+  // fField->AddField(map_s2);
+  // fField->AddField(map_s3);
+  // fField->AddField(map_s4);
  
 
-  // //TEST: const dipole field
-  // PndConstField *fDipField=new PndConstField();
-  // fDipField->SetField(0,0.75,0);
-  // fDipField->SetFieldRegion(-240,240,-240,240,400,600); 
-  // fField->AddField(fDipField);
-  // //TEST: const solenoid Mag.Field 
-  // PndConstField *fSolField=new PndConstField();
-  // // fSolField->SetField(0,0,20); // values are in kG //for cross-check with results from maps set Bz=2T
-  // fSolField->SetField(0,0,10); // values are in kG //for cross-check with results from maps set Bz=2T
-  // fSolField->SetFieldRegion(-240,240,-240,240,-172,283.7); //z range is sum from Solenoid#1-#4 maps
-  // fField->AddField(fSolField);
+  // // //TEST: const dipole field
+  // // PndConstField *fDipField=new PndConstField();
+  // // fDipField->SetField(0,0.75,0);
+  // // fDipField->SetFieldRegion(-240,240,-240,240,400,600); 
+  // // fField->AddField(fDipField);
+  // // //TEST: const solenoid Mag.Field 
+  // // PndConstField *fSolField=new PndConstField();
+  // // // fSolField->SetField(0,0,20); // values are in kG //for cross-check with results from maps set Bz=2T
+  // // fSolField->SetField(0,0,10); // values are in kG //for cross-check with results from maps set Bz=2T
+  // // fSolField->SetFieldRegion(-240,240,-240,240,-172,283.7); //z range is sum from Solenoid#1-#4 maps
+  // // fField->AddField(fSolField);
   
   fRun->SetField(fField);
   
