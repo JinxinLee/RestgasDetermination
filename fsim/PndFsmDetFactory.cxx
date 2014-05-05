@@ -63,6 +63,7 @@
 #include "PndFsmMdtPid.h"
 #include "PndFsmEmcPid.h"
 #include "PndFsmSimpleVtx.h"
+#include "PndFsmIdealPid.h"
 
 //-----------------------------------------------------------------------
 // Local Macros, Typedefs, Structures, Unions and Forward Declarations --
@@ -216,6 +217,12 @@ PndFsmDetFactory::create(std::string &name,ArgList &par)
     aDet->setName(name);
     return aDet;
   } else
+  if (tname=="IdealPid") {
+    PndFsmAbsDet* aDet = (PndFsmAbsDet*)(new PndFsmIdealPid(par));
+    aDet->setName(name);
+    aDet->setStorePid();
+    return aDet;
+  }
   if (tname=="CmpDet") {
     PndFsmAbsDet* aDet = (PndFsmAbsDet*)(new PndFsmCmpDet(par));
     aDet->setName(name);
