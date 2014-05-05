@@ -27,7 +27,8 @@ void XYcutSet(){
 
   //create reference from BOX -----------------------------------------------------
   // TString pathBOX = "/panda/myResults/BOXoutpitMarch2014_pointBeam/mom_1_5/Lumi_TrksQA_pointBeam_NOcut.root";
- TString pathBOX = "/panda/myResults/BOXoutpitMarch2014_BeamProf/mom_1_5/Lumi_TrksQA_BeamShape_NOcut.root";
+  // TString pathBOX = "/panda/myResults/BOXoutpitMarch2014_BeamProf/mom_1_5/Lumi_TrksQA_BeamShape_NOcut.root";
+ TString pathBOX = "/panda/myResults/BOXoutpitMarch2014_pointBeam/mom_15/Lumi_TrksQA_pointBeam_noCuts_BOX.root";
   TFile *finBOX = new TFile(pathBOX.Data(),"READ");
   TTree *treeBOX = (TTree*)finBOX->Get("cbmsim");
   //  TH2 *hxthlmd = new TH2D("hxthlmd",";#hat{#theta_{REC}}, mrad;X_{REC}, cm",1e2,30,50,2e2,14,36);
@@ -46,7 +47,8 @@ void XYcutSet(){
 
   // TH1 *hxthlmdref1 = (TH1F*)hxthlmd_1->Clone("hxthlmdref");
   // TH1 *hxthlmdref2 = (TH1F*)hxthlmd_2->Clone("hxthlmdref");
-  TString condition3sig  = condition+" &&  1e3*abs(LMDTrackQ.fThetamc-LMDTrackQ.fThetarec)<2.1";
+   //   TString condition3sig  = condition+" &&  1e3*abs(LMDTrackQ.fThetamc-LMDTrackQ.fThetarec)<2.1";//1.5 GeV
+   TString condition3sig  = condition+" &&  1e3*abs(LMDTrackQ.fThetamc-LMDTrackQ.fThetarec)<0.3";//15 GeV
   // TH2 *hxthlmdneu = new TH2D("hxthlmdneu",";#hat{#theta_{REC}}, mrad;X_{REC}, cm",1e2,30,50,2e2,14,36);
   int numGoodEv = treeBOX->Project("hxthlmdneu","LMDTrackQ.fXrecLMD:1e3*LMDTrackQ.fThetarecLMD",condition3sig,"",nEv);
   // hxthlmdneu->FitSlicesY();
@@ -141,12 +143,12 @@ void XYcutSet(){
   TCanvas c3;
   effgr->GetXaxis()->SetTitle("X width, cm");
   effgr->GetYaxis()->SetTitle("Y width, cm");
-  effgr->GetZaxis()->SetTitle("Eff for 3#sigma trks, %");
+  effgr->GetZaxis()->SetTitle("Eff for 4#sigma trks, %");
   effgr->Draw("surf1");
-  c3.SaveAs("eff3D_old_BOX_1_5GeV_beamShape.root");
+  c3.SaveAs("eff3D_old_BOX_15GeV_PointBeam.root");
   TCanvas c4;
   noisegr->Draw("surf1");
-  c4.SaveAs("noise3D_old_BOX_1_5GeV_beamShape.root");
+  c4.SaveAs("noise3D_old_BOX_15GeV_PointBeam.root");
   ///////////////////////////
 
 
