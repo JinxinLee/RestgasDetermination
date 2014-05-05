@@ -73,6 +73,7 @@ FairTask("Panda Fast Simulation") {
   fToStartVtx=false;
   fUseCovMatrix=false;
   fdbPdg = TDatabasePDG::Instance();
+  AddDetector("IdealPid");
 }
 // -------------------------------------------------------------------------
 
@@ -444,7 +445,7 @@ void PndFastSim::Exec(Option_t* opt)
         {
 		  // flag for merge neutral clusters
 		  bool merged = false;
-	  
+
 	      // if two neutrals have small angle difference alpha, merge their clusters with a certain probability 1-exp(-a*alpha)
 		  if (fMergeNeutralClusters)
 		  {
@@ -458,18 +459,18 @@ void PndFastSim::Exec(Option_t* opt)
 					double mergeE = nlv.E()+miclv.E();
 					TVector3 mergeV = nlv.Vect()+miclv.Vect();
 					mergeV *= mergeE/mergeV.Mag();
-					
+
 					PndPidCandidate* mergedCand = (PndPidCandidate*) neutCandidates[i];
 					mergedCand->SetMomentum(mergeV);
 					mergedCand->SetEnergy(mergeE);
 					mergedCand->SetMcIndex(-1); // remove MC truth match
-					
+
 					merged = true;
 					i=neucandsize;
 				}
 			  }
 		  }
-		  
+
 		  // if the new gamma wasn't merged to another, just add it as usual
 		  if (!merged)
 		  {
@@ -477,12 +478,12 @@ void PndFastSim::Exec(Option_t* opt)
               pidProb = new (neutProbs[neucandsize]) PndPidProbability();
 		  }
         }
-        
+
 		if (pidCand)
 		{
 			pidCand->SetMcIndex(iTrack);
 			pidCand->SetMvdDEDX( ft->detResponse()->MvddEdx() );
-			
+
 			//pidCand->SetMvdDEdxErr( ft->detResponse()->MvddEdxErr() );
 			pidCand->SetSttMeanDEDX( ft->detResponse()->SttdEdx() );
 			//pidCand->SetSttDEdxErr( ft->detResponse()->SttdEdxErr() );
