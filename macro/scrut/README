@@ -1,19 +1,6 @@
 macro/scrut
 --------------
 
-**************************************************
-Preface: Documentation about PandaROOT and Rho
-**************************************************
-
-For general info about doing simulation and analysis with PandaROOT and Rho, please consult the following links:
-
-1. https://panda-wiki.gsi.de/foswiki/bin/view/Computing/PandaRoot                     (PandaROOT Wiki)
-2. https://panda-wiki.gsi.de/foswiki/bin/view/Computing/PandaRootRhoTutorial          (Simulation/Analysis Tutorial)
-3. https://panda-wiki.gsi.de/foswiki/bin/view/Computing/PandaRootAnalysisJuly13       (Rho Class Dokumentation)
-4. https://panda-wiki.gsi.de/foswiki/bin/view/Computing/PandaRootSimulationPrometheus (Using Prometheus Cluster @ GSI)
-
-**************************************************
-
 In this directory macro/scrut are files necessary to run the fast simulation and perform some analysis, suitable for the 
 investigations for the PANDA scrutiny process.
 
@@ -23,11 +10,41 @@ investigations for the PANDA scrutiny process.
 
 - ana_jpsi.C: analysis macro for the example decay, creating ntuple output
 
-- CMakeLists.txt, scrutLinkDef.h, PndScrutAnaTask.cxx, PndScrutAnaTask.h, ana_jpsi_task.C: 
+- CMakeLists.txt, scrutLinkDef.h, PndScrutAnaTask.cxx, PndScrutAnaTask.h, ana_jpsi_task.C, ana_task_mult.C: 
   Files needed to run the example analysis in a task. The line 'add_subdirectory (macro/scrut)' needs to be
   added in the root CMakeLists.txt. Compile in build/macro/scrut by executing 'make', and run macro with 
-  'ana_jpsi_task.C("<your_input.root>")'
+  'ana_jpsi_task.C("<your_input.root>")'. ana_task_mult.C allows to analyse several input files at once.
   
+- job_fsim.sge, job_ana.sge: job scripts for using Prometheus cluster
+
+
+**************************************************
+
+CONTENTS:
+
+ - Preface: Documentation about PandaROOT and Rho
+ - Configuration of Fast Sim
+ - Running Fast Sim
+ - Trying the Example
+ - PID Arrays in Analysis
+ - Detector Options
+ - Using Prometheus Farm
+
+**************************************************
+
+
+
+###############################################
+Preface: Documentation about PandaROOT and Rho
+###############################################
+
+For general info about doing simulation and analysis with PandaROOT and Rho, please consult the following links:
+
+1. https://panda-wiki.gsi.de/foswiki/bin/view/Computing/PandaRoot                     (PandaROOT Wiki)
+2. https://panda-wiki.gsi.de/foswiki/bin/view/Computing/PandaRootRhoTutorial          (Simulation/Analysis Tutorial)
+3. https://panda-wiki.gsi.de/foswiki/bin/view/Computing/PandaRootAnalysisJuly13       (Rho Class Dokumentation)
+4. https://panda-wiki.gsi.de/foswiki/bin/view/Computing/PandaRootSimulationPrometheus (Using Prometheus Cluster @ GSI)
+
 
 ##########################
 Configuration of Fast Sim
@@ -104,7 +121,8 @@ Configuration of Fast Sim
 	// Based on theta_C from Cherenkovs
 	fastSim->AddDetector("DrcBarrel","thtMin=22.0 thtMax=140.0 dthtc=0.01 nPhotMin=5 effNPhotons=0.075");
 	fastSim->AddDetector("DrcDisc","thtMin=5.0 thtMax=22.0 dthtc=0.01 nPhotMin=5 effNPhotons=0.075");
-	fastSim->AddDetector("Rich","angleXMax=5.0 angleYMax=10.0 dthtc=0.01 nPhotMin=5 effNPhotons=0.075");
+	fastSim->AddDetector("Rich","angleXMax=5.0   EXAMPLE 1: root -l -b -q  'simfast.C("psi2s", "psi2s_jpsi2mu_2pi.dec", 6.232069, 10000, "psi(2S)")
+angleYMax=10.0 dthtc=0.01 nPhotMin=5 effNPhotons=0.075");
 
 	// Based on flat eff(mu) & misid(pi) from muon detectors
 	fastSim->AddDetector("ScMdtPidBarrel", "thtMin=10.0 thtMax=130.0 pMin=1.0 efficiency=0.95 misId=0.01");
@@ -187,6 +205,30 @@ In order to run the example, the following steps are needed:
    root [3] _file1.cd(); ntp1.Draw("jm","","same")
 
 
+########################
+PID Arrays in analysis
+########################
+
+In addition to the complete PID information in 'PidChargedProbability', each PID detector provides an individual PID array, which can be used in the same way as
+the PID algorithms in Full Simulation analysis.  The available arrays are
+
+- ScEmcPidFSProbability      : EMC in Forward Spectrometer
+- ScEmcPidFwCapProbability   : EMC Forward Endcap
+- ScEmcPidBarrelProbability  : EMC Barrel
+- ScEmcPidBwCapProbability   : EMC Backward Endcap
+- ScMdtPidBarrelProbability  : MUO Barrel
+- ScMdtPidForwardProbability : MUO in Forward Spectrometer
+- MvdPidProbability          : MVD
+- SttPidProbability          : STT
+- RichProbability            : RICH in Forward Spectrometer
+- DrcBarrelProbability       : Barrel DIRC
+- DrcDiscProbability         : Disc DIRC
+
+They can be used and combined as usual like e.g.:
+
+fAnalysis->FillList(kaonplus, "KaonLoosePlus", "DrcBarrelProbability;DrcDiscProbability;RichProbability");
+
+
 ####################
 Detector Options
 ####################
@@ -206,5 +248,64 @@ The first parameters are the same as above; the parameter <detopt> can be used i
              - Drc       (or 3) : Enable Barrel DIRC for PID (DrcBarrel)
              - Dsc       (or 4) : Enable Disc DIRC for PID (DrcDisc)
              - FwdSpec   (or 5) : Enable complete Forward Spectrometer (= FTS, EmcFS, EmcPidFS, MdtPidForward, Rich) 
+
+
+#######################
+Using Prometheus farm
+#######################
+
+For users working on Hera/Prometheus some job scripts have been prepared allowing an easy way to submit simulation and analysis jobs to the Prometheus cluster. General
+information about setup for using Prometheus can be found 
+
+ https://wiki.gsi.de/cgi-bin/view/Linux/GridEngine
+ https://panda-wiki.gsi.de/foswiki/bin/view/Computing/PandaRootSimulationPrometheus (Using Prometheus Cluster @ GSI)
+
+-------------------
+Running Simulation
+-------------------
+In order to submit simulation jobs to the cluster, the script job_fsim.sge (using simfast_opt.C) can be used. The parameters are as in simfast_opt.C. Usage is like:
+
+-  EXAMPLE 1: qsub -t 1-20 job_fsim.sge dpmbkg DPM 6.232069 100000
+  
+   Runs 20 jobs with 100000 DPM events each. Output files dpmbkg_1_fast.root, ... ,  dpmbkg_20_fast.root are in $VMCWORKDIR/macro/scrut/data.
+
+
+-  EXAMPLE 2: qsub -t 1-20 job_fsim.sge psi2s psi2s_jpsi2mu_2pi.dec 6.232069 100000 "psi(2S)"
+  
+   Runs 20 jobs with 100000 signal events each. Output files psi2s_1_fast.root, ... ,  dpmbkg_20_fast.root are in $VMCWORKDIR/macro/scrut/data.
+
+
+-  EXAMPLE 3: qsub -t 1-20 job_fsim.sge single_e BOX 10 100000 0 11
+  
+   Runs 20 jobs with 100000 single electron events events each. Output files single_e_1_fast.root, ... ,  single_e_20_fast.root are in $VMCWORKDIR/macro/scrut/data.
+
+
+-  EXAMPLE 4: qsub -t 1-20 job_fsim.sge psi2s_opt1 psi2s_jpsi2mu_2pi.dec 6.232069 100000 "psi(2S)" 0 1234
+  
+   Runs 20 jobs with 100000 signal events each, detector setup without Forward Spectrometer (1234, see above section). Output files are in $VMCWORKDIR/macro/scrut/data.
+  
+-------------------
+Running Analysis
+-------------------
+
+To submit analysis jobs, e.g. one per simulation job output, the script job_ana.sge (using ana_jpsi_task.C) can be used. The default output path is 
+$VMCWORKDIR/macro/scrut/data, but can be set in the analysis task macro for individual preference (see ana_jpsi_task.C how this should be done!)
+
+-  EXAMPLE 1: qsub -t 1-20 job_ana.sge /hera/panda/scrutdata/det_full/dpm40_full 
+  
+   Runs 20 analysis jobs based on input files /hera/panda/scrutdata/det_full/dpm40_full_1_fast.root, ... , /hera/panda/scrutdata/det_full/dpm40_full_20_fast.root. 
+   Output files dpm40_full_1_fana.root, ... , dpm40_full_20_fana.root are stored in $VMCWORKDIR/macro/scrut/data.
+
+
+
+
+
+
+
+
+
+
+
+
 
 

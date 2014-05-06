@@ -141,7 +141,10 @@ void simfast_opt(TString Prefix, TString Decfile, Float_t Mom, Int_t nEvents = 1
 	fastSim->SetVerbosity(0);
 
 	// enable the merging of neutrals if they have similar direction
-	fastSim->MergeNeutralClusters();
+	fastSim->MergeNeutralClusters(false);
+
+	// enable bremsstahlung loss for electrons
+	fastSim->EnableElectronBremsstrahlung(false);
 
 	//enable the producting of parametrized neutral (hadronic) split offs
 	if (enableSplitoff)
