@@ -55,6 +55,7 @@ class PndFastSim : public FairTask
   void SetVerbosity(int vb) {fVb=vb;}
   bool EnableSplitoffs(std::string fname="splitpars.dat");
   bool MergeNeutralClusters(bool merge=true, double par=0.389) {fMergeNeutralClusters=merge; fMergeProbPar=par;}
+  void EnableElectronBremsstrahlung(bool brems=true){fElectronBrems=brems;}
   void EnablePropagation(bool propagate=true, bool tostartvtx=true, bool usecovmatrix=true, double tolerance=0.0);
   void SetUseFlatCov(bool v=true) {fUseFlatCovMatrix=v;};
 
@@ -96,8 +97,10 @@ class PndFastSim : public FairTask
   int       fVb;   //verbosity level
   int       evtcnt; //event counter for output
   TF1       *fspo[5][4];
+  TF1       *fBremsEnergy;
   bool      fGenSplitOffs;
   bool      fMergeNeutralClusters;
+  bool      fElectronBrems;
   double    fMergeProbPar;
   bool      fPropagate;
   bool      fToStartVtx;

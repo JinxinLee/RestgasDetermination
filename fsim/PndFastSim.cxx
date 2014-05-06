@@ -68,6 +68,7 @@ FairTask("Panda Fast Simulation") {
   fGenSplitOffs=false;
   fMergeNeutralClusters=false;
   fMergeProbPar = 0.389;
+  fElectronBrems = false;
   fUseFlatCovMatrix=true;
   fPropagate=false;
   fToStartVtx=false;
@@ -174,8 +175,14 @@ InitStatus PndFastSim::Init() {
   fEta(3,0)=-0.01743;  fEta(3,1)=-0.05667;  fEta(3,2)= 0.007335; fEta(3,3)= 0.9982;                   // z0
   fEta(4,0)= 0.009165; fEta(4,1)=-6.781e-4; fEta(4,2)=-0.02316;  fEta(4,3)=-0.9341; fEta(4,4)=0.3562; // tandip
 
+  // parametrization for bremsstrahlung (based on Crystal Ball function tail)
+  fBremsEnergy = new TF1("fBremsEnergy","[0]*pow([3]/[4],[3])*exp(-0.5*[4]^2)/pow((x-[1])/[2]+[3]/[4]-[4],[3])");
+  fBremsEnergy->SetParameters(1,0.005,0.0311,1.05,1.04);
+  fBremsEnergy->SetRange(0.03,0.9); // valid between 3% and 90% energy loss through bremsstrahlung
+
   // Create and register output array
   cout << "-I- PndFastSim: Intialization successfull" << endl;
+  
   return kSUCCESS;
 }
 
@@ -333,7 +340,7 @@ void PndFastSim::Exec(Option_t* opt)
     cout <<"evt: "<<evtcnt<<endl;
 
   PndStack *fStack=(PndStack*)gMC->GetStack();
-  int nTracks=fStack->GetNtrack();
+  Int_t nTracks=fStack->GetNtrack();
 
 
   // Reset output array
@@ -378,9 +385,35 @@ void PndFastSim::Exec(Option_t* opt)
     TParticle *t = fStack->GetParticle(iTrack);
     if (fVb>1) t->Print();
 
-    TLorentzVector p4(t->Px(),t->Py(),t->Pz(),t->Energy());
-
+	TLorentzVector p4(t->Px(),t->Py(),t->Pz(),t->Energy());
     TVector3 stvtx(t->Vx(),t->Vy(),t->Vz());
+
+	// simulate bremsstrahlung for electrons and add photon on stack
+	if (abs(t->GetPdgCode())==11 && fElectronBrems)
+	{
+		// probability for bremsstrahlung was estimated from Full Sim to about 32%
+		if (fRand->Rndm()<0.32) 
+		{
+			// get random energy loss and compute residual momentum (as equivalent to kinetic energy) 
+			double loss  = fBremsEnergy->GetRandom(0.03,0.9);
+			
+			// modify electron momentum mag (not the direction at the moment)
+			p4.SetVectM(p4.Vect()*(1.0-loss),5.11e-4);
+			TLorentzVector phot;
+			phot.SetVectM(p4.Vect()*loss, 0.0);
+			
+			// add an additional photon to the stack with the energy
+			fStack->PushTrack(0, iTrack, 22,                   	// Int_t toBeDone, Int_t parentID, Int_t pdgCode
+							  phot.X(), phot.Y(), phot.Z(), 	// Double_t px, Double_t py, Double_t pz,
+							  phot.E(), 0., 0., 				// Double_t e, Double_t vx, Double_t vy, 
+							  0. , 0., 0., 						// Double_t vz, Double_t time, Double_t polx,
+							  0., 0., kPPrimary,				// Double_t poly, Double_t polz, TMCProcess proc, 
+							  nTracks, 0., 0.);					// Int_t& ntr, Double_t weight, Int_t is
+			
+			nTracks=fStack->GetNtrack();
+		}
+	}
+	
 
     //TLorentzVector vtx(stvtx,t->T());
     TParticlePDG* part = fdbPdg->GetParticle(t->GetPdgCode());
