@@ -74,7 +74,7 @@ void simfast(TString Prefix, TString Decfile, Float_t Mom, Int_t nEvents = 1000,
 		primGen->AddGenerator(boxGen);
 	}
 	if(UseDpm){
-		PndDpmDirect *Dpm= new PndDpmDirect(Mom,1);
+		PndDpmDirect *Dpm= new PndDpmDirect(Mom,0);  // 0 = inelastic, 1 = inelastic & elastic, 2 = elastic
 		Dpm->SetUnstable(111);   // pi0
 		Dpm->SetUnstable(310);   // K_S0
 		Dpm->SetUnstable(3122);  // Lambda
@@ -107,7 +107,7 @@ void simfast(TString Prefix, TString Decfile, Float_t Mom, Int_t nEvents = 1000,
 
 	// enable bremsstahlung loss for electrons
 	fastSim->EnableElectronBremsstrahlung(false);
-
+	
 	//enable the producting of parametrized neutral (hadronic) split offs
 	if (enableSplitoff)
 		fastSim->EnableSplitoffs(splitpars.Data());
