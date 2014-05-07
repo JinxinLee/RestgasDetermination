@@ -182,7 +182,7 @@ InitStatus PndFastSim::Init() {
 
   // Create and register output array
   cout << "-I- PndFastSim: Intialization successfull" << endl;
-  
+
   return kSUCCESS;
 }
 
@@ -392,28 +392,28 @@ void PndFastSim::Exec(Option_t* opt)
 	if (abs(t->GetPdgCode())==11 && fElectronBrems)
 	{
 		// probability for bremsstrahlung was estimated from Full Sim to about 32%
-		if (fRand->Rndm()<0.32) 
+		if (fRand->Rndm()<0.32)
 		{
-			// get random energy loss and compute residual momentum (as equivalent to kinetic energy) 
+			// get random energy loss and compute residual momentum (as equivalent to kinetic energy)
 			double loss  = fBremsEnergy->GetRandom(0.03,0.9);
-			
+
 			// modify electron momentum mag (not the direction at the moment)
 			p4.SetVectM(p4.Vect()*(1.0-loss),5.11e-4);
 			TLorentzVector phot;
 			phot.SetVectM(p4.Vect()*loss, 0.0);
-			
+
 			// add an additional photon to the stack with the energy
 			fStack->PushTrack(0, iTrack, 22,                   	// Int_t toBeDone, Int_t parentID, Int_t pdgCode
 							  phot.X(), phot.Y(), phot.Z(), 	// Double_t px, Double_t py, Double_t pz,
-							  phot.E(), 0., 0., 				// Double_t e, Double_t vx, Double_t vy, 
+							  phot.E(), 0., 0., 				// Double_t e, Double_t vx, Double_t vy,
 							  0. , 0., 0., 						// Double_t vz, Double_t time, Double_t polx,
-							  0., 0., kPPrimary,				// Double_t poly, Double_t polz, TMCProcess proc, 
+							  0., 0., kPPrimary,				// Double_t poly, Double_t polz, TMCProcess proc,
 							  nTracks, 0., 0.);					// Int_t& ntr, Double_t weight, Int_t is
-			
+
 			nTracks=fStack->GetNtrack();
 		}
 	}
-	
+
 
     //TLorentzVector vtx(stvtx,t->T());
     TParticlePDG* part = fdbPdg->GetParticle(t->GetPdgCode());
@@ -1018,6 +1018,8 @@ PndFastSim::sumResponse(FsmResponseList respList)
     PndFsmResponse *resp=*riter;
 
     if ( fVb>3 ) resp->print(cout);
+
+    if (resp->detector()->detName()=="IdealPid") continue; // don't use ideal PID
 
     detected = detected | resp->detected();
 
