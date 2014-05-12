@@ -335,17 +335,27 @@ void PndKinFitter::ReadMassKinMatrix()
     Double_t bField = 0.1*RhoCalculationTools::GetBz(fDaughters[k]->Pos()); // T, assume field in z only
     a = -0.00299792458*bField*fDaughters[k]->GetCharge();
     Double_t invE = 1./E;
+
 //....................................................
-    fmD[fNc+0][kN+0] = 2.*(Etot*px*invE-Px);
-    fmD[fNc+0][kN+1] = 2.*(Etot*py*invE-Py);
-    fmD[fNc+0][kN+2] = 2.*(Etot*pz*invE-Pz);
-    fmD[fNc+0][kN+3] = 0.0;
-    fmD[fNc+0][kN+3] = 2* m[k][0]*Etot*invE;
-    //  mD[0][kN+4] = 2.*(Etot*py*invE-Py)*a;
-    // mD[0][kN+5] = 2.*(Etot*px*invE-Px)*a;
-    fmD[fNc+0][kN+4] = 2.*Py*a;
-    fmD[fNc+0][kN+5] = -2.*Px*a;
-    fmD[fNc+0][kN+6] = 0.0;
+// V.J. - force head mass to constraint mass
+fmD[fNc+0][kN+0] = -2.*Px;
+fmD[fNc+0][kN+1] = -2.*Py;;
+fmD[fNc+0][kN+2] = -2.*Pz;
+fmD[fNc+0][kN+3] = 2.*Etot;
+fmD[fNc+0][kN+4] = 2.*a*Py;
+fmD[fNc+0][kN+5] = -2.*a*Px;
+fmD[fNc+0][kN+6] = 0.0;
+//....................................................
+//    fmD[fNc+0][kN+0] = 2.*(Etot*px*invE-Px);
+//    fmD[fNc+0][kN+1] = 2.*(Etot*py*invE-Py);
+//    fmD[fNc+0][kN+2] = 2.*(Etot*pz*invE-Pz);
+//    fmD[fNc+0][kN+3] = 0.0;
+//    fmD[fNc+0][kN+3] = 2* m[k][0]*Etot*invE;
+//    //  mD[0][kN+4] = 2.*(Etot*py*invE-Py)*a;
+//    // mD[0][kN+5] = 2.*(Etot*px*invE-Px)*a;
+//    fmD[fNc+0][kN+4] = 2.*Py*a;
+//    fmD[fNc+0][kN+5] = -2.*Px*a;
+//    fmD[fNc+0][kN+6] = 0.0;
 //................Simple....................
     /*
                   mD[fNc+0][kN+0] = -2.*Px;
