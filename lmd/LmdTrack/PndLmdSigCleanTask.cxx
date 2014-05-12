@@ -220,7 +220,7 @@ bool  PndLmdSigCleanTask::CheckMVA(FairTrackParH* fTrk){
   // cout<<"Yes, TMVA game!"<<endl;
   bool res;
   TVector3 PosRecBP = fTrk->GetPosition();
-  axrec = float(PosRecBP.X());    ayrec = float(PosRecBP.Y());   azrec = float(PosRecBP.Z()); 
+  axrec = float(PosRecBP.X() - fdX);    ayrec = float(PosRecBP.Y() - fdY);   azrec = float(PosRecBP.Z()); 
   TVector3 MomRecBP = fTrk->GetMomentum();
   aprec = float(MomRecBP.Mag());    
   Double_t lyambda = fTrk->GetLambda();
