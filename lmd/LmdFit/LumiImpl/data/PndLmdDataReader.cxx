@@ -113,8 +113,8 @@ int PndLmdDataReader::getNextMinEventIndex(
 	return next_min_event_index;
 }
 
-void PndLmdDataReader::addDataPath(TString dir_path) {
-	data_dirs.push_back(dir_path);
+void PndLmdDataReader::addFilePath(TString file_path) {
+	file_paths.push_back(file_path);
 }
 
 std::vector<PndLmdAbstractData*> PndLmdDataReader::combineAllRegisteredDataObjects() {

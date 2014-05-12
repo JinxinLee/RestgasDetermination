@@ -187,10 +187,18 @@ public:
 			std::vector<PndLmdVertexData> &vertex_data,
 			const LumiFit::LmdSimIPParameters &dependency, TString ytitle_subscript);
 
+	std::vector<PndLmdResultPlotter::graph_bundle> createGraphDifferenceBundle(
+			std::vector<PndLmdResultPlotter::graph_bundle> &graph_bundle,
+			std::vector<PndLmdResultPlotter::graph_bundle> &graph_bundle_ref);
+
+	std::vector<PndLmdResultPlotter::graph_bundle> createGraphRatioBundle(
+			std::vector<PndLmdResultPlotter::graph_bundle> &graph_bundle,
+			std::vector<PndLmdResultPlotter::graph_bundle> &graph_bundle_ref);
+
 	std::pair<double, double> calulateLumiRelDiff(double lumi, double lumi_err,
 			double lumi_ref);
 
-	void fillSinglePad(TCanvas *c, graph_bundle &graph_bundle);
+	void fillSinglePad(TCanvas *c, graph_bundle &graph_bundle, bool use_2d = false);
 
 	combined_values createCombinedValue(double x, double lumi, double err,
 			double ref);
@@ -212,6 +220,12 @@ public:
 
 	void makeResolutionBooky(std::vector<PndLmdResolution> &res_vec,
 			TString filename);
+
+	void makeResolutionDifferencesBooky(std::vector<PndLmdResolution> &res_vec,
+			std::vector<PndLmdResolution> &res_vec_ref);
+
+	void makeVertexDifferencesBooky(std::vector<PndLmdVertexData> &res_vec,
+			std::vector<PndLmdVertexData> &res_vec_ref);
 
 	void makeBooky(std::vector<PndLmdResultPlotter::graph_bundle> &graph_bundles,
 			TString filename, int x = 4, int y = 3);

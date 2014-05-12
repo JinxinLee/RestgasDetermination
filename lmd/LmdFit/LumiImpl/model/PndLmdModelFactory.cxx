@@ -48,7 +48,7 @@ shared_ptr<Model1D> PndLmdModelFactory::generate1DVertexModel(
 	if (model_options.vertex_model == LumiFit::UNIFORM) {
 		vertex_model.reset(new DoubleGaussianModel1D("vertex_double_gaussian_1d"));
 	} else if (model_options.vertex_model == LumiFit::GAUSSIAN) {
-		vertex_model.reset(new GaussianModel1D("vertex_double_gaussian_1d"));
+		vertex_model.reset(new GaussianModel1D("vertex_gaussian_1d"));
 	} else {
 		std::cout << "Unknown vertex model!" << std::endl;
 	}

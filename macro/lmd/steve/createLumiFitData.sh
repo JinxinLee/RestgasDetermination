@@ -10,44 +10,48 @@ if [ $PBS_O_WORKDIR ]; then
 fi
 
 # lab momentum of the beam antiprotons
-pbeam=$var1
+#pbeam=$var1
 #number of events used for the fitting procedure
-numEv=$var2
-echo "data path: ${data_path}!"
+#numEv=$var2
 # directory of the data generated with dpm
 if [[ ${PBS_ARRAYID} ]]; then
-  data_path=$var3/bunch_${PBS_ARRAYID}-$var6
+  filelist_url=${filelist_path}/filelist_${PBS_ARRAYID}.txt
 else
-  data_path=$var3
+  filelist_url=${filelist_path}
 fi
-type=$var4
+echo "data path: ${input_path}!"
+#type=$var4
 echo "data type: ${type}"
-elastic_cross_section=$var5
-
+#elastic_cross_section=$var5
+echo "elastic cross secion: ${elastic_cross_section}"
 if [ ! $numEv ]; then
   numEv=0
 fi
 
-if [ "$type" == "a" ]; then
+if [[ $type == *a* ]]; then
   if [ -z "${elastic_cross_section}" ]; then
     dpm_logfile=${GEN_DATA}/`echo ${data_path} | sed -rn 's/^.*\/(.*)_pixel.*$/\1/p'`/*_1.log
     elastic_cross_section=$(cat ${dpm_logfile} | sed -rn 's/elastic cross section[ ]*([0-9]*.[0-9]*).*/\1/p')
     echo cross section is ${elastic_cross_section}
   fi
-  echo "using elastic cross section of ${elastic_cross_section}"
-  echo $VMCWORKDIR/macro/lmd/LMD_fit/createLumiFitData -m $pbeam -t $type -p ${data_path} -n ${numEv} -c ${elastic_cross_section}
+fi
+  
+echo "using elastic cross section of ${elastic_cross_section}"
+if [ -z ${filelist_url} ]; then
+  echo $VMCWORKDIR/build/bin/createLumiFitData -m $pbeam -t $type -p ${input_path} -n ${numEv} -c ${elastic_cross_section}
   if [ $batchjob -eq "0" ]; then
-    $VMCWORKDIR/macro/lmd/LMD_fit/createLumiFitData -m $pbeam -t $type -p ${data_path} -n ${numEv} -c ${elastic_cross_section} 2>&1 >> ${data_path}/createLumiFitData.log
+    $VMCWORKDIR/build/bin/createLumiFitData -m $pbeam -t $type -p ${input_path} -n ${numEv} -c ${elastic_cross_section} 2>&1 >> ${data_path}/createLumiFitData.log
   else
-    $VMCWORKDIR/macro/lmd/LMD_fit/createLumiFitData -m $pbeam -t $type -p ${data_path} -n ${numEv} -c ${elastic_cross_section}
+    $VMCWORKDIR/build/bin/createLumiFitData -m $pbeam -t $type -p ${input_path} -n ${numEv} -c ${elastic_cross_section}
   fi
 else
+  echo $VMCWORKDIR/build/bin/createLumiFitData -m $pbeam -t $type -p ${input_path} -f ${filelist_url} -o ${output_path} -n ${numEv} -c ${elastic_cross_section}
   if [ $batchjob -eq "0" ]; then
-    $VMCWORKDIR/macro/lmd/LMD_fit/createLumiFitData -m $pbeam -t $type -p ${data_path} -n ${numEv} 2>&1 >> ${data_path}/createLumiFitData.log
+    $VMCWORKDIR/build/bin/createLumiFitData -m $pbeam -t $type -p ${input_path} -f ${filelist_url} -o ${output_path} -n ${numEv} -c ${elastic_cross_section} 2>&1 >> ${data_path}/createLumiFitData.log
   else
-    $VMCWORKDIR/macro/lmd/LMD_fit/createLumiFitData -m $pbeam -t $type -p ${data_path} -n ${numEv}
+    $VMCWORKDIR/build/bin/createLumiFitData -m $pbeam -t $type -p ${input_path} -f ${filelist_url} -o ${output_path} -n ${numEv} -c ${elastic_cross_section}
   fi
 fi
-
+  
 sleep 10;
 exit 0;

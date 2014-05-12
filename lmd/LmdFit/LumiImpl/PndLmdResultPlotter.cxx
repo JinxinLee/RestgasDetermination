@@ -23,6 +23,7 @@
 #include <algorithm>
 #include <iosfwd>
 #include <ostream>
+#include <iomanip>
 
 #include "boost/filesystem.hpp"   // includes all needed Boost.Filesystem declarations
 #include "boost/regex.hpp"
@@ -597,7 +598,7 @@ PndLmdResultPlotter::graph_bundle PndLmdResultPlotter::makeGraphBundle1D(
 							theta_plot_range_high));
 		}
 		hist->GetXaxis()->SetTitle("t [GeV^{2}/c^{2}]");
-		ss << "# of events / " << hist->GetXaxis()->GetBinWidth(1)
+		ss << "# of tracks / " << hist->GetXaxis()->GetBinWidth(1)
 				<< " GeV^{2}/c^{2}";
 	} else {
 		if (theta_plot_range_low < theta_plot_range_high) {
@@ -605,7 +606,8 @@ PndLmdResultPlotter::graph_bundle PndLmdResultPlotter::makeGraphBundle1D(
 					theta_plot_range_high);
 		}
 		hist->GetXaxis()->SetTitle("#Theta [rad]");
-		ss << "# of events / " << hist->GetXaxis()->GetBinWidth(1) << " mrad";
+		ss << "# of tracks / " << 1000.0 * hist->GetXaxis()->GetBinWidth(1)
+				<< " mrad";
 	}
 	hist->GetYaxis()->SetTitle(ss.str().c_str());
 
@@ -632,7 +634,7 @@ PndLmdResultPlotter::graph_bundle PndLmdResultPlotter::makeGraphBundle1D(
 	strstream.str("");
 
 	if (fit_res->getModelFitResult().getFitStatus() == 0) {
-		strstream << "lumi. rel. diff. = "
+		strstream << std::setprecision(3) << "#Delta L/L = "
 				<< calulateLumiRelDiff(fit_res->getLuminosity(),
 						fit_res->getLuminosityError(), lumi_ref).first << " #pm "
 				<< calulateLumiRelDiff(fit_res->getLuminosity(),
@@ -734,6 +736,7 @@ PndLmdResultPlotter::graph_bundle PndLmdResultPlotter::makeVertexGraphBundle1D(
 
 	lmd_graph_bundle.hist1d = hist;
 
+	std::cout << "num fit results: " << fit_results.size() << std::endl;
 	if (fit_results.size() > 0) {
 		lmd_graph_bundle.est_options =
 				fit_results.begin()->first.getEstimatorOptions();
@@ -1036,7 +1039,50 @@ std::pair<TGraphErrors*, TGraphErrors*> PndLmdResultPlotter::makeIPParameterDepe
 	return std::make_pair(mean, width);
 }
 
-void PndLmdResultPlotter::fillSinglePad(TCanvas *c, graph_bundle &gb) {
+std::vector<PndLmdResultPlotter::graph_bundle> PndLmdResultPlotter::createGraphDifferenceBundle(
+		std::vector<PndLmdResultPlotter::graph_bundle> &graph_bundle,
+		std::vector<PndLmdResultPlotter::graph_bundle> &graph_bundle_ref) {
+
+	std::vector<PndLmdResultPlotter::graph_bundle> diff_graph_bundle;
+
+	if (graph_bundle.size() == graph_bundle_ref.size()) {
+		for (unsigned int i = 0; i < graph_bundle.size(); i++) {
+			PndLmdResultPlotter::graph_bundle gb;
+			gb.hist1d = new TH1D(*graph_bundle[i].hist1d);
+			gb.hist1d->Add(graph_bundle_ref[i].hist1d, -1.0);
+
+			diff_graph_bundle.push_back(gb);
+		}
+	}
+
+	return diff_graph_bundle;
+}
+
+std::vector<PndLmdResultPlotter::graph_bundle> PndLmdResultPlotter::createGraphRatioBundle(
+		std::vector<PndLmdResultPlotter::graph_bundle> &graph_bundle,
+		std::vector<PndLmdResultPlotter::graph_bundle> &graph_bundle_ref) {
+
+	std::vector<PndLmdResultPlotter::graph_bundle> diff_graph_bundle;
+
+	if (graph_bundle.size() == graph_bundle_ref.size()) {
+		for (unsigned int i = 0; i < graph_bundle.size(); i++) {
+			PndLmdResultPlotter::graph_bundle gb;
+			gb.hist1d = new TH1D(*graph_bundle[i].hist1d);
+			double int_num = graph_bundle[i].hist1d->Integral();
+			double int_denom = graph_bundle_ref[i].hist1d->Integral();
+
+			gb.hist1d->Divide(graph_bundle[i].hist1d, graph_bundle_ref[i].hist1d,
+					int_denom, int_num, "B");
+
+			diff_graph_bundle.push_back(gb);
+		}
+	}
+
+	return diff_graph_bundle;
+}
+
+void PndLmdResultPlotter::fillSinglePad(TCanvas *c, graph_bundle &gb,
+		bool use_2d) {
 	if (c) {
 		// set logarithmic scale
 		if (gb.log_scale)
@@ -1055,20 +1101,22 @@ void PndLmdResultPlotter::fillSinglePad(TCanvas *c, graph_bundle &gb) {
 			xaxis = gb.residual.first->GetXaxis();
 			yaxis = gb.residual.first->GetYaxis();
 		} else {
-			if (gb.data_graph_1D) {
-				gb.data_graph_1D->Draw("AP");
-
-				xaxis = gb.data_graph_1D->GetXaxis();
-				yaxis = gb.data_graph_1D->GetYaxis();
-			} else if (gb.hist1d) {
-				gb.hist1d->Draw("E1");
-
-				xaxis = gb.hist1d->GetXaxis();
-				yaxis = gb.hist1d->GetYaxis();
-			} else if (gb.hist2d) {
+			if (use_2d && gb.hist2d) {
 				gb.hist2d->Draw("COLZ");
 				xaxis = gb.hist2d->GetXaxis();
 				yaxis = gb.hist2d->GetYaxis();
+			} else {
+				if (gb.data_graph_1D) {
+					gb.data_graph_1D->Draw("AP");
+
+					xaxis = gb.data_graph_1D->GetXaxis();
+					yaxis = gb.data_graph_1D->GetYaxis();
+				} else if (gb.hist1d) {
+					gb.hist1d->Draw("E1");
+
+					xaxis = gb.hist1d->GetXaxis();
+					yaxis = gb.hist1d->GetYaxis();
+				}
 			}
 			if (gb.model) {
 				gb.model->Draw("Csame");
@@ -1335,6 +1383,46 @@ void PndLmdResultPlotter::makeResolutionBooky(
 	makeBooky(graph_bundles, filename, 5, 4);
 }
 
+void PndLmdResultPlotter::makeResolutionDifferencesBooky(
+		std::vector<PndLmdResolution> &res_vec,
+		std::vector<PndLmdResolution> &res_vec_ref) {
+
+	std::vector<PndLmdResultPlotter::graph_bundle> graph_bundles;
+	for (unsigned int i = 0; i < res_vec.size(); i++) {
+		graph_bundles.push_back(makeResolutionGraphBundle1D(res_vec[i]));
+	}
+
+	std::vector<PndLmdResultPlotter::graph_bundle> graph_bundles_ref;
+	for (unsigned int i = 0; i < res_vec_ref.size(); i++) {
+		graph_bundles_ref.push_back(makeResolutionGraphBundle1D(res_vec_ref[i]));
+	}
+
+	std::vector<PndLmdResultPlotter::graph_bundle> diff_graph_bundles =
+			createGraphRatioBundle(graph_bundles, graph_bundles_ref);
+
+	makeBooky(diff_graph_bundles, "resolution_difference", 5, 4);
+}
+
+void PndLmdResultPlotter::makeVertexDifferencesBooky(
+		std::vector<PndLmdVertexData> &res_vec,
+		std::vector<PndLmdVertexData> &res_vec_ref) {
+
+	std::vector<PndLmdResultPlotter::graph_bundle> graph_bundles;
+	for (unsigned int i = 0; i < res_vec.size(); i++) {
+		graph_bundles.push_back(makeVertexGraphBundle1D(res_vec[i]));
+	}
+
+	std::vector<PndLmdResultPlotter::graph_bundle> graph_bundles_ref;
+	for (unsigned int i = 0; i < res_vec.size(); i++) {
+		graph_bundles_ref.push_back(makeVertexGraphBundle1D(res_vec[i]));
+	}
+
+	std::vector<PndLmdResultPlotter::graph_bundle> diff_graph_bundles =
+			createGraphDifferenceBundle(graph_bundles, graph_bundles_ref);
+
+	makeBooky(diff_graph_bundles, "vertex_difference", 3, 2);
+}
+
 void PndLmdResultPlotter::makeBooky(
 		std::vector<PndLmdResultPlotter::graph_bundle> &graph_bundles,
 		TString filename, int x, int y) {
@@ -1367,21 +1455,49 @@ void PndLmdResultPlotter::makeBooky(
 void PndLmdResultPlotter::plotXYOverviewGraph(
 		std::vector<PndLmdVertexData> &vertex_data) {
 
-	unsigned int num_values = 5;
+	//unsigned int num_values = 5;
 	// define scales
-	double scales[] = { 1.0, 10.0, 100.0, 1e3, 1e4 };
+	//double scales[] = { 1.0, 10.0, 100.0, 1e3, 1e4 };
 	// define colors for scales
-	int colors[] = { kRed + 2, kRed, kViolet, kViolet + 7, kBlue };
+	//int colors[] = { kRed + 2, kRed, kViolet, kViolet + 7, kBlue };
+
+	unsigned int num_values = 1;
+	double scales[] = { 50.0 };
+	int colors[] = { kRed };
 
 	TMultiGraph *mg = new TMultiGraph();
 	TLegend* leg = new TLegend(0.9, 0.85 - 0.05 * num_values, .98, .9);
 
 	TGraphAsymmErrors *first;
 
+	std::vector<TLatex*> labels;
+
 	for (unsigned int i = 0; i < num_values; i++) {
 		TGraphAsymmErrors *gae = makeXYOverviewGraph(vertex_data, scales[i],
 				colors[i]);
-		if(i == 0)
+		// draw precision labels on points
+		for (unsigned int point = 0; point < gae->GetN(); point++) {
+			double x, y;
+			gae->GetPoint(point, x, y);
+
+			double errorx = gae->GetErrorXhigh(point);
+			if (errorx < gae->GetErrorXlow(point))
+				errorx = gae->GetErrorXlow(point);
+			double errory = gae->GetErrorYhigh(point);
+			if (errory < gae->GetErrorYlow(point))
+				errory = gae->GetErrorYlow(point);
+			errorx = errorx * 10000.0 / scales[i];
+			errory = errory * 10000.0 / scales[i];
+
+			std::stringstream ss;
+			ss << std::fixed << std::setprecision(0) << "(" << errorx << "#mum, "
+					<< errory << "#mum)";
+			TLatex *label = new TLatex(x - 0.15, y + 0.03, ss.str().c_str());
+			label->SetTextSize(0.02);
+			labels.push_back(label);
+		}
+
+		if (i == 0)
 			first = gae;
 		mg->Add(gae);
 		std::stringstream ss;
@@ -1393,6 +1509,9 @@ void PndLmdResultPlotter::plotXYOverviewGraph(
 	mg->GetXaxis()->SetTitle(first->GetXaxis()->GetTitle());
 	mg->GetYaxis()->SetTitle(first->GetYaxis()->GetTitle());
 	leg->Draw();
+	for (unsigned int i = 0; i < labels.size(); i++) {
+		labels[i]->Draw();
+	}
 }
 
 TGraphAsymmErrors* PndLmdResultPlotter::makeXYOverviewGraph(
@@ -1441,37 +1560,40 @@ TGraphAsymmErrors* PndLmdResultPlotter::makeXYOverviewGraph(
 					PndLmdLumiFitResult *fit_result =
 							ip_setting_case->second[i].getFitResults().begin()->second;
 
-					double diff =
-							error_scaling_factor
-									* (fit_result->getModelFitResult().getFitParameter(
-											"gauss_mean").value - current_x);
-					double absdiff = fabs(diff);
+					if (fit_result) {
+						double diff =
+								error_scaling_factor
+										* (fit_result->getModelFitResult().getFitParameter(
+												"gauss_mean").value - current_x);
+						double absdiff = fabs(diff);
 
-					std::cout << diff << " " << absdiff << std::endl;
-					if (absdiff > 0.1 * max_offset && absdiff < max_offset) {
+						std::cout << diff << " " << absdiff << std::endl;
+						//	if (absdiff > 0.1 * max_offset && absdiff < max_offset) {
 						if (diff < 0.0)
 							current_x_err_low = absdiff;
 						else
 							current_x_err_high = absdiff;
+						//	}
 					}
-				}
-				else if (ip_setting_case->second[i].getPrimaryDimension().dimension_options.dimension_type
+				} else if (ip_setting_case->second[i].getPrimaryDimension().dimension_options.dimension_type
 						== LumiFit::Y) {
 					PndLmdLumiFitResult *fit_result =
 							ip_setting_case->second[i].getFitResults().begin()->second;
 
-					double diff =
-							error_scaling_factor
-									* (fit_result->getModelFitResult().getFitParameter(
-											"gauss_mean").value - current_y);
-					double absdiff = fabs(diff);
+					if (fit_result) {
+						double diff =
+								error_scaling_factor
+										* (fit_result->getModelFitResult().getFitParameter(
+												"gauss_mean").value - current_y);
+						double absdiff = fabs(diff);
 
-					std::cout << diff << " " << absdiff << std::endl;
-					if (absdiff > 0.1 * max_offset && absdiff < max_offset) {
+						std::cout << diff << " " << absdiff << std::endl;
+						//	if (absdiff > 0.1 * max_offset && absdiff < max_offset) {
 						if (diff < 0.0)
 							current_y_err_low = absdiff;
 						else
 							current_y_err_high = absdiff;
+						//	}
 					}
 				}
 			}

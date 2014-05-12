@@ -378,7 +378,6 @@ void PndLmdFitFacade::fitVertexData(std::vector<PndLmdVertexData> &lmd_data) {
 		// now we have to set good starting values and free parameters
 		if (fit_options->getFitModelOptions().vertex_model == LumiFit::GAUSSIAN) { // simple gaussian
 			// amplitude of gauss is equal to number of events in the histogram
-			std::cout<<"wtfwtfwft: "<<hist->Integral()<<"  "<<hist->GetEntries()<<std::endl;
 			vertex_model->getModelParameterSet().getModelParameter("gauss_amplitude")->setParameterFixed(
 					false);
 			vertex_model->getModelParameterSet().getModelParameter("gauss_amplitude")->setValue(

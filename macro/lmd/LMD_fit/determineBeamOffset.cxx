@@ -46,8 +46,9 @@ void determineBeamOffset(std::string data_path) {
 	for (std::vector<PndLmdVertexData>::iterator lmd_data_iter =
 			data_vec.begin(); lmd_data_iter != data_vec.end();
 			lmd_data_iter++) {
+		std::cout<<lmd_data_iter->getName()<<": "<<lmd_data_iter->getFitResults().size()<<std::endl;
 		if (lmd_data_iter->getFitResults().size() > 0)
-			lmd_data_iter->saveToRootFile();
+      lmd_data_iter->saveToRootFile();
 	}
 
 	ffitteddata->Close();

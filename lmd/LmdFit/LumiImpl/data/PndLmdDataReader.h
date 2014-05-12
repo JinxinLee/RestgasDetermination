@@ -62,7 +62,7 @@ private:
 protected:
 	TDatabasePDG *pdg;
 
-	std::vector<TString> data_dirs;
+	std::vector<TString> file_paths;
 
 public:
 	PndLmdDataReader();
@@ -70,7 +70,7 @@ public:
 
 	void setBeam(double lab_momentum);
 
-	void addDataPath(TString dir_path);
+	void addFilePath(TString file_path);
 
 	int registerData(PndLmdHistogramData* data);
 	int registerData(std::vector<PndLmdAngularData> &data_vec);

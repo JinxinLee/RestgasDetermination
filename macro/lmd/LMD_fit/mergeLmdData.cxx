@@ -20,14 +20,36 @@ using std::string;
 using boost::filesystem::path;
 using boost::filesystem::directory_iterator;
 
+vector<string> find_files(const path & dir_path, const string & file_name) {
+
+	vector<string> all_matching_files;
+
+	const boost::regex my_filename_filter(file_name,
+			boost::regex::extended | boost::regex::icase);
+
+	directory_iterator end_itr;
+
+	for (directory_iterator fitr(dir_path); fitr != end_itr; ++fitr) {
+
+		boost::smatch fwhat;
+
+		// Skip if no match
+		if (!boost::regex_search(fitr->path().filename().string(), fwhat,
+				my_filename_filter))
+			continue;
+
+		std::cout << "adding " << fitr->path().string() << " to filelist"
+				<< std::endl;
+		all_matching_files.push_back(fitr->path().string());
+	}
+	return all_matching_files;
+}
+
 vector<string> find_file(const path & dir_path, const string &dir_pattern,
 		const string & file_name) // search for this name
 		{
 
 	const boost::regex my_dir_filter(dir_pattern,
-			boost::regex::extended | boost::regex::icase);
-
-	const boost::regex my_filename_filter(file_name,
 			boost::regex::extended | boost::regex::icase);
 
 	vector<string> all_matching_files;
@@ -49,19 +71,9 @@ vector<string> find_file(const path & dir_path, const string &dir_pattern,
 						my_dir_filter))
 					continue;
 
-				for (directory_iterator fitr(itr->path()); fitr != end_itr; ++fitr) {
-
-					boost::smatch fwhat;
-
-					// Skip if no match
-					if (!boost::regex_search(fitr->path().filename().string(), fwhat,
-							my_filename_filter))
-						continue;
-
-					std::cout << "adding " << fitr->path().string() << " to filelist"
-							<< std::endl;
-					all_matching_files.push_back(fitr->path().string());
-				}
+				vector<string> found_files = find_files(itr->path(), file_name);
+				all_matching_files.insert(all_matching_files.end(), found_files.begin(),
+						found_files.end());
 			}
 		}
 	}
@@ -127,7 +139,7 @@ int main(int argc, char* argv[]) {
 	bool is_filename_pattern_set = false;
 	bool is_type_set = false;
 	string filename_pattern("lmd_data.root");
-	string dir_pattern("bunch");
+	string dir_pattern("");
 	string data_path;
 	int type;
 	int c;
@@ -166,16 +178,33 @@ int main(int argc, char* argv[]) {
 		}
 	}
 
+	std::string output_filename = filename_pattern;
+	if (type == 0)
+		output_filename = "lmd_data.root";
+	else if (type == 1)
+		output_filename = "lmd_acc_data.root";
+	else if (type == 2)
+		output_filename = "lmd_res_data.root";
+	else if (type == 3)
+		output_filename = "lmd_vertex_data.root";
+
 	if (is_data_path_set && is_type_set) {
 		if (!is_filename_pattern_set) {
 			if (type == 1)
 				filename_pattern = "lmd_acc_data.root";
 			else if (type == 2)
 				filename_pattern = "lmd_res_data.root";
+			else if (type == 3)
+				filename_pattern = "lmd_vertex_data.root";
 		}
-		// ------ get files -------------------------------------------------------
-		vector<string> found_files = find_file(data_path, dir_pattern,
-				filename_pattern);
+
+		vector<string> found_files;
+		if (dir_pattern.compare("") != 0) {
+			// ------ get files ------
+			found_files = find_file(data_path, dir_pattern, filename_pattern);
+		} else {
+			found_files = find_files(data_path, filename_pattern);
+		}
 
 		std::string outfile_path = data_path + "/merge_data";
 		boost::filesystem::path outdir(outfile_path);
@@ -183,7 +212,7 @@ int main(int argc, char* argv[]) {
 
 		// output file
 		TFile *fmergeddata = new TFile(
-				TString(outfile_path) + "/" + filename_pattern, "RECREATE");
+				TString(outfile_path) + "/" + output_filename, "RECREATE");
 
 		if (0 == type) {
 			mergeData<PndLmdAngularData>(found_files, fmergeddata);

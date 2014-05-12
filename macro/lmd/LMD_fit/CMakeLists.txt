@@ -20,7 +20,7 @@ link_directories(${LINK_DIRECTORIES})
 ########################### create lumiFitData app ##################################
 
 add_executable(createLumiFitData createLumiFitData.cxx)
-target_link_libraries(createLumiFitData LmdFit)
+target_link_libraries(createLumiFitData LmdFit boost_regex)
 
 ########################### create mergeLmdData app ##################################
 

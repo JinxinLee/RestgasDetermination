@@ -22,9 +22,15 @@
 #include <vector>
 #include <iostream>
 
-void createLumiFitData(std::string input_file_dir, const double mom,
-		std::string& data_types, int num_events,
-		const double total_elastic_cross_section, const int verboseLevel = 0) {
+#include "boost/filesystem.hpp"
+#include "boost/regex.hpp"
+
+using boost::filesystem::path;
+
+void createLumiFitData(std::string input_dir_path, std::string filelist_path,
+		std::string output_dir_path, const double mom, std::string& data_types,
+		int num_events, const double total_elastic_cross_section,
+		const int verboseLevel = 0) {
 	std::cout << "Running LmdFit data reader....\n";
 
 	// A lmd data facade class that helps to construct and fill lmd data objects
@@ -54,8 +60,23 @@ void createLumiFitData(std::string input_file_dir, const double mom,
 	lmd_data_facade.current_reference_luminosity_per_event = 1.0
 			/ total_elastic_cross_section;
 
+	std::string filename_extension("");
+
 	// add input directory to data facade
-	lmd_data_facade.addDataDirectory(input_file_dir);
+	if (filelist_path.compare("") == 0)
+		lmd_data_facade.addDataDirectory(input_dir_path);
+	else {
+		lmd_data_facade.addFileList(filelist_path);
+		const boost::regex my_filename_filter("filelist_(\\d*).txt",
+				boost::regex::extended | boost::regex::icase);
+
+		boost::smatch dwhat;
+		if (boost::regex_search(path(filelist_path).filename().string(), dwhat,
+				my_filename_filter)) {
+			filename_extension = "_";
+			filename_extension += std::string(dwhat[1]);
+		}
+	}
 
 	TString output_filename_angular_data("");
 	TString output_filename_acceptance_data("");
@@ -66,7 +87,8 @@ void createLumiFitData(std::string input_file_dir, const double mom,
 		// ---- dpm or elastic data ---- //
 
 		// ---- Output file -------------------------------------------------------
-		output_filename_angular_data = input_file_dir + "/lmd_data.root";
+		output_filename_angular_data = output_dir_path + "/lmd_data"
+				+ filename_extension + ".root";
 		// ------------------------------------------------------------------------
 
 		// create angular data object bundle
@@ -79,17 +101,19 @@ void createLumiFitData(std::string input_file_dir, const double mom,
 		 0.5 + 0.0725);
 		 lmd_data_facade.primary_dimension_template.dimension_range.setRangeHigh(
 		 15.0 + 0.0725);*/
-		lmd_data_facade.primary_dimension_template.bins = 300;
-		lmd_data_facade.primary_dimension_template.dimension_range.setRangeLow(
-				0.5);
+		lmd_data_facade.primary_dimension_template.bins = 450;
+		lmd_data_facade.primary_dimension_template.dimension_range.setRangeLow(0.0);
 		lmd_data_facade.primary_dimension_template.dimension_range.setRangeHigh(
 				15.0);
-		lmd_data_facade.secondary_dimension_template.bins = 100;
-		lmd_data_facade.secondary_dimension_template.dimension_range.setRangeLow(-TMath::Pi());
-		lmd_data_facade.secondary_dimension_template.dimension_range.setRangeHigh(TMath::Pi());
+		lmd_data_facade.secondary_dimension_template.bins = 200;
+		lmd_data_facade.secondary_dimension_template.dimension_range.setRangeLow(
+				-TMath::Pi());
+		lmd_data_facade.secondary_dimension_template.dimension_range.setRangeHigh(
+				TMath::Pi());
 
 		// ---- Output file -------------------------------------------------------
-		output_filename_acceptance_data = input_file_dir + "/lmd_acc_data.root";
+		output_filename_acceptance_data = output_dir_path + "/lmd_acc_data"
+				+ filename_extension + ".root";
 		// ------------------------------------------------------------------------
 
 		// create acceptance
@@ -100,7 +124,8 @@ void createLumiFitData(std::string input_file_dir, const double mom,
 		// ---- create lmd resolution objects from box gen data ---- //
 
 		// ---- Output file -------------------------------------------------------
-		output_filename_resolution_data = input_file_dir + "/lmd_res_data.root";
+		output_filename_resolution_data = output_dir_path + "/lmd_res_data"
+				+ filename_extension + ".root";
 		// ------------------------------------------------------------------------
 
 		lmd_data_facade.primary_dimension_template.dimension_options.dimension_type =
@@ -145,12 +170,13 @@ void createLumiFitData(std::string input_file_dir, const double mom,
 
 		// get simulation ip distribution properties
 		LumiFit::LmdSimIPParameters true_ip_values =
-				lmd_data_facade.readSimulationIPParameters(input_file_dir);
+				lmd_data_facade.readSimulationIPParameters(input_dir_path);
 		true_ip_values.print();
 		lmd_data_facade.current_simulation_ip_parameters = true_ip_values;
 
 		// ---- Output file -------------------------------------------------------
-		output_filename_vertex_data = input_file_dir + "/lmd_vertex_data.root";
+		output_filename_vertex_data = output_dir_path + "/lmd_vertex_data"
+				+ filename_extension + ".root";
 		// ------------------------------------------------------------------------
 
 		lmd_data_facade.primary_dimension_template.dimension_range.setUnitPrefix(
@@ -225,8 +251,10 @@ void displayInfo() {
 	std::cout
 			<< "-t [type of data to create] (a = angular, e = efficiency, r = resolution, v = vertex)"
 			<< std::endl;
-	std::cout << "-p [path to data]" << std::endl;
+	std::cout << "-p [input directory path]" << std::endl;
 	std::cout << "Optional arguments are: " << std::endl;
+	std::cout << "-f [filelist path]" << std::cout;
+	std::cout << "-o [output directory path]" << std::cout;
 	std::cout << "-n [number of events to process] "
 			"(default 0: all data found will be processed)" << std::endl;
 	std::cout << "-c [total elastic cross section]" << std::endl;
@@ -261,19 +289,29 @@ bool checkDataType(std::string& data_type) {
 
 int main(int argc, char* argv[]) {
 	bool is_mom_set = false, is_cross_section_set = false, is_data_path_set =
-			false;
+			false, is_filelist_path_set = false, is_output_data_path_set = false;
 	double momentum = -1.0;
 	std::string data_type = "";
 	unsigned int num_events = 0;
 	double cross_section = 1.0;
 	std::string data_path;
+	std::string output_dir_path;
+	std::string filelist_path("");
 	int c;
 
-	while ((c = getopt(argc, argv, "hm:n:t:p:c:")) != -1) {
+	while ((c = getopt(argc, argv, "hm:f:o:n:t:p:c:")) != -1) {
 		switch (c) {
 			case 'm':
 				momentum = atof(optarg);
 				is_mom_set = true;
+				break;
+			case 'f':
+				filelist_path = optarg;
+				is_filelist_path_set = true;
+				break;
+			case 'o':
+				output_dir_path = optarg;
+				is_output_data_path_set = true;
 				break;
 			case 'n':
 				num_events = atoi(optarg);
@@ -307,11 +345,23 @@ int main(int argc, char* argv[]) {
 		}
 	}
 
-	if (checkDataType(data_type) && is_mom_set && is_data_path_set)
-		createLumiFitData(data_path, momentum, data_type, num_events,
-				cross_section);
-	else
-		displayInfo();
+	bool skip_program = false;
+	if (!is_output_data_path_set && is_filelist_path_set) {
+		std::cerr
+				<< "Please specify an output directory via the -o option when using a filelist path as input!"
+				<< std::endl;
+		skip_program = true;
+	}
+	if (!(checkDataType(data_type) && is_mom_set && is_data_path_set))
+		skip_program = true;
 
-	return 0;
+	if (skip_program)
+		displayInfo();
+	else {
+		if (!is_output_data_path_set)
+			output_dir_path = data_path;
+		createLumiFitData(data_path, filelist_path, output_dir_path, momentum,
+				data_type, num_events, cross_section);
+		return 0;
+	}
 }

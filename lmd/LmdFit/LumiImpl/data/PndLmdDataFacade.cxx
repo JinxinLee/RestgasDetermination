@@ -50,7 +50,18 @@ std::vector<PndLmdResolution> PndLmdDataFacade::getLmdResolutions() const {
 
 void PndLmdDataFacade::addDataDirectory(TString directory) {
 	// scan which data reader has to create this object
-	data_reader->addDataPath(directory);
+	data_reader->addFilePath(directory + "/Lumi_TrksQA*.root");
+}
+
+void PndLmdDataFacade::addFileList(std::string filelist) {
+	// scan which data reader has to create this object
+	std::ifstream input(filelist);
+	std::string line;
+
+	while (std::getline(input, line)) {
+    std::cout<<line<<std::endl;
+		data_reader->addFilePath(line);
+	}
 }
 
 LumiFit::LmdDimension PndLmdDataFacade::constructPrimaryDimension() const {

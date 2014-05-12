@@ -12,7 +12,7 @@ using std::cerr;
 using std::endl;
 
 void plotResolutionParametrization(TString input_file_dir,
-		unsigned int parametrization_level) {
+		unsigned int parametrization_level, TString input_ref_file_dir = "") {
 	std::cout << "Running resolution plotter macro....\n";
 
 	// create an instance of PndLmdResultPlotter the plotting helper class
@@ -61,10 +61,23 @@ void plotResolutionParametrization(TString input_file_dir,
 	switch (parametrization_level) {
 		case 0: {
 			// read in data from a root file
-			std::vector<PndLmdResolution> res_vec =
-					data_facade.getDataFromFile<PndLmdResolution>(infile);
+			std::vector<PndLmdResolution> res_vec = data_facade.getDataFromFile<
+					PndLmdResolution>(infile);
 			// first lets create a booky of all resolutions with the fitted resolutions
 			plotter.makeResolutionBooky(res_vec, "resolution");
+			if (!input_ref_file_dir.EqualTo("")) {
+				char ref_input_filename[50];
+				sprintf(ref_input_filename, "/resolution_params_%u.root",
+						parametrization_level);
+				TString ref_input_filename_url = input_ref_file_dir + input_filename;
+				TFile *ref_infile = new TFile(ref_input_filename_url, "READ");
+
+				// read in data from a root file
+				std::vector<PndLmdResolution> ref_res_vec = data_facade.getDataFromFile<
+						PndLmdResolution>(ref_infile);
+
+				plotter.makeResolutionDifferencesBooky(res_vec, ref_res_vec);
+			}
 			break;
 		}
 		case 1: {
@@ -88,15 +101,17 @@ void displayInfo() {
 	cout << "Required arguments are: " << endl;
 	cout << "-d [path to data]" << endl;
 	cout << "-l [parametrization level] (0 or 1)" << endl;
+	cout << "-r [path to reference data]" << endl;
 }
 
 int main(int argc, char* argv[]) {
-	bool is_data_set = false, is_par_level_set = false;
+	bool is_data_set = false, is_data_ref_set = false, is_par_level_set = false;
 	TString data_path;
+	TString data_ref_path;
 	int parametrization_level = 0;
 	int c;
 
-	while ((c = getopt(argc, argv, "hl:d:")) != -1) {
+	while ((c = getopt(argc, argv, "hl:d:r:")) != -1) {
 		switch (c) {
 			case 'l':
 				parametrization_level = atoi(optarg);
@@ -106,8 +121,12 @@ int main(int argc, char* argv[]) {
 				data_path = optarg;
 				is_data_set = true;
 				break;
+			case 'r':
+				data_ref_path = optarg;
+				is_data_ref_set = true;
+				break;
 			case '?':
-				if (optopt == 'd' || optopt == 'l')
+				if (optopt == 'd' || optopt == 'r' || optopt == 'l')
 					cerr << "Option -" << optopt << " requires an argument." << endl;
 				else if (isprint(optopt))
 					cerr << "Unknown option -" << optopt << "." << endl;
@@ -123,7 +142,8 @@ int main(int argc, char* argv[]) {
 	}
 
 	if (is_data_set && is_par_level_set)
-		plotResolutionParametrization(data_path, parametrization_level);
+		plotResolutionParametrization(data_path, parametrization_level,
+				data_ref_path);
 	else
 		displayInfo();
 	return 0;

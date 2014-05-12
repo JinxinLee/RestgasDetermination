@@ -35,6 +35,12 @@
 #include "TLine.h"
 #include "TGraphAsymmErrors.h"
 
+#include <boost/filesystem.hpp>
+
+using std::cout;
+using std::cerr;
+using std::endl;
+
 /*void drawGraphRow(TCanvas *c, int i, std::vector<TGraphErrors*> &graphs,
  std::vector<std::string> &infos, int row_length) {
  //c->Divide(5,4);
@@ -167,8 +173,11 @@
  c->SaveAs("overview.eps");
  }*/
 
-void plotIPDistribution(std::vector<TString> paths) {
+void plotIPDistribution(std::vector<TString> paths, TString ref_path) {
 	std::cout << "Generating lumi plots for fit results....\n";
+
+	//TString filename("/lmd_fitted_vertex_data.root");
+	TString filename("/lmd_fitted_vertex_data.root");
 
 	PndLmdDataFacade lmd_data_facade;
 
@@ -207,12 +216,27 @@ void plotIPDistribution(std::vector<TString> paths) {
 	// ok here we should allow for multiple input root files of some pattern
 	// which can then all be combined to results (different ip properties)
 
+	std::vector<PndLmdVertexData> ref_vertex_vec;
+
+	if (!ref_path.EqualTo("")) {
+		TFile *fdata = new TFile(ref_path + filename, "READ");
+
+		// read in data from a root file
+		ref_vertex_vec = lmd_data_facade.getDataFromFile<PndLmdVertexData>(fdata);
+	}
+
 	std::vector<PndLmdVertexData> data_vec;
+
+	std::stringstream basepath;
+	basepath << std::getenv("DATA_DIR") << "/ip-tilt";
+
+	boost::filesystem::create_directories(basepath.str());
+
+	std::stringstream filepath;
 
 	for (unsigned int i = 0; i < paths.size(); i++) {
 		// ------ get files -------------------------------------------------------
-		TFile *fdata = new TFile(paths[i] + "/lmd_fitted_vertex_data.root",
-				"UPDATE");
+		TFile *fdata = new TFile(paths[i] + filename, "READ");
 
 		// read in data from a root file which will return a vector of pointers to PndLmdAngularData objects
 		std::vector<PndLmdVertexData> file_data = lmd_data_facade.getDataFromFile<
@@ -222,12 +246,16 @@ void plotIPDistribution(std::vector<TString> paths) {
 		graph_bundles_vec.push_back(plotter.makeVertexGraphBundles1D(file_data));
 
 		if (file_data.size() > 0) {
-			std::stringstream filepath;
-			filepath << "ip-tilt/ip-fit_results-";
+			filepath.str("");
+			filepath << basepath.str() << "/ip-fit_results-";
 			filepath << file_data[0].getSimulationIPParameters().getLabel();
 
 			plotter.makeVertexFitResultBooky(graph_bundles_vec,
 					filepath.str().c_str());
+
+			if (ref_vertex_vec.size() > 0) {
+				plotter.makeVertexDifferencesBooky(file_data, ref_vertex_vec);
+			}
 		}
 
 		data_vec.insert(data_vec.end(), file_data.begin(), file_data.end());
@@ -236,7 +264,9 @@ void plotIPDistribution(std::vector<TString> paths) {
 	TCanvas c;
 	c.SetGrid();
 	plotter.plotXYOverviewGraph(data_vec);
-	c.SaveAs("ip-tilt/ip-fit_result-overview.pdf");
+	filepath.str("");
+	filepath << basepath.str() << "/ip-fit_result-overview.pdf";
+	c.SaveAs(filepath.str().c_str());
 
 	std::map<LumiFit::LmdSimIPParameters,
 			std::map<LumiFit::LmdSimIPParameters,
@@ -256,12 +286,49 @@ void plotIPDistribution(std::vector<TString> paths) {
 	// ================================ END PLOTTING ================================ //
 }
 
+void displayInfo() {
+	// display info
+	cout << "Required arguments are: " << endl;
+	cout << "list of directories to be scanned for vertex data" << endl;
+	cout << "Optional arguments are: " << endl;
+	cout << "-r [path to reference data]" << endl;
+}
+
 int main(int argc, char* argv[]) {
+	bool is_data_ref_set = false;
+	TString data_ref_path("");
+
+	int c;
+
+	while ((c = getopt(argc, argv, "hr:")) != -1) {
+		switch (c) {
+			case 'r':
+				data_ref_path = optarg;
+				is_data_ref_set = true;
+				break;
+			case '?':
+				if (optopt == 'r')
+					cerr << "Option -" << optopt << " requires an argument." << endl;
+				else if (isprint(optopt))
+					cerr << "Unknown option -" << optopt << "." << endl;
+				else
+					cerr << "Unknown option character" << optopt << "." << endl;
+				return 1;
+			case 'h':
+				displayInfo();
+				return 1;
+			default:
+				return 1;
+		}
+	}
+
+	int argoffset = optind;
+
 	if (argc > 1) {
 		std::vector<TString> data_paths;
-		for (int i = 1; i < argc; i++)
+		for (int i = argoffset; i < argc; i++)
 			data_paths.push_back(TString(argv[i]));
-		plotIPDistribution(data_paths);
+		plotIPDistribution(data_paths, data_ref_path);
 	}
 
 	return 0;

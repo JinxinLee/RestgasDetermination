@@ -22,8 +22,8 @@ unsigned int PndLmdCombinedDataReader::getEntries() const {
 }
 
 void PndLmdCombinedDataReader::initDataStream() {
-	for (unsigned int i = 0; i < data_dirs.size(); i++)
-		data_tree.Add(data_dirs[i] + "/Lumi_TrksQA*.root");
+	for (unsigned int i = 0; i < file_paths.size(); i++)
+		data_tree.Add(file_paths[i]);
 
 	track_array = new TClonesArray("PndLmdTrackQ");
 	data_tree.SetBranchAddress("LMDTrackQ", &track_array);

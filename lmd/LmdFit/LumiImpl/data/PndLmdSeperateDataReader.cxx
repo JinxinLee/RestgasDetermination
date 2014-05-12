@@ -29,10 +29,10 @@ unsigned int PndLmdSeperateDataReader::getEntries() const {
 }
 
 void PndLmdSeperateDataReader::initDataStream() {
-	for (unsigned int i = 0; i < data_dirs.size(); i++) {
-		MC_tree.Add(data_dirs[i] + "/Lumi_MC*.root");
-		track_tree.Add(data_dirs[i] + "/Lumi_Track*.root");
-		geane_tree.Add(data_dirs[i] + "/Lumi_Geane*.root");
+	for (unsigned int i = 0; i < file_paths.size(); i++) {
+	//	MC_tree.Add(data_dirs[i] + "/Lumi_MC*.root");
+	//	track_tree.Add(data_dirs[i] + "/Lumi_Track*.root");
+	//	geane_tree.Add(data_dirs[i] + "/Lumi_Geane*.root");
 	}
 
 	MC_tree.SetBranchStatus("*", 0);

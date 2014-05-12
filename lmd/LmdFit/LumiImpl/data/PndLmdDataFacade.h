@@ -72,6 +72,7 @@ public:
 	std::vector<PndLmdResolution> getLmdResolutions() const;
 
 	void addDataDirectory(TString directory);
+	void addFileList(std::string filelist);
 
 	void createAcceptance1D(unsigned int num_events);
 	void createAcceptance2D(unsigned int num_events);
