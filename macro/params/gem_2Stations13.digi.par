@@ -1,0 +1,32 @@
+#################################################################
+# Digitization parameters for GEM                                
+# with 3 Stations at 90, 120, 150 cm from the target             
+# Format:                                                        
+#Description of parameters:                                      
+#[PndGemDetectors]                                            
+#parameters:d station_number, rotation_angle, number_of_sensors, \
+#                 sensor_number, sensor_type, pos_x, pos_y, pos_z, rotAngle, inn_rad, out_rad, thick, str_ang_0, str_ang_1, pitch_0, pitch_1, \
+#                 sensor_number, ....
+#             station_number, ...
+#################################################################
+[PndGemDetectors]
+parameters:Double_t \
+                    1,   119.6000,  0.0, 2, \
+                        1,  0,     0.0000,     0.0000,   118.4766,     0.0000,     4.5009,    37.9000,     1.0020,     0.0000,     4.3000,     0.0400,     0.0400, \
+                        2,  2,     0.0000,     0.0000,   120.7244,     0.0000,     4.5000,    37.9000,     1.0020,     0.0000,     4.3000,     0.0400,     0.0400, \
+                    2,   175.6000,  0.0, 2, \
+                        1,  0,     0.0000,     0.0000,   174.4766,     0.0000,     4.5009,    64.4000,     1.0020,     0.0000,     4.3000,     0.0400,     0.0400, \
+                        2,  2,     0.0000,     0.0000,   176.7244,     0.0000,     4.5000,    64.4000,     1.0020,     0.0000,     4.3000,     0.0400,     0.0400
+TrackFinderOnHits_ParThetaA: Double_t 59.4
+TrackFinderOnHits_ParThetaB: Double_t -0.02
+TrackFinderOnHits_ParTheta0: Double_t 56.1372
+TrackFinderOnHits_ParTheta1: Double_t -0.000564362
+TrackFinderOnHits_ParTheta2: Double_t -0.181828
+TrackFinderOnHits_ParTheta3: Double_t  0.284289
+TrackFinderOnHits_ParRadPhi0:Double_t  0.9944432
+TrackFinderOnHits_ParRadPhi2:Double_t -0.000590706
+TrackFinderOnHits_ParMat0:   Double_t \
+                                      -2.31333e-6,    0.00067035,    0.10173
+TrackFinderOnHits_ParMat1:   Double_t \
+                                      -7.46844e-10,   -6.6696e-7,    0.000736672
+##########################################################################################
