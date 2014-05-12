@@ -24,7 +24,7 @@ pbeam=$mom
 # ######################################################
 
 momStr=`echo $pbeam | sed -e '{ s/\./_/g; }'`
-path=${VMCWORKDIR}/macro/lmd/testPixel/mom_${momStr}/
+path=${VMCWORKDIR}/macro/lmd/testPixel/mom_${momStr}/CorrMcut/
 
 mkdir -p ${path}
 #number of trks per event
@@ -39,22 +39,22 @@ numEv=10000
 mergedHits=true
 
 ##Skip kinematic filter (before back-propagation)
-SkipFilt=true
+SkipFilt=false
 ### if SkipFilt=false (XThetaCut or YPhiCut) or BoxCut should be true:
 ### X-Theta kinematic cut before back-propagation, add constant shift dX[cm] if beam is shifted
 XThetaCut=true
-dX=0
+dX=0.
 ### Y-Phi kinematic cut before back-propagation, add constant shift dY[cm] if beam is shifted
 YPhiCut=true
-dY=0
+dY=0.
 ### BOX cut before back-propagation
 BoxCut=false
 
 ## Clean after back-propagation (M-cut: momentum or MVA cut)
-CleanSig=false
+CleanSig=true
 
 ## Combined filter (X&Y and M-cut)
-CombFilt=true
+CombFilt=false
 
 
 ## Write all MC info in TrkQA array
@@ -62,7 +62,7 @@ WrAllMC=true
 ##############
 
 # #simulation with Box generator
-#root -l -b -q runLumiPixel0SimBox.C\(${numEv},0,"\"${path}\"",0,-2212,${pbeam},${numTrks},3562\) 
+root -l -b -q runLumiPixel0SimBox.C\(${numEv},0,"\"${path}\"",0,-2212,${pbeam},${numTrks},3562\) 
 
 # # #simulation with DPM
 #   #  modeDPM=0 #inel
@@ -101,7 +101,7 @@ WrAllMC=true
 
 #clean signal from background (momentum cut or MVA cut)
 	 if [ $CleanSig == "true" ]; then 
-	     root -l -b -q runLumiPixel5bCleanSig.C\(${numEv},0,"\"${path}\"",0,${pbeam}\)
+	     root -l -b -q runLumiPixel5bCleanSig.C\(${numEv},0,"\"${path}\"",0,${pbeam},${dX},${dY}\)
 	 fi
 	 #combined filter (X&Y and M cuts)
 	 if [ $CombFilt == "true" ]; then 
