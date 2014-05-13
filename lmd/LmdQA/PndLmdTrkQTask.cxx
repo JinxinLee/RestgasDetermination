@@ -627,14 +627,18 @@ void PndLmdTrkQTask::Exec(Option_t* opt)
       //TODO: include info from GetTimeStampError()
 
    
-      if(trkType>0){ //TODO: ghost-doubled trks has MC trk!!!
-	glXmc= -9999; glYmc =-9999; glZmc = -9999; glThetamc =-9999; glPhimc = -9999; glMommc = -9999;
-	glXmcLMD = -9999; glYmcLMD =-9999; glZmcLMD = -9999; glThetamcLMD =-9999; glPhimcLMD = -9999; glMommcLMD = -9999;
-	glNumMChits = -9999;  glNumDoubleMChits  = -9999; //	glEvTime = -9999; 
-	trkMCStatus = -9999;
-	glPDG = -9999;
-      }
-      else{
+      // if(trkType>0){ //TODO: ghost-doubled trks has MC trk!!!
+      // 	//	int MCidforREC = RECtrkMCid[iN];
+
+      // 	// glXmc= -9999; glYmc =-9999; glZmc = -9999; glThetamc =-9999; glPhimc = -9999; glMommc = -9999;
+      // 	// glXmcLMD = -9999; glYmcLMD =-9999; glZmcLMD = -9999; glThetamcLMD =-9999; glPhimcLMD = -9999; glMommcLMD = -9999;
+      // 	// glNumMChits = -9999;  glNumDoubleMChits  = -9999; //	glEvTime = -9999; 
+      // 	// trkMCStatus = -9999;
+      // 	// glPDG = -9999;
+      // }
+      // else{
+
+      // }
 	int MCidforREC = RECtrkMCid[iN];
 	//	if(!goodTrk[iN]) continue;
 	PndMCTrack *mctrk =(PndMCTrack*) fMCTracks->At(MCidforREC);
@@ -674,7 +678,7 @@ void PndLmdTrkQTask::Exec(Option_t* opt)
 	TVector3 MomMClmd(pxTrue,pyTrue,pzTrue);
 	glXmcLMD = PosMClmd.X();      glYmcLMD = PosMClmd.Y();      glZmcLMD = PosMClmd.Z();
 	glThetamcLMD = MomMClmd.Theta();  glPhimcLMD = MomMClmd.Phi();  glMommcLMD = MomMClmd.Mag();
-      }
+	//      }
       //    tRECMCtrks->Fill();
       TClonesArray& clref = *fTrackQ;
       Int_t size = clref.GetEntriesFast();
@@ -720,9 +724,13 @@ void PndLmdTrkQTask::Exec(Option_t* opt)
 	}
 	PndMCTrack *mctrk =(PndMCTrack*) fMCTracks->At(imc);
 	int movID = mctrk->GetMotherID();
-
 	TVector3 MomMC = mctrk->GetMomentum();
 	TVector3 PosMC = mctrk->GetStartVertex();
+	glXmc= PosMC.X(); glYmc = PosMC.Y(); glZmc = PosMC.Z();
+	glThetamc = MomMC.Theta();       glPhimc = MomMC.Phi(); glMommc = MomMC.Mag();
+
+
+
 	int trkQ=0;
 	/// if MC trk was missed, justify why 
 	int minHits = MCDoubleHits[imc]+2;
@@ -746,9 +754,30 @@ void PndLmdTrkQTask::Exec(Option_t* opt)
 	      trkQ=-2;
 	      if(fVerbose>7) cout<<" --- MCtrk#"<<imc<<" was defined as MISSED due to little amount of hits (#MChits="
 				     <<MCtksREChits[imc]<<" with limit>"<<minHits<<")"<<endl;
+	      int hitArr;
+	      //     cout<<"nMCHits = "<<nMCHits<<endl;
+	      for(int imhc=0;imhc<nMCHits;imhc++){//find corresponding MC hit for this MC trk
+		PndSdsMCPoint* MCPoint = (PndSdsMCPoint*)(fMCHits->At(imhc));
+		int MCtrkID = MCPoint->GetTrackID();
+		//	cout<<"MCtrkID = "<<MCtrkID<<" imc = "<<imc<<endl;
+		if(MCtrkID==imc){
+		  hitArr = imhc;
+		  break;
+		}
+	      }
+	      PndSdsMCPoint* MCPointHit = (PndSdsMCPoint*)(fMCHits->At(hitArr));
+	      TVector3 PosMClmd =  MCPointHit->GetPosition();
+	      double pxTrue =  MCPointHit->GetPx();
+	      double pyTrue =  MCPointHit->GetPy();
+	      double pzTrue =  MCPointHit->GetPz();
+	      TVector3 MomMClmd(pxTrue,pyTrue,pzTrue);
+	      glXmcLMD = PosMClmd.X();      glYmcLMD = PosMClmd.Y();      glZmcLMD = PosMClmd.Z();
+	      glThetamcLMD = MomMClmd.Theta();  glPhimcLMD = MomMClmd.Phi();  glMommcLMD = MomMClmd.Mag();
 	    }
 	    else{
 	      trkQ=-3;
+	      glXmcLMD = -9999;      glYmcLMD = -9999;      glZmcLMD = -9999;
+	      glThetamcLMD = -9999;  glPhimcLMD = -9999;  glMommcLMD = -9999;
 	    }
 	  }
 	  //	  cout<<"trk was marked ad missed, reason trkQ="<<trkQ<<endl;
@@ -760,8 +789,8 @@ void PndLmdTrkQTask::Exec(Option_t* opt)
 	  glThetarecLMD = -9999;       glPhirecLMD = -9999; glMomrec = -9999; glchi2=-9999;
 	  glTrkTime = -9999;
 	  trkRECStatus = trkQ;     
-	  glXmc= PosMC.X(); glYmc = PosMC.Y(); glZmc = PosMC.Z();
-	  glThetamc = MomMC.Theta();       glPhimc = MomMC.Phi(); glMommc = MomMC.Mag();
+	 
+
 	  trkMCStatus=movID; 
 	  glPDG = mctrk->GetPdgCode();
 	  //	  glEvTime = mctrk->GetStartTime();
@@ -789,8 +818,10 @@ void PndLmdTrkQTask::Exec(Option_t* opt)
 	    trkqlmd->SetIPerrmom(-9999,-9999,-9999);
 	    trkqlmd->SetNumMChits(MCtksREChits[imc]);
 	    trkqlmd->SetNumDoubleMChits(MCDoubleHits[imc]);
+	    //    cout<<"glXmcLMD = "<<glXmcLMD<<endl;
 	    trkqlmd->SetMCpointLMD(glXmcLMD,glYmcLMD,glZmcLMD);
 	    trkqlmd->SetMCmomLMD(glThetamcLMD,glPhimcLMD,glMommcLMD);
+	    //    cout<<"glPhimcLMD = "<<glPhimcLMD<<endl;
 	    //	    trkqlmd->SetTotEvCharge(TotCharge);
 	    trkqlmd->SetSumEvPDG(sumID);
 	    trkqlmd->SetEvMCMulti(nParticles);
