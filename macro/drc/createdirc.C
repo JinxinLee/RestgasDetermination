@@ -798,14 +798,31 @@ void createdirc(Int_t fGeomType = 1, Int_t fFocusingSystem = 6, Int_t iter=0, TS
 
   TGeoBBox *lSupport1 =  new TGeoBBox("lSupport1", 1.5/2., 1.4/2., bbox_hlen+lenm);
   TGeoBBox *lSupport2 =  new TGeoBBox("lSupport2", 0.4/2., 3.8/2., bbox_hlen+lenm);
-  TGeoBBox *lSupport3 =  new TGeoBBox("lSupport3", 1.5/2., 0.8/2., bbox_hlen+lenm);
+  TGeoBBox *lSupport3 =  new TGeoBBox("lSupport3", 1.5/2., 0.5/2., bbox_hlen+lenm);
+  TGeoBBox *lSupport4 =  new TGeoBBox("lSupport4", 0.4/2., 2.35/2., bbox_hlen+lenm);
+  TGeoBBox *lSupport5 =  new TGeoBBox("lSupport5", 1.5/2., 0.5/2., bbox_hlen+lenm);
 
-  TGeoTranslation * tSupport2 = new TGeoTranslation("tSupport2",0,lSupport1->GetDY()+lSupport2->GetDY(),0); 
+  Double_t supportradius = 45.0;
+  TGeoTubeSeg *lSupportS1 = new TGeoTubeSeg("lSupportS1",supportradius-0.2,     supportradius-0.01, bbox_hlen+lenm,3.4-90,180-3.4-90);
+  TGeoTubeSeg *lSupportS2 = new TGeoTubeSeg("lSupportS2",supportradius+9.0-0.4, supportradius+9.0 , bbox_hlen+lenm,3.4-90,180-3.4-90);
+  TGeoRotation *rSupportS = new TGeoRotation("rSupportS",0,0,180);
+  rSupportS->RegisterYourself();
+  TGeoCompositeShape *lSupportS = new TGeoCompositeShape("lSupport","lSupportS1 + lSupportS2 + lSupportS1:rSupportS + lSupportS2:rSupportS");
+  TGeoVolume *gSupportS = new TGeoVolume("DrcBarSupportS", lSupportS, gGeoManager->GetMedium("DIRCcarbonFiber")); 
+  vLocalMother->AddNode(gSupportS, 0, new TGeoCombiTrans(0., 0., 0., new TGeoRotation(0)));
+
+  TGeoTranslation * tSupport1 = new TGeoTranslation("tSupport1",0,lSupport1->GetDY(),0); 
+  tSupport1->RegisterYourself();
+  TGeoTranslation * tSupport2 = new TGeoTranslation("tSupport2",0,2*lSupport1->GetDY()+lSupport2->GetDY(),0); 
   tSupport2->RegisterYourself();
-  TGeoTranslation * tSupport3 = new TGeoTranslation("tSupport3",0,lSupport1->GetDY()+2*lSupport2->GetDY()+lSupport3->GetDY(),0); 
+  TGeoTranslation * tSupport3 = new TGeoTranslation("tSupport3",0,2*(lSupport1->GetDY()+lSupport2->GetDY())+lSupport3->GetDY(),0); 
   tSupport3->RegisterYourself();
+  TGeoTranslation * tSupport4 = new TGeoTranslation("tSupport4",0,2*(lSupport1->GetDY()+lSupport2->GetDY()+lSupport3->GetDY())+lSupport4->GetDY(),0); 
+  tSupport4->RegisterYourself();
+  TGeoTranslation * tSupport5 = new TGeoTranslation("tSupport5",0,2*(lSupport1->GetDY()+lSupport2->GetDY()+lSupport3->GetDY()+lSupport4->GetDY())+lSupport5->GetDY(),0); 
+  tSupport5->RegisterYourself();
 
-  TGeoCompositeShape *lSupport = new TGeoCompositeShape("lSupport","lSupport1 + lSupport2:tSupport2 + lSupport3:tSupport3");
+  TGeoCompositeShape *lSupport = new TGeoCompositeShape("lSupport","lSupport1:tSupport1 + lSupport2:tSupport2 + lSupport3:tSupport3 + lSupport4:tSupport4 + lSupport5:tSupport5");
   TGeoVolume *gSupport = new TGeoVolume("DrcBarSupport", lSupport, gGeoManager->GetMedium("DIRCcarbonFiber")); 
 
   TGeoVolume *barbox = new TGeoVolume("DrcBarBox", lBarBox,gGeoManager->GetMedium("DIRCcarbonFiber")); 
@@ -851,7 +868,6 @@ void createdirc(Int_t fGeomType = 1, Int_t fFocusingSystem = 6, Int_t iter=0, TS
   // put barboxes into right positions:    
   Double_t dx, dy, phi_curr;   
   Double_t dxs, dys, phi_currs;   
-  Double_t supportradius = radius-1.8;
   Int_t supportid=0;
   for(Int_t m = 0; m < bbnum; m ++){
     phi_curr = (90. - phi0 - dphi*m)/180.*pi;    
