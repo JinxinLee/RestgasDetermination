@@ -5,9 +5,10 @@
 // 1.a ) first step Xi m + Xib p --> Decfile, 
 //
 //       "box", Box generator
-//       "hist", Th2D Distribution in P (thet)
+//       "hist", Th2D Distribution in P (thet)from GiBUU model
 //       "Ascii", Ascii Gen, Intranuclear Cascade
 //       "giBUU", Xi m from giBUU on 12C target
+//       "param", Parametrization of a P(theta) dist from GiBUU
 //
 // 1.b ) second step , hypernuclei production "hypbup",
 //2) detctor geo version
@@ -121,6 +122,9 @@ void runSimHF_GiB_DC(TString Decfile = "hist", TString vers = "standard"){
     
     Hyp->SetAbsorberVol("stglAb"); // absorber layer
     Hyp->SetSensorVol("stglSi");   // silicon sensor
+    Hyp->SetGeoVersion("List");
+    Hyp->SetListMat("HYPdiamond");
+    Hyp->SetListMat("HYPcarbon");
     //Hyp->SetGeometryFileName("HYPST_assexy3C5Lay.root");
     Hyp->SetGeometryFileName("HYPST_assexy3C5Lay_mvd.root");//HYPST_assexy3C5Lay_test.root");
     
@@ -161,35 +165,44 @@ void runSimHF_GiB_DC(TString Decfile = "hist", TString vers = "standard"){
   
    // Box Generator: 
   if(Decfile=="box"){  
-PndBoxGenerator* boxGen = new PndBoxGenerator(3312, 1); // 13 = muon; 1 = multipl. // 211 = pi+
-  // first number: PDG particle code: 2nd number: particle multiplicity per event
-
-  boxGen->SetPRange(.1,.5); // GeV/c
-  // boxGen->SetPtRange(1.,1.); // GeV/c
-  boxGen->SetPhiRange(0., 360.); // Azimuth angle range [degree] 90
-  boxGen->SetThetaRange(0., 180.); // Polar angle in lab system range [degree] 70
-  //boxGen->SetCosTheta(); // Set uniform ditribution in cos(theta)
-  boxGen->SetXYZ(0., 0., -55.0); // vertex coordinates [cm]
-  primGen->AddGenerator(boxGen);
+    PndBoxGenerator* boxGen = new PndBoxGenerator(3312, 1); // 13 = muon; 1 = multipl. // 211 = pi+
+    // first number: PDG particle code: 2nd number: particle multiplicity per event
+    
+    boxGen->SetPRange(.1,.5); // GeV/c
+    // boxGen->SetPtRange(1.,1.); // GeV/c
+    boxGen->SetPhiRange(0., 360.); // Azimuth angle range [degree] 90
+    boxGen->SetThetaRange(0., 180.); // Polar angle in lab system range [degree] 70
+    
+    boxGen->SetXYZ(0., 0., -55.0); // vertex coordinates [cm]
+    primGen->AddGenerator(boxGen);
   }
   
   
-
+  
   // *** Signal events GiBUU + TH2F(correlated dist in P (theta)) ***first step
   if(Decfile=="hist"){
-  PndCorrDistGenerator* GiBGen = new PndCorrDistGenerator(inFile);
-     
-     primGen->SetTarget(-55.5,0.);
-     primGen->AddGenerator(GiBGen);
-
+    PndCorrDistGenerator* GiBGen = new PndCorrDistGenerator(inFile);
+    
+    primGen->SetTarget(-55.5,0.);
+    primGen->AddGenerator(GiBGen);
+    
+  }
+  // *** Signal events GiBUU + Param from TH2F(correlated dist in P (theta)) ***first step
+  if(Decfile=="param"){
+    PndCorrDistGenerator* GiBGen = new PndCorrDistGenerator(inFile);
+    GiBGen->SetParam(); //setting parametrization to be be done.
+    GiBGen->SetThetaRange(60.,120.); // low momentum Xi minus
+    primGen->SetTarget(-55.5,0.);
+    primGen->AddGenerator(GiBGen);
+    
   }
   // *** SIGNAL events UrqmdSmm ***first step
   if(Decfile=="giBUU"){
-
+    
     PndUrqmdSmmGenerator* AsciiGen = new PndUrqmdSmmGenerator(inFile);
-     
-     primGen->SetTarget(-55.5,0.);
-     primGen->AddGenerator(AsciiGen);
+    
+    primGen->SetTarget(-55.5,0.);
+    primGen->AddGenerator(AsciiGen);
   }
   
   // *** with Ascii inFile ***first step
@@ -263,7 +276,7 @@ PndBoxGenerator* boxGen = new PndBoxGenerator(3312, 1); // 13 = muon; 1 = multip
   // Transport nEvents
   // -----------------
   // Set the number of events
-  Int_t nEvents =8000;//50505; 
+  Int_t nEvents =10000;//50505; 
   
   fRun->Run(nEvents);
   
