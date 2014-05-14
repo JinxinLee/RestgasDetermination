@@ -52,7 +52,9 @@ class PndCorrDistGenerator : public FairGenerator
    ** @param primGen  pointer to the FairPrimaryGenerator
    **/
   virtual Bool_t ReadEvent(FairPrimaryGenerator* primGen);
-
+  void SetParam(){fParam=kTRUE;};
+  void SetThetaRange(Double_t thetLow=0.,Double_t thetHigh=0.)
+  {fTheLow = thetLow; fTheHigh = thetHigh;};
 
 	
  private:
@@ -63,13 +65,18 @@ class PndCorrDistGenerator : public FairGenerator
   TH2F* fInputHist;         //! Pointer to input histogramm 2D
   TClonesArray* fParticles;  //! Particle array from PLUTO
   Int_t fPdgType;
+  Bool_t fParam;
+  Double_t fTheLow, fTheHigh;
 
   /** Private method CloseInput. Just for convenience. Closes the 
    ** input file properly. Called from destructor and from ReadEvent. **/
   void CloseInput();
 
+  Double_t MaxBoltDistP(Double_t MeanP);
 
-  ClassDef(PndCorrDistGenerator,1);
+  Double_t MeanMomentum(Double_t thet);
+
+  ClassDef(PndCorrDistGenerator,3);
 
 };
 
