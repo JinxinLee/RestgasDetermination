@@ -208,7 +208,8 @@ Bool_t PndHyp::ProcessHits(FairVolume* vol)
 { 
   
   //fpdgCode = gMC->TrackPid(); 
-  Double_t beta, gamma;	TString nam;Int_t nSiL = -1;
+  Double_t beta, gamma;	TString nam;
+  Int_t nSiL = -1,nAbL = -1;
   ostringstream FullName,matName;
   
   Int_t medId =  gMC->CurrentMedium();
@@ -379,7 +380,17 @@ Bool_t PndHyp::ProcessHits(FairVolume* vol)
        if (beta==0.0) 
 	 {    
 	   fTrackID  = gMC->GetStack()->GetCurrentTrackNumber();
-	   fVolumeID = vol->getMCid();
+	   
+	 if (fCurrent) {  
+	   
+	   if ((nam2.Contains("Absorber"))) {
+	     sscanf(nam2,"Absorber%d", &nAbL);
+	     cout << "hyp::ProcessHits> : " << nam2 <<" # "
+		  <<nAbL<<" "<<"Hit in "<< gGeoManager->GetPath()<<endl;
+	     fVolumeID = nAbL;
+	   }
+	 }else fVolumeID = vol->getMCid();
+
 	   gMC->TrackPosition(fPosOut);
 	   gMC->TrackMomentum(fMomOut);
 	   
