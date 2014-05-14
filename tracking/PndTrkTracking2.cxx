@@ -615,14 +615,14 @@ if(doMcComparison >=1 ){
  fMvdPixelHitArray = (TClonesArray*) ioman->GetObject(fMvdPixelBranch);
 //  fMvdPixelHitArray = (TClonesArray*) ioman->GetObject("MVDHitsPixel");
  if ( !fMvdPixelHitArray){
-	cout << "-W- PndTrkTracking2::Init: " << "No MVD Pixel hitArray, return!" <<endl;
+	cout << "-W- PndTrkTracking2::Init: " << "No MVD Pixel hitArray!" <<endl;
 //	return kERROR;
  }
  fMvdStripHitArray = (TClonesArray*) ioman->GetObject(fMvdStripBranch);
 //  fMvdStripHitArray = (TClonesArray*) ioman->GetObject("MVDHitsStrip");
 
  if ( !fMvdStripHitArray){
-	cout << "-W- PndTrkTracking2::Init: " << "No MVD Strip hitArray, return!" <<endl;
+	cout << "-W- PndTrkTracking2::Init: " << "No MVD Strip hitArray!" <<endl;
 //	return kERROR;
  }
 
@@ -631,7 +631,7 @@ if(doMcComparison >=1 ){
  if ( fMvdAloneTracking ){
 	fMvdTrackCandArray = (TClonesArray*) ioman->GetObject("MVDRiemannTrackCand");
 	if ( !fMvdTrackCandArray){
-		cout << "-W- PndTrkTracking2::Init: " << "No MVD TrackCand Array, return!" <<endl;
+		cout << "-W- PndTrkTracking2::Init: " << "No MVD TrackCand Array!" <<endl;
 //		return kERROR;
 	}
  }
@@ -641,8 +641,8 @@ if(doMcComparison >=1 ){
 
  fMvdMCPointArray = (TClonesArray*) ioman->GetObject("MVDPoint");
  if ( !fMvdMCPointArray){
-	cout << "-W- PndTrkTracking2::Init: " << "No MVD MC Point Array, return!" <<endl;
-	return kERROR;
+	cout << "-W- PndTrkTracking2::Init: " << "No MVD MC Point Array!" <<endl;
+	// return kERROR;
  }
  cout << "-I- PndTrkTracking2: Initialization successfull" << endl;
 
