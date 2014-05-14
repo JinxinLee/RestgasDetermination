@@ -74,7 +74,7 @@ PndHyp::PndHyp() {
   // fpreflag = 0;  
   //fpostflag = 0;
   fEventID=-1; 
-  
+  fListMat = kFALSE;
 
     fListOfSensitives.push_back(fVolNamAb.Data());//"stglAb");
     fListOfSensitives.push_back(fVolNamSi.Data());//"stglSi");
@@ -95,7 +95,7 @@ PndHyp::PndHyp(const char* name, Bool_t active)
      alId = 0;
      beId = 0;
     fPosIndex   = 0;
-    
+    fListMat = kFALSE;
     fEventID=-1;
 
     
@@ -146,22 +146,33 @@ void PndHyp::Initialize() {
   //fread = new PndHypDecayer("hypBupDecay2.root");
   //fread = new HypStatDecay("statDecay");
   
-  TGeoMedium *Si= gGeoManager->GetMedium("HYPsilicon");
-  SiId=  Si->GetId();
+  TGeoMedium *Si= gGeoManager->GetMedium("HYPsilicon");//fSiMat.Data());
+  if(Si)SiId=  Si->GetId();
   
   //----disactivated when geo file is block
-  TGeoMedium *C= gGeoManager->GetMedium("HYPdiamond");
-  //TGeoMedium *C= gGeoManager->GetMedium("carbon");
-  CId=  C->GetId();
-  
-  TGeoMedium *Cpipe= gGeoManager->GetMedium("HYPcarbon");
-  CpipeId=  Cpipe->GetId();
-  
-  //    TGeoMedium *al= gGeoManager->GetMedium("HYPaluminium");
-  //    alId=  al->GetId();
-  //    TGeoMedium *be= gGeoManager->GetMedium("HYPberyllium");
-  //    beId=  be->GetId();
-  
+
+  if(fVers.Contains("standard")){
+
+    fStandard=kTRUE;
+    fCurrent=kFALSE;
+
+    TGeoMedium *C= gGeoManager->GetMedium(fAbsMat.Data());
+   
+    if(CId)CId=  C->GetId();
+    
+    TGeoMedium *Cpipe= gGeoManager->GetMedium(fBPipeMat.Data());
+    if(CpipeId)CpipeId=  Cpipe->GetId();
+
+  }else if(fVers.Contains("List")){
+
+    fStandard=kTRUE;//kFALSE;
+    fCurrent=kFALSE;//kTRUE;
+
+    for(int m=0;m<fListOfMaterials.size();m++){
+      gGeoManager->GetMedium(fListOfMaterials[m].Data());
+    }
+    
+  }
 
 }
 // -------------------------------------------------------------------------
@@ -257,20 +268,18 @@ Bool_t PndHyp::ProcessHits(FairVolume* vol)
 	 {
 	   fTrackID  = gMC->GetStack()->GetCurrentTrackNumber();
 	   
-	   //nam = gMC->CurrentVolName();   
-	   /*
-	     if ((nam.Contains("Si"))) {
-	     sscanf(nam,"stglSi%d#", &nSiL);
-	     // cout << "hyp::ProcessHits> : " << nam <<" # "
-	     //    <<nSiL<<" "<<"Hit in "<< gGeoManager->GetPath()<<endl;
-	     }
-	   */
+	 
 	   
 	   //fVolumeID = vol->getMCid();//before it was on
 	   //*** now the volume is through the layer number characterised.(X-Z,Z-Y)
 	       
-	       fVolumeID = vol->getCopyNo();
-	   
+	  if (fCurrent) {
+	     if ((nam2.Contains("Sensor"))) {
+	     sscanf(nam2,"Sensor%d", &nSiL);
+	      fVolumeID=nSiL;
+	    }
+	  }else fVolumeID = vol->getCopyNo();
+	  
 	   
 	   //**************///
 	     
@@ -291,6 +300,7 @@ Bool_t PndHyp::ProcessHits(FairVolume* vol)
 		 cout << "hyp::ProcessHits> : " << nam2 <<" # "
 		 <<nSiL<<" "<<"Hit in "<< gGeoManager->GetPath()<<endl;
 		 } */
+
 	     FullName <<gMC->CurrentVolPath();
 	     
 	     if(0==fGeoH) {

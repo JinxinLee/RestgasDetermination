@@ -178,13 +178,33 @@ class PndHyp : public FairDetector
 
   }
 
+  void SetGeoVersion(TString vers="standard"){
+    fVers=vers;
+  }
+
+  void SetAbsMat(TString abmat="HYPdiamond"){
+    fAbsMat=abmat;
+  }
+
+ void SetBPipeMat(TString bpmat="HYPcarbon"){
+    fBPipeMat=bpmat;
+  }
+   
+ void SetListMat(TString mat="carbon"){
+   fListMat=kTRUE;
+   fListOfMaterials.push_back(mat.Data());
+  }
+  
+
   private:
   
   std::vector<std::string> fListOfSensitives;
+  std::vector<TString> fListOfMaterials;
+
   bool CheckIfSensitive(std::string name);
 
-  TString fVolNamSi,fVolNamAb;
-  Bool_t fRootSensVol;
+  TString fVolNamSi,fVolNamAb,fVers,fAbsMat,fSiMat,fBPipeMat;
+  Bool_t fRootSensVol,fListMat,fStandard,fCurrent;
   Int_t fStartEvID;
   //PndGeoHypPar *par;
   Int_t          fTrackID;           //  track index
