@@ -18,6 +18,13 @@
 #include "EvtGenBase/EvtRandomEngine.hh"
 #include "EvtGenBase/EvtReport.hh"
 
+/// use of external generators
+#if EVTGEN_EXTERNAL
+#include "EvtGenExternal/EvtExternalGenList.hh"
+#include "EvtGenBase/EvtAbsRadCorr.hh"
+#include "EvtGenBase/EvtDecayBase.hh"
+#endif
+
 #include "TFile.h"
 #include "TTree.h"
 #include "TStopwatch.h"
@@ -90,9 +97,19 @@ int main(int argc, char* argv[])
   if (seed>=0)
     myRandomEngine=new EvtRootRandomEngine(seed);
 
-  //Initialize the generator - read in the decay table and particle properties
-  EvtGen myGenerator("DECAY.DEC","evt.pdl",myRandomEngine);
+#if EVTGEN_EXTERNAL
+   EvtExternalGenList genList;
+   EvtAbsRadCorr* radCorrEngine = genList.getPhotosModel();
+   std::list<EvtDecayBase*> extraModels = genList.getListOfModels();
 
+   // Create the EvtGen generator object
+   EvtGen myGenerator("DECAY.DEC","evt.pdl",myRandomEngine,
+                     radCorrEngine, &extraModels);
+#else
+   //If you don't want to use external generators, use the following:
+  EvtGen myGenerator("DECAY.DEC","evt.pdl",myRandomEngine);
+#endif
+ 
   //If I wanted a user decay file, I would read it in now.
   myGenerator.readUDecay(argv[2]);
 
