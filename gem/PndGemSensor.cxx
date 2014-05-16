@@ -58,21 +58,48 @@ PndGemSensor::PndGemSensor(TString tempName, Int_t detId, Int_t iType,
   fPitch[1]     = pitch1; // strip pitch
 
   if ( fType == 0 ) { // r phi version
-    fNChannelsFront = (Int_t)(TMath::Ceil(2.*TMath::Pi()*fInnerRadius/fPitch[0]));
-    fNChannelsBack  = 2*(Int_t)(TMath::Ceil((fOuterRadius-fInnerRadius)/fPitch[1]));
+//     fNChannelsFront = (Int_t)(TMath::Ceil(2.*TMath::Pi()*fInnerRadius/fPitch[0]));
+//     fNChannelsBack  = 2*(Int_t)(TMath::Ceil((fOuterRadius-fInnerRadius)/fPitch[1]));
+    fNChannelsFront = (Int_t)(2.*TMath::Pi()*fInnerRadius/fPitch[0] + 0.5);
+    fNChannelsBack  = 2*(Int_t)((fOuterRadius-fInnerRadius)/fPitch[1]+0.5);
   }
   if ( fType == 1 ) { // tilted version, should not be used any more
-    fNChannelsFront = (Int_t)(TMath::Ceil(2.*TMath::Pi()*fInnerRadius/fPitch[0]));
-    fNChannelsBack  = (Int_t)(TMath::Ceil(2.*TMath::Pi()*fInnerRadius/fPitch[1]));
+//     fNChannelsFront = (Int_t)(TMath::Ceil(2.*TMath::Pi()*fInnerRadius/fPitch[0]));
+//     fNChannelsBack  = (Int_t)(TMath::Ceil(2.*TMath::Pi()*fInnerRadius/fPitch[1]));
+    fNChannelsFront = (Int_t)(2.*TMath::Pi()*fInnerRadius/fPitch[0]+0.5);
+    fNChannelsBack  = (Int_t)(2.*TMath::Pi()*fInnerRadius/fPitch[1]+0.5);
   }
   if ( fType == 2 ) { // x y version
-    fNChannelsFront =   (Int_t)(TMath::Ceil(2.*fOuterRadius/fPitch[0]))+
-                        (Int_t)(TMath::Ceil(2.*fInnerRadius/fPitch[0]));
-    fNChannelsBack  = 2*(Int_t)(TMath::Ceil(2.*fOuterRadius/fPitch[1]));
+//     fNChannelsFront =   (Int_t)(TMath::Ceil(2.*fOuterRadius/fPitch[0]))+
+//                         (Int_t)(TMath::Ceil(2.*fInnerRadius/fPitch[0]));
+//     fNChannelsBack  = 2*(Int_t)(TMath::Ceil(2.*fOuterRadius/fPitch[1]));
+    fNChannelsFront =   (Int_t)(2.*fOuterRadius/fPitch[0] + 2.*fInnerRadius/fPitch[0] + 0.5);
+    fNChannelsBack  = 2*(Int_t)(2.*fOuterRadius/fPitch[1]+0.5);
   }
-
+  if ( fType == 3 ) { // r_tree phi version
+    Int_t ifac=1;
+    if( 1 < fOuterRadius / fInnerRadius && fOuterRadius / fInnerRadius < 100){
+      //extract highest bit number to get radial tree factor
+      ifac = (Int_t) (fOuterRadius / fInnerRadius);
+      ifac |= (ifac >> 1);
+      ifac |= (ifac >> 2);
+      ifac |= (ifac >> 4);
+      ifac -= (ifac >> 1);
+//     fNChannelsFront = ifac *(Int_t)(TMath::Ceil(2.*TMath::Pi()*fInnerRadius/fPitch[0]));
+      fNChannelsFront = ifac *(Int_t)(2.*TMath::Pi()*fInnerRadius/fPitch[0] + 0.5);
+    }
+    else{
+      cout << tempName.Data() << "-W- !!! type " << fType << " with OuterRadius/InnerRadius " << fOuterRadius/fInnerRadius << " is currently not supported !!!" << endl;
+      cout << " Please use type 0 instead !!!" << endl;
+//      fNChannelsFront = (Int_t)(TMath::Ceil(2.*TMath::Pi()*fInnerRadius/fPitch[0]));
+      fNChannelsFront = (Int_t)(2.*TMath::Pi()*fInnerRadius/fPitch[0]+0.5);
+    }
+//     fNChannelsBack  = 2*(Int_t)(TMath::Ceil((fOuterRadius-fInnerRadius)/fPitch[1]));
+    fNChannelsBack  = 2*(Int_t)((fOuterRadius-fInnerRadius)/fPitch[1] + 0.5);
+  }
+  
   cout << tempName.Data() << " type " << fType << " has " << fNChannelsFront << " front and " << fNChannelsBack << " back channels" << endl;
-
+  
   fSigmaX = fSigmaY = fSigmaXY = 0.;
 }
 // -------------------------------------------------------------------------
@@ -103,17 +130,44 @@ PndGemSensor::PndGemSensor(TString tempName, Int_t stationNr, Int_t sectorNr, In
   fPitch[1]     = pitch1; // strip pitch
 
   if ( fType == 0 ) { // r phi version
-    fNChannelsFront = (Int_t)(TMath::Ceil(2.*TMath::Pi()*fInnerRadius/fPitch[0]));
-    fNChannelsBack  = 2*(Int_t)(TMath::Ceil((fOuterRadius-fInnerRadius)/fPitch[1]));
+//     fNChannelsFront = (Int_t)(TMath::Ceil(2.*TMath::Pi()*fInnerRadius/fPitch[0]));
+//     fNChannelsBack  = 2*(Int_t)(TMath::Ceil((fOuterRadius-fInnerRadius)/fPitch[1]));
+    fNChannelsFront = (Int_t)(2.*TMath::Pi()*fInnerRadius/fPitch[0] + 0.5);
+    fNChannelsBack  = 2*(Int_t)((fOuterRadius-fInnerRadius)/fPitch[1]+0.5);
   }
   if ( fType == 1 ) { // tilted version, should not be used any more
-    fNChannelsFront = (Int_t)(TMath::Ceil(2.*TMath::Pi()*fInnerRadius/fPitch[0]));
-    fNChannelsBack  = (Int_t)(TMath::Ceil(2.*TMath::Pi()*fInnerRadius/fPitch[1]));
+//     fNChannelsFront = (Int_t)(TMath::Ceil(2.*TMath::Pi()*fInnerRadius/fPitch[0]));
+//     fNChannelsBack  = (Int_t)(TMath::Ceil(2.*TMath::Pi()*fInnerRadius/fPitch[1]));
+    fNChannelsFront = (Int_t)(2.*TMath::Pi()*fInnerRadius/fPitch[0]+0.5);
+    fNChannelsBack  = (Int_t)(2.*TMath::Pi()*fInnerRadius/fPitch[1]+0.5);
   }
   if ( fType == 2 ) { // x y version
-    fNChannelsFront = 2*(Int_t)(TMath::Ceil((fOuterRadius-fInnerRadius)/fPitch[0]))+
-                      4*(Int_t)(TMath::Ceil(fInnerRadius/fPitch[0]));
-    fNChannelsBack  = 2*(Int_t)(TMath::Ceil(2.*fOuterRadius/fPitch[1]));
+//     fNChannelsFront = 2*(Int_t)(TMath::Ceil((fOuterRadius-fInnerRadius)/fPitch[0]))+
+//                       4*(Int_t)(TMath::Ceil(fInnerRadius/fPitch[0]));
+//     fNChannelsBack  = 2*(Int_t)(TMath::Ceil(2.*fOuterRadius/fPitch[1]));
+    fNChannelsFront = (Int_t)( 2*(fOuterRadius-fInnerRadius)/fPitch[0] + 4*fInnerRadius/fPitch[0] + 0.5);
+    fNChannelsBack  = 2*(Int_t)(2.*fOuterRadius/fPitch[1]+0.5);
+  }
+  if ( fType == 3 ) { // r_tree phi version
+    Int_t ifac=1;
+    if( 1 < fOuterRadius / fInnerRadius && fOuterRadius / fInnerRadius < 100){
+      //extract highest bit number
+      ifac = (Int_t) (fOuterRadius / fInnerRadius);
+      ifac |= (ifac >> 1);
+      ifac |= (ifac >> 2);
+      ifac |= (ifac >> 4);
+      ifac -= (ifac >> 1);
+//       fNChannelsFront = ifac *(Int_t)(TMath::Ceil(2.*TMath::Pi()*fInnerRadius/fPitch[0]));
+      fNChannelsFront = ifac *(Int_t)(2.*TMath::Pi()*fInnerRadius/fPitch[0] + 0.5);
+    }
+    else{
+      cout << tempName.Data() << "-W- !!! type " << fType << " with OuterRadius/InnerRadius " << fOuterRadius/fInnerRadius << " is currently not supported !!!" << endl;
+      cout << " Please use type 0 instead !!!" << endl;
+//       fNChannelsFront = (Int_t)(TMath::Ceil(2.*TMath::Pi()*fInnerRadius/fPitch[0]));
+      fNChannelsFront = (Int_t)(2.*TMath::Pi()*fInnerRadius/fPitch[0]+0.5);
+    }
+//     fNChannelsBack  = 2*(Int_t)(TMath::Ceil((fOuterRadius-fInnerRadius)/fPitch[1]));
+    fNChannelsBack  = 2*(Int_t)((fOuterRadius-fInnerRadius)/fPitch[1] + 0.5);
   }
 
   cout << tempName.Data() << " type " << fType << " has " << fNChannelsFront << " front and " << fNChannelsBack << " back channels" << endl;
@@ -231,19 +285,21 @@ Int_t PndGemSensor::GetChannel(Double_t x, Double_t y, Int_t iSide) {
       if ( x < 0. ) 
 	hitPhi = 2.*TMath::Pi()-hitPhi;
       hitPhi = 2.*TMath::Pi()-hitPhi;
-      return (Int_t)(TMath::Ceil((hitPhi*fInnerRadius)/fPitch[iSide]));
+       return (Int_t)(TMath::Ceil((hitPhi*fInnerRadius)/fPitch[iSide]));
     }
     if ( iSide == 1 ) {
       if ( x < 0. )
-	return (Int_t)(TMath::Ceil((radius-fInnerRadius)/fPitch[1]));
+ 	return (Int_t)(TMath::Ceil((radius-fInnerRadius)/fPitch[1]));
       else
-	return (Int_t)(TMath::Ceil((radius-fInnerRadius)/fPitch[1])) + fNChannelsBack/2;
+ 	return (Int_t)(TMath::Ceil((radius-fInnerRadius)/fPitch[1])) + fNChannelsBack/2;
     }
   }
   if ( fType == 2 ) { // x y strips
     if ( iSide == 0 ) { // x information encoded
-      Int_t nlStrips = (Int_t)(TMath::Ceil((fOuterRadius-fInnerRadius)/fPitch[0]));
-      Int_t nsStrips = (Int_t)(TMath::Ceil(fInnerRadius/fPitch[0]));
+//       Int_t nlStrips = (Int_t)(TMath::Ceil((fOuterRadius-fInnerRadius)/fPitch[0]));                   
+//       Int_t nsStrips = (Int_t)(TMath::Ceil(fInnerRadius/fPitch[0]));
+      Int_t nlStrips = (Int_t)((fOuterRadius-fInnerRadius)/fPitch[0] + 0.5);                    
+      Int_t nsStrips = (Int_t)(fInnerRadius/fPitch[0] + 0.5);
       if ( x <= -fInnerRadius )
 	return (Int_t)((x+fOuterRadius)/fPitch[0]);
       if ( x < 0. && y >= 0. )
@@ -263,6 +319,39 @@ Int_t PndGemSensor::GetChannel(Double_t x, Double_t y, Int_t iSide) {
 	return (Int_t)((y+fOuterRadius)/fPitch[1]);
       if ( x >= 0. ) 
 	return (Int_t)((y+fOuterRadius)/fPitch[1])+fNChannelsBack/2;
+    }
+  }
+  if ( fType == 3 ) { // angle info for iSide 0, radius info for iSide 1
+    if ( iSide == 0 ) {
+      Double_t hitPhi = TMath::ACos(y/radius);
+      if ( x < 0. ) 
+	hitPhi = 2.*TMath::Pi()-hitPhi;
+      hitPhi = 2.*TMath::Pi()-hitPhi;
+      //extract radial tree factor at the OuterRadius
+      Int_t ifac=1;
+      //extract highest bit number
+      ifac = (Int_t) (fOuterRadius / fInnerRadius);
+      ifac |= (ifac >> 1);
+      ifac |= (ifac >> 2);
+      ifac |= (ifac >> 4);
+      ifac -= (ifac >> 1);
+      //extract radial tree factor at the radius
+      Int_t ifac_r=1;
+      ifac_r = (Int_t) ( radius / fInnerRadius);
+      ifac_r |= (ifac_r >> 1);
+      ifac_r |= (ifac_r >> 2);
+      ifac_r |= (ifac_r >> 4);
+      ifac_r -= (ifac_r >> 1);
+      Int_t ich_step;
+      if ( ifac_r == 0 ) return -1;
+      else ich_step = (Int_t) (ifac / ifac_r);
+      return (Int_t)( ich_step * TMath::Ceil(hitPhi*fNChannelsFront/ich_step/2./TMath::Pi()));
+    }
+    if ( iSide == 1 ) {
+      if ( x < 0. )
+ 	return (Int_t)(TMath::Ceil((radius-fInnerRadius)/fPitch[1]));
+      else
+ 	return (Int_t)(TMath::Ceil((radius-fInnerRadius)/fPitch[1])) + fNChannelsBack/2;
     }
   }
   return -1;
@@ -296,6 +385,18 @@ Int_t PndGemSensor::GetNeighbours(Int_t iSide, Int_t iChan, Int_t& nChan1, Int_t
       return 2;
     }
   }
+  if ( fType == 3 ) {
+    if ( iSide == 0 ) {// radial tree
+      // need to decide what to return...(?)
+      nChan1 = iChan-1;
+      nChan2 = iChan+1;
+      return 2;
+    }
+    if ( iSide == 1 ) {
+      nChan1 = iChan-1;
+      nChan2 = iChan+1;
+    }
+  }
   return 0;
 }
 // -------------------------------------------------------------------------
@@ -313,7 +414,8 @@ Int_t PndGemSensor::GetSensorPart(Int_t iSide, Int_t chan) {
       return -1;
     }
     if ( iSide == 0 ) {
-      Int_t nsStrips = (Int_t)(TMath::Ceil(fInnerRadius/fPitch[0]));
+//       Int_t nsStrips = (Int_t)(TMath::Ceil(fInnerRadius/fPitch[0]));
+      Int_t nsStrips = (Int_t)(fInnerRadius/fPitch[0]+0.5);
       if      ( TMath::Abs(chan-fNChannelsFront/2) > nsStrips*2 ) 
 	return 0;
       else if ( TMath::Abs(chan-fNChannelsFront/2) < nsStrips   )
@@ -321,6 +423,10 @@ Int_t PndGemSensor::GetSensorPart(Int_t iSide, Int_t chan) {
       else 
 	return 1;
     }
+  }
+  if ( fType == 3 ) {
+    //should it be irregular??
+    return -1;
   }
   return -1;
 }
@@ -360,12 +466,34 @@ Double_t PndGemSensor::GetStripOrientation(Double_t x, Double_t y, Int_t iSide) 
       return TMath::Pi()/2.;
     }
   }
+  if ( fType == 3 ) { // angle info for iSide 0, radius info for iSide 1
+    if ( iSide == 0 ) {
+      Double_t radius = TMath::Sqrt(x*x+y*y);
+      Double_t hitPhi = TMath::ACos(y/radius);
+      if ( x < 0. ) 
+	hitPhi = 2.*TMath::Pi()-hitPhi;
+      hitPhi = 2.*TMath::Pi()-hitPhi;
+      return hitPhi;
+    }
+    if ( iSide == 1 ) {
+      Double_t radius = TMath::Sqrt(x*x+y*y);
+      Double_t hitPhi = TMath::ACos(y/radius);
+      if ( x < 0. ) 
+	hitPhi = 2.*TMath::Pi()-hitPhi;
+      hitPhi = 2.*TMath::Pi()-hitPhi;
+      return hitPhi+TMath::Pi()/2.;
+    }
+  }
   return -1.;
 }
 // -------------------------------------------------------------------------
 
 // -----   Public method GetDistance   --------------------------------------
 Double_t PndGemSensor::GetDistance(Int_t iSide, Double_t chan1, Double_t chan2) {
+  if ( chan1 == -1 || chan2 == -1 ){
+    //cout<<"-W- !!! GetDistance(): channel number is -1 !!"<<endl;
+    return -1.;
+  }
   if ( iSide == 0 && ( chan1 - fNChannelsFront/2. - 1 ) * ( chan2 - fNChannelsFront/2. ) < 0. ) return -1.;
   if ( iSide == 1 && ( chan1 - fNChannelsBack /2. - 1 ) * ( chan2 - fNChannelsBack /2. ) < 0. ) return -1.;
   if ( fType == 0 ) {
@@ -376,8 +504,10 @@ Double_t PndGemSensor::GetDistance(Int_t iSide, Double_t chan1, Double_t chan2) 
   }
   if ( fType == 2 ) {
     if ( iSide == 0 ) {
-      Int_t nlStrips = (Int_t)(TMath::Ceil((fOuterRadius-fInnerRadius)/fPitch[0]));
-      Int_t nsStrips = (Int_t)(TMath::Ceil(fInnerRadius/fPitch[0]));
+      //Int_t nlStrips = (Int_t)(TMath::Ceil((fOuterRadius-fInnerRadius)/fPitch[0]));
+//       Int_t nsStrips = (Int_t)(TMath::Ceil(fInnerRadius/fPitch[0]));
+      Int_t nlStrips = (Int_t)((fOuterRadius-fInnerRadius)/fPitch[0] + 0.5);
+      Int_t nsStrips = (Int_t)(fInnerRadius/fPitch[0] +0.5);
       Int_t part1 = 666;
       Int_t part2 = 666;
       if      ( TMath::Abs(chan1-fNChannelsFront/2) >= nsStrips*2 ) part1 =  0;
@@ -402,11 +532,37 @@ Double_t PndGemSensor::GetDistance(Int_t iSide, Double_t chan1, Double_t chan2) 
       return TMath::Abs(chan1-chan2);
     }
   }
+  if ( fType == 3 ) {
+    if ( iSide == 0 ) {
+      // radial tree 
+      // it returns distance assuming the inner ring as possible minimum situation.
+      Int_t ifac=1;
+      Double_t retval;
+      //extract channel step at the inner radius as radial tree factor
+      ifac = (Int_t) (fOuterRadius / fInnerRadius);
+      ifac |= (ifac >> 1);
+      ifac |= (ifac >> 2);
+      ifac |= (ifac >> 4);
+      ifac -= (ifac >> 1); 
+      retval=(Double_t) TMath::Abs( (Int_t)(chan1/ifac) - (Int_t)(chan2/ifac) );
+      
+      //cout << "-I- PndGemSensor::GetDistance("<<iSide<<","<<chan1<<","<<chan2<<") returns " << retval <<endl;
+      
+      return retval;
+    }
+    if ( iSide == 1 ) {
+      return TMath::Abs(chan1-chan2);
+    }
+  }
 }
 // -------------------------------------------------------------------------
 
 // -----   Public method GetDistance   -------------------------------------
 Int_t PndGemSensor::GetDistance(Int_t iSide, Int_t chanMin, Int_t chanMax, Int_t chanTest) {
+  if ( chanMin == -1 || chanMax == -1 || chanTest ==-1 ){ 
+    //cout<<"-W- !!! GetDistance(): channel number is -1 !!"<<endl;
+    return -1.;
+  }
   if ( iSide == 0 && ( chanMin - fNChannelsFront/2 ) * ( chanTest - fNChannelsFront/2 ) < 0. ) return -1;
   if ( iSide == 1 && ( chanMin - fNChannelsBack /2 ) * ( chanTest - fNChannelsBack /2 ) < 0. ) return -1;
   if ( fType == 0 ) {
@@ -419,8 +575,10 @@ Int_t PndGemSensor::GetDistance(Int_t iSide, Int_t chanMin, Int_t chanMax, Int_t
   }
   if ( fType == 2 ) {
     if ( iSide == 0 ) {
-      Int_t nlStrips = (Int_t)(TMath::Ceil((fOuterRadius-fInnerRadius)/fPitch[0]));
-      Int_t nsStrips = (Int_t)(TMath::Ceil(fInnerRadius/fPitch[0]));
+      //Int_t nlStrips = (Int_t)(TMath::Ceil((fOuterRadius-fInnerRadius)/fPitch[0]));
+//       Int_t nsStrips = (Int_t)(TMath::Ceil(fInnerRadius/fPitch[0]));
+      Int_t nlStrips = (Int_t)((fOuterRadius-fInnerRadius)/fPitch[0] + 0.5);
+      Int_t nsStrips = (Int_t)(fInnerRadius/fPitch[0] + 0.5);
       // THIS BROKEN VERTICAL STRIPS NEED SPECIAL ATTENTION
       // DO NOT YET CONSIDER ALL THE PROBLEMS...
       if      ( TMath::Abs(chanMin-fNChannelsFront/2) < nsStrips ) {
@@ -449,11 +607,146 @@ Int_t PndGemSensor::GetDistance(Int_t iSide, Int_t chanMin, Int_t chanMax, Int_t
       return TMath::Min(TMath::Abs(chanTest-chanMax),TMath::Abs(chanTest-chanMin));
     }
   }
+  if ( fType == 3 ) {
+    if ( iSide == 0 ) {
+      // radial tree 
+      if ( chanTest > chanMin && chanTest < chanMax ) return 0;
+      // it returns distance assuming the inner ring as possible minimum situation.
+      Int_t ifac=1;
+      Double_t disMin, disMax, retval;
+      //extract channel step at the inner radius as radial tree factor
+      ifac = (Int_t) (fOuterRadius / fInnerRadius);
+      ifac |= (ifac >> 1);
+      ifac |= (ifac >> 2);
+      ifac |= (ifac >> 4);
+      ifac -= (ifac >> 1); 
+      disMin=(Double_t) TMath::Abs( (Int_t)(chanTest/ifac) - (Int_t)(chanMin/ifac) );
+      disMax=(Double_t) TMath::Abs( (Int_t)(chanTest/ifac) - (Int_t)(chanMax/ifac) );
+      retval = TMath::Min(disMin,disMax);
+      //cout << "-I- PndGemSensor::GetDistance("<<iSide<<","<<chanMin<<","<<chanMax<<","<<chanTest<<") returns " << retval <<endl;
+      
+      return retval;
+    }
+    if ( iSide == 1 ) {
+      if ( chanTest > chanMin && chanTest < chanMax ) return 0;
+      return TMath::Min(TMath::Abs(chanTest-chanMax),TMath::Abs(chanTest-chanMin));
+    }
+  }
+}
+// -------------------------------------------------------------------------
+
+
+// -----   Public method   -------------------------------------------------
+// Similar to GetChannel but for comparison of Digi and Digi.
+// Type 3 considers r-info of r-strips in this method.
+Double_t PndGemSensor::GetDistance2(Int_t iSide, Double_t chan1, Double_t chan2) {
+  if ( chan1 == -1 || chan2 == -1 ) return -1.;
+  if ( iSide == 0 && ( chan1 - fNChannelsFront/2. ) * ( chan2 - fNChannelsFront/2. ) < 0. ) return -1.;
+  if ( iSide == 1 && ( chan1 - fNChannelsBack /2. ) * ( chan2 - fNChannelsBack /2. ) < 0. ) return -1.;
+  if ( fType == 0 ) {
+    return TMath::Abs(chan1-chan2);
+  }
+  if ( fType == 1 ) {
+    return TMath::Abs(chan1-chan2);
+  }
+  if ( fType == 2 ) {
+    if ( iSide == 0 ) {
+//       Int_t nlStrips = (Int_t)(TMath::Ceil((fOuterRadius-fInnerRadius)/fPitch[0]));
+//       Int_t nsStrips = (Int_t)(TMath::Ceil(fInnerRadius/fPitch[0]));
+      Int_t nlStrips = (Int_t)((fOuterRadius-fInnerRadius)/fPitch[0] + 0.5);
+      Int_t nsStrips = (Int_t)(fInnerRadius/fPitch[0] + 0.5);
+      Int_t part1 = 666;
+      Int_t part2 = 666;
+      if      ( TMath::Abs(chan1-fNChannelsFront/2) > nsStrips*2 ) part1 =  0;
+      else if ( TMath::Abs(chan1-fNChannelsFront/2) < nsStrips   ) {
+	part1 = -1;
+	if ( chan1 < fNChannelsFront/2 ) chan1 = chan1-nsStrips;
+	else                             chan1 = chan1+nsStrips;
+      }
+      else                                                         part1 =  1;
+      if      ( TMath::Abs(chan2-fNChannelsFront/2) > nsStrips*2 ) part2 =  0;
+      else if ( TMath::Abs(chan2-fNChannelsFront/2) < nsStrips   ) {
+	part2 = -1;
+	if ( chan2 < fNChannelsFront/2 ) chan2 = chan2-nsStrips;
+	else                             chan2 = chan2+nsStrips;
+      }
+      else                                                         part2 =  1;
+
+      if ( part1*part2 == -1 ) return -1;
+      return TMath::Abs(chan1-chan2);
+    }
+    if ( iSide == 1 ) {
+      return TMath::Abs(chan1-chan2);
+    }
+  }
+  // radial tree
+  if ( fType == 3 ) {
+    if ( iSide == 0 ) {
+      Int_t ifac=1,ifac_test=1, ifac1=1, ifac2=1,icom_ifac=0;
+      Int_t ideno,iring_test=0,iring1=0,iring2=0,icom_ring=0;
+      Int_t itest1,itest2,i1ok=0,i2ok=0;
+      Int_t icom_chstep=0;
+      Double_t retval;
+      //extract the radial tree factor of outer radius
+      ifac = (Int_t) (fOuterRadius / fInnerRadius);
+      ifac |= (ifac >> 1);
+      ifac |= (ifac >> 2);
+      ifac |= (ifac >> 4);
+      ifac -= (ifac >> 1); 
+      //find minimum ring for ch1 and ch2 
+      itest1=(Int_t)chan1;
+      itest2=(Int_t)chan2;
+      for( ideno=ifac; ideno>=1; ideno/=2){
+	iring_test++;
+	//cout << "ideno="<< ideno <<" iring_test="<<iring_test<<" ifac_test="<<ifac_test<<endl;
+	itest1%=ideno;
+	if( itest1 == 0 && i1ok == 0){
+	  //cout <<"Minimum ring of ch1 found at #"<<iring_test<<endl;
+	  iring1=iring_test;
+	  ifac1=ifac_test;
+	  i1ok=1;
+	}
+	itest2%=ideno;
+	if( itest2 == 0 && i2ok == 0){
+	  //cout <<"Minimum ring of ch2 found at #"<<iring_test<<endl;
+	  iring2=iring_test;
+	  ifac2=ifac_test;
+	  i2ok=1;
+	}
+	ifac_test*=2;
+      }
+      //take minimum common ring
+      if( iring1 >= iring2 ){
+	icom_ring=iring1;
+	icom_ifac=ifac1;
+      }
+      else{
+	icom_ring=iring2;
+	icom_ifac=ifac2;
+      }
+      //channel step at the common ring
+      if(ifac%icom_ifac == 0){
+	icom_chstep=ifac/icom_ifac;
+      }
+      else{
+	cout<<"-W- !!! something wrong on ifac..in PndGemSensor::GetDistance2() !!!"<<endl;
+      }
+      retval = TMath::Abs(chan1-chan2)/(Double_t)icom_chstep;
+
+      //cout << "-I- PndGemSensor::GetDistance2("<<iSide<<","<<chan1<<","<<chan2<<") returns "<< retval <<" for Common ring #"<<icom_ring<<" ifac="<<icom_ifac<<" ch_step="<<icom_chstep<<endl;
+      
+      return retval; 
+    }
+    if ( iSide == 1 ) {
+      return TMath::Abs(chan1-chan2);
+    }
+  }
 }
 // -------------------------------------------------------------------------
 
 // -----   Public method GetMeanChannel   --------------------------------------
 Double_t PndGemSensor::GetMeanChannel(Int_t iSide, Double_t chan1, Double_t weight1, Double_t chan2, Double_t weight2) {
+  if ( chan1 == -1 || chan2 == -1 ) return -1.;
   if ( iSide == 0 && ( chan1 - fNChannelsFront/2. ) * ( chan2 - fNChannelsFront/2. ) < 0. ) return -1.;
   if ( iSide == 1 && ( chan1 - fNChannelsBack /2. ) * ( chan2 - fNChannelsBack /2. ) < 0. ) return -1.;
   if ( fType == 0 ) {
@@ -464,8 +757,10 @@ Double_t PndGemSensor::GetMeanChannel(Int_t iSide, Double_t chan1, Double_t weig
   }
   if ( fType == 2 ) {
     if ( iSide == 0 ) {
-      Int_t nlStrips = (Int_t)(TMath::Ceil((fOuterRadius-fInnerRadius)/fPitch[0]));
-      Int_t nsStrips = (Int_t)(TMath::Ceil(fInnerRadius/fPitch[0]));
+      //Int_t nlStrips = (Int_t)(TMath::Ceil((fOuterRadius-fInnerRadius)/fPitch[0]));
+//       Int_t nsStrips = (Int_t)(TMath::Ceil(fInnerRadius/fPitch[0]));
+      Int_t nlStrips = (Int_t)((fOuterRadius-fInnerRadius)/fPitch[0] + 0.5);
+      Int_t nsStrips = (Int_t)(fInnerRadius/fPitch[0] + 0.5);
       Int_t part1 = 666;
       Int_t part2 = 666;
       if      ( TMath::Abs(chan1-fNChannelsFront/2) >= nsStrips*2 ) part1 =  0;
@@ -498,6 +793,9 @@ Double_t PndGemSensor::GetMeanChannel(Int_t iSide, Double_t chan1, Double_t weig
       return (chan1*weight1+chan2*weight2)/(weight1+weight2);
     }
   }
+  if ( fType == 3 ) {
+    return (chan1*weight1+chan2*weight2)/(weight1+weight2);
+  }
 }
 // -------------------------------------------------------------------------
 
@@ -515,7 +813,7 @@ Int_t PndGemSensor::GetChannel2(Double_t x, Double_t y, Int_t iSide, Double_t& f
   Double_t radius = TMath::Sqrt(x*x+y*y);
   
   if ( fType == 1 ) {
-    cout << "do not use this type anymore" << endl;
+    cout << "-E- !!! do not use this type anymore" << endl;
     return -1;
   }
   if ( fType == 0 ) { // angle info for iSide 0, radius info for iSide 1
@@ -559,8 +857,10 @@ Int_t PndGemSensor::GetChannel2(Double_t x, Double_t y, Int_t iSide, Double_t& f
       Double_t feeY = TMath::Cos(hitPhi)*fOuterRadius;
       feeDist = TMath::Abs(feeY)-TMath::Abs(y);
 
-      Int_t nlStrips = (Int_t)(TMath::Ceil((fOuterRadius-fInnerRadius)/fPitch[0]));
-      Int_t nsStrips = (Int_t)(TMath::Ceil(fInnerRadius/fPitch[0]));
+      //Int_t nlStrips = (Int_t)(TMath::Ceil((fOuterRadius-fInnerRadius)/fPitch[0]));
+      //Int_t nsStrips = (Int_t)(TMath::Ceil(fInnerRadius/fPitch[0]));
+      Int_t nlStrips = (Int_t)((fOuterRadius-fInnerRadius)/fPitch[0] + 0.5);
+      Int_t nsStrips = (Int_t)(fInnerRadius/fPitch[0] + 0.5);
       if ( x <= -fInnerRadius )
 	return (Int_t)((x+fOuterRadius)/fPitch[0]);
       if ( x < 0. && y >= 0. )
@@ -572,81 +872,134 @@ Int_t PndGemSensor::GetChannel2(Double_t x, Double_t y, Int_t iSide, Double_t& f
 	return (Int_t)(nlStrips+4*nsStrips+(x-fInnerRadius)/fPitch[0]);
       if ( y >= 0. )
 	return (Int_t)(nlStrips+2*nsStrips+(x)/fPitch[0]);
-      if ( y <  0. )
+	      if ( y <  0. )
 	return (Int_t)(nlStrips+3*nsStrips+(x)/fPitch[0]);
     }
     if ( iSide == 1 ) { // y information encoded
       feeDist = TMath::Abs(x) - fStripAngle[1]/2.;
-
+      
       if ( x <  0. ) 
-	return (y+fOuterRadius)/fPitch[1];
+	return (Int_t)((y+fOuterRadius)/fPitch[1]);
       if ( x >= 0. ) 
-	return (y+fOuterRadius)/fPitch[1]+fNChannelsBack/2;
+	return (Int_t)((y+fOuterRadius)/fPitch[1]+fNChannelsBack/2);
     }
   }
-  return -1.;
-}
-// -------------------------------------------------------------------------
-// -----   Public method GetChannel   --------------------------------------
-Double_t PndGemSensor::GetChannel(Double_t x, Double_t y, Int_t iSide, Double_t& stripWidth) {
-  stripWidth = fPitch[iSide];
-
-  if (iSide !=0 && iSide != 1) {
-    cout << "-W- PndGemSensor::GetChannel: Illegal side number " 
-	 << iSide << endl;
-    return -1;
-  }
-
-  if ( !Inside(x,y) ) return -1;
-  Double_t radius = TMath::Sqrt(x*x+y*y);
-  
-  if ( fType == 1 ) {
-    cout << "do not use this type anymore" << endl;
-    return -1;
-  }
-  if ( fType == 0 ) { // angle info for iSide 0, radius info for iSide 1
+  if ( fType == 3 ) { // angle info for iSide 0, radius info for iSide 1
     if ( iSide == 0 ) {
-      stripWidth = stripWidth*radius/fInnerRadius;
+      feeDist = fOuterRadius - radius;
+      
       Double_t hitPhi = TMath::ACos(y/radius);
       if ( x < 0. ) 
 	hitPhi = 2.*TMath::Pi()-hitPhi;
       hitPhi = 2.*TMath::Pi()-hitPhi;
-      return (hitPhi*fInnerRadius)/fPitch[iSide];
+      //extract channel factor at the Outer radius
+      Int_t ifac=1;
+      ifac = (Int_t) (fOuterRadius / fInnerRadius);
+      ifac |= (ifac >> 1);
+      ifac |= (ifac >> 2);
+      ifac |= (ifac >> 4);
+      ifac -= (ifac >> 1);
+      //extract channel factor at the hit radius
+      Int_t ifac_r=1;
+      ifac_r = (Int_t) ( radius / fInnerRadius);
+      ifac_r |= (ifac_r >> 1);
+      ifac_r |= (ifac_r >> 2);
+      ifac_r |= (ifac_r >> 4);
+      ifac_r -= (ifac_r >> 1);
+      //calculate channel step at the radius
+      Int_t ich_step;
+      if ( ifac_r == 0 ) return -1;
+      else ich_step = (Int_t) (ifac / ifac_r);
+      //return channel number exists at the radius (use ceil as type0)
+      return (Int_t)( ich_step *  TMath::Ceil(hitPhi*fNChannelsFront/ich_step/2./TMath::Pi()));
     }
     if ( iSide == 1 ) {
-      if ( x < 0. )
-	return (radius-fInnerRadius)/fPitch[1];
+      Double_t hitPhi = TMath::ACos(y/radius);
+      if ( x < 0. ) 
+	hitPhi = 2.*TMath::Pi()-hitPhi;
+      hitPhi = 2.*TMath::Pi()-hitPhi;
+      if ( hitPhi < TMath::Pi()/2. )
+ 	feeDist = hitPhi*radius;
+      else if ( hitPhi < TMath::Pi() )
+ 	feeDist = (TMath::Pi()-hitPhi)*radius;
+      else if ( hitPhi < 3.*TMath::Pi()/2. )
+ 	feeDist = (hitPhi-TMath::Pi())*radius;
       else
-	return (radius-fInnerRadius)/fPitch[1] + fNChannelsBack/2;
-    }
-  }
-  if ( fType == 2 ) { // x y strips
-    if ( iSide == 0 ) { // x information encoded
-      Int_t nlStrips = (Int_t)(TMath::Ceil((fOuterRadius-fInnerRadius)/fPitch[0]));
-      Int_t nsStrips = (Int_t)(TMath::Ceil(fInnerRadius/fPitch[0]));
-      if ( x <= -fInnerRadius )
-	return (x+fOuterRadius)/fPitch[0];
-      if ( x < 0. && y >= 0. )
-	return nlStrips           +(x+fInnerRadius)/fPitch[0];
-      if ( x < 0. && y < 0. )
-	return nlStrips+  nsStrips+(x+fInnerRadius)/fPitch[0];
-      // now x can't be smaller than 0.
-      if ( x >= fInnerRadius ) 
-	return nlStrips+4*nsStrips+(x-fInnerRadius)/fPitch[0];
-      if ( y >= 0. )
-	return nlStrips+2*nsStrips+(x)/fPitch[0];
-      if ( y <  0. )
-	return nlStrips+3*nsStrips+(x)/fPitch[0];
-    }
-    if ( iSide == 1 ) { // y information encoded
-      if ( x <  0. ) 
-	return (y+fOuterRadius)/fPitch[1];
-      if ( x >= 0. ) 
-	return (y+fOuterRadius)/fPitch[1]+fNChannelsBack/2;
+ 	feeDist = (2.*TMath::Pi()-hitPhi)*radius;      
+      feeDist -= fStripAngle[1]/2.; // that's the width of middle bar
+      if ( x < 0. )
+	return (Int_t)(TMath::Ceil((radius-fInnerRadius)/fPitch[1]));
+      else
+	return (Int_t)(TMath::Ceil((radius-fInnerRadius)/fPitch[1])) + fNChannelsBack/2;
     }
   }
   return -1.;
 }
+
+// -------------------------------------------------------------------------
+// COMMENTED to avoid confusion with Int_t GetChannel()
+//
+// -------------------------------------------------------------------------
+// -----   Public method GetChannel   --------------------------------------
+// Double_t PndGemSensor::GetChannel(Double_t x, Double_t y, Int_t iSide, Double_t& stripWidth) {
+//   stripWidth = fPitch[iSide];
+
+//   if (iSide !=0 && iSide != 1) {
+//     cout << "-W- PndGemSensor::GetChannel: Illegal side number " 
+// 	 << iSide << endl;
+//     return -1;
+//   }
+
+//   if ( !Inside(x,y) ) return -1;
+//   Double_t radius = TMath::Sqrt(x*x+y*y);
+  
+//   if ( fType == 1 ) {
+//     cout << "do not use this type anymore" << endl;
+//     return -1;
+//   }
+//   if ( fType == 0 ) { // angle info for iSide 0, radius info for iSide 1
+//     if ( iSide == 0 ) {
+//       stripWidth = stripWidth*radius/fInnerRadius;
+//       Double_t hitPhi = TMath::ACos(y/radius);
+//       if ( x < 0. ) 
+// 	hitPhi = 2.*TMath::Pi()-hitPhi;
+//       hitPhi = 2.*TMath::Pi()-hitPhi;
+//       return (hitPhi*fInnerRadius)/fPitch[iSide];
+//     }
+//     if ( iSide == 1 ) {
+//       if ( x < 0. )
+// 	return (radius-fInnerRadius)/fPitch[1];
+//       else
+// 	return (radius-fInnerRadius)/fPitch[1] + fNChannelsBack/2;
+//     }
+//   }
+//   if ( fType == 2 ) { // x y strips
+//     if ( iSide == 0 ) { // x information encoded
+//       Int_t nlStrips = (Int_t)(TMath::Ceil((fOuterRadius-fInnerRadius)/fPitch[0]));
+//       Int_t nsStrips = (Int_t)(TMath::Ceil(fInnerRadius/fPitch[0]));
+//       if ( x <= -fInnerRadius )
+// 	return (x+fOuterRadius)/fPitch[0];
+//       if ( x < 0. && y >= 0. )
+// 	return nlStrips           +(x+fInnerRadius)/fPitch[0];
+//       if ( x < 0. && y < 0. )
+// 	return nlStrips+  nsStrips+(x+fInnerRadius)/fPitch[0];
+//       // now x can't be smaller than 0.
+//       if ( x >= fInnerRadius ) 
+// 	return nlStrips+4*nsStrips+(x-fInnerRadius)/fPitch[0];
+//       if ( y >= 0. )
+// 	return nlStrips+2*nsStrips+(x)/fPitch[0];
+//       if ( y <  0. )
+// 	return nlStrips+3*nsStrips+(x)/fPitch[0];
+//     }
+//     if ( iSide == 1 ) { // y information encoded
+//       if ( x <  0. ) 
+// 	return (y+fOuterRadius)/fPitch[1];
+//       if ( x >= 0. ) 
+// 	return (y+fOuterRadius)/fPitch[1]+fNChannelsBack/2;
+//     }
+//   }
+//   return -1.;
+// }
 // -------------------------------------------------------------------------
 
 // -----   Public method Inside   ------------------------------------------
@@ -672,7 +1025,7 @@ Int_t PndGemSensor::Intersect(Double_t iFStrip, Double_t iBStrip, Double_t& xCro
   //  cout << "trying to find intersection of strip " << iFStrip << " and " << iBStrip << endl;
 
   if ( fType == -1 ) {
-    cout << "not supported anymore" << endl;
+    cout << "-E- !!! not supported anymore" << endl;
     return -1;
   }
   // the hits are on different sides
@@ -693,8 +1046,10 @@ Int_t PndGemSensor::Intersect(Double_t iFStrip, Double_t iBStrip, Double_t& xCro
       return -1;
   }
   if ( fType == 2 ) { // x y strips
-    Int_t nlStrips = (Int_t)(TMath::Ceil((fOuterRadius-fInnerRadius)/fPitch[0]));
-    Int_t nsStrips = (Int_t)(TMath::Ceil(fInnerRadius/fPitch[0]));
+    //Int_t nlStrips = (Int_t)(TMath::Ceil((fOuterRadius-fInnerRadius)/fPitch[0]));
+    //Int_t nsStrips = (Int_t)(TMath::Ceil(fInnerRadius/fPitch[0]));
+    Int_t nlStrips = (Int_t)((fOuterRadius-fInnerRadius)/fPitch[0] + 0.5);
+    Int_t nsStrips = (Int_t)(fInnerRadius/fPitch[0] + 0.5);
     Double_t x = -666.;
     yCross = -fOuterRadius+(Double_t(bs)+0.5)*fPitch[1];
     zCross = fPosition[2];
@@ -727,9 +1082,18 @@ Int_t PndGemSensor::Intersect(Double_t iFStrip, Double_t iBStrip, Double_t& xCro
       if ( !Inside(xCross,yCross) ) return -1;
       return fDetectorId;
     }
-
   }
-
+  if ( fType == 3 ) { 
+    Double_t phi    = 2. * TMath::Pi() * ((Double_t)iFStrip-0.5) / (Double_t)fNChannelsFront;
+    Double_t radius = fPitch[1]*((Double_t) bs    -0.5) + fInnerRadius;
+    yCross =  radius*TMath::Cos(phi);
+    xCross = -radius*TMath::Sin(phi);
+    zCross = fPosition[2];
+    if ( Inside(xCross,yCross) )
+      return fDetectorId;
+    else
+      return -1;
+  }
   return -1;
 }
 // -------------------------------------------------------------------------
@@ -741,7 +1105,7 @@ Int_t PndGemSensor::Intersect(Double_t iFStrip, Double_t iBStrip, Double_t& xCro
   //  cout << "trying to find intersection of strip " << iFStrip << " and " << iBStrip << endl;
 
   if ( fType == -1 ) {
-    cout << "not supported anymore" << endl;
+    cout << "-E- !!! not supported anymore" << endl;
     return -1;
   }
   // the hits are on different sides
@@ -766,8 +1130,10 @@ Int_t PndGemSensor::Intersect(Double_t iFStrip, Double_t iBStrip, Double_t& xCro
       return -1;
   }
   if ( fType == 2 ) { // x y strips
-    Int_t nlStrips = (Int_t)(TMath::Ceil((fOuterRadius-fInnerRadius)/fPitch[0]));
-    Int_t nsStrips = (Int_t)(TMath::Ceil(fInnerRadius/fPitch[0]));
+    //Int_t nlStrips = (Int_t)(TMath::Ceil((fOuterRadius-fInnerRadius)/fPitch[0]));
+//     Int_t nsStrips = (Int_t)(TMath::Ceil(fInnerRadius/fPitch[0]));
+    Int_t nlStrips = (Int_t)((fOuterRadius-fInnerRadius)/fPitch[0] + 0.5);
+    Int_t nsStrips = (Int_t)(fInnerRadius/fPitch[0] + 0.5);
     Double_t x = -666.;
     yCross = -fOuterRadius+(Double_t(bs)+0.5)*fPitch[1];
     zCross = fPosition[2];
@@ -813,6 +1179,27 @@ Int_t PndGemSensor::Intersect(Double_t iFStrip, Double_t iBStrip, Double_t& xCro
 
     return fDetectorId;
   }
+  if ( fType == 3 ) { // r_a phi strips
+    Double_t phi    = 2. * TMath::Pi() * ((Double_t)iFStrip-0.5) / (Double_t)fNChannelsFront;
+    Double_t radius = fPitch[1]*((Double_t) bs    -0.5) + fInnerRadius;
+    yCross =  radius*TMath::Cos(phi);
+    xCross = -radius*TMath::Sin(phi);
+    zCross = fPosition[2];
+    //extract channel factor at the hit radius
+    Int_t ifac_r=1;
+    ifac_r = (Int_t) ( radius / fInnerRadius);
+    ifac_r |= (ifac_r >> 1);
+    ifac_r |= (ifac_r >> 2);
+    ifac_r |= (ifac_r >> 4);
+    ifac_r -= (ifac_r >> 1);
+    dp = fPitch[0]*radius/fInnerRadius/ifac_r/TMath::Sqrt(12.);
+    dr = fPitch[1]/TMath::Sqrt(12.);
+    
+    if ( Inside(xCross,yCross) )
+      return fDetectorId;
+    else
+      return -1;
+  }
   
   return -1;
 }
@@ -822,9 +1209,8 @@ Int_t PndGemSensor::Intersect(Double_t iFStrip, Double_t iBStrip, Double_t& xCro
 Int_t PndGemSensor::Intersect(Double_t iFStrip, Double_t iBStrip, Double_t& xCross, Double_t& yCross, Double_t& zCross,
 			      Double_t& dx, Double_t& dy, Double_t& dr, Double_t& dp) {
   //  cout << "trying to find intersection of strip " << iFStrip << " and " << iBStrip << endl;
-
   if ( fType == -1 ) {
-    cout << "not supported anymore" << endl;
+    cout << "-E- !!! not supported anymore" << endl;
     return -1;
   }
   // the hits are on different sides
@@ -851,8 +1237,11 @@ Int_t PndGemSensor::Intersect(Double_t iFStrip, Double_t iBStrip, Double_t& xCro
       return -1;
   }
   if ( fType == 2 ) { // x y strips
-    Int_t nlStrips = (Int_t)(TMath::Ceil((fOuterRadius-fInnerRadius)/fPitch[0]));
-    Int_t nsStrips = (Int_t)(TMath::Ceil(fInnerRadius/fPitch[0]));
+    //Int_t nlStrips = (Int_t)(TMath::Ceil((fOuterRadius-fInnerRadius)/fPitch[0]));
+    //Int_t nsStrips = (Int_t)(TMath::Ceil(fInnerRadius/fPitch[0]));
+    Int_t nlStrips = (Int_t)((fOuterRadius-fInnerRadius)/fPitch[0] + 0.5);
+    Int_t nsStrips = (Int_t)(fInnerRadius/fPitch[0] + 0.5);
+    //cout << " nlStrips="<<nlStrips<<" nsStrips="<<nsStrips<<endl;
     Double_t x = -666.;
     yCross = -fOuterRadius+(Double_t(bs)+0.5)*fPitch[1];
     zCross = fPosition[2];
@@ -899,6 +1288,44 @@ Int_t PndGemSensor::Intersect(Double_t iFStrip, Double_t iBStrip, Double_t& xCro
     dp = 0.;
 
     return fDetectorId;
+  }
+  if ( fType == 3 ) { // r_a phi strips
+    Double_t radius = fPitch[1]*((Double_t) bs    -0.5) + fInnerRadius;
+    //extract channel factor at the Outer radius
+    Int_t ifac=1;
+    ifac = (Int_t) (fOuterRadius / fInnerRadius);
+    ifac |= (ifac >> 1);
+    ifac |= (ifac >> 2);
+    ifac |= (ifac >> 4);
+    ifac -= (ifac >> 1);
+    //extract channel factor at the hit radius
+    Int_t ifac_r=1;
+    ifac_r = (Int_t) ( radius / fInnerRadius);
+    if ( ifac_r == 0 ) {
+      cout<<"-W- PndGemSensor::Intersect() radius in smaller than InnerRadius.. return -1!" <<endl;
+      return -1;
+    }
+    ifac_r |= (ifac_r >> 1);
+    ifac_r |= (ifac_r >> 2);
+    ifac_r |= (ifac_r >> 4);
+    ifac_r -= (ifac_r >> 1);
+    //calculate channel step at the radius
+    Int_t ich_step;
+    if ( ifac_r == 0 ) return -1;
+    else ich_step = (Int_t) (ifac / ifac_r);
+    Double_t phi    = 2. * TMath::Pi() * ((Double_t)iFStrip-0.5*(Double_t)ich_step) / (Double_t)fNChannelsFront;
+    yCross =  radius*TMath::Cos(phi);
+    xCross = -radius*TMath::Sin(phi);
+    zCross = fPosition[2];
+    dp = fPitch[0]*radius/fInnerRadius/ifac_r/TMath::Sqrt(12.);
+    dr = fPitch[1]/TMath::Sqrt(12.);
+    dx = dr*TMath::Abs(TMath::Sin(phi))+dp*TMath::Abs(TMath::Cos(phi));
+    dy = dr*TMath::Abs(TMath::Cos(phi))+dp*TMath::Abs(TMath::Sin(phi));
+
+    if ( Inside(xCross,yCross) )
+      return fDetectorId;
+    else
+      return -1;
   }
   
   return -1;

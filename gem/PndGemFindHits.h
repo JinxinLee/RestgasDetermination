@@ -25,6 +25,7 @@
 
 #include "TStopwatch.h"
 #include "TH2F.h"
+#include "TVector3.h"
 
 #include <map>
 #include <set>
@@ -37,6 +38,7 @@ class PndGemDigiPar;
 class PndGemSensor;
 class PndGemStation;
 class PndGemCluster;
+class PndGemDigitize;
 
 class PndGemFindHits : public FairTask
 {
@@ -58,8 +60,8 @@ class PndGemFindHits : public FairTask
 
   /** Destructor **/
   virtual ~PndGemFindHits();
-  void ConfirmHits();
-  void ActivateDigis();
+  void ConfirmHits();    //why in public??
+  void ActivateDigis();  //why in public??
 
 
   /** Execution **/
@@ -67,18 +69,24 @@ class PndGemFindHits : public FairTask
 
   void SetUseClusters(Bool_t bt=kTRUE) {fUseClusters = bt;}
 
+  void RunTimeBased(Bool_t bt=kTRUE) {fTimeOrderedDigi   = bt;}
+
+  Bool_t GetTimeBased()   const { return fTimeOrderedDigi; }
+
  private:
 
   PndGemMonitor*    fMonitor;  //!   /** GEM monitor **/
   PndGemDigiPar*    fDigiPar;     /** Digitisation parameters **/
   TClonesArray*     fDigis;       /** Input array of PndGemDigi **/
   TClonesArray*     fHits;        /** Output array of PndGemHit **/
+  TClonesArray*     fHitsTemp;        /** Output array of PndGemHit **/
   std::map<PndGemSensor*, std::set<Int_t> > fDigiMapF;  /** sensor digis (front) **/
   std::map<PndGemSensor*, std::set<Int_t> > fDigiMapB;  /** sensor digis (back)  **/
 
   Int_t             fTNofEvents;
   Int_t             fTNofDigis;
   Int_t             fTNofHits;
+  Int_t             fTNofHitsTemp;
 
   TStopwatch fTimer;
 
@@ -90,6 +98,7 @@ class PndGemFindHits : public FairTask
   Double_t fAllTime;
 
   Bool_t fUseClusters;
+  Bool_t fTimeOrderedDigi;
 
   /** Get parameter containers **/
   virtual void SetParContainers();
@@ -115,6 +124,13 @@ class PndGemFindHits : public FairTask
   Int_t FindHits(PndGemSensor* sensor,
 		 std::set<Int_t>& fSet, std::set<Int_t>& bSet);
 
+
+  /** Find hits in one sensor (store in fHitsTemp) **/
+  Int_t FindHits2(PndGemSensor* sensor,	
+		  std::set<Int_t>& fSet, std::set<Int_t>& bSet);
+
+  /** Check matching of hits on both sensors and store matched hits in fHits  **/
+  void ConfirmHits2();
 
   /** Finish at the end of each event **/
   virtual void Finish();

@@ -55,7 +55,9 @@ PndGemFindHits::PndGemFindHits() :
   fDigiPar(NULL),
   fDigis  (NULL),
   fHits   (NULL),
+  fHitsTemp   (NULL),
   fUseClusters(kFALSE),
+  fTimeOrderedDigi(kFALSE),
   fPrepTime(0.),
   fSortTime(0.),
   fCreateTime(0.),
@@ -64,7 +66,8 @@ PndGemFindHits::PndGemFindHits() :
   fAllTime(0.),
   fTNofEvents(0),
   fTNofDigis (0),
-  fTNofHits  (0)
+  fTNofHits  (0),
+  fTNofHitsTemp  (0)
 {
 }
 // -------------------------------------------------------------------------
@@ -78,7 +81,9 @@ PndGemFindHits::PndGemFindHits(Int_t iVerbose)
   fDigiPar(NULL),
   fDigis  (NULL),
   fHits   (NULL),
+  fHitsTemp   (NULL),
   fUseClusters(kFALSE),
+  fTimeOrderedDigi(kFALSE),
   fPrepTime(0.),
   fSortTime(0.),
   fCreateTime(0.),
@@ -87,7 +92,8 @@ PndGemFindHits::PndGemFindHits(Int_t iVerbose)
   fAllTime(0.),
   fTNofEvents(0),
   fTNofDigis (0),
-  fTNofHits  (0)
+  fTNofHits  (0),
+  fTNofHitsTemp  (0)
 {
 }
 // -------------------------------------------------------------------------
@@ -101,7 +107,9 @@ PndGemFindHits::PndGemFindHits(const char* name, Int_t iVerbose)
   fDigiPar(NULL),
   fDigis  (NULL),
   fHits   (NULL),
+  fHitsTemp   (NULL),
   fUseClusters(kFALSE),
+  fTimeOrderedDigi(kFALSE),
   fPrepTime(0.),
   fSortTime(0.),
   fCreateTime(0.),
@@ -110,7 +118,8 @@ PndGemFindHits::PndGemFindHits(const char* name, Int_t iVerbose)
   fAllTime(0.),
   fTNofEvents(0),
   fTNofDigis (0),
-  fTNofHits  (0)
+  fTNofHits  (0),
+  fTNofHitsTemp  (0)
 {
 }
 // -------------------------------------------------------------------------
@@ -123,6 +132,10 @@ PndGemFindHits::~PndGemFindHits() {
     fHits->Delete();
     delete fHits;
   }
+  if ( fHitsTemp ) {
+    fHitsTemp->Delete();
+    delete fHitsTemp;
+  }
 }
 // -------------------------------------------------------------------------
 
@@ -130,8 +143,9 @@ PndGemFindHits::~PndGemFindHits() {
 
 // -----   Public method Exec   --------------------------------------------
 void PndGemFindHits::Exec(Option_t* opt) {
-
+  if ( fVerbose > 0 ) cout << "-I- PndGemFindHits::Exec()" << endl; 
   //  cout << "======== PndGemFindHits::Exec(Event = " << fTNofEvents << " ) ====================" << endl;
+
   fTimer.Start();
 
   fTNofEvents++;
@@ -140,6 +154,7 @@ void PndGemFindHits::Exec(Option_t* opt) {
 
   // Clear output array
   fHits->Clear();
+  fHitsTemp->Clear();
 
   fPrepTime+=fTimer.RealTime(); // preparation time
   fTimer.Continue();
@@ -154,9 +169,10 @@ void PndGemFindHits::Exec(Option_t* opt) {
   Int_t nDigisF = 0;
   Int_t nDigisB = 0;
   Int_t nHits   = 0;
+  Int_t nHitsTemp   = 0;
 
   //  cout << "GEM found hits: " << endl;
-
+  
   Int_t nStations = fDigiPar->GetNStations();
   for (Int_t iStation=0; iStation<nStations; iStation++) {
     PndGemStation* station = (PndGemStation*)fDigiPar->GetStation(iStation);
@@ -190,47 +206,68 @@ void PndGemFindHits::Exec(Option_t* opt) {
       Int_t nDigisFInSensor = fSet.size();
       Int_t nDigisBInSensor = bSet.size();
 
-      Int_t nHitsInSensor   = FindHits(sensor, fSet, bSet);
+
+      Int_t nHitsInSensor;
+      //Int_t nHitsInSensor   = FindHits(sensor, fSet, bSet);
+      
+      // TimeBased use basically same method..
+      if ( fTimeOrderedDigi ) {
+	nHitsInSensor = FindHits(sensor, fSet, bSet);//return non-0 now.. why it was 0??
+      }
+      else {
+	nHitsInSensor = FindHits2(sensor, fSet, bSet);//test version ok
+      }
+      
       if ( fVerbose > 2 ) 
 	cout << "Sensor " << sensor->GetSensorNr() 
 	     << ", Digis front " << nDigisFInSensor 
 	     << ", Digis Back " << nDigisBInSensor
-	     << ", Hits " << nHitsInSensor << endl;
+	     << ", Hit combinations " << nHitsInSensor << endl;
       nHitsInStation   += nHitsInSensor;
       nDigisFInStation += nDigisFInSensor;
       nDigisBInStation += nDigisBInSensor;      
     }      // Sector loop
-
+    
     if ( fVerbose > 1 ) cout << "Total for station " 
 			     << station->GetStationNr() << ": Digis front "
 			     << nDigisFInStation << ", digis back "
-			     << nDigisBInStation << ", hits "
+			     << nDigisBInStation << ", hit combinations "
 			     << nHitsInStation << endl;
     nDigisB += nDigisBInStation;
     nDigisF += nDigisFInStation;
-    nHits   += nHitsInStation;
+    nHitsTemp   += nHitsInStation;
     
   }       // Station loop
+  
+  if ( fVerbose > 1 ) cout << "Total for GEM " 
+			   << ": Digis front "<< nDigisF 
+			   << ", digis back "<< nDigisB 
+			   << ", hit combinations "<< nHitsTemp << endl;
   
   fCreateTime+=fTimer.RealTime();
   fTimer.Continue();
   
-  if ( fUseClusters ) {
-    // can only confirm hits using clusters fromt the same event
-    ConfirmHits();
-    fConfirmTime+=fTimer.RealTime();
-    fTimer.Continue();
-    // there should be another funciton, that will confirm the hits using fired strips in previous events, that could have obscured the cluster/hit finding in this event because of the small time difference
-    // activate digis from the clusters in the PndGemMonitor
-    ActivateDigis();
-    fActivateTime+=fTimer.RealTime();
-    fTimer.Continue();
-    // check the digis in the previous events...
+  // can only confirm hits using clusters fromt the same event
+  if ( fTimeOrderedDigi ) {
+    if ( fUseClusters ) {
+      ConfirmHits();
+      fConfirmTime+=fTimer.RealTime();
+      fTimer.Continue();
+      // there should be another funciton, that will confirm the hits using fired strips in previous events, that could have obscured the cluster/hit finding in this event because of the small time difference
+      // activate digis from the clusters in the PndGemMonitor
+      ActivateDigis();
+      fActivateTime+=fTimer.RealTime();
+      fTimer.Continue();
+      // check the digis in the previous events...
+    }
   }
-
+  else {
+    ConfirmHits2();//test version ok
+  }
+  
   if ( fVerbose > 1 ) {
     //    cout << "-I- PndGemFindHits::Exec() Created " << fHits->GetEntriesFast() << " hits from " 
-      //<< nDigisF << " front and " << nDigisB << " back digis" << endl;
+    //<< nDigisF << " front and " << nDigisB << " back digis" << endl;
     cout << endl;
     cout << "-I- " << fName << ":Event summary" << endl;
     cout << "    Active channels front side: " << nDigisF << endl;
@@ -276,7 +313,6 @@ void PndGemFindHits::SetParContainers() {
 
 
 
-
 // -----   Private method Init   -------------------------------------------
 InitStatus PndGemFindHits::Init() {
 
@@ -291,6 +327,10 @@ InitStatus PndGemFindHits::Init() {
   // Register output array
   fHits = new TClonesArray("PndGemHit", 1000);
   ioman->Register("GEMHit", "Hit in GEM", fHits, kTRUE);
+
+  // Test Register output array
+  fHitsTemp = new TClonesArray("PndGemHit", 1000);
+  ioman->Register("GEMHitTemp", "temp Hit in GEM", fHitsTemp, kTRUE);
   
   // Create sectorwise digi sets
   MakeSets();
@@ -369,7 +409,10 @@ void PndGemFindHits::ActivateDigis() {
  
 // -----   Private method ConfirmHits   --------------------
 void PndGemFindHits::ConfirmHits() {
+  if ( fVerbose > 0 ) cout << "-I- PndGemFindHits::ConfirmHits()" << endl; 
   Bool_t printInfo = kFALSE;
+  if( fVerbose > 1 ) printInfo = kTRUE;
+
   PndGemSensor* sensor = NULL;
   PndGemHit* hit = NULL;
   PndGemCluster* cluster = NULL;
@@ -418,7 +461,6 @@ void PndGemFindHits::ConfirmHits() {
       }
     }
 
-    // check clusters in this event only if in the previous events the hit was not confirmed
     if ( hitConfirmed[0] == kFALSE || hitConfirmed[1] == kFALSE ) {
       for ( Int_t iclus = 0 ; iclus < fDigis->GetEntries() ; iclus++ ) {
 	cluster = (PndGemCluster*)fDigis->At(iclus);
@@ -455,10 +497,181 @@ void PndGemFindHits::ConfirmHits() {
     }
     else {
       if ( printInfo ) cout << "   NO CLUSTER MATCHES TO THIS HIT" << endl;
+
+
+
     }
   }
 }
 // -------------------------------------------------------------------------
+
+// -----   Private method ConfirmHits   --------------------
+//Check corresponding sensor and store hit when both sensors have same location of hits
+//Calculate acceptable width of hit matching based on Dx Dy 
+//So far only for EB.. Channel activation is not considered...
+void PndGemFindHits::ConfirmHits2() {
+  if ( fVerbose > 0 ) cout << "-I- PndGemFindHits::ConfirmHits2()" << endl; 
+  
+  PndGemHit* hitTemp = NULL;//hit in all combination of clusters to read
+  PndGemHit* hitTemp2 = NULL;//hit in all combination of clusters to compare
+  PndGemSensor* sensor = NULL; 
+
+  Double_t xHit[2],yHit[2],zHit[2];
+  Double_t dx[2], dy[2], dz[2];
+  TVector3 pos, dpos;
+
+  Int_t nHits = fHits->GetEntriesFast();
+  Int_t sensorDetId, hitDetId;
+  Bool_t hitMatch = kFALSE;
+  
+  // width to find corresponding hit on other sensor 
+  Double_t xHitW; 
+  Double_t yHitW; 
+
+  for ( Int_t ihitTemp = 0 ; ihitTemp < fHitsTemp->GetEntriesFast() ; ihitTemp++ ) {
+    hitTemp = (PndGemHit*)fHitsTemp->At(ihitTemp);
+    
+    Int_t hitTempDetId = hitTemp->GetDetectorID();
+    Int_t testGemHit = hitTempDetId & kGemHit << 21;
+    if ( fVerbose > 1 ) {
+      cout << "Check kGemHit bit of hitTempDetId=" << hitTempDetId 
+	   << " kGemHit=" << kGemHit << " masked value testGemHit=" << testGemHit <<endl; 
+    } 
+    if(  testGemHit != 0 ) {
+      if ( fVerbose > 1 ) {
+	cout << "ihitTemp " << ihitTemp << " : already used... skip" <<endl;  
+      }
+      continue;
+    }
+    
+    Int_t staNr = hitTemp->GetStationNr();
+    Int_t senNr = hitTemp->GetSensorNr();
+
+    xHit[0] = hitTemp->GetX();
+    yHit[0] = hitTemp->GetY();
+    zHit[0] = hitTemp->GetZ();
+    dx[0] = hitTemp->GetDx();
+    dy[0] = hitTemp->GetDy();
+    dz[0] = hitTemp->GetDz();
+
+    sensor = (PndGemSensor*)fDigiPar->GetSensor(hitTemp->GetStationNr(),
+						hitTemp->GetSensorNr ());
+    sensorDetId = sensor->GetDetectorId();
+    Double_t senD = sensor->GetD();// sensor thickness 1cm (?)
+    
+    if ( fVerbose > 1 ) {
+      cout << "COMPARING HitTemp ihitTemp " << ihitTemp 
+	   << " of staNr " << staNr
+	   << " senNr " << senNr
+	   << " at (" << xHit[0] << "," << yHit[0] << "," << zHit[0]
+	   << ") time " << hitTemp->GetTimeStamp() 
+	   <<" dx " << dx[0] << " dy " << dy[0]
+	   <<" sensorDetId " << sensorDetId << " senThick " << senD
+	   << endl;
+    }
+    
+    hitMatch = kFALSE;
+    for ( Int_t ihitTemp2 = ihitTemp+1 ; ihitTemp2 < fHitsTemp->GetEntriesFast() ; ihitTemp2++ ) {
+      hitTemp2 = (PndGemHit*)fHitsTemp->At(ihitTemp2);
+      if ( fVerbose > 1 ) cout << "WITH ihitTemp2 " << ihitTemp2;
+
+      Int_t hitTemp2DetId = hitTemp2->GetDetectorID();
+      Int_t test2GemHit = hitTemp2DetId & kGemHit << 21;
+      if ( fVerbose > 2 ) {
+	cout << " hitTemp2DetId=" << hitTempDetId 
+	     << " kGemHit=" << kGemHit << " masked value test2GemHit=" << test2GemHit <<endl; 
+      } 
+      if(  test2GemHit != 0 ) {
+	if ( fVerbose > 1 ) cout << " ihitTemp2 " << ihitTemp2 << " : already used... skip" <<endl;
+	continue;
+      }
+      
+      Int_t staNr2 = hitTemp2->GetStationNr();
+      if ( fVerbose > 1 ) cout << " ihitTemp2 " << ihitTemp2 << " staNr " << staNr2;
+      if( staNr != staNr2 ) {
+	if ( fVerbose > 1 ) cout << " : diff Station .. skip " << endl;
+	continue;
+      }
+      Int_t senNr2 = hitTemp2->GetSensorNr();
+      if ( fVerbose > 1 ) cout << " of senNr " << senNr2 ; 
+      if( senNr == senNr2 ) {
+	if ( fVerbose > 1 ) cout << " : same sensor.. skip " << endl;
+	continue;
+      }
+      xHit[1] = hitTemp2->GetX();
+      yHit[1] = hitTemp2->GetY();
+      zHit[1] = hitTemp2->GetZ();
+      dx[1] = hitTemp2->GetDx();
+      dy[1] = hitTemp2->GetDy();
+      dz[1] = hitTemp2->GetDz();
+      if ( fVerbose > 1 ) {
+	cout << " at (" << xHit[1] << "," << yHit[1] << "," << zHit[1]
+	     << ") time " << hitTemp2->GetTimeStamp() <<" dx "  << dx[1] << " dy " << dy[1] << endl;
+      }
+
+      //calc acceptable hit on other sensor based on Dx of Hit
+      //assuming straight path (NOT assuming path from target)
+      if ( fUseClusters ) {
+	xHitW = TMath::Sqrt(12.) * dx[0] * TMath::Abs( zHit[0] - zHit[1] ) / senD + TMath::Sqrt(12.) * dx[0] * 0.5; 
+	yHitW = TMath::Sqrt(12.) * dy[0] * TMath::Abs( zHit[0] - zHit[1] ) / senD + TMath::Sqrt(12.) * dx[0] * 0.5;
+	if ( fVerbose > 1 ) {
+	  cout << " Hit finding width based on dx dy: xHitW=" << xHitW << " yHitW=" << yHitW << endl;
+	}
+      }
+      else {
+	xHitW = 1;//first attempt based on calculation of one case (0.6), it can be a parameter from macro..
+	yHitW = 1;
+	if ( fVerbose > 1 ) {
+	  cout << " Hit finding width as constant: xHitW=" << xHitW << " yHitW=" << yHitW << endl;
+	}
+      }
+
+      if( xHit[0] - xHitW < xHit[1] && xHit[1] < xHit[0] + xHitW ){
+	if( yHit[0] - yHitW < yHit[1] && yHit[1] < yHit[0] + yHitW ){
+	  if ( fVerbose > 1 ) cout << "GOOD HIT" << endl;
+	  
+	  pos.SetXYZ(xHit[0], yHit[0], zHit[0]);
+	  dpos.SetXYZ(dx[0], dy[0], dz[0]);
+	  hitDetId = hitTemp->GetDetectorID() | kGemHit << 21;
+	  
+	  new ((*fHits)[nHits++]) PndGemHit(hitDetId, 
+					    pos, dpos,  
+					    hitTemp->GetCharge(),
+					    hitTemp->GetTimeStamp(),
+					    hitTemp->GetDigiNr(0),hitTemp->GetDigiNr(1), 
+					    hitTemp->GetDr(), hitTemp->GetDp(), 
+					    hitTemp->GetRefIndex());
+
+	  ((PndGemHit*)fHitsTemp->At(ihitTemp))->SetDetectorID(hitDetId);
+	  fTNofHits++;
+	  
+	  pos.SetXYZ(xHit[1], yHit[1], zHit[1]);
+	  dpos.SetXYZ(dx[1], dy[1], dz[1]);
+	  hitDetId = hitTemp2->GetDetectorID() | kGemHit << 21;
+
+	  new ((*fHits)[nHits++]) PndGemHit(hitDetId, 
+					    pos, dpos,  
+					    hitTemp2->GetCharge(),
+					    hitTemp2->GetTimeStamp(),
+					    hitTemp2->GetDigiNr(0),hitTemp2->GetDigiNr(1), 
+					    hitTemp2->GetDr(), hitTemp2->GetDp(), 
+					    hitTemp2->GetRefIndex());
+	  
+	  ((PndGemHit*)fHitsTemp->At(ihitTemp2))->SetDetectorID(hitDetId);
+	  fTNofHits++;
+	  
+	  hitMatch = kTRUE;
+	}
+      }
+      if ( fVerbose > 2 ) cout << "NO MATCHE TO THIS HIT ihitTemp2 = " << ihitTemp2<< endl;
+      if ( hitMatch == kTRUE ) break;
+    }    
+    if ( hitMatch == kFALSE )
+      if ( fVerbose > 1 ) cout << "NO MATCHES OF HIT ihitTemp = " << ihitTemp << endl;
+  }
+}
+// -------------------------------------------------------------------------
+
 
 // // -----   Private method ConfirmHits   --------------------------------------
 // void PndGemFindHits::ConfirmHits() {
@@ -525,12 +738,18 @@ void PndGemFindHits::SortDigis() {
     stationNr = digi->GetStationNr();
     sensorNr  = digi->GetSensorNr();
     iSide     = digi->GetSide();
-    if ( !( sensorNr == 1 && iSide == 0 ) && clust->GetClusterEnd()-clust->GetClusterBeg() <= 1 ) {
-      //      cout << "THE DIGI " << iDigi << ", DET ID = " << digi->GetDetectorId() << " in STATION " << stationNr << " SENSOR " << sensorNr << " SIDE " << iSide << " -> " << clust->GetClusterBeg() << " : " << clust->GetClusterEnd() << endl;
-      continue;
-    }
+
+    //Strange...this case to do continue..?? 
+    //it doesn't exist in apr13, but exists already on trunk r23148. 
+    //(this code is taken from r24527). Comment out ok?
+    //if ( !( sensorNr == 1 && iSide == 0 ) && clust->GetClusterEnd()-clust->GetClusterBeg() <= 1 ) {
+    //  //      cout << "THE DIGI " << iDigi << ", DET ID = " << digi->GetDetectorId() << " in STATION " << stationNr << " SENSOR " << sensorNr << " SIDE " << iSide << " -> " << clust->GetClusterBeg() << " : " << clust->GetClusterEnd() << endl;
+    //  continue;
+    //}
+
     //    cout << "THE DIGI " << iDigi << ", DET ID = " << digi->GetDetectorId() << " in STATION " << stationNr << " SENSOR " << sensorNr << " SIDE " << iSide << endl;
     //    cout << "digi #" << iDigi+1 << " in station " << stationNr << " sensor " << sensorNr << " channel " << digi->GetChannelNr() << endl;
+
     sensor = fDigiPar->GetSensor(stationNr, sensorNr);
     //    cout << "Looking for station " << stationNr << " sensor " << sensorNr << " side " << iSide << endl;
     if (iSide == 0 ) {
@@ -560,6 +779,7 @@ void PndGemFindHits::SortDigis() {
     
 
 // -----   Private method FindHits   ---------------------------------------
+//one should add case of UseCluster to carry information of cluster Beg and End (or?)
 Int_t PndGemFindHits::FindHits(PndGemSensor* sensor, 
 			       set<Int_t>& fSet, set<Int_t>& bSet) {
 
@@ -572,6 +792,7 @@ Int_t PndGemFindHits::FindHits(PndGemSensor* sensor,
   Double_t iChanF = -1;
   Double_t iChanB = -1;
   Int_t nHits = fHits->GetEntriesFast();
+  Int_t nHitsInSensor = 0;
   Double_t xHit;
   Double_t yHit;
   Double_t zHit;
@@ -605,7 +826,6 @@ Int_t PndGemFindHits::FindHits(PndGemSensor* sensor,
 	continue;
       }
       iChanB = digiB->GetChannelNr();
-      
       Int_t sensorDetId = sensor->Intersect(iChanF,iChanB,xHit,yHit,zHit,dx,dy,dr,dp);
       //      cout << "intersecting channels " << iChanF << " and " << iChanB << " gave " << sensorDetId << endl;
       // 	cout << "got the following position from sensor " << sensorDetId << " : (" 
@@ -619,6 +839,7 @@ Int_t PndGemFindHits::FindHits(PndGemSensor* sensor,
 	     << sensor->GetSensorNr() << endl;
       }
       
+      //Don't we use information of Cluster pos Min Max to set error of Hit??
       sigmaX = dx;
       sigmaY = dy;
 
@@ -651,6 +872,8 @@ Int_t PndGemFindHits::FindHits(PndGemSensor* sensor,
       // 			    (digiF->GetCharge()-digiB->GetCharge()));
 
       //      if ( TMath::Abs(digiF->GetCharge()-digiB->GetCharge()) > 0.02+(digiF->GetCharge()+digiB->GetCharge())/200. ||
+      
+      // How critical are they??? may I open more??
       if ( TMath::Abs(digiF->GetCharge()-digiB->GetCharge()) > 5. || 
 	   TMath::Abs(digiF->GetTimeStamp()-digiB->GetTimeStamp()) > 5. )
 	continue;
@@ -662,10 +885,168 @@ Int_t PndGemFindHits::FindHits(PndGemSensor* sensor,
 					dr, dp, refIndex);
 
       fTNofHits++;
+      nHitsInSensor++;
     }
   }
 
-  return 0;
+  //  return 0;
+  return nHitsInSensor;
+}
+// -------------------------------------------------------------------------
+
+
+// -----   Private method FindHits   ---------------------------------------
+//create hits for all combination and store in fHitsTemp..
+//carry information of cluster width to dpos..
+Int_t PndGemFindHits::FindHits2(PndGemSensor* sensor, 
+				set<Int_t>& fSet, set<Int_t>& bSet) {
+  if ( fVerbose > 0 ) cout << "-I- PndGemFindHits::FindHits2()" << endl; 
+
+  Int_t    iType  = sensor->GetType();
+ 
+  Double_t sigmaX = 1., sigmaY = 2., sigmaZ;
+  Double_t sigmaR, sigmaP;
+  
+  Int_t iDigiF = -1;
+  Int_t iDigiB = -1;
+  Double_t iChanF = -1;
+  Double_t iChanB = -1;
+  Double_t iChanFMn,iChanFMx;
+  Double_t iChanBMn,iChanBMx;
+  Int_t nHitsTemp = fHitsTemp->GetEntriesFast();
+  Int_t nHitsInSensor = 0;
+  Double_t xHit;
+  Double_t yHit;
+  Double_t zHit;
+  Double_t dx, dy, dr, dp;
+  TVector3 pos, dpos;
+  PndGemDigi* digiF = NULL;
+  PndGemDigi* digiB = NULL;
+  PndGemCluster* clusterF = NULL;
+  PndGemCluster* clusterB = NULL;
+
+  Double_t xMnMn,xMxMx,xMnMx,xMxMn;
+  Double_t yMnMn,yMxMx,yMnMx,yMxMn;
+
+  set<Int_t>::iterator it1;
+  set<Int_t>::iterator it2;
+
+  for (it1=fSet.begin(); it1!=fSet.end(); it1++) {
+    iDigiF = (*it1);
+    digiF  = (PndGemDigi*) fDigis->At(iDigiF);
+    clusterF = (PndGemCluster*) fDigis->At(iDigiF);
+    if ( ! digiF ) {
+      cout << "-W- " << GetName() << "::FindHits: Invalid digi index " 
+	   << iDigiF << " in front set of sensor " 
+	   << sensor->GetDetectorName() << endl;
+      continue;
+    }
+    iChanF = digiF->GetChannelNr();
+    if ( fUseClusters ) {
+      iChanFMn = clusterF->GetClusterBeg();
+      iChanFMx = clusterF->GetClusterEnd();
+    }
+    for (it2=bSet.begin(); it2!=bSet.end(); it2++) {
+      iDigiB = (*it2);
+      digiB  = (PndGemDigi*) fDigis->At(iDigiB);
+      clusterB = (PndGemCluster*) fDigis->At(iDigiB);
+      if ( ! digiB ) {
+	cout << "-W- " << GetName() << "::FindHits: Invalid digi index " 
+	     << iDigiB << " in front set of sensor " 
+	     << sensor->GetDetectorName() << endl;
+	continue;
+      }
+      iChanB = digiB->GetChannelNr();
+      if ( fUseClusters ) {
+	iChanBMn = clusterB->GetClusterBeg();
+	iChanBMx = clusterB->GetClusterEnd();
+      }
+      
+      Int_t sensorDetId = sensor->Intersect(iChanF,iChanB,xHit,yHit,zHit,dx,dy,dr,dp);      
+      if ( fVerbose > 1 ) {
+	cout << "Intersect chF " << iChanF << " chB " << iChanB << " detID " << sensorDetId << endl;
+       	cout << "at (" << xHit << ", " << yHit << ", " << zHit << ")"
+	     << "dx " << dx << " dy " << dy << " dr " << dr << " dp " << dp
+	     << endl;
+      }
+      if ( sensorDetId == -1 ){
+	if ( fVerbose > 2 ) {
+	  cout << "no intersect.. skip " <<endl; 
+	}	  
+	continue;
+      }
+
+      pos.SetXYZ(xHit, yHit, zHit);      
+      Double_t rad = TMath::Sqrt(xHit*xHit+yHit*yHit);
+      if ( rad < sensor->GetInnerRadius() || rad > sensor->GetOuterRadius() ) {
+	cout << "-W- !! point " << xHit << "," << yHit << " (" << rad << ") is still ok??? at station " 
+	     << sensor->GetStationNr() << "." << sensor->GetSensorNr() << endl;
+      }
+      //store resolution of the hit pos
+      sigmaX = dx;//basically reso of single strip
+      sigmaY = dy;//basically reso of single strip
+      sigmaZ = sensor->GetD();//
+      sigmaR = dr;//basically reso of single strip
+      sigmaP = dp;//basically reso of single strip
+
+      //take channel Beg and End for dpos when Cluster is used
+      //Diagonal lines of the overlaped part are used to extract dx dy and longer one is taken
+      //no check on dr dp, no comparison with original resolution sigmaX sigmaY.. ok?
+      if ( fUseClusters ) {
+	Int_t testMnMn = sensor->Intersect(iChanFMn,iChanBMn,xMnMn,yMnMn,zHit,dx,dy,dr,dp);
+	Int_t testMxMx = sensor->Intersect(iChanFMx,iChanBMx,xMxMx,yMxMx,zHit,dx,dy,dr,dp);
+	Int_t testMnMx = sensor->Intersect(iChanFMn,iChanBMx,xMnMx,yMnMx,zHit,dx,dy,dr,dp);
+	Int_t testMxMn = sensor->Intersect(iChanFMx,iChanBMn,xMxMn,yMxMn,zHit,dx,dy,dr,dp);
+	Double_t dx1 = -1;
+	Double_t dx2 = -1;
+	Double_t dy1 = -1;
+	Double_t dy2 = -1;
+	if( testMnMn != -1 && testMxMx != -1 ) {
+	  dx1 = TMath::Abs( xMnMn - xMxMx );
+	  dy1 = TMath::Abs( yMnMn - yMxMx );
+	  if( testMnMx != -1 && testMxMn != -1 ) {
+	    dx2 = TMath::Abs( xMnMx - xMxMn );
+	    dy2 = TMath::Abs( yMnMx - yMxMn ); 
+	    sigmaX = TMath::Max( dx1, dx2 ) / TMath::Sqrt(12.);
+	    sigmaY = TMath::Max( dy1, dy2 ) / TMath::Sqrt(12.);
+	    if ( fVerbose > 1 ) {
+	      cout << "fUseCluster is TRUE: dx dy of clusters " << sigmaX << " " << sigmaY << " are calculated for Hits"<< endl;
+	    }
+	  }	  
+	}
+      }
+      dpos.SetXYZ(sigmaX, sigmaY, sigmaZ);
+
+      
+      Int_t refIndex = -1;
+      for ( Int_t irf1 = digiF->GetNIndices()-1 ; irf1 >= 0 ; irf1-- ) 
+	for ( Int_t irf2 = digiB->GetNIndices()-1 ; irf2 >= 0 ; irf2-- ) 
+	  if ( digiF->GetIndex(irf1) == digiB->GetIndex(irf2) )
+	    refIndex = digiF->GetIndex(irf1);
+      
+      // Hit bit kGemHit will be put when the Hit matches on both sensor.. or problem?
+      Int_t hitDetId = sensorDetId;
+      //      Int_t hitDetId = sensorDetId | kGemHit << 21;
+      
+      // How critical are they??? may I open more??
+      //   SO FAR COMMENTED !! ok??
+      //       if ( TMath::Abs(digiF->GetCharge()-digiB->GetCharge()) > 5. || 
+      // 	   TMath::Abs(digiF->GetTimeStamp()-digiB->GetTimeStamp()) > 5. )
+      // 	continue;
+      
+      new ((*fHitsTemp)[nHitsTemp++]) PndGemHit(hitDetId, pos, dpos,  
+					(digiF->GetCharge()+digiB->GetCharge())/2.,
+					(digiF->GetTimeStamp()+digiB->GetTimeStamp())/2.,
+					iDigiF, iDigiB, 
+					sigmaR, sigmaP, refIndex);
+
+      fTNofHitsTemp++;
+      nHitsInSensor++;
+    }
+  }
+
+  //  return 0;
+  return nHitsInSensor;
 }
 // -------------------------------------------------------------------------
 
@@ -679,6 +1060,7 @@ void PndGemFindHits::Finish() {
   cout << "-------------------- " << fName.Data() << " : Summary -----------------------" << endl;
   cout << " Events:        " << setw(10) << fTNofEvents << endl;
   cout << " Digis:         " << setw(10) << fTNofDigis  << "    ( " << (Double_t)fTNofDigis/((Double_t)fTNofEvents) << " per event )" << endl;
+  cout << " HitsTemp:          " << setw(10) << fTNofHitsTemp   << "    ( " << (Double_t)fTNofHitsTemp /((Double_t)fTNofEvents) << " per event )" << endl;
   cout << " Hits:          " << setw(10) << fTNofHits   << "    ( " << (Double_t)fTNofHits /((Double_t)fTNofEvents) << " per event )" << endl;
   cout << "                       -->    ( " << (Double_t)fTNofHits  /((Double_t)fTNofEvents)/((Double_t)fDigiPar->GetNSensors()) << " per sensor )" << endl;
   cout << "                       -->    ( " << (Double_t)fTNofHits  /((Double_t)fTNofDigis ) << " per digi )" << endl;

@@ -66,7 +66,11 @@ class PndGemDigitize : public FairTask
 
   void SetRealisticResponse(Bool_t bt=kTRUE) {fRealisticResponse = bt;}
 
-  void RunTimeBased        (Bool_t bt=kTRUE) {fTimeOrderedDigi   = bt;}
+  void RunTimeBased(Bool_t bt=kTRUE) {fTimeOrderedDigi   = bt;}
+
+  Bool_t GetTimeBased()   const { return fTimeOrderedDigi; }
+
+  void SetShowerSigma(Double_t dd) {fSSigma = dd;} //sigam for realistic response
 
  private:
 
@@ -79,6 +83,8 @@ class PndGemDigitize : public FairTask
   Int_t             fNOutside;
   Int_t             fNMulti;
   Int_t             fNDigis;
+
+  Double_t          fSSigma;
 
   Int_t             fTNofEvents;
   Int_t             fTNofPoints;

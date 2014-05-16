@@ -53,6 +53,7 @@ PndGemDigitize::PndGemDigitize()
     fPoints(NULL),
     fDigis(NULL),
     fDigiMatches(NULL),
+    fSSigma(0.03),
     fSaveOutsideHits(kFALSE),
     fHitOutsideArray(NULL),
     fRealisticResponse(kFALSE),
@@ -76,6 +77,7 @@ PndGemDigitize::PndGemDigitize(Int_t iVerbose)
     fPoints(NULL),
     fDigis(NULL),
     fDigiMatches(NULL),
+    fSSigma(0.03),
     fSaveOutsideHits(kFALSE),
     fHitOutsideArray(NULL),
     fRealisticResponse(kFALSE),
@@ -99,6 +101,7 @@ PndGemDigitize::PndGemDigitize(const char* name, Int_t iVerbose)
     fPoints(NULL),
     fDigis(NULL),
     fDigiMatches(NULL),
+    fSSigma(0.03),
     fSaveOutsideHits(kFALSE),
     fHitOutsideArray(NULL),
     fRealisticResponse(kFALSE),
@@ -178,7 +181,8 @@ void PndGemDigitize::Exec(Option_t* opt) {
 
 // -----   Private method DigitizeEvent  --------------------------------------------
 void PndGemDigitize::DigitizeEvent() {
-
+  if ( fVerbose > 0 ) cout << "-I- PndGemDigitize::DigitizeEvent()" << endl;
+  
   PndGemSensor* sensor;
   
   Int_t nofHitsOutside = 0;
@@ -265,12 +269,21 @@ void PndGemDigitize::DigitizeEvent() {
 
 // -----   Private method DigitizeRealisticEvent  --------------------------------------------
 void PndGemDigitize::DigitizeRealisticEvent() {
+  if ( fVerbose > 0 ) cout << "-I- PndGemDigitize::DigitizeRealisticEvent()" << endl; 
   //  cout << "DRE " << fTNofEvents << endl;
-
-  Double_t showerSigma =   0.1; // radius of smearing, in cm
+  
+  //Double_t showerSigma =   0.1; // radius of smearing, in cm  
+  Double_t showerSigma =   0.03; // radius of smearing, in cm (based on Andrii's sim)
+  showerSigma = fSSigma;
   Double_t totalSignal = 100.;  // total signal strength
   Double_t sigMult = 1.e6;
-
+  
+  if ( fVerbose > 1 ) {
+    cout << " showerSigma=" << showerSigma  
+	 << " sigMult=" << sigMult
+	 << endl;
+  }
+  
   PndGemSensor* sensor;
   
   Int_t nofHitsOutside = 0;
@@ -346,9 +359,9 @@ void PndGemDigitize::DigitizeRealisticEvent() {
     
     Int_t sensorDetId = sensor->GetDetectorId();
     Double_t rectSig  = 100.;
-
-    Double_t channelInd = sensor->GetChannel(locPosIn[0],locPosIn[1],0,stripWidth);
-    Int_t channelNumber = (Int_t)channelInd;
+    
+    //Double_t channelInd = sensor->GetChannel(locPosIn[0],locPosIn[1],0,stripWidth);
+    //Int_t channelNumber = (Int_t)channelInd;
 
     //    cout << "channelNumber = " << channelNumber << " / channelInd = " << channelInd << " / stripWidth = " << stripWidth << endl;
 
@@ -356,8 +369,8 @@ void PndGemDigitize::DigitizeRealisticEvent() {
     //    SimulateGaussianResponse(sensor,0,currentPndGemMCPoint,showerSigma,rectSig,iPoint);    
     SimulateGaussianResponse(sensor,0,currentPndGemMCPoint,showerSigma,sigMult*currentPndGemMCPoint->GetEnergyLoss(),iPoint);
 
-    channelInd = sensor->GetChannel(locPosIn[0],locPosIn[1],1,stripWidth);
-    channelNumber = (Int_t)channelInd;
+    //channelInd = sensor->GetChannel(locPosIn[0],locPosIn[1],1,stripWidth);
+    //channelNumber = (Int_t)channelInd;
 
     //    cout << "channelNumber = " << channelNumber << " / channelInd = " << channelInd << " / stripWidth = " << stripWidth << endl;
 

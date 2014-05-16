@@ -123,7 +123,7 @@ class PndGemSensor : public TNamed
   Int_t GetChannel(Double_t x, Double_t y, Int_t iSide);
 
   Int_t GetChannel2(Double_t x, Double_t y, Int_t iSide, Double_t& feeDist); 
-  Double_t GetChannel(Double_t x, Double_t y, Int_t iSide, Double_t& stripWidth);
+  //Double_t GetChannel(Double_t x, Double_t y, Int_t iSide, Double_t& stripWidth);
  
   /** Test whether a coordinate pair (x,y) in global coordinates is
    ** inside the sensor **/
@@ -142,6 +142,7 @@ class PndGemSensor : public TNamed
    Double_t GetStripOrientation(Double_t x, Double_t y, Int_t iSide);
    Double_t GetDistance(Int_t iSide, Double_t chan1, Double_t chan2);
    Int_t    GetDistance(Int_t iSide, Int_t chanMin, Int_t chanMax, Int_t chanTest);
+   Double_t GetDistance2(Int_t iSide, Double_t chan1, Double_t chan2);
    
    // returns the part of sensor in which chan is located.
    // for most sensors it should return -1

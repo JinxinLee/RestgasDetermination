@@ -42,6 +42,8 @@ struct DigiCluster {
   Double_t              cluTDC;
   Double_t              cluADC;
   Double_t              cluPos;
+  Int_t                 cluPMn;
+  Int_t                 cluPMx;
   Double_t              cluMPs;
   Double_t              cluMVl;
 };
@@ -103,26 +105,39 @@ class PndGemFindClusters : public FairTask
   /** Sort digis timewise  **/
   Int_t SortDigis();
 
+  //  /** Find clusters  **/
+  //void FindClusters();//not used
 
-  /** Find clusters  **/
-  void FindClusters();
-
+  /** Look for clusters **/
+  Int_t CreateClusters();
 
   /** Write clusters  **/
   Int_t WriteClusters();
 
+  // /** Compare digi to clusters **/
+  //Bool_t CompareDigiToClusters(Int_t digiNumber);
 
-  /** Compare digi to clusters **/
-  Bool_t CompareDigiToClusters(Int_t digiNumber);
-
-
-  /** Analyze clusters **/
-  void AnalyzeClusters();
+  /** Compare digi to digis **/
+  Bool_t CompareDigiToClustersDigis(Int_t digiNumber);
 
 
-  /** Clear clusters **/
-  void ClearClusters();
+  //  /** Analyze clusters **/
+  //void AnalyzeClusters();//not used
 
+
+  ///** Clear clusters **/
+  //void ClearClusters();//not used
+
+  //void ClearClusters2();
+
+  void SortClusters();
+  void SortCluster(Int_t clus);
+  void PrintClusters();
+  void PrintCluster (Int_t clus);
+
+  void JoinTwoClusters(Int_t clus1, Int_t clus2);
+
+  void AddDigiToCluster(Int_t digiNr, Int_t clusNr);
 
   /** Finish at the end of each event **/
   virtual void Finish();
