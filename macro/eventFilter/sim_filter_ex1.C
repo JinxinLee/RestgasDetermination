@@ -1,0 +1,226 @@
+// Example for usage of event filter in combination with dpm direct
+// Martin Galuska, Katja Kleeberg
+
+
+sim_filter_ex1(Int_t nEvents = 5, TString  SimEngine ="TGeant3", Float_t mom = 6.231552)
+{
+	//-----User Settings:-----------------------------------------------
+	TString  OutputFile     ="sim_filter_ex1.root";
+	TString  ParOutputfile  ="simparams.root";
+	TString  MediaFile      ="media_pnd.geo";
+	gDebug                  = 0;
+	TString digiFile        = "all.par"; //The emc run the hit producer directly
+	// choose your event generator
+	Bool_t UseEvtGen	      =kFALSE;
+	Bool_t UseEvtGenDirect      =kFALSE;
+	Bool_t UseDpm 	      =kTRUE;
+	Bool_t UseBoxGenerator      =kFALSE;
+
+	Double_t BeamMomentum = 0.; // beam momentum ONLY for the scaling of the dipole field.
+	if (UseBoxGenerator)
+	{
+		BeamMomentum   =15.0; // ** change HERE if you run Box generator
+	}
+	else
+	{
+		BeamMomentum = mom;  // for DPM/EvtGen BeamMomentum is always = mom
+	}
+
+	//------------------------------------------------------------------
+	TStopwatch timer;
+	timer.Start();
+	gRandom->SetSeed();
+
+	// Create the Simulation run manager--------------------------------
+	FairRunSim *fRun = new FairRunSim();
+	fRun->SetName(SimEngine.Data() );
+	fRun->SetOutputFile(OutputFile.Data());
+	fRun->SetWriteRunInfoFile(kFALSE);
+	fRun->SetBeamMom(BeamMomentum);
+	fRun->SetMaterials(MediaFile.Data());
+	FairRuntimeDb *rtdb=fRun->GetRuntimeDb();
+
+	// Set the parameters
+	//-------------------------------
+	TString allDigiFile = gSystem->Getenv("VMCWORKDIR");
+	allDigiFile += "/macro/params/";
+	allDigiFile += digiFile;
+
+
+	//-------Set the parameter output --------------------
+	FairParAsciiFileIo* parIo1 = new FairParAsciiFileIo();
+	parIo1->open(allDigiFile.Data(),"in");
+	rtdb->setFirstInput(parIo1);
+
+	//---------------------Set Parameter output      ----------
+	Bool_t kParameterMerged=kTRUE;
+	FairParRootFileIo* output=new FairParRootFileIo(kParameterMerged);
+	output->open(ParOutputfile.Data());
+	rtdb->setOutput(output);
+
+	// Create and add detectors
+
+	//-------------------------  CAVE      -----------------
+
+	FairModule *Cave= new PndCave("CAVE");
+	Cave->SetGeometryFileName("pndcave.geo");
+	fRun->AddModule(Cave);
+	//-------------------------  Magnet   -----------------
+	FairModule *Magnet= new PndMagnet("MAGNET");
+	//Magnet->SetGeometryFileName("FullSolenoid_V842.root");
+	Magnet->SetGeometryFileName("FullSuperconductingSolenoid_v831.root");
+	fRun->AddModule(Magnet);
+	FairModule *Dipole= new PndMagnet("MAGNET");
+	Dipole->SetGeometryFileName("dipole.geo");
+	fRun->AddModule(Dipole);
+	//-------------------------  Pipe     -----------------
+	FairModule *Pipe= new PndPipe("PIPE");
+	Pipe->SetGeometryFileName("beampipe_201309.root");
+	fRun->AddModule(Pipe);
+	//-------------------------  STT       -----------------
+	FairDetector *Stt= new PndStt("STT", kTRUE);
+	Stt->SetGeometryFileName("straws_skewed_blocks_35cm_pipe.geo");
+	fRun->AddModule(Stt);
+	//-------------------------  MVD       -----------------
+	FairDetector *Mvd = new PndMvdDetector("MVD", kTRUE);
+	Mvd->SetGeometryFileName("Mvd-2.1_FullVersion.root");
+	fRun->AddModule(Mvd);
+	//-------------------------  GEM       -----------------
+	FairDetector *Gem = new PndGemDetector("GEM", kTRUE);
+	Gem->SetGeometryFileName("gem_3Stations.root");
+	fRun->AddModule(Gem);
+	//-------------------------  EMC       -----------------
+	PndEmc *Emc = new PndEmc("EMC",kTRUE);
+	Emc->SetGeometryVersion(1);
+	Emc->SetStorageOfData(kFALSE);
+	fRun->AddModule(Emc);
+	//-------------------------  SCITIL    -----------------
+	FairDetector *SciT = new PndSciT("SCIT",kTRUE);
+	SciT->SetGeometryFileName("barrel-SciTil_07022013.root");
+	fRun->AddModule(SciT);
+	//-------------------------  DRC       -----------------
+	PndDrc *Drc = new PndDrc("DIRC", kTRUE);
+	Drc->SetGeometryFileName("dirc_l0_p0_updated.root");
+	Drc->SetRunCherenkov(kFALSE);
+	fRun->AddModule(Drc);
+	//-------------------------  DISC      -----------------
+	PndDsk* Dsk = new PndDsk("DSK", kTRUE);
+	Dsk->SetStoreCerenkovs(kFALSE);
+	Dsk->SetStoreTrackPoints(kFALSE);
+	fRun->AddModule(Dsk);
+	//-------------------------  MDT       -----------------
+	PndMdt *Muo = new PndMdt("MDT",kTRUE);
+	Muo->SetBarrel("fast");
+	Muo->SetEndcap("fast");
+	Muo->SetMuonFilter("fast");
+	Muo->SetForward("fast");
+	Muo->SetMdtMagnet(kTRUE);
+	Muo->SetMdtMFIron(kTRUE);
+	fRun->AddModule(Muo);
+	//-------------------------  FTS       -----------------
+	FairDetector *Fts= new PndFts("FTS", kTRUE);
+	Fts->SetGeometryFileName("fts.geo");
+	fRun->AddModule(Fts);
+	//-------------------------  FTOF      -----------------
+	FairDetector *FTof = new PndFtof("FTOF",kTRUE);
+	FTof->SetGeometryFileName("ftofwall.root");
+	fRun->AddModule(FTof);
+	//-------------------------  RICH       ----------------
+	FairDetector *Rich= new PndRich("RICH",kFALSE);
+	Rich->SetGeometryFileName("rich_v2_shift.geo");
+	fRun->AddModule(Rich);
+
+	// Create and Set Event Generator
+	//-------------------------------
+	FairFilteredPrimaryGenerator* primGen = new FairFilteredPrimaryGenerator();
+	fRun->SetGenerator(primGen);
+
+	if(UseBoxGenerator){	// Box Generator
+		FairBoxGenerator* boxGen = new FairBoxGenerator(22, 5); // 13 = muon; 1 = multipl.
+		boxGen->SetPRange(mom,mom); // GeV/c
+		boxGen->SetPhiRange(0., 360.); // Azimuth angle range [degree]
+		boxGen->SetThetaRange(0., 90.); // Polar angle in lab system range [degree]
+		boxGen->SetXYZ(0., 0., 0.); // cm
+		primGen->AddGenerator(boxGen);
+	}
+	if(UseDpm){
+		PndDpmDirect *Dpm= new PndDpmDirect(mom,1);
+		primGen->AddGenerator(Dpm);
+	}
+	if(UseEvtGen){
+		TString  EvtInput =gSystem->Getenv("VMCWORKDIR");
+		EvtInput+="/input/psi2s_jpsi2pi_1k.evt";
+		FairEvtGenGenerator* evtGen = new FairEvtGenGenerator(EvtInput.Data());
+		primGen->AddGenerator(evtGen);
+	}
+	if(UseEvtGenDirect){
+		TString  EvtInput =gSystem->Getenv("VMCWORKDIR");
+		EvtInput+="/macro/run/psi2s_Jpsi2pi_Jpsi_mumu.dec";
+		PndEvtGenDirect *EvtGen = new PndEvtGenDirect("pbarpSystem", EvtInput.Data(), mom);
+		EvtGen->SetStoreTree(kTRUE);
+		primGen->AddGenerator(EvtGen);
+	}
+
+
+	// now add the event filters
+
+	// set the maximal number of attempts to find an event with matching properties
+	primGen->SetFilterMaxTries(10); // for testing small number, for real produrction set usually to 9999999 or something very big
+	primGen->SetVerbose(); // highest commenting level of the FairPrimaryGenerator
+
+	//veto filter
+	FairEvtFilterOnCounts* vetoFilter= new FairEvtFilterOnCounts("vetoFilter");
+//	vetoFilter->SetVerbose();
+	vetoFilter->AndMinCharge(4,FairEvtFilter::kCharged);// veto events with >=4 charged particles
+	primGen->AddVetoFilter(vetoFilter);// veto filters have higher priority than normal filters
+
+	//filter 1
+	FairEvtFilterOnCounts* pionFilter = new FairEvtFilterOnCounts("pionFilter");
+//	pionFilter->SetVerbose();// highest commenting level of the FairEvtFilterOnCounts
+	pionFilter->AndMinMaxPdgCodes(2,5,211,-211);// min. 2 and max. 5 pions
+	pionFilter->AndMaxAllParticles(10);// max. 10 particles in total
+	//pionFilter->AndMinMaxCharge(3,10,FairEvtFilterOnCounts::kPlus);// min. 3 and max. 10 pos. charged
+	//pionFilter->AndPzRange(0.,0.5);//transverse momentum within [0.,0.5] GeV/c
+	primGen->AndFilter(pionFilter);// add filter to fFilterList with logical operation AND (this is the first filter, so AND and OR would give the same result)
+
+
+	//filter 2
+	FairEvtFilterOnCounts* angleMomentumFilter = new FairEvtFilterOnCounts("angleMomentumFilter");
+//	angleMomentumFilter->SetVerbose();//highest commenting level of the FairEvtFilterOnCounts
+	angleMomentumFilter->AndPhiRange(0.,10.);//phi within [0.,10.]°
+	angleMomentumFilter->AndPzRange(0.,1.5);
+	angleMomentumFilter->AndMinAllParticles(3);
+	primGen->AndNotFilter(angleMomentumFilter);//add filter to previous filters with logical operations AND NOT
+
+
+
+
+	//---------------------Create and Set the Field(s)----------
+	PndMultiField *fField= new PndMultiField("AUTO");
+	fRun->SetField(fField);
+
+	// EMC Hit producer
+	//-------------------------------
+	PndEmcHitProducer* emcHitProd = new PndEmcHitProducer();
+	fRun->AddTask(emcHitProd);
+
+	//-------------------------  Initialize the RUN  -----------------
+	fRun->Init();
+	//-------------------------  Run the Simulation  -----------------
+	fRun->Run(nEvents);
+	primGen->WriteEvtFilterStatsToRootFile();
+	//-------------------------  Save the parameters -----------------
+	rtdb->saveOutput();
+	//------------------------Print some info and exit----------------
+	timer.Stop();
+	Double_t rtime = timer.RealTime();
+	Double_t ctime = timer.CpuTime();
+	printf("RealTime=%f seconds, CpuTime=%f seconds\n",rtime,ctime);
+
+	cout << " Test passed" << endl;
+	cout << " All ok " << endl;
+
+	//exit(0);
+
+}  
+
