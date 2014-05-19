@@ -47,6 +47,7 @@ PndGemEmpty.cxx
 PndGemFindClusters.cxx
 PndGemFindClustersTB.cxx
 PndGemFindHits.cxx
+PndGemFindHitsQA.cxx
 PndGemFindHitsAna.cxx
 PndGemFindTracks.cxx
 PndGemGeoPar.cxx

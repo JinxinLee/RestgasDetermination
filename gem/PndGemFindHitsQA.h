@@ -59,6 +59,11 @@ class PndGemFindHitsQA : public FairTask
   /** Array of reconstructed hits **/
   TClonesArray* fGemHitArray;
 
+  /** Array of GEM-related data **/
+  TClonesArray* fGemData[10];
+  Int_t         fGemDataPointer[1000];
+  Int_t         fGemPointNumber;
+
   /** Event counter **/
   Int_t fNofEvents;  ///< event counter
   
@@ -92,12 +97,24 @@ class PndGemFindHitsQA : public FairTask
  
   TH1F* fhCloseHits        [4][2];
 
+  TH2F* fhTrueMatchDiXYPerSt[4][2];
+  TH1F* fhTrueMatchDistPerSt[4][2];
+
+  TH2F* fhTrueMatchDiXY;
+  TH1F* fhTrueMatchDist;
+  TH1F* fhTrueMatchValue;
+  TH2F* fhTrueMatchDistValue;
+
+  TH1F* fhTrueMatchNofPerHit;
+  TH1F* fhTrueMatchNofPerPoint;
+
   void CreateHistos();
+  void DivideHistos(TH1* hist1, TH1* hist2, TH1* hist3);
+
+  Int_t GetPointVector(Int_t arrayId, Int_t entryId, std::vector<Int_t>& pointVector, Bool_t printInfo = kFALSE);
 
   /** Get parameter containers **/
   virtual void SetParContainers();
-
-  void DivideHistos(TH1* hist1, TH1* hist2, TH1* hist3);
 
   /** Finish **/
   virtual void Finish();

@@ -23,6 +23,7 @@
 #pragma link C++ class PndGemFindClusters+;
 #pragma link C++ class PndGemFindClustersTB+;
 #pragma link C++ class PndGemFindHits+;
+#pragma link C++ class PndGemFindHitsQA+;
 #pragma link C++ class PndGemFindHitsAna+;
 #pragma link C++ class PndGemFindTracks+;
 #pragma link C++ class PndGemGeoPar+;

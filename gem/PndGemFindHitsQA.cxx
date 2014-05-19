@@ -14,6 +14,7 @@
 #include "FairRootManager.h"
 // Pnd includes
 #include "PndGemMCPoint.h"
+#include "PndGemDigi.h"
 #include "PndGemDigiPar.h"
 #include "PndTrack.h"
 #include "PndTrackCand.h"
@@ -32,20 +33,26 @@
 using std::cout;
 using std::endl;
 using std::map;
+using std::pair;
 
 // -----   Default constructor   ------------------------------------------
-PndGemFindHitsQA::PndGemFindHitsQA() : FairTask("GEM Find Hits QA", 1) {
-  fDigiPar       = NULL;
-  fMCPointArray  = NULL;
-  fGemHitArray   = NULL;
-  fNofEvents    = 0;
+PndGemFindHitsQA::PndGemFindHitsQA() 
+  : FairTask("GEM Find Hits QA", 1) 
+  ,fDigiPar       (NULL)
+  ,fMCPointArray  (NULL)
+  ,fGemHitArray   (NULL)
+  ,fNofEvents     (0)
+  ,fHistoList     (NULL)
+  ,fHistPlaneDivs (0.0)
+  ,fPointEffDist  (0.1)
+  ,fhTrueMatchDiXY        (NULL)
+  ,fhTrueMatchDist        (NULL)
+  ,fhTrueMatchValue       (NULL)
+  ,fhTrueMatchDistValue   (NULL)
 
-  fHistoList = NULL;
-
-  fHistPlaneDivs = 0;
-
-  fPointEffDist = 0.1;
-
+  ,fhTrueMatchNofPerHit   (NULL)
+  ,fhTrueMatchNofPerPoint (NULL)
+{
   for ( Int_t istat = 0 ; istat < 4 ; istat++ ) {
     for ( Int_t isens = 0 ; isens < 2 ; isens++ ) {
       fHistWidth[istat][isens]=0.;
@@ -69,9 +76,10 @@ PndGemFindHitsQA::PndGemFindHitsQA() : FairTask("GEM Find Hits QA", 1) {
       fhHitRadFakeProb   [istat][isens] = NULL;
       fhHitMultipleRate  [istat][isens] = NULL;
       fhCloseHits        [istat][isens] = NULL;
+      fhTrueMatchDiXYPerSt[istat][isens] = NULL;
+      fhTrueMatchDistPerSt[istat][isens] = NULL;
     }
   }
-
 }
 // -------------------------------------------------------------------------
 
@@ -79,18 +87,22 @@ PndGemFindHitsQA::PndGemFindHitsQA() : FairTask("GEM Find Hits QA", 1) {
 
 // -----   Standard constructor   ------------------------------------------
 PndGemFindHitsQA::PndGemFindHitsQA(Int_t iVerbose) 
-  : FairTask("GEM Find Hits QA", iVerbose) {
-  fDigiPar       = NULL;
-  fMCPointArray  = NULL;
-  fGemHitArray   = NULL;
-  fNofEvents    = 0;
+  : FairTask("GEM Find Hits QA", iVerbose)
+  ,fDigiPar       (NULL)
+  ,fMCPointArray  (NULL)
+  ,fGemHitArray   (NULL)
+  ,fNofEvents     (0)
+  ,fHistoList     (NULL)
+  ,fHistPlaneDivs (0.0)
+  ,fPointEffDist  (0.1)
+  ,fhTrueMatchDiXY        (NULL)
+  ,fhTrueMatchDist        (NULL)
+  ,fhTrueMatchValue       (NULL)
+  ,fhTrueMatchDistValue   (NULL)
 
-  fHistoList = NULL;
-
-  fHistPlaneDivs = 0;
-
-  fPointEffDist = 0.1;
-
+  ,fhTrueMatchNofPerHit   (NULL)
+  ,fhTrueMatchNofPerPoint (NULL)
+{ 
   for ( Int_t istat = 0 ; istat < 4 ; istat++ ) {
     for ( Int_t isens = 0 ; isens < 2 ; isens++ ) {
       fHistWidth[istat][isens]=0.;
@@ -114,6 +126,8 @@ PndGemFindHitsQA::PndGemFindHitsQA(Int_t iVerbose)
       fhHitRadFakeProb   [istat][isens] = NULL;
       fhHitMultipleRate  [istat][isens] = NULL;
       fhCloseHits        [istat][isens] = NULL;
+      fhTrueMatchDiXYPerSt[istat][isens] = NULL;
+      fhTrueMatchDistPerSt[istat][isens] = NULL;
     }
   }
 }
@@ -169,8 +183,22 @@ InitStatus PndGemFindHitsQA::Init() {
   cout << "-I- " << fName.Data() << "::Init(). There are " << fDigiPar->GetNStations() << " GEM stations." << endl;
   cout << "-I- " << fName.Data() << "::Init(). Initialization succesfull." << endl;
 
+  TList* branchNames = FairRootManager::Instance()->GetBranchNameList();
+  
+  Int_t nofGemBranches = 0;
+  fGemPointNumber = -1;
+  for (int i = 0; i < branchNames->GetEntries(); i++){
+    TObjString* branchName = (TObjString*)branchNames->At(i);
+    if ( !branchName->GetString().BeginsWith("GEM") ) continue;
+    if ( branchName->GetString() == "GEMPoint" ) fGemPointNumber = i;
+    fGemData[nofGemBranches] = (TClonesArray*) ioman->GetObject(branchName->GetString().Data());
+    fGemDataPointer[i] = nofGemBranches;
+    cout << "GEM Data [" << nofGemBranches << "] = " << branchName->GetString().Data() << " referred to as " << i << (fGemPointNumber==i?" ***":"") << endl;
+    nofGemBranches++;    
+  }
+  
   CreateHistos();
-
+  
   return kSUCCESS;
 }
 // -------------------------------------------------------------------------
@@ -212,6 +240,18 @@ void PndGemFindHitsQA::Exec(Option_t* opt) {
   PndGemMCPoint* gemPnt = NULL;
 
 
+  //// T E M P O R A R Y
+  if ( fNofEvents == 2 ) {
+    const Int_t nofDigi = 5;
+    Int_t digiArray = 5;
+    Int_t digiIndex[nofDigi] = {209,210,211,1191,1192};
+    for ( Int_t idigi = 0 ; idigi < nofDigi ; idigi++ ) {
+      PndGemDigi* tempDigi = (PndGemDigi*)fGemData[fGemDataPointer[digiArray]]->At(digiIndex[idigi]);
+      cout << "DIGI " << digiIndex[idigi] << " AT " << tempDigi->GetChannelNr() << " in " << tempDigi->GetDetectorId() << endl;
+    }
+  }
+  //// T E M P O R A R Y
+
   //  cout << "---------------------------------" << endl;
   //  cout << "gem " << fHistWidth[istat][isens] << " wi
 
@@ -240,8 +280,10 @@ void PndGemFindHitsQA::Exec(Option_t* opt) {
       Double_t p2hDistSq = (pntX-gemHit->GetX())*(pntX-gemHit->GetX())+(pntY-gemHit->GetY())*(pntY-gemHit->GetY());
       if ( distToClosestHit > p2hDistSq )
 	distToClosestHit = p2hDistSq;
-      if ( p2hDistSq < fPointEffDist*fPointEffDist ) 
+      if ( p2hDistSq < fPointEffDist*fPointEffDist ) {
+	//	cout << "POINT " << ipnt << " AND HIT " << ihit << " ARE CLOSE!!!" << endl;
 	nofCloseHits++;
+      }
     }
     //    fhPointClosest     [station][sensor]->Fill(pntX,pntY,distToClosestHit);
     fhCloseHits        [station][sensor]->Fill(nofCloseHits);
@@ -290,6 +332,140 @@ void PndGemFindHitsQA::Exec(Option_t* opt) {
     }
   }
 
+  std::vector<std::pair<Int_t,Int_t> > mcMatchPointHit;
+
+  Bool_t printMCMatching = kFALSE;
+
+  for ( Int_t ihit = 0 ; ihit < nofGemHits ; ihit++ ) {
+    gemHit = (PndGemHit*)fGemHitArray->At(ihit);
+    if ( printMCMatching ) 
+      cout << "---> hit " << ihit << " has " << gemHit->GetNLinks() << " links" << endl;
+
+    if ( gemHit->GetNLinks() != 2 ) {
+      cout << "THERE ARE " << gemHit->GetNLinks() << " FOR HIT " << ihit << " IN EVENT " << fNofEvents << endl;
+    }
+    if ( gemHit->GetNLinks() == 2 ) {
+      Int_t maxPnt0 = -1, maxPnt1 = -1;
+      std::vector<Int_t> pointVector0;
+      std::vector<Int_t> pointVector1;
+      GetPointVector(gemHit->GetLink(0).GetType(),gemHit->GetLink(0).GetIndex(),pointVector0,printMCMatching);
+      GetPointVector(gemHit->GetLink(1).GetType(),gemHit->GetLink(1).GetIndex(),pointVector1,printMCMatching); 
+      if ( printMCMatching ) 
+	cout << "VECT0: (" << gemHit->GetLink(0).GetIndex() << ") " << flush;
+      for ( Int_t ipnt = 0 ; ipnt < pointVector0.size() ; ipnt++ ) {
+	if ( printMCMatching ) 
+	  cout << pointVector0[ipnt] << " . " << flush;
+	if ( maxPnt0 < pointVector0[ipnt] ) {
+	  maxPnt0 = pointVector0[ipnt];
+	}
+      }
+      if ( printMCMatching ) 
+	cout << "\b\b" << endl; 
+      if ( printMCMatching ) 
+	cout << "VECT1: (" << gemHit->GetLink(1).GetIndex() << ") " << flush;
+      for ( Int_t ipnt = 0 ; ipnt < pointVector1.size() ; ipnt++ ) {
+	if ( printMCMatching ) 
+	  cout << pointVector1[ipnt] << " . " << flush;
+	if ( maxPnt1 < pointVector1[ipnt] ) {
+	  maxPnt1 = pointVector1[ipnt];
+	}
+      }
+      if ( printMCMatching ) 
+	cout << "\b\b" << endl;
+      if ( printMCMatching ) 
+	cout << "highest points are " << maxPnt0 << " , " << maxPnt1 << endl;
+      std::vector<Int_t> countPointV0(maxPnt0+1,0);
+      std::vector<Int_t> countPointV1(maxPnt1+1,0);
+      for ( Int_t ipnt = 0 ; ipnt < pointVector0.size() ; ipnt++ ) {
+	++countPointV0[pointVector0[ipnt]];
+      }
+      for ( Int_t ipnt = 0 ; ipnt < pointVector1.size() ; ipnt++ ) {
+	++countPointV1[pointVector1[ipnt]];
+      }
+      if ( maxPnt0 > maxPnt1 )
+	maxPnt0 = maxPnt1;
+      for ( Int_t ipnt = 0 ; ipnt < maxPnt0+1 ; ipnt++ ) {
+	if ( printMCMatching ) 
+	  cout << ipnt << " - " << countPointV0[ipnt] << " ? " << countPointV1[ipnt] << endl;
+	if ( countPointV0[ipnt] > 0 ) {
+	  if ( countPointV1[ipnt] > 0 ) {
+	    Double_t tempMatch = 100.*Double_t(countPointV0[ipnt]*countPointV1[ipnt])/(Double_t(pointVector0.size()*pointVector1.size()));
+	    if ( printMCMatching ) 
+	      cout << "HIT " << ihit << " IS " << countPointV0[ipnt]*countPointV1[ipnt] << " / " << pointVector0.size()*pointVector1.size() 
+		   << " ( " << tempMatch
+		   << " % ) POINT " << ipnt << endl;
+	    pair<Int_t, Int_t> a (ipnt,ihit);
+	    mcMatchPointHit.push_back(a);
+	    
+	    gemPnt = (PndGemMCPoint*)fMCPointArray->At(ipnt);
+	    Double_t pntX    = (gemPnt->GetX()+gemPnt->GetXOut())/2.;
+	    Double_t pntY    = (gemPnt->GetY()+gemPnt->GetYOut())/2.;
+	    
+	    Int_t    station = gemHit->GetStationNr()-1;
+	    Int_t    sensor  = gemHit->GetSensorNr()-1;
+	    fhTrueMatchDiXYPerSt[station][sensor]->Fill(pntX-gemHit->GetX(),
+							pntY-gemHit->GetY());
+	    fhTrueMatchDiXY                      ->Fill(pntX-gemHit->GetX(),
+							pntY-gemHit->GetY());
+	    Double_t tempDist = TMath::Sqrt((pntX-gemHit->GetX())*(pntX-gemHit->GetX())+
+					    (pntY-gemHit->GetY())*(pntY-gemHit->GetY()));
+	    if ( tempDist > 5. ) {
+	      cout << "Event " << fNofEvents << ": point " << ipnt 
+		   << " at ( " << gemPnt->GetX() << "," << gemPnt->GetY() << "," << gemPnt->GetZ() << " )" 
+		   << " to ( " << gemPnt->GetXOut() << "," << gemPnt->GetYOut() << "," << gemPnt->GetZOut() << " )" << endl
+		   << "                hit " << ihit << " at ( " <<  gemHit->GetX() << "," << gemHit->GetY() << "," << gemHit->GetZ() << " )" << endl
+		   << "          ---> dist " << tempDist << " with match value = " << tempMatch << endl;
+	    }
+	    fhTrueMatchDistPerSt[station][sensor]->Fill(tempDist);
+	    fhTrueMatchDist                      ->Fill(tempDist);
+	    fhTrueMatchValue                     ->Fill(tempMatch);
+	    fhTrueMatchDistValue                 ->Fill(tempMatch,tempDist);
+	  }
+	}
+      }
+      //   cout << "LINK " << ilink << " -> Entry = " << gemHit->GetLink(ilink).GetEntry() << endl;
+      //   cout << "LINK " << ilink << " -> Type  = " << gemHit->GetLink(ilink).GetType() << endl;
+      //   cout << "LINK " << ilink << " -> Index = " << gemHit->GetLink(ilink).GetIndex() << endl;
+    }
+  }
+  if ( printMCMatching ) 
+    cout << "True MC Matches betwen points and hits: " << mcMatchPointHit.size() << endl;
+
+  std::vector<Int_t> nofMatchesPerHit  (nofGemHits,0);
+  std::vector<Int_t> nofMatchesPerPoint(nofGemPnts,0);
+  std::vector<std::pair<Int_t,Int_t> >::iterator iter;
+  for ( iter = mcMatchPointHit.begin() ; iter != mcMatchPointHit.end() ; iter++ ) {
+    ++nofMatchesPerPoint[iter->first];
+    ++nofMatchesPerHit  [iter->second];
+  }
+  for ( Int_t ihit = 0 ; ihit < nofGemHits ; ihit++ ) {
+    fhTrueMatchNofPerHit->Fill(nofMatchesPerHit[ihit]);
+  }
+  for ( Int_t ipnt = 0 ; ipnt < nofGemPnts ; ipnt++ ) {
+    fhTrueMatchNofPerPoint->Fill(nofMatchesPerPoint[ipnt]);
+  }
+}
+// ------------------------------------------------------------
+
+// -----   Private method GetPointVector, recurrence function  --------------------------------------------
+Int_t PndGemFindHitsQA::GetPointVector(Int_t arrayId, Int_t entryId, std::vector<Int_t>& pointVector, Bool_t printInfo) {
+  if ( printInfo ) {
+    for ( Int_t itemp = 0 ; itemp < 10 - arrayId ; itemp++ ) cout << " " << flush;
+    cout << "GetPointVector(" << arrayId << ", " << entryId << ")" << endl;
+  }
+  if ( arrayId == fGemPointNumber ) { 
+    pointVector.push_back(entryId);
+    return pointVector.size();
+  }
+  if ( arrayId == 0 ) { // this is probably MCTrack!
+    return 0;
+  }
+
+  FairMultiLinkedData* tempData = (FairMultiLinkedData*)fGemData[fGemDataPointer[arrayId]]->At(entryId);
+  for ( Int_t ilink = 0 ; ilink < tempData->GetNLinks() ; ilink++ ) {
+    GetPointVector(tempData->GetLink(ilink).GetType(),tempData->GetLink(ilink).GetIndex(),pointVector);
+  }
+  return pointVector.size();
 }
 // ------------------------------------------------------------
 
@@ -382,6 +558,13 @@ void PndGemFindHitsQA::CreateHistos() {
       fhCloseHits        [istat][isens] = new TH1F(Form("fhCloseHits_s%d_s%d",istat,isens),
 						   Form("Number of close hits per point (point-hit %.2f cm), station %d, sensor %d",fPointEffDist,istat,isens),
 						   101,-0.5,100.5);
+      fhTrueMatchDiXYPerSt[istat][isens] = new TH2F(Form("fhTrueMatchDiXYPerSt_s%d_s%d",istat,isens),
+						    Form("True matches: difference in XY between points and hits, station %d, sensor %d",istat,isens),
+						    200,-1.,1.,
+						    200,-1.,1.);
+      fhTrueMatchDistPerSt[istat][isens] = new TH1F(Form("fhTrueMatchDistPerSt_s%d_s%d",istat,isens),
+						    Form("True matches: distance between points and hits, station %d, sensor %d",istat,isens),
+						    1000,0,10);
       //      fHistoList->Add(fhPointClosest     [istat][isens]);
       fHistoList->Add(fhPointNof         [istat][isens]);
       fHistoList->Add(fhPointReco        [istat][isens]);
@@ -397,8 +580,39 @@ void PndGemFindHitsQA::CreateHistos() {
       fHistoList->Add(fhHitRadFakeProb   [istat][isens]);
       fHistoList->Add(fhHitMultipleRate  [istat][isens]);
       fHistoList->Add(fhCloseHits        [istat][isens]);
+      fHistoList->Add(fhTrueMatchDiXYPerSt[istat][isens]);
+      fHistoList->Add(fhTrueMatchDistPerSt[istat][isens]);
     }
   }
+  fhTrueMatchDiXY        = new TH2F("fhTrueMatchDiXY",
+				    "True matches: difference in XY between points and hits",
+				    2000,-1.,1.,
+				    2000,-1.,1.);
+  fhTrueMatchDist        = new TH1F("fhTrueMatchDist",
+				    "True matches: distance between points and hits",
+				    1000,0,10);
+  fhTrueMatchValue       = new TH1F("fhTrueMatchValue",
+				    "True matches: hit-point match value in pecent",
+				    1010,0.,101.);
+  fhTrueMatchDistValue   = new TH2F("fhTrueMatchDistValue",
+				    "True matches: hit-point match value vs distance",
+				    101,0.,101.,
+				    200,0.,2.);
+
+  fhTrueMatchNofPerHit   = new TH1F("fhTrueMatchNofPerHit",
+				    "True matches: number of matched points per hit",
+				    101,-0.5,100.5);
+  fhTrueMatchNofPerPoint = new TH1F("fhTrueMatchNofPerPoint",
+				    "True matches: number of matched hits per point",
+				    101,-0.5,100.5);
+
+  fHistoList->Add(fhTrueMatchDiXY       );
+  fHistoList->Add(fhTrueMatchDist       );
+  fHistoList->Add(fhTrueMatchValue      );
+  fHistoList->Add(fhTrueMatchDistValue  );
+
+  fHistoList->Add(fhTrueMatchNofPerHit  );
+  fHistoList->Add(fhTrueMatchNofPerPoint);
 }
 // ------------------------------------------------------------
 
@@ -413,8 +627,8 @@ void PndGemFindHitsQA::DivideHistos(TH1* hist1, TH1* hist2, TH1* hist3) {
 // -----   Private method Finish   --------------------------------------------
 void PndGemFindHitsQA::Finish() {
 
-  cout << "-------------------- PndGemFindHitsQA : Finish ------------------" << endl;
-  cout << " dividing histos" << endl;
+  cout << "-------------------- PndGemFindHitsQA : Finish -------------------" << endl;
+  //  cout << " dividing histos" << endl;
 
   Int_t nStations = fDigiPar->GetNStations();
   for ( Int_t istat = 0 ; istat < nStations ; istat++ ) {
@@ -443,9 +657,33 @@ void PndGemFindHitsQA::Finish() {
     }
   }
 
-  cout << "-------------------- PndGemFindHitsQA : Summary ------------------" << endl;
+  //  cout << "-------------------- PndGemFindHitsQA : Summary ------------------" << endl;
 
   cout << " Events:        " << setw(10) << fNofEvents << endl;
+
+  cout << "-------------------- PndGemFindHitsQA : Efficiency ---------------" << endl;
+  cout << "   efficiency = number of points that have hit closer than " << fPointEffDist << " cm / number of points" << endl;
+  Int_t nofPointsAll  = 0;
+  Int_t nofPointsReco = 0;
+  for ( Int_t istat = 0 ; istat < nStations ; istat++ ) {
+    PndGemStation* station = (PndGemStation*)fDigiPar->GetStation(istat);
+    Int_t nSensors = station->GetNSensors();
+    for ( Int_t isens = 0 ; isens < nSensors ; isens++ ) {
+      nofPointsAll  += fhPointRadNof      [istat][isens]->GetEntries();
+      nofPointsReco += fhPointRadReco     [istat][isens]->GetEntries();
+      cout << "Station " << istat << " sensor " << isens << ", eff = " 
+	   << ((Double_t)(fhPointRadReco[istat][isens]->GetEntries()))/((Double_t)(fhPointRadNof     [istat][isens]->GetEntries()))*100.
+	   << "% (" << fhPointRadReco    [istat][isens]->GetEntries()
+	   << " / " << fhPointRadNof     [istat][isens]->GetEntries()
+	   << ")" <<  endl;
+    }
+  }
+  cout << "            OVERALL EFF = " << ((Double_t)(nofPointsReco))/((Double_t)(nofPointsAll))*100.
+       << "% (" << nofPointsReco
+       << " / " << nofPointsAll
+       << ")" << endl;
+
+  cout << "-----------------------------------------------------------------" << endl;
 
   TFile* temp = gFile;
   FairRootManager* ioman = FairRootManager::Instance();
