@@ -83,7 +83,7 @@ public:
 	/** Register a filter derived from FairFilter.  **/
 	void AddVetoFilter(FairEvtFilter* filter) {
 		if ( ! fVetoFilterList ) {
-			std::cout << "Empty fFilterList pointer ! " << std::endl;
+			std::cout << "Empty fFilterList pointer ! \n";
 			return;
 		}
 		fVetoFilterList->Add(filter);
@@ -202,7 +202,7 @@ protected:
 	// registers a regular (non-veto) filter, not for user to be used, see public methods for user interfaces
 	void AddFilter(FairEvtFilter* filter, FairEvtFilter::LogicOp op, Bool_t negateFilter) {
 		if ( ! fFilterList ) {
-			std::cout << "Empty fFilterList pointer ! " << std::endl;
+			std::cout << "Empty fFilterList pointer ! \n";
 			return;
 		}
 		fFilterList->Add(filter);
