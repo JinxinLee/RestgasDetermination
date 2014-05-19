@@ -147,6 +147,7 @@ Bool_t FairEvtFilterOnCounts::AndMinMaxPdgCodes( Int_t min, Int_t max, std::vect
 	Bool_t filterAdded = kFALSE;
 
 	if (fVerbose > 0){
+		std::cout << this->GetTitle() << ": " << this->GetName() << "\n";
 		std::cout << "fPdgGroupId: " << fPdgGroupId << "\n";
 		std::cout << "fGroupIdCountsMinMax: " << fGroupIdCountsMinMax << "\n\n";
 	}
@@ -219,6 +220,7 @@ Bool_t FairEvtFilterOnCounts::AndMinMaxCharge( Int_t min, Int_t max, ChargeState
 {
 
 	if (fVerbose > 0){
+		std::cout << this->GetTitle() << ": " << this->GetName() << "\n";
 		std::cout << "fChargeCountsMinMax: " << fChargeCountsMinMax << "\n\n";
 	}
 
@@ -250,7 +252,7 @@ Bool_t FairEvtFilterOnCounts::AndMinMaxMom( Double_t min, Double_t max, FairEvtF
 {
 
 	if (fVerbose > 0){
-		std::cout << "\n";
+		std::cout << this->GetTitle() << ": " << this->GetName() << "\n";
 		std::cout << "fMomMinMax { P , Pt , Pz }: " << fMomMinMax << "\n\n";
 	}
 
@@ -282,7 +284,7 @@ Bool_t FairEvtFilterOnCounts::AndMinMaxGeom( Double_t min, Double_t max, FairEvt
 {
 
 	if (fVerbose > 0){
-		std::cout << "\n";
+		std::cout << this->GetTitle() << ": " << this->GetName() << "\n";
 		std::cout << "fGeomMinMax { Theta , Phi, VertexZ, VertexRho, VertexRadius }: " << fGeomMinMax << "\n\n";
 	}
 
@@ -325,7 +327,7 @@ void FairEvtFilterOnCounts::InitCounters()
 		fCountGroupId.push_back(0);
 	}
 
-	// fCountGroupId counts up, event is accepted if all entries in fCountGroupId are between the according entries in fGroupIdCountsMinMax
+	// fCountGroupId counts up, event matches if all entries in fCountGroupId are between the according entries in fGroupIdCountsMinMax
 	if (fVerbose >11){
 		std::cout << "fCountGroupId after initialization: " << fCountGroupId << "\n";
 	}
@@ -336,7 +338,7 @@ void FairEvtFilterOnCounts::InitCounters()
 		fCountCharge.push_back(0);
 	}
 
-	// fCountCharge counts up, event is accepted if all entries in fCountCharge are between the according entries in fChargeCountsMinMax
+	// fCountCharge counts up, event matches if all entries in fCountCharge are between the according entries in fChargeCountsMinMax
 	if (fVerbose >11){
 		std::cout << "fCountCharge after initialization: " << fCountCharge << "\n";
 	}
@@ -439,21 +441,21 @@ Bool_t FairEvtFilterOnCounts::AcceptGeometry(TParticle* particle)
 
 
 Bool_t FairEvtFilterOnCounts::AcceptPdgCounter()
-{	// check if event is acceptable
-	// event is acceptable if
+{	// check if event matches the filter
+	// event matches if
 	// fCountGroupId[icountPdg] >= fGroupIdCountsMinMax[icountPdg].first
 	// and
 	// fCountGroupId[icountPdg] <= fGroupIdCountsMinMax[icountPdg].second
 	for (UInt_t icountPdg = 0; icountPdg < fCountGroupId.size(); ++icountPdg){
 		if ( fCountGroupId[icountPdg] < fGroupIdCountsMinMax[icountPdg].first){
 			if (fVerbose >9){
-				std::cout << "Event is not accepted because of fCountGroupId[icountPdg] < fGroupIdCountMinMax[icountPdg].first for icountPdg == " << icountPdg << "\n";
+				std::cout << "Event does NOT match filter because of fCountGroupId[icountPdg] < fGroupIdCountMinMax[icountPdg].first for icountPdg == " << icountPdg << "\n";
 			}
 			return kFALSE;
 		}
 		if ( fCountGroupId[icountPdg] > fGroupIdCountsMinMax[icountPdg].second ){
 			if (fVerbose >9){
-				std::cout << "Event is not accepted because of fCountGroupId[icountPdg] > fGroupIdCountsMinMax[icountPdg].second for icountPdg == " << icountPdg << "\n";
+				std::cout << "Event does NOT match filter because of fCountGroupId[icountPdg] > fGroupIdCountsMinMax[icountPdg].second for icountPdg == " << icountPdg << "\n";
 			}
 			return kFALSE;
 		}
@@ -463,21 +465,21 @@ Bool_t FairEvtFilterOnCounts::AcceptPdgCounter()
 
 
 Bool_t FairEvtFilterOnCounts::AcceptChargeCounter()
-{	// check if event is acceptable
-	// event is acceptable if
+{	// check if event matches the filter
+	// event matches if
 	// fCountCharge[icountPdg] >= fChargeCountsMinMax[icountPdg].first
 	// and
 	// fCountCharge[icountPdg] <= fChargeCountsMinMax[icountPdg].second
 	for (UInt_t icountCharge = 0; icountCharge < FairEvtFilter::kChargeLastElement; ++icountCharge){
 		if ( fCountCharge[icountCharge] < fChargeCountsMinMax[icountCharge].first){
 			if (fVerbose >9){
-				std::cout << "Event is not accepted because of fCountCharge[icountChart] < fChargeCountMinMax[icountCharge].first for icountCharge == " << icountCharge << "\n";
+				std::cout << "Event does not match filter because of fCountCharge[icountChart] < fChargeCountMinMax[icountCharge].first for icountCharge == " << icountCharge << "\n";
 			}
 			return kFALSE;
 		}
 		if ( fCountCharge[icountCharge] > fChargeCountsMinMax[icountCharge].second ){
 			if (fVerbose >9){
-				std::cout << "Event is not accepted because of fCountCharge[icountCharge] > fChargeCountsMinMax[icountCharge].second for icountCharge == " << icountCharge << "\n";
+				std::cout << "Event does not match filter because of fCountCharge[icountCharge] > fChargeCountsMinMax[icountCharge].second for icountCharge == " << icountCharge << "\n";
 			}
 			return kFALSE;
 		}
@@ -539,7 +541,8 @@ Bool_t FairEvtFilterOnCounts :: EventMatches(Int_t evtNr)
 		std::cout << "\n\n";
 		std::cout << "EventNr:" << evtNr << "\n";
 		std::cout << "Nr. of simulated particles:" << fParticleList->GetEntries()<<"\n";
-		std::cout << "FairEvtFilterOnCounts: Beginning of EventMatches\n";
+		PrintAllTParticleInEvent();
+		std::cout << "FairEvtFilterOnCounts: " << this->GetTitle() << ": " << this->GetName() << " Beginning of EventMatches\n";
 		std::cout << "fPdgGroupId: " << fPdgGroupId << "\n";
 		std::cout << "fGroupIdCountsMinMax: " << fGroupIdCountsMinMax << "\n";
 		std::cout << "fChargeCountsMinMax: " << fChargeCountsMinMax << "\n";
@@ -548,7 +551,7 @@ Bool_t FairEvtFilterOnCounts :: EventMatches(Int_t evtNr)
 	}
 
 
-	// accept event if filter is not set
+	// event matches if filter is not set
 	if ( kFALSE == FilterActive() ) {
 		return kTRUE;
 	}
@@ -556,12 +559,12 @@ Bool_t FairEvtFilterOnCounts :: EventMatches(Int_t evtNr)
 
 	// sanity checks
 	if (0==fParticleList){
-		std::cout << "\n\n\n FairEvtFilterOnCounts: FATAL ERROR: No particle list! Discard this event.\n\n\n";
+		std::cout << "\n\n\n FairEvtFilterOnCounts: FATAL ERROR: No particle list! Event does not match.\n\n\n";
 		return kFALSE;
 	}
 
 	if (0==fParticleList->GetEntriesFast()){
-		std::cout << "\n\n\n FairEvtFilterOnCounts: Event contains 0 particles. Will not accept this event.\n\n\n";
+		std::cout << "\n\n\n FairEvtFilterOnCounts: Event contains 0 particles. Event does not match.\n\n\n";
 		return kFALSE;
 	}
 
@@ -607,7 +610,7 @@ Bool_t FairEvtFilterOnCounts :: EventMatches(Int_t evtNr)
 	Bool_t ChargeOk = kTRUE;
 
 	if (fVerbose >9){
-		std::cout << "\n Check if event is acceptable \n";
+		std::cout << "\n Check if event matches the filter \n";
 		std::cout << "fCountGroupId: " << fCountGroupId << "\n";
 		std::cout <<  "fGroupIdCountsMinMax: " << fGroupIdCountsMinMax << "\n";
 		std::cout << "fCountCharge: " << fCountCharge << "\n";
@@ -628,12 +631,12 @@ Bool_t FairEvtFilterOnCounts :: EventMatches(Int_t evtNr)
 	if ( kTRUE == evtOk ) {
 		fAcceptedEventNumbers.insert(evtNr); // for testing
 		if (fVerbose >5){
-			std::cout << "\n Event is accepted by " << this->GetTitle() << ": \"" << this->GetName() << "\"\n\n";
+			std::cout << "\n Event matches " << this->GetTitle() << ": " << this->GetName() << "\n\n";
 		}
 		return kTRUE;
 	}else{
 		if (fVerbose >5){
-			std::cout << "\n Event is NOT accepted by " << this->GetTitle() << ": \"" << this->GetName() << "\"\n\n";
+			std::cout << "\n Event does NOT match " << this->GetTitle() << ": " << this->GetName() << "\n\n";
 		}
 	}
 	return kFALSE;

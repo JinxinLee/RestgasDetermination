@@ -21,6 +21,7 @@ method EventMatches, in which the particular filter criteria are realized.
 #include "TNamed.h"                     // for TNamed
 #include "Rtypes.h"                     // for Bool_t, etc
 #include "TClonesArray.h"
+#include "TParticle.h"
 #include <iostream>
 #include <set>
 
@@ -53,6 +54,9 @@ public:
 
 	//contains the list of particles that should be checked in the EventMatches method
 	Bool_t SetListOfParticles(TClonesArray* ParticleList){fParticleList=ParticleList; return kTRUE;};
+
+	// prints all TParticle in event
+	void PrintAllTParticleInEvent();
 
 
 	//Initialize the filter if needed

@@ -27,15 +27,15 @@ using std::endl;
 FairFilteredPrimaryGenerator::FairFilteredPrimaryGenerator()
 : FairPrimaryGenerator(),
 
- fVetoFilterList(new TObjArray()),
- fVetoFilterIter(fVetoFilterList->MakeIterator()),
- fFilterList(new TObjArray()),
- fFilterIter(fFilterList->MakeIterator()),
- fEventFilterActive(kFALSE),
- fVerbose(3),
- fEvtFilterStat(FairEvtFilterParams()),
+  fVetoFilterList(new TObjArray()),
+  fVetoFilterIter(fVetoFilterList->MakeIterator()),
+  fFilterList(new TObjArray()),
+  fFilterIter(fFilterList->MakeIterator()),
+  fEventFilterActive(kFALSE),
+  fVerbose(3),
+  fEvtFilterStat(FairEvtFilterParams()),
 
- fEventNrFiltered(0)
+  fEventNrFiltered(0)
 {
 }
 // -------------------------------------------------------------------------
@@ -46,16 +46,16 @@ FairFilteredPrimaryGenerator::FairFilteredPrimaryGenerator()
 FairFilteredPrimaryGenerator::FairFilteredPrimaryGenerator(const char* name, const char* title)
 : FairPrimaryGenerator(name,title),
 
- fVetoFilterList(new TObjArray()),
- fVetoFilterIter(fVetoFilterList->MakeIterator()),
- fFilterList(new TObjArray()),
- fFilterIter(fFilterList->MakeIterator()),
- fEventFilterActive(kFALSE),
- fVerbose(3),
- fEvtFilterStat(FairEvtFilterParams()),
+  fVetoFilterList(new TObjArray()),
+  fVetoFilterIter(fVetoFilterList->MakeIterator()),
+  fFilterList(new TObjArray()),
+  fFilterIter(fFilterList->MakeIterator()),
+  fEventFilterActive(kFALSE),
+  fVerbose(3),
+  fEvtFilterStat(FairEvtFilterParams()),
 
 
- fEventNrFiltered(0)
+  fEventNrFiltered(0)
 {
 }
 // -------------------------------------------------------------------------
@@ -98,8 +98,8 @@ FairFilteredPrimaryGenerator::~FairFilteredPrimaryGenerator()
 Bool_t FairFilteredPrimaryGenerator::GenerateEvent(FairGenericStack* pStack)
 {
 
-	Int_t iTry=0;//number of attempts to find the next event that suits your filter
-	Bool_t acceptEvent = kTRUE;//is kTRUE if the event is finally accepted
+	Int_t iTry=0; // number of attempts to find the next event that suits your filter
+	Bool_t acceptEvent = kFALSE; // is kTRUE if the event is finally accepted
 
 	if(fEventFilterActive==kTRUE){// sanity check settings for logical combinations of event filters
 		if(fFilterNegation.size()!=fFilterList->GetEntriesFast()){
@@ -137,6 +137,7 @@ Bool_t FairFilteredPrimaryGenerator::GenerateEvent(FairGenericStack* pStack)
 			while( (vetoFilterObject = fVetoFilterIter->Next()) ) {
 				vetoFilter = dynamic_cast<FairEvtFilter*> (vetoFilterObject);
 				if ( ! vetoFilter ) { // this should never happen
+					cout << " \n\n\n  -FATAL ERROR from FairFilteredPrimaryGenerator: Veto filter cast did not work!\n\n\n";" << endl";
 					return kFALSE;
 				}
 				if(! (vetoFilter->FilterActive())){
@@ -145,18 +146,23 @@ Bool_t FairFilteredPrimaryGenerator::GenerateEvent(FairGenericStack* pStack)
 				}
 				Bool_t setParticlesOk = vetoFilter->SetListOfParticles(pStack->GetListOfParticles());//committing the list of particles to be checked
 				if( ! setParticlesOk ) {
-					return kFALSE;}
+					cout << " \n\n\n  -WARNING from FairFilteredPrimaryGenerator: Particles were not pushed correctly to veto filter.\n\n\n";" << endl";
+					return kFALSE;
+				}
 				if ( vetoFilter->EventMatches(fEvtFilterStat.fGeneratedEvents) ) {
 					// if event matches veto filter, skip event
+					if( 3 < fVerbose ){
+						cout << "\n Event is NOT accepted because it matches a veto filter \n";
+					}
 					vetoed = kTRUE;
 					break; // no need to check other veto filters as event will be skipped anyway
 				}
-			}
-		}
+			} // end while
+		} // if veto filtering
 
-		if ( vetoed) { continue; }; // skip event if it matches at least one veto filter
+		if ( vetoed ) { continue; }; // skip event if it matches at least one veto filter
 
-		if(fEventFilterActive==kTRUE){// skip event filtering if not requested
+		if ( kTRUE == fEventFilterActive ){// skip event filtering if not requested
 			Int_t iCheckFilter=0;
 			// Call the FilterAccept methods for all registered (non-veto) filters
 			fFilterIter->Reset();
@@ -208,7 +214,7 @@ Bool_t FairFilteredPrimaryGenerator::GenerateEvent(FairGenericStack* pStack)
 			if( !acceptEvent && 3 < fVerbose ){
 				cout << "\n Event is NOT accepted after combining the event filters.\n";
 			}
-		}
+		} // if (non-veto) event filtering
 	}while(! acceptEvent && iTry < fEvtFilterStat.fFilterMaxTries);
 
 

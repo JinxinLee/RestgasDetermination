@@ -219,7 +219,7 @@ Bool_t PndEvtFilterOnInvMassCounts::EventMatches(Int_t evtNr)
 	// for QA
 	fAcceptedEventNumbers.insert(evtNr);
 	if (fVerbose >5){
-		std::cout << "\n Event is accepted by " << this->GetTitle() << ": " << this->GetName() << "\n\n";
+		std::cout << "\n Event matches " << this->GetTitle() << ": " << this->GetName() << "\n\n";
 	}
 	return kTRUE;
 }
