@@ -539,10 +539,10 @@ Bool_t FairEvtFilterOnCounts :: EventMatches(Int_t evtNr)
 {
 	if (fVerbose > 3){
 		std::cout << "\n\n";
-		std::cout << "EventNr:" << evtNr << "\n";
-		std::cout << "Nr. of simulated particles:" << fParticleList->GetEntries()<<"\n";
-		PrintAllTParticleInEvent();
+		std::cout << "Generated event: " << evtNr << "\n";
 		std::cout << "FairEvtFilterOnCounts: " << this->GetTitle() << ": " << this->GetName() << " Beginning of EventMatches\n";
+		std::cout << "Nr. of simulated particles: " << fParticleList->GetEntries()<<"\n";
+		PrintAllTParticleInEvent();
 		std::cout << "fPdgGroupId: " << fPdgGroupId << "\n";
 		std::cout << "fGroupIdCountsMinMax: " << fGroupIdCountsMinMax << "\n";
 		std::cout << "fChargeCountsMinMax: " << fChargeCountsMinMax << "\n";

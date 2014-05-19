@@ -144,6 +144,12 @@ public:
 	}
 
 	void WriteEvtFilterStatsToRootFile(){
+		std::cout << "\n\nGenerated Events = " << GetNumberOfGeneratedEvents() << "\n";
+		if (0 < GetNumberOfFilterFailedEvents() ) {
+			std::cout << "WARNING: Number of events where the event filter FAILED " << GetNumberOfFilterFailedEvents() << "\n\n\n";
+			std::cout << "Random events were accepted to avoid infinite loops. \n";
+			std::cout <<  "Try increasing the max. number of tries or change your filter (maybe the generators do not produce such events as you want).\n\n";
+		}
 		TFile* outputFile;
 		outputFile = FairRunSim::Instance()->GetOutputFile();
 		outputFile->cd();

@@ -54,7 +54,6 @@ FairFilteredPrimaryGenerator::FairFilteredPrimaryGenerator(const char* name, con
   fVerbose(3),
   fEvtFilterStat(FairEvtFilterParams()),
 
-
   fEventNrFiltered(0)
 {
 }
@@ -123,9 +122,9 @@ Bool_t FairFilteredPrimaryGenerator::GenerateEvent(FairGenericStack* pStack)
 
 
 
-
-		FairPrimaryGenerator::GenerateEvent(pStack);
-
+		pStack->Reset(); // Clean the stack
+		FairPrimaryGenerator::GenerateEvent(pStack); // fill the stack
+		fEventNr = fEventNrFiltered; // Fix event numbering in FairPrimaryGenerator (otherwise fRun will stop too early...)
 
 
 		if(fEventVetoFilterActive==kTRUE){// skip veto filter checking if no veto filters are set
@@ -218,26 +217,22 @@ Bool_t FairFilteredPrimaryGenerator::GenerateEvent(FairGenericStack* pStack)
 	}while(! acceptEvent && iTry < fEvtFilterStat.fFilterMaxTries);
 
 
-	if ( !acceptEvent && ( fEventFilterActive||fEventVetoFilterActive == kTRUE ) ){
-		++fEvtFilterStat.fFailedFilterEvents;
-		cout << "\n -E FairFilteredPrimaryGenerator: No event was found within " << iTry << " which satisfies your event filter. Try increasing the max. number of tries or change your filter\n\n";
-		return kFALSE;
-	}
-
-
-
 	// Set the event number ALWAYS when filtering
 	++fEventNrFiltered;
 	fEvent->SetEventID(fEventNrFiltered);
 
-
-	if (fVerbose > 3 && ( fEventFilterActive==kTRUE ) ){
-		if(fFilterList->GetEntriesFast() > 1){cout << "\n Event is accepted after combining the appointed filters.\n";}
-		cout << iTry << " events simulated until I found a good one.\n";
-		cout << fEvtFilterStat.fGeneratedEvents << " events generated for finding " << fEventNr << " accepted events.\n";
-		cout << fEvtFilterStat.fFailedFilterEvents << " unsuccessful attempts in total to find an event that suits your filters\n\n";
+	if ( !acceptEvent && ( fEventFilterActive||fEventVetoFilterActive ) ){
+		++fEvtFilterStat.fFailedFilterEvents;
+		cout << "\n -E FairFilteredPrimaryGenerator: No event was found within " << iTry << " tries which satisfies your event filter.\n ";
+		cout << "I accept a random event as evtNr " << fEventNrFiltered << " to avoid infinite loops. \n";
+		cout <<  "Try increasing the max. number of tries or change your filter\n\n";
+		if (fVerbose > 3 ){
+			if(fFilterList->GetEntriesFast() > 0){cout << "\n Event is accepted after combining the appointed filters.\n";}
+			cout << iTry << " events simulated until I found a good one.\n";
+			cout << fEvtFilterStat.fGeneratedEvents << " events generated for finding " << fEventNr << " accepted events.\n";
+			cout << fEvtFilterStat.fFailedFilterEvents << " unsuccessful attempts in total to find an event that suits your filters\n\n";
+		}
 	}
-
 
 	return kTRUE;
 }
