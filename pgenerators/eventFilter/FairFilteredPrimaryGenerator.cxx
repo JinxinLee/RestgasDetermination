@@ -25,7 +25,7 @@ using std::endl;
 
 // -----   Default constructor   -------------------------------------------
 FairFilteredPrimaryGenerator::FairFilteredPrimaryGenerator()
-: FairPrimaryGenerator()
+: FairPrimaryGenerator(),
 
  fVetoFilterList(new TObjArray()),
  fVetoFilterIter(fVetoFilterList->MakeIterator()),
@@ -80,8 +80,6 @@ Bool_t FairFilteredPrimaryGenerator::Init()
 // -----   Destructor   ----------------------------------------------------
 FairFilteredPrimaryGenerator::~FairFilteredPrimaryGenerator()
 {
-	FairPrimaryGenerator::~FairPrimaryGenerator();
-
 	fFilterList->Delete();
 	delete fFilterList;
 	delete fFilterIter;

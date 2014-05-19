@@ -18,6 +18,8 @@ capabilities of event filtering after event generation and before transport
 #ifndef FairFilteredPrimaryGenerator_H
 #define FairFilteredPrimaryGenerator_H
 
+#include "FairPrimaryGenerator.h"
+
 #include "FairEvtFilter.h"
 #include "FairEvtFilterParams.h"
 
@@ -41,7 +43,7 @@ class FairMCEventHeader;
 class TF1;
 class TIterator;
 
-class FairFilteredPrimaryGenerator : public TNamed
+class FairFilteredPrimaryGenerator : public FairPrimaryGenerator
 
 {
 
@@ -52,7 +54,7 @@ public:
 
 
 	/** Constructor with name and title **/
-	FairFilteredPrimaryGenerator(const char* name, const char* title="FAIR Generator");
+	FairFilteredPrimaryGenerator(const char* name, const char* title="Filtered Generator");
 
 
 	/** Destructor. **/
