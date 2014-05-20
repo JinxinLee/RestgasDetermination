@@ -11,7 +11,7 @@
 // Resonance : Initial resonance name for EvtGen
 // Pdgcode   : Only BoxGen: pdgcode of particle to be generated
 
-void simfast(TString Prefix, TString Decfile, Float_t Mom, Int_t nEvents = 1000, TString Resonance="pbarpSystem0", int Pdgcode = 11 )
+void simfast(TString Prefix="test", TString Decfile="psi2s_Jpsi2pi_Jpsi_mumu.dec", Float_t Mom=6.231552, Int_t nEvents = 10000, TString Resonance="pbarpSystem", int Pdgcode = 11 )
 {
 	TString BaseDir =  gSystem->Getenv("VMCWORKDIR");
 	TString splitpars = BaseDir+"/fsim/splitpars.dat";

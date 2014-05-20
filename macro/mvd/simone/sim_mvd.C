@@ -121,7 +121,6 @@ sim_mvd(Int_t nEvents = 5000, TString  SimEngine ="TGeant3", Float_t mom = 5)
   //-------------------------------
   FairPrimaryGenerator* primGen = new FairPrimaryGenerator();
   fRun->SetGenerator(primGen);
-  primGen->SetEventMeanTime(100);
 
   if(UseBoxGenerator){	// Box Generator
      FairBoxGenerator* boxGen = new FairBoxGenerator(2212, 1); // 13 = muon; 1 = multipl.

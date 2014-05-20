@@ -139,7 +139,6 @@ prod_sim(TString outpre="", Int_t nEvents = 100, TString Decfile="pp_Jpsi2pi_Jps
   // Create and Set Event Generator
   //-------------------------------
   FairPrimaryGenerator* primGen = new FairPrimaryGenerator();
-  primGen->SetEventMeanTime(10);
   fRun->SetGenerator(primGen);
   
   if(UseBoxGenerator){	// Box Generator

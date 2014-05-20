@@ -96,7 +96,6 @@ runSim(Int_t nEvents=500)
   FairPrimaryGenerator* primGen = new FairPrimaryGenerator();
   fRun->SetGenerator(primGen);
 
-//  primGen->SetEventMeanTime(100);
 
   // Particle Generator (pdgid,mult, px,py,pz, vx,vy,vz)
   // single pions for testing

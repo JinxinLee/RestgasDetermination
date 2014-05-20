@@ -135,7 +135,6 @@ prod_sim_pgun(TString outpre="", Int_t nEvents = 100, int PdgType=13, Float_t mo
   // Create and Set Event Generator
   //-------------------------------
   FairPrimaryGenerator* primGen = new FairPrimaryGenerator();
-  primGen->SetEventMeanTime(10);
   fRun->SetGenerator(primGen);
   
   if(UseBoxGenerator){	// Box Generator
