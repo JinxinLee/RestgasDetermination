@@ -14,7 +14,6 @@ sim_complete(Int_t nEvents = 100, TString  SimEngine ="TGeant3", Float_t mom = 6
   gDebug                  = 0;
   TString digiFile        = "all.par"; //The emc run the hit producer directly 
   // choose your event generator 
-  Bool_t UseEvtGen	      =kFALSE; 
   Bool_t UseEvtGenDirect      =kTRUE;     
   Bool_t UseDpm 	      =kFALSE;
   Bool_t UseBoxGenerator      =kFALSE;
@@ -28,7 +27,9 @@ sim_complete(Int_t nEvents = 100, TString  SimEngine ="TGeant3", Float_t mom = 6
     {
       BeamMomentum = mom;  // for DPM/EvtGen BeamMomentum is always = mom
     }	
-  
+  //------------------------------------------------------------------
+  TLorentzVector fIni(0, 0, mom, sqrt(mom*mom+9.3827203e-01*9.3827203e-01)+9.3827203e-01);  
+  TDatabasePDG::Instance()->AddParticle("pbarpSystem","pbarpSystem",fIni.M(),kFALSE,0.1,0, "",88888); 
   //------------------------------------------------------------------
   TStopwatch timer;
   timer.Start();
@@ -150,12 +151,6 @@ sim_complete(Int_t nEvents = 100, TString  SimEngine ="TGeant3", Float_t mom = 6
   	  PndDpmDirect *Dpm= new PndDpmDirect(mom,1);
 	  primGen->AddGenerator(Dpm);
   }
-  if(UseEvtGen){	
-	  TString  EvtInput =gSystem->Getenv("VMCWORKDIR");
-	  EvtInput+="/input/psi2s_jpsi2pi_1k.evt";	
-	  FairEvtGenGenerator* evtGen = new FairEvtGenGenerator(EvtInput.Data());
-	  primGen->AddGenerator(evtGen);
-  }	
   if(UseEvtGenDirect){
           TString  EvtInput =gSystem->Getenv("VMCWORKDIR");
           EvtInput+="/macro/run/psi2s_Jpsi2pi_Jpsi_mumu.dec";	
