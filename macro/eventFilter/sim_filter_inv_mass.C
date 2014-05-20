@@ -170,8 +170,8 @@ sim_filter_inv_mass(Int_t nEvents = 5, TString  SimEngine ="TGeant3", Float_t mo
 	PndEvtFilterOnInvMassCounts* eeInv= new PndEvtFilterOnInvMassCounts("eeInvMFilter");
 	eeInv->SetVerbose();//highest commenting level of the FairEvtFilterOnCounts
 	eeInv->SetPdgCodesToCombine( 11, -11);
-	eeInv->SetMinMaxInvMass( 3.5, 4.0 );
-	eeInv->SetMinMaxCounts(1,100);
+	eeInv->SetMinMaxInvMass( 2.0, 4.0 );
+	eeInv->SetMinMaxCounts(1,10000);
 	primGen->AndFilter(eeInv);//add filter to fFilterList
 
 	//---------------------Create and Set the Field(s)----------
