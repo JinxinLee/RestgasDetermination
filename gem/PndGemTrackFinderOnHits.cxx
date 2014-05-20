@@ -452,7 +452,7 @@ Int_t PndGemTrackFinderOnHits::CreateTracks(TClonesArray* hitArray,
     
     gemTrackCand->Sort();
 
-    TVector3 pos = (0.,0.,0.);
+    TVector3 pos (0.,0.,0.);
     TVector3 mom;
     mom.SetMagThetaPhi(TMath::Abs(meanMom[itr]),meanThe[itr]*TMath::DegToRad(),meanPhi[itr]*TMath::DegToRad());
 

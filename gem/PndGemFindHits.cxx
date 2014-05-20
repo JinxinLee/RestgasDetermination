@@ -634,13 +634,16 @@ void PndGemFindHits::ConfirmHits2() {
 	  dpos.SetXYZ(dx[0], dy[0], dz[0]);
 	  hitDetId = hitTemp->GetDetectorID() | kGemHit << 21;
 	  
+	  TString fromStr = "GEMDigi";
+	  if ( fUseClusters ) fromStr = "GEMCluster";
+
 	  new ((*fHits)[nHits++]) PndGemHit(hitDetId, 
 					    pos, dpos,  
 					    hitTemp->GetCharge(),
 					    hitTemp->GetTimeStamp(),
 					    hitTemp->GetDigiNr(0),hitTemp->GetDigiNr(1), 
 					    hitTemp->GetDr(), hitTemp->GetDp(), 
-					    hitTemp->GetRefIndex());
+					    hitTemp->GetRefIndex(),fromStr);
 
 	  ((PndGemHit*)fHitsTemp->At(ihitTemp))->SetDetectorID(hitDetId);
 	  fTNofHits++;
@@ -655,7 +658,7 @@ void PndGemFindHits::ConfirmHits2() {
 					    hitTemp2->GetTimeStamp(),
 					    hitTemp2->GetDigiNr(0),hitTemp2->GetDigiNr(1), 
 					    hitTemp2->GetDr(), hitTemp2->GetDp(), 
-					    hitTemp2->GetRefIndex());
+					    hitTemp2->GetRefIndex(),fromStr);
 	  
 	  ((PndGemHit*)fHitsTemp->At(ihitTemp2))->SetDetectorID(hitDetId);
 	  fTNofHits++;
@@ -878,11 +881,13 @@ Int_t PndGemFindHits::FindHits(PndGemSensor* sensor,
 	   TMath::Abs(digiF->GetTimeStamp()-digiB->GetTimeStamp()) > 5. )
 	continue;
 
+      TString fromStr = "GEMDigi";
+      if ( fUseClusters ) fromStr = "GEMCluster";
       new ((*fHits)[nHits++]) PndGemHit(hitDetId, pos, dpos,  
 					(digiF->GetCharge()+digiB->GetCharge())/2.,
 					(digiF->GetTimeStamp()+digiB->GetTimeStamp())/2.,
 					iDigiF, iDigiB, 
-					dr, dp, refIndex);
+					dr, dp, refIndex,fromStr);
 
       fTNofHits++;
       nHitsInSensor++;
@@ -1034,11 +1039,13 @@ Int_t PndGemFindHits::FindHits2(PndGemSensor* sensor,
       // 	   TMath::Abs(digiF->GetTimeStamp()-digiB->GetTimeStamp()) > 5. )
       // 	continue;
       
+	  TString fromStr = "GEMDigi";
+	  if ( fUseClusters ) fromStr = "GEMCluster";
       new ((*fHitsTemp)[nHitsTemp++]) PndGemHit(hitDetId, pos, dpos,  
-					(digiF->GetCharge()+digiB->GetCharge())/2.,
-					(digiF->GetTimeStamp()+digiB->GetTimeStamp())/2.,
-					iDigiF, iDigiB, 
-					sigmaR, sigmaP, refIndex);
+						(digiF->GetCharge()+digiB->GetCharge())/2.,
+						(digiF->GetTimeStamp()+digiB->GetTimeStamp())/2.,
+						iDigiF, iDigiB, 
+						sigmaR, sigmaP, refIndex, fromStr);
 
       fTNofHitsTemp++;
       nHitsInSensor++;

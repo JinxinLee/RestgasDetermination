@@ -239,19 +239,6 @@ void PndGemFindHitsQA::Exec(Option_t* opt) {
   PndGemHit*     gemHit = NULL;
   PndGemMCPoint* gemPnt = NULL;
 
-
-  //// T E M P O R A R Y
-  if ( fNofEvents == 2 ) {
-    const Int_t nofDigi = 5;
-    Int_t digiArray = 5;
-    Int_t digiIndex[nofDigi] = {209,210,211,1191,1192};
-    for ( Int_t idigi = 0 ; idigi < nofDigi ; idigi++ ) {
-      PndGemDigi* tempDigi = (PndGemDigi*)fGemData[fGemDataPointer[digiArray]]->At(digiIndex[idigi]);
-      cout << "DIGI " << digiIndex[idigi] << " AT " << tempDigi->GetChannelNr() << " in " << tempDigi->GetDetectorId() << endl;
-    }
-  }
-  //// T E M P O R A R Y
-
   //  cout << "---------------------------------" << endl;
   //  cout << "gem " << fHistWidth[istat][isens] << " wi
 
@@ -335,6 +322,7 @@ void PndGemFindHitsQA::Exec(Option_t* opt) {
   std::vector<std::pair<Int_t,Int_t> > mcMatchPointHit;
 
   Bool_t printMCMatching = kFALSE;
+  if ( fVerbose >= 1 ) printMCMatching = kTRUE;
 
   for ( Int_t ihit = 0 ; ihit < nofGemHits ; ihit++ ) {
     gemHit = (PndGemHit*)fGemHitArray->At(ihit);
@@ -463,7 +451,7 @@ Int_t PndGemFindHitsQA::GetPointVector(Int_t arrayId, Int_t entryId, std::vector
 
   FairMultiLinkedData* tempData = (FairMultiLinkedData*)fGemData[fGemDataPointer[arrayId]]->At(entryId);
   for ( Int_t ilink = 0 ; ilink < tempData->GetNLinks() ; ilink++ ) {
-    GetPointVector(tempData->GetLink(ilink).GetType(),tempData->GetLink(ilink).GetIndex(),pointVector);
+    GetPointVector(tempData->GetLink(ilink).GetType(),tempData->GetLink(ilink).GetIndex(),pointVector,printInfo);
   }
   return pointVector.size();
 }

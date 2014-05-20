@@ -49,9 +49,9 @@ class PndGemHit : public FairHit
    *@param charge  Charge measured in hit
    *@param NDigiHits Number of pixels fired for this event
    **/
-  PndGemHit(Int_t detID, TVector3& pos, TVector3& dpos, Int_t index, Double_t charge, Int_t NDigiHits);
-  PndGemHit(Int_t detID, TVector3& pos, TVector3& dpos, Int_t digi1, Int_t digi2, Double_t dr, Double_t dp, Int_t index);
-  PndGemHit(Int_t detID, TVector3& pos, TVector3& dpos, Double_t charge, Double_t time, Int_t digi1, Int_t digi2, Double_t dr, Double_t dp, Int_t index);
+  PndGemHit(Int_t detID, TVector3& pos, TVector3& dpos, Int_t index, Double_t charge, Int_t NDigiHits, TString fromStr = "GEMPoint");
+  PndGemHit(Int_t detID, TVector3& pos, TVector3& dpos, Int_t digi1, Int_t digi2, Double_t dr, Double_t dp, Int_t index, TString fromStr = "GEMCluster");
+  PndGemHit(Int_t detID, TVector3& pos, TVector3& dpos, Double_t charge, Double_t time, Int_t digi1, Int_t digi2, Double_t dr, Double_t dp, Int_t index, TString fromStr = "GEMCluster");
 
   //PndGemHit(PndGemHit& c);
   /** Destructor **/

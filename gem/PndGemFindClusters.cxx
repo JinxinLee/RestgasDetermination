@@ -791,37 +791,15 @@ Int_t PndGemFindClusters::WriteClusters() {
   if ( fVerbose > 0 ) cout << "-I- PndGemFindClusters::WriteClusters()" <<endl;
   
   Int_t nClusters = 0;
-  std::vector<Int_t> clusterRefs;
   PndGemDigi* digi;
   PndGemCluster* cluster;
 
   for ( Int_t idc = 0 ; idc < fDigiClusters.size() ; idc++ ) {
-
+    
     //    if ( fDigiClusters[idc].cluADC < 1. ) continue;
     if ( fDigiClusters[idc].cluPos < -0.5 ) continue;
-
-    clusterRefs.clear();
     
-    for ( Int_t id = 0 ; id < fDigiClusters[idc].digiNr.size() ; id++ ) {
-      digi   = (PndGemDigi*)fDigis->At(fDigiClusters[idc].digiNr[id]);
-
-      if ( !digi ) cout << "there is no digi number " << fDigiClusters[idc].digiNr[id] << ", cause there are only " << fDigis->GetEntries() << " of them" << endl;
-      for ( Int_t irf = digi->GetNIndices()-1 ; irf >= 0 ; irf-- ) {
-	Int_t refIndex = digi->GetIndex(irf);
-
-	Bool_t alreadyKnown = kFALSE;
-	for ( Int_t icr = clusterRefs.size()-1 ; icr >= 0 ; icr-- ) {
-	  if ( refIndex == clusterRefs[icr] ) {
-	    alreadyKnown = kTRUE;
-	    break;
-	  }
-	}
-	if ( !alreadyKnown ) clusterRefs.push_back(refIndex);
-      }
-    }
-
     if ( fVerbose > 1 ) {      
-      //cout << "cluster at " << fDigiClusters[idc].cluPos << ", h = " << fDigiClusters[idc].cluADC << ", for detId = " << fDigiClusters[idc].detId << " from " << fDigiClusters[idc].digiNr.size() << " digis (from " << lowChannel << " to " << topChannel << "): " << endl;
       cout << "cluster at " << fDigiClusters[idc].cluPos << ", h = " << fDigiClusters[idc].cluADC << ", for detId = " << fDigiClusters[idc].detId << " from " << fDigiClusters[idc].digiNr.size() << " digis (from " << fDigiClusters[idc].cluPMn << " to " << fDigiClusters[idc].cluPMx << "): " << endl;
       
       for ( Int_t idigi = 0 ; idigi < fDigiClusters[idc].digiNr.size() ; idigi++ ) {
@@ -831,27 +809,14 @@ Int_t PndGemFindClusters::WriteClusters() {
       }
     }
     
-//  digi = new ((*fClusters)[nClusters]) PndGemDigi(fDigiClusters[idc].detId, 
-// 						    fDigiClusters[idc].cluPos,
-// 						    clusterRefs[0],
-// 						    fDigiClusters[idc].cluADC,
-// 						    fDigiClusters[idc].cluTDC);
-    
     cluster = new ((*fClusters)[nClusters]) PndGemCluster(fDigiClusters[idc].detId, 
 							  fDigiClusters[idc].cluPos,
 							  fDigiClusters[idc].cluPMn,
 							  fDigiClusters[idc].cluPMx,
 							  fDigiClusters[idc].cluADC,
 							  fDigiClusters[idc].cluTDC,
-							  clusterRefs);
+							  fDigiClusters[idc].digiNr);
     
-//     for ( Int_t icr = clusterRefs.size()-1 ; icr > 0 ; icr-- ) 
-//       digi->AddIndex(clusterRefs[icr]);
-
-    //Should I do AddIndex like that??
-//     for ( Int_t icr = clusterRefs.size()-1 ; icr > 0 ; icr-- ) 
-//       cluster->AddIndex(clusterRefs[icr]);
-
     if ( fVerbose > 1 ) 
       cout << "creating cluster at " << fDigiClusters[idc].cluPos << " with height of " << fDigiClusters[idc].cluADC << " /// compare maximum at " << fDigiClusters[idc].cluMPs << endl;
     nClusters++;

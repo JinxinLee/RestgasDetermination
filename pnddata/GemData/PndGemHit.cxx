@@ -25,7 +25,7 @@ PndGemHit::PndGemHit() {
 
 // -----   Standard constructor   ------------------------------------------
 PndGemHit::PndGemHit(Int_t detID, TVector3& pos, TVector3& dpos,
-		     Int_t index, Double_t charge, Int_t NDigiHits)
+		     Int_t index, Double_t charge, Int_t NDigiHits, TString fromStr)
   : FairHit    (detID, pos, dpos, index),
     fCharge    (charge),
     fNDigiHits (NDigiHits),
@@ -35,13 +35,13 @@ PndGemHit::PndGemHit(Int_t detID, TVector3& pos, TVector3& dpos,
 { 
   fDigiNr[0] = -1;
   fDigiNr[1] = -1;
-  AddLink(FairLink("GEMPoint", index));
+  AddLink(FairLink(fromStr, index));
 }
 // -------------------------------------------------------------------------
 
 // -----   Standard constructor   ------------------------------------------
 PndGemHit::PndGemHit(Int_t detID, TVector3& pos, TVector3& dpos,
-		     Int_t digi1, Int_t digi2, Double_t dr, Double_t dp, Int_t index) 
+		     Int_t digi1, Int_t digi2, Double_t dr, Double_t dp, Int_t index, TString fromStr) 
   : FairHit(detID, pos, dpos, index),
     fCharge    (-1),
     fNDigiHits (-1),
@@ -51,8 +51,8 @@ PndGemHit::PndGemHit(Int_t detID, TVector3& pos, TVector3& dpos,
 {
   fDigiNr[0] = digi1;
   fDigiNr[1] = digi2;
-  AddLink(FairLink("GEMDigi", digi1));
-  AddLink(FairLink("GEMDigi", digi2));
+  AddLink(FairLink(fromStr, digi1));
+  AddLink(FairLink(fromStr, digi2));
 }
 // -------------------------------------------------------------------------
 
@@ -60,7 +60,7 @@ PndGemHit::PndGemHit(Int_t detID, TVector3& pos, TVector3& dpos,
 PndGemHit::PndGemHit(Int_t detID, TVector3& pos, TVector3& dpos,
 		     Double_t charge, Double_t time, 
 		     Int_t digi1, Int_t digi2, 
-		     Double_t dr, Double_t dp, Int_t index) 
+		     Double_t dr, Double_t dp, Int_t index, TString fromStr) 
   : FairHit(detID, pos, dpos, index),
     fCharge    (charge),
     fNDigiHits (-1),
@@ -71,8 +71,8 @@ PndGemHit::PndGemHit(Int_t detID, TVector3& pos, TVector3& dpos,
   fTimeStamp = time;
   fDigiNr[0] = digi1;
   fDigiNr[1] = digi2;
-  AddLink(FairLink("GEMDigi", digi1));
-  AddLink(FairLink("GEMDigi", digi2));
+  AddLink(FairLink(fromStr, digi1));
+  AddLink(FairLink(fromStr, digi2));
 }
 // -------------------------------------------------------------------------
 
