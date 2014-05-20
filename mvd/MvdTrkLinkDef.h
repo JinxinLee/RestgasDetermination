@@ -19,10 +19,10 @@
 //tracking
 // #pragma link C++ class PndMvdIdealTrackingTask+;
 #pragma link C++ class PndMvdIdealTrackFinderTask+;
-#pragma link C++ class PndMvdKalmanTask+;
-#pragma link C++ class PndMvdTrackFinderAnaTask+;
+//#pragma link C++ class PndMvdKalmanTask+;
+//#pragma link C++ class PndMvdTrackFinderAnaTask+;
 
-#pragma link C++ class PndMvdTrackFinderAnaTask+;
+//#pragma link C++ class PndMvdTrackFinderAnaTask+;
 
 //#pragma link C++ class PndMvdRiemannTrackFinder+;
 //#pragma link C++ class PndMvdGemRiemannTrackFinder+;

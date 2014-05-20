@@ -19,7 +19,6 @@
 
 
 // PndMvd includes
-#include "PndSdsRecoHit.h"
 // #include "PndMvdTrackCand.h"
 #include "PndSdsHit.h"
 #include "PndSdsMCPoint.h"

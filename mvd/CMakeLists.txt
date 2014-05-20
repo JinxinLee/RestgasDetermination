@@ -37,11 +37,7 @@ ${CMAKE_SOURCE_DIR}/sds/SdsReco
 ${CMAKE_SOURCE_DIR}/sds/SdsFEModel
 ${CMAKE_SOURCE_DIR}/sds
 ${CMAKE_SOURCE_DIR}/stt
-${CMAKE_SOURCE_DIR}/genfit
 ${CMAKE_SOURCE_DIR}/trackbase
-${CMAKE_SOURCE_DIR}/GenfitTools/trackrep/GeaneTrackRep
-${CMAKE_SOURCE_DIR}/GenfitTools/trackrep/LSLtrackRep
-${CMAKE_SOURCE_DIR}/GenfitTools/recohits
 ${CMAKE_SOURCE_DIR}/geane
 ${CMAKE_SOURCE_DIR}/PndTools/riemannfit
 )
@@ -98,7 +94,7 @@ MvdDAQ/PndMvdCreateDefaultApvMap.cxx
 set(LINKDEF  MvdLinkDef.h)
 set(LIBRARY_NAME Mvd)
 
-set(DEPENDENCIES Base GeoBase ParBase PndData generalTools RecoHits
+set(DEPENDENCIES Base GeoBase ParBase PndData generalTools
 Geane Sds TrkBase)
 
 GENERATE_LIBRARY()
@@ -139,8 +135,8 @@ MvdPid/PndMvdSimplePidAlgo.cxx
 MvdPid/PndMvdAdvancedPidAlgo.cxx
 
 MvdTracking/PndMvdIdealTrackFinderTask.cxx
-MvdTracking/PndMvdKalmanTask.cxx
-MvdTracking/PndMvdTrackFinderAnaTask.cxx
+#MvdTracking/PndMvdKalmanTask.cxx
+#MvdTracking/PndMvdTrackFinderAnaTask.cxx
 
 MvdTracking/PndMvdRiemannTrackFinderTask.cxx
 #MvdTracking/PndGemRiemannTrackFinderTask.cxx
