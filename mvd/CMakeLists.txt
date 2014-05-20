@@ -121,7 +121,7 @@ MvdTools/PndMvdRadDamIonizingTask.cxx
 set(LINKDEF  MvdRecoLinkDef.h)
 set(LIBRARY_NAME MvdReco)
 
-set(DEPENDENCIES Base GeoBase ParBase PndData generalTools RecoHits
+set(DEPENDENCIES Base GeoBase ParBase PndData generalTools 
 Geane Sds SdsReco TrkBase)
 
 GENERATE_LIBRARY()
