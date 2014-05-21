@@ -27,7 +27,7 @@ ${ROOT_LIBRARY_DIR}
 link_directories( ${LINK_DIRECTORIES})
 
 
-set(GFADAPTER_SRCS 
+set(SRCS 
 PndGenfitAdapters.cxx
 PndGenfitField.cxx
 )
@@ -36,8 +36,8 @@ if(RULE_CHECKER_FOUND)
   CHECK_RULES("${GFADAPTER_SRCS}" "${INCLUDE_DIRECTORIES}" GFADAPTER_RULES)
 endif(RULE_CHECKER_FOUND)
 
-add_library(genfitAdapters SHARED ${GFADAPTER_SRCS})
-target_link_libraries(genfitAdapters ${ROOT_LIBRARIES})
-set_target_properties(genfitAdapters PROPERTIES ${FAIRROOT_LIBRARY_PROPERTIES})
-################ install ###################
-install(TARGETS genfitAdapters DESTINATION ${CMAKE_BINARY_DIR}/lib)
+set(LIBRARY_NAME genfitAdapters)
+
+set(DEPENDENCIES trackrep)
+
+GENERATE_LIBRARY()

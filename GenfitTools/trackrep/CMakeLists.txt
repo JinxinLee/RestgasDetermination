@@ -37,6 +37,6 @@ RKTrackRep/RKTrackRep.cxx
 set(LINKDEF  trackrepLinkDef.h)
 set(LIBRARY_NAME trackrep)
 
-set(DEPENDENCIES Geane TrkBase)
+set(DEPENDENCIES genfit Geane TrkBase)
 
 GENERATE_LIBRARY()
