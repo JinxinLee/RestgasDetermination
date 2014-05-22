@@ -458,6 +458,12 @@ int istampa = 0;
 
  if(status < 0  ) return false;
 
+//  this trasformation is valid even if the equation is a straight line from the fit
+ Ox= -0.5*(*(InOut->ALFA));
+ Oy= -0.5*(*(InOut->BETA));
+ R= Ox * Ox + Oy * Oy - (*(InOut->GAMMA));
+
+
 
 //-------------- stampa
 if (istampa>0){
@@ -484,11 +490,6 @@ InOut->maxmvdpixelhitsintrack,InOut->maxmvdstriphitsintrack,InOut->maxscitilhits
 InOut->Fi_initial_helix_referenceframe,KAPPA);
 }
 //-------------- fine stampa
-
-//  this trasformation is valid even if the equation is a straight line from the fit
- Ox= -0.5*(*(InOut->ALFA));
- Oy= -0.5*(*(InOut->BETA));
- R= Ox * Ox + Oy * Oy - (*(InOut->GAMMA));
 
 	// some obvious preliminary cuts
  if( R < 0. )  return false;
