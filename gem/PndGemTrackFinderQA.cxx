@@ -340,6 +340,21 @@ InitStatus PndGemTrackFinderQA::Init() {
   cout << "-I- " << fName.Data() << "::Init(). There are " << fDigiPar->GetNStations() << " GEM stations." << endl;
   cout << "-I- " << fName.Data() << "::Init(). Initialization succesfull." << endl;
 
+  TList* branchNames = FairRootManager::Instance()->GetBranchNameList();
+  
+  Int_t nofGemBranches = 0;
+  fGemPointNumber = -1;
+  for (int i = 0; i < branchNames->GetEntries(); i++){
+    TObjString* branchName = (TObjString*)branchNames->At(i);
+    if ( !branchName->GetString().BeginsWith("GEM") ) continue;
+    if ( branchName->GetString() == "GEMPoint" ) fGemPointNumber = i;
+    fGemData[nofGemBranches] = (TClonesArray*) ioman->GetObject(branchName->GetString().Data());
+    fGemDataPointer[i] = nofGemBranches;
+    cout << "GEM Data [" << nofGemBranches << "] = " << branchName->GetString().Data() << " referred to as " << i << (fGemPointNumber==i?" ***":"") << endl;
+    nofGemBranches++;    
+  }
+  
+
   CreateHistos();
 
   return kSUCCESS;
@@ -572,9 +587,10 @@ void PndGemTrackFinderQA::Exec(Option_t* opt) {
     Int_t nofNoTrHits = 0;
     for ( Int_t ihit = 0 ; ihit < gemTrack->GetTrackCand().GetNHits() ; ihit++ ) { 
       PndTrackCandHit tch = gemTrack->GetTrackCand().GetSortedHit(ihit);
-      gemHit = (PndGemHit*) fGemHitArray->At(tch.GetHitId());
-      if ( gemHit->GetRefIndex() == -1 ) { nofNoTrHits++; continue; }
-      if ( gemHit->GetRefIndex() != fRecoTrackMCMatch[irtr] ) { nofCorrHits++; continue; }
+      Int_t bestPointIndex = FindMatchingPoint(tch.GetHitId());
+
+      if ( bestPointIndex == -1 ) { nofNoTrHits++; continue; }
+      if ( bestPointIndex != fRecoTrackMCMatch[irtr] ) { nofCorrHits++; continue; }
       nofCorrHits ++;
     }
 
@@ -688,9 +704,11 @@ void PndGemTrackFinderQA::MatchRecoTracks() {
  
     for ( Int_t ihit = 0 ; ihit < gemTrack->GetTrackCand().GetNHits() ; ihit++ ) { 
       PndTrackCandHit tch = gemTrack->GetTrackCand().GetSortedHit(ihit);
-      gemHit = (PndGemHit*) fGemHitArray->At(tch.GetHitId());
-      if ( gemHit->GetRefIndex() == -1 ) { continue; }
-      mcPoint = (FairMCPoint*) fMCPointArray->At(gemHit->GetRefIndex());
+
+      Int_t bestPointIndex = FindMatchingPoint(tch.GetHitId());
+
+      if ( bestPointIndex == -1 ) continue;
+      mcPoint = (FairMCPoint*) fMCPointArray->At(bestPointIndex);
       nofTrMCId[mcPoint->GetTrackID()] += 1;  
     }
     Int_t bestMCId = -1;
@@ -721,6 +739,104 @@ void PndGemTrackFinderQA::MatchRecoTracks() {
     fhRecoAllA->Fill(recoTrackMom.Phi()*TMath::RadToDeg());
   }
 
+}
+// ------------------------------------------------------------
+
+
+// -----   Private method GetPointVector, recurrence function  --------------------------------------------
+Int_t PndGemTrackFinderQA::FindMatchingPoint(Int_t gemHitIndex) {
+  Bool_t printMCMatching = kFALSE;
+
+  PndGemHit* gemHit = (PndGemHit*)fGemHitArray->At(gemHitIndex);
+  if ( printMCMatching ) 
+    cout << "---> hit " << gemHitIndex << " has " << gemHit->GetNLinks() << " links" << endl;
+
+  Int_t    bestPointIndex = -1;  
+  Double_t bestPointValue =  0.;
+
+  if ( gemHit->GetNLinks() != 2 ) {
+    cout << "THERE ARE " << gemHit->GetNLinks() << " FOR HIT " << gemHitIndex << " IN EVENT " << fNofEvents << endl;
+  }
+  if ( gemHit->GetNLinks() == 2 ) {
+    Int_t maxPnt0 = -1, maxPnt1 = -1;
+    std::vector<Int_t> pointVector0;
+    std::vector<Int_t> pointVector1;
+    GetPointVector(gemHit->GetLink(0).GetType(),gemHit->GetLink(0).GetIndex(),pointVector0,printMCMatching);
+    GetPointVector(gemHit->GetLink(1).GetType(),gemHit->GetLink(1).GetIndex(),pointVector1,printMCMatching); 
+    if ( printMCMatching ) 
+      cout << "VECT0: (" << gemHit->GetLink(0).GetIndex() << ") " << flush;
+    for ( Int_t ipnt = 0 ; ipnt < pointVector0.size() ; ipnt++ ) {
+      if ( printMCMatching ) 
+	cout << pointVector0[ipnt] << " . " << flush;
+      if ( maxPnt0 < pointVector0[ipnt] ) {
+	maxPnt0 = pointVector0[ipnt];
+      }
+    }
+    if ( printMCMatching ) 
+      cout << "\b\b" << endl; 
+    if ( printMCMatching ) 
+      cout << "VECT1: (" << gemHit->GetLink(1).GetIndex() << ") " << flush;
+    for ( Int_t ipnt = 0 ; ipnt < pointVector1.size() ; ipnt++ ) {
+      if ( printMCMatching ) 
+	cout << pointVector1[ipnt] << " . " << flush;
+      if ( maxPnt1 < pointVector1[ipnt] ) {
+	maxPnt1 = pointVector1[ipnt];
+      }
+    }
+    if ( printMCMatching ) 
+      cout << "\b\b" << endl;
+    if ( printMCMatching ) 
+      cout << "highest points are " << maxPnt0 << " , " << maxPnt1 << endl;
+    std::vector<Int_t> countPointV0(maxPnt0+1,0);
+    std::vector<Int_t> countPointV1(maxPnt1+1,0);
+    for ( Int_t ipnt = 0 ; ipnt < pointVector0.size() ; ipnt++ ) {
+      ++countPointV0[pointVector0[ipnt]];
+    }
+    for ( Int_t ipnt = 0 ; ipnt < pointVector1.size() ; ipnt++ ) {
+      ++countPointV1[pointVector1[ipnt]];
+    }
+    if ( maxPnt0 > maxPnt1 )
+      maxPnt0 = maxPnt1;
+    for ( Int_t ipnt = 0 ; ipnt < maxPnt0+1 ; ipnt++ ) {
+      if ( printMCMatching ) 
+	cout << ipnt << " - " << countPointV0[ipnt] << " ? " << countPointV1[ipnt] << endl;
+      if ( countPointV0[ipnt] > 0 ) {
+	if ( countPointV1[ipnt] > 0 ) {
+	  Double_t tempMatch = 100.*Double_t(countPointV0[ipnt]*countPointV1[ipnt])/(Double_t(pointVector0.size()*pointVector1.size()));
+	  if ( bestPointValue < tempMatch ) {
+	    bestPointValue = tempMatch;
+	    bestPointIndex = ipnt;
+	  }
+	}
+      }
+    }
+  }
+  if ( printMCMatching ) {
+    cout << "RETURNING " << bestPointIndex << " (with probability " << bestPointValue << " %)" << endl;
+  }
+  return bestPointIndex;
+}
+// ------------------------------------------------------------
+
+// -----   Private method GetPointVector, recurrence function  --------------------------------------------
+Int_t PndGemTrackFinderQA::GetPointVector(Int_t arrayId, Int_t entryId, std::vector<Int_t>& pointVector, Bool_t printInfo) {
+  if ( printInfo ) {
+    for ( Int_t itemp = 0 ; itemp < 10 - arrayId ; itemp++ ) cout << " " << flush;
+    cout << "GetPointVector(" << arrayId << ", " << entryId << ")" << endl;
+  }
+  if ( arrayId == fGemPointNumber ) { 
+    pointVector.push_back(entryId);
+    return pointVector.size();
+  }
+  if ( arrayId == 0 ) { // this is probably MCTrack!
+    return 0;
+  }
+
+  FairMultiLinkedData* tempData = (FairMultiLinkedData*)fGemData[fGemDataPointer[arrayId]]->At(entryId);
+  for ( Int_t ilink = 0 ; ilink < tempData->GetNLinks() ; ilink++ ) {
+    GetPointVector(tempData->GetLink(ilink).GetType(),tempData->GetLink(ilink).GetIndex(),pointVector,printInfo);
+  }
+  return pointVector.size();
 }
 // ------------------------------------------------------------
 

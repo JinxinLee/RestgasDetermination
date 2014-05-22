@@ -59,6 +59,11 @@ class PndGemTrackFinderQA : public FairTask
   TClonesArray* fGemHitArray;     //
   TClonesArray* fGemTrackArray;     	    ///< Output array of PndGemTracks 
 
+  /** Array of GEM-related data **/
+  TClonesArray* fGemData[10];
+  Int_t         fGemDataPointer[1000];
+  Int_t         fGemPointNumber;
+
   /** Event counter **/
   Int_t fNofEvents;  ///< event counter
   
@@ -132,6 +137,9 @@ class PndGemTrackFinderQA : public FairTask
   virtual void SetParContainers();
 
   void DivideHistos(TH1* hist1, TH1* hist2, TH1* hist3);
+
+  Int_t GetPointVector(Int_t arrayId, Int_t entryId, std::vector<Int_t>& pointVector, Bool_t printInfo = kFALSE);
+  Int_t FindMatchingPoint(Int_t gemHitIndex);
 
   /** Finish **/
   virtual void Finish();
