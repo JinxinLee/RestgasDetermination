@@ -122,3 +122,4 @@ Set (CTEST_CUSTOM_COVERAGE_EXCLUDE
      "Dict.h"
      "Dict.cxx"
     )
+
