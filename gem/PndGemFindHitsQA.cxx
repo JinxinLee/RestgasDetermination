@@ -230,7 +230,9 @@ void PndGemFindHitsQA::SetParContainers() {
 
 // -----   Public method Exec   --------------------------------------------
 void PndGemFindHitsQA::Exec(Option_t* opt) {
-  
+
+  Bool_t printInfo = kFALSE;  
+
   fNofEvents++;
 
   Int_t nofGemHits = fGemHitArray->GetEntries();
@@ -241,6 +243,10 @@ void PndGemFindHitsQA::Exec(Option_t* opt) {
 
   //  cout << "---------------------------------" << endl;
   //  cout << "gem " << fHistWidth[istat][isens] << " wi
+  if ( printInfo ) {
+    cout << "GEM Point Array has " << nofGemPnts << " entries" << endl;
+    cout << "GEM   Hit Array has " << nofGemHits << " entries" << endl;
+  }
 
   for ( Int_t ipnt = 0 ; ipnt < nofGemPnts ; ipnt++ ) {
     gemPnt = (PndGemMCPoint*)fMCPointArray->At(ipnt);
@@ -252,8 +258,10 @@ void PndGemFindHitsQA::Exec(Option_t* opt) {
     Int_t    regX    = fHistPlaneDivs+TMath::Floor(pntX/fHistWidth[station][sensor]);
     Int_t    regY    = fHistPlaneDivs+TMath::Floor(pntY/fHistWidth[station][sensor]);
     
-    //    cout << "GEM Point at " << gemPnt->GetX() << " , " << gemPnt->GetY() << " , " << gemPnt->GetZ() << endl;
-    //    cout << "----> Will go to [ " << station << " ] [ " << sensor << " ] [ " << regX << " ] [ " << regY << " ]" << endl;
+    if ( printInfo ) {
+      cout << "GEM Point at " << gemPnt->GetX() << " , " << gemPnt->GetY() << " , " << gemPnt->GetZ() << endl;
+      cout << "----> Will go to [ " << station << " ] [ " << sensor << " ] [ " << regX << " ] [ " << regY << " ]" << endl;
+    }
     
     Int_t    nofCloseHits = 0;
     Double_t distToClosestHit = 100000.;
@@ -263,12 +271,18 @@ void PndGemFindHitsQA::Exec(Option_t* opt) {
       
       fhPointToHit[station][sensor][regX][regY]->Fill(pntX-gemHit->GetX(),
 						      pntY-gemHit->GetY());
-      
+
+      if ( printInfo ) {
+	cout << "**** " << pntX << " : " << gemHit->GetX() << " *** " << pntY << " : " << gemHit->GetY() << " ***" << endl;      
+      }
+
       Double_t p2hDistSq = (pntX-gemHit->GetX())*(pntX-gemHit->GetX())+(pntY-gemHit->GetY())*(pntY-gemHit->GetY());
       if ( distToClosestHit > p2hDistSq )
 	distToClosestHit = p2hDistSq;
       if ( p2hDistSq < fPointEffDist*fPointEffDist ) {
-	//	cout << "POINT " << ipnt << " AND HIT " << ihit << " ARE CLOSE!!!" << endl;
+	if ( printInfo ) {
+	  cout << "POINT " << ipnt << " AND HIT " << ihit << " ARE CLOSE!!!" << endl;
+	}
 	nofCloseHits++;
       }
     }
@@ -670,6 +684,10 @@ void PndGemFindHitsQA::Finish() {
        << "% (" << nofPointsReco
        << " / " << nofPointsAll
        << ")" << endl;
+  cout << "o   o   o   o   o   o   o   o   o   o   o   o   o   o   o   o   o" << endl;
+  Int_t pointsAll = fhTrueMatchNofPerPoint->GetEntries();
+  Int_t pointsMCM = pointsAll-fhTrueMatchNofPerPoint->GetBinContent(fhTrueMatchNofPerPoint->FindBin(0.));
+  cout << "         TRUE MATCH EFF = " << ((Double_t)(pointsMCM))/((Double_t)(pointsAll))*100. << "% (" << pointsMCM << " / " << pointsAll << ")" << endl;
 
   cout << "-----------------------------------------------------------------" << endl;
 
