@@ -20,6 +20,8 @@ def getNumJobsOnHimster():
 
 dirs = []
 
+pattern = ''
+
 def getListOfDirectories(path, force):
   if os.path.isdir(path):
     for dir in os.listdir(path):
@@ -33,7 +35,9 @@ def getListOfDirectories(path, force):
           if not filelists:
             filelists = glob.glob(bunch_dir + '/filelist_*.txt')
             if filelists:
-              dirs.append(bunch_dir)
+              m = re.search(pattern, bunch_dir)
+              if m:
+                dirs.append(bunch_dir)
         return
       else:
         if glob.glob(path + '/Lumi_MC_*.root'):
@@ -52,16 +56,18 @@ parser.add_argument('type', metavar='type', type=str, nargs=1,
 parser.add_argument('dirname', metavar='dirname_to_scan', type=str, nargs=1,
                     help='Name of directory to scan recursively for qa files and create bunches')
 
+parser.add_argument('--dir_pattern', metavar='path name pattern', type=str, default='.*', help='')
 parser.add_argument('--force', action='store_true', help='number of events to use')
 parser.add_argument('--num_events', metavar='num_events', type=int, default=0, help='number of events to use')
 parser.add_argument('--elastic_cross_section', metavar='elastic_cross_section', type=float, default=1.0, help='Total elastic cross section. Relevant for luminosity extraction performance tests!')
 
 args = parser.parse_args()
 
+pattern = args.dir_pattern
+
 failed_submit_commands = []
 
 getListOfDirectories(args.dirname[0], args.force)
-
 
 max_jobarray_size = 100
 

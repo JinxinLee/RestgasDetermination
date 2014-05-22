@@ -12,6 +12,7 @@ import argparse
 dirs = []
 
 glob_pattern = ''
+dir_pattern = ''
 
 def getListOfDirectories(path):
   if os.path.isdir(path):
@@ -21,7 +22,9 @@ def getListOfDirectories(path):
         for bunch_dir in bunch_dirs:
           filelists = glob.glob(bunch_dir + '/' + glob_pattern)
           if filelists:
-            dirs.append(bunch_dir)
+            m = re.search(dir_pattern, bunch_dir)
+            if m:
+              dirs.append(bunch_dir)
         return
       else:
         if glob.glob(path + '/Lumi_MC_*.root'):
@@ -37,8 +40,11 @@ parser.add_argument('type', metavar='type', type=int, nargs=1,
                     help='type of data to create (0 = angular, 1 = efficiency, 2 = resolution, 3 = vertex/ip')
 parser.add_argument('dirname', metavar='dirname_to_scan', type=str, nargs=1,
                     help='Name of directory to scan recursively for lmd data files and call merge!')
+parser.add_argument('--dir_pattern', metavar='path name pattern', type=str, default='.*', help='')
 
 args = parser.parse_args()
+
+dir_pattern = args.dir_pattern
 
 pattern = ''
 if args.type[0] == 0:

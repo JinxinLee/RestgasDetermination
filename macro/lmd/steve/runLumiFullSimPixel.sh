@@ -64,9 +64,9 @@ echo "mcut: $CleanSig"
 ## Write all MC info in TrkQA array
 WrAllMC=true
 
-#ok we want to simulate only on the node so also the output files of the simulation so change the pathname to /tmp/dirname
+#ok we want to simulate only on the node so also the output files of the simulation so change the pathname to /local/scratch/dirname
 dirname=`echo $dirname | sed -e 's/\//_/g'`
-workpathname=/tmp/$dirname
+workpathname=/local/scratch/$dirname
 if [ ! -d $workpathname ]; then
   mkdir -p $workpathname
 fi
@@ -121,15 +121,12 @@ if [ 0 -eq "$?" ]; then
   check_stage_success "$workpathname/Lumi_Track_${start_evt}.root"
   if [ 0 -eq "$?" ]; then
     #this macro needs Lumi_Track_... file as input so we need to link the unfiltered file
-    cd ${workpathname}
-    ln -sf Lumi_TrackNotFiltered_${start_evt}.root Lumi_Track_${start_evt}.root
-    cd -
+    ln -sf ${workpathname}/Lumi_TrackNotFiltered_${start_evt}.root ${workpathname}/Lumi_Track_${start_evt}.root
+
     root -l -b -q 'runLumiPixel4aFilter.C('${num_evts}', '${start_evt}', "'${workpathname}'", '$verbositylvl', '${mergedHits}', '${SkipFilt}', '${XThetaCut}', '${YPhiCut}', '${BoxCut}', '${rec_beamX0}', '${rec_beamY0}')'
    
     #now overwrite the Lumi_Track_ sym link with the filtered version
-    cd ${workpathname}
-    ln -sf Lumi_TrackFiltered_${start_evt}.root Lumi_Track_${start_evt}.root
-    cd -
+    ln -sf ${workpathname}/Lumi_TrackFiltered_${start_evt}.root ${workpathname}/Lumi_Track_${start_evt}.root
   fi
 fi
 

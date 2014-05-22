@@ -16,6 +16,15 @@ include_directories(${INCLUDE_DIRECTORIES})
 
 link_directories(${LINK_DIRECTORIES})
 
+########################### create phiSlicing app ##################################
+
+add_executable(phiSliceData phiSliceData.cxx)
+target_link_libraries(phiSliceData Lmd LmdTool MathMore Eve)
+
+########################### create phiSlicingPlotter app ##################################
+
+add_executable(plotPhiSlicedLumiFitResults plotPhiSlicedLumiFitResults.cxx)
+target_link_libraries(plotPhiSlicedLumiFitResults LmdFit MathMore Eve boost_regex)
 
 ########################### create lumiFitData app ##################################
 

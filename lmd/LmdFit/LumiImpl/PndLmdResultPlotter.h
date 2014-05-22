@@ -163,6 +163,10 @@ public:
 	void drawMultipleGraphsOnCanvas(
 			std::vector<std::pair<TGraphErrors*, TString> >& graphs);
 
+	std::map<PndLmdLumiFitOptions, PndLmdResultPlotter::graph_bundle> makeGraphBundles1D(
+			std::vector<PndLmdAngularData> &data_vec,
+			LumiFit::PndLmdFitModelOptions &fitop_tmctruth);
+
 	std::map<PndLmdLumiFitOptions,
 			std::map<int, PndLmdResultPlotter::graph_bundle>,
 			PndLmdResultPlotter::fit_options_compare> makeGraphBundles1D(

@@ -111,13 +111,15 @@ void runLumiPixel0SimDPM(const int nEvents = 10, const int startEvent = 0,
 
 	//particle generator
 	FairPrimaryGenerator* primGen = new FairPrimaryGenerator();
-	if (beam_width_sigma_X > 0.0 || beam_width_sigma_Y > 0.0) {
+	if (beam_X0 != 0.0 || beam_Y0 != 0.0 || beam_width_sigma_X > 0.0 || beam_width_sigma_Y > 0.0) {
 		primGen->SmearGausVertexXY(true);
 		primGen->SetBeam(beam_X0, beam_Y0, beam_width_sigma_X, beam_width_sigma_Y);
+	}
+	if(target_Z0 != 0.0 || target_width_Z > 0.0) {
 		primGen->SmearGausVertexZ(true);
 		primGen->SetTarget(target_Z0, target_width_Z);
 	}
-	if (beam_grad_sigma_X > 0.0 || beam_grad_sigma_Y > 0.0) {
+	if (beam_grad_X != 0.0 || beam_grad_Y != 0.0 || beam_grad_sigma_X > 0.0 || beam_grad_sigma_Y > 0.0) {
 		primGen->SetBeamAngle(beam_grad_X, beam_grad_Y, beam_grad_sigma_X,
 				beam_grad_sigma_Y);
 	}

@@ -752,6 +752,34 @@ PndLmdResultPlotter::graph_bundle PndLmdResultPlotter::makeVertexGraphBundle1D(
 	return lmd_graph_bundle;
 }
 
+std::map<PndLmdLumiFitOptions, PndLmdResultPlotter::graph_bundle> PndLmdResultPlotter::makeGraphBundles1D(
+		std::vector<PndLmdAngularData> &data_vec,
+		LumiFit::PndLmdFitModelOptions &fitop) {
+
+	std::map<PndLmdLumiFitOptions, PndLmdResultPlotter::graph_bundle> return_map;
+
+	for (std::vector<PndLmdAngularData>::iterator data = data_vec.begin();
+			data != data_vec.end(); data++) {
+		// we only want IP info, so throw out everything else
+		if (data->getPrimaryDimension().dimension_options.track_param_type
+				!= LumiFit::IP) {
+			continue;
+		}
+
+		// loop over fit results
+		map<PndLmdLumiFitOptions, PndLmdLumiFitResult*> fit_results =
+				data->getFitResults();
+		for (map<PndLmdLumiFitOptions, PndLmdLumiFitResult*>::iterator it =
+				fit_results.begin(); it != fit_results.end(); it++) {
+
+			if (it->first.getFitModelOptions().equalBinaryOptions(fitop)) {
+				return_map[it->first] = makeGraphBundle1D(*data, it->first);
+			}
+		}
+	}
+	return return_map;
+}
+
 std::map<PndLmdLumiFitOptions, std::map<int, PndLmdResultPlotter::graph_bundle>,
 		PndLmdResultPlotter::fit_options_compare> PndLmdResultPlotter::makeGraphBundles1D(
 		std::vector<PndLmdAngularData> &data_vec) {

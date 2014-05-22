@@ -199,6 +199,8 @@ PndLmdLumiFitResult* PndLmdFitFacade::doFit(PndLmdHistogramData &lmd_hist_data,
 	fit_result = new PndLmdLumiFitResult();
 	fit_result->setModelFitResult(temp_fit_result);
 	lmd_hist_data.addFitResult(fit_options, fit_result);
+	cout << "fit storage now contains " << lmd_hist_data.getFitResults().size()
+			<< " entries!" << endl;
 	return fit_result;
 }
 
@@ -319,8 +321,7 @@ void PndLmdFitFacade::fitVertexData(std::vector<PndLmdVertexData> &lmd_data) {
 
 			fit_range.is_active = true;
 			fit_options_template.est_opt.setFitRangeX(fit_range);
-		}
-		else if (lmd_data[i].getPrimaryDimension().dimension_options.track_type
+		} else if (lmd_data[i].getPrimaryDimension().dimension_options.track_type
 				== LumiFit::RECO) {
 			DataStructs::DimensionRange fit_range;
 
@@ -360,14 +361,13 @@ void PndLmdFitFacade::fitVertexData(std::vector<PndLmdVertexData> &lmd_data) {
 		PndLmdLumiFitOptions *fit_options = createFitOptions(lmd_data[i]);
 		fit_options_template.est_opt.setFitRangeX(old_range);
 
-
 		// create chi2 estimator
 		shared_ptr<Chi2Estimator> chi2_est(new Chi2Estimator());
 		model_fit_facade.setEstimator(chi2_est);
 
 		/*shared_ptr<LogLikelihoodEstimator> loglikelihood_est(
-				new LogLikelihoodEstimator());
-		model_fit_facade.setEstimator(loglikelihood_est);*/
+		 new LogLikelihoodEstimator());
+		 model_fit_facade.setEstimator(loglikelihood_est);*/
 
 		model_fit_facade.setData(createData1D(lmd_data[i]));
 

@@ -28,6 +28,7 @@
 #include <map>
 #include <iostream>
 #include <iterator>
+#include <sstream>
 
 #include "TString.h"
 #include "TCanvas.h"
@@ -187,9 +188,12 @@ void plotMultipleLumiFitResults(std::vector<TString> paths,
 	//plotter.setTitleOffsetY(1.5);
 	// ================================= END CONFIG ================================= //
 
-	std::map<LumiFit::LmdSimIPParameters, PndLmdResultPlotter::graph_bundle> reco_graph_map;
-	std::map<LumiFit::LmdSimIPParameters, PndLmdResultPlotter::graph_bundle> reco_resid_graph_map;
-	std::map<LumiFit::LmdSimIPParameters, PndLmdResultPlotter::graph_bundle> acc2d_graph_map;
+	std::map<PndLmdLumiFitOptions,
+			std::map<LumiFit::LmdSimIPParameters, PndLmdResultPlotter::graph_bundle> > reco_graph_map;
+	std::map<PndLmdLumiFitOptions,
+			std::map<LumiFit::LmdSimIPParameters, PndLmdResultPlotter::graph_bundle> > reco_resid_graph_map;
+	std::map<PndLmdLumiFitOptions,
+			std::map<LumiFit::LmdSimIPParameters, PndLmdResultPlotter::graph_bundle> > acc2d_graph_map;
 
 	for (unsigned int i = 0; i < paths.size(); i++) {
 		// ------ get files -------------------------------------------------------
@@ -204,34 +208,74 @@ void plotMultipleLumiFitResults(std::vector<TString> paths,
 		std::vector<PndLmdAngularData> data_vec = lmd_data_facade.getDataFromFile<
 				PndLmdAngularData>(fdata);
 
+		LumiFit::PndLmdFitModelOptions fitop_normal(LumiFit::RECO, LumiFit::THETA);
 		// create a vector of graph bundles (one entry for each fit option)
-		std::map<PndLmdLumiFitOptions,
-				std::map<int, PndLmdResultPlotter::graph_bundle>,
-				PndLmdResultPlotter::fit_options_compare> graph_bundle_map =
-				plotter.makeGraphBundles1D(data_vec);
+		std::map<PndLmdLumiFitOptions, PndLmdResultPlotter::graph_bundle> graph_bundle_map =
+				plotter.makeGraphBundles1D(data_vec, fitop_normal);
+
+		std::cout << "number of overview canvases: " << graph_bundle_map.size()
+				<< std::endl;
 
 		plotter.setThetaPlotRange(0.0, 0.012);
 		// get reco graph bundle
-		PndLmdResultPlotter::graph_bundle gb = graph_bundle_map.begin()->second[6];
-		PndLmdResultPlotter::graph_bundle gb_resid =
-				graph_bundle_map.begin()->second[9];
-		PndLmdResultPlotter::graph_bundle gb_acc =
-				graph_bundle_map.begin()->second[3];
+		std::map<PndLmdLumiFitOptions, PndLmdResultPlotter::graph_bundle>::iterator graph_bundle_it;
+		for (graph_bundle_it = graph_bundle_map.begin();
+				graph_bundle_it != graph_bundle_map.end(); graph_bundle_it++) {
+			//PndLmdResultPlotter::graph_bundle gb_resid =
+			//		graph_bundle_map.begin()->second[9];
+			//PndLmdResultPlotter::graph_bundle gb_acc =
+			//		graph_bundle_map.begin()->second[3];
 
-		reco_graph_map[true_ip_values] = gb;
-		reco_resid_graph_map[true_ip_values] = gb_resid;
-		acc2d_graph_map[true_ip_values] = gb_acc;
+			reco_graph_map[graph_bundle_it->first][true_ip_values] =
+					graph_bundle_it->second;
+			//reco_resid_graph_map[graph_bundle_map.begin()->first][true_ip_values] =
+			//		gb_resid;
+			//acc2d_graph_map[graph_bundle_map.begin()->first][true_ip_values] = gb_acc;
+		}
 	}
 
-	TString s("lumifit_results_reco_overview");
-	s += filename_suffix + ".pdf";
-	makeOverviewCanvas(reco_graph_map, s, plotter, false);
-	s = "lumifit_results_reco_residuals_overview";
-	s += filename_suffix + ".pdf";
-	makeOverviewCanvas(reco_resid_graph_map, s, plotter, false);
-	s = "acc2d_overview";
-	s += filename_suffix + ".pdf";
-	makeOverviewCanvas(acc2d_graph_map, s, plotter, true);
+	std::map<PndLmdLumiFitOptions,
+			std::map<LumiFit::LmdSimIPParameters, PndLmdResultPlotter::graph_bundle> >::iterator iter;
+
+	std::map<LumiFit::LmdSimIPParameters, PndLmdResultPlotter::graph_bundle> remainder_map;
+
+	// remove entries of the upper map in which the secondary map contain just a single entry
+	iter = reco_graph_map.begin();
+	while (iter != reco_graph_map.end()) {
+		if (iter->second.size() == 1) {
+			remainder_map[iter->second.begin()->first] = iter->second.begin()->second;
+			reco_graph_map.erase(iter++);
+		}
+		else
+			++iter;
+	}
+
+	int counter = 1;
+	for (iter = reco_graph_map.begin(); iter != reco_graph_map.end(); iter++) {
+		std::stringstream s;
+		s << "lumifit_results_reco_overview" << filename_suffix << "_" << counter++
+				<< ".pdf";
+		makeOverviewCanvas(iter->second, s.str(), plotter, false);
+	}
+
+	std::stringstream s;
+	s << "lumifit_results_reco_overview" << filename_suffix << "_remain.pdf";
+	makeOverviewCanvas(remainder_map, s.str(), plotter, false);
+
+	/*counter = 1;
+	 for (iter = reco_resid_graph_map.begin(); iter != reco_resid_graph_map.end();
+	 iter++) {
+	 std::stringstream s;
+	 s << "lumifit_results_reco_residuals_overview" << filename_suffix << "_"
+	 << counter++ << ".pdf";
+	 makeOverviewCanvas(iter->second, s.str(), plotter, false);
+	 }
+	 counter = 1;
+	 for (iter = acc2d_graph_map.begin(); iter != acc2d_graph_map.end(); iter++) {
+	 std::stringstream s;
+	 s << "acc2d_overview" << filename_suffix << "_" << counter++ << ".pdf";
+	 makeOverviewCanvas(iter->second, s.str(), plotter, false);
+	 }*/
 
 	// ================================ END PLOTTING ================================ //
 }

@@ -29,7 +29,8 @@ using std::cerr;
 using std::endl;
 using std::string;
 
-void runLumiFit(string input_file_dir, string acceptance_file_dir) {
+void runLumiFit(string input_file_dir, string acceptance_file_dir,
+		string reference_acceptance_file_dir) {
 	cout << "Running LumiFit...." << endl;
 
 	// ============================== BEGIN STEP 1 ============================== //
@@ -48,6 +49,12 @@ void runLumiFit(string input_file_dir, string acceptance_file_dir) {
 		hs << acceptance_file_dir << "/lmd_acc_data.root";
 		facc = new TFile(hs.str().c_str(), "READ");
 	}
+	TFile *frefacc = 0;
+	if (reference_acceptance_file_dir != "") {
+		hs.str("");
+		hs << reference_acceptance_file_dir << "/lmd_acc_data.root";
+		frefacc = new TFile(hs.str().c_str(), "READ");
+	}
 
 	// ------------------------------------------------------------------------
 
@@ -56,6 +63,8 @@ void runLumiFit(string input_file_dir, string acceptance_file_dir) {
 			PndLmdAngularData>(fdata);
 	vector<PndLmdAcceptance> my_lmd_acc_vec = lmd_data_facade.getDataFromFile<
 			PndLmdAcceptance>(facc);
+	vector<PndLmdAcceptance> lmd_ref_acc_vec = lmd_data_facade.getDataFromFile<
+			PndLmdAcceptance>(frefacc);
 
 	// output file
 	hs.str("");
@@ -84,7 +93,8 @@ void runLumiFit(string input_file_dir, string acceptance_file_dir) {
 	// specify the resolution parametriztion file which will take care of the smearing
 	hs.str("");
 	hs << acceptance_file_dir << "/resolution_params_1.root";
-	lmd_fit_facade.initializeResolutionModelOptionsFromParametrizationFile(model_opt, hs.str());
+	lmd_fit_facade.initializeResolutionModelOptionsFromParametrizationFile(
+			model_opt, hs.str());
 
 	lmd_fit_facade.setModelFitOptions(model_opt);
 
@@ -108,6 +118,31 @@ void runLumiFit(string input_file_dir, string acceptance_file_dir) {
 		est_opt.setFitRangeX(fit_range);
 		lmd_fit_facade.setEstimatorOptions(est_opt);
 		lmd_fit_facade.doLmdLumiFits(my_lmd_data_vec);
+	}
+
+	if (reference_acceptance_file_dir != "" && acceptance_file_dir != reference_acceptance_file_dir) {
+		// we will just take the first theta ip acceptance
+		// (usually you would only have a single one)
+		// otherwise just choose the one you want to use
+		if (lmd_ref_acc_vec.size() > 0)
+			model_opt.acceptance = &lmd_ref_acc_vec[0];
+
+		// specify the resolution parametriztion file which will take care of the smearing
+		hs.str("");
+		hs << reference_acceptance_file_dir << "/resolution_params_1.root";
+		lmd_fit_facade.initializeResolutionModelOptionsFromParametrizationFile(
+				model_opt, hs.str());
+
+		lmd_fit_facade.setModelFitOptions(model_opt);
+
+		for (unsigned int i = 0; i < 1; i++) {
+			fit_range.range_low = (2.1 + 0.5 * i) / 1000.0;
+			fit_range.range_high = 0.01;
+
+			est_opt.setFitRangeX(fit_range);
+			lmd_fit_facade.setEstimatorOptions(est_opt);
+			lmd_fit_facade.doLmdLumiFits(my_lmd_data_vec);
+		}
 	}
 
 	// save fit results by just saving the lmd data objects. They contain both
@@ -140,26 +175,32 @@ void displayInfo() {
 	cout << "-d [path to data]" << endl;
 	cout << "Optional arguments are: " << endl;
 	cout << "-a [path to box gen data] (acceptance)" << endl;
+	cout << "-r [path to reference box gen data] (acceptance)" << endl;
 }
 
 int main(int argc, char* argv[]) {
-	bool is_data_set = false, is_acc_set = false;
 	string data_path;
 	string acc_path = "";
+	string ref_acc_path = "";
+	bool is_data_set = false, is_acc_set = false;
+
 	int c;
 
-	while ((c = getopt(argc, argv, "ha:d:")) != -1) {
+	while ((c = getopt(argc, argv, "ha:r:d:")) != -1) {
 		switch (c) {
 			case 'a':
 				acc_path = optarg;
 				is_acc_set = true;
+				break;
+			case 'r':
+				ref_acc_path = optarg;
 				break;
 			case 'd':
 				data_path = optarg;
 				is_data_set = true;
 				break;
 			case '?':
-				if (optopt == 'd' || optopt == 'a')
+				if (optopt == 'd' || optopt == 'a' || optopt == 'r')
 					cerr << "Option -" << optopt << " requires an argument." << endl;
 				else if (isprint(optopt))
 					cerr << "Unknown option -" << optopt << "." << endl;
@@ -175,7 +216,7 @@ int main(int argc, char* argv[]) {
 	}
 
 	if (is_data_set)
-		runLumiFit(data_path, acc_path);
+		runLumiFit(data_path, acc_path, ref_acc_path);
 	else
 		displayInfo();
 	return 0;
