@@ -12,6 +12,7 @@
 #include "TMatrixD.h"
 #include <string>
 #include <list>
+#include "TString.h"
 
 class TClonesArray;
 class TObjectArray;
@@ -23,6 +24,7 @@ class PndFsmResponse;
 class PndFsmDetFactory;
 class TF1;
 class TDatabasePDG;
+class RhoCandList;
 
 typedef std::list<PndFsmAbsDet*> FsmAbsDetList;
 typedef std::list<PndFsmResponse*> FsmResponseList;
@@ -46,6 +48,8 @@ class PndFastSim : public FairTask
   /** Virtual method Init **/
   virtual InitStatus Init();
 
+  virtual void Finish();
+
 
   /** Virtual method Exec **/
   virtual void Exec(Option_t* opt);
@@ -58,6 +62,9 @@ class PndFastSim : public FairTask
   void EnableElectronBremsstrahlung(bool brems=true){fElectronBrems=brems;}
   void EnablePropagation(bool propagate=true, bool tostartvtx=true, bool usecovmatrix=true, double tolerance=0.0);
   void SetUseFlatCov(bool v=true) {fUseFlatCovMatrix=v;};
+  
+  void SetMultFilter(TString type, int min, int max=1000);
+  void SetInvMassFilter(TString filter, double min, double max, int mult=1);
 
   void SetSeed(unsigned int seed=65539);
   //void CreateStructure();
@@ -66,6 +73,10 @@ class PndFastSim : public FairTask
 
   PndFsmResponse* sumResponse(FsmResponseList respList);
 
+  bool acceptFilters(RhoCandList &l);
+  int  chCon(int i);
+  void copyAndSetMass(RhoCandList &l, RhoCandList &nl, double mass);
+  
   bool cutAndSmear(PndFsmTrack *t, PndFsmResponse *r);
   bool cutAndSmear(PndFsmTrack *t);
 
@@ -107,6 +118,20 @@ class PndFastSim : public FairTask
   bool      fUseCovMatrix;
   bool      fUseFlatCovMatrix;
   double    fTolerance;
+  
+  // filter vars
+  bool      fApplyFilter;
+  int       fMultMin[6];
+  int       fMultMax[6];
+  TString   fInvMassFilter;
+  double    fInvMassMin;
+  double    fInvMassMax;
+  int       fInvMassMult;
+  int       fCombIndex[5];
+  int       fCombMult;
+  bool      fChargeConj;
+  int       fNAccept;
+  
 
   PndFsmDetFactory *fDetFac;
   std::string fAddedDets;

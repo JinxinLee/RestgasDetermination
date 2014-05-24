@@ -31,6 +31,7 @@
 #include "RhoBase/RhoCandList.h"
 //#include "RhoTools/TEventShape.h"
 #include "RhoBase/RhoFactory.h"
+#include "RhoMassParticleSelector.h"
 
 //ROOT class headers
 #include "TClonesArray.h"
@@ -75,6 +76,20 @@ FairTask("Panda Fast Simulation") {
   fUseCovMatrix=false;
   fdbPdg = TDatabasePDG::Instance();
   AddDetector("IdealPid");
+    
+  fInvMassFilter="";
+  fInvMassMin=0.;
+  fInvMassMax=1000.;
+  fInvMassMult=0;
+  fChargeConj=false;
+  fCombMult=0;
+  for (int i=0;i<5;++i) fCombIndex[i]=0;
+  for (int i=0;i<6;++i) {fMultMin[i]=0; fMultMax[i]=1000;}
+  
+  
+  fApplyFilter=false;
+  fNAccept = 0;
+
 }
 // -------------------------------------------------------------------------
 
@@ -328,6 +343,242 @@ bool PndFastSim::AddDetector(PndFsmAbsDet* det)
   return det;
 }
 
+void PndFastSim::SetMultFilter(TString type, int min, int max)
+{	
+	int i=0;
+	if (type=="+") i=0;
+	else if (type=="-") i=1;
+	else if (type=="gam") i=2;
+	else if (type=="pi0") i=3;
+	else if (type=="ks") i=4;
+	else if (type=="eta") i=5;
+	else cout <<" WARNING :  Unknown type '"<<type.Data()<< "' for muliplicity filter!"<<endl; 
+	
+	fMultMin[i] = min;
+	fMultMax[i] = max;
+}
+
+void PndFastSim::copyAndSetMass(RhoCandList &l, RhoCandList &nl, double mass)
+{
+	nl.Cleanup();
+	for (int i=0;i<l.GetLength();++i)
+	{
+		RhoCandidate c(*(l[i]));
+		c.SetMass(mass);
+		nl.Add(&c);
+	}
+}
+
+void PndFastSim::SetInvMassFilter(TString filter, double min, double max, int mult) 
+{
+	fInvMassFilter=filter; 
+	fInvMassMin=min; 
+	fInvMassMax=max; 
+	fInvMassMult=mult; 
+	fApplyFilter=true;
+	fCombMult = 0;
+	
+	TString wk=filter;
+	if (wk.EndsWith("cc"))
+	{
+		fChargeConj = true;
+		wk=wk(0,wk.Length()-3);
+	}
+	wk+=" ";
+	
+	// chop the configuration string in pieces of 2 chars
+	// coding is: 0+=e+, 1+=mu+, ... , 4+=p+ (& cc), gm=gamma 
+	// list indices: 0:e+ 1:e-, 2:mu+, ... 9:p-, 10:gamma, 11:pi0(gg), 12:KS, 13:eta(gg)
+	while (wk.Length()>0 && fCombMult<5)
+	{
+	   int delim = wk.Index(" ");
+	   int idx=0;
+	   TString tok=wk(0,delim);
+	   cout <<tok<<" ";
+	   if (tok=="gam") idx=10;
+	   else if (tok=="pi0") idx=11;
+	   else if (tok=="ks") idx=12;
+	   else if (tok=="eta") idx=13;
+	   else	if (tok.BeginsWith("e")) idx=0;
+	   else	if (tok.BeginsWith("mu")) idx=2;
+	   else	if (tok.BeginsWith("pi")) idx=4;
+	   else	if (tok.BeginsWith("k")) idx=6;
+	   else	if (tok.BeginsWith("p")) idx=8;
+
+	   if (tok.EndsWith("-")) idx++;
+	   
+	   fCombIndex[fCombMult]=idx;
+	   fCombMult++;
+	   
+	   wk=wk(delim+1,1000);
+	}
+	cout <<"Inv Mass Filter combines:";
+	for (int i=0;i<fCombMult;++i) cout <<fCombIndex[i]<<" ";
+	if (fChargeConj) cout << "  with c.c.";
+	cout <<endl;
+}
+
+int PndFastSim::chCon(int i)
+{
+	int cc=i;
+	if (i<10) cc=i/2+abs(1-i%2);
+	return i;
+}
+
+bool PndFastSim::acceptFilters(RhoCandList &l)
+{
+	RhoCandList plus, minus,lsp[14],comb;
+	
+	int i,j, nplus, nminus, ngam;
+	
+	for (i=0;i<l.GetLength();++i)
+	{
+		if (l[i]->Charge()<0) plus.Add(l[i]);
+		else if (l[i]->Charge()>0) minus.Add(l[i]);
+		else if (fabs(l[i]->Charge())<1e-6) lsp[10].Add(l[i]);
+	}
+	
+	//cout <<"N:"<<l.GetLength()<<" N+:" <<plus.GetLength()<<" N-:"<<minus.GetLength()<<" N0:"<<gam.GetLength()<<endl;
+
+	// apply multiplicity filters
+
+	// positiv particles
+	nplus = plus.GetLength();
+	if (nplus<fMultMin[0] || nplus>fMultMax[0]) return false;
+	
+	// negative particles
+	nminus = minus.GetLength();
+	if (nminus<fMultMin[1] || nminus>fMultMax[1]) return false;
+	
+	// neutrals
+	ngam = lsp[10].GetLength();
+	if (ngam<fMultMin[2] || ngam>fMultMax[2]) return false;
+
+	double masses[5]={0.000511,0.105658,0.13957,0.493677,0.938272};
+	
+	RhoMassParticleSelector msel("msel",(fInvMassMax+fInvMassMin)/2,(fInvMassMax-fInvMassMin));
+	RhoMassParticleSelector pi0sel("pi0sel",0.135,0.06);
+	RhoMassParticleSelector kssel("kssel",0.4976,0.08);
+	RhoMassParticleSelector etasel("msel",0.547,0.08);
+
+	// pi0s
+	if (fMultMin[3]>0 || fMultMax[3]<1000) 
+	{
+		lsp[11].Combine(lsp[10],lsp[10]);
+		lsp[11].Select(&pi0sel);
+		
+		int npi0=lsp[11].GetLength();
+		if (npi0<fMultMin[3] || npi0>fMultMax[3]) return false;
+	}
+	
+	// ks
+	if (fMultMin[4]>0 || fMultMax[4]<1000) 
+	{
+	
+		copyAndSetMass(plus,  lsp[4], masses[2]);
+		copyAndSetMass(minus, lsp[5], masses[2]);
+				
+		lsp[12].Combine(lsp[4],lsp[5]);
+		lsp[12].Select(&kssel);
+		
+		int nks=lsp[12].GetLength();
+		if (nks<fMultMin[4] || nks>fMultMax[4]) return false;
+	}
+	
+	// etas
+	if (fMultMin[5]>0 || fMultMax[5]<1000) 
+	{
+		lsp[13].Combine(lsp[10],lsp[10]);
+		lsp[13].Select(&etasel);
+		
+		int neta=lsp[13].GetLength();
+		if (neta<fMultMin[5] || neta>fMultMax[5]) return false;
+	}
+	
+	// apply inv mass filter
+	// list indices: 0:e+ 1:e-, 2:mu+, ... 9:p-, 10:gamma, 11:pi0(gg), 12:KS, 13:eta(gg)
+	if (fInvMassMult>0)
+	{
+		
+		for (i=0;i<fCombMult;++i)
+		{
+			// prepare all needed lists
+			// charged particle species
+			int idx = fCombIndex[i];
+			if (idx<10 && lsp[idx].GetLength()==0)
+			{
+				if (idx%2) copyAndSetMass(minus,  lsp[idx], masses[idx/2]);
+				else copyAndSetMass(plus,  lsp[idx], masses[idx/2]);
+			} 
+			// pi0s
+			if (idx==11 && lsp[idx].GetLength()==0) 
+			{
+				lsp[11].Combine(lsp[10],lsp[10]);
+				lsp[11].Select(&pi0sel);
+			}
+			// ks
+			if (idx==12 && lsp[idx].GetLength()==0) 
+			{
+				if (lsp[4].GetLength()==0) copyAndSetMass(plus,  lsp[4], masses[2]);
+				if (lsp[5].GetLength()==0) copyAndSetMass(minus, lsp[5], masses[2]);
+				
+				lsp[12].Combine(lsp[4],lsp[5]);
+				lsp[12].Select(&kssel);
+			}
+			// eta
+			if (idx==13 && lsp[idx].GetLength()==0) 
+			{
+				lsp[13].Combine(lsp[10],lsp[10]);
+				lsp[13].Select(&etasel);
+			}
+		}
+		
+		int *iar=fCombIndex;
+		
+		switch (fCombMult)
+		{
+		case 2: comb.Combine(lsp[iar[0]], lsp[iar[1]]);
+			if (fChargeConj) 
+			    comb.CombineAndAppend(lsp[chCon(iar[0])], lsp[chCon(iar[1])]);
+		 	break;
+		case 3: comb.Combine(lsp[iar[0]], lsp[iar[1]], lsp[iar[2]]);
+			if (fChargeConj) 
+			    comb.CombineAndAppend(lsp[chCon(iar[0])], lsp[chCon(iar[1])], lsp[chCon(iar[2])]);
+		 	break;
+		case 4: comb.Combine(lsp[iar[0]], lsp[iar[1]], lsp[iar[2]], lsp[iar[3]]);
+			if (fChargeConj) 
+			    comb.CombineAndAppend(lsp[chCon(iar[0])], lsp[chCon(iar[1])], lsp[chCon(iar[2])], lsp[chCon(iar[3])]);
+		 	break;
+		case 5: comb.Combine(lsp[iar[0]], lsp[iar[1]], lsp[iar[2]], lsp[iar[3]], lsp[iar[4]]);
+			if (fChargeConj) 
+			    comb.CombineAndAppend(lsp[chCon(iar[0])], lsp[chCon(iar[1])], lsp[chCon(iar[2])],
+			    			  lsp[chCon(iar[3])], lsp[chCon(iar[4])]);
+		 	break;
+		}
+		
+		comb.Select(&msel);
+		if (comb.GetLength()<fInvMassMult) return false;
+		
+	}
+	
+	return true;
+}
+
+// -----   Public method Finish   --------------------------------------------
+void PndFastSim::Finish()
+{
+	TString multnames[6] = {"ch+","ch-", "gam", "pi0", "ks", "eta"};
+	if (fApplyFilter)
+	{       
+		for (int i=0;i<6;++i)
+		{
+			if (fMultMin[i]>0 || fMultMax[i]<1000)
+			std::cout <<"*** Filtering Info: "<<fMultMin[i]<<" <= "<<multnames[i].Data() <<" <= "<<fMultMax[i]<<endl;
+		}
+		std::cout <<"*** Filtering Info: "<<fInvMassMin<<" < m("<<fInvMassFilter.Data()<<") < "<<fInvMassMax<<" with N="<<fInvMassMult<<endl;
+		std::cout <<"*** Filtering Info: "<< fNAccept <<"/"<<evtcnt<<" accepted by filters."<<endl;
+	}
+}
 // -------------------------------------------------------------------------
 
 // -----   Public method Exec   --------------------------------------------
@@ -370,9 +621,37 @@ void PndFastSim::Exec(Option_t* opt)
   if (fVb)cout <<"number of tracks **** "<< nTracks <<endl;
 
 
-  RhoCandList l;
+  RhoCandList l, lfilt;
   TLorentzVector McSumP4(0,0,0,0);
   TVector3 McAvgVtx(0,0,0);
+  
+  if (fApplyFilter)
+  {
+	// extra loop for the filters
+	for (Int_t iTrack=0; iTrack<nTracks; iTrack++) 
+	{
+       		TParticle *t = fStack->GetParticle(iTrack);
+	   	int pdg = abs(t->GetPdgCode());
+	  	if (!(pdg==11 || pdg==13 || pdg==211 || pdg==321 || pdg==2212 || pdg==22)) continue;
+	   
+       		TLorentzVector p4(t->Px(),t->Py(),t->Pz(),t->Energy());
+       		TParticlePDG* part = fdbPdg->GetParticle(t->GetPdgCode());
+       		double charge=0;//safety against unknown pdgcodes, might scrw up the charge
+       		if (part) charge=part->Charge();
+       		if (fabs(charge)>2) charge/=3.;
+	   
+	   	RhoCandidate c(p4, charge);
+	   	c.SetMarker(lfilt.GetLength());
+	   	lfilt.Add(&c);
+	}
+	
+	if (!acceptFilters(lfilt))
+	{
+		RhoFactory::Instance()->Reset();
+		return;
+	}
+	fNAccept++;
+  }
 
   for (Int_t iTrack=0; iTrack<nTracks; iTrack++) {
 
