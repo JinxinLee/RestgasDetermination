@@ -10,6 +10,26 @@ ${BASE_INCLUDE_DIRECTORIES}
 ${CMAKE_SOURCE_DIR}/field
 ${CMAKE_SOURCE_DIR}/generators
 ${CMAKE_SOURCE_DIR}/pgenerators
+${CMAKE_SOURCE_DIR}/pgenerators/eventFilter
+${CMAKE_SOURCE_DIR}/base/sim
+${CMAKE_SOURCE_DIR}/pnddata
+${CMAKE_SOURCE_DIR}/rho
+${CMAKE_SOURCE_DIR}/rho/RhoBase
+${CMAKE_SOURCE_DIR}/rho/RhoSelector
+${CMAKE_SOURCE_DIR}/fairtools
+${CMAKE_SOURCE_DIR}/geobase 
+${CMAKE_SOURCE_DIR}/parbase 
+${CMAKE_SOURCE_DIR}/base
+${CMAKE_SOURCE_DIR}/base/steer
+${CMAKE_SOURCE_DIR}/base/event
+${CMAKE_SOURCE_DIR}/base/field
+${CMAKE_SOURCE_DIR}/base/sim
+${CMAKE_SOURCE_DIR}/base/source
+${CMAKE_SOURCE_DIR}/dbase/dbInterface
+${CMAKE_SOURCE_DIR}/dbase/dbValidation
+${CMAKE_SOURCE_DIR}/dbase/dbUtils
+${CMAKE_SOURCE_DIR}/input/db
+${CMAKE_SOURCE_DIR}/dbase/dbInput
 )
 
 include_directories( ${INCLUDE_DIRECTORIES})
@@ -39,6 +59,12 @@ PndGiBuuGenerator.cxx
 PndGiBuuTrack.cxx
 PndGiBuuDecayerAbs.cxx
 PndGiBuuJPsiEE.cxx
+eventFilter/PndEvtFilter.cxx
+eventFilter/PndEvtFilterOnInvMassCounts.cxx
+eventFilter/FairEvtFilter.cxx
+eventFilter/FairEvtFilterOnCounts.cxx
+eventFilter/FairEvtFilterParams.cxx
+eventFilter/FairFilteredPrimaryGenerator.cxx
 )
 
 set(LINKDEF  PGenLinkDef.h)

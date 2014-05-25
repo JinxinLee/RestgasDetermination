@@ -22,5 +22,11 @@
 #pragma link C++ class  PndGiBuuTrack+;
 #pragma link C++ class  PndGiBuuDecayerAbs;
 #pragma link C++ class  PndGiBuuJPsiEE;
+#pragma link C++ class  PndEvtFilter+;
+#pragma link C++ class  PndEvtFilterOnInvMassCounts+;
+#pragma link C++ class  FairFilteredPrimaryGenerator+;
+#pragma link C++ class  FairEvtFilter+;
+#pragma link C++ class  FairEvtFilterOnCounts+;
+#pragma link C++ class  FairEvtFilterParams+;
 
 #endif
