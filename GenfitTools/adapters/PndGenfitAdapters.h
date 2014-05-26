@@ -1,14 +1,16 @@
+//modified by Elisabetta Prencipe, 19/05/2014
+
 #ifndef PNDGENFITADAPTERS_H
 #define PNDGENFITADAPTERS_H
 
 class PndTrack;
 class PndTrackCand;
-class GFTrack;
-class GFAbsTrackRep;
-class GFTrackCand;
+class Track;
+class AbsTrackRep;
+class TrackCand;
 
-PndTrackCand* GenfitTrackCand2PndTrackCand(const GFTrackCand*);
-GFTrackCand* PndTrackCand2GenfitTrackCand(PndTrackCand*);
-PndTrack* GenfitTrack2PndTrack(const GFTrack*);
+PndTrackCand* GenfitTrackCand2PndTrackCand(const TrackCand*);
+TrackCand* PndTrackCand2GenfitTrackCand(PndTrackCand*);
+PndTrack* GenfitTrack2PndTrack(const Track*);
 
 #endif
