@@ -1,16 +1,14 @@
-//modified by Elisabetta Prencipe, 19/05/2014
-
 #include"PndGenfitAdapters.h"
 
 #include <iostream>
 
-#include"Track.h"
-#include"AbsTrackRep.h"
-#include"TrackCand.h"
+#include"GFTrack.h"
+#include"GFAbsTrackRep.h"
+#include"GFTrackCand.h"
 #include"PndTrack.h"
 #include"PndTrackCand.h"
-#include"DetPlane.h"
-#include"Exception.h"
+#include"GFDetPlane.h"
+#include"GFException.h"
 #include"TMatrixT.h"
 #include"FairTrackParP.h"
 
@@ -18,7 +16,7 @@
 #include"RKTrackRep.h"
 #include <cmath>
 
-PndTrackCand* GenfitTrackCand2PndTrackCand(const TrackCand* cand){
+PndTrackCand* GenfitTrackCand2PndTrackCand(const GFTrackCand* cand){
   PndTrackCand* retVal = new PndTrackCand();
   unsigned int nhits = cand->getNHits();
   unsigned detId,hitId;
@@ -34,8 +32,8 @@ PndTrackCand* GenfitTrackCand2PndTrackCand(const TrackCand* cand){
   return retVal;
 }
 
-TrackCand* PndTrackCand2GenfitTrackCand(PndTrackCand* cand){
-  TrackCand* retVal = new TrackCand();
+GFTrackCand* PndTrackCand2GenfitTrackCand(PndTrackCand* cand){
+  GFTrackCand* retVal = new GFTrackCand();
   unsigned int nhits = cand->GetNHits();
   for(unsigned int i=0;i<nhits;++i){
     PndTrackCandHit candHit = cand->GetSortedHit(i);
@@ -48,22 +46,22 @@ TrackCand* PndTrackCand2GenfitTrackCand(PndTrackCand* cand){
   return retVal;
 }
 
-PndTrack* GenfitTrack2PndTrack(const Track* tr){
-  AbsTrackRep* clone = tr->getCardinalRep()->clone();
+PndTrack* GenfitTrack2PndTrack(const GFTrack* tr){
+  GFAbsTrackRep* clone = tr->getCardinalRep()->clone();
   TMatrixT<double> firstState = clone->getFirstState();
   TMatrixT<double> lastState = clone->getLastState();
   TMatrixT<double> firstCov = clone->getFirstCov();
   TMatrixT<double> lastCov = clone->getLastCov();
-  DetPlane firstPlane = clone->getFirstPlane();
-  DetPlane lastPlane = clone->getLastPlane();
+  GFDetPlane firstPlane = clone->getFirstPlane();
+  GFDetPlane lastPlane = clone->getLastPlane();
   
-  AbsTrackRep* gtr;
+  GFAbsTrackRep* gtr;
   if (dynamic_cast<GeaneTrackRep*>(clone)!=NULL)
 	  gtr = dynamic_cast<GeaneTrackRep*>(clone);
   else if (dynamic_cast<RKTrackRep*>(clone)!=NULL)
 	  gtr = dynamic_cast<RKTrackRep*>(clone);
   else {
-    std::cerr << " GenfitAbsTrackRep2PndTrack() can currently only handle GeaneTrackRep and RKTrackRep" << std::endl;
+    std::cerr << " GenfitGFAbsTrackRep2PndTrack() can currently only handle GeaneTrackRep and RKTrackRep" << std::endl;
     throw;
   }
 
@@ -91,7 +89,7 @@ PndTrack* GenfitTrack2PndTrack(const Track* tr){
     first_pro = gtr->getMom(firstPlane).Dot(firstPlane.getNormal());
     last_pro = gtr->getMom(lastPlane).Dot(lastPlane.getNormal());
   }
-  catch (Exception& e){
+  catch (GFException& e){
     exc=true;
     std::cerr<<"could not convert GenfitTrack to PndTrack"<<std::endl;
     e.what();
@@ -104,7 +102,7 @@ PndTrack* GenfitTrack2PndTrack(const Track* tr){
   FairTrackParP last(lastState[3][0],lastState[4][0],lastState[1][0],lastState[2][0],lastState[0][0],lastCova,lastPlane.getO(),lastPlane.getU(),lastPlane.getV(),last_spu);
     
   //copy the trackCand
-  TrackCand genfitCand = tr->getCand();
+  GFTrackCand genfitCand = tr->getCand();
   PndTrackCand* pndCand = GenfitTrackCand2PndTrackCand(&genfitCand);
   PndTrack* retVal =  new PndTrack(first,last,*pndCand);
   retVal->SetChi2(tr->getChiSqu());

@@ -1,15 +1,15 @@
 #ifndef PNDGENFITFIELD_H
 #define PNDGENFITFIELD_H
 
-#include"core/include/AbsBField.h"
+#include"GFAbsBField.h"
 
 /** @brief  Magnetic field
  *
  *  @author Promme (Prometeusz Jasinski)
- * //  modified by Elisabetta Prencipe 19/5/2014
+ * 
  */
 
-class PndGenfitField : public AbsBField
+class PndGenfitField : public GFAbsBField
 {
 
  public:

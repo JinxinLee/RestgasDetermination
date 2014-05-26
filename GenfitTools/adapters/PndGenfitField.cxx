@@ -1,9 +1,8 @@
-//modified by Elisabetta Prencipe 19/5/2014
 #include "PndGenfitField.h"
 #include "FairRunAna.h"
 #include "FairField.h"
 
-PndGenfitField::PndGenfitField() : AbsBField()
+PndGenfitField::PndGenfitField() : GFAbsBField()
 {
 }
 
