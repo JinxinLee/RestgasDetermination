@@ -73,6 +73,8 @@ class PndGemFindHits : public FairTask
 
   Bool_t GetTimeBased()   const { return fTimeOrderedDigi; }
 
+  void SetHitWindow(Double_t dd=1.5) {fHitWindow = dd;}
+
  private:
 
   PndGemMonitor*    fMonitor;  //!   /** GEM monitor **/
@@ -96,6 +98,7 @@ class PndGemFindHits : public FairTask
   Double_t fConfirmTime;
   Double_t fActivateTime;
   Double_t fAllTime;
+  Double_t fHitWindow;
 
   Bool_t fUseClusters;
   Bool_t fTimeOrderedDigi;

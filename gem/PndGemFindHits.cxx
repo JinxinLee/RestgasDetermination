@@ -64,6 +64,7 @@ PndGemFindHits::PndGemFindHits() :
   fConfirmTime(0.),
   fActivateTime(0.),
   fAllTime(0.),
+  fHitWindow(1.5),
   fTNofEvents(0),
   fTNofDigis (0),
   fTNofHits  (0),
@@ -90,6 +91,7 @@ PndGemFindHits::PndGemFindHits(Int_t iVerbose)
   fConfirmTime(0.),
   fActivateTime(0.),
   fAllTime(0.),
+  fHitWindow(1.5),
   fTNofEvents(0),
   fTNofDigis (0),
   fTNofHits  (0),
@@ -116,6 +118,7 @@ PndGemFindHits::PndGemFindHits(const char* name, Int_t iVerbose)
   fConfirmTime(0.),
   fActivateTime(0.),
   fAllTime(0.),
+  fHitWindow(1.5),
   fTNofEvents(0),
   fTNofDigis (0),
   fTNofHits  (0),
@@ -523,11 +526,18 @@ void PndGemFindHits::ConfirmHits2() {
   Int_t nHits = fHits->GetEntriesFast();
   Int_t sensorDetId, hitDetId;
   Bool_t hitMatch = kFALSE;
+  Bool_t hitMatch2 = kFALSE;
   
-  // width to find corresponding hit on other sensor 
-  Double_t xHitW; 
-  Double_t yHitW; 
-
+  // window to find corresponding hit on other sensor 
+//   Double_t xHitW=1.5; //3rd attempt, 1 seems to be too narrow (7% missed), 2 seems too wide (10% more Hits)
+//   Double_t yHitW=1.5; 
+  Double_t xHitW = fHitWindow; 
+  Double_t yHitW = fHitWindow; 
+  
+  if (! fUseClusters ) {
+     if ( fVerbose > 1 ) cout << " Hit finding window is constant: xHitW=" << xHitW << " yHitW=" << yHitW << endl;
+  }
+  
   for ( Int_t ihitTemp = 0 ; ihitTemp < fHitsTemp->GetEntriesFast() ; ihitTemp++ ) {
     hitTemp = (PndGemHit*)fHitsTemp->At(ihitTemp);
     
@@ -575,16 +585,17 @@ void PndGemFindHits::ConfirmHits2() {
       hitTemp2 = (PndGemHit*)fHitsTemp->At(ihitTemp2);
       if ( fVerbose > 1 ) cout << "WITH ihitTemp2 " << ihitTemp2;
 
+      hitMatch2 = kFALSE;
       Int_t hitTemp2DetId = hitTemp2->GetDetectorID();
       Int_t test2GemHit = hitTemp2DetId & kGemHit << 21;
       if ( fVerbose > 2 ) {
 	cout << " hitTemp2DetId=" << hitTempDetId 
 	     << " kGemHit=" << kGemHit << " masked value test2GemHit=" << test2GemHit <<endl; 
       } 
-      if(  test2GemHit != 0 ) {
-	if ( fVerbose > 1 ) cout << " ihitTemp2 " << ihitTemp2 << " : already used... skip" <<endl;
-	continue;
-      }
+//       if(  test2GemHit != 0 ) {
+// 	if ( fVerbose > 1 ) cout << " ihitTemp2 " << ihitTemp2 << " : already used... skip" <<endl;
+// 	continue;
+//       }
       
       Int_t staNr2 = hitTemp2->GetStationNr();
       if ( fVerbose > 1 ) cout << " ihitTemp2 " << ihitTemp2 << " staNr " << staNr2;
@@ -609,27 +620,19 @@ void PndGemFindHits::ConfirmHits2() {
 	     << ") time " << hitTemp2->GetTimeStamp() <<" dx "  << dx[1] << " dy " << dy[1] << endl;
       }
 
-      //calc acceptable hit on other sensor based on Dx of Hit
+      //calc window to search hit on other sensor based on Dx Dy of Hit
       //assuming straight path (NOT assuming path from target)
       if ( fUseClusters ) {
 	xHitW = TMath::Sqrt(12.) * dx[0] * TMath::Abs( zHit[0] - zHit[1] ) / senD + TMath::Sqrt(12.) * dx[0] * 0.5; 
 	yHitW = TMath::Sqrt(12.) * dy[0] * TMath::Abs( zHit[0] - zHit[1] ) / senD + TMath::Sqrt(12.) * dx[0] * 0.5;
 	if ( fVerbose > 1 ) {
-	  cout << " Hit finding width based on dx dy: xHitW=" << xHitW << " yHitW=" << yHitW << endl;
+	  cout << " Hit finding window based on dx dy: xHitW=" << xHitW << " yHitW=" << yHitW << endl;
 	}
       }
-      else {
-	xHitW = 1;//first attempt based on calculation of one case (0.6), it can be a parameter from macro..
-	yHitW = 1;
-	if ( fVerbose > 1 ) {
-	  cout << " Hit finding width as constant: xHitW=" << xHitW << " yHitW=" << yHitW << endl;
-	}
-      }
-
+      
       if( xHit[0] - xHitW < xHit[1] && xHit[1] < xHit[0] + xHitW ){
 	if( yHit[0] - yHitW < yHit[1] && yHit[1] < yHit[0] + yHitW ){
-	  if ( fVerbose > 1 ) cout << "GOOD HIT" << endl;
-	  
+
 	  pos.SetXYZ(xHit[0], yHit[0], zHit[0]);
 	  dpos.SetXYZ(dx[0], dy[0], dz[0]);
 	  hitDetId = hitTemp->GetDetectorID() | kGemHit << 21;
@@ -664,11 +667,17 @@ void PndGemFindHits::ConfirmHits2() {
 	  fTNofHits++;
 	  
 	  hitMatch = kTRUE;
+	  hitMatch2 = kTRUE;
 	}
       }
-      if ( fVerbose > 2 ) cout << "NO MATCHE TO THIS HIT ihitTemp2 = " << ihitTemp2<< endl;
-      if ( hitMatch == kTRUE ) break;
-    }    
+      if ( hitMatch2 == kTRUE ) {
+	if ( fVerbose > 1 ) cout << "GOOD HIT" << endl;
+	//break;
+      }
+      else {
+	if ( fVerbose > 2 ) cout << "NO MATCHE TO THIS HIT ihitTemp2 = " << ihitTemp2<< endl;
+      }
+    }   
     if ( hitMatch == kFALSE )
       if ( fVerbose > 1 ) cout << "NO MATCHES OF HIT ihitTemp = " << ihitTemp << endl;
   }
