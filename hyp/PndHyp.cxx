@@ -214,7 +214,8 @@ Bool_t PndHyp::ProcessHits(FairVolume* vol)
   
   Int_t medId =  gMC->CurrentMedium();
   TVector3 radt;
-  
+  fpdgCode=-1;
+  fpdgCode = gMC->TrackPid(); 
   
    if(fTrackStopNxtStep) {
    //if( gMC->TrackPid()==3312)//&&(medId==SiId||medId==CId))
@@ -242,7 +243,7 @@ Bool_t PndHyp::ProcessHits(FairVolume* vol)
 	   fLength = gMC->TrackLength();
 	   fmass   = gMC->TrackMass();   // mass (GeV)
 	   fcharge = gMC->TrackCharge(); // charge?
-	   fpdgCode = gMC->TrackPid(); 
+	   
 	   if(fStartEvID>0)
 	     {
 	       fEventID = gMC->CurrentEvent()+fStartEvID;
@@ -355,7 +356,7 @@ Bool_t PndHyp::ProcessHits(FairVolume* vol)
 	   fLength = gMC->TrackLength();
 	   fmass   = gMC->TrackMass();   // mass (GeV)
 	   fcharge = gMC->TrackCharge(); // charge?
-	   fpdgCode = gMC->TrackPid(); 
+	
 	   
 	   if(fStartEvID>0)
 	     {
