@@ -86,6 +86,11 @@ class PndGemFindHitsQA : public FairTask
   TH1F* fhPointRadReco     [4][2];
   TH1F* fhPointRadRecoEff  [4][2];
 
+  TH2F* fhPointMatch       [4][2];
+  TH2F* fhPointMatchEff    [4][2];
+  TH1F* fhPointRadMatch    [4][2];
+  TH1F* fhPointRadMatchEff [4][2];
+
   TH2F* fhHitNof           [4][2];
   TH2F* fhHitFake          [4][2];
   TH2F* fhHitFakeProb      [4][2];

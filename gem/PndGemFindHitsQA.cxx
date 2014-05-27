@@ -68,6 +68,12 @@ PndGemFindHitsQA::PndGemFindHitsQA()
       fhPointRadNof      [istat][isens] = NULL;
       fhPointRadReco     [istat][isens] = NULL;
       fhPointRadRecoEff  [istat][isens] = NULL;
+
+      fhPointMatch       [istat][isens] = NULL;
+      fhPointMatchEff    [istat][isens] = NULL;
+      fhPointRadMatch    [istat][isens] = NULL;
+      fhPointRadMatchEff [istat][isens] = NULL;
+
       fhHitNof           [istat][isens] = NULL;
       fhHitFake          [istat][isens] = NULL;
       fhHitFakeProb      [istat][isens] = NULL;
@@ -118,6 +124,12 @@ PndGemFindHitsQA::PndGemFindHitsQA(Int_t iVerbose)
       fhPointRadNof      [istat][isens] = NULL;
       fhPointRadReco     [istat][isens] = NULL;
       fhPointRadRecoEff  [istat][isens] = NULL;
+
+      fhPointMatch       [istat][isens] = NULL;
+      fhPointMatchEff    [istat][isens] = NULL;
+      fhPointRadMatch    [istat][isens] = NULL;
+      fhPointRadMatchEff [istat][isens] = NULL;
+
       fhHitNof           [istat][isens] = NULL;
       fhHitFake          [istat][isens] = NULL;
       fhHitFakeProb      [istat][isens] = NULL;
@@ -445,6 +457,38 @@ void PndGemFindHitsQA::Exec(Option_t* opt) {
   }
   for ( Int_t ipnt = 0 ; ipnt < nofGemPnts ; ipnt++ ) {
     fhTrueMatchNofPerPoint->Fill(nofMatchesPerPoint[ipnt]);
+    gemPnt = (PndGemMCPoint*)fMCPointArray->At(ipnt);
+    if ( nofMatchesPerPoint[ipnt] > 0 ) {
+      Double_t pntX    = (gemPnt->GetX()+gemPnt->GetXOut())/2.;
+      Double_t pntY    = (gemPnt->GetY()+gemPnt->GetYOut())/2.;
+      Int_t    sensorId = gemPnt->GetSensorId(); 
+      Int_t    station = fDigiPar->GetStationNr(sensorId)-1;
+      Int_t    sensor  = fDigiPar->GetSensorNr (sensorId)-1;
+      fhPointMatch        [station][sensor]->Fill(pntX,pntY);
+      fhPointRadMatch     [station][sensor]->Fill(TMath::Sqrt(pntX*pntX+pntY*pntY));
+    }
+    
+    if ( nofMatchesPerPoint[ipnt] == 0 ) {
+      // cout << "POINT " << ipnt << " AT " 
+      // 	   << gemPnt->GetX() << "-" << gemPnt->GetXOut() << "   " 
+      // 	   << gemPnt->GetY() << "-" << gemPnt->GetYOut() << "   "  
+      // 	   << gemPnt->GetZ() << "-" << gemPnt->GetZOut() << " WAS NOT RECONSTRUCTED" << endl;
+      for ( Int_t ihit = 0 ; ihit < nofGemHits ; ihit++ ) {
+	gemHit = (PndGemHit*)fGemHitArray->At(ihit);
+
+	for ( Int_t ilink = 0 ; ilink < gemHit->GetNLinks() ; ilink++ ) {
+	  std::vector<Int_t> pointVector;
+	  Bool_t pointFoundHere = kFALSE;
+	  GetPointVector(gemHit->GetLink(ilink).GetType(),gemHit->GetLink(ilink).GetIndex(),pointVector,printMCMatching);
+	  for ( Int_t imatch = 0 ; imatch < pointVector.size() ; imatch++ ) {
+	    if ( pointVector[imatch] == ipnt ) {
+	      pointFoundHere = kTRUE;
+	    }
+	  }
+	  //	  if ( pointFoundHere ) cout << "FOUND POINT " << ipnt << " IN HIT " << ihit << " LINK " << ilink << endl;
+	}
+      }
+    }
   }
 }
 // ------------------------------------------------------------
@@ -530,6 +574,20 @@ void PndGemFindHitsQA::CreateHistos() {
 						   Form("Hit finding efficiency (point-hit %.2f cm), station %d, sensor %d",fPointEffDist,istat,isens),
 						   1000,0,100);
 
+      fhPointMatch       [istat][isens] = new TH2F(Form("fhPointMatch_s%d_s%d",istat,isens),
+						   Form("Number of matched points (point-hit %.2f cm), station %d, sensor %d",fPointEffDist,istat,isens),
+						   2*TMath::Ceil(sensOutRad),-TMath::Ceil(sensOutRad),TMath::Ceil(sensOutRad),
+						   2*TMath::Ceil(sensOutRad),-TMath::Ceil(sensOutRad),TMath::Ceil(sensOutRad));
+      fhPointMatchEff    [istat][isens] = new TH2F(Form("fhPointMatchEff_s%d_s%d",istat,isens),
+						   Form("Matched points efficiency (point-hit %.2f cm), station %d, sensor %d",fPointEffDist,istat,isens),
+						   2*TMath::Ceil(sensOutRad),-TMath::Ceil(sensOutRad),TMath::Ceil(sensOutRad),
+						   2*TMath::Ceil(sensOutRad),-TMath::Ceil(sensOutRad),TMath::Ceil(sensOutRad));
+      fhPointRadMatch    [istat][isens] = new TH1F(Form("fhPointRadMatch_s%d_s%d",istat,isens),
+						   Form("Number of matched points (point-hit %.2f cm), station %d, sensor %d",fPointEffDist,istat,isens),
+						   1000,0,100);
+      fhPointRadMatchEff [istat][isens] = new TH1F(Form("fhPointRadMatchEff_s%d_s%d",istat,isens),
+						   Form("Matched points efficiency (point-hit %.2f cm), station %d, sensor %d",fPointEffDist,istat,isens),
+						   1000,0,100);
 
       fhHitNof           [istat][isens] = new TH2F(Form("fhHitNof_s%d_s%d",istat,isens),
 						   Form("Number of all hits (point-hit %.2f cm), station %d, sensor %d",fPointEffDist,istat,isens),
@@ -574,6 +632,10 @@ void PndGemFindHitsQA::CreateHistos() {
       fHistoList->Add(fhPointRadNof      [istat][isens]);
       fHistoList->Add(fhPointRadReco     [istat][isens]);
       fHistoList->Add(fhPointRadRecoEff  [istat][isens]);
+      fHistoList->Add(fhPointMatch       [istat][isens]);
+      fHistoList->Add(fhPointMatchEff    [istat][isens]);
+      fHistoList->Add(fhPointRadMatch    [istat][isens]);
+      fHistoList->Add(fhPointRadMatchEff [istat][isens]);
       fHistoList->Add(fhHitNof           [istat][isens]);
       fHistoList->Add(fhHitFake          [istat][isens]);
       fHistoList->Add(fhHitFakeProb      [istat][isens]);
@@ -636,15 +698,23 @@ void PndGemFindHitsQA::Finish() {
   for ( Int_t istat = 0 ; istat < nStations ; istat++ ) {
     for ( Int_t isens = 0 ; isens < 2 ; isens++ ) {
       //      cout << "doing " << istat << " / " << isens << endl;
-      fhPointReco[istat][isens]->Sumw2();
-      fhPointNof[istat][isens]->Sumw2();
-      fhPointRecoEff[istat][isens]->Divide(fhPointReco[istat][isens],fhPointNof[istat][isens],1.,1.,"B");
-      fhPointRecoEff[istat][isens]->Scale(100.);
+      fhPointReco    [istat][isens]->Sumw2();
+      fhPointNof     [istat][isens]->Sumw2();
+      fhPointRecoEff [istat][isens]->Divide(fhPointReco[istat][isens],fhPointNof[istat][isens],1.,1.,"B");
+      fhPointRecoEff [istat][isens]->Scale(100.);
 
-      fhPointRadReco[istat][isens]->Sumw2();
-      fhPointRadNof[istat][isens]->Sumw2();
-      fhPointRadRecoEff[istat][isens]->Divide(fhPointRadReco[istat][isens],fhPointRadNof[istat][isens],1.,1.,"B");
-      fhPointRadRecoEff[istat][isens]->Scale(100.);
+      fhPointMatch   [istat][isens]->Sumw2();
+      fhPointMatchEff[istat][isens]->Divide(fhPointMatch[istat][isens],fhPointNof[istat][isens],1.,1.,"B");
+      fhPointMatchEff[istat][isens]->Scale(100.);
+
+      fhPointRadReco    [istat][isens]->Sumw2();
+      fhPointRadNof     [istat][isens]->Sumw2();
+      fhPointRadRecoEff [istat][isens]->Divide(fhPointRadReco[istat][isens],fhPointRadNof[istat][isens],1.,1.,"B");
+      fhPointRadRecoEff [istat][isens]->Scale(100.);
+
+      fhPointRadMatch   [istat][isens]->Sumw2();
+      fhPointRadMatchEff[istat][isens]->Divide(fhPointRadMatch[istat][isens],fhPointRadNof[istat][isens],1.,1.,"B");
+      fhPointRadMatchEff[istat][isens]->Scale(100.);
 
       fhHitFake          [istat][isens]->Sumw2();
       fhHitNof           [istat][isens]->Sumw2();
