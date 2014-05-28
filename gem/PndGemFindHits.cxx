@@ -651,20 +651,27 @@ void PndGemFindHits::ConfirmHits2() {
 	  ((PndGemHit*)fHitsTemp->At(ihitTemp))->SetDetectorID(hitDetId);
 	  fTNofHits++;
 	  
-	  pos.SetXYZ(xHit[1], yHit[1], zHit[1]);
-	  dpos.SetXYZ(dx[1], dy[1], dz[1]);
-	  hitDetId = hitTemp2->GetDetectorID() | kGemHit << 21;
-
-	  new ((*fHits)[nHits++]) PndGemHit(hitDetId, 
-					    pos, dpos,  
-					    hitTemp2->GetCharge(),
-					    hitTemp2->GetTimeStamp(),
-					    hitTemp2->GetDigiNr(0),hitTemp2->GetDigiNr(1), 
-					    hitTemp2->GetDr(), hitTemp2->GetDp(), 
-					    hitTemp2->GetRefIndex(),fromStr);
-	  
-	  ((PndGemHit*)fHitsTemp->At(ihitTemp2))->SetDetectorID(hitDetId);
-	  fTNofHits++;
+	  if(  test2GemHit != 0 ) {
+	    if ( fVerbose > 1 ) {
+	      cout << "ihitTemp2 " << ihitTemp2 << " : already stored... " <<endl;  
+	    }
+	  }
+	  else {
+	    pos.SetXYZ(xHit[1], yHit[1], zHit[1]);
+	    dpos.SetXYZ(dx[1], dy[1], dz[1]);  
+	    hitDetId = hitTemp2->GetDetectorID() | kGemHit << 21;
+	    
+	    new ((*fHits)[nHits++]) PndGemHit(hitDetId, 
+					      pos, dpos,  
+					      hitTemp2->GetCharge(),
+					      hitTemp2->GetTimeStamp(),
+					      hitTemp2->GetDigiNr(0),hitTemp2->GetDigiNr(1), 
+					      hitTemp2->GetDr(), hitTemp2->GetDp(), 
+					      hitTemp2->GetRefIndex(),fromStr);
+	    
+	    ((PndGemHit*)fHitsTemp->At(ihitTemp2))->SetDetectorID(hitDetId);
+	    fTNofHits++;
+	  }
 	  
 	  hitMatch = kTRUE;
 	  hitMatch2 = kTRUE;
