@@ -630,7 +630,7 @@ void PndFastSim::Exec(Option_t* opt)
 	// extra loop for the filters
 	for (Int_t iTrack=0; iTrack<nTracks; iTrack++) 
 	{
-       		TParticle *t = fStack->GetParticle(iTrack);
+       	TParticle *t = fStack->GetParticle(iTrack);
 	   	int pdg = abs(t->GetPdgCode());
 	  	if (!(pdg==11 || pdg==13 || pdg==211 || pdg==321 || pdg==2212 || pdg==22)) continue;
 	   
@@ -667,8 +667,10 @@ void PndFastSim::Exec(Option_t* opt)
 	TLorentzVector p4(t->Px(),t->Py(),t->Pz(),t->Energy());
     TVector3 stvtx(t->Vx(),t->Vy(),t->Vz());
 
+	int pdg = t->GetPdgCode();
+	
 	// simulate bremsstrahlung for electrons and add photon on stack
-	if (abs(t->GetPdgCode())==11 && fElectronBrems)
+	if (abs(pdg)==11 && fElectronBrems)
 	{
 		// probability for bremsstrahlung was estimated from Full Sim to about 32%
 		if (fRand->Rndm()<0.32)
@@ -692,6 +694,54 @@ void PndFastSim::Exec(Option_t* opt)
 			nTracks=fStack->GetNtrack();
 		}
 	}
+
+	// shall we add some parametrized split offs?
+	if (fGenSplitOffs)
+	{
+		int type=-1;
+
+		if (abs(pdg) == 11) type=0;
+		else if (abs(pdg) == 211) type=2;
+		else if (abs(pdg) == 321) type=3;
+		else if (abs(pdg) == 2212) type=4;
+		
+		if (type>0)
+		{
+
+			//number of split offs?
+			int numSP=(int)fspo[type][3]->GetRandom();
+
+			if (fVb) cout <<" -I- (PndFastSim::Exec) - creating "<<numSP
+			<<" split offs for particle with type "<<type<<endl;
+
+			for (int ii=0;ii<numSP;ii++)
+			{
+				TLorentzVector lv(p4);
+
+				double mom   = fspo[type][0]->GetRandom();
+				double dphi  = fspo[type][1]->GetRandom();
+				double dtht  = fspo[type][2]->GetRandom();
+
+				lv.SetPhi(lv.Phi()+dphi);
+				lv.SetTheta(lv.Theta()+dtht);
+				lv.SetRho(mom);
+				lv.SetE(lv.P());
+
+				// add an additional photon to the stack with the energy
+				fStack->PushTrack(0, iTrack, 22,                   	// Int_t toBeDone, Int_t parentID, Int_t pdgCode
+								lv.X(), lv.Y(), lv.Z(), 	// Double_t px, Double_t py, Double_t pz,
+								lv.E(), 0., 0., 				// Double_t e, Double_t vx, Double_t vy,
+								0. , 0., 0., 						// Double_t vz, Double_t time, Double_t polx,
+								0., 0., kPPrimary,				// Double_t poly, Double_t polz, TMCProcess proc,
+								nTracks, 0., 0.);					// Int_t& ntr, Double_t weight, Int_t is
+
+				nTracks=fStack->GetNtrack();
+
+			} // split off loop
+
+		}
+	}// generate split offs
+
 
 
     //TLorentzVector vtx(stvtx,t->T());
@@ -831,59 +881,7 @@ void PndFastSim::Exec(Option_t* opt)
 		}
         delete svtx;
 
-        // shall we add some parametrized split offs?
-        if (fGenSplitOffs)
-        {
-          int type=0;
-          int abslid = abs(ft->pdt());
-
-          if (abslid == 11) type=0;
-          else if (abslid == 211) type=2;
-          else if (abslid == 321) type=3;
-          else if (abslid == 2212) type=4;
-          else continue;
-
-          //number of split offs?
-          int numSP=(int)fspo[type][3]->GetRandom();
-
-          if (fVb) cout <<" -I- (PndFastSim::Exec) - creating "<<numSP
-            <<" split offs for particle with type "<<type<<endl;
-
-          for (int i=0;i<numSP;i++)
-          {
-            TLorentzVector lv=ft->p4();
-            TVector3 fPos(0.,0.,0.);
-            RhoVector3Err *svtx2=new RhoVector3Err(fPos);
-
-            double mom   = fspo[type][0]->GetRandom();
-            double dphi  = fspo[type][1]->GetRandom();
-            double dtht  = fspo[type][2]->GetRandom();
-
-            lv.SetPhi(lv.Phi()+dphi);
-            lv.SetTheta(lv.Theta()+dtht);
-            lv.SetRho(mom);
-            lv.SetE(lv.P());
-
-            neucandsize = neutCandidates.GetEntriesFast();
-
-            pidCand = new (neutCandidates[neucandsize]) PndPidCandidate((Int_t)0,fPos,lv);
-            pidProb = new (neutProbs[neucandsize]) PndPidProbability();
-            pidCand->SetMcIndex(-1);
-
-            RhoCandidate tCand(lv,0.0,svtx2);
-            tCand.SetType(22);
-            nNeutral++;
-
-            l.Add(&tCand);
-
-            delete svtx2;
-            //tcand=new (pndCandidates[pndCandidates.GetEntriesFast()]) RhoCandidate(lv,0.0);
-            //tcand->SetMcIdx(-1);
-
-          } // split off loop
-
-        }// generate split offs
-
+ 
       }// smeartrack
 	}
     delete ft;
