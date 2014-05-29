@@ -420,7 +420,7 @@ void PndRhoTupleQA::qaKs0(TString pre, RhoCandidate *c, RhoTuple *n)
 
 // -------------------------------------------------------------------------
 
-void PndRhoTupleQA::qaP4(TString pre, TLorentzVector &c, RhoTuple *n, bool skip)
+void PndRhoTupleQA::qaP4(TString pre, TLorentzVector c, RhoTuple *n, bool skip)
 {
 	if (n==0) return;
 
@@ -868,11 +868,12 @@ void PndRhoTupleQA::qaRecoFull(TString pre, RhoCandidate *c, RhoTuple *n)
 
 // -------------------------------------------------------------------------
 
-void PndRhoTupleQA::qaMcList(TString pre, RhoCandList &l, RhoTuple *n)
+void PndRhoTupleQA::qaMcList(TString pre, RhoCandList &l, RhoTuple *n, int max)
 {
 	if (n==0) return;
 
 	int npart = l.GetLength();
+	if (npart>max) npart=max;
 
 	TVector vpart(npart), vpdg(npart), vmoth(npart),
 	        vp(npart),    vmass(npart),

@@ -28,6 +28,7 @@
 #include "TVector3.h"
 #include "TH1F.h"
 #include "TH2F.h"
+#include "TString.h"
 
 // RHO headers
 #include "RhoCandidate.h"
@@ -43,6 +44,7 @@
 #include "PndKinFitter.h"
 #include "PndVtxPoca.h"
 #include "PndPidCandidate.h"
+#include "PndRhoTupleQA.h"		
 		
 		
 using std::cout;
@@ -50,8 +52,9 @@ using std::endl;
 
 
 // -----   Default constructor   -------------------------------------------
-PndParticleQATask::PndParticleQATask() :
+PndParticleQATask::PndParticleQATask(bool fastsim) :
   FairTask("Panda Tutorial Analysis Task") { 
+	  fFastSim = fastsim;
 }
 // -------------------------------------------------------------------------
 
@@ -90,9 +93,48 @@ InitStatus PndParticleQATask::Init()
 	fEvtCount = 0;
 
 	// create ntuple
+	nmc	 = new RhoTuple("nmc", "Particle QA MC truth");
 	ntp	 = new RhoTuple("ntp", "Particle QA charged");
 	ntpn = new RhoTuple("ntpn","Particle QA neutrals");
+	
+	if (fFastSim)
+	{
+		// individual detectors/ algos
+		fPid[1] = "ScEmcPidBarrelProbability;ScEmcPidFwCapProbability;ScEmcPidBwCapProbability"; 
+		fPid[5] = "DrcBarrelProbability";	
+		fPid[3] = "SttPidProbability";	
+		fPid[4] = "MvdPidProbability";		
+		fPid[2] = "ScMdtPidBarrelProbability;ScMdtPidForwardProbability";							
+		fPid[6] = "DrcDiscProbability";	
+		fPid[7] = "RichProbability";
 		
+		fPid[9] = "IdealPidProbability";
+
+		// total PID	
+		fPid[0] = "PidChargedProbability";												
+		// control: pid8 should be  = pid0
+		fPid[8] = fPid[1];
+		for (int i=2;i<8;++i) fPid[8] += ";"+fPid[i];
+	}
+	else
+	{
+		// individual detectors/ algos
+		fPid[1] = "PidAlgoEmcBayes";
+		fPid[2] = "PidAlgoDrc";
+		fPid[3] = "PidAlgoDisc";
+		fPid[4] = "PidAlgoMvd";
+		fPid[5] = "PidAlgoMdtHardCuts";
+		fPid[6] = "PidAlgoStt";
+		fPid[7] = "PidAlgoIdealCharged";  // only 6 algos available in full sim
+
+		fPid[9] = "PidAlgoIdealCharged";
+
+		// total pid
+		fPid[0] = fPid[1];
+		for (int i=2;i<7;++i) fPid[0] += ";"+fPid[i];
+		fPid[8] = fPid[0];
+	}
+	
 	return kSUCCESS;
 }
 
@@ -122,32 +164,48 @@ void PndParticleQATask::Exec(Option_t* opt)
 	if (!(++fEvtCount%100)) cout << "evt "<<fEvtCount<<endl;
 	
 	// *** RhoCandLists for the analysis
-	RhoCandList chr, chr1emc, chr2drc, chr3dsc, chr4mvd, chr5mdt, chr6stt;
-	RhoCandList chr16, chr126, chr1256, chr12356, chr1236, chr26, chr123456, chrmva;
-	RhoCandList neut;
+	RhoCandList chr, chr1emc, chr2drc, chr3dsc, chr4mvd, chr5mdt, chr6stt, chr7rch, chr8chk, chr9idl;
+	RhoCandList chr16, chr126, chr1256, chr12356, chr1236, chr26, chr123456, chr1234567;
+	RhoCandList neut, mclist;
+	
+	PndRhoTupleQA qa(fAnalysis,15.0);
+	
+	// *** store MC truth info
+	fAnalysis->FillList(mclist,   "McTruth",50);
+	nmc->Column("ev", (Int_t) fEvtCount);
+	qa.qaMcList("",   mclist, nmc);
+	nmc->DumpData();
 	
 	// *** Select with no PID info ('All'); type and mass are set 		
-	fAnalysis->FillList( neut,   "Neutral" );
+	fAnalysis->FillList( neut,    "Neutral" );
 	
-	fAnalysis->FillList( chr,     "Charged" ,"PidAlgoEmcBayes");    // short cut name
-	fAnalysis->FillList( chr1emc, "Charged" ,"PidAlgoEmcBayes");    // emc = algo 1
-	fAnalysis->FillList( chr2drc, "Charged" ,"PidAlgoDrc");         // drc = algo 2
-	fAnalysis->FillList( chr3dsc, "Charged" ,"PidAlgoDisc");        // dsc = algo 3
-	fAnalysis->FillList( chr4mvd, "Charged" ,"PidAlgoMvd");         // mvd = algo 4
-	fAnalysis->FillList( chr5mdt, "Charged" ,"PidAlgoMdtHardCuts"); // mdt = algo 5
-	fAnalysis->FillList( chr6stt, "Charged" ,"PidAlgoStt");         // stt = algo 6
+	// *** charged lists with different PID algo combinations
+	fAnalysis->FillList( chr,     "Charged" , fPid[0]);		// total pid
+	fAnalysis->FillList( chr1emc, "Charged" , fPid[1]);		// emc = algo 1
+	fAnalysis->FillList( chr2drc, "Charged" , fPid[2]);		// drc = algo 2
+	fAnalysis->FillList( chr3dsc, "Charged" , fPid[3]);		// dsc = algo 3
+	fAnalysis->FillList( chr4mvd, "Charged" , fPid[4]);		// mvd = algo 4
+	fAnalysis->FillList( chr5mdt, "Charged" , fPid[5]); 	// mdt = algo 5
+	fAnalysis->FillList( chr6stt, "Charged" , fPid[6]);		// stt = algo 6
+	if (fFastSim) 
+		fAnalysis->FillList( chr7rch, "Charged" , fPid[6]);		// rich = algo 7
+	fAnalysis->FillList( chr8chk, "Charged" , fPid[8]);		// check for total PID (only useful for FastSim)
+	fAnalysis->FillList( chr9idl, "Charged" , fPid[9]);		// idl = ideal PID
+	
 	
 	// now the combination of numbers define the algo-combination
-	fAnalysis->FillList( chr16,     "Charged" ,"PidAlgoEmcBayes;PidAlgoStt");
-	fAnalysis->FillList( chr126,    "Charged" ,"PidAlgoEmcBayes;PidAlgoStt;PidAlgoDrc");
-	fAnalysis->FillList( chr1236,   "Charged" ,"PidAlgoEmcBayes;PidAlgoStt;PidAlgoDrc;PidAlgoDisc;");
-	fAnalysis->FillList( chr1256,   "Charged" ,"PidAlgoEmcBayes;PidAlgoStt;PidAlgoDrc;PidAlgoMdtHardCuts");
-	fAnalysis->FillList( chr12356,  "Charged" ,"PidAlgoEmcBayes;PidAlgoStt;PidAlgoDrc;PidAlgoDisc;PidAlgoMdtHardCuts");
-	fAnalysis->FillList( chr123456, "Charged" ,"PidAlgoEmcBayes;PidAlgoStt;PidAlgoDrc;PidAlgoDisc;PidAlgoMdtHardCuts;PidAlgoMvd");
-	fAnalysis->FillList( chr26,     "Charged" ,"PidAlgoStt;PidAlgoDrc");
+	fAnalysis->FillList( chr16,     "Charged" , fPid[1]+";"+fPid[6] );
+	fAnalysis->FillList( chr126,    "Charged" , fPid[1]+";"+fPid[2]+";"+fPid[6] );
+	fAnalysis->FillList( chr1236,   "Charged" , fPid[1]+";"+fPid[2]+";"+fPid[3]+";"+fPid[6] );
+	fAnalysis->FillList( chr1256,   "Charged" , fPid[1]+";"+fPid[2]+";"+fPid[5]+";"+fPid[6]);
+	fAnalysis->FillList( chr12356,  "Charged" , fPid[1]+";"+fPid[2]+";"+fPid[3]+";"+fPid[5]+";"+fPid[6]);
+	fAnalysis->FillList( chr123456, "Charged" , fPid[1]+";"+fPid[2]+";"+fPid[3]+";"+fPid[4]+";"+fPid[5]+";"+fPid[6]);
+	fAnalysis->FillList( chr26,     "Charged" , fPid[2]+";"+fPid[6]);
 	//fAnalysis->FillList( chrmva, "Charged" ,"TMVABDTMvaProb");
 	
 	int ntrk = chr.GetLength();
+	
+	TLorentzVector chrgP4=dummy;
 	
 	// *** Loop over CHARGED particles
 	for (j=0; j<chr.GetLength(); ++j)
@@ -159,34 +217,37 @@ void PndParticleQATask::Exec(Option_t* opt)
 		ntp->Column("ntrk", (Float_t)  ntrk,     			0.0f );
 		ntp->Column("chrg", (Float_t)  chr[j]->Charge(),    0.0f );
 		
-		qaP4(  "",			chr[j]->P4(),	ntp);
+		qa.qaP4(  "",		chr[j]->P4(),		ntp);
 			   
-		qaPid( "alg1emc",	chr1emc[j], 		ntp); 
-		qaPid( "alg2drc", 	chr2drc[j], 		ntp); 
-		qaPid( "alg3dsc", 	chr3dsc[j], 		ntp); 
-		qaPid( "alg4mvd", 	chr4mvd[j], 		ntp); 
-		qaPid( "alg5mdt", 	chr5mdt[j], 		ntp); 
-		qaPid( "alg6stt", 	chr6stt[j], 		ntp); 
-		//qaPid( "algmva", 	chrmva[j], 		ntp); 
+		qa.qaPid( "pid",		chr[j], 		ntp);
+		qa.qaPid( "pid1",	chr1emc[j], 		ntp); 
+		qa.qaPid( "pid2", 	chr2drc[j], 		ntp); 
+		qa.qaPid( "pid3", 	chr3dsc[j], 		ntp); 
+		qa.qaPid( "pid4", 	chr4mvd[j], 		ntp); 
+		qa.qaPid( "pid5", 	chr5mdt[j], 		ntp); 
+		qa.qaPid( "pid6", 	chr6stt[j], 		ntp); 
+		if (fFastSim)
+			qa.qaPid( "pid7", 	chr7rch[j], 		ntp); 
+		qa.qaPid( "pid8", 	chr8chk[j], 		ntp); 
+		qa.qaPid( "pid9", 	chr9idl[j], 		ntp); 
+		//qa.qaPid( "algmva", 	chrmva[j], 		ntp); 
 		
-		qaPid( "alg16", 	chr16[j], 		ntp); 
-		qaPid( "alg126", 	chr126[j], 		ntp); 
-		qaPid( "alg1236", 	chr1236[j], 		ntp); 
-		qaPid( "alg1256", 	chr1256[j], 		ntp); 
-		qaPid( "alg12356", 	chr12356[j], 		ntp); 
-		qaPid( "alg123456", 	chr123456[j], 		ntp); 
-		qaPid( "algall", 	chr123456[j], 		ntp); 
-		qaPid( "alg26", 	chr26[j], 		ntp); 
+		qa.qaPid( "pid16", 	chr16[j], 		ntp); 
+		qa.qaPid( "pid126", 	chr126[j], 		ntp); 
+		qa.qaPid( "pid1236", 	chr1236[j], 		ntp); 
+		qa.qaPid( "pid1256", 	chr1256[j], 		ntp); 
+		qa.qaPid( "pid12356", 	chr12356[j], 		ntp); 
+		qa.qaPid( "pid123456", chr123456[j], 		ntp); 
+		qa.qaPid( "pid26", 	chr26[j], 		ntp); 
 		
-		qaEmc( "emc",		chr[j], 		ntp);
-		qaMvd( "mvd",		chr[j], 		ntp);
-		qaStt( "stt",		chr[j], 		ntp);
-		qaDrc( "drc",		chr[j], 		ntp);
-		qaDsc( "dsc",		chr[j], 		ntp);
-		qaTof( "tof",		chr[j], 		ntp);
-		qaMuo( "muo",		chr[j], 		ntp);
-		qaTrk( "trk",		chr[j], 		ntp);
-		qaPid( "pid",		chr[j], 		ntp);
+		qa.qaEmc( "emc",		chr[j], 		ntp);
+		qa.qaMvd( "mvd",		chr[j], 		ntp);
+		qa.qaStt( "stt",		chr[j], 		ntp);
+		qa.qaDrc( "drc",		chr[j], 		ntp);
+		qa.qaDsc( "dsc",		chr[j], 		ntp);
+		qa.qaTof( "tof",		chr[j], 		ntp);
+		qa.qaMuo( "muo",		chr[j], 		ntp);
+		qa.qaTrk( "trk",		chr[j], 		ntp);
 		
 		float mct = 0.0;
 		float prim = 0.0;
@@ -195,14 +256,18 @@ void PndParticleQATask::Exec(Option_t* opt)
 		{
 			mct = 1.0;
 			RhoCandidate *moth = truth->TheMother();
-			if (!moth || abs(moth->PdgCode()-88850)<100 ) prim = 1.0;
+			if (!moth || abs(moth->PdgCode()-88850)<100 ) 
+			{
+				prim = 1.0;
+				chrgP4 = truth->P4();
+			}
 			
-			qaP4( "tr",				truth->P4(),		ntp);
+			qa.qaP4( "tr",				chrgP4,		ntp);
 			ntp->Column("trpdg", 	(Float_t) truth->PdgCode(),		0.0f );
 		}
 		else
 		{
-			qaP4( "tr", 			dummy,			ntp, 		true);
+			qa.qaP4( "tr", 			dummy,			ntp, 		true);
 			ntp->Column("trpdg", 	(Float_t) 0.,	0.0f );
 		}
 		
@@ -223,8 +288,9 @@ void PndParticleQATask::Exec(Option_t* opt)
 		ntpn->Column("trk",  (Float_t)  j,     				0.0f );
 		ntpn->Column("chrg", (Float_t)  neut[j]->Charge(),  0.0f );
 		
-		qaP4(  "",			neut[j]->P4(),	ntpn);
-		qaEmc( "emc",		neut[j], 		ntpn);
+		qa.qaP4(  "",			neut[j]->P4(),	ntpn);
+		qa.qaEmc( "emc",		neut[j], 		ntpn);
+		qa.qaP4(  "primlv",     chrgP4,  ntpn);
 		
 		float mct = 0.0;
 		float prim = 0.0;
@@ -234,14 +300,26 @@ void PndParticleQATask::Exec(Option_t* opt)
 			mct = 1.0;
 			RhoCandidate *moth = truth->TheMother();
 			if (!moth || abs(moth->PdgCode()-88850)<100 ) prim = 1.0;
+			if (moth) 
+			{
+				qa.qaP4( "moth", moth->P4(), ntpn);
+				ntpn->Column("mothpdg", (Float_t) moth->PdgCode(), -999.f);
+			}
+			else
+			{
+				qa.qaP4( "moth", dummy, ntpn, true);
+				ntpn->Column("mothpdg", (Float_t) -1., -999.f);
+			}
 			
-			qaP4( "tr",				truth->P4(),		ntpn);
+			qa.qaP4( "tr",				truth->P4(),		ntpn);
 			ntpn->Column("trpdg", 	(Float_t) truth->PdgCode(),		0.0f );
 		}
 		else
 		{
-			qaP4( "tr", 			dummy,			ntpn, 		true);
+			qa.qaP4( "moth", 		dummy, 			ntpn, 		true);
+			qa.qaP4( "tr", 			dummy,			ntpn, 		true);
 			ntpn->Column("trpdg", 	(Float_t)  0.,	0.0f );
+			ntpn->Column("mothpdg", (Float_t) -1, -999.f);
 		}
 		
 		ntpn->Column("prim",  	(Float_t)  prim,    0.0f );
@@ -254,183 +332,9 @@ void PndParticleQATask::Exec(Option_t* opt)
 
 void PndParticleQATask::Finish()
 {	
+	nmc->GetInternalTree()->Write();
 	ntp->GetInternalTree()->Write();		
 	ntpn->GetInternalTree()->Write();	
 }
-// -------------------------------------------------------------------------
-
-void PndParticleQATask::qaP4(TString pre, TLorentzVector c, RhoTuple *n, bool skip)
-{
-	if (!skip)
-	{
-		n->Column(pre+"px",  (Float_t) c.Px(),     0.0f );
-		n->Column(pre+"py",  (Float_t) c.Py(),     0.0f );
-		n->Column(pre+"pz",  (Float_t) c.Pz(),     0.0f );
-		n->Column(pre+"e",   (Float_t) c.E(),      0.0f );
-		n->Column(pre+"p",   (Float_t) c.P(),      0.0f );
-		n->Column(pre+"tht", (Float_t) c.Theta(),  0.0f );
-		n->Column(pre+"phi", (Float_t) c.Phi(),    0.0f );
-		n->Column(pre+"pt",  (Float_t) c.Pt(),     0.0f );
-		n->Column(pre+"m",   (Float_t) c.M(),      0.0f );
-	}
-	else
-	{
-		n->Column(pre+"px",  (Float_t) -999.,  			0.0f );
-		n->Column(pre+"py",  (Float_t) -999.,  			0.0f );
-		n->Column(pre+"pz",  (Float_t) -999.,  			0.0f );
-		n->Column(pre+"e",   (Float_t) -999.,  			0.0f );
-		n->Column(pre+"p",   (Float_t) -999.,  			0.0f );
-		n->Column(pre+"tht", (Float_t) -999., 			0.0f );
-		n->Column(pre+"phi", (Float_t) -999.,  			0.0f );
-		n->Column(pre+"pt",  (Float_t) -999.,  			0.0f );
-		n->Column(pre+"m",   (Float_t) -999.,  			0.0f );
-	}
-}
-
-// -------------------------------------------------------------------------
-void PndParticleQATask::qaEmc(TString pre, RhoCandidate *c, RhoTuple *n)
-{
-	PndPidCandidate *mic = (PndPidCandidate*)c->GetRecoCandidate();
-	
-	if (mic)
-	{
-		n->Column(pre+"eraw",  (Float_t) mic->GetEmcRawEnergy(),			0.0f );
-		n->Column(pre+"ecal",  (Float_t) mic->GetEmcCalEnergy(),			0.0f );
-		n->Column(pre+"qa",    (Float_t) mic->GetEmcQuality(),   			0.0f );
-		n->Column(pre+"nx",    (Float_t) mic->GetEmcNumberOfCrystals(),		0.0f );
-		n->Column(pre+"nb",    (Float_t) mic->GetEmcNumberOfBumps(),   		0.0f );
-		n->Column(pre+"z20",   (Float_t) mic->GetEmcClusterZ20(),   		0.0f );
-		n->Column(pre+"z53",   (Float_t) mic->GetEmcClusterZ53(),   		0.0f );
-		n->Column(pre+"lat",   (Float_t) mic->GetEmcClusterLat(),   		0.0f );
-		n->Column(pre+"e1",    (Float_t) mic->GetEmcClusterE1(),   			0.0f );
-		n->Column(pre+"e9",    (Float_t) mic->GetEmcClusterE9(),   			0.0f );
-		n->Column(pre+"e25",   (Float_t) mic->GetEmcClusterE25(),   		0.0f );
-		n->Column(pre+"mod",   (Float_t) mic->GetEmcModule(),   			0.0f );
-		n->Column(pre+"idx",   (Float_t) mic->GetEmcIndex(),   				0.0f );
-	}		
-}
-
-// -------------------------------------------------------------------------
-
-void PndParticleQATask::qaMvd(TString pre, RhoCandidate *c, RhoTuple *n)
-{
-	PndPidCandidate *mic = (PndPidCandidate*)c->GetRecoCandidate();
-	
-	if (mic)
-	{
-		n->Column(pre+"dedx",  (Float_t) mic->GetMvdDEDX(),			0.0f );
-		n->Column(pre+"hits",  (Float_t) mic->GetMvdHits(),			0.0f );
-	}		
-}
-
-// -------------------------------------------------------------------------
-
-void PndParticleQATask::qaStt(TString pre, RhoCandidate *c, RhoTuple *n)
-{
-	PndPidCandidate *mic = (PndPidCandidate*)c->GetRecoCandidate();
-	
-	if (mic)
-	{
-		n->Column(pre+"dedx",  (Float_t) mic->GetSttMeanDEDX(),		0.0f );
-		n->Column(pre+"hits",  (Float_t) mic->GetSttHits(),			0.0f );
-	}		
-}
-
-// -------------------------------------------------------------------------
-
-void PndParticleQATask::qaDrc(TString pre, RhoCandidate *c, RhoTuple *n)
-{
-	PndPidCandidate *mic = (PndPidCandidate*)c->GetRecoCandidate();
-	
-	if (mic)
-	{
-		n->Column(pre+"thtc",  	(Float_t) mic->GetDrcThetaC(),			0.0f );
-		n->Column(pre+"dthtc",  (Float_t) mic->GetDrcThetaCErr(),		0.0f );
-		n->Column(pre+"qa",  	(Float_t) mic->GetDrcQuality(),			0.0f );
-		n->Column(pre+"nphot",  (Float_t) mic->GetDrcNumberOfPhotons(),	0.0f );
-		n->Column(pre+"idx",  	(Float_t) mic->GetDrcIndex(),			0.0f );
-	}		
-}
-
-// -------------------------------------------------------------------------
-
-void PndParticleQATask::qaDsc(TString pre, RhoCandidate *c, RhoTuple *n)
-{
-	PndPidCandidate *mic = (PndPidCandidate*)c->GetRecoCandidate();
-	
-	if (mic)
-	{
-		n->Column(pre+"thtc",  	(Float_t) mic->GetDiscThetaC(),			0.0f );
-		n->Column(pre+"dthtc",  (Float_t) mic->GetDiscThetaCErr(),		0.0f );
-		n->Column(pre+"qa",  	(Float_t) mic->GetDiscQuality(),		0.0f );
-		n->Column(pre+"nphot",  (Float_t) mic->GetDiscNumberOfPhotons(),0.0f );
-		n->Column(pre+"idx",  	(Float_t) mic->GetDiscIndex(),			0.0f );
-	}		
-}
-
-// -------------------------------------------------------------------------
-
-void PndParticleQATask::qaMuo(TString pre, RhoCandidate *c, RhoTuple *n)
-{
-	PndPidCandidate *mic = (PndPidCandidate*)c->GetRecoCandidate();
-	
-	if (mic)
-	{
-		n->Column(pre+"nlay",  	(Float_t) mic->GetMuoNumberOfLayers(),	0.0f );;
-		n->Column(pre+"prob",  	(Float_t) mic->GetMuoProbability(),		0.0f );;
-		n->Column(pre+"qa",  	(Float_t) mic->GetMuoQuality() ,		0.0f ); ;
-		n->Column(pre+"iron",  	(Float_t) mic->GetMuoIron() ,			0.0f );  ;  
-		n->Column(pre+"pin",  	(Float_t) mic->GetMuoMomentumIn(),		0.0f );;
-		n->Column(pre+"mod", 	(Float_t) mic->GetMuoModule(),			0.0f );  ;  
-		n->Column(pre+"hits",  	(Float_t) mic->GetMuoHits(),			0.0f );  ;  
-		n->Column(pre+"idx",  	(Float_t) mic->GetMuoIndex(),			0.0f ); ;    
-	}		
-}
-
-// -------------------------------------------------------------------------
-
-void PndParticleQATask::qaTof(TString pre, RhoCandidate *c, RhoTuple *n)
-{
-	PndPidCandidate *mic = (PndPidCandidate*)c->GetRecoCandidate();
-	
-	if (mic)
-	{
-		n->Column(pre+"time", 	(Float_t) mic->GetTofStopTime(),	0.0f );
-		n->Column(pre+"m2",  	(Float_t) mic->GetTofM2(),			0.0f );  
-		n->Column(pre+"len",  	(Float_t) mic->GetTofTrackLength(),	0.0f );
-		n->Column(pre+"qa",  	(Float_t) mic->GetTofQuality(),		0.0f );
-		n->Column(pre+"idx",  	(Float_t) mic->GetTofIndex(),		0.0f ); 
-		n->Column(pre+"beta",  	(Float_t) mic->GetTofBeta(),		0.0f );
-	}		
-}
-
-// -------------------------------------------------------------------------
-
-void PndParticleQATask::qaTrk(TString pre, RhoCandidate *c, RhoTuple *n)
-{
-	PndPidCandidate *mic = (PndPidCandidate*)c->GetRecoCandidate();
-	
-	if (mic)
-	{
-		n->Column(pre+"dof",  	(Float_t) mic->GetDegreesOfFreedom(),	0.0f );
-		n->Column(pre+"stat",  	(Float_t) mic->GetFitStatus(),			0.0f ); 
-		n->Column(pre+"chi2",  	(Float_t) mic->GetChiSquared(),			0.0f );
-		n->Column(pre+"idx",  	(Float_t) mic->GetTrackIndex(),			0.0f );	
-		n->Column(pre+"branch",	(Float_t) mic->GetTrackBranch() ,		0.0f );
-	}		
-}
-
-// -------------------------------------------------------------------------
-
-void PndParticleQATask::qaPid(TString pre, RhoCandidate *c, RhoTuple *n)
-{	
-	n->Column(pre+"e",  (Float_t) c->GetPidInfo(0),		0.0f );
-	n->Column(pre+"mu", (Float_t) c->GetPidInfo(1),		0.0f ); 
-	n->Column(pre+"pi", (Float_t) c->GetPidInfo(2),		0.0f );
-	n->Column(pre+"k",  (Float_t) c->GetPidInfo(3),		0.0f );	
-	n->Column(pre+"p",	(Float_t) c->GetPidInfo(4),		0.0f );
-}
-
-// -------------------------------------------------------------------------
 
 ClassImp(PndParticleQATask)

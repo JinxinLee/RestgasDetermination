@@ -6,6 +6,7 @@
 #include <map>
 #include <string>
 #include "TLorentzVector.h"
+#include "TString.h"
 
 class TClonesArray;
 class TObjectArray;
@@ -25,7 +26,7 @@ class PndParticleQATask : public FairTask
  public:
 	
 	// ** Default constructor   
-	PndParticleQATask();
+	PndParticleQATask(bool fastsim = false);
 	
 	// ** Destructor 
 	~PndParticleQATask();	
@@ -38,6 +39,8 @@ class PndParticleQATask : public FairTask
 	
 	
 	virtual void Finish();
+	
+	void SetFastSim(bool fsim=true) {fFastSim = fsim;}
 
  protected:
 	
@@ -48,25 +51,18 @@ class PndParticleQATask : public FairTask
 		
 	// *** a method 
 	int  SelectTruePid(PndAnalysis *ana, RhoCandList &l);
-	
-	void qaP4(TString pre, TLorentzVector c, RhoTuple *n, bool skip=false);
-	
-	void qaEmc(TString pre, RhoCandidate *c, RhoTuple *n);
-	void qaMvd(TString pre, RhoCandidate *c, RhoTuple *n);
-	void qaStt(TString pre, RhoCandidate *c, RhoTuple *n);
-	void qaDrc(TString pre, RhoCandidate *c, RhoTuple *n);
-	void qaDsc(TString pre, RhoCandidate *c, RhoTuple *n);
-	void qaTof(TString pre, RhoCandidate *c, RhoTuple *n);
-	void qaMuo(TString pre, RhoCandidate *c, RhoTuple *n);
-	void qaTrk(TString pre, RhoCandidate *c, RhoTuple *n);
-	void qaPid(TString pre, RhoCandidate *c, RhoTuple *n);
-	
+		
 	// *** declare NTuple
+	RhoTuple *nmc;				// mc truth
 	RhoTuple *ntp;				// tuple to store vars from charged
 	RhoTuple *ntpn;				// tuple to store vars from neutrals
 
 	// *** the PndAnalysis object
 	PndAnalysis *fAnalysis;
+	
+	bool fFastSim;
+	
+	TString fPid[10];
 	
 	// *** Get parameter containers
 	virtual void SetParContainers();
