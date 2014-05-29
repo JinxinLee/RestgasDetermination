@@ -124,8 +124,9 @@ PndFsmEmcPid::respond(PndFsmTrack *t)
 	else if (type==2212) idx=4;
 	else idx=5;
 
-	// histogram max p = 8.0
-	if (p>7.99) p=7.99;
+	// histogram max p = 10.0
+	double hpmax = _emcPidPdf[0]->GetXaxis()->GetXmax();
+	if (p>hpmax) p=hpmax;
 
 	// get the bin corresponding to p
 	int currbin = _emcPidPdf[0]->GetXaxis()->FindBin(p);

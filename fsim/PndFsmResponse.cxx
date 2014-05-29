@@ -67,14 +67,16 @@ PndFsmResponse::PndFsmResponse()
   setDrcDiscThtc(0.0);         // thetac from Drc disc
   setDrcBarrelThtc(0.0);         // thetac from Drc barrel
   setRichThtc(0.0);         // thetac rich
+  setEmcEcal(0.0);			// emc E_calib
+  setMuoIron(0.0);			// MDT length in iron
   
   setdV(0.0, 0.0, 0.0);
 
-  setLHElectron(1.0);
-  setLHMuon(1.0);
-  setLHPion(1.0);
-  setLHKaon(1.0);
-  setLHProton(1.0);
+  setLHElectron(0.0);
+  setLHMuon(0.0);
+  setLHPion(0.0);
+  setLHKaon(0.0);
+  setLHProton(0.0);
 }
 
 //--------------
