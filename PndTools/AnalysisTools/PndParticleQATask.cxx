@@ -240,14 +240,14 @@ void PndParticleQATask::Exec(Option_t* opt)
 		qa.qaPid( "pid123456", chr123456[j], 		ntp); 
 		qa.qaPid( "pid26", 	chr26[j], 		ntp); 
 		
-		qa.qaEmc( "emc",		chr[j], 		ntp);
-		qa.qaMvd( "mvd",		chr[j], 		ntp);
-		qa.qaStt( "stt",		chr[j], 		ntp);
-		qa.qaDrc( "drc",		chr[j], 		ntp);
-		qa.qaDsc( "dsc",		chr[j], 		ntp);
-		qa.qaTof( "tof",		chr[j], 		ntp);
-		qa.qaMuo( "muo",		chr[j], 		ntp);
-		qa.qaTrk( "trk",		chr[j], 		ntp);
+		qa.qaEmc( "",		chr[j], 		ntp);
+		qa.qaMvd( "",		chr[j], 		ntp);
+		qa.qaStt( "",		chr[j], 		ntp);
+		qa.qaDrc( "",		chr[j], 		ntp);
+		qa.qaDsc( "",		chr[j], 		ntp);
+		qa.qaTof( "",		chr[j], 		ntp);
+		qa.qaMuo( "",		chr[j], 		ntp);
+		qa.qaTrk( "",		chr[j], 		ntp);
 		
 		float mct = 0.0;
 		float prim = 0.0;
