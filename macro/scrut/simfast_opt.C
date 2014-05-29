@@ -26,7 +26,12 @@ void simfast_opt(TString Prefix, TString Decfile, Float_t Mom, Int_t nEvents = 1
            TString DetOpt="MvdGem EmcBar Drc Dsc FwdSpec" )
 
 {
-	//-----Evaluate Detector Setup -----------------------------------------------
+	// Prevent generator from throwing a lot of warnings
+	TLorentzVector fIni(0,0,Mom,0.938272+sqrt(Mom*Mom+0.938272*0.938272));
+	TDatabasePDG::Instance()->AddParticle("pbarpSystem","pbarpSystem",fIni.M(),kFALSE,0.1,0, "",88888);
+	TDatabasePDG::Instance()->AddParticle("pbarpSystem0","pbarpSystem0",fIni.M(),kFALSE,0.1,0, "",88880);
+	
+	//-----Evaluate Detector Setup ---------------------------------------
 	bool SwMvdGem  = false;
 	bool SwEmcBar  = false;
 	bool SwDrc     = false;
@@ -39,18 +44,20 @@ void simfast_opt(TString Prefix, TString Decfile, Float_t Mom, Int_t nEvents = 1
 	if (DetOpt.Contains("Dsc")     || DetOpt.Contains("4") ) SwDsc     = true;
 	if (DetOpt.Contains("FwdSpec") || DetOpt.Contains("5") ) SwFwdSpec = true;
 
+	//----- Switches for Simulation Options ------------------------------
+	Bool_t enableSplitoff  = false;  // create e.-m. and hadronic split offs
+	Bool_t mergeNeutrals   = false;  // merge neutrals (for merged pi0s)
+	Bool_t electronBrems   = false;  // bremsstrahlung loss for electrons 
+	Bool_t useEventFilter  = false;  // enable event filter. *** Needs configuration (see below) *** 
 
 	//-----General settings-----------------------------------------------
 	TString BaseDir =  gSystem->Getenv("VMCWORKDIR");
 	TString splitpars = BaseDir+"/fsim/splitpars.dat";
 	gRandom->SetSeed();
 
-	//-----User Settings:-----------------------------------------------
+	//-----User Settings:-------------------------------------------------
 	TString  OutputFile     = Prefix+"_fast.root";
 	gDebug             = 0;
-
-	// generate electro-magnetic / hadronic split offs in the EMC? switch off when running w/o EMC
-	Bool_t enableSplitoff   = kFALSE;
 
 	// choose your event generator
 	Bool_t UseEvtGenDirect  = kTRUE;
@@ -136,17 +143,57 @@ void simfast_opt(TString Prefix, TString Decfile, Float_t Mom, Int_t nEvents = 1
 	//Setup the Fast Simulation Task
 	//-----------------------------
 	PndFastSim* fastSim = new PndFastSim();
-
-	//increasing verbosity increases the amount of console output (mainly for debugging)
+		
+	// increasing verbosity increases the amount of console output (mainly for debugging)
 	fastSim->SetVerbosity(0);
 
+	//set event filters
+	if (useEventFilter)
+	{
+	      // Filters are:
+	      // -----------
+	      // fastSim->SetMultFilter(type, min, max); 
+	      // requires min <= mult <= max
+	      
+	      // available types are:
+	      
+	      //  "+"   : positive charged particles
+	      //  "-"   : negative charged particles
+	      //  "gam" : gammas
+	      //  "pi0" : pi0 candidates ( -> 2 gammas); mass window 0.135 +- 0.03 GeV
+	      //  "eta" : eta candidates ( -> 2 gammas); mass window 0.547 +- 0.04 GeV 
+	      //  "ks"  : K_S candidates ( -> pi+ pi-);  mass window 0.497 +- 0.04 GeV
+	      
+	      fastSim->SetMultFilter("+",   2,1000);  // at least 2 trk+
+	      fastSim->SetMultFilter("-",   2,1000);  // at least 2 trk-
+	      fastSim->SetMultFilter("gam", 0,   4);  // at most 4 gammas
+
+	      // fastSim->SetInvMassFilter(comb, m_min, m_max, mult);
+	      
+	      // requires at least mult combined candidates with m_min < m < m_max
+	      
+	      // comb is a TString describing the combinatoric
+	      // - particle codes are: e+ e- mu+ mu- pi+ pi- k+ k- p+ p- gam pi0 ks eta
+	      // - codes must be separated with a single blank
+	      // - for charged final states only the mass is set; no pdg code selection is done! 
+	      // - optional a 'cc' added at the end of also takes into account charge conjugation
+	      
+	      // Examples: 
+	      // - ("k+ k-", 0.98, 1.1, 2)       : forms K+ K- candidate and requires >=2 in the given window
+	      // - ("ks k+ pi- cc", 2.8, 3.2,1 ) : forms ks k+ pi- / ks k- pi+ cands and req. at least one in window
+	      
+	      fastSim->SetInvMassFilter("e+ e-",2.8,3.3,1);  // look for J/psi -> e+ e- candidate
+	}
+
 	// enable the merging of neutrals if they have similar direction
-	fastSim->MergeNeutralClusters(false);
+	fastSim->MergeNeutralClusters(mergeNeutrals);
 
 	// enable bremsstahlung loss for electrons
-	fastSim->EnableElectronBremsstrahlung(false);
+	fastSim->EnableElectronBremsstrahlung(electronBrems);
 
 	//enable the producting of parametrized neutral (hadronic) split offs
+	// generate electro-magnetic / hadronic split offs in the EMC? switch off when running w/o EMC
+
 	if (enableSplitoff)
 		fastSim->EnableSplitoffs(splitpars.Data());
 
@@ -215,7 +262,7 @@ void simfast_opt(TString Prefix, TString Decfile, Float_t Mom, Int_t nEvents = 1
 
 	// PID detectors being always in: STT, MUO Barrel, EMC FwdCap, EMC BwdCap
 	//Note: A dEdX parametrization from 2008
-	fastSim->AddDetector("SttPid","thtMin=7.8 thtMax=159.5 ptmin=0.1 dEdxRes=1. efficiency=1.");
+	fastSim->AddDetector("SttPid","thtMin=7.8 thtMax=159.5 ptmin=0.1 dEdxRes=0.15 efficiency=1.");
 	fastSim->AddDetector("ScMdtPidBarrel", "thtMin=10.0 thtMax=130.0 pmin=0.5 efficiency=0.95 misId=0.01");
 	fastSim->AddDetector("ScEmcPidFwCap",  "thtMin=10.0  thtMax=22.0  ptmin=0.0 pmin=0.0 efficiency=1.0");
 	fastSim->AddDetector("ScEmcPidBwCap",  "thtMin=142.0 thtMax=160.0  ptmin=0.0 pmin=0.0 efficiency=1.0");
