@@ -416,9 +416,11 @@ Int_t PndGemSensor::GetSensorPart(Int_t iSide, Int_t chan) {
     if ( iSide == 0 ) {
 //       Int_t nsStrips = (Int_t)(TMath::Ceil(fInnerRadius/fPitch[0]));
       Int_t nsStrips = (Int_t)(fInnerRadius/fPitch[0]+0.5);
-      if      ( TMath::Abs(chan-fNChannelsFront/2) > nsStrips*2 ) 
+      //if      ( TMath::Abs(chan-fNChannelsFront/2) > nsStrips*2 ) 
+      if      ( TMath::Abs(chan-fNChannelsFront/2 +0.5 ) > nsStrips*2 ) 
 	return 0;
-      else if ( TMath::Abs(chan-fNChannelsFront/2) < nsStrips   )
+      //else if ( TMath::Abs(chan-fNChannelsFront/2) < nsStrips   )
+      else if ( TMath::Abs(chan-fNChannelsFront/2 +0.5) < nsStrips   )
 	return 2;
       else 
 	return 1;
@@ -510,15 +512,19 @@ Double_t PndGemSensor::GetDistance(Int_t iSide, Double_t chan1, Double_t chan2) 
       Int_t nsStrips = (Int_t)(fInnerRadius/fPitch[0] +0.5);
       Int_t part1 = 666;
       Int_t part2 = 666;
-      if      ( TMath::Abs(chan1-fNChannelsFront/2) >= nsStrips*2 ) part1 =  0;
-      else if ( TMath::Abs(chan1-fNChannelsFront/2) <  nsStrips   ) {
+      //if      ( TMath::Abs(chan1-fNChannelsFront/2) >= nsStrips*2 ) part1 =  0;
+      if      ( TMath::Abs(chan1-fNChannelsFront/2 +0.5 ) > nsStrips*2 ) part1 =  0;
+      //else if ( TMath::Abs(chan1-fNChannelsFront/2) <  nsStrips   ) {
+      else if ( TMath::Abs(chan1-fNChannelsFront/2 +0.5 ) <  nsStrips   ) {
 	part1 = -1;
 	if ( chan1 < fNChannelsFront/2 ) chan1 = chan1-nsStrips;
 	else                             chan1 = chan1+nsStrips;
       }
       else                                                         part1 =  1;
-      if      ( TMath::Abs(chan2-fNChannelsFront/2) >= nsStrips*2 ) part2 =  0;
-      else if ( TMath::Abs(chan2-fNChannelsFront/2) <  nsStrips   ) {
+      //if      ( TMath::Abs(chan2-fNChannelsFront/2) >= nsStrips*2 ) part2 =  0;
+      if      ( TMath::Abs(chan2-fNChannelsFront/2 +0.5 ) > nsStrips*2 ) part2 =  0;
+      //else if ( TMath::Abs(chan2-fNChannelsFront/2) <  nsStrips   ) {
+      else if ( TMath::Abs(chan2-fNChannelsFront/2 +0.5 ) <  nsStrips   ) {
 	part2 = -1;
 	if ( chan2 < fNChannelsFront/2 ) chan2 = chan2-nsStrips;
 	else                             chan2 = chan2+nsStrips;
@@ -581,19 +587,22 @@ Int_t PndGemSensor::GetDistance(Int_t iSide, Int_t chanMin, Int_t chanMax, Int_t
       Int_t nsStrips = (Int_t)(fInnerRadius/fPitch[0] + 0.5);
       // THIS BROKEN VERTICAL STRIPS NEED SPECIAL ATTENTION
       // DO NOT YET CONSIDER ALL THE PROBLEMS...
-      if      ( TMath::Abs(chanMin-fNChannelsFront/2) < nsStrips ) {
+      //if      ( TMath::Abs(chanMin-fNChannelsFront/2) < nsStrips ) {
+      if      ( TMath::Abs(chanMin-fNChannelsFront/2 +0.5) < nsStrips ) {
 	//	cout << "chanMin " << chanMin << " is in bad position, consider " << fNChannelsFront << "/" << nlStrips << "/" << nsStrips << flush;
 	if ( chanMin < fNChannelsFront/2 ) chanMin -= nsStrips;
 	else                               chanMin += nsStrips;
 	//	cout << " -----> " << chanMin << " ( "  << chanMax << " , " << chanTest << " )" << endl;
       }
-      if      ( TMath::Abs(chanMax-fNChannelsFront/2) < nsStrips ) {
+      //if      ( TMath::Abs(chanMax-fNChannelsFront/2) < nsStrips ) {
+      if      ( TMath::Abs(chanMax-fNChannelsFront/2 +0.5) < nsStrips ) {
 	//	cout << "chanMax " << chanMax << " is in bad position, consider " << fNChannelsFront << "/" << nlStrips << "/" << nsStrips << flush;
 	if ( chanMax < fNChannelsFront/2 ) chanMax -= nsStrips;
 	else                               chanMax += nsStrips;
 	//	cout << " -----> " << chanMax << " ( "  << chanMin << " , " << chanTest << " )" << endl;
       }
-      if      ( TMath::Abs(chanTest-fNChannelsFront/2) < nsStrips ) {
+      //if      ( TMath::Abs(chanTest-fNChannelsFront/2) < nsStrips ) {
+      if      ( TMath::Abs(chanTest-fNChannelsFront/2 +0.5) < nsStrips ) {
 	//	cout << "chanTest " << chanTest << " is in bad position, consider " << fNChannelsFront << "/" << nlStrips << "/" << nsStrips << flush;
 	if ( chanTest < fNChannelsFront/2 ) chanTest -= nsStrips;
 	else                                chanTest += nsStrips;
@@ -657,21 +666,25 @@ Double_t PndGemSensor::GetDistance2(Int_t iSide, Double_t chan1, Double_t chan2)
       Int_t nsStrips = (Int_t)(fInnerRadius/fPitch[0] + 0.5);
       Int_t part1 = 666;
       Int_t part2 = 666;
-      if      ( TMath::Abs(chan1-fNChannelsFront/2) > nsStrips*2 ) part1 =  0;
-      else if ( TMath::Abs(chan1-fNChannelsFront/2) < nsStrips   ) {
-	part1 = -1;
+      //if      ( TMath::Abs(chan1-fNChannelsFront/2) > nsStrips*2 ) part1 =  0;
+      if      ( TMath::Abs(chan1-fNChannelsFront/2 +0.5 ) > nsStrips*2 ) part1 =  0;
+      //else if ( TMath::Abs(chan1-fNChannelsFront/2) < nsStrips   ) {
+      else if ( TMath::Abs(chan1-fNChannelsFront/2 +0.5 ) < nsStrips   ) {
+      	part1 = -1;
 	if ( chan1 < fNChannelsFront/2 ) chan1 = chan1-nsStrips;
 	else                             chan1 = chan1+nsStrips;
       }
       else                                                         part1 =  1;
-      if      ( TMath::Abs(chan2-fNChannelsFront/2) > nsStrips*2 ) part2 =  0;
-      else if ( TMath::Abs(chan2-fNChannelsFront/2) < nsStrips   ) {
-	part2 = -1;
+      //if      ( TMath::Abs(chan2-fNChannelsFront/2) > nsStrips*2 ) part2 =  0;
+      if      ( TMath::Abs(chan2-fNChannelsFront/2 +0.5 ) > nsStrips*2 ) part2 =  0;
+      //else if ( TMath::Abs(chan2-fNChannelsFront/2) < nsStrips   ) {
+      else if ( TMath::Abs(chan2-fNChannelsFront/2 +0.5) < nsStrips   ) {
+      	part2 = -1;
 	if ( chan2 < fNChannelsFront/2 ) chan2 = chan2-nsStrips;
 	else                             chan2 = chan2+nsStrips;
       }
       else                                                         part2 =  1;
-
+      
       if ( part1*part2 == -1 ) return -1;
       return TMath::Abs(chan1-chan2);
     }
@@ -763,15 +776,19 @@ Double_t PndGemSensor::GetMeanChannel(Int_t iSide, Double_t chan1, Double_t weig
       Int_t nsStrips = (Int_t)(fInnerRadius/fPitch[0] + 0.5);
       Int_t part1 = 666;
       Int_t part2 = 666;
-      if      ( TMath::Abs(chan1-fNChannelsFront/2) >= nsStrips*2 ) part1 =  0;
-      else if ( TMath::Abs(chan1-fNChannelsFront/2) <  nsStrips   ) {
+      //if      ( TMath::Abs(chan1-fNChannelsFront/2) >= nsStrips*2 ) part1 =  0;
+      if      ( TMath::Abs(chan1-fNChannelsFront/2 +0.5 ) > nsStrips*2 ) part1 =  0;
+      //else if ( TMath::Abs(chan1-fNChannelsFront/2) <  nsStrips   ) {
+      else if ( TMath::Abs(chan1-fNChannelsFront/2 +0.5 ) <  nsStrips   ) {
 	part1 = -1;
 	if ( chan1 < fNChannelsFront/2 ) chan1 = chan1-nsStrips;
 	else                             chan1 = chan1+nsStrips;
       }
       else                                                          part1 =  1;
-      if      ( TMath::Abs(chan2-fNChannelsFront/2) >= nsStrips*2 ) part2 =  0;
-      else if ( TMath::Abs(chan2-fNChannelsFront/2) <  nsStrips   ) {
+      //if      ( TMath::Abs(chan2-fNChannelsFront/2) >= nsStrips*2 ) part2 =  0;
+      if      ( TMath::Abs(chan2-fNChannelsFront/2 +0.5) > nsStrips*2 ) part2 =  0;
+      //else if ( TMath::Abs(chan2-fNChannelsFront/2) <  nsStrips   ) {
+      else if ( TMath::Abs(chan2-fNChannelsFront/2 +0.5) <  nsStrips   ) {
 	part2 = -1;
 	if ( chan2 < fNChannelsFront/2 ) chan2 = chan2-nsStrips;
 	else                             chan2 = chan2+nsStrips;
