@@ -1147,7 +1147,6 @@ void RhoCandidate::PrintOn ( std::ostream& o ) const
   o << "daughters: "<< NDaughters() <<"(";
   for ( int i=0; i<NDaughters(); i++ ) { o << " " << fDaughters[i]->Uid(); }
   o <<")";
-  o << " dcy: "<<fDecayVtx;
   o << " pdg: " <<fPdgCode;
   o << " PID:";
   for ( int k=0; k<5; k++ ) { o << fPidLH[k] <<","; } // take the first 5 pid entries to check charged p,pi,e,mu,K
