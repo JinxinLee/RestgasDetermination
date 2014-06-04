@@ -358,13 +358,13 @@ void PndFastSim::SetMultFilter(TString type, int min, int max)
 	fMultMax[i] = max;
 }
 
-void PndFastSim::copyAndSetMass(RhoCandList &l, RhoCandList &nl, double mass)
+void PndFastSim::copyAndSetMass(RhoCandList &l, RhoCandList &nl, int pdg)
 {
 	nl.Cleanup();
 	for (int i=0;i<l.GetLength();++i)
 	{
 		RhoCandidate c(*(l[i]));
-		c.SetMass(mass);
+		c.SetType(pdg);
 		nl.Add(&c);
 	}
 }
@@ -386,7 +386,7 @@ void PndFastSim::SetInvMassFilter(TString filter, double min, double max, int mu
 	}
 	wk+=" ";
 	
-	// chop the configuration string in pieces of 2 chars
+	// chop the configuration string in pieces 
 	// coding is: 0+=e+, 1+=mu+, ... , 4+=p+ (& cc), gm=gamma 
 	// list indices: 0:e+ 1:e-, 2:mu+, ... 9:p-, 10:gamma, 11:pi0(gg), 12:KS, 13:eta(gg)
 	while (wk.Length()>0 && fCombMult<5)
@@ -421,40 +421,38 @@ void PndFastSim::SetInvMassFilter(TString filter, double min, double max, int mu
 int PndFastSim::chCon(int i)
 {
 	int cc=i;
-	if (i<10) cc=i/2+abs(1-i%2);
-	return i;
+	if (i<10) i%2 ? cc=i-1 : cc=i+1;
+	return cc;
 }
 
-bool PndFastSim::acceptFilters(RhoCandList &l)
+int PndFastSim::acceptFilters(RhoCandList &l)
 {
-	RhoCandList plus, minus,lsp[14],comb;
+	RhoCandList plus, minus,lsp[14],comb, combsel;
 	
 	int i,j, nplus, nminus, ngam;
 	
 	for (i=0;i<l.GetLength();++i)
 	{
-		if (l[i]->Charge()<0) plus.Add(l[i]);
-		else if (l[i]->Charge()>0) minus.Add(l[i]);
+		if (l[i]->Charge()>0) plus.Add(l[i]);
+		else if (l[i]->Charge()<0) minus.Add(l[i]);
 		else if (fabs(l[i]->Charge())<1e-6) lsp[10].Add(l[i]);
 	}
 	
-	//cout <<"N:"<<l.GetLength()<<" N+:" <<plus.GetLength()<<" N-:"<<minus.GetLength()<<" N0:"<<gam.GetLength()<<endl;
-
 	// apply multiplicity filters
 
 	// positiv particles
 	nplus = plus.GetLength();
-	if (nplus<fMultMin[0] || nplus>fMultMax[0]) return false;
+	if (nplus<fMultMin[0] || nplus>fMultMax[0]) return 1;
 	
 	// negative particles
 	nminus = minus.GetLength();
-	if (nminus<fMultMin[1] || nminus>fMultMax[1]) return false;
+	if (nminus<fMultMin[1] || nminus>fMultMax[1]) return 2;
 	
 	// neutrals
 	ngam = lsp[10].GetLength();
-	if (ngam<fMultMin[2] || ngam>fMultMax[2]) return false;
+	if (ngam<fMultMin[2] || ngam>fMultMax[2]) return 3;
 
-	double masses[5]={0.000511,0.105658,0.13957,0.493677,0.938272};
+	int pdgcodes[10] = {-11, 11, -13, 13, 211, -211, 321, -321, 2212, -2212};
 	
 	RhoMassParticleSelector msel("msel",(fInvMassMax+fInvMassMin)/2,(fInvMassMax-fInvMassMin));
 	RhoMassParticleSelector pi0sel("pi0sel",0.135,0.06);
@@ -468,21 +466,21 @@ bool PndFastSim::acceptFilters(RhoCandList &l)
 		lsp[11].Select(&pi0sel);
 		
 		int npi0=lsp[11].GetLength();
-		if (npi0<fMultMin[3] || npi0>fMultMax[3]) return false;
+		if (npi0<fMultMin[3] || npi0>fMultMax[3]) return 4;
 	}
 	
 	// ks
 	if (fMultMin[4]>0 || fMultMax[4]<1000) 
 	{
 	
-		copyAndSetMass(plus,  lsp[4], masses[2]);
-		copyAndSetMass(minus, lsp[5], masses[2]);
+		copyAndSetMass(plus,  lsp[4], pdgcodes[4]);
+		copyAndSetMass(minus, lsp[5], pdgcodes[5]);
 				
 		lsp[12].Combine(lsp[4],lsp[5]);
 		lsp[12].Select(&kssel);
 		
 		int nks=lsp[12].GetLength();
-		if (nks<fMultMin[4] || nks>fMultMax[4]) return false;
+		if (nks<fMultMin[4] || nks>fMultMax[4]) return 5;
 	}
 	
 	// etas
@@ -492,39 +490,53 @@ bool PndFastSim::acceptFilters(RhoCandList &l)
 		lsp[13].Select(&etasel);
 		
 		int neta=lsp[13].GetLength();
-		if (neta<fMultMin[5] || neta>fMultMax[5]) return false;
+		if (neta<fMultMin[5] || neta>fMultMax[5]) return 6;
 	}
 	
 	// apply inv mass filter
 	// list indices: 0:e+ 1:e-, 2:mu+, ... 9:p-, 10:gamma, 11:pi0(gg), 12:KS, 13:eta(gg)
 	if (fInvMassMult>0)
 	{
-		
+		if (fVb>0) cout <<"Comb mult = "<<fCombMult<<endl;
 		for (i=0;i<fCombMult;++i)
 		{
 			// prepare all needed lists
-			// charged particle species
 			int idx = fCombIndex[i];
+			int ccidx = chCon(idx);
+			
+			if (fVb) cout <<"IDX:"<<idx<<"  CCIDX:"<<ccidx<<endl;
+			
+			// charged particle species
 			if (idx<10 && lsp[idx].GetLength()==0)
 			{
-				if (idx%2) copyAndSetMass(minus,  lsp[idx], masses[idx/2]);
-				else copyAndSetMass(plus,  lsp[idx], masses[idx/2]);
+				if (idx%2) copyAndSetMass(minus,  lsp[idx], pdgcodes[idx]);
+				else copyAndSetMass(plus,  lsp[idx], pdgcodes[idx]);
 			} 
+			
+			// if charged conjugation needed, prepare those lists
+			if (fChargeConj && ccidx<10 && lsp[ccidx].GetLength()==0)
+			{
+				if (ccidx%2) copyAndSetMass(minus,  lsp[ccidx], pdgcodes[ccidx]);
+				else copyAndSetMass(plus,  lsp[ccidx], pdgcodes[ccidx]);
+			} 
+			
 			// pi0s
 			if (idx==11 && lsp[idx].GetLength()==0) 
 			{
 				lsp[11].Combine(lsp[10],lsp[10]);
 				lsp[11].Select(&pi0sel);
 			}
+			
 			// ks
 			if (idx==12 && lsp[idx].GetLength()==0) 
 			{
-				if (lsp[4].GetLength()==0) copyAndSetMass(plus,  lsp[4], masses[2]);
-				if (lsp[5].GetLength()==0) copyAndSetMass(minus, lsp[5], masses[2]);
+				if (lsp[4].GetLength()==0) copyAndSetMass(plus,  lsp[4], pdgcodes[4]);
+				if (lsp[5].GetLength()==0) copyAndSetMass(minus, lsp[5], pdgcodes[5]);
 				
 				lsp[12].Combine(lsp[4],lsp[5]);
 				lsp[12].Select(&kssel);
 			}
+			
 			// eta
 			if (idx==13 && lsp[idx].GetLength()==0) 
 			{
@@ -556,12 +568,30 @@ bool PndFastSim::acceptFilters(RhoCandList &l)
 		 	break;
 		}
 		
-		comb.Select(&msel);
-		if (comb.GetLength()<fInvMassMult) return false;
+		combsel.Select(comb,&msel);
+		if (combsel.GetLength()<fInvMassMult) 
+		{
+			if (fVb>0) 
+			{
+				cout<<"filter list masses: ";
+				for (i=0;i<comb.GetLength();++i) 
+				{
+					std::cout <<comb[i]->M()<<" ("<<comb[i]->GetMarker(0)<<")  "<<endl;
+					cout <<" ("<<comb[i]->P4().X()<<","<<comb[i]->P4().Y()<<","<<comb[i]->P4().Z()<<","<<comb[i]->P4().E()<<")"<<endl;
+					for (j=0;j<comb[i]->NDaughters();++j)
+					{
+						RhoCandidate *d=comb[i]->Daughter(j);
+						cout<<*d<<endl;
+					}
+				}
+				cout<<endl;
+			}
+			return 7;
+		}
 		
 	}
 	
-	return true;
+	return 0;
 }
 
 // -----   Public method Finish   --------------------------------------------
@@ -641,12 +671,26 @@ void PndFastSim::Exec(Option_t* opt)
        		if (fabs(charge)>2) charge/=3.;
 	   
 	   	RhoCandidate c(p4, charge);
+		c.SetType(t->GetPdgCode());
 	   	c.SetMarker(lfilt.GetLength());
 	   	lfilt.Add(&c);
 	}
 	
-	if (!acceptFilters(lfilt))
+	int errac = acceptFilters(lfilt);
+	
+	if (errac>0)
 	{
+		if (fVb>0) 
+		{
+			cout <<"PndFastSim Filter reject ev="<< evtcnt<<" with code="<<errac<<endl;
+			cout <<"Filter list"<<endl;
+			for (int i=0;i<lfilt.GetLength();++i)
+			{
+				cout <<i<<" : "<<lfilt[i]->PdgCode();
+				cout <<" ("<<lfilt[i]->P4().X()<<","<<lfilt[i]->P4().Y()<<","<<lfilt[i]->P4().Z()<<","<<lfilt[i]->P4().E()<<")"<<endl;
+			}
+		}
+
 		RhoFactory::Instance()->Reset();
 		return;
 	}
@@ -828,6 +872,8 @@ void PndFastSim::Exec(Option_t* opt)
 					mergedCand->SetMcIndex(-1); // remove MC truth match
 
 					merged = true;
+					
+					// exit loop, if mergeing happend
 					i=neucandsize;
 				}
 			  }

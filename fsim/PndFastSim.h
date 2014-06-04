@@ -73,9 +73,9 @@ class PndFastSim : public FairTask
 
   PndFsmResponse* sumResponse(FsmResponseList respList);
 
-  bool acceptFilters(RhoCandList &l);
+  int acceptFilters(RhoCandList &l);
   int  chCon(int i);
-  void copyAndSetMass(RhoCandList &l, RhoCandList &nl, double mass);
+  void copyAndSetMass(RhoCandList &l, RhoCandList &nl, int pdg);
   
   bool cutAndSmear(PndFsmTrack *t, PndFsmResponse *r);
   bool cutAndSmear(PndFsmTrack *t);
