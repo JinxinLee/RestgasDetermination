@@ -41,6 +41,6 @@ PndDrcLutReco.cxx
 set(LINKDEF  DrcLinkDef.h)
 set(LIBRARY_NAME Drc) 
 
-set(DEPENDENCIES Base GeoBase ParBase PndData)
+set(DEPENDENCIES Base GeoBase ParBase PndData generalTools)
 
 GENERATE_LIBRARY()
