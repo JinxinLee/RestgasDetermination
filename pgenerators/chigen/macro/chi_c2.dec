@@ -1,0 +1,36 @@
+noPhotos
+
+Decay chi_c1
+  1.0 J/psi e+ e- gamma	PHSP; 
+Enddecay
+
+Decay chi_c1L
+  1.0 J/psi gamma	PHSP; 
+Enddecay
+
+Decay chi_c1T
+  1.0 J/psi gamma	PHSP; 
+Enddecay
+
+Decay chi_c2
+  1.0 gamma J/psi	PHSP; 
+Enddecay
+
+Decay chi_c2LL
+  1.0 gamma J/psi	PHSP; 
+Enddecay
+
+Decay chi_c2LT
+  1.0 gamma J/psi	PHSP;  
+Enddecay
+
+Decay chi_c2TT
+  1.0 gamma J/psi	PHSP; 
+Enddecay
+
+
+Decay J/psi
+ 1.0 e+ e- PHSP;
+Enddecay
+
+End

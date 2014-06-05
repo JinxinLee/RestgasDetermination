@@ -1,0 +1,15 @@
+noPhotos
+
+Decay chi_c1
+1.000  J/psi  gamma                VVP 1.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0;
+Enddecay
+
+Decay chi_c2
+1.000  gamma  J/psi              TVP;
+Enddecay
+
+Decay J/psi
+ 1.0 mu+ mu- VLL;
+Enddecay
+
+End
