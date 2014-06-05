@@ -59,10 +59,14 @@ public:
 	// User interfaces
 	//////////////////
 	// returns kTRUE if setting was added, otherwise returns kFALSE
-	Bool_t SetMinMaxCounts( Int_t min, Int_t max );
+	Bool_t SetPdgCodesToCombine( Int_t pdgCode1, Int_t pdgCode2, Int_t pdgCode3=kInvalidPdgCode, Int_t pdgCode4=kInvalidPdgCode, Int_t pdgCode5=kInvalidPdgCode );
+
 	Bool_t SetMinMaxInvMass( Double_t min, Double_t max );
 	Bool_t SetRhoMassParticleSelector( const char* name, Double_t cv, Double_t w, const char* type ); // same arguments as constructor of RhoMassParticleSelector
-	Bool_t SetPdgCodesToCombine( Int_t pdgCode1, Int_t pdgCode2, Int_t pdgCode3=kInvalidPdgCode, Int_t pdgCode4=kInvalidPdgCode, Int_t pdgCode5=kInvalidPdgCode );
+
+	Bool_t SetMinMaxCounts( Int_t min, Int_t max );
+	Bool_t SetMinCounts( Int_t min ){ return SetMinMaxCounts(min, 9999); };
+	Bool_t SetMaxCounts( Int_t max ){ return SetMinMaxCounts(0, max); };
 
 
 

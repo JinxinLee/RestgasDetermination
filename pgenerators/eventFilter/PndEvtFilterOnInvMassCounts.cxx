@@ -27,13 +27,21 @@ PndEvtFilterOnInvMassCounts::~PndEvtFilterOnInvMassCounts(){}
 
 Bool_t PndEvtFilterOnInvMassCounts::SetMinMaxCounts( Int_t min, Int_t max )
 {
+	if ( kTRUE == fCountRangeSet ){
+		std::cout << "\n\n\n  -WARNING from PndEvtFilterOnInvMassCounts of " << this->GetTitle() << ": " << this->GetName() << ": \n";
+		std::cout << "You are trying to set min and max counts for the events more than once! \n";
+		std::cout << "I take the first setting of min = " << fCountsMinMax.first << " max = " << fCountsMinMax.second << " and ignore the later ones! \n\n\n";
+		std::cout << "Your current input of min = " << min << " max = " << max << " is ignored! \n\n\n";
+		return kFALSE;
+	}
+
 	// check if filter can be applied (make sure that min and max make sense)
 	if ( min < 0 ){
-		std::cout << std::cout << "\n\n\n  -WARNING from PndEvtFilterOnInvMassCounts of " << this->GetTitle() << ": " << this->GetName() << ": Filter could not be added. You are trying to request that your events should have at least a number <= 0 of some particles. That makes no sense. \n\n\n";
+		std::cout << "\n\n\n  -WARNING from PndEvtFilterOnInvMassCounts of " << this->GetTitle() << ": " << this->GetName() << ": Filter could not be added. You are trying to request that your events should have at least a number <= 0 of some particles. That makes no sense. \n\n\n";
 		return kFALSE;
 	}
 	if ( max < min ){
-		std::cout << std::cout << "\n\n\n  -WARNING from PndEvtFilterOnInvMassCounts  of " << this->GetTitle() << ": " << this->GetName() << ": Filter could not be added. You are trying to request that your events should have at most a number of some particles which is less than the minimum number that you request. That makes no sense. \n\n\n";
+		std::cout << "\n\n\n  -WARNING from PndEvtFilterOnInvMassCounts  of " << this->GetTitle() << ": " << this->GetName() << ": Filter could not be added. You are trying to request that your events should have at most a number of some particles which is less than the minimum number that you request. That makes no sense. \n\n\n";
 		return kFALSE;
 	}
 
@@ -49,13 +57,20 @@ Bool_t PndEvtFilterOnInvMassCounts::SetMinMaxCounts( Int_t min, Int_t max )
 
 Bool_t PndEvtFilterOnInvMassCounts::SetMinMaxInvMass( Double_t min, Double_t max )
 {
+	if ( kTRUE == fInvMassRangeSet ){
+		std::cout << "\n\n\n  -WARNING from PndEvtFilterOnInvMassCounts of " << this->GetTitle() << ": " << this->GetName() << ": \n";
+		std::cout << "You are trying to set the limits for the invariant mass selection set more than once! \n";
+		std::cout << "I take the first setting and ignore the later ones! \n\n\n";
+		return kFALSE;
+	}
+
 	// check if filter can be applied (make sure that min and max make sense)
 	if ( min < 0. ){
-		std::cout << std::cout << "\n\n\n  -WARNING from PndEvtFilterOnInvMassCounts " << this->GetTitle() << ": " << this->GetName() << ": Filter could not be added. Min inv. mass too low. \n\n\n";
+		std::cout << "\n\n\n  -WARNING from PndEvtFilterOnInvMassCounts " << this->GetTitle() << ": " << this->GetName() << ": Filter could not be added. Min inv. mass too low. \n\n\n";
 		return kFALSE;
 	}
 	if ( max < min ){
-		std::cout << std::cout << "\n\n\n  -WARNING from PndEvtFilterOnInvMassCounts " << this->GetTitle() << ": " << this->GetName() << ": Filter could not be added. Max inv. mass lower than min inv. mass. \n\n\n";
+		std::cout << "\n\n\n  -WARNING from PndEvtFilterOnInvMassCounts " << this->GetTitle() << ": " << this->GetName() << ": Filter could not be added. Max inv. mass lower than min inv. mass. \n\n\n";
 		return kFALSE;
 	}
 
@@ -74,13 +89,20 @@ Bool_t PndEvtFilterOnInvMassCounts::SetMinMaxInvMass( Double_t min, Double_t max
 
 Bool_t PndEvtFilterOnInvMassCounts::SetRhoMassParticleSelector( const char* name, Double_t cv, Double_t w, const char* type )
 {
+	if ( kTRUE == fInvMassRangeSet ){
+		std::cout << "\n\n\n  -WARNING from PndEvtFilterOnInvMassCounts of " << this->GetTitle() << ": " << this->GetName() << ": \n";
+		std::cout << "You are trying to set the limits for the invariant mass selection set more than once! \n";
+		std::cout << "I take the first setting and ignore the later ones! \n\n\n";
+		return kFALSE;
+	}
+
 	// check if filter can be applied (make sure that min and max make sense)
 	if ( cv <= 0. ){
-		std::cout << std::cout << "\n\n\n  -WARNING from PndEvtFilterOnInvMassCounts " << this->GetTitle() << ": " << this->GetName() << ": Filter could not be added. cv has to be positive. \n\n\n";
+		std::cout << "\n\n\n  -WARNING from PndEvtFilterOnInvMassCounts " << this->GetTitle() << ": " << this->GetName() << ": Filter could not be added. cv has to be positive. \n\n\n";
 		return kFALSE;
 	}
 	if ( w < 0. ){
-		std::cout << std::cout << "\n\n\n  -WARNING from PndEvtFilterOnInvMassCounts " << this->GetTitle() << ": " << this->GetName() << ": Filter could not be added. w has to be non-negative. \n\n\n";
+		std::cout << "\n\n\n  -WARNING from PndEvtFilterOnInvMassCounts " << this->GetTitle() << ": " << this->GetName() << ": Filter could not be added. w has to be non-negative. \n\n\n";
 		return kFALSE;
 	}
 
@@ -94,6 +116,14 @@ Bool_t PndEvtFilterOnInvMassCounts::SetRhoMassParticleSelector( const char* name
 
 
 Bool_t PndEvtFilterOnInvMassCounts::SetPdgCodesToCombine( Int_t pdgCode1, Int_t pdgCode2, Int_t pdgCode3, Int_t pdgCode4, Int_t pdgCode5 ){
+	if ( kTRUE == fPgdCodesSet ){
+		std::cout << "\n\n\n  -WARNING from PndEvtFilterOnInvMassCounts of " << this->GetTitle() << ": " << this->GetName() << ": \n";
+		std::cout << "You are trying to set the pdgCodes to combine into invariant mass combinations more than once! \n";
+		std::cout << "I take the first setting and ignore the later ones! \n\n\n";
+		return kFALSE;
+	}
+
+
 	// create temp. vector of all input pdg codes
 	std::vector< Int_t > pdgCodes;
 	pdgCodes.push_back(pdgCode1);

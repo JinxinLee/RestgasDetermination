@@ -100,17 +100,14 @@ Bool_t FairFilteredPrimaryGenerator::GenerateEvent(FairGenericStack* pStack)
 	Int_t iTry=0; // number of attempts to find the next event that suits your filter
 	Bool_t acceptEvent = kFALSE; // is kTRUE if the event is finally accepted
 
-	if(fEventFilterActive==kTRUE){// sanity check settings for logical combinations of event filters
+	if(kTRUE == fEventFilterActive){
+		// sanity check settings for logical combinations of event filters
 		if(fFilterNegation.size()!=fFilterList->GetEntriesFast()){
 			std::cout << "\n\n\n  -WARNING from FairFilteredPrimaryGenerator: size of the negation vector has to be equal to the number of added filters. Check your FilterNegation call!\n\n\n";
-			// update number of generator calls == events simulated by generator(s)
-			fEvtFilterStat.fGeneratedEvents += iTry;
 			return kFALSE;
 		}
 		if(fLogicalFilterOperation.size()!=fFilterList->GetEntriesFast()-1){
 			std::cout << "\n\n\n  -WARNING from FairFilteredPrimaryGenerator: size of the operation vector has to be equal to the number of added filters minus one. Check your LogicalFilterOperation call!\n\n\n";
-			// update number of generator calls == events simulated by generator(s)
-			fEvtFilterStat.fGeneratedEvents += iTry;
 			return kFALSE;
 		}
 	}
@@ -127,7 +124,7 @@ Bool_t FairFilteredPrimaryGenerator::GenerateEvent(FairGenericStack* pStack)
 		fEventNr = fEventNrFiltered; // Fix event numbering in FairPrimaryGenerator (otherwise fRun will stop too early...)
 
 
-		if(fEventVetoFilterActive==kTRUE){// skip veto filter checking if no veto filters are set
+		if(kTRUE == fEventVetoFilterActive){// skip veto filter checking if no veto filters are set
 			// check veto filters. skip event if the event satisfies any of the veto filters' conditions
 			// Call the FilterAccept methods for all veto filters
 			fVetoFilterIter->Reset();
@@ -161,7 +158,12 @@ Bool_t FairFilteredPrimaryGenerator::GenerateEvent(FairGenericStack* pStack)
 
 		if ( vetoed ) { continue; }; // skip event if it matches at least one veto filter
 
-		if ( kTRUE == fEventFilterActive ){// skip event filtering if not requested
+		if ( kFALSE == fEventFilterActive ){ // skip event filtering (i.e. accept all events) if filtering is not requested
+			acceptEvent = kTRUE;
+			if( 3 < fVerbose ){
+				cout << "\n Event is accepted because event filtering is not requested.\n\n";
+			}
+		} else { // do the event filtering (i.e. decide whether to accept or not accept the generated events) if filtering is requested
 			Int_t iCheckFilter=0;
 			// Call the FilterAccept methods for all registered (non-veto) filters
 			fFilterIter->Reset();
