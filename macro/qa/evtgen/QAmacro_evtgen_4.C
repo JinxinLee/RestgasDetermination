@@ -65,7 +65,7 @@ void add_mccode(TString &mctxt,Int_t id)
 	case -3334: mctxt+="#bar{#Omega}^{+}"; break;
 
 	case 443: mctxt+="J/#Psi"; break;
-	case 30443: mctxt+="#Psi(2S)"; break;
+	case 100443: mctxt+="#Psi(2S)"; break;
 	case 441: mctxt+="#eta_c(1S)"; break;
 	case 10441: mctxt+="#xi_{c0}(1P)"; break;
 	case 20443: mctxt+="#xi_{c1}(1P)"; break;
