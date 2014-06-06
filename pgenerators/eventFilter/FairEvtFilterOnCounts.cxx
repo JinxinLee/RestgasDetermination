@@ -518,6 +518,11 @@ void FairEvtFilterOnCounts::CountPdg(TParticle* particle){
 void FairEvtFilterOnCounts::CountCharge(TParticle* particle){
 	// get charge for particle
 	TParticlePDG*  pdt = particle->GetPDG();
+	if ( 0 == pdt ) { // ignore particles with unknown charges
+		std::cout << "WARNING from FairEvtFilterOnCounts: Charge of following particle with pdg code " << particle->GetPdgCode() << " is unknown and will be ignored! \n";
+		particle->Print();
+		return;
+	}
 	Double_t charge = pdt->Charge()/3.; // TParticlePDG contains charge in units of |e|/3
 
 	// Based on charge increment the according entry in fChargeCountsMinMax
@@ -579,16 +584,16 @@ Bool_t FairEvtFilterOnCounts :: EventMatches(Int_t evtNr)
 	for (Int_t iPart= 0; iPart< fParticleList->GetEntries(); iPart++) {
 
 		TParticle* particle=(TParticle*)fParticleList->At(iPart);
-
+		if (0 == particle) { continue; }
 
 		// check whether the particle satisfies the momentum constraints
 		if(fFilterMom){
-			if(!AcceptMomentum(particle)){continue;};// if the particle doesn't suit the momentum filter settings go ahead to the next particle
+			if(!AcceptMomentum(particle)){continue;}// if the particle doesn't suit the momentum filter settings go ahead to the next particle
 		}
 
 		// check whether the particle satisfies the geometric constraints
 		if(fFilterGeom){
-			if(!AcceptGeometry(particle)){continue;};// if the particle doesn't suit the geometric filter settings go ahead to the next particle
+			if(!AcceptGeometry(particle)){continue;}// if the particle doesn't suit the geometric filter settings go ahead to the next particle
 		}
 
 		// important: Do not count before all of the above tests were passed!
