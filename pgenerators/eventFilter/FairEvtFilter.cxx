@@ -58,4 +58,19 @@ void FairEvtFilter::PrintAllTParticleInEvent(){
 }
 
 
+Bool_t FairEvtFilter::GetCharge ( Int_t inPdgCode, Double_t *pdgCodeCharge )
+{
+	// Try to find the pdg code
+	TParticlePDG *ptrToPdg = fdbPdg->GetParticle(inPdgCode);
+	if ( 0 == ptrToPdg) {
+		// ignore particles with unknown charges
+		std::cout << "WARNING from FairEvtFilter::GetCharge Charge of pdgCode " << inPdgCode << " is unknown and will be ignored!\n";
+		*pdgCodeCharge = kNoChargeSpecified;
+		return kFALSE;
+	}
+	*pdgCodeCharge = ptrToPdg->Charge()/3.; // TParticlePDG contains charge in units of |e|/3
+	if ( fVerbose > 1 ) std::cout << "Found pdgCodeCharge = " << *pdgCodeCharge << " for inPdgCode " << inPdgCode << '\n';
+	return kTRUE;
+}
+
 ClassImp(FairEvtFilter)

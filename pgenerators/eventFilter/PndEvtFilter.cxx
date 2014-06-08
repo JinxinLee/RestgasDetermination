@@ -29,22 +29,6 @@ PndEvtFilter::~PndEvtFilter() { }
 
 
 
-Bool_t PndEvtFilter::GetCharge ( Int_t inPdgCode, Double_t *pdgCodeCharge )
-{
-	// Try to find the pdg code
-	TParticlePDG *ptrToPdg = fdbPdg->GetParticle(inPdgCode);
-	if ( 0 == ptrToPdg) {
-		// The pdg code is most likely not existing
-		std::cout << "FATAL ERROR: PndEvtFilter::GetCharge called with invalid pdgCode " << inPdgCode << '\n';
-		*pdgCodeCharge = kNoChargeSpecified;
-		return kFALSE;
-	}
-	*pdgCodeCharge = ptrToPdg->Charge()/3.;
-	if ( fVerbose > 1 ) std::cout << "Found pdgCodeCharge = " << *pdgCodeCharge << " for inPdgCode " << inPdgCode << '\n';
-	return kTRUE;
-}
-
-
 
 Bool_t PndEvtFilter::FillList ( RhoCandList& rhoOutList, Int_t inPdgCode, Double_t pdgCodeCharge )
 {

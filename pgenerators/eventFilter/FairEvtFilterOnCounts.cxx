@@ -516,26 +516,33 @@ void FairEvtFilterOnCounts::CountPdg(TParticle* particle){
 
 
 void FairEvtFilterOnCounts::CountCharge(TParticle* particle){
-	// get charge for particle
-	TParticlePDG*  pdt = particle->GetPDG();
-	if ( 0 == pdt ) { // ignore particles with unknown charges
-		std::cout << "WARNING from FairEvtFilterOnCounts: Charge of following particle with pdg code " << particle->GetPdgCode() << " is unknown and will be ignored! \n";
-		particle->Print();
+	// get pdg code for particle
+	Int_t partPdg = particle->GetPdgCode();
+
+
+	// get charge for pdg code
+	Double_t pdgCodeCharge = 0;
+	if ( kFALSE == GetCharge( partPdg, &pdgCodeCharge ) ) {
+		// skip particles of unknown charge
 		return;
 	}
-	Double_t charge = pdt->Charge()/3.; // TParticlePDG contains charge in units of |e|/3
+
 
 	// Based on charge increment the according entry in fChargeCountsMinMax
-	if(charge!=0){
+	if(pdgCodeCharge!=0){
 		fCountCharge[FairEvtFilter::kCharged]++;
-		if(charge>0){fCountCharge[FairEvtFilter::kPlus]++;}else{fCountCharge[FairEvtFilter::kMinus]++;};
+		if(pdgCodeCharge>0){
+			fCountCharge[FairEvtFilter::kPlus]++;
+		}else{
+			fCountCharge[FairEvtFilter::kMinus]++;
+		}
 	}else{
 		fCountCharge[FairEvtFilter::kNeutral]++;
 	}
 	fCountCharge[FairEvtFilter::kAll]++;
 
 	if (fVerbose >9){
-		std::cout << "Charge:" << charge << "    ->    " << "fCountCharge: " << fCountCharge << "\n";
+		std::cout << "Charge:" << pdgCodeCharge << "    ->    " << "fCountCharge: " << fCountCharge << "\n";
 	}
 }
 

@@ -24,6 +24,7 @@ method EventMatches, in which the particular filter criteria are realized.
 #include "TParticle.h"
 #include <iostream>
 #include <set>
+#include "TDatabasePDG.h"
 
 
 std::ostream& operator <<(std::ostream& os, const std::set<Int_t> & set);
@@ -116,9 +117,17 @@ public:
 
 	virtual Bool_t FilterActive()=0;
 
+	// returns kTRUE if successful
+	// pdgCodeCharge will contain the charge of the particle with pdg code inPdgCode
+	Bool_t GetCharge ( Int_t inPdgCode, Double_t *pdgCodeCharge );
 
 
 protected:
+	TDatabasePDG* fdbPdg;
+	// constant holding a double number which is not a valid charge
+	// this serves to indicate that the value has not been specified by the user
+	static const Double_t kNoChargeSpecified = -999.9;
+
 	TClonesArray* fParticleList; // list of particles in the event which was generated
 	Int_t fVerbose; // level of commenting output for your filter, between 0 and 12
 	Bool_t fTestMode; // is kTRUE if the filter should run in QA test mode
