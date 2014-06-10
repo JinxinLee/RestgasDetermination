@@ -1,4 +1,4 @@
-void digi(Int_t nEvents = 0, TString inFile = "sim.root", TString outFile = "digi.root", TString parFile1="par.root"){
+void digi(Int_t nEvents = 0, TString inFile = "sim.root", TString parFile="par.root", TString outFile = "digi.root"){
   // Verbosity level (0=quiet, 1=event level, 2=track level, 3=debug)
   Int_t iVerbose = 3;
 
@@ -9,30 +9,45 @@ void digi(Int_t nEvents = 0, TString inFile = "sim.root", TString outFile = "dig
   // -----   Timer   --------------------------------------------------------
   TStopwatch timer;
   timer.Start();
-
+ 
   // -----   Reconstruction run   -------------------------------------------
   FairRunAna *fRun= new FairRunAna();
   fRun->SetInputFile(inFile);
   fRun->SetOutputFile(outFile);
+  //fRun->SetEventMeanTime(50);
 
   // -----  Parameter database   --------------------------------------------
   FairRuntimeDb* rtdb = fRun->GetRuntimeDb();
-  FairParRootFileIo* parInput1 = new FairParRootFileIo();
-  parInput1->open(parFile1.Data());
-  rtdb->setFirstInput(parInput1);
+  FairParRootFileIo* parInput = new FairParRootFileIo();
+  //parInput->open(parFile.Data());
+  //rtdb->setFirstInput(parInput);
+
+  if(parFile=="batch"){
+    TList* parlist = new TList();
+    for(Int_t i=0; i<4; i++) parlist->Add(new TObjString(Form("par_b%d.root",i)));
+    parInput->open(parlist);
+  }else{
+    parInput->open(parFile.Data());
+  }
+  rtdb->setFirstInput(parInput);
  
   // -----    DRC Digitization stage ----------------------------------------
-  PndDrcDigiTask* drcdigi = new PndDrcDigiTask();  
-  drcdigi->SetIsDetEfficiency(0); 
-  drcdigi->SetTransportEfficiency(0);
-  drcdigi->SetChargeSharing(kTRUE); 
+  PndDrcDigiTask* drcdigi = new PndDrcDigiTask(0);
+  drcdigi->SetChargeSharing(kTRUE);
+  //drcdigi->SetTimeSmearing(kFALSE);
+  //drcdigi->SetDeadTime(5); //ns
+  //drcdigi->SetTimeResolution(0.1); //ns
+  //drcdigi->RunTimeBased();
   fRun->AddTask(drcdigi);
+  //PndDrcDigiSorterTask* digiSorter = new PndDrcDigiSorterTask(1000, 0.1, "DrcDigi", "DrcSortedDigi", "PndDrc");
+  //digiSorter->SetVerbose(0);
+  //fRun->AddTask(digiSorter);
 
   // -----    DRC hit producer   -------------------------------------------- 
-  PndDrcHitFinder* hitfind = new PndDrcHitFinder();
+  PndDrcHitFinder* hitfind = new PndDrcHitFinder(0);
   fRun->AddTask(hitfind);
      
-  // -----   Initialize and run   --------------------------------------------
+  // -----   Initialize and run   -------------------------------------------
   fRun->Init();
   fRun->Run(0,nEvents);
 
@@ -43,7 +58,7 @@ void digi(Int_t nEvents = 0, TString inFile = "sim.root", TString outFile = "dig
   cout << endl << endl;
   cout << "Macro finished succesfully." << endl;
   cout << "Output file is "    << outFile << endl;
-  cout << "Parameter file is " << parFile1 << endl;
+  cout << "Parameter file is " << parFile << endl;
   cout << "Real time " << rtime << " s, CPU time " << ctime << " s" << endl;
   cout << endl;
 }
