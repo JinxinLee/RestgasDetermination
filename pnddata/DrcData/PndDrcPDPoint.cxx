@@ -27,7 +27,7 @@ PndDrcPDPoint::PndDrcPDPoint(Int_t trackID, Int_t detID, Int_t mcpId, Int_t barP
   :FairMCPoint(trackID, detID, pos, mom, tof, length, 0.0, (UInt_t) eventID), fMcpId(mcpId),
    fBarPointId(barPointId), fPdgCode(pdgCode), fmomAtEV(momAtEV), ftimeAtEV(timeAtEV)
 {
-  SetLink(FairLink("MCTrack", 0)); 
+  SetLink(FairLink("MCTrack", trackID)); 
 }
 // -------------------------------------------------------------------------
 

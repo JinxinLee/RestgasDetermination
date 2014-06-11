@@ -27,10 +27,14 @@ set(SRCS
 PndGeoDrc.cxx 
 PndDrc.cxx 
 PndGeoDrcPar.cxx 
+PndDrcDigiRingSorter.cxx
+PndDrcDigiSorterTask.cxx
+PndDrcDigiWriteoutBuffer.cxx
 PndDrcContFact.cxx 
 PndDrcHitProducerIdeal.cxx 
 PndDrcHitProducerReal.cxx 
 PndDrcDigiTask.cxx
+PndDrcTimeDigiTask.cxx
 PndDrcHitFinder.cxx
 DrawHits.cxx 
 PndDrcDigiPar.cxx

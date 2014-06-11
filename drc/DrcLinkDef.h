@@ -10,12 +10,16 @@
 #pragma link C++ class  PndGeoDrc+;
 #pragma link C++ class  PndDrcContFact+;
 #pragma link C++ class  PndGeoDrcPar+;
+#pragma link C++ class  PndDrcDigiRingSorter+;
+#pragma link C++ class  PndDrcDigiSorterTask+;
+#pragma link C++ class  PndDrcDigiWriteoutBuffer+;
 #pragma link C++ class  PndDrcHitProducerIdeal+;
 #pragma link C++ class  PndDrcHitProducerReal+;
 
 #pragma link C++ class  DrawHits+;
 #pragma link C++ class  PndDrcDigiPar+;
 #pragma link C++ class  PndDrcDigiTask+;
+#pragma link C++ class  PndDrcTimeDigiTask+;
 #pragma link C++ class  PndDrcHitFinder+;
 
 #pragma link C++ class  PndDrcLutFill+;

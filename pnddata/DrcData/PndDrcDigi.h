@@ -20,16 +20,25 @@
 #include "TString.h"
 #include <iostream>
 #include <vector>
+#include "TVector3.h"
+#include <fstream>
+#include <iostream>
+#include "stdio.h"
+#include "TMath.h"
+using std::endl;
+using std::cout;
 
 
 class PndDrcDigi : public FairTimeStamp
 {
+public:
   friend std::ostream& operator<< (std::ostream& out, PndDrcDigi& digi){
     out << "PndDrcDigi in: " << digi.GetDetectorId()
 	<< " charge " << digi.GetCharge() << " e"
 	<< " time "<<digi.GetTime()<< " ns"
 	<< " timestamp "<< digi.GetTimeStamp()
 	<< " charge sharing flag "<< digi.GetChargeSharingFlag()
+	<< " sensorid " << digi.GetSensorId()
 	<< ", from Point(s) ";
     std::vector<Int_t>indices = digi.GetIndices();
     for (unsigned int i = 0; i < indices.size(); i++){
@@ -50,6 +59,34 @@ public : PndDrcDigi();
     std::cout << *this;
   }
     		
+  void SetBarID(Int_t BarID);
+  void SetBoxID(Int_t BoxID);
+  void SetTrackID(Int_t TrackID);
+  void SetTrackIniVertex(TVector3 TrackIniVertex);
+  void SetMotherID(Int_t MrID);
+  void SetPdgCode(Int_t Pdg);
+  void SetTrackMom(TVector3 TrackMom); 
+  void SetMotherIDPho(Int_t MrIDPho);
+  void SetTimeAtBar(Double_t TimeAtBar);
+  void SetEvtTim(Double_t EvtTim);
+  void SetEventTim(Double_t EventTim);
+  void SetPileUp(Double_t pileup);
+  void SetEventNo(Double_t EventNo);
+  
+  Int_t GetBarID() const { return fBarID; }
+  Int_t GetBoxID() const { return fBoxID; }
+  Int_t GetTrackID() const { return fTrackID; }
+  TVector3 GetTrackIniVertex() { return fTrackIniVertex; }
+  Int_t GetMotherID() const { return fMrID; }
+  Int_t GetPdgCode() const { return fPdg; }
+  TVector3 GetTrackMom() { return fTrackMom; }
+  Int_t GetMotherIDPho() const { return fMrIDPho; }
+  Double_t GetTimeAtBar() const { return fTimeAtBar; }
+  Double_t GetEvtTim() const { return fEvtTim; }
+  Double_t GetEventTim() const { return fEventTim; }
+  Double_t GetPileUp() const { return fPileUp; }
+  Double_t GetEventNo() const { return fEventNo; }
+  
   Int_t GetDetectorId() const { return fDetectorId; }
   Int_t GetSensorId() const { return fSensorId; }
   Double_t GetCharge()	 const { return fCharge; }	
@@ -71,6 +108,38 @@ public : PndDrcDigi();
     AddLinks(FairMultiLinkedData(fDetectorId, index));
   }	
 		  
+  virtual bool equal(FairTimeStamp* data){
+    PndDrcDigi* myDigi = dynamic_cast <PndDrcDigi*> (data);
+    if (myDigi != 0){
+	    
+      if (fSensorId == myDigi->GetSensorId()){
+	if(fabs(fEvtTim-myDigi->GetTimeStamp())<5.0){ return true;} 
+	if(fabs(fEvtTim-myDigi->GetTimeStamp())>5.0) return false;
+      }
+	      
+    }
+    else
+      return false;
+	  
+  }
+  virtual bool operator<(const PndDrcDigi& myDigi) const{
+	  
+    if (fSensorId < myDigi.GetSensorId())return true;
+    return false;
+  }
+  virtual bool operator>(const PndDrcDigi& myDigi) const{
+	  
+    if (fSensorId > myDigi.GetSensorId())return true; 
+    return false;
+  }
+  virtual bool operator==(const PndDrcDigi& myDigi) const{
+	  
+    if (fSensorId == myDigi.GetSensorId()){
+      if(fabs(fEvtTim-myDigi.GetTimeStamp())<5.0){ return true;} 
+      if(fabs(fEvtTim-myDigi.GetTimeStamp())>5.0) return false;
+    }
+    else {return false;}
+  }
     
 protected:
   std::vector<Int_t> fIndex;   // indice of mc points contributing to this digi
@@ -79,7 +148,20 @@ protected:
   Double_t fCharge;            // collected charge
   Double_t fTime;		     // hit time
   Int_t fCSflag;		     // flag indicating is the hit was produced directly by the MC point or if it is a result of the charge sharing: 1 - charge sharing hit, 0 - initial hit
-    
+  Int_t fBarID;  
+  Int_t fBoxID;  
+  Int_t fTrackID;
+  TVector3 fTrackIniVertex;
+  Int_t fMrID;
+  Int_t fMrIDPho;
+  Int_t fPdg;
+  TVector3 fTrackMom;
+  Double_t fTimeAtBar;
+  Double_t fEvtTim;
+  Double_t fEventTim;
+  Double_t fPileUp;
+  Double_t fEventNo;
+
   ClassDef(PndDrcDigi,2);
 };
 
