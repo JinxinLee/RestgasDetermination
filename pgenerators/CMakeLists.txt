@@ -59,12 +59,12 @@ PndGiBuuGenerator.cxx
 PndGiBuuTrack.cxx
 PndGiBuuDecayerAbs.cxx
 PndGiBuuJPsiEE.cxx
+eventFilter/FairFilteredPrimaryGenerator.cxx
+eventFilter/FairEvtFilterParams.cxx
+eventFilter/FairEvtFilter.cxx
+eventFilter/FairEvtFilterOnSingleParticleCounts.cxx
 eventFilter/PndEvtFilter.cxx
 eventFilter/PndEvtFilterOnInvMassCounts.cxx
-eventFilter/FairEvtFilter.cxx
-eventFilter/FairEvtFilterOnCounts.cxx
-eventFilter/FairEvtFilterParams.cxx
-eventFilter/FairFilteredPrimaryGenerator.cxx
 )
 
 set(LINKDEF  PGenLinkDef.h)

@@ -1,9 +1,9 @@
 // -------------------------------------------------------------------------
-// -----             FairEvtFilterOnCounts header file                 -----
+// -----             FairEvtFilterOnSingleParticleCounts header file                 -----
 // -------------------------------------------------------------------------
 
 
-/** FairEvtFilterOnCounts.h
+/** FairEvtFilterOnSingleParticleCounts.h
 
  Authors: Martin Galuska, Katja Kleeberg
  Martin dot J dot Galuska at physik dot uni minus giessen dot de
@@ -32,8 +32,8 @@
 
 
 
-#ifndef FAIREVTFILTERONCOUNTS_H_
-#define FAIREVTFILTERONCOUNTS_H_
+#ifndef FairEvtFilterOnSingleParticleCounts_H_
+#define FairEvtFilterOnSingleParticleCounts_H_
 
 #include "FairEvtFilter.h"
 #include "TParticle.h"
@@ -52,19 +52,19 @@ std::ostream& operator <<(std::ostream& os, const std::vector< std::pair<Int_t, 
 std::ostream& operator <<(std::ostream& os, const std::map<Int_t, std::vector<Int_t> >& PdgGroupId);
 
 
-class FairEvtFilterOnCounts : public FairEvtFilter
+class FairEvtFilterOnSingleParticleCounts : public FairEvtFilter
 {
 
 public:
 
 	//Default constructor
-	FairEvtFilterOnCounts();
+	FairEvtFilterOnSingleParticleCounts();
 
 	//Constructor with name and title
-	FairEvtFilterOnCounts(const char* name, const char* title="FairEvtFilterOnCounts");
+	FairEvtFilterOnSingleParticleCounts(const char* name, const char* title="FairEvtFilterOnSingleParticleCounts");
 
 	// Destructor
-	virtual ~FairEvtFilterOnCounts();
+	virtual ~FairEvtFilterOnSingleParticleCounts();
 
 	//////////////////
 	// User interfaces -- Pdg Code Min and Max
@@ -253,9 +253,9 @@ private:
 	static const Int_t kInvalidPdgCode = 0;
 
 
-	ClassDef(FairEvtFilterOnCounts,1);
+	ClassDef(FairEvtFilterOnSingleParticleCounts,1);
 
 };
 
 
-#endif /* FAIREVTFILTERONCOUNTS_H_ */
+#endif /* FairEvtFilterOnSingleParticleCounts_H_ */

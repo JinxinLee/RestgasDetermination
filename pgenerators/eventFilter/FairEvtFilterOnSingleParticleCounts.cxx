@@ -1,8 +1,8 @@
 // -------------------------------------------------------------------------
-// -----              FairEvtFilterOnCounts source file                -----
+// -----              FairEvtFilterOnSingleParticleCounts source file                -----
 // -------------------------------------------------------------------------
 
-#include "FairEvtFilterOnCounts.h"
+#include "FairEvtFilterOnSingleParticleCounts.h"
 #include "TParticlePDG.h"
 
 std::ostream& operator <<(std::ostream& os, const std::vector<Int_t>& v)
@@ -85,8 +85,8 @@ std::ostream& operator <<(std::ostream& os, const std::map<Int_t, std::vector<In
 
 
 // -----   Default constructor   -------------------------------------------
-FairEvtFilterOnCounts::FairEvtFilterOnCounts() : fFilterPdg(kFALSE),
-		FairEvtFilter(" ", "FairEvtFilterOnCounts"), fFilterCharge(kFALSE),
+FairEvtFilterOnSingleParticleCounts::FairEvtFilterOnSingleParticleCounts() : fFilterPdg(kFALSE),
+		FairEvtFilter(" ", "FairEvtFilterOnSingleParticleCounts"), fFilterCharge(kFALSE),
 		fFilterMom(kFALSE),fFilterGeom(kFALSE)
 {
 	SetDefaultBoundaries();
@@ -94,7 +94,7 @@ FairEvtFilterOnCounts::FairEvtFilterOnCounts() : fFilterPdg(kFALSE),
 
 
 // -----   Constructor with name and title   ------------------------------------
-FairEvtFilterOnCounts::FairEvtFilterOnCounts(const char* name, const char* title)
+FairEvtFilterOnSingleParticleCounts::FairEvtFilterOnSingleParticleCounts(const char* name, const char* title)
 : fFilterPdg(kFALSE), FairEvtFilter(name, title), fFilterCharge(kFALSE),
   fFilterMom(kFALSE),fFilterGeom(kFALSE)
 {
@@ -102,7 +102,7 @@ FairEvtFilterOnCounts::FairEvtFilterOnCounts(const char* name, const char* title
 }
 
 
-void FairEvtFilterOnCounts::SetDefaultBoundaries(){
+void FairEvtFilterOnSingleParticleCounts::SetDefaultBoundaries(){
 	// initialize a default fChargeCountsMinMax with kChargeLastElement entries
 	for (UInt_t icount = 0; icount < FairEvtFilter::kChargeLastElement; ++icount){
 		fChargeCountsMinMax.push_back(std::pair<Int_t, Int_t> (0,99999));
@@ -120,10 +120,10 @@ void FairEvtFilterOnCounts::SetDefaultBoundaries(){
 }
 
 // -----   Destructor   ----------------------------------------------------
-FairEvtFilterOnCounts::~FairEvtFilterOnCounts(){}
+FairEvtFilterOnSingleParticleCounts::~FairEvtFilterOnSingleParticleCounts(){}
 
 
-Bool_t FairEvtFilterOnCounts::AndMinMaxPdgCodes( Int_t min, Int_t max, Int_t pdgCode1, Int_t pdgCode2, Int_t pdgCode3, Int_t pdgCode4, Int_t pdgCode5, Int_t pdgCode6, Int_t pdgCode7, Int_t pdgCode8 )
+Bool_t FairEvtFilterOnSingleParticleCounts::AndMinMaxPdgCodes( Int_t min, Int_t max, Int_t pdgCode1, Int_t pdgCode2, Int_t pdgCode3, Int_t pdgCode4, Int_t pdgCode5, Int_t pdgCode6, Int_t pdgCode7, Int_t pdgCode8 )
 {
 	// construct a vector pdgCodes containing all pdg codes given by caller
 	// and call the general AndMinMaxPdgCodes method
@@ -141,7 +141,7 @@ Bool_t FairEvtFilterOnCounts::AndMinMaxPdgCodes( Int_t min, Int_t max, Int_t pdg
 }
 
 
-Bool_t FairEvtFilterOnCounts::AndMinMaxPdgCodes( Int_t min, Int_t max, std::vector<Int_t> &pdgCodes )
+Bool_t FairEvtFilterOnSingleParticleCounts::AndMinMaxPdgCodes( Int_t min, Int_t max, std::vector<Int_t> &pdgCodes )
 {
 	// was adding of the filter successful
 	Bool_t filterAdded = kFALSE;
@@ -155,11 +155,11 @@ Bool_t FairEvtFilterOnCounts::AndMinMaxPdgCodes( Int_t min, Int_t max, std::vect
 
 	// check if filter can be applied (make sure that min and max make sense)
 	if ( min < 0 ){
-		std::cout << std::cout << "\n\n\n  -WARNING from FairEvtFilterOnCounts: Filter could not be added. You are trying to request that your events should have at least a number <= 0 of some particles. That makes no sense. Check your AndMinMaxPdgCodes calls!\n\n\n";
+		std::cout << std::cout << "\n\n\n  -WARNING from FairEvtFilterOnSingleParticleCounts: Filter could not be added. You are trying to request that your events should have at least a number <= 0 of some particles. That makes no sense. Check your AndMinMaxPdgCodes calls!\n\n\n";
 		return kFALSE;
 	}
 	if ( max < min ){
-		std::cout << std::cout << "\n\n\n  -WARNING from FairEvtFilterOnCounts: Filter could not be added. You are trying to request that your events should have at most a number of some particles which is less than the minimum number that you request. That makes no sense. Check your AndMinMaxPdgCodes calls!\n\n\n";
+		std::cout << std::cout << "\n\n\n  -WARNING from FairEvtFilterOnSingleParticleCounts: Filter could not be added. You are trying to request that your events should have at most a number of some particles which is less than the minimum number that you request. That makes no sense. Check your AndMinMaxPdgCodes calls!\n\n\n";
 		return kFALSE;
 	}
 
@@ -200,7 +200,7 @@ Bool_t FairEvtFilterOnCounts::AndMinMaxPdgCodes( Int_t min, Int_t max, std::vect
 		fGroupIdCountsMinMax.push_back(std::pair<Int_t, Int_t> (min,max));
 
 	} else {
-		std::cout << "\n\n\n  -WARNING from FairEvtFilterOnCounts: Tried to add filter, but that was not possible as all pdg codes were kInvalidPdgCode!\n\n\n";
+		std::cout << "\n\n\n  -WARNING from FairEvtFilterOnSingleParticleCounts: Tried to add filter, but that was not possible as all pdg codes were kInvalidPdgCode!\n\n\n";
 		return kFALSE;
 	}
 
@@ -208,7 +208,7 @@ Bool_t FairEvtFilterOnCounts::AndMinMaxPdgCodes( Int_t min, Int_t max, std::vect
 	fFilterPdg = kTRUE;
 
 	if (fVerbose > 0){
-		std::cout << "FairEvtFilterOnCounts: After adding PdgFilter:\n";
+		std::cout << "FairEvtFilterOnSingleParticleCounts: After adding PdgFilter:\n";
 		std::cout << "fPdgGroupId: " << fPdgGroupId << "\n";
 		std::cout << "fGroupIdCountsMinMax: " << fGroupIdCountsMinMax << "\n\n";
 	}
@@ -216,7 +216,7 @@ Bool_t FairEvtFilterOnCounts::AndMinMaxPdgCodes( Int_t min, Int_t max, std::vect
 }
 
 
-Bool_t FairEvtFilterOnCounts::AndMinMaxCharge( Int_t min, Int_t max, ChargeState charge )
+Bool_t FairEvtFilterOnSingleParticleCounts::AndMinMaxCharge( Int_t min, Int_t max, ChargeState charge )
 {
 
 	if (fVerbose > 0){
@@ -226,11 +226,11 @@ Bool_t FairEvtFilterOnCounts::AndMinMaxCharge( Int_t min, Int_t max, ChargeState
 
 	// check if filter can be applied (make sure that min and max make sense)
 	if ( min < 0 ){
-		std::cout << std::cout << "\n\n\n  -WARNING from FairEvtFilterOnCounts: Filter could not be added. You are trying to request that your events should have at least a number <= 0 of some particles. That makes no sense. Check your AndMinMaxCharge calls!\n\n\n";
+		std::cout << std::cout << "\n\n\n  -WARNING from FairEvtFilterOnSingleParticleCounts: Filter could not be added. You are trying to request that your events should have at least a number <= 0 of some particles. That makes no sense. Check your AndMinMaxCharge calls!\n\n\n";
 		return kFALSE;
 	}
 	if ( max < min ){
-		std::cout << std::cout << "\n\n\n  -WARNING from FairEvtFilterOnCounts: Filter could not be added. You are trying to request that your events should have at most a number of some particles which is less than the minimum number that you request. That makes no sense. Check your AndMinMaxCharge calls!\n\n\n";
+		std::cout << std::cout << "\n\n\n  -WARNING from FairEvtFilterOnSingleParticleCounts: Filter could not be added. You are trying to request that your events should have at most a number of some particles which is less than the minimum number that you request. That makes no sense. Check your AndMinMaxCharge calls!\n\n\n";
 		return kFALSE;
 	}
 
@@ -241,14 +241,14 @@ Bool_t FairEvtFilterOnCounts::AndMinMaxCharge( Int_t min, Int_t max, ChargeState
 	fFilterCharge=kTRUE;
 
 	if (fVerbose > 0){
-		std::cout << "FairEvtFilterOnCounts: After adding ChargeFilter:\n";
+		std::cout << "FairEvtFilterOnSingleParticleCounts: After adding ChargeFilter:\n";
 		std::cout << "fGroupIdCountsMinMax: " << fChargeCountsMinMax << "\n\n";
 	}
 	return kTRUE;
 }
 
 
-Bool_t FairEvtFilterOnCounts::AndMinMaxMom( Double_t min, Double_t max, FairEvtFilter::MomState mom )
+Bool_t FairEvtFilterOnSingleParticleCounts::AndMinMaxMom( Double_t min, Double_t max, FairEvtFilter::MomState mom )
 {
 
 	if (fVerbose > 0){
@@ -258,11 +258,11 @@ Bool_t FairEvtFilterOnCounts::AndMinMaxMom( Double_t min, Double_t max, FairEvtF
 
 	// check if filter can be applied (make sure that min and max make sense)
 	if ( min < 0 ){
-		std::cout << std::cout << "\n\n\n  -WARNING from FairEvtFilterOnCounts: Filter could not be added. You are trying to request that your events should have at least a number <= 0 of some particles. Check your AndMinMaxMom calls.\n\n\n";
+		std::cout << std::cout << "\n\n\n  -WARNING from FairEvtFilterOnSingleParticleCounts: Filter could not be added. You are trying to request that your events should have at least a number <= 0 of some particles. Check your AndMinMaxMom calls.\n\n\n";
 		return kFALSE;
 	}
 	if ( max < min ){
-		std::cout << std::cout << "\n\n\n  -WARNING from FairEvtFilterOnCounts: Filter could not be added. You are trying to request that your events should have at most a number of some particles which is less than the minimum number that you request. Check your AndMinMaxMom calls.\n\n\n";
+		std::cout << std::cout << "\n\n\n  -WARNING from FairEvtFilterOnSingleParticleCounts: Filter could not be added. You are trying to request that your events should have at most a number of some particles which is less than the minimum number that you request. Check your AndMinMaxMom calls.\n\n\n";
 		return kFALSE;
 	}
 
@@ -273,14 +273,14 @@ Bool_t FairEvtFilterOnCounts::AndMinMaxMom( Double_t min, Double_t max, FairEvtF
 	fFilterMom=kTRUE;
 
 	if (fVerbose > 0){
-		std::cout << "FairEvtFilterOnCounts: After adding MomFilter:\n";
+		std::cout << "FairEvtFilterOnSingleParticleCounts: After adding MomFilter:\n";
 		std::cout << "fMomMinMax { P , Pt , Pz }: " << fMomMinMax << "\n\n";
 	}
 	return kTRUE;
 }
 
 
-Bool_t FairEvtFilterOnCounts::AndMinMaxGeom( Double_t min, Double_t max, FairEvtFilter::GeomState geom )
+Bool_t FairEvtFilterOnSingleParticleCounts::AndMinMaxGeom( Double_t min, Double_t max, FairEvtFilter::GeomState geom )
 {
 
 	if (fVerbose > 0){
@@ -290,11 +290,11 @@ Bool_t FairEvtFilterOnCounts::AndMinMaxGeom( Double_t min, Double_t max, FairEvt
 
 	// check if filter can be applied (make sure that min and max make sense)
 	if ( min < 0 ){
-		std::cout << std::cout << "\n\n\n  -WARNING from FairEvtFilterOnCounts: Filter could not be added. You are trying to request that your events should have at least a number <= 0 of some particles. Check your AndMinMaxGeom calls.\n\n\n";
+		std::cout << std::cout << "\n\n\n  -WARNING from FairEvtFilterOnSingleParticleCounts: Filter could not be added. You are trying to request that your events should have at least a number <= 0 of some particles. Check your AndMinMaxGeom calls.\n\n\n";
 		return kFALSE;
 	}
 	if ( max < min ){
-		std::cout << std::cout << "\n\n\n  -WARNING from FairEvtFilterOnCounts: Filter could not be added. You are trying to request that your events should have at most a number of some particles which is less than the minimum number that you request. Check your AndMinMaxGeom calls.\n\n\n";
+		std::cout << std::cout << "\n\n\n  -WARNING from FairEvtFilterOnSingleParticleCounts: Filter could not be added. You are trying to request that your events should have at most a number of some particles which is less than the minimum number that you request. Check your AndMinMaxGeom calls.\n\n\n";
 		return kFALSE;
 	}
 
@@ -311,7 +311,7 @@ Bool_t FairEvtFilterOnCounts::AndMinMaxGeom( Double_t min, Double_t max, FairEvt
 	fFilterGeom=kTRUE;
 
 	if (fVerbose > 0){
-		std::cout << "FairEvtFilterOnCounts: After adding GeomFilter:\n";
+		std::cout << "FairEvtFilterOnSingleParticleCounts: After adding GeomFilter:\n";
 		std::cout << "fGeomMinMax { Theta , Phi, VertexZ, VertexRho, VertexRadius }: " << fGeomMinMax << "\n\n";
 	}
 
@@ -319,7 +319,7 @@ Bool_t FairEvtFilterOnCounts::AndMinMaxGeom( Double_t min, Double_t max, FairEvt
 }
 
 
-void FairEvtFilterOnCounts::InitCounters()
+void FairEvtFilterOnSingleParticleCounts::InitCounters()
 {
 	// initialize a 0 fCountGroupId of same size as fGroupIdCountsMinMax
 	fCountGroupId.clear();
@@ -345,7 +345,7 @@ void FairEvtFilterOnCounts::InitCounters()
 }
 
 
-Bool_t FairEvtFilterOnCounts::AcceptMomentum(TParticle* particle)
+Bool_t FairEvtFilterOnSingleParticleCounts::AcceptMomentum(TParticle* particle)
 {
 	if (fVerbose > 9){
 		std::cout << "{ P , Pt , Pz }: { " << particle->P() << ", " << particle->Pt() << ", " << particle->Pz() << " }\n";
@@ -368,7 +368,7 @@ Bool_t FairEvtFilterOnCounts::AcceptMomentum(TParticle* particle)
 			type="Pz";
 			break;
 		default:
-			std::cout << std::cout << "\n\n\n  -WARNING from FairEvtFilterOnCounts: Check your filter calls!\n\n\n";
+			std::cout << std::cout << "\n\n\n  -WARNING from FairEvtFilterOnSingleParticleCounts: Check your filter calls!\n\n\n";
 			return kFALSE;
 			if ( momentum < fMomMinMax[iMom].first){
 				if (fVerbose >9){
@@ -388,7 +388,7 @@ Bool_t FairEvtFilterOnCounts::AcceptMomentum(TParticle* particle)
 }
 
 
-Bool_t FairEvtFilterOnCounts::AcceptGeometry(TParticle* particle)
+Bool_t FairEvtFilterOnSingleParticleCounts::AcceptGeometry(TParticle* particle)
 {
 	if (fVerbose > 9){
 		std::cout << "{ Theta , Phi , Vz, VRho, VRadius }: { " << particle->Theta()*180./TMath::Pi() << ", " << particle->Phi()*180./TMath::Pi();
@@ -420,7 +420,7 @@ Bool_t FairEvtFilterOnCounts::AcceptGeometry(TParticle* particle)
 			type="VRadius";
 			break;
 		default:
-			std::cout << std::cout << "\n\n\n  -WARNING from FairEvtFilterOnCounts: Check your filter calls!\n\n\n";
+			std::cout << std::cout << "\n\n\n  -WARNING from FairEvtFilterOnSingleParticleCounts: Check your filter calls!\n\n\n";
 			return kFALSE;
 		}
 		if ( geom < fGeomMinMax[iGeom].first){
@@ -440,7 +440,7 @@ Bool_t FairEvtFilterOnCounts::AcceptGeometry(TParticle* particle)
 }
 
 
-Bool_t FairEvtFilterOnCounts::AcceptPdgCounter()
+Bool_t FairEvtFilterOnSingleParticleCounts::AcceptPdgCounter()
 {	// check if event matches the filter
 	// event matches if
 	// fCountGroupId[icountPdg] >= fGroupIdCountsMinMax[icountPdg].first
@@ -464,7 +464,7 @@ Bool_t FairEvtFilterOnCounts::AcceptPdgCounter()
 }
 
 
-Bool_t FairEvtFilterOnCounts::AcceptChargeCounter()
+Bool_t FairEvtFilterOnSingleParticleCounts::AcceptChargeCounter()
 {	// check if event matches the filter
 	// event matches if
 	// fCountCharge[icountPdg] >= fChargeCountsMinMax[icountPdg].first
@@ -488,7 +488,7 @@ Bool_t FairEvtFilterOnCounts::AcceptChargeCounter()
 }
 
 
-void FairEvtFilterOnCounts::CountPdg(TParticle* particle){
+void FairEvtFilterOnSingleParticleCounts::CountPdg(TParticle* particle){
 	// every restriction that is placed on a pdg code is described by a groupId
 	// one groupId can belong to several particles assuming that they are indistinguishable
 	// fPdgGroupId contains all the user defined constraints on particles with certain pdg codes organized in a map
@@ -515,7 +515,7 @@ void FairEvtFilterOnCounts::CountPdg(TParticle* particle){
 }
 
 
-void FairEvtFilterOnCounts::CountCharge(TParticle* particle){
+void FairEvtFilterOnSingleParticleCounts::CountCharge(TParticle* particle){
 	// get pdg code for particle
 	Int_t partPdg = particle->GetPdgCode();
 
@@ -547,12 +547,12 @@ void FairEvtFilterOnCounts::CountCharge(TParticle* particle){
 }
 
 
-Bool_t FairEvtFilterOnCounts :: EventMatches(Int_t evtNr)
+Bool_t FairEvtFilterOnSingleParticleCounts :: EventMatches(Int_t evtNr)
 {
 	if (fVerbose > 3){
 		std::cout << "\n\n";
 		std::cout << "Generated event: " << evtNr << "\n";
-		std::cout << "FairEvtFilterOnCounts: " << this->GetTitle() << ": " << this->GetName() << " Beginning of EventMatches\n";
+		std::cout << "FairEvtFilterOnSingleParticleCounts: " << this->GetTitle() << ": " << this->GetName() << " Beginning of EventMatches\n";
 		std::cout << "Nr. of simulated particles: " << fParticleList->GetEntries()<<"\n";
 		PrintAllTParticleInEvent();
 		std::cout << "fPdgGroupId: " << fPdgGroupId << "\n";
@@ -571,12 +571,12 @@ Bool_t FairEvtFilterOnCounts :: EventMatches(Int_t evtNr)
 
 	// sanity checks
 	if (0==fParticleList){
-		std::cout << "\n\n\n FairEvtFilterOnCounts: FATAL ERROR: No particle list! Event does not match.\n\n\n";
+		std::cout << "\n\n\n FairEvtFilterOnSingleParticleCounts: FATAL ERROR: No particle list! Event does not match.\n\n\n";
 		return kFALSE;
 	}
 
 	if (0==fParticleList->GetEntriesFast()){
-		std::cout << "\n\n\n FairEvtFilterOnCounts: Event contains 0 particles. Event does not match.\n\n\n";
+		std::cout << "\n\n\n FairEvtFilterOnSingleParticleCounts: Event contains 0 particles. Event does not match.\n\n\n";
 		return kFALSE;
 	}
 
@@ -655,4 +655,4 @@ Bool_t FairEvtFilterOnCounts :: EventMatches(Int_t evtNr)
 }
 
 
-ClassImp(FairEvtFilterOnCounts)
+ClassImp(FairEvtFilterOnSingleParticleCounts)
