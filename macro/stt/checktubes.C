@@ -1,12 +1,19 @@
 {
-  // gStyle->SetCanvasPreferGL(kTRUE);
-  //    TCanvas *glc = new TCanvas("glc", "", 400, 0, 900, 900);
-  //   gROOT->LoadMacro("$VMCWORKDIR/gconfig/rootlogon.C");
-  //   rootlogon();
   
-  TFile f("testparams.root");
-  FairBaseParSet *parbase = f.Get("FairBaseParSet");
-  PndGeoSttPar *parameters = f.Get("PndGeoSttPar");
+  TFile *file = new TFile("simparams.root");
+  if (!gGeoManager) {
+  file->Get("FairBaseParSet"); 
+  TGeoManager *geoMan = gGeoManager; 
+  if(!geoMan) { 
+    file->Get("FairGeoParSet"); 
+    geoMan = gGeoManager; 
+    if(!geoMan) { 
+      cout << "Could not find valid GeoManager. Abort now!" << endl; 
+      exit(1); 
+    } 
+  }
+
+  PndGeoSttPar *parameters = file.Get("PndGeoSttPar");
   PndSttMapCreator *mapper = new PndSttMapCreator(parameters);
   TClonesArray *fTubeArray = mapper->FillTubeArray();
 
