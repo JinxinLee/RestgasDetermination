@@ -137,7 +137,7 @@ Bool_t FairFilteredPrimaryGenerator::GenerateEvent(FairGenericStack* pStack)
 					return kFALSE;
 				}
 				if( !( vetoFilter->FilterActive() ) ){
-					cout << " \n\n\n  -WARNING from FairFilteredPrimaryGenerator: There are no filter settings for filter " << eventFilter->GetName() << " : " << eventFilter->GetTitle() << ". Execution is halted!\n\n\n";" << endl";
+					cout << " \n\n\n  -WARNING from FairFilteredPrimaryGenerator: There are no filter settings for filter " << vetoFilter->GetName() << " : " << vetoFilter->GetTitle() << ". Execution is halted!\n\n\n";" << endl";
 					return kFALSE;
 				}
 				Bool_t setParticlesOk = vetoFilter->SetListOfParticles(pStack->GetListOfParticles());//committing the list of particles to be checked
