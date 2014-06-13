@@ -563,10 +563,11 @@ Bool_t FairEvtFilterOnSingleParticleCounts :: EventMatches(Int_t evtNr)
 	}
 
 
-	// event matches if filter is not set
-	if ( kFALSE == FilterActive() ) {
-		return kTRUE;
-	}
+	// Not necessary as FairFilteredPrimaryGenerator already checks this
+	//	// event matches if filter is not set
+	//	if ( kFALSE == FilterActive() ) {
+	//		return kTRUE;
+	//	}
 
 
 	// sanity checks
@@ -595,17 +596,16 @@ Bool_t FairEvtFilterOnSingleParticleCounts :: EventMatches(Int_t evtNr)
 
 		// check whether the particle satisfies the momentum constraints
 		if(fFilterMom){
-			if(!AcceptMomentum(particle)){continue;}// if the particle doesn't suit the momentum filter settings go ahead to the next particle
+			if(!AcceptMomentum(particle)){ continue; } // if the particle doesn't suit the momentum filter settings go ahead to the next particle
 		}
 
 		// check whether the particle satisfies the geometric constraints
 		if(fFilterGeom){
-			if(!AcceptGeometry(particle)){continue;}// if the particle doesn't suit the geometric filter settings go ahead to the next particle
+			if(!AcceptGeometry(particle)){ continue; } // if the particle doesn't suit the geometric filter settings go ahead to the next particle
 		}
 
-		// important: Do not count before all of the above tests were passed!
-
 		// count up the appropriate element of fCountGroupId and fCountCharge
+		// important: Do not count before all of the above tests were passed!
 		if(fFilterPdg){
 			CountPdg(particle);
 		}
@@ -617,7 +617,6 @@ Bool_t FairEvtFilterOnSingleParticleCounts :: EventMatches(Int_t evtNr)
 
 	// reset PdgOk and ChargeOk to kTRUE for each new event
 	// for checking if event matches
-	Bool_t evtOk = kTRUE;
 	Bool_t PdgOk= kTRUE;
 	Bool_t ChargeOk = kTRUE;
 
@@ -638,20 +637,21 @@ Bool_t FairEvtFilterOnSingleParticleCounts :: EventMatches(Int_t evtNr)
 		ChargeOk=AcceptChargeCounter();
 	}
 
-	evtOk=PdgOk && ChargeOk;
+	// event matches if pdg and charges are ok
+	Bool_t evtOk=PdgOk && ChargeOk;
 
 	if ( kTRUE == evtOk ) {
-		fAcceptedEventNumbers.insert(evtNr); // for testing
-		if (fVerbose >5){
+		fAcceptedEventNumbers.insert(evtNr); // for QA
+	}
+
+	if (fVerbose >5){
+		if ( kTRUE == evtOk ) {
 			std::cout << "\n Event matches " << this->GetTitle() << ": " << this->GetName() << "\n\n";
-		}
-		return kTRUE;
-	}else{
-		if (fVerbose >5){
+		} else {
 			std::cout << "\n Event does NOT match " << this->GetTitle() << ": " << this->GetName() << "\n\n";
 		}
 	}
-	return kFALSE;
+	return evtOk;
 }
 
 

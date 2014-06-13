@@ -177,8 +177,11 @@ public:
 	Bool_t EventMatches(Int_t evtNr);
 
 
-	// returns kTRUE if any filter is turned on
-	Bool_t FilterActive(){return (fFilterPdg || fFilterCharge || fFilterMom || fFilterGeom);};
+	// returns kTRUE if the filter on pdg codes or charge states (or all particles) is turned on
+	// Momentum and angular constraints do not play any role here
+	Bool_t FilterActive(){
+		return ( fFilterPdg || fFilterCharge );
+	};
 
 
 private:

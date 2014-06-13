@@ -136,8 +136,8 @@ Bool_t FairFilteredPrimaryGenerator::GenerateEvent(FairGenericStack* pStack)
 					cout << " \n\n\n  -FATAL ERROR from FairFilteredPrimaryGenerator: Veto filter cast did not work!\n\n\n";" << endl";
 					return kFALSE;
 				}
-				if(! (vetoFilter->FilterActive())){
-					cout << " \n\n\n  -WARNING from FairFilteredPrimaryGenerator: There are no veto filter settings.\n\n\n";" << endl";
+				if( !( vetoFilter->FilterActive() ) ){
+					cout << " \n\n\n  -WARNING from FairFilteredPrimaryGenerator: There are no filter settings for filter " << eventFilter->GetName() << " : " << eventFilter->GetTitle() << ". Execution is halted!\n\n\n";" << endl";
 					return kFALSE;
 				}
 				Bool_t setParticlesOk = vetoFilter->SetListOfParticles(pStack->GetListOfParticles());//committing the list of particles to be checked
@@ -174,8 +174,8 @@ Bool_t FairFilteredPrimaryGenerator::GenerateEvent(FairGenericStack* pStack)
 				eventFilter = dynamic_cast<FairEvtFilter*> (eventFilterObject);
 				if ( ! eventFilter ) {
 					return kFALSE; } // this should never happen
-				if(! (eventFilter->FilterActive())){
-					cout << " \n\n\n  -WARNING from FairFilteredPrimaryGenerator: There are no filter settings. Check your SetFilterMinMax calls!\n\n\n";" << endl";
+				if( !( eventFilter->FilterActive() ) ){
+					cout << " \n\n\n  -WARNING from FairFilteredPrimaryGenerator: There are no filter settings for filter " << eventFilter->GetName() << " : " << eventFilter->GetTitle() << ". Execution is halted!\n\n\n";" << endl";
 					return kFALSE;
 				}
 				Bool_t setParticlesOk = eventFilter->SetListOfParticles(pStack->GetListOfParticles());//committing the list of particles to be checked
