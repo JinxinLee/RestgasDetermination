@@ -62,15 +62,15 @@ FairFilteredPrimaryGenerator::FairFilteredPrimaryGenerator(const char* name, con
 Bool_t FairFilteredPrimaryGenerator::Init()
 {
 	FairPrimaryGenerator::Init();
-	/** Initialize list of event filters*/
-	for(Int_t k=0; k<fFilterList->GetEntries(); k++ ) {
-		FairEvtFilter* filter= (FairEvtFilter*) fFilterList->At(k);
-		if(filter) { filter->Init(); }
-	}
-	/** Initialize list of veto filters*/
-	for(Int_t k=0; k<fVetoFilterList->GetEntries(); k++ ) {
+	// Initialize list of veto filters
+	for(Int_t k=0; k<fVetoFilterList->GetEntries(); ++k ) {
 		FairEvtFilter* vetoFilter= (FairEvtFilter*) fVetoFilterList->At(k);
 		if(vetoFilter) { vetoFilter->Init(); }
+	}
+	// Initialize list of event filters
+	for(Int_t k=0; k<fFilterList->GetEntries(); ++k ) {
+		FairEvtFilter* filter= (FairEvtFilter*) fFilterList->At(k);
+		if(filter) { filter->Init(); }
 	}
 	return kTRUE;
 }
@@ -79,13 +79,13 @@ Bool_t FairFilteredPrimaryGenerator::Init()
 // -----   Destructor   ----------------------------------------------------
 FairFilteredPrimaryGenerator::~FairFilteredPrimaryGenerator()
 {
-	fFilterList->Delete();
-	delete fFilterList;
-	delete fFilterIter;
-
 	fVetoFilterList->Delete();
 	delete fVetoFilterList;
 	delete fVetoFilterIter;
+
+	fFilterList->Delete();
+	delete fFilterList;
+	delete fFilterIter;
 
 	//cout<<" Leave Destructor of FairFilteredPrimaryGenerator"<<endl;
 }
@@ -183,12 +183,12 @@ Bool_t FairFilteredPrimaryGenerator::GenerateEvent(FairGenericStack* pStack)
 					return kFALSE;
 				}
 				filterAcceptEvent.push_back(eventFilter->EventMatches(fEvtFilterStat.fGeneratedEvents));
-				//check whether the simulated event matches the individual event filter
+				// check whether the simulated event matches the individual event filter
 				iCheckFilter++;
 			}
 
 			//----------FilterNegation
-			// negate output from negated event filters
+			// negate output from the event filters which should be negated
 			for(UInt_t iFil=0; iFil<fFilterNegation.size(); iFil++){
 				if(kTRUE == fFilterNegation[iFil]){
 					filterAcceptEvent[iFil]=(!filterAcceptEvent[iFil]);
@@ -243,4 +243,3 @@ Bool_t FairFilteredPrimaryGenerator::GenerateEvent(FairGenericStack* pStack)
 
 
 ClassImp(FairFilteredPrimaryGenerator)
-
