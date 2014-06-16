@@ -46,9 +46,9 @@ class PndFtsHoughTrackerTask : public FairTask
 {
 public:
 	/** @brief Constructor with flags. Can also be used as standard constructor.
-	 * @param verbose Verbosity level: 0 least, higher -> more output.
-	 * @param persistence kFALSE does not write track candidates from PR to output root file.
-	 * @param saveDebugInfo kTRUE will write internal representation of track(let) candidates to output root file.
+	 * @param[in] verbose Verbosity level: 0 least, higher -> more output.
+	 * @param[in] persistence kFALSE does not write track candidates from PR to output root file.
+	 * @param[in] saveDebugInfo kTRUE will write internal representation of track(let) candidates to output root file.
 	 */
 	PndFtsHoughTrackerTask(Int_t verbose=0, Bool_t persistence=kTRUE, Bool_t saveDebugInfo=kFALSE);
 	/** @brief Destructor.	 */
@@ -81,21 +81,21 @@ public:
 	//	void SetTrackOutput(TString name = "FTSTrkHough") { fTracksArrayName = name; };
 
 	/** @brief For writing out Hough spaces as histograms (for debugging purposes).
-	 * @param houghSpace To be written as histogram.
-	 * @param index Use this parameter in case the same kind of Hough space needs to be written out multiple times per event.
+	 * @param[in] houghSpace To be written as histogram.
+	 * @param[in] index Use this parameter in case the same kind of Hough space needs to be written out multiple times per event.
 	 */
-	void WriteHistogram(PndFtsHoughSpace* houghSpace, Int_t index=-1);
+	void WriteHistogram(const PndFtsHoughSpace *const houghSpace, Int_t index=-1) const;
 
 	//----------
 	// GETTERS
 	//----------
 	const Int_t getFtsBranchId() const {  return fFtsBranchId; }; ///< @brief Returns detector Id of FTS.
-	TClonesArray* getFtsHitArrayPtr() { return fFtsHitArray; }; ///< @brief Returns pointer to the hit array in which hits are saved as PndFtsHit.
+	TClonesArray *const getFtsHitArrayPtr() const { return fFtsHitArray; }; ///< @brief Returns pointer to the hit array in which hits are saved as PndFtsHit.
 	/** @brief Returns pointer to the hit with index hitId in the FTS hit array.
-	 * @param hitId Index (in FTS hit array) of the hit which should be returned.
+	 * @param[in] hitId Index (in FTS hit array) of the hit which should be returned.
 	 * @return Pointer to hit with index hitId in FTS hit array.
 	 */
-	const PndFtsHit* GetFtsHit(UInt_t hitId) const {
+	const PndFtsHit *const GetFtsHit(UInt_t hitId) const {
 		if ( hitId >= fFtsHitArray->GetEntriesFast() ) {
 			Warning("GetFtsHit","hitId is too large.");
 			return 0;
@@ -105,11 +105,11 @@ public:
 		return myHit;
 	};
 	/** @brief Returns the position error (based on FTS straw geometry) for the hit with index hitId in the FTS hit array.
-	 * @param hitId Index (in fFtsHitArray) of the hit for which the error should be returned.
+	 * @param[in] hitId Index (in fFtsHitArray) of the hit for which the error should be returned.
 	 * @return Error in cm.
 	 */
-	TVector3 GetHitPositionError(UInt_t hitId) const;
-	FairField* getMagneticFieldPtr() const { return fField; }; ///< @brief Returns pointer to the B field.
+	const TVector3 GetHitPositionError(UInt_t hitId) const;
+	FairField *const getMagneticFieldPtr() const { return fField; }; ///< @brief Returns pointer to the B field.
 	const Int_t GetVerbose() const { return fVerbose; }; ///< @brief Returns the verbosity level.
 	const Bool_t GetSaveDebugInfo() const { return fSaveDebugInfo; }; ///< @brief Returns the save debug flag.
 	const UInt_t GetEventNr() const { return fEventNr; }; ///< @brief Returns the event number.

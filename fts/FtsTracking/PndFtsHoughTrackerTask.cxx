@@ -230,7 +230,7 @@ InitStatus PndFtsHoughTrackerTask::Init()
 //}
 
 
-void PndFtsHoughTrackerTask::WriteHistogram(PndFtsHoughSpace* houghSpace, Int_t index){
+void PndFtsHoughTrackerTask::WriteHistogram(const PndFtsHoughSpace *const houghSpace, Int_t index) const{
 	//	Int_t index = fHoughSpaces->GetEntriesFast();
 	//	PndFtsHoughSpace* myHoughSpace = new ((*fHoughSpaces)[index])PndFtsHoughSpace(*houghSpace);
 
@@ -279,7 +279,7 @@ InitStatus PndFtsHoughTrackerTask::ReInit()
 }
 
 
-TVector3 PndFtsHoughTrackerTask::GetHitPositionError(UInt_t hitId) const
+const TVector3 PndFtsHoughTrackerTask::GetHitPositionError(UInt_t hitId) const
 {
 	// hitId is index in FTS hit array
 	if (1<fVerbose) {
@@ -299,7 +299,7 @@ TVector3 PndFtsHoughTrackerTask::GetHitPositionError(UInt_t hitId) const
 	// TODO: Read out radius of FTS tube
 	const Double_t xError = 1.01 + 0.003; // in cm // Straw diameter: 10.1 mm, tube wall 0.03 mm Mylar
 	const Double_t yError = xError;
-	TVector3 hitPosError(xError,yError,zError);
+	const TVector3 hitPosError(xError,yError,zError);
 	// TODO: Take rotation into account for skewed straws
 
 	return hitPosError;
