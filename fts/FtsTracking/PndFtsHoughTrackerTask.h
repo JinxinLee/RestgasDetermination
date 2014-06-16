@@ -5,7 +5,7 @@
 
  @brief Interface between PandaRoot and PndFtsHoughTrackFinder where the PR algorithm is implemented.
 
- This task provides functionality / data for other FTS PR classes by passing them a pointer to itself during object creation.
+ This task provides functionality / data for related FTS PR classes by passing the pointer this as an argument for the object's constructor.
 
  This class was originally modeled after
  mvd/MvdTracking/PndMvdRiemannTrackFinderTask
@@ -51,11 +51,12 @@ public:
 	 * @param saveDebugInfo kTRUE will write internal representation of track(let) candidates to output root file.
 	 */
 	PndFtsHoughTrackerTask(Int_t verbose=0, Bool_t persistence=kTRUE, Bool_t saveDebugInfo=kFALSE);
+	/** @brief Destructor.	 */
 	~PndFtsHoughTrackerTask();
 
 	/** @brief Loads the parameter container from the runtime database. */
 	virtual void SetParContainers();
-	/** @brief Initiliazation of task at the beginning of a run. */
+	/** @brief Initialization of task at the beginning of a run. */
 	virtual InitStatus Init();
 	/** @brief ReInitiliazation of task when the runID changes. */
 	virtual InitStatus ReInit();
@@ -92,7 +93,7 @@ public:
 	TClonesArray* getFtsHitArrayPtr() { return fFtsHitArray; }; ///< @brief Returns pointer to the hit array in which hits are saved as PndFtsHit.
 	/** @brief Returns pointer to the hit with index hitId in the FTS hit array.
 	 * @param hitId Index (in FTS hit array) of the hit which should be returned.
-	 * @return Hit with index hitId in FTS hit array.
+	 * @return Pointer to hit with index hitId in FTS hit array.
 	 */
 	const PndFtsHit* GetFtsHit(UInt_t hitId) const {
 		if ( hitId >= fFtsHitArray->GetEntriesFast() ) {
@@ -108,7 +109,7 @@ public:
 	 * @return Error in cm.
 	 */
 	TVector3 GetHitPositionError(UInt_t hitId) const;
-	FairField* getMagneticFieldPtr() { return fField; }; ///< @brief Returns pointer to the B field.
+	FairField* getMagneticFieldPtr() const { return fField; }; ///< @brief Returns pointer to the B field.
 	const Int_t GetVerbose() const { return fVerbose; }; ///< @brief Returns the verbosity level.
 	const Bool_t GetSaveDebugInfo() const { return fSaveDebugInfo; }; ///< @brief Returns the save debug flag.
 	const UInt_t GetEventNr() const { return fEventNr; }; ///< @brief Returns the event number.
@@ -130,35 +131,45 @@ private:
 	Int_t   fFtsBranchId; ///< @brief Detector Id of FTS.
 	TClonesArray *fFtsHitArray; ///< @brief Input array of PndFtsHit
 
+	/** @brief Needed for FTS map creator.
+	 *
+	 * I don't really know what that does...
+	 */
 	PndGeoFtsPar *fFtsParameters;
-	/** @brief Input array of PndFtsTube (map of FTS tubes) */
+	/** @brief Input array of PndFtsTube (map of FTS tubes).
+	 *
+	 * Is filled by map creator
+	 */
 	TClonesArray *fFtsTubeArray;
 
-	/// @brief for B field access.
+	/// @brief For B field access.
 	FairField* fField;
 
 
 	//--------
 	// Output
 	//--------
-	TString fTracksArrayName;     ///< Branch name where to store the Track candidates
-	TClonesArray  *fTrackCands;   ///< Array of found track candidates in PndTrackCand (for output)
-	TClonesArray  *fTracks;       ///< Array of found tracks in PndTrack (for output)
-	TClonesArray *fHoughTrackCands; ///< Array of found track cands in PndFtsHoughTrackCand (only for debugging)
-	TClonesArray *fHoughSpaces;
-
+	TString fTracksArrayName;     ///< @brief Branch name where to store the Track candidates
+	TClonesArray  *fTrackCands;   ///< @brief Array of found track candidates in PndTrackCand (for output)
+	TClonesArray  *fTracks;       ///< @brief Array of found tracks in PndTrack (for output)
+	TClonesArray *fHoughTrackCands; ///< @brief Array of found track cands in PndFtsHoughTrackCand (only for debugging)
+	/* @brief Not used.
+	 *
+	 * The idea was to use this in order to write out the Hough spaces to the root file.
+	 * Due to bad performance this is not used. Instead, I write it out as picture directly.
+	 */
+	//TClonesArray *fHoughSpaces;
 	//-------
 	// Debug
 	//-------
-	Bool_t fSaveDebugInfo;
-	UInt_t fEventNr;
+	Bool_t fSaveDebugInfo; ///< @brief Debug information will be created iif kTRUE.
+	UInt_t fEventNr; ///< @brief Event number for debugging purposes.
 
 
 
 	// TODO: I don't think I need the copy constructor and the operator=
 	PndFtsHoughTrackerTask(const PndFtsHoughTrackerTask&);
 	PndFtsHoughTrackerTask operator=(const PndFtsHoughTrackerTask&);
-
 
 	ClassDef(PndFtsHoughTrackerTask,1);
 };

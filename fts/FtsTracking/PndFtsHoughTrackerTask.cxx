@@ -74,7 +74,7 @@ using std::endl;
 
 // ---- Default constructor -------------------------------------------
 PndFtsHoughTrackerTask::PndFtsHoughTrackerTask(Int_t verbose, Bool_t persistence, Bool_t saveDebugInfo)
-: FairTask("PndFtsHoughTrackerTask"),
+: FairTask("PndFtsHoughTrackerTask", verbose),
   fSaveDebugInfo(saveDebugInfo),
   fPersistence(persistence),
   fEventNr(0),
@@ -88,14 +88,13 @@ PndFtsHoughTrackerTask::PndFtsHoughTrackerTask(Int_t verbose, Bool_t persistence
   fTracksArrayName("FTSTrkHough"),
 
   // Debugging
-  fHoughSpaces(0),
+  //fHoughSpaces(0),
   fHoughTrackCands(0),
 
   // output
   fTrackCands(0),
   fTracks(0)
 {
-	fVerbose = verbose;
 	if(3<fVerbose) std::cout << "PndFtsHoughTrackerTask is the tracker ptr " << this << '\n';
 }
 
@@ -185,15 +184,15 @@ InitStatus PndFtsHoughTrackerTask::Init()
 	fHoughTrackCands = new TClonesArray("PndFtsHoughTrackCand");
 	ioman->Register("FTSTrkDebugCand", "HoughTrackCand", fHoughTrackCands, fSaveDebugInfo);
 
-	fHoughSpaces = new TClonesArray("PndFtsHoughSpace");
-	ioman->Register("FTSTrkDebugHS", "HoughSpaces", fHoughSpaces, fSaveDebugInfo);
+	//fHoughSpaces = new TClonesArray("PndFtsHoughSpace");
+	//ioman->Register("FTSTrkDebugHS", "HoughSpaces", fHoughSpaces, fSaveDebugInfo);
 
 
 	// Output
 	fTrackCands = new TClonesArray("PndTrackCand");
 	fTracks = new TClonesArray("PndTrack");
-	ioman->Register(fTracksArrayName,"FTSTrk", fTracks, fPersistence); // not needed for pattern recognition
-	ioman->Register(fTracksArrayName+"Cand","FTSTrk", fTrackCands, fPersistence); // TODO Is that correct, should it not be FTSTrkCand or something?
+	ioman->Register(fTracksArrayName,"FTSTrk", fTracks, fPersistence); // for PndTrack
+	ioman->Register(fTracksArrayName+"Cand","FTSTrk", fTrackCands, fPersistence); // for PndTrackCand // TODO Is that correct, should it not be FTSTrkCand or something?
 
 	if(3<fVerbose) Info("Register","Done.");
 
@@ -320,7 +319,7 @@ void PndFtsHoughTrackerTask::Exec(Option_t* option)
 	fTrackCands->Delete();
 	fTracks->Delete();
 	fHoughTrackCands->Delete();
-	fHoughSpaces->Delete();
+	//fHoughSpaces->Delete();
 
 
 
@@ -337,13 +336,13 @@ void PndFtsHoughTrackerTask::Exec(Option_t* option)
 	// store the found tracks as PndTrack and PndTrackCand
 	for (Int_t iFoundTrack = 0; iFoundTrack < trackFinder.NTracks(); ++iFoundTrack){
 
-		// for debug output get PndFtsHoughTrackCand and PndFtsHoughSpace
+		// for debug output get PndFtsHoughTrackCand
 		// TODO Check if that works
 		if (kTRUE==fSaveDebugInfo) {
 			PndFtsHoughTrackCand* myHoughCand = new ((*fHoughTrackCands)[iFoundTrack])PndFtsHoughTrackCand(trackFinder.GetHoughTrack(iFoundTrack));
 		}
 
-		// convert to PndTrackCand and store into TCA
+		// get output as PndTrackCand and store into TCA
 		PndTrackCand* myCand = new ((*fTrackCands)[iFoundTrack])PndTrackCand(trackFinder.GetPndTrackCand(iFoundTrack));
 		if (1<fVerbose)
 		{
@@ -387,10 +386,7 @@ void PndFtsHoughTrackerTask::Exec(Option_t* option)
 
 void PndFtsHoughTrackerTask::FinishEvent()
 {
-	// TODO Check if this is necessary, I think it can be left out!
-	//	fTrackCands->Delete();
-	//	fTracks->Delete();
-	//	fHoughTrackCands->Delete();
+
 }
 
 

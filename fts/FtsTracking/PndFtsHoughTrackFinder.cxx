@@ -34,8 +34,6 @@
 #include "TH2.h"
 #include "TGraph.h"
 
-// peak finder
-#include "TSpectrum2.h"
 
 // root IO
 #include "TClonesArray.h"
@@ -57,8 +55,7 @@
 
 using namespace std;
 
-ClassImp(PndFtsHoughTrackFinder)
-;
+ClassImp(PndFtsHoughTrackFinder);
 
 
 
