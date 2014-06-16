@@ -358,14 +358,15 @@ void PndSttGeometryMap::GenerateStrawMapAngleGeoType1()
   fStrawIndex[lastsector].push_back(currentRow);
   if(fVerbose > 0) cout << "STT COMPLETE. SECTOR COMPLETE: Row " << row << " added to sector " << lastsector << endl;
 
-
   fStartTube = (int**) malloc(sizeof(int*) * fNSectors);
   fEndTube   = (int**) malloc(sizeof(int*) * fNSectors);
-  fShift = (int**) malloc(sizeof(int*) * fNSectors);
+  fShift     = (int**) malloc(sizeof(int*) * fNSectors);
+  fShiftSkew = (int**) malloc(sizeof(int*) * fNSectors);
   for(int i = 0; i < fNSectors; i++) {
     fStartTube[i] = (int*) malloc(sizeof(int*) * fNLayers);
-    fEndTube[i] = (int*) malloc(sizeof(int*) * fNLayers);
-    fShift[i] = (int*) malloc(sizeof(int*) * fNLayers);
+    fEndTube[i]   = (int*) malloc(sizeof(int*) * fNLayers);
+    fShift[i]     = (int*) malloc(sizeof(int*) * fNLayers);
+    fShiftSkew[i] = (int*) malloc(sizeof(int*) * fNLayers);
   }
 
   const int size = 26* 6; // fNLayers * fNSectors
@@ -375,6 +376,15 @@ void PndSttGeometryMap::GenerateStrawMapAngleGeoType1()
 			  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2, 4,  7, 11, 16,
 			  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2, 5, 7, 10, 14, 19,
   			  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2, 5, 7, 10, 14, 19};
+  const int sizeskew = 8*6; //fNLayers_skew * fNSectors;
+  int shift_list_skew[sizeskew] = {16, 19, 16, 16, 19, 16,
+				   17, 20, 17, 17, 20, 17,
+				   19, 21, 19, 19, 21, 19,
+				   20, 22, 20, 20, 22, 20,
+				   21, 24, 21, 21, 24, 21,
+				   22, 25, 22, 22, 25, 22,
+				   24, 26, 24, 24, 26, 24,
+				   25, 27, 25, 25, 27, 25};
 
   int counter = 0;
   for(int i = 0; i < fNSectors; i++) {
@@ -382,6 +392,10 @@ void PndSttGeometryMap::GenerateStrawMapAngleGeoType1()
       fStartTube[i][j] = GetStrawRow(i,j).front();
       fEndTube[i][j]   = GetStrawRow(i,j).back();
       fShift[i][j]     = shift_list[counter];
+      if (j<8 || j>15)
+	fShiftSkew[i][j] = 0;
+      else 
+ 	fShiftSkew[i][j] = shift_list_skew[(j-8)*6+i];
       counter++;
     }
   }
@@ -434,11 +448,27 @@ bool PndSttGeometryMap::IsEdgeStraw(int strawindex) const
 
 int PndSttGeometryMap::IsSectorBorderStraw(int strawindex) const
 {
-  int endstrawcw = GetStrawRow(GetSector(strawindex), GetRow(strawindex)).front();
-  int endstrawccw = GetStrawRow(GetSector(strawindex), GetRow(strawindex)).back();
-  if (strawindex == endstrawcw) return -1;
-  if (strawindex == endstrawccw) return 1;
-  return 0;
+  PndSttTube* tube = (PndSttTube*) fTubeArray->At(strawindex);
+  if (tube->IsParallel()) {
+    int endstrawcw = GetStrawRow(GetSector(strawindex), GetRow(strawindex)).front();
+    int endstrawccw = GetStrawRow(GetSector(strawindex), GetRow(strawindex)).back();
+    if (strawindex == endstrawcw) return -1;
+    if (strawindex == endstrawccw) return 1;
+    return 0;
+  }
+  else {
+    if (tube->GetHalfLength()==75) {
+      int endstrawcw = GetStrawRow(GetSector(strawindex), GetRow(strawindex)).front();
+      int row = GetRow(strawindex);
+      if (strawindex == endstrawcw) return -1;
+      if (strawindex == endstrawcw + fShiftSkew[GetSector(strawindex)][GetRow(strawindex)]-1) return 1;
+      return 0;
+    }
+    else {
+      if (strawindex%2==0) return -1;
+      else return 1;
+    }
+  }
 }
 
 bool PndSttGeometryMap::IsAxialRow(int rowindex) const

@@ -86,7 +86,7 @@ class PndSttGeometryMap : public TObject
 
   // ------------------ SECTORS/LAYERS
   Int_t fNLayers, fNSectors, fNTubes, fNTubes_inner_parallel, fNTubes_outer_parallel, fNTubes_fillup_parallel, fNTubes_skewed, fNLayers_inner_parallel, fNLayers_skew, fNLayers_outer_parallel, fNLayers_fillup_parallel;
-  Int_t **fStartTube, **fEndTube, **fShift;
+  Int_t **fStartTube, **fEndTube, **fShift, **fShiftSkew;
 
   
   TClonesArray *fTubeArray;
