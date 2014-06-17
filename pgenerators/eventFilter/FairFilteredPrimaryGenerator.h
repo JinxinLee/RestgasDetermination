@@ -1,7 +1,7 @@
 /**
  @class FairFilteredPrimaryGenerator
 
- @author Martin J. Galuska
+ @author Martin J. Galuska <martin [dot] j [dot] galuska (at) physik [dot] uni (minus) giessen [dot] de>
  @author Katja Kleeberg
 
  @brief Primary generator with added event filtering capabilities.
