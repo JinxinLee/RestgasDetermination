@@ -57,10 +57,6 @@ class PndFtsHoughTrackerTask;
 class TString;
 class FairField;
 class TClonesArray;
-//class PndGeoFtsPar;
-//class TGraph;
-
-class FairHit;
 
 
 
@@ -125,7 +121,7 @@ private:
 	};
 
 	//	Int_t   fFtsBranchId; // needed for saving and accessing hits
-	TClonesArray *fFtsHitArray; ///< @brief Input array of all FTS hits.
+	//	TClonesArray *fFtsHitArray; ///< @brief Input array of all FTS hits.
 
 
 

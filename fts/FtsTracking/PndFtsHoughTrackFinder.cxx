@@ -1,7 +1,5 @@
 #include "PndFtsHoughTrackFinder.h"
 
-#include "PndFtsHoughTrackerTask.h"
-
 #include <iostream>
 
 #include "TMath.h"
@@ -11,12 +9,11 @@
 #include <set>
 #include <vector>
 #include <map>
+#include "TClonesArray.h"
+#include "TString.h"
 
 // FTS
-#include "PndGeoFtsPar.h"
-#include "PndFtsMapCreator.h"
 #include "PndFtsHit.h"
-#include "FairHit.h"
 
 // magnetic field
 #include "FairField.h"
@@ -26,29 +23,10 @@
 #include "PndFtsHoughTrackerTask.h"
 #include "PndTrackCand.h"
 #include "PndTrack.h"
-#include "FairTrackParP.h"
 #include "PndFtsHoughTrackCand.h"
 
-// histogramming / plotting
-#include "TH1.h"
-#include "TH2.h"
-#include "TGraph.h"
 
 
-// root IO
-#include "TClonesArray.h"
-#include "FairRunAna.h"
-#include "FairRootManager.h"
-#include "FairRuntimeDb.h"
-#include "FairTask.h"
-
-#include "PndFtsHit.h"
-#include "TString.h"
-#include "FairHit.h"
-
-
-#include "PndFtsTube.h"
-#include "FairEventHeader.h"
 
 
 
@@ -65,7 +43,7 @@ PndFtsHoughTrackFinder::PndFtsHoughTrackFinder(PndFtsHoughTrackerTask *trackerTa
 												fTrackerTask(trackerTask),
 
 												// set later using tracker task
-												fFtsHitArray(0),
+//												fFtsHitArray(0),
 //												fFtsBranchId(0),
 //												fField(0),
 
@@ -91,7 +69,7 @@ PndFtsHoughTrackFinder::PndFtsHoughTrackFinder(PndFtsHoughTrackerTask *trackerTa
 		fVerbose = fTrackerTask->GetVerbose();
 		if(3<fVerbose) std::cout << "PndFtsHoughTrackFinder called with tracker ptr " << fTrackerTask << '\n';
 		fSaveDebugInfo = fTrackerTask->GetSaveDebugInfo();
-		fFtsHitArray = fTrackerTask->getFtsHitArrayPtr();
+//		fFtsHitArray = fTrackerTask->getFtsHitArrayPtr();
 //		fFtsBranchId = fTrackerTask->getFtsBranchId();
 //		fField = fTrackerTask->getMagneticFieldPtr();
 	}
@@ -129,7 +107,7 @@ void PndFtsHoughTrackFinder::FindTracks() {
 
 
 	// Do we have enough hits in the FTS?
-	if(fMinPeakHeightZxParabola > fFtsHitArray->GetEntriesFast()) {
+	if( fMinPeakHeightZxParabola > fTrackerTask->GetNFtsHits() ) {
 		if(0<fVerbose) Info("Exec","Skip the event, since we have too few hits in FTS");
 		return;
 	}
