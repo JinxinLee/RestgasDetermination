@@ -1,5 +1,5 @@
 /**
- @class PndFtsHoughTrackerTask
+ @class PndFtsHoughTrackFinder
 
  @author Martin J. Galuska <martin [dot] j [dot] galuska (at) physik [dot] uni (minus) giessen [dot] de>
 
@@ -37,26 +37,32 @@
 #ifndef PndFtsHoughTrackFinder_H
 #define PndFtsHoughTrackFinder_H
 
-class PndFtsHoughTrackerTask;
-
-#include "TClonesArray.h"
-#include "PndTrackCand.h"
-#include "PndTrack.h"
-#include "Rtypes.h"                     // for Double_t, Int_t, etc
+//#include "TClonesArray.h"
+#include "Rtypes.h" // for Double_t, Int_t, etc
+#include "FairLogger.h" // for FairLogger, MESSAGE_ORIGIN
 
 #include <cmath>
+#include "TMath.h"
+#include <math.h>
+#include <algorithm>
+#include <set>
 #include <vector>
 #include <map>
 #include <fstream>
+#include <iostream>
 
 
+#include "PndFtsHit.h"
+#include "PndFtsHoughTrackerTask.h"
 #include "PndFtsHoughSpace.h"
 #include "PndFtsHoughTracklet.h"
 #include "PndFtsHoughTrackCand.h"
+#include "PndTrackCand.h"
+#include "PndTrack.h"
+
 
 class TString;
 class FairField;
-class TClonesArray;
 
 
 

@@ -90,6 +90,7 @@ PndFtsHoughTrackerTask::PndFtsHoughTrackerTask(Int_t verbose, Bool_t persistence
   // Debugging
   //fHoughSpaces(0),
   fHoughTrackCands(0),
+  fLogger(FairLogger::GetLogger()),
 
   // output
   fTrackCands(0),
@@ -101,7 +102,7 @@ PndFtsHoughTrackerTask::PndFtsHoughTrackerTask(Int_t verbose, Bool_t persistence
 // ---- Destructor ----------------------------------------------------
 PndFtsHoughTrackerTask::~PndFtsHoughTrackerTask()
 {
-	if(fVerbose>3) Info(MESSAGE_ORIGIN,"Destructor of PndFtsHoughTrackerTask");
+	if(fVerbose>3) fLogger->Info(MESSAGE_ORIGIN,"Destructor of PndFtsHoughTrackerTask");
 	//	fOutFile->Close();
 }
 
@@ -111,7 +112,7 @@ PndFtsHoughTrackerTask::~PndFtsHoughTrackerTask()
 // ----  Initialisation  ----------------------------------------------
 void PndFtsHoughTrackerTask::SetParContainers()
 {
-	if(fVerbose>3) Info(MESSAGE_ORIGIN,"SetParContainers of PndFtsHoughTrackerTask");
+	if(fVerbose>3) fLogger->Info(MESSAGE_ORIGIN,"SetParContainers of PndFtsHoughTrackerTask");
 
 	// FTS parameters
 	FairRuntimeDb *rtdb= FairRun::Instance()->GetRuntimeDb();
@@ -156,7 +157,7 @@ InitStatus PndFtsHoughTrackerTask::Init()
 	// FTS Hits
 	fFtsHitArray= (TClonesArray *)ioman->GetObject("FTSHit");
 	if ( ! fFtsHitArray ) {
-		if(fVerbose>3) Info(MESSAGE_ORIGIN,"No FTSHit array!");
+		if(fVerbose>3) fLogger->Info(MESSAGE_ORIGIN,"No FTSHit array!");
 		return kERROR;
 	}
 
@@ -173,7 +174,7 @@ InitStatus PndFtsHoughTrackerTask::Init()
 	if(fVerbose>3) Info("Init","Try to get B field.");
 	fField = FairRunAna::Instance()->GetField();
 	if ( ! fField ) {
-		if(fVerbose>3) Info(MESSAGE_ORIGIN,"No fField array!");
+		if(fVerbose>3) fLogger->Info(MESSAGE_ORIGIN,"No fField array!");
 		return kERROR;
 	}
 
@@ -274,7 +275,7 @@ void PndFtsHoughTrackerTask::WriteHistogram(const PndFtsHoughSpace *const houghS
 InitStatus PndFtsHoughTrackerTask::ReInit()
 {
 	InitStatus stat=kSUCCESS;
-	if(3<fVerbose) Info(MESSAGE_ORIGIN,"Re- Initilization of PndFtsHoughTrackerTask");
+	if(3<fVerbose) fLogger->Info(MESSAGE_ORIGIN,"Re- Initilization of PndFtsHoughTrackerTask");
 	return stat;
 }
 

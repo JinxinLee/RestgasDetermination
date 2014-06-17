@@ -1,17 +1,20 @@
-// *************************************************************************
-// Author: Martin Galuska
-// martin (dot) j [dot] galuska <at> physik {dot} uni (minus) giessen <dot> de
-//
-// Class for Hough space based on TH2S (for the moment)
-//
-// the angle (theta in rad) is always on x-coordinate axis, the value on the y-axis depends on the kind of hough transform
-//	parabola HT: yValue = Q/pzx
-//	line HT: yValue = intercept (Achsenabschnitt) (in z-x- or z-y-plane)
-//
-//
-// Created: 21.02.2014
-//
-// *************************************************************************
+/**
+ @class PndFtsHoughSpace
+
+ @author Martin J. Galuska <martin [dot] j [dot] galuska (at) physik [dot] uni (minus) giessen [dot] de>
+
+ @brief Class for Hough space based on TH2S (for the moment).
+
+ The angle (theta in rad) is always on x-coordinate axis, the value on the y-axis depends on the kind of Hough transform:
+	HT type  | yValue
+	------------------
+	parabola | Q/p_{zx}
+	line     | intercept (Achsenabschnitt) (in z-x- or z-y-plane)
+
+
+ Created: 21.02.2014
+*/
+
 
 #ifndef PndFtsHoughSpace_H
 #define PndFtsHoughSpace_H
@@ -22,6 +25,7 @@ class PndFtsHoughTrackerTask;
 #include <cmath>
 #include <vector>
 #include "Rtypes.h"                     // for Double_t, Int_t, etc
+#include "FairLogger.h" // for FairLogger, MESSAGE_ORIGIN
 
 #include "PndTrackCandHit.h"
 #include "TClonesArray.h"

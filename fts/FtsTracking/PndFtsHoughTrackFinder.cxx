@@ -1,37 +1,8 @@
 #include "PndFtsHoughTrackFinder.h"
 
-#include <iostream>
-
-#include "TMath.h"
-#include <math.h>
-#include <algorithm>
-
-#include <set>
-#include <vector>
-#include <map>
-#include "TClonesArray.h"
 #include "TString.h"
 
-// FTS
-#include "PndFtsHit.h"
 
-// magnetic field
-#include "FairField.h"
-#include "TVector3.h"
-
-// (Hough) tracking
-#include "PndFtsHoughTrackerTask.h"
-#include "PndTrackCand.h"
-#include "PndTrack.h"
-#include "PndFtsHoughTrackCand.h"
-
-
-
-
-
-
-
-using namespace std;
 
 ClassImp(PndFtsHoughTrackFinder);
 
@@ -78,7 +49,7 @@ PndFtsHoughTrackFinder::PndFtsHoughTrackFinder(PndFtsHoughTrackerTask *trackerTa
 
 PndFtsHoughTrackFinder::~PndFtsHoughTrackFinder()
 {
-	if(3<fVerbose) Info(MESSAGE_ORIGIN,"Destructor of PndFtsHoughTrackFinder");
+	if(3<fVerbose) fTrackerTask->fLogger->Info(MESSAGE_ORIGIN,"Destructor of PndFtsHoughTrackFinder");
 }
 
 
@@ -95,7 +66,7 @@ PndFtsHoughTrackFinder::~PndFtsHoughTrackFinder()
 void PndFtsHoughTrackFinder::FindTracks() {
 
 	if (0<fVerbose) {
-		cout << "PndFtsHoughTrackFinder::FindTracks()" << endl;
+		std::cout << "PndFtsHoughTrackFinder::FindTracks()\n";
 	}
 
 	// reset
@@ -105,10 +76,9 @@ void PndFtsHoughTrackFinder::FindTracks() {
 
 
 
-
 	// Do we have enough hits in the FTS?
 	if( fMinPeakHeightZxParabola > fTrackerTask->GetNFtsHits() ) {
-		if(0<fVerbose) Info("Exec","Skip the event, since we have too few hits in FTS");
+		if(0<fVerbose) fTrackerTask->fLogger->Info(MESSAGE_ORIGIN,"Skip the event, since we have too few hits in FTS");
 		return;
 	}
 
@@ -196,7 +166,7 @@ void PndFtsHoughTrackFinder::FindTracks() {
 
 		// determine where to look for parabola
 		const Int_t stepsPerThetaDegParabola = 10; // greater number means finer scanning in theta
-		//!TODO: Rework this
+		// TODO: Rework this
 		const Double_t thetaRadLowParabola = peakThetaRadLineBeforeDipole - peakThetaRadHwLineBeforeDipole; // in rad
 		const Double_t thetaRadHighParabola = peakThetaRadLineBeforeDipole + peakThetaRadHwLineBeforeDipole; // in rad
 		const Double_t thetaDegLowParabola = thetaRadLowParabola / meinpi * 180.; // in deg

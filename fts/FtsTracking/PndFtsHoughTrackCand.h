@@ -1,13 +1,17 @@
-// *************************************************************************
-// Author: Martin Galuska
-// martin (dot) j [dot] galuska <at> physik {dot} uni (minus) giessen <dot> de
-//
-// Class for Hough transform based FTS tracking
-// loosely modeled according to PndTools/riemannfit/PndRiemannTrack.h
-//
-// Created: 24.01.2014
-//
-// *************************************************************************
+/**
+ @class PndFtsHoughTrackCand
+
+ @author Martin J. Galuska <martin [dot] j [dot] galuska (at) physik [dot] uni (minus) giessen [dot] de>
+
+ @brief Class for saving a FTS track cand. for Hough transform based FTS PR.
+
+ The track cand. consists of several tracklets.
+
+ Loosely modeled after PndTools/riemannfit/PndRiemannTrack.h
+
+ Created: 24.01.2014
+ */
+
 
 #ifndef PNDFTSHOUGHTRACKCAND_H
 #define PNDFTSHOUGHTRACKCAND_H
@@ -18,6 +22,7 @@ class PndFtsHoughTrackerTask;
 #include "PndTrackCand.h"
 #include "PndFtsHoughTracklet.h"
 #include "Rtypes.h"                     // for Double_t, Int_t, etc
+#include "FairLogger.h" // for FairLogger, MESSAGE_ORIGIN
 
 #include <cmath>
 

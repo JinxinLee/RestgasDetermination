@@ -1,14 +1,15 @@
-// *************************************************************************
-// Author: Martin Galuska
-// martin (dot) j [dot] galuska <at> physik {dot} uni (minus) giessen <dot> de
-//
-// Class for Hough transform based FTS tracking
-// This saves the result of one Hough transform
-// The tracklet can represent a line or a parabola (actually an arbitrary result of a 2d Hough transform)
-//
-// Created: 11.02.2014
-//
-// *************************************************************************
+/**
+ @class PndFtsHoughTracklet
+
+ @author Martin J. Galuska <martin [dot] j [dot] galuska (at) physik [dot] uni (minus) giessen [dot] de>
+
+ @brief Class for saving the result of one Hough transform for FTS PR.
+
+ One object of this class corresponds to one peak in the Hough space or part of a track candidate.
+ The tracklet can represent a line or a parabola (actually an arbitrary result of a 2d Hough transform).
+
+ Created: 11.02.2014
+*/
 
 #ifndef PNDFTSHOUGHTRACKLET_H
 #define PNDFTSHOUGHTRACKLET_H
@@ -18,6 +19,7 @@ class PndFtsHoughTrackerTask;
 // Root Class Headers ----------------
 #include "PndTrackCand.h"
 #include "Rtypes.h"                     // for Double_t, Int_t, etc
+#include "FairLogger.h" // for FairLogger, MESSAGE_ORIGIN
 
 class PndFtsHit;
 class PndTrack;

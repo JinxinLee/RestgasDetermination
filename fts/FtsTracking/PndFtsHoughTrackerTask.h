@@ -136,6 +136,7 @@ public:
 	 * @param[in] index Use this parameter in case the same kind of Hough space needs to be written out multiple times per event.
 	 */
 	void WriteHistogram(const PndFtsHoughSpace *const houghSpace, Int_t index=-1) const;
+	FairLogger* fLogger; ///< @brief For output handling.
 
 private:
 	//  for writing out histograms for debugging
@@ -188,7 +189,6 @@ private:
 	//-------
 	Bool_t fSaveDebugInfo; ///< @brief Debug information will be created iif kTRUE.
 	UInt_t fEventNr; ///< @brief Event number for debugging purposes.
-
 
 
 	// TODO: I don't think I need the copy constructor and the operator=
