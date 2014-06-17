@@ -1,7 +1,7 @@
 void BkgSignalCount(TString path="/panda/pandaroot/macro/lmd/testPixel/mom_1_5/", int nEvents=1000,int nStart=0){
 
   // ---- Input file -------------------------------------------------------------
-  TString filename = "Lumi_TrksQA_";
+  TString filename = "/Lumi_TrksQA_";
   filename+=nStart;
   filename+=".root";
   //----------------------------------------------------------------------------------
