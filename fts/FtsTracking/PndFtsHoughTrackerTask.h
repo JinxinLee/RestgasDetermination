@@ -80,17 +80,29 @@ public:
 	void SetSaveDebugInfo(Bool_t saveDebugInfo){ fSaveDebugInfo = saveDebugInfo;};
 	//	void SetTrackOutput(TString name = "FTSTrkHough") { fTracksArrayName = name; };
 
-	/** @brief For writing out Hough spaces as histograms (for debugging purposes).
-	 * @param[in] houghSpace To be written as histogram.
-	 * @param[in] index Use this parameter in case the same kind of Hough space needs to be written out multiple times per event.
-	 */
-	void WriteHistogram(const PndFtsHoughSpace *const houghSpace, Int_t index=-1) const;
 
 	//----------
 	// GETTERS
 	//----------
-	const Int_t getFtsBranchId() const {  return fFtsBranchId; }; ///< @brief Returns detector Id of FTS.
-	TClonesArray *const getFtsHitArrayPtr() const { return fFtsHitArray; }; ///< @brief Returns pointer to the hit array in which hits are saved as PndFtsHit.
+	/**@brief Returns detector Id of FTS. Try not to use it.
+	 *
+	 * @see GetFtsHit
+	 * @see GetNHits
+	 * @return Detector Id of FTS.
+	 */
+	const Int_t getFtsBranchId() const {  return fFtsBranchId; };
+	/**@brief Returns pointer to the hit array in which FTS hits are saved as PndFtsHit. Try not to use it.
+	 *
+	 * @see GetFtsHit
+	 * @see GetNHits
+	 * @return Pointer to the hit array in which hits are saved as PndFtsHit.
+	 */
+	TClonesArray *const getFtsHitArrayPtr() const { return fFtsHitArray; };
+	/**@brief Returns the number of FTS hits.
+	 *
+	 * @return Number of FTS hits.
+	 */
+	const Int_t GetNHits() const { return fFtsHitArray->GetEntriesFast(); };
 	/** @brief Returns pointer to the hit with index hitId in the FTS hit array.
 	 * @param[in] hitId Index (in FTS hit array) of the hit which should be returned.
 	 * @return Pointer to hit with index hitId in FTS hit array.
@@ -110,9 +122,15 @@ public:
 	 */
 	const TVector3 GetHitPositionError(UInt_t hitId) const;
 	FairField *const getMagneticFieldPtr() const { return fField; }; ///< @brief Returns pointer to the B field.
+
 	const Int_t GetVerbose() const { return fVerbose; }; ///< @brief Returns the verbosity level.
 	const Bool_t GetSaveDebugInfo() const { return fSaveDebugInfo; }; ///< @brief Returns the save debug flag.
 	const UInt_t GetEventNr() const { return fEventNr; }; ///< @brief Returns the event number.
+	/** @brief For writing out Hough spaces as histograms (for debugging purposes).
+	 * @param[in] houghSpace To be written as histogram.
+	 * @param[in] index Use this parameter in case the same kind of Hough space needs to be written out multiple times per event.
+	 */
+	void WriteHistogram(const PndFtsHoughSpace *const houghSpace, Int_t index=-1) const;
 
 private:
 	//  for writing out histograms for debugging

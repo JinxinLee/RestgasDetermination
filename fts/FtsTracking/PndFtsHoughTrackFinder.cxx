@@ -434,10 +434,8 @@ Bool_t PndFtsHoughTrackFinder::FilterTrackletsBasedOnSharedHits(
 	std::set<UInt_t> indicesToDelete;
 	std::set<UInt_t>::iterator findIndex;
 
-
-	// compare all tracklets with each other, keep track which tracklets should be "deleted"
-	// delete all tracklets that share more than maxAcceptableSharedHits hits
-	// keep only the heighest peak
+	// for all tracklets that share more than maxAcceptableSharedHits hits keep only the heighest peak
+	// compare all tracklets with each other, keep track of which tracklets should be "deleted"
 	for (UInt_t iTrackletLeft = 0; iTrackletLeft < tracklets.size(); ++iTrackletLeft)
 	{
 		for (UInt_t iTrackletRight = iTrackletLeft+1; iTrackletRight < tracklets.size(); ++iTrackletRight)
@@ -456,6 +454,8 @@ Bool_t PndFtsHoughTrackFinder::FilterTrackletsBasedOnSharedHits(
 					indicesToDelete.insert(iTrackletLeft);
 				} else if (heightLeft==heightRight){
 					std::cout << "WARNING: Found two peaks of the same height that share " <<  nSharedHits << " hits.\n";
+					std::cout << "The max. number of shared hits was set to " <<  maxAcceptableSharedHits << " hits.\n";
+					std::cout << "Both peaks / tracklets will be kept. \n";
 				}
 			}
 
@@ -464,7 +464,7 @@ Bool_t PndFtsHoughTrackFinder::FilterTrackletsBasedOnSharedHits(
 
 	// if we have no tracklets to "delete", we don't need to do anything
 	if (0==indicesToDelete.size()){
-		if (0<fVerbose) {  std::cout << "FilterTrackletsBasedOnSharedHits: No tracklets are marked for deletion." << std::endl; }
+		if (0<fVerbose) {  std::cout << "FilterTrackletsBasedOnSharedHits: No tracklets are marked for deletion.\n"; }
 		return kTRUE;
 	}
 
