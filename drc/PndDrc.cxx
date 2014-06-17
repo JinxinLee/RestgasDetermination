@@ -909,6 +909,29 @@ Bool_t PndDrc::ProcessHits(FairVolume* vol) {
   fTime    = gMC->TrackTime() * 1.0e09;
   fLength  = gMC->TrackLength();
 
+  bool stop = true;
+  if(gMC->GetStack()->GetCurrentParentTrackNumber()==0 && fPdgCode == 11){
+    //std::cout<<"E fPdgCode  "<<fPdgCode <<std::endl;  
+    stop = false;
+  }
+
+  if(gMC->GetStack()->GetCurrentParentTrackNumber()==1 && fPdgCode == 50000050){
+    //std::cout<<"P fPdgCode  "<<fPdgCode <<std::endl;
+     stop = false;
+  }
+  
+  // // print out info about the charged particle:
+  // if(gMC->GetStack()->GetCurrentParentTrackNumber()==0 && fPdgCode == 11){
+  //   Int_t nproc = gMC->StepProcesses(fProc);
+  //   cout<<"-I- PndDrc:"<<endl;
+  //   for(Int_t ii=0; ii<nproc; ii++){
+  //     cout<<"track "<<fPdgCode<<" number "<<gMC->GetStack()->GetCurrentTrackNumber()<<" mother id = "<<gMC->GetStack()->GetCurrentParentTrackNumber()<<": Z pos "<<fPos.Z()<<", R =  "<<sqrt(pow(fPos.X(),2) + pow(fPos.Y(),2))<<", "<<ii<<" - "<<fProc[ii]<<", "<<TMCProcessName[fProc[ii]]<<endl;
+  //   }
+  // }
+  
+  //if(stop) gMC->StopTrack();
+
+
   gMC->TrackPosition(fPos);
   gMC->TrackMomentum(fMom);
  
@@ -1126,9 +1149,8 @@ Bool_t PndDrc::ProcessHits(FairVolume* vol) {
 	  abort();
 	}   
 	Int_t sensorId = fGeoH->GetShortID(gMC->CurrentVolPath());
-	Int_t mcpId;
-	sscanf(gMC->CurrentVolPath(), "/cave_1/BarrelDIRC_0/DrcPDbase_0/DrcMCP_%d", &mcpId);
-      
+	Int_t mcpId, prismId;
+	sscanf(gMC->CurrentVolPath(), "/cave_1/BarrelDIRC_0/DrcPDbase_%d/DrcMCP_%d", &prismId, &mcpId);
 	if(fTrackID>-2){
 	  AddHit(fTrackID, sensorId, mcpId,
 		 fPos.Vect(),fMom.Vect(),fMomAtEV.Vect(), fTimeAtEV,
@@ -1656,6 +1678,8 @@ void PndDrc::ConstructOpGeometry() {
       gMC->SetBorderSurface("Lens2AirSurface", "DrcLENS2Sensor", i, "BarrelDIRC", 0, "EVSurface");
       gMC->SetBorderSurface("Lens3AirSurface", "DrcLENS3Sensor", i, "BarrelDIRC", 0, "EVSurface"); 
       gMC->SetBorderSurface("Lens4AirSurface", "DrcLENS4Sensor", i, "BarrelDIRC", 0, "EVSurface");
+
+      gMC->SetBorderSurface("BarMirrorSurface", "DrcMLSensor", i, "DrcML", i, "MirrSurface");
       for(Int_t isec=0; isec<fGeo->BBoxNum(); isec++){
         // left and right surfaces of lenses are touching with DrcAirBox volume
         gMC->SetBorderSurface("Lens1AirSurface", "DrcLENS1Sensor", i, "DrcEntranceBox", isec+1, "EVSurface"); 
@@ -1663,16 +1687,18 @@ void PndDrc::ConstructOpGeometry() {
         gMC->SetBorderSurface("Lens3AirSurface", "DrcLENS3Sensor", i, "DrcEntranceBox", isec+1, "EVSurface"); 
         gMC->SetBorderSurface("Lens4AirSurface", "DrcLENS4Sensor", i, "DrcEntranceBox", isec+1, "EVSurface");
 	
-	//only direct  
-	//gMC->SetBorderSurface("EVAirSurface", "DrcEVSensor",  isec, "BarrelDIRC", 0, "BlackSurface");
       }
     }   
     gMC->SetBorderSurface("BarboxWindowAirSurface", "DrcBarboxWindowSensor", 0, "BarrelDIRC", 0, "EVSurface");
     gMC->SetBorderSurface("EVGreaseAirSurface", "DrcEVgrease", 0, "BarrelDIRC", 0, "EVSurface");
   }
 
+  //only direct  
+  //gMC->SetBorderSurface("EVAirSurface", "DrcEVSensor",  0, "DrcEVCoverSensor", 0, "BlackSurface");
+
   gMC->SetSkinSurface("AirMirrorSurface", "DrcMirr", "MirrSurface");          
- 
+  //gMC->SetSkinSurface("AirMirrorSurface", "DrcML", "MirrSurface"); 
+
   cout<<" =======  DRC::ConstructOpGeometry -> Finished! ====== "<< endl;     
 }  
 
@@ -1737,9 +1763,9 @@ PndDrcBarPoint* PndDrc::AddBarHit(Int_t trackID, Int_t copyNo, TVector3 pos, TVe
   if (fVerboseLevel>1) 
     cout << "-I- PndBarDrc: Adding Bar Point at (" << pos.X() << ", " << pos.Y() 
 	 << ", " << pos.Z() << ") cm, detector " << copyNo << ", track "
-	 << trackID <<" event "<<eventID << "  Length "<<length<< endl;
+	 << trackID <<" event "<<eventID << "  PDG "<<pdgCode<< endl;
   return new(clrefBar[size]) PndDrcBarPoint(trackID, 
-					    copyNo,					   
+					    copyNo,
 					    pos, 
 					    mom, 
 					    time, 
@@ -1749,7 +1775,6 @@ PndDrcBarPoint* PndDrc::AddBarHit(Int_t trackID, Int_t copyNo, TVector3 pos, TVe
 					    BarId,
 					    eventID, 
 					    mass);
-  
 }
 
 ClassImp(PndDrc)
