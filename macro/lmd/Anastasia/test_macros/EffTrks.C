@@ -50,6 +50,14 @@ void EffTrks(int nEvents=1000,int nStart=0,TString path="/panda/pandaroot/macro/
   TH2 *hxth = new TH2D("hxth_recLMD","X(#theta) correlation for all [GOOD] reconstructed tracks ; #hat{#theta}_{REC}, mrad; X^{LMD}_{REC}, cm",1e3,20,50,1e3,10,50);
   TH2 *hyph = new TH2D("hyph_recLMD","Y(#phi) correlation for all [GOOD] reconstructed tracks; #hat{#phi}_{REC}, mrad; Y^{LMD}_{REC}, cm",1e3,-250,250,1e3,-20,20);
 
+  TH2 *hresPhiPhi = new TH2D("hresPhiPhi"," ;#phi_{MC}, rad; (#phi_{MC}-#phi_{REC}), rad",1e2,-3.15,3.15,1e3,-3.,3.);
+  TH2 *hresPhiTheta = new TH2D("hresPhiTheta"," ;#theta_{MC}, mrad; (#phi_{MC}-#phi_{REC}), rad",1e2,0.,15.,1e3,-3.,3.);
+  TH2 *hresThetaPhi = new TH2D("hresThetaPhi"," ;#phi_{MC}, rad; (#theta_{MC}-#theta_{REC}), mrad",1e2,-3.15,3.15,1e3,-7.,7.);
+  TH2 *hresThetaTheta = new TH2D("hresThetaTheta"," ;#theta_{MC}, mrad; (#theta_{MC}-#theta_{REC}), mrad",1e2,0.,15.,1e3,-7.,7.);
+  TH2 *hphthLMD = new TH2D("hphthLMD",";#phi^{LMD}_{MC}, mrad;#theta^{LMD}_{MC}, mrad",1e2,-300,300,1e2,25.,55.);
+  TH2 *hphthIP = new TH2D("hphthIP",";#phi^{IP}_{MC}, rad;#theta^{IP}_{MC}, mrad",1e2,-3.15,3.15,1e2,0.,15.);
+  TH2 *hthIPthLMD = new TH2D("hthIPthLMD",";#theta^{IP}_{MC}, mrad;#theta^{LMD}_{MC}, mrad",1e2,0,20,1e2,25.,55.);
+  TH2 *hphIPphLMD = new TH2D("hphIPphLMD",";#phi^{IP}_{MC}, rad;#phi^{LMD}_{MC}, mrad",1e2,-3.15,3.15,1e2,-300,300);
   //-----------------------------------------------------------------------------------
 
   // Go over all events ---------------------------------------------------------
@@ -69,10 +77,14 @@ void EffTrks(int nEvents=1000,int nStart=0,TString path="/panda/pandaroot/macro/
       hMultiREC->Fill(multirec);
       double thtrk = 1e3*(trkcur->GetIPtheta());
       double thmctrk = 1e3*(trkcur->GetMCtheta());
+      double phtrk = (trkcur->GetIPphi());
+      double phmctrk = (trkcur->GetMCphi());
       double Prec = trkcur->GetIPmom();
       double Pmc =  trkcur->GetMCmom();
       double thLMD = 1e3*(trkcur->GetLMDtheta());
+      double thLMDmc = 1e3*(trkcur->GetMCthetaLMD());
       double phLMD = 1e3*(trkcur->GetLMDphi());
+      double phLMDmc = 1e3*(trkcur->GetMCphiLMD());
       TVector3 lmdpt;
       trkcur->GetLMDpoint(lmdpt);
 
@@ -82,6 +94,14 @@ void EffTrks(int nEvents=1000,int nStart=0,TString path="/panda/pandaroot/macro/
 	hthetaMC->Fill(thmctrk);
         hxth->Fill(thLMD,lmdpt.X());
 	hyph->Fill(phLMD,lmdpt.Y());
+	hresPhiPhi->Fill(phmctrk,(phmctrk-phtrk));
+	hresPhiTheta->Fill(thmctrk,(phmctrk-phtrk));
+	hresThetaPhi->Fill(phmctrk,(thmctrk-thtrk));
+	hresThetaTheta->Fill(thmctrk,(thmctrk-thtrk));
+	hphthLMD->Fill(phLMDmc,thLMDmc);
+	hphthIP->Fill(phmctrk,thmctrk);
+	hthIPthLMD->Fill(thmctrk,thLMDmc);
+	hphIPphLMD->Fill(phmctrk,phLMDmc);
 	if((Prec-Pmc)/Pmc<0.0005){
 	  hthetaMC_cutMom->Fill(thmctrk);
 	  hthetaMCREC_cutMom->Fill(thmctrk,thtrk);
@@ -184,5 +204,13 @@ void EffTrks(int nEvents=1000,int nStart=0,TString path="/panda/pandaroot/macro/
   hxth->Write();
   hyph->Write();
   greff->Write();
+  hresPhiPhi->Write();
+  hresPhiTheta->Write();
+  hresThetaPhi->Write();
+  hresThetaTheta->Write();
+  hphthLMD->Write();
+  hphthIP->Write();
+  hthIPthLMD->Write();
+  hphIPphLMD->Write();
   f->Close();
 }
