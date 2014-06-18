@@ -15,6 +15,7 @@
 //
 // Modification history:
 //	AVL	6 July, 2012	Module created
+//	Stanislav Poslavsky	May, 2014	loop over polarizations fixed
 //
 //------------------------------------------------------------------------
 // 
@@ -58,7 +59,7 @@ EvtDecayBase* EvtTVP::clone(){
 void EvtTVP::decay( EvtParticle *root ){
   ncall++;
 //   cout<<" (* AVL  EvtTVP::decay() ============ *)"<<endl;
-  double amp2=0;
+ // double amp2=0;
   root ->initializePhaseSpace(getNDaug(),getDaugs());
   
   EvtVector4R p = root->getDaug(1)->getP4(), // J/psi momentum
@@ -68,8 +69,8 @@ void EvtTVP::decay( EvtParticle *root ){
     cout<<"(* AVL *) k="<<k<<endl;*/
     
   for(int iPsi = 0; iPsi < 4; iPsi++) {
-    for(int iGamma = 0; iGamma < 1; iGamma++) {
-      for(int iChi = 0; iChi<4; iChi++) {
+    for(int iGamma = 0; iGamma < 2; iGamma++) {
+      for(int iChi = 0; iChi<5; iChi++) {
 	  EvtTensor4C epsChi = root->epsTensor(iChi);
 	  EvtVector4C epsPsi = root->getDaug(1)->epsParent(iPsi).conj();
 	  EvtVector4C epsGamma = root->getDaug(0)->epsParentPhoton(iGamma).conj();
@@ -85,7 +86,7 @@ void EvtTVP::decay( EvtParticle *root ){
 
 // 	  cout << "(* AVL *) amp="<<amp<<endl;
 	  vertex(iChi, iGamma, iPsi, amp);
-	  amp2 = amp2 + abs2(amp);
+	  //amp2 = amp2 + abs2(amp);
       };
     };
   };
@@ -111,6 +112,6 @@ void EvtTVP::init(){
 }
 
 void EvtTVP::initProbMax() {
-  setProbMax(1.);
+  setProbMax(1.189);//this value found after 25k iterations
 };
 
