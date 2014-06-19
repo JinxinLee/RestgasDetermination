@@ -450,23 +450,30 @@ int PndSttGeometryMap::IsSectorBorderStraw(int strawindex) const
 {
   PndSttTube* tube = (PndSttTube*) fTubeArray->At(strawindex);
   if (tube->IsParallel()) {
-    int endstrawcw = GetStrawRow(GetSector(strawindex), GetRow(strawindex)).front();
+    int endstrawcw  = GetStrawRow(GetSector(strawindex), GetRow(strawindex)).front();
     int endstrawccw = GetStrawRow(GetSector(strawindex), GetRow(strawindex)).back();
     if (strawindex == endstrawcw) return -1;
     if (strawindex == endstrawccw) return 1;
     return 0;
   }
   else {
+    int endstrawcw  = GetStrawRow(GetSector(strawindex), GetRow(strawindex)).front();
+    int endstrawscw = endstrawcw + fShiftSkew[GetSector(strawindex)][GetRow(strawindex)];
+    int endstrawccw = endstrawscw -1;
     if (tube->GetHalfLength()==75) {
-      int endstrawcw = GetStrawRow(GetSector(strawindex), GetRow(strawindex)).front();
-      int row = GetRow(strawindex);
       if (strawindex == endstrawcw) return -1;
-      if (strawindex == endstrawcw + fShiftSkew[GetSector(strawindex)][GetRow(strawindex)]-1) return 1;
+      if (strawindex == endstrawccw) return 1;
       return 0;
     }
     else {
-      if (strawindex%2==0) return -1;
-      else return 1;
+      if (strawindex==endstrawccw+1 || strawindex==endstrawccw+3 || strawindex==endstrawccw+5 ||
+	  strawindex==endstrawccw+7 || strawindex==endstrawccw+9 || strawindex==endstrawccw+11 ||
+	  strawindex==endstrawccw+13 || strawindex==endstrawccw+15)
+	return 1;
+      else if (strawindex==endstrawscw +1 || strawindex==endstrawscw+3 || strawindex==endstrawscw+5 ||
+	  strawindex==endstrawscw+7 || strawindex==endstrawscw+9 || strawindex==endstrawscw+11 ||
+	  strawindex==endstrawscw+13 || strawindex==endstrawscw+15)
+	return -1;
     }
   }
 }
