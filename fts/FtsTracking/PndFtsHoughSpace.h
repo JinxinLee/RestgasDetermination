@@ -7,7 +7,7 @@
 
  The angle (theta in rad) is always on x-coordinate axis, the value on the y-axis depends on the kind of Hough transform:
 	HT type  | yValue
-	------------------
+	--------:|:-------
 	parabola | Q/p_{zx}
 	line     | intercept (Achsenabschnitt) (in z-x- or z-y-plane)
 
