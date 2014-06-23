@@ -21,6 +21,10 @@ class PndFtsHoughTrackerTask;
 #include "Rtypes.h"                     // for Double_t, Int_t, etc
 #include "FairLogger.h" // for FairLogger, MESSAGE_ORIGIN
 
+// For error reporting
+#include <string>
+#include <stdexcept>
+
 class PndFtsHit;
 class PndTrack;
 class TClonesArray;
@@ -73,6 +77,9 @@ private:
 	// Private Data Members ------------
 	// for PandaRoot input/output
 	PndFtsHoughTrackerTask *fTrackerTask;
+
+	/** @brief For error reporting */
+	void throwError(const std::string s){ throw std::runtime_error(s); };
 
 	Int_t fVerbose;
 

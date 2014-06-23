@@ -27,6 +27,10 @@ class PndFtsHoughTrackerTask;
 #include "Rtypes.h"                     // for Double_t, Int_t, etc
 #include "FairLogger.h" // for FairLogger, MESSAGE_ORIGIN
 
+// For error reporting
+#include <string>
+#include <stdexcept>
+
 #include "PndTrackCandHit.h"
 #include "TClonesArray.h"
 
@@ -96,6 +100,9 @@ public:
 private:
 	// for PandaRoot input/output
 	PndFtsHoughTrackerTask *fTrackerTask;
+
+	/** @brief For error reporting */
+	void throwError(const std::string s){ throw std::runtime_error(s); };
 
 	Bool_t setParametersForHsOption(); // set parameters according to the kind of Hough transform I want to do
 	Bool_t filterInputHits(); // copies input hits (based on z coordinate and skewed/non-skewed) from fFtsHitArray (all FTS hits) to fHitId (only the hits that qualify for the specific Hough transform)

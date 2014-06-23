@@ -138,6 +138,7 @@ public:
 	void WriteHistogram(const PndFtsHoughSpace *const houghSpace, Int_t index=-1) const;
 	FairLogger* fLogger; ///< @brief For output handling.
 
+
 private:
 	//  for writing out histograms for debugging
 	//	void InitOutFileForDebugging();

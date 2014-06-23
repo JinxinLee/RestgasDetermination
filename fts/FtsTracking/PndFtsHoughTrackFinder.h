@@ -41,6 +41,10 @@
 #include "Rtypes.h" // for Double_t, Int_t, etc
 #include "FairLogger.h" // for FairLogger, MESSAGE_ORIGIN
 
+// For error reporting
+#include <string>
+#include <stdexcept>
+
 #include <cmath>
 #include "TMath.h"
 #include <math.h>
@@ -114,6 +118,9 @@ private:
 	/// @brief Task which handles PandaRoot input/output and provides settings.
 	/// Has to be set using the constructor.
 	PndFtsHoughTrackerTask *fTrackerTask;
+
+	/** @brief For error reporting */
+	void throwError(const std::string s){ throw std::runtime_error(s); };
 
 
 	inline void PrintFoundTracklets(const std::vector<PndFtsHoughTracklet>& tracklets, const TString& option) const{
