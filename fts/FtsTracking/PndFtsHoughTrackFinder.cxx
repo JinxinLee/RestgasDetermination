@@ -11,28 +11,28 @@ ClassImp(PndFtsHoughTrackFinder);
 
 
 PndFtsHoughTrackFinder::PndFtsHoughTrackFinder(PndFtsHoughTrackerTask *trackerTask) :
-												fTrackerTask(trackerTask),
+																						fTrackerTask(trackerTask),
 
-												// set later using tracker task
-//												fFtsHitArray(0),
-//												fFtsBranchId(0),
-//												fField(0),
+																						// set later using tracker task
+																						//												fFtsHitArray(0),
+																						//												fFtsBranchId(0),
+																						//												fField(0),
 
-												// Hough spaces
-												fHoughSpaceZxLineBeforeDipole(0),
-												fHoughspaceZxParabola(0),
-												fHoughSpaceZxLineBehindDipole(0),
-												fHoughspaceZyLine(0),
+																						// Hough spaces
+																						fHoughSpaceZxLineBeforeDipole(0),
+																						fHoughspaceZxParabola(0),
+																						fHoughSpaceZxLineBehindDipole(0),
+																						fHoughspaceZyLine(0),
 
-												// min peak heights
-												fMinPeakHeightZxLineParabola(4),
-												fMinPeakHeightZxParabola(6),
-												fMinPeakHeightZxParabolaLine(4),
-												fMinPeakHeightZyLine(4),
+																						// min peak heights
+																						fMinPeakHeightZxLineParabola(4),
+																						fMinPeakHeightZxParabola(6),
+																						fMinPeakHeightZxParabolaLine(4),
+																						fMinPeakHeightZyLine(4),
 
-												// general
-												fSaveDebugInfo(kFALSE),
-												fVerbose(0)
+																						// general
+																						fSaveDebugInfo(kFALSE),
+																						fVerbose(0)
 {
 	if (0==fTrackerTask){
 		std::cout << "PndFtsHoughTrackFinder FATAL ERROR Tracker task not set.\n";
@@ -40,9 +40,9 @@ PndFtsHoughTrackFinder::PndFtsHoughTrackFinder(PndFtsHoughTrackerTask *trackerTa
 		fVerbose = fTrackerTask->GetVerbose();
 		if(3<fVerbose) std::cout << "PndFtsHoughTrackFinder called with tracker ptr " << fTrackerTask << '\n';
 		fSaveDebugInfo = fTrackerTask->GetSaveDebugInfo();
-//		fFtsHitArray = fTrackerTask->getFtsHitArrayPtr();
-//		fFtsBranchId = fTrackerTask->getFtsBranchId();
-//		fField = fTrackerTask->getMagneticFieldPtr();
+		//		fFtsHitArray = fTrackerTask->getFtsHitArrayPtr();
+		//		fFtsBranchId = fTrackerTask->getFtsBranchId();
+		//		fField = fTrackerTask->getMagneticFieldPtr();
 	}
 }
 
@@ -115,20 +115,20 @@ void PndFtsHoughTrackFinder::FindTracks() {
 
 
 	// Do straight line Hough transform on non-skewed hits from stations 1+2
-	if ( kTRUE == fHoughSpaceZxLineBeforeDipole->MakeHoughSpace() )
-	{
-		if (0<fVerbose) {
-			std::cout << "Hough Space for zx line before dipole was created successfully!" << '\n'
-					<< "We have " << fHoughSpaceZxLineBeforeDipole->GetNHits() << " hits in the line Hough space.\n";
-		}
-		if (fTrackerTask->GetSaveDebugInfo()){
-			fTrackerTask->WriteHistogram(fHoughSpaceZxLineBeforeDipole);
-		}
+	//	try{
+	fHoughSpaceZxLineBeforeDipole->MakeHoughSpace();
+	if (0<fVerbose) {
+		std::cout << "Hough Space for zx line before dipole was created successfully!" << '\n'
+				<< "We have " << fHoughSpaceZxLineBeforeDipole->GetNHits() << " hits in the line Hough space.\n";
 	}
-	else
-	{
-		std::cout << "Hough Space for zx line before dipole could not be created! " << '\n';
+	if (fTrackerTask->GetSaveDebugInfo()){
+		fTrackerTask->WriteHistogram(fHoughSpaceZxLineBeforeDipole);
 	}
+	//	}
+	//	catch (std::runtime_error& e){
+	//		std::cerr << "Hough Space for zx line before dipole could not be created! \n";
+	//		std::cerr << "runtime_error: " << e.what() << '\n';
+	//	}
 
 
 
@@ -200,21 +200,21 @@ void PndFtsHoughTrackFinder::FindTracks() {
 
 
 		// Do parabola hough transform (shifts FTS hits by hitshiftinx) for non-skewed hits in stations 3+4+5
-		if ( kTRUE == fHoughspaceZxParabola->MakeHoughSpace() )
-		{
-			if (0<fVerbose) {
-				std::cout << "Line " << iTrackletLine << ": Hough Space for zx parabola was created successfully!" << '\n'
-						<< "We have " << fHoughspaceZxParabola->GetNHits() << " hits in the line Hough space.\n";
-			}
-			if (fTrackerTask->GetSaveDebugInfo()){
-				fTrackerTask->WriteHistogram(fHoughspaceZxParabola, iTrackletLine);
-			}
+		//		try{
+		fHoughspaceZxParabola->MakeHoughSpace();
+		if (0<fVerbose) {
+			std::cout << "Line " << iTrackletLine << ": Hough Space for zx parabola was created successfully!" << '\n'
+					<< "We have " << fHoughspaceZxParabola->GetNHits() << " hits in the line Hough space.\n";
+		}
+		if (fTrackerTask->GetSaveDebugInfo()){
+			fTrackerTask->WriteHistogram(fHoughspaceZxParabola, iTrackletLine);
+		}
+		//		}
+		//		catch (std::runtime_error& e){
+		//			std::cerr << "Hough Space for zx parabola could not be created! \n";
+		//			std::cerr << "runtime_error: " << e.what() << '\n';
+		//		}
 
-		}
-		else
-		{
-			std::cout << "Hough Space for zx parabola could not be created! \n";
-		}
 
 
 		// TODO: Rewrite the following conversion
@@ -291,18 +291,18 @@ void PndFtsHoughTrackFinder::FindTracks() {
 
 
 	// Do straight line hough transform on non-skewed hits from stations 1+2
-	if ( kTRUE == fHoughSpaceZxLineBehindDipole->MakeHoughSpace() )
-	{
+	try{
+		fHoughSpaceZxLineBehindDipole->MakeHoughSpace();
 		if (0<fVerbose) {
 			std::cout << "Hough Space for zx line behind dipole was created successfully!\n"
 					<< "We have " << fHoughSpaceZxLineBehindDipole->GetNHits() << " hits in the line Hough space.\n";
 		}
+	}
+	catch (std::runtime_error& e){
+		std::cerr << "Hough Space for zx line behind dipole could not be created! \n";
+		std::cerr << "runtime_error: " << e.what() << '\n';
+	}
 
-	}
-	else
-	{
-		std::cout << "Hough Space for zx line behind dipole could not be created! \n";
-	}
 
 
 

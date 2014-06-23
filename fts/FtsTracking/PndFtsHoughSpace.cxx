@@ -327,24 +327,12 @@ Bool_t PndFtsHoughSpace::FillHoles(
 
 
 
-Bool_t PndFtsHoughSpace::MakeHoughSpace()
+void PndFtsHoughSpace::MakeHoughSpace()
 {
-	// function fills the Hough space using the equation corresponding to the name of the Hough space
-	// If something goes wrong the function throws a runtime_error (probably Hough space name is set incorrectly or there are no FTS hits)
-
-	// !!! WARNING The theta values (in rad) are NOT the same as in the interaction point. They are always calculated relative to a shifted coordinate system and only 2-dimensional !!!
-
-	// The angle (theta in rad) to the z-axis in the z-x- or z-y-plane at a z reference position will be scanned
-	// from theta corresponding to lowest bin to theta corresponding to highest bin of x-axis
-
-	// y component of B field will be read from field maps if fKeepBConstant is kFALSE
-
-
-
 	// make sure we have hits in the Hough space
 	if (0==GetNHits()){
 		Info("MakeHoughSpace","No hits in Hough space.");
-		return kFALSE;
+		return;
 	}
 
 
@@ -358,7 +346,7 @@ Bool_t PndFtsHoughSpace::MakeHoughSpace()
 
 
 
-	// for storing the value to be calculated in Hough transform (yValue = offset for line, yValue = Q/pzx for parabola)
+	// for storing the value to be calculated in Hough transform (yValue = offset for line, yValue = Q/p_{zx} for parabola)
 	Double_t yVal = 0.;
 
 	// store bin numbers for last and current entry (for making sure that there are no holes in the histogram)
@@ -464,7 +452,7 @@ Bool_t PndFtsHoughSpace::MakeHoughSpace()
 			}
 			else
 			{
-//				std::cout << "Error in MakeHoughSpace! option " << option << " is not implemented!" << std::endl;
+				std::cerr << "Error in MakeHoughSpace! option " << option << " is not implemented!\n";
 				throwError("in MakeHoughSpace! option " + option + " is not implemented!");
 			}
 
@@ -536,7 +524,6 @@ Bool_t PndFtsHoughSpace::MakeHoughSpace()
 
 		} // for theta
 	} // for iHit
-	return kTRUE;
 }
 
 

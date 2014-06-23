@@ -72,7 +72,18 @@ public:
 			std::vector<PndFtsHoughTracklet> &tracklets
 	);
 
-	Bool_t MakeHoughSpace(
+	/**@brief Fills the Hough space using the equation which corresponds to the name of the Hough space.
+
+	 If something goes wrong the function throws a runtime_error (probably Hough space name is set incorrectly).
+
+	 !!! WARNING The theta values (in rad) are NOT the same as in the interaction point. They are always calculated relative to a shifted coordinate system and only 2-dimensional !!!
+
+	 The angle (theta in rad) to the z-axis in the z-x- or z-y-plane at a z reference position will be scanned
+	 from theta corresponding to lowest bin to theta corresponding to highest bin of x-axis
+
+	 y component of B field will be read from field maps if fKeepBConstant is kFALSE
+	 */
+	void MakeHoughSpace(
 			//			UInt_t &nHitsForHoughSpace
 	);
 
