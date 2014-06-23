@@ -1,6 +1,6 @@
 // -------------------------------------------------------------------------
-// -----                   PndPhoGunShort header file                  -----
-// -----               Created 12/10/10 by Maria Patsyuk               -----
+// -----                   PndPhoGunShortP header file                  -----
+// -----               Created 11/09/13 by Harphool Kumawat            -----
 // -----                                                               -----
 // -----                                                               -----
 // -------------------------------------------------------------------------
@@ -13,8 +13,8 @@
 
  **/
  
-#ifndef PNDPHOGUNSHORT_H
-#define PNDPHOGUNSHORT_H
+#ifndef PNDPHOGUNSHORTP_H
+#define PNDPHOGUNSHORTP_H
  
 #include "FairTask.h"
 #include "TClonesArray.h"
@@ -44,18 +44,18 @@
 #include "TDatabasePDG.h"
 #endif
 
-class PndPhoGunShort : public FairTask {
+class PndPhoGunShortP : public FairTask {
 
 public:
 
   /** Default constructor **/
-  PndPhoGunShort();
+  PndPhoGunShortP();
 
   /** Constructor with verbosity **/
-  PndPhoGunShort(Int_t verbose);
+  PndPhoGunShortP(Int_t verbose);
 
   /** Destructor **/
-  virtual ~PndPhoGunShort();
+  virtual ~PndPhoGunShortP();
 
   virtual InitStatus Init();
 
@@ -66,10 +66,6 @@ public:
   virtual void Finish();
  
   void SetOutputFile(TString outName = "lutnode.root"){fOutputName = outName;}
-  
-  void SetEVDepth(Float_t EVdepth = 30.){fEVdz = EVdepth;}
-  void SetNmcp(Float_t nmcp = 5.){fNmcp = nmcp;}
-  void SetShiftedPix(Bool_t spix = kFALSE){fShiftPix = spix;}
  
 private:
 
@@ -98,7 +94,7 @@ private:
   /** Set the parameters to the default values. **/
   void SetDefaultParameters();
   
-  Double_t InBarCoordSyst(TVector3, TVector3 *, TVector3 *, TVector3 *, TVector3 *);
+  Double_t InBarCoordSyst(TVector3);
   Double_t FindReflectionType(Double_t, Double_t, Double_t, TString);
   
   /** Verbosity level **/
@@ -122,26 +118,16 @@ private:
   Double_t fLength;
   Double_t fDphi;
   Double_t fEVlen;
-  Double_t fEVdz;
   Double_t fpi;
   Double_t fEVdrop;
-  Double_t fPixelSize;
-  Float_t  fNmcp;
-  Bool_t   fShiftPix;
  
-  Double_t fNoDD;
-  Double_t fNoU0, fNoU1,fNoU2,fNoU3;
-  Double_t fNoB;
-  Double_t fNoUB;
-  Double_t fNoBU0, fNoBU1, fNoBU2;
-  Double_t fNoUU0,fNoUU1,fNoUU2,fNoUU3;
-  Double_t fNoUUU0, fNoUUU1,fNoUUU2,fNoUUU3, fNoUUU4;
-  Double_t fNoBUU0,fNoBUU1,fNoBUU2;
-  Double_t fNoBUB;
-  Double_t fNoUBU;
-  Double_t fNoTotal;
+  Double_t fNoDD, fNoU, fNoB,  fNoR, fNoL;
+  Double_t fNoBL, fNoUR, fNoUL, fNoRL, fNoLR, fNoRB, fNoBU, fNoLB, fNoBR,fNoRU,fNoLU;
+  Double_t fNoBLU, fNoBRL, fNoBRU, fNoBLR, fNoBUR, fNoBUL, fNoRBL, fNoRLU,fNoRLB, fNoRUL, fNoRBU, fNoURL, fNoULR, fNoTotal, fNoLRB, fNoLRU, fNoLBR,fNoLBU, fNoLUR, fNoLUB, fNoURB, fNoULB, fNoUBR,fNoUBL;
+  Double_t fNoBLRU,fNoBRLU,fNoBULB,fNoBURB,fNoUBLR,fNoULBR,fNoURBL,fNoULRB,fNoURLB,fNoUBRL,fNoRULB,fNoRBUL,fNoRBLU,fNoLBUR,fNoLBRU,fNoLURB,fNoLUBR,fNoLRUL,fNoLRLU,fNoLURL,fNoRULR,fNoBULR,fNoBURL,fNoBLUR,fNoBRUL;
+  Double_t fNoRBULR,fNoRBLUR,fNoRBULB,fNoRBRUL,fNoBRUBL,fNoBURBL,fNoBRULB,fNoBLRUL,fNoBLUBR,fNoBULBR,fNoBURLB,fNoBLURB,fNoBULRB,fNoLBURL,fNoLBLUR;
+
   Double_t fNweirdPhotons;
-   
   Double_t flambdah; 
   Double_t fPixIndex; 
   Double_t ftime;
@@ -160,23 +146,18 @@ private:
   Double_t fkxBar, fkyBar, fkzBar;  
   TVector3 fPphoB; // kBar
   
-  // vertices of hit BarBox
-  TVector3 fBBver1;
-  TVector3 fBBver2;
-  TVector3 fBBver3;
-  TVector3 fBBver4;
   
   PndDrcEVPoint* EVpt;
   PndDrcEVPoint* EVt;
   PndDrcPDPoint* Ppt;
   PndDrcPDHit* pdhit;
   PndMCTrack* tr;
-
   TClonesArray *fLut[5];
+  
   TFile *fFile; 
   TTree *fTree;
   
-  ClassDef(PndPhoGunShort,1)
+  ClassDef(PndPhoGunShortP,1)
 
 };
 
