@@ -22,7 +22,7 @@ class PndFtsHoughTrackerTask;
 #include "FairLogger.h" // for FairLogger, MESSAGE_ORIGIN
 
 // For error reporting
-#include <string>
+#include "TString.h"
 #include <stdexcept>
 
 class PndFtsHit;
@@ -79,7 +79,7 @@ private:
 	PndFtsHoughTrackerTask *fTrackerTask;
 
 	/** @brief For error reporting */
-	void throwError(const std::string s){ throw std::runtime_error(s); };
+	void throwError(const TString s){ throw std::runtime_error(s.Data()); };
 
 	Int_t fVerbose;
 

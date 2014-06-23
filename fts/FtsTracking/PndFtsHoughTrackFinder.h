@@ -42,7 +42,7 @@
 #include "FairLogger.h" // for FairLogger, MESSAGE_ORIGIN
 
 // For error reporting
-#include <string>
+#include "TString.h"
 #include <stdexcept>
 
 #include <cmath>
@@ -65,7 +65,6 @@
 #include "PndTrack.h"
 
 
-class TString;
 class FairField;
 
 
@@ -120,8 +119,7 @@ private:
 	PndFtsHoughTrackerTask *fTrackerTask;
 
 	/** @brief For error reporting */
-	void throwError(const std::string s){ throw std::runtime_error(s); };
-
+	void throwError(const TString s){ throw std::runtime_error(s.Data()); };
 
 	inline void PrintFoundTracklets(const std::vector<PndFtsHoughTracklet>& tracklets, const TString& option) const{
 		std::cout << tracklets.size() << " peaks found for " << option << '\n';

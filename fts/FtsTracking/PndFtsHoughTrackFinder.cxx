@@ -118,7 +118,7 @@ void PndFtsHoughTrackFinder::FindTracks() {
 	if ( kTRUE == fHoughSpaceZxLineBeforeDipole->MakeHoughSpace() )
 	{
 		if (0<fVerbose) {
-			std::cout << "Hough Space for zx line before dipole was created successfully!" << std::endl
+			std::cout << "Hough Space for zx line before dipole was created successfully!" << '\n'
 					<< "We have " << fHoughSpaceZxLineBeforeDipole->GetNHits() << " hits in the line Hough space.\n";
 		}
 		if (fTrackerTask->GetSaveDebugInfo()){
@@ -127,7 +127,7 @@ void PndFtsHoughTrackFinder::FindTracks() {
 	}
 	else
 	{
-		std::cout << "Hough Space for zx line before dipole could not be created! " << std::endl;
+		std::cout << "Hough Space for zx line before dipole could not be created! " << '\n';
 	}
 
 
@@ -147,7 +147,7 @@ void PndFtsHoughTrackFinder::FindTracks() {
 	}
 	else
 	{
-		std::cout << "Error: Peak finder had a problem with Hough space for zx line before dipole!!!" << std::endl;
+		std::cout << "Error: Peak finder had a problem with Hough space for zx line before dipole!!!" << '\n';
 	}
 
 
@@ -203,7 +203,7 @@ void PndFtsHoughTrackFinder::FindTracks() {
 		if ( kTRUE == fHoughspaceZxParabola->MakeHoughSpace() )
 		{
 			if (0<fVerbose) {
-				std::cout << "Line " << iTrackletLine << ": Hough Space for zx parabola was created successfully!" << std::endl
+				std::cout << "Line " << iTrackletLine << ": Hough Space for zx parabola was created successfully!" << '\n'
 						<< "We have " << fHoughspaceZxParabola->GetNHits() << " hits in the line Hough space.\n";
 			}
 			if (fTrackerTask->GetSaveDebugInfo()){
@@ -213,7 +213,7 @@ void PndFtsHoughTrackFinder::FindTracks() {
 		}
 		else
 		{
-			std::cout << "Hough Space for zx parabola could not be created! " << std::endl;
+			std::cout << "Hough Space for zx parabola could not be created! \n";
 		}
 
 
@@ -238,11 +238,11 @@ void PndFtsHoughTrackFinder::FindTracks() {
 		}
 		else
 		{
-			std::cout << "Error: Peak finder had a problem for parabola!!!" << std::endl;
+			std::cout << "Error: Peak finder had a problem for parabola!!!" << '\n';
 		}
 
 		if(1<fVerbose) {
-			std::cout << "Create track candidates from line in zx before dipole "<< iTrackletLine << " and all parabolas within dipole." << std::endl;
+			std::cout << "Create track candidates from line in zx before dipole "<< iTrackletLine << " and all parabolas within dipole." << '\n';
 		}
 		for (UInt_t iTrackletParabola=0; iTrackletParabola < zxParabolaTracklets.size(); ++iTrackletParabola)
 		{
@@ -294,14 +294,14 @@ void PndFtsHoughTrackFinder::FindTracks() {
 	if ( kTRUE == fHoughSpaceZxLineBehindDipole->MakeHoughSpace() )
 	{
 		if (0<fVerbose) {
-			std::cout << "Hough Space for zx line behind dipole was created successfully!" << std::endl
+			std::cout << "Hough Space for zx line behind dipole was created successfully!\n"
 					<< "We have " << fHoughSpaceZxLineBehindDipole->GetNHits() << " hits in the line Hough space.\n";
 		}
 
 	}
 	else
 	{
-		std::cout << "Hough Space for zx line behind dipole could not be created! " << std::endl;
+		std::cout << "Hough Space for zx line behind dipole could not be created! \n";
 	}
 
 
@@ -323,7 +323,7 @@ void PndFtsHoughTrackFinder::FindTracks() {
 	}
 	else
 	{
-		std::cout << "Error: Peak finder had a problem with hough space for zx line behind dipole!!!" << std::endl;
+		std::cout << "Error: Peak finder had a problem with hough space for zx line behind dipole!!!" << '\n';
 	}
 
 

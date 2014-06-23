@@ -87,6 +87,9 @@ PndFtsHoughTrackerTask::PndFtsHoughTrackerTask(Int_t verbose, Bool_t persistence
   fFtsBranchId(0),
   fTracksArrayName("FTSTrkHough"),
 
+  // B field
+  fField(0),
+
   // Debugging
   //fHoughSpaces(0),
   fHoughTrackCands(0),
@@ -347,10 +350,10 @@ void PndFtsHoughTrackerTask::Exec(Option_t* option)
 		PndTrackCand* myCand = new ((*fTrackCands)[iFoundTrack])PndTrackCand(trackFinder.GetPndTrackCand(iFoundTrack));
 		if (1<fVerbose)
 		{
-			std::cout << "Track " << iFoundTrack << std::endl;
+			std::cout << "Track " << iFoundTrack << '\n';
 			std::cout << "Links: ";
 			((FairMultiLinkedData*) myCand)->Print();
-			std::cout << std::endl;
+			std::cout << '\n';
 		}
 
 		myCand->CalcTimeStamp(); // TODO Why is this needed?

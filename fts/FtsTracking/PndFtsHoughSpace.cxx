@@ -138,7 +138,7 @@ Bool_t PndFtsHoughSpace::setParametersForHsOption()
 		// make sure hits are not shifted for line hough transform
 		if (0!=fInterceptZx) {
 			std::cout << "PndFtsHoughSpace: " << "fInterceptZx was set to " << fInterceptZx << " That is not correct for line HT of stations before dipole field!\n";
-			std::cout << "Will set interceptZx to 0 for " << fName << std::endl;
+			std::cout << "Will set interceptZx to 0 for " << fName << '\n';
 			fInterceptZx = 0.;
 		}
 
@@ -171,7 +171,7 @@ Bool_t PndFtsHoughSpace::setParametersForHsOption()
 		// make sure hits are not shifted for line hough transform
 		if (0!=fInterceptZx) {
 			std::cout << "PndFtsHoughSpace: " << "fInterceptZx was set to " << fInterceptZx << " That is not correct for line HT of stations after dipole field!\n";
-			std::cout << "Will set interceptZx to 0 for " << fName << std::endl;
+			std::cout << "Will set interceptZx to 0 for " << fName << '\n';
 			fInterceptZx = 0.;
 		}
 
@@ -186,7 +186,7 @@ Bool_t PndFtsHoughSpace::setParametersForHsOption()
 		// make sure hits are not shifted for line hough transform
 		if (0!=fInterceptZx) {
 			std::cout << "PndFtsHoughSpace: " << "fInterceptZx was set to " << fInterceptZx << " That is not correct for line HT of all stations in zy plane!\n";
-			std::cout << "Will set interceptZx to 0 for " << fName << std::endl;
+			std::cout << "Will set interceptZx to 0 for " << fName << '\n';
 			fInterceptZx = 0.;
 		}
 
@@ -199,7 +199,7 @@ Bool_t PndFtsHoughSpace::setParametersForHsOption()
 	}
 	else
 	{
-		std::cout << "Error in PndFtsHoughSpace! option " << fName << " is not implemented!" << std::endl;
+		std::cout << "Error in PndFtsHoughSpace! option " << fName << " is not implemented!" << '\n';
 		return kFALSE;
 	}
 
@@ -216,6 +216,7 @@ Bool_t PndFtsHoughSpace::setParametersForHsOption()
 			std::cout << "fInterceptZx " << fInterceptZx << '\n';
 		}
 	}
+	return kTRUE;
 }
 
 
@@ -236,7 +237,7 @@ Bool_t PndFtsHoughSpace::filterInputHits()
 			// hit comes from skewed straw
 			if (kFALSE == fUseSkewedStraws)
 			{
-				if (1<fVerbose) {std::cout << "Skipping hit with index " << iHit << ", because it comes from a skewed straw! LayerID = " << myHit->GetLayerID() << std::endl;}
+				if (1<fVerbose) {std::cout << "Skipping hit with index " << iHit << ", because it comes from a skewed straw! LayerID = " << myHit->GetLayerID() << '\n';}
 				continue;
 			}
 
@@ -244,7 +245,7 @@ Bool_t PndFtsHoughSpace::filterInputHits()
 			// hit comes from non-skewed straw
 			if (kFALSE == fUseNonSkewedStraws)
 			{
-				if (1<fVerbose) {std::cout << "Skipping hit with index " << iHit << ", because it comes from a non-skewed straw! LayerID = " << myHit->GetLayerID() << std::endl;}
+				if (1<fVerbose) {std::cout << "Skipping hit with index " << iHit << ", because it comes from a non-skewed straw! LayerID = " << myHit->GetLayerID() << '\n';}
 				continue;
 			}
 
@@ -264,6 +265,7 @@ Bool_t PndFtsHoughSpace::filterInputHits()
 		AddHit(iHit,hitZLabSys);
 
 	} // for loop over all hits
+	return kTRUE;
 }
 
 
@@ -301,15 +303,15 @@ Bool_t PndFtsHoughSpace::FillHoles(
 
 		if (8<fVerbose)
 		{
-			std::cout << "I am filling hole number " << iCorrect << std::endl;
-			std::cout << "globalbin = " << globalBin << std::endl;
-			std::cout << "(lastBinX, lastBinY) = (" << lastBinX << ", " << lastBinY << ")" << std::endl;
-			std::cout << "(lastBinX+1, currentBinY)     = (" << lastBinX+1 << ", " << currentBinY << ")" << std::endl;
-			std::cout << "xCorrect = " << xCorrect << "  yCorrect = " << yCorrect << std::endl;
-			std::cout << "(lastbinx+xCorrect, lastbiny+yCorrect) = (" << lastBinX+xCorrect << ", " << lastBinY+yCorrect << ")" << std::endl;
+			std::cout << "I am filling hole number " << iCorrect << '\n';
+			std::cout << "globalbin = " << globalBin << '\n';
+			std::cout << "(lastBinX, lastBinY) = (" << lastBinX << ", " << lastBinY << ")" << '\n';
+			std::cout << "(lastBinX+1, currentBinY)     = (" << lastBinX+1 << ", " << currentBinY << ")" << '\n';
+			std::cout << "xCorrect = " << xCorrect << "  yCorrect = " << yCorrect << '\n';
+			std::cout << "(lastbinx+xCorrect, lastbiny+yCorrect) = (" << lastBinX+xCorrect << ", " << lastBinY+yCorrect << ")" << '\n';
 		}
 	}// for iCorrect
-
+	return kTRUE;
 }
 
 
@@ -328,7 +330,7 @@ Bool_t PndFtsHoughSpace::FillHoles(
 Bool_t PndFtsHoughSpace::MakeHoughSpace()
 {
 	// function fills the Hough space using the equation corresponding to the name of the Hough space
-	// If everything goes well, the function returns kTRUE, else kFALSE (probably Hough space name is set incorrectly or there are no FTS hits)
+	// If something goes wrong the function throws a runtime_error (probably Hough space name is set incorrectly or there are no FTS hits)
 
 	// !!! WARNING The theta values (in rad) are NOT the same as in the interaction point. They are always calculated relative to a shifted coordinate system and only 2-dimensional !!!
 
@@ -462,14 +464,14 @@ Bool_t PndFtsHoughSpace::MakeHoughSpace()
 			}
 			else
 			{
-				std::cout << "Error in MakeHoughSpace! option " << option << " is not implemented!" << std::endl;
-				return kFALSE;
+//				std::cout << "Error in MakeHoughSpace! option " << option << " is not implemented!" << std::endl;
+				throwError("in MakeHoughSpace! option " + option + " is not implemented!");
 			}
 
 
 
 
-			if (9<fVerbose)	{ std::cout << " for (theta, hitXreal) = (" << thetaRad << ", " << hitXLabSys << ")" << std::endl; }
+			if (9<fVerbose)	{ std::cout << " for (theta, hitXreal) = (" << thetaRad << ", " << hitXLabSys << ")" << '\n'; }
 
 
 
@@ -477,7 +479,7 @@ Bool_t PndFtsHoughSpace::MakeHoughSpace()
 
 
 			globalBin = Fill(thetaRad,yVal);
-			if (5<fVerbose) { std::cout << "Hough point was filled into Hough space. globalbin = " << globalBin << " for option" << option <<std::endl; }
+			if (5<fVerbose) { std::cout << "Hough point was filled into Hough space. globalbin = " << globalBin << " for option" << option <<'\n'; }
 			// Find binx and biny for histogram from global bin number
 			GetBinXYZ(globalBin, currentBinX, currentBinY, currentBinZ);
 
@@ -490,7 +492,7 @@ Bool_t PndFtsHoughSpace::MakeHoughSpace()
 			// for each theta 1 yVal is calculated, so holes will only appear in yVal, not in theta
 			if (globalBin>=0) // -1 would mean over- or underflow
 			{
-				if (5<fVerbose) { std::cout << "OK! Hough point was NOT written to over- or underflow of histogram. Setting firstEntry to kFALSE now. "<< option <<std::endl; }
+				if (5<fVerbose) { std::cout << "OK! Hough point was NOT written to over- or underflow of histogram. Setting firstEntry to kFALSE now. "<< option <<'\n'; }
 
 				// TODO Remove the following check for optimization, it should always be true
 				if (currentBinX != iTheta){
@@ -504,7 +506,7 @@ Bool_t PndFtsHoughSpace::MakeHoughSpace()
 				{
 					if (5<fVerbose)
 					{
-						std::cout << "This is not the first point of the hit in the histogram. I will fix all holes which might be between this entry and the last one in the histogram"<<std::endl;
+						std::cout << "This is not the first point of the hit in the histogram. I will fix all holes which might be between this entry and the last one in the histogram"<<'\n';
 					}
 
 					FillHoles(lastBinX, lastBinY, currentBinY);
@@ -513,7 +515,7 @@ Bool_t PndFtsHoughSpace::MakeHoughSpace()
 				else
 				{
 					//		++nHitsInHoughSpace; // count hits for making of Hough space (only once per hit)
-					if (5<fVerbose) { std::cout << "This is the first point of the hit in the histogram. I will not try to fix any holes in the " << option << " histogram"<<std::endl;}
+					if (5<fVerbose) { std::cout << "This is the first point of the hit in the histogram. I will not try to fix any holes in the " << option << " histogram"<<'\n';}
 				}
 
 
@@ -523,11 +525,11 @@ Bool_t PndFtsHoughSpace::MakeHoughSpace()
 			}
 			else
 			{
-				if (9<fVerbose)	{ std::cout << "Watch out! Point was written to over- or underflow of histogram. firstEntry is set to kTRUE. "<< option <<std::endl; }
+				if (9<fVerbose)	{ std::cout << "Watch out! Point was written to over- or underflow of histogram. firstEntry is set to kTRUE. "<< option <<'\n'; }
 				firstEntry = kTRUE; // otherwise, algorithm connects first point which does not go into over-/underflow with (0,0)
 			}
 
-			if (9<fVerbose)	{ std::cout << "biny = " << currentBinY << "  lastbiny = " << lastBinY << std::endl; }
+			if (9<fVerbose)	{ std::cout << "biny = " << currentBinY << "  lastbiny = " << lastBinY << '\n'; }
 			lastBinX = currentBinX;
 			lastBinY = currentBinY;
 
@@ -576,7 +578,7 @@ Bool_t PndFtsHoughSpace::FindAllPeaks(
 	// check if Hough space has at least one entry
 	if (1>GetEntries())
 	{
-		std::cout << "Hough Space is empty. No peak can be found. Return empty tracklet vector." << std::endl;
+		std::cout << "Hough Space is empty. No peak can be found. Return empty tracklet vector." << '\n';
 		return kFALSE;
 	}
 
@@ -843,7 +845,7 @@ Bool_t PndFtsHoughSpace::FindAllPeaks(
 					}
 					else
 					{
-						std::cout << "Error in MakeHoughSpace! option " << option << " is not implemented!" << std::endl;
+						std::cout << "Error in MakeHoughSpace! option " << option << " is not implemented!" << '\n';
 						return kFALSE;
 					}
 
@@ -1052,7 +1054,7 @@ Bool_t PndFtsHoughSpace::FindAllPeaks(
 							}
 							else
 							{
-								std::cout << "Error in MakeHoughSpace! option " << option << " is not implemented!" << std::endl;
+								std::cout << "Error in MakeHoughSpace! option " << option << " is not implemented!" << '\n';
 								return kFALSE;
 							}
 
