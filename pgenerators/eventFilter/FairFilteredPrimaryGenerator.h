@@ -149,6 +149,7 @@ public:
 		return fEvtFilterStat.fFailedFilterEvents;
 	}
 
+	/** @brief Writes all relevant event filter information to the output root file */
 	void WriteEvtFilterStatsToRootFile(){
 		std::cout << "\n\nGenerated Events = " << GetNumberOfGeneratedEvents() << "\n";
 		if (0 < GetNumberOfFilterFailedEvents() ) {
@@ -165,8 +166,7 @@ public:
 		outputFile->cd();
 	}
 
-	/**
-	 * @brief Set the level of commenting output.
+	/**@brief Set the level of commenting output.
 	 * @param verbose Level of commenting output, 0 means no output, higher gives more output.
 	 */
 	void SetVerbose(Int_t verbose=12){
